@@ -174,7 +174,16 @@ module ApplicationHelper
       ''
     end
   end
-
+  
+  # Display logo with message (can be a date or a string)
+  def logo(message='')
+    if message.kind_of?(Time)
+      message = format_date(message, 'logo_date')
+    end
+    "<div id='logo'>" +
+    link_to( image_tag('/img/logo.png', :size=>'220x100'), :prefix => prefix, :controller => 'main', :action=>'index') +
+    "<div id='logo_msg'>#{message}</div></div>"
+  end
   # test to here
 end
 =begin

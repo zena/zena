@@ -141,4 +141,12 @@ class ApplicationHelperTest < HelperTestCase
     assert_no_match /notice/, flash_messages(:both)
     assert_match /error/, flash_messages(:both)
   end
+  
+  def test_logo
+    assert_match /logo.*img\/logo.png.*logo_msg/, logo
+    assert_match /logo.*img\/logo.png.*logo_msg.*yoba/, logo('yoba')
+    assert_match /logo.*img\/logo.png.*logo_msg.*Friday.*November/, logo(Time.gm(2006,11,10))
+    session[:lang] = 'fr'
+    assert_match /logo.*img\/logo.png.*logo_msg.*vendredi.*novembre/, logo(Time.gm(2006,11,10))
+  end
 end

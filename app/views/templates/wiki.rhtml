@@ -1,29 +1,48 @@
-<% @stylesheet   = ['zen', 'wiki'] -%>
-<% @window_title = @item.title if @item  -%>
-<div id="navbar">
-	<%= plug :language %>
-	<%= plug :path     %>
-	<%= plug :logout   %>
-	<%= plug :visitor  %>
-</div>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+		"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 
-<%= plug :logo  %>
-<%= plug :flash %>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+<head>
+	<title><%= @item.title %></title>
+	<meta http-equiv="Content-type" content="text/html; charset=utf-8" />
+	<meta http-equiv="Content-Language" content="fr-fr" />
+  <%= stylesheet_link_tag( 'zen', 'wiki' ) %>
+	<%= javascript_include_tag 'prototype', 'effects', 'zena' %>
+	<%= uses_calendar %>
+	<%= javascript "zena['item_id'] = #{@item.id};" %>
+	<%= javascript "Calendar._TT[\"DEF_DATE_FORMAT\"] = \"#{trans('long_date')}\";" if trans('long_date') != 'long_date' %>
+</head>
 
-<div id="left">
-	<%= plug :documents %>
-</div>
-<div id="main">
-	<%= plug :title %>
-	<div id="drive" style="display:none;"></div>
+<body <%= @su %>>
 	
-	<div id="content">
-		<%= plug :summary %>
-		<%= plug :text %>
-		<%= plug :comments %>
-		
-		<h3>suite:</h3>
-    	<%= plug :pages %>
-	</div>
-    
-</div>
+
+  <div id="navbar">
+  	<%#= plug :language %>
+  	<%#= plug :path     %>
+  	<%= login_link   %>
+  	<%= visitor_link %>
+  </div>
+
+  <%= logo Time.now  %>
+  <%= flash_messages %>
+
+  <div id="left">
+  	<%#= plug :documents %>
+  </div>
+  <div id="main">
+  	<%= render :partial=>'title' %>
+  	<div id="drive" style="display:none;"></div>
+
+  	<div id="content">
+  		<%#= plug :summary %>
+  		<%#= plug :text %>
+  		<%#= plug :comments %>
+
+  		<h3>suite:</h3>
+  		<%= render :partial=>'pages' %>
+  	</div>
+
+  </div>
+	
+</body>
+</html>
