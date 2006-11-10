@@ -1,0 +1,29 @@
+<% @stylesheet   = ['zen', 'wiki'] -%>
+<% @window_title = @item.title if @item  -%>
+<div id="navbar">
+	<%= plug :language %>
+	<%= plug :path     %>
+	<%= plug :logout   %>
+	<%= plug :visitor  %>
+</div>
+
+<%= plug :logo  %>
+<%= plug :flash %>
+
+<div id="left">
+	<%= plug :documents %>
+</div>
+<div id="main">
+	<%= plug :title %>
+	<div id="drive" style="display:none;"></div>
+	
+	<div id="content">
+		<%= plug :summary %>
+		<%= plug :text %>
+		<%= plug :comments %>
+		
+		<h3>suite:</h3>
+    	<%= plug :pages %>
+	</div>
+    
+</div>

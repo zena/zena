@@ -1,0 +1,50 @@
+bird_jpg:
+  type:           ImageInfo
+  id:             1
+  version_id:     20
+  content_type:   image/jpeg
+  path:           /jpg/20/bird.jpg
+  width:          661
+  height:         600
+  
+flower_jpg:
+  type:           ImageInfo
+  id:             2
+  version_id:     21
+  content_type:   image/jpeg
+  path:           /jpg/21/flower.jpg
+  width:          800
+  height:         600
+  
+lake_jpg:
+  type:           ImageInfo
+  id:             3
+  version_id:     14
+  content_type:   image/jpeg
+  path:           /jpg/14/lake.jpg
+  width:          600
+  height:         440
+  
+water_pdf:
+  type:           DocInfo
+  id:             4
+  version_id:     15
+  content_type:   application/pdf
+  path:           /pdf/15/water.pdf
+  
+tree_jpg:
+  type:           ImageInfo
+  id:             5
+  version_id:     35
+  content_type:   image/jpeg
+  path:           /jpg/35/tree.jpg
+  width:          800
+  height:         532
+  
+forest_pdf:
+  type:           DocInfo
+  id:             6
+  version_id:     36
+  content_type:   application/pdf
+  path:           /pdf/36/forest.pdf
+  

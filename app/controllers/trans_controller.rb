@@ -1,0 +1,2 @@
+class TransController < ApplicationController
+end

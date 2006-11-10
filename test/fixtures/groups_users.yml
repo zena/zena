@@ -1,0 +1,42 @@
+ant_in_public:
+  user_id:    3
+  group_id:   1
+
+tiger_in_public:
+  user_id:    4
+  group_id:   1
+
+lion_in_public:
+  user_id:    5
+  group_id:   1
+
+
+
+
+
+ant_in_workers:
+  user_id:    3
+  group_id:   3
+
+tiger_in_workers:
+  user_id:    4
+  group_id:   3
+  
+
+
+
+tiger_in_managers:
+  user_id:    4
+  group_id:   4
+
+
+
+lion_in_admin:
+  user_id:    5
+  group_id:   2
+
+
+
+
+  
+

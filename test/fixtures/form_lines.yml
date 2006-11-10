@@ -1,0 +1,23 @@
+<% data = [
+  {:animal=>'dog', :year=>'2005', :births=>'1'},
+  {:animal=>'dog', :year=>'2006', :births=>'2'},
+  {:animal=>'dog', :year=>'2006', :births=>'4'},
+  {:animal=>'cat', :year=>'2004', :births=>'3'},
+  {:animal=>'cat', :year=>'2005', :births=>'4'},
+  {:animal=>'dog', :year=>'2004', :births=>'5'},
+  {:animal=>'cat', :year=>'2006', :births=>'6'},
+  {:animal=>'dog', :year=>'2002', :births=>'7'},
+  {:animal=>'dog', :year=>'2003', :births=>'8'},
+    ]
+  id = 0
+%>
+<% 1.upto(9) do |i| %>
+<% [:animal, :year, :births].each do |key| %>
+<% id += 1 %>
+sei_<%= i %>_<%= key.to_s %>:
+    id:     <%= id %>
+    seizure_id: <%= i %>
+    key:    '<%= key.to_s %>'
+    value:  '<%= data[i-1][key] %>'
+<% end %>
+<% end %>

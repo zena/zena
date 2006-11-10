@@ -1,0 +1,53 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+		"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+<head>
+	<title><%= @item.title %></title>
+	<meta http-equiv="Content-type" content="text/html; charset=utf-8" />
+	<meta http-equiv="Content-Language" content="fr-fr" />
+  <%= stylesheet_link_tag( 'zen' ) %>
+	<%= javascript_include_tag 'prototype', 'effects', 'zena' %>
+	<%= uses_calendar %>
+	<%= javascript "zena['item_id'] = #{@item.id};" %>
+	<%= javascript "Calendar._TT[\"DEF_DATE_FORMAT\"] = \"#{trans('long_date')}\";" if trans('long_date') != 'long_date' %>
+</head>
+
+<body <%= @su %>>
+  <div id="navbar">
+  	<%#= plug :language %>
+  	<%#= plug :path     %>
+  	<%= plug_logout %>
+  	<%#= plug :visitor  %>
+  </div>
+
+  <%#= plug :menu %>
+  <%#= plug :logo  %>
+  <%#= plug :flash %>
+
+  <div id="left">
+    <%#= plug :calendar, :tiny, :on_click=>"new Ajax.Updater('largecal', '/z/calendar/large', {asynchronous:true, evalScripts:true}); return false;" %>
+    <div id="title">
+    <h1 class="s<%= @item.v_status %>">
+      <ul id="item_actions"><%#= plug :btn, :all %></ul><br/>
+      <%= @item.title %>
+    </h1>
+    </div>
+    <div id="header"><%#= plug :auth_info, :small %><%#= plug :links %></div>
+  	<div id="drive" style="display:none;"></div>
+    <div id="content">
+  		<%#= plug :text %>
+  		<%#= plug :comments %>
+  	</div>
+  </div>
+  <div id="main">
+  	<div id="largecal"></div>
+    <%#= plug :notes, :from=>:site %>
+
+  	<div id="right">
+  		<%#= plug :documents %>
+			<%= render :partial=>'pages' %>
+  	</div>
+  </div>
+</body>
+</html>

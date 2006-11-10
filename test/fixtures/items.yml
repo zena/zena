@@ -1,0 +1,448 @@
+<% @dates = "  created_at:  2006-03-10\n  updated_at:  2006-04-11\n  publish_from:  2006-03-10" %>
+<% @defaults = "#@dates\n  ref_lang:  en\n  max_status:  50\n  template: default" %>
+<% @rights = "  rgroup_id:  1\n  wgroup_id:  3\n  pgroup_id:  4" %>
+zena:
+  id:             1
+  type:           Project
+  kpath:          IPP
+  name:           zena
+  project_id:     1
+  parent_id:      
+  user_id:        4
+  created_at:     2006-02-01
+  updated_at:     2006-04-11
+  publish_from:   2006-03-10
+  ref_lang:       en
+  max_status:     50
+  inherit:        0
+  template:       default
+<%= @rights %>
+
+people:
+  id:             2
+  type:           Page
+  kpath:          IP
+  name:           people
+  project_id:     1
+  parent_id:      1
+  user_id:        4
+<%= @defaults %>
+  inherit:        1
+<%= @rights %>
+
+ant:
+  id:             3
+  type:           Contact
+  kpath:          IPC
+  name:           ant
+  project_id:     1
+  parent_id:      2
+  user_id:        3
+  address_id:     3
+<%= @defaults %>
+  inherit:        0
+  rgroup_id:      0
+  wgroup_id:      0
+  pgroup_id:      0
+
+myLife:
+  id:             6
+  type:           Page
+  kpath:          IP
+  name:           myLife
+  project_id:     1
+  parent_id:      3
+  user_id:        3
+<%= @defaults %>
+  inherit:        1
+  rgroup_id:      0
+  wgroup_id:      0
+  pgroup_id:      0
+
+
+tiger:
+  id:             4
+  type:           Contact
+  kpath:          IPC
+  name:           tiger
+  project_id:     1
+  parent_id:      2
+  user_id:        4
+  address_id:     4
+  inherit:        1
+<%= @defaults %>
+<%= @rights %>
+
+lion:
+  id:             5
+  type:           Contact
+  kpath:          IPC
+  name:           lion
+  project_id:     1
+  parent_id:      2
+  user_id:        5
+  address_id:     5
+  inherit:        1
+<%= @defaults %>
+<%= @rights %>
+
+myDreams:
+  id:             7
+  type:           Page
+  kpath:          IP
+  name:           myDreams
+  project_id:     1
+  parent_id:      5
+  user_id:        5
+  inherit:        0
+<%= @defaults %>
+  rgroup_id:      0
+  wgroup_id:      0
+  pgroup_id:      0
+  
+projects:
+  id:             8
+  type:           Page
+  kpath:          IP
+  name:           projects
+  project_id:     1
+  parent_id:      1
+  user_id:        4
+  inherit:        1
+<%= @defaults %>
+<%= @rights %>
+
+secret:
+  id:             9
+  type:           Project
+  kpath:          IPP
+  name:           secret
+  project_id:     1
+  parent_id:      8
+  user_id:        4
+  inherit:        0
+<%= @defaults %>
+  rgroup_id:      4
+  wgroup_id:      4
+  pgroup_id:      4
+  
+proposition:
+  id:             10
+  type:           Note
+  kpath:          IN
+  name:           proposition
+  parent_id:      9
+  project_id:     9
+  user_id:        3
+  inherit:        1
+<%= @defaults %>
+  rgroup_id:      4
+  wgroup_id:      4
+  pgroup_id:      4
+  blog_at:        2006-04-05
+
+cleanWater:
+  id:             11
+  type:           Project
+  kpath:          IPP
+  name:           cleanWater
+  project_id:     1
+  parent_id:      8
+  user_id:        4
+  inherit:        1
+<%= @defaults %>
+<%= @rights %>
+
+status:
+  id:             12
+  type:           Page
+  kpath:          IP
+  name:           status
+  project_id:     11
+  parent_id:      11
+  user_id:        3
+  inherit:        1
+<%= @defaults %>
+<%= @rights %>
+
+lake:
+  id:             13
+  type:           Contact
+  kpath:          IPC
+  name:           lake
+  project_id:     11
+  parent_id:      11
+  user_id:        3
+  address_id:     6
+  inherit:        1
+<%= @defaults %>
+<%= @rights %>
+
+lake_jpg:
+  id:             14
+  type:           Image
+  kpath:          IPDI
+  name:           lake.jpg
+  project_id:     11
+  parent_id:      13
+  user_id:        3
+  inherit:        1
+<%= @defaults %>
+<%= @rights %>
+
+water_pdf:
+  id:             15
+  type:           Document
+  kpath:          IPD
+  name:           water.pdf
+  project_id:     11
+  parent_id:      11
+  user_id:        4
+  inherit:        1
+<%= @defaults %>
+<%= @rights %>
+
+crocodiles:
+  id:             16
+  type:           Page
+  kpath:          IP
+  name:           crocodiles
+  project_id:     11
+  parent_id:      11
+  user_id:        4
+  created_at:     2006-04-11
+  updated_at:     2006-04-11
+  publish_from:   
+  max_status:     30
+  inherit:        1
+  template:       default
+<%= @rights %>
+
+opening:
+  id:             17
+  type:           Note
+  kpath:          IN
+  name:           opening
+  project_id:     11
+  parent_id:      11
+  user_id:        4
+  ref_lang:       fr
+  inherit:        1
+  max_status:     50
+  blog_at:        2006-03-15
+  template:       default
+<%= @dates %>
+<%= @rights %>
+
+bananas:
+  id:             18
+  type:           Page
+  kpath:          IP
+  name:           bananas
+  project_id:     11
+  parent_id:      11
+  user_id:        5
+  inherit:        0
+<%= @defaults %>
+  rgroup_id:      4
+  wgroup_id:      4
+  pgroup_id:      4
+  
+wiki:
+  id:             19
+  type:           Project
+  kpath:          IPP
+  name:           wiki
+  project_id:     1
+  parent_id:      8
+  user_id:        5
+  inherit:        0
+<%= @dates %>
+  ref_lang:       en
+  max_status:     50
+  template:       wiki
+  rgroup_id:      1
+  wgroup_id:      1
+  pgroup_id:      1
+  
+bird_jpg:
+  id:             20
+  type:           Image
+  kpath:          IPDI
+  name:           bird.jpg
+  project_id:     19
+  parent_id:      19
+  user_id:        1
+  inherit:        1
+<%= @dates %>
+  ref_lang:       en
+  max_status:     50
+  template:       wiki
+  rgroup_id:      1
+  wgroup_id:      1
+  pgroup_id:      1
+  
+flower_jpg:
+  id:             21
+  type:           Image
+  kpath:          IPDI
+  name:           flower.jpg
+  project_id:     19
+  parent_id:      19
+  user_id:        1
+  inherit:        1
+<%= @dates %>
+  ref_lang:       en
+  max_status:     50
+  template:       wiki
+  rgroup_id:      1
+  wgroup_id:      1
+  pgroup_id:      1
+
+collections:
+  id:             22
+  type:           Page
+  kpath:          IP
+  name:           collections
+  project_id:     1
+  parent_id:      1
+  user_id:        4
+  inherit:        1
+<%= @defaults %>
+<%= @rights %>
+
+art:
+  id:             23
+  type:           Collector
+  name:           art
+  project_id:     1
+  parent_id:      22
+  user_id:        4
+  inherit:        1
+<%= @defaults %>
+<%= @rights %>
+
+news:
+  id:             24
+  type:           Collector
+  name:           news
+  project_id:     1
+  parent_id:      22
+  user_id:        4
+  inherit:        1
+<%= @defaults %>
+<%= @rights %>
+
+menu:
+  id:             25
+  type:           Collector
+  name:           menu
+  project_id:     1
+  parent_id:      22
+  user_id:        4
+  inherit:        1 8 8
+<%= @defaults %>
+<%= @rights %>
+
+strange:
+  id:             26
+  type:           Page
+  kpath:          IP
+  name:           strange
+  project_id:     1
+  parent_id:      22
+  user_id:        5
+  inherit:        0
+  template:       default
+<%= @dates %>
+  ref_lang:       en
+  max_status:     30
+  rgroup_id:      2
+  wgroup_id:      4
+  pgroup_id:      3
+  
+tracker:
+  id:             27
+  type:           Tracker
+  kpath:          IPT
+  name:           track
+  project_id:     1
+  parent_id:      11
+  user_id:        4
+  inherit:        1
+<%= @defaults %>
+<%= @rights %>
+
+talk:
+  id:             28
+  type:           Page
+  kpath:          IP
+  name:           talk
+  project_id:     9
+  parent_id:      9
+  user_id:        4
+  inherit:        0
+  template:       default
+<%= @dates %>
+  ref_lang:       en
+  max_status:     50
+  rgroup_id:      1
+  wgroup_id:      3
+  pgroup_id:      3
+  
+nature:
+  id:             29
+  type:           Page
+  kpath:          IP
+  name:           nature
+  project_id:     1
+  parent_id:      1
+  user_id:        3
+  inherit:        1
+  created_at:     2006-03-10
+  updated_at:     2006-04-11
+  publish_from:   
+  ref_lang:       en
+  max_status:     30
+  template:       default
+  rgroup_id:      1
+  wgroup_id:      3
+  pgroup_id:      4
+  
+tree:
+  id:             30
+  type:           Image
+  kpath:          IPDI
+  name:           tree.jpg
+  project_id:     1
+  parent_id:      29
+  user_id:        3
+  inherit:        1
+  created_at:     2006-03-10
+  updated_at:     2006-04-11
+  publish_from:   
+  ref_lang:       en
+  max_status:     30
+  template:       default
+  rgroup_id:      1
+  wgroup_id:      3
+  pgroup_id:      4
+  
+forest:
+  id:             31
+  type:           Document
+  kpath:          IPD
+  name:           forest.pdf
+  project_id:     1
+  parent_id:      29
+  user_id:        3
+  inherit:        1
+  created_at:     2006-03-10
+  updated_at:     2006-04-11
+  publish_from:   
+  ref_lang:       en
+  max_status:     30
+  template:       default
+  rgroup_id:      1
+  wgroup_id:      3
+  pgroup_id:      4

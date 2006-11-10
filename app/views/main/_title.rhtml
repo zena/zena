@@ -1,0 +1,6 @@
+<div id='title'>
+	<h1 class="s<%= @item.v_status %>"><%= @item.title %>
+		<ul id="item_actions"><%= plug_btn :all %></ul>
+	</h1>
+	<div id="header"><%= plug :auth_info, auth_info %><%= plug :links %></div>
+</div>

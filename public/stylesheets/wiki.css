@@ -1,0 +1,100 @@
+
+/* NAVBAR */
+#navbar {  width:100%; height:25px; background:#23452F; 
+  color:white; font-size:0.85em; padding:0px 0;}
+#navbar a { color:white; }
+#navbar ul, #navbar div { height:100%; padding:0.3em 0.8em; float:left; }
+#navbar #lang { margin-left:250px; }
+#navbar * { display:inline; }
+#navbar #visitor, #navbar #logout { float: right; }
+
+/* HEADER */
+#header { margin-bottom:2em; width:650px; }
+
+.block { border: 1px dotted grey; background:#ccc; width:650px;}
+.block td { border:0;}
+/* b = block */
+.b40, .b35 { background:#73A1A5;}
+.b30 { background:#B7CC87;}
+
+td.preview { vertical-align:middle; text-align:center; width:120px; height:120px; }
+.preview img { border: 1px solid #888; background:#aaa; }
+td#header { vertical-align:top; padding:6px; }
+
+#trad .on a { text-decoration:underline; }
+#trad .off  { color:#bbb; }
+#links a { font-style: italic; font-size: 0.9em; }
+#links img  { vertical-align:middle; }
+#drive_links .add_link { border-top:1px solid;}
+#drive_links .btn_add { text-align:left; }
+#drive_links .btn_add a { visibility:visible;}
+
+/* s50, s40, s30, s20, s10, s0 = pub, prop, red, rep, rem, del */
+.info, .note .info { font-style: italic; font-size: 0.9em; color: #666;}
+.info b, .note .info b { font-weight: normal; color: black;}
+.li_s50 {}
+.li_s40 a { border-bottom: 2px solid #73A1A5; }
+.li_s35 a { border-bottom: 2px dotted #73A1A5; }
+.li_s30 a { border-bottom: 2px solid #B7CC87; }
+.wrong_lang { color: grey; }
+.s40  { border-bottom: 10px solid #73A1A5; padding: 4px; }
+.s30  { border-bottom: 10px solid #B7CC87; padding: 4px; }
+.s10, .s20 {  border-color:#685958; border-bottom: 1px solid grey; padding: 4px; }
+.s30 form, .s35 form, .s40 form, .s10 form, .s20 form { margin-left:20px; display: inline; }
+.s30 span, .s35 span, .s40 span, .s10 span, .s20 span { float: right; font-size:0.8em; padding-top:0.5em; } 
+
+/* NOTES */
+#left { position:absolute; top:125px; left:20px; width:220px; }
+#notes { margin-top:2em;}
+#notes h3 small { color:#999; font-size:50%; text-transform:uppercase;}
+.note { margin-left:1em; border-bottom:1px dotted grey; padding:10px 3px; font-size:0.78em; }
+#add_note, #add_note_form { margin-left:1em }
+#add_note { padding:10px 3px;}
+.note h3 { color:#450009; font:0.9em Verdana, sans-serif; text-transform: uppercase; letter-spacing: 0.1em; font-weight:bold; }
+.note h3 a { color:#450009; }
+.note .summary { margin-top:5px;}
+.note .summary p { font-style: normal; text-align:justify; margin:0; }
+.note span.blog_at { float:right; color:#B08287; }
+.note p.sign { font-size:0.7em; font-style:italic; color:#999; text-align:right; clear:both;}
+
+/* RIGHT: Documents, Pages */
+#right span.ext a {font-family:Monaco, monospace;color:grey; width:200px;}
+.list { list-style:none; margin-left:0.8em; margin-top:0.5em; margin-bottom:0em; padding: 0 0.5em 1em;}
+.list li { line-height:1.5em; }
+input, textarea { border:1px solid grey; margin:0.2em}
+
+/* MAIN CONTENT */
+#main {margin-top:5em;  margin-left:260px; width:900px; }
+#title h1 {  font-size:2.5em; margin-bottom:0.17em;}
+#title h1, #text h1, #text h2, #text h3 { font-family: Georgia, Times, serif ; font-style:italic; color:#450009;}
+
+#content { float:left; width:640px; padding-top:0; padding-right: 22px; }
+#content { margin-top:0;}
+#summary p { font-style:italic; }
+#text { clear:both;}
+#text { line-height:1.5; margin-bottom:2em;}
+#text h1 { margin-top:2.3em; margin-bottom:0.8em; font-size:2em;}
+#text h2 { margin-top:2em; margin-bottom:0.4em; font-size:1.5em;}
+#text h3 { margin-top:1.8em; margin-bottom:0.4em; font-size:1em; font-style:normal; font-weight:bold;}
+#text h4 { font-size:0.9em; }
+#text p { margin-bottom:1.8em; font-style:normal; }
+#text ul {margin:1em 0 0 3em;}
+#text img, #summary img, .note img { border: 1px solid #666; }
+
+#pages h3 { display: none;}
+.gallery { margin:30px auto; border:1px solid #bbb;  background:#eee; }
+.gallery td { padding:10px; }
+.gallery img.pv { margin:5px; border:1px solid #333; width:80px; height:80px; background:#aaa;}
+.gallery_view { width:613px; text-align:center; }
+.gallery_view p { text-align:center; margin:0; }
+
+#content p.action { margin:1.6em 0;}
+/*
+.docs { border:1px solid grey; }
+.docs td { border:1px solid grey; }
+.docs .docinfo {  width:200px; vertical-align:top; padding:2px; }
+.docs .docinfo h3 { margin:0; padding:0; }
+.docs .docpv p { margin:0; font-family: Monaco, monospace; }
+.docs .docpv img { margin:0px; }
+*/
+#right { float:left; width:220px; padding-left:6px; border-left:1px solid #ccc;}

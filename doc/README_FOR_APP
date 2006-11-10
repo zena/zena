@@ -1,0 +1,138 @@
+= Welcome to Zena
+
+Zena is a CMS. (c) teti.ch 2006
+== Bugs
+* login : no redirects !
+== Todo
+
+=> create 'user' controller for users/groups management
+=> select list changes with ajax ... (new page, new note, new link)
+=> FIRST OF ALL : translations in DB only with two tables ? tkeys, tvalues (when new keys, they are created in DB)
+=> EXPIRE CACHE ON GROUP CHANGE, OBJECT MOVE, EDIT, ETC
+=> it is VERY easy to kick yourself out of an item : lion creates 'cleanWater', tiger edits 'cleanWater' and removes lion's redaction. There is only one redaction 
+   from 'tiger' for an item owned by 'lion' : tiger cannot see it anymore (max_status = :red and he is not the owner...)
+
+0. month selection on calendar => update notes list
+
+0. change 'can_publish_item?' into 'can_publish?' and change all other can_publish? to 'can_drive?' ?
+1. remove @item dependency in plugs. Use a context with a default to @item : args[:context] || @item
+1. translate flash 'notice' and 'error', with clever '%s'. Translate error messages (message and field name)
+3. create plug test facility (look at zentest, test_helper.rb)
+4. view archive...
+5. change 'user_id' and 'user_groups' methods and calls to 'visitor_id' and 'vistor_groups'
+6. how to expire plug caches cleanly ???
+* rollback a published edition to the previous version = use created_at order.
+* manage site configurations (default comment_group, ...)
+* is +text+ a good format for *paths* ? What should be the size of a string ?
+* Show '+/-' font size in navbar
+=== Optimization
+=== Security
+* ItemController#live_new_event ItemController#live_edit_item
+* WebController#publish and check for errors.
+* How do we avoid someone removing the wiki as a whole ? +can_destroy+ will have to look for publish access in the parent.
+* How do we avoid tree loops (ex. cleanWater using lake as reference or another item deeper) ?
+* Implement salt login with client side JS : http://pajhome.org.uk/crypt/md5/
+=== login
+* see if it is possible to never have the password hanging around (even the hash)
+* see how SPIP manages a Javascript hash before form validation
+=== views
+* if a view 'has a Contact' show contact partial in header
+* Better layout for form 'live_new_event'
+=== Page
+* overwrite make_private : check all children can be made private. Make all children private.
+* optimize number of sql calls to get editions.
+* replace title_for_lang(@lang) by lang_title and set @asked_lang from edition_for_lang(@lang)
+=== Document
+* On file update : make sure all other versions using the same file through file_ref are updated as well
+"UPDATE versions SET file_ref=#{id} WHERE file_ref=#{old.id} AND id !=#{old.id}"
+* Document caching. in /oo/projects/cleanWater/lake.jpg and /fr/projects/cleanWater/lake.jpg and /en... : this is bad. Find
+  a better solution...
+=== Collector / Alias
+* Use 'context intelligent' paths : this means we do not jump from one context to another using
+  alias or collector. So a collector for 'art' makes it possible to have <tt>/collect/art/dyl/introduction</tt> pointing
+  to the same page as <tt>/projects/dyl/introduction</tt>.
+=== Contact
+=== Events
+* create a table 'users_events' with the possibility to mark an event as +read+ or +sticky+. So a user can see the news he hasn't read yet.
+=== ItemController
+* set default r/w groups.
+* Create a Helper to set 'actions' based on user and object(s)
+=== TESTS FOR
+* web 'contact', 'events'
+* Textile images and preview images. Add 'alt' text to images.
+* Add tests for Item#publish_from when testing Version#rollback remove etc.
+* Project (participants, contacts)
+* Controllers....
+=== Error messages
+* Use 'error_messages_for' style...
+
+== Personnalisation by user
+Store user defaults, prefs and site config, etc in the database. STI starting with 'settings' (id, key(string), value(yaml), type) :
+* settings <--- UserPreferences
+* settings <--- ProjectSettings
+* settings <--- SiteConfiguration
+
+Custom menu, news
+* custom menu = std menu + own menu (= user[:custom_menu_collector])
+* custom news = std news + onw news (= user[:custom_news_collector])
+* etc
+-------------------------------------------
+= Conception
+Zena is divided into modules. These modules are :
+== web (base engine)
+Content management system. The web module can contain different items 
+* *Contacts* people with addresses
+* *Logs* weblog
+* *Events* time related events shown in a calendar or as a 'news' list
+* *Pages* just normal html content
+* *Documents* files, photos, videos, anything up/downloadable
+* *Collectors* special pages collecting information from other pages
+* *Projects* basic place into which the other modules can plug in.
+=== calendar component
+Provides views and filters for #Events.
+=== menu component
+Monitor readings, book collection
+Provides navigation through #StructuredItems
+=== book component
+== book engine
+Monitor readings, book collection. It makes it very easy to add book references to documents. Or
+just a list of the books the person is reading.
+== login engine
+* will first implement this in web...
+== task engine
+Task management (something like trac). This module will help solve questions such as
+* who does what
+* what has already been done
+* take care of new problems, tasks, bugs
+* make a like with versioning systems (Subversion)
+* milestones
+* project progression, planning
+* actions done can have a duration thus permitting time invoices
+== accounting engine
+Accounting user oriented.
+* All seizure of monetary flows are done through budget envelopes
+* It is trivial to enter things like 'John gave 100.- to Cecilia in advance for the costumes of our next play'
+* Monitoring of budget and actual expenses is easy and intuitive
+* There is a 1 clic production of legal documents.
+
+== Security management
+See Zena::Acts::Secure
+link://../img/zena_security.png
+=== Salt Login
+link://../img/zena_salt_login.png
+== Schema
+link://../img/zena.png
+== Fixtures
+link://../img/zena_fixtures.png
+== Item life cycle
+link://../img/zena_create_event.png
+link://../img/zena_add_document.png
+link://../img/zena_view_document.png
+== Layout propositions
+link://../img/zena_layout.png
+link://../img/zena_layout2.png
+link://../img/zena_layout3.png
+== Gems to install
+gem install RedCloth
+== Plugins
+(used http://rails-engines.org/wiki/pages/DateboxEngine for date_box)

@@ -1,0 +1,264 @@
+translations:
+  - keyword: April
+    lang:    fr
+    value:   "avril"
+
+  - keyword: August
+    lang:    fr
+    value:   "ao\303\273t"
+
+  - keyword: btn_accept
+    lang:    fr
+    value:   "<img width=\"16\" height=\"16\" src=\"/images/accept.png\"/>"
+
+  - keyword: btn_add_doc
+    lang:    fr
+    value:   "<img width=\"16\" height=\"16\" src=\"/images/add.png\"/>"
+
+  - keyword: btn_add_link
+    lang:    fr
+    value:   "<img width=\"16\" height=\"16\" src=\"/images/tag_blue_add.png\"/>"
+
+  - keyword: btn_add_note
+    lang:    fr
+    value:   "<img width=\"16\" height=\"16\" src=\"/images/add.png\"/>"
+
+  - keyword: btn_add_page
+    lang:    fr
+    value:   "<img width=\"16\" height=\"16\" src=\"/images/add.png\"/>"
+
+  - keyword: btn_destroy
+    lang:    fr
+    value:   "<img width=\"16\" height=\"16\" src=\"/images/page_delete.png\"/>"
+
+  - keyword: btn_drive
+    lang:    fr
+    value:   "<img width=\"16\" height=\"16\" src=\"/images/wrench.png\"/>"
+
+  - keyword: btn_edit
+    lang:    fr
+    value:   "<img width=\"16\" height=\"16\" src=\"/images/page_edit.png\"/>"
+
+  - keyword: btn_propose
+    lang:    fr
+    value:   "<img width=\"16\" height=\"16\" src=\"/images/picture_empty.png\"/>"
+
+  - keyword: btn_publish
+    lang:    fr
+    value:   "<img width=\"16\" height=\"16\" src=\"/images/wand.png\"/>"
+
+  - keyword: btn_redit
+    lang:    fr
+    value:   "<img width=\"16\" height=\"16\" src=\"/images/page_edit.png\"/>"
+
+  - keyword: btn_refuse
+    lang:    fr
+    value:   "<img width=\"16\" height=\"16\" src=\"/images/delete.png\"/>"
+
+  - keyword: btn_remove
+    lang:    fr
+    value:   "<img width=\"16\" height=\"16\" src=\"/images/delete.png\"/>"
+
+  - keyword: btn_tiny_del
+    lang:    fr
+    value:   "<img src=\"/images/bullet_delete.png\"/>"
+
+  - keyword: btn_title_drive
+    lang:    fr
+    value:   "gestion de la page (suivi de versions, modification des droits, etc)"
+
+  - keyword: btn_title_edit
+    lang:    fr
+    value:   "\303\251diter la page"
+
+  - keyword: btn_title_propose
+    lang:    fr
+    value:   "proposer la page pour publication"
+
+  - keyword: btn_title_publish
+    lang:    fr
+    value:   "publier la page"
+
+  - keyword: btn_title_refuse
+    lang:    fr
+    value:   "refuser la publication (la r\303\251daction est renvoy\303\251e au propri\303\251taire)"
+
+  - keyword: btn_view
+    lang:    fr
+    value:   "<img width=\"16\" height=\"16\" src=\"/images/eye.png\"/>"
+
+  - keyword: btn_x
+    lang:    fr
+    value:   "<img width=\"16\" height=\"16\" src=\"/images/cross.png\"/>"
+
+  - keyword: December
+    lang:    fr
+    value:   "d\303\251cembre"
+
+  - keyword: Documents
+    lang:    fr
+    value:   "Documents"
+
+  - keyword: en
+    lang:    fr
+    value:   "anglais"
+
+  - keyword: Events
+    lang:    fr
+    value:   "Br\303\250ves"
+
+  - keyword: February
+    lang:    fr
+    value:   "f\303\251vrier"
+
+  - keyword: fr
+    lang:    fr
+    value:   "fran\303\247ais"
+
+  - keyword: Friday
+    lang:    fr
+    value:   "vendredi"
+
+  - keyword: home of
+    lang:    fr
+    value:   "Bonjour"
+
+  - keyword: img_tag
+    lang:    fr
+    value:   "<img width=\"16\" height=\"16\" src=\"/images/tag_blue.png\"/>"
+
+  - keyword: January
+    lang:    fr
+    value:   "janvier"
+
+  - keyword: July
+    lang:    fr
+    value:   "juillet"
+
+  - keyword: June
+    lang:    fr
+    value:   "juin"
+
+  - keyword: logo_date
+    lang:    fr
+    value:   "<b>%A</b> %d %B"
+
+  - keyword: long_date
+    lang:    fr
+    value:   "%d.%m.%Y"
+
+  - keyword: long_time
+    lang:    fr
+    value:   "%d %b %Y"
+
+  - keyword: Mai
+    lang:    fr
+    value:   "mai"
+
+  - keyword: March
+    lang:    fr
+    value:   "mars"
+
+  - keyword: Monday
+    lang:    fr
+    value:   "lundi"
+
+  - keyword: News
+    lang:    fr
+    value:   "Br\303\250ves"
+
+  - keyword: news_date
+    lang:    fr
+    value:   "%A, %d %B %Y"
+
+  - keyword: November
+    lang:    fr
+    value:   "novembre"
+
+  - keyword: October
+    lang:    fr
+    value:   "octobre"
+
+  - keyword: on
+    lang:    fr
+    value:   "publi\303\251 le"
+
+  - keyword: Pages
+    lang:    fr
+    value:   "Pages"
+
+  - keyword: posted by
+    lang:    fr
+    value:   "un article de"
+
+  - keyword: Redactions
+    lang:    fr
+    value:   "R\303\251dactions"
+
+  - keyword: Saturday
+    lang:    fr
+    value:   "samedi"
+
+  - keyword: September
+    lang:    fr
+    value:   "septembre"
+
+  - keyword: short_date
+    lang:    fr
+    value:   "%d.%m"
+
+  - keyword: status_0
+    lang:    fr
+    value:   "supprim\303\251"
+
+  - keyword: status_10
+    lang:    fr
+    value:   "effac\303\251"
+
+  - keyword: status_20
+    lang:    fr
+    value:   "remplac\303\251"
+
+  - keyword: status_30
+    lang:    fr
+    value:   "r\303\251daction"
+
+  - keyword: status_35
+    lang:    fr
+    value:   "proposition"
+
+  - keyword: status_40
+    lang:    fr
+    value:   "proposition"
+
+  - keyword: status_50
+    lang:    fr
+    value:   "publi\303\251"
+
+  - keyword: Sunday
+    lang:    fr
+    value:   "dimanche"
+
+  - keyword: Thursday
+    lang:    fr
+    value:   "jeudi"
+
+  - keyword: Traductions
+    lang:    fr
+    value:   "Traductions"
+
+  - keyword: translation_interface
+    lang:    fr
+    value:   "traduire l'interface"
+
+  - keyword: Tuesday
+    lang:    fr
+    value:   "mardi"
+
+  - keyword: Waiting
+    lang:    fr
+    value:   "Propositions"
+
+  - keyword: Wednesday
+    lang:    fr
+    value:   "mercredi"

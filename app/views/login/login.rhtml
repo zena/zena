@@ -1,0 +1,42 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+		"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+<head>
+	<title>Login</title>
+	<meta http-equiv="Content-type" content="text/html; charset=utf-8" />
+	<meta http-equiv="Content-Language" content="fr-fr" />
+  <%= stylesheet_link_tag( 'zen' ) %>
+	<%= javascript_include_tag 'prototype', 'effects', 'zena' %>
+	<%= uses_calendar %>
+	<%= javascript "Calendar._TT[\"DEF_DATE_FORMAT\"] = \"#{trans('long_date')}\";" if trans('long_date') != 'long_date' %>
+</head>
+
+<body <%= @su %>>
+	
+	<div id="navbar">
+		<%#= plug :logout   %>
+		<%#= plug :visitor  %>
+	</div>
+
+	<%#= plug :logo  %>
+	<%#= plug :flash %>
+
+	<%= start_form_tag %>
+	<div id="login"><div>
+	<table>
+		<tr>
+			<td width="130">User name:</td>
+			<td><%= text_field("user", "login", :size=>20) %></td>
+		</tr>
+		<tr>
+			<td>Password:</td>
+			<td><%= password_field("user", "password", :size=>20) %></td>
+		</tr>
+		<tr><td></td><td><%= submit_tag 'login' %></td></tr>
+	</table>
+	</div></div>
+	<%= end_form_tag %>
+	
+</body>
+</html>

@@ -1,0 +1,2 @@
+page.replace_html 'drive', :partial => 'edit'
+page << "Element.show('drive')"

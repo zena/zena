@@ -1,0 +1,12 @@
+monday:
+  id: 1
+  key: Monday
+long_date:
+  id: 2
+  key: long_date
+short_date:
+  id: 3
+  key: short_date
+long_time:
+  id: 4
+  key: long_time

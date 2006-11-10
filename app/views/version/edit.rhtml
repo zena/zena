@@ -1,0 +1,26 @@
+<style>
+#item_comment, #item_title, #item_summary, #item_text { width: 350px;}
+#item_title { font-size:1.5em; font-weight:bold;}
+#item_summary { font-style:italic;}
+</style>
+<div id="edit_form" class="popup_action">
+  <p class="btn_x"><%= link_to_function t('btn_x'), "opener.location.href=opener.location.href; self.close();" %></p>
+	<%= error_messages_for "item" %>
+  <%= start_form_tag({ :action => "save", :controller=>'version' }, :id => "item_form" ) %>
+  <%= hidden_field 'item', 'lang', :value=>@item.v_lang %>
+  <%= hidden_field 'version', 'id', :value=>@version_id if @version_id %>
+	<%= hidden_field 'item', 'id' %>
+	<%= text_area 'item', 'comment', :cols=>55, :rows=>3 %>
+	<hr/>
+	<%= text_field 'item', 'title', :size=>20 %>
+	<label for="summary"><%= t "summary" %></label>
+	<%= text_area 'item', 'summary', :cols=>80, :rows=>3, :value=>@item.v_summary %>
+	<label for="content"><%= t "content" %></label>
+	<%= text_area 'item', 'text', :cols=>80, :rows=>17, :value=>@item.v_text %>
+	<p class="btn_accept"><button type="submit" class="btn_accept"><%= t "btn_accept" %></button></p>
+	<%= end_form_tag %> 
+	
+<%= javascript_start %>
+new Form.Observer('item_form', 2, function(element,value){ opener.editor_preview(element,value,"<%= @item.id %>")})
+<%= javascript_end %>
+</div>

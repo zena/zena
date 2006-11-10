@@ -1,0 +1,8 @@
+<% 1.upto(9) do |i| %>
+seizure_<%= i %>:
+  id: <%= i %>
+  form_id: 32
+  user_id: 3
+  created_at: 2006-10-22
+  updated_at: 2006-10-22
+<% end %>

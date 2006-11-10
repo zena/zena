@@ -1,0 +1,512 @@
+<% @defaults = "  created_at: 2006-03-10\n  updated_at: 2006-04-11\n  publish_from: 2006-03-10\n  status: 50" %>
+
+zena_en:
+  type:           Version
+  id:             1
+  item_id:        1
+  user_id:        4
+  comment:        no comment yet
+  title:          Zena the wild CMS
+  summary:        no summary yet
+  text:           nothing written yet
+  lang:           en
+  number:         1
+<%= @defaults %>
+
+
+people_en:
+  type:           Version
+  id:             2
+  item_id:        2
+  user_id:        4
+  comment:        no comment yet
+  title:          people
+  summary:        no summary yet
+  text:           nothing written yet
+  lang:           en
+  number:         1
+<%= @defaults %>
+
+
+ant_en:
+  type:           Version
+  id:             3
+  item_id:        3
+  user_id:        3
+  comment:        no comment yet
+  title:          Solenopsis Invicta
+  summary:        I am an ant
+  text:           Ants work hard
+  lang:           en
+  number:         1
+<%= @defaults %>
+
+
+myLife_en:
+  type:           Version
+  id:             6
+  item_id:        6
+  user_id:        3
+  comment:        no comment yet
+  title:          no title yet
+  summary:        no summary yet
+  text:           nothing written yet
+  lang:           en
+  number:         1
+<%= @defaults %>
+
+
+tiger_en:
+  type:           Version
+  id:             4
+  item_id:        4
+  user_id:        4
+  comment:        no comment yet
+  title:          no title yet
+  summary:        "\"panthera tigris on wikipedia\":http://en.wikipedia.org/wiki/Image:Panthera_tigris_sumatran_subspecies.jpg"
+  text:           nothing written yet
+  lang:           en
+  number:         1
+<%= @defaults %>
+
+
+lion_en:
+  type:           Version
+  id:             5
+  item_id:        5
+  user_id:        5
+  comment:        no comment yet
+  title:          no title yet
+  summary:        no summary yet
+  text:           nothing written yet
+  lang:           en
+  number:         1
+<%= @defaults %>
+
+
+myDreams_en:
+  type:           Version
+  id:             7
+  item_id:        7
+  user_id:        5
+  comment:        no comment yet
+  title:          no title yet
+  summary:        no summary yet
+  text:           nothing written yet
+  lang:           en
+  number:         1
+<%= @defaults %>
+
+  
+projects_en:
+  type:           Version
+  id:             8
+  item_id:        8
+  user_id:        4
+  comment:        no comment yet
+  title:          no title yet
+  summary:        no summary yet
+  text:           nothing written yet
+  lang:           en
+  number:         1
+<%= @defaults %>
+
+
+secret_en:
+  type:           Version
+  id:             9
+  item_id:        9
+  user_id:        4
+  comment:        no comment yet
+  title:          no title yet
+  summary:        no summary yet
+  text:           nothing written yet
+  lang:           en
+  number:         1
+<%= @defaults %>
+
+  
+proposition_en:
+  type:           Version
+  id:             10
+  item_id:        10
+  user_id:        4
+  comment:        no comment yet
+  title:          no title yet
+  summary:        no summary yet
+  text:           nothing written yet
+  lang:           en
+  number:         1
+<%= @defaults %>
+
+
+cleanWater_en:
+  type:           Version
+  id:             11
+  item_id:        11
+  user_id:        4
+  comment:        no comment yet
+  title:          Clean Water project
+  summary:        no summary yet
+  text:           nothing written yet
+  lang:           en
+  number:         1
+<%= @defaults %>
+
+
+status_en:
+  type:           Version
+  id:             12
+  item_id:        12
+  user_id:        3
+  comment:        status comment
+  title:          status title
+  summary:        status summary
+  text:           status text
+  lang:           en
+  number:         1
+<%= @defaults %>
+
+
+lake_en:
+  type:           Version
+  id:             13
+  item_id:        13
+  user_id:        3
+  comment:        no comment yet
+  title:          Tanganyika
+  summary:        "More information on \"wikipedia\":http://en.wikipedia.org/wiki/Lake_Tanganyika."
+  text:           "!014!"
+  lang:           en
+  number:         1
+<%= @defaults %>
+
+
+lake_jpg_en:
+  type:           ImageVersion
+  id:             14
+  item_id:        14
+  user_id:        3
+  comment:        no comment yet
+  title:          ""
+  summary:        "Photo taken from \"wildchimpanzees.org\":http://www.wildchimpanzees.org/press/photo02.php."
+  text:           ""
+  lang:           en
+  file_ref:       14
+  number:         1
+<%= @defaults %>
+
+
+water_pdf_en:
+  type:           DocVersion
+  id:             15
+  item_id:        15
+  user_id:        4
+  comment:        no comment yet
+  title:          ""
+  summary:        just a stupid pdf
+  text:           ""
+  lang:           en
+  file_ref:       15
+  number:         1
+<%= @defaults %>
+
+
+crocodiles_en:
+  type:           Version
+  id:             16
+  item_id:        16
+  user_id:        3
+  created_at:     2006-03-10
+  updated_at:     2006-04-11
+  publish_from:
+  lang:           en
+  status:         30
+  number:         1
+
+opening_fr:
+  type:           Version
+  id:             17
+  item_id:        17
+  user_id:        4
+  comment:        french opening
+  title:          ouverture du parc
+  summary:        no summary yet
+  text:           nothing written yet
+  lang:           fr
+  number:         1
+<%= @defaults %>
+
+
+bananas_en:
+  type:           Version
+  id:             18
+  item_id:        18
+  user_id:        5
+  comment:        no comment yet
+  title:          no title yet
+  summary:        no summary yet
+  text:           nothing written yet
+  lang:           en
+  number:         1
+<%= @defaults %>
+
+  
+wiki_en:
+  type:           Version
+  id:             19
+  item_id:        19
+  user_id:        5
+  comment:        no comment yet
+  title:          no title yet
+  summary:        no summary yet
+  text:           nothing written yet
+  lang:           en
+  number:         1
+<%= @defaults %>
+
+  
+bird_jpg_en:
+  type:           ImageVersion
+  id:             20
+  item_id:        20
+  user_id:        1
+  comment:        a pretty little bird
+  title:          ""
+  summary:        "Photo taken from \"wikimedia\":http://commons.wikimedia.org/wiki/Image:Blue_Tit_aka.jpg."
+  text:           ""
+  lang:           en
+  file_ref:       20
+  number:         1
+<%= @defaults %>
+
+  
+flower_jpg_en:
+  type:           ImageVersion
+  id:             21
+  item_id:        21
+  user_id:        1
+  comment:        "Photo taken from \"wikimedia\":http://commons.wikimedia.org/wiki/Image:Flor_GDFL_660eue.jpg."
+  title:          ""
+  summary:        a pretty little flower
+  text:           ""
+  lang:           en
+  file_ref:       21
+  number:         1
+<%= @defaults %>
+
+collections_en:
+  type:           Version
+  id:             22
+  item_id:        22
+  user_id:        4
+  comment:        no comment yet
+  title:          no title yet
+  summary:        no summary yet
+  text:           nothing written yet
+  lang:           en
+  number:         1
+<%= @defaults %>
+
+art_en:
+  type:           Version
+  id:             23
+  item_id:        23
+  user_id:        4
+  comment:        no comment yet
+  title:          Art
+  summary:        no summary yet
+  text:           nothing written yet
+  lang:           en
+  number:         1
+<%= @defaults %>
+
+news_en:
+  type:           Version
+  id:             24
+  item_id:        24
+  user_id:        4
+  comment:        no comment yet
+  title:          News list
+  summary:        no summary yet
+  text:           nothing written yet
+  lang:           en
+  number:         1
+<%= @defaults %>
+
+menu_en:
+  type:           Version
+  id:             25
+  item_id:        25
+  user_id:        4
+  comment:        no comment yet
+  title:          Top menu
+  summary:        no summary yet
+  text:           nothing written yet
+  lang:           en
+  number:         1
+<%= @defaults %>
+
+strange_en:
+  type:           Version
+  id:             26
+  item_id:        26
+  user_id:        5
+  comment:        no comment yet
+  title:          Strange page
+  summary:        no summary yet
+  text:           nothing written yet
+  lang:           en
+  number:         1
+<%= @defaults %>
+
+lake_red_en:
+  type:           Version
+  id:             27
+  item_id:        13
+  user_id:        3
+  comment:        this is a new redaction for lake
+  title:          The lake we love
+  summary:        no summary yet
+  text:           nothing written yet
+  created_at:     2006-03-10
+  updated_at:     2006-04-11
+  publish_from:
+  lang:           en
+  status:         30
+  file_ref:       14
+  number:         2
+
+opening_en:
+  type:           Version
+  id:             28
+  item_id:        17
+  user_id:        4
+  comment:        english opening
+  title:          parc opening
+  summary:        no summary yet
+  text:           nothing written yet
+  lang:           en
+  number:         2
+<%= @defaults %>
+
+opening_red_fr:
+  type:           Version
+  id:             29
+  item_id:        17
+  user_id:        4
+  comment:        new redaction for opening
+  title:          no title yet
+  summary:        no summary yet
+  text:           nothing written yet
+  created_at:     2006-03-10
+  updated_at:     2006-04-11
+  publish_from:
+  lang:           fr
+  status:         30
+  number:         3
+
+status_fr:
+  type:           Version
+  id:             30
+  item_id:        12
+  user_id:        3
+  comment:        status comment
+  title:          Etat des travaux
+  summary:        status summary
+  text:           status text
+  lang:           fr
+  number:         2
+<%= @defaults %>
+
+track_en:
+  type:           Version
+  id:             31
+  item_id:        27
+  user_id:        4
+  comment:        small presentation
+  title:          Keeping things clean !
+  summary:        This page is a *Tracker*. It stores open Bugs, tasks and actions.
+  text:           nothing written yet
+  lang:           en
+  number:         1
+<%= @defaults %>
+
+strange_en_red:
+  type:           Version
+  id:             32
+  item_id:        26
+  user_id:        5
+  comment:        strange configuration. Proposed
+  title:          Stranger in the night
+  summary:        ""
+  text:           ""
+  lang:           en
+  created_at:     2006-03-10
+  updated_at:     2006-04-11
+  publish_from:   2006-03-10
+  status:         30
+  number:         2
+
+talk_en:
+  type:           Version
+  id:             33
+  item_id:        28
+  user_id:        4
+  comment:        Please read all this.
+  title:          Talk
+  summary:        Talks for 'workers' in the secret project.
+  text:           You can talk here.
+  lang:           en
+  number:         1
+<%= @defaults %>
+
+nature_red_en:
+  type:           Version
+  id:             34
+  item_id:        29
+  user_id:        3
+  comment:        Beauty of nature
+  title:          Nature
+  summary:        "Ant's redaction on Nature"
+  text:           "![]!"
+  lang:           en
+  created_at:     2006-03-10
+  updated_at:     2006-04-11
+  publish_from:
+  status:         30
+  number:         1
+
+tree_red_en:
+  type:           ImageVersion
+  id:             35
+  item_id:        30
+  user_id:        3
+  comment:        a tree
+  title:          Automne Tree
+  summary:        "photography © André Karwath 2004"
+  text:           ""
+  lang:           en
+  created_at:     2006-03-10
+  updated_at:     2006-04-11
+  publish_from:
+  status:         30
+  file_ref:       35
+  number:         1
+  
+forest_red_en:
+  type:           DocVersion
+  id:             36
+  item_id:        31
+  user_id:        3
+  comment:        a forest
+  title:          Forest
+  summary:        ""
+  text:           ""
+  lang:           en
+  created_at:     2006-03-10
+  updated_at:     2006-04-11
+  publish_from:
+  status:         30
+  file_ref:       36
+  number:         1

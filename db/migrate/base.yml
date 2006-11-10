@@ -1,0 +1,119 @@
+addresses:
+  - id:         1
+    type:       User
+    first_name: anonymous
+
+  - id:         2
+    type:       User
+    login:      su
+    password:   su
+    first_name: Super
+    name:       User
+
+groups:
+  - id:             1
+    name:           public
+
+  - id:             2
+    name:           admin
+
+items:
+  - id:             1
+    type:           Project
+    kpath:          IPP
+    name:           zena
+    project_id:     1
+    parent_id:      
+    user_id:        2
+    publish_from:   2006-10-31
+    ref_lang:       en
+    max_status:     50
+    inherit:        0
+    template:       default
+    rgroup_id:      1
+    wgroup_id:      2
+    pgroup_id:      2
+
+  - id:             2
+    type:           Note
+    kpath:          IN
+    name:           birth
+    project_id:     1
+    parent_id:      1
+    user_id:        2
+    blog_at:        today
+    publish_from:   2006-10-31
+    ref_lang:       en
+    max_status:     50
+    inherit:        1
+    template:       default
+    rgroup_id:      1
+    wgroup_id:      2
+    pgroup_id:      2
+
+versions:
+  - type:           Version
+    item_id:        1
+    user_id:        2
+    comment:        replace this page with your real 'index' page
+    title:          Zena
+    summary:        This is your new Zena CMS.
+    text:           |
+
+      h2. Welcome !
+
+      You should now login as 'su' and create an administrator. Once you are logged in as the *administrator*, you can start editing the content of your CMS.
+
+      Have fun !!
+    lang:           en
+    number:         1
+    publish_from:   2006-10-31
+    status:         50
+
+  - type:           Version
+    item_id:        1
+    user_id:        2
+    comment:        remplacez le contenu de cette page par votre message d'accueil
+    title:          Zena
+    summary:        Voici votre nouveau gestionnaire de contenu Zena.
+    text:           |
+
+      h2. Bienvenue !
+
+      Vous pouvez maintenant entrer (login) dans le système comme 'su' et créer un administrateur. Une fois que vous êtes entrés dans le système comme *administrateur*, vous pouvez commencer à éditer le contenu de votre CMS.
+      
+      Bien du plaisir !!
+    lang:           fr
+    number:         2
+    publish_from:   2006-10-31
+    status:         50
+
+  - type:           Version
+    item_id:        2
+    user_id:        2
+    comment:        a small note to announce your new CMS
+    title:          Birthday !
+    summary:        |
+      Your new CMS is born today...
+    
+      We hope this is the beggining of a long lasting love...
+    text:           ""
+    lang:           en
+    number:         1
+    publish_from:   2006-10-31
+    status:         50
+
+  - type:           Version
+    item_id:        2
+    user_id:        2
+    comment:        une petite note pour annoncer la naissance de votre CMS
+    title:          Naissance !
+    summary:        |
+      Votre CMS est né aujourd'hui...  
+      
+      On vous souhaite beacoup de plaisir avec ce nouvel outil...
+    text:           ""
+    lang:           fr
+    number:         2
+    publish_from:   2006-10-31
+    status:         50

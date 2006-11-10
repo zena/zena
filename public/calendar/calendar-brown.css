@@ -1,0 +1,225 @@
+/* The main calendar widget.  DIV containing a table. */
+
+div.date_select { position: relative; }
+
+.date_select, .date_select table {
+  border: 1px solid #655;
+  font-size: 11px;
+  color: #000;
+  cursor: default;
+  background: #ffd;
+  font-family: tahoma,verdana,sans-serif;
+}
+
+/* Header part -- contains navigation buttons and day names. */
+
+.date_select .button { /* "<<", "<", ">", ">>" buttons have this class */
+  text-align: center;    /* They are the navigation buttons */
+  padding: 2px;          /* Make the buttons seem like they're pressing */
+}
+
+.date_select .nav {
+  background: #edc url(menuarrow.gif) no-repeat 100% 100%;
+}
+
+.date_select thead .title { /* This holds the current "month, year" */
+  font-weight: bold;      /* Pressing it will take you to the current date */
+  text-align: center;
+  background: #654;
+  color: #fed;
+  padding: 2px;
+}
+
+.date_select thead .headrow { /* Row <TR> containing navigation buttons */
+  background: #edc;
+  color: #000;
+}
+
+.date_select thead .name { /* Cells <TD> containing the day names */
+  border-bottom: 1px solid #655;
+  padding: 2px;
+  text-align: center;
+  color: #000;
+}
+
+.date_select thead .weekend { /* How a weekend day name shows in header */
+  color: #f00;
+}
+
+.date_select thead .hilite { /* How do the buttons in header appear when hover */
+  background-color: #faa;
+  color: #000;
+  border: 1px solid #f40;
+  padding: 1px;
+}
+
+.date_select thead .active { /* Active (pressed) buttons in header */
+  background-color: #c77;
+  padding: 2px 0px 0px 2px;
+}
+
+.date_select thead .daynames { /* Row <TR> containing the day names */
+  background: #fed;
+}
+
+/* The body part -- contains all the days in month. */
+
+.date_select tbody .day { /* Cells <TD> containing month days dates */
+  width: 2em;
+  text-align: right;
+  padding: 2px 4px 2px 2px;
+}
+.date_select tbody .day.othermonth {
+  font-size: 80%;
+  color: #bbb;
+}
+.date_select tbody .day.othermonth.oweekend {
+  color: #fbb;
+}
+
+.date_select table .wn {
+  padding: 2px 3px 2px 2px;
+  border-right: 1px solid #000;
+  background: #fed;
+}
+
+.date_select tbody .rowhilite td {
+  background: #ddf;
+}
+
+.date_select tbody .rowhilite td.wn {
+  background: #efe;
+}
+
+.date_select tbody td.hilite { /* Hovered cells <TD> */
+  background: #ffe;
+  padding: 1px 3px 1px 1px;
+  border: 1px solid #bbb;
+}
+
+.date_select tbody td.active { /* Active (pressed) cells <TD> */
+  background: #ddc;
+  padding: 2px 2px 0px 2px;
+}
+
+.date_select tbody td.selected { /* Cell showing today date */
+  font-weight: bold;
+  border: 1px solid #000;
+  padding: 1px 3px 1px 1px;
+  background: #fea;
+}
+
+.date_select tbody td.weekend { /* Cells showing weekend days */
+  color: #f00;
+}
+
+.date_select tbody td.today { font-weight: bold; }
+
+.date_select tbody .disabled { color: #999; }
+
+.date_select tbody .emptycell { /* Empty cells (the best is to hide them) */
+  visibility: hidden;
+}
+
+.date_select tbody .emptyrow { /* Empty row (some months need less than 6 rows) */
+  display: none;
+}
+
+/* The footer part -- status bar and "Close" button */
+
+.date_select tfoot .footrow { /* The <TR> in footer (only one right now) */
+  text-align: center;
+  background: #988;
+  color: #000;
+}
+
+.date_select tfoot .ttip { /* Tooltip (status bar) cell <TD> */
+  border-top: 1px solid #655;
+  background: #dcb;
+  color: #840;
+}
+
+.date_select tfoot .hilite { /* Hover style for buttons in footer */
+  background: #faa;
+  border: 1px solid #f40;
+  padding: 1px;
+}
+
+.date_select tfoot .active { /* Active (pressed) style for buttons in footer */
+  background: #c77;
+  padding: 2px 0px 0px 2px;
+}
+
+/* Combo boxes (menus that display months/years for direct selection) */
+
+.date_select .combo {
+  position: absolute;
+  display: none;
+  top: 0px;
+  left: 0px;
+  width: 4em;
+  cursor: default;
+  border: 1px solid #655;
+  background: #ffe;
+  color: #000;
+  font-size: 90%;
+  z-index: 100;
+}
+
+.date_select .combo .label,
+.date_select .combo .label-IEfix {
+  text-align: center;
+  padding: 1px;
+}
+
+.date_select .combo .label-IEfix {
+  width: 4em;
+}
+
+.date_select .combo .hilite {
+  background: #fc8;
+}
+
+.date_select .combo .active {
+  border-top: 1px solid #a64;
+  border-bottom: 1px solid #a64;
+  background: #fee;
+  font-weight: bold;
+}
+
+.date_select td.time {
+  border-top: 1px solid #a88;
+  padding: 1px 0px;
+  text-align: center;
+  background-color: #fed;
+}
+
+.date_select td.time .hour,
+.date_select td.time .minute,
+.date_select td.time .ampm {
+  padding: 0px 3px 0px 4px;
+  border: 1px solid #988;
+  font-weight: bold;
+  background-color: #fff;
+}
+
+.date_select td.time .ampm {
+  text-align: center;
+}
+
+.date_select td.time .colon {
+  padding: 0px 2px 0px 3px;
+  font-weight: bold;
+}
+
+.date_select td.time span.hilite {
+  border-color: #000;
+  background-color: #866;
+  color: #fff;
+}
+
+.date_select td.time span.active {
+  border-color: #f00;
+  background-color: #000;
+  color: #0f0;
+}
