@@ -91,31 +91,31 @@ module ApplicationHelper
   
   # display the time with the format provided by the translation of 'long_time'
   def long_time(atime)
-    format_date("long_time", atime)
+    format_date(atime, "long_time")
   end
   
   # display the time with the format provided by the translation of 'short_time'
   def short_time(atime)
-    format_date("short_time", atime)
+    format_date(atime, "short_time")
   end
   
   # display the time with the format provided by the translation of 'full_date'
   def full_date(adate)
-    format_date("full_date", adate)
+    format_date(adate, "full_date")
   end
   
   # display the time with the format provided by the translation of 'long_date'
   def long_date(adate)
-    format_date("long_date", adate)
+    format_date(adate, "long_date")
   end
   
   # display the time with the format provided by the translation of 'short_date'
   def short_date(adate)
-    format_date("short_date", adate)
+    format_date(adate, "short_date")
   end
   
   # format a date with the given format. Translate month and day names.
-  def format_date(fmt, adate)
+  def format_date(adate, fmt)
     if adate
       format = trans(fmt)
       if format != fmt
@@ -131,25 +131,17 @@ module ApplicationHelper
       end
     end
   end
-  
+
   # Parse date : return a date from a string
-  def parse_date(str, fmt=trans("long_date"))
-    if str =~ /\./
-      elements = str.split('.')
-      format = fmt.split('.')
-    elsif str=~ /\-/
-      elements = str.split('-')
-      format = fmt.split('-')
-    elsif str=~ /\//
-      elements = str.split('/')
-      format = fmt.split('/')
-    end
+  def parse_date(datestr, fmt=trans("long_date"))
+    elements = datestr.split(/(\.|\-|\/|\s)+/)
+    format = fmt.split(/(\.|\-|\/|\s)+/)
     if elements
       hash = {}
       elements.each_index do |i|
         hash[format[i]] = elements[i]
       end
-      hash['%Y'] ||= hash['%y'] ? (hash['%y'] + 2000) : nil
+      hash['%Y'] ||= hash['%y'] ? (hash['%y'].to_i + 2000) : Time.now.year
       if hash['%Y'] && hash['%m'] && hash['%d']
         Time.gm(hash['%Y'], hash['%m'], hash['%d'])
       else

@@ -110,13 +110,16 @@ class ApplicationHelperTest < HelperTestCase
   
   def test_format_date
     atime = Time.now
-    assert_equal atime.strftime('%m.%d'), format_date('short_date',atime)
+    assert_equal atime.strftime('%m.%d'), format_date(atime, 'short_date')
     session[:lang] = 'fr'
-    assert_equal atime.strftime('%d.%m'), format_date('short_date',atime)
+    assert_equal atime.strftime('%d.%m'), format_date(atime, 'short_date')
   end
   
   def test_parse_date
-    #assert_equal '', parse_date
+    assert_equal Time.gm(2006,11,10), parse_date('2006-11-10', '%Y-%m-%d')
+    assert_equal Time.gm(2006,11,10), parse_date('10.11 2006', '%d.%m %Y')
+    assert_equal Time.gm(2006,11,10), parse_date('10.11 / 06', '%d.%m.%y')
+    assert_equal Time.gm(Time.now.year,11,10), parse_date('11-10', '%m.%d')
   end
   
   def test_visitor_link
