@@ -1,9 +1,8 @@
 require File.dirname(__FILE__) + '/../test_helper'
-
 class VersionTest < UnitTestCase
-  fixtures :versions, :comments, :items
   
   def test_cannot_set_item_id
+    puts User.find(:all).size
     visitor(:ant)
     item = secure(Item) { Item.find(items_id(:ant))}
     version = item.send(:version)

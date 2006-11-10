@@ -18,7 +18,7 @@ class UnitTestCase < Test::Unit::TestCase
   # Set visitor for unit testing
   def visitor(name=nil)
     if name
-      user = addresses(name)
+      user = User.find_by_login(name.to_s)
       @user_id = user.id
       @user_groups = user.group_ids
       @lang = user.lang

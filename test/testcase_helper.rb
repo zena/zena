@@ -11,7 +11,7 @@ module HelperTestSetup
 end
 
 class HelperTestCase < Test::Unit::TestCase
-
+  
   include ActionView::Helpers::ActiveRecordHelper
   include ActionView::Helpers::TagHelper
   include ActionView::Helpers::FormTagHelper

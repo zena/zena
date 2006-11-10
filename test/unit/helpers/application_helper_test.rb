@@ -7,7 +7,9 @@ class ApplicationHelperTest < HelperTestCase
     @controllerClass = ApplicationController
     super
   end
-  
+  def test_items_id
+    puts items_id(:zena)
+  end
   def test_uses_calendar_with_lang
     res = uses_calendar
     assert_match %r{/calendar/lang/calendar-en-utf8.js}, res
@@ -29,6 +31,8 @@ class ApplicationHelperTest < HelperTestCase
     assert_equal '<input name="commit" type="submit" value="lundi" />', tsubmit_tag('Monday')
   end
   
+end
+=begin
   def test_tlink_to_remote
     session[:lang] = 'fr'
     assert_equal "<a href=\"#\" onclick=\"new Ajax.Request('', {asynchronous:true, evalScripts:true}); return false;\">lundi</a>", tlink_to_remote('Monday', :controller=>'version', :action=>'edit')
@@ -184,3 +188,4 @@ class ApplicationHelperTest < HelperTestCase
   def test_parseDate(str, fmt=trans("long_date"))
   end
 end
+=end
