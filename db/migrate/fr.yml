@@ -1,264 +1,246 @@
-translations:
-  - keyword: April
-    lang:    fr
-    value:   "avril"
-
-  - keyword: August
-    lang:    fr
-    value:   "ao\303\273t"
-
-  - keyword: btn_accept
-    lang:    fr
-    value:   "<img width=\"16\" height=\"16\" src=\"/images/accept.png\"/>"
-
-  - keyword: btn_add_doc
-    lang:    fr
-    value:   "<img width=\"16\" height=\"16\" src=\"/images/add.png\"/>"
-
-  - keyword: btn_add_link
-    lang:    fr
-    value:   "<img width=\"16\" height=\"16\" src=\"/images/tag_blue_add.png\"/>"
-
-  - keyword: btn_add_note
-    lang:    fr
-    value:   "<img width=\"16\" height=\"16\" src=\"/images/add.png\"/>"
-
-  - keyword: btn_add_page
-    lang:    fr
-    value:   "<img width=\"16\" height=\"16\" src=\"/images/add.png\"/>"
-
-  - keyword: btn_destroy
-    lang:    fr
-    value:   "<img width=\"16\" height=\"16\" src=\"/images/page_delete.png\"/>"
-
-  - keyword: btn_drive
-    lang:    fr
-    value:   "<img width=\"16\" height=\"16\" src=\"/images/wrench.png\"/>"
-
-  - keyword: btn_edit
-    lang:    fr
-    value:   "<img width=\"16\" height=\"16\" src=\"/images/page_edit.png\"/>"
-
-  - keyword: btn_propose
-    lang:    fr
-    value:   "<img width=\"16\" height=\"16\" src=\"/images/picture_empty.png\"/>"
-
-  - keyword: btn_publish
-    lang:    fr
-    value:   "<img width=\"16\" height=\"16\" src=\"/images/wand.png\"/>"
-
-  - keyword: btn_redit
-    lang:    fr
-    value:   "<img width=\"16\" height=\"16\" src=\"/images/page_edit.png\"/>"
-
-  - keyword: btn_refuse
-    lang:    fr
-    value:   "<img width=\"16\" height=\"16\" src=\"/images/delete.png\"/>"
-
-  - keyword: btn_remove
-    lang:    fr
-    value:   "<img width=\"16\" height=\"16\" src=\"/images/delete.png\"/>"
-
-  - keyword: btn_tiny_del
-    lang:    fr
-    value:   "<img src=\"/images/bullet_delete.png\"/>"
-
-  - keyword: btn_title_drive
-    lang:    fr
-    value:   "gestion de la page (suivi de versions, modification des droits, etc)"
-
-  - keyword: btn_title_edit
-    lang:    fr
-    value:   "\303\251diter la page"
-
-  - keyword: btn_title_propose
-    lang:    fr
-    value:   "proposer la page pour publication"
-
-  - keyword: btn_title_publish
-    lang:    fr
-    value:   "publier la page"
-
-  - keyword: btn_title_refuse
-    lang:    fr
-    value:   "refuser la publication (la r\303\251daction est renvoy\303\251e au propri\303\251taire)"
-
-  - keyword: btn_view
-    lang:    fr
-    value:   "<img width=\"16\" height=\"16\" src=\"/images/eye.png\"/>"
-
-  - keyword: btn_x
-    lang:    fr
-    value:   "<img width=\"16\" height=\"16\" src=\"/images/cross.png\"/>"
-
-  - keyword: December
-    lang:    fr
-    value:   "d\303\251cembre"
-
-  - keyword: Documents
-    lang:    fr
-    value:   "Documents"
-
-  - keyword: en
-    lang:    fr
-    value:   "anglais"
+trans_values:
+  - id:        74
+    trans_id:  1
+    lang:      fr
+    value:     "avril"
+
+  - id:        75
+    trans_id:  2
+    lang:      fr
+    value:     "août"
+
+  - id:        76
+    trans_id:  3
+    lang:      fr
+    value:     "décembre"
+
+  - id:        77
+    trans_id:  4
+    lang:      fr
+    value:     "Documents"
+
+  - id:        78
+    trans_id:  5
+    lang:      fr
+    value:     "Événements"
+
+  - id:        79
+    trans_id:  6
+    lang:      fr
+    value:     "février"
+
+  - id:        80
+    trans_id:  7
+    lang:      fr
+    value:     "vendredi"
+
+  - id:        81
+    trans_id:  8
+    lang:      fr
+    value:     "janvier"
+
+  - id:        82
+    trans_id:  9
+    lang:      fr
+    value:     "juillet"
+
+  - id:        83
+    trans_id:  10
+    lang:      fr
+    value:     "juin"
+
+  - id:        84
+    trans_id:  11
+    lang:      fr
+    value:     "mai"
+
+  - id:        85
+    trans_id:  12
+    lang:      fr
+    value:     "mars"
+
+  - id:        86
+    trans_id:  13
+    lang:      fr
+    value:     "lundi"
+
+  - id:        87
+    trans_id:  14
+    lang:      fr
+    value:     "Brèves"
+
+  - id:        88
+    trans_id:  15
+    lang:      fr
+    value:     "novembre"
+
+  - id:        89
+    trans_id:  16
+    lang:      fr
+    value:     "octobre"
+
+  - id:        90
+    trans_id:  17
+    lang:      fr
+    value:     "Pages"
+
+  - id:        91
+    trans_id:  18
+    lang:      fr
+    value:     "Rédactions"
+
+  - id:        92
+    trans_id:  19
+    lang:      fr
+    value:     "samedi"
+
+  - id:        93
+    trans_id:  20
+    lang:      fr
+    value:     "septembre"
+
+  - id:        94
+    trans_id:  21
+    lang:      fr
+    value:     "dimanche"
+
+  - id:        95
+    trans_id:  22
+    lang:      fr
+    value:     "jeudi"
+
+  - id:        96
+    trans_id:  23
+    lang:      fr
+    value:     "Traductions"
+
+  - id:        97
+    trans_id:  24
+    lang:      fr
+    value:     "mardi"
+
+  - id:        98
+    trans_id:  25
+    lang:      fr
+    value:     "Propositions"
+
+  - id:        99
+    trans_id:  26
+    lang:      fr
+    value:     "mercredi"
+
+  - id:        114
+    trans_id:  43
+    lang:      fr
+    value:     "gestion de la page (suivi de versions, modification des droits, etc)"
+
+  - id:        115
+    trans_id:  44
+    lang:      fr
+    value:     "éditer la page"
+
+  - id:        116
+    trans_id:  45
+    lang:      fr
+    value:     "proposer la page pour publication"
+
+  - id:        117
+    trans_id:  46
+    lang:      fr
+    value:     "publier la page"
+
+  - id:        118
+    trans_id:  47
+    lang:      fr
+    value:     "refuser la publication (la rédaction est renvoyée au propriétaire)"
+
+  - id:        121
+    trans_id:  51
+    lang:      fr
+    value:     "anglais"
+
+  - id:        122
+    trans_id:  52
+    lang:      fr
+    value:     "français"
+
+  - id:        123
+    trans_id:  53
+    lang:      fr
+    value:     "Bonjour"
+
+  - id:        125
+    trans_id:  59
+    lang:      fr
+    value:     "<b>%A</b> %d %B"
+
+  - id:        126
+    trans_id:  60
+    lang:      fr
+    value:     "%d.%m.%Y"
+
+  - id:        127
+    trans_id:  61
+    lang:      fr
+    value:     "%d %b %Y"
+
+  - id:        128
+    trans_id:  62
+    lang:      fr
+    value:     "%A, %d %B %Y"
+
+  - id:        129
+    trans_id:  63
+    lang:      fr
+    value:     "publié le"
+
+  - id:        130
+    trans_id:  64
+    lang:      fr
+    value:     "un article de"
+
+  - id:        131
+    trans_id:  65
+    lang:      fr
+    value:     "%d.%m"
+
+  - id:        132
+    trans_id:  66
+    lang:      fr
+    value:     "supprimé"
+
+  - id:        133
+    trans_id:  67
+    lang:      fr
+    value:     "effacé"
+
+  - id:        134
+    trans_id:  68
+    lang:      fr
+    value:     "remplacé"
+
+  - id:        135
+    trans_id:  69
+    lang:      fr
+    value:     "rédaction"
+
+  - id:        136
+    trans_id:  70
+    lang:      fr
+    value:     "proposition"
+
+  - id:        137
+    trans_id:  71
+    lang:      fr
+    value:     "proposition"
+
+  - id:        138
+    trans_id:  72
+    lang:      fr
+    value:     "publié"
+
+  - id:        139
+    trans_id:  73
+    lang:      fr
+    value:     "traduire l'interface"
 
-  - keyword: Events
-    lang:    fr
-    value:   "Br\303\250ves"
-
-  - keyword: February
-    lang:    fr
-    value:   "f\303\251vrier"
-
-  - keyword: fr
-    lang:    fr
-    value:   "fran\303\247ais"
-
-  - keyword: Friday
-    lang:    fr
-    value:   "vendredi"
-
-  - keyword: home of
-    lang:    fr
-    value:   "Bonjour"
-
-  - keyword: img_tag
-    lang:    fr
-    value:   "<img width=\"16\" height=\"16\" src=\"/images/tag_blue.png\"/>"
-
-  - keyword: January
-    lang:    fr
-    value:   "janvier"
-
-  - keyword: July
-    lang:    fr
-    value:   "juillet"
-
-  - keyword: June
-    lang:    fr
-    value:   "juin"
-
-  - keyword: logo_date
-    lang:    fr
-    value:   "<b>%A</b> %d %B"
-
-  - keyword: long_date
-    lang:    fr
-    value:   "%d.%m.%Y"
-
-  - keyword: long_time
-    lang:    fr
-    value:   "%d %b %Y"
-
-  - keyword: Mai
-    lang:    fr
-    value:   "mai"
-
-  - keyword: March
-    lang:    fr
-    value:   "mars"
-
-  - keyword: Monday
-    lang:    fr
-    value:   "lundi"
-
-  - keyword: News
-    lang:    fr
-    value:   "Br\303\250ves"
-
-  - keyword: news_date
-    lang:    fr
-    value:   "%A, %d %B %Y"
-
-  - keyword: November
-    lang:    fr
-    value:   "novembre"
-
-  - keyword: October
-    lang:    fr
-    value:   "octobre"
-
-  - keyword: on
-    lang:    fr
-    value:   "publi\303\251 le"
-
-  - keyword: Pages
-    lang:    fr
-    value:   "Pages"
-
-  - keyword: posted by
-    lang:    fr
-    value:   "un article de"
-
-  - keyword: Redactions
-    lang:    fr
-    value:   "R\303\251dactions"
-
-  - keyword: Saturday
-    lang:    fr
-    value:   "samedi"
-
-  - keyword: September
-    lang:    fr
-    value:   "septembre"
-
-  - keyword: short_date
-    lang:    fr
-    value:   "%d.%m"
-
-  - keyword: status_0
-    lang:    fr
-    value:   "supprim\303\251"
-
-  - keyword: status_10
-    lang:    fr
-    value:   "effac\303\251"
-
-  - keyword: status_20
-    lang:    fr
-    value:   "remplac\303\251"
-
-  - keyword: status_30
-    lang:    fr
-    value:   "r\303\251daction"
-
-  - keyword: status_35
-    lang:    fr
-    value:   "proposition"
-
-  - keyword: status_40
-    lang:    fr
-    value:   "proposition"
-
-  - keyword: status_50
-    lang:    fr
-    value:   "publi\303\251"
-
-  - keyword: Sunday
-    lang:    fr
-    value:   "dimanche"
-
-  - keyword: Thursday
-    lang:    fr
-    value:   "jeudi"
-
-  - keyword: Traductions
-    lang:    fr
-    value:   "Traductions"
-
-  - keyword: translation_interface
-    lang:    fr
-    value:   "traduire l'interface"
-
-  - keyword: Tuesday
-    lang:    fr
-    value:   "mardi"
-
-  - keyword: Waiting
-    lang:    fr
-    value:   "Propositions"
-
-  - keyword: Wednesday
-    lang:    fr
-    value:   "mercredi"

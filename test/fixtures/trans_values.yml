@@ -39,10 +39,22 @@ long_time_en:
   id: 7
   trans_id: 4
   lang:   'en'
-  value: '%d-%m-%Y'
+  value: '%H:%M:%S'
   
 long_time_fr:
   id: 8
   trans_id: 4
   lang:   'fr'
-  value: '%d.%m.%Y'
+  value: 'heure: %H:%M:%S'
+  
+short_time_en:
+  id: 9
+  trans_id: 5
+  lang:   'en'
+  value: '%H:%M'
+  
+short_time_fr:
+  id: 10
+  trans_id: 5
+  lang:   'fr'
+  value: '%Hh%M'

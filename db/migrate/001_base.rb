@@ -189,7 +189,7 @@ class Base < ActiveRecord::Migration
     drop_table "items"
     drop_table "links"
     drop_table "versions"
-    drop_table "trans_keys"
+    drop_table "trans"
     drop_table "trans_values"
   end
 end

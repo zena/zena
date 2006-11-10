@@ -25,25 +25,29 @@ class ApplicationHelperTest < HelperTestCase
   end
   
   def test_tsubmit_tag
-    assert_equal '<input name="commit" type="submit" value="Lundi" />', tsubmit_tag('Monday')
+    session[:lang] = 'fr'
+    assert_equal '<input name="commit" type="submit" value="lundi" />', tsubmit_tag('Monday')
   end
   
   def test_tlink_to_remote
-    assert_equal "<a href=\"#\" onclick=\"new Ajax.Request('', {asynchronous:true, evalScripts:true}); return false;\">Lundi</a>", tlink_to_remote('Monday', :controller=>'version', :action=>'edit')
+    session[:lang] = 'fr'
+    assert_equal "<a href=\"#\" onclick=\"new Ajax.Request('', {asynchronous:true, evalScripts:true}); return false;\">lundi</a>", tlink_to_remote('Monday', :controller=>'version', :action=>'edit')
   end
   
   def test_tlink_to
-    assert_equal "<a href=\"/z/version/edit\">Lundi</a>", tlink_to('Monday', :controller=>'version', :action=>'edit')
+    session[:lang] = 'fr'
+    assert_equal "<a href=\"/z/version/edit\">lundi</a>", tlink_to('Monday', :controller=>'version', :action=>'edit')
   end
   
   def test_tlink_to_function
-    assert_equal "<a href=\"new Element.hide('drive')\">Lundi</a>", tlink_to('Monday', "new Element.hide('drive')")
+    session[:lang] = 'fr'
+    assert_equal "<a href=\"new Element.hide('drive')\">lundi</a>", tlink_to('Monday', "new Element.hide('drive')")
   end
   
   def test_transb
     session[:translate] = true
     assert_equal trans('Monday',false), transb('Monday')
-    assert_not_equal 'Lundi', trans('Monday')
+    assert_not_equal 'lundi', trans('Monday')
   end
   
   def test_salt_against_caching
@@ -140,27 +144,40 @@ class ApplicationHelperTest < HelperTestCase
     session[:lang] = 'io'
     assert_equal '%Y-%m-%d', trans('long_date')
     session[:translate] = true
-    assert_equal '%d.%m.%Y', trans('long_date')
+    assert_match /div.*translation.*Ajax.*\%Y-\%m-\%d/, trans('long_date')
   end
   
   def test_long_time
-    format_date("long_time", atime)
+    atime = Time.now
+    assert_equal atime.strftime('%H:%M:%S'), format_date("long_time", atime)
+    session[:lang] = 'fr'
+    assert_equal atime.strftime('heure: %H:%M:%S'), format_date("long_time", atime)
   end
   
   def test_short_time
-    format_date("short_time", atime)
+    atime = Time.now
+    assert_equal atime.strftime('%H:%M'), format_date("short_time", atime)
+    session[:lang] = 'fr'
+    assert_equal atime.strftime('%Hh%M'), format_date("short_time", atime)
   end
   
   def test_long_date
-    format_date("long_date", adate)
+    atime = Time.now
+    assert_equal atime.strftime('%Y-%m-%d'), format_date("long_date", atime)
+    session[:lang] = 'fr'
+    assert_equal atime.strftime('%d.%m.%Y'), format_date("long_date", atime)
   end
   
   def test_short_date
-    format_date("short_date", adate)
+    atime = Time.now
+    assert_equal atime.strftime('%m.%d'), format_date("short_date", atime)
+    session[:lang] = 'fr'
+    assert_equal atime.strftime('%d.%m'), format_date("short_date", atime)
   end
   
   def test_format_date
     
+    session[:lang] = 'fr'
   end
   
   # Parse date : return a date from a string

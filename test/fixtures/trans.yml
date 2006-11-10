@@ -10,3 +10,6 @@ short_date:
 long_time:
   id: 4
   key: long_time
+short_time:
+  id: 5
+  key: short_time

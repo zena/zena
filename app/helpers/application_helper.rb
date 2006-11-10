@@ -156,6 +156,20 @@ module ApplicationHelper
     end
   end
   
+  # "Translate" static text into the current lang
+  def trans(keyword, edit=true)
+    key = Trans.translate(keyword)
+    if session[:translate] && edit # set wether untranslated text will be editable or not
+      "<div id='translate_#{keyword}' class='translation'>" + 
+      link_to_remote(key.into(lang), 
+          :update=>"translate_#{key[:id]}", 
+          :url=>"/z/trans/#{key[:id]}",
+          :complete=>'$("translation_value").focus();$("translation_value").select()') +
+      "</div>"
+    else
+      Trans.translate(keyword).into(lang)
+    end
+  end
   # test to here
   
   # display the time with the format provided by the translation of 'long_time'

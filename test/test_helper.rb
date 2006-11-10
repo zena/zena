@@ -6,7 +6,6 @@ require File.expand_path(File.dirname(__FILE__) + '/testcase_controller')
 require File.expand_path(File.dirname(__FILE__) + '/testcase_helper')
 
 class Test::Unit::TestCase
-  
   # UNCOMMENT THE FOLLOWING LINES IF YOU GET NoMethodError: undefined method `items_id'
   # OR PATCH active_record/fixtures.rb with http://dev.rubyonrails.org/attachment/ticket/4877/find_fixture_id_by_name.diff
   unless methods.include?('o_setup_fixture_accessors')
@@ -26,8 +25,6 @@ class Test::Unit::TestCase
       end
     end
   end
-  
-  
   fixtures :addresses, :groups, :groups_users, :items, :versions, :trans, :trans_values
   
   # Transactional fixtures accelerate your tests by wrapping each test method

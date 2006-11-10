@@ -57,6 +57,13 @@ class ApplicationControllerTest < ControllerTestCase
   end
   
   # trans tested in ApplicationHelperTest
+  def test_trans
+    assert_equal 'yoba', @controller.send(:trans,'yoba')
+    @controller.instance_eval { @session = {:lang=>'fr'} }
+    assert_equal 'lundi', @controller.send(:trans,'Monday')
+    @controller.instance_eval { @session = {:lang=>'en', :translate=>true} }
+    assert_equal 'yoba', @controller.send(:trans,'yoba')
+  end
   
   # authorize tested in 'MainController' tests
   

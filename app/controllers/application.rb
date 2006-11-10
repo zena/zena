@@ -2,7 +2,7 @@
 # Likewise, all the methods added will be available for all controllers.
 class ApplicationController < ActionController::Base
   acts_as_secure_controller
-  helper_method :trans, :prefix
+  helper_method :prefix
   before_filter :authorize
   before_filter :set_env
   layout false
@@ -104,26 +104,18 @@ class ApplicationController < ActionController::Base
     end
 
   end
+  
+  # "Translate" static text into the current lang
+  def trans(keyword, edit=true)
+    Trans.translate(keyword).into(lang)
+  end
+  
   # /////// The following methods are common to controllers and views //////////// #
   
   def prefix
     session && session[:user] ? "#{AUTHENTICATED_PREFIX}" : lang
   end
   
-  # "Translate" static text into the current lang
-  def trans(keyword, edit=true)
-    key = Trans[keyword]
-    if session[:translate] && edit # set wether untranslated text will be editable or not
-      "<div id='translate_#{keyword}' class='translation'>" + 
-      link_to_remote(key[lang], 
-          :update=>"translate_#{key[:id]}", 
-          :url=>"/z/trans/#{key[:id]}",
-          :complete=>'$("translation_value").focus();$("translation_value").select()') +
-      "</div>"
-    else
-      Trans[keyword][lang]
-    end
-  end
 end
 =begin
 # Filters added to this controller will be run for all controllers in the application.
