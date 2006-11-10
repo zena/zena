@@ -8,8 +8,7 @@ class MainControllerTest < ControllerTestCase
   
   def setup
     @controller = MainController.new
-    @request    = ActionController::TestRequest.new
-    @response   = ActionController::TestResponse.new
+    init_controller
   end
   
   def test_index

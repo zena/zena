@@ -40,10 +40,12 @@ class ApplicationController < ActionController::Base
     end
     # try to find a class specific template
     c_tmplt = "#{tmplt}_#{@item.class.to_s.downcase}"
-    if File.exist?(File.join(RAILS_ROOT, 'app', 'views', 'main', "#{c_tmplt}.rhtml"))
+    if File.exist?(File.join(RAILS_ROOT, 'app', 'views', 'templates', "#{c_tmplt}.rhtml"))
       c_tmplt
-    else
+    elsif File.exist?(File.join(RAILS_ROOT, 'app', 'views', 'templates', "#{tmplt}.rhtml"))
       tmplt
+    else
+      'default'
     end
   end
       

@@ -8,8 +8,7 @@ class VersionControllerTest < ControllerTestCase
   fixtures :versions, :items
   def setup
     @controller = VersionController.new
-    @request    = ActionController::TestRequest.new
-    @response   = ActionController::TestResponse.new
+    init_controller
   end
   
   ## 

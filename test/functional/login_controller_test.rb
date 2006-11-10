@@ -8,8 +8,7 @@ class LoginControllerTest < ControllerTestCase
   
   def setup
     @controller = LoginController.new
-    @request    = ActionController::TestRequest.new
-    @response   = ActionController::TestResponse.new
+    init_controller
   end
   
   def test_get_login

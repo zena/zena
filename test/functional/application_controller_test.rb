@@ -5,7 +5,7 @@ require 'application'
 class ApplicationController; def rescue_action(e) raise e end; end
 
 class ApplicationControllerTest < ControllerTestCase
-  fixtures :items, :trans, :trans_values
+  
   def setup
     @controller = ApplicationController.new
     init_controller
@@ -35,6 +35,9 @@ class ApplicationControllerTest < ControllerTestCase
     assert_equal 'default', proj.template
     @controller.instance_eval{ @item = proj }
     assert_equal 'default_project', @controller.send(:template)
+    proj.template = 'truc'
+    assert_equal 'truc', proj.template
+    assert_equal 'default', @controller.send(:template)
   end
 
   def test_custom_template

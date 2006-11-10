@@ -7,8 +7,7 @@ class ItemController; def rescue_action(e) raise e end; end
 class ItemControllerTest < ControllerTestCase
   def setup
     @controller = ItemController.new
-    @request    = ActionController::TestRequest.new
-    @response   = ActionController::TestResponse.new
+    init_controller
   end
   
   
