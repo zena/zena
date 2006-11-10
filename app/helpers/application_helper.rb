@@ -99,6 +99,11 @@ module ApplicationHelper
     format_date("short_time", atime)
   end
   
+  # display the time with the format provided by the translation of 'full_date'
+  def full_date(adate)
+    format_date("full_date", adate)
+  end
+  
   # display the time with the format provided by the translation of 'long_date'
   def long_date(adate)
     format_date("long_date", adate)

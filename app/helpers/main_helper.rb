@@ -60,14 +60,16 @@ module MainHelper
   # Create the traduction list for the current item
   def traductions(obj=@item)
     trad_list = []
-    obj.traductions.map do |ed| 
+    lang_found = false
+    obj.traductions.map do |ed|
   		if ed == obj.v_lang
-  			trad_list << "<span class=\"on\">" + link_to( ed, change_lang(ed)) + "</span>"
+  		  lang_found = (ed == lang) # current item is in the requested lang
+  			trad_list << "<span class='on'>" + link_to( ed, change_lang(ed)) + "</span>"
   		else
   			trad_list << "<span>" + link_to( ed, change_lang(ed)) + "</span>"
   		end
   	end
-	  trad_list << "<span class=\"off\">#{lang}</span>" if obj.v_lang != lang
+	  trad_list << "<span class='off'>#{lang}</span>" unless lang_found
 	  trad_list
   end
   
@@ -81,10 +83,9 @@ module MainHelper
   
   # show author information
   def author(size=:small)
-    res = []
-    res << "<div class='info'>"
-    
     if size == :large
+      res = []
+      res << "<div class='info'>"
       if  @item.author.id == @item.v_author.id
         res << trans("posted by") + " <b>" + @item.author.fullname + "</b>"
       else
@@ -93,10 +94,10 @@ module MainHelper
       end
       res << trans("on") + " " + short_date(@item.v_updated_at) + "."
       res << trans("Traductions") + " : <span id='trad'>" + traductions.join(", ") + "</span>"
+      res << "</div>"
+      res.join("\n")
     else
-      res << "<b>" + @item.v_author.initals + "</b> - " + short_date(@item.v_updated_at)
+      "<div class='info'><b>#{@item.v_author.initials}</b> - #{short_date(@item.v_updated_at)}</div>"
     end
-    res << "</div>"
-    res.join("\n")
   end
 end

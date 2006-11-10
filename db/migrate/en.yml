@@ -141,7 +141,7 @@ trans_values:
 
   - key_id:    60
     lang:      en
-    value:     "%A, %B %d %Y"
+    value:     "%Y-%m-%d"
 
   - key_id:    61
     lang:      en
@@ -198,4 +198,8 @@ trans_values:
   - key_id:    74
     lang:      en
     value:     "%H:%M"
-
+    
+  - key_id:    75
+    lang:      en
+    value:     "%A, %B %d %Y"
+    

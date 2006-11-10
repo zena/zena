@@ -43,5 +43,5 @@ class Test::Unit::TestCase
     # all subclasses will inherit this setting
     true
   end
-  fixtures :versions, :comments, :items, :addresses, :groups_users, :trans_keys, :trans_values
+  fixtures :versions, :comments, :items, :addresses, :groups, :groups_users, :trans_keys, :trans_values
 end

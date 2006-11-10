@@ -221,3 +221,6 @@ trans_keys:
   - id:   74
     key:  "short_time"
 
+  - id:   75
+    key:  "full_date"
+

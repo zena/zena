@@ -356,7 +356,7 @@
   id:        60
   key_id:    60
   lang:      en
-  value:     "%A, %B %d %Y"
+  value:     "%Y-%m-%d"
 
 61:
   id:        61
@@ -650,7 +650,7 @@
   id:        126
   key_id:    60
   lang:      fr
-  value:     "%A, %d %B %Y"
+  value:     "%d.%m.%Y"
 
 127:
   id:        127
@@ -741,5 +741,17 @@
   key_id:    74
   lang:      fr
   value:     "%Hh%M"
+
+142:
+  id:        142
+  key_id:    75
+  lang:      en
+  value:     "%A, %B %d %Y"
+
+143:
+  id:        143
+  key_id:    75
+  lang:      fr
+  value:     "%A, %d %B %Y"
 
 

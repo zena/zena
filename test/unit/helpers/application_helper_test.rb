@@ -64,13 +64,13 @@ class ApplicationHelperTest < HelperTestCase
   
   def test_trans
     assert_equal 'yoba', trans('yoba')
-    assert_equal '%A, %B %d %Y', trans('long_date')
+    assert_equal '%A, %B %d %Y', trans('full_date')
     session[:lang] = 'fr'
-    assert_equal '%A, %d %B %Y', trans('long_date')
+    assert_equal '%A, %d %B %Y', trans('full_date')
     session[:lang] = 'io'
-    assert_equal '%A, %B %d %Y', trans('long_date')
+    assert_equal '%A, %B %d %Y', trans('full_date')
     session[:translate] = true
-    assert_match /div.*translation.*Ajax.*\%A, \%B \%d \%Y/, trans('long_date')
+    assert_match /div.*translation.*Ajax.*\%A, \%B \%d \%Y/, trans('full_date')
   end
   
   def test_long_time
@@ -86,12 +86,19 @@ class ApplicationHelperTest < HelperTestCase
     session[:lang] = 'fr'
     assert_equal "17h33", short_time(atime)
   end
-  
+
   def test_long_date
     atime = Time.gm(2006,11,10)
-    assert_equal "Friday, November 10 2006", long_date(atime)
+    assert_equal "2006-11-10", long_date(atime)
     session[:lang] = 'fr'
-    assert_equal "vendredi, 10 novembre 2006", long_date(atime)
+    assert_equal "10.11.2006", long_date(atime)
+  end
+
+  def test_full_date
+    atime = Time.gm(2006,11,10)
+    assert_equal "Friday, November 10 2006", full_date(atime)
+    session[:lang] = 'fr'
+    assert_equal "vendredi, 10 novembre 2006", full_date(atime)
   end
   
   def test_short_date
