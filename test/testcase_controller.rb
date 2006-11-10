@@ -1,13 +1,5 @@
 class ControllerTestCase < Test::Unit::TestCase
-  
-  # initialize session by making a first call
-  def init_controller
-    @request    = ActionController::TestRequest.new
-    @response   = ActionController::TestResponse.new
-    @controller.instance_eval { @session = {}; @params = {}; @url = ActionController::UrlRewriter.new( @request, {} ) }
-  end
-  
-  # login for functional testing
+
   def login(visitor=:ant)
     @controller_bak = @controller
     @controller = LoginController.new

@@ -5,7 +5,7 @@ require 'login_controller'
 class LoginController; def rescue_action(e) raise e end; end
 
 class LoginControllerTest < ControllerTestCase
-    fixtures :addresses, :groups, :groups_users
+  
   def setup
     @controller = LoginController.new
     @request    = ActionController::TestRequest.new
@@ -38,14 +38,17 @@ class LoginControllerTest < ControllerTestCase
     post 'login', :user=>{:login=>'ant', :password=>'tiger'}
     assert_nil session[:user]
     assert_template 'login'
+    assert_equal 'Invalid login or password', flash[:error]
     
     post 'login', :user=>{:login=>'ant', :password=>'bad'}
     assert_nil session[:user]
     assert_template 'login'
+    assert_equal 'Invalid login or password', flash[:error]
     
     post 'login', :user=>{:login=>'bad', :password=>'ant'}
     assert_nil session[:user]
     assert_template 'login'
+    assert_equal 'Invalid login or password', flash[:error]
   end
   
   def test_logout

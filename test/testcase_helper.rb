@@ -11,6 +11,7 @@ module HelperTestSetup
 end
 
 class HelperTestCase < Test::Unit::TestCase
+  attr_accessor :flash, :controller
   
   include ActionView::Helpers::ActiveRecordHelper
   include ActionView::Helpers::TagHelper
@@ -33,11 +34,8 @@ class HelperTestCase < Test::Unit::TestCase
     # Fake url rewriter so we can test url_for
     @url     = ActionController::UrlRewriter.new @request, {}
     @controller.setup(@request, @response, @url)
+    @flash = {}
     ActionView::Helpers::AssetTagHelper::reset_javascript_include_default
-  end
-  
-  def controller
-    @controller
   end
   
   # login for functional testing

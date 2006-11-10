@@ -6,14 +6,14 @@ class MainHelperTest < HelperTestCase
 
   def test_check_lang_same
     session[:lang] = 'en'
-    obj = Item.find(items_id(:zena))
+    obj = items(:zena)
     assert_equal 'en', obj.v_lang
     assert_no_match /\[en\]/, check_lang(obj)
   end
   
   def test_check_other_lang
     session[:lang] = 'io'
-    obj = Item.find(items_id(:zena))
+    obj = items(:zena)
     assert_match /\[en\]/, check_lang(obj)
   end
   

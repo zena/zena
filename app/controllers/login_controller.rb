@@ -14,7 +14,7 @@ class LoginController < ApplicationController
         set_session_with_user logged_in_user
         redirect_to user_home_url
       else
-        flash[:error] = "Invalid user/password combination"
+        flash[:error] = "Invalid login or password"
       end
     end
   end

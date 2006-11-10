@@ -127,4 +127,18 @@ class ApplicationHelperTest < HelperTestCase
     login(:ant)
     assert_match /div id='visitor'.*home.*Solenopsis Invicta/, visitor_link
   end
+  
+  def test_flash_messages
+    login(:ant)
+    assert_equal '', flash_messages(:both)
+    flash[:notice] = 'yoba'
+    assert_match /notice.*yoba/, flash_messages(:both)
+    assert_no_match /error/, flash_messages(:both)
+    flash[:error] = 'taio'
+    assert_match /notice.*yoba/, flash_messages(:both)
+    assert_match /error.*taio/, flash_messages(:both)
+    flash[:notice] = nil
+    assert_no_match /notice/, flash_messages(:both)
+    assert_match /error/, flash_messages(:both)
+  end
 end
