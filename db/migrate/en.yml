@@ -1,366 +1,366 @@
 trans_values:
   - id:        1
-    trans_id:  1
+    key_id:    1
     lang:      en
     value:     "April"
 
   - id:        2
-    trans_id:  2
+    key_id:    2
     lang:      en
     value:     "August"
 
   - id:        3
-    trans_id:  3
+    key_id:    3
     lang:      en
     value:     "December"
 
   - id:        4
-    trans_id:  4
+    key_id:    4
     lang:      en
     value:     "Documents"
 
   - id:        5
-    trans_id:  5
+    key_id:    5
     lang:      en
     value:     "Events"
 
   - id:        6
-    trans_id:  6
+    key_id:    6
     lang:      en
     value:     "February"
 
   - id:        7
-    trans_id:  7
+    key_id:    7
     lang:      en
     value:     "Friday"
 
   - id:        8
-    trans_id:  8
+    key_id:    8
     lang:      en
     value:     "January"
 
   - id:        9
-    trans_id:  9
+    key_id:    9
     lang:      en
     value:     "July"
 
   - id:        10
-    trans_id:  10
+    key_id:    10
     lang:      en
     value:     "June"
 
   - id:        11
-    trans_id:  11
+    key_id:    11
     lang:      en
     value:     "Mai"
 
   - id:        12
-    trans_id:  12
+    key_id:    12
     lang:      en
     value:     "March"
 
   - id:        13
-    trans_id:  13
+    key_id:    13
     lang:      en
     value:     "Monday"
 
   - id:        14
-    trans_id:  14
+    key_id:    14
     lang:      en
     value:     "News"
 
   - id:        15
-    trans_id:  15
+    key_id:    15
     lang:      en
     value:     "November"
 
   - id:        16
-    trans_id:  16
+    key_id:    16
     lang:      en
     value:     "October"
 
   - id:        17
-    trans_id:  17
+    key_id:    17
     lang:      en
     value:     "Pages"
 
   - id:        18
-    trans_id:  18
+    key_id:    18
     lang:      en
     value:     "Redactions"
 
   - id:        19
-    trans_id:  19
+    key_id:    19
     lang:      en
     value:     "Saturday"
 
   - id:        20
-    trans_id:  20
+    key_id:    20
     lang:      en
     value:     "September"
 
   - id:        21
-    trans_id:  21
+    key_id:    21
     lang:      en
     value:     "Sunday"
 
   - id:        22
-    trans_id:  22
+    key_id:    22
     lang:      en
     value:     "Thursday"
 
   - id:        23
-    trans_id:  23
+    key_id:    23
     lang:      en
     value:     "Traductions"
 
   - id:        24
-    trans_id:  24
+    key_id:    24
     lang:      en
     value:     "Tuesday"
 
   - id:        25
-    trans_id:  25
+    key_id:    25
     lang:      en
     value:     "Waiting"
 
   - id:        26
-    trans_id:  26
+    key_id:    26
     lang:      en
     value:     "Wednesday"
 
   - id:        27
-    trans_id:  27
+    key_id:    27
     lang:      en
     value:     "<img src='/images/accept.png'/>"
 
   - id:        28
-    trans_id:  28
+    key_id:    28
     lang:      en
     value:     "<img src='/images/add.png'/>"
 
   - id:        29
-    trans_id:  29
+    key_id:    29
     lang:      en
     value:     "<img width='16' height='16' src='/images/tag_blue_add.png'/>"
 
   - id:        30
-    trans_id:  30
+    key_id:    30
     lang:      en
     value:     "<img src='/images/add.png'/>"
 
   - id:        31
-    trans_id:  31
+    key_id:    31
     lang:      en
     value:     "<img src='/images/add.png'/>"
 
   - id:        32
-    trans_id:  32
+    key_id:    32
     lang:      en
     value:     "<img src='/images/page_delete.png'/>"
 
   - id:        33
-    trans_id:  33
+    key_id:    33
     lang:      en
     value:     "<img src='/images/wrench.png'/>"
 
   - id:        34
-    trans_id:  34
+    key_id:    34
     lang:      en
     value:     "<img src='/images/page_edit.png'/>"
 
   - id:        35
-    trans_id:  35
+    key_id:    35
     lang:      en
     value:     "<img src='/images/group_add.png'/>"
 
   - id:        36
-    trans_id:  36
+    key_id:    36
     lang:      en
     value:     "<img src='/images/group_delete.png'/>"
 
   - id:        37
-    trans_id:  37
+    key_id:    37
     lang:      en
     value:     "<img src='/images/picture_empty.png'/>"
 
   - id:        38
-    trans_id:  38
+    key_id:    38
     lang:      en
     value:     "<img src='/images/wand.png'/>"
 
   - id:        39
-    trans_id:  39
+    key_id:    39
     lang:      en
     value:     "<img width='16' height='16' src='/images/page_edit.png'/>"
 
   - id:        40
-    trans_id:  40
+    key_id:    40
     lang:      en
     value:     "<img src='/images/delete.png'/>"
 
   - id:        41
-    trans_id:  41
+    key_id:    41
     lang:      en
     value:     "<img width='16' height='16' src='/images/delete.png'/>"
 
   - id:        42
-    trans_id:  42
+    key_id:    42
     lang:      en
     value:     "<img src='/images/bullet_delete.png'/>"
 
   - id:        43
-    trans_id:  43
+    key_id:    43
     lang:      en
     value:     "page management (version list, change access rights, etc)"
 
   - id:        44
-    trans_id:  44
+    key_id:    44
     lang:      en
     value:     "edit current page"
 
   - id:        45
-    trans_id:  45
+    key_id:    45
     lang:      en
     value:     "propose page for publication"
 
   - id:        46
-    trans_id:  46
+    key_id:    46
     lang:      en
     value:     "publish page"
 
   - id:        47
-    trans_id:  47
+    key_id:    47
     lang:      en
     value:     "refuse to publish page (redaction sent back to owner)"
 
   - id:        48
-    trans_id:  48
+    key_id:    48
     lang:      en
     value:     "<img src='/images/user_add.png'/>"
 
   - id:        49
-    trans_id:  49
+    key_id:    49
     lang:      en
     value:     "<img width='16' height='16' src='/images/eye.png'/>"
 
   - id:        50
-    trans_id:  50
+    key_id:    50
     lang:      en
     value:     "<img src='/images/cross.png'/>"
 
   - id:        51
-    trans_id:  51
+    key_id:    51
     lang:      en
     value:     "english"
 
   - id:        52
-    trans_id:  52
+    key_id:    52
     lang:      en
     value:     "french"
 
   - id:        53
-    trans_id:  53
+    key_id:    53
     lang:      en
     value:     "Hi"
 
   - id:        54
-    trans_id:  54
+    key_id:    54
     lang:      en
     value:     "<img width='16' height='16' src='/images/tag_blue.png'/>"
 
   - id:        55
-    trans_id:  55
+    key_id:    55
     lang:      en
     value:     "<img src='/images/user.png'/>"
 
   - id:        56
-    trans_id:  56
+    key_id:    56
     lang:      en
     value:     "<img src='/images/user_admin.png'/>"
 
   - id:        57
-    trans_id:  57
+    key_id:    57
     lang:      en
     value:     "<img src='/images/user_pub.png'/>"
 
   - id:        58
-    trans_id:  58
+    key_id:    58
     lang:      en
     value:     "<img src='/images/user_su.png'/>"
 
   - id:        59
-    trans_id:  59
+    key_id:    59
     lang:      en
     value:     "<b>%A</b> %B %d"
 
   - id:        60
-    trans_id:  60
+    key_id:    60
     lang:      en
     value:     "%d-%m-%Y"
 
   - id:        61
-    trans_id:  61
+    key_id:    61
     lang:      en
     value:     "%c"
 
   - id:        62
-    trans_id:  62
+    key_id:    62
     lang:      en
     value:     "%A, %B %d %Y"
 
   - id:        63
-    trans_id:  63
+    key_id:    63
     lang:      en
     value:     "on"
 
   - id:        64
-    trans_id:  64
+    key_id:    64
     lang:      en
     value:     "posted by"
 
   - id:        65
-    trans_id:  65
+    key_id:    65
     lang:      en
     value:     "%m.%d"
 
   - id:        66
-    trans_id:  66
+    key_id:    66
     lang:      en
     value:     "status_0"
 
   - id:        67
-    trans_id:  67
+    key_id:    67
     lang:      en
     value:     "status_10"
 
   - id:        68
-    trans_id:  68
+    key_id:    68
     lang:      en
     value:     "status_20"
 
   - id:        69
-    trans_id:  69
+    key_id:    69
     lang:      en
     value:     "status_30"
 
   - id:        70
-    trans_id:  70
+    key_id:    70
     lang:      en
     value:     "status_35"
 
   - id:        71
-    trans_id:  71
+    key_id:    71
     lang:      en
     value:     "status_40"
 
   - id:        72
-    trans_id:  72
+    key_id:    72
     lang:      en
     value:     "status_50"
 
   - id:        73
-    trans_id:  73
+    key_id:    73
     lang:      en
     value:     "Translate interface"
 

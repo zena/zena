@@ -1,246 +1,246 @@
 trans_values:
   - id:        74
-    trans_id:  1
+    key_id:    1
     lang:      fr
     value:     "avril"
 
   - id:        75
-    trans_id:  2
+    key_id:    2
     lang:      fr
     value:     "août"
 
   - id:        76
-    trans_id:  3
+    key_id:    3
     lang:      fr
     value:     "décembre"
 
   - id:        77
-    trans_id:  4
+    key_id:    4
     lang:      fr
     value:     "Documents"
 
   - id:        78
-    trans_id:  5
+    key_id:    5
     lang:      fr
     value:     "Événements"
 
   - id:        79
-    trans_id:  6
+    key_id:    6
     lang:      fr
     value:     "février"
 
   - id:        80
-    trans_id:  7
+    key_id:    7
     lang:      fr
     value:     "vendredi"
 
   - id:        81
-    trans_id:  8
+    key_id:    8
     lang:      fr
     value:     "janvier"
 
   - id:        82
-    trans_id:  9
+    key_id:    9
     lang:      fr
     value:     "juillet"
 
   - id:        83
-    trans_id:  10
+    key_id:    10
     lang:      fr
     value:     "juin"
 
   - id:        84
-    trans_id:  11
+    key_id:    11
     lang:      fr
     value:     "mai"
 
   - id:        85
-    trans_id:  12
+    key_id:    12
     lang:      fr
     value:     "mars"
 
   - id:        86
-    trans_id:  13
+    key_id:    13
     lang:      fr
     value:     "lundi"
 
   - id:        87
-    trans_id:  14
+    key_id:    14
     lang:      fr
     value:     "Brèves"
 
   - id:        88
-    trans_id:  15
+    key_id:    15
     lang:      fr
     value:     "novembre"
 
   - id:        89
-    trans_id:  16
+    key_id:    16
     lang:      fr
     value:     "octobre"
 
   - id:        90
-    trans_id:  17
+    key_id:    17
     lang:      fr
     value:     "Pages"
 
   - id:        91
-    trans_id:  18
+    key_id:    18
     lang:      fr
     value:     "Rédactions"
 
   - id:        92
-    trans_id:  19
+    key_id:    19
     lang:      fr
     value:     "samedi"
 
   - id:        93
-    trans_id:  20
+    key_id:    20
     lang:      fr
     value:     "septembre"
 
   - id:        94
-    trans_id:  21
+    key_id:    21
     lang:      fr
     value:     "dimanche"
 
   - id:        95
-    trans_id:  22
+    key_id:    22
     lang:      fr
     value:     "jeudi"
 
   - id:        96
-    trans_id:  23
+    key_id:    23
     lang:      fr
     value:     "Traductions"
 
   - id:        97
-    trans_id:  24
+    key_id:    24
     lang:      fr
     value:     "mardi"
 
   - id:        98
-    trans_id:  25
+    key_id:    25
     lang:      fr
     value:     "Propositions"
 
   - id:        99
-    trans_id:  26
+    key_id:    26
     lang:      fr
     value:     "mercredi"
 
   - id:        114
-    trans_id:  43
+    key_id:    43
     lang:      fr
     value:     "gestion de la page (suivi de versions, modification des droits, etc)"
 
   - id:        115
-    trans_id:  44
+    key_id:    44
     lang:      fr
     value:     "éditer la page"
 
   - id:        116
-    trans_id:  45
+    key_id:    45
     lang:      fr
     value:     "proposer la page pour publication"
 
   - id:        117
-    trans_id:  46
+    key_id:    46
     lang:      fr
     value:     "publier la page"
 
   - id:        118
-    trans_id:  47
+    key_id:    47
     lang:      fr
     value:     "refuser la publication (la rédaction est renvoyée au propriétaire)"
 
   - id:        121
-    trans_id:  51
+    key_id:    51
     lang:      fr
     value:     "anglais"
 
   - id:        122
-    trans_id:  52
+    key_id:    52
     lang:      fr
     value:     "français"
 
   - id:        123
-    trans_id:  53
+    key_id:    53
     lang:      fr
     value:     "Bonjour"
 
   - id:        125
-    trans_id:  59
+    key_id:    59
     lang:      fr
     value:     "<b>%A</b> %d %B"
 
   - id:        126
-    trans_id:  60
+    key_id:    60
     lang:      fr
     value:     "%d.%m.%Y"
 
   - id:        127
-    trans_id:  61
+    key_id:    61
     lang:      fr
     value:     "%d %b %Y"
 
   - id:        128
-    trans_id:  62
+    key_id:    62
     lang:      fr
     value:     "%A, %d %B %Y"
 
   - id:        129
-    trans_id:  63
+    key_id:    63
     lang:      fr
     value:     "publié le"
 
   - id:        130
-    trans_id:  64
+    key_id:    64
     lang:      fr
     value:     "un article de"
 
   - id:        131
-    trans_id:  65
+    key_id:    65
     lang:      fr
     value:     "%d.%m"
 
   - id:        132
-    trans_id:  66
+    key_id:    66
     lang:      fr
     value:     "supprimé"
 
   - id:        133
-    trans_id:  67
+    key_id:    67
     lang:      fr
     value:     "effacé"
 
   - id:        134
-    trans_id:  68
+    key_id:    68
     lang:      fr
     value:     "remplacé"
 
   - id:        135
-    trans_id:  69
+    key_id:    69
     lang:      fr
     value:     "rédaction"
 
   - id:        136
-    trans_id:  70
+    key_id:    70
     lang:      fr
     value:     "proposition"
 
   - id:        137
-    trans_id:  71
+    key_id:    71
     lang:      fr
     value:     "proposition"
 
   - id:        138
-    trans_id:  72
+    key_id:    72
     lang:      fr
     value:     "publié"
 
   - id:        139
-    trans_id:  73
+    key_id:    73
     lang:      fr
     value:     "traduire l'interface"
 

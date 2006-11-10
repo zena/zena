@@ -1,60 +1,60 @@
 # Read about fixtures at http://ar.rubyonrails.org/classes/Fixtures.html
 monday_en:
   id: 1
-  trans_id: 1
+  key_id: 1
   lang:   'en'
   value:  'Monday'
 
 monday_fr:
   id: 2
-  trans_id: 1
+  key_id: 1
   lang:   'fr'
   value:  'lundi'
   
 long_date_en:
   id: 3
-  trans_id: 2
+  key_id: 2
   lang:   'en'
   value:  '%Y-%m-%d'
   
 long_date_fr:
   id: 4
-  trans_id: 2
+  key_id: 2
   lang:   'fr'
   value:  '%d.%m.%Y'
   
 short_date_en:
   id: 5
-  trans_id: 3
+  key_id: 3
   lang:   'en'
   value:  '%m.%d'
   
 short_date_fr:
   id: 6
-  trans_id: 3
+  key_id: 3
   lang:   'fr'
   value:  '%d.%m'
   
 long_time_en:
   id: 7
-  trans_id: 4
+  key_id: 4
   lang:   'en'
   value: '%H:%M:%S'
   
 long_time_fr:
   id: 8
-  trans_id: 4
+  key_id: 4
   lang:   'fr'
   value: 'heure: %H:%M:%S'
   
 short_time_en:
   id: 9
-  trans_id: 5
+  key_id: 5
   lang:   'en'
   value: '%H:%M'
   
 short_time_fr:
   id: 10
-  trans_id: 5
+  key_id: 5
   lang:   'fr'
   value: '%Hh%M'

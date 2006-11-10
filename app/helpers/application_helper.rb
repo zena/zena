@@ -158,7 +158,7 @@ module ApplicationHelper
   
   # "Translate" static text into the current lang
   def trans(keyword, edit=true)
-    key = Trans.translate(keyword)
+    key = TransKey.translate(keyword)
     if session[:translate] && edit # set wether untranslated text will be editable or not
       "<div id='translate_#{keyword}' class='translation'>" + 
       link_to_remote(key.into(lang), 
@@ -167,7 +167,7 @@ module ApplicationHelper
           :complete=>'$("translation_value").focus();$("translation_value").select()') +
       "</div>"
     else
-      Trans.translate(keyword).into(lang)
+      TransKey.translate(keyword).into(lang)
     end
   end
   # test to here

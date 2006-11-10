@@ -107,7 +107,7 @@ class ApplicationController < ActionController::Base
   
   # "Translate" static text into the current lang
   def trans(keyword, edit=true)
-    Trans.translate(keyword).into(lang)
+    TransKey.translate(keyword).into(lang)
   end
   
   # /////// The following methods are common to controllers and views //////////// #

@@ -1,12 +1,12 @@
-class Trans < ActiveRecord::Base
+class TransKey < ActiveRecord::Base
   attr_accessor :value, :lang
-  has_many :trans_values
+  has_many :trans_values, :foreign_key=>'key_id'
   
   class << self
     def translate(keyword)
-      key = Trans.find_by_key(keyword)
+      key = TransKey.find_by_key(keyword)
       unless key
-        key = Trans.create(:key=>keyword)
+        key = TransKey.create(:key=>keyword)
       end
       key
     end
@@ -20,7 +20,7 @@ class Trans < ActiveRecord::Base
   end
   
   def set(la,value)
-    val = self.trans_values.find_by_lang(la) || TransValue.new(:lang=>la, :trans_id=>self[:id])
+    val = self.trans_values.find_by_lang(la) || TransValue.new(:lang=>la, :key_id=>self[:id])
     val[:value] = value
     val.save
   end

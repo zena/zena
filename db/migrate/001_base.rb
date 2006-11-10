@@ -131,12 +131,12 @@ class Base < ActiveRecord::Migration
       t.column "number", :integer, :default => 1
     end
 
-    create_table("trans", :force => true, :options => 'type=InnoDB DEFAULT CHARSET=utf8') do |t|
+    create_table("trans_keys", :force => true, :options => 'type=InnoDB DEFAULT CHARSET=utf8') do |t|
       t.column "key", :string, :limit => 100, :default => "", :null => false
     end
 
     create_table("trans_values", :force => true, :options => 'type=InnoDB DEFAULT CHARSET=utf8') do |t|
-      t.column "trans_id", :integer
+      t.column "key_id", :integer
       t.column "lang", :string, :limit => 10, :default => "", :null => false
       t.column "value", :text, :default => "", :null => false
     end
@@ -189,7 +189,7 @@ class Base < ActiveRecord::Migration
     drop_table "items"
     drop_table "links"
     drop_table "versions"
-    drop_table "trans"
+    drop_table "trans_keys"
     drop_table "trans_values"
   end
 end

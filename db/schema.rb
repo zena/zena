@@ -114,12 +114,12 @@ ActiveRecord::Schema.define(:version => 3) do
     t.column "content", :text
   end
 
-  create_table "trans", :force => true do |t|
+  create_table "trans_keys", :force => true do |t|
     t.column "key", :string, :limit => 100, :default => "", :null => false
   end
 
   create_table "trans_values", :force => true do |t|
-    t.column "trans_id", :integer
+    t.column "key_id", :integer
     t.column "lang", :string, :limit => 10, :default => "", :null => false
     t.column "value", :text, :default => "", :null => false
   end
