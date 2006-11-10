@@ -218,3 +218,6 @@ trans_keys:
   - id:   73
     key:  "translation_interface"
 
+  - id:   74
+    key:  "short_time"
+

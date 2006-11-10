@@ -60,107 +60,16 @@ module ApplicationHelper
     trans(key, false)
   end
   
-  
-  # Show a little [fr] next to the title if the desired language could not be found.
-  def check_lang(obj)
-    obj.v_lang != session[:lang] ? " <span class='wrong_lang'>[#{obj.v_lang}]</span> " : ""
-  end
-  
   # creates a pseudo random string to avoid browser side ajax caching
   def salt_against_caching
     self.object_id
   end
 
-  # Used by plug_btn
-  def form_action(action, version_id=@item.v_id)
-    if action == 'edit'
-      "<a href='#' title='#{transb('btn_title_edit')}' onClick=\"editor=window.open('" + 
-      url_for(:controller=>'version', :id=>version_id, :action=>'edit', :rnd=>salt_against_caching) + 
-      "', 'editor', 'location=0,width=500,height=600');return false;\">" + transb('btn_edit') + "</a>"
-    elsif action == 'view'
-      tlink_to_remote('btn_view', :with=>'main', :url=>{:controller=>'version', :action=>'preview', :id=>version_id })
-    elsif action == 'drive'
-      tlink_to_remote('btn_drive', :with=>'main', :url=>{:controller=>'item', :action=>'drive', :version_id=>version_id, :rnd=>salt_against_caching })
-    else
-      tlink_to( "btn_#{action}", {:controller=>'version', :action => action , :id => version_id, :post=>true}, :title=>transb("btn_title_#{action}") ) + "\n"
-    end
-  end
-  
-  # Buttons are :edit, :add, :propose, :publish, :refuse, or :drive. :all = (:edit, :propose, :publish, :refuse, :drive)
-  # Syntax for :add <%= plug :btn, :add, Page/Document %> or <%= plug :btn, :action=>:add, :class=>Page %>
-  # All others are simply <%= plug :btn, <i>name</i> %> or <%= plug :btn, :action=><i>name</i> %>
-  def plug_btn(*args)
-    res = []
-    if args[0].kind_of?(Hash)
-      action = args[0][:action]
-      klass = args[0][:class]
-    else
-      action, klass = args
-    end
-    if (action == :edit or action == :all) && @item.can_edit?
-      res << form_action('edit')
-    end
-    if action == :add && @item.can_write?
-      case klass.to_s
-      when 'Document'
-        res << '<li id="add_document" style="display:block;" class="btn_add">'
-        res << "<a href='#' onClick=\"uploader=window.open('#{url_for :controller=>"document", :action=>"new", :parent_id=>@item}', 'uploader', 'location=1,width=400,height=300');return false;\">#{ transb('btn_add_doc') }</a>"
-        res << '</li>'
-      when 'Page'
-        res << render_to_string( :partial=>'base/add_page' )
-      end
-    end
-    if (action == :propose or action == :all) && @item.can_propose?
-      res << form_action('propose')
-    end
-    if (action == :publish or action == :all) && @item.can_publish_item?
-      res << form_action('publish')
-    end
-    if (action == :refuse or action == :all) && @item.can_refuse?
-      res << form_action('refuse')
-    end
-    if (action == :drive or action == :all) && @item.can_drive?
-      res << form_action('drive')
-    end
-    res.join("\n")
-  end
-  
-  # Shows 'login' or 'logout' button.
-  def plug_logout
-    if session[:user]
-      "<div id='logout'><a href='/logout'>#{transb('logout')}</a></div>"
-    else
-      "<div id='logout'><a href='/login'>#{transb('login')}</a></div>"
-    end
-  end
-  
-  # Create the traduction list for the current item
-  def traductions(obj=@item)
-    trad_list = []
-    obj.traductions.map do |ed| 
-  		if ed == obj.v_lang
-  			trad_list << "<span class=\"on\">" + link_to( ed, change_lang(ed)) + "</span>"
-  		else
-  			trad_list << "<span>" + link_to( ed, change_lang(ed)) + "</span>"
-  		end
-  	end
-	  trad_list << "<span class=\"off\">#{lang}</span>" if obj.v_lang != lang
-	  trad_list
-  end
-  
-  def change_lang(new_lang)
-    if session[:user]
-      {:overwrite_params => { :lang => new_lang }}
-    else
-      {:overwrite_params => { :prefix => new_lang }}
-    end
-  end
-  
   # "Translate" static text into the current lang
   def trans(keyword, edit=true)
     key = TransKey.translate(keyword)
     if session[:translate] && edit # set wether untranslated text will be editable or not
-      "<div id='translate_#{keyword}' class='translation'>" + 
+      "<div id='translate_#{key[:id]}' class='translation'>" + 
       link_to_remote(key.into(lang), 
           :update=>"translate_#{key[:id]}", 
           :url=>"/z/trans/#{key[:id]}",
@@ -170,7 +79,15 @@ module ApplicationHelper
       TransKey.translate(keyword).into(lang)
     end
   end
-  # test to here
+  
+  # Shows 'login' or 'logout' button.
+  def login_link
+    if session[:user]
+      "<div id='logout'><a href='/logout'>#{transb('logout')}</a></div>"
+    else
+      "<div id='logout'><a href='/login'>#{transb('login')}</a></div>"
+    end
+  end
   
   # display the time with the format provided by the translation of 'long_time'
   def long_time(atime)
@@ -211,7 +128,7 @@ module ApplicationHelper
   end
   
   # Parse date : return a date from a string
-  def parseDate(str, fmt=trans("long_date"))
+  def parse_date(str, fmt=trans("long_date"))
     if str =~ /\./
       elements = str.split('.')
       format = fmt.split('.')
@@ -237,6 +154,16 @@ module ApplicationHelper
       nil
     end
   end
+  
+  # Show visitor name if logged in
+  def visitor_link
+    if session[:user]
+      "<div id='visitor'>" + link_to( session[:user][:fullname], user_home_url ) + "</div>"
+    else
+      ""
+    end
+  end
+  # test to here
 end
 =begin
 

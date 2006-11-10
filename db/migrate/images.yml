@@ -1,0 +1,96 @@
+trans_values:
+  - key_id:    27
+    lang:      en
+    value:     "<img src='/images/accept.png'/>"
+
+  - key_id:    28
+    lang:      en
+    value:     "<img src='/images/add.png'/>"
+
+  - key_id:    29
+    lang:      en
+    value:     "<img width='16' height='16' src='/images/tag_blue_add.png'/>"
+
+  - key_id:    30
+    lang:      en
+    value:     "<img src='/images/add.png'/>"
+
+  - key_id:    31
+    lang:      en
+    value:     "<img src='/images/add.png'/>"
+
+  - key_id:    32
+    lang:      en
+    value:     "<img src='/images/page_delete.png'/>"
+
+  - key_id:    33
+    lang:      en
+    value:     "<img src='/images/wrench.png'/>"
+
+  - key_id:    34
+    lang:      en
+    value:     "<img src='/images/page_edit.png'/>"
+
+  - key_id:    35
+    lang:      en
+    value:     "<img src='/images/group_add.png'/>"
+
+  - key_id:    36
+    lang:      en
+    value:     "<img src='/images/group_delete.png'/>"
+
+  - key_id:    37
+    lang:      en
+    value:     "<img src='/images/picture_empty.png'/>"
+
+  - key_id:    38
+    lang:      en
+    value:     "<img src='/images/wand.png'/>"
+
+  - key_id:    39
+    lang:      en
+    value:     "<img width='16' height='16' src='/images/page_edit.png'/>"
+
+  - key_id:    40
+    lang:      en
+    value:     "<img src='/images/delete.png'/>"
+
+  - key_id:    41
+    lang:      en
+    value:     "<img width='16' height='16' src='/images/delete.png'/>"
+
+  - key_id:    42
+    lang:      en
+    value:     "<img src='/images/bullet_delete.png'/>"
+
+  - key_id:    48
+    lang:      en
+    value:     "<img src='/images/user_add.png'/>"
+
+  - key_id:    49
+    lang:      en
+    value:     "<img width='16' height='16' src='/images/eye.png'/>"
+
+  - key_id:    50
+    lang:      en
+    value:     "<img src='/images/cross.png'/>"
+
+  - key_id:    54
+    lang:      en
+    value:     "<img width='16' height='16' src='/images/tag_blue.png'/>"
+
+  - key_id:    55
+    lang:      en
+    value:     "<img src='/images/user.png'/>"
+
+  - key_id:    56
+    lang:      en
+    value:     "<img src='/images/user_admin.png'/>"
+
+  - key_id:    57
+    lang:      en
+    value:     "<img src='/images/user_pub.png'/>"
+
+  - key_id:    58
+    lang:      en
+    value:     "<img src='/images/user_su.png'/>"

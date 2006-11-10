@@ -8,7 +8,7 @@ class ApplicationHelperTest < HelperTestCase
     super
   end
   def test_items_id
-    puts items_id(:zena)
+    assert_equal 1, items_id(:zena)
   end
   def test_uses_calendar_with_lang
     res = uses_calendar
@@ -31,8 +31,6 @@ class ApplicationHelperTest < HelperTestCase
     assert_equal '<input name="commit" type="submit" value="lundi" />', tsubmit_tag('Monday')
   end
   
-end
-=begin
   def test_tlink_to_remote
     session[:lang] = 'fr'
     assert_equal "<a href=\"#\" onclick=\"new Ajax.Request('', {asynchronous:true, evalScripts:true}); return false;\">lundi</a>", tlink_to_remote('Monday', :controller=>'version', :action=>'edit')
@@ -58,134 +56,65 @@ end
     assert_equal self.object_id, salt_against_caching
   end
   
-  def test_check_lang_same
-    session[:lang] = 'en'
-    obj = Item.find(1)
-    assert_equal 'en', obj.v_lang
-    assert_no_match /\[en\]/, check_lang(obj)
-  end
-  
-  def test_check_other_lang
-    session[:lang] = 'io'
-    obj = Item.find(1)
-    assert_match /\[en\]/, check_lang(obj)
-  end
-  
-  def test_plug_btn_for_public
-    @item = @controller.send(:secure,Item) { Item.find(11) } # 11 cleanWater
-    assert !@item.can_edit?, "Item cannot be edited by the public"
-    res = plug_btn(:all)
-    assert_equal '', res
-  end
-  
-  def test_plug_btn_wiki_public
-    @item = @controller.send(:secure,Item) { Item.find(19) } # 19 wiki 
-    assert @item.can_edit?, "Item can be edited by the public"
-    res = plug_btn(:all)
-    assert_match %r{/z/version/edit/19}, res
-    assert_match %r{/z/item/drive\?.*version_id=19}, res
-  end
-  
-  def test_item_actions_for_ant
+  def test_login_link
+    assert_equal "<div id='logout'><a href='/login'>login</a></div>", login_link
     login(:ant)
-    @item = @controller.send(:secure,Item) { Item.find(11) } # 11 cleanWater
-    res = plug_btn(:all)
-    assert_match %r{/z/version/edit}, res
-    assert_no_match %r{/z/item/drive}, res
-  end
-  
-  def test_item_actions_for_tiger
-    login(:tiger)
-    @item = @controller.send(:secure,Item) { Item.find(11) } # 11 cleanWater
-    res = plug_btn(:all)
-    assert_match %r{/z/version/edit}, res
-    assert_match %r{/z/item/drive}, res
-    @item.edit
-    res = plug_btn(:all)
-    assert_match %r{/z/version/edit}, res
-    assert_match %r{/z/version/propose}, res
-    assert_match %r{/z/version/publish}, res
-    assert_match %r{/z/item/drive}, res
-    @item.save
-    login(:ant)
-    session[:lang] = 'fr'
-    @item = @controller.send(:secure,Item) { Item.find(11) } # 11 cleanWater
-    res = plug_btn(:all)
-    assert_match %r{/z/version/edit}, res
-    assert_no_match %r{/z/item/drive}, res
-    session[:lang] = 'en'
-    @item = @controller.send(:secure,Item) { Item.find(11) } # 11 cleanWater
-    res = plug_btn(:all)
-    assert_no_match %r{/z/version/edit}, res
-    assert_no_match %r{/z/item/drive}, res
-  end
-  
-  def test_plug_logout
-    assert_equal "<div id='logout'><a href='/login'>login</a></div>", plug_logout
-    login(:ant)
-    assert_equal "<div id='logout'><a href='/logout'>logout</a></div>", plug_logout
-  end
-  
-  def test_traductions
-    login(:tiger) # session[:lang] = 'en'
-    @item = @controller.send(:secure,Item) { Item.find(12) } # 12 status (en,fr)
-    trad = traductions
-    assert_equal 2, trad.size
-    @item = @controller.send(:secure,Item) { Item.find(11) } # 11 cleanWater (en)
-    trad = traductions
-    assert_equal 1, trad.size
-  end
-  
-  def test_change_lang
-    assert false, 'test todo'
+    assert_equal "<div id='logout'><a href='/logout'>logout</a></div>", login_link
   end
   
   def test_trans
     assert_equal 'yoba', trans('yoba')
-    assert_equal '%Y-%m-%d', trans('long_date')
+    assert_equal '%A, %B %d %Y', trans('long_date')
     session[:lang] = 'fr'
-    assert_equal '%d.%m.%Y', trans('long_date')
+    assert_equal '%A, %d %B %Y', trans('long_date')
     session[:lang] = 'io'
-    assert_equal '%Y-%m-%d', trans('long_date')
+    assert_equal '%A, %B %d %Y', trans('long_date')
     session[:translate] = true
-    assert_match /div.*translation.*Ajax.*\%Y-\%m-\%d/, trans('long_date')
+    assert_match /div.*translation.*Ajax.*\%A, \%B \%d \%Y/, trans('long_date')
   end
   
   def test_long_time
-    atime = Time.now
-    assert_equal atime.strftime('%H:%M:%S'), format_date("long_time", atime)
+    atime = Time.gm(2006,11,10,17,42,25)
+    assert_equal "17:42:25", long_time(atime)
     session[:lang] = 'fr'
-    assert_equal atime.strftime('heure: %H:%M:%S'), format_date("long_time", atime)
+    assert_equal "17:42:25 ", long_time(atime)
   end
   
   def test_short_time
-    atime = Time.now
-    assert_equal atime.strftime('%H:%M'), format_date("short_time", atime)
+    atime = Time.gm(2006,11,10,17,33)
+    assert_equal "17:33", short_time(atime)
     session[:lang] = 'fr'
-    assert_equal atime.strftime('%Hh%M'), format_date("short_time", atime)
+    assert_equal "17h33", short_time(atime)
   end
   
   def test_long_date
-    atime = Time.now
-    assert_equal atime.strftime('%Y-%m-%d'), format_date("long_date", atime)
+    atime = Time.gm(2006,11,10)
+    assert_equal "Friday, November 10 2006", long_date(atime)
     session[:lang] = 'fr'
-    assert_equal atime.strftime('%d.%m.%Y'), format_date("long_date", atime)
+    assert_equal "vendredi, 10 novembre 2006", long_date(atime)
   end
   
   def test_short_date
     atime = Time.now
-    assert_equal atime.strftime('%m.%d'), format_date("short_date", atime)
+    assert_equal atime.strftime('%m.%d'), short_date(atime)
     session[:lang] = 'fr'
-    assert_equal atime.strftime('%d.%m'), format_date("short_date", atime)
+    assert_equal atime.strftime('%d.%m'), short_date(atime)
   end
   
   def test_format_date
-    
+    atime = Time.now
+    assert_equal atime.strftime('%m.%d'), format_date('short_date',atime)
     session[:lang] = 'fr'
+    assert_equal atime.strftime('%d.%m'), format_date('short_date',atime)
   end
   
-  # Parse date : return a date from a string
-  def test_parseDate(str, fmt=trans("long_date"))
+  def test_parse_date
+    #assert_equal '', parse_date
+  end
+  
+  def test_visitor_link
+    assert_equal '', visitor_link
+    login(:ant)
+    assert_match /div id='visitor'.*home.*Solenopsis Invicta/, visitor_link
   end
 end
-=end
