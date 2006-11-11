@@ -33,7 +33,9 @@ class Test::Unit::TestCase
       end
     end
     def loaded_fixtures
-      unless @@already_loaded_fixtures[Test::Unit::TestCase]    
+      puts "LOADED ?"
+      unless @@already_loaded_fixtures[Test::Unit::TestCase]
+        puts "LOAD FIXTURES (#{self.class})"
         @loaded_fixtures = {}
         fixtures = Fixtures.create_fixtures(Test::Unit::TestCase.fixture_path, Test::Unit::TestCase.fixture_table_names, Test::Unit::TestCase.fixture_class_names)
         unless fixtures.nil?
@@ -52,5 +54,6 @@ class Test::Unit::TestCase
     # all subclasses will inherit this setting
     true
   end
+  # FIXME : fixtures never get loaded... Had to use '> rake db:fixtures:load && rake db:test:clone'
   fixtures :versions, :comments, :items, :addresses, :groups, :groups_users, :trans_keys, :trans_values
 end

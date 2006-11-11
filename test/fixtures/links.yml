@@ -1,14 +1,14 @@
 opening_in_news:
-  parent_id:      17
-  item_id:        24
+  source_id:      17
+  target_id:      24
   role:           tag
   
 cleanWater_in_art:
-  parent_id:      11
-  item_id:        23
+  source_id:      11
+  target_id:      23
   role:           tag
   
 opening_in_art:
-  parent_id:      17
-  item_id:        23
+  source_id:      17
+  target_id:      23
   role:           tag

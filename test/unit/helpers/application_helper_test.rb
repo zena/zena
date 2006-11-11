@@ -53,7 +53,7 @@ class ApplicationHelperTest < HelperTestCase
   end
   
   def test_salt_against_caching
-    assert_equal self.object_id, salt_against_caching
+    assert ((Time.now.to_i-1 <= salt_against_caching) && (salt_against_caching <= Time.now.to_i+2))
   end
   
   def test_login_link

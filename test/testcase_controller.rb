@@ -3,7 +3,7 @@ class ControllerTestCase < Test::Unit::TestCase
   def init_controller
     @request    = ActionController::TestRequest.new
     @response   = ActionController::TestResponse.new
-    @controller.instance_eval { @session = {}; @params = {}; @url = ActionController::UrlRewriter.new( @request, {} ) }
+    @controller.instance_eval { @session = {}; @params = {}; @url = ActionController::UrlRewriter.new( @request, {} )}
   end
 
   def login(visitor=:ant)

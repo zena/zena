@@ -108,8 +108,8 @@ class Base < ActiveRecord::Migration
     end
 
     create_table("links", :force => true, :options => 'type=InnoDB DEFAULT CHARSET=utf8') do |t|
-      t.column "parent_id", :integer, :default => 0, :null => false
-      t.column "item_id", :integer, :default => 0, :null => false
+      t.column "source_id", :integer, :default => 0, :null => false
+      t.column "target_id", :integer, :default => 0, :null => false
       t.column "role", :string, :limit => 20
     end
 

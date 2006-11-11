@@ -8,7 +8,6 @@ class MainController < ApplicationController
   
   def index
     # show home page
-    @item = secure(Item) { Item.find(ZENA_ENV[:root_id]) }
     render_and_cache 'index'
   rescue ActiveRecord::RecordNotFound
     page_not_found

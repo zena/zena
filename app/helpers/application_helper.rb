@@ -62,7 +62,7 @@ module ApplicationHelper
   
   # creates a pseudo random string to avoid browser side ajax caching
   def salt_against_caching
-    self.object_id
+    Time.now.to_i
   end
 
   # "Translate" static text into the current lang

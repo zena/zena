@@ -15,13 +15,7 @@ class ApplicationControllerTest < ControllerTestCase
     assert_nothing_raised { item = @controller.send(:secure,Item) { Item.find(ZENA_ENV[:root_id])}}
   end
   
-  def test_render_and_cache
-    # test @item and @project set if it was nil
-    # test send inline document if kind_of?(Document)
-    # test cache if document public
-    # test cache if visitor public
-    puts "test todo"
-  end
+  # render_and_cache and authorize tested in MainControllerTest
   
   def test_template
     wiki = @controller.send(:secure,Item) { Item.find(items_id(:wiki)) }

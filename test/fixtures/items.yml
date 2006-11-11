@@ -314,6 +314,7 @@ collections:
 art:
   id:             23
   type:           Collector
+  kpath:          IPC
   name:           art
   project_id:     1
   parent_id:      22
@@ -325,6 +326,7 @@ art:
 news:
   id:             24
   type:           Collector
+  kpath:          IPC
   name:           news
   project_id:     1
   parent_id:      22

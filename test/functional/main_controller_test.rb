@@ -19,6 +19,15 @@ class MainControllerTest < ControllerTestCase
     assert_template 'index'
   end
   
+  def test_render_and_cache
+    get 'index'
+    assert assigns(:item)
+    assert assigns(:project)
+    # test send inline document if kind_of?(Document)
+    puts "test todo"
+    # page caching is tested in Integration Tests
+  end
+  
   def test_authorize_true
     bak = ZENA_ENV[:authorize]
     ZENA_ENV[:authorize] = true

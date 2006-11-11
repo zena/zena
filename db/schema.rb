@@ -99,8 +99,8 @@ ActiveRecord::Schema.define(:version => 3) do
   end
 
   create_table "links", :force => true do |t|
-    t.column "parent_id", :integer, :default => 0, :null => false
-    t.column "item_id", :integer, :default => 0, :null => false
+    t.column "source_id", :integer, :default => 0, :null => false
+    t.column "target_id", :integer, :default => 0, :null => false
     t.column "role", :string, :limit => 20
   end
 

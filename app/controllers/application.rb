@@ -56,7 +56,7 @@ class ApplicationController < ActionController::Base
   # Verify that only logged in users access to some protected resources. This can be used to remove public access to an
   # entire site. +authorize+ is called before any action in any controller.
   def authorize
-    if (ZENA_ENV[:authorize] == true || params[:prefix] == AUTHENTICATED_PREFIX) && ! session[:user]
+    if (ZENA_ENV[:authorize] || params[:prefix] == AUTHENTICATED_PREFIX) && ! session[:user]
       flash[:notice] = trans "Please log in"
       redirect_to :controller =>'login', :action=>'login' and return false
     end
