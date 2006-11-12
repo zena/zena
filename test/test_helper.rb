@@ -1,9 +1,9 @@
 ENV["RAILS_ENV"] = "test"
 require File.expand_path(File.dirname(__FILE__) + "/../config/environment")
 require 'test_help'
-require File.expand_path(File.dirname(__FILE__) + '/testcase_unit')
-require File.expand_path(File.dirname(__FILE__) + '/testcase_controller')
-require File.expand_path(File.dirname(__FILE__) + '/testcase_helper')
+require File.expand_path(File.dirname(__FILE__) + '/zena_test_unit')
+require File.expand_path(File.dirname(__FILE__) + '/zena_test_controller')
+require File.expand_path(File.dirname(__FILE__) + '/zena_test_helper')
 
 class Test::Unit::TestCase
   unless methods.include?('o_setup_fixture_accessors')
