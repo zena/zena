@@ -1,8 +1,7 @@
 module ZenaTestUnit
-  #include ZenaGlobals
   include Zena::Acts::SecureScope
   include Zena::Acts::SecureController::InstanceMethods
-
+  
   # redefine lang for tests (avoids using params[:lang]):
   def lang
     @lang ||= (@controller && session.is_a?(ActionController::TestSession)) ? (session[:lang] || (session[:user] ? session[:user][:lang] : ZENA_ENV[:default_lang])) : ZENA_ENV[:default_lang]

@@ -1,8 +1,8 @@
 require File.dirname(__FILE__) + '/../test_helper'
 
 class SecureReadTest < Test::Unit::TestCase
+  fixtures :items, :versions, :addresses, :groups, :groups_users
   include ZenaTestUnit
-  fixtures :items, :versions
   
   def test_fixture_by_id
     assert_equal 1, items_id(:zena)
@@ -125,8 +125,8 @@ class SecureReadTest < Test::Unit::TestCase
 end
 
 class SecureCreateTest < Test::Unit::TestCase
+  fixtures :items, :versions, :addresses, :groups, :groups_users
   include ZenaTestUnit
-  fixtures :items, :versions
   def item_defaults
     {
     :name       => 'hello',
@@ -420,8 +420,8 @@ class SecureCreateTest < Test::Unit::TestCase
 end
 
 class SecureUpdateTest < Test::Unit::TestCase
+  fixtures :items, :versions, :addresses, :groups, :groups_users
   include ZenaTestUnit
-  fixtures :items, :versions
   
   # VALIDATE ON UPDATE TESTS
   # 1. if pgroup changed from old, make sure user could do this and new group is valid

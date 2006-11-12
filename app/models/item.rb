@@ -54,37 +54,10 @@ project). Some special rules apply to this item : TODO...
 class Item < ActiveRecord::Base
   acts_as_secure
   acts_as_multiversioned
-  after_save :make_links
   
-  def self.sanitize_sql(ary)
-    super
-  end
-  
-  # kpath is a class shortcut to avoid tons of 'OR type = Page OR type = Document'
-  # we build this path with the first letter of each class. The example bellow
-  # shows how the kpath is built:
-  #           class hierarchy
-  #                Item --> I           
-  #       Note --> IN          Page --> IP
-  #                    Document   Form   Project
-  #                       IPD      IPF      IPP
-  # So now, to get all Pages, your sql becomes : WHERE kpath LIKE 'IP%'
-  # to get all Documents : WHERE kpath LIKE 'IPD%'
-  # all pages withou Documents : WHERE kpath LIKE 'IP%' AND NOT LIKE 'IPD%'
-  def self.kpath
-    @@kpath[self] ||= if superclass == ActiveRecord::Base
-      self.to_s[0..0]
-    else
-      superclass.kpath + self.to_s[0..0]
-    end
-  end
-  
-  @@kpath = {}
-  
-  # Replace Rails subclasses normal behavior
-  def self.type_condition
-    " #{table_name}.kpath LIKE '#{kpath}%' "
-  end
+  # def self.sanitize_sql(ary)
+  #   super
+  # end
   
   def validate_on_create
     secure_on_create
@@ -258,51 +231,6 @@ class Item < ActiveRecord::Base
   # set name: remove all accents and camelize
   def name=(str)
     self[:name] = clearName(str)
-  end
-  
-  # set links
-  def set_link(role,elem_id)
-    item = secure(Item) { Item.find(elem_id) }
-    link = Link.create(:parent=>self, :item=>item, :role=>role)
-  rescue ActiveRecord::RecordNotFound
-    nil
-  end
-  
-  # used when an item is found through a link
-  def role
-    @role || self[:role]
-  end
-  
-  def role=(r)
-    @role = r
-  end
-  
-  # After save callback
-  def make_links
-    if @collected
-      @collected.each {|elem| set_link("collected", elem) }
-    end
-    if @place
-      @place.each {|elem| set_link("place", elem) }
-    end
-    # TODO finish list
-  end
-  
-  # collected in ...
-  def collected=(elem)
-    @collected = elem.kind_of?(Array) ? elem : [elem]
-  end
-  def collected
-    @collected || nil
-  end
-  
-  # place ...
-  def place=(elem)
-    @place = elem.kind_of?(Array) ? elem : [elem]
-  end
-  
-  def place
-    @place || nil
   end
   
   # TODO: finish list

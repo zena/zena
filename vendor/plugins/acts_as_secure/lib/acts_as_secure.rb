@@ -610,6 +610,36 @@ Just doing the above will filter all result according to the logged in user.
           errors.each {|k,m| puts "[#{k}] #{m}"}
         end
         module ClassMethods
+          # kpath is a class shortcut to avoid tons of 'OR type = Page OR type = Document'
+          # we build this path with the first letter of each class. The example bellow
+          # shows how the kpath is built:
+          #           class hierarchy
+          #                Item --> I           
+          #       Note --> IN          Page --> IP
+          #                    Document   Form   Project
+          #                       IPD      IPF      IPP
+          # So now, to get all Pages, your sql becomes : WHERE kpath LIKE 'IP%'
+          # to get all Documents : WHERE kpath LIKE 'IPD%'
+          # all pages withou Documents : WHERE kpath LIKE 'IP%' AND NOT LIKE 'IPD%'
+          def kpath
+            @@kpath[self] ||= if superclass == ActiveRecord::Base
+              self.to_s[0..0]
+            else
+              superclass.kpath + self.to_s[0..0]
+            end
+          end
+
+          @@kpath = {}
+
+          # Replace Rails subclasses normal behavior
+          def type_condition
+            " #{table_name}.kpath LIKE '#{kpath}%' "
+          end
+          
+          # Replace Rails subclasses normal behavior
+          def type_condition
+            " #{table_name}.kpath LIKE '#{kpath}%' "
+          end
         end
       end
     end
