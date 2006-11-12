@@ -1,6 +1,7 @@
 require File.dirname(__FILE__) + '/../test_helper'
 
-class DocInfoTest < UnitTestCase
+class DocInfoTest < Test::Unit::TestCase
+  include ZenaTestUnit
   fixtures :doc_infos
 
   # Replace this with your real tests.

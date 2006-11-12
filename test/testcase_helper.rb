@@ -10,7 +10,7 @@ module HelperTestSetup
   def rescue_action(e) raise e end;
 end
 
-class HelperTestCase < Test::Unit::TestCase
+module ZenaTestHelper
   attr_accessor :flash, :controller
   
   include ActionView::Helpers::ActiveRecordHelper
@@ -51,8 +51,5 @@ class HelperTestCase < Test::Unit::TestCase
     @controller = LoginController.new
     post 'logout'
     @controller = @controller_bak
-  end
-  
-  def test_dummy
   end
 end

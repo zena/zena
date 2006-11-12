@@ -1,6 +1,7 @@
 require File.dirname(__FILE__) + '/../test_helper'
 
-class FormSeizureTest < UnitTestCase
+class FormSeizureTest < Test::Unit::TestCase
+  include ZenaTestUnit
   fixtures :form_seizures, :items, :form_lines
 
   def test_find_dogs

@@ -1,4 +1,4 @@
-class UnitTestCase < Test::Unit::TestCase
+module ZenaTestUnit
   #include ZenaGlobals
   include Zena::Acts::SecureScope
   include Zena::Acts::SecureController::InstanceMethods
@@ -34,8 +34,4 @@ class UnitTestCase < Test::Unit::TestCase
       puts "[#{er}] #{msg}"
     end
   end
-  
-  def test_dummy
-  end
-    
 end

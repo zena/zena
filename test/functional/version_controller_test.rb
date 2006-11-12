@@ -4,7 +4,9 @@ require 'version_controller'
 # Re-raise errors caught by the controller.
 class VersionController; def rescue_action(e) raise e end; end
 
-class VersionControllerTest < ControllerTestCase
+class VersionControllerTest < Test::Unit::TestCase
+  fixtures :versions, :comments, :items, :addresses, :groups, :groups_users, :trans_keys, :trans_values
+  include ZenaTestController
   fixtures :versions, :items
   def setup
     @controller = VersionController.new

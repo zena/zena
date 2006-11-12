@@ -4,7 +4,9 @@ require 'login_controller'
 # Re-raise errors caught by the controller.
 class LoginController; def rescue_action(e) raise e end; end
 
-class LoginControllerTest < ControllerTestCase
+class LoginControllerTest < Test::Unit::TestCase
+  fixtures :versions, :comments, :items, :addresses, :groups, :groups_users, :trans_keys, :trans_values
+  include ZenaTestController
   
   def setup
     @controller = LoginController.new

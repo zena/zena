@@ -1,4 +1,4 @@
-class ControllerTestCase < Test::Unit::TestCase
+module ZenaTestController
   
   def init_controller
     @request    = ActionController::TestRequest.new
@@ -18,8 +18,5 @@ class ControllerTestCase < Test::Unit::TestCase
     @controller = LoginController.new
     post 'logout'
     @controller = @controller_bak
-  end
-  
-  def test_dummy
   end
 end

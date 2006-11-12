@@ -1,6 +1,8 @@
 require File.dirname(__FILE__) + '/../../test_helper'
 
-class ApplicationHelperTest < HelperTestCase
+class ApplicationHelperTest < Test::Unit::TestCase
+  fixtures :versions, :comments, :items, :addresses, :groups, :groups_users, :trans_keys, :trans_values
+  include ZenaTestHelper
   include ApplicationHelper
 
   def setup
@@ -8,7 +10,7 @@ class ApplicationHelperTest < HelperTestCase
     super
   end
   def test_items_id
-    assert_equal 1, items_id(:zena)
+    assert_equal items(:zena)[:id], items_id(:zena)
   end
   def test_uses_calendar_with_lang
     res = uses_calendar

@@ -1,5 +1,6 @@
 require File.dirname(__FILE__) + '/../test_helper'
-class VersionTest < UnitTestCase
+class VersionTest < Test::Unit::TestCase
+  include ZenaTestUnit
   
   def test_cannot_set_item_id
     puts User.find(:all).size

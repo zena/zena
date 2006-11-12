@@ -1,6 +1,8 @@
 require File.dirname(__FILE__) + '/../../test_helper'
 
-class MainHelperTest < HelperTestCase
+class MainHelperTest < Test::Unit::TestCase
+  fixtures :versions, :comments, :items, :addresses, :groups, :groups_users, :trans_keys, :trans_values
+  include ZenaTestHelper
   include ApplicationHelper
   include MainHelper
 

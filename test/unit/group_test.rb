@@ -1,6 +1,7 @@
 require File.dirname(__FILE__) + '/../test_helper'
 
-class GroupTest < UnitTestCase
+class GroupTest < Test::Unit::TestCase
+  include ZenaTestUnit
   fixtures :groups
 
   def test_truth

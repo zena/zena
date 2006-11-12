@@ -1,6 +1,7 @@
 require File.dirname(__FILE__) + '/../test_helper'
 
-class ImageVersionTest < UnitTestCase
+class ImageVersionTest < Test::Unit::TestCase
+  include ZenaTestUnit
   fixtures :items, :versions
 
   # Replace this with your real tests.

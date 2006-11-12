@@ -1,6 +1,7 @@
 require File.dirname(__FILE__) + '/../test_helper'
 
-class TrackerTest < UnitTestCase
+class TrackerTest < Test::Unit::TestCase
+  include ZenaTestUnit
   fixtures :items
 
   # Replace this with your real tests.

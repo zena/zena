@@ -4,7 +4,9 @@ require 'language_controller'
 # Re-raise errors caught by the controller.
 class LanguageController; def rescue_action(e) raise e end; end
 
-class LanguageControllerTest < ControllerTestCase
+class LanguageControllerTest < Test::Unit::TestCase
+  fixtures :versions, :comments, :items, :addresses, :groups, :groups_users, :trans_keys, :trans_values
+  include ZenaTestController
   def setup
     @controller = LanguageController.new
     init_controller

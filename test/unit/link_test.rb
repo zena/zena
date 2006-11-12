@@ -6,7 +6,8 @@ class Item < ActiveRecord::Base
   link :tagged, :class=>Item, :as=>'tag'
 end
 
-class LinkTest < UnitTestCase
+class LinkTest < Test::Unit::TestCase
+  include ZenaTestUnit
   fixtures :items, :versions, :addresses, :groups, :groups_users
   
   def test_link_icon

@@ -1,6 +1,7 @@
 require File.dirname(__FILE__) + '/../test_helper'
 
-class MultiVersionTest < UnitTestCase
+class MultiVersionTest < Test::Unit::TestCase
+  include ZenaTestUnit
   fixtures :items, :versions
   def item_defaults
     {

@@ -1,6 +1,7 @@
 require File.dirname(__FILE__) + '/../test_helper'
 
-class UserTest < UnitTestCase
+class UserTest < Test::Unit::TestCase
+  include ZenaTestUnit
   fixtures :versions, :items
   
   def test_cannot_destroy_su

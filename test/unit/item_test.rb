@@ -2,7 +2,8 @@ require File.dirname(__FILE__) + '/../test_helper'
 #require 'document' # this is needed to load the document model.
 #require 'collector'
 
-class ItemTest < UnitTestCase
+class ItemTest < Test::Unit::TestCase
+  include ZenaTestUnit
   fixtures :items, :versions, :doc_infos
   NEW_DEFAULT = {
     :name => 'hello',

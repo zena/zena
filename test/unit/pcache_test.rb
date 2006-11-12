@@ -1,6 +1,7 @@
 require File.dirname(__FILE__) + '/../test_helper'
 
-class PcacheTest < UnitTestCase
+class PcacheTest < Test::Unit::TestCase
+  include ZenaTestUnit
    
   def test_cache_for
     assert_nil Pcache.cache_for(default_hash)

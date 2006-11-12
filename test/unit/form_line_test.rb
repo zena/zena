@@ -1,6 +1,7 @@
 require File.dirname(__FILE__) + '/../test_helper'
 
-class FormLineTest < UnitTestCase
+class FormLineTest < Test::Unit::TestCase
+  include ZenaTestUnit
   fixtures :form_lines
 
   # Replace this with your real tests.

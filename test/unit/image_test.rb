@@ -1,6 +1,7 @@
 require File.dirname(__FILE__) + '/../test_helper'
 
-class ImageTest < UnitTestCase
+class ImageTest < Test::Unit::TestCase
+  include ZenaTestUnit
   fixtures :items, :versions, :doc_infos
 
   def test_create_with_file

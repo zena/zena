@@ -1,6 +1,7 @@
 require File.dirname(__FILE__) + '/../test_helper'
 
-class SecureReadTest < UnitTestCase
+class SecureReadTest < Test::Unit::TestCase
+  include ZenaTestUnit
   fixtures :items, :versions
   
   def test_fixture_by_id
@@ -123,7 +124,8 @@ class SecureReadTest < UnitTestCase
   end
 end
 
-class SecureCreateTest < UnitTestCase
+class SecureCreateTest < Test::Unit::TestCase
+  include ZenaTestUnit
   fixtures :items, :versions
   def item_defaults
     {
@@ -417,7 +419,8 @@ class SecureCreateTest < UnitTestCase
   # testing is done in page_test or item_test
 end
 
-class SecureUpdateTest < UnitTestCase
+class SecureUpdateTest < Test::Unit::TestCase
+  include ZenaTestUnit
   fixtures :items, :versions
   
   # VALIDATE ON UPDATE TESTS

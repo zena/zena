@@ -1,6 +1,7 @@
 require File.dirname(__FILE__) + '/../test_helper'
 
-class ImageBuilderTest < UnitTestCase
+class ImageBuilderTest < Test::Unit::TestCase
+  include ZenaTestUnit
   
   def test_resize
     img = ImageBuilder.new(:width=>611,:height=>800)
