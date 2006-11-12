@@ -297,10 +297,6 @@ Just doing the above will filter all result according to the logged in user.
           ( private? && uid == user_id )
         end
         
-        # Calls secure_on_create
-        def validate_on_create
-          secure_on_create
-        end
         # 0. set item.user_id = visitor_id
         # 1. validate the presence of a valid project (one in which the visitor has write access and project<>self !)
         # 2. validate the presence of a valid reference (project or parent) (in which the visitor has write access and ref<>self !)
@@ -309,7 +305,8 @@ Just doing the above will filter all result according to the logged in user.
         #     a. if can_publish? : valid groups
         #     b. else (can_manage as item is new) : rgroup_id = 0 => inherit, rgroup_id = -1 => private else error.
         # 5. validate the rest
-        def secure_on_create
+        def validate_on_create
+          self.class.logger.info "SECURE CALLBACK ON CREATE"
           # set kpath
           self[:kpath] = self.class.kpath
           
@@ -371,12 +368,9 @@ Just doing the above will filter all result according to the logged in user.
           self[:publish_from] = @publish_from || nil
           # same for proposed
           self[:max_status] = @max_status || Zena::Status[:red]
+          return errors.empty?
         end
 
-        # Calls secure_on_create
-        def validate_on_update
-          secure_on_update
-        end
         # 1. if pgroup changed from old, make sure user could do this and new group is valid
         # 2. if owner changed from old, make sure only a user in 'admin' can do this
         # 3. error if user cannot publish nor manage
@@ -385,7 +379,8 @@ Just doing the above will filter all result according to the logged in user.
         #     a. if can_publish? : valid groups
         #     b. else (can_manage as item is new) : rgroup_id = 0 => inherit, rgroup_id = -1 => private else error.
         # 6. validate the rest
-        def secure_on_update
+        def validate_on_update
+          self.class.logger.info "SECURE CALLBACK ON UPDATE"
           unless @visitor_id
             errors.add('base', "record not secured")
             return
@@ -498,9 +493,9 @@ Just doing the above will filter all result according to the logged in user.
           end  
           errors.add('template', "unknown template") unless template == old[:template] || File.exist?(File.join(RAILS_ROOT, 'app', 'views', 'templates', "#{template}.rhtml"))
           @needs_inheritance_spread = (rgroup_id != old.rgroup_id || wgroup_id != old.wgroup_id || pgroup_id != old.pgroup_id || template != old.template)        
+          return errors.empty?
         end
         
-        # Calls secure_on_create
         def before_destroy
           secure_on_destroy
         end
@@ -511,7 +506,8 @@ Just doing the above will filter all result according to the logged in user.
             return false
           end
         rescue ActiveRecord::RecordNotFound
-          errors.add('base', "you do not have the rights to do this")          
+          errors.add('base', "you do not have the rights to do this")
+          return false          
         end
         
         # Return the language used by this item.
@@ -536,6 +532,7 @@ Just doing the above will filter all result according to the logged in user.
           if @needs_inheritance_spread
             spread_inheritance
           end
+          true
         end
         
         # When the rwp groups are changed, spread this change to the 'children' with
@@ -655,7 +652,6 @@ Just doing the above will filter all result according to the logged in user.
       module AddActsAsMethod
         def acts_as_secure_controller
           helper_method :lang
-          # BELONGS_TO HAS_MANY GOES HERE
 
           class_eval <<-END
             include Zena::Acts::SecureController::InstanceMethods

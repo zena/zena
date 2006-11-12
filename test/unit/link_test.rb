@@ -12,6 +12,12 @@ class LinkDummy < ActiveRecord::Base
   link :recipients, :class=>LinkDummy
   link :letters, :class=>LinkDummy, :as=>'recipient'
   def ref_field; :parent_id; end
+  def version_class; DummyVersion; end
+end
+
+class DummyVersion < ActiveRecord::Base
+  belongs_to :item, :class_name=>'LinkDummy', :foreign_key=>'item_id'
+  set_table_name 'versions'
 end
 
 class LinkTest < Test::Unit::TestCase
@@ -33,6 +39,13 @@ class LinkTest < Test::Unit::TestCase
     assert_kind_of Image, icon = @item.icon
     assert_equal 20, icon[:id]
     assert_equal "bird.jpg", icon.name
+  end
+  
+  def test_link_on_create
+    visitor(:lion)
+    @item = secure(LinkDummy) { LinkDummy.create(:parent_id=>1, :name=>'lalatest', :tag_ids=>['23','24'])}
+    assert ! @item.new_record?, "Not a new record"
+    assert_equal 23, @item.tags[0][:id]
   end
   
   def test_bad_icon

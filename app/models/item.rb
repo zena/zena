@@ -54,14 +54,14 @@ project). Some special rules apply to this item : TODO...
 class Item < ActiveRecord::Base
   acts_as_secure
   acts_as_multiversioned
-  
+  link :tags, :class=>Collector
   # def self.sanitize_sql(ary)
   #   super
   # end
   
   def validate_on_create
-    secure_on_create
-    return unless errors.empty?    
+    return unless super
+    self.class.logger.info "ITEM CALLBACK ON CREATE"
     # make sure project is the same as the parent
     self[:project_id] = parent[:project_id]
     # make sure parent is not a 'Note'
@@ -81,8 +81,8 @@ class Item < ActiveRecord::Base
   end
 
   def validate_on_update
-    secure_on_update
-    return unless errors.empty?    
+    return unless super
+    self.class.logger.info "ITEM CALLBACK ON UPDATE"
     # make sure project is the same as the parent
     self[:project_id] = parent[:project_id] if self[:parent_id]
     # make sure parent is not a 'Note'
@@ -200,23 +200,6 @@ class Item < ActiveRecord::Base
   # Overwritten by notes
   def name_for_fullpath
     name
-  end
-
-  # overwrite normal behavior with secure...
-  def tags
-    links('tag')
-  end
-  
-  # overwrite normal behavior with secure...
-  def links(filter=nil)
-    if filter
-      conditions = ["links.parent_id = ? AND role = ?", self[:id], filter]
-    else
-      conditions = ["links.parent_id = ?", self[:id]]
-    end
-    secure(Item) { Item.find(:all, :select=>"items.*, links.role",
-      :joins=>"LEFT JOIN links ON links.item_id=items.id", 
-      :conditions=>conditions, :order=>'links.id ASC') }
   end
   
   # ACCESSORS

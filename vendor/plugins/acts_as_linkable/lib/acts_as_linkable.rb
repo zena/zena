@@ -43,6 +43,7 @@ module Zena
                 link ? link[:#{other_side}] : nil
               end
               def save_#{method}
+                self.class.logger.info '=============== save_#{method} called ==============='
                 return unless defined? @#{method}_id
                 obj_id = @#{method}_id
                 if obj_id && obj_id != ''
@@ -62,25 +63,31 @@ module Zena
                   end
                 end
                 remove_instance_variable :@#{method}_id
+                return true
               rescue ActiveRecord::RecordNotFound
                 errors.add('#{key}', 'cannot set')
+                return false
               end
             END
           else
             # multiple
             meth = method.to_s.singularize
             attr_accessor "#{meth}_ids"
-            after_save "save_#{method}".to_sym
+            after_save   "save_#{method}".to_sym
             if link_side == 'source_id'
               breaker = ""
             else
               breaker = "raise ActiveRecord::RecordNotFound unless secure_drive(#{klass}) { #{klass}.find(obj_id) }"
             end
             methods = <<-END
-              def #{meth}_ids=(obj_ids); @#{meth}_ids = obj_ids; end
+              def #{meth}_ids=(obj_ids)
+                self.class.logger.info '=============== #{meth}_ids= called ==============='
+                @#{meth}_ids = obj_ids
+              end
               def #{meth}_ids; Link.find_all_by_role_and_#{link_side}('#{key}', self[:id]).map{|r| r[:#{other_side}]}; end
                 
               def save_#{method}
+                self.class.logger.info '=============== save_#{method} called ==============='
                 return unless @#{meth}_ids.kind_of?(Array)
                 obj_ids = @#{meth}_ids.map{|i| i.to_i }
                 # remove all old links for this role
@@ -100,8 +107,10 @@ module Zena
                   end
                 end
                 remove_instance_variable :@#{meth}_ids
+                return true
               rescue ActiveRecord::RecordNotFound
                 errors.add('#{key}', 'cannot set')
+                return false
               end
               
               def remove_#{meth}(obj_id)

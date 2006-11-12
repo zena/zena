@@ -156,9 +156,7 @@ module Zena
         def propose(prop_status=Zena::Status[:prop])
           if version.user_id == visitor_id
             version.status = prop_status
-            allOK = version.save
-            allOK = after_propose && allOK
-            update_max_status && allOK
+            version.save && after_propose && update_max_status
           else
             false
           end
@@ -168,9 +166,7 @@ module Zena
         def refuse
           return false unless can_refuse?
           version.status = Zena::Status[:red]
-          allOK = version.save
-          allOK = after_refuse && allOK
-          update_max_status && allOK
+          version.save && after_refuse && update_max_status
         end
         
         # publish if version status is : redaction, proposition, replaced or removed
@@ -193,9 +189,7 @@ module Zena
               p.status = new_status
               p.save
             end
-            allOK = after_publish(pub_time)
-            allOK = update_publish_from && allOK
-            update_max_status && allOK
+            after_publish(pub_time) && update_publish_from && update_max_status
           else
             false
           end
@@ -204,13 +198,7 @@ module Zena
         def remove
           return false unless can_drive?
           version.status = Zena::Status[:rem]
-          if version.save
-            allOK = update_publish_from
-            allOK = update_max_status && allOK
-            after_remove && allOK
-          else
-            false
-          end
+          version.save && update_publish_from && update_max_status && after_remove
         end
         
         # Call backs
@@ -237,6 +225,7 @@ module Zena
           else
             update_attribute(:publish_from, nil)
           end
+          true
         end
         
         # Set +publish_from+ to the minimum publication time of all editions
@@ -344,9 +333,7 @@ module Zena
                             :order=>"lang_ok DESC, status ASC, publish_from ASC")
 
             end
-            self.class.logger.debug "VERSION: #{@version}"
           end
-          
           if @version.nil?
             raise Exception.exception("Item #{self[:id]} does not have any version !!")
           end
@@ -359,8 +346,12 @@ module Zena
         
         def save_version
           if (@version && @version.new_record?) || @redaction
-            @version.save
-            # TODO check for errors ...
+            unless @version.save
+              errors.add("base", "#{version_class.to_s.downcase} could not be saved")
+              false
+            else
+              true
+            end
           end
         end
         
@@ -368,6 +359,7 @@ module Zena
           self[:ref_lang] = visitor_lang
           @version.user_id = visitor_id
           @version.lang = visitor_lang
+          true
         end
         
         public

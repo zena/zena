@@ -184,7 +184,7 @@ class SecureCreateTest < Test::Unit::TestCase
     assert item.save, "Item saved"
     assert_equal Zena::Status[:red], item.max_status, "Max_status did not change"
     assert item.propose, "Can propose item"
-    assert_equal Zena::Status[:prop], item.max_status, "Item max_status is now 'prop'"
+    assert_equal Zena::Status[:prop], item.max_status, "Item#{item[:id]} max_status is now 'prop'"
     assert item.publish, "Can publish item"
     assert_equal Zena::Status[:pub], item.max_status, "item max_status in now 'pub'"
     id = item.id
