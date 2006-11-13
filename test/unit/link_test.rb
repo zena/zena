@@ -1,5 +1,4 @@
 require File.dirname(__FILE__) + '/../test_helper'
-
 class LinkDummy < ActiveRecord::Base
   acts_as_secure
   acts_as_multiversioned

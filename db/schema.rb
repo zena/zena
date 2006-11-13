@@ -104,6 +104,10 @@ ActiveRecord::Schema.define(:version => 3) do
     t.column "role", :string, :limit => 20
   end
 
+  create_table "parents", :id => false, :force => true do |t|
+    t.column "new_column", :string, :limit => 50
+  end
+
   create_table "pcaches", :force => true do |t|
     t.column "updated_at", :datetime
     t.column "visitor_id", :integer

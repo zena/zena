@@ -53,4 +53,6 @@ end
 #   inflect.uncountable %w( fish sheep )
 # end
 
-# Include your application configuration below
+require File.join(File.dirname(__FILE__), '../lib/secure')
+require File.join(File.dirname(__FILE__), '../lib/multiversion')
+require File.join(File.dirname(__FILE__), '../lib/linkable')
