@@ -4,7 +4,7 @@ require File.dirname(__FILE__) + '/../test_helper'
 
 class ItemTest < Test::Unit::TestCase
   include ZenaTestUnit
-  fixtures :items, :versions, :doc_infos
+  fixtures :items, :versions, :doc_infos, :addresses, :groups, :groups_users
   NEW_DEFAULT = {
     :name => 'hello',
     :rgroup_id => 1,
@@ -275,6 +275,28 @@ class ItemTest < Test::Unit::TestCase
     assert_equal "dog", item.parse("[animal]").render(:data=>[{:animal=>'dog'}])
   end
   
+  def test_tags
+    visitor(:lion)
+    @item = secure(Item) { Item.find(items_id(:status)) }
+    assert_nothing_raised { @item.tags }
+    assert_equal [], @item.tags
+    @item.tag_ids = [items_id(:art),items_id(:news)]
+    assert @item.save
+    tags = @item.tags
+    assert_equal 2, tags.size
+    assert_equal 'art', tags[0].name
+    assert_equal 'news', tags[1].name
+    @item.tag_ids = [items_id(:art)]
+    @item.save
+    tags = @item.tags
+    assert_equal 1, tags.size
+    assert_equal 'art', tags[0].name
+  end
+  
+  def test_tags_callbacks
+    assert Item.read_inheritable_attribute(:after_save).include?(:save_tags)
+    assert Page.read_inheritable_attribute(:after_save).include?(:save_tags)
+  end
 end
 =begin
   def test_edition

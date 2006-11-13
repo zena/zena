@@ -52,15 +52,16 @@ By default, item with id=1 is the 'root' of all other items. It's the only item 
 project). Some special rules apply to this item : TODO...
 =end
 class Item < ActiveRecord::Base
+  validate_on_create :item_on_create
+  validate_on_update :item_on_update
   acts_as_secure
   acts_as_multiversioned
-  link :tags, :class=>Collector
+  link :tags
   # def self.sanitize_sql(ary)
   #   super
   # end
   
-  def validate_on_create
-    return unless super
+  def item_on_create
     self.class.logger.info "ITEM CALLBACK ON CREATE"
     # make sure project is the same as the parent
     self[:project_id] = parent[:project_id]
@@ -78,10 +79,10 @@ class Item < ActiveRecord::Base
       test_same_name = Item.find(:all, :conditions=>["name = ?", self[:name]])
     end
     errors.add("name", "has already been taken") unless test_same_name == []
+    return errors.empty?
   end
 
-  def validate_on_update
-    return unless super
+  def item_on_update
     self.class.logger.info "ITEM CALLBACK ON UPDATE"
     # make sure project is the same as the parent
     self[:project_id] = parent[:project_id] if self[:parent_id]
@@ -96,6 +97,7 @@ class Item < ActiveRecord::Base
       test_same_name = Item.find(:all, :conditions=>["name = ? AND id != ?", self[:name], self[:id]])
     end
     errors.add("name", "has already been taken") unless test_same_name == []
+    return errors.empty?
   end
 
   def before_destroy
@@ -138,11 +140,6 @@ class Item < ActiveRecord::Base
   # Find only notes
   def notes
     @notes ||= secure(Note) { Note.find(:all, :order=>'name ASC', :conditions=>['parent_id=?', self[:id]] ) } || []
-  end
-  
-  # Find all collectors
-  def collectors
-    @collectors ||= secure(Collector) { Collector.find(:all, :order=>'name ASC', :conditions=>['parent_id=?', self[:id]] ) } || []
   end
  
   # Find all trackers

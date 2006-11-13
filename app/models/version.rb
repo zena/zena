@@ -20,7 +20,6 @@ Implements versioning and permits multiple editions on items.
 [doc_path] path to file containing the data if this is a version of a document.
 [doc_preview] optional image preview of the document
 =end
-
 class Version < ActiveRecord::Base
   belongs_to :item
   belongs_to :user, :foreign_key=>'user_id'

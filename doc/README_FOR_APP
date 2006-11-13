@@ -47,7 +47,7 @@ Zena is a CMS. (c) teti.ch 2006
 "UPDATE versions SET file_ref=#{id} WHERE file_ref=#{old.id} AND id !=#{old.id}"
 * Document caching. in /oo/projects/cleanWater/lake.jpg and /fr/projects/cleanWater/lake.jpg and /en... : this is bad. Find
   a better solution...
-=== Collector / Alias
+=== Tag / Alias
 * Use 'context intelligent' paths : this means we do not jump from one context to another using
   alias or collector. So a collector for 'art' makes it possible to have <tt>/collect/art/dyl/introduction</tt> pointing
   to the same page as <tt>/projects/dyl/introduction</tt>.
@@ -86,7 +86,7 @@ Content management system. The web module can contain different items
 * *Events* time related events shown in a calendar or as a 'news' list
 * *Pages* just normal html content
 * *Documents* files, photos, videos, anything up/downloadable
-* *Collectors* special pages collecting information from other pages
+* *Tags* special pages collecting information from other pages
 * *Projects* basic place into which the other modules can plug in.
 === calendar component
 Provides views and filters for #Events.

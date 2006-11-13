@@ -78,7 +78,7 @@ link://rwp_groups.png
 [write]
 		This means that new versions can be proposed for the item as well as new
 		sub-pages, documents, events, etc. Basically can write = can add content. If a user has write access to
-		a #Collector, this means he can add items to this #Collector (#Collector available as a category for other items).
+		a #Tag, this means he can add items to this #Tag (#Tag available as a category for other items).
 [publish]
 		This means that the content viewed by all can be altered by 
 		1. publishing new versions
@@ -171,6 +171,8 @@ Just doing the above will filter all result according to the logged in user.
           belongs_to :write_group, :class_name=>'Group', :foreign_key=>'wgroup_id'
           belongs_to :publish_group, :class_name=>'Group', :foreign_key=>'pgroup_id'
           belongs_to :user
+          validate_on_create :secure_on_create
+          validate_on_update :secure_on_update
           after_save :check_inheritance
           class_eval <<-END         
             include Zena::Acts::Secure::InstanceMethods
@@ -305,7 +307,7 @@ Just doing the above will filter all result according to the logged in user.
         #     a. if can_publish? : valid groups
         #     b. else (can_manage as item is new) : rgroup_id = 0 => inherit, rgroup_id = -1 => private else error.
         # 5. validate the rest
-        def validate_on_create
+        def secure_on_create
           self.class.logger.info "SECURE CALLBACK ON CREATE"
           # set kpath
           self[:kpath] = self.class.kpath
@@ -379,7 +381,7 @@ Just doing the above will filter all result according to the logged in user.
         #     a. if can_publish? : valid groups
         #     b. else (can_manage as item is new) : rgroup_id = 0 => inherit, rgroup_id = -1 => private else error.
         # 6. validate the rest
-        def validate_on_update
+        def secure_on_update
           self.class.logger.info "SECURE CALLBACK ON UPDATE"
           unless @visitor_id
             errors.add('base', "record not secured")

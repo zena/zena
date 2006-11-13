@@ -12,4 +12,3 @@ class Image < Document
     ImageVersion
   end
 end
-

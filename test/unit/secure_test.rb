@@ -7,6 +7,18 @@ class SecureReadTest < Test::Unit::TestCase
   def test_fixture_by_id
     assert_equal 1, items_id(:zena)
   end
+  def test_callbacks
+    item_on_create = Item.read_inheritable_attribute(:validate_on_create)
+    page_on_create = Page.read_inheritable_attribute(:validate_on_create)
+    page_on_update = Page.read_inheritable_attribute(:validate_on_update)
+    assert item_on_create.include?(:item_on_create)
+    assert page_on_create.include?(:item_on_create)
+    assert page_on_update.include?(:item_on_update)
+    assert item_on_create.include?(:secure_on_create)
+    assert page_on_create.include?(:secure_on_create)
+    assert page_on_create.index(:item_on_create) > page_on_create.index(:secure_on_create)
+    assert page_on_update.index(:item_on_update) > page_on_update.index(:secure_on_update)
+  end
   # SECURE FIND TESTS  ===== TODO CORRECT THESE TEST FROM CHANGES TO RULES ========
   # [user]          Item owner. Can *read*, *write* and (*manage*: if item not published yet or item is private).
   def test_can_rwm_own_private_item
