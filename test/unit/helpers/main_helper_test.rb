@@ -26,14 +26,14 @@ class MainHelperTest < Test::Unit::TestCase
   end
   
   def test_edit_button_for_public
-    @item = @controller.send(:secure,Item) { Item.find(items_id(:cleanWater)) }
+    @item = secure(Item) { Item.find(items_id(:cleanWater)) }
     assert !@item.can_edit?, "Item cannot be edited by the public"
     res = edit_button(:all)
     assert_equal '', res
   end
   
   def test_edit_button_wiki_public
-    @item = @controller.send(:secure,Item) { Item.find(items_id(:wiki)) } 
+    @item = secure(Item) { Item.find(items_id(:wiki)) } 
     assert @item.can_edit?, "Item can be edited by the public"
     res = edit_button(:all)
     assert_match %r{/z/version/edit/19}, res
@@ -42,7 +42,7 @@ class MainHelperTest < Test::Unit::TestCase
   
   def test_item_actions_for_ant
     login(:ant)
-    @item = @controller.send(:secure,Item) { Item.find(items_id(:cleanWater)) }
+    @item = secure(Item) { Item.find(items_id(:cleanWater)) }
     res = edit_button(:all)
     assert_match    %r{/z/version/edit}, res
     assert_no_match %r{/z/item/drive}, res
@@ -50,7 +50,7 @@ class MainHelperTest < Test::Unit::TestCase
   
   def test_item_actions_for_tiger
     login(:tiger)
-    @item = @controller.send(:secure,Item) { Item.find(items_id(:cleanWater)) }
+    @item = secure(Item) { Item.find(items_id(:cleanWater)) }
     res = edit_button(:all)
     assert_match %r{/z/version/edit}, res
     assert_match %r{/z/item/drive}, res
@@ -63,12 +63,12 @@ class MainHelperTest < Test::Unit::TestCase
     @item.save
     login(:ant)
     session[:lang] = 'fr'
-    @item = @controller.send(:secure,Item) { Item.find(items_id(:cleanWater)) }
+    @item = secure(Item) { Item.find(items_id(:cleanWater)) }
     res = edit_button(:all)
     assert_match %r{/z/version/edit}, res
     assert_no_match %r{/z/item/drive}, res
     session[:lang] = 'en'
-    @item = @controller.send(:secure,Item) { Item.find(items_id(:cleanWater)) }
+    @item = secure(Item) { Item.find(items_id(:cleanWater)) }
     res = edit_button(:all)
     assert_no_match %r{/z/version/edit}, res
     assert_no_match %r{/z/item/drive}, res
@@ -78,12 +78,12 @@ class MainHelperTest < Test::Unit::TestCase
     session[:lang] = 'en'
     # we must initialize an url for url_rewriting in 'traductions'
     @controller.instance_eval { @url = ActionController::UrlRewriter.new( @request, {:controller=>'main', :action=>'index'} ) }
-    @item = @controller.send(:secure,Item) { Item.find(items_id(:status)) } # en,fr
+    @item = secure(Item) { Item.find(items_id(:status)) } # en,fr
     trad = traductions
     assert_equal 2, trad.size
     assert_match /class='on'.*href="\/en"/, trad[0]
     assert_no_match /class='on'/, trad[1]
-    @item = @controller.send(:secure,Item) { Item.find(items_id(:cleanWater)) } #  en
+    @item = secure(Item) { Item.find(items_id(:cleanWater)) } #  en
     trad = traductions
     assert_equal 1, trad.size
     session[:lang] = 'io'
@@ -100,12 +100,12 @@ class MainHelperTest < Test::Unit::TestCase
     assert_match /class='info'.*posted by.*Panther Tigris Sumatran.*on 04.11.*Traductions :/m , author(:large)
     assert_equal "<div class='info'><b>PTS</b> - 04.11</div>", author
     assert_equal "<div class='info'><b>PTS</b> - 04.11</div>", author(:small)
-    @item = @controller.send(:secure, Item) { Item.find(items_id(:opening)) }
+    @item = secure(Item) { Item.find(items_id(:opening)) }
     assert_equal addresses_id(:tiger), @item.v_author[:id]
     assert_match /class='info'.*posted by.*Panther Tigris Sumatran/m, author(:large)
     assert_equal "<div class='info'><b>PTS</b> - 04.11</div>", author
     session[:lang] = 'fr'
-    @item = @controller.send(:secure, Item) { Item.find(items_id(:opening)) }
+    @item = secure(Item) { Item.find(items_id(:opening)) }
     assert_equal addresses_id(:ant), @item.v_author[:id]
     assert_match /class='info'.*original by.*Panther Tigris Sumatran.*new post by.*Solenopsis Invicta/m, author(:large)
     assert_equal "<div class='info'><b>SI</b> - 11.04</div>", author

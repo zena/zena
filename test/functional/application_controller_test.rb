@@ -64,6 +64,15 @@ class ApplicationControllerTest < Test::Unit::TestCase
     assert_equal 'yoba', @controller.send(:trans,'yoba')
   end
   
+  def test_prefix
+    @controller.instance_eval { @session = {:lang=>'en'} }
+    assert_equal 'en', @controller.send(:prefix)
+    @controller.instance_eval { @session = {:lang=>'ru'} }
+    assert_equal 'ru', @controller.send(:prefix)
+    @controller.instance_eval { @session = {:user=>{:id=>4, :lang=>'en', :groups=>[1,2,3]}} }
+    assert_equal AUTHENTICATED_PREFIX, @controller.send(:prefix)
+  end
+  
   # authorize tested in 'MainController' tests
   
 end

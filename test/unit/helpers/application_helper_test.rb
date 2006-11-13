@@ -151,4 +151,10 @@ class ApplicationHelperTest < Test::Unit::TestCase
     session[:lang] = 'fr'
     assert_match /logo.*img\/logo.png.*logo_msg.*vendredi.*novembre/, logo(Time.gm(2006,11,10))
   end
+  
+  # zazen is tested in zazen_test.rb
+  
+  def test_render_to_string
+    assert_match 'stupid test 25', render_to_string(:inline=>'stupid <%= "test" %> <%= 5*5 %>')
+  end
 end

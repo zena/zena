@@ -19,4 +19,12 @@ module ZenaTestController
     post 'logout'
     @controller = @controller_bak
   end
+  
+  def session
+    @controller.instance_eval { @session }
+  end
+  
+  def method_missing(meth,*args, &block)
+    @controller.send(meth, *args, &block)
+  end
 end

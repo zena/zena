@@ -44,9 +44,9 @@ class ImageInfo < DocInfo
 
   def do_transform(fmt)
     @file = ImageBuilder.new(:width=>self[:width], :height=>self[:height], :path=>filepath)
-    unless format = $image_format[fmt]
+    unless format = IMAGEBUILDER_FORMAT[fmt]
       fmt = 'pv'
-      format = $image_format['pv']
+      format = IMAGEBUILDER_FORMAT['pv']
     end
     @file.transform!(format)
     self[:format] = fmt

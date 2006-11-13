@@ -115,7 +115,7 @@ class ApplicationController < ActionController::Base
   # /////// The following methods are common to controllers and views //////////// #
   
   def prefix
-    session && session[:user] ? "#{AUTHENTICATED_PREFIX}" : lang
+    session && session[:user] ? AUTHENTICATED_PREFIX : lang
   end
   
 end

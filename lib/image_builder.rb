@@ -146,16 +146,9 @@ end
 IMAGEBUILDER_FORMAT = {
   'tiny' => { :size=>:force, :width=>15,  :height=>20,  :scale=>0.8   },
   'mini' => { :size=>:force, :width=>40,  :ratio=>1                   },
-  'pv' =>   { :size=>:force, :width=>80,  :height=>80                 },
-  'med' =>  { :size=>:limit, :width=>280, :ratio=>2/3.0               },
+  'pv'   => { :size=>:force, :width=>80,  :height=>80                 },
+  'med'  => { :size=>:limit, :width=>280, :ratio=>2/3.0               },
   'med2' => { :size=>:limit, :width=>280, :ratio=>2/3.0, :scale=>0.8  },
-  'std' =>  { :size=>:limit, :width=>600, :ratio=>2/3.0               },
+  'std'  => { :size=>:limit, :width=>600, :ratio=>2/3.0               },
   'full' => { :size=>:keep                                            },
 }
-IMAGEBUILDER_FORMAT_BY_NUM = IMAGEBUILDER_FORMAT.keys.sort do |a,b|
-  ima = ImageBuilder.new(:width=>500000, :height=>500000)
-  imb = ima.clone
-  ima.transform!(IMAGEBUILDER_FORMAT[a])
-  imb.transform!(IMAGEBUILDER_FORMAT[b])
-  ima.width * ima.height <=> imb.width * imb.height
-end

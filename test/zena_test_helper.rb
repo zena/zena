@@ -52,4 +52,8 @@ module ZenaTestHelper
     post 'logout'
     @controller = @controller_bak
   end
+  
+  def secure(*args, &block)
+    @controller.send(:secure, *args, &block)
+  end
 end

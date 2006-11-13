@@ -9,8 +9,8 @@ li { list-style-type:none; }
 a .id { display: none; font-size:0.7em; color:#ccc; }
 a:hover .id { display:inline; }
 button { background:none; border:none;}
-.float_left  img { margin:0px 5px 5px 0; float:left;}
-.float_right img { margin:0px 0 5px 5px; float:right;}
+.img_left  img { margin:0px 5px 5px 0; float:left;}
+.img_right img { margin:0px 0 5px 5px; float:right;}
 .clear { clear:both; font-size:1px;}
 
 /* ERROR HANDLING */

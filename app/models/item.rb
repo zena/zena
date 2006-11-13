@@ -109,7 +109,7 @@ class Item < ActiveRecord::Base
   
   # Find all children
   def children
-    @children ||= secure(Item) { all_children } || []
+    @children ||= secure(Item) { all_children }
   end
   
   # Find parent
@@ -129,22 +129,32 @@ class Item < ActiveRecord::Base
   # Find all sub-pages (All but documents)
   def pages
     @pages ||= secure(Page) { 
-      Page.find(:all, :order=>'name ASC', :conditions=>["parent_id = ? AND kpath NOT LIKE 'IPD%'", self[:id] ]) } || []
+      Page.find(:all, :order=>'name ASC', :conditions=>["parent_id = ? AND kpath NOT LIKE 'IPD%'", self[:id] ]) }
   end
   
-  # Find only documents
+  # Find documents
   def documents
-    @documents ||= secure(Document) { Document.find(:all, :order=>'name ASC', :conditions=>['parent_id=?', self[:id]] ) } || []
+    @documents ||= secure(Document) { Document.find(:all, :order=>'name ASC', :conditions=>['parent_id=?', self[:id]] ) }
+  end
+
+  # Find documents without images
+  def documents_only
+    @documents ||= secure(Document) { Document.find(:all, :order=>'name ASC', :conditions=>["parent_id=? AND kpath NOT LIKE 'IPDI%'", self[:id]] ) }
+  end
+  
+  # Find only images
+  def images
+    @images ||= secure(Image) { Image.find(:all, :order=>'name ASC', :conditions=>['parent_id=?', self[:id]] ) }
   end
   
   # Find only notes
   def notes
-    @notes ||= secure(Note) { Note.find(:all, :order=>'name ASC', :conditions=>['parent_id=?', self[:id]] ) } || []
+    @notes ||= secure(Note) { Note.find(:all, :order=>'name ASC', :conditions=>['parent_id=?', self[:id]] ) }
   end
  
   # Find all trackers
   def trackers
-    @trackers ||= secure(Tracker) { Tracker.find(:all, :order=>'name ASC', :conditions=>['parent_id=?', self[:id]] ) } || []
+    @trackers ||= secure(Tracker) { Tracker.find(:all, :order=>'name ASC', :conditions=>['parent_id=?', self[:id]] ) }
   end
  
   # Create a child and let him inherit from rwp groups and project_id

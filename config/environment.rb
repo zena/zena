@@ -56,3 +56,4 @@ end
 require File.join(File.dirname(__FILE__), '../lib/secure')
 require File.join(File.dirname(__FILE__), '../lib/multiversion')
 require File.join(File.dirname(__FILE__), '../lib/linkable')
+require File.join(File.dirname(__FILE__), '../lib/image_builder')

@@ -1,6 +1,5 @@
 # Methods added to this helper will be available to all templates in the application.
 module ApplicationHelper
-  
   # helpers to include clean javascript
   def javascript( string )
     javascript_start +
@@ -184,6 +183,120 @@ module ApplicationHelper
     link_to( image_tag('/img/logo.png', :size=>'220x100'), :prefix => prefix, :controller => 'main', :action=>'index') +
     "<div id='logo_msg'>#{message}</div></div>"
   end
+  
+  # This method renders the Textile text contained in an object as html. It also renders the zena additions :
+  # === Zena additions
+  # all these additions are replaced by the traduction of 'unknown link' or 'unknown image' if the user does
+  # not have read access to the linked item.
+  # * ["":34] creates a link to item 34 with item's title.
+  # * ["title":34] creates a link to item 34 with the given title.
+  # * ["":034] if the item id starts with '0', creates a popup link.
+  # * [!14!] inline image 14. (default format is 'std' defined in #ImageBuilder). Options are :
+  # ** [!014!] inline image with 'pv' format
+  # ** [!<.14!] or [!<14!] inline image surrounded with <p class='float_left'></p>
+  # ** [!>.14!] or [!>14!] inline image surrounded with <p class='float_right'></p>
+  # ** [!=.14!] or [!=14!] inline image with <p class='center'></p>
+  # ** [!14.pv!] inline image transformed to format 'pv'. Formats are defined in #ImageBuilder.
+  # ** all the options above can be used together as in [!>.14.med!] : inline image on the right, size 'med'.
+  # ** [![2,3,5]!] gallery : inline preview with javascript inline viewer
+  # ** [![]!] gallery with all images contained in the current item
+  # * [!{7,9}!] documents listing for documents 7 and 9
+  # * [!{}!] list all documents (with images) for the current item
+  # * [!{d}!] list all documents (without images) for the current item
+  # * [!{i}!] list all images for the current item
+  # * [!14!:37] you can use an image as the source for a link
+  # * [!14!:www.example.com] use an image for an outgoing link
+  def zazen(text)
+    r = RedCloth.new(text) #, [:hard_breaks])
+    r.gsub!(  /"([^"]+)":([0-9]+)/                  ) {|x| make_link($2,$1)}
+    r.gsub!(  /"":([0-9]+)/                         ) {|x| make_link($1)}
+    r.gsub!(  /\!\[([^\]]*)\]\!/                    ) {|x| make_gallery($1)}
+    r.gsub!(  /\!\{([^\}]*)\}\!/                    ) {|x| list_items($1)}
+    r.gsub!(  /\!([^0-9]{0,2})([0-9]+)\!:([^\s]*)/           ) {|x| make_image($2, $1, '', $4)}
+    r.gsub!(  /\!([^0-9]{0,2})([0-9]*)\.([^\!]+)\!:([^\s]*)/ ) {|x| make_image($2, $1, $3, $4)}
+    r.gsub!(  /\!([^0-9]{0,2})([0-9]+)\!/           ) {|x| make_image($2, $1)}
+    r.gsub!(  /\!([^0-9]{0,2})([0-9]*)\.([^\!]+)\!/ ) {|x| make_image($2, $1, $3)}
+    r
+    r.to_html
+  end
+
+  # Creates a link to the item referenced by id
+  def make_link(id, title=nil)
+    item = secure(Item) { Item.find(id) }
+    title ||= item.title
+    if id[0..0] == '0'
+      link_to title, {:prefix => prefix, :controller => 'main', :action=>'show', :path=>item.fullpath}, :popup=>true
+    else
+      link_to title, :prefix => prefix, :controller => 'main', :action=>'show', :path=>item.fullpath
+    end
+  rescue ActiveRecord::RecordNotFound
+    "<span class='unknownLink'>#{trans('unknown link')}</span>"
+  end
+  
+  # Create an img tag for the given image. See ApplicationHelper#zazen for details.
+  def make_image(id, options='', format='', link='')
+    if format != ""
+      format = IMAGEBUILDER_FORMAT[format] ? format : 'std'
+    elsif id[0..0] == "0"
+      format = 'pv'
+    else
+      format = 'std'
+    end
+  
+    img = secure(Image) { Image.find(id) }
+    case options.sub('.', '')
+    when ">"
+      prefix = "<p class='img_right'>"
+      suffix = "</p>"
+    when "<"
+      prefix = "<p class='img_left'>"
+      suffix = "</p>"
+    when "="
+      prefix = "<p class='img_center'>"
+      suffix = "</p>"
+    else
+      prefix = suffix = ""
+    end
+    if link == ''
+      prefix + img.img_tag(format) + suffix
+    else
+      prefix + "<a href='#{link}'>" + img.img_tag(format) + "</a>" + suffix
+    end
+  rescue ActiveRecord::RecordNotFound
+    "<span class='unknownLink'>#{trans('unknown image')}</span>"
+  end
+  
+  # Create a gallery from a list of images. See ApplicationHelper#zazen for details.
+  def make_gallery(ids="")
+    if ids == ""
+      images = @item.images
+    else
+      ids = ids.split(',').map{|i| i.to_i}.join(',') # sql injection security
+      images = secure(Image) { Image.find(:all, :conditions=>"id IN (#{ids})") }
+    end
+    render_to_string( :partial=>'main/gallery', :locals=>{:gallery=>images} )
+  end
+
+  def list_items(ids='')
+    if ids == ""
+      docs = @item.documents
+    elsif ids == "d"
+      docs = @item.documents_only
+    elsif ids == "i"
+      docs = @item.images
+    else
+      ids = ids.split(',').map{|i| i.to_i}.join(',') # sql injection security
+      docs = secure(Document) { Document.find(:all, :order=>'name ASC', :conditions=>"id IN (#{ids})") }
+    end
+    render_to_string( :partial=>'main/list_items', :locals=>{:docs=>docs})
+  end
+  private
+  
+  # This lets helpers render partials
+  def render_to_string(*args)
+    @controller.send(:render_to_string, *args)
+  end
+
   # test to here
 end
 =begin
@@ -210,81 +323,6 @@ module ApplicationHelper
   end
   
 
-  
-  
-  # This method renders the Textile[http://hobix.com/textile/] text contained in an object as html. It also renders the zena additions :
-  # === Zena additions
-  # ["":34] creates a link to item 34 with item's title. If the user does not have read access to item 34, the title is replaced by 'unknown'
-  # ["":c3] creates a link to 'contact 3' with Contact#fullname as title. If the contact has a presentation page, links there.
-  # ["title":c3] creates a link to contact 3 with the given title. If the contact has a presentation page, links there.
-  # ["title":34] creates a link to item 34 with the given title. Replaced by 'unknown' if user does not have read access to the item linked.
-  # [!36!] inline document 36. Replaced by nothing if user does not have read access to item 36.
-  # [!036!] inline preview with popup for document 36. Replaced by nothing if user does not have read access to item 36.
-  # [![2,3,5]!] gallery : inline preview with javascript inline viewer
-  def z(str)
-    r = RedCloth.new(str) #, [:hard_breaks])
-    r.gsub!(/"([^"]+)":([0-9]+)/) {|x| makeLink($1,$2)}
-    r.gsub!(/"":([0-9]+)/) {|x| makeLink(nil,$1)}
-    r.gsub!(/\!\[([^\]]*)\]\!/) {|x| plug(:gallery, $1)}
-    r.gsub!(/\!\{([^\]]*)\}\!/) {|x| makeDocs($1)}
-    r.gsub!(/\!([^0-9]{0,2})([0-9]+)\!/) {|x| makeImage($2, $1,"")}
-    r.gsub!(/\!([^0-9]{0,2})([0-9]*)\.([0-9]+)\!/) {|x| makeImage($2,$1,$3)}
-    r
-    r.to_html
-  end
-  
-  
-  
-  # Create links for Zena additions to Textile
-  def makeLink(title, theId)
-    item = secure(Item) { Item.find(theId) } 
-    title ||= item.title || "item#{item[:id]}"
-    if item.kind_of?(Page)
-      link_to title, :prefix => url_prefix, :controller => 'web', :action=>'item', :params=>{:path=>item.fullpath, :lang=>params[:lang]}
-    else
-      link_to title, :prefix => url_prefix, :controller => 'web', :action=>'item', :id=>item.id, :params=>{:lang=>params[:lang]}
-    end
-  rescue ActiveRecord::RecordNotFound
-    "<span class='notFound'>item#{theId} not found</span>"
-  end
-    
-
-  # Create IMG tag for zena additions to Textile
-  def makeImage(img, options, format)
-    if format != ""
-      format = IMAGEBUILDER_FORMATS_BY_NUM[format.to_i] || 'pv'
-    elsif img[0..0] == "0"
-      format = 'pv'
-    else
-      format = 'std'
-    end
-    
-    doc = secure(Document) { Document.find(img.to_i) }
-    case options
-    when ">"
-      prefix = '<p class="float_right">'
-      suffix = '</p>'
-    when "<"
-      prefix = '<p class="float_left">'
-      suffix = '</p>'
-    else
-      prefix = suffix = ""
-    end
-    prefix + link_to( doc.img_tag(format), :prefix => url_prefix, :controller => 'web',
-                            :action=>'item', :path=>doc.fullpath ) + suffix
-  rescue ActiveRecord::RecordNotFound
-    "<span class='notFound'>image#{img} not found</span>"
-  end
-  
-  def makeDocs(ids)
-    if ids == ""
-      docs = @item.documents
-    else
-      docs = secure(Document) { Documents.find(:conditions=>["id IN (?)",ids])}
-    end
-    render_collection('document/docs', docs)
-  end
-  
   
   
 	def date_box(obj, var, opts = {})
