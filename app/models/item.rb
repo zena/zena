@@ -232,6 +232,8 @@ class Item < ActiveRecord::Base
   # THIS IS DANGEROUS !! NEEDS TESTING
   def change_to(klass)
     return nil if self[:id] == ZENA_ENV[:root_id]
+    # FIXME: check for class specific information (file to remove, participations, tags, etc) ... should we leave these things and
+    # not care ?
     my_id = self[:id].to_i
     my_parent = self[:parent_id].to_i
     my_project = self[:project_id].to_i
