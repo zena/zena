@@ -1,6 +1,4 @@
 require File.dirname(__FILE__) + '/../test_helper'
-#require 'document' # this is needed to load the document model.
-#require 'collector'
 
 class ItemTest < Test::Unit::TestCase
   include ZenaTestUnit
@@ -63,6 +61,13 @@ class ItemTest < Test::Unit::TestCase
     assert_equal item.errors[:name], "can't be blank"
   end
   
+  def test_new_set_project_id
+    visitor(:tiger)
+    item = secure(Page) { Page.create(:parent_id=>items_id(:status), :name=>'SuperPage')}
+    assert ! item.new_record?, 'Not a new record'
+    assert_equal items_id(:cleanWater), item[:project_id]
+  end
+  
   def test_update_no_or_bad_parent
     visitor(:ant)
     item = secure(Item) { Item.find(items_id(:wiki))}
@@ -110,6 +115,17 @@ class ItemTest < Test::Unit::TestCase
     item.title = ""
     assert !item.save, 'Save fails'
     assert_equal item.errors[:name], "can't be blank"
+  end
+  
+  def test_update_set_project_id
+    visitor(:tiger)
+    item = secure(Page) { Page.find(items_id(:status))}
+    assert_equal items_id(:cleanWater), item[:project_id]
+    item[:parent_id]  = items_id(:zena)
+    item[:project_id] = items_id(:status)
+    assert item.save, 'Can save item'
+    item.reload
+    assert_equal items_id(:zena), item[:project_id]
   end
   
   def test_create_same_name
@@ -200,13 +216,12 @@ class ItemTest < Test::Unit::TestCase
     assert_equal items(:water_pdf)[:id], documents[0][:id]
   end
   
-  def test_documents_only
+  def test_documents_images_only
     visitor(:tiger)
     bird = secure(Item) { Item.find(items_id(:bird_jpg))}
     bird[:parent_id] = items_id(:cleanWater)
     assert bird.save
     page = secure(Item) { Item.find(items_id(:cleanWater))}
-    documents = page.documents
     doconly   = page.documents_only
     images    = page.images
     assert_equal 1, doconly.size
@@ -215,24 +230,50 @@ class ItemTest < Test::Unit::TestCase
     assert_equal items(:bird_jpg)[:id], images[0][:id]
   end
   
-  def blah
-    collectors = page.collectors
-    assert_equal 0, collectors.size
-    trackers = page.trackers
-    assert_equal 1, trackers.size
-    children = page.children
-    assert_equal 5, children.size
+  def test_notes
     visitor(:tiger)
-    page = secure(Item) { Item.find(items_id(:cleanWater))}
-    pages = page.pages
-    assert_equal 5, pages.size
+    item = secure(Item) { Item.find(items_id(:cleanWater))}
+    notes = item.notes
+    assert_equal 1, notes.size
+    assert_equal 'opening', notes[0][:name]
+  end
+  
+  def test_trackers
+    visitor(:tiger)
+    item = secure(Item) { Item.find(items_id(:cleanWater))}
+    trackers = item.trackers
+    assert_equal 1, trackers.size
+    assert_equal 'track', trackers[0][:name]
+  end
+  
+  def test_new_child
+    visitor(:ant)
+    item = secure(Item) { Item.find(items_id(:cleanWater)) }
+    child = item.new_child( :name => 'lake' )
+    assert ! child.save , "Save fails"
+    assert child.errors[:name] , "Errors on name"
+  
+    child = item.new_child( :name => 'new_name' )
+    assert child.save , "Save succeeds"
+    assert_equal Zena::Status[:red],  child.v_status
+    assert_equal child[:user_id], addresses_id(:ant)
+    assert_equal item[:pgroup_id], child[:pgroup_id]
+    assert_equal item[:rgroup_id], child[:rgroup_id]
+    assert_equal item[:wgroup_id], child[:wgroup_id]
+    assert_equal item[:project_id], child[:project_id]
+    assert_equal 1, child[:inherit]
+    assert_equal item[:id], child[:parent_id]
   end
   
   def test_find_by_path
     visitor(:ant)
+    item = items(:wiki)
+    assert_nil item[:fullpath]
     item = Item.find_by_path(user_id,user_groups,'fr',['projects', 'wiki'])
     assert_kind_of Item, item
     assert_equal ['projects','wiki'], item.fullpath
+    item.reload
+    assert_equal 'projects/wiki', item[:fullpath]
   end
   
   def test_get_fullpath
@@ -246,6 +287,16 @@ class ItemTest < Test::Unit::TestCase
     assert_equal ['projects', 'cleanWater', 'lake'], item[:fullpath].split('/')
     parent.reload
     assert_equal ['projects', 'cleanWater'], parent[:fullpath].split('/')
+  end
+  
+  def test_get_fullpath_after_private
+    Item.connection.execute "UPDATE items SET parent_id = 3 WHERE id = 12" # put 'status' page inside private 'ant' page
+    item = nil
+    visitor(:tiger)
+    assert_nothing_raised { item = secure(Item) { Item.find(items_id(:status))} }
+    assert_kind_of Item, item
+    assert_raises (ActiveRecord::RecordNotFound) { item = Item.find_by_path(user_id,user_groups,'fr',['people', 'ant'])}
+    assert_nothing_raised { item = Item.find_by_path(user_id,user_groups,'fr',['people', 'ant', 'status'])}
   end
   
   def test_list_collectors
@@ -262,44 +313,88 @@ class ItemTest < Test::Unit::TestCase
     item = Item.find_by_path(user_id, user_groups, 'fr', ['projects', 'secret'])
     assert_kind_of Item, item
     visitor(:ant)
-    assert_raise(ActiveRecord::RecordNotFound) do
-      item = Item.find_by_path(user_id, user_groups, 'fr', ['projects', 'secret'])
-    end
+    assert_raise(ActiveRecord::RecordNotFound) { item = Item.find_by_path(user_id, user_groups, 'fr', ['projects', 'secret']) }
   end
   
-  def test_duplicate_name
-    visitor(:ant)
-    item = secure(Item) { Item.new(
-      :parent_id=>items_id(:cleanWater),
-      :inherit => 1
-    ) }
-    assert ! item.save
-    assert item.errors[:name] , "Errors on name"
-    item.name = 'lake'
-    assert ! item.save
-    assert item.errors[:name] , "Errors on name"
-    item.name = 'wikiwikiwkwikassiejf'
-    assert item.save
+  def test_author
+    item = items(:status)
+    assert_equal item.user, item.author
+    assert_equal 'ant', item.author.login
   end
   
-  def test_camel_name
-    visitor(:ant)
-    item = secure(Item) { Item.find(items_id(:cleanWater)) }
-    child = item.new_child( :name => 'salut j\'écris: Aujourd\'hui ' )
-    assert child.save , "Save succeeds"
-    assert_equal "salutJEcrisAujourdHui", child.name
+  def test_ext
+    item = items(:status)
+    item[:name] = 'bob. and bob.jpg'
+    assert_equal 'jpg', item.ext
+    item[:name] = 'no ext'
+    assert_equal '', item.ext
+    item[:name] = ''
+    assert_equal '', item.ext
+    item[:name] = nil
+    assert_equal '', item.ext
   end
-    
-  def test_new_child
-    visitor(:ant)
+  
+  def test_camelize
+    item = items(:wiki)
+    assert_equal "salutJEcrisAujourdHui", item.send(:camelize,"salut j'écris: Aujourd'hui ")
+    assert_equal "aBabMol", item.send(:camelize," à,--/ bab mol")
+    assert_equal "07.11.2006Mardi", item.send(:camelize,"07.11.2006-mardi")
+  end
+  
+  def test_set_name
+    item = items(:wiki)
+    item.name = " J'aime l'aïl en août ! "
+    assert_equal 'JAimeLAilEnAout', item.name
+    assert_equal 'JAimeLAilEnAout', item[:name]    
+  end
+ 
+  def test_change_to_page_to_project
+    visitor(:tiger)
+    item = secure(Item) { Item.find(items_id(:people)) }
+    id, parent_id, project_id = item[:id], item[:parent_id], item[:project_id]
+    vers_count = Version.find(:all).size
+    vers_id = item.v_id
+    item = item.change_to(Project)
+    assert_kind_of Project, item
+    item = secure(Project) { Project.find(items_id(:people)) }
+    assert_kind_of Project, item
+    assert_equal 'IPP', item[:kpath]
+    assert_equal id, item[:id]
+    assert_equal parent_id, item[:parent_id]
+    assert_equal item[:id], item[:project_id]
+    assert_equal vers_count, Version.find(:all).size
+    assert_equal vers_id, item.v_id
+    assert_equal item[:id], items(:ant)[:project_id] # children inherit new project_id
+    assert_equal item[:id], items(:myLife)[:project_id]
+  end
+  
+  def test_change_project_to_page
+    visitor(:tiger)
     item = secure(Item) { Item.find(items_id(:cleanWater)) }
-    child = item.new_child( :name => 'lake' )
-    assert ! child.save , "Save fails"
-    assert child.errors[:name] , "Errors on name"
-    
-    child = item.new_child( :name => 'new_name' )
-    assert child.save , "Save succeeds"
-    assert_equal Zena::Status[:red],  child.v_status
+    id, parent_id = item[:id], item[:parent_id]
+    vers_count = Version.find(:all).size
+    vers_id = item.v_id
+    item = item.change_to(Page)
+    assert_kind_of Page, item
+    item = secure(Page) { Page.find(items_id(:cleanWater)) }
+    assert_kind_of Page, item
+    assert_equal 'IP', item[:kpath]
+    assert_equal id, item[:id]
+    assert_equal parent_id,  item[:parent_id]
+    assert_equal items_id(:zena), item[:project_id]
+    assert_equal vers_count, Version.find(:all).size
+    assert_equal vers_id, item.v_id
+    assert_equal items_id(:zena), items(:status)[:project_id] # children inherit new project_id
+    assert_equal items_id(:zena), items(:lake)[:project_id]
+  end
+  
+  def test_cannot_change_root
+    visitor(:tiger)
+    item = secure(Item) { Item.find(ZENA_ENV[:root_id]) }
+    item = item.change_to(Page)
+    assert_nil item
+    item = secure(Item) { Item.find(ZENA_ENV[:root_id]) }
+    assert_kind_of Project, item
   end
   
   def test_child_sync
@@ -369,18 +464,7 @@ class ItemTest < Test::Unit::TestCase
     assert_equal Zena::Status[:pub], forest.v_status
     assert item.propose, "Propose for publication succeeds"
   end
-  
-  def test_change_class
-    visitor(:tiger)
-    item = secure(Item) { Item.find(items_id(:status)) }
-    item = item.change_to(Project)
-    assert_kind_of Project, item
-    assert item.save
-    item = secure(Project) { Project.find(items_id(:status)) }
-    assert_kind_of Project, item
-    assert_equal 'IPP', item[:kpath]
-  end
-  
+ 
   def test_tags
     visitor(:lion)
     @item = secure(Item) { Item.find(items_id(:status)) }

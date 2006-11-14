@@ -199,7 +199,7 @@ class Item < ActiveRecord::Base
       else
         f = []
       end
-      self.connection.execute "UPDATE items SET fullpath='#{f.join('/')}' WHERE items.id='#{self[:id]}'"
+      self.connection.execute "UPDATE #{self.class.table_name} SET fullpath='#{f.join('/')}' WHERE id='#{self[:id]}'"
       f
     end
   end
@@ -215,16 +215,14 @@ class Item < ActiveRecord::Base
   end
   
   def ext
-    name.split('.').last
+    (name && name != '' && name =~ /\./ ) ? name.split('.').last : ''
   end
     
   # set name: remove all accents and camelize
   def name=(str)
     return unless str && str != ""
-    self[:name] = clearName(str)
+    self[:name] = camelize(str)
   end
-  
-  # TODO: finish list
   
   # transform an Item into another Object. This is a two step operation :
   # 1. create a new object with the attributes from the old one
@@ -233,58 +231,75 @@ class Item < ActiveRecord::Base
   # 4. delete old and set new object id to old
   # THIS IS DANGEROUS !! NEEDS TESTING
   def change_to(klass)
-    #begin
-      my_id = self[:id].to_i
-      my_parent = self[:parent_id].to_i
-      my_project = self[:project_id].to_i
-      connection = self.class.connection
-      # 1. create a new object with the attributes from the old one
-      new_obj = secure(klass) { klass.new(self.attributes) }
-      puts new_obj.inspect
-      # 2. move old object out of the way (setting parent_id and project_id to -1)
-      self.class.connection.execute "UPDATE items SET parent_id='0', project_id='0' WHERE id=#{my_id}"
-      # 3. try to save new object
-      if new_obj.save
-        tmp_id = new_obj[:id]
-        # 4. delete old and set new object id to old
-        self.class.connection.execute "DELETE items WHERE items.id=#{my_id}"
-        self.class.connection.execute "UPDATE items SET id='#{my_id}' WHERE id=#{tmp_id}"
-        secure ( klass ) { klass.find(my_id) }
-      else
-        puts "ERROR: #{new_obj.show_errors}"
-        # set object back
-        self.class.connection.execute "UPDATE items SET parent_id='#{my_parent}', project_id='#{my_project}' WHERE items.id=#{my_id}"
-        self
+    return nil if self[:id] == ZENA_ENV[:root_id]
+    my_id = self[:id].to_i
+    my_parent = self[:parent_id].to_i
+    my_project = self[:project_id].to_i
+    connection = self.class.connection
+    # 1. create a new object with the attributes from the old one
+    new_obj = secure(klass) { klass.new(self.attributes) }
+    # 2. move old object out of the way (setting parent_id and project_id to -1)
+    self.class.connection.execute "UPDATE #{self.class.table_name} SET parent_id='0', project_id='0' WHERE id=#{my_id}"
+    # 3. try to save new object
+    if new_obj.save
+      tmp_id = new_obj[:id]
+      # 4. delete old and set new object id to old. Delete tmp Version.
+      self.class.connection.execute "DELETE FROM #{self.class.table_name} WHERE id=#{my_id}"
+      self.class.connection.execute "DELETE FROM #{Version.table_name} WHERE item_id=#{tmp_id}"
+      self.class.connection.execute "UPDATE #{self.class.table_name} SET id='#{my_id}' WHERE id=#{tmp_id}"
+      self.class.logger.info "========== SET PROJ ======= "
+      self.class.connection.execute "UPDATE #{self.class.table_name} SET project_id=id WHERE id=#{my_id}" if new_obj.kind_of?(Project)
+      puts "#{self.class}->#{klass}"
+      if new_obj.kind_of?(Project)
+        # update project_id for children
+        sync_project(my_id)
+      elsif self.kind_of?(Project)
+        # update project_id for children
+        sync_project(parent[:project_id], true)
       end
-    #rescue
-      # ???
-    #end
+      secure ( klass ) { klass.find(my_id) }
+    else
+      # set object back
+      self.class.connection.execute "UPDATE #{self.class.table_name} SET parent_id='#{my_parent}', project_id='#{my_project}' WHERE id=#{my_id}"
+      self
+    end
   end
-    
+
+  protected
+  
+  def sync_project(project_id, pass_through=false)
+    unless self.kind_of?(Project) && !pass_through
+      all_children.each do |child|
+        child[:project_id] = project_id
+        child.save_with_validation(false)
+        child.sync_project(project_id)
+      end
+    end
+  end
   
   private
-  
+      
   # Call backs
   def after_remove
     if self[:max_status] < Zena::Status[:pub]
-      sync_children(:remove)
+      sync_documents(:remove)
     end
   end
   
   def after_propose
-    sync_children(:propose)
+    sync_documents(:propose)
   end
   
   def after_refuse
-    sync_children(:refuse)
+    sync_documents(:refuse)
   end
   
   def after_publish(pub_time=nil)
-    sync_children(:publish, pub_time)
+    sync_documents(:publish, pub_time)
   end
 
   # Publish, refuse, propose the Documents of a redaction
-  def sync_children(action, pub_time=nil)
+  def sync_documents(action, pub_time=nil)
     allOK = true
     documents = secure_drive(Document) { Document.find(:all, :conditions=>"parent_id = #{self[:id]}") }
     case action
@@ -320,7 +335,7 @@ class Item < ActiveRecord::Base
     Item.find(:all, :conditions=>['parent_id = ?', self[:id] ])
   end
   
-  def clearName(str)
+  def camelize(str)
     accents = { ['á','à','â','ä','ã','Ã','Ä','Â','À'] => 'a',
       ['é','è','ê','ë','Ë','É','È','Ê'] => 'e',
       ['í','ì','î','ï','I','Î','Ì'] => 'i',
