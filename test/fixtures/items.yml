@@ -366,8 +366,8 @@ strange:
   
 tracker:
   id:             27
-  type:           Looper
-  kpath:          IPL
+  type:           Tracker
+  kpath:          IPA
   name:           track
   project_id:     1
   parent_id:      11

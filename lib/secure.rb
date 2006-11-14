@@ -624,8 +624,13 @@ Just doing the above will filter all result according to the logged in user.
             @@kpath[self] ||= if superclass == ActiveRecord::Base
               self.to_s[0..0]
             else
-              superclass.kpath + self.to_s[0..0]
+              superclass.kpath + ksel
             end
+          end
+          
+          # kpath selector for the current class
+          def ksel
+            self.to_s[0..0]
           end
 
           @@kpath = {}

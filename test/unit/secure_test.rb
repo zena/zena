@@ -1,11 +1,24 @@
 require File.dirname(__FILE__) + '/../test_helper'
-
+class PagerDummy < Item
+  def self.ksel
+    self == PagerDummy ? 'U' : super
+  end
+end
+class SubPagerDummy < PagerDummy
+end
 class SecureReadTest < Test::Unit::TestCase
   fixtures :items, :versions, :addresses, :groups, :groups_users
   include ZenaTestUnit
   
   def test_fixture_by_id
     assert_equal 1, items_id(:zena)
+  end
+  def test_kpath
+    assert_equal Item.kpath, 'I'
+    assert_equal Page.kpath, 'IP'
+    assert_equal PagerDummy.ksel, 'U'
+    assert_equal PagerDummy.kpath, 'IU'
+    assert_equal SubPagerDummy.kpath, 'IUS'
   end
   def test_callbacks
     item_on_create = Item.read_inheritable_attribute(:validate_on_create)

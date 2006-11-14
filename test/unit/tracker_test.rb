@@ -5,7 +5,7 @@ class TrackerTest < Test::Unit::TestCase
   fixtures :items
 
   # Replace this with your real tests.
-  def test_truth
-    assert true
+  def test_kpath
+    assert_equal 'IPA', Tracker.kpath
   end
 end
