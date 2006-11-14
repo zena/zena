@@ -180,7 +180,8 @@ class Item < ActiveRecord::Base
         raise ActiveRecord::RecordNotFound unless item = Item.find_by_name_and_parent_id(p, item[:id])
       end
       item.fullpath = path.join('/')
-      item.save
+      # bypass callbacks here
+      Item.connection.execute "UPDATE #{Item.table_name} SET fullpath='#{path.join('/').gsub("'",'"')}' WHERE id='#{item[:id]}'"
     end
     if item.can_read?(user_id, user_groups)
       item.set_visitor(user_id, user_groups, lang)

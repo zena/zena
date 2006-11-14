@@ -29,10 +29,12 @@ button { background:none; border:none;}
 
 /* NAVBAR */
 #navbar {  width:100%; height:25px; background:#450009; 
-  color:white; font-size:0.85em; padding:0px 0;}
+  color:white; font-size:0.85em; padding:0;}
 #navbar a { color:white; }
-#navbar ul, #navbar div { height:100%; padding:0.3em 0.8em; float:left; }
-#navbar #lang { margin-left:250px; }
+#navbar ul, #navbar div { height:100%; padding:0.3em 0.8em; float:left; margin-top:2px;}
+#lang { margin-left:250px; }
+#lang b { font-weight:normal; color:white;}
+#lang, #lang a { color:#A27C6E;}
 #navbar * { display:inline; }
 #navbar #visitor, #navbar #logout { float: right; }
 
@@ -200,8 +202,8 @@ table.fada td:first-child {border-left-width:1px;}
 #not_found p {margin-bottom:0.3em;}
 
 /* TRANSLATION */
-.translation a:hover { color: orange;}
-.needTranslation, .neverTranslated, .translation, .needTranslation form, .neverTranslated form, .translation form { display:inline; }
+.trans a:hover { color: orange;}
+.trans form    { display:inline; }
 #add_translation { background: #91AAC8;}
 /* LARGE CALENDAR */
 #tinycal { background: #91993B;}

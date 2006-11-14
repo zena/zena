@@ -1,5 +1,8 @@
 # Methods added to this helper will be available to all templates in the application.
 module ApplicationHelper
+  include Zena::Acts::SecureScope
+  include Zena::Acts::SecureController::InstanceMethods
+  
   # helpers to include clean javascript
   def javascript( string )
     javascript_start +
@@ -68,11 +71,11 @@ module ApplicationHelper
   def trans(keyword, edit=true)
     key = TransKey.translate(keyword)
     if session[:translate] && edit # set wether untranslated text will be editable or not
-      "<div id='translate_#{key[:id]}' class='translation'>" + 
+      "<div id='trans_#{key[:id]}' class='trans'>" + 
       link_to_remote(key.into(lang), 
-          :update=>"translate_#{key[:id]}", 
-          :url=>"/z/trans/#{key[:id]}",
-          :complete=>'$("translation_value").focus();$("translation_value").select()') +
+          :update=>"trans_#{key[:id]}", 
+          :url=>"/z/trans/edit/#{key[:id]}",
+          :complete=>'$("trans_value").focus();$("trans_value").select()') +
       "</div>"
     else
       TransKey.translate(keyword).into(lang)

@@ -13,7 +13,13 @@ class ItemTest < Test::Unit::TestCase
     :parent_id => 1,
     :project_id => 1,
   }
-  
+  def test_parent
+    visitor(:ant)
+    item = secure(Item) { Item.find(items_id(:myLife))}
+    assert item.parent
+  end
+end
+=begin  
   def test_page_without_parent
     visitor(:tiger)
     attrs = NEW_DEFAULT
@@ -298,7 +304,7 @@ class ItemTest < Test::Unit::TestCase
     assert Page.read_inheritable_attribute(:after_save).include?(:save_tags)
   end
 end
-=begin
+ =begin
   def test_edition
     visitor
     @lang = 'ru'

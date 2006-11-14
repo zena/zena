@@ -9,9 +9,17 @@ class ApplicationHelperTest < Test::Unit::TestCase
     @controllerClass = ApplicationController
     super
   end
+  
   def test_items_id
     assert_equal items(:zena)[:id], items_id(:zena)
   end
+  
+  def test_acts_as_secure
+    login(:ant)
+    assert_nothing_raised { @item = secure(Item) { Item.find(items_id(:myLife))} }
+    assert_equal 'myLife', @item.name
+  end
+  
   def test_uses_calendar_with_lang
     res = uses_calendar
     assert_match %r{/calendar/lang/calendar-en-utf8.js}, res
@@ -72,7 +80,7 @@ class ApplicationHelperTest < Test::Unit::TestCase
     session[:lang] = 'io'
     assert_equal '%A, %B %d %Y', trans('full_date')
     session[:translate] = true
-    assert_match /div.*translation.*Ajax.*\%A, \%B \%d \%Y/, trans('full_date')
+    assert_match /div.*trans_75.*Ajax.*\%A, \%B \%d \%Y/, trans('full_date')
   end
   
   def test_long_time

@@ -1,0 +1,3 @@
+<%= form_remote_tag(:update=>"trans_#{@trans[:id]}", :url=>"/z/trans/update/#{@trans[:id]}") %>
+<%=  text_field("trans", "value", :size=>((@trans[:key].length) * 1.3).to_i ) %>
+<%=  end_form_tag %>

@@ -10,6 +10,8 @@ module ZenaTestController
     @controller_bak = @controller
     @controller = LoginController.new
     post 'login', :user=>{:login=>visitor.to_s, :password=>visitor.to_s}
+    sess = @controller.instance_eval { @session }
+    @controller_bak.instance_eval { @session = sess }
     @controller = @controller_bak
   end
   
@@ -17,6 +19,8 @@ module ZenaTestController
     @controller_bak = @controller
     @controller = LoginController.new
     post 'logout'
+    sess = @controller.instance_eval { @session }
+    @controller_bak.instance_eval { @session = sess }
     @controller = @controller_bak
   end
   

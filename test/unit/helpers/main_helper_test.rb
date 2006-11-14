@@ -130,6 +130,27 @@ class MainHelperTest < Test::Unit::TestCase
     assert_match %r{<ul id='path'.*href='/en'>zena.*href='/en/projects'>projects.*href='/en/projects/cleanWater'>cleanWater}, path_links
   end
   
+  def test_translation_link
+    assert_equal '', translation_link
+    login(:lion)
+    assert_match %r{Translate interface.*z/trans/list.*\?translate=on}, translation_link
+    session[:translate] = true
+    assert_match %r{Translate interface.*z/trans/list.*\?translate=off}, translation_link
+  end
+  
+  def test_lang_links
+    login(:lion)
+    assert_equal "<div id='lang'><span><b>en</b> | <a href='?lang=es'>es</a> | <a href='?lang=fr'>fr</a></span></div>", lang_links
+    session[:translate] = true
+    assert_match %r{id='lang'.*en.*es.*fr.*z/trans/list.*translate=off}, lang_links
+  end
+  
+  def test_lang_ajax_link
+    login(:lion)
+    assert_match %r{<div id='lang'><span>.*new Ajax.Update.*/z/trans/lang_menu}, lang_ajax_link
+    session[:translate] = true
+    assert_match %r{<div id='lang'><span>.*new Ajax.Update.*/z/trans/lang_menu.*translate=off}, lang_ajax_link
+  end
 end
   
   

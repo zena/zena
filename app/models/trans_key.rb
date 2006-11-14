@@ -1,5 +1,7 @@
 class TransKey < ActiveRecord::Base
-  attr_accessor :value, :lang
+  attr_accessor :lang, :value
+  before_save :check_value
+  after_save :save_value
   has_many :trans_values, :foreign_key=>'key_id'
   
   class << self
@@ -25,7 +27,26 @@ class TransKey < ActiveRecord::Base
     val.save
   end
   
+  def value
+    return nil unless @lang || @value
+    @value || into(@lang)
+  end
+  
   def size
     trans_values.size
+  end
+  
+  private
+  def check_value
+    unless (@lang && @value) || (!@value)
+      errors.add('lang', 'not set')
+      false
+    else
+      true
+    end
+  end
+  def save_value
+    return true unless @value
+    set(@lang, @value)
   end
 end

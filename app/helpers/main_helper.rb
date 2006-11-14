@@ -119,4 +119,49 @@ module MainHelper
     res << "<li>#{nav.join(" / </li><li>")}</li></ul>"
   end
 
+  # shows links to enable translation
+  def translation_link(title=true)
+    if session[:user] && session[:user][:groups].include?(ZENA_ENV[:translate_group])
+      res  = title ? trans("Translate interface: ") : ''
+      res += "<a href='/z/trans/list'>#{transb('list')}</a> : "
+      res += session[:translate] ? "<a href='?translate=off'>#{transb('off')}</a>" : "<a href='?translate=on'>#{transb('_on')}</a>"
+      res
+    else
+      ''
+    end
+  end
+
+  # show language selector
+  def lang_links
+    if ZENA_ENV[:monolingual]
+      ''
+    else
+      res = []
+      ZENA_ENV[:languages].sort.each do |l|
+        if l == lang
+          res << "<b>#{l}</b>"
+        else
+          res << "<a href='?lang=#{l}'>#{l}</a>"
+        end
+      end
+      if session[:translate]
+        res << translation_link(false)
+      end
+      "<div id='lang'><span>#{res.join(' | ')}</span></div>"
+    end
+  end
+  
+  def lang_ajax_link
+    if ZENA_ENV[:monolingual]
+      ''
+    else
+      res = "<div id='lang'><span>" + link_to_remote( lang, :update=>'lang', :url=>{:controller => 'trans', :action=>'lang_menu'})
+      if session[:translate]
+        res << translation_link(false)
+      end
+      res << '</span></div>'
+      res
+    end
+  end
+
 end

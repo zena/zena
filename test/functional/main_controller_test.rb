@@ -150,6 +150,26 @@ class MainControllerTest < Test::Unit::TestCase
     assert_equal 'fr', session[:lang]
   end
   
+  def test_set_env_cannot_translate
+    get 'show', :path=>['projects'], :prefix=>'fr', :translate=>'on'
+    assert_redirected_to 'fr/projects'
+    assert_nil session[:translate]
+  end
+  
+  def test_set_env_translate
+    login(:lion)
+    get 'show', :path=>['projects'], :prefix=>prefix, :translate=>'on'
+    assert_redirected_to "#{prefix}/projects"
+    assert session[:translate]
+    get 'show', :path=>['projects'], :prefix=>prefix
+    assert_tag :tag => 'div', :attributes => { :id => 'trans_17' } # Pages translation
+    get 'show', :path=>['projects'], :prefix=>prefix, :translate=>'off'
+    assert_redirected_to "#{prefix}/projects"
+    get 'show', :path=>['projects'], :prefix=>prefix
+    assert_no_tag :tag => 'div', :attributes => { :id => 'trans_17' }
+    assert_nil session[:translate]
+  end
+  
   def test_view_page_without_edition
     login(:ant)
     get 'show', :path=>['projects', 'cleanWater', 'crocodiles'], :prefix=>AUTHENTICATED_PREFIX

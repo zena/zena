@@ -1,7 +1,7 @@
 AUTHENTICATED_PREFIX = "oo"
 ZENA_ENV = {
   :default_lang => 'en',
-  :languages => ['en', 'fr', 'ru'],
+  :languages => ['en', 'fr', 'es'],
  # :news_collector_id => 24,
  # :menu_collector_id => 16,
   :site_name => 'zena',

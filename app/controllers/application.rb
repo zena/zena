@@ -104,7 +104,20 @@ class ApplicationController < ActionController::Base
     else
       @su=''
     end
-
+    
+    # turn translation on/off
+    if params[:translate] 
+      if user_groups.include?(ZENA_ENV[:translate_group])
+        if params[:translate] == 'on'
+          session[:translate] = true
+        else
+          session[:translate] = nil
+        end
+      end
+      req = request.parameters
+      req.delete(:translate)
+      redirect_to req and return false  
+    end
   end
   
   # "Translate" static text into the current lang
@@ -115,7 +128,7 @@ class ApplicationController < ActionController::Base
   # /////// The following methods are common to controllers and views //////////// #
   
   def prefix
-    session && session[:user] ? AUTHENTICATED_PREFIX : lang
+    (session && session[:user]) ? AUTHENTICATED_PREFIX : lang
   end
   
 end
