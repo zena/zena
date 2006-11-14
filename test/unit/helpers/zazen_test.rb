@@ -53,9 +53,6 @@ class ApplicationHelperTest < Test::Unit::TestCase
   def test_make_image_format
     # ** [!14.pv!] inline image transformed to format 'pv'. Formats are defined in #ImageBuilder.
     assert_match %r{.*img.*/data/jpg/14/lake-full.jpg.*600.*440.*class='full'}, zazen('!14.full!')
-    assert_match %r{.*img.*/data/jpg/14/lake-std.jpg.*545.*400.*class='std'}, zazen('!14.std!')
-    assert_match %r{.*img.*/data/jpg/14/lake-pv.jpg.*80.*80.*class='pv'}, zazen('!14.pv!')
-    assert_match %r{.*img.*/data/jpg/14/lake-mini.jpg.*40.*40.*class='mini'}, zazen('!14.mini!')
     assert_match %r{.*img.*/data/jpg/14/lake-tiny.jpg.*15.*20.*class='tiny'}, zazen('!14.tiny!')
   end
   
@@ -89,9 +86,14 @@ class ApplicationHelperTest < Test::Unit::TestCase
   
   def test_image_as_link
     # * [!26!:37] you can use an image as the source for a link
-    assert_equal "", zazen('!14!:11')
+    assert_match %r{<p><a href.*en/projects/cleanWater.*img src.*lake-std.jpg.*545.*400.*class='std'}, zazen('!14!:11')
     # * [!26!:www.example.com] use an image for an outgoing link
-    assert_equal "", zazen('!14!:www.example.com')
+    assert_match %r{<p><a href.*http://www.example.com.*img src.*lake-std.jpg.*545.*400.*class='std'}, zazen('!14!:http://www.example.com')
+    assert_match %r{<p><a href.*http://www.example.com.*img src.*lake-std.jpg.*545.*400.*class='std'}, zazen('!14!:www.example.com')
+  end
+  
+  def test_full
+    assert_match %r{class='img_left'.*href.*/en/projects/cleanWater.*window.open\(this.href\).*img src.*lake-std.jpg.*545.*400.*class='std'}, zazen('!<.14.3!:011')
   end
   
 end

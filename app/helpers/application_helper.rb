@@ -208,23 +208,19 @@ module ApplicationHelper
   # * [!14!:www.example.com] use an image for an outgoing link
   def zazen(text)
     r = RedCloth.new(text) #, [:hard_breaks])
-    r.gsub!(  /"([^"]+)":([0-9]+)/                  ) {|x| make_link($2,$1)}
-    r.gsub!(  /"":([0-9]+)/                         ) {|x| make_link($1)}
-    r.gsub!(  /\!\[([^\]]*)\]\!/                    ) {|x| make_gallery($1)}
-    r.gsub!(  /\!\{([^\}]*)\}\!/                    ) {|x| list_items($1)}
-    r.gsub!(  /\!([^0-9]{0,2})([0-9]+)\!:([^\s]*)/           ) {|x| make_image($2, $1, '', $4)}
-    r.gsub!(  /\!([^0-9]{0,2})([0-9]*)\.([^\!]+)\!:([^\s]*)/ ) {|x| make_image($2, $1, $3, $4)}
-    r.gsub!(  /\!([^0-9]{0,2})([0-9]+)\!/           ) {|x| make_image($2, $1)}
-    r.gsub!(  /\!([^0-9]{0,2})([0-9]*)\.([^\!]+)\!/ ) {|x| make_image($2, $1, $3)}
+    r.gsub!(  /"([^"]*)":([0-9]+)/                    ) {|x| make_link(:title=>$1,:id=>$2)}
+    r.gsub!(  /\!\[([^\]]*)\]\!/                      ) {|x| make_gallery($1)}
+    r.gsub!(  /\!\{([^\}]*)\}\!/                      ) {|x| list_items($1)}
+    r.gsub!(  /\!([^0-9]{0,2})([0-9]*)(\.([^\!]+)|)\!(:([^\s]+)|)/ ) {|x| make_image(:style=>$1, :id=>$2, :size=>$4, :link=>$6)}
     r
     r.to_html
   end
 
   # Creates a link to the item referenced by id
-  def make_link(id, title=nil)
-    item = secure(Item) { Item.find(id) }
-    title ||= item.title
-    if id[0..0] == '0'
+  def make_link(opts)
+    item = secure(Item) { Item.find(opts[:id]) }
+    title = (opts[:title] && opts[:title] != '') ? opts[:title] : item.title
+    if opts[:id][0..0] == '0'
       link_to title, {:prefix => prefix, :controller => 'main', :action=>'show', :path=>item.fullpath}, :popup=>true
     else
       link_to title, :prefix => prefix, :controller => 'main', :action=>'show', :path=>item.fullpath
@@ -234,17 +230,19 @@ module ApplicationHelper
   end
   
   # Create an img tag for the given image. See ApplicationHelper#zazen for details.
-  def make_image(id, options='', format='', link='')
-    if format != ""
-      format = IMAGEBUILDER_FORMAT[format] ? format : 'std'
+  def make_image(opts)
+    id, style, size, link = opts[:id], opts[:style], opts[:size], opts[:link]
+    if size
+      size = IMAGEBUILDER_FORMAT[size] ? size : 'std'
     elsif id[0..0] == "0"
-      format = 'pv'
+      size = 'pv'
     else
-      format = 'std'
+      size = 'std'
     end
-  
     img = secure(Image) { Image.find(id) }
-    case options.sub('.', '')
+    
+    style ||= ''
+    case style.sub('.', '')
     when ">"
       prefix = "<p class='img_right'>"
       suffix = "</p>"
@@ -257,10 +255,15 @@ module ApplicationHelper
     else
       prefix = suffix = ""
     end
-    if link == ''
-      prefix + img.img_tag(format) + suffix
+    image = img.img_tag(size)
+    
+    if link.nil?
+      prefix + image + suffix
+    elsif link =~ /^\d+$/
+      prefix + make_link(:id=>link,:title=>image) + suffix
     else
-      prefix + "<a href='#{link}'>" + img.img_tag(format) + "</a>" + suffix
+      link = "http://#{link}" unless link =~ %r{.+://.+}
+      prefix + "<a href='#{link}'>" + image + "</a>" + suffix
     end
   rescue ActiveRecord::RecordNotFound
     "<span class='unknownLink'>#{trans('unknown image')}</span>"
