@@ -111,6 +111,25 @@ class MainHelperTest < Test::Unit::TestCase
     assert_equal "<div class='info'><b>SI</b> - 11.04</div>", author
   end
   
+  def test_path_links_root
+    @item = secure(Item) { Item.find(items_id(:zena))}
+    assert_equal "<ul id='path' class='path'><li><a href='/en'>zena</a></li></ul>", path_links
+    item2 = @item
+    @item = secure(Item) { Item.find(items_id(:status))}
+    assert_equal "<ul class='path'><li><a href='/en'>zena</a></li></ul>", path_links(item2)
+  end
+  
+  def test_path_links_root_with_login
+    login(:ant)
+    @item = secure(Item) { Item.find(items_id(:zena))}
+    assert_equal "<ul id='path' class='path'><li><a href='/#{AUTHENTICATED_PREFIX}'>zena</a></li></ul>", path_links
+  end
+  
+  def test_path_links_page
+    @item = secure(Item) { Item.find(items_id(:cleanWater))}
+    assert_match %r{<ul id='path'.*href='/en'>zena.*href='/en/projects'>projects.*href='/en/projects/cleanWater'>cleanWater}, path_links
+  end
+  
 end
   
   

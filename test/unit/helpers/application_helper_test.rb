@@ -157,4 +157,5 @@ class ApplicationHelperTest < Test::Unit::TestCase
   def test_render_to_string
     assert_match 'stupid test 25', render_to_string(:inline=>'stupid <%= "test" %> <%= 5*5 %>')
   end
+  
 end

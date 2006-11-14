@@ -12,7 +12,6 @@ ActionController::Routing::Routes.draw do |map|
   ## 
   ## 
   map.not_found '404', :controller=>'main', :action=>'not_found'
-  map.connect '', :controller => "main", :action=>'index'
   ## 
   map.user_home "#{AUTHENTICATED_PREFIX}/home", :controller=>'user', :action=>'home', :prefix=>"#{AUTHENTICATED_PREFIX}"
   ## 
@@ -20,10 +19,12 @@ ActionController::Routing::Routes.draw do |map|
   ## 
  ###  find by path
   if ZENA_ENV[:monolingual]
+    map.connect '', :controller => "main", :action=>'index'
     map.default 'z/:controller/:action/:id'
     map.connect ":prefix/*path", :controller=>'main', :action=>'show', :prefix=>"#{AUTHENTICATED_PREFIX}"
     map.connect '*path', :controller=>'main', :action=>'show', :prefix=> ZENA_ENV[:default_lang]    
   else
+    map.connect '', :controller => "main", :action=>'redirect'
     map.default 'z/:controller/:action/:id'
     map.connect ':prefix/*path', :controller=>'main', :action=>'show', :prefix=>/^(#{AUTHENTICATED_PREFIX}|\w\w)$/
     map.connect '*path', :controller=>'main', :action=>'redirect'

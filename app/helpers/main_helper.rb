@@ -100,4 +100,23 @@ module MainHelper
       "<div class='info'><b>#{@item.v_author.initials}</b> - #{short_date(@item.v_updated_at)}</div>"
     end
   end
+  
+  # show current path with links to ancestors
+  def path_links(item=@item)
+    path = item.fullpath
+    current_path = []
+    up = prefix
+    nav = ["<a href='/#{up}'>#{ZENA_ENV[:site_name]}</a>"]
+    path.each do |p| 
+      current_path << p
+      nav << "<a href='/#{up}/#{current_path.join('/')}'>#{p}</a>"
+    end
+    if item[:id] == @item[:id]
+      res = "<ul id='path' class='path'>"
+    else
+      res = "<ul class='path'>"
+    end
+    res << "<li>#{nav.join(" / </li><li>")}</li></ul>"
+  end
+
 end
