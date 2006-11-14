@@ -34,7 +34,7 @@ class Version < ActiveRecord::Base
   
   # protect access to item_id and file_ref : should not be changed by users
   def item_id=(i)
-    raise AccessViolation, "Version #{self.id}: tried to change 'item_id' to '#{i}'."
+    raise Zena::AccessViolation, "Version #{self.id}: tried to change 'item_id' to '#{i}'."
   end
   
   # v_lang is how 'item' sees version.lang

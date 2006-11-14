@@ -7,14 +7,14 @@ class VersionTest < Test::Unit::TestCase
     visitor(:ant)
     item = secure(Item) { Item.find(items_id(:ant))}
     version = item.send(:version)
-    assert_raise(AccessViolation) { version.item_id = items_id(:lake) }
+    assert_raise(Zena::AccessViolation) { version.item_id = items_id(:lake) }
   end
   
   def test_cannot_set_item_id_by_attribute
     visitor(:ant)
     item = secure(Item) { Item.find(items_id(:ant))}
     version = item.send(:version)
-    assert_raise(AccessViolation) { version[:item_id] = items_id(:lake) }
+    assert_raise(Zena::AccessViolation) { version[:item_id] = items_id(:lake) }
   end
   
   def test_version_number_edit_by_attribute

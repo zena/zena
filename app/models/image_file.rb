@@ -1,10 +1,10 @@
-class ImageInfo < DocInfo
+class ImageFile < DocFile
   
   def self.find_or_new(vid, format)
     f = self.find_by_version_id_and_format(vid,format)
     unless f
       # create new
-      f = ImageInfo.find_by_version_id(vid)
+      f = ImageFile.find_by_version_id(vid)
       if f
         f = f.transform(format)
       else
@@ -24,8 +24,10 @@ class ImageInfo < DocInfo
   def read
     if File.exist?(filepath)
       File.read(filepath)
-    else
+    elsif @file
       @file.read
+    else
+      raise IOError
     end
   end
   

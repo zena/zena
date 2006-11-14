@@ -1,5 +1,5 @@
 require 'fileutils'
-class DocInfo < ActiveRecord::Base
+class DocFile < ActiveRecord::Base
   belongs_to :version
   before_save :save_file
   

@@ -7,7 +7,7 @@ class UserTest < Test::Unit::TestCase
   def test_cannot_destroy_su
     su = User.find(addresses_id(:su))
     assert_kind_of User, su
-    assert_raise(AccessViolation){ su.destroy }
+    assert_raise(Zena::AccessViolation){ su.destroy }
   end
   
   def test_create_admin_with_groups
@@ -58,19 +58,19 @@ end
   def test_cannot_destroy_su
     su = User.find(contacts(:su).id)
     assert_kind_of User, su
-    assert_raise(AccessViolation){ su.destroy }
+    assert_raise(Zena::AccessViolation){ su.destroy }
   end
   
   def test_cannot_destroy_anon
     anon = User.find(contacts(:anon).id)
     assert_kind_of User, anon
-    assert_raise( AccessViolation ){ anon.destroy }
+    assert_raise( Zena::AccessViolation ){ anon.destroy }
   end
   
   def test_can_destroy_gaspard
     gaspard = User.find(contacts(:gaspard).id)
     assert_kind_of User, gaspard
-    assert_nothing_raised ( AccessViolation ) { gaspard.destroy }
+    assert_nothing_raised ( Zena::AccessViolation ) { gaspard.destroy }
   end
   
   def test_anon_cannot_login

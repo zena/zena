@@ -39,7 +39,7 @@ ActiveRecord::Schema.define(:version => 3) do
     t.column "contact_id", :integer, :default => 0, :null => false
   end
 
-  create_table "doc_infos", :force => true do |t|
+  create_table "doc_files", :force => true do |t|
     t.column "type", :string, :limit => 16
     t.column "version_id", :integer
     t.column "path", :string, :limit => 400, :default => "", :null => false

@@ -171,9 +171,9 @@ Just doing the above will filter all result according to the logged in user.
           belongs_to :write_group, :class_name=>'Group', :foreign_key=>'wgroup_id'
           belongs_to :publish_group, :class_name=>'Group', :foreign_key=>'pgroup_id'
           belongs_to :user
-          validate_on_create :secure_on_create
-          validate_on_update :secure_on_update
+          before_validation :secure_before_validation
           after_save :check_inheritance
+          before_destroy :secure_on_destroy
           class_eval <<-END         
             include Zena::Acts::Secure::InstanceMethods
           END
@@ -299,6 +299,14 @@ Just doing the above will filter all result according to the logged in user.
           ( private? && uid == user_id )
         end
         
+        def secure_before_validation
+          if new_record?
+            secure_on_create
+          else
+            secure_on_update
+          end
+        end
+        
         # 0. set item.user_id = visitor_id
         # 1. validate the presence of a valid project (one in which the visitor has write access and project<>self !)
         # 2. validate the presence of a valid reference (project or parent) (in which the visitor has write access and ref<>self !)
@@ -314,14 +322,16 @@ Just doing the above will filter all result according to the logged in user.
           
           unless @visitor_id
             errors.add('base', "record not secured") 
-            return
+            return false
           end
           self[:user_id] = visitor_id
           # validate reference
+          
           if ref == nil
-            errors.add(ref_field, "invalid reference") 
-            return
+            errors.add(ref_field, "invalid reference")
+            return false
           end
+          
           # nil = inherit
           self[:rgroup_id] ||= ref[:rgroup_id]
           self[:wgroup_id] ||= ref[:wgroup_id]
@@ -385,16 +395,16 @@ Just doing the above will filter all result according to the logged in user.
           self.class.logger.info "SECURE CALLBACK ON UPDATE"
           unless @visitor_id
             errors.add('base', "record not secured")
-            return
+            return false
           end
           unless old
             # cannot change item if old not found
             errors.add('base', "you do not have the rights to do this")
-            return
+            return false
           end
           if !( old.can_publish? || old.can_manage? )
             errors.add('base', "you do not have the rights to do this")
-            return
+            return false
           end
           if user_id != old.user_id
             if visitor_groups.include?(2) # admin group
@@ -409,11 +419,11 @@ Just doing the above will filter all result according to the logged in user.
               errors.add('user_id', "you cannot change this")
             end
           end
-          return unless errors.empty?
+          return false unless errors.empty?
           # verify reference
           if ref == nil
             errors.add(ref_field, "invalid reference")
-            return
+            return false
           end
           if self[ref_field] != old[ref_field]
             # reference changed
@@ -424,7 +434,7 @@ Just doing the above will filter all result according to the logged in user.
                     ! secure_write(ref_class) { ref_class.find(self[ref_field])} || 
                     ! secure_write(ref_class) { ref_class.find(old[ref_field])}
                   errors.add(ref_field, "invalid reference") 
-                  return
+                  return false
                 end
               else
                 # item was visible, moves must be made with publish rights in both
@@ -433,12 +443,12 @@ Just doing the above will filter all result according to the logged in user.
                     ! secure_drive(ref_class) { ref_class.find(self[ref_field])} || 
                     ! secure_drive(ref_class) { ref_class.find(old[ref_field])}
                   errors.add(ref_field, "invalid reference") 
-                  return
+                  return false
                 end
               end
             rescue ActiveRecord::RecordNotFound
               errors.add(ref_field, "invalid reference")
-              return
+              return false
             end
           end
           # publish_from can only be set by the object itself by setting @publish_from
@@ -498,14 +508,12 @@ Just doing the above will filter all result according to the logged in user.
           return errors.empty?
         end
         
-        def before_destroy
-          secure_on_destroy
-        end
-        
         def secure_on_destroy
-          unless old.can_publish? || old.can_manage?
+          unless old && old.can_drive?
             errors.add('base', "you do not have the rights to do this")
             return false
+          else
+            return true
           end
         rescue ActiveRecord::RecordNotFound
           errors.add('base', "you do not have the rights to do this")
@@ -752,10 +760,11 @@ Just doing the above will filter all result according to the logged in user.
       end
     end
   end
+  # This exception handles all flagrant access violations or tentatives (like suppression of _su_ user)
+  class AccessViolation < Exception
+  end
 end
-# This exception handles all flagrant access violations or tentatives (like suppression of _su_ user)
-class AccessViolation < Exception
-end
+
 
 ActiveRecord::Base.send :include, Zena::Acts::Secure
 ActionController::Base.send :include, Zena::Acts::SecureController

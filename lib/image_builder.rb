@@ -7,16 +7,16 @@ rescue LoadError
     CenterGravity = OverCompositeOp = MaxRGB = nil
     class << self
     end
-    class Dummy
+    class ZenaDummy
       def initialize(*a)
       end
       def method_missing(meth, *args)
         # do nothing
       end
     end
-    class Image < Dummy
+    class Image < ZenaDummy
     end
-    class ImageList < Dummy
+    class ImageList < ZenaDummy
     end
   end
 end
@@ -49,6 +49,7 @@ class ImageBuilder
   end
   
   def read
+    raise IOError if Magick.const_defined?(:ZenaDummy)
     render_img
     @img.to_blob
   end

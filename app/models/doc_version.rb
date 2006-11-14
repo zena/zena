@@ -1,5 +1,7 @@
+# This class stores version text for #Document. If a translation or new redaction of the text
+# is created, both the new and the old #DocVersion refer to the same file (#DocFile)
 class DocVersion < Version
-  has_one :doc_info
+  has_one :doc_file
   after_save :save_file
   validate_on_create :has_file
   
@@ -10,13 +12,13 @@ class DocVersion < Version
   end
   
   def data
-    @data ||= DocInfo.find(:first, :conditions=>['version_id = ?',file_ref])
+    @data ||= DocFile.find(:first, :conditions=>['version_id = ?',file_ref])
   end
   
   def filesize; data.size; end
     
   def file_ref=(i)
-    raise AccessViolation, "Version#{self.id}: tried to change 'file_ref'."
+    raise Zena::AccessViolation, "Version#{self.id}: tried to change 'file_ref'."
   end
   
   def file=(f)
@@ -52,6 +54,6 @@ class DocVersion < Version
   end
   
   def info_class
-    DocInfo
+    DocFile
   end
 end

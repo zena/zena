@@ -1,0 +1,13 @@
+<table class="block" cellspacing="0" borderspacing="0">
+	<tr class="b<%= @item.v_status %>">
+		<td class="preview">
+			<%= link_to @item.img_tag('pv'), :prefix => prefix, :controller => 'main', :action=>'show', :path=>@item.fullpath %>
+		</td>
+		<td id="header">		  
+      <h1 id="title" class="s<%= @item.v_status %>"><%= @item.title %><br/>
+        <ul id="item_actions"><%= edit_button(:all) %></ul>
+      </h1>
+		  <%= author(:large) %><%#= plug :links %>
+		</td>
+	</tr>
+</table>

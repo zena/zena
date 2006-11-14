@@ -3,6 +3,17 @@ require File.dirname(__FILE__) + '/../test_helper'
 class ImageBuilderTest < Test::Unit::TestCase
   include ZenaTestUnit
   
+  # Dummy tests
+  if Magick.const_defined?(:ZenaDummy)
+    def test_dummy
+      img = nil
+      assert_nothing_raised { img = ImageBuilder.new(:width=>100, :height=>30) }
+      assert_nil img.read
+    end
+  else
+  end
+
+  
   def test_resize
     img = ImageBuilder.new(:width=>611,:height=>800)
     assert_equal 611, img.width

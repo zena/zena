@@ -4,7 +4,7 @@ require File.dirname(__FILE__) + '/../test_helper'
 
 class ItemTest < Test::Unit::TestCase
   include ZenaTestUnit
-  fixtures :items, :versions, :doc_infos, :addresses, :groups, :groups_users
+  fixtures :items, :versions, :doc_files, :addresses, :groups, :groups_users
   NEW_DEFAULT = {
     :name => 'hello',
     :rgroup_id => 1,
@@ -13,14 +13,33 @@ class ItemTest < Test::Unit::TestCase
     :parent_id => 1,
     :project_id => 1,
   }
-  def test_parent
+  def test_create_simplest
     visitor(:ant)
-    item = secure(Item) { Item.find(items_id(:myLife))}
-    assert item.parent
+    test_page = secure(Item) { Item.create(:name=>"yoba", :parent_id=>items_id(:cleanWater), :inherit=>1 ) }
+    assert ! test_page.new_record? , "Not a new record"
   end
-end
-=begin  
-  def test_page_without_parent
+
+  def test_new_bad_parent
+    visitor(:tiger)
+    attrs = NEW_DEFAULT
+    attrs[:parent_id] = items(:proposition).id
+    item = secure(Item) { Item.new(attrs) }
+    assert ! item.save , "Save fails"
+    assert item.errors[:parent_id] , "Errors on parent_id"
+    assert_equal "invalid parent", item.errors[:parent_id] # parent cannot be 'Note' if self not Document
+
+    attrs[:parent_id] = items(:myDreams).id # cannot write here
+    item = secure(Item) { Item.new(attrs) }
+    assert ! item.save , "Save fails"
+    assert item.errors[:parent_id] , "Errors on parent_id"
+    assert_equal "invalid reference", item.errors[:parent_id]
+
+    attrs[:parent_id] = items(:cleanWater).id # parent ok
+    item = secure(Item) { Item.new(attrs) }
+    assert item.save , "Save succeeds"
+  end
+  
+  def test_new_without_parent
     visitor(:tiger)
     attrs = NEW_DEFAULT
     attrs.delete(:parent_id)
@@ -30,37 +49,21 @@ end
     assert_equal "invalid reference", item.errors[:parent_id]
     # page parent ok
     assert item.new_record?
-    item.parent_id = items(:lake).id
+    item = secure(Item) { Item.new(attrs) }
+    item.parent_id = items_id(:lake)
     assert item.save , "Save succeeds"
   end
   
-  def test_create_simplest
-    visitor(:ant)
-    test_page = secure(Item) { Item.create(:name=>"yoba", :parent_id=>items_id(:cleanWater), :inherit=>1 ) }
-    assert ! test_page.new_record? , "Not a new record"
-  end
-    
-  def test_new_bad_parent
+  def test_page_new_without_name
     visitor(:tiger)
     attrs = NEW_DEFAULT
-    attrs[:parent_id] = items(:proposition).id
+    attrs.delete(:name)
     item = secure(Item) { Item.new(attrs) }
-    assert ! item.save , "Save fails"
-    assert item.errors[:parent_id] , "Errors on parent_id"
-    assert_equal "invalid reference", item.errors[:parent_id]
-    
-    attrs[:parent_id] = items(:myDreams).id # cannot write here
-    item = secure(Item) { Item.new(attrs) }
-    assert ! item.save , "Save fails"
-    assert item.errors[:parent_id] , "Errors on parent_id"
-    assert_equal "invalid reference", item.errors[:parent_id]
-    
-    attrs[:parent_id] = items(:cleanWater).id # parent ok
-    item = secure(Item) { Item.new(attrs) }
-    assert item.save , "Save succeeds"
+    assert ! item.save, 'Save fails'
+    assert_equal item.errors[:name], "can't be blank"
   end
   
-  def test_update_no_parent
+  def test_update_no_or_bad_parent
     visitor(:ant)
     item = secure(Item) { Item.find(items_id(:wiki))}
     assert_kind_of Item, item
@@ -68,9 +71,11 @@ end
     item.parent_id = nil
     assert ! item.save , "Save fails"
     assert item.errors[:parent_id] , "Errors on parent_id"
+    item = secure(Item) { Item.find(items_id(:wiki))}
     item.parent_id = items_id(:wiki)
     assert ! item.save , "Save fails"
     assert item.errors[:parent_id] , "Errors on parent_id"
+    item = secure(Item) { Item.find(items_id(:wiki))}
     item.parent_id = items_id(:cleanWater)
     assert ! item.save , "Save fails"
   end
@@ -81,24 +86,82 @@ end
     item[:parent_id] = items_id(:proposition)
     assert ! item.save , "Save fails"
     assert item.errors[:parent_id] , "Errors on parent_id"
-    assert_equal "invalid reference", item.errors[:parent_id]
+    assert_equal "invalid parent", item.errors[:parent_id] # parent cannot be 'Note' if self not Document
     
+    item = secure(Item) { Item.find(items_id(:status)) }
     item[:parent_id] = items_id(:myDreams) # cannot write here
     assert ! item.save , "Save fails"
     assert item.errors[:parent_id] , "Errors on parent_id"
     assert_equal "invalid reference", item.errors[:parent_id]
     
+    item = secure(Item) { Item.find(items_id(:status)) }
     item[:parent_id] = items_id(:projects) # parent ok
     assert item.save , "Save succeeds"
   end
-    
-  def test_update_self_as_parent
+  
+  def test_page_update_without_name
     visitor(:tiger)
-    item = secure(Item) { Item.find(items_id(:lake)) }
-    item.parent_id = item.id
-    assert ! item.save , "Save fails"
-    assert item.errors[:parent_id] , "Errors on parent_id"
+    item = secure(Item) { Item.find(items_id(:status)) }
+    item[:name] = nil
+    assert item.save, 'Save succeeds'
+    assert_equal 'statusTitle', item[:name]
+    item = secure(Item) { Item.find(items_id(:status)) }
+    item[:name] = nil
+    item.title = ""
+    assert !item.save, 'Save fails'
+    assert_equal item.errors[:name], "can't be blank"
   end
+  
+  def test_create_same_name
+    visitor(:tiger)
+    item = secure(Item) { Item.create(:parent_id=>items(:wiki)[:parent_id], :name=>'wiki')}
+    assert item.new_record?
+    assert_equal item.errors[:name], 'has already been taken'
+  end
+  
+  def test_create_same_name_other_parent
+    visitor(:tiger)
+    item = secure(Item) { Item.create(:parent_id=>1, :name=>'wiki')}
+    assert ! item.new_record?, 'Not a new record'
+    assert_nil item.errors[:name]
+  end
+
+  def test_update_same_name
+    visitor(:tiger)
+    item = secure(Item) { Item.find(items_id(:cleanWater))}
+    item.name = 'wiki'
+    assert ! item.save, 'Cannot save'
+    assert_equal item.errors[:name], 'has already been taken'
+  end
+
+  def test_update_same_name_other_parent
+    visitor(:tiger)
+    item = secure(Item) { Item.find(items_id(:cleanWater))}
+    item.name = 'wiki'
+    item[:parent_id] = 1
+    item.save
+    err(item)
+    assert item.save
+    assert_nil item.errors[:name]
+  end
+  
+  def test_before_destroy
+    visitor(:tiger)
+    item = secure(Item) { Item.find(items_id(:projects)) }
+    assert !item.destroy, "Cannot destroy"
+    assert_equal item.errors[:base], 'contains subpages'
+    item = secure(Item) { Item.find(items_id(:status)) }
+    assert item.destroy, "Can destroy"
+  end
+  
+  def test_cannot_destroy_has_private
+    visitor(:tiger)
+    item = secure(Item) { Item.find(items_id(:lion)) }
+    assert_equal 0, item.pages.size # cannot see subpages
+    assert !item.destroy, "Cannot destroy"
+    assert_equal item.errors[:base], 'contains subpages'
+  end
+  
   def test_list_children
     visitor(:ant)
     
@@ -113,13 +176,46 @@ end
     assert_equal 3, page.children.size
   end
   
-  def test_list_pages
+  def test_parent
+    assert_equal items(:projects).title, secure(Item) { Item.find(items_id(:wiki))}.parent.title
+  end
+  
+  def test_project
+    assert_equal items(:zena).id, secure(Item) { Item.find(items_id(:wiki))}.project.id
+  end
+  
+  def test_pages
     visitor(:ant)
     page = secure(Item) { Item.find(items_id(:cleanWater))}
     pages = page.pages
     assert_equal 3, pages.size
+    assert_equal items(:lake)[:id], pages[0][:id]
+  end
+  
+  def test_documents
+    visitor(:ant)
+    page = secure(Item) { Item.find(items_id(:cleanWater))}
     documents = page.documents
     assert_equal 1, documents.size
+    assert_equal items(:water_pdf)[:id], documents[0][:id]
+  end
+  
+  def test_documents_only
+    visitor(:tiger)
+    bird = secure(Item) { Item.find(items_id(:bird_jpg))}
+    bird[:parent_id] = items_id(:cleanWater)
+    assert bird.save
+    page = secure(Item) { Item.find(items_id(:cleanWater))}
+    documents = page.documents
+    doconly   = page.documents_only
+    images    = page.images
+    assert_equal 1, doconly.size
+    assert_equal items(:water_pdf)[:id], doconly[0][:id]
+    assert_equal 1, images.size
+    assert_equal items(:bird_jpg)[:id], images[0][:id]
+  end
+  
+  def blah
     collectors = page.collectors
     assert_equal 0, collectors.size
     trackers = page.trackers
@@ -276,9 +372,13 @@ end
   
   def test_change_class
     visitor(:tiger)
-    item = secure(Item) { Item.find(items_id(:lake)) }
-    item = item.change_to(Form)
-    assert_equal "dog", item.parse("[animal]").render(:data=>[{:animal=>'dog'}])
+    item = secure(Item) { Item.find(items_id(:status)) }
+    item = item.change_to(Project)
+    assert_kind_of Project, item
+    assert item.save
+    item = secure(Project) { Project.find(items_id(:status)) }
+    assert_kind_of Project, item
+    assert_equal 'IPP', item[:kpath]
   end
   
   def test_tags
@@ -304,7 +404,7 @@ end
     assert Page.read_inheritable_attribute(:after_save).include?(:save_tags)
   end
 end
- =begin
+=begin
   def test_edition
     visitor
     @lang = 'ru'

@@ -1,5 +1,5 @@
 bird_jpg:
-  type:           ImageInfo
+  type:           ImageFile
   id:             1
   version_id:     20
   content_type:   image/jpeg
@@ -8,7 +8,7 @@ bird_jpg:
   height:         600
   
 flower_jpg:
-  type:           ImageInfo
+  type:           ImageFile
   id:             2
   version_id:     21
   content_type:   image/jpeg
@@ -17,7 +17,7 @@ flower_jpg:
   height:         600
   
 lake_jpg:
-  type:           ImageInfo
+  type:           ImageFile
   id:             3
   version_id:     14
   content_type:   image/jpeg
@@ -26,14 +26,14 @@ lake_jpg:
   height:         440
   
 water_pdf:
-  type:           DocInfo
+  type:           DocFile
   id:             4
   version_id:     15
   content_type:   application/pdf
   path:           /pdf/15/water.pdf
   
 tree_jpg:
-  type:           ImageInfo
+  type:           ImageFile
   id:             5
   version_id:     35
   content_type:   image/jpeg
@@ -42,7 +42,7 @@ tree_jpg:
   height:         532
   
 forest_pdf:
-  type:           DocInfo
+  type:           DocFile
   id:             6
   version_id:     36
   content_type:   application/pdf

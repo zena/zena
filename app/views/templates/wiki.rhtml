@@ -30,7 +30,11 @@
   	<%#= plug :documents %>
   </div>
   <div id="main">
-  	<%= render :partial=>'title' %>
+		<% if @item.kind_of?(Document) -%>
+			<%= render :partial=>'main/doc_title' %>
+		<% else -%>
+			<%= render :partial=>'main/title' %>
+		<% end -%>
   	<div id="drive" style="display:none;"></div>
 
   	<div id="content">
@@ -38,8 +42,10 @@
   		<%#= plug :text %>
   		<%#= plug :comments %>
 
-  		<h3>suite:</h3>
-  		<%= render :partial=>'pages' %>
+  		<h3><%= trans('suite:')%></h3>
+  		<%= render :partial=>'main/pages' %>
+			<h3><%= trans('documents:')%></h3>
+			<%= render :partial=>'main/documents' %>
   	</div>
 
   </div>

@@ -3,7 +3,7 @@ class ImageVersion < DocVersion
   def data(format=nil)
     @files ||= {}
     unless @files[format]
-      @files[format] = ImageInfo.find_or_new(file_ref, format)
+      @files[format] = ImageFile.find_or_new(file_ref, format)
       @files[format].save if status == Zena::Status[:pub] and @files[format].new_record?
     end
     @files[format]
@@ -17,6 +17,6 @@ class ImageVersion < DocVersion
     
   private
   def info_class
-    ImageInfo
+    ImageFile
   end
 end

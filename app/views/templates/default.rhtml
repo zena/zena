@@ -31,7 +31,11 @@
 	  <%#= plug :notes %>
 	</div>
 	<div id="main">
-		<%= render :partial=>'main/title' %>
+		<% if @item.kind_of?(Document) -%>
+			<%= render :partial=>'main/doc_title' %>
+		<% else -%>
+			<%= render :partial=>'main/title' %>
+		<% end -%>
 		<div id="drive" style="display:none;"></div>
 
 		<div id="content">

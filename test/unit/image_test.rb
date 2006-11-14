@@ -2,7 +2,7 @@ require File.dirname(__FILE__) + '/../test_helper'
 
 class ImageTest < Test::Unit::TestCase
   include ZenaTestUnit
-  fixtures :items, :versions, :doc_infos
+  fixtures :items, :versions, :doc_files
 
   def test_create_with_file
     visitor(:ant)
@@ -17,7 +17,7 @@ class ImageTest < Test::Unit::TestCase
     assert ! v.new_record? , "Version is not a new record"
     assert_not_nil v.file_ref , "File_ref is set"
     data = doc.data
-    assert_kind_of ImageInfo , data
+    assert_kind_of ImageFile , data
     assert_equal "661x600", "#{data.width}x#{data.height}"
     assert_equal "/jpg/#{doc.v_id}/birdy.jpg", data.path
     assert File.exist?("#{RAILS_ROOT}/data/test#{data.path}")
@@ -32,7 +32,7 @@ class ImageTest < Test::Unit::TestCase
                                         :name=>'birdy', :file => fixture_file_upload('/files/bird.jpg', 'image/jpeg')) }
     assert_kind_of Image , doc
     data = doc.data('pv')
-    assert_kind_of ImageInfo , data
+    assert_kind_of ImageFile , data
     assert data.new_record? , "New record"
     assert_equal "80x80", "#{data.width}x#{data.height}"
     data.save # write image to disk

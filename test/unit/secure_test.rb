@@ -763,8 +763,13 @@ class SecureUpdateTest < Test::Unit::TestCase
   end
   # 		3. removing the item and/or sub-items
   def test_destroy
+    visitor(:ant)
+    item = secure(Item) { Item.find(items_id(:status)) }
+    assert !item.destroy, "Cannot destroy"
+    assert_equal item.errors[:base], 'you do not have the rights to do this'
+  
     visitor(:tiger)
-    item = secure(Item) { Item.find(items_id(:cleanWater)) }
-    # TODO... see how before_destroy works...
+    item = secure(Item) { Item.find(items_id(:status)) }
+    assert item.destroy, "Can destroy"
   end
 end

@@ -18,7 +18,7 @@ class DocumentTest < Test::Unit::TestCase
     assert ! v.new_record? , "Version is not a new record"
     assert_not_nil v.file_ref , "File_ref is set"
     data = doc.data
-    assert_kind_of DocInfo , data
+    assert_kind_of DocFile , data
     assert_equal "/pdf/#{doc.v_id}/report.pdf", data.path
     assert File.exist?("#{RAILS_ROOT}/data/test#{data.path}")
     assert_equal File.stat("#{RAILS_ROOT}/data/test#{data.path}").size, doc.filesize

@@ -24,7 +24,7 @@ class Pcache < ActiveRecord::Base
       k = k.to_s
       if k.gsub(/[^a-zA-Z0-9_]*/,'') != k
         # no SQL injection here !
-        raise AccessViolation, "Expire cache filter before query."
+        raise Zena::AccessViolation, "Expire cache filter before query."
       end
       find_s << "#{k}=?"
       find_a << v

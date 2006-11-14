@@ -62,7 +62,7 @@ class Base < ActiveRecord::Migration
       t.column "contact_id", :integer, :default => 0, :null => false
     end
 
-    create_table("doc_infos", :force => true, :options => 'type=InnoDB DEFAULT CHARSET=utf8') do |t|
+    create_table("doc_files", :force => true, :options => 'type=InnoDB DEFAULT CHARSET=utf8') do |t|
       t.column "type", :string, :limit => 16
       t.column "version_id", :integer
       t.column "path", :string, :limit => 400, :default => "", :null => false
@@ -183,7 +183,7 @@ class Base < ActiveRecord::Migration
     drop_table "addresses"
     drop_table "comments"
     drop_table "contacts_projects"
-    drop_table "doc_infos"
+    drop_table "doc_files"
     drop_table "groups"
     drop_table "groups_users"
     drop_table "items"

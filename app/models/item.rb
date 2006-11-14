@@ -54,6 +54,7 @@ project). Some special rules apply to this item : TODO...
 class Item < ActiveRecord::Base
   validate_on_create :item_on_create
   validate_on_update :item_on_update
+  before_destroy :item_on_destroy
   acts_as_secure
   acts_as_multiversioned
   link :tags
@@ -71,21 +72,18 @@ class Item < ActiveRecord::Base
     self.name = self.title if !self[:name] && self.title
     errors.add("name", "can't be blank") unless self[:name] and self[:name] != ""
     
-    # validates_uniqueness_of :name, :scope => :parent_id
     # we are in a scope, we cannot just use the normal validates_... (+ it is done before this validation, which is bad as we set 'name' here...)
-    
     test_same_name = nil
     Item.with_exclusive_scope do
-      test_same_name = Item.find(:all, :conditions=>["name = ?", self[:name]])
+      test_same_name = Item.find(:all, :conditions=>["name = ? AND parent_id = ?", self[:name], self[:parent_id]])
     end
     errors.add("name", "has already been taken") unless test_same_name == []
-    return errors.empty?
   end
 
   def item_on_update
     self.class.logger.info "ITEM CALLBACK ON UPDATE"
     # make sure project is the same as the parent
-    self[:project_id] = parent[:project_id] if self[:parent_id]
+    self[:project_id] = parent[:project_id]
     # make sure parent is not a 'Note'
     errors.add("parent_id", "invalid parent") if parent.kind_of?(Note) and !self.kind_of?(Document)
     
@@ -94,16 +92,17 @@ class Item < ActiveRecord::Base
     
     test_same_name = nil
     Item.with_exclusive_scope do
-      test_same_name = Item.find(:all, :conditions=>["name = ? AND id != ?", self[:name], self[:id]])
+      test_same_name = Item.find(:all, :conditions=>["name = ? AND id != ? AND parent_id = ?", self[:name], self[:id], self[:parent_id]])
     end
     errors.add("name", "has already been taken") unless test_same_name == []
-    return errors.empty?
   end
 
-  def before_destroy
-    super
-    if errors.empty?
-      errors.add('base', "page not empty") unless self.all_children.count == 0
+  def item_on_destroy
+    unless all_children.size == 0
+      errors.add('base', "contains subpages")
+      return false
+    else
+      return true
     end
   end
   
@@ -139,7 +138,7 @@ class Item < ActiveRecord::Base
 
   # Find documents without images
   def documents_only
-    @documents ||= secure(Document) { Document.find(:all, :order=>'name ASC', :conditions=>["parent_id=? AND kpath NOT LIKE 'IPDI%'", self[:id]] ) }
+    @doconly ||= secure(Document) { Document.find(:all, :order=>'name ASC', :conditions=>["parent_id=? AND kpath NOT LIKE 'IPDI%'", self[:id]] ) }
   end
   
   # Find only images
@@ -221,6 +220,7 @@ class Item < ActiveRecord::Base
     
   # set name: remove all accents and camelize
   def name=(str)
+    return unless str && str != ""
     self[:name] = clearName(str)
   end
   
@@ -232,34 +232,34 @@ class Item < ActiveRecord::Base
   # 3. try to save new object
   # 4. delete old and set new object id to old
   # THIS IS DANGEROUS !! NEEDS TESTING
-  #def change_to(klass)
-  #  #begin
-  #    my_id = self[:id].to_i
-  #    my_parent = self[:parent_id].to_i
-  #    my_project = self[:project_id].to_i
-  #    connection = self.class.connection
-  #    # 1. create a new object with the attributes from the old one
-  #    new_obj = secure(klass) { klass.new(self.attributes) }
-  #    puts new_obj.inspect
-  #    # 2. move old object out of the way (setting parent_id and project_id to -1)
-  #    connection.execute "UPDATE items SET parent_id='0', project_id='0' WHERE id=#{my_id}"
-  #    # 3. try to save new object
-  #    if new_obj.save
-  #      tmp_id = new_obj[:id]
-  #      # 4. delete old and set new object id to old
-  #      connection.execute "DELETE items WHERE items.id=#{my_id}"
-  #      connection.execute "UPDATE items SET id='#{my_id}' WHERE id=#{tmp_id}"
-  #      secure ( klass ) { klass.find(my_id) }
-  #    else
-  #      puts "ERROR: #{new_obj.show_errors}"
-  #      # set object back
-  #      connection.execute "UPDATE items SET parent_id='#{my_parent}', project_id='#{my_project}' WHERE items.id=#{my_id}"
-  #      self
-  #    end
-  #  #rescue
-  #    # ???
-  #  #end
-  #end
+  def change_to(klass)
+    #begin
+      my_id = self[:id].to_i
+      my_parent = self[:parent_id].to_i
+      my_project = self[:project_id].to_i
+      connection = self.class.connection
+      # 1. create a new object with the attributes from the old one
+      new_obj = secure(klass) { klass.new(self.attributes) }
+      puts new_obj.inspect
+      # 2. move old object out of the way (setting parent_id and project_id to -1)
+      self.class.connection.execute "UPDATE items SET parent_id='0', project_id='0' WHERE id=#{my_id}"
+      # 3. try to save new object
+      if new_obj.save
+        tmp_id = new_obj[:id]
+        # 4. delete old and set new object id to old
+        self.class.connection.execute "DELETE items WHERE items.id=#{my_id}"
+        self.class.connection.execute "UPDATE items SET id='#{my_id}' WHERE id=#{tmp_id}"
+        secure ( klass ) { klass.find(my_id) }
+      else
+        puts "ERROR: #{new_obj.show_errors}"
+        # set object back
+        self.class.connection.execute "UPDATE items SET parent_id='#{my_parent}', project_id='#{my_project}' WHERE items.id=#{my_id}"
+        self
+      end
+    #rescue
+      # ???
+    #end
+  end
     
   
   private

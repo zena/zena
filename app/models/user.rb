@@ -111,6 +111,6 @@ class User < Address
   
   # Do not allow destruction of _su_ or _anon_ users. This method is called +before_destroy+.
   def dont_destroy_su_or_anon #:doc:
-    raise AccessViolation, "su and Anonymous users cannot be destroyed !" if [1,2].include?(id)
+    raise Zena::AccessViolation, "su and Anonymous users cannot be destroyed !" if [1,2].include?(id)
   end
 end
