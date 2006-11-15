@@ -1,6 +1,7 @@
-begin
-  require 'rmagick'
-rescue LoadError
+# TODO: prepare files for testing. Watch out for 'Document' test teardown
+#begin
+#  require 'rmagick'
+#rescue LoadError
   puts "ImageMagick not found. Using dummy."
   # Create a dummy magick module
   module Magick
@@ -9,6 +10,9 @@ rescue LoadError
     end
     class ZenaDummy
       def initialize(*a)
+      end
+      def dummy?
+        true
       end
       def method_missing(meth, *args)
         # do nothing
@@ -19,7 +23,7 @@ rescue LoadError
     class ImageList < ZenaDummy
     end
   end
-end
+#end
 
 class ImageBuilder
   
@@ -48,22 +52,26 @@ class ImageBuilder
     end
   end
   
+  def dummy?
+    Magick.const_defined?(:ZenaDummy)
+  end
+  
   def read
-    raise IOError if Magick.const_defined?(:ZenaDummy)
+    raise IOError if dummy?
     render_img
     @img.to_blob
   end
   
-  def width; columns; end
-  def height; rows; end
-  
   def rows
-    @height ||= render_img.rows
+    (@height ||= render_img.rows).to_i
   end
   
   def columns
-    @width ||= render_img.columns
+    (@width ||= render_img.columns).to_i
   end
+  
+  alias height rows
+  alias width columns
   
   def resize!(s)
     @width  *= s
@@ -86,6 +94,9 @@ class ImageBuilder
   end
   
   def transform!(tformat)
+    if tformat.kind_of?(String)
+      tformat = IMAGEBUILDER_FORMAT[tformat] || {}
+    end
     format = { :size=>:limit, :scale=>1.0, :ratio=>2.0/3 }.merge(tformat)
     
     if format[:size] == :keep

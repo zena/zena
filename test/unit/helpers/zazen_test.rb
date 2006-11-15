@@ -25,7 +25,6 @@ class ApplicationHelperTest < Test::Unit::TestCase
     assert_match %r{/oo/projects/cleanWater.*window.open.*hello}, zazen('"hello":011')
   end
 
-  
   def test_make_image
     login(:tiger)
     # * [!14!] inline image 14. (default format is 'pv' defined in #ImageBuilder). Options are :
@@ -34,8 +33,14 @@ class ApplicationHelperTest < Test::Unit::TestCase
     assert_equal "<p><img src='/data/jpg/14/lake-pv.jpg' width='80' height='80' class='pv'/></p>", zazen('!014!')
   end
   
+  def test_make_image_with_document
+    login(:tiger)
+    assert_equal "<p><img src='/doc_type/pdf.png' width='80' height='80' class='pv'/></p>", zazen('!15!')
+    assert_equal "<p><img src='/doc_type/pdf.png' width='80' height='80' class='pv'/></p>", zazen('!15.3!')
+  end
+  
   def test_make_bad_image
-    assert_match %r{unknown image}, zazen('!99!')
+    assert_match %r{unknown document}, zazen('!99!')
   end
   
   def test_make_image_align

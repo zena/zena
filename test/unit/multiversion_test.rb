@@ -117,6 +117,16 @@ class MultiVersionTest < Test::Unit::TestCase
     assert_equal "new redaction for opening", item.comment
   end
   
+  def test_set_redaction
+    visitor(:tiger)
+    set_lang('es')
+    item = secure(Item) { items(:status) }
+    item.send(:set_redaction, :title, 'labias')
+    assert_equal 'es', item.v_lang
+    assert_equal 'labias', item.title
+    assert item.send(:version).new_record?
+  end
+  
   def test_proposition
     visitor(:tiger)
     @lang = 'en'

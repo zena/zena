@@ -4,7 +4,7 @@ class ImageFile < DocFile
     f = self.find_by_version_id_and_format(vid,format)
     unless f
       # create new
-      f = ImageFile.find_by_version_id(vid)
+      f = ImageFile.find_by_version_id_and_format(vid,nil)
       if f
         f = f.transform(format)
       else
@@ -21,12 +21,17 @@ class ImageFile < DocFile
     self[:height] = @file.height
   end
   
+  def dummy?
+    !File.exist?(filepath) && @file.dummy?
+  end
+  
   def read
     if File.exist?(filepath)
       File.read(filepath)
     elsif @file
       @file.read
     else
+      # FIXME: find original image instead
       raise IOError
     end
   end

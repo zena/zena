@@ -242,7 +242,7 @@ module ApplicationHelper
     else
       size = 'std'
     end
-    img = secure(Image) { Image.find(id) }
+    img = secure(Document) { Document.find(id) }
     
     style ||= ''
     case style.sub('.', '')
@@ -269,7 +269,7 @@ module ApplicationHelper
       prefix + "<a href='#{link}'>" + image + "</a>" + suffix
     end
   rescue ActiveRecord::RecordNotFound
-    "<span class='unknownLink'>#{trans('unknown image')}</span>"
+    "<span class='unknownLink'>#{trans('unknown document')}</span>"
   end
   
   # Create a gallery from a list of images. See ApplicationHelper#zazen for details.
@@ -278,7 +278,7 @@ module ApplicationHelper
       images = @item.images
     else
       ids = ids.split(',').map{|i| i.to_i}.join(',') # sql injection security
-      images = secure(Image) { Image.find(:all, :conditions=>"id IN (#{ids})") }
+      images = secure(Document) { Document.find(:all, :conditions=>"id IN (#{ids})") }
     end
     render_to_string( :partial=>'main/gallery', :locals=>{:gallery=>images} )
   end

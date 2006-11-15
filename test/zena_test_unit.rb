@@ -37,4 +37,28 @@ module ZenaTestUnit
       puts "[#{er}] #{msg}"
     end
   end
+  
+  # taken from http://manuals.rubyonrails.com/read/chapter/28#page237 with some modifications
+  def uploaded_file(fname, content_type="application/octet-stream", filename=nil)
+    path = File.join(FILE_FIXTURES_PATH, fname)
+    filename ||= File.basename(path)
+    t = Tempfile.new(fname)
+    FileUtils.copy_file(path, t.path)
+    (class << t; self; end;).class_eval do
+      alias local_path path
+      define_method(:original_filename) { filename }
+      define_method(:content_type) { content_type }
+    end
+    return t
+  end
+
+  # a JPEG helper
+  def uploaded_jpeg(fname, filename=nil)
+    uploaded_file(fname, 'image/jpeg', filename)
+  end
+
+  # a PDF helper
+  def uploaded_pdf(fname, filename=nil)
+    uploaded_file(fname, 'application/pdf', filename)
+  end
 end

@@ -1,19 +1,22 @@
 class ImageVersion < DocVersion
   
-  def data(format=nil)
+  def file(format=nil)
     @files ||= {}
     unless @files[format]
-      @files[format] = ImageFile.find_or_new(file_ref, format)
-      @files[format].save if status == Zena::Status[:pub] and @files[format].new_record?
+      img = ImageFile.find_or_new(file_ref, format)
+      if !img.dummy? && status == Zena::Status[:pub] && img.new_record?
+        img.save
+      end
+      @files[format] = img
     end
     @files[format]
   end
   
   def img_tag(format=nil)
-    data(format).img_tag
+    file(format).img_tag
   end
   
-  def filesize(format=nil); data(format).size; end
+  def filesize(format=nil); file(format).size; end
     
   private
   def info_class

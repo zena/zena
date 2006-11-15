@@ -1,7 +1,7 @@
 class Image < Document
 
-  def data(format=nil)
-    version.data(format)
+  def file(format=nil)
+    version.file(format)
   end
   def filesize(format=nil)
     version.filesize(format)

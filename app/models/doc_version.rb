@@ -7,15 +7,22 @@ class DocVersion < Version
   
   # format is ignored here
   def img_tag(format=nil)
-    # img_tag from extension
-    "<img src='/doc_type/#{item.ext}.png' width='80' height='80' class='pv's/>"
+    unless format
+      # img_tag from extension
+      "<img src='/images/ext/#{item.ext}.png' width='15' height='20' class='tiny'/>"
+    else
+      img = ImageBuilder.new(:path=>"#{RAILS_ROOT}/public/images/ext/#{item.ext}.png", :width=>15, :height=>20)
+      img.transform!(format)
+      # let the browser resize
+      "<img src='/images/ext/#{item.ext}.png' width='#{img.width}' height='#{img.height}' class='#{format}'/>"
+    end
   end
   
-  def data
-    @data ||= DocFile.find(:first, :conditions=>['version_id = ?',file_ref])
+  def file
+    @docfile ||= DocFile.find(:first, :conditions=>['version_id = ?',file_ref])
   end
   
-  def filesize; data.size; end
+  def filesize; file.size; end
     
   def file_ref=(i)
     raise Zena::AccessViolation, "Version#{self.id}: tried to change 'file_ref'."
@@ -29,7 +36,7 @@ class DocVersion < Version
     if self[:title] && self[:title] != ""
       self[:title]
     else
-      item.doc_name
+      item.name.split('.')[0..-2].join('.')
     end
   end
   
