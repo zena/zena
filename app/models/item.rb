@@ -58,14 +58,57 @@ class Item < ActiveRecord::Base
   acts_as_secure
   acts_as_multiversioned
   link :tags
-  # def self.sanitize_sql(ary)
-  #   super
-  # end
   
+  class << self
+    # Find an item by it's full path. Cache 'fullpath' if found.
+    def find_by_path(user_id, user_groups, lang, path)
+      item = Item.find_by_fullpath(path.join('/'))
+      unless item
+        raise ActiveRecord::RecordNotFound unless item = Item.find(ZENA_ENV[:root_id])
+        path.each do |p|
+          raise ActiveRecord::RecordNotFound unless item = Item.find_by_name_and_parent_id(p, item[:id])
+        end
+        item.fullpath = path.join('/')
+        # bypass callbacks here
+        Item.connection.execute "UPDATE #{Item.table_name} SET fullpath='#{path.join('/').gsub("'",'"')}' WHERE id='#{item[:id]}'"
+      end
+      if item.can_read?(user_id, user_groups)
+        item.set_visitor(user_id, user_groups, lang)
+      else
+        raise ActiveRecord::RecordNotFound
+      end
+    end
+  end
+
+  # Return the full path as an array if it is cached or build it when asked for.
+  def fullpath
+    if self[:fullpath]
+      self[:fullpath].split('/')
+    else
+      if parent
+        f = parent.fullpath << name_for_fullpath
+      else
+        f = []
+      end
+      self.connection.execute "UPDATE #{self.class.table_name} SET fullpath='#{f.join('/')}' WHERE id='#{self[:id]}'"
+      f
+    end
+  end
+
+  # Overwritten by notes
+  def name_for_fullpath
+    name
+  end
+  
+  # Make sure the item is complete before creating it (check parent and project references)
   def item_on_create
     self.class.logger.info "ITEM CALLBACK ON CREATE"
     # make sure project is the same as the parent
-    self[:project_id] = parent[:project_id]
+    if self.kind_of?(Project)
+      self[:project_id] = nil
+    else
+      self[:project_id] = parent[:project_id]
+    end
     # make sure parent is not a 'Note'
     errors.add("parent_id", "invalid parent") if parent.kind_of?(Note) and !self.kind_of?(Document)
     # set name from title if name not set yet
@@ -80,10 +123,20 @@ class Item < ActiveRecord::Base
     errors.add("name", "has already been taken") unless test_same_name == []
   end
 
+  # Make sure parent and project references are valid on update
   def item_on_update
     self.class.logger.info "ITEM CALLBACK ON UPDATE"
     # make sure project is the same as the parent
-    self[:project_id] = parent[:project_id]
+    if self.kind_of?(Project)
+      self[:project_id] = self[:id]
+    else
+      self[:project_id] = parent[:project_id]
+    end
+    
+    if self[:id] == ZENA_ENV[:root_id]
+      errors.add('parent_id', 'parent must be empty for root') unless self[:parent_id].nil?
+    end
+    
     # make sure parent is not a 'Note'
     errors.add("parent_id", "invalid parent") if parent.kind_of?(Note) and !self.kind_of?(Document)
     
@@ -96,7 +149,8 @@ class Item < ActiveRecord::Base
     end
     errors.add("name", "has already been taken") unless test_same_name == []
   end
-
+  
+  # Called before destroy. An item must be empty to be destroyed
   def item_on_destroy
     unless all_children.size == 0
       errors.add('base', "contains subpages")
@@ -108,7 +162,7 @@ class Item < ActiveRecord::Base
   
   # Find all children
   def children
-    @children ||= secure(Item) { all_children }
+    @children ||= secure(Item) { Item.find(:all, :conditions=>['parent_id = ?', self[:id] ]) }
   end
   
   # Find parent
@@ -169,46 +223,6 @@ class Item < ActiveRecord::Base
     c
   end
 
-  # Find an item by it's full path. Cache 'fullpath' if found.
-  # TODO: nested scoping works, use it ? See also with_exclusive_scope
-  def self.find_by_path(user_id, user_groups, lang, path)
-    item = Item.find_by_fullpath(path.join('/'))
-    unless item
-      raise ActiveRecord::RecordNotFound unless item = Item.find(ZENA_ENV[:root_id])
-      path.each do |p|
-        raise ActiveRecord::RecordNotFound unless item = Item.find_by_name_and_parent_id(p, item[:id])
-      end
-      item.fullpath = path.join('/')
-      # bypass callbacks here
-      Item.connection.execute "UPDATE #{Item.table_name} SET fullpath='#{path.join('/').gsub("'",'"')}' WHERE id='#{item[:id]}'"
-    end
-    if item.can_read?(user_id, user_groups)
-      item.set_visitor(user_id, user_groups, lang)
-    else
-      raise ActiveRecord::RecordNotFound
-    end
-  end
-  
-  # Return the full path as an array if it is cached or build it when asked for.
-  def fullpath
-    if self[:fullpath]
-      self[:fullpath].split('/')
-    else
-      if parent
-        f = parent.fullpath << name_for_fullpath
-      else
-        f = []
-      end
-      self.connection.execute "UPDATE #{self.class.table_name} SET fullpath='#{f.join('/')}' WHERE id='#{self[:id]}'"
-      f
-    end
-  end
-  
-  # Overwritten by notes
-  def name_for_fullpath
-    name
-  end
-  
   # ACCESSORS
   def author
     user
@@ -249,15 +263,14 @@ class Item < ActiveRecord::Base
       self.class.connection.execute "DELETE FROM #{self.class.table_name} WHERE id=#{my_id}"
       self.class.connection.execute "DELETE FROM #{Version.table_name} WHERE item_id=#{tmp_id}"
       self.class.connection.execute "UPDATE #{self.class.table_name} SET id='#{my_id}' WHERE id=#{tmp_id}"
-      self.class.logger.info "========== SET PROJ ======= "
       self.class.connection.execute "UPDATE #{self.class.table_name} SET project_id=id WHERE id=#{my_id}" if new_obj.kind_of?(Project)
-      puts "#{self.class}->#{klass}"
+      self.class.logger.info "[#{self[:id]}] #{self.class} --> #{klass}"
       if new_obj.kind_of?(Project)
         # update project_id for children
         sync_project(my_id)
       elsif self.kind_of?(Project)
         # update project_id for children
-        sync_project(parent[:project_id], true)
+        sync_project(parent[:project_id])
       end
       secure ( klass ) { klass.find(my_id) }
     else
@@ -269,33 +282,36 @@ class Item < ActiveRecord::Base
 
   protected
   
-  def sync_project(project_id, pass_through=false)
-    unless self.kind_of?(Project) && !pass_through
-      all_children.each do |child|
-        child[:project_id] = project_id
-        child.save_with_validation(false)
-        child.sync_project(project_id)
-      end
+  def sync_project(project_id)
+    all_children.each do |child|
+      next if child.kind_of?(Project)
+      child[:project_id] = project_id
+      child.save_with_validation(false)
+      child.sync_project(project_id)
     end
   end
   
   private
       
-  # Call backs
+  # Called after an item is 'removed'
   def after_remove
     if self[:max_status] < Zena::Status[:pub]
+      # not published any more. 'remove' documents
       sync_documents(:remove)
     end
   end
   
+  # Called after an item is 'proposed'
   def after_propose
     sync_documents(:propose)
   end
   
+  # Called after an item is 'refused'
   def after_refuse
     sync_documents(:refuse)
   end
   
+  # Called after an item is published
   def after_publish(pub_time=nil)
     sync_documents(:publish, pub_time)
   end
@@ -330,11 +346,12 @@ class Item < ActiveRecord::Base
     end
     allOK
   end
-
   
   # Find all children, whatever visitor is here (used to check if the item can be destroyed)
   def all_children
-    Item.find(:all, :conditions=>['parent_id = ?', self[:id] ])
+    Item.with_exclusive_scope do
+      Item.find(:all, :conditions=>['parent_id = ?', self[:id] ])
+    end
   end
   
   def camelize(str)

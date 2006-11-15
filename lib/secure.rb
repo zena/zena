@@ -402,7 +402,7 @@ Just doing the above will filter all result according to the logged in user.
             errors.add('base', "you do not have the rights to do this")
             return false
           end
-          if !( old.can_publish? || old.can_manage? )
+          if !( old.can_drive? )
             errors.add('base', "you do not have the rights to do this")
             return false
           end
@@ -448,6 +448,29 @@ Just doing the above will filter all result according to the logged in user.
               end
             rescue ActiveRecord::RecordNotFound
               errors.add(ref_field, "invalid reference")
+              return false
+            end
+            # check circular references
+            ref_ids  = [self[:id]]
+            curr_ref = self[:parent_id]
+            ok = true
+            while true
+              self.class.logger.info "REFS:#{ref_ids.inspect} CURR:#{curr_ref}"
+              if ref_ids.include?(curr_ref) # detect loops
+                ok = false
+                break
+              end
+              ref_ids << curr_ref
+              break if curr_ref == ZENA_ENV[:root_id]
+              rows = self.class.connection.execute("SELECT #{ref_field} FROM #{self.class.table_name} WHERE id=#{curr_ref}")
+              if rows.num_rows == 0
+                errors.add(ref_field, "reference missing in reference hierarchy")
+                raise ActiveRecord::RecordNotFound
+              end
+              curr_ref = rows.fetch_row[0].to_i
+            end
+            unless ok
+              errors.add(ref_field, 'circular reference')
               return false
             end
           end

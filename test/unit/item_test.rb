@@ -11,6 +11,41 @@ class ItemTest < Test::Unit::TestCase
     :parent_id => 1,
     :project_id => 1,
   }
+  
+  def test_find_by_path
+    visitor(:ant)
+    item = items(:wiki)
+    assert_nil item[:fullpath]
+    item = Item.find_by_path(user_id,user_groups,'fr',['projects', 'wiki'])
+    assert_kind_of Item, item
+    assert_equal ['projects','wiki'], item.fullpath
+    item.reload
+    assert_equal 'projects/wiki', item[:fullpath]
+  end
+  
+  def test_get_fullpath
+    visitor(:ant)
+    item = secure(Item) { Item.find(items_id(:lake)) }
+    parent = item.parent
+    assert_nil parent[:fullpath]
+    assert_nil item[:fullpath]
+    assert_equal ['projects', 'cleanWater', 'lake'], item.fullpath
+    item.reload
+    assert_equal ['projects', 'cleanWater', 'lake'], item[:fullpath].split('/')
+    parent.reload
+    assert_equal ['projects', 'cleanWater'], parent[:fullpath].split('/')
+  end
+  
+  def test_get_fullpath_after_private
+    Item.connection.execute "UPDATE items SET parent_id = 3 WHERE id = 12" # put 'status' page inside private 'ant' page
+    item = nil
+    visitor(:tiger)
+    assert_nothing_raised { item = secure(Item) { Item.find(items_id(:status))} }
+    assert_kind_of Item, item
+    assert_raises (ActiveRecord::RecordNotFound) { item = Item.find_by_path(user_id,user_groups,'fr',['people', 'ant'])}
+    assert_nothing_raised { item = Item.find_by_path(user_id,user_groups,'fr',['people', 'ant', 'status'])}
+  end
+  
   def test_create_simplest
     visitor(:ant)
     test_page = secure(Item) { Item.create(:name=>"yoba", :parent_id=>items_id(:cleanWater), :inherit=>1 ) }
@@ -54,11 +89,9 @@ class ItemTest < Test::Unit::TestCase
   
   def test_page_new_without_name
     visitor(:tiger)
-    attrs = NEW_DEFAULT
-    attrs.delete(:name)
-    item = secure(Item) { Item.new(attrs) }
+    item = secure(Item) { Item.new(:parent_id=>1) }
     assert ! item.save, 'Save fails'
-    assert_equal item.errors[:name], "can't be blank"
+    assert_equal "can't be blank", item.errors[:name]
   end
   
   def test_new_set_project_id
@@ -265,49 +298,6 @@ class ItemTest < Test::Unit::TestCase
     assert_equal item[:id], child[:parent_id]
   end
   
-  def test_find_by_path
-    visitor(:ant)
-    item = items(:wiki)
-    assert_nil item[:fullpath]
-    item = Item.find_by_path(user_id,user_groups,'fr',['projects', 'wiki'])
-    assert_kind_of Item, item
-    assert_equal ['projects','wiki'], item.fullpath
-    item.reload
-    assert_equal 'projects/wiki', item[:fullpath]
-  end
-  
-  def test_get_fullpath
-    visitor(:ant)
-    item = secure(Item) { Item.find(items_id(:lake)) }
-    parent = item.parent
-    assert_nil parent[:fullpath]
-    assert_nil item[:fullpath]
-    assert_equal ['projects', 'cleanWater', 'lake'], item.fullpath
-    item.reload
-    assert_equal ['projects', 'cleanWater', 'lake'], item[:fullpath].split('/')
-    parent.reload
-    assert_equal ['projects', 'cleanWater'], parent[:fullpath].split('/')
-  end
-  
-  def test_get_fullpath_after_private
-    Item.connection.execute "UPDATE items SET parent_id = 3 WHERE id = 12" # put 'status' page inside private 'ant' page
-    item = nil
-    visitor(:tiger)
-    assert_nothing_raised { item = secure(Item) { Item.find(items_id(:status))} }
-    assert_kind_of Item, item
-    assert_raises (ActiveRecord::RecordNotFound) { item = Item.find_by_path(user_id,user_groups,'fr',['people', 'ant'])}
-    assert_nothing_raised { item = Item.find_by_path(user_id,user_groups,'fr',['people', 'ant', 'status'])}
-  end
-  
-  def test_list_collectors
-    visitor(:tiger)
-    page = secure(Item) { Item.find(items_id(:collections)) }
-    collectors = page.collectors
-    assert_equal 3, collectors.size
-    assert_equal 3, page.pages.size
-    assert_equal 3, page.children.size
-  end
-  
   def test_secure_find_by_path
     visitor(:tiger)
     item = Item.find_by_path(user_id, user_groups, 'fr', ['projects', 'secret'])
@@ -332,13 +322,6 @@ class ItemTest < Test::Unit::TestCase
     assert_equal '', item.ext
     item[:name] = nil
     assert_equal '', item.ext
-  end
-  
-  def test_camelize
-    item = items(:wiki)
-    assert_equal "salutJEcrisAujourdHui", item.send(:camelize,"salut j'écris: Aujourd'hui ")
-    assert_equal "aBabMol", item.send(:camelize," à,--/ bab mol")
-    assert_equal "07.11.2006Mardi", item.send(:camelize,"07.11.2006-mardi")
   end
   
   def test_set_name
@@ -397,74 +380,119 @@ class ItemTest < Test::Unit::TestCase
     assert_kind_of Project, item
   end
   
-  def test_child_sync
+  def test_sync_project
     visitor(:tiger)
-    # redaction containing three documents
-    assert_raise(ActiveRecord::RecordNotFound) { item = secure(Item) { Item.find(items_id(:nature)) } }
-    assert_raise(ActiveRecord::RecordNotFound) { tree = secure(Item) { Item.find(items_id(:tree))   } }
-    assert_raise(ActiveRecord::RecordNotFound) { forest = secure(Item) { Item.find(items_id(:tree)) } }
-    
-    visitor(:ant)
-    # redaction containing three documents
-    item = secure(Item) { Item.find(items_id(:nature)) }
-    tree = secure(Item) { Item.find(items_id(:tree))   }
-    forest = secure(Item) { Item.find(items_id(:tree)) }
-    assert_equal Zena::Status[:red], item.v_status
-    assert_equal Zena::Status[:red], tree.v_status
-    assert_equal Zena::Status[:red], forest.v_status
-    assert item.propose, "Propose for publication succeeds"
-    
-    # propositions
-    item = secure(Item) { Item.find(items_id(:nature)) }
-    tree = secure(Item) { Item.find(items_id(:tree))   }
-    forest = secure(Item) { Item.find(items_id(:tree)) }
-    assert_equal Zena::Status[:prop], item.v_status
-    assert_equal Zena::Status[:prop_with], tree.v_status
-    assert_equal Zena::Status[:prop_with], forest.v_status
-    
-    visitor(:tiger)
-    # can now see all propositions
-    item = secure(Item) { Item.find(items_id(:nature)) }
-    tree = secure(Item) { Item.find(items_id(:tree))   }
-    forest = secure(Item) { Item.find(items_id(:tree)) }
-    assert_equal Zena::Status[:prop], item.v_status
-    assert_equal Zena::Status[:prop_with], tree.v_status
-    assert_equal Zena::Status[:prop_with], forest.v_status
-    
-    assert item.refuse, "Can refuse publication"
-    
-    visitor(:ant)
-    # redactions again
-    item = secure(Item) { Item.find(items_id(:nature)) }
-    tree = secure(Item) { Item.find(items_id(:tree))   }
-    forest = secure(Item) { Item.find(items_id(:tree)) }
-    assert_equal Zena::Status[:red], item.v_status
-    assert_equal Zena::Status[:red], tree.v_status
-    assert_equal Zena::Status[:red], forest.v_status
-    assert item.propose, "Propose for publication succeeds"
-    
-    visitor(:tiger)
-    # sees the propositions again
-    item = secure(Item) { Item.find(items_id(:nature)) }
-    tree = secure(Item) { Item.find(items_id(:tree))   }
-    forest = secure(Item) { Item.find(items_id(:tree)) }
-    assert_equal Zena::Status[:prop], item.v_status
-    assert_equal Zena::Status[:prop_with], tree.v_status
-    assert_equal Zena::Status[:prop_with], forest.v_status
-    
-    assert item.publish, "Publication succeeds"
-    
-    visitor(:ant)
-    # redactions again
-    item = secure(Item) { Item.find(items_id(:nature)) }
-    tree = secure(Item) { Item.find(items_id(:tree))   }
-    forest = secure(Item) { Item.find(items_id(:tree)) }
-    assert_equal Zena::Status[:pub], item.v_status
-    assert_equal Zena::Status[:pub], tree.v_status
-    assert_equal Zena::Status[:pub], forest.v_status
-    assert item.propose, "Propose for publication succeeds"
+    item = secure(Item) { Item.find(items_id(:projects))}
+    item.send(:sync_project, 99)
+    assert_equal items_id(:cleanWater), items(:cleanWater)[:project_id]
+    item = secure(Item) { Item.find(items_id(:people))}
+    item.send(:sync_project, 99)
+    assert_equal 99, items(:ant)[:project_id]
+    assert_equal 99, items(:myLife)[:project_id]
   end
- 
+  
+  def test_after_remove
+    Version.connection.execute "UPDATE versions SET user_id=4 WHERE item_id IN (19,20,21)"
+    Item.connection.execute "UPDATE items SET user_id=4 WHERE id IN (19,20,21)"
+    visitor(:tiger)
+    wiki = secure(Item) { Item.find(items_id(:wiki))}
+    bird = secure(Item) { Item.find(items_id(:bird_jpg))}
+    flower = secure(Item) { Item.find(items_id(:flower_jpg))}
+    assert_equal Zena::Status[:pub], wiki.v_status
+    assert_equal Zena::Status[:pub], bird.v_status
+    assert_equal Zena::Status[:pub], flower.v_status
+    assert wiki.remove, 'Can remove publication'
+    assert_equal 10, wiki.v_status
+    assert_equal 10, wiki.max_status
+    bird = secure(Item) { Item.find(items_id(:bird_jpg))}
+    flower = secure(Item) { Item.find(items_id(:flower_jpg))}
+    assert_equal 10, bird.v_status
+    assert_equal 10, flower.v_status
+    assert wiki.publish, 'Can publish'
+    bird = secure(Item) { Item.find(items_id(:bird_jpg))}
+    flower = secure(Item) { Item.find(items_id(:flower_jpg))}
+    assert_equal Zena::Status[:pub], bird.v_status
+    assert_equal Zena::Status[:pub], bird.max_status
+    assert_equal Zena::Status[:pub], flower.v_status
+  end
+  
+  def test_after_propose
+    Version.connection.execute "UPDATE versions SET status = #{Zena::Status[:red]}, user_id=4 WHERE item_id IN (19,20,21)"
+    Item.connection.execute "UPDATE items SET max_status = #{Zena::Status[:red]}, user_id=4 WHERE id IN (19,20,21)"
+    visitor(:tiger)
+    wiki = secure(Item) { Item.find(items_id(:wiki))}
+    bird = secure(Item) { Item.find(items_id(:bird_jpg))}
+    flower = secure(Item) { Item.find(items_id(:flower_jpg))}
+    assert_equal Zena::Status[:red], wiki.v_status
+    assert_equal Zena::Status[:red], bird.v_status
+    assert_equal Zena::Status[:red], flower.v_status
+    assert wiki.propose, 'Can propose for publication'
+    assert_equal Zena::Status[:prop], wiki.v_status
+    bird = secure(Item) { Item.find(items_id(:bird_jpg))}
+    flower = secure(Item) { Item.find(items_id(:flower_jpg))}
+    assert_equal Zena::Status[:prop_with], bird.v_status
+    assert_equal Zena::Status[:prop_with], flower.v_status
+    assert wiki.publish, 'Can publish'
+    bird = secure(Item) { Item.find(items_id(:bird_jpg))}
+    flower = secure(Item) { Item.find(items_id(:flower_jpg))}
+    assert_equal Zena::Status[:pub], bird.v_status
+    assert_equal Zena::Status[:pub], bird.max_status
+    assert_equal Zena::Status[:pub], flower.v_status
+  end
+  
+  def test_after_refuse
+    Version.connection.execute "UPDATE versions SET status = #{Zena::Status[:red]}, user_id=4 WHERE item_id IN (19,20,21)"
+    Item.connection.execute "UPDATE items SET max_status = #{Zena::Status[:red]}, user_id=4 WHERE id IN (19,20,21)"
+    visitor(:tiger)
+    wiki = secure(Item) { Item.find(items_id(:wiki))}
+    assert wiki.propose, 'Can propose for publication'
+    assert_equal Zena::Status[:prop], wiki.v_status
+    bird = secure(Item) { Item.find(items_id(:bird_jpg))}
+    flower = secure(Item) { Item.find(items_id(:flower_jpg))}
+    assert_equal Zena::Status[:prop_with], bird.v_status
+    assert_equal Zena::Status[:prop_with], flower.v_status
+    assert wiki.refuse, 'Can refuse'
+    bird = secure(Item) { Item.find(items_id(:bird_jpg))}
+    flower = secure(Item) { Item.find(items_id(:flower_jpg))}
+    assert_equal Zena::Status[:red], bird.v_status
+    assert_equal Zena::Status[:red], bird.v_status
+    assert_equal Zena::Status[:red], bird.max_status
+    assert_equal Zena::Status[:red], flower.v_status
+  end
+  
+  def test_after_publish
+    Version.connection.execute "UPDATE versions SET status = #{Zena::Status[:red]}, user_id=4 WHERE item_id IN (19,20,21)"
+    Item.connection.execute "UPDATE items SET max_status = #{Zena::Status[:red]}, user_id=4 WHERE id IN (19,20,21)"
+    visitor(:tiger)
+    wiki = secure(Item) { Item.find(items_id(:wiki))}
+    assert wiki.publish, 'Can publish'
+    assert_equal Zena::Status[:pub], wiki.v_status
+    bird = secure(Item) { Item.find(items_id(:bird_jpg))}
+    flower = secure(Item) { Item.find(items_id(:flower_jpg))}
+    assert_equal Zena::Status[:pub], bird.v_status
+    assert_equal Zena::Status[:pub], bird.max_status
+    assert_equal Zena::Status[:pub], flower.v_status
+  end
+  
+  def test_all_children
+    visitor(:tiger)
+    people_id = items_id(:people)
+    ant_id = items_id(:ant)
+    assert_raise(ActiveRecord::RecordNotFound) { secure(Item) { Item.find(ant_id) }  }
+    items  = secure(Item) { Item.find(people_id).send(:all_children) }
+    people = secure(Item) { Item.find(people_id)}
+    assert_equal 3, items.size
+    assert_equal 2, people.children.size
+    assert_raise(NoMethodError) { people.all_children }
+  end
+  
+  def test_camelize
+    item = items(:wiki)
+    assert_equal "salutJEcrisAujourdHui", item.send(:camelize,"salut j'écris: Aujourd'hui ")
+    assert_equal "aBabMol", item.send(:camelize," à,--/ bab mol")
+    assert_equal "07.11.2006Mardi", item.send(:camelize,"07.11.2006-mardi")
+  end
+  
   def test_tags
     visitor(:lion)
     @item = secure(Item) { Item.find(items_id(:status)) }
@@ -488,53 +516,3 @@ class ItemTest < Test::Unit::TestCase
     assert Page.read_inheritable_attribute(:after_save).include?(:save_tags)
   end
 end
-=begin
-  def test_edition
-    visitor
-    @lang = 'ru'
-    item = secure(Item) { Item.find(1) }
-    ed = item.edition
-    assert_equal item.ref_lang, ed.lang
-    assert_equal item.visitor_lang, 'ru'
-  end
- 
-  def test_edition_for_lang
-    zenaItem = Item.find(1)
-    assert_kind_of Item, zenaItem
-    zenaItem.set_visitor(1,[1], 'fr')
-    ed = zenaItem.edition
-    assert_kind_of Version, ed
-    assert_equal versions(:zena_fr_pub).id, ed.id
-    zenaItem = Item.find(1)
-    zenaItem.set_visitor(1,[1], 'en')
-    ed = zenaItem.edition
-    assert_kind_of Version, ed
-    assert_equal versions(:zena_en_pub).id, ed.id
-    ed = zenaItem.edition('fr')
-    assert_kind_of Version, ed
-    assert_equal versions(:zena_en_pub).id, ed.id
-    
-    zenaItem = Item.find(1)
-    zenaItem.set_visitor(1,[1], 'ru')
-    ed = zenaItem.edition
-    assert_kind_of Version, ed
-    assert_equal versions(:zena_fr_pub).id, ed.id
-    zenaItem = Item.find(1)
-    ed = zenaItem.edition
-    assert_kind_of Version, ed
-    assert_equal versions(:zena_fr_pub).id, ed.id
-    
-    without_ed = Item.find(3)
-    assert_kind_of Item, without_ed
-    ed = without_ed.edition
-    assert_nil ed
-    without_ed.set_visitor(1,[1], 'ru')
-    ed = without_ed.edition
-    assert_nil ed
-    # owner can views versions
-    without_ed.set_visitor(3, [1,3], 'fr')
-    ed = without_ed.edition
-    assert_kind_of Version, ed
-  end
-end
-=end

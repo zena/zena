@@ -253,6 +253,41 @@ class SecureCreateTest < Test::Unit::TestCase
     z[:pgroup_id] = 1
     assert z.save, "Can change root group"
   end
+  
+  def test_circular_reference
+    visitor(:tiger)
+    item = secure(Item) { Item.find(items_id(:projects)) }
+    item[:parent_id] = items_id(:status)
+    assert ! item.save, 'Save fails'
+    assert_equal item.errors[:parent_id], 'circular reference'
+  end
+  
+  def test_existing_circular_reference
+    visitor(:tiger)
+    Item.connection.execute "UPDATE items SET parent_id = #{items_id(:cleanWater)} WHERE id=#{items_id(:projects)}"
+    item = secure(Item) { Item.find(items_id(:status)) }
+    item[:parent_id] = items_id(:projects)
+    assert ! item.save, 'Save fails'
+    assert_equal item.errors[:parent_id], 'circular reference'
+  end
+  
+  def test_valid_without_circular
+    visitor(:tiger)
+    item = secure(Item) { Item.find(items_id(:status)) }
+    item[:parent_id] = items_id(:zena)
+    assert item.save, 'Save succeeds'
+  end
+  
+  def test_set_reference_for_root
+    visitor(:tiger)
+    item = secure(Item) { Item.find(items_id(:zena)) }
+    item.name = 'bob'
+    assert item.save
+    item[:parent_id] = items_id(:status)
+    assert ! item.save, 'Save fails'
+    assert_equal 'parent must be empty for root', item.errors[:parent_id]
+  end
+  
   def test_valid_reference
     visitor(:ant)
     attrs = item_defaults
