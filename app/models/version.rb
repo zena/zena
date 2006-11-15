@@ -23,8 +23,8 @@ Implements versioning and permits multiple editions on items.
 class Version < ActiveRecord::Base
   belongs_to :item
   belongs_to :user, :foreign_key=>'user_id'
-  belongs_to :comment_group, :class_name=>'Group', :foreign_key=>'cgroup_id'
-  has_many :comments, :order=>'created_at'
+  # not tested belongs_to :comment_group, :class_name=>'Group', :foreign_key=>'cgroup_id'
+  # not tested has_many :comments, :order=>'created_at'
   before_create :set_number
   
   # Author is an alias for user
@@ -36,17 +36,7 @@ class Version < ActiveRecord::Base
   def item_id=(i)
     raise Zena::AccessViolation, "Version #{self.id}: tried to change 'item_id' to '#{i}'."
   end
-  
-  # v_lang is how 'item' sees version.lang
-  def v_lang=(l)
-    self.lang = l
-  end
-  
-  # can be called by 'check_lang'
-  def v_lang
-    lang
-  end
-  
+
   private
   
   # Set version number

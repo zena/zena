@@ -28,6 +28,10 @@ module ZenaTestUnit
     end
   end
   
+  def set_lang(l)
+    @lang = l
+  end
+  
   def err(obj)
     obj.errors.each do |er,msg|
       puts "[#{er}] #{msg}"

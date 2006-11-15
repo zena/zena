@@ -13,17 +13,20 @@ class VersionTest < Test::Unit::TestCase
   end
   
   def test_cannot_set_item_id
-    puts User.find(:all).size
     visitor(:ant)
-    version =version(:ant)
+    version = version(:ant)
     assert_raise(Zena::AccessViolation) { version.item_id = items_id(:lake) }
   end
   
   def test_cannot_set_item_id_by_attribute
     visitor(:ant)
-    item = secure(Item) { items(:ant) }
-    version = item.send(:version)
-    assert_raise(Zena::AccessViolation) { version[:item_id] = items_id(:lake) }
+    version = version(:ant)
+    assert_raise(Zena::AccessViolation) { version.update_attributes(:item_id=>items_id(:lake)) }
+  end
+  
+  def test_cannot_set_item_id_on_create
+    visitor(:ant)
+    assert_raise(Zena::AccessViolation) { Version.create(:item_id=>items_id(:lake)) }
   end
   
   def test_version_number_edit_by_attribute
