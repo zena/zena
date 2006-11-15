@@ -7,7 +7,7 @@ end
 class SubPagerDummy < PagerDummy
 end
 class SecureReadTest < Test::Unit::TestCase
-  fixtures :items, :versions, :addresses, :groups, :groups_users
+
   include ZenaTestUnit
   
   def test_fixture_by_id
@@ -21,22 +21,18 @@ class SecureReadTest < Test::Unit::TestCase
     assert_equal SubPagerDummy.kpath, 'IUS'
   end
   def test_callbacks
-    item_on_create = Item.read_inheritable_attribute(:validate_on_create)
-    page_on_create = Page.read_inheritable_attribute(:validate_on_create)
-    page_on_update = Page.read_inheritable_attribute(:validate_on_update)
-    assert item_on_create.include?(:item_on_create)
-    assert page_on_create.include?(:item_on_create)
-    assert page_on_update.include?(:item_on_update)
-    assert item_on_create.include?(:secure_on_create)
-    assert page_on_create.include?(:secure_on_create)
-    assert page_on_create.index(:item_on_create) > page_on_create.index(:secure_on_create)
-    assert page_on_update.index(:item_on_update) > page_on_update.index(:secure_on_update)
+    assert Item.read_inheritable_attribute(:before_validation).include?(:secure_before_validation)
+    assert Page.read_inheritable_attribute(:before_validation).include?(:secure_before_validation)
+    assert Item.read_inheritable_attribute(:validate_on_create).include?(:item_on_create)
+    assert Item.read_inheritable_attribute(:validate_on_update).include?(:item_on_update)
+    assert Page.read_inheritable_attribute(:validate_on_create).include?(:item_on_create)
+    assert Page.read_inheritable_attribute(:validate_on_update).include?(:item_on_update)
   end
   # SECURE FIND TESTS  ===== TODO CORRECT THESE TEST FROM CHANGES TO RULES ========
   # [user]          Item owner. Can *read*, *write* and (*manage*: if item not published yet or item is private).
   def test_can_rwm_own_private_item
     visitor(:lion)
-    item = secure(Item) { Item.find(items_id(:myDreams)) }
+    item = secure(Item) { items(:myDreams)  }
     assert_kind_of Item, item
     assert_equal 'myDreams', item.name
     assert item.can_read?, "Can read"
@@ -47,11 +43,11 @@ class SecureReadTest < Test::Unit::TestCase
   end
   def test_cannot_view_others_private_items
     visitor(:lion)
-    assert_raise(ActiveRecord::RecordNotFound) { item = secure(Item) { Item.find(items_id(:myLife)) }}
+    assert_raise(ActiveRecord::RecordNotFound) { item = secure(Item) { items(:myLife)  }}
   end
   def test_owner_but_not_in_rgroup
     visitor(:ant)
-    item = secure(Item) { Item.find(items_id(:proposition)) }
+    item = secure(Item) { items(:proposition)  }
     assert_kind_of Item, item
     assert item.can_read? , "Can read"
     assert item.can_write? , "Can write"
@@ -72,17 +68,17 @@ class SecureReadTest < Test::Unit::TestCase
   def test_rgroup_can_read_if_published
     # visitor = public
     # not published, cannot read
-    assert_raise(ActiveRecord::RecordNotFound) { item = secure(Item) { Item.find(items_id(:crocodiles)) }}
+    assert_raise(ActiveRecord::RecordNotFound) { item = secure(Item) { items(:crocodiles)  }}
     # published: can read
-    item = secure(Item) { Item.find(items_id(:lake)) }
+    item = secure(Item) { items(:lake)  }
     assert_kind_of Item, item
   end
   # write group can only write
   def test_write_group_can_w
     visitor(:tiger)
     item = ""
-    assert_raise(ActiveRecord::RecordNotFound) { item = secure(Item) { Item.find(items_id(:strange)) } }
-    assert_nothing_raised { item = secure_write(Item) { Item.find(items_id(:strange)) } }
+    assert_raise(ActiveRecord::RecordNotFound) { item = secure(Item) { items(:strange)  } }
+    assert_nothing_raised { item = secure_write(Item) { items(:strange)  } }
     assert ! item.can_read? , "Cannot read"
     assert item.can_write? , "Can write"
   end
@@ -91,21 +87,21 @@ class SecureReadTest < Test::Unit::TestCase
     visitor(:ant)
     item = ""
     ant = addresses(:ant)
-    assert_raise(ActiveRecord::RecordNotFound) { item = secure(Item) { Item.find(items_id(:strange)) } }
-    assert_raise(ActiveRecord::RecordNotFound) { item = secure_write(Item) { Item.find(items_id(:strange)) } }
-    assert_raise(ActiveRecord::RecordNotFound) { item = secure_drive(Item) { Item.find(items_id(:strange)) } }
+    assert_raise(ActiveRecord::RecordNotFound) { item = secure(Item) { items(:strange)  } }
+    assert_raise(ActiveRecord::RecordNotFound) { item = secure_write(Item) { items(:strange)  } }
+    assert_raise(ActiveRecord::RecordNotFound) { item = secure_drive(Item) { items(:strange)  } }
     
     visitor(:lion)
     lion_item = ""
-    assert_nothing_raised { lion_item = secure(Item) { Item.find(items_id(:strange)) } }
+    assert_nothing_raised { lion_item = secure(Item) { items(:strange)  } }
     assert lion_item.can_read? , "Owner can read"
     assert lion_item.propose , "Can propose"
     
     visitor(:ant)
     # now item is 'prop', pgroup can see it
-    assert_nothing_raised { item = secure(Item) { Item.find(items_id(:strange)) } }
-    assert_raise(ActiveRecord::RecordNotFound) { item = secure_write(Item) { Item.find(items_id(:strange)) } }
-    assert_nothing_raised { item = secure_drive(Item) { Item.find(items_id(:strange)) } }
+    assert_nothing_raised { item = secure(Item) { items(:strange)  } }
+    assert_raise(ActiveRecord::RecordNotFound) { item = secure_write(Item) { items(:strange)  } }
+    assert_nothing_raised { item = secure_drive(Item) { items(:strange)  } }
     assert ! ant.group_ids.include?(item.rgroup_id) , "Visitor is not in rgroup"
     assert ! ant.group_ids.include?(item.wgroup_id) , "Visitor is not in wgroup"
     assert ! (ant.id == item.user_id) , "Visitor is not the owner"
@@ -117,10 +113,10 @@ class SecureReadTest < Test::Unit::TestCase
   end
   
   def test_public_not_in_rgroup_cannot_rwp
-    assert_raise(ActiveRecord::RecordNotFound) { item = secure(Item) { Item.find(items_id(:secret)) } }
-    assert_raise(ActiveRecord::RecordNotFound) { item = secure_write(Item) { Item.find(items_id(:secret)) } }
-    assert_raise(ActiveRecord::RecordNotFound) { item = secure_drive(Item) { Item.find(items_id(:secret)) } }
-    item = Item.find(items_id(:secret)).set_visitor(1,[1],'en')
+    assert_raise(ActiveRecord::RecordNotFound) { item = secure(Item) { items(:secret)  } }
+    assert_raise(ActiveRecord::RecordNotFound) { item = secure_write(Item) { items(:secret)  } }
+    assert_raise(ActiveRecord::RecordNotFound) { item = secure_drive(Item) { items(:secret)  } }
+    item = items(:secret) .set_visitor(1,[1],'en')
     assert ! item.can_read? , "Cannot read"
     assert ! item.can_write? , "Cannot write"
     assert ! item.can_publish? , "Cannot publish"
@@ -128,7 +124,7 @@ class SecureReadTest < Test::Unit::TestCase
   def test_pgroup_can_read_unplished_items
     # create an unpublished item
     visitor(:lion)
-    item = secure(Item) { Item.find(items_id(:strange)) }
+    item = secure(Item) { items(:strange)  }
     item = secure(Item) { item.clone }
     item[:publish_from] = nil
     item[:name] = "new_rec"
@@ -150,7 +146,7 @@ class SecureReadTest < Test::Unit::TestCase
 end
 
 class SecureCreateTest < Test::Unit::TestCase
-  fixtures :items, :versions, :addresses, :groups, :groups_users
+
   include ZenaTestUnit
   def item_defaults
     {
@@ -248,7 +244,7 @@ class SecureCreateTest < Test::Unit::TestCase
     # root items do not have a parent_id !!
     # reference = self
     visitor(:lion)
-    z = secure(Item) { Item.find(items_id(:zena)) }
+    z = secure(Item) { items(:zena)  }
     assert_nil z[:parent_id]
     z[:pgroup_id] = 1
     assert z.save, "Can change root group"
@@ -256,7 +252,7 @@ class SecureCreateTest < Test::Unit::TestCase
   
   def test_circular_reference
     visitor(:tiger)
-    item = secure(Item) { Item.find(items_id(:projects)) }
+    item = secure(Item) { items(:projects)  }
     item[:parent_id] = items_id(:status)
     assert ! item.save, 'Save fails'
     assert_equal item.errors[:parent_id], 'circular reference'
@@ -265,7 +261,7 @@ class SecureCreateTest < Test::Unit::TestCase
   def test_existing_circular_reference
     visitor(:tiger)
     Item.connection.execute "UPDATE items SET parent_id = #{items_id(:cleanWater)} WHERE id=#{items_id(:projects)}"
-    item = secure(Item) { Item.find(items_id(:status)) }
+    item = secure(Item) { items(:status)  }
     item[:parent_id] = items_id(:projects)
     assert ! item.save, 'Save fails'
     assert_equal item.errors[:parent_id], 'circular reference'
@@ -273,14 +269,14 @@ class SecureCreateTest < Test::Unit::TestCase
   
   def test_valid_without_circular
     visitor(:tiger)
-    item = secure(Item) { Item.find(items_id(:status)) }
+    item = secure(Item) { items(:status)  }
     item[:parent_id] = items_id(:zena)
     assert item.save, 'Save succeeds'
   end
   
   def test_set_reference_for_root
     visitor(:tiger)
-    item = secure(Item) { Item.find(items_id(:zena)) }
+    item = secure(Item) { items(:zena)  }
     item.name = 'bob'
     assert item.save
     item[:parent_id] = items_id(:status)
@@ -480,7 +476,7 @@ class SecureCreateTest < Test::Unit::TestCase
 end
 
 class SecureUpdateTest < Test::Unit::TestCase
-  fixtures :items, :versions, :addresses, :groups, :groups_users
+
   include ZenaTestUnit
   
   # VALIDATE ON UPDATE TESTS
@@ -488,7 +484,7 @@ class SecureUpdateTest < Test::Unit::TestCase
   def test_pgroup_changed_cannot_publish
     # cannot publish
     visitor(:ant)
-    item = secure(Item) { Item.find(items_id(:lake))}
+    item = secure(Item) { items(:lake) }
     assert_kind_of Item, item
     assert ! item.can_publish? , "Cannot publish"
     item.pgroup_id = 1
@@ -514,7 +510,7 @@ class SecureUpdateTest < Test::Unit::TestCase
   def test_pgroup_changed_bad_pgroup_visitor_not_in_group
     # bad pgroup
     visitor(:tiger)
-    item = secure(Item) { Item.find(items_id(:lake))}
+    item = secure(Item) { items(:lake) }
     assert_kind_of Item, item
     assert item.can_publish? , "Can publish"
     item.pgroup_id = 2
@@ -525,7 +521,7 @@ class SecureUpdateTest < Test::Unit::TestCase
   def test_pgroup_changed_ok
     # ok
     visitor(:tiger)
-    item = secure(Item) { Item.find(items_id(:lake))}
+    item = secure(Item) { items(:lake) }
     assert_kind_of Item, item
     assert item.can_publish? , "Can publish"
     assert_equal 1, item.inherit , "Inherit mode is 1"
@@ -536,7 +532,7 @@ class SecureUpdateTest < Test::Unit::TestCase
   
   def test_group_changed_children_too
     visitor(:tiger)
-    item = secure(Item) { Item.find(items_id(:cleanWater)) }
+    item = secure(Item) { items(:cleanWater)  }
     item[:rgroup_id] = 3
     assert item.save , "Save succeeds"
     assert_equal 3, item[:rgroup_id], "Read group changed"
@@ -549,7 +545,7 @@ class SecureUpdateTest < Test::Unit::TestCase
   
   def test_template_changed_children_too
     visitor(:tiger)
-    item = secure(Item) { Item.find(items_id(:cleanWater)) }
+    item = secure(Item) { items(:cleanWater)  }
     item[:template] = 'wiki'
     assert item.save , "Save succeeds"
     assert_equal 'wiki', item[:template], "Template changed"
@@ -563,7 +559,7 @@ class SecureUpdateTest < Test::Unit::TestCase
   def test_owner_changed_visitor_not_admin
     # not in 'admin' group
     visitor(:tiger)
-    item = secure(Item) { Item.find(items_id(:bananas))}
+    item = secure(Item) { items(:bananas) }
     assert_kind_of Item, item
     assert_equal addresses_id(:lion), item.user_id
     item.user_id = addresses_id(:tiger)
@@ -574,7 +570,7 @@ class SecureUpdateTest < Test::Unit::TestCase
   def test_owner_changed_visitor_cannot_write_in_new_contact
     # cannot write in new contact
     visitor(:lion)
-    item = secure(Item) { Item.find(items_id(:bananas))}
+    item = secure(Item) { items(:bananas) }
     assert_kind_of Item, item
     assert_equal addresses_id(:lion), item.user_id
     item.user_id = addresses_id(:ant)
@@ -584,7 +580,7 @@ class SecureUpdateTest < Test::Unit::TestCase
   end
   def test_owner_changed_not_a_user
     visitor(:lion)
-    item = secure(Item) { Item.find(items_id(:bananas))}
+    item = secure(Item) { items(:bananas) }
     item.user_id = addresses_id(:lake)
     assert ! item.save , "Save fails"
     assert item.errors[:user_id] , "Errors on user_id"
@@ -592,7 +588,7 @@ class SecureUpdateTest < Test::Unit::TestCase
   end
   def test_owner_changed_ok
     visitor(:lion)
-    item = secure(Item) { Item.find(items_id(:bananas))}
+    item = secure(Item) { items(:bananas) }
     item.user_id = addresses_id(:tiger)
     assert item.save , "Save succeeds"
     item.reload
@@ -602,7 +598,7 @@ class SecureUpdateTest < Test::Unit::TestCase
   # 3. error if user cannot publish nor manage
   def test_cannot_publish_nor_manage
     visitor(:ant)
-    item = secure(Item) { Item.find(items_id(:collections))}
+    item = secure(Item) { items(:collections) }
     assert ! item.can_publish? , "Cannot publish"
     assert ! item.can_manage? , "Cannot manage"
     assert ! item.save , "Save fails"
@@ -614,7 +610,7 @@ class SecureUpdateTest < Test::Unit::TestCase
   def test_reference_changed_cannot_pub_in_new
     visitor(:ant)
     # cannot publish in new ref
-    item = secure(Item) { Item.find(items_id(:bird_jpg))} # can publish in reference
+    item = secure(Item) { items(:bird_jpg) } # can publish in reference
     item[:parent_id] = items_id(:cleanWater) # cannot publish here
     assert ! item.save , "Save fails"
     assert item.errors[:parent_id] , "Errors on parent_id"
@@ -623,7 +619,7 @@ class SecureUpdateTest < Test::Unit::TestCase
   def test_reference_changed_cannot_pub_in_old
     visitor(:ant)
     # cannot publish in old ref
-    item = secure(Item) { Item.find(items_id(:talk)) } # cannot publish in parent 'secret'
+    item = secure(Item) { items(:talk)  } # cannot publish in parent 'secret'
     item[:parent_id] = items_id(:wiki) # can publish here
     assert ! item.save , "Save fails"
     assert item.errors[:parent_id] , "Errors on parent_id"
@@ -632,7 +628,7 @@ class SecureUpdateTest < Test::Unit::TestCase
   def test_reference_changed_ok
     # ok
     visitor(:tiger)
-    item = secure(Item) { Item.find(items_id(:lake))} # can publish here
+    item = secure(Item) { items(:lake) } # can publish here
     item[:parent_id] = items_id(:wiki) # can publish here
     assert item.save , "Save succeeds"
     assert_equal item[:project_id], items(:wiki).project_id, "Same project as parent"
@@ -642,7 +638,7 @@ class SecureUpdateTest < Test::Unit::TestCase
   #     a. if can_publish? : valid groups
   def test_update_rw_groups_for_publisher_bad_rgroup
     visitor(:tiger)
-    item = secure(Item) { Item.find(items_id(:lake))}
+    item = secure(Item) { items(:lake) }
     p = secure(Page) { Page.find(item[:parent_id])}
     assert p.can_publish? , "Can publish in reference" # can publish in reference
     assert item.can_publish? , "Can publish"
@@ -655,7 +651,7 @@ class SecureUpdateTest < Test::Unit::TestCase
   end
   def test_update_rw_groups_for_publisher_not_in_new_rgroup
     visitor(:tiger)
-    item = secure(Item) { Item.find(items_id(:lake))}
+    item = secure(Item) { items(:lake) }
     
     item[:rgroup_id] = groups_id(:admin) # tiger is not in admin
     assert ! item.save , "Save fails"
@@ -664,7 +660,7 @@ class SecureUpdateTest < Test::Unit::TestCase
   end
   def test_update_rw_groups_for_publisher_bad_wgroup
     visitor(:tiger)
-    item = secure(Item) { Item.find(items_id(:lake))}
+    item = secure(Item) { items(:lake) }
     # bad wgroup
     item[:wgroup_id] = 99999
     assert ! item.save , "Save fails"
@@ -673,7 +669,7 @@ class SecureUpdateTest < Test::Unit::TestCase
   end
   def test_update_rw_groups_for_publisher_not_in_new_wgroup
     visitor(:tiger)
-    item = secure(Item) { Item.find(items_id(:lake))}
+    item = secure(Item) { items(:lake) }
     item[:wgroup_id] = groups_id(:admin) # tiger is not in admin
     assert ! item.save , "Save fails"
     assert item.errors[:wgroup_id] , "Error on wgroup_id"
@@ -681,7 +677,7 @@ class SecureUpdateTest < Test::Unit::TestCase
   end
   def test_update_rw_groups_for_publisher_ok
     visitor(:tiger)
-    item = secure(Item) { Item.find(items_id(:lake))}
+    item = secure(Item) { items(:lake) }
     # all ok
     item[:rgroup_id] = 1
     item[:wgroup_id] = 4
@@ -775,7 +771,7 @@ class SecureUpdateTest < Test::Unit::TestCase
   
   def test_cannot_set_publish_from
     visitor(:tiger)
-    item = secure(Item) { Item.find(items_id(:lake)) }
+    item = secure(Item) { items(:lake)  }
     now = Time.now
     old = item.publish_from
     item.publish_from = now
@@ -789,22 +785,22 @@ class SecureUpdateTest < Test::Unit::TestCase
   
   def test_update_name_publish_group
     visitor(:lion) # owns 'strange'
-    item = secure(Item) { Item.find(items_id(:strange)) }
+    item = secure(Item) { items(:strange)  }
     assert item.propose
     visitor(:ant)
-    item = secure_drive(Item) { Item.find(items_id(:strange)) } # only in pgroup
+    item = secure_drive(Item) { items(:strange)  } # only in pgroup
     item.name = "kali"
     assert item.save
   end
   # 		3. removing the item and/or sub-items
   def test_destroy
     visitor(:ant)
-    item = secure(Item) { Item.find(items_id(:status)) }
+    item = secure(Item) { items(:status)  }
     assert !item.destroy, "Cannot destroy"
     assert_equal item.errors[:base], 'you do not have the rights to do this'
   
     visitor(:tiger)
-    item = secure(Item) { Item.find(items_id(:status)) }
+    item = secure(Item) { items(:status)  }
     assert item.destroy, "Can destroy"
   end
 end

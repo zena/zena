@@ -2,7 +2,7 @@ require File.dirname(__FILE__) + '/../test_helper'
 
 class ProjectTest < Test::Unit::TestCase
   include ZenaTestUnit
-  fixtures :items, :versions, :doc_files, :addresses, :groups, :groups_users
+
   
   def test_check_project_id_on_create
     visitor(:tiger)

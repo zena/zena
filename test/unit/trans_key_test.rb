@@ -1,7 +1,7 @@
 require File.dirname(__FILE__) + '/../test_helper'
 
 class TransKeyTest < Test::Unit::TestCase
-  fixtures :trans_keys, :trans_values
+
 
   def test_find_monday
     key = TransKey.translate('Monday')

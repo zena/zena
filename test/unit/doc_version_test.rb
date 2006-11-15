@@ -2,7 +2,7 @@ require File.dirname(__FILE__) + '/../test_helper'
 
 class DocVersionTest < Test::Unit::TestCase
   include ZenaTestUnit
-  fixtures :versions, :items
+
 
   def test_cannot_set_file_ref
     visitor(:ant)

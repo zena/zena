@@ -2,7 +2,7 @@ require File.dirname(__FILE__) + '/../test_helper'
 
 class DocFileTest < Test::Unit::TestCase
   include ZenaTestUnit
-  fixtures :doc_files
+
   def bird
     File.join(File.dirname(__FILE__), '../fixtures/files/bird.jpg')
   end

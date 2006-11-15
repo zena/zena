@@ -2,7 +2,7 @@ require File.dirname(__FILE__) + '/../test_helper'
 
 class NoteTest < Test::Unit::TestCase
   include ZenaTestUnit
-  fixtures :items, :links
+
   
   def test_create_with_name
     visitor(:tiger)

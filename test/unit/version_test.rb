@@ -2,24 +2,33 @@ require File.dirname(__FILE__) + '/../test_helper'
 class VersionTest < Test::Unit::TestCase
   include ZenaTestUnit
   
+  def version(sym)
+    secure(Item) { items(sym) }.send(:version)
+  end
+  
+  def test_author
+    visitor(:tiger)
+    v = version(:status)
+    assert_equal v[:user_id], v.author[:id]
+  end
+  
   def test_cannot_set_item_id
     puts User.find(:all).size
     visitor(:ant)
-    item = secure(Item) { Item.find(items_id(:ant))}
-    version = item.send(:version)
+    version =version(:ant)
     assert_raise(Zena::AccessViolation) { version.item_id = items_id(:lake) }
   end
   
   def test_cannot_set_item_id_by_attribute
     visitor(:ant)
-    item = secure(Item) { Item.find(items_id(:ant))}
+    item = secure(Item) { items(:ant) }
     version = item.send(:version)
     assert_raise(Zena::AccessViolation) { version[:item_id] = items_id(:lake) }
   end
   
   def test_version_number_edit_by_attribute
     visitor(:ant)
-    item = secure(Item) { Item.find(items_id(:ant))}
+    item = secure(Item) { items(:ant) }
     version = item.send(:version)
     assert_equal 1, version.number
     # edit
@@ -35,7 +44,7 @@ class VersionTest < Test::Unit::TestCase
     
   def test_version_number_edit
     visitor(:ant)
-    item = secure(Item) { Item.find(items_id(:ant))}
+    item = secure(Item) { items(:ant) }
     version = item.send(:version)
     assert_equal 1, version.number
     # can edit

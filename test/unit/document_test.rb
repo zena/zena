@@ -2,7 +2,7 @@ require File.dirname(__FILE__) + '/../test_helper'
 require 'fileutils'
 class DocumentTest < Test::Unit::TestCase
   include ZenaTestUnit
-  fixtures :items, :versions
+
 
   def test_create_with_file
     visitor(:ant)

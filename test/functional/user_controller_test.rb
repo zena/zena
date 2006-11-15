@@ -5,7 +5,7 @@ require 'user_controller'
 class UserController; def rescue_action(e) raise e end; end
 
 class UserControllerTest < Test::Unit::TestCase
-  fixtures :versions, :comments, :items, :addresses, :groups, :groups_users, :trans_keys, :trans_values
+
   include ZenaTestController
   def setup
     @controller = UserController.new

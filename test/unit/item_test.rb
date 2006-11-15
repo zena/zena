@@ -2,7 +2,7 @@ require File.dirname(__FILE__) + '/../test_helper'
 
 class ItemTest < Test::Unit::TestCase
   include ZenaTestUnit
-  fixtures :items, :versions, :doc_files, :addresses, :groups, :groups_users
+
   NEW_DEFAULT = {
     :name => 'hello',
     :rgroup_id => 1,
@@ -25,7 +25,7 @@ class ItemTest < Test::Unit::TestCase
   
   def test_get_fullpath
     visitor(:ant)
-    item = secure(Item) { Item.find(items_id(:lake)) }
+    item = secure(Item) { items(:lake)  }
     parent = item.parent
     assert_nil parent[:fullpath]
     assert_nil item[:fullpath]
@@ -40,7 +40,7 @@ class ItemTest < Test::Unit::TestCase
     Item.connection.execute "UPDATE items SET parent_id = 3 WHERE id = 12" # put 'status' page inside private 'ant' page
     item = nil
     visitor(:tiger)
-    assert_nothing_raised { item = secure(Item) { Item.find(items_id(:status))} }
+    assert_nothing_raised { item = secure(Item) { items(:status) } }
     assert_kind_of Item, item
     assert_raises (ActiveRecord::RecordNotFound) { item = Item.find_by_path(user_id,user_groups,'fr',['people', 'ant'])}
     assert_nothing_raised { item = Item.find_by_path(user_id,user_groups,'fr',['people', 'ant', 'status'])}
@@ -103,47 +103,47 @@ class ItemTest < Test::Unit::TestCase
   
   def test_update_no_or_bad_parent
     visitor(:ant)
-    item = secure(Item) { Item.find(items_id(:wiki))}
+    item = secure(Item) { items(:wiki) }
     assert_kind_of Item, item
     assert item.save , "Save succeeds"
     item.parent_id = nil
     assert ! item.save , "Save fails"
     assert item.errors[:parent_id] , "Errors on parent_id"
-    item = secure(Item) { Item.find(items_id(:wiki))}
+    item = secure(Item) { items(:wiki) }
     item.parent_id = items_id(:wiki)
     assert ! item.save , "Save fails"
     assert item.errors[:parent_id] , "Errors on parent_id"
-    item = secure(Item) { Item.find(items_id(:wiki))}
+    item = secure(Item) { items(:wiki) }
     item.parent_id = items_id(:cleanWater)
     assert ! item.save , "Save fails"
   end
   
   def test_update_bad_parent
     visitor(:tiger)
-    item = secure(Item) { Item.find(items_id(:status)) }
+    item = secure(Item) { items(:status)  }
     item[:parent_id] = items_id(:proposition)
     assert ! item.save , "Save fails"
     assert item.errors[:parent_id] , "Errors on parent_id"
     assert_equal "invalid parent", item.errors[:parent_id] # parent cannot be 'Note' if self not Document
     
-    item = secure(Item) { Item.find(items_id(:status)) }
+    item = secure(Item) { items(:status)  }
     item[:parent_id] = items_id(:myDreams) # cannot write here
     assert ! item.save , "Save fails"
     assert item.errors[:parent_id] , "Errors on parent_id"
     assert_equal "invalid reference", item.errors[:parent_id]
     
-    item = secure(Item) { Item.find(items_id(:status)) }
+    item = secure(Item) { items(:status)  }
     item[:parent_id] = items_id(:projects) # parent ok
     assert item.save , "Save succeeds"
   end
   
   def test_page_update_without_name
     visitor(:tiger)
-    item = secure(Item) { Item.find(items_id(:status)) }
+    item = secure(Item) { items(:status)  }
     item[:name] = nil
     assert item.save, 'Save succeeds'
     assert_equal 'statusTitle', item[:name]
-    item = secure(Item) { Item.find(items_id(:status)) }
+    item = secure(Item) { items(:status)  }
     item[:name] = nil
     item.title = ""
     assert !item.save, 'Save fails'
@@ -177,7 +177,7 @@ class ItemTest < Test::Unit::TestCase
 
   def test_update_same_name
     visitor(:tiger)
-    item = secure(Item) { Item.find(items_id(:cleanWater))}
+    item = secure(Item) { items(:cleanWater) }
     item.name = 'wiki'
     assert ! item.save, 'Cannot save'
     assert_equal item.errors[:name], 'has already been taken'
@@ -185,7 +185,7 @@ class ItemTest < Test::Unit::TestCase
 
   def test_update_same_name_other_parent
     visitor(:tiger)
-    item = secure(Item) { Item.find(items_id(:cleanWater))}
+    item = secure(Item) { items(:cleanWater) }
     item.name = 'wiki'
     item[:parent_id] = 1
     item.save
@@ -196,16 +196,16 @@ class ItemTest < Test::Unit::TestCase
   
   def test_before_destroy
     visitor(:tiger)
-    item = secure(Item) { Item.find(items_id(:projects)) }
+    item = secure(Item) { items(:projects)  }
     assert !item.destroy, "Cannot destroy"
     assert_equal item.errors[:base], 'contains subpages'
-    item = secure(Item) { Item.find(items_id(:status)) }
+    item = secure(Item) { items(:status)  }
     assert item.destroy, "Can destroy"
   end
   
   def test_cannot_destroy_has_private
     visitor(:tiger)
-    item = secure(Item) { Item.find(items_id(:lion)) }
+    item = secure(Item) { items(:lion)  }
     assert_equal 0, item.pages.size # cannot see subpages
     assert !item.destroy, "Cannot destroy"
     assert_equal item.errors[:base], 'contains subpages'
@@ -214,28 +214,28 @@ class ItemTest < Test::Unit::TestCase
   def test_list_children
     visitor(:ant)
     
-    page = secure(Item) { Item.find(items_id(:projects)) }
+    page = secure(Item) { items(:projects)  }
     children = page.children
     assert_equal 2, children.size
     
     visitor(:tiger)
-    page = secure(Item) { Item.find(items_id(:projects)) }
+    page = secure(Item) { items(:projects)  }
     children = page.children
     assert_equal 3, children.size
     assert_equal 3, page.children.size
   end
   
   def test_parent
-    assert_equal items(:projects).title, secure(Item) { Item.find(items_id(:wiki))}.parent.title
+    assert_equal items(:projects).title, secure(Item) { items(:wiki) }.parent.title
   end
   
   def test_project
-    assert_equal items(:zena).id, secure(Item) { Item.find(items_id(:wiki))}.project.id
+    assert_equal items(:zena).id, secure(Item) { items(:wiki) }.project.id
   end
   
   def test_pages
     visitor(:ant)
-    page = secure(Item) { Item.find(items_id(:cleanWater))}
+    page = secure(Item) { items(:cleanWater) }
     pages = page.pages
     assert_equal 3, pages.size
     assert_equal items(:lake)[:id], pages[0][:id]
@@ -243,7 +243,7 @@ class ItemTest < Test::Unit::TestCase
   
   def test_documents
     visitor(:ant)
-    page = secure(Item) { Item.find(items_id(:cleanWater))}
+    page = secure(Item) { items(:cleanWater) }
     documents = page.documents
     assert_equal 1, documents.size
     assert_equal items(:water_pdf)[:id], documents[0][:id]
@@ -251,10 +251,10 @@ class ItemTest < Test::Unit::TestCase
   
   def test_documents_images_only
     visitor(:tiger)
-    bird = secure(Item) { Item.find(items_id(:bird_jpg))}
+    bird = secure(Item) { items(:bird_jpg) }
     bird[:parent_id] = items_id(:cleanWater)
     assert bird.save
-    page = secure(Item) { Item.find(items_id(:cleanWater))}
+    page = secure(Item) { items(:cleanWater) }
     doconly   = page.documents_only
     images    = page.images
     assert_equal 1, doconly.size
@@ -265,7 +265,7 @@ class ItemTest < Test::Unit::TestCase
   
   def test_notes
     visitor(:tiger)
-    item = secure(Item) { Item.find(items_id(:cleanWater))}
+    item = secure(Item) { items(:cleanWater) }
     notes = item.notes
     assert_equal 1, notes.size
     assert_equal 'opening', notes[0][:name]
@@ -273,7 +273,7 @@ class ItemTest < Test::Unit::TestCase
   
   def test_trackers
     visitor(:tiger)
-    item = secure(Item) { Item.find(items_id(:cleanWater))}
+    item = secure(Item) { items(:cleanWater) }
     trackers = item.trackers
     assert_equal 1, trackers.size
     assert_equal 'track', trackers[0][:name]
@@ -281,7 +281,7 @@ class ItemTest < Test::Unit::TestCase
   
   def test_new_child
     visitor(:ant)
-    item = secure(Item) { Item.find(items_id(:cleanWater)) }
+    item = secure(Item) { items(:cleanWater)  }
     child = item.new_child( :name => 'lake' )
     assert ! child.save , "Save fails"
     assert child.errors[:name] , "Errors on name"
@@ -333,7 +333,7 @@ class ItemTest < Test::Unit::TestCase
  
   def test_change_to_page_to_project
     visitor(:tiger)
-    item = secure(Item) { Item.find(items_id(:people)) }
+    item = secure(Item) { items(:people)  }
     id, parent_id, project_id = item[:id], item[:parent_id], item[:project_id]
     vers_count = Version.find(:all).size
     vers_id = item.v_id
@@ -353,7 +353,7 @@ class ItemTest < Test::Unit::TestCase
   
   def test_change_project_to_page
     visitor(:tiger)
-    item = secure(Item) { Item.find(items_id(:cleanWater)) }
+    item = secure(Item) { items(:cleanWater)  }
     id, parent_id = item[:id], item[:parent_id]
     vers_count = Version.find(:all).size
     vers_id = item.v_id
@@ -382,10 +382,10 @@ class ItemTest < Test::Unit::TestCase
   
   def test_sync_project
     visitor(:tiger)
-    item = secure(Item) { Item.find(items_id(:projects))}
+    item = secure(Item) { items(:projects) }
     item.send(:sync_project, 99)
     assert_equal items_id(:cleanWater), items(:cleanWater)[:project_id]
-    item = secure(Item) { Item.find(items_id(:people))}
+    item = secure(Item) { items(:people) }
     item.send(:sync_project, 99)
     assert_equal 99, items(:ant)[:project_id]
     assert_equal 99, items(:myLife)[:project_id]
@@ -395,22 +395,22 @@ class ItemTest < Test::Unit::TestCase
     Version.connection.execute "UPDATE versions SET user_id=4 WHERE item_id IN (19,20,21)"
     Item.connection.execute "UPDATE items SET user_id=4 WHERE id IN (19,20,21)"
     visitor(:tiger)
-    wiki = secure(Item) { Item.find(items_id(:wiki))}
-    bird = secure(Item) { Item.find(items_id(:bird_jpg))}
-    flower = secure(Item) { Item.find(items_id(:flower_jpg))}
+    wiki = secure(Item) { items(:wiki) }
+    bird = secure(Item) { items(:bird_jpg) }
+    flower = secure(Item) { items(:flower_jpg) }
     assert_equal Zena::Status[:pub], wiki.v_status
     assert_equal Zena::Status[:pub], bird.v_status
     assert_equal Zena::Status[:pub], flower.v_status
     assert wiki.remove, 'Can remove publication'
     assert_equal 10, wiki.v_status
     assert_equal 10, wiki.max_status
-    bird = secure(Item) { Item.find(items_id(:bird_jpg))}
-    flower = secure(Item) { Item.find(items_id(:flower_jpg))}
+    bird = secure(Item) { items(:bird_jpg) }
+    flower = secure(Item) { items(:flower_jpg) }
     assert_equal 10, bird.v_status
     assert_equal 10, flower.v_status
     assert wiki.publish, 'Can publish'
-    bird = secure(Item) { Item.find(items_id(:bird_jpg))}
-    flower = secure(Item) { Item.find(items_id(:flower_jpg))}
+    bird = secure(Item) { items(:bird_jpg) }
+    flower = secure(Item) { items(:flower_jpg) }
     assert_equal Zena::Status[:pub], bird.v_status
     assert_equal Zena::Status[:pub], bird.max_status
     assert_equal Zena::Status[:pub], flower.v_status
@@ -420,21 +420,21 @@ class ItemTest < Test::Unit::TestCase
     Version.connection.execute "UPDATE versions SET status = #{Zena::Status[:red]}, user_id=4 WHERE item_id IN (19,20,21)"
     Item.connection.execute "UPDATE items SET max_status = #{Zena::Status[:red]}, user_id=4 WHERE id IN (19,20,21)"
     visitor(:tiger)
-    wiki = secure(Item) { Item.find(items_id(:wiki))}
-    bird = secure(Item) { Item.find(items_id(:bird_jpg))}
-    flower = secure(Item) { Item.find(items_id(:flower_jpg))}
+    wiki = secure(Item) { items(:wiki) }
+    bird = secure(Item) { items(:bird_jpg) }
+    flower = secure(Item) { items(:flower_jpg) }
     assert_equal Zena::Status[:red], wiki.v_status
     assert_equal Zena::Status[:red], bird.v_status
     assert_equal Zena::Status[:red], flower.v_status
     assert wiki.propose, 'Can propose for publication'
     assert_equal Zena::Status[:prop], wiki.v_status
-    bird = secure(Item) { Item.find(items_id(:bird_jpg))}
-    flower = secure(Item) { Item.find(items_id(:flower_jpg))}
+    bird = secure(Item) { items(:bird_jpg) }
+    flower = secure(Item) { items(:flower_jpg) }
     assert_equal Zena::Status[:prop_with], bird.v_status
     assert_equal Zena::Status[:prop_with], flower.v_status
     assert wiki.publish, 'Can publish'
-    bird = secure(Item) { Item.find(items_id(:bird_jpg))}
-    flower = secure(Item) { Item.find(items_id(:flower_jpg))}
+    bird = secure(Item) { items(:bird_jpg) }
+    flower = secure(Item) { items(:flower_jpg) }
     assert_equal Zena::Status[:pub], bird.v_status
     assert_equal Zena::Status[:pub], bird.max_status
     assert_equal Zena::Status[:pub], flower.v_status
@@ -444,16 +444,16 @@ class ItemTest < Test::Unit::TestCase
     Version.connection.execute "UPDATE versions SET status = #{Zena::Status[:red]}, user_id=4 WHERE item_id IN (19,20,21)"
     Item.connection.execute "UPDATE items SET max_status = #{Zena::Status[:red]}, user_id=4 WHERE id IN (19,20,21)"
     visitor(:tiger)
-    wiki = secure(Item) { Item.find(items_id(:wiki))}
+    wiki = secure(Item) { items(:wiki) }
     assert wiki.propose, 'Can propose for publication'
     assert_equal Zena::Status[:prop], wiki.v_status
-    bird = secure(Item) { Item.find(items_id(:bird_jpg))}
-    flower = secure(Item) { Item.find(items_id(:flower_jpg))}
+    bird = secure(Item) { items(:bird_jpg) }
+    flower = secure(Item) { items(:flower_jpg) }
     assert_equal Zena::Status[:prop_with], bird.v_status
     assert_equal Zena::Status[:prop_with], flower.v_status
     assert wiki.refuse, 'Can refuse'
-    bird = secure(Item) { Item.find(items_id(:bird_jpg))}
-    flower = secure(Item) { Item.find(items_id(:flower_jpg))}
+    bird = secure(Item) { items(:bird_jpg) }
+    flower = secure(Item) { items(:flower_jpg) }
     assert_equal Zena::Status[:red], bird.v_status
     assert_equal Zena::Status[:red], bird.v_status
     assert_equal Zena::Status[:red], bird.max_status
@@ -464,11 +464,11 @@ class ItemTest < Test::Unit::TestCase
     Version.connection.execute "UPDATE versions SET status = #{Zena::Status[:red]}, user_id=4 WHERE item_id IN (19,20,21)"
     Item.connection.execute "UPDATE items SET max_status = #{Zena::Status[:red]}, user_id=4 WHERE id IN (19,20,21)"
     visitor(:tiger)
-    wiki = secure(Item) { Item.find(items_id(:wiki))}
+    wiki = secure(Item) { items(:wiki) }
     assert wiki.publish, 'Can publish'
     assert_equal Zena::Status[:pub], wiki.v_status
-    bird = secure(Item) { Item.find(items_id(:bird_jpg))}
-    flower = secure(Item) { Item.find(items_id(:flower_jpg))}
+    bird = secure(Item) { items(:bird_jpg) }
+    flower = secure(Item) { items(:flower_jpg) }
     assert_equal Zena::Status[:pub], bird.v_status
     assert_equal Zena::Status[:pub], bird.max_status
     assert_equal Zena::Status[:pub], flower.v_status
@@ -495,7 +495,7 @@ class ItemTest < Test::Unit::TestCase
   
   def test_tags
     visitor(:lion)
-    @item = secure(Item) { Item.find(items_id(:status)) }
+    @item = secure(Item) { items(:status)  }
     assert_nothing_raised { @item.tags }
     assert_equal [], @item.tags
     @item.tag_ids = [items_id(:art),items_id(:news)]

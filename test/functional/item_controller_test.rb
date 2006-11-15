@@ -5,7 +5,7 @@ require 'item_controller'
 class ItemController; def rescue_action(e) raise e end; end
 
 class ItemControllerTest < Test::Unit::TestCase
-  fixtures :versions, :comments, :items, :addresses, :groups, :groups_users, :trans_keys, :trans_values
+
   include ZenaTestController
   def setup
     @controller = ItemController.new

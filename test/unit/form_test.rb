@@ -2,7 +2,7 @@ require File.dirname(__FILE__) + '/../test_helper'
 
 class FormTest < Test::Unit::TestCase
   include ZenaTestUnit
-  fixtures :items, :form_seizures, :form_lines, :versions
+
 
   # Replace this with your real tests.
   #def test_parse_data

@@ -1,7 +1,7 @@
 require File.dirname(__FILE__) + '/../test_helper'
 
 class MultiVersionTest < Test::Unit::TestCase
-  fixtures :items, :versions, :addresses, :groups, :groups_users
+
   include ZenaTestUnit
   def item_defaults
     {
@@ -22,7 +22,7 @@ class MultiVersionTest < Test::Unit::TestCase
   
   def test_accessors
     visitor(:tiger)
-    item = secure(Item) { Item.find(items_id(:status))}
+    item = secure(Item) { items(:status) }
     assert_equal "status title", item.title
     assert_equal "status comment", item.comment
     assert_equal "status summary", item.summary
@@ -65,30 +65,30 @@ class MultiVersionTest < Test::Unit::TestCase
   
   def test_version_lang
     visitor(:ant) # lang = fr
-    item = secure(Item) { Item.find(items_id(:opening)) }
+    item = secure(Item) { items(:opening)  }
     assert_equal "fr", item.v_lang
     assert_equal "ouverture du parc", item.title
     @lang = "en"
-    item = secure(Item) { Item.find(items_id(:opening)) }
+    item = secure(Item) { items(:opening)  }
     assert_equal "en", item.v_lang
     assert_equal "parc opening", item.title
     @lang = 'ru'
-    item = secure(Item) { Item.find(items_id(:opening)) }
+    item = secure(Item) { items(:opening)  }
     assert_equal "fr", item.v_lang
     assert_equal "ouverture du parc", item.title
     visitor(:lion) # lang = en
-    item = secure(Item) { Item.find(items_id(:opening)) }
+    item = secure(Item) { items(:opening)  }
     assert_equal "en", item.v_lang
     assert_equal "parc opening", item.title
     @lang = 'ru'
-    item = secure(Item) { Item.find(items_id(:opening)) }
+    item = secure(Item) { items(:opening)  }
     assert_equal "fr", item.v_lang
     assert_equal "ouverture du parc", item.title
   end
   
   def test_version_text_and_summary
     visitor(:ant)
-    item = secure(Item) { Item.find(items_id(:ant)) }
+    item = secure(Item) { items(:ant)  }
     class << item
       def text
         "Item:#{super}"
@@ -105,14 +105,14 @@ class MultiVersionTest < Test::Unit::TestCase
   
   def test_editions
     visitor(:ant)
-    item = secure(Item) { Item.find(items_id(:opening)) }
+    item = secure(Item) { items(:opening)  }
     editions = item.editions
     assert_equal 2, editions.count
   end
   
   def test_redaction
     visitor(:tiger)
-    item = secure(Item) { Item.find(items_id(:opening)) }
+    item = secure(Item) { items(:opening)  }
     assert_equal "fr", item.lang
     assert_equal "new redaction for opening", item.comment
   end
@@ -120,28 +120,28 @@ class MultiVersionTest < Test::Unit::TestCase
   def test_proposition
     visitor(:tiger)
     @lang = 'en'
-    item = secure(Item) { Item.find(items_id(:lake)) }
+    item = secure(Item) { items(:lake)  }
     assert_equal Zena::Status[:pub], item.v_status , "Any visitor sees the publication"
     assert_equal versions_id(:lake_en) , item.v_id
     visitor(:ant)
     @lang = 'en'
-    item = secure(Item) { Item.find(items_id(:lake)) }
+    item = secure(Item) { items(:lake)  }
     assert_equal Zena::Status[:red], item.v_status , "Owner of a redaction sees the redaction"
     assert_equal versions_id(:lake_red_en) , item.v_id
     assert item.propose , "Item proposed for publication"
     
-    item = secure(Item) { Item.find(items_id(:lake)) }
+    item = secure(Item) { items(:lake)  }
     assert_equal Zena::Status[:prop], item.v_status , "Owner sees the proposition"
     assert_equal versions_id(:lake_red_en) , item.v_id
     
     visitor(nil) # public
-    item = secure(Item) { Item.find(items_id(:lake)) }
+    item = secure(Item) { items(:lake)  }
     assert_equal Zena::Status[:pub], item.v_status , "Visitor sees the publication"
     assert_equal versions_id(:lake_en) , item.v_id
     
     visitor(:tiger)
     @lang = 'en'
-    item = secure(Item) { Item.find(items_id(:lake)) }
+    item = secure(Item) { items(:lake)  }
     assert_equal Zena::Status[:prop], item.v_status , "Publisher sees the proposition"
     assert_equal versions_id(:lake_red_en) , item.v_id
   end
@@ -149,21 +149,21 @@ class MultiVersionTest < Test::Unit::TestCase
   def test_can_edit
     visitor(:ant)
     @lang = 'en'
-    item = secure(Item) { Item.find(items_id(:lake)) }
-    item2 = secure(Item) { Item.find(items_id(:status)) }
+    item = secure(Item) { items(:lake)  }
+    item2 = secure(Item) { items(:status)  }
     assert item.can_edit?
     assert item2.can_edit?
     visitor(:tiger)
     @lang = 'en'
-    item = secure(Item) { Item.find(items_id(:lake)) }
-    item2 = secure(Item) { Item.find(items_id(:status)) }
+    item = secure(Item) { items(:lake)  }
+    item2 = secure(Item) { items(:status)  }
     assert ! item.can_edit?
     assert item2.can_edit?
   end
   
   def test_redaction
     visitor(:ant)
-    item = secure_write(Item) { Item.find(items_id(:wiki)) }
+    item = secure_write(Item) { items(:wiki)  }
     item.edit
     assert_equal Zena::Status[:red], item.v_status
     assert item.new_redaction?
@@ -171,14 +171,14 @@ class MultiVersionTest < Test::Unit::TestCase
   
   def test_update_new_red
     visitor(:ant)
-    item = secure_write(Item) { Item.find(items_id(:wiki)) }
+    item = secure_write(Item) { items(:wiki)  }
     assert item.edit , "Edit succeeds"
     attrs = { :comment=>"hey I'm new !", :title=>"super new" }
     assert item.edit( attrs ) , "Edit succeeds"
     assert ! item.new_redaction? , "Not a new redaction"
     assert_equal "super new", item.title
     # find it
-    item = secure_write(Item) { Item.find(items_id(:wiki)) }
+    item = secure_write(Item) { items(:wiki)  }
     assert item.edit , "Edit succeeds"
     assert_equal "hey I'm new !", item.comment
     assert_equal "super new", item.title
@@ -191,13 +191,13 @@ class MultiVersionTest < Test::Unit::TestCase
     # no two redactions for the same language
     visitor(:tiger)
     @lang = "fr"
-    item = secure_write(Item) { Item.find(items_id(:wiki)) }
+    item = secure_write(Item) { items(:wiki)  }
     assert ! item.edit , "Edit fails"
     assert ! item.edit( :title=>"Mon amour") , "Edit fails"
     
     # can add redactions for different languages
     @lang = "de"
-    item = secure_write(Item) { Item.find(items_id(:wiki)) }
+    item = secure_write(Item) { items(:wiki)  }
     assert item.edit( :title=> "Spieluhr") , "Edit succeeds"
     redactions = Version.find(:all, :conditions=>['item_id = ? AND status = ?', items_id(:wiki), Zena::Status[:red]])
     assert_equal 2, redactions.size
@@ -206,14 +206,14 @@ class MultiVersionTest < Test::Unit::TestCase
   def test_update_redaction
     visitor(:ant)
     @lang = 'en'
-    item = secure_write(Item) { Item.find(items_id(:lake)) }
+    item = secure_write(Item) { items(:lake)  }
     assert item.edit , "Edit succeeds"
     assert_equal "The lake we love", item.title
     assert_equal Zena::Status[:red], item.v_status
     attrs = { :comment=>"hey I'm new !", :title=>"super new" }
     assert item.edit( attrs ) , "Edit succeeds"
     
-    item = secure_write(Item) { Item.find(items_id(:lake)) }
+    item = secure_write(Item) { items(:lake)  }
     assert item.edit , "Edit succeeds"
     assert_equal "hey I'm new !", item.comment
     assert_equal "super new", item.title
@@ -222,7 +222,7 @@ class MultiVersionTest < Test::Unit::TestCase
   
   def test_update_redaction_bad_user
     visitor(:tiger)
-    item = secure_write(Item) { Item.find(items_id(:lake)) }
+    item = secure_write(Item) { items(:lake)  }
     assert ! item.edit , "Edit fails"
     assert_equal Zena::Status[:pub], item.v_status
     attrs = { :comment=>"hey I'm new !", :title=>"super new" }
@@ -233,7 +233,7 @@ class MultiVersionTest < Test::Unit::TestCase
     # changes item and creates a new redaction
     visitor(:lion)
     @lang = 'en'
-    item = secure(Item) { Item.find(items_id(:lake)) }
+    item = secure(Item) { items(:lake)  }
     attrs = { :rgroup_id => 4, :title => "Manager's lake" }
     assert ! item.update_attributes( attrs ), "Update attributes fails"
     assert item.errors[:title] , "Errors on title"
@@ -243,7 +243,7 @@ class MultiVersionTest < Test::Unit::TestCase
     # changes item and creates a new redaction
     visitor(:lion)
     @lang = 'ru'
-    item = secure(Item) { Item.find(items_id(:lake)) }
+    item = secure(Item) { items(:lake)  }
     attrs = { :rgroup_id => 4, :title => "Manager's lake"}
     assert item.update_attributes( attrs ), "Update attributes succeeds"
     assert_equal 4, item.rgroup_id
@@ -292,7 +292,7 @@ class MultiVersionTest < Test::Unit::TestCase
   def test_save_redaction
     visitor(:ant)
     @lang = 'en'
-    item = secure(Item) { Item.find(items_id(:lake)) }
+    item = secure(Item) { items(:lake)  }
     item.edit
     version_id = item.v_id
     assert_equal "The lake we love", item.title
@@ -304,7 +304,7 @@ class MultiVersionTest < Test::Unit::TestCase
     assert_equal "Funny lake", item.title
     assert_equal version_id, item.v_id
     # find redaction again
-    item = secure(Item) { Item.find(items_id(:lake)) }
+    item = secure(Item) { items(:lake)  }
     item.edit
     assert_equal "Funny lake", item.title
     assert_equal version_id, item.v_id
@@ -328,10 +328,10 @@ class MultiVersionTest < Test::Unit::TestCase
     assert item.propose, "Propose for publication succeeds"
     visitor(:tiger)
     @lang = 'en'
-    item = secure(Item) { Item.find(items_id(:lake)) }
+    item = secure(Item) { items(:lake)  }
     assert_equal versions_id(:lake_red_en), item.v_id, "Publisher sees the proposition"
     assert item.publish
-    item = secure(Item) { Item.find(items_id(:lake)) }
+    item = secure(Item) { items(:lake)  }
     assert_equal "The lake we love", item.title
     assert_equal versions_id(:lake_red_en), item.v_id
     assert_equal 1, item.editions.size
@@ -342,18 +342,18 @@ class MultiVersionTest < Test::Unit::TestCase
     item = secure(Item) { Item.version(versions_id(:lake_red_en)) }
     assert ! item.publish, "Publication fails"
     visitor(:tiger)
-    pub_item = secure(Item) { Item.find(items_id(:lake)) }
+    pub_item = secure(Item) { items(:lake)  }
     assert_not_equal pub_item.v_id, versions_id(:lake_red_en)
   end
   
   def test_publish_new_lang
     visitor(:tiger)
     @lang = 'fr'
-    item = secure(Item) { Item.find(items_id(:lake)) }
+    item = secure(Item) { items(:lake)  }
     assert_equal 1, item.editions.size, "English edition exists"
     assert item.edit( :title => "Joli petit lac" )
     assert item.publish
-    item = secure(Item) { Item.find(items_id(:lake)) } # reload
+    item = secure(Item) { items(:lake)  } # reload
     assert_equal 2, item.editions.size, "English and french editions"
     assert_equal ["en", "fr"], item.traductions.sort
   end
@@ -361,7 +361,7 @@ class MultiVersionTest < Test::Unit::TestCase
   def test_remove
     visitor(:tiger)
     @lang = 'en'
-    item = secure(Item) { Item.find(items_id(:tiger)) }
+    item = secure(Item) { items(:tiger)  }
     assert_kind_of Item, item
     assert item.remove # remove version
     assert_equal Zena::Status[:rem], item.v_status

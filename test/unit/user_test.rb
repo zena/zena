@@ -2,7 +2,7 @@ require File.dirname(__FILE__) + '/../test_helper'
 
 class UserTest < Test::Unit::TestCase
   include ZenaTestUnit
-  fixtures :versions, :items
+
   
   def test_cannot_destroy_su
     su = User.find(addresses_id(:su))

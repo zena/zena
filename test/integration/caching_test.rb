@@ -1,7 +1,7 @@
 require "#{File.dirname(__FILE__)}/../test_helper"
 
 class CachingTest < ActionController::IntegrationTest
-  fixtures :versions, :comments, :items, :addresses, :groups, :groups_users, :trans_keys, :trans_values
+
   self.use_transactional_fixtures = true
   self.use_instantiated_fixtures  = false
 

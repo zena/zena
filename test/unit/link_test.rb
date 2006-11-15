@@ -21,7 +21,7 @@ end
 
 class LinkTest < Test::Unit::TestCase
   include ZenaTestUnit
-  fixtures :items, :versions, :addresses, :groups, :groups_users
+
   
   def setup
     super

@@ -1,7 +1,7 @@
 require "#{File.dirname(__FILE__)}/../test_helper"
 
 class MultiversionTest < ActionController::IntegrationTest
-  fixtures :items, :versions, :doc_files, :addresses, :groups, :groups_users
+
   
   def test_view_private_page
     ant, tiger, su = login(:ant), login(:tiger), login(:su)
