@@ -19,6 +19,13 @@ class DocFileTest < Test::Unit::TestCase
     assert_nil doc.read
   end
   
+  def test_size
+    doc = DocFile.new( :file=>uploaded_pdf('water.pdf') )
+    assert_equal 29279, doc.size
+    doc = DocFile.new
+    assert_raise(StandardError) { doc.size }
+  end
+  
   def test_docfile_valid_no_version
     doc = DocFile.new( :file=>uploaded_pdf('water.pdf') )
     assert !doc.save
@@ -49,6 +56,8 @@ class DocFileTest < Test::Unit::TestCase
     assert doc.save, "Can save"
     assert File.exist?("#{RAILS_ROOT}/data/#{RAILS_ENV}/pdf/15/water.pdf")
     assert_equal 29279, doc.size
+    doc = DocFile.find(doc.id)
+    assert doc.save, "Can save again"
     FileUtils::rm("#{RAILS_ROOT}/data/#{RAILS_ENV}/pdf/15/water.pdf.bak")
   end
 end

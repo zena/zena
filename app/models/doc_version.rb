@@ -2,8 +2,11 @@
 # is created, both the new and the old #DocVersion refer to the same file (#DocFile)
 class DocVersion < Version
   has_one :doc_file
-  after_save :save_file
-  validate_on_create :has_file
+
+  before_save :before_doc_version
+
+  after_create :after_create_doc_version
+  after_update :after_update_doc_version
   
   # format is ignored here
   def img_tag(format=nil)
@@ -19,13 +22,17 @@ class DocVersion < Version
   end
   
   def file
-    @docfile ||= DocFile.find(:first, :conditions=>['version_id = ?',file_ref])
+    unless @docfile
+      raise ActiveRecord::RecordNotFound, 'no DocFile found' unless 
+        @docfile = DocFile.find(:first, :conditions=>['version_id = ?',file_ref])
+    end
+    @docfile
   end
   
   def filesize; file.size; end
     
   def file_ref=(i)
-    raise Zena::AccessViolation, "Version#{self.id}: tried to change 'file_ref'."
+    raise Zena::AccessViolation, "'file_ref' cannot be changed 'file_ref'."
   end
   
   def file=(f)
@@ -45,18 +52,23 @@ class DocVersion < Version
     self[:file_ref] ||= self[:id]
   end
   
-  def has_file
-    errors.add('base', 'file not set') unless @file
+  def before_doc_version
+    errors.add('base', 'file not set') unless @file || doc_file
   end
   
-  def save_file
-    unless file_ref
+  def after_create_doc_version
+    unless doc_file
       self[:file_ref] = self[:id]
       DocVersion.connection.execute "UPDATE versions SET file_ref=id WHERE id=#{id}"
+      info_class.create(:version_id=>self[:id], :file=>@file)
     end
+  end
+  
+  def after_update_doc_version
     if @file
-      info_class.create(:version_id=>file_ref, :file=>@file)
-      # TODO check for errors on info_class create
+      self[:file_ref] = self[:id]
+      DocVersion.connection.execute "UPDATE versions SET file_ref=id WHERE id=#{id}"
+      info_class.create(:version_id=>self[:id], :file=>@file)
     end
   end
   

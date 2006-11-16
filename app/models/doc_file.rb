@@ -2,12 +2,21 @@ require 'fileutils'
 class DocFile < ActiveRecord::Base
   belongs_to :version
   validate :docfile_valid
-  before_save :save_file
+  before_create :save_file
   
   def file=(aFile)
+    puts "SET F"
     @file = aFile
     self[:content_type] = @file.content_type.chomp
     self[:size] = @file.stat.size
+  end
+  
+  def size=(s)
+    raise IOError
+  end
+  
+  def size
+    self[:size] ||= File.stat(filepath).size
   end
   
   def read
@@ -23,7 +32,7 @@ class DocFile < ActiveRecord::Base
   private
   def docfile_valid
     errors.add('version_id', 'version must exist') unless self.version
-    errors.add('base', 'file not set') unless @file
+    errors.add('base', 'file not set') unless @file || !new_record?
   end
   
   def save_file
