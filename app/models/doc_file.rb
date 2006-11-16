@@ -1,6 +1,7 @@
 require 'fileutils'
 class DocFile < ActiveRecord::Base
   belongs_to :version
+  validate :docfile_valid
   before_save :save_file
   
   def file=(aFile)
@@ -10,37 +11,37 @@ class DocFile < ActiveRecord::Base
   end
   
   def read
-    File.read(filepath)
-  end
-
-  def name
-    path.split('/').last
+    if self[:version_id] && !new_record?
+      File.read(filepath)
+    elsif @file
+      @file.read
+    else
+      nil
+    end
   end
   
   private
+  def docfile_valid
+    errors.add('version_id', 'version must exist') unless self.version
+    errors.add('base', 'file not set') unless @file
+  end
+  
   def save_file
-    # make path
-    make_path
-    
-    # save file
-    raise StandardError, "File not set" unless @file
-    p = filepath.split('/')
-    p.pop
-    p = p.join('/')
+    p = File.join(*filepath.split('/')[0..-2])
     unless File.exist?(p)
-      FileUtils::mkpath(p)
+      FileUtils::mkfilepath(p)
     end
     File.open(filepath, "wb") { |f| f.syswrite(@file.read) }
     self[:size] = File.stat(filepath).size
   end
   
-  def make_path
-    file_name = version.item.name
-    extension = file_name.split(".").last
-    self[:path] = "/#{extension}/#{version_id}/#{file_name}"
-  end
-  
   def filepath
+    unless path && path != ""
+      raise StandardError, "Path not set yet, version must be saved first" unless self[:version_id] 
+      file_name = version.item.name
+      extension = file_name.split(".").last
+      self[:path] = "/#{extension}/#{version_id}/#{file_name}"
+    end
     "#{RAILS_ROOT}/data/#{RAILS_ENV}#{path}"
   end
 end
