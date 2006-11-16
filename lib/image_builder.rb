@@ -1,7 +1,6 @@
-# TODO: prepare files for testing. Watch out for 'Document' test teardown
-#begin
-#  require 'rmagick'
-#rescue LoadError
+begin
+  require 'rmagick'
+rescue LoadError
   puts "ImageMagick not found. Using dummy."
   # Create a dummy magick module
   module Magick
@@ -23,7 +22,7 @@
     class ImageList < ZenaDummy
     end
   end
-#end
+end
 
 class ImageBuilder
   
@@ -57,7 +56,7 @@ class ImageBuilder
   end
   
   def read
-    raise IOError if dummy?
+    return nil if dummy? || (!@path && !@img && !@file)
     render_img
     @img.to_blob
   end
@@ -85,8 +84,8 @@ class ImageBuilder
     @actions << "@img.crop!(Magick::CenterGravity,[#{w},@img.columns].min,[#{h},@img.rows].min)"
   end
   
-  def setBackground!(opacity,w,h)
-    @width  = [@widht ,w].max
+  def set_background!(opacity,w,h)
+    @width  = [@width ,w].max
     @height = [@height,h].max
     @actions << "bg = Magick::Image.new(#{w},#{h})"
     @actions << "bg.opacity = #{opacity}"
@@ -97,7 +96,7 @@ class ImageBuilder
     if tformat.kind_of?(String)
       tformat = IMAGEBUILDER_FORMAT[tformat] || {}
     end
-    format = { :size=>:limit, :scale=>1.0, :ratio=>2.0/3 }.merge(tformat)
+    format = { :size=>:limit, :ratio=>2.0/3.0 }.merge(tformat)
     
     if format[:size] == :keep
       h,w = @height, @width
@@ -105,7 +104,17 @@ class ImageBuilder
       h,w = format[:height], format[:width]
     end
     if format[:scale]
-      scale = 1.0 / format[:scale]
+      if h || w
+        # scale is a pre-zoom before crop
+        scale = format[:scale]
+      else
+        # we resize to scale
+        h,w = @height*format[:scale], @width*format[:scale]
+        # but we do not zoom
+        scale = 1.0
+        # ignore ':size' format if not height nor width was given
+        format[:size] = :force
+      end
     else
       scale = 1.0
     end
@@ -116,7 +125,7 @@ class ImageBuilder
     end
 
     pw,ph = @width, @height
-    raise StandardError, "image size or thumb size is null" if [w,h,pw,ph].min <= 0
+    raise StandardError, "image size or thumb size is null" if [w,h,pw,ph].include?(nil) || [w,h,pw,ph].min <= 0
 
     case format[:size]
     when :force
@@ -127,7 +136,7 @@ class ImageBuilder
       crop_scale = [w.to_f/pw, h.to_f/ph].min
       resize!(crop_scale * scale)
       crop_min!(w, h)
-      setBackground!(Magick::MaxRGB, w, h)
+      set_background!(Magick::MaxRGB, w, h)
     when :limit
       crop_scale = [w.to_f/pw, h.to_f/ph].min
       resize!(crop_scale * scale) if crop_scale < 1
@@ -138,12 +147,15 @@ class ImageBuilder
   end
   
   def render_img
+    raise IOError, 'MagickDummy cannot render image' if dummy?
     unless @img
       if @file
         @img = Magick::ImageList.new
         @img.from_blob(@file.read)
-      else
+      elsif @path
         @img = Magick::ImageList.new(@path)
+      else
+        raise IOError, 'Cannot render image without path or file'
       end
       if @actions
         @actions.each do |a|
@@ -156,11 +168,11 @@ class ImageBuilder
 end
 
 IMAGEBUILDER_FORMAT = {
-  'tiny' => { :size=>:force, :width=>15,  :height=>20,  :scale=>0.8   },
+  'tiny' => { :size=>:force, :width=>15,  :height=>20,  :scale=>1.25  },
   'mini' => { :size=>:force, :width=>40,  :ratio=>1                   },
   'pv'   => { :size=>:force, :width=>80,  :height=>80                 },
   'med'  => { :size=>:limit, :width=>280, :ratio=>2/3.0               },
-  'med2' => { :size=>:limit, :width=>280, :ratio=>2/3.0, :scale=>0.8  },
+  'med2' => { :size=>:limit, :width=>280, :ratio=>2/3.0, :scale=>1.25 },
   'std'  => { :size=>:limit, :width=>600, :ratio=>2/3.0               },
   'full' => { :size=>:keep                                            },
 }

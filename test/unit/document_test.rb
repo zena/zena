@@ -36,6 +36,19 @@ class DocumentTest < Test::Unit::TestCase
     FileUtils::rmtree("#{RAILS_ROOT}/data/test/pdf/#{doc.v_id}")
   end
   
+  def test_create_with_duplicate_name
+    visitor(:ant)
+    doc = secure(Document) { Document.create( :parent_id=>items_id(:wiki),
+                                              :title => 'bird.pdf',
+                                              :file => uploaded_pdf('bird.jpg') ) }
+    assert_kind_of Document , doc
+    assert doc.new_record? , "Not saved"
+    assert_equal "bird.jpg", doc.name
+    assert_equal "has already been taken", doc.errors[:name]
+    v = doc.send :version
+    FileUtils::rmtree("#{RAILS_ROOT}/data/test/pdf/#{doc.v_id}")
+  end
+  
   def test_create_with_bad_filename
     visitor(:ant)
     doc = secure(Document) { Document.create( :parent_id=>items_id(:cleanWater),
@@ -84,11 +97,4 @@ class DocumentTest < Test::Unit::TestCase
     assert_kind_of DocFile, file
   end
   
-  def test_check_name
-    visitor(:tiger)
-    doc = secure(Document) { Document.find( items_id(:water_pdf) ) }
-    doc.name = 'bob.jpg'
-    assert doc.save, 'Can save document'
-    assert_equal 'bob.pdf', doc.name
-  end
 end

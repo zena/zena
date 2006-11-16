@@ -53,7 +53,7 @@ module ZenaTestUnit
   end
 
   # a JPEG helper
-  def uploaded_jpeg(fname, filename=nil)
+  def uploaded_jpg(fname, filename=nil)
     uploaded_file(fname, 'image/jpeg', filename)
   end
 
