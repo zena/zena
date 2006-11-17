@@ -23,6 +23,8 @@ Implements versioning and permits multiple editions on items.
 class Version < ActiveRecord::Base
   belongs_to :item
   belongs_to :user, :foreign_key=>'user_id'
+  validates_presence_of :item
+  validates_presence_of :user
   # not tested belongs_to :comment_group, :class_name=>'Group', :foreign_key=>'cgroup_id'
   # not tested has_many :comments, :order=>'created_at'
   before_create :set_number

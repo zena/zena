@@ -51,10 +51,20 @@ class VersionTest < Test::Unit::TestCase
     version = item.send(:version)
     assert_equal 1, version.number
     # can edit
-    assert item.edit(:title=>'new title')
+    assert item.update_redaction(:title=>'new title')
     # saved
     # version number changed
     version = item.send(:version)
     assert_equal 2, version.number
+  end
+  
+  def test_presence_of_item
+    visitor(:tiger)
+    item = secure(Item) { Item.new(:parent_id=>1, :name=>'bob') }
+    assert item.save
+    vers = Version.new
+    assert !vers.save
+    assert_equal "can't be blank", vers.errors[:item]
+    assert_equal "can't be blank", vers.errors[:user]
   end
 end

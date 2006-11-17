@@ -59,4 +59,26 @@ class Test::Unit::TestCase
   def self.use_instantiated_fixtures
     false
   end
+  
+  def preserving_files(path, &block)
+    path = "/#{path}" unless path[0..0] == '/'
+    FileUtils::cp_r("#{RAILS_ROOT}#{path}","#{RAILS_ROOT}#{path}.bak")
+    begin
+      yield
+    ensure
+      FileUtils::rmtree("#{RAILS_ROOT}#{path}")
+      FileUtils::mv("#{RAILS_ROOT}#{path}.bak","#{RAILS_ROOT}#{path}")
+    end
+  end
+  
+  def without_files(path, &block)
+    path = "/#{path}" unless path[0..0] == '/'
+    FileUtils::mv("#{RAILS_ROOT}#{path}","#{RAILS_ROOT}#{path}.bak")
+    begin
+      yield
+    ensure
+      FileUtils::rmtree("#{RAILS_ROOT}#{path}")
+      FileUtils::mv("#{RAILS_ROOT}#{path}.bak","#{RAILS_ROOT}#{path}")
+    end
+  end
 end

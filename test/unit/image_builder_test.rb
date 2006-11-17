@@ -18,6 +18,12 @@ class ImageBuilderTest < Test::Unit::TestCase
       img = ImageBuilder.new(:path=>uploaded_jpg('bird.jpg').path, :width=>100, :height=>30)
       assert_raise(IOError) { img.render_img }
     end
+    
+    def test_rows_0
+      img = ImageBuilder.new(:path=>uploaded_jpg('bird.jpg').path)
+      assert_equal 0, img.width
+      assert_equal 0, img.height
+    end
   else
     def test_dummy
       img = nil

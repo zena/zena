@@ -110,11 +110,11 @@ class MultiVersionTest < Test::Unit::TestCase
     assert_equal 2, editions.count
   end
   
-  def test_redaction
-    visitor(:tiger)
+  def test_edit_get_redaction
+    visitor(:ant)
     item = secure(Item) { items(:opening)  }
-    assert_equal "fr", item.lang
-    assert_equal "new redaction for opening", item.comment
+    assert_equal "fr", item.v_lang
+    assert_equal "french opening", item.comment
   end
   
   def test_set_redaction
@@ -171,29 +171,47 @@ class MultiVersionTest < Test::Unit::TestCase
     assert item2.can_edit?
   end
   
-  def test_redaction
+  def test_do_edit
     visitor(:ant)
     item = secure_write(Item) { items(:wiki)  }
-    item.edit
+    item.edit!
     assert_equal Zena::Status[:red], item.v_status
     assert item.new_redaction?
+  end
+  
+  def test_update_without_fuss
+    visitor(:tiger)
+    item = secure(Item) { items(:wiki) }
+    assert_equal Zena::Status[:pub], item[:max_status]
+    item.send(:update_attribute_without_fuss, :max_status, Zena::Status[:red])
+    item = secure(Item) { items(:wiki) }
+    assert_equal Zena::Status[:red], item[:max_status]
+  end
+  
+  def test_update_without_fuss_time
+    visitor(:tiger)
+    item = secure(Item) { items(:wiki) }
+    assert_equal Time.local(2006,3,10), item[:publish_from]
+    item.send(:update_attribute_without_fuss, :publish_from, Time.local(2006,12,10))
+    item = secure(Item) { items(:wiki) }
+    assert_equal Time.local(2006,12,10), item[:publish_from]
   end
   
   def test_update_new_red
     visitor(:ant)
     item = secure_write(Item) { items(:wiki)  }
-    assert item.edit , "Edit succeeds"
+    assert item.edit! , "Edit succeeds"
     attrs = { :comment=>"hey I'm new !", :title=>"super new" }
-    assert item.edit( attrs ) , "Edit succeeds"
+    assert item.update_redaction( attrs ) , "Edit succeeds"
     assert ! item.new_redaction? , "Not a new redaction"
     assert_equal "super new", item.title
     # find it
     item = secure_write(Item) { items(:wiki)  }
-    assert item.edit , "Edit succeeds"
+    assert item.edit! , "Edit succeeds"
     assert_equal "hey I'm new !", item.comment
     assert_equal "super new", item.title
     assert_equal Zena::Status[:red], item.v_status
-    assert item.edit( :title=>"bee bop a lula" ) , "Edit succeeds"
+    assert item.update_redaction( :title=>"bee bop a lula" ) , "Edit succeeds"
     assert_equal "bee bop a lula", item.title
     redactions = Version.find(:all, :conditions=>['item_id = ? AND status = ?', items_id(:wiki), Zena::Status[:red]])
     assert_equal 1, redactions.size
@@ -202,13 +220,13 @@ class MultiVersionTest < Test::Unit::TestCase
     visitor(:tiger)
     @lang = "fr"
     item = secure_write(Item) { items(:wiki)  }
-    assert ! item.edit , "Edit fails"
-    assert ! item.edit( :title=>"Mon amour") , "Edit fails"
+    assert ! item.edit! , "Edit fails"
+    assert ! item.update_redaction( :title=>"Mon amour") , "Edit fails"
     
     # can add redactions for different languages
     @lang = "de"
     item = secure_write(Item) { items(:wiki)  }
-    assert item.edit( :title=> "Spieluhr") , "Edit succeeds"
+    assert item.update_redaction( :title=> "Spieluhr") , "Edit succeeds"
     redactions = Version.find(:all, :conditions=>['item_id = ? AND status = ?', items_id(:wiki), Zena::Status[:red]])
     assert_equal 2, redactions.size
   end
@@ -217,14 +235,14 @@ class MultiVersionTest < Test::Unit::TestCase
     visitor(:ant)
     @lang = 'en'
     item = secure_write(Item) { items(:lake)  }
-    assert item.edit , "Edit succeeds"
+    assert item.edit! , "Edit succeeds"
     assert_equal "The lake we love", item.title
     assert_equal Zena::Status[:red], item.v_status
     attrs = { :comment=>"hey I'm new !", :title=>"super new" }
-    assert item.edit( attrs ) , "Edit succeeds"
+    assert item.update_redaction( attrs ) , "Edit succeeds"
     
     item = secure_write(Item) { items(:lake)  }
-    assert item.edit , "Edit succeeds"
+    assert item.edit! , "Edit succeeds"
     assert_equal "hey I'm new !", item.comment
     assert_equal "super new", item.title
     assert_equal Zena::Status[:red], item.v_status
@@ -233,10 +251,10 @@ class MultiVersionTest < Test::Unit::TestCase
   def test_update_redaction_bad_user
     visitor(:tiger)
     item = secure_write(Item) { items(:lake)  }
-    assert ! item.edit , "Edit fails"
+    assert ! item.edit! , "Edit fails"
     assert_equal Zena::Status[:pub], item.v_status
     attrs = { :comment=>"hey I'm new !", :title=>"super new" }
-    assert ! item.edit( attrs ) , "Edit fails"
+    assert ! item.update_redaction( attrs ) , "Edit fails"
   end
   
   def test_update_cannot_create_redaction
@@ -303,19 +321,19 @@ class MultiVersionTest < Test::Unit::TestCase
     visitor(:ant)
     @lang = 'en'
     item = secure(Item) { items(:lake)  }
-    item.edit
+    item.edit!
     version_id = item.v_id
     assert_equal "The lake we love", item.title
     assert_equal versions_id(:lake_red_en), version_id
     # edit item with form...
     # post modifications
     item = secure(Item) { Item.version(item.v_id) }
-    assert item.edit( :title => "Funny lake" ) , "Edit succeeds"
+    assert item.update_redaction( :title => "Funny lake" ) , "Edit succeeds"
     assert_equal "Funny lake", item.title
     assert_equal version_id, item.v_id
     # find redaction again
     item = secure(Item) { items(:lake)  }
-    item.edit
+    item.edit!
     assert_equal "Funny lake", item.title
     assert_equal version_id, item.v_id
   end
@@ -361,7 +379,7 @@ class MultiVersionTest < Test::Unit::TestCase
     @lang = 'fr'
     item = secure(Item) { items(:lake)  }
     assert_equal 1, item.editions.size, "English edition exists"
-    assert item.edit( :title => "Joli petit lac" )
+    assert item.update_redaction( :title => "Joli petit lac" )
     assert item.publish
     item = secure(Item) { items(:lake)  } # reload
     assert_equal 2, item.editions.size, "English and french editions"

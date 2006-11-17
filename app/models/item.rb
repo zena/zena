@@ -248,6 +248,7 @@ class Item < ActiveRecord::Base
     return nil if self[:id] == ZENA_ENV[:root_id]
     # FIXME: check for class specific information (file to remove, participations, tags, etc) ... should we leave these things and
     # not care ?
+    # FIXME: when changing into something else : update version type and data !!!
     my_id = self[:id].to_i
     my_parent = self[:parent_id].to_i
     my_project = self[:project_id].to_i
@@ -298,6 +299,8 @@ class Item < ActiveRecord::Base
     if self[:max_status] < Zena::Status[:pub]
       # not published any more. 'remove' documents
       sync_documents(:remove)
+    else
+      true
     end
   end
   
@@ -340,8 +343,14 @@ class Item < ActiveRecord::Base
         end
       end
     when :remove
+      # FIXME: use a 'before_remove' callback to make sure all sub-items can be removed...
       documents.each do |doc|
-        allOK = doc.remove && allOK
+        unless doc.remove
+          doc.errors.each do |err|
+            errors.add('document', err.to_s)
+          end
+          allOK = false
+        end
       end
     end
     allOK

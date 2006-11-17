@@ -108,13 +108,25 @@ module Zena
         # update an item's versioned attributes creating a new 'redaction' in necessary.
         # if no parameter is passed, this sets the current version to redaction for the current user and 
         # language, returning false if this operation is not permitted.
-        def edit(hash=nil)
+        def update_redaction(hash)
           if redaction
-            if hash
-              redaction.update_attributes(hash) && update_max_status
-            else
+            if redaction.update_attributes(hash) && update_max_status
               true
+            else
+              errors.add('version', redaction.errors.map{|k,v| "#{k} #{v}"}.join(", "))
+              false
             end
+          else
+            false
+          end
+        end
+        
+        # try to set the item's version to a redaction
+        def edit!
+          if redaction
+            true
+          else
+            false
           end
         end
         
@@ -198,7 +210,11 @@ module Zena
         def remove
           return false unless can_drive?
           version.status = Zena::Status[:rem]
-          version.save && update_publish_from && update_max_status && after_remove
+          if version.save
+            update_publish_from && update_max_status && after_remove
+          else
+            false
+          end
         end
         
         # Call backs
@@ -212,6 +228,7 @@ module Zena
           true
         end
         def after_remove
+          puts "AFREM"
           true
         end
         
@@ -220,10 +237,9 @@ module Zena
           result = versions.find(:first, :conditions=>"status = #{Zena::Status[:pub]}", :order=>"publish_from ASC")
           # we cannot set publish_from directly with self[:publish_from] : a security measure in acts_as_secure#secure_on_update
           # only accepts the @publish_from (private attribute) style.
-          if result
-            update_attribute(:publish_from, result[:publish_from])
-          else
-            update_attribute(:publish_from, nil)
+          new_pub = result ? result[:publish_from] : nil
+          if self[:publish_from] != new_pub
+            update_attribute_without_fuss(:publish_from, new_pub)
           end
           true
         end
@@ -233,15 +249,20 @@ module Zena
           result = versions.find(:first, :order=>"status DESC")
           # we cannot set status directly with self[:max_status] : a security measure in acts_as_secure#secure_on_update
           # only accepts the @max_status (private attribute) style.
-          if result
-            update_attribute(:max_status, result[:status])
-          else
-            update_attribute(:max_status, nil)
+          new_max = result ? result[:status] : nil
+          if self[:max_status] != new_max
+            update_attribute_without_fuss(:max_status, new_max)
           end
           true
         end
         
         private
+        
+        def update_attribute_without_fuss(att, value)
+          self[att] = value
+          value = value.strftime("%Y-%m-%d %H:%M:%S") if value.kind_of?(Time)
+          self.class.connection.execute "UPDATE #{self.class.table_name} SET #{att}='#{value}' WHERE id=#{self[:id]}"
+        end
         
         def redaction
           return @redaction if @redaction

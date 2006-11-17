@@ -412,7 +412,7 @@ nature:
   wgroup_id:      3
   pgroup_id:      4
   
-tree:
+tree_jpg:
   id:             30
   type:           Image
   kpath:          IPDI
@@ -431,7 +431,7 @@ tree:
   wgroup_id:      3
   pgroup_id:      4
   
-forest:
+forest_pdf:
   id:             31
   type:           Document
   kpath:          IPD

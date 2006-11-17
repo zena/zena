@@ -31,11 +31,13 @@ class Document < Page
     version.file
   end
   
-  #def doc_name
-  #  n = name.split('.')
-  #  n.pop
-  #  n.join('.')
-  #end
+  def doc_name
+    if name =~ /\./
+      name.split('.')[0..-2].join('.')
+    else
+      name
+    end
+  end
   
   private
   

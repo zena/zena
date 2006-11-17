@@ -54,7 +54,7 @@ class MainHelperTest < Test::Unit::TestCase
     res = edit_button(:all)
     assert_match %r{/z/version/edit}, res
     assert_match %r{/z/item/drive}, res
-    @item.edit
+    @item.edit!
     res = edit_button(:all)
     assert_match %r{/z/version/edit}, res
     assert_match %r{/z/version/propose}, res

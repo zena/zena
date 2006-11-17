@@ -2,10 +2,9 @@ require 'fileutils'
 class DocFile < ActiveRecord::Base
   belongs_to :version
   validate :docfile_valid
-  before_create :save_file
+  before_save :save_file
   
   def file=(aFile)
-    puts "SET F"
     @file = aFile
     self[:content_type] = @file.content_type.chomp
     self[:size] = @file.stat.size
@@ -36,12 +35,14 @@ class DocFile < ActiveRecord::Base
   end
   
   def save_file
-    p = File.join(*filepath.split('/')[0..-2])
-    unless File.exist?(p)
-      FileUtils::mkfilepath(p)
+    if @file
+      p = File.join(*filepath.split('/')[0..-2])
+      unless File.exist?(p)
+        FileUtils::mkpath(p)
+      end
+      File.open(filepath, "wb") { |f| f.syswrite(@file.read) }
+      self[:size] = File.stat(filepath).size
     end
-    File.open(filepath, "wb") { |f| f.syswrite(@file.read) }
-    self[:size] = File.stat(filepath).size
   end
   
   def filepath

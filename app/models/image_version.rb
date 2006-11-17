@@ -19,7 +19,7 @@ class ImageVersion < DocVersion
   def filesize(format=nil); file(format).size; end
     
   private
-  def info_class
+  def file_class
     ImageFile
   end
 end

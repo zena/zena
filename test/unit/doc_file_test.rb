@@ -46,18 +46,21 @@ class DocFileTest < Test::Unit::TestCase
   def test_filepath_ok
     doc = DocFile.new( :version_id=>15, :file=>uploaded_pdf('water.pdf') )
     fp = doc.send(:filepath)
-    assert_equal "#{RAILS_ROOT}/data/#{RAILS_ENV}/pdf/15/water.pdf", fp
+    assert_equal "#{RAILS_ROOT}/data/test/pdf/15/water.pdf", fp
   end
   
   def test_save_file
-    FileUtils::mv("#{RAILS_ROOT}/data/#{RAILS_ENV}/pdf/15/water.pdf","#{RAILS_ROOT}/data/#{RAILS_ENV}/pdf/15/water.pdf.bak")
-    doc = DocFile.new( :version_id=>15, :file=>uploaded_pdf('water.pdf') )
-    assert !File.exist?("#{RAILS_ROOT}/data/#{RAILS_ENV}/pdf/15/water.pdf")
-    assert doc.save, "Can save"
-    assert File.exist?("#{RAILS_ROOT}/data/#{RAILS_ENV}/pdf/15/water.pdf")
-    assert_equal 29279, doc.size
-    doc = DocFile.find(doc.id)
-    assert doc.save, "Can save again"
-    FileUtils::rm("#{RAILS_ROOT}/data/#{RAILS_ENV}/pdf/15/water.pdf.bak")
+    without_files("/data/test/pdf/15/water.pdf") do
+      doc = DocFile.new( :version_id=>15, :file=>uploaded_pdf('water.pdf') )
+      assert !File.exist?("#{RAILS_ROOT}/data/test/pdf/15/water.pdf")
+      assert doc.save, "Can save"
+      assert File.exist?("#{RAILS_ROOT}/data/test/pdf/15/water.pdf")
+      assert_equal 29279, doc.size
+      doc = DocFile.find(doc.id)
+      assert doc.save, "Can save again"
+      doc.file = uploaded_pdf('forest.pdf')
+      assert doc.save, "Can save"
+      assert_equal 63569, doc.size
+    end
   end
 end

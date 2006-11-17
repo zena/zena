@@ -211,7 +211,7 @@ class SecureCreateTest < Test::Unit::TestCase
     id = item.id
     visitor(:ant)
     assert_nothing_raised { item = secure(Item) { Item.find(id) } }
-    assert item.edit(:summary=>'hello my friends'), "Can create a new edition"
+    assert item.update_redaction(:summary=>'hello my friends'), "Can create a new edition"
     assert_equal Zena::Status[:pub], item.max_status, "Item max_status did not change"
     assert item.propose, "Can propose edition"
     assert_equal Zena::Status[:pub], item.max_status, "Item max_status did not change"

@@ -48,4 +48,5 @@ forest_pdf:
   version_id:     36
   content_type:   "application/pdf"
   path:           "/pdf/36/forest.pdf"
+  size:           63569
   
