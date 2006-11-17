@@ -62,11 +62,13 @@ class ImageBuilder
   end
   
   def rows
-    (@height ||= dummy? ? 0 : render_img.rows).to_i
+    return nil unless @height || !dummy?
+    (@height ||= render_img.rows).to_i
   end
   
   def columns
-    (@width ||= dummy? ? 0 : render_img.columns).to_i
+    return nil unless @width || !dummy?
+    (@width ||= render_img.columns).to_i
   end
   
   alias height rows

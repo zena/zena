@@ -1,6 +1,6 @@
 class ImageFile < DocFile
   
-  def self.find_or_new(vid, format)
+  def self.find_or_new(vid, format=nil)
     f = self.find_by_version_id_and_format(vid,format)
     unless f
       # create new
@@ -22,7 +22,7 @@ class ImageFile < DocFile
   end
   
   def dummy?
-    !File.exist?(filepath) && @file.dummy?
+    (!version || !File.exist?(filepath)) && (!@file || @file.dummy?)
   end
   
   def read
@@ -65,10 +65,11 @@ class ImageFile < DocFile
   end
 
   private
-  def make_path
+  
+  def filename
     doc = version.item
     if self[:format] and self[:format] =~ /^[a-z0-9]{1,16}$/
-      self[:path] = "/#{doc.ext}/#{version_id}/#{doc.doc_name}-#{format}.#{doc.ext}"
+      "#{doc.doc_name}-#{format}.#{doc.ext}"
     else
       super
     end

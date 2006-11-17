@@ -21,8 +21,8 @@ class ImageBuilderTest < Test::Unit::TestCase
     
     def test_rows_0
       img = ImageBuilder.new(:path=>uploaded_jpg('bird.jpg').path)
-      assert_equal 0, img.width
-      assert_equal 0, img.height
+      assert_nil img.width
+      assert_nil img.height
     end
   else
     def test_dummy

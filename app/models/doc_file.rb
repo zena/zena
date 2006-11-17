@@ -11,15 +11,15 @@ class DocFile < ActiveRecord::Base
   end
   
   def size=(s)
-    raise IOError
+    raise StandardError, "Size cannot be set. It is defined by the file size."
   end
   
   def size
-    self[:size] ||= File.stat(filepath).size
+    self[:size] ||= File.exist?(filepath) ? File.stat(filepath).size : nil
   end
   
   def read
-    if self[:version_id] && !new_record?
+    if self[:version_id] && !new_record? && File.exist?(filepath)
       File.read(filepath)
     elsif @file
       @file.read
@@ -48,10 +48,13 @@ class DocFile < ActiveRecord::Base
   def filepath
     unless path && path != ""
       raise StandardError, "Path not set yet, version must be saved first" unless self[:version_id] 
-      file_name = version.item.name
-      extension = file_name.split(".").last
-      self[:path] = "/#{extension}/#{version_id}/#{file_name}"
+      extension = filename.split(".").last
+      self[:path] = "/#{extension}/#{version_id}/#{filename}"
     end
     "#{RAILS_ROOT}/data/#{RAILS_ENV}#{path}"
+  end
+  
+  def filename
+    version.item.name
   end
 end

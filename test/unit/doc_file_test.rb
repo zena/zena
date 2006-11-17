@@ -19,12 +19,23 @@ class DocFileTest < Test::Unit::TestCase
     assert_nil doc.read
   end
   
-  def test_size
-    doc = DocFile.new( :file=>uploaded_pdf('water.pdf') )
-    assert_equal 29279, doc.size
-    doc = DocFile.new
-    assert_raise(StandardError) { doc.size }
+  def test_set_size
+    imf = ImageFile.new
+    assert_raise(StandardError) { imf.size = 34 }
   end
+  
+  def test_size
+    without_files('/data/test/jpg') do
+      imf = ImageFile.find(1) # bird.jpg
+      assert_nil imf[:size]
+      assert_nil imf.size
+    end
+    imf = ImageFile.find(1)
+    assert_nil imf[:size]
+    assert_equal 56183, imf.size
+    assert_equal 56183, imf[:size]
+  end
+  
   
   def test_docfile_valid_no_version
     doc = DocFile.new( :file=>uploaded_pdf('water.pdf') )
@@ -36,6 +47,11 @@ class DocFileTest < Test::Unit::TestCase
     doc = DocFile.new( :version_id=>11 )
     assert !doc.save
     assert_equal 'file not set', doc.errors[:base]
+  end
+  
+  def test_filename
+    doc = DocFile.new( :version_id=>15 )
+    assert_equal 'water.pdf', doc.send(:filename)
   end
   
   def test_filepath_without_version
