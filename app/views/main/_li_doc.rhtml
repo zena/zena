@@ -1,4 +1,0 @@
-<li class="li_s<%= li_doc.v_status %>">
-<span class="ext"><%= link_to "[#{li_doc.ext.upcase}]", :prefix => prefix, :controller => 'main', :action=>'show', :path=>li_doc.fullpath %></span>
-<%= link_to li_doc.title + check_lang( li_doc ), :prefix => prefix, :controller => 'main', :action=>'show', :path=>li_doc.fullpath, :get=>'page' %>
-</li>

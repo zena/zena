@@ -11,12 +11,17 @@ class DocVersion < Version
   def img_tag(format=nil)
     unless format
       # img_tag from extension
-      "<img src='/images/ext/#{item.ext}.png' width='15' height='20' class='tiny'/>"
+      "<img src='/images/ext/#{item.ext}.png' width='30' height='30' class='tiny'/>"
     else
-      img = ImageBuilder.new(:path=>"#{RAILS_ROOT}/public/images/ext/#{item.ext}.png", :width=>15, :height=>20)
+      img = ImageBuilder.new(:path=>"#{RAILS_ROOT}/public/images/ext/#{item.ext}.png", :width=>30, :height=>30)
       img.transform!(format)
-      # let the browser resize
-      "<img src='/images/ext/#{item.ext}.png' width='#{img.width}' height='#{img.height}' class='#{format}'/>"
+      if img.width < 15
+        # only reduce size
+        # let the browser resize
+        "<img src='/images/ext/#{item.ext}.png' width='#{img.width}' height='#{img.height}' class='#{format}'/>"
+      else
+        "<img src='/images/ext/#{item.ext}.png' width='30' height='30' class='#{format}'/>"
+      end
     end
   end
   

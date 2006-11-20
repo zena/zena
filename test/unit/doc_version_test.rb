@@ -6,9 +6,9 @@ class DocVersionTest < Test::Unit::TestCase
   def test_img_tag
     visitor(:tiger)
     doc = secure(Item) { items(:water_pdf) }
-    assert_equal "<img src='/images/ext/pdf.png' width='15' height='20' class='tiny'/>", doc.img_tag
-    assert_equal "<img src='/images/ext/pdf.png' width='80' height='80' class='pv'/>", doc.img_tag('pv')
-    assert_equal "<img src='/images/ext/pdf.png' width='15' height='20' class='std'/>", doc.img_tag('std')
+    assert_equal "<img src='/images/ext/pdf.png' width='30' height='30' class='tiny'/>", doc.img_tag
+    assert_equal "<img src='/images/ext/pdf.png' width='30' height='30' class='pv'/>", doc.img_tag('pv')
+    assert_equal "<img src='/images/ext/pdf.png' width='30' height='30' class='std'/>", doc.img_tag('std')
   end
   
   def test_file

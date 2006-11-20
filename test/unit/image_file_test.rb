@@ -32,6 +32,7 @@ class ImageFileTest < Test::Unit::TestCase
     def test_dummy
       imf = ImageFile.new
       assert imf.dummy?, "Is a dummy"
+      assert false, 'complete test'
     end
   else
     def test_set_file
@@ -45,6 +46,7 @@ class ImageFileTest < Test::Unit::TestCase
     end
     
     def test_dummy
+      # TODO complete tests for dummy. When is dummy? used anyway ?
       imf = ImageFile.new
       assert !imf.dummy?, "Not a dummy"
     end

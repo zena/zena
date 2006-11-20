@@ -188,4 +188,44 @@ class MainControllerTest < Test::Unit::TestCase
     assert_tag :span, :attributes=>{:class=>'wrong_lang'}
   end
   
+  # test partials
+  
+  def test__pages
+    login(:tiger)  
+    get 'show', :path=>['projects'], :prefix=>prefix
+    assert_response :success
+    assert_template 'templates/default'
+    assert_tag :div, :attributes=>{:id=>'pages'}
+    assert_tag :ul, :attributes=>{:class=>'list', :id=>"pages_list"}
+    assert_tag :li, :attributes=>{:class=>'btn_add', :id=>"add_page"}
+  end
+  
+  def test__documents
+    login(:tiger)
+    get 'show', :path=>['projects'], :prefix=>prefix
+    assert_response :success
+    assert_template 'templates/default'
+    assert_tag :div, :attributes=>{:id=>'documents'}
+    assert_tag :ul, :attributes=>{:class=>'list', :id=>"documents_list"}
+    assert_tag :li, :attributes=>{:class=>'btn_add', :id=>"add_document"}
+  end
+  
+  def test__pages_cannot_write
+    get 'show', :path=>['projects'], :prefix=>prefix
+    assert_response :success
+    assert_template 'templates/default'
+    assert_tag :div, :attributes=>{:id=>'pages'}
+    assert_tag :ul, :attributes=>{:class=>'list', :id=>"pages_list"}
+    assert_no_tag :li, :attributes=>{:class=>'btn_add', :id=>"add_page"}
+  end
+  
+  def test__documents_cannot_write
+    get 'show', :path=>['projects'], :prefix=>prefix
+    assert_response :success
+    assert_template 'templates/default'
+    assert_tag :div, :attributes=>{:id=>'documents'}
+    assert_tag :ul, :attributes=>{:class=>'list', :id=>"documents_list"}
+    assert_no_tag :li, :attributes=>{:class=>'btn_add', :id=>"add_document"}
+  end
+  
 end

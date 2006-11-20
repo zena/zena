@@ -99,4 +99,17 @@ class DocumentTest < Test::Unit::TestCase
     assert_kind_of DocFile, file
   end
   
+  def test_create_with_text_file
+    preserving_files('/data/test/txt') do
+      visitor(:ant)
+      doc = secure(Document) { Document.create( :parent_id=>items_id(:cleanWater),
+        :name => 'stupid.jpg',
+        :file => uploaded_text('some.txt') ) }
+      assert_kind_of Document , doc
+      assert ! doc.new_record? , "Not a new record"
+      assert_equal "stupid.txt", doc.name
+      assert_equal "stupid", doc.title
+    end
+  end
+  
 end

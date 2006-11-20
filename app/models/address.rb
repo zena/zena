@@ -1,3 +1,4 @@
+# TODO: Users = own table. Addresse = same status as DocFile: linked to ContactVersion. Cache 'fullname' and 'email' into User through User.Contact.fullname, User.Contact.email
 class Address < ActiveRecord::Base
   belongs_to :item, :dependent=>:destroy # contact, place
   before_create :set_lang

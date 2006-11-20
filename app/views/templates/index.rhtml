@@ -45,8 +45,12 @@
     <%#= plug :notes, :from=>:site %>
 
   	<div id="right">
-			<%= render :partial=>'main/documents' %>
-			<%= render :partial=>'main/pages'     %>
+      <div id='documents'>
+  			<%= render :partial=>'document/list' %>
+      </div>
+      <div id='pages'>
+  			<%= render :partial=>'page/list'     %>
+      </div>
   	</div>
   </div>
 </body>

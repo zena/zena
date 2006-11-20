@@ -172,7 +172,7 @@ end
 IMAGEBUILDER_FORMAT = {
   'tiny' => { :size=>:force, :width=>15,  :height=>20,  :scale=>1.25  },
   'mini' => { :size=>:force, :width=>40,  :ratio=>1                   },
-  'pv'   => { :size=>:force, :width=>80,  :height=>80                 },
+  'pv'   => { :size=>:limit, :width=>80,  :height=>80                 },
   'med'  => { :size=>:limit, :width=>280, :ratio=>2/3.0               },
   'med2' => { :size=>:limit, :width=>280, :ratio=>2/3.0, :scale=>1.25 },
   'std'  => { :size=>:limit, :width=>600, :ratio=>2/3.0               },

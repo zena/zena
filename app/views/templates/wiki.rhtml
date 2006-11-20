@@ -43,9 +43,11 @@
   		<%#= plug :comments %>
 
   		<h3><%= trans('suite:')%></h3>
-  		<%= render :partial=>'main/pages' %>
+  		<%= render :partial=>'page/list' %>
 			<h3><%= trans('documents:')%></h3>
-			<%= render :partial=>'main/documents' %>
+        <div id='documents'>
+    			<%= render :partial=>'document/list' %>
+        </div>
   	</div>
 
   </div>
