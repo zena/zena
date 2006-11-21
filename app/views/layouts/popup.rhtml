@@ -6,12 +6,12 @@
 	<title><%= @window_title || 'Zena' %></title>
 	<meta http-equiv="Content-type" content="text/html; charset=utf-8" />
 	<meta http-equiv="Content-Language" content="fr-fr" />
-	<%= stylesheet_link_tag 'zen' %>
+	<%= stylesheet_link_tag 'popup' %>
 	<%= javascript_include_tag 'prototype', 'effects', 'zena' %>
 </head>
 
 <body onLoad='popup_loaded();'>
-<%= flash_messages %>
+	<div id='messages'><%= flash_messages %></div>
 <%= @content_for_layout %>
 
 </body>

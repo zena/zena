@@ -1,8 +1,4 @@
 trans_values:
-  - key_id:    27
-    lang:      en
-    value:     "<img src='/images/accept.png'/>"
-
   - key_id:    28
     lang:      en
     value:     "<img src='/images/add.png'/>"

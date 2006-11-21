@@ -41,4 +41,5 @@ class ImageTest < Test::Unit::TestCase
     assert_equal File.stat("#{RAILS_ROOT}/data/test#{file.path}").size, doc.filesize('pv')
     FileUtils::rmtree("#{RAILS_ROOT}/data/test") # clear files
   end
+    
 end

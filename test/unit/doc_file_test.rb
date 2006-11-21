@@ -54,6 +54,13 @@ class DocFileTest < Test::Unit::TestCase
     assert_equal 'water.pdf', doc.send(:filename)
   end
   
+  def test_make_path
+    doc = DocFile.new( :version_id=>15 )
+    assert_equal '', doc[:path]
+    doc.send(:make_path)
+    assert_equal '/pdf/15/water.pdf', doc[:path]
+  end
+  
   def test_filepath_without_version
     doc = DocFile.new( :file=>uploaded_pdf('water.pdf') )
     assert_raise(StandardError) { doc.send(:filepath) }

@@ -8,7 +8,7 @@ class ImageFile < DocFile
       if f
         f = f.transform(format)
       else
-        raise ActiveRecord::RecordNotFound, "No FileInfo with version_id '#{vid}'"
+        raise ActiveRecord::RecordNotFound, "No ImageFile with version_id '#{vid}'"
       end
     end
     f
@@ -22,26 +22,11 @@ class ImageFile < DocFile
   end
   
   def dummy?
-    (!version || !File.exist?(filepath)) && (!@file || @file.dummy?)
-  end
-  
-  def read
-    if File.exist?(filepath)
-      File.read(filepath)
-    elsif @file
-      @file.read
-    else
-      # FIXME: find original image instead
-      raise IOError
-    end
+    (!version || !File.exist?(filepath)) && (!@file || ImageBuilder.dummy?)
   end
   
   def img_tag
     "<img src='/data#{path}' width='#{width}' height='#{height}'" + (format ? " class='#{format}'" : "") + "/>"
-  end
-  
-  def name
-    path.split('/').last
   end
   
   def transform(format)
@@ -57,6 +42,7 @@ class ImageFile < DocFile
     end
     @file.transform!(format)
     self[:format] = fmt
+    self[:path]   = nil
     self[:path]   = make_path
     self[:width]  = @file.width
     self[:height] = @file.height
@@ -64,8 +50,6 @@ class ImageFile < DocFile
     self
   end
 
-  private
-  
   def filename
     doc = version.item
     if self[:format] and self[:format] =~ /^[a-z0-9]{1,16}$/

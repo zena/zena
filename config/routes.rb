@@ -3,21 +3,15 @@ ActionController::Routing::Routes.draw do |map|
   map.login  'login' , :controller=>'login', :action=>'login'
   map.logout 'logout', :controller=>'login', :action=>'logout'
 
-  
-  ## map.connect 'z/brick/plug/:plug_name/*args', :controller=>'brick', :action=>'plug'
-  ## map.connect 'z/translate/:keyword', :controller=>'translation', :action=>'translate'
-  ## 
-  ## # is this used ?
-  ## map.connect 'data/:extension/:version_id/:img_name', :controller=>'document', :action=>'img'
-  ## 
-  ## 
   map.not_found '404', :controller=>'main', :action=>'not_found'
-  ## 
+
   map.user_home "#{AUTHENTICATED_PREFIX}/home", :controller=>'user', :action=>'home', :prefix=>"#{AUTHENTICATED_PREFIX}"
-  ## 
+
   map.connect ':prefix', :controller => "main", :action=>'index', :prefix=>/^(#{AUTHENTICATED_PREFIX}|\w\w)$/
-  ## 
- ###  find by path
+
+  map.connect 'data/:ext/:version_id/:filename', :controller=>'document', :action=>'data'
+
+
   if ZENA_ENV[:monolingual]
     map.connect '', :controller => "main", :action=>'index'
     map.default 'z/:controller/:action/:id'

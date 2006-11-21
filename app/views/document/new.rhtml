@@ -1,17 +1,12 @@
-<style>
-#document_summary, #document_name { width: 350px;}
-#item_title { font-size:1.5em; font-weight:bold;}
-#item_summary { font-style:italic;}
-</style>
-<div id="uploader" class="popup_action">
+<div id="loader" class="hidden"><img src="/images/ajax-loader.gif"/> <%= trans("uploading, please wait...") %></div>
+<div id="popup_action">
   <p class="btn_x"><%= link_to_function transb('btn_x'), "opener.location.href=opener.location.href; self.close();" %></p>
-	<div id="loader" class="hidden"><img src="/images/ajax-loader.gif"/> <%= trans("uploading, please wait...") %></div>
 	<%= error_messages_for 'document' %>
 	<%= form_tag( {:controller=>'document', :action=>"create"}, {:multipart=>true} ) %>
 	<%= hidden_field 'document', 'parent_id', :value=>@document[:parent_id]  %>
 	<%= file_field 'document', 'file', :size=>30, :onChange=>"$('document_name').value = Zena.get_name($('document_file').value); $('document_name').focus(); $('document_name').select();" %>
 	<%= text_field 'document', 'name', :size=>20 %><br/>
 	<%= text_area 'document', 'summary', :cols=>20, :rows=>3 %><br/>
-	<p class="btn_accept"><button type="submit" class="btn_accept" onClick="$('loader').style.visibility = 'visible';"><%= trans("btn_accept") %></button></p>
+	<p class="btn_validate"><input type="submit" class="btn_validate" onClick="$('loader').style.visibility = 'visible';" value='<%= transb('validate') %>'/></p>
 	<%= end_form_tag %>
 </div>

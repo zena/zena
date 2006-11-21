@@ -296,6 +296,29 @@ module ApplicationHelper
     end
     render_to_string( :partial=>'main/list_items', :locals=>{:docs=>docs})
   end
+  
+  def data_url(obj)
+    if obj.kind_of?(Document)
+      {:controller=>'document', :action=>'data', :version_id=>obj.v_id, :filename=>obj.name, :ext=>obj.ext}
+    else
+      raise StandardError, "Cannot create 'data_url' for #{obj.class}."
+    end
+  end
+  
+  # return a readable text version of a file size
+  def fsize(size)
+    size = size.to_f
+    if size >= 1024 * 1024 * 1024
+      sprintf("%.2f Gb", size/(1024*1024*1024))
+    elsif size >= 1024 * 1024
+      sprintf("%.1f Mb", size/(1024*1024))
+    elsif size >= 1024
+      sprintf("%i Kb", (size/(1024)).ceil)
+    else
+      sprintf("%i octets", size)
+    end
+  end
+  
   private
   
   # This lets helpers render partials

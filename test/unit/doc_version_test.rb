@@ -15,7 +15,6 @@ class DocVersionTest < Test::Unit::TestCase
     visitor(:tiger)
     doc = secure(Item) { items(:water_pdf) }
     doc.name = 'water.bin'
-    puts "DOC :#{doc.object_id}"
     assert_equal 'bin', doc.ext
     assert_equal "<img src='/images/ext/other.png' width='32' height='32' class='tiny'/>", doc.img_tag
     assert_equal "<img src='/images/ext/other-pv.png' width='80' height='80' class='pv'/>", doc.img_tag('pv')

@@ -393,7 +393,7 @@ module Zena
             version = Version.find(version_id.to_i)
             item = self.find(version.item_id)
             item.version = version
-            item.eval_with_visitor 'errors.add("base", "you do not have the rights to do this") unless can_publish? || can_manage? || version.user_id == visitor_id'
+            item.eval_with_visitor 'errors.add("base", "you do not have the rights to do this") unless version.status == 50 || can_drive? || version.user_id == visitor_id'
           end
         end
       end

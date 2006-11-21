@@ -160,6 +160,21 @@ class ApplicationHelperTest < Test::Unit::TestCase
     assert_match /logo.*img\/logo.png.*logo_msg.*vendredi.*novembre/, logo(Time.gm(2006,11,10))
   end
   
+  def test_data_url
+    obj = secure(Item) { items(:water_pdf) }
+    hash = {:controller=>'document', :action=>'data', :version_id=>obj.v_id, :filename=>obj.name, :ext=>obj.ext}
+    assert_equal hash, data_url(obj)
+    obj = secure(Item) { items(:projects) }
+    assert_raise(StandardError) { data_url(obj) }
+  end
+  
+  def test_fsize
+    assert_equal '29 Kb', fsize(29279)
+    assert_equal '502 Kb', fsize(513877)
+    assert_equal '5.2 Mb', fsize(5480809)
+    assert_equal '450.1 Mb', fsize(471990272)
+    assert_equal '2.35 Gb', fsize(2518908928)
+  end
   # zazen is tested in zazen_test.rb
   
   def test_render_to_string

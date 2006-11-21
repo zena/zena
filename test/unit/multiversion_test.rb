@@ -14,7 +14,7 @@ class MultiVersionTest < Test::Unit::TestCase
     visitor(:ant)
     item = secure(Item) { Item.version(versions_id(:lake_red_en)) }
     assert_equal "this is a new redaction for lake", item.comment
-    assert_raise(ActiveRecord::RecordNotFound) { item = secure(Item) { Item.version(versions_id(:zena_en)) } }
+    assert_nothing_raised { item = secure(Item) { Item.version(versions_id(:zena_en)) } }
     assert_raise(ActiveRecord::RecordNotFound) { item = secure(Item) { Item.version(versions_id(:secret_en)) } }
     visitor(:lion)
     assert_nothing_raised { item = secure(Item) { Item.version(versions_id(:lake_red_en)) } }

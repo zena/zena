@@ -103,6 +103,10 @@ trans_values:
     lang:      fr
     value:     "mercredi"
 
+  - key_id:    27
+    lang:      fr
+    value:     " valider "
+
   - key_id:    43
     lang:      fr
     value:     "gestion de la page (suivi de versions, modification des droits, etc)"

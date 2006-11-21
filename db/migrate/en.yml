@@ -102,6 +102,10 @@ trans_values:
   - key_id:    26
     lang:      en
     value:     "Wednesday"
+    
+  - key_id:    27
+    lang:      en
+    value:     " validate "
 
   - key_id:    43
     lang:      en

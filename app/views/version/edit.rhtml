@@ -17,7 +17,7 @@
 	<%= text_area 'item', 'summary', :cols=>80, :rows=>3, :value=>@item.v_summary %>
 	<label for="content"><%= t "content" %></label>
 	<%= text_area 'item', 'text', :cols=>80, :rows=>17, :value=>@item.v_text %>
-	<p class="btn_accept"><button type="submit" class="btn_accept"><%= t "btn_accept" %></button></p>
+	<p class="btn_validate"><button type="submit" class="btn_validate" value='<%= transb('validate') %>'></p>
 	<%= end_form_tag %> 
 	
 <%= javascript_start %>

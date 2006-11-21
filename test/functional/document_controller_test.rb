@@ -33,8 +33,31 @@ class DocumenControllerTest < Test::Unit::TestCase
     assert_equal 'water.pdf', docs[0][:name]
   end
   
+  def test_data
+    assert_routing '/data/pdf/15/water.pdf', :controller=>'document', :action=>'data', :version_id=>'15', :ext=>'pdf', :filename=>'water.pdf'
+    get 'data', :version_id=>'15', :ext=>'pdf', :filename=>'water.pdf'
+    assert_response :success
+    assert_equal 'application/pdf', @response.headers['Content-Type']
+  end
+  
+  def test_data_bad_name
+    get 'data', :version_id=>'15', :ext=>'pdf', :filename=>'blue.jpg'
+    assert_response :redirect
+  end
+  
+  def test_data_resized_image
+    get 'data', :version_id=>'20', :ext=>'jpg', :filename=>'bird.jpg'
+    assert_response :success
+    assert_equal 'image/jpeg', @response.headers['Content-Type']
+    get 'data', :version_id=>'20', :ext=>'jpg', :filename=>'bird-pv.jpg'
+    assert_response :success
+    assert_equal 'image/jpeg', @response.headers['Content-Type']
+  end
+  
   def test_list
-    assert false, 'todo'
+    get 'list', :parent_id=>1
+    assert_response :success
+    assert_template 'document/_list'
   end
   
   def test_create_jpg
@@ -45,6 +68,9 @@ class DocumenControllerTest < Test::Unit::TestCase
     zena = secure(Item) { items(:zena) }
     docs = zena.documents
     assert_equal 'bird.jpg', docs[0][:name]
+  end
+  
+  def test_img
   end
   
 end

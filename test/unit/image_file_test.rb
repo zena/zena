@@ -3,21 +3,6 @@ require File.dirname(__FILE__) + '/../test_helper'
 class ImageFileTest < Test::Unit::TestCase
   include ZenaTestUnit
   
-  def test_self_find_or_new
-    imf = ImageFile.find_or_new(versions_id(:bird_jpg_en))
-    assert_equal 1, imf.id
-    assert !imf.new_record?, "Not a new record"
-    assert_equal 661, imf.width
-    imf = ImageFile.find_or_new(versions_id(:bird_jpg_en),'pv')
-    assert imf.new_record?, "New record"
-    assert_equal 80, imf.width
-  end
-    
-  def test_self_find_or_new_no_fileinfo
-    ImageFile.connection.execute "DELETE FROM doc_files WHERE version_id=#{versions_id(:bird_jpg_en)}"
-    assert_raise(ActiveRecord::RecordNotFound) { ImageFile.find_or_new(versions_id(:bird_jpg_en)) }
-  end
-  
   if Magick.const_defined?(:ZenaDummy)
     def test_set_file
       preserving_files('/data/test/jpg') do
@@ -46,22 +31,39 @@ class ImageFileTest < Test::Unit::TestCase
     end
     
     def test_dummy
-      # TODO complete tests for dummy. When is dummy? used anyway ?
       imf = ImageFile.new
-      assert !imf.dummy?, "Not a dummy"
+      assert imf.dummy?, "Is a dummy"
+      imf = ImageFile.new(:version_id => versions_id(:bird_jpg_en))
+      assert !imf.dummy?, "Is not a dummy"
     end
   end
   
-  def test_read
+  def test_self_find_or_new
+    imf = ImageFile.find_or_new(versions_id(:bird_jpg_en))
+    assert_equal 1, imf.id
+    assert !imf.new_record?, "Not a new record"
+    assert_equal 661, imf.width
+    imf = ImageFile.find_or_new(versions_id(:bird_jpg_en),'pv')
+    assert imf.new_record?, "New record"
+    assert_equal 80, imf.width
+  end
     
+  def test_self_find_or_new_no_fileinfo
+    ImageFile.connection.execute "DELETE FROM doc_files WHERE version_id=#{versions_id(:bird_jpg_en)}"
+    assert_raise(ActiveRecord::RecordNotFound) { ImageFile.find_or_new(versions_id(:bird_jpg_en)) }
   end
   
-  def test_read_new
-    
+  def test_img_tag
+    imf = ImageFile.find_or_new(versions_id(:bird_jpg_en))
+    assert_equal "<img src='/data/jpg/20/bird.jpg' width='661' height='600'/>", imf.img_tag
+    imf = ImageFile.find_or_new(versions_id(:bird_jpg_en), 'pv')
+    assert_equal "<img src='/data/jpg/20/bird-pv.jpg' width='80' height='80' class='pv'/>", imf.img_tag
   end
   
-  def test_read_no_file
-    
+  def test_filename
+    imf = ImageFile.find_or_new(versions_id(:bird_jpg_en))
+    assert_equal 'bird.jpg', imf.filename
+    imf = ImageFile.find_or_new(versions_id(:bird_jpg_en), 'med')
+    assert_equal 'bird-med.jpg', imf.filename
   end
-  
 end

@@ -14,19 +14,13 @@ class ApplicationController < ActionController::Base
     @headers["Content-Type"] = "text/html; charset=utf-8"
     @item  ||= secure(Item) { Item.find(ZENA_ENV[:root_id]) }
     
-    if @item && @item.kind_of?(Document) && params[:get] != 'page'
-      # send inline data
-      file = @item.file
-      send_file(file.path, :filename=>@item.name, :type=>data.content_type, :disposition=>'inline')
-      cache_page if opts[:cache] && @item.public?
-    else
-      @project = @item.project
-      render "templates/#{template(opts[:template])}"
-      
-      # only cache the public pages
-      if opts[:cache] && !session[:user]
-        cache_page
-      end
+    
+    @project = @item.project
+    render "templates/#{template(opts[:template])}"
+    
+    # only cache the public pages
+    if opts[:cache] && !session[:user]
+      cache_page
     end
   end
   

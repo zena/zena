@@ -78,7 +78,7 @@ trans_keys:
     key:  "Wednesday"
 
   - id:   27
-    key:  "btn_accept"
+    key:  "validate"
 
   - id:   28
     key:  "btn_add_doc"

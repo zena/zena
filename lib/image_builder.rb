@@ -10,9 +10,6 @@ rescue LoadError
     class ZenaDummy
       def initialize(*a)
       end
-      def dummy?
-        true
-      end
       def method_missing(meth, *args)
         # do nothing
       end
@@ -25,6 +22,11 @@ rescue LoadError
 end
 
 class ImageBuilder
+  class << self
+    def dummy?
+      Magick.const_defined?(:ZenaDummy)
+    end
+  end
 
   def initialize(h)
     params = {:height=>nil, :width=>nil, :path=>nil, :file=>nil, :actions=>[]}.merge(h)
@@ -49,7 +51,7 @@ class ImageBuilder
         raise StandardError, "Bad parameter (#{k})"
       end
       
-      unless @width && @height || dummy?
+      unless @width && @height || ImageBuilder.dummy?
         if @file || @path
           @img = Magick::ImageList.new(@file ? @file.path : @path)
           #@img.from_blob(@file.read)
@@ -61,29 +63,25 @@ class ImageBuilder
     end
   end
 
-  def dummy?
-    Magick.const_defined?(:ZenaDummy)
-  end
-
   def read
-    return nil if dummy? || (!@path && !@img && !@file)
+    return nil if ImageBuilder.dummy? || (!@path && !@img && !@file)
     render_img
     @img.to_blob
   end
 
   def write(path)
-    return false if dummy? || (!@path && !@img && !@file)
+    return false if ImageBuilder.dummy? || (!@path && !@img && !@file)
     render_img
     @img.write(path)
   end
 
   def rows
-    return nil unless @height || !dummy?
+    return nil unless @height || !ImageBuilder.dummy?
     (@height ||= render_img.rows).to_i
   end
 
   def columns
-    return nil unless @width || !dummy?
+    return nil unless @width || !ImageBuilder.dummy?
     (@width ||= render_img.columns).to_i
   end
 
@@ -178,7 +176,7 @@ class ImageBuilder
   end
 
   def render_img
-    raise IOError, 'MagickDummy cannot render image' if dummy?
+    raise IOError, 'MagickDummy cannot render image' if ImageBuilder.dummy?
     unless @img
       if @file
         @img = Magick::ImageList.new

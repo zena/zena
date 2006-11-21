@@ -2,7 +2,7 @@
 * {margin: 0; padding: 0;}
 a {text-decoration: none; color:#266F92;}
 a img {border: none;}
-body {font: 0.9em Verdana, sans-serif; line-height: 1; color: #333; behavior: ulr('stylesheets/csshover2.htc');} /* WinIE hack */
+body {font: 0.9em Verdana, sans-serif; line-height: 1; color: #333; behavior: url('stylesheets/csshover2.htc');} /* WinIE hack */
 h3 {font: 1.5em Georgia, Times, serif; letter-spacing: 0; text-transform: none; margin-bottom: 0; color: #333;}
 p {font-size:1em; text-align: left; line-height: 1.5em; margin: 0 0 1em;}
 li { list-style-type:none; }
@@ -65,14 +65,9 @@ button { background:none; border:none;}
 
 #item_actions:hover { visibility:visible;  }
 
-/* POPUP AND INLINE FORMS */
+/* INLINE FORMS */
 .inline_form { margin:2px; padding:3px; background:#9FA6AC; border:1px dotted grey;}
 /* 	on background color change, change ajax-loader.gif : http://www.ajaxload.info/ --> */
-.popup_action { position:absolute; top:50px; left:0; width:360px; background:#9FA6AC; border:1px dotted grey; padding:15px; }
-label { font-weight:bold; display:block; margin:0.5em 0 0.2em;}
-#popup_notice { background:#D8E0C7; padding: 8px; position:absolute; top:5px; left:10px; border: 1px dotted #7B8B57; width: 350px; }
-#popup_notice div, #error div { float:right; border:1px solid grey; }
-#popup_error  { background:#DDC8C8; padding: 8px; position:absolute; top:5px; left:10px; border: 1px dotted #835857; width: 350px; }
 
 /* BUTTONS */
 .hidden { visibility:hidden; }
@@ -83,7 +78,7 @@ label { font-weight:bold; display:block; margin:0.5em 0 0.2em;}
 .btn_add:hover a { visibility:visible; }
 #add_document.btn_add, #add_page.btn_add { text-align:left; margin-top:0.2em;}
 .btn_x { float:right; margin:0; padding:0;}
-.btn_accept { text-align:right; margin:0; padding:0;}
+.btn_validate { text-align:right; margin:0; padding:0;}
 
 /* HEADER */
 #main #header { margin-bottom:2em; width:650px; }

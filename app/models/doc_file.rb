@@ -24,8 +24,13 @@ class DocFile < ActiveRecord::Base
     elsif @file
       @file.read
     else
-      nil
+      raise IOError, "File not found"
     end
+  end
+  
+  # used by DocumentController when sending files
+  def filename
+    version.item.name
   end
   
   private
@@ -47,14 +52,15 @@ class DocFile < ActiveRecord::Base
   
   def filepath
     unless path && path != ""
-      raise StandardError, "Path not set yet, version must be saved first" unless self[:version_id] 
-      extension = filename.split(".").last
-      self[:path] = "/#{extension}/#{version_id}/#{filename}"
+      self[:path] = make_path
     end
     "#{RAILS_ROOT}/data/#{RAILS_ENV}#{path}"
   end
   
-  def filename
-    version.item.name
+  def make_path
+    raise StandardError, "Path not set yet, version must be saved first" unless self[:version_id] 
+    extension = filename.split(".").last
+    self[:path] = "/#{extension}/#{version_id}/#{filename}"
   end
+  
 end

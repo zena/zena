@@ -158,7 +158,7 @@
   id:        27
   key_id:    27
   lang:      en
-  value:     "<img src='/images/accept.png'/>"
+  value:     " validate "
 
 28:
   id:        28
@@ -753,5 +753,11 @@
   key_id:    75
   lang:      fr
   value:     "%A, %d %B %Y"
+
+144:
+  id:        144
+  key_id:    27
+  lang:      fr
+  value:     " valider "
 
 

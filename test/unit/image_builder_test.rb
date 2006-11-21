@@ -28,7 +28,7 @@ class ImageBuilderTest < Test::Unit::TestCase
     def test_dummy
       img = nil
       assert_nothing_raised { img = ImageBuilder.new(:path=>uploaded_jpg('bird.jpg').path, :width=>100, :height=>30) }
-      assert ! img.dummy?, 'Image is not a dummy'
+      assert ! ImageBuilder.dummy?, 'Image is not a dummy'
       assert_nothing_raised { img.render_img }
       assert img.read
       assert_equal 100, img.width
@@ -37,7 +37,7 @@ class ImageBuilderTest < Test::Unit::TestCase
     
     def test_render_without_img
       img = ImageBuilder.new(:width=>100, :height=>30)
-      assert ! img.dummy?, 'Image is not a dummy'
+      assert ! ImageBuilder.dummy?, 'Image is not a dummy'
       assert_raise(IOError) { img.render_img }
       assert_nil img.read
     end
