@@ -128,14 +128,22 @@ class ImageBuilder
 
     pw,ph = @width, @height
     raise StandardError, "image size or thumb size is null" if [w,h,pw,ph].include?(nil) || [w,h,pw,ph].min <= 0
-
+    
     case format[:size]
     when :force
       crop_scale = [w.to_f/pw, h.to_f/ph].max
-      resize!(crop_scale * scale)
-      crop_min!(w, h)
+      if crop_scale > 1.0
+        # we do not zoom. Fill with white.
+        resize!(scale)
+        crop_min!(w,h)
+        set_background!(Magick::MaxRGB, w, h)
+      else
+        resize!(crop_scale * scale)
+        crop_min!(w, h)
+      end
     when :force_no_crop
-      crop_scale = [w.to_f/pw, h.to_f/ph].min
+      # we do not zoom image so we limit to 1.0 for crop_scale.
+      crop_scale = [w.to_f/pw, h.to_f/ph, 1.0].min
       resize!(crop_scale * scale)
       crop_min!(w, h)
       set_background!(Magick::MaxRGB, w, h)
@@ -161,6 +169,7 @@ class ImageBuilder
       end
       if @actions
         @actions.each do |a|
+          puts a
           eval a
         end
       end
@@ -172,7 +181,7 @@ end
 IMAGEBUILDER_FORMAT = {
   'tiny' => { :size=>:force, :width=>15,  :height=>20,  :scale=>1.25  },
   'mini' => { :size=>:force, :width=>40,  :ratio=>1                   },
-  'pv'   => { :size=>:limit, :width=>80,  :height=>80                 },
+  'pv'   => { :size=>:force, :width=>80,  :height=>80                 },
   'med'  => { :size=>:limit, :width=>280, :ratio=>2/3.0               },
   'med2' => { :size=>:limit, :width=>280, :ratio=>2/3.0, :scale=>1.25 },
   'std'  => { :size=>:limit, :width=>600, :ratio=>2/3.0               },
