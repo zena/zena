@@ -16,24 +16,28 @@ class DocFileTest < Test::Unit::TestCase
     assert_nothing_raised { data = doc.read }
     assert_equal data, uploaded_pdf('water.pdf').read
     doc = DocFile.new
-    assert_nil doc.read
+    assert_raise(IOError) { doc.read }
   end
   
   def test_set_size
-    imf = ImageFile.new
+    imf = DocFile.new
     assert_raise(StandardError) { imf.size = 34 }
   end
   
   def test_size
-    without_files('/data/test/jpg') do
-      imf = ImageFile.find(1) # bird.jpg
-      assert_nil imf[:size]
-      assert_nil imf.size
+    DocFile.connection.execute "UPDATE doc_files SET size=NULL WHERE id=#{doc_files_id(:water_pdf)}"
+    without_files('/data/test/pdf') do
+      dof = DocFile.find(doc_files_id(:water_pdf))
+      assert_nil dof[:size]
+      assert_nil dof.size
     end
-    imf = ImageFile.find(1)
-    assert_nil imf[:size]
-    assert_equal 56183, imf.size
-    assert_equal 56183, imf[:size]
+    dof = DocFile.find(doc_files_id(:water_pdf))
+    assert_nil dof[:size]
+    assert_equal 29279, dof.size
+    assert_equal 29279, dof[:size]
+    dof = DocFile.new
+    dof.file = uploaded_pdf('water.pdf')
+    assert_equal 29279, dof.size
   end
   
   

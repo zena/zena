@@ -16,13 +16,13 @@ class ImageFile < DocFile
   
   def file=(aFile)
     super
-    @file = ImageBuilder.new(:file=>aFile)
-    self[:width]  = @file.width
-    self[:height] = @file.height
+    @data = ImageBuilder.new(:file=>aFile)
+    self[:width]  = @data.width
+    self[:height] = @data.height
   end
   
   def dummy?
-    (!version || !File.exist?(filepath)) && (!@file || ImageBuilder.dummy?)
+    (!version || !File.exist?(filepath)) && (!@data || ImageBuilder.dummy?)
   end
   
   def img_tag
@@ -35,19 +35,33 @@ class ImageFile < DocFile
   end
 
   def do_transform(fmt)
-    @file = ImageBuilder.new(:width=>self[:width], :height=>self[:height], :path=>filepath)
+    if self[:version_id]
+      # saved and has filepath
+      @data = ImageBuilder.new(:width=>self[:width], :height=>self[:height], :path=>filepath)
+    elsif !@data
+      return nil
+    end
     unless format = IMAGEBUILDER_FORMAT[fmt]
       fmt = 'pv'
       format = IMAGEBUILDER_FORMAT['pv']
     end
-    @file.transform!(format)
+    @data.transform!(format)
     self[:format] = fmt
     self[:path]   = nil
-    self[:path]   = make_path
-    self[:width]  = @file.width
-    self[:height] = @file.height
+    self[:path]   = make_path if self[:version_id]
+    self[:width]  = @data.width
+    self[:height] = @data.height
     self[:size]   = nil
     self
+  end
+  
+  def size
+    unless self[:size] ||= super
+      if @data && !@data.dummy?
+        self[:size] = @data.read.size
+      end
+    end
+    self[:size]
   end
 
   def filename
@@ -58,4 +72,47 @@ class ImageFile < DocFile
       super
     end
   end
+  
+  def clone
+    new_obj = super
+    if @data
+      new_obj.file = @data.file
+    end
+    new_obj
+  end
+  
+  def read
+    if self[:version_id] && !new_record? && File.exist?(filepath)
+      File.read(filepath)
+    elsif @data
+      @data.read
+    elsif self[:format] && self[:version_id] && file = ImageFile.find_by_version_id_and_format(self[:version_id], nil)
+      @data = ImageBuilder.new(:width=>self[:width], :height=>self[:height], :path=>file.filepath)
+      @data.transform!(self[:format])
+      save_image_file if version.status > Zena::Status[:red]
+      @data.read
+    else
+      raise IOError, "File not found"
+    end
+  end
+  
+  private
+  def save_image_file
+    if @data
+      p = File.join(*filepath.split('/')[0..-2])
+      unless File.exist?(p)
+        FileUtils::mkpath(p)
+      end
+      File.open(filepath, "wb") { |f| f.syswrite(@data.read) }
+      self[:size] = File.stat(filepath).size
+    end
+  end
+  
+  def save_file
+    if @data && self[:format] == nil
+      # save original file on record creation. Only save transformed images on 'read'. This makes the 'read' operation stronger as we can clean the files and it will render again on demand.
+      save_image_file
+    end
+  end
+  
 end

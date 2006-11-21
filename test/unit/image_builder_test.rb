@@ -37,7 +37,8 @@ class ImageBuilderTest < Test::Unit::TestCase
     
     def test_render_without_img
       img = ImageBuilder.new(:width=>100, :height=>30)
-      assert ! ImageBuilder.dummy?, 'Image is not a dummy'
+      assert ! ImageBuilder.dummy?, 'Class is not a dummy'
+      assert img.dummy?, 'Image is a dummy'
       assert_raise(IOError) { img.render_img }
       assert_nil img.read
     end
@@ -54,6 +55,22 @@ class ImageBuilderTest < Test::Unit::TestCase
       assert_nothing_raised { img.write("#{RAILS_ROOT}/data/test/sepia.jpg")}
       assert File.exist?("#{RAILS_ROOT}/data/test/sepia.jpg"), "File saved ok"
       FileUtils.rm("#{RAILS_ROOT}/data/test/sepia.jpg")
+    end
+    
+    def test_png
+      path = "#{RAILS_ROOT}/public/images/ext/pdf.png"
+      img = ImageBuilder.new(:path=>path, :width=>30, :height=>30)
+      img.transform!('pv')
+      assert_nothing_raised { data = img.read }
+    end
+
+    def test_attr_file
+      file = uploaded_jpg('bird.jpg')
+      img = ImageBuilder.new(:file=>file)
+      assert_equal img.file.object_id, file.object_id
+      assert !img.dummy?, "Not a dummy"
+      img.transform!('pv')
+      assert_nothing_raised { data = img.read }
     end
   end
     
@@ -154,12 +171,4 @@ class ImageBuilderTest < Test::Unit::TestCase
     assert_equal 15, img.width
     assert_equal 50, img.height
   end
-  
-  def test_png
-    path = "#{RAILS_ROOT}/public/images/ext/pdf.png"
-    img = ImageBuilder.new(:path=>path, :width=>30, :height=>30)
-    img.transform!('pv')
-    assert_nothing_raised { data = img.read }
-  end
-  
 end

@@ -240,7 +240,7 @@ module ApplicationHelper
     elsif id[0..0] == "0"
       size = 'pv'
     else
-      size = 'std'
+      size = nil
     end
     img = secure(Document) { Document.find(id) }
     
@@ -258,7 +258,12 @@ module ApplicationHelper
     else
       prefix = suffix = ""
     end
-    image = img.img_tag(size)
+    if img.kind_of?(Image)
+      image = img.img_tag(size || 'std')
+    else
+      image = img.img_tag(size)
+    end
+      
     
     if link.nil?
       prefix + image + suffix

@@ -22,6 +22,8 @@ rescue LoadError
 end
 
 class ImageBuilder
+  attr_reader :file
+  
   class << self
     def dummy?
       Magick.const_defined?(:ZenaDummy)
@@ -51,37 +53,41 @@ class ImageBuilder
         raise StandardError, "Bad parameter (#{k})"
       end
       
-      unless @width && @height || ImageBuilder.dummy?
+      unless @width && @height || dummy?
         if @file || @path
           @img = Magick::ImageList.new(@file ? @file.path : @path)
           #@img.from_blob(@file.read)
-          @width  = @img.rows
-          @height = @img.columns
+          @width  = @img.columns
+          @height = @img.rows
         end
       end
         
     end
   end
+  
+  def dummy?
+    ImageBuilder.dummy? || (!@path && !@img && !@file)
+  end
 
   def read
-    return nil if ImageBuilder.dummy? || (!@path && !@img && !@file)
+    return nil if dummy?
     render_img
     @img.to_blob
   end
 
   def write(path)
-    return false if ImageBuilder.dummy? || (!@path && !@img && !@file)
+    return false if dummy?
     render_img
     @img.write(path)
   end
 
   def rows
-    return nil unless @height || !ImageBuilder.dummy?
+    return nil unless @height || !dummy?
     (@height ||= render_img.rows).to_i
   end
 
   def columns
-    return nil unless @width || !ImageBuilder.dummy?
+    return nil unless @width || !dummy?
     (@width ||= render_img.columns).to_i
   end
 

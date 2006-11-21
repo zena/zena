@@ -5,9 +5,9 @@ class DocFile < ActiveRecord::Base
   before_save :save_file
   
   def file=(aFile)
-    @file = aFile
-    self[:content_type] = @file.content_type.chomp
-    self[:size] = @file.stat.size
+    @data = aFile
+    self[:content_type] = @data.content_type.chomp
+    self[:size] = @data.stat.size
   end
   
   def size=(s)
@@ -15,14 +15,19 @@ class DocFile < ActiveRecord::Base
   end
   
   def size
-    self[:size] ||= File.exist?(filepath) ? File.stat(filepath).size : nil
+    unless self[:size]
+      if self[:version_id] && File.exist?(filepath)
+        self[:size] = File.stat(filepath).size
+      end
+    end
+    self[:size]
   end
   
   def read
     if self[:version_id] && !new_record? && File.exist?(filepath)
       File.read(filepath)
-    elsif @file
-      @file.read
+    elsif @data
+      @data.read
     else
       raise IOError, "File not found"
     end
@@ -36,20 +41,21 @@ class DocFile < ActiveRecord::Base
   private
   def docfile_valid
     errors.add('version_id', 'version must exist') unless self.version
-    errors.add('base', 'file not set') unless @file || !new_record?
+    errors.add('base', 'file not set') unless @data || !new_record?
   end
   
   def save_file
-    if @file
+    if @data
       p = File.join(*filepath.split('/')[0..-2])
       unless File.exist?(p)
         FileUtils::mkpath(p)
       end
-      File.open(filepath, "wb") { |f| f.syswrite(@file.read) }
+      File.open(filepath, "wb") { |f| f.syswrite(@data.read) }
       self[:size] = File.stat(filepath).size
     end
   end
   
+  protected
   def filepath
     unless path && path != ""
       self[:path] = make_path
@@ -57,10 +63,10 @@ class DocFile < ActiveRecord::Base
     "#{RAILS_ROOT}/data/#{RAILS_ENV}#{path}"
   end
   
+  private
   def make_path
     raise StandardError, "Path not set yet, version must be saved first" unless self[:version_id] 
     extension = filename.split(".").last
     self[:path] = "/#{extension}/#{version_id}/#{filename}"
   end
-  
 end

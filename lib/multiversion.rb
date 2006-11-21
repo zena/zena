@@ -228,7 +228,6 @@ module Zena
           true
         end
         def after_remove
-          puts "AFREM"
           true
         end
         

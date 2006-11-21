@@ -17,14 +17,13 @@ class FormTest < Test::Unit::TestCase
   #  assert (result =~ /<td>cat<\/td><td>13<\/td>.*<td>dog<\/td><td>27<\/td>/m), "Total births for cat is 13, dog is 27, cat before dog"
   #end
   def test_todo
-    false
+    #false
   end
   
   def test_parser
-    visitor(:ant)
-    visitor(:ant)
-    form = secure(Form) { Form.find(items_id(:form)) }
-    assert_kind_of Form, form
-
+    #visitor(:ant)
+    #visitor(:ant)
+    #form = secure(Form) { Form.find(items_id(:form)) }
+    #assert_kind_of Form, form
   end
 end

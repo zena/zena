@@ -48,6 +48,8 @@ class DocumentController < ApplicationController
     cache_page if doc.public?
   rescue ActiveRecord::RecordNotFound
     page_not_found
+  rescue IOError
+    flash[:error] = trans "Some error occured: file missing."
   end
 
   # Used to clean list after adding stuff or when canceling

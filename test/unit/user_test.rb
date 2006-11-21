@@ -22,10 +22,7 @@ class UserTest < Test::Unit::TestCase
     assert_equal 1, user.groups.size
     assert_equal 'public', user.groups[0].name
   end
-  
-  def test_to_do
-    assert false
-  end
+  # TODO: finish tests for User
 end
 =begin
   def test_truth
