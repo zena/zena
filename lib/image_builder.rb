@@ -25,7 +25,7 @@ rescue LoadError
 end
 
 class ImageBuilder
-  
+
   def initialize(h)
     params = {:height=>nil, :width=>nil, :path=>nil, :file=>nil, :actions=>[]}.merge(h)
 
@@ -48,58 +48,79 @@ class ImageBuilder
       else
         raise StandardError, "Bad parameter (#{k})"
       end
+      
+      unless @width && @height || dummy?
+        if @file || @path
+          @img = Magick::ImageList.new(@file ? @file.path : @path)
+          #@img.from_blob(@file.read)
+          @width  = @img.rows
+          @height = @img.columns
+        end
+      end
+        
     end
   end
-  
+
   def dummy?
     Magick.const_defined?(:ZenaDummy)
   end
-  
+
   def read
     return nil if dummy? || (!@path && !@img && !@file)
     render_img
     @img.to_blob
   end
-  
+
+  def write(path)
+    return false if dummy? || (!@path && !@img && !@file)
+    render_img
+    @img.write(path)
+  end
+
   def rows
     return nil unless @height || !dummy?
     (@height ||= render_img.rows).to_i
   end
-  
+
   def columns
     return nil unless @width || !dummy?
     (@width ||= render_img.columns).to_i
   end
-  
+
   alias height rows
   alias width columns
-  
+
   def resize!(s)
     @width  *= s
     @height *= s
-    @actions << "@img.resize!(#{s})"
+    @actions << Proc.new {|img| img.resize!(s) }
   end
-  
+
   def crop_min!(w,h)
     @width  = [@width ,w].min
     @height = [@height,h].min
-    @actions << "@img.crop!(Magick::CenterGravity,[#{w},@img.columns].min,[#{h},@img.rows].min)"
+    @actions << Proc.new {|img| img.crop!(Magick::CenterGravity,[w,@img.columns].min,[h,@img.rows].min) }
   end
-  
+
   def set_background!(opacity,w,h)
     @width  = [@width ,w].max
     @height = [@height,h].max
-    @actions << "bg = Magick::Image.new(#{w},#{h})"
-    @actions << "bg.opacity = #{opacity}"
-    @actions << "@img = bg.composite(@img, Magick::CenterGravity, Magick::OverCompositeOp)"
+    @actions << Proc.new do |img|
+      bg = Magick::Image.new(w,h)
+      bg.opacity = opacity
+      bg.format = img.format
+      img = bg.composite(img, Magick::CenterGravity, Magick::OverCompositeOp)
+    end
   end
-  
+
   def transform!(tformat)
+    @img = nil
     if tformat.kind_of?(String)
       tformat = IMAGEBUILDER_FORMAT[tformat] || {}
     end
     format = { :size=>:limit, :ratio=>2.0/3.0 }.merge(tformat)
-    
+    @pre, @post = format[:pre], format[:post]
+
     if format[:size] == :keep
       h,w = @height, @width
     else
@@ -128,7 +149,7 @@ class ImageBuilder
 
     pw,ph = @width, @height
     raise StandardError, "image size or thumb size is null" if [w,h,pw,ph].include?(nil) || [w,h,pw,ph].min <= 0
-    
+
     case format[:size]
     when :force
       crop_scale = [w.to_f/pw, h.to_f/ph].max
@@ -155,7 +176,7 @@ class ImageBuilder
     end
     self
   end
-  
+
   def render_img
     raise IOError, 'MagickDummy cannot render image' if dummy?
     unless @img
@@ -167,23 +188,38 @@ class ImageBuilder
       else
         raise IOError, 'Cannot render image without path or file'
       end
+      if @pre
+        @pre = [@pre].flatten
+        @pre.each do |a|
+          @img = a.call(@img)
+        end
+      end
+
       if @actions
         @actions.each do |a|
-          puts a
-          eval a
+          @img = a.call(@img)
+        end
+      end
+
+      if @post
+        @post = [@post].flatten
+        @post.each do |a|
+          @img = a.call(@img)
         end
       end
     end
     @img
   end
 end
+# Make a watermark from the word "RMagick"
 
 IMAGEBUILDER_FORMAT = {
-  'tiny' => { :size=>:force, :width=>15,  :height=>20,  :scale=>1.25  },
+  'tiny' => { :size=>:force, :width=>15,  :height=>15,  :scale=>2.0   },
   'mini' => { :size=>:force, :width=>40,  :ratio=>1                   },
   'pv'   => { :size=>:force, :width=>80,  :height=>80                 },
   'med'  => { :size=>:limit, :width=>280, :ratio=>2/3.0               },
   'med2' => { :size=>:limit, :width=>280, :ratio=>2/3.0, :scale=>1.25 },
   'std'  => { :size=>:limit, :width=>600, :ratio=>2/3.0               },
   'full' => { :size=>:keep                                            },
+  'sepia'=> { :size=>:limit, :width=>280, :ratio=>2/3.0, :post=>Proc.new {|img| img.sepiatone(Magick::MaxRGB * 0.8) }},
 }

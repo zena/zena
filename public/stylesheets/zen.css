@@ -138,6 +138,7 @@ td#header { vertical-align:top; padding:6px; }
 #right span.ext a {font-family:Monaco, monospace;color:grey; width:200px;}
 .list { list-style:none; margin-left:0.8em; margin-top:0.5em; margin-bottom:0em; padding: 0 0.5em 1em;}
 .list li { line-height:1.5em; }
+.list img.tiny { border:1px solid #2F2F2F;}
 input, textarea { border:1px solid grey; margin:0.2em}
 
 /* MAIN CONTENT */

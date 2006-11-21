@@ -354,6 +354,7 @@ module Zena
                             :order=>"lang_ok DESC, status ASC, publish_from ASC")
 
             end
+            @version.item = self # preload self as item in version
           end
           if @version.nil?
             raise Exception.exception("Item #{self[:id]} does not have any version !!")

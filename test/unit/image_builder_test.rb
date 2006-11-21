@@ -46,6 +46,15 @@ class ImageBuilderTest < Test::Unit::TestCase
       img = ImageBuilder.new(:path=>uploaded_jpg('bird.jpg').path, :width=>100, :height=>30)
       assert_nothing_raised { img.render_img }
     end
+    
+    def test_write_sepia
+      img = ImageBuilder.new(:path=>uploaded_jpg('bird.jpg').path)
+      img.transform!('sepia')
+      assert !File.exist?("#{RAILS_ROOT}/data/test/sepia.jpg"), "File does not exist"
+      assert_nothing_raised { img.write("#{RAILS_ROOT}/data/test/sepia.jpg")}
+      assert File.exist?("#{RAILS_ROOT}/data/test/sepia.jpg"), "File saved ok"
+      FileUtils.rm("#{RAILS_ROOT}/data/test/sepia.jpg")
+    end
   end
     
   def test_resize
@@ -144,6 +153,13 @@ class ImageBuilderTest < Test::Unit::TestCase
     img.transform!(:height=>50, :ratio=>1.0/3.0)
     assert_equal 15, img.width
     assert_equal 50, img.height
+  end
+  
+  def test_png
+    path = "#{RAILS_ROOT}/public/images/ext/pdf.png"
+    img = ImageBuilder.new(:path=>path, :width=>30, :height=>30)
+    img.transform!('pv')
+    assert_nothing_raised { data = img.read }
   end
   
 end

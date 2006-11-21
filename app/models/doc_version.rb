@@ -9,32 +9,30 @@ class DocVersion < Version
   
   # format is ignored here
   def img_tag(format=nil)
+    ext = item.ext
+    unless File.exist?("#{RAILS_ROOT}/public/images/ext/#{ext}.png")
+      ext = 'other'
+    end
     unless format
       # img_tag from extension
-      "<img src='/images/ext/#{item.ext}.png' width='30' height='30' class='tiny'/>"
+      "<img src='/images/ext/#{ext}.png' width='32' height='32' class='icon'/>"
     else
-      img = ImageBuilder.new(:path=>"#{RAILS_ROOT}/public/images/ext/#{item.ext}.png", :width=>30, :height=>30)
+      img = ImageBuilder.new(:path=>"#{RAILS_ROOT}/public/images/ext/#{ext}.png", :width=>32, :height=>32)
       img.transform!(format)
-      if img.dummy?
-        if img.width < 30
-          # only reduce size
-          # let the browser resize
-          "<img src='/images/ext/#{item.ext}.png' width='#{img.width}' height='#{img.height}' class='#{format}'/>"
-        else
-          "<img src='/images/ext/#{item.ext}.png' width='30' height='30' class='#{format}'/>"
+      path = "#{RAILS_ROOT}/public/images/ext/"
+      filename = "#{ext}-#{format}.png"
+      unless File.exist?(File.join(path,filename))
+        # make new image with the format
+        unless File.exist?(path)
+          FileUtils::mkpath(path)
         end
-      else
-        path = "#{RAILS_ROOT}/public/images/ext/"
-        filename = "#{item.ext}-#{format}.png"
-        unless File.exist?(File.join(path,filename))
-          # make new image with the format
-          unless File.exist?(path)
-            FileUtils::mkpath(path)
-          end
+        if img.dummy?
+          File.cp("#{RAILS_ROOT}/public/images/ext/#{ext}.png", "#{RAILS_ROOT}/public/images/ext/#{ext}-#{format}.png")
+        else
           File.open(File.join(path, filename), "wb") { |f| f.syswrite(img.read) }
         end
-        "<img src='/images/ext/#{filename}' width='#{img.width}' height='#{img.height}' class='#{format}' />"
       end
+      "<img src='/images/ext/#{filename}' width='#{img.width}' height='#{img.height}' class='#{format}'/>"
     end
   end
   

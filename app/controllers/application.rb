@@ -16,8 +16,8 @@ class ApplicationController < ActionController::Base
     
     if @item && @item.kind_of?(Document) && params[:get] != 'page'
       # send inline data
-      data = @item.data
-      send_data(data.read, :filename=>@item.name, :type=>data.content_type, :disposition=>'inline')
+      file = @item.file
+      send_file(file.path, :filename=>@item.name, :type=>data.content_type, :disposition=>'inline')
       cache_page if opts[:cache] && @item.public?
     else
       @project = @item.project

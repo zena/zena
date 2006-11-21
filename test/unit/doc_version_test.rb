@@ -6,9 +6,20 @@ class DocVersionTest < Test::Unit::TestCase
   def test_img_tag
     visitor(:tiger)
     doc = secure(Item) { items(:water_pdf) }
-    assert_equal "<img src='/images/ext/pdf.png' width='30' height='30' class='tiny'/>", doc.img_tag
-    assert_equal "<img src='/images/ext/pdf.png' width='30' height='30' class='pv'/>", doc.img_tag('pv')
-    assert_equal "<img src='/images/ext/pdf.png' width='30' height='30' class='std'/>", doc.img_tag('std')
+    assert_equal "<img src='/images/ext/pdf.png' width='32' height='32' class='tiny'/>", doc.img_tag
+    assert_equal "<img src='/images/ext/pdf-pv.png' width='80' height='80' class='pv'/>", doc.img_tag('pv')
+    assert_equal "<img src='/images/ext/pdf-std.png' width='32' height='32' class='std'/>", doc.img_tag('std')
+  end
+  
+  def test_img_tag_other
+    visitor(:tiger)
+    doc = secure(Item) { items(:water_pdf) }
+    doc.name = 'water.bin'
+    puts "DOC :#{doc.object_id}"
+    assert_equal 'bin', doc.ext
+    assert_equal "<img src='/images/ext/other.png' width='32' height='32' class='tiny'/>", doc.img_tag
+    assert_equal "<img src='/images/ext/other-pv.png' width='80' height='80' class='pv'/>", doc.img_tag('pv')
+    assert_equal "<img src='/images/ext/other-std.png' width='32' height='32' class='std'/>", doc.img_tag('std')
   end
   
   def test_file
