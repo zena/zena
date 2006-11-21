@@ -39,8 +39,8 @@
 		<div id="drive" style="display:none;"></div>
 
 		<div id="content">
-			<%= zazen @item.summary %>
-			<%= zazen @item.text %>
+			<div id="summary"><%= zazen @item.summary %></div>
+			<div id="text">   <%= zazen @item.text    %></div>
 			<%#= plug :comments %>
 		</div>
 

@@ -1,6 +1,6 @@
-<div id='title'>
-	<h1 class="s<%= @item.v_status %>"><%= @item.title %>
+<div id='header'>
+	<h1 class="s<%= @item.v_status %>"><span id='title'><%= @item.title %></span>
 		<ul id="item_actions"><%= edit_button(:all) %></ul>
 	</h1>
-	<div id="header"><%= author(:large) %><%#= plug :links %></div>
+	<div id="subtitle"><%= author(:large) %><%#= plug :links %></div>
 </div>

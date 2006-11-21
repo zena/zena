@@ -38,8 +38,8 @@
   	<div id="drive" style="display:none;"></div>
 
   	<div id="content">
-  		<%#= plug :summary %>
-  		<%#= plug :text %>
+			<div id="summary"><%= zazen @item.summary %></div>
+			<div id="text">   <%= zazen @item.text    %></div>
   		<%#= plug :comments %>
 
   		<h3><%= trans('suite:')%></h3>

@@ -9,7 +9,7 @@
 #navbar #visitor, #navbar #logout { float: right; }
 
 /* HEADER */
-#header { margin-bottom:2em; width:650px; }
+##subtitle { margin-bottom:2em; width:650px; }
 
 .block { border: 1px dotted grey; background:#ccc; width:650px;}
 .block td { border:0;}
@@ -19,7 +19,7 @@
 
 td.preview { vertical-align:middle; text-align:center; width:120px; height:120px; }
 .preview img { border: 1px solid #888; background:#aaa; }
-td#header { vertical-align:top; padding:6px; }
+td##subtitle { vertical-align:top; padding:6px; }
 
 #trad .on a { text-decoration:underline; }
 #trad .off  { color:#bbb; }

@@ -36,16 +36,22 @@ class VersionControllerTest < Test::Unit::TestCase
     assert_tag 'form'
   end
   
-  #def test_cannot_edit
-  #  post 'edit', :id=>items_id(:status)
-  #  assert_no_tag
-  #  post 'edit', :version_id=>versions_id(:lake_red_en)
-  #  assert_no_tag
-  #  get 'edit', :id=>items_id(:status)
-  #  assert_no_tag
-  #  get 'edit', :version_id=>versions_id(:lake_red_en)
-  #  assert_no_tag
-  #end
+  def test_cannot_edit
+    post 'edit', :id=>items_id(:status)                            
+    assert_redirected_to :controller=>'main', :action=>'not_found'
+    post 'edit', :version_id=>versions_id(:lake_red_en)           
+    assert_redirected_to :controller=>'main', :action=>'not_found'
+    get 'edit', :id=>items_id(:status)                            
+    assert_redirected_to :controller=>'main', :action=>'not_found'
+    get 'edit', :version_id=>versions_id(:lake_red_en)            
+    assert_redirected_to :controller=>'main', :action=>'not_found'
+  end
+  
+  def test_preview
+    login(:tiger)
+    post 'preview', :item=>{ :id=>items_id(:status), :title=>'my super goofy new title' }
+    assert_rjs_tag :rjs => {:block => 'title' }, :content=>"my super goofy new title"
+  end
   #
   #def test_can_not_publish
   #  login(:ant)

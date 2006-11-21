@@ -4,7 +4,7 @@
 #item_summary { font-style:italic;}
 </style>
 <div id="edit_form" class="popup_action">
-  <p class="btn_x"><%= link_to_function t('btn_x'), "opener.location.href=opener.location.href; self.close();" %></p>
+  <p class="btn_x"><%= link_to_function transb('btn_x'), "opener.location.href=opener.location.href; self.close();" %></p>
 	<%= error_messages_for "item" %>
   <%= start_form_tag({ :action => "save", :controller=>'version' }, :id => "item_form" ) %>
   <%= hidden_field 'item', 'lang', :value=>@item.v_lang %>
@@ -13,11 +13,11 @@
 	<%= text_area 'item', 'comment', :cols=>55, :rows=>3 %>
 	<hr/>
 	<%= text_field 'item', 'title', :size=>20 %>
-	<label for="summary"><%= t "summary" %></label>
+	<label for="summary"><%= trans("summary")  %></label>
 	<%= text_area 'item', 'summary', :cols=>80, :rows=>3, :value=>@item.v_summary %>
-	<label for="content"><%= t "content" %></label>
+	<label for="content"><%= trans("content") %></label>
 	<%= text_area 'item', 'text', :cols=>80, :rows=>17, :value=>@item.v_text %>
-	<p class="btn_validate"><button type="submit" class="btn_validate" value='<%= transb('validate') %>'></p>
+	<p class="btn_validate"><input type="submit" class="btn_validate" value='<%= transb('validate') %>'/></p>
 	<%= end_form_tag %> 
 	
 <%= javascript_start %>

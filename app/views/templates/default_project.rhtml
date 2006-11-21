@@ -27,16 +27,17 @@
 
   <div id="left">
     <%#= plug :calendar, :tiny, :on_click=>"new Ajax.Updater('largecal', '/z/calendar/large', {asynchronous:true, evalScripts:true}); return false;" %>
-    <div id="title">
+    <div id="header">
     <h1 class="s<%= @item.v_status %>">
       <ul id="item_actions"><%#= plug :btn, :all %></ul><br/>
-      <%= @item.title %>
+      <span id="title"><%= @item.title %></span>
     </h1>
     </div>
-    <div id="header"><%#= plug :auth_info, :small %><%#= plug :links %></div>
+    <div id="subtitle"><%#= plug :auth_info, :small %><%#= plug :links %></div>
   	<div id="drive" style="display:none;"></div>
     <div id="content">
-			<%= zazen @item.text %>
+			<div id="summary"><%= zazen @item.summary %></div>
+			<div id="text">   <%= zazen @item.text    %></div>
   		<%#= plug :comments %>
   	</div>
   </div>

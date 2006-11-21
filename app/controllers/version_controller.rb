@@ -1,4 +1,6 @@
 class VersionController < ApplicationController
+  layout 'popup'
+  helper MainHelper
   
   def edit
     if params[:id]
@@ -6,16 +8,14 @@ class VersionController < ApplicationController
     elsif params[:item_id]
       @item = secure_write(Item) { Item.find(params[:id]) }
     end
-    if @item.edit
+    if @item.edit!
       render :layout=>'popup'
     else
-      render :nothing=>true
+      page_not_found
     end
   rescue ActiveRecord::RecordNotFound
-    render :nothing=>true
+    page_not_found
   end
-  
-  # test to here
   
   # preview when editing item
   def preview
@@ -27,8 +27,10 @@ class VersionController < ApplicationController
       @item = secure(Item) { Item.version(params[:version_id]) }
     end
   rescue ActiveRecord::RecordNotFound
-    render :nothing=>true
+    page_not_found
   end
+  
+  # TODO: continue testing for VersionController
   
   def save
     if params[:version]
@@ -42,7 +44,7 @@ class VersionController < ApplicationController
     #if @item.type != params[:item][:type]
     #  @item = @item.change_to(eval "#{params[:item][:type]}")
     #end
-    if @item.edit(params[:item])
+    if @item.update_redaction(params[:item])
       flash[:notice] = "Redaction saved."
       render :layout => 'popup'
     else

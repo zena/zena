@@ -163,6 +163,7 @@ class ImageBuilder
         crop_min!(w,h)
         set_background!(Magick::MaxRGB, w, h)
       else
+        puts "RESIZE:#{crop_scale} * #{scale} [#{@width}, #{@height}] ==> [#{w}, #{h}]"
         resize!(crop_scale * scale)
         crop_min!(w, h)
       end

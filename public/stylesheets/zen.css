@@ -81,7 +81,7 @@ button { background:none; border:none;}
 .btn_validate { text-align:right; margin:0; padding:0;}
 
 /* HEADER */
-#main #header { margin-bottom:2em; width:650px; }
+#main #subtitle { margin-bottom:2em; width:650px; }
 
 .block { border: 1px dotted grey; background:#ccc; width:650px;}
 .block td { border:0;}
@@ -91,7 +91,7 @@ button { background:none; border:none;}
 
 td.preview { vertical-align:middle; text-align:center; width:120px; height:120px; }
 .preview img { border: 1px solid #888; background:#aaa; }
-td#header { vertical-align:top; padding:6px; }
+td#subtitle { vertical-align:top; padding:6px; }
 
 #trad .on a { text-decoration:underline; }
 #trad .off  { color:#bbb; }
@@ -113,8 +113,8 @@ td#header { vertical-align:top; padding:6px; }
 .s30  { border-bottom: 10px solid #B7CC87; padding: 4px; }
 .s10, .s20 {  border-color:#685958; border-bottom: 1px solid grey; padding: 4px; }
 .s30 form, .s35 form, .s40 form, .s10 form, .s20 form { margin-left:20px; display: inline; }
-.s30 span, .s35 span, .s40 span, .s10 span, .s20 span { float: right; font-size:0.8em; padding-top:0.5em; } 
-
+/*.s30 span, .s35 span, .s40 span, .s10 span, .s20 span { float: right; font-size:0.8em; padding-top:0.5em; } 
+*/
 /* NOTES */
 #left { position:absolute; top:125px; left:20px; width:220px; }
 #notes { margin-top:2em;}
@@ -138,16 +138,16 @@ input, textarea { border:1px solid grey; margin:0.2em}
 
 /* MAIN CONTENT */
 #main {margin-top:5em;  margin-left:260px; width:900px; }
-#main #title h1 {  font-size:2.5em; margin-bottom:0.17em;}
-#title h1, #text h1, #text h2, #text h3 { font-family: Georgia, Times, serif ; font-style:italic; color:#450009;}
+#main #header h1 {  font-size:2.5em; margin-bottom:0.17em;}
+#header h1, #text h1, #text h2, #text h3 { font-family: Georgia, Times, serif ; font-style:italic; color:#450009;}
 
 #main #content { float:left; width:640px; padding-top:0; padding-right: 22px; }
 #main #content { margin-top:0;}
 #left #content { padding-top:10px; font-size:80%;}
-#left #title h1 { font-size:1.3em; margin-top:0px;}
-#left #header { margin-bottom:0.17em; margin-top:0.17em; }
-#left #header .info { font-style:normal; font-size:70%; }
-#left #header { margin-bottom:0;}
+#left #header h1 { font-size:1.3em; margin-top:0px;}
+#left #subtitle { margin-bottom:0.17em; margin-top:0.17em; }
+#left #subtitle .info { font-style:normal; font-size:70%; }
+#left #subtitle { margin-bottom:0;}
 #summary p { font-style:italic; }
 #text { clear:both;}
 #text { line-height:1.5; margin-bottom:2em;}

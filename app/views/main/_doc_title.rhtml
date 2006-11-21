@@ -3,7 +3,7 @@
 		<td class="preview">
 			<%= link_to @item.img_tag('pv'), :prefix => prefix, :controller => 'main', :action=>'show', :path=>@item.fullpath %>
 		</td>
-		<td id="header">		  
+		<td id="#subtitle">		  
       <h1 id="title" class="s<%= @item.v_status %>"><%= @item.title %><br/>
         <ul id="item_actions"><%= edit_button(:all) %></ul>
       </h1>
