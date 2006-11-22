@@ -61,7 +61,6 @@ class ImageBuilder
           @height = @img.rows
         end
       end
-        
     end
   end
   
@@ -100,10 +99,10 @@ class ImageBuilder
     @actions << Proc.new {|img| img.resize!(s) }
   end
 
-  def crop_min!(w,h)
+  def crop_min!(w,h,gravity=Magick::CenterGravity)
     @width  = [@width ,w].min
     @height = [@height,h].min
-    @actions << Proc.new {|img| img.crop!(Magick::CenterGravity,[w,@img.columns].min,[h,@img.rows].min) }
+    @actions << Proc.new {|img| img.crop!(gravity,[w,@img.columns].min,[h,@img.rows].min) }
   end
 
   def set_background!(opacity,w,h)
@@ -122,7 +121,7 @@ class ImageBuilder
     if tformat.kind_of?(String)
       tformat = IMAGEBUILDER_FORMAT[tformat] || {}
     end
-    format = { :size=>:limit, :ratio=>2.0/3.0 }.merge(tformat)
+    format = { :size=>:limit, :ratio=>2.0/3.0, :gravity=>Magick::CenterGravity }.merge(tformat)
     @pre, @post = format[:pre], format[:post]
 
     if format[:size] == :keep
@@ -152,32 +151,30 @@ class ImageBuilder
     end
 
     pw,ph = @width, @height
-    puts "w:#{@width} h:#{@height}"
     raise StandardError, "image size or thumb size is null" if [w,h,pw,ph].include?(nil) || [w,h,pw,ph].min <= 0
 
     case format[:size]
     when :force
       crop_scale = [w.to_f/pw, h.to_f/ph].max
-      puts "RESIZE:#{crop_scale} * #{scale} [#{w.to_f}/#{pw}, #{h.to_f}/#{ph}]"
       if crop_scale > 1.0
         # we do not zoom. Fill with white.
         resize!(scale)
-        crop_min!(w,h)
+        crop_min!(w,h,format[:gravity])
         set_background!(Magick::MaxRGB, w, h)
       else
         resize!(crop_scale * scale)
-        crop_min!(w, h)
+        crop_min!(w, h,format[:gravity])
       end
     when :force_no_crop
       # we do not zoom image so we limit to 1.0 for crop_scale.
       crop_scale = [w.to_f/pw, h.to_f/ph, 1.0].min
       resize!(crop_scale * scale)
-      crop_min!(w, h)
+      crop_min!(w, h,format[:gravity])
       set_background!(Magick::MaxRGB, w, h)
     when :limit
       crop_scale = [w.to_f/pw, h.to_f/ph].min
       resize!(crop_scale * scale) if crop_scale < 1
-      crop_min!(w, h)
+      crop_min!(w, h,format[:gravity])
     when :keep
     end
     self
@@ -224,8 +221,9 @@ IMAGEBUILDER_FORMAT = {
   'mini' => { :size=>:force, :width=>40,  :ratio=>1.0                 },
   'pv'   => { :size=>:force, :width=>80,  :ratio=>1.0                 },
   'med'  => { :size=>:limit, :width=>280, :ratio=>2/3.0               },
-  'med2' => { :size=>:limit, :width=>280, :ratio=>2/3.0, :scale=>1.25 },
+  'top' => { :size=>:force, :width=>280, :ratio=>2.0/3.0, :gravity=>Magick::NorthGravity},
+  'mid' => { :size=>:force, :width=>280, :ratio=>2.0/3.0, :gravity=>Magick::CenterGravity},
+  'low' => { :size=>:force, :width=>280, :ratio=>2.0/3.0, :gravity=>Magick::SouthGravity},
   'std'  => { :size=>:limit, :width=>600, :ratio=>2/3.0               },
-  'full' => { :size=>:keep                                            },
   'sepia'=> { :size=>:limit, :width=>280, :ratio=>2/3.0, :post=>Proc.new {|img| img.sepiatone(Magick::MaxRGB * 0.8) }},
 }

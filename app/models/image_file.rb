@@ -1,6 +1,7 @@
 class ImageFile < DocFile
   
   def self.find_or_new(vid, format=nil)
+    format = nil if format == 'full'
     f = self.find_by_version_id_and_format(vid,format)
     unless f
       # create new
@@ -87,7 +88,7 @@ class ImageFile < DocFile
     elsif @data
       @data.read
     elsif self[:format] && self[:version_id] && file = ImageFile.find_by_version_id_and_format(self[:version_id], nil)
-      @data = ImageBuilder.new(:width=>self[:width], :height=>self[:height], :path=>file.filepath)
+      @data = ImageBuilder.new(:width=>file[:width], :height=>file[:height], :path=>file.filepath)
       @data.transform!(self[:format])
       save_image_file if version.status > Zena::Status[:red]
       @data.read
