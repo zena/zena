@@ -79,7 +79,7 @@ class VersionController < ApplicationController
   end
   
   def publish
-    item = secure(Item) { Item.version(params[:version_id]) }
+    item = secure(Item) { Item.version(params[:id]) }
     if item.publish
       flash[:notice] = "Redaction published."
       Pcache.expire_cache(:plug=>:news) if item.kind_of?(Note)

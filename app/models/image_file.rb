@@ -96,6 +96,13 @@ class ImageFile < DocFile
     end
   end
   
+  # TODO: remove_image_file not tested yet
+  def remove_image_file
+    if self[:format] && self[:version_id]
+      FileUtils::rm(filepath) if File.exist?(filepath)
+    end
+  end
+  
   private
   def save_image_file
     if @data

@@ -11,6 +11,8 @@ a:hover .id { display:inline; }
 button { background:none; border:none;}
 .img_left  img { margin:0px 5px 5px 0; float:left;}
 .img_right img { margin:0px 0 5px 5px; float:right;}
+p.img_left, p.img_right { margin:0; padding:0;}
+.img_center { text-align:center; margin:5px;}
 .clear { clear:both; font-size:1px;}
 
 /* ERROR HANDLING */
@@ -83,7 +85,7 @@ button { background:none; border:none;}
 /* HEADER */
 #main #subtitle { margin-bottom:2em; width:650px; }
 
-.block { border: 1px dotted grey; background:#ccc; width:650px;}
+.block { border: 1px dotted grey; background:#ccc; width:640px;}
 .block td { border:0;}
 /* b = block */
 .b40, .b35 { background:#73A1A5;}
@@ -155,7 +157,7 @@ input, textarea { border:1px solid grey; margin:0.2em}
 #text h2 { margin-top:2em; margin-bottom:0.4em; font-size:1.5em;}
 #text h3 { margin-top:1.8em; margin-bottom:0.4em; font-size:1em; font-style:normal; font-weight:bold;}
 #text h4 { font-size:0.9em; }
-#text p { margin-bottom:1.8em; font-style:normal; }
+#text p { margin-bottom:1.8em; font-style:normal; font-size:1em; }
 #text ul {margin:1em 0 0 3em;}
 #text img, #summary img, .note img { border: 1px solid #666; }
 

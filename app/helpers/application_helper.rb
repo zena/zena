@@ -196,9 +196,9 @@ module ApplicationHelper
   # * ["":034] if the item id starts with '0', creates a popup link.
   # * [!14!] inline image 14. (default format is 'std' defined in #ImageBuilder). Options are :
   # ** [!014!] inline image with 'pv' format
-  # ** [!<.14!] or [!<14!] inline image surrounded with <p class='float_left'></p>
-  # ** [!>.14!] or [!>14!] inline image surrounded with <p class='float_right'></p>
-  # ** [!=.14!] or [!=14!] inline image with <p class='center'></p>
+  # ** [!<.14!] or [!<14!] inline image surrounded with <p class='img_left'></p>
+  # ** [!>.14!] or [!>14!] inline image surrounded with <p class='img_right'></p>
+  # ** [!=.14!] or [!=14!] inline image with <p class='img_center'></p>
   # ** [!14.pv!] inline image transformed to format 'pv'. Formats are defined in #ImageBuilder.
   # ** all the options above can be used together as in [!>.14.med!] : inline image on the right, size 'med'.
   # ** [![2,3,5]!] gallery : inline preview with javascript inline viewer

@@ -68,7 +68,7 @@ class Base < ActiveRecord::Migration
       t.column "path", :string, :limit => 400, :default => "", :null => false
       t.column "content_type", :string, :limit => 20
       t.column "size", :integer
-      t.column "format", :string, :limit => 2
+      t.column "format", :string, :limit => 20
       t.column "width", :integer
       t.column "height", :integer
     end

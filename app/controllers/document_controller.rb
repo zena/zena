@@ -36,20 +36,30 @@ class DocumentController < ApplicationController
       end
     else
       name = params[:filename]
+      format = nil
     end
-    doc = secure(Document) { Document.version(params[:version_id]) }
-    if doc.kind_of?(Image) && !ImageBuilder.dummy?
-      data = doc.file(format)
+    @document = secure(Document) { Document.version(params[:version_id]) }
+    if @document.kind_of?(Image) && !ImageBuilder.dummy?
+      data = @document.file(format)
     else
-      data = doc.file
+      data = @document.file
     end
-    raise ActiveRecord::RecordNotFound unless doc.name == name
+    raise ActiveRecord::RecordNotFound unless @document.name == name
     send_data( data.read , :filename=>data.filename, :type=>data.content_type, :disposition=>'inline')
-    cache_page if doc.public?
+    
+    # TODO: cache_document not tested yet. Also need sweepers !!
+    if @document.public? && @document.v_status == Zena::Status[:pub] && perform_caching && caching_allowed
+      cache_page
+      if data.kind_of?(ImageFile) && data.format != nil
+        # remove 'formatted' file
+        data.remove_image_file
+      end
+    end
   rescue ActiveRecord::RecordNotFound
     page_not_found
   rescue IOError
     flash[:error] = trans "Some error occured: file missing."
+    page_not_found
   end
 
   # Used to clean list after adding stuff or when canceling
