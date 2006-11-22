@@ -13,16 +13,15 @@ class VersionControllerTest < Test::Unit::TestCase
     init_controller
   end
   
-  ## 
-  ## def test_view_version
-  ##   login(:ant)
-  ##   v = versions(:lake_red_en)
-  ##   get 'version', :id=>versions_id(:lake_red_en), :prefix=>url_prefix
-  ##   assert_response :success
-  ##   logout
-  ##   get 'version', :id=>versions_id(:lake_red_en), :prefix=>url_prefix
-  ##   assert_redirected_to '404'
-  ## end
+  def test_show
+    v = versions(:lake_red_en)
+    get 'show', :id=>versions_id(:lake_red_en)
+    assert_redirected_to '404'
+    login(:ant)
+    get 'show', :id=>versions_id(:lake_red_en)
+    assert_response :success
+    assert_template 'templates/default'
+  end
   
   def test_can_edit
     login(:ant)
@@ -52,77 +51,133 @@ class VersionControllerTest < Test::Unit::TestCase
     post 'preview', :item=>{ :id=>items_id(:status), :title=>'my super goofy new title' }
     assert_rjs_tag :rjs => {:block => 'title' }, :content=>"my super goofy new title"
   end
-  #
-  #def test_can_not_publish
-  #  login(:ant)
-  #  post 'publish', :version_id=>versions_id(:lake_red_en)
-  #  assert_redirected_to "/#{AUTHENTICATED_PREFIX}/w/version/27"
-  #  assert_equal "Could not publish.", flash[:error]
-  #  assert_equal Zena::Status[:red], versions(:lake_red_en).status
-  #end
-  #
-  #def test_can_publish
-  #  login(:tiger)
-  #  post 'publish', :version_id=>versions_id(:lake_red_en)
-  #  assert_redirected_to "/#{AUTHENTICATED_PREFIX}/w/version/27"
-  #  assert_equal Zena::Status[:pub], versions(:lake_red_en).status
-  #end
-  #
-  #def test_can_preview
-  #  login(:ant)
-  #  post 'preview', :item=>{:id=>items_id(:status), :title=>"I am a new title", :text=>"I am new text"}
-  #  assert_equal "text/javascript", @response.headers["Content-Type"]
-  #  assert_rjs_tag :rjs => {:block => 'title' }, :content=>"I am a new title"
-  #  assert_rjs_tag :rjs => {:block => 'content' }, :tag=>'p', :content=>"I am new text"
-  #end
-  #
-  #def test_cannot_preview
-  #  post 'preview', :item=>{:id=>items_id(:status), :title=>"I am a new title", :text=>"I am new text"}
-  #  assert_no_tag
-  #end
-  #
-  #def test_can_save
-  #  login(:ant)
-  #  post 'save', :item=>{:id=>items_id(:status), :title=>"I am a new title", :text=>"I am new text"}
-  #  assert_response :success
-  #  assert_no_tag :tag=>'div', :attributes=>{:id=>'error'}
-  #end
-  #
-  #def test_cannot_save
-  #  post 'save', :item=>{:id=>items_id(:status), :title=>"I am a new title", :text=>"I am new text"}
-  #  assert_no_tag
-  #end
-  #
-  #def test_can_propose
-  #  login(:ant)
-  #  post 'save', :item=>{:id=>items_id(:status), :title=>"I am a new title", :text=>"I am new text"}
-  #  v = Version.find(:first, :order=>"id DESC").id
-  #  post 'propose', :version_id=>v
-  #  assert_redirected_to "#{AUTHENTICATED_PREFIX}/w/version/#{v}"
-  #end
-  #
-  #def test_cannot_propose
-  #  login(:tiger)
-  #  post 'save', :item=>{:id=>items_id(:status), :title=>"I am a new title", :text=>"I am new text"}
-  #  v = Version.find(:first, :order=>"id DESC").id
-  #  login(:ant)
-  #  post 'propose', :version_id=>v
-  #  assert_no_tag
-  #end
-  #
-  #def test_can_manage
-  #  login(:tiger)
-  #  post 'manage', :id=>items_id(:status)
-  #  assert_tag :tag=>'div'
-  #  get 'manage', :id=>items_id(:status)
-  #  assert_tag :tag=>'div'
-  #end
-  #
-  #def test_cannot_manage
-  #  login(:ant)
-  #  post 'manage', :id=>items_id(:status)
-  #  assert_no_tag
-  #  get 'manage', :id=>items_id(:status)
-  #  assert_no_tag
-  #end
+  
+  def test_can_save
+    login(:ant)
+    post 'save', :item=>{:id=>items_id(:status), :title=>"I am a new title", :text=>"I am new text"}
+    assert_response :success
+    assert_no_tag :tag=>'div', :attributes=>{:id=>'error'}
+    item = secure(Item) { items(:status) }
+    assert_equal 'I am a new title', item.title
+  end
+  
+  def test_cannot_save
+    post 'save', :item=>{:id=>items_id(:status), :title=>"I am a new title", :text=>"I am new text"}
+    assert_redirected_to '404'
+    assert_equal 'status title', secure(Item) { items(:status) }.title
+  end
+  
+  def test_can_propose
+    login(:ant)
+    post 'save', :item=>{:id=>items_id(:status), :title=>"I am a new title", :text=>"I am new text"}
+    item = secure(Item) { items(:status) }
+    assert_equal Zena::Status[:red], item.v_status
+    post 'propose', :id=>item.v_id
+    assert_redirected_to "/z/version/show/#{item.v_id}"
+    assert_equal Zena::Status[:prop], secure(Item) { Item.version(item.v_id) }.v_status
+  end
+  
+  def test_cannot_propose
+    login(:ant)
+    post 'save', :item=>{:id=>items_id(:status), :title=>"I am a new title", :text=>"I am new text"}
+    item = secure(Item) { items(:status) }
+    assert_equal Zena::Status[:red], item.v_status
+    login(:tiger)
+    post 'propose', :id=>item.v_id
+    assert_redirected_to '404'
+    assert_equal Zena::Status[:red], secure(Item) { Item.version(item.v_id) }.v_status
+  end
+  
+  def test_can_refuse
+    login(:ant)
+    post 'save', :item=>{:id=>items_id(:status), :title=>"I am a new title", :text=>"I am new text"}
+    item = secure(Item) { items(:status) }
+    post 'propose', :id=>item.v_id
+    login(:tiger)
+    post 'refuse', :id=>item.v_id
+    assert_redirected_to "/z/version/show/#{item.v_id}"
+    assert_equal Zena::Status[:red], Version.find(item.v_id).status
+  end
+  
+  def test_cannot_refuse
+    login(:tiger)
+    post 'save', :item=>{:id=>items_id(:status), :title=>"I am a new title", :text=>"I am new text"}
+    item = secure(Item) { items(:status) }
+    post 'propose', :id=>item.v_id
+    login(:ant)
+    post 'refuse', :id=>item.v_id
+    assert_redirected_to '404'
+    assert_equal Zena::Status[:prop], Version.find(item.v_id).status
+  end
+  
+  
+  def test_can_publish
+    login(:ant)
+    post 'save', :item=>{:id=>items_id(:status), :title=>"I am a new title", :text=>"I am new text"}
+    item = secure(Item) { items(:status) }
+    post 'propose', :id=>item.v_id
+    login(:tiger)
+    post 'publish', :id=>item.v_id
+    assert_redirected_to "/z/version/show/#{item.v_id}"
+    assert_equal Zena::Status[:pub], Version.find(item.v_id).status
+  end
+  
+  def test_cannot_publish
+    login(:tiger)
+    post 'save', :item=>{:id=>items_id(:status), :title=>"I am a new title", :text=>"I am new text"}
+    item = secure(Item) { items(:status) }
+    post 'propose', :id=>item.v_id
+    login(:ant)
+    post 'publish', :id=>item.v_id
+    assert_redirected_to '404'
+    assert_equal Zena::Status[:prop], Version.find(item.v_id).status
+  end
+  
+  def test_can_remove
+    login(:tiger)
+    post 'save', :item=>{:id=>items_id(:status), :title=>"I am a new title", :text=>"I am new text"}
+    item = secure(Item) { items(:status) }
+    post 'publish', :id=>item.v_id
+    assert_equal Zena::Status[:pub], Version.find(item.v_id).status
+    post 'remove', :id=>item.v_id
+    assert_redirected_to "/z/version/show/#{item.v_id}"
+    assert_equal Zena::Status[:rem], Version.find(item.v_id).status
+  end
+  
+  def test_cannot_remove
+    login(:tiger)
+    post 'save', :item=>{:id=>items_id(:status), :title=>"I am a new title", :text=>"I am new text"}
+    item = secure(Item) { items(:status) }
+    post 'publish', :id=>item.v_id
+    assert_equal Zena::Status[:pub], Version.find(item.v_id).status
+    login(:ant)
+    post 'remove', :id=>item.v_id
+    assert_redirected_to '404'
+    assert_equal Zena::Status[:pub], Version.find(item.v_id).status
+  end
+  
+  
+  # def test_can_redit
+  #   login(:tiger)
+  #   post 'save', :item=>{:id=>items_id(:status), :title=>"I am a new title", :text=>"I am new text"}
+  #   item = secure(Item) { items(:status) }
+  #   post 'publish', :id=>item.v_id
+  #   assert_equal Zena::Status[:pub], Version.find(item.v_id).status
+  #   post 'redit', :id=>item.v_id
+  #   assert_redirected_to "/z/version/show/#{item.v_id}"
+  #   assert_equal Zena::Status[:red], Version.find(item.v_id).status
+  # end
+  # 
+  # def test_cannot_redit
+  #   login(:tiger)
+  #   post 'save', :item=>{:id=>items_id(:status), :title=>"I am a new title", :text=>"I am new text"}
+  #   item = secure(Item) { items(:status) }
+  #   post 'publish', :id=>item.v_id
+  #   assert_equal Zena::Status[:pub], Version.find(item.v_id).status
+  #   login(:ant)
+  #   post 'redit', :id=>item.v_id
+  #   assert_redirected_to '404'
+  #   assert_equal Zena::Status[:pub], Version.find(item.v_id).status
+  # end
+  
 end

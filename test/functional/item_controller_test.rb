@@ -17,3 +17,19 @@ class ItemControllerTest < Test::Unit::TestCase
     assert false, "test todo"
   end
 end
+
+#def test_can_manage
+#  login(:tiger)
+#  post 'manage', :id=>items_id(:status)
+#  assert_tag :tag=>'div'
+#  get 'manage', :id=>items_id(:status)
+#  assert_tag :tag=>'div'
+#end
+#
+#def test_cannot_manage
+#  login(:ant)
+#  post 'manage', :id=>items_id(:status)
+#  assert_no_tag
+#  get 'manage', :id=>items_id(:status)
+#  assert_no_tag
+#end

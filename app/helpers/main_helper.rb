@@ -16,7 +16,7 @@ module MainHelper
     elsif action == 'drive'
       tlink_to_remote('btn_drive', :with=>'main', :url=>{:controller=>'item', :action=>'drive', :version_id=>version_id, :rnd=>salt_against_caching })
     else
-      tlink_to( "btn_#{action}", {:controller=>'version', :action => action , :id => version_id, :post=>true}, :title=>transb("btn_title_#{action}") ) + "\n"
+      tlink_to( "btn_#{action}", {:controller=>'version', :action => action , :id => version_id}, :title=>transb("btn_title_#{action}"), :post=>true ) + "\n"
     end
   end
   

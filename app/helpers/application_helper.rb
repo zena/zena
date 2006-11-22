@@ -166,12 +166,12 @@ module ApplicationHelper
   # Display flash[:notice] or flash[:error] if any. <%= flash <i>[:notice, :error, :both]</i> %>"
   def flash_messages(type=:both)
     if (type == :notice || type == :both) && @flash[:notice]
-      "<div id='notice' onClick='new Effect.Fade(\'notice\')'>#{@flash[:notice]}</div>"
+      "<div id='notice' onClick='new Effect.Fade(\"notice\")'>#{@flash[:notice]}</div>"
     else
       ''
     end + 
     if (type == :error  || type == :both) && @flash[:error ]
-      "<div id='error' onClick='new Effect.Fade(\'error\')'>#{@flash[:error]}</div>"
+      "<div id='error' onClick='new Effect.Fade(\"error\")'>#{@flash[:error]}</div>"
     else
       ''
     end

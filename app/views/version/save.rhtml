@@ -1,0 +1,9 @@
+<%= javascript_start %>
+  function popup_loaded() {
+    opener.location.href="<%= url_for( :controller => 'version', :action => 'show', :id => @item.v_id) %>";
+    self.close();
+  }
+<%= javascript_end %>
+<div class="popup_action">
+  <p class="btn_x"><%= link_to_function transb('btn_x'), "self.close();" %></p>
+</div>

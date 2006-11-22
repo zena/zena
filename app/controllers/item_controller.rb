@@ -20,4 +20,10 @@ class ItemController < ApplicationController
   rescue ActiveRecord::RecordNotFound
     render :nothing=>true
   end
+  
+  # change to ?
+  
+  #if @item.type != params[:item][:type]
+  #  @item = @item.change_to(eval "#{params[:item][:type]}")
+  #end
 end

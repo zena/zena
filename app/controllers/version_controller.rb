@@ -2,15 +2,20 @@ class VersionController < ApplicationController
   layout 'popup'
   helper MainHelper
   
+  def show
+    @item = secure(Item) { Item.version(params[:id]) }
+    render_and_cache(:cache=>false)
+  rescue ActiveRecord::RecordNotFound
+    page_not_found
+  end
+  
   def edit
     if params[:id]
       @item = secure(Item) { Item.version(params[:id]) }
     elsif params[:item_id]
       @item = secure_write(Item) { Item.find(params[:id]) }
     end
-    if @item.edit!
-      render :layout=>'popup'
-    else
+    if !@item.edit!
       page_not_found
     end
   rescue ActiveRecord::RecordNotFound
@@ -33,169 +38,80 @@ class VersionController < ApplicationController
   # TODO: continue testing for VersionController
   
   def save
-    if params[:version]
-      # use a specific version as the base for the new redaction.
-      @item = secure_write(Item) { Item.version(params[:version][:id]) }
-    else
-      # use current context.
-      @item = secure_write(Item) { Item.find(params[:item][:id]) }
-    end
+    # use current context.
+    @item = secure_write(Item) { Item.find(params[:item][:id]) }
     
-    #if @item.type != params[:item][:type]
-    #  @item = @item.change_to(eval "#{params[:item][:type]}")
-    #end
     if @item.update_redaction(params[:item])
-      flash[:notice] = "Redaction saved."
-      render :layout => 'popup'
+      flash[:notice] = trans "Redaction saved."
     else
-      render :layout=>'popup', :action => 'edit'
+      flash[:error] = trans "Redaction could not be saved"
+      render :action => 'edit'
     end
-  #rescue ActiveRecord::RecordNotFound
-   # render :nothing=>true
+  rescue ActiveRecord::RecordNotFound
+    page_not_found
   end
   
   def propose
-    item = secure(Item) { Item.version(params[:version_id]) }
+    item = secure(Item) { Item.version(params[:id]) }
     if item.propose
-      flash[:notice] = "Redaction proposed for publication."
+      flash[:notice] = trans "Redaction proposed for publication."
+      redirect_to :action=> 'show', :id => item.v_id
     else
-      flash[:error] = "Could not propose redaction for publication."
+      page_not_found
     end
-    redirect_to :prefix=> url_prefix, :controller => 'web', :action=> 'version', :id => item.v_id
   rescue ActiveRecord::RecordNotFound
-    render :nothing=>true
+    page_not_found
   end
   
   def refuse
-    item = secure(Item) { Item.version(params[:version_id]) }
+    item = secure(Item) { Item.version(params[:id]) }
     if item.refuse
       flash[:notice] = "Proposition refused."
+      redirect_to :action => 'show', :id => item.v_id
     else
-      flash[:error] = "Could not refuse."
+      page_not_found
     end
-    redirect_to :prefix=> url_prefix, :controller => 'web', :action=> 'version', :id => item.v_id
   rescue ActiveRecord::RecordNotFound
-    render :nothing=>true
+    page_not_found
   end
   
   def publish
     item = secure(Item) { Item.version(params[:id]) }
     if item.publish
       flash[:notice] = "Redaction published."
-      Pcache.expire_cache(:plug=>:news) if item.kind_of?(Note)
+      redirect_to :action => 'show', :id => item.v_id
     else
       flash[:error] = "Could not publish."
+      page_not_found
     end
-    redirect_to :prefix=> url_prefix, :controller => 'web', :action=> 'version', :id => item.v_id
   rescue ActiveRecord::RecordNotFound
-    render :nothing=>true
+    page_not_found
   end
   
   def remove
-    item = secure(Item) { Item.version(params[:version_id]) }
+    item = secure(Item) { Item.version(params[:id]) }
     if item.remove
       flash[:notice] = "Publication removed."
-      Pcache.expire_cache(:plug=>:news) if item.kind_of?(Note)
+      redirect_to :action => 'show', :id => item.v_id
     else
       flash[:error] = "Could not remove plublication."
+      page_not_found
     end
-    redirect_to :prefix=> url_prefix, :controller => 'web', :action=> 'version', :id => item.v_id
   rescue ActiveRecord::RecordNotFound
-    render :nothing=>true
+    page_not_found
   end
   
-  def redit
-    item = secure(Item) { Item.version(params[:version_id]) }
-    if item.redit
-      flash[:notice] = "Version turned back into a redaction."
-    else
-      flash[:error] = "Could not re-edit the version."
-    end
-    redirect_to :prefix=> url_prefix, :controller => 'web', :action=> 'version', :id => item.v_id
-  rescue ActiveRecord::RecordNotFound
-    render :nothing=>true
-  end
+  # def redit
+  #   item = secure(Item) { Item.version(params[:id]) }
+  #   if item.redit
+  #     flash[:notice] = "Version turned back into a redaction."
+  #     redirect_to :action => 'show', :id => item.v_id
+  #   else
+  #     flash[:error] = "Could not re-edit the version."
+  #     page_not_found
+  #   end
+  # rescue ActiveRecord::RecordNotFound
+  #   page_not_found
+  # end
   
 end
-=begin
-
-def show
-  elsif params[:version_id]
-    @item = secure(Item) { Item.version(params[:version_id]) }
- Show a version
-def version
-  if params[:id]
-    @item = secure(Item) { Item.version(params[:id]) }
-  end
-  if @item && @item.title
-    render_and_cache
-  else
-    page_not_found 
-  end
-rescue ActiveRecord::RecordNotFound
-  page_not_found
-end
-
-=end
-
-
-=begin
-  # Show versions list for an item with preview, roll, etc buttons.
-  def history
-    @item = secure(Item) { Item.find(params[:id]) }
-    raise ActiveRecord::RecordNotFound unless @item.can_publish?
-    @versions = @item.versions.find(:all, :order=>'id DESC')
-    render :layout=>false
-  rescue ActiveRecord::RecordNotFound
-    render :nothing=>true
-  end
-  # Publish a version, replacing previous edition.
-  def publish
-    version = Version.find(params[:version][:id])
-    if version.item.can_publish?(user_id, user_groups)
-      if version.publish
-        redirect_to :controller => 'web', :action=>'item', :id=>version.item.id, :lang=>version.lang
-      else
-        flash[:notice] = trans "An error occured, version could not be published."
-        redirect_to :controller => 'web', :action=>'version', :id=>params[:version][:id]
-      end
-    else
-      redirect_to :controller => 'web', :action=>'page_not_found'
-    end
-  end
-  
-  
-  # rollback item
-  def rollback
-    item = secure(Item) { Item.find(params[:id]) }
-    flash[:notice] = trans "Page rolled back to a previous version."
-    redirect_to(:controller => 'web', :action=>'item', :path=>item.fullpath) #, :version=>version.id)
-  end
-
-
-  # edit item
-  def live_edit_item
-    if params[:edition]
-      if session[:user]
-        user = User.find(session[:user][:id])
-      else
-        user = User.find(1)
-      end
-      item = secure(Item) { Item.find(params[:item][:id]) }
-      version = Version.new(params[:edition])
-      version.item = item
-      version.user = user
-      version.save
-      version.publish
-      redirect_to(:controller => 'web', :action=>'item', :path=>item.fullpath) #, :version=>version.id)
-    else
-      @edition = Version.new
-      @item = secure(Item){ Item.find(params[:id]) }
-      @edition = @item.edition
-      @edition.lang = lang
-      render(:layout=>false)
-    end
-  end
-  
-end
-=end
