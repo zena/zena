@@ -1,0 +1,255 @@
+bplist00—_WebMainResource‘	
+_WebResourceTextEncodingName_WebResourceData^WebResourceURL_WebResourceMIMETypeUUTF-8OGá<HTML><HEAD>
+  <TITLE>Action Controller: Exception caught</TITLE>
+  <STYLE>
+    body { background-color: #fff; color: #333; }
+
+    body, p, ol, ul, td {
+      font-family: verdana, arial, helvetica, sans-serif;
+      font-size:   13px;
+      line-height: 18px;
+    }
+
+    pre {
+      background-color: #eee;
+      padding: 10px;
+      font-size: 11px;
+    }
+
+    a { color: #000; }
+    a:visited { color: #666; }
+    a:hover { color: #fff; background-color:#000; }
+  </STYLE></HEAD><BODY>
+
+<H1>
+  ActiveRecord::StatementInvalid in
+  Main#show
+</H1>
+
+<P>
+  Showing <I>app/views/main/_doc_title.rhtml</I> where line <B>#4</B> raised:
+  </P><PRE><CODE>NoMethodError: undefined method `length' for -517611318:Fixnum: SELECT * FROM versions WHERE (versions.id = 38)  LIMIT 1</CODE></PRE><P></P>
+
+<P>Extracted source (around line <B>#4</B>):
+</P><PRE><CODE>1: &lt;table class="block" cellspacing="0" borderspacing="0"&gt;
+2: 	&lt;tr class="b&lt;%= @item.v_status %&gt;"&gt;
+3: 		&lt;td class="preview"&gt;
+4: 			&lt;%= link_to @item.img_tag('pv'), data_url(@item) %&gt;
+5: 		&lt;/td&gt;
+6: 		&lt;td id="#subtitle"&gt;		  
+7:       &lt;h1 id="title" class="s&lt;%= @item.v_status %&gt;"&gt;&lt;%= @item.title %&gt;&lt;br/&gt;
+</CODE></PRE><P></P>
+<P>Trace of template inclusion: /app/views/templates/default.rhtml</P>
+
+
+
+
+<P><CODE>RAILS_ROOT: /Users/gaspard/svk/zena/config/..</CODE></P>
+
+<DIV id="traces">
+      
+    <A href="#" onclick="document.getElementById('Framework-Trace').style.display='none';document.getElementById('Full-Trace').style.display='none';document.getElementById('Application-Trace').style.display='block';; return false;">Application Trace</A> |
+      
+    <A href="#" onclick="document.getElementById('Application-Trace').style.display='none';document.getElementById('Full-Trace').style.display='none';document.getElementById('Framework-Trace').style.display='block';; return false;">Framework Trace</A> |
+      
+    <A href="#" onclick="document.getElementById('Application-Trace').style.display='none';document.getElementById('Framework-Trace').style.display='none';document.getElementById('Full-Trace').style.display='block';; return false;">Full Trace</A> 
+  
+      <DIV id="Application-Trace" style="display: block;">
+      <PRE><CODE>/usr/local/lib/ruby/gems/1.8/gems/activerecord-1.14.4/lib/active_record/connection_adapters/abstract_adapter.rb:120:in `log'
+/usr/local/lib/ruby/gems/1.8/gems/activerecord-1.14.4/lib/active_record/connection_adapters/mysql_adapter.rb:184:in `execute'
+/usr/local/lib/ruby/gems/1.8/gems/activerecord-1.14.4/lib/active_record/connection_adapters/mysql_adapter.rb:336:in `select'
+/usr/local/lib/ruby/gems/1.8/gems/activerecord-1.14.4/lib/active_record/connection_adapters/mysql_adapter.rb:175:in `select_all'
+/usr/local/lib/ruby/gems/1.8/gems/activerecord-1.14.4/lib/active_record/base.rb:390:in `find_by_sql'
+/usr/local/lib/ruby/gems/1.8/gems/activerecord-1.14.4/lib/active_record/base.rb:924:in `find_every'
+/usr/local/lib/ruby/gems/1.8/gems/activerecord-1.14.4/lib/active_record/base.rb:918:in `find_initial'
+/usr/local/lib/ruby/gems/1.8/gems/activerecord-1.14.4/lib/active_record/base.rb:952:in `find_one'
+/usr/local/lib/ruby/gems/1.8/gems/activerecord-1.14.4/lib/active_record/base.rb:941:in `find_from_ids'
+/usr/local/lib/ruby/gems/1.8/gems/activerecord-1.14.4/lib/active_record/base.rb:382:in `find'
+/usr/local/lib/ruby/gems/1.8/gems/activerecord-1.14.4/lib/active_record/associations/belongs_to_association.rb:44:in `find_target'
+/usr/local/lib/ruby/gems/1.8/gems/activerecord-1.14.4/lib/active_record/associations/association_proxy.rb:116:in `load_target'
+/usr/local/lib/ruby/gems/1.8/gems/activerecord-1.14.4/lib/active_record/associations/association_proxy.rb:42:in `reload'
+/usr/local/lib/ruby/gems/1.8/gems/activerecord-1.14.4/lib/active_record/associations.rb:833:in `version'
+#{RAILS_ROOT}/app/models/image_file.rb:25:in `dummy?'
+#{RAILS_ROOT}/app/models/image_version.rb:7:in `file'
+#{RAILS_ROOT}/app/models/image_version.rb:16:in `img_tag'
+#{RAILS_ROOT}/app/models/document.rb:23:in `img_tag'
+#{RAILS_ROOT}/app/views/main/_doc_title.rhtml:4:in `_run_rhtml_main__doc_title'
+#{RAILS_ROOT}/app/views/templates/default.rhtml:35:in `_run_rhtml_templates_default'
+#{RAILS_ROOT}/app/controllers/application.rb:19:in `render_and_cache'
+#{RAILS_ROOT}/app/controllers/main_controller.rb:18:in `show'
+/usr/local/bin/mongrel_rails:18:in `load'
+/usr/local/bin/mongrel_rails:18</CODE></PRE>    </DIV>
+      <DIV id="Framework-Trace" style="display: none;">
+      <PRE><CODE>/usr/local/lib/ruby/gems/1.8/gems/activerecord-1.14.4/lib/active_record/connection_adapters/abstract_adapter.rb:120:in `log'
+/usr/local/lib/ruby/gems/1.8/gems/activerecord-1.14.4/lib/active_record/connection_adapters/mysql_adapter.rb:184:in `execute'
+/usr/local/lib/ruby/gems/1.8/gems/activerecord-1.14.4/lib/active_record/connection_adapters/mysql_adapter.rb:336:in `select'
+/usr/local/lib/ruby/gems/1.8/gems/activerecord-1.14.4/lib/active_record/connection_adapters/mysql_adapter.rb:175:in `select_all'
+/usr/local/lib/ruby/gems/1.8/gems/activerecord-1.14.4/lib/active_record/base.rb:390:in `find_by_sql'
+/usr/local/lib/ruby/gems/1.8/gems/activerecord-1.14.4/lib/active_record/base.rb:924:in `find_every'
+/usr/local/lib/ruby/gems/1.8/gems/activerecord-1.14.4/lib/active_record/base.rb:918:in `find_initial'
+/usr/local/lib/ruby/gems/1.8/gems/activerecord-1.14.4/lib/active_record/base.rb:952:in `find_one'
+/usr/local/lib/ruby/gems/1.8/gems/activerecord-1.14.4/lib/active_record/base.rb:941:in `find_from_ids'
+/usr/local/lib/ruby/gems/1.8/gems/activerecord-1.14.4/lib/active_record/base.rb:382:in `find'
+/usr/local/lib/ruby/gems/1.8/gems/activerecord-1.14.4/lib/active_record/associations/belongs_to_association.rb:44:in `find_target'
+/usr/local/lib/ruby/gems/1.8/gems/activerecord-1.14.4/lib/active_record/associations/association_proxy.rb:116:in `load_target'
+/usr/local/lib/ruby/gems/1.8/gems/activerecord-1.14.4/lib/active_record/associations/association_proxy.rb:42:in `reload'
+/usr/local/lib/ruby/gems/1.8/gems/activerecord-1.14.4/lib/active_record/associations.rb:833:in `version'
+/usr/local/lib/ruby/gems/1.8/gems/actionpack-1.12.5/lib/action_view/base.rb:316:in `send'
+/usr/local/lib/ruby/gems/1.8/gems/actionpack-1.12.5/lib/action_view/base.rb:316:in `compile_and_render_template'
+/usr/local/lib/ruby/gems/1.8/gems/actionpack-1.12.5/lib/action_view/base.rb:292:in `render_template'
+/usr/local/lib/ruby/gems/1.8/gems/actionpack-1.12.5/lib/action_view/base.rb:251:in `render_file'
+/usr/local/lib/ruby/gems/1.8/gems/actionpack-1.12.5/lib/action_view/base.rb:266:in `render'
+/usr/local/lib/ruby/gems/1.8/gems/actionpack-1.12.5/lib/action_view/partials.rb:59:in `render_partial'
+/usr/local/lib/ruby/gems/1.8/gems/actionpack-1.12.5/lib/action_controller/benchmarking.rb:33:in `benchmark'
+/usr/local/lib/ruby/gems/1.8/gems/actionpack-1.12.5/lib/action_view/partials.rb:58:in `render_partial'
+/usr/local/lib/ruby/gems/1.8/gems/actionpack-1.12.5/lib/action_view/base.rb:278:in `render'
+/usr/local/lib/ruby/gems/1.8/gems/actionpack-1.12.5/lib/action_view/base.rb:316:in `send'
+/usr/local/lib/ruby/gems/1.8/gems/actionpack-1.12.5/lib/action_view/base.rb:316:in `compile_and_render_template'
+/usr/local/lib/ruby/gems/1.8/gems/actionpack-1.12.5/lib/action_view/base.rb:292:in `render_template'
+/usr/local/lib/ruby/gems/1.8/gems/actionpack-1.12.5/lib/action_view/base.rb:251:in `render_file'
+/usr/local/lib/ruby/gems/1.8/gems/actionpack-1.12.5/lib/action_controller/base.rb:726:in `render_file'
+/usr/local/lib/ruby/gems/1.8/gems/actionpack-1.12.5/lib/action_controller/base.rb:648:in `render_with_no_layout'
+/usr/local/lib/ruby/gems/1.8/gems/actionpack-1.12.5/lib/action_controller/layout.rb:253:in `render_without_benchmark'
+/usr/local/lib/ruby/gems/1.8/gems/actionpack-1.12.5/lib/action_controller/benchmarking.rb:53:in `render'
+/usr/local/lib/ruby/1.8/benchmark.rb:293:in `measure'
+/usr/local/lib/ruby/gems/1.8/gems/actionpack-1.12.5/lib/action_controller/benchmarking.rb:53:in `render'
+/usr/local/lib/ruby/gems/1.8/gems/actionpack-1.12.5/lib/action_controller/base.rb:941:in `send'
+/usr/local/lib/ruby/gems/1.8/gems/actionpack-1.12.5/lib/action_controller/base.rb:941:in `perform_action_without_filters'
+/usr/local/lib/ruby/gems/1.8/gems/actionpack-1.12.5/lib/action_controller/filters.rb:368:in `perform_action_without_benchmark'
+/usr/local/lib/ruby/gems/1.8/gems/actionpack-1.12.5/lib/action_controller/benchmarking.rb:69:in `perform_action_without_rescue'
+/usr/local/lib/ruby/1.8/benchmark.rb:293:in `measure'
+/usr/local/lib/ruby/gems/1.8/gems/actionpack-1.12.5/lib/action_controller/benchmarking.rb:69:in `perform_action_without_rescue'
+/usr/local/lib/ruby/gems/1.8/gems/actionpack-1.12.5/lib/action_controller/rescue.rb:82:in `perform_action'
+/usr/local/lib/ruby/gems/1.8/gems/actionpack-1.12.5/lib/action_controller/base.rb:408:in `send'
+/usr/local/lib/ruby/gems/1.8/gems/actionpack-1.12.5/lib/action_controller/base.rb:408:in `process_without_filters'
+/usr/local/lib/ruby/gems/1.8/gems/actionpack-1.12.5/lib/action_controller/filters.rb:377:in `process_without_session_management_support'
+/usr/local/lib/ruby/gems/1.8/gems/actionpack-1.12.5/lib/action_controller/session_management.rb:117:in `process'
+/usr/local/lib/ruby/gems/1.8/gems/rails-1.1.6/lib/dispatcher.rb:38:in `dispatch'
+/usr/local/lib/ruby/gems/1.8/gems/mongrel-0.3.13.3/lib/mongrel/rails.rb:73:in `process'
+/usr/local/lib/ruby/gems/1.8/gems/mongrel-0.3.13.3/lib/mongrel.rb:551:in `process_client'
+/usr/local/lib/ruby/gems/1.8/gems/mongrel-0.3.13.3/lib/mongrel.rb:550:in `each'
+/usr/local/lib/ruby/gems/1.8/gems/mongrel-0.3.13.3/lib/mongrel.rb:550:in `process_client'
+/usr/local/lib/ruby/gems/1.8/gems/mongrel-0.3.13.3/lib/mongrel.rb:636:in `run'
+/usr/local/lib/ruby/gems/1.8/gems/mongrel-0.3.13.3/lib/mongrel.rb:636:in `initialize'
+/usr/local/lib/ruby/gems/1.8/gems/mongrel-0.3.13.3/lib/mongrel.rb:636:in `new'
+/usr/local/lib/ruby/gems/1.8/gems/mongrel-0.3.13.3/lib/mongrel.rb:636:in `run'
+/usr/local/lib/ruby/gems/1.8/gems/mongrel-0.3.13.3/lib/mongrel.rb:625:in `initialize'
+/usr/local/lib/ruby/gems/1.8/gems/mongrel-0.3.13.3/lib/mongrel.rb:625:in `new'
+/usr/local/lib/ruby/gems/1.8/gems/mongrel-0.3.13.3/lib/mongrel.rb:625:in `run'
+/usr/local/lib/ruby/gems/1.8/gems/mongrel-0.3.13.3/lib/mongrel.rb:956:in `run'
+/usr/local/lib/ruby/gems/1.8/gems/mongrel-0.3.13.3/lib/mongrel.rb:955:in `each'
+/usr/local/lib/ruby/gems/1.8/gems/mongrel-0.3.13.3/lib/mongrel.rb:955:in `run'
+/usr/local/lib/ruby/gems/1.8/gems/mongrel-0.3.13.3/bin/mongrel_rails:127:in `run'
+/usr/local/lib/ruby/gems/1.8/gems/mongrel-0.3.13.3/lib/mongrel/command.rb:199:in `run'
+/usr/local/lib/ruby/gems/1.8/gems/mongrel-0.3.13.3/bin/mongrel_rails:235</CODE></PRE>    </DIV>
+      <DIV id="Full-Trace" style="display: none;">
+      <PRE><CODE>/usr/local/lib/ruby/gems/1.8/gems/activerecord-1.14.4/lib/active_record/connection_adapters/abstract_adapter.rb:120:in `log'
+/usr/local/lib/ruby/gems/1.8/gems/activerecord-1.14.4/lib/active_record/connection_adapters/mysql_adapter.rb:184:in `execute'
+/usr/local/lib/ruby/gems/1.8/gems/activerecord-1.14.4/lib/active_record/connection_adapters/mysql_adapter.rb:336:in `select'
+/usr/local/lib/ruby/gems/1.8/gems/activerecord-1.14.4/lib/active_record/connection_adapters/mysql_adapter.rb:175:in `select_all'
+/usr/local/lib/ruby/gems/1.8/gems/activerecord-1.14.4/lib/active_record/base.rb:390:in `find_by_sql'
+/usr/local/lib/ruby/gems/1.8/gems/activerecord-1.14.4/lib/active_record/base.rb:924:in `find_every'
+/usr/local/lib/ruby/gems/1.8/gems/activerecord-1.14.4/lib/active_record/base.rb:918:in `find_initial'
+/usr/local/lib/ruby/gems/1.8/gems/activerecord-1.14.4/lib/active_record/base.rb:952:in `find_one'
+/usr/local/lib/ruby/gems/1.8/gems/activerecord-1.14.4/lib/active_record/base.rb:941:in `find_from_ids'
+/usr/local/lib/ruby/gems/1.8/gems/activerecord-1.14.4/lib/active_record/base.rb:382:in `find'
+/usr/local/lib/ruby/gems/1.8/gems/activerecord-1.14.4/lib/active_record/associations/belongs_to_association.rb:44:in `find_target'
+/usr/local/lib/ruby/gems/1.8/gems/activerecord-1.14.4/lib/active_record/associations/association_proxy.rb:116:in `load_target'
+/usr/local/lib/ruby/gems/1.8/gems/activerecord-1.14.4/lib/active_record/associations/association_proxy.rb:42:in `reload'
+/usr/local/lib/ruby/gems/1.8/gems/activerecord-1.14.4/lib/active_record/associations.rb:833:in `version'
+#{RAILS_ROOT}/app/models/image_file.rb:25:in `dummy?'
+#{RAILS_ROOT}/app/models/image_version.rb:7:in `file'
+#{RAILS_ROOT}/app/models/image_version.rb:16:in `img_tag'
+#{RAILS_ROOT}/app/models/document.rb:23:in `img_tag'
+#{RAILS_ROOT}/app/views/main/_doc_title.rhtml:4:in `_run_rhtml_main__doc_title'
+/usr/local/lib/ruby/gems/1.8/gems/actionpack-1.12.5/lib/action_view/base.rb:316:in `send'
+/usr/local/lib/ruby/gems/1.8/gems/actionpack-1.12.5/lib/action_view/base.rb:316:in `compile_and_render_template'
+/usr/local/lib/ruby/gems/1.8/gems/actionpack-1.12.5/lib/action_view/base.rb:292:in `render_template'
+/usr/local/lib/ruby/gems/1.8/gems/actionpack-1.12.5/lib/action_view/base.rb:251:in `render_file'
+/usr/local/lib/ruby/gems/1.8/gems/actionpack-1.12.5/lib/action_view/base.rb:266:in `render'
+/usr/local/lib/ruby/gems/1.8/gems/actionpack-1.12.5/lib/action_view/partials.rb:59:in `render_partial'
+/usr/local/lib/ruby/gems/1.8/gems/actionpack-1.12.5/lib/action_controller/benchmarking.rb:33:in `benchmark'
+/usr/local/lib/ruby/gems/1.8/gems/actionpack-1.12.5/lib/action_view/partials.rb:58:in `render_partial'
+/usr/local/lib/ruby/gems/1.8/gems/actionpack-1.12.5/lib/action_view/base.rb:278:in `render'
+#{RAILS_ROOT}/app/views/templates/default.rhtml:35:in `_run_rhtml_templates_default'
+/usr/local/lib/ruby/gems/1.8/gems/actionpack-1.12.5/lib/action_view/base.rb:316:in `send'
+/usr/local/lib/ruby/gems/1.8/gems/actionpack-1.12.5/lib/action_view/base.rb:316:in `compile_and_render_template'
+/usr/local/lib/ruby/gems/1.8/gems/actionpack-1.12.5/lib/action_view/base.rb:292:in `render_template'
+/usr/local/lib/ruby/gems/1.8/gems/actionpack-1.12.5/lib/action_view/base.rb:251:in `render_file'
+/usr/local/lib/ruby/gems/1.8/gems/actionpack-1.12.5/lib/action_controller/base.rb:726:in `render_file'
+/usr/local/lib/ruby/gems/1.8/gems/actionpack-1.12.5/lib/action_controller/base.rb:648:in `render_with_no_layout'
+/usr/local/lib/ruby/gems/1.8/gems/actionpack-1.12.5/lib/action_controller/layout.rb:253:in `render_without_benchmark'
+/usr/local/lib/ruby/gems/1.8/gems/actionpack-1.12.5/lib/action_controller/benchmarking.rb:53:in `render'
+/usr/local/lib/ruby/1.8/benchmark.rb:293:in `measure'
+/usr/local/lib/ruby/gems/1.8/gems/actionpack-1.12.5/lib/action_controller/benchmarking.rb:53:in `render'
+#{RAILS_ROOT}/app/controllers/application.rb:19:in `render_and_cache'
+#{RAILS_ROOT}/app/controllers/main_controller.rb:18:in `show'
+/usr/local/lib/ruby/gems/1.8/gems/actionpack-1.12.5/lib/action_controller/base.rb:941:in `send'
+/usr/local/lib/ruby/gems/1.8/gems/actionpack-1.12.5/lib/action_controller/base.rb:941:in `perform_action_without_filters'
+/usr/local/lib/ruby/gems/1.8/gems/actionpack-1.12.5/lib/action_controller/filters.rb:368:in `perform_action_without_benchmark'
+/usr/local/lib/ruby/gems/1.8/gems/actionpack-1.12.5/lib/action_controller/benchmarking.rb:69:in `perform_action_without_rescue'
+/usr/local/lib/ruby/1.8/benchmark.rb:293:in `measure'
+/usr/local/lib/ruby/gems/1.8/gems/actionpack-1.12.5/lib/action_controller/benchmarking.rb:69:in `perform_action_without_rescue'
+/usr/local/lib/ruby/gems/1.8/gems/actionpack-1.12.5/lib/action_controller/rescue.rb:82:in `perform_action'
+/usr/local/lib/ruby/gems/1.8/gems/actionpack-1.12.5/lib/action_controller/base.rb:408:in `send'
+/usr/local/lib/ruby/gems/1.8/gems/actionpack-1.12.5/lib/action_controller/base.rb:408:in `process_without_filters'
+/usr/local/lib/ruby/gems/1.8/gems/actionpack-1.12.5/lib/action_controller/filters.rb:377:in `process_without_session_management_support'
+/usr/local/lib/ruby/gems/1.8/gems/actionpack-1.12.5/lib/action_controller/session_management.rb:117:in `process'
+/usr/local/lib/ruby/gems/1.8/gems/rails-1.1.6/lib/dispatcher.rb:38:in `dispatch'
+/usr/local/lib/ruby/gems/1.8/gems/mongrel-0.3.13.3/lib/mongrel/rails.rb:73:in `process'
+/usr/local/lib/ruby/gems/1.8/gems/mongrel-0.3.13.3/lib/mongrel.rb:551:in `process_client'
+/usr/local/lib/ruby/gems/1.8/gems/mongrel-0.3.13.3/lib/mongrel.rb:550:in `each'
+/usr/local/lib/ruby/gems/1.8/gems/mongrel-0.3.13.3/lib/mongrel.rb:550:in `process_client'
+/usr/local/lib/ruby/gems/1.8/gems/mongrel-0.3.13.3/lib/mongrel.rb:636:in `run'
+/usr/local/lib/ruby/gems/1.8/gems/mongrel-0.3.13.3/lib/mongrel.rb:636:in `initialize'
+/usr/local/lib/ruby/gems/1.8/gems/mongrel-0.3.13.3/lib/mongrel.rb:636:in `new'
+/usr/local/lib/ruby/gems/1.8/gems/mongrel-0.3.13.3/lib/mongrel.rb:636:in `run'
+/usr/local/lib/ruby/gems/1.8/gems/mongrel-0.3.13.3/lib/mongrel.rb:625:in `initialize'
+/usr/local/lib/ruby/gems/1.8/gems/mongrel-0.3.13.3/lib/mongrel.rb:625:in `new'
+/usr/local/lib/ruby/gems/1.8/gems/mongrel-0.3.13.3/lib/mongrel.rb:625:in `run'
+/usr/local/lib/ruby/gems/1.8/gems/mongrel-0.3.13.3/lib/mongrel.rb:956:in `run'
+/usr/local/lib/ruby/gems/1.8/gems/mongrel-0.3.13.3/lib/mongrel.rb:955:in `each'
+/usr/local/lib/ruby/gems/1.8/gems/mongrel-0.3.13.3/lib/mongrel.rb:955:in `run'
+/usr/local/lib/ruby/gems/1.8/gems/mongrel-0.3.13.3/bin/mongrel_rails:127:in `run'
+/usr/local/lib/ruby/gems/1.8/gems/mongrel-0.3.13.3/lib/mongrel/command.rb:199:in `run'
+/usr/local/lib/ruby/gems/1.8/gems/mongrel-0.3.13.3/bin/mongrel_rails:235
+/usr/local/bin/mongrel_rails:18:in `load'
+/usr/local/bin/mongrel_rails:18</CODE></PRE>    </DIV>
+  </DIV>
+
+
+
+
+
+
+
+
+<H2 style="margin-top: 30px">Request</H2>
+<P><B>Parameters</B>: {"prefix"=&gt;"oo",
+ "path"=&gt;["collections",
+ "black.jpg"]}</P>
+
+<P><A href="#" onclick="document.getElementById('session_dump').style.display='block'; return false;">Show session dump</A></P>
+<DIV id="session_dump" style="display:none"><PRE class="debug_dump">--- 
+:lang: en
+:user: 
+¬† :lang: en
+¬† :fullname: Panther Tigris Sumatran
+¬† :groups: 
+¬† - 1
+¬† - 3
+¬† - 4
+¬† :id: 4
+flash: !map:ActionController::Flash::FlashHash {}
+
+</PRE></DIV>
+
+<H2 style="margin-top: 30px">Response</H2>
+<B>Headers</B>: {"cookie"=&gt;[],
+ "Content-Type"=&gt;"text/html; charset=utf-8",
+ "Cache-Control"=&gt;"no-cache"}<BR>
+
+
+
+
+</BODY></HTML>_.http://localhost:3000/oo/collections/black.jpgYtext/html    & D V e { ÅHH=                           HG
