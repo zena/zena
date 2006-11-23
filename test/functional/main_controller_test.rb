@@ -84,6 +84,10 @@ class MainControllerTest < Test::Unit::TestCase
     assert_redirected_to not_found_url
   end
   
+  def test_search
+    assert false, 'todo'
+  end
+  
   def test_not_found
     assert_routing '404', {:controller=>'main', :action=>'not_found'}
     get 'not_found'

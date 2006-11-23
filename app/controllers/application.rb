@@ -16,7 +16,7 @@ class ApplicationController < ActionController::Base
     
     
     @project = @item.project
-    render "templates/#{template(opts[:template])}"
+    render :template=>"templates/#{template(opts[:template])}", :layout=>false
     
     # only cache the public pages
     if opts[:cache] && !session[:user]

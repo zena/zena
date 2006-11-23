@@ -31,7 +31,7 @@ class MainController < ApplicationController
     req[:prefix] = prefix
     redirect_to req
   end
-  
+
   private
   
   # do not accept a logged in user to browse as if he was anonymous

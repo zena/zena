@@ -10,16 +10,16 @@ ActionController::Routing::Routes.draw do |map|
   map.connect ':prefix', :controller => "main", :action=>'index', :prefix=>/^(#{AUTHENTICATED_PREFIX}|\w\w)$/
 
   map.connect 'data/:ext/:version_id/:filename', :controller=>'document', :action=>'data'
-
+  
+  map.search 'z/search', :controller=>'search', :action=>'find'
+  map.default 'z/:controller/:action/:id'
 
   if ZENA_ENV[:monolingual]
     map.connect '', :controller => "main", :action=>'index'
-    map.default 'z/:controller/:action/:id'
     map.connect ":prefix/*path", :controller=>'main', :action=>'show', :prefix=>"#{AUTHENTICATED_PREFIX}"
     map.connect '*path', :controller=>'main', :action=>'show', :prefix=> ZENA_ENV[:default_lang]    
   else
     map.connect '', :controller => "main", :action=>'redirect'
-    map.default 'z/:controller/:action/:id'
     map.connect ':prefix/*path', :controller=>'main', :action=>'show', :prefix=>/^(#{AUTHENTICATED_PREFIX}|\w\w)$/
     map.connect '*path', :controller=>'main', :action=>'redirect'
   end

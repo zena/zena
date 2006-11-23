@@ -1,0 +1,47 @@
+/* GENERAL */
+* {margin: 0; padding: 0;}
+a {text-decoration: none; color:#266F92;}
+a img {border: none;}
+body {font: 0.9em Verdana, sans-serif; line-height: 1; color: #333;	behavior: url('stylesheets/csshover2.htc');} /* WinIE hack */
+
+/*   POPUP   */
+body { background:#9FA6AC ;}
+#popup_action { position:absolute; top:50px; left:0; width:90%; height:60%;padding:15px;}
+
+button { background:none; border:none;}
+input, textarea { margin:3px 0; width:100%;}
+.btn_validate { text-align:right; margin:0; padding:0;}
+.btn_validate a { margin: 15px;}
+.hidden { visibility:hidden;}
+
+/* flash messages */
+#messages { position:absolute; top:0; left:0; width:100%; height:45px; border-bottom:1px solid grey; background:white;}
+#notice { background:#D8E0C7; padding: 8px; position:absolute; top:5px; left:10px; border: 1px dotted #7B8B57; width: 350px; }
+#notice div, #error div { float:right; border:1px solid grey; }
+#error  { background:#DDC8C8; padding: 8px; position:absolute; top:5px; left:10px; border: 1px dotted #835857; width: 350px; }
+
+
+/* version edit */
+table { width:100%;}
+#edit { width:70%; border-right:1px solid grey; padding-right:5px;}
+#search { width:30%; padding-left:5px; }
+#ajax-loader { height: 30px;}
+#ajax-loader img { border:none;}
+#search_results { vertical-align:top; padding: 10px 0 0 5px;}
+label { font-weight:bold; display:block; margin-top:3px;} 
+#item_title { font-size:1.5em; font-weight:bold;}
+#item_summary { font-style:italic;}
+#item_comment { border:2px solid red;}
+input.btn_validate { width:auto; }
+
+/* document upload */
+#document_summary, #document_name { width: 350px;}
+/* document created */
+table img { border:1px solid grey;}
+table .preview img { margin:0 10px 10px 0;} 
+td.preview { text-align:center; vertical-align:center; border-right: 1px solid grey; font-size:0.6em;}
+td.description { padding:10px 0 0 10px; vertical-align:top;}
+td.description h3.title { font-size:0.9em; color:#3E2324; margin-bottom:1.2em;}
+td.description p.summary { font-style:italic; font-size:0.8em; }
+#loader { position:absolute; top:5px; left:10px; }
+#loader img { margin-top:10px; }

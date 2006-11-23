@@ -30,3 +30,31 @@ Zena.get_name = function(path) {
   elements = path.split('/');
   return elements[elements.length - 1];
 }
+
+var current_form = false;
+
+Zena.get_key_id = function(e) {
+	if (window.event)
+	   return window.event.keyCode;
+	else if (e)
+	   return e.which;
+	else
+	   return null;
+}
+
+Zena.key_change = function(e,obj) {
+	var key = Zena.get_key_id(e);
+	var evtobj=window.event? event : e;
+	switch(key) {
+		case 6:
+			if (window.current_form) {
+				window.current_form.focus();
+				window.current_form = false;
+			}
+			else {
+				window.current_form = obj;
+				$("for").focus();
+			}
+			break;
+	} 
+}
