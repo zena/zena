@@ -9,24 +9,24 @@
 			  <%= hidden_field 'item', 'lang', :value=>@item.v_lang %>
 				<%= hidden_field 'item', 'id' %>
 				<label for="comment"><%= trans("comment") %></label>
-				<%= text_area 'item', 'comment', :cols=>nil, :rows=>nil, :onKeyPress=>"Zena.key_change(event,this)" %>
+				<%= text_area 'item', 'comment', :cols=>nil, :rows=>nil %>
 				<hr/>
 				<label for="title"><%= trans("title")  %></label>
-				<%= text_field 'item', 'title', :size=>nil, :onKeyPress=>"Zena.key_change(event,this)" %>
+				<%= text_field 'item', 'title', :size=>nil %>
 				<label for="summary"><%= trans("summary")  %></label>
-				<%= text_area 'item', 'summary', :cols=>nil, :rows=>4, :value=>@item.v_summary, :onKeyPress=>"Zena.key_change(event,this)" %>
+				<%= text_area 'item', 'summary', :cols=>nil, :rows=>4, :value=>@item.v_summary %>
 				<label for="content"><%= trans("content") %></label>
-				<%= text_area 'item', 'text', :cols=>nil, :rows=>17, :value=>@item.v_text, :onKeyPress=>"Zena.key_change(event,this)" %>
+				<%= text_area 'item', 'text', :cols=>nil, :rows=>17, :value=>@item.v_text, :onKeyPress=>"Zena.key_pres(event,this);" %>
 				<p class="btn_validate"><%= link_to_function transb('cancel'), "opener.location.href=opener.location.href; self.close();" %><input type="submit" class="btn_validate" value='<%= transb('validate') %>'/></p>
 				<%= end_form_tag %> 
 			</td>
-			<td id="search">
+			<td id="search_box">
 				<label for="search"><%= trans("search")  %></label>
 				<%= form_remote_tag(:update=>'search_results', 
-									:url=>{:controller=>'find', :action=>'find_in_edit'}, 
+									:url=>{:controller=>'search', :action=>'find_in_edit', :id=>@item[:id]}, 
 									:loading => "Element.show('spinner')",
 									:complete => "Element.hide('spinner')") %>
-				<input type='text' id='for' name='for' onKeyPress="Zena.key_change(event,this)"/>
+				<input type='text' id='search' name='search'/>
 				<%= end_form_tag %>
 				<%#= observe_field(:for,
 				  #               :frequency => 1.0,
@@ -42,6 +42,7 @@
 		</tr>
 		<tr>
 			<td id="search_results">
+				<%= render :partial=>'search/find_in_edit', :locals=>{:results =>@item.children} %>
 			</td>
 		</tr>
 	</table>

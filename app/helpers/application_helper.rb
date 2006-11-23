@@ -214,7 +214,7 @@ module ApplicationHelper
     r.gsub!(  /"([^"]*)":([0-9]+)/                    ) {|x| make_link(:title=>$1,:id=>$2)}
     r.gsub!(  /\!\[([^\]]*)\]\!/                      ) {|x| make_gallery($1)}
     r.gsub!(  /\!\{([^\}]*)\}\!/                      ) {|x| list_items($1)}
-    r.gsub!(  /\!([^0-9]{0,2})([0-9]*)(\.([^\!]+)|)\!(:([^\s]+)|)/ ) {|x| make_image(:style=>$1, :id=>$2, :size=>$4, :link=>$6)}
+    r.gsub!(  /\!([^0-9]{0,2})([0-9]+)(\.([^\!]+)|)\!(:([^\s]+)|)/ ) {|x| make_image(:style=>$1, :id=>$2, :size=>$4, :link=>$6)}
     r
     r.to_html
   end

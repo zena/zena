@@ -1,7 +1,0 @@
-<% if @results.empty? %>
-  <%= trans("'SEARCH_STRING' not found").sub('SEARCH_STRING', h(@phrase))%>
-<% else %>
-  <% @results.each do |item| -%>
-		<p><b><%= item.name %></b><%= link_to_function 'img', "alert('#{item.id}');"%></p>
-	<% end %>
-<% end %>

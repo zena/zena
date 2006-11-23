@@ -116,4 +116,10 @@ class ApplicationHelperTest < Test::Unit::TestCase
       assert_match %r{class='img_left'.*href.*/en/projects/cleanWater.*window.open\(this.href\).*img src.*lake-std.jpg.*545.*400.*class='std'}, zazen('!<.14.3!:011')
     end
   end
+  
+  def test_empty_image_ref
+    assert_equal '<p>!!</p>', zazen('!!')
+    assert_equal "<p>!\n!</p>", zazen("!\n!")
+    assert_equal "<p>!!!</p>", zazen('!!!')
+  end
 end

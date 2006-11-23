@@ -33,7 +33,7 @@ Zena.get_name = function(path) {
 
 var current_form = false;
 
-Zena.get_key_id = function(e) {
+Zena.get_key = function(e) {
 	if (window.event)
 	   return window.event.keyCode;
 	else if (e)
@@ -42,18 +42,20 @@ Zena.get_key_id = function(e) {
 	   return null;
 }
 
-Zena.key_change = function(e,obj) {
-	var key = Zena.get_key_id(e);
+Zena.key_press = function(e,obj) {
+	var key = Zena.get_key(e);
 	var evtobj=window.event? event : e;
+	window.status = key;
 	switch(key) {
 		case 6:
 			if (window.current_form) {
-				window.current_form.focus();
+				//window.current_form.focus();
+				$(window.current_form).focus();
 				window.current_form = false;
 			}
 			else {
 				window.current_form = obj;
-				$("for").focus();
+				$("search").focus();
 			}
 			break;
 	} 
