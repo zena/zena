@@ -38,30 +38,37 @@ class ImageFileTest < Test::Unit::TestCase
     end
   end
   
-  def test_self_find_or_new
-    imf = ImageFile.find_or_new(versions_id(:bird_jpg_en))
-    assert_equal 1, imf.id
-    assert !imf.new_record?, "Not a new record"
-    assert_equal 661, imf.width
-    imf = ImageFile.find_or_new(versions_id(:bird_jpg_en),'pv')
-    assert imf.new_record?, "New record"
-    assert_equal 80, imf.width
+  def test_self_find_or_create
+    preserving_files('/data/test/jpg/20') do
+      imf = ImageFile.find_or_create(versions_id(:bird_jpg_en))
+      assert_equal 1, imf.id
+      assert !imf.new_record?, "Not a new record"
+      assert_equal 661, imf.width
+      assert File.exist?("#{RAILS_ROOT}/data/test/jpg/20/bird.jpg"), "File exists"
+      assert !File.exist?("#{RAILS_ROOT}/data/test/jpg/20/bird-pv.jpg"), "File does not exist"
+      imf = ImageFile.find_or_create(versions_id(:bird_jpg_en),'pv')
+      assert !imf.new_record?, "Not a new record"
+      assert File.exist?("#{RAILS_ROOT}/data/test/jpg/20/bird-pv.jpg"), "File exists"
+      assert_equal 80, imf.width
+    end
   end
     
-  def test_self_find_or_new_no_fileinfo
+  def test_self_find_or_create_no_fileinfo
     ImageFile.connection.execute "DELETE FROM doc_files WHERE version_id=#{versions_id(:bird_jpg_en)}"
-    assert_raise(ActiveRecord::RecordNotFound) { ImageFile.find_or_new(versions_id(:bird_jpg_en)) }
+    assert_raise(ActiveRecord::RecordNotFound) { ImageFile.find_or_create(versions_id(:bird_jpg_en)) }
   end
   
   def test_img_tag
-    imf = ImageFile.find_or_new(versions_id(:bird_jpg_en))
-    assert_equal "<img src='/data/jpg/20/bird.jpg' width='661' height='600'/>", imf.img_tag
-    imf = ImageFile.find_or_new(versions_id(:bird_jpg_en), 'pv')
-    assert_equal "<img src='/data/jpg/20/bird-pv.jpg' width='80' height='80' class='pv'/>", imf.img_tag
+    preserving_files('/data/test/jpg/20') do
+      imf = ImageFile.find_or_create(versions_id(:bird_jpg_en))
+      assert_equal "<img src='/data/jpg/20/bird.jpg' width='661' height='600' class='full'/>", imf.img_tag
+      imf = ImageFile.find_or_create(versions_id(:bird_jpg_en), 'pv')
+      assert_equal "<img src='/data/jpg/20/bird-pv.jpg' width='80' height='80' class='pv'/>", imf.img_tag
+    end
   end
   
   def test_transform
-    imf = ImageFile.find_or_new(versions_id(:bird_jpg_en))
+    imf = ImageFile.find_or_create(versions_id(:bird_jpg_en))
     other = imf.transform('pv')
     assert_equal '/jpg/20/bird.jpg', imf[:path]
     assert_equal '/jpg/20/bird-pv.jpg', other[:path]
@@ -91,37 +98,46 @@ class ImageFileTest < Test::Unit::TestCase
     assert_equal 2643, imf.size
   end
   
-  def test_read
+  def test_save_file
     preserving_files('data/test/jpg/20') do
       Version.connection.execute "UPDATE versions SET status=20 WHERE id=#{versions_id(:bird_jpg_en)}"
-      imf = ImageFile.find_or_new(versions_id(:bird_jpg_en))
+      imf = ImageFile.find_or_create(versions_id(:bird_jpg_en))
       assert File.exist?(imf.send(:filepath)), "File exists"
-      imf = ImageFile.find_or_new(versions_id(:bird_jpg_en), 'pv')
-      assert !File.exist?(imf.send(:filepath)), "File does not exist"
-      assert imf.save, "Can save"
-      assert !File.exist?(imf.send(:filepath)), "File does not exist"
-      
-      imf = ImageFile.find(imf[:id])
-      assert_equal 20, imf.send(:version).status
-      assert imf.read
-      assert !File.exist?(imf.send(:filepath)), "File does not exist"
-      
-      Version.connection.execute "UPDATE versions SET status=50 WHERE id=#{versions_id(:bird_jpg_en)}"
-      imf = ImageFile.find(imf[:id])
-      assert_equal 50, imf.send(:version).status
-      assert imf.read
+      imf = ImageFile.find_or_create(versions_id(:bird_jpg_en), 'pv')
+      assert !imf.new_record?, "Not a new record"
       assert File.exist?(imf.send(:filepath)), "File exist"
     end
   end
   
-  def test_save_image_file
+  def test_read_save_file
+    preserving_files('data/test/jpg/20') do
+      imf = ImageFile.find_or_create(versions_id(:bird_jpg_en))
+      assert File.exist?(imf.send(:filepath)), "File exists"
+      imf = ImageFile.find_or_create(versions_id(:bird_jpg_en), 'pv')
+      assert !imf.new_record?, "Not a new record"
+      assert_equal 80, imf[:width]
+      assert_equal 80, imf[:height]
+      imf[:width] = 40
+      imf.save
+      imf = ImageFile.find_or_create(versions_id(:bird_jpg_en), 'pv')
+      assert_equal 40, imf[:width]
+      FileUtils::rm("#{RAILS_ROOT}/data/test/jpg/20/bird-pv.jpg")
+      assert !File.exist?(imf.send(:filepath)), "File does not exist"
+      assert imf.read
+      assert File.exist?(imf.send(:filepath)), "File exist"
+      imf = ImageFile.find_or_create(versions_id(:bird_jpg_en), 'pv')
+      assert_equal 80, imf[:width] # width has been saved
+      assert_equal 2643, imf[:size] # size saved too
+    end
   end
   
   def test_filename
-    imf = ImageFile.find_or_new(versions_id(:bird_jpg_en))
-    assert_equal 'bird.jpg', imf.filename
-    imf = ImageFile.find_or_new(versions_id(:bird_jpg_en), 'med')
-    assert_equal 'bird-med.jpg', imf.filename
+    preserving_files('data/test/jpg/20') do
+      imf = ImageFile.find_or_create(versions_id(:bird_jpg_en))
+      assert_equal 'bird.jpg', imf.filename
+      imf = ImageFile.find_or_create(versions_id(:bird_jpg_en), 'med')
+      assert_equal 'bird-med.jpg', imf.filename
+    end
   end
   
   def test_clone

@@ -1,6 +1,6 @@
 class ImageFile < DocFile
   
-  def self.find_or_new(vid, format=nil)
+  def self.find_or_create(vid, format=nil)
     format = nil if format == 'full'
     f = self.find_by_version_id_and_format(vid,format)
     unless f
@@ -8,6 +8,7 @@ class ImageFile < DocFile
       f = ImageFile.find_by_version_id_and_format(vid,nil)
       if f
         f = f.transform(format)
+        f.save
       else
         raise ActiveRecord::RecordNotFound, "No ImageFile with version_id '#{vid}'"
       end
@@ -27,7 +28,7 @@ class ImageFile < DocFile
   end
   
   def img_tag
-    "<img src='/data#{path}' width='#{width}' height='#{height}'" + (format ? " class='#{format}'" : "") + "/>"
+    "<img src='/data#{path}' width='#{width}' height='#{height}' class='#{format ? format : 'full'}'/>"
   end
   
   def transform(format)
@@ -88,9 +89,14 @@ class ImageFile < DocFile
     elsif @data
       @data.read
     elsif self[:format] && self[:version_id] && file = ImageFile.find_by_version_id_and_format(self[:version_id], nil)
+      # rebuild image
       @data = ImageBuilder.new(:width=>file[:width], :height=>file[:height], :path=>file.filepath)
       @data.transform!(self[:format])
-      save_image_file if version.status > Zena::Status[:red]
+      if @data.width != self[:width] || @data.height != self[:height] || self[:size].nil? || self[:size] != @data.read.size
+        self[:height] = @data.height
+        self[:width]  = @data.width
+        save
+      end
       @data.read
     else
       raise IOError, "File not found"
@@ -105,21 +111,15 @@ class ImageFile < DocFile
   end
   
   private
-  def save_image_file
-    if @data
+  
+  def save_file
+    if @data && self[:version_id]
       p = File.join(*filepath.split('/')[0..-2])
       unless File.exist?(p)
         FileUtils::mkpath(p)
       end
       File.open(filepath, "wb") { |f| f.syswrite(@data.read) }
       self[:size] = File.stat(filepath).size
-    end
-  end
-  
-  def save_file
-    if @data && self[:format] == nil
-      # save original file on record creation. Only save transformed images on 'read'. This makes the 'read' operation stronger as we can clean the files and it will render again on demand.
-      save_image_file
     end
   end
   

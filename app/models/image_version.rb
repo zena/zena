@@ -3,7 +3,7 @@ class ImageVersion < DocVersion
   def file(format=nil)
     @files ||= {}
     unless @files[format]
-      img = ImageFile.find_or_new(file_ref, format)
+      img = ImageFile.find_or_create(file_ref, format)
       if !img.dummy? && status == Zena::Status[:pub] && img.new_record?
         img.save
       end
