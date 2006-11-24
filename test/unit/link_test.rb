@@ -48,7 +48,7 @@ class LinkTest < Test::Unit::TestCase
     assert_equal 20, @item.icon_id
     assert_kind_of Image, icon = @item.icon
     assert_equal 20, icon[:id]
-    assert_equal "bird.jpg", icon.name
+    assert_equal "bird", icon.name
   end
   
   def test_link_on_create

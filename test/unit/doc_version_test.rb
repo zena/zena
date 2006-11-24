@@ -14,7 +14,8 @@ class DocVersionTest < Test::Unit::TestCase
   def test_img_tag_other
     visitor(:tiger)
     doc = secure(Item) { items(:water_pdf) }
-    doc.name = 'water.bin'
+    v = doc.send(:version)
+    v.file.ext = 'bin'
     assert_equal 'bin', doc.ext
     assert_equal "<img src='/images/ext/other.png' width='32' height='32' class='icon'/>", doc.img_tag
     assert_equal "<img src='/images/ext/other-pv.png' width='80' height='80' class='pv'/>", doc.img_tag('pv')
@@ -61,8 +62,8 @@ class DocVersionTest < Test::Unit::TestCase
     item = secure(Item) { items(:water_pdf) }
     v = item.send(:version)
     assert_equal "", v[:title]
-    assert_equal "water.pdf", item[:name]
-    assert_equal "water", v.title
+    assert_equal "water", item[:name]
+    assert_equal "water.pdf", v.filename
     v[:title] = 'lac leman'
     assert_equal 'lac leman', v.title
   end
@@ -111,6 +112,16 @@ class DocVersionTest < Test::Unit::TestCase
       item = secure(Item) { items(:forest_pdf) }
       assert !item.update_redaction(:file=>uploaded_pdf('water.pdf')), "Cannot be changed"
       assert_match %r{file cannot be changed}, item.errors[:version]
+    end
+  end
+  
+  def test_cannot_change_file_if_many_uses
+    preserving_files("/data/test/jpg/20") do
+      visitor(:tiger)
+      item = secure(Item) { items(:bird_jpg) }
+      old_vers_id = item.v_id
+      assert !item.update_redaction(:file=>uploaded_pdf('water.pdf'))
+      assert_equal 'must be an image', item.errors[:file]
     end
   end
   

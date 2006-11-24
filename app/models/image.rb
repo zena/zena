@@ -1,5 +1,10 @@
 class Image < Document
-
+  class << self
+    def image_content_type?(content_type)
+      content_type =~ /image/
+    end
+  end
+  
   def file(format=nil)
     version.file(format)
   end

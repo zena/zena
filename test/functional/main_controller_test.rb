@@ -15,8 +15,8 @@ class MainControllerTest < Test::Unit::TestCase
   
   def test_index
     assert_routing '/en', {:controller=>'main', :action=>'index', :prefix=>'en'}
-    assert_routing '/', {:controller=>'main', :action=>'redirect'}
-    get 'index'
+    assert_routing '/',   {:controller=>'main', :action=>'redirect'}
+    get 'index', :prefix=>'en'
     assert_response :success
     assert_template 'index'
   end
@@ -82,10 +82,6 @@ class MainControllerTest < Test::Unit::TestCase
     assert_redirected_to :action=>'show', :prefix=>'en'
     get 'show',     :path=>['bidule'],  :prefix=>'en'
     assert_redirected_to not_found_url
-  end
-  
-  def test_search
-    assert false, 'todo'
   end
   
   def test_not_found

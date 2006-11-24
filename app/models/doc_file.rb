@@ -6,9 +6,9 @@ class DocFile < ActiveRecord::Base
   after_destroy :destroy_file
   
   def file=(aFile)
-    @data = aFile
-    self[:content_type] = @data.content_type.chomp
-    self[:size] = @data.stat.size
+    @file = aFile
+    self[:content_type] = @file.content_type.chomp
+    self[:size] = @file.stat.size
   end
   
   def size=(s)
@@ -27,16 +27,17 @@ class DocFile < ActiveRecord::Base
   def read
     if self[:version_id] && !new_record? && File.exist?(filepath)
       File.read(filepath)
-    elsif @data
-      @data.read
+    elsif @img
+      @img.read
+    elsif @file
+      @file.read
     else
       raise IOError, "File not found"
     end
   end
   
-  # used by DocumentController when sending files
   def filename
-    version.item.name
+    "#{version.item.name}.#{ext}"
   end
   
   protected
@@ -48,26 +49,37 @@ class DocFile < ActiveRecord::Base
   end
   
   private
+  
   def docfile_valid
     errors.add('version_id', 'version must exist') unless self.version
-    errors.add('base', 'file not set') unless @data || !new_record?
+    errors.add('base', 'file not set') unless @file || @img || !new_record?
   end
   
   def save_file
-    if @data
+    if @img || @file
+      # set extension
+      ext  = self[:ext] || @file.original_filename.split('.').last
+      # is this extension valid ?
+      extensions = TYPE_TO_EXT[self[:content_type]]
+      if extensions
+        self[:ext] = extensions.include?(ext) ? ext : extensions[0]
+      else
+        self[:ext] = "???"
+      end
+      
       p = File.join(*filepath.split('/')[0..-2])
       unless File.exist?(p)
         FileUtils::mkpath(p)
       end
-      File.open(filepath, "wb") { |f| f.syswrite(@data.read) }
+      File.open(filepath, "wb") { |f| f.syswrite((@img || @file).read) }
       self[:size] = File.stat(filepath).size
+      true
     end
   end
 
   def make_path
     raise StandardError, "Path not set yet, version must be saved first" unless self[:version_id] 
-    extension = filename.split(".").last
-    self[:path] = "/#{extension}/#{version_id}/#{filename}"
+    self[:path] = "/#{ext}/#{version_id}/#{filename}"
   end
   
   def destroy_file

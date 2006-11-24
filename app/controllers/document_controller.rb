@@ -12,7 +12,7 @@ class DocumentController < ApplicationController
   def create
     pdoc = params[:document]
     pdoc.delete(:file) if pdoc[:file] == ""
-    if pdoc[:file].content_type =~ /image/
+    if Image.image_content_type?(pdoc[:file].content_type)
       @document = secure(Image) { Image.create(pdoc) }
     else
       @document = secure(Document) { Document.create(pdoc) }
@@ -28,16 +28,18 @@ class DocumentController < ApplicationController
 
   # Get document data (inline if possible)
   def data
-    if params[:filename] =~ /([^-]+)-(.+)\.(.+)/
-      name = "#{$1}.#{$3}"
+    if params[:filename] =~ /(.+)-([^-]+)\.(.+)/
+      name = $1
       if IMAGEBUILDER_FORMAT[$2]
         format = $2
       else
         format = 'pv'
       end
-    else
-      name = params[:filename]
+    elsif params[:filename] =~ /(.+)\.(.+)/
+      name = $1
       format = nil
+    else
+      raise ActiveRecord::RecordNotFound
     end
     @document = secure(Document) { Document.version(params[:version_id]) }
     if @document.kind_of?(Image) && !ImageBuilder.dummy?

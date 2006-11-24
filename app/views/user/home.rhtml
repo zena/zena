@@ -22,8 +22,8 @@
 	</div>
 
 	<%#= plug :menu %>
-	<%#= plug :logo  %>
-	<%#= plug :flash %>
+	<%= logo Time.now  %>
+	<%= flash_messages %>
 
 	<div id="left">
 		<%#= plug :calendar, :tiny %>

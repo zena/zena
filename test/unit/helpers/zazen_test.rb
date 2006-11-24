@@ -37,8 +37,8 @@ class ApplicationHelperTest < Test::Unit::TestCase
 
   def test_make_image_with_document
     login(:tiger)
-    assert_equal "<p><img src='/images/ext/pdf.png' width='32' height='32' class='icon'/></p>", zazen('!15!')
-    assert_equal "<p><img src='/images/ext/pdf-pv.png' width='80' height='80' class='pv'/></p>", zazen('!15.pv!')
+    assert_match %r{<p><a.*href=.*data/pdf/15/water\.pdf.*img src='/images/ext/pdf.png' width='32' height='32' class='icon'/></a></p>}, zazen('!15!')
+    assert_match %r{<p><a.*href=.*data/pdf/15/water\.pdf.*img src='/images/ext/pdf-pv.png' width='80' height='80' class='pv'/></a></p>}, zazen('!15.pv!')
   end
 
   def test_make_bad_image

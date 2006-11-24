@@ -33,7 +33,7 @@ class ImageFileTest < Test::Unit::TestCase
     def test_dummy
       imf = ImageFile.new
       assert imf.dummy?, "Is a dummy"
-      imf = ImageFile.new(:version_id => versions_id(:bird_jpg_en))
+      imf = ImageFile.new(:version_id => versions_id(:bird_jpg_en), :ext=>'jpg')
       assert !imf.dummy?, "Is not a dummy"
     end
   end
@@ -165,6 +165,6 @@ class ImageFileTest < Test::Unit::TestCase
     file = uploaded_pdf('bird.jpg')
     imf.file = file
     other = imf.clone
-    assert_equal file.object_id, other.instance_eval{@data.file}.object_id
+    assert_equal file.object_id, other.instance_eval{@file}.object_id
   end
 end

@@ -11,8 +11,10 @@ class DocumentTest < Test::Unit::TestCase
                                                 :file => uploaded_pdf('water.pdf') ) }
       assert_kind_of Document , doc
       assert ! doc.new_record? , "Not a new record"
-      assert_equal "report.pdf", doc.name
+      assert_equal "report", doc.name
       assert_equal "report", doc.title
+      assert_equal "report.pdf", doc.filename
+      assert_equal 'pdf', doc.ext
       v = doc.send :version
       assert ! v.new_record? , "Version is not a new record"
       assert_not_nil v.file_ref , "File_ref is set"
@@ -42,11 +44,12 @@ class DocumentTest < Test::Unit::TestCase
     preserving_files('/data/test/pdf') do
       visitor(:ant)
       doc = secure(Document) { Document.create( :parent_id=>items_id(:wiki),
-        :title => 'bird.pdf',
+        :title => 'bird.jpg',
         :file => uploaded_pdf('bird.jpg') ) }
         assert_kind_of Document , doc
+        assert_equal 'bird', doc.name
         assert doc.new_record? , "Not saved"
-        assert_equal "bird.jpg", doc.name
+        assert_equal "bird", doc.name
         assert_equal "has already been taken", doc.errors[:name]
       end
   end
@@ -59,8 +62,9 @@ class DocumentTest < Test::Unit::TestCase
         :file => uploaded_pdf('water.pdf') ) }
       assert_kind_of Document , doc
       assert ! doc.new_record? , "Not a new record"
-      assert_equal "stupid.pdf", doc.name
+      assert_equal "stupid", doc.name
       assert_equal "stupid", doc.title
+      assert_equal "stupid.pdf", doc.filename
     end
   end
   
@@ -107,9 +111,33 @@ class DocumentTest < Test::Unit::TestCase
         :file => uploaded_text('some.txt') ) }
       assert_kind_of Document , doc
       assert ! doc.new_record? , "Not a new record"
-      assert_equal "stupid.txt", doc.name
+      assert_equal "stupid", doc.name
       assert_equal "stupid", doc.title
+      assert_equal 'txt', doc.ext
     end
   end
   
+  def test_change_file
+    preserving_files('/data/test/pdf') do
+      visitor(:tiger)
+      doc = secure(Document) { Document.find(items_id(:water_pdf)) }
+      assert_equal 29279, doc.filesize
+      assert_equal '/pdf/15/water.pdf', doc.file.path
+      assert doc.update_redaction(:file=>uploaded_pdf('forest.pdf'), :title=>'forest gump'), "Can change file"
+      doc = secure(Item) { items(:water_pdf) }
+      assert_equal 'forest gump', doc.title
+      assert_equal 'pdf', doc.ext
+      assert_equal 63569, doc.filesize
+      last_id = Version.find(:first, :order=>"id DESC").id
+      assert_not_equal 15, last_id
+      assert_equal "/pdf/#{last_id}/water.pdf", doc.file.path
+      assert doc.update_redaction(:file=>uploaded_pdf('water.pdf')), "Can change file"
+      doc = secure(Item) { items(:water_pdf) }
+      assert_equal 'forest gump', doc.title
+      assert_equal 'pdf', doc.ext
+      assert_equal 29279, doc.filesize
+      assert_equal "/pdf/#{last_id}/water.pdf", doc.file.path
+    end
+  end
+      
 end

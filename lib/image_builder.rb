@@ -22,7 +22,6 @@ rescue LoadError
 end
 
 class ImageBuilder
-  attr_reader :file
   
   class << self
     def dummy?
@@ -32,7 +31,7 @@ class ImageBuilder
 
   def initialize(h)
     params = {:height=>nil, :width=>nil, :path=>nil, :file=>nil, :actions=>[]}.merge(h)
-
+    
     params.each_pair do |k,v|
       case k
       when :height
@@ -214,8 +213,6 @@ class ImageBuilder
     @img
   end
 end
-# Make a watermark from the word "RMagick"
-
 IMAGEBUILDER_FORMAT = {
   'tiny' => { :size=>:force, :width=>15,  :height=>15,  :scale=>2.0   },
   'mini' => { :size=>:force, :width=>40,  :ratio=>1.0                 },

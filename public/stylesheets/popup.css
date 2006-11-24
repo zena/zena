@@ -23,6 +23,9 @@ input, textarea { margin:3px 0; width:100%;}
 #notice { background:#D8E0C7; padding: 8px; position:absolute; top:5px; left:10px; border: 1px dotted #7B8B57; width: 350px; }
 #notice div, #error div { float:right; border:1px solid grey; }
 #error  { background:#DDC8C8; padding: 8px; position:absolute; top:5px; left:10px; border: 1px dotted #835857; width: 350px; }
+.errorExplanation { font-size:0.9em; background: #C18284; border: 1px dotted #920C0C; margin:5px 5px 5px 0; padding:4px; line-height:1.2em; }
+.errorExplanation ul { margin-left:15px; }
+.fieldWithErrors { padding: 2px; background-color: #C18284; display: table;}
 
 
 /* version edit */

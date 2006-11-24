@@ -54,12 +54,12 @@ class DocFileTest < Test::Unit::TestCase
   end
   
   def test_filename
-    doc = DocFile.new( :version_id=>15 )
-    assert_equal 'water.pdf', doc.send(:filename)
+    doc = DocFile.new( :version_id=>15, :ext=>'tot' )
+    assert_equal 'water.tot', doc.send(:filename)
   end
   
   def test_make_path
-    doc = DocFile.new( :version_id=>15 )
+    doc = DocFile.new( :version_id=>15, :ext=>'pdf' )
     assert_equal '', doc[:path]
     doc.send(:make_path)
     assert_equal '/pdf/15/water.pdf', doc[:path]
@@ -71,7 +71,7 @@ class DocFileTest < Test::Unit::TestCase
   end
   
   def test_filepath_ok
-    doc = DocFile.new( :version_id=>15, :file=>uploaded_pdf('water.pdf') )
+    doc = DocFile.new( :version_id=>15, :file=>uploaded_pdf('water.pdf'), :ext=>'pdf' )
     fp = doc.send(:filepath)
     assert_equal "#{RAILS_ROOT}/data/test/pdf/15/water.pdf", fp
   end

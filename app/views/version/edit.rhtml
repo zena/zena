@@ -6,7 +6,7 @@
 		<tr>
 			<td id="edit" rowspan='3'>
 				<% if @item.kind_of?(Document) -%>
-			  <%= start_form_tag({ :action => "save", :controller=>'version' }, :id => "item_form", :multipart=>true ) %>
+			  <%= start_form_tag({ :action => "save", :controller=>'version', :rnd=>salt_against_caching }, :id => "item_form", :multipart=>true ) %>
 				<% else -%>
 			  <%= start_form_tag({ :action => "save", :controller=>'version' }, :id => "item_form" ) %>
 				<% end -%>

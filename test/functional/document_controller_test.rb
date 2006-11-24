@@ -30,7 +30,7 @@ class DocumenControllerTest < Test::Unit::TestCase
     assert_template 'document/create'
     zena = secure(Item) { items(:zena) }
     docs = zena.documents
-    assert_equal 'water.pdf', docs[0][:name]
+    assert_equal 'water', docs[0][:name]
   end
   
   def test_data
@@ -67,7 +67,7 @@ class DocumenControllerTest < Test::Unit::TestCase
     assert_template 'document/create'
     zena = secure(Item) { items(:zena) }
     docs = zena.documents
-    assert_equal 'bird.jpg', docs[0][:name]
+    assert_equal 'bird', docs[0][:name]
   end
   
   def test_img

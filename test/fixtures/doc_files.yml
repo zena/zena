@@ -3,6 +3,7 @@ bird_jpg:
   id:             1
   version_id:     20
   content_type:   "image/jpeg"
+  ext:            'jpg'
   path:           "/jpg/20/bird.jpg"
   width:          661
   height:         600
@@ -13,6 +14,7 @@ flower_jpg:
   version_id:     21
   content_type:   "image/jpeg"
   path:           "/jpg/21/flower.jpg"
+  ext:            'jpg'
   width:          800
   height:         600
   
@@ -20,8 +22,9 @@ lake_jpg:
   type:           ImageFile
   id:             3
   version_id:     14
-  content_type:   image/jpeg
+  content_type:   "image/jpeg"
   path:           "/jpg/14/lake.jpg"
+  ext:            'jpg'
   width:          600
   height:         440
   
@@ -31,6 +34,7 @@ water_pdf:
   version_id:     15
   content_type:   "application/pdf"
   path:           "/pdf/15/water.pdf"
+  ext:            'pdf'
   size:           29279
   
 tree_jpg:
@@ -39,6 +43,7 @@ tree_jpg:
   version_id:     35
   content_type:   "image/jpeg"
   path:           "/jpg/35/tree.jpg"
+  ext:            'jpg'
   width:          800
   height:         532
   
@@ -48,5 +53,6 @@ forest_pdf:
   version_id:     36
   content_type:   "application/pdf"
   path:           "/pdf/36/forest.pdf"
+  ext:            'pdf'
   size:           63569
   

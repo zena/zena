@@ -162,7 +162,7 @@ class ApplicationHelperTest < Test::Unit::TestCase
   
   def test_data_url
     obj = secure(Item) { items(:water_pdf) }
-    hash = {:controller=>'document', :action=>'data', :version_id=>obj.v_id, :filename=>obj.name, :ext=>obj.ext}
+    hash = {:controller=>'document', :action=>'data', :version_id=>obj.v_id, :filename=>obj.filename, :ext=>obj.ext}
     assert_equal hash, data_url(obj)
     obj = secure(Item) { items(:projects) }
     assert_raise(StandardError) { data_url(obj) }

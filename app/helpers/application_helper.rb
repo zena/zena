@@ -261,7 +261,7 @@ module ApplicationHelper
     if img.kind_of?(Image)
       image = img.img_tag(size || 'std')
     else
-      image = img.img_tag(size)
+      image = link_to(img.img_tag(size), data_url(img))
     end
       
     
@@ -304,7 +304,7 @@ module ApplicationHelper
   
   def data_url(obj)
     if obj.kind_of?(Document)
-      {:controller=>'document', :action=>'data', :version_id=>obj.v_id, :filename=>obj.name, :ext=>obj.ext}
+      {:controller=>'document', :action=>'data', :version_id=>obj.v_id, :filename=>obj.filename, :ext=>obj.ext}
     else
       raise StandardError, "Cannot create 'data_url' for #{obj.class}."
     end

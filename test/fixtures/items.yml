@@ -182,7 +182,7 @@ lake_jpg:
   id:             14
   type:           Image
   kpath:          IPDI
-  name:           lake.jpg
+  name:           lake
   project_id:     11
   parent_id:      13
   user_id:        3
@@ -194,7 +194,7 @@ water_pdf:
   id:             15
   type:           Document
   kpath:          IPD
-  name:           water.pdf
+  name:           water
   project_id:     11
   parent_id:      11
   user_id:        4
@@ -269,7 +269,7 @@ bird_jpg:
   id:             20
   type:           Image
   kpath:          IPDI
-  name:           bird.jpg
+  name:           bird
   project_id:     19
   parent_id:      19
   user_id:        1
@@ -286,7 +286,7 @@ flower_jpg:
   id:             21
   type:           Image
   kpath:          IPDI
-  name:           flower.jpg
+  name:           flower
   project_id:     19
   parent_id:      19
   user_id:        1
@@ -416,7 +416,7 @@ tree_jpg:
   id:             30
   type:           Image
   kpath:          IPDI
-  name:           tree.jpg
+  name:           tree
   project_id:     1
   parent_id:      29
   user_id:        3
@@ -435,7 +435,7 @@ forest_pdf:
   id:             31
   type:           Document
   kpath:          IPD
-  name:           forest.pdf
+  name:           forest
   project_id:     1
   parent_id:      29
   user_id:        3

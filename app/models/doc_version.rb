@@ -1,7 +1,7 @@
 # This class stores version text for #Document. If a translation or new redaction of the text
 # is created, both the new and the old #DocVersion refer to the same file (#DocFile)
 class DocVersion < Version
-  validate :has_file
+  validate :valid_file
   validate_on_update :can_update_file
 
   after_create :create_doc_file
@@ -51,12 +51,12 @@ class DocVersion < Version
     @file = f
   end
   
-  def title
-    if self[:title] && self[:title] != ""
-      self[:title]
-    else
-      item.doc_name
-    end
+  def ext=(val)
+    @ext = val
+  end
+  
+  def filename
+    "#{item.name}.#{doc_file.ext}"
   end
   
   private
@@ -65,8 +65,11 @@ class DocVersion < Version
     self[:file_ref] ||= self[:id]
   end
   
-  def has_file
-    errors.add('file', 'not set') unless @file || doc_file
+  def valid_file
+    errors.add('file', 'not set') unless @file || doc_file || !new_record?
+    if @file && kind_of?(ImageVersion) && !Image.image_content_type?(@file.content_type)
+      errors.add('file', 'must be an image')
+    end
   end
   
   def can_update_file
@@ -76,11 +79,11 @@ class DocVersion < Version
   end
   
   def create_doc_file
-    unless doc_file
+    if @file
       # new document or new edition with a new file
       self[:file_ref] = self[:id]
       DocVersion.connection.execute "UPDATE versions SET file_ref=id WHERE id=#{id}"
-      file_class.create(:version_id=>self[:id], :file=>@file)
+      file_class.create(:version_id=>self[:id], :file=>@file, :ext=>@ext)
     end
   end
   
@@ -90,10 +93,11 @@ class DocVersion < Version
       if self[:file_ref] == self[:id]
         # our own file changed
         doc_file.file = @file
+        doc_file.ext  = @ext
         doc_file.save
       else
         self[:file_ref] = self[:id]
-        file_class.create(:version_id=>self[:id], :file=>@file)
+        file_class.create(:version_id=>self[:id], :file=>@file, :ext=>@ext)
       end
     end
   end

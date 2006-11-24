@@ -63,15 +63,6 @@ class ImageBuilderTest < Test::Unit::TestCase
       img.transform!('pv')
       assert_nothing_raised { data = img.read }
     end
-
-    def test_attr_file
-      file = uploaded_jpg('bird.jpg')
-      img = ImageBuilder.new(:file=>file)
-      assert_equal img.file.object_id, file.object_id
-      assert !img.dummy?, "Not a dummy"
-      img.transform!('pv')
-      assert_nothing_raised { data = img.read }
-    end
   end
     
   def test_resize

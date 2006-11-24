@@ -113,7 +113,9 @@ module Zena
             if redaction.update_attributes(hash) && update_max_status
               true
             else
-              errors.add('version', redaction.errors.map{|k,v| "#{k} #{v}"}.join(", "))
+              redaction.errors.each do |k,v|
+                errors.add(k, v)
+              end
               false
             end
           else
@@ -314,8 +316,8 @@ module Zena
         
         def check_redaction_errors
           if @redaction_errors
-            @redaction_errors.each do |err|
-              errors.add(*err)
+            @redaction_errors.each do |k,v|
+              errors.add(k,v)
             end
           end
         end

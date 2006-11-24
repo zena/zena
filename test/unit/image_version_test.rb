@@ -18,10 +18,12 @@ class ImageVersionTest < Test::Unit::TestCase
   end
   
   def test_img_tag
-    visitor(:tiger)
-    doc = secure(Image) { Image.find( items_id(:bird_jpg) ) }
-    assert_equal "<img src='/data/jpg/20/bird.jpg' width='661' height='600'/>", doc.img_tag
-    assert_equal "<img src='/data/jpg/20/bird-pv.jpg' width='80' height='80' class='pv'/>", doc.img_tag('pv')
-    assert_nothing_raised { doc.file('pv').read }
+    preserving_files('/data/test/jpg/20') do
+      visitor(:tiger)
+      doc = secure(Image) { Image.find( items_id(:bird_jpg) ) }
+      assert_equal "<img src='/data/jpg/20/bird.jpg' width='661' height='600' class='full'/>", doc.img_tag
+      assert_equal "<img src='/data/jpg/20/bird-pv.jpg' width='80' height='80' class='pv'/>", doc.img_tag('pv')
+      assert_nothing_raised { doc.file('pv').read }
+    end
   end
 end
