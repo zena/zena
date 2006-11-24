@@ -79,6 +79,7 @@ p.img_left, p.img_right { margin:0; padding:0;}
 .btn_add a { visibility:hidden; display:block; }
 .btn_add:hover a { visibility:visible; }
 #add_document.btn_add, #add_page.btn_add { text-align:left; margin-top:0.2em;}
+#pages .inline_form { width:130px;}
 .btn_x { float:right; margin:0; padding:0;}
 .btn_validate { text-align:right; margin:0; padding:0;}
 

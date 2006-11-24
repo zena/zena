@@ -324,6 +324,23 @@ module ApplicationHelper
     end
   end
   
+  # Hierachical menu. (same on all pages)
+  def menu
+    if ZENA_ENV[:menu_tag_id] !=nil
+      main = secure(Tag) { Tag.find(ZENA_ENV[:menu_tag_id]) }
+      menus = main.collection
+    elsif ZENA_ENV[:root_id] != nil
+      menus = secure(Page) { Page.find(:all, :conditions=>"parent_id = #{ZENA_ENV[:root_id]}", :order=>'name') }
+    else
+      menus = secure(Page) { Page.find(:all, :conditions=>"parent_id IS NULL") }
+    end
+    put :div, opts[:div_id]
+    put '<ul>'
+    put render_to_string( :partial=>'base/menu', :collection=>menus )
+    put '</ul>'
+    put :end_div, opts[:div_id]
+  end
+  
   private
   
   # This lets helpers render partials

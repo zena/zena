@@ -1,8 +1,8 @@
 if @page.new_record?
-  page.replace_html 'add_page_form', :partial=>'add'
+  page.replace_html 'add_page_form', :partial=>'form'
   page << "$('page_name').focus();"
 else
   page.insert_html :before, 'add_page', :partial=>"li", :locals=>{:li=>@page}
-  page.replace_html 'add_page_form', :partial=>'add'
+  page.replace_html 'add_page_form', :partial=>'form'
   page << "$('page_name').value=''; $('page_name').focus();"
 end

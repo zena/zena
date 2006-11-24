@@ -114,6 +114,9 @@ class LinkTest < Test::Unit::TestCase
     assert_equal 2, tags.size
     assert_equal 'art', tags[0].name
     assert_equal 'news', tags[1].name
+    tags = @item.tags(:conditions=>"#{Item.table_name}.id <> #{items_id(:art)}")
+    assert_equal 1, tags.size
+    assert_equal 'news', tags[0].name
     @item.tag_ids = [items_id(:art)]
     @item.save
     tags = @item.tags

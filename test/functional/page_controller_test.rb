@@ -13,13 +13,30 @@ class PageControllerTest < Test::Unit::TestCase
   end
   
   def test_create_without_rights
-    post 'create', :page=>{:type=>'Page', :parent_id=>1, :name=>'test'}
-    assert_redirected_to '404'
+    post 'create', :page=>{:klass=>'Page', :parent_id=>1, :name=>'test'}
+    assert_response :success
+    assert assigns['page'].new_record?
+    assert_equal 'invalid reference', assigns['page'].errors[:parent_id]
   end
   
-  def test_create
+  def test_create_bad_klass
     login(:tiger)
-    post 'create', :page=>{:type=>'Page', :parent_id=>1, :name=>'test'}
+    post 'create', :page=>{:klass=>'system "pwd"', :parent_id=>1, :name=>'test'}
     assert_response :success
+    assert_equal 'invalid', assigns['page'].errors[:klass]
+    assert_equal 'system "pwd"', assigns['page'].klass
+    
+    post 'create', :page=>{:klass=>'Item', :parent_id=>1, :name=>'test'}
+    assert_response :success
+    assert_equal 'invalid', assigns['page'].errors[:klass]
+    assert_equal 'Item', assigns['page'].klass
+  end
+  
+  def test_create_ok
+    login(:tiger)
+    post 'create', :page=>{:klass=>'Tag', :parent_id=>1, :name=>'test'}
+    assert_response :success
+    assert_kind_of Tag, assigns['page']
+    assert !assigns['page'].new_record?, "Not a new record"
   end
 end

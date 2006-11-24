@@ -15,4 +15,8 @@ class Page < Item
       list.unshift ['Page', 'Page']
     end
   end
+  
+  def klass
+    self.class.to_s
+  end
 end

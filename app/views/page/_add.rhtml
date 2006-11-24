@@ -2,11 +2,5 @@
   <%= link_to_function transb('btn_add_page'), "new Element.toggle('add_page', 'add_page_form'); $('page_name').focus();" %>
 </li>
 <li id="add_page_form" style="display:none;" class="inline_form">
-  <%= form_remote_tag(:with=>"add_page_form", :url=>{:controller=>'page', :action=>"create", :rnd=>salt_against_caching}) %>
-	<% Tag # annonce -%>
-  <%= select('page', 'type', Page.select_classes ) %>
-  <%= text_field("page", "name", :size=>15 ) %>
-  <%= hidden_field("page", "parent_id", :value=>@item.id ) %>
-  <p class="btn_x"><%= link_to_function transb('btn_x'), "new Element.toggle('add_page', 'add_page_form')" %></p>
-  <%= end_form_tag %>
+  <%= render :partial=>'page/form' %>
 </li>

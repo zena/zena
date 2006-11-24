@@ -97,12 +97,14 @@ on the post edit page :
             count = ':all'
           end
           finder = <<-END
-            def #{method}
+            def #{method}(find_scope={})
+              #{klass}.with_scope(:find=>find_scope) do
               secure(#{klass}) { #{klass}.find(#{count},
                                  :select     => "\#{#{klass}.table_name}.*, links.id AS link_id", 
                                  :joins      => "INNER JOIN links ON \#{#{klass}.table_name}.id=links.#{other_side}",
                                  :conditions => ["links.role='#{key}' AND links.#{link_side} = ?", self[:id] ]
                                  ) }
+              end
             rescue ActiveRecord::RecordNotFound
               nil
             end
