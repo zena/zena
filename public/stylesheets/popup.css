@@ -3,11 +3,15 @@
 a {text-decoration: none; color:#266F92;}
 a img {border: none;}
 body {font: 0.9em Verdana, sans-serif; line-height: 1; color: #333;	behavior: url('stylesheets/csshover2.htc');} /* WinIE hack */
+.img_left  img { margin:0px 5px 5px 0; float:left;}
+.img_right img { margin:0px 0 5px 5px; float:right;}
+p.img_left, p.img_right { margin:0; padding:0;}
+.img_center { text-align:center; margin:5px;}
 
 /*   POPUP   */
 body { background:#9FA6AC ;}
 #popup_action { position:absolute; top:50px; left:0; width:90%; height:60%;padding:15px;}
-
+hr { border:2px solid grey; border-width:0 0 1px 0; margin-bottom:4px;}
 button { background:none; border:none;}
 input, textarea { margin:3px 0; width:100%;}
 .btn_validate { text-align:right; margin:0; padding:0;}

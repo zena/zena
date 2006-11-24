@@ -90,4 +90,15 @@ class DocFileTest < Test::Unit::TestCase
       assert_equal 63569, doc.size
     end
   end
+  
+  def test_destroy
+    preserving_files('data/test/pdf/15') do
+      doc = DocFile.find_by_version_id(versions_id(:water_pdf_en))
+      assert_equal DocFile, doc.class
+      assert File.exist?(doc.send(:filepath)), "File exist"
+      assert doc.destroy, "Can destroy"
+      assert !File.exist?(doc.send(:filepath)), "File does not exist"
+      assert !File.exist?("#{RAILS_ROOT}/data/test/pdf/15"), "Directory does not exist"
+    end
+  end 
 end

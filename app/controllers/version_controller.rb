@@ -25,6 +25,7 @@ class VersionController < ApplicationController
   # preview when editing item
   def preview
     if params[:item]
+      params[:item].delete(:file)
       @item = secure_write(Item) { Item.find(params[:item][:id]) }
       # FIXME: 'edit_preview' parses utf-8 very badly !!!
       @item.edit_preview(params[:item])
@@ -40,7 +41,7 @@ class VersionController < ApplicationController
   def save
     # use current context.
     @item = secure_write(Item) { Item.find(params[:item][:id]) }
-    
+    params[:item].delete(:file) if params[:item][:file] == ""
     if @item.update_redaction(params[:item])
       flash[:notice] = trans "Redaction saved."
     else

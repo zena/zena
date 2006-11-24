@@ -3,6 +3,7 @@ class DocFile < ActiveRecord::Base
   belongs_to :version
   validate :docfile_valid
   before_save :save_file
+  after_destroy :destroy_file
   
   def file=(aFile)
     @data = aFile
@@ -38,6 +39,14 @@ class DocFile < ActiveRecord::Base
     version.item.name
   end
   
+  protected
+  def filepath
+    unless path && path != ""
+      self[:path] = make_path
+    end
+    "#{RAILS_ROOT}/data/#{RAILS_ENV}#{path}"
+  end
+  
   private
   def docfile_valid
     errors.add('version_id', 'version must exist') unless self.version
@@ -54,19 +63,21 @@ class DocFile < ActiveRecord::Base
       self[:size] = File.stat(filepath).size
     end
   end
-  
-  protected
-  def filepath
-    unless path && path != ""
-      self[:path] = make_path
-    end
-    "#{RAILS_ROOT}/data/#{RAILS_ENV}#{path}"
-  end
-  
-  private
+
   def make_path
     raise StandardError, "Path not set yet, version must be saved first" unless self[:version_id] 
     extension = filename.split(".").last
     self[:path] = "/#{extension}/#{version_id}/#{filename}"
+  end
+  
+  def destroy_file
+    # TODO: clear cache
+    if File.exist?(filepath)
+      FileUtils::rm(filepath)
+      folder = File.join(*filepath.split('/')[0..-2])
+      if Dir.entries(folder).reject!{|e| (e=='.' || e=='..')} == []
+        FileUtils::rmdir(folder)
+      end
+    end
   end
 end

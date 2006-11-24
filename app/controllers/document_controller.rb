@@ -11,7 +11,8 @@ class DocumentController < ApplicationController
 
   def create
     pdoc = params[:document]
-    if pdoc[:file] && pdoc[:file] !='' && pdoc[:file].content_type =~ /image/
+    pdoc.delete(:file) if pdoc[:file] == ""
+    if pdoc[:file].content_type =~ /image/
       @document = secure(Image) { Image.create(pdoc) }
     else
       @document = secure(Document) { Document.create(pdoc) }

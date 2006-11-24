@@ -114,13 +114,20 @@ class ImageFile < DocFile
   
   def save_file
     if @data && self[:version_id]
+      if self[:format] == nil
+        # original file clear previous content
+        files = ImageFile.find(:all, :conditions=>["version_id = ? AND id <> ?", self[:version_id], self[:id]])
+        files.each do |file|
+          file.destroy
+        end
+      end
       p = File.join(*filepath.split('/')[0..-2])
       unless File.exist?(p)
         FileUtils::mkpath(p)
       end
+      
       File.open(filepath, "wb") { |f| f.syswrite(@data.read) }
       self[:size] = File.stat(filepath).size
     end
   end
-  
 end

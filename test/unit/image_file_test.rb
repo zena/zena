@@ -109,6 +109,26 @@ class ImageFileTest < Test::Unit::TestCase
     end
   end
   
+  def test_change_file
+    preserving_files('data/test/jpg/20') do
+      imf = ImageFile.find_or_create(versions_id(:bird_jpg_en))
+      imf2 = ImageFile.find_or_create(versions_id(:bird_jpg_en), 'mini')
+      imf3 = ImageFile.find_or_create(versions_id(:bird_jpg_en), 'pv')
+      imfcount = ImageFile.find(:all).size
+      assert !imf2.new_record?, "Not a new record"
+      assert File.exist?(imf2.send(:filepath)), "File exists"
+      assert File.exist?(imf3.send(:filepath)), "File exists"
+      assert_equal 56183, imf.size
+      
+      imf.file = uploaded_jpg('flower.jpg')
+      assert imf.save, "Can save"
+      assert !File.exist?(imf2.send(:filepath)), "File does not exist"
+      assert !File.exist?(imf3.send(:filepath)), "File does not exist"
+      assert_equal imfcount-2, ImageFile.find(:all).size
+      assert_equal 96574, imf.size
+    end
+  end
+  
   def test_read_save_file
     preserving_files('data/test/jpg/20') do
       imf = ImageFile.find_or_create(versions_id(:bird_jpg_en))

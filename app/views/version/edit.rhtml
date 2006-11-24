@@ -1,23 +1,36 @@
-
+<div id="loader" class="hidden"><img src="/images/ajax-loader.gif"/> <%= trans("uploading, please wait...") %></div>
 <div id="popup_action">
 	<%= error_messages_for "item" %>
 	
 	<table>
 		<tr>
 			<td id="edit" rowspan='3'>
+				<% if @item.kind_of?(Document) -%>
+			  <%= start_form_tag({ :action => "save", :controller=>'version' }, :id => "item_form", :multipart=>true ) %>
+				<% else -%>
 			  <%= start_form_tag({ :action => "save", :controller=>'version' }, :id => "item_form" ) %>
+				<% end -%>
 			  <%= hidden_field 'item', 'lang', :value=>@item.v_lang %>
 				<%= hidden_field 'item', 'id' %>
 				<label for="comment"><%= trans("comment") %></label>
 				<%= text_area 'item', 'comment', :cols=>nil, :rows=>nil %>
 				<hr/>
+				<%= zazen("!>.0#{@item.id}!") %>
 				<label for="title"><%= trans("title")  %></label>
-				<%= text_field 'item', 'title', :size=>nil %>
+				<%= text_field 'item', 'title', :size=>nil, :style=>"width:60%;" %>
 				<label for="summary"><%= trans("summary")  %></label>
 				<%= text_area 'item', 'summary', :cols=>nil, :rows=>4, :value=>@item.v_summary %>
 				<label for="content"><%= trans("content") %></label>
 				<%= text_area 'item', 'text', :cols=>nil, :rows=>17, :value=>@item.v_text, :onKeyPress=>"Zena.key_pres(event,this);" %>
-				<p class="btn_validate"><%= link_to_function transb('cancel'), "opener.location.href=opener.location.href; self.close();" %><input type="submit" class="btn_validate" value='<%= transb('validate') %>'/></p>
+				<% if @item.kind_of?(Document) -%>
+					<div id="file"><%= link_to_function trans("change document"), "new Element.toggle('file', 'file_form');" %></div>
+					<div id="file_form" style='display:none;'><%= link_to_function(trans("cancel"), "new Element.toggle('file', 'file_form');Zena.clear_file('item_file');")%>
+					<label for="document"><%= trans("change document") %></label>
+					<%= file_field 'item', 'file', :size=>nil %>
+					</div>
+				<% end -%>
+				
+				<p class="btn_validate"><%= link_to_function transb('cancel'), "opener.location.href=opener.location.href; self.close();" %><input type="submit" class="btn_validate" onClick="$('loader').style.visibility = 'visible';" value='<%= transb('validate') %>'/></p>
 				<%= end_form_tag %> 
 			</td>
 			<td id="search_box">

@@ -2,7 +2,7 @@
 <div id="popup_action">
   <p class="btn_x"><%= link_to_function transb('btn_x'), "opener.location.href=opener.location.href; self.close();" %></p>
 	<%= error_messages_for 'document' %>
-	<%= form_tag( {:controller=>'document', :action=>"create"}, {:multipart=>true} ) %>
+	<%= form_tag( {:controller=>'document', :action=>"create"}, :multipart=>true ) %>
 	<%= hidden_field 'document', 'parent_id', :value=>@document[:parent_id]  %>
 	<%= file_field 'document', 'file', :size=>30, :onChange=>"$('document_name').value = Zena.get_name($('document_file').value); $('document_name').focus(); $('document_name').select();" %>
 	<%= text_field 'document', 'name', :size=>20 %><br/>

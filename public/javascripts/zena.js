@@ -31,6 +31,16 @@ Zena.get_name = function(path) {
   return elements[elements.length - 1];
 }
 
+Zena.clear_file = function(input_id) {
+	var obj = $(input_id);
+	var name = obj.getAttribute('name');
+	var parent = obj.parentNode;
+	parent.removeChild(obj);
+  var newobj = document.createElement('input');
+  newobj.setAttribute('id',input_id);
+  newobj.setAttribute('type','file');
+  parent.appendChild(newobj);
+}
 var current_form = false;
 
 Zena.get_key = function(e) {
