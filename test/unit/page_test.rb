@@ -4,7 +4,8 @@ require 'Tag'
 
 class PageTest < Test::Unit::TestCase
   include ZenaTestUnit
-  def test_truth
-    assert true
+  
+  def test_select_classes
+    assert_equal ["Page", "Tag"], Page.select_classes
   end
 end
