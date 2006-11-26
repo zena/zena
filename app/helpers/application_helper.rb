@@ -78,7 +78,7 @@ module ApplicationHelper
           :complete=>'$("trans_value").focus();$("trans_value").select()') +
       "</div>"
     else
-      TransKey.translate(keyword).into(lang)
+      key.into(lang)
     end
   end
   
