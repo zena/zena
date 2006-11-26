@@ -1,4 +1,4 @@
-class Forms < ActiveRecord::Migration
+class CreateForms < ActiveRecord::Migration
   def self.up
     
     add_column "items", 'dgroup_id', :integer

@@ -24,7 +24,7 @@ class Loader < ActiveRecord::Base
   end
 end
 
-class Base < ActiveRecord::Migration
+class CreateBase < ActiveRecord::Migration
   
   def self.up
     create_table("addresses", :force => true, :options => 'type=InnoDB DEFAULT CHARSET=utf8') do |t|
@@ -55,11 +55,6 @@ class Base < ActiveRecord::Migration
       t.column "user_id", :integer, :default => 0, :null => false
       t.column "title", :string, :limit => 200, :default => "", :null => false
       t.column "text", :text, :default => "", :null => false
-    end
-
-    create_table("contacts_projects", :force => true, :id=>false, :options => 'type=InnoDB DEFAULT CHARSET=utf8') do |t|
-      t.column "project_id", :integer, :default => 0, :null => false
-      t.column "contact_id", :integer, :default => 0, :null => false
     end
 
     create_table("doc_files", :force => true, :options => 'type=InnoDB DEFAULT CHARSET=utf8') do |t|
@@ -183,7 +178,6 @@ class Base < ActiveRecord::Migration
   def self.down
     drop_table "addresses"
     drop_table "comments"
-    drop_table "contacts_projects"
     drop_table "doc_files"
     drop_table "groups"
     drop_table "groups_users"

@@ -67,4 +67,17 @@ class VersionTest < Test::Unit::TestCase
     assert_equal "can't be blank", vers.errors[:item]
     assert_equal "can't be blank", vers.errors[:user]
   end
+  
+  def test_yaml
+    visitor(:tiger)
+    item = secure(Item) { items(:status) }
+    v = item.send(:redaction)
+    assert_nothing_raised       { v.y_whatever = 'yaml test' }
+    assert_raise(NoMethodError) { v.whatever   = 'yaml test' }
+    assert_equal 'yaml test', v.y_whatever
+    assert v.save, "Can save"
+    item = secure(Item) { items(:status) }
+    v = item.send(:version)
+    assert_equal 'yaml test', v.y_whatever
+  end
 end

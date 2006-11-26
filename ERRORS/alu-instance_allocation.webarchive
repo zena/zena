@@ -1,0 +1,259 @@
+bplist00—_WebMainResource‘	
+_WebResourceTextEncodingName_WebResourceData^WebResourceURL_WebResourceMIMETypeUUTF-8OP™<HTML><HEAD>
+  <TITLE>Action Controller: Exception caught</TITLE>
+  <STYLE>
+    body { background-color: #fff; color: #333; }
+
+    body, p, ol, ul, td {
+      font-family: verdana, arial, helvetica, sans-serif;
+      font-size:   13px;
+      line-height: 18px;
+    }
+
+    pre {
+      background-color: #eee;
+      padding: 10px;
+      font-size: 11px;
+    }
+
+    a { color: #000; }
+    a:visited { color: #666; }
+    a:hover { color: #fff; background-color:#000; }
+  </STYLE></HEAD><BODY>
+
+<H1>
+  TypeError
+  
+</H1>
+<PRE>wrong instance allocation</PRE>
+
+
+<P><CODE>RAILS_ROOT: /Users/gaspard/svk/zena/config/..</CODE></P>
+
+<DIV id="traces">
+      
+    <A href="#" onclick="document.getElementById('Framework-Trace').style.display='none';document.getElementById('Full-Trace').style.display='none';document.getElementById('Application-Trace').style.display='block';; return false;">Application Trace</A> |
+      
+    <A href="#" onclick="document.getElementById('Application-Trace').style.display='none';document.getElementById('Full-Trace').style.display='none';document.getElementById('Framework-Trace').style.display='block';; return false;">Framework Trace</A> |
+      
+    <A href="#" onclick="document.getElementById('Application-Trace').style.display='none';document.getElementById('Framework-Trace').style.display='none';document.getElementById('Full-Trace').style.display='block';; return false;">Full Trace</A> 
+  
+      <DIV id="Application-Trace" style="display: block;">
+      <PRE><CODE>/usr/local/lib/ruby/gems/1.8/gems/actionpack-1.12.5/lib/action_controller/code_generation.rb:68:in `dup'
+/usr/local/lib/ruby/gems/1.8/gems/actionpack-1.12.5/lib/action_controller/code_generation.rb:68:in `dup'
+/usr/local/lib/ruby/gems/1.8/gems/actionpack-1.12.5/lib/action_controller/code_generation.rb:66:in `each'
+/usr/local/lib/ruby/gems/1.8/gems/actionpack-1.12.5/lib/action_controller/code_generation.rb:66:in `dup'
+/usr/local/lib/ruby/gems/1.8/gems/actionpack-1.12.5/lib/action_controller/code_generation.rb:46:in `method_missing'
+/usr/local/lib/ruby/gems/1.8/gems/actionpack-1.12.5/lib/action_controller/code_generation.rb:19:in `indent'
+/usr/local/lib/ruby/gems/1.8/gems/actionpack-1.12.5/lib/action_controller/code_generation.rb:46:in `method_missing'
+/usr/local/lib/ruby/gems/1.8/gems/actionpack-1.12.5/lib/action_controller/routing.rb:155:in `recognition_check'
+/usr/local/lib/ruby/gems/1.8/gems/actionpack-1.12.5/lib/action_controller/routing.rb:160:in `write_recognition'
+/usr/local/lib/ruby/gems/1.8/gems/actionpack-1.12.5/lib/action_controller/code_generation.rb:136:in `go'
+/usr/local/lib/ruby/gems/1.8/gems/actionpack-1.12.5/lib/action_controller/code_generation.rb:132:in `continue'
+/usr/local/lib/ruby/gems/1.8/gems/actionpack-1.12.5/lib/action_controller/routing.rb:161:in `write_recognition'
+/usr/local/lib/ruby/gems/1.8/gems/actionpack-1.12.5/lib/action_controller/routing.rb:177:in `assign_result'
+/usr/local/lib/ruby/gems/1.8/gems/actionpack-1.12.5/lib/action_controller/code_generation.rb:99:in `move_forward'
+/usr/local/lib/ruby/gems/1.8/gems/actionpack-1.12.5/lib/action_controller/routing.rb:177:in `assign_result'
+/usr/local/lib/ruby/gems/1.8/gems/actionpack-1.12.5/lib/action_controller/routing.rb:161:in `write_recognition'
+/usr/local/lib/ruby/gems/1.8/gems/actionpack-1.12.5/lib/action_controller/routing.rb:155:in `recognition_check'
+/usr/local/lib/ruby/gems/1.8/gems/actionpack-1.12.5/lib/action_controller/code_generation.rb:46:in `method_missing'
+/usr/local/lib/ruby/gems/1.8/gems/actionpack-1.12.5/lib/action_controller/code_generation.rb:19:in `indent'
+/usr/local/lib/ruby/gems/1.8/gems/actionpack-1.12.5/lib/action_controller/code_generation.rb:46:in `method_missing'
+/usr/local/lib/ruby/gems/1.8/gems/actionpack-1.12.5/lib/action_controller/routing.rb:155:in `recognition_check'
+/usr/local/lib/ruby/gems/1.8/gems/actionpack-1.12.5/lib/action_controller/routing.rb:160:in `write_recognition'
+/usr/local/lib/ruby/gems/1.8/gems/actionpack-1.12.5/lib/action_controller/code_generation.rb:136:in `go'
+/usr/local/lib/ruby/gems/1.8/gems/actionpack-1.12.5/lib/action_controller/code_generation.rb:132:in `continue'
+/usr/local/lib/ruby/gems/1.8/gems/actionpack-1.12.5/lib/action_controller/routing.rb:80:in `write_recognition'
+/usr/local/lib/ruby/gems/1.8/gems/actionpack-1.12.5/lib/action_controller/code_generation.rb:99:in `move_forward'
+/usr/local/lib/ruby/gems/1.8/gems/actionpack-1.12.5/lib/action_controller/routing.rb:80:in `write_recognition'
+/usr/local/lib/ruby/gems/1.8/gems/actionpack-1.12.5/lib/action_controller/code_generation.rb:46:in `method_missing'
+/usr/local/lib/ruby/gems/1.8/gems/actionpack-1.12.5/lib/action_controller/code_generation.rb:19:in `indent'
+/usr/local/lib/ruby/gems/1.8/gems/actionpack-1.12.5/lib/action_controller/code_generation.rb:46:in `method_missing'
+/usr/local/lib/ruby/gems/1.8/gems/actionpack-1.12.5/lib/action_controller/code_generation.rb:92:in `if_next_matches'
+/usr/local/lib/ruby/gems/1.8/gems/actionpack-1.12.5/lib/action_controller/routing.rb:79:in `write_recognition'
+/usr/local/lib/ruby/gems/1.8/gems/actionpack-1.12.5/lib/action_controller/code_generation.rb:136:in `go'
+/usr/local/lib/ruby/gems/1.8/gems/actionpack-1.12.5/lib/action_controller/routing.rb:380:in `write_recognition'
+/usr/local/lib/ruby/gems/1.8/gems/actionpack-1.12.5/lib/action_controller/routing.rb:532:in `write_recognition'
+/usr/local/lib/ruby/gems/1.8/gems/actionpack-1.12.5/lib/action_controller/routing.rb:636:in `each'
+/usr/local/lib/ruby/gems/1.8/gems/actionpack-1.12.5/lib/action_controller/routing.rb:636:in `each'
+/usr/local/lib/ruby/gems/1.8/gems/actionpack-1.12.5/lib/action_controller/routing.rb:530:in `write_recognition'
+/usr/local/lib/ruby/gems/1.8/gems/actionpack-1.12.5/lib/action_controller/code_generation.rb:46:in `method_missing'
+/usr/local/lib/ruby/gems/1.8/gems/actionpack-1.12.5/lib/action_controller/code_generation.rb:19:in `indent'
+/usr/local/lib/ruby/gems/1.8/gems/actionpack-1.12.5/lib/action_controller/code_generation.rb:46:in `method_missing'
+/usr/local/lib/ruby/gems/1.8/gems/actionpack-1.12.5/lib/action_controller/routing.rb:529:in `write_recognition'
+/usr/local/lib/ruby/gems/1.8/gems/actionpack-1.12.5/lib/action_controller/routing.rb:631:in `draw'
+#{RAILS_ROOT}/config/routes.rb:1
+/usr/local/bin/mongrel_rails:18:in `load'
+/usr/local/bin/mongrel_rails:18</CODE></PRE>    </DIV>
+      <DIV id="Framework-Trace" style="display: none;">
+      <PRE><CODE>/usr/local/lib/ruby/gems/1.8/gems/actionpack-1.12.5/lib/action_controller/code_generation.rb:68:in `dup'
+/usr/local/lib/ruby/gems/1.8/gems/actionpack-1.12.5/lib/action_controller/code_generation.rb:68:in `dup'
+/usr/local/lib/ruby/gems/1.8/gems/actionpack-1.12.5/lib/action_controller/code_generation.rb:66:in `each'
+/usr/local/lib/ruby/gems/1.8/gems/actionpack-1.12.5/lib/action_controller/code_generation.rb:66:in `dup'
+/usr/local/lib/ruby/gems/1.8/gems/actionpack-1.12.5/lib/action_controller/code_generation.rb:46:in `method_missing'
+/usr/local/lib/ruby/gems/1.8/gems/actionpack-1.12.5/lib/action_controller/code_generation.rb:19:in `indent'
+/usr/local/lib/ruby/gems/1.8/gems/actionpack-1.12.5/lib/action_controller/code_generation.rb:46:in `method_missing'
+/usr/local/lib/ruby/gems/1.8/gems/actionpack-1.12.5/lib/action_controller/routing.rb:155:in `recognition_check'
+/usr/local/lib/ruby/gems/1.8/gems/actionpack-1.12.5/lib/action_controller/routing.rb:160:in `write_recognition'
+/usr/local/lib/ruby/gems/1.8/gems/actionpack-1.12.5/lib/action_controller/code_generation.rb:136:in `go'
+/usr/local/lib/ruby/gems/1.8/gems/actionpack-1.12.5/lib/action_controller/code_generation.rb:132:in `continue'
+/usr/local/lib/ruby/gems/1.8/gems/actionpack-1.12.5/lib/action_controller/routing.rb:161:in `write_recognition'
+/usr/local/lib/ruby/gems/1.8/gems/actionpack-1.12.5/lib/action_controller/routing.rb:177:in `assign_result'
+/usr/local/lib/ruby/gems/1.8/gems/actionpack-1.12.5/lib/action_controller/code_generation.rb:99:in `move_forward'
+/usr/local/lib/ruby/gems/1.8/gems/actionpack-1.12.5/lib/action_controller/routing.rb:177:in `assign_result'
+/usr/local/lib/ruby/gems/1.8/gems/actionpack-1.12.5/lib/action_controller/routing.rb:161:in `write_recognition'
+/usr/local/lib/ruby/gems/1.8/gems/actionpack-1.12.5/lib/action_controller/routing.rb:155:in `recognition_check'
+/usr/local/lib/ruby/gems/1.8/gems/actionpack-1.12.5/lib/action_controller/code_generation.rb:46:in `method_missing'
+/usr/local/lib/ruby/gems/1.8/gems/actionpack-1.12.5/lib/action_controller/code_generation.rb:19:in `indent'
+/usr/local/lib/ruby/gems/1.8/gems/actionpack-1.12.5/lib/action_controller/code_generation.rb:46:in `method_missing'
+/usr/local/lib/ruby/gems/1.8/gems/actionpack-1.12.5/lib/action_controller/routing.rb:155:in `recognition_check'
+/usr/local/lib/ruby/gems/1.8/gems/actionpack-1.12.5/lib/action_controller/routing.rb:160:in `write_recognition'
+/usr/local/lib/ruby/gems/1.8/gems/actionpack-1.12.5/lib/action_controller/code_generation.rb:136:in `go'
+/usr/local/lib/ruby/gems/1.8/gems/actionpack-1.12.5/lib/action_controller/code_generation.rb:132:in `continue'
+/usr/local/lib/ruby/gems/1.8/gems/actionpack-1.12.5/lib/action_controller/routing.rb:80:in `write_recognition'
+/usr/local/lib/ruby/gems/1.8/gems/actionpack-1.12.5/lib/action_controller/code_generation.rb:99:in `move_forward'
+/usr/local/lib/ruby/gems/1.8/gems/actionpack-1.12.5/lib/action_controller/routing.rb:80:in `write_recognition'
+/usr/local/lib/ruby/gems/1.8/gems/actionpack-1.12.5/lib/action_controller/code_generation.rb:46:in `method_missing'
+/usr/local/lib/ruby/gems/1.8/gems/actionpack-1.12.5/lib/action_controller/code_generation.rb:19:in `indent'
+/usr/local/lib/ruby/gems/1.8/gems/actionpack-1.12.5/lib/action_controller/code_generation.rb:46:in `method_missing'
+/usr/local/lib/ruby/gems/1.8/gems/actionpack-1.12.5/lib/action_controller/code_generation.rb:92:in `if_next_matches'
+/usr/local/lib/ruby/gems/1.8/gems/actionpack-1.12.5/lib/action_controller/routing.rb:79:in `write_recognition'
+/usr/local/lib/ruby/gems/1.8/gems/actionpack-1.12.5/lib/action_controller/code_generation.rb:136:in `go'
+/usr/local/lib/ruby/gems/1.8/gems/actionpack-1.12.5/lib/action_controller/routing.rb:380:in `write_recognition'
+/usr/local/lib/ruby/gems/1.8/gems/actionpack-1.12.5/lib/action_controller/routing.rb:532:in `write_recognition'
+/usr/local/lib/ruby/gems/1.8/gems/actionpack-1.12.5/lib/action_controller/routing.rb:636:in `each'
+/usr/local/lib/ruby/gems/1.8/gems/actionpack-1.12.5/lib/action_controller/routing.rb:636:in `each'
+/usr/local/lib/ruby/gems/1.8/gems/actionpack-1.12.5/lib/action_controller/routing.rb:530:in `write_recognition'
+/usr/local/lib/ruby/gems/1.8/gems/actionpack-1.12.5/lib/action_controller/code_generation.rb:46:in `method_missing'
+/usr/local/lib/ruby/gems/1.8/gems/actionpack-1.12.5/lib/action_controller/code_generation.rb:19:in `indent'
+/usr/local/lib/ruby/gems/1.8/gems/actionpack-1.12.5/lib/action_controller/code_generation.rb:46:in `method_missing'
+/usr/local/lib/ruby/gems/1.8/gems/actionpack-1.12.5/lib/action_controller/routing.rb:529:in `write_recognition'
+/usr/local/lib/ruby/gems/1.8/gems/actionpack-1.12.5/lib/action_controller/routing.rb:631:in `draw'
+/usr/local/lib/ruby/gems/1.8/gems/activesupport-1.3.1/lib/active_support/dependencies.rb:140:in `load'
+/usr/local/lib/ruby/gems/1.8/gems/activesupport-1.3.1/lib/active_support/dependencies.rb:140:in `load'
+/usr/local/lib/ruby/gems/1.8/gems/actionpack-1.12.5/lib/action_controller/routing.rb:608:in `reload'
+/usr/local/lib/ruby/gems/1.8/gems/rails-1.1.6/lib/dispatcher.rb:67:in `prepare_application'
+/usr/local/lib/ruby/gems/1.8/gems/rails-1.1.6/lib/dispatcher.rb:37:in `dispatch'
+/usr/local/lib/ruby/gems/1.8/gems/mongrel-0.3.13.3/lib/mongrel/rails.rb:73:in `process'
+/usr/local/lib/ruby/gems/1.8/gems/mongrel-0.3.13.3/lib/mongrel.rb:551:in `process_client'
+/usr/local/lib/ruby/gems/1.8/gems/mongrel-0.3.13.3/lib/mongrel.rb:550:in `each'
+/usr/local/lib/ruby/gems/1.8/gems/mongrel-0.3.13.3/lib/mongrel.rb:550:in `process_client'
+/usr/local/lib/ruby/gems/1.8/gems/mongrel-0.3.13.3/lib/mongrel.rb:636:in `run'
+/usr/local/lib/ruby/gems/1.8/gems/mongrel-0.3.13.3/lib/mongrel.rb:636:in `initialize'
+/usr/local/lib/ruby/gems/1.8/gems/mongrel-0.3.13.3/lib/mongrel.rb:636:in `new'
+/usr/local/lib/ruby/gems/1.8/gems/mongrel-0.3.13.3/lib/mongrel.rb:636:in `run'
+/usr/local/lib/ruby/gems/1.8/gems/mongrel-0.3.13.3/lib/mongrel.rb:625:in `initialize'
+/usr/local/lib/ruby/gems/1.8/gems/mongrel-0.3.13.3/lib/mongrel.rb:625:in `new'
+/usr/local/lib/ruby/gems/1.8/gems/mongrel-0.3.13.3/lib/mongrel.rb:625:in `run'
+/usr/local/lib/ruby/gems/1.8/gems/mongrel-0.3.13.3/lib/mongrel.rb:956:in `run'
+/usr/local/lib/ruby/gems/1.8/gems/mongrel-0.3.13.3/lib/mongrel.rb:955:in `each'
+/usr/local/lib/ruby/gems/1.8/gems/mongrel-0.3.13.3/lib/mongrel.rb:955:in `run'
+/usr/local/lib/ruby/gems/1.8/gems/mongrel-0.3.13.3/bin/mongrel_rails:127:in `run'
+/usr/local/lib/ruby/gems/1.8/gems/mongrel-0.3.13.3/lib/mongrel/command.rb:199:in `run'
+/usr/local/lib/ruby/gems/1.8/gems/mongrel-0.3.13.3/bin/mongrel_rails:235</CODE></PRE>    </DIV>
+      <DIV id="Full-Trace" style="display: none;">
+      <PRE><CODE>/usr/local/lib/ruby/gems/1.8/gems/actionpack-1.12.5/lib/action_controller/code_generation.rb:68:in `dup'
+/usr/local/lib/ruby/gems/1.8/gems/actionpack-1.12.5/lib/action_controller/code_generation.rb:68:in `dup'
+/usr/local/lib/ruby/gems/1.8/gems/actionpack-1.12.5/lib/action_controller/code_generation.rb:66:in `each'
+/usr/local/lib/ruby/gems/1.8/gems/actionpack-1.12.5/lib/action_controller/code_generation.rb:66:in `dup'
+/usr/local/lib/ruby/gems/1.8/gems/actionpack-1.12.5/lib/action_controller/code_generation.rb:46:in `method_missing'
+/usr/local/lib/ruby/gems/1.8/gems/actionpack-1.12.5/lib/action_controller/code_generation.rb:19:in `indent'
+/usr/local/lib/ruby/gems/1.8/gems/actionpack-1.12.5/lib/action_controller/code_generation.rb:46:in `method_missing'
+/usr/local/lib/ruby/gems/1.8/gems/actionpack-1.12.5/lib/action_controller/routing.rb:155:in `recognition_check'
+/usr/local/lib/ruby/gems/1.8/gems/actionpack-1.12.5/lib/action_controller/routing.rb:160:in `write_recognition'
+/usr/local/lib/ruby/gems/1.8/gems/actionpack-1.12.5/lib/action_controller/code_generation.rb:136:in `go'
+/usr/local/lib/ruby/gems/1.8/gems/actionpack-1.12.5/lib/action_controller/code_generation.rb:132:in `continue'
+/usr/local/lib/ruby/gems/1.8/gems/actionpack-1.12.5/lib/action_controller/routing.rb:161:in `write_recognition'
+/usr/local/lib/ruby/gems/1.8/gems/actionpack-1.12.5/lib/action_controller/routing.rb:177:in `assign_result'
+/usr/local/lib/ruby/gems/1.8/gems/actionpack-1.12.5/lib/action_controller/code_generation.rb:99:in `move_forward'
+/usr/local/lib/ruby/gems/1.8/gems/actionpack-1.12.5/lib/action_controller/routing.rb:177:in `assign_result'
+/usr/local/lib/ruby/gems/1.8/gems/actionpack-1.12.5/lib/action_controller/routing.rb:161:in `write_recognition'
+/usr/local/lib/ruby/gems/1.8/gems/actionpack-1.12.5/lib/action_controller/routing.rb:155:in `recognition_check'
+/usr/local/lib/ruby/gems/1.8/gems/actionpack-1.12.5/lib/action_controller/code_generation.rb:46:in `method_missing'
+/usr/local/lib/ruby/gems/1.8/gems/actionpack-1.12.5/lib/action_controller/code_generation.rb:19:in `indent'
+/usr/local/lib/ruby/gems/1.8/gems/actionpack-1.12.5/lib/action_controller/code_generation.rb:46:in `method_missing'
+/usr/local/lib/ruby/gems/1.8/gems/actionpack-1.12.5/lib/action_controller/routing.rb:155:in `recognition_check'
+/usr/local/lib/ruby/gems/1.8/gems/actionpack-1.12.5/lib/action_controller/routing.rb:160:in `write_recognition'
+/usr/local/lib/ruby/gems/1.8/gems/actionpack-1.12.5/lib/action_controller/code_generation.rb:136:in `go'
+/usr/local/lib/ruby/gems/1.8/gems/actionpack-1.12.5/lib/action_controller/code_generation.rb:132:in `continue'
+/usr/local/lib/ruby/gems/1.8/gems/actionpack-1.12.5/lib/action_controller/routing.rb:80:in `write_recognition'
+/usr/local/lib/ruby/gems/1.8/gems/actionpack-1.12.5/lib/action_controller/code_generation.rb:99:in `move_forward'
+/usr/local/lib/ruby/gems/1.8/gems/actionpack-1.12.5/lib/action_controller/routing.rb:80:in `write_recognition'
+/usr/local/lib/ruby/gems/1.8/gems/actionpack-1.12.5/lib/action_controller/code_generation.rb:46:in `method_missing'
+/usr/local/lib/ruby/gems/1.8/gems/actionpack-1.12.5/lib/action_controller/code_generation.rb:19:in `indent'
+/usr/local/lib/ruby/gems/1.8/gems/actionpack-1.12.5/lib/action_controller/code_generation.rb:46:in `method_missing'
+/usr/local/lib/ruby/gems/1.8/gems/actionpack-1.12.5/lib/action_controller/code_generation.rb:92:in `if_next_matches'
+/usr/local/lib/ruby/gems/1.8/gems/actionpack-1.12.5/lib/action_controller/routing.rb:79:in `write_recognition'
+/usr/local/lib/ruby/gems/1.8/gems/actionpack-1.12.5/lib/action_controller/code_generation.rb:136:in `go'
+/usr/local/lib/ruby/gems/1.8/gems/actionpack-1.12.5/lib/action_controller/routing.rb:380:in `write_recognition'
+/usr/local/lib/ruby/gems/1.8/gems/actionpack-1.12.5/lib/action_controller/routing.rb:532:in `write_recognition'
+/usr/local/lib/ruby/gems/1.8/gems/actionpack-1.12.5/lib/action_controller/routing.rb:636:in `each'
+/usr/local/lib/ruby/gems/1.8/gems/actionpack-1.12.5/lib/action_controller/routing.rb:636:in `each'
+/usr/local/lib/ruby/gems/1.8/gems/actionpack-1.12.5/lib/action_controller/routing.rb:530:in `write_recognition'
+/usr/local/lib/ruby/gems/1.8/gems/actionpack-1.12.5/lib/action_controller/code_generation.rb:46:in `method_missing'
+/usr/local/lib/ruby/gems/1.8/gems/actionpack-1.12.5/lib/action_controller/code_generation.rb:19:in `indent'
+/usr/local/lib/ruby/gems/1.8/gems/actionpack-1.12.5/lib/action_controller/code_generation.rb:46:in `method_missing'
+/usr/local/lib/ruby/gems/1.8/gems/actionpack-1.12.5/lib/action_controller/routing.rb:529:in `write_recognition'
+/usr/local/lib/ruby/gems/1.8/gems/actionpack-1.12.5/lib/action_controller/routing.rb:631:in `draw'
+#{RAILS_ROOT}/config/routes.rb:1
+/usr/local/lib/ruby/gems/1.8/gems/activesupport-1.3.1/lib/active_support/dependencies.rb:140:in `load'
+/usr/local/lib/ruby/gems/1.8/gems/activesupport-1.3.1/lib/active_support/dependencies.rb:140:in `load'
+/usr/local/lib/ruby/gems/1.8/gems/actionpack-1.12.5/lib/action_controller/routing.rb:608:in `reload'
+/usr/local/lib/ruby/gems/1.8/gems/rails-1.1.6/lib/dispatcher.rb:67:in `prepare_application'
+/usr/local/lib/ruby/gems/1.8/gems/rails-1.1.6/lib/dispatcher.rb:37:in `dispatch'
+/usr/local/lib/ruby/gems/1.8/gems/mongrel-0.3.13.3/lib/mongrel/rails.rb:73:in `process'
+/usr/local/lib/ruby/gems/1.8/gems/mongrel-0.3.13.3/lib/mongrel.rb:551:in `process_client'
+/usr/local/lib/ruby/gems/1.8/gems/mongrel-0.3.13.3/lib/mongrel.rb:550:in `each'
+/usr/local/lib/ruby/gems/1.8/gems/mongrel-0.3.13.3/lib/mongrel.rb:550:in `process_client'
+/usr/local/lib/ruby/gems/1.8/gems/mongrel-0.3.13.3/lib/mongrel.rb:636:in `run'
+/usr/local/lib/ruby/gems/1.8/gems/mongrel-0.3.13.3/lib/mongrel.rb:636:in `initialize'
+/usr/local/lib/ruby/gems/1.8/gems/mongrel-0.3.13.3/lib/mongrel.rb:636:in `new'
+/usr/local/lib/ruby/gems/1.8/gems/mongrel-0.3.13.3/lib/mongrel.rb:636:in `run'
+/usr/local/lib/ruby/gems/1.8/gems/mongrel-0.3.13.3/lib/mongrel.rb:625:in `initialize'
+/usr/local/lib/ruby/gems/1.8/gems/mongrel-0.3.13.3/lib/mongrel.rb:625:in `new'
+/usr/local/lib/ruby/gems/1.8/gems/mongrel-0.3.13.3/lib/mongrel.rb:625:in `run'
+/usr/local/lib/ruby/gems/1.8/gems/mongrel-0.3.13.3/lib/mongrel.rb:956:in `run'
+/usr/local/lib/ruby/gems/1.8/gems/mongrel-0.3.13.3/lib/mongrel.rb:955:in `each'
+/usr/local/lib/ruby/gems/1.8/gems/mongrel-0.3.13.3/lib/mongrel.rb:955:in `run'
+/usr/local/lib/ruby/gems/1.8/gems/mongrel-0.3.13.3/bin/mongrel_rails:127:in `run'
+/usr/local/lib/ruby/gems/1.8/gems/mongrel-0.3.13.3/lib/mongrel/command.rb:199:in `run'
+/usr/local/lib/ruby/gems/1.8/gems/mongrel-0.3.13.3/bin/mongrel_rails:235
+/usr/local/bin/mongrel_rails:18:in `load'
+/usr/local/bin/mongrel_rails:18</CODE></PRE>    </DIV>
+  </DIV>
+
+
+  
+  <PRE id="blame_trace"><CODE>This error occured while loading the following files:
+   /Users/gaspard/svk/zena/config/../config/routes.rb</CODE></PRE>
+
+
+
+
+
+<H2 style="margin-top: 30px">Request</H2>
+<P><B>Parameters</B>: None</P>
+
+<P><A href="#" onclick="document.getElementById('session_dump').style.display='block'; return false;">Show session dump</A></P>
+<DIV id="session_dump" style="display:none"><PRE class="debug_dump">--- 
+:lang: fr
+:user: 
+¬† :lang: en
+¬† :fullname: Panther Tigris Sumatran
+¬† :groups: 
+¬† - 1
+¬† - 3
+¬† - 4
+¬† :id: 4
+flash: !map:ActionController::Flash::FlashHash {}
+
+</PRE></DIV>
+
+<H2 style="margin-top: 30px">Response</H2>
+<B>Headers</B>: {"cookie"=&gt;[],
+ "Cache-Control"=&gt;"no-cache"}<BR>
+
+
+
+
+</BODY></HTML>_http://localhost:3000/ooYtext/html    & D V e { ÅQ/QJ                           QT

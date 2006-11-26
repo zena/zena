@@ -515,4 +515,15 @@ class ItemTest < Test::Unit::TestCase
     assert Item.read_inheritable_attribute(:after_save).include?(:save_tags)
     assert Page.read_inheritable_attribute(:after_save).include?(:save_tags)
   end
+  
+  def test_yaml
+    visitor(:tiger)
+    item = secure(Item) { items(:status) }
+    assert_nothing_raised       { item.y_whatever = 'yaml test' }
+    assert_raise(NoMethodError) { item.whatever   = 'yaml test' }
+    assert_equal 'yaml test', item.y_whatever
+    assert item.save, "Can save"
+    item = secure(Item) { items(:status) }
+    assert_equal 'yaml test', item.y_whatever
+  end
 end

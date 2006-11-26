@@ -27,6 +27,7 @@ class Version < ActiveRecord::Base
   validates_presence_of :user
   # not tested belongs_to :comment_group, :class_name=>'Group', :foreign_key=>'cgroup_id'
   # not tested has_many :comments, :order=>'created_at'
+  before_save :prepare_yaml
   before_create :set_number
   
   # Author is an alias for user
@@ -38,6 +39,16 @@ class Version < ActiveRecord::Base
   def item_id=(i)
     raise Zena::AccessViolation, "Version #{self.id}: tried to change 'item_id' to '#{i}'."
   end
+  
+  def yhash
+    return @yhash if @yhash
+    if yaml = YAML::parse(self[:yaml] || '')
+      @yhash = yaml.transform
+    else
+      @yhash = {}
+    end
+    @yhash
+  end
 
   private
   
@@ -48,6 +59,27 @@ class Version < ActiveRecord::Base
       self[:number] = last[:number] + 1
     else
       self[:number] = 1
+    end
+  end
+  
+  # Prepare yaml content
+  def prepare_yaml
+    if @yhash
+      self[:yaml] = @yhash.to_yaml
+    end
+  end
+  
+  # yaml get and set. Any attribute starting with 'y_' gets stored int the yaml hash
+  def method_missing(meth, *args)
+    if meth.to_s =~ /^y_([\w_]+)(=?)$/
+      key = $1
+      if $2 == '='
+        yhash[key.to_sym] = args[0]
+      else
+        yhash[key.to_sym]
+      end
+    else
+      super
     end
   end
 end

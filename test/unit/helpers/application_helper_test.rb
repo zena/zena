@@ -181,4 +181,12 @@ class ApplicationHelperTest < Test::Unit::TestCase
     assert_match 'stupid test 25', render_to_string(:inline=>'stupid <%= "test" %> <%= 5*5 %>')
   end
   
+  def test_menu
+    menus = nil
+    assert_nothing_raised { menus = show_menu }
+    assert_no_match %r{bananas}, menus
+    login(:tiger)
+    assert_match %r{bananas}, show_menu
+  end
+  
 end

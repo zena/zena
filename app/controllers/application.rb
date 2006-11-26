@@ -13,8 +13,7 @@ class ApplicationController < ActionController::Base
     opts = {:template=>nil, :cache=>true}.merge(opts)
     @headers["Content-Type"] = "text/html; charset=utf-8"
     @item  ||= secure(Item) { Item.find(ZENA_ENV[:root_id]) }
-    
-    
+      
     @project = @item.project
     render :template=>"templates/#{template(opts[:template])}", :layout=>false
     
@@ -32,17 +31,33 @@ class ApplicationController < ActionController::Base
         tmplt = @item.template || 'default'
       end
     end
-    # try to find a class specific template
-    c_tmplt = "#{tmplt}_#{@item.class.to_s.downcase}"
-    if File.exist?(File.join(RAILS_ROOT, 'app', 'views', 'templates', "#{c_tmplt}.rhtml"))
-      c_tmplt
-    elsif File.exist?(File.join(RAILS_ROOT, 'app', 'views', 'templates', "#{tmplt}.rhtml"))
-      tmplt
-    else
-      'default'
+    
+    # try to find a class specific template, starting with the most specialized, then the class specific and finally
+    # the contextual template or default
+    ["#{tmplt}_#{@item.class.to_s.downcase}", "any_#{@item.class.to_s.downcase}", tmplt ].each do |filename|
+      if File.exist?(File.join(RAILS_ROOT, 'app', 'views', 'templates', "#{filename}.rhtml"))
+        return filename
+      end
     end
+    return 'default'
   end
-      
+  
+  def render_form
+    render :template=>"templates/#{form_template}"
+  end
+  
+  def form_template
+    tmplt = @item.template || 'default'
+    # try to find a class specific template, starting with the most specialized, then the class specific and finally
+    # the contextual template or default
+    ["#{tmplt}_#{@item.class.to_s.downcase}", "any_#{@item.class.to_s.downcase}", tmplt ].each do |filename|
+      if File.exist?(File.join(RAILS_ROOT, 'app', 'views', 'templates', 'forms', "#{filename}.rhtml"))
+        return "forms/#{filename}"
+      end
+    end
+    return 'forms/default'
+  end
+   
   def page_not_found
     redirect_to :controller => 'main', :action=>'not_found'
   end

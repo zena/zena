@@ -35,7 +35,14 @@ class ApplicationControllerTest < Test::Unit::TestCase
     assert_equal 'truc', proj.template
     assert_equal 'default', @controller.send(:template)
   end
-
+  
+  def test_general_class_template
+    letter = @controller.send(:secure, Item) { Item.find(items_id(:letter)) }
+    assert_equal 'default', letter.template
+    @controller.instance_eval{ @item = letter }
+    assert_equal 'any_letter', @controller.send(:template)
+  end
+  
   def test_custom_template
     assert_equal 'index', @controller.send(:template,'index')
   end
@@ -45,6 +52,15 @@ class ApplicationControllerTest < Test::Unit::TestCase
     proj = @controller.send(:secure,Item) { Item.find(items_id(:cleanWater)) }
     @controller.instance_eval { @item = proj }
     assert_equal 'wiki', @controller.send(:template)
+  end
+  
+  def test_form_template
+    page = @controller.send(:secure, Item) { Item.find(items_id(:status))    }
+    doc  = @controller.send(:secure, Item) { Item.find(items_id(:water_pdf)) }
+    @controller.instance_eval{ @item = page }
+    assert_equal 'forms/default', @controller.send(:form_template)
+    @controller.instance_eval{ @item = doc  }
+    assert_equal 'forms/any_document', @controller.send(:form_template)
   end
   
   # // test methods common to controllers and views // #

@@ -133,7 +133,9 @@ module Zena
         end
         
         def edit_preview(hash)
-          redaction.attributes = hash
+          hash.each_pair do |k,v|
+            redaction.send("#{k}=".to_sym,v)
+          end
         end
         
         # return an array of language strings

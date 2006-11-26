@@ -510,3 +510,16 @@ forest_red_en:
   status:         30
   file_ref:       36
   number:         1
+
+letter_en:
+  type:           Version
+  id:             37
+  item_id:        32
+  user_id:        4
+  comment:        letter for testing
+  title:          zena enhancements
+  summary:        This page is a *Letter*.
+  text:           letter content
+  lang:           en
+  number:         1
+<%= @defaults %>

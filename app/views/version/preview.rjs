@@ -1,3 +1,4 @@
 page.replace_html 'summary', zazen(@item.summary)
 page.replace_html 'text', zazen(@item.text)
 page.replace_html 'title', @item.title
+page.replace_html 'yhash', yhash_for(@item)

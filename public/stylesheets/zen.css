@@ -161,7 +161,13 @@ input, textarea { border:1px solid grey; margin:0.2em}
 #text p { margin-bottom:1.8em; font-style:normal; font-size:1em; }
 #text ul {margin:1em 0 0 3em;}
 #text img, #summary img, .note img { border: 1px solid #666; }
-
+#yhash { float:left; margin-right:10px; }
+#yhash p { margin:0; padding:0;}
+#yhash table { border-width:1px 1px 0; border-style:solid; border-color:grey; background:#F5F4CE; margin-right:auto;}
+#yhash .key   { font-weight:bold; font-size:80%;}
+#yhash .key, #yhash .value { border-style:solid; border-color:grey; padding:3px 5px;}
+#yhash .key { border-width:0 0 1px 0;}
+#yhash .value { border-width:0 0 1px 1px;}
 .gallery { margin:30px auto; border:1px solid #bbb;  background:#eee; }
 .gallery td { padding:10px; }
 .gallery img.pv { margin:5px; border:1px solid #333; width:80px; height:80px; background:#aaa;}
@@ -201,6 +207,7 @@ table.fada td:first-child {border-left-width:1px;}
 #not_found p {margin-bottom:0.3em;}
 
 /* TRANSLATION */
+.trans { display:inline; }
 .trans a:hover { color: orange;}
 .trans form    { display:inline; }
 #add_translation { background: #91AAC8;}

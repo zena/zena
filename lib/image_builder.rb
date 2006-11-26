@@ -4,7 +4,7 @@ rescue LoadError
   puts "ImageMagick not found. Using dummy."
   # Create a dummy magick module
   module Magick
-    CenterGravity = OverCompositeOp = MaxRGB = nil
+    CenterGravity = OverCompositeOp = MaxRGB = NorthGravity = SouthGravity = nil
     class << self
     end
     class ZenaDummy

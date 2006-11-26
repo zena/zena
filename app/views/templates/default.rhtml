@@ -22,7 +22,7 @@
 		<%= visitor_link %>
 	</div>
 
-	<%#= plug :menu %>
+	<%= show_menu      %>
 	<%= logo Time.now  %>
 	<%= flash_messages %>
 
@@ -39,8 +39,10 @@
 		<div id="drive" style="display:none;"></div>
 
 		<div id="content">
+  		<div id="yhash">  <%= yhash_for @item     %></div>
 			<div id="summary"><%= zazen @item.summary %></div>
 			<div id="text">   <%= zazen @item.text    %></div>
+			
 			<%#= plug :comments %>
 		</div>
 

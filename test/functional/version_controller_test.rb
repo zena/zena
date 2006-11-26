@@ -35,6 +35,16 @@ class VersionControllerTest < Test::Unit::TestCase
     assert_tag 'form'
   end
   
+  def test_edit_template
+    login(:lion)
+    post 'edit', :id=>items_id(:status)
+    assert_response :success
+    assert_template 'templates/forms/default'
+    post 'edit', :id=>items_id(:lion)
+    assert_response :success
+    assert_template 'templates/forms/any_contact'
+  end
+  
   def test_cannot_edit
     post 'edit', :id=>items_id(:status)                            
     assert_redirected_to :controller=>'main', :action=>'not_found'

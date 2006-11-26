@@ -1,7 +1,7 @@
 <div id="loader" class="hidden"><img src="/images/ajax-loader.gif"/> <%= trans("uploading, please wait...") %></div>
 <div id="popup_action">
 	<%= error_messages_for "item" %>
-	
+
 	<table>
 		<tr>
 			<td id="edit" rowspan='3'>
@@ -21,7 +21,10 @@
 				<label for="summary"><%= trans("summary")  %></label>
 				<%= text_area 'item', 'summary', :cols=>nil, :rows=>4, :value=>@item.v_summary %>
 				<label for="content"><%= trans("content") %></label>
-				<%= text_area 'item', 'text', :cols=>nil, :rows=>17, :value=>@item.v_text, :onKeyPress=>"Zena.key_pres(event,this);" %>
+				<%= text_area 'item', 'text', :cols=>nil, :rows=>17, :value=>@item.v_text %>
+        <% @item.class.y_fields.each do |elem| -%>
+        <p><b ><%= trans(elem) %></b> <%= text_field 'item', "y_#{elem}", :size=>nil %></p>
+        <% end -%>
 				<% if @item.kind_of?(Document) -%>
 					<div id="file"><%= link_to_function trans("change document"), "new Element.toggle('file', 'file_form');" %></div>
 					<div id="file_form" style='display:none;'><%= link_to_function(trans("cancel"), "new Element.toggle('file', 'file_form');Zena.clear_file('item_file');")%>
@@ -29,7 +32,7 @@
 					<%= file_field 'item', 'file', :size=>nil %>
 					</div>
 				<% end -%>
-				
+
 				<p class="btn_validate"><%= link_to_function transb('cancel'), "opener.location.href=opener.location.href; self.close();" %><input type="submit" class="btn_validate" onClick="$('loader').style.visibility = 'visible';" value='<%= transb('validate') %>'/></p>
 				<%= end_form_tag %> 
 			</td>

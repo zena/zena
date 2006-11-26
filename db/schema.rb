@@ -2,7 +2,7 @@
 # migrations feature of ActiveRecord to incrementally modify your database, and
 # then regenerate this schema definition.
 
-ActiveRecord::Schema.define(:version => 3) do
+ActiveRecord::Schema.define(:version => 4) do
 
   create_table "addresses", :force => true do |t|
     t.column "type", :string, :limit => 16
@@ -22,6 +22,14 @@ ActiveRecord::Schema.define(:version => 3) do
     t.column "password", :string, :limit => 40
     t.column "lang", :string, :limit => 10, :default => "", :null => false
     t.column "password_salt", :string, :limit => 40
+  end
+
+  create_table "caches", :force => true do |t|
+    t.column "updated_at", :datetime
+    t.column "user_id", :integer
+    t.column "group_ids", :string, :limit => 200
+    t.column "context", :string, :limit => 200
+    t.column "content", :text
   end
 
   create_table "comments", :force => true do |t|
@@ -105,16 +113,6 @@ ActiveRecord::Schema.define(:version => 3) do
     t.column "role", :string, :limit => 20
   end
 
-  create_table "pcaches", :force => true do |t|
-    t.column "updated_at", :datetime
-    t.column "visitor_id", :integer
-    t.column "visitor_groups", :string, :limit => 40
-    t.column "lang", :string, :limit => 10
-    t.column "plug", :string, :limit => 20
-    t.column "context", :string, :limit => 200
-    t.column "content", :text
-  end
-
   create_table "trans_keys", :force => true do |t|
     t.column "key", :string, :limit => 100, :default => "", :null => false
   end
@@ -141,6 +139,7 @@ ActiveRecord::Schema.define(:version => 3) do
     t.column "file_ref", :integer
     t.column "status", :integer, :default => 30
     t.column "number", :integer, :default => 1
+    t.column "yaml", :text
   end
 
 end

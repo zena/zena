@@ -1,6 +1,4 @@
 class Project < Page
-  has_and_belongs_to_many :participants, :join_table=>"contacts_projects",
-                          :class_name=>"Contact"
   has_many :items
   after_save :check_project_id
   

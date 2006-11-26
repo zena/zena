@@ -449,3 +449,15 @@ forest_pdf:
   rgroup_id:      1
   wgroup_id:      3
   pgroup_id:      4
+  
+letter:
+  id:             32
+  type:           Letter
+  kpath:          INL
+  name:           letter
+  project_id:     1
+  parent_id:      5
+  user_id:        4
+  inherit:        1
+<%= @defaults %>
+<%= @rights %>

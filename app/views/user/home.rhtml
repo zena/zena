@@ -16,12 +16,12 @@
 
 
 	<div id="navbar">
-		<%= translation_link %>
-		<%= login_link    %>
-		<%= visitor_link  %>
+		<%= lang_links %>
+		<%= login_link   %>
+		<%= visitor_link %>
 	</div>
 
-	<%#= plug :menu %>
+	<%= show_menu      %>
 	<%= logo Time.now  %>
 	<%= flash_messages %>
 
@@ -32,8 +32,7 @@
 	<div id="main">
 		<div id="content">
 			<h2><%= trans "home of" %> <%= @user.fullname %></h2>
-
-			<%#= plug :translation    %>
+  		<%= translation_link %>
 			<%#= plug :admin %>
 
 		</div>

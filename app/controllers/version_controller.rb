@@ -17,6 +17,8 @@ class VersionController < ApplicationController
     end
     if !@item.edit!
       page_not_found
+    else
+      render_form
     end
   rescue ActiveRecord::RecordNotFound
     page_not_found
@@ -35,8 +37,6 @@ class VersionController < ApplicationController
   rescue ActiveRecord::RecordNotFound
     page_not_found
   end
-  
-  # TODO: continue testing for VersionController
   
   def save
     # use current context.

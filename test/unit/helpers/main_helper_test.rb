@@ -151,6 +151,15 @@ class MainHelperTest < Test::Unit::TestCase
     session[:translate] = true
     assert_match %r{<div id='lang'><span>.*new Ajax.Update.*/z/trans/lang_menu.*translate=off}, lang_ajax_link
   end
+  
+  def test_yhash_for
+    login(:lion)
+    obj = secure(Item) { items(:lion) }
+    obj.y_name = 'lion'
+    obj.y_firstname = 'the'
+    res = yhash_for(obj)
+    assert_match %r{<b>name</b> lion}, res
+  end
 end
   
   

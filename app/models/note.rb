@@ -24,7 +24,7 @@ class Note < Item
   
   # Return the full path as an array if it is cached or build it when asked for.
   def name_for_fullpath
-    d = blog_at
+    d = blog_at || created_at
     "#{d.year}-#{d.month}-#{d.day}-#{name}"
   end
 end

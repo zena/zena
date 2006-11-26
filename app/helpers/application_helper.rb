@@ -325,20 +325,24 @@ module ApplicationHelper
   end
   
   # Hierachical menu. (same on all pages)
-  def menu
-    if ZENA_ENV[:menu_tag_id] !=nil
-      main = secure(Tag) { Tag.find(ZENA_ENV[:menu_tag_id]) }
-      menus = main.collection
-    elsif ZENA_ENV[:root_id] != nil
-      menus = secure(Page) { Page.find(:all, :conditions=>"parent_id = #{ZENA_ENV[:root_id]}", :order=>'name') }
-    else
-      menus = secure(Page) { Page.find(:all, :conditions=>"parent_id IS NULL") }
+  def show_menu
+    Cache.with(user_id, user_groups, 'show_menu') do
+      puts "CREATE MENU"
+      if ZENA_ENV[:menu_tag_id] !=nil
+        menu  = secure(Tag) { Tag.find(ZENA_ENV[:menu_tag_id]) }
+        menus = menu.pages
+      elsif ZENA_ENV[:root_id] != nil
+        menus = secure(Item) { Item.find(ZENA_ENV[:root_id]) }.pages
+      else
+        menus = secure(Page) { Page.find(:all, :conditions=>"parent_id IS NULL") }
+      end
+      res = ["<div id='menu'>"]
+      res << "<ul>"
+      res << render_to_string(:partial=>'main/menu', :collection=>menus)
+      res << "</ul>"
+      res << "</div>"
+      res.join("\n")
     end
-    put :div, opts[:div_id]
-    put '<ul>'
-    put render_to_string( :partial=>'base/menu', :collection=>menus )
-    put '</ul>'
-    put :end_div, opts[:div_id]
   end
   
   private
