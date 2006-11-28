@@ -1,10 +1,8 @@
-addresses:
+users:
   - id:         1
-    type:       User
     first_name: anonymous
 
   - id:         2
-    type:       User
     login:      su
     password:   su
     first_name: Super

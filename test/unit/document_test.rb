@@ -19,7 +19,7 @@ class DocumentTest < Test::Unit::TestCase
       assert ! v.new_record? , "Version is not a new record"
       assert_not_nil v.file_ref , "File_ref is set"
       file = doc.file
-      assert_kind_of DocFile , file
+      assert_kind_of DocumentContent , file
       assert_equal "/pdf/#{doc.v_id}/report.pdf", file.path
       assert File.exist?("#{RAILS_ROOT}/data/test#{file.path}")
       assert_equal File.stat("#{RAILS_ROOT}/data/test#{file.path}").size, doc.filesize
@@ -100,7 +100,7 @@ class DocumentTest < Test::Unit::TestCase
     doc = secure(Document) { Document.find( items_id(:water_pdf) ) }
     file = nil
     assert_nothing_raised { file = doc.file }
-    assert_kind_of DocFile, file
+    assert_kind_of DocumentContent, file
   end
   
   def test_create_with_text_file

@@ -29,7 +29,7 @@ people_en:
 
 
 ant_en:
-  type:           Version
+  type:           ContactVersion
   id:             3
   item_id:        3
   user_id:        3
@@ -57,7 +57,7 @@ myLife_en:
 
 
 tiger_en:
-  type:           Version
+  type:           ContactVersion
   id:             4
   item_id:        4
   user_id:        4
@@ -71,7 +71,7 @@ tiger_en:
 
 
 lion_en:
-  type:           Version
+  type:           ContactVersion
   id:             5
   item_id:        5
   user_id:        5
@@ -169,7 +169,7 @@ status_en:
 
 
 lake_en:
-  type:           Version
+  type:           ContactVersion
   id:             13
   item_id:        13
   user_id:        3
@@ -192,13 +192,13 @@ lake_jpg_en:
   summary:        "Photo taken from \"wildchimpanzees.org\":http://www.wildchimpanzees.org/press/photo02.php."
   text:           ""
   lang:           en
-  file_ref:       14
+  content_id:     3
   number:         1
 <%= @defaults %>
 
 
 water_pdf_en:
-  type:           DocVersion
+  type:           DocumentVersion
   id:             15
   item_id:        15
   user_id:        4
@@ -207,7 +207,7 @@ water_pdf_en:
   summary:        just a stupid pdf
   text:           ""
   lang:           en
-  file_ref:       15
+  content_id:     4
   number:         1
 <%= @defaults %>
 
@@ -276,7 +276,7 @@ bird_jpg_en:
   summary:        "Photo taken from \"wikimedia\":http://commons.wikimedia.org/wiki/Image:Blue_Tit_aka.jpg."
   text:           ""
   lang:           en
-  file_ref:       20
+  content_id:     1
   number:         1
 <%= @defaults %>
 
@@ -291,7 +291,7 @@ flower_jpg_en:
   summary:        a pretty little flower
   text:           ""
   lang:           en
-  file_ref:       21
+  content_id:     2
   number:         1
 <%= @defaults %>
 
@@ -361,7 +361,7 @@ strange_en:
 <%= @defaults %>
 
 lake_red_en:
-  type:           Version
+  type:           ContactVersion
   id:             27
   item_id:        13
   user_id:        3
@@ -374,7 +374,6 @@ lake_red_en:
   publish_from:
   lang:           en
   status:         30
-  file_ref:       14
   number:         2
 
 opening_en:
@@ -491,11 +490,11 @@ tree_red_en:
   updated_at:     2006-04-11
   publish_from:
   status:         30
-  file_ref:       35
+  content_id:     5
   number:         1
   
 forest_red_en:
-  type:           DocVersion
+  type:           DocumentVersion
   id:             36
   item_id:        31
   user_id:        3
@@ -508,7 +507,7 @@ forest_red_en:
   updated_at:     2006-04-11
   publish_from:
   status:         30
-  file_ref:       36
+  content_id:     6
   number:         1
 
 letter_en:

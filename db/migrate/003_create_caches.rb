@@ -10,6 +10,6 @@ class CreateCaches < ActiveRecord::Migration
   end
 
   def self.down
-    drop_table "pcaches"
+    drop_table "caches"
   end
 end

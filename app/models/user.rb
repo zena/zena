@@ -7,7 +7,7 @@ A User is a #Contact with a login and password. There are two special users :
       logged in as su.
 If you want to give administrative rights to a user, simply put him into the _admin_ group.
 =end
-class User < Address
+class User < ActiveRecord::Base
   has_and_belongs_to_many :groups
   has_many :items
   has_many :versions
@@ -25,7 +25,7 @@ class User < Address
       else
         user = find(:first, :conditions=>['login=? and password=?',login, hash_password( password )])
         # do not allow 'anonymous' login (user_id = 1 is the anonymous login)
-        user if user && user.id != "1"
+        user if user && user.id.to_i != 1
       end
     end
 

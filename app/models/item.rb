@@ -1,4 +1,3 @@
-require 'yaml'
 =begin rdoc
 An Item is the parent for all web content classes (#Page, #Event, #Log, #Document, #Category, #Project).
 
@@ -78,11 +77,6 @@ class Item < ActiveRecord::Base
       else
         raise ActiveRecord::RecordNotFound
       end
-    end
-    
-    # yaml fields for item : nothing
-    def y_fields
-      []
     end
   end
 
@@ -287,10 +281,6 @@ class Item < ActiveRecord::Base
     end
   end
   
-  def yhash
-    version.yhash
-  end
-  
   protected
   
   def sync_project(project_id)
@@ -414,17 +404,22 @@ class Item < ActiveRecord::Base
   
   # yaml get and set. Any attribute starting with 'y_' gets stored int the yaml hash
   def method_missing(meth, *args)
-    if meth.to_s =~ /^y_([\w_]+)(=?)$/
-      key = $1
-      if $2 == '='
-        if redaction
-          redaction.yhash[key.to_sym] = args[0]
-        else
+    if meth.to_s =~ /^(v_|c_)([\w_]+)(=?)$/
+      target = $1
+      method = $2.to_sym
+      mode   = $3
+      if mode == '='
+        # set
+        unless recipient = redaction
           redaction_error(key, "could not be set (no redaction)")
+          return
         end
       else
-        version.yhash[key.to_sym]
+        # read
+        recipient = version
       end
+      recipient = recipient.content if target == 'c_'
+      recipient.send(method,*args)
     else
       super
     end

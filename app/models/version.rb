@@ -25,10 +25,12 @@ class Version < ActiveRecord::Base
   belongs_to :user, :foreign_key=>'user_id'
   validates_presence_of :item
   validates_presence_of :user
+  validate    :validate_content
+  before_save Proc.new { if @content then @content.save else true end }
+  before_create :set_number
+  
   # not tested belongs_to :comment_group, :class_name=>'Group', :foreign_key=>'cgroup_id'
   # not tested has_many :comments, :order=>'created_at'
-  before_save :prepare_yaml
-  before_create :set_number
   
   # Author is an alias for user
   def author
@@ -40,16 +42,16 @@ class Version < ActiveRecord::Base
     raise Zena::AccessViolation, "Version #{self.id}: tried to change 'item_id' to '#{i}'."
   end
   
-  def yhash
-    return @yhash if @yhash
-    if yaml = YAML::parse(self[:yaml] || '')
-      @yhash = yaml.transform
+  def content
+    @content ||= if self[:shown_content_id]
+      content_class.find(self[:shown_content_id])
+    elsif self[:content_id]
+      content_class.find(self[:content_id])
     else
-      @yhash = {}
+      nil
     end
-    @yhash
   end
-
+  
   private
   
   # Set version number
@@ -62,24 +64,27 @@ class Version < ActiveRecord::Base
     end
   end
   
-  # Prepare yaml content
-  def prepare_yaml
-    if @yhash
-      self[:yaml] = @yhash.to_yaml
+  # Validate content validity callback
+  def validate_content
+    if @content && !@content.valid?
+      @content.errors.each do |key,message|
+        errors.add(key,message)
+      end
     end
   end
-  
-  # yaml get and set. Any attribute starting with 'y_' gets stored int the yaml hash
+    
+  # pass calls starting with 'c_' to content
   def method_missing(meth, *args)
-    if meth.to_s =~ /^y_([\w_]+)(=?)$/
-      key = $1
-      if $2 == '='
-        yhash[key.to_sym] = args[0]
-      else
-        yhash[key.to_sym]
-      end
+    if meth.to_s =~ /^c_(.+)$/
+      content.send($1.to_sym, *args)
     else
       super
     end
+  end
+  
+  # Some #Version sub-classes need to have more specific content than just 'text' and 'summary'.
+  # this content is stored in a delegate 'content' object found with the 'content_class' class method
+  def content_class
+    nil
   end
 end

@@ -1,89 +1,87 @@
 require File.dirname(__FILE__) + '/../test_helper'
 
-class DocFileTest < Test::Unit::TestCase
+class DocumentContentTest < Test::Unit::TestCase
   include ZenaTestUnit
   
+  def test_img_tag
+    visitor(:tiger)
+    doc = document_contents(:water_pdf)
+    assert_equal "<img src='/images/ext/pdf.png' width='32' height='32' class='icon'/>", doc.img_tag
+    assert_equal "<img src='/images/ext/pdf-pv.png' width='80' height='80' class='pv'/>", doc.img_tag('pv')
+    assert_equal "<img src='/images/ext/pdf-std.png' width='32' height='32' class='std'/>", doc.img_tag('std')
+  end
+  
+  def test_img_tag_other
+    visitor(:tiger)
+    doc = document_contents(:water_pdf)
+    doc.ext = 'bin'
+    assert_equal 'bin', doc.ext
+    assert_equal "<img src='/images/ext/other.png' width='32' height='32' class='icon'/>", doc.img_tag
+    assert_equal "<img src='/images/ext/other-pv.png' width='80' height='80' class='pv'/>", doc.img_tag('pv')
+    assert_equal "<img src='/images/ext/other-std.png' width='32' height='32' class='std'/>", doc.img_tag('std')
+  end
+  
   def test_set_file
-    doc = DocFile.new
+    doc = DocumentContent.new
     assert_nothing_raised { doc.file = uploaded_pdf('water.pdf') }
     assert_equal 'application/pdf', doc.content_type
     assert_equal 29279, doc.size
   end
   
   def test_read
-    doc = DocFile.new( :file=>uploaded_pdf('water.pdf') )
+    doc = DocumentContent.new( :file=>uploaded_pdf('water.pdf') )
     data = nil
     assert_nothing_raised { data = doc.read }
     assert_equal data, uploaded_pdf('water.pdf').read
-    doc = DocFile.new
+    doc = DocumentContent.new
     assert_raise(IOError) { doc.read }
   end
   
   def test_set_size
-    imf = DocFile.new
+    imf = DocumentContent.new
     assert_raise(StandardError) { imf.size = 34 }
   end
   
-  def test_size
-    DocFile.connection.execute "UPDATE doc_files SET size=NULL WHERE id=#{doc_files_id(:water_pdf)}"
-    without_files('/data/test/pdf') do
-      dof = DocFile.find(doc_files_id(:water_pdf))
-      assert_nil dof[:size]
-      assert_nil dof.size
-    end
-    dof = DocFile.find(doc_files_id(:water_pdf))
-    assert_nil dof[:size]
-    assert_equal 29279, dof.size
-    assert_equal 29279, dof[:size]
-    dof = DocFile.new
-    dof.file = uploaded_pdf('water.pdf')
-    assert_equal 29279, dof.size
-  end
-  
-  
-  def test_docfile_valid_no_version
-    doc = DocFile.new( :file=>uploaded_pdf('water.pdf') )
-    assert !doc.save
-    assert_equal 'version must exist', doc.errors[:version_id]
-  end
-  
   def test_docfile_valid_no_file
-    doc = DocFile.new( :version_id=>11 )
+    doc = DocumentContent.new
     assert !doc.save
     assert_equal 'file not set', doc.errors[:base]
   end
   
   def test_filename
-    doc = DocFile.new( :version_id=>15, :ext=>'tot' )
+    doc = DocumentContent.new( :name=>'water', :ext=>'tot' )
     assert_equal 'water.tot', doc.send(:filename)
   end
   
-  def test_make_path
-    doc = DocFile.new( :version_id=>15, :ext=>'pdf' )
-    assert_equal '', doc[:path]
-    doc.send(:make_path)
-    assert_equal '/pdf/15/water.pdf', doc[:path]
+  def test_path
+    doc = DocumentContent.create( :name=>'water', :ext=>'pdf', :file=>uploaded_pdf('water.pdf') )
+    assert_equal "/pdf/#{doc[:id]}/water.pdf", doc.path
   end
   
-  def test_filepath_without_version
-    doc = DocFile.new( :file=>uploaded_pdf('water.pdf') )
+  def test_filepath
+    doc = DocumentContent.create( :name=>'water', :ext=>'pdf', :file=>uploaded_pdf('water.pdf') )
+    assert_equal "#{RAILS_ROOT}/data/#{RAILS_ENV}/pdf/#{doc[:id]}/water.pdf", doc.filepath
+  end
+      
+  def test_filepath_without_save
+    doc = DocumentContent.new( :file=>uploaded_pdf('water.pdf') )
     assert_raise(StandardError) { doc.send(:filepath) }
   end
   
   def test_filepath_ok
-    doc = DocFile.new( :version_id=>15, :file=>uploaded_pdf('water.pdf'), :ext=>'pdf' )
+    doc = DocumentContent.new( :version_id=>15, :file=>uploaded_pdf('water.pdf'), :ext=>'pdf' )
     fp = doc.send(:filepath)
     assert_equal "#{RAILS_ROOT}/data/test/pdf/15/water.pdf", fp
   end
   
   def test_save_file
     without_files("/data/test/pdf/15/water.pdf") do
-      doc = DocFile.new( :version_id=>15, :file=>uploaded_pdf('water.pdf') )
+      doc = DocumentContent.new( :version_id=>15, :file=>uploaded_pdf('water.pdf') )
       assert !File.exist?("#{RAILS_ROOT}/data/test/pdf/15/water.pdf")
       assert doc.save, "Can save"
       assert File.exist?("#{RAILS_ROOT}/data/test/pdf/15/water.pdf")
       assert_equal 29279, doc.size
-      doc = DocFile.find(doc.id)
+      doc = DocumentContent.find(doc.id)
       assert doc.save, "Can save again"
       doc.file = uploaded_pdf('forest.pdf')
       assert doc.save, "Can save"
@@ -93,12 +91,156 @@ class DocFileTest < Test::Unit::TestCase
   
   def test_destroy
     preserving_files('data/test/pdf/15') do
-      doc = DocFile.find_by_version_id(versions_id(:water_pdf_en))
-      assert_equal DocFile, doc.class
+      doc = DocumentContent.find_by_version_id(versions_id(:water_pdf_en))
+      assert_equal DocumentContent, doc.class
       assert File.exist?(doc.send(:filepath)), "File exist"
       assert doc.destroy, "Can destroy"
       assert !File.exist?(doc.send(:filepath)), "File does not exist"
       assert !File.exist?("#{RAILS_ROOT}/data/test/pdf/15"), "Directory does not exist"
     end
-  end 
+  end
+  
+=begin
+  
+  def test_file
+    visitor(:tiger)
+    doc = secure(Item) { items(:water_pdf) }
+    v = doc.send(:version)
+    assert_kind_of DocumentVersion, v
+    assert_equal uploaded_pdf('water.pdf').read, v.file.read
+  end
+  
+  def test_no_file
+    visitor(:tiger)
+    doc = secure(Item) { items(:water_pdf) }
+    v = doc.send(:version)
+    v[:file_ref] = nil
+    assert_nil v.file
+  end
+  
+  def test_filesize
+    doc = secure(Item) { items(:water_pdf) }
+    assert_equal 29279, doc.send(:version).filesize
+  end
+  
+  def test_cannot_set_file_ref
+    visitor(:ant)
+    item = secure(Item) { items(:water_pdf) }
+    version = item.send(:version)
+    assert_raise(Zena::AccessViolation) { version.file_ref = items_id(:lake) }
+  end
+  
+  def test_can_set_file_ref_by_attribute
+    visitor(:ant)
+    item = secure(Item) { items(:ant) }
+    version = item.send(:version)
+    assert_nothing_raised(Zena::AccessViolation) { version[:file_ref] = items_id(:lake) }
+  end
+  
+  def test_title
+    visitor(:ant)
+    item = secure(Item) { items(:water_pdf) }
+    v = item.send(:version)
+    assert_equal "", v[:title]
+    assert_equal "water", item[:name]
+    assert_equal "water.pdf", v.filename
+    v[:title] = 'lac leman'
+    assert_equal 'lac leman', v.title
+  end
+  
+  def test_has_file
+    visitor(:ant)
+    doc = DocumentVersion.new
+    assert ! doc.save, 'Cannot save'
+    assert_equal 'not set', doc.errors[:file]
+  end
+  
+  def test_update_file_ref_one_version
+    preserving_files("/data/test/pdf/36") do
+      visitor(:ant)
+      set_lang('en')
+      item = secure(Item) { items(:forest_pdf) }
+      assert_equal Zena::Status[:red], item.v_status
+      dv = item.send(:version)
+      assert_equal versions_id(:forest_red_en), dv[:file_ref]
+      #assert_equal dv.file.read, uploaded_pdf('forest.pdf').read
+      assert_kind_of DocumentContent, dv.file
+      assert_equal 63569, dv.file.size
+      assert item.update_redaction(:file=>uploaded_pdf('water.pdf')), 'Can edit item'
+      dv = item.send(:version)
+      assert_equal versions_id(:forest_red_en), dv[:file_ref]
+      assert_equal 29279, dv.file.size
+      assert_equal dv.file.read, uploaded_pdf('water.pdf').read
+    end
+  end
+  
+  def test_cannot_change_file_if_many_uses
+    preserving_files("/data/test/pdf") do
+      visitor(:ant)
+      set_lang('fr')
+      item = secure(Item) { items(:forest_pdf) }
+      old_vers_id = item.v_id
+      assert item.update_redaction(:title=>'my forest')
+      dv = item.send(:version)
+      # new redaction points to old file
+      assert_not_equal item.v_id  , old_vers_id
+      assert_not_equal dv.file_ref, item.v_id
+      assert_equal     dv.file_ref, old_vers_id
+      
+      visitor(:ant)
+      set_lang('en')
+      item = secure(Item) { items(:forest_pdf) }
+      assert !item.update_redaction(:file=>uploaded_pdf('water.pdf')), "Cannot be changed"
+      assert_match %r{file cannot be changed}, item.errors[:version]
+    end
+  end
+  
+  def test_cannot_change_file_if_many_uses
+    preserving_files("/data/test/jpg/20") do
+      visitor(:tiger)
+      item = secure(Item) { items(:bird_jpg) }
+      old_vers_id = item.v_id
+      assert !item.update_redaction(:file=>uploaded_pdf('water.pdf'))
+      assert_equal 'must be an image', item.errors[:file]
+    end
+  end
+  
+  def test_can_make_a_new_redaction
+    preserving_files("/data/test/pdf") do
+      visitor(:ant)
+      set_lang('fr')
+      item = secure(Item) { items(:forest_pdf) }
+      old_vers_id = item.v_id
+      assert item.update_redaction(:title=>'my forest')
+      dv = item.send(:version)
+      # new redaction points to old file
+      assert_not_equal item.v_id  , old_vers_id
+      assert_not_equal dv.file_ref, item.v_id
+      assert_equal     dv.file_ref, old_vers_id
+      
+      item.update_redaction(:file=>uploaded_pdf('water.pdf'))
+      # new redaction points to new file
+      assert_equal     dv.file_ref, item.v_id
+      assert_not_equal dv.file_ref, old_vers_id
+      assert item.save, "Save succeeds"
+    end
+  end
+  
+  def test_create_doc_file
+    without_files("/data/test/pdf") do
+      visitor(:ant)
+      item = secure(Document) { Document.new( :parent_id=>items_id(:cleanWater),
+                                                :name=>'report', 
+                                                :file => uploaded_pdf('water.pdf') ) }
+      dv  = item.send(:version)
+      assert_nil dv[:file_ref]
+      assert item.save, "Can save item"
+      assert !dv.new_record?, "Not a new record"
+      assert_equal dv[:file_ref], dv[:id]
+      assert_kind_of DocumentContent, dv.file
+      assert !dv.file.new_record?, "Not a new record"
+      assert File.exist?("#{RAILS_ROOT}/data/test/pdf/#{item.v_id}/report.pdf")
+    end
+  end
+=end
 end

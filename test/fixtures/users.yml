@@ -1,0 +1,45 @@
+<% @defaults = "  created_at: 2006-04-11\n  updated_at: 2006-04-11" %>
+
+anon:
+  id:         1
+  first_name: anonymous
+
+su:
+  id:         2
+  login:      su
+  password:   <%= User.hash_password('su') %>
+  first_name: Super
+  name:       User
+
+ant:
+  id:         3
+<%= @defaults %>
+  first_name: Solenopsis
+  name:       Invicta
+  email:      ant@zenadmin.info
+  login:      ant
+  password:   <%= User.hash_password('ant') %>
+  contact_id: 3
+  lang:       fr
+
+tiger:
+  id:         4
+<%= @defaults %>
+  first_name: Panther
+  name:       Tigris Sumatran
+  email:      tiger@zenadmin.info
+  login:      tiger
+  password:   <%= User.hash_password('tiger') %>
+  contact_id: 4
+  lang:       en
+
+lion:
+  id:         5
+<%= @defaults %>
+  first_name: Panthera
+  name:       Leo Verneyi
+  email:      lion@zenadmin.info
+  login:      lion
+  password:   <%= User.hash_password('lion') %>
+  contact_id: 5
+  lang:       en

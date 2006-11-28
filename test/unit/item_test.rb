@@ -289,7 +289,7 @@ class ItemTest < Test::Unit::TestCase
     child = item.new_child( :name => 'new_name' )
     assert child.save , "Save succeeds"
     assert_equal Zena::Status[:red],  child.v_status
-    assert_equal child[:user_id], addresses_id(:ant)
+    assert_equal child[:user_id], users_id(:ant)
     assert_equal item[:pgroup_id], child[:pgroup_id]
     assert_equal item[:rgroup_id], child[:rgroup_id]
     assert_equal item[:wgroup_id], child[:wgroup_id]
@@ -516,14 +516,4 @@ class ItemTest < Test::Unit::TestCase
     assert Page.read_inheritable_attribute(:after_save).include?(:save_tags)
   end
   
-  def test_yaml
-    visitor(:tiger)
-    item = secure(Item) { items(:status) }
-    assert_nothing_raised       { item.y_whatever = 'yaml test' }
-    assert_raise(NoMethodError) { item.whatever   = 'yaml test' }
-    assert_equal 'yaml test', item.y_whatever
-    assert item.save, "Can save"
-    item = secure(Item) { items(:status) }
-    assert_equal 'yaml test', item.y_whatever
-  end
 end

@@ -54,7 +54,7 @@ class ImageFileTest < Test::Unit::TestCase
   end
     
   def test_self_find_or_create_no_fileinfo
-    ImageFile.connection.execute "DELETE FROM doc_files WHERE version_id=#{versions_id(:bird_jpg_en)}"
+    ImageFile.connection.execute "DELETE FROM document_contents WHERE version_id=#{versions_id(:bird_jpg_en)}"
     assert_raise(ActiveRecord::RecordNotFound) { ImageFile.find_or_create(versions_id(:bird_jpg_en)) }
   end
   
@@ -80,13 +80,13 @@ class ImageFileTest < Test::Unit::TestCase
   end
   
   def test_size
-    ImageFile.connection.execute "UPDATE doc_files SET size=NULL WHERE id=#{doc_files_id(:bird_jpg)}"
+    ImageFile.connection.execute "UPDATE document_contents SET size=NULL WHERE id=#{document_contents_id(:bird_jpg)}"
     without_files('/data/test/jpg') do
-      imf = ImageFile.find(doc_files_id(:bird_jpg))
+      imf = ImageFile.find(document_contents_id(:bird_jpg))
       assert_nil imf[:size]
       assert_nil imf.size
     end
-    imf = ImageFile.find(doc_files_id(:bird_jpg))
+    imf = ImageFile.find(document_contents_id(:bird_jpg))
     assert_nil imf[:size]
     assert_equal 56183, imf.size
     assert_equal 56183, imf[:size]

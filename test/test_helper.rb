@@ -41,10 +41,10 @@ class Test::Unit::TestCase
       fixtures.each { |f| @@loaded_fixtures[f.table_name] = f }
     end
   end
-  path =  @@loaded_fixtures['doc_files']['bird_jpg'].instance_eval { @fixture['path'] }
-  unless File.exist?("#{RAILS_ROOT}/data/test" + path)
-    @@loaded_fixtures['doc_files'].each do |name,fixture|
-      path = fixture.instance_eval { @fixture['path'] }.split('/')
+  
+  unless File.exist?("#{RAILS_ROOT}/data/test")
+    @@loaded_fixtures['document_contents'].each do |name,fixture|
+      path = fixture.instance_eval { [@fixture['ext'],@fixture['id'].to_s,@fixture['name']+"."+@fixture['ext']] }
       name = path.pop
       FileUtils::mkpath(File.join(RAILS_ROOT,'data', 'test', *path))
       path << name

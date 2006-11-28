@@ -4,12 +4,11 @@ link://../img/zena_new_document.png
 
 =end
 class Document < Page
-  validate_on_create :check_file
   before_validation :set_name
   
-  def file=(file)
+  def c_file=(file)
     @file = file
-    set_redaction(:file, file)
+    redaction.content.file = file
   end
   
   def image?
@@ -17,33 +16,12 @@ class Document < Page
   end
   
   def img_tag(format=nil)
-    version.img_tag(format)
-  end
-  
-  def filesize
-    version.filesize
-  end
-  
-  def file
-    version.file
-  end
-  
-  def ext
-    version.file.ext
-  end
-  
-  def filename
-    version.filename
+    version.content.img_tag(format)
   end
   
   private
   
-  def check_file
-    errors.add('file', 'cannot be empty') unless @file && @file.respond_to?(:content_type)
-  end
-  
   def set_name
-    self.class.logger.info "SET_NAME"
     if self[:name] && self[:name] != ""
       base = self[:name]
     elsif @file
@@ -54,13 +32,14 @@ class Document < Page
     end
     if base =~ /\./
       self[:name] = base.split('.')[0..-2].join('.')
-      version.ext = base.split('.').last
+      version.content.ext  = base.split('.').last
+      version.content.name = self[:name]
     end
     return true
   end
   
   # This is a callback from acts_as_multiversioned
   def version_class
-    DocVersion
+    DocumentVersion
   end
 end

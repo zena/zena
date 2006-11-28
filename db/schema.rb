@@ -2,27 +2,7 @@
 # migrations feature of ActiveRecord to incrementally modify your database, and
 # then regenerate this schema definition.
 
-ActiveRecord::Schema.define(:version => 4) do
-
-  create_table "addresses", :force => true do |t|
-    t.column "type", :string, :limit => 16
-    t.column "created_at", :datetime
-    t.column "updated_at", :datetime
-    t.column "first_name", :string, :limit => 60
-    t.column "name", :string, :limit => 60
-    t.column "address", :text
-    t.column "zip", :string, :limit => 20
-    t.column "city", :string, :limit => 60
-    t.column "telephone", :string, :limit => 60
-    t.column "mobile", :string, :limit => 60
-    t.column "email", :string, :limit => 60
-    t.column "item_id", :integer
-    t.column "birthday", :date
-    t.column "login", :string, :limit => 20
-    t.column "password", :string, :limit => 40
-    t.column "lang", :string, :limit => 10, :default => "", :null => false
-    t.column "password_salt", :string, :limit => 40
-  end
+ActiveRecord::Schema.define(:version => 3) do
 
   create_table "caches", :force => true do |t|
     t.column "updated_at", :datetime
@@ -42,15 +22,23 @@ ActiveRecord::Schema.define(:version => 4) do
     t.column "text", :text, :default => "", :null => false
   end
 
-  create_table "contacts_projects", :id => false, :force => true do |t|
-    t.column "project_id", :integer, :default => 0, :null => false
-    t.column "contact_id", :integer, :default => 0, :null => false
+  create_table "contact_contents", :force => true do |t|
+    t.column "created_at", :datetime
+    t.column "updated_at", :datetime
+    t.column "first_name", :string, :limit => 60
+    t.column "name", :string, :limit => 60
+    t.column "address", :text
+    t.column "zip", :string, :limit => 20
+    t.column "city", :string, :limit => 60
+    t.column "telephone", :string, :limit => 60
+    t.column "mobile", :string, :limit => 60
+    t.column "email", :string, :limit => 60
+    t.column "birthday", :date
   end
 
-  create_table "doc_files", :force => true do |t|
+  create_table "document_contents", :force => true do |t|
     t.column "type", :string, :limit => 16
-    t.column "version_id", :integer
-    t.column "path", :string, :limit => 400, :default => "", :null => false
+    t.column "name", :string, :limit => 200, :default => "", :null => false
     t.column "content_type", :string, :limit => 20
     t.column "ext", :string, :limit => 20
     t.column "size", :integer
@@ -103,7 +91,6 @@ ActiveRecord::Schema.define(:version => 4) do
     t.column "ref_lang", :string, :limit => 10, :default => "", :null => false
     t.column "alias", :string, :limit => 400
     t.column "fullpath", :text
-    t.column "address_id", :integer
     t.column "dgroup_id", :integer
   end
 
@@ -123,6 +110,19 @@ ActiveRecord::Schema.define(:version => 4) do
     t.column "value", :text, :default => "", :null => false
   end
 
+  create_table "users", :force => true do |t|
+    t.column "created_at", :datetime
+    t.column "updated_at", :datetime
+    t.column "login", :string, :limit => 20
+    t.column "password", :string, :limit => 40
+    t.column "lang", :string, :limit => 10, :default => "", :null => false
+    t.column "password_salt", :string, :limit => 40
+    t.column "contact_id", :integer
+    t.column "first_name", :string, :limit => 60
+    t.column "name", :string, :limit => 60
+    t.column "email", :string, :limit => 60
+  end
+
   create_table "versions", :force => true do |t|
     t.column "type", :string, :limit => 16
     t.column "created_at", :datetime
@@ -131,15 +131,15 @@ ActiveRecord::Schema.define(:version => 4) do
     t.column "user_id", :integer, :default => 0, :null => false
     t.column "lang", :string, :limit => 10, :default => "", :null => false
     t.column "publish_from", :datetime
+    t.column "comment", :text, :default => "", :null => false
     t.column "title", :string, :limit => 200, :default => "", :null => false
     t.column "summary", :text, :default => "", :null => false
     t.column "text", :text, :default => "", :null => false
     t.column "cgroup_id", :integer
-    t.column "comment", :text, :default => "", :null => false
-    t.column "file_ref", :integer
     t.column "status", :integer, :default => 30
     t.column "number", :integer, :default => 1
-    t.column "yaml", :text
+    t.column "content_id", :integer
+    t.column "shown_content_id", :integer
   end
 
 end

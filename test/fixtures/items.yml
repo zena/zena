@@ -38,7 +38,6 @@ ant:
   project_id:     1
   parent_id:      2
   user_id:        3
-  address_id:     3
 <%= @defaults %>
   inherit:        0
   rgroup_id:      0
@@ -68,7 +67,6 @@ tiger:
   project_id:     1
   parent_id:      2
   user_id:        4
-  address_id:     4
   inherit:        1
 <%= @defaults %>
 <%= @rights %>
@@ -81,7 +79,6 @@ lion:
   project_id:     1
   parent_id:      2
   user_id:        5
-  address_id:     5
   inherit:        1
 <%= @defaults %>
 <%= @rights %>
@@ -173,7 +170,6 @@ lake:
   project_id:     11
   parent_id:      11
   user_id:        3
-  address_id:     6
   inherit:        1
 <%= @defaults %>
 <%= @rights %>

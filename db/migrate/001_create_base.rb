@@ -27,8 +27,20 @@ end
 class CreateBase < ActiveRecord::Migration
   
   def self.up
-    create_table("addresses", :force => true, :options => 'type=InnoDB DEFAULT CHARSET=utf8') do |t|
-      t.column "type", :string, :limit => 16
+    create_table("users", :force => true, :options => 'type=InnoDB DEFAULT CHARSET=utf8') do |t|
+      t.column "created_at", :datetime
+      t.column "updated_at", :datetime
+      t.column "login", :string, :limit => 20
+      t.column "password", :string, :limit => 40
+      t.column "lang", :string, :limit => 10, :default => "", :null => false
+      t.column "password_salt", :string, :limit => 40
+      t.column "contact_id", :integer
+      t.column "first_name", :string, :limit => 60 # cached from contact_content
+      t.column "name", :string, :limit => 60       # cached from contact_content
+      t.column "email", :string, :limit => 60      # cached from contact_content
+    end
+      
+    create_table("contact_contents", :force => true, :options => 'type=InnoDB DEFAULT CHARSET=utf8') do |t|
       t.column "created_at", :datetime
       t.column "updated_at", :datetime
       t.column "first_name", :string, :limit => 60
@@ -39,12 +51,7 @@ class CreateBase < ActiveRecord::Migration
       t.column "telephone", :string, :limit => 60
       t.column "mobile", :string, :limit => 60
       t.column "email", :string, :limit => 60
-      t.column "item_id", :integer
       t.column "birthday", :date
-      t.column "login", :string, :limit => 20
-      t.column "password", :string, :limit => 40
-      t.column "lang", :string, :limit => 10, :default => "", :null => false
-      t.column "password_salt", :string, :limit => 40
     end
       
     create_table("comments", :force => true, :options => 'type=InnoDB DEFAULT CHARSET=utf8') do |t|
@@ -57,10 +64,9 @@ class CreateBase < ActiveRecord::Migration
       t.column "text", :text, :default => "", :null => false
     end
 
-    create_table("doc_files", :force => true, :options => 'type=InnoDB DEFAULT CHARSET=utf8') do |t|
+    create_table("document_contents", :force => true, :options => 'type=InnoDB DEFAULT CHARSET=utf8') do |t|
       t.column "type", :string, :limit => 16
-      t.column "version_id", :integer
-      t.column "path", :string, :limit => 400, :default => "", :null => false
+      t.column "name", :string, :limit => 200, :default => "", :null => false
       t.column "content_type", :string, :limit => 20
       t.column "ext", :string, :limit=>20
       t.column "size", :integer
@@ -100,7 +106,6 @@ class CreateBase < ActiveRecord::Migration
       t.column "ref_lang", :string, :limit => 10, :default => "", :null => false
       t.column "alias", :string, :limit => 400
       t.column "fullpath", :text
-      t.column "address_id", :integer
     end
 
     create_table("links", :force => true, :options => 'type=InnoDB DEFAULT CHARSET=utf8') do |t|
@@ -117,14 +122,15 @@ class CreateBase < ActiveRecord::Migration
       t.column "user_id", :integer, :default => 0, :null => false
       t.column "lang", :string, :limit => 10, :default => "", :null => false
       t.column "publish_from", :datetime
+      t.column "comment", :text, :default => "", :null => false
       t.column "title", :string, :limit => 200, :default => "", :null => false
       t.column "summary", :text, :default => "", :null => false
       t.column "text", :text, :default => "", :null => false
       t.column "cgroup_id", :integer
-      t.column "comment", :text, :default => "", :null => false
-      t.column "file_ref", :integer
       t.column "status", :integer, :default => 30
       t.column "number", :integer, :default => 1
+      t.column "content_id", :integer
+      t.column "shown_content_id", :integer
     end
 
     create_table("trans_keys", :force => true, :options => 'type=InnoDB DEFAULT CHARSET=utf8') do |t|
@@ -163,7 +169,7 @@ class CreateBase < ActiveRecord::Migration
     base_objects.each_pair do |tbl, list|
       Loader.set_table(tbl.to_s)
       list.each do |record|
-        if :addresses == tbl
+        if :users == tbl
           record[:password] = User.hash_password(record[:password]) if record[:password]
         elsif :items == tbl && record[:blog_at] == 'today'
           record[:blog_at] = Time.now
@@ -176,9 +182,10 @@ class CreateBase < ActiveRecord::Migration
   end
   
   def self.down
-    drop_table "addresses"
+    drop_table "users"
+    drop_table "contact_contents"
     drop_table "comments"
-    drop_table "doc_files"
+    drop_table "document_contents"
     drop_table "groups"
     drop_table "groups_users"
     drop_table "items"

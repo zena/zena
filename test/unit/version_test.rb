@@ -68,16 +68,17 @@ class VersionTest < Test::Unit::TestCase
     assert_equal "can't be blank", vers.errors[:user]
   end
   
-  def test_yaml
+  def test_missing_methods
+    content = Struct.new(:hello, :name).new('hello', 'guys')
     visitor(:tiger)
-    item = secure(Item) { items(:status) }
-    v = item.send(:redaction)
-    assert_nothing_raised       { v.y_whatever = 'yaml test' }
-    assert_raise(NoMethodError) { v.whatever   = 'yaml test' }
-    assert_equal 'yaml test', v.y_whatever
-    assert v.save, "Can save"
-    item = secure(Item) { items(:status) }
-    v = item.send(:version)
-    assert_equal 'yaml test', v.y_whatever
+    item = secure(Item) { items(:zena) }
+    vers = item.send(:version)
+    vers.instance_eval { @content = content }
+    assert_equal 'hello', vers.c_hello
+    assert_equal 'guys', vers.c_name
+    vers.c_hello = 'Thanks'
+    vers.c_name = 'Matz' 
+    assert_equal 'Thanks', vers.c_hello
+    assert_equal 'Matz', vers.c_name
   end
 end
