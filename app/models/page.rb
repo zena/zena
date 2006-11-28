@@ -8,11 +8,11 @@ class Page < Item
     def select_classes
       list = subclasses.inject([]) do |list, k|
         unless Document == k || k.ancestors.include?(Document)
-          list << [k.to_s, k.to_s]
+          list << k.to_s
         end
         list
       end.sort
-      list.unshift ['Page', 'Page']
+      list.unshift 'Page'
     end
   end
   

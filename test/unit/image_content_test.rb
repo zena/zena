@@ -33,7 +33,7 @@ class ImageContentTest < Test::Unit::TestCase
       assert_equal 661, img.width
       assert_equal 80,  img.width('pv')
       assert !File.exist?("#{RAILS_ROOT}/data/test/jpg/20/bird-pv.jpg"), "File does not exist"
-      assert_equal 2643, img.size('pv')
+      assert_equal 1594, img.size('pv')
       assert File.exist?("#{RAILS_ROOT}/data/test/jpg/20/bird-pv.jpg"), "File exist"
     end
   end

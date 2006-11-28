@@ -55,7 +55,6 @@ class ImageBuilder
         raise StandardError, "Bad parameter (#{k})"
       end
     end
-    #puts @file.read.size
     unless @width && @height || dummy?
       if @file || @path
         @img = Magick::ImageList.new(@file ? @file.path : @path)
@@ -126,7 +125,7 @@ class ImageBuilder
       tformat = IMAGEBUILDER_FORMAT[tformat]
       return nil unless tformat
     end
-    format = { :size=>:limit, :width=>300, :ratio=>2.0/3.0, :gravity=>Magick::CenterGravity }.merge(tformat)
+    format = { :size=>:limit, :gravity=>Magick::CenterGravity }.merge(tformat)
     @pre, @post = format[:pre], format[:post]
 
     if format[:size] == :keep

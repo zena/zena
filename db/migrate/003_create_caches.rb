@@ -1,6 +1,6 @@
 class CreateCaches < ActiveRecord::Migration
   def self.up
-    create_table("caches", :force => true, :options => 'type=InnoDB DEFAULT CHARSET=utf8') do |t|
+    create_table("caches", :force => true, :options => 'type=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci') do |t|
       t.column "updated_at", :datetime
       t.column "user_id", :integer
       t.column "group_ids", :string, :limit => 200

@@ -8,8 +8,7 @@ Zena is a CMS. (c) teti.ch 2006
 => create 'user' controller for users/groups management
 => select list changes with ajax ... (new page, new note, new link)
 => ON DESTROY of DocumentVersion : remove files
-=> ImageBuilder: bad rendering of 'pv' : zoom on image.
-=> EXPIRE CACHE ON GROUP CHANGE, OBJECT MOVE, EDIT, ETC
+=> WHEN CREATING THE DATABASE: USE "DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci" !!!
 => it is VERY easy to kick yourself out of an item : lion creates 'cleanWater', tiger edits 'cleanWater' and removes lion's redaction. There is only one redaction 
    from 'tiger' for an item owned by 'lion' : tiger cannot see it anymore (max_status = :red and he is not the owner...)
 

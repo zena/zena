@@ -26,14 +26,14 @@ ActiveRecord::Schema.define(:version => 3) do
   create_table "contact_contents", :force => true do |t|
     t.column "created_at", :datetime
     t.column "updated_at", :datetime
-    t.column "first_name", :string, :limit => 60
-    t.column "name", :string, :limit => 60
-    t.column "address", :text
-    t.column "zip", :string, :limit => 20
-    t.column "city", :string, :limit => 60
-    t.column "telephone", :string, :limit => 60
-    t.column "mobile", :string, :limit => 60
-    t.column "email", :string, :limit => 60
+    t.column "first_name", :string, :limit => 60, :default => "", :null => false
+    t.column "name", :string, :limit => 60, :default => "", :null => false
+    t.column "address", :text, :default => "", :null => false
+    t.column "zip", :string, :limit => 20, :default => "", :null => false
+    t.column "city", :string, :limit => 60, :default => "", :null => false
+    t.column "telephone", :string, :limit => 60, :default => "", :null => false
+    t.column "mobile", :string, :limit => 60, :default => "", :null => false
+    t.column "email", :string, :limit => 60, :default => "", :null => false
     t.column "birthday", :date
   end
 

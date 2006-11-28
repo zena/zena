@@ -359,7 +359,7 @@ class Item < ActiveRecord::Base
   
   # Whenever something changed (publication/proposition/redaction/...)
   def after_all
-    Cache.sweep(:user_id=>visitor_id, :user_groups=>visitor_groups)
+    Cache.sweep(:user_id=>visitor_id, :user_groups=>visitor_groups, :kpath=>self.class.kpath)
     true
   end
   

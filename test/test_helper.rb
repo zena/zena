@@ -59,6 +59,8 @@ class Test::Unit::TestCase
   def self.use_instantiated_fixtures
     false
   end
+  def setup
+  end
   
   def preserving_files(path, &block)
     path = "/#{path}" unless path[0..0] == '/'

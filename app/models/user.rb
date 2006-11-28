@@ -6,6 +6,7 @@ A User is a #Contact with a login and password. There are two special users :
       only be used for emergency purpose</em>. This is why an ugly warning is shown on all pages when
       logged in as su.
 If you want to give administrative rights to a user, simply put him into the _admin_ group.
+TODO: when a user is 'destroyed', pass everything he owns to another user or just mark the user as 'deleted'...
 =end
 class User < ActiveRecord::Base
   has_and_belongs_to_many :groups
@@ -120,5 +121,12 @@ class User < ActiveRecord::Base
   # Do not allow destruction of _su_ or _anon_ users. This method is called +before_destroy+.
   def dont_destroy_su_or_anon #:doc:
     raise Zena::AccessViolation, "su and Anonymous users cannot be destroyed !" if [1,2].include?(id)
+  end
+  
+  # Prefered language must be set. It is set to the application default if none was given.
+  def set_lang #:doc:
+    unless self[:lang] && self.lang != ""
+      self[:lant] = ZENA_ENV[:default_lang]
+    end
   end
 end
