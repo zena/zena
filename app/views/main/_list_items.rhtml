@@ -1,7 +1,8 @@
-<table class="docs">
+<table class="docs" cellspacing='0'>
 	<% docs.each do |doc| %>
+	<tr><td colspan='2' class='result_break'></td></tr>
 	<tr>
-		<td class='docpv'><%= doc.img_tag('mini') %><p><%= doc.filesize / 1000 %> Ko</p></td>
+		<td class='docpv'><%= doc.img_tag('mini') %><p><%= doc.c_size / 1000 %> Ko</p></td>
 		<td class='docinfo'><h3><%= doc.v_title %></h3><p><%= doc.v_summary %></p></td>
 	</tr>
 	<% end %>

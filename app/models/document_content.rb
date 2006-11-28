@@ -51,16 +51,21 @@ class DocumentContent < ActiveRecord::Base
   end
   
   def file(format=nil)
-    if File.exist?(filepath)
-      File.new(filepath)
-    elsif @file
+    if @file
       @file
+    elsif File.exist?(filepath)
+      File.new(filepath)
     else
       raise IOError, "File not found"
     end
   end
   
   def size(format=nil)
+    return self[:size] if self[:size]
+    if !new_record? && File.exist?(filepath)
+      self[:size] = File.stat(filepath).size
+      self.save
+    end
     self[:size]
   end
   

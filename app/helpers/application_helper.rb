@@ -304,7 +304,7 @@ module ApplicationHelper
   
   def data_url(obj)
     if obj.kind_of?(Document)
-      {:controller=>'document', :action=>'data', :version_id=>obj.v_id, :filename=>obj.filename, :ext=>obj.ext}
+      {:controller=>'document', :action=>'data', :version_id=>obj.v_id, :filename=>obj.c_filename, :ext=>obj.c_ext}
     else
       raise StandardError, "Cannot create 'data_url' for #{obj.class}."
     end
@@ -327,7 +327,6 @@ module ApplicationHelper
   # Hierachical menu. (same on all pages)
   def show_menu
     Cache.with(user_id, user_groups, 'show_menu') do
-      puts "CREATE MENU"
       if ZENA_ENV[:menu_tag_id] !=nil
         menu  = secure(Tag) { Tag.find(ZENA_ENV[:menu_tag_id]) }
         menus = menu.pages

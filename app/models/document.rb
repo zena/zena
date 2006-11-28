@@ -7,7 +7,7 @@ class Document < Page
   def c_file=(file)
     @file = file
     # we call 'method missing' to do normal file setting on content
-    pass_down(:c_file=,file)
+    method_missing(:c_file=,file)
   end
   
   def image?

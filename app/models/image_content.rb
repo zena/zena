@@ -33,7 +33,7 @@ class ImageContent < DocumentContent
         nil
       end
     else
-      self[:size]
+      super
     end
   end
   

@@ -58,13 +58,13 @@ class VersionControllerTest < Test::Unit::TestCase
   
   def test_preview
     login(:tiger)
-    post 'preview', :item=>{ :id=>items_id(:status), :title=>'my super goofy new title' }
+    post 'preview', :item=>{ :id=>items_id(:status), :v_title=>'my super goofy new title' }
     assert_rjs_tag :rjs => {:block => 'title' }, :content=>"my super goofy new title"
   end
   
   def test_can_save
     login(:ant)
-    post 'save', :item=>{:id=>items_id(:status), :title=>"I am a new title", :text=>"I am new text"}
+    post 'save', :item=>{:id=>items_id(:status), :v_title=>"I am a new title", :v_text=>"I am new text"}
     assert_response :success
     assert_no_tag :tag=>'div', :attributes=>{:id=>'error'}
     item = secure(Item) { items(:status) }
@@ -72,14 +72,14 @@ class VersionControllerTest < Test::Unit::TestCase
   end
   
   def test_cannot_save
-    post 'save', :item=>{:id=>items_id(:status), :title=>"I am a new title", :text=>"I am new text"}
+    post 'save', :item=>{:id=>items_id(:status), :v_title=>"I am a new title", :v_text=>"I am new text"}
     assert_redirected_to '404'
     assert_equal 'status title', secure(Item) { items(:status) }.v_title
   end
   
   def test_can_propose
     login(:ant)
-    post 'save', :item=>{:id=>items_id(:status), :title=>"I am a new title", :text=>"I am new text"}
+    post 'save', :item=>{:id=>items_id(:status), :v_title=>"I am a new title", :v_text=>"I am new text"}
     item = secure(Item) { items(:status) }
     assert_equal Zena::Status[:red], item.v_status
     post 'propose', :id=>item.v_id
@@ -89,7 +89,7 @@ class VersionControllerTest < Test::Unit::TestCase
   
   def test_cannot_propose
     login(:ant)
-    post 'save', :item=>{:id=>items_id(:status), :title=>"I am a new title", :text=>"I am new text"}
+    post 'save', :item=>{:id=>items_id(:status), :v_title=>"I am a new title", :v_text=>"I am new text"}
     item = secure(Item) { items(:status) }
     assert_equal Zena::Status[:red], item.v_status
     login(:tiger)
@@ -100,7 +100,7 @@ class VersionControllerTest < Test::Unit::TestCase
   
   def test_can_refuse
     login(:ant)
-    post 'save', :item=>{:id=>items_id(:status), :title=>"I am a new title", :text=>"I am new text"}
+    post 'save', :item=>{:id=>items_id(:status), :v_title=>"I am a new title", :v_text=>"I am new text"}
     item = secure(Item) { items(:status) }
     post 'propose', :id=>item.v_id
     login(:tiger)
@@ -111,7 +111,7 @@ class VersionControllerTest < Test::Unit::TestCase
   
   def test_cannot_refuse
     login(:tiger)
-    post 'save', :item=>{:id=>items_id(:status), :title=>"I am a new title", :text=>"I am new text"}
+    post 'save', :item=>{:id=>items_id(:status), :v_title=>"I am a new title", :v_text=>"I am new text"}
     item = secure(Item) { items(:status) }
     post 'propose', :id=>item.v_id
     login(:ant)
@@ -123,7 +123,7 @@ class VersionControllerTest < Test::Unit::TestCase
   
   def test_can_publish
     login(:ant)
-    post 'save', :item=>{:id=>items_id(:status), :title=>"I am a new title", :text=>"I am new text"}
+    post 'save', :item=>{:id=>items_id(:status), :v_title=>"I am a new title", :v_text=>"I am new text"}
     item = secure(Item) { items(:status) }
     post 'propose', :id=>item.v_id
     login(:tiger)
@@ -134,7 +134,7 @@ class VersionControllerTest < Test::Unit::TestCase
   
   def test_cannot_publish
     login(:tiger)
-    post 'save', :item=>{:id=>items_id(:status), :title=>"I am a new title", :text=>"I am new text"}
+    post 'save', :item=>{:id=>items_id(:status), :v_title=>"I am a new title", :v_text=>"I am new text"}
     item = secure(Item) { items(:status) }
     post 'propose', :id=>item.v_id
     login(:ant)
@@ -145,7 +145,7 @@ class VersionControllerTest < Test::Unit::TestCase
   
   def test_can_remove
     login(:tiger)
-    post 'save', :item=>{:id=>items_id(:status), :title=>"I am a new title", :text=>"I am new text"}
+    post 'save', :item=>{:id=>items_id(:status), :v_title=>"I am a new title", :v_text=>"I am new text"}
     item = secure(Item) { items(:status) }
     post 'publish', :id=>item.v_id
     assert_equal Zena::Status[:pub], Version.find(item.v_id).status
@@ -156,7 +156,7 @@ class VersionControllerTest < Test::Unit::TestCase
   
   def test_cannot_remove
     login(:tiger)
-    post 'save', :item=>{:id=>items_id(:status), :title=>"I am a new title", :text=>"I am new text"}
+    post 'save', :item=>{:id=>items_id(:status), :v_title=>"I am a new title", :v_text=>"I am new text"}
     item = secure(Item) { items(:status) }
     post 'publish', :id=>item.v_id
     assert_equal Zena::Status[:pub], Version.find(item.v_id).status
@@ -169,7 +169,7 @@ class VersionControllerTest < Test::Unit::TestCase
   
   # def test_can_redit
   #   login(:tiger)
-  #   post 'save', :item=>{:id=>items_id(:status), :title=>"I am a new title", :text=>"I am new text"}
+  #   post 'save', :item=>{:id=>items_id(:status), :v_title=>"I am a new title", :v_text=>"I am new text"}
   #   item = secure(Item) { items(:status) }
   #   post 'publish', :id=>item.v_id
   #   assert_equal Zena::Status[:pub], Version.find(item.v_id).status
@@ -180,7 +180,7 @@ class VersionControllerTest < Test::Unit::TestCase
   # 
   # def test_cannot_redit
   #   login(:tiger)
-  #   post 'save', :item=>{:id=>items_id(:status), :title=>"I am a new title", :text=>"I am new text"}
+  #   post 'save', :item=>{:id=>items_id(:status), :v_title=>"I am a new title", :v_text=>"I am new text"}
   #   item = secure(Item) { items(:status) }
   #   post 'publish', :id=>item.v_id
   #   assert_equal Zena::Status[:pub], Version.find(item.v_id).status

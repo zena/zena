@@ -161,6 +161,7 @@ input, textarea { border:1px solid grey; margin:0.2em}
 #text p { margin-bottom:1.8em; font-style:normal; font-size:1em; }
 #text ul {margin:1em 0 0 3em;}
 #text img, #summary img, .note img { border: 1px solid #666; }
+/* USE FOR TABLE LISTING (contact)
 #yhash { float:left; margin-right:10px; }
 #yhash p { margin:0; padding:0;}
 #yhash table { border-width:1px 1px 0; border-style:solid; border-color:grey; background:#F5F4CE; margin-right:auto;}
@@ -168,6 +169,7 @@ input, textarea { border:1px solid grey; margin:0.2em}
 #yhash .key, #yhash .value { border-style:solid; border-color:grey; padding:3px 5px;}
 #yhash .key { border-width:0 0 1px 0;}
 #yhash .value { border-width:0 0 1px 1px;}
+*/
 .gallery { margin:30px auto; border:1px solid #bbb;  background:#eee; }
 .gallery td { padding:10px; }
 .gallery img.pv { margin:5px; border:1px solid #333; width:80px; height:80px; background:#aaa;}
@@ -187,14 +189,16 @@ table.fada tr.group td { background:#B1B899;  text-align: center;}
 table.fada tr.total td { background:#B1B899;  text-align: center;}
 table.fada td:first-child {border-left-width:1px;}
 #content p.action { margin:1.6em 0;}
-/*
-.docs { border:1px solid grey; }
-.docs td { border:1px solid grey; }
-.docs .docinfo {  width:200px; vertical-align:top; padding:2px; }
-.docs .docinfo h3 { margin:0; padding:0; }
-.docs .docpv p { margin:0; font-family: Monaco, monospace; }
-.docs .docpv img { margin:0px; }
-*/
+
+#content table.docs { margin:2px; border-bottom:1px solid grey;}
+#content .docinfo p { margin-top:5px; display:inline;  font-size:0.7em; color:#404040;}
+#content .docs .docinfo {  padding:2px; vertical-align:top; }
+#content .docs .docinfo h3 { margin:0; padding:0; }
+#content .docs .docpv { padding: 0;}
+#content .docs .docpv p { text-align:center; margin:0; padding:0; font-size:70%; }
+#content .docs .docpv img { margin-bottom:-5px; }
+#content .docs .result_break { border-top:1px solid grey; height:5px; }
+
 #right { float:left; width:220px; padding-left:6px; border-left:1px solid #ccc;}
 
 /* LOGIN PAGE, PAGE NOT FOUND */

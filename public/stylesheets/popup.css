@@ -43,9 +43,9 @@ table { width:100%;}
 .result_info .result_path, .result_docinfo .result_path { display:block; font-size:0.7em; color:#404040;}
 .result_break { border-top:1px solid grey; height:5px; }
 label { font-weight:bold; display:block; margin-top:3px;} 
-#item_title { font-size:1.5em; font-weight:bold;}
-#item_summary { font-style:italic;}
-#item_comment { }
+#item_v_title { font-size:1.5em; font-weight:bold;}
+#item_v_summary { font-style:italic;}
+#item_v_comment { }
 input.btn_validate { width:auto; }
 
 /* document upload */

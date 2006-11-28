@@ -28,13 +28,13 @@ class DocumentContentTest < Test::Unit::TestCase
     assert_equal 29279, doc.size
   end
   
-  def test_read
+  def test_file
     doc = DocumentContent.new( :file=>uploaded_pdf('water.pdf') )
     data = nil
-    assert_nothing_raised { data = doc.read }
-    assert_equal data, uploaded_pdf('water.pdf').read
-    doc = DocumentContent.new
-    assert_raise(IOError) { doc.read }
+    assert_nothing_raised { data = doc.file }
+    assert_equal data.read, uploaded_pdf('water.pdf').read
+    doc = DocumentContent.new( :version_id=>7)
+    assert_raise(IOError) { doc.file }
   end
   
   def test_set_size

@@ -84,7 +84,7 @@ class Version < ActiveRecord::Base
     elsif @content
       @content = content.clone
       @content.version = self
-      self[:content_id] = nil
+      self[:content_id] = self[:id]
       @redaction_content = @content
     else
       @content = content_class.new

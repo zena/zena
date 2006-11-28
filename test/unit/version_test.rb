@@ -96,7 +96,7 @@ class VersionTest < Test::Unit::TestCase
       # version and content did not change
       assert_equal versions_id(:forest_red_en), item.c_version_id
       assert_equal 29279, item.c_size
-      assert_equal item.c_read, uploaded_pdf('water.pdf').read
+      assert_equal item.c_file.read, uploaded_pdf('water.pdf').read
     end
   end
   
@@ -109,6 +109,7 @@ class VersionTest < Test::Unit::TestCase
       # ant's english redaction
       assert_equal 'en', item.v_lang
       assert item.update_attributes(:v_title=>'les arbres')
+
       # new redaction for french
       assert_not_equal item.v_id, old_vers_id
       

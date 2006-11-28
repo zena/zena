@@ -30,11 +30,7 @@ class DocumentController < ApplicationController
   def data
     if params[:filename] =~ /(.+)-([^-]+)\.(.+)/
       name = $1
-      if IMAGEBUILDER_FORMAT[$2]
-        format = $2
-      else
-        format = 'pv'
-      end
+      format = $2
     elsif params[:filename] =~ /(.+)\.(.+)/
       name = $1
       format = nil
@@ -47,15 +43,15 @@ class DocumentController < ApplicationController
     else
       data = @document.c_file
     end
-    raise ActiveRecord::RecordNotFound unless data.name == name
-    send_data( data.read , :filename=>data.filename, :type=>data.content_type, :disposition=>'inline')
+    raise ActiveRecord::RecordNotFound unless @document.name == name
+    send_data( data.read , :filename=>@document.c_filename, :type=>@document.c_content_type, :disposition=>'inline')
     
     # TODO: cache_document not tested yet. Also need sweepers !!
     if @document.public? && @document.v_status == Zena::Status[:pub] && perform_caching && caching_allowed
       cache_page
-      if data.kind_of?(ImageFile) && data.format != nil
+      if @document.kind_of?(Image) && format != nil
         # remove 'formatted' file
-        data.remove_image_file
+        @document.c_remove_image(format)
       end
     end
   rescue ActiveRecord::RecordNotFound

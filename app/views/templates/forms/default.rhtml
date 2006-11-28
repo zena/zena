@@ -10,23 +10,23 @@
 				<% else -%>
 			  <%= start_form_tag({ :action => "save", :controller=>'version' }, :id => "item_form" ) %>
 				<% end -%>
-			  <%= hidden_field 'item', 'lang', :value=>@item.v_lang %>
+			  <%= hidden_field 'item', 'v_lang', :value=>@item.v_lang %>
 				<%= hidden_field 'item', 'id' %>
-				<label for="comment"><%= trans("comment") %></label>
-				<%= text_area 'item', 'comment', :cols=>nil, :rows=>nil %>
+				<label for="v_comment"><%= trans("comment") %></label>
+				<%= text_area 'item', 'v_comment', :cols=>nil, :rows=>nil %>
 				<hr/>
 				<%= zazen("!>.0#{@item.id}!") %>
-				<label for="title"><%= trans("title")  %></label>
-				<%= text_field 'item', 'title', :size=>nil, :style=>"width:60%;" %>
-				<label for="summary"><%= trans("summary")  %></label>
-				<%= text_area 'item', 'summary', :cols=>nil, :rows=>4, :value=>@item.v_summary %>
-				<label for="content"><%= trans("content") %></label>
-				<%= text_area 'item', 'text', :cols=>nil, :rows=>17, :value=>@item.v_text %>
+				<label for="v_title"><%= trans("title")  %></label>
+				<%= text_field 'item', 'v_title', :size=>nil, :style=>"width:60%;" %>
+				<label for="v_summary"><%= trans("summary")  %></label>
+				<%= text_area 'item', 'v_summary', :cols=>nil, :rows=>4, :value=>@item.v_summary %>
+				<label for="v_text"><%= trans("content") %></label>
+				<%= text_area 'item', 'v_text', :cols=>nil, :rows=>17, :value=>@item.v_text %>
 				<% if @item.kind_of?(Document) -%>
 					<div id="file"><%= link_to_function trans("change document"), "new Element.toggle('file', 'file_form');" %></div>
 					<div id="file_form" style='display:none;'><%= link_to_function(trans("cancel"), "new Element.toggle('file', 'file_form');Zena.clear_file('item_file');")%>
 					<label for="document"><%= trans("change document") %></label>
-					<%= file_field 'item', 'file', :size=>nil %>
+					<%= file_field 'item', 'c_file', :size=>nil %>
 					</div>
 				<% end -%>
 

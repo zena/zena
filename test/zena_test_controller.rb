@@ -28,6 +28,12 @@ module ZenaTestController
     @controller.instance_eval { @session }
   end
   
+  def err(obj)
+    obj.errors.each do |er,msg|
+      puts "[#{er}] #{msg}"
+    end
+  end
+  
   def method_missing(meth,*args, &block)
     @controller.send(meth, *args, &block)
   end

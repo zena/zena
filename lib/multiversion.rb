@@ -79,7 +79,7 @@ module Zena
         
         def edit_preview(hash)
           hash.each_pair do |k,v|
-            redaction.send("#{k}=".to_sym,v)
+            method_missing("#{k}=".to_sym,v)
           end
         end
         
@@ -209,6 +209,7 @@ module Zena
         def update_attributes(hash)
           redaction_only = true
           hash.each do |k,v|
+            next if k.to_s == 'id' # just ignore 'id' (cannot be set but is often around)
             unless k.to_s =~ /^(v_|c_)/
               redaction_only = false
               break
@@ -216,7 +217,8 @@ module Zena
           end
           if redaction_only
             hash.each do |k,v|
-              pass_down("#{k}=".to_sym, v)
+              next if k.to_s == 'id' # just ignore 'id' (cannot be set but is often around)
+              method_missing("#{k}=".to_sym, v)
             end
             valid_redaction
             if errors.empty?
@@ -298,7 +300,6 @@ module Zena
             super
           end
         end
-        alias pass_down method_missing
         
         def redaction_error(field, message)
           @redaction_errors ||= []

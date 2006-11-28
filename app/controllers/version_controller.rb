@@ -27,7 +27,7 @@ class VersionController < ApplicationController
   # preview when editing item
   def preview
     if params[:item]
-      params[:item].delete(:file)
+      params[:item].delete(:c_file)
       @item = secure_write(Item) { Item.find(params[:item][:id]) }
       # FIXME: 'edit_preview' parses utf-8 very badly !!!
       @item.edit_preview(params[:item])
@@ -46,7 +46,7 @@ class VersionController < ApplicationController
       flash[:notice] = trans "Redaction saved."
     else
       flash[:error] = trans "Redaction could not be saved"
-      render :action => 'edit'
+      render_form
     end
   rescue ActiveRecord::RecordNotFound
     page_not_found
