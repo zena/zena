@@ -31,6 +31,7 @@
 	  <%#= plug :notes %>
 	</div>
 	<div id="main">
+	  <p><b><%= Time.now %></b></p>
 		<% if @item.kind_of?(Document) -%>
 			<%= render :partial=>'main/doc_title' %>
 		<% else -%>

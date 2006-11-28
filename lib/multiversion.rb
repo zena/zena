@@ -21,6 +21,7 @@ module Zena
           before_validation_on_create :set_on_create # this makes sure we have a version before the element is validated
           validate          :valid_redaction
           after_save        :save_version
+          after_save        :after_all
           private
           has_many :versions
           has_many :editions, :class_name=>"Version", :conditions=>"publish_from <= now() AND status = #{Zena::Status[:pub]}", :order=>'lang'
@@ -179,6 +180,9 @@ module Zena
         def after_remove
           true
         end
+        def after_all
+          true
+        end
         
         # Set +publish_from+ to the minimum publication time of all editions
         def update_publish_from
@@ -201,7 +205,8 @@ module Zena
           if self[:max_status] != new_max
             update_attribute_without_fuss(:max_status, new_max)
           end
-          true
+          # Callback triggered after any changed to an item
+          after_all
         end
         
         # Update an item's attributes or the item's version/content attributes. If the hash contains only

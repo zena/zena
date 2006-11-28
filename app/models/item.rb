@@ -357,6 +357,12 @@ class Item < ActiveRecord::Base
     allOK
   end
   
+  # Whenever something changed (publication/proposition/redaction/...)
+  def after_all
+    Cache.sweep(:user_id=>visitor_id, :user_groups=>visitor_groups)
+    true
+  end
+  
   # Find all children, whatever visitor is here (used to check if the item can be destroyed)
   def all_children
     Item.with_exclusive_scope do

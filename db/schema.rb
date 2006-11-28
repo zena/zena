@@ -8,6 +8,7 @@ ActiveRecord::Schema.define(:version => 3) do
     t.column "updated_at", :datetime
     t.column "user_id", :integer
     t.column "group_ids", :string, :limit => 200
+    t.column "kpath", :string, :limit => 200
     t.column "context", :string, :limit => 200
     t.column "content", :text
   end

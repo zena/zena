@@ -1,6 +1,6 @@
 require File.dirname(__FILE__) + '/../test_helper'
 
-class ViewableContactTest < Test::Unit::TestCase
+class ContactContentTest < Test::Unit::TestCase
   include ZenaTestUnit
   
   def test_truth
