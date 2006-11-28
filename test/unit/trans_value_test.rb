@@ -1,10 +1,8 @@
 require File.dirname(__FILE__) + '/../test_helper'
 
 class TransValueTest < Test::Unit::TestCase
-
-
-  # Replace this with your real tests.
-  def test_truth
-    assert true
+  
+  def test_nothing
+    assert true, 'nothing to test'
   end
 end

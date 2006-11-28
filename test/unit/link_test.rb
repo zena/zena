@@ -22,7 +22,7 @@ class DummyVersion < ActiveRecord::Base
 end
 
 class SuperDummy < ActiveRecord::Base
-  set_table_name 'addresses'
+  set_table_name 'contact_contents'
   link :employees, :class_name=>'SuperDummy'
   link :boss, :class_name=>'SuperDummy', :as=>'employee', :unique=>true
 end
@@ -334,7 +334,6 @@ class LinkTest < Test::Unit::TestCase
   end
   
   def test_out_of_secure
-    SuperDummy.connection.execute "UPDATE addresses SET type='SuperDummy' WHERE id IN (3,4);"
     @bob = SuperDummy.find(3)
     @joe = SuperDummy.find(4)
     @bob.employees = [@joe]

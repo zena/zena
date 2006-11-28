@@ -516,4 +516,32 @@ class ItemTest < Test::Unit::TestCase
     assert Page.read_inheritable_attribute(:after_save).include?(:save_tags)
   end
   
+  def test_after_all_cache_sweep
+    visitor(:lion)
+    i = 1
+    assert_equal "content 1", Cache.with(user_id, user_groups, 'IP', 'pages')  { "content #{i}" }
+    assert_equal "content 1", Cache.with(user_id, user_groups, 'IN', 'notes')  { "content #{i}" }
+    i = 2
+    assert_equal "content 1", Cache.with(user_id, user_groups, 'IP', 'pages')  { "content #{i}" }
+    assert_equal "content 1", Cache.with(user_id, user_groups, 'IN', 'notes')  { "content #{i}" }
+    
+    # do something on a document
+    item = secure(Item) { items(:water_pdf) }
+    assert_equal 'IPD', item.class.kpath
+    assert item.update_attributes(:v_title=>'new title'), "Can change attributes"
+    # sweep only kpath IPD
+    i = 3
+    assert_equal "content 3", Cache.with(user_id, user_groups, 'IP', 'pages')  { "content #{i}" }
+    assert_equal "content 1", Cache.with(user_id, user_groups, 'IN', 'notes')  { "content #{i}" }
+    
+    # do something on a note
+    item = secure(Item) { items(:proposition) }
+    assert_equal 'IN', item.class.kpath
+    assert item.update_attributes(:name=>'popo'), "Can change attributes"
+    # sweep only kpath IPD
+    i = 4
+    assert_equal "content 3", Cache.with(user_id, user_groups, 'IP', 'pages')  { "content #{i}" }
+    assert_equal "content 4", Cache.with(user_id, user_groups, 'IN', 'notes')  { "content #{i}" }
+  end
+  
 end

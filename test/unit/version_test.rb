@@ -96,7 +96,8 @@ class VersionTest < Test::Unit::TestCase
       # version and content did not change
       assert_equal versions_id(:forest_red_en), item.c_version_id
       assert_equal 29279, item.c_size
-      assert_equal item.c_file.read, uploaded_pdf('water.pdf').read
+      assert_kind_of Tempfile, item.c_file
+      assert_equal 29279, item.c_file.stat.size
     end
   end
   

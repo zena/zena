@@ -5,9 +5,21 @@ class UserTest < Test::Unit::TestCase
 
   
   def test_cannot_destroy_su
-    su = User.find(users_id(:su))
+    su = users(:su)
     assert_kind_of User, su
     assert_raise(Zena::AccessViolation){ su.destroy }
+  end
+  
+  def test_cannot_destroy_anon
+    anon = users(:anon)
+    assert_kind_of User, anon
+    assert_raise(Zena::AccessViolation){ anon.destroy }
+  end
+  
+  def test_can_destroy_ant
+    ant = users(:ant)
+    assert_kind_of User, ant
+    assert_nothing_raised( Zena::AccessViolation ) { ant.destroy }
   end
   
   def test_create_admin_with_groups
@@ -22,53 +34,6 @@ class UserTest < Test::Unit::TestCase
     assert_equal 1, user.groups.size
     assert_equal 'public', user.groups[0].name
   end
-  # TODO: finish tests for User
-end
-=begin
-  def test_truth
-    assert_kind_of User, contacts(:gaspard)
-  end
-  
-  def test_kai_groups
-    kai = User.find(contacts(:kai).id)
-    assert_kind_of User, kai
-    gps = kai.groups
-    gps.map!{|g| g.id}
-    assert_equal 2, gps.size
-    assert gps.include?(groups(:direction).id)
-    assert gps.include?(groups(:public).id)
-  end
-  
-  def test_gaspard_groups
-    gaspard = User.find(contacts(:gaspard).id)
-    assert_kind_of User, gaspard
-    gps = gaspard.groups
-    assert_equal 4, gps.size
-    assert_equal [1,2,3,4], gaspard.group_ids
-  end
-  
-  def test_beatrice_groups
-    beatrice = Contact.find(contacts(:beatrice).id)
-    assert_kind_of Contact, beatrice
-  end
-  
-  def test_cannot_destroy_su
-    su = User.find(contacts(:su).id)
-    assert_kind_of User, su
-    assert_raise(Zena::AccessViolation){ su.destroy }
-  end
-  
-  def test_cannot_destroy_anon
-    anon = User.find(contacts(:anon).id)
-    assert_kind_of User, anon
-    assert_raise( Zena::AccessViolation ){ anon.destroy }
-  end
-  
-  def test_can_destroy_gaspard
-    gaspard = User.find(contacts(:gaspard).id)
-    assert_kind_of User, gaspard
-    assert_nothing_raised ( Zena::AccessViolation ) { gaspard.destroy }
-  end
   
   def test_anon_cannot_login
     assert_nil User.login('anon', '')
@@ -76,7 +41,7 @@ end
   
   def test_unique_login
     bob = User.new
-    bob.login = 'gaspard'
+    bob.login = 'ant'
     bob.password = 'bob'
     assert ! bob.save
     assert_not_nil bob.errors[:login]
@@ -93,8 +58,10 @@ end
     assert_not_nil bob.errors[:password]
   end
   
-  
-  ### ================================================ ACTIONS AND OWNED ITEMS
+  # TODO: finish tests for User
+  # groups
+end
+=begin
   def test_versions_to_publish
     gaspard = contacts(:gaspard)
     kai = contacts(:kai)
