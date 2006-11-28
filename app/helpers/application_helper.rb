@@ -344,8 +344,77 @@ module ApplicationHelper
     end
   end
   
+  def calendar(format, source, date=Date.today)
+    opt = CALENDAR_FORMATS[format]
+    return "" if opt == nil
+    klass = eval opt[:klass]
+    Cache.with(user_id, user_groups, klass.kpath, source.id, format, date.ajd) do
+      # find start and end date
+      week_start_day = trans('week_start_day').to_i
+      start_date  = Date.civil(date.year, date.mon, 1)
+      start_date -= (start_date.wday + 7 - week_start_day) % 7
+      end_date    = Date.civil(date.year, date.mon, -1)
+      end_date   += (6 + week_start_day - end_date.wday) % 7
+      
+      # get list of notes in this scope
+      @notes ||= klass.with_scope(:find=>{
+            :conditions=>['log_at >= ? AND log_at <= ?', start_date, end_date] } ) do
+        secure(klass) { source.send(opt[:method]) }
+      end
+      
+      # build event hash
+      calendar = {}
+      @notes.each do |n|
+        calendar[n.log_at.strftime("%Y-%m-%d")] ||= []
+        calendar[n.log_at.strftime("%Y-%m-%d")] << n
+      end
+  
+      title = "#{trans(Date::MONTHNAMES[date.mon])} #{date.year}"
+  
+  		day_names = []
+  		0.upto(6) do |i|
+  		  day_names << '<td>'  
+    		day_names << trans(opt[:day_names][(i+week_start_day) % 7])
+  		  day_names << '</td>'
+  		end
+	
+      content = []
+  	  start_date.step(end_date,7) do |week|
+  	    # each week
+  		  content << '<tr class="body">'
+  			week.step(week+6,1) do |day|
+  			  content << "<td #{ calendar_class(day,date) }>"
+  			  # each day
+  			  content << (day == Date.today ? "<p class='today'>" : "<p>")
+  			  content << opt[:on_day].call(calendar["#{day}"], day)
+  			  content << '</p>'
+    			content << "</td>"
+  			end
+  		  content << '</tr>'
+  		end
+  		
+      render_to_string(:partial=>"calendar/#{format}", :locals=>{ :content=>content.join("\n"), 
+                                                             :day_names=>day_names.join("\n"),
+                                                             :title=>title, 
+                                                             :date=>date })
+    end
+  end
+
   private
   
+  def calendar_class(day, ref)
+    case day.wday
+    when 6
+      s = "sat"
+    when 0
+      s = "sun"
+    else
+      s = ""
+    end
+    s+=  day.mon == ref.mon ? '' : 'other'
+    s != "" ? "class='#{s}'" : ""
+  end
+
   # This lets helpers render partials
   def render_to_string(*args)
     @controller.send(:render_to_string, *args)

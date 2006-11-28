@@ -129,7 +129,7 @@ td#subtitle { vertical-align:top; padding:6px; }
 .note h3 a { color:#450009; }
 .note .summary { margin-top:5px;}
 .note .summary p { font-style: normal; text-align:justify; margin:0; }
-.note span.blog_at { float:right; color:#B08287; }
+.note span.log_at { float:right; color:#B08287; }
 .note p.sign { font-size:0.7em; font-style:italic; color:#999; text-align:right; clear:both;}
 
 /* RIGHT: Documents, Pages */
@@ -216,7 +216,7 @@ table.fada td:first-child {border-left-width:1px;}
 .trans form    { display:inline; }
 #add_translation { background: #91AAC8;}
 /* LARGE CALENDAR */
-#tinycal { background: #91993B;}
+#calendar {}
 .calendar, .calendar_title { font-size: 0.8em; font-family: Georgia, Times, serif; width:100%; margin-bottom:10px;}
 table.calendar { border:1px solid #655; }
 .calendar_title { text-align: center; padding: 0.3em; font-size:1.7em; font-style: italic; color:#655; }

@@ -54,7 +54,7 @@ td##subtitle { vertical-align:top; padding:6px; }
 .note h3 a { color:#450009; }
 .note .summary { margin-top:5px;}
 .note .summary p { font-style: normal; text-align:justify; margin:0; }
-.note span.blog_at { float:right; color:#B08287; }
+.note span.log_at { float:right; color:#B08287; }
 .note p.sign { font-size:0.7em; font-style:italic; color:#999; text-align:right; clear:both;}
 
 /* RIGHT: Documents, Pages */

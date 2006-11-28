@@ -12,6 +12,25 @@ ZENA_ENV = {
   :calendar_langs => ["en", "fr"],
   :password_salt => "fish zen ho"
 }
+CALENDAR_FORMATS = {
+  :tiny => {  :method    => :diary_for, 
+              :klass     => 'Note',
+              :day_names => Date::ABBR_DAYNAMES,
+              :on_day    => Proc.new { |e,d| e ? "<b class='has_note'>#{d.day}</b>" : d.day }
+            },
+  :large => { :method    => :diary_for, 
+              :klass     => 'Note',
+              :day_names => Date::DAYNAMES,
+              :on_day    => Proc.new do |notes,d|
+                res = []
+                notes.each do |e| 
+                  res << "<div>#{ link_to(e.name.lim(8), :controller=>'main', :prefix=>prefix, :action=>'show', :path=>e.fullpath) }</div>"
+                end
+                res.join("\n")
+              end
+            },
+
+}
 # $lang = {
 #   'fr' => {
 #     :date_format=>'%d.%m.%Y',

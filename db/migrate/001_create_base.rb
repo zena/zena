@@ -103,7 +103,7 @@ class CreateBase < ActiveRecord::Migration
       t.column "pgroup_id", :integer
       t.column "publish_from", :datetime
       t.column "max_status", :integer, :default => 30
-      t.column "blog_at", :datetime
+      t.column "log_at", :datetime
       t.column "ref_lang", :string, :limit => 10, :default => "", :null => false
       t.column "alias", :string, :limit => 400
       t.column "fullpath", :text
@@ -171,8 +171,8 @@ class CreateBase < ActiveRecord::Migration
       list.each do |record|
         if :users == tbl
           record[:password] = User.hash_password(record[:password]) if record[:password]
-        elsif :items == tbl && record[:blog_at] == 'today'
-          record[:blog_at] = Time.now
+        elsif :items == tbl && record[:log_at] == 'today'
+          record[:log_at] = Time.now
         end
         unless Loader.create(record)
           puts "could not create #{klass} #{record.inspect}"

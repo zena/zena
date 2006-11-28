@@ -26,7 +26,8 @@
 	<%= flash_messages %>
 
   <div id="left">
-    <%#= plug :calendar, :tiny, :on_click=>"new Ajax.Updater('largecal', '/z/calendar/large', {asynchronous:true, evalScripts:true}); return false;" %>
+    <div id='tinycal'><%= calendar(:tiny, @item) %></div>
+    
     <div id="header">
     <h1 class="s<%= @item.v_status %>">
       <ul id="item_actions"><%= edit_button(:all) %></ul><br/>

@@ -1,0 +1,12 @@
+<table cellspacing="0" class="calendar">
+  <tr class="head"><td class="button">
+    <%= link_to_remote( '<img src="/images/control_rewind.png"/>' , :update=>'tinycal', :url=>{:controller=>'calendar', :action=>'large', :date=>(date << 1) } ) %>
+  </td>
+  <td colspan="5" class="title"><%= title %></td>
+  <td class="button">
+    <%= link_to_remote( '<img src="/images/control_fastforward.png"/>' , :update=>'tinycal', :url=>{:controller=>'calendar', :action=>'large', :date=>(date >> 1) } ) %>
+  </td>
+  </tr>
+  <tr class="head"> <%= day_names %> <tr>
+  <%= content   %>
+</table>

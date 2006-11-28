@@ -1,6 +1,7 @@
 class Project < Page
   has_many :items
   after_save :check_project_id
+  link :diary_for, :class_name=>'Note', :as=>'diary'
   
   def before_destroy
     super

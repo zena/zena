@@ -136,7 +136,7 @@ proposition:
   rgroup_id:      4
   wgroup_id:      4
   pgroup_id:      4
-  blog_at:        2006-04-05
+  log_at:         2006-04-05
 
 cleanWater:
   id:             11
@@ -225,7 +225,7 @@ opening:
   ref_lang:       fr
   inherit:        1
   max_status:     50
-  blog_at:        2006-03-15
+  log_at:         2006-03-15
   template:       default
 <%= @dates %>
 <%= @rights %>

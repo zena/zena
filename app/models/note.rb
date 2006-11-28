@@ -2,29 +2,23 @@
 TODO
 =end
 class Note < Item
-  def initialize(*args)
-    super(*args)
-    self[:blog_at] ||= Time.now
-    self
-  end
+  link :diaries, :class_name=>'Project', :as=>'diary'
   
-  def validate_on_create
-    super
-    return unless errors.empty?
-    # make sure parent is a Project
-    errors.add("parent_id", "invalid parent") unless parent.kind_of?(Project)
-  end
-  
-  def validate_on_update
-    super
-    return unless errors.empty?
-    # make sure parent is a Project
-    errors.add("parent_id", "invalid parent") unless parent.kind_of?(Project)
-  end
+  before_validation :set_log_at
+  validate :parent_valid
   
   # Return the full path as an array if it is cached or build it when asked for.
   def name_for_fullpath
-    d = blog_at || created_at
-    "#{d.year}-#{d.month}-#{d.day}-#{name}"
+    "#{log_at.year}-#{log_at.month}-#{log_at.day}-#{name}"
+  end
+  
+  private
+  
+  def set_log_at
+    self[:log_at] ||= Time.now
+  end
+  
+  def parent_valid
+    errors.add("parent_id", "invalid parent") unless parent.kind_of?(Project)
   end
 end
