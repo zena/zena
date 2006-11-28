@@ -101,12 +101,12 @@ class MainHelperTest < Test::Unit::TestCase
     assert_equal "<div class='info'><b>PTS</b> - 04.11</div>", author
     assert_equal "<div class='info'><b>PTS</b> - 04.11</div>", author(:small)
     @item = secure(Item) { Item.find(items_id(:opening)) }
-    assert_equal addresses_id(:tiger), @item.v_author[:id]
+    assert_equal users_id(:tiger), @item.v_author[:id]
     assert_match /class='info'.*posted by.*Panther Tigris Sumatran/m, author(:large)
     assert_equal "<div class='info'><b>PTS</b> - 04.11</div>", author
     session[:lang] = 'fr'
     @item = secure(Item) { Item.find(items_id(:opening)) }
-    assert_equal addresses_id(:ant), @item.v_author[:id]
+    assert_equal users_id(:ant), @item.v_author[:id]
     assert_match /class='info'.*original by.*Panther Tigris Sumatran.*new post by.*Solenopsis Invicta/m, author(:large)
     assert_equal "<div class='info'><b>SI</b> - 11.04</div>", author
   end

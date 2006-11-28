@@ -2,7 +2,7 @@
 	<% docs.each do |doc| %>
 	<tr>
 		<td class='docpv'><%= doc.img_tag('mini') %><p><%= doc.filesize / 1000 %> Ko</p></td>
-		<td class='docinfo'><h3><%= doc.title %></h3><p><%= doc.summary %></p></td>
+		<td class='docinfo'><h3><%= doc.v_title %></h3><p><%= doc.v_summary %></p></td>
 	</tr>
 	<% end %>
 </table>

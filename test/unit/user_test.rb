@@ -5,7 +5,7 @@ class UserTest < Test::Unit::TestCase
 
   
   def test_cannot_destroy_su
-    su = User.find(addresses_id(:su))
+    su = User.find(users_id(:su))
     assert_kind_of User, su
     assert_raise(Zena::AccessViolation){ su.destroy }
   end

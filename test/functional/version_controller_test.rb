@@ -68,13 +68,13 @@ class VersionControllerTest < Test::Unit::TestCase
     assert_response :success
     assert_no_tag :tag=>'div', :attributes=>{:id=>'error'}
     item = secure(Item) { items(:status) }
-    assert_equal 'I am a new title', item.title
+    assert_equal 'I am a new title', item.v_title
   end
   
   def test_cannot_save
     post 'save', :item=>{:id=>items_id(:status), :title=>"I am a new title", :text=>"I am new text"}
     assert_redirected_to '404'
-    assert_equal 'status title', secure(Item) { items(:status) }.title
+    assert_equal 'status title', secure(Item) { items(:status) }.v_title
   end
   
   def test_can_propose

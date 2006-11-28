@@ -410,10 +410,9 @@ Just doing the above will filter all result according to the logged in user.
             if visitor_groups.include?(2) # admin group
               # only admin can change owners
               begin
-                contact = secure_write(Contact) { Contact.find_by_address_id(user_id) }
-                errors.add('user_id', "contact is not a user") unless contact.address.kind_of?(User)
+                User.find(user_id)
               rescue ActiveRecord::RecordNotFound
-                errors.add('user_id', "unknown contact")
+                errors.add('user_id', "unknown user")
               end
             else
               errors.add('user_id', "you cannot change this")

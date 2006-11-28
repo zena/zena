@@ -1,7 +1,7 @@
 class Image < Document
   class << self
     def image_content_type?(content_type)
-      content_type =~ /image/
+      ImageBuilder.image_content_type?(content_type)
     end
   end
   

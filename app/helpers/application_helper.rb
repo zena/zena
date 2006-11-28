@@ -222,7 +222,7 @@ module ApplicationHelper
   # Creates a link to the item referenced by id
   def make_link(opts)
     item = secure(Item) { Item.find(opts[:id]) }
-    title = (opts[:title] && opts[:title] != '') ? opts[:title] : item.title
+    title = (opts[:title] && opts[:title] != '') ? opts[:title] : item.v_title
     if opts[:id][0..0] == '0'
       link_to title, {:prefix => prefix, :controller => 'main', :action=>'show', :path=>item.fullpath}, :popup=>true
     else

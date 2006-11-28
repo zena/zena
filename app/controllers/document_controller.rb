@@ -11,8 +11,8 @@ class DocumentController < ApplicationController
 
   def create
     pdoc = params[:document]
-    pdoc.delete(:file) if pdoc[:file] == ""
-    if Image.image_content_type?(pdoc[:file].content_type)
+    pdoc.delete(:c_file) if pdoc[:c_file] == ""
+    if Image.image_content_type?(pdoc[:c_file].content_type)
       @document = secure(Image) { Image.create(pdoc) }
     else
       @document = secure(Document) { Document.create(pdoc) }
@@ -43,11 +43,11 @@ class DocumentController < ApplicationController
     end
     @document = secure(Document) { Document.version(params[:version_id]) }
     if @document.kind_of?(Image) && !ImageBuilder.dummy?
-      data = @document.file(format)
+      data = @document.c_file(format)
     else
-      data = @document.file
+      data = @document.c_file
     end
-    raise ActiveRecord::RecordNotFound unless @document.name == name
+    raise ActiveRecord::RecordNotFound unless data.name == name
     send_data( data.read , :filename=>data.filename, :type=>data.content_type, :disposition=>'inline')
     
     # TODO: cache_document not tested yet. Also need sweepers !!

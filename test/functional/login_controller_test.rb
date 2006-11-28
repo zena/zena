@@ -23,7 +23,7 @@ class LoginControllerTest < Test::Unit::TestCase
   def test_post_login
     post 'login', :user=>{:login=>'ant', :password=>'ant'}
     assert_not_nil session[:user]
-    assert_equal addresses_id(:ant), session[:user][:id]
+    assert_equal users_id(:ant), session[:user][:id]
     assert_equal addresses(:ant).fullname, session[:user][:fullname]
     assert_equal [1,3], addresses(:ant).group_ids
     assert_equal [1,3], session[:user][:groups]
@@ -32,7 +32,7 @@ class LoginControllerTest < Test::Unit::TestCase
   
   def test_login_helper
     login
-    assert_equal addresses_id(:ant), session[:user][:id]
+    assert_equal users_id(:ant), session[:user][:id]
   end
   
   def test_invalid_login

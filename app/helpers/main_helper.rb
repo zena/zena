@@ -163,18 +163,5 @@ module MainHelper
       res
     end
   end
-  
-  def yhash_for(obj)
-    if obj.class.y_fields != []
-      res = ["<table cellspacing='0'>"]
-      obj.class.y_fields.each do |elem|
-        res << "<tr><td class='key'>#{trans(elem)}</td> <td class='value'>#{obj.yhash[elem.to_sym]}</td></tr>"
-      end
-      res << "</table>"
-      res.join("\n")
-    else
-      ""
-    end
-  end
 
 end

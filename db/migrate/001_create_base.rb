@@ -66,6 +66,7 @@ class CreateBase < ActiveRecord::Migration
 
     create_table("document_contents", :force => true, :options => 'type=InnoDB DEFAULT CHARSET=utf8') do |t|
       t.column "type", :string, :limit => 16
+      t.column "version_id", :integer
       t.column "name", :string, :limit => 200, :default => "", :null => false
       t.column "content_type", :string, :limit => 20
       t.column "ext", :string, :limit=>20
@@ -130,7 +131,6 @@ class CreateBase < ActiveRecord::Migration
       t.column "status", :integer, :default => 30
       t.column "number", :integer, :default => 1
       t.column "content_id", :integer
-      t.column "shown_content_id", :integer
     end
 
     create_table("trans_keys", :force => true, :options => 'type=InnoDB DEFAULT CHARSET=utf8') do |t|

@@ -20,7 +20,7 @@ class DocumenControllerTest < Test::Unit::TestCase
     assert_response :success
     assert_template 'document/new'
     assert_tag :input, :attributes=>{:type=>'text', :id=>'document_name'}
-    assert_tag :input, :attributes=>{:type=>'file', :id=>'document_file'}
+    assert_tag :input, :attributes=>{:type=>'file', :id=>'document_c_file'}
   end
   
   def test_create_pdf

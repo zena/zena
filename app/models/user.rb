@@ -9,13 +9,13 @@ If you want to give administrative rights to a user, simply put him into the _ad
 =end
 class User < ActiveRecord::Base
   has_and_belongs_to_many :groups
-  has_many :items
-  has_many :versions
+  has_many                :items
+  has_many                :versions
   validates_uniqueness_of :login
-  validates_presence_of :password
-  after_create :add_public_group
-  before_destroy :dont_destroy_su_or_anon
-  
+  validates_presence_of   :password
+  after_create            :add_public_group
+  before_save             :set_lang
+  before_destroy          :dont_destroy_su_or_anon
   
   class << self
     # Returns the logged in user or nil if login and password do not match
@@ -34,6 +34,20 @@ class User < ActiveRecord::Base
       Digest::SHA1.hexdigest(string + ZENA_ENV[:password_salt])
     end
   end
+  
+  # Full contact name to show in views.
+  def fullname
+    first_name + " " + name
+  end
+
+  def initials
+    fullname.split(" ").map {|w| w[0..0].capitalize}.join("")
+  end
+  
+  def email
+    self[:email] || ""
+  end
+
   
   def password=(string)
     unless nil == string
@@ -60,12 +74,6 @@ class User < ActiveRecord::Base
     res << 1 unless res.include?(1)
     res
   end
-  
-  # Set password for user
- #def setPassword(str)
- #  self.password = hash_password(str)
- #  self.save
- #end
   
   ### ================================================ ACTIONS AND OWNED ITEMS
    

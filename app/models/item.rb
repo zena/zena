@@ -112,7 +112,7 @@ class Item < ActiveRecord::Base
     # make sure parent is not a 'Note'
     errors.add("parent_id", "invalid parent") if parent.kind_of?(Note) and !self.kind_of?(Document)
     # set name from title if name not set yet
-    self.name = self.title if !self[:name] && self.title
+    self.name = version[:title] unless self[:name]
     errors.add("name", "can't be blank") unless self[:name] and self[:name] != ""
     
     # we are in a scope, we cannot just use the normal validates_... (+ it is done before this validation, which is bad as we set 'name' here...)
@@ -121,6 +121,7 @@ class Item < ActiveRecord::Base
       test_same_name = Item.find(:all, :conditions=>["name = ? AND parent_id = ?", self[:name], self[:parent_id]])
     end
     errors.add("name", "has already been taken") unless test_same_name == []
+    errors.add("version", "can't be blank") unless @version
   end
 
   # Make sure parent and project references are valid on update
@@ -140,7 +141,7 @@ class Item < ActiveRecord::Base
     # make sure parent is not a 'Note'
     errors.add("parent_id", "invalid parent") if parent.kind_of?(Note) and !self.kind_of?(Document)
     
-    self.name = self.title unless self[:name]
+    self.name = version[:title] unless self[:name]
     errors.add("name", "can't be blank") unless self[:name] and self[:name] != ""
     
     test_same_name = nil
@@ -401,28 +402,4 @@ class Item < ActiveRecord::Base
       :parent_id
     end
   end
-  
-  # yaml get and set. Any attribute starting with 'y_' gets stored int the yaml hash
-  def method_missing(meth, *args)
-    if meth.to_s =~ /^(v_|c_)([\w_]+)(=?)$/
-      target = $1
-      method = $2.to_sym
-      mode   = $3
-      if mode == '='
-        # set
-        unless recipient = redaction
-          redaction_error(key, "could not be set (no redaction)")
-          return
-        end
-      else
-        # read
-        recipient = version
-      end
-      recipient = recipient.content if target == 'c_'
-      recipient.send(method,*args)
-    else
-      super
-    end
-  end
-        
 end

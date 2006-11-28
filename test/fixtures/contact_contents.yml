@@ -1,0 +1,49 @@
+<% @defaults = "  created_at: 2006-04-11\n  updated_at: 2006-04-11" %>
+
+ant:
+  id:         3
+<%= @defaults %>
+  first_name: Solenopsis
+  name:       Invicta
+  address:    Deep Hole 54
+  zip:        2001
+  city:       Anthill
+  telephone:  +12 345 67 89 01
+  mobile:     +23 456 78 90 10
+  email:      ant@zenadmin.info
+  birthday:   2005-07-12
+
+tiger:
+  id:         4
+<%= @defaults %>
+  first_name: Panther
+  name:       Tigris Sumatran
+  address:    Small Island
+  zip:        1998
+  city:       Sumatra
+  telephone:  +34 567 89 01 23
+  mobile:     +45 678 90 12 34
+  email:      tiger@zenadmin.info
+  birthday:   2002-07-12
+
+lion:
+  id:         5
+<%= @defaults %>
+  first_name: Panthera
+  name:       Leo Verneyi
+  address:    Kalahari Desert
+  zip:        2036
+  city:       Africa
+  telephone:  +56 789 01 23 45
+  mobile:     +67 890 12 34 56
+  email:      lion@zenadmin.info
+  birthday:   2002-03-04
+
+lake:
+  id:         6
+<%= @defaults %>
+  first_name: Lake
+  name:       Tanganyika
+  address:    Between Tanzania, Congo and Zambia
+  zip:        848
+  city:       Africa

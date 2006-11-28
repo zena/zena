@@ -4,8 +4,8 @@
 <% gallery.each do |doc| %>
 	<%= link_to_function("#{doc.img_tag('pv')}","Zena.transfer('#{@gallery_counter}-#{doc.id}','gallery#{@gallery_counter}')") %>
   <div style='display:none;' id='<%= "#{@gallery_counter}-#{doc.id}" %>'>
-		<p><%= link_to(doc.title, :prefix => prefix, :controller => 'main', :action=>'show', :path=>doc.fullpath ) %></p>
-		<p class="summary"><%= zazen doc.summary %></p>
+		<p><%= link_to(doc.v_title, :prefix => prefix, :controller => 'main', :action=>'show', :path=>doc.fullpath ) %></p>
+		<p class="summary"><%= zazen doc.v_summary %></p>
 		<a href="#" onClick="new Effect.BlindUp('<%= "gallery#{@gallery_counter}" %>'); return false;"><%= doc.img_tag('std') %></a>
 	</div>
 <% end %>

@@ -42,7 +42,7 @@ class VersionController < ApplicationController
     # use current context.
     @item = secure_write(Item) { Item.find(params[:item][:id]) }
     params[:item].delete(:file) if params[:item][:file] == ""
-    if @item.update_redaction(params[:item])
+    if @item.update_attributes(params[:item])
       flash[:notice] = trans "Redaction saved."
     else
       flash[:error] = trans "Redaction could not be saved"

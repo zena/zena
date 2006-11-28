@@ -146,7 +146,7 @@ class MultiversionTest < ActionController::IntegrationTest
       sess.extend(CustomAssertions)
       if visitor
         sess.post 'login', :user=>{:login=>visitor.to_s, :password=>visitor.to_s}
-        assert_equal addresses_id(visitor), sess.session[:user][:id]
+        assert_equal users_id(visitor), sess.session[:user][:id]
         assert sess.redirect?
         sess.follow_redirect!
       end

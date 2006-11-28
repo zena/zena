@@ -6,38 +6,37 @@ class ImageTest < Test::Unit::TestCase
   def test_create_with_file
     without_files('data/test/jpg') do
       visitor(:ant)
-      doc = secure(Image) { Image.create( :parent_id=>items_id(:cleanWater),
+      img = secure(Image) { Image.create( :parent_id=>items_id(:cleanWater),
                                           :inherit => 1,
                                           :name=>'birdy', 
-                                          :file => uploaded_jpg('bird.jpg')) }
-      assert_kind_of Image , doc
-      assert ! doc.new_record? , "Not a new record"
-      assert_equal "birdy", doc.name
-      v = doc.send :version
-      assert ! v.new_record? , "Version is not a new record"
-      assert_not_nil v.file_ref , "File_ref is set"
-      file = doc.file
-      assert_kind_of ImageFile , file
-      assert_equal 'jpg', file.ext
-      assert_equal "661x600", "#{file.width}x#{file.height}"
-      assert_equal "/jpg/#{doc.v_id}/birdy.jpg", file.path
-      assert File.exist?("#{RAILS_ROOT}/data/test#{file.path}")
-      assert_equal File.stat("#{RAILS_ROOT}/data/test#{file.path}").size, doc.filesize
+                                          :c_file => uploaded_jpg('bird.jpg')) }
+      assert_kind_of Image , img
+      assert ! img.new_record? , "Not a new record"
+      assert_equal "birdy", img.name
+      assert ! img.v_new_record? , "Version is not a new record"
+      assert_nil img.v_content_id , "content_id is nil"
+      assert_kind_of ImageVersion , img.send(:version)
+      assert_equal 'jpg', img.c_ext
+      assert_equal "661x600", "#{img.c_width}x#{img.c_height}"
+      assert_equal "/jpg/#{img.v_id}/birdy.jpg", img.c_path
+      assert File.exist?("#{RAILS_ROOT}/data/test#{img.c_path}")
+      assert_equal File.stat("#{RAILS_ROOT}/data/test#{img.c_path}").size, img.c_size
     end
   end
   
   def test_resize_image
     without_files('data/test/jpg') do
       visitor(:ant)
-      doc = secure(Image) { Image.create( :parent_id=>items_id(:cleanWater), 
+      img = secure(Image) { Image.create( :parent_id=>items_id(:cleanWater), 
                                           :inherit => 1,
-                                          :name=>'birdy', :file => fixture_file_upload('/files/bird.jpg', 'image/jpeg')) }
-      assert_kind_of Image , doc
-      file = doc.file('pv')
-      assert_kind_of ImageFile , file
-      assert !file.new_record? , "Not a new record"
-      assert_equal "80x80", "#{file.width}x#{file.height}"
-      assert_equal "/jpg/#{doc.v_id}/birdy-pv.jpg", file.path
+                                          :name=>'birdy', :c_file => uploaded_jpg('bird.jpg')) }
+      assert !img.new_record?, "Not a new record"
+      assert  File.exist?( img.c_filepath       ), "File exist"
+      assert_equal "80x80", "#{img.c_width('pv')}x#{img.c_height('pv')}"
+      assert !File.exist?( img.c_filepath('pv') ), "File does not exist"
+      assert  img.c_file('pv'), "Can make 'pv' image"
+      assert  File.exist?( img.c_filepath('pv') ), "File exist"
+      assert_equal "#{RAILS_ROOT}/data/test/jpg/#{img.v_id}/birdy-pv.jpg", img.c_filepath('pv')
     end
   end
   

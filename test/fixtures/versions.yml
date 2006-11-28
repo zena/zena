@@ -192,7 +192,6 @@ lake_jpg_en:
   summary:        "Photo taken from \"wildchimpanzees.org\":http://www.wildchimpanzees.org/press/photo02.php."
   text:           ""
   lang:           en
-  content_id:     3
   number:         1
 <%= @defaults %>
 
@@ -207,7 +206,6 @@ water_pdf_en:
   summary:        just a stupid pdf
   text:           ""
   lang:           en
-  content_id:     4
   number:         1
 <%= @defaults %>
 
@@ -276,7 +274,6 @@ bird_jpg_en:
   summary:        "Photo taken from \"wikimedia\":http://commons.wikimedia.org/wiki/Image:Blue_Tit_aka.jpg."
   text:           ""
   lang:           en
-  content_id:     1
   number:         1
 <%= @defaults %>
 
@@ -291,7 +288,6 @@ flower_jpg_en:
   summary:        a pretty little flower
   text:           ""
   lang:           en
-  content_id:     2
   number:         1
 <%= @defaults %>
 
@@ -490,7 +486,6 @@ tree_red_en:
   updated_at:     2006-04-11
   publish_from:
   status:         30
-  content_id:     5
   number:         1
   
 forest_red_en:
@@ -507,7 +502,6 @@ forest_red_en:
   updated_at:     2006-04-11
   publish_from:
   status:         30
-  content_id:     6
   number:         1
 
 letter_en:

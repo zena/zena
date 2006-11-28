@@ -145,7 +145,7 @@ class ItemTest < Test::Unit::TestCase
     assert_equal 'statusTitle', item[:name]
     item = secure(Item) { items(:status)  }
     item[:name] = nil
-    item.title = ""
+    item.v_title = ""
     assert !item.save, 'Save fails'
     assert_equal item.errors[:name], "can't be blank"
   end
@@ -226,7 +226,7 @@ class ItemTest < Test::Unit::TestCase
   end
   
   def test_parent
-    assert_equal items(:projects).title, secure(Item) { items(:wiki) }.parent.title
+    assert_equal items(:projects).v_title, secure(Item) { items(:wiki) }.parent.v_title
   end
   
   def test_project

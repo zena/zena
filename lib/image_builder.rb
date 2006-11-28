@@ -24,6 +24,9 @@ end
 class ImageBuilder
   
   class << self
+    def image_content_type?(content_type)
+      content_type =~ /image/
+    end
     def dummy?
       Magick.const_defined?(:ZenaDummy)
     end
@@ -32,7 +35,7 @@ class ImageBuilder
   def initialize(h)
     params = {:height=>nil, :width=>nil, :path=>nil, :file=>nil, :actions=>[]}.merge(h)
     
-    params.each_pair do |k,v|
+    params.each do |k,v|
       case k
       when :height
         @height = v if v
@@ -51,14 +54,14 @@ class ImageBuilder
       else
         raise StandardError, "Bad parameter (#{k})"
       end
-      
-      unless @width && @height || dummy?
-        if @file || @path
-          @img = Magick::ImageList.new(@file ? @file.path : @path)
-          #@img.from_blob(@file.read)
-          @width  = @img.columns
-          @height = @img.rows
-        end
+    end
+    #puts @file.read.size
+    unless @width && @height || dummy?
+      if @file || @path
+        @img = Magick::ImageList.new(@file ? @file.path : @path)
+        #@img.from_blob(@file.read) # .rewind
+        @width  = @img.columns
+        @height = @img.rows
       end
     end
   end
@@ -115,12 +118,15 @@ class ImageBuilder
     end
   end
 
-  def transform!(tformat)
+  # Transform into another format. If nil : do nothing.
+  def transform!(tformat=nil)
+    return self unless tformat
     @img = nil
     if tformat.kind_of?(String)
-      tformat = IMAGEBUILDER_FORMAT[tformat] || {}
+      tformat = IMAGEBUILDER_FORMAT[tformat]
+      return nil unless tformat
     end
-    format = { :size=>:limit, :ratio=>2.0/3.0, :gravity=>Magick::CenterGravity }.merge(tformat)
+    format = { :size=>:limit, :width=>300, :ratio=>2.0/3.0, :gravity=>Magick::CenterGravity }.merge(tformat)
     @pre, @post = format[:pre], format[:post]
 
     if format[:size] == :keep
@@ -184,7 +190,9 @@ class ImageBuilder
     unless @img
       if @file
         @img = Magick::ImageList.new
+        @file.rewind # we have read this file once when saving to disk
         @img.from_blob(@file.read)
+        @file.rewind
       elsif @path
         @img = Magick::ImageList.new(@path)
       else

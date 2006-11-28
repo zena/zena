@@ -4,7 +4,7 @@
 			<%= link_to @item.img_tag('pv'), data_url(@item) %>
 		</td>
 		<td id="subtitle">		  
-      <h1 class="s<%= @item.v_status %>"><span id="title"><%= @item.title %></span><br/>
+      <h1 class="s<%= @item.v_status %>"><span id="title"><%= @item.v_title %></span><br/>
         <ul id="item_actions"><%= edit_button(:all) %></ul>
       </h1>
 		  <%= author(:large) %><%#= plug :links %>

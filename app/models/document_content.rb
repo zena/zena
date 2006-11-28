@@ -1,12 +1,15 @@
 require 'fileutils'
 class DocumentContent < ActiveRecord::Base
-  belongs_to :version
-  validate :valid_file
+  belongs_to            :version
+  
+  before_validation     :prepare_filename
+  validate              :valid_file
   validates_presence_of :ext
   validates_presence_of :name
-  before_save :set_with_file
-  after_save :save_file
-  after_destroy :destroy_file
+  validates_presence_of :version
+  before_save           :save_file
+  before_destroy        :destroy_file
+
   
   # format is ignored here
   def img_tag(format=nil)
@@ -47,72 +50,39 @@ class DocumentContent < ActiveRecord::Base
     raise StandardError, "Size cannot be set. It is defined by the file size."
   end
   
-  def read
-    if !new_record? && File.exist?(filepath)
-      File.read(filepath)
-    elsif @img
-      @img.read
+  def file(format=nil)
+    if File.exist?(filepath)
+      File.new(filepath)
     elsif @file
-      @file.read
+      @file
     else
       raise IOError, "File not found"
     end
   end
   
-  def filename
+  def size(format=nil)
+    self[:size]
+  end
+  
+  def filename(format=nil)
     "#{name}.#{ext}"
   end
   
-  def path
-    raise StandardError, "path cannot be called before record is saved" unless !new_record?
-    "/#{ext}/#{self[:id]}/#{filename}"
+  def path(format=nil)
+    "/#{ext}/#{self[:version_id]}/#{filename(format)}"
   end
   
-  def filepath
-    "#{RAILS_ROOT}/data/#{RAILS_ENV}#{path}"
+  # path is build with the version id so we can do the security checks when uploading data
+  def filepath(format=nil)
+    raise StandardError, "version not set" unless self[:version_id]
+    "#{RAILS_ROOT}/data/#{RAILS_ENV}#{path(format)}"
   end
   
   private
-  
-  def valid_file
-    errors.add('base', 'file not set') unless !new_record? || @file || @img
-    if @file && kind_of?(ImageVersion) && !Image.image_content_type?(@file.content_type)
-      errors.add('file', 'must be an image')
-    end
-  end
-  
-  # def can_update_file
-  #   if @file && (self[:file_ref] == self[:id]) && (Version.find_all_by_file_ref(self[:id]).size > 1)
-  #     errors.add('file', 'cannot be changed (used by other versions)')
-  #   end
-  # end
-  # 
-  # def create_doc_file
-  #   if @file
-  #     # new document or new edition with a new file
-  #     self[:file_ref] = self[:id]
-  #     DocumentVersion.connection.execute "UPDATE versions SET file_ref=id WHERE id=#{id}"
-  #     file_class.create(:version_id=>self[:id], :file=>@file, :ext=>@ext)
-  #   end
-  # end
-  # 
-  # def update_file_ref
-  #   if @file
-  #     # redaction with a new file
-  #     if self[:file_ref] == self[:id]
-  #       # our own file changed
-  #       doc_file.file = @file
-  #       doc_file.ext  = @ext
-  #       doc_file.save
-  #     else
-  #       self[:file_ref] = self[:id]
-  #       file_class.create(:version_id=>self[:id], :file=>@file, :ext=>@ext)
-  #     end
-  #   end
-  # end
-  
-  def set_with_file
-    if @img || @file
+
+  def prepare_filename
+    self[:name] = version.item.name
+    if @file
       # set extension
       ext  = self[:ext] || @file.original_filename.split('.').last
       # is this extension valid ?
@@ -122,31 +92,45 @@ class DocumentContent < ActiveRecord::Base
       else
         self[:ext] = "???"
       end
-      if @img
-        self[:size] = @img.read.size
-      else
-        self[:size] = @file.stat.size
-      end
+      
+      # set size
+      self[:size] = @file.stat.size
       true
     end
   end
   
+  def valid_file
+    errors.add('file', "can't be blank") unless !new_record? || @file
+  end
+
   def save_file
-    p = File.join(*filepath.split('/')[0..-2])
+    if @file
+      # destroy old file
+      destroy_file unless new_record?
+      # save new file
+      make_file(filepath, @file)
+    elsif (old = DocumentContent.find(self[:id])).name != self[:name]
+      # TODO: clear cache
+      # TODO: remove 'format' images
+      FileUtils::mv(old.filepath, filepath)
+    end
+  end
+  
+  def make_file(path, data)
+    p = File.join(*path.split('/')[0..-2])
     unless File.exist?(p)
       FileUtils::mkpath(p)
     end
-    File.open(filepath, "wb") { |f| f.syswrite((@img || @file).read) }
+    File.open(path, "wb") { |f| f.syswrite(data.read) }
   end
   
   def destroy_file
     # TODO: clear cache
-    if File.exist?(filepath)
-      FileUtils::rm(filepath)
-      folder = File.join(*filepath.split('/')[0..-2])
-      if Dir.entries(folder).reject!{|e| (e=='.' || e=='..')} == []
-        FileUtils::rmdir(folder)
-      end
+    old_path = DocumentContent.find(self[:id]).filepath
+    folder = File.join(*old_path.split('/')[0..-2])
+    if File.exist?(folder)
+      FileUtils::rmtree(folder)
     end
+    # TODO: set content_id of versions whose content_id was self[:version_id]
   end
 end

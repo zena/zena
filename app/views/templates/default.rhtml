@@ -3,7 +3,7 @@
 
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-	<title><%= @item.title %></title>
+	<title><%= @item.v_title %></title>
 	<meta http-equiv="Content-type" content="text/html; charset=utf-8" />
 	<meta http-equiv="Content-Language" content="fr-fr" />
   <%= stylesheet_link_tag( 'zen' ) %>
@@ -39,9 +39,8 @@
 		<div id="drive" style="display:none;"></div>
 
 		<div id="content">
-  		<div id="yhash">  <%= yhash_for @item     %></div>
-			<div id="summary"><%= zazen @item.summary %></div>
-			<div id="text">   <%= zazen @item.text    %></div>
+			<div id="summary"><%= zazen @item.v_summary %></div>
+			<div id="text">   <%= zazen @item.v_text    %></div>
 			
 			<%#= plug :comments %>
 		</div>

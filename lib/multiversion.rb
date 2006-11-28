@@ -18,10 +18,9 @@ module Zena
       end
       module AddActsAsMethod
         def acts_as_multiversioned
-          before_create :version # this makes sure we have a version before the element is saved
-          before_create :set_on_create
-          validate :check_redaction_errors
-          after_save :save_version
+          before_validation_on_create :set_on_create # this makes sure we have a version before the element is validated
+          validate          :valid_redaction
+          after_save        :save_version
           private
           has_many :versions
           has_many :editions, :class_name=>"Version", :conditions=>"publish_from <= now() AND status = #{Zena::Status[:pub]}", :order=>'lang'
@@ -37,46 +36,10 @@ module Zena
         def self.included(aClass)
           aClass.extend ClassMethods
         end
-
-        # PUT YOUR INSTANCE METHODS HERE
         
-        
-        # ACCESSORS
-        
-        # RW
-        def title
-          t = version ? version.title : ""
-          if t && t != ""
-            t
-          else
-            self[:name]
-          end
-        end
-        
-        def title=(str); set_redaction(:title, str); end
-          
-        def summary; version.summary; end
-        def summary=(str); set_redaction(:summary, str); end
-          
-        def text; version.text; end
-        def text=(str); set_redaction(:text, str); end
-          
-        def comment; version.comment; end
-        def comment=(str); set_redaction(:comment, str); end
-        
-        # READ ONLY
-        def new_redaction?; version.new_record?; end
-        def v_text; version.text; end
-        def v_summary; version.summary; end
-        def v_lang; version.lang; end
-        def v_status; version.status; end
-        def v_user_id; version.user_id; end
-        def v_author; version.author; end
-        def v_updated_at; version.updated_at; end
-        def v_id; version.id; end
+        #def new_redaction?; version.new_record?; end
         
         # VERSION
-        
         def version=(v)
           if v.kind_of?(Version)
             @version = v
@@ -103,24 +66,6 @@ module Zena
           end 
         rescue ActiveRecord::RecordNotFound
           true
-        end
-      
-        # update an item's versioned attributes creating a new 'redaction' in necessary.
-        # if no parameter is passed, this sets the current version to redaction for the current user and 
-        # language, returning false if this operation is not permitted.
-        def update_redaction(hash)
-          if redaction
-            if redaction.update_attributes(hash) && update_max_status
-              true
-            else
-              redaction.errors.each do |k,v|
-                errors.add(k, v)
-              end
-              false
-            end
-          else
-            false
-          end
         end
         
         # try to set the item's version to a redaction
@@ -259,6 +204,29 @@ module Zena
           true
         end
         
+        # Update an item's attributes or the item's version/content attributes. If the hash contains only
+        # :v_... or :c_... keys, then only the version will be saved
+        def update_attributes(hash)
+          redaction_only = true
+          hash.each do |k,v|
+            unless k.to_s =~ /^(v_|c_)/
+              redaction_only = false
+              break
+            end
+          end
+          if redaction_only
+            hash.each do |k,v|
+              pass_down("#{k}=".to_sym, v)
+            end
+            valid_redaction
+            if errors.empty?
+              save_version && update_max_status
+            end
+          else
+            super
+          end
+        end
+        
         private
         
         def update_attribute_without_fuss(att, value)
@@ -287,6 +255,7 @@ module Zena
             v.comment = ''
             v.number = ''
             v.user_id = visitor_id
+            v[:content_id] = version[:content_id] || version[:id]
             if ( @version_selected == true )
               # user selected a specific version, do not change lang
               @version_selected = false
@@ -302,21 +271,53 @@ module Zena
           end
         end
         
-        def set_redaction(key, value)
-          if redaction
-            redaction.send "#{key}=".to_sym, value
+        # Any attribute starting with 'v_' belongs to the 'version' or 'redaction'
+        # Any attribute starting with 'c_' belongs to the 'version' or 'redaction' content
+        def method_missing(meth, *args)
+          if meth.to_s =~ /^(v_|c_)([\w_\?]+(=?))$/
+            target = $1
+            method = $2.to_sym
+            mode   = $3
+            if mode == '='
+              # set
+              unless recipient = redaction
+                # remove trailing '='
+                redaction_error(meth.to_s[0..-2], "could not be set (no redaction)")
+                return
+              end
+              recipient = recipient.redaction_content if target == 'c_'
+              # puts "SEND #{method.inspect} #{args.inspect} TO #{recipient.class}"
+              recipient.send(method,*args)  
+            else
+              # read
+              recipient = version
+              recipient = recipient.content if target == 'c_'
+              recipient.send(method,*args)
+            end
           else
-            redaction_error(key, "could not be set (no redaction)")
-            nil
+            super
           end
         end
+        alias pass_down method_missing
         
         def redaction_error(field, message)
           @redaction_errors ||= []
           @redaction_errors << [field, message]
         end
         
-        def check_redaction_errors
+        def valid_redaction
+          if @version && !@version.valid?
+            @version.errors.each do |k,v|
+              if k.to_s =~ /^c_/
+                key = k.to_s
+              elsif k.to_s == 'base'
+                key = 'base'
+              else
+                key = "v_#{k}"
+              end
+              errors.add(key, v)
+            end
+          end
           if @redaction_errors
             @redaction_errors.each do |k,v|
               errors.add(k,v)
@@ -370,20 +371,13 @@ module Zena
         end
         
         def save_version
-          if (@version && @version.new_record?) || @redaction
-            unless @version.save
-              errors.add("base", "#{version_class.to_s.downcase} could not be saved")
-              false
-            else
-              true
-            end
-          end
+          @version.save if (@version && @version.new_record?) || @redaction
         end
         
         def set_on_create
           self[:ref_lang] = visitor_lang
-          @version.user_id = visitor_id
-          @version.lang = visitor_lang
+          version.user_id = visitor_id
+          version.lang = visitor_lang
           true
         end
         

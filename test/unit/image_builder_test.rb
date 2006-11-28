@@ -64,7 +64,13 @@ class ImageBuilderTest < Test::Unit::TestCase
       assert_nothing_raised { data = img.read }
     end
   end
-    
+  
+  def test_image_content_type
+    assert ImageBuilder.image_content_type?('image/jpeg'), "jpeg is an image"
+    assert ImageBuilder.image_content_type?('image/png'), "png is an image"  
+    assert !ImageBuilder.image_content_type?('application/pdf'), "pdf is not an image"
+  end
+  
   def test_resize
     img = ImageBuilder.new(:width=>100, :height=>30)
     img.resize!(0.5)

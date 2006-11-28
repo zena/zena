@@ -86,7 +86,7 @@ class SecureReadTest < Test::Unit::TestCase
   def test_publish_group_can_rwp
     visitor(:ant)
     item = ""
-    ant = addresses(:ant)
+    ant = users(:ant)
     assert_raise(ActiveRecord::RecordNotFound) { item = secure(Item) { items(:strange)  } }
     assert_raise(ActiveRecord::RecordNotFound) { item = secure_write(Item) { items(:strange)  } }
     assert_raise(ActiveRecord::RecordNotFound) { item = secure_drive(Item) { items(:strange)  } }
@@ -187,14 +187,14 @@ class SecureCreateTest < Test::Unit::TestCase
     test_page = secure(Item) { Item.new(item_defaults) }
     test_page[:user_id] = 99 # try to fool
     assert test_page.save , "Save succeeds"
-    assert_equal addresses_id(:ant), test_page.user_id
+    assert_equal users_id(:ant), test_page.user_id
   end
   def test_owner_is_visitor_on_create
     visitor(:ant)
     attrs = item_defaults
     attrs[:user_id] = 99
     page = secure(Item) { Item.create(attrs) }
-    assert_equal addresses_id(:ant), page.user_id
+    assert_equal users_id(:ant), page.user_id
   end
   def test_status
     visitor(:tiger)
@@ -211,7 +211,7 @@ class SecureCreateTest < Test::Unit::TestCase
     id = item.id
     visitor(:ant)
     assert_nothing_raised { item = secure(Item) { Item.find(id) } }
-    assert item.update_redaction(:summary=>'hello my friends'), "Can create a new edition"
+    assert item.update_attributes(:v_summary=>'hello my friends'), "Can create a new edition"
     assert_equal Zena::Status[:pub], item.max_status, "Item max_status did not change"
     assert item.propose, "Can propose edition"
     assert_equal Zena::Status[:pub], item.max_status, "Item max_status did not change"
@@ -561,38 +561,30 @@ class SecureUpdateTest < Test::Unit::TestCase
     visitor(:tiger)
     item = secure(Item) { items(:bananas) }
     assert_kind_of Item, item
-    assert_equal addresses_id(:lion), item.user_id
-    item.user_id = addresses_id(:tiger)
+    assert_equal users_id(:lion), item.user_id
+    item.user_id = users_id(:tiger)
     assert ! item.save , "Save fails"
     assert item.errors[:user_id] , "Errors on user_id"
     assert_equal "you cannot change this", item.errors[:user_id]
   end
-  def test_owner_changed_visitor_cannot_write_in_new_contact
+  def test_owner_changed_bad_user
     # cannot write in new contact
     visitor(:lion)
     item = secure(Item) { items(:bananas) }
     assert_kind_of Item, item
-    assert_equal addresses_id(:lion), item.user_id
-    item.user_id = addresses_id(:ant)
+    assert_equal users_id(:lion), item.user_id
+    item.user_id = 99
     assert ! item.save , "Save fails"
     assert item.errors[:user_id] , "Errors on user_id"
-    assert_equal "unknown contact", item.errors[:user_id]
-  end
-  def test_owner_changed_not_a_user
-    visitor(:lion)
-    item = secure(Item) { items(:bananas) }
-    item.user_id = addresses_id(:lake)
-    assert ! item.save , "Save fails"
-    assert item.errors[:user_id] , "Errors on user_id"
-    assert_equal "contact is not a user", item.errors[:user_id]
+    assert_equal "unknown user", item.errors[:user_id]
   end
   def test_owner_changed_ok
     visitor(:lion)
     item = secure(Item) { items(:bananas) }
-    item.user_id = addresses_id(:tiger)
+    item.user_id = users_id(:tiger)
     assert item.save , "Save succeeds"
     item.reload
-    assert_equal addresses_id(:tiger), item.user_id
+    assert_equal users_id(:tiger), item.user_id
   end
   
   # 3. error if user cannot publish nor manage

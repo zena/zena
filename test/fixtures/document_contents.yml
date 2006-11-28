@@ -1,6 +1,7 @@
 bird_jpg:
   id:             1
-  type:           ImageFile
+  version_id:     20
+  type:           ImageContent
   content_type:   "image/jpeg"
   ext:            'jpg'
   name:           "bird"
@@ -9,7 +10,8 @@ bird_jpg:
   
 flower_jpg:  
   id:             2
-  type:           ImageFile
+  version_id:     21
+  type:           ImageContent
   content_type:   "image/jpeg"
   name:           "flower"
   ext:            'jpg'
@@ -18,7 +20,8 @@ flower_jpg:
   
 lake_jpg:  
   id:             3
-  type:           ImageFile
+  version_id:     14
+  type:           ImageContent
   content_type:   "image/jpeg"
   name:           "lake"
   ext:            'jpg'
@@ -27,6 +30,7 @@ lake_jpg:
   
 water_pdf:  
   id:             4
+  version_id:     15
   type:           DocumentContent
   content_type:   "application/pdf"
   name:           "water"
@@ -35,7 +39,8 @@ water_pdf:
   
 tree_jpg:  
   id:             5
-  type:           ImageFile
+  version_id:     35
+  type:           ImageContent
   content_type:   "image/jpeg"
   name:           "tree"
   ext:            'jpg'
@@ -44,6 +49,7 @@ tree_jpg:
   
 forest_pdf:  
   id:             6
+  version_id:     36
   type:           DocumentContent
   content_type:   "application/pdf"
   name:           "forest"

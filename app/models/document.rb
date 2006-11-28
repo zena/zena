@@ -1,18 +1,21 @@
 =begin rdoc
-=== New Document
-link://../img/zena_new_document.png
-
+TODO: on name change make sure content name changes too...
 =end
 class Document < Page
   before_validation :set_name
   
   def c_file=(file)
     @file = file
-    redaction.content.file = file
+    # we call 'method missing' to do normal file setting on content
+    pass_down(:c_file=,file)
   end
   
   def image?
     kind_of?(Image)
+  end
+  
+  def filename
+    "#{name}.#{version.content.ext}"
   end
   
   def img_tag(format=nil)
@@ -21,7 +24,9 @@ class Document < Page
   
   private
   
+  # Set name from filename
   def set_name
+    return true unless new_record?
     if self[:name] && self[:name] != ""
       base = self[:name]
     elsif @file
@@ -32,8 +37,8 @@ class Document < Page
     end
     if base =~ /\./
       self[:name] = base.split('.')[0..-2].join('.')
-      version.content.ext  = base.split('.').last
-      version.content.name = self[:name]
+      c_ext  = base.split('.').last
+      c_name = self[:name]
     end
     return true
   end
