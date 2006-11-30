@@ -63,7 +63,7 @@ module ApplicationHelper
   end
   
   # creates a pseudo random string to avoid browser side ajax caching
-  def salt_against_caching
+  def rnd
     Time.now.to_i
   end
 
@@ -344,7 +344,8 @@ module ApplicationHelper
     end
   end
   
-  def calendar(format, source, date=Date.today)
+  def calendar(format, source, date=nil)
+    date ||= Date.today
     opt = CALENDAR_FORMATS[format]
     return "" if opt == nil
     klass = eval opt[:klass]
@@ -383,9 +384,9 @@ module ApplicationHelper
   	    # each week
   		  content << '<tr class="body">'
   			week.step(week+6,1) do |day|
-  			  content << "<td #{ calendar_class(day,date) }>"
+  			  content << "<td #{ calendar_class(day,date) } #{day == Date.today ? "id='#{format}_today'" : "" }>"
   			  # each day
-  			  content << (day == Date.today ? "<p class='today'>" : "<p>")
+  			  content << "<p>"
   			  content << opt[:on_day].call(calendar["#{day}"], day)
   			  content << '</p>'
     			content << "</td>"
@@ -396,7 +397,8 @@ module ApplicationHelper
       render_to_string(:partial=>"calendar/#{format}", :locals=>{ :content=>content.join("\n"), 
                                                              :day_names=>day_names.join("\n"),
                                                              :title=>title, 
-                                                             :date=>date })
+                                                             :date=>date,
+                                                             :source=>source })
     end
   end
 

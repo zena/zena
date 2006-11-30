@@ -62,8 +62,8 @@ class ApplicationHelperTest < Test::Unit::TestCase
     assert_not_equal 'lundi', trans('Monday')
   end
   
-  def test_salt_against_caching
-    assert ((Time.now.to_i-1 <= salt_against_caching) && (salt_against_caching <= Time.now.to_i+2))
+  def test_rnd
+    assert ((Time.now.to_i-1 <= rnd) && (rnd <= Time.now.to_i+2))
   end
   
   def test_login_link

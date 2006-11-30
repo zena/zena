@@ -1,4 +1,4 @@
-<%= form_remote_tag(:with=>"add_page_form", :url=>{:controller=>'page', :action=>"create", :rnd=>salt_against_caching}) %>
+<%= form_remote_tag(:with=>"add_page_form", :url=>{:controller=>'page', :action=>"create", :rnd=>rnd}) %>
 <% Tag # annonce -%>
 <p class="btn_x"><%= link_to_function transb('btn_x'), "new Element.toggle('add_page', 'add_page_form')" %></p>
 <%= select('page', 'klass', Page.select_classes ) %>

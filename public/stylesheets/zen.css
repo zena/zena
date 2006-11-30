@@ -226,7 +226,7 @@ table.calendar { border:1px solid #655; }
 .calendar .body td:first-child {border-left-width:0;}
 
 .calendar .body td.other { background:#DDDBC1;}
-.calendar .body p.today { font-weight:bold; color:black; background:#DCF6FF; margin:0;}
+.calendar .body #large_today { font-weight:bold; color:black; background:#DCF6FF; margin:0;}
 .calendar .body td.sun, .calendar .body td.sat { background:#E6FFDC;}
 .calendar .body td.sunother, .calendar .body td.satother { background:#C8DEC1;}
 .calendar .body td.suntoday, .calendar .body td.sattoday  { font-weight:bold; color:black; background:#C7FFC3;}
@@ -242,7 +242,7 @@ table.calendar { border:1px solid #655; }
 .tinycal .head td { font-weight:bold; padding: 2px; font-size:0.7em; color:#655; }
 .tinycal .head td.button a { border:0; text-decoration:none; color:#568BB9;}
 .tinycal .body p { margin:0; padding:2px; text-align:center; }
-.tinycal .body p.today { border:2px solid #99B1BD; padding:0;}
+.tinycal .body #tiny_today p { border:2px solid #99B1BD; padding:0;}
 .tinycal .body td.other, .tinycal .body td.other a { color:#ccc; }
 .tinycal .body td.sat, .tinycal .body td.sat a { color:#35950B; }
 .tinycal .body td.satother, .tinycal .body td.satother a { color:#C8DEC1; }

@@ -1,6 +1,10 @@
 class Cache < ActiveRecord::Base
   class << self
+    def perform_caching
+      ApplicationController.perform_caching
+    end
     def with(user_id, group_ids, kpath, *context)
+      return yield unless perform_caching
       if cached = self.find_by_user_id_and_context(user_id,context.join('.'))
         Cache.logger.info "=============== CACHED #{context.join('.')}"
         cached.content
