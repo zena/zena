@@ -5,13 +5,13 @@ class ApplicationController < ActionController::Base
   helper_method :prefix
   before_filter :authorize
   before_filter :set_env
+  after_filter  :set_encoding
   layout false
   
   private
   def render_and_cache(opts={})
     opts = {:template=>opts} if opts.kind_of?(String)
     opts = {:template=>nil, :cache=>true}.merge(opts)
-    @headers["Content-Type"] = "text/html; charset=utf-8"
     @item  ||= secure(Item) { Item.find(ZENA_ENV[:root_id]) }
       
     @project = @item.project
@@ -134,6 +134,12 @@ class ApplicationController < ActionController::Base
     TransKey.translate(keyword).into(lang)
   end
   
+  def set_encoding
+    headers['Content-Type'] ||= 'text/html'
+    if headers['Content-Type'].starts_with?('text/') and !headers['Content-Type'].include?('charset=')
+      headers['Content-Type'] += '; charset=utf-8'
+    end
+  end
   # /////// The following methods are common to controllers and views //////////// #
   
   def prefix
