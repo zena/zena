@@ -12,3 +12,8 @@ opening_in_art:
   source_id:      17
   target_id:      23
   role:           tag
+  
+opening_in_zena:
+  source_id:      17
+  target_id:      1
+  role:           calendar

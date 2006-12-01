@@ -2,7 +2,7 @@
 TODO
 =end
 class Note < Item
-  link :diaries, :class_name=>'Project', :as=>'diary'
+  link :calendars, :class_name=>'Project'
   
   before_validation :set_log_at
   validate :parent_valid

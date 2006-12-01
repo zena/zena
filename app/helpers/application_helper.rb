@@ -346,10 +346,28 @@ module ApplicationHelper
   
   def calendar(format, source, date=nil)
     date ||= Date.today
-    opt = CALENDAR_FORMATS[format]
-    return "" if opt == nil
-    klass = eval opt[:klass]
-    Cache.with(user_id, user_groups, klass.kpath, source.id, format, date.ajd) do
+    return "" unless [:tiny, :large].include?(format) && source
+    Cache.with(user_id, user_groups, 'IN', format, source.id, date.ajd) do
+      case format
+      when :tiny
+        method    = :news
+        day_names = Date::ABBR_DAYNAMES
+        on_day    = Proc.new { |e,d| e ? "<b class='has_note'>#{d.day}</b>" : d.day }
+      when :large
+        method    = :news
+        day_names = Date::DAYNAMES
+        on_day    = Proc.new do |notes,d|
+          if notes
+            res = ["#{d.day}"]
+            notes.each do |e| 
+              res << "<div>#{ link_to(e.name.limit(14), :controller=>'main', :prefix=>prefix, :action=>'show', :path=>e.fullpath) }</div>"
+            end
+            res.join("\n")
+          else
+            d.day
+          end
+        end
+      end
       # find start and end date
       week_start_day = trans('week_start_day').to_i
       start_date  = Date.civil(date.year, date.mon, 1)
@@ -358,10 +376,7 @@ module ApplicationHelper
       end_date   += (6 + week_start_day - end_date.wday) % 7
       
       # get list of notes in this scope
-      @notes ||= klass.with_scope(:find=>{
-            :conditions=>['log_at >= ? AND log_at <= ?', start_date, end_date] } ) do
-        secure(klass) { source.send(opt[:method]) }
-      end
+      @notes ||= source.send(method,:conditions=>['log_at >= ? AND log_at <= ?', start_date, end_date])
       
       # build event hash
       calendar = {}
@@ -372,30 +387,24 @@ module ApplicationHelper
   
       title = "#{trans(Date::MONTHNAMES[date.mon])} #{date.year}"
   
-  		day_names = []
+  		head_day_names = []
   		0.upto(6) do |i|
-  		  day_names << '<td>'  
-    		day_names << trans(opt[:day_names][(i+week_start_day) % 7])
-  		  day_names << '</td>'
+  		  head_day_names << "<td>#{trans(day_names[(i+week_start_day) % 7])}</td>"
   		end
 	
       content = []
   	  start_date.step(end_date,7) do |week|
   	    # each week
-  		  content << '<tr class="body">'
+  		  content << "<tr class='body'>"
   			week.step(week+6,1) do |day|
-  			  content << "<td #{ calendar_class(day,date) } #{day == Date.today ? "id='#{format}_today'" : "" }>"
   			  # each day
-  			  content << "<p>"
-  			  content << opt[:on_day].call(calendar["#{day}"], day)
-  			  content << '</p>'
-    			content << "</td>"
+          content << "<td#{ calendar_class(day,date)}#{day == Date.today ? " id='#{format}_today'" : "" }><p>#{on_day.call(calendar[day.strftime("%Y-%m-%d")], day)}</p></td>"
   			end
   		  content << '</tr>'
   		end
   		
       render_to_string(:partial=>"calendar/#{format}", :locals=>{ :content=>content.join("\n"), 
-                                                             :day_names=>day_names.join("\n"),
+                                                             :day_names=>head_day_names.join(""),
                                                              :title=>title, 
                                                              :date=>date,
                                                              :source=>source })
@@ -414,7 +423,7 @@ module ApplicationHelper
       s = ""
     end
     s+=  day.mon == ref.mon ? '' : 'other'
-    s != "" ? "class='#{s}'" : ""
+    s != "" ? " class='#{s}'" : ""
   end
 
   # This lets helpers render partials

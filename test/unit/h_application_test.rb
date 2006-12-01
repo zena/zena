@@ -189,4 +189,22 @@ class ApplicationHelperTest < Test::Unit::TestCase
     assert_match %r{bananas}, show_menu
   end
   
+  def test_calendar_has_note
+    op_at = items(:opening).log_at
+    zena = secure(Item) { items(:zena) }
+    cal = calendar(:tiny, zena, Date.civil(op_at.year, op_at.month, 5))
+    assert_match %r{class='sun'><p>12}, cal
+    assert_match %r{<b class='has_note'>15}, cal
+    cal = calendar(:large, zena, Date.civil(op_at.year, op_at.month, 5))
+    assert_match %r{<p>15<div><a href="/en/projects/cleanWater/2006-3-15-opening">opening</a></div>}, cal
+  end
+  
+  def test_calendar_today
+    zena = secure(Item) { items(:zena) }
+    cal = calendar(:large, zena)
+    assert_match %r{<td[^>*]id='large_today'><p>#{Date.today.day}</p></td>}, cal
+    cal = calendar(:tiny, zena)
+    assert_match %r{<td[^>*]id='tiny_today'><p>#{Date.today.day}</p></td>}, cal
+  end
+  
 end

@@ -215,24 +215,28 @@ table.fada td:first-child {border-left-width:1px;}
 .trans a:hover { color: orange;}
 .trans form    { display:inline; }
 #add_translation { background: #91AAC8;}
+
 /* LARGE CALENDAR */
-#calendar {}
-.calendar, .calendar_title { font-size: 0.8em; font-family: Georgia, Times, serif; width:100%; margin-bottom:10px;}
-table.calendar { border:1px solid #655; }
-.calendar_title { text-align: center; padding: 0.3em; font-size:1.7em; font-style: italic; color:#655; }
-.calendar .head td  { border:1px solid #655; background: #655; color: #fff; font-weight:normal; width:14%; height:2em; text-align:center; padding:1em 3px; }
-.calendar .body td  { background: #ffd; width:14%; padding:3px; vertical-align:top; font-style:italic; text-align:left; color:#999; 
-  border:1px solid #DDDBC1; border-width:1px 0 0 1px;}
-.calendar .body td:first-child {border-left-width:0;}
+#largecal .title { text-align: center; background:white; margin-bottom:0.2em;}
+#largecal .title a { color:#655; font-size: 1em; font-family: Georgia, Times, serif;}
+#largecal .title span { padding:0 6px; }
+table.largecal { border:1px solid #655; font-size:0.8em; margin:auto; width:80%; }
+.largecal .head td  { border-left:1px solid #836C6C; background: #655; color: #fff; font-weight:normal; width:14%; height:0.8em; text-align:center; padding:0.4em 3px; }
+.largecal .head td:first-child {border-left-width:0;}
+.largecal .body td  { background: #ffd; width:14%; height:3.4em; padding:3px; vertical-align:top; font-style:italic; text-align:left; color:#999; 
+  border:1px solid #DDDBC1; border-width:1px 0 0 1px; font-size:0.8em;}
+.largecal .body td:first-child {border-left-width:0;}
 
-.calendar .body td.other { background:#DDDBC1;}
-.calendar .body #large_today { font-weight:bold; color:black; background:#DCF6FF; margin:0;}
-.calendar .body td.sun, .calendar .body td.sat { background:#E6FFDC;}
-.calendar .body td.sunother, .calendar .body td.satother { background:#C8DEC1;}
-.calendar .body td.suntoday, .calendar .body td.sattoday  { font-weight:bold; color:black; background:#C7FFC3;}
+.largecal .body td.other { background:#DDDBC1;}
+.largecal .body #large_today { font-weight:bold; color:black; background:#DCF6FF; margin:0;}
+.largecal .body td.sun, .largecal .body td.sat { background:#E6FFDC;}
+.largecal .body td.sunother, .largecal .body td.satother { background:#C8DEC1;}
+.largecal .body td.suntoday, .largecal .body td.sattoday  { font-weight:bold; color:black; background:#C7FFC3;}
 
-.calendar div { margin:2px; font-style:normal; color:black; font-weight:normal;}
-.calendar p { float:left; height:4em; width:1.5em; }
+.largecal div { margin:2px; margin-left:1.2em; font-style:normal; font-weight:normal; font-size:1.1em; }
+.largecal div a { padding:1px;}
+.largecal div a:hover { background:#CECEB4; }
+.largecal p { float:left; margin:0;}
 /* TINY CALENDAR */
 #tinycal { height: 9em; }
 .tinycal { font-size:0.5em; color:black; font-family: Verdana, sans-serif; margin:auto; }
