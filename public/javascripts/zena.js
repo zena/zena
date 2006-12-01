@@ -11,7 +11,11 @@ Zena.editor_preview = function(element, value, item_id) {
 
 // update content from another window
 Zena.update = function( tag, url ) {
-  new Ajax.Updater(tag, url, {asynchronous:true, evalScripts:true, onComplete:function(){ new Effect.Highlight(tag); }});
+	if (window.is_editor) {
+		opener.Zena.update(tag,url);
+	} else {
+	  new Ajax.Updater(tag, url, {asynchronous:true, evalScripts:true, onComplete:function(){ new Effect.Highlight(tag); }});
+	}
   return false;
 }
 

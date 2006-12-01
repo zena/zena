@@ -1,6 +1,6 @@
 <%= javascript "opener.Zena.update( 'documents', '#{ url_for(:controller=>"document", :action=>"list", :parent_id=>@document.parent_id, :rnd=>rnd) }');" %>
 <div id="popup_action">
-  <p class="btn_x"><%= link_to_function transb('btn_x'), "opener.location.href=opener.location.href; self.close();" %></p>
+  <p class="btn_x"><%= link_to_function transb('btn_x'), "if (!opener.is_editor) { opener.location.href=opener.location.href;} self.close();" %></p>
   <table cellspacing="0" borderspacing="0">
     <tr>
 			<td class='preview'><p><%= @document.img_tag('pv') %><p><p class='size'><%= fsize(@document.c_size) %></p></td>
