@@ -30,10 +30,11 @@
 					</div>
 				<% end -%>
 				  
-				  <p class="btn_validate"><%= link_to_function transb('cancel'), "opener.location.href=opener.location.href; self.close();" %><input type="submit" class="btn_validate" onClick="$('loader').style.visibility = 'visible';" value='<%= transb('validate') %>'/></p>
+  				<p class='add_document'><a href='#' onClick='uploader=window.open("<%= url_for :controller=>'document', :action=>'new', :parent_id=>@item %>", "uploader", "location=1,width=400,height=300");uploader.opener = opener;return false;'><%= transb('btn_add_document')%></a></p>
+  				
+				  <p class='btn_validate'><%= link_to_function transb('cancel'), "opener.location.href=opener.location.href; self.close();" %><input type="submit" class="btn_validate" onClick="$('loader').style.visibility = 'visible';" value='<%= transb('validate') %>'/></p>
 				<%= end_form_tag %> 
 				
-				<p><a href='#' onClick='uploader=window.open("<%= url_for :controller=>'document', :action=>'new', :parent_id=>@item %>", "uploader", "location=1,width=400,height=300");uploader.opener = opener;return false;'><%= transb('add document')%></a></p>
 			</td>
 			<td id="search_box">
 				<label for="search"><%= trans("search")  %></label>

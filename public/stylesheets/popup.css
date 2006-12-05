@@ -16,6 +16,8 @@ button { background:none; border:none;}
 input, textarea { margin:3px 0; width:100%;}
 .btn_validate { text-align:right; margin:0; padding:0;}
 .btn_validate a { margin: 15px;}
+.add_document { float:left; }
+.btn_validate img, .add_document img { border:0; }
 .hidden { visibility:hidden;}
 
 /* flash messages */
@@ -37,7 +39,8 @@ table { width:100%;}
 #search_results { vertical-align:top; padding: 10px 0 0 5px;}
 .result_info, .result_docinfo { vertical-align:top; font-size:0.9em; }
 .result_info p { margin-top:5px; display:inline;}
-.result_docinfo p { margin-top:5px;}
+.result_docinfo p { margin-top:5px; }
+.result_image { width:45px; }
 .result_id   { color:#5C2200; font-weight:bold; }
 .result_name { }
 .result_info .result_path, .result_docinfo .result_path { display:block; font-size:0.7em; color:#404040;}

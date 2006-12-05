@@ -223,4 +223,7 @@ trans_keys:
 
   - id:   75
     key:  "full_date"
+    
+  - id:   76
+    key:  "btn_add_document"
 

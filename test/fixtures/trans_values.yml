@@ -760,4 +760,9 @@
   lang:      fr
   value:     " valider "
 
+145:
+  id:        145
+  key_id:    76
+  lang:      en
+  value:     "<img src='/images/picture_add.png'/>"
 

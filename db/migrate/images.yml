@@ -90,3 +90,7 @@ trans_values:
   - key_id:    58
     lang:      en
     value:     "<img src='/images/user_su.png'/>"
+    
+  - key_id:    76
+    lang:      en
+    value:     "<img src='/images/picture_add.png'/>"
