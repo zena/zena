@@ -440,6 +440,14 @@ module ApplicationHelper
     end
   end
   
+  def show(sym, obj=@item)
+    if [:v_text, :v_summary].include?(sym)
+      "<div id='#{sym}#{obj.v_id}' class='text'>#{zazen(obj.send(sym))}</div>"
+    else
+      "<div id='#{sym}#{obj.v_id}'>#{obj.send(sym)}</div>"
+    end
+  end
+  
   private
   
   def calendar_get_options(size, source, method)

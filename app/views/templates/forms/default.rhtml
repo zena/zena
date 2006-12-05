@@ -10,8 +10,10 @@
         <% else -%>
         <%= start_form_tag({ :action => "save", :controller=>'version' }, :id => "item_form" ) %>
         <% end -%>
-        <%= hidden_field 'item', 'v_lang', :value=>@item.v_lang %>
+        <%= text_field 'item', 'v_lang', :value=>@item.v_lang %>
         <%= hidden_field 'item', 'id' %>
+        <%= hidden_field 'item', 'v_id' %>
+        <%= hidden_field 'item', 'preview_id' %>
         <label for="v_comment"><%= trans("comment") %></label>
         <%= text_area 'item', 'v_comment', :cols=>nil, :rows=>nil %>
         <hr/>

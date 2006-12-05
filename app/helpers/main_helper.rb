@@ -26,22 +26,24 @@ module MainHelper
     res = []
     if options[:item]
       version_id = options[:item].v_id
+      item = options[:item]
     else
       version_id = nil
+      item = @item
     end
-    if (action == :edit or action == :all) && @item.can_edit?
+    if (action == :edit or action == :all) && item.can_edit?
       res << form_action('edit',version_id)
     end
-    if (action == :propose or action == :all) && @item.can_propose?
+    if (action == :propose or action == :all) && item.can_propose?
       res << form_action('propose',version_id)
     end
-    if (action == :publish or action == :all) && @item.can_publish_item?
+    if (action == :publish or action == :all) && item.can_publish_item?
       res << form_action('publish',version_id)
     end
-    if (action == :refuse or action == :all) && @item.can_refuse?
+    if (action == :refuse or action == :all) && item.can_refuse?
       res << form_action('refuse',version_id)
     end
-    if (action == :drive or action == :all) && @item.can_drive?
+    if (action == :drive or action == :all) && item.can_drive?
       res << form_action('drive',version_id)
     end
     res.join("\n")

@@ -18,6 +18,8 @@ class VersionController < ApplicationController
     if !@item.edit!
       page_not_found
     else
+      # our 'item' should declare it's preview_id (used to show the preview inline when editing) to the form
+      @item.instance_eval "def preview_id; #{params[:id].to_i}; end"
       render_form
     end
   rescue ActiveRecord::RecordNotFound
@@ -26,10 +28,11 @@ class VersionController < ApplicationController
   
   # preview when editing item
   def preview
+    @preview_id = params[:item][:preview_id]
+    params[:item].delete(:preview_id)
     if params[:item]
       params[:item].delete(:c_file)
       @item = secure_write(Item) { Item.find(params[:item][:id]) }
-      # FIXME: 'edit_preview' parses utf-8 very badly !!!
       @item.edit_preview(params[:item])
     else
       @item = secure(Item) { Item.version(params[:version_id]) }
@@ -39,6 +42,7 @@ class VersionController < ApplicationController
   end
   
   def save
+    params[:item].delete(:preview_id)
     # use current context.
     @item = secure_write(Item) { Item.find(params[:item][:id]) }
     params[:item].delete(:file) if params[:item][:file] == ""

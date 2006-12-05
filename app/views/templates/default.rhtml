@@ -40,8 +40,8 @@
     <div id="drive" style="display:none;"></div>
 
     <div id="content">
-      <div id="summary"></div>
-      <div id="text">   <%= zazen @item.v_text    %></div>
+      <%= show(:v_summary) %>
+      <%= show(:v_text   ) %>
       
       <%#= plug :comments %>
     </div>
