@@ -766,3 +766,9 @@
   lang:      en
   value:     "<img src='/images/picture_add.png'/>"
 
+146:
+  id:        146
+  key_id:    77
+  lang:      fr
+  value:     1
+

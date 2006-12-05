@@ -227,3 +227,5 @@ trans_keys:
   - id:   76
     key:  "btn_add_document"
 
+  - id:   77
+    key:  'week_start_day'

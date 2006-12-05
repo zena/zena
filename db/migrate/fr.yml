@@ -207,3 +207,6 @@ trans_values:
     lang:      fr
     value:     "%A, %d %B %Y"
 
+  - key_id:    77
+    lang:      fr
+    value:     1

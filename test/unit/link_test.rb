@@ -341,4 +341,16 @@ class LinkTest < Test::Unit::TestCase
     assert_equal @joe.id, @bob.employees[0][:id]
     assert_equal @bob.id, @joe.boss[:id]
   end
+  
+  def test_other_options_for_find
+    visitor(:lion)
+    @item = secure(LinkDummy) { LinkDummy.find(items_id(:wiki)) }
+    assert_nothing_raised { @item.tags }
+    assert_equal [], @item.tags
+    @item.tag_ids = [items_id(:art),items_id(:news)]
+    @item.save
+    tags = @item.tags(:limit=>1, :order=>'name DESC')
+    assert_equal 1, tags.size
+    assert_equal 'news', tags[0].name
+  end
 end

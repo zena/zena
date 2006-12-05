@@ -348,26 +348,7 @@ module ApplicationHelper
     date ||= Date.today
     return "" unless [:tiny, :large].include?(format) && source
     Cache.with(user_id, user_groups, 'IN', format, source.id, date.ajd) do
-      case format
-      when :tiny
-        method    = :news
-        day_names = Date::ABBR_DAYNAMES
-        on_day    = Proc.new { |e,d| e ? "<b class='has_note'>#{d.day}</b>" : d.day }
-      when :large
-        method    = :news
-        day_names = Date::DAYNAMES
-        on_day    = Proc.new do |notes,d|
-          if notes
-            res = ["#{d.day}"]
-            notes.each do |e| 
-              res << "<div>#{ link_to(e.name.limit(14), :controller=>'main', :prefix=>prefix, :action=>'show', :path=>e.fullpath) }</div>"
-            end
-            res.join("\n")
-          else
-            d.day
-          end
-        end
-      end
+      method, day_names, on_day = calendar_get_options(format, source)
       # find start and end date
       week_start_day = trans('week_start_day').to_i
       start_date  = Date.civil(date.year, date.mon, 1)
@@ -376,11 +357,11 @@ module ApplicationHelper
       end_date   += (6 + week_start_day - end_date.wday) % 7
       
       # get list of notes in this scope
-      @notes ||= source.send(method,:conditions=>['log_at >= ? AND log_at <= ?', start_date, end_date])
+      notes = source.send(method,:conditions=>['log_at >= ? AND log_at <= ?', start_date, end_date])
       
       # build event hash
       calendar = {}
-      @notes.each do |n|
+      notes.each do |n|
         calendar[n.log_at.strftime("%Y-%m-%d")] ||= []
         calendar[n.log_at.strftime("%Y-%m-%d")] << n
       end
@@ -411,7 +392,41 @@ module ApplicationHelper
     end
   end
 
+  def calendar_list(format, source, date=nil, options={})
+    method, day_names, on_day = calendar_get_options(format, source)
+    notes = source.send(method,:conditions=>['date(log_at) = ?', date], :order=>'log_at ASC')
+    selected = options[:selected] ? options[:selected].to_i : nil
+    render_to_string(:partial=>'calendar/list', :locals=>{ :notes => notes, :selected=>selected })
+  end
+  
   private
+  
+  def calendar_get_options(format, source)
+    case format
+    when :tiny
+      method    = :news
+      day_names = Date::ABBR_DAYNAMES
+      on_day    = Proc.new { |e,d| e ? "<b class='has_note'>#{d.day}</b>" : d.day }
+    when :large
+      method    = :news
+      day_names = Date::DAYNAMES
+      on_day    = Proc.new do |notes,d|
+        if notes
+          res = ["#{d.day}"]
+          notes.each do |e| #largecal_preview
+            res << "<div>" + link_to_remote(e.name.limit(14), 
+                                  :update=>'largecal_preview',
+                                  :url=>{:controller=>'calendar', :action=>'list', :id=>source[:id], :format=>format, 
+                                    :date=>d, :selected=>e[:id] }) + "</div>"
+          end
+          res.join("\n")
+        else
+          d.day
+        end
+      end
+    end
+    [method, day_names, on_day]
+  end
   
   def calendar_class(day, ref)
     case day.wday

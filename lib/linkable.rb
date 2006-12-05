@@ -97,13 +97,19 @@ on the post edit page :
             count = ':all'
           end
           finder = <<-END
-            def #{method}(find_scope={})
-              #{klass}.with_scope(:find=>find_scope) do
-              secure(#{klass}) { #{klass}.find(#{count},
-                                 :select     => "\#{#{klass}.table_name}.*, links.id AS link_id", 
-                                 :joins      => "INNER JOIN links ON \#{#{klass}.table_name}.id=links.#{other_side}",
-                                 :conditions => ["links.role='#{key}' AND links.#{link_side} = ?", self[:id] ]
-                                 ) }
+            def #{method}(options={})
+              conditions = options[:conditions]
+              options.delete(:conditions)
+              options.merge!( :select     => "\#{#{klass}.table_name}.*, links.id AS link_id", 
+                              :joins      => "INNER JOIN links ON \#{#{klass}.table_name}.id=links.#{other_side}",
+                              :conditions => ["links.role='#{key}' AND links.#{link_side} = ?", self[:id] ]
+                              )
+              if conditions
+                #{klass}.with_scope(:find=>{:conditions=>conditions}) do
+                  secure(#{klass}) { #{klass}.find(#{count}, options ) }
+                end
+              else 
+                secure(#{klass}) { #{klass}.find(#{count}, options ) }
               end
             rescue ActiveRecord::RecordNotFound
               nil

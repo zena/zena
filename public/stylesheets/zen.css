@@ -122,16 +122,8 @@ td#subtitle { vertical-align:top; padding:6px; }
 #left { position:absolute; top:125px; left:20px; width:220px; }
 #notes { margin-top:2em;}
 #notes h3 small { color:#999; font-size:50%; text-transform:uppercase;}
-.note { margin-left:1em; border-bottom:1px dotted grey; padding:10px 3px; font-size:0.78em; }
 #add_note, #add_note_form { margin-left:1em }
 #add_note { padding:10px 3px;}
-.note h3 { color:#450009; font:0.9em Verdana, sans-serif; text-transform: uppercase; letter-spacing: 0.1em; font-weight:bold; }
-.note h3 a { color:#450009; }
-.note .summary { margin-top:5px;}
-.note .summary p { font-style: normal; text-align:justify; margin:0; }
-.note span.log_at { float:right; color:#B08287; }
-.note p.sign { font-size:0.7em; font-style:italic; color:#999; text-align:right; clear:both;}
-
 /* RIGHT: Documents, Pages */
 #right span.ext a {font-family:Monaco, monospace;color:grey; width:200px;}
 .list { list-style:none; margin-left:0.8em; margin-top:0.5em; margin-bottom:0em; padding: 0 0.5em 1em;}
@@ -217,9 +209,9 @@ table.fada td:first-child {border-left-width:1px;}
 #add_translation { background: #91AAC8;}
 
 /* LARGE CALENDAR */
-#largecal .title { text-align: center; background:white; margin-bottom:0.2em;}
-#largecal .title a { color:#655; font-size: 1em; font-family: Georgia, Times, serif;}
-#largecal .title span { padding:0 6px; }
+.largecal_title { text-align: center; background:white; margin-bottom:0.2em;}
+.largecal_title a { color:#655; font-size: 1em; font-family: Georgia, Times, serif;}
+.largecal_title span { padding:0 6px; }
 table.largecal { border:1px solid #655; font-size:0.8em; margin:auto; width:80%; }
 .largecal .head td  { border-left:1px solid #836C6C; background: #655; color: #fff; font-weight:normal; width:14%; height:0.8em; text-align:center; padding:0.4em 3px; }
 .largecal .head td:first-child {border-left-width:0;}
@@ -233,17 +225,26 @@ table.largecal { border:1px solid #655; font-size:0.8em; margin:auto; width:80%;
 .largecal .body td.sunother, .largecal .body td.satother { background:#C8DEC1;}
 .largecal .body td.suntoday, .largecal .body td.sattoday  { font-weight:bold; color:black; background:#C7FFC3;}
 
-.largecal div { margin:2px; margin-left:1.2em; font-style:normal; font-weight:normal; font-size:1.1em; }
-.largecal div a { padding:1px;}
-.largecal div a:hover { background:#CECEB4; }
-.largecal p { float:left; margin:0;}
+.largecal .body div { margin:2px; margin-left:1.2em; font-style:normal; font-weight:normal; font-size:1.1em; }
+.largecal .body div a { padding:1px;}
+.largecal .body div a:hover { background:#CECEB4; }
+.largecal .body p { float:left; margin:0;}
+
+.note { padding:0px 3px 0px; margin-bottom:5px; font-size:0.78em; border-left:4px solid white;}
+.note h3 { font:1em Verdana, Arial, sans-serif; text-transform: uppercase; letter-spacing: 0.1em; }
+.note .text { width:80%; font-size:1.2em; clear:both;}
+.note .text p { margin:0; padding:0; }
+.note .log_at { float:left; width:5em; color:#999; font-weight:bold;}
+.note p.title  { float:left; width:20em; text-align:left; color:#450009; font-weight:bold;}
+.note .sign   { float:left; font-size:1em; color:#999; }
+#note_selected { border-left-color:orange; }
 /* TINY CALENDAR */
 #tinycal { height: 9em; }
-.tinycal { font-size:0.5em; color:black; font-family: Verdana, sans-serif; margin:auto; }
+.tinycal { font-size:0.7em; color:black; font-family: Verdana, sans-serif; margin:auto; }
 .tinycal td { text-align:center; color:#333; }
 .tinycal a { color:inherit; }
 .tinycal b.has_note { font-weight:normal; border-bottom:2px solid orange;}
-.tinycal .head td { font-weight:bold; padding: 2px; font-size:0.7em; color:#655; }
+.tinycal .head td { font-weight:bold; padding: 2px; font-size:0.9em; color:#655; }
 .tinycal .head td.button a { border:0; text-decoration:none; color:#568BB9;}
 .tinycal .body p { margin:0; padding:2px; text-align:center; }
 .tinycal .body #tiny_today p { border:2px solid #99B1BD; padding:0;}
