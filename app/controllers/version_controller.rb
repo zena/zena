@@ -18,8 +18,8 @@ class VersionController < ApplicationController
     if !@item.edit!
       page_not_found
     else
-      # our 'item' should declare it's preview_id (used to show the preview inline when editing) to the form
-      @item.instance_eval "def preview_id; #{params[:id].to_i}; end"
+      # store the id used to preview when editing
+      session[:preview_id] = params[:id]
       render_form
     end
   rescue ActiveRecord::RecordNotFound
@@ -28,8 +28,7 @@ class VersionController < ApplicationController
   
   # preview when editing item
   def preview
-    @preview_id = params[:item][:preview_id]
-    params[:item].delete(:preview_id)
+    @preview_id = session[:preview_id]
     if params[:item]
       params[:item].delete(:c_file)
       @item = secure_write(Item) { Item.find(params[:item][:id]) }
@@ -60,7 +59,7 @@ class VersionController < ApplicationController
     item = secure(Item) { Item.version(params[:id]) }
     if item.propose
       flash[:notice] = trans "Redaction proposed for publication."
-      redirect_to :action=> 'show', :id => item.v_id
+      redirect_to @request.env['HTTP_REFERER'] #:action=> 'show', :id => item.v_id
     else
       page_not_found
     end
@@ -72,7 +71,7 @@ class VersionController < ApplicationController
     item = secure(Item) { Item.version(params[:id]) }
     if item.refuse
       flash[:notice] = "Proposition refused."
-      redirect_to :action => 'show', :id => item.v_id
+      redirect_to @request.env['HTTP_REFERER'] #:action => 'show', :id => item.v_id
     else
       page_not_found
     end
@@ -84,7 +83,7 @@ class VersionController < ApplicationController
     item = secure(Item) { Item.version(params[:id]) }
     if item.publish
       flash[:notice] = "Redaction published."
-      redirect_to :action => 'show', :id => item.v_id
+      redirect_to @request.env['HTTP_REFERER'] #redirect_to :action => 'show', :id => item.v_id
     else
       flash[:error] = "Could not publish."
       page_not_found
@@ -97,7 +96,7 @@ class VersionController < ApplicationController
     item = secure(Item) { Item.version(params[:id]) }
     if item.remove
       flash[:notice] = "Publication removed."
-      redirect_to :action => 'show', :id => item.v_id
+      redirect_to @request.env['HTTP_REFERER'] #:action => 'show', :id => item.v_id
     else
       flash[:error] = "Could not remove plublication."
       page_not_found

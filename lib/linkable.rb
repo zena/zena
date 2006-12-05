@@ -218,10 +218,11 @@ on the post edit page :
                 @#{meth}_ids << obj_id.to_i
               end
               
-              def #{method}_for_form
-                secure_write(#{klass}) { #{klass}.find( :all,
-                                   :select     => "\#{#{klass}.table_name}.*, links.id AS link_id", 
-                                   :joins      => "LEFT OUTER JOIN links ON \#{#{klass}.table_name}.id=links.#{other_side} AND links.role='#{key}' AND links.#{link_side} = \#{self[:id].to_i}" ) }
+              def #{method}_for_form(options={})
+                options.merge!( :select     => "\#{#{klass}.table_name}.*, links.id AS link_id", 
+                                :joins      => "LEFT OUTER JOIN links ON \#{#{klass}.table_name}.id=links.#{other_side} AND links.role='#{key}' AND links.#{link_side} = \#{self[:id].to_i}"
+                                )
+                secure_write(#{klass}) { #{klass}.find(:all, options) }
               rescue ActiveRecord::RecordNotFound
                 []
               end

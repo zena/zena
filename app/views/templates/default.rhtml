@@ -40,8 +40,8 @@
     <div id="drive" style="display:none;"></div>
 
     <div id="content">
-      <%= show(:v_summary) %>
-      <%= show(:v_text   ) %>
+      <%= show(@item, :v_summary) %>
+      <%= show(@item, :v_text   ) %>
       
       <%#= plug :comments %>
     </div>

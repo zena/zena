@@ -2,7 +2,7 @@
 # Likewise, all the methods added will be available for all controllers.
 class ApplicationController < ActionController::Base
   acts_as_secure_controller
-  helper_method :prefix
+  helper_method :prefix, :notes
   before_filter :authorize
   before_filter :set_env
   after_filter  :set_encoding
@@ -146,6 +146,29 @@ class ApplicationController < ActionController::Base
     (session && session[:user]) ? AUTHENTICATED_PREFIX : lang
   end
   
+  # Notes finder
+  def notes(options={})
+    source = options[:from] || (@project ||= (@item ? @item.project : nil))
+    options.delete(:from)
+    
+    date = options[:date]
+    options.delete(:date)
+    
+    method = options[:find] || :notes
+    options.delete(:find)
+    
+    size = options[:size] || :tiny
+    options.delete(:size)
+    
+    return "" unless source
+    if date
+      source.send(method, :conditions=>['date(log_at) = ?', date], :order=>'log_at ASC')
+    elsif options != {}
+      source.send(method, options)
+    else
+      source.send(method)
+    end
+  end
 end
 =begin
 # Filters added to this controller will be run for all controllers in the application.

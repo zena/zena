@@ -37,14 +37,16 @@
     <div id="subtitle"><%= author(:small) %><%#= plug :links %></div>
     <div id="drive" style="display:none;"></div>
     <div id="content">
-      <div id="summary"><%= zazen @item.v_summary %></div>
-      <div id="text">   <%= zazen @item.v_text    %></div>
+      <%= show(@item, :v_summary) %>
+      <%= show(@item, :v_text   ) %>
       <%#= plug :comments %>
     </div>
   </div>
   <div id="main">
     <div id="content">
-      <div id="largecal"><ul><%= notes_list(:find=>:notes) %></ul></div>
+      <div id="notes">
+        <%= render :partial=>'note/list', :locals=>{:list=>notes(:find=>:notes)} %>
+      </div>
     </div>
 
     <div id="right">

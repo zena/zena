@@ -387,7 +387,7 @@ module ApplicationHelper
       end_date   += (6 + week_start_day - end_date.wday) % 7
       
       # get list of notes in this scope
-      notes = source.send(method,:conditions=>['log_at >= ? AND log_at <= ?', start_date, end_date])
+      notes = source.send(method,:conditions=>['log_at >= ? AND log_at <= ?', start_date, end_date], :order=>'log_at ASC')
       
       # build event hash
       calendar = {}
@@ -424,28 +424,32 @@ module ApplicationHelper
     end
   end
   
-  # Notes finder
-  def notes(options={})
-    source = options[:from] || (@project ||= (@item ? @item.project : nil))
-    date   = options[:date]
-    method = options[:find] || :notes
-    size   = options[:size] || :tiny
-    return "" unless source
-    if date
-      source.send(method, :conditions=>['date(log_at) = ?', date], :order=>'log_at ASC')
-    elsif options[:conditions]
-      source.send(method, :conditions=>options[:conditions])
-    else
-      source.send(method)
-    end
-  end
-  
-  def show(sym, obj=@item)
+  # TODO: test
+  def show(obj, sym)
     if [:v_text, :v_summary].include?(sym)
       "<div id='#{sym}#{obj.v_id}' class='text'>#{zazen(obj.send(sym))}</div>"
     else
       "<div id='#{sym}#{obj.v_id}'>#{obj.send(sym)}</div>"
     end
+  end
+  
+  # TODO: test
+  def link_box(obj, sym, ids=nil)
+    method = "#{sym}_for_form".to_sym
+    setter = "#{sym}".singularize + "_ids"
+    # FIXME: SECURITY is there a better way to do this ?
+    obj = eval("@#{obj}")
+    if ids
+      ids.map!{|i| i.to_i}
+      list = obj.send(method, :conditions=>["items.id IN (#{ids.join(',')})"])
+    else
+      list = obj.send(method)
+    end
+    res = list.inject([]) do |list, l|
+      list << "<input type='checkbox' name='item[#{setter}][]' value='#{l.id}' class='box' #{ l[:link_id] ? "checked='1' " : ""}/>#{l.name}"
+      list
+    end
+    "<ul class='#{sym}'><li><b>#{trans(sym.to_s)}</b></li><li>#{res.join('</li><li>')}</li></ul>"
   end
   
   private

@@ -333,6 +333,19 @@ class LinkTest < Test::Unit::TestCase
     assert_equal items_id(:art), tags_for_form[0][:id]
   end
   
+  def test_tags_for_form_with_filter
+    visitor(:tiger)
+    @item = secure(LinkDummy) { LinkDummy.find(items_id(:status)) }
+    @item.tag_ids = [items_id(:art)]
+    assert @item.save
+    assert_equal 1, @item.tags.size
+    tags_for_form = @item.tags_for_form
+    assert_equal 3, tags_for_form.size
+    tags_for_form = @item.tags_for_form(:conditions=>"items.id IN (#{items_id(:art)})")
+    assert_equal 1, tags_for_form.size
+    assert tags_for_form[0][:link_id], "Art tag checked"
+  end
+  
   def test_out_of_secure
     @bob = SuperDummy.find(3)
     @joe = SuperDummy.find(4)

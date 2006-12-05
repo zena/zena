@@ -30,14 +30,14 @@
     <%= render :partial=>'main/title' %>
     <div id="drive" style="display:none;"></div>
     <div id="content">
-      <%= show(:v_summary) %>
-      <%= show(:v_text   ) %>
+      <%= show(@item, :v_summary) %>
+      <%= show(@item, :v_text   ) %>
       <%#= plug :comments %>
     </div>
   </div>
   <div id="main">
     <div id="content">
-      <div id="largecal">
+      <div id="notes">
         <%= render :partial=>'note/list', :locals=>{:list=>notes(:find=>:notes)} %>
       </div>
     </div>

@@ -1,11 +1,10 @@
 <li class='note'<%= li[:id] == @selected_note ? " id='note_selected'" : "" %>>
   <h3 class='li_s<%= li.v_status %>'>
     <p class='log_at'><%= short_date li.log_at %></p>
-    <p class='title'><span id='title<%= li.v_id%>'><%= link_to li.v_title + check_lang( li ), :prefix => prefix, :controller => 'main', :action=>'show', :path=>li.fullpath %></span>
-      <ul id="item_actions"><%= edit_button(:all, :item=>li) %></ul></p>
+    <p class='title'><a href='<%= url_for :prefix => prefix, :controller => 'main', :action=>'show', :path=>li.fullpath %>'><span id='v_title<%= li.v_id%>'><%= li.v_title + check_lang( li ) %></span></a></p>
     <p class='sign'><%= li.v_author.initials %></p>
+    <ul class='item_actions'><%= edit_button(:all, :item=>li) %></ul>
   </h3>
-  <div class='text' id='summary<%= li.v_id %>'><%= zazen li.v_summary %></div>
-  <div class='text' id='text<%= li.v_id %>'><!-- used for preview edit --></div>
+  <%= show(li, :v_text)  %>
   <div class='clear'></div>
 </li>
