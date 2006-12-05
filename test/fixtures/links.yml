@@ -17,3 +17,8 @@ opening_in_zena:
   source_id:      17
   target_id:      1
   role:           calendar
+  
+opening_in_cleanWater:
+  source_id:      17
+  target_id:      11
+  role:           calendar

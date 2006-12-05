@@ -752,6 +752,7 @@ Just doing the above will filter all result according to the logged in user.
             session[:user][:id] = user.id
             session[:user][:groups] = user.group_ids
             session[:user][:fullname] = user.fullname
+            session[:user][:initials] = user.initials
             session[:user][:lang] = user.lang != "" ? user.lang : ZENA_ENV[:default_lang]
             # set lang
             lang

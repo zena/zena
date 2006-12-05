@@ -455,5 +455,6 @@ letter:
   parent_id:      5
   user_id:        4
   inherit:        1
+  log_at:         2006-10-03
 <%= @defaults %>
 <%= @rights %>

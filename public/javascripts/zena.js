@@ -3,7 +3,7 @@ var Zena = {};
 Zena.env = new Array();
 
 // preview content from another window. Item_id is for security reasons: to make sure only the window showing item_id is modified.
-Zena.editor_preview = function(element, value, item_id) {
+Zena.editor_preview = function(element, value, v_id) {
   //if (item_id == Zena.env['item_id']) {
     new Ajax.Request('/z/version/preview', {asynchronous:true, evalScripts:true, parameters:'content=' + value})
   //}

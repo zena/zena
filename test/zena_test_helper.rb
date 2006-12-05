@@ -56,4 +56,10 @@ module ZenaTestHelper
   def secure(*args, &block)
     @controller.send(:secure, *args, &block)
   end
+  
+  def err(obj)
+    obj.errors.each do |er,msg|
+      puts "[#{er}] #{msg}"
+    end
+  end
 end

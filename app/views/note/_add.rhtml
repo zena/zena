@@ -1,0 +1,6 @@
+<li id="add_note" style="display:block;" class="btn_add">
+  <%= link_to_function transb('btn_add_note'), "new Element.toggle('add_note', 'add_note_form'); $('note_name').focus();" %>
+</li>
+<li id="add_note_form" style="display:none;" class="inline_form">
+  <%= render :partial=>'note/form' %>
+</li>

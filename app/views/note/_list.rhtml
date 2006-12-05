@@ -1,0 +1,6 @@
+<h3><%= trans "Notes" %></h3>
+
+<ul class="list" id="notes_list">
+  <%= render :partial=>'note/add' if @item.can_write? %>
+  <%= render :partial=>'note/li', :collection=>list  %>
+</ul>

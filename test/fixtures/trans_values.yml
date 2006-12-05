@@ -772,3 +772,14 @@
   lang:      fr
   value:     1
 
+147:
+  id:        147
+  key_id:    78
+  lang:      en
+  value:     "%Y-%m-%d %H:%M"
+
+148:
+  id:        148
+  key_id:    78
+  lang:      fr
+  value:     "%d.%m.%Y %H:%M"

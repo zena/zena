@@ -24,4 +24,30 @@ class ProjectTest < Test::Unit::TestCase
     item.reload
     assert_equal items_id(:cleanWater), item[:project_id]
   end
+  
+  def test_notes
+    visitor(:tiger)
+    project = secure(Project) { Project.find(items_id(:cleanWater)) }
+    notes = nil
+    assert_nothing_raised { notes = project.notes }
+    assert_equal 1, notes.size
+    assert_equal 'opening', notes[0].name
+    note = secure(Note) { Note.create(:parent_id=>items_id(:cleanWater), :v_title=>'hello')}
+    assert !note.new_record?, "Not a new record"
+    notes = project.notes
+    assert_equal 2, notes.size
+  end
+  
+  def test_notes_with_find
+    visitor(:tiger)
+    project = secure(Project) { Project.find(items_id(:cleanWater)) }
+    note = secure(Note) { Note.create(:parent_id=>items_id(:cleanWater), :v_title=>'hello')}
+    assert !note.new_record?, "Not a new record"
+    notes = project.notes
+    assert_equal 2, notes.size
+    notes = project.notes(:conditions=>"name LIKE 'hell%'")
+    assert_equal 1, notes.size
+    assert_equal 'hello', notes[0].name
+  end
+    
 end

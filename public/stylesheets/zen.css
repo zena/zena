@@ -14,6 +14,9 @@ button { background:none; border:none;}
 p.img_left, p.img_right { margin:0; padding:0;}
 .img_center { text-align:center; margin:5px;}
 .clear { clear:both; font-size:1px;}
+.date_box { display:inline;}
+.date_box img { display:inline; }
+.date_box input { font-size:70%; }
 
 /* ERROR HANDLING */
 .errorExplanation { font-size:0.9em; background: #C18284; border: 1px dotted #920C0C; margin:5px 5px 5px 0; padding:4px; line-height:1.2em; }
@@ -69,18 +72,20 @@ p.img_left, p.img_right { margin:0; padding:0;}
 
 /* INLINE FORMS */
 .inline_form { margin:2px; padding:3px; background:#9FA6AC; border:1px dotted grey;}
+.inline_form select { width:5em; font-size:80%;}
 /*   on background color change, change ajax-loader.gif : http://www.ajaxload.info/ --> */
 
 /* BUTTONS */
 .hidden { visibility:hidden; }
 .button a { color:#450009; font-size:0.7em; display:block; }
 
-.btn_add { text-align:right; }
+.btn_add { text-align:left; }
 .btn_add a { visibility:hidden; display:block; }
 .btn_add:hover a { visibility:visible; }
-#add_document.btn_add, #add_page.btn_add { text-align:left; margin-top:0.2em;}
+#add_document.btn_add, #add_page.btn_add { margin-top:0.2em;}
 #pages .inline_form { width:130px;}
 .btn_x { float:right; margin:0; padding:0;}
+.btn_x img { border:0; }
 .btn_validate { text-align:right; margin:0; padding:0;}
 
 /* HEADER */
@@ -101,7 +106,6 @@ td#subtitle { vertical-align:top; padding:6px; }
 #links a { font-style: italic; font-size: 0.9em; }
 #links img  { vertical-align:middle; }
 #drive_links .add_link { border-top:1px solid;}
-#drive_links .btn_add { text-align:left; }
 #drive_links .btn_add a { visibility:visible;}
 
 /* s50, s40, s30, s20, s10, s0 = pub, prop, red, rep, rem, del */
@@ -146,13 +150,13 @@ input, textarea { border:1px solid grey; margin:0.2em}
 #summary p { font-style:italic; }
 #text { clear:both;}
 #text { line-height:1.5; margin-bottom:2em;}
-#text h1 { margin-top:2.3em; margin-bottom:0.8em; font-size:2em;}
-#text h2 { margin-top:2em; margin-bottom:0.4em; font-size:1.5em;}
-#text h3 { margin-top:1.8em; margin-bottom:0.4em; font-size:1em; font-style:normal; font-weight:bold;}
-#text h4 { font-size:0.9em; }
-#text p { margin-bottom:1.8em; font-style:normal; font-size:1em; }
-#text ul {margin:1em 0 0 3em;}
-#text img, #summary img, .note img { border: 1px solid #666; }
+.text h1 { margin-top:2.3em; margin-bottom:0.8em; font-size:2em;}
+.text h2 { margin-top:2em; margin-bottom:0.4em; font-size:1.5em;}
+.text h3 { margin-top:1.8em; margin-bottom:0.4em; font-size:1em; font-style:normal; font-weight:bold;}
+.text h4 { font-size:0.9em; }
+.text p { margin-bottom:1.8em; font-style:normal; font-size:1em; }
+.text ul {margin:1em 0 0 3em;}
+.text img { border: 1px solid #666; }
 /* USE FOR TABLE LISTING (contact)
 #yhash { float:left; margin-right:10px; }
 #yhash p { margin:0; padding:0;}
@@ -169,9 +173,9 @@ input, textarea { border:1px solid grey; margin:0.2em}
 .gallery_view p { text-align:center; margin:0; }
 
 /* FORM CSS */
-#text .fada li { list-style: disc;}
-#text .fada h4 { margin: 0.9em 0 0.2em;}
-#text .fada ul { margin: 0.2em 0 0 3em;}
+.text .fada li { list-style: disc;}
+.text .fada h4 { margin: 0.9em 0 0.2em;}
+.text .fada ul { margin: 0.2em 0 0 3em;}
 table.fada { border-spacing:0; font-size:0.8em; margin: 15px 4px; font-family: Monaco, Courier, monospace;}
 table.fada td { padding:2px 10px; border:1px solid #6B5636; border-width:0 1px 1px 0; text-align: right;}
 table.fada tr.head  td { background:#6B5636; color:white; border-width:0; text-align: center; border-bottom: 1px solid #3C3226; }
@@ -230,16 +234,18 @@ table.largecal { border:1px solid #655; font-size:0.8em; margin:auto; width:80%;
 .largecal .body div a:hover { background:#CECEB4; }
 .largecal .body p { float:left; margin:0;}
 
-.note { padding:0px 3px 0px; margin-bottom:5px; font-size:0.78em; border-left:4px solid white;}
+.note { padding:10px 3px 10px; font-size:0.78em; border-left:4px solid white; border-top:1px solid #ddd;}
 .note h3 { font:1em Verdana, Arial, sans-serif; text-transform: uppercase; letter-spacing: 0.1em; }
-.note .text { width:80%; font-size:1.2em; clear:both;}
-.note .text p { margin:0; padding:0; }
-.note .log_at { float:left; width:5em; color:#999; font-weight:bold;}
-.note p.title  { float:left; width:20em; text-align:left; color:#450009; font-weight:bold;}
+.note h3 a { color:inherit;}
+.note .text { margin-left:60px; width:80%; font-size:1.2em; clear:both;}
+.note .text p { margin-bottom:0.2em; }
+.note .log_at { float:left; width:60px; color:#999; font-weight:bold;}
+.note h3 p  { float:left; width:20em; text-align:left; color:#450009; font-weight:bold; margin-bottom:0.2em; padding:0;}
 .note .sign   { float:left; font-size:1em; color:#999; }
+
 #note_selected { border-left-color:orange; }
 /* TINY CALENDAR */
-#tinycal { height: 9em; }
+#tinycal { height: 9em; margin-bottom:2em; }
 .tinycal { font-size:0.7em; color:black; font-family: Verdana, sans-serif; margin:auto; }
 .tinycal td { text-align:center; color:#333; }
 .tinycal a { color:inherit; }

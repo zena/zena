@@ -26,7 +26,7 @@
   <%= flash_messages %>
 
   <div id="left">
-    <div id='tinycal'><%= calendar(:tiny, @item) %></div>
+    <div id='tinycal'><%= calendar(:find=>:news, :size=>:tiny) %></div>
     
     <div id="header">
     <h1 class="s<%= @item.v_status %>">
@@ -43,8 +43,9 @@
     </div>
   </div>
   <div id="main">
-    <div id="largecal"><%= calendar(:large, @item) %></div>
-    <%#= plug :notes, :from=>:site %>
+    <div id="content">
+      <div id="largecal"><ul><%= notes_list(:find=>:notes) %></ul></div>
+    </div>
 
     <div id="right">
       <div id='documents'>

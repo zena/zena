@@ -28,10 +28,37 @@ module ApplicationHelper
     <<-EOL
     <script src="/calendar/calendar.js" type="text/javascript"></script>
     <script src="/calendar/calendar-setup.js" type="text/javascript"></script>
-    <script src="/calendar/lang/calendar-#{l}-utf8.js" type="text/javascript"></script>
+    <script src="/calendar/lang/calendar-en-utf8.js" type="text/javascript"></script>
     <link href="/calendar/calendar-brown.css" media="screen" rel="Stylesheet" type="text/css" />
+    #{javascript("Calendar._TT[\"DEF_DATE_FORMAT\"] = \"#{trans('datetime')}\";")}
     EOL
   end
+  
+  # Date selection tool
+	def date_box(obj, var, opts = {})
+	  rnd_id = Time.now.to_i
+	  defaults = {  :id=>"datef#{rnd_id}", :button=>"dateb#{rnd_id}", :display=>"dated#{rnd_id}" }
+	  opts = defaults.merge(opts)
+	  date = eval("@#{obj} ? @#{obj}.#{var} : nil") || Time.now
+	  value = format_date(date,'datetime')
+    if opts[:size] == 0
+      fld = hidden_field obj, var, :id=>opts[:id] , :value=>value
+    else
+	    fld = text_field   obj, var, :id=>opts[:id] , :value=>value, :size=>opts[:size]
+    end
+		<<-EOL
+<p class="date_box"><img src="/calendar/iconCalendar.gif" id="#{opts[:button]}"/>
+#{fld}
+	<script type="text/javascript">
+    Calendar.setup({
+        inputField     :    "#{opts[:id]}",      // id of the input field
+        button         :    "#{opts[:button]}",  // trigger for the calendar (button ID)
+        singleClick    :    true,
+        showsTime      :    true
+    });
+</script></p>
+		EOL
+	end
   
   # Translate submit_tag
   def tsubmit_tag(*args)
@@ -344,11 +371,14 @@ module ApplicationHelper
     end
   end
   
-  def calendar(format, source, date=nil)
-    date ||= Date.today
-    return "" unless [:tiny, :large].include?(format) && source
-    Cache.with(user_id, user_groups, 'IN', format, source.id, date.ajd) do
-      method, day_names, on_day = calendar_get_options(format, source)
+  def calendar(options={})
+    source = options[:from  ] || (@project ||= (@item ? @item.project : nil))
+    date   = options[:date  ] || Date.today
+    method = options[:find  ] || :notes
+    size   = options[:size  ] || :tiny
+    day_names, on_day = calendar_get_options(size, source, method)
+    return "" unless on_day && source
+    Cache.with(user_id, user_groups, 'IN', size, method, source.id, date.ajd) do
       # find start and end date
       week_start_day = trans('week_start_day').to_i
       start_date  = Date.civil(date.year, date.mon, 1)
@@ -379,36 +409,45 @@ module ApplicationHelper
         content << "<tr class='body'>"
         week.step(week+6,1) do |day|
           # each day
-          content << "<td#{ calendar_class(day,date)}#{day == Date.today ? " id='#{format}_today'" : "" }><p>#{on_day.call(calendar[day.strftime("%Y-%m-%d")], day)}</p></td>"
+          content << "<td#{ calendar_class(day,date)}#{day == Date.today ? " id='#{size}_today'" : "" }><p>#{on_day.call(calendar[day.strftime("%Y-%m-%d")], day)}</p></td>"
         end
         content << '</tr>'
       end
       
-      render_to_string(:partial=>"calendar/#{format}", :locals=>{ :content=>content.join("\n"), 
+      render_to_string(:partial=>"calendar/#{size}", :locals=>{ :content=>content.join("\n"), 
                                                              :day_names=>head_day_names.join(""),
                                                              :title=>title, 
                                                              :date=>date,
-                                                             :source=>source })
+                                                             :source=>source,
+                                                             :method=>method,
+                                                             :size=>size })
     end
   end
-
-  def notes_list(format, source, date=nil, options={})
-    method, day_names, on_day = calendar_get_options(format, source)
-    notes = source.send(method,:conditions=>['date(log_at) = ?', date], :order=>'log_at ASC')
-    selected = options[:selected] ? options[:selected].to_i : nil
-    render_to_string(:partial=>'calendar/list', :locals=>{ :notes => notes, :selected=>selected })
+  
+  # Notes finder
+  def notes(options={})
+    source = options[:from] || (@project ||= (@item ? @item.project : nil))
+    date   = options[:date]
+    method = options[:find] || :notes
+    size   = options[:size] || :tiny
+    return "" unless source
+    if date
+      source.send(method, :conditions=>['date(log_at) = ?', date], :order=>'log_at ASC')
+    elsif options[:conditions]
+      source.send(method, :conditions=>options[:conditions])
+    else
+      source.send(method)
+    end
   end
   
   private
   
-  def calendar_get_options(format, source)
-    case format
+  def calendar_get_options(size, source, method)
+    case size
     when :tiny
-      method    = :news
       day_names = Date::ABBR_DAYNAMES
       on_day    = Proc.new { |e,d| e ? "<b class='has_note'>#{d.day}</b>" : d.day }
     when :large
-      method    = :news
       day_names = Date::DAYNAMES
       on_day    = Proc.new do |notes,d|
         if notes
@@ -416,8 +455,8 @@ module ApplicationHelper
           notes.each do |e| #largecal_preview
             res << "<div>" + link_to_remote(e.name.limit(14), 
                                   :update=>'largecal_preview',
-                                  :url=>{:controller=>'calendar', :action=>'list', :id=>source[:id], :format=>format, 
-                                    :date=>d, :selected=>e[:id] }) + "</div>"
+                                  :url=>{:controller=>'note', :action=>'list', :id=>source[:id], :find=>method, 
+                                  :date=>d, :selected=>e[:id] }) + "</div>"
           end
           res.join("\n")
         else
@@ -425,7 +464,7 @@ module ApplicationHelper
         end
       end
     end
-    [method, day_names, on_day]
+    [day_names, on_day]
   end
   
   def calendar_class(day, ref)
@@ -471,30 +510,6 @@ module ApplicationHelper
     end
   end
   
-
-  
-  
-  def date_box(obj, var, opts = {})
-    defaults = {  :id=>"datef#{object_id}", :button=>"dateb#{object_id}", :display=>"dated#{object_id}", :size=>15, :value=>ld(Time.now) }
-    opts = defaults.merge(opts)
-    date = eval "@#{obj} ? @#{obj}.#{var} : nil"
-    if date
-      opts[:value] = ld(date)
-    end
-    s = text_field obj, var, :size=>opts[:size], :id=>opts[:id] , :value=>opts[:value]
-    <<-EOL
-#{s}
-<img src="/calendar/iconCalendar.gif" id="#{opts[:button]}" style="cursor: pointer;" />
-  <script type="text/javascript">
-    Calendar.setup({
-        inputField     :    "#{opts[:id]}",     // id of the input field
-        button         :    "#{opts[:button]}",  // trigger for the calendar (button ID)
-        align          :    "Br",
-        singleClick    :    true
-    });
-</script>
-    EOL
-  end
   
   # Return the list of groups from the visitor for forms
   def groups

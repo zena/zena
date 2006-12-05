@@ -10,6 +10,14 @@ class Project < Page
     end
   end
   
+  # All notes from this project
+  def notes(options={})
+    options = {:order=>'log_at DESC'}.merge(options)
+    Note.with_scope(:find=>{:conditions => ["items.project_id = ?", self[:id] ]}) do
+      secure(Note) { Note.find(:all, options) }
+    end
+  end
+  
   # All events related to this project (new/modified pages, notes)
   def timeline
     []

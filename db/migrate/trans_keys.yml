@@ -229,3 +229,6 @@ trans_keys:
 
   - id:   77
     key:  'week_start_day'
+  
+  - id:   78
+    key:  'datetime'

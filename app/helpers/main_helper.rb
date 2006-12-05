@@ -6,7 +6,8 @@ module MainHelper
   end
   
   # Used by edit_buttons
-  def form_action(action, version_id=@item.v_id)
+  def form_action(action, version_id=nil)
+    version_id ||= @item.v_id
     if action == 'edit'
       "<a href='#' title='#{transb('btn_title_edit')}' onClick=\"editor=window.open('" + 
       url_for(:controller=>'version', :id=>version_id, :action=>'edit', :rnd=>rnd) + 
@@ -21,38 +22,27 @@ module MainHelper
   end
   
   # Buttons are :edit, :add, :propose, :publish, :refuse, or :drive. :all = (:edit, :propose, :publish, :refuse, :drive)
-  def edit_button(*args)
+  def edit_button(action, options={})
     res = []
-    if args[0].kind_of?(Hash)
-      action = args[0][:action]
-      klass = args[0][:class]
+    if options[:item]
+      version_id = options[:item].v_id
     else
-      action, klass = args
+      version_id = nil
     end
     if (action == :edit or action == :all) && @item.can_edit?
-      res << form_action('edit')
-    end
-    if action == :add && @item.can_write?
-      case klass.to_s
-      when 'Document'
-        res << '<li id="add_document" style="display:block;" class="btn_add">'
-        res << "<a href='#' onClick=\"uploader=window.open('#{url_for :controller=>"document", :action=>"new", :parent_id=>@item}', 'uploader', 'location=1,width=400,height=300');return false;\">#{ transb('btn_add_doc') }</a>"
-        res << '</li>'
-      when 'Page'
-        res << render_to_string( :partial=>'base/add_page' )
-      end
+      res << form_action('edit',version_id)
     end
     if (action == :propose or action == :all) && @item.can_propose?
-      res << form_action('propose')
+      res << form_action('propose',version_id)
     end
     if (action == :publish or action == :all) && @item.can_publish_item?
-      res << form_action('publish')
+      res << form_action('publish',version_id)
     end
     if (action == :refuse or action == :all) && @item.can_refuse?
-      res << form_action('refuse')
+      res << form_action('refuse',version_id)
     end
     if (action == :drive or action == :all) && @item.can_drive?
-      res << form_action('drive')
+      res << form_action('drive',version_id)
     end
     res.join("\n")
   end

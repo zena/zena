@@ -32,6 +32,10 @@ class ApplicationHelperTest < Test::Unit::TestCase
     assert_match %r{/calendar/lang/calendar-en-utf8.js}, res
   end
   
+  def test_date_box
+    assert false, 'todo'
+  end
+  
   def test_javascript
     assert_nothing_raised { javascript('test') }
   end
@@ -192,28 +196,37 @@ class ApplicationHelperTest < Test::Unit::TestCase
   def test_calendar_has_note
     op_at = items(:opening).log_at
     zena = secure(Item) { items(:zena) }
-    cal = calendar(:tiny, zena, Date.civil(op_at.year, op_at.month, 5))
+    cal = calendar(:from=>zena, :find=>:news, :date=>Date.civil(op_at.year, op_at.month, 5), :size=>:tiny)
     assert_match %r{class='sun'><p>12}, cal
     assert_match %r{<b class='has_note'>15}, cal
-    cal = calendar(:large, zena, Date.civil(op_at.year, op_at.month, 5))
-    assert_match %r{<p>15<div><a href="/en/projects/cleanWater/2006-3-15-opening">opening</a></div>}, cal
+    cal = calendar(:from=>zena, :find=>:news, :date=>Date.civil(op_at.year, op_at.month, 5), :size=>:large)
+    assert_match %r{<p>15.*onclick=.*Updater.*largecal_preview.*/z/calendar/list/.*(selected=17.*|2006-03-15.*)(selected=17.*|2006-03-15.*)</div></p>}m, cal
   end
   
   def test_calendar_today
     zena = secure(Item) { items(:zena) }
-    cal = calendar(:large, zena)
+    cal = calendar(:from=>zena, :find=>:news, :size=>:large)
     assert_match %r{<td[^>*]id='large_today'><p>#{Date.today.day}</p></td>}, cal
-    cal = calendar(:tiny, zena)
+    cal = calendar(:from=>zena, :find=>:news, :size=>:tiny)
     assert_match %r{<td[^>*]id='tiny_today'><p>#{Date.today.day}</p></td>}, cal
   end
   
   def test_notes_list_tiny_calendar_list
-    op_at = items(:opening).log_at
-    zena = secure(Item) { items(:zena) }
-    list = notes_list(:tiny, zena, Date.civil(op_at.year, op_at.month, op_at.day))
-    assert_match %r{ul.*li.*note.*h3.*log_at.*03.15.*title.*parc opening.*sign.*PTS}m, list
+    login(:tiger)
+    proj = secure(Item) { items(:cleanWater) }
+    note = secure(Note) { Note.create(:parent_id=>items_id(:cleanWater), :v_title=>'hello')}
+    list = notes(:from=>proj, :find=>:news)
+    assert_equal 1, list.size
+    assert_equal 'opening', list[0].name
   end
   
   def test_notes_list_from_project
+    login(:tiger)
+    proj = secure(Item) { items(:cleanWater) }
+    note = secure(Note) { Note.create(:parent_id=>items_id(:cleanWater), :v_title=>'hello')}
+    list = notes(:from=>proj, :find=>:notes)
+    assert_equal 2, list.size
+    assert_equal 'opening', list[0].name
+    assert_equal 'hello', list[1].name
   end
 end
