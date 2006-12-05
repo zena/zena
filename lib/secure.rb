@@ -74,27 +74,27 @@ link://rwp_groups.png
            +inherit+ is set to '0', the item has custom rwp groups. When setting it to '-1', the groups are set to 0 and
            +inherit+ is then set to '0' : this is a shortcut to make an item private.
 [read]
-		This means that the item can be seen.
+    This means that the item can be seen.
 [write]
-		This means that new versions can be proposed for the item as well as new
-		sub-pages, documents, events, etc. Basically can write = can add content. If a user has write access to
-		a #Tag, this means he can add items to this #Tag (#Tag available as a category for other items).
+    This means that new versions can be proposed for the item as well as new
+    sub-pages, documents, events, etc. Basically can write = can add content. If a user has write access to
+    a #Tag, this means he can add items to this #Tag (#Tag available as a category for other items).
 [publish]
-		This means that the content viewed by all can be altered by 
-		1. publishing new versions
-		2. changing the item itself (name, groups, location, categories, etc)
-		3. removing the item and/or sub-items
-		4. people with this access can see items that are not published yet
+    This means that the content viewed by all can be altered by 
+    1. publishing new versions
+    2. changing the item itself (name, groups, location, categories, etc)
+    3. removing the item and/or sub-items
+    4. people with this access can see items that are not published yet
 [manage]
-		This is for items that <em>have not yet been published</em> or for <em>private items</em>
-		A. <em>private item</em>
-		1. can 'publish' item (it is not really published as the item is private...)
-		2. can 'unpublish' (make this item a 'not published yet')
-		3. can change item itself (cannot change groups)
-		4. can destroy
-		B. <em>item not published yet</em> only :
-		5. make an item private (sets all groups to 0) or revert item to default groups (same as parent or project)
-		5. can see item (edition = personal redaction or latest version)
+    This is for items that <em>have not yet been published</em> or for <em>private items</em>
+    A. <em>private item</em>
+    1. can 'publish' item (it is not really published as the item is private...)
+    2. can 'unpublish' (make this item a 'not published yet')
+    3. can change item itself (cannot change groups)
+    4. can destroy
+    B. <em>item not published yet</em> only :
+    5. make an item private (sets all groups to 0) or revert item to default groups (same as parent or project)
+    5. can see item (edition = personal redaction or latest version)
 [max_status]
     This is set to the highest status of all versions. Order from highest to lowest are : 'pub', 'prop', 'red', 'rep', 'rem', 'del'
 
@@ -151,11 +151,11 @@ In the model :
 
 In the helpers (if you intend to use secure find there...)
   require 'lib/acts_as_secure'
-	module ApplicationHelper
-	  include Zena::Acts::SecureScope
-	  include Zena::Acts::SecureController::InstanceMethods
-	  # ...
-	end
+  module ApplicationHelper
+    include Zena::Acts::SecureScope
+    include Zena::Acts::SecureController::InstanceMethods
+    # ...
+  end
 Just doing the above will filter all result according to the logged in user.
 =end
     module Secure

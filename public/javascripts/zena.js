@@ -11,11 +11,11 @@ Zena.editor_preview = function(element, value, item_id) {
 
 // update content from another window
 Zena.update = function( tag, url ) {
-	if (window.is_editor) {
-		opener.Zena.update(tag,url);
-	} else {
-	  new Ajax.Updater(tag, url, {asynchronous:true, evalScripts:true, onComplete:function(){ new Effect.Highlight(tag); }});
-	}
+  if (window.is_editor) {
+    opener.Zena.update(tag,url);
+  } else {
+    new Ajax.Updater(tag, url, {asynchronous:true, evalScripts:true, onComplete:function(){ new Effect.Highlight(tag); }});
+  }
   return false;
 }
 
@@ -25,8 +25,8 @@ Zena.transfer = function(src,trgt) {
   source = $(src);
   target.innerHTML = source.innerHTML;
   if (!target.visible()) {
-	  Effect.BlindDown(trgt);
-	}
+    Effect.BlindDown(trgt);
+  }
 }
 
 // get the name of a file from the path
@@ -36,10 +36,10 @@ Zena.get_name = function(path) {
 }
 
 Zena.clear_file = function(input_id) {
-	var obj = $(input_id);
-	var name = obj.getAttribute('name');
-	var parent = obj.parentNode;
-	parent.removeChild(obj);
+  var obj = $(input_id);
+  var name = obj.getAttribute('name');
+  var parent = obj.parentNode;
+  parent.removeChild(obj);
   var newobj = document.createElement('input');
   newobj.setAttribute('id',input_id);
   newobj.setAttribute('type','file');
@@ -48,29 +48,29 @@ Zena.clear_file = function(input_id) {
 var current_form = false;
 
 Zena.get_key = function(e) {
-	if (window.event)
-	   return window.event.keyCode;
-	else if (e)
-	   return e.which;
-	else
-	   return null;
+  if (window.event)
+     return window.event.keyCode;
+  else if (e)
+     return e.which;
+  else
+     return null;
 }
 
 Zena.key_press = function(e,obj) {
-	var key = Zena.get_key(e);
-	var evtobj=window.event? event : e;
-	window.status = key;
-	switch(key) {
-		case 6:
-			if (window.current_form) {
-				//window.current_form.focus();
-				$(window.current_form).focus();
-				window.current_form = false;
-			}
-			else {
-				window.current_form = obj;
-				$("search").focus();
-			}
-			break;
-	} 
+  var key = Zena.get_key(e);
+  var evtobj=window.event? event : e;
+  window.status = key;
+  switch(key) {
+    case 6:
+      if (window.current_form) {
+        //window.current_form.focus();
+        $(window.current_form).focus();
+        window.current_form = false;
+      }
+      else {
+        window.current_form = obj;
+        $("search").focus();
+      }
+      break;
+  } 
 }

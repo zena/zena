@@ -784,7 +784,7 @@ class SecureUpdateTest < Test::Unit::TestCase
     item.name = "kali"
     assert item.save
   end
-  # 		3. removing the item and/or sub-items
+  #     3. removing the item and/or sub-items
   def test_destroy
     visitor(:ant)
     item = secure(Item) { items(:status)  }

@@ -207,4 +207,13 @@ class ApplicationHelperTest < Test::Unit::TestCase
     assert_match %r{<td[^>*]id='tiny_today'><p>#{Date.today.day}</p></td>}, cal
   end
   
+  def test_notes_list_tiny_calendar_list
+    op_at = items(:opening).log_at
+    zena = secure(Item) { items(:zena) }
+    list = notes_list(:tiny, zena, Date.civil(op_at.year, op_at.month, op_at.day))
+    assert_match %r{ul.*li.*note.*h3.*log_at.*03.15.*title.*parc opening.*sign.*PTS}m, list
+  end
+  
+  def test_notes_list_from_project
+  end
 end

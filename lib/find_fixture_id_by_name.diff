@@ -1,7 +1,7 @@
 Index: lib/active_record/fixtures.rb
 ===================================================================
---- lib/active_record/fixtures.rb	(revision 4267)
-+++ lib/active_record/fixtures.rb	(working copy)
+--- lib/active_record/fixtures.rb  (revision 4267)
++++ lib/active_record/fixtures.rb  (working copy)
 @@ -394,15 +394,20 @@
    def value_list
      @fixture.values.map { |v| ActiveRecord::Base.connection.quote(v).gsub('\\n', "\n").gsub('\\r', "\r") }.join(", ")

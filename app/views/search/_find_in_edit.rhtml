@@ -3,18 +3,18 @@
 <% else %>
 <table>
   <% results.each do |item| -%>
-	<tr><td colspan='2' class='result_break'></td></tr>
-	<tr>
-		<% if item.kind_of?(Document) %>
-		<td class='result_image'><%= item.img_tag('mini') %></td><td class='result_docinfo'>
-		<% else %>
-		<td colspan='2' class='result_info'>
-		<% end %>	
-			<p class='result_id'><%= item[:id] %></p>
-			<p class='result_name'><%= item.name %></p>
-			<p class='result_path'><%= link_to(item.fullpath.join('/ '), {:controller=>'main', :action=>'show', :path=>item.fullpath, :prefix=>prefix}, :popup=>true) %></p>
-			</td>
-	</tr>
-	<% end %>
+  <tr><td colspan='2' class='result_break'></td></tr>
+  <tr>
+    <% if item.kind_of?(Document) %>
+    <td class='result_image'><%= item.img_tag('mini') %></td><td class='result_docinfo'>
+    <% else %>
+    <td colspan='2' class='result_info'>
+    <% end %>  
+      <p class='result_id'><%= item[:id] %></p>
+      <p class='result_name'><%= item.name %></p>
+      <p class='result_path'><%= link_to(item.fullpath.join('/ '), {:controller=>'main', :action=>'show', :path=>item.fullpath, :prefix=>prefix}, :popup=>true) %></p>
+      </td>
+  </tr>
+  <% end %>
 </table>
 <% end %>

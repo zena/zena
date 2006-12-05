@@ -62,15 +62,15 @@ module MainHelper
     trad_list = []
     lang_found = false
     obj.traductions.map do |ed|
-  		if ed == obj.v_lang
-  		  lang_found = (ed == lang) # current item is in the requested lang
-  			trad_list << "<span class='on'>" + link_to( ed, change_lang(ed)) + "</span>"
-  		else
-  			trad_list << "<span>" + link_to( ed, change_lang(ed)) + "</span>"
-  		end
-  	end
-	  trad_list << "<span class='off'>#{lang}</span>" unless lang_found
-	  trad_list
+      if ed == obj.v_lang
+        lang_found = (ed == lang) # current item is in the requested lang
+        trad_list << "<span class='on'>" + link_to( ed, change_lang(ed)) + "</span>"
+      else
+        trad_list << "<span>" + link_to( ed, change_lang(ed)) + "</span>"
+      end
+    end
+    trad_list << "<span class='off'>#{lang}</span>" unless lang_found
+    trad_list
   end
   
   def change_lang(new_lang)

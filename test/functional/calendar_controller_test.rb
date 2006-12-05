@@ -28,5 +28,9 @@ class CalendarControllerTest < Test::Unit::TestCase
     assert_response :success
     assert_tag :td, :attributes=>{:id=>'large_today'}, :child=>{:tag=>'p', :content=>Date.today.day.to_s}
   end
+  
+  def test_list
+    
+  end
 
 end

@@ -2,7 +2,7 @@
 * {margin: 0; padding: 0;}
 a {text-decoration: none; color:#266F92;}
 a img {border: none;}
-body {font: 0.9em Verdana, sans-serif; line-height: 1; color: #333;	behavior: url('stylesheets/csshover2.htc');} /* WinIE hack */
+body {font: 0.9em Verdana, sans-serif; line-height: 1; color: #333;  behavior: url('stylesheets/csshover2.htc');} /* WinIE hack */
 .img_left  img { margin:0px 5px 5px 0; float:left;}
 .img_right img { margin:0px 0 5px 5px; float:right;}
 p.img_left, p.img_right { margin:0; padding:0;}

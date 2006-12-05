@@ -1,56 +1,56 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
-		"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-	<title><%= @item.v_title %></title>
-	<meta http-equiv="Content-type" content="text/html; charset=utf-8" />
-	<meta http-equiv="Content-Language" content="fr-fr" />
+  <title><%= @item.v_title %></title>
+  <meta http-equiv="Content-type" content="text/html; charset=utf-8" />
+  <meta http-equiv="Content-Language" content="fr-fr" />
   <%= stylesheet_link_tag( 'zen', 'wiki' ) %>
-	<%= javascript_include_tag 'prototype', 'effects', 'zena' %>
-	<%= uses_calendar %>
-	<%= javascript "zena['item_id'] = #{@item.id};" %>
-	<%= javascript "Calendar._TT[\"DEF_DATE_FORMAT\"] = \"#{trans('long_date')}\";" if trans('long_date') != 'long_date' %>
+  <%= javascript_include_tag 'prototype', 'effects', 'zena' %>
+  <%= uses_calendar %>
+  <%= javascript "zena['item_id'] = #{@item.id};" %>
+  <%= javascript "Calendar._TT[\"DEF_DATE_FORMAT\"] = \"#{trans('long_date')}\";" if trans('long_date') != 'long_date' %>
 </head>
 
 <body <%= @su %>>
-	
+  
 
   <div id="navbar">
-		<%= lang_ajax_link %>
-		<%= path_links   %>
-  	<%= login_link   %>
-  	<%= visitor_link %>
+    <%= lang_ajax_link %>
+    <%= path_links   %>
+    <%= login_link   %>
+    <%= visitor_link %>
   </div>
 
   <%= logo Time.now  %>
   <%= flash_messages %>
 
   <div id="left">
-  	<%#= plug :documents %>
+    <%#= plug :documents %>
   </div>
   <div id="main">
-		<% if @item.kind_of?(Document) -%>
-			<%= render :partial=>'main/doc_title' %>
-		<% else -%>
-			<%= render :partial=>'main/title' %>
-		<% end -%>
-  	<div id="drive" style="display:none;"></div>
+    <% if @item.kind_of?(Document) -%>
+      <%= render :partial=>'main/doc_title' %>
+    <% else -%>
+      <%= render :partial=>'main/title' %>
+    <% end -%>
+    <div id="drive" style="display:none;"></div>
 
-  	<div id="content">
-			<div id="summary"><%= zazen @item.v_summary %></div>
-			<div id="text">   <%= zazen @item.v_text    %></div>
-  		<%#= plug :comments %>
+    <div id="content">
+      <div id="summary"><%= zazen @item.v_summary %></div>
+      <div id="text">   <%= zazen @item.v_text    %></div>
+      <%#= plug :comments %>
 
-  		<h3><%= trans('suite:')%></h3>
-  		<%= render :partial=>'page/list' %>
-			<h3><%= trans('documents:')%></h3>
+      <h3><%= trans('suite:')%></h3>
+      <%= render :partial=>'page/list' %>
+      <h3><%= trans('documents:')%></h3>
         <div id='documents'>
-    			<%= render :partial=>'document/list' %>
+          <%= render :partial=>'document/list' %>
         </div>
-  	</div>
+    </div>
 
   </div>
-	
+  
 </body>
 </html>

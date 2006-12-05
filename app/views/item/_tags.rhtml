@@ -1,6 +1,6 @@
 <tr>
-	<td>Tags:</td>
-	<td><ul><%= @item.tags_for_form.inject([]) do |list, tag|
+  <td>Tags:</td>
+  <td><ul><%= @item.tags_for_form.inject([]) do |list, tag|
         list << "<input type='checkbox' name='item[tag_ids][]' value='#{tag[:id]}'#{tag[:link_id] ? "checked='true'" : ""} class='box'/>#{tag[:name]}"
         list
       end.join(" ") %></ul>

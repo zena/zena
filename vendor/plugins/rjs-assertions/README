@@ -9,45 +9,45 @@ conditions.
 
 
 Usage:
-	assert_rjs_tag & assert_rjs_no_tag
-	- Same options as assert_tag/assert_no_tag.  :rjs option can
-	  added to limit scope of assert.  Example:
-		
-				# Asserts the content exists in any HTML fragments.
-				assert_rjs_tag :content => 'Hello World'	
+  assert_rjs_tag & assert_rjs_no_tag
+  - Same options as assert_tag/assert_no_tag.  :rjs option can
+    added to limit scope of assert.  Example:
+    
+        # Asserts the content exists in any HTML fragments.
+        assert_rjs_tag :content => 'Hello World'  
 
-				# Asserts the content exists in HTML fragments being added
-				# to or replacing the greeting_div_id HTML.
-				assert_rjs_tag :rjs => {:block => 'greeting_div_id'}.
-					   			:content => 'Hello World'	
+        # Asserts the content exists in HTML fragments being added
+        # to or replacing the greeting_div_id HTML.
+        assert_rjs_tag :rjs => {:block => 'greeting_div_id'}.
+                   :content => 'Hello World'  
 
-	assert_rjs_visual_effect:  
-	- Accepts two arguments, a string representing the id of the block the effect
-	  should be performed on, and a symbol or string of the effect.
-	  (Currently only supports "show" and "hide")  Example:
-							
-				assert_rjs_visual_effect 'greeting_div_id', :show
+  assert_rjs_visual_effect:  
+  - Accepts two arguments, a string representing the id of the block the effect
+    should be performed on, and a symbol or string of the effect.
+    (Currently only supports "show" and "hide")  Example:
+              
+        assert_rjs_visual_effect 'greeting_div_id', :show
 
 
 Example:
 
 Say you have an action that triggers the following RJS template:
 
-	page.replace_html 'details_column_left', 	:partial => 'field', :collection => @left_column,
-		:locals => {:values => @field_hash}
-	page.replace_html 'details_column_right', 	:partial => 'field', :collection => @right_column,
-		:locals => {:values => @field_hash}
-	page.hide 'information_save_button'
-	page.show 'information_edit_button'
-	page.hide 'field_errors'
+  page.replace_html 'details_column_left',   :partial => 'field', :collection => @left_column,
+    :locals => {:values => @field_hash}
+  page.replace_html 'details_column_right',   :partial => 'field', :collection => @right_column,
+    :locals => {:values => @field_hash}
+  page.hide 'information_save_button'
+  page.show 'information_edit_button'
+  page.hide 'field_errors'
 
 
 The action JavaScript response sent to the browser might end up looking something like:
 
-	Element.update("details_column_left", "<label for=\"field[35]\">Preferred:</label>");
-	Element.update("details_column_right", "<label for=\"field[34]\">Locations:</label>");
-	Element.hide("information_save_button");
-	Element.show("information_edit_button");
+  Element.update("details_column_left", "<label for=\"field[35]\">Preferred:</label>");
+  Element.update("details_column_right", "<label for=\"field[34]\">Locations:</label>");
+  Element.hide("information_save_button");
+  Element.show("information_edit_button");
 
 
 Using RJS Assertions, you can now assert various conditions on this response.  Note the example

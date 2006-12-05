@@ -17,7 +17,7 @@ class CalendarController < ApplicationController
     @source   = secure(Item) { Item.find(params[:id]) }
     @date     = params[:date] ? Date.parse(params[:date]) : nil
     @selected = params[:selected]
-    render :inline=>"<%= calendar_list(@format, @source, @date, :selected=>@selected) %>"
+    render :inline=>"<%= notes_list(@format, @source, @date, :selected=>@selected) %>"
   rescue ActiveRecord::RecordNotFound
     render :nothing=>true
   end

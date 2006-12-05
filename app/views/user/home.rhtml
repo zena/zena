@@ -1,48 +1,48 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
-		"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-	<title><%= @user.fullname %></title>
-	<meta http-equiv="Content-type" content="text/html; charset=utf-8" />
-	<meta http-equiv="Content-Language" content="fr-fr" />
+  <title><%= @user.fullname %></title>
+  <meta http-equiv="Content-type" content="text/html; charset=utf-8" />
+  <meta http-equiv="Content-Language" content="fr-fr" />
   <%= stylesheet_link_tag( 'zen' ) %>
-	<%= javascript_include_tag 'prototype', 'effects', 'zena' %>
-	<%= uses_calendar %>
-	<%= javascript "Calendar._TT[\"DEF_DATE_FORMAT\"] = \"#{trans('long_date')}\";" if trans('long_date') != 'long_date' %>
+  <%= javascript_include_tag 'prototype', 'effects', 'zena' %>
+  <%= uses_calendar %>
+  <%= javascript "Calendar._TT[\"DEF_DATE_FORMAT\"] = \"#{trans('long_date')}\";" if trans('long_date') != 'long_date' %>
 </head>
 
 <body <%= @su %>>
 
 
-	<div id="navbar">
-		<%= lang_links %>
-		<%= login_link   %>
-		<%= visitor_link %>
-	</div>
+  <div id="navbar">
+    <%= lang_links %>
+    <%= login_link   %>
+    <%= visitor_link %>
+  </div>
 
-	<%= show_menu      %>
-	<%= logo Time.now  %>
-	<%= flash_messages %>
+  <%= show_menu      %>
+  <%= logo Time.now  %>
+  <%= flash_messages %>
 
-	<div id="left">
-		<%#= plug :calendar, :tiny %>
-		<%#= plug :notes %>
-	</div>
-	<div id="main">
-		<div id="content">
-			<h2><%= trans "home of" %> <%= @user.fullname %></h2>
-  		<%= translation_link %>
-			<%#= plug :admin %>
+  <div id="left">
+    <%#= plug :calendar, :tiny %>
+    <%#= plug :notes %>
+  </div>
+  <div id="main">
+    <div id="content">
+      <h2><%= trans "home of" %> <%= @user.fullname %></h2>
+      <%= translation_link %>
+      <%#= plug :admin %>
 
-		</div>
+    </div>
 
-		<div id="right">
-			<%#= plug :user, :redactions %>
-			<%#= plug :user, :proposed   %>
-			<%#= plug :user, :to_publish %>
-		</div>
-	</div>
+    <div id="right">
+      <%#= plug :user, :redactions %>
+      <%#= plug :user, :proposed   %>
+      <%#= plug :user, :to_publish %>
+    </div>
+  </div>
 
 </body>
 </html>

@@ -29,8 +29,8 @@ module ApplicationHelper
     <script src="/calendar/calendar.js" type="text/javascript"></script>
     <script src="/calendar/calendar-setup.js" type="text/javascript"></script>
     <script src="/calendar/lang/calendar-#{l}-utf8.js" type="text/javascript"></script>
-  	<link href="/calendar/calendar-brown.css" media="screen" rel="Stylesheet" type="text/css" />
-  	EOL
+    <link href="/calendar/calendar-brown.css" media="screen" rel="Stylesheet" type="text/css" />
+    EOL
   end
   
   # Translate submit_tag
@@ -368,22 +368,22 @@ module ApplicationHelper
   
       title = "#{trans(Date::MONTHNAMES[date.mon])} #{date.year}"
   
-  		head_day_names = []
-  		0.upto(6) do |i|
-  		  head_day_names << "<td>#{trans(day_names[(i+week_start_day) % 7])}</td>"
-  		end
-	
+      head_day_names = []
+      0.upto(6) do |i|
+        head_day_names << "<td>#{trans(day_names[(i+week_start_day) % 7])}</td>"
+      end
+  
       content = []
-  	  start_date.step(end_date,7) do |week|
-  	    # each week
-  		  content << "<tr class='body'>"
-  			week.step(week+6,1) do |day|
-  			  # each day
+      start_date.step(end_date,7) do |week|
+        # each week
+        content << "<tr class='body'>"
+        week.step(week+6,1) do |day|
+          # each day
           content << "<td#{ calendar_class(day,date)}#{day == Date.today ? " id='#{format}_today'" : "" }><p>#{on_day.call(calendar[day.strftime("%Y-%m-%d")], day)}</p></td>"
-  			end
-  		  content << '</tr>'
-  		end
-  		
+        end
+        content << '</tr>'
+      end
+      
       render_to_string(:partial=>"calendar/#{format}", :locals=>{ :content=>content.join("\n"), 
                                                              :day_names=>head_day_names.join(""),
                                                              :title=>title, 
@@ -392,7 +392,7 @@ module ApplicationHelper
     end
   end
 
-  def calendar_list(format, source, date=nil, options={})
+  def notes_list(format, source, date=nil, options={})
     method, day_names, on_day = calendar_get_options(format, source)
     notes = source.send(method,:conditions=>['date(log_at) = ?', date], :order=>'log_at ASC')
     selected = options[:selected] ? options[:selected].to_i : nil
@@ -474,18 +474,18 @@ module ApplicationHelper
 
   
   
-	def date_box(obj, var, opts = {})
-	  defaults = {  :id=>"datef#{object_id}", :button=>"dateb#{object_id}", :display=>"dated#{object_id}", :size=>15, :value=>ld(Time.now) }
-	  opts = defaults.merge(opts)
-	  date = eval "@#{obj} ? @#{obj}.#{var} : nil"
-	  if date
-	    opts[:value] = ld(date)
+  def date_box(obj, var, opts = {})
+    defaults = {  :id=>"datef#{object_id}", :button=>"dateb#{object_id}", :display=>"dated#{object_id}", :size=>15, :value=>ld(Time.now) }
+    opts = defaults.merge(opts)
+    date = eval "@#{obj} ? @#{obj}.#{var} : nil"
+    if date
+      opts[:value] = ld(date)
     end
-	  s = text_field obj, var, :size=>opts[:size], :id=>opts[:id] , :value=>opts[:value]
-		<<-EOL
+    s = text_field obj, var, :size=>opts[:size], :id=>opts[:id] , :value=>opts[:value]
+    <<-EOL
 #{s}
 <img src="/calendar/iconCalendar.gif" id="#{opts[:button]}" style="cursor: pointer;" />
-	<script type="text/javascript">
+  <script type="text/javascript">
     Calendar.setup({
         inputField     :    "#{opts[:id]}",     // id of the input field
         button         :    "#{opts[:button]}",  // trigger for the calendar (button ID)
@@ -493,12 +493,12 @@ module ApplicationHelper
         singleClick    :    true
     });
 </script>
-		EOL
-	end
-	
-	# Return the list of groups from the visitor for forms
-	def groups
-	  @groups ||= Group.find(:all, :select=>'id, name', :conditions=>"id IN (#{user_groups.join(',')})", :order=>"name ASC").collect {|p| [p.name, p.id]}
+    EOL
+  end
+  
+  # Return the list of groups from the visitor for forms
+  def groups
+    @groups ||= Group.find(:all, :select=>'id, name', :conditions=>"id IN (#{user_groups.join(',')})", :order=>"name ASC").collect {|p| [p.name, p.id]}
   end
   
   def site_tree(opt={})

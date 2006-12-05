@@ -1,13 +1,13 @@
 <ul>
 <% notes.each do |note| -%>
 <li class='note'<%= note[:id] == selected ? " id='note_selected'" : "" %>>
-	<h3 class='li_s<%= note.v_status %>'>
-	  <p class='log_at'><%= short_date note.log_at %></p>
-	  <p class='title'><%= note.v_title %></p>
-	  <p class='sign'><%= note.v_author.initials %></p>
-	</h3>
-	<div class='text'><%= zazen note.v_text %></div>
-	<div class='clear'></div>
+  <h3 class='li_s<%= note.v_status %>'>
+    <p class='log_at'><%= short_date note.log_at %></p>
+    <p class='title'><%= note.v_title %></p>
+    <p class='sign'><%= note.v_author.initials %></p>
+  </h3>
+  <div class='text'><%= zazen note.v_text %></div>
+  <div class='clear'></div>
 </li>
 <% end -%>
 </ul>

@@ -69,7 +69,7 @@ p.img_left, p.img_right { margin:0; padding:0;}
 
 /* INLINE FORMS */
 .inline_form { margin:2px; padding:3px; background:#9FA6AC; border:1px dotted grey;}
-/* 	on background color change, change ajax-loader.gif : http://www.ajaxload.info/ --> */
+/*   on background color change, change ajax-loader.gif : http://www.ajaxload.info/ --> */
 
 /* BUTTONS */
 .hidden { visibility:hidden; }
@@ -288,10 +288,10 @@ table.largecal { border:1px solid #655; font-size:0.8em; margin:auto; width:80%;
 table.admin_ug, table.admin_ug table { border-width:1px 0 0 0; margin:auto; border-color:#333; border-style:solid; margin:5px; }
 table.admin_ug { width:600px; }
 
-#admin_users  table.admin_ug {background:#B3CC92}	
+#admin_users  table.admin_ug {background:#B3CC92}  
 #admin_groups table.admin_ug {background:#91B9AE}
 .admin_ug td { font-family:monaco,monospace; padding: 3px; font-size:0.9em; height:18px; border-right:1px solid #333;
-	border-bottom:1px solid #333; }
+  border-bottom:1px solid #333; }
 table.admin_ug td:first-child { border-left: 1px solid #333; }
 .admin_ug
 #add_user  td { border: 0;}

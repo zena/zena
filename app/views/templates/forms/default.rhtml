@@ -1,67 +1,67 @@
 <div id="loader" class="hidden"><img src="/images/ajax-loader.gif"/> <%= trans("uploading, please wait...") %></div>
 <div id="popup_action">
-	<%= error_messages_for "item" %>
+  <%= error_messages_for "item" %>
 
-	<table>
-		<tr>
-			<td id="edit" rowspan='3'>
-				<% if @item.kind_of?(Document) -%>
-			  <%= start_form_tag({ :action => "save", :controller=>'version', :rnd=>rnd }, :id => "item_form", :multipart=>true ) %>
-				<% else -%>
-			  <%= start_form_tag({ :action => "save", :controller=>'version' }, :id => "item_form" ) %>
-				<% end -%>
-			  <%= hidden_field 'item', 'v_lang', :value=>@item.v_lang %>
-				<%= hidden_field 'item', 'id' %>
-				<label for="v_comment"><%= trans("comment") %></label>
-				<%= text_area 'item', 'v_comment', :cols=>nil, :rows=>nil %>
-				<hr/>
-				<%= zazen("!>.0#{@item.id}!") %>
-				<label for="v_title"><%= trans("title")  %></label>
-				<%= text_field 'item', 'v_title', :size=>nil, :style=>"width:60%;" %>
-				<label for="v_summary"><%= trans("summary")  %></label>
-				<%= text_area 'item', 'v_summary', :cols=>nil, :rows=>4, :value=>@item.v_summary %>
-				<label for="v_text"><%= trans("content") %></label>
-				<%= text_area 'item', 'v_text', :cols=>nil, :rows=>17, :value=>@item.v_text %>
-				<% if @item.kind_of?(Document) -%>
-					<div id="file"><%= link_to_function trans("change document"), "new Element.toggle('file', 'file_form');" %></div>
-					<div id="file_form" style='display:none;'><%= link_to_function(trans("cancel"), "new Element.toggle('file', 'file_form');Zena.clear_file('item_file');")%>
-					<label for="document"><%= trans("change document") %></label>
-					<%= file_field 'item', 'c_file', :size=>nil %>
-					</div>
-				<% end -%>
-				  
-  				<p class='add_document'><a href='#' onClick='uploader=window.open("<%= url_for :controller=>'document', :action=>'new', :parent_id=>@item %>", "uploader", "location=1,width=400,height=300");uploader.opener = opener;return false;'><%= transb('btn_add_document')%></a></p>
-  				
-				  <p class='btn_validate'><%= link_to_function transb('cancel'), "opener.location.href=opener.location.href; self.close();" %><input type="submit" class="btn_validate" onClick="$('loader').style.visibility = 'visible';" value='<%= transb('validate') %>'/></p>
-				<%= end_form_tag %> 
-				
-			</td>
-			<td id="search_box">
-				<label for="search"><%= trans("search")  %></label>
-				<%= form_remote_tag(:update=>'search_results', 
-									:url=>{:controller=>'search', :action=>'find_in_edit', :id=>@item[:id]}, 
-									:loading => "Element.show('spinner')",
-									:complete => "Element.hide('spinner')") %>
-				<input type='text' id='search' name='search'/>
-				<%= end_form_tag %>
-				<%#= observe_field(:for,
-				  #               :frequency => 1.0,
-				  #               :update => :search_results,
-				  #               :loading => "Element.show('spinner')",
-				  #               :complete => "Element.hide('spinner')",
-				  #               :url => { :action => 'find', :controller=>'search' }) 
-				%>
-			</td>
-		</tr>
-		<tr>
-			<td id='ajax-loader'><img alt="spinner" id="spinner" src="/images/ajax-loader.gif" style="display:none;" /></td>
-		</tr>
-		<tr>
-			<td id="search_results">
-				<%= render :partial=>'search/find_in_edit', :locals=>{:results =>@item.children} %>
-			</td>
-		</tr>
-	</table>
+  <table>
+    <tr>
+      <td id="edit" rowspan='3'>
+        <% if @item.kind_of?(Document) -%>
+        <%= start_form_tag({ :action => "save", :controller=>'version', :rnd=>rnd }, :id => "item_form", :multipart=>true ) %>
+        <% else -%>
+        <%= start_form_tag({ :action => "save", :controller=>'version' }, :id => "item_form" ) %>
+        <% end -%>
+        <%= hidden_field 'item', 'v_lang', :value=>@item.v_lang %>
+        <%= hidden_field 'item', 'id' %>
+        <label for="v_comment"><%= trans("comment") %></label>
+        <%= text_area 'item', 'v_comment', :cols=>nil, :rows=>nil %>
+        <hr/>
+        <%= zazen("!>.0#{@item.id}!") %>
+        <label for="v_title"><%= trans("title")  %></label>
+        <%= text_field 'item', 'v_title', :size=>nil, :style=>"width:60%;" %>
+        <label for="v_summary"><%= trans("summary")  %></label>
+        <%= text_area 'item', 'v_summary', :cols=>nil, :rows=>4, :value=>@item.v_summary %>
+        <label for="v_text"><%= trans("content") %></label>
+        <%= text_area 'item', 'v_text', :cols=>nil, :rows=>17, :value=>@item.v_text %>
+        <% if @item.kind_of?(Document) -%>
+          <div id="file"><%= link_to_function trans("change document"), "new Element.toggle('file', 'file_form');" %></div>
+          <div id="file_form" style='display:none;'><%= link_to_function(trans("cancel"), "new Element.toggle('file', 'file_form');Zena.clear_file('item_file');")%>
+          <label for="document"><%= trans("change document") %></label>
+          <%= file_field 'item', 'c_file', :size=>nil %>
+          </div>
+        <% end -%>
+          
+          <p class='add_document'><a href='#' onClick='uploader=window.open("<%= url_for :controller=>'document', :action=>'new', :parent_id=>@item %>", "uploader", "location=1,width=400,height=300");uploader.opener = opener;return false;'><%= transb('btn_add_document')%></a></p>
+          
+          <p class='btn_validate'><%= link_to_function transb('cancel'), "opener.location.href=opener.location.href; self.close();" %><input type="submit" class="btn_validate" onClick="$('loader').style.visibility = 'visible';" value='<%= transb('validate') %>'/></p>
+        <%= end_form_tag %> 
+        
+      </td>
+      <td id="search_box">
+        <label for="search"><%= trans("search")  %></label>
+        <%= form_remote_tag(:update=>'search_results', 
+                  :url=>{:controller=>'search', :action=>'find_in_edit', :id=>@item[:id]}, 
+                  :loading => "Element.show('spinner')",
+                  :complete => "Element.hide('spinner')") %>
+        <input type='text' id='search' name='search'/>
+        <%= end_form_tag %>
+        <%#= observe_field(:for,
+          #               :frequency => 1.0,
+          #               :update => :search_results,
+          #               :loading => "Element.show('spinner')",
+          #               :complete => "Element.hide('spinner')",
+          #               :url => { :action => 'find', :controller=>'search' }) 
+        %>
+      </td>
+    </tr>
+    <tr>
+      <td id='ajax-loader'><img alt="spinner" id="spinner" src="/images/ajax-loader.gif" style="display:none;" /></td>
+    </tr>
+    <tr>
+      <td id="search_results">
+        <%= render :partial=>'search/find_in_edit', :locals=>{:results =>@item.children} %>
+      </td>
+    </tr>
+  </table>
 <%= javascript_start %>
 new Form.Observer('item_form', 2, function(element,value){ opener.Zena.editor_preview(element,value,"<%= @item.id %>")});
 <%= javascript_end %>
