@@ -5,7 +5,6 @@ require 'main_controller'
 class MainController; def rescue_action(e) raise e end; end
 
 class MainControllerTest < Test::Unit::TestCase
-
   include ZenaTestController
   
   def setup

@@ -8,7 +8,7 @@
   </td>
   </tr>
   <tr><td colspan='3'>
-      <table cellspacing='0' onClick="Zena.tinycal(event, '<%= url_for(:controller=>'calendar', :action=>'open', :size=>'large', :find=>method, :id=>source[:id], :date=>date, :rnd=>rnd) %>')">
+      <table cellspacing='0' onClick="Zena.open_cal(event, '<%= url_for(:controller=>'calendar', :action=>'open', :size=>'large', :find=>method, :id=>source[:id], :date=>date, :rnd=>rnd) %>')">
         <tr class="head"> <%= day_names %> </tr>
         <%= content %>
       </table>

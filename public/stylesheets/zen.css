@@ -115,7 +115,7 @@ td.subtitle { vertical-align:top; padding:6px; }
 .li_s40 a { border-bottom: 2px solid #73A1A5; }
 .li_s35 a { border-bottom: 2px dotted #73A1A5; }
 .li_s30 a { border-bottom: 2px solid #B7CC87; }
-.wrong_lang { color: grey; }
+.wrong_lang { color: grey; font-weight:normal; font-size:0.9em; text-transform:none;}
 .s40  { border-bottom: 10px solid #73A1A5; padding: 4px; }
 .s30  { border-bottom: 10px solid #B7CC87; padding: 4px; }
 .s10, .s20 {  border-color:#685958; border-bottom: 1px solid grey; padding: 4px; }

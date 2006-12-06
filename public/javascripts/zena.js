@@ -46,7 +46,7 @@ Zena.clear_file = function(input_id) {
   parent.appendChild(newobj);
 }
 
-Zena.tinycal = function(e, url) {
+Zena.open_cal = function(e, url) {
 	var e = e || window.event; // IE
 	var tgt = e.target || e.srcElement; // IE
 	day = tgt.innerHTML;

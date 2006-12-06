@@ -9,16 +9,16 @@
         <% else -%>
         <%= start_form_tag({ :action => "save", :controller=>'version' }, :id => "item_form" ) %>
         <% end -%>
-        <%= text_field 'item', 'v_lang', :value=>@item.v_lang %>
+        <%= hidden_field 'item', 'v_lang', :value=>@item.v_lang %>
         <%= hidden_field 'item', 'id' %>
         <%= hidden_field 'item', 'v_id' %>
         <label for="v_comment"><%= trans("comment") %></label>
         <%= text_area 'item', 'v_comment', :cols=>nil, :rows=>nil %>
         <hr/>
         <%= zazen("!>.0#{@item.id}!") if @item.kind_of?(Document) %>
-        <%= link_box('item', 'calendars', [1,@item.project_id]) if @item.kind_of?(Note)%>
         <label for="v_title"><%= trans("title")  %></label>
         <%= text_field 'item', 'v_title', :size=>nil, :style=>"width:60%;" %>
+        <%= link_box('item', 'calendars', [1,@item.project_id]) if @item.kind_of?(Note)%>
         <% unless @item.kind_of?(Note) -%>
         <label for="v_summary"><%= trans("summary")  %></label>
         <%= text_area 'item', 'v_summary', :cols=>nil, :rows=>4, :value=>@item.v_summary %>

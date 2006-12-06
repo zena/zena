@@ -44,8 +44,6 @@ module Zena
         def version=(v)
           if v.kind_of?(Version)
             @version = v
-            # keep a trace of this operation in case the user 'edits' this version
-            @version_selected = true
           end
         end
         
@@ -240,11 +238,7 @@ module Zena
           return @redaction if @redaction
           begin
             # is there a current redaction ?
-            if @version_selected
-              v = versions.find(:first, :conditions=>["status >= #{Zena::Status[:red]} AND status < #{Zena::Status[:pub]} AND lang=?", version.lang])
-            else
-              v = versions.find(:first, :conditions=>["status >= #{Zena::Status[:red]} AND status < #{Zena::Status[:pub]} AND lang=?", visitor_lang])
-            end
+            v = versions.find(:first, :conditions=>["status >= #{Zena::Status[:red]} AND status < #{Zena::Status[:pub]} AND lang=?", visitor_lang])
           rescue ActiveRecord::RecordNotFound
             v = nil
           end
@@ -256,17 +250,8 @@ module Zena
             v.comment = ''
             v.number = ''
             v.user_id = visitor_id
-            if v.content_class
-              v[:content_id] = version[:content_id] || version[:id]
-            else
-              v[:content_id] = nil
-            end
-            if ( @version_selected == true )
-              # user selected a specific version, do not change lang
-              @version_selected = false
-            else
-              v.lang = visitor_lang
-            end
+            v.lang = visitor_lang
+            v[:content_id] = version[:content_id] || version[:id]
             v.item = self
           end
           if v && (v.user_id == visitor_id) && v.status == Zena::Status[:red]
