@@ -1,3 +1,4 @@
+<h3 class='note_title'><%= format_date(@note_date, 'news_date') %></h3>
 <ul class='note_list'>
   <%= render :partial=>'note/li', :collection=>@notes  %>
 </ul>

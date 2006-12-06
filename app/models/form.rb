@@ -45,9 +45,7 @@ class Form < Page
   
   # register new callbacks for edit context
   def on_edit(op)
-    puts "EDIT CALLBACK"
     on_value = Proc.new do |op|
-      puts "VALUE CALLBACK"
       
       #if @context[:edit] && seizure[:user_id] == visitor_id && data.size == 1
       #  val_id  = seizure.id_for[:key]

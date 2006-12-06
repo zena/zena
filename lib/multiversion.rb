@@ -78,12 +78,6 @@ module Zena
           end
         end
         
-        def edit_preview(hash)
-          hash.each_pair do |k,v|
-            method_missing("#{k}=".to_sym,v)
-          end
-        end
-        
         # return an array of language strings
         def traductions
           editions.map {|ed| ed.lang}
@@ -262,7 +256,11 @@ module Zena
             v.comment = ''
             v.number = ''
             v.user_id = visitor_id
-            v[:content_id] = version[:content_id] || version[:id]
+            if v.content_class
+              v[:content_id] = version[:content_id] || version[:id]
+            else
+              v[:content_id] = nil
+            end
             if ( @version_selected == true )
               # user selected a specific version, do not change lang
               @version_selected = false

@@ -9,7 +9,6 @@
   <%= stylesheet_link_tag( 'zen' ) %>
   <%= javascript_include_tag 'prototype', 'effects', 'zena' %>
   <%= uses_calendar %>
-  <%= javascript "zena['item_id'] = #{@item.id};" %>
   <%= javascript "Calendar._TT[\"DEF_DATE_FORMAT\"] = \"#{trans('long_date')}\";" if trans('long_date') != 'long_date' %>
 </head>
 
@@ -31,15 +30,14 @@
     <%#= plug :notes %>
   </div>
   <div id="main">
-    <p><b><%= Time.now %></b></p>
     <% if @item.kind_of?(Document) -%>
       <%= render :partial=>'main/doc_title' %>
     <% else -%>
       <%= render :partial=>'main/title' %>
     <% end -%>
-    <div id="drive" style="display:none;"></div>
+    <div class="drive" style="display:none;"></div>
 
-    <div id="content">
+    <div class="content" id='content'>
       <%= show(@item, :v_summary) %>
       <%= show(@item, :v_text   ) %>
       

@@ -30,10 +30,13 @@ class VersionController < ApplicationController
   def preview
     @preview_id = session[:preview_id]
     if params[:item]
-      params[:item].delete(:c_file)
+      # redaction
       @item = secure_write(Item) { Item.find(params[:item][:id]) }
-      @item.edit_preview(params[:item])
+      @v_title   = params[:item][:v_title]
+      @v_summary = params[:item][:v_summary]
+      @v_text    = params[:item][:v_text]
     else
+      # drive view
       @item = secure(Item) { Item.version(params[:version_id]) }
     end
   rescue ActiveRecord::RecordNotFound

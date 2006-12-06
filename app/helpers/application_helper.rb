@@ -467,7 +467,7 @@ module ApplicationHelper
           notes.each do |e| #largecal_preview
             res << "<div>" + link_to_remote(e.name.limit(14), 
                                   :update=>'largecal_preview',
-                                  :url=>{:controller=>'note', :action=>'list', :id=>source[:id], :find=>method, 
+                                  :url=>{:controller=>'note', :action=>'day_list', :id=>source[:id], :find=>method, 
                                   :date=>d, :selected=>e[:id] }) + "</div>"
           end
           res.join("\n")

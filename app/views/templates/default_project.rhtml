@@ -9,7 +9,6 @@
   <%= stylesheet_link_tag( 'zen' ) %>
   <%= javascript_include_tag 'prototype', 'effects', 'zena' %>
   <%= uses_calendar %>
-  <%= javascript "zena['item_id'] = #{@item.id};" %>
 </head>
 
 <body <%= @su %>>
@@ -24,25 +23,29 @@
   <%= logo Time.now  %>
   <%= flash_messages %>
 
-  <div id="left">
+  <div id='left'>
     <div id='tinycal'><%= calendar(:find=>:news, :size=>:tiny) %></div>
-    
-    <%= render :partial=>'main/title' %>
-    <div id="drive" style="display:none;"></div>
-    <div id="content">
+    <div class='header'>
+      <h1 class='s<%= @item.v_status %>'>
+        <ul class='item_actions'><%= edit_button(:all) %></ul><br/>
+        <span id='v_title<%= @item.v_id%>'><%= @item.v_title %></span>
+      </h1>
+      <div class='subtitle'><%= author(:small) %></div>
+    </div>
+    <div id='drive' style='display:none;'></div>
+    <div class='content'>
       <%= show(@item, :v_summary) %>
       <%= show(@item, :v_text   ) %>
       <%#= plug :comments %>
     </div>
   </div>
-  <div id="main">
-    <div id="content">
-      <div id="notes">
-        <%= render :partial=>'note/list', :locals=>{:list=>notes(:find=>:notes)} %>
+  <div id='main'>
+    <div id='content'>
+      <div id='largecal' style='display:none;'></div>
+      <div id='notes'>
+        <%= render :partial=>'note/list', :locals=>{:list=>notes(:find=>:notes, :order=>'created_at DESC')} %>
       </div>
     </div>
-    
-    <%#= plug :notes, :from=>:site %>
 
     <div id="right">
       <div id='documents'>

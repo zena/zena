@@ -45,8 +45,19 @@ Zena.clear_file = function(input_id) {
   newobj.setAttribute('type','file');
   parent.appendChild(newobj);
 }
-var current_form = false;
 
+Zena.tinycal = function(e, url) {
+	var e = e || window.event; // IE
+	var tgt = e.target || e.srcElement; // IE
+	day = tgt.innerHTML;
+	while (tgt && !tgt.cells) {tgt = tgt.parentNode;} // finds tr.
+	row = tgt.rowIndex;
+	var update_url = url + '&amp;day=' + day + '&amp;row=' + row;
+	new Ajax.Request(update_url, {asynchronous:true, evalScripts:true, parameters:'notes'});
+ 	return false;
+}
+
+var current_form = false;
 Zena.get_key = function(e) {
   if (window.event)
      return window.event.keyCode;

@@ -124,8 +124,6 @@ td.subtitle { vertical-align:top; padding:6px; }
 */
 /* NOTES */
 #left { position:absolute; top:125px; left:20px; width:220px; }
-#notes { margin-top:2em;}
-#notes h3 small { color:#999; font-size:50%; text-transform:uppercase;}
 #add_note, #add_note_form { margin-left:1em }
 #add_note { padding:10px 3px;}
 /* RIGHT: Documents, Pages */
@@ -137,17 +135,16 @@ input, textarea { border:1px solid grey; margin:0.2em}
 
 /* MAIN CONTENT */
 #main {margin-top:5em;  margin-left:260px; width:900px; }
-#main #header h1 {  font-size:2.5em; margin-bottom:0.17em;}
-#header h1, #text h1, #text h2, #text h3 { font-family: Georgia, Times, serif ; font-style:italic; color:#450009;}
+#main .header h1 {  font-size:2.5em; margin-bottom:0.17em;}
+.header h1, .text h1, .text h2, .text h3 { font-family: Georgia, Times, serif ; font-style:italic; color:#450009;}
 
-#main #content { float:left; width:640px; padding-top:0; padding-right: 22px; }
-#main #content { margin-top:0;}
-#left #content { padding-top:10px; font-size:80%;}
-#left #header h1 { font-size:1.3em; margin-top:0px;}
+#main #content { float:left; width:640px; padding-top:0; padding-right: 22px; margin-top:0;}
+#left .content { padding-top:10px; font-size:80%;}
+#left .header h1 { font-size:1.3em; margin-top:0px;}
 #left .subtitle { margin-bottom:0.17em; margin-top:0.17em; }
 #left .subtitle .info { font-style:normal; font-size:70%; }
 #left .subtitle { margin-bottom:0;}
-#summary p { font-style:italic; }
+.summary p { font-style:italic; }
 #text { clear:both;}
 #text { line-height:1.5; margin-bottom:2em;}
 .text h1 { margin-top:2.3em; margin-bottom:0.8em; font-size:2em;}
@@ -156,6 +153,7 @@ input, textarea { border:1px solid grey; margin:0.2em}
 .text h4 { font-size:0.9em; }
 .text p { margin-bottom:1.8em; font-style:normal; font-size:1em; }
 .text ul {margin:1em 0 0 3em;}
+.text li {margin:0.2em 0; list-style:disc;}
 .text img { border: 1px solid #666; }
 /* USE FOR TABLE LISTING (contact)
 #yhash { float:left; margin-right:10px; }
@@ -233,14 +231,15 @@ table.largecal { border:1px solid #655; font-size:0.8em; margin:auto; width:80%;
 .largecal .body div a { padding:1px;}
 .largecal .body div a:hover { background:#CECEB4; }
 .largecal .body p { float:left; margin:0;}
-
+.largecal .preview img { background:none; border:0;}
 .note_list { margin:0; }
+.note_title { padding:4px; font:1em Verdana, Arial, sans-serif; letter-spacing: 0.1em; color:#4F6741;}
 .note { padding:10px 3px 10px; font-size:0.78em; border-left:4px solid white; border-top:1px solid #ddd;}
 .note h3 { font:1em Verdana, Arial, sans-serif; text-transform: uppercase; letter-spacing: 0.1em; }
 .note h3 a { color:inherit;}
 .note .log_at { float:left; width:60px; color:#999; font-weight:bold;}
 .note h3 p  { float:left; width:20em; text-align:left; color:#450009; font-weight:bold; margin-bottom:0.2em; padding:0;}
-.note .sign   { float:left; width:8em; font-size:1em; color:#999; }
+.note .sign   { float:left; width:8em; font-size:1em; color:#999; font-weight:normal; }
 .note .item_actions { margin:0; padding:0; width:60px; }
 .note .item_actions a { border:0;}
 .note .li_s50 .item_actions { visibility:hidden;}
@@ -250,20 +249,22 @@ table.largecal { border:1px solid #655; font-size:0.8em; margin:auto; width:80%;
 
 #note_selected { border-left-color:orange; }
 /* TINY CALENDAR */
-#tinycal { height: 9em; margin-bottom:2em; }
+#tinycal { height: 9em; margin-bottom:0.8em; }
 .tinycal { font-size:0.7em; color:black; font-family: Verdana, sans-serif; margin:auto; }
+.tinycal table { border: 1px solid #CAD4DA; background:#F5F8F9; }
 .tinycal td { text-align:center; color:#333; }
 .tinycal a { color:inherit; }
 .tinycal b.has_note { font-weight:normal; border-bottom:2px solid orange;}
 .tinycal .head td { font-weight:bold; padding: 2px; font-size:0.9em; color:#655; }
 .tinycal .head td.button a { border:0; text-decoration:none; color:#568BB9;}
 .tinycal .body p { margin:0; padding:2px; text-align:center; }
-.tinycal .body #tiny_today p { border:2px solid #99B1BD; padding:0;}
+.tinycal .body #tiny_today p { background:#CFD6DA; }
 .tinycal .body td.other, .tinycal .body td.other a { color:#ccc; }
 .tinycal .body td.sat, .tinycal .body td.sat a { color:#35950B; }
 .tinycal .body td.satother, .tinycal .body td.satother a { color:#C8DEC1; }
 .tinycal .body td.sun, .tinycal .body td.sun a { color:#35950B; }
 .tinycal .body td.sunother, .tinycal .body td.sunother a { color:#C8DEC1; }
+
 /* ADMIN */
 #drive { border:1px solid #333; background:#B2C3D0; padding-bottom:5px;}
 #drive_parent, #drive_groups, #drive_links, #drive table { border-color:#333; border-style:solid; margin:5px; }
@@ -276,7 +277,7 @@ table.largecal { border:1px solid #655; font-size:0.8em; margin:auto; width:80%;
 .drive li { padding-left: 10px;}
 .drive li b { width: 7em; display:block; float:left; font-weight:normal; }
 .drive li select { width: 10em;}
-.drive li.submit { text-align:right; padding-top:1em;} */
+.drive li.submit { text-align:right; padding-top:1em;}
 
 #drive_links img {  vertical-align:middle; margin:0; }
 #drive_links { width:460px; }
