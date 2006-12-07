@@ -15,9 +15,7 @@ class CalendarControllerTest < Test::Unit::TestCase
   def test_show_date
     get 'show', :date=>Date.civil(2006,11,1).to_s, :size=>'tiny', :id=>items_id(:zena), :find=>'news'
     assert_response :success
-    assert_tag :td, :attributes=>{:class=>'other'}, :child=>{:tag=>'p', :content=>'1'}
-    assert_tag :td, :attributes=>{:class=>'sunother'},    :child=>{:tag=>'p', :content=>'3'}
-    assert_tag :td, :attributes=>{:class=>'sat'}, :content=>'4'
+    assert_match %r{tiod}, @response.body
   end
 
   def test_open_cal
