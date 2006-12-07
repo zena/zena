@@ -7,7 +7,8 @@ class NoteController < ApplicationController
     find           = params[:find] ? params[:find].to_sym : nil
     @note_date     = params[:date] ? Date.parse(params[:date]) : nil
     @selected_note = params[:selected] ? params[:selected].to_i : nil
-    @notes         = notes(:from=>@item, :find=>find, :date=>@note_date, :order=>'log_at ASC')
+    using          = params[:using] ? params[:using].gsub(/[^a-zA-Z_]/,'') : 'event_at'
+    @notes         = notes(:from=>@item, :find=>find, :using=>using, :date=>@note_date, :order=>"#{using} ASC")
     render :partial=>'note/day_list'
   rescue ActiveRecord::RecordNotFound
     page_not_found
@@ -20,6 +21,7 @@ class NoteController < ApplicationController
        klass = eval "#{klass.gsub(/[^a-zA-Z]/,'').capitalize}"
        raise NameError unless klass.ancestors.include?(Note)
        params[:note].delete(:klass)
+       parse_dates(params[:note])
        @note = secure(klass) { klass.create(params[:note]) }
        @item = @note.parent
      rescue NameError

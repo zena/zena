@@ -63,6 +63,19 @@ class ApplicationControllerTest < Test::Unit::TestCase
     assert_equal 'forms/any_document', @controller.send(:form_template)
   end
   
+  def test_parse_date
+    assert_equal Time.gm(2006,11,10), @controller.send(:parse_date,'2006-11-10', '%Y-%m-%d')
+    assert_equal Time.gm(2006,11,10), @controller.send(:parse_date,'10.11 2006', '%d.%m %Y')
+    assert_equal Time.gm(2006,11,10), @controller.send(:parse_date,'10.11 / 06', '%d.%m.%y')
+    assert_equal Time.gm(Time.now.year,11,10), @controller.send(:parse_date,'11-10', '%m.%d')
+  end
+  
+  def test_parse_date_time
+    assert_equal Time.gm(2006,11,10,12,30), @controller.send(:parse_date,'2006-11-10 12:30', '%Y-%m-%d %H:%M')
+    assert_equal Time.gm(2006,11,10,12,30), @controller.send(:parse_date,'2006-11-10 12:30')
+    assert_equal Time.gm(2006,11,10,12,30), @controller.send(:parse_date,'10.11.2006 12:30', '%d.%m.%Y %H:%M')
+  end
+  
   # // test methods common to controllers and views // #
   
   def test_lang

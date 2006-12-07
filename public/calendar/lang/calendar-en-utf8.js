@@ -122,6 +122,7 @@ Calendar._TT["TIME_PART"] = "(Shift-)Click or drag to change value";
 // date formats
 Calendar._TT["DEF_DATE_FORMAT"] = "%Y-%m-%d %H:%M";
 Calendar._TT["TT_DATE_FORMAT"] = "%a, %b %e";
+Calendar._TT["FIRST_DAY"] = null;
 
 Calendar._TT["WK"] = "wk";
 Calendar._TT["TIME"] = "Time:";

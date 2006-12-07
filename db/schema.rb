@@ -2,7 +2,7 @@
 # migrations feature of ActiveRecord to incrementally modify your database, and
 # then regenerate this schema definition.
 
-ActiveRecord::Schema.define(:version => 3) do
+ActiveRecord::Schema.define(:version => 4) do
 
   create_table "caches", :force => true do |t|
     t.column "updated_at", :datetime
@@ -94,6 +94,7 @@ ActiveRecord::Schema.define(:version => 3) do
     t.column "alias", :string, :limit => 400
     t.column "fullpath", :text
     t.column "dgroup_id", :integer
+    t.column "event_at", :datetime
   end
 
   create_table "links", :force => true do |t|

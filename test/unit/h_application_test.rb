@@ -136,6 +136,12 @@ class ApplicationHelperTest < Test::Unit::TestCase
     assert_equal Time.gm(Time.now.year,11,10), parse_date('11-10', '%m.%d')
   end
   
+  def test_parse_date_time
+    assert_equal Time.gm(2006,11,10,12,30), parse_date('2006-11-10 12:30', '%Y-%m-%d %H:%M')
+    assert_equal Time.gm(2006,11,10,12,30), parse_date('2006-11-10 12:30')
+    assert_equal Time.gm(2006,11,10,12,30), parse_date('10.11.2006 12:30', '%d.%m.%Y %H:%M')
+  end
+  
   def test_visitor_link
     assert_equal '', visitor_link
     login(:ant)

@@ -31,6 +31,17 @@ class MainController < ApplicationController
     req[:prefix] = prefix
     redirect_to req
   end
+  
+  # Used to prevent Safari not reloading bug
+  def redir
+    [:notice, :error].each do |sym|
+      if session[sym]
+        flash[sym] = session[sym] 
+        session[sym] = nil
+      end
+    end
+    redirect_to params[:url]
+  end
 
   private
   

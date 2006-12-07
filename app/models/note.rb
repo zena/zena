@@ -3,7 +3,8 @@ TODO
 =end
 class Note < Item
   link :calendars, :class_name=>'Project'
-  before_validation :set_log_at
+  link :hot_for, :as=>'hot', :class_name=>'Project', :as_unique=>true
+  before_validation :set_dates
   validate :parent_valid
   class << self
     def select_classes
@@ -25,8 +26,9 @@ class Note < Item
   
   private
   
-  def set_log_at
-    self[:log_at] ||= Time.now
+  def set_dates
+    self[:log_at]   ||= Time.now
+    self[:event_at] ||= self[:log_at]
   end
   
   def parent_valid

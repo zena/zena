@@ -18,13 +18,16 @@
         <%= zazen("!>.0#{@item.id}!") if @item.kind_of?(Document) %>
         <label for="v_title"><%= trans("title")  %></label>
         <%= text_field 'item', 'v_title', :size=>nil, :style=>"width:60%;" %>
+        <% if @item.kind_of?(Note) -%>
         <%= link_box('item', 'calendars', [1,@item.project_id]) if @item.kind_of?(Note)%>
-        <% unless @item.kind_of?(Note) -%>
+        <%= link_box('item', 'hot_for', [@item.project_id])%>
+        <%= date_box('item', 'event_at')%>
+        <% else -%>
         <label for="v_summary"><%= trans("summary")  %></label>
         <%= text_area 'item', 'v_summary', :cols=>nil, :rows=>4, :value=>@item.v_summary %>
         <% end -%>
         <label for="v_text"><%= trans("content") %></label>
-        <%= text_area 'item', 'v_text', :cols=>nil, :rows=>17, :value=>@item.v_text %>
+        <%= text_area 'item', 'v_text', :cols=>nil, :rows=>15, :value=>@item.v_text %>
         <% if @item.kind_of?(Document) -%>
           <div id="file"><%= link_to_function trans("change document"), "new Element.toggle('file', 'file_form');" %></div>
           <div id="file_form" style='display:none;'><%= link_to_function(trans("cancel"), "new Element.toggle('file', 'file_form');Zena.clear_file('item_file');")%>

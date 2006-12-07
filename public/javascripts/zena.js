@@ -52,10 +52,18 @@ Zena.open_cal = function(e, url) {
 	day = tgt.innerHTML;
 	while (tgt && !tgt.cells) {tgt = tgt.parentNode;} // finds tr.
 	row = tgt.rowIndex;
-	var update_url = url + '&amp;day=' + day + '&amp;row=' + row;
+	var update_url = unescape(url) + '&day=' + day + '&row=' + row;
 	new Ajax.Request(update_url, {asynchronous:true, evalScripts:true, parameters:'notes'});
  	return false;
 }
+
+/* fade flashes automatically */
+Event.observe(window, 'load', function() { 
+  $A(document.getElementsByClassName('flash')).each(function(o) {
+    o.opacity = 100.0;
+    Effect.Fade(o, {duration: 6.0});
+  });
+});
 
 var current_form = false;
 Zena.get_key = function(e) {

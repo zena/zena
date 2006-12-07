@@ -114,6 +114,7 @@ Calendar._TT["TIME_PART"] = "(Shift-)Click or drag to change value";
 Calendar._TT["DEF_DATE_FORMAT"] = "%d.%m.%Y %H:%M";
 // tooltip
 Calendar._TT["TT_DATE_FORMAT"] = "%d.%m.%Y";
+Calendar._TT["FIRST_DAY"] = 1;
 
 Calendar._TT["WK"] = "wk";
 Calendar._TT["TIME"] = "Time:";

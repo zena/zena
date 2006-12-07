@@ -140,34 +140,70 @@ class ApplicationController < ActionController::Base
       headers['Content-Type'] += '; charset=utf-8'
     end
   end
+  
+  # Parse date : return a date from a string
+  def parse_date(datestr, fmt=trans('datetime'))
+    elements = datestr.split(/(\.|\-|\/|\s|:)+/)
+    format = fmt.split(/(\.|\-|\/|\s|:)+/)
+    if elements
+      hash = {}
+      elements.each_index do |i|
+        hash[format[i]] = elements[i]
+      end
+      hash['%Y'] ||= hash['%y'] ? (hash['%y'].to_i + 2000) : Time.now.year
+      hash['%H'] ||= 0
+      hash['%M'] ||= 0
+      hash['%S'] ||= 0
+      if hash['%Y'] && hash['%m'] && hash['%d']
+        Time.gm(hash['%Y'], hash['%m'], hash['%d'], hash['%H'], hash['%M'], hash['%S'])
+      else
+        nil
+      end
+    else
+      nil
+    end
+  end
+  
+  def parse_dates(obj, fmt=trans('datetime'))
+    [:publish_from, :log_at, :event_at].each do |sym|
+      obj[sym] = parse_date(obj[sym], fmt) if obj[sym] && obj[sym].kind_of?(String)
+    end
+  end
+  
   # /////// The following methods are common to controllers and views //////////// #
   
   def prefix
     (session && session[:user]) ? AUTHENTICATED_PREFIX : lang
   end
   
-  # Notes finder
+  # Notes finder options are
+  # [from] item providing the notes. If omitted, <code>@project</code> or <code>@item.project</code> is used.
+  # [find] method called on the source. Default is 'notes'. For example, <code>:from=>@item.project, :find=>:news</code> finds all news from the project of the current item.
+  # [date] only find notes for the given date
+  # [using] specify the field used to sort and filter by date. By default, 'log_at' is used
+  # [order] sort order. By default "#{using} ASC" is used.
+  # []
   def notes(options={})
     source = options[:from] || (@project ||= (@item ? @item.project : nil))
+    return [] unless source
+    
     options.delete(:from)
-    
-    date = options[:date]
-    options.delete(:date)
-    
+      
     method = options[:find] || :notes
     options.delete(:find)
     
-    size = options[:size] || :tiny
-    options.delete(:size)
+    field = options[:using] || :log_at
+    options.delete(:using)
     
-    return "" unless source
-    if date
-      source.send(method, :conditions=>['date(log_at) = ?', date], :order=>'log_at ASC')
-    elsif options != {}
-      source.send(method, options)
-    else
-      source.send(method)
+    options[:order] ||= "#{field} ASC"
+    options.delete(:using)
+    
+    if date = options[:date]
+      options.delete(:date)
+      options.merge!(:conditions=>["date(#{field}) = ?", date])
     end
+    
+    source.send(method, options)
   end
 end
 =begin

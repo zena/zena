@@ -23,9 +23,9 @@ p.img_left, p.img_right { margin:0; padding:0;}
 .errorExplanation ul { margin-left:15px; }
 .fieldWithErrors { padding: 2px; background-color: #C18284; display: table;}
 
-#notice { background:#D8E0C7; padding: 8px; position:absolute; top:55px; left:260px; border: 1px dotted #7B8B57; width: 400px; }
-#notice div, #error div { float:right; border:1px solid grey; }
-#error  { background:#DDC8C8; padding: 8px; position:absolute; top:55px; left:260px; border: 1px dotted #835857; width: 400px; }
+.flash { padding: 8px; position:absolute; top:55px; left:260px; border: 1px dotted #7B8B57; width: 400px; }
+#notice { background:#D8E0C7; }
+#error  { background:#DDC8C8; }
 
 /* LOGO */
 #logo { position:absolute; top:0; left:20px; background: white; width:220px; height:100px; text-align:center; }
@@ -257,7 +257,7 @@ table.largecal { border:1px solid #655; font-size:0.8em; margin:auto; width:80%;
 .tinycal b.has_note { font-weight:normal; border-bottom:2px solid orange;}
 .tinycal .head td { font-weight:bold; padding: 2px; font-size:0.9em; color:#655; }
 .tinycal .head td.button a { border:0; text-decoration:none; color:#568BB9;}
-.tinycal .body p { margin:0; padding:2px; text-align:center; }
+.tinycal .body p { margin:0; padding:2px; text-align:center; cursor:pointer; }
 .tinycal .body #tiny_today p { background:#CFD6DA; }
 .tinycal .body td.other, .tinycal .body td.other a { color:#ccc; }
 .tinycal .body td.sat, .tinycal .body td.sat a { color:#35950B; }

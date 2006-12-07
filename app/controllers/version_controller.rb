@@ -48,8 +48,9 @@ class VersionController < ApplicationController
     # use current context.
     @item = secure_write(Item) { Item.find(params[:item][:id]) }
     params[:item].delete(:file) if params[:item][:file] == ""
+    parse_dates(params[:item])
     if @item.update_attributes(params[:item])
-      flash[:notice] = trans "Redaction saved."
+      session[:notice] = trans "Redaction saved."
     else
       flash[:error] = trans "Redaction could not be saved"
       render_form

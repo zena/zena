@@ -28,9 +28,11 @@ module ApplicationHelper
     <<-EOL
     <script src="/calendar/calendar.js" type="text/javascript"></script>
     <script src="/calendar/calendar-setup.js" type="text/javascript"></script>
-    <script src="/calendar/lang/calendar-en-utf8.js" type="text/javascript"></script>
+    <script src="/calendar/lang/calendar-#{lang}-utf8.js" type="text/javascript"></script>
     <link href="/calendar/calendar-brown.css" media="screen" rel="Stylesheet" type="text/css" />
-    #{javascript("Calendar._TT[\"DEF_DATE_FORMAT\"] = \"#{trans('datetime')}\";")}
+    #{javascript_start}
+    Calendar._TT["DEF_DATE_FORMAT"] = "#{trans('datetime')}";
+    Calendar._TT["FIRST_DAY"] = #{trans('week_start_day')};
     EOL
   end
   
@@ -160,26 +162,6 @@ module ApplicationHelper
       end
     end
   end
-
-  # Parse date : return a date from a string
-  def parse_date(datestr, fmt=trans("long_date"))
-    elements = datestr.split(/(\.|\-|\/|\s)+/)
-    format = fmt.split(/(\.|\-|\/|\s)+/)
-    if elements
-      hash = {}
-      elements.each_index do |i|
-        hash[format[i]] = elements[i]
-      end
-      hash['%Y'] ||= hash['%y'] ? (hash['%y'].to_i + 2000) : Time.now.year
-      if hash['%Y'] && hash['%m'] && hash['%d']
-        Time.gm(hash['%Y'], hash['%m'], hash['%d'])
-      else
-        nil
-      end
-    else
-      nil
-    end
-  end
   
   # Show visitor name if logged in
   def visitor_link
@@ -193,12 +175,12 @@ module ApplicationHelper
   # Display flash[:notice] or flash[:error] if any. <%= flash <i>[:notice, :error, :both]</i> %>"
   def flash_messages(type=:both)
     if (type == :notice || type == :both) && @flash[:notice]
-      "<div id='notice' onClick='new Effect.Fade(\"notice\")'>#{@flash[:notice]}</div>"
+      "<div id='notice' class='flash' onClick='new Effect.Fade(\"notice\")'>#{@flash[:notice]}</div>"
     else
       ''
     end + 
     if (type == :error  || type == :both) && @flash[:error ]
-      "<div id='error' onClick='new Effect.Fade(\"error\")'>#{@flash[:error]}</div>"
+      "<div id='error' class='flash' onClick='new Effect.Fade(\"error\")'>#{@flash[:error]}</div>"
     else
       ''
     end
@@ -376,6 +358,7 @@ module ApplicationHelper
     date   = options[:date  ] || Date.today
     method = options[:find  ] || :notes
     size   = options[:size  ] || :tiny
+    using  = options[:using ] || :event_at
     day_names, on_day = calendar_get_options(size, source, method)
     return "" unless on_day && source
     Cache.with(user_id, user_groups, 'IN', size, method, source.id, date.ajd) do
@@ -387,13 +370,13 @@ module ApplicationHelper
       end_date   += (6 + week_start_day - end_date.wday) % 7
       
       # get list of notes in this scope
-      notes = source.send(method,:conditions=>['log_at >= ? AND log_at <= ?', start_date, end_date], :order=>'log_at ASC')
+      notes = source.send(method,:conditions=>["#{using} >= ? AND #{using} <= ?", start_date, end_date], :order=>"#{using} ASC")
       
       # build event hash
       calendar = {}
       notes.each do |n|
-        calendar[n.log_at.strftime("%Y-%m-%d")] ||= []
-        calendar[n.log_at.strftime("%Y-%m-%d")] << n
+        calendar[n.send(using.to_sym).strftime("%Y-%m-%d")] ||= []
+        calendar[n.send(using.to_sym).strftime("%Y-%m-%d")] << n
       end
   
       title = "#{trans(Date::MONTHNAMES[date.mon])} #{date.year}"
@@ -449,7 +432,7 @@ module ApplicationHelper
       list << "<input type='checkbox' name='item[#{setter}][]' value='#{l.id}' class='box' #{ l[:link_id] ? "checked='1' " : ""}/>#{l.name}"
       list
     end
-    "<ul class='#{sym}'><li><b>#{trans(sym.to_s)}</b></li><li>#{res.join('</li><li>')}</li></ul>"
+    "<ul class='link_box'><li><b>#{trans(sym.to_s)}</b></li><li>#{res.join('</li><li>')}</li></ul>"
   end
   
   private
