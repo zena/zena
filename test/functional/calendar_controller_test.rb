@@ -8,6 +8,7 @@ class CalendarControllerTest < Test::Unit::TestCase
   include ZenaTestController
 
   def setup
+    super
     @controller = CalendarController.new
     init_controller
   end
@@ -15,23 +16,19 @@ class CalendarControllerTest < Test::Unit::TestCase
   def test_show_date
     get 'show', :date=>Date.civil(2006,11,1).to_s, :size=>'tiny', :id=>items_id(:zena), :find=>'news'
     assert_response :success
-    assert_match %r{tiod}, @response.body
+    assert_match %r{tinycal.*class='sun'><p>19}m, @response.body
   end
 
   def test_open_cal
     get 'open', :date=>Date.civil(2006,11,1).to_s, :size=>'large', :id=>items_id(:zena), :find=>'news'
     assert_response :success
-    assert_rjs_tag :rjs => {:block=>'largecal'}, :tag=>:table, :attributes=>{:class=>'largecal'}, :child=>{:tag=>'p', :content=>'1'}
-    assert_rjs_tag :rjs => {:block=>'largecal'}, :tag=>:td, :attributes=>{:class=>'sunother'},    :child=>{:tag=>'p', :content=>'3'}
-    assert_rjs_tag :rjs => {:block=>'largecal'}, :tag=>:td, :attributes=>{:class=>'sat'}, :content=>'4'
+    assert_match %r{\$\('notes'\).style.display.*none}, @response.body
+    assert_match %r{largecal.*class='sun'><p>19}m, @response.body
+    assert_match %r{\$\('tinycal'\).style.visibility.*hidden}, @response.body
+    assert_match %r{\$\('tinycal_close'\).style.visibility.*visible}, @response.body
+    assert_match %r{\$\('largecal'\).style.display.*block}, @response.body
   end
-
-  def test_today_format
-    get 'show', :date=>Date.today.to_s, :size=>'tiny', :id=>items_id(:zena)
-    assert_response :success
-    assert_tag :td, :attributes=>{:id=>'tiny_today'},  :child=>{:tag=>'p', :content=>Date.today.day.to_s}
-    get 'show', :date=>Date.today.to_s, :size=>'large', :id=>items_id(:zena)
-    assert_response :success
-    assert_tag :td, :attributes=>{:id=>'large_today'}, :child=>{:tag=>'p', :content=>Date.today.day.to_s}
+  
+  def test_date_selection
   end
 end

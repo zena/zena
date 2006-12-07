@@ -59,6 +59,7 @@ class Test::Unit::TestCase
   def self.use_instantiated_fixtures
     false
   end
+  
   def setup
   end
   

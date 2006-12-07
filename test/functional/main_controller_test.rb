@@ -8,6 +8,7 @@ class MainControllerTest < Test::Unit::TestCase
   include ZenaTestController
   
   def setup
+    super
     @controller = MainController.new
     init_controller
   end
