@@ -33,6 +33,7 @@ module ApplicationHelper
     #{javascript_start}
     Calendar._TT["DEF_DATE_FORMAT"] = "#{trans('datetime')}";
     Calendar._TT["FIRST_DAY"] = #{trans('week_start_day')};
+    #{javascript_end}
     EOL
   end
   

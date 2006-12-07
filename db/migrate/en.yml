@@ -206,6 +206,10 @@ trans_values:
   - key_id:    75
     lang:      en
     value:     "%A, %B %d %Y"
+
+  - key_id:    77
+    lang:      en
+    value:     0
     
   - key_id:    78
     lang:      en
