@@ -58,6 +58,7 @@ class Item < ActiveRecord::Base
   acts_as_secure
   acts_as_multiversioned
   link :tags
+  link :hot_for, :as=>'hot', :class_name=>'Project', :as_unique=>true
   
   class << self
     # Find an item by it's full path. Cache 'fullpath' if found.

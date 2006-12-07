@@ -3,7 +3,6 @@ TODO
 =end
 class Note < Item
   link :calendars, :class_name=>'Project'
-  link :hot_for, :as=>'hot', :class_name=>'Project', :as_unique=>true
   before_validation :set_dates
   validate :parent_valid
   class << self

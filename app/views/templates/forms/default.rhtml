@@ -18,14 +18,15 @@
         <%= zazen("!>.0#{@item.id}!") if @item.kind_of?(Document) %>
         <label for="v_title"><%= trans("title")  %></label>
         <%= text_field 'item', 'v_title', :size=>nil, :style=>"width:60%;" %>
+        <%= link_box('item', 'hot_for', [@item.project_id,1])%>
         <% if @item.kind_of?(Note) -%>
         <%= link_box('item', 'calendars', [1,@item.project_id]) if @item.kind_of?(Note)%>
-        <%= link_box('item', 'hot_for', [@item.project_id])%>
         <%= date_box('item', 'event_at')%>
         <% else -%>
         <label for="v_summary"><%= trans("summary")  %></label>
         <%= text_area 'item', 'v_summary', :cols=>nil, :rows=>4, :value=>@item.v_summary %>
         <% end -%>
+        <%= link_box('item', 'hot') if @item.kind_of?(Project) %>
         <label for="v_text"><%= trans("content") %></label>
         <%= text_area 'item', 'v_text', :cols=>nil, :rows=>15, :value=>@item.v_text %>
         <% if @item.kind_of?(Document) -%>

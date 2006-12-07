@@ -43,11 +43,11 @@
     <div id='content'>
       <div id='largecal' style='display:none;'></div>
       <div id='notes'>
-        <%= render :partial=>'note/list', :locals=>{:list=>notes(:find=>:notes)} %>
+        <%= render :partial=>'note/list', :locals=>{:list=>notes(:find=>:notes, :order=>'log_at DESC')} %>
       </div>
     </div>
 
-    <div id='right'>
+    <div id="right">
       <div id='documents'>
         <%= render :partial=>'document/list' %>
       </div>

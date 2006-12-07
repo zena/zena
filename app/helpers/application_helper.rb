@@ -419,19 +419,26 @@ module ApplicationHelper
   
   # TODO: test
   def link_box(obj, sym, ids=nil)
-    method = "#{sym}_for_form".to_sym
-    setter = "#{sym}".singularize + "_ids"
     # FIXME: SECURITY is there a better way to do this ?
     obj = eval("@#{obj}")
-    if ids
-      ids.map!{|i| i.to_i}
-      list = obj.send(method, :conditions=>["items.id IN (#{ids.join(',')})"])
+    method = "#{sym}_for_form".to_sym
+    setter = sym.to_s.singularize
+    if obj.respond_to?("#{setter}_id=".to_sym)
+      # unique
+      current = obj.send(sym)
+      res = ["<input type='text' size='2' name='item[#{setter}_id]' value='#{current ? current[:id] : ''}'/>#{current ? current.name : ''}"]
     else
-      list = obj.send(method)
-    end
-    res = list.inject([]) do |list, l|
-      list << "<input type='checkbox' name='item[#{setter}][]' value='#{l.id}' class='box' #{ l[:link_id] ? "checked='1' " : ""}/>#{l.name}"
-      list
+      # many
+      if ids
+        ids.map!{|i| i.to_i}
+        list = obj.send(method, :conditions=>["items.id IN (#{ids.join(',')})"])
+      else
+        list = obj.send(method)
+      end
+      res = list.inject([]) do |list, l|
+        list << "<input type='checkbox' name='item[#{setter}_ids][]' value='#{l.id}' class='box' #{ l[:link_id] ? "checked='1' " : ""}/>#{l.name}"
+        list
+      end
     end
     "<ul class='link_box'><li><b>#{trans(sym.to_s)}</b></li><li>#{res.join('</li><li>')}</li></ul>"
   end
