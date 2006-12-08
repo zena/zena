@@ -789,3 +789,21 @@
   key_id:    78
   lang:      fr
   value:     "%d.%m.%Y %H:%M"
+  
+150:
+  id:        150
+  key_id:    79
+  lang:      en
+  value:     "<img src='/images/date.png'/>"
+  
+151:
+  id:        151
+  key_id:    80
+  lang:      en
+  value:     "<img src='/images/lightbulb.png'/>"
+  
+152:
+  id:        152
+  key_id:    81
+  lang:      en
+  value:     "<img src='/images/user_green.png'/>"

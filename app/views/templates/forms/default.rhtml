@@ -1,9 +1,9 @@
-<div id="loader" class="hidden"><img src="/images/ajax-loader.gif"/> <%= trans("uploading, please wait...") %></div>
-<div id="popup_action">
+<div id='loader' class='hidden'><img src='/images/ajax-loader.gif'/> <%= trans("uploading, please wait...") %></div>
+<div id='edit' class='popup_action'>
   <%= error_messages_for "item" %>
   <table>
     <tr>
-      <td id="edit" rowspan='3'>
+      <td class='edit' rowspan='3'>
         <% if @item.kind_of?(Document) -%>
         <%= start_form_tag({ :action => "save", :controller=>'version', :rnd=>rnd }, :id => "item_form", :multipart=>true ) %>
         <% else -%>
@@ -19,14 +19,15 @@
         <label for="v_title"><%= trans("title")  %></label>
         <%= text_field 'item', 'v_title', :size=>nil, :style=>"width:60%;" %>
         <%= link_box('item', 'hot_for', [@item.project_id,1])%>
+        <%= link_box('item', 'address_for', [@item.project_id]) if @item.kind_of?(Contact)%>
+        <%= link_box('item', 'hot') if @item.kind_of?(Project) %>
         <% if @item.kind_of?(Note) -%>
-        <%= link_box('item', 'calendars', [1,@item.project_id]) if @item.kind_of?(Note)%>
+        <%= link_box('item', 'calendars') if @item.kind_of?(Note)%>
         <%= date_box('item', 'event_at')%>
         <% else -%>
         <label for="v_summary"><%= trans("summary")  %></label>
         <%= text_area 'item', 'v_summary', :cols=>nil, :rows=>4, :value=>@item.v_summary %>
         <% end -%>
-        <%= link_box('item', 'hot') if @item.kind_of?(Project) %>
         <label for="v_text"><%= trans("content") %></label>
         <%= text_area 'item', 'v_text', :cols=>nil, :rows=>15, :value=>@item.v_text %>
         <% if @item.kind_of?(Document) -%>
@@ -50,14 +51,11 @@
                   :loading => "Element.show('spinner')",
                   :complete => "Element.hide('spinner')") %>
         <input type='text' id='search' name='search'/>
+        <%= link_to_remote(transb('projects'), :update=>'search_results', 
+                  :url=>{:controller=>'search', :action=>'find_in_edit', :id=>@item[:id], :search=>'=project'},  
+                  :loading => "Element.show('spinner')",
+                  :complete => "Element.hide('spinner')")%>
         <%= end_form_tag %>
-        <%#= observe_field(:for,
-          #               :frequency => 1.0,
-          #               :update => :search_results,
-          #               :loading => "Element.show('spinner')",
-          #               :complete => "Element.hide('spinner')",
-          #               :url => { :action => 'find', :controller=>'search' }) 
-        %>
       </td>
     </tr>
     <tr>

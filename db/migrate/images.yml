@@ -94,3 +94,15 @@ trans_values:
   - key_id:    76
     lang:      en
     value:     "<img src='/images/picture_add.png'/>"
+    
+  - key_id:    77
+    lang:      en
+    value:     "<img src='/images/date.png'/>"
+    
+  - key_id:    78
+    lang:      en
+    value:     "<img src='/images/lightbulb.png'/>"
+    
+  - key_id:    79
+    lang:      en
+    value:     "<img src='/images/user_green.png'/>"

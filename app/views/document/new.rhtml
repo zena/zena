@@ -1,5 +1,5 @@
 <div id="loader" class="hidden"><img src="/images/ajax-loader.gif"/> <%= trans("uploading, please wait...") %></div>
-<div id="popup_action">
+<div class="popup_action">
   <p class="btn_x"><%= link_to_function transb('btn_x'), "opener.location.href=opener.location.href; self.close();" %></p>
   <%= error_messages_for 'document' %>
   <%= form_tag( {:controller=>'document', :action=>"create"}, :multipart=>true ) %>

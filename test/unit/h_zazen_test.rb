@@ -122,4 +122,10 @@ class ApplicationHelperTest < Test::Unit::TestCase
     assert_equal "<p>!\n!</p>", zazen("!\n!")
     assert_equal "<p>!!!</p>", zazen('!!!')
   end
+  
+  def test_no_images
+    preserving_files('/data/test/jpg/20') do
+      assert_match %r{salut les \[image\]}, zazen('salut les !20.pv!', :images=>false)
+    end
+  end
 end

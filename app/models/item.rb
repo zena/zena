@@ -95,6 +95,15 @@ class Item < ActiveRecord::Base
       f
     end
   end
+  
+  #TODO: test
+  def rootpath
+    if fullpath == []
+      [self[:name]]
+    else
+      fullpath
+    end
+  end
 
   # Overwritten by notes
   def name_for_fullpath
@@ -211,7 +220,32 @@ class Item < ActiveRecord::Base
   def trackers
     @trackers ||= secure(Tracker) { Tracker.find(:all, :order=>'name ASC', :conditions=>['parent_id=?', self[:id]] ) }
   end
- 
+  
+  #TODO: test
+  # links finder
+  def links(options={})
+    conditions = options[:conditions]
+    options.delete(:conditions)
+    source = options.merge( :select     => "#{Item.table_name}.*, links.id AS link_id, links.role", 
+                    :joins      => "INNER JOIN links ON #{Item.table_name}.id=links.target_id",
+                    :conditions => ["links.source_id = ?", self[:id] ]
+                    )
+
+    target = options.merge( :select     => "#{Item.table_name}.*, links.id AS link_id, links.role", 
+                    :joins      => "INNER JOIN links ON #{Item.table_name}.id=links.source_id",
+                    :conditions => ["links.target_id = ?", self[:id] ]
+                    )
+    if conditions
+      Item.with_scope(:find=>{:conditions=>conditions}) do
+        (secure(Item) { Item.find(:all, source ) } || []) + secure_write(Item) { Item.find(:all, target ) }
+      end
+    else  
+      (secure(Item) { Item.find(:all, source ) } || []) + secure_write(Item) { Item.find(:all, target ) }
+    end
+  rescue ActiveRecord::RecordNotFound
+    nil
+  end
+
   # Create a child and let him inherit from rwp groups and project_id
   def new_child(opts={})
     c = Item.new(opts)
@@ -228,6 +262,20 @@ class Item < ActiveRecord::Base
   # ACCESSORS
   def author
     user
+  end
+  
+  # TODO:test
+  def summary
+    if v_summary != ''
+      v_summary
+    else
+      txt = v_text.gsub("\n",' ').gsub("\r",' ')
+      if txt.size > 100
+        txt.limit(100)
+      else
+        txt
+      end
+    end
   end
   
   def ext

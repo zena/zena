@@ -232,3 +232,12 @@ trans_keys:
   
   - id:   78
     key:  'datetime'
+  
+  - id:   79
+    key:  'img_calendar'
+  
+  - id:   80
+    key:  'img_hot'
+  
+  - id:   81
+    key:  'img_contact'

@@ -309,4 +309,15 @@
 78:
   id:   78
   key:  "datetime"
-
+  
+79:
+  id:   79
+  key:  "img_calendar"
+  
+80:
+  id:   80
+  key:  "img_hot"
+  
+80:
+  id:   81
+  key:  "img_contact"

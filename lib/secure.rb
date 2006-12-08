@@ -167,9 +167,9 @@ Just doing the above will filter all result according to the logged in user.
       end
       module AddActsAsMethod
         def acts_as_secure
-          belongs_to :read_group, :class_name=>'Group', :foreign_key=>'rgroup_id'
-          belongs_to :write_group, :class_name=>'Group', :foreign_key=>'wgroup_id'
-          belongs_to :publish_group, :class_name=>'Group', :foreign_key=>'pgroup_id'
+          belongs_to :rgroup, :class_name=>'Group', :foreign_key=>'rgroup_id'
+          belongs_to :wgroup, :class_name=>'Group', :foreign_key=>'wgroup_id'
+          belongs_to :pgroup, :class_name=>'Group', :foreign_key=>'pgroup_id'
           belongs_to :user
           before_validation :secure_before_validation
           after_save :check_inheritance

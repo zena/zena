@@ -3,6 +3,7 @@ class Project < Page
   after_save :check_project_id
   link :news, :class_name=>'Note', :as=>'calendar'
   link :hot,  :class_name=>'Item', :unique=>true
+  link :address, :class_name=>'Contact', :unique=>true
   
   def before_destroy
     super

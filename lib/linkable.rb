@@ -90,11 +90,12 @@ on the post edit page :
             link_side  = 'source_id'
             other_side = 'target_id'
           end
-          key = options[:as] || method.to_s.downcase.singularize
           if options[:unique]
             count = ':first'
+            key = options[:as] || method.to_s.downcase
           else
             count = ':all'
+            key = options[:as] || method.to_s.downcase.singularize
           end
           finder = <<-END
             def #{method}(options={})

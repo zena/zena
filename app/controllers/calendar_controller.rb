@@ -32,7 +32,7 @@ class CalendarController < ApplicationController
         else
           @note_date = Date.civil(@date.year, @date.mon - 1, day)
         end
-      elsif row > 2 && day < 20
+      elsif row > 3 && day < 15
         if @date.mon == 12
           @note_date = Date.civil(@date.year+1, 1, day)
         else
@@ -42,10 +42,6 @@ class CalendarController < ApplicationController
         @note_date = Date.civil(@date.year, @date.mon, day)
       end
       @notes = notes(:from=>@item, :find=>@method, :using=>:event_at, :date=>@note_date, :order=>'event_at ASC')
-      Note.logger.info "FOUND NOTES"
-      @notes.each do |note|
-        Note.logger.info "* #{note.name}"
-      end
     end
   end
     

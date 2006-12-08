@@ -1,0 +1,37 @@
+<div class='popup_action' id='drive'>
+  <%= error_messages_for "item" %>
+  <table>
+    <tr>
+      <td rowspan='3' class='edit'>
+        <%= render :partial=>'item/rwp_groups'%>
+        <%= render :partial=>'item/parent'    %>
+      </td>
+      <td id='search_box'>
+        <label for='search'><%= trans("search")  %></label>
+        <%= form_remote_tag(:update=>'search_results', 
+                  :url=>{:controller=>'search', :action=>'find_in_edit', :id=>@item[:id]}, 
+                  :loading => "Element.show('spinner')",
+                  :complete => "Element.hide('spinner')") %>
+        <input type='text' id='search' name='search'/>
+        <%= end_form_tag %>
+      </td>
+    </tr>
+    <tr>
+      <td id='ajax-loader'><img alt="spinner" id="spinner" src="/images/ajax-loader.gif" style="display:none;" /></td>
+    </tr>
+    <tr>
+      <td id="search_results">
+      </td>
+    </tr>
+    <tr>
+      <td colspan='2'>
+        <%= render :partial=>'item/links'     %>
+      </td>
+    </tr>
+    <tr>
+      <td colspan='2'>
+          <!-- drive_versions -->
+      </td>
+    </tr>
+  </table>
+</div>

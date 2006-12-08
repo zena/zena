@@ -219,12 +219,14 @@ module ApplicationHelper
   # * [!{i}!] list all images for the current item
   # * [!14!:37] you can use an image as the source for a link
   # * [!14!:www.example.com] use an image for an outgoing link
-  def zazen(text)
+  def zazen(text, opt={})
+    opt = {:images=>true}.merge(opt)
+    img = opt[:images]
     r = RedCloth.new(text) #, [:hard_breaks])
     r.gsub!(  /"([^"]*)":([0-9]+)/                    ) {|x| make_link(:title=>$1,:id=>$2)}
-    r.gsub!(  /\!\[([^\]]*)\]\!/                      ) {|x| make_gallery($1)}
-    r.gsub!(  /\!\{([^\}]*)\}\!/                      ) {|x| list_items($1)}
-    r.gsub!(  /\!([^0-9]{0,2})([0-9]+)(\.([^\!]+)|)\!(:([^\s]+)|)/ ) {|x| make_image(:style=>$1, :id=>$2, :size=>$4, :link=>$6)}
+    r.gsub!(  /\!\[([^\]]*)\]\!/                      ) {|x| img ? make_gallery($1) : trans('[gallery]') }
+    r.gsub!(  /\!\{([^\}]*)\}\!/                      ) {|x| img ? list_items($1)   : trans('[documents]')}
+    r.gsub!(  /\!([^0-9]{0,2})([0-9]+)(\.([^\!]+)|)\!(:([^\s]+)|)/ ) {|x| img ? make_image(:style=>$1, :id=>$2, :size=>$4, :link=>$6) : trans('[image]')}
     r
     r.to_html
   end
@@ -409,12 +411,23 @@ module ApplicationHelper
   end
   
   # TODO: test
-  def show(obj, sym)
-    if [:v_text, :v_summary].include?(sym)
-      "<div id='#{sym}#{obj.v_id}' class='text'>#{zazen(obj.send(sym))}</div>"
+  def show(obj, sym, opt={})
+    if opt[:as]
+      key = "#{opt[:as]}#{obj.v_id}"
+      method = opt[:as]
     else
-      "<div id='#{sym}#{obj.v_id}'>#{obj.send(sym)}</div>"
+      key = "#{sym}#{obj.v_id}"
+      method = sym
     end
+    if [:v_text, :v_summary].include?(method)
+      text = zazen(obj.send(sym), opt)
+      klass = " class='text'"
+    else
+      text = obj.send(sym)
+      klass = ""
+    end
+    render_to_string :partial=>'item/show_attr', :locals=>{:id=>obj[:id], :text=>text, :method=>method, :key=>key, :klass=>klass,
+                                                           :key_on=>"#{key}#{Time.now.to_i}_on", :key_off=>"#{key}#{Time.now.to_i}_off"}
   end
   
   # TODO: test
@@ -443,6 +456,31 @@ module ApplicationHelper
     "<ul class='link_box'><li><b>#{trans(sym.to_s)}</b></li><li>#{res.join('</li><li>')}</li></ul>"
   end
   
+  #TODO: test
+	# Return the list of groups from the visitor for forms
+	def form_groups
+	  @form_groups ||= Group.find(:all, :select=>'id, name', :conditions=>"id IN (#{user_groups.join(',')})", :order=>"name ASC").collect {|p| [p.name, p.id]}
+  end
+  
+  #TODO: test
+  def site_tree(obj=nil)
+    skip  = obj ? obj[:id] : nil
+    base  = secure(Item) { Item.find(ZENA_ENV[:root_id]) }
+    level = 0
+    if obj.nil?
+      klass = Item
+    elsif obj.kind_of?(Document)
+      klass = Item
+    elsif obj.kind_of?(Note)
+      klass = Project
+    else
+      klass = Page
+    end
+    tree = get_site_tree(skip,base,level)
+    tree.reject! { |node| !(node[1][:kpath] =~ /^#{klass.kpath}/) }
+    return [] unless tree
+    tree.map {|p| ["  "*p[0] + p[1][:name], p[1][:id] ]}
+  end
   private
   
   def calendar_get_options(size, source, method)
@@ -487,8 +525,32 @@ module ApplicationHelper
   def render_to_string(*args)
     @controller.send(:render_to_string, *args)
   end
-
-  # test to here
+  
+  def select_id(obj, sym, opt={})
+    # FIXME: SECURITY is there a better way to do this ?
+    item = eval("@#{obj}")
+    if item
+      id = eval("@#{obj}").send(sym.to_sym)
+      current_obj = secure(Item) { Item.find_by_id(id) }
+    else
+      id = ''
+      current_obj = nil
+    end
+    name_ref = "#{obj}_#{sym}_name"
+    attribute = opt[:show] || 'name'
+    if current_obj
+      current = current_obj.send(attribute.to_sym)
+      if current.kind_of?(Array)
+        current = current.join('/')
+      end
+    else
+      current = ''
+    end
+    update = "new Ajax.Updater('#{name_ref}', '/z/item/attribute/' + this.value + '?attr=#{attribute}', {asynchronous:true, evalScripts:true});"
+    "<div class='select_id'><input type='text' size='5' id='#{obj}_#{sym}' name='#{obj}[#{sym}]' value='#{id}' onChange=\"#{update}\"/>"+
+    "<span class='select_id_name' id='#{name_ref}'>#{current}</span></div>"
+  end
+  
 end
 =begin
 
@@ -514,46 +576,6 @@ module ApplicationHelper
   end
   
   
-  # Return the list of groups from the visitor for forms
-  def groups
-    @groups ||= Group.find(:all, :select=>'id, name', :conditions=>"id IN (#{user_groups.join(',')})", :order=>"name ASC").collect {|p| [p.name, p.id]}
-  end
-  
-  def site_tree(opt={})
-    opt = {:form=>false, :skip=>nil, :base=>nil, :level=>0, :class=>Page}.merge(opt)
-    skip  = opt[:skip]
-    base  = opt[:base] || secure(Item) { Item.find(ZENA_ENV[:root_id]) }
-    level = opt[:level]
-    klass = opt[:class]
-    tree = get_site_tree(skip,base,level,klass)
-    return nil unless tree
-    if opt[:form]
-      tree.map {|p| ["  "*p[0] + p[1][:name], p[1][:id] ]}
-    else
-      tree
-    end
-  end
-  def get_site_tree(skip=nil, base=nil, level=0, klass=Page)
-    return nil if base[:id] == skip
-    children = secure(klass) {klass.find(:all, :select=>['id, name, parent_id'], :conditions=>['parent_id=? AND type NOT IN (\'Document\',\'Image\')', base[:id]])}
-    result = []
-    if level
-      result << [level, base]
-      children.each do |child|
-        next if child[:id] == skip
-        res = get_site_tree(skip, child, level+1, klass)
-        res.each {|r| result << r} if res
-      end
-      result
-    else
-      children.each do |child|
-        next if child[:id] == skip
-        item, grandchildren = get_site_tree(skip, child, nil, klass)
-        result << [child, grandchildren]
-      end
-      [base, result]
-    end
-  end
   
 end
 

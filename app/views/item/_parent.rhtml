@@ -1,0 +1,11 @@
+<ul class='drive' id='parent'>
+  <% if ! @item.errors.empty? -%>
+  <li class='errors'><%= error_messages_for 'item' %></li>
+  <% end -%>
+<%= form_tag(:controller=>'item', :action=>'move', :rnd=>rnd) %>
+<%= hidden_field('item', 'id' ) %>
+  <li><label><%= trans('parent') %></label><%= select_id('item', 'parent_id') %></li>
+  <li><label><%= trans('name') %></label><%= text_field('item', 'name', :size=>15) %></li>
+  <li class='submit'><%= submit_tag transb('change') %></li>
+<%= end_form_tag %>
+</ul>

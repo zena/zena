@@ -25,17 +25,18 @@
 
   <div id='left'>
     <div id='tinycal'><%= calendar(:find=>:news, :size=>:tiny) %></div>
+    <% hot = @item.hot ? @item.hot : @item %>
     <div class='header'>
-      <h1 class='s<%= @item.v_status %>'>
+      <h1 class='s<%= hot.v_status %>'>
         <ul class='item_actions'><%= edit_button(:all) %></ul><br/>
-        <span id='v_title<%= @item.v_id%>'><%= @item.v_title %></span>
+        <span id='v_title<%= hot.v_id%>'><%= hot.v_title %></span>
       </h1>
       <div class='subtitle'><%= author(:small) %></div>
     </div>
     <div id='drive' style='display:none;'></div>
     <div class='content'>
-      <%= show(@item, :v_summary) %>
-      <%= show(@item, :v_text   ) %>
+      <%= show(hot, :v_summary) %>
+      <%= show(hot, :v_text   ) %>
       <%#= plug :comments %>
     </div>
   </div>
@@ -48,6 +49,11 @@
     </div>
 
     <div id="right">
+      <% if address = @item.address %>
+      <div id='address'>
+        <%= show(address, :v_text   ) %>
+      </div>
+      <% end -%>
       <div id='documents'>
         <%= render :partial=>'document/list' %>
       </div>

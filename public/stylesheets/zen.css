@@ -17,6 +17,7 @@ p.img_left, p.img_right { margin:0; padding:0;}
 .date_box { display:inline;}
 .date_box img { display:inline; }
 .date_box input { font-size:70%; }
+.slider { cursor:pointer;}
 
 /* ERROR HANDLING */
 .errorExplanation { font-size:0.9em; background: #C18284; border: 1px dotted #920C0C; margin:5px 5px 5px 0; padding:4px; line-height:1.2em; }
@@ -140,7 +141,7 @@ input, textarea { border:1px solid grey; margin:0.2em}
 
 #main #content { float:left; width:640px; padding-top:0; padding-right: 22px; margin-top:0;}
 #left .content { padding-top:10px; font-size:80%;}
-#left .header h1 { font-size:1.3em; margin-top:0px;}
+#left .header h1 { font-size:1.3em; margin-top:1.2em;}
 #left .subtitle { margin-bottom:0.17em; margin-top:0.17em; }
 #left .subtitle .info { font-style:normal; font-size:70%; }
 #left .subtitle { margin-bottom:0;}
@@ -198,6 +199,7 @@ table.fada td:first-child {border-left-width:1px;}
 /* LOGIN PAGE, PAGE NOT FOUND */
 #login, #not_found { position:absolute; top:240px; left:0; width:550px; background:#9FA6AC; border:1px dotted #450009; }
 #login div, #not_found div { float:right; font-size:0.9em;}
+#login input { padding:1px;}
 #login table { padding:0.5em; font-size:0.9em; text-align:right;}
 
 #not_found { background:#ADAF87}
@@ -238,15 +240,15 @@ table.largecal { border:1px solid #655; font-size:0.8em; margin:auto; width:80%;
 .note h3 { font:1em Verdana, Arial, sans-serif; text-transform: uppercase; letter-spacing: 0.1em; }
 .note h3 a { color:inherit;}
 .note .log_at { float:left; width:60px; color:#999; font-weight:bold;}
-.note h3 p  { float:left; width:20em; text-align:left; color:#450009; font-weight:bold; margin-bottom:0.2em; padding:0;}
+.note h3 p  { float:left; width:23em; text-align:left; color:#450009; font-weight:bold; margin-bottom:0.2em; padding:0;}
 .note .sign   { float:left; width:8em; font-size:1em; color:#999; font-weight:normal; }
 .note .item_actions { margin:0; padding:0; width:60px; }
 .note .item_actions a { border:0;}
 .note .li_s50 .item_actions { visibility:hidden;}
 .note .li_s50:hover .item_actions { visibility:visible;}
-.note .text   { clear:both; margin-left:60px; margin-bottom:0.3em; font-size:1.2em; }
+.note .text   { clear:both; margin-left:60px; margin-bottom:0.3em; margin-top:0; font-size:1.2em; }
 .note .text p { margin-top:1.5em; margin-bottom:0;}
-
+.note .text p:first-child {margin-top:0;}
 #note_selected { border-left-color:orange; }
 /* TINY CALENDAR */
 #tinycal { height: 9em; margin-bottom:0.8em; }
@@ -264,37 +266,6 @@ table.largecal { border:1px solid #655; font-size:0.8em; margin:auto; width:80%;
 .tinycal .body td.satother, .tinycal .body td.satother a { color:#C8DEC1; }
 .tinycal .body td.sun, .tinycal .body td.sun a { color:#35950B; }
 .tinycal .body td.sunother, .tinycal .body td.sunother a { color:#C8DEC1; }
-
-/* ADMIN */
-#drive { border:1px solid #333; background:#B2C3D0; padding-bottom:5px;}
-#drive_parent, #drive_groups, #drive_links, #drive table { border-color:#333; border-style:solid; margin:5px; }
-#drive table { border-width:1px 0 1px 1px;  }
-#drive td { font-family:monaco,monospace; padding: 3px; font-size:0.9em; height:18px; border-right:1px solid #333; }
-
-#drive_parent, #drive_groups, #drive_links { float:left; padding:4px; width:160px; border-width:1px; background:#A3A6B0; }
-
-
-.drive li { padding-left: 10px;}
-.drive li b { width: 7em; display:block; float:left; font-weight:normal; }
-.drive li select { width: 10em;}
-.drive li.submit { text-align:right; padding-top:1em;}
-
-#drive_links img {  vertical-align:middle; margin:0; }
-#drive_links { width:460px; }
-#drive_links table { background:#DDD;}
-#drive_links .icon, #drive_links .add_icon { width:22px; text-align:center;}
-#drive_links .add_icon { border-right:0; border-top:1px solid #333;}
-#drive_links .role { width:40px; text-align:center; }
-#drive_links .link { width:230px; }
-#drive_links .actions { width:40px; }
-
-#drive_versions table { margin:auto; }
-#drive_versions td.number, #drive_versions td.lang { width:20px; text-align:center; }
-#drive_versions td.status { width:80px; }
-#drive_versions td.comment { font-style:italic; width:200px;}
-#drive_versions td.initials { width:40px; }
-#drive_versions td.date { width:130px; }
-#drive_versions td.actions { width:80px; }
 
 /* ADMIN USERS, GROUPS */
 table.admin_ug, table.admin_ug table { border-width:1px 0 0 0; margin:auto; border-color:#333; border-style:solid; margin:5px; }

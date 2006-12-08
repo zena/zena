@@ -12,7 +12,7 @@
     <% end %>  
       <p class='result_id'><%= item[:id] %></p>
       <p class='result_name'><%= item.name %></p>
-      <p class='result_path'><%= link_to(item.fullpath.join('/ '), {:controller=>'main', :action=>'show', :path=>item.fullpath, :prefix=>prefix}, :popup=>true) %></p>
+      <p class='result_path'><%= link_to(item.rootpath.join('/ '), {:controller=>'main', :action=>'show', :path=>item.fullpath, :prefix=>prefix}, :popup=>true) %></p>
       </td>
   </tr>
   <% end %>
