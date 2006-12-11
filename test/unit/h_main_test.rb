@@ -140,9 +140,35 @@ class MainHelperTest < Test::Unit::TestCase
   
   def test_lang_links
     login(:lion)
-    assert_equal "<div id='lang'><span><b>en</b> | <a href='?lang=es'>es</a> | <a href='?lang=fr'>fr</a></span></div>", lang_links
+    @request = ActionController::TestRequest.new
+    @request.instance_eval{ @parameters = {:controller=>'main', :action=>'show', :path=>'projects/cleanWater', :prefix=>AUTHENTICATED_PREFIX}}
+    class << self
+      def request
+        @request
+      end
+    end
+    assert_match %r{id='lang'.*span.*b.*en.*href=.*/oo/projects/cleanWater\?lang=es.*es.*fr.*}, lang_links
     session[:translate] = true
-    assert_match %r{id='lang'.*en.*es.*fr.*z/trans/list.*translate=off}, lang_links
+    assert_match %r{id='lang'.*span.*b.*en.*href=.*/oo/projects/cleanWater\?lang=es.*es.*fr.*z/trans/list.*translate=off}, lang_links
+    class << self
+      remove_method(:request)
+    end
+    remove_instance_variable :@request
+  end
+  
+  def test_lang_links_no_login
+    @request = ActionController::TestRequest.new
+    @request.instance_eval{ @parameters = {:controller=>'main', :action=>'show', :path=>'projects/cleanWater', :prefix=>AUTHENTICATED_PREFIX}}
+    class << self
+      def request
+        @request
+      end
+    end
+    assert_match %r{id='lang'.*span.*b.*en.*href=.*/es/projects/cleanWater.*es.*/fr/projects/cleanWater.*fr.*}, lang_links
+    class << self
+      remove_method(:request)
+    end
+    remove_instance_variable :@request
   end
   
   def test_lang_ajax_link

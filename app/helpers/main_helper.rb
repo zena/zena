@@ -135,7 +135,11 @@ module MainHelper
         if l == lang
           res << "<b>#{l}</b>"
         else
-          res << "<a href='?lang=#{l}'>#{l}</a>"
+          if session[:user]
+            res << link_to(l, request.parameters.merge(:lang=>l))
+          else
+            res << link_to(l, request.parameters.merge(:prefix=>l))
+          end
         end
       end
       if session[:translate]
