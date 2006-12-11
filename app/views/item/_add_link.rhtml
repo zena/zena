@@ -2,21 +2,18 @@
   <td class='add_icon'><%= link_to_function transb('btn_add_link'), "new Element.toggle('add_link', 'add_link_form');" %></td><td colspan='3' class='add_link'></td>
 </tr>
 <tr id='add_link_form' style='display:none;' class='inline_form'>
-  <%#= form_remote_tag(:with=>'add_link_form', :url=>{:controller=>'link', :action=>'create' }) %>
-  <%= form_tag(:controller=>'item', :action=>'add_link' ) %>
-  <%= hidden_field('link', 'source_id', :value=>@item.id ) %>
+<%= form_tag(:controller=>'item', :action=>'add_link', :id=>@item[:id], :rnd=>rnd) %>
   <td class='add_icon'>
     <%= link_to_function transb('btn_x'), "new Element.toggle('add_link', 'add_link_form');" %>
   </td>
   <td class='role'>
-    <%= select('link', 'role', Link.roles_for_form ) %>
+    <%= select('link', 'role', @item.class.roles_for_form ) %>
   </td>
   <td class='link'>
-    <%= select_id('link', 'target_id', :show=>:path) %>
+    <%= select_id('link', 'other_id', :show=>:path) %>
   </td>
   <td class='action'>
-    <%= submit_tag transb('add') %>
+  <input type="submit" class="btn_validate" value='<%= transb('add') %>'/>
   </td>
-  <%= end_form_tag %>
-  </td>
+<%= end_form_tag %>
 </tr>

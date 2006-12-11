@@ -99,8 +99,8 @@ module ApplicationHelper
 
   # "Translate" static text into the current lang
   def trans(keyword, edit=true)
-    key = TransKey.translate(keyword)
     if session[:translate] && edit # set wether untranslated text will be editable or not
+      key = TransKey.translate(keyword)
       "<div id='trans_#{key[:id]}' class='trans'>" + 
       link_to_remote(key.into(lang), 
           :update=>"trans_#{key[:id]}", 
@@ -108,7 +108,7 @@ module ApplicationHelper
           :complete=>'$("trans_value").focus();$("trans_value").select()') +
       "</div>"
     else
-      key.into(lang)
+      TransKey[keyword][lang]
     end
   end
   
@@ -364,7 +364,7 @@ module ApplicationHelper
     using  = options[:using ] || :event_at
     day_names, on_day = calendar_get_options(size, source, method)
     return "" unless on_day && source
-    Cache.with(user_id, user_groups, 'IN', size, method, source.id, date.ajd) do
+    Cache.with(user_id, user_groups, 'IN', size, method, source.id, date.ajd, lang) do
       # find start and end date
       week_start_day = trans('week_start_day').to_i
       start_date  = Date.civil(date.year, date.mon, 1)

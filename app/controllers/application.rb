@@ -131,7 +131,7 @@ class ApplicationController < ActionController::Base
   
   # "Translate" static text into the current lang
   def trans(keyword, edit=true)
-    TransKey.translate(keyword).into(lang)
+    TransKey[keyword][lang]
   end
   
   def set_encoding

@@ -1,7 +1,4 @@
 <ul class='drive' id='groups'>
-  <% if ! @item.errors.empty? -%>
-  <li class='errors'><%= error_messages_for 'item' %></li>
-  <% end -%>
 <%= form_tag(:controller=>'item', :action=>'groups', :rnd=>rnd) %>
 <%= hidden_field('item', 'id' ) %>
 <% if form_groups and form_groups.size > 1 -%>

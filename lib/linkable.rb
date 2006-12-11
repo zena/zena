@@ -74,14 +74,100 @@ on the post edit page :
         # add all methods from the module "AddActsAsMethod" to the 'base' module
         base.extend AddActsAsMethod
       end
+      
+      # List the links, grouped by role
+      def role_links
+        res = []
+        self.class.roles.each do |role|
+          if role[:collector]
+            links = []
+          else
+            links = secure(Item) { Item.find(:all,
+                            :select     => "#{Item.table_name}.*, links.id AS link_id, links.role", 
+                            :joins      => "INNER JOIN links ON #{Item.table_name}.id=links.#{role[:other_side]}",
+                            :conditions => ["links.#{role[:link_side]} = ? AND links.role = ?", self[:id], role[:role].to_s ]
+                            )} || []
+          end
+          res << [role, links]
+        end
+        res
+      end
+      
+      # add a link without passing by normal set/remove (this is used in forms when 'role' is used as a parameter)
+      def add_link(method, other_id)
+        role = nil
+        method = method.to_sym
+        self.class.roles.each do |r|
+          if r[:method] == method
+            role = r
+            break
+          end
+        end
+        return false unless role
+        sym = nil
+        if role[:unique]
+          sym = "#{method}_id=".to_sym
+        else
+          sym = "add_#{method.to_s.singularize}".to_sym
+        end
+        self.send(sym, other_id)
+      end
+      
+      # remove a link
+      def remove_link(link_id)
+        link = Link.find(link_id)
+        if link[:source_id] == self[:id]
+          link_side = 'source_id'
+          other_id  = link[:target_id]
+        elsif link[:target_id] == self[:id]
+          link_side = 'target_id'
+          other_id  = link[:source_id]
+        else
+          raise Zena::AccessViolation, "Bad link id"
+        end
+        role  = link[:role].to_sym
+        link = nil
+        self.class.roles.each do |r|
+          if r[:role] == role && r[:link_side] == link_side
+            link = r
+            break
+          end
+        end
+        return false unless link
+        if link[:unique]
+          sym = "#{link[:method]}_id=".to_sym
+          self.send(sym, nil)
+        else
+          sym = "remove_#{link[:method].to_s.singularize}".to_sym
+          self.send(sym, other_id)
+        end
+      end
+      
       module AddActsAsMethod
-        # define dummy 'secure' and 'secure_write' to work out of Zena
+        # list the links defined for this class (with superclass)
+        @@roles = {}
+        def roles
+          if superclass == ActiveRecord::Base
+            @@roles[self] || []
+          else
+            superclass.roles + (@@roles[self] || [])
+          end
+        end
         
+        def roles_for_form
+          roles.map do |role|
+            [role[:method].to_s.singularize, role[:method]]
+          end
+        end
+        
+        # macro to add links to a class
         def link(method, options={})
           unless instance_methods.include?('secure')
+            # define dummy 'secure' and 'secure_write' to work out of Zena
             class_eval "def secure(*args); yield; end"
             class_eval "def secure_write(*args); yield; end"
           end
+          @@roles[self] ||= []
           klass = options[:class_name] || method.to_s.singularize.capitalize
           if options[:for] || options[:as]
             link_side  = 'target_id'
@@ -92,18 +178,20 @@ on the post edit page :
           end
           if options[:unique]
             count = ':first'
-            key = options[:as] || method.to_s.downcase
+            role = options[:as] || method.to_s.downcase
           else
             count = ':all'
-            key = options[:as] || method.to_s.downcase.singularize
+            role = options[:as] || method.to_s.downcase.singularize
           end
+          @@roles[self] << { :method=>method.to_sym, :role=>role.to_sym, :link_side=>link_side, :other_side=>other_side, 
+                             :unique=>(options[:unique] == true), :collector=>(options[:collector] == true) }
           finder = <<-END
             def #{method}(options={})
               conditions = options[:conditions]
               options.delete(:conditions)
               options.merge!( :select     => "\#{#{klass}.table_name}.*, links.id AS link_id", 
                               :joins      => "INNER JOIN links ON \#{#{klass}.table_name}.id=links.#{other_side}",
-                              :conditions => ["links.role='#{key}' AND links.#{link_side} = ?", self[:id] ]
+                              :conditions => ["links.role='#{role}' AND links.#{link_side} = ?", self[:id] ]
                               )
               if conditions
                 #{klass}.with_scope(:find=>{:conditions=>conditions}) do
@@ -120,8 +208,8 @@ on the post edit page :
           
           if options[:as_unique]
             destroy_if_as_unique     = <<-END
-            if link2 = Link.find_by_role_and_#{other_side}('#{key}', obj_id)
-              errors.add('#{key}', 'can not destroy') unless link2.destroy
+            if link2 = Link.find_by_role_and_#{other_side}('#{role}', obj_id)
+              errors.add('#{role}', 'can not destroy') unless link2.destroy
             end
             END
           else
@@ -129,14 +217,42 @@ on the post edit page :
           end
           
           if options[:unique]
-            after_save "save_#{method}".to_sym
             methods = <<-END
               def #{method}_id=(obj_id); @#{method}_id = obj_id; end
               def #{method}=(obj); @#{method}_id = obj.id; end
               def #{method}_id
-                link = Link.find_by_role_and_#{link_side}('#{key}', self[:id])
+                link = Link.find_by_role_and_#{link_side}('#{role}', self[:id])
                 link ? link[:#{other_side}] : nil
               end
+              
+              # link can be changed if user can write in old and new
+              # 1. can remove old link
+              # 2. can write in new target
+              def validate_#{method}
+                return unless defined? @#{method}_id
+                
+                # 1. can remove old link ?
+                if link = Link.find_by_role_and_#{link_side}('#{role}', self[:id])
+                  obj_id = link.#{other_side}
+                  begin
+                    secure_write(#{klass}) { #{klass}.find(obj_id) }
+                  rescue
+                    errors.add('#{role}', 'cannot remove old link')
+                  end
+                end
+                
+                # 2. can write in new target ?
+                obj_id = @#{method}_id
+                if obj_id && obj_id != ''
+                  # set
+                  begin
+                    secure_write(#{klass}) { #{klass}.find(obj_id) } # make sure we can write in the object
+                  rescue
+                    errors.add('#{role}', 'invalid')
+                  end
+                end
+              end
+              
               def save_#{method}
                 self.class.logger.info '=============== save_#{method} called ==============='
                 return unless defined? @#{method}_id
@@ -144,69 +260,98 @@ on the post edit page :
                 if obj_id && obj_id != ''
                   # set
                   obj_id = obj_id.to_i
-                  secure_write(#{klass}) { #{klass}.find(obj_id) } # make sure we can write in the object
-                  if link = Link.find_by_role_and_#{link_side}('#{key}', self[:id])
+                  if link = Link.find_by_role_and_#{link_side}('#{role}', self[:id])
                     #{destroy_if_as_unique}
                     link.#{other_side} = obj_id
                   else
                     #{destroy_if_as_unique}
-                    link = Link.new(:#{link_side}=>self[:id], :#{other_side}=>obj_id, :role=>"#{key}")
+                    link = Link.new(:#{link_side}=>self[:id], :#{other_side}=>obj_id, :role=>"#{role}")
                   end  
-                  errors.add('#{key}', 'cannot set') unless link.save
+                  errors.add('#{role}', 'could not be set') unless link.save
                 else
                   # remove
-                  if link = Link.find_by_role_and_#{link_side}('#{key}', self[:id])
-                    errors.add('#{key}', 'cannot remove') unless link.destroy
+                  if link = Link.find_by_role_and_#{link_side}('#{role}', self[:id])
+                    errors.add('#{role}', 'could not be removed') unless link.destroy
                   end
                 end
                 remove_instance_variable :@#{method}_id
-                return true
-              rescue ActiveRecord::RecordNotFound
-                errors.add('#{key}', 'cannot set')
-                return false
+                return errors.empty?
               end
             END
           else
             # multiple
             meth = method.to_s.singularize
-            if link_side == 'source_id'
-              breaker = ""
-            else
-              breaker = "secure_write(#{klass}) { #{klass}.find(obj_id) }"
-            end
             methods = <<-END
               def #{meth}_ids=(obj_ids)
-                @#{meth}_ids = obj_ids
+                @#{meth}_ids = obj_ids.map{|i| i.to_i}
               end
               def #{method}=(objs)
                 @#{meth}_ids = objs.map {|obj| obj.id}
               end
               def #{meth}_ids; #{method}.map{|r| r[:id]}; end
+              
+              # link can be changed if user can write in old and new
+              # 1. can remove old links
+              # 2. can write in new targets
+              def validate_#{method}
+                return unless defined? @#{meth}_ids
+                unless @#{meth}_ids.kind_of?(Array)
+                  errors.add('#{role}', 'bad format') 
+                  return false
+                end
+                # what changed ?
+                obj_ids = @#{meth}_ids.map{|i| i.to_i }
+                del_ids = []
+                # find all current links
+                #{method}.each do |link|
+                  obj_id = link[:id]
+                  unless obj_ids.include?(obj_id)
+                    del_ids << obj_id
+                  end
+                  obj_ids.delete(obj_id) # ignore existing links
+                end
+                @#{meth}_add_ids = obj_ids
+                @#{meth}_del_ids = del_ids
                 
+                # 1. can remove old link ?
+                @#{meth}_del_ids.each do |obj_id|
+                  begin
+                    secure_write(#{klass}) { #{klass}.find(obj_id) }
+                  rescue
+                    errors.add('#{role}', 'cannot remove link')
+                  end
+                end
+                
+                # 2. can write in new target ?
+                @#{meth}_add_ids.each do |obj_id|
+                  begin
+                    secure_write(#{klass}) { #{klass}.find(obj_id) }
+                  rescue
+                    errors.add('#{role}', 'invalid')
+                  end
+                end
+              end
+              
               def save_#{method}
                 self.class.logger.info '=============== save_#{method} called ==============='
-                return unless @#{meth}_ids.kind_of?(Array)
-                obj_ids = @#{meth}_ids.map{|i| i.to_i }
-                # remove all old links for this role
-                #{method}.each do |l|
-                  obj_id = l[:id]
-                  if obj_ids.include?(obj_id)
-                    obj_ids.delete(obj_id)
-                    next
+                return true unless defined? @#{meth}_ids
+                if (obj_ids = @#{meth}_del_ids) != []
+                  # remove all old links for this role
+                  links = Link.find(:all, :conditions => ["links.role='#{role}' AND links.#{link_side} = ? AND links.#{other_side} IN (\#{obj_ids.join(',')})", self[:id] ])
+                  links.each do |l|
+                    errors.add('#{role}', 'could not be removed') unless l.destroy
                   end
-                  #{breaker}
-                  errors.add('#{key}', 'could not clear') unless Link.find(l[:link_id]).destroy
                 end
-                obj_ids.each do |obj_id|
-                  #{breaker}
-                  #{destroy_if_as_unique}
-                  errors.add('#{key}', 'cannot set') unless Link.create(:#{link_side}=>self[:id], :#{other_side}=>obj_id, :role=>"#{key}")
+                
+                if (obj_ids = @#{meth}_add_ids) != []
+                  # add new links for this role
+                  obj_ids.each do |obj_id|
+                    #{destroy_if_as_unique}
+                    errors.add('#{role}', 'could not be set') unless Link.create(:#{link_side}=>self[:id], :#{other_side}=>obj_id, :role=>"#{role}")
+                  end
                 end
                 remove_instance_variable :@#{meth}_ids
-                return true
-              rescue ActiveRecord::RecordNotFound
-                errors.add('#{key}', 'cannot set')
-                return false
+                return errors.empty?
               end
               
               def remove_#{meth}(obj_id)
@@ -216,12 +361,12 @@ on the post edit page :
               
               def add_#{meth}(obj_id)
                 @#{meth}_ids ||= #{meth}_ids
-                @#{meth}_ids << obj_id.to_i
+                @#{meth}_ids << obj_id.to_i unless @#{meth}_ids.include?(obj_id.to_i)
               end
               
               def #{method}_for_form(options={})
                 options.merge!( :select     => "\#{#{klass}.table_name}.*, links.id AS link_id", 
-                                :joins      => "LEFT OUTER JOIN links ON \#{#{klass}.table_name}.id=links.#{other_side} AND links.role='#{key}' AND links.#{link_side} = \#{self[:id].to_i}"
+                                :joins      => "LEFT OUTER JOIN links ON \#{#{klass}.table_name}.id=links.#{other_side} AND links.role='#{role}' AND links.#{link_side} = \#{self[:id].to_i}"
                                 )
                 secure_write(#{klass}) { #{klass}.find(:all, options) }
               rescue ActiveRecord::RecordNotFound
@@ -231,6 +376,7 @@ on the post edit page :
             END
           end
           class_eval methods
+          validate     "validate_#{method}".to_sym
           after_save   "save_#{method}".to_sym
         end
       end

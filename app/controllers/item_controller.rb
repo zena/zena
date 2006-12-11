@@ -88,6 +88,38 @@ class ItemController < ApplicationController
     render :inline=>trans('not found')
   end
   
+  # TODO: test
+  def add_link
+    @item = secure_drive(Item) { Item.find(params[:id]) }
+    method = params[:link][:role]
+    if @item.add_link(method, params[:link][:other_id]) && @item.save
+      flash[:notice] = trans "Link created"
+      redirect_to :action=>'drive', :id=>params[:id]
+    else  
+      flash[:error]  = trans "Could not create link"
+      render :action=>'drive'
+    end
+  rescue ActiveRecord::RecordNotFound
+    render :inline=>trans('not found')
+  end
+  
+  # TODO: test
+  def remove_link
+    @item = secure_drive(Item) { Item.find(params[:id]) }
+    if @item.remove_link(params[:link_id]) && @item.save
+      flash[:notice] = trans "Link removed"
+      redirect_to :action=>'drive', :id=>params[:id]
+    else  
+      flash[:error]  = trans "Could not remove link"
+      render :action=>'drive'
+    end
+  #rescue ActiveRecord::RecordNotFound
+  #  render :inline=>trans('not found')
+  rescue Zena::AccessViolation  
+    flash[:error]  = trans "Link not found"
+    render :action=>'drive'
+  end
+  
   # change to ?
   
   #if @item.type != params[:item][:type]

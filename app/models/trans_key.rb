@@ -1,9 +1,26 @@
+class TransHash < Hash
+  def initialize(id, keyword)
+    self[:id] = id
+    self[:key] = keyword
+  end
+  def [](la)
+    super || begin
+      val = TransValue.find(:first,
+                      :select=>"*, (lang = '#{la.gsub(/[^\w]/,'')}') as lang_ok, (lang = '#{ZENA_ENV[:default_lang]}') as def_lang",
+                      :conditions=>"key_id = #{super(:id)}",
+                      :order=>"lang_ok DESC, def_lang DESC")
+      self[la] = val ? val[:value] : super(:key)
+    end
+  end
+end
+
 class TransKey < ActiveRecord::Base
   attr_accessor :lang, :value
   before_save :check_value
   after_save :save_value
   has_many :trans_values, :foreign_key=>'key_id'
   
+  @@key = {}
   class << self
     def translate(keyword)
       key = TransKey.find_by_key(keyword)
@@ -11,6 +28,15 @@ class TransKey < ActiveRecord::Base
         key = TransKey.create(:key=>keyword)
       end
       key
+    end
+    def [](keyword)
+      @@key[keyword] || begin
+        key = TransKey.find_by_key(keyword) || TransKey.create(:key=>keyword)
+        @@key[keyword] = TransHash.new(key[:id], keyword)
+      end
+    end
+    def clear
+      @@key = {}
     end
   end
   
@@ -25,6 +51,7 @@ class TransKey < ActiveRecord::Base
     val = self.trans_values.find_by_lang(la) || TransValue.new(:lang=>la, :key_id=>self[:id])
     val[:value] = value
     val.save
+    TransKey.clear
   end
   
   def value

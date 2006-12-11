@@ -1,7 +1,4 @@
 <ul class='drive' id='parent'>
-  <% if ! @item.errors.empty? -%>
-  <li class='errors'><%= error_messages_for 'item' %></li>
-  <% end -%>
 <%= form_tag(:controller=>'item', :action=>'move', :rnd=>rnd) %>
 <%= hidden_field('item', 'id' ) %>
   <li><label><%= trans('parent') %></label><%= select_id('item', 'parent_id') %></li>

@@ -1,7 +1,7 @@
 class Project < Page
   has_many :items
   after_save :check_project_id
-  link :news, :class_name=>'Note', :as=>'calendar'
+  link :news, :class_name=>'Note', :as=>'calendar', :collector=>true
   link :hot,  :class_name=>'Item', :unique=>true
   link :address, :class_name=>'Contact', :unique=>true
   

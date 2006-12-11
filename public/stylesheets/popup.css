@@ -2,7 +2,7 @@
 * {margin: 0; padding: 0;}
 a {text-decoration: none; color:#266F92;}
 a img {border: none;}
-body {font: 0.9em Verdana, sans-serif; line-height: 1; color: #333;  behavior: url('stylesheets/csshover2.htc');} /* WinIE hack */
+body {font: 0.9em Helvetica, Verdana, sans-serif; line-height: 1; color: #333;  behavior: url('stylesheets/csshover2.htc');} /* WinIE hack */
 .img_left  img { margin:0px 5px 5px 0; float:left;}
 .img_right img { margin:0px 0 5px 5px; float:right;}
 p.img_left, p.img_right { margin:0; padding:0;}
@@ -80,10 +80,11 @@ td.description p.summary { font-style:italic; font-size:0.8em; }
 
 #parent, #groups, #links { float:left; width:160px;}
 #links { border-width:1px 0 0 1px; padding:0; }
-#links td { font-family:monaco,monospace; padding: 3px; font-size:0.9em; height:18px; border:1px solid #333; border-width:0 1px 1px 0; }
+#links td { padding: 3px; font-size:0.8em; height:18px; border:1px solid #333; border-width:0 1px 1px 0; }
 #links img {  vertical-align:middle; margin:0; }
 #links { width:360px; }
-#links table { background:#DDD;}
+#links .group { background:#888; font-weight:bold;}
+#links .group span { background:#888; font-weight:normal;}
 #links .icon, #links .add_icon { width:22px; text-align:center;}
 #links .add_icon { border-right:0; }
 #links .role { width:40px; text-align:center; }

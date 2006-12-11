@@ -57,7 +57,7 @@ class Item < ActiveRecord::Base
   before_destroy :item_on_destroy
   acts_as_secure
   acts_as_multiversioned
-  link :tags
+  link :tags, :class_name=>'Tag'
   link :hot_for, :as=>'hot', :class_name=>'Project', :as_unique=>true
   
   class << self
@@ -96,13 +96,9 @@ class Item < ActiveRecord::Base
     end
   end
   
-  #TODO: test
+  # Same as fullpath, but the path includes the root item.
   def rootpath
-    if fullpath == []
-      [self[:name]]
-    else
-      fullpath
-    end
+    [ZENA_ENV[:site_name]] + fullpath
   end
 
   # Overwritten by notes
@@ -219,31 +215,6 @@ class Item < ActiveRecord::Base
   # Find all trackers
   def trackers
     @trackers ||= secure(Tracker) { Tracker.find(:all, :order=>'name ASC', :conditions=>['parent_id=?', self[:id]] ) }
-  end
-  
-  #TODO: test
-  # links finder
-  def links(options={})
-    conditions = options[:conditions]
-    options.delete(:conditions)
-    source = options.merge( :select     => "#{Item.table_name}.*, links.id AS link_id, links.role", 
-                    :joins      => "INNER JOIN links ON #{Item.table_name}.id=links.target_id",
-                    :conditions => ["links.source_id = ?", self[:id] ]
-                    )
-
-    target = options.merge( :select     => "#{Item.table_name}.*, links.id AS link_id, links.role", 
-                    :joins      => "INNER JOIN links ON #{Item.table_name}.id=links.source_id",
-                    :conditions => ["links.target_id = ?", self[:id] ]
-                    )
-    if conditions
-      Item.with_scope(:find=>{:conditions=>conditions}) do
-        (secure(Item) { Item.find(:all, source ) } || []) + secure_write(Item) { Item.find(:all, target ) }
-      end
-    else  
-      (secure(Item) { Item.find(:all, source ) } || []) + secure_write(Item) { Item.find(:all, target ) }
-    end
-  rescue ActiveRecord::RecordNotFound
-    nil
   end
 
   # Create a child and let him inherit from rwp groups and project_id

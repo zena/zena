@@ -46,6 +46,14 @@ class ItemTest < Test::Unit::TestCase
     assert_nothing_raised { item = Item.find_by_path(user_id,user_groups,'fr',['people', 'ant', 'status'])}
   end
   
+  def test_rootpath
+    visitor(:ant)
+    item = secure(Item) { items(:status) }
+    assert_equal ['zena', 'projects', 'cleanWater', 'status'], item.rootpath
+    item = secure(Item) { items(:zena) }
+    assert_equal ['zena'], item.rootpath
+  end
+  
   def test_create_simplest
     visitor(:ant)
     test_page = secure(Item) { Item.create(:name=>"yoba", :parent_id=>items_id(:cleanWater), :inherit=>1 ) }
