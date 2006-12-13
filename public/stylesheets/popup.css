@@ -19,6 +19,7 @@ button { background:none; border:none;}
 .btn_validate img, .add_document img { border:0; }
 .hidden { visibility:hidden;}
 .clear  { clear:both;}
+.errors ul { background:#DDC8C8; margin:0 0 5px; padding:4px 0; border-bottom:1px solid #5A3231;}
 
 /* flash messages */
 #messages { position:absolute; top:0; left:0; width:100%; height:45px; border-bottom:1px solid grey; background:white;}
@@ -78,18 +79,25 @@ td.description p.summary { font-style:italic; font-size:0.8em; }
 .drive li.submit { text-align:right; padding-top:1em;}
 .select_id span { margin-left:0.2em;}
 
-#parent, #groups, #links { float:left; width:160px;}
-#links { border-width:1px 0 0 1px; padding:0; }
+#parent, #groups, #links { float:left; width:130px;}
+#parent #parent_errors { margin:0; padding:0; font-size:0.8em; }
+#groups #groups_errors { margin:0; padding:0; font-size:0.8em; }
+#links table { border-width:1px 0 0 1px; padding:0; }
 #links td { padding: 3px; font-size:0.8em; height:18px; border:1px solid #333; border-width:0 1px 1px 0; }
 #links img {  vertical-align:middle; margin:0; }
-#links { width:360px; }
+#links table { width:360px; }
 #links .group { background:#888; font-weight:bold;}
 #links .group span { background:#888; font-weight:normal;}
 #links .inline_form div { float: left;}
+#links .inline_form div.errors { float: none;}
 #links .icon, #links .add_icon { width:22px; text-align:center;}
 #links .add_icon { border-right:0; }
 #links .role { width:80px; text-align:center; }
 #links .link { width:200px; }
+#links .link_box li { display:inline; padding:2px;}
+#links .link_box input { display:inline; width:2em; margin:3px;}
+#links .link_box input.box { width:1.2em; margin:3px;}
+#links .link_box .select_id input {margin:0 3px;}
 #links .actions { width:40px; }
 #links #link_role option { width:50px;}
 #links #link_target_id option { width:120px;}

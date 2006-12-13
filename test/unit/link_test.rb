@@ -52,10 +52,10 @@ class LinkTest < Test::Unit::TestCase
     @item = secure(LinkDummy) { LinkDummy.find(items_id(:wiki)) }
     groups = @item.role_links
     assert_equal @item.class.roles.size, groups.size
-    assert_equal :icon, groups[0][0][:role]
-    assert_equal 1, groups[0][1].size
-    assert_equal :tag, groups[1][0][:role]
-    assert_equal 2, groups[1][1].size
+    assert_equal 'icon', groups[3][0][:role]
+    assert_equal 1, groups[3][1].size
+    assert_equal 'tag', groups[6][0][:role]
+    assert_equal 2, groups[6][1].size
   end
   
   def test_class_roles
@@ -66,10 +66,21 @@ class LinkTest < Test::Unit::TestCase
   def test_roles_for_form
     roles = SpecialLinkDummy.roles_for_form
     assert_equal 10, roles.size
-    assert_equal ['tag', :tags], roles[1]
+    assert_equal ['tag', 'tags'], roles[roles.size-3]
   end
   
-  def test_add_link
+  def test_add_link_errors
+    visitor(:tiger)
+    @item = secure(LinkDummy) { LinkDummy.find(items_id(:wiki)) }
+    @item.tag_ids = [items_id(:art),items_id(:news)]
+    @item.save
+    assert_equal 2, @item.tags.size
+    @item.add_link('tags', items_id(:status) )
+    assert !@item.save, "Cannot save"
+    assert_equal 'invalid', @item.errors['tag']
+  end
+  
+  def test_add_link_ok
     visitor(:tiger)
     @item = secure(LinkDummy) { LinkDummy.find(items_id(:wiki)) }
     @item.tag_ids = [items_id(:art),items_id(:news)]
@@ -83,14 +94,29 @@ class LinkTest < Test::Unit::TestCase
     assert_equal 'menu', tags[2].name
   end
 
-  def test_remove_link
+  def test_remove_link_errors
+    visitor(:tiger)
+    @item = secure(LinkDummy) { LinkDummy.find(items_id(:wiki)) }
+    @item.tag_ids = [items_id(:menu),items_id(:art)]
+    assert @item.save, "Can save"
+    tags = @item.tags
+    assert_equal 2, @item.tags.size
+    assert_equal 'menu', tags[0][:name]
+    link_id = tags[0][:link_id]
+    visitor(:lion)
+    @item = secure(LinkDummy) { LinkDummy.find(items_id(:wiki)) }
+    assert @item.remove_link( link_id ) # ignore bad links on remove
+  end
+  
+
+  def test_remove_link_ok
     visitor(:tiger)
     @item = secure(LinkDummy) { LinkDummy.find(items_id(:wiki)) }
     @item.tag_ids = [items_id(:art),items_id(:news)]
     @item.save
     assert_equal 2, @item.tags.size
     tags = @item.tags(:conditions=>['name = ?', 'news'])
-    assert_raise (Zena::AccessViolation) { @item.remove_link(1) }
+    assert_raise (ActiveRecord::RecordNotFound) { @item.remove_link(1) }
     @item.remove_link( tags[0][:link_id] )
     assert @item.save, "Can save"
     @item = secure(LinkDummy) { LinkDummy.find(items_id(:wiki)) }

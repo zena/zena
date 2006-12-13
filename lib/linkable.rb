@@ -85,7 +85,7 @@ on the post edit page :
             links = secure(Item) { Item.find(:all,
                             :select     => "#{Item.table_name}.*, links.id AS link_id, links.role", 
                             :joins      => "INNER JOIN links ON #{Item.table_name}.id=links.#{role[:other_side]}",
-                            :conditions => ["links.#{role[:link_side]} = ? AND links.role = ?", self[:id], role[:role].to_s ]
+                            :conditions => ["links.#{role[:link_side]} = ? AND links.role = ?", self[:id], role[:role] ]
                             )} || []
           end
           res << [role, links]
@@ -96,19 +96,17 @@ on the post edit page :
       # add a link without passing by normal set/remove (this is used in forms when 'role' is used as a parameter)
       def add_link(method, other_id)
         role = nil
-        method = method.to_sym
-        self.class.roles.each do |r|
-          if r[:method] == method
-            role = r
-            break
-          end
+        method = method.to_s
+        role = self.class.role[method]
+        unless role
+          errors.add(method, 'not a correct method')
+          return false 
         end
-        return false unless role
         sym = nil
         if role[:unique]
           sym = "#{method}_id=".to_sym
         else
-          sym = "add_#{method.to_s.singularize}".to_sym
+          sym = "add_#{method.singularize}".to_sym
         end
         self.send(sym, other_id)
         return true
@@ -124,9 +122,9 @@ on the post edit page :
           link_side = 'target_id'
           other_id  = link[:source_id]
         else
-          raise Zena::AccessViolation, "Bad link id"
+          raise ActiveRecord::RecordNotFound, "Bad link id"
         end
-        role  = link[:role].to_sym
+        role = link[:role]
         link = nil
         self.class.roles.each do |r|
           if r[:role] == role && r[:link_side] == link_side
@@ -134,42 +132,51 @@ on the post edit page :
             break
           end
         end
-        return false unless link
+        unless link
+          raise ActiveRecord::RecordNotFound, "Bad link id"
+        end
         if link[:unique]
           sym = "#{link[:method]}_id=".to_sym
           self.send(sym, nil)
         else
-          sym = "remove_#{link[:method].to_s.singularize}".to_sym
+          sym = "remove_#{link[:method].singularize}".to_sym
           self.send(sym, other_id)
         end
       end
       
       module AddActsAsMethod
-        # list the links defined for this class (with superclass)
-        @@roles = {}
+        @@role          = {}
+        @@roles         = {}
+        @@defined_roles = {}
+        
+        # list of links defined for this class (with superclass)
         def roles
-          if superclass == ActiveRecord::Base
-            @@roles[self] || []
+          @@roles[self] ||= role.to_a.sort.map{|k,v| v}
+        end
+        
+        # hash with the links defined for this class (with superclass)
+        def role
+          @@role[self] ||= if superclass == ActiveRecord::Base
+            @@defined_roles[self] || {}
           else
-            superclass.roles + (@@roles[self] || [])
+            superclass.role.merge(@@defined_roles[self] || {})
           end
         end
         
         def roles_for_form
-          roles.map do |role|
-            [role[:method].to_s.singularize, role[:method]]
-          end
+          roles.map {|r| [r[:method].singularize, r[:method]] }
         end
         
         # macro to add links to a class
         def link(method, options={})
+          method = method.to_s
           unless instance_methods.include?('secure')
             # define dummy 'secure' and 'secure_write' to work out of Zena
             class_eval "def secure(*args); yield; end"
             class_eval "def secure_write(*args); yield; end"
           end
-          @@roles[self] ||= []
-          klass = options[:class_name] || method.to_s.singularize.capitalize
+          @@defined_roles[self] ||= {}
+          klass = options[:class_name] || method.singularize.capitalize
           if options[:for] || options[:as]
             link_side  = 'target_id'
             other_side = 'source_id'
@@ -179,12 +186,12 @@ on the post edit page :
           end
           if options[:unique]
             count = ':first'
-            role = options[:as] || method.to_s.downcase
+            role = (options[:as] || method.downcase).to_s
           else
             count = ':all'
-            role = options[:as] || method.to_s.downcase.singularize
+            role = (options[:as] || method.downcase.singularize).to_s
           end
-          @@roles[self] << { :method=>method.to_sym, :role=>role.to_sym, :link_side=>link_side, :other_side=>other_side, 
+          @@defined_roles[self][method] = { :method=>method, :role=>role, :link_side=>link_side, :other_side=>other_side, 
                              :unique=>(options[:unique] == true), :collector=>(options[:collector] == true) }
           finder = <<-END
             def #{method}(options={})
@@ -281,13 +288,13 @@ on the post edit page :
             END
           else
             # multiple
-            meth = method.to_s.singularize
+            meth = method.singularize
             methods = <<-END
               def #{meth}_ids=(obj_ids)
-                @#{meth}_ids = obj_ids.map{|i| i.to_i}
+                @#{meth}_ids = obj_ids ? obj_ids.map{|i| i.to_i} : []
               end
               def #{method}=(objs)
-                @#{meth}_ids = objs.map {|obj| obj.id}
+                @#{meth}_ids = objs ? objs.map{|obj| obj.id} : []
               end
               def #{meth}_ids; #{method}.map{|r| r[:id]}; end
               
@@ -357,12 +364,15 @@ on the post edit page :
               
               def remove_#{meth}(obj_id)
                 @#{meth}_ids ||= #{meth}_ids
+                # ignore bad obj_ids, just pass
                 @#{meth}_ids.delete(obj_id.to_i)
+                return true
               end
               
               def add_#{meth}(obj_id)
                 @#{meth}_ids ||= #{meth}_ids
                 @#{meth}_ids << obj_id.to_i unless @#{meth}_ids.include?(obj_id.to_i)
+                return true
               end
               
               def #{method}_for_form(options={})

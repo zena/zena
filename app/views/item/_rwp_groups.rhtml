@@ -1,13 +1,13 @@
-<ul class='drive' id='groups'>
-<%= form_tag(:controller=>'item', :action=>'groups', :rnd=>rnd) %>
-<%= hidden_field('item', 'id' ) %>
-<% if form_groups and form_groups.size > 1 -%>
-  <li><label><%= trans('readers') %></label><%= select('item', 'rgroup_id',    form_groups, { :include_blank => true }) %></li>
-  <li><label><%= trans('writers') %></label><%= select('item', 'wgroup_id',    form_groups, { :include_blank => true }) %></li>
+<%= form_remote_tag(:with=>'groups', :url=>{:controller=>'item', :action=>'groups', :id=>@item[:id], :rnd=>rnd}) %>
+  <li id='groups_errors' class='errors'></li>
+<% if form_groups && form_groups.size > 1 && !@item.private? -%>    
   <li><label><%= trans('publishers') %></label><%= select('item', 'pgroup_id', form_groups, { :include_blank => true }) %></li>
+  <li><label><%= trans('writers') %></label><%= select('item', 'wgroup_id',    form_groups, { :include_blank => true }) %></li>
+  <li><label><%= trans('readers') %></label><%= select('item', 'rgroup_id',    form_groups, { :include_blank => true }) %></li>
+<% elsif @item.private? -%>
+  <li><label><%= trans('rights') %></label><%= select('item', 'inherit', [[trans('private'),-1],[trans('inherit'),1]]) %></li>
 <% else -%>
-  <li><label><%= trans('rights') %></label><%= select('item', 'inherit', [[t('inherit'),1],[t('private'),-1]]) %></li>
-<% end -%>
+  <li><label><%= trans('rights') %></label><%= select('item', 'inherit', [[trans('inherit'),1],[trans('private'),-1]]) %></li>
+<% end -%>  
   <li class='submit'><%= submit_tag transb('change') %></li>
 <%= end_form_tag %>
-</ul>

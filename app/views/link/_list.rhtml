@@ -1,4 +1,4 @@
-<table cellspacing="0" class='drive' id='links'>
+<table cellspacing="0" class='drive'>
   <% @item.role_links.each do |role,links| -%>
     <tr id='group_<%= role[:method]%>'>
       <td class='group' colspan='4'><%= role[:method] %> <%= "<span>(#{trans('collection not shown')})</span>" if role[:collector] %></td>

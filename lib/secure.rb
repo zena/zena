@@ -331,12 +331,11 @@ Just doing the above will filter all result according to the logged in user.
             errors.add(ref_field, "invalid reference")
             return false
           end
-          
-          # nil = inherit
-          self[:rgroup_id] ||= ref[:rgroup_id]
-          self[:wgroup_id] ||= ref[:wgroup_id]
-          self[:pgroup_id] ||= ref[:pgroup_id]
-          self[:template ] ||= ref[:template ]
+          [:rgroup_id, :wgroup_id, :pgroup_id, :template].each do |sym|
+            # not defined = inherit
+            self[sym] ||= ref[sym]
+            self[sym] = 0 if self[sym] == ''
+          end
           if inherit.nil?
             if rgroup_id == ref.rgroup_id && wgroup_id == ref.wgroup_id && pgroup_id == ref.pgroup_id
               self[:inherit  ] = 1
@@ -478,7 +477,14 @@ Just doing the above will filter all result according to the logged in user.
           # same with proposed
           self[:max_status] = @max_status || old.max_status
           # verify groups
-          if inherit == old.inherit && inherit == 1 && 
+          [:rgroup_id, :wgroup_id, :pgroup_id].each do |sym|
+            # set to 0 if nil or ''
+            self[sym] = 0 if !self[sym] || self[sym] == ''
+          end
+          if pgroup_id == 0 && pgroup_id != old.pgroup_id
+            # if pgroup_id is set to 0 ==> make item private
+            self[:inherit] = -1
+          elsif inherit == old.inherit && inherit == 1 && 
                (rgroup_id != ref.rgroup_id || wgroup_id != ref.wgroup_id || pgroup_id != ref.pgroup_id || template != ref.template)
             # set inherit if there is a change in rwg groups or template but inherit was not updated accordingly   
             self[:inherit] = 0
@@ -486,29 +492,28 @@ Just doing the above will filter all result according to the logged in user.
           case inherit
           when 1
             errors.add('inherit', "you cannot change this") unless (inherit == old.inherit) || old.can_manage? || old.can_publish?
-            self[:rgroup_id] = ref.rgroup_id
-            self[:wgroup_id] = ref.wgroup_id
-            self[:pgroup_id] = ref.pgroup_id
-            self[:template ] = ref.template
+            [:rgroup_id, :wgroup_id, :pgroup_id, :template].each do |sym|
+              self[sym] = ref[sym]
+            end
           when -1
-            # make private
+            # make private, only if owner
             errors.add('inherit', "you cannot change this") unless old.can_manage? || old.can_publish?
-            self[:inherit  ] = 0
-            self[:rgroup_id] = 0
-            self[:wgroup_id] = 0
-            self[:pgroup_id] = 0
+            self[:inherit] = 0
+            [:rgroup_id, :wgroup_id, :pgroup_id].each do |sym|
+              self[sym] = 0
+            end
           when 0
             if old.can_publish?
               if private?
-                # ok (all gruops are nil)
+                # ok (all gruops are 0)
               else
-                if (rgroup_id != old[:rgroup_id] && !visitor_groups.include?(rgroup_id))
+                if rgroup_id != 0 && rgroup_id != old[:rgroup_id] && !visitor_groups.include?(rgroup_id)
                   errors.add('rgroup_id', "unknown group")
                 end
-                if (wgroup_id != old[:wgroup_id] && !visitor_groups.include?(wgroup_id))
+                if wgroup_id != 0 && wgroup_id != old[:wgroup_id] && !visitor_groups.include?(wgroup_id)
                   errors.add('wgroup_id', "unknown group") 
                 end
-                if (pgroup_id != old[:pgroup_id] && !visitor_groups.include?(pgroup_id))
+                if pgroup_id != 0 && pgroup_id != old[:pgroup_id] && !visitor_groups.include?(pgroup_id)
                   errors.add('pgroup_id', "unknown group")
                 end
               end

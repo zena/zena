@@ -1,8 +1,6 @@
-<ul class='drive' id='parent'>
-<%= form_tag(:controller=>'item', :action=>'move', :rnd=>rnd) %>
-<%= hidden_field('item', 'id' ) %>
+<%= form_remote_tag(:with=>'parent', :url=>{:controller=>'item', :action=>'move', :id=>@item[:id], :rnd=>rnd}) %>
+  <li id='parent_errors' class='errors'></li>
   <li><label><%= trans('parent') %></label><%= select_id('item', 'parent_id') %></li>
   <li><label><%= trans('name') %></label><%= text_field('item', 'name', :size=>15) %></li>
   <li class='submit'><%= submit_tag transb('change') %></li>
 <%= end_form_tag %>
-</ul>

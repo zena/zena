@@ -2,12 +2,8 @@ if @link
   page.insert_html :after, "group_#{@method}", :partial=>'link/li', :collection=>[@link]
   page.visual_effect :highlight, "link#{@link[:link_id]}", :duration => 1.0
   page.replace_html 'link_errors', :inline=>""
+elsif @item && @item.errors.empty?
+  page.replace_html 'links', :partial=>'list'
 else
-  page.replace_html 'messages', :inline=>trans("Could not create link")
-  txt = []
-  @item.errors.each do |er,msg|
-    txt << "[#{er}] #{msg}"
-    puts "[#{er}] #{msg}"
-  end
-  page.replace_html 'link_errors', :inline=>txt.join("<br/>")
+  page.replace_html 'link_errors', :inline=>@error ? @error : error_messages_for('item')
 end

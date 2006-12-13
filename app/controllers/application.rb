@@ -213,7 +213,7 @@ class ApplicationController < ActionController::Base
   
   
   include ZenaGlobals
-  model :item,:address, :user, :group, :page, :tracker, :document, :image, :collector, :project, 
+  model :item,:contact, :user, :group, :page, :tracker, :document, :image, :collector, :project, 
     :note, :contact, :comment, :version, :doc_version, :image_version, :doc_file, :image_file, :link, :image_builder, :form  # (load models) this is used to make find work with sub-classes
   before_filter :set_env
   layout 'default'

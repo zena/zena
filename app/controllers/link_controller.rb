@@ -1,42 +1,89 @@
 class LinkController < ApplicationController
   
-  # TODO: test
+  # create a link given the item id 'link[item_id]', the role 'link[role]' and the target id 'link[other_id]'. The target id
+  # can also be a name
+  # TODO: test multiple/single values
   def create
     @item = secure_drive(Item) { Item.find(params[:link][:item_id]) }
-    @method = params[:link][:role]
-    other_id = nil
-    if params[:link][:other_id].to_i == 0
-      begin
-        if other = secure(Item) { Item.find_by_name(params[:link][:other_id]) }
-          other_id = other[:id]
+    if params[:item]
+      # update item links with list
+      box = params[:item][:box]
+      params[:item].delete(:box)
+      if params[:item].keys.size == 0
+        # empty => cleared
+        if @item.respond_to?("#{box}_id=".to_sym)
+          # unique
+          @item.send("#{box}_id=".to_sym, nil)
+        else
+          # multiple
+          @item.send("#{box.singularize}_ids=".to_sym, nil)
+        end
+        @item.save
+      else
+        @method = params[:item].keys[0]
+        unless @method =~ /^(.+)_id(s|)$/
+          # bad method...
+          @error = trans 'unknown link role'
+        else
+          @item.send("#{@method}=".to_sym, params[:item][@method])
+          @item.save
         end
       end
     else
-      other_id = params[:link][:other_id]
-    end
-    if other_id && @item.add_link(@method, other_id) && @item.save
-      @link = @item.send(@method.to_sym, :conditions=>['items.id = ?', other_id])
-      @link = @link[0] if @link.kind_of?(Array)
+      # add a link
+      @method = params[:link][:role]
+      other_id = nil
+      if params[:link][:other_id] =~ /^\d+$/
+        other_id = params[:link][:other_id].to_i
+      else
+        begin
+          if other = secure(Item) { Item.find_by_name(params[:link][:other_id]) }
+            other_id = other[:id]
+          end
+        end
+      end
+      if other_id && @item.add_link(@method, other_id) && @item.save
+        @link = @item.send(@method.to_sym, :conditions=>['items.id = ?', other_id])
+        @link = @link[0] if @link.kind_of?(Array)
+      end
     end
   rescue ActiveRecord::RecordNotFound
-    render :inline=>trans('not found')
+    @error = trans 'item not found'
   end
   
-  # TODO: test
+  def select_for
+    @item = secure(Item) { Item.find(params[:id]) }
+    @item.class.roles.each do |r|
+      if r[:method].to_s == params[:role]
+        @role = r
+        break
+      end
+    end
+    if @role
+      if @role[:collector]
+        render :inline=>"<%= select_id('link', 'other_id', :show=>:path) %>"
+      else
+        # menu selector
+        #@values = @item.send("#{@role[:method]}_for_form".to_sym)
+        #res = ["<select id='link_other_id' name='link[other_id]'>"]
+        #@values.each do |v|
+        #  next if v.link_id
+        #    res << "<option value='#{v[:id]}'>#{v.name}</option>"
+        #end
+        #res << "</select>"
+        #render :inline=>res.join("\n")
+        render :inline=>"<%= hidden_field('item','box', :value=>'#{@role[:method]}') %><%= link_box 'item', '#{@role[:method]}', :title=>nil %>"
+      end
+    else
+      render :inline=>trans('role not valid')
+    end
+  end
+  # remove a link given the link id 'id' and the item id 'item_id'
   def remove
     @item = secure_drive(Item) { Item.find(params[:item_id]) }
     @link_id = params[:id]
-    if @item.remove_link(@link_id) && @item.save
-      # html wanted : redirect_to :action=>'drive', :id=>params[:id]
-      # flash[:notice] = trans "Link removed"
-    else  
-      flash[:error]  = trans "Could not remove link"
-      render :action=>'drive'
-    end
-  #rescue ActiveRecord::RecordNotFound
-  #  render :inline=>trans('not found')
-  rescue Zena::AccessViolation  
-    flash[:error]  = trans "Link not found"
-    render :action=>'drive'
+    @item.remove_link(@link_id) && @item.save
+  rescue ActiveRecord::RecordNotFound
+    @error = trans 'item not found'
   end
 end

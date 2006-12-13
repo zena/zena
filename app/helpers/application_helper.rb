@@ -431,29 +431,39 @@ module ApplicationHelper
   end
   
   # TODO: test
-  def link_box(obj, sym, ids=nil)
+  def link_box(obj, sym, opt={})
     # FIXME: SECURITY is there a better way to do this ?
-    obj = eval("@#{obj}")
+    item = eval("@#{obj}")
     method = "#{sym}_for_form".to_sym
     setter = sym.to_s.singularize
-    if obj.respond_to?("#{setter}_id=".to_sym)
+    if item.respond_to?("#{setter}_id=".to_sym)
       # unique
-      current = obj.send(sym)
-      res = ["<input type='text' size='2' name='item[#{setter}_id]' value='#{current ? current[:id] : ''}'/>#{current ? current.name : ''}"]
+      current = item.send(sym)
+      res = [select_id(obj,"#{setter}_id")]
+      #res = ["<input type='text' size='2' name='item[#{setter}_id]' value='#{current ? current[:id] : ''}'/>#{current ? current.name : ''}"]
     else
       # many
-      if ids
-        ids.map!{|i| i.to_i}
-        list = obj.send(method, :conditions=>["items.id IN (#{ids.join(',')})"])
+      if opt[:in]
+        ids = opt[:in].map{|i| i.to_i}
+        list = item.send(method, :conditions=>["items.id IN (#{ids.join(',')})"])
       else
-        list = obj.send(method)
+        list = item.send(method)
       end
       res = list.inject([]) do |list, l|
         list << "<input type='checkbox' name='item[#{setter}_ids][]' value='#{l.id}' class='box' #{ l[:link_id] ? "checked='1' " : ""}/>#{l.name}"
         list
       end
     end
-    "<ul class='link_box'><li><b>#{trans(sym.to_s)}</b></li><li>#{res.join('</li><li>')}</li></ul>"
+    if opt.include?(:title)
+      if opt[:title].nil?
+        title = ''
+      else
+        title = "<li><b>#{opt[:title]}</b></li>"
+      end
+    else
+      title = "<li><b>#{trans(sym.to_s)}</b></li>"
+    end
+    "<ul class='link_box'>#{title}<li>#{res.join('</li><li>')}</li></ul>"
   end
   
   #TODO: test
@@ -526,12 +536,13 @@ module ApplicationHelper
     @controller.send(:render_to_string, *args)
   end
   
+  # TODO: test
   def select_id(obj, sym, opt={})
     # FIXME: SECURITY is there a better way to do this ?
     item = eval("@#{obj}")
     if item
-      id = eval("@#{obj}").send(sym.to_sym)
-      current_obj = secure(Item) { Item.find_by_id(id) }
+      id = item.send(sym.to_sym)
+      current_obj = secure(Item) { Item.find_by_id(id) } if id
     else
       id = ''
       current_obj = nil
@@ -547,8 +558,21 @@ module ApplicationHelper
       current = ''
     end
     update = "new Ajax.Updater('#{name_ref}', '/z/item/attribute/' + this.value + '?attr=#{attribute}', {asynchronous:true, evalScripts:true});"
-    "<div class='select_id'><input type='text' size='5' id='#{obj}_#{sym}' name='#{obj}[#{sym}]' value='#{id}' onChange=\"#{update}\"/>"+
+    "<div class='select_id'><input type='text' size='8' id='#{obj}_#{sym}' name='#{obj}[#{sym}]' value='#{id}' onChange=\"#{update}\"/>"+
     "<span class='select_id_name' id='#{name_ref}'>#{current}</span></div>"
+  end
+  
+  #TODO: test
+  def error_messages_for(obj)
+    # FIXME: SECURITY is there a better way to do this ?
+    obj = eval("@#{obj}")
+    return '' unless obj && !obj.errors.empty?
+    res = ["<ul class='errors'>"]
+    obj.errors.each do |er,msg|
+      res << "<li><b>#{er}</b> #{trans(msg)}</li>"
+    end
+    res << '</ul>'
+    res.join("\n")
   end
   
 end

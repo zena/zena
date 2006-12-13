@@ -1,2 +1,7 @@
-page.visual_effect :highlight, "link#{@link_id}", :duration => 0.3
-page.visual_effect :fade, "link#{@link_id}", :duration => 0.5
+if @error || !@item.errors.empty?
+  page.replace_html 'link_errors', :inline=>@error ? @error : error_messages_for('item')
+else  
+  page.replace_html 'link_errors', :inline=>''
+  page.visual_effect :highlight, "link#{@link_id}", :duration => 0.3
+  page.visual_effect :fade, "link#{@link_id}", :duration => 0.5
+end

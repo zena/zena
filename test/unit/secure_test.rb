@@ -392,6 +392,7 @@ class SecureCreateTest < Test::Unit::TestCase
     # all ok
     attrs[:wgroup_id] = 4
     z = secure(Note) { Note.create(attrs) }
+    err z
     assert ! z.new_record?, "Not a new record"
     assert z.errors.empty? , "Errors empty"
     assert_equal zena[:rgroup_id], z[:rgroup_id] , "Same rgroup as parent"
@@ -529,7 +530,68 @@ class SecureUpdateTest < Test::Unit::TestCase
     assert item.save , "Save succeeds"
     assert_equal 0, item.inherit , "Inherit mode is 0"
   end
-  
+  def test_pgroup_cannot_nil_unless_owner
+    # ok
+    visitor(:tiger)
+    item = secure(Item) { items(:lake) }
+    assert_equal users_id(:ant), item[:user_id]
+    assert item.can_publish? , "Can publish"
+    assert_equal 1, item.inherit , "Inherit mode is 1"
+    assert_equal 4, item.pgroup_id
+    item.pgroup_id = nil
+    assert !item.save , "Save fails"
+    assert item.errors[:pgroup_id]
+  end
+  def test_pgroup_can_nil_if_owner
+    # ok
+    visitor(:tiger)
+    item = secure(Item) { items(:people) }
+    assert_equal users_id(:tiger), item[:user_id]
+    assert item.can_publish? , "Can publish"
+    assert_equal 1, item.inherit , "Inherit mode is 1"
+    assert_equal 4, item.pgroup_id
+    item.pgroup_id = nil
+    assert item.save , "Save succeeds"
+    assert_equal item.private?, "Item is now private"
+  end
+  def test_rgroup_change_rgroup_with_nil_ok
+    # ok
+    visitor(:tiger)
+    item = secure(Item) { items(:lake) }
+    assert item.can_publish? , "Can publish"
+    assert_equal 1, item.inherit , "Inherit mode is 1"
+    assert_equal 1, item.rgroup_id
+    item.rgroup_id = nil
+    assert item.save , "Save succeeds"
+    assert_equal 0, item.inherit , "Inherit mode is 0"
+    assert_equal 0, item.rgroup_id
+    assert !item.private?, "Not private"
+  end
+  def test_rgroup_change_rgroup_with_0_ok
+    # ok
+    visitor(:tiger)
+    item = secure(Item) { items(:lake) }
+    assert item.can_publish? , "Can publish"
+    assert_equal 1, item.inherit , "Inherit mode is 1"
+    assert_equal 1, item.rgroup_id
+    item.rgroup_id = 0
+    assert item.save , "Save succeeds"
+    assert_equal 0, item.inherit , "Inherit mode is 0"
+    assert_equal 0, item.rgroup_id
+  end
+  def test_rgroup_change_to_private_with_empty_ok
+    # ok
+    visitor(:tiger)
+    item = secure(Item) { items(:lake) }
+    assert_kind_of Item, item
+    assert item.can_publish? , "Can publish"
+    assert_equal 1, item.inherit , "Inherit mode is 1"
+    assert_equal 1, item.rgroup_id
+    item.rgroup_id = ''
+    assert item.save , "Save succeeds"
+    assert_equal 0, item.inherit , "Inherit mode is 0"
+    assert_equal 0, item.rgroup_id
+  end
   def test_group_changed_children_too
     visitor(:tiger)
     item = secure(Item) { items(:cleanWater)  }

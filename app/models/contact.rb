@@ -1,3 +1,3 @@
 class Contact < Page
-  link :address_for, :class_name=>'Project', :as=>'address', :as_unique=>true
+  link :contact_for, :class_name=>'Project', :as=>'contact', :as_unique=>true
 end

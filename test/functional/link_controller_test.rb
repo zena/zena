@@ -5,14 +5,58 @@ require 'link_controller'
 class LinkController; def rescue_action(e) raise e end; end
 
 class LinkControllerTest < Test::Unit::TestCase
+  include ZenaTestController
   def setup
     @controller = LinkController.new
-    @request    = ActionController::TestRequest.new
-    @response   = ActionController::TestResponse.new
+    init_controller
   end
-
-  # Replace this with your real tests.
-  def test_truth
-    assert true
+  
+  def test_create_no_rights
+    post 'create', :link=>{:item_id=>1, :role=>'tags', :other_id=>items_id(:art) }
+    assert_response :success
+    assert_match %r{link_errors.*not found}, @response.body
+  end
+  
+  def test_create_bad_link
+    login(:tiger)
+    post 'create', :link=>{:item_id=>1, :role=>'tags', :other_id=>items_id(:status) }
+    assert_response :success
+    assert_match %r{link_errors.*tag.*invalid}, @response.body
+  end
+  
+  def test_create_ok
+    login(:tiger)
+    post 'create', :link=>{:item_id=>1, :role=>'tags', :other_id=>items_id(:art) }
+    assert_response :success
+    assert_match %r{After.*group_tags.*art}m, @response.body
+  end
+  
+  def test_create_with_name_ok
+    login(:tiger)
+    post 'create', :link=>{:item_id=>1, :role=>'tags', :other_id=>'art' }
+    assert_response :success
+    assert_match %r{After.*group_tags.*art}m, @response.body
+  end
+  
+  def test_remove_no_rights
+    post 'remove', :item_id=>items_id(:cleanWater), :id=>links_id(:cleanWater_in_art)
+    assert_response :success
+    assert_match %r{link_errors.*item not found}, @response.body
+  end
+  
+  def test_remove_no_rights_on_link
+    login(:lion)
+    Item.connection.execute "UPDATE items SET rgroup_id=NULL, wgroup_id=NULL, pgroup_id=NULL WHERE id='#{items_id(:art)}'"
+    post 'remove', :item_id=>items_id(:cleanWater), :id=>links_id(:cleanWater_in_art)
+    assert_response :success
+    assert_match %r{link_errors.*tag.*bad link id}, @response.body
+  end
+  
+  def test_remove_ok
+    login(:tiger)
+    link_id = links_id(:cleanWater_in_art)
+    post 'remove', :item_id=>items_id(:cleanWater), :id=>link_id
+    assert_response :success
+    assert_match %r{Highlight.*link#{link_id}.*Fade.*link#{link_id}}m, @response.body
   end
 end

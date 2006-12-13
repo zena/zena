@@ -27,25 +27,22 @@ class ItemController < ApplicationController
   # TODO: test
   def move
     attrs = params[:item]
-    @item = secure(Item) { Item.find(attrs[:id]) }
+    @item = secure(Item) { Item.find(params[:id]) }
     if attrs[:parent_id]
       @item[:parent_id] = attrs[:parent_id]
     end
     if attrs[:name]
       @item[:name] = attrs[:name]
     end
-    
-    if @item.save
-      redirect_to :prefix => url_prefix, :controller => 'web', :action=>'item', :path=>@item.parent.fullpath << @item.name
-    else
-      redirect_to :prefix => url_prefix, :controller => 'web', :action=>'item', :path=>@item.fullpath
-    end  
+    @item.save
+  rescue ActiveRecord::RecordNotFound
+    @error = trans 'item not found'
   end
   
   # TODO: test
   def groups
     attrs = params[:item]
-    @item = secure(Item) { Item.find(attrs[:id]) }
+    @item = secure(Item) { Item.find(params[:id]) }
     if attrs[:inherit]
       @item[:inherit] = attrs[:inherit]
     end
@@ -58,19 +55,19 @@ class ItemController < ApplicationController
     if attrs[:pgroup_id]
       @item[:pgroup_id] = attrs[:pgroup_id]
     end
-    if @item.save
-      flash[:notice] = t "Groups changed"
-    else
-      flash[:error] = t "Could not change groups #{@item.show_errors}"
-    end
-    redirect_to :prefix => url_prefix, :controller => 'web', :action=>'item', :path=>@item.fullpath
+    @item.save
   end
 
   # TODO: test
   def attribute
     method = params[:attr].to_sym
     if [:v_text, :v_summary, :name, :path].include?(method)
-      @item = secure(Item) { Item.find(params[:id]) }
+      if params[:id] =~ /^\d+$/
+        @item = secure(Item) { Item.find(params[:id]) }
+      else
+        @item = secure(Item) { Item.find_by_name(params[:id]) }
+        raise ActiveRecord::RecordNotFound unless @item
+      end
       if method == :path
         render :inline=>@item.rootpath.join('/')
       else
