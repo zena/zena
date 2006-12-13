@@ -1,5 +1,0 @@
-<tr>
-  <td class="icon"></td>
-  <td class="link"><%= link.rootpath.join('/') %><%#= link_to( link.fullpath.join('/'), :controller=>'web', :action=>'item', :url_prefix=>url_prefix, :path=> link.fullpath ) %></td>
-  <td class="actions"> <%= link_to(transb('btn_destroy'),{:controller=>'item', :action=>'remove_link', :id=>@item[:id], :link_id=>link[:link_id]}, :post=>true)%> </td>
-</tr>

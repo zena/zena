@@ -1,0 +1,19 @@
+<td colspan='4'>
+<%= form_remote_tag(:with=>'links', :url=>{:controller=>'link', :action=>'create', :rnd=>rnd}) %>
+<%#= form_tag(:controller=>'link', :action=>'create', :rnd=>rnd)%>
+<%= hidden_field('link', 'item_id', :value=>@item[:id])%>
+  <div id='link_errors'></div>
+  <div class='add_icon'>
+    <%= link_to_function transb('btn_x'), "new Element.toggle('add_link', 'add_link_form');" %>
+  </div>
+  <div class='role'>
+    <%= select('link', 'role', @item.class.roles_for_form ) %>
+  </div>
+  <div class='link'>
+    <%= select_id('link', 'other_id', :show=>:path) %>
+  </div>
+  <div class='action'>
+  <input type="submit" class="btn_validate" value='<%= transb('add') %>'/>
+  </div>
+<%= end_form_tag %> 
+</td> 

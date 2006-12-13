@@ -111,6 +111,7 @@ on the post edit page :
           sym = "add_#{method.to_s.singularize}".to_sym
         end
         self.send(sym, other_id)
+        return true
       end
       
       # remove a link
@@ -189,7 +190,7 @@ on the post edit page :
             def #{method}(options={})
               conditions = options[:conditions]
               options.delete(:conditions)
-              options.merge!( :select     => "\#{#{klass}.table_name}.*, links.id AS link_id", 
+              options.merge!( :select     => "\#{#{klass}.table_name}.*, links.id AS link_id, links.role", 
                               :joins      => "INNER JOIN links ON \#{#{klass}.table_name}.id=links.#{other_side}",
                               :conditions => ["links.role='#{role}' AND links.#{link_side} = ?", self[:id] ]
                               )

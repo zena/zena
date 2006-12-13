@@ -85,10 +85,11 @@ td.description p.summary { font-style:italic; font-size:0.8em; }
 #links { width:360px; }
 #links .group { background:#888; font-weight:bold;}
 #links .group span { background:#888; font-weight:normal;}
+#links .inline_form div { float: left;}
 #links .icon, #links .add_icon { width:22px; text-align:center;}
 #links .add_icon { border-right:0; }
-#links .role { width:40px; text-align:center; }
-#links .link { width:280px; }
+#links .role { width:80px; text-align:center; }
+#links .link { width:200px; }
 #links .actions { width:40px; }
 #links #link_role option { width:50px;}
 #links #link_target_id option { width:120px;}

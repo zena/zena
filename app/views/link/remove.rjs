@@ -1,0 +1,2 @@
+page.visual_effect :highlight, "link#{@link_id}", :duration => 0.3
+page.visual_effect :fade, "link#{@link_id}", :duration => 0.5

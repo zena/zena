@@ -1,0 +1,6 @@
+<tr id='add_link' class='btn_add'>
+  <td class='add_icon'><%= link_to_function transb('btn_add_link'), "new Element.toggle('add_link', 'add_link_form'); $('page_parent_id').focus();" %></td><td colspan='3' class='add_link'></td>
+</tr>
+<tr id='add_link_form' style='display:none;' class='inline_form'>
+  <%= render :partial=>'link/form'%>
+</tr>
