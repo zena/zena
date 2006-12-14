@@ -43,6 +43,7 @@ class DocumentContent < ActiveRecord::Base
   def file=(aFile)
     @file = aFile
     self[:content_type] = @file.content_type.chomp
+    # FIXME: crash when StringIO
     self[:size] = @file.stat.size
   end
   

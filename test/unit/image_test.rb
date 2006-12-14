@@ -44,4 +44,22 @@ class ImageTest < Test::Unit::TestCase
     assert Image.image_content_type?('image/jpeg')
     assert !Image.image_content_type?('application/pdf')
   end
+  
+  def test_change_image
+    preserving_files('data/test/jpg') do
+      visitor(:ant)
+      img = secure(Item) { items(:bird_jpg) }
+      flo = secure(Item) { items(:flower_jpg)}
+      assert_equal 661, img.c_width
+      assert_equal 600, img.c_height
+      assert_equal 56183, img.c_size
+      assert_equal 800, flo.c_width
+      assert_equal 600, flo.c_height
+      assert_equal 96648,  flo.c_size
+      assert img.update_attributes(:c_file=>uploaded_jpg('flower.jpg'))
+      assert_equal flo.c_size,   img.c_size
+      assert_equal flo.c_width,  img.c_width
+      assert_equal flo.c_height, img.c_height
+    end
+  end
 end

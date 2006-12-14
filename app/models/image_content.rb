@@ -4,7 +4,7 @@ class ImageContent < DocumentContent
     super
     return unless ImageBuilder.image_content_type?(aFile.content_type)
     img = image_for_format(nil)
-    self[:width]  = img.width
+    self[:width ] = img.width
     self[:height] = img.height
   end
   
@@ -26,7 +26,6 @@ class ImageContent < DocumentContent
   def size(format=nil)
     format = verify_format(format)
     if format
-      verify_format(format)
       if File.exist?(filepath(format)) || make_image(format)
         File.stat(filepath(format)).size
       else
@@ -105,13 +104,12 @@ class ImageContent < DocumentContent
   end
   
   def image_for_format(format=nil)
-    @formats ||= {}
-    if !new_record?
-      @formats[format] ||= ImageBuilder.new(:path=>filepath, :file=>@file, 
-                                            :width=>self[:width], :height=>self[:height]).transform!(format)
-    elsif @file
-      @formats[format] ||= ImageBuilder.new(:file=>@file, 
-                                            :width=>self[:width], :height=>self[:height]).transform!(format)
+    if @file
+      ImageBuilder.new(:file=>@file).transform!(format)
+    elsif !new_record?
+      @formats ||= {}
+      @formats[format] ||= ImageBuilder.new(:path=>filepath, 
+              :width=>self[:width], :height=>self[:height]).transform!(format)
     else
       raise StandardError, "No image to work on"
     end
