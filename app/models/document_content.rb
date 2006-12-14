@@ -19,7 +19,7 @@ class DocumentContent < ActiveRecord::Base
     end
     unless format
       # img_tag from extension
-      "<img src='/images/ext/#{ext}.png' width='32' height='32' class='icon'/>"
+      "<img src='/images/ext/#{ext}.png' width='32' height='32' class='doc'/>"
     else
       img = ImageBuilder.new(:path=>"#{RAILS_ROOT}/public/images/ext/#{ext}.png", :width=>32, :height=>32)
       img.transform!(format)
@@ -36,7 +36,7 @@ class DocumentContent < ActiveRecord::Base
           File.open(File.join(path, filename), "wb") { |f| f.syswrite(img.read) }
         end
       end
-      "<img src='/images/ext/#{filename}' width='#{img.width}' height='#{img.height}' class='#{format}'/>"
+      "<img src='/images/ext/#{filename}' width='#{img.width}' height='#{img.height}' class='doc'/>"
     end
   end
   
