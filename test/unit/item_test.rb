@@ -399,6 +399,16 @@ class ItemTest < Test::Unit::TestCase
     assert_equal 99, items(:myLife)[:project_id]
   end
   
+  def test_spread_project_id
+    visitor(:tiger)
+    item = secure(Item) { items(:people) }
+    item.parent_id =   items_id(:status) # in project cleanWater
+    assert item.save
+    assert_equal items_id(:cleanWater), item[:project_id]
+    assert_equal items_id(:cleanWater), items(:ant)[:project_id]
+    assert_equal items_id(:cleanWater), items(:myLife)[:project_id]
+  end
+  
   def test_after_remove
     Version.connection.execute "UPDATE versions SET user_id=4 WHERE item_id IN (19,20,21)"
     Item.connection.execute "UPDATE items SET user_id=4 WHERE id IN (19,20,21)"

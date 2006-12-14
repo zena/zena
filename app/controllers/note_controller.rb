@@ -8,7 +8,7 @@ class NoteController < ApplicationController
     @note_date     = params[:date] ? Date.parse(params[:date]) : nil
     @selected_note = params[:selected] ? params[:selected].to_i : nil
     using          = params[:using] ? params[:using].gsub(/[^a-zA-Z_]/,'') : 'event_at'
-    @notes         = notes(:from=>@item, :find=>find, :using=>using, :date=>@note_date, :order=>"#{using} ASC")
+    @notes         = notes(:from=>@item, :find=>find, :using=>using, :date=>@note_date)
     render :partial=>'note/day_list'
   rescue ActiveRecord::RecordNotFound
     page_not_found

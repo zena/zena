@@ -187,10 +187,11 @@ table.fada td:first-child {border-left-width:1px;}
 
 #content table.docs { margin:2px; border-bottom:1px solid grey;}
 #content .docinfo p { margin-top:5px; display:inline;  font-size:0.7em; color:#404040;}
+#content .docinfo a { color:inherit;}
 #content .docs .docinfo {  padding:2px; vertical-align:top; }
 #content .docs .docinfo h3 { margin:0; padding:0; }
 #content .docs .docpv { padding: 0;}
-#content .docs .docpv p { text-align:center; margin:0; padding:0; font-size:70%; }
+#content .docs .docpv p { text-align:center; margin:3px 0 0; padding:0; font-size:70%; }
 #content .docs .docpv img { margin-bottom:-5px; }
 #content .docs .result_break { border-top:1px solid grey; height:5px; }
 

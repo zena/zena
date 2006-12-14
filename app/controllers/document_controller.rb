@@ -68,4 +68,9 @@ class DocumentController < ApplicationController
   rescue ActiveRecord::RecordNotFound
     page_not_found
   end
+  
+  # TODO: test
+  def file_form
+    render :inline=>"<%= link_to_function(trans('cancel'), \"new Element.toggle('file', 'file_form');$('file_form').innerHTML = '';\")%><label for='document'>#{trans('change document')}</label><%= file_field 'item', 'c_file', :size=>nil %>"
+  end
 end

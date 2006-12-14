@@ -137,7 +137,9 @@ module Zena
           end
           version.publish_from = pub_time || self.publish_from || Time.now
           version.status = Zena::Status[:pub]
+            Version.logger.info "SAVING VERSION"
           if version.save
+              Version.logger.info "SAVING VERSION DONE"
             # only remove previous publications if save passed
             old_versions.each do |p|
               p.status = new_status

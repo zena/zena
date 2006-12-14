@@ -54,7 +54,8 @@ project). Some special rules apply to this item : TODO...
 class Item < ActiveRecord::Base
   validate_on_create :item_on_create
   validate_on_update :item_on_update
-  before_destroy :item_on_destroy
+  after_save         :spread_project_id
+  before_destroy     :item_on_destroy
   acts_as_secure
   acts_as_multiversioned
   link :tags, :class_name=>'Tag'
@@ -145,6 +146,10 @@ class Item < ActiveRecord::Base
       self[:project_id] = parent[:project_id]
     end
     
+    if self[:project_id] != old[:project_id]
+      @spread_project_id = true
+    end
+    
     if self[:id] == ZENA_ENV[:root_id]
       errors.add('parent_id', 'parent must be empty for root') unless self[:parent_id].nil?
     end
@@ -160,6 +165,17 @@ class Item < ActiveRecord::Base
       test_same_name = Item.find(:all, :conditions=>["name = ? AND id != ? AND parent_id = ?", self[:name], self[:id], self[:parent_id]])
     end
     errors.add("name", "has already been taken") unless test_same_name == []
+    # remove cached fullpath
+    self[:fullpath] = nil
+  end
+  
+  # after item is saved, make sure it's children have the correct project set
+  def spread_project_id
+    if @spread_project_id
+      # update children
+      sync_project(project_id)
+      remove_instance_variable :@spread_project_id
+    end
   end
   
   # Called before destroy. An item must be empty to be destroyed
@@ -388,7 +404,7 @@ class Item < ActiveRecord::Base
     true
   end
   
-  # Find all children, whatever visitor is here (used to check if the item can be destroyed)
+  # Find all children, whatever visitor is here (used to check if the item can be destroyed or to update project)
   def all_children
     Item.with_exclusive_scope do
       Item.find(:all, :conditions=>['parent_id = ?', self[:id] ])

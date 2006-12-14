@@ -11,13 +11,13 @@ module MainHelper
     if action == 'edit'
       "<a href='#' title='#{transb('btn_title_edit')}' onClick=\"editor=window.open('" + 
       url_for(:controller=>'version', :id=>version_id, :action=>'edit', :rnd=>rnd) + 
-      "', 'editor', 'location=0,width=500,height=600');return false;\">" + transb('btn_edit') + "</a>"
+      "', 'editor', 'location=0,width=500,height=600,resizable=1');return false;\">" + transb('btn_edit') + "</a>"
     elsif action == 'view'
       tlink_to_remote('btn_view', :with=>'main', :url=>{:controller=>'version', :action=>'preview', :id=>version_id })
     elsif action == 'drive'
       "<a href='#' title='#{transb('btn_title_drive')}' onClick=\"editor=window.open('" + 
       url_for(:controller=>'item', :version_id=>version_id, :action=>'drive', :rnd=>rnd) + 
-      "', 'editor', 'location=0,width=500,height=600');return false;\">" + transb('btn_drive') + "</a>"
+      "', 'editor', 'location=0,width=500,height=600,resizable=1');return false;\">" + transb('btn_drive') + "</a>"
     else
       tlink_to( "btn_#{action}", {:controller=>'version', :action => action , :id => version_id}, :title=>transb("btn_title_#{action}"), :post=>true ) + "\n"
     end

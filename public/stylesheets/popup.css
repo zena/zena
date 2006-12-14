@@ -57,12 +57,11 @@ input#item_v_title { font-size:1.3em; font-weight:bold;}
 #edit input.btn_validate { width:auto; }
 
 /* document upload */
-#document_summary, #document_name { width: 350px;}
-.preview .size { font-size: 0.9em;}
+#document_v_summary, #document_name { width: 350px;}
 /* document created */
 #edit .pv img, #search_results img { border:1px solid grey;}
 table .preview img { margin:0 10px 10px 0;} 
-td.preview { text-align:center; vertical-align:center; border-right: 1px solid grey; font-size:0.6em;}
+td.preview { text-align:center; vertical-align:center; border-right: 1px solid grey; font-size:0.8em;}
 td.description { padding:10px 0 0 10px; vertical-align:top;}
 td.description h3.title { font-size:0.9em; color:#3E2324; margin-bottom:1.2em;}
 td.description p.summary { font-style:italic; font-size:0.8em; }
@@ -75,7 +74,8 @@ td.description p.summary { font-style:italic; font-size:0.8em; }
 .drive ul { list-style:none;}
 .drive li { padding-left: 10px;}
 .drive li p { font-weight:normal; }
-.drive li select { width: 10em;}
+.drive li select { width: 100%;}
+.drive li #item_name  { width: 95%;}
 .drive li.submit { text-align:right; padding-top:1em;}
 .select_id span { margin-left:0.2em;}
 
@@ -86,7 +86,7 @@ td.description p.summary { font-style:italic; font-size:0.8em; }
 #links td { padding: 3px; font-size:0.8em; height:18px; border:1px solid #333; border-width:0 1px 1px 0; }
 #links img {  vertical-align:middle; margin:0; }
 #links table { width:360px; }
-#links .group { background:#888; font-weight:bold; font-size:0.5em; height:0.3em;}
+#links .group { background:#888; font-weight:bold; font-size:0.7em; height:0.5em;}
 #links .group span { background:#888; font-weight:normal;}
 #links .inline_form div { float: left;}
 #links .inline_form div.errors { float: none;}

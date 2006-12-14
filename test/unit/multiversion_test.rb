@@ -382,6 +382,21 @@ class MultiVersionTest < Test::Unit::TestCase
     assert_equal 1, item.editions.size
   end
   
+  def test_publish_with_two_lang_red
+    visitor(:tiger)
+    @lang = 'en'
+    item = secure(Item) { items(:opening) }
+    assert_equal 3, Version.find(:all, :conditions=>["item_id = ?", item[:id]]).size
+    assert_equal 1, Version.find(:all, :conditions=>["item_id = ? AND status=#{Zena::Status[:red]}", item[:id]]).size
+    assert item.update_attributes(:v_title=>'new title'), "Can create new redaction"
+    assert_equal 2, Version.find(:all, :conditions=>["item_id = ? AND status=#{Zena::Status[:pub]}", item[:id]]).size
+    assert_equal 2, Version.find(:all, :conditions=>["item_id = ? AND status=#{Zena::Status[:red]}", item[:id]]).size
+    assert item.publish, "Can publish"
+    assert_equal 4, Version.find(:all, :conditions=>["item_id = ?", item[:id]]).size
+    assert_equal 1, Version.find(:all, :conditions=>["item_id = ? AND status=#{Zena::Status[:pub]} AND lang='fr'", item[:id]]).size
+    assert_equal 1, Version.find(:all, :conditions=>["item_id = ? AND status=#{Zena::Status[:pub]} AND lang='en'", item[:id]]).size
+  end
+  
   def test_publish_item_fails
     visitor(:ant)
     item = secure(Item) { Item.version(versions_id(:lake_red_en)) }

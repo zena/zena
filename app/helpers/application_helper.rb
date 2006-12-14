@@ -426,8 +426,12 @@ module ApplicationHelper
       text = obj.send(sym)
       klass = ""
     end
-    render_to_string :partial=>'item/show_attr', :locals=>{:id=>obj[:id], :text=>text, :method=>method, :key=>key, :klass=>klass,
+    if opt[:as]
+      render_to_string :partial=>'item/show_attr', :locals=>{:id=>obj[:id], :text=>text, :method=>method, :key=>key, :klass=>klass,
                                                            :key_on=>"#{key}#{Time.now.to_i}_on", :key_off=>"#{key}#{Time.now.to_i}_off"}
+    else
+      "<div id='#{key}'#{klass}>#{text}</div>"
+    end
   end
   
   # TODO: test
