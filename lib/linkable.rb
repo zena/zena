@@ -142,6 +142,7 @@ on the post edit page :
           sym = "remove_#{link[:method].singularize}".to_sym
           self.send(sym, other_id)
         end
+        return true
       end
       
       module AddActsAsMethod
@@ -192,7 +193,7 @@ on the post edit page :
             role = (options[:as] || method.downcase.singularize).to_s
           end
           @@defined_roles[self][method] = { :method=>method, :role=>role, :link_side=>link_side, :other_side=>other_side, 
-                             :unique=>(options[:unique] == true), :collector=>(options[:collector] == true) }
+                             :unique=>(options[:unique] == true), :collector=>(options[:collector] == true), :klass=>klass }
           finder = <<-END
             def #{method}(options={})
               conditions = options[:conditions]

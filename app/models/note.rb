@@ -6,6 +6,10 @@ class Note < Item
   before_validation :set_dates
   validate :parent_valid
   class << self
+    def parent_class
+      Project
+    end
+    
     def select_classes
       list = subclasses.inject([]) do |list, k|
         list << k.to_s

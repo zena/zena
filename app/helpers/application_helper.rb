@@ -435,12 +435,11 @@ module ApplicationHelper
     # FIXME: SECURITY is there a better way to do this ?
     item = eval("@#{obj}")
     method = "#{sym}_for_form".to_sym
+    role = item.class.role[sym.to_s]
     setter = sym.to_s.singularize
-    if item.respond_to?("#{setter}_id=".to_sym)
+    if role[:unique]
       # unique
-      current = item.send(sym)
-      res = [select_id(obj,"#{setter}_id")]
-      #res = ["<input type='text' size='2' name='item[#{setter}_id]' value='#{current ? current[:id] : ''}'/>#{current ? current.name : ''}"]
+      res = [select_id(obj,"#{setter}_id", :class=>role[:klass], :include_blank=>true)]
     else
       # many
       if opt[:in]
@@ -538,6 +537,10 @@ module ApplicationHelper
   
   # TODO: test
   def select_id(obj, sym, opt={})
+    if ['Project', 'Tag', 'Contact'].include?(opt[:class].to_s)
+      klass = opt[:class].kind_of?(Class) ? opt[:class] : eval(opt[:class])
+      return select(obj,sym,  secure(klass) { klass.find(:all, :select=>'id,name', :order=>'name ASC') }.map{|r| [r[:name], r[:id]]}, { :include_blank => opt[:include_blank] })
+    end
     # FIXME: SECURITY is there a better way to do this ?
     item = eval("@#{obj}")
     if item

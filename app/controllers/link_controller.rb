@@ -63,15 +63,6 @@ class LinkController < ApplicationController
       if @role[:collector]
         render :inline=>"<%= select_id('link', 'other_id', :show=>:path) %>"
       else
-        # menu selector
-        #@values = @item.send("#{@role[:method]}_for_form".to_sym)
-        #res = ["<select id='link_other_id' name='link[other_id]'>"]
-        #@values.each do |v|
-        #  next if v.link_id
-        #    res << "<option value='#{v[:id]}'>#{v.name}</option>"
-        #end
-        #res << "</select>"
-        #render :inline=>res.join("\n")
         render :inline=>"<%= hidden_field('item','box', :value=>'#{@role[:method]}') %><%= link_box 'item', '#{@role[:method]}', :title=>nil %>"
       end
     else
@@ -80,6 +71,7 @@ class LinkController < ApplicationController
   end
   # remove a link given the link id 'id' and the item id 'item_id'
   def remove
+    puts params.inspect
     @item = secure_drive(Item) { Item.find(params[:item_id]) }
     @link_id = params[:id]
     @item.remove_link(@link_id) && @item.save

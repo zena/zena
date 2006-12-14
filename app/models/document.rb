@@ -4,6 +4,12 @@ TODO: on name change make sure content name changes too...
 class Document < Page
   before_validation :set_name
   
+  class << self
+    def parent_class
+      Item
+    end
+  end
+  
   def c_file=(file)
     @file = file
     # we call 'method missing' to do normal file setting on content

@@ -61,6 +61,11 @@ class Item < ActiveRecord::Base
   link :hot_for, :as=>'hot', :class_name=>'Project', :as_unique=>true
   
   class << self
+    # valid parent class
+    def parent_class
+      Item
+    end
+    
     # Find an item by it's full path. Cache 'fullpath' if found.
     def find_by_path(user_id, user_groups, lang, path)
       item = Item.find_by_fullpath(path.join('/'))
@@ -116,7 +121,7 @@ class Item < ActiveRecord::Base
       self[:project_id] = parent[:project_id]
     end
     # make sure parent is not a 'Note'
-    errors.add("parent_id", "invalid parent") if parent.kind_of?(Note) and !self.kind_of?(Document)
+    errors.add("parent_id", "invalid parent") unless parent.kind_of?(self.class.parent_class)
     # set name from title if name not set yet
     self.name = version[:title] unless self[:name]
     errors.add("name", "can't be blank") unless self[:name] and self[:name] != ""
@@ -144,8 +149,8 @@ class Item < ActiveRecord::Base
       errors.add('parent_id', 'parent must be empty for root') unless self[:parent_id].nil?
     end
     
-    # make sure parent is not a 'Note'
-    errors.add("parent_id", "invalid parent") if parent.kind_of?(Note) and !self.kind_of?(Document)
+    # make sure parent is valid
+    errors.add("parent_id", "invalid parent") unless parent.kind_of?(self.class.parent_class)
     
     self.name = version[:title] unless self[:name]
     errors.add("name", "can't be blank") unless self[:name] and self[:name] != ""

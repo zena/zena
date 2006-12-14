@@ -86,7 +86,7 @@ td.description p.summary { font-style:italic; font-size:0.8em; }
 #links td { padding: 3px; font-size:0.8em; height:18px; border:1px solid #333; border-width:0 1px 1px 0; }
 #links img {  vertical-align:middle; margin:0; }
 #links table { width:360px; }
-#links .group { background:#888; font-weight:bold;}
+#links .group { background:#888; font-weight:bold; font-size:0.5em; height:0.3em;}
 #links .group span { background:#888; font-weight:normal;}
 #links .inline_form div { float: left;}
 #links .inline_form div.errors { float: none;}

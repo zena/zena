@@ -5,6 +5,10 @@ to set default groups for new projects, to store 'global' events and pages.
 =end
 class Page < Item
   class << self
+    def parent_class
+      Page
+    end
+  
     def select_classes
       list = subclasses.inject([]) do |list, k|
         unless Document == k || k.ancestors.include?(Document)
