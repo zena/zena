@@ -110,3 +110,11 @@ trans_values:
   - key_id:    82
     lang:      en
     value:     "<img src='/images/delete.png'/>"
+
+  - key_id:    83
+    lang:      en
+    value:     "<img src='/images/bullet_yellow.png'/>"
+
+  - key_id:    84
+    lang:      en
+    value:     "<img src='/images/bullet_black.png'/>"

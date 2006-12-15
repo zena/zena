@@ -819,3 +819,15 @@
   key_id:    83
   lang:      en
   value:     "unpublish version"
+
+155:
+  id:        155
+  key_id:    84
+  lang:      en
+  value:     "<img src='/images/bullet_yellow.png'/>"
+
+156:
+  id:        156
+  key_id:    85
+  lang:      en
+  value:     "<img src='/images/bullet_black.png'/>"

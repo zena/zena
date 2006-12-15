@@ -10,8 +10,9 @@ LINKABLE: selections not in sync...
 => ON DESTROY of DocumentVersion : remove files
 => WHEN CREATING THE DATABASE:
 "create database zena DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;"
-=> it is VERY easy to kick yourself out of an item : lion creates 'cleanWater', tiger edits 'cleanWater' and removes lion's redaction. There is only one redaction 
-   from 'tiger' for an item owned by 'lion' : tiger cannot see it anymore (max_status = :red and he is not the owner...)
+
+* making an item private after it has been published, removes all publish rights, even if the user is in pgroup...
+* reduce size of '[private]' and '[public]' images to 8x8
 
 0. month selection on calendar => update notes list
 

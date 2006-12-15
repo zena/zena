@@ -247,3 +247,9 @@ trans_keys:
   
   - id:   83
     key:  'btn_title_unpublish'
+  
+  - id:   84
+    key:  '[private]'
+  
+  - id:   85
+    key:  '[public]'

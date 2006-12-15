@@ -411,6 +411,22 @@ module ApplicationHelper
   end
   
   # TODO: test
+  def show_title(obj=@item)
+    title = (obj.project == @item.project ? "" : "#{obj.project.name} / ") + "#{obj.v_title}"
+    if session[:user]
+      if obj.private?
+        trans('[private]') + title
+      elsif obj.public?
+        trans('[public]') + title
+      else
+        title
+      end
+    else  
+      title
+    end
+  end
+  
+  # TODO: test
   def show(obj, sym, opt={})
     if opt[:as]
       key = "#{opt[:as]}#{obj.v_id}"
