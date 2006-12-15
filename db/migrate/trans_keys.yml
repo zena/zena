@@ -241,3 +241,9 @@ trans_keys:
   
   - id:   81
     key:  'img_contact'
+  
+  - id:   82
+    key:  'btn_unpublish'
+  
+  - id:   83
+    key:  'btn_title_unpublish'

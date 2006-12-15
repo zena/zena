@@ -321,3 +321,11 @@
 81:
   id:   81
   key:  "img_contact"
+
+82:
+  id:   82
+  key:  "btn_unpublish"
+
+83:
+  id:   83
+  key:  "btn_title_unpublish"

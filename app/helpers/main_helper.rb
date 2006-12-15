@@ -39,7 +39,7 @@ module MainHelper
     if (action == :propose or action == :all) && item.can_propose?
       res << form_action('propose',version_id)
     end
-    if (action == :publish or action == :all) && item.can_publish_item?
+    if (action == :publish or action == :all) && item.can_publish?
       res << form_action('publish',version_id)
     end
     if (action == :refuse or action == :all) && item.can_refuse?
@@ -51,6 +51,47 @@ module MainHelper
     res.join("\n")
   end
   
+  # show actions on versions
+  def version_actions(version, opt={})
+    opt = {:action=>:all}.merge(opt)
+    return "" unless version.kind_of?(Version)
+    actions = []
+    if opt[:action] == :view
+      if (version.status != Zena::Status[:del]) ||  (version[:user_id] == user_id )
+        actions << form_action('view', version)
+      end
+    elsif opt[:action] == :all
+      case version.status
+      when Zena::Status[:pub]
+        actions << form_action('unpublish',version) if @item.can_edit_lang?(version.lang)
+        actions << form_action('remove',version)
+      when Zena::Status[:prop]
+        actions << form_action('publish',version)
+        actions << form_action('refuse',version)
+      when Zena::Status[:prop_with]
+        actions << form_action('publish',version)
+        actions << form_action('refuse',version)
+      when Zena::Status[:red]
+        actions << form_action('edit',version) if version.user[:id] == user_id
+        actions << form_action('publish',version)
+        actions << form_action('propose',version)
+      when Zena::Status[:rep]
+        actions << form_action('edit',version) if @item.can_edit_lang?(version.lang)
+        actions << form_action('publish',version)
+        actions << form_action('propose',version)
+      when Zena::Status[:rem]
+        actions << form_action('edit',version) if @item.can_edit_lang?(version.lang)
+        actions << form_action('publish',version)
+        actions << form_action('propose',version)
+      when Zena::Status[:del]
+        if (version[:user_id] == session[:user][:id])
+          actions << form_action('edit',version) if @item.can_edit_lang?(version.lang)
+        end
+      end
+    end
+    actions.join(" ")
+  end
+
   # Create the traduction list for the current item
   def traductions(obj=@item)
     trad_list = []

@@ -230,7 +230,7 @@
   id:        39
   key_id:    39
   lang:      en
-  value:     "<img width='16' height='16' src='/images/page_edit.png'/>"
+  value:     "<img src='/images/page_edit.png'/>"
 
 40:
   id:        40
@@ -242,7 +242,7 @@
   id:        41
   key_id:    41
   lang:      en
-  value:     "<img width='16' height='16' src='/images/delete.png'/>"
+  value:     "<img src='/images/bomb.png'/>"
 
 42:
   id:        42
@@ -807,3 +807,15 @@
   key_id:    81
   lang:      en
   value:     "<img src='/images/user_green.png'/>"
+
+153:
+  id:        153
+  key_id:    82
+  lang:      en
+  value:     "<img src='/images/delete.png'/>"
+
+154:
+  id:        154
+  key_id:    83
+  lang:      en
+  value:     "unpublish version"

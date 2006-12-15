@@ -214,3 +214,7 @@ trans_values:
   - key_id:    78
     lang:      fr
     value:     "%d.%m.%Y %H:%M"
+    
+  - key_id:    83
+    lang:      fr
+    value:     "retirer la version"

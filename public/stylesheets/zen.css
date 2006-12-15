@@ -294,16 +294,6 @@ table.admin_ug td:first-child { border-left: 1px solid #333; }
 .admin_ug td.add_ug table { border: 0;}
 .admin_ug td.add_ug table td { border: 0; font-size:inherit; padding: 2px; }
 
-/* ADMIN versions */
-.v50 { background:#FF9400;}
-.v40 { background:#73A1A5;}
-.v35 { background:#73A1A5;}
-.v30 { background:#B7CC87;}
-.v20 { background:#B29E83;}
-.v10 { background:#8B7B65;}
-.v0  { background:#994747;}
-
-
 /* DEBUG CSS */
 table.border { border:1px solid grey; border-spacing:0; font-size:1em; margin:15px 0 10px 15px;}
 table.border td {padding:3px; border:1px solid grey;}

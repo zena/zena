@@ -109,17 +109,18 @@ class VersionController < ApplicationController
     page_not_found
   end
   
-  # def redit
-  #   item = secure(Item) { Item.version(params[:id]) }
-  #   if item.redit
-  #     flash[:notice] = "Version turned back into a redaction."
-  #     redirect_to :action => 'show', :id => item.v_id
-  #   else
-  #     flash[:error] = "Could not re-edit the version."
-  #     page_not_found
-  #   end
-  # rescue ActiveRecord::RecordNotFound
-  #   page_not_found
-  # end
+  # TODO: test
+  def unpublish
+    item = secure(Item) { Item.version(params[:id]) }
+    if item.unpublish
+      flash[:notice] = "Publication removed."
+      redirect_to @request.env['HTTP_REFERER'] #:action => 'show', :id => item.v_id
+    else
+      flash[:error] = "Could not remove plublication."
+      page_not_found
+    end
+  rescue ActiveRecord::RecordNotFound
+    page_not_found
+  end
   
 end

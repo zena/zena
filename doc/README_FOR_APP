@@ -15,8 +15,6 @@ LINKABLE: selections not in sync...
 
 0. month selection on calendar => update notes list
 
-0. change 'can_publish_item?' into 'can_publish?' and change all other can_publish? to 'can_drive?' ?
-1. remove @item dependency in plugs. Use a context with a default to @item : args[:context] || @item
 1. translate flash 'notice' and 'error', with clever '%s'. Translate error messages (message and field name)
 3. create plug test facility (look at zentest, test_helper.rb)
 4. view archive...

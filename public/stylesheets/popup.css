@@ -79,13 +79,13 @@ td.description p.summary { font-style:italic; font-size:0.8em; }
 .drive li.submit { text-align:right; padding-top:1em;}
 .select_id span { margin-left:0.2em;}
 
-#parent, #groups, #links { float:left; width:130px;}
+#parent, #groups { float:left; width:130px;}
 #parent #parent_errors { margin:0; padding:0; font-size:0.8em; }
 #groups #groups_errors { margin:0; padding:0; font-size:0.8em; }
-#links table { border-width:1px 0 0 1px; padding:0; }
-#links td { padding: 3px; font-size:0.8em; height:18px; border:1px solid #333; border-width:0 1px 1px 0; }
+#links table, #versions table { width:360px;}
+#versions table, #links table { border-width:1px 0 0 1px; padding:0; }
+#versions td, #links td { padding: 3px; font-size:0.8em; height:18px; border:1px solid #333; border-width:0 1px 1px 0; }
 #links img {  vertical-align:middle; margin:0; }
-#links table { width:360px; }
 #links .group { background:#888; font-weight:bold; font-size:0.7em; height:0.5em;}
 #links .group span { background:#888; font-weight:normal;}
 #links .inline_form div { float: left;}
@@ -101,12 +101,19 @@ td.description p.summary { font-style:italic; font-size:0.8em; }
 #links .actions { width:40px; }
 #links #link_role option { width:50px;}
 #links #link_target_id option { width:120px;}
-/*
-#drive_versions table { margin:auto; }
-#drive_versions td.number, #drive_versions td.lang { width:20px; text-align:center; }
-#drive_versions td.status { width:80px; }
-#drive_versions td.comment { font-style:italic; width:200px;}
-#drive_versions td.initials { width:40px; }
-#drive_versions td.date { width:130px; }
-#drive_versions td.actions { width:80px; }
-*/
+
+#versions td.view, #versions td.number, #versions td.lang { width:20px; text-align:center; }
+#versions td.view { border-left:0; }
+#versions td.status { width:80px; }
+#versions td.comment { font-style:italic; width:200px;}
+#versions td.initials { width:40px; }
+#versions td.date { width:130px; }
+#versions td.actions { width:80px; }
+
+.v50 { background:#FF9400;}
+.v40 { background:#73A1A5;}
+.v35 { background:#73A1A5;}
+.v30 { background:#B7CC87;}
+.v20 { background:#B29E83;}
+.v10 { background:#8B7B65;}
+.v0  { background:#994747;}

@@ -53,7 +53,7 @@ trans_values:
 
   - key_id:    41
     lang:      en
-    value:     "<img width='16' height='16' src='/images/delete.png'/>"
+    value:     "<img src='/images/bomb.png'/>"
 
   - key_id:    42
     lang:      en
@@ -106,3 +106,7 @@ trans_values:
   - key_id:    79
     lang:      en
     value:     "<img src='/images/user_green.png'/>"
+    
+  - key_id:    82
+    lang:      en
+    value:     "<img src='/images/delete.png'/>"
