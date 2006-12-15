@@ -392,43 +392,43 @@
   id:        66
   key_id:    66
   lang:      en
-  value:     "status_0"
+  value:     "deleted"
 
 67:
   id:        67
   key_id:    67
   lang:      en
-  value:     "status_10"
+  value:     "removed"
 
 68:
   id:        68
   key_id:    68
   lang:      en
-  value:     "status_20"
+  value:     "replaced"
 
 69:
   id:        69
   key_id:    69
   lang:      en
-  value:     "status_30"
+  value:     "redaction"
 
 70:
   id:        70
   key_id:    70
   lang:      en
-  value:     "status_35"
+  value:     "proposition"
 
 71:
   id:        71
   key_id:    71
   lang:      en
-  value:     "status_40"
+  value:     "proposition"
 
 72:
   id:        72
   key_id:    72
   lang:      en
-  value:     "status_50"
+  value:     "published"
 
 73:
   id:        73

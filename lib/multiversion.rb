@@ -97,7 +97,7 @@ module Zena
           version.status == Zena::Status[:pub] &&
           ( (visitor_id == user_id) ||
             # not owner of the item, cannot unpublish if no edition left
-            (Version.find(:first, :conditions=>["publish_from <= now() AND id <> ? AND status = ?", v_id, Zena::Status[:pub]]) != nil)
+            (Version.find(:first, :conditions=>["item_id = ? AND publish_from <= now() AND id <> ? AND status = ?", id, v_id, Zena::Status[:pub]]) != nil)
           )
         end
         
@@ -162,7 +162,7 @@ module Zena
         end
         
         def remove
-          return false unless can_drive?
+          return false unless can_unpublish?
           version.status = Zena::Status[:rem]
           if version.save
             update_publish_from && update_max_status && after_remove
@@ -192,7 +192,6 @@ module Zena
         def update_publish_from
           result  = versions.find(:first, :conditions=>"status = #{Zena::Status[:pub]}", :order=>"publish_from ASC")
           new_pub = result ? result[:publish_from] : nil
-          puts new_pub.inspect
           if self[:publish_from] != new_pub
             update_attribute_without_fuss(:publish_from, new_pub)
           end
@@ -242,7 +241,7 @@ module Zena
         def update_attribute_without_fuss(att, value)
           self[att] = value
           if value.kind_of?(Time)
-            value = value.strftime("%Y-%m-%d %H:%M:%S")
+            value = value.strftime("'%Y-%m-%d %H:%M:%S'")
           elsif value.nil?
             value = "NULL"
           else
@@ -334,11 +333,10 @@ module Zena
         # Return the current version. If @version was not set, this is a normal find or a new record. We have to find
         # a suitable edition :
         # * if new_record?, create a new redaction
-        # * if the current user has a redaction or proposition, this is his default 'edition'
+        # * find user redaction or proposition in the current lang 
         # * find an edition for current lang
         # * find an edition in the reference lang for this item
         # * find the first publication
-        # TODO optimise this code to have a single SQL call and use ORDER to get the right thing
         def version #:doc:
           if ! @version
             if new_record?
@@ -348,19 +346,23 @@ module Zena
               @version.status = Zena::Status[:red]
               @version.item = self
             elsif can_drive?
+              # sees propositions
+              lang = visitor_lang.gsub(/[^\w]/,'')
               @version =  Version.find(:first,
-                            :select=>"*, (lang = '#{visitor_lang.gsub(/[^\w]/,'')}') as lang_ok",
-                            :conditions=>[ "((status >= ? AND user_id = ?) OR status > ?) and item_id = ?", 
-                                            Zena::Status[:red], visitor_id, Zena::Status[:red], self[:id] ],
+                            :select=>"*, (lang = '#{lang}') as lang_ok",
+                            :conditions=>[ "((status >= ? AND user_id = ? AND lang = ?) OR status > ?) and item_id = ?", 
+                                            Zena::Status[:red], visitor_id, lang, Zena::Status[:red], self[:id] ],
                             :order=>"lang_ok DESC, status ASC ")
               if !@version
                 @version = versions.find(:first, :order=>'id DESC')
               end
             else
+              # only own redactions and published versions
+              lang = visitor_lang.gsub(/[^\w]/,'')
               @version =  Version.find(:first,
-                            :select=>"*, (lang = '#{visitor_lang.gsub(/[^\w]/,'')}') as lang_ok",
-                            :conditions=>[ "((status >= ? AND user_id = ?) OR status = ?) and item_id = ?", 
-                                            Zena::Status[:red], visitor_id, Zena::Status[:pub], self[:id] ],
+                            :select=>"*, (lang = '#{lang}') as lang_ok",
+                            :conditions=>[ "((status >= ? AND user_id = ? AND lang = ?) OR status = ?) and item_id = ?", 
+                                            Zena::Status[:red], visitor_id, lang, Zena::Status[:pub], self[:id] ],
                             :order=>"lang_ok DESC, status ASC, publish_from ASC")
 
             end

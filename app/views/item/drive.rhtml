@@ -1,5 +1,5 @@
 <div class='popup_action' id='drive'>
-  <%= error_messages_for "item" %>
+  <p class='author'><%= trans("original by") + " <b>" + @item.author.fullname + "</b> " + trans("on") + " " + long_date(@item.created_at) %></p>
   <table>
     <tr>
       <td rowspan='3' class='edit'>

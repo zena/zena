@@ -64,7 +64,7 @@ module MainHelper
       case version.status
       when Zena::Status[:pub]
         actions << form_action('unpublish',version) if @item.can_unpublish?
-        actions << form_action('remove',version)
+        actions << form_action('remove',version) if @item.can_unpublish?
       when Zena::Status[:prop]
         actions << form_action('publish',version)
         actions << form_action('refuse',version)

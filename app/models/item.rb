@@ -93,7 +93,7 @@ class Item < ActiveRecord::Base
       self[:fullpath].split('/')
     else
       if parent
-        f = parent.fullpath << name_for_fullpath
+        f = parent.fullpath << name
       else
         f = []
       end
@@ -107,14 +107,8 @@ class Item < ActiveRecord::Base
     [ZENA_ENV[:site_name]] + fullpath
   end
 
-  # Overwritten by notes
-  def name_for_fullpath
-    name
-  end
-  
   # Make sure the item is complete before creating it (check parent and project references)
   def item_on_create
-    self.class.logger.info "ITEM CALLBACK ON CREATE"
     # make sure project is the same as the parent
     if self.kind_of?(Project)
       self[:project_id] = nil

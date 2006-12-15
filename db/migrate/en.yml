@@ -169,31 +169,31 @@ trans_values:
 
   - key_id:    66
     lang:      en
-    value:     "status_0"
+    value:     "deleted"
 
   - key_id:    67
     lang:      en
-    value:     "status_10"
+    value:     "removed"
 
   - key_id:    68
     lang:      en
-    value:     "status_20"
+    value:     "replaced"
 
   - key_id:    69
     lang:      en
-    value:     "status_30"
+    value:     "redaction"
 
   - key_id:    70
     lang:      en
-    value:     "status_35"
+    value:     "proposition"
 
   - key_id:    71
     lang:      en
-    value:     "status_40"
+    value:     "proposition"
 
   - key_id:    72
     lang:      en
-    value:     "status_50"
+    value:     "published"
 
   - key_id:    73
     lang:      en
