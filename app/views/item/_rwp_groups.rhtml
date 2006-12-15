@@ -1,9 +1,13 @@
-<% if @item.can_publish?
+<% if @item.can_visible?
   inherit_modes = [[trans('inherit'),1],[trans('custom'),0],[trans('private'),-1]]
-else
+elsif @item.max_status < Zena::Status[:pub]
+  # nothing published yet, item can be reverted to 'inherit' or set 'private' without publish rights
   inherit_modes = [[trans('inherit'),1],[trans('private'),-1]]
+else
+  inherit_modes = nil
 end 
 groups_list = [0] + form_groups.map{|g| g[1]} %>
+<% if inherit_modes %>
 <%= form_remote_tag(:with=>'groups', :url=>{:controller=>'item', :action=>'groups', :id=>@item[:id], :rnd=>rnd}) %>
   <li id='groups_errors' class='errors'></li>
   <li><%= select('item', 'inherit', inherit_modes, {}, {:onchange=>"Zena.update_rwp(this.value,'#{groups_list.index(@item.ref[:rgroup_id])}','#{groups_list.index(@item.ref[:wgroup_id])}','#{groups_list.index(@item.ref[:pgroup_id])}', '#{form_templates.index(@item.ref[:template])}'); return false;"}) %></li>
@@ -15,3 +19,4 @@ groups_list = [0] + form_groups.map{|g| g[1]} %>
   <li><label><%= trans('template') %></label><%= select('item', 'template',    form_templates,{}, {:disabled=>(@item[:inherit] != 0)}) %></li>
   <li class='submit'><%= submit_tag transb('change') %></li>
 <%= end_form_tag %>
+<% end %>

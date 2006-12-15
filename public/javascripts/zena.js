@@ -30,9 +30,12 @@ Zena.transfer = function(src,trgt) {
 }
 
 // get the name of a file from the path
-Zena.get_name = function(path) {
-  elements = path.split('/');
-  return elements[elements.length - 1];
+Zena.get_name = function(source, target) {
+	if ($(target).value == '') {
+		var path = $(source).value;
+	  elements = path.split('/');
+		$('document_name').value = elements[elements.length - 1];
+	}
 }
 
 Zena.clear_file = function(input_id) {

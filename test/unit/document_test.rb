@@ -2,7 +2,15 @@ require File.dirname(__FILE__) + '/../test_helper'
 require 'fileutils'
 class DocumentTest < Test::Unit::TestCase
   include ZenaTestUnit
-
+  
+  def test_callbacks_for_documents
+    assert Item.read_inheritable_attribute(:before_validation).include?(:secure_before_validation)
+    assert Document.read_inheritable_attribute(:validate_on_create).include?(:item_on_create)
+    assert Document.read_inheritable_attribute(:validate_on_update).include?(:item_on_update)
+    assert Document.read_inheritable_attribute(:before_validation).include?(:set_name)
+    assert Document.read_inheritable_attribute(:before_save).include?(:update_content_name)
+  end
+  
   def test_create_with_file
     without_files('/data/test/pdf') do
       visitor(:ant)

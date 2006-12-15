@@ -3,6 +3,7 @@ TODO: on name change make sure content name changes too...
 =end
 class Document < Page
   before_validation :set_name
+  before_save       :update_content_name
   
   class << self
     def parent_class
@@ -48,7 +49,18 @@ class Document < Page
     end
     return true
   end
-  
+
+  def update_content_name
+    # when cannot use 'old' here as this record is not secured when spreading inheritance
+    if !new_record? && (self[:name] != self.class.find(self[:id])[:name])
+      # update all content names :
+      versions.each do |v|
+        content = v.content
+        content.name = self[:name]
+        content.save
+      end
+    end
+  end
   # This is a callback from acts_as_multiversioned
   def version_class
     DocumentVersion

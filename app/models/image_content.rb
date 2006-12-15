@@ -2,6 +2,7 @@ class ImageContent < DocumentContent
   
   def file=(aFile)
     super
+    remove_format_images if !new_record?
     return unless ImageBuilder.image_content_type?(aFile.content_type)
     img = image_for_format(nil)
     self[:width ] = img.width
@@ -92,6 +93,17 @@ class ImageContent < DocumentContent
   def remove_image(format)
     return false unless format = verify_format(format)
     FileUtils::rm(filepath(format)) if File.exist?(filepath(format))
+    # FIXME: remove cached image as well !!
+  end
+  
+  def remove_format_images
+    dir = File.dirname(filepath)
+    return unless File.exist?(dir)
+    Dir.foreach(dir) do |file|
+      next if file =~ /^\./
+      next if file == filename
+      FileUtils::rm(File.join(dir,file))
+    end
   end
   
   private

@@ -1,15 +1,5 @@
 module Zena
   module Acts
-    
-=begin rdoc
-
-
-=== Actions :
-
-[publish]
-  If the visitor #can_manage? or #can_publish? he/she can publish the item if it's status is 'red', 'rem', 'rep' or 'prop'
-
-=end
     module Multiversioned
       # this is called when the module is included into the 'base' module
       def self.included(base)
@@ -86,19 +76,19 @@ module Zena
           version.status == Zena::Status[:red]
         end
         
-        # can publish
-        def can_publish_item?
-          version.status < Zena::Status[:pub] && can_drive?
+        # people who can publish:
+        # * people who #can_visible? if +status+ >= prop or owner
+        # * people who #can_manage? if item is private
+        def can_publish?
+          version.status < Zena::Status[:pub] && 
+          ( ( can_visible? && (version.status > Zena::Status[:red] || version.user_id == visitor_id) ) ||
+            ( can_manage?  && private? )
+          )
         end
         
         # can refuse a publication
         def can_refuse?
-          version.status > Zena::Status[:red] && can_publish_item?
-        end
-        
-        # can change position, name, rwp groups, etc
-        def can_drive?
-          can_publish? || can_manage?
+          version.status > Zena::Status[:red] && can_publish?
         end
         
         # can destroy item ? (only logged in user can destroy)
@@ -127,7 +117,7 @@ module Zena
         # if version to publish is 'rem' or 'red' or 'prop' : old publication => 'replaced'
         # if version to publish is 'rep' : old publication => 'removed'
         def publish(pub_time=nil)
-          return false unless can_publish_item?
+          return false unless can_publish?
           old_versions = versions.find_all_by_status_and_lang(Zena::Status[:pub], version[:lang])
           case version.status
           when Zena::Status[:rep]
@@ -146,6 +136,16 @@ module Zena
               p.save
             end
             after_publish(pub_time) && update_publish_from && update_max_status
+          else
+            false
+          end
+        end
+        
+        def unpublish
+          return false unless can_drive? && version.status == Zena::Status[:pub]
+          version.status = Zena::Status[:red]
+          if version.save
+            update_publish_from && update_max_status && after_remove
           else
             false
           end

@@ -123,4 +123,21 @@ class ImageContentTest < Test::Unit::TestCase
     end
   end
   
+  def test_remove_format_images
+    preserving_files('data/test/jpg/20') do
+      img  = document_contents(:bird_jpg)
+      assert img.file('std'), "Make image for format std"
+      assert img.file('pv'),  "Make image for format pv"
+      assert_equal "#{RAILS_ROOT}/data/test/jpg/20/bird.jpg", img.filepath
+      assert_equal "#{RAILS_ROOT}/data/test/jpg/20/bird-std.jpg", img.filepath('std')
+      assert_equal "#{RAILS_ROOT}/data/test/jpg/20/bird-pv.jpg", img.filepath('pv')
+      assert File.exist?(img.filepath('std') ), "File exist"
+      assert File.exist?(img.filepath('pv') ),  "File exist"
+      img.remove_format_images
+      assert File.exist?(img.filepath ), "File exist"
+      assert !File.exist?(img.filepath('std') ), "File does not exist"
+      assert !File.exist?(img.filepath('pv') ),  "File does not exist"
+    end
+  end
+  
 end

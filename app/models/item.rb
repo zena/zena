@@ -138,7 +138,6 @@ class Item < ActiveRecord::Base
 
   # Make sure parent and project references are valid on update
   def item_on_update
-    self.class.logger.info "ITEM CALLBACK ON UPDATE"
     # make sure project is the same as the parent
     if self.kind_of?(Project)
       self[:project_id] = self[:id]
@@ -380,7 +379,7 @@ class Item < ActiveRecord::Base
       end
     when :publish
       documents.each do |doc|
-        if doc.can_publish_item?
+        if doc.can_publish?
           allOK = doc.publish(pub_time) && allOK
         end
       end

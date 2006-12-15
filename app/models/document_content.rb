@@ -7,7 +7,7 @@ class DocumentContent < ActiveRecord::Base
   validates_presence_of :ext
   validates_presence_of :name
   validates_presence_of :version
-  before_save           :save_file
+  before_save           :prepare_content
   before_destroy        :destroy_file
 
   
@@ -87,21 +87,23 @@ class DocumentContent < ActiveRecord::Base
   private
 
   def prepare_filename
-    self[:name] = version.item.name
-    if @file
-      # set extension
-      ext  = self[:ext] || @file.original_filename.split('.').last
-      # is this extension valid ?
-      extensions = TYPE_TO_EXT[self[:content_type]]
-      if extensions
-        self[:ext] = extensions.include?(ext) ? ext : extensions[0]
-      else
-        self[:ext] = "???"
-      end
+    if new_record?
+      self[:name] = version.item.name
+      if @file
+        # set extension
+        ext  = self[:ext] || @file.original_filename.split('.').last
+        # is this extension valid ?
+        extensions = TYPE_TO_EXT[self[:content_type]]
+        if extensions
+          self[:ext] = extensions.include?(ext) ? ext : extensions[0]
+        else
+          self[:ext] = "???"
+        end
       
-      # set size
-      self[:size] = @file.stat.size
-      true
+        # set size
+        self[:size] = @file.stat.size
+        true
+      end
     end
   end
   
@@ -109,15 +111,17 @@ class DocumentContent < ActiveRecord::Base
     errors.add('file', "can't be blank") unless !new_record? || @file
   end
 
-  def save_file
+  def prepare_content
     if @file
       # destroy old file
       destroy_file unless new_record?
       # save new file
       make_file(filepath, @file)
-    elsif (old = DocumentContent.find(self[:id])).name != self[:name]
+    end
+    if !new_record? && (old = DocumentContent.find(self[:id])).name != self[:name]
       # TODO: clear cache
-      # TODO: remove 'format' images
+      # clear format images
+      old.remove_format_images if old.respond_to?(:remove_format_images)
       FileUtils::mv(old.filepath, filepath)
     end
   end

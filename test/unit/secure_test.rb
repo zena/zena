@@ -38,7 +38,7 @@ class SecureReadTest < Test::Unit::TestCase
     assert item.can_read?, "Can read"
     assert item.can_write? , "Can write"
     assert item.private? , "Item is private"
-    assert ! item.can_publish? , "Cannot publish"
+    assert ! item.can_visible? , "Cannot publish"
     assert item.can_manage? , "Can manage"
   end
   def test_cannot_view_others_private_items
@@ -341,12 +341,12 @@ class SecureCreateTest < Test::Unit::TestCase
   
   # 4. validate +rw groups+ :
   #     a. if can_publish? : valid groups
-  def test_can_pub_bad_rgroup
+  def test_can_vis_bad_rgroup
     visitor(:tiger)
     attrs = item_defaults
 
     p = secure(Item) { Item.find(attrs[:parent_id])}
-    assert p.can_publish? , "Can publish"
+    assert p.can_visible? , "Can publish"
     
     # bad rgroup
     attrs[:rgroup_id] = 99999
@@ -355,7 +355,7 @@ class SecureCreateTest < Test::Unit::TestCase
     assert z.errors[:rgroup_id] , "Error on rgroup_id"
     assert_equal "unknown group", z.errors[:rgroup_id]
   end
-  def test_can_pub_bad_rgroup_visitor_not_in_group
+  def test_can_vis_bad_rgroup_visitor_not_in_group
     visitor(:tiger)
     attrs = item_defaults
     attrs[:rgroup_id] = groups_id(:admin) # tiger is not in admin
@@ -364,7 +364,7 @@ class SecureCreateTest < Test::Unit::TestCase
     assert z.errors[:rgroup_id], "Error on rgroup_id"
     assert_equal "unknown group", z.errors[:rgroup_id]
   end
-  def test_can_pub_bad_wgroup
+  def test_can_vis_bad_wgroup
     visitor(:tiger)
     attrs = item_defaults
     # bad wgroup
@@ -374,7 +374,7 @@ class SecureCreateTest < Test::Unit::TestCase
     assert z.errors[:wgroup_id] , "Error on wgroup_id"
     assert_equal "unknown group", z.errors[:wgroup_id]
   end
-  def test_can_pub_bad_wgroup_visitor_not_in_group
+  def test_can_vis_bad_wgroup_visitor_not_in_group
     visitor(:tiger)
     attrs = item_defaults
     
@@ -384,7 +384,7 @@ class SecureCreateTest < Test::Unit::TestCase
     assert z.errors[:wgroup_id] , "Error on wgroup_id"
     assert_equal "unknown group", z.errors[:wgroup_id]
   end
-  def test_can_pub_rwgroups_ok
+  def test_can_vis_rwgroups_ok
     visitor(:tiger)
     attrs = item_defaults
     zena = items(:zena)
@@ -482,25 +482,25 @@ class SecureUpdateTest < Test::Unit::TestCase
   
   # VALIDATE ON UPDATE TESTS
   # 1. if pgroup changed from old, make sure user could do this and new group is valid
-  def test_pgroup_changed_cannot_publish
-    # cannot publish
+  def test_pgroup_changed_cannot_visible
+    # cannot visible
     visitor(:ant)
     item = secure(Item) { items(:lake) }
     assert_kind_of Item, item
-    assert ! item.can_publish? , "Cannot publish"
+    assert ! item.can_visible? , "Cannot make visible changes"
     item.pgroup_id = 1
     assert ! item.save , "Save fails"
     assert item.errors[:base] , "Errors on base"
     assert "you do not have the rights to do this", item.errors[:base]
   end
-  def test_inherit_changed_cannot_publish
-    # cannot publish
+  def test_inherit_changed_cannot_visible
+    # cannot visible
     visitor(:ant)
     parent = items(:cleanWater)
     item = secure(Page) { Page.create(:parent_id=>parent[:id], :name=>'thing')}
     assert_kind_of Item, item
     assert ! item.new_record?  , "Not a new record"
-    assert ! item.can_publish? , "Cannot publish"
+    assert ! item.can_visible? , "Cannot make visible changes"
     assert item.can_manage? , "Can manage"
     assert_equal 1, item.inherit , "Inherit mode is 1"
     item.inherit = 0
@@ -513,7 +513,7 @@ class SecureUpdateTest < Test::Unit::TestCase
     visitor(:tiger)
     item = secure(Item) { items(:lake) }
     assert_kind_of Item, item
-    assert item.can_publish? , "Can publish"
+    assert item.can_visible? , "Can visible"
     item[:inherit  ] = 0
     item[:pgroup_id] = 2
     assert ! item.save , "Save fails"
@@ -524,8 +524,8 @@ class SecureUpdateTest < Test::Unit::TestCase
     # ok
     visitor(:tiger)
     item = secure(Item) { items(:lake) }
-    assert_kind_of Item, item
-    assert item.can_publish? , "Can publish"
+    assert_kind_of Contact, item
+    assert item.can_visible? , "Can visible"
     assert_equal 1, item.inherit , "Inherit mode is 1"
     item[:inherit  ] = 0
     item[:pgroup_id] = 1
@@ -537,7 +537,7 @@ class SecureUpdateTest < Test::Unit::TestCase
     visitor(:tiger)
     item = secure(Item) { items(:lake) }
     assert_equal users_id(:ant), item[:user_id]
-    assert item.can_publish? , "Can publish"
+    assert item.can_visible? , "Can visible"
     assert_equal 1, item.inherit , "Inherit mode is 1"
     assert_equal 4, item.pgroup_id
     item[:inherit  ] = 0
@@ -550,7 +550,7 @@ class SecureUpdateTest < Test::Unit::TestCase
     visitor(:tiger)
     item = secure(Item) { items(:people) }
     assert_equal users_id(:tiger), item[:user_id]
-    assert item.can_publish? , "Can publish"
+    assert item.can_visible? , "Can visible"
     assert_equal 1, item.inherit , "Inherit mode is 1"
     assert_equal 4, item.pgroup_id
     item[:inherit  ] = 0
@@ -562,7 +562,7 @@ class SecureUpdateTest < Test::Unit::TestCase
     # ok
     visitor(:tiger)
     item = secure(Item) { items(:lake) }
-    assert item.can_publish? , "Can publish"
+    assert item.can_visible? , "Can visible"
     assert_equal 1, item.inherit , "Inherit mode is 1"
     assert_equal 1, item.rgroup_id
     item[:inherit  ] = 0
@@ -576,7 +576,7 @@ class SecureUpdateTest < Test::Unit::TestCase
     # ok
     visitor(:tiger)
     item = secure(Item) { items(:lake) }
-    assert item.can_publish? , "Can publish"
+    assert item.can_visible? , "Can visible"
     assert_equal 1, item.inherit , "Inherit mode is 1"
     assert_equal 1, item.rgroup_id
     item[:inherit  ] = 0
@@ -590,7 +590,7 @@ class SecureUpdateTest < Test::Unit::TestCase
     visitor(:tiger)
     item = secure(Item) { items(:lake) }
     assert_kind_of Item, item
-    assert item.can_publish? , "Can publish"
+    assert item.can_visible? , "Can visible"
     assert_equal 1, item.inherit , "Inherit mode is 1"
     assert_equal 1, item.rgroup_id
     item[:inherit  ] = 0
@@ -658,32 +658,32 @@ class SecureUpdateTest < Test::Unit::TestCase
     assert_equal users_id(:tiger), item.user_id
   end
   
-  # 3. error if user cannot publish nor manage
-  def test_cannot_publish_nor_manage
+  # 3. error if user cannot visible nor manage
+  def test_cannot_visible_nor_manage
     visitor(:ant)
     item = secure(Item) { items(:collections) }
-    assert ! item.can_publish? , "Cannot publish"
+    assert ! item.can_visible? , "Cannot visible"
     assert ! item.can_manage? , "Cannot manage"
     assert ! item.save , "Save fails"
     assert item.errors[:base], "Errors on base"
     assert_equal "you do not have the rights to do this", item.errors[:base]
   end
   
-  # 4. parent changed ? verify 'publish access to new *and* old'
+  # 4. parent changed ? verify 'visible access to new *and* old'
   def test_reference_changed_cannot_pub_in_new
     visitor(:ant)
-    # cannot publish in new ref
-    item = secure(Item) { items(:bird_jpg) } # can publish in reference
-    item[:parent_id] = items_id(:cleanWater) # cannot publish here
+    # cannot visible in new ref
+    item = secure(Item) { items(:bird_jpg) } # can visible in reference
+    item[:parent_id] = items_id(:cleanWater) # cannot visible here
     assert ! item.save , "Save fails"
     assert item.errors[:parent_id] , "Errors on parent_id"
     assert "invalid reference", item.errors[:parent_id]
   end
   def test_reference_changed_cannot_pub_in_old
     visitor(:ant)
-    # cannot publish in old ref
-    item = secure(Item) { items(:talk)  } # cannot publish in parent 'secret'
-    item[:parent_id] = items_id(:wiki) # can publish here
+    # cannot visible in old ref
+    item = secure(Item) { items(:talk)  } # cannot visible in parent 'secret'
+    item[:parent_id] = items_id(:wiki) # can visible here
     assert ! item.save , "Save fails"
     assert item.errors[:parent_id] , "Errors on parent_id"
     assert "invalid reference", item.errors[:parent_id]
@@ -691,20 +691,22 @@ class SecureUpdateTest < Test::Unit::TestCase
   def test_reference_changed_ok
     # ok
     visitor(:tiger)
-    item = secure(Item) { items(:lake) } # can publish here
-    item[:parent_id] = items_id(:wiki) # can publish here
+    item = secure(Item) { items(:lake) } # can visible here
+    item[:parent_id] = items_id(:wiki) # can visible here
     assert item.save , "Save succeeds"
     assert_equal item[:project_id], items(:wiki).project_id, "Same project as parent"
   end
   
   # 5. validate +rw groups+ :
-  #     a. if can_publish? : valid groups
+  #     a. can change to 'inherit' if can_drive?
+  #     b. can change to 'private' if can_manage?
+  #     c. can change to 'custom'  if can_visible?
   def test_update_rw_groups_for_publisher_bad_rgroup
     visitor(:tiger)
     item = secure(Item) { items(:lake) }
     p = secure(Page) { Page.find(item[:parent_id])}
-    assert p.can_publish? , "Can publish in reference" # can publish in reference
-    assert item.can_publish? , "Can publish"
+    assert p.can_visible? , "Can visible in reference" # can visible in reference
+    assert item.can_visible? , "Can visible"
     
     # bad rgroup
     item[:inherit  ] = 0
@@ -752,7 +754,9 @@ class SecureUpdateTest < Test::Unit::TestCase
     assert item.errors.empty? , "Errors empty"
   end
   
-  #     b. else (can_manage as item is new) : rgroup_id = 0 => inherit, rgroup_id = -1 => private else error.
+  #     a. can change to 'inherit' if can_drive?
+  #     b. can change to 'private' if can_manage?
+  #     c. can change to 'custom'  if can_visible?
   def hello_ant
     visitor(:ant)
     # create new item
@@ -760,42 +764,26 @@ class SecureUpdateTest < Test::Unit::TestCase
     :name => 'hello',
     :parent_id   => items_id(:cleanWater),
     }
-    z = secure(Note) { Note.create(attrs) }
-    item = secure(Item) { Item.find_by_name('hello') }
-    p = secure(Item) { Item.find(item[:parent_id])}
-    [z, item, p]
+    item = secure(Note) { Note.create(attrs) }
+    ref  = secure(Item) { Item.find(item[:parent_id])}
+    [item, ref]
   end
-  def test_can_man_cannot_update_pgroup
-    z, item, p = hello_ant
-    assert ! z.new_record? , "Not a new record"
-    assert ! p.can_publish? , "Cannot publish in reference"
-    assert p.can_write? , "Can write in reference"
-    assert ! item.can_publish? , "Cannot publish"
+  def test_can_man_cannot_custom_inherit
+    item, ref = hello_ant
+    assert ! item.new_record? , "Not a new record"
+    assert ! ref.can_visible? , "Cannot visible in reference"
+    assert ref.can_write? , "Can write in reference"
+    assert ! item.can_visible? , "Cannot visible"
     assert item.can_manage? , "Can manage"
     
-    # cannot change pgroup
+    # cannot change inherit
     item[:inherit  ] = 0
-    item[:pgroup_id] = 1
-    assert (item[:pgroup_id] != p.pgroup_id) , "Publish group is different from reference"
     assert ! item.save , "Save fails"
-    assert item.errors[:pgroup_id] , "Errors on pgroup_id"
-    assert_equal "you cannot change this", item.errors[:pgroup_id]
-  end
-  def test_can_man_cannot_change_rwgroups
-    z, item, p = hello_ant
-    # change groups
-    item[:inherit  ] = 0
-    item[:rgroup_id] = 98984984 # anything
-    item[:wgroup_id] = 98984984 # anything
-    item[:pgroup_id] = p.pgroup_id # same as reference
-    assert ! item.save , "Save fails"
-    assert item.errors[:rgroup_id] , "Errors on rgroup_id"
-    assert item.errors[:wgroup_id] , "Errors on wgroup_id"
-    assert_equal "you cannot change this", item.errors[:rgroup_id]
-    assert_equal "you cannot change this", item.errors[:wgroup_id]
+    assert item.errors[:inherit] , "Errors on pgroup_id"
+    assert_equal "you cannot change this", item.errors[:inherit]
   end
   def test_can_man_can_make_private
-    z, item, p = hello_ant
+    item, ref = hello_ant
     # make private
     item[:inherit  ] = -1 # make private
     item[:rgroup_id] = 98984984 # anything
@@ -808,33 +796,52 @@ class SecureUpdateTest < Test::Unit::TestCase
     assert_equal 0, item.pgroup_id , "Inherit mode is 0"
   end
   def test_can_man_cannot_lock_inherit
-    z, item, p = hello_ant
+    item, ref = hello_ant
     # make private
     item[:inherit  ] = 0 # lock inheritance
     assert ! item.save , "Save fails"
     assert item.errors[:inherit] , "Errors on inherit"
-    assert_equal "invalid value", item.errors[:inherit]
+    assert_equal "you cannot change this", item.errors[:inherit]
   end
   
+  def test_can_man_update_inherit
+    item, ref = hello_ant
+    assert item.update_attributes(:inherit=>-1)
+    assert item.publish
+    assert item.can_drive?, "Can drive"
+    assert !item.can_visible?, "Cannot make visible changes"
+    assert_equal Zena::Status[:pub], item.max_status
+    # cannot change rights now
+    assert !item.update_attributes(:inherit=>1)
+    item.errors.clear
+    assert item.unpublish
+    assert item.can_drive?, "Can drive"
+    # can change rights now
+    assert item.update_attributes(:inherit=>1)
+  end
+  
+  #     a. can change to 'inherit' if can_drive?
+  #     b. can change to 'private' if can_manage?
+  #     c. can change to 'custom'  if can_visible?
   def test_can_man_update_attributes
-    z, item, p = hello_ant
+    item, ref = hello_ant
     # make private
     attrs = { :inherit => -1, :rgroup_id=> 98748987, :wgroup_id => 98984984, :pgroup_id => 98984984 }
     assert item.update_attributes(attrs), "Update attributes succeeds"
     assert_equal 0, item.rgroup_id , "Read group is 0"
     assert_equal 0, item.wgroup_id , "Write group is 0"
     assert_equal 0, item.pgroup_id , "Publish group is 0"
-    assert_equal 0, item.inherit , "Inherit mode is 0"
+    assert_equal -1, item.inherit , "Inherit mode is -1"
   end
   
   def test_can_man_can_inherit
-    z, item, p = hello_ant
+    item, ref = hello_ant
     # inherit
     item[:inherit  ] = 1 # inherit
     assert item.save , "Save succeeds"
-    assert_equal p.rgroup_id, item.rgroup_id ,    "Read group is same as reference"
-    assert_equal p.wgroup_id, item.wgroup_id ,   "Write group is same as reference"
-    assert_equal p.pgroup_id, item.pgroup_id , "Publish group is same as reference"
+    assert_equal ref.rgroup_id, item.rgroup_id ,    "Read group is same as reference"
+    assert_equal ref.wgroup_id, item.wgroup_id ,   "Write group is same as reference"
+    assert_equal ref.pgroup_id, item.pgroup_id , "Publish group is same as reference"
     assert_equal 1, item.inherit , "Inherit mode is 1"
   end
   

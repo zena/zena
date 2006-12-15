@@ -286,7 +286,7 @@ class MultiVersionTest < Test::Unit::TestCase
     visitor(:lion)
     @lang = 'ru'
     item = secure(Item) { items(:lake)  }
-    attrs = { :rgroup_id => 4, :v_title => "Manager's lake"}
+    attrs = { :inherit=>0, :rgroup_id => 4, :v_title => "Manager's lake"}
     assert item.update_attributes( attrs ), "Update attributes succeeds"
     assert_equal 4, item.rgroup_id
     assert_equal 3, item.wgroup_id
@@ -406,12 +406,13 @@ class MultiVersionTest < Test::Unit::TestCase
     assert_not_equal pub_item.v_id, versions_id(:lake_red_en)
   end
   
-  def test_publish_new_lang
+  def test_publish_new_lang_new_author
     visitor(:tiger)
     @lang = 'fr'
     item = secure(Item) { items(:lake)  }
     assert_equal 1, item.editions.size, "English edition exists"
     assert item.update_attributes( :v_title => "Joli petit lac" )
+    assert item.can_publish?
     assert item.publish
     item = secure(Item) { items(:lake)  } # reload
     assert_equal 2, item.editions.size, "English and french editions"
@@ -422,10 +423,33 @@ class MultiVersionTest < Test::Unit::TestCase
     visitor(:tiger)
     @lang = 'en'
     item = secure(Item) { items(:tiger)  }
-    assert_kind_of Item, item
     assert item.remove # remove version
     assert_equal Zena::Status[:rem], item.v_status
     assert_equal Zena::Status[:rem], item.max_status
   end
   
+  def test_can_man_cannot_publish
+    visitor(:ant)
+    item = secure(Note) { Note.create(:name=>'hello', :parent_id=>items_id(:cleanWater)) }
+    assert !item.new_record?
+    assert item.can_drive?, "Can drive"
+    assert item.can_manage?, "Can manage"
+    assert !item.private?, "Not private"
+    assert !item.can_publish?, "Cannot publish (not private)"
+    assert !item.publish, "Cannot publish"
+    
+    assert item.update_attributes(:inherit=>-1)
+    assert item.can_drive?, "Can drive"
+    assert item.can_manage?, "Can manage"
+    assert item.can_publish?, "Can publish (private)"
+    assert item.publish, "Can publish"
+  end
+  
+  def test_unpublish
+    visitor(:lion)
+    item = secure(Item) { items(:bananas)  }
+    assert item.unpublish # unpublish version
+    assert_equal Zena::Status[:red], item.v_status
+    assert_equal Zena::Status[:red], item.max_status
+  end
 end

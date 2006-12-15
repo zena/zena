@@ -47,7 +47,7 @@ module Zena
       # [publish]
       # * super user
       # * members of +publish_group+ if +max_status+ >= prop
-      # * owner if member of +publish_group+
+      # * owner if member of +publish_group+ or private
       # 
       # [manage]
       # * owner if +max_status+ <= red
@@ -93,7 +93,7 @@ link://rwp_groups.png
     3. can change item itself (cannot change groups)
     4. can destroy
     B. <em>item not published yet</em> only :
-    5. make an item private (sets all groups to 0) or revert item to default groups (same as parent or project)
+    5. make an item private (sets all groups to 0) or revert item to default groups (same as parent or project) if item not published yet
     5. can see item (edition = personal redaction or latest version)
 [max_status]
     This is set to the highest status of all versions. Order from highest to lowest are : 'pub', 'prop', 'red', 'rep', 'rem', 'del'
@@ -280,14 +280,13 @@ Just doing the above will filter all result according to the logged in user.
           ( uid == user_id ) ||
           ( ugps.include?(wgroup_id) && publish_from && Time.now >= publish_from )
         end
-  
-        # people who can publish:
+        
+        # people who can make visible changes
         # * super user
-        # * members of +publish_group+ if +max_status+ >= prop
-        # * owner if member of +publish_group+
-        def can_publish?(uid=visitor_id, ugps=visitor_groups)
+        # * members of +publish_group+
+        def can_visible?(uid=visitor_id, ugps=visitor_groups)
           ( uid == 2 ) ||
-          ( ugps.include?(pgroup_id) && (max_status > Zena::Status[:red] || uid == user_id) )
+          ( ugps.include?(pgroup_id) )
         end
   
         # people who can manage:
@@ -297,6 +296,11 @@ Just doing the above will filter all result according to the logged in user.
           ( uid == 2 ) ||
           ( publish_from == nil && uid == user_id && max_status <= Zena::Status[:red] ) ||
           ( private? && uid == user_id )
+        end
+        
+        # can change position, name, rwp groups, etc
+        def can_drive?
+          can_visible? || can_manage?
         end
         
         def secure_before_validation
@@ -310,13 +314,12 @@ Just doing the above will filter all result according to the logged in user.
         # 0. set item.user_id = visitor_id
         # 1. validate the presence of a valid project (one in which the visitor has write access and project<>self !)
         # 2. validate the presence of a valid reference (project or parent) (in which the visitor has write access and ref<>self !)
-        # 3. validate +publish_group+ value (same as parent or ref.can_publish? and valid)
+        # 3. validate +publish_group+ value (same as parent or ref.can_visible? and valid)
         # 4. validate +rw groups+ :
-        #     a. if can_publish? : valid groups
-        #     b. else (can_manage as item is new)
+        #     a. if can_visible? : valid groups
+        #     b. else inherit or private
         # 5. validate the rest
         def secure_on_create
-          self.class.logger.info "SECURE CALLBACK ON CREATE"
           # set kpath
           self[:kpath] = self.class.kpath
           
@@ -356,7 +359,7 @@ Just doing the above will filter all result according to the logged in user.
             self[:wgroup_id] = 0
             self[:pgroup_id] = 0
           when 0
-            if ref.can_publish?
+            if ref.can_visible?
               errors.add('rgroup_id', "unknown group") unless visitor_groups.include?(rgroup_id)
               errors.add('wgroup_id', "unknown group") unless visitor_groups.include?(wgroup_id)
               errors.add('pgroup_id', "unknown group") unless visitor_groups.include?(pgroup_id)
@@ -386,15 +389,16 @@ Just doing the above will filter all result according to the logged in user.
         # 3. error if user cannot publish nor manage
         # 4. parent/project changed ? verify 'publish access to new *and* old'
         # 5. validate +rw groups+ :
-        #     a. if can_publish? : valid groups
-        #     b. else (can_manage as item is new) 
+        #     a. can change to 'inherit' if can_visible? or can_manage? and max_status < pub and does not have children
+        #     b. can change to 'private' if can_manage?
+        #     c. can change to 'custom' if can_visible?
         # 6. validate the rest
         def secure_on_update
-          self.class.logger.info "SECURE CALLBACK ON UPDATE"
           unless @visitor_id
             errors.add('base', "record not secured")
             return false
           end
+          @old = nil # force reload of 'old'
           unless old
             # cannot change item if old not found
             errors.add('base', "you do not have the rights to do this")
@@ -482,24 +486,32 @@ Just doing the above will filter all result according to the logged in user.
           if self[:inherit] == 0 && pgroup_id == 0 && pgroup_id != old.pgroup_id
             # if pgroup_id is set to 0 ==> make item private
             self[:inherit] = -1
-          end
+          end  
           case inherit
           when 1
-            errors.add('inherit', "you cannot change this") unless (inherit == old.inherit) || old.can_manage? || old.can_publish?
-            [:rgroup_id, :wgroup_id, :pgroup_id, :template].each do |sym|
-              self[sym] = ref[sym]
+            # inherit
+            unless inherit == old.inherit
+              if old.can_visible? || ( old.can_manage? && (old.max_status_with_heirs < Zena::Status[:pub]) )
+                [:rgroup_id, :wgroup_id, :pgroup_id, :template].each do |sym|
+                  self[sym] = ref[sym]
+                end
+              else
+                errors.add('inherit', "you cannot change this")
+              end
             end
           when -1
             # make private, only if owner
-            if old.can_manage? || (old.can_publish? && user_id == visitor_id)
-              [:rgroup_id, :wgroup_id, :pgroup_id].each do |sym|
-                self[sym] = 0
+            unless (inherit == old.inherit)
+              if old.can_drive? && (user_id == visitor_id)
+                [:rgroup_id, :wgroup_id, :pgroup_id].each do |sym|
+                  self[sym] = 0
+                end
+              else
+                errors.add('inherit', "you cannot change this")
               end
-            else
-              errors.add('inherit', "you cannot change this") 
             end
           when 0
-            if old.can_publish?
+            if old.can_visible?
               if private?
                 # ok (all groups are 0)
               else
@@ -513,11 +525,9 @@ Just doing the above will filter all result according to the logged in user.
                   errors.add('pgroup_id', "unknown group")
                 end
               end
-            elsif old.can_manage? && private?
-              # all groups are nil
             else
               # must be the same as old
-              errors.add('inherit', "invalid value") unless inherit == old.inherit
+              errors.add('inherit', "you cannot change this") unless inherit == old.inherit
               errors.add('rgroup_id', "you cannot change this") unless rgroup_id == old.rgroup_id
               errors.add('wgroup_id', "you cannot change this") unless wgroup_id == old.wgroup_id
               errors.add('pgroup_id', "you cannot change this") unless pgroup_id == old.pgroup_id
@@ -597,6 +607,18 @@ Just doing the above will filter all result according to the logged in user.
             h.save_with_validation(false)
             h.spread_inheritance
           end
+        end
+        
+        # return the maximum status of the current item and all it's heirs. This is used to allow
+        # inheritance change with 'manage' rights on private items
+        def max_status_with_heirs(max=0)
+          max = [max, max_status].max
+          return max if max == Zena::Status[:pub]
+          heirs.each do |h|
+            max = [max, h.max_status_with_heirs(max)].max
+            break if max == Zena::Status[:pub]
+          end
+          return max
         end
         
         private
