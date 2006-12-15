@@ -37,7 +37,10 @@ class VersionController < ApplicationController
       @v_text    = params[:item][:v_text]
     else
       # drive view
-      @item = secure(Item) { Item.version(params[:version_id]) }
+      @item = secure(Item) { Item.version(params[:id]) }
+      @v_title   = @item.v_title
+      @v_summary = @item.v_summary
+      @v_text    = @item.v_text
     end
   rescue ActiveRecord::RecordNotFound
     page_not_found

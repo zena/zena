@@ -17,6 +17,8 @@ class ItemController < ApplicationController
   def drive
     if params[:version_id]
       @item = secure_drive(Item) { Item.version(params[:version_id]) }
+      # store the id used to preview versions
+      session[:preview_id] = params[:version_id]
     else
       @item = secure_drive(Item) { Item.find(params[:id]) }
     end

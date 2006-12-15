@@ -13,7 +13,7 @@ module MainHelper
       url_for(:controller=>'version', :id=>version_id, :action=>'edit', :rnd=>rnd) + 
       "', 'editor', 'location=0,width=500,height=600,resizable=1');return false;\">" + transb('btn_edit') + "</a>"
     elsif action == 'view'
-      tlink_to_remote('btn_view', :with=>'main', :url=>{:controller=>'version', :action=>'preview', :id=>version_id })
+      tlink_to_function('btn_view', "opener.Zena.version_preview(#{version_id}); return false;")
     elsif action == 'drive'
       "<a href='#' title='#{transb('btn_title_drive')}' onClick=\"editor=window.open('" + 
       url_for(:controller=>'item', :version_id=>version_id, :action=>'drive', :rnd=>rnd) + 
@@ -58,34 +58,34 @@ module MainHelper
     actions = []
     if opt[:action] == :view
       if (version.status != Zena::Status[:del]) ||  (version[:user_id] == user_id )
-        actions << form_action('view', version)
+        actions << form_action('view', version[:id])
       end
     elsif opt[:action] == :all
       case version.status
       when Zena::Status[:pub]
-        actions << form_action('unpublish',version) if @item.can_unpublish?
-        actions << form_action('remove',version) if @item.can_unpublish?
+        actions << form_action('unpublish',version[:id]) if @item.can_unpublish?
+        actions << form_action('remove',version[:id]) if @item.can_unpublish?
       when Zena::Status[:prop]
-        actions << form_action('publish',version)
-        actions << form_action('refuse',version)
+        actions << form_action('publish',version[:id])
+        actions << form_action('refuse',version[:id])
       when Zena::Status[:prop_with]
-        actions << form_action('publish',version)
-        actions << form_action('refuse',version)
+        actions << form_action('publish',version[:id])
+        actions << form_action('refuse',version[:id])
       when Zena::Status[:red]
-        actions << form_action('edit',version) if version.user[:id] == user_id
-        actions << form_action('publish',version)
-        actions << form_action('propose',version)
+        actions << form_action('edit',version[:id]) if version.user[:id] == user_id
+        actions << form_action('publish',version[:id])
+        actions << form_action('propose',version[:id])
       when Zena::Status[:rep]
-        actions << form_action('edit',version) if @item.can_edit_lang?(version.lang)
-        actions << form_action('publish',version)
-        actions << form_action('propose',version)
+        actions << form_action('edit',version[:id]) if @item.can_edit_lang?(version.lang)
+        actions << form_action('publish',version[:id])
+        actions << form_action('propose',version[:id])
       when Zena::Status[:rem]
-        actions << form_action('edit',version) if @item.can_edit_lang?(version.lang)
-        actions << form_action('publish',version)
-        actions << form_action('propose',version)
+        actions << form_action('edit',version[:id]) if @item.can_edit_lang?(version.lang)
+        actions << form_action('publish',version[:id])
+        actions << form_action('propose',version[:id])
       when Zena::Status[:del]
         if (version[:user_id] == session[:user][:id])
-          actions << form_action('edit',version) if @item.can_edit_lang?(version.lang)
+          actions << form_action('edit',version[:id]) if @item.can_edit_lang?(version.lang)
         end
       end
     end
