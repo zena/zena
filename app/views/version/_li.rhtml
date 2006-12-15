@@ -4,7 +4,7 @@
   <td class="lang"><%= li.lang %></td>
   <td class="status"><%= trans("status_#{li.status}") %></td>
   <td class="comment"><%= li.comment %></td>
-  <td class="date"><%= short_date(li.updated_at) %></td>
+  <td class="date"><%= format_date(li.updated_at, 'datetime') %></td>
   <td class="initials"><%= li.author.initials %></td>
   <td class="actions"><%= version_actions(li) %></td>
 </tr>

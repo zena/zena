@@ -1,7 +1,7 @@
 <li class='note'<%= li[:id] == @selected_note ? " id='note_selected'" : "" %>>
   <h3 class='li_s<%= li.v_status %>'>
     <p class='log_at'><%= @note_date ? short_time(li.event_at) : short_date(li.log_at) %></p>
-    <p class='title'><a href='<%= url_for :prefix => prefix, :controller => 'main', :action=>'show', :path=>li.fullpath %>'><span id='v_title<%= li.v_id%>'><%= show_title(li) %></span></a><%= check_lang( li ) %></p>
+    <p class='title'><a href='<%= url_for :prefix => prefix, :controller => 'main', :action=>'show', :path=>li.fullpath %>'><span id='v_title<%= li.v_id%>'><%= (li.project == @item.project ? "" : "#{li.project.name} / ") + "#{li.v_title}" %></span></a><%= check_lang( li ) %></p>
     <p class='sign'><%= li.v_author.initials %></p>
     <ul class='item_actions'><%= edit_button(:all, :item=>li) %></ul>
   </h3>

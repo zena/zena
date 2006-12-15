@@ -11,7 +11,7 @@ p.img_left, p.img_right { margin:0; padding:0;}
 /*   POPUP   */
 body { background:#9FA6AC ;}
 .popup_action { position:absolute; top:50px; left:0; width:90%; height:60%;padding:5px 5px 15px;}
-.author { padding-left:5px; margin-left:5px; font-size:0.8em; font-style:italic;}
+.readers, .author { padding-left:5px; margin-left:5px; font-size:0.8em; font-style:italic;}
 hr { border:2px solid grey; border-width:0 0 1px 0; margin-bottom:4px;}
 button { background:none; border:none;}
 .btn_validate { text-align:right; margin:0; padding:0;}

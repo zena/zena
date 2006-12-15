@@ -824,10 +824,10 @@
   id:        155
   key_id:    84
   lang:      en
-  value:     "<img src='/images/bullet_yellow.png'/>"
+  value:     "<img src='/images/key.png'/>"
 
 156:
   id:        156
   key_id:    85
   lang:      en
-  value:     "<img src='/images/bullet_black.png'/>"
+  value:     "<img src='/images/user_pub.png'/>"

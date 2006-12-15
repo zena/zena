@@ -13,7 +13,7 @@ module Zena
           after_save        :save_version
           after_save        :after_all
           private
-          has_many :versions
+          has_many :versions, :order=>"number DESC"
           has_many :editions, :class_name=>"Version", :conditions=>"publish_from <= now() AND status = #{Zena::Status[:pub]}", :order=>'lang'
           public
           class_eval <<-END

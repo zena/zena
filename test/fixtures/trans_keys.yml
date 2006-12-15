@@ -332,8 +332,8 @@
 
 84:
   id:   84
-  key:  "[private]"
+  key:  "img_private"
 
 85:
   id:   85
-  key:  "[public]"
+  key:  "img_public"

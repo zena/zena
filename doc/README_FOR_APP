@@ -12,7 +12,6 @@ LINKABLE: selections not in sync...
 "create database zena DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;"
 
 * making an item private after it has been published, removes all publish rights, even if the user is in pgroup...
-* reduce size of '[private]' and '[public]' images to 8x8
 
 0. month selection on calendar => update notes list
 
