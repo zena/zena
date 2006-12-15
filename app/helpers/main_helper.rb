@@ -63,7 +63,7 @@ module MainHelper
     elsif opt[:action] == :all
       case version.status
       when Zena::Status[:pub]
-        actions << form_action('unpublish',version) if @item.can_edit_lang?(version.lang)
+        actions << form_action('unpublish',version) if @item.can_unpublish?
         actions << form_action('remove',version)
       when Zena::Status[:prop]
         actions << form_action('publish',version)

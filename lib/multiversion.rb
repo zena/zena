@@ -91,6 +91,16 @@ module Zena
           version.status > Zena::Status[:red] && can_publish?
         end
         
+        # Can remove publication
+        def can_unpublish?
+          can_drive? && 
+          version.status == Zena::Status[:pub] &&
+          ( (visitor_id == user_id) ||
+            # not owner of the item, cannot unpublish if no edition left
+            (Version.find(:first, :conditions=>["publish_from <= now() AND id <> ? AND status = ?", v_id, Zena::Status[:pub]]) != nil)
+          )
+        end
+        
         # can destroy item ? (only logged in user can destroy)
         def can_destroy?
           can_drive? && (user_id != 1)
@@ -142,7 +152,7 @@ module Zena
         end
         
         def unpublish
-          return false unless can_drive? && version.status == Zena::Status[:pub]
+          return false unless can_unpublish?
           version.status = Zena::Status[:red]
           if version.save
             update_publish_from && update_max_status && after_remove
@@ -180,10 +190,9 @@ module Zena
         
         # Set +publish_from+ to the minimum publication time of all editions
         def update_publish_from
-          result = versions.find(:first, :conditions=>"status = #{Zena::Status[:pub]}", :order=>"publish_from ASC")
-          # we cannot set publish_from directly with self[:publish_from] : a security measure in acts_as_secure#secure_on_update
-          # only accepts the @publish_from (private attribute) style.
+          result  = versions.find(:first, :conditions=>"status = #{Zena::Status[:pub]}", :order=>"publish_from ASC")
           new_pub = result ? result[:publish_from] : nil
+          puts new_pub.inspect
           if self[:publish_from] != new_pub
             update_attribute_without_fuss(:publish_from, new_pub)
           end
@@ -232,8 +241,14 @@ module Zena
         
         def update_attribute_without_fuss(att, value)
           self[att] = value
-          value = value.strftime("%Y-%m-%d %H:%M:%S") if value.kind_of?(Time)
-          self.class.connection.execute "UPDATE #{self.class.table_name} SET #{att}='#{value}' WHERE id=#{self[:id]}"
+          if value.kind_of?(Time)
+            value = value.strftime("%Y-%m-%d %H:%M:%S")
+          elsif value.nil?
+            value = "NULL"
+          else
+            value = "'#{value}'"
+          end
+          self.class.connection.execute "UPDATE #{self.class.table_name} SET #{att}=#{value} WHERE id=#{self[:id]}"
         end
         
         def redaction

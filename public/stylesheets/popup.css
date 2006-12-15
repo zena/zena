@@ -82,7 +82,7 @@ td.description p.summary { font-style:italic; font-size:0.8em; }
 #parent, #groups { float:left; width:130px;}
 #parent #parent_errors { margin:0; padding:0; font-size:0.8em; }
 #groups #groups_errors { margin:0; padding:0; font-size:0.8em; }
-#links table, #versions table { width:360px;}
+#links table, #versions table { width:100%;}
 #versions table, #links table { border-width:1px 0 0 1px; padding:0; }
 #versions td, #links td { padding: 3px; font-size:0.8em; height:18px; border:1px solid #333; border-width:0 1px 1px 0; }
 #links img {  vertical-align:middle; margin:0; }
