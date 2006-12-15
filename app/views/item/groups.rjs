@@ -3,5 +3,6 @@ if @error || !@item.errors.empty?
 else  
   page.replace_html 'groups', :partial=>'rwp_groups'
   page.replace_html 'messages', :inline=>"<div id='notice'>#{trans('item updated')}</div>"
-  page.visual_effect :fade, "notice", :duration => 3
+  page.visual_effect :highlight, 'groups'
+  page.visual_effect :fade, 'notice', :duration => 3
 end

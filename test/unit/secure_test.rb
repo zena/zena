@@ -453,7 +453,7 @@ class SecureCreateTest < Test::Unit::TestCase
     assert_equal 0, z.rgroup_id , "Read group is 0"
     assert_equal 0, z.wgroup_id , "Write group is 0"
     assert_equal 0, z.pgroup_id , "Publish group is 0"
-    assert_equal 0, z.inherit , "Inherit mode is 0"
+    assert_equal -1, z.inherit , "Inherit mode is -1"
   end
   def test_can_man_can_inherit_rwp_groups
     visitor(:ant)
@@ -514,7 +514,8 @@ class SecureUpdateTest < Test::Unit::TestCase
     item = secure(Item) { items(:lake) }
     assert_kind_of Item, item
     assert item.can_publish? , "Can publish"
-    item.pgroup_id = 2
+    item[:inherit  ] = 0
+    item[:pgroup_id] = 2
     assert ! item.save , "Save fails"
     assert item.errors[:pgroup_id] , "Errors on pgroup_id"
     assert "unknown group", item.errors[:pgroup_id]
@@ -526,7 +527,8 @@ class SecureUpdateTest < Test::Unit::TestCase
     assert_kind_of Item, item
     assert item.can_publish? , "Can publish"
     assert_equal 1, item.inherit , "Inherit mode is 1"
-    item.pgroup_id = 1
+    item[:inherit  ] = 0
+    item[:pgroup_id] = 1
     assert item.save , "Save succeeds"
     assert_equal 0, item.inherit , "Inherit mode is 0"
   end
@@ -538,9 +540,10 @@ class SecureUpdateTest < Test::Unit::TestCase
     assert item.can_publish? , "Can publish"
     assert_equal 1, item.inherit , "Inherit mode is 1"
     assert_equal 4, item.pgroup_id
-    item.pgroup_id = nil
+    item[:inherit  ] = 0
+    item[:pgroup_id] = nil
     assert !item.save , "Save fails"
-    assert item.errors[:pgroup_id]
+    assert item.errors[:inherit]
   end
   def test_pgroup_can_nil_if_owner
     # ok
@@ -550,9 +553,10 @@ class SecureUpdateTest < Test::Unit::TestCase
     assert item.can_publish? , "Can publish"
     assert_equal 1, item.inherit , "Inherit mode is 1"
     assert_equal 4, item.pgroup_id
-    item.pgroup_id = nil
+    item[:inherit  ] = 0
+    item[:pgroup_id] = nil
     assert item.save , "Save succeeds"
-    assert_equal item.private?, "Item is now private"
+    assert item.private?, "Item is now private"
   end
   def test_rgroup_change_rgroup_with_nil_ok
     # ok
@@ -561,7 +565,8 @@ class SecureUpdateTest < Test::Unit::TestCase
     assert item.can_publish? , "Can publish"
     assert_equal 1, item.inherit , "Inherit mode is 1"
     assert_equal 1, item.rgroup_id
-    item.rgroup_id = nil
+    item[:inherit  ] = 0
+    item[:rgroup_id] = nil
     assert item.save , "Save succeeds"
     assert_equal 0, item.inherit , "Inherit mode is 0"
     assert_equal 0, item.rgroup_id
@@ -574,7 +579,8 @@ class SecureUpdateTest < Test::Unit::TestCase
     assert item.can_publish? , "Can publish"
     assert_equal 1, item.inherit , "Inherit mode is 1"
     assert_equal 1, item.rgroup_id
-    item.rgroup_id = 0
+    item[:inherit  ] = 0
+    item[:rgroup_id] = 0
     assert item.save , "Save succeeds"
     assert_equal 0, item.inherit , "Inherit mode is 0"
     assert_equal 0, item.rgroup_id
@@ -587,7 +593,8 @@ class SecureUpdateTest < Test::Unit::TestCase
     assert item.can_publish? , "Can publish"
     assert_equal 1, item.inherit , "Inherit mode is 1"
     assert_equal 1, item.rgroup_id
-    item.rgroup_id = ''
+    item[:inherit  ] = 0
+    item[:rgroup_id] = ''
     assert item.save , "Save succeeds"
     assert_equal 0, item.inherit , "Inherit mode is 0"
     assert_equal 0, item.rgroup_id
@@ -595,6 +602,7 @@ class SecureUpdateTest < Test::Unit::TestCase
   def test_group_changed_children_too
     visitor(:tiger)
     item = secure(Item) { items(:cleanWater)  }
+    item[:inherit  ] = 0
     item[:rgroup_id] = 3
     assert item.save , "Save succeeds"
     assert_equal 3, item[:rgroup_id], "Read group changed"
@@ -608,6 +616,7 @@ class SecureUpdateTest < Test::Unit::TestCase
   def test_template_changed_children_too
     visitor(:tiger)
     item = secure(Item) { items(:cleanWater)  }
+    item[:inherit  ] = 0
     item[:template] = 'wiki'
     assert item.save , "Save succeeds"
     assert_equal 'wiki', item[:template], "Template changed"
@@ -698,6 +707,7 @@ class SecureUpdateTest < Test::Unit::TestCase
     assert item.can_publish? , "Can publish"
     
     # bad rgroup
+    item[:inherit  ] = 0
     item[:rgroup_id] = 99999
     assert ! item.save , "Save fails"
     assert item.errors[:rgroup_id] , "Error on rgroup_id"
@@ -706,7 +716,7 @@ class SecureUpdateTest < Test::Unit::TestCase
   def test_update_rw_groups_for_publisher_not_in_new_rgroup
     visitor(:tiger)
     item = secure(Item) { items(:lake) }
-    
+    item[:inherit  ] = 0
     item[:rgroup_id] = groups_id(:admin) # tiger is not in admin
     assert ! item.save , "Save fails"
     assert item.errors[:rgroup_id], "Error on rgroup_id"
@@ -716,6 +726,7 @@ class SecureUpdateTest < Test::Unit::TestCase
     visitor(:tiger)
     item = secure(Item) { items(:lake) }
     # bad wgroup
+    item[:inherit  ] = 0
     item[:wgroup_id] = 99999
     assert ! item.save , "Save fails"
     assert item.errors[:wgroup_id] , "Error on wgroup_id"
@@ -724,6 +735,7 @@ class SecureUpdateTest < Test::Unit::TestCase
   def test_update_rw_groups_for_publisher_not_in_new_wgroup
     visitor(:tiger)
     item = secure(Item) { items(:lake) }
+    item[:inherit  ] = 0
     item[:wgroup_id] = groups_id(:admin) # tiger is not in admin
     assert ! item.save , "Save fails"
     assert item.errors[:wgroup_id] , "Error on wgroup_id"
@@ -733,6 +745,7 @@ class SecureUpdateTest < Test::Unit::TestCase
     visitor(:tiger)
     item = secure(Item) { items(:lake) }
     # all ok
+    item[:inherit  ] = 0
     item[:rgroup_id] = 1
     item[:wgroup_id] = 4
     assert item.save , "Save succeeds"
@@ -761,6 +774,7 @@ class SecureUpdateTest < Test::Unit::TestCase
     assert item.can_manage? , "Can manage"
     
     # cannot change pgroup
+    item[:inherit  ] = 0
     item[:pgroup_id] = 1
     assert (item[:pgroup_id] != p.pgroup_id) , "Publish group is different from reference"
     assert ! item.save , "Save fails"
@@ -770,6 +784,7 @@ class SecureUpdateTest < Test::Unit::TestCase
   def test_can_man_cannot_change_rwgroups
     z, item, p = hello_ant
     # change groups
+    item[:inherit  ] = 0
     item[:rgroup_id] = 98984984 # anything
     item[:wgroup_id] = 98984984 # anything
     item[:pgroup_id] = p.pgroup_id # same as reference

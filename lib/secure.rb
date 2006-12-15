@@ -71,8 +71,8 @@ link://rwp_groups.png
 
 === Definitions :
 [inherit]  Defines how the groups propagate. If +inherit+ is set to '1', the item inherits rwp groups from it's reference. If
-           +inherit+ is set to '0', the item has custom rwp groups. When setting it to '-1', the groups are set to 0 and
-           +inherit+ is then set to '0' : this is a shortcut to make an item private.
+           +inherit+ is set to '0', the item has custom rwp groups. When set to '-1', the item is becomes private and all
+           rwp groups are set to '0'.
 [read]
     This means that the item can be seen.
 [write]
@@ -313,7 +313,7 @@ Just doing the above will filter all result according to the logged in user.
         # 3. validate +publish_group+ value (same as parent or ref.can_publish? and valid)
         # 4. validate +rw groups+ :
         #     a. if can_publish? : valid groups
-        #     b. else (can_manage as item is new) : rgroup_id = 0 => inherit, rgroup_id = -1 => private else error.
+        #     b. else (can_manage as item is new)
         # 5. validate the rest
         def secure_on_create
           self.class.logger.info "SECURE CALLBACK ON CREATE"
@@ -352,7 +352,6 @@ Just doing the above will filter all result according to the logged in user.
             self[:template ] = ref.template
           when -1
             # private
-            self[:inherit  ] = 0
             self[:rgroup_id] = 0
             self[:wgroup_id] = 0
             self[:pgroup_id] = 0
@@ -388,7 +387,7 @@ Just doing the above will filter all result according to the logged in user.
         # 4. parent/project changed ? verify 'publish access to new *and* old'
         # 5. validate +rw groups+ :
         #     a. if can_publish? : valid groups
-        #     b. else (can_manage as item is new) : rgroup_id = 0 => inherit, rgroup_id = -1 => private else error.
+        #     b. else (can_manage as item is new) 
         # 6. validate the rest
         def secure_on_update
           self.class.logger.info "SECURE CALLBACK ON UPDATE"
@@ -453,7 +452,6 @@ Just doing the above will filter all result according to the logged in user.
             curr_ref = self[:parent_id]
             ok = true
             while true
-              self.class.logger.info "REFS:#{ref_ids.inspect} CURR:#{curr_ref}"
               if ref_ids.include?(curr_ref) # detect loops
                 ok = false
                 break
@@ -481,13 +479,9 @@ Just doing the above will filter all result according to the logged in user.
             # set to 0 if nil or ''
             self[sym] = 0 if !self[sym] || self[sym] == ''
           end
-          if pgroup_id == 0 && pgroup_id != old.pgroup_id
+          if self[:inherit] == 0 && pgroup_id == 0 && pgroup_id != old.pgroup_id
             # if pgroup_id is set to 0 ==> make item private
             self[:inherit] = -1
-          elsif inherit == old.inherit && inherit == 1 && 
-               (rgroup_id != ref.rgroup_id || wgroup_id != ref.wgroup_id || pgroup_id != ref.pgroup_id || template != ref.template)
-            # set inherit if there is a change in rwg groups or template but inherit was not updated accordingly   
-            self[:inherit] = 0
           end
           case inherit
           when 1
@@ -497,15 +491,17 @@ Just doing the above will filter all result according to the logged in user.
             end
           when -1
             # make private, only if owner
-            errors.add('inherit', "you cannot change this") unless old.can_manage? || old.can_publish?
-            self[:inherit] = 0
-            [:rgroup_id, :wgroup_id, :pgroup_id].each do |sym|
-              self[sym] = 0
+            if old.can_manage? || (old.can_publish? && user_id == visitor_id)
+              [:rgroup_id, :wgroup_id, :pgroup_id].each do |sym|
+                self[sym] = 0
+              end
+            else
+              errors.add('inherit', "you cannot change this") 
             end
           when 0
             if old.can_publish?
               if private?
-                # ok (all gruops are 0)
+                # ok (all groups are 0)
               else
                 if rgroup_id != 0 && rgroup_id != old[:rgroup_id] && !visitor_groups.include?(rgroup_id)
                   errors.add('rgroup_id', "unknown group")
@@ -562,6 +558,22 @@ Just doing the above will filter all result according to the logged in user.
           @visitor_groups || [1]
         end
         
+
+        # Reference for inherited rights
+        def ref
+          if !@ref || (@ref.id != self[ref_field])
+            # no ref or ref changed
+            @ref = secure_write(ref_class) { ref_class.find(self[ref_field]) }
+          end
+          if self.new_record? || (:id == ref_field) || (self[:id] != @ref[:id] )
+            # reference is accepted only if it is not the same as self or self is root (ref_field==:id set by Item)
+            @ref.freeze
+          else
+            nil
+          end
+        rescue ActiveRecord::RecordNotFound
+          nil
+        end
         
         protected
         
@@ -600,22 +612,6 @@ Just doing the above will filter all result according to the logged in user.
               nil
             end
           end
-        end
-
-        # Reference for inherited rights
-        def ref
-          if !@ref || (@ref.id != self[ref_field])
-            # no ref or ref changed
-            @ref = secure_write(ref_class) { ref_class.find(self[ref_field]) }
-          end
-          if self.new_record? || (:id == ref_field) || (self[:id] != @ref[:id] )
-            # reference is accepted only if it is not the same as self or self is root (ref_field==:id set by Item)
-            @ref
-          else
-            nil
-          end
-        rescue ActiveRecord::RecordNotFound
-          nil
         end
         
         # List of elements using the current element as a reference. Used to update

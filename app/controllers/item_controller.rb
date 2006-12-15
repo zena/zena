@@ -43,18 +43,7 @@ class ItemController < ApplicationController
   def groups
     attrs = params[:item]
     @item = secure(Item) { Item.find(params[:id]) }
-    if attrs[:inherit]
-      @item[:inherit] = attrs[:inherit]
-    end
-    if attrs[:rgroup_id]
-      @item[:rgroup_id] = attrs[:rgroup_id]
-    end
-    if attrs[:wgroup_id]
-      @item[:wgroup_id] = attrs[:wgroup_id]
-    end
-    if attrs[:pgroup_id]
-      @item[:pgroup_id] = attrs[:pgroup_id]
-    end
+    @item.update_attributes(params[:item])
     @item.save
   end
 

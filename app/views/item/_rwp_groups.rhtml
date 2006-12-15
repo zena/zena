@@ -1,13 +1,17 @@
+<% if @item.can_publish?
+  inherit_modes = [[trans('inherit'),1],[trans('custom'),0],[trans('private'),-1]]
+else
+  inherit_modes = [[trans('inherit'),1],[trans('private'),-1]]
+end 
+groups_list = [0] + form_groups.map{|g| g[1]} %>
 <%= form_remote_tag(:with=>'groups', :url=>{:controller=>'item', :action=>'groups', :id=>@item[:id], :rnd=>rnd}) %>
   <li id='groups_errors' class='errors'></li>
-<% if form_groups && form_groups.size > 1 && !@item.private? -%>    
-  <li><label><%= trans('publishers') %></label><%= select('item', 'pgroup_id', form_groups, { :include_blank => true }) %></li>
-  <li><label><%= trans('writers') %></label><%= select('item', 'wgroup_id',    form_groups, { :include_blank => true }) %></li>
-  <li><label><%= trans('readers') %></label><%= select('item', 'rgroup_id',    form_groups, { :include_blank => true }) %></li>
-<% elsif @item.private? -%>
-  <li><label><%= trans('rights') %></label><%= select('item', 'inherit', [[trans('private'),-1],[trans('inherit'),1]]) %></li>
-<% else -%>
-  <li><label><%= trans('rights') %></label><%= select('item', 'inherit', [[trans('inherit'),1],[trans('private'),-1]]) %></li>
-<% end -%>  
+  <li><%= select('item', 'inherit', inherit_modes, {}, {:onchange=>"Zena.update_rwp(this.value,'#{groups_list.index(@item.ref[:rgroup_id])}','#{groups_list.index(@item.ref[:wgroup_id])}','#{groups_list.index(@item.ref[:pgroup_id])}', '#{form_templates.index(@item.ref[:template])}'); return false;"}) %></li>
+  <% if @item.can_publish? -%>
+  <li><label><%= trans('publishers') %></label><%= select('item', 'pgroup_id', form_groups, { :include_blank => true }, {:disabled=>(@item[:inherit] != 0)}) %></li>
+  <% end -%>
+  <li><label><%= trans('writers') %></label><%= select('item', 'wgroup_id',    form_groups, { :include_blank => true }, {:disabled=>(@item[:inherit] != 0)}) %></li>
+  <li><label><%= trans('readers') %></label><%= select('item', 'rgroup_id',    form_groups, { :include_blank => true }, {:disabled=>(@item[:inherit] != 0)}) %></li>
+  <li><label><%= trans('template') %></label><%= select('item', 'template',    form_templates,{}, {:disabled=>(@item[:inherit] != 0)}) %></li>
   <li class='submit'><%= submit_tag transb('change') %></li>
 <%= end_form_tag %>

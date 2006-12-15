@@ -57,6 +57,39 @@ Zena.open_cal = function(e, url) {
  	return false;
 }
 
+Zena.update_rwp = function(inherit_val,r_index,w_index,p_index,t_index) {
+	if (inherit_val == "-1") {
+		$("item_rgroup_id").selectedIndex = 0;
+		$("item_wgroup_id").selectedIndex = 0;
+		$("item_rgroup_id").disabled = true;
+		$("item_wgroup_id").disabled = true;
+		$("item_template" ).disabled = false;
+		if (p_index != '') {
+			$("item_pgroup_id").selectedIndex = 0;
+			$("item_pgroup_id").disabled = true;
+		}
+	} else if (inherit_val == "1") {
+		$("item_rgroup_id").selectedIndex = r_index;
+		$("item_wgroup_id").selectedIndex = w_index;
+		$("item_template" ).selectedIndex = t_index;
+		$("item_rgroup_id").disabled = true;
+		$("item_wgroup_id").disabled = true;
+		$("item_template" ).disabled = true;
+		if (p_index != '') {
+			$("item_pgroup_id").selectedIndex = p_index;
+			$("item_pgroup_id").disabled = true;
+		}
+	} else {
+		$("item_rgroup_id").disabled = false;
+		$("item_wgroup_id").disabled = false;
+		$("item_pgroup_id").disabled = false;
+		$("item_template" ).disabled = false;
+		if (p_index != '') {
+			$("item_pgroup_id").disabled = false;
+		}
+	}
+}
+
 /* fade flashes automatically */
 Event.observe(window, 'load', function() { 
   $A(document.getElementsByClassName('flash')).each(function(o) {

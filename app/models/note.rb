@@ -4,7 +4,6 @@ TODO
 class Note < Item
   link :calendars, :class_name=>'Project'
   before_validation :set_dates
-  validate :parent_valid
   class << self
     def parent_class
       Project
@@ -32,9 +31,5 @@ class Note < Item
   def set_dates
     self[:log_at]   ||= Time.now
     self[:event_at] ||= self[:log_at]
-  end
-  
-  def parent_valid
-    errors.add("parent_id", "invalid parent") unless parent.kind_of?(Project)
   end
 end

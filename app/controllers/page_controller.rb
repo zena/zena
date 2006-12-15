@@ -2,7 +2,6 @@ class PageController < ApplicationController
   helper MainHelper
 
   def create
-    puts params.inspect
     klass = params[:page][:klass] || 'Page'
     # FIXME: [SECURITY] is there a better way to find the class without using eval ?
     begin

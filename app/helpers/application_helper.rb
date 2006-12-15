@@ -476,6 +476,19 @@ module ApplicationHelper
   end
   
   #TODO: test
+  # Return the list of possible templates
+  def form_templates
+    return @form_templates if @form_templates
+    @form_templates = []
+    Dir.foreach(File.join(RAILS_ROOT, 'app', 'views', 'templates')) do |file|
+      next unless file =~ /^([a-zA-Z0-9]+)\.rhtml$/
+      next if ['index', 'not_found'].include?($1)
+      @form_templates << $1
+    end
+    @form_templates
+  end
+  
+  #TODO: test
   def site_tree(obj=nil)
     skip  = obj ? obj[:id] : nil
     base  = secure(Item) { Item.find(ZENA_ENV[:root_id]) }

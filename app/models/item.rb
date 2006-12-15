@@ -122,7 +122,7 @@ class Item < ActiveRecord::Base
       self[:project_id] = parent[:project_id]
     end
     # make sure parent is not a 'Note'
-    errors.add("parent_id", "invalid parent") unless parent.kind_of?(self.class.parent_class)
+    errors.add("parent_id", "invalid parent") unless parent.kind_of?(self.class.parent_class) || (self[:id] == ZENA_ENV[:root_id] && self[:parent_id] == nil)
     # set name from title if name not set yet
     self.name = version[:title] unless self[:name]
     errors.add("name", "can't be blank") unless self[:name] and self[:name] != ""
@@ -155,7 +155,7 @@ class Item < ActiveRecord::Base
     end
     
     # make sure parent is valid
-    errors.add("parent_id", "invalid parent") unless parent.kind_of?(self.class.parent_class)
+    errors.add("parent_id", "invalid parent") unless parent.kind_of?(self.class.parent_class) || (self[:id] == ZENA_ENV[:root_id] && self[:parent_id] == nil)
     
     self.name = version[:title] unless self[:name]
     errors.add("name", "can't be blank") unless self[:name] and self[:name] != ""
