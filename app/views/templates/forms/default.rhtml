@@ -1,19 +1,7 @@
 <div id='loader' class='hidden'><img src='/images/ajax-loader.gif'/> <%= trans("uploading, please wait...") %></div>
 <div id='edit' class='popup_action'>
   <%= error_messages_for "item" %>
-  <p class='readers'>
-  <%= if @item.private? 
-      trans('img_private')
-    elsif [@item.rgroup_id,@item.pgroup_id,@item.user_id].include?(1)
-      trans('img_public')
-    else
-      names = []
-      names |= [@item.rgroup.name] if @item.rgroup
-      names |= [@item.pgroup.name] if @item.pgroup
-      names << @item.user.initials
-      trans('readable by') + ' ' + names.join(', ')
-      end
-  %></p>
+  <p class='readers'><%= readers_for(@item) %></p>
   <table>
     <tr>
       <td class='edit' rowspan='3'>

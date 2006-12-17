@@ -1,19 +1,18 @@
 <% if @item.can_visible?
   inherit_modes = [[trans('inherit'),1],[trans('custom'),0],[trans('private'),-1]]
-elsif @item.max_status < Zena::Status[:pub]
+elsif @item.can_manage? && @item.max_status < Zena::Status[:pub]
   # nothing published yet, item can be reverted to 'inherit' or set 'private' without publish rights
   inherit_modes = [[trans('inherit'),1],[trans('private'),-1]]
 else
   inherit_modes = nil
 end 
 groups_list = [0] + form_groups.map{|g| g[1]} %>
+<li class='readers'><%= readers_for(@item) %></li>
 <% if inherit_modes %>
 <%= form_remote_tag(:with=>'groups', :url=>{:controller=>'item', :action=>'groups', :id=>@item[:id], :rnd=>rnd}) %>
   <li id='groups_errors' class='errors'></li>
   <li><%= select('item', 'inherit', inherit_modes, {}, {:onchange=>"Zena.update_rwp(this.value,'#{groups_list.index(@item.ref[:rgroup_id])}','#{groups_list.index(@item.ref[:wgroup_id])}','#{groups_list.index(@item.ref[:pgroup_id])}', '#{form_templates.index(@item.ref[:template])}'); return false;"}) %></li>
-  <% if @item.can_publish? -%>
   <li><label><%= trans('publishers') %></label><%= select('item', 'pgroup_id', form_groups, { :include_blank => true }, {:disabled=>(@item[:inherit] != 0)}) %></li>
-  <% end -%>
   <li><label><%= trans('writers') %></label><%= select('item', 'wgroup_id',    form_groups, { :include_blank => true }, {:disabled=>(@item[:inherit] != 0)}) %></li>
   <li><label><%= trans('readers') %></label><%= select('item', 'rgroup_id',    form_groups, { :include_blank => true }, {:disabled=>(@item[:inherit] != 0)}) %></li>
   <li><label><%= trans('template') %></label><%= select('item', 'template',    form_templates,{}, {:disabled=>(@item[:inherit] != 0)}) %></li>

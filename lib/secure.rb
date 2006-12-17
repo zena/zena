@@ -286,7 +286,8 @@ Just doing the above will filter all result according to the logged in user.
         # * members of +publish_group+
         def can_visible?(uid=visitor_id, ugps=visitor_groups)
           ( uid == 2 ) ||
-          ( ugps.include?(pgroup_id) )
+          ( ugps.include?(pgroup_id) ) ||
+          ( private? && ugps.include?(ref.pgroup_id))
         end
   
         # people who can manage:
@@ -300,7 +301,7 @@ Just doing the above will filter all result according to the logged in user.
         
         # can change position, name, rwp groups, etc
         def can_drive?
-          can_visible? || can_manage?
+          can_manage? || can_visible?
         end
         
         def secure_before_validation
@@ -483,7 +484,7 @@ Just doing the above will filter all result according to the logged in user.
             # set to 0 if nil or ''
             self[sym] = 0 if !self[sym] || self[sym] == ''
           end
-          if self[:inherit] == 0 && pgroup_id == 0 && pgroup_id != old.pgroup_id
+          if self[:inherit] == 0 && pgroup_id == 0
             # if pgroup_id is set to 0 ==> make item private
             self[:inherit] = -1
           end  

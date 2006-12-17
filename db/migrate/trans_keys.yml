@@ -253,3 +253,6 @@ trans_keys:
   
   - id:   85
     key:  'img_public'
+  
+  - id:   86
+    key:  'img_custom_inherit'

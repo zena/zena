@@ -831,3 +831,9 @@
   key_id:    85
   lang:      en
   value:     "<img src='/images/user_pub.png'/>"
+
+157:
+  id:        157
+  key_id:    86
+  lang:      en
+  value:     "<img src='/images/cog.png'/>"

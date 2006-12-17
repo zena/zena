@@ -1,17 +1,4 @@
 <div class='popup_action' id='drive'>
-  <p class='readers'>
-  <%= if @item.private? 
-      trans('img_private')
-    elsif [@item.rgroup_id,@item.pgroup_id,@item.user_id].include?(1)
-      trans('img_public')
-    else
-      names = []
-      names |= [@item.rgroup.name] if @item.rgroup
-      names |= [@item.pgroup.name] if @item.pgroup
-      names << @item.user.initials
-      trans('readable by') + ' ' + names.join(', ')
-    end
-  %></p>
   <table>
     <tr>
       <td rowspan='3' class='edit'>

@@ -507,6 +507,23 @@ module ApplicationHelper
     return [] unless tree
     tree.map {|p| ["  "*p[0] + p[1][:name], p[1][:id] ]}
   end
+  
+  #TODO: test
+  def readers_for(obj=@item)
+    readers = if @item.private? 
+      trans('img_private')
+    elsif [@item.rgroup_id,@item.pgroup_id,@item.user_id].include?(1)
+      trans('img_public')
+    else
+      names = []
+      names |= [@item.rgroup.name] if @item.rgroup
+      names |= [@item.pgroup.name] if @item.pgroup
+      names << @item.user.initials
+      trans('readable by') + ' ' + names.join(', ')
+    end
+    custom = obj.inherit == 0 ? trans('img_custom_inherit') : ''
+    "#{custom} #{readers}"
+  end
   private
   
   def calendar_get_options(size, source, method)
