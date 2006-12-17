@@ -301,7 +301,7 @@ table.admin_ug td:first-child { border-left: 1px solid #333; }
 #site_tree a  { color:inherit;}
 #site_tree .readers { position:absolute; left:20px; }
 #site_tree .readers .custom { position:absolute; left:-18px; }
-#site_tree .kpath { position:absolute; left:10em; }
+#site_tree .class { position:absolute; left:10em; }
 #site_tree .spage    { color: #263063;}
 #site_tree .sproject { color: #5D2422; font-weight:bold; }
 #site_tree .scontact { color: #366333;}
