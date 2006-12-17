@@ -1,0 +1,13 @@
+<% @depth ||=0; @depth += 1 -%>
+<li><%= render :partial=>'main/branch_title', :locals=>{:branch=>branch} %>
+    <% if branch.children != [] -%>
+      <% if @depth < 4 %>
+        <ul>
+        <%= render :partial=>'main/branch', :collection=>branch.children %>
+        </ul>
+      <% else -%>
+        <ul><li>...</li></ul>
+      <% end -%>
+    <% end -%>
+</li>
+<% @depth -= 1 -%>

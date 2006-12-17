@@ -510,18 +510,18 @@ module ApplicationHelper
   
   #TODO: test
   def readers_for(obj=@item)
-    readers = if @item.private? 
+    readers = if obj.private? 
       trans('img_private')
-    elsif [@item.rgroup_id,@item.pgroup_id,@item.user_id].include?(1)
+    elsif [obj.rgroup_id,obj.pgroup_id,obj.user_id].include?(1)
       trans('img_public')
     else
       names = []
-      names |= [@item.rgroup.name] if @item.rgroup
-      names |= [@item.pgroup.name] if @item.pgroup
-      names << @item.user.initials
-      trans('readable by') + ' ' + names.join(', ')
+      names |= [obj.rgroup.name.limit(4)] if obj.rgroup
+      names |= [obj.pgroup.name.limit(4)] if obj.pgroup
+      names << obj.user.initials
+      names.join(', ')
     end
-    custom = obj.inherit == 0 ? trans('img_custom_inherit') : ''
+    custom = obj.inherit != 1 ? "<span class='custom'>#{trans('img_custom_inherit')}</span>" : ''
     "#{custom} #{readers}"
   end
   private

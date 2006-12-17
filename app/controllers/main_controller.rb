@@ -25,6 +25,15 @@ class MainController < ApplicationController
     render_and_cache 'not_found'
   end
   
+  # TODO: test
+  def site_tree
+    @item = secure(Item) { Item.find(params[:id]) }
+    render
+    if !session[:user]
+      cache_page
+    end
+  end
+  
   def redirect
     req = request.parameters
     req[:action] = 'show'

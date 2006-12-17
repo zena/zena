@@ -1,0 +1,19 @@
+<% 
+parents = []
+parent  = site_tree.parent
+while parent
+  parents << parent
+  parent = parent.parent 
+end
+parents.reverse_each do |item| -%>
+  <li><%= render :partial=>'main/branch_title', :locals=>{:branch=>item} %>
+  <ul>
+<% end -%>
+  <li><%= render :partial=>'main/branch_title', :locals=>{:branch=>site_tree} %>
+    <ul class='main'>
+      <%= render :partial=>'main/branch', :collection=>site_tree.children %>
+    </ul>
+  </li>
+<% parents.each do -%>
+  </ul></li>
+<% end -%>

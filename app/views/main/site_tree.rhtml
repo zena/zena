@@ -1,0 +1,42 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+<head>
+  <title><%= @item.v_title %></title>
+  <meta http-equiv="Content-type" content="text/html; charset=utf-8" />
+  <meta http-equiv="Content-Language" content="fr-fr" />
+  <%= stylesheet_link_tag( 'zen' ) %>
+  <%= javascript_include_tag 'prototype', 'effects', 'zena' %>
+  <%= uses_calendar %>
+</head>
+
+<body <%= @su %>>
+  <div id="navbar">
+    <%= lang_links   %>
+    <%= path_links   %>
+    <%= login_link   %>
+    <%= visitor_link %>
+  </div>
+
+  <%= logo Time.now  %>
+  <%= flash_messages %>
+
+  <div id='left'>
+  </div>
+  <div id='main'>
+    
+    <div id='content'>
+      <ul id='site_tree'>
+        <%= render :partial=>'main/site_tree', :collection=>[@item] %>
+      </ul>
+    </div>
+
+    <div id="right">
+      <% if @item.kind_of?(Document) -%>
+      notes list
+      <% end -%>
+    </div>
+  </div>
+</body>
+</html>

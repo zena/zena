@@ -276,7 +276,7 @@ table.admin_ug { width:600px; }
 
 #admin_users  table.admin_ug {background:#B3CC92}  
 #admin_groups table.admin_ug {background:#91B9AE}
-.admin_ug td { font-family:monaco,monospace; padding: 3px; font-size:0.9em; height:18px; border-right:1px solid #333;
+.admin_ug td { font-family:Monaco,monospace; padding: 3px; font-size:0.9em; height:18px; border-right:1px solid #333;
   border-bottom:1px solid #333; }
 table.admin_ug td:first-child { border-left: 1px solid #333; }
 .admin_ug
@@ -294,6 +294,21 @@ table.admin_ug td:first-child { border-left: 1px solid #333; }
 .admin_ug td.add_ug table { border: 0;}
 .admin_ug td.add_ug table td { border: 0; font-size:inherit; padding: 2px; }
 
+/* site_tree */
+#site_tree { position:relative; font-size:0.9em; font-family:Arial; padding-left:15em;}
+#site_tree ul { margin-left:1em;}
+#site_tree li { line-height: 19px;}
+#site_tree a  { color:inherit;}
+#site_tree .readers { position:absolute; left:20px; }
+#site_tree .readers .custom { position:absolute; left:-18px; }
+#site_tree .kpath { position:absolute; left:10em; }
+#site_tree .spage    { color: #263063;}
+#site_tree .sproject { color: #5D2422; font-weight:bold; }
+#site_tree .scontact { color: #366333;}
+#site_tree .stag     { color: #4357A9;}
+#site_tree .sdocument{ color: #753653;}
+#site_tree .simage   { color: #97298B;}
+#site_tree .main { border-left:2px solid grey; margin-left:1px; padding-left:1.2em; }
 /* DEBUG CSS */
 table.border { border:1px solid grey; border-spacing:0; font-size:1em; margin:15px 0 10px 15px;}
 table.border td {padding:3px; border:1px solid grey;}
