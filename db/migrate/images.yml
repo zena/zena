@@ -113,7 +113,7 @@ trans_values:
 
   - key_id:    83
     lang:      en
-    value:     "<img src='/images/key.png'/>"
+    value:     "<img src='/images/lock.png'/>"
 
   - key_id:    84
     lang:      en

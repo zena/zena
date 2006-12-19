@@ -39,8 +39,9 @@
     <div class="content" id='content'>
       <%= show(@item, :v_summary) %>
       <%= show(@item, :v_text   ) %>
-      
-      <%= render :partial=>'comment/list' %>
+      <div id='comments'>
+        <%= render :partial=>'comment/list' %>
+      </div>
     </div>
 
     <div id="right">

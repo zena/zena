@@ -1,17 +1,18 @@
-body.forum { background:#ff9; font-family: Arial, Helvetica, sans-serif; }
-h3.forum_titre {}
+.comment { width:100%; font-size:0.9em;  font-family: Arial, Helvetica, sans-serif;}
+.comment li { margin-top:12px; }
+.comment li:first-child { margin-top:0;}
+.comment .body      { background:#eee; border:1px solid #888; border-top-width:0;}
+.comment .sub .body { border:0; border-left: 1px dashed #888; }
+.comment .sub li { margin-top:8px; }
+.comment .sub li:first-child { margin-top:0;}
+.comment li .sub .header { border-right:0;}
+.comment .text { padding:0.4em 0.4em 0 10px; }
+.comment .text p { margin:0; padding:0 0 0.6em 0; }
+.comment .sub  { padding:4px 0 0 10px; }
 
-table.forum { width:100%; border-spacing:0px; font-size:10pt; }
-table.forum p.spip {     padding-left:0px; }
-td.forum_titre { padding:2px; background:#ddd; font-size:9pt; border:1px solid #888; font-weight:bold; color:#522; }
-td.forum_date { padding:2px; background:#eee; width:140px; font-size:7pt; color:#333; text-align:left; border-width:1px 0px 1px 0px; border-style:solid; border-color:#888; }
-td.forum_date a { color:#333; }
-td.forum_rep { background:#eee; width:60px; font-size:7pt; color:#333; text-align:center; border-width:1px 1px 1px 0px; border-style:solid; border-color:#888; border-left:1px dashed #999; }
-td.forum_texte { padding:5px; padding-left:10px; background:#eee; border-width:0px 1px 1px 1px; border-style:solid; border-color:#888; }
-td.forum_texte2 { padding:5px; padding-left:10px; background:#eee; border-left:1px dashed #aaa; }
-td.forum_sous { background:#eee; padding-left:15px; padding-right:2px; padding-bottom:2px; padding-top:2px; border-width:0px 1px 1px 1px; border-style:solid; border-color:#888; }
-td.forum_spacer { height:10px; }
-td.forum_hspacer { width:5px; }
-div.spip_encadrer { font-size:9pt; }
-div.forum_site a { color:#44f; text-decoration:none; }
-
+.comment .header         { background:#ddd; border:1px solid #888; border-left:1px solid grey; padding:3px; }
+.comment .header .sign  { color:#522; font-weight:bold;}
+.comment .header .date, .comment .header .answer { border-left:1px dotted #888; padding-left:3px; color:#555;}
+.comment .header .title  { position:relative; left:100px; font-style:italic; color:#555;}
+.comment .header .date   { float:right; width:100px; text-align:center; }
+.comment .header .answer { float:right; width:100px; text-align:center; }
