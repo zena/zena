@@ -1,13 +1,11 @@
 <li><div class='header'>
-  <span class='sign'>author</span>
-  <span class='title'>dormir debout</span>
-  <span class='answer'>answer</span>
-  <span class='date'>13.06.2006</span></div>
+    <span class='sign'><%= li.author.fullname %></span>
+    <span class='title'><%= li.title %></span>
+    <span class='answer'>answer</span>
+    <span class='date'><%= long_date(li.created_at) %></span>
+  </div>
   <div class='body'>
-    <div class='text'><p>Text text text text text text. Text text text text text text text text text text text text. Text tt taatei dksowi juiero urosa 8'000.- asdf <b>la</b> comme ausid o <i>asdfa</i></p>
-<p>Blah bhbos suirow ,e ruosd,. as-dfiosadf </p>
-    </div>
-    <ul class='sub'>
-    </ul>
+    <div class='text'><%= zazen(li.text) %></div>
+    <ul class='sub'><%= render :partial=>'comment/li', :collection=>li.replies %></ul>
   </div>
 </li>

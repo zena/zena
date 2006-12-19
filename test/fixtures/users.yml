@@ -2,7 +2,8 @@
 
 anon:
   id:         1
-  first_name: anonymous
+  first_name: Anonymous
+  name:       User
 
 su:
   id:         2

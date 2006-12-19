@@ -350,7 +350,7 @@ module Zena
               lang = visitor_lang.gsub(/[^\w]/,'')
               @version =  Version.find(:first,
                             :select=>"*, (lang = '#{lang}') as lang_ok",
-                            :conditions=>[ "((status >= ? AND user_id = ? AND lang = ?) OR status > ?) and item_id = ?", 
+                            :conditions=>[ "((status >= ? AND user_id = ? AND lang = ?) OR status > ?) AND item_id = ?", 
                                             Zena::Status[:red], visitor_id, lang, Zena::Status[:red], self[:id] ],
                             :order=>"lang_ok DESC, status ASC ")
               if !@version

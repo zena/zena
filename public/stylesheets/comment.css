@@ -10,9 +10,9 @@
 .comment .text p { margin:0; padding:0 0 0.6em 0; }
 .comment .sub  { padding:4px 0 0 10px; }
 
-.comment .header         { background:#ddd; border:1px solid #888; border-left:1px solid grey; padding:3px; }
+.comment .header         { position:relative; background:#ddd; border:1px solid #888; border-left:1px solid grey; padding:3px; }
 .comment .header .sign  { color:#522; font-weight:bold;}
 .comment .header .date, .comment .header .answer { border-left:1px dotted #888; padding-left:3px; color:#555;}
-.comment .header .title  { position:relative; left:100px; font-style:italic; color:#555;}
+.comment .header .title  { position:absolute; left:200px; font-style:italic; color:#555;}
 .comment .header .date   { float:right; width:100px; text-align:center; }
 .comment .header .answer { float:right; width:100px; text-align:center; }

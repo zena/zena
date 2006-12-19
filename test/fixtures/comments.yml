@@ -1,0 +1,59 @@
+tiger_says_inside:
+  id:            1
+  discussion_id: 1
+  created_at:    '2006-12-19 22:20'
+  updated_at:    '2006-12-19 22:20'
+  reply_to:
+  user_id:       4
+  title:         'I agree'
+  text:          "We could not do better then this. I *really* mean that. Look at the \"\":20."
+  
+ant_says_inside:
+  id:            2
+  discussion_id: 1
+  created_at:    '2006-12-19 22:23'
+  updated_at:    '2006-12-19 22:23'
+  reply_to:
+  user_id:       3
+  title:         'I think this is bad'
+  text:          "I really don't like the way we work."
+
+lion_says_inside:
+  id:            3
+  discussion_id: 1
+  created_at:    '2006-12-19 22:26'
+  updated_at:    '2006-12-19 22:26'
+  reply_to:
+  user_id:       5
+  title:         'OK for me'
+  text:          "It seems perfect to me."
+
+tiger_reply_inside:
+  id:            4
+  discussion_id: 1
+  created_at:    '2006-12-19 23:30'
+  updated_at:    '2006-12-19 23:30'
+  reply_to:      2
+  user_id:       4
+  title:         'Why ?'
+  text:          "We haven't had any comlaint in months... What do you mean ?"
+
+public_says_in_en:
+  id:            5
+  discussion_id: 2
+  created_at:    '2006-12-19 23:37'
+  updated_at:    '2006-12-19 23:37'
+  reply_to:
+  user_id:       1
+  title:         'Nice site'
+  text:          "Buy casino dildo, enlarge get rich money hell"
+
+ant_says_in_fr:
+  id:            6
+  discussion_id: 3
+  created_at:    '2006-12-19 23:35'
+  updated_at:    '2006-12-19 23:35'
+  reply_to:
+  user_id:       3
+  title:         'Travailleurs, unissez-vous !'
+  text:          "Travailleurs de tous les horizons, unissez-vous pour lutter contre l'oppression capitaliste. Rejoignez notre groupe !"

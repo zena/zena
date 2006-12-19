@@ -16,9 +16,9 @@ ActiveRecord::Schema.define(:version => 4) do
   create_table "comments", :force => true do |t|
     t.column "created_at", :datetime
     t.column "updated_at", :datetime
-    t.column "version_id", :integer, :default => 0, :null => false
-    t.column "version_status", :integer, :default => 0
-    t.column "user_id", :integer, :default => 0, :null => false
+    t.column "discussion_id", :integer
+    t.column "reply_to", :integer
+    t.column "user_id", :integer
     t.column "title", :string, :limit => 200, :default => "", :null => false
     t.column "text", :text, :default => "", :null => false
   end
@@ -35,6 +35,13 @@ ActiveRecord::Schema.define(:version => 4) do
     t.column "mobile", :string, :limit => 60, :default => "", :null => false
     t.column "email", :string, :limit => 60, :default => "", :null => false
     t.column "birthday", :date
+  end
+
+  create_table "discussions", :force => true do |t|
+    t.column "created_at", :datetime
+    t.column "item_id", :integer
+    t.column "status", :integer
+    t.column "lang", :string, :limit => 10, :default => "", :null => false
   end
 
   create_table "document_contents", :force => true do |t|
