@@ -1,8 +1,8 @@
 <li><div class='header'>
     <span class='sign'><%= li.author.fullname %></span>
     <span class='title'><%= li.title %></span>
-    <span class='answer'>answer</span>
-    <span class='date'><%= long_date(li.created_at) %></span>
+    <span class='reply'><a href=''>reply</a></span>
+    <span class='date'><%= long_date(li.created_at) + " " + short_time(li.created_at) %></span>
   </div>
   <div class='body'>
     <div class='text'><%= zazen(li.text) %></div>
