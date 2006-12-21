@@ -112,7 +112,13 @@ module MainHelper
       end
     end
   end
-
+  
+  # TODO: test
+  def css_edit
+    "<div id='css'></div><a href='#' onClick=\"editor=window.open('" + 
+    url_for(:controller=>'version', :action=>'css_edit', :rnd=>rnd) + 
+    "', 'editor', 'location=0,width=500,height=600,resizable=1');return false;\">" + transb('css edit') + "</a>"
+  end
   # Create the traduction list for the current item
   def traductions(obj=@item)
     trad_list = []

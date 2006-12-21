@@ -1,0 +1,10 @@
+<div id='loader' class='hidden'><img src='/images/ajax-loader.gif'/> <%= trans("uploading, please wait...") %></div>
+<div id='edit' class='popup_action'>
+  <%= start_form_tag({ :action => "save", :controller=>'version' }, :id => "css_form" ) %>
+  <label>CSS</label>
+  <textarea id="css" name="css" rows="20"></textarea>
+  <%= end_form_tag %>
+<%= javascript_start %>
+new Form.Observer('css_form', 2, function(element,value){ opener.Zena.css_preview(element,value)});
+<%= javascript_end %>
+</div>

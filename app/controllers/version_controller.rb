@@ -46,6 +46,16 @@ class VersionController < ApplicationController
     page_not_found
   end
   
+  # These are helpers used when creating the css for the site. They have no link with the database
+  def css_edit
+    render :layout=>'popup'
+  end
+  
+  def css_preview
+    @css = params[:css]
+  end
+  
+  
   def save
     params[:item].delete(:preview_id)
     # use current context.

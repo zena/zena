@@ -12,6 +12,10 @@ Zena.version_preview = function(version_id) {
 	new Ajax.Request('/z/version/preview/' + version_id, {asynchronous:true, evalScripts:true})
 }
 
+// css preview
+Zena.css_preview = function(element, value) {
+	new Ajax.Request('/z/version/css_preview', {asynchronous:true, evalScripts:true, parameters:value})
+}
 
 // preview discussion.
 Zena.discussion_show = function(discussion_id) {

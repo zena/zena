@@ -1,11 +1,11 @@
 <li id='comment<%= li[:id] %>'><div class='header'>
-    <span class='sign'><%= li.author_name || li.author.fullname %></span>
-    <span class='title'><%= li.title %></span>
     <span class='reply'>
-    <%= link_to_remote(transb('reply'),:with=>'comments_list', :url=>{:controller=>'comment', :action=>'reply_to', :id=>li[:id] }) if @item.can_comment? && li[:user_id] != user_id %>
-    <%= link_to_remote(transb('edit'), :with=>'comments_list', :url=>{:controller=>'comment', :action=>'edit', :id=>li[:id] }) if @item.can_comment? && li[:user_id] == user_id %>    
+    <%= link_to_remote(transb('reply'), :url=>{:controller=>'comment', :action=>'reply_to', :id=>li[:id] }) if @item.can_comment? && li[:user_id] != user_id %>
+    <%= link_to_remote(transb('edit'),  :url=>{:controller=>'comment', :action=>'edit', :id=>li[:id] }) if @item.can_comment? && li[:user_id] == user_id %>
     </span>
     <span class='date'><%= long_date(li.created_at) + " " + short_time(li.created_at) %></span>
+    <span class='sign'><%= li.author_name || li.author.fullname %></span>
+    <span class='title'><%= li.title %></span>
   </div>
   <div class='body'>
     <div class='text'><%= zazen(li.text) %></div>

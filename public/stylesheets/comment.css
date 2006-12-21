@@ -1,7 +1,7 @@
 .comment { width:100%; font-size:0.9em;  font-family: Arial, Helvetica, sans-serif;}
 .comment li { margin-top:12px; }
 .comment li:first-child { margin-top:0;}
-.comment .body      { background:#EFEEDE; border:1px solid #888; border-top-width:0;}
+.comment .body      { background:#EEF6F9; border:1px solid #888; border-top-width:0;}
 .comment .sub .body { border:0; border-left: 1px dashed #888; }
 .comment .sub form .body { border:0; border-left: 1px solid #888; }
 .comment .sub li { margin-top:8px; }
@@ -12,11 +12,11 @@
 .comment .text p:first-child { margin-top:0;}
 .comment .sub  { padding:4px 0 0 10px; clear:both; }
 
-.comment .header         { position:relative; background:#EEECD3; border:1px solid #888; border-left:1px solid grey; padding:3px; font-size:0.9em;}
+.comment .header         { position:relative; background:#DCE4E7; border:1px solid #888; border-left:1px solid grey; padding:3px; font-size:0.9em;}
 .comment .header .sign  {  font-weight:bold;}
 .comment .header .date, .comment .header .reply { border-left:1px dotted #888; padding-left:3px; color:#555;}
 .comment .header .title  { position:absolute; left:200px; font-style:italic; color:#555;}
-.comment .header .date   { float:right; width:105px; text-align:center; padding-top:1px; font-size:0.8em }
+.comment .header .date   { float:right; width:105px; text-align:center; padding-top:1px; font-size:100%; }
 .comment .header .reply  { float:right; width:70px; text-align:center; }
 .comment .header .reply a { color:#3E4B22; }
 .comment .header .reply a:hover { color:#0080D4; }
