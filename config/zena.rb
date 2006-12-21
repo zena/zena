@@ -5,6 +5,7 @@ ZENA_ENV = {
   :languages => ['en', 'fr', 'es'],
  # :news_collector_id => 24,
  # :menu_tag_id => 23,
+  :moderate_public_comments => false,
   :site_name => 'zena',
   :root_id => 1,
   :authorize => false,

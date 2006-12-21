@@ -142,7 +142,7 @@ module MainHelper
       <form>
         <input type="button" value="Start CSS" onClick="timedCount()">
         <input type="button" value="Stop  CSS" onClick="stopCount()">
-        <span id='css_counter'></span>
+        <span id='css_counter'></span> <span>#{css_file}</span>
       </form>
     </div>
     

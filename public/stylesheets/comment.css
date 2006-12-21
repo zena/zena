@@ -20,6 +20,7 @@
 .comment .header .reply  { float:right; width:70px; text-align:center; }
 .comment .header .reply a { color:#3E4B22; }
 .comment .header .reply a:hover { color:#0080D4; }
+.comment .header .reply img { position:absolute; right:-20px; top:20px;}
 .comment form .header { padding:1px;}
 .comment form label { font-weight:bold; margin-left:0.5em;}
 .comment .errors ul { background:#DDC8C8; margin:0 0 5px; padding:4px 0; border-bottom:1px solid #5A3231;}

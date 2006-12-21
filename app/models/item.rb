@@ -343,7 +343,7 @@ class Item < ActiveRecord::Base
   
   # Return true if it is allowed to add comments to the item in the current context
   def can_comment?
-    discussion && discussion.open?
+    discussion && (discussion.open? || visitor_id == 2)
   end
   
   # Add a comment to an item. If reply_to is set, the comment is added to the proper message

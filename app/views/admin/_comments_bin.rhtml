@@ -1,0 +1,5 @@
+<% if comments_bin_content.size == 0 %>
+  <img src='/images/bin_empty.gif'/>
+<% else %>
+  <img src='/images/bin_full.gif'/><span><%= comments_bin_content.size %></span> <%= tlink_to_remote('btn_bomb', :url=>{:controller=>'admin', :action=>'empty_comments_bin'}, :confirm=>trans('Are you sure you want to permanently remove the content of this rubbish bin ?') ) %>
+<% end %>

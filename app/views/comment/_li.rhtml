@@ -1,7 +1,8 @@
-<li id='comment<%= li[:id] %>'><div class='header'>
+<li id='comment<%= li[:id] %>' <%= "class='c40' " if li[:status] < Zena::Status[:pub] %>><div class='header'>
     <span class='reply'>
-    <%= link_to_remote(transb('reply'), :url=>{:controller=>'comment', :action=>'reply_to', :id=>li[:id] }) if @item.can_comment? && li[:user_id] != user_id %>
-    <%= link_to_remote(transb('edit'),  :url=>{:controller=>'comment', :action=>'edit', :id=>li[:id] }) if @item.can_comment? && li[:user_id] == user_id %>
+    <%= link_to_remote(transb('reply'), :url=>{:controller=>'comment', :action=>'reply_to', :id=>li[:id] }) if @item && @item.can_comment? && li[:user_id] != user_id %>
+    <%= link_to_remote(transb('edit'),  :url=>{:controller=>'comment', :action=>'edit', :id=>li[:id] }) if @item && @item.can_comment? && li[:user_id] == user_id %>
+    <%= link_to_remote(transb('btn_remove'), :url=>{:controller=>'admin', :action=>'remove_comment', :id=>li[:id] }) if @admin %>
     </span>
     <span class='date'><%= long_date(li.created_at) + " " + short_time(li.created_at) %></span>
     <span class='sign'><%= li.author_name || li.author.fullname %></span>
@@ -9,6 +10,6 @@
   </div>
   <div class='body'>
     <div class='text'><%= zazen(li.text) %></div>
-    <ul class='sub' id='replies_to<%= li[:id] %>'><%= render :partial=>'comment/li', :collection=>li.replies %></ul>
+    <ul class='sub' id='replies_to<%= li[:id] %>'><%= render(:partial=>'comment/li', :collection=>li.replies) unless @admin %></ul>
   </div>
 </li>

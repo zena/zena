@@ -1,1 +1,2 @@
 page.replace_html    "css", "<style>#{@css}</style>"
+page.visual_effect :highlight, "css_edit", :duration => 0.3
