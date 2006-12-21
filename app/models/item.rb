@@ -316,6 +316,22 @@ class Item < ActiveRecord::Base
     end
   end
   
+  # Find comments for the current context (v_status and v_lang)
+  def discussion
+    @discussion ||= Discussion.find(:first, :conditions=>[ "item_id = ? AND public = ? AND lang = ?", 
+                    self[:id], v_status == Zena::Status[:pub], v_lang ]) ||
+          if ( v_status != Zena::Status[:pub] ) ||
+             ( Discussion.find(:first, :conditions=>[ "item_id = ? AND public = ? AND open = ?", 
+                                     self[:id], true, true ]))
+            # v_status is not :pub or we already have an open public discussion for this item             
+            # => we can create a new one
+            Discussion.new(:item_id=>self[:id], :lang=>v_lang, :public=>(v_status == Zena::Status[:pub]))
+          else
+            # always create 'private' discussions
+            Discussion.new(:item_id=>self[:id], :lang=>v_lang, :public=>false)
+          end
+  end
+  
   protected
   
   def sync_project(project_id)

@@ -562,4 +562,33 @@ class ItemTest < Test::Unit::TestCase
     assert_equal "content 4", Cache.with(user_id, user_groups, 'IN', 'notes')  { "content #{i}" }
   end
   
+  def test_empty_comments
+    visitor(:tiger)
+    item = secure(Item) { items(:lake) }
+    assert_equal [], item.comments
+  end
+  
+  def test_discussion_lang
+    visitor(:tiger)
+    item = secure(Item) { items(:status) }
+    assert_equal Zena::Status[:pub], item.v_status
+    discussion = item.send(:version).send(:discussion)
+    assert_kind_of Discussion, discussion
+    assert_equal discussions_id(:public_discussion_on_status_en), discussion[:id]
+    visitor(:ant)
+    item = secure(Item) { items(:status) }
+    discussion = item.send(:version).send(:discussion)
+    assert_equal discussions_id(:public_discussion_on_status_fr), discussion[:id]
+  end
+  
+  def test_inside_discussion
+    visitor(:tiger)
+    item = secure(Item) { items(:status) }
+    item.update_attributes( :v_title=>'new status' )
+    assert_equal Zena::Status[:red], item.v_status
+    discussion = item.send(:version).send(:discussion)
+    assert_kind_of Discussion, discussion
+    assert_equal discussions_id(:inside_discussion_on_status), discussion[:id]
+  end
+  
 end

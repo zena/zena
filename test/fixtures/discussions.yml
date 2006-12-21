@@ -2,19 +2,22 @@ inside_discussion_on_status:
   id:         1
   created_at: '2006-12-19 22:18'
   item_id:    12
-  status:     30
+  public:     false
+  open:       true
   lang:       'en'
 
 public_discussion_on_status_en:
   id:         2
   created_at: '2006-12-20 14:00'
   item_id:    12
-  status:     50
+  public:     true
+  open:       true
   lang:       'en'
 
-public_discussion_on_status_fr:
+inside_discussion_on_lake_fr:
   id:         3
   created_at: '2006-12-20 14:00'
-  item_id:    12
-  status:     50
+  item_id:    13
+  public:     false
+  open:       true
   lang:       'fr'

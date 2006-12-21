@@ -57,7 +57,8 @@ class CreateBase < ActiveRecord::Migration
     create_table("discussions", :force => true, :options => 'type=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci') do |t|
       t.column "created_at", :datetime
       t.column "item_id", :integer
-      t.column "status", :integer          # the discussion will appear if it's status is higher or equal to v_status
+      t.column "public", :boolean, :default=>true  # the discussion will appear when published but not when proposed or redaction
+      t.column "open", :boolean, :default=>true
       t.column "lang", :string, :limit => 10, :default => "", :null => false
     end
     
@@ -134,7 +135,6 @@ class CreateBase < ActiveRecord::Migration
       t.column "title", :string, :limit => 200, :default => "", :null => false
       t.column "summary", :text, :default => "", :null => false
       t.column "text", :text, :default => "", :null => false
-      t.column "cgroup_id", :integer
       t.column "status", :integer, :default => 30
       t.column "number", :integer, :default => 1
       t.column "content_id", :integer

@@ -94,20 +94,6 @@ class Version < ActiveRecord::Base
     end
   end
   
-  # Find a current discussion for this version. The discussion must meet the following requirements :
-  # * it must have a status at least as high as this version's status
-  # * it must belong to the same item
-  # Discussions are found in the following order :
-  # * lowest valid status (with a proposed version, a discussion with status '40' will come before the public discussion with status '50')
-  # * same lang
-  def discussion
-    @discussion ||= Discussion.find(:first,
-                :select    =>"*, (lang = '#{lang}') as lang_ok",
-                :conditions=>[ "item_id = ? AND status >= ?", 
-                                self[:item_id], self[:status] ],
-                :order=>"status ASC, lang_ok DESC")
-  end
-  
   private
   
   def can_update_content

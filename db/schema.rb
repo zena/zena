@@ -40,7 +40,8 @@ ActiveRecord::Schema.define(:version => 4) do
   create_table "discussions", :force => true do |t|
     t.column "created_at", :datetime
     t.column "item_id", :integer
-    t.column "status", :integer
+    t.column "public", :boolean, :default => true
+    t.column "open", :boolean, :default => true
     t.column "lang", :string, :limit => 10, :default => "", :null => false
   end
 
@@ -145,7 +146,6 @@ ActiveRecord::Schema.define(:version => 4) do
     t.column "title", :string, :limit => 200, :default => "", :null => false
     t.column "summary", :text, :default => "", :null => false
     t.column "text", :text, :default => "", :null => false
-    t.column "cgroup_id", :integer
     t.column "status", :integer, :default => 30
     t.column "number", :integer, :default => 1
     t.column "content_id", :integer
