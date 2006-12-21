@@ -52,6 +52,7 @@ By default, item with id=1 is the 'root' of all other items. It's the only item 
 project). Some special rules apply to this item : TODO...
 =end
 class Item < ActiveRecord::Base
+  has_many           :discussions
   validate_on_create :item_on_create
   validate_on_update :item_on_update
   after_save         :spread_project_id
@@ -316,20 +317,28 @@ class Item < ActiveRecord::Base
     end
   end
   
-  # Find comments for the current context (v_status and v_lang)
+  # Find the discussion for the current context (v_status and v_lang)
   def discussion
-    @discussion ||= Discussion.find(:first, :conditions=>[ "item_id = ? AND public = ? AND lang = ?", 
-                    self[:id], v_status == Zena::Status[:pub], v_lang ]) ||
+    @discussion ||= Discussion.find(:first, :conditions=>[ "item_id = ? AND inside = ? AND lang = ?", 
+                    self[:id], v_status != Zena::Status[:pub], v_lang ]) ||
           if ( v_status != Zena::Status[:pub] ) ||
-             ( Discussion.find(:first, :conditions=>[ "item_id = ? AND public = ? AND open = ?", 
-                                     self[:id], true, true ]))
-            # v_status is not :pub or we already have an open public discussion for this item             
+             ( Discussion.find(:first, :conditions=>[ "item_id = ? AND inside = ? AND open = ?", 
+                                     self[:id], false, true ]))
+            # v_status is not :pub or we already have an outside, open discussion for this item             
             # => we can create a new one
-            Discussion.new(:item_id=>self[:id], :lang=>v_lang, :public=>(v_status == Zena::Status[:pub]))
+            Discussion.new(:item_id=>self[:id], :lang=>v_lang, :inside=>(v_status != Zena::Status[:pub]))
           else
-            # always create 'private' discussions
-            Discussion.new(:item_id=>self[:id], :lang=>v_lang, :public=>false)
+            nil
           end
+  end
+  
+  # Comments for the current context. Returns [] when none found.
+  def comments
+    if discussion
+      discussion.comments
+    else
+      []
+    end
   end
   
   protected

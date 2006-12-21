@@ -69,6 +69,7 @@ class LinkController < ApplicationController
       render :inline=>trans('role not valid')
     end
   end
+  
   # remove a link given the link id 'id' and the item id 'item_id'
   def remove
     puts params.inspect

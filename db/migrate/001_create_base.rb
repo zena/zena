@@ -53,24 +53,6 @@ class CreateBase < ActiveRecord::Migration
       t.column "email", :string, :limit => 60, :default => "", :null => false
       t.column "birthday", :date
     end
-    
-    create_table("discussions", :force => true, :options => 'type=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci') do |t|
-      t.column "created_at", :datetime
-      t.column "item_id", :integer
-      t.column "public", :boolean, :default=>true  # the discussion will appear when published but not when proposed or redaction
-      t.column "open", :boolean, :default=>true
-      t.column "lang", :string, :limit => 10, :default => "", :null => false
-    end
-    
-    create_table("comments", :force => true, :options => 'type=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci') do |t|
-      t.column "created_at", :datetime
-      t.column "updated_at", :datetime
-      t.column "discussion_id", :integer
-      t.column "reply_to", :integer
-      t.column "user_id", :integer
-      t.column "title", :string, :limit => 200, :default => "", :null => false
-      t.column "text", :text, :default => "", :null => false
-    end
 
     create_table("document_contents", :force => true, :options => 'type=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci') do |t|
       t.column "type", :string, :limit => 16
@@ -191,7 +173,6 @@ class CreateBase < ActiveRecord::Migration
   def self.down
     drop_table "users"
     drop_table "contact_contents"
-    drop_table "comments"
     drop_table "document_contents"
     drop_table "groups"
     drop_table "groups_users"

@@ -53,7 +53,7 @@ trans_values:
 
   - key_id:    41
     lang:      en
-    value:     "<img src='/images/bomb.png'/>"
+    value:     "<img src='/images/delete.png'/>"
 
   - key_id:    42
     lang:      en
@@ -122,3 +122,23 @@ trans_values:
   - key_id:    85
     lang:      en
     value:     "<img src='/images/cog.png'/>"
+    
+  - key_id:    87
+    lang:      en
+    value:     "<img src='/images/comments.png'/>"
+    
+  - key_id:    88
+    lang:      en
+    value:     "<img src='/images/comments_red.png'/>"
+    
+  - key_id:    89
+    lang:      en
+    value:     "<img src='/images/lock_open.png'/>"
+    
+  - key_id:    90
+    lang:      en
+    value:     "<img src='/images/lock.png'/>"
+    
+  - key_id:    91
+    lang:      en
+    value:     "<img src='/images/bomb.png'/>"

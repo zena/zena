@@ -1,5 +1,3 @@
-<% if discussion = @item.v_discussion %>
 <ul class='comment'>
-  <%= render :partial=>'comment/li', :collection => discussion.comments %>
+  <%= render :partial=>'comment/li', :collection => comments ||= @item.comments %>
 </ul>
-<% end %>

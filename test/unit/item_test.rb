@@ -572,13 +572,32 @@ class ItemTest < Test::Unit::TestCase
     visitor(:tiger)
     item = secure(Item) { items(:status) }
     assert_equal Zena::Status[:pub], item.v_status
-    discussion = item.send(:version).send(:discussion)
+    discussion = item.discussion
     assert_kind_of Discussion, discussion
-    assert_equal discussions_id(:public_discussion_on_status_en), discussion[:id]
+    assert_equal discussions_id(:outside_discussion_on_status_en), discussion[:id]
     visitor(:ant)
     item = secure(Item) { items(:status) }
-    discussion = item.send(:version).send(:discussion)
-    assert_equal discussions_id(:public_discussion_on_status_fr), discussion[:id]
+    discussion = item.discussion
+    assert discussion.new_record?, "New discussion"
+    assert_equal 'fr', discussion.lang
+    assert discussion.open?
+    assert !discussion.inside?
+  end
+  
+  def test_closed_discussion
+    visitor(:tiger)
+    item = secure(Item) { items(:status) }
+    discussion = item.discussion
+    discussion.update_attributes(:open=>false)
+    item = secure(Item) { items(:status) }
+    assert_equal discussions_id(:outside_discussion_on_status_en), item.discussion[:id]
+    visitor(:ant)
+    item = secure(Item) { items(:status) }
+    assert_nil item.discussion
+    item.update_attributes( :v_title=>'test' )
+    discussion = item.discussion
+    assert_kind_of Discussion, discussion
+    assert discussion.inside?
   end
   
   def test_inside_discussion
@@ -586,9 +605,22 @@ class ItemTest < Test::Unit::TestCase
     item = secure(Item) { items(:status) }
     item.update_attributes( :v_title=>'new status' )
     assert_equal Zena::Status[:red], item.v_status
-    discussion = item.send(:version).send(:discussion)
-    assert_kind_of Discussion, discussion
+    discussion = item.discussion
     assert_equal discussions_id(:inside_discussion_on_status), discussion[:id]
   end
   
+  def test_comments
+    visitor(:tiger)
+    item = secure(Item) { items(:status) }
+    comments = item.comments
+    assert_kind_of Comment, comments[0]
+    assert_equal 'Nice site', comments[0][:title]
+  end
+  
+  def test_comments_on_nil
+    visitor(:tiger)
+    item = secure(Item) { items(:cleanWater) }
+    assert_nil item.discussion # no open discussion here
+    assert_equal [], item.comments
+  end
 end

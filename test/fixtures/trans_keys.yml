@@ -341,3 +341,27 @@
 86:
   id:   86
   key:  "img_custom_inherit"
+
+87:
+  id:   87
+  key:  "img_comments"
+
+88:
+  id:   88
+  key:  "img_comments_inside"
+
+89:
+  id:   89
+  key:  "img_open"
+
+90:
+  id:   90
+  key:  "img_closed"
+
+91:
+  id:   91
+  key:  "btn_add_discussion"
+
+92:
+  id:   92
+  key:  "btn_bomb"

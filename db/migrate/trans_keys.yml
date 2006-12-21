@@ -256,3 +256,18 @@ trans_keys:
   
   - id:   86
     key:  'img_custom_inherit'
+
+  - id:   87
+    key:  'img_comments'
+
+  - id:   88
+    key:  'img_comments_inside'
+
+  - id:   89
+    key:  'img_open'
+
+  - id:   90
+    key:  'img_closed'
+
+  - id:   91
+    key:  'btn_bomb'

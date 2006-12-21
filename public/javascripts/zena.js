@@ -13,6 +13,11 @@ Zena.version_preview = function(version_id) {
 }
 
 
+// preview discussion.
+Zena.discussion_show = function(discussion_id) {
+	new Ajax.Request('/z/discussion/show/' + discussion_id, {asynchronous:true, evalScripts:true})
+}
+
 // update content from another window
 Zena.update = function( tag, url ) {
   if (window.is_editor) {

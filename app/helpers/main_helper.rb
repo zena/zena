@@ -51,6 +51,7 @@ module MainHelper
     res.join("\n")
   end
   
+  # TODO: test
   # show actions on versions
   def version_actions(version, opt={})
     opt = {:action=>:all}.merge(opt)
@@ -64,7 +65,6 @@ module MainHelper
       case version.status
       when Zena::Status[:pub]
         actions << form_action('unpublish',version[:id]) if @item.can_unpublish?
-        actions << form_action('remove',version[:id]) if @item.can_unpublish?
       when Zena::Status[:prop]
         actions << form_action('publish',version[:id])
         actions << form_action('refuse',version[:id])
@@ -75,6 +75,7 @@ module MainHelper
         actions << form_action('edit',version[:id]) if version.user[:id] == user_id
         actions << form_action('publish',version[:id])
         actions << form_action('propose',version[:id])
+        actions << form_action('remove',version[:id]) if version.user[:id] == user_id
       when Zena::Status[:rep]
         actions << form_action('edit',version[:id]) if @item.can_edit_lang?(version.lang)
         actions << form_action('publish',version[:id])
@@ -90,6 +91,24 @@ module MainHelper
       end
     end
     actions.join(" ")
+  end
+  
+  # TODO: test
+  def discussion_actions(discussion, opt={})
+    opt = {:action=>:all}.merge(opt)
+    return '' unless @item.can_drive?
+    if opt[:action] == :view
+      tlink_to_function('btn_view', "opener.Zena.discussion_show(#{discussion[:id]}); return false;")
+    elsif opt[:action] == :all
+      if discussion.open?
+        link_to_remote( transb("img_open"),:with=>'discussions', :url=>{:controller=>'discussion', :action => 'close' , :id => discussion[:id]}, :title=>transb("btn_title_close")) + "\n"
+      else                                                                   
+        link_to_remote( transb("img_closed"),  :with=>'discussions', :url=>{:controller=>'discussion', :action => 'open', :id => discussion[:id]}, :title=>transb("btn_title_open")) + "\n"
+      end +
+      if discussion.can_destroy?                                                 
+        link_to_remote( transb("btn_remove"), :with=>'discussions', :url=>{:controller=>'discussion', :action => 'remove', :id => discussion[:id]}, :title=>transb("btn_title_destroy")) + "\n"
+      end
+    end
   end
 
   # Create the traduction list for the current item

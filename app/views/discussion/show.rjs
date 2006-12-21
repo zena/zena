@@ -1,0 +1,1 @@
+page.replace_html 'comments', :partial=>'comment/list', :locals=>{:comments=>@discussion.comments}

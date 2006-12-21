@@ -242,7 +242,7 @@
   id:        41
   key_id:    41
   lang:      en
-  value:     "<img src='/images/bomb.png'/>"
+  value:     "<img src='/images/delete.png'/>"
 
 42:
   id:        42
@@ -837,3 +837,39 @@
   key_id:    86
   lang:      en
   value:     "<img src='/images/cog.png'/>"
+
+158:
+  id:        158
+  key_id:    87
+  lang:      en
+  value:     "<img src='/images/comments.png'/>"
+
+159:
+  id:        159
+  key_id:    88
+  lang:      en
+  value:     "<img src='/images/comments_red.png'/>"
+
+160:
+  id:        160
+  key_id:    89
+  lang:      en
+  value:     "<img src='/images/lock_open.png'/>"
+
+161:
+  id:        161
+  key_id:    90
+  lang:      en
+  value:     "<img src='/images/lock.png'/>"
+
+162:
+  id:        162
+  key_id:    91
+  lang:      en
+  value:     "<img src='/images/comments_add.png'/>"
+
+163:
+  id:        163
+  key_id:    92
+  lang:      en
+  value:     "<img src='/images/bomb.png'/>"

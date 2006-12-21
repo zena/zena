@@ -31,7 +31,6 @@ button { background:none; border:none;}
 .errorExplanation ul { margin-left:15px; }
 .fieldWithErrors { padding: 2px; background-color: #C18284; display: table;}
 
-table { width:100%;}
 .edit { width:70%; border-right:1px solid grey; padding-right:8px;}
 
 /* version edit */
@@ -83,16 +82,18 @@ td.description p.summary { font-style:italic; font-size:0.8em; }
 #parent, #groups { float:left; width:130px;}
 #parent #parent_errors { margin:0; padding:0; font-size:0.8em; }
 #groups #groups_errors { margin:0; padding:0; font-size:0.8em; }
-#links table, #versions table { width:100%;}
-#versions table, #links table { border-width:1px 0 0 1px; padding:0; }
-#versions td, #links td { padding: 3px; font-size:0.8em; height:18px; border:1px solid #333; border-width:0 1px 1px 0; }
+
+#versions table, #links table, #discussions table { border-width:1px 0 0 1px; padding:0; }
+#versions td, #links td, #discussions td { padding: 3px; font-size:0.8em; height:18px; border:1px solid #333; border-width:0 1px 1px 0; }
+
 #links img {  vertical-align:middle; margin:0; }
 #links .group { background:#888; font-weight:bold; font-size:0.7em; height:0.5em;}
 #links .group span { background:#888; font-weight:normal;}
 #links .inline_form div { float: left;}
 #links .inline_form div.errors { float: none;}
-#links .icon, #links .add_icon { width:22px; text-align:center;}
-#links .add_icon { border-right:0; }
+#links .icon, #links .add_icon { width:22px; }
+#links .icon { text-align:center; }
+#links .add_icon a {display:block; padding-left:3px; }
 #links .role { width:80px; text-align:center; }
 #links .link { width:200px; }
 #links .link_box li { display:inline; padding:2px;}
@@ -110,6 +111,23 @@ td.description p.summary { font-style:italic; font-size:0.8em; }
 #versions td.initials { width:40px; }
 #versions td.date { width:130px; }
 #versions td.actions { width:80px; }
+
+#discussions table {}
+#discussions .add_icon a {display:block; }
+#discussions td.view, #discussions td.inside, #discussions td.lang { width:20px; text-align:center; }
+#discussions td.actions { width:40px; text-align:center; }
+#discussions td.view { border-left:0; }
+#discussions td.status { width:90px; }
+#discussions td.date { width:130px; }
+#discussions .inline_form div { float: left; padding:0 8px; }
+#discussions .inline_form .inside { margin-top:2px; }
+#discussions .inline_form .open   { margin-top:2px; border-left: 1px dashed black; }
+#discussions .inline_form .errors { float: none;}
+
+.dinside_open    { background:#E58789;}
+.dinside_closed  { background:#864D4E;}
+.doutside_open   { background:#67ABE0;}
+.doutside_closed { background:#466F91;}
 
 .v50 { background:#FF9400;}
 .v40 { background:#73A1A5;}
