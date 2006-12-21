@@ -4,6 +4,7 @@ class DiscussionController < ApplicationController
   # TODO: test
   def show
     get_discussion
+    @comments = @discussion.comments
   end
   
   # TODO: test

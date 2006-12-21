@@ -873,3 +873,9 @@
   key_id:    92
   lang:      en
   value:     "<img src='/images/bomb.png'/>"
+
+164:
+  id:        164
+  key_id:    93
+  lang:      en
+  value:     "<img src='/images/comment_add.png'/>"

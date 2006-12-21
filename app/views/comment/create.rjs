@@ -1,0 +1,15 @@
+if @error
+  page.replace_html 'comment_errors', :inline=>@error
+elsif @comment.new_record?
+  page.replace_html "add_comment_form#{@comment.reply_to || ''}", :partial=>'comment/form'
+  page.replace_html "comment_errors#{@comment.reply_to || ''}", :inline=>error_messages_for('comment')
+else
+  if @comment.reply_to
+    page.remove "add_comment_form#{@comment.reply_to}"
+    page.insert_html :bottom, "replies_to#{@comment.reply_to}", :partial=>'comment/li', :collection=>[@comment]
+  else
+    page.insert_html :before, 'add_comment', :partial=>'comment/li', :collection=>[@comment]
+    page.toggle 'add_comment', 'add_comment_form'
+  end
+  page.visual_effect :highlight, "comment#{@comment[:id]}", :duration => 0.3
+end

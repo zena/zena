@@ -341,6 +341,21 @@ class Item < ActiveRecord::Base
     end
   end
   
+  # Return true if it is allowed to add comments to the item in the current context
+  def can_comment?
+    discussion && discussion.open?
+  end
+  
+  # Add a comment to an item. If reply_to is set, the comment is added to the proper message
+  # TODO: test
+  def add_comment(opt)
+    return nil unless can_comment?
+    discussion.save if discussion.new_record?
+    author = opt[:author_name] = nil unless visitor_id == 1
+    opt.merge!( :discussion_id=>discussion[:id], :user_id=>visitor_id )
+    Comment.create(opt)
+  end
+  
   protected
   
   def sync_project(project_id)

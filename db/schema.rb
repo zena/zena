@@ -19,8 +19,9 @@ ActiveRecord::Schema.define(:version => 5) do
     t.column "discussion_id", :integer
     t.column "reply_to", :integer
     t.column "user_id", :integer
-    t.column "title", :string, :limit => 200, :default => "", :null => false
+    t.column "title", :string, :limit => 250, :default => "", :null => false
     t.column "text", :text, :default => "", :null => false
+    t.column "author_name", :string, :limit => 300
   end
 
   create_table "contact_contents", :force => true do |t|

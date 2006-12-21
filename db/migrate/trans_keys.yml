@@ -271,3 +271,6 @@ trans_keys:
 
   - id:   91
     key:  'btn_bomb'
+
+  - id:   92
+    key:  'btn_add_comment'

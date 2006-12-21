@@ -1,3 +1,4 @@
-<ul class='comment'>
-  <%= render :partial=>'comment/li', :collection => comments ||= @item.comments %>
+<ul class='comment' id='comments_list'>
+  <%= render :partial=>'comment/li', :collection => @comments || @item.comments %>
+  <%= render :partial=>'comment/add' %>
 </ul>

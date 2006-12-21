@@ -142,3 +142,7 @@ trans_values:
   - key_id:    91
     lang:      en
     value:     "<img src='/images/bomb.png'/>"
+    
+  - key_id:    92
+    lang:      en
+    value:     "<img src='/images/comment_add.png'/>"

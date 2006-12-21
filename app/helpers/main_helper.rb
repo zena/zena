@@ -107,6 +107,8 @@ module MainHelper
       end +
       if discussion.can_destroy?                                                 
         link_to_remote( transb("btn_remove"), :with=>'discussions', :url=>{:controller=>'discussion', :action => 'remove', :id => discussion[:id]}, :title=>transb("btn_title_destroy")) + "\n"
+      else
+        ''
       end
     end
   end

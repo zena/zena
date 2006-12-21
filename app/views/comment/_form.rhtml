@@ -1,0 +1,27 @@
+<%= if @edit
+  form_remote_tag(:with=>"add_comment_form", :url=>{:controller=>'comment', :action=>"update", :rnd=>rnd}) 
+else
+  form_remote_tag(:with=>"add_comment_form", :url=>{:controller=>'comment', :action=>"create", :rnd=>rnd})
+end %>
+<% if @edit -%>
+  <div class='inline_form'>
+  <p class="btn_x"><%= link_to_remote(transb('btn_x'), :with=>'main', :url=>{:controller=>'discussion', :action=>'show', :id=>@comment[:discussion_id]} ) %></p>
+<% elsif @comment && @comment.reply_to -%>
+  <p class="btn_x"><%= link_to_function transb('btn_x'), "new Element.remove('add_comment_form#{@comment.reply_to}');" %></p>
+<% else -%>
+  <p class="btn_x"><%= link_to_function transb('btn_x'), "new Element.toggle('add_comment', 'add_comment_form');" %></p>
+<% end  -%>
+<div class='header'>
+  <label for="author_name"><%= trans("author")  %></label> <%= session[:user] ? session[:user][:fullname] : text_field('comment', 'author_name', :size=>25) %>
+  <label for="title"><%= trans("title")  %></label> <%= text_field('comment', 'title', :size=>25) %>
+</div>
+<div class='body'>
+  <div id='comment_errors<%= @comment && @comment.reply_to ? @comment.reply_to : '' %>' class='errors'></div>
+  <div class='text'><%= text_area('comment', 'text', :cols=>nil, :rows=>12 ) %></div>
+  <%= hidden_field('comment', 'id') %>
+  <%= hidden_field('item', 'id') %>
+  <%= hidden_field('comment', 'reply_to') %>
+  <p class='btn_validate'><input type='submit' value='<%= transb('validate') %>'/></p>
+</div>
+<%= end_form_tag %>
+<%= '</div>' if @edit %>

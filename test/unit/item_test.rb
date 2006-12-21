@@ -623,4 +623,38 @@ class ItemTest < Test::Unit::TestCase
     assert_nil item.discussion # no open discussion here
     assert_equal [], item.comments
   end
+  
+  def test_add_comment
+    visitor(:tiger)
+    item = secure(Item) { items(:status) }
+    assert_equal 1, item.comments.size
+    assert comment = item.add_comment( :author_name=>'parrot', :title=>'hello', :text=>'world' )
+    item = secure(Item) { items(:status) }
+    comments = item.comments
+    assert_equal 2, item.comments.size
+    assert_equal 'hello', comments[1][:title]
+    assert_equal nil, comments[1][:author_name]
+  end
+  
+  def test_public_add_comment
+    item = secure(Item) { items(:status) }
+    assert_equal 1, item.comments.size
+    assert comment = item.add_comment( :author_name=>'parrot', :title=>'hello', :text=>'world' )
+    item = secure(Item) { items(:status) }
+    comments = item.comments
+    assert_equal 2, item.comments.size
+    assert_equal 'hello', comments[1][:title]
+    assert_equal 'parrot', comments[1][:author_name]
+  end
+  
+  def test_add_reply
+    visitor(:tiger)
+    item = secure(Item) { items(:status) }
+    assert_equal 1, item.comments.size
+    assert comment = item.add_comment( :author_name=>'parrot', :title=>'hello', :text=>'world', :reply_to=>comments_id(:public_says_in_en) )
+    item = secure(Item) { items(:status) }
+    comments = item.comments
+    assert_equal 1, comments.size
+    assert_equal 1, comments[0].replies.size
+  end
 end

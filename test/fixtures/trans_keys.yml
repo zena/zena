@@ -365,3 +365,7 @@
 92:
   id:   92
   key:  "btn_bomb"
+
+93:
+  id:   93
+  key:  "btn_add_comment"
