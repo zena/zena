@@ -25,10 +25,10 @@ class Comment < ActiveRecord::Base
     if parent && (self[:title].nil? || self[:title] == '')
       self[:title] = TransKey['re:'][discussion.lang] + ' ' + parent.title
     end
-    if user_id != 1 || ZENA_ENV[:moderate_public_comments]
-      status = Zena::Status[:rem]
+    if user_id == 1 && ZENA_ENV[:moderate_public_comments]
+      self[:status] = Zena::Status[:prop]
     else
-      status = Zena::Status[:pub]
+      self[:status] = Zena::Status[:pub]
     end
   end
   

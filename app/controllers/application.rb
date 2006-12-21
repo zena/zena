@@ -176,6 +176,11 @@ class ApplicationController < ActionController::Base
     (session && session[:user]) ? AUTHENTICATED_PREFIX : lang
   end
   
+  # TODO: test
+  def user_admin?
+    (user_groups.include?(2) || user_id == 2)
+  end
+  
   # Notes finder options are
   # [from] item providing the notes. If omitted, <code>@project</code> or <code>@item.project</code> is used.
   # [find] method called on the source. Default is 'notes'. For example, <code>:from=>@item.project, :find=>:news</code> finds all news from the project of the current item.

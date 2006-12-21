@@ -123,13 +123,15 @@ module MainHelper
       var t
       function timedCount()
       {
+        var file = $('css_file').value
         if (c == '#'){
           c = '_'
         } else {
           c = '#'
         }
         document.getElementById('css_counter').innerHTML=c
-        new Ajax.Request('/z/version/css_preview', {asynchronous:true, evalScripts:true, parameters:'css=#{css_file}'});
+        
+        new Ajax.Request('/z/version/css_preview', {asynchronous:true, evalScripts:true, parameters:'css='+file});
         t=setTimeout("timedCount()",2000)
       }
 
@@ -142,7 +144,7 @@ module MainHelper
       <form>
         <input type="button" value="Start CSS" onClick="timedCount()">
         <input type="button" value="Stop  CSS" onClick="stopCount()">
-        <span id='css_counter'></span> <span>#{css_file}</span>
+        <span id='css_counter'></span> <input type='text' id='css_file' name='css_file' value='#{css_file}'/>
       </form>
     </div>
     

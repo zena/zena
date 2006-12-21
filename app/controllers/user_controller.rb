@@ -4,5 +4,6 @@ class UserController < ApplicationController
   # user can view the versions his is currently editing, he can publish content, etc
   def home
     @user = User.find(session[:user][:id])
+    render :layout=>'admin'
   end
 end

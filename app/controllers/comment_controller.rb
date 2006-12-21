@@ -1,4 +1,7 @@
 class CommentController < ApplicationController
+  before_filter :check_is_admin, :only=>[:list, :empty_bin]
+  helper MainHelper
+  helper_method :bin_content
   
   # TODO: test
   def reply_to
@@ -50,4 +53,46 @@ class CommentController < ApplicationController
     render :nothing=>true
   end
   
+  # TODO: test
+  def remove
+    @comment    = Comment.find(params[:id])
+    @discussion = @comment.discussion
+    @item = secure(Item) { Item.find(@discussion[:item_id]) }
+    if user_admin? || (@item.can_comment && user_id == @comment[:user_id])
+      @comment.remove
+      puts @comment.inspect
+    else
+      render :nothing=>true
+    end
+  rescue ActiveRecord::RecordNotFound
+    render :nothing=>true
+  end
+  ### === admin only
+  
+  # TODO:test
+  def list
+    @comment_pages, @comments =
+          paginate :comments, :order => 'status ASC, created_at DESC', :conditions=>"status > #{Zena::Status[:rem]}", :per_page => 20
+    render :layout=>'admin'
+  end
+  
+  # TODO: test
+  def empty_bin
+    bin_content.each do |c|
+      c.destroy
+    end
+    # reset cached bin content
+    @bin_content = nil
+  end
+  
+  private
+  
+  def bin_content
+    @bin_content ||= Comment.find(:all, :conditions=>['status <= ?', Zena::Status[:rem]])
+  end
+  
+  def check_is_admin
+    page_not_found unless user_admin?
+    @admin = true
+  end
 end

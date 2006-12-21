@@ -68,7 +68,7 @@
 
 18:
   id:   18
-  key:  "Redactions"
+  key:  "redactions"
 
 19:
   id:   19
@@ -96,7 +96,7 @@
 
 25:
   id:   25
-  key:  "Waiting"
+  key:  "waiting for publication"
 
 26:
   id:   26
@@ -369,3 +369,7 @@
 93:
   id:   93
   key:  "btn_add_comment"
+
+94:
+  id:   94
+  key:  "to publish"

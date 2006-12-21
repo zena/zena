@@ -1,0 +1,10 @@
+<tr class="v<%= tr.status %>">
+  <td class="view"><%= version_actions( tr, :action=>:view) %></td>
+  <td class="number"><%= tr.number %></td>
+  <td class="lang"><%= tr.lang %></td>
+  <td class="status"><%= trans("status_#{tr.status}") %></td>
+  <td class="comment"><%= tr.comment %></td>
+  <td class="date"><%= format_date(tr.updated_at, 'datetime') %></td>
+  <td class="initials"><%= tr.author.initials %></td>
+  <td class="actions"><%= version_actions(tr) %></td>
+</tr>

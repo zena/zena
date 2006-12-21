@@ -13,7 +13,8 @@
 .comment .sub  { padding:4px 0 0 10px; clear:both; }
 
 .comment .header         { position:relative; background:#DCE4E7; border:1px solid #888; border-left:1px solid grey; padding:3px; font-size:0.9em;}
-.comment .header .sign  {  font-weight:bold;}
+.comment .c40 .header    { background:#73A1A5;}
+.comment .header .sign   { font-weight:bold;}
 .comment .header .date, .comment .header .reply { border-left:1px dotted #888; padding-left:3px; color:#555;}
 .comment .header .title  { position:absolute; left:200px; font-style:italic; color:#555;}
 .comment .header .date   { float:right; width:105px; text-align:center; padding-top:1px; font-size:100%; }

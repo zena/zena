@@ -2,7 +2,7 @@
     <span class='reply'>
     <%= link_to_remote(transb('reply'), :url=>{:controller=>'comment', :action=>'reply_to', :id=>li[:id] }) if @item && @item.can_comment? && li[:user_id] != user_id %>
     <%= link_to_remote(transb('edit'),  :url=>{:controller=>'comment', :action=>'edit', :id=>li[:id] }) if @item && @item.can_comment? && li[:user_id] == user_id %>
-    <%= link_to_remote(transb('btn_remove'), :url=>{:controller=>'admin', :action=>'remove_comment', :id=>li[:id] }) if @admin %>
+    <%= link_to_remote(transb('btn_remove'), :url=>{:controller=>'comment', :action=>'remove', :id=>li[:id] }) if @admin %>
     </span>
     <span class='date'><%= long_date(li.created_at) + " " + short_time(li.created_at) %></span>
     <span class='sign'><%= li.author_name || li.author.fullname %></span>

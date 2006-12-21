@@ -1,0 +1,15 @@
+<div id='content'>
+  <ul class='comment' id='comments_list'>
+    <%= render :partial=>'comment/li', :collection=>@comments %>
+  </ul>
+
+  <%= tlink_to "Previous page", { :page => @comment_pages.current.previous } if @comment_pages.current.previous %>
+  <%= tlink_to "Next page", { :page => @comment_pages.current.next } if @comment_pages.current.next %>
+
+  <div id='bin'>
+    <%= render :partial=>'comment/bin' %>
+  </div>
+</div>
+
+<div id='right'>
+</div>

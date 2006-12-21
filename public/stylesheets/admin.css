@@ -1,3 +1,6 @@
 #bin { margin-top:5px; border:1px solid grey; background:white; float:left; padding:3px; position:relative; }
 #bin span { position:absolute; top:2px; left:30px; }
-.comment .c40 .header { background:#73A1A5;}
+#left li { margin:0; border-top:1px solid #35462B; padding:10px 0; font-size:0.8em; }
+#left li:first-child { border:0; }
+#left li a { color:#560B0A; font-weight:bold; }
+#to_publish { border-bottom:2px solid #450009; margin-bottom:15px; }

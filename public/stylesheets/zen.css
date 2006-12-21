@@ -3,7 +3,8 @@
 a {text-decoration: none; color:#266F92;}
 a img {border: none;}
 body {font: 0.9em Verdana, sans-serif; line-height: 1; color: #333; behavior: url('stylesheets/csshover2.htc');} /* WinIE hack */
-h3 {font: 1.5em Georgia, Times, serif; letter-spacing: 0; text-transform: none; margin-bottom: 0; color: #333;}
+h2, h3 {font: 1.32em Georgia, Times, serif; letter-spacing: 0; text-transform: none; margin-bottom: 0; color: #333;}
+h2 { font-size:1.5em; font-style:italic; color:#450009; }
 p {font-size:1em; text-align: left; line-height: 1.5em; margin: 0 0 1em;}
 li { list-style-type:none; }
 a .id { display: none; font-size:0.7em; color:#ccc; }

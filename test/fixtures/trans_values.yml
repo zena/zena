@@ -104,7 +104,7 @@
   id:        18
   key_id:    18
   lang:      en
-  value:     "Redactions"
+  value:     "redactions"
 
 19:
   id:        19
@@ -146,7 +146,7 @@
   id:        25
   key_id:    25
   lang:      en
-  value:     "Waiting"
+  value:     "waiting for publication"
 
 26:
   id:        26
@@ -542,7 +542,7 @@
   id:        91
   key_id:    18
   lang:      fr
-  value:     "Rédactions"
+  value:     "rédactions"
 
 92:
   id:        92
@@ -584,7 +584,7 @@
   id:        98
   key_id:    25
   lang:      fr
-  value:     "Propositions"
+  value:     "en attente de publication"
 
 99:
   id:        99
@@ -879,3 +879,15 @@
   key_id:    93
   lang:      en
   value:     "<img src='/images/comment_add.png'/>"
+
+165:
+  id:        165
+  key_id:    94
+  lang:      fr
+  value:     "à publier"
+
+166:
+  id:        166
+  key_id:    94
+  lang:      en
+  value:     "to publish"
