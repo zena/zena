@@ -114,10 +114,39 @@ module MainHelper
   end
   
   # TODO: test
-  def css_edit
-    "<div id='css'></div><a href='#' onClick=\"editor=window.open('" + 
-    url_for(:controller=>'version', :action=>'css_edit', :rnd=>rnd) + 
-    "', 'editor', 'location=0,width=500,height=600,resizable=1');return false;\">" + transb('css edit') + "</a>"
+  def css_edit(css_file = 'zen.css')
+    str = <<ENDTXT
+    <div id='css_edit'>
+    <div id='css' onClick='cssUpdate()'></div>
+    <script type="text/javascript">
+    var c=0
+    var t
+    function timedCount()
+    {
+    if (c == '#'){
+      c = '_'
+    } else {
+      c = '#'
+    }
+    document.getElementById('css_counter').innerHTML=c
+    new Ajax.Request('/z/version/css_preview', {asynchronous:true, evalScripts:true, parameters:'css=#{css_file}'});
+    t=setTimeout("timedCount()",2000)
+    }
+    
+    function stopCount()
+    {
+    clearTimeout(t)
+    }
+      
+    </script>
+    <form>
+    <input type="button" value="Start CSS" onClick="timedCount()">
+    <input type="button" value="Stop  CSS" onClick="stopCount()">
+    <span id='css_counter'></span>
+    </form>
+    </div>
+    
+ENDTXT
   end
   # Create the traduction list for the current item
   def traductions(obj=@item)
