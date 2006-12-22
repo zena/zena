@@ -55,8 +55,9 @@ p.img_left, p.img_right { margin:0; padding:0;}
 #menu li ul { display: none; position: absolute; left:-1px; width: 10em; border: solid grey; border-width: 1px 1px 0; background-color: #F3F2E8; }
 #menu li:hover ul { display: block; }
 #menu ul li.sub, #menu .sub li { width: 100%; border: solid grey; border-width:0 0 1px; }
-#menu ul li.sub ul { position: absolute; top:-1px; left: 10em; }
-#menu ul li.sub ul { display: none; }
+#menu ul li.sub ul { display: none; position: absolute; top:-1px; left: 10em; }
+#menu ul li.sub ul li ul { display: none; }
+#menu ul li.sub ul li ul li ul { display: none; }
 #menu ul li.sub:hover ul { display: block; }
 #menu ul li.sub:hover ul li:hover ul { display: block; }
 #menu ul li.sub:hover ul li:hover ul li:hover ul { display: block; }
