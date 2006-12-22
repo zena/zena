@@ -46,7 +46,7 @@ p.img_left, p.img_right { margin:0; padding:0;}
 #navbar #visitor, #navbar #logout { float: right; }
 
 /* NAV. MENUS */
-#menu { background-color: #F3F2E8; float:left; position:absolute; top:25px; left:260px;}
+#menu { z-index:9999; background-color: #F3F2E8; float:left; position:absolute; top:25px; left:260px;}
 #menu ul { }
 #menu a { color: black; padding:1px 8px 3px; font: 1.2em Georgia, Times, serif; display: block; }
 #menu li { border:solid grey; border-width: 0 1px 1px 0px; list-style:none; float:left; background-color: #F3F2E8; position: relative; }
