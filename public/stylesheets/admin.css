@@ -3,4 +3,4 @@
 #left li { margin:0; border-top:1px solid #35462B; padding:10px 0; font-size:0.8em; }
 #left li:first-child { border:0; }
 #left li a { color:#560B0A; font-weight:bold; }
-#to_publish { border-bottom:2px solid #450009; margin-bottom:15px; }
+#comments_to_publish { border-bottom:2px solid #450009; margin-bottom:15px; }

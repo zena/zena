@@ -58,6 +58,22 @@ class UserTest < Test::Unit::TestCase
     assert_not_nil bob.errors[:password]
   end
   
+  def test_comments_to_publish
+    # status pgroup = managers
+    item = items(:status)
+    assert_equal groups_id(:managers), item.pgroup_id
+    # tiger in managers
+    tiger = users(:tiger)
+    to_publish = tiger.comments_to_publish
+    assert_equal 1, to_publish.size
+    assert_equal 'Nice site', to_publish[0][:title]
+    
+    # ant not in managers
+    ant = users(:ant)
+    to_publish = ant.comments_to_publish
+    assert_equal 0, to_publish.size
+  end
+  
   # TODO: finish tests for User
   # groups
 end

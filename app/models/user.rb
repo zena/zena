@@ -77,7 +77,17 @@ class User < ActiveRecord::Base
   end
   
   ### ================================================ ACTIONS AND OWNED ITEMS
-   
+  
+  def comments_to_publish
+    if id == 2
+      # su can view all
+      Comment.find_all_by_status(Zena::Status[:prop])
+    else
+      Comment.find(:all, :select=>'comments.*, items.name', :from=>'comments, items, discussions',
+                   :conditions=>"comments.status = #{Zena::Status[:prop]} AND discussions.item_id = items.id AND comments.discussion_id = discussions.id AND items.pgroup_id IN (#{group_ids.join(',')})")
+    end
+  end
+  
   # List all versions proposed for publication that the user has the right to publish.
   def to_publish
     if id == 2

@@ -60,7 +60,6 @@ class CommentController < ApplicationController
     @item = secure(Item) { Item.find(@discussion[:item_id]) }
     if user_admin? || (@item.can_comment && user_id == @comment[:user_id])
       @comment.remove
-      puts @comment.inspect
     else
       render :nothing=>true
     end

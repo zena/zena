@@ -9,6 +9,13 @@
       <%= render :partial=>'version/li', :collection=>@user.to_publish %>
     </ul>
   </div>
+  
+  <div id='comments_to_publish' class='version'>
+    <h3><%= trans('comments to publish') %></h3>
+    <ul class='list'>
+      <%= render :partial=>'comment/li_simple', :collection=>@user.comments_to_publish  %>
+    </ul>
+  </div>
 
   <div id='proposed' class='version'>
     <h3><%= trans('waiting for publication') %></h3>

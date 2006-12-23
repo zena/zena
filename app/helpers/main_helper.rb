@@ -132,7 +132,7 @@ module MainHelper
         document.getElementById('css_counter').innerHTML=c
         
         new Ajax.Request('/z/version/css_preview', {asynchronous:true, evalScripts:true, parameters:'css='+file});
-        t=setTimeout("timedCount()",2000)
+        t=setTimeout("timedCount()",1000)
       }
 
       function stopCount()

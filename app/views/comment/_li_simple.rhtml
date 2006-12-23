@@ -1,0 +1,3 @@
+<li id='comment<%= li_simple[:id] %>' <%= "class='c40' " if li_simple[:status] < Zena::Status[:pub] %>>
+    <a href='#'><span class='title'><%= li_simple.title %></span> <span class='sign'><%= li_simple.author_name || li_simple.author.fullname %></span></a>
+</li>

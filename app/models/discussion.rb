@@ -1,5 +1,4 @@
 class Discussion < ActiveRecord::Base
-  has_many :comments, :conditions=>"reply_to IS NULL AND status = '#{Zena::Status[:pub]}'", :order=>'created_at ASC'
   has_many :all_comments, :class_name=>'Comment', :foreign_key=>'discussion_id', :order=>'created_at ASC', :dependent=>:delete_all
   
   # An open discussion means new comments can be added
@@ -12,6 +11,16 @@ class Discussion < ActiveRecord::Base
   def can_destroy?
     all_comments.size == 0
   end
+  
+  def comments(opt={})
+    if opt[:with_prop]
+      conditions = ["discussion_id = ? AND reply_to IS NULL", self[:id]]
+    else
+      conditions = ["discussion_id = ? AND reply_to IS NULL AND status = '#{Zena::Status[:pub]}'", self[:id]]
+    end
+    Comment.find(:all, :conditions=>conditions, :order=>'created_at ASC')
+  end
+  
   # TODO: test
   def destroy
     if can_destroy?

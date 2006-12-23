@@ -42,6 +42,7 @@ class CommentTest < Test::Unit::TestCase
     ZENA_ENV[:moderate_public_comments] = bak
     comments = discussion.comments
     assert_equal 1, comments.size
+    assert_equal 2, discussion.comments(:with_prop=>true).size
   end
   
   def test_set_comment
