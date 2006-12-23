@@ -1,5 +1,6 @@
 class Discussion < ActiveRecord::Base
   has_many :all_comments, :class_name=>'Comment', :foreign_key=>'discussion_id', :order=>'created_at ASC', :dependent=>:delete_all
+  belongs_to :item
   
   # An open discussion means new comments can be added
   def open?; self[:open]; end
@@ -14,9 +15,9 @@ class Discussion < ActiveRecord::Base
   
   def comments(opt={})
     if opt[:with_prop]
-      conditions = ["discussion_id = ? AND reply_to IS NULL", self[:id]]
+      conditions = ["discussion_id = ? AND reply_to IS NULL AND status > #{Zena::Status[:rem]}", self[:id]]
     else
-      conditions = ["discussion_id = ? AND reply_to IS NULL AND status = '#{Zena::Status[:pub]}'", self[:id]]
+      conditions = ["discussion_id = ? AND reply_to IS NULL AND status = #{Zena::Status[:pub]}", self[:id]]
     end
     Comment.find(:all, :conditions=>conditions, :order=>'created_at ASC')
   end

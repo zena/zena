@@ -58,11 +58,21 @@ class CommentController < ApplicationController
     @comment    = Comment.find(params[:id])
     @discussion = @comment.discussion
     @item = secure(Item) { Item.find(@discussion[:item_id]) }
-    if user_admin? || (@item.can_comment && user_id == @comment[:user_id])
+    if user_admin? || (@item.can_comment? && user_id == @comment[:user_id])
       @comment.remove
     else
       render :nothing=>true
     end
+  rescue ActiveRecord::RecordNotFound
+    render :nothing=>true
+  end
+  
+  # TODO: test
+  def publish
+    @comment    = Comment.find(params[:id])
+    @discussion = @comment.discussion
+    @item = secure_drive(Item) { Item.find(@discussion[:item_id]) }
+    @comment.publish
   rescue ActiveRecord::RecordNotFound
     render :nothing=>true
   end

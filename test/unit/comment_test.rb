@@ -5,9 +5,14 @@ class CommentTest < Test::Unit::TestCase
 
   def test_replies
     comment = comments(:ant_says_inside)
+    prop_reply = Comment.create(:discussion_id=>comment[:discussion_id], :reply_to=>comment[:id], :title=>'bob', :author_name=>'any', :text=>'blah')
+    assert !prop_reply.new_record?, "Not a new record"
+    assert_equal Zena::Status[:prop], prop_reply[:status]
     replies = comment.replies
     assert_equal 1, replies.size
     assert_equal comments_id(:tiger_reply_inside), replies[0][:id]
+    assert_equal 2, replies(:with_prop=>true).size
+    assert_equal prop_reply[:id], replies[1][:id]
   end
   
   def test_no_replies

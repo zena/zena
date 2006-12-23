@@ -335,7 +335,7 @@ class Item < ActiveRecord::Base
   # Comments for the current context. Returns [] when none found.
   def comments
     if discussion
-      discussion.comments(:with_prop=>can_publish?)
+      discussion.comments(:with_prop=>can_drive?)
     else
       []
     end

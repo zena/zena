@@ -33,3 +33,5 @@
 
 .comment .btn_x { float:none; text-align:right; margin:0; padding:0;}
 .comment .btn_x a { display:block; }
+.comment .action { position:absolute; right:-20px;}
+.comment .action a { display:block;}
