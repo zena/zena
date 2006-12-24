@@ -2,6 +2,7 @@
 
 ant:
   id:         3
+  version_id: 3
 <%= @defaults %>
   first_name: Solenopsis
   name:       Invicta
@@ -15,6 +16,7 @@ ant:
 
 tiger:
   id:         4
+  version_id: 4
 <%= @defaults %>
   first_name: Panther
   name:       Tigris Sumatran
@@ -28,6 +30,7 @@ tiger:
 
 lion:
   id:         5
+  version_id: 5
 <%= @defaults %>
   first_name: Panthera
   name:       Leo Verneyi
@@ -41,6 +44,7 @@ lion:
 
 lake:
   id:         6
+  version_id: 13
 <%= @defaults %>
   first_name: Lake
   name:       Tanganyika

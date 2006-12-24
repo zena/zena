@@ -28,6 +28,7 @@ ActiveRecord::Schema.define(:version => 6) do
   create_table "contact_contents", :force => true do |t|
     t.column "created_at", :datetime
     t.column "updated_at", :datetime
+    t.column "version_id", :integer
     t.column "first_name", :string, :limit => 60, :default => "", :null => false
     t.column "name", :string, :limit => 60, :default => "", :null => false
     t.column "address", :text, :default => "", :null => false

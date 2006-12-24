@@ -30,12 +30,9 @@
     <%#= plug :notes %>
   </div>
   <div id="main">
-    <% if @item.kind_of?(Document) -%>
-      <%= render :partial=>'main/doc_title' %>
-    <% else -%>
-      <%= render :partial=>'main/title' %>
-    <% end -%>
-
+    
+    <%= render :partial=>'main/title' %>
+      
     <div class="content" id='content'>
       <%= css_edit %>
       <%= show(@item, :v_summary) %>

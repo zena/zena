@@ -43,6 +43,7 @@ class CreateBase < ActiveRecord::Migration
     create_table("contact_contents", :force => true, :options => 'type=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci') do |t|
       t.column "created_at", :datetime
       t.column "updated_at", :datetime
+      t.column "version_id", :integer
       t.column "first_name", :string, :limit => 60, :default => "", :null => false
       t.column "name", :string, :limit => 60, :default => "", :null => false
       t.column "address", :text, :default => "", :null => false

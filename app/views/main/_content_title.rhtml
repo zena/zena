@@ -1,0 +1,13 @@
+<table class="block" cellspacing="0" borderspacing="0">
+  <tr class="b<%= @item.v_status %>">
+    <td class="preview">
+      <%= link_to @item.img_tag('pv'), data_url(@item) %>
+    </td>
+    <td class='subtitle'>      
+      <h1 class="s<%= @item.v_status %>"><span id='v_title<%= @item.v_id %>'><%= @item.v_title %></span><br/>
+        <ul class='item_actions'><%= edit_button(:all) %></ul>
+      </h1>
+      <%= author(:large) %><%#= plug :links %>
+    </td>
+  </tr>
+</table>

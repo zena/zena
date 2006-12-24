@@ -1,6 +1,12 @@
-<div class='header'>
-  <h1 class='s<%= @item.v_status %>'><span id='v_title<%= @item.v_id%>'><%= @item.v_title %></span>
-    <ul class='item_actions'><%= edit_button(:all) %></ul>
-  </h1>
-  <div class='subtitle'><%= author(:large) %><%#= plug :links %></div>
+<div class='<%= @item.class.to_s.downcase %>_title'>
+<% if klass = @item.v_content_class -%>
+  <%= render :partial=>"#{@item.class.to_s.downcase}/content"%>
+<% else -%>
+  <div class='header'>
+    <h1 class='s<%= @item.v_status %>'><span id='v_title<%= @item.v_id%>'><%= @item.v_title %></span>
+      <ul class='item_actions'><%= edit_button(:all) %></ul>
+    </h1>
+    <div class='subtitle'><%= author(:large) %><%#= plug :links %></div>
+  </div>
+<% end -%>  
 </div>
