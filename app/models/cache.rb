@@ -6,10 +6,8 @@ class Cache < ActiveRecord::Base
     def with(user_id, group_ids, kpath, *context)
       return yield unless perform_caching
       if cached = self.find_by_user_id_and_context(user_id,context.join('.'))
-        Cache.logger.info "=============== CACHED #{context.join('.')}"
         cached.content
       else
-        Cache.logger.info "=============== RENDER #{context.join('.')}"
         content = yield
         self.create(:user_id=>user_id, :group_ids=>".#{group_ids.join('.')}.", :kpath=>kpath,
                     :context=>context.join('.'), :content=>content )
