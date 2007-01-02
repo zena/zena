@@ -16,7 +16,7 @@ class ItemTest < Test::Unit::TestCase
     visitor(:ant)
     item = items(:wiki)
     assert_nil item[:fullpath]
-    item = Item.find_by_path(user_id,user_groups,'fr',['projects', 'wiki'])
+    item = Item.find_by_path(visitor_id,visitor_groups,'fr',['projects', 'wiki'])
     assert_kind_of Item, item
     assert_equal ['projects','wiki'], item.fullpath
     item.reload
@@ -42,8 +42,8 @@ class ItemTest < Test::Unit::TestCase
     visitor(:tiger)
     assert_nothing_raised { item = secure(Item) { items(:status) } }
     assert_kind_of Item, item
-    assert_raises (ActiveRecord::RecordNotFound) { item = Item.find_by_path(user_id,user_groups,'fr',['people', 'ant'])}
-    assert_nothing_raised { item = Item.find_by_path(user_id,user_groups,'fr',['people', 'ant', 'status'])}
+    assert_raises (ActiveRecord::RecordNotFound) { item = Item.find_by_path(visitor_id,visitor_groups,'fr',['people', 'ant'])}
+    assert_nothing_raised { item = Item.find_by_path(visitor_id,visitor_groups,'fr',['people', 'ant', 'status'])}
   end
   
   def test_rootpath
@@ -64,19 +64,19 @@ class ItemTest < Test::Unit::TestCase
     visitor(:tiger)
     attrs = NEW_DEFAULT
     attrs[:parent_id] = items(:proposition).id
-    item = secure(Item) { Item.new(attrs) }
+    item = secure(Page) { Page.new(attrs) }
     assert ! item.save , "Save fails"
     assert item.errors[:parent_id] , "Errors on parent_id"
     assert_equal "invalid parent", item.errors[:parent_id] # parent cannot be 'Note' if self not Document
 
     attrs[:parent_id] = items(:myDreams).id # cannot write here
-    item = secure(Item) { Item.new(attrs) }
+    item = secure(Page) { Page.new(attrs) }
     assert ! item.save , "Save fails"
     assert item.errors[:parent_id] , "Errors on parent_id"
     assert_equal "invalid reference", item.errors[:parent_id]
 
     attrs[:parent_id] = items(:cleanWater).id # parent ok
-    item = secure(Item) { Item.new(attrs) }
+    item = secure(Page) { Page.new(attrs) }
     assert item.save , "Save succeeds"
   end
   
@@ -308,10 +308,10 @@ class ItemTest < Test::Unit::TestCase
   
   def test_secure_find_by_path
     visitor(:tiger)
-    item = Item.find_by_path(user_id, user_groups, 'fr', ['projects', 'secret'])
+    item = Item.find_by_path(visitor_id, visitor_groups, 'fr', ['projects', 'secret'])
     assert_kind_of Item, item
     visitor(:ant)
-    assert_raise(ActiveRecord::RecordNotFound) { item = Item.find_by_path(user_id, user_groups, 'fr', ['projects', 'secret']) }
+    assert_raise(ActiveRecord::RecordNotFound) { item = Item.find_by_path(visitor_id, visitor_groups, 'fr', ['projects', 'secret']) }
   end
   
   def test_author
@@ -535,13 +535,15 @@ class ItemTest < Test::Unit::TestCase
   end
   
   def test_after_all_cache_sweep
+    bak = ApplicationController.perform_caching
+    ApplicationController.perform_caching = true
     visitor(:lion)
     i = 1
-    assert_equal "content 1", Cache.with(user_id, user_groups, 'IP', 'pages')  { "content #{i}" }
-    assert_equal "content 1", Cache.with(user_id, user_groups, 'IN', 'notes')  { "content #{i}" }
+    assert_equal "content 1", Cache.with(visitor_id, visitor_groups, 'IP', 'pages')  { "content #{i}" }
+    assert_equal "content 1", Cache.with(visitor_id, visitor_groups, 'IN', 'notes')  { "content #{i}" }
     i = 2
-    assert_equal "content 1", Cache.with(user_id, user_groups, 'IP', 'pages')  { "content #{i}" }
-    assert_equal "content 1", Cache.with(user_id, user_groups, 'IN', 'notes')  { "content #{i}" }
+    assert_equal "content 1", Cache.with(visitor_id, visitor_groups, 'IP', 'pages')  { "content #{i}" }
+    assert_equal "content 1", Cache.with(visitor_id, visitor_groups, 'IN', 'notes')  { "content #{i}" }
     
     # do something on a document
     item = secure(Item) { items(:water_pdf) }
@@ -549,8 +551,8 @@ class ItemTest < Test::Unit::TestCase
     assert item.update_attributes(:v_title=>'new title'), "Can change attributes"
     # sweep only kpath IPD
     i = 3
-    assert_equal "content 3", Cache.with(user_id, user_groups, 'IP', 'pages')  { "content #{i}" }
-    assert_equal "content 1", Cache.with(user_id, user_groups, 'IN', 'notes')  { "content #{i}" }
+    assert_equal "content 3", Cache.with(visitor_id, visitor_groups, 'IP', 'pages')  { "content #{i}" }
+    assert_equal "content 1", Cache.with(visitor_id, visitor_groups, 'IN', 'notes')  { "content #{i}" }
     
     # do something on a note
     item = secure(Item) { items(:proposition) }
@@ -558,8 +560,10 @@ class ItemTest < Test::Unit::TestCase
     assert item.update_attributes(:name=>'popo'), "Can change attributes"
     # sweep only kpath IPD
     i = 4
-    assert_equal "content 3", Cache.with(user_id, user_groups, 'IP', 'pages')  { "content #{i}" }
-    assert_equal "content 4", Cache.with(user_id, user_groups, 'IN', 'notes')  { "content #{i}" }
+    assert_equal "content 3", Cache.with(visitor_id, visitor_groups, 'IP', 'pages')  { "content #{i}" }
+    assert_equal "content 4", Cache.with(visitor_id, visitor_groups, 'IN', 'notes')  { "content #{i}" }
+    
+    ApplicationController.perform_caching = bak
   end
   
   def test_empty_comments
@@ -625,7 +629,8 @@ class ItemTest < Test::Unit::TestCase
   end
   
   def test_add_comment
-    visitor(:tiger)
+    visitor(:ant)
+    set_lang('en')
     item = secure(Item) { items(:status) }
     assert_equal 1, item.comments.size
     assert comment = item.add_comment( :author_name=>'parrot', :title=>'hello', :text=>'world' )
@@ -648,7 +653,8 @@ class ItemTest < Test::Unit::TestCase
   end
   
   def test_add_reply
-    visitor(:tiger)
+    visitor(:ant)
+    set_lang('en')
     item = secure(Item) { items(:status) }
     assert_equal 1, item.comments.size
     assert comment = item.add_comment( :author_name=>'parrot', :title=>'hello', :text=>'world', :reply_to=>comments_id(:public_says_in_en) )

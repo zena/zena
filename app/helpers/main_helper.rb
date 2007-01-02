@@ -58,7 +58,7 @@ module MainHelper
     return "" unless version.kind_of?(Version)
     actions = []
     if opt[:action] == :view
-      if (version.status != Zena::Status[:del]) ||  (version[:user_id] == user_id )
+      if (version.status != Zena::Status[:del]) ||  (version[:user_id] == visitor_id )
         actions << form_action('view', version[:id])
       end
     elsif opt[:action] == :all
@@ -72,10 +72,10 @@ module MainHelper
         actions << form_action('publish',version[:id])
         actions << form_action('refuse',version[:id])
       when Zena::Status[:red]
-        actions << form_action('edit',version[:id]) if version.user[:id] == user_id
+        actions << form_action('edit',version[:id]) if version.user[:id] == visitor_id
         actions << form_action('publish',version[:id])
         actions << form_action('propose',version[:id])
-        actions << form_action('remove',version[:id]) if version.user[:id] == user_id
+        actions << form_action('remove',version[:id]) if version.user[:id] == visitor_id
       when Zena::Status[:rep]
         actions << form_action('edit',version[:id]) if @item.can_edit_lang?(version.lang)
         actions << form_action('publish',version[:id])

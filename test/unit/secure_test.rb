@@ -31,15 +31,16 @@ class SecureReadTest < Test::Unit::TestCase
   # SECURE FIND TESTS  ===== TODO CORRECT THESE TEST FROM CHANGES TO RULES ========
   # [user]          Item owner. Can *read*, *write* and (*manage*: if item not published yet or item is private).
   def test_can_rwm_own_private_item
-    visitor(:lion)
-    item = secure(Item) { items(:myDreams)  }
+    visitor(:ant)
+    item = secure(Item) { items(:myLife)  }
     assert_kind_of Item, item
-    assert_equal 'myDreams', item.name
+    assert_equal 'myLife', item.name
     assert item.can_read?, "Can read"
     assert item.can_write? , "Can write"
     assert item.private? , "Item is private"
-    assert ! item.can_visible? , "Cannot publish"
     assert item.can_manage? , "Can manage"
+    assert item.can_drive? , "Can manage"
+    assert !item.can_visible? , "Cannot make visible changes"
   end
   def test_cannot_view_others_private_items
     visitor(:lion)
@@ -57,7 +58,7 @@ class SecureReadTest < Test::Unit::TestCase
     visitor(:ant)
     # not in any group and not owner
     item = items(:secret)
-    item.set_visitor(user_id, user_groups, lang)
+    item.set_visitor(visitor_id, visitor_groups, lang)
     assert ! item.can_read? , "Can read"
     assert ! item.can_write? , "Can write"
     assert ! item.can_publish? , "Can publish"

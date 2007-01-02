@@ -3,13 +3,13 @@ class Cache < ActiveRecord::Base
     def perform_caching
       ApplicationController.perform_caching
     end
-    def with(user_id, group_ids, kpath, *context)
+    def with(visitor_id, visitor_groups, kpath, *context)
       return yield unless perform_caching
-      if cached = self.find_by_user_id_and_context(user_id,context.join('.'))
+      if cached = self.find_by_visitor_id_and_context(visitor_id,context.join('.'))
         cached.content
       else
         content = yield
-        self.create(:user_id=>user_id, :group_ids=>".#{group_ids.join('.')}.", :kpath=>kpath,
+        self.create(:visitor_id=>visitor_id, :visitor_groups=>".#{visitor_groups.join('.')}.", :kpath=>kpath,
                     :context=>context.join('.'), :content=>content )
         content
       end
@@ -23,12 +23,12 @@ class Cache < ActiveRecord::Base
       else
         kpath_selector = ""
       end
-      if hash[:user_id]
-        self.connection.execute "DELETE FROM #{self.table_name} WHERE user_id = '#{hash[:user_id]}'" + kpath_selector
+      if hash[:visitor_id]
+        self.connection.execute "DELETE FROM #{self.table_name} WHERE visitor_id = '#{hash[:visitor_id]}'" + kpath_selector
       end
-      if hash[:group_ids]
-        hash[:group_ids].each do |g|
-          self.connection.execute "DELETE FROM #{self.table_name} WHERE group_ids LIKE '%.#{g}.%'" + kpath_selector
+      if hash[:visitor_groups]
+        hash[:visitor_groups].each do |g|
+          self.connection.execute "DELETE FROM #{self.table_name} WHERE visitor_groups LIKE '%.#{g}.%'" + kpath_selector
         end
       end
       if hash[:context]

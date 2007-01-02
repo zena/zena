@@ -338,7 +338,7 @@ module ApplicationHelper
   
   # Hierachical menu. (same on all pages)
   def show_menu
-    Cache.with(user_id, user_groups, Page.kpath, 'show_menu') do
+    Cache.with(visitor_id, visitor_groups, Page.kpath, 'show_menu') do
       if ZENA_ENV[:menu_tag_id] !=nil
         menu  = secure(Tag) { Tag.find(ZENA_ENV[:menu_tag_id]) }
         menus = menu.pages
@@ -364,7 +364,7 @@ module ApplicationHelper
     using  = options[:using ] || :event_at
     day_names, on_day = calendar_get_options(size, source, method)
     return "" unless on_day && source
-    Cache.with(user_id, user_groups, 'IN', size, method, source.id, date.ajd, lang) do
+    Cache.with(visitor_id, visitor_groups, 'IN', size, method, source.id, date.ajd, lang) do
       # find start and end date
       week_start_day = trans('week_start_day').to_i
       start_date  = Date.civil(date.year, date.mon, 1)
@@ -472,7 +472,7 @@ module ApplicationHelper
   #TODO: test
 	# Return the list of groups from the visitor for forms
 	def form_groups
-	  @form_groups ||= Group.find(:all, :select=>'id, name', :conditions=>"id IN (#{user_groups.join(',')})", :order=>"name ASC").collect {|p| [p.name, p.id]}
+	  @form_groups ||= Group.find(:all, :select=>'id, name', :conditions=>"id IN (#{visitor_groups.join(',')})", :order=>"name ASC").collect {|p| [p.name, p.id]}
   end
   
   #TODO: test

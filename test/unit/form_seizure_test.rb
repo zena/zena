@@ -6,7 +6,7 @@ class FormSeizureTest < Test::Unit::TestCase
 
   def test_find_dogs
     #visitor(:ant)
-    #seizures = FormSeizure.find_seizures(items_id(:form), 'animal=dog', user_groups)
+    #seizures = FormSeizure.find_seizures(items_id(:form), 'animal=dog', visitor_groups)
     #assert_equal 6, seizures.size
   end
   

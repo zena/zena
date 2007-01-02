@@ -108,7 +108,7 @@ class ApplicationController < ActionController::Base
     end
 
     # If the current user is su, make the CSS ugly so the user does not stay logged in as su.
-    if session[:user] && user_id == 2
+    if session[:user] && visitor_id == 2
       @su=' style="background:#600;" '
     else
       @su=''
@@ -116,7 +116,7 @@ class ApplicationController < ActionController::Base
     
     # turn translation on/off
     if params[:translate] 
-      if user_groups.include?(ZENA_ENV[:translate_group])
+      if visitor_groups.include?(ZENA_ENV[:translate_group])
         if params[:translate] == 'on'
           session[:translate] = true
         else
@@ -178,7 +178,7 @@ class ApplicationController < ActionController::Base
   
   # TODO: test
   def user_admin?
-    (user_groups.include?(2) || user_id == 2)
+    (visitor_groups.include?(2) || visitor_id == 2)
   end
   
   # Notes finder options are

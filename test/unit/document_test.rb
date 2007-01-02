@@ -76,7 +76,7 @@ class DocumentTest < Test::Unit::TestCase
   
   def get_with_full_path
     visitor(:tiger)
-    doc = secure(Document) { Document.find_by_path( user_id, user_groups, lang, "/projects/cleanWater/water.pdf") }
+    doc = secure(Document) { Document.find_by_path( visitor_id, visitor_groups, lang, "/projects/cleanWater/water.pdf") }
     assert_kind_of Document, doc
     assert_equal "/projects/cleanWater/water.pdf", doc.fullpath
   end

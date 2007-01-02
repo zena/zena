@@ -20,6 +20,6 @@ class TransController < ApplicationController
 
   private
   def check_translator
-    page_not_found unless user_groups.include?(ZENA_ENV[:translate_group])
+    page_not_found unless visitor_groups.include?(ZENA_ENV[:translate_group])
   end
 end

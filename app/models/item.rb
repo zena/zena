@@ -69,7 +69,7 @@ class Item < ActiveRecord::Base
     end
     
     # Find an item by it's full path. Cache 'fullpath' if found.
-    def find_by_path(user_id, user_groups, lang, path)
+    def find_by_path(visitor_id, visitor_groups, lang, path)
       item = Item.find_by_fullpath(path.join('/'))
       unless item
         raise ActiveRecord::RecordNotFound unless item = Item.find(ZENA_ENV[:root_id])
@@ -80,8 +80,8 @@ class Item < ActiveRecord::Base
         # bypass callbacks here
         Item.connection.execute "UPDATE #{Item.table_name} SET fullpath='#{path.join('/').gsub("'",'"')}' WHERE id='#{item[:id]}'"
       end
-      if item.can_read?(user_id, user_groups)
-        item.set_visitor(user_id, user_groups, lang)
+      if item.can_read?(visitor_id, visitor_groups)
+        item.set_visitor(visitor_id, visitor_groups, lang)
       else
         raise ActiveRecord::RecordNotFound
       end
@@ -433,7 +433,7 @@ class Item < ActiveRecord::Base
   
   # Whenever something changed (publication/proposition/redaction/...)
   def after_all
-    Cache.sweep(:user_id=>self[:user_id], :user_groups=>[rgroup_id, wgroup_id, pgroup_id], :kpath=>self.class.kpath)
+    Cache.sweep(:visitor_id=>self[:user_id], :visitor_groups=>[rgroup_id, wgroup_id, pgroup_id], :kpath=>self.class.kpath)
     true
   end
   

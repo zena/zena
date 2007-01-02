@@ -19,13 +19,13 @@ module Zena
       # * owner
       # * members of +read_group+ if the item is published and the current date is greater or equal to the publication date
       # * members of +publish_group+ if +max_status+ >= prop
-      def secure_scope(user_id, user_groups)
-        if user_id == 2
+      def secure_scope(visitor_id, visitor_groups)
+        if visitor_id == 2
           '1'
         else
-          "user_id = '#{user_id}' OR "+
-          "(rgroup_id IN (#{user_groups.join(',')}) AND publish_from <= now() ) OR " +
-          "(pgroup_id IN (#{user_groups.join(',')}) AND max_status > #{Zena::Status[:red]})"
+          "user_id = '#{visitor_id}' OR "+
+          "(rgroup_id IN (#{visitor_groups.join(',')}) AND publish_from <= now() ) OR " +
+          "(pgroup_id IN (#{visitor_groups.join(',')}) AND max_status > #{Zena::Status[:red]})"
         end
       end
 
@@ -34,12 +34,12 @@ module Zena
       # * super user
       # * owner
       # * members of +write_group+ if item is published and the current date is greater or equal to the publication date
-      def secure_write_scope(user_id, user_groups)
-        if user_id == 2
+      def secure_write_scope(visitor_id, visitor_groups)
+        if visitor_id == 2
           '1'
         else
-          "user_id = '#{user_id}' OR "+
-          "(wgroup_id IN (#{user_groups.join(',')}) AND publish_from <= now())"
+          "user_id = '#{visitor_id}' OR "+
+          "(wgroup_id IN (#{visitor_groups.join(',')}) AND publish_from <= now())"
         end
       end
       
@@ -52,14 +52,14 @@ module Zena
       # [manage]
       # * owner if +max_status+ <= red
       # * owner if private
-      def secure_drive_scope(user_id, user_groups)
-        if user_id == 2
+      def secure_drive_scope(visitor_id, visitor_groups)
+        if visitor_id == 2
           '1'
         else
-          "(user_id = '#{user_id}' AND "+
-            "( (rgroup_id = 0 AND wgroup_id = 0 AND pgroup_id = 0) OR max_status <= #{Zena::Status[:red]} OR pgroup_id IN (#{user_groups.join(',')}) )" +
+          "(user_id = '#{visitor_id}' AND "+
+            "( (rgroup_id = 0 AND wgroup_id = 0 AND pgroup_id = 0) OR max_status <= #{Zena::Status[:red]} OR pgroup_id IN (#{visitor_groups.join(',')}) )" +
           ") OR "+
-          "( pgroup_id IN (#{user_groups.join(',')}) AND max_status > #{Zena::Status[:red]} )"
+          "( pgroup_id IN (#{visitor_groups.join(',')}) AND max_status > #{Zena::Status[:red]} )"
         end
       end
     end
@@ -189,9 +189,9 @@ Just doing the above will filter all result according to the logged in user.
         end
           
         # Store visitor to produce scope when needed and to retrieve correct editions.
-        def set_visitor(user_id, user_groups, user_lang)
-          @visitor_id = user_id
-          @visitor_groups = user_groups
+        def set_visitor(visitor_id, visitor_groups, user_lang)
+          @visitor_id = visitor_id
+          @visitor_groups = visitor_groups
           @visitor_lang = user_lang
           # callback used by functions triggered before 'set_visitor'
           if @eval_on_visitor
@@ -217,8 +217,8 @@ Just doing the above will filter all result according to the logged in user.
         # as set by #set_visitor
         def secure_with_scope(obj, scope)
           obj.with_scope(
-            :create => { :visitor_id => @visitor_id, :visitor_groups => @visitor_groups, :visitor_lang => @visitor_lang }, 
-            :find=>{ :conditions => scope }) do
+            :create => { :user_id => @visitor_id, :lang => @visitor_lang }, 
+            :find   => { :conditions => scope }) do
             result = yield
             if result
               # propagate secure scope to children
@@ -737,16 +737,16 @@ Just doing the above will filter all result according to the logged in user.
         # secure find with scope (for read/write or publish access)
         def secure_with_scope(obj, scope)
           obj.with_scope(
-            :create => { :visitor_id => user_id, :visitor_groups => user_groups, :visitor_lang => lang }, 
+            :create => { :visitor_id => visitor_id, :visitor_groups => visitor_groups, :visitor_lang => lang }, 
             :find   => { :conditions => scope }) do
             result = yield
             if result
               if result.kind_of? Array
-                result.each {|r| r.set_visitor(user_id, user_groups, lang)}
+                result.each {|r| r.set_visitor(visitor_id, visitor_groups, lang)}
               else
                 # give the item some info on the current visitor. This lets security and lang info
                 # propagate naturally through the items.
-                result.set_visitor(user_id, user_groups, lang)
+                result.set_visitor(visitor_id, visitor_groups, lang)
               end
               result
             else
@@ -757,17 +757,17 @@ Just doing the above will filter all result according to the logged in user.
         
         # secure find for read access.
         def secure(obj, &block)
-          secure_with_scope(obj, secure_scope(user_id, user_groups), &block)
+          secure_with_scope(obj, secure_scope(visitor_id, visitor_groups), &block)
         end
 
         # secure find for write access.
         def secure_write(obj, &block)
-          secure_with_scope(obj, secure_write_scope(user_id, user_groups), &block)
+          secure_with_scope(obj, secure_write_scope(visitor_id, visitor_groups), &block)
         end
         
         # secure find for publish (and manage) access.
         def secure_drive(obj, &block)
-          secure_with_scope(obj, secure_drive_scope(user_id, user_groups), &block)
+          secure_with_scope(obj, secure_drive_scope(visitor_id, visitor_groups), &block)
         end
 
         def set_session_with_user(user)
@@ -785,7 +785,7 @@ Just doing the above will filter all result according to the logged in user.
           end
         end
 
-        def user_id
+        def visitor_id
           if session && session[:user]
             session[:user][:id]
           else
@@ -793,7 +793,7 @@ Just doing the above will filter all result according to the logged in user.
           end
         end
 
-        def user_groups
+        def visitor_groups
           if session && session[:user]
             session[:user][:groups]
           else

@@ -1,78 +1,49 @@
 = Welcome to Zena
 
 Zena is a CMS. (c) teti.ch 2006
-== Bugs
-* login : no redirects !
+
+-------------------------------------------
 == Todo
-
-=> create 'user' controller for users/groups management
-LINKABLE: selections not in sync...
-=> ON DESTROY of DocumentVersion : remove files
-=> WHEN CREATING THE DATABASE:
-"create database zena DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;"
-  
-0. month selection on calendar => update notes list
-
-1. translate flash 'notice' and 'error', with clever '%s'. Translate error messages (message and field name)
-3. create plug test facility (look at zentest, test_helper.rb)
-4. view archive...
-5. change 'user_id' and 'user_groups' methods and calls to 'visitor_id' and 'vistor_groups'
-6. how to expire plug caches cleanly ???
-* rollback a published edition to the previous version = use created_at order.
-* manage site configurations (default comment_group, ...)
-* is +text+ a good format for *paths* ? What should be the size of a string ?
-* Show '+/-' font size in navbar
-=== Optimization
+=== Tools
+* user management :
+  * create
+  * change password
+  * add groups
+* group management :
+  * create
+  * views
+=== Optimization & Cache
+* sweep public page cache :
+  * page for all lang
+  * project for all lang
+* on destroy : remove all (including document files)
+-------------------------------------------
+== Enhancements
+=== Views
+* view archive... & search tool
+* contact search/list page
 === Security
-* ItemController#live_new_event ItemController#live_edit_item
-* WebController#publish and check for errors.
 * How do we avoid someone removing the wiki as a whole ? +can_destroy+ will have to look for publish access in the parent.
-* How do we avoid tree loops (ex. cleanWater using lake as reference or another item deeper) ?
 * Implement salt login with client side JS : http://pajhome.org.uk/crypt/md5/
-=== login
-* see if it is possible to never have the password hanging around (even the hash)
-* see how SPIP manages a Javascript hash before form validation
-=== views
-* if a view 'has a Contact' show contact partial in header
-* Better layout for form 'live_new_event'
-=== Page
-* overwrite make_private : check all children can be made private. Make all children private.
-* optimize number of sql calls to get editions.
-* replace title_for_lang(@lang) by lang_title and set @asked_lang from edition_for_lang(@lang)
-=== Document
-* On file update : make sure all other versions using the same file through file_ref are updated as well
-"UPDATE versions SET file_ref=#{id} WHERE file_ref=#{old.id} AND id !=#{old.id}"
-* Document caching. in /oo/projects/cleanWater/lake.jpg and /fr/projects/cleanWater/lake.jpg and /en... : this is bad. Find
-  a better solution...
-=== Tag / Alias
-* Use 'context intelligent' paths : this means we do not jump from one context to another using
-  alias or collector. So a collector for 'art' makes it possible to have <tt>/collect/art/dyl/introduction</tt> pointing
-  to the same page as <tt>/projects/dyl/introduction</tt>.
-=== Contact
-=== Events
-* create a table 'users_events' with the possibility to mark an event as +read+ or +sticky+. So a user can see the news he hasn't read yet.
-=== ItemController
-* set default r/w groups.
-* Create a Helper to set 'actions' based on user and object(s)
-=== TESTS FOR
-* web 'contact', 'events'
-* Textile images and preview images. Add 'alt' text to images.
-* Add tests for Item#publish_from when testing Version#rollback remove etc.
-* Project (participants, contacts)
-* Controllers....
 === Error messages
-* Use 'error_messages_for' style...
-
-== Personnalisation by user
+* translate flash 'notice' and 'error', with clever '%s'. Translate error messages (message and field name)
+=== Preferences, ZENA_ENV
 Store user defaults, prefs and site config, etc in the database. STI starting with 'settings' (id, key(string), value(yaml), type) :
 * settings <--- UserPreferences
 * settings <--- ProjectSettings
 * settings <--- SiteConfiguration
 
-Custom menu, news
+Custom info that could be stored
 * custom menu = std menu + own menu (= user[:custom_menu_collector])
-* custom news = std news + onw news (= user[:custom_news_collector])
-* etc
+* default comment_group
+
+=== Other
+* is +text+ a good format for *paths* ? What should be the size of a string ?
+-------------------------------------------
+== general info
+* when creating the database: "create database zena DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;"
+
+
 -------------------------------------------
 = Conception
 Zena is divided into modules. These modules are :
