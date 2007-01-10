@@ -99,9 +99,4 @@ class CommentController < ApplicationController
   def bin_content
     @bin_content ||= Comment.find(:all, :conditions=>['status <= ?', Zena::Status[:rem]])
   end
-  
-  def check_is_admin
-    page_not_found unless user_admin?
-    @admin = true
-  end
 end

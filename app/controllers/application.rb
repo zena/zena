@@ -181,6 +181,12 @@ class ApplicationController < ActionController::Base
     (visitor_groups.include?(2) || visitor_id == 2)
   end
   
+  # TODO: test
+  def check_is_admin
+    page_not_found unless user_admin?
+    @admin = true
+  end
+  
   # Notes finder options are
   # [from] item providing the notes. If omitted, <code>@project</code> or <code>@item.project</code> is used.
   # [find] method called on the source. Default is 'notes'. For example, <code>:from=>@item.project, :find=>:news</code> finds all news from the project of the current item.

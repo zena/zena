@@ -1,0 +1,6 @@
+<tr id="add_user" class="btn_add">
+  <td class="add_icon"><%= link_to_function transb('btn_user_add'), "new Element.toggle('add_user', 'add_user_form'); " %></td><td colspan="5" class="add_user"></td>
+</tr>
+<tr id="add_user_form" style="display:none;">
+  <%= render :partial=>'user/form' %>
+</tr>

@@ -1,0 +1,24 @@
+<tr id="add_group" class="btn_add">
+  <td class="add_icon"><%= link_to_function tb('btn_group_add'), "new Element.toggle('add_group', 'add_group_form'); " %></td><td colspan="5" class="add_user"></td>
+</tr>
+<tr id="add_group_form" style="display:none;">
+  <td class="add_icon">
+    <%= link_to_function tb('btn_x'), "new Element.toggle('add_group', 'add_group_form')" %>
+  </td>
+  <%#= form_remote_tag(:with=>"add_link_form", :url=>{:controller=>'link', :action=>"create" }) %>
+  <td class="add_ug" colspan="3">
+    <%= form_tag(:controller=>'admin', :action=>"create_group" ) %>
+    <table cellspacing='0'>
+      <tr><td><%= t("name")%>       </td><td><%= text_field('group', 'name',        :size=>15 ) %></td></tr>
+      <tr><td><%= t("users")%>      </td><td><%= users.inject([]) do |list, u|
+        unless 1 == u[:id] || 2 == u[:id]
+          list << "<input type='checkbox' name='user[#{u.id}]' value='#{u.id}' class='box'/>#{u.login}"
+        end
+        list
+      end.join(" ") %></ul></td></tr>
+      <tr><td><%= t("validate") %></td><td><button type="submit" class="btn_accept"><%= t "btn_accept" %></button></td></tr>
+    </table>
+    <%= end_form_tag %>
+  </td>
+  </td>
+</tr>

@@ -1,16 +1,17 @@
 require File.dirname(__FILE__) + '/../test_helper'
-require 'user_controller'
+require 'group_controller'
 
 # Re-raise errors caught by the controller.
-class UserController; def rescue_action(e) raise e end; end
+class GroupController; def rescue_action(e) raise e end; end
 
-class UserControllerTest < Test::Unit::TestCase
+class GroupControllerTest < Test::Unit::TestCase
   include ZenaTestController
   
   def setup
     @controller = UserController.new
     init_controller
   end
+
 
   # Replace this with your real tests.
   def test_truth

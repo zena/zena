@@ -1,0 +1,11 @@
+<% icon = 'group'
+if 1 == group[:id]
+  icon += '_pub'
+elsif 2 == group[:id]
+  icon += '_admin'
+end %>
+<tr>
+  <td class="icon"><%= if 1 == group[:id] then t("img_#{icon}") else link_to( t("img_#{icon}"), :action=>'edit_group', :id=>group[:id]) end %></td>
+  <td class="name"><%= group.name %></td>
+  <td class="users"><%= group.users.map {|u| u.login }.join(', ') %></td>
+</tr>
