@@ -18,7 +18,7 @@ class UserController < ApplicationController
   # TODO: test
   def create
     if params[:groups]
-      params[:user][:group_ids] = params[:group].values
+      params[:user][:group_ids] = params[:groups].values
     end
     puts params.inspect
     User.create(params[:user])

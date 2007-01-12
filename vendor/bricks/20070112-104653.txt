@@ -1,0 +1,6 @@
+{:brick=>'zena_base', :type=>:extract, :date=>'2007-01-12 10:46:53'}
+type;source;target
+copy;CREDITS;CREDITS
+copy;config/environment.rb;config/environment.rb
+copy;config/routes.rb;config/routes.rb
+copy;config/zena.rb;config/zena.rb

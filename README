@@ -1,3 +1,14 @@
-== Welcome to Zena ha ha
+== Zena
+CMS based on Ruby on Rails, (c) Gaspard Bucher, teti.ch 2007, licenced under MIT
 
-Zena is a CMS.
+== Creating the database
+You need to set collation and charset to utf8 when creating the database. Example :
+# create database zena DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
+
+== Migrating the database (setup)
+Once config/database.yml is properly set, run the following command
+# rake bricks:migrate BRICK=zena_base
+# rake bricks:initialize BRICK=zena_base
+
+== Loading new languages
+This is done through the web

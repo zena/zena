@@ -32,6 +32,8 @@ Store user defaults, prefs and site config, etc in the database. STI starting wi
 * settings <--- UserPreferences
 * settings <--- ProjectSettings
 * settings <--- SiteConfiguration
+=== Translations
+* load new languages from the web interface
 
 Custom info that could be stored
 * custom menu = std menu + own menu (= user[:custom_menu_collector])

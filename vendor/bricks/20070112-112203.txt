@@ -1,0 +1,10 @@
+{:brick=>'zena_base', :type=>:extract, :date=>'2007-01-12 11:22:03'}
+type;source;target
+copy;db/initialize/zena_base/base.yml;db/initialize/zena_base/base.yml
+copy;db/initialize/zena_base/en.yml;db/initialize/zena_base/en.yml
+copy;db/initialize/zena_base/fr.yml;db/initialize/zena_base/fr.yml
+copy;db/initialize/zena_base/images.yml;db/initialize/zena_base/images.yml
+copy;db/initialize/zena_base/init.rb;db/initialize/zena_base/init.rb
+copy;db/initialize/zena_base/trans_keys.yml;db/initialize/zena_base/trans_keys.yml
+copy;db/migrate/001_create_base.rb;db/migrate/001_create_base.rb
+copy;README;README
