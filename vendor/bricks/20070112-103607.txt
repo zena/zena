@@ -1,6 +1,6 @@
 {:brick=>'zena_base', :type=>:extract, :date=>'2007-01-12 10:36:07'}
 type;source;target
-copy;db/migrate/001_create_base.rb;db/migrate/001_create_base.rb
+copy;db/migrate/zena_base/001_create_base.rb;db/migrate/zena_base/001_create_base.rb
 copy;public/500.html;public/500.html
 copy;public/calendar/calendar-brown.css;public/calendar/calendar-brown.css
 copy;public/calendar/calendar-setup.js;public/calendar/calendar-setup.js

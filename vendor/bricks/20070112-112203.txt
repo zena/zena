@@ -6,5 +6,5 @@ copy;db/initialize/zena_base/fr.yml;db/initialize/zena_base/fr.yml
 copy;db/initialize/zena_base/images.yml;db/initialize/zena_base/images.yml
 copy;db/initialize/zena_base/init.rb;db/initialize/zena_base/init.rb
 copy;db/initialize/zena_base/trans_keys.yml;db/initialize/zena_base/trans_keys.yml
-copy;db/migrate/001_create_base.rb;db/migrate/001_create_base.rb
+copy;db/migrate/zena_base/001_create_base.rb;db/migrate/zena_base/001_create_base.rb
 copy;README;README
