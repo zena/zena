@@ -1,29 +1,3 @@
-$password_salt = "fish zen ho"
-$su_password = 'su'
-
-class Loader < ActiveRecord::Base
-  class << self
-    def set_table(tbl)
-      set_table_name tbl
-      reset_column_information
-    end
-    def create(opts)
-      h = {}
-      opts.each_pair do |k,v|
-        if :type == k
-          h[:_type_] = v
-        else
-          h[k] = v
-        end
-      end
-      super(h)
-    end
-  end
-  def _type_=(t)
-    self.type = t
-  end
-end
-
 class CreateBase < ActiveRecord::Migration
   
   def self.up
@@ -80,6 +54,7 @@ class CreateBase < ActiveRecord::Migration
 
     create_table("items", :force => true, :options => 'type=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci') do |t|
       t.column "type", :string, :limit => 16
+      t.column "event_at", :datetime
       t.column "kpath", :string, :limit => 16
       t.column "created_at", :datetime
       t.column "updated_at", :datetime
@@ -123,6 +98,27 @@ class CreateBase < ActiveRecord::Migration
       t.column "content_id", :integer
     end
 
+    create_table("discussions", :force => true, :options => 'type=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci') do |t|
+      t.column "created_at", :datetime
+      t.column "updated_at", :datetime
+      t.column "item_id", :integer
+      t.column "inside", :boolean, :default=>false  # if true, the discussion will not appear when published but when proposed or redaction
+      t.column "open", :boolean, :default=>true
+      t.column "lang", :string, :limit => 10, :default => "", :null => false
+    end
+
+    create_table("comments", :force => true, :options => 'type=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci') do |t|
+      t.column "created_at", :datetime
+      t.column "updated_at", :datetime
+      t.column "status", :integer
+      t.column "discussion_id", :integer
+      t.column "reply_to", :integer
+      t.column "user_id", :integer
+      t.column "title", :string, :limit => 250, :default => "", :null => false
+      t.column "text", :text, :default => "", :null => false
+      t.column "author_name",:string, :limit => 300
+    end
+    
     create_table("trans_keys", :force => true, :options => 'type=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci') do |t|
       t.column "key", :string, :limit => 100, :default => "", :null => false
     end
@@ -133,41 +129,13 @@ class CreateBase < ActiveRecord::Migration
       t.column "value", :text, :default => "", :null => false
     end
     
-    require 'yaml'
-    base_objects = {}
-    Dir.foreach(File.dirname(__FILE__)) do |file|
-      next unless file =~ /.+\.yml$/
-      YAML::load_documents( File.open( File.join(File.dirname(__FILE__), file) ) ) do |doc|
-        doc.each do |elem|
-          list = elem[1].map do |l|
-            hash = {}
-            l.each_pair do |k, v|
-              hash[k.to_sym] = v
-            end
-            hash
-          end
-          tbl = elem[0].to_sym
-          if base_objects[tbl]
-            base_objects[tbl] += list
-          else
-            base_objects[tbl] = list
-          end
-        end
-      end
-    end
-
-    base_objects.each_pair do |tbl, list|
-      Loader.set_table(tbl.to_s)
-      list.each do |record|
-        if :users == tbl
-          record[:password] = User.hash_password(record[:password]) if record[:password]
-        elsif :items == tbl && record[:log_at] == 'today'
-          record[:log_at] = Time.now
-        end
-        unless Loader.create(record)
-          puts "could not create #{klass} #{record.inspect}"
-        end
-      end
+    create_table("caches", :force => true, :options => 'type=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci') do |t|
+      t.column "updated_at", :datetime
+      t.column "visitor_id", :integer
+      t.column "visitor_groups", :string, :limit => 200
+      t.column "kpath", :string, :limit => 200
+      t.column "context", :string, :limit => 200
+      t.column "content", :text
     end
   end
   
@@ -182,5 +150,8 @@ class CreateBase < ActiveRecord::Migration
     drop_table "versions"
     drop_table "trans_keys"
     drop_table "trans_values"
+    drop_table "caches"
+    drop_table "comments"
+    drop_table "discussions"
   end
 end
