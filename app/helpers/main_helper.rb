@@ -6,47 +6,47 @@ module MainHelper
   end
   
   # Used by edit_buttons
-  def form_action(action, version_id=nil)
+  def form_action(action, version_id=nil, link_text=nil)
     version_id ||= @item.v_id
     if action == 'edit'
       "<a href='#' title='#{transb('btn_title_edit')}' onClick=\"editor=window.open('" + 
       url_for(:controller=>'version', :id=>version_id, :action=>'edit', :rnd=>rnd) + 
-      "', 'editor', 'location=0,width=500,height=600,resizable=1');return false;\">" + transb('btn_edit') + "</a>"
+      "', 'editor', 'location=0,width=500,height=600,resizable=1');return false;\">" + (link_text || transb('btn_edit')) + "</a>"
     elsif action == 'view'
-      tlink_to_function('btn_view', "opener.Zena.version_preview(#{version_id}); return false;")
+      tlink_to_function((link_text || 'btn_view'), "opener.Zena.version_preview(#{version_id}); return false;")
     elsif action == 'drive'
       "<a href='#' title='#{transb('btn_title_drive')}' onClick=\"editor=window.open('" + 
       url_for(:controller=>'item', :version_id=>version_id, :action=>'drive', :rnd=>rnd) + 
-      "', 'editor', 'location=0,width=500,height=600,resizable=1');return false;\">" + transb('btn_drive') + "</a>"
+      "', 'editor', 'location=0,width=500,height=600,resizable=1');return false;\">" + (link_text || transb('btn_drive')) + "</a>"
     else
-      tlink_to( "btn_#{action}", {:controller=>'version', :action => action , :id => version_id}, :title=>transb("btn_title_#{action}"), :post=>true ) + "\n"
+      tlink_to( (link_text || "btn_#{action}"), {:controller=>'version', :action => action , :id => version_id}, :title=>transb("btn_title_#{action}"), :post=>true ) + "\n"
     end
   end
   
   # Buttons are :edit, :add, :propose, :publish, :refuse, or :drive. :all = (:edit, :propose, :publish, :refuse, :drive)
-  def edit_button(action, options={})
+  def edit_button(action, opt={})
     res = []
-    if options[:item]
-      version_id = options[:item].v_id
-      item = options[:item]
+    if opt[:item]
+      version_id = opt[:item].v_id
+      item = opt[:item]
     else
       version_id = nil
       item = @item
     end
     if (action == :edit or action == :all) && item.can_edit?
-      res << form_action('edit',version_id)
+      res << form_action('edit',version_id, opt[:text])
     end
     if (action == :propose or action == :all) && item.can_propose?
-      res << form_action('propose',version_id)
+      res << form_action('propose',version_id, opt[:text])
     end
     if (action == :publish or action == :all) && item.can_publish?
-      res << form_action('publish',version_id)
+      res << form_action('publish',version_id, opt[:text])
     end
     if (action == :refuse or action == :all) && item.can_refuse?
-      res << form_action('refuse',version_id)
+      res << form_action('refuse',version_id, opt[:text])
     end
     if (action == :drive or action == :all) && item.can_drive?
-      res << form_action('drive',version_id)
+      res << form_action('drive',version_id, opt[:text])
     end
     "<li>#{res.join("</li>\n<li>")}</li>"
   end

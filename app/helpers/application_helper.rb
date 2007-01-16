@@ -271,7 +271,11 @@ module ApplicationHelper
       prefix = suffix = ""
     end
     if img.kind_of?(Image)
-      image = img.img_tag(size || 'std')
+      if size
+        image = img.img_tag(size)
+      else
+        image = link_to(img.img_tag('std'), data_url(img))
+      end
     else
       image = link_to(img.img_tag(size), data_url(img))
     end
