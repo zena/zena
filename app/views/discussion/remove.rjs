@@ -1,7 +1,7 @@
-if @error
-  page.replace_html 'discussion_errors', :inline=>@error
+if @errors
+  page.replace_html 'discussion_errors', :inline => render_errors
 else
-  page.replace_html 'discussion_errors', :inline=>''
+  page.replace_html 'discussion_errors', :inline => ''
   page.visual_effect :highlight, "discussion#{@discussion[:id]}", :duration => 0.3
   page.visual_effect :fade, "discussion#{@discussion[:id]}", :duration => 0.5
 end

@@ -26,7 +26,7 @@ class DiscussionController < ApplicationController
     @item = secure(Item) { Item.find(params[:discussion][:item_id])}
     @discussion = Discussion.create(params[:discussion])
   rescue ActiveRecord::RecordNotFound
-    @error = trans 'item not found'
+    add_error'item not found'
   end
   
   # TODO: test
@@ -41,6 +41,6 @@ class DiscussionController < ApplicationController
     @discussion = Discussion.find(params[:id])
     @item = secure_drive(Item) { Item.find(@discussion[:item_id]) }
   rescue ActiveRecord::RecordNotFound
-    @error = trans 'item not found'
+    add_error'item not found'
   end
 end

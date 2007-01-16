@@ -18,8 +18,8 @@
         <%= zazen("!>.0#{@item.id}!") if @item.kind_of?(Document) %>
         <label for="v_title"><%= trans("title")  %></label>
         <%= text_field 'item', 'v_title', :size=>nil, :style=>"width:60%;" %>
-        <%= link_box('item', 'hot_for', [@item.project_id,1])%>
-        <%= link_box('item', 'contact_for', [@item.project_id]) if @item.kind_of?(Contact)%>
+        <%= link_box('item', 'hot_for', :in=>[@item.project_id,1])%>
+        <%= link_box('item', 'contact_for', :in=>[@item.project_id]) if @item.kind_of?(Contact)%>
         <%= link_box('item', 'hot') if @item.kind_of?(Project) %>
         <% if @item.kind_of?(Note) -%>
         <%= link_box('item', 'calendars') if @item.kind_of?(Note)%>

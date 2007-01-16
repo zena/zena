@@ -1,4 +1,12 @@
-<ul class='comment' id='comments_list'>
-  <%= render :partial=>'comment/li', :collection => @comments || @item.comments %>
-  <%= render :partial=>'comment/add' %>
-</ul>
+<% if @item.discussion || @comments %>
+<div class='comment' id='comments_list'>
+  <h3><%= trans('comments') %></h3>
+  <ul><%= render :partial=>'comment/li', :collection => @comments || @item.comments %>
+    <% if @item.can_comment? -%>
+      <%= render :partial=>'comment/add' %>
+    <% else %>
+      <%= trans('comments closed')%>
+    <% end %>
+  </ul>
+</div>
+<% end -%>

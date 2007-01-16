@@ -1,6 +1,6 @@
 if !@discussion || @discussion.new_record?
   page.replace_html 'add_discussion_form', :partial=>'form'
-  page.replace_html 'discussion_errors', :partial=> @error ? @error : error_messages_for('discussion')
+  page.replace_html 'discussion_errors', :inline=> @errors ? render_errors : error_messages_for('discussion')
 else
   new_discussion = @discussion
   @discussion = Discussion.new(:item_id=>@discussion[:item_id])

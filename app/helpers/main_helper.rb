@@ -48,7 +48,7 @@ module MainHelper
     if (action == :drive or action == :all) && item.can_drive?
       res << form_action('drive',version_id)
     end
-    res.join("\n")
+    "<li>#{res.join("</li>\n<li>")}</li>"
   end
   
   # TODO: test
@@ -172,6 +172,22 @@ ENDTXT
     else
       {:overwrite_params => { :prefix => new_lang }}
     end
+  end
+  
+  # find the title partial for the current object or parameter
+  def title_partial(obj=@item)
+    klass = obj.class
+    path = nil
+    partial = nil
+    while (partial == nil) && (klass != ActiveRecord::Base) do
+      path = File.join(RAILS_ROOT,'app', 'views', klass.to_s.downcase, '_title.rhtml')
+      if File.exist?(path)
+        partial = "#{klass.to_s.downcase}/title"
+        break
+      end
+      klass = klass.superclass
+    end    
+    partial || 'main/title'
   end
   
   # show author information

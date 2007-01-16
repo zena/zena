@@ -419,7 +419,9 @@ module ApplicationHelper
       key = "#{sym}#{obj.v_id}"
       method = sym
     end
-    if [:v_text, :v_summary].include?(method)
+    if opt[:text]
+      text = opt[:text]
+    elsif [:v_text, :v_summary].include?(method)
       text = zazen(obj.send(sym), opt)
       klass = " class='text'"
     else
@@ -610,6 +612,21 @@ module ApplicationHelper
     end
     res << '</ul>'
     res.join("\n")
+  end
+  
+  # TODO: test
+  def add_error(msg)
+    @errors ||= []
+    @errors << trans(msg)
+  end
+  
+  # TODO: test
+  def render_errors(errs=@errors)
+    if !errs || errs.empty?
+      ""
+    else
+      "<ul class='error'><li>#{errs.join("</li>\n</li>")}</li></ul>"
+    end
   end
   
 end

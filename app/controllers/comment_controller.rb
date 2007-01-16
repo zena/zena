@@ -20,9 +20,11 @@ class CommentController < ApplicationController
   # TODO: test
   def create
     @item = secure(Item) { Item.find(params[:item][:id]) }
-    @comment = @item.add_comment(params[:comment])
+    unless @comment = @item.add_comment(params[:comment])
+      add_error 'cannot comment'
+    end
   rescue ActiveRecord::RecordNotFound  
-    @error = trans 'item not found'
+    add_error 'item not found'
   end
   
   # TODO: test

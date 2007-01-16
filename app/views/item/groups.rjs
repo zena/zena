@@ -1,5 +1,5 @@
-if @error || !@item.errors.empty?
-  page.replace_html 'groups_errors', :inline=>@error ? @error : error_messages_for('item')
+if @errors || !@item.errors.empty?
+  page.replace_html 'groups_errors', :inline => @errors ? render_errors : error_messages_for('item')
 else  
   page.replace_html 'groups', :partial=>'rwp_groups'
   page.replace_html 'messages', :inline=>"<div id='notice'>#{trans('item updated')}</div>"

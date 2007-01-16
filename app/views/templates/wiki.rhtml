@@ -29,11 +29,7 @@
     <%#= plug :documents %>
   </div>
   <div id="main">
-    <% if @item.kind_of?(Document) -%>
-      <%= render :partial=>'main/doc_title' %>
-    <% else -%>
-      <%= render :partial=>'main/title' %>
-    <% end -%>
+    <%= render :partial=>title_partial %>
     <div id="drive" style="display:none;"></div>
 
     <div id="content">

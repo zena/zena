@@ -1,4 +1,7 @@
-.comment { width:100%; font-size:0.9em;  font-family: Arial, Helvetica, sans-serif;}
+#comments_list { border-top:1px solid #450009;}
+.comment h3 { font-family: Georgia, Times, serif ; color:#450009; font-size:1.2em; margin:0; padding:5px 0 10px;}
+.comment ul { margin-left:25px;}
+.comment { width:95%; font-size:0.9em;  font-family: Arial, Helvetica, sans-serif;}
 .comment li { margin-top:12px; }
 .comment li:first-child { margin-top:0;}
 .comment .body      { background:#EEF6F9; border:1px solid #888; border-top-width:0;}
@@ -22,6 +25,7 @@
 .comment .header .reply a { color:#3E4B22; }
 .comment .header .reply a:hover { color:#0080D4; }
 .comment .header .reply img { position:absolute; right:-20px; top:20px;}
+.comment .inline_form {padding-right:0;}
 .comment form .header { padding:1px;}
 .comment form label { font-weight:bold; margin-left:0.5em;}
 .comment .errors ul { background:#DDC8C8; margin:0 0 5px; padding:4px 0; border-bottom:1px solid #5A3231;}
@@ -33,5 +37,6 @@
 
 .comment .btn_x { float:none; text-align:right; margin:0; padding:0;}
 .comment .btn_x a { display:block; }
+.comment .btn_add a { visibility:visible;}
 .comment .action { position:absolute; right:-20px;}
 .comment .action a { display:block;}

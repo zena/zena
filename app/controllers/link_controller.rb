@@ -23,7 +23,7 @@ class LinkController < ApplicationController
         @method = params[:item].keys[0]
         unless @method =~ /^(.+)_id(s|)$/
           # bad method...
-          @error = trans 'unknown link role'
+          add_error'unknown link role'
         else
           @item.send("#{@method}=".to_sym, params[:item][@method])
           @item.save
@@ -48,7 +48,7 @@ class LinkController < ApplicationController
       end
     end
   rescue ActiveRecord::RecordNotFound
-    @error = trans 'item not found'
+    add_error'item not found'
   end
   
   def select_for
@@ -77,6 +77,6 @@ class LinkController < ApplicationController
     @link_id = params[:id]
     @item.remove_link(@link_id) && @item.save
   rescue ActiveRecord::RecordNotFound
-    @error = trans 'item not found'
+    add_error'item not found'
   end
 end

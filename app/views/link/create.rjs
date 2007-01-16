@@ -5,5 +5,5 @@ if @link
 elsif @item && @item.errors.empty?
   page.replace_html 'links', :partial=>'list'
 else
-  page.replace_html 'link_errors', :inline=>@error ? @error : error_messages_for('item')
+  page.replace_html 'link_errors', :inline => @errors ? render_errors : error_messages_for('item')
 end

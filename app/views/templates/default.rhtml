@@ -31,15 +31,12 @@
   </div>
   <div id="main">
     
-    <%= render :partial=>'main/title' %>
+    <%= render :partial=>title_partial %>
       
     <div class="content" id='content'>
-      <%= css_edit %>
-      <%= show(@item, :v_summary) %>
+      <%= show(@item, :v_summary, :text=>'')%>
       <%= show(@item, :v_text   ) %>
-      <div id='comments'>
-        <%= render :partial=>'comment/list' %>
-      </div>
+      <%= render :partial=>'comment/list' %>
     </div>
 
     <div id="right">
@@ -52,5 +49,6 @@
     </div>
   </div>
   
+<%= css_edit %>
 </body>
 </html>

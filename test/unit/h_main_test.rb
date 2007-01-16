@@ -25,15 +25,24 @@ class MainHelperTest < Test::Unit::TestCase
     assert_equal ({:overwrite_params=>{:lang=>'io'}}), change_lang('io')
   end
   
+  def test_title_partial
+    @item = secure(Item) { items(:tiger) }
+    assert_equal 'contact/title', title_partial
+    @item = secure(Item) { items(:tracker) }
+    assert_equal 'main/title', title_partial
+    @item = secure(Item) { items(:bird_jpg)}
+    assert_equal 'document/title', title_partial
+  end
+  
   def test_edit_button_for_public
-    @item = secure(Item) { Item.find(items_id(:cleanWater)) }
+    @item = secure(Item) { items(:cleanWater) }
     assert !@item.can_edit?, "Item cannot be edited by the public"
     res = edit_button(:all)
     assert_equal '', res
   end
   
   def test_edit_button_wiki_public
-    @item = secure(Item) { Item.find(items_id(:wiki)) } 
+    @item = secure(Item) { items(:wiki) } 
     assert @item.can_edit?, "Item can be edited by the public"
     res = edit_button(:all)
     assert_match %r{/z/version/edit/19}, res

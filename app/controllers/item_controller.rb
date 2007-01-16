@@ -38,7 +38,7 @@ class ItemController < ApplicationController
     end
     @item.save
   rescue ActiveRecord::RecordNotFound
-    @error = trans 'item not found'
+    add_error'item not found'
   end
   
   # TODO: test

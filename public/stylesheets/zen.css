@@ -10,6 +10,7 @@ li { list-style-type:none; }
 a .id { display: none; font-size:0.7em; color:#ccc; }
 a:hover .id { display:inline; }
 button { background:none; border:none;}
+input, textarea { font:inherit; padding:2px;}
 .img_left  img { margin:0px 5px 5px 0; float:left;}
 .img_right img { margin:0px 0 5px 5px; float:right;}
 p.img_left, p.img_right { margin:0; padding:0;}
@@ -65,8 +66,9 @@ p.img_left, p.img_right { margin:0; padding:0;}
 #menu ul li.sub:hover ul li:hover ul li:hover ul li:hover ul li:hover ul { display: block; }
 
 /* ITEM ACTIONS */
-.item_actions { display:inline; padding:8px 10px;}
-.item_actions li { display:inline; margin:0 10px; border:0;}
+.item_actions { display:inline;}
+.item_actions li { display:inline; margin:0 5px; border:0;}
+.item_actions li:first-child { margin-left:0;}
 .s50 .item_actions { visibility:hidden; }
 .s50:hover .item_actions { visibility:visible; }
 .item_actions li:hover a { border-bottom:5px solid #450009; }
@@ -96,10 +98,10 @@ p.img_left, p.img_right { margin:0; padding:0;}
 .b40, .b35 { background:#73A1A5;}
 .b30 { background:#B7CC87;}
 
-td.content { vertical-align:middle; text-align:center; width:120px; height:120px; }
-.content img { border: 1px solid #888; background:#aaa; }
-.content img.doc { border:0;}
-td.subtitle { vertical-align:top; padding:6px; }
+.document_title .content { vertical-align:middle; text-align:center; width:120px; height:120px; }
+.document_title .content img { border: 1px solid #888; background:#aaa; }
+.document_title .content img.doc { border:0;}
+.document_title .subtitle { vertical-align:top; padding:6px; }
 
 .contact_title { width: 100%; height:9em; }
 .contact_title .title { vertical-align:top; padding-left:10px; float:left; }
@@ -146,7 +148,7 @@ input, textarea { border:1px solid grey; margin:0.2em}
 #main .header h1 {  font-size:2.5em; margin-bottom:0.17em;}
 .header h1, .text h1, .text h2, .text h3 { font-family: Georgia, Times, serif ; font-style:italic; color:#450009;}
 
-#main #content { float:left; width:640px; padding-top:0; padding-right: 22px; margin-top:0;}
+#main #content { float:left; width:640px; padding-top:0; padding-right: 22px; margin-top:1em;}
 #left .content { padding-top:10px; font-size:80%;}
 #left .header h1 { font-size:1.3em; margin-top:1.2em;}
 #left .subtitle { margin-bottom:0.17em; margin-top:0.17em; }
@@ -329,5 +331,5 @@ table.border li:after { content:", "}
 .border td.doc span.sym { color:#A5070B;}
 
 /* CSS EDIT */
-#css_edit { position: absolute; bottom:12px; left:0; border:1px solid red; background:#879962;}
+#css_edit { position: fixed; bottom:0px; left:0; border:1px solid red; background:#879962; font-size:10px;}
 #css_edit span { padding:3px; font-size:80%;}
