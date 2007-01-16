@@ -43,8 +43,11 @@ class DocumentContent < ActiveRecord::Base
   def file=(aFile)
     @file = aFile
     self[:content_type] = @file.content_type.chomp
-    # FIXME: crash when StringIO
-    self[:size] = @file.stat.size
+    if @file.kind_of?(StringIO)
+      self[:size] = @file.size
+    else
+      self[:size] = @file.stat.size
+    end
   end
   
   def size=(s)
@@ -100,8 +103,6 @@ class DocumentContent < ActiveRecord::Base
           self[:ext] = "???"
         end
       
-        # set size
-        self[:size] = @file.stat.size
         true
       end
     end

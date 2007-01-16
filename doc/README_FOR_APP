@@ -5,6 +5,7 @@ Zena is a CMS. (c) teti.ch 2006
 -------------------------------------------
 == Todo
 === Tools
+* Rename Item into Node
 * user management :
   * create
   * change password

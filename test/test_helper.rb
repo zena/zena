@@ -104,27 +104,39 @@ class Test::Unit::TestCase
   def uploaded_file(fname, content_type="application/octet-stream", filename=nil)
     path = File.join(FILE_FIXTURES_PATH, fname)
     filename ||= File.basename(path)
-    t = Tempfile.new(fname)
-    FileUtils.copy_file(path, t.path)
+    # simulate small files with StringIO
+    if File.stat(path).size < 1024
+      # smaller then 1 Ko
+      t = StringIO.new(File.read(path))
+    else
+      t = Tempfile.new(fname)
+      FileUtils.copy_file(path, t.path)
+    end
     (class << t; self; end;).class_eval do
-      alias local_path path
+      alias local_path path if defined?(:path)
       define_method(:original_filename) { filename }
       define_method(:content_type) { content_type }
     end
     return t
   end
 
-  # a JPEG helper
+  # JPEG helper
   def uploaded_jpg(fname, filename=nil)
     uploaded_file(fname, 'image/jpeg', filename)
   end
 
-  # a PDF helper
+  # PDF helper
   def uploaded_pdf(fname, filename=nil)
     uploaded_file(fname, 'application/pdf', filename)
   end
   
+  # TEXT helper
   def uploaded_text(fname, filename=nil)
     uploaded_file(fname, 'text/plain', filename)
+  end
+  
+  # PNG helper
+  def uploaded_png(fname, filename=nil)
+    uploaded_file(fname, 'image/png', filename)
   end
 end

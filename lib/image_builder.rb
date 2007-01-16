@@ -57,7 +57,14 @@ class ImageBuilder
     end
     unless @width && @height || dummy?
       if @file || @path
-        @img = Magick::ImageList.new(@file ? @file.path : @path)
+        if @file.kind_of?(StringIO)
+          @img = Magick::ImageList.new
+          @file.rewind
+          @img.from_blob(@file.read)
+          @file.rewind
+        else
+          @img = Magick::ImageList.new(@file ? @file.path : @path)
+        end
         #@img.from_blob(@file.read) # .rewind
         @width  = @img.columns
         @height = @img.rows
@@ -95,6 +102,8 @@ class ImageBuilder
   alias width columns
 
   def resize!(s)
+    # we do not zoom pixels
+    return unless s < 1.0
     @width  *= s
     @height *= s
     @actions << Proc.new {|img| img.resize!(s) }
@@ -161,8 +170,7 @@ class ImageBuilder
     when :force
       crop_scale = [w.to_f/pw, h.to_f/ph].max
       if crop_scale > 1.0
-        # we do not zoom. Fill with white.
-        resize!(scale)
+        # we do not zoom. Fill with transparent background.
         crop_min!(w,h,format[:gravity])
         set_background!(Magick::MaxRGB, w, h)
       else
@@ -170,14 +178,13 @@ class ImageBuilder
         crop_min!(w, h,format[:gravity])
       end
     when :force_no_crop
-      # we do not zoom image so we limit to 1.0 for crop_scale.
-      crop_scale = [w.to_f/pw, h.to_f/ph, 1.0].min
+      crop_scale = [w.to_f/pw, h.to_f/ph].min
       resize!(crop_scale * scale)
       crop_min!(w, h,format[:gravity])
       set_background!(Magick::MaxRGB, w, h)
     when :limit
       crop_scale = [w.to_f/pw, h.to_f/ph].min
-      resize!(crop_scale * scale) if crop_scale < 1
+      resize!(crop_scale * scale)
       crop_min!(w, h,format[:gravity])
     when :keep
     end
@@ -221,8 +228,8 @@ class ImageBuilder
   end
 end
 IMAGEBUILDER_FORMAT = {
-  'tiny' => { :size=>:force, :width=>15,  :height=>15,  :scale=>2.0   },
-  'mini' => { :size=>:force, :width=>40,  :ratio=>1.0                 },
+  'tiny' => { :size=>:force, :width=>15,  :height=>15,  :scale=>1.7   },
+  'mini' => { :size=>:force, :width=>40,  :ratio=>1.0,  :scale=>1.3   },
   'pv'   => { :size=>:force, :width=>80,  :ratio=>1.0                 },
   'med'  => { :size=>:limit, :width=>280, :ratio=>2/3.0               },
   'top'  => { :size=>:force, :width=>280, :ratio=>2.0/3.0, :gravity=>Magick::NorthGravity},

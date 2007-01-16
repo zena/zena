@@ -128,4 +128,17 @@ class ImageTest < Test::Unit::TestCase
       assert File.exists(new2), "New file exists"
     end
   end
+  
+  def test_create_with_small_file
+    #preserving_files('/data/test/png') do
+      visitor(:ant)
+      img = secure(Image) { Image.create( :parent_id=>items_id(:cleanWater),
+        :name => 'bomb.png',
+        :c_file => uploaded_png('bomb.png') )}
+      assert_kind_of Image, img
+      assert ! img.new_record?, "Not a new record"
+      assert_equal 793, img.c_size
+      assert img.c_file('pv')
+    #end
+  end
 end

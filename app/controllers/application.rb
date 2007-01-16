@@ -109,7 +109,7 @@ class ApplicationController < ActionController::Base
 
     # If the current user is su, make the CSS ugly so the user does not stay logged in as su.
     if session[:user] && visitor_id == 2
-      @su=' style="background:#600;" '
+      @su=' style="background:#060;" '
     else
       @su=''
     end

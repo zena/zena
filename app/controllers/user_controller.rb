@@ -20,7 +20,6 @@ class UserController < ApplicationController
     if params[:groups]
       params[:user][:group_ids] = params[:groups].values
     end
-    puts params.inspect
     User.create(params[:user])
     redirect_to :action=>'list'
   end
