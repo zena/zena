@@ -39,7 +39,7 @@ class Comment < ActiveRecord::Base
   def set_comment
     return false unless discussion
     if parent && (self[:title].nil? || self[:title] == '')
-      self[:title] = TransKey['re:'][discussion.lang] + ' ' + parent.title
+      self[:title] = TransPhrase['re:'][discussion.lang] + ' ' + parent.title
     end
     if user_id == 1 && ZENA_ENV[:moderate_public_comments]
       self[:status] = Zena::Status[:prop]

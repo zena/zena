@@ -14,11 +14,11 @@ class SecureReadTest < Test::Unit::TestCase
     assert_equal 1, nodes_id(:zena)
   end
   def test_kpath
-    assert_equal Node.kpath, 'I'
+    assert_equal Node.kpath, 'N'
     assert_equal Page.kpath, 'NP'
     assert_equal PagerDummy.ksel, 'U'
-    assert_equal PagerDummy.kpath, 'IU'
-    assert_equal SubPagerDummy.kpath, 'IUS'
+    assert_equal PagerDummy.kpath, 'NU'
+    assert_equal SubPagerDummy.kpath, 'NUS'
   end
   def test_callbacks
     assert Node.read_inheritable_attribute(:before_validation).include?(:secure_before_validation)

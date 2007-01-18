@@ -66,6 +66,19 @@ ActiveRecord::Schema.define() do
     t.column "height", :integer
   end
 
+  create_table "form_lines", :force => true do |t|
+    t.column "seizure_id", :integer
+    t.column "key", :string
+    t.column "value", :string
+  end
+
+  create_table "form_seizures", :force => true do |t|
+    t.column "user_id", :integer, :default => 0, :null => false
+    t.column "created_at", :datetime
+    t.column "updated_at", :datetime
+    t.column "form_id", :integer
+  end
+
   create_table "groups", :force => true do |t|
     t.column "created_at", :datetime
     t.column "updated_at", :datetime
@@ -106,12 +119,12 @@ ActiveRecord::Schema.define() do
     t.column "fullpath", :text
   end
 
-  create_table "trans_keys", :force => true do |t|
-    t.column "key", :string, :limit => 100, :default => "", :null => false
+  create_table "trans_phrases", :force => true do |t|
+    t.column "phrase", :string, :limit => 100, :default => "", :null => false
   end
 
   create_table "trans_values", :force => true do |t|
-    t.column "key_id", :integer
+    t.column "phrase_id", :integer
     t.column "lang", :string, :limit => 10, :default => "", :null => false
     t.column "value", :text, :default => "", :null => false
   end

@@ -126,7 +126,7 @@ secret:
 proposition:
   id:             10
   type:           Note
-  kpath:          IN
+  kpath:          NN
   name:           proposition
   parent_id:      9
   project_id:     9
@@ -217,7 +217,7 @@ crocodiles:
 opening:
   id:             17
   type:           Note
-  kpath:          IN
+  kpath:          NN
   name:           opening
   project_id:     11
   parent_id:      11
@@ -449,7 +449,7 @@ forest_pdf:
 letter:
   id:             32
   type:           Letter
-  kpath:          INL
+  kpath:          NNL
   name:           letter
   project_id:     1
   parent_id:      1

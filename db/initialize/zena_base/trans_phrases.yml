@@ -1,0 +1,283 @@
+
+trans_phrases:
+  - id:   1
+    phrase:  "April"
+
+  - id:   2
+    phrase:  "August"
+
+  - id:   3
+    phrase:  "December"
+
+  - id:   4
+    phrase:  "Documents"
+
+  - id:   5
+    phrase:  "Events"
+
+  - id:   6
+    phrase:  "February"
+
+  - id:   7
+    phrase:  "Friday"
+
+  - id:   8
+    phrase:  "January"
+
+  - id:   9
+    phrase:  "July"
+
+  - id:   10
+    phrase:  "June"
+
+  - id:   11
+    phrase:  "Mai"
+
+  - id:   12
+    phrase:  "March"
+
+  - id:   13
+    phrase:  "Monday"
+
+  - id:   14
+    phrase:  "News"
+
+  - id:   15
+    phrase:  "November"
+
+  - id:   16
+    phrase:  "October"
+
+  - id:   17
+    phrase:  "Pages"
+
+  - id:   18
+    phrase:  "Redactions"
+
+  - id:   19
+    phrase:  "Saturday"
+
+  - id:   20
+    phrase:  "September"
+
+  - id:   21
+    phrase:  "Sunday"
+
+  - id:   22
+    phrase:  "Thursday"
+
+  - id:   23
+    phrase:  "Traductions"
+
+  - id:   24
+    phrase:  "Tuesday"
+
+  - id:   25
+    phrase:  "Waiting"
+
+  - id:   26
+    phrase:  "Wednesday"
+
+  - id:   27
+    phrase:  "validate"
+
+  - id:   28
+    phrase:  "btn_add_doc"
+
+  - id:   29
+    phrase:  "btn_add_link"
+
+  - id:   30
+    phrase:  "btn_add_note"
+
+  - id:   31
+    phrase:  "btn_add_page"
+
+  - id:   32
+    phrase:  "btn_destroy"
+
+  - id:   33
+    phrase:  "btn_drive"
+
+  - id:   34
+    phrase:  "btn_edit"
+
+  - id:   35
+    phrase:  "btn_group_add"
+
+  - id:   36
+    phrase:  "btn_group_delete"
+
+  - id:   37
+    phrase:  "btn_propose"
+
+  - id:   38
+    phrase:  "btn_publish"
+
+  - id:   39
+    phrase:  "btn_redit"
+
+  - id:   40
+    phrase:  "btn_refuse"
+
+  - id:   41
+    phrase:  "btn_remove"
+
+  - id:   42
+    phrase:  "btn_tiny_del"
+
+  - id:   43
+    phrase:  "btn_title_drive"
+
+  - id:   44
+    phrase:  "btn_title_edit"
+
+  - id:   45
+    phrase:  "btn_title_propose"
+
+  - id:   46
+    phrase:  "btn_title_publish"
+
+  - id:   47
+    phrase:  "btn_title_refuse"
+
+  - id:   48
+    phrase:  "btn_user_add"
+
+  - id:   49
+    phrase:  "btn_view"
+
+  - id:   50
+    phrase:  "btn_x"
+
+  - id:   51
+    phrase:  "en"
+
+  - id:   52
+    phrase:  "fr"
+
+  - id:   53
+    phrase:  "home of"
+
+  - id:   54
+    phrase:  "img_tag"
+
+  - id:   55
+    phrase:  "img_user"
+
+  - id:   56
+    phrase:  "img_user_admin"
+
+  - id:   57
+    phrase:  "img_user_pub"
+
+  - id:   58
+    phrase:  "img_user_su"
+
+  - id:   59
+    phrase:  "logo_date"
+
+  - id:   60
+    phrase:  "long_date"
+
+  - id:   61
+    phrase:  "long_time"
+
+  - id:   62
+    phrase:  "news_date"
+
+  - id:   63
+    phrase:  "on"
+
+  - id:   64
+    phrase:  "posted by"
+
+  - id:   65
+    phrase:  "short_date"
+
+  - id:   66
+    phrase:  "status_0"
+
+  - id:   67
+    phrase:  "status_10"
+
+  - id:   68
+    phrase:  "status_20"
+
+  - id:   69
+    phrase:  "status_30"
+
+  - id:   70
+    phrase:  "status_35"
+
+  - id:   71
+    phrase:  "status_40"
+
+  - id:   72
+    phrase:  "status_50"
+
+  - id:   73
+    phrase:  "translation_interface"
+
+  - id:   74
+    phrase:  "short_time"
+
+  - id:   75
+    phrase:  "full_date"
+    
+  - id:   76
+    phrase:  "btn_add_document"
+
+  - id:   77
+    phrase:  'week_start_day'
+  
+  - id:   78
+    phrase:  'datetime'
+  
+  - id:   79
+    phrase:  'img_calendar'
+  
+  - id:   80
+    phrase:  'img_hot'
+  
+  - id:   81
+    phrase:  'img_contact'
+  
+  - id:   82
+    phrase:  'btn_unpublish'
+  
+  - id:   83
+    phrase:  'btn_title_unpublish'
+  
+  - id:   84
+    phrase:  'img_private'
+  
+  - id:   85
+    phrase:  'img_public'
+  
+  - id:   86
+    phrase:  'img_custom_inherit'
+
+  - id:   87
+    phrase:  'img_comments'
+
+  - id:   88
+    phrase:  'img_comments_inside'
+
+  - id:   89
+    phrase:  'img_open'
+
+  - id:   90
+    phrase:  'img_closed'
+
+  - id:   91
+    phrase:  'btn_bomb'
+
+  - id:   92
+    phrase:  'btn_add_comment'
+  
+  - id:   93
+    phrase:  'img_group_pub'
+  
+  - id:   94
+    phrase:  'img_group_admin'

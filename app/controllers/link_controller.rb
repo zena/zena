@@ -72,7 +72,6 @@ class LinkController < ApplicationController
   
   # remove a link given the link id 'id' and the node id 'node_id'
   def remove
-    puts params.inspect
     @node = secure_drive(Node) { Node.find(params[:node_id]) }
     @link_id = params[:id]
     @node.remove_link(@link_id) && @node.save

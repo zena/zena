@@ -318,17 +318,6 @@ table.admin_ug td:first-child { border-left: 1px solid #333; }
 #site_tree .simage   { color: #97298B;}
 #site_tree .main { border-left:2px solid grey; margin-left:1px; padding-left:1.2em; }
 
-/* DEBUG CSS */
-table.border { border:1px solid grey; border-spacing:0; font-size:1em; margin:15px 0 10px 15px;}
-table.border td {padding:3px; border:1px solid grey;}
-table.border li { display:inline; }
-table.border li:after { content:", "}
-.border td.header {background:grey; color:white; width:70px;}
-.border td.header a {color:white;}
-.border td.title {background:#E68200; color:white; padding:10px;font-size:1.3em;font-weight:bold;}
-.border td.doc {white-space:pre; line-height:1.4em; font-family:monaco,monospace;}
-.border td.doc span.irb { background:#B9D5AD;}
-.border td.doc span.sym { color:#A5070B;}
 
 /* CSS EDIT */
 #css_edit { position: fixed; bottom:0px; left:0; border:1px solid red; background:#879962; font-size:10px;}

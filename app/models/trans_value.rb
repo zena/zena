@@ -1,3 +1,3 @@
 class TransValue < ActiveRecord::Base
-  belongs_to :trans_key, :foreign_key=>'key_id'
+  belongs_to :trans_phrase, :foreign_key=>'phrase_id'
 end

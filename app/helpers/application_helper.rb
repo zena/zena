@@ -65,31 +65,45 @@ module ApplicationHelper
   
   # Translate submit_tag
   def tsubmit_tag(*args)
-    args[0] = trans(args[0],false)
+    args[0] = trans(args[0],:edit=>false)
     submit_tag(*args)
   end
   
   # Translate link_to_remote
   def tlink_to_remote(*args)
-    args[0] = trans(args[0],false)
+    args[0] = trans(args[0],:edit=>false)
     link_to_remote(*args)
   end
   
   # Translate link_to_remote
   def tlink_to(*args)
-    args[0] = trans(args[0],false)
+    args[0] = trans(args[0],:edit=>false)
     link_to(*args)
+  end
+  
+  # Add class='on' if the link points to the current page
+  def tlink_to_with_state(*args)
+    title, url, options = *args
+    options ||= {}
+    same = true
+    url.each do |k,v|
+      same &&= (params[k.to_s] == v.to_s)
+    end
+    if same
+      options[:class] = 'on'
+    end
+    tlink_to(title, url, options)
   end
   
   # Translate link_to_remote
   def tlink_to_function(*args)
-    args[0] = trans(args[0],false)
+    args[0] = trans(args[0],:edit=>false)
     link_to_function(*args)
   end
   
   # Translate links/button (not editable)
   def transb(key)
-    trans(key, false)
+    trans(key, :edit=>false)
   end
   
   # creates a pseudo random string to avoid browser side ajax caching
@@ -98,9 +112,10 @@ module ApplicationHelper
   end
 
   # "Translate" static text into the current lang
-  def trans(keyword, edit=true)
-    if session[:translate] && edit # set wether untranslated text will be editable or not
-      key = TransKey.translate(keyword)
+  def trans(keyword, opt={})
+    opt = {:edit=>true}.merge(opt)
+    if opt[:translate] || (session[:translate] && opt[:edit])
+      key = TransPhrase.translate(keyword)
       "<div id='trans_#{key[:id]}' class='trans'>" + 
       link_to_remote(key.into(lang), 
           :update=>"trans_#{key[:id]}", 
@@ -108,7 +123,7 @@ module ApplicationHelper
           :complete=>'$("trans_value").focus();$("trans_value").select()') +
       "</div>"
     else
-      TransKey[keyword][lang]
+      TransPhrase[keyword][lang]
     end
   end
   

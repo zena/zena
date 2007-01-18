@@ -119,12 +119,12 @@ class CreateBase < ActiveRecord::Migration
       t.column "author_name",:string, :limit => 300
     end
     
-    create_table("trans_keys", :force => true, :options => 'type=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci') do |t|
-      t.column "key", :string, :limit => 100, :default => "", :null => false
+    create_table("trans_phrases", :force => true, :options => 'type=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci') do |t|
+      t.column "phrase", :string, :limit => 100, :default => "", :null => false
     end
 
     create_table("trans_values", :force => true, :options => 'type=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci') do |t|
-      t.column "key_id", :integer
+      t.column "phrase_id", :integer
       t.column "lang", :string, :limit => 10, :default => "", :null => false
       t.column "value", :text, :default => "", :null => false
     end
@@ -148,7 +148,7 @@ class CreateBase < ActiveRecord::Migration
     drop_table "nodes"
     drop_table "links"
     drop_table "versions"
-    drop_table "trans_keys"
+    drop_table "trans_phrases"
     drop_table "trans_values"
     drop_table "caches"
     drop_table "comments"

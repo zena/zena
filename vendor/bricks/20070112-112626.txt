@@ -1,3 +1,0 @@
-{:brick=>'zena_base', :type=>:extract, :date=>'2007-01-12 11:26:26'}
-type;source;target
-copy;public/img/logo.png;public/img/logo.png

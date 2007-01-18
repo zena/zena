@@ -49,7 +49,7 @@ class TransControllerTest < Test::Unit::TestCase
     session[:lang] = 'es'
     post 'update', :id=>'13', :trans=>{:value=>'Lunes'}
     assert_equal 'Lunes', response.body
-    assert_equal 'Lunes', TransKey.translate('Monday').into('es')
+    assert_equal 'Lunes', TransPhrase.translate('Monday').into('es')
   end
   
   def test_lang_menu

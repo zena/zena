@@ -1,4 +1,6 @@
 <div id='content'>
+  <h3><%= trans('manage comments') %></h3>
+
   <ul class='comment' id='comments_list'>
     <%= render :partial=>'comment/li', :collection=>@comments %>
   </ul>

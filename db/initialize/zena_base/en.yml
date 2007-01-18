@@ -1,221 +1,221 @@
 trans_values:
-  - key_id:    1
+  - phrase_id:    1
     lang:      en
     value:     "April"
 
-  - key_id:    2
+  - phrase_id:    2
     lang:      en
     value:     "August"
 
-  - key_id:    3
+  - phrase_id:    3
     lang:      en
     value:     "December"
 
-  - key_id:    4
+  - phrase_id:    4
     lang:      en
     value:     "Documents"
 
-  - key_id:    5
+  - phrase_id:    5
     lang:      en
     value:     "Events"
 
-  - key_id:    6
+  - phrase_id:    6
     lang:      en
     value:     "February"
 
-  - key_id:    7
+  - phrase_id:    7
     lang:      en
     value:     "Friday"
 
-  - key_id:    8
+  - phrase_id:    8
     lang:      en
     value:     "January"
 
-  - key_id:    9
+  - phrase_id:    9
     lang:      en
     value:     "July"
 
-  - key_id:    10
+  - phrase_id:    10
     lang:      en
     value:     "June"
 
-  - key_id:    11
+  - phrase_id:    11
     lang:      en
     value:     "Mai"
 
-  - key_id:    12
+  - phrase_id:    12
     lang:      en
     value:     "March"
 
-  - key_id:    13
+  - phrase_id:    13
     lang:      en
     value:     "Monday"
 
-  - key_id:    14
+  - phrase_id:    14
     lang:      en
     value:     "News"
 
-  - key_id:    15
+  - phrase_id:    15
     lang:      en
     value:     "November"
 
-  - key_id:    16
+  - phrase_id:    16
     lang:      en
     value:     "October"
 
-  - key_id:    17
+  - phrase_id:    17
     lang:      en
     value:     "Pages"
 
-  - key_id:    18
+  - phrase_id:    18
     lang:      en
     value:     "Redactions"
 
-  - key_id:    19
+  - phrase_id:    19
     lang:      en
     value:     "Saturday"
 
-  - key_id:    20
+  - phrase_id:    20
     lang:      en
     value:     "September"
 
-  - key_id:    21
+  - phrase_id:    21
     lang:      en
     value:     "Sunday"
 
-  - key_id:    22
+  - phrase_id:    22
     lang:      en
     value:     "Thursday"
 
-  - key_id:    23
+  - phrase_id:    23
     lang:      en
     value:     "Traductions"
 
-  - key_id:    24
+  - phrase_id:    24
     lang:      en
     value:     "Tuesday"
 
-  - key_id:    25
+  - phrase_id:    25
     lang:      en
     value:     "Waiting"
 
-  - key_id:    26
+  - phrase_id:    26
     lang:      en
     value:     "Wednesday"
     
-  - key_id:    27
+  - phrase_id:    27
     lang:      en
     value:     " validate "
 
-  - key_id:    43
+  - phrase_id:    43
     lang:      en
     value:     "page management (version list, change access rights, etc)"
 
-  - key_id:    44
+  - phrase_id:    44
     lang:      en
     value:     "edit current page"
 
-  - key_id:    45
+  - phrase_id:    45
     lang:      en
     value:     "propose page for publication"
 
-  - key_id:    46
+  - phrase_id:    46
     lang:      en
     value:     "publish page"
 
-  - key_id:    47
+  - phrase_id:    47
     lang:      en
     value:     "refuse to publish page (redaction sent back to owner)"
 
-  - key_id:    51
+  - phrase_id:    51
     lang:      en
     value:     "english"
 
-  - key_id:    52
+  - phrase_id:    52
     lang:      en
     value:     "french"
 
-  - key_id:    53
+  - phrase_id:    53
     lang:      en
     value:     "Hi"
 
-  - key_id:    59
+  - phrase_id:    59
     lang:      en
     value:     "<b>%A</b> %B %d"
 
-  - key_id:    60
+  - phrase_id:    60
     lang:      en
     value:     "%Y-%m-%d"
 
-  - key_id:    61
+  - phrase_id:    61
     lang:      en
     value:     "%H:%M:%S"
 
-  - key_id:    62
+  - phrase_id:    62
     lang:      en
     value:     "%A, %B %d %Y"
 
-  - key_id:    63
+  - phrase_id:    63
     lang:      en
     value:     "on"
 
-  - key_id:    64
+  - phrase_id:    64
     lang:      en
     value:     "posted by"
 
-  - key_id:    65
+  - phrase_id:    65
     lang:      en
     value:     "%m.%d"
 
-  - key_id:    66
+  - phrase_id:    66
     lang:      en
     value:     "deleted"
 
-  - key_id:    67
+  - phrase_id:    67
     lang:      en
     value:     "removed"
 
-  - key_id:    68
+  - phrase_id:    68
     lang:      en
     value:     "replaced"
 
-  - key_id:    69
+  - phrase_id:    69
     lang:      en
     value:     "redaction"
 
-  - key_id:    70
+  - phrase_id:    70
     lang:      en
     value:     "proposition"
 
-  - key_id:    71
+  - phrase_id:    71
     lang:      en
     value:     "proposition"
 
-  - key_id:    72
+  - phrase_id:    72
     lang:      en
     value:     "published"
 
-  - key_id:    73
+  - phrase_id:    73
     lang:      en
     value:     "Translate interface"
 
-  - key_id:    74
+  - phrase_id:    74
     lang:      en
     value:     "%H:%M"
     
-  - key_id:    75
+  - phrase_id:    75
     lang:      en
     value:     "%A, %B %d %Y"
 
-  - key_id:    77
+  - phrase_id:    77
     lang:      en
     value:     0
     
-  - key_id:    78
+  - phrase_id:    78
     lang:      en
     value:     "%Y-%m-%d %H:%M"
     
-  - key_id:    83
+  - phrase_id:    83
     lang:      en
     value:     "unpublish version"
     

@@ -1,3 +1,0 @@
-{:brick=>'zena_base', :type=>:extract, :date=>'2007-01-12 12:03:48'}
-type;source;target
-copy;db/initialize/zena_base/base.yml;db/initialize/zena_base/base.yml

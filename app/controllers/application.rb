@@ -2,7 +2,7 @@
 # Likewise, all the methods added will be available for all controllers.
 class ApplicationController < ActionController::Base
   acts_as_secure_controller
-  helper_method :prefix, :notes
+  helper_method :prefix, :notes, :visitor_is_admin?
   before_filter :authorize
   before_filter :set_env
   after_filter  :set_encoding
@@ -131,7 +131,7 @@ class ApplicationController < ActionController::Base
   
   # "Translate" static text into the current lang
   def trans(keyword, edit=true)
-    TransKey[keyword][lang]
+    TransPhrase[keyword][lang]
   end
   
   def set_encoding
@@ -177,13 +177,13 @@ class ApplicationController < ActionController::Base
   end
   
   # TODO: test
-  def user_admin?
+  def visitor_is_admin?
     (visitor_groups.include?(2) || visitor_id == 2)
   end
   
   # TODO: test
   def check_is_admin
-    page_not_found unless user_admin?
+    page_not_found unless visitor_is_admin?
     @admin = true
   end
   

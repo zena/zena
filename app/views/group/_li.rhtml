@@ -1,0 +1,11 @@
+<% icon = 'group'
+if 1 == li[:id]
+  icon += '_pub'
+elsif 2 == li[:id]
+  icon += '_admin'
+end %>
+<tr>
+  <td class="icon"><%= if 1 == li[:id] then trans("img_#{icon}") else tlink_to( "img_#{icon}", :action=>'edit_group', :id=>li[:id]) end %></td>
+  <td class="name"><%= li.name %></td>
+  <td class="users"><%= li.users.map {|u| u.login }.join(', ') %></td>
+</tr>

@@ -118,8 +118,7 @@ class DocumentContent < ActiveRecord::Base
       destroy_file unless new_record?
       # save new file
       make_file(filepath, @file)
-    end
-    if !new_record? && (old = DocumentContent.find(self[:id])).name != self[:name]
+    elsif !new_record? && (old = DocumentContent.find(self[:id])).name != self[:name]
       # TODO: clear cache
       # clear format images
       old.remove_format_images if old.respond_to?(:remove_format_images)

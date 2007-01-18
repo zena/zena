@@ -228,13 +228,34 @@ ENDTXT
     res << "<li>#{nav.join(" / </li><li>")}</li></ul>"
   end
 
-  # shows links to enable translation
-  def translation_link(title=true)
-    if session[:user] && session[:user][:groups].include?(ZENA_ENV[:translate_group])
-      res  = title ? trans("Translate interface: ") : ''
-      res += "<a href='/z/trans/list'>#{transb('list')}</a> : "
-      res += session[:translate] ? "<a href='?translate=off'>#{transb('off')}</a>" : "<a href='?translate=on'>#{transb('_on')}</a>"
-      res
+  # shows links for site features
+  def show_link(link, opt={})
+    case link
+    when :admin_links
+      [show_link(:home), show_link(:comments), show_link(:users), show_link(:groups), show_link(:translation)].reject {|l| l==''}
+    when :home
+      return '' unless session[:user]
+      tlink_to_with_state('my home', :controller=>'user', :action=>'home')
+    when :translation
+      return '' unless session[:user] && session[:user][:groups].include?(ZENA_ENV[:translate_group])
+      tlink_to_with_state('translate interface', :controller=>'trans', :action=>'list')
+    when :comments
+      return '' unless visitor_is_admin?
+      tlink_to_with_state('manage comments', :controller=>'comment', :action=>'list')
+    when :users
+      return '' unless visitor_is_admin?
+      tlink_to_with_state('manage users', :controller=>'user', :action=>'list')
+    when :groups
+      return '' unless visitor_is_admin?
+      tlink_to_with_state('manage groups', :controller=>'group', :action=>'list')
+    when :site_tree
+      tlink_to_with_state('site tree', :controller=>'main', :action=>'site_tree', :id=>@node)
+    when :print
+      if @node
+        tlink_to('print', :controller=>'main', :action=>'print', :id=>@node)
+      else
+        ''
+      end
     else
       ''
     end
@@ -257,9 +278,6 @@ ENDTXT
           end
         end
       end
-      if session[:translate]
-        res << translation_link(false)
-      end
       "<div id='lang'><span>#{res.join(' | ')}</span></div>"
     end
   end
@@ -270,7 +288,7 @@ ENDTXT
     else
       res = "<div id='lang'><span>" + link_to_remote( lang, :update=>'lang', :url=>{:controller => 'trans', :action=>'lang_menu'})
       if session[:translate]
-        res << translation_link(false)
+        res << show_link(:translation, :menu=>true)
       end
       res << '</span></div>'
       res

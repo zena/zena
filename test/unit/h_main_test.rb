@@ -139,14 +139,14 @@ class MainHelperTest < Test::Unit::TestCase
     assert_match %r{<ul id='path'.*href='/en'>zena.*href='/en/projects'>projects.*href='/en/projects/cleanWater'>cleanWater}, path_links
   end
   
-  def test_translation_link
-    assert_equal '', translation_link
+  def test_admin_link_translation
+    assert_equal '', admin_link(:translation)
     login(:lion)
-    assert_match %r{Translate interface.*z/trans/list.*\?translate=on}, translation_link
+    assert_match %r{Translate interface.*z/trans/list.*\?translate=on}, admin_link(:translation)
     session[:translate] = true
-    assert_match %r{Translate interface.*z/trans/list.*\?translate=off}, translation_link
+    assert_match %r{Translate interface.*z/trans/list.*\?translate=off}, admin_link(:translation)
   end
-  
+
   def test_lang_links
     login(:lion)
     @request = ActionController::TestRequest.new

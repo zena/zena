@@ -1,8 +1,0 @@
-{:brick=>'zena_base', :type=>:extract, :date=>'2007-01-12 10:56:14'}
-type;source;target
-copy;CREDITS;CREDITS
-copy;lib/image_builder.rb;lib/image_builder.rb
-copy;lib/linkable.rb;lib/linkable.rb
-copy;lib/multiversion.rb;lib/multiversion.rb
-copy;lib/secure.rb;lib/secure.rb
-copy;README;README

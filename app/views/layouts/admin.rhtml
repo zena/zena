@@ -26,8 +26,7 @@
   <%= css_edit('admin.css') %>
   <div id='left'>
     <ul>
-      <li><%= tlink_to('comments management', :controller=>'comment', :action=>'list') %></li>
-      <li><%= translation_link %></li>
+      <li><%= show_link(:admin_links).join('</li><li>')%></li>
     </ul>
   </div>
   <div id='main'>
