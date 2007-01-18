@@ -6,13 +6,13 @@ class MultiversionTest < ActionController::IntegrationTest
   def test_view_private_page
     ant, tiger, su = login(:ant), login(:tiger), login(:su)
     
-    ant.get_item(:myLife)
+    ant.get_node(:myLife)
     assert_equal 200, ant.status
     
-    su.get_item(:myLife)
+    su.get_node(:myLife)
     assert_equal 200, su.status
     
-    tiger.get_item(:myLife)
+    tiger.get_node(:myLife)
     assert tiger.redirect?
   end
   
@@ -38,77 +38,77 @@ class MultiversionTest < ActionController::IntegrationTest
   def test_child_sync
     ant, tiger = login(:ant), login(:tiger)
     
-    tiger.get_item(:nature)
+    tiger.get_node(:nature)
     assert tiger.redirect?
-    tiger.get_item(:tree)
+    tiger.get_node(:tree)
     assert tiger.redirect?
-    tiger.get_item(:forest)
+    tiger.get_node(:forest)
     assert tiger.redirect?
     
-    ant.get_item(:nature)
+    ant.get_node(:nature)
     assert_equal 200, ant.status
-    ant.get_item(:tree)
+    ant.get_node(:tree)
     assert_equal 200, ant.status
-    ant.get_item(:forest)
+    ant.get_node(:forest)
     assert_equal 200, ant.status
     
-    # item = secure(Item) { Item.find(items_id(:nature)) }
-    # tree = secure(Item) { Item.find(items_id(:tree))   }
-    # forest = secure(Item) { Item.find(items_id(:forest)) }
-    # assert_equal Zena::Status[:red], item.v_status
+    # node = secure(Node) { Node.find(nodes_id(:nature)) }
+    # tree = secure(Node) { Node.find(nodes_id(:tree))   }
+    # forest = secure(Node) { Node.find(nodes_id(:forest)) }
+    # assert_equal Zena::Status[:red], node.v_status
     # assert_equal Zena::Status[:red], tree.v_status
     # assert_equal Zena::Status[:red], forest.v_status
-    # assert item.propose, "Propose for publication succeeds"
+    # assert node.propose, "Propose for publication succeeds"
     # 
     # # propositions
-    # item = secure(Item) { Item.find(items_id(:nature)) }
-    # tree = secure(Item) { Item.find(items_id(:tree))   }
-    # forest = secure(Item) { Item.find(items_id(:tree)) }
-    # assert_equal Zena::Status[:prop], item.v_status
+    # node = secure(Node) { Node.find(nodes_id(:nature)) }
+    # tree = secure(Node) { Node.find(nodes_id(:tree))   }
+    # forest = secure(Node) { Node.find(nodes_id(:tree)) }
+    # assert_equal Zena::Status[:prop], node.v_status
     # assert_equal Zena::Status[:prop_with], tree.v_status
     # assert_equal Zena::Status[:prop_with], forest.v_status
     # 
     # visitor(:tiger)
     # # can now see all propositions
-    # item = secure(Item) { Item.find(items_id(:nature)) }
-    # tree = secure(Item) { Item.find(items_id(:tree))   }
-    # forest = secure(Item) { Item.find(items_id(:forest)) }
-    # assert_equal Zena::Status[:prop], item.v_status
+    # node = secure(Node) { Node.find(nodes_id(:nature)) }
+    # tree = secure(Node) { Node.find(nodes_id(:tree))   }
+    # forest = secure(Node) { Node.find(nodes_id(:forest)) }
+    # assert_equal Zena::Status[:prop], node.v_status
     # assert_equal Zena::Status[:prop_with], tree.v_status
     # assert_equal Zena::Status[:prop_with], forest.v_status
     # 
-    # assert item.refuse, "Can refuse publication"
+    # assert node.refuse, "Can refuse publication"
     # 
     # visitor(:ant)
     # # redactions again
-    # item = secure(Item) { Item.find(items_id(:nature)) }
-    # tree = secure(Item) { Item.find(items_id(:tree))   }
-    # forest = secure(Item) { Item.find(items_id(:forest)) }
-    # assert_equal Zena::Status[:red], item.v_status
+    # node = secure(Node) { Node.find(nodes_id(:nature)) }
+    # tree = secure(Node) { Node.find(nodes_id(:tree))   }
+    # forest = secure(Node) { Node.find(nodes_id(:forest)) }
+    # assert_equal Zena::Status[:red], node.v_status
     # assert_equal Zena::Status[:red], tree.v_status
     # assert_equal Zena::Status[:red], forest.v_status
-    # assert item.propose, "Propose for publication succeeds"
+    # assert node.propose, "Propose for publication succeeds"
     # 
     # visitor(:tiger)
     # # sees the propositions again
-    # item = secure(Item) { Item.find(items_id(:nature)) }
-    # tree = secure(Item) { Item.find(items_id(:tree))   }
-    # forest = secure(Item) { Item.find(items_id(:forest)) }
-    # assert_equal Zena::Status[:prop], item.v_status
+    # node = secure(Node) { Node.find(nodes_id(:nature)) }
+    # tree = secure(Node) { Node.find(nodes_id(:tree))   }
+    # forest = secure(Node) { Node.find(nodes_id(:forest)) }
+    # assert_equal Zena::Status[:prop], node.v_status
     # assert_equal Zena::Status[:prop_with], tree.v_status
     # assert_equal Zena::Status[:prop_with], forest.v_status
     # 
-    # assert item.publish, "Publication succeeds"
+    # assert node.publish, "Publication succeeds"
     # 
     # visitor(:ant)
     # # redactions again
-    # item = secure(Item) { Item.find(items_id(:nature)) }
-    # tree = secure(Item) { Item.find(items_id(:tree))   }
-    # forest = secure(Item) { Item.find(items_id(:forest)) }
-    # assert_equal Zena::Status[:pub], item.v_status
+    # node = secure(Node) { Node.find(nodes_id(:nature)) }
+    # tree = secure(Node) { Node.find(nodes_id(:tree))   }
+    # forest = secure(Node) { Node.find(nodes_id(:forest)) }
+    # assert_equal Zena::Status[:pub], node.v_status
     # assert_equal Zena::Status[:pub], tree.v_status
     # assert_equal Zena::Status[:pub], forest.v_status
-    # assert item.propose, "Propose for publication succeeds"
+    # assert node.propose, "Propose for publication succeeds"
   end
   
   private
@@ -122,21 +122,21 @@ class MultiversionTest < ActionController::IntegrationTest
         "please/set/url/for/#{sym}"
       end
     end
-    def get_item(sym)
-      item = items(sym)
+    def get_node(sym)
+      node = nodes(sym)
       puts path = "/#{AUTHENTICATED_PREFIX}/#{url_for(sym)}"
       get path
     end
-    def propose_item(sym)
-      item = items(sym)
+    def propose_node(sym)
+      node = nodes(sym)
       post #blah (todo)
     end
-    def publish_item(sym)
-      item = items(sym)
+    def publish_node(sym)
+      node = nodes(sym)
       post #blah (todo)
     end
-    def refuse_item(sym)
-      item = items(sym)
+    def refuse_node(sym)
+      node = nodes(sym)
       post #blah (todo)
     end
   end

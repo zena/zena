@@ -10,18 +10,18 @@ class ApplicationHelperTest < Test::Unit::TestCase
     super
   end
 
-  # all these additions are replaced by the traduction of 'unknown link' if the user does not have read access to the linked item.
+  # all these additions are replaced by the traduction of 'unknown link' if the user does not have read access to the linked node.
   def test_bad_link
     assert_match %r{unknown link}, zazen('"hello":99')
   end
 
   def test_make_link
     login(:tiger)
-    # * ["":34] creates a link to item 34 with item's title.
+    # * ["":34] creates a link to node 34 with node's title.
     assert_equal '<p><a href="/oo/projects/cleanWater">Clean Water project</a></p>', zazen('"":11')
-    # * ["title":34] creates a link to item 34 with the given title.
+    # * ["title":34] creates a link to node 34 with the given title.
     assert_equal '<p><a href="/oo/projects/cleanWater">hello</a></p>', zazen('"hello":11')
-    # * ["":034] if the item id starts with '0', creates a popup link.
+    # * ["":034] if the node id starts with '0', creates a popup link.
     assert_match %r{/oo/projects/cleanWater.*window.open.*hello}, zazen('"hello":011')
   end
 
@@ -79,24 +79,24 @@ class ApplicationHelperTest < Test::Unit::TestCase
     preserving_files('/data/test/jpg') do
       # ** [![2,3,5]!] gallery : inline preview with javascript inline viewer
       assert_match %r{table.*gallery.*Zena.transfer.*lake-pv.jpg.*lake-std.jpg.*bird-pv.jpg.*bird-std.jpg}m, zazen('![14,20]!')
-      @item = secure(Item) { Item.find(items_id(:wiki)) }
-      # ** [![]!] gallery with all images contained in the current item
+      @node = secure(Node) { Node.find(nodes_id(:wiki)) }
+      # ** [![]!] gallery with all images contained in the current node
       assert_match %r{table.*gallery.*Zena.transfer.*bird-pv.jpg.*bird-std.jpg.*flower-pv.jpg.*flower-std.jpg}m, zazen('![]!')
     end
   end
 
-  def test_list_items
+  def test_list_nodes
     preserving_files('/data/test/jpg') do
       login(:lion)
       # * [!{7,9}!] documents listing for documents 7 and 9
       assert_match %r{table.*tr.*bird.*tr.*water}m, zazen('!{20,15}!') # water, forest
-      # * [!{}!] list all documents (with images) for the current item
-      @item = secure(Item) { Item.find(items_id(:cleanWater))}
+      # * [!{}!] list all documents (with images) for the current node
+      @node = secure(Node) { Node.find(nodes_id(:cleanWater))}
       assert_match %r{table.*tr.*water}m, zazen('!{}!')
-      # * [!{i}!] list all images for the current item
+      # * [!{i}!] list all images for the current node
       assert_no_match %r{water}m, (i=zazen('!{i}!'))
-      # * [!{d}!] list all documents (without images) for the current item
-      @item = secure(Item) { Item.find(items_id(:wiki)) }
+      # * [!{d}!] list all documents (without images) for the current node
+      @node = secure(Node) { Node.find(nodes_id(:wiki)) }
       assert_no_match %r{flower}m, (d=zazen('!{d}!'))
     end
   end

@@ -80,7 +80,7 @@ class ImageContentTest < Test::Unit::TestCase
       img.file('med') # create image with 'med' format
       med_path  = img.filepath('med')
       assert File.exist?(  med_path          ), "File exist"
-      img.version.item.name = 'new'
+      img.version.node.name = 'new'
       assert img.save, "Can save"
       assert !File.exist?(  old_path         ), "File does not exist"
       assert !File.exist?(  med_path         ), "File does not exist"

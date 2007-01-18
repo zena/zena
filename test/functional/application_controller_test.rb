@@ -14,22 +14,22 @@ class ApplicationControllerTest < Test::Unit::TestCase
   end
   
   def test_acts_as_secure
-    assert_nothing_raised { item = @controller.send(:secure,Item) { Item.find(ZENA_ENV[:root_id])}}
+    assert_nothing_raised { node = @controller.send(:secure,Node) { Node.find(ZENA_ENV[:root_id])}}
   end
   
   # render_and_cache and authorize tested in MainControllerTest
   
   def test_template
-    wiki = @controller.send(:secure,Item) { Item.find(items_id(:wiki)) }
+    wiki = @controller.send(:secure,Node) { Node.find(nodes_id(:wiki)) }
     assert_equal 'wiki', wiki.template
-    @controller.instance_eval{ @item = wiki }
+    @controller.instance_eval{ @node = wiki }
     assert_equal 'wiki', @controller.send(:template)
   end
   
   def test_class_template
-    proj = @controller.send(:secure,Item) { Item.find(items_id(:cleanWater)) }
+    proj = @controller.send(:secure,Node) { Node.find(nodes_id(:cleanWater)) }
     assert_equal 'default', proj.template
-    @controller.instance_eval{ @item = proj }
+    @controller.instance_eval{ @node = proj }
     assert_equal 'default_project', @controller.send(:template)
     proj.template = 'truc'
     assert_equal 'truc', proj.template
@@ -37,9 +37,9 @@ class ApplicationControllerTest < Test::Unit::TestCase
   end
   
   def test_general_class_template
-    letter = @controller.send(:secure, Item) { Item.find(items_id(:letter)) }
+    letter = @controller.send(:secure, Node) { Node.find(nodes_id(:letter)) }
     assert_equal 'default', letter.template
-    @controller.instance_eval{ @item = letter }
+    @controller.instance_eval{ @node = letter }
     assert_equal 'any_letter', @controller.send(:template)
   end
   
@@ -49,17 +49,17 @@ class ApplicationControllerTest < Test::Unit::TestCase
   
   def test_mode_template
     @controller.instance_eval { @params = {:mode=>'wiki'} }
-    proj = @controller.send(:secure,Item) { Item.find(items_id(:cleanWater)) }
-    @controller.instance_eval { @item = proj }
+    proj = @controller.send(:secure,Node) { Node.find(nodes_id(:cleanWater)) }
+    @controller.instance_eval { @node = proj }
     assert_equal 'wiki', @controller.send(:template)
   end
   
   def test_form_template
-    page = @controller.send(:secure, Item) { Item.find(items_id(:status))    }
-    doc  = @controller.send(:secure, Item) { Item.find(items_id(:water_pdf)) }
-    @controller.instance_eval{ @item = page }
+    page = @controller.send(:secure, Node) { Node.find(nodes_id(:status))    }
+    doc  = @controller.send(:secure, Node) { Node.find(nodes_id(:water_pdf)) }
+    @controller.instance_eval{ @node = page }
     assert_equal 'forms/default', @controller.send(:form_template)
-    @controller.instance_eval{ @item = doc  }
+    @controller.instance_eval{ @node = doc  }
     assert_equal 'forms/any_document', @controller.send(:form_template)
   end
   

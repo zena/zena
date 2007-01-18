@@ -10,14 +10,14 @@ class ApplicationHelperTest < Test::Unit::TestCase
     super
   end
   
-  def test_items_id
-    assert_equal items(:zena)[:id], items_id(:zena)
+  def test_nodes_id
+    assert_equal nodes(:zena)[:id], nodes_id(:zena)
   end
   
   def test_acts_as_secure
     login(:ant)
-    assert_nothing_raised { @item = secure(Item) { Item.find(items_id(:myLife))} }
-    assert_equal 'myLife', @item.name
+    assert_nothing_raised { @node = secure(Node) { Node.find(nodes_id(:myLife))} }
+    assert_equal 'myLife', @node.name
   end
   
   def test_uses_calendar_with_lang
@@ -171,10 +171,10 @@ class ApplicationHelperTest < Test::Unit::TestCase
   end
   
   def test_data_url
-    obj = secure(Item) { items(:water_pdf) }
+    obj = secure(Node) { nodes(:water_pdf) }
     hash = {:controller=>'document', :action=>'data', :version_id=>obj.v_id, :filename=>obj.c_filename, :ext=>obj.c_ext}
     assert_equal hash, data_url(obj)
-    obj = secure(Item) { items(:projects) }
+    obj = secure(Node) { nodes(:projects) }
     assert_raise(StandardError) { data_url(obj) }
   end
   
@@ -200,8 +200,8 @@ class ApplicationHelperTest < Test::Unit::TestCase
   end
   
   def test_calendar_has_note
-    op_at = items(:opening).log_at
-    zena = secure(Item) { items(:zena) }
+    op_at = nodes(:opening).log_at
+    zena = secure(Node) { nodes(:zena) }
     cal = calendar(:from=>zena, :find=>:news, :date=>Date.civil(op_at.year, op_at.month, 5), :size=>:tiny)
     assert_match %r{class='sun'><p>12}, cal
     assert_match %r{<b class='has_note'>15}, cal
@@ -210,7 +210,7 @@ class ApplicationHelperTest < Test::Unit::TestCase
   end
   
   def test_calendar_today
-    zena = secure(Item) { items(:zena) }
+    zena = secure(Node) { nodes(:zena) }
     cal = calendar(:from=>zena, :find=>:news, :size=>:large)
     assert_match %r{<td[^>*]id='large_today'><p>#{Date.today.day}</p></td>}, cal
     cal = calendar(:from=>zena, :find=>:news, :size=>:tiny)
@@ -219,8 +219,8 @@ class ApplicationHelperTest < Test::Unit::TestCase
   
   def test_notes_list_tiny_calendar_list
     login(:tiger)
-    proj = secure(Item) { items(:cleanWater) }
-    note = secure(Note) { Note.create(:parent_id=>items_id(:cleanWater), :v_title=>'hello')}
+    proj = secure(Node) { nodes(:cleanWater) }
+    note = secure(Note) { Note.create(:parent_id=>nodes_id(:cleanWater), :v_title=>'hello')}
     list = notes(:from=>proj, :find=>:news)
     assert_equal 1, list.size
     assert_equal 'opening', list[0].name
@@ -228,8 +228,8 @@ class ApplicationHelperTest < Test::Unit::TestCase
   
   def test_notes_list_from_project
     login(:tiger)
-    proj = secure(Item) { items(:cleanWater) }
-    note = secure(Note) { Note.create(:parent_id=>items_id(:cleanWater), :v_title=>'hello')}
+    proj = secure(Node) { nodes(:cleanWater) }
+    note = secure(Note) { Note.create(:parent_id=>nodes_id(:cleanWater), :v_title=>'hello')}
     list = notes(:from=>proj, :find=>:notes)
     assert_equal 2, list.size
     assert_equal 'opening', list[0].name

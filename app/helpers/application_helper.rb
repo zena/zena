@@ -200,10 +200,10 @@ module ApplicationHelper
   # This method renders the Textile text contained in an object as html. It also renders the zena additions :
   # === Zena additions
   # all these additions are replaced by the traduction of 'unknown link' or 'unknown image' if the user does
-  # not have read access to the linked item.
-  # * ["":34] creates a link to item 34 with item's title.
-  # * ["title":34] creates a link to item 34 with the given title.
-  # * ["":034] if the item id starts with '0', creates a popup link.
+  # not have read access to the linked node.
+  # * ["":34] creates a link to node 34 with node's title.
+  # * ["title":34] creates a link to node 34 with the given title.
+  # * ["":034] if the node id starts with '0', creates a popup link.
   # * [!14!] inline image 14. (default format is 'std' defined in #ImageBuilder). Options are :
   # ** [!014!] inline image with 'pv' format
   # ** [!<.14!] or [!<14!] inline image surrounded with <p class='img_left'></p>
@@ -212,11 +212,11 @@ module ApplicationHelper
   # ** [!14.pv!] inline image transformed to format 'pv'. Formats are defined in #ImageBuilder.
   # ** all the options above can be used together as in [!>.14.med!] : inline image on the right, size 'med'.
   # ** [![2,3,5]!] gallery : inline preview with javascript inline viewer
-  # ** [![]!] gallery with all images contained in the current item
+  # ** [![]!] gallery with all images contained in the current node
   # * [!{7,9}!] documents listing for documents 7 and 9
-  # * [!{}!] list all documents (with images) for the current item
-  # * [!{d}!] list all documents (without images) for the current item
-  # * [!{i}!] list all images for the current item
+  # * [!{}!] list all documents (with images) for the current node
+  # * [!{d}!] list all documents (without images) for the current node
+  # * [!{i}!] list all images for the current node
   # * [!14!:37] you can use an image as the source for a link
   # * [!14!:www.example.com] use an image for an outgoing link
   def zazen(text, opt={})
@@ -225,20 +225,20 @@ module ApplicationHelper
     r = RedCloth.new(text) #, [:hard_breaks])
     r.gsub!(  /"([^"]*)":([0-9]+)/                    ) {|x| make_link(:title=>$1,:id=>$2)}
     r.gsub!(  /\!\[([^\]]*)\]\!/                      ) {|x| img ? make_gallery($1) : trans('[gallery]') }
-    r.gsub!(  /\!\{([^\}]*)\}\!/                      ) {|x| img ? list_items($1)   : trans('[documents]')}
+    r.gsub!(  /\!\{([^\}]*)\}\!/                      ) {|x| img ? list_nodes($1)   : trans('[documents]')}
     r.gsub!(  /\!([^0-9]{0,2})([0-9]+)(\.([^\!]+)|)\!(:([^\s]+)|)/ ) {|x| img ? make_image(:style=>$1, :id=>$2, :size=>$4, :link=>$6) : trans('[image]')}
     r
     r.to_html
   end
 
-  # Creates a link to the item referenced by id
+  # Creates a link to the node referenced by id
   def make_link(opts)
-    item = secure(Item) { Item.find(opts[:id]) }
-    title = (opts[:title] && opts[:title] != '') ? opts[:title] : item.v_title
+    node = secure(Node) { Node.find(opts[:id]) }
+    title = (opts[:title] && opts[:title] != '') ? opts[:title] : node.v_title
     if opts[:id][0..0] == '0'
-      link_to title, {:prefix => prefix, :controller => 'main', :action=>'show', :path=>item.fullpath}, :popup=>true
+      link_to title, {:prefix => prefix, :controller => 'main', :action=>'show', :path=>node.fullpath}, :popup=>true
     else
-      link_to title, :prefix => prefix, :controller => 'main', :action=>'show', :path=>item.fullpath
+      link_to title, :prefix => prefix, :controller => 'main', :action=>'show', :path=>node.fullpath
     end
   rescue ActiveRecord::RecordNotFound
     "<span class='unknownLink'>#{trans('unknown link')}</span>"
@@ -296,7 +296,7 @@ module ApplicationHelper
   # Create a gallery from a list of images. See ApplicationHelper#zazen for details.
   def make_gallery(ids="")
     if ids == ""
-      images = @item.images
+      images = @node.images
     else
       ids = ids.split(',').map{|i| i.to_i}.join(',') # sql injection security
       images = secure(Document) { Document.find(:all, :conditions=>"id IN (#{ids})") }
@@ -304,18 +304,18 @@ module ApplicationHelper
     render_to_string( :partial=>'main/gallery', :locals=>{:gallery=>images} )
   end
 
-  def list_items(ids='')
+  def list_nodes(ids='')
     if ids == ""
-      docs = @item.documents
+      docs = @node.documents
     elsif ids == "d"
-      docs = @item.documents_only
+      docs = @node.documents_only
     elsif ids == "i"
-      docs = @item.images
+      docs = @node.images
     else
       ids = ids.split(',').map{|i| i.to_i}.join(',') # sql injection security
       docs = secure(Document) { Document.find(:all, :order=>'name ASC', :conditions=>"id IN (#{ids})") }
     end
-    render_to_string( :partial=>'main/list_items', :locals=>{:docs=>docs})
+    render_to_string( :partial=>'main/list_nodes', :locals=>{:docs=>docs})
   end
   
   def data_url(obj)
@@ -347,7 +347,7 @@ module ApplicationHelper
         menu  = secure(Tag) { Tag.find(ZENA_ENV[:menu_tag_id]) }
         menus = menu.pages
       elsif ZENA_ENV[:root_id] != nil
-        menus = secure(Item) { Item.find(ZENA_ENV[:root_id]) }.pages
+        menus = secure(Node) { Node.find(ZENA_ENV[:root_id]) }.pages
       else
         menus = secure(Page) { Page.find(:all, :conditions=>"parent_id IS NULL") }
       end
@@ -361,7 +361,7 @@ module ApplicationHelper
   end
   
   def calendar(options={})
-    source = options[:from  ] || (@project ||= (@item ? @item.project : nil))
+    source = options[:from  ] || (@project ||= (@node ? @node.project : nil))
     date   = options[:date  ] || Date.today
     method = options[:find  ] || :notes
     size   = options[:size  ] || :tiny
@@ -433,7 +433,7 @@ module ApplicationHelper
       klass = ""
     end
     if opt[:as]
-      render_to_string :partial=>'item/show_attr', :locals=>{:id=>obj[:id], :text=>text, :method=>method, :key=>key, :klass=>klass,
+      render_to_string :partial=>'node/show_attr', :locals=>{:id=>obj[:id], :text=>text, :method=>method, :key=>key, :klass=>klass,
                                                            :key_on=>"#{key}#{Time.now.to_i}_on", :key_off=>"#{key}#{Time.now.to_i}_off"}
     else
       "<div id='#{key}'#{klass}>#{text}</div>"
@@ -443,9 +443,9 @@ module ApplicationHelper
   # TODO: test
   def link_box(obj, sym, opt={})
     # FIXME: SECURITY is there a better way to do this ?
-    item = eval("@#{obj}")
+    node = eval("@#{obj}")
     method = "#{sym}_for_form".to_sym
-    role = item.class.role[sym.to_s]
+    role = node.class.role[sym.to_s]
     setter = sym.to_s.singularize
     if role[:unique]
       # unique
@@ -454,12 +454,12 @@ module ApplicationHelper
       # many
       if opt[:in]
         ids = opt[:in].map{|i| i.to_i}
-        list = item.send(method, :conditions=>["items.id IN (#{ids.join(',')})"])
+        list = node.send(method, :conditions=>["nodes.id IN (#{ids.join(',')})"])
       else
-        list = item.send(method)
+        list = node.send(method)
       end
       res = list.inject([]) do |list, l|
-        list << "<input type='checkbox' name='item[#{setter}_ids][]' value='#{l.id}' class='box' #{ l[:link_id] ? "checked='1' " : ""}/>#{l.name}"
+        list << "<input type='checkbox' name='node[#{setter}_ids][]' value='#{l.id}' class='box' #{ l[:link_id] ? "checked='1' " : ""}/>#{l.name}"
         list
       end
     end
@@ -497,12 +497,12 @@ module ApplicationHelper
   #TODO: test
   def site_tree(obj=nil)
     skip  = obj ? obj[:id] : nil
-    base  = secure(Item) { Item.find(ZENA_ENV[:root_id]) }
+    base  = secure(Node) { Node.find(ZENA_ENV[:root_id]) }
     level = 0
     if obj.nil?
-      klass = Item
+      klass = Node
     elsif obj.kind_of?(Document)
-      klass = Item
+      klass = Node
     elsif obj.kind_of?(Note)
       klass = Project
     else
@@ -515,7 +515,7 @@ module ApplicationHelper
   end
   
   #TODO: test
-  def readers_for(obj=@item)
+  def readers_for(obj=@node)
     readers = if obj.private? 
       trans('img_private')
     elsif [obj.rgroup_id,obj.pgroup_id,obj.user_id].include?(1)
@@ -582,10 +582,10 @@ module ApplicationHelper
       return select(obj,sym,  secure(klass) { klass.find(:all, :select=>'id,name', :order=>'name ASC') }.map{|r| [r[:name], r[:id]]}, { :include_blank => opt[:include_blank] })
     end
     # FIXME: SECURITY is there a better way to do this ?
-    item = eval("@#{obj}")
-    if item
-      id = item.send(sym.to_sym)
-      current_obj = secure(Item) { Item.find_by_id(id) } if id
+    node = eval("@#{obj}")
+    if node
+      id = node.send(sym.to_sym)
+      current_obj = secure(Node) { Node.find_by_id(id) } if id
     else
       id = ''
       current_obj = nil
@@ -600,7 +600,7 @@ module ApplicationHelper
     else
       current = ''
     end
-    update = "new Ajax.Updater('#{name_ref}', '/z/item/attribute/' + this.value + '?attr=#{attribute}', {asynchronous:true, evalScripts:true});"
+    update = "new Ajax.Updater('#{name_ref}', '/z/node/attribute/' + this.value + '?attr=#{attribute}', {asynchronous:true, evalScripts:true});"
     "<div class='select_id'><input type='text' size='8' id='#{obj}_#{sym}' name='#{obj}[#{sym}]' value='#{id}' onChange=\"#{update}\"/>"+
     "<span class='select_id_name' id='#{name_ref}'>#{current}</span></div>"
   end

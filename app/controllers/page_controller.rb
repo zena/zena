@@ -9,7 +9,7 @@ class PageController < ApplicationController
       raise NameError unless klass.ancestors.include?(Page)
       params[:page].delete(:klass)
       @page = secure(klass) { klass.create(params[:page]) }
-      @item = @page.parent
+      @node = @page.parent
     rescue NameError
       klass = params[:page][:klass]
       params[:page].delete(:klass)
@@ -17,7 +17,7 @@ class PageController < ApplicationController
       @page.errors.add('klass', 'invalid')
       @page.instance_eval {@klass=klass}
       def @page.klass; @klass; end
-      @item = @page.parent
+      @node = @page.parent
     end
   rescue ActiveRecord::RecordNotFound
     page_not_found

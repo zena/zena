@@ -3,12 +3,12 @@ class NoteController < ApplicationController
   
   def day_list
     # used to display just the content of a single note (called by calender)
-    @item          = secure(Item) { Item.find(params[:id]) }
+    @node          = secure(Node) { Node.find(params[:id]) }
     find           = params[:find] ? params[:find].to_sym : nil
     @note_date     = params[:date] ? Date.parse(params[:date]) : nil
     @selected_note = params[:selected] ? params[:selected].to_i : nil
     using          = params[:using] ? params[:using].gsub(/[^a-zA-Z_]/,'') : 'event_at'
-    @notes         = notes(:from=>@item, :find=>find, :using=>using, :date=>@note_date)
+    @notes         = notes(:from=>@node, :find=>find, :using=>using, :date=>@note_date)
     render :partial=>'note/day_list'
   rescue ActiveRecord::RecordNotFound
     page_not_found
@@ -23,7 +23,7 @@ class NoteController < ApplicationController
       params[:note].delete(:klass)
       parse_dates(params[:note])
       @note = secure(klass) { klass.create(params[:note]) }
-      @item = @note.parent
+      @node = @note.parent
     rescue NameError
       klass = params[:note][:klass]
       params[:note].delete(:klass)
@@ -31,7 +31,7 @@ class NoteController < ApplicationController
       @note.errors.add('klass', 'invalid')
       @note.instance_eval {@klass=klass}
       def @note.klass; @klass; end
-      @item = @note.parent
+      @node = @note.parent
     end
   rescue ActiveRecord::RecordNotFound
     page_not_found

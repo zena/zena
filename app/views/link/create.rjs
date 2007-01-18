@@ -2,8 +2,8 @@ if @link
   page.insert_html :after, "group_#{@method}", :partial=>'link/li', :collection=>[@link]
   page.visual_effect :highlight, "link#{@link[:link_id]}", :duration => 1.0
   page.replace_html 'link_errors', :inline=>""
-elsif @item && @item.errors.empty?
+elsif @node && @node.errors.empty?
   page.replace_html 'links', :partial=>'list'
 else
-  page.replace_html 'link_errors', :inline => @errors ? render_errors : error_messages_for('item')
+  page.replace_html 'link_errors', :inline => @errors ? render_errors : error_messages_for('node')
 end

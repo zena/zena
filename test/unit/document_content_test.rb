@@ -55,9 +55,9 @@ class DocumentContentTest < Test::Unit::TestCase
       assert File.exist?("#{RAILS_ROOT}/data/test/pdf/15/water.pdf")
       doc.name = 'blom'
       assert doc.save, "Can save"
-      # name must be the same as 'item'
+      # name must be the same as 'node'
       assert_equal "#{RAILS_ROOT}/data/test/pdf/15/water.pdf", doc.filepath
-      doc.version.item.name = 'blom'
+      doc.version.node.name = 'blom'
       assert doc.save, "Can save"
       assert_equal "#{RAILS_ROOT}/data/test/pdf/15/blom.pdf", doc.filepath
       assert !File.exist?("#{RAILS_ROOT}/data/test/pdf/15/water.pdf")
@@ -112,7 +112,7 @@ class DocumentContentTest < Test::Unit::TestCase
   
   def test_has_file
     visitor(:ant)
-    doc = secure(Document) { Document.new(:parent_id=>items_id(:cleanWater), :name=>'lalala', :c_name=>'wak') }
+    doc = secure(Document) { Document.new(:parent_id=>nodes_id(:cleanWater), :name=>'lalala', :c_name=>'wak') }
     assert ! doc.save, 'Cannot save'
     assert_equal "can't be blank", doc.errors[:c_file]
   end
@@ -120,9 +120,9 @@ class DocumentContentTest < Test::Unit::TestCase
   def test_wrong_file_type
     preserving_files("/data/test/jpg/20") do
       visitor(:tiger)
-      item = secure(Item) { items(:bird_jpg) }
-      assert !item.update_attributes(:c_file=>uploaded_pdf('water.pdf'))
-      assert_equal 'must be an image', item.errors[:c_file]
+      node = secure(Node) { nodes(:bird_jpg) }
+      assert !node.update_attributes(:c_file=>uploaded_pdf('water.pdf'))
+      assert_equal 'must be an image', node.errors[:c_file]
     end
   end
   

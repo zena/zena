@@ -12,9 +12,9 @@ class ApplicationController < ActionController::Base
   def render_and_cache(opts={})
     opts = {:template=>opts} if opts.kind_of?(String)
     opts = {:template=>nil, :cache=>true}.merge(opts)
-    @item  ||= secure(Item) { Item.find(ZENA_ENV[:root_id]) }
+    @node  ||= secure(Node) { Node.find(ZENA_ENV[:root_id]) }
       
-    @project = @item.project
+    @project = @node.project
     render :template=>"templates/#{template(opts[:template])}", :layout=>false
     
     # only cache the public pages
@@ -28,13 +28,13 @@ class ApplicationController < ActionController::Base
       if params[:mode]
         tmplt = params[:mode].gsub('..','').gsub('/','') # security to prevent rendering pages out of 'templates'
       else
-        tmplt = @item.template || 'default'
+        tmplt = @node.template || 'default'
       end
     end
     
     # try to find a class specific template, starting with the most specialized, then the class specific and finally
     # the contextual template or default
-    ["#{tmplt}_#{@item.class.to_s.downcase}", "any_#{@item.class.to_s.downcase}", tmplt ].each do |filename|
+    ["#{tmplt}_#{@node.class.to_s.downcase}", "any_#{@node.class.to_s.downcase}", tmplt ].each do |filename|
       if File.exist?(File.join(RAILS_ROOT, 'app', 'views', 'templates', "#{filename}.rhtml"))
         return filename
       end
@@ -47,10 +47,10 @@ class ApplicationController < ActionController::Base
   end
   
   def form_template
-    tmplt = @item.template || 'default'
+    tmplt = @node.template || 'default'
     # try to find a class specific template, starting with the most specialized, then the class specific and finally
     # the contextual template or default
-    ["#{tmplt}_#{@item.class.to_s.downcase}", "any_#{@item.class.to_s.downcase}", tmplt ].each do |filename|
+    ["#{tmplt}_#{@node.class.to_s.downcase}", "any_#{@node.class.to_s.downcase}", tmplt ].each do |filename|
       if File.exist?(File.join(RAILS_ROOT, 'app', 'views', 'templates', 'forms', "#{filename}.rhtml"))
         return "forms/#{filename}"
       end
@@ -188,14 +188,14 @@ class ApplicationController < ActionController::Base
   end
   
   # Notes finder options are
-  # [from] item providing the notes. If omitted, <code>@project</code> or <code>@item.project</code> is used.
-  # [find] method called on the source. Default is 'notes'. For example, <code>:from=>@item.project, :find=>:news</code> finds all news from the project of the current item.
+  # [from] node providing the notes. If omitted, <code>@project</code> or <code>@node.project</code> is used.
+  # [find] method called on the source. Default is 'notes'. For example, <code>:from=>@node.project, :find=>:news</code> finds all news from the project of the current node.
   # [date] only find notes for the given date
   # [using] specify the field used to sort and filter by date. By default, 'log_at' is used
   # [order] sort order. By default "#{using} ASC" is used.
   # []
   def notes(options={})
-    source = options[:from] || (@project ||= (@item ? @item.project : nil))
+    source = options[:from] || (@project ||= (@node ? @node.project : nil))
     return [] unless source
     
     options.delete(:from)
@@ -224,7 +224,7 @@ class ApplicationController < ActionController::Base
   
   
   include ZenaGlobals
-  model :item,:contact, :user, :group, :page, :tracker, :document, :image, :collector, :project, 
+  model :node,:contact, :user, :group, :page, :tracker, :document, :image, :collector, :project, 
     :note, :contact, :comment, :version, :doc_version, :image_version, :doc_file, :image_file, :link, :image_builder, :form  # (load models) this is used to make find work with sub-classes
   before_filter :set_env
   layout 'default'

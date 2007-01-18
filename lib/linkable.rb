@@ -82,9 +82,9 @@ on the post edit page :
           if role[:collector]
             links = []
           else
-            links = secure(Item) { Item.find(:all,
-                            :select     => "#{Item.table_name}.*, links.id AS link_id, links.role", 
-                            :joins      => "INNER JOIN links ON #{Item.table_name}.id=links.#{role[:other_side]}",
+            links = secure(Node) { Node.find(:all,
+                            :select     => "#{Node.table_name}.*, links.id AS link_id, links.role", 
+                            :joins      => "INNER JOIN links ON #{Node.table_name}.id=links.#{role[:other_side]}",
                             :conditions => ["links.#{role[:link_side]} = ? AND links.role = ?", self[:id], role[:role] ]
                             )} || []
           end

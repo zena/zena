@@ -1,6 +1,6 @@
 class SearchController < ApplicationController
   
-  #TODO: finish test for '[project], [note], items...'
+  #TODO: finish test for '[project], [note], nodes...'
   def find_in_edit
     if params[:search] && params[:search] != ''
       if params[:search][0..0] == '='
@@ -9,7 +9,7 @@ class SearchController < ApplicationController
         begin
           klass = eval @phrase.capitalize
           @phrase = @phrase.pluralize
-          raise NameError unless klass.ancestors.include?(Item)
+          raise NameError unless klass.ancestors.include?(Node)
           @results = secure(klass) { klass.find(:all) }
         rescue NameError
           @results = []
@@ -17,7 +17,7 @@ class SearchController < ApplicationController
       else
         @phrase = params[:search]
         @phrase = "#{@phrase}%" unless @phrase[-1..-1] == '%'
-        @results = secure(Item) { Item.find(:all, :conditions=>["name LIKE ?",@phrase], :limit=>5)}
+        @results = secure(Node) { Node.find(:all, :conditions=>["name LIKE ?",@phrase], :limit=>5)}
       end
       render :partial=>'search/find_in_edit', :locals=>{:results =>@results}
     else

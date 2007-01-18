@@ -1,7 +1,7 @@
 =begin rdoc
 TODO
 =end
-class Note < Item
+class Note < Node
   link :calendars, :class_name=>'Project'
   before_validation :prepare_note
   class << self

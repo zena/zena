@@ -7,7 +7,7 @@ class FormTest < Test::Unit::TestCase
   # Replace this with your real tests.
   #def test_parse_data
   #  visitor(:ant)
-  #  form = secure(Form) { Form.find(items_id(:form)) }
+  #  form = secure(Form) { Form.find(nodes_id(:form)) }
   #  assert_kind_of Form, form
   #  assert_equal 12, form.parse("[data, filter=>year=2006]{[sum births]}").to_i
   #  assert_equal 'cat dog', form.parse("[data]{[each animal, join=>' ']{[animal]}}")
@@ -23,7 +23,7 @@ class FormTest < Test::Unit::TestCase
   def test_parser
     #visitor(:ant)
     #visitor(:ant)
-    #form = secure(Form) { Form.find(items_id(:form)) }
+    #form = secure(Form) { Form.find(nodes_id(:form)) }
     #assert_kind_of Form, form
   end
 end

@@ -3,6 +3,6 @@
 <p class="btn_x"><%= link_to_function transb('btn_x'), "new Element.toggle('add_page', 'add_page_form');" %></p>
 <%= select('page', 'klass', Page.select_classes ) %>
 <%= text_field("page", "name", :size=>15 ) %>
-<%= hidden_field("page", "parent_id", :value=>@item.id ) %>
+<%= hidden_field("page", "parent_id", :value=>@node.id ) %>
 <input type="submit" class="btn_validate" value='<%= transb('validate') %>'/>
 <%= end_form_tag %>

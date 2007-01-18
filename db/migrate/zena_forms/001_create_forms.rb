@@ -1,7 +1,7 @@
 class CreateForms < ActiveRecord::Migration
   def self.up
     
-    add_column "items", 'dgroup_id', :integer
+    add_column "nodes", 'dgroup_id', :integer
     
     create_table("form_seizures", :options => 'type=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci') do |t|
       t.column 'user_id', :integer, :default => 0, :null => false
@@ -20,6 +20,6 @@ class CreateForms < ActiveRecord::Migration
   def self.down
     drop_table "form_lines"
     drop_table "form_seizures"
-    remove_column "items", "dgroup_id"
+    remove_column "nodes", "dgroup_id"
   end
 end

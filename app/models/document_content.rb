@@ -91,7 +91,7 @@ class DocumentContent < ActiveRecord::Base
 
   def prepare_filename
     if new_record?
-      self[:name] = version.item.name
+      self[:name] = version.node.name
       if @file
         # set extension
         ext  = self[:ext] || @file.original_filename.split('.').last

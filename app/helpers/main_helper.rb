@@ -7,7 +7,7 @@ module MainHelper
   
   # Used by edit_buttons
   def form_action(action, version_id=nil, link_text=nil)
-    version_id ||= @item.v_id
+    version_id ||= @node.v_id
     if action == 'edit'
       "<a href='#' title='#{transb('btn_title_edit')}' onClick=\"editor=window.open('" + 
       url_for(:controller=>'version', :id=>version_id, :action=>'edit', :rnd=>rnd) + 
@@ -16,7 +16,7 @@ module MainHelper
       tlink_to_function((link_text || 'btn_view'), "opener.Zena.version_preview(#{version_id}); return false;")
     elsif action == 'drive'
       "<a href='#' title='#{transb('btn_title_drive')}' onClick=\"editor=window.open('" + 
-      url_for(:controller=>'item', :version_id=>version_id, :action=>'drive', :rnd=>rnd) + 
+      url_for(:controller=>'node', :version_id=>version_id, :action=>'drive', :rnd=>rnd) + 
       "', 'editor', 'location=0,width=500,height=600,resizable=1');return false;\">" + (link_text || transb('btn_drive')) + "</a>"
     else
       tlink_to( (link_text || "btn_#{action}"), {:controller=>'version', :action => action , :id => version_id}, :title=>transb("btn_title_#{action}"), :post=>true ) + "\n"
@@ -26,26 +26,26 @@ module MainHelper
   # Buttons are :edit, :add, :propose, :publish, :refuse, or :drive. :all = (:edit, :propose, :publish, :refuse, :drive)
   def edit_button(action, opt={})
     res = []
-    if opt[:item]
-      version_id = opt[:item].v_id
-      item = opt[:item]
+    if opt[:node]
+      version_id = opt[:node].v_id
+      node = opt[:node]
     else
       version_id = nil
-      item = @item
+      node = @node
     end
-    if (action == :edit or action == :all) && item.can_edit?
+    if (action == :edit or action == :all) && node.can_edit?
       res << form_action('edit',version_id, opt[:text])
     end
-    if (action == :propose or action == :all) && item.can_propose?
+    if (action == :propose or action == :all) && node.can_propose?
       res << form_action('propose',version_id, opt[:text])
     end
-    if (action == :publish or action == :all) && item.can_publish?
+    if (action == :publish or action == :all) && node.can_publish?
       res << form_action('publish',version_id, opt[:text])
     end
-    if (action == :refuse or action == :all) && item.can_refuse?
+    if (action == :refuse or action == :all) && node.can_refuse?
       res << form_action('refuse',version_id, opt[:text])
     end
-    if (action == :drive or action == :all) && item.can_drive?
+    if (action == :drive or action == :all) && node.can_drive?
       res << form_action('drive',version_id, opt[:text])
     end
     "<li>#{res.join("</li>\n<li>")}</li>"
@@ -64,7 +64,7 @@ module MainHelper
     elsif opt[:action] == :all
       case version.status
       when Zena::Status[:pub]
-        actions << form_action('unpublish',version[:id]) if @item.can_unpublish?
+        actions << form_action('unpublish',version[:id]) if @node.can_unpublish?
       when Zena::Status[:prop]
         actions << form_action('publish',version[:id])
         actions << form_action('refuse',version[:id])
@@ -77,16 +77,16 @@ module MainHelper
         actions << form_action('propose',version[:id])
         actions << form_action('remove',version[:id]) if version.user[:id] == visitor_id
       when Zena::Status[:rep]
-        actions << form_action('edit',version[:id]) if @item.can_edit_lang?(version.lang)
+        actions << form_action('edit',version[:id]) if @node.can_edit_lang?(version.lang)
         actions << form_action('publish',version[:id])
         actions << form_action('propose',version[:id])
       when Zena::Status[:rem]
-        actions << form_action('edit',version[:id]) if @item.can_edit_lang?(version.lang)
+        actions << form_action('edit',version[:id]) if @node.can_edit_lang?(version.lang)
         actions << form_action('publish',version[:id])
         actions << form_action('propose',version[:id])
       when Zena::Status[:del]
         if (version[:user_id] == session[:user][:id])
-          actions << form_action('edit',version[:id]) if @item.can_edit_lang?(version.lang)
+          actions << form_action('edit',version[:id]) if @node.can_edit_lang?(version.lang)
         end
       end
     end
@@ -96,7 +96,7 @@ module MainHelper
   # TODO: test
   def discussion_actions(discussion, opt={})
     opt = {:action=>:all}.merge(opt)
-    return '' unless @item.can_drive?
+    return '' unless @node.can_drive?
     if opt[:action] == :view
       tlink_to_function('btn_view', "opener.Zena.discussion_show(#{discussion[:id]}); return false;")
     elsif opt[:action] == :all
@@ -150,13 +150,13 @@ module MainHelper
     
 ENDTXT
   end
-  # Create the traduction list for the current item
-  def traductions(obj=@item)
+  # Create the traduction list for the current node
+  def traductions(obj=@node)
     trad_list = []
     lang_found = false
     obj.traductions.map do |ed|
       if ed == obj.v_lang
-        lang_found = (ed == lang) # current item is in the requested lang
+        lang_found = (ed == lang) # current node is in the requested lang
         trad_list << "<span class='on'>" + link_to( ed, change_lang(ed)) + "</span>"
       else
         trad_list << "<span>" + link_to( ed, change_lang(ed)) + "</span>"
@@ -175,7 +175,7 @@ ENDTXT
   end
   
   # find the title partial for the current object or parameter
-  def title_partial(obj=@item)
+  def title_partial(obj=@node)
     klass = obj.class
     path = nil
     partial = nil
@@ -195,24 +195,24 @@ ENDTXT
     if size == :large
       res = []
       res << "<div class='info'>"
-      if  @item.author.id == @item.v_author.id
-        res << trans("posted by") + " <b>" + @item.author.fullname + "</b>"
+      if  @node.author.id == @node.v_author.id
+        res << trans("posted by") + " <b>" + @node.author.fullname + "</b>"
       else
-        res << trans("original by") + " <b>" + @item.author.fullname + "</b>"
-        res << trans("new post by") + " <b>" + @item.v_author.fullname + "</b>"
+        res << trans("original by") + " <b>" + @node.author.fullname + "</b>"
+        res << trans("new post by") + " <b>" + @node.v_author.fullname + "</b>"
       end
-      res << trans("on") + " " + short_date(@item.v_updated_at) + "."
+      res << trans("on") + " " + short_date(@node.v_updated_at) + "."
       res << trans("Traductions") + " : <span id='trad'>" + traductions.join(", ") + "</span>"
       res << "</div>"
       res.join("\n")
     else
-      "<div class='info'><b>#{@item.v_author.initials}</b> - #{short_date(@item.v_updated_at)}</div>"
+      "<div class='info'><b>#{@node.v_author.initials}</b> - #{short_date(@node.v_updated_at)}</div>"
     end
   end
   
   # show current path with links to ancestors
-  def path_links(item=@item)
-    path = item.fullpath
+  def path_links(node=@node)
+    path = node.fullpath
     current_path = []
     up = prefix
     nav = ["<a href='/#{up}'>#{ZENA_ENV[:site_name]}</a>"]
@@ -220,7 +220,7 @@ ENDTXT
       current_path << p
       nav << "<a href='/#{up}/#{current_path.join('/')}'>#{p}</a>"
     end
-    if item[:id] == @item[:id]
+    if node[:id] == @node[:id]
       res = "<ul id='path' class='path'>"
     else
       res = "<ul class='path'>"

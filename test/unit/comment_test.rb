@@ -35,7 +35,7 @@ class CommentTest < Test::Unit::TestCase
   
   def test_moderate_public_comments
     bak = ZENA_ENV[:moderate_public_comments]
-    discussion = Discussion.create(:item_id=>11, :lang=>'en')
+    discussion = Discussion.create(:node_id=>11, :lang=>'en')
     ZENA_ENV[:moderate_public_comments] = true
     comment = Comment.create( :user_id=>1, :title=>'coco', :text=>'spam see my web site', :author_name=>'me', :discussion_id=>discussion[:id] )
     assert !comment.new_record?, "Not a new record"

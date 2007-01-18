@@ -11,7 +11,7 @@ class DocumentVersionTest < Test::Unit::TestCase
   
   def test_presence_of_content
     visitor(:tiger)
-    doc = secure(Document) { Document.create(:parent_id=>items_id(:status), :name=>'test') }
+    doc = secure(Document) { Document.create(:parent_id=>nodes_id(:status), :name=>'test') }
     assert_equal "can't be blank", doc.errors[:c_file]
   end
 end

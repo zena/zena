@@ -7,7 +7,7 @@ class FormSeizure < ActiveRecord::Base
     def find_seizures(form_id, filter, visitor_groups=[1])
       # It could be possible to use multiple filters : here is an example with 2 (look at slines2):
       # SELECT seizures.* FROM form_seizures AS seizures, form_lines AS slines, 
-      # form_lines AS slines2, items AS forms WHERE forms.id = seizures.form_id 
+      # form_lines AS slines2, nodes AS forms WHERE forms.id = seizures.form_id 
       # AND seizures.id = slines.seizure_id AND seizures.id = slines2.seizure_id 
       # AND forms.id = 32 AND forms.dgroup_id IN (1,3) AND (slines.key='animal'
       # AND slines.value='dog' AND slines2.key='year' AND slines2.value='2006') GROUP BY seizures.id
@@ -24,7 +24,7 @@ class FormSeizure < ActiveRecord::Base
       else
         filter = "1"
       end
-      seiz = self.find_by_sql(["SELECT seizures.* FROM form_seizures AS seizures, form_lines AS slines, items AS forms WHERE \
+      seiz = self.find_by_sql(["SELECT seizures.* FROM form_seizures AS seizures, form_lines AS slines, nodes AS forms WHERE \
         forms.id = seizures.form_id AND seizures.id = slines.seizure_id AND forms.id = ? AND forms.dgroup_id IN (#{visitor_groups.join(',')}) AND (#{filter}) GROUP BY seizures.id", 
                       form_id ])
     end

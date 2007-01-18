@@ -5,7 +5,7 @@ Zena is a CMS. (c) teti.ch 2006
 -------------------------------------------
 == Todo
 === Tools
-* Rename Item into Node
+* Rename Node into Node
 * user management :
   * create
   * change password
@@ -51,7 +51,7 @@ Custom info that could be stored
 = Conception
 Zena is divided into modules. These modules are :
 == web (base engine)
-Content management system. The web module can contain different items 
+Content management system. The web module can contain different nodes 
 * *Contacts* people with addresses
 * *Logs* weblog
 * *Events* time related events shown in a calendar or as a 'news' list
@@ -63,7 +63,7 @@ Content management system. The web module can contain different items
 Provides views and filters for #Events.
 === menu component
 Monitor readings, book collection
-Provides navigation through #StructuredItems
+Provides navigation through #StructuredNodes
 === book component
 == book engine
 Monitor readings, book collection. It makes it very easy to add book references to documents. Or
@@ -95,7 +95,7 @@ link://../img/zena_salt_login.png
 link://../img/zena.png
 == Fixtures
 link://../img/zena_fixtures.png
-== Item life cycle
+== Node life cycle
 link://../img/zena_create_event.png
 link://../img/zena_add_document.png
 link://../img/zena_view_document.png

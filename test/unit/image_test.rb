@@ -6,7 +6,7 @@ class ImageTest < Test::Unit::TestCase
   def test_create_with_file
     without_files('data/test/jpg') do
       visitor(:ant)
-      img = secure(Image) { Image.create( :parent_id=>items_id(:cleanWater),
+      img = secure(Image) { Image.create( :parent_id=>nodes_id(:cleanWater),
                                           :inherit => 1,
                                           :name=>'birdy', 
                                           :c_file => uploaded_jpg('bird.jpg')) }
@@ -27,7 +27,7 @@ class ImageTest < Test::Unit::TestCase
   def test_resize_image
     without_files('data/test/jpg') do
       visitor(:ant)
-      img = secure(Image) { Image.create( :parent_id=>items_id(:cleanWater), 
+      img = secure(Image) { Image.create( :parent_id=>nodes_id(:cleanWater), 
                                           :inherit => 1,
                                           :name=>'birdy', :c_file => uploaded_jpg('bird.jpg')) }
       assert !img.new_record?, "Not a new record"
@@ -48,8 +48,8 @@ class ImageTest < Test::Unit::TestCase
   def test_change_image
     preserving_files('data/test/jpg') do
       visitor(:ant)
-      img = secure(Item) { items(:bird_jpg) }
-      flo = secure(Item) { items(:flower_jpg)}
+      img = secure(Node) { nodes(:bird_jpg) }
+      flo = secure(Node) { nodes(:flower_jpg)}
       assert_equal 661, img.c_width
       assert_equal 600, img.c_height
       assert_equal 56183, img.c_size
@@ -66,7 +66,7 @@ class ImageTest < Test::Unit::TestCase
   def test_change_name
     preserving_files('data/test/jpg') do
       visitor(:ant)
-      img = secure(Image) { Image.create( :parent_id=>items_id(:cleanWater),
+      img = secure(Image) { Image.create( :parent_id=>nodes_id(:cleanWater),
                                           :inherit => 1,
                                           :name=>'birdy', 
                                           :c_file => uploaded_jpg('bird.jpg')) }
@@ -90,7 +90,7 @@ class ImageTest < Test::Unit::TestCase
   def test_change_name_many_versions
     preserving_files('data/test/jpg') do
       visitor(:ant)
-      img = secure(Image) { Image.create( :parent_id=>items_id(:cleanWater),
+      img = secure(Image) { Image.create( :parent_id=>nodes_id(:cleanWater),
                                           :inherit => 1,
                                           :name=>'birdy', 
                                           :c_file => uploaded_jpg('bird.jpg')) }
@@ -132,7 +132,7 @@ class ImageTest < Test::Unit::TestCase
   def test_create_with_small_file
     #preserving_files('/data/test/png') do
       visitor(:ant)
-      img = secure(Image) { Image.create( :parent_id=>items_id(:cleanWater),
+      img = secure(Image) { Image.create( :parent_id=>nodes_id(:cleanWater),
         :name => 'bomb.png',
         :c_file => uploaded_png('bomb.png') )}
       assert_kind_of Image, img

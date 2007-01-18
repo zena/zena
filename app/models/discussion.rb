@@ -1,12 +1,12 @@
 class Discussion < ActiveRecord::Base
   has_many :all_comments, :class_name=>'Comment', :foreign_key=>'discussion_id', :order=>'created_at ASC', :dependent=>:delete_all
-  belongs_to :item
+  belongs_to :node
   
   # An open discussion means new comments can be added
   def open?; self[:open]; end
   
   # An +inside+ discussion is not visible when the version is published.
-  # Item readers = discussion readers = commentators
+  # Node readers = discussion readers = commentators
   def inside?; self[:inside]; end
   
   def can_destroy?

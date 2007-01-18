@@ -10,7 +10,7 @@ TODO: when a user is 'destroyed', pass everything he owns to another user or jus
 =end
 class User < ActiveRecord::Base
   has_and_belongs_to_many :groups
-  has_many                :items
+  has_many                :nodes
   has_many                :versions
   validates_uniqueness_of :login
   validates_presence_of   :password
@@ -83,8 +83,8 @@ class User < ActiveRecord::Base
       # su can view all
       Comment.find_all_by_status(Zena::Status[:prop])
     else
-      Comment.find(:all, :select=>'comments.*, items.name', :from=>'comments, items, discussions',
-                   :conditions=>"comments.status = #{Zena::Status[:prop]} AND discussions.item_id = items.id AND comments.discussion_id = discussions.id AND items.pgroup_id IN (#{group_ids.join(',')})")
+      Comment.find(:all, :select=>'comments.*, nodes.name', :from=>'comments, nodes, discussions',
+                   :conditions=>"comments.status = #{Zena::Status[:prop]} AND discussions.node_id = nodes.id AND comments.discussion_id = discussions.id AND nodes.pgroup_id IN (#{group_ids.join(',')})")
     end
   end
   
@@ -94,7 +94,7 @@ class User < ActiveRecord::Base
       # su can view all
       Version.find_all_by_status(Zena::Status[:prop])
     else
-      Version.find_by_sql("SELECT versions.* FROM versions LEFT JOIN items ON item_id=items.id WHERE status=#{Zena::Status[:prop]} AND items.pgroup_id IN (#{group_ids.join(',')})")
+      Version.find_by_sql("SELECT versions.* FROM versions LEFT JOIN nodes ON node_id=nodes.id WHERE status=#{Zena::Status[:prop]} AND nodes.pgroup_id IN (#{group_ids.join(',')})")
     end
   end
   

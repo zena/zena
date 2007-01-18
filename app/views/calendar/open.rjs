@@ -1,5 +1,5 @@
 page << "$('notes').style.display = 'none';"
-page.replace_html 'largecal', calendar(:from=>@item, :find=>@method, :size=>@size, :date=>@date)
+page.replace_html 'largecal', calendar(:from=>@node, :find=>@method, :size=>@size, :date=>@date)
 page.replace_html 'largecal_preview', :partial=>'note/day_list' if @notes && @notes != []
 page << "$('tinycal').style.visibility = 'hidden';"
 page << "$('tinycal_close').style.visibility = 'visible';"

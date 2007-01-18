@@ -6,6 +6,6 @@ class TrackerTest < Test::Unit::TestCase
 
   # Replace this with your real tests.
   def test_kpath
-    assert_equal 'IPA', Tracker.kpath
+    assert_equal 'NPA', Tracker.kpath
   end
 end

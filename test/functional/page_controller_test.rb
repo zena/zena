@@ -26,10 +26,10 @@ class PageControllerTest < Test::Unit::TestCase
     assert_equal 'invalid', assigns['page'].errors[:klass]
     assert_equal 'system "pwd"', assigns['page'].klass
     
-    post 'create', :page=>{:klass=>'Item', :parent_id=>1, :name=>'test'}
+    post 'create', :page=>{:klass=>'Node', :parent_id=>1, :name=>'test'}
     assert_response :success
     assert_equal 'invalid', assigns['page'].errors[:klass]
-    assert_equal 'Item', assigns['page'].klass
+    assert_equal 'Node', assigns['page'].klass
   end
   
   def test_create_ok

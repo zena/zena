@@ -5,8 +5,8 @@ while parent
   parents << parent
   parent = parent.parent 
 end
-parents.reverse_each do |item| -%>
-  <li><%= render :partial=>'main/branch_title', :locals=>{:branch=>item} %>
+parents.reverse_each do |node| -%>
+  <li><%= render :partial=>'main/branch_title', :locals=>{:branch=>node} %>
   <ul>
 <% end -%>
   <li><%= render :partial=>'main/branch_title', :locals=>{:branch=>site_tree} %>

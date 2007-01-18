@@ -1,7 +1,7 @@
 <%= error_messages_for "note" %>
 <%= form_remote_tag :with=>'add_note_form',  :url=>{:controller=>'note', :action=>'create', :rnd=>rnd} %>
 <p class="btn_x"><%= link_to_function transb('btn_x'), "new Element.toggle('add_note', 'add_note_form')" %></p>
-<%= hidden_field 'note', 'parent_id', :value=>@item.project_id %>
+<%= hidden_field 'note', 'parent_id', :value=>@node.project_id %>
 <%= select('note', 'klass', Note.select_classes ) %>
 <%= date_box 'note', 'log_at', :size=>15 %>
 <%= text_field 'note', 'v_title', :size=>25 %>

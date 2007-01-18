@@ -2,7 +2,12 @@
 # migrations feature of ActiveRecord to incrementally modify your database, and
 # then regenerate this schema definition.
 
-ActiveRecord::Schema.define(:version => 6) do
+ActiveRecord::Schema.define() do
+
+  create_table "bricks_info", :id => false, :force => true do |t|
+    t.column "version", :integer
+    t.column "brick", :string
+  end
 
   create_table "caches", :force => true do |t|
     t.column "updated_at", :datetime
@@ -16,13 +21,13 @@ ActiveRecord::Schema.define(:version => 6) do
   create_table "comments", :force => true do |t|
     t.column "created_at", :datetime
     t.column "updated_at", :datetime
+    t.column "status", :integer
     t.column "discussion_id", :integer
     t.column "reply_to", :integer
     t.column "user_id", :integer
     t.column "title", :string, :limit => 250, :default => "", :null => false
     t.column "text", :text, :default => "", :null => false
     t.column "author_name", :string, :limit => 300
-    t.column "status", :integer
   end
 
   create_table "contact_contents", :force => true do |t|
@@ -43,7 +48,7 @@ ActiveRecord::Schema.define(:version => 6) do
   create_table "discussions", :force => true do |t|
     t.column "created_at", :datetime
     t.column "updated_at", :datetime
-    t.column "item_id", :integer
+    t.column "node_id", :integer
     t.column "inside", :boolean, :default => false
     t.column "open", :boolean, :default => true
     t.column "lang", :string, :limit => 10, :default => "", :null => false
@@ -61,19 +66,6 @@ ActiveRecord::Schema.define(:version => 6) do
     t.column "height", :integer
   end
 
-  create_table "form_lines", :force => true do |t|
-    t.column "seizure_id", :integer
-    t.column "key", :string
-    t.column "value", :string
-  end
-
-  create_table "form_seizures", :force => true do |t|
-    t.column "user_id", :integer, :default => 0, :null => false
-    t.column "created_at", :datetime
-    t.column "updated_at", :datetime
-    t.column "form_id", :integer
-  end
-
   create_table "groups", :force => true do |t|
     t.column "created_at", :datetime
     t.column "updated_at", :datetime
@@ -85,8 +77,15 @@ ActiveRecord::Schema.define(:version => 6) do
     t.column "user_id", :integer, :default => 0, :null => false
   end
 
-  create_table "items", :force => true do |t|
+  create_table "links", :force => true do |t|
+    t.column "source_id", :integer, :default => 0, :null => false
+    t.column "target_id", :integer, :default => 0, :null => false
+    t.column "role", :string, :limit => 20
+  end
+
+  create_table "nodes", :force => true do |t|
     t.column "type", :string, :limit => 16
+    t.column "event_at", :datetime
     t.column "kpath", :string, :limit => 16
     t.column "created_at", :datetime
     t.column "updated_at", :datetime
@@ -105,14 +104,6 @@ ActiveRecord::Schema.define(:version => 6) do
     t.column "ref_lang", :string, :limit => 10, :default => "", :null => false
     t.column "alias", :string, :limit => 400
     t.column "fullpath", :text
-    t.column "dgroup_id", :integer
-    t.column "event_at", :datetime
-  end
-
-  create_table "links", :force => true do |t|
-    t.column "source_id", :integer, :default => 0, :null => false
-    t.column "target_id", :integer, :default => 0, :null => false
-    t.column "role", :string, :limit => 20
   end
 
   create_table "trans_keys", :force => true do |t|
@@ -142,7 +133,7 @@ ActiveRecord::Schema.define(:version => 6) do
     t.column "type", :string, :limit => 16
     t.column "created_at", :datetime
     t.column "updated_at", :datetime
-    t.column "item_id", :integer, :default => 0, :null => false
+    t.column "node_id", :integer, :default => 0, :null => false
     t.column "user_id", :integer, :default => 0, :null => false
     t.column "lang", :string, :limit => 10, :default => "", :null => false
     t.column "publish_from", :datetime

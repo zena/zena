@@ -3,7 +3,7 @@
 +ZENA_ENV[:index_id]+ refers to a special project. This project is the root of all other pages or logs. It is used
 to set default groups for new projects, to store 'global' events and pages.
 =end
-class Page < Item
+class Page < Node
   class << self
     def parent_class
       Page

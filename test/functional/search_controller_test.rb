@@ -13,12 +13,12 @@ class SearchControllerTest < Test::Unit::TestCase
   end
   
   def test_find_in_edit
-    post 'find_in_edit', :id=>items_id(:people)
+    post 'find_in_edit', :id=>nodes_id(:people)
     assert_response :success
     assert_equal 2, assigns['results'].size
     
     login(:ant)
-    post 'find_in_edit', :id=>items_id(:people)
+    post 'find_in_edit', :id=>nodes_id(:people)
     assert_response :success
     assert_equal 3, assigns['results'].size
     

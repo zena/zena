@@ -14,7 +14,7 @@ class MainController < ApplicationController
   end
   
   def show
-    @item = Page.find_by_path(visitor_id, visitor_groups, lang, params[:path])
+    @node = Page.find_by_path(visitor_id, visitor_groups, lang, params[:path])
     render_and_cache
   rescue ActiveRecord::RecordNotFound
     page_not_found
@@ -27,7 +27,7 @@ class MainController < ApplicationController
   
   # TODO: test
   def site_tree
-    @item = secure(Item) { Item.find(params[:id]) }
+    @node = secure(Node) { Node.find(params[:id]) }
     render
     if !session[:user]
       cache_page

@@ -746,7 +746,7 @@ var Sortable = {
       Element.hide(Sortable._marker);
       Element.addClassName(Sortable._marker, 'dropmarker');
       Sortable._marker.style.position = 'absolute';
-      document.getElementsByTagName("body").item(0).appendChild(Sortable._marker);
+      document.getElementsByTagName("body").node(0).appendChild(Sortable._marker);
     }    
     var offsets = Position.cumulativeOffset(dropon);
     Sortable._marker.style.left = offsets[0] + 'px';
@@ -834,8 +834,8 @@ var Sortable = {
     element = $(element);
     var options = Object.extend(this.options(element), arguments[1] || {});
     
-    return $(this.findElements(element, options) || []).map( function(item) {
-      return item.id.match(options.format) ? item.id.match(options.format)[1] : '';
+    return $(this.findElements(element, options) || []).map( function(node) {
+      return node.id.match(options.format) ? node.id.match(options.format)[1] : '';
     });
   },
 
@@ -866,13 +866,13 @@ var Sortable = {
       (arguments[1] && arguments[1].name) ? arguments[1].name : element.id);
     
     if (options.tree) {
-      return Sortable.tree(element, arguments[1]).children.map( function (item) {
-        return [name + Sortable._constructIndex(item) + "=" + 
-                encodeURIComponent(item.id)].concat(item.children.map(arguments.callee));
+      return Sortable.tree(element, arguments[1]).children.map( function (node) {
+        return [name + Sortable._constructIndex(node) + "=" + 
+                encodeURIComponent(node.id)].concat(node.children.map(arguments.callee));
       }).flatten().join('&');
     } else {
-      return Sortable.sequence(element, arguments[1]).map( function(item) {
-        return name + "[]=" + encodeURIComponent(item);
+      return Sortable.sequence(element, arguments[1]).map( function(node) {
+        return name + "[]=" + encodeURIComponent(node);
       }).join('&');
     }
   }

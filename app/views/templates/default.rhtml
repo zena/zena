@@ -3,7 +3,7 @@
 
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-  <title><%= @item.v_title %></title>
+  <title><%= @node.v_title %></title>
   <meta http-equiv="Content-type" content="text/html; charset=utf-8" />
   <meta http-equiv="Content-Language" content="fr-fr" />
   <%= stylesheet_link_tag( 'zen', 'comment' ) %>
@@ -34,8 +34,8 @@
     <%= render :partial=>title_partial %>
       
     <div class="content" id='content'>
-      <%= show(@item, :v_summary, :text=>'')%>
-      <%= show(@item, :v_text   ) %>
+      <%= show(@node, :v_summary, :text=>'')%>
+      <%= show(@node, :v_text   ) %>
       <%= render :partial=>'comment/list' %>
     </div>
 

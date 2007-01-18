@@ -3,7 +3,7 @@ class VersionController < ApplicationController
   helper MainHelper
   
   def show
-    @item = secure(Item) { Item.version(params[:id]) }
+    @node = secure(Node) { Node.version(params[:id]) }
     render_and_cache(:cache=>false)
   rescue ActiveRecord::RecordNotFound
     page_not_found
@@ -11,11 +11,11 @@ class VersionController < ApplicationController
   
   def edit
     if params[:id]
-      @item = secure(Item) { Item.version(params[:id]) }
-    elsif params[:item_id]
-      @item = secure_write(Item) { Item.find(params[:id]) }
+      @node = secure(Node) { Node.version(params[:id]) }
+    elsif params[:node_id]
+      @node = secure_write(Node) { Node.find(params[:id]) }
     end
-    if !@item.edit!
+    if !@node.edit!
       page_not_found
     else
       # store the id used to preview when editing
@@ -26,21 +26,21 @@ class VersionController < ApplicationController
     page_not_found
   end
   
-  # preview when editing item
+  # preview when editing node
   def preview
     @preview_id = session[:preview_id]
-    if params[:item]
+    if params[:node]
       # redaction
-      @item = secure_write(Item) { Item.find(params[:item][:id]) }
-      @v_title   = params[:item][:v_title]
-      @v_summary = params[:item][:v_summary]
-      @v_text    = params[:item][:v_text]
+      @node = secure_write(Node) { Node.find(params[:node][:id]) }
+      @v_title   = params[:node][:v_title]
+      @v_summary = params[:node][:v_summary]
+      @v_text    = params[:node][:v_text]
     else
       # drive view
-      @item = secure(Item) { Item.version(params[:id]) }
-      @v_title   = @item.v_title
-      @v_summary = @item.v_summary
-      @v_text    = @item.v_text
+      @node = secure(Node) { Node.version(params[:id]) }
+      @v_title   = @node.v_title
+      @v_summary = @node.v_summary
+      @v_text    = @node.v_text
     end
   rescue ActiveRecord::RecordNotFound
     page_not_found
@@ -64,12 +64,12 @@ class VersionController < ApplicationController
   
   
   def save
-    params[:item].delete(:preview_id)
+    params[:node].delete(:preview_id)
     # use current context.
-    @item = secure_write(Item) { Item.find(params[:item][:id]) }
-    params[:item].delete(:file) if params[:item][:file] == ""
-    parse_dates(params[:item])
-    if @item.update_attributes(params[:item])
+    @node = secure_write(Node) { Node.find(params[:node][:id]) }
+    params[:node].delete(:file) if params[:node][:file] == ""
+    parse_dates(params[:node])
+    if @node.update_attributes(params[:node])
       session[:notice] = trans "Redaction saved."
     else
       flash[:error] = trans "Redaction could not be saved"
@@ -80,10 +80,10 @@ class VersionController < ApplicationController
   end
   
   def propose
-    item = secure(Item) { Item.version(params[:id]) }
-    if item.propose
+    node = secure(Node) { Node.version(params[:id]) }
+    if node.propose
       flash[:notice] = trans "Redaction proposed for publication."
-      redirect_to @request.env['HTTP_REFERER'] #:action=> 'show', :id => item.v_id
+      redirect_to @request.env['HTTP_REFERER'] #:action=> 'show', :id => node.v_id
     else
       page_not_found
     end
@@ -92,10 +92,10 @@ class VersionController < ApplicationController
   end
   
   def refuse
-    item = secure(Item) { Item.version(params[:id]) }
-    if item.refuse
+    node = secure(Node) { Node.version(params[:id]) }
+    if node.refuse
       flash[:notice] = "Proposition refused."
-      redirect_to @request.env['HTTP_REFERER'] #:action => 'show', :id => item.v_id
+      redirect_to @request.env['HTTP_REFERER'] #:action => 'show', :id => node.v_id
     else
       page_not_found
     end
@@ -104,10 +104,10 @@ class VersionController < ApplicationController
   end
   
   def publish
-    item = secure(Item) { Item.version(params[:id]) }
-    if item.publish
+    node = secure(Node) { Node.version(params[:id]) }
+    if node.publish
       flash[:notice] = "Redaction published."
-      redirect_to @request.env['HTTP_REFERER'] #redirect_to :action => 'show', :id => item.v_id
+      redirect_to @request.env['HTTP_REFERER'] #redirect_to :action => 'show', :id => node.v_id
     else
       flash[:error] = "Could not publish."
       page_not_found
@@ -117,10 +117,10 @@ class VersionController < ApplicationController
   end
   
   def remove
-    item = secure(Item) { Item.version(params[:id]) }
-    if item.remove
+    node = secure(Node) { Node.version(params[:id]) }
+    if node.remove
       flash[:notice] = "Publication removed."
-      redirect_to @request.env['HTTP_REFERER'] #:action => 'show', :id => item.v_id
+      redirect_to @request.env['HTTP_REFERER'] #:action => 'show', :id => node.v_id
     else
       flash[:error] = "Could not remove plublication."
       page_not_found
@@ -131,10 +131,10 @@ class VersionController < ApplicationController
   
   # TODO: test
   def unpublish
-    item = secure(Item) { Item.version(params[:id]) }
-    if item.unpublish
+    node = secure(Node) { Node.version(params[:id]) }
+    if node.unpublish
       flash[:notice] = "Publication removed."
-      redirect_to @request.env['HTTP_REFERER'] #:action => 'show', :id => item.v_id
+      redirect_to @request.env['HTTP_REFERER'] #:action => 'show', :id => node.v_id
     else
       flash[:error] = "Could not remove plublication."
       page_not_found

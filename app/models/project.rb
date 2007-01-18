@@ -1,21 +1,21 @@
 class Project < Page
-  has_many :items
+  has_many :nodes
   after_save :check_project_id
   link :news, :class_name=>'Note', :as=>'calendar', :collector=>true
-  link :hot,  :class_name=>'Item', :unique=>true
+  link :hot,  :class_name=>'Node', :unique=>true
   link :contact, :class_name=>'Contact', :unique=>true
   
   def before_destroy
     super
     if errors.empty?
-      errors.add('base', "project not empty") unless self.items.count == 0
+      errors.add('base', "project not empty") unless self.nodes.count == 0
     end
   end
   
   # All notes from this project
   def notes(options={})
     options = {:order=>'log_at DESC'}.merge(options)
-    Note.with_scope(:find=>{:conditions => ["items.project_id = ?", self[:id] ]}) do
+    Note.with_scope(:find=>{:conditions => ["nodes.project_id = ?", self[:id] ]}) do
       secure(Note) { Note.find(:all, options) }
     end
   end

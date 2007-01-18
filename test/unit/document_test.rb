@@ -4,9 +4,9 @@ class DocumentTest < Test::Unit::TestCase
   include ZenaTestUnit
   
   def test_callbacks_for_documents
-    assert Item.read_inheritable_attribute(:before_validation).include?(:secure_before_validation)
-    assert Document.read_inheritable_attribute(:validate_on_create).include?(:item_on_create)
-    assert Document.read_inheritable_attribute(:validate_on_update).include?(:item_on_update)
+    assert Node.read_inheritable_attribute(:before_validation).include?(:secure_before_validation)
+    assert Document.read_inheritable_attribute(:validate_on_create).include?(:node_on_create)
+    assert Document.read_inheritable_attribute(:validate_on_update).include?(:node_on_update)
     assert Document.read_inheritable_attribute(:before_validation).include?(:set_name)
     assert Document.read_inheritable_attribute(:before_save).include?(:update_content_name)
   end
@@ -14,7 +14,7 @@ class DocumentTest < Test::Unit::TestCase
   def test_create_with_file
     without_files('/data/test/pdf') do
       visitor(:ant)
-      doc = secure(Document) { Document.create( :parent_id=>items_id(:cleanWater),
+      doc = secure(Document) { Document.create( :parent_id=>nodes_id(:cleanWater),
                                                 :name=>'report', 
                                                 :c_file => uploaded_pdf('water.pdf') ) }
       assert_kind_of Document , doc
@@ -35,7 +35,7 @@ class DocumentTest < Test::Unit::TestCase
   def test_create_with_bad_filename
     preserving_files('/data/test/pdf') do
       visitor(:ant)
-      doc = secure(Document) { Document.create( :parent_id=>items_id(:cleanWater),
+      doc = secure(Document) { Document.create( :parent_id=>nodes_id(:cleanWater),
                                                 :v_title => 'My new project',
                                                 :c_file => uploaded_pdf('water.pdf', 'stupid.jpg') ) }
       assert_kind_of Document , doc
@@ -49,7 +49,7 @@ class DocumentTest < Test::Unit::TestCase
   def test_create_with_duplicate_name
     preserving_files('/data/test/pdf') do
       visitor(:ant)
-      doc = secure(Document) { Document.create( :parent_id=>items_id(:wiki),
+      doc = secure(Document) { Document.create( :parent_id=>nodes_id(:wiki),
         :v_title => 'bird.jpg',
         :c_file => uploaded_pdf('bird.jpg') ) }
         assert_kind_of Document , doc
@@ -63,7 +63,7 @@ class DocumentTest < Test::Unit::TestCase
   def test_create_with_bad_filename
     preserving_files('/data/test/pdf') do
       visitor(:ant)
-      doc = secure(Document) { Document.create( :parent_id=>items_id(:cleanWater),
+      doc = secure(Document) { Document.create( :parent_id=>nodes_id(:cleanWater),
         :name => 'stupid.jpg',
         :c_file => uploaded_pdf('water.pdf') ) }
       assert_kind_of Document , doc
@@ -83,15 +83,15 @@ class DocumentTest < Test::Unit::TestCase
   
   def test_image
     visitor(:tiger)
-    doc = secure(Document) { Document.find( items_id(:water_pdf) ) }
+    doc = secure(Document) { Document.find( nodes_id(:water_pdf) ) }
     assert ! doc.image?, 'Not an image'
-    doc = secure(Document) { Document.find( items_id(:bird_jpg) )  }
+    doc = secure(Document) { Document.find( nodes_id(:bird_jpg) )  }
     assert doc.image?, 'Is an image'
   end
   
   def test_filename
     visitor(:tiger)
-    doc = secure(Item) { items(:lake_jpg) }
+    doc = secure(Node) { nodes(:lake_jpg) }
     assert_equal 'lake.jpg', doc.filename
     doc.name = 'test'
     assert_equal 'test.jpg', doc.filename
@@ -101,20 +101,20 @@ class DocumentTest < Test::Unit::TestCase
   
   def test_c_img_tag
     visitor(:tiger)
-    doc = secure(Document) { Document.find( items_id(:water_pdf) ) }
+    doc = secure(Document) { Document.find( nodes_id(:water_pdf) ) }
     assert_nothing_raised { doc.img_tag; doc.img_tag('std') }
   end
   
   def test_filesize
     visitor(:tiger)
-    doc = secure(Document) { Document.find( items_id(:water_pdf) ) }
+    doc = secure(Document) { Document.find( nodes_id(:water_pdf) ) }
     assert_nothing_raised { doc.c_size }
   end
   
   def test_create_with_text_file
     preserving_files('/data/test/txt') do
       visitor(:ant)
-      doc = secure(Document) { Document.create( :parent_id=>items_id(:cleanWater),
+      doc = secure(Document) { Document.create( :parent_id=>nodes_id(:cleanWater),
         :name => 'stupid.jpg',
         :c_file => uploaded_text('some.txt') ) }
       assert_kind_of Document , doc
@@ -128,13 +128,13 @@ class DocumentTest < Test::Unit::TestCase
   def test_change_file
     preserving_files('/data/test/pdf') do
       visitor(:tiger)
-      doc = secure(Document) { Document.find(items_id(:water_pdf)) }
+      doc = secure(Document) { Document.find(nodes_id(:water_pdf)) }
       assert_equal 29279, doc.c_size
       assert_equal "#{RAILS_ROOT}/data/test/pdf/15/water.pdf", doc.c_filepath
       # new redaction in 'en'
       assert doc.update_attributes(:c_file=>uploaded_pdf('forest.pdf'), :v_title=>'forest gump'), "Can change file"
       
-      doc = secure(Item) { items(:water_pdf) }
+      doc = secure(Node) { nodes(:water_pdf) }
       assert_equal 'forest gump', doc.v_title
       assert_equal 'pdf', doc.c_ext
       assert_equal 63569, doc.c_size
@@ -142,7 +142,7 @@ class DocumentTest < Test::Unit::TestCase
       assert_not_equal 15, last_id
       assert_equal "#{RAILS_ROOT}/data/test/pdf/#{last_id}/water.pdf", doc.c_filepath
       assert doc.update_attributes(:c_file=>uploaded_pdf('water.pdf')), "Can change file"
-      doc = secure(Item) { items(:water_pdf) }
+      doc = secure(Node) { nodes(:water_pdf) }
       assert_equal 'forest gump', doc.v_title
       assert_equal 'pdf', doc.c_ext
       assert_equal 29279, doc.c_size

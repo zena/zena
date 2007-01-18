@@ -10,7 +10,7 @@ class ImageVersion < DocumentVersion
   # TODO: test
   def set_image_text
     if self[:text] == '' || !self[:text]
-      self[:text] = "!#{self[:item_id]}!"
+      self[:text] = "!#{self[:node_id]}!"
     end
   end
 end

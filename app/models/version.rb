@@ -1,8 +1,8 @@
 =begin rdoc
-Implements versioning and permits multiple editions on items.
+Implements versioning and permits multiple editions on nodes.
 
 == Attributes and definitions
-[edition] an edition is a published version for a specific language. There can only be on edition per language per item.
+[edition] an edition is a published version for a specific language. There can only be on edition per language per node.
 [status] can be
          [pub] version is published
          [prop] proposed for publication
@@ -14,7 +14,7 @@ Implements versioning and permits multiple editions on items.
           the modifications done or to be done or anything usefull (it is normally to published).
 [text] The text is the full content of a version. This method returns the text as a
        RedCloth object. Use ApplicationHelper#h method to render with zena additions to Textile.
-[summary] The summary is a brief presentation. Its main purpose is to give some clues on an item in a list view.
+[summary] The summary is a brief presentation. Its main purpose is to give some clues on an node in a list view.
 [comment_group] This is the group users must be in if they want to add comments to this version/edition. If this
                 group is set to _public_ anyone can comment.
 [doc_path] path to file containing the data if this is a version of a document.
@@ -30,9 +30,9 @@ content, we create our own copy to work on. In some rare cases where we publish 
 a new redaction), the system will not allow us to save the modified content as it is used by other (potentially published) versions.
 =end
 class Version < ActiveRecord::Base
-  belongs_to            :item
+  belongs_to            :node
   belongs_to            :user, :foreign_key=>'user_id'
-  validates_presence_of :item
+  validates_presence_of :node
   validates_presence_of :user
   validate              :valid_content
   validate_on_update    :can_update_content
@@ -51,13 +51,13 @@ class Version < ActiveRecord::Base
     if self[:title] && self[:title] != ""
       self[:title]
     else
-      item.name
+      node.name
     end
   end
   
-  # protect access to item_id and conten_id : should not be changed by users
-  def item_id=(i)
-    raise Zena::AccessViolation, "Version '#{self.id}': tried to change 'item_id' to '#{i}'."
+  # protect access to node_id and conten_id : should not be changed by users
+  def node_id=(i)
+    raise Zena::AccessViolation, "Version '#{self.id}': tried to change 'node_id' to '#{i}'."
   end
   
   # protect access to content_id
@@ -114,7 +114,7 @@ class Version < ActiveRecord::Base
   
   # Set version number
   def set_number
-    last = Version.find(:first, :conditions=>['item_id = ?', item[:id]], :order=>'number DESC')
+    last = Version.find(:first, :conditions=>['node_id = ?', node[:id]], :order=>'number DESC')
     if last
       self[:number] = last[:number] + 1
     else

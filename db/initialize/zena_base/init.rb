@@ -52,7 +52,7 @@ base_objects.each_pair do |tbl, list|
   list.each do |record|
     if :users == tbl
       record[:password] = User.hash_password(record[:password]) if record[:password]
-    elsif :items == tbl && record[:log_at] == 'today'
+    elsif :nodes == tbl && record[:log_at] == 'today'
       record[:log_at] = Time.now
     end
     unless Loader.create(record)

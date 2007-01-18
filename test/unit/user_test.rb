@@ -60,8 +60,8 @@ class UserTest < Test::Unit::TestCase
   
   def test_comments_to_publish
     # status pgroup = managers
-    item = items(:status)
-    assert_equal groups_id(:managers), item.pgroup_id
+    node = nodes(:status)
+    assert_equal groups_id(:managers), node.pgroup_id
     # tiger in managers
     tiger = users(:tiger)
     to_publish = tiger.comments_to_publish

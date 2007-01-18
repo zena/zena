@@ -7,7 +7,7 @@ class Document < Page
   
   class << self
     def parent_class
-      Item
+      Node
     end
   end
   

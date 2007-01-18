@@ -2,17 +2,17 @@
   <%= trans("'SEARCH_STRING' not found").sub('SEARCH_STRING', h(@phrase)) if @phrase %>
 <% else %>
 <table>
-  <% results.each do |item| -%>
+  <% results.each do |node| -%>
   <tr><td colspan='2' class='result_break'></td></tr>
   <tr>
-    <% if item.kind_of?(Document) %>
-    <td class='result_image'><%= item.img_tag('mini') %></td><td class='result_docinfo'>
+    <% if node.kind_of?(Document) %>
+    <td class='result_image'><%= node.img_tag('mini') %></td><td class='result_docinfo'>
     <% else %>
     <td colspan='2' class='result_info'>
     <% end %>  
-      <p class='result_id'><%= item[:id] %></p>
-      <p class='result_name'><%= item.name %></p>
-      <p class='result_path'><%= link_to(item.rootpath.join('/ '), {:controller=>'main', :action=>'show', :path=>item.fullpath, :prefix=>prefix}, :popup=>true) %></p>
+      <p class='result_id'><%= node[:id] %></p>
+      <p class='result_name'><%= node.name %></p>
+      <p class='result_path'><%= link_to(node.rootpath.join('/ '), {:controller=>'main', :action=>'show', :path=>node.fullpath, :prefix=>prefix}, :popup=>true) %></p>
       </td>
   </tr>
   <% end %>

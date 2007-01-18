@@ -52,7 +52,7 @@ class CreateBase < ActiveRecord::Migration
       t.column "user_id", :integer, :default => 0, :null => false
     end
 
-    create_table("items", :force => true, :options => 'type=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci') do |t|
+    create_table("nodes", :force => true, :options => 'type=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci') do |t|
       t.column "type", :string, :limit => 16
       t.column "event_at", :datetime
       t.column "kpath", :string, :limit => 16
@@ -85,7 +85,7 @@ class CreateBase < ActiveRecord::Migration
       t.column "type", :string, :limit => 16
       t.column "created_at", :datetime
       t.column "updated_at", :datetime
-      t.column "item_id", :integer, :default => 0, :null => false
+      t.column "node_id", :integer, :default => 0, :null => false
       t.column "user_id", :integer, :default => 0, :null => false
       t.column "lang", :string, :limit => 10, :default => "", :null => false
       t.column "publish_from", :datetime
@@ -101,7 +101,7 @@ class CreateBase < ActiveRecord::Migration
     create_table("discussions", :force => true, :options => 'type=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci') do |t|
       t.column "created_at", :datetime
       t.column "updated_at", :datetime
-      t.column "item_id", :integer
+      t.column "node_id", :integer
       t.column "inside", :boolean, :default=>false  # if true, the discussion will not appear when published but when proposed or redaction
       t.column "open", :boolean, :default=>true
       t.column "lang", :string, :limit => 10, :default => "", :null => false
@@ -145,7 +145,7 @@ class CreateBase < ActiveRecord::Migration
     drop_table "document_contents"
     drop_table "groups"
     drop_table "groups_users"
-    drop_table "items"
+    drop_table "nodes"
     drop_table "links"
     drop_table "versions"
     drop_table "trans_keys"

@@ -3,16 +3,16 @@
     <tr>
       <td rowspan='3' class='edit'>
         <ul class='drive' id='groups'>
-          <%= render :partial=>'item/rwp_groups'%>
+          <%= render :partial=>'node/rwp_groups'%>
         </ul>
         <ul class='drive' id='parent'>
-          <%= render :partial=>'item/parent'    %>
+          <%= render :partial=>'node/parent'    %>
         </ul>
       </td>
       <td id='search_box'>
         <label for='search'><%= trans("search")  %></label>
         <%= form_remote_tag(:update=>'search_results', 
-                  :url=>{:controller=>'search', :action=>'find_in_edit', :id=>@item[:id]}, 
+                  :url=>{:controller=>'search', :action=>'find_in_edit', :id=>@node[:id]}, 
                   :loading => "Element.show('spinner')",
                   :complete => "Element.hide('spinner')") %>
         <input type='text' id='search' name='search'/>

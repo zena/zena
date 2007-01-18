@@ -1,20 +1,20 @@
 <td colspan='4'>
 <%= form_remote_tag(:with=>'links', :url=>{:controller=>'link', :action=>'create', :rnd=>rnd}) %>
 <%#= form_tag(:controller=>'link', :action=>'create', :rnd=>rnd)%>
-<%= hidden_field('link', 'item_id', :value=>@item[:id])%>
+<%= hidden_field('link', 'node_id', :value=>@node[:id])%>
   <div id='link_errors' class='errors'></div>
   <div class='add_icon'>
     <%= link_to_function transb('btn_x'), "new Element.toggle('add_link', 'add_link_form');" %>
   </div>
   <div class='role'>
-    <% roles = @item.class.roles_for_form 
+    <% roles = @node.class.roles_for_form 
     if roles.include?(['tag', 'tags'])
       roles.delete(['tag', 'tags'])
       roles.unshift ['tag', 'tags']
     end -%>
-    <%= select('link', 'role', roles,{}, {:onchange=>"new Ajax.Updater('link_link', '/z/link/select_for/#{@item.id}?role=' + this.value, {asynchronous:true, evalScripts:true});" } ) %>
+    <%= select('link', 'role', roles,{}, {:onchange=>"new Ajax.Updater('link_link', '/z/link/select_for/#{@node.id}?role=' + this.value, {asynchronous:true, evalScripts:true});" } ) %>
   </div>
-  <div class='link' id='link_link'><%= hidden_field('item','box', :value=>'tags') %><%= link_box 'item', 'tags', :title=>nil %>
+  <div class='link' id='link_link'><%= hidden_field('node','box', :value=>'tags') %><%= link_box 'node', 'tags', :title=>nil %>
   </div>
   <div class='action'>
   <input type="submit" class="btn_validate" value='<%= transb('set') %>'/>

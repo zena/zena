@@ -23,10 +23,10 @@ class DiscussionController < ApplicationController
   
   # TODO: test
   def create
-    @item = secure(Item) { Item.find(params[:discussion][:item_id])}
+    @node = secure(Node) { Node.find(params[:discussion][:node_id])}
     @discussion = Discussion.create(params[:discussion])
   rescue ActiveRecord::RecordNotFound
-    add_error'item not found'
+    add_error'node not found'
   end
   
   # TODO: test
@@ -39,8 +39,8 @@ class DiscussionController < ApplicationController
   
   def get_discussion
     @discussion = Discussion.find(params[:id])
-    @item = secure_drive(Item) { Item.find(@discussion[:item_id]) }
+    @node = secure_drive(Node) { Node.find(@discussion[:node_id]) }
   rescue ActiveRecord::RecordNotFound
-    add_error'item not found'
+    add_error'node not found'
   end
 end

@@ -4,7 +4,7 @@
 zena:
   id:             1
   type:           Project
-  kpath:          IPP
+  kpath:          NPP
   name:           zena
   project_id:     1
   parent_id:      
@@ -21,7 +21,7 @@ zena:
 people:
   id:             2
   type:           Page
-  kpath:          IP
+  kpath:          NP
   name:           people
   project_id:     1
   parent_id:      1
@@ -33,7 +33,7 @@ people:
 ant:
   id:             3
   type:           Contact
-  kpath:          IPC
+  kpath:          NPC
   name:           ant
   project_id:     1
   parent_id:      2
@@ -47,7 +47,7 @@ ant:
 myLife:
   id:             6
   type:           Page
-  kpath:          IP
+  kpath:          NP
   name:           myLife
   project_id:     1
   parent_id:      3
@@ -62,7 +62,7 @@ myLife:
 tiger:
   id:             4
   type:           Contact
-  kpath:          IPC
+  kpath:          NPC
   name:           tiger
   project_id:     1
   parent_id:      2
@@ -74,7 +74,7 @@ tiger:
 lion:
   id:             5
   type:           Contact
-  kpath:          IPC
+  kpath:          NPC
   name:           lion
   project_id:     1
   parent_id:      2
@@ -86,7 +86,7 @@ lion:
 myDreams:
   id:             7
   type:           Page
-  kpath:          IP
+  kpath:          NP
   name:           myDreams
   project_id:     1
   parent_id:      5
@@ -100,7 +100,7 @@ myDreams:
 projects:
   id:             8
   type:           Page
-  kpath:          IP
+  kpath:          NP
   name:           projects
   project_id:     1
   parent_id:      1
@@ -112,7 +112,7 @@ projects:
 secret:
   id:             9
   type:           Project
-  kpath:          IPP
+  kpath:          NPP
   name:           secret
   project_id:     9
   parent_id:      8
@@ -141,7 +141,7 @@ proposition:
 cleanWater:
   id:             11
   type:           Project
-  kpath:          IPP
+  kpath:          NPP
   name:           cleanWater
   project_id:     11
   parent_id:      8
@@ -153,7 +153,7 @@ cleanWater:
 status:
   id:             12
   type:           Page
-  kpath:          IP
+  kpath:          NP
   name:           status
   project_id:     11
   parent_id:      11
@@ -165,7 +165,7 @@ status:
 lake:
   id:             13
   type:           Contact
-  kpath:          IPC
+  kpath:          NPC
   name:           lake
   project_id:     11
   parent_id:      11
@@ -177,7 +177,7 @@ lake:
 lake_jpg:
   id:             14
   type:           Image
-  kpath:          IPDI
+  kpath:          NPDI
   name:           lake
   project_id:     11
   parent_id:      13
@@ -189,7 +189,7 @@ lake_jpg:
 water_pdf:
   id:             15
   type:           Document
-  kpath:          IPD
+  kpath:          NPD
   name:           water
   project_id:     11
   parent_id:      11
@@ -201,7 +201,7 @@ water_pdf:
 crocodiles:
   id:             16
   type:           Page
-  kpath:          IP
+  kpath:          NP
   name:           crocodiles
   project_id:     11
   parent_id:      11
@@ -233,7 +233,7 @@ opening:
 bananas:
   id:             18
   type:           Page
-  kpath:          IP
+  kpath:          NP
   name:           bananas
   project_id:     11
   parent_id:      11
@@ -247,7 +247,7 @@ bananas:
 wiki:
   id:             19
   type:           Project
-  kpath:          IPP
+  kpath:          NPP
   name:           wiki
   project_id:     1
   parent_id:      8
@@ -264,7 +264,7 @@ wiki:
 bird_jpg:
   id:             20
   type:           Image
-  kpath:          IPDI
+  kpath:          NPDI
   name:           bird
   project_id:     19
   parent_id:      19
@@ -281,7 +281,7 @@ bird_jpg:
 flower_jpg:
   id:             21
   type:           Image
-  kpath:          IPDI
+  kpath:          NPDI
   name:           flower
   project_id:     19
   parent_id:      19
@@ -298,7 +298,7 @@ flower_jpg:
 collections:
   id:             22
   type:           Page
-  kpath:          IP
+  kpath:          NP
   name:           collections
   project_id:     1
   parent_id:      1
@@ -310,7 +310,7 @@ collections:
 art:
   id:             23
   type:           Tag
-  kpath:          IPT
+  kpath:          NPT
   name:           art
   project_id:     1
   parent_id:      22
@@ -322,7 +322,7 @@ art:
 news:
   id:             24
   type:           Tag
-  kpath:          IPT
+  kpath:          NPT
   name:           news
   project_id:     1
   parent_id:      22
@@ -334,7 +334,7 @@ news:
 menu:
   id:             25
   type:           Tag
-  kpath:          IPT
+  kpath:          NPT
   name:           menu
   project_id:     1
   parent_id:      22
@@ -346,7 +346,7 @@ menu:
 strange:
   id:             26
   type:           Page
-  kpath:          IP
+  kpath:          NP
   name:           strange
   project_id:     1
   parent_id:      22
@@ -363,7 +363,7 @@ strange:
 tracker:
   id:             27
   type:           Tracker
-  kpath:          IPA
+  kpath:          NPA
   name:           track
   project_id:     1
   parent_id:      11
@@ -375,7 +375,7 @@ tracker:
 talk:
   id:             28
   type:           Page
-  kpath:          IP
+  kpath:          NP
   name:           talk
   project_id:     9
   parent_id:      9
@@ -392,7 +392,7 @@ talk:
 nature:
   id:             29
   type:           Page
-  kpath:          IP
+  kpath:          NP
   name:           nature
   project_id:     1
   parent_id:      1
@@ -411,7 +411,7 @@ nature:
 tree_jpg:
   id:             30
   type:           Image
-  kpath:          IPDI
+  kpath:          NPDI
   name:           tree
   project_id:     1
   parent_id:      29
@@ -430,7 +430,7 @@ tree_jpg:
 forest_pdf:
   id:             31
   type:           Document
-  kpath:          IPD
+  kpath:          NPD
   name:           forest
   project_id:     1
   parent_id:      29

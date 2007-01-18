@@ -17,7 +17,7 @@ module Zena
       # [read]
       # * super user
       # * owner
-      # * members of +read_group+ if the item is published and the current date is greater or equal to the publication date
+      # * members of +read_group+ if the node is published and the current date is greater or equal to the publication date
       # * members of +publish_group+ if +max_status+ >= prop
       def secure_scope(visitor_id, visitor_groups)
         if visitor_id == 2
@@ -33,7 +33,7 @@ module Zena
       # [write]
       # * super user
       # * owner
-      # * members of +write_group+ if item is published and the current date is greater or equal to the publication date
+      # * members of +write_group+ if node is published and the current date is greater or equal to the publication date
       def secure_write_scope(visitor_id, visitor_groups)
         if visitor_id == 2
           '1'
@@ -66,35 +66,35 @@ module Zena
     
 =begin rdoc
 == Secure model
-Read, write and publication access to an item is defined with four elements: one user and three groups.
+Read, write and publication access to an node is defined with four elements: one user and three groups.
 link://rwp_groups.png
 
 === Definitions :
-[inherit]  Defines how the groups propagate. If +inherit+ is set to '1', the item inherits rwp groups from it's reference. If
-           +inherit+ is set to '0', the item has custom rwp groups. When set to '-1', the item is becomes private and all
+[inherit]  Defines how the groups propagate. If +inherit+ is set to '1', the node inherits rwp groups from it's reference. If
+           +inherit+ is set to '0', the node has custom rwp groups. When set to '-1', the node is becomes private and all
            rwp groups are set to '0'.
 [read]
-    This means that the item can be seen.
+    This means that the node can be seen.
 [write]
-    This means that new versions can be proposed for the item as well as new
+    This means that new versions can be proposed for the node as well as new
     sub-pages, documents, events, etc. Basically can write = can add content. If a user has write access to
-    a #Tag, this means he can add items to this #Tag (#Tag available as a category for other items).
+    a #Tag, this means he can add nodes to this #Tag (#Tag available as a category for other nodes).
 [publish]
     This means that the content viewed by all can be altered by 
     1. publishing new versions
-    2. changing the item itself (name, groups, location, categories, etc)
-    3. removing the item and/or sub-items
-    4. people with this access can see items that are not published yet
+    2. changing the node itself (name, groups, location, categories, etc)
+    3. removing the node and/or sub-nodes
+    4. people with this access can see nodes that are not published yet
 [manage]
-    This is for items that <em>have not yet been published</em> or for <em>private items</em>
-    A. <em>private item</em>
-    1. can 'publish' item (it is not really published as the item is private...)
-    2. can 'unpublish' (make this item a 'not published yet')
-    3. can change item itself (cannot change groups)
+    This is for nodes that <em>have not yet been published</em> or for <em>private nodes</em>
+    A. <em>private node</em>
+    1. can 'publish' node (it is not really published as the node is private...)
+    2. can 'unpublish' (make this node a 'not published yet')
+    3. can change node itself (cannot change groups)
     4. can destroy
-    B. <em>item not published yet</em> only :
-    5. make an item private (sets all groups to 0) or revert item to default groups (same as parent or project) if item not published yet
-    5. can see item (edition = personal redaction or latest version)
+    B. <em>node not published yet</em> only :
+    5. make an node private (sets all groups to 0) or revert node to default groups (same as parent or project) if node not published yet
+    5. can see node (edition = personal redaction or latest version)
 [max_status]
     This is set to the highest status of all versions. Order from highest to lowest are : 'pub', 'prop', 'red', 'rep', 'rem', 'del'
 
@@ -102,13 +102,13 @@ link://rwp_groups.png
 [read]
 * super user
 * owner
-* members of +read_group+ if the item is published and the current date is greater or equal to the publication date
+* members of +read_group+ if the node is published and the current date is greater or equal to the publication date
 * members of +publish_group+ if +max_status+ >= prop
   
 [write]
 * super user
 * owner
-* members of +write_group+ if item is published and the current date is greater or equal to the publication date
+* members of +write_group+ if node is published and the current date is greater or equal to the publication date
   
 [publish]
 * super user
@@ -122,8 +122,8 @@ link://rwp_groups.png
 === Misc
 
 * A user can only set a group in which he/she belongs.
-* Only people from the 'admin' group can change an item's owner.
-* Setting all groups to _public_ transforms the item into a wiki.
+* Only people from the 'admin' group can change an node's owner.
+* Setting all groups to _public_ transforms the node into a wiki.
 * A user who belongs to the 'admin' group (id=2), automatically belongs to all other groups.
 
 === Usage
@@ -249,12 +249,12 @@ Just doing the above will filter all result according to the logged in user.
           secure_with_scope(obj,secure_drive_scope(visitor_id, visitor_groups), &block)
         end
     
-        # Return true if the item is considered as private (+read_group+, +write_group+ and +publish_group+ are +0+)
+        # Return true if the node is considered as private (+read_group+, +write_group+ and +publish_group+ are +0+)
         def private?
           (rgroup_id==0 && wgroup_id==0 && pgroup_id==0)
         end
         
-        # Return true if the item can be viewed by all (public)
+        # Return true if the node can be viewed by all (public)
         def public?
           can_read?(1,[1])
         end
@@ -262,7 +262,7 @@ Just doing the above will filter all result according to the logged in user.
         # people who can read:
         # * super user
         # * owner
-        # * members of +read_group+ if the item is published and the current date is greater or equal to the publication date
+        # * members of +read_group+ if the node is published and the current date is greater or equal to the publication date
         # * members of +publish_group+ if +max_status+ >= prop
         def can_read?(uid=visitor_id, ugps=visitor_groups)
           ( uid == 2 ) ||
@@ -312,7 +312,7 @@ Just doing the above will filter all result according to the logged in user.
           end
         end
         
-        # 0. set item.user_id = visitor_id
+        # 0. set node.user_id = visitor_id
         # 1. validate the presence of a valid project (one in which the visitor has write access and project<>self !)
         # 2. validate the presence of a valid reference (project or parent) (in which the visitor has write access and ref<>self !)
         # 3. validate +publish_group+ value (same as parent or ref.can_visible? and valid)
@@ -401,7 +401,7 @@ Just doing the above will filter all result according to the logged in user.
           end
           @old = nil # force reload of 'old'
           unless old
-            # cannot change item if old not found
+            # cannot change node if old not found
             errors.add('base', "you do not have the rights to do this")
             return false
           end
@@ -431,7 +431,7 @@ Just doing the above will filter all result according to the logged in user.
             # reference changed
             begin
               if old.private? || old.publish_from == nil
-                # item was not visible to others
+                # node was not visible to others
                 if self[ref_field] == self[:id] ||
                     ! secure_write(ref_class) { ref_class.find(self[ref_field])} || 
                     ! secure_write(ref_class) { ref_class.find(old[ref_field])}
@@ -439,7 +439,7 @@ Just doing the above will filter all result according to the logged in user.
                   return false
                 end
               else
-                # item was visible, moves must be made with publish rights in both
+                # node was visible, moves must be made with publish rights in both
                 # source and destination
                 if self[ref_field] == self[:id] ||
                     ! secure_drive(ref_class) { ref_class.find(self[ref_field])} || 
@@ -485,7 +485,7 @@ Just doing the above will filter all result according to the logged in user.
             self[sym] = 0 if !self[sym] || self[sym] == ''
           end
           if self[:inherit] == 0 && pgroup_id == 0
-            # if pgroup_id is set to 0 ==> make item private
+            # if pgroup_id is set to 0 ==> make node private
             self[:inherit] = -1
           end  
           case inherit
@@ -554,7 +554,7 @@ Just doing the above will filter all result according to the logged in user.
           return false          
         end
         
-        # Return the language used by this item.
+        # Return the language used by this node.
         def visitor_lang
           @visitor_lang || ref_lang
         end
@@ -577,7 +577,7 @@ Just doing the above will filter all result according to the logged in user.
             @ref = secure_write(ref_class) { ref_class.find(self[ref_field]) }
           end
           if self.new_record? || (:id == ref_field) || (self[:id] != @ref[:id] )
-            # reference is accepted only if it is not the same as self or self is root (ref_field==:id set by Item)
+            # reference is accepted only if it is not the same as self or self is root (ref_field==:id set by Node)
             @ref.freeze
           else
             nil
@@ -604,14 +604,14 @@ Just doing the above will filter all result according to the logged in user.
             h[:pgroup_id] = pgroup_id
             h[:template ] = template
             # there should never be errors here (if we had the correct rights to change
-            # the current item, we can change it's children), so we skip validation
+            # the current node, we can change it's children), so we skip validation
             h.save_with_validation(false)
             h.spread_inheritance
           end
         end
         
-        # return the maximum status of the current item and all it's heirs. This is used to allow
-        # inheritance change with 'manage' rights on private items
+        # return the maximum status of the current node and all it's heirs. This is used to allow
+        # inheritance change with 'manage' rights on private nodes
         def max_status_with_heirs(max=0)
           max = [max, max_status].max
           return max if max == Zena::Status[:pub]
@@ -624,7 +624,7 @@ Just doing the above will filter all result according to the logged in user.
         
         private
         
-        # Version of the item in DB (returns nil for new records)
+        # Version of the node in DB (returns nil for new records)
         def old
           if new_record?
             nil
@@ -667,13 +667,13 @@ Just doing the above will filter all result according to the logged in user.
           # we build this path with the first letter of each class. The example bellow
           # shows how the kpath is built:
           #           class hierarchy
-          #                Item --> I           
-          #       Note --> IN          Page --> IP
+          #                Node --> I           
+          #       Note --> IN          Page --> NP
           #                    Document   Form   Project
-          #                       IPD      IPF      IPP
-          # So now, to get all Pages, your sql becomes : WHERE kpath LIKE 'IP%'
-          # to get all Documents : WHERE kpath LIKE 'IPD%'
-          # all pages withou Documents : WHERE kpath LIKE 'IP%' AND NOT LIKE 'IPD%'
+          #                       NPD      NPF      NPP
+          # So now, to get all Pages, your sql becomes : WHERE kpath LIKE 'NP%'
+          # to get all Documents : WHERE kpath LIKE 'NPD%'
+          # all pages withou Documents : WHERE kpath LIKE 'NP%' AND NOT LIKE 'NPD%'
           def kpath
             @@kpath[self] ||= if superclass == ActiveRecord::Base
               self.to_s[0..0]
@@ -744,8 +744,8 @@ Just doing the above will filter all result according to the logged in user.
               if result.kind_of? Array
                 result.each {|r| r.set_visitor(visitor_id, visitor_groups, lang)}
               else
-                # give the item some info on the current visitor. This lets security and lang info
-                # propagate naturally through the items.
+                # give the node some info on the current visitor. This lets security and lang info
+                # propagate naturally through the nodes.
                 result.set_visitor(visitor_id, visitor_groups, lang)
               end
               result

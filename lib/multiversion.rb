@@ -49,7 +49,7 @@ module Zena
             v == nil
           else
             # can we create a new redaction in the current context ?
-            # there can only be one redaction/proposition per lang per item. Only the owner of the red can edit
+            # there can only be one redaction/proposition per lang per node. Only the owner of the red can edit
             v = versions.find(:first, :conditions=>["status >= #{Zena::Status[:red]} AND status < #{Zena::Status[:pub]} AND lang=?", visitor_lang])
             v == nil || (v.status == Zena::Status[:red] && v.user_id == visitor_id)
           end 
@@ -57,7 +57,7 @@ module Zena
           true
         end
         
-        # try to set the item's version to a redaction
+        # try to set the node's version to a redaction
         def edit!
           if redaction
             true
@@ -78,7 +78,7 @@ module Zena
         
         # people who can publish:
         # * people who #can_visible? if +status+ >= prop or owner
-        # * people who #can_manage? if item is private
+        # * people who #can_manage? if node is private
         def can_publish?
           version.status < Zena::Status[:pub] && 
           ( ( can_visible? && (version.status > Zena::Status[:red] || version.user_id == visitor_id) ) ||
@@ -96,12 +96,12 @@ module Zena
           can_drive? && 
           version.status == Zena::Status[:pub] &&
           ( (visitor_id == user_id) ||
-            # not owner of the item, cannot unpublish if no edition left
-            (Version.find(:first, :conditions=>["item_id = ? AND publish_from <= now() AND id <> ? AND status = ?", id, v_id, Zena::Status[:pub]]) != nil)
+            # not owner of the node, cannot unpublish if no edition left
+            (Version.find(:first, :conditions=>["node_id = ? AND publish_from <= now() AND id <> ? AND status = ?", id, v_id, Zena::Status[:pub]]) != nil)
           )
         end
         
-        # can destroy item ? (only logged in user can destroy)
+        # can destroy node ? (only logged in user can destroy)
         def can_destroy?
           can_drive? && (user_id != 1)
         end
@@ -207,11 +207,11 @@ module Zena
           if self[:max_status] != new_max
             update_attribute_without_fuss(:max_status, new_max)
           end
-          # Callback triggered after any changed to an item
+          # Callback triggered after any changed to an node
           after_all
         end
         
-        # Update an item's attributes or the item's version/content attributes. If the hash contains only
+        # Update an node's attributes or the node's version/content attributes. If the hash contains only
         # :v_... or :c_... keys, then only the version will be saved
         def update_attributes(hash)
           redaction_only = true
@@ -268,7 +268,7 @@ module Zena
             v.user_id = visitor_id
             v.lang = visitor_lang
             v[:content_id] = version[:content_id] || version[:id]
-            v.item = self
+            v.node = self
           end
           if v && (v.user_id == visitor_id) && v.status == Zena::Status[:red]
             @redaction = @version = v
@@ -335,7 +335,7 @@ module Zena
         # * if new_record?, create a new redaction
         # * find user redaction or proposition in the current lang 
         # * find an edition for current lang
-        # * find an edition in the reference lang for this item
+        # * find an edition in the reference lang for this node
         # * find the first publication
         def version #:doc:
           if ! @version
@@ -344,13 +344,13 @@ module Zena
               @version.user_id = @visitor_id || nil
               @version.lang = @visitor_lang || nil
               @version.status = Zena::Status[:red]
-              @version.item = self
+              @version.node = self
             elsif can_drive?
               # sees propositions
               lang = visitor_lang.gsub(/[^\w]/,'')
               @version =  Version.find(:first,
                             :select=>"*, (lang = '#{lang}') as lang_ok",
-                            :conditions=>[ "((status >= ? AND user_id = ? AND lang = ?) OR status > ?) AND item_id = ?", 
+                            :conditions=>[ "((status >= ? AND user_id = ? AND lang = ?) OR status > ?) AND node_id = ?", 
                                             Zena::Status[:red], visitor_id, lang, Zena::Status[:red], self[:id] ],
                             :order=>"lang_ok DESC, status ASC ")
               if !@version
@@ -361,15 +361,15 @@ module Zena
               lang = visitor_lang.gsub(/[^\w]/,'')
               @version =  Version.find(:first,
                             :select=>"*, (lang = '#{lang}') as lang_ok",
-                            :conditions=>[ "((status >= ? AND user_id = ? AND lang = ?) OR status = ?) and item_id = ?", 
+                            :conditions=>[ "((status >= ? AND user_id = ? AND lang = ?) OR status = ?) and node_id = ?", 
                                             Zena::Status[:red], visitor_id, lang, Zena::Status[:pub], self[:id] ],
                             :order=>"lang_ok DESC, status ASC, publish_from ASC")
 
             end
-            @version.item = self # preload self as item in version
+            @version.node = self # preload self as node in version
           end
           if @version.nil?
-            raise Exception.exception("Item #{self[:id]} does not have any version !!")
+            raise Exception.exception("Node #{self[:id]} does not have any version !!")
           end
           @version
         end
@@ -393,12 +393,12 @@ module Zena
         module ClassMethods
           # PUT YOUR CLASS METHODS HERE
           
-          # Find an item based on a version id
+          # Find an node based on a version id
           def version(version_id)
             version = Version.find(version_id.to_i)
-            item = self.find(version.item_id)
-            item.version = version
-            item.eval_with_visitor 'errors.add("base", "you do not have the rights to do this") unless version.status == 50 || can_drive? || version.user_id == visitor_id'
+            node = self.find(version.node_id)
+            node.version = version
+            node.eval_with_visitor 'errors.add("base", "you do not have the rights to do this") unless version.status == 50 || can_drive? || version.user_id == visitor_id'
           end
         end
       end

@@ -1,7 +1,7 @@
-<% @discussion ||= Discussion.new(:item_id=>@item[:id])%>
+<% @discussion ||= Discussion.new(:node_id=>@node[:id])%>
 <td colspan='7'>
 <%= form_remote_tag(:with=>'discussions', :url=>{:controller=>'discussion', :action=>'create', :rnd=>rnd}) %>
-<%= hidden_field('discussion', 'item_id' )%>
+<%= hidden_field('discussion', 'node_id' )%>
   <div id='discussion_errors' class='errors'></div>
   <div class='add_icon'>
     <%= link_to_function transb('btn_x'), "new Element.toggle('add_discussion', 'add_discussion_form');" %>

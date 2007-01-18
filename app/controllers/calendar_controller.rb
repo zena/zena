@@ -4,7 +4,7 @@ class CalendarController < ApplicationController
   # This action is used to change the calendar date with ajax
   def show
     get_options
-    render :inline=>"<%= calendar(:from=>@item, :find=>@method, :size=>@size, :date=>@date) %>"
+    render :inline=>"<%= calendar(:from=>@node, :find=>@method, :size=>@size, :date=>@date) %>"
   rescue ActiveRecord::RecordNotFound
     render :nothing=>true
   end
@@ -19,7 +19,7 @@ class CalendarController < ApplicationController
   private
   
   def get_options
-    @item   = secure(Item) { Item.find(params[:id]) }
+    @node   = secure(Node) { Node.find(params[:id]) }
     @method = params[:find] ? params[:find].to_sym : nil
     @date   = params[:date] ? Date.parse(params[:date]) : nil
     @size   = params[:size].to_sym
@@ -41,7 +41,7 @@ class CalendarController < ApplicationController
       else
         @note_date = Date.civil(@date.year, @date.mon, day)
       end
-      @notes = notes(:from=>@item, :find=>@method, :using=>:event_at, :date=>@note_date, :order=>'event_at ASC')
+      @notes = notes(:from=>@node, :find=>@method, :using=>:event_at, :date=>@note_date, :order=>'event_at ASC')
     end
   end
     

@@ -3,8 +3,8 @@ class DocumentController < ApplicationController
   helper MainHelper
   
   def new
-    @item = secure_write(Item) { Item.find(params[:parent_id]) }
-    @document = @item.new_child
+    @node = secure_write(Node) { Node.find(params[:parent_id]) }
+    @document = @node.new_child
   rescue ActiveRecord::RecordNotFound
     page_not_found
   end
@@ -63,7 +63,7 @@ class DocumentController < ApplicationController
 
   # Used to clean list after adding stuff or when canceling
   def list
-    @item = secure(Item) { Item.find(params[:parent_id])}
+    @node = secure(Node) { Node.find(params[:parent_id])}
     render :partial=>'document/list'
   rescue ActiveRecord::RecordNotFound
     page_not_found
@@ -71,6 +71,6 @@ class DocumentController < ApplicationController
   
   # TODO: test
   def file_form
-    render :inline=>"<%= link_to_function(trans('cancel'), \"new Element.toggle('file', 'file_form');$('file_form').innerHTML = '';\")%><label for='document'>#{trans('change document')}</label><%= file_field 'item', 'c_file', :size=>nil %>"
+    render :inline=>"<%= link_to_function(trans('cancel'), \"new Element.toggle('file', 'file_form');$('file_form').innerHTML = '';\")%><label for='document'>#{trans('change document')}</label><%= file_field 'node', 'c_file', :size=>nil %>"
   end
 end

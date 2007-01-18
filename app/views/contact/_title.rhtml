@@ -1,15 +1,15 @@
 <div class='contact_title'>
-  <div class='b<%= @item.v_status %>'>
+  <div class='b<%= @node.v_status %>'>
     <div class='title'>      
-      <h1 class="s<%= @item.v_status %>"><span id='v_title<%= @item.v_id %>'><%= @item.v_title %></span><br/>
-        <ul class='item_actions'><%= edit_button(:all) %></ul>
+      <h1 class="s<%= @node.v_status %>"><span id='v_title<%= @node.v_id %>'><%= @node.v_title %></span><br/>
+        <ul class='node_actions'><%= edit_button(:all) %></ul>
       </h1>
       <%= author(:large) %>
     </div>
     <div class='content'>
       <ul>
         <% [:fullname, :address, :zip, :city, :telephone, :mobile, :email, :birthday].each do |key| -%>
-          <% next unless value = @item.send("c_#{key}") %>
+          <% next unless value = @node.send("c_#{key}") %>
           <li><span class='label'><%= trans(key) %></span> <%= value %></li>
         <% end -%>
       </ul>

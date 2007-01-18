@@ -66,14 +66,14 @@ p.img_left, p.img_right { margin:0; padding:0;}
 #menu ul li.sub:hover ul li:hover ul li:hover ul li:hover ul li:hover ul { display: block; }
 
 /* ITEM ACTIONS */
-.item_actions { display:inline;}
-.item_actions li { display:inline; margin:0 5px; border:0;}
-.item_actions li:first-child { margin-left:0;}
-.s50 .item_actions { visibility:hidden; }
-.s50:hover .item_actions { visibility:visible; }
-.item_actions li:hover a { border-bottom:5px solid #450009; }
+.node_actions { display:inline;}
+.node_actions li { display:inline; margin:0 5px; border:0;}
+.node_actions li:first-child { margin-left:0;}
+.s50 .node_actions { visibility:hidden; }
+.s50:hover .node_actions { visibility:visible; }
+.node_actions li:hover a { border-bottom:5px solid #450009; }
 
-.item_actions:hover { visibility:visible;  }
+.node_actions:hover { visibility:visible;  }
 
 /* INLINE FORMS */
 .inline_form { margin:2px; padding:3px; background:#9FA6AC; border:1px dotted grey;}
@@ -253,10 +253,10 @@ table.largecal { border:1px solid #655; font-size:0.8em; margin:auto; width:80%;
 .note .log_at { float:left; width:60px; color:#999; font-weight:bold;}
 .note h3 p  { float:left; width:23em; text-align:left; color:#450009; font-weight:bold; margin-bottom:0.2em; padding:0;}
 .note .sign   { float:left; width:8em; font-size:1em; color:#999; font-weight:normal; }
-.note .item_actions { margin:0; padding:0; width:60px; }
-.note .item_actions a { border:0;}
-.note .li_s50 .item_actions { visibility:hidden;}
-.note .li_s50:hover .item_actions { visibility:visible;}
+.note .node_actions { margin:0; padding:0; width:60px; }
+.note .node_actions a { border:0;}
+.note .li_s50 .node_actions { visibility:hidden;}
+.note .li_s50:hover .node_actions { visibility:visible;}
 .note .text   { clear:both; margin-left:60px; margin-bottom:0.3em; margin-top:0; font-size:1.2em; }
 .note .text p { margin-top:1.5em; margin-bottom:0;}
 .note .text p:first-child {margin-top:0;}

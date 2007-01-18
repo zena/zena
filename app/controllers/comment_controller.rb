@@ -7,8 +7,8 @@ class CommentController < ApplicationController
   def reply_to
     @reply_to   = Comment.find(params[:id])
     @discussion = @reply_to.discussion
-    @item = secure(Item) { Item.find(@discussion[:item_id]) }
-    if @item.can_comment?
+    @node = secure(Node) { Node.find(@discussion[:node_id]) }
+    if @node.can_comment?
       @comment = Comment.new(:reply_to=>@reply_to[:id], :discussion_id=>@discussion[:id])
     else
       render :nothing=>true
@@ -19,21 +19,21 @@ class CommentController < ApplicationController
   
   # TODO: test
   def create
-    @item = secure(Item) { Item.find(params[:item][:id]) }
-    unless @comment = @item.add_comment(params[:comment])
+    @node = secure(Node) { Node.find(params[:node][:id]) }
+    unless @comment = @node.add_comment(params[:comment])
       add_error 'cannot comment'
     end
   rescue ActiveRecord::RecordNotFound  
-    add_error 'item not found'
+    add_error 'node not found'
   end
   
   # TODO: test
   def edit
     @comment    = Comment.find(params[:id])
     @discussion = @comment.discussion
-    @item = secure(Item) { Item.find(@discussion[:item_id]) }
+    @node = secure(Node) { Node.find(@discussion[:node_id]) }
     @edit = true
-    unless @item.can_comment? && @comment[:user_id] == visitor_id
+    unless @node.can_comment? && @comment[:user_id] == visitor_id
       render :nothing=>true
     end
   rescue ActiveRecord::RecordNotFound
@@ -44,8 +44,8 @@ class CommentController < ApplicationController
   def update
     @comment    = Comment.find(params[:comment][:id])
     @discussion = @comment.discussion
-    @item = secure(Item) { Item.find(@discussion[:item_id]) }
-    if @item.can_comment? && @comment[:user_id] == visitor_id || visitor_id == 2
+    @node = secure(Node) { Node.find(@discussion[:node_id]) }
+    if @node.can_comment? && @comment[:user_id] == visitor_id || visitor_id == 2
       [:user_id, :discussion_id, :reply_to].each { |sym| params[:comment].delete(sym) }
       @comment.update_attributes(params[:comment] )
     else
@@ -59,8 +59,8 @@ class CommentController < ApplicationController
   def remove
     @comment    = Comment.find(params[:id])
     @discussion = @comment.discussion
-    @item = secure(Item) { Item.find(@discussion[:item_id]) }
-    if user_admin? || (@item.can_comment? && visitor_id == @comment[:user_id])
+    @node = secure(Node) { Node.find(@discussion[:node_id]) }
+    if user_admin? || (@node.can_comment? && visitor_id == @comment[:user_id])
       @comment.remove
     else
       render :nothing=>true
@@ -73,7 +73,7 @@ class CommentController < ApplicationController
   def publish
     @comment    = Comment.find(params[:id])
     @discussion = @comment.discussion
-    @item = secure_drive(Item) { Item.find(@discussion[:item_id]) }
+    @node = secure_drive(Node) { Node.find(@discussion[:node_id]) }
     @comment.publish
   rescue ActiveRecord::RecordNotFound
     render :nothing=>true

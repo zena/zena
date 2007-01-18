@@ -1,14 +1,14 @@
 require File.dirname(__FILE__) + '/../test_helper'
-require 'item_controller'
+require 'node_controller'
 
 # Re-raise errors caught by the controller.
-class ItemController; def rescue_action(e) raise e end; end
+class NodeController; def rescue_action(e) raise e end; end
 
-class ItemControllerTest < Test::Unit::TestCase
+class NodeControllerTest < Test::Unit::TestCase
 
   include ZenaTestController
   def setup
-    @controller = ItemController.new
+    @controller = NodeController.new
     init_controller
   end
   
@@ -20,16 +20,16 @@ end
 
 #def test_can_manage
 #  login(:tiger)
-#  post 'manage', :id=>items_id(:status)
+#  post 'manage', :id=>nodes_id(:status)
 #  assert_tag :tag=>'div'
-#  get 'manage', :id=>items_id(:status)
+#  get 'manage', :id=>nodes_id(:status)
 #  assert_tag :tag=>'div'
 #end
 #
 #def test_cannot_manage
 #  login(:ant)
-#  post 'manage', :id=>items_id(:status)
+#  post 'manage', :id=>nodes_id(:status)
 #  assert_no_tag
-#  get 'manage', :id=>items_id(:status)
+#  get 'manage', :id=>nodes_id(:status)
 #  assert_no_tag
 #end

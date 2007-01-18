@@ -6,33 +6,33 @@ class ProjectTest < Test::Unit::TestCase
   
   def test_check_project_id_on_create
     visitor(:tiger)
-    item = secure(Project) { Project.create(:parent_id=>items_id(:status), :name=>'SuperProject') }
-    assert ! item.new_record?, 'Not a new record'
-    assert_equal item[:id], item[:project_id]
+    node = secure(Project) { Project.create(:parent_id=>nodes_id(:status), :name=>'SuperProject') }
+    assert ! node.new_record?, 'Not a new record'
+    assert_equal node[:id], node[:project_id]
   end
   
   def test_update_set_project_id_on_update
     visitor(:tiger)
-    item = secure(Project) { Project.find(items_id(:cleanWater))}
-    assert_equal items_id(:cleanWater), item[:project_id]
-    item[:parent_id] = items_id(:zena)
-    assert item.save, 'Can save item'
-    item.reload
-    assert_equal items_id(:cleanWater), item[:project_id]
-    item[:project_id] = items_id(:zena)
-    assert item.save, 'Can save item'
-    item.reload
-    assert_equal items_id(:cleanWater), item[:project_id]
+    node = secure(Project) { Project.find(nodes_id(:cleanWater))}
+    assert_equal nodes_id(:cleanWater), node[:project_id]
+    node[:parent_id] = nodes_id(:zena)
+    assert node.save, 'Can save node'
+    node.reload
+    assert_equal nodes_id(:cleanWater), node[:project_id]
+    node[:project_id] = nodes_id(:zena)
+    assert node.save, 'Can save node'
+    node.reload
+    assert_equal nodes_id(:cleanWater), node[:project_id]
   end
   
   def test_notes
     visitor(:tiger)
-    project = secure(Project) { Project.find(items_id(:cleanWater)) }
+    project = secure(Project) { Project.find(nodes_id(:cleanWater)) }
     notes = nil
     assert_nothing_raised { notes = project.notes }
     assert_equal 1, notes.size
     assert_equal 'opening', notes[0].name
-    note = secure(Note) { Note.create(:parent_id=>items_id(:cleanWater), :v_title=>'hello')}
+    note = secure(Note) { Note.create(:parent_id=>nodes_id(:cleanWater), :v_title=>'hello')}
     assert !note.new_record?, "Not a new record"
     notes = project.notes
     assert_equal 2, notes.size
@@ -40,8 +40,8 @@ class ProjectTest < Test::Unit::TestCase
   
   def test_notes_with_find
     visitor(:tiger)
-    project = secure(Project) { Project.find(items_id(:cleanWater)) }
-    note = secure(Note) { Note.create(:parent_id=>items_id(:cleanWater), :v_title=>'hello')}
+    project = secure(Project) { Project.find(nodes_id(:cleanWater)) }
+    note = secure(Note) { Note.create(:parent_id=>nodes_id(:cleanWater), :v_title=>'hello')}
     assert !note.new_record?, "Not a new record"
     notes = project.notes
     assert_equal 2, notes.size

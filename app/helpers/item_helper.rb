@@ -1,2 +1,0 @@
-module ItemHelper
-end

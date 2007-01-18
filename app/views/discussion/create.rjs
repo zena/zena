@@ -3,7 +3,7 @@ if !@discussion || @discussion.new_record?
   page.replace_html 'discussion_errors', :inline=> @errors ? render_errors : error_messages_for('discussion')
 else
   new_discussion = @discussion
-  @discussion = Discussion.new(:item_id=>@discussion[:item_id])
+  @discussion = Discussion.new(:node_id=>@discussion[:node_id])
   page.insert_html :before, 'add_discussion', :partial=>'li', :locals=>{:li=>new_discussion}
   page.replace_html 'discussion_errors', :inline=>''
   page.replace_html 'add_discussion_form', :partial=>'form'

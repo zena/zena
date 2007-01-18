@@ -51,9 +51,9 @@ button { background:none; border:none;}
 .result_info .result_path, .result_docinfo .result_path { display:block; font-size:0.7em; color:#404040;}
 .result_break { border-top:1px solid grey; height:5px; }
 label { font-weight:bold; font-size:0.9em; display:block; margin:4px 0 2px;} 
-input#item_v_title { font-size:1.3em; font-weight:bold;}
-#item_v_summary { font-style:italic;}
-#item_v_comment { }
+input#node_v_title { font-size:1.3em; font-weight:bold;}
+#node_v_summary { font-style:italic;}
+#node_v_comment { }
 #edit input.btn_validate { width:auto; }
 
 /* document upload */
@@ -75,7 +75,7 @@ td.description p.summary { font-style:italic; font-size:0.8em; }
 .drive li { padding-left: 10px;}
 .drive li p { font-weight:normal; }
 .drive li select { width: 100%;}
-.drive li #item_name  { width: 95%;}
+.drive li #node_name  { width: 95%;}
 .drive li.submit { text-align:right; padding-top:1em;}
 .select_id span { margin-left:0.2em;}
 

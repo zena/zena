@@ -3,7 +3,7 @@
 
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-  <title><%= @item.v_title %></title>
+  <title><%= @node.v_title %></title>
   <meta http-equiv="Content-type" content="text/html; charset=utf-8" />
   <meta http-equiv="Content-Language" content="fr-fr" />
   <%= stylesheet_link_tag( 'zen' ) %>
@@ -25,10 +25,10 @@
 
   <div id='left'>
     <div id='tinycal'><%= calendar(:find=>:news, :size=>:tiny) %></div>
-    <% hot = @item.hot ? @item.hot : @item %>
+    <% hot = @node.hot ? @node.hot : @node %>
     <div class='header'>
       <h1 class='s<%= hot.v_status %>'>
-        <ul class='item_actions'><%= edit_button(:all) %></ul><br/>
+        <ul class='node_actions'><%= edit_button(:all) %></ul><br/>
         <span id='v_title<%= hot.v_id%>'><%= hot.v_title %></span>
       </h1>
       <div class='subtitle'><%= author(:small) %></div>
@@ -49,7 +49,7 @@
     </div>
 
     <div id="right">
-      <% if contact = @item.contact %>
+      <% if contact = @node.contact %>
       <div id='contact'>
         <%= show(contact, :v_text   ) %>
       </div>

@@ -23,7 +23,7 @@ class MainControllerTest < Test::Unit::TestCase
   
   def test_render_and_cache
     get 'index'
-    assert assigns(:item)
+    assert assigns(:node)
     assert assigns(:project)
     # test send inline document if kind_of?(Document)
     puts "test todo"
@@ -184,7 +184,7 @@ class MainControllerTest < Test::Unit::TestCase
     session[:lang] = 'ru'
     get 'show', :path=>['projects'], :prefix=>AUTHENTICATED_PREFIX
     assert_response :success
-    assert_equal 2, assigns(:item).pages.size
+    assert_equal 2, assigns(:node).pages.size
     assert_tag :span, :attributes=>{:class=>'wrong_lang'}
   end
   
