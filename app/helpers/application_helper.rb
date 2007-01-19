@@ -31,8 +31,8 @@ module ApplicationHelper
     <script src="/calendar/lang/calendar-#{lang}-utf8.js" type="text/javascript"></script>
     <link href="/calendar/calendar-brown.css" media="screen" rel="Stylesheet" type="text/css" />
     #{javascript_start}
-    Calendar._TT["DEF_DATE_FORMAT"] = "#{trans('datetime')}";
-    Calendar._TT["FIRST_DAY"] = #{trans('week_start_day')};
+    Calendar._TT["DEF_DATE_FORMAT"] = "#{transb('datetime')}";
+    Calendar._TT["FIRST_DAY"] = #{transb('week_start_day')};
     #{javascript_end}
     EOL
   end
@@ -116,10 +116,10 @@ module ApplicationHelper
     opt = {:edit=>true}.merge(opt)
     if opt[:translate] || (session[:translate] && opt[:edit])
       key = TransPhrase.translate(keyword)
-      "<div id='trans_#{key[:id]}' class='trans'>" + 
+      "<div id='phrase#{key[:id]}' class='trans'>" + 
       link_to_remote(key.into(lang), 
-          :update=>"trans_#{key[:id]}", 
-          :url=>"/z/trans/edit/#{key[:id]}",
+          :update=>"phrase#{key[:id]}", 
+          :url=>{:controller=>'trans', :action=>'edit', :id=>key[:id]},
           :complete=>'$("trans_value").focus();$("trans_value").select()') +
       "</div>"
     else
@@ -426,6 +426,14 @@ module ApplicationHelper
                                                              :source=>source,
                                                              :method=>method,
                                                              :size=>size })
+    end
+  end
+  
+  def unless_empty(obj)
+    if obj.nil? || obj.empty?
+      return ''
+    else
+      yield(obj)
     end
   end
   

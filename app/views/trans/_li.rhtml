@@ -1,0 +1,7 @@
+<tr id='trans<%= li[:id] %>'>
+  <td class='header'>
+  <%= link_to_remote(transb('btn_tiny_del'), :url=>{:controller=>'trans', :action=>'remove', :phrase_id=>li[:id] }, :confirm=>'Delete all translations for this phrase ?', :post=>true) %> <%= li[:phrase] %></td>
+  <td class='phrase'>
+  <%= if val_id = li.id_for(lang) then link_to_remote(transb('btn_tiny_del'), :url=> {:controller=>'trans', :action=>'remove', :value_id=>val_id }, :post=>true) end %> <%= trans(li[:phrase], :translate=>true) %></td>
+  <td class='hint'><%= li.into(lang).gsub('<','&lt;').gsub('>','&gt;') %></td>
+</tr>

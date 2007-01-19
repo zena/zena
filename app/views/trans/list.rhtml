@@ -1,24 +1,21 @@
 <div id='content'>
   <h3><%= trans('translate interface') %></h3>
-
+  
   <table id='translations' class='border' cellspacing='0'>
-  	<tr><td class='title' colspan='3'><b><%= lang_links %></b></td></tr>
+  	<tr><td class='title' colspan='3'><div>
+        <div id='previous_page'><%= tlink_to 'Previous page', { :page => @keyword_pages.current.previous } if @keyword_pages.current.previous %></div>
+  	    <%= lang_links %>
+        <div id='next_page'><%= tlink_to 'Next page', { :page => @keyword_pages.current.next } if @keyword_pages.current.next %></div>
+        </div>
+    </td></tr>
   	<%= render :partial=>'trans/add' %>
-    <% @keywords.each do |key| -%>
-    	<tr>
-    	  <td class='header'><%= link_to(transb('btn_tiny_del'), {:action=>'destroy', :keyword=>key }, :confirm=>'Delete this line ?') %> <%= key[:phrase] %></td>
-    	  <td class='phrase'><%= trans(key[:phrase], :translate=>true) %></td>
-    	  <td class='hint'><%= key.into(lang).gsub('<','&lt;').gsub('>','&gt;') %></td>
-    	</tr>
-    <% end -%>  	
+  	<%= render :partial=>'trans/li', :collection=>@keywords %>
   </table>
-  <%= tlink_to 'Previous page', { :page => @keyword_pages.current.previous } if @keyword_pages.current.previous %>
-  <%= tlink_to 'Next page', { :page => @keyword_pages.current.next } if @keyword_pages.current.next %>
 </div>
 
 <div id='right'>
   <ul class='actions'>
-  <li><a href='#'>export current lang</a></li>
+  <li><%= tlink_to('export current lang', :controller=>'lang', :action=>'export') %></li>
   <li>
     <%= trans('import translations')%>
     <%= form_tag( {:controller=>'trans', :action=>'import'}, :multipart=>true ) %>

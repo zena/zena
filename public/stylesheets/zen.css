@@ -3,7 +3,7 @@
 a {text-decoration: none; color:#266F92;}
 a img {border: none;}
 body {font: 0.9em Verdana, sans-serif; line-height: 1; color: #333; behavior: url('stylesheets/csshover2.htc');} /* WinIE hack */
-h2, h3 {font: 1.32em Georgia, Times, serif; letter-spacing: 0; text-transform: none; margin-bottom: 0; color: #333;}
+h2, h3 {font: 1.2em Georgia, Times, serif; letter-spacing: 0; text-transform: none; margin-bottom: 0; color: #333;}
 h2 { font-size:1.5em; font-style:italic; color:#450009; }
 p {font-size:1em; text-align: left; line-height: 1.5em; margin: 0 0 1em;}
 li { list-style-type:none; }
@@ -71,7 +71,7 @@ p.img_left, p.img_right { margin:0; padding:0;}
 .node_actions li:first-child { margin-left:0;}
 .s50 .node_actions { visibility:hidden; }
 .s50:hover .node_actions { visibility:visible; }
-.node_actions li:hover a { border-bottom:5px solid #450009; }
+.node_actions li:hover a { border-bottom:5px solid orange; }
 
 .node_actions:hover { visibility:visible;  }
 
@@ -89,6 +89,7 @@ p.img_left, p.img_right { margin:0; padding:0;}
 .btn_add:hover a { visibility:visible; }
 #add_document.btn_add, #add_page.btn_add { margin-top:0.2em;}
 #pages .inline_form { width:130px;}
+#pages .inline_form input { font-size:0.7em;}
 .btn_x { float:right; margin:0; padding:0;}
 .btn_x img { border:0; }
 .btn_validate { text-align:right; margin:0; padding:0;}
@@ -138,17 +139,17 @@ p.img_left, p.img_right { margin:0; padding:0;}
 #add_note { padding:10px 3px;}
 /* RIGHT: Documents, Pages */
 #right span.ext a {font-family:Monaco, monospace;color:grey; width:200px;}
-.list { list-style:none; margin-left:0.8em; margin-top:0.5em; margin-bottom:0em; padding: 0 0.5em 1em;}
-.list li { line-height:1.5em; }
+.list { list-style:none; margin-left:0.8em; margin-top:0.5em; margin-bottom:0; padding: 0 0.5em;}
+.list li { line-height:1.5em; font-size:0.9em;}
 .list img.tiny, .list img.doc { border:1px solid #2F2F2F;}
 input, textarea { border:1px solid grey; margin:0.2em}
 
 /* MAIN CONTENT */
-#main {margin-top:5em;  margin-left:260px; width:900px; }
+#main {margin-top:5em;  margin-left:260px; width:890px; }
 #main .header h1 {  font-size:2.5em; margin-bottom:0.17em;}
 .header h1, .text h1, .text h2, .text h3 { font-family: Georgia, Times, serif ; font-style:italic; color:#450009;}
 
-#main #content { float:left; width:640px; padding-top:0; padding-right: 22px; margin-top:1em;}
+#content { float:left; width:630px; padding-top:0; padding-right: 22px; margin-top:1em;}
 #left .content { padding-top:10px; font-size:80%;}
 #left .header h1 { font-size:1.3em; margin-top:1.2em;}
 #left .subtitle { margin-bottom:0.17em; margin-top:0.17em; }
@@ -205,6 +206,8 @@ table.fada td:first-child {border-left-width:1px;}
 #content .docs .docpv img { margin-bottom:-5px; }
 #content .docs .result_break { border-top:1px solid grey; height:5px; }
 
+#content h2:first-child {margin-top:10px;}
+
 #right { float:left; width:220px; padding-left:6px; border-left:1px solid #ccc;}
 
 /* LOGIN PAGE, PAGE NOT FOUND */
@@ -221,6 +224,7 @@ table.fada td:first-child {border-left-width:1px;}
 .trans { display:inline; }
 .trans a:hover { color: orange;}
 .trans form    { display:inline; }
+.trans form input { padding:0; margin:0;}
 #add_translation { background: #91AAC8;}
 
 /* LARGE CALENDAR */

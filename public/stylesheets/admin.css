@@ -1,22 +1,29 @@
-#bin { margin-top:5px; border:1px solid #C28D61; background:white; float:left; padding:3px; position:relative; }
-#bin span { position:absolute; top:2px; left:30px; }
 #left ul { margin:70px 25px 0; border:1px solid #35462B; background:#eee;}
 #left li a { margin:0; border-top:1px solid #35462B; padding:10px 5px; font-size:0.9em; color:#560B0A;  display:block;}
 #left li:first-child a { border:0; }
 #left li a:hover { background:#C47330; }
 #left li a.on {background:#C28D61;}
-#comments_to_publish { border-bottom:2px solid #450009; margin-bottom:15px; }
-#content h3 { margin:45px 0 1em; font-size:1.6em; color:#C28D61;}
 
-ul.actions { margin:70px 0 0; border:1px solid #35462B; background:#D1C0B2;}
-ul.actions li { margin:0; border-top:1px solid #35462B; padding:10px 5px; font-size:0.9em; color:#560B0A;  display:block;}
-ul.actions li:first-child { border:0; }
+#content h3 { margin:0 0 1em; font-size:1.6em; color:#C28D61;}
+
+#bin { margin-top:5px; border:1px solid #C28D61; background:white; float:left; padding:3px; position:relative; }
+#bin span { position:absolute; top:2px; left:30px; }
+
+ul.actions li { margin:0; border:1px dashed #9E9E9E; background: #D3D3D3; padding:5px 5px; font-size:0.9em; color:#560B0A;  display:block; margin-bottom:10px;}
 ul.actions form {margin:8px 0 0;}
+ul.actions ul { margin:0 0 0 1.6em; padding:0; }
+ul.actions ul li { padding:2px 0; border:0; margin:0;}
 
 .border { border:1px solid grey; border-spacing:0; font-size:0.8em;}
 .border td {padding:1px; border-top:1px solid grey;}
 .border tr:first-child td { border:0;}
-.border td.header {background:grey; color:white; width:15em; border-top-color:#979797;}
-.border td.title {background:#E68200; color:white; padding:10px;font-size:1.3em;font-weight:bold;}
-.border td.phrase {width: 40%; border-right:1px solid grey;}
-.border td.hint {width:15%;}
+.border td.header {background:grey; color:white; border-top-color:#979797;}
+.border td.title { background:#E68200; text-align:center; padding:3px; }
+.border .title div { position:relative; }
+.border .title a { color:#2B3E52;}
+.border .title #previous_page { position:absolute; left:10px; top:5px; }
+.border .title #next_page { position:absolute; right:10px; top:5px; }
+.border .title #lang { color:white; font-weight:normal; display:inline; margin:0 15px; font-size:1.8em; color:#965A13;}
+.border .title #lang a { color:#965A13;}
+.border td.phrase {padding:1px 4px; border-right:1px solid grey;}
+.border .hint {width:100px; font-size:80%; color:#333;}

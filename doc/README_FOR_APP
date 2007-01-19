@@ -1,11 +1,10 @@
 = Welcome to Zena
 
-Zena is a CMS. (c) teti.ch 2006
+Zena is a CMS. (c) teti.ch 2007
 
 -------------------------------------------
 == Todo
 === Tools
-* Rename Node into Node
 * user management :
   * create
   * change password

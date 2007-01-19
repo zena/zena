@@ -1,5 +1,5 @@
 <tr id='link<%= li[:link_id] %>'>
   <td class="icon"><%= trans("img_#{li[:role]}" ) %></td>
   <td class="link" colspan='2'><%= li.rootpath.join('/') %><%#= link_to( link.fullpath.join('/'), :controller=>'web', :action=>'node', :url_prefix=>url_prefix, :path=> link.fullpath ) %></td>
-  <td class="actions"> <%= link_to_remote(transb('btn_tiny_del'),:with=>'links', :url=>{:controller=>'link', :action=>'remove', :id=>li[:link_id], :node_id=>@node[:id]}, :post=>true)%> </td>
+  <td class="actions"> <%= link_to_remote(transb('btn_tiny_del'), :url=>{:controller=>'link', :action=>'remove', :id=>li[:link_id], :node_id=>@node[:id]}, :post=>true)%> </td>
 </tr>

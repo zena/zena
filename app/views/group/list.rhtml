@@ -2,7 +2,7 @@
   <h3><%= trans('manage groups') %></h3>
   <table class="admin_ug" cellspacing="0">
     <%= render :partial=>'group/li',  :collection=>@groups %>
-    <%#= render :partial=>'group/add', :locals=>{:users=>@users} %>
+    <%= render :partial=>'group/add', :locals=>{:users=>@users} %>
   </table>
   <%= tlink_to "Previous page", { :page => @group_pages.current.previous } if @group_pages.current.previous %>
   <%= tlink_to "Next page", { :page => @group_pages.current.next } if @group_pages.current.next %>

@@ -18,7 +18,7 @@ class TransPhrase < ActiveRecord::Base
   attr_accessor :lang, :value
   before_save :check_value
   after_save :save_value
-  has_many :trans_values, :foreign_key=>'phrase_id'
+  has_many :trans_values, :foreign_key=>'phrase_id', :dependent=>:destroy
   
   @@key = {}
   class << self
@@ -41,10 +41,14 @@ class TransPhrase < ActiveRecord::Base
   end
   
   def into(la)
-    val = self.trans_values.find(:first,
-                    :select=>"*, (lang = '#{la.gsub(/[^\w]/,'')}') as lang_ok, (lang = '#{ZENA_ENV[:default_lang]}') as def_lang",
-                    :order=>"lang_ok DESC, def_lang DESC")
-    val = val ? val[:value] : self[:phrase]
+    if self[:lang] == la && self[:value]
+      self[:value] 
+    else
+      val = self.trans_values.find(:first,
+                      :select=>"*, (lang = '#{la.gsub(/[^\w]/,'')}') as lang_ok, (lang = '#{ZENA_ENV[:default_lang]}') as def_lang",
+                      :order=>"lang_ok DESC, def_lang DESC")
+      val = val ? val[:value] : self[:phrase]
+    end
   end
   
   def set(la,value)
@@ -52,6 +56,15 @@ class TransPhrase < ActiveRecord::Base
     val[:value] = value
     val.save
     TransPhrase.clear
+  end
+  
+  # TODO: test
+  def id_for(la)
+    if val = self.trans_values.find_by_lang(la)
+      val[:id]
+    else
+      nil
+    end
   end
   
   def value

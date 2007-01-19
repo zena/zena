@@ -9,7 +9,6 @@
   <%= stylesheet_link_tag( 'zen', 'comment' ) %>
   <%= javascript_include_tag 'prototype', 'effects', 'zena' %>
   <%= uses_calendar %>
-  <%= javascript "Calendar._TT[\"DEF_DATE_FORMAT\"] = \"#{trans('long_date')}\";" if trans('long_date') != 'long_date' %>
 </head>
 
 <body <%= @su %>>

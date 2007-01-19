@@ -3,31 +3,34 @@
 </div>
 
 <div id='right'>
-  <div id='to_publish' class='version'>
-    <h3><%= trans('to publish') %></h3>
-    <ul class='list'>
-      <%= render :partial=>'version/li', :collection=>@user.to_publish %>
-    </ul>
-  </div>
-  
-  <div id='comments_to_publish' class='version'>
-    <h3><%= trans('comments to publish') %></h3>
-    <ul class='list'>
-      <%= render :partial=>'comment/li_simple', :collection=>@user.comments_to_publish  %>
-    </ul>
-  </div>
-
-  <div id='proposed' class='version'>
-    <h3><%= trans('waiting for publication') %></h3>
-    <ul class='list'>
-      <%= render :partial=>'version/li', :collection=>@user.proposed   %>
-    </ul>
-  </div>
-
-  <div id='redaction' class='version'>
-    <h3><%= trans('redactions') %></h3>
-    <ul class='list'>
-      <%= render :partial=>'version/li', :collection=>@user.redactions %>
-    </ul>
-  </div>
+  <ul class='actions'>
+    <% unless_empty(@user.to_publish) do |list| -%>
+    <li><%= trans('to publish') %>
+      <ul class='list'>
+        <%= render :partial=>'version/li', :collection=>list %>
+      </ul>
+    </li>
+    <% end -%>
+    <% unless_empty(@user.comments_to_publish) do |list| -%>
+    <li><%= trans('comments to publish') %>
+      <ul class='list'>
+        <%= render :partial=>'comment/li_simple', :collection=>list  %>
+      </ul>
+    </li>
+    <% end -%>
+    <% unless_empty(@user.proposed) do |list| -%>
+    <li><%= trans('waiting for publication') %>
+      <ul class='list'>
+        <%= render :partial=>'version/li', :collection=>list   %>
+      </ul>
+    </li>
+    <% end -%>
+    <% unless_empty(@user.redactions) do |list| -%>
+    <li><%= trans('redactions') %>
+      <ul class='list'>
+        <%= render :partial=>'version/li', :collection=>list %>
+      </ul>
+    </li>
+    <% end -%>
+  </ul>
 </div>

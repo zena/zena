@@ -16,4 +16,8 @@ class GroupController < ApplicationController
             paginate :groups, :order => 'name', :per_page => 20
     @users = User.find(:all, :order=>'name', :limit=>20)
   end
+  
+  def create
+    
+  end
 end
