@@ -1,3 +1,5 @@
+.label { color:#560B0A;}
+
 #left ul { margin:70px 25px 0; border:1px solid #35462B; background:#eee;}
 #left li a { margin:0; border-top:1px solid #35462B; padding:10px 5px; font-size:0.9em; color:#560B0A;  display:block;}
 #left li:first-child a { border:0; }
@@ -35,7 +37,7 @@ table.admin_ug td:first-child { border-left: 1px solid #333; }
 .admin_ug .btn_validate { float:right; }
 .admin_ug .errors ul { margin:-9px -13px 5px;}
 .btn_validate input { background:#C8D8C7; border:1px outset black;}
-
+.admin_ug .label {width:80px; line-height:1.9em;}
 /* actions */
 #right { border:0; }
 ul.actions { position:relative; }

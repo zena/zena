@@ -10,7 +10,6 @@ class TransController < ApplicationController
   end
 
   def update
-    puts "UPDATE"
     @trans = TransPhrase.find(params[:id])
     @trans.lang = lang
     @trans.value = params[:trans][:value]

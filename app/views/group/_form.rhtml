@@ -15,8 +15,8 @@
   <% end %>
     <table cellspacing='0'>
       <tr><td colspan='2'><div class='errors'><%= error_messages_for('group') %></div></td></tr>
-      <tr><td><%= trans('name')%>       </td><td><%= text_field('group', 'name',        :size=>15 ) %></td></tr>
-      <tr><td><%= trans('users')%>      </td><td><%= @users.inject([]) do |list, u|
+      <tr><td class='label'><%= trans('name')%>       </td><td><%= text_field('group', 'name',        :size=>15 ) %></td></tr>
+      <tr><td class='label'><%= trans('users')%>      </td><td><%= @users.inject([]) do |list, u|
         unless 1 == u[:id] || 2 == u[:id]
           list << "<input type='checkbox' name='users[#{u.id}]' value='#{u.id}' class='box' #{(@group && @group.user_ids.include?(u[:id])) ? "checked='1'" : ''}/>#{u.login}"
         end

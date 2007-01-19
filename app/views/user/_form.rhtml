@@ -17,21 +17,13 @@
   <table cellspacing='0'>
     <tr><td colspan='2'><div class='errors'><%= error_messages_for('user') %></div></td></tr>
     <% unless user_id == 1 -%>
-    <tr><td><%= trans("login")%>      </td><td><%= text_field('user', 'login',        :size=>15 ) %></td></tr>
+    <tr><td class='label'><%= trans("login")%>      </td><td><%= text_field('user', 'login',        :size=>15 ) %></td></tr>
     <% end -%>
-    <tr><td><%= trans("first name")%> </td><td><%= text_field('user', 'first_name',   :size=>35 ) %></td></tr>
-    <tr><td><%= trans("name")%>       </td><td><%= text_field('user', 'name',         :size=>35 ) %></td></tr>
-    <tr><td><%= trans("email")%>      </td><td><%= text_field('user', 'email',         :size=>35 ) %></td></tr>
-    <% unless user_id == 1 -%>
-    <% if @user %>
-    <tr id='user<%= user_id %>_pass'><td colspan='2'><%= tlink_to_function 'change password', "new Element.toggle('user#{user_id}_pass', 'user#{user_id}_set_pass'); $('user#{user_id}_password').focus();" %>   </td></tr>
-    <tr id='user<%= user_id %>_set_pass' style='display:none;'><td><%= tlink_to_function 'cancel', "new Element.toggle('user#{user_id}_pass', 'user#{user_id}_set_pass'); $('user#{user_id}_password').value='';" %></td><td><%= trans("password")%> <%= password_field('user', 'password', :size=>15, :id=>"user#{user_id}_password" ) %></td></tr>
-    <% else %>
-      <tr id='user<%= user_id %>_set_pass' style='display:none;'><td><%= tlink_to_function 'cancel', "new Element.toggle('user#{user_id}_pass', 'user#{user_id}_set_pass'); $('user#{user_id}_password').value='';" %></td><td><%= trans("password")%> <%= password_field('user', 'password', :size=>15, :id=>"user#{user_id}_password" ) %></td></tr>
-    <% end %>
-    <% end -%>
+    <tr><td class='label'><%= trans("first name")%> </td><td><%= text_field('user', 'first_name',   :size=>35 ) %></td></tr>
+    <tr><td class='label'><%= trans("name")%>       </td><td><%= text_field('user', 'name',         :size=>35 ) %></td></tr>
+    <tr><td class='label'><%= trans("email")%>      </td><td><%= text_field('user', 'email',         :size=>35 ) %></td></tr>
     <% unless user_id == 2 || user_id == 1 -%>
-    <tr><td><%= trans("groups")%>     </td><td>
+    <tr><td class='label'><%= trans("groups")%>     </td><td>
     <%= @groups.inject([]) do |list, g|
           if 1 == g[:id]
             list << "<input type='checkbox' name='groups[#{g.id}]' value='#{g.id}' class='box' checked='1' disabled='1' />#{g.name}"
@@ -40,6 +32,15 @@
           end
           list
         end.join(" ") %></ul></td></tr>
+    <% end -%>
+    
+    <% unless  user_id == 1 -%>
+    <% if @user && @user.errors.empty? %>
+    <tr id='user<%= user_id %>_pass'><td colspan='2' class='label'><%= tlink_to_function 'change password', "new Element.toggle('user#{user_id}_pass', 'user#{user_id}_set_pass'); $('user#{user_id}_password').focus();" %>   </td></tr>
+    <tr id='user<%= user_id %>_set_pass' style='display:none;'><td><%= tlink_to_function 'cancel', "new Element.toggle('user#{user_id}_pass', 'user#{user_id}_set_pass'); $('user#{user_id}_password').value='';" %></td><td><%= trans("password")%> <%= password_field('user', 'password', :size=>15, :id=>"user#{user_id}_password" ) %></td></tr>
+    <% else %>
+      <tr id='user_set_pass'><td class='label'><%= trans("password")%></td><td><%= password_field('user', 'password', :size=>15 ) %></td></tr>
+    <% end %>
     <% end -%>
     <tr><td colspan='2'><p class='btn_validate'><input type='submit' value='<%= transb('validate') %>'/></p></td></tr>
   </table>

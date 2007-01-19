@@ -18,6 +18,7 @@ class UserController < ApplicationController
     @user_pages, @users =
             paginate :users, :order => 'id', :per_page => 20
     @groups = Group.find(:all, :order=>'id')
+    @user = nil
   end
   
   # TODO: test
