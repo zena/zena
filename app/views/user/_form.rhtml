@@ -1,39 +1,47 @@
 <td class="add_icon">
-  <%=  if @user
-    link_to transb('btn_x'), :action=>'list'
-    else
-      link_to_function transb('btn_x'), "new Element.toggle('add_user', 'add_user_form')"
-    end %>
+  <%= if @user && @user.errors.empty?
+    user_id = @user[:id]
+    tlink_to_remote 'btn_x', :url=>{:controller=>'user', :action=>'show', :id=>user_id}
+  else  
+    user_id = ''
+    tlink_to_function 'btn_x', "new Element.toggle('add_user', 'add_user_form')"
+  end %>
 </td>
 <%#= form_remote_tag(:with=>"add_link_form", :url=>{:controller=>'link', :action=>"create" }) %>
 <td class="add_ug" colspan="3">
-  <% if @user %>
-  <%= form_tag(:controller=>'user', :action=>"update" ) %>
-  <%= hidden_field('user', 'id') %>
+  <% if @user && @user.errors.empty? %>
+  <%= form_remote_tag(:url=>{:controller=>'user', :action=>'update', :id=>@user[:id]} ) %>
   <% else %>
-  <%= form_tag(:controller=>'user', :action=>"create" ) %>
+  <%= form_remote_tag(:url=>{:controller=>'user', :action=>"create"} ) %>
   <% end %>
   <table cellspacing='0'>
-    <% unless @user && (@user[:id] == 1) -%>
+    <tr><td colspan='2'><div class='errors'><%= error_messages_for('user') %></div></td></tr>
+    <% unless user_id == 1 -%>
     <tr><td><%= trans("login")%>      </td><td><%= text_field('user', 'login',        :size=>15 ) %></td></tr>
     <% end -%>
-    <tr><td><%= trans("first name")%> </td><td><%= text_field('user', 'first_name',   :size=>15 ) %></td></tr>
-    <tr><td><%= trans("name")%>       </td><td><%= text_field('user', 'name',         :size=>15 ) %></td></tr>
-    <% unless @user && (@user[:id] == 1) -%>
-    <tr><td><%= trans("password")%>   </td><td><%= password_field('user', 'password', :size=>15 ) %></td></tr>
+    <tr><td><%= trans("first name")%> </td><td><%= text_field('user', 'first_name',   :size=>35 ) %></td></tr>
+    <tr><td><%= trans("name")%>       </td><td><%= text_field('user', 'name',         :size=>35 ) %></td></tr>
+    <tr><td><%= trans("email")%>      </td><td><%= text_field('user', 'email',         :size=>35 ) %></td></tr>
+    <% unless user_id == 1 -%>
+    <% if @user %>
+    <tr id='user<%= user_id %>_pass'><td colspan='2'><%= tlink_to_function 'change password', "new Element.toggle('user#{user_id}_pass', 'user#{user_id}_set_pass'); $('user#{user_id}_password').focus();" %>   </td></tr>
+    <tr id='user<%= user_id %>_set_pass' style='display:none;'><td><%= tlink_to_function 'cancel', "new Element.toggle('user#{user_id}_pass', 'user#{user_id}_set_pass'); $('user#{user_id}_password').value='';" %></td><td><%= trans("password")%> <%= password_field('user', 'password', :size=>15, :id=>"user#{user_id}_password" ) %></td></tr>
+    <% else %>
+      <tr id='user<%= user_id %>_set_pass' style='display:none;'><td><%= tlink_to_function 'cancel', "new Element.toggle('user#{user_id}_pass', 'user#{user_id}_set_pass'); $('user#{user_id}_password').value='';" %></td><td><%= trans("password")%> <%= password_field('user', 'password', :size=>15, :id=>"user#{user_id}_password" ) %></td></tr>
+    <% end %>
     <% end -%>
-    <% unless @user && (@user[:id] == 2 || @user[:id] == 1) -%>
+    <% unless user_id == 2 || user_id == 1 -%>
     <tr><td><%= trans("groups")%>     </td><td>
     <%= @groups.inject([]) do |list, g|
           if 1 == g[:id]
             list << "<input type='checkbox' name='groups[#{g.id}]' value='#{g.id}' class='box' checked='1' disabled='1' />#{g.name}"
           else
-            list << "<input type='checkbox' name='groups[#{g.id}]' value='#{g.id}' class='box'/>#{g.name}"
+            list << "<input type='checkbox' name='groups[#{g.id}]' value='#{g.id}' class='box' #{(@user && @user.group_ids.include?(g[:id])) ? "checked='1'" : ''}/>#{g.name}"
           end
           list
         end.join(" ") %></ul></td></tr>
     <% end -%>
-    <tr><td><p class='btn_validate'><input type='submit' value='<%= transb('validate') %>'/></p></td></tr>
+    <tr><td colspan='2'><p class='btn_validate'><input type='submit' value='<%= transb('validate') %>'/></p></td></tr>
   </table>
   <%= end_form_tag %>
 </td>

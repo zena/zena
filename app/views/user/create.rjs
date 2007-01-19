@@ -1,0 +1,8 @@
+if @user.errors.empty?
+  page.insert_html :before, 'add_user', :partial=>'user/li', :collection=>[@user]
+  @user = nil
+  page.replace_html 'add_user_form', :partial=>'user/form'
+  page.javascript "$('user_login').focus();"
+else
+  page.replace_html 'add_user_form', :partial=>'user/form'
+end

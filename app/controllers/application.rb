@@ -2,7 +2,7 @@
 # Likewise, all the methods added will be available for all controllers.
 class ApplicationController < ActionController::Base
   acts_as_secure_controller
-  helper_method :prefix, :notes, :visitor_is_admin?
+  helper_method :prefix, :notes, :visitor_is_admin?, :error_messages_for, :render_errors, :add_error
   before_filter :authorize
   before_filter :set_env
   after_filter  :set_encoding
@@ -215,6 +215,34 @@ class ApplicationController < ActionController::Base
     end
     
     source.send(method, options)
+  end
+  
+  #TODO: test
+  def error_messages_for(obj)
+    # FIXME: SECURITY is there a better way to do this ?
+    obj = eval("@#{obj}")
+    return '' unless obj && !obj.errors.empty?
+    res = ["<ul>"]
+    obj.errors.each do |er,msg|
+      res << "<li><b>#{er}</b> #{trans(msg)}</li>"
+    end
+    res << '</ul>'
+    res.join("\n")
+  end
+  
+  # TODO: test
+  def add_error(msg)
+    @errors ||= []
+    @errors << trans(msg)
+  end
+  
+  # TODO: test
+  def render_errors(errs=@errors)
+    if !errs || errs.empty?
+      ""
+    else
+      "<ul class='error'><li>#{errs.join("</li>\n</li>")}</li></ul>"
+    end
   end
 end
 =begin

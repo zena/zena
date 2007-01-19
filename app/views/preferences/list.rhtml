@@ -1,0 +1,40 @@
+<div id='content'>
+<h3><%= @user.fullname %> : <%= trans('preferences') %> </h3>
+  <ul class='actions' id='preferences'>
+    
+    <li>
+      <div id='user_info'><%= tlink_to_function 'change name', "new Element.toggle('user_info', 'user_set_info'); $('user_login').focus();" %></div>
+      <div id='user_set_info' style='display:none;'><%= tlink_to_function 'cancel', "new Element.toggle('user_info', 'user_set_info');" %>
+        <div id='user_info_errors' class='errors'></div>
+        <%= form_remote_tag(:url=>{:action=>'change_info'}) %>
+        <ul>
+          <li id='user_info_errors'></li>
+          <li class='align'><%= trans("login")%>      <span><%= text_field('user', 'login',        :size=>25 ) %></span></li>
+          <li class='align'><%= trans("first name")%> <span><%= text_field('user', 'first_name',   :size=>25 ) %></span></li>
+          <li class='align'><%= trans("name")%>       <span><%= text_field('user', 'name',         :size=>25 ) %></span></li>
+          <li class='align'><%= trans("email")%>      <span><%= text_field('user', 'email',        :size=>25 ) %></span></li>
+          <li><p class='btn_validate'><input type='submit' value='<%= transb('validate') %>'/></p></li>
+        </ul>
+        <% end_form_tag %>
+      </div>
+    </li>
+    
+    <li>
+      <div id='user_pass'><%= tlink_to_function 'change password', "new Element.toggle('user_pass', 'user_set_pass'); $('user_old_password').focus();" %></div>
+      <div id='user_set_pass' style='display:none;'><%= tlink_to_function 'cancel', "new Element.toggle('user_pass', 'user_set_pass'); $('user_password').value='';" %>
+        <div id='user_pass_errors' class='errors'></div>
+        <%= form_remote_tag(:url=>{:action=>'change_password'}) %>
+        <ul>
+          <li class='align'><%= trans("old password")%> <span><%= password_field('user', 'old_password',       :size=>20, :value=>'' ) %></span></li>
+          <li class='align'><%= trans("new password")%> <span><%= password_field('user', 'password',           :size=>20, :value=>'' ) %></span></li>
+          <li class='align'><%= trans("retype new password")%> <span><%= password_field('user', 'retype_password', :size=>20, :value=>'' ) %></span></li>
+          <li><p class='btn_validate'><input type='submit' value='<%= transb('validate') %>'/></p></li>
+        </ul>
+        <% end_form_tag %>
+      </div>
+    </li>
+  </ul>
+</div>
+
+<div id='right'>
+</div>

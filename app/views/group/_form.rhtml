@@ -1,0 +1,28 @@
+<td class='add_icon'>
+  <%=  if @group
+    tlink_to_remote 'btn_x', :url=>{:controller=>'group', :action=>'show', :id=>@group[:id]}
+  else
+    link_to_function transb('btn_x'), "new Element.toggle('add_group', 'add_group_form');"
+  end %>
+</td>
+<%#= form_remote_tag(:with=>'add_link_form', :url=>{:controller=>'link', :action=>'create' }) %>
+<td class='add_ug' colspan='2'>
+  <% if @group %>
+  <%= form_remote_tag(:url=>{:controller=>'group', :action=>'update', :id=>@group[:id]} ) %>
+  <%= hidden_field('group', 'id') %>
+  <% else %>
+  <%= form_remote_tag(:url=>{:controller=>'group', :action=>'create'} ) %>
+  <% end %>
+    <table cellspacing='0'>
+      <tr><td colspan='2'><div class='errors'><%= error_messages_for('group') %></div></td></tr>
+      <tr><td><%= trans('name')%>       </td><td><%= text_field('group', 'name',        :size=>15 ) %></td></tr>
+      <tr><td><%= trans('users')%>      </td><td><%= @users.inject([]) do |list, u|
+        unless 1 == u[:id] || 2 == u[:id]
+          list << "<input type='checkbox' name='users[#{u.id}]' value='#{u.id}' class='box' #{(@group && @group.user_ids.include?(u[:id])) ? "checked='1'" : ''}/>#{u.login}"
+        end
+        list
+      end.join(' ') %></ul></td></tr>
+      <tr><td colspan='2'><input type='submit' class='btn_validate' value='<%= transb('validate') %>'/></td></tr>
+    </table>
+  <%= end_form_tag %>
+</td>

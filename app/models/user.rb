@@ -13,6 +13,7 @@ class User < ActiveRecord::Base
   has_many                :nodes
   has_many                :versions
   validates_uniqueness_of :login
+  validates_length_of     :login, :minimum=>4, :message=>"please choose a longer login"
   validates_presence_of   :password
   after_create            :add_public_group
   before_save             :set_lang
@@ -51,7 +52,7 @@ class User < ActiveRecord::Base
 
   
   def password=(string)
-    unless nil == string
+    unless string.nil? || string == ''
       self[:password] = User.hash_password(string)
     else
       self[:password] = nil
@@ -60,11 +61,12 @@ class User < ActiveRecord::Base
   
   # Returns a list of the group ids separated by commas for the user (this is used mainly in SQL clauses).
   def group_ids
+    return @group_ids if @group_ids
     res = if id==2
       # su user
       Group.find(:all)
     else
-      if Group.find_by_sql("SELECT * FROM groups_users WHERE group_id=2 AND user_id = #{id}") != []
+      if !new_record? && Group.find_by_sql("SELECT * FROM groups_users WHERE group_id=2 AND user_id = #{id}") != []
         # user is in admin group
         Group.find(:all)
       else
@@ -73,7 +75,7 @@ class User < ActiveRecord::Base
       end
     end.map{|g| g[:id]}
     res << 1 unless res.include?(1)
-    res
+    @group_ids = res
   end
   
   ### ================================================ ACTIONS AND OWNED ITEMS

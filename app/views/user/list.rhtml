@@ -1,7 +1,7 @@
 <div id='content'>
   <h3><%= trans('manage users') %></h3>
   
-  <table class="admin_ug" cellspacing="0">
+  <table id='user_list' class='admin_ug' cellspacing="0">
     <%= render :partial=>'user/li',  :collection=>@users %>
     <%= render :partial=>'user/add', :locals=>{:groups=>@groups} %>
   </table>  

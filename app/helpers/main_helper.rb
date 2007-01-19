@@ -232,10 +232,13 @@ ENDTXT
   def show_link(link, opt={})
     case link
     when :admin_links
-      [show_link(:home), show_link(:comments), show_link(:users), show_link(:groups), show_link(:translation)].reject {|l| l==''}
+      [show_link(:home), show_link(:preferences), show_link(:comments), show_link(:users), show_link(:groups), show_link(:translation)].reject {|l| l==''}
     when :home
       return '' unless session[:user]
       tlink_to_with_state('my home', :controller=>'user', :action=>'home')
+    when :preferences
+      return '' unless session[:user]
+      tlink_to_with_state('preferences', :controller=>'preferences', :action=>'list')
     when :translation
       return '' unless session[:user] && session[:user][:groups].include?(ZENA_ENV[:translate_group])
       tlink_to_with_state('translate interface', :controller=>'trans', :action=>'list')

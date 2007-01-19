@@ -190,6 +190,7 @@ module ApplicationHelper
   
   # Display flash[:notice] or flash[:error] if any. <%= flash <i>[:notice, :error, :both]</i> %>"
   def flash_messages(type=:both)
+    "<div id='messages'>" +
     if (type == :notice || type == :both) && @flash[:notice]
       "<div id='notice' class='flash' onClick='new Effect.Fade(\"notice\")'>#{@flash[:notice]}</div>"
     else
@@ -199,7 +200,8 @@ module ApplicationHelper
       "<div id='error' class='flash' onClick='new Effect.Fade(\"error\")'>#{@flash[:error]}</div>"
     else
       ''
-    end
+    end +
+    "</div>"
   end
   
   # Display logo with message (can be a date or a string)
@@ -626,34 +628,6 @@ module ApplicationHelper
     update = "new Ajax.Updater('#{name_ref}', '/z/node/attribute/' + this.value + '?attr=#{attribute}', {asynchronous:true, evalScripts:true});"
     "<div class='select_id'><input type='text' size='8' id='#{obj}_#{sym}' name='#{obj}[#{sym}]' value='#{id}' onChange=\"#{update}\"/>"+
     "<span class='select_id_name' id='#{name_ref}'>#{current}</span></div>"
-  end
-  
-  #TODO: test
-  def error_messages_for(obj)
-    # FIXME: SECURITY is there a better way to do this ?
-    obj = eval("@#{obj}")
-    return '' unless obj && !obj.errors.empty?
-    res = ["<ul class='errors'>"]
-    obj.errors.each do |er,msg|
-      res << "<li><b>#{er}</b> #{trans(msg)}</li>"
-    end
-    res << '</ul>'
-    res.join("\n")
-  end
-  
-  # TODO: test
-  def add_error(msg)
-    @errors ||= []
-    @errors << trans(msg)
-  end
-  
-  # TODO: test
-  def render_errors(errs=@errors)
-    if !errs || errs.empty?
-      ""
-    else
-      "<ul class='error'><li>#{errs.join("</li>\n</li>")}</li></ul>"
-    end
   end
   
 end

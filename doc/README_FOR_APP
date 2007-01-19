@@ -5,21 +5,21 @@ Zena is a CMS. (c) teti.ch 2007
 -------------------------------------------
 == Todo
 === Tools
-* user management :
-  * create
-  * change password
-  * add groups
-* group management :
-  * create
-  * views
 === Optimization & Cache
 * sweep public page cache :
   * page for all lang
   * project for all lang
 * on destroy : remove all (including document files)
+=== Optimization & Cache
+* users, groups see all TODO: test...  
 -------------------------------------------
 == Enhancements
 === Views
+* split zen.css, admin.css, comments.css into
+  * actions.css  <== small buttons and stuff (should never be changed)
+  * admin.css    <== administration boxes
+  * zen.css      <== layout style
+  * comments.css <== comment style
 * view archive... & search tool
 * contact search/list page
 === Security

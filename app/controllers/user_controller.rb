@@ -1,5 +1,5 @@
 class UserController < ApplicationController
-  before_filter :check_is_admin, :except=>[:home]
+  before_filter :check_is_admin, :except=>[:home, :preferences, :change_password]
   helper MainHelper
   layout 'admin'
   # This view contains all the relevant information for a user's home in the CMS. From here, the
@@ -9,19 +9,25 @@ class UserController < ApplicationController
   end
   
   # TODO: test
+  def show
+    @user = User.find(params[:id])
+  end
+  
+  # TODO: test
   def list
     @user_pages, @users =
-            paginate :users, :order => 'name, first_name', :per_page => 20
-    @groups = Group.find(:all, :order=>'name')
+            paginate :users, :order => 'id', :per_page => 20
+    @groups = Group.find(:all, :order=>'id')
   end
   
   # TODO: test
   def create
+    puts params.inspect
     if params[:groups]
       params[:user][:group_ids] = params[:groups].values
     end
-    User.create(params[:user])
-    redirect_to :action=>'list'
+    @groups = Group.find(:all, :order=>'id')
+    @user = User.create(params[:user])
   end
   
   # TODO: test
@@ -29,19 +35,19 @@ class UserController < ApplicationController
     render :nothing=>true if 1 == params[:id]
     @user = User.find(params[:id])
     @user.password = nil
-    @groups = Group.find(:all, :order=>'name')
+    @groups = Group.find(:all, :order=>'id')
     render :partial=>'user/form'
   end
   
   # TODO: test
   def update
     if params[:groups]
-      params[:user][:group_ids] = params[:groups].values
+      params[:user][:group_ids] = params[:groups].values.map {|v| v.to_i}
       params[:user][:group_ids] << 1 unless params[:user][:group_ids].include?(1)
     end
-    @user = User.find(params[:user][:id])
+    @user = User.find(params[:id])
     @user.update_attributes(params[:user])
     @user.save
-    redirect_to :action=>'list'
+    render :action=>'show'
   end
 end

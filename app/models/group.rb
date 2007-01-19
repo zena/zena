@@ -5,8 +5,20 @@ Groups are used for access control. Two groups cannot be destroyed and have a sp
         users, change user groups, monitor content, etc.
 =end
 class Group < ActiveRecord::Base
-  has_and_belongs_to_many :users
-  before_destroy :dont_destroy_public_or_admin
+  has_and_belongs_to_many :users, :order=>'login'
+  validates_presence_of   :name
+  validates_uniqueness_of :name
+  before_destroy          :dont_destroy_public_or_admin
+  
+  # TODO: test
+  def user_ids
+    @user_ids ||= if id==1
+      # public user
+      User.find(:all)
+    else
+      users
+    end.map{|u| u[:id]}
+  end
   
   private  
   # Public and admin groups are special. They cannot be destroyed.

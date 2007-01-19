@@ -28,8 +28,9 @@
 .comment .inline_form {padding-right:0;}
 .comment form .header { padding:1px;}
 .comment form label { font-weight:bold; margin-left:0.5em;}
-.comment .errors ul { background:#DDC8C8; margin:0 0 5px; padding:4px 0; border-bottom:1px solid #5A3231;}
+/* .comment .errors ul { background:#DDC8C8; margin:0 0 5px; padding:4px 0; border-bottom:1px solid #5A3231;}
 .comment .errors li { margin-left:0.4em;}
+*/
 .comment .body textarea { width:100%;}
 .comment .body .fieldWithErrors { width:100%; }
 .comment .header .fieldWithErrors { display: inline; }

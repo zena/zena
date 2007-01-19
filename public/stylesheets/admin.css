@@ -6,14 +6,51 @@
 
 #content h3 { margin:0 0 1em; font-size:1.6em; color:#C28D61;}
 
+/* rubish bin */
 #bin { margin-top:5px; border:1px solid #C28D61; background:white; float:left; padding:3px; position:relative; }
 #bin span { position:absolute; top:2px; left:30px; }
 
+/* ADMIN USERS, GROUPS */
+table.admin_ug, table.admin_ug table { border-width:1px 0 0 0; margin:auto; border-color:#333; border-style:solid; margin:5px; }
+table.admin_ug { width:600px; font-size:0.8em; }
+table.admin_ug td:first-child { border-left: 1px solid #333; }
+
+#admin_users  table.admin_ug {background:#B3CC92}  
+#admin_groups table.admin_ug {background:#91B9AE}
+#add_user  td { border: 0;}
+#add_group td { border: 0;}
+#add_user  td { background: white;}
+#add_group td { background: white;}
+.admin_ug td { padding: 3px; height:18px; border-right:1px solid #333; border-bottom:1px solid #333; }
+.admin_ug .icon, .admin_ug .add_icon, .admin_ug .action { width:22px; text-align:center; vertical-align:top;}
+.admin_ug table { width:100%;}
+.admin_ug td { padding: 2px 6px; }
+.admin_ug td.login { width: 8em; }
+.admin_ug td.name { width: 8em;}
+.admin_ug td.fullname { width: 15em;}
+.admin_ug td.users, .admin_ug td.groups { width: auto;}
+.admin_ug .login i {color:#A0A0A0; font-style:normal;}
+.admin_ug td.add_ug table { border: 0;}
+.admin_ug td.add_ug table td { border: 0; font-size:inherit; padding: 2px; }
+.admin_ug .btn_validate { float:right; }
+.admin_ug .errors ul { margin:-9px -13px 5px;}
+.btn_validate input { background:#C8D8C7; border:1px outset black;}
+
+/* actions */
+#right { border:0; }
+ul.actions { position:relative; }
 ul.actions li { margin:0; border:1px dashed #9E9E9E; background: #D3D3D3; padding:5px 5px; font-size:0.9em; color:#560B0A;  display:block; margin-bottom:10px;}
 ul.actions form {margin:8px 0 0;}
 ul.actions ul { margin:0 0 0 1.6em; padding:0; }
-ul.actions ul li { padding:2px 0; border:0; margin:0;}
+#preferences ul li, ul.actions ul li { padding:2px 0; border:0; margin:0;}
+ul.actions .align { line-height:1.5em; }
+ul.actions .align span { position:absolute; right:6px; }
+#preferences { width:50%; }
+#preferences li {margin-bottom:30px;}
 
+#preferences .errors ul { margin:0 -5px 5px;}
+
+/* translations */
 .border { border:1px solid grey; border-spacing:0; font-size:0.8em;}
 .border td {padding:1px; border-top:1px solid grey;}
 .border tr:first-child td { border:0;}

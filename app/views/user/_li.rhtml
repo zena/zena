@@ -6,11 +6,12 @@ elsif 2 == li[:id]
 elsif li.group_ids.include?(2)
   icon += '_admin'
 end %>
-<tr id='user_<%= li[:id] %>'>
+<tr id='user<%= li[:id] %>'>
   <td class="icon"><%= link_to_remote(trans("img_#{icon}"), 
-          :update=>"user_#{li[:id]}", 
+          :update=>"user#{li[:id]}", 
           :url=>"/z/user/edit/#{li[:id]}") %></td>
-  <td class="login"><%= if 1 == li[:id] then '<i>public</i>' else li.login end %></td>
+  <td class="login"><%= 
+    if 1 == li[:id] then '<i>public</i>' else li.login end %></td>
   <td class="fullname" ><%= li.fullname %></td>
   <td class="groups"><%= li.groups.map {|g| g.name }.join(', ') %></td>
 </tr>

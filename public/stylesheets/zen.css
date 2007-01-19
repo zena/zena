@@ -25,6 +25,8 @@ p.img_left, p.img_right { margin:0; padding:0;}
 .errorExplanation { font-size:0.9em; background: #C18284; border: 1px dotted #920C0C; margin:5px 5px 5px 0; padding:4px; line-height:1.2em; }
 .errorExplanation ul { margin-left:15px; }
 .fieldWithErrors { padding: 2px; background-color: #C18284; display: table;}
+.errors ul { background:#DDC8C8; margin:0 0 5px; padding:4px 0; border-bottom:1px solid #5A3231;}
+.errors li { margin-left:0.4em; background:inherit; line-height:1.2em;}
 
 .flash { padding: 8px; position:absolute; top:55px; left:260px; border: 1px dotted #7B8B57; width: 400px; }
 #notice { background:#D8E0C7; }
@@ -282,29 +284,6 @@ table.largecal { border:1px solid #655; font-size:0.8em; margin:auto; width:80%;
 .tinycal .body td.sun, .tinycal .body td.sun a { color:#35950B; }
 .tinycal .body td.sunother, .tinycal .body td.sunother a { color:#C8DEC1; }
 
-/* ADMIN USERS, GROUPS */
-table.admin_ug, table.admin_ug table { border-width:1px 0 0 0; margin:auto; border-color:#333; border-style:solid; margin:5px; }
-table.admin_ug { width:600px; }
-
-#admin_users  table.admin_ug {background:#B3CC92}  
-#admin_groups table.admin_ug {background:#91B9AE}
-.admin_ug td { font-family:Monaco,monospace; padding: 3px; font-size:0.9em; height:18px; border-right:1px solid #333;
-  border-bottom:1px solid #333; }
-table.admin_ug td:first-child { border-left: 1px solid #333; }
-.admin_ug
-#add_user  td { border: 0;}
-#add_group td { border: 0;}
-#add_user  td { background: white;}
-#add_group td { background: white;}
-
-.admin_ug .icon, .admin_ug .add_icon, .admin_ug .action { width:22px; text-align:center; vertical-align:top;}
-.admin_ug td { padding: 2px 6px; }
-.admin_ug td.login, .admin_ug td.name { width: 8em;}
-.admin_ug td.fullname { width: 15em;}
-.admin_ug td.users, .admin_ug td.groups { width: auto;}
-.admin_ug .login i {color:#A0A0A0; font-style:normal;}
-.admin_ug td.add_ug table { border: 0;}
-.admin_ug td.add_ug table td { border: 0; font-size:inherit; padding: 2px; }
 
 /* site_tree */
 #site_tree { position:relative; font-size:0.9em; font-family:Arial; padding-left:15em;}

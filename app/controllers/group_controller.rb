@@ -3,21 +3,45 @@ class GroupController < ApplicationController
   helper MainHelper
   layout 'admin'
   
+  # TODO: test
+  def show
+    @group = Group.find(params[:id])
+  end
+  
   # TODO: test?
   def edit
-    redirect_to :action=>'list' if 1 == params[:id]
+    render :nothing=>true if 1 == params[:id]
     @group = Group.find(params[:id])
-    render :action=>'list'
+    @users = User.find(:all, :order=>'login')
+    render :partial=>'group/form'
   end
   
   # TODO: test
   def list
     @group_pages, @groups =
-            paginate :groups, :order => 'name', :per_page => 20
-    @users = User.find(:all, :order=>'name', :limit=>20)
+            paginate :groups, :order => 'id', :per_page => 20
+    @users = User.find(:all, :order=>'login', :limit=>20)
   end
   
+  # TODO: test
   def create
-    
+    if params[:users]
+      params[:group][:user_ids] = params[:users].values.map {|v| v.to_i}
+    end
+    @users = User.find(:all, :order=>'login')
+    @group = Group.create(params[:group])
+  end
+  
+  # TODO: test
+  def update
+    render :nothing=>true if 1 == params[:id]
+    if params[:users]
+      params[:group][:user_ids] = params[:users].values.map {|v| v.to_i}
+    end
+    @group = Group.find(params[:id])
+    @group.update_attributes(params[:group])
+    @group.save
+    puts @group.inspect
+    render :action=>'show'
   end
 end

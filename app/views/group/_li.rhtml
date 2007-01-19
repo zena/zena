@@ -4,8 +4,8 @@ if 1 == li[:id]
 elsif 2 == li[:id]
   icon += '_admin'
 end %>
-<tr>
-  <td class="icon"><%= if 1 == li[:id] then trans("img_#{icon}") else tlink_to( "img_#{icon}", :controller=>'group', :action=>'edit', :id=>li[:id]) end %></td>
+<tr id='group<%= li[:id] %>'>
+  <td class="icon"><%= if 1 == li[:id] then trans("img_#{icon}") else tlink_to_remote( "img_#{icon}", :update=>"group#{li[:id]}", :url=>{:controller=>'group', :action=>'edit', :id=>li[:id]}) end %></td>
   <td class="name"><%= li.name %></td>
   <td class="users"><%= li.users.map {|u| u.login }.join(', ') %></td>
 </tr>
