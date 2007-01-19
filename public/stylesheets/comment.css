@@ -1,4 +1,4 @@
-#comments_list { border-top:1px solid #450009; clear:both;}
+#comments_list { border-top:1px solid #450009; clear:both; padding-top:5px;}
 .comment h3 { font-family: Georgia, Times, serif ; color:#450009; font-size:1.2em; margin:0; padding:5px 0 10px;}
 .comment ul { margin-left:25px;}
 .comment { width:95%; font-size:0.9em;  font-family: Arial, Helvetica, sans-serif;}
@@ -28,10 +28,9 @@
 .comment .inline_form {padding-right:0;}
 .comment form .header { padding:1px;}
 .comment form label { font-weight:bold; margin-left:0.5em;}
-/* .comment .errors ul { background:#DDC8C8; margin:0 0 5px; padding:4px 0; border-bottom:1px solid #5A3231;}
-.comment .errors li { margin-left:0.4em;}
-*/
-.comment .body textarea { width:100%;}
+.comment .errors ul { margin:0 0 5px; }
+
+.comment .body textarea { width:99%;}
 .comment .body .fieldWithErrors { width:100%; }
 .comment .header .fieldWithErrors { display: inline; }
 .comment .btn_validate { margin:5px; text-align:right; }
