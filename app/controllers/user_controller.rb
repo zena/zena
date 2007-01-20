@@ -23,7 +23,6 @@ class UserController < ApplicationController
   
   # TODO: test
   def create
-    puts params.inspect
     if params[:groups]
       params[:user][:group_ids] = params[:groups].values
     end
