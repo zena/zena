@@ -386,7 +386,7 @@ module ApplicationHelper
     using  = options[:using ] || :event_at
     day_names, on_day = calendar_get_options(size, source, method)
     return "" unless on_day && source
-    Cache.with(visitor_id, visitor_groups, 'IN', size, method, source.id, date.ajd, lang) do
+    Cache.with(visitor_id, visitor_groups, 'NN', size, method, source.id, date.ajd, lang) do
       # find start and end date
       week_start_day = trans('week_start_day').to_i
       start_date  = Date.civil(date.year, date.mon, 1)

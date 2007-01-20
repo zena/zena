@@ -47,17 +47,17 @@ class CacheTest < Test::Unit::TestCase
     i = 1
     assert_equal "content 1", Cache.with(1,[2,3,4], 'NP', 'pages')  { "content #{i}" }
     i = 2                                                        
-    assert_equal "content 2", Cache.with(1,[2,3,4], 'IN', 'notes')  { "content #{i}" }
+    assert_equal "content 2", Cache.with(1,[2,3,4], 'NN', 'notes')  { "content #{i}" }
     
     # Sweep called on document (NPD) change, must remove 'NP' cache only
     Cache.sweep(:visitor_id=>1, :kpath=>'NPD')
     i = 3
     assert_equal "content 3", Cache.with(1,[2,3,4], 'NP', 'pages')  { "content #{i}" }
-    assert_equal "content 2", Cache.with(1,[2,3,4], 'IN', 'notes')  { "content #{i}" }
+    assert_equal "content 2", Cache.with(1,[2,3,4], 'NN', 'notes')  { "content #{i}" }
     
     Cache.sweep(:visitor_id=>1, :kpath=>'I') # sweeps nothing
     i = 4
     assert_equal "content 3", Cache.with(1,[2,3,4], 'NP', 'pages')  { "content #{i}" }
-    assert_equal "content 2", Cache.with(1,[2,3,4], 'IN', 'notes')  { "content #{i}" }
+    assert_equal "content 2", Cache.with(1,[2,3,4], 'NN', 'notes')  { "content #{i}" }
   end
 end
