@@ -17,7 +17,6 @@ class Cache < ActiveRecord::Base
     
     # We can provide a kpath selector for sweeping. If the kpath is in the cached scope, the cache is removed.
     def sweep(hash)
-      Cache.logger.info "=============== SWEEP #{hash.inspect}"
       if hash[:kpath]
         kpath_selector = " AND left('#{hash[:kpath]}',length(kpath)) = kpath "
       else
@@ -39,5 +38,5 @@ class Cache < ActiveRecord::Base
         self.connection.execute "DELETE FROM #{self.table_name} WHERE updated_at < '#{hash[:older_than]}'" + kpath_selector
       end
     end
-  end   
+  end
 end

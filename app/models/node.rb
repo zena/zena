@@ -356,6 +356,21 @@ class Node < ActiveRecord::Base
     Comment.create(opt)
   end
   
+  # TODO: test
+  def sweep_cache
+    return unless Cache.perform_caching
+    [self.fullpath, self.project.fullpath].each do |path|
+      ZENA_ENV[:languages].each do |lang|
+        filepath = File.join(RAILS_ROOT,'public',lang,*path)
+        filepath = "#{filepath}.html"
+        puts filepath
+        if File.exist?(filepath)
+          File.delete(filepath)
+        end
+      end
+    end
+  end
+  
   protected
   
   def sync_project(project_id)
@@ -434,6 +449,7 @@ class Node < ActiveRecord::Base
   # Whenever something changed (publication/proposition/redaction/link/...)
   def after_all
     Cache.sweep(:visitor_id=>self[:user_id], :visitor_groups=>[rgroup_id, wgroup_id, pgroup_id], :kpath=>self.class.kpath)
+    sweep_cache
     true
   end
   

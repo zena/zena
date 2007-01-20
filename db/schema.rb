@@ -117,6 +117,7 @@ ActiveRecord::Schema.define() do
     t.column "ref_lang", :string, :limit => 10, :default => "", :null => false
     t.column "alias", :string, :limit => 400
     t.column "fullpath", :text
+    t.column "dgroup_id", :integer
   end
 
   create_table "trans_phrases", :force => true do |t|
