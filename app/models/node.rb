@@ -431,7 +431,7 @@ class Node < ActiveRecord::Base
     allOK
   end
   
-  # Whenever something changed (publication/proposition/redaction/...)
+  # Whenever something changed (publication/proposition/redaction/link/...)
   def after_all
     Cache.sweep(:visitor_id=>self[:user_id], :visitor_groups=>[rgroup_id, wgroup_id, pgroup_id], :kpath=>self.class.kpath)
     true

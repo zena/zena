@@ -43,6 +43,7 @@ class LinkController < ApplicationController
         end
       end
       if other_id && @node.add_link(@method, other_id) && @node.save
+        Node.find(other_id).after_all
         @link = @node.send(@method.to_sym, :conditions=>['nodes.id = ?', other_id])
         @link = @link[0] if @link.kind_of?(Array)
       end
