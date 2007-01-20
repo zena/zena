@@ -78,6 +78,11 @@ class User < ActiveRecord::Base
     @group_ids = res
   end
   
+  # TODO: test
+  def tz
+    @tz ||= TimeZone.new(self[:time_zone] || '') || TimeZone.new("Bern")
+  end
+  
   ### ================================================ ACTIONS AND OWNED ITEMS
   
   def comments_to_publish

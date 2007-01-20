@@ -162,8 +162,9 @@ module ApplicationHelper
   end
   
   # format a date with the given format. Translate month and day names.
-  def format_date(adate, fmt)
-    if adate
+  def format_date(thedate, fmt)
+    if thedate
+      adate = visitor.tz.adjust(thedate)
       format = trans(fmt)
       if format != fmt
         # month name

@@ -5,7 +5,7 @@ class ImageTest < Test::Unit::TestCase
 
   def test_create_with_file
     without_files('data/test/jpg') do
-      visitor(:ant)
+      test_visitor(:ant)
       img = secure(Image) { Image.create( :parent_id=>nodes_id(:cleanWater),
                                           :inherit => 1,
                                           :name=>'birdy', 
@@ -26,7 +26,7 @@ class ImageTest < Test::Unit::TestCase
   
   def test_resize_image
     without_files('data/test/jpg') do
-      visitor(:ant)
+      test_visitor(:ant)
       img = secure(Image) { Image.create( :parent_id=>nodes_id(:cleanWater), 
                                           :inherit => 1,
                                           :name=>'birdy', :c_file => uploaded_jpg('bird.jpg')) }
@@ -47,7 +47,7 @@ class ImageTest < Test::Unit::TestCase
   
   def test_change_image
     preserving_files('data/test/jpg') do
-      visitor(:ant)
+      test_visitor(:ant)
       img = secure(Node) { nodes(:bird_jpg) }
       flo = secure(Node) { nodes(:flower_jpg)}
       assert_equal 661, img.c_width
@@ -65,7 +65,7 @@ class ImageTest < Test::Unit::TestCase
   
   def test_change_name
     preserving_files('data/test/jpg') do
-      visitor(:ant)
+      test_visitor(:ant)
       img = secure(Image) { Image.create( :parent_id=>nodes_id(:cleanWater),
                                           :inherit => 1,
                                           :name=>'birdy', 
@@ -89,7 +89,7 @@ class ImageTest < Test::Unit::TestCase
   
   def test_change_name_many_versions
     preserving_files('data/test/jpg') do
-      visitor(:ant)
+      test_visitor(:ant)
       img = secure(Image) { Image.create( :parent_id=>nodes_id(:cleanWater),
                                           :inherit => 1,
                                           :name=>'birdy', 
@@ -131,7 +131,7 @@ class ImageTest < Test::Unit::TestCase
   
   def test_create_with_small_file
     #preserving_files('/data/test/png') do
-      visitor(:ant)
+      test_visitor(:ant)
       img = secure(Image) { Image.create( :parent_id=>nodes_id(:cleanWater),
         :name => 'bomb.png',
         :c_file => uploaded_png('bomb.png') )}

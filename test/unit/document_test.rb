@@ -13,7 +13,7 @@ class DocumentTest < Test::Unit::TestCase
   
   def test_create_with_file
     without_files('/data/test/pdf') do
-      visitor(:ant)
+      test_visitor(:ant)
       doc = secure(Document) { Document.create( :parent_id=>nodes_id(:cleanWater),
                                                 :name=>'report', 
                                                 :c_file => uploaded_pdf('water.pdf') ) }
@@ -34,7 +34,7 @@ class DocumentTest < Test::Unit::TestCase
   
   def test_create_with_bad_filename
     preserving_files('/data/test/pdf') do
-      visitor(:ant)
+      test_visitor(:ant)
       doc = secure(Document) { Document.create( :parent_id=>nodes_id(:cleanWater),
                                                 :v_title => 'My new project',
                                                 :c_file => uploaded_pdf('water.pdf', 'stupid.jpg') ) }
@@ -48,7 +48,7 @@ class DocumentTest < Test::Unit::TestCase
   
   def test_create_with_duplicate_name
     preserving_files('/data/test/pdf') do
-      visitor(:ant)
+      test_visitor(:ant)
       doc = secure(Document) { Document.create( :parent_id=>nodes_id(:wiki),
         :v_title => 'bird.jpg',
         :c_file => uploaded_pdf('bird.jpg') ) }
@@ -62,7 +62,7 @@ class DocumentTest < Test::Unit::TestCase
   
   def test_create_with_bad_filename
     preserving_files('/data/test/pdf') do
-      visitor(:ant)
+      test_visitor(:ant)
       doc = secure(Document) { Document.create( :parent_id=>nodes_id(:cleanWater),
         :name => 'stupid.jpg',
         :c_file => uploaded_pdf('water.pdf') ) }
@@ -75,14 +75,14 @@ class DocumentTest < Test::Unit::TestCase
   end
   
   def get_with_full_path
-    visitor(:tiger)
+    test_visitor(:tiger)
     doc = secure(Document) { Document.find_by_path( visitor_id, visitor_groups, lang, "/projects/cleanWater/water.pdf") }
     assert_kind_of Document, doc
     assert_equal "/projects/cleanWater/water.pdf", doc.fullpath
   end
   
   def test_image
-    visitor(:tiger)
+    test_visitor(:tiger)
     doc = secure(Document) { Document.find( nodes_id(:water_pdf) ) }
     assert ! doc.image?, 'Not an image'
     doc = secure(Document) { Document.find( nodes_id(:bird_jpg) )  }
@@ -90,7 +90,7 @@ class DocumentTest < Test::Unit::TestCase
   end
   
   def test_filename
-    visitor(:tiger)
+    test_visitor(:tiger)
     doc = secure(Node) { nodes(:lake_jpg) }
     assert_equal 'lake.jpg', doc.filename
     doc.name = 'test'
@@ -100,20 +100,20 @@ class DocumentTest < Test::Unit::TestCase
   end
   
   def test_c_img_tag
-    visitor(:tiger)
+    test_visitor(:tiger)
     doc = secure(Document) { Document.find( nodes_id(:water_pdf) ) }
     assert_nothing_raised { doc.img_tag; doc.img_tag('std') }
   end
   
   def test_filesize
-    visitor(:tiger)
+    test_visitor(:tiger)
     doc = secure(Document) { Document.find( nodes_id(:water_pdf) ) }
     assert_nothing_raised { doc.c_size }
   end
   
   def test_create_with_text_file
     preserving_files('/data/test/txt') do
-      visitor(:ant)
+      test_visitor(:ant)
       doc = secure(Document) { Document.create( :parent_id=>nodes_id(:cleanWater),
         :name => 'stupid.jpg',
         :c_file => uploaded_text('some.txt') ) }
@@ -127,7 +127,7 @@ class DocumentTest < Test::Unit::TestCase
   
   def test_change_file
     preserving_files('/data/test/pdf') do
-      visitor(:tiger)
+      test_visitor(:tiger)
       doc = secure(Document) { Document.find(nodes_id(:water_pdf)) }
       assert_equal 29279, doc.c_size
       assert_equal "#{RAILS_ROOT}/data/test/pdf/15/water.pdf", doc.c_filepath

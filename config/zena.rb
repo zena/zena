@@ -27,7 +27,6 @@ class String
   end
 end
 
-
 # this list is taken from http://www.duke.edu/websrv/file-extensions.html
 EXT_TYPE = [
   [ "ai"        , "application/postscript"         ],

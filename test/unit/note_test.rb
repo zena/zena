@@ -4,7 +4,7 @@ class NoteTest < Test::Unit::TestCase
   include ZenaTestUnit
   
   def test_create_with_name
-    visitor(:tiger)
+    test_visitor(:tiger)
     note = nil
     assert_nothing_raised { note = secure(Note) { Note.create(:name=>"asdf", :parent_id=>nodes_id(:zena), :log_at=>"2006-06-20", :tag_ids=>[nodes_id(:news)])} }
     assert note , "Note created"
@@ -12,7 +12,7 @@ class NoteTest < Test::Unit::TestCase
   end
   
   def test_create_with_title
-    visitor(:tiger)
+    test_visitor(:tiger)
     note = nil
     assert_nothing_raised { note = secure(Note) { Note.create(:v_title=>"Monday is nice", :parent_id=>nodes_id(:zena), :log_at=>"2006-06-20", :tag_ids=>[nodes_id(:news)])} }
     assert note , "Note created"
@@ -21,7 +21,7 @@ class NoteTest < Test::Unit::TestCase
   end
   
   def test_create_same_name
-    visitor(:tiger)
+    test_visitor(:tiger)
     note, note2, note3 = nil, nil, nil
     assert_nothing_raised { note = secure(Note) { Note.create(:name=>"test", :parent_id=>nodes_id(:zena), :log_at=>"2006-06-20", :tag_ids=>[nodes_id(:news)])} }
     assert note , "Note created"
@@ -38,7 +38,7 @@ class NoteTest < Test::Unit::TestCase
   end
   
   def test_create_same_name_other_day
-    visitor(:tiger)
+    test_visitor(:tiger)
     note, note2, note3 = nil, nil, nil
     assert_nothing_raised { note = secure(Note) { Note.create(:name=>"test", :parent_id=>nodes_id(:zena), :log_at=>"2006-06-20", :tag_ids=>[nodes_id(:news)])} }
     assert note , "Note created"
@@ -52,7 +52,7 @@ class NoteTest < Test::Unit::TestCase
 
   
   def test_update_same_name
-    visitor(:tiger)
+    test_visitor(:tiger)
     note, note2 = nil, nil
     assert_nothing_raised { note = secure(Note) { Note.create(:name=>"test", :parent_id=>nodes_id(:zena), :log_at=>"2006-06-20", :tag_ids=>[nodes_id(:news)])} }
     assert note , "Note created"
@@ -69,14 +69,14 @@ class NoteTest < Test::Unit::TestCase
   end
   
   def test_create_bad_parent
-    visitor(:tiger)
+    test_visitor(:tiger)
     note = secure(Note) { Note.create(:parent_id=>nodes_id(:status), :v_title=>'hello')}
     assert note.new_record?, "Is a new record"
     assert_equal "invalid parent", note.errors[:parent_id]
   end
   
   def test_update_bad_parent
-    visitor(:tiger)
+    test_visitor(:tiger)
     note = secure(Note) { Note.create(:parent_id=>nodes_id(:cleanWater), :v_title=>'hello')}
     assert !note.new_record?, "Not a new record"
     note[:parent_id] = nodes_id(:status)

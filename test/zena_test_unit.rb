@@ -15,7 +15,7 @@ module ZenaTestUnit
   end
   # 
   # Set visitor for unit testing
-  def visitor(name=nil)
+  def test_visitor(name=nil)
     if name
       user = User.find_by_login(name.to_s)
       @visitor_id = user.id

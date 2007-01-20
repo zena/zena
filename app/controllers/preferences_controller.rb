@@ -29,7 +29,7 @@ class PreferencesController < ApplicationController
   #TODO: test
   def change_info
     # only accept changes on the following fields through this interface
-    [:login, :first_name, :name, :email].each do |sym|
+    [:login, :first_name, :name, :time_zone, :email].each do |sym|
       @user[sym] = params[:user][sym]
     end
     if @user.save

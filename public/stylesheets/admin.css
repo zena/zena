@@ -38,6 +38,7 @@ table.admin_ug td:first-child { border-left: 1px solid #333; }
 .admin_ug .errors ul { margin:-9px -13px 5px;}
 .btn_validate input { background:#C8D8C7; border:1px outset black;}
 .admin_ug .label {width:80px; line-height:1.9em;}
+
 /* actions */
 #right { border:0; }
 ul.actions { position:relative; }
@@ -47,6 +48,7 @@ ul.actions ul { margin:0 0 0 1.6em; padding:0; }
 #preferences ul li, ul.actions ul li { padding:2px 0; border:0; margin:0;}
 ul.actions .align { line-height:1.5em; }
 ul.actions .align span { position:absolute; right:6px; }
+ul.actions select { font-size:10px; width:186px; margin:2px;} 
 #preferences { width:50%; }
 #preferences li {margin-bottom:30px;}
 

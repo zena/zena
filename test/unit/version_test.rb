@@ -7,19 +7,19 @@ class VersionTest < Test::Unit::TestCase
   end
   
   def test_author
-    visitor(:tiger)
+    test_visitor(:tiger)
     v = version(:status)
     assert_equal v[:user_id], v.author[:id]
   end
   
   def test_cannot_set_node_id
-    visitor(:tiger)
+    test_visitor(:tiger)
     node = secure(Node) { nodes(:status) }
     assert_raise(Zena::AccessViolation) { node.v_node_id = nodes_id(:lake) }
   end
   
   def test_cannot_set_node_id_by_attribute
-    visitor(:tiger)
+    test_visitor(:tiger)
     node = secure(Node) { nodes(:status) }
     assert_raise(Zena::AccessViolation) { node.update_attributes(:v_node_id=>nodes_id(:lake)) }
   end
@@ -29,13 +29,13 @@ class VersionTest < Test::Unit::TestCase
   end
   
   def test_cannot_set_content_id
-    visitor(:tiger)
+    test_visitor(:tiger)
     node = secure(Node) { nodes(:status) }
     assert_raise(Zena::AccessViolation) { node.v_content_id = nodes_id(:lake) }
   end
   
   def test_cannot_set_content_id_by_attribute
-    visitor(:tiger)
+    test_visitor(:tiger)
     node = secure(Node) { nodes(:status) }
     assert_raise(Zena::AccessViolation) { node.update_attributes(:v_content_id=>nodes_id(:lake)) }
   end
@@ -45,7 +45,7 @@ class VersionTest < Test::Unit::TestCase
   end
   
   def test_version_number_edit_by_attribute
-    visitor(:ant)
+    test_visitor(:ant)
     node = secure(Node) { nodes(:ant) }
     version = node.send(:version)
     assert_equal 1, version.number
@@ -61,7 +61,7 @@ class VersionTest < Test::Unit::TestCase
   end
     
   def test_version_number_edit
-    visitor(:ant)
+    test_visitor(:ant)
     node = secure(Node) { nodes(:ant) }
     version = node.send(:version)
     assert_equal 1, version.number
@@ -74,7 +74,7 @@ class VersionTest < Test::Unit::TestCase
   end
   
   def test_presence_of_node
-    visitor(:tiger)
+    test_visitor(:tiger)
     node = secure(Node) { Node.new(:parent_id=>1, :name=>'bob') }
     assert node.save
     vers = Version.new
@@ -85,7 +85,7 @@ class VersionTest < Test::Unit::TestCase
   
   def test_update_content_one_version
     preserving_files("/data/test/pdf/36") do
-      visitor(:ant)
+      test_visitor(:ant)
       set_lang('en')
       node = secure(Node) { nodes(:forest_pdf) }
       assert_equal Zena::Status[:red], node.v_status
@@ -103,7 +103,7 @@ class VersionTest < Test::Unit::TestCase
   
   def test_cannot_change_content_if_many_uses
     preserving_files("/data/test/pdf") do
-      visitor(:ant)
+      test_visitor(:ant)
       set_lang('fr')
       node = secure(Node) { nodes(:forest_pdf) }
       old_vers_id = node.v_id
@@ -117,7 +117,7 @@ class VersionTest < Test::Unit::TestCase
       # new redaction points to old content
       assert_equal     node.v_content_id, old_vers_id
       
-      visitor(:ant)
+      test_visitor(:ant)
       set_lang('en')
       node = secure(Node) { nodes(:forest_pdf) }
       # get ant's english redaction

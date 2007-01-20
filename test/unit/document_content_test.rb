@@ -4,7 +4,7 @@ class DocumentContentTest < Test::Unit::TestCase
   include ZenaTestUnit
   
   def test_img_tag
-    visitor(:tiger)
+    test_visitor(:tiger)
     doc = document_contents(:water_pdf)
     assert_equal "<img src='/images/ext/pdf.png' width='32' height='32' class='icon'/>", doc.img_tag
     assert_equal "<img src='/images/ext/pdf-pv.png' width='80' height='80' class='pv'/>", doc.img_tag('pv')
@@ -12,7 +12,7 @@ class DocumentContentTest < Test::Unit::TestCase
   end
   
   def test_img_tag_other
-    visitor(:tiger)
+    test_visitor(:tiger)
     doc = document_contents(:water_pdf)
     doc.ext = 'bin'
     assert_equal 'bin', doc.ext
@@ -111,7 +111,7 @@ class DocumentContentTest < Test::Unit::TestCase
   end
   
   def test_has_file
-    visitor(:ant)
+    test_visitor(:ant)
     doc = secure(Document) { Document.new(:parent_id=>nodes_id(:cleanWater), :name=>'lalala', :c_name=>'wak') }
     assert ! doc.save, 'Cannot save'
     assert_equal "can't be blank", doc.errors[:c_file]
@@ -119,7 +119,7 @@ class DocumentContentTest < Test::Unit::TestCase
   
   def test_wrong_file_type
     preserving_files("/data/test/jpg/20") do
-      visitor(:tiger)
+      test_visitor(:tiger)
       node = secure(Node) { nodes(:bird_jpg) }
       assert !node.update_attributes(:c_file=>uploaded_pdf('water.pdf'))
       assert_equal 'must be an image', node.errors[:c_file]

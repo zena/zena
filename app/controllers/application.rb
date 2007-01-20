@@ -2,7 +2,7 @@
 # Likewise, all the methods added will be available for all controllers.
 class ApplicationController < ActionController::Base
   acts_as_secure_controller
-  helper_method :prefix, :notes, :visitor_is_admin?, :error_messages_for, :render_errors, :add_error
+  helper_method :prefix, :notes, :visitor, :visitor_is_admin?, :error_messages_for, :render_errors, :add_error
   before_filter :authorize
   before_filter :set_env
   after_filter  :set_encoding
@@ -142,6 +142,7 @@ class ApplicationController < ActionController::Base
   end
   
   # Parse date : return a date from a string
+  # TODO: test timezone..
   def parse_date(datestr, fmt=trans('datetime'))
     elements = datestr.split(/(\.|\-|\/|\s|:)+/)
     format = fmt.split(/(\.|\-|\/|\s|:)+/)
@@ -155,7 +156,7 @@ class ApplicationController < ActionController::Base
       hash['%M'] ||= 0
       hash['%S'] ||= 0
       if hash['%Y'] && hash['%m'] && hash['%d']
-        Time.gm(hash['%Y'], hash['%m'], hash['%d'], hash['%H'], hash['%M'], hash['%S'])
+        visitor.tz.unadjust(Time.gm(hash['%Y'], hash['%m'], hash['%d'], hash['%H'], hash['%M'], hash['%S']))
       else
         nil
       end
@@ -171,6 +172,17 @@ class ApplicationController < ActionController::Base
   end
   
   # /////// The following methods are common to controllers and views //////////// #
+  
+  # TODO: test
+  def visitor
+    @visitor ||= begin
+      if session[:user]
+        User.find(session[:user][:id])
+      else
+        User.find(1)
+      end
+    end
+  end
   
   def prefix
     (session && session[:user]) ? AUTHENTICATED_PREFIX : lang
