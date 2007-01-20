@@ -1,8 +1,0 @@
-if @errors || !@node.errors.empty?
-  page.replace_html 'parent_errors', :inline => @errors ? render_errors : error_messages_for('node')
-else  
-  page.replace_html 'parent', :partial=>'parent'
-  page.replace_html 'messages', :inline=>"<div id='notice'>#{trans('node updated')}</div>"
-  page.visual_effect :highlight, 'parent'
-  page.visual_effect :fade, "notice", :duration => 3
-end
