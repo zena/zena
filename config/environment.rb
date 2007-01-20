@@ -39,7 +39,8 @@ Rails::Initializer.run do |config|
   # config.active_record.observers = :cacher, :garbage_collector
 
   # Make Active Record use UTC-base instead of local time
-  # config.active_record.default_time_zone = :utc
+  # do not change this !
+  config.active_record.default_timezone = :utc
   
   # See Rails::Configuration for more options
 end
@@ -53,8 +54,6 @@ end
 #   inflect.uncountable %w( fish sheep )
 # end
 
-# do not change this !
-ActiveRecord::Base.default_time_zone = :utc
 
 require File.join(File.dirname(__FILE__), '../lib/secure')
 require File.join(File.dirname(__FILE__), '../lib/multiversion')
