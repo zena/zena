@@ -142,7 +142,7 @@ class ApplicationController < ActionController::Base
   end
   
   # Parse date : return a date from a string
-  # TODO: test timezone..
+  # TODO: test time_zone..
   def parse_date(datestr, fmt=trans('datetime'))
     elements = datestr.split(/(\.|\-|\/|\s|:)+/)
     format = fmt.split(/(\.|\-|\/|\s|:)+/)

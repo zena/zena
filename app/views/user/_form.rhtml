@@ -21,7 +21,7 @@
     <% end -%>
     <tr><td class='label'><%= trans("first name")%> </td><td><%= text_field('user', 'first_name',   :size=>35 ) %></td></tr>
     <tr><td class='label'><%= trans("name")%>       </td><td><%= text_field('user', 'name',         :size=>35 ) %></td></tr>
-    <tr><td class='label'><%= trans("time zone")%>  </td><td><%= time_zone_select('user', 'timezone') %></td></tr>
+    <tr><td class='label'><%= trans("time zone")%>  </td><td><%= time_zone_select('user', 'time_zone') %></td></tr>
     <tr><td class='label'><%= trans("email")%>      </td><td><%= text_field('user', 'email',        :size=>35 ) %></td></tr>
     <% unless user_id == 2 || user_id == 1 -%>
     <tr><td class='label'><%= trans("groups")%>     </td><td>

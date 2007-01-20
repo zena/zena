@@ -778,7 +778,7 @@ Just doing the above will filter all result according to the logged in user.
             session[:user][:fullname] = user.fullname
             session[:user][:initials] = user.initials
             session[:user][:lang] = user.lang != "" ? user.lang : ZENA_ENV[:default_lang]
-            session[:user][:timezone] = user.timezone
+            session[:user][:time_zone] = user.time_zone
             # set lang
             lang
           else
