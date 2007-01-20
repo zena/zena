@@ -27,25 +27,22 @@ class NodeController < ApplicationController
   end
   
   # TODO: test
-  def move
+  def update
     attrs = params[:node]
     @node = secure(Node) { Node.find(params[:id]) }
-    if attrs[:parent_id]
-      @node[:parent_id] = attrs[:parent_id]
-    end
-    if attrs[:name]
-      @node[:name] = attrs[:name]
-    end
-    @node.save
-  rescue ActiveRecord::RecordNotFound
-    add_error'node not found'
-  end
-  
-  # TODO: test
-  def groups
-    attrs = params[:node]
-    @node = secure(Node) { Node.find(params[:id]) }
-    @node.update_attributes(params[:node])
+    if attrs[:inherit]
+      @update = 'groups'
+    elsif attrs[:parent_id] || attrs[:name]
+      if attrs[:name]
+        @node[:name] = attrs[:name]
+        attrs.delete(:name)
+      end
+      @update = 'parent'
+    else
+      @update = 'dates'
+    end  
+    parse_dates(attrs)
+    @node.update_attributes(attrs)
     @node.save
   end
 

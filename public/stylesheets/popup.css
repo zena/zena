@@ -7,7 +7,7 @@ body {font: 0.9em Helvetica, Verdana, sans-serif; line-height: 1; color: #333;  
 .img_right img { margin:0px 0 5px 5px; float:right;}
 p.img_left, p.img_right { margin:0; padding:0;}
 .img_center { text-align:center; margin:5px;}
-
+input, select { font-size:11px;}
 /*   POPUP   */
 body { background:#9FA6AC ;}
 .popup_action { position:absolute; top:50px; left:0; width:90%; height:60%;padding:5px 5px 15px;}
@@ -79,9 +79,10 @@ td.description p.summary { font-style:italic; font-size:0.8em; }
 .drive li.submit { text-align:right; padding-top:1em;}
 .select_id span { margin-left:0.2em;}
 
-#parent, #groups { float:left; width:130px;}
+#parent, #groups, #dates { float:left; width:130px;}
 #parent #parent_errors { margin:0; padding:0; font-size:0.8em; }
 #groups #groups_errors { margin:0; padding:0; font-size:0.8em; }
+.event_at {width:95%;}
 
 #versions table, #links table, #discussions table { border-width:1px 0 0 1px; padding:0; }
 #versions td, #links td, #discussions td { padding: 3px; font-size:0.8em; height:18px; border:1px solid #333; border-width:0 1px 1px 0; }

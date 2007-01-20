@@ -40,14 +40,14 @@ module ApplicationHelper
   # Date selection tool
 	def date_box(obj, var, opts = {})
 	  rnd_id = Time.now.to_i
-	  defaults = {  :id=>"datef#{rnd_id}", :button=>"dateb#{rnd_id}", :display=>"dated#{rnd_id}" }
+	  defaults = {  :id=>"datef#{rnd_id}", :button=>"dateb#{rnd_id}", :display=>"dated#{rnd_id}", :class=>var.to_s }
 	  opts = defaults.merge(opts)
 	  date = eval("@#{obj} ? @#{obj}.#{var} : nil") || Time.now
 	  value = format_date(date,'datetime')
     if opts[:size] == 0
-      fld = hidden_field obj, var, :id=>opts[:id] , :value=>value
+      fld = hidden_field obj, var, :id=>opts[:id] , :value=>value, :class=>opts[:class]
     else
-	    fld = text_field   obj, var, :id=>opts[:id] , :value=>value, :size=>opts[:size]
+	    fld = text_field   obj, var, :id=>opts[:id] , :value=>value, :class=>opts[:class], :size=>opts[:size]
     end
 		<<-EOL
 <p class="date_box"><img src="/calendar/iconCalendar.gif" id="#{opts[:button]}"/>
