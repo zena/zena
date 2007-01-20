@@ -80,7 +80,7 @@ class User < ActiveRecord::Base
   
   # TODO: test
   def tz
-    @tz ||= TimeZone.new(self[:time_zone] || '') || TimeZone.new("Bern")
+    @tz ||= TimeZone.new(self[:timezone] || '') || TimeZone.new("Bern")
   end
   
   ### ================================================ ACTIONS AND OWNED ITEMS
