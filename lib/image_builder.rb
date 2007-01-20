@@ -1,22 +1,28 @@
 begin
-  require 'rmagick'
+  # this works on the deb box
+  require 'RMagick'
 rescue LoadError
-  puts "ImageMagick not found. Using dummy."
-  # Create a dummy magick module
-  module Magick
-    CenterGravity = OverCompositeOp = MaxRGB = NorthGravity = SouthGravity = nil
-    class << self
-    end
-    class ZenaDummy
-      def initialize(*a)
+  begin
+    # this works on my Mac
+    require 'rmagick'
+  rescue LoadError
+    puts "ImageMagick not found. Using dummy."
+    # Create a dummy magick module
+    module Magick
+      CenterGravity = OverCompositeOp = MaxRGB = NorthGravity = SouthGravity = nil
+      class << self
       end
-      def method_missing(meth, *args)
-        # do nothing
+      class ZenaDummy
+        def initialize(*a)
+        end
+        def method_missing(meth, *args)
+          # do nothing
+        end
       end
-    end
-    class Image < ZenaDummy
-    end
-    class ImageList < ZenaDummy
+      class Image < ZenaDummy
+      end
+      class ImageList < ZenaDummy
+      end
     end
   end
 end
@@ -92,7 +98,7 @@ class ImageBuilder
     return nil unless @height || !dummy?
     (@height ||= render_img.rows).to_i
   end
-
+  
   def columns
     return nil unless @width || !dummy?
     (@width ||= render_img.columns).to_i

@@ -115,6 +115,7 @@ module MainHelper
   
   # TODO: test
   def css_edit(css_file = 'zen.css')
+    return '' if RAILS_ENV == 'production'
     str = <<ENDTXT
     <div id='css_edit'>
       <div id='css' onClick='cssUpdate()'></div>

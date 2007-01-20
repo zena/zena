@@ -13,6 +13,7 @@ Zena is a CMS. (c) teti.ch 2007
 * users, groups see all TODO: test...
 === Misc
 * replace session[:user][...] by visitor[...] (cache in User if needed..)
+* replace rmagick with a more simple library or use something like system "convert #{escape(temp)} -resize 48x48! #{escape(target)}"
 -------------------------------------------
 == Enhancements
 === Forms
