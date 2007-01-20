@@ -363,7 +363,6 @@ class Node < ActiveRecord::Base
       ZENA_ENV[:languages].each do |lang|
         filepath = File.join(RAILS_ROOT,'public',lang,*path)
         filepath = "#{filepath}.html"
-        puts filepath
         if File.exist?(filepath)
           File.delete(filepath)
         end
