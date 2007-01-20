@@ -164,9 +164,9 @@ input, textarea { border:1px solid grey; margin:0.2em}
 */
 .text h1 { margin-top:2.3em; margin-bottom:0.8em; font-size:2em;}
 .text h2 { margin-top:2em; margin-bottom:0.4em; font-size:1.5em;}
-.text h3 { margin-top:1.8em; margin-bottom:0.4em; font-size:1em; font-style:normal; font-weight:bold;}
+.text h3 { margin-top:1.8em; margin-bottom:0.4em; font-size:1.3em;}
 .text h4 { font-size:0.9em; }
-.text p { margin-bottom:1.8em; font-style:normal; font-size:1em; }
+.text p { line-height:1.5; margin-bottom:1.8em; font-style:normal; font-size:1em; }
 .text ul {margin:1em 0 0 3em;}
 .text li {margin:0.2em 0; list-style:disc;}
 .text img { border: 1px solid #666; }
@@ -277,7 +277,7 @@ table.largecal { border:1px solid #655; font-size:0.8em; margin:auto; width:80%;
 .tinycal b.has_note { font-weight:normal; border-bottom:2px solid orange;}
 .tinycal .head td { font-weight:bold; padding: 2px; font-size:0.9em; color:#655; }
 .tinycal .head td.button a { border:0; text-decoration:none; color:#568BB9;}
-.tinycal .body p { margin:0; padding:2px; text-align:center; cursor:pointer; }
+.tinycal .body p { line-height:1.5; margin:0; padding:2px; text-align:center; cursor:pointer; }
 .tinycal .body #tiny_today p { background:#CFD6DA; }
 .tinycal .body td.other, .tinycal .body td.other a { color:#ccc; }
 .tinycal .body td.sat, .tinycal .body td.sat a { color:#35950B; }
