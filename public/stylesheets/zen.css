@@ -5,7 +5,7 @@ a img {border: none;}
 body {font: 0.9em Verdana, sans-serif; line-height: 1; color: #333; behavior: url('stylesheets/csshover2.htc');} /* WinIE hack */
 h2, h3 {font: 1.2em Georgia, Times, serif; letter-spacing: 0; text-transform: none; margin-bottom: 0; color: #333;}
 h2 { font-size:1.5em; font-style:italic; color:#450009; }
-p {font-size:1em; text-align: left; line-height: 1.5em; margin: 0 0 1em;}
+p {font-size:1em; text-align: left; line-height: 1.2; margin: 0 0 1.5em;}
 li { list-style-type:none; }
 a .id { display: none; font-size:0.7em; color:#ccc; }
 a:hover .id { display:inline; }
@@ -158,8 +158,10 @@ input, textarea { border:1px solid grey; margin:0.2em}
 #left .subtitle .info { font-style:normal; font-size:70%; }
 #left .subtitle { margin-bottom:0;}
 .summary p { font-style:italic; }
+/* ???
 #text { clear:both;}
-#text { line-height:1.5; margin-bottom:2em;}
+.text { line-height:1; margin-bottom:2em;}
+*/
 .text h1 { margin-top:2.3em; margin-bottom:0.8em; font-size:2em;}
 .text h2 { margin-top:2em; margin-bottom:0.4em; font-size:1.5em;}
 .text h3 { margin-top:1.8em; margin-bottom:0.4em; font-size:1em; font-style:normal; font-weight:bold;}
@@ -253,7 +255,7 @@ table.largecal { border:1px solid #655; font-size:0.8em; margin:auto; width:80%;
 .largecal .preview img { background:none;}
 .note_list { margin:0; }
 .note_title { padding:4px; font:1em Verdana, Arial, sans-serif; letter-spacing: 0.1em; color:#4F6741;}
-.note { padding:10px 3px 10px; font-size:0.78em; border-left:4px solid white; border-top:1px solid #ddd;}
+.note { padding:10px 3px 15px; font-size:0.78em; border-left:4px solid white; border-top:1px solid #ddd;}
 .note h3 { font:1em Verdana, Arial, sans-serif; text-transform: uppercase; letter-spacing: 0.1em; }
 .note h3 a { color:inherit;}
 .note .log_at { float:left; width:60px; color:#999; font-weight:bold;}
