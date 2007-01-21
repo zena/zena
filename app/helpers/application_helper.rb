@@ -242,12 +242,13 @@ module ApplicationHelper
     img = opt[:images]
     r = RedCloth.new(text) #, [:hard_breaks])
     r.gsub!(  /(\A|[^\w])@(.*?)@(\Z|[^\w])/     ) { "#{$1}\\CODE_START\\#{zazen_escape($2)}\\CODE_END\\#{$3}" }
+    r.gsub!(  /<code>(.*?)<\/code>/             ) { "\\CODE_START\\#{zazen_escape($1)}\\CODE_END\\" }
     r.gsub!(  /"([^"]*)":([0-9]+)/                    ) { make_link(:title=>$1,:id=>$2)}
     r.gsub!(  /\!\[([^\]]*)\]\!/                      ) { img ? make_gallery($1) : trans('[gallery]') }
     r.gsub!(  /\!\{([^\}]*)\}\!/                      ) { img ? list_nodes($1)   : trans('[documents]')}
     r.gsub!(  /\!([^0-9]{0,2})([0-9]+)(\.([^\!]+)|)\!(:([^\s]+)|)/ ) { img ? make_image(:style=>$1, :id=>$2, :size=>$4, :link=>$6) : trans('[image]')}
-    r = r.to_html
     r.gsub!(  /(\\CODE_START\\)(.*?)(\\CODE_END\\)/     ) { "<code>#{zazen_unescape($2)}</code>" }
+    r.to_html
   end
   
   # Creates a link to the node referenced by id
