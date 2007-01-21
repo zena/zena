@@ -349,10 +349,10 @@ module Zena
               # sees propositions
               lang = visitor_lang.gsub(/[^\w]/,'')
               @version =  Version.find(:first,
-                            :select=>"*, (lang = '#{lang}') as lang_ok",
+                            :select=>"*, (lang = '#{lang}') as lang_ok, (lang = '#{ZENA_ENV[:default_lang]}') as def_ok",
                             :conditions=>[ "((status >= ? AND user_id = ? AND lang = ?) OR status > ?) AND node_id = ?", 
                                             Zena::Status[:red], visitor_id, lang, Zena::Status[:red], self[:id] ],
-                            :order=>"lang_ok DESC, status ASC ")
+                            :order=>"lang_ok DESC, def_ok DESC, status ASC ")
               if !@version
                 @version = versions.find(:first, :order=>'id DESC')
               end
@@ -360,10 +360,10 @@ module Zena
               # only own redactions and published versions
               lang = visitor_lang.gsub(/[^\w]/,'')
               @version =  Version.find(:first,
-                            :select=>"*, (lang = '#{lang}') as lang_ok",
+                            :select=>"*, (lang = '#{lang}') as lang_ok, (lang = '#{ZENA_ENV[:default_lang]}') as def_ok",
                             :conditions=>[ "((status >= ? AND user_id = ? AND lang = ?) OR status = ?) and node_id = ?", 
                                             Zena::Status[:red], visitor_id, lang, Zena::Status[:pub], self[:id] ],
-                            :order=>"lang_ok DESC, status ASC, publish_from ASC")
+                            :order=>"lang_ok DESC, def_ok DESC, status ASC, publish_from ASC")
 
             end
             @version.node = self # preload self as node in version
