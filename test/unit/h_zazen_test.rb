@@ -1,7 +1,6 @@
 require File.dirname(__FILE__) + '/../test_helper'
 
 class ApplicationHelperTest < Test::Unit::TestCase
-
   include ZenaTestHelper
   include ApplicationHelper
 
@@ -9,7 +8,16 @@ class ApplicationHelperTest < Test::Unit::TestCase
     @controllerClass = ApplicationController
     super
   end
-
+  
+  def test_code
+    assert_equal "\\QUOTE\\citation\\QUOTE\\\\DDOT\\ cool\\EXCLAM\\", zazen_escape('"citation": cool!')
+    assert_equal '"citation": cool!', zazen_unescape("\\QUOTE\\citation\\QUOTE\\\\DDOT\\ cool\\EXCLAM\\")
+    assert_match %r{<code>"":1</code>}, zazen('@"":1@')
+    assert_match %r{<code>"":1</code>}, zazen('blah @"":1@')
+    assert_match %r{<code>"":1</code>}, zazen('blah @"":1@ blah')
+    assert_match %r{some@email.net.*my@name.com}, zazen('some@email.net my@name.com')
+  end
+  
   # all these additions are replaced by the traduction of 'unknown link' if the user does not have read access to the linked node.
   def test_bad_link
     assert_match %r{unknown link}, zazen('"hello":99')
@@ -30,14 +38,15 @@ class ApplicationHelperTest < Test::Unit::TestCase
       login(:tiger)
       # * [!14!] inline image 14. (default format is 'pv' defined in #ImageBuilder). Options are :
       assert_equal "<p><img src='/data/jpg/14/lake-std.jpg' width='545' height='400' class='std'/></p>", zazen('!14!')
-      # ** [!014!] inline image with 'pv' format
-      assert_equal "<p><img src='/data/jpg/14/lake-pv.jpg' width='80' height='80' class='pv'/></p>", zazen('!014!')
+      # ** [!014!] inline image, default format, link to full image.
+      assert_equal "<p><a href='/data/jpg/14/lake.jpg'><img src='/data/jpg/14/lake-std.jpg' width='545' height='400' class='std'/></a></p>", zazen('!014!')
     end
   end
 
   def test_make_image_with_document
     login(:tiger)
-    assert_match %r{<p><a.*href=.*data/pdf/15/water\.pdf.*img src='/images/ext/pdf.png' width='32' height='32' class='icon'/></a></p>}, zazen('!15!')
+    assert_match %r{<p><a.*href=.*data/pdf/15/water\.pdf.*img src='/images/ext/pdf.png' width='32' height='32' class='doc'/></a></p>}, zazen('!15!')
+    assert_match %r{<p><a.*href=.*data/pdf/15/water\.pdf.*img src='/images/ext/pdf.png' width='32' height='32' class='doc'/></a></p>}, zazen('!015!') # same as '!15!'
     assert_match %r{<p><a.*href=.*data/pdf/15/water\.pdf.*img src='/images/ext/pdf-pv.png' width='80' height='80' class='pv'/></a></p>}, zazen('!15.pv!')
   end
 
@@ -128,4 +137,5 @@ class ApplicationHelperTest < Test::Unit::TestCase
       assert_match %r{salut les \[image\]}, zazen('salut les !20.pv!', :images=>false)
     end
   end
+  
 end

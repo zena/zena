@@ -359,9 +359,9 @@ class Node < ActiveRecord::Base
   # TODO: test
   def sweep_cache
     return unless Cache.perform_caching
-    [self.fullpath, self.project.fullpath].each do |path|
+    [self, self.project, self.parent].compact.uniq.each do |obj|
       ZENA_ENV[:languages].each do |lang|
-        filepath = File.join(RAILS_ROOT,'public',lang,*path)
+        filepath = File.join(RAILS_ROOT,'public',lang,*(obj.fullpath))
         filepath = "#{filepath}.html"
         if File.exist?(filepath)
           File.delete(filepath)

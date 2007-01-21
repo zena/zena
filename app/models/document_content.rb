@@ -10,8 +10,8 @@ class DocumentContent < ActiveRecord::Base
   before_save           :prepare_content
   before_destroy        :destroy_file
 
-  
-  # format is ignored here
+  # creates and '<img.../>' tag for the file of the document using the extension to show an icon.
+  # format is ignored here. It is needed by the sub-class #ImageContent.
   def img_tag(format=nil)
     ext = self[:ext]
     unless File.exist?("#{RAILS_ROOT}/public/images/ext/#{ext}.png")
@@ -36,7 +36,7 @@ class DocumentContent < ActiveRecord::Base
           File.open(File.join(path, filename), "wb") { |f| f.syswrite(img.read) }
         end
       end
-      "<img src='/images/ext/#{filename}' width='#{img.width}' height='#{img.height}' class='doc'/>"
+      "<img src='/images/ext/#{filename}' width='#{img.width}' height='#{img.height}' class='#{format}'/>"
     end
   end
   

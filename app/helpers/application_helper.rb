@@ -222,12 +222,12 @@ module ApplicationHelper
   # * ["":34] creates a link to node 34 with node's title.
   # * ["title":34] creates a link to node 34 with the given title.
   # * ["":034] if the node id starts with '0', creates a popup link.
-  # * [!14!] inline image 14. (default format is 'std' defined in #ImageBuilder). Options are :
-  # ** [!014!] inline image with 'pv' format
+  # * [!14!] inline image 14 or link to document 14 with icon. (default format for images is 'std' defined in #ImageBuilder). Options are :
+  # ** [!014!] if the id starts with '0', the image becomes a link to the full image.
   # ** [!<.14!] or [!<14!] inline image surrounded with <p class='img_left'></p>
   # ** [!>.14!] or [!>14!] inline image surrounded with <p class='img_right'></p>
   # ** [!=.14!] or [!=14!] inline image with <p class='img_center'></p>
-  # ** [!14.pv!] inline image transformed to format 'pv'. Formats are defined in #ImageBuilder.
+  # ** [!14.pv!] inline image transformed to format 'pv' (class is also set to 'pv'). Formats are defined in #ImageBuilder.
   # ** all the options above can be used together as in [!>.14.med!] : inline image on the right, size 'med'.
   # ** [![2,3,5]!] gallery : inline preview with javascript inline viewer
   # ** [![]!] gallery with all images contained in the current node
@@ -241,14 +241,15 @@ module ApplicationHelper
     opt = {:images=>true}.merge(opt)
     img = opt[:images]
     r = RedCloth.new(text) #, [:hard_breaks])
-    r.gsub!(  /"([^"]*)":([0-9]+)/                    ) {|x| make_link(:title=>$1,:id=>$2)}
-    r.gsub!(  /\!\[([^\]]*)\]\!/                      ) {|x| img ? make_gallery($1) : trans('[gallery]') }
-    r.gsub!(  /\!\{([^\}]*)\}\!/                      ) {|x| img ? list_nodes($1)   : trans('[documents]')}
-    r.gsub!(  /\!([^0-9]{0,2})([0-9]+)(\.([^\!]+)|)\!(:([^\s]+)|)/ ) {|x| img ? make_image(:style=>$1, :id=>$2, :size=>$4, :link=>$6) : trans('[image]')}
-    r
+    r.gsub!(  /(\A|[^\w])@(.*?)@(\Z|[^\w])/     ) { "#{$1}@#{zazen_escape($2)}@#{$3}" }
+    r.gsub!(  /"([^"]*)":([0-9]+)/                    ) { make_link(:title=>$1,:id=>$2)}
+    r.gsub!(  /\!\[([^\]]*)\]\!/                      ) { img ? make_gallery($1) : trans('[gallery]') }
+    r.gsub!(  /\!\{([^\}]*)\}\!/                      ) { img ? list_nodes($1)   : trans('[documents]')}
+    r.gsub!(  /\!([^0-9]{0,2})([0-9]+)(\.([^\!]+)|)\!(:([^\s]+)|)/ ) { img ? make_image(:style=>$1, :id=>$2, :size=>$4, :link=>$6) : trans('[image]')}
+    r.gsub!(  /(\A|[^\w])@(.*?)@(\Z|[^\w])/     ) { "#{$1}@#{zazen_unescape($2)}@#{$3}" }
     r.to_html
   end
-
+  
   # Creates a link to the node referenced by id
   def make_link(opts)
     node = secure(Node) { Node.find(opts[:id]) }
@@ -265,14 +266,20 @@ module ApplicationHelper
   # Create an img tag for the given image. See ApplicationHelper#zazen for details.
   def make_image(opts)
     id, style, size, link = opts[:id], opts[:style], opts[:size], opts[:link]
-    if size
-      size = IMAGEBUILDER_FORMAT[size] ? size : 'std'
-    elsif id[0..0] == "0"
-      size = 'pv'
-    else
-      size = nil
-    end
     img = secure(Document) { Document.find(id) }
+    
+    size = IMAGEBUILDER_FORMAT[size] ? size : nil
+    if !size && img.kind_of?(Image)
+      size = 'std'
+    end
+    image = img.img_tag(size)
+    
+    unless link
+      if id[0..0] == "0" || !img.kind_of?(Image)
+        # if the id starts with '0' or it is not an Image, link to data
+        link = url_for(data_url(img))
+      end
+    end
     
     style ||= ''
     case style.sub('.', '')
@@ -288,23 +295,13 @@ module ApplicationHelper
     else
       prefix = suffix = ""
     end
-    if img.kind_of?(Image)
-      if size
-        image = img.img_tag(size)
-      else
-        image = link_to(img.img_tag('std'), data_url(img))
-      end
-    else
-      image = link_to(img.img_tag(size), data_url(img))
-    end
-      
     
     if link.nil?
       prefix + image + suffix
     elsif link =~ /^\d+$/
       prefix + make_link(:id=>link,:title=>image) + suffix
     else
-      link = "http://#{link}" unless link =~ %r{.+://.+}
+      link = "http://#{link}" unless link =~ %r{(^/|.+://.+)}
       prefix + "<a href='#{link}'>" + image + "</a>" + suffix
     end
   rescue ActiveRecord::RecordNotFound
@@ -558,6 +555,27 @@ module ApplicationHelper
     "#{custom} #{readers}"
   end
   private
+  
+  # list of escaped sequences used by zazen_escape and zazen_unescape
+  def escaped_sequences
+    [['"','\\QUOTE\\'], [':', '\\DDOT\\'], ['!', '\\EXCLAM\\']]
+  end
+  
+  # escape sequences for 'code' blocks. This avoids 'zazen' to run on the code.
+  def zazen_escape(str)
+    escaped_sequences.each do |from, to|
+      str.gsub!(from, to)
+    end
+    str
+  end
+  
+  # unescape for 'code' blocks after 'zazen' is run.
+  def zazen_unescape(str)
+    escaped_sequences.each do |from, to|
+      str.gsub!(to, from)
+    end
+    str
+  end
   
   def calendar_get_options(size, source, method)
     case size
