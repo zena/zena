@@ -16,6 +16,7 @@ Zena is a CMS. (c) teti.ch 2007
 === Misc
 * replace session[:user][...] by visitor[...] (cache in User if needed..)
 * replace rmagick with a more simple library or use something like system "convert #{escape(temp)} -resize 48x48! #{escape(target)}"
+* show_title could guess when to display a title and when not to
 -------------------------------------------
 == Enhancements
 === Forms
