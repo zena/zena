@@ -25,17 +25,18 @@
 
   <div id='left'>
     <div id='tinycal'><%= calendar(:find=>:news, :size=>:tiny) %></div>
+    <% hot = @node.hot ? @node.hot : @node %>
     <div class='header'>
-      <h1 class='s<%= @node.v_status %>'>
+      <h1 class='s<%= hot.v_status %>'>
         <ul class='node_actions'><%= edit_button(:all) %></ul><br/>
-        <span id='v_title<%= @node.v_id%>'><%= @node.v_title %></span>
+        <span id='v_title<%= hot.v_id%>'><%= hot.v_title %></span><%= check_lang( li ) %>
       </h1>
       <div class='subtitle'><%= author(:small) %></div>
     </div>
     <div id='drive' style='display:none;'></div>
     <div class='content'>
-      <%= show(@node, :v_summary) %>
-      <%= show(@node, :v_text   ) %>
+      <%= show(hot, :v_summary) %>
+      <%= show(hot, :v_text   ) %>
       <%#= plug :comments %>
     </div>
   </div>
@@ -48,6 +49,11 @@
     </div>
 
     <div id="right">
+      <% if contact = @node.contact %>
+      <div id='contact'>
+        <%= show(contact, :v_text   ) %>
+      </div>
+      <% end -%>
       <div id='documents'>
         <%= render :partial=>'document/list' %>
       </div>
@@ -56,6 +62,5 @@
       </div>
     </div>
   </div>
-  <%= css_edit %>
 </body>
 </html>
