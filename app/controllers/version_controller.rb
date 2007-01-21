@@ -79,6 +79,12 @@ class VersionController < ApplicationController
     page_not_found
   end
   
+  # TODO: test
+  def save_text
+    @node = secure_write(Node) { Node.find(params[:id]) }
+    @node.update_attributes(:v_text=>params[:node][:v_text], :v_summary=>params[:node][:v_summary], :v_title=>params[:node][:v_title])
+  end
+  
   def propose
     node = secure(Node) { Node.version(params[:id]) }
     if node.propose

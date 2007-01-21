@@ -54,7 +54,7 @@ label { font-weight:bold; font-size:0.9em; display:block; margin:4px 0 2px;}
 input#node_v_title { font-size:1.3em; font-weight:bold;}
 #node_v_summary { font-style:italic;}
 #node_v_comment { }
-#edit input.btn_validate { width:auto; }
+#edit .btn_validate input { width:auto; }
 
 /* document upload */
 #document_v_summary, #document_name { width: 350px;}
