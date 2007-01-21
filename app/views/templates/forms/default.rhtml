@@ -39,8 +39,7 @@
           <p class='add_document'><a href='#' onClick='uploader=window.open("<%= url_for :controller=>'document', :action=>'new', :parent_id=>@node %>", "uploader", "location=1,width=400,height=300");uploader.opener = opener;return false;'><%= transb('btn_add_document')%></a></p>
           
           <p class='btn_validate'><%= link_to_function transb('cancel'), "opener.location.href=opener.location.href; self.close();" %>
-            <%= submit_to_remote(transb('save'), 'save_text', :url=>{:action => 'save_text', :controller=>'version', :id=>@node[:id]}) %>
-            <input type="submit" onClick="$('loader').style.visibility = 'visible';" value='<%= transb('save') %>'/>
+            <%= submit_to_remote('save', transb('save'), :url=>{:action => 'save_text', :controller=>'version', :id=>@node[:id]}) %>
             <input type="submit" onClick="$('loader').style.visibility = 'visible';" value='<%= transb('validate') %>'/></p>
         <%= end_form_tag %> 
         
