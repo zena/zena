@@ -1,10 +1,5 @@
 module MainHelper
   
-  # Show a little [fr] next to the title if the desired language could not be found.
-  def check_lang(obj)
-    obj.v_lang != session[:lang] ? " <span class='wrong_lang'>[#{obj.v_lang}]</span> " : ""
-  end
-  
   # Used by edit_buttons
   def form_action(action, version_id=nil, link_text=nil)
     version_id ||= @node.v_id
@@ -188,7 +183,7 @@ ENDTXT
       end
       klass = klass.superclass
     end    
-    partial || 'main/title'
+    partial
   end
   
   # show author information

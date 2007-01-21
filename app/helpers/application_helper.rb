@@ -438,6 +438,28 @@ module ApplicationHelper
     end
   end
   
+  # Show a little [xx] next to the title if the desired language could not be found.
+  def check_lang(obj)
+    obj.v_lang != session[:lang] ? " <span class='wrong_lang'>[#{obj.v_lang}]</span> " : ""
+  end
+  
+  # TODO: test
+  # display the title with necessary id and checks for 'lang'. Options :
+  # * :link if true (default), the title is a link to the object's page
+  # * :project if true, the project name is added before the object title as 'project / .....'
+  def show_title(obj, options={})
+    opt = {:link=>true, :project=>false}.merge(options)
+    if opt[:project]
+      title = "#{obj.project.name} / #{obj.v_title}"
+    else
+      title = obj.v_title
+    end
+    if opt[:link]
+      title = link_to(title, :prefix => prefix, :controller => 'main', :action=>'show', :path=>obj.fullpath)
+    end
+    "<span id='v_title#{obj[:id]}'>#{title}#{check_lang(obj)}</span>"
+  end
+  
   # TODO: test
   def show(obj, sym, opt={})
     if opt[:as]

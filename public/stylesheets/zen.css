@@ -128,7 +128,7 @@ p.img_left, p.img_right { margin:0; padding:0;}
 .li_s40 a { border-bottom: 2px solid #73A1A5; }
 .li_s35 a { border-bottom: 2px dotted #73A1A5; }
 .li_s30 a { border-bottom: 2px solid #B7CC87; }
-.wrong_lang { color: grey; font-weight:normal; font-size:0.9em; text-transform:none;}
+.wrong_lang { color: grey; font-weight:normal; font-size:70%; text-transform:none; font-style:normal;}
 .s40  { border-bottom: 10px solid #73A1A5; padding: 4px; }
 .s30  { border-bottom: 10px solid #B7CC87; padding: 4px; }
 .s10, .s20 {  border-color:#685958; border-bottom: 1px solid grey; padding: 4px; }
@@ -154,6 +154,7 @@ input, textarea { border:1px solid grey; margin:0.2em}
 #content { float:left; width:630px; padding-top:0; padding-right: 22px; margin-top:1em;}
 #left .content { padding-top:10px; font-size:80%;}
 #left .header h1 { font-size:1.3em; margin-top:1.2em;}
+#left .header h1 a { color:inherit;}
 #left .subtitle { margin-bottom:0.17em; margin-top:0.17em; }
 #left .subtitle .info { font-style:normal; font-size:70%; }
 #left .subtitle { margin-bottom:0;}
@@ -257,6 +258,7 @@ table.largecal { border:1px solid #655; font-size:0.8em; margin:auto; width:80%;
 .note_title { padding:4px; font:1em Verdana, Arial, sans-serif; letter-spacing: 0.1em; color:#4F6741;}
 .note { padding:10px 3px 10px; font-size:0.78em; border-left:4px solid white; border-top:1px solid #ddd;}
 .note h3 p { font:0.8em Verdana, Arial, sans-serif; text-transform: uppercase; letter-spacing: 0.03em; float:left; width:30em; text-align:left; color:#450009; font-weight:bold; margin-bottom:0.2em; padding:0; }
+.note h3 .wrong_lang { font-size:90%;}
 .note h3 a { color:inherit;}
 .note .log_at { float:left; width:60px; color:#999; font-weight:bold;}
 .note .sign   { float:left; width:8em; font-size:0.8em; color:#999; font-weight:normal; }
