@@ -457,7 +457,7 @@ module ApplicationHelper
     if opt[:link]
       title = link_to(title, :prefix => prefix, :controller => 'main', :action=>'show', :path=>obj.fullpath)
     end
-    "<span id='v_title#{obj[:id]}'>#{title}#{check_lang(obj)}</span>"
+    "<span id='v_title#{obj.v_id}'>#{title}#{check_lang(obj)}</span>"
   end
   
   # TODO: test
