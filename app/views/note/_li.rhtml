@@ -1,7 +1,7 @@
 <li class='note'<%= li[:id] == @selected_note ? " id='note_selected'" : "" %>>
   <h3 class='li_s<%= li.v_status %>'>
     <p class='log_at'><%= @note_date ? short_time(li.event_at) : short_date(li.log_at) %></p>
-    <p class='title'><%= show_title(li, :project=>(li.project == @node.project)) %></p>
+    <p class='title'><%= show_title(li, :project=>(li.project != @node.project)) %></p>
     <p class='sign'><%= li.v_author.initials %></p>
     <ul class='node_actions'><%= edit_button(:all, :node=>li) %></ul>
   </h3>
