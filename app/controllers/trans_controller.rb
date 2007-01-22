@@ -20,7 +20,7 @@ class TransController < ApplicationController
   # TODO: test
   def list
     @keyword_pages, @keywords =
-            paginate :trans_phrases, :select=>"trans_phrases.*, trans_values.value AS value, trans_values.lang AS lang", :join=>"LEFT JOIN trans_values ON trans_values.phrase_id = trans_phrases.id AND trans_values.lang = '#{lang.gsub(/[^\w]/,'')}'", :order => "value ASC, phrase ASC", :per_page => 30
+            paginate :trans_phrases, :select=>"trans_phrases.*, trans_values.value AS value, (trans_values IS NULL) as no_value, trans_values.lang AS lang", :join=>"LEFT JOIN trans_values ON trans_values.phrase_id = trans_phrases.id AND trans_values.lang = '#{lang.gsub(/[^\w]/,'')}'", :order => "no_value DESC, phrase ASC", :per_page => 30
   end
   
   # TODO: test

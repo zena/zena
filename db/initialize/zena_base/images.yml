@@ -99,7 +99,7 @@ trans_values:
     lang:      en
     value:     "<img src='/images/date.png'/>"
     
-  - phrase_id:    78
+  - phrase_id:    80
     lang:      en
     value:     "<img src='/images/lightbulb.png'/>"
     
