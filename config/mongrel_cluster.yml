@@ -1,0 +1,7 @@
+--- 
+cwd: /var/www/tetivps.net
+port: "8002"
+environment: production
+address: 127.0.0.1
+pid_file: log/mongrel.pid
+servers: 2
