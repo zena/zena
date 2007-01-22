@@ -247,7 +247,7 @@ module ApplicationHelper
     r.gsub!(  /\!\[([^\]]*)\]\!/                      ) { img ? make_gallery($1) : trans('[gallery]') }
     r.gsub!(  /\!\{([^\}]*)\}\!/                      ) { img ? list_nodes($1)   : trans('[documents]')}
     r.gsub!(  /\!([^0-9]{0,2})([0-9]+)(\.([^\!]+)|)\!(:([^\s]+)|)/ ) { img ? make_image(:style=>$1, :id=>$2, :size=>$4, :link=>$6) : trans('[image]')}
-    r.gsub!(  /(\\CODE_START\\)(.*?)(\\CODE_END\\)/m    ) { "<pre class='box'>#{zazen_unescape($2)}</pre>" }
+    r.gsub!(  /(\\CODE_START\\)(.*?)(\\CODE_END\\)/m    ) { "<div class='box'><pre class='code'>#{zazen_unescape($2)}</pre></div>" }
     r.gsub!(  /(\\AT_START\\)(.*?)(\\AT_END\\)/         ) { "<code>#{zazen_unescape($2)}</code>" }
     r.to_html
   end
