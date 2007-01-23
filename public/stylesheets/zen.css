@@ -2,6 +2,7 @@
 * {margin: 0; padding: 0;}
 a {text-decoration: none; color:#266F92;}
 a img {border: none;}
+a.wiki {color:inherit; border-bottom:1px solid #2F73A0;}
 body {padding-bottom:120px; font: 0.9em Verdana, Arial, sans-serif; line-height: 1; color: #242424; behavior: url('stylesheets/csshover2.htc');} /* WinIE hack */
 h2, h3 {font: 1.2em Georgia, Times, serif; letter-spacing: 0; text-transform: none; margin-bottom: 0; color: #333;}
 h2 { font-size:1.5em; font-style:italic; color:#450009; }
@@ -169,8 +170,11 @@ input, textarea { border:1px solid grey; margin:0.2em}
 .text h3 { margin-top:1.8em; margin-bottom:0.4em; font-size:1.3em;}
 .text h4 { font-size:0.9em; margin:2em 0 -1em;}
 .text p { line-height:1.5; margin-top:1.3em; margin-bottom:0.9em; font-style:normal; font-size:0.9em; }
-.text ul {margin:1em 0 0 3em;}
-.text li {margin:0.7em 0; list-style:disc;}
+.text ul, .text ol {margin:1em 0 0 3em;}
+.text ul ul, .text ol ol { margin:0 1em;}
+.text ul ul li { list-style:circle;}
+.text li {margin:0.2em 0; list-style:disc; line-height:1.2em;}
+.text ol li {list-style:decimal;}
 .text img { border: 1px solid #666; }
 .text img.doc { border:0;}
 .text .box { border:1px dashed #CEBB94; border-width:1px 0; background:#EAE9E8; padding:5px 4px 3px; display:table; margin:1em auto 1em; font-size:0.9em;}

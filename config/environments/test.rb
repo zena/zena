@@ -17,3 +17,6 @@ config.action_controller.perform_caching             = false
 # The :test delivery method accumulates sent emails in the
 # ActionMailer::Base.deliveries array.
 config.action_mailer.delivery_method = :test
+
+# configure data directory for uploaded files
+ZENA_ENV[:data_dir] = "#{RAILS_ROOT}/data/test"

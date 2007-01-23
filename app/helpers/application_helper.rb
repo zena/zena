@@ -243,6 +243,7 @@ module ApplicationHelper
     r = RedCloth.new(text) #, [:hard_breaks])
     r.gsub!(  /(\A|[^\w])@(.*?)@(\Z|[^\w])/     ) { "#{$1}\\AT_START\\#{zazen_escape($2)}\\AT_END\\#{$3}" }
     r.gsub!(  /<code>(.*?)<\/code>/m            ) { "\\CODE_START\\#{zazen_escape($1)}\\CODE_END\\" }
+    r.gsub!(  /\?(\w[^\?]+?\w)\?/               ) { make_wiki_link($1) }
     r.gsub!(  /"([^"]*)":([0-9]+)/                    ) { make_link(:title=>$1,:id=>$2)}
     r.gsub!(  /\!\[([^\]]*)\]\!/                      ) { img ? make_gallery($1) : trans('[gallery]') }
     r.gsub!(  /\!\{([^\}]*)\}\!/                      ) { img ? list_nodes($1)   : trans('[documents]')}
@@ -265,6 +266,10 @@ module ApplicationHelper
     "<span class='unknownLink'>#{trans('unknown link')}</span>"
   end
   
+  # TODO: test
+  def make_wiki_link(keyword)
+    "<a href='http://#{lang}.wikipedia.org/wiki/Special:Search?search=#{CGI::escape(keyword)}' class='wiki'>#{keyword}</a>"
+  end
   # Create an img tag for the given image. See ApplicationHelper#zazen for details.
   def make_image(opts)
     id, style, size, link = opts[:id], opts[:style], opts[:size], opts[:link]

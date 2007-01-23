@@ -84,7 +84,7 @@ class DocumentContent < ActiveRecord::Base
   # path is build with the version id so we can do the security checks when uploading data
   def filepath(format=nil)
     raise StandardError, "version not set" unless self[:version_id]
-    "#{RAILS_ROOT}/data/#{RAILS_ENV}#{path(format)}"
+    "#{ZENA_ENV[:data_dir]}#{path(format)}"
   end
   
   private

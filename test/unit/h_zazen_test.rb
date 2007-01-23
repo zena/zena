@@ -22,7 +22,12 @@ class ApplicationHelperTest < Test::Unit::TestCase
   def test_bad_link
     assert_match %r{unknown link}, zazen('"hello":99')
   end
-
+  
+  def test_wiki_link
+    login(:tiger)
+    assert_equal "<p>? colors? I like <a href='http://en.wikipedia.org/wiki/Special:Search?search=yellow+mug' class='wiki'>yellow mug</a></p>", zazen("? colors? I like ?yellow mug?")
+  end
+  
   def test_make_link
     login(:tiger)
     # * ["":34] creates a link to node 34 with node's title.

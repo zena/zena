@@ -12,7 +12,8 @@ ZENA_ENV = {
   :translate_group => 2, # default = admin
   :monolingual => false,
   :calendar_langs => ["en", "fr"],
-  :password_salt => "fish zen ho"
+  :password_salt => "fish zen ho",
+  :data_dir => "/var/www/zenadmin.org/data" # configure data directory for uploaded files
 }
 # additions to class String
 class String
