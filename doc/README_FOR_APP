@@ -19,6 +19,9 @@ Zena is a CMS. (c) teti.ch 2007
 * show_title could guess when to display a title and when not to
 -------------------------------------------
 == Enhancements
+=== Zazen
+* code to show table of contents (with depth option)
+* code to link to wikipedia ex: :xen: or ?xen? or xen?
 === Forms
 * could we use 'form_for' for preferences and simple things ?
 === Views
