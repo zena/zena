@@ -1,5 +1,5 @@
 --- 
-cwd: /var/www/zenadmin.org
+cwd: /var/www/zenadmin.org/current
 port: "8000"
 environment: production
 address: 127.0.0.1
