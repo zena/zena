@@ -99,11 +99,13 @@ class VersionController < ApplicationController
   
   def refuse
     node = secure(Node) { Node.version(params[:id]) }
+    
     if node.refuse
-      flash[:notice] = "Proposition refused."
-      redirect_to @request.env['HTTP_REFERER'] #:action => 'show', :id => node.v_id
+      flash[:notice] = trans "Proposition refused."
+      redirect_to user_home_url
     else
-      page_not_found
+      flash[:notice] = trans "Could not refuse proposition."
+      redirect_to @request.env['HTTP_REFERER']
     end
   rescue ActiveRecord::RecordNotFound
     page_not_found

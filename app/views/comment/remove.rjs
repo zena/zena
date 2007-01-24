@@ -1,3 +1,5 @@
 page.visual_effect :highlight, "comment#{@comment[:id]}", :duration => 0.3
 page.visual_effect :fade, "comment#{@comment[:id]}", :duration => 0.5
-page.replace_html 'bin', :partial=>'comment/bin'
+if params[:bin]
+  page.replace_html 'bin', :partial=>'comment/bin'
+end

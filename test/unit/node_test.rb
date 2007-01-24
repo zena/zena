@@ -336,7 +336,9 @@ class NodeTest < Test::Unit::TestCase
     node = nodes(:wiki)
     node.name = " J'aime l'aïl en août ! "
     assert_equal 'JAimeLAilEnAout', node.name
-    assert_equal 'JAimeLAilEnAout', node[:name]    
+    assert_equal 'JAimeLAilEnAout', node[:name]
+    node.name = "LIEUX"
+    assert_equal 'LIEUX', node.name
   end
  
   def test_change_to_page_to_project

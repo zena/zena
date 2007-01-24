@@ -4,8 +4,8 @@
     <%= link_to_remote(transb('edit'),  :url=>{:controller=>'comment', :action=>'edit', :id=>li[:id] }) if @node && @node.can_comment? && li[:user_id] == visitor_id %>
     </span>
     <span class='action'>
-    <%= link_to_remote(transb('btn_remove'), :url=>{:controller=>'comment', :action=>'remove', :id=>li[:id] }) if @admin || (@node.can_drive? && li[:status] < Zena::Status[:pub]) %>
-    <%= link_to_remote(transb('btn_publish'), :url=>{:controller=>'comment', :action=>'publish', :id=>li[:id] }) if (@admin || @node.can_drive?) && li[:status] < Zena::Status[:pub] %>
+    <%= link_to_remote(transb('btn_remove'), :url=>{:controller=>'comment', :action=>'remove', :id=>li[:id], :bin=>@admin }) if @admin || (@node.can_drive? && li[:status] < Zena::Status[:pub]) %>
+    <%= link_to_remote(transb('btn_publish'), :url=>{:controller=>'comment', :action=>'publish', :id=>li[:id], :bin=>@admin }) if (@admin || @node.can_drive?) && li[:status] < Zena::Status[:pub] %>
     </span>
     <span class='date'><%= long_date(li.created_at) + " " + short_time(li.created_at) %></span>
     <span class='sign'><%= li.author_name || li.author.fullname %></span>

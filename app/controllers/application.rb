@@ -106,7 +106,6 @@ class ApplicationController < ActionController::Base
       req[:prefix] = session[:user] ? AUTHENTICATED_PREFIX : session[:lang]
       redirect_to req and return false
     end
-
     # If the current user is su, make the CSS ugly so the user does not stay logged in as su.
     if session[:user] && visitor_id == 2
       @su=' style="background:#060;" '
@@ -185,7 +184,13 @@ class ApplicationController < ActionController::Base
   end
   
   def prefix
-    (session && session[:user]) ? AUTHENTICATED_PREFIX : lang
+    if session && session[:user]
+      AUTHENTICATED_PREFIX
+    elsif ZENA_ENV[:monolingual]
+      ''
+    else
+      lang
+    end
   end
   
   # TODO: test

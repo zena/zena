@@ -60,12 +60,13 @@ class CommentController < ApplicationController
     @comment    = Comment.find(params[:id])
     @discussion = @comment.discussion
     @node = secure(Node) { Node.find(@discussion[:node_id]) }
-    if visitor_is_admin? || (@node.can_comment? && visitor_id == @comment[:user_id])
+    if visitor_is_admin? || @node.can_drive?
       @comment.remove
     else
       render :nothing=>true
     end
   rescue ActiveRecord::RecordNotFound
+    puts params.inspect
     render :nothing=>true
   end
   

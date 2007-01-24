@@ -731,7 +731,11 @@ Just doing the above will filter all result according to the logged in user.
         
         # get current lang
         def lang
-          session[:lang] ||= session[:user] ? session[:user][:lang] : ZENA_ENV[:default_lang]
+          if ZENA_ENV[:monolingual]
+            ZENA_ENV[:default_lang]
+          else
+            session[:lang] ||= session[:user] ? session[:user][:lang] : ZENA_ENV[:default_lang]
+          end
         end
         
         # secure find with scope (for read/write or publish access)

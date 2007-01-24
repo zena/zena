@@ -118,9 +118,18 @@ module Zena
         
         # Refuse publication
         def refuse
+          Node.logger.info "start REFUSE"
           return false unless can_refuse?
+          Node.logger.info "in REFUSE"
           version.status = Zena::Status[:red]
-          version.save && after_refuse && update_max_status
+          res = version.save
+          Node.logger.info "SAVED"
+          res = res && after_refuse
+          Node.logger.info "AFTER REFUSED"
+          res = res && update_max_status
+          Node.logger.info "UPDATED MAX STATUS"
+          Node.logger.info "end REFUSE (#{res})"
+          res
         end
         
         # publish if version status is : redaction, proposition, replaced or removed

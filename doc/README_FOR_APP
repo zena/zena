@@ -4,10 +4,6 @@ Zena is a CMS. (c) teti.ch 2007
 
 -------------------------------------------
 == Todo
-CVD: commentaires sur la pages publiées par def.
-CVD: refus publication = redir user home
-CAMEL not working on full capital names ex. LIEUX becomes LiEuX
-monolingual not working
 deletion of node
 css for forms (page add is ugly, page edit has huge buttons on the bottom)
 DO NOT CACHE SESSION INFO LIKE 'groups' or other...

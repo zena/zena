@@ -5,10 +5,10 @@ require 'application'
 class ApplicationController; def rescue_action(e) raise e end; end
 
 class ApplicationControllerTest < Test::Unit::TestCase
-
   include ZenaTestController
   
   def setup
+    super
     @controller = ApplicationController.new
     init_controller
   end
@@ -81,12 +81,20 @@ class ApplicationControllerTest < Test::Unit::TestCase
   end
   
   def test_prefix
+    bak = ZENA_ENV[:monolingual]
+    ZENA_ENV[:monolingual] = false
     @controller.instance_eval { @session = {:lang=>'en'} }
     assert_equal 'en', @controller.send(:prefix)
     @controller.instance_eval { @session = {:lang=>'ru'} }
     assert_equal 'ru', @controller.send(:prefix)
     @controller.instance_eval { @session = {:user=>{:id=>4, :lang=>'en', :groups=>[1,2,3]}} }
     assert_equal AUTHENTICATED_PREFIX, @controller.send(:prefix)
+    ZENA_ENV[:monolingual] = true
+    @controller.instance_eval { @session = {:user=>nil} }
+    assert_equal '', @controller.send(:prefix)
+    @controller.instance_eval { @session = {:user=>{:id=>4, :lang=>'en', :groups=>[1,2,3]}} }
+    assert_equal AUTHENTICATED_PREFIX, @controller.send(:prefix)
+    ZENA_ENV[:monolingual] = bak
   end
   
   # authorize tested in 'MainController' tests

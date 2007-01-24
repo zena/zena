@@ -44,6 +44,7 @@ p.img_left, p.img_right { margin:0; padding:0;}
 #navbar a { color:white; }
 #navbar ul, #navbar div { height:100%; padding:0.3em 0.8em; float:left; margin-top:2px;}
 #lang { margin-left:250px; }
+#lang.empty { padding:0; }
 #lang b { font-weight:normal; color:white;}
 #lang, #lang a { color:#A27C6E;}
 #navbar * { display:inline; }
@@ -80,8 +81,7 @@ p.img_left, p.img_right { margin:0; padding:0;}
 
 /* INLINE FORMS */
 .inline_form { margin:2px; padding:3px; background:#9FA6AC; border:1px dotted grey;}
-.inline_form select { width:5em; font-size:80%;}
-/*   on background color change, change ajax-loader.gif : http://www.ajaxload.info/ --> */
+.inline_form select { width:8em; font-size:80%;}
 
 /* BUTTONS */
 .hidden { visibility:hidden; }
@@ -92,7 +92,7 @@ p.img_left, p.img_right { margin:0; padding:0;}
 .btn_add:hover a { visibility:visible; }
 #add_document.btn_add, #add_page.btn_add { margin-top:0.2em;}
 #pages .inline_form { width:130px;}
-#pages .inline_form input { font-size:0.7em;}
+#pages .inline_form input { font-size:inherit;}
 .btn_x { float:right; margin:0; padding:0;}
 .btn_x img { border:0; }
 .btn_validate { text-align:right; margin:0; padding:0;}

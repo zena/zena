@@ -128,7 +128,7 @@ module MainHelper
         document.getElementById('css_counter').innerHTML=c
         
         new Ajax.Request('/z/version/css_preview', {asynchronous:true, evalScripts:true, parameters:'css='+file});
-        t=setTimeout("timedCount()",1000)
+        t=setTimeout("timedCount()",2000)
       }
 
       function stopCount()
@@ -263,7 +263,7 @@ ENDTXT
   # show language selector
   def lang_links
     if ZENA_ENV[:monolingual]
-      ''
+      "<div id='lang' class='empty'></div>"
     else
       res = []
       ZENA_ENV[:languages].sort.each do |l|
@@ -283,7 +283,7 @@ ENDTXT
   
   def lang_ajax_link
     if ZENA_ENV[:monolingual]
-      ''
+      "<div id='lang' class='empty'></div>"
     else
       res = "<div id='lang'><span>" + link_to_remote( lang, :update=>'lang', :url=>{:controller => 'trans', :action=>'lang_menu'})
       if session[:translate]

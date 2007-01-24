@@ -10,7 +10,7 @@ ZENA_ENV = {
   :root_id => 1,
   :authorize => false,
   :translate_group => 2, # default = admin
-  :monolingual => false,
+  :monolingual => true,
   :calendar_langs => ["en", "fr"],
   :password_salt => "fish zen ho",
   :pub_comments => false,

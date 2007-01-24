@@ -15,11 +15,12 @@ ActionController::Routing::Routes.draw do |map|
 
   if ZENA_ENV[:monolingual]
     map.connect '', :controller => "main", :action=>'index'
+    map.default 'z/:controller/:action/:id'
     map.site_tree ':prefix/site_tree/:id', :controller=>'main', :action=>'site_tree', :prefix=>"#{AUTHENTICATED_PREFIX}"
     map.connect ":prefix/*path", :controller=>'main', :action=>'show', :prefix=>"#{AUTHENTICATED_PREFIX}"
     map.default 'z/:controller/:action/:id'
-    map.site_tree 'site_tree/:id', :controller=>'main', :action=>'site_tree'
-    map.connect '*path', :controller=>'main', :action=>'show', :prefix=> ZENA_ENV[:default_lang]    
+    map.site_tree 'site_tree/:id', :controller=>'main', :action=>'site_tree', :prefix=>''
+    map.connect '*path', :controller=>'main', :action=>'show', :prefix=>''  
   else
     map.connect '', :controller => "main", :action=>'redirect'
     map.site_tree ':prefix/site_tree/:id', :controller=>'main', :action=>'site_tree', :prefix=>/^(#{AUTHENTICATED_PREFIX}|\w\w)$/
