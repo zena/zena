@@ -5,13 +5,12 @@ sub page or a document. See #Link for more details.
 =end
 class Tag < Page
   link :tag_for, :class_name=>'Node', :as=>'tag', :collector=>true
-  alias o_pages pages
+  
   def pages
-    @pages ||= (o_pages + tag_for(:conditions=>"kpath NOT LIKE 'NPD%'")).sort {|a,b| a.name <=> b.name}
+    @pages ||= tag_for(:conditions=>"kpath NOT LIKE 'NPD%'", :or=>["parent_id = ?", self[:id]])
   end
   
-  alias o_documents documents
   def documents
-    @documents ||= (o_documents + tag_for(:conditions=>"kpath LIKE 'NPD%'")).sort {|a,b| a.name <=> b.name}
+    @documents ||= tag_for(:conditions=>"kpath LIKE 'NPD%'", :or=>["parent_id = ?", self[:id]])
   end
 end

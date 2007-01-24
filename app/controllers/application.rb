@@ -190,7 +190,7 @@ class ApplicationController < ActionController::Base
   
   # Notes finder options are
   # [from] node providing the notes. If omitted, <code>@project</code> or <code>@node.project</code> is used.
-  # [find] method called on the source. Default is 'notes'. For example, <code>:from=>@node.project, :find=>:news</code> finds all news from the project of the current node.
+  # [find] method called on the source. Default is 'notes'. For example, <code>:from=>@node.project, :find=>:notes</code> finds all notes from the project of the current node.
   # [date] only find notes for the given date
   # [using] specify the field used to sort and filter by date. By default, 'log_at' is used
   # [order] sort order. By default "#{using} ASC" is used.

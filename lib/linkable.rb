@@ -34,6 +34,11 @@ end
 
 This gives the posts the following methods:
 @post.tags          ==> list of tags
+This is a finder. It can be used as @post.tags(:conditions=>...). There is an additional option
+for an 'OR' clause in case you need to 'merge' linked objects with direct children. Example :
+  @post.tags(:or=>["parent_id = ?", self[:id]]) # this does a single call, so ':order, :limit' and pagination
+  work just fine...
+
 @post.tag_ids       ==> list of tag ids
 @post.tags = ...    ==> set with list of tag objects
 @post.tag_ids = ... ==> set with list of ids
@@ -50,7 +55,8 @@ And the tags get :
 
 As an extra, you get 'tags_for_form' and 'posts_for_form' : a list of all 'tags' or 'posts' with the attribute 'link_id' not null if
 the two objects are linked. Example :
-@post.tags_for_form = ['art object with link_id=nil', 'news object with link_id=3'] ==> @post has a link to news.
+@post.tags_for_form = ['art object with link_id=nil', 'news object with link_id=3'] ==> @post has a link to news. *Beware* that this
+finder will *only* find objects which are of the same kind or subclasses of the class of the linked object (Tag here)
 
 Linkable is great for single table inheritance and lots of 'roles' between classes. It is also very easy to create a new role like
 'hot' topic for example. Having the hottest post on each project is easy as adding a check box on the post edit page and adding
@@ -198,9 +204,24 @@ on the post edit page :
             def #{method}(options={})
               conditions = options[:conditions]
               options.delete(:conditions)
+              if options[:or]
+                join = 'LEFT'
+                if options[:or].kind_of?(Array)
+                  or_clause = options[:or].shift
+                  params = options[:or] + [self[:id]]
+                else
+                  or_clause = options[:or]
+                  params = self[:id]
+                end  
+                inner_conditions = ["(\#{or_clause}) OR (links.role='#{role}' AND links.#{link_side} = ? AND links.id IS NOT NULL)", *params ]
+                options.delete(:or)
+              else
+                join = 'INNER'
+                inner_conditions = ["links.role='#{role}' AND links.#{link_side} = ?", self[:id] ]
+              end
               options.merge!( :select     => "\#{#{klass}.table_name}.*, links.id AS link_id, links.role", 
-                              :joins      => "INNER JOIN links ON \#{#{klass}.table_name}.id=links.#{other_side}",
-                              :conditions => ["links.role='#{role}' AND links.#{link_side} = ?", self[:id] ]
+                              :joins      => "\#{join} JOIN links ON \#{#{klass}.table_name}.id=links.#{other_side}",
+                              :conditions => inner_conditions
                               )
               if conditions
                 #{klass}.with_scope(:find=>{:conditions=>conditions}) do

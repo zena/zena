@@ -5,7 +5,6 @@ Zena is a CMS. (c) teti.ch 2007
 -------------------------------------------
 == Todo
 deletion of node
-DO NOT CACHE SESSION INFO LIKE 'groups' or other...
 DO NOT CHECK ALL GROUPS WHEN EDITING AN ADMIN
 USER : CONTACT_ID ??
 === Optimization & Cache

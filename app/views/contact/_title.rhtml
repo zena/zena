@@ -1,7 +1,7 @@
 <div class='contact_title'>
   <div class='b<%= @node.v_status %>'>
     <div class='title'>      
-      <h1 class="s<%= @node.v_status %>"><span id='v_title<%= @node.v_id %>'><%= @node.v_title %></span><br/>
+      <h1 class="s<%= @node.v_status %>"><%= show_title %><br/>
         <ul class='node_actions'><%= edit_button(:all) %></ul>
       </h1>
       <%= author(:large) %>

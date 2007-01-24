@@ -390,7 +390,7 @@ module ApplicationHelper
     using  = options[:using ] || :event_at
     day_names, on_day = calendar_get_options(size, source, method)
     return "" unless on_day && source
-    Cache.with(visitor_id, visitor_groups, 'NN', size, method, source.id, date.ajd, lang) do
+    Cache.with(visitor.id, visitor.group_ids, 'NN', size, method, source.id, date.ajd, lang) do
       # find start and end date
       week_start_day = trans('week_start_day').to_i
       start_date  = Date.civil(date.year, date.mon, 1)
@@ -452,10 +452,18 @@ module ApplicationHelper
   
   # TODO: test
   # display the title with necessary id and checks for 'lang'. Options :
-  # * :link if true (default), the title is a link to the object's page
-  # * :project if true, the project name is added before the object title as 'project / .....'
-  def show_title(obj, options={})
-    opt = {:link=>true, :project=>false}.merge(options)
+  # * :link if true, the title is a link to the object's page
+  #   default = true if obj is not the current node '@node'
+  # * :project if true , the project name is added before the object title as 'project / .....'
+  #   default = obj project is different from current node project
+  # if no options are provided show the current object title
+  def show_title(obj=@node, opt={})
+    unless opt.include?(:link)
+      opt[:link] = (obj[:id] != @node[:id])
+    end
+    unless opt.include?(:project)
+      opt[:project] = (obj[:project_id] != @node[:project_id] && obj[:id] != @node[:id]) 
+    end
     if opt[:project]
       title = "#{obj.project.name} / #{obj.v_title}"
     else
@@ -531,7 +539,7 @@ module ApplicationHelper
   #TODO: test
 	# Return the list of groups from the visitor for forms
 	def form_groups
-	  @form_groups ||= Group.find(:all, :select=>'id, name', :conditions=>"id IN (#{visitor_groups.join(',')})", :order=>"name ASC").collect {|p| [p.name, p.id]}
+	  @form_groups ||= Group.find(:all, :select=>'id, name', :conditions=>"id IN (#{visitor.group_ids.join(',')})", :order=>"name ASC").collect {|p| [p.name, p.id]}
   end
   
   #TODO: test
@@ -677,14 +685,6 @@ module ApplicationHelper
     update = "new Ajax.Updater('#{name_ref}', '/z/node/attribute/' + this.value + '?attr=#{attribute}', {asynchronous:true, evalScripts:true});"
     "<div class='select_id'><input type='text' size='8' id='#{obj}_#{sym}' name='#{obj}[#{sym}]' value='#{id}' onChange=\"#{update}\"/>"+
     "<span class='select_id_name' id='#{name_ref}'>#{current}</span></div>"
-  end
-  def compute_public_path(source, dir, ext)
-    source  = "/#{dir}/#{source}" unless source.first == "/" || source.include?(":")
-    source << ".#{ext}" unless source.split("/").last.include?(".")
-    #source << '?' + rails_asset_id(source) if defined?(RAILS_ROOT) && %r{^[-a-z]+://} !~ source
-    source  = "#{@controller.request.relative_url_root}#{source}" unless %r{^[-a-z]+://} =~ source
-    source = ActionController::Base.asset_host + source unless source.include?(":")
-    source
   end
 end
 =begin

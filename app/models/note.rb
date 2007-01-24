@@ -3,6 +3,8 @@ TODO
 =end
 class Note < Node
   link :calendars, :class_name=>'Project'
+  link :projects,  :class_name=>'Project'
+  
   before_validation :prepare_note
   class << self
     def parent_class

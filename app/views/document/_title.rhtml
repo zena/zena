@@ -5,7 +5,7 @@
         <%= link_to @node.img_tag('pv'), data_url(@node) %>
       </td>
       <td class='subtitle'>      
-        <h1 class="s<%= @node.v_status %>"><span id='v_title<%= @node.v_id %>'><%= @node.v_title %></span><br/>
+        <h1 class="s<%= @node.v_status %>"><%= show_title %><br/>
           <ul class='node_actions'><%= edit_button(:all) %></ul>
         </h1>
         <%= author(:large) %><%#= plug :links %>

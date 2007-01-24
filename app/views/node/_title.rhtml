@@ -1,6 +1,6 @@
 <div class='<%= @node.class.to_s.downcase %>_title'>
   <div class='header'>
-    <h1 class='s<%= @node.v_status %>'><%= show_title(@node, :link=>false) %>
+    <h1 class='s<%= @node.v_status %>'><%= show_title %>
       <ul class='node_actions'><%= edit_button(:all) %></ul>
     </h1>
     <div class='subtitle'><%= author(:large) %><%#= plug :links %></div>

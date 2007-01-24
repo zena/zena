@@ -4,27 +4,29 @@ module ZenaTestUnit
   
   # redefine lang for tests (avoids using params[:lang]):
   def lang
-    @lang ||= (@controller && session.is_a?(ActionController::TestSession)) ? (session[:lang] || (session[:user] ? session[:user][:lang] : ZENA_ENV[:default_lang])) : ZENA_ENV[:default_lang]
+    return @lang if @lang
+    if ZENA_ENV[:monolingual]
+      @lang = ZENA_ENV[:default_lang]
+    else
+      @lang ||= ZENA_ENV[:default_lang]
+    end
   end
-  def visitor_id
-    @visitor_id ||= (@controller && session.is_a?(ActionController::TestSession) && session[:user]) ? session[:user][:id] : 1
+  
+  def visitor
+    return @visitor if @visitor
+    visitor_id = (@controller && session.is_a?(ActionController::TestSession) && session[:user]) ? session[:user] : 1
+    @visitor = User.find(visitor_id)
   end
-
-  def visitor_groups
-    @visitor_groups ||= (@controller && session.is_a?(ActionController::TestSession) && session[:user]) ? session[:user][:groups] : [1]
-  end
+  
   # 
   # Set visitor for unit testing
   def test_visitor(name=nil)
     if name
-      user = User.find_by_login(name.to_s)
-      @visitor_id = user.id
-      @visitor_groups = user.group_ids
-      @lang = user.lang
+      @visitor = User.find_by_login(name.to_s)
+      @lang = @visitor.lang
     else
-      @visitor_id = 1
-      @visitor_groups = [1]
-      @lang = 'en'
+      @visitor = User.find(1)
+      @lang = ZENA_ENV[:default_lang]
     end
   end
   
