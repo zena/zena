@@ -14,7 +14,7 @@ class MainController < ApplicationController
   end
   
   def show
-    @node = Page.find_by_path(visitor_id, visitor_groups, lang, params[:path])
+    @node = Page.find_by_path(visitor.id, visitor.group_ids, lang, params[:path])
     render_and_cache
   rescue ActiveRecord::RecordNotFound
     page_not_found

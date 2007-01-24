@@ -4,14 +4,15 @@ class LoginController < ApplicationController
   def login
     if request.get?
       # empty request
-      set_session_with_user( nil )
-      @user = User.new
+      session[:user] = nil
     else
       # request with completed form
       logged_in_user = User.login(params[:user][:login], params[:user][:password])
       params[:user][:password] = ""
       if logged_in_user
-        set_session_with_user logged_in_user
+        session[:user] = logged_in_user[:id]
+        # reset session lang, will be set from user on next request
+        session[:lang] = nil
         redirect_to user_home_url
       else
         flash[:error] = "Invalid login or password"
@@ -21,7 +22,7 @@ class LoginController < ApplicationController
   
   # Clears session information and redirects to login page.
   def logout
-    set_session_with_user( nil )
+    session[:user] = nil
     redirect_to :action=>'login'
   end
   

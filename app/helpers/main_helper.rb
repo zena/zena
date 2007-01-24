@@ -236,16 +236,16 @@ ENDTXT
       return '' unless session[:user]
       tlink_to_with_state('preferences', :controller=>'preferences', :action=>'list')
     when :translation
-      return '' unless session[:user] && session[:user][:groups].include?(ZENA_ENV[:translate_group])
+      return '' unless visitor.group_ids.include?(ZENA_ENV[:translate_group])
       tlink_to_with_state('translate interface', :controller=>'trans', :action=>'list')
     when :comments
-      return '' unless visitor_is_admin?
+      return '' unless visitor.is_admin?
       tlink_to_with_state('manage comments', :controller=>'comment', :action=>'list')
     when :users
-      return '' unless visitor_is_admin?
+      return '' unless visitor.is_admin?
       tlink_to_with_state('manage users', :controller=>'user', :action=>'list')
     when :groups
-      return '' unless visitor_is_admin?
+      return '' unless visitor.is_admin?
       tlink_to_with_state('manage groups', :controller=>'group', :action=>'list')
     when :site_tree
       tlink_to_with_state('site tree', :controller=>'main', :action=>'site_tree', :id=>@node)

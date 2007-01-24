@@ -2,7 +2,7 @@
 # Likewise, all the methods added will be available for all controllers.
 class ApplicationController < ActionController::Base
   acts_as_secure_controller
-  helper_method :prefix, :notes, :visitor, :visitor_is_admin?, :error_messages_for, :render_errors, :add_error
+  helper_method :prefix, :notes, :error_messages_for, :render_errors, :add_error
   before_filter :authorize
   before_filter :set_env
   after_filter  :set_encoding
@@ -107,7 +107,7 @@ class ApplicationController < ActionController::Base
       redirect_to req and return false
     end
     # If the current user is su, make the CSS ugly so the user does not stay logged in as su.
-    if session[:user] && visitor_id == 2
+    if session[:user] == 2
       @su=' style="background:#060;" '
     else
       @su=''
@@ -172,17 +172,6 @@ class ApplicationController < ActionController::Base
   
   # /////// The following methods are common to controllers and views //////////// #
   
-  # TODO: test
-  def visitor
-    @visitor ||= begin
-      if session[:user]
-        User.find(session[:user][:id])
-      else
-        User.find(1)
-      end
-    end
-  end
-  
   def prefix
     if session && session[:user]
       AUTHENTICATED_PREFIX
@@ -194,13 +183,8 @@ class ApplicationController < ActionController::Base
   end
   
   # TODO: test
-  def visitor_is_admin?
-    (visitor_groups.include?(2) || visitor_id == 2)
-  end
-  
-  # TODO: test
   def check_is_admin
-    page_not_found unless visitor_is_admin?
+    page_not_found unless visitor.is_admin?
     @admin = true
   end
   
@@ -258,7 +242,7 @@ class ApplicationController < ActionController::Base
     if !errs || errs.empty?
       ""
     else
-      "<ul class='error'><li>#{errs.join("</li>\n</li>")}</li></ul>"
+      "<ul><li>#{errs.join("</li>\n<li>")}</li></ul>"
     end
   end
 end

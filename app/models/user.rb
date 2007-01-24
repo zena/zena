@@ -59,21 +59,27 @@ class User < ActiveRecord::Base
     end
   end
   
+  # TODO: test
+  def is_admin?
+    (self[:id] == 2) || self.group_ids.include?(2)
+  end
+  
   # Returns a list of the group ids separated by commas for the user (this is used mainly in SQL clauses).
   def group_ids
     return @group_ids if @group_ids
-    res = if id==2
+    if id==2
       # su user
-      Group.find(:all)
+      res = Group.find(:all)
     else
       if !new_record? && Group.find_by_sql("SELECT * FROM groups_users WHERE group_id=2 AND user_id = #{id}") != []
         # user is in admin group
-        Group.find(:all)
+        res = Group.find(:all)
       else
         # normal operation
-        groups
+        res = groups
       end
-    end.map{|g| g[:id]}
+    end
+    res.map!{|g| g[:id]}
     res << 1 unless res.include?(1)
     @group_ids = res
   end

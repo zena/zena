@@ -140,7 +140,7 @@ In the controller :
     private
     def set_logged_in_user
       # .. get user
-      set_session_with_user @user
+      session[:user] = @user[:id]
   end
 
 In the model :
@@ -734,23 +734,23 @@ Just doing the above will filter all result according to the logged in user.
           if ZENA_ENV[:monolingual]
             ZENA_ENV[:default_lang]
           else
-            session[:lang] ||= session[:user] ? session[:user][:lang] : ZENA_ENV[:default_lang]
+            session[:lang] ||= ZENA_ENV[:default_lang]
           end
         end
         
         # secure find with scope (for read/write or publish access)
         def secure_with_scope(obj, scope)
           obj.with_scope(
-            :create => { :visitor_id => visitor_id, :visitor_groups => visitor_groups, :visitor_lang => lang }, 
+            :create => { :visitor_id => visitor.id, :visitor_groups => visitor.group_ids, :visitor_lang => lang }, 
             :find   => { :conditions => scope }) do
             result = yield
             if result
               if result.kind_of? Array
-                result.each {|r| r.set_visitor(visitor_id, visitor_groups, lang)}
+                result.each {|r| r.set_visitor(visitor.id, visitor.group_ids, lang)}
               else
                 # give the node some info on the current visitor. This lets security and lang info
                 # propagate naturally through the nodes.
-                result.set_visitor(visitor_id, visitor_groups, lang)
+                result.set_visitor(visitor.id, visitor.group_ids, lang)
               end
               result
             else
@@ -761,44 +761,39 @@ Just doing the above will filter all result according to the logged in user.
         
         # secure find for read access.
         def secure(obj, &block)
-          secure_with_scope(obj, secure_scope(visitor_id, visitor_groups), &block)
+          secure_with_scope(obj, secure_scope(visitor.id, visitor.group_ids), &block)
         end
 
         # secure find for write access.
         def secure_write(obj, &block)
-          secure_with_scope(obj, secure_write_scope(visitor_id, visitor_groups), &block)
+          secure_with_scope(obj, secure_write_scope(visitor.id, visitor.group_ids), &block)
         end
         
         # secure find for publish (and manage) access.
         def secure_drive(obj, &block)
-          secure_with_scope(obj, secure_drive_scope(visitor_id, visitor_groups), &block)
+          secure_with_scope(obj, secure_drive_scope(visitor.id, visitor.group_ids), &block)
         end
 
-        def set_session_with_user(user)
-          if user
-            session[:user] = {}
-            session[:user][:id] = user.id
-            session[:user][:groups] = user.group_ids
-            session[:user][:fullname] = user.fullname
-            session[:user][:initials] = user.initials
-            session[:user][:lang] = user.lang != "" ? user.lang : ZENA_ENV[:default_lang]
-            session[:user][:time_zone] = user.time_zone
-            # set lang
-            lang
-          else
-            session[:user] = nil
+        # TODO: test
+        def visitor
+          @visitor ||= begin
+            if session[:user]
+              user = User.find(session[:user])
+            else
+              user = User.find(1)
+            end 
+            # we do not want the password hanging around if not necessary, even hashed
+            user[:password] = nil
+            user
           end
         end
-
+        
         def visitor_id
-          if session && session[:user]
-            session[:user][:id]
-          else
-            1 # anonymous user
-          end
+          raise Exception.new
         end
 
         def visitor_groups
+          raise Exception.new
           if session && session[:user]
             session[:user][:groups]
           else
