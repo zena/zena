@@ -30,6 +30,7 @@ class GroupController < ApplicationController
     end
     @users = User.find(:all, :order=>'login')
     @group = Group.create(params[:group])
+    # TODO: add new group to user session if admin or do not cache groups
   end
   
   # TODO: test

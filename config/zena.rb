@@ -13,6 +13,7 @@ ZENA_ENV = {
   :monolingual => false,
   :calendar_langs => ["en", "fr"],
   :password_salt => "fish zen ho",
+  :pub_comments => false,
   :data_dir => "/var/www/zenadmin.org/data" # configure data directory for uploaded files
 }
 # additions to class String

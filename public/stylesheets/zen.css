@@ -2,7 +2,7 @@
 * {margin: 0; padding: 0;}
 a {text-decoration: none; color:#266F92;}
 a img {border: none;}
-a.wiki {color:inherit; border-bottom:1px solid #2F73A0;}
+a.wiki {color:inherit; border-bottom:1px dotted #2F73A0;}
 body {padding-bottom:120px; font: 0.9em Verdana, Arial, sans-serif; line-height: 1; color: #242424; behavior: url('stylesheets/csshover2.htc');} /* WinIE hack */
 h2, h3 {font: 1.2em Georgia, Times, serif; letter-spacing: 0; text-transform: none; margin-bottom: 0; color: #333;}
 h2 { font-size:1.5em; font-style:italic; color:#450009; }
@@ -165,6 +165,8 @@ input, textarea { border:1px solid grey; margin:0.2em}
 #text { clear:both;}
 .text { line-height:1; margin-bottom:2em;}
 */
+.text a {color:inherit; border-bottom:1px solid #2F73A0;}
+.text a.wiki {border-bottom-style:dotted;}
 .text h1 { margin-top:2.3em; margin-bottom:0.8em; font-size:2em;}
 .text h2 { margin-top:2em; margin-bottom:0.4em; font-size:1.5em;}
 .text h3 { margin-top:1.8em; margin-bottom:0.4em; font-size:1.3em;}

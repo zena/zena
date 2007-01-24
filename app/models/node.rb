@@ -321,7 +321,7 @@ class Node < ActiveRecord::Base
   def discussion
     @discussion ||= Discussion.find(:first, :conditions=>[ "node_id = ? AND inside = ? AND lang = ?", 
                     self[:id], v_status != Zena::Status[:pub], v_lang ]) ||
-          if ( v_status != Zena::Status[:pub] ) ||
+          if ZENA_ENV[:pub_comments] || ( v_status != Zena::Status[:pub] ) ||
              ( Discussion.find(:first, :conditions=>[ "node_id = ? AND inside = ? AND open = ?", 
                                      self[:id], false, true ]))
             # v_status is not :pub or we already have an outside, open discussion for this node             
