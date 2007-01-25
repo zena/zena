@@ -1,9 +1,9 @@
 <td class="add_icon">
-  <%= if @user && @user.errors.empty?
-    user_id = @user[:id]
+  <%= 
+  user_id = @user[:id]
+  if @user[:id]
     tlink_to_remote 'btn_x', :url=>{:controller=>'user', :action=>'show', :id=>user_id}
-  else  
-    user_id = ''
+  else
     tlink_to_function 'btn_x', "new Element.toggle('add_user', 'add_user_form')"
   end %>
 </td>
@@ -15,22 +15,24 @@
   <%= form_remote_tag(:url=>{:controller=>'user', :action=>"create"} ) %>
   <% end %>
   <table cellspacing='0'>
-    <tr><td colspan='2'><div class='errors'><%= error_messages_for('user') %></div></td></tr>
+    <tr><td colspan='2'><div id='user_errors' class='errors'><%= error_messages_for('user') %></div></td></tr>
     <% unless user_id == 1 -%>
     <tr><td class='label'><%= trans("login")%>      </td><td><%= text_field('user', 'login',        :size=>15 ) %></td></tr>
     <% end -%>
     <tr><td class='label'><%= trans("first name")%> </td><td><%= text_field('user', 'first_name',   :size=>35 ) %></td></tr>
     <tr><td class='label'><%= trans("name")%>       </td><td><%= text_field('user', 'name',         :size=>35 ) %></td></tr>
-    <tr><td class='label'><%= trans('language')%>   </td><td><%= select('user', 'lang', ZENA_ENV[:languages].map{|l| [l,transb(l)]} ) %></td></tr>
+    <tr><td class='label'><%= trans('language')%>   </td><td><%= select('user', 'lang', ZENA_ENV[:languages].map{|l| [transb(l),l]} ) %></td></tr>
     <tr><td class='label'><%= trans("time zone")%>  </td><td><%= time_zone_select('user', 'time_zone') %></td></tr>
+    <% unless user_id == 1 -%>
     <tr><td class='label'><%= trans("email")%>      </td><td><%= text_field('user', 'email',        :size=>35 ) %></td></tr>
+    <% end -%>
     <% unless user_id == 2 || user_id == 1 -%>
     <tr><td class='label'><%= trans("groups")%>     </td><td>
     <%= @groups.inject([]) do |list, g|
           if 1 == g[:id]
             list << "<input type='checkbox' name='groups[#{g.id}]' value='#{g.id}' class='box' checked='1' disabled='1' />#{g.name}"
           else
-            list << "<input type='checkbox' name='groups[#{g.id}]' value='#{g.id}' class='box' #{(@user && @user.group_ids.include?(g[:id])) ? "checked='1'" : ''}/>#{g.name}"
+            list << "<input type='checkbox' name='groups[#{g.id}]' value='#{g.id}' class='box' #{(@user && @user.group_set_ids.include?(g[:id])) ? "checked='1'" : ''}/>#{g.name}"
           end
           list
         end.join(" ") %></ul></td></tr>

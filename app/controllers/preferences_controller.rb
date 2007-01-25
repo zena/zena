@@ -30,7 +30,7 @@ class PreferencesController < ApplicationController
   
   #TODO: test
   def change_info
-    @user = visitor
+    @user = User.find(visitor[:id]) # reload to get password
     # only accept changes on the following fields through this interface
     params.delete(:lang) unless ZENA_ENV[:languages].include?(params[:lang])
     [:login, :first_name, :name, :time_zone, :lang, :email].each do |sym|
@@ -39,7 +39,7 @@ class PreferencesController < ApplicationController
     
     if @user.save
       flash[:notice] = trans 'information successfully updated'
-      session[:lang] = params[:lang] if params[:lang]
+      session[:lang] = params[:user][:lang] if params[:user][:lang]
     end
   end
   

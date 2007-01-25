@@ -183,7 +183,7 @@ module ApplicationHelper
   # Show visitor name if logged in
   def visitor_link
     if session[:user]
-      "<div id='visitor'>" + link_to( session[:user][:fullname], user_home_url ) + "</div>"
+      "<div id='visitor'>" + link_to( visitor.fullname, user_home_url ) + "</div>"
     else
       ""
     end
@@ -447,7 +447,7 @@ module ApplicationHelper
   
   # Show a little [xx] next to the title if the desired language could not be found.
   def check_lang(obj)
-    obj.v_lang != session[:lang] ? " <span class='wrong_lang'>[#{obj.v_lang}]</span> " : ""
+    obj.v_lang != lang ? " <span class='wrong_lang'>[#{obj.v_lang}]</span> " : ""
   end
   
   # TODO: test

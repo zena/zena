@@ -3,8 +3,8 @@ class LoginController < ApplicationController
   
   def login
     if request.get?
-      # empty request
-      session[:user] = nil
+      # empty session
+      reset_session
     else
       # request with completed form
       logged_in_user = User.login(params[:user][:login], params[:user][:password])
@@ -22,7 +22,7 @@ class LoginController < ApplicationController
   
   # Clears session information and redirects to login page.
   def logout
-    session[:user] = nil
+    reset_session
     redirect_to :action=>'login'
   end
   

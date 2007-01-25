@@ -1,1 +1,5 @@
-page.replace "user#{@user[:id]}", :partial=>'user/li', :collection=>[@user]
+if @user.errors.empty?
+  page.replace "user#{@user[:id]}", :partial=>'user/li', :collection=>[@user]
+else
+  page.replace "user#{@user[:id]}", :partial=>'user/form'
+end

@@ -18,7 +18,7 @@ class UserController < ApplicationController
     @user_pages, @users =
             paginate :users, :order => 'id', :per_page => 20
     @groups = Group.find(:all, :order=>'id')
-    @user = nil
+    @user = User.new
   end
   
   # TODO: test
@@ -32,7 +32,6 @@ class UserController < ApplicationController
   
   # TODO: test
   def edit
-    render :nothing=>true if 1 == params[:id]
     @user = User.find(params[:id])
     @user.password = nil
     @groups = Group.find(:all, :order=>'id')
@@ -48,6 +47,9 @@ class UserController < ApplicationController
     @user = User.find(params[:id])
     @user.update_attributes(params[:user])
     @user.save
+    unless @user.errors.empty?
+      @groups = Group.find(:all, :order=>'id')
+    end
     render :action=>'show'
   end
 end

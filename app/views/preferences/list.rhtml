@@ -12,7 +12,7 @@
           <li class='align'><%= trans('login')%>      <span><%= text_field('user', 'login',        :size=>25 ) %></span></li>
           <li class='align'><%= trans('first name')%> <span><%= text_field('user', 'first_name',   :size=>25 ) %></span></li>
           <li class='align'><%= trans('name')%>       <span><%= text_field('user', 'name',         :size=>25 ) %></span></li>
-          <li class='align'><%= trans('language')%>   <span><%= select('user', 'lang', ZENA_ENV[:languages].map{|l| [l,transb(l)]} ) %></span></li>
+          <li class='align'><%= trans('language')%>   <span><%= select('user', 'lang', ZENA_ENV[:languages].map{|l| [transb(l),l]} ) %></span></li>
           <li class='align'><%= trans('time zone')%>  <span><%= time_zone_select('user', 'time_zone') %></span></li>
           <li class='align'><%= trans('email')%>      <span><%= text_field('user', 'email',        :size=>25 ) %></span></li>
           <li><p class='btn_validate'><input type='submit' value='<%= transb('validate') %>'/></p></li>

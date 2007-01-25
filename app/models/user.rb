@@ -12,14 +12,22 @@ class User < ActiveRecord::Base
   has_and_belongs_to_many :groups
   has_many                :nodes
   has_many                :versions
-  validates_uniqueness_of :login
-  validates_length_of     :login, :minimum=>4, :message=>"please choose a longer login"
-  validates_presence_of   :password
+  validate                :valid_user
   after_create            :add_public_group
-  before_save             :set_lang
+  before_save             :set_user
   before_destroy          :dont_destroy_su_or_anon
   
   class << self
+    # Creates a new user, copying 'public' user for defaults
+    def new
+      user = super
+      pub  = self.find(1)
+      [:time_zone, :lang].each do |sym|
+        user[sym] = pub[sym]
+      end
+      user
+    end
+    
     # Returns the logged in user or nil if login and password do not match
     def login(login, password)
       if !login || !password || login == "" || password == ""
@@ -50,7 +58,6 @@ class User < ActiveRecord::Base
     self[:email] || ""
   end
 
-  
   def password=(string)
     unless string.nil? || string == ''
       self[:password] = User.hash_password(string)
@@ -79,9 +86,15 @@ class User < ActiveRecord::Base
         res = groups
       end
     end
-    res.map!{|g| g[:id]}
+    res = res.map{|g| g[:id]}
     res << 1 unless res.include?(1)
     @group_ids = res
+  end
+  
+  #TODO: test
+  # return only the ids of the groups really set (not all groups for admin or the like)
+  def group_set_ids
+    @set_group_ids ||= groups.map{|g| g[:id]}
   end
   
   # TODO: test
@@ -134,6 +147,22 @@ class User < ActiveRecord::Base
   ### ================================================ PRIVATE
   private
   
+  # TODO: test
+  def valid_user
+    if self[:id] == 1
+      # Public user *must* have an empty login
+      self[:login] = nil
+      self[:password] = nil
+    else
+      # validate uniqueness of 'login'
+      if User.find(:first, :conditions=>["login = ? AND id <> ? ",self[:login],self[:id]])
+        errors.add(:login, 'has already been taken')
+      end
+      errors.add(:login, 'too short') unless self[:login] && self[:login].length > 3
+      errors.add(:password, 'too short') unless self[:password] && self[:password].length > 4
+    end
+  end
+  
   # Make sure all users are in the _public_ group. This method is called +after_create+.
   def add_public_group #:doc:
     unless groups.map{|g| g[:id]}.include?(1)
@@ -146,8 +175,9 @@ class User < ActiveRecord::Base
     raise Zena::AccessViolation, "su and Anonymous users cannot be destroyed !" if [1,2].include?(id)
   end
   
-  # Prefered language must be set. It is set to the application default if none was given.
-  def set_lang #:doc:
+  # validations before saving users
+  def set_user #:doc:
+    # Prefered language must be set. It is set to the application default if none was given.
     unless self[:lang] && self.lang != ""
       self[:lant] = ZENA_ENV[:default_lang]
     end

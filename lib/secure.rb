@@ -734,7 +734,7 @@ Just doing the above will filter all result according to the logged in user.
           if ZENA_ENV[:monolingual]
             ZENA_ENV[:default_lang]
           else
-            session[:lang] ||= ZENA_ENV[:default_lang]
+            session[:lang] ||= (ZENA_ENV[:languages].include?(visitor.lang) ? visitor.lang : ZENA_ENV[:default_lang])
           end
         end
         

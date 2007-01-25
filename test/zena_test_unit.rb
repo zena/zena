@@ -8,7 +8,7 @@ module ZenaTestUnit
     if ZENA_ENV[:monolingual]
       @lang = ZENA_ENV[:default_lang]
     else
-      @lang ||= ZENA_ENV[:default_lang]
+      @lang ||= ZENA_ENV[:languages].include?(visitor.lang) ? visitor.lang : ZENA_ENV[:default_lang]
     end
   end
   
