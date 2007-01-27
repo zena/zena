@@ -273,7 +273,7 @@ module ApplicationHelper
   # Create an img tag for the given image. See ApplicationHelper#zazen for details.
   def make_image(opts)
     id, style, link = opts[:id], opts[:style], opts[:link]
-    size, title = *(opts[:size].split('/'))
+    size, title = *(opts[:size].split('/')) if opts[:size]
 
     img = secure(Document) { Document.find(id) }
     title = img.v_summary if title.nil? && opts[:size][-1..-1] == '/'   
