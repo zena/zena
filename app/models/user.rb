@@ -14,20 +14,9 @@ class User < ActiveRecord::Base
   has_many                :versions
   validate                :valid_user
   after_create            :add_public_group
-  before_save             :set_user
   before_destroy          :dont_destroy_su_or_anon
   
   class << self
-    # Creates a new user, copying 'public' user for defaults
-    def new
-      user = super
-      pub  = self.find(1)
-      [:time_zone, :lang].each do |sym|
-        user[sym] = pub[sym]
-      end
-      user
-    end
-    
     # Returns the logged in user or nil if login and password do not match
     def login(login, password)
       if !login || !password || login == "" || password == ""
@@ -35,7 +24,11 @@ class User < ActiveRecord::Base
       else
         user = find(:first, :conditions=>['login=? and password=?',login, hash_password( password )])
         # do not allow 'anonymous' login (user_id = 1 is the anonymous login)
-        user if user && user.id.to_i != 1
+        if user && user.id.to_i != 1
+          user
+        else
+          nil
+        end
       end
     end
 
@@ -153,12 +146,20 @@ class User < ActiveRecord::Base
       # Public user *must* have an empty login
       self[:login] = nil
       self[:password] = nil
-    else
+    elsif new_record?
       # validate uniqueness of 'login'
-      if User.find(:first, :conditions=>["login = ? AND id <> ? ",self[:login],self[:id]])
+      if User.find(:first, :conditions=>["login = ?", self[:login]])
         errors.add(:login, 'has already been taken')
       end
-      errors.add(:login, 'too short') unless self[:login] && self[:login].length > 3
+    else
+      # get old password
+      old = User.find(self[:id])
+      self[:password] = old[:password] if self[:password].nil? || self[:password] == ""
+      # validate uniqueness of 'login'
+      if User.find(:first, :conditions=>["login = ? AND id <> ?", self[:login], self[:id]])
+        errors.add(:login, 'has already been taken')
+      end
+      errors.add(:login, 'too short') unless self[:login] == old[:login] || (self[:login] && self[:login].length > 3)
       errors.add(:password, 'too short') unless self[:password] && self[:password].length > 4
     end
   end
@@ -173,13 +174,5 @@ class User < ActiveRecord::Base
   # Do not allow destruction of _su_ or _anon_ users. This method is called +before_destroy+.
   def dont_destroy_su_or_anon #:doc:
     raise Zena::AccessViolation, "su and Anonymous users cannot be destroyed !" if [1,2].include?(id)
-  end
-  
-  # validations before saving users
-  def set_user #:doc:
-    # Prefered language must be set. It is set to the application default if none was given.
-    unless self[:lang] && self.lang != ""
-      self[:lant] = ZENA_ENV[:default_lang]
-    end
   end
 end

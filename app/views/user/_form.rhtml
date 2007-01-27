@@ -7,22 +7,27 @@
     tlink_to_function 'btn_x', "new Element.toggle('add_user', 'add_user_form')"
   end %>
 </td>
-<%#= form_remote_tag(:with=>"add_link_form", :url=>{:controller=>'link', :action=>"create" }) %>
 <td class="add_ug" colspan="3">
-  <% if @user && @user.errors.empty? %>
+  <div id='user_errors' class='errors'><%= error_messages_for('user') %></div>
+  <% if @user[:id] %>
   <%= form_remote_tag(:url=>{:controller=>'user', :action=>'update', :id=>@user[:id]} ) %>
   <% else %>
   <%= form_remote_tag(:url=>{:controller=>'user', :action=>"create"} ) %>
   <% end %>
   <table cellspacing='0'>
-    <tr><td colspan='2'><div id='user_errors' class='errors'><%= error_messages_for('user') %></div></td></tr>
     <% unless user_id == 1 -%>
     <tr><td class='label'><%= trans("login")%>      </td><td><%= text_field('user', 'login',        :size=>15 ) %></td></tr>
+    <% if @user[:id] -%>
+    <tr id='user<%= user_id %>_pass'><td colspan='2' class='label'><%= tlink_to_function 'change password', "new Element.toggle('user#{user_id}_pass', 'user#{user_id}_set_pass'); $('user#{user_id}_password').focus();" %>   </td></tr>
+    <tr id='user<%= user_id %>_set_pass' style='display:none;'><td><%= tlink_to_function 'cancel', "new Element.toggle('user#{user_id}_pass', 'user#{user_id}_set_pass'); $('user#{user_id}_password').value='';" %></td><td><%= trans("password")%> <%= password_field('user', 'password', :size=>15, :id=>"user#{user_id}_password", :value=>"" ) %></td></tr>
+    <% else -%>
+      <tr id='user_set_pass'><td class='label'><%= trans("password")%></td><td><%= password_field('user', 'password', :size=>15, :value=>"" ) %></td></tr>
+    <% end -%>
     <% end -%>
     <tr><td class='label'><%= trans("first name")%> </td><td><%= text_field('user', 'first_name',   :size=>35 ) %></td></tr>
     <tr><td class='label'><%= trans("name")%>       </td><td><%= text_field('user', 'name',         :size=>35 ) %></td></tr>
-    <tr><td class='label'><%= trans('language')%>   </td><td><%= select('user', 'lang', ZENA_ENV[:languages].map{|l| [transb(l),l]} ) %></td></tr>
-    <tr><td class='label'><%= trans("time zone")%>  </td><td><%= time_zone_select('user', 'time_zone') %></td></tr>
+    <tr><td class='label'><%= trans('language')%>   </td><td><%= select('user', 'lang', ZENA_ENV[:languages].map{|l| [transb(l),l]}, :value=>(@user[:lang] ? @user[:lang] : session[:lang]) ) %></td></tr>
+    <tr><td class='label'><%= trans("time zone")%>  </td><td><%= time_zone_select('user', 'time_zone', nil, :value=>(@user[:time_zone] ? @user[:time_zone] : visitor[:time_zone])) %></td></tr>
     <% unless user_id == 1 -%>
     <tr><td class='label'><%= trans("email")%>      </td><td><%= text_field('user', 'email',        :size=>35 ) %></td></tr>
     <% end -%>
@@ -36,15 +41,6 @@
           end
           list
         end.join(" ") %></ul></td></tr>
-    <% end -%>
-    
-    <% unless  user_id == 1 -%>
-    <% if @user && @user.errors.empty? %>
-    <tr id='user<%= user_id %>_pass'><td colspan='2' class='label'><%= tlink_to_function 'change password', "new Element.toggle('user#{user_id}_pass', 'user#{user_id}_set_pass'); $('user#{user_id}_password').focus();" %>   </td></tr>
-    <tr id='user<%= user_id %>_set_pass' style='display:none;'><td><%= tlink_to_function 'cancel', "new Element.toggle('user#{user_id}_pass', 'user#{user_id}_set_pass'); $('user#{user_id}_password').value='';" %></td><td><%= trans("password")%> <%= password_field('user', 'password', :size=>15, :id=>"user#{user_id}_password" ) %></td></tr>
-    <% else %>
-      <tr id='user_set_pass'><td class='label'><%= trans("password")%></td><td><%= password_field('user', 'password', :size=>15 ) %></td></tr>
-    <% end %>
     <% end -%>
     <tr><td colspan='2'><p class='btn_validate'><input type='submit' value='<%= transb('validate') %>'/></p></td></tr>
   </table>

@@ -29,10 +29,20 @@ class UserTest < Test::Unit::TestCase
   end
   
   def test_create_without_groups
-    user = User.new("login"=>"john", "password"=>"isjjna78a9h")
-    assert user.save
+    user = User.create("login"=>"john", "password"=>"isjjna78a9h")
+    assert_kind_of User, user
+    assert !user.new_record?, "Not a new record"
     assert_equal 1, user.groups.size
     assert_equal 'public', user.groups[0].name
+  end
+  
+  def test_update_keep_password
+    user = users(:tiger)
+    pass = user.password
+    assert pass != "", "Password not empty"
+    assert user.update_attributes(:login=>'bigme', :password=>'')
+    assert_equal 'bigme', user.login
+    assert_equal pass, user.password
   end
   
   def test_anon_cannot_login
@@ -41,12 +51,12 @@ class UserTest < Test::Unit::TestCase
   
   def test_unique_login
     bob = User.new
-    bob.login = 'ant'
-    bob.password = 'bob'
+    bob.login = 'tiger'
+    bob.password = 'anypassword'
     assert ! bob.save
     assert_not_nil bob.errors[:login]
     
-    bob.login = 'bob'
+    bob.login = 'bobby'
     assert bob.save
     assert_nil bob.errors[:login]
   end
@@ -56,6 +66,21 @@ class UserTest < Test::Unit::TestCase
     bob.login = 'bob'
     assert ! bob.save
     assert_not_nil bob.errors[:password]
+  end
+  
+  def test_update_public
+    pub = User.find(1)
+    assert_equal 'en', pub.lang
+    assert_nil pub.login
+    assert_nil pub.password
+    
+    pub.login = "hello"
+    pub.password = 'hey'
+    pub.lang = 'es'
+    assert pub.save
+    assert_equal 'es', pub.lang
+    assert_equal nil, pub.login
+    assert_equal nil, pub.password
   end
   
   def test_comments_to_publish

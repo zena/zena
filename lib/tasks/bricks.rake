@@ -1,16 +1,47 @@
 namespace :bricks do
   desc "Run the bricks server"
   task :server do
-    `../../bricks`
+    `bricks`
   end
   
-  desc "Migrate the database through scripts in db/migrate/BRICK. Target specific version with VERSION=x"
+
+  desc "Migrate the database through scripts in db/migrate. Target specific brick and version with BRICK=x and VERSION=x"
   task :migrate => :environment do
-    if ENV["BRICK"] && File.exist?(mig_path = "db/migrate/#{ENV["BRICK"]}")
-      ActiveRecord::BricksMigrator.migrate(mig_path, ENV["BRICK"], ENV["VERSION"] ? ENV["VERSION"].to_i : nil)
+    if ENV['BRICK']
+      # migrate specific bricks only
+      mig_path = nil
+      Dir.foreach('db/migrate') do |file|
+        next if file =~ /^\./
+        next unless File.stat(file).directory?
+        if file =~ /^[0-9-_]*#{ENV["BRICK"]}/
+          mig_path = "db/migrate/#{file}"
+          break
+        end
+      end
+      if mig_path
+        ActiveRecord::BricksMigrator.migrate(mig_path, ENV["BRICK"], ENV["VERSION"] ? ENV["VERSION"].to_i : nil)
+      else
+        puts "Brick migrations must exist in db/migrate/BRICK"
+      end
+    elsif ENV['VERSION']
+      # migrate normal app files with version
+      ActiveRecord::Migrator.migrate("db/migrate/", ENV["VERSION"].to_i)
     else
-      puts "please provide target brick with 'BRICK=x'. The brick migrations must exist in db/migrate/BRICK"
+      # migrate all to latest
+      directories = []
+      Dir.foreach('db/migrate') do |file|
+        next if file =~ /^\./
+        next unless File.stat("db/migrate/#{file}").directory?
+        directories << file
+      end
+      directories.sort.each do |file|
+        brick_name = file.sub(/^[0-9-_]*/,'')
+        puts "FILE:#{file} BRICK:#{brick_name}"
+        ActiveRecord::BricksMigrator.migrate("db/migrate/#{file}", brick_name, nil)
+      end
+      ActiveRecord::Migrator.migrate("db/migrate/", nil)
     end
+    Rake::Task["db:schema:dump"].invoke if ActiveRecord::Base.schema_format == :ruby
   end
   
   desc "Perform initial setup defined in db/initialize/BRICK. Target brick with BRICK=x"
@@ -21,7 +52,6 @@ namespace :bricks do
       puts "please provide target brick with 'BRICK=x'. The brick initialization must exist in db/initialize/BRICK/init.rb"
     end
   end
-    
 end
 
 module ActiveRecord

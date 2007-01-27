@@ -4,7 +4,6 @@ class LoginController < ApplicationController
   def login
     if request.get?
       # empty session
-      reset_session
     else
       # request with completed form
       logged_in_user = User.login(params[:user][:login], params[:user][:password])

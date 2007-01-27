@@ -4,6 +4,7 @@ anon:
   id:         1
   first_name: Anonymous
   name:       User
+  lang:       en
 
 su:
   id:         2

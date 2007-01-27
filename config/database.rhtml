@@ -1,0 +1,25 @@
+# MySQL
+login: &dev_login
+  adapter: mysql
+  socket: /tmp/mysql.sock
+  username: root
+  password: 
+
+development:
+  database: zena_dev
+  encoding: utf8
+  <<: *dev_login
+
+test:
+  database: zena_test
+  encoding: utf8
+  <<: *dev_login
+  
+  
+production:
+  adapter: mysql
+  socket: /var/run/mysqld/mysqld.sock
+  database: <%= db_name %>
+  encoding: utf8
+  username: <%= db_user %>
+  password: <%= db_password %>

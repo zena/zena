@@ -32,10 +32,10 @@ table.admin_ug td:first-child { border-left: 1px solid #333; }
 .admin_ug td.fullname { width: 15em;}
 .admin_ug td.users, .admin_ug td.groups { width: auto;}
 .admin_ug .login i {color:#A0A0A0; font-style:normal;}
-.admin_ug td.add_ug table { border: 0;}
-.admin_ug td.add_ug table td { border: 0; font-size:inherit; padding: 2px; }
+.admin_ug .add_ug { padding:0; }
+.admin_ug .add_ug table { border: 0; margin:10px;}
+.admin_ug .add_ug table td { border: 0; font-size:inherit; padding: 2px; }
 .admin_ug .btn_validate { float:right; }
-.admin_ug .errors ul { margin:-9px -13px 5px;}
 .btn_validate input { background:#C8D8C7; border:1px outset black;}
 .admin_ug .label {width:80px; line-height:1.9em;}
 
@@ -45,12 +45,12 @@ ul.actions { position:relative; }
 ul.actions li { margin:0; border:1px dashed #9E9E9E; background: #D3D3D3; padding:5px 5px; font-size:0.9em; color:#560B0A;  display:block; margin-bottom:10px;}
 ul.actions form {margin:8px 0 0;}
 ul.actions ul { margin:0 0 0 1.6em; padding:0; }
-#preferences ul li, ul.actions ul li { padding:2px 0; border:0; margin:0;}
+#preferences ul li, ul.actions ul li { padding:4px 0; border:0; margin:0;}
 #preferences .errors li {padding:0px; margin-left:5px;}
 ul.actions .align { line-height:1.5em; }
 ul.actions .align span { position:absolute; right:6px; }
 ul.actions select { font-size:10px; width:186px; margin:2px;} 
-#preferences { width:50%; }
+#preferences { width:55%; }
 #preferences li {margin-bottom:30px;}
 #preferences .errors ul { margin:0 -5px 5px;}
 .actions .errors ul { background:#DDC8C8; margin:0 0 5px; padding:4px 0; border-bottom:1px solid #5A3231;}

@@ -5,8 +5,8 @@
     link_to_function transb('btn_x'), "new Element.toggle('add_group', 'add_group_form');"
   end %>
 </td>
-<%#= form_remote_tag(:with=>'add_link_form', :url=>{:controller=>'link', :action=>'create' }) %>
 <td class='add_ug' colspan='2'>
+  <div class='errors'><%= error_messages_for('group') %></div>
   <% if @group %>
   <%= form_remote_tag(:url=>{:controller=>'group', :action=>'update', :id=>@group[:id]} ) %>
   <%= hidden_field('group', 'id') %>
@@ -14,7 +14,6 @@
   <%= form_remote_tag(:url=>{:controller=>'group', :action=>'create'} ) %>
   <% end %>
     <table cellspacing='0'>
-      <tr><td colspan='2'><div class='errors'><%= error_messages_for('group') %></div></td></tr>
       <tr><td class='label'><%= trans('name')%>       </td><td><%= text_field('group', 'name',        :size=>15 ) %></td></tr>
       <tr><td class='label'><%= trans('users')%>      </td><td><%= @users.inject([]) do |list, u|
         unless 1 == u[:id] || 2 == u[:id]
