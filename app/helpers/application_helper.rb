@@ -276,7 +276,7 @@ module ApplicationHelper
     size, title = *(opts[:size].split('/')) if opts[:size]
 
     img = secure(Document) { Document.find(id) }
-    title = img.v_summary if title.nil? && opts[:size][-1..-1] == '/'   
+    title = img.v_summary if title.nil? && opts[:size] && opts[:size][-1..-1] == '/'   
     size = IMAGEBUILDER_FORMAT[size] ? size : nil
     if !size && img.kind_of?(Image)
       size = 'std'
