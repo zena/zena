@@ -272,9 +272,11 @@ module ApplicationHelper
   end
   # Create an img tag for the given image. See ApplicationHelper#zazen for details.
   def make_image(opts)
-    id, style, size, link = opts[:id], opts[:style], opts[:size], opts[:link]
+    id, style, link = opts[:id], opts[:style], opts[:link]
+    size, title = *(opts[:size].split('/'))
+
     img = secure(Document) { Document.find(id) }
-    
+    title = img.v_summary if title.nil? && opts[:size][-1..-1] == '/'   
     size = IMAGEBUILDER_FORMAT[size] ? size : nil
     if !size && img.kind_of?(Image)
       size = 'std'
@@ -297,11 +299,15 @@ module ApplicationHelper
       prefix = "<p class='img_left'>"
       suffix = "</p>"
     when "="
-      prefix = "<p class='img_center'>"
-      suffix = "</p>"
+      prefix = "<div class='img_center'>"
+      suffix = "</div>"
     else
       prefix = suffix = ""
     end
+    
+    prefix = "#{prefix}<div class='img_with_title'>" if title
+    suffix = "<div class='img_title'>#{zazen(title)}</div></div>#{suffix}" if title
+    title ||= ''
     
     if link.nil?
       prefix + image + suffix
