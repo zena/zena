@@ -27,20 +27,34 @@
     <div id='tinycal'><%= calendar(:find=>:news, :size=>:tiny) %></div>
     <% hot = @node.hot ? @node.hot : @node %>
     <div class='header'>
-      <h1 class='s<%= hot.v_status %>'>
+      <h1 class='s<%= @node.v_status %>'>
         <ul class='node_actions'><%= edit_button(:all) %></ul><br/>
-        <%= show_title(hot) %>
+        <%= show_title(@node) %>
       </h1>
       <div class='subtitle'><%= author(:small) %></div>
     </div>
     <div id='drive' style='display:none;'></div>
     <div class='content'>
-      <%= hot[:v_summary] ? show(hot, :v_summary) : show(hot, :v_text) %>
+      <%= @node[:v_summary] ? show(@node, :v_summary) : show(@node, :v_text) %>
     </div>
   </div>
   <div id='main'>
     <div id='content'>
       <div id='largecal' style='display:none;'></div>
+      
+      <div class='header'>
+        <h1 class='s<%= @node.v_status %>'>
+          <ul class='node_actions'><%= edit_button(:all) %></ul><br/>
+          <%= show_title(@node) %>
+        </h1>
+        <div class='subtitle'><%= author(:small) %></div>
+      </div>
+      <div id='drive' style='display:none;'></div>
+      <div class='content'>
+        <%= @node[:v_summary] ? show(@node, :v_summary) : show(@node, :v_text) %>
+      </div>
+      
+      
       <div id='notes'>
         <%= render :partial=>'note/list', :locals=>{:list=>notes(:find=>:all_notes, :order=>'log_at DESC')} %>
       </div>
