@@ -181,6 +181,8 @@ input, textarea { border:1px solid grey; margin:0.2em}
 .text h3 { margin-top:1.8em; margin-bottom:0.4em; font-size:1.3em;}
 .text h4 { font-size:0.9em; margin:2em 0 -1em;}
 .text p { line-height:1.5; margin-top:1.3em; margin-bottom:0.9em; font-style:normal; font-size:0.9em; }
+.text li { font-size:0.9em;}
+.text li li { font-size:inherit;}
 .text ul, .text ol {margin:1em 0 0 3em;}
 .text ul ul, .text ol ol { margin:0 1em;}
 .text ul ul li { list-style:circle;}
