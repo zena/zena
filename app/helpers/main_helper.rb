@@ -190,7 +190,7 @@ ENDTXT
   # size can be either :small or :large, options are
   # :node=>object
   def author(size, opt={})
-    obj  = opts[:node]  || @node
+    obj  = opt[:node]  || @node
     if size == :large
       res = []
       res << "<div class='info'>"
