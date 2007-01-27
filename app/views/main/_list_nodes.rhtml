@@ -3,7 +3,7 @@
   <tr><td colspan='2' class='result_break'></td></tr>
   <tr>
     <td class='docpv'><%= link_to doc.img_tag('mini'), data_url(doc) %><p><%= fsize(doc.c_size) %></p></td>
-    <td class='docinfo'><h3><%= link_to doc.v_title, :prefix => prefix, :controller => 'main', :action=>'show', :path=>doc.fullpath %></h3><p><%= doc.v_summary %></p></td>
+    <td class='docinfo'><h4><%= link_to doc.v_title, :prefix => prefix, :controller => 'main', :action=>'show', :path=>doc.fullpath %></h4><p><%= doc.v_summary %></p></td>
   </tr>
   <% end %>
 </table>

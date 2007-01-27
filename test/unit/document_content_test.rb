@@ -6,9 +6,9 @@ class DocumentContentTest < Test::Unit::TestCase
   def test_img_tag
     test_visitor(:tiger)
     doc = document_contents(:water_pdf)
-    assert_equal "<img src='/images/ext/pdf.png' width='32' height='32' class='icon'/>", doc.img_tag
-    assert_equal "<img src='/images/ext/pdf-pv.png' width='80' height='80' class='pv'/>", doc.img_tag('pv')
-    assert_equal "<img src='/images/ext/pdf-std.png' width='32' height='32' class='std'/>", doc.img_tag('std')
+    assert_equal "<img src='/images/ext/pdf.png' width='32' height='32' class='doc'/>", doc.img_tag
+    assert_equal "<img src='/images/ext/pdf-pv.png' width='80' height='80' class='doc'/>", doc.img_tag('pv')
+    assert_equal "<img src='/images/ext/pdf-std.png' width='32' height='32' class='doc'/>", doc.img_tag('std')
   end
   
   def test_img_tag_other
@@ -16,9 +16,9 @@ class DocumentContentTest < Test::Unit::TestCase
     doc = document_contents(:water_pdf)
     doc.ext = 'bin'
     assert_equal 'bin', doc.ext
-    assert_equal "<img src='/images/ext/other.png' width='32' height='32' class='icon'/>", doc.img_tag
-    assert_equal "<img src='/images/ext/other-pv.png' width='80' height='80' class='pv'/>", doc.img_tag('pv')
-    assert_equal "<img src='/images/ext/other-std.png' width='32' height='32' class='std'/>", doc.img_tag('std')
+    assert_equal "<img src='/images/ext/other.png' width='32' height='32' class='doc'/>", doc.img_tag
+    assert_equal "<img src='/images/ext/other-pv.png' width='80' height='80' class='doc'/>", doc.img_tag('pv')
+    assert_equal "<img src='/images/ext/other-std.png' width='32' height='32' class='doc'/>", doc.img_tag('std')
   end
   
   def test_set_file

@@ -246,7 +246,7 @@ module ApplicationHelper
     r.gsub!(  /\?(\w[^\?]+?\w)\?/               ) { make_wiki_link($1) }
     r.gsub!(  /"([^"]*)":([0-9]+)/                    ) { make_link(:title=>$1,:id=>$2)}
     r.gsub!(  /\!\[([^\]]*)\]\!/                      ) { img ? make_gallery($1) : trans('[gallery]') }
-    r.gsub!(  /\!\{([^\}]*)\}\!/                      ) { img ? list_nodes($1)   : trans('[documents]')}
+    r.gsub!(  /\!([^0-9]{0,2})\{([^\}]*)\}\!/                      ) { img ? list_nodes(:style=>$1, :ids=>$2)   : trans('[documents]')}
     r.gsub!(  /\!([^0-9]{0,2})([0-9]+)(\.([^\!]+)|)\!(:([^\s]+)|)/ ) { img ? make_image(:style=>$1, :id=>$2, :size=>$4, :link=>$6) : trans('[image]')}
     r.gsub!(  /(\\CODE_START\\)(.*?)(\\CODE_END\\)/m    ) { "<div class='box'><pre class='code'>#{zazen_unescape($2)}</pre></div>" }
     r.gsub!(  /(\\AT_START\\)(.*?)(\\AT_END\\)/         ) { "<code>#{zazen_unescape($2)}</code>" }
@@ -332,7 +332,22 @@ module ApplicationHelper
     render_to_string( :partial=>'main/gallery', :locals=>{:gallery=>images} )
   end
 
-  def list_nodes(ids='')
+  def list_nodes(opt={})
+    ids = opt[:ids]
+    style = opt[:style] || ''
+    case style.sub('.', '')
+    when ">"
+      prefix = "<div class='img_right'>"
+      suffix = "</div>"
+    when "<"
+      prefix = "<div class='img_left'>"
+      suffix = "</div>"
+    when "="
+      prefix = "<div class='img_center'>"
+      suffix = "</div>"
+    else
+      prefix = suffix = ""
+    end
     if ids == ""
       docs = @node.documents
     elsif ids == "d"
@@ -343,7 +358,7 @@ module ApplicationHelper
       ids = ids.split(',').map{|i| i.to_i}.join(',') # sql injection security
       docs = secure(Document) { Document.find(:all, :order=>'name ASC', :conditions=>"id IN (#{ids})") }
     end
-    render_to_string( :partial=>'main/list_nodes', :locals=>{:docs=>docs})
+    prefix + render_to_string( :partial=>'main/list_nodes', :locals=>{:docs=>docs}) + suffix
   end
   
   def data_url(obj)

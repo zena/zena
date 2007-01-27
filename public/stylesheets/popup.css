@@ -34,6 +34,7 @@ button { background:none; border:none;}
 
 .edit { width:70%; border-right:1px solid grey; padding-right:8px;}
 
+img {border:1px solid grey;}
 /* version edit */
 #edit input, #edit textarea { margin:3px 0; width:100%; padding:2px; font-family:Helvetica, sans-serif; font-size:0.8em;}
 #edit .link_box { float:left; width:100px; font-size:80%; border: 1px solid #655; list-style:none; margin:2px; padding:2px;}
@@ -47,6 +48,7 @@ button { background:none; border:none;}
 .result_info p { margin-top:5px; display:inline;}
 .result_docinfo p { margin-top:5px; }
 .result_image { width:45px; }
+.result_image img.doc {border:none;}
 .result_id   { color:#5C2200; font-weight:bold; }
 .result_name { }
 .result_info .result_path, .result_docinfo .result_path { display:block; font-size:0.7em; color:#404040;}
@@ -60,7 +62,6 @@ input#node_v_title { font-size:1.3em; font-weight:bold;}
 /* document upload */
 #document_v_summary, #document_name { width: 350px;}
 /* document created */
-#edit .pv img, #search_results img { border:1px solid grey;}
 table .preview img { margin:0 10px 10px 0;} 
 td.preview { text-align:center; vertical-align:middle; border-right: 1px solid grey; font-size:0.8em;}
 td.description { padding:10px 0 0 10px; vertical-align:top;}
