@@ -4,8 +4,11 @@ Zena is a CMS. (c) teti.ch 2007
 
 -------------------------------------------
 == Todo
+!! DO NOT PUT 'PATH TO FILES' IN ZENA.rb
+!! TRY TO KEEP ONLY ONE CONFIGURATION FILE, LOADED
+!! BY environment/...
 deletion of node
-DO NOT CHECK ALL GROUPS WHEN EDITING AN ADMIN
+
 USER : CONTACT_ID ??
 === Optimization & Cache
 * sweep public page cache :

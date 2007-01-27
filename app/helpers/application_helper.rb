@@ -477,6 +477,7 @@ module ApplicationHelper
   
   # TODO: test
   def show(obj, sym, opt={})
+    return show_title(obj, opt) if sym == :title
     if opt[:as]
       key = "#{opt[:as]}#{obj.v_id}"
       method = opt[:as]

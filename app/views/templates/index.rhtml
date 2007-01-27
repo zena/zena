@@ -42,17 +42,19 @@
     <div id='content'>
       <div id='largecal' style='display:none;'></div>
       
+      <% if hot = @node.hot -%>
       <div class='header'>
-        <h1 class='s<%= @node.v_status %>'>
-          <ul class='node_actions'><%= edit_button(:all) %></ul><br/>
-          <%= show_title(@node) %>
+        <h1 class='s<%= hot.v_status %>'>
+          <ul class='node_actions'><%= edit_button(:all, :node=>hot) %></ul><br/>
+          <%= show(hot, :title) %>
         </h1>
-        <div class='subtitle'><%= author(:small) %></div>
+        <div class='subtitle'><%= author(:small, :node=>hot) %></div>
       </div>
       <div id='drive' style='display:none;'></div>
       <div class='content'>
-        <%= @node[:v_summary] ? show(@node, :v_summary) : show(@node, :v_text) %>
+        <%= hot[:v_summary] ? show(hot, :v_summary) : show(hot, :v_text) %>
       </div>
+      <% end -%>
       
       
       <div id='notes'>

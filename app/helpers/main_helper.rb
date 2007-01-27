@@ -187,22 +187,25 @@ ENDTXT
   end
   
   # show author information
-  def author(size=:small)
+  # size can be either :small or :large, options are
+  # :node=>object
+  def author(size, opt={})
+    obj  = opts[:node]  || @node
     if size == :large
       res = []
       res << "<div class='info'>"
-      if  @node.author.id == @node.v_author.id
-        res << trans("posted by") + " <b>" + @node.author.fullname + "</b>"
+      if  obj.author.id == obj.v_author.id
+        res << trans("posted by") + " <b>" + obj.author.fullname + "</b>"
       else
-        res << trans("original by") + " <b>" + @node.author.fullname + "</b>"
-        res << trans("new post by") + " <b>" + @node.v_author.fullname + "</b>"
+        res << trans("original by") + " <b>" + obj.author.fullname + "</b>"
+        res << trans("new post by") + " <b>" + obj.v_author.fullname + "</b>"
       end
-      res << trans("on") + " " + short_date(@node.v_updated_at) + "."
+      res << trans("on") + " " + short_date(obj.v_updated_at) + "."
       res << trans("Traductions") + " : <span id='trad'>" + traductions.join(", ") + "</span>"
       res << "</div>"
       res.join("\n")
     else
-      "<div class='info'><b>#{@node.v_author.initials}</b> - #{short_date(@node.v_updated_at)}</div>"
+      "<div class='info'><b>#{obj.v_author.initials}</b> - #{short_date(obj.v_updated_at)}</div>"
     end
   end
   
