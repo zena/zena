@@ -13,14 +13,18 @@ a:hover .id { display:inline; }
 button { background:none; border:none;}
 input, textarea { font:inherit; padding:2px;}
 
-.img_left  img { margin:0px 5px 5px 0; float:left; display:table;}
-.img_right img { margin:0px 0 5px 5px; float:right;display:table;}
-p.img_left, p.img_right { margin:0; padding:0;}
-.img_center { text-align:center; margin:5px;}
+.img_left { margin:0px 8px 12px 0; }
+.img_right { margin:0px 0 12px 8px; }
+.img_left, .img_right { padding:0;}
+.img_left {float:left; display:table;}
+.img_right {float:right;display:table;}
+.img_center { text-align:center; margin:12px;}
+
 .img_with_title { display:table; margin:auto;}
-.img_with_title p, .img_with_title img { padding:0; margin:0;}
-.img_title { display:inline; text-align:left; font-size:0.8em; }
-.img_title p {font-style:italic;}
+.img_with_title p, .img_title p, .text .img_title p,
+.img_with_title img, .text .img_with_title img { padding:0; margin:0; }
+.img_title { display:inline; text-align:left;}
+.img_title p, .text .img_title p {font-style:italic; font-size:0.8em;}
 
 .clear { clear:both; font-size:1px;}
 .date_box { display:inline;}

@@ -293,11 +293,11 @@ module ApplicationHelper
     style ||= ''
     case style.sub('.', '')
     when ">"
-      prefix = "<p class='img_right'>"
-      suffix = "</p>"
+      prefix = "<div class='img_right'>"
+      suffix = "</div>"
     when "<"
-      prefix = "<p class='img_left'>"
-      suffix = "</p>"
+      prefix = "<div class='img_left'>"
+      suffix = "</div>"
     when "="
       prefix = "<div class='img_center'>"
       suffix = "</div>"
