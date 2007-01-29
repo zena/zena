@@ -60,7 +60,7 @@ class CommentController < ApplicationController
     @comment    = Comment.find(params[:id])
     @discussion = @comment.discussion
     @node = secure(Node) { Node.find(@discussion[:node_id]) }
-    if visitor_is_admin? || @node.can_drive?
+    if visitor.is_admin? || @node.can_drive?
       @comment.remove
     else
       render :nothing=>true
