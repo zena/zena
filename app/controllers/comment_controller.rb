@@ -33,7 +33,7 @@ class CommentController < ApplicationController
     @discussion = @comment.discussion
     @node = secure(Node) { Node.find(@discussion[:node_id]) }
     @edit = true
-    unless @node.can_comment? && @comment[:user_id] == visitor_id
+    unless @node.can_comment? && @comment[:user_id] == visitor.id
       render :nothing=>true
     end
   rescue ActiveRecord::RecordNotFound
@@ -45,7 +45,7 @@ class CommentController < ApplicationController
     @comment    = Comment.find(params[:comment][:id])
     @discussion = @comment.discussion
     @node = secure(Node) { Node.find(@discussion[:node_id]) }
-    if @node.can_comment? && @comment[:user_id] == visitor_id || visitor_id == 2
+    if @node.can_comment? && @comment[:user_id] == visitor.id || visitor.id == 2
       [:user_id, :discussion_id, :reply_to].each { |sym| params[:comment].delete(sym) }
       @comment.update_attributes(params[:comment] )
     else

@@ -20,7 +20,7 @@ class Form < Page
   
   def new_seizure(params)
     params[:form_id] = self[:id]
-    params[:user_id] = visitor_id
+    params[:user_id] = visitor.id
     FormSeizure.create(params)
   end
 
@@ -47,7 +47,7 @@ class Form < Page
   def on_edit(op)
     on_value = Proc.new do |op|
       
-      #if @context[:edit] && seizure[:user_id] == visitor_id && data.size == 1
+      #if @context[:edit] && seizure[:user_id] == visitor.id && data.size == 1
       #  val_id  = seizure.id_for[:key]
       #  "<#{table ? 'td' : 'div'} id='line_#{val_id}' class='line_form'>" + 
       #  link_to_remote("#{value}", 
