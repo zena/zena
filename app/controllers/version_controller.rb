@@ -2,12 +2,12 @@ class VersionController < ApplicationController
   layout 'popup'
   helper MainHelper
   
-  def show
-    @node = secure(Node) { Node.version(params[:id]) }
-    render_and_cache(:cache=>false)
-  rescue ActiveRecord::RecordNotFound
-    page_not_found
-  end
+  #def show
+  #  @node = secure(Node) { Node.version(params[:id]) }
+  #  render_and_cache(:cache=>false)
+  #rescue ActiveRecord::RecordNotFound
+  #  page_not_found
+  #end
   
   def edit
     if params[:id]
@@ -20,6 +20,7 @@ class VersionController < ApplicationController
     else
       # store the id used to preview when editing
       session[:preview_id] = params[:id]
+      @edit = true
       render_form
     end
   rescue ActiveRecord::RecordNotFound

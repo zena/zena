@@ -6,18 +6,19 @@
   <title><%= @node.v_title %></title>
   <meta http-equiv="Content-type" content="text/html; charset=utf-8" />
   <meta http-equiv="Content-Language" content="fr-fr" />
-  <%= stylesheet_link_tag( 'zen', 'comment' ) %>
+  <%= stylesheet_link_tag( 'zen', 'comment', 'search' ) %>
   <%= javascript_include_tag 'prototype', 'effects', 'zena' %>
   <%= uses_calendar %>
 </head>
 
 <body <%= @su %>>
   
-  <div id="navbar">
+  <div class="navbar">
     <%= lang_links %>
     <%= path_links   %>
     <%= login_link   %>
     <%= visitor_link %>
+    <%= search_box   %>
   </div>
 
   <%= show_menu      %>

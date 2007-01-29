@@ -891,3 +891,21 @@
   phrase_id:    94
   lang:      en
   value:     "to publish"
+
+167:
+  id:        167
+  phrase_id:    95
+  lang:      en
+  value:     "<img src='/images/project.png'/>"
+  
+168:
+  id:        168
+  phrase_id:    96
+  lang:      en
+  value:     "<img src='/images/group_pub.png'/>"
+  
+169:
+  id:        169
+  phrase_id:    97
+  lang:      en
+  value:     "<img src='/images/group_admin.png'/>"

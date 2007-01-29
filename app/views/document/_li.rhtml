@@ -1,4 +1,4 @@
 <li class="li_s<%= li.v_status %>">
 <span class="ext"><%= link_to li.img_tag('tiny'), data_url(li) %></span>
-<%= link_to li.v_title, :prefix => prefix, :controller => 'main', :action=>'show', :path=>li.fullpath %>
+<%= link_to(li.v_title, node_url(li)) %>
 </li>

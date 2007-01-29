@@ -1,5 +1,5 @@
 <% @depth ||=0; @depth += 1 -%>
-<li <%= 'class="sub"' if @depth > 1 %>><%= link_to menu.name, :prefix => prefix, :controller => 'main', :action=>'show', :path=>menu.fullpath %>
+<li <%= 'class="sub"' if @depth > 1 %>><%= link_to(menu.name, node_url(menu)) %>
     <% if @depth < 4 && menu.pages != [] -%>
     <ul>
     <%= render_to_string( :partial=>'main/menu', :collection=>menu.pages ) %>

@@ -1,48 +1,28 @@
-<div class='popup_action' id='drive'>
-  <table>
-    <tr>
-      <td rowspan='3' class='edit'>
-        <ul class='drive' id='groups'>
-          <%= render :partial=>'node/groups'%>
-        </ul>
-        <ul class='drive' id='parent'>
-          <%= render :partial=>'node/parent'    %>
-        </ul>
-        <ul class='drive' id='dates'>
-          <%= render :partial=>'node/dates'    %>
-        </ul>
-      </td>
-      <td id='search_box'>
-        <label for='search'><%= trans("search")  %></label>
-        <%= form_remote_tag(:update=>'search_results', 
-                  :url=>{:controller=>'search', :action=>'find_in_edit', :id=>@node[:id]}, 
-                  :loading => "Element.show('spinner')",
-                  :complete => "Element.hide('spinner')") %>
-        <input type='text' id='search' name='search'/>
-        <%= end_form_tag %>
-      </td>
-    </tr>
-    <tr>
-      <td id='ajax-loader'><img alt="spinner" id="spinner" src="/images/ajax-loader.gif" style="display:none;" /></td>
-    </tr>
-    <tr>
-      <td id="search_results">
-      </td>
-    </tr>
-    <tr>
-      <td colspan='2' id='links'>
-        <%= render :partial=>'link/list'     %>
-      </td>
-    </tr>
-    <tr>
-      <td colspan='2' id='versions'>
-        <%= render :partial=>'version/list'     %>
-      </td>
-    </tr>
-    <tr>
-      <td colspan='2' id='discussions'>
-        <%= render :partial=>'discussion/list'     %>
-      </td>
-    </tr>
-  </table>
+<% partial = ['drive','links','help'] %>
+<%= search_box %>
+
+<div class='selector'>
+  <% partial.each_index do |i| %><div id='<%= partial[i] %>_sel' <%= i == 0 ? "class='selected'" : "" %>><%= link_to_function(partial[i], "select_tab('#{partial[i]}');") %></div><% end %>
 </div>
+
+<div class='tab'>
+<% partial.each_index do |i| %><div id='<%= partial[i] %>' <%= i == 0 ? "" : "style='display:none;'" %>>
+  <%= render :partial=>"node/#{partial[i]}" %>
+</div><% end %>
+</div>
+
+<%= css_edit %>
+<%= javascript_start %>
+var current_tab = $('<%= partial[0] %>');
+var current_sel = $('<%= partial[0] %>_sel');
+function select_tab(name) {
+  var obj = $(name);
+  var obj_sel = $(name+'_sel');
+  current_tab.style.display = 'none';
+  current_sel.className = '';
+  current_tab = obj;
+  current_sel = obj_sel;
+  current_tab.style.display = '';
+  current_sel.className = 'selected';
+}
+<%= javascript_end %>

@@ -32,7 +32,7 @@ class ImageTest < Test::Unit::TestCase
                                           :name=>'birdy', :c_file => uploaded_jpg('bird.jpg')) }
       assert !img.new_record?, "Not a new record"
       assert  File.exist?( img.c_filepath       ), "File exist"
-      assert_equal "80x80", "#{img.c_width('pv')}x#{img.c_height('pv')}"
+      assert_equal "70x70", "#{img.c_width('pv')}x#{img.c_height('pv')}"
       assert !File.exist?( img.c_filepath('pv') ), "File does not exist"
       assert  img.c_file('pv'), "Can make 'pv' image"
       assert  File.exist?( img.c_filepath('pv') ), "File exist"

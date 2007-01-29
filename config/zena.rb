@@ -1,20 +1,21 @@
 require 'date'
 AUTHENTICATED_PREFIX = "oo"
 ZENA_ENV = {
-  :default_lang => 'en',
-  :languages => ['en', 'fr', 'es'],
- # :news_collector_id => 24,
- # :menu_tag_id => 23,
-  :moderate_public_comments => false,
   :site_name => 'zena',
   :root_id => 1,
   :authorize => false,
   :translate_group => 2, # default = admin
   :monolingual => false,
+  :languages => ['en', 'fr', 'es'],
   :calendar_langs => ["en", "fr"],
-  :password_salt => "fish zen ho",
+  :default_lang => 'en',
+ # :news_collector_id => 24,
+ # :menu_tag_id => 23,
   :pub_comments => false,
-  :data_dir => "/var/www/zenadmin.org/data" # configure data directory for uploaded files
+  :moderate_public_comments => false,
+  :password_salt => "fish zen ho",
+  :data_dir => "/var/www/zenadmin.org/data", # configure data directory for uploaded files
+  :edit_help_id => 3,
 }
 # additions to class String
 class String

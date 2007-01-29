@@ -6,14 +6,14 @@
   <title><%= params[:action] %></title>
   <meta http-equiv="Content-type" content="text/html; charset=utf-8" />
   <meta http-equiv="Content-Language" content="fr-fr" />
-  <%= stylesheet_link_tag( 'zen', 'comment', 'admin' ) %>
+  <%= stylesheet_link_tag( 'zen', 'comment', 'admin', 'search' ) %>
   <%= javascript_include_tag 'prototype', 'effects', 'zena' %>
   <%= uses_calendar %>
 </head>
 
 <body <%= @su %>>
   
-  <div id='navbar'>
+  <div class='navbar'>
     <%= lang_links %>
     <%= login_link   %>
     <%= visitor_link %>

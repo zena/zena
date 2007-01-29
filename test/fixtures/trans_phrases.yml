@@ -373,3 +373,15 @@
 94:
   id:   94
   phrase:  "to publish"
+
+95:
+  id:   95
+  phrase:  "img_project"
+  
+96:
+  id:   96
+  phrase:  'img_group_pub'
+
+97:
+  id:   97
+  phrase:  'img_group_admin'

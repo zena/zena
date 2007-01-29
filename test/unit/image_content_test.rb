@@ -31,7 +31,7 @@ class ImageContentTest < Test::Unit::TestCase
       assert File.exist?("#{RAILS_ROOT}/data/test/jpg/20/bird.jpg"), "File exists"
       assert !File.exist?("#{RAILS_ROOT}/data/test/jpg/20/bird-pv.jpg"), "File does not exist"
       assert_equal 661, img.width
-      assert_equal 80,  img.width('pv')
+      assert_equal 70,  img.width('pv')
       assert !File.exist?("#{RAILS_ROOT}/data/test/jpg/20/bird-pv.jpg"), "File does not exist"
       assert_equal 1594, img.size('pv')
       assert File.exist?("#{RAILS_ROOT}/data/test/jpg/20/bird-pv.jpg"), "File exist"
@@ -56,7 +56,7 @@ class ImageContentTest < Test::Unit::TestCase
     preserving_files('/data/test/jpg/20') do
       img = document_contents(:bird_jpg)
       assert_equal "<img src='/data/jpg/20/bird.jpg' width='661' height='600' class='full'/>", img.img_tag
-      assert_equal "<img src='/data/jpg/20/bird-pv.jpg' width='80' height='80' class='pv'/>", img.img_tag('pv')
+      assert_equal "<img src='/data/jpg/20/bird-pv.jpg' width='70' height='70' class='pv'/>", img.img_tag('pv')
     end
   end
   

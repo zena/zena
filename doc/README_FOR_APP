@@ -7,9 +7,11 @@ Zena is a CMS. (c) teti.ch 2007
 !! DO NOT PUT 'PATH TO FILES' IN ZENA.rb
 !! TRY TO KEEP ONLY ONE CONFIGURATION FILE, LOADED
 !! BY environment/...
+!! BUG WITH DISCUSSION REMOVE: not working
 deletion of node
-
 USER : CONTACT_ID ??
+popup 'drive' should show vertical scroll bar...
+traduire le texte de base pour l'aide en anglais
 === Optimization & Cache
 * sweep public page cache :
   * page for all lang

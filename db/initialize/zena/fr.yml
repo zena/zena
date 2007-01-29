@@ -418,10 +418,6 @@ trans_values:
   - phrase_id:    77
     lang:      fr
     value:     1
-
-  - phrase_id:    77
-    lang:      en
-    value:     0
   
   - phrase_id:    78
     lang:      en

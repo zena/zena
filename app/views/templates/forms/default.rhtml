@@ -1,73 +1,46 @@
-<div id='loader' class='hidden'><img src='/images/ajax-loader.gif'/> <%= trans("uploading, please wait...") %></div>
-<div id='edit' class='popup_action'>
-  <div id='form_errors' class='errors'><%= error_messages_for "node" %></div>
-  <p class='readers'><%= readers_for(@node) %></p>
-  <table>
-    <tr>
-      <td class='edit' rowspan='3'>
-        <% if @node.kind_of?(Document) -%>
-        <%= start_form_tag({ :action => "save", :controller=>'version', :rnd=>rnd }, :id => "node_form", :multipart=>true ) %>
-        <% else -%>
-        <%= start_form_tag({ :action => "save", :controller=>'version' }, :id => "node_form" ) %>
-        <% end -%>
-        <%= hidden_field 'node', 'v_lang', :value=>@node.v_lang %>
-        <%= hidden_field 'node', 'id' %>
-        <%= hidden_field 'node', 'v_id' %>
-        <label for="v_comment"><%= trans("comment") %></label>
-        <%= text_area 'node', 'v_comment', :cols=>nil, :rows=>nil %>
-        <hr/>
-        <%= zazen("!>.0#{@node.id}!") if @node.kind_of?(Document) %>
-        <label for="v_title"><%= trans("title")  %></label>
-        <%= text_field 'node', 'v_title', :size=>nil, :style=>"width:60%;" %>
-        <%= link_box('node', 'hot_for', :in=>[@node.project_id,1])%>
-        <%= link_box('node', 'contact_for', :in=>[@node.project_id]) if @node.kind_of?(Contact)%>
-        <%= link_box('node', 'hot') if @node.kind_of?(Project) %>
-        <% if @node.kind_of?(Note) -%>
-        <%= link_box('node', 'calendars') if @node.kind_of?(Note)%>
-        <%= date_box('node', 'event_at')%>
-        <% else -%>
-        <label for="v_summary"><%= trans("summary")  %></label>
-        <%= text_area 'node', 'v_summary', :cols=>nil, :rows=>4, :value=>@node.v_summary %>
-        <% end -%>
-        <label for="v_text"><%= trans("content") %></label>
-        <%= text_area 'node', 'v_text', :cols=>nil, :rows=>15, :value=>@node.v_text %>
-        <% if @node.kind_of?(Document) -%>
-          <div id="file"><%= link_to_remote(trans("change document"), :update=>'file_form', :url=>{:controller=>'document', :action=>'file_form'}, :complete=>"new Element.toggle('file', 'file_form');") %></div>
-          <div id="file_form" style='display:none;'></div>
-        <% end -%>
-          
-          <p class='add_document'><a href='#' onClick='uploader=window.open("<%= url_for :controller=>'document', :action=>'new', :parent_id=>@node %>", "uploader", "location=1,width=400,height=300");uploader.opener = opener;return false;'><%= transb('btn_add_document')%></a></p>
-          
-          <p class='btn_validate'><%= link_to_function transb('cancel'), "opener.location.href=opener.location.href; self.close();" %>
-            <%= submit_to_remote('save', transb('save'), :url=>{:action => 'save_text', :controller=>'version', :id=>@node[:id]}) %>
-            <input type="submit" onClick="$('loader').style.visibility = 'visible';" value='<%= transb('validate') %>'/></p>
-        <%= end_form_tag %> 
-        
-      </td>
-      <td id="search_box">
-        <label for="search"><%= trans("search")  %></label>
-        <%= form_remote_tag(:update=>'search_results', 
-                  :url=>{:controller=>'search', :action=>'find_in_edit', :id=>@node[:id]}, 
-                  :loading => "Element.show('spinner')",
-                  :complete => "Element.hide('spinner')") %>
-        <input type='text' id='search' name='search'/>
-        <%= link_to_remote(transb('projects'), :update=>'search_results', 
-                  :url=>{:controller=>'search', :action=>'find_in_edit', :id=>@node[:id], :search=>'=project'},  
-                  :loading => "Element.show('spinner')",
-                  :complete => "Element.hide('spinner')")%>
-        <%= end_form_tag %>
-      </td>
-    </tr>
-    <tr>
-      <td id='ajax-loader'><img alt="spinner" id="spinner" src="/images/ajax-loader.gif" style="display:none;" /></td>
-    </tr>
-    <tr>
-      <td id="search_results">
-        <%= render :partial=>'search/find_in_edit', :locals=>{:results =>@node.children} %>
-      </td>
-    </tr>
-  </table>
+<% partial = ['text','title','help'] %>
+<div id='form_errors' class='errors'><%= error_messages_for "node" %></div>
+<%= search_box %>
+
+<div class='selector'>
+  <% partial.each_index do |i| %><div id='<%= partial[i] %>_sel' <%= i == 0 ? "class='selected'" : "" %>><%= tlink_to_function(partial[i], "select_tab('#{partial[i]}');") %></div><% end %>
+</div>
+
+<div class='tab'>
+  <% if @node.kind_of?(Document) -%>
+    <%= start_form_tag({ :action => "save", :controller=>'version', :rnd=>rnd }, :id => "node_form", :multipart=>true ) %>
+  <% else -%>
+    <%= start_form_tag({ :action => "save", :controller=>'version' }, :id => "node_form" ) %>
+  <% end -%>
+
+  <%= hidden_field 'node', 'v_lang', :value=>@node.v_lang %>
+  <%= hidden_field 'node', 'id' %>
+  <%= hidden_field 'node', 'v_id' %>
+  <div class='validate'>
+    <div><a href='#' onClick='uploader=window.open("<%= url_for :controller=>'document', :action=>'new', :parent_id=>@node %>", "uploader", "location=1,width=400,height=300");uploader.opener = opener;return false;'><%= transb('btn_add_document')%></a></div>
+    <div><%= submit_to_remote('save', transb('save'), :url=>{:action => 'save_text', :controller=>'version', :id=>@node[:id]}) %></div>
+    <div><input type="submit" onClick="$('loader').style.visibility = 'visible';" value='<%= transb('validate') %>'/></div>
+  </div>
+<% partial.each_index do |i| %><div id='<%= partial[i] %>' <%= i == 0 ? "" : "style='display:none;'" %>>
+  <%= render :partial=>"templates/forms/#{partial[i]}" %>
+</div><% end %>
+
+<%= end_form_tag %>
+</div>
+
+<%#= css_edit %>
 <%= javascript_start %>
+var current_tab = $('<%= partial[0] %>');
+var current_sel = $('<%= partial[0] %>_sel');
+function select_tab(name) {
+  var obj = $(name);
+  var obj_sel = $(name+'_sel');
+  current_tab.style.display = 'none';
+  current_sel.className = '';
+  current_tab = obj;
+  current_sel = obj_sel;
+  current_tab.style.display = '';
+  current_sel.className = 'selected';
+}
 new Form.Observer('node_form', 3, function(element,value){ opener.Zena.editor_preview(element,value)});
 <%= javascript_end %>
-</div>

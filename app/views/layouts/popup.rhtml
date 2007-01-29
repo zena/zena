@@ -6,14 +6,17 @@
   <title><%= @node ? @node.fullpath.join("/") : 'Zena' %></title>
   <meta http-equiv="Content-type" content="text/html; charset=utf-8" />
   <meta http-equiv="Content-Language" content="fr-fr" />
-  <%= stylesheet_link_tag 'popup' %>
+  <%= stylesheet_link_tag 'popup', 'search' %>
   <%= javascript_include_tag 'prototype', 'effects', 'zena' %>
   <%= javascript("var is_editor = true;")%>
   <%= uses_calendar %>
 </head>
 
 <body onLoad='popup_loaded();'>
-  <div id='messages'><%= flash_messages %></div>
+  <div id='messages'>
+    <%= flash_messages %>
+    <div id='loader'><img src='/images/ajax-loader.gif'/> <%= trans("uploading") %></div>
+  </div>
 <%= @content_for_layout %>
 
 </body>

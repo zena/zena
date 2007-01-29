@@ -50,7 +50,7 @@ module ApplicationHelper
 	    fld = text_field   obj, var, :id=>opts[:id] , :value=>value, :class=>opts[:class], :size=>opts[:size]
     end
 		<<-EOL
-<p class="date_box"><img src="/calendar/iconCalendar.gif" id="#{opts[:button]}"/>
+<div class="date_box"><img src="/calendar/iconCalendar.gif" id="#{opts[:button]}"/>
 #{fld}
 	<script type="text/javascript">
     Calendar.setup({
@@ -59,7 +59,7 @@ module ApplicationHelper
         singleClick    :    true,
         showsTime      :    true
     });
-</script></p>
+</script></div>
 		EOL
 	end
   
@@ -243,14 +243,15 @@ module ApplicationHelper
     r = RedCloth.new(text) #, [:hard_breaks])
     r.gsub!(  /(\A|[^\w])@(.*?)@(\Z|[^\w])/     ) { "#{$1}\\AT_START\\#{zazen_escape($2)}\\AT_END\\#{$3}" }
     r.gsub!(  /<code>(.*?)<\/code>/m            ) { "\\CODE_START\\#{zazen_escape($1)}\\CODE_END\\" }
-    r.gsub!(  /\?(\w[^\?]+?\w)\?/               ) { make_wiki_link($1) }
-    r.gsub!(  /"([^"]*)":([0-9]+)/                    ) { make_link(:title=>$1,:id=>$2)}
     r.gsub!(  /\!\[([^\]]*)\]\!/                      ) { img ? make_gallery($1) : trans('[gallery]') }
     r.gsub!(  /\!([^0-9]{0,2})\{([^\}]*)\}\!/                      ) { img ? list_nodes(:style=>$1, :ids=>$2)   : trans('[documents]')}
-    r.gsub!(  /\!([^0-9]{0,2})([0-9]+)(\.([^\!]+)|)\!(:([^\s]+)|)/ ) { img ? make_image(:style=>$1, :id=>$2, :size=>$4, :link=>$6) : trans('[image]')}
+    r.gsub!(  /\!([^0-9]{0,2})([0-9]+)(\.([^\/\!]+)|)(\/([^\!]*)|)\!(:([^\s]+)|)/ ) { img ? make_image(:style=>$1, :id=>$2, :size=>$4, :title=>$6, :link=>$8) : "[#{trans('image')}#{$6 ? (": " + zazen($6,:images=>false)) : ''}]"}
+    r.gsub!(  /"([^"]*)":([0-9]+)/                    ) { make_link(:title=>$1,:id=>$2)}
     r.gsub!(  /(\\CODE_START\\)(.*?)(\\CODE_END\\)/m    ) { "<div class='box'><pre class='code'>#{zazen_unescape($2)}</pre></div>" }
     r.gsub!(  /(\\AT_START\\)(.*?)(\\AT_END\\)/         ) { "<code>#{zazen_unescape($2)}</code>" }
-    r.to_html
+    r = r.to_html
+    r.gsub!(  /\?(\w[^\?]+?\w)\?/               ) { make_wiki_link($1) }
+    r
   end
   
   # Creates a link to the node referenced by id
@@ -272,11 +273,9 @@ module ApplicationHelper
   end
   # Create an img tag for the given image. See ApplicationHelper#zazen for details.
   def make_image(opts)
-    id, style, link = opts[:id], opts[:style], opts[:link]
-    size, title = *(opts[:size].split('/')) if opts[:size]
-
+    id, style, link, size, title = opts[:id], opts[:style], opts[:link], opts[:size], opts[:title]
     img = secure(Document) { Document.find(id) }
-    title = img.v_summary if title.nil? && opts[:size] && opts[:size][-1..-1] == '/'   
+    title = img.v_summary if title == "" 
     size = IMAGEBUILDER_FORMAT[size] ? size : nil
     if !size && img.kind_of?(Image)
       size = 'std'
@@ -305,9 +304,10 @@ module ApplicationHelper
       prefix = suffix = ""
     end
     
-    prefix = "#{prefix}<div class='img_with_title'>" if title
-    suffix = "<div class='img_title'>#{zazen(title)}</div></div>#{suffix}" if title
-    title ||= ''
+    if title
+      prefix = "#{prefix}<div class='img_with_title'>"
+      suffix = "<div class='img_title'>#{zazen(title, :images=>false)}</div></div>#{suffix}"
+    end
     
     if link.nil?
       prefix + image + suffix
@@ -367,6 +367,11 @@ module ApplicationHelper
     else
       raise StandardError, "Cannot create 'data_url' for #{obj.class}."
     end
+  end
+  
+  # TODO: test
+  def node_url(obj)
+    {:controller => 'main', :action=>'show', :path=>obj.fullpath, :prefix=>prefix}
   end
   
   # return a readable text version of a file size
@@ -506,14 +511,13 @@ module ApplicationHelper
       key = "#{sym}#{obj.v_id}"
       method = sym
     end
+    klass = [:v_text, :v_summary].include?(method) ? " class='text'" : ""
     if opt[:text]
       text = opt[:text]
     elsif [:v_text, :v_summary].include?(method)
       text = zazen(obj.send(sym), opt)
-      klass = " class='text'"
     else
       text = obj.send(sym)
-      klass = ""
     end
     if opt[:as]
       render_to_string :partial=>'node/show_attr', :locals=>{:id=>obj[:id], :text=>text, :method=>method, :key=>key, :klass=>klass,

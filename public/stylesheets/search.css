@@ -1,0 +1,14 @@
+#search_box { width:150px; font-size:0.8em;}
+#search_box input { border:1px inset #444; width:146px; padding:1px; margin:0; font-size:10px;}
+#search_results { width:150px; }
+#search_results p { margin:0;}
+.results, #result_loader { border:1px solid #444; margin:3px 0 0; padding:2px; text-align:left; background:#97A97F; }
+.results li { list-style:none; padding:5px 0; border-top:1px solid #647D35;}
+.results li:first-child { border-top-width:0;}
+.results img { border:1px solid grey; float:left; margin:0 2px 0 0;}
+.results img.doc { border:0;}
+.results .btn_x img { border:0;}
+.result_name a { color:inherit;}
+.result_id {color:#5C2200; font-weight:bold; display:inline;}
+.result_name { display:inline; font-weight:bold;}
+.result_path { color:#555;}

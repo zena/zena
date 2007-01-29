@@ -1,30 +1,21 @@
 class SearchController < ApplicationController
   
   #TODO: finish test for '[project], [note], nodes...'
-  def find_in_edit
+  def find
     if params[:search] && params[:search] != ''
-      if params[:search][0..0] == '='
-        @phrase = params[:search][1..-1].gsub(/[^a-zA-Z0-9_\-]/,'')
-        # FIXME: SECURITY is there a better way to do this ?
-        begin
-          klass = eval @phrase.capitalize
-          @phrase = @phrase.pluralize
-          raise NameError unless klass.ancestors.include?(Node)
-          @results = secure(klass) { klass.find(:all) }
-        rescue NameError
-          @results = []
-        end
-      else
-        @phrase = params[:search]
-        @phrase = "#{@phrase}%" unless @phrase[-1..-1] == '%'
-        @results = secure(Node) { Node.find(:all, :conditions=>["name LIKE ?",@phrase], :limit=>5)}
+      @phrase = params[:search]
+      @phrase = "#{@phrase}%" unless @phrase[-1..-1] == '%'
+      @result_pages = nil
+      @results = nil
+      secure(Node) do
+        @result_pages, @results = paginate :nodes, :conditions=>["id = ? OR type = ? OR name LIKE ?",params[:search],params[:search],@phrase], :order => "name ASC", :per_page => 15
+        @results # important: this is the 'secure' yield return, it is used to secure found nodes
       end
-      render :partial=>'search/find_in_edit', :locals=>{:results =>@results}
     else
       @phrase = 'children'
       @results = secure(Page) { Page.find(:all, :conditions=>["parent_id = ?",params[:id]], :limit=>5)}
-      render :partial=>'search/find_in_edit', :locals=>{:results =>@results}
-    end
+    end  
+    render :partial=>'search/results', :locals=>{:results =>@results}
   end
   
 end

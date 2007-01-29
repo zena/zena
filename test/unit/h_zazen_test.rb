@@ -26,10 +26,19 @@ class ApplicationHelperTest < Test::Unit::TestCase
   def test_wiki_link
     login(:tiger)
     assert_equal "<p>? colors? I like <a href='http://en.wikipedia.org/wiki/Special:Search?search=yellow+mug' class='wiki'>yellow mug</a></p>", zazen("? colors? I like ?yellow mug?")
+    assert_match %r{<cite>blah</cite> <cite>blih <a.*>test</a> it</cite>}, zazen('??blah?? ??blih ?test? it??')
   end
   
   def test_image_title
-    assert false, "TODO"
+    preserving_files('/data/test/jpg/20') do
+      login(:tiger)
+      assert_match %r{<div class='img_with_title'><img[^>]*><div class='img_title'><p>blah <a href=.*projects/cleanWater.*Clean Water.*/a></p></div></div>},
+       zazen("!20/blah \"\":11!")
+     assert_match %r{<div class='img_with_title'><img.*class.*pv.*><div class='img_title'><p>blah <a href=.*projects/cleanWater.*Clean Water.*/a></p></div></div>},
+        zazen("!20.pv/blah \"\":11!")
+     assert_match %r{<div class='img_with_title'><img.*class.*std.*><div class='img_title'><p>Photo taken from.*</p></div></div>}, zazen("!20/!")
+    
+    end
   end
   
   def test_make_link
@@ -56,7 +65,7 @@ class ApplicationHelperTest < Test::Unit::TestCase
     login(:tiger)
     assert_match %r{<p><a.*href=.*data/pdf/15/water\.pdf.*img src='/images/ext/pdf.png' width='32' height='32' class='doc'/></a></p>}, zazen('!15!')
     assert_match %r{<p><a.*href=.*data/pdf/15/water\.pdf.*img src='/images/ext/pdf.png' width='32' height='32' class='doc'/></a></p>}, zazen('!015!') # same as '!15!'
-    assert_match %r{<p><a.*href=.*data/pdf/15/water\.pdf.*img src='/images/ext/pdf-pv.png' width='80' height='80' class='pv'/></a></p>}, zazen('!15.pv!')
+    assert_match %r{<p><a.*href=.*data/pdf/15/water\.pdf.*img src='/images/ext/pdf-pv.png' width='70' height='70' class='doc'/></a></p>}, zazen('!15.pv!')
   end
 
   def test_make_bad_image

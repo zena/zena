@@ -48,17 +48,22 @@ input, textarea { font:inherit; padding:2px;}
 #logo img { border:1px solid #450009; }
 #logo_msg { position:absolute; top:80px; left:0px; width:220px; font-weight:normal; text-align:center; }
 
-/* NAVBAR */
-#navbar {  width:100%; height:25px; background:#450009; 
-  color:white; font-size:0.85em; padding:0;}
-#navbar a { color:white; }
-#navbar ul, #navbar div { height:100%; padding:0.3em 0.8em; float:left; margin-top:2px;}
-#lang { margin-left:250px; }
+/* navbar */
+.navbar { width:100%; height:25px; background:#450009;font-size:0.85em;}
+.navbar a { color:white; }
+#lang, #path, #logout, #visitor { padding:0.4em 0.8em;}
+#lang { margin-left:250px; float:left;}
 #lang.empty { padding:0; }
 #lang b { font-weight:normal; color:white;}
-#lang, #lang a { color:#A27C6E;}
-#navbar * { display:inline; }
-#navbar #visitor, #navbar #logout { float: right; }
+#path, #lang, #lang a { color:#A27C6E;}
+#path { float:left; }
+#path li { display:inline;}
+#logout, #visitor, #search_anchor { float:right; }
+#search_anchor { position:relative; font-size:1.2em;}
+.navbar #search_box { position:absolute; z-index:999; right:0; top:4px; padding:0;}
+.navbar #search_box a { color:inherit;}
+.navbar #search_box input {margin:0;}
+#search_box p { font-size:0.85em;}
 
 /* NAV. MENUS */
 #menu { z-index:9999; background-color: #F3F2E8; float:left; position:absolute; top:25px; left:260px;}
@@ -176,15 +181,15 @@ input, textarea { border:1px solid grey; margin:0.2em}
 .text { line-height:1; margin-bottom:2em;}
 */
 .text a {color:#174190;} /* #8F5225 #174190 */
-.text p { line-height:1.5; margin:1em 0; font-style:normal; font-size:0.9em; }
+.text p, .text table { line-height:1.5; margin:1em 0; font-style:normal; font-size:0.9em; }
 .text h1 { margin-top:2.3em; margin-bottom:0.8em; font-size:2em;}
 .text h2 { margin-top:2em; margin-bottom:0.4em; font-size:1.5em;}
 .text h3 { margin-top:1.8em; margin-bottom:0.4em; font-size:1.3em;}
 .text h4 { font-size:0.9em; margin:2em 0 0em; }
 .text li { font-size:0.9em;}
 .text li li { font-size:inherit;}
-.text ul, .text ol { display:table; margin-left:1em; padding-left:1em;}
-.text ul ul, .text ol ol { margin:0 1em;}
+.text ul, .text ol { display:table; margin-left:1em; margin-top:0.3em; padding-left:1em;}
+.text ul ul, .text ol ol { margin:0;}
 .text ul ul li { list-style:circle;}
 .text li { margin:0; list-style:disc; line-height:1.2em;}
 .text li { line-height:1.3em; }
@@ -197,6 +202,10 @@ input, textarea { border:1px solid grey; margin:0.2em}
 .text strong { font-family:Helvetica, Arial;}
 code { font-size:120%; color:black; padding:2px 2px 0px; background:#ECEBEA;}
 .box code { background:none; border-bottom:1px solid #D3D2D1;}
+.text table { background:#ECEBEA; border:1px solid #CEBB94; border-right-width:0; border-spacing:0;}
+.text th { background: #C8C4BF; font-weight:normal; border-right:1px solid #CEBB94; padding:1px 4px; font-size:1.1em; font-style:italic; font-family:Times, serif;}
+.text td { border:1px solid #CEBB94; border-width:1px 1px 0 0; padding:0px 4px;}
+.text tr:first-child td { border-top-width:0;}
 /* USE FOR TABLE LISTING (contact)
 #yhash { float:left; margin-right:10px; }
 #yhash p { margin:0; padding:0;}
