@@ -1,5 +1,205 @@
 trans_values:
   - phrase_id:    1
+    lang:      en
+    value:     "April"
+
+  - phrase_id:    2
+    lang:      en
+    value:     "August"
+
+  - phrase_id:    3
+    lang:      en
+    value:     "December"
+
+  - phrase_id:    4
+    lang:      en
+    value:     "Documents"
+
+  - phrase_id:    5
+    lang:      en
+    value:     "Events"
+
+  - phrase_id:    6
+    lang:      en
+    value:     "February"
+
+  - phrase_id:    7
+    lang:      en
+    value:     "Friday"
+
+  - phrase_id:    8
+    lang:      en
+    value:     "January"
+
+  - phrase_id:    9
+    lang:      en
+    value:     "July"
+
+  - phrase_id:    10
+    lang:      en
+    value:     "June"
+
+  - phrase_id:    11
+    lang:      en
+    value:     "Mai"
+
+  - phrase_id:    12
+    lang:      en
+    value:     "March"
+
+  - phrase_id:    13
+    lang:      en
+    value:     "Monday"
+
+  - phrase_id:    14
+    lang:      en
+    value:     "News"
+
+  - phrase_id:    15
+    lang:      en
+    value:     "November"
+
+  - phrase_id:    16
+    lang:      en
+    value:     "October"
+
+  - phrase_id:    17
+    lang:      en
+    value:     "Pages"
+
+  - phrase_id:    18
+    lang:      en
+    value:     "redactions"
+
+  - phrase_id:    19
+    lang:      en
+    value:     "Saturday"
+
+  - phrase_id:    20
+    lang:      en
+    value:     "September"
+
+  - phrase_id:    21
+    lang:      en
+    value:     "Sunday"
+
+  - phrase_id:    22
+    lang:      en
+    value:     "Thursday"
+
+  - phrase_id:    23
+    lang:      en
+    value:     "Traductions"
+
+  - phrase_id:    24
+    lang:      en
+    value:     "Tuesday"
+
+  - phrase_id:    25
+    lang:      en
+    value:     "waiting for publication"
+
+  - phrase_id:    26
+    lang:      en
+    value:     "Wednesday"
+
+  - phrase_id:    27
+    lang:      en
+    value:     " validate "
+
+  - phrase_id:    43
+    lang:      en
+    value:     "page management (version list, change access rights, etc)"
+
+  - phrase_id:    44
+    lang:      en
+    value:     "edit current page"
+
+  - phrase_id:    45
+    lang:      en
+    value:     "propose page for publication"
+
+  - phrase_id:    46
+    lang:      en
+    value:     "publish page"
+
+  - phrase_id:    47
+    lang:      en
+    value:     "refuse to publish page (redaction sent back to owner)"
+
+  - phrase_id:    51
+    lang:      en
+    value:     "english"
+
+  - phrase_id:    52
+    lang:      en
+    value:     "french"
+
+  - phrase_id:    53
+    lang:      en
+    value:     "Hi"
+
+  - phrase_id:    59
+    lang:      en
+    value:     "<b>%A</b> %B %d"
+
+  - phrase_id:    60
+    lang:      en
+    value:     "%Y-%m-%d"
+
+  - phrase_id:    61
+    lang:      en
+    value:     "%H:%M:%S"
+
+  - phrase_id:    62
+    lang:      en
+    value:     "%A, %B %d %Y"
+
+  - phrase_id:    63
+    lang:      en
+    value:     "on"
+
+  - phrase_id:    64
+    lang:      en
+    value:     "posted by"
+
+  - phrase_id:    65
+    lang:      en
+    value:     "%m.%d"
+
+  - phrase_id:    66
+    lang:      en
+    value:     "deleted"
+
+  - phrase_id:    67
+    lang:      en
+    value:     "removed"
+
+  - phrase_id:    68
+    lang:      en
+    value:     "replaced"
+
+  - phrase_id:    69
+    lang:      en
+    value:     "redaction"
+
+  - phrase_id:    70
+    lang:      en
+    value:     "proposition"
+
+  - phrase_id:    71
+    lang:      en
+    value:     "proposition"
+
+  - phrase_id:    72
+    lang:      en
+    value:     "published"
+
+  - phrase_id:    73
+    lang:      en
+    value:     "Translate interface"
+
+  - phrase_id:    1
     lang:      fr
     value:     "avril"
 
@@ -69,7 +269,7 @@ trans_values:
 
   - phrase_id:    18
     lang:      fr
-    value:     "Rédactions"
+    value:     "rédactions"
 
   - phrase_id:    19
     lang:      fr
@@ -97,15 +297,11 @@ trans_values:
 
   - phrase_id:    25
     lang:      fr
-    value:     "Propositions"
+    value:     "en attente de publication"
 
   - phrase_id:    26
     lang:      fr
     value:     "mercredi"
-
-  - phrase_id:    27
-    lang:      fr
-    value:     " valider "
 
   - phrase_id:    43
     lang:      fr
@@ -149,11 +345,11 @@ trans_values:
 
   - phrase_id:    61
     lang:      fr
-    value:     "%H:%M:%S"
+    value:     "%H:%M:%S "
 
   - phrase_id:    62
     lang:      fr
-    value:     "%A, %d %B %Y"
+    value:     "%A %d %B %Y"
 
   - phrase_id:    63
     lang:      fr
@@ -200,21 +396,49 @@ trans_values:
     value:     "traduire l'interface"
 
   - phrase_id:    74
+    lang:      en
+    value:     "%H:%M"
+
+  - phrase_id:    74
     lang:      fr
     value:     "%Hh%M"
+
+  - phrase_id:    75
+    lang:      en
+    value:     "%A, %B %d %Y"
 
   - phrase_id:    75
     lang:      fr
     value:     "%A, %d %B %Y"
 
+  - phrase_id:    27
+    lang:      fr
+    value:     " valider "
+
   - phrase_id:    77
     lang:      fr
     value:     1
-    
+
+  - phrase_id:    77
+    lang:      en
+    value:     0
+  
+  - phrase_id:    78
+    lang:      en
+    value:     "%Y-%m-%d %H:%M"
+
   - phrase_id:    78
     lang:      fr
     value:     "%d.%m.%Y %H:%M"
-    
+      
   - phrase_id:    83
+    lang:      en
+    value:     "unpublish version"
+
+  - phrase_id:    94
     lang:      fr
-    value:     "retirer la version"
+    value:     "à publier"
+
+  - phrase_id:    94
+    lang:      en
+    value:     "to publish"

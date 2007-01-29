@@ -1,5 +1,3 @@
-
-trans_phrases:
   - id:   1
     phrase:  "April"
 
@@ -52,7 +50,7 @@ trans_phrases:
     phrase:  "Pages"
 
   - id:   18
-    phrase:  "Redactions"
+    phrase:  "redactions"
 
   - id:   19
     phrase:  "Saturday"
@@ -73,7 +71,7 @@ trans_phrases:
     phrase:  "Tuesday"
 
   - id:   25
-    phrase:  "Waiting"
+    phrase:  "waiting for publication"
 
   - id:   26
     phrase:  "Wednesday"
@@ -224,60 +222,69 @@ trans_phrases:
 
   - id:   75
     phrase:  "full_date"
-    
+
   - id:   76
     phrase:  "btn_add_document"
 
   - id:   77
-    phrase:  'week_start_day'
-  
+    phrase:  "week_start_day"
+
   - id:   78
-    phrase:  'datetime'
+    phrase:  "datetime"
   
   - id:   79
-    phrase:  'img_calendar'
+    phrase:  "img_calendar"
   
   - id:   80
-    phrase:  'img_hot'
+    phrase:  "img_hot"
   
   - id:   81
-    phrase:  'img_contact'
-  
+    phrase:  "img_contact"
+
   - id:   82
-    phrase:  'btn_unpublish'
-  
+    phrase:  "btn_unpublish"
+
   - id:   83
-    phrase:  'btn_title_unpublish'
-  
+    phrase:  "btn_title_unpublish"
+
   - id:   84
-    phrase:  'img_private'
-  
+    phrase:  "img_private"
+
   - id:   85
-    phrase:  'img_public'
-  
+    phrase:  "img_public"
+
   - id:   86
-    phrase:  'img_custom_inherit'
+    phrase:  "img_custom_inherit"
 
   - id:   87
-    phrase:  'img_comments'
+    phrase:  "img_comments"
 
   - id:   88
-    phrase:  'img_comments_inside'
+    phrase:  "img_comments_inside"
 
   - id:   89
-    phrase:  'img_open'
+    phrase:  "img_open"
 
   - id:   90
-    phrase:  'img_closed'
+    phrase:  "img_closed"
 
   - id:   91
-    phrase:  'btn_bomb'
+    phrase:  "btn_add_discussion"
 
   - id:   92
-    phrase:  'btn_add_comment'
-  
+    phrase:  "btn_bomb"
+
   - id:   93
-    phrase:  'img_group_pub'
-  
+    phrase:  "btn_add_comment"
+
   - id:   94
+    phrase:  "to publish"
+
+  - id:   95
+    phrase:  "img_project"
+  
+  - id:   96
+    phrase:  'img_group_pub'
+
+  - id:   97
     phrase:  'img_group_admin'

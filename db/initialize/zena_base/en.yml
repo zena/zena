@@ -69,7 +69,7 @@ trans_values:
 
   - phrase_id:    18
     lang:      en
-    value:     "Redactions"
+    value:     "redactions"
 
   - phrase_id:    19
     lang:      en
@@ -97,12 +97,12 @@ trans_values:
 
   - phrase_id:    25
     lang:      en
-    value:     "Waiting"
+    value:     "waiting for publication"
 
   - phrase_id:    26
     lang:      en
     value:     "Wednesday"
-    
+
   - phrase_id:    27
     lang:      en
     value:     " validate "
@@ -202,7 +202,7 @@ trans_values:
   - phrase_id:    74
     lang:      en
     value:     "%H:%M"
-    
+
   - phrase_id:    75
     lang:      en
     value:     "%A, %B %d %Y"
@@ -210,12 +210,15 @@ trans_values:
   - phrase_id:    77
     lang:      en
     value:     0
-    
+  
   - phrase_id:    78
     lang:      en
     value:     "%Y-%m-%d %H:%M"
-    
+      
   - phrase_id:    83
     lang:      en
     value:     "unpublish version"
-    
+
+  - phrase_id:    94
+    lang:      en
+    value:     "to publish"

@@ -35,13 +35,29 @@ nodes:
 
   - id:             2
     type:           Note
-    kpath:          IN
+    kpath:          NN
     name:           birth
     project_id:     1
     parent_id:      1
     user_id:        2
     log_at:         today
     publish_from:   2006-10-31
+    ref_lang:       en
+    max_status:     50
+    inherit:        1
+    template:       default
+    rgroup_id:      1
+    wgroup_id:      2
+    pgroup_id:      2
+    
+  - id:             3
+    type:           Page
+    kpath:          NP
+    name:           help
+    project_id:     1
+    parent_id:      1
+    user_id:        2
+    publish_from:   2007-01-29
     ref_lang:       en
     max_status:     50
     inherit:        1
@@ -115,4 +131,104 @@ versions:
     lang:           fr
     number:         2
     publish_from:   2006-10-31
+    status:         50
+
+  - type:           Version
+    node_id:        3
+    user_id:        2
+    comment:        basic help
+    title:          help
+    summary:        |
+      The text from this page appears on the 'help' tag when editing a node.
+    text:           |
+      translation needed, please look at the french version
+    lang:           en
+    number:         1
+    publish_from:   2007-01-29
+    status:         50
+
+  - type:           Version
+    node_id:        3
+    user_id:        2
+    comment:        aide de base
+    title:          help
+    summary:        |
+      Le text de cette page d'aide apparaît dans l'onglet 'aide' lors de l'édition d'une page.
+    text:           "h4. formattage de base
+
+|_. source |_. résultat |
+| @le *petit* chaperon@ | le *petit* chaperon |
+| @le _petit_ chaperon@ | le _petit_ chaperon |
+
+h4. liens
+
+|_. source |_. résultat |
+| @le \"petit\":http://www.example.com chaperon@ | le \"petit\":http://www.example.com chaperon |
+| @lien \"interne\":1@ | lien \"interne\":1 |
+| @voir \"\":1 (sans titre)@ | voir \"\":1 |
+
+h4. images
+
+|_. source |_. résultat |
+| @!20!@ | affiche l'image '20' au format 'std' |
+| @!20.pv!@ | image au format 'pv' |
+| @!20/!@ | image avec titre repris du résumé de l'image |
+| @!20/titre personnalisé!@ | image avec un titre personnalisé|
+|_\2. alignement des images |
+| @!<.20!@ | image à *gauche* |
+| @!=.20!@ |=. image *centrée* |
+| @!>.20!@ |>. image à *droite* |
+
+h4. listes d'objets
+
+|_. source |_. résultat |
+| @![20,14]!@ | gallerie avec les images '20' et '14' |
+| @![]!@ | gallerie avec toutes les images de la page |
+| @!{20, 14}!@ |  liste les documents '20' et '14'|
+| @!{}!@ | liste tous les documents de la page |
+| @!=.{}!@ | les listes de documents peuvent être alignées comme les images |
+
+h4. listes
+
+|_. source |_. résultat |
+| @* ceci@<br/>@* et ça@<br/>@** et encore ça@ | <ul><li>ceci</li><li>et ça<ul><li>et encore ça</li></ul></li></ul> |
+| @# ceci@<br/>@# et ça@<br/>@## et encore ça@ | <ol><li>ceci</li><li>et ça<ol><li>et encore ça</li></ol></li></ol> |
+
+h4. tables
+
+Les exemples de cette page s'affiche dans des tables. Pour créer une table, il suffit de mettre des barres verticales @|@ pour délimiter les cellules du tableau :
+
+<code>|_. animal |_. sensation |
+| chien | poilu |
+| chat | poilu |
+| poisson | gluant |</code>
+
+Donnera :
+table{margin:auto;}.
+|_. animal |_. sensation |
+| chien | poilu |
+| chat | poilu |
+| poisson | gluant |
+
+Nottez l'utilisation des @_.@ pour marquer les cellules 'animal' et 'sensation' comme étant des titres. Pour centrer la table de l'exemple ci-dessus, nous avons utilisé une technique modifié le style ?CSS?. Voici le code exacte :
+
+<code>table{margin:auto;}.
+|_. animal |_. sensation |
+| chien | poilu |
+| chat | poilu |
+| poisson | gluant |</code>
+
+Pour *fusionner* des cellules, il faut utiliser les signes @/@ et @\\@ et indiquer le nombre de cellules à fusionner avant le point :
+
+<code>|/3. toute la hauteur | une ligne | une autre |
+| une ligne | une autre |
+|\\2. toute la longueur |</code>
+
+table{margin:auto;}.
+|/3. toute la hauteur | une ligne | une autre |
+| une ligne | une autre |
+|\\2. toute la longueur |"
+    lang:           fr
+    number:         2
+    publish_from:   2007-01-29
     status:         50

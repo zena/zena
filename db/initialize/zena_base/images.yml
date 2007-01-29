@@ -45,7 +45,7 @@ trans_values:
 
   - phrase_id:    39
     lang:      en
-    value:     "<img width='16' height='16' src='/images/page_edit.png'/>"
+    value:     "<img src='/images/page_edit.png'/>"
 
   - phrase_id:    40
     lang:      en
@@ -90,67 +90,75 @@ trans_values:
   - phrase_id:    58
     lang:      en
     value:     "<img src='/images/user_su.png'/>"
-    
+
   - phrase_id:    76
     lang:      en
     value:     "<img src='/images/picture_add.png'/>"
-    
-  - phrase_id:    77
+
+  - phrase_id:    79
     lang:      en
     value:     "<img src='/images/date.png'/>"
-    
+  
   - phrase_id:    80
     lang:      en
     value:     "<img src='/images/lightbulb.png'/>"
-    
-  - phrase_id:    79
+  
+  - phrase_id:    81
     lang:      en
     value:     "<img src='/images/user_green.png'/>"
-    
+
   - phrase_id:    82
     lang:      en
     value:     "<img src='/images/delete.png'/>"
 
-  - phrase_id:    83
-    lang:      en
-    value:     "<img src='/images/lock.png'/>"
-
   - phrase_id:    84
     lang:      en
-    value:     "<img src='/images/user_pub.png'/>"
+    value:     "<img src='/images/lock.png'/>"
 
   - phrase_id:    85
     lang:      en
+    value:     "<img src='/images/user_pub.png'/>"
+
+  - phrase_id:    86
+    lang:      en
     value:     "<img src='/images/cog.png'/>"
-    
+
   - phrase_id:    87
     lang:      en
     value:     "<img src='/images/comments.png'/>"
-    
+
   - phrase_id:    88
     lang:      en
     value:     "<img src='/images/comments_red.png'/>"
-    
+
   - phrase_id:    89
     lang:      en
     value:     "<img src='/images/lock_open.png'/>"
-    
+
   - phrase_id:    90
     lang:      en
     value:     "<img src='/images/lock.png'/>"
-    
+
   - phrase_id:    91
     lang:      en
-    value:     "<img src='/images/bomb.png'/>"
-    
+    value:     "<img src='/images/comments_add.png'/>"
+
   - phrase_id:    92
     lang:      en
-    value:     "<img src='/images/comment_add.png'/>"
-    
+    value:     "<img src='/images/bomb.png'/>"
+
   - phrase_id:    93
     lang:      en
+    value:     "<img src='/images/comment_add.png'/>"
+
+  - phrase_id:    95
+    lang:      en
+    value:     "<img src='/images/project.png'/>"
+  
+  - phrase_id:    96
+    lang:      en
     value:     "<img src='/images/group_pub.png'/>"
-    
-  - phrase_id:    94
+  
+  - phrase_id:    97
     lang:      en
     value:     "<img src='/images/group_admin.png'/>"
