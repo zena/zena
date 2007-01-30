@@ -11,11 +11,25 @@
       Allow from all
   </Proxy>
   
-  # Do not serve hidden files !!
-  <Directory ~"^/.*/\.">
-    order deny,allow
-    deny from all
+  <% if static.include?('cgi-bin') %>
+  ScriptAlias /cgi-bin/ /usr/lib/cgi-bin/
+	<Directory "/usr/lib/cgi-bin">
+		AllowOverride None
+		Options ExecCGI -MultiViews +SymLinksIfOwnerMatch
+		Order allow,deny
+		Allow from all
+	</Directory>
+	<% end %>
+	
+	<% if static.include?('awstats-icon') %>
+  Alias /awstats-icon/ /usr/share/awstats/icon/
+  <Directory /usr/share/awstats/icon>
+    Options None
+    AllowOverride None
+    Order allow,deny
+    Allow from all
   </Directory>
+  <% end %>
 
   ProxyRequests Off
   <% ports.each do |port| %>
@@ -26,10 +40,15 @@
   RewriteEngine On
   
   RewriteMap  servers rnd:<%= server_ports_file %>
+  
+  # Do not serve hidden files !!
   RewriteRule ^(.*)/\.(.*) /404 [R]
-  RewriteRule ^/(images|stylesheets|javascripts|favicon.ico)/?(.*) $0 [L]
-  RewriteRule ^/(images|stylesheets|javascripts|favicon.ico)/?(.*) $0 [L]
-  # skip static
+  # static content, never going to proxy
+  RewriteRule ^/(<%= static.join("|") %>)/?(.*) $0 [L]
+  
+  # serve static content with apache, do not handle request to proxy
   RewriteCond %{DOCUMENT_ROOT}/%{REQUEST_FILENAME} !-f
+  RewriteCond %{DOCUMENT_ROOT}/%{REQUEST_FILENAME}.html !-f
+  
   RewriteRule ^/(.*)$ http://localhost:${servers:ports}/$1 [P,L]
 </VirtualHost>
