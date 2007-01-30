@@ -17,8 +17,8 @@
   <%= hidden_field 'node', 'id' %>
   <%= hidden_field 'node', 'v_id' %>
   <div class='validate'>
-    <div><%= submit_to_remote('save', transb('save'), :url=>{:action => 'save_text', :controller=>'version', :id=>@node[:id]}) %></div>
     <div><input type="submit" onClick="$('loader').style.visibility = 'visible';" value='<%= transb('validate') %>'/></div>
+    <div><%= submit_to_remote('save', transb('save'), :url=>{:action => 'save_text', :controller=>'version', :id=>@node[:id]}) %></div>
     <div><a href='#' onClick='uploader=window.open("<%= url_for :controller=>'document', :action=>'new', :parent_id=>@node %>", "uploader", "location=1,width=400,height=300");uploader.opener = opener;return false;'><%= transb('btn_add_document')%></a></div>
   </div>
 <% partial.each_index do |i| %><div id='<%= partial[i] %>' <%= i == 0 ? "" : "style='display:none;'" %>>
