@@ -251,13 +251,13 @@ class Node < ActiveRecord::Base
   end
   
   # TODO:test
-  def summary
+  def summary(limit=100)
     if v_summary != ''
       v_summary
     else
       txt = v_text.gsub("\n",' ').gsub("\r",' ')
-      if txt.size > 100
-        txt.limit(100)
+      if txt.size > limit
+        txt.limit(limit)
       else
         txt
       end

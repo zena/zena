@@ -5,7 +5,7 @@
     <p class='sign'><%= li.v_author.initials %></p>
     <ul class='node_actions'><%= edit_button(:all, :node=>li) %></ul>
   </h3>
-  <%# use this for folding notes: show(li, :summary, :as=>:v_text, :images=>false)  %>
-  <%= show(li, :v_text)  %>
+  <%= show(li, :summary, :as=>:v_text, :images=>false, :limit=>200)  %>
+  <%# use this to show the full note = show(li, :v_text)  %>
   <div class='clear'></div>
 </li>

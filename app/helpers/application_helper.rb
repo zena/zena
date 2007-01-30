@@ -516,6 +516,8 @@ module ApplicationHelper
       text = opt[:text]
     elsif [:v_text, :v_summary].include?(method)
       text = zazen(obj.send(sym), opt)
+    elsif sym == :summary && opt[:limit]
+      text = obj.send(sym, opt[:limit])
     else
       text = obj.send(sym)
     end
