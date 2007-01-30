@@ -46,16 +46,12 @@
       <div id='largecal' style='display:none;'></div>
       
       <% if hot = @node.hot -%>
-      <div class='header'>
-        <h1 class='s<%= hot.v_status %>'>
-          <ul class='node_actions'><%= edit_button(:all, :node=>hot) %></ul><br/>
-          <%= show(hot, :v_title) %>
-        </h1>
-        <div class='subtitle'><%= author(:small, :node=>hot) %></div>
-      </div>
-      <div id='drive' style='display:none;'></div>
-      <div class='content'>
-        <%= hot[:v_summary] ? show(hot, :v_summary) : show(hot, :v_text) %>
+      
+      <%= render :partial=>title_partial(hot) %>
+
+      <div class="content">
+        <%= show(hot, :v_summary )%>
+        <%= show(hot, :v_text, :text=>''  ) %>
       </div>
       <% end -%>
       
