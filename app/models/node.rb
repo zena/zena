@@ -250,20 +250,6 @@ class Node < ActiveRecord::Base
     user
   end
   
-  # TODO:test
-  def summary(limit=100)
-    if v_summary != ''
-      v_summary
-    else
-      txt = v_text.gsub("\n",' ').gsub("\r",' ')
-      if txt.size > limit
-        txt.limit(limit)
-      else
-        txt
-      end
-    end
-  end
-  
   def ext
     (name && name != '' && name =~ /\./ ) ? name.split('.').last : ''
   end

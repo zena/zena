@@ -34,23 +34,25 @@ body {font: 0.9em Arial, Helvetica, Verdana, sans-serif; background:#9FA6AC; lin
 .tab .validate input { font-size:0.9em; padding:0;}
 .tab .validate a { padding:0 5px; }
 .tab .validate { float:right; padding:3px;}
-#text {height:100%; width:100%;font-size:0.9em;}
+.tab .validate .readers { float: left;}
+.readers label, .readers p { display: inline;}
+.readers label { font:inherit; font-size:0.9em;}
 /* text */
-#text { padding-top:3px; text-align:right;}
-#node_v_text { width:98%; height:100%; font:inherit; padding:5px 0 5px 5px;}
+#text {height:100%; width:100%;font-size:0.9em; padding-top:3px; text-align:right;}
+#node_v_text { width:95%; height:100%; font:inherit; padding:5px 0 5px 5px;}
 
 /* title */
-#title { padding:5px;}
-#node_v_title, #node_v_comment, #node_v_summary { width:98%; font:inherit; font-size:10pt; padding:2px;}
+#title { padding:5px; font-size:0.9em;}
+#node_v_title, #node_v_comment, #node_v_summary { width:98%; font:inherit; font-size:0.9em; padding:2px;}
 .event_at { padding:2px; width:50%; text-align:center;}
-#node_v_title { font-weight:bold; font-size:14pt;}
+#node_v_title { font-weight:bold; font-size:1.2em;}
 label { font-size:0.9em; font-weight:bold; display:block; color:#5C1515; margin:10px 0 2px; clear:both;} 
 
-.link_box { font-size:80%;  list-style:none; margin:2px; padding:2px;}
-#title .link_box { float:left; width:100px; border: 1px solid #655;}
-.link_box input { display:inline; width:2em; margin:3px;}
-.link_box input.box { width:1.2em; margin:3px;}
-.date_box input { font-size:0.8em;}
+ul.link_box { float:left; display:block; margin:2px; padding:2px;}
+#title .link_box { border: 1px solid #655;}
+.link_box li { display:inline; padding:2px;}
+.link_box input { display:inline; width:2em; margin:0 2px; font-size:0.8em;}
+.link_box input.box { width:1.2em;}
 
 #help pre { font-size:110%;}
 #help { font-size:0.9em; padding:5px;}

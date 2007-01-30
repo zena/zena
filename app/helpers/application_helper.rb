@@ -240,6 +240,13 @@ module ApplicationHelper
   def zazen(text, opt={})
     opt = {:images=>true}.merge(opt)
     img = opt[:images]
+    if opt[:limit]
+      opt[:limit] -= 1 unless opt[:limit] <= 0
+      paragraphs = text.split("\n\n")
+      if paragraphs.size > opt[:limit] && opt[:limit] != -1
+        text = paragraphs[0..opt[:limit]].join("\n\n") + " &#8230;<span class='more'>" + trans("(click to read more)") + "</span>"
+      end
+    end
     r = RedCloth.new(text) #, [:hard_breaks])
     r.gsub!(  /(\A|[^\w])@(.*?)@(\Z|[^\w])/     ) { "#{$1}\\AT_START\\#{zazen_escape($2)}\\AT_END\\#{$3}" }
     r.gsub!(  /<code>(.*?)<\/code>/m            ) { "\\CODE_START\\#{zazen_escape($1)}\\CODE_END\\" }
@@ -506,29 +513,28 @@ module ApplicationHelper
     return show_title(obj, opt) if sym == :title
     if opt[:as]
       key = "#{opt[:as]}#{obj.v_id}"
-      method = opt[:as]
+      preview_for = opt[:as]
       opt.delete(:as)
     else
       key = "#{sym}#{obj.v_id}"
-      method = sym
     end
     if opt[:text]
       text = opt[:text]
       opt.delete(:text)
-    elsif sym == :summary && opt[:limit]
-      text = obj.summary(opt[:limit])
-      opt.delete(:limit)
     else
       text = obj.send(sym)
+      if (text.nil? || text == '') && sym == :v_summary
+        text = obj.v_text
+      end
     end
-    if [:v_text, :v_summary].include?(method)
+    if [:v_text, :v_summary].include?(sym)
       text  = zazen(text, opt)
       klass = " class='text'"
     else
       klass = ""
     end
-    if method != sym
-      render_to_string :partial=>'node/show_attr', :locals=>{:id=>obj[:id], :text=>text, :method=>method, :key=>key, :klass=>klass,
+    if preview_for
+      render_to_string :partial=>'node/show_attr', :locals=>{:id=>obj[:id], :text=>text, :preview_for=>preview_for, :key=>key, :klass=>klass,
                                                            :key_on=>"#{key}#{Time.now.to_i}_on", :key_off=>"#{key}#{Time.now.to_i}_off"}
     else
       "<div id='#{key}'#{klass}>#{text}</div>"

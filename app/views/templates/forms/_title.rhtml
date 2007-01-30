@@ -1,21 +1,17 @@
-<label for='readers'><%= trans('readers') %></label>
-<p class='readers'><%= readers_for(@node) %></p>
-
 <label for="v_title"><%= trans("title")  %></label>
 <%= text_field 'node', 'v_title', :size=>nil %>
 
 <% if @node.kind_of?(Note) -%>
-<%= link_box('node', 'calendars') if @node.kind_of?(Note)%>
 <label for='event_at'><%= trans("event date") %></label>
 <%= date_box('node', 'event_at')%>
-<% else -%>
-<label for="v_summary"><%= trans("summary")  %></label>
-<%= text_area 'node', 'v_summary', :cols=>nil, :rows=>5, :value=>@node.v_summary %>
 <% end -%>
+<label for="v_summary"><%= trans("summary")  %></label>
+<%= text_area 'node', 'v_summary', :cols=>nil, :rows=>4, :value=>@node.v_summary %>
 
 <%= zazen("!>.#{@node.id}.pv!") if @node.kind_of?(Document) %>
 
 <label for='links'><%= trans("links") %></label>
+<%= link_box('node', 'calendars') if @node.kind_of?(Note)%>
 <%= link_box('node', 'hot_for', :in=>[@node.project_id,1])%>
 <%= link_box('node', 'contact_for', :in=>[@node.project_id]) if @node.kind_of?(Contact)%>
 <%= link_box('node', 'hot') if @node.kind_of?(Project) %>
@@ -25,4 +21,4 @@
 <% end -%>
 
 <label for="v_comment"><%= trans("comment") %></label>
-<%= text_area 'node', 'v_comment', :cols=>nil, :rows=>4 %>
+<%= text_area 'node', 'v_comment', :cols=>nil, :rows=>1 %>
