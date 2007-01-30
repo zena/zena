@@ -24,7 +24,7 @@ table.admin_ug td:first-child { border-left: 1px solid #333; }
 #add_user  td { background: white;}
 #add_group td { background: white;}
 .admin_ug td { padding: 3px; height:18px; border-right:1px solid #333; border-bottom:1px solid #333; }
-.admin_ug .icon, .admin_ug .add_icon, .admin_ug .action { width:22px; text-align:center; vertical-align:top;}
+.admin_ug .icon, .admin_ug .add, .admin_ug .action { width:22px; text-align:center; vertical-align:top;}
 .admin_ug table { width:100%;}
 .admin_ug td { padding: 2px 6px; }
 .admin_ug td.login { width: 8em; }

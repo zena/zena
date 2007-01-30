@@ -3,7 +3,7 @@
 <%= form_remote_tag(:with=>'discussions', :url=>{:controller=>'discussion', :action=>'create', :rnd=>rnd}) %>
 <%= hidden_field('discussion', 'node_id' )%>
   <div id='discussion_errors' class='errors'></div>
-  <div class='add_icon'>
+  <div class='add'>
     <%= link_to_function transb('btn_x'), "new Element.toggle('add_discussion', 'add_discussion_form');" %>
   </div>
   <div class='inside'>

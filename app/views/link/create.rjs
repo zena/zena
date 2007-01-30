@@ -3,7 +3,7 @@ if @link
   page.visual_effect :highlight, "link#{@link[:link_id]}", :duration => 1.0
   page.replace_html 'link_errors', :inline=>""
 elsif @node && @node.errors.empty?
-  page.replace_html 'links', :partial=>'list'
+  page.replace 'links', :partial=>'list'
 else
   page.replace_html 'link_errors', :inline => @errors ? render_errors : error_messages_for('node')
 end

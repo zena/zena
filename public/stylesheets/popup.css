@@ -44,7 +44,7 @@ body {font: 0.9em Arial, Helvetica, Verdana, sans-serif; background:#9FA6AC; lin
 /* title */
 #title { padding:5px; font-size:0.9em;}
 #node_v_title, #node_v_comment, #node_v_summary { width:98%; font:inherit; font-size:0.9em; padding:2px;}
-.event_at { padding:2px; width:50%; text-align:center;}
+.event_at { padding:1px 2px; width:50%; text-align:center; font-size:0.86em;}
 #node_v_title { font-weight:bold; font-size:1.2em;}
 label { font-size:0.9em; font-weight:bold; display:block; color:#5C1515; margin:10px 0 2px; clear:both;} 
 
@@ -66,9 +66,8 @@ ul.link_box { float:left; display:block; margin:2px; padding:2px;}
 /* DRIVE */
 
 /* DRIVE */
-#drive { font-size:0.9em;}
-#drive select, #drive input {font:inherit;}
-
+#links_tab, #drive_tab { padding:5px; font-size:0.9em;}
+#drive_tab select, #drive_tab input {font:inherit;}
 .drive { border:1px solid #333; background:#B2C3D0; padding:0; list-style:none; margin:5px; }
 .drive input, select { font-size:11px;}
 .drive ul { list-style:none; padding:5px;}
@@ -83,44 +82,36 @@ ul.link_box { float:left; display:block; margin:2px; padding:2px;}
 #groups #groups_errors { margin:0; font-size:0.8em; }
 #drive .event_at { font-size:0.8em; width:95%;}
 
-#versions table, #links table, #discussions table { border-width:1px 0 0 1px; padding:0; }
-#versions td, #links td, #discussions td { padding: 3px; font-size:0.8em; height:18px; border:1px solid #333; border-width:0 1px 1px 0; }
+#links_tab table { border:1px solid #333; border-width:1px 0 0 1px; padding:0; width:95%;}
+#links_tab td { padding: 3px; font-size:0.8em; height:18px; border:1px solid #333; border-width:0 1px 1px 0; text-align:center;}
 
-#links img {  vertical-align:middle; margin:0; }
-#links .group { background:#888; font-weight:bold; font-size:0.7em; height:0.5em;}
+#links_tab img {  vertical-align:middle; margin:0; }
+#links_tab .inline_form div { float: left;}
+#links_tab .inline_form div.errors { float: none;}
+#links_tab .add a {display:block; padding-left:3px; }
+#links_tab .add { text-align:left;}
+#links_tab .date { width:95px; }
+#links_tab .status { width:70px; }
+#links_tab .box { width:18px;}
+#links_tab .comment { font-style:italic; width:auto; text-align:left;}
+#links_tab .actions { width:80px;}
+
+#links .group { text-align:left; background:#888; font-weight:bold; font-size:0.7em; height:0.5em;}
 #links .group span { background:#888; font-weight:normal;}
-#links .inline_form div { float: left;}
-#links .inline_form div.errors { float: none;}
-#links .icon, #links .add_icon { width:22px; }
-#links .icon { text-align:center; }
-#links .add_icon a {display:block; padding-left:3px; }
-#links .role { width:80px; text-align:center; }
-#links .link { width:200px; }
+#links .role { width:80px; }
+#links .path { width:200px; text-align:left;}
 #links #link_link { width:auto;}
-#links .link_box { display:inline;}
+#links .link_box { display:inline; margin:0; padding:0 8px 0 0;}
 #links .link_box li { display:inline; padding:0;}
 #links .link_box input { display:inline; width:2em; margin:3px;}
 #links .link_box input.box { width:1.2em; margin:2px;}
 #links .link_box .select_id input {margin:0 3px;}
-#links .actions { width:40px; }
 #links #link_role option { width:50px;}
 #links #link_target_id option { width:120px;}
 
-#versions td.view, #versions td.number, #versions td.lang { width:20px; text-align:center; }
-#versions td.view { border-left:0; }
-#versions td.status { width:80px; }
-#versions td.comment { font-style:italic; width:200px;}
-#versions td.initials { width:40px; }
-#versions td.date { width:130px; }
-#versions td.actions { width:80px; }
 
-#discussions table {}
-#discussions .add_icon a {display:block; }
-#discussions td.view, #discussions td.inside, #discussions td.lang { width:20px; text-align:center; }
-#discussions td.actions { width:40px; text-align:center; }
-#discussions td.view { border-left:0; }
-#discussions td.status { width:90px; }
-#discussions td.date { width:130px; }
+#versions .sign { width:20px; }
+
 #discussions .inline_form div { float: left; padding:0 8px; }
 #discussions .inline_form .inside { margin-top:2px; }
 #discussions .inline_form .open   { margin-top:2px; border-left: 1px dashed black; }

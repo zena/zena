@@ -3,7 +3,7 @@
 <%#= form_tag(:controller=>'link', :action=>'create', :rnd=>rnd)%>
 <%= hidden_field('link', 'node_id', :value=>@node[:id])%>
   <div id='link_errors' class='errors'></div>
-  <div class='add_icon'>
+  <div class='add'>
     <%= link_to_function transb('btn_x'), "new Element.toggle('add_link', 'add_link_form');" %>
   </div>
   <div class='role'>

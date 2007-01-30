@@ -6,21 +6,21 @@
 </div>
 
 <div class='tab'>
-<% partial.each_index do |i| %><div id='<%= partial[i] %>' <%= i == 0 ? "" : "style='display:none;'" %>>
+<% partial.each_index do |i| %><div id='<%= partial[i] %>_tab' <%= i == 0 ? "" : "style='display:none;'" %>>
   <%= render :partial=>"node/#{partial[i]}" %>
 </div><% end %>
 </div>
 
-<%= css_edit %>
+<%#= css_edit %>
 <%= javascript_start %>
-var current_tab = $('<%= partial[0] %>');
+var current_tab = $('<%= partial[0] %>_tab');
 var current_sel = $('<%= partial[0] %>_sel');
 function select_tab(name) {
-  var obj = $(name);
+  var obj_tab = $(name+'_tab');
   var obj_sel = $(name+'_sel');
   current_tab.style.display = 'none';
   current_sel.className = '';
-  current_tab = obj;
+  current_tab = obj_tab;
   current_sel = obj_sel;
   current_tab.style.display = '';
   current_sel.className = 'selected';

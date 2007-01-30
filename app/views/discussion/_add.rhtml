@@ -1,5 +1,5 @@
 <tr id='add_discussion' class='btn_add'>
-  <td class='add_icon' colspan='7'><%= link_to_function transb('btn_add_discussion'), "new Element.toggle('add_discussion', 'add_discussion_form'); $('page_parent_id').focus();" %></td>
+  <td class='add' colspan='7'><%= link_to_function transb('btn_add_discussion'), "new Element.toggle('add_discussion', 'add_discussion_form'); $('page_parent_id').focus();" %></td>
 </tr>
 <tr id='add_discussion_form' style='display:none;' class='inline_form'>
   <%= render :partial=>'discussion/form'%>

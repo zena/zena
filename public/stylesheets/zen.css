@@ -186,10 +186,10 @@ input, textarea { border:1px solid grey; margin:0.2em}
 .text {font-size:0.85em;}
 .text a {color:#174190;} /* #8F5225 #174190 */
 .text p, .text table { line-height:1.4; margin:1em 0; font-style:normal;}
-.text h1 { margin-top:2.3em; margin-bottom:0.8em; font-size:2em;}
-.text h2 { margin-top:2em; margin-bottom:0.4em; font-size:1.5em;}
-.text h3 { margin-top:1.8em; margin-bottom:0.4em; font-size:1.3em;}
-.text h4 { font-size:0.9em; margin:2em 0 0em; }
+.text h1 { margin-top:2.3em; margin-bottom:0.8em; font-size:2.2em;}
+.text h2 { margin-top:2em; margin-bottom:0.4em; font-size:2em; font-weight:bold;}
+.text h3 { margin-top:1.8em; margin-bottom:0.4em; font-size:1.6em;}
+.text h4 { font-size:1em; margin:2em 0 0em; }
 .text li { font-size:0.9em;}
 .text li li { font-size:1em;}
 .text ul, .text ol { display:table; margin-left:1em; margin-top:0.3em; padding-left:1em;}
@@ -275,7 +275,7 @@ table.docs { border-bottom:1px dashed #CEBB94; background:#EAE9E8; }
 .largecal_title { text-align: center; background:white; margin-bottom:0.2em;}
 .largecal_title a { color:#655; font-size: 1em; font-family: Georgia, Times, serif;}
 .largecal_title span { padding:0 6px; }
-table.largecal { border:1px solid #655; font-size:0.8em; margin:auto; width:80%; }
+table.largecal { border:1px solid #655; font-size:0.9em; margin:auto; width:80%; }
 .largecal .head td  { border-left:1px solid #836C6C; background: #655; color: #fff; font-weight:normal; width:14%; height:0.8em; text-align:center; padding:0.4em 3px; }
 .largecal .head td:first-child {border-left-width:0;}
 .largecal .body td  { background: #ffd; width:14%; height:3.4em; padding:3px; vertical-align:top; font-style:italic; text-align:left; color:#999; 
@@ -293,17 +293,28 @@ border:1px solid #DDDBC1; border-width:1px 0 0 1px; font-size:0.8em;}
 .largecal .body div a:hover { background:#CECEB4; }
 .largecal .body p { float:left; margin:0;}
 .largecal .preview img { background:none;}
+
 .note_list { margin:0; }
-.note_title { padding:4px; font:1em Verdana, Arial, sans-serif; letter-spacing: 0.1em; color:#4F6741;}
 .note { padding:10px 3px 10px; border-left:4px solid white; border-top:1px solid #ddd;}
-.note h3 { font-size:0.78em;}
-.note h3 p { font:1em Verdana, Arial, sans-serif; text-transform: uppercase; letter-spacing: 0.03em; float:left; width:30em; text-align:left; color:#450009; font-weight:bold; margin-bottom:0.2em; padding:0; }
-.note h3 .wrong_lang { font-size:0.9em;}
-.note h3 a { color:inherit;}
+.note .header { font-size:0.8em; color:#999;}
+.note .header p { float:left;}
+.note .title  { font:1.1em Verdana, Arial, sans-serif; text-transform: uppercase; letter-spacing: 0.03em; font-weight:bold; color:#450009; width:316px; }
+.note .header a { color:inherit;}
+.note .log_at { padding-top:2px; width:60px;}
+.note .sign { padding-top:2px; width:50px;}
+.note .text h3 { font-size:1.3;}
+/* 
+.note .title { padding:4px; font:1em Verdana, Arial, sans-serif; letter-spacing: 0.1em; color:#4F6741;}
+.note .header { font-size:1em;}
+.note .header p {  float:left; width:30em; text-align:left; color:#450009; font-weight:bold; margin-bottom:0.2em; padding:0; }
+.note .header .wrong_lang { font-size:0.9em;}
+.note .header a { color:inherit;}
 .note .log_at { float:left; width:60px; color:#999; font-weight:bold; font-size:0.95em;}
 .note .sign   { float:left; width:8em; font-size:0.95em; color:#999; font-weight:normal; }
 .note .node_actions { margin:0; padding:0; width:60px; }
 .note .node_actions a { border:0;}
+*/
+
 .note .li_s50 .node_actions { visibility:hidden;}
 .note .li_s50:hover .node_actions { visibility:visible;}
 .note .text   { clear:both; margin-left:60px; margin-bottom:0.3em; margin-top:10px; }

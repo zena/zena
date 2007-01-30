@@ -6,13 +6,13 @@ module MainHelper
     if action == 'edit'
       "<a href='#' title='#{transb('btn_title_edit')}' onClick=\"editor=window.open('" + 
       url_for(:controller=>'version', :id=>version_id, :action=>'edit', :rnd=>rnd) + 
-      "', 'editor', 'location=0,width=300,height=400,resizable=1');return false;\">" + (link_text || transb('btn_edit')) + "</a>"
+      "', 'edit', 'location=0,width=300,height=400,resizable=1');return false;\">" + (link_text || transb('btn_edit')) + "</a>"
     elsif action == 'view'
       tlink_to_function((link_text || 'btn_view'), "opener.Zena.version_preview(#{version_id}); return false;")
     elsif action == 'drive'
       "<a href='#' title='#{transb('btn_title_drive')}' onClick=\"editor=window.open('" + 
       url_for(:controller=>'node', :version_id=>version_id, :action=>'drive', :rnd=>rnd) + 
-      "', 'editor', 'location=0,width=500,height=600,resizable=1');return false;\">" + (link_text || transb('btn_drive')) + "</a>"
+      "', 'drive', 'location=0,width=300,height=400,resizable=1');return false;\">" + (link_text || transb('btn_drive')) + "</a>"
     else
       tlink_to( (link_text || "btn_#{action}"), {:controller=>'version', :action => action , :id => version_id}, :title=>transb("btn_title_#{action}"), :post=>true ) + "\n"
     end

@@ -1,9 +1,9 @@
 <tr class="d<%= (li.inside? ? 'inside' : 'outside') + (li.open? ? '_open' : '_closed') %>" id='discussion<%= li[:id] %>'>
-  <td class="view"><%= discussion_actions( li, :action=>:view) %></td>
-  <td class="inside"><%= trans("img_comments#{li.inside? ? '_inside' : ''}") %></td>
-  <td class="lang"><%= li.lang %></td>
+  <td class="box"><%= discussion_actions( li, :action=>:view) %></td>
+  <td class="box"><%= trans("img_comments#{li.inside? ? '_inside' : ''}") %></td>
+  <td class="box"><%= li.lang %></td>
   <td class="status"><%= trans(li.inside? ? 'inside' : 'outside') %> / <%= trans(li.open? ? 'open' : 'closed') %></td>
+  <td class="comment"><%= li.all_comments.size.to_s + ' ' + trans('comment(s)') %></td>
   <td class="date"><%= format_date(li.updated_at, 'datetime') %></td>
-  <td class="comments"><%= li.all_comments.size.to_s + ' ' + trans('comment(s)') %></td>
   <td class="actions"><%= discussion_actions(li) %></td>
 </tr>
