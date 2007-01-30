@@ -507,21 +507,27 @@ module ApplicationHelper
     if opt[:as]
       key = "#{opt[:as]}#{obj.v_id}"
       method = opt[:as]
+      opt.delete(:as)
     else
       key = "#{sym}#{obj.v_id}"
       method = sym
     end
-    klass = [:v_text, :v_summary].include?(method) ? " class='text'" : ""
     if opt[:text]
       text = opt[:text]
-    elsif [:v_text, :v_summary].include?(method)
-      text = zazen(obj.send(sym), opt)
+      opt.delete(:text)
     elsif sym == :summary && opt[:limit]
-      text = obj.send(sym, opt[:limit])
+      text = obj.summary(opt[:limit])
+      opt.delete(:limit)
     else
       text = obj.send(sym)
     end
-    if opt[:as]
+    if [:v_text, :v_summary].include?(method)
+      text  = zazen(text, opt)
+      klass = " class='text'"
+    else
+      klass = ""
+    end
+    if method != sym
       render_to_string :partial=>'node/show_attr', :locals=>{:id=>obj[:id], :text=>text, :method=>method, :key=>key, :klass=>klass,
                                                            :key_on=>"#{key}#{Time.now.to_i}_on", :key_off=>"#{key}#{Time.now.to_i}_off"}
     else
