@@ -3,6 +3,7 @@ class Project < Page
   after_save :check_project_id
   link :news, :class_name=>'Note', :as=>'calendar', :collector=>true
   link :hot,  :class_name=>'Node', :unique=>true
+  link :home, :class_name=>'Node', :unique=>true
   link :contact, :class_name=>'Contact', :unique=>true
   link :notes_added, :class_name=>'Note', :as=>'project', :collector=>true
   

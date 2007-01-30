@@ -452,4 +452,12 @@ class MultiVersionTest < Test::Unit::TestCase
     assert_equal Zena::Status[:red], node.v_status
     assert_equal Zena::Status[:red], node.max_status
   end
+  
+  def test_redit
+    assert false, 'todo'
+  end
+  
+  def test_remove_redaction
+    assert false, 'todo'
+  end
 end

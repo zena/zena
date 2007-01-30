@@ -42,7 +42,7 @@ module ApplicationHelper
 	  rnd_id = Time.now.to_i
 	  defaults = {  :id=>"datef#{rnd_id}", :button=>"dateb#{rnd_id}", :display=>"dated#{rnd_id}", :class=>var.to_s }
 	  opts = defaults.merge(opts)
-	  date = eval("@#{obj} ? @#{obj}.#{var} : nil") || Time.now
+	  date = eval("@#{obj} ? @#{obj}.#{var} : nil") || Time.now.utc
 	  value = format_date(date,'datetime')
     if opts[:size] == 0
       fld = hidden_field obj, var, :id=>opts[:id] , :value=>value, :class=>opts[:class]
@@ -510,7 +510,7 @@ module ApplicationHelper
   
   # TODO: test
   def show(obj, sym, opt={})
-    return show_title(obj, opt) if sym == :title
+    return show_title(obj, opt) if sym == :v_title
     if opt[:as]
       key = "#{opt[:as]}#{obj.v_id}"
       preview_for = opt[:as]

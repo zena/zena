@@ -20,7 +20,7 @@
   </div>
 
   <%= show_menu      %>
-  <%= logo Time.now  %>
+  <%= logo Time.now.utc  %>
   <%= flash_messages %>
   
   <%= css_edit('admin.css') %>

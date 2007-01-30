@@ -219,7 +219,7 @@ on the post edit page :
                 join = 'INNER'
                 inner_conditions = ["links.role='#{role}' AND links.#{link_side} = ?", self[:id] ]
               end
-              options.merge!( :select     => "\#{#{klass}.table_name}.*, links.id AS link_id, links.role", 
+              options.merge!( :select     => "DISTINCT \#{#{klass}.table_name}.*", 
                               :joins      => "\#{join} JOIN links ON \#{#{klass}.table_name}.id=links.#{other_side}",
                               :conditions => inner_conditions
                               )

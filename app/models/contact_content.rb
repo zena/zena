@@ -1,4 +1,5 @@
 class ContactContent < ActiveRecord::Base
+  belongs_to :version
   
   # Full contact name to show in views.
   def fullname

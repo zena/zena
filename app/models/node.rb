@@ -60,7 +60,8 @@ class Node < ActiveRecord::Base
   acts_as_secure
   acts_as_multiversioned
   link :tags, :class_name=>'Tag'
-  link :hot_for, :as=>'hot', :class_name=>'Project', :as_unique=>true
+  link :hot_for, :as=>'hot',   :class_name=>'Project', :as_unique=>true
+  link :home_for, :as=>'home', :class_name=>'Project', :as_unique=>true
   
   class << self
     # valid parent class

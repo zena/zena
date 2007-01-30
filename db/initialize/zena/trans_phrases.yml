@@ -289,3 +289,6 @@ trans_phrases:
 
   - id:   97
     phrase:  'img_group_admin'
+
+  - id:   98
+    phrase:  'img_home'

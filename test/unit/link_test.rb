@@ -467,4 +467,17 @@ class LinkTest < Test::Unit::TestCase
     @pages_and_tags = @node.tags(:or=>"parent_id = #{@node[:id]}")
     assert_equal 3, @pages_and_tags.size
   end
+  
+  def test_or_option_for_find_no_doubles
+    LinkDummy.connection.execute "UPDATE nodes SET type='Tag', kpath='NPT' WHERE id IN (12);" # status
+    test_visitor(:lion)
+    @node = secure(LinkDummy) { LinkDummy.find(nodes_id(:cleanWater)) }
+    @node.tag_ids = [nodes_id(:art),nodes_id(:status)]
+    @node.save
+    @pages = secure(LinkDummy) { LinkDummy.find(:all, :conditions=>["kpath LIKE 'NPT%' AND parent_id = ?", @node[:id]]) }
+    assert_equal 2, @node.tags.size
+    assert_equal 1, @pages.size
+    @pages_and_tags = @node.tags(:or=>["parent_id = ?", @node[:id]])
+    assert_equal 2, @pages_and_tags.size
+  end
 end

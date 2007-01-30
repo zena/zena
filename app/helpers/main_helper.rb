@@ -47,6 +47,10 @@ module MainHelper
   end
   
   # TODO: test
+  def version_form_action(action,version_id)
+    tlink_to_remote( "btn_#{action}", :url=>{:controller=>'version', :action => action , :id => version_id, :drive=>true}, :title=>transb("btn_title_#{action}"), :post=>true ) + "\n"
+  end
+  # TODO: test
   # show actions on versions
   def version_actions(version, opt={})
     opt = {:action=>:all}.merge(opt)
@@ -54,34 +58,33 @@ module MainHelper
     actions = []
     if opt[:action] == :view
       if (version.status != Zena::Status[:del]) ||  (version[:user_id] == visitor.id )
-        actions << form_action('view', version[:id])
+        actions << version_form_action('view', version[:id])
       end
     elsif opt[:action] == :all
       case version.status
       when Zena::Status[:pub]
-        actions << form_action('unpublish',version[:id]) if @node.can_unpublish?
+        actions << version_form_action('unpublish',version[:id]) if @node.can_unpublish?
       when Zena::Status[:prop]
-        actions << form_action('publish',version[:id])
-        actions << form_action('refuse',version[:id])
+        actions << version_form_action('publish',version[:id])
+        actions << version_form_action('refuse',version[:id])
       when Zena::Status[:prop_with]
-        actions << form_action('publish',version[:id])
-        actions << form_action('refuse',version[:id])
+        actions << version_form_action('publish',version[:id])
+        actions << version_form_action('refuse',version[:id])
       when Zena::Status[:red]
-        actions << form_action('edit',version[:id]) if version.user[:id] == visitor.id
-        actions << form_action('publish',version[:id])
-        actions << form_action('propose',version[:id])
-        actions << form_action('remove',version[:id]) if version.user[:id] == visitor.id
+        actions << version_form_action('publish',version[:id])
+        actions << version_form_action('propose',version[:id])
+        actions << version_form_action('remove',version[:id]) if version.user[:id] == visitor.id
       when Zena::Status[:rep]
-        actions << form_action('edit',version[:id]) if @node.can_edit_lang?(version.lang)
-        actions << form_action('publish',version[:id])
-        actions << form_action('propose',version[:id])
+        actions << version_form_action('edit',version[:id]) if @node.can_edit_lang?(version.lang)
+        actions << version_form_action('publish',version[:id])
+        actions << version_form_action('propose',version[:id])
       when Zena::Status[:rem]
-        actions << form_action('edit',version[:id]) if @node.can_edit_lang?(version.lang)
-        actions << form_action('publish',version[:id])
-        actions << form_action('propose',version[:id])
+        actions << version_form_action('edit',version[:id]) if @node.can_edit_lang?(version.lang)
+        actions << version_form_action('publish',version[:id])
+        actions << version_form_action('propose',version[:id])
       when Zena::Status[:del]
         if (version[:user_id] == session[:user][:id])
-          actions << form_action('edit',version[:id]) if @node.can_edit_lang?(version.lang)
+          actions << version_form_action('edit',version[:id]) if @node.can_edit_lang?(version.lang)
         end
       end
     end

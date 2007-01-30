@@ -144,7 +144,7 @@ module Zena
           else
             new_status = Zena::Status[:rep]
           end
-          version.publish_from = pub_time || self.publish_from || Time.now
+          version.publish_from = pub_time || self.publish_from || Time.now.utc
           version.status = Zena::Status[:pub]
             Version.logger.info "SAVING VERSION"
           if version.save
@@ -163,6 +163,7 @@ module Zena
         def unpublish
           return false unless can_unpublish?
           version.status = Zena::Status[:red]
+          version.publish_from = nil
           if version.save
             update_publish_from && update_max_status && after_remove
           else
@@ -171,8 +172,22 @@ module Zena
         end
         
         def remove
-          return false unless can_unpublish?
+          if version.status == Zena::Status[:pub]
+            return false unless can_unpublish?
+          else
+            return false unless version.user_id == visitor_id
+          end
           version.status = Zena::Status[:rem]
+          if version.save
+            update_publish_from && update_max_status && after_remove
+          else
+            false
+          end
+        end
+        
+        def redit
+          return false unless can_edit?
+          version.status = Zena::Status[:red]
           if version.save
             update_publish_from && update_max_status && after_remove
           else

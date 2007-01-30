@@ -909,3 +909,9 @@
   phrase_id:    97
   lang:      en
   value:     "<img src='/images/group_admin.png'/>"
+
+170:
+  id:        170
+  phrase_id:    98
+  lang:      en
+  value:     "<img src='/images/home.png'/>"

@@ -54,7 +54,7 @@ class ApplicationControllerTest < Test::Unit::TestCase
     assert_equal 'wiki', @controller.send(:template)
   end
   
-  def test_form_template
+  def test_form_tabs
     page = @controller.send(:secure, Node) { Node.find(nodes_id(:status))    }
     doc  = @controller.send(:secure, Node) { Node.find(nodes_id(:water_pdf)) }
     @controller.instance_eval{ @node = page }

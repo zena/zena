@@ -265,9 +265,9 @@ Just doing the above will filter all result according to the logged in user.
         # * members of +read_group+ if the node is published and the current date is greater or equal to the publication date
         # * members of +publish_group+ if +max_status+ >= prop
         def can_read?(uid=visitor_id, ugps=visitor_groups)
-          ( uid == 2 ) ||
+          res = ( uid == 2 ) ||
           ( uid == user_id ) ||
-          ( ugps.include?(rgroup_id) && publish_from && Time.now >= publish_from ) ||
+          ( ugps.include?(rgroup_id) && publish_from && Time.now.utc >= publish_from ) ||
           ( ugps.include?(pgroup_id) && max_status > Zena::Status[:red] )
         end
   
@@ -278,7 +278,7 @@ Just doing the above will filter all result according to the logged in user.
         def can_write?(uid=visitor_id, ugps=visitor_groups)
           ( uid == 2 ) ||
           ( uid == user_id ) ||
-          ( ugps.include?(wgroup_id) && publish_from && Time.now >= publish_from )
+          ( ugps.include?(wgroup_id) && publish_from && Time.now.utc >= publish_from )
         end
         
         # people who can make visible changes

@@ -162,3 +162,7 @@ trans_values:
   - phrase_id:    97
     lang:      en
     value:     "<img src='/images/group_admin.png'/>"
+  
+  - phrase_id:    98
+    lang:      en
+    value:     "<img src='/images/home.png'/>"

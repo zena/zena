@@ -15,13 +15,22 @@ class VersionController < ApplicationController
     elsif params[:node_id]
       @node = secure_write(Node) { Node.find(params[:id]) }
     end
-    if !@node.edit!
-      page_not_found
+    if params[:drive]
+      if @node.redit
+        flash[:notice] = trans "Version changed back to redaction."
+      else
+        flash[:error] = trans "Could not change version back to redaction."
+      end  
+      render :action=>'update'
     else
-      # store the id used to preview when editing
-      session[:preview_id] = params[:id]
-      @edit = true
-      render_form
+      if !@node.edit!
+        flash[:error] = trans "Could not edit version."
+        render_or_redir 404
+      else
+        # store the id used to preview when editing
+        session[:preview_id] = params[:id]
+        @edit = true
+      end
     end
   rescue ActiveRecord::RecordNotFound
     page_not_found
@@ -74,7 +83,7 @@ class VersionController < ApplicationController
       session[:notice] = trans "Redaction saved."
     else
       flash[:error] = trans "Redaction could not be saved"
-      render_form
+      render 'edit'
     end
   rescue ActiveRecord::RecordNotFound
     page_not_found
@@ -87,52 +96,53 @@ class VersionController < ApplicationController
   end
   
   def propose
-    node = secure(Node) { Node.version(params[:id]) }
-    if node.propose
+    @node = secure(Node) { Node.version(params[:id]) }
+    if @node.propose
       flash[:notice] = trans "Redaction proposed for publication."
-      redirect_to @request.env['HTTP_REFERER'] #:action=> 'show', :id => node.v_id
+      render_or_redir @request.env['HTTP_REFERER']
     else
-      page_not_found
+      flash[:error] = trans "Could not propose redaction."
+      render_or_redir 404
     end
   rescue ActiveRecord::RecordNotFound
     page_not_found
   end
   
   def refuse
-    node = secure(Node) { Node.version(params[:id]) }
+    @node = secure(Node) { Node.version(params[:id]) }
     
-    if node.refuse
+    if @node.refuse
       flash[:notice] = trans "Proposition refused."
-      redirect_to user_home_url
+      render_or_redir user_home_url
     else
       flash[:notice] = trans "Could not refuse proposition."
-      redirect_to @request.env['HTTP_REFERER']
+      render_or_redir @request.env['HTTP_REFERER']
     end
   rescue ActiveRecord::RecordNotFound
     page_not_found
   end
   
   def publish
-    node = secure(Node) { Node.version(params[:id]) }
-    if node.publish
+    @node = secure(Node) { Node.version(params[:id]) }
+    if @node.publish
       flash[:notice] = "Redaction published."
-      redirect_to @request.env['HTTP_REFERER'] #redirect_to :action => 'show', :id => node.v_id
+      render_or_redir @request.env['HTTP_REFERER']
     else
       flash[:error] = "Could not publish."
-      page_not_found
+      render_or_redir 404
     end
   rescue ActiveRecord::RecordNotFound
     page_not_found
   end
   
   def remove
-    node = secure(Node) { Node.version(params[:id]) }
-    if node.remove
+    @node = secure(Node) { Node.version(params[:id]) }
+    if @node.remove
       flash[:notice] = "Publication removed."
-      redirect_to @request.env['HTTP_REFERER'] #:action => 'show', :id => node.v_id
+      render_or_redir @request.env['HTTP_REFERER']
     else
       flash[:error] = "Could not remove plublication."
-      page_not_found
+      render_or_redir 404
     end
   rescue ActiveRecord::RecordNotFound
     page_not_found
@@ -140,16 +150,27 @@ class VersionController < ApplicationController
   
   # TODO: test
   def unpublish
-    node = secure(Node) { Node.version(params[:id]) }
-    if node.unpublish
+    @node = secure(Node) { Node.version(params[:id]) }
+    if @node.unpublish
       flash[:notice] = "Publication removed."
-      redirect_to @request.env['HTTP_REFERER'] #:action => 'show', :id => node.v_id
+      render_or_redir @request.env['HTTP_REFERER']
     else
       flash[:error] = "Could not remove plublication."
-      page_not_found
+      render_or_redir 404
     end
   rescue ActiveRecord::RecordNotFound
     page_not_found
   end
   
+  private
+  
+  def render_or_redir(url)
+    if params[:drive]
+      render :action=>'update'
+    elsif url == 404
+      page_not_found
+    else
+      redirect_to url
+    end
+  end
 end

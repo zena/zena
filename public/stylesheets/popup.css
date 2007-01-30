@@ -15,7 +15,7 @@ body {font: 0.9em Arial, Helvetica, Verdana, sans-serif; background:#9FA6AC; lin
 #search_box { z-index:999; z-index:999; position:absolute; top:1px; right:20px;}
 
 /* messages and ajax-loader */
-#messages { position:absolute; top:0; line-height:1.4em; }
+#messages { position:absolute; top:0; line-height:1.4em; width:100%; }
 #loader { visibility:hidden;}
 #loader img {float:left;}
 #notice, #error {padding:2px 8px; border: 1px dotted #835857; width: 100%;}
@@ -37,31 +37,32 @@ body {font: 0.9em Arial, Helvetica, Verdana, sans-serif; background:#9FA6AC; lin
 .tab .validate .readers { float: left;}
 .readers label, .readers p { display: inline;}
 .readers label { font:inherit; font-size:0.9em;}
+
+.tab_content {height:100%; width:100%;font-size:0.9em; padding:3px 0 2px 8px;}
 /* text */
-#text {height:100%; width:100%;font-size:0.9em; padding-top:3px; text-align:right;}
+#text_tab {text-align:right; padding:3px 0 0 0;}
 #node_v_text { width:95%; height:100%; font:inherit; padding:5px 0 5px 5px;}
 
 /* title */
-#title { padding:5px; font-size:0.9em;}
-#node_v_title, #node_v_comment, #node_v_summary { width:98%; font:inherit; font-size:0.9em; padding:2px;}
+#node_v_title, #node_v_comment, #node_v_summary { width:96%; font:inherit; font-size:0.9em; padding:2px;}
 .event_at { padding:1px 2px; width:50%; text-align:center; font-size:0.86em;}
 #node_v_title { font-weight:bold; font-size:1.2em;}
-label { font-size:0.9em; font-weight:bold; display:block; color:#5C1515; margin:10px 0 2px; clear:both;} 
+label { font-size:0.9em; font-weight:bold; display:block; color:#5C1515; margin:10px 0 5px; clear:both;} 
 
 ul.link_box { float:left; display:block; margin:2px; padding:2px;}
-#title .link_box { border: 1px solid #655;}
+#title_tab .link_box { border: 1px solid #655;}
 .link_box li { display:inline; padding:2px;}
 .link_box input { display:inline; width:2em; margin:0 2px; font-size:0.8em;}
 .link_box input.box { width:1.2em;}
 
-#help pre { font-size:110%;}
-#help { font-size:0.9em; padding:5px;}
-#help h4 { margin:2em 0 0;}
-#help p { margin:1em 0;}
-#help table { background:#ECEBEA; border:1px solid #CEBB94; border-right-width:0; border-spacing:0;}
-#help th { background: #C8C4BF; font-weight:normal; border-right:1px solid #CEBB94; padding:1px 4px; font-size:1.1em; font-style:italic; font-family:Times, serif;}
-#help td { border:1px solid #CEBB94; border-width:1px 1px 0 0; padding:0px 4px;}
-#help tr:first-child td { border-top-width:0;}
+#help_tab pre { font-size:110%;}
+#help_tab { font-size:0.9em; padding:5px;}
+#help_tab h4 { margin:2em 0 0;}
+#help_tab p { margin:1em 0;}
+#help_tab table { background:#ECEBEA; border:1px solid #CEBB94; border-right-width:0; border-spacing:0;}
+#help_tab th { background: #C8C4BF; font-weight:normal; border-right:1px solid #CEBB94; padding:1px 4px; font-size:1.1em; font-style:italic; font-family:Times, serif;}
+#help_tab td { border:1px solid #CEBB94; border-width:1px 1px 0 0; padding:0px 4px;}
+#help_tab tr:first-child td { border-top-width:0;}
 
 /* DRIVE */
 
@@ -100,6 +101,7 @@ ul.link_box { float:left; display:block; margin:2px; padding:2px;}
 #links .group span { background:#888; font-weight:normal;}
 #links .role { width:80px; }
 #links .path { width:200px; text-align:left;}
+#links .actions { width:20px;}
 #links #link_link { width:auto;}
 #links .link_box { display:inline; margin:0; padding:0 8px 0 0;}
 #links .link_box li { display:inline; padding:0;}

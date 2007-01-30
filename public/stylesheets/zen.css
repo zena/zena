@@ -173,7 +173,7 @@ input, textarea { border:1px solid grey; margin:0.2em}
 #left .header .wrong_lang {font-size:0.6em;}
 #content { float:left; width:630px; padding:0 22px 200px 0; margin-top:1em;}
 #left .content { padding-top:10px;}
-#left .header h1 { font-size:1.15em; margin-top:1.2em;}
+#left .header h1 { font-size:1.3em; margin-top:1.2em; margin-bottom:0.5em;}
 #left .header h1 a { color:inherit;}
 #left .subtitle { margin-bottom:0.17em; margin-top:0.17em; }
 #left .subtitle .info { font-style:normal; font-size:0.7em; }
@@ -298,7 +298,7 @@ border:1px solid #DDDBC1; border-width:1px 0 0 1px; font-size:0.8em;}
 .note { padding:10px 3px 10px; border-left:4px solid white; border-top:1px solid #ddd;}
 .note .header { font-size:0.8em; color:#999;}
 .note .header p { float:left;}
-.note .title  { font:1.1em Verdana, Arial, sans-serif; text-transform: uppercase; letter-spacing: 0.03em; font-weight:bold; color:#450009; width:316px; }
+.note .title  { font:1em Verdana, Arial, sans-serif; text-transform: uppercase; letter-spacing: 0.03em; font-weight:bold; color:#450009; width:316px; }
 .note .header a { color:inherit;}
 .note .log_at { padding-top:2px; width:60px;}
 .note .sign { padding-top:2px; width:50px;}

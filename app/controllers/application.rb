@@ -41,22 +41,6 @@ class ApplicationController < ActionController::Base
     end
     return 'default'
   end
-  
-  def render_form
-    render :template=>"templates/#{form_template}"
-  end
-  
-  def form_template
-    tmplt = @node.template || 'default'
-    # try to find a class specific template, starting with the most specialized, then the class specific and finally
-    # the contextual template or default
-    ["#{tmplt}_#{@node.class.to_s.downcase}", "any_#{@node.class.to_s.downcase}", tmplt ].each do |filename|
-      if File.exist?(File.join(RAILS_ROOT, 'app', 'views', 'templates', 'forms', "#{filename}.rhtml"))
-        return "forms/#{filename}"
-      end
-    end
-    return 'forms/default'
-  end
    
   def page_not_found
     redirect_to :controller => 'main', :action=>'not_found'

@@ -16,7 +16,7 @@
   <div class="navbar">
   </div>
 
-  <%= logo Time.now  %>
+  <%= logo Time.now.utc  %>
   <%= flash_messages %>
 
   <%= start_form_tag %>

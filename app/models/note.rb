@@ -32,7 +32,7 @@ class Note < Node
   private
   
   def prepare_note
-    self[:log_at]   ||= Time.now
+    self[:log_at]   ||= Time.now.utc
     self[:event_at] ||= self[:log_at]
     self.name = version.title unless self[:name]
     self[:name] = "#{log_at.year}-#{log_at.month}-#{log_at.day}-#{name}" if @name_set

@@ -1,0 +1,4 @@
+<% [:first_name, :name, :address, :zip, :city, :telephone, :mobile, :email, :birthday].each do |sym| %>
+<label for="<%= sym %>"><%= trans(sym.to_s) %></label>
+<%= text_field 'node', "c_#{sym}", :size=>nil %>
+<% end %>

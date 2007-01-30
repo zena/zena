@@ -22,24 +22,25 @@
   </div>
 
   <%= show_menu      %>
-  <%= logo Time.now  %>
+  <%= logo Time.now.utc  %>
   <%= flash_messages %>
-
+  
+  <% home = @node.home || @node %>
   <div id='left'>
     <div id='tinycal'><%= calendar(:find=>:news, :size=>:tiny) %></div>
-    <% hot = @node.hot ? @node.hot : @node %>
     <div class='header'>
-      <h1 class='s<%= @node.v_status %>'>
-        <ul class='node_actions'><%= edit_button(:all) %></ul><br/>
-        <%= show_title(@node) %>
+      <h1 class='s<%= home.v_status %>'>
+        <ul class='node_actions'><%= edit_button(:all, :node=>home) %></ul><br/>
+        <%= show(home, :v_title) %>
       </h1>
-      <div class='subtitle'><%= author(:small) %></div>
+      <div class='subtitle'><%= author(:small, :node=>home) %></div>
     </div>
     <div id='drive' style='display:none;'></div>
     <div class='content'>
-      <%= @node[:v_summary] ? show(@node, :v_summary) : show(@node, :v_text) %>
+      <%= home[:v_summary] ? show(home, :v_summary) : show(home, :v_text) %>
     </div>
   </div>
+  
   <div id='main'>
     <div id='content'>
       <div id='largecal' style='display:none;'></div>
@@ -48,7 +49,7 @@
       <div class='header'>
         <h1 class='s<%= hot.v_status %>'>
           <ul class='node_actions'><%= edit_button(:all, :node=>hot) %></ul><br/>
-          <%= show(hot, :title) %>
+          <%= show(hot, :v_title) %>
         </h1>
         <div class='subtitle'><%= author(:small, :node=>hot) %></div>
       </div>
@@ -78,6 +79,6 @@
       </div>
     </div>
   </div>
-  <%= css_edit %>
+  <%#= css_edit %>
 </body>
 </html>
