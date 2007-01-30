@@ -1,7 +1,7 @@
 # some configurations of this file have been taken from http://mongrel.rubyforge.org/docs/apache.html
 # any errors and bugs are mine, though.
 
-<Proxy balancer://mongrel_cluster>
+<Proxy balancer://<%= mongrel_cluster %>>
 <% ports.each do |port| %>
   BalancerMember http://127.0.0.1:<%= port %><% end %>
 </Proxy>
@@ -38,6 +38,14 @@
   </Directory>
   <% end %>
   
+  # hide all .whatever files
+  <DirectoryMatch "^/.*/\.">
+    ErrorDocument 403 /404.html
+    Order allow,deny
+    Deny from all
+    Satisfy All
+  </DirectoryMatch>
+  
   RewriteEngine On
   <% if options[:debug_rewrite] %>
   # rewrite debugging
@@ -58,7 +66,8 @@
 
   # Redirect all non-static requests to cluster
   RewriteCond %{DOCUMENT_ROOT}/%{REQUEST_FILENAME} !-f
-  RewriteRule ^/(.*)$ balancer://mongrel_cluster%{REQUEST_URI} [P,QSA,L]
+  RewriteRule ^/(.*)$ balancer://<%= mongrel_cluster %>%{REQUEST_URI} [P,QSA,L]
+  
   <% if options[:deflate] %>
   # Deflate (compress data before sending to browser)
   AddOutputFilterByType DEFLATE text/html text/plain text/xml application/xml application/xhtml+xml text/javascript text/css
@@ -66,6 +75,7 @@
   BrowserMatch ^Mozilla/4.0[678] no-gzip
   BrowserMatch \bMSIE !no-gzip !gzip-only-text/html
   <% end %>
+  
   <% if options[:debug_deflate] && option[:deflate] %>
   # Deflate debugging
   DeflateFilterNote Input input_info

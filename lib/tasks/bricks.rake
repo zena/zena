@@ -12,7 +12,7 @@ namespace :bricks do
       mig_path = nil
       Dir.foreach('db/migrate') do |file|
         next if file =~ /^\./
-        next unless File.stat(file).directory?
+        next unless File.stat("db/migrate/#{file}").directory?
         if file =~ /^[0-9-_]*#{ENV["BRICK"]}/
           mig_path = "db/migrate/#{file}"
           break
@@ -36,7 +36,6 @@ namespace :bricks do
       end
       directories.sort.each do |file|
         brick_name = file.sub(/^[0-9-_]*/,'')
-        puts "FILE:#{file} BRICK:#{brick_name}"
         ActiveRecord::BricksMigrator.migrate("db/migrate/#{file}", brick_name, nil)
       end
       ActiveRecord::Migrator.migrate("db/migrate/", nil)
