@@ -1,8 +1,7 @@
 <table cellspacing="0" id='links'>
   <% @node.role_links.each do |role,links| -%>
-  
     <tr id='group_<%= role[:method]%>'>
-      <td class='group' colspan='4'><%= role[:method] %> <%= "<span>(#{trans('collection not shown')})</span>" if role[:collector] %></td>
+      <td class='group' colspan='4'><%= role[:method] %> <%= "<span>(#{trans('only last added are shown')})</span>" if role[:collector] %></td>
     </tr>
     <%= render :partial=>'link/li', :collection=>links %>
   <% end -%>

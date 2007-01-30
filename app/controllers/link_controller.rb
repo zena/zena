@@ -43,13 +43,11 @@ class LinkController < ApplicationController
         end
       end
       if other_id && @node.add_link(@method, other_id) && @node.save
-        Node.find(other_id).after_all
-        @link = @node.send(@method.to_sym, :conditions=>['nodes.id = ?', other_id])
-        @link = @link[0] if @link.kind_of?(Array)
+        Node.find(other_id).send(:after_all)
       end
     end
   rescue ActiveRecord::RecordNotFound
-    add_error'node not found'
+    add_error 'node not found'
   end
   
   def select_for
@@ -62,7 +60,7 @@ class LinkController < ApplicationController
     end
     if @role
       if @role[:collector]
-        render :inline=>"<%= select_id('link', 'other_id', :show=>:path) %>"
+        render :inline=>"<%= select_id('link', 'other_id', :show=>:short_path) %>"
       else
         render :inline=>"<%= hidden_field('node','box', :value=>'#{@role[:method]}') %><%= link_box 'node', '#{@role[:method]}', :title=>nil %>"
       end

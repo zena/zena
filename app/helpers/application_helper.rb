@@ -699,6 +699,7 @@ module ApplicationHelper
   end
   
   # TODO: test
+  # clever id selector
   def select_id(obj, sym, opt={})
     if ['Project', 'Tag', 'Contact'].include?(opt[:class].to_s)
       klass = opt[:class].kind_of?(Class) ? opt[:class] : eval(opt[:class])
@@ -723,8 +724,9 @@ module ApplicationHelper
     else
       current = ''
     end
+    # we use both 'onChange' and 'onKeyup' for old javascript compatibility
     update = "new Ajax.Updater('#{name_ref}', '/z/node/attribute/' + this.value + '?attr=#{attribute}', {asynchronous:true, evalScripts:true});"
-    "<div class='select_id'><input type='text' size='8' id='#{obj}_#{sym}' name='#{obj}[#{sym}]' value='#{id}' onChange=\"#{update}\"/>"+
+    "<div class='select_id'><input type='text' size='8' id='#{obj}_#{sym}' name='#{obj}[#{sym}]' value='#{id}' onChange=\"#{update}\" onKeyup=\"#{update}\"/>"+
     "<span class='select_id_name' id='#{name_ref}'>#{current}</span></div>"
   end
 end

@@ -51,11 +51,11 @@ class LinkTest < Test::Unit::TestCase
     assert @node.save, "Can save node"
     @node = secure(LinkDummy) { LinkDummy.find(nodes_id(:wiki)) }
     groups = @node.role_links
-    assert_equal @node.class.roles.size, groups.size
-    assert_equal 'icon', groups[3][0][:role]
-    assert_equal 1, groups[3][1].size
-    assert_equal 'tag', groups[6][0][:role]
-    assert_equal 2, groups[6][1].size
+    assert_equal 2, groups.size
+    assert_equal 'icon', groups[0][0][:role]
+    assert_equal 1, groups[0][1].size
+    assert_equal 'tag', groups[1][0][:role]
+    assert_equal 2, groups[1][1].size
   end
   
   def test_class_roles

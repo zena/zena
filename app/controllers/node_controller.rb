@@ -49,15 +49,19 @@ class NodeController < ApplicationController
   # TODO: test
   def attribute
     method = params[:attr].to_sym
-    if [:v_text, :v_summary, :name, :path].include?(method)
+    if [:v_text, :v_summary, :name, :path, :short_path].include?(method)
       if params[:id] =~ /^\d+$/
         @node = secure(Node) { Node.find(params[:id]) }
       else
         @node = secure(Node) { Node.find_by_name(params[:id]) }
         raise ActiveRecord::RecordNotFound unless @node
       end
-      if method == :path
-        render :inline=>@node.rootpath.join('/')
+      if method == :path || method == :short_path
+        path = @node.rootpath
+        if method == :short_path && path.size > 2
+          path = ['..'] + path[-2..-1]
+        end
+        render :inline=> path.join('/')
       else
         @text = @node.send(method)
         if [:v_text, :v_summary].include?(method)

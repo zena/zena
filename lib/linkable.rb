@@ -86,15 +86,17 @@ on the post edit page :
         res = []
         self.class.roles.each do |role|
           if role[:collector]
-            links = []
+            limit = 5
           else
-            links = secure(Node) { Node.find(:all,
-                            :select     => "#{Node.table_name}.*, links.id AS link_id, links.role", 
-                            :joins      => "INNER JOIN links ON #{Node.table_name}.id=links.#{role[:other_side]}",
-                            :conditions => ["links.#{role[:link_side]} = ? AND links.role = ?", self[:id], role[:role] ]
-                            )} || []
+            limit = nil
           end
-          res << [role, links]
+          links = secure(Node) { Node.find(:all,
+                          :select     => "#{Node.table_name}.*, links.id AS link_id, links.role", 
+                          :joins      => "INNER JOIN links ON #{Node.table_name}.id=links.#{role[:other_side]}",
+                          :conditions => ["links.#{role[:link_side]} = ? AND links.role = ?", self[:id], role[:role] ],
+                          :order => "link_id DESC",
+                          :limit => limit )} || []
+          res << [role, links] if links != []
         end
         res
       end

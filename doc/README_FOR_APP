@@ -12,6 +12,7 @@ deletion of node
 USER : CONTACT_ID ??
 popup 'drive' should show vertical scroll bar...
 traduire le texte de base pour l'aide en anglais
+is app/views/node/_tags used ?
 === Optimization & Cache
 * sweep public page cache :
   * page for all lang
