@@ -242,8 +242,8 @@ module ApplicationHelper
     img = opt[:images]
     if opt[:limit]
       opt[:limit] -= 1 unless opt[:limit] <= 0
-      paragraphs = text.split("\n\n")
-      if paragraphs.size > opt[:limit] && opt[:limit] != -1
+      paragraphs = text.split(/\n\n/)
+      if paragraphs.size > (opt[:limit]+1) && opt[:limit] != -1
         text = paragraphs[0..opt[:limit]].join("\n\n") + " &#8230;<span class='more'>" + trans("(click to read more)") + "</span>"
       end
     end
