@@ -376,11 +376,6 @@ module ApplicationHelper
     end
   end
   
-  # TODO: test
-  def node_url(obj)
-    {:controller => 'main', :action=>'show', :path=>obj.fullpath, :prefix=>prefix}
-  end
-  
   # return a readable text version of a file size
   def fsize(size)
     size = size.to_f

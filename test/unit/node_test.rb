@@ -54,6 +54,16 @@ class NodeTest < Test::Unit::TestCase
     assert_equal ['zena'], node.rootpath
   end
   
+  def test_url_path
+    test_visitor(:tiger)
+    node = secure(Node) { nodes(:status) }
+    assert_equal ['cleanWater'], node.url_path
+    node = secure(Node) { nodes(:projects) }
+    assert_equal [], node.url_path
+    node = secure(Node) { nodes(:proposition) }
+    assert_equal [], node.url_path
+  end
+  
   def test_create_simplest
     test_visitor(:ant)
     test_page = secure(Node) { Node.create(:name=>"yoba", :parent_id=>nodes_id(:cleanWater), :inherit=>1 ) }

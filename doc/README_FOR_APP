@@ -12,6 +12,8 @@ deletion of node
 USER : CONTACT_ID ??
 popup 'drive' should show vertical scroll bar...
 traduire le texte de base pour l'aide en anglais
+APPLICATION_TEST : should use same testing as application_helper...
+PATH_LINKS: correct and try to find some way to cache the base in project ?
 is app/views/node/_tags used ?
 === Optimization & Cache
 * sweep public page cache :

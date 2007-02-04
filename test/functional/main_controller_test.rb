@@ -55,10 +55,17 @@ class MainControllerTest < Test::Unit::TestCase
   end
   
   def test_show
-    assert_routing '/en/projects', {:controller=>'main', :action=>'show', :prefix=>'en', :path=>['projects']}
-    get 'show', :path=>['projects'], :prefix=>'en'
+    assert_routing '/en/node19', {:controller=>'main', :action=>'show', :prefix=>'en', :path=>['node19']}
+    get 'show', :path=>['node19'], :prefix=>'en'
     assert_response :success
-    assert_template 'default'
+    assert_template 'wiki'
+  end
+  
+  def test_show_redirect
+    assert_routing '/en/node12', {:controller=>'main', :action=>'show', :prefix=>'en', :path=>['node12']}
+    get 'show', :path=>['node12'], :prefix=>'en'
+    assert_response :redirect
+    assert_redirected_to :controller=>'main', :action=>'show', :prefix=>'en', :path=>['cleanWater', 'node12']
   end
   
   def test_show_redirect

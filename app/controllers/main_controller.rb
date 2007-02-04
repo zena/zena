@@ -13,9 +13,18 @@ class MainController < ApplicationController
     page_not_found
   end
   
+  # TODO: test new path
   def show
-    @node = Page.find_by_path(visitor.id, visitor.group_ids, lang, params[:path])
-    render_and_cache
+    path = params[:path]
+    ref  = path.pop
+    id   = ref.gsub(/[^0-9]+/,'').to_i
+    @node = secure(Node) { Node.find(id) }
+    if path == @node.url_path
+      render_and_cache
+    else
+      redirect_to node_url(@node)
+    end
+    #@node = Page.find_by_path(visitor.id, visitor.group_ids, lang, params[:path])
   rescue ActiveRecord::RecordNotFound
     page_not_found
   end

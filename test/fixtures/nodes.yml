@@ -144,6 +144,7 @@ cleanWater:
   kpath:          NPP
   name:           cleanWater
   project_id:     11
+  custom_base:    true
   parent_id:      8
   user_id:        4
   inherit:        1

@@ -97,6 +97,12 @@ class ApplicationControllerTest < Test::Unit::TestCase
     ZENA_ENV[:monolingual] = bak
   end
   
+  def test_node_url
+    node = @controller.send(:secure, Node) { Node.find(nodes_id(:status)) }
+    assert_equal ['cleanWater','node12'], @controller.send(:node_url,node)[:path]
+    node = @controller.send(:secure, Node) { Node.find(nodes_id(:wiki)) }
+    assert_equal ['node19'], @controller.send(:node_url,node)[:path]
+  end
   # authorize tested in 'MainController' tests
   
 end

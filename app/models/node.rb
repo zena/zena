@@ -88,6 +88,23 @@ class Node < ActiveRecord::Base
       end
     end
   end
+  
+  # url path
+  def url_path
+    if self[:id] == ZENA_ENV[:root_id]
+      []
+    else
+      if self.kind_of?(Project)
+        if self[:custom_base]
+          parent.url_path + [self[:name]]
+        else
+          parent.url_path
+        end
+      else
+        project.url_path
+      end
+    end
+  end
 
   # Return the full path as an array if it is cached or build it when asked for.
   def fullpath
