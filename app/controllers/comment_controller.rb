@@ -1,6 +1,5 @@
 class CommentController < ApplicationController
   before_filter :check_is_admin, :only=>[:list, :empty_bin]
-  helper MainHelper
   helper_method :bin_content
   
   # TODO: test

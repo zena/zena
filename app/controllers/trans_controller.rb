@@ -1,8 +1,11 @@
 class TransController < ApplicationController
-  before_filter :check_translator
-  helper MainHelper
+  before_filter :check_translator, :except=>[:lang_menu]
   layout 'admin'
 
+  def lang_menu
+    render :layout=>false
+  end
+  
   def edit
     @trans = TransPhrase.find(params[:id])
     @trans.lang = lang
@@ -51,6 +54,6 @@ class TransController < ApplicationController
   
   private
   def check_translator
-    page_not_found unless visitor_groups.include?(ZENA_ENV[:translate_group])
+    page_not_found unless visitor.group_ids.include?(ZENA_ENV[:translate_group])
   end
 end

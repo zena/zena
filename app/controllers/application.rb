@@ -3,6 +3,7 @@
 class ApplicationController < ActionController::Base
   acts_as_secure_controller
   helper_method :prefix, :node_url, :notes, :error_messages_for, :render_errors, :add_error
+  helper 'main'
   before_filter :authorize
   before_filter :set_env
   after_filter  :set_encoding
@@ -157,8 +158,14 @@ class ApplicationController < ActionController::Base
   # /////// The following methods are common to controllers and views //////////// #
   
   def node_url(obj)
-    path = obj.url_path
-    path += ["node#{obj[:id]}"]
+    if obj[:id] == ZENA_ENV[:root_id]
+      path = []
+    else
+      path = obj.basepath
+      unless obj[:custom_base]
+        path += ["#{obj.class.to_s.downcase}#{obj[:id]}.html"]
+      end
+    end
     {:controller => 'main', :action=>'show', :path=>path, :prefix=>prefix}
   end
   

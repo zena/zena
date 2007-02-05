@@ -70,39 +70,58 @@ class Node < ActiveRecord::Base
     end
     
     # Find an node by it's full path. Cache 'fullpath' if found.
-    def find_by_path(visitor_id, visitor_groups, lang, path)
+    def find_by_path(path)
       node = Node.find_by_fullpath(path.join('/'))
-      unless node
-        raise ActiveRecord::RecordNotFound unless node = Node.find(ZENA_ENV[:root_id])
-        path.each do |p|
-          raise ActiveRecord::RecordNotFound unless node = Node.find_by_name_and_parent_id(p, node[:id])
+      if node.nil?
+        last = path.pop
+        Node.with_exclusive_scope do
+          node = Node.find(ZENA_ENV[:root_id])
+          path.each do |p|
+            raise ActiveRecord::RecordNotFound unless node = Node.find_by_name_and_parent_id(p, node[:id])
+          end
         end
+        raise ActiveRecord::RecordNotFound unless node = Node.find_by_name_and_parent_id(last, node[:id])
         node.fullpath = path.join('/')
         # bypass callbacks here
         Node.connection.execute "UPDATE #{Node.table_name} SET fullpath='#{path.join('/').gsub("'",'"')}' WHERE id='#{node[:id]}'"
       end
-      if node.can_read?(visitor_id, visitor_groups)
-        node.set_visitor(visitor_id, visitor_groups, lang)
-      else
-        raise ActiveRecord::RecordNotFound
-      end
+      node
     end
   end
   
-  # url path
-  def url_path
+  # return the list of ancestors (without self): [root, obj, obj]
+  # ancestors to which the visitor has no access are removed from the list
+  def ancestors
     if self[:id] == ZENA_ENV[:root_id]
       []
-    else
-      if self.kind_of?(Project)
-        if self[:custom_base]
-          parent.url_path + [self[:name]]
-        else
-          parent.url_path
-        end
+    elsif parent = Node.find_by_id(self[:parent_id])
+      if parent.can_read?
+        parent.ancestors + [parent]
       else
-        project.url_path
+        parent.ancestors
       end
+    else
+      []
+    end
+  end
+  
+  # url base path. cached. If rebuild is set to true, the cache is updated.
+  def basepath(rebuild=false)
+    if self[:custom_base]
+      fullpath
+    elsif !rebuild && self[:basepath]
+      self[:basepath].split('/')
+    else
+      if self[:parent_id]
+        Node.with_exclusive_scope do
+          parent = Node.find_by_id(self[:parent_id])
+        end
+        path = parent.basepath
+      else
+        path = []
+      end
+      self.connection.execute "UPDATE #{self.class.table_name} SET basepath='#{path.join('/')}' WHERE id='#{self[:id]}'"
+      path
     end
   end
 
@@ -112,12 +131,12 @@ class Node < ActiveRecord::Base
       self[:fullpath].split('/')
     else
       if parent
-        f = parent.fullpath << name
+        path = parent.fullpath << name
       else
-        f = []
+        path = []
       end
-      self.connection.execute "UPDATE #{self.class.table_name} SET fullpath='#{f.join('/')}' WHERE id='#{self[:id]}'"
-      f
+      self.connection.execute "UPDATE #{self.class.table_name} SET fullpath='#{path.join('/')}' WHERE id='#{self[:id]}'"
+      path
     end
   end
   

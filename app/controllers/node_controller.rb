@@ -1,6 +1,6 @@
 class NodeController < ApplicationController
   layout 'popup'
-  helper MainHelper
+  
   # test to here
   def test
     if request.get?

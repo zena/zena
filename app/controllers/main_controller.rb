@@ -17,14 +17,17 @@ class MainController < ApplicationController
   def show
     path = params[:path]
     ref  = path.pop
-    id   = ref.gsub(/[^0-9]+/,'').to_i
-    @node = secure(Node) { Node.find(id) }
-    if path == @node.url_path
+    if ref =~ /[a-zA-Z\-_]+([0-9]+)(\.|$)/
+      @node = secure(Node) { Node.find($1.to_i) }
+    else
+      path << ref # unpop ref
+      @node = secure(Node) { Node.find_by_path(path) }
+    end
+    if path == @node.basepath(true)
       render_and_cache
     else
       redirect_to node_url(@node)
     end
-    #@node = Page.find_by_path(visitor.id, visitor.group_ids, lang, params[:path])
   rescue ActiveRecord::RecordNotFound
     page_not_found
   end

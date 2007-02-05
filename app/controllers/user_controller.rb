@@ -1,6 +1,5 @@
 class UserController < ApplicationController
   before_filter :check_is_admin, :except=>[:home, :preferences, :change_password]
-  helper MainHelper
   layout 'admin'
   # This view contains all the relevant information for a user's home in the CMS. From here, the
   # user can view the versions his is currently editing, he can publish content, etc

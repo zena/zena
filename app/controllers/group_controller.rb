@@ -1,6 +1,5 @@
 class GroupController < ApplicationController
   before_filter :check_is_admin
-  helper MainHelper
   layout 'admin'
   
   # TODO: test

@@ -1,5 +1,4 @@
 class CalendarController < ApplicationController
-  helper MainHelper
   
   # This action is used to change the calendar date with ajax
   def show

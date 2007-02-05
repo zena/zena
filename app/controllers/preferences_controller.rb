@@ -1,6 +1,5 @@
 class PreferencesController < ApplicationController
   before_filter :check_user
-  helper MainHelper
   layout 'admin'
   
   # TODO: test

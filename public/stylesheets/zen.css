@@ -58,7 +58,8 @@ input, textarea { font:inherit; padding:2px;}
 #lang { margin-left:250px; float:left;}
 #lang.empty { padding:0; }
 #lang b { font-weight:normal; color:white;}
-#path, #lang, #lang a { color:#A27C6E;}
+#path, #lang, #lang a, #path a { color:#A27C6E;}
+#path a.current { color:white;}
 #path { float:left; }
 #path li { display:inline;}
 #logout, #visitor, #search_anchor { float:right; }

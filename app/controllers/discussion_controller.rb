@@ -1,6 +1,5 @@
 class DiscussionController < ApplicationController
-  helper MainHelper
-  
+
   # TODO: test
   def show
     get_discussion

@@ -16,7 +16,7 @@ class NodeTest < Test::Unit::TestCase
     test_visitor(:ant)
     node = nodes(:wiki)
     assert_nil node[:fullpath]
-    node = Node.find_by_path(visitor_id,visitor_groups,'fr',['projects', 'wiki'])
+    node = secure(Node) { Node.find_by_path(['projects', 'wiki']) }
     assert_kind_of Node, node
     assert_equal ['projects','wiki'], node.fullpath
     node.reload
@@ -42,8 +42,8 @@ class NodeTest < Test::Unit::TestCase
     test_visitor(:tiger)
     assert_nothing_raised { node = secure(Node) { nodes(:status) } }
     assert_kind_of Node, node
-    assert_raises (ActiveRecord::RecordNotFound) { node = Node.find_by_path(visitor_id,visitor_groups,'fr',['people', 'ant'])}
-    assert_nothing_raised { node = Node.find_by_path(visitor_id,visitor_groups,'fr',['people', 'ant', 'status'])}
+    assert_raises (ActiveRecord::RecordNotFound) { node = secure(Node) { Node.find_by_path(['people', 'ant']) } }
+    assert_nothing_raised { node = secure(Node) { Node.find_by_path(['people', 'ant', 'status'])}}
   end
   
   def test_rootpath
@@ -54,14 +54,29 @@ class NodeTest < Test::Unit::TestCase
     assert_equal ['zena'], node.rootpath
   end
   
-  def test_url_path
+  def test_basepath
     test_visitor(:tiger)
     node = secure(Node) { nodes(:status) }
-    assert_equal ['cleanWater'], node.url_path
+    assert_equal ['projects', 'cleanWater'], node.basepath
     node = secure(Node) { nodes(:projects) }
-    assert_equal [], node.url_path
+    assert_equal [], node.basepath
     node = secure(Node) { nodes(:proposition) }
-    assert_equal [], node.url_path
+    assert_equal [], node.basepath
+  end
+  
+  def test_ancestors
+    test_visitor(:ant)
+    node = secure(Node) { nodes(:status) }
+    assert_equal [nodes_id(:zena), nodes_id(:projects), nodes_id(:cleanWater)], node.ancestors.map { |a| a[:id] }
+    node = secure(Node) { nodes(:zena) }
+    assert_equal [], node.ancestors
+  end
+  
+  def test_ancestor_in_hidden_project
+    test_visitor(:ant)
+    node = secure(Node) { nodes(:proposition) }
+    assert_kind_of Node, node
+    assert_equal [nodes_id(:zena), nodes_id(:projects)], node.ancestors.map { |a| a[:id] } # ant can view 'proposition' but not the project proposition is in
   end
   
   def test_create_simplest
@@ -318,10 +333,10 @@ class NodeTest < Test::Unit::TestCase
   
   def test_secure_find_by_path
     test_visitor(:tiger)
-    node = Node.find_by_path(visitor_id, visitor_groups, 'fr', ['projects', 'secret'])
+    node = secure(Node) { Node.find_by_path(['projects', 'secret']) }
     assert_kind_of Node, node
     test_visitor(:ant)
-    assert_raise(ActiveRecord::RecordNotFound) { node = Node.find_by_path(visitor_id, visitor_groups, 'fr', ['projects', 'secret']) }
+    assert_raise(ActiveRecord::RecordNotFound) { node = secure(Node) { Node.find_by_path(['projects', 'secret']) }}
   end
   
   def test_author
@@ -551,11 +566,11 @@ class NodeTest < Test::Unit::TestCase
     ApplicationController.perform_caching = true
     test_visitor(:lion)
     i = 1
-    assert_equal "content 1", Cache.with(visitor_id, visitor_groups, 'NP', 'pages')  { "content #{i}" }
-    assert_equal "content 1", Cache.with(visitor_id, visitor_groups, 'NN', 'notes')  { "content #{i}" }
+    assert_equal "content 1", Cache.with(visitor.id, visitor.group_ids, 'NP', 'pages')  { "content #{i}" }
+    assert_equal "content 1", Cache.with(visitor.id, visitor.group_ids, 'NN', 'notes')  { "content #{i}" }
     i = 2
-    assert_equal "content 1", Cache.with(visitor_id, visitor_groups, 'NP', 'pages')  { "content #{i}" }
-    assert_equal "content 1", Cache.with(visitor_id, visitor_groups, 'NN', 'notes')  { "content #{i}" }
+    assert_equal "content 1", Cache.with(visitor.id, visitor.group_ids, 'NP', 'pages')  { "content #{i}" }
+    assert_equal "content 1", Cache.with(visitor.id, visitor.group_ids, 'NN', 'notes')  { "content #{i}" }
     
     # do something on a document
     node = secure(Node) { nodes(:water_pdf) }
@@ -563,8 +578,8 @@ class NodeTest < Test::Unit::TestCase
     assert node.update_attributes(:v_title=>'new title'), "Can change attributes"
     # sweep only kpath NPD
     i = 3
-    assert_equal "content 3", Cache.with(visitor_id, visitor_groups, 'NP', 'pages')  { "content #{i}" }
-    assert_equal "content 1", Cache.with(visitor_id, visitor_groups, 'NN', 'notes')  { "content #{i}" }
+    assert_equal "content 3", Cache.with(visitor.id, visitor.group_ids, 'NP', 'pages')  { "content #{i}" }
+    assert_equal "content 1", Cache.with(visitor.id, visitor.group_ids, 'NN', 'notes')  { "content #{i}" }
     
     # do something on a note
     node = secure(Node) { nodes(:proposition) }
@@ -572,8 +587,8 @@ class NodeTest < Test::Unit::TestCase
     assert node.update_attributes(:name=>'popo'), "Can change attributes"
     # sweep only kpath NPD
     i = 4
-    assert_equal "content 3", Cache.with(visitor_id, visitor_groups, 'NP', 'pages')  { "content #{i}" }
-    assert_equal "content 4", Cache.with(visitor_id, visitor_groups, 'NN', 'notes')  { "content #{i}" }
+    assert_equal "content 3", Cache.with(visitor.id, visitor.group_ids, 'NP', 'pages')  { "content #{i}" }
+    assert_equal "content 4", Cache.with(visitor.id, visitor.group_ids, 'NN', 'notes')  { "content #{i}" }
     
     ApplicationController.perform_caching = bak
   end

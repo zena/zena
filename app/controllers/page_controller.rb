@@ -1,5 +1,4 @@
 class PageController < ApplicationController
-  helper MainHelper
 
   def create
     klass = params[:page][:klass] || 'Page'

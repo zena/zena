@@ -1,6 +1,5 @@
 class VersionController < ApplicationController
   layout 'popup'
-  helper MainHelper
   
   #def show
   #  @node = secure(Node) { Node.version(params[:id]) }

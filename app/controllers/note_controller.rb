@@ -1,6 +1,5 @@
 class NoteController < ApplicationController
-  helper MainHelper
-  
+
   def day_list
     # used to display just the content of a single note (called by calender)
     @node          = secure(Node) { Node.find(params[:id]) }

@@ -1,7 +1,6 @@
 class DocumentController < ApplicationController
   layout 'popup'  
-  helper MainHelper
-  
+
   def new
     @node = secure_write(Node) { Node.find(params[:parent_id]) }
     @document = @node.new_child
