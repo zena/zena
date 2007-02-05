@@ -116,11 +116,7 @@ class Node < ActiveRecord::Base
         Node.with_exclusive_scope do
           parent = Node.find_by_id(self[:parent_id])
         end
-        if parent
-          path = parent.basepath
-        else
-          []
-        end
+        path = parent ? parent.basepath : []
       else
         path = []
       end
