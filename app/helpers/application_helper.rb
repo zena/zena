@@ -521,6 +521,8 @@ module ApplicationHelper
       if (text.nil? || text == '') && sym == :v_summary
         text = obj.v_text
         opt[:images] = false
+      else
+        opt.delete(:limit)
       end
     end
     if [:v_text, :v_summary].include?(sym)
