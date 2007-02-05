@@ -1,7 +1,7 @@
 class CreateBase < ActiveRecord::Migration
   
   def self.up
-    create_table("users", :force => true, :options => 'type=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci') do |t|
+    create_table("users", :options => 'type=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci') do |t|
       t.column "created_at", :datetime
       t.column "updated_at", :datetime
       t.column "login", :string, :limit => 20
@@ -14,7 +14,7 @@ class CreateBase < ActiveRecord::Migration
       t.column "email", :string, :limit => 60      # cached from contact_content
     end
       
-    create_table("contact_contents", :force => true, :options => 'type=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci') do |t|
+    create_table("contact_contents", :options => 'type=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci') do |t|
       t.column "created_at", :datetime
       t.column "updated_at", :datetime
       t.column "version_id", :integer
@@ -29,7 +29,7 @@ class CreateBase < ActiveRecord::Migration
       t.column "birthday", :date
     end
 
-    create_table("document_contents", :force => true, :options => 'type=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci') do |t|
+    create_table("document_contents", :options => 'type=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci') do |t|
       t.column "type", :string, :limit => 16
       t.column "version_id", :integer
       t.column "name", :string, :limit => 200, :default => "", :null => false
@@ -41,18 +41,18 @@ class CreateBase < ActiveRecord::Migration
       t.column "height", :integer
     end
 
-    create_table("groups", :force => true, :options => 'type=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci') do |t|
+    create_table("groups", :options => 'type=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci') do |t|
       t.column "created_at", :datetime
       t.column "updated_at", :datetime
       t.column "name", :string, :limit => 20, :default => "", :null => false
     end
     
-    create_table("groups_users", :force => true, :id=>false, :options => 'type=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci') do |t|
+    create_table("groups_users", :id=>false, :options => 'type=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci') do |t|
       t.column "group_id", :integer, :default => 0, :null => false
       t.column "user_id", :integer, :default => 0, :null => false
     end
 
-    create_table("nodes", :force => true, :options => 'type=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci') do |t|
+    create_table("nodes", :options => 'type=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci') do |t|
       t.column "type", :string, :limit => 16
       t.column "event_at", :datetime
       t.column "kpath", :string, :limit => 16
@@ -75,13 +75,13 @@ class CreateBase < ActiveRecord::Migration
       t.column "fullpath", :text
     end
 
-    create_table("links", :force => true, :options => 'type=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci') do |t|
+    create_table("links", :options => 'type=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci') do |t|
       t.column "source_id", :integer, :default => 0, :null => false
       t.column "target_id", :integer, :default => 0, :null => false
       t.column "role", :string, :limit => 20
     end
 
-    create_table("versions", :force => true, :options => 'type=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci') do |t|
+    create_table("versions", :options => 'type=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci') do |t|
       t.column "type", :string, :limit => 16
       t.column "created_at", :datetime
       t.column "updated_at", :datetime
@@ -98,7 +98,7 @@ class CreateBase < ActiveRecord::Migration
       t.column "content_id", :integer
     end
 
-    create_table("discussions", :force => true, :options => 'type=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci') do |t|
+    create_table("discussions", :options => 'type=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci') do |t|
       t.column "created_at", :datetime
       t.column "updated_at", :datetime
       t.column "node_id", :integer
@@ -107,7 +107,7 @@ class CreateBase < ActiveRecord::Migration
       t.column "lang", :string, :limit => 10, :default => "", :null => false
     end
 
-    create_table("comments", :force => true, :options => 'type=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci') do |t|
+    create_table("comments", :options => 'type=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci') do |t|
       t.column "created_at", :datetime
       t.column "updated_at", :datetime
       t.column "status", :integer
@@ -119,17 +119,17 @@ class CreateBase < ActiveRecord::Migration
       t.column "author_name",:string, :limit => 300
     end
     
-    create_table("trans_phrases", :force => true, :options => 'type=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci') do |t|
+    create_table("trans_phrases", :options => 'type=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci') do |t|
       t.column "phrase", :string, :limit => 100, :default => "", :null => false
     end
 
-    create_table("trans_values", :force => true, :options => 'type=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci') do |t|
+    create_table("trans_values", :options => 'type=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci') do |t|
       t.column "phrase_id", :integer
       t.column "lang", :string, :limit => 10, :default => "", :null => false
       t.column "value", :text, :default => "", :null => false
     end
     
-    create_table("caches", :force => true, :options => 'type=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci') do |t|
+    create_table("caches", :options => 'type=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci') do |t|
       t.column "updated_at", :datetime
       t.column "visitor_id", :integer
       t.column "visitor_groups", :string, :limit => 200
