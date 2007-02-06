@@ -965,10 +965,10 @@ ENDTXT
         res = convertor.convert( str )
         "<div class='ruby'>#{res}</div>"
       else
-        RedCloth.new("<code>#{str}</code>").to_html
+        RedCloth.new("<pre>#{str}</pre>").to_html
       end
     else  
-      RedCloth.new("<code>#{str}</code>").to_html
+      RedCloth.new("<pre>#{str}</pre>").to_html
     end
   end
   
