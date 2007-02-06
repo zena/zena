@@ -235,7 +235,7 @@ class ImageBuilder
 end
 IMAGEBUILDER_FORMAT = {
   'tiny' => { :size=>:force, :width=>15,  :height=>15,  :scale=>1.7   },
-  'mini' => { :size=>:force, :width=>30,  :ratio=>1.0,  :scale=>1.3   },
+  'mini' => { :size=>:force, :width=>32,  :ratio=>1.0,  :scale=>1.3   },
   'pv'   => { :size=>:force, :width=>70,  :ratio=>1.0                 },
   'med'  => { :size=>:limit, :width=>280, :ratio=>2/3.0               },
   'top'  => { :size=>:force, :width=>280, :ratio=>2.0/3.0, :gravity=>Magick::NorthGravity},
