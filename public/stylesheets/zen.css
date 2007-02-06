@@ -8,7 +8,7 @@ h2, h3 {font: 1.2em Georgia, Times, serif; letter-spacing: 0; text-transform: no
 h2 { font-size:1.5em; font-style:italic; color:#450009; }
 p {font-size:1em; text-align: left; line-height: 1.2; margin: 0 0 1.5em;}
 li { list-style-type:none; }
-code, pre { font:inherit; font-family:Monaco, monospace; font-size:0.9em; line-height:1.2;}
+code, pre { font:inherit; font-family:Courier,"Courier New",monospace; line-height:1.4;}
 a .id { display: none; font-size:0.7em; color:#ccc; }
 a:hover .id { display:inline; }
 button { background:none; border:none;}
@@ -187,23 +187,21 @@ input, textarea { border:1px solid grey; margin:0.2em}
 .text {font-size:0.85em;}
 .text a {color:#174190;} /* #8F5225 #174190 */
 .text p, .text table { line-height:1.4; margin:1em 0; font-style:normal;}
+.text li { line-height:1.8;}
 .text table { margin-left:auto; margin-right:auto;}
 .text h1 { margin-top:2.3em; margin-bottom:0.8em; font-size:2.2em;}
 .text h2 { margin-top:2em; margin-bottom:0.4em; font-size:2em; font-weight:bold;}
 .text h3 { margin-top:1.8em; margin-bottom:0.4em; font-size:1.6em;}
 .text h4 { font-size:1em; margin:2em 0 0em; }
-.text li { font-size:0.9em;}
-.text li li { font-size:1em;}
-.text ul, .text ol { display:table; margin-left:1em; margin-top:0.3em; padding-left:1em;}
+.text ul, .text ol { display:table; margin-left:2em; margin-top:0.3em; margin-bottom:2em; padding-left:1em;}
 .text ul ul, .text ol ol { margin:0;}
 .text ul ul li { list-style:circle;}
-.text li { margin:0; list-style:disc; line-height:1.2em;}
-.text li { line-height:1.3em; }
+.text li { margin:0; list-style:disc;}
 .text ol li {list-style:decimal;}
 .text img { border: 1px solid #666; }
 .text img.doc { border:0;}
 .text img.full { border:0;}
-.text .box { border:1px dashed #CEBB94; border-width:1px 0; background:#EAE9E8; padding:5px 4px 3px; display:table; margin:1em auto 1em;}
+.text .box { border:1px dashed #CEBB94; border-width:1px 0; background:#EAE9E8; padding:5px 4px 3px; display:table; margin:1em auto 3em;}
 .text strong { font-family:Helvetica, Arial;}
 code { color:black; padding:2px 2px 0px; background:#ECEBEA;}
 .box code { background:none; border-bottom:1px solid #D3D2D1;}
