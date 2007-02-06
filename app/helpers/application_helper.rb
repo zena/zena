@@ -941,7 +941,7 @@ ENDTXT
   
   # list of escaped sequences used by zazen_escape and zazen_unescape
   def escaped_sequences
-    [['"','\\QUOTE\\'], [':', '\\DDOT\\'], ['!', '\\EXCLAM\\'], ['<', '\\LESSTHEN\\'], ['>', '\\GREATERTHEN\\']]
+    [['"','\\QUOTE\\'], ["'",'\\SQUOTE\\'], [':', '\\DDOT\\'], ['!', '\\EXCLAM\\'], ['<', '\\LESSTHEN\\'], ['>', '\\GREATERTHEN\\']]
   end
   
   # escape sequences for 'code' blocks. This avoids 'zazen' to run on the code.
@@ -965,10 +965,10 @@ ENDTXT
         res = convertor.convert( str )
         "<div class='ruby'>#{res}</div>"
       else
-        str
+        RedCloth.new("<code>#{str}</code>").to_html
       end
-    else
-      str
+    else  
+      RedCloth.new("<code>#{str}</code>").to_html
     end
   end
   
