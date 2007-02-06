@@ -1,34 +1,3 @@
-require 'syntax/convertors/html'
-require 'syntax'
-
-class ZafuTokenizer < Syntax::Tokenizer
-  def step
-    if methods = scan(/<\/?z:[^>]+>/)  
-      methods =~ /<(\/?)z:([^> ]+)([^\/>]*)(\/?)>/
-      start_group :punct, "<#{$1}z:"
-      start_group :ztag, $2
-      trailing = $4
-      params = $3.strip.split(/ +/)
-      params.each do |kv|
-        key, value = *(kv.split('='))
-        append " "
-        start_group :param, key
-        append "="
-        start_group :value, value
-      end
-      start_group :punct, "#{trailing}>"
-    elsif html = scan(/<\/?[^>]+>/)
-      html =~/<\/?([^>]+)>/
-      start_group :tag, html
-    else
-      start_group :normal, scan(/./m)
-    end
-  end
-end
-Syntax::SYNTAX['zafu'] = ZafuTokenizer
-
-
-
 # Methods added to this helper will be available to all templates in the application.
 module ApplicationHelper
   include Zena::Acts::SecureScope
@@ -313,7 +282,10 @@ module ApplicationHelper
   def make_image(opts)
     id, style, link, size, title = opts[:id], opts[:style], opts[:link], opts[:size], opts[:title]
     img = secure(Document) { Document.find(id) }
-    title = img.v_summary if title == "" 
+    if !opts[:images].nil? && !opts[:images]
+      return "[#{helper.trans('image')}: #{img.v_title}]"
+    end
+    title = img.v_summary if title == ""
     size = IMAGEBUILDER_FORMAT[size] ? size : nil
     if !size && img.kind_of?(Image)
       size = 'std'
@@ -995,10 +967,10 @@ ENDTXT
         res = convertor.convert( str )
         "<div class='#{code_lang}'>#{res}</div>"
       else
-        RedCloth.new("<pre>#{str}</pre>").to_html
+        RedCloth.new("<code>#{str}</code>").to_html
       end
     else  
-      RedCloth.new("<pre>#{str}</pre>").to_html
+      RedCloth.new("<code>#{str}</code>").to_html
     end
   end
   

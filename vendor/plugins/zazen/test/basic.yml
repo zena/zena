@@ -1,0 +1,46 @@
+empty:
+  in: ""
+  out: ""
+
+code_escape:
+  in: |
+    some text
+    
+    <code>this is hidden
+    from < parser
+    </code>
+  out: |
+    some text
+    
+    <div class='code'><div><pre>this is hidden
+    from &lt; parser
+    </pre></div></div>
+
+at_escape:
+  in: |
+    some text
+    
+    and @this is hidden@
+    but not this
+  out: |
+    some text
+    
+    and <code>this is hidden</code>
+    but not this
+
+code_ruby:
+  in: |
+    some text
+  
+    <code class='ruby'>def hello
+      puts "hello" << " world!"
+    end</code>
+  out: "/some text.*<div class='code'>.*<div class='ruby'><pre>.*keyword.*method.*&lt;&lt;/"
+  
+single_image:
+  in: "look here !12!"
+  out: "look here [make_image:12]"
+  
+single_no_image:
+  in: "look here !12!"
+  out: "look here [trans:[image]]"
