@@ -7,8 +7,12 @@ You need to set collation and charset to utf8 when creating the database. Exampl
 
 == Migrating the database (setup)
 Once config/database.yml is properly set, run the following command
-# rake bricks:migrate BRICK=zena_base
-# rake bricks:initialize BRICK=zena_base
+# rake bricks:migrate
+# rake bricks:init BRICK=zena
 
 == Loading new languages
 This is done through the web
+
+dependencies:
+
+rmagick, redcloth, syntax

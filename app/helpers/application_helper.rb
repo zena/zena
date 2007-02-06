@@ -1,3 +1,4 @@
+require 'syntax/convertors/html'
 # Methods added to this helper will be available to all templates in the application.
 module ApplicationHelper
   include Zena::Acts::SecureScope
@@ -254,9 +255,9 @@ module ApplicationHelper
     r.gsub!(  /\!([^0-9]{0,2})\{([^\}]*)\}\!/                      ) { img ? list_nodes(:style=>$1, :ids=>$2)   : trans('[documents]')}
     r.gsub!(  /\!([^0-9]{0,2})([0-9]+)(\.([^\/\!]+)|)(\/([^\!]*)|)\!(:([^\s]+)|)/ ) { img ? make_image(:style=>$1, :id=>$2, :size=>$4, :title=>$6, :link=>$8) : "[#{trans('image')}#{$6 ? (": " + zazen($6,:images=>false)) : ''}]"}
     r.gsub!(  /"([^"]*)":([0-9]+)/                    ) { make_link(:title=>$1,:id=>$2)}
-    r.gsub!(  /(\\CODE_START\\)(.*?)(\\CODE_END\\)/m    ) { "<div class='box'><pre class='code'>#{zazen_unescape($2)}</pre></div>" }
-    r.gsub!(  /(\\AT_START\\)(.*?)(\\AT_END\\)/         ) { "<code>#{zazen_unescape($2)}</code>" }
     r = r.to_html
+    r.gsub!(  /(\\CODE_START\\)(.*?)(\\CODE_END\\)/m    ) { "<div class='box'>#{zazen_unescape($2)}</div>" }
+    r.gsub!(  /(\\AT_START\\)(.*?)(\\AT_END\\)/         ) { "#{zazen_unescape($2)}" }
     r.gsub!(  /\?(\w[^\?]+?\w)\?/               ) { make_wiki_link($1) }
     r
   end
@@ -940,7 +941,7 @@ ENDTXT
   
   # list of escaped sequences used by zazen_escape and zazen_unescape
   def escaped_sequences
-    [['"','\\QUOTE\\'], [':', '\\DDOT\\'], ['!', '\\EXCLAM\\']]
+    [['"','\\QUOTE\\'], [':', '\\DDOT\\'], ['!', '\\EXCLAM\\'], ['<', '\\LESSTHEN\\'], ['>', '\\GREATERTHEN\\']]
   end
   
   # escape sequences for 'code' blocks. This avoids 'zazen' to run on the code.
@@ -956,7 +957,19 @@ ENDTXT
     escaped_sequences.each do |from, to|
       str.gsub!(to, from)
     end
-    str
+    if str =~ /^([a-z]+)\|/
+      code_lang = $1
+      str = str[(code_lang.length + 1)..-1]
+      if ['ruby'].include?(code_lang)
+        convertor = Syntax::Convertors::HTML.for_syntax(code_lang)
+        res = convertor.convert( str )
+        "<div class='ruby'>#{res}</div>"
+      else
+        str
+      end
+    else
+      str
+    end
   end
   
   def calendar_get_options(size, source, method)
