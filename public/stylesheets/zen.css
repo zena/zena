@@ -8,7 +8,7 @@ h2, h3 {font: 1.2em Georgia, Times, serif; letter-spacing: 0; text-transform: no
 h2 { font-size:1.5em; font-style:italic; color:#450009; }
 p {font-size:1em; text-align: left; line-height: 1.2; margin: 0 0 1.5em;}
 li { list-style-type:none; }
-code, pre { font:inherit; font-family:Monaco, monospace; font-size:0.98em;}
+code, pre { font:inherit; font-family:Monaco, monospace; font-size:0.9em; line-height:1.2;}
 a .id { display: none; font-size:0.7em; color:#ccc; }
 a:hover .id { display:inline; }
 button { background:none; border:none;}
@@ -187,6 +187,7 @@ input, textarea { border:1px solid grey; margin:0.2em}
 .text {font-size:0.85em;}
 .text a {color:#174190;} /* #8F5225 #174190 */
 .text p, .text table { line-height:1.4; margin:1em 0; font-style:normal;}
+.text table { margin-left:auto; margin-right:auto;}
 .text h1 { margin-top:2.3em; margin-bottom:0.8em; font-size:2.2em;}
 .text h2 { margin-top:2em; margin-bottom:0.4em; font-size:2em; font-weight:bold;}
 .text h3 { margin-top:1.8em; margin-bottom:0.4em; font-size:1.6em;}
@@ -239,15 +240,16 @@ table.fada tr.total td { background:#B1B899;  text-align: center;}
 table.fada td:first-child {border-left-width:1px;}
 #content p.action { margin:1.6em 0;}
 
-table.docs { border-bottom:1px dashed #CEBB94; background:#EAE9E8; }
-.docs .result_break { border-top:1px dashed #CEBB94; height:5px; }
+.text table.docs { border:0; border-bottom:1px dashed #CEBB94; background:#EAE9E8; font-size:0.9em; margin-left:0;}
+.text .docs td { border:0; }
+.text .docs .result_break { border-top:1px dashed #CEBB94; height:5px; }
 .img_center table.docs { margin:auto; text-align:left;}
-.docinfo p { margin-top:5px; display:inline;  font-size:0.7em; color:#404040;}
+.docinfo p { margin-top:5px; display:inline; color:#404040;}
 .docinfo a { color:inherit;}
 .docs .docinfo {  padding:2px 5px; vertical-align:top; }
-.docs .docinfo h4 { margin:0; padding:0; font-size:0.8em; color:#450009; }
+.docs .docinfo h4 { margin:0; padding:0; color:#450009; }
 .docs .docpv { padding: 0 0 0 5px;}
-.docs .docpv p { text-align:center; margin:3px 0 0; padding:0; font-size:70%; }
+.docs .docpv p { text-align:center; margin:3px 0 0; padding:0; font-size:0.95em; }
 .docs .docpv img { margin-bottom:-5px; }
 .docs .docpv img.doc { border:0;}
 

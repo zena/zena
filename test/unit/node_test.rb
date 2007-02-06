@@ -17,9 +17,8 @@ class NodeTest < Test::Unit::TestCase
     node = nodes(:wiki)
     assert_nil node[:fullpath]
     node = secure(Node) { Node.find_by_path(['projects', 'wiki']) }
-    assert_kind_of Node, node
     assert_equal ['projects','wiki'], node.fullpath
-    node.reload
+    node = secure(Node) { Node.find_by_path(['projects', 'wiki']) }
     assert_equal 'projects/wiki', node[:fullpath]
   end
   
@@ -65,18 +64,24 @@ class NodeTest < Test::Unit::TestCase
   end
   
   def test_ancestors
+    Node.connection.execute "UPDATE nodes SET parent_id = #{nodes_id(:proposition)} WHERE id = 20" # put 'bird' page inside note 'proposition' page
     test_visitor(:ant)
     node = secure(Node) { nodes(:status) }
-    assert_equal [nodes_id(:zena), nodes_id(:projects), nodes_id(:cleanWater)], node.ancestors.map { |a| a[:id] }
+    assert_equal ['zena', 'projects', 'cleanWater'], node.ancestors.map { |a| a[:name] }
     node = secure(Node) { nodes(:zena) }
     assert_equal [], node.ancestors
+    node = secure(Node) { nodes(:bird_jpg) }
+    prop = secure(Node) { nodes(:proposition)}
+    assert_kind_of Node, prop
+    assert prop.can_read?
+    assert_equal ['zena', 'projects', 'proposition'], node.ancestors.map { |a| a[:name] }
   end
   
   def test_ancestor_in_hidden_project
     test_visitor(:ant)
     node = secure(Node) { nodes(:proposition) }
     assert_kind_of Node, node
-    assert_equal [nodes_id(:zena), nodes_id(:projects)], node.ancestors.map { |a| a[:id] } # ant can view 'proposition' but not the project proposition is in
+    assert_equal ['zena', 'projects'], node.ancestors.map { |a| a[:name] } # ant can view 'proposition' but not the project proposition is in
   end
   
   def test_create_simplest

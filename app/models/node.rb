@@ -81,6 +81,7 @@ class Node < ActiveRecord::Base
           end
         end
         raise ActiveRecord::RecordNotFound unless node = Node.find_by_name_and_parent_id(last, node[:id])
+        path << last
         node.fullpath = path.join('/')
         # bypass callbacks here
         Node.connection.execute "UPDATE #{Node.table_name} SET fullpath='#{path.join('/').gsub("'",'"')}' WHERE id='#{node[:id]}'"
@@ -95,6 +96,7 @@ class Node < ActiveRecord::Base
     if self[:id] == ZENA_ENV[:root_id]
       []
     elsif parent = Node.find_by_id(self[:parent_id])
+      parent.set_visitor(visitor_id, visitor_groups, visitor_lang)
       if parent.can_read?
         parent.ancestors + [parent]
       else
@@ -131,7 +133,7 @@ class Node < ActiveRecord::Base
       self[:fullpath].split('/')
     else
       if parent
-        path = parent.fullpath << name
+        path = parent.fullpath + [name]
       else
         path = []
       end
