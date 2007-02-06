@@ -1,4 +1,21 @@
 require 'syntax/convertors/html'
+require 'syntax'
+
+class ZafuTokenizer < Syntax::Tokenizer
+  def step
+    if methods = scan(/<\/?z:[^>]+>/)
+      start_group :method, methods
+    elsif html = scan(/<\/?[^>]+>/)
+      start_group :keyword, html
+    else
+      start_group :normal, scan(/./m)
+    end
+  end
+end
+Syntax::SYNTAX['zafu'] = ZafuTokenizer
+
+
+
 # Methods added to this helper will be available to all templates in the application.
 module ApplicationHelper
   include Zena::Acts::SecureScope
@@ -960,7 +977,7 @@ ENDTXT
     if str =~ /^([a-z]+)\|/
       code_lang = $1
       str = str[(code_lang.length + 1)..-1]
-      if ['ruby'].include?(code_lang)
+      if Syntax::SYNTAX[code_lang]
         convertor = Syntax::Convertors::HTML.for_syntax(code_lang)
         res = convertor.convert( str )
         "<div class='ruby'>#{res}</div>"

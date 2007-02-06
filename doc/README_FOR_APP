@@ -15,6 +15,7 @@ traduire le texte de base pour l'aide en anglais
 APPLICATION_TEST : should use same testing as application_helper...
 PATH_LINKS: correct and try to find some way to cache the base in project ?
 is app/views/node/_tags used ?
+ZAZEN IS MESSY. CLEANUP (do not textilize code content...)
 === Optimization & Cache
 * sweep public page cache :
   * page for all lang
