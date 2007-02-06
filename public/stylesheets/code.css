@@ -1,12 +1,12 @@
 .ruby .normal {}
 .ruby .comment { color: #005; font-style: italic; }
-.ruby .keyword { color: #922; font-weight: bold; }
+.ruby .keyword { color: #622; font-weight: bold; }
 .ruby .method { color: #944; }
 .ruby .class { color: #074; }
 .ruby .module { color: #050; }
 .ruby .punct { color: #447; font-weight: bold; }
 .ruby .symbol { color: #099; }
-.ruby .string { color: #077; }
+.ruby .string { color: #361; }
 .ruby .char { color: #F07; }
 .ruby .ident { color: #004; }
 .ruby .constant { color: #07F; }
@@ -15,3 +15,9 @@
 .ruby .attribute { color: #377; }
 .ruby .global { color: #3B7; }
 .ruby .expr { color: #227; }
+
+.zafu .tag {color: #33a;}
+.zafu .punct {color: #622;}
+.zafu .ztag {color: #622; font-weight: bold; }
+.zafu .param { color:#a33;}
+.zafu .value { color:#449;}

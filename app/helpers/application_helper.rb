@@ -3,10 +3,23 @@ require 'syntax'
 
 class ZafuTokenizer < Syntax::Tokenizer
   def step
-    if methods = scan(/<\/?z:[^>]+>/)
-      start_group :method, methods
+    if methods = scan(/<\/?z:[^>]+>/)  
+      methods =~ /<(\/?)z:([^> ]+)([^\/>]*)(\/?)>/
+      start_group :punct, "<#{$1}z:"
+      start_group :ztag, $2
+      trailing = $4
+      params = $3.strip.split(/ +/)
+      params.each do |kv|
+        key, value = *(kv.split('='))
+        append " "
+        start_group :param, key
+        append "="
+        start_group :value, value
+      end
+      start_group :punct, "#{trailing}>"
     elsif html = scan(/<\/?[^>]+>/)
-      start_group :keyword, html
+      html =~/<\/?([^>]+)>/
+      start_group :tag, html
     else
       start_group :normal, scan(/./m)
     end
@@ -980,7 +993,7 @@ ENDTXT
       if Syntax::SYNTAX[code_lang]
         convertor = Syntax::Convertors::HTML.for_syntax(code_lang)
         res = convertor.convert( str )
-        "<div class='ruby'>#{res}</div>"
+        "<div class='#{code_lang}'>#{res}</div>"
       else
         RedCloth.new("<pre>#{str}</pre>").to_html
       end
