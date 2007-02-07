@@ -144,11 +144,9 @@ module Zena
           else
             new_status = Zena::Status[:rep]
           end
-          version.publish_from = pub_time || self.publish_from || Time.now.utc
+          version.publish_from = pub_time || version.publish_from || Time.now.utc
           version.status = Zena::Status[:pub]
-            Version.logger.info "SAVING VERSION"
           if version.save
-              Version.logger.info "SAVING VERSION DONE"
             # only remove previous publications if save passed
             old_versions.each do |p|
               p.status = new_status
@@ -286,9 +284,8 @@ module Zena
             # create new redaction
             v = version.clone
             v.status = Zena::Status[:red]
-            v.publish_from = nil
-            v.comment = ''
-            v.number = ''
+            v.publish_from = v.created_at = nil
+            v.comment = v.number = ''
             v.user_id = visitor_id
             v.lang = visitor_lang
             v[:content_id] = version[:content_id] || version[:id]
@@ -373,10 +370,10 @@ module Zena
               # sees propositions
               lang = visitor_lang.gsub(/[^\w]/,'')
               @version =  Version.find(:first,
-                            :select=>"*, (lang = '#{lang}') as lang_ok, (lang = '#{ZENA_ENV[:default_lang]}') as def_ok",
+                            :select=>"*, (lang = '#{lang}') as lang_ok, (lang = '#{ref_lang}') as ref_ok",
                             :conditions=>[ "((status >= ? AND user_id = ? AND lang = ?) OR status > ?) AND node_id = ?", 
                                             Zena::Status[:red], visitor_id, lang, Zena::Status[:red], self[:id] ],
-                            :order=>"lang_ok DESC, def_ok DESC, status ASC ")
+                            :order=>"lang_ok DESC, ref_ok DESC, status ASC ")
               if !@version
                 @version = versions.find(:first, :order=>'id DESC')
               end
@@ -384,10 +381,10 @@ module Zena
               # only own redactions and published versions
               lang = visitor_lang.gsub(/[^\w]/,'')
               @version =  Version.find(:first,
-                            :select=>"*, (lang = '#{lang}') as lang_ok, (lang = '#{ZENA_ENV[:default_lang]}') as def_ok",
+                            :select=>"*, (lang = '#{lang}') as lang_ok, (lang = '#{ref_lang}') as ref_ok",
                             :conditions=>[ "((status >= ? AND user_id = ? AND lang = ?) OR status = ?) and node_id = ?", 
                                             Zena::Status[:red], visitor_id, lang, Zena::Status[:pub], self[:id] ],
-                            :order=>"lang_ok DESC, def_ok DESC, status ASC, publish_from ASC")
+                            :order=>"lang_ok DESC, ref_ok DESC, status ASC, publish_from ASC")
 
             end
             @version.node = self # preload self as node in version

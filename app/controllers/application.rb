@@ -149,9 +149,9 @@ class ApplicationController < ActionController::Base
     end
   end
   
-  def parse_dates(obj, fmt=trans('datetime'))
-    [:publish_from, :log_at, :event_at].each do |sym|
-      obj[sym] = parse_date(obj[sym], fmt) if obj[sym] && obj[sym].kind_of?(String)
+  def parse_dates(hash, fmt=trans('datetime'))
+    [:v_publish_from, :log_at, :event_at].each do |sym|
+      hash[sym] = parse_date(hash[sym], fmt) if hash[sym] && hash[sym].kind_of?(String)
     end
   end
   

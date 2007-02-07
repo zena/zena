@@ -5,6 +5,8 @@
 <label for='event_at'><%= trans("event date") %></label>
 <%= date_box('node', 'event_at')%>
 <% end -%>
+<label><%= trans('publication date') %></label>
+<%= date_box('node', 'v_publish_from') %>
 <label for="v_summary"><%= trans("summary")  %></label>
 <%= text_area 'node', 'v_summary', :cols=>nil, :rows=>4, :value=>@node.v_summary %>
 

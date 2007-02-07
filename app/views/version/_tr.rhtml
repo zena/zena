@@ -5,6 +5,6 @@
   <td class="status"><%= trans("status_#{tr.status}") %></td>
   <td class="sign"><%= tr.author.initials %></td>
   <td class="comment"><%= tr.comment %></td>
-  <td class="date"><%= format_date(tr.updated_at, 'datetime') %></td>
+  <td class="date"><%= tr.status == Zena::Status[:pub] ? format_date(tr.publish_from, 'datetime') : format_date(tr.updated_at, 'datetime') %></td>
   <td class="actions"><%= version_actions(tr) %></td>
 </tr>

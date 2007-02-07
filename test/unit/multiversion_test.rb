@@ -205,10 +205,10 @@ class MultiVersionTest < Test::Unit::TestCase
   def test_update_without_fuss_time
     test_visitor(:tiger)
     node = secure(Node) { nodes(:wiki) }
-    assert_equal Time.local(2006,3,10), node[:publish_from]
-    node.send(:update_attribute_without_fuss, :publish_from, Time.local(2006,12,10))
+    assert_equal Time.gm(2006,3,10), node[:publish_from]
+    node.send(:update_attribute_without_fuss, :publish_from, Time.gm(2006,12,10))
     node = secure(Node) { nodes(:wiki) }
-    assert_equal Time.local(2006,12,10), node[:publish_from]
+    assert_equal Time.gm(2006,12,10), node[:publish_from]
   end
   
   def test_update_new_red
@@ -417,6 +417,19 @@ class MultiVersionTest < Test::Unit::TestCase
     node = secure(Node) { nodes(:lake)  } # reload
     assert_equal 2, node.editions.size, "English and french editions"
     assert_equal ["en", "fr"], node.traductions.sort
+  end
+  
+  def test_publish_with_custom_date
+    test_visitor(:tiger)
+    node = secure(Node) { nodes(:wiki)  }
+    assert_equal 1, node.editions.size, "Only one editions"
+    assert_equal Zena::Status[:pub], node.v_status
+    assert node.update_attributes( :v_title => "OuiOui", :v_publish_from => "2007-01-03" )
+    assert node.publish
+    node = secure(Node) { nodes(:wiki)  } # reload
+    assert_equal 2, node.versions.size, "Two versions"
+    assert_equal "OuiOui", node.v_title
+    assert_equal Time.gm(2007,1,3), node.v_publish_from
   end
   
   def test_remove
