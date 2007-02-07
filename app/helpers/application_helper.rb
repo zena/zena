@@ -292,7 +292,7 @@ module ApplicationHelper
     id, style, link, size, title = opts[:id], opts[:style], opts[:link], opts[:size], opts[:title]
     img = secure(Document) { Document.find(id) }
     if !opts[:images].nil? && !opts[:images]
-      return "[#{helper.trans('image')}: #{img.v_title}]"
+      return "[#{trans('image')}: #{img.v_title}]"
     end
     title = img.v_summary if title == ""
     size = IMAGEBUILDER_FORMAT[size] ? size : nil
