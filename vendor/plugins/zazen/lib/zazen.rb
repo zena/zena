@@ -136,7 +136,7 @@ Zazen::Parser.add_rule( /"([^"]*)":([0-9]+)/ ) do |parse|
 end
 
 # wiki reference ?zafu? or ?zafu?:http://...
-Zazen::Parser.add_after_rule( /\?(\w[^\?]+?\w)\?(\s|:([^\s]+))/ ) do |parse|
+Zazen::Parser.add_after_rule( /\?(\w[^\?]+?\w)\?([^\w:]|:([^\s]+))/ ) do |parse|
   if parse[3]
     if parse[3] =~ /([^\w0-9])$/
       parse.helper.make_wiki_link(:title=>parse[1], :url=>parse[3][0..-2]) + $1

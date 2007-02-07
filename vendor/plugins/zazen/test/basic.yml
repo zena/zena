@@ -116,6 +116,10 @@ link_no_title:
 wiki_link:
   in: "why use ?ruby? ?"
   out: "<p>why use [make_wiki_link title:|ruby|] ?</p>"
+
+wiki_link_with_trailing_dot:
+  in: "I love ?ruby?."
+  out: "<p>I love [make_wiki_link title:|ruby|].</p>"
   
 wiki_link_url:
   in: "why use ?ruby?:http://en.wikipedia.org/wiki/Ruby_%28programming_language%29 ?"
