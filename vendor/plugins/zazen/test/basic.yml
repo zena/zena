@@ -40,10 +40,14 @@ code_ruby:
   in: |
     some text
   
-    <code class='ruby'>def hello
+    <code lang='ruby'>def hello
       puts "hello" << " world!"
     end</code>
   out: "/some text.*<div class='code'>.*<pre class='ruby'>.*keyword.*method.*&lt;&lt;/"
+
+code_params:
+  in:  "this <code onclick='nasty' class='blue' lang='ruby' style='tagada'>def ok</code> ok"
+  out: "<p>this <div onclick='nasty' class='blue' style='tagada'><pre class='ruby'><span class=\"keyword\">def </span><span class=\"method\">ok</span></pre></div> ok</p>"
   
 gallery:
   in: "this ![12,13]! gallery"
@@ -130,5 +134,5 @@ wiki_link_url_ending_punctuation:
   out: "<p>why use [make_wiki_link title:|ruby| url:|http://en.wikipedia.org/wiki/Ruby_%28programming_language%29|], or what ?</p>"
 
 erb_recursive_syntax:
-  in: "why <code class='erb'> this <%= puts \"hello\" %> is ok</code>"
+  in: "why <code lang='erb'> this <%= puts \"hello\" %> is ok</code>"
   out: "/why <div class='code'><pre class='erb'>.*<pre class='ruby'>.*</pre>.*</span> is ok</pre></div>/"

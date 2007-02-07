@@ -20,6 +20,7 @@ module Zazen
     def initialize(text)
       @text   = text
       @last_match = {}
+      @options = {}
     end
 
     def render(options)
@@ -55,9 +56,20 @@ module Zazen
       @escaped_code = []
       block_counter = -1
       @text.gsub!( /<code([^>]*)>(.*?)<\/code>/m ) do
-        @escaped_code << [$1, $2]
+        params, text = $1, $2
+        divparams = []
+        if params =~ /^(.*)lang\s*=\s*("|')([^"']+)\2(.*)$/
+          pre, lang, post = $1.strip, $3, $4.strip
+          divparams << pre if pre && pre != ""
+          divparams << post if post && post != ""
+        else
+          divparams << params.strip if params != ''
+          lang = ''
+        end
+        divparams << "class='code'" unless params =~ /class\s*=/
+        @escaped_code << [lang, text]
         block_counter += 1
-        "<div class='code'>\\ZAZENBLOCKCODE#{block_counter}ZAZENBLOCKCODE\\</div>"
+        "<div #{divparams.join(' ')}>\\ZAZENBLOCKCODE#{block_counter}ZAZENBLOCKCODE\\</div>"
       end
     end
     
@@ -77,18 +89,17 @@ module Zazen
     def render_code
       @text.gsub!( /\\ZAZENBLOCKCODE(\d+)ZAZENBLOCKCODE\\/ ) do
         lang, text = *(@escaped_code[$1.to_i])
-        if lang =~ /class\s*=\s*("|')([^"']+)\1/ && Syntax::SYNTAX[$2]
-          if @options[:pretty_code]
-            convertor = Syntax::Convertors::HTML.for_syntax($2)
-            res = convertor.convert( text, false )
-          else
-            res = text
-          end
-          res = "<pre#{lang}>#{res}</pre>"
+        if lang != ''
+          pre_tag = "<pre class='#{lang}'>"
         else
-          res = RedCloth.new("<pre>#{text}</pre>").to_html
+          pre_tag = '<pre>'
         end
-        res
+        if Syntax::SYNTAX[lang] && @options[:pretty_code]
+          convertor = Syntax::Convertors::HTML.for_syntax(lang)
+          "#{pre_tag}#{convertor.convert( text, false )}</pre>"
+        else
+          RedCloth.new("#{pre_tag}#{text}</pre>").to_html
+        end
       end
       
       @text.gsub!( /\\ZAZENBLOCKAT(\d+)ZAZENBLOCKAT\\/ ) do
@@ -107,10 +118,6 @@ module Zazen
         end
         res
       end
-    end
-    
-    def method_missing(sym, *args)
-      @options[:helper].send(sym,*args)
     end
   end
 end

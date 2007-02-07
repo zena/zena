@@ -1,3 +1,6 @@
 page.replace_html   "v_title#{@preview_id}", @v_title
+page.replace_html "v_summary#{@preview_id}", zazen(@v_summary, :pretty_code=>true) unless @node.kind_of?(Note)
+page.replace_html    "v_text#{@preview_id}", zazen(@v_text, :pretty_code=>true)==== ORIGINAL VERSION app/views/version/preview.rjs 117087796334837
+page.replace_html "v_summary#{@preview_id}", zazen(@v_summary) unless @node.kind_of?(Note)
+page.replace_html    "v_text#{@preview_id}", zazen(@v_text)==== THEIR VERSION app/views/version/preview.rjs 117087796334837
 page.replace_html "v_summary#{@preview_id}", zazen(@v_summary, :pretty_code=>false) unless @node.kind_of?(Note)
-page.replace_html    "v_text#{@preview_id}", zazen(@v_text, :pretty_code=>false)
