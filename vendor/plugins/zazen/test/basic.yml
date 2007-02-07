@@ -12,9 +12,9 @@ code_escape:
   out: |
     some text
     
-    <div class='code'><div><pre>this is hidden
+    <div class='code'><pre>this is hidden
     from &lt; parser
-    </pre></div></div>
+    </pre></div>
 
 at_escape:
   in: |
@@ -27,7 +27,15 @@ at_escape:
     
     and <code>this is hidden</code>
     but not this
-
+    
+at_code:
+  in: "some @strange < code@"
+  out: "<p>some <code>strange &lt; code</code></p>"
+  
+at_code_ruby:
+  in: "some @ruby|class << self@"
+  out: "<p>some <code class='ruby'><span class=\"keyword\">class </span><span class=\"punct\">&lt;&lt;</span> <span class=\"constant\">self</span></code></p>"
+  
 code_ruby:
   in: |
     some text
@@ -35,12 +43,88 @@ code_ruby:
     <code class='ruby'>def hello
       puts "hello" << " world!"
     end</code>
-  out: "/some text.*<div class='code'>.*<div class='ruby'><pre>.*keyword.*method.*&lt;&lt;/"
+  out: "/some text.*<div class='code'>.*<pre class='ruby'>.*keyword.*method.*&lt;&lt;/"
   
-single_image:
-  in: "look here !12!"
-  out: "look here [make_image:12]"
+gallery:
+  in: "this ![12,13]! gallery"
+  out: "<p>this [make_gallery |12,13|] gallery</p>"
+
+gallery_children:
+  in: "this ![]! gallery"
+  out: "<p>this [make_gallery ||] gallery</p>"
   
-single_no_image:
+docs:
+  in: "these !{11,12}! docs"
+  out: "<p>these [list_nodes ids:|11,12| style:||] docs</p>"
+  
+docs_no_ids:
+  in: "these !{}! docs"
+  out: "<p>these [list_nodes ids:|| style:||] docs</p>"
+
+docs_align:
+  in: "these !<.{11,12}! left"
+  out: "<p>these [list_nodes ids:|11,12| style:|&lt;.|] left</p>"
+  
+image:
   in: "look here !12!"
-  out: "look here [trans:[image]]"
+  out: "<p>look here [make_image id:|12| images:true style:||]</p>"
+  
+image_no_image:
+  in: "look here !12!"
+  out: "<p>look here [make_image id:|12| images:false style:||]</p>"
+
+image_align:
+  in: "an image !<.12!"
+  out: "<p>an image [make_image id:|12| images:true style:|&lt;.|]</p>"
+  
+image_with_format:
+  in: "!21.mini!"
+  out: "<p>[make_image id:|21| images:true size:|mini| style:||]</p>"
+  
+image_title:
+  in: "!12/!"
+  out: "<p>[make_image id:|12| images:true style:|| title:||]</p>"
+
+image_custom_title:
+  in: "!12/this is some text!"
+  out: "<p>[make_image id:|12| images:true style:|| title:|this is some text|]</p>"
+
+image_custom_title_with_markup:
+  in: "!12/this is *some* text!"
+  out: "<p>[make_image id:|12| images:true style:|| title:|this is <strong>some</strong> text|]</p>"
+  
+image_with_link:
+  in: "!12.pv!:12"
+  out: "<p>[make_image id:|12| images:true link:|12| size:|pv| style:||]</p>"
+  
+image_with_http_link:
+  in: "!12.pv!:http://www.example.org"
+  out: "<p>[make_image id:|12| images:true link:|http://www.example.org| size:|pv| style:||]</p>"
+
+image_with_ref:
+  in: "!http://www.example.org/images/test.jpg!"
+  out: "<p><img src=\"http://www.example.org/images/test.jpg\" alt=\"\" /></p>"
+
+link_with_title:
+  in: '"this is a title":23'
+  out: '<p>[make_link id:|23| title:|this is a title|]</p>'
+
+link_no_title:
+  in: '"":23'
+  out: '<p>[make_link id:|23| title:||]</p>'
+  
+wiki_link:
+  in: "why use ?ruby? ?"
+  out: "<p>why use [make_wiki_link title:|ruby|] ?</p>"
+  
+wiki_link_url:
+  in: "why use ?ruby?:http://en.wikipedia.org/wiki/Ruby_%28programming_language%29 ?"
+  out: "<p>why use [make_wiki_link title:|ruby| url:|http://en.wikipedia.org/wiki/Ruby_%28programming_language%29|] ?</p>"
+  
+wiki_link_url_ending_punctuation:
+  in: "why use ?ruby?:http://en.wikipedia.org/wiki/Ruby_%28programming_language%29, or what ?"
+  out: "<p>why use [make_wiki_link title:|ruby| url:|http://en.wikipedia.org/wiki/Ruby_%28programming_language%29|], or what ?</p>"
+
+erb_recursive_syntax:
+  in: "why <code class='erb'> this <%= puts \"hello\" %> is ok</code>"
+  out: "/why <div class='code'><pre class='erb'>.*<pre class='ruby'>.*</pre>.*</span> is ok</pre></div>/"

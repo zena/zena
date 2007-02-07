@@ -238,7 +238,7 @@ module ApplicationHelper
   # * [!14!:37] you can use an image as the source for a link
   # * [!14!:www.example.com] use an image for an outgoing link
   def zazen(text, opt={})
-    opt = {:images=>true}.merge(opt)
+    opt = {:images=>true, :helper=>self}.merge(opt)
     img = opt[:images]
     if opt[:limit]
       opt[:limit] -= 1 unless opt[:limit] <= 0
@@ -247,18 +247,19 @@ module ApplicationHelper
         text = paragraphs[0..opt[:limit]].join("\n\n") + " &#8230;<span class='more'>" + trans("(click to read more)") + "</span>"
       end
     end
-    r = RedCloth.new(text) #, [:hard_breaks])
-    r.gsub!(  /(\A|[^\w])@(.*?)@(\Z|[^\w])/     ) { "#{$1}\\AT_START\\#{zazen_escape($2)}\\AT_END\\#{$3}" }
-    r.gsub!(  /<code>(.*?)<\/code>/m            ) { "\\CODE_START\\#{zazen_escape($1)}\\CODE_END\\" }
-    r.gsub!(  /\!\[([^\]]*)\]\!/                      ) { img ? make_gallery($1) : trans('[gallery]') }
-    r.gsub!(  /\!([^0-9]{0,2})\{([^\}]*)\}\!/                      ) { img ? list_nodes(:style=>$1, :ids=>$2)   : trans('[documents]')}
-    r.gsub!(  /\!([^0-9]{0,2})([0-9]+)(\.([^\/\!]+)|)(\/([^\!]*)|)\!(:([^\s]+)|)/ ) { img ? make_image(:style=>$1, :id=>$2, :size=>$4, :title=>$6, :link=>$8) : "[#{trans('image')}#{$6 ? (": " + zazen($6,:images=>false)) : ''}]"}
-    r.gsub!(  /"([^"]*)":([0-9]+)/                    ) { make_link(:title=>$1,:id=>$2)}
-    r = r.to_html
-    r.gsub!(  /(\\CODE_START\\)(.*?)(\\CODE_END\\)/m    ) { "<div class='box'>#{zazen_unescape($2)}</div>" }
-    r.gsub!(  /(\\AT_START\\)(.*?)(\\AT_END\\)/         ) { "#{zazen_unescape($2)}" }
-    r.gsub!(  /\?(\w[^\?]+?\w)\?/               ) { make_wiki_link($1) }
-    r
+    Zazen::Parser.new(text).render(opt)
+    #r = RedCloth.new(text) #, [:hard_breaks])
+    #r.gsub!(  /(\A|[^\w])@(.*?)@(\Z|[^\w])/     ) { "#{$1}\\AT_START\\#{zazen_escape($2)}\\AT_END\\#{$3}" }
+    #r.gsub!(  /<code>(.*?)<\/code>/m            ) { "\\CODE_START\\#{zazen_escape($1)}\\CODE_END\\" }
+    #r.gsub!(  /\!\[([^\]]*)\]\!/                      ) { img ? make_gallery($1) : trans('[gallery]') }
+    #r.gsub!(  /\!([^0-9]{0,2})\{([^\}]*)\}\!/                      ) { img ? list_nodes(:style=>$1, :ids=>$2)   : trans('[documents]')}
+    #r.gsub!(  /\!([^0-9]{0,2})([0-9]+)(\.([^\/\!]+)|)(\/([^\!]*)|)\!(:([^\s]+)|)/ ) { img ? make_image(:style=>$1, :id=>$2, :size=>$4, :title=>$6, :link=>$8) : "[#{trans('image')}#{$6 ? (": " + zazen($6,:images=>false)) : ''}]"}
+    #r.gsub!(  /"([^"]*)":([0-9]+)/                    ) { make_link(:title=>$1,:id=>$2)}
+    #r = r.to_html
+    #r.gsub!(  /(\\CODE_START\\)(.*?)(\\CODE_END\\)/m    ) { "<div class='box'>#{zazen_unescape($2)}</div>" }
+    #r.gsub!(  /(\\AT_START\\)(.*?)(\\AT_END\\)/         ) { "#{zazen_unescape($2)}" }
+    #r.gsub!(  /\?(\w[^\?]+?\w)\?/               ) { make_wiki_link($1) }
+    #r
   end
   
   # Creates a link to the node referenced by id
@@ -275,8 +276,16 @@ module ApplicationHelper
   end
   
   # TODO: test
-  def make_wiki_link(keyword)
-    "<a href='http://#{lang}.wikipedia.org/wiki/Special:Search?search=#{CGI::escape(keyword)}' class='wiki'>#{keyword}</a>"
+  def make_wiki_link(opts)
+    if opts[:url]
+      if opts[:url][0..0] = 'http'
+        "<a href='http://#{lang}.wikipedia.org/wiki/#{opts[:url]}' class='wiki'>#{opts[:title]}</a>"
+      else
+        "<a href='#{opts[:url]}' class='wiki'>#{opts[:title]}</a>"
+      end
+    else
+      "<a href='http://#{lang}.wikipedia.org/wiki/Special:Search?search=#{CGI::escape(opts[:title])}' class='wiki'>#{opts[:title]}</a>"
+    end
   end
   # Create an img tag for the given image. See ApplicationHelper#zazen for details.
   def make_image(opts)
@@ -316,7 +325,7 @@ module ApplicationHelper
     
     if title
       prefix = "#{prefix}<div class='img_with_title'>"
-      suffix = "<div class='img_title'>#{zazen(title, :images=>false)}</div></div>#{suffix}"
+      suffix = "<div class='img_title'>#{Zazen::Parser.new(title).render(:images=>false, :helper=>self)}</div></div>#{suffix}"
     end
     
     if link.nil?
@@ -940,39 +949,6 @@ ENDTXT
   end
   
   private
-  
-  # list of escaped sequences used by zazen_escape and zazen_unescape
-  def escaped_sequences
-    [['"','\\QUOTE\\'], ["'",'\\SQUOTE\\'], [':', '\\DDOT\\'], ['!', '\\EXCLAM\\'], ['<', '\\LESSTHEN\\'], ['>', '\\GREATERTHEN\\']]
-  end
-  
-  # escape sequences for 'code' blocks. This avoids 'zazen' to run on the code.
-  def zazen_escape(str)
-    escaped_sequences.each do |from, to|
-      str.gsub!(from, to)
-    end
-    str
-  end
-  
-  # unescape for 'code' blocks after 'zazen' is run.
-  def zazen_unescape(str)
-    escaped_sequences.each do |from, to|
-      str.gsub!(to, from)
-    end
-    if str =~ /^([a-z]+)\|/
-      code_lang = $1
-      str = str[(code_lang.length + 1)..-1]
-      if Syntax::SYNTAX[code_lang]
-        convertor = Syntax::Convertors::HTML.for_syntax(code_lang)
-        res = convertor.convert( str )
-        "<div class='#{code_lang}'>#{res}</div>"
-      else
-        RedCloth.new("<code>#{str}</code>").to_html
-      end
-    else  
-      RedCloth.new("<code>#{str}</code>").to_html
-    end
-  end
   
   def calendar_get_options(size, source, method)
     case size

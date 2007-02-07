@@ -16,8 +16,14 @@
 .ruby .global { color: #3B7; }
 .ruby .expr { color: #227; }
 
-.zafu .tag {color: #33a;}
+.zafu .tag {color: #171;}
 .zafu .punct {color: #622;}
 .zafu .ztag {color: #622; font-weight: bold; }
 .zafu .param { color:#a33;}
 .zafu .value { color:#449;}
+
+.erb .tag {color: #171;}
+.erb .punct {color: #622; background:#ccc;}
+.erb .expr { color:#227; background:#ccc;}
+.erb pre { display:inline; }
+.box pre { display:table;}

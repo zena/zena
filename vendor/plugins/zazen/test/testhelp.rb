@@ -4,7 +4,20 @@ require File.join(File.dirname(__FILE__) , '..', 'lib', 'zazen')
 
 class DummyHelper
   def method_missing(sym, *args)
-    "[#{sym}:#{args.join(',')}]"
+    arguments = args.map do |arg|
+      if arg.kind_of?(Hash)
+        res = []
+        arg.each do |k,v|
+          unless v.nil?
+            res << "#{k}:#{v.inspect.gsub(/'|"/, "|")}"
+          end
+        end
+        res.sort.join(' ')
+      else
+        arg.inspect.gsub(/'|"/, "|")
+      end
+    end
+    res = "[#{sym} #{arguments.join(' ')}]"
   end
 end
 
@@ -67,15 +80,11 @@ class Test::Unit::TestCase
     end
   end
   
-  @@dummy_helper = DummyHelper.new
+  @@helper = DummyHelper.new
   
-  def parse(txt)
-    Zena::Zazen::Parser.new(txt)
-  end
-
   def render(txt, opts={})
-    options = {:helper => @@dummy_helper}.merge(opts)
-    Zena::Zazen::Parser.new(txt).render(options)
+    options = {:helper=>@@helper}.merge(opts)
+    Zazen::Parser.new(txt).render(options)
   end
   
 end
