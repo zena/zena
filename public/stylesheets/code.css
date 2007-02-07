@@ -12,7 +12,7 @@
 .ruby .constant { color: #07F; }
 .ruby .regex { color: #B66; }
 .ruby .number { color: #D55; }
-.ruby .attribute { color: #377; }
+.ruby .attribute { color: #33a; }
 .ruby .global { color: #3B7; }
 .ruby .expr { color: #227; }
 
@@ -23,7 +23,12 @@
 .zafu .value { color:#449;}
 
 .erb .tag {color: #171;}
-.erb .punct {color: #622; background:#ccc;}
-.erb .expr { color:#227; background:#ccc;}
+.erb .punct {color: #622; background:#DDDBD2; padding:2px 0;}
+.erb .ruby .punct { color: #447; }
+.erb .expr { color:#227; background:#DDDBD2; padding:2px 0;}
 .erb pre { display:inline; }
-.box pre { display:table;}
+
+.sh .punct { color:#686;}
+.sh .root  { color:#966;}
+.sh .variable { color:#33a;}
+.sh .method { color: #944; }

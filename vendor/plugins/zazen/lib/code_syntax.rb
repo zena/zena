@@ -115,3 +115,21 @@ end
 Syntax::SYNTAX['erb'] = ErbTokenizer
 
 
+class ShTokenizer < Syntax::Tokenizer
+  def step
+    if variables = scan(/\$\w+/)
+      start_group :variable, variables
+    elsif start = scan(/# \S+/)
+      start_group :punct, '# '
+      start_group :method, start[2..-1]
+    elsif start = scan(/\$ \S+/)
+      start_group :root, '$ '
+      start_group :method, start[2..-1]
+    else
+      start_group :normal, scan(/./m)
+    end
+  end
+end
+Syntax::SYNTAX['sh'] = ShTokenizer
+
+
