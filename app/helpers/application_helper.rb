@@ -39,7 +39,7 @@ module ApplicationHelper
   
   # Date selection tool
 	def date_box(obj, var, opts = {})
-	  rnd_id = Time.now.to_i
+	  rnd_id = rand(100000000000)
 	  defaults = {  :id=>"datef#{rnd_id}", :button=>"dateb#{rnd_id}", :display=>"dated#{rnd_id}", :class=>var.to_s }
 	  opts = defaults.merge(opts)
 	  date = eval("@#{obj} ? @#{obj}.#{var} : nil") || Time.now.utc

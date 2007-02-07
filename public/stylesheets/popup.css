@@ -45,7 +45,7 @@ body {font: 0.9em Arial, Helvetica, Verdana, sans-serif; background:#9FA6AC; lin
 
 /* title */
 #node_v_title, #node_v_comment, #node_v_summary { width:96%; font:inherit; font-size:0.9em; padding:2px;}
-.event_at { padding:1px 2px; width:50%; text-align:center; font-size:0.86em;}
+.v_publish_from, .log_at, .event_at { padding:1px 2px; width:65%; text-align:center;}
 #node_v_title { font-weight:bold; font-size:1.2em;}
 label { font-size:0.9em; font-weight:bold; display:block; color:#5C1515; margin:10px 0 5px; clear:both;} 
 
@@ -68,7 +68,7 @@ ul.link_box { float:left; display:block; margin:2px; padding:2px;}
 
 /* DRIVE */
 #links_tab, #drive_tab { padding:5px; font-size:0.9em;}
-#drive_tab select, #drive_tab input {font:inherit;}
+#drive_tab select, #drive_tab input {font:inherit; font-size:0.86em;}
 .drive { border:1px solid #333; background:#B2C3D0; padding:0; list-style:none; margin:5px; }
 .drive input, select { font-size:11px;}
 .drive ul { list-style:none; padding:5px;}
