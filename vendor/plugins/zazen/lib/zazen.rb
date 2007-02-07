@@ -23,7 +23,7 @@ module Zazen
     end
 
     def render(options)
-      @options = {:images => true}.merge(options)
+      @options = {:images => true, :pretty_code=>true}.merge(options)
       @helper = options[:helper]
       extract_code
       render_zazen(@@rules)
@@ -78,8 +78,12 @@ module Zazen
       @text.gsub!( /\\ZAZENBLOCKCODE(\d+)ZAZENBLOCKCODE\\/ ) do
         lang, text = *(@escaped_code[$1.to_i])
         if lang =~ /class\s*=\s*("|')([^"']+)\1/ && Syntax::SYNTAX[$2]
-          convertor = Syntax::Convertors::HTML.for_syntax($2)
-          res = convertor.convert( text, false )
+          if @options[:pretty_code]
+            convertor = Syntax::Convertors::HTML.for_syntax($2)
+            res = convertor.convert( text, false )
+          else
+            res = text
+          end
           res = "<pre#{lang}>#{res}</pre>"
         else
           res = RedCloth.new("<pre>#{text}</pre>").to_html
@@ -91,8 +95,12 @@ module Zazen
         text = @escaped_at[$1.to_i]
         if text =~ /^(\w+)\|/ && Syntax::SYNTAX[$1]
           lang = $1
-          convertor = Syntax::Convertors::HTML.for_syntax(lang)
-          res = convertor.convert( text[(lang.length+1)..-1], false )
+          if @options[:pretty_code]
+            convertor = Syntax::Convertors::HTML.for_syntax(lang)
+            res = convertor.convert( text[(lang.length+1)..-1], false )
+          else
+            res = text[(lang.length+1)..-1]
+          end
           res = "<code class='#{lang}'>#{res}</code>"
         else
           res = RedCloth.new("<code>#{text}</code>").to_html

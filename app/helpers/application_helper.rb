@@ -238,13 +238,13 @@ module ApplicationHelper
   # * [!14!:37] you can use an image as the source for a link
   # * [!14!:www.example.com] use an image for an outgoing link
   def zazen(text, opt={})
-    opt = {:images=>true, :helper=>self}.merge(opt)
+    opt = {:images=>true, :helper=>self, :pretty_code=>true}.merge(opt)
     img = opt[:images]
     if opt[:limit]
       opt[:limit] -= 1 unless opt[:limit] <= 0
-      paragraphs = text.split(/\n\n/)
+      paragraphs = text.split(/\n\n|\r\n\r\n/)
       if paragraphs.size > (opt[:limit]+1) && opt[:limit] != -1
-        text = paragraphs[0..opt[:limit]].join("\n\n") + " &#8230;<span class='more'>" + trans("(click to read more)") + "</span>"
+        text = paragraphs[0..opt[:limit]].join("\r\n\r\n") + "\r\n\r\np(more). " + trans("read more &#8230;")
       end
     end
     Zazen::Parser.new(text).render(opt)
