@@ -27,7 +27,7 @@ input, textarea { font:inherit; padding:2px;}
 .img_title { display:inline; text-align:left;}
 .img_title p, .text .img_title p {font-style:italic; font-size:0.8em;}
 
-.clear { clear:both; font-size:1px;}
+.clear { clear:both;}
 .date_box { display:inline;}
 .date_box img { display:inline; }
 .date_box input { font-size:70%; }

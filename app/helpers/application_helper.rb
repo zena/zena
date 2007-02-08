@@ -278,7 +278,7 @@ module ApplicationHelper
   # TODO: test
   def make_wiki_link(opts)
     if opts[:url]
-      if opts[:url][0..0] = 'http'
+      if opts[:url][0..3] == 'http'
         "<a href='#{opts[:url]}' class='wiki'>#{opts[:title]}</a>"
       else
         "<a href='http://#{lang}.wikipedia.org/wiki/#{opts[:url]}' class='wiki'>#{opts[:title]}</a>"
