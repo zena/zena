@@ -91,15 +91,15 @@ module Zazen
       @text.gsub!( /\\ZAZENBLOCKCODE(\d+)ZAZENBLOCKCODE\\/ ) do
         lang, text = *(@escaped_code[$1.to_i])
         if lang != ''
-          pre_tag = "<code class='#{lang}'>"
+          code_tag = "<code class='#{lang}'>"
         else
-          pre_tag = '<code>'
+          code_tag = '<code>'
         end
         if Syntax::SYNTAX[lang] && @options[:pretty_code]
           convertor = Syntax::Convertors::HTML.for_syntax(lang)
-          "#{pre_tag}#{convertor.convert( text, false )}</pre>"
+          "#{code_tag}#{convertor.convert( text, false )}</code>"
         else
-          RedCloth.new("#{pre_tag}#{text}</pre>").to_html
+          RedCloth.new("#{code_tag}#{text}</code>").to_html
         end
       end
       

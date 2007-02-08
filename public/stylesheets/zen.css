@@ -206,10 +206,10 @@ input, textarea { border:1px solid grey; margin:0.2em}
 .text .box, .text pre { border:1px dashed #CEBB94; border-width:1px 0; background:#EAE9E8; padding:5px 4px 3px; display:table; margin:1em auto 3em;}
 .text pre {border:2px solid #bbb; margin:1em 80px 3em; display:block; font-size:0.9em; white-space:pre;}
 pre.large { margin:1em auto 3em;}
-pre.left {float:left;margin:20px 2em 3em 0;}
-pre.right {float:right;margin:20px 0 3em 2em;}
-p.table { display:table; }
-.text p code { color:black; padding:2px 2px 0px; background:#ECEBEA;}
+pre.left {float:left;margin:20px 2em 2em 0;}
+pre.right {float:right;margin:20px 0 2em 2em;}
+p.no-wrap { display:table; }
+.text p code, .text li code { color:black; padding:2px 2px 0px; background:#ECEBEA;}
 .text p code code { color:inherit; padding:inherit; background:inherit;}
 /* typo */
 .text strong { font-family:Helvetica, Arial;}

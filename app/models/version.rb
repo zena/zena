@@ -115,7 +115,7 @@ class Version < ActiveRecord::Base
   # Set version number
   def set_number
     last = Version.find(:first, :conditions=>['node_id = ?', node[:id]], :order=>'number DESC')
-    self[:type] = self.type.to_s
+    self[:type] = self.class.to_s
     if last
       self[:number] = last[:number] + 1
     else
