@@ -485,6 +485,7 @@ class Node < ActiveRecord::Base
   end
   
   def camelize(str)
+    str = str.dup
     accents = { 
       ['á',    'à','À','â','Â','ä','Ä','ã','Ã'] => 'a',
       ['é','É','è','È','ê','Ê','ë','Ë',       ] => 'e',

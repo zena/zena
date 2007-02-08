@@ -12,6 +12,8 @@ class User < ActiveRecord::Base
   has_and_belongs_to_many :groups
   has_many                :nodes
   has_many                :versions
+  # TODO: test link between user and contact
+  belongs_to              :contact
   validate                :valid_user
   after_create            :add_public_group
   before_destroy          :dont_destroy_su_or_anon

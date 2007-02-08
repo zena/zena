@@ -198,8 +198,7 @@ Just doing the above will filter all result according to the logged in user.
             @eval_on_visitor.each do |str|
               eval(str)
             end
-            if errors.empty?
-            else
+            unless errors.empty?
               raise ActiveRecord::RecordNotFound
             end
           end

@@ -55,14 +55,14 @@ class Version < ActiveRecord::Base
     end
   end
   
-  # protect access to node_id and conten_id : should not be changed by users
+  # protect access to node_id and content_id : should not be changed by users
   def node_id=(i)
     raise Zena::AccessViolation, "Version '#{self.id}': tried to change 'node_id' to '#{i}'."
   end
   
   # protect access to content_id
   def content_id=(i)
-    raise Zena::AccessViolation, "Version '#{self.id}': tried to change 'conten_id' to '#{i}'."
+    raise Zena::AccessViolation, "Version '#{self.id}': tried to change 'content_id' to '#{i}'."
   end
     
   def content
@@ -115,6 +115,7 @@ class Version < ActiveRecord::Base
   # Set version number
   def set_number
     last = Version.find(:first, :conditions=>['node_id = ?', node[:id]], :order=>'number DESC')
+    self[:type] = self.type.to_s
     if last
       self[:number] = last[:number] + 1
     else
