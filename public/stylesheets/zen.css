@@ -295,7 +295,7 @@ border:1px solid #DDDBC1; border-width:1px 0 0 1px; font-size:0.8em;}
 
 .largecal .body div { margin:2px; margin-left:1.2em; font-style:normal; font-weight:normal; font-size:1.1em; }
 .largecal .body div a { padding:1px;}
-.largecal .body div a:hover { background:#CECEB4; }
+.largecal .body div a:hover { text-decoration:underline; }
 .largecal .body p { float:left; margin:0;}
 .largecal .preview img { background:none;}
 
