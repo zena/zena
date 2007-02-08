@@ -185,9 +185,9 @@ input, textarea { border:1px solid grey; margin:0.2em}
 #text { clear:both;}
 .text { line-height:1; margin-bottom:2em;}
 */
-.text {font-size:0.85em;}
+.text {font-size:0.9em;}
 .text a {color:#174190;} /* #8F5225 #174190 */
-.text p, .text table { line-height:1.4; margin:1em 0; font-style:normal;}
+.text p, .text table { line-height:1.4; margin:1.5em 0; font-style:normal;}
 .text li { line-height:1.4; padding-top:0.4em;}
 .text table { margin-left:auto; margin-right:auto;}
 .text h1 { margin-top:2.3em; margin-bottom:0.8em; font-size:2.2em;}
