@@ -12,7 +12,10 @@ class LoginController < ApplicationController
         session[:user] = logged_in_user[:id]
         # reset session lang, will be set from user on next request
         session[:lang] = nil
-        redirect_to user_home_url
+        # TODO: test after_login_url
+        after_login_url = session[:after_login_url] || user_home_url
+        session[:after_login_url] = nil
+        redirect_to after_login_url
       else
         flash[:error] = "Invalid login or password"
       end

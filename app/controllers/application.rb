@@ -52,6 +52,7 @@ class ApplicationController < ActionController::Base
   def authorize
     if (ZENA_ENV[:authorize] || params[:prefix] == AUTHENTICATED_PREFIX) && ! session[:user]
       flash[:notice] = trans "Please log in"
+      session[:after_login_url] = request.parameters
       redirect_to :controller =>'login', :action=>'login' and return false
     end
   end

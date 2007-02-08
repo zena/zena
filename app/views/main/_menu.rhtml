@@ -1,6 +1,6 @@
 <% @depth ||=0; @depth += 1 -%>
 <li <%= 'class="sub"' if @depth > 1 %>><%= link_to(menu.name.limit(17), node_url(menu)) %>
-    <% if @depth < 4 && menu.pages != [] -%>
+    <% if @depth < 3 && menu.pages != [] -%>
     <ul>
     <%= render_to_string( :partial=>'main/menu', :collection=>menu.pages ) %>
     </ul>

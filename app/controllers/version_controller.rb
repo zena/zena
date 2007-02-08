@@ -165,6 +165,8 @@ class VersionController < ApplicationController
   
   def render_or_redir(url)
     if params[:drive]
+      # FIXME: BUG when two version (fr,en). fr = red, en = pub. removing
+      # fr we cannot 'unpublish' en. Reload of drive popup => now we can !!?
       render :action=>'update'
     elsif url == 404
       page_not_found

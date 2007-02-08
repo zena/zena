@@ -961,7 +961,7 @@ ENDTXT
         if notes
           res = ["#{d.day}"]
           notes.each do |e| #largecal_preview
-            res << "<div>" + link_to_remote(e.name.limit(14), 
+            res << "<div>" + link_to_remote(e.v_title.limit(14), 
                                   :update=>'largecal_preview',
                                   :url=>{:controller=>'note', :action=>'day_list', :id=>source[:id], :find=>method, 
                                   :date=>d, :selected=>e[:id] }) + "</div>"

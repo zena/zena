@@ -15,7 +15,7 @@ class MainController < ApplicationController
   
   # TODO: test new path
   def show
-    path = params[:path]
+    path = params[:path].dup
     ref  = path.pop
     if ref =~ /[a-zA-Z\-_]+([0-9]+)(\.|$)/
       @node = secure(Node) { Node.find($1.to_i) }

@@ -114,7 +114,7 @@ copy;app/views/main/_branch.rhtml;app/views/main/_branch.rhtml
 copy;app/views/main/_branch_title.rhtml;app/views/main/_branch_title.rhtml
 copy;app/views/main/_content_title.rhtml;app/views/main/_content_title.rhtml
 copy;app/views/main/_gallery.rhtml;app/views/main/_gallery.rhtml
-copy;app/views/main/_list_items.rhtml;app/views/main/_list_items.rhtml
+copy;app/views/main/_list_nodes.rhtml;app/views/main/_list_nodes.rhtml
 copy;app/views/main/_menu.rhtml;app/views/main/_menu.rhtml
 copy;app/views/main/_site_tree.rhtml;app/views/main/_site_tree.rhtml
 copy;app/views/main/_title.rhtml;app/views/main/_title.rhtml
