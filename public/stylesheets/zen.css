@@ -202,13 +202,18 @@ input, textarea { border:1px solid grey; margin:0.2em}
 .text img { border: 1px solid #666; }
 .text img.doc { border:0;}
 .text img.full { border:0;}
-.text .box, .text .code, .text .lcode { border:1px dashed #CEBB94; border-width:1px 0; background:#EAE9E8; padding:5px 4px 3px; display:table; margin:1em auto 3em;}
-.text .code, .text .lcode {border:2px solid #bbb; margin:1em 80px 3em; display:block; font-size:0.9em;}
-.text .lcode { margin:1em auto 3em;}
-.text .pre { white-space:pre;}
+
+.text .box, .text pre { border:1px dashed #CEBB94; border-width:1px 0; background:#EAE9E8; padding:5px 4px 3px; display:table; margin:1em auto 3em;}
+.text pre {border:2px solid #bbb; margin:1em 80px 3em; display:block; font-size:0.9em; white-space:pre;}
+pre.large { margin:1em auto 3em;}
+pre.left {float:left;margin:20px 2em 3em 0;}
+pre.right {float:right;margin:20px 0 3em 2em;}
+p.table { display:table; }
+.text p code { color:black; padding:2px 2px 0px; background:#ECEBEA;}
+
+/* typo */
 .text strong { font-family:Helvetica, Arial;}
-code { color:black; padding:2px 2px 0px; background:#ECEBEA;}
-.box code { background:none; white-space:pre;}
+
 .text table { background:#ECEBEA; border:1px solid #CEBB94; border-right-width:0; border-spacing:0;}
 .text th { background: #C8C4BF; font-weight:normal; border-right:1px solid #CEBB94; padding:1px 4px; font-size:1.1em; font-style:italic; font-family:Times, serif;}
 .text td { border:1px solid #CEBB94; border-width:1px 1px 0 0; padding:0px 4px;}

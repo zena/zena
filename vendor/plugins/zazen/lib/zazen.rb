@@ -66,10 +66,11 @@ module Zazen
           divparams << params.strip if params != ''
           lang = ''
         end
-        divparams << "class='code'" unless params =~ /class\s*=/
+        #divparams << "class='code'" unless params =~ /class\s*=/
+        divparams.unshift('') if divparams != []
         @escaped_code << [lang, text]
         block_counter += 1
-        "<div #{divparams.join(' ')}>\\ZAZENBLOCKCODE#{block_counter}ZAZENBLOCKCODE\\</div>"
+        "<pre#{divparams.join(' ')}>\\ZAZENBLOCKCODE#{block_counter}ZAZENBLOCKCODE\\</pre>"
       end
     end
     
@@ -90,9 +91,9 @@ module Zazen
       @text.gsub!( /\\ZAZENBLOCKCODE(\d+)ZAZENBLOCKCODE\\/ ) do
         lang, text = *(@escaped_code[$1.to_i])
         if lang != ''
-          pre_tag = "<pre class='#{lang}'>"
+          pre_tag = "<code class='#{lang}'>"
         else
-          pre_tag = '<pre>'
+          pre_tag = '<code>'
         end
         if Syntax::SYNTAX[lang] && @options[:pretty_code]
           convertor = Syntax::Convertors::HTML.for_syntax(lang)
