@@ -72,7 +72,7 @@ end
 class ZafuTokenizer < Syntax::Tokenizer
   def step
     if methods = scan(/<\/?z:[^>]+>/)  
-      methods =~ /<(\/?)z:([^> ]+)([^\/>]*)(\/?)>/
+      methods =~ /<(\/?)z:([^> ]+)([^>]*)(\/?)>/
       start_group :punct, "<#{$1}z:"
       start_group :ztag, $2
       trailing = $4
