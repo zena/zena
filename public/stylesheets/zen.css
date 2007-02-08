@@ -185,14 +185,14 @@ input, textarea { border:1px solid grey; margin:0.2em}
 #text { clear:both;}
 .text { line-height:1; margin-bottom:2em;}
 */
-.text {font-size:0.9em;}
+.text {font-size:0.9em;padding-left:15px;}
 .text a {color:#174190;} /* #8F5225 #174190 */
 .text p, .text table { line-height:1.4; margin:1.5em 0; font-style:normal;}
 .text li { line-height:1.4; padding-top:0.4em;}
 .text table { margin-left:auto; margin-right:auto;}
-.text h1 { margin-top:2.3em; margin-bottom:0.8em; font-size:2.2em;}
-.text h2 { margin-top:2em; margin-bottom:0.4em; font-size:2em; font-weight:bold;}
-.text h3 { margin-top:1.8em; margin-bottom:0.4em; font-size:1.6em;}
+.text h1 { margin-top:2.3em; margin-left:-15px; margin-bottom:0.8em; font-size:2.2em;}
+.text h2 { margin-top:2em; margin-left:-15px; margin-bottom:0.4em; font-size:2em; font-weight:bold;}
+.text h3 { margin-top:1.8em; margin-left:-15px; margin-bottom:0.4em; font-size:1.6em;}
 .text h4 { font-size:1em; margin:2em 0 0em; }
 .text ul, .text ol { display:table; margin-left:2em; margin-top:1em; margin-bottom:1em; padding-left:1em;}
 .text ul ul, .text ol ol { margin:0;}
