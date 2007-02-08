@@ -148,7 +148,7 @@ input, textarea { font:inherit; padding:2px;}
 .li_s40 a { border-bottom: 2px solid #73A1A5; }
 .li_s35 a { border-bottom: 2px dotted #73A1A5; }
 .li_s30 a { border-bottom: 2px solid #B7CC87; }
-.wrong_lang { color: grey; font-weight:normal; font-size:70%; text-transform:none; font-style:normal;}
+.wrong_lang { color: grey; font-weight:normal; font-size:0.7em; text-transform:none; font-style:normal;}
 .s40  { border-bottom: 10px solid #73A1A5; padding: 4px; }
 .s30  { border-bottom: 10px solid #B7CC87; padding: 4px; }
 .s10, .s20 {  border-color:#685958; border-bottom: 1px solid grey; padding: 4px; }
@@ -171,6 +171,7 @@ input, textarea { border:1px solid grey; margin:0.2em}
 #main .header h1 {  font-size:2.5em; margin-bottom:0.17em;}
 .header h1, .text h1, .text h2, .text h3 { font-family: Georgia, Times, serif ; font-style:italic; color:#450009;}
 #main .header .wrong_lang {font-size:0.5em;}
+#main .note .wrong_lang {font-size:1em;}
 #left .header .wrong_lang {font-size:0.6em;}
 #content { float:left; width:630px; padding:0 22px 200px 0; margin-top:1em;}
 #left .content { padding-top:10px;}
@@ -202,7 +203,8 @@ input, textarea { border:1px solid grey; margin:0.2em}
 .text img.doc { border:0;}
 .text img.full { border:0;}
 .text .box, .text .code { border:1px dashed #CEBB94; border-width:1px 0; background:#EAE9E8; padding:5px 4px 3px; display:table; margin:1em auto 3em;}
-.text .code {border:2px solid #bbb; margin:1em 80px 3em; display:block; font-size:0.9em;}
+.text .code, .text .lcode {border:2px solid #bbb; margin:1em 80px 3em; display:block; font-size:0.9em;}
+.text .lcode { margin:1em auto 3em;}
 .text .pre { white-space:pre;}
 .text strong { font-family:Helvetica, Arial;}
 code { color:black; padding:2px 2px 0px; background:#ECEBEA;}
