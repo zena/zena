@@ -210,7 +210,7 @@ pre.left {float:left;margin:20px 2em 3em 0;}
 pre.right {float:right;margin:20px 0 3em 2em;}
 p.table { display:table; }
 .text p code { color:black; padding:2px 2px 0px; background:#ECEBEA;}
-
+.text p code code { color:inherit; padding:inherit; background:inherit;}
 /* typo */
 .text strong { font-family:Helvetica, Arial;}
 

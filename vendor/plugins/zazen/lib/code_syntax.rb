@@ -102,7 +102,7 @@ class ErbTokenizer < Syntax::Tokenizer
       methods =~ /<%(=?)([^>]+?)(-?)%>/m
       start_group :punct, "<%#{$1}"
       trailing = $3
-      subgroup :expr, "<pre class='ruby'>#{Syntax::Convertors::HTML.for_syntax('ruby').convert($2, false)}</pre>"
+      subgroup :expr, "<code class='ruby'>#{Syntax::Convertors::HTML.for_syntax('ruby').convert($2, false)}</code>"
       start_group :punct, "#{trailing}%>"
     elsif html = scan(/<\/?[^>]+>/)
       html =~/<\/?([^>]+)>/
