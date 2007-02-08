@@ -202,7 +202,7 @@ input, textarea { border:1px solid grey; margin:0.2em}
 .text img { border: 1px solid #666; }
 .text img.doc { border:0;}
 .text img.full { border:0;}
-.text .box, .text .code { border:1px dashed #CEBB94; border-width:1px 0; background:#EAE9E8; padding:5px 4px 3px; display:table; margin:1em auto 3em;}
+.text .box, .text .code, .text .lcode { border:1px dashed #CEBB94; border-width:1px 0; background:#EAE9E8; padding:5px 4px 3px; display:table; margin:1em auto 3em;}
 .text .code, .text .lcode {border:2px solid #bbb; margin:1em 80px 3em; display:block; font-size:0.9em;}
 .text .lcode { margin:1em auto 3em;}
 .text .pre { white-space:pre;}
