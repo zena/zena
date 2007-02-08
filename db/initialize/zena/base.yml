@@ -9,12 +9,22 @@ users:
     first_name: Super
     name:       User
 
+  - id:         3
+    login:      admin
+    password:   admin
+    first_name: Admin
+    name:       User
+
 groups:
   - id:             1
     name:           public
 
   - id:             2
     name:           admin
+
+groups_users:
+  - group_id:       2
+    user_id:        3
 
 nodes:
   - id:             1
@@ -77,7 +87,7 @@ versions:
 
       h2. Welcome !
 
-      You should now login as 'su' and create an administrator. Once you are logged in as the *administrator*, you can start editing the content of your CMS.
+      You should now login as 'su' and change the password. Then login as 'admin' and change password, name, etc. You can then start editing the content of your CMS.
 
       Have fun !!
     lang:           en
@@ -95,7 +105,7 @@ versions:
 
       h2. Bienvenue !
 
-      Vous pouvez maintenant entrer (login) dans le système comme 'su' et créer un administrateur. Une fois que vous êtes entrés dans le système comme *administrateur*, vous pouvez commencer à éditer le contenu de votre CMS.
+      Vous pouvez maintenant entrer (login) dans le système comme 'su' et changer le mot de passe. Puis entrez comme 'admin' et modifiez le mot de passe. Vous pouvez alors commencer à éditer le contenu de votre CMS.
       
       Bien du plaisir !!
     lang:           fr
