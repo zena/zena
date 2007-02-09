@@ -102,16 +102,29 @@ module Zafu
           end
         end
         @method = :zafu
+        @params = params
+        @helper = helper
+        @blocks = []
+        
+        scan # scan fetched text
+        
+        # eat dummy text inside include
+        bak = @blocks
+        @blocks = []
+        @rest = text
+        scan
+        @blocks = bak
       else
+        
         @rest             = text
         @current_folder   = current_folder
         @method           = method
         @included_history = included_history
+        @params = params
+        @helper = helper
+        @blocks = []
+        scan
       end
-      @params = params
-      @helper = helper
-      @blocks = []
-      scan
     end
     
     def render(context)
@@ -170,7 +183,13 @@ module Zafu
           res << b.inspect
         end
       end
-      "[#{@method}:#{params.sort.join(', ')}|#{context.sort.join(', ')}]#{res}[/#{@method}]" + @rest
+      result = "[#{@method}:#{params.sort.join(', ')}|#{context.sort.join(', ')}"
+      if res != []
+        result += "]#{res}[/#{@method}]"
+      else
+        result += "/]"
+      end
+      result + @rest
     end
       
     private
@@ -178,29 +197,32 @@ module Zafu
     # parses to divide the text into sub-blocks
     def scan
       while (@rest != '')
-        if @rest =~ /(.*?)<z:(\w+)([^>]*)(\/?)>/m
-          # opening block
+        if @rest =~ /(.*?)<(\/?)z:(\w+)([^>]*?)(\/?)>/m
           @blocks << $1 if $1 != ''
           matched = $&
-          closed = ($4 != '')
-          method = $2.to_sym
-          @rest = @rest[matched.length..-1]
+          method = $3.to_sym
+          if $2 == ''
+            # opening block
+            closed = ($5 != '')
+            @rest = @rest[matched.length..-1]
           
-          params = scan_params($3)
-          block = Block.new(@rest,method,params,@helper,@current_folder,@included_history)
-          @blocks << block
-          @rest = block.rest
-          block.rest = ""
-        elsif @rest =~ /(.*?)<\/z:(\w+)>/m
-          # closing block
-          @blocks << $1 if $1 != ''
-          matched = $&
-          method = $2.to_sym
-          if method != @method
-            @blocks << "<span class='zafu_error'>&lt;/z:#{method}&gt;</span>"
+            params = scan_params($4)
+            if closed
+              block = Block.new('',method,params,@helper,@current_folder,@included_history)
+            else
+              block = Block.new(@rest,method,params,@helper,@current_folder,@included_history)
+              @rest = block.rest
+              block.rest = ""
+            end
+            @blocks << block
+          else
+            # closing block
+            if method != @method
+              @blocks << "<span class='zafu_error'>&lt;/z:#{method}&gt;</span>"
+            end
+            @rest = @rest[matched.length..-1]
+            return
           end
-          @rest = @rest[matched.length..-1]
-          return
         else
           # no closing tag. eat the end and quit
           @blocks << @rest

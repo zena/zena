@@ -8,6 +8,10 @@ module Zafu
     def test
       self.inspect
     end
+    
+    def context
+      expand_with(@params)
+    end
   end
 end
 
@@ -33,6 +37,5 @@ class ZazenTest < Test::Unit::TestCase
     parser = Zafu::Parser.new_with_url('/default/menu', DummyHelper.new(strings))
     assert_equal strings[:default_menu][:out], parser.render
   end
-  
   make_tests
 end

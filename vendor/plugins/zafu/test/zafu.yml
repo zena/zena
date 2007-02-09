@@ -6,9 +6,25 @@ hello:
   in: "<z:hello/>"
   out: "hello world!"
 
+double_hello:
+  in: "<z:hello/> <z:hello/>"
+  out: "hello world! hello world!"
+
+hello_skip_content:
+  in: "<z:hello>I want to live forever</z:hello>"
+  out: "hello world!"
+
 tag_not_closed:
   in: "this is <z:test super='life' is = \"fine\""
   out: "this is <z:test super='life' is = \"fine\""
+
+hello_not_closed:
+  in: "I say <z:hello>blah blah"
+  out: "I say hello world!"
+
+test:
+  in: "this <z:test>is a test</z:test> <z:hello/>"
+  out: "this [test:|]is a test[/test] hello world!"
   
 very_messy:
   in: "this <z: blah> </z:truc> whak"
@@ -31,12 +47,12 @@ default_menu:
   out: "the [test:|]menu[/test] is nice"
   
 include_menu:
-  in: "<z:include template='/default/menu'/>"
-  out: "the [test:|]menu[/test] is nice"
+  in: "include_menu: <z:include template='/default/menu'/>"
+  out: "include_menu: the [test:|]menu[/test] is nice"
 
 include_context:
-  in: "<z:include template='menu'/>"
-  out: "the [test:|]menu[/test] is nice"
+  in: "include_context: <z:include template='menu'/>"
+  out: "include_context: include_menu: the [test:|]menu[/test] is nice"
 
 infinite_loop:
   in: "<z:include template='/infinite/loop'/>"
@@ -49,3 +65,15 @@ infinite_foo:
 infinite_bar:
   in: "<z:include template='foo'/>"
   out: "<span class='zafu_error'>[include error: /infinite/bar --&gt; /infinite/foo --&gt; /infinite/bar ]</span>"
+  
+other_context:
+  in: "from other: <z:include template='menu'/> and <z:include template='/include/menu'/>"
+  out: "from other: the [test:|]menu[/test] is nice and include_menu: the [test:|]menu[/test] is nice"
+
+context:
+  in: "out:<z:test/> <z:context truc='machin'>in:<z:test/></z:context> out:<z:test/>"
+  out: "out:[test:|/] in:[test:|truc=>'machin'/] out:[test:|/]"
+  
+nested_context:
+  in: "<z:context var1='out' var2='foo'>1:<z:test/><z:context var1='in'>2:<z:test/></z:context>3:<z:test/></z:context>"
+  out: "1:[test:|var1=>'out', var2=>'foo'/]2:[test:|var1=>'in', var2=>'foo'/]3:[test:|var1=>'out', var2=>'foo'/]"
