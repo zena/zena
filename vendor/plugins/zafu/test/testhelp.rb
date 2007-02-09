@@ -8,8 +8,10 @@ class DummyHelper
   end
   
   def template_text_for_url(url)
-    if @strings[url]
-      @strings[url][:in]
+    url = url[1..-1] # strip leading '/'
+    url = url.gsub('/','_').to_sym
+    if test = @strings[url]
+      test[:in]
     else
       nil
     end
@@ -76,13 +78,6 @@ class Test::Unit::TestCase
   end
   
   def do_test(strings, test)
-    render(strings[test.to_sym][:in], :helper => DummyHelper.new(strings))
+    Zafu::Parser.new_with_url("/#{test.to_s.gsub('_', '/')}", DummyHelper.new(strings)).render
   end
-  
-  def render(txt, opts={})
-    helper = opts[:helper] || DummyHelper.new
-    opts.delete(:helper)
-    Zafu::Parser.new(txt, helper).render(opts)
-  end
-  
 end

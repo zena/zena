@@ -21,3 +21,31 @@ bad_closing_tag:
 expand_with:
   in: "this <z:test>looks </z:test> ok"
   out: "this [test:|]looks [/test] ok"
+  
+params:
+  in: "some <z:test good='choice' nice='work'>things</z:test> are fine"
+  out: "some [test:good=>'choice', nice=>'work'|]things[/test] are fine"
+
+default_menu:
+  in: "the <z:test>menu</z:test> is nice"
+  out: "the [test:|]menu[/test] is nice"
+  
+include_menu:
+  in: "<z:include template='/default/menu'/>"
+  out: "the [test:|]menu[/test] is nice"
+
+include_context:
+  in: "<z:include template='menu'/>"
+  out: "the [test:|]menu[/test] is nice"
+
+infinite_loop:
+  in: "<z:include template='/infinite/loop'/>"
+  out: "<span class='zafu_error'>[include error: /infinite/loop --&gt; /infinite/loop ]</span>"
+  
+infinite_foo:
+  in: "<z:include template='bar'/>"
+  out: "<span class='zafu_error'>[include error: /infinite/foo --&gt; /infinite/bar --&gt; /infinite/foo ]</span>"
+  
+infinite_bar:
+  in: "<z:include template='foo'/>"
+  out: "<span class='zafu_error'>[include error: /infinite/bar --&gt; /infinite/foo --&gt; /infinite/bar ]</span>"

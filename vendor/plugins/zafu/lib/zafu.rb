@@ -11,18 +11,26 @@ module Zafu
   end
   # just a wrapper around #Block
   class Parser
-    def initialize(text, helper=Zafu::DummyHelper)
-      @block = Block.new(text)
+    class << self
+      def new_with_url(url, helper=Zafu::DummyHelper)
+        text, absolute_url = Block.find_template_text(url,helper)
+        current_folder = absolute_url ? absolute_url.split('/')[0..-2].join('/') : '/'
+        self.new(text, helper, current_folder, [absolute_url])
+      end
+    end
+        
+    def initialize(text, helper=Zafu::DummyHelper, current_folder='/', included_history=[])
+      @block = Block.new(text, :zafu, {}, helper, current_folder, included_history)
     end
     
-    def render(context)
+    def render(context={})
       @block.render(context) + @block.rest
     end
   end
   
   module Rules
     # basic rule to render strings
-    def dummy
+    def zafu
       expand_with
     end
     
@@ -44,15 +52,65 @@ module Zafu
     attr_reader :helper
     attr_accessor :rest
     include Zafu::Rules
+    
+    class << self
+      # Retrieve the template text in the current folder or as an absolute path.
+      # This method is used when 'including' text
+      def find_template_text(url, helper, current_folder='/')
+        # remove trailing '/'
+        if current_folder[-1..-1] == '/'
+          current_folder = current_folder[0..-2]
+        end
+        
+        if url[0..0] == '/'
+          # absolute url
+          urls = [url,"#{url}/_#{url.split('/').last}"]
+        else
+          # relative path
+          urls = ["#{current_folder}/#{url}", "#{current_folder}/#{url}/_#{url.split('/').last}",
+          "/default/#{url}", "/default/#{url}/_#{url.split('/').last}"]
+        end
+        
+        text = absolute_url = nil
+        urls.each do |template_url|
+          if text = helper.template_text_for_url(template_url)
+            absolute_url = template_url
+            break
+          end
+        end
+        text ||= "<span class='zafu_error'>template '#{url}' not found</span>"
+        return [text, absolute_url]
+      end
+    end
+    
     # Initialize a new zafu parser. The helper must implement the following methods :
     # template_text_for_url(absolute_url)
     # the method must return the text content or nil
-    def initialize(text, method=:dummy, params={}, helper=Zafu::DummyHelper)
-      @method = method
+    def initialize(text, method=:zafu, params={}, helper=Zafu::DummyHelper, current_folder='/', included_history=[])
+      if method == :include
+        # fetch text
+        @rest, absolute_url = self.class.find_template_text(params[:template], helper, current_folder)
+        @current_folder = absolute_url ? absolute_url.split('/')[0..-2].join('/') : current_folder
+        
+        if absolute_url
+          if included_history.include?(absolute_url)
+            @rest = "<span class='zafu_error'>[include error: #{(included_history + [absolute_url]).join(' --&gt; ')} ]</span>"
+            @current_folder = current_folder
+            @included_history = included_history
+          else
+            @included_history = included_history + [absolute_url]
+          end
+        end
+        @method = :zafu
+      else
+        @rest             = text
+        @current_folder   = current_folder
+        @method           = method
+        @included_history = included_history
+      end
       @params = params
       @helper = helper
       @blocks = []
-      @rest   = text
       scan
     end
     
@@ -90,17 +148,17 @@ module Zafu
     end
     
     def inspect
-      params = ""
+      params = []
       @params.each do |k,v|
         unless v.nil?
-          params << " #{k.inspect} => #{v.inspect}"
+          params << "#{k}=>'#{v}'"
         end
       end
-
-      context = ""
+      
+      context = []
       (@context || {}).each do |k,v|
         unless v.nil?
-          context << " #{k.inspect} => #{v.inspect}"
+          context << "#{k}=>'#{v}'"
         end
       end
       
@@ -112,7 +170,7 @@ module Zafu
           res << b.inspect
         end
       end
-      "[#{@method}:#{params.sort.join(' ')}|#{context.sort.join(' ')}]#{res}[/#{@method}]" + @rest
+      "[#{@method}:#{params.sort.join(', ')}|#{context.sort.join(', ')}]#{res}[/#{@method}]" + @rest
     end
       
     private
@@ -129,7 +187,7 @@ module Zafu
           @rest = @rest[matched.length..-1]
           
           params = scan_params($3)
-          block = Block.new(@rest,method,params,@helper)
+          block = Block.new(@rest,method,params,@helper,@current_folder,@included_history)
           @blocks << block
           @rest = block.rest
           block.rest = ""
@@ -176,28 +234,6 @@ module Zafu
         end
       end
       result
-    end
-
-    # Retrieve the template text in the current folder or as an absolute path.
-    # This method is used when 'including' text
-    def find_template_text(url)
-      if url == '/'
-        # absolute url
-        urls = [url,"#{url}/_#{url.split('/').last}"]
-      else
-        # relative path
-        urls = ["#{@context[:current_folder]}/#{url}", "#{@context[:current_folder]}/#{url}/_#{url.split('/').last}",
-        "/default/#{url}", "/default/#{url}/_#{url.split('/').last}"]
-      end
-      text = new_folder = nil
-      urls.each do |template_url|
-        if text = @helper.template_text_for_url(template_url)
-          new_folder = template_url.split('/')[0..-2].join('/')
-          break
-        end
-      end
-      text ||= "<span class='zafu_error'>template '#{current_url}' not found</span>"
-      return [text, new_folder]
     end
     
     # find the current node name in the context

@@ -25,7 +25,14 @@ class ZazenTest < Test::Unit::TestCase
   
   def test_inspect
     zafu = Zafu::Block.new("are <z:test>you</z:test> ok ?")
-    assert_equal "[dummy:|]are [test:|]you[/test] ok ?[/dummy]", zafu.inspect
+    assert_equal "[zafu:|]are [test:|]you[/test] ok ?[/zafu]", zafu.inspect
   end
+  
+  def test_new_with_url
+    strings = @@test_strings['zafu']
+    parser = Zafu::Parser.new_with_url('/default/menu', DummyHelper.new(strings))
+    assert_equal strings[:default_menu][:out], parser.render
+  end
+  
   make_tests
 end
