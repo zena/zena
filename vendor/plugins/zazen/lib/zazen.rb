@@ -2,35 +2,47 @@ require 'rubygems'
 require 'syntax/convertors/html'
 require 'redcloth'
 require File.join(File.dirname(__FILE__) , 'code_syntax')
-
 module Zazen
-  class Parser
-    attr_accessor :text, :options, :helper
-    @@rules = []
-    @@after_rules = []
+  module Rules
+    RULES = []
+    AFTER_RULES = []
     class << self
       def add_rule(regex, &block)
-        @@rules << [regex, block]
+        RULES << [regex, block]
       end
       def add_after_rule(regex, &block)
-        @@after_rules << [regex, block]
+        AFTER_RULES << [regex, block]
       end
     end
+  end
+end
+Dir.foreach(File.join(File.dirname(__FILE__) , 'rules')) do |file|
+  next if file =~ /^\./
+  require File.join(File.dirname(__FILE__) , 'rules', file)
+end
+module Zazen
+  class DummyHelper
+    def self.method_missing(sym, *args)
+      "helper needed for #{sym}(#{args.inspect})"
+    end
+  end
+  class Parser
+    attr_accessor :text, :options, :helper
     
-    def initialize(text)
+    def initialize(text, helper=Zazen::DummyHelper)
       @text   = text
+      @helper = helper
       @last_match = {}
       @options = {}
     end
 
     def render(options)
       @options = {:images => true, :pretty_code=>true}.merge(options)
-      @helper = options[:helper]
       extract_code
-      render_zazen(@@rules)
+      render_zazen(Rules::RULES)
       render_markup
       render_code
-      render_zazen(@@after_rules)
+      render_zazen(Rules::AFTER_RULES)
       @text
     end
     
@@ -120,46 +132,5 @@ module Zazen
         res
       end
     end
-  end
-end
-
-# create a gallery ![...]!
-Zazen::Parser.add_rule( /\!\[([^\]]*)\]\!/ ) do |parse|
-  if parse[:images]
-    parse.helper.make_gallery(parse[1])
-  else
-    parse.helper.trans('[gallery]')
-  end
-end
-
-# list of documents !<.{...}!
-Zazen::Parser.add_rule( /\!([^0-9]{0,2})\{([^\}]*)\}\!/ ) do |parse|
-  if parse[:images]
-    parse.helper.list_nodes(:style=>parse[1], :ids=>parse[2])
-  else
-    parse.helper.trans('[documents]')
-  end
-end
-
-# image !<.12.pv/blah blah!:12
-Zazen::Parser.add_rule( /\!([^0-9]{0,2})([0-9]+)(\.([^\/\!]+)|)(\/([^\!]*)|)\!(:([^\s]+)|)/ ) do |parse|
-  parse.helper.make_image(:style=>parse[1], :id=>parse[2], :size=>parse[4], :title=>parse[6], :link=>parse[8], :images=>parse[:images])
-end
-
-# link inside the cms "":34
-Zazen::Parser.add_rule( /"([^"]*)":([0-9]+)/ ) do |parse|
-  parse.helper.make_link(:title=>parse[1],:id=>parse[2])
-end
-
-# wiki reference ?zafu? or ?zafu?:http://...
-Zazen::Parser.add_after_rule( /\?(\w[^\?]+?\w)\?([^\w:]|:([^\s]+))/ ) do |parse|
-  if parse[3]
-    if parse[3] =~ /([^\w0-9])$/
-      parse.helper.make_wiki_link(:title=>parse[1], :url=>parse[3][0..-2]) + $1
-    else
-      parse.helper.make_wiki_link(:title=>parse[1], :url=>parse[3])
-    end
-  else
-    parse.helper.make_wiki_link(:title=>parse[1]) + parse[2]
   end
 end

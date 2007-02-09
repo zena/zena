@@ -1,0 +1,23 @@
+empty:
+  in: ""
+  out: ""
+
+hello:
+  in: "<z:hello/>"
+  out: "hello world!"
+
+tag_not_closed:
+  in: "this is <z:test super='life' is = \"fine\""
+  out: "this is <z:test super='life' is = \"fine\""
+  
+very_messy:
+  in: "this <z: blah> </z:truc> whak"
+  out: "this <z: blah> <span class='zafu_error'>&lt;/z:truc&gt;</span> whak"
+
+bad_closing_tag:
+  in: "this <z:test>looks </z:truc> ok"
+  out: "this [test:|]looks <span class='zafu_error'>&lt;/z:truc&gt;</span>[/test] ok"
+  
+expand_with:
+  in: "this <z:test>looks </z:test> ok"
+  out: "this [test:|]looks [/test] ok"

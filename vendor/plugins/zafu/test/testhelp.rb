@@ -1,23 +1,18 @@
 require 'test/unit'
 require 'yaml'
-require File.join(File.dirname(__FILE__) , '..', 'lib', 'zazen')
+require File.join(File.dirname(__FILE__) , '..', 'lib', 'zafu')
 
 class DummyHelper
-  def method_missing(sym, *args)
-    arguments = args.map do |arg|
-      if arg.kind_of?(Hash)
-        res = []
-        arg.each do |k,v|
-          unless v.nil?
-            res << "#{k}:#{v.inspect.gsub(/'|"/, "|")}"
-          end
-        end
-        res.sort.join(' ')
-      else
-        arg.inspect.gsub(/'|"/, "|")
-      end
+  def initialize(strings)
+    @strings = strings
+  end
+  
+  def template_text_for_url(url)
+    if @strings[url]
+      @strings[url][:in]
+    else
+      nil
     end
-    res = "[#{sym} #{arguments.join(' ')}]"
   end
 end
 
@@ -64,13 +59,13 @@ class Test::Unit::TestCase
               # regex test
               class_eval <<-END
                 def test_#{tf}_#{test}
-                  assert_match %r{#{@@test_strings[tf][test.to_sym][:out][1..-2]}}m, render(#{tf}[:#{test}][:in])
+                  assert_match %r{#{@@test_strings[tf][test.to_sym][:out][1..-2]}}m, do_test(#{tf},#{test.inspect})
                 end
               END
             else
               class_eval <<-END
                 def test_#{tf}_#{test}
-                  assert_equal #{tf}[:#{test}][:out], render(#{tf}[:#{test}][:in])
+                  assert_equal #{tf}[:#{test}][:out], do_test(#{tf},#{test.inspect})
                 end
               END
             end
@@ -80,12 +75,14 @@ class Test::Unit::TestCase
     end
   end
   
-  @@helper = DummyHelper.new
+  def do_test(strings, test)
+    render(strings[test.to_sym][:in], :helper => DummyHelper.new(strings))
+  end
   
   def render(txt, opts={})
-    helper = opts[:helper] || @@helper
+    helper = opts[:helper] || DummyHelper.new
     opts.delete(:helper)
-    Zazen::Parser.new(txt, helper).render(opts)
+    Zafu::Parser.new(txt, helper).render(opts)
   end
   
 end
