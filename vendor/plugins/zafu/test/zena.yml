@@ -14,7 +14,6 @@ parent:
   in:  "my <z:parent>hello</z:parent>"
   out: "my <% if var1 = @node.parent -%>hello<% end -%>"
 
-
 show_in_parent:
   in:  "my <z:parent><z:show attr='name'/></z:parent>"
   out: "my <% if var1 = @node.parent -%><%= var1[:name] %><% end -%>"

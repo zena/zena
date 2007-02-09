@@ -20,5 +20,8 @@ module Zafu
       out expand_with(:node=>var)
       out "<% end -%>"
     end
+    
+    # <z:relation role='hot,project'> = get relation if empty get project
+    # relation ? get ? role ? go ?
   end
 end
