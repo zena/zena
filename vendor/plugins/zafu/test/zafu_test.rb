@@ -9,14 +9,19 @@ module Zafu
       self.inspect
     end
     
-    def context
+    def set_context
       expand_with(@params)
+    end
+    
+    def missing
+      return unless check_params(:good, :night)
+      "nothing missing"
     end
   end
 end
 
 class ZazenTest < Test::Unit::TestCase
-  testfile :zafu
+  testfile :zafu, :zena
   def test_parse_params
     zafu = Zafu::Block.new("")
     res = zafu.send(:scan_params, "bob='super' life = 'cool' ")

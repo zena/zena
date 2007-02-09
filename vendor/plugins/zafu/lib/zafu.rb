@@ -41,15 +41,19 @@ module Zafu
         sp += " #{k}=#{v.inspect}"
       end
         
-      out "<span class='zafu_unknown'>&lt;z:#{@method}#{sp}&gt;<span class='zafu_unknown'>"
-      out expand_with
-      out "<span class='zafu_unknown'>&lt;z:/#{@method}&gt;<span class='zafu_unknown'>"
+      res = "<span class='zafu_unknown'>&lt;z:#{@method}#{sp}"
+      inner = expand_with
+      if inner != ''
+        res + "&gt;</span>#{inner}<span class='zafu_unknown'>&lt;z:/#{@method}&gt;</span>"
+      else
+        res + "/&gt;</span>"
+      end
     end
   end
   
   # A Block contains parsed data, ready for compilation
   class Block
-    attr_reader :helper
+    attr_reader :helper, :params, :context
     attr_accessor :rest
     include Zafu::Rules
     
@@ -256,6 +260,18 @@ module Zafu
         end
       end
       result
+    end
+    
+    def check_params(*args)
+      missing = []
+      args.each do |arg|
+        missing << arg.to_s unless @params[arg]
+      end
+      if missing != []
+        out "[#{@method} parameter(s) missing:#{missing.sort.join(', ')}]"
+        return false
+      end
+      true
     end
     
     # find the current node name in the context
