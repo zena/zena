@@ -113,6 +113,7 @@ class DocumentContent < ActiveRecord::Base
   end
 
   def prepare_content
+    self[:type] = self.class.to_s # FIXME: this should not be needed... find another fix.
     if @file
       # destroy old file
       destroy_file unless new_record?

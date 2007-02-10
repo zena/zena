@@ -62,31 +62,31 @@ input, textarea { font:inherit; padding:2px;}
 #path a.current { color:white;}
 #path { float:left; }
 #path li { display:inline;}
-#logout, #visitor, #search_anchor { float:right; }
-#search_anchor { position:relative; font-size:1.2em;}
-.navbar #search_box { position:absolute; z-index:999; right:0; top:4px; padding:0;}
-.navbar #search_box a { color:inherit;}
-.navbar #search_box input {margin:0;}
-#search_box p { font-size:0.85em;}
+#logout, #visitor, #search { float:right; }
+#search { position:relative; font-size:0.9em;}
+.search { position:absolute; z-index:999; right:0; top:4px; padding:0;}
+.search a { color:inherit;}
+.search input {margin:0;}
+.search p { font-size:0.85em;}
 
 /* NAV. MENUS */
 #menu { z-index:9999; background-color: #F3F2E8; float:left; position:absolute; top:25px; left:260px;}
-#menu ul { }
-#menu a { color: black; padding:1px 8px 3px; font: 1.1em Georgia, Times, serif; display: block; }
-#menu li { border:solid grey; border-width: 0 1px 1px 0px; list-style:none; float:left; background-color: #F3F2E8; position: relative; }
-#menu li:first-child { border-left-width: 1px; }
-#menu li:hover { background-color:#D3D0B0;}
-#menu li ul { display: none; position: absolute; left:-1px; width: 10em; border: solid grey; border-width: 1px 1px 0; background-color: #F3F2E8; }
-#menu li:hover ul { display: block; }
-#menu ul li.sub, #menu .sub li { width: 100%; border: solid grey; border-width:0 0 1px; }
-#menu ul li.sub ul { display: none; position: absolute; top:-1px; left: 10em; }
-#menu ul li.sub ul li ul { display: none; }
-#menu ul li.sub ul li ul li ul { display: none; }
-#menu ul li.sub:hover ul { display: block; }
-#menu ul li.sub:hover ul li:hover ul { display: block; }
-#menu ul li.sub:hover ul li:hover ul li:hover ul { display: block; }
-#menu ul li.sub:hover ul li:hover ul li:hover ul li:hover ul { display: block; }
-#menu ul li.sub:hover ul li:hover ul li:hover ul li:hover ul li:hover ul { display: block; }
+.menu a { color: black; padding:1px 8px 3px; font: 1.1em Georgia, Times, serif; display: block; }
+.menu li { border:solid grey; border-width: 0 1px 1px 0px; list-style:none; float:left; background-color: #F3F2E8; position: relative; }
+.menu li:first-child { border-left-width: 1px; }
+.menu ul li:first-child { border-left-width:0; }
+.menu li:hover { background-color:#D3D0B0;}
+.menu li ul { display: none; position: absolute; left:-1px; width: 10em; border: solid grey; border-width: 1px 1px 0; background-color: #F3F2E8; }
+.menu li:hover ul { display: block; }
+.menu ul li { width: 100%; border: solid grey; border-width:0 0 1px; }
+.menu ul li ul { display: none; position: absolute; top:-1px; left: 10em; }
+.menu ul li ul li ul { display: none; }
+.menu ul li ul li ul li ul { display: none; }
+.menu ul li:hover ul { display: block; }
+.menu ul li:hover ul li:hover ul { display: block; }
+.menu ul li:hover ul li:hover ul li:hover ul { display: block; }
+.menu ul li:hover ul li:hover ul li:hover ul li:hover ul { display: block; }
+.menu ul li:hover ul li:hover ul li:hover ul li:hover ul li:hover ul { display: block; }
 
 /* ITEM ACTIONS */
 .node_actions { display:inline;}
@@ -208,6 +208,8 @@ input, textarea { border:1px solid grey; margin:0.2em}
 pre.large { margin:1em auto 3em;}
 pre.left {float:left;margin:20px 2em 2em 0;}
 pre.right {float:right;margin:20px 0 2em 2em;}
+pre.full {margin:0 0 0 -15px;}
+
 .no-wrap { display:table; margin:20px 2em 2em 2em;}
 .text p code, .text li code { color:black; padding:2px 2px 0px; background:#ECEBEA;}
 .text p code code { color:inherit; padding:inherit; background:inherit;}

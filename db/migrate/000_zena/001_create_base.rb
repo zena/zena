@@ -30,7 +30,7 @@ class CreateBase < ActiveRecord::Migration
     end
 
     create_table("document_contents", :options => 'type=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci') do |t|
-      t.column "type", :string, :limit => 16
+      t.column "type", :string, :limit => 32
       t.column "version_id", :integer
       t.column "name", :string, :limit => 200, :default => "", :null => false
       t.column "content_type", :string, :limit => 20
@@ -53,7 +53,7 @@ class CreateBase < ActiveRecord::Migration
     end
 
     create_table("nodes", :options => 'type=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci') do |t|
-      t.column "type", :string, :limit => 16
+      t.column "type", :string, :limit => 32
       t.column "event_at", :datetime
       t.column "kpath", :string, :limit => 16
       t.column "created_at", :datetime
@@ -82,7 +82,7 @@ class CreateBase < ActiveRecord::Migration
     end
 
     create_table("versions", :options => 'type=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci') do |t|
-      t.column "type", :string, :limit => 16
+      t.column "type", :string, :limit => 32
       t.column "created_at", :datetime
       t.column "updated_at", :datetime
       t.column "node_id", :integer, :default => 0, :null => false

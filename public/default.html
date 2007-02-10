@@ -1,0 +1,63 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+<head>
+  <title zafu='show' attr=':v_title'>node title</title>
+  <meta http-equiv="Content-type" content="text/html; charset=utf-8" />
+  <meta http-equiv="Content-Language" content="fr-fr" />
+  
+  <link href="stylesheets/zen.css" rel="Stylesheet" type="text/css" />
+  <link href="stylesheets/comment.css" rel="Stylesheet" type="text/css" />
+  <link href="stylesheets/search.css" rel="Stylesheet" type="text/css" />
+  <link href="stylesheets/code.css" rel="Stylesheet" type="text/css" />
+  <z:javascripts list='prototype,effects,zena'/>
+  <z:uses_calendar/>
+</head>
+
+<body>
+  <div class="navbar">
+    <div id='lang' zafu='lang_links'><a>en</a> | <b>fr</b></div>
+    <div id='path' zafu='path_links'><ul><li><a href='#'>first</a></li> / <li><a href='#'>second</a></li> / <li><a href='#' class='current'>here</a></li></ul></div>
+    <div id='logout' zafu='login_link'><a href='#'>login</a></div>
+    <div id='visitor' zafu='visitor_link'><a href='#'>visitor name</a></div>
+    <div id='search' zafu='search_box'><div class='search'><form><input type='text' id='search' name='search'/></form></div></div>
+  </div>
+
+  <div id='menu' zafu='menu'>
+    <ul class='menu'><li><a>first</a></li>
+      <li><a>second</a><ul><li><a>sub</a></li><li><a>sub</a><ul><li><a>subsub</a></li></ul></li></ul></li>
+    </ul>
+  </div>
+  
+  <div id='logo' zafu='link' href='root'><img src='img/logo.png' width='220' height='100'/></div>
+  
+  <z:flash_messages/>
+
+  <div id="left">
+    <%#= plug :calendar, :tiny %>
+    <%#= plug :notes %>
+  </div>
+  <div id="main">
+    
+    <%= render :partial=>title_partial %>
+      
+    <div class="content" id='content'>
+      <%= show(@node, :v_summary, :text=>'')%>
+      <%= show(@node, :v_text   ) %>
+      <%= render :partial=>'comment/list' %>
+    </div>
+
+    <div id="right">
+      <div id='documents'>
+        <%= render :partial=>'document/list' %>
+      </div>
+      <div id='pages'>
+        <%= render :partial=>'page/list'     %>
+      </div>
+    </div>
+  </div>
+  <%= css_edit %>
+  </div>
+</body>
+</html>

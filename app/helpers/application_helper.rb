@@ -205,16 +205,6 @@ module ApplicationHelper
     "</div>"
   end
   
-  # Display logo with message (can be a date or a string)
-  def logo(message='')
-    if message.kind_of?(Time)
-      message = format_date(message, 'logo_date')
-    end
-    "<div id='logo'>" +
-    link_to( image_tag('/img/logo.png', :size=>'220x100'), :prefix => prefix, :controller => 'main', :action=>'index') +
-    "<div id='logo_msg'>#{message}</div></div>"
-  end
-  
   # This method renders the Textile text contained in an object as html. It also renders the zena additions :
   # === Zena additions
   # all these additions are replaced by the traduction of 'unknown link' or 'unknown image' if the user does
@@ -238,7 +228,7 @@ module ApplicationHelper
   # * [!14!:37] you can use an image as the source for a link
   # * [!14!:www.example.com] use an image for an outgoing link
   def zazen(text, opt={})
-    opt = {:images=>true, :helper=>self, :pretty_code=>true}.merge(opt)
+    opt = {:images=>true, :pretty_code=>true}.merge(opt)
     img = opt[:images]
     if opt[:limit]
       opt[:limit] -= 1 unless opt[:limit] <= 0
@@ -247,7 +237,7 @@ module ApplicationHelper
         text = paragraphs[0..opt[:limit]].join("\r\n\r\n") + "\r\n\r\np(more). " + trans("read more &#8230;")
       end
     end
-    Zazen::Parser.new(text).render(opt)
+    Zazen::Parser.new(text,self).render(opt)
     #r = RedCloth.new(text) #, [:hard_breaks])
     #r.gsub!(  /(\A|[^\w])@(.*?)@(\Z|[^\w])/     ) { "#{$1}\\AT_START\\#{zazen_escape($2)}\\AT_END\\#{$3}" }
     #r.gsub!(  /<code>(.*?)<\/code>/m            ) { "\\CODE_START\\#{zazen_escape($1)}\\CODE_END\\" }
@@ -325,7 +315,7 @@ module ApplicationHelper
     
     if title
       prefix = "#{prefix}<div class='img_with_title'>"
-      suffix = "<div class='img_title'>#{Zazen::Parser.new(title).render(:images=>false, :helper=>self)}</div></div>#{suffix}"
+      suffix = "<div class='img_title'>#{Zazen::Parser.new(title,self).render(:images=>false)}</div></div>#{suffix}"
     end
     
     if link.nil?
@@ -413,11 +403,10 @@ module ApplicationHelper
       else
         menus = secure(Page) { Page.find(:all, :conditions=>"parent_id IS NULL") }
       end
-      res = ["<div id='menu'>"]
-      res << "<ul>"
+      res = []
+      res << "<ul class='menu'>"
       res << render_to_string(:partial=>'main/menu', :collection=>menus)
       res << "</ul>"
-      res << "</div>"
       res.join("\n")
     end
   end
@@ -538,6 +527,11 @@ module ApplicationHelper
       end
     end
     if [:v_text, :v_summary].include?(sym)
+      if obj.kind_of?(TextDocument) && sym == :v_text
+        lang = obj.content_lang
+        lang = lang ? " lang='#{lang}'" : ""
+        text = "<code#{lang} class='full'>#{text}</code>"
+      end
       text  = zazen(text, opt)
       klass = " class='text'"
     else
@@ -863,11 +857,7 @@ ENDTXT
     end
     
     nav << "<a href='#{url_for(node_url(node))}' class='current'>#{node.name}</a>"
-    if node[:id] == @node[:id]
-      res = "<ul id='path' class='path'>"
-    else
-      res = "<ul class='path'>"
-    end
+    res = "<ul class='path'>"
     "#{res}<li>#{nav.join(" / </li><li>")}</li></ul>"
   end
 
@@ -910,7 +900,7 @@ ENDTXT
   # show language selector
   def lang_links
     if ZENA_ENV[:monolingual]
-      "<div id='lang' class='empty'></div>"
+      ""
     else
       res = []
       ZENA_ENV[:languages].sort.each do |l|
@@ -924,7 +914,7 @@ ENDTXT
           end
         end
       end
-      "<div id='lang'><span>#{res.join(' | ')}</span></div>"
+      res.join(' | ')
     end
   end
   
@@ -942,10 +932,8 @@ ENDTXT
   end
   
   # TODO: test
-  def search_box
-    "<div id='search_anchor'>" +
-      render_to_string(:partial=>'search/form') +
-    "</div>"
+  def search_box    
+    render_to_string(:partial=>'search/form')
   end
   
   private

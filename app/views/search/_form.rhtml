@@ -1,4 +1,4 @@
-<div id="search_box">
+<div class="search">
   <%= form_remote_tag(:update=>'search_results', 
             :url=>{:controller=>'search', :action=>'find', :id=>@node[:id],  :edit=>@edit}, 
             :loading => "$('search_results').innerHTML='';Element.show('result_loader');",
@@ -6,6 +6,5 @@
   <input type='text' id='search' name='search'/>
   <%= end_form_tag %>
   <div id='result_loader' style='display:none;'><img alt='spinner' src='/images/ajax-loader.gif'/></div>
-  <div id='search_results'>
-  </div>
+  <div id='search_results'></div>
 </div>

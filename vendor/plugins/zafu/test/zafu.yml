@@ -46,6 +46,10 @@ zafu_tag_count:
   in: "I say <p zafu='hello'>blah <p>super</p> blah</p> is good"
   out: "I say <p>hello world!</p> is good"
 
+zafu_tag_closed:
+  in: "I say <p zafu='hello'/> is good"
+  out: "I say <p>hello world!</p> is good"
+
 zafu_tag_block:
   in:  "I say <div zafu='test'>this <div>test</div> is ok</div> right?"
   out: "I say <div>[test:|]this <div>test</div> is ok[/test]</div> right?"

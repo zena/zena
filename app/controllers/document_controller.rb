@@ -11,8 +11,10 @@ class DocumentController < ApplicationController
   def create
     pdoc = params[:document]
     pdoc.delete(:c_file) if pdoc[:c_file] == ""
-    if Image.image_content_type?(pdoc[:c_file].content_type)
+    if Image.accept_content_type?(pdoc[:c_file].content_type)
       @document = secure(Image) { Image.create(pdoc) }
+    elsif TextDocument.accept_content_type?(pdoc[:c_file].content_type)
+      @document = secure(TextDocument) { TextDocument.create(pdoc) }
     else
       @document = secure(Document) { Document.create(pdoc) }
     end
@@ -37,13 +39,19 @@ class DocumentController < ApplicationController
       raise ActiveRecord::RecordNotFound
     end
     @document = secure(Document) { Document.version(params[:version_id]) }
+    content_type = @document.c_content_type
     if @document.kind_of?(Image) && !ImageBuilder.dummy?
       data = @document.c_file(format)
+      disposition = 'inline'
+    elsif @document.kind_of?(TextDocument)
+      data = StringIO.new(@document.v_text)
+      disposition = 'attachment'
     else
       data = @document.c_file
+      disposition = 'inline'
     end
     raise ActiveRecord::RecordNotFound unless @document.name == name
-    send_data( data.read , :filename=>@document.c_filename, :type=>@document.c_content_type, :disposition=>'inline')
+    send_data( data.read , :filename=>@document.c_filename, :type=>content_type, :disposition=>disposition)
     
     # TODO: cache_document not tested yet. Also need sweepers !!
     if @document.public? && @document.v_status == Zena::Status[:pub] && perform_caching && caching_allowed

@@ -1,6 +1,6 @@
 class Image < Document
   class << self
-    def image_content_type?(content_type)
+    def accept_content_type?(content_type)
       ImageBuilder.image_content_type?(content_type)
     end
   end

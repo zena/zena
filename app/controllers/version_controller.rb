@@ -51,6 +51,13 @@ class VersionController < ApplicationController
       @v_summary = @node.v_summary
       @v_text    = @node.v_text
     end
+    if @node.kind_of?(TextDocument)
+      @html = @v_text
+    elsif @node.kind_of?(TextDocument)
+      lang = @node.content_lang
+      lang = lang ? " lang='#{lang}'" : ""
+      @v_text = "<code#{lang} class='full'>#{@v_text}</code>"
+    end
   rescue ActiveRecord::RecordNotFound
     page_not_found
   end
