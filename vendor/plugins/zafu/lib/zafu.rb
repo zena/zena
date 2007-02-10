@@ -24,7 +24,7 @@ module Zafu
     end
     
     def render(context={})
-      @block.render(context) + @block.rest
+      @block.render(context)
     end
   end
   
@@ -90,7 +90,8 @@ module Zafu
     # Initialize a new zafu parser. The helper must implement the following methods :
     # template_text_for_url(absolute_url)
     # the method must return the text content or nil
-    def initialize(text, method=:zafu, params={}, helper=Zafu::DummyHelper, current_folder='/', included_history=[])
+    def initialize(text, method=:zafu, params={}, helper=Zafu::DummyHelper, current_folder='/', included_history=[], zafu_tag=nil)
+      @zafu_tag = zafu_tag
       if method == :include
         # fetch text
         @rest, absolute_url = self.class.find_template_text(params[:template], helper, current_folder)
@@ -140,11 +141,9 @@ module Zafu
         res = unknown
       end
         
-      if @result != ""
-        @result
-      else
-        res
-      end
+      
+      res = @result if @result != ""
+      res + @rest
     end
   
     def out(str)
@@ -200,17 +199,18 @@ module Zafu
     
     # parses to divide the text into sub-blocks
     def scan
+      zafu_tag_count = 1
       while (@rest != '')
-        if @rest =~ /(.*?)<(\/?)z:(\w+)([^>]*?)(\/?)>/m
+        if @rest =~ /^(.*?)</m
           @blocks << $1 if $1 != ''
-          matched = $&
-          method = $3.to_sym
-          if $2 == ''
-            # opening block
-            closed = ($5 != '')
-            @rest = @rest[matched.length..-1]
-          
-            params = scan_params($4)
+          @rest = @rest[$1.length..-1]
+          # inside tag
+          if @rest =~ /^<z:(\w+)([^>]*?)(\/?)>/
+            # z: tag
+            method = $1.to_sym
+            closed = ($3 != '')
+            @rest = @rest[$&.length..-1]
+            params = scan_params($2)
             if closed
               block = Block.new('',method,params,@helper,@current_folder,@included_history)
             else
@@ -219,16 +219,66 @@ module Zafu
               block.rest = ""
             end
             @blocks << block
-          else
-            # closing block
-            if method != @method
-              @blocks << "<span class='zafu_error'>&lt;/z:#{method}&gt;</span>"
+          elsif @rest =~ /^<(\w+)([^>]*?)zafu([^>]*?)(\/?)>/
+            # zafu param tag
+            zafu_tag = $1
+            closed = ($4 != '')
+            @rest = @rest[$&.length..-1]
+            params = scan_params($2+"zafu"+$3)
+            method = params[:zafu]
+            params.delete(:zafu)
+            tag = "<#{zafu_tag}"
+            [:class, :id].each do |key|
+              if params[key]
+                tag << " #{key}=#{params[key].inspect}"
+                params.delete(key)
+              end
             end
-            @rest = @rest[matched.length..-1]
+            tag += ">"
+            @blocks << tag
+            if closed
+              block = Block.new('',method,params,@helper,@current_folder,@included_history,zafu_tag)
+              @blocks << block << "</#{zafu_tag}>"
+            else
+              block = Block.new(@rest,method,params,@helper,@current_folder,@included_history,zafu_tag)
+              @rest = block.rest
+              block.rest = ""
+              @blocks << block
+            end
+            zafu_tag_count += 1 if zafu_tag == @zafu_tag && !closed
+          elsif @zafu_tag && @rest =~ /^<#{@zafu_tag}([^>]*?)(\/?)>/
+            # simple html tag same as zafu_tag
+            @blocks << $&
+            @rest = @rest[$&.length..-1]
+            zafu_tag_count += 1 unless $2 == '/' # count opened zafu tags to be closed before return
+          elsif @rest =~ /^<\/z:(\w+)>/
+            # z: closing
+            @rest = @rest[$&.length..-1]
+            if $1.to_sym != @method
+              @blocks << "<span class='zafu_error'>#{$&.gsub('<', '&lt;').gsub('>','&gt;')}</span>"
+            end
+            return
+          elsif @zafu_tag && @rest =~ /^<\/#{@zafu_tag}>/
+            # zafu param tag closing
+            zafu_tag_count -= 1
+            if zafu_tag_count == 0
+              return
+            else
+              @blocks << $&
+              @rest = @rest[$&.length..-1]
+            end
+          elsif @rest =~ /^<.*?>/
+            # html
+            @blocks << $&
+            @rest = @rest[$&.length..-1]
+          else
+            # never closed tag
+            @blocks << @rest
+            @rest = ''
             return
           end
         else
-          # no closing tag. eat the end and quit
+          # no more tags
           @blocks << @rest
           @rest = ''
           return
