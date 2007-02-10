@@ -10,6 +10,10 @@ double_hello:
   in: "<z:hello/> <z:hello/>"
   out: "hello world! hello world!"
 
+ignore_html:
+  in: "<div class='test'><p>some <i>funny</i> text</p></div>"
+  out: "<div class='test'><p>some <i>funny</i> text</p></div>"
+
 hello_skip_content:
   in: "<z:hello>I want to live forever</z:hello>"
   out: "hello world!"
@@ -33,7 +37,38 @@ very_messy:
 bad_closing_tag:
   in: "this <z:test>looks </z:truc> ok"
   out: "this [test:|]looks <span class='zafu_error'>&lt;/z:truc&gt;</span>[/test] ok"
-  
+
+zafu_tag:
+  in: "I say <p zafu='hello'>blah blah</p>"
+  out: "I say <p>hello world!</p>"
+
+zafu_tag_count:
+  in: "I say <p zafu='hello'>blah <p>super</p> blah</p> is good"
+  out: "I say <p>hello world!</p> is good"
+
+zafu_tag_block:
+  in:  "I say <div zafu='test'>this <div>test</div> is ok</div> right?"
+  out: "I say <div>[test:|]this <div>test</div> is ok[/test]</div> right?"
+
+zafu_tag_at_end:
+  in:  "I say <div zafu='test'>this <div>test</div> is ok</div>"
+  out: "I say <div>[test:|]this <div>test</div> is ok[/test]</div>"
+
+zafu_tag_with_ztags:
+  in: "I say <div zafu='test'>this <z:hello/></div>"
+  out: "I say <div>[test:|]this [hello:|/][/test]</div>"
+
+zafu_keep_params:
+  in: "I love <div zafu='test' class='truc' id='machin' depth='3'>my wife</div>"
+  out: "I love <div class='truc' id='machin'>[test:depth=>'3'|]my wife[/test]</div>"
+
+zafu_and_ztags:
+  in: "Hey <z:test>this is <p zafu='hello'>ok</p></z:test>"
+  out: "Hey [test:|]this is <p>[hello:|]ok[/hello]</p>[/test]"
+
+zafu_same_tag:
+  in: "Hey <p zafu='test'> is <p zafu='hello'>hello <p>cool</p></p></p>"
+  out: "Hey <p>[test:|] is <p>[hello:|]hello <p>cool</p>[/hello]</p>[/test]</p>"  
 expand_with:
   in: "this <z:test>looks </z:test> ok"
   out: "this [test:|]looks [/test] ok"
@@ -82,23 +117,25 @@ complex_example:
   in: |
     Some people say <z:hello/>
     Some say <z:include template='menu'/>
-      <ul>
+      <ul class='list' zafu='set_context' life='ok'>
         <li>truc</li>
         <li>machin</li>
+        <li zafu='test'>sunny day</li>
       </ul>
     <z:set_context var='complex'><z:include template='/default/menu'/></z:set_context>
   out: |
     Some people say hello world!
     Some say the [test:|]menu[/test] is nice
-      <ul>
+      <ul class='list'>
         <li>truc</li>
         <li>machin</li>
+        <li>[test:|life=>'ok']sunny day[/test]</li>
       </ul>
     the [test:|var=>'complex']menu[/test] is nice
 
 unknown:
   in:  "this looks bad: <z:system truc='lala'/>"
-  out: "this looks bad: <span class='zafu_unknown'>&lt;z:system truc=\"lala\"/&gt;</span>"
+  out: "this looks bad: <span class='zafu_unknown'>&lt;z:system truc='lala'/&gt;</span>"
   
 check_params:
   in: "bad <z:missing/> params"

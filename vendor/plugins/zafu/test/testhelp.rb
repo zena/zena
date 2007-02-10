@@ -16,6 +16,10 @@ class DummyHelper
       nil
     end
   end
+  
+  def template_url_for_asset(type,url)
+    "/test_#{type}/#{url}"
+  end
 end
 
 class Test::Unit::TestCase

@@ -38,7 +38,7 @@ module Zafu
     def unknown
       sp = ""
       @params.each do |k,v|
-        sp += " #{k}=#{v.inspect}"
+        sp += " #{k}=#{v.inspect.gsub("'","TMPQUOTE").gsub('"',"'").gsub("TMPQUOTE",'"')}"
       end
         
       res = "<span class='zafu_unknown'>&lt;z:#{@method}#{sp}"
@@ -130,6 +130,7 @@ module Zafu
         @blocks = []
         scan
       end
+      # puts self.inspect
     end
     
     def render(context)
@@ -205,7 +206,9 @@ module Zafu
           @blocks << $1 if $1 != ''
           @rest = @rest[$1.length..-1]
           # inside tag
-          if @rest =~ /^<z:(\w+)([^>]*?)(\/?)>/
+          # puts "MATCH(#{@method}): [#{@rest}]"
+          if @rest =~ /\A<z:(\w+)([^>]*?)(\/?)>/
+            # puts "ZTAG:[#{$&}]}"
             # z: tag
             method = $1.to_sym
             closed = ($3 != '')
@@ -219,18 +222,19 @@ module Zafu
               block.rest = ""
             end
             @blocks << block
-          elsif @rest =~ /^<(\w+)([^>]*?)zafu([^>]*?)(\/?)>/
+          elsif @rest =~ /\A<(\w+)([^>]*?)zafu\s*=([^>]*?)(\/?)>/
+            # puts "ZAFU:[#{$&}]}"
             # zafu param tag
             zafu_tag = $1
             closed = ($4 != '')
             @rest = @rest[$&.length..-1]
-            params = scan_params($2+"zafu"+$3)
+            params = scan_params($2+"zafu="+$3)
             method = params[:zafu]
             params.delete(:zafu)
             tag = "<#{zafu_tag}"
             [:class, :id].each do |key|
               if params[key]
-                tag << " #{key}=#{params[key].inspect}"
+                tag << " #{key}=#{params[key].inspect.gsub("'","TMPQUOTE").gsub('"',"'").gsub("TMPQUOTE",'"')}"
                 params.delete(key)
               end
             end
@@ -246,19 +250,22 @@ module Zafu
               @blocks << block
             end
             zafu_tag_count += 1 if zafu_tag == @zafu_tag && !closed
-          elsif @zafu_tag && @rest =~ /^<#{@zafu_tag}([^>]*?)(\/?)>/
+          elsif @zafu_tag && @rest =~ /\A<#{@zafu_tag}([^>]*?)(\/?)>/
+            # puts "SAME:[#{$&}]}"
             # simple html tag same as zafu_tag
             @blocks << $&
             @rest = @rest[$&.length..-1]
             zafu_tag_count += 1 unless $2 == '/' # count opened zafu tags to be closed before return
-          elsif @rest =~ /^<\/z:(\w+)>/
-            # z: closing
+          elsif @rest =~ /\A<\/z:(\w+)>/
+            # puts "ZCLOSE:[#{$&}]}"
+            # z: closing ztag
             @rest = @rest[$&.length..-1]
             if $1.to_sym != @method
               @blocks << "<span class='zafu_error'>#{$&.gsub('<', '&lt;').gsub('>','&gt;')}</span>"
             end
             return
-          elsif @zafu_tag && @rest =~ /^<\/#{@zafu_tag}>/
+          elsif @zafu_tag && @rest =~ /\A<\/#{@zafu_tag}>/
+            # puts "ZAFU CLOSE:[#{$&}]}"
             # zafu param tag closing
             zafu_tag_count -= 1
             if zafu_tag_count == 0
@@ -267,11 +274,44 @@ module Zafu
               @blocks << $&
               @rest = @rest[$&.length..-1]
             end
-          elsif @rest =~ /^<.*?>/
+          elsif @rest =~ /\A<(\w+)([^>]*?)(\/?)>/
+            # puts "HTML:[#{$&}]}"
             # html
+            matched = $&
+            method = $1
+            if ['link', 'img', 'script'].include?(method)
+              end_slash = $3
+              params = scan_params($2)
+              if params[:src] && params[:src][0..0] != '/'
+                case method
+                when 'link'
+                  if params[:rel].downcase == 'stylesheet'
+                    params[:src] = helper.template_url_for_asset(:stylesheet,params[:src])
+                  else
+                    params[:src] = helper.template_url_for_asset(:link, params[:src])
+                  end
+                else
+                  params[:src] = helper.template_url_for_asset(method.to_sym , params[:src])
+                end
+                res = []
+                params.each do |k,v|
+                  res << " #{k}=#{v.inspect.gsub("'","TMPQUOTE").gsub('"',"'").gsub("TMPQUOTE",'"')}"
+                end
+                @blocks << "<#{method}#{res.sort.join('')}#{end_slash}>"
+              else
+                @blocks << matched
+              end
+            else
+              @blocks << matched
+            end
+            @rest = @rest[matched.length..-1]
+          elsif @rest =~ /\A<\/\w+>/
+            # puts "HTML_CLOSE:[#{$&}]}"
+            # html close tag
             @blocks << $&
             @rest = @rest[$&.length..-1]
           else
+            # puts "NEVER:[#{$&}]}"
             # never closed tag
             @blocks << @rest
             @rest = ''
