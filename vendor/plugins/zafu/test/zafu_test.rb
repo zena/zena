@@ -1,19 +1,19 @@
 require File.join(File.dirname(__FILE__) , 'testhelp.rb')
 module Zafu
   module Rules
-    def hello
+    def z_hello
       'hello world!'
     end
     
-    def test
+    def z_test
       self.inspect
     end
     
-    def set_context
+    def z_set_context
       expand_with(@params)
     end
     
-    def missing
+    def z_missing
       return unless check_params(:good, :night)
       "nothing missing"
     end

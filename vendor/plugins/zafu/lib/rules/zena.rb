@@ -1,7 +1,7 @@
 module Zafu
   module Rules
     
-    def show
+    def z_show
       return unless check_params(:attr)
       attribute = params[:attr]
       attribute = attribute[1..-1] if attribute[0..0] == ':'
@@ -15,7 +15,7 @@ module Zafu
       end
     end
     
-    def parent
+    def z_parent
       out "<% if #{var} = #{node}.parent -%>"
       out expand_with(:node=>var)
       out "<% end -%>"
