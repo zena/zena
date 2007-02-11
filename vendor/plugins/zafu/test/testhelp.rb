@@ -21,8 +21,16 @@ class DummyHelper
     "/test_#{type}/#{url}"
   end
 end
+module Zafu
+  module TestRules
+    def z_test
+      self.inspect
+    end
+  end
+end
 
 class Test::Unit::TestCase
+  @@test_parser_class = Zafu.parser_with_rules(Zafu::TestRules)
   class << self
     def testfile(*files)
       @@test_strings = {}
@@ -82,6 +90,6 @@ class Test::Unit::TestCase
   end
   
   def do_test(strings, test)
-    Zafu::Parser.new_with_url("/#{test.to_s.gsub('_', '/')}", DummyHelper.new(strings)).render
+    @@test_parser_class.new_with_url("/#{test.to_s.gsub('_', '/')}", DummyHelper.new(strings)).render
   end
 end

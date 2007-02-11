@@ -4,32 +4,27 @@ Dir.foreach(File.join(File.dirname(__FILE__) , 'rules')) do |file|
 end
 
 module Zafu
+  class << self
+    def parser_with_rules(*modules)
+      parser = Class.new(Parser)
+      modules.each do |mod|
+        parser.send(:include, mod)
+      end
+      parser
+    end
+    def default_parser
+      Parser
+    end
+  end
+  
   class DummyHelper
     def self.method_missing(sym, *args)
       "helper needed for #{sym}(#{args.inspect})"
     end
   end
-  # just a wrapper around #Block
-  class Parser
-    class << self
-      def new_with_url(url, helper=Zafu::DummyHelper)
-        text, absolute_url = Block.find_template_text(url,helper)
-        current_folder = absolute_url ? absolute_url.split('/')[0..-2].join('/') : '/'
-        self.new(text, helper, current_folder, [absolute_url])
-      end
-    end
-        
-    def initialize(text, helper=Zafu::DummyHelper, current_folder='/', included_history=[])
-      @block = Block.new(text, :zafu, {}, helper, current_folder, included_history)
-    end
-    
-    def render(context={})
-      @block.render(context)
-    end
-  end
   
   module PreProcessorRules
-    def z_include
+    def zpre_include
       # fetch text
       text = @rest
       @rest, absolute_url = self.class.find_template_text(@params[:template], @helper, @current_folder)
@@ -77,14 +72,21 @@ module Zafu
     end
   end
   
-  # A Block contains parsed data, ready for compilation
-  class Block
+  # A Parser contains parsed data, ready for compilation
+  class Parser
     attr_reader :helper, :params, :context, :return
     attr_accessor :rest
     include Zafu::Rules
     include Zafu::PreProcessorRules
     
     class << self
+      
+      def new_with_url(url, helper=Zafu::DummyHelper)
+        text, absolute_url = self.find_template_text(url,helper)
+        current_folder = absolute_url ? absolute_url.split('/')[0..-2].join('/') : '/'
+        self.new(text, helper, :zafu, {}, current_folder, [absolute_url])
+      end
+      
       # Retrieve the template text in the current folder or as an absolute path.
       # This method is used when 'including' text
       def find_template_text(url, helper, current_folder='/')
@@ -117,7 +119,9 @@ module Zafu
     # Initialize a new zafu parser. The helper must implement the following methods :
     # template_text_for_url(absolute_url)
     # the method must return the text content or nil
-    def initialize(text, method=:zafu, params={}, helper=Zafu::DummyHelper, current_folder='/', included_history=[], zafu_tag=nil)
+    
+    def initialize(text, helper=Zafu::DummyHelper, method=:zafu, params={}, current_folder='/', included_history=[], zafu_tag=nil)
+    #def initialize(text, method=:zafu, params={}, helper=Zafu::DummyHelper, current_folder='/', included_history=[], zafu_tag=nil)
       
       @rest             = text
       @method           = method
@@ -131,18 +135,18 @@ module Zafu
       @return  = {} # this is merged into the parent's insight
       @insight = {}
       
-      if Zafu::PreProcessorRules.method_defined?("z_#{method}".to_sym)
-        self.send("z_#{method}".to_sym)
+      if self.respond_to?("zpre_#{method}".to_sym)
+        self.send("zpre_#{method}".to_sym)
       else
         scan
       end
       # puts self.inspect
     end
     
-    def render(context)
+    def render(context={})
       @context = context
       @result  = ""
-      if Zafu::Rules.method_defined?("z_#{@method}".to_sym)
+      if self.respond_to?("z_#{@method}".to_sym)
         res = self.send("z_#{@method}".to_sym)
       else
         res = z_unknown
@@ -221,10 +225,10 @@ module Zafu
             @rest = @rest[$&.length..-1]
             params = scan_params($2)
             if closed
-              block = Block.new('',method,params,@helper,@current_folder,@included_history)
+              block = self.class.new('',@helper,method,params,@current_folder,@included_history)
               @insight = @insight.merge(block.return)
             else
-              block = Block.new(@rest,method,params,@helper,@current_folder,@included_history)
+              block = self.class.new(@rest,@helper,method,params,@current_folder,@included_history)
               @insight = @insight.merge(block.return)
               @rest = block.rest
               block.rest = ""
@@ -249,11 +253,11 @@ module Zafu
             tag += ">"
             @blocks << tag
             if closed
-              block = Block.new('',method,params,@helper,@current_folder,@included_history,zafu_tag)
+              block = self.class.new('',@helper,method,params,@current_folder,@included_history,zafu_tag)
               @insight = @insight.merge(block.return)
               @blocks << block << "</#{zafu_tag}>"
             else
-              block = Block.new(@rest,method,params,@helper,@current_folder,@included_history,zafu_tag)
+              block = self.class.new(@rest,@helper,method,params,@current_folder,@included_history,zafu_tag)
               @insight = @insight.merge(block.return)
               @rest = block.rest
               block.rest = ""
