@@ -50,8 +50,8 @@ class ZazenTest < Test::Unit::TestCase
   #   assert_equal 'I say "hello mom!"', parser2.new('I say "<z:hello/>"').render
   # end
   # def test_single
-  #   file = 'zazen'
-  #   test = :code_escape
+  #   file = 'zafu_insight'
+  #   test = :with_sub_tags
   #   assert_equal eval("#{file}[test][:out]"), do_test(file, test)
   # end
     

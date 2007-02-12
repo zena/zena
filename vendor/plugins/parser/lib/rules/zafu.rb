@@ -2,32 +2,6 @@ require File.join(File.dirname(__FILE__) , 'zena')
 
 module ParserTags
   module Zafu
-    def r_set
-      copy = self.dup
-      copy.method = 'void'
-      @pass[@params[:var]] = copy
-      ""
-    end
-    def r_get
-      if block = @context[@params[:var]]
-        new_context = @context.dup
-        new_context.delete(@params[:var])
-        res = block.render(new_context)
-      else
-        expand_with
-      end
-    end
-    def r_inspect
-      expand_with
-      @blocks = []
-      self.inspect
-    end
-    
-    def r_include
-      expand_with
-      @blocks = @included_blocks
-      expand_with(@insight)
-    end
   end
 end
 
@@ -178,27 +152,6 @@ module ParserRules
         # never closed tag
         flush
       end
-    end
-  
-    def include_template
-      # fetch text
-      text = @text
-      @text, absolute_url = self.class.find_template_text(@params[:template], @options[:helper], @options[:current_folder])
-      if absolute_url
-        if @options[:included_history].include?(absolute_url)
-          @text = "<span class='zafu_error'>[include error: #{(@options[:included_history] + [absolute_url]).join(' --&gt; ')} ]</span>"
-        else
-          @options[:included_history] += [absolute_url]
-          @options[:current_folder] = absolute_url.split('/')[0..-2].join('/')
-        end
-      end
-    
-      enter(:void) # scan fetched text
-      @included_blocks = @blocks
-      
-      @blocks = []
-      @text = text
-      enter(:void) # normal scan on content
     end
   end
 end

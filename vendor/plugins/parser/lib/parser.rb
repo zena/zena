@@ -57,7 +57,7 @@ class Parser
     @blocks     = []
     
     @options = {:mode=>:void, :method=>'void'}.merge(opts)
-    @params  = @options[:params]
+    @params  = @options[:params] || {}
     @method  = @options[:method]
     mode     = @options[:mode]
     @options.delete(:params)
@@ -75,6 +75,11 @@ class Parser
     @context = context
     @result  = ""
     @pass    = {} # used to pass information to the parent
+    if blocks = @context[@params[:name]]
+      # replaced content throught name='..' param
+      @context.delete(@params[:name])
+      @blocks = blocks
+    end
     if self.respond_to?("r_#{@method}".to_sym)
       res = self.send("r_#{@method}".to_sym)
     else
@@ -88,8 +93,25 @@ class Parser
   def r_void
     expand_with
   end
-  
   alias to_s r_void
+  
+  def r_with
+    return unless @params[:part]
+    @pass[@params[:part]] = @blocks
+    ""
+  end
+  
+  def r_inspect
+    expand_with
+    @blocks = []
+    self.inspect
+  end
+  
+  def r_include
+    expand_with
+    @blocks = @included_blocks || @blocks
+    expand_with(@insight)
+  end
   
   # basic rule to display errors
   def r_unknown
@@ -107,6 +129,26 @@ class Parser
     end
   end
   
+  def include_template
+    # fetch text
+    text = @text
+    @text, absolute_url = self.class.find_template_text(@params[:template], @options[:helper], @options[:current_folder])
+    if absolute_url
+      if @options[:included_history].include?(absolute_url)
+        @text = "<span class='zafu_error'>[include error: #{(@options[:included_history] + [absolute_url]).join(' --&gt; ')} ]</span>"
+      else
+        @options[:included_history] += [absolute_url]
+        @options[:current_folder] = absolute_url.split('/')[0..-2].join('/')
+      end
+    end
+  
+    enter(:void) # scan fetched text
+    @included_blocks = @blocks
+    
+    @blocks = []
+    @text = text
+    enter(:void) # normal scan on content
+  end
   def success?
     return @ok
   end
@@ -267,7 +309,11 @@ class Parser
     insight = []
     (@insight || {}).each do |k,v|
       unless v.nil?
-        insight << "#{k.inspect.gsub('"', "'")}=>'#{v}'"
+        if v.kind_of?(Array)
+          insight << "#{k.inspect.gsub('"', "'")}=>#{v.inspect.gsub('"', "'")}"
+        else
+          insight << "#{k.inspect.gsub('"', "'")}=>'#{v.inspect.gsub('"', "'")}'"
+        end
       end
     end
     attributes << " {I #{insight.sort.join(', ')}}" unless insight == []
