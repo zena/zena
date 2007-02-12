@@ -1,30 +1,191 @@
+require 'rubygems'
+require 'syntax/convertors/html'
+require 'redcloth'
+require File.join(File.dirname(__FILE__) , 'code_syntax')
+
+module ParserTags
+  module Zazen
+    def r_void
+      @context = {:images => true, :pretty_code=>true}.merge(@context)
+      @blocks = "" # same reason as why we rewrite 'store'
+      extract_code(@text)
+      enter(:void)
+      @text = RedCloth.new(@blocks).to_html
+      @blocks = ""
+      enter(:wiki)
+      render_code(@blocks)
+      @blocks
+    end
+  end
+end
+
 module ParserRules
   module Zazen
+    def start(mode)
+      @helper = @options[:helper]
+      # we do nothing, everything is done when 'render' is called
+    end
+    
+    # rewrite store to optimize for our 'text only' parser
+    def store(str)
+      @blocks << str
+    end
+    
     def scan
-      if @text =~ /(.*?\s)!\w/
-        flush $1
-        make(:tag)
+      #puts "SCAN:[#{@text}]"
+      if @text =~ /\A([^!"<]*)/
+        flush $&
+        if @text[0..0] == '!'
+          scan_exclam
+        elsif @text[0..0] == '"'
+          scan_quote
+        elsif @text[0..4] == '<code'
+          scan_code
+        elsif @text =~ /\A([^>]*)>/
+          flush $&
+        else
+          # error never closed tag
+          flush
+        end
       else
+        # nothing interesting
         flush
       end
     end
     
-    def scan_tag
-      if @text =~ /!(\w+)/
-        @method = $1
+    def scan_exclam
+      #puts "EXCL:[#{@text}]"
+      if @text =~ /\!\[([^\]]*)\]\!/
+        # create a gallery ![...]!
         eat $&
-        enter(:param)
+        if @context[:images]
+          store @helper.make_gallery($1)
+        else
+          store @helper.trans('[gallery]')
+        end
+      elsif @text =~ /\!([^0-9]{0,2})\{([^\}]*)\}\!/
+        # list of documents !<.{...}!
+        eat $&
+        if @context[:images]
+          store @helper.list_nodes(:style=>$1, :ids=>$2)
+        else
+          store @helper.trans('[documents]')
+        end
+      elsif @text =~ /\!([^0-9]{0,2})([0-9]+)(\.([^\/\!]+)|)(\/([^\!]*)|)\!(:([^\s]+)|)/
+        # image !<.12.pv/blah blah!:12
+        eat $&
+        store @helper.make_image(:style=>$1, :id=>$2, :size=>$4, :title=>$6, :link=>$8, :images=>@context[:images])
       else
-        fail
+        # eat marker and continue scan
+        flush @text[0..0]
       end
     end
     
-    def scan_param
-      if @text =~ /(.*?)!(\s|\Z)/
-        @params = parse_params($1)
-        eat $1, 1
+    def scan_quote
+      if @text =~ /"([^"]*)":([0-9]+)/
+        eat $&
+        # link inside the cms "":34
+        store @helper.make_link(:title=>$1,:id=>$2)
       else
-        fail
+        flush @text[0..0]
+      end
+    end
+    
+    def scan_wiki
+      #puts "WIKI:[#{@text}]"
+      if @text =~ /\A([^\?])*/
+        flush $&
+        scan_wiki_link
+      else
+        # nothing interesting
+        flush
+      end
+    end
+    
+    def scan_wiki_link
+      if @text =~ /\?(\w[^\?]+?\w)\?([^\w:]|:([^\s]+))/
+        eat $&
+        title = $1
+        url   = $3
+        # wiki reference ?zafu? or ?zafu?:http://...
+        if url
+          if url =~ /[^\w0-9]$/
+            # keep trailing punctuation
+            store @helper.make_wiki_link(:title=>title, :url=>url[0..-2]) + $&
+          else
+            store @helper.make_wiki_link(:title=>title, :url=>url)
+          end
+        else
+          store @helper.make_wiki_link(:title=>title) + $2
+        end
+      else
+        # false alert
+        flush @text[0..0]
+      end
+    end
+    
+    
+    def extract_code(text)
+      @escaped_at = []
+      block_counter = -1
+      text.gsub!( /(\A|[^\w])@(.*?)@(\Z|[^\w])/ ) do
+        @escaped_at << $2
+        block_counter += 1
+        "#{$1}\\ZAZENBLOCKAT#{block_counter}ZAZENBLOCKAT\\#{$3}"
+      end
+  
+      @escaped_code = []
+      block_counter = -1
+      text.gsub!( /<code([^>]*)>(.*?)<\/code>/m ) do
+        params, text = $1, $2
+        divparams = []
+        if params =~ /^(.*)lang\s*=\s*("|')([^"']+)\2(.*)$/
+          pre, lang, post = $1.strip, $3, $4.strip
+          divparams << pre if pre && pre != ""
+          divparams << post if post && post != ""
+        else
+          divparams << params.strip if params != ''
+          lang = ''
+        end
+        #divparams << "class='code'" unless params =~ /class\s*=/
+        divparams.unshift('') if divparams != []
+        @escaped_code << [lang, text]
+        block_counter += 1
+        "<pre#{divparams.join(' ')}>\\ZAZENBLOCKCODE#{block_counter}ZAZENBLOCKCODE\\</pre>"
+      end
+    end
+    
+    def render_code(text)
+      text.gsub!( /\\ZAZENBLOCKCODE(\d+)ZAZENBLOCKCODE\\/ ) do
+        lang, text = *(@escaped_code[$1.to_i])
+        if lang != ''
+          code_tag = "<code class='#{lang}'>"
+        else
+          code_tag = '<code>'
+        end
+        if Syntax::SYNTAX[lang] && @context[:pretty_code]
+          convertor = Syntax::Convertors::HTML.for_syntax(lang)
+          "#{code_tag}#{convertor.convert( text, false )}</code>"
+        else
+          RedCloth.new("#{code_tag}#{text}</code>").to_html
+        end
+      end
+      
+      text.gsub!( /\\ZAZENBLOCKAT(\d+)ZAZENBLOCKAT\\/ ) do
+        text = @escaped_at[$1.to_i]
+        if text =~ /^(\w+)\|/ && Syntax::SYNTAX[$1]
+          lang = $1
+          if @context[:pretty_code]
+            convertor = Syntax::Convertors::HTML.for_syntax(lang)
+            res = convertor.convert( text[(lang.length+1)..-1], false )
+          else
+            res = text[(lang.length+1)..-1]
+          end
+          res = "<code class='#{lang}'>#{res}</code>"
+        else
+          res = RedCloth.new("<code>#{text}</code>").to_html
+        end
+        res
       end
     end
   end

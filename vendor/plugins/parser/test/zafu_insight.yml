@@ -1,0 +1,15 @@
+simple:
+  in: "<z:inspect><z:set var='a'>this is 'a'</z:set><z:set var='b'>this is 'b'</z:set></z:inspect>"
+  out: "[inspect {I 'a'=>'this is 'a'', 'b'=>'this is 'b''}/]"
+
+with_sub_tags:
+  in: "<z:inspect><z:set var='hello'>I say <h3 zafu='hello'>hello</h3></z:set></z:inspect>"
+  out: "[inspect {I 'hello'=>'I say <h3>hello world!</h3>'}/]"
+
+menu:
+  in: "var a: <z:set_context menu='true'><z:get var='a'><z:hello/></z:get></z:set_context>"
+  out: "var a: hello world!"
+
+include:
+  in: "<z:include template='/menu'><z:set var='a'>do <z:inspect/></z:set></z:include>"
+  out: "var a: do [inspect {C :menu=>'true'}/]"

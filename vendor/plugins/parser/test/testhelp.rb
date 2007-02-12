@@ -1,9 +1,9 @@
 require 'test/unit'
 require 'yaml'
-require File.join(File.dirname(__FILE__) , '..', 'lib', 'zafu')
+require File.join(File.dirname(__FILE__) , '..', 'lib', 'parser')
 
 class DummyHelper
-  def initialize(strings)
+  def initialize(strings = {})
     @strings = strings
   end
   
@@ -20,21 +20,31 @@ class DummyHelper
   def template_url_for_asset(type,url)
     "/test_#{type}/#{url}"
   end
-end
-module Zafu
-  module TestRules
-    def z_test
-      self.inspect
+  
+  def method_missing(sym, *args)
+    arguments = args.map do |arg|
+      if arg.kind_of?(Hash)
+        res = []
+        arg.each do |k,v|
+          unless v.nil?
+            res << "#{k}:#{v.inspect.gsub(/'|"/, "|")}"
+          end
+        end
+        res.sort.join(' ')
+      else
+        arg.inspect.gsub(/'|"/, "|")
+      end
     end
+    res = "[#{sym} #{arguments.join(' ')}]"
   end
 end
 
 class Test::Unit::TestCase
-  @@test_parser_class = Zafu.parser_with_rules(Zafu::TestRules)
   class << self
     def testfile(*files)
       @@test_strings = {}
       @@test_methods = {}
+      @@test_parsers = {}
       @@test_files = []
       files.each do |file|
         file = file.to_s
@@ -57,6 +67,8 @@ class Test::Unit::TestCase
           end
         END
         @@test_strings[file] = strings.freeze
+        mod_name = file.split("_").first.capitalize
+        @@test_parsers[file] = Parser.parser_with_rules(eval("ParserRules::#{mod_name}"), eval("ParserTags::#{mod_name}"))
         @@test_methods[file] = test_methods
         @@test_files << file
       end
@@ -73,13 +85,13 @@ class Test::Unit::TestCase
               # regex test
               class_eval <<-END
                 def test_#{tf}_#{test}
-                  assert_match %r{#{@@test_strings[tf][test.to_sym][:out][1..-2]}}m, do_test(#{tf},#{test.inspect})
+                  assert_match %r{#{@@test_strings[tf][test.to_sym][:out][1..-2]}}m, do_test(#{tf.inspect},#{test.inspect})
                 end
               END
             else
               class_eval <<-END
                 def test_#{tf}_#{test}
-                  assert_equal #{tf}[:#{test}][:out], do_test(#{tf},#{test.inspect})
+                  assert_equal #{tf}[:#{test}][:out], do_test(#{tf.inspect},#{test.inspect})
                 end
               END
             end
@@ -89,7 +101,7 @@ class Test::Unit::TestCase
     end
   end
   
-  def do_test(strings, test)
-    @@test_parser_class.new_with_url("/#{test.to_s.gsub('_', '/')}", DummyHelper.new(strings)).render
+  def do_test(file, test)
+    @@test_parsers[file].new_with_url("/#{test.to_s.gsub('_', '/')}", DummyHelper.new(@@test_strings[file])).render
   end
 end
