@@ -2,10 +2,10 @@ Dir.foreach(File.join(File.dirname(__FILE__) , 'rules')) do |file|
   next if file =~ /^\./
   require File.join(File.dirname(__FILE__) , 'rules', file)
 end
-
 class Parser
   attr_accessor :text, :method
   attr_accessor :pass
+    
   class << self
     def parser_with_rules(*modules)
       parser = Class.new(Parser)
@@ -110,7 +110,7 @@ class Parser
   def r_include
     expand_with
     @blocks = @included_blocks || @blocks
-    expand_with(@insight)
+    expand_with(@pass)
   end
   
   # basic rule to display errors
@@ -276,13 +276,13 @@ class Parser
   
   def expand_with(new_context={})
     res = ""
-    @insight = {} # current object sees some information from it's descendants
+    @pass = {} # current object sees some information from it's descendants
     @blocks.each do |b|
       if b.kind_of?(String)
         res << b
       else
         res << b.render(@context.merge(new_context))
-        @insight.merge!(b.pass)
+        @pass.merge!(b.pass)
       end
     end
     res
@@ -296,7 +296,7 @@ class Parser
         params << "#{k.inspect.gsub('"', "'")}=>'#{v}'"
       end
     end
-    attributes << " {P #{params.sort.join(', ')}}" unless params == []
+    attributes << " {= #{params.sort.join(', ')}}" unless params == []
     
     context = []
     (@context || {}).each do |k,v|
@@ -304,19 +304,19 @@ class Parser
         context << "#{k.inspect.gsub('"', "'")}=>'#{v}'"
       end
     end
-    attributes << " {C #{context.sort.join(', ')}}" unless context == []
+    attributes << " {> #{context.sort.join(', ')}}" unless context == []
     
-    insight = []
-    (@insight || {}).each do |k,v|
+    pass = []
+    (@pass || {}).each do |k,v|
       unless v.nil?
         if v.kind_of?(Array)
-          insight << "#{k.inspect.gsub('"', "'")}=>#{v.inspect.gsub('"', "'")}"
+          pass << "#{k.inspect.gsub('"', "'")}=>#{v.inspect.gsub('"', "'")}"
         else
-          insight << "#{k.inspect.gsub('"', "'")}=>'#{v.inspect.gsub('"', "'")}'"
+          pass << "#{k.inspect.gsub('"', "'")}=>'#{v.inspect.gsub('"', "'")}'"
         end
       end
     end
-    attributes << " {I #{insight.sort.join(', ')}}" unless insight == []
+    attributes << " {< #{pass.sort.join(', ')}}" unless pass == []
     
     res = []
     @blocks.each do |b|

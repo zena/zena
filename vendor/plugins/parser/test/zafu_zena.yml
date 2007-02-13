@@ -17,3 +17,40 @@ parent:
 show_in_parent:
   in:  "my <z:parent><z:show attr='name'/></z:parent>"
   out: "my <% if var1 = @node.parent -%><%= var1[:name] %><% end -%>"
+
+javascripts:
+  in: "<z:javascripts list='prototype,effects,zena'/>"
+  out: "[javascript_include_tag |prototype,effects,zena|]"
+
+uses_calendar:
+  in: "<z:uses_calendar/>"
+  out: "[uses_calendar ]"
+
+lang_links:
+  in: "<div id='lang' zafu='lang_links'><a>en</a> | <b>fr</b></div>"
+  out: "<div id='lang'>[lang_links ]</div>"
+
+path_links:
+  in: "<div id='path' zafu='path_links'><ul><li><a href='#'>first</a></li> / <li><a href='#'>second</a></li> / <li><a href='#' class='current'>here</a></li></ul></div>"
+  out: "<div id='path'>[path_links node:|@node|]</div>"
+  
+login_link:
+  in: "<div id='login' zafu='login_link'><a href='#'>login</a></div>"
+  out: "<div id='login'>[login_link ]</div>"
+
+visitor_link:
+  in: "<div id='visitor' zafu='visitor_link'><a href='#'>visitor name</a></div>"
+  out: "<div id='visitor'>[visitor_link ]</div>"
+
+search_box:
+  in: "<div id='search' zafu='search_box'><div class='search'><form><input type='text' id='search' name='search'/></form></div></div>"
+  out: "<div id='search'>[search_box ]</div>"
+
+menu:
+  in: "<div id='menu' zafu='menu'/>"
+  out: "<div id='menu'>[menu ]</div>"
+
+logo_src:
+  in: "<div id='logo' zafu='link' href='root'><img src='img/logo.png' width='220' height='100'/></div>"
+  out: "<div id='logo'>[node_link href:|root| text:|<img height=|100| src=|/test_img/img/logo.png| width=|220|/>|]</div>"
+

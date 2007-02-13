@@ -64,7 +64,7 @@ zafu_tag_with_ztags:
 
 zafu_keep_params:
   in: "I love <div zafu='test' class='truc' id='machin' depth='3'>my wife</div>"
-  out: "I love <div class='truc' id='machin'>[test {P :depth=>'3'}]my wife[/test]</div>"
+  out: "I love <div class='truc' id='machin'>[test {= :depth=>'3'}]my wife[/test]</div>"
 
 zafu_and_ztags:
   in: "Hey <z:test>this is <p zafu='hello'>ok</p></z:test>"
@@ -79,7 +79,7 @@ expand_with:
   
 params:
   in: "some <z:test good='choice' nice='work'>things</z:test> are fine"
-  out: "some [test {P :good=>'choice', :nice=>'work'}]things[/test] are fine"
+  out: "some [test {= :good=>'choice', :nice=>'work'}]things[/test] are fine"
 
 default_menu:
   in: "the <z:test>menu</z:test> is nice"
@@ -111,11 +111,11 @@ other_context:
 
 set_context:
   in: "out:<z:test/> <z:set_context truc='machin'>in:<z:test/></z:set_context> out:<z:test/>"
-  out: "out:[test/] in:[test {C :truc=>'machin'}/] out:[test/]"
+  out: "out:[test/] in:[test {> :truc=>'machin'}/] out:[test/]"
   
 nested_set_context:
   in: "<z:set_context var1='out' var2='foo'>1:<z:test/><z:set_context var1='in'>2:<z:test/></z:set_context>3:<z:test/></z:set_context>"
-  out: "1:[test {C :var1=>'out', :var2=>'foo'}/]2:[test {C :var1=>'in', :var2=>'foo'}/]3:[test {C :var1=>'out', :var2=>'foo'}/]"
+  out: "1:[test {> :var1=>'out', :var2=>'foo'}/]2:[test {> :var1=>'in', :var2=>'foo'}/]3:[test {> :var1=>'out', :var2=>'foo'}/]"
 
 complex_example:
   in: |
@@ -133,9 +133,9 @@ complex_example:
       <ul class='list'>
         <li>truc</li>
         <li>machin</li>
-        <li>[test {C :life=>'ok'}]sunny day[/test]</li>
+        <li>[test {> :life=>'ok'}]sunny day[/test]</li>
       </ul>
-    the [test {C :var=>'complex'}]menu[/test] is nice
+    the [test {> :var=>'complex'}]menu[/test] is nice
 
 unknown:
   in:  "this looks bad: <z:system truc='lala'/>"
