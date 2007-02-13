@@ -71,7 +71,7 @@ class Node < ActiveRecord::Base
     
     # Find an node by it's full path. Cache 'fullpath' if found.
     def find_by_path(path)
-      node = Node.find_by_fullpath(path.join('/'))
+      node = self.find_by_fullpath(path.join('/'))
       if node.nil?
         last = path.pop
         Node.with_exclusive_scope do
@@ -80,7 +80,7 @@ class Node < ActiveRecord::Base
             raise ActiveRecord::RecordNotFound unless node = Node.find_by_name_and_parent_id(p, node[:id])
           end
         end
-        raise ActiveRecord::RecordNotFound unless node = Node.find_by_name_and_parent_id(last, node[:id])
+        raise ActiveRecord::RecordNotFound unless node = self.find_by_name_and_parent_id(last, node[:id])
         path << last
         node.fullpath = path.join('/')
         # bypass callbacks here

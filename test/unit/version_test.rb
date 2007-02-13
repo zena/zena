@@ -3,7 +3,7 @@ class VersionTest < Test::Unit::TestCase
   include ZenaTestUnit
   
   def version(sym)
-    secure(Node) { nodes(sym) }.send(:version)
+    secure(Node) { nodes(sym) }.version
   end
   
   def test_author
@@ -47,29 +47,29 @@ class VersionTest < Test::Unit::TestCase
   def test_version_number_edit_by_attribute
     test_visitor(:ant)
     node = secure(Node) { nodes(:ant) }
-    version = node.send(:version)
+    version = node.version
     assert_equal 1, version.number
     # edit
     node.v_title='new title'
-    version = node.send(:version)
+    version = node.version
     assert_nil version.number
     # save
     assert node.save, "Node can be saved"
     # version number changed
-    version = node.send(:version)
+    version = node.version
     assert_equal 2, version.number
   end
     
   def test_version_number_edit
     test_visitor(:ant)
     node = secure(Node) { nodes(:ant) }
-    version = node.send(:version)
+    version = node.version
     assert_equal 1, version.number
     # can edit
     assert node.update_attributes(:v_title=>'new title')
     # saved
     # version number changed
-    version = node.send(:version)
+    version = node.version
     assert_equal 2, version.number
   end
   

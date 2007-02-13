@@ -4,11 +4,11 @@ show_name:
 
 show_v_text:
   in:  "my <z:show attr=':v_text'/>"
-  out: "my <%= @node.send(:version)[:text] %>"
+  out: "my <%= @node.version[:text] %>"
 
 show_c_width:
   in:  "my <z:show attr=':c_width'/>"
-  out: "my <%= @node.send(:version).content[:width] %>"
+  out: "my <%= @node.version.content[:width] %>"
 
 parent:
   in:  "my <z:parent>hello</z:parent>"

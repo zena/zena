@@ -185,7 +185,7 @@ benchmark:
    Which compiles as : 
 
    <code lang='erb' class='large'> 
-   <h3><%= @node.send(:version)[:title] %></h3> 
+   <h3><%= @node.version[:title] %></h3> 
      <% if var1 = @node.children -%> 
        <ul> 
          <% var1.each do |var2| -%><li><%= make_link(var2) %></li><% end -%> 

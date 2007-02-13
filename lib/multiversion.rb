@@ -258,6 +258,50 @@ module Zena
           end
         end
         
+        # Return the current version. If @version was not set, this is a normal find or a new record. We have to find
+        # a suitable edition :
+        # * if new_record?, create a new redaction
+        # * find user redaction or proposition in the current lang 
+        # * find an edition for current lang
+        # * find an edition in the reference lang for this node
+        # * find the first publication
+        def version #:doc:
+          if ! @version
+            if new_record?
+              @version = version_class.new
+              @version.user_id = @visitor_id || nil
+              @version.lang = @visitor_lang || nil
+              @version.status = Zena::Status[:red]
+              @version.node = self
+            elsif can_drive?
+              # sees propositions
+              lang = visitor_lang.gsub(/[^\w]/,'')
+              @version =  Version.find(:first,
+                            :select=>"*, (lang = '#{lang}') as lang_ok, (lang = '#{ref_lang}') as ref_ok",
+                            :conditions=>[ "((status >= ? AND user_id = ? AND lang = ?) OR status > ?) AND node_id = ?", 
+                                            Zena::Status[:red], visitor_id, lang, Zena::Status[:red], self[:id] ],
+                            :order=>"lang_ok DESC, ref_ok DESC, status ASC ")
+              if !@version
+                @version = versions.find(:first, :order=>'id DESC')
+              end
+            else
+              # only own redactions and published versions
+              lang = visitor_lang.gsub(/[^\w]/,'')
+              @version =  Version.find(:first,
+                            :select=>"*, (lang = '#{lang}') as lang_ok, (lang = '#{ref_lang}') as ref_ok",
+                            :conditions=>[ "((status >= ? AND user_id = ? AND lang = ?) OR status = ?) and node_id = ?", 
+                                            Zena::Status[:red], visitor_id, lang, Zena::Status[:pub], self[:id] ],
+                            :order=>"lang_ok DESC, ref_ok DESC, status ASC, publish_from ASC")
+
+            end
+            @version.node = self # preload self as node in version
+          end
+          if @version.nil?
+            raise Exception.exception("Node #{self[:id]} does not have any version !!")
+          end
+          @version
+        end
+        
         private
         
         def update_attribute_without_fuss(att, value)
@@ -349,50 +393,6 @@ module Zena
               errors.add(k,v)
             end
           end
-        end
-        
-        # Return the current version. If @version was not set, this is a normal find or a new record. We have to find
-        # a suitable edition :
-        # * if new_record?, create a new redaction
-        # * find user redaction or proposition in the current lang 
-        # * find an edition for current lang
-        # * find an edition in the reference lang for this node
-        # * find the first publication
-        def version #:doc:
-          if ! @version
-            if new_record?
-              @version = version_class.new
-              @version.user_id = @visitor_id || nil
-              @version.lang = @visitor_lang || nil
-              @version.status = Zena::Status[:red]
-              @version.node = self
-            elsif can_drive?
-              # sees propositions
-              lang = visitor_lang.gsub(/[^\w]/,'')
-              @version =  Version.find(:first,
-                            :select=>"*, (lang = '#{lang}') as lang_ok, (lang = '#{ref_lang}') as ref_ok",
-                            :conditions=>[ "((status >= ? AND user_id = ? AND lang = ?) OR status > ?) AND node_id = ?", 
-                                            Zena::Status[:red], visitor_id, lang, Zena::Status[:red], self[:id] ],
-                            :order=>"lang_ok DESC, ref_ok DESC, status ASC ")
-              if !@version
-                @version = versions.find(:first, :order=>'id DESC')
-              end
-            else
-              # only own redactions and published versions
-              lang = visitor_lang.gsub(/[^\w]/,'')
-              @version =  Version.find(:first,
-                            :select=>"*, (lang = '#{lang}') as lang_ok, (lang = '#{ref_lang}') as ref_ok",
-                            :conditions=>[ "((status >= ? AND user_id = ? AND lang = ?) OR status = ?) and node_id = ?", 
-                                            Zena::Status[:red], visitor_id, lang, Zena::Status[:pub], self[:id] ],
-                            :order=>"lang_ok DESC, ref_ok DESC, status ASC, publish_from ASC")
-
-            end
-            @version.node = self # preload self as node in version
-          end
-          if @version.nil?
-            raise Exception.exception("Node #{self[:id]} does not have any version !!")
-          end
-          @version
         end
         
         def version_class

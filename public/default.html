@@ -19,7 +19,7 @@
   <div class="navbar">
     <div id='lang' zafu='lang_links'><a>en</a> | <b>fr</b></div>
     <div id='path' zafu='path_links'><ul><li><a href='#'>first</a></li> / <li><a href='#'>second</a></li> / <li><a href='#' class='current'>here</a></li></ul></div>
-    <div id='logout' zafu='login_link'><a href='#'>login</a></div>
+    <div id='login' zafu='login_link'><a href='#'>login</a></div>
     <div id='visitor' zafu='visitor_link'><a href='#'>visitor name</a></div>
     <div id='search' zafu='search_box'><div class='search'><form><input type='text' id='search' name='search'/></form></div></div>
   </div>
@@ -40,6 +40,11 @@
   </div>
   <div id="main">
     
+    <h1 class='title' zafu='show' attr='title' status='true' actions='all'><div class='s50'>page title
+      <ul class='actions'><li><a><img src='images/page_edit.png'/></a></li><li><a><img src='images/wand.png'/></a></li></ul></div>
+    </h1>
+    <div class='subtitle'><%= author(:large) %><%#= plug :links %></div>
+
     <%= render :partial=>title_partial %>
       
     <div class="content" id='content'>

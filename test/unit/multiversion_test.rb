@@ -34,7 +34,7 @@ class MultiVersionTest < Test::Unit::TestCase
     test_visitor(:tiger)
     node = secure(Node) { nodes(:zena) }
     node.edit!
-    node.send(:version).instance_eval { @content = @redaction_content = content }
+    node.version.instance_eval { @content = @redaction_content = content }
     assert_equal 'hello', node.c_hello
     assert_equal 'guys', node.c_name
     node.c_hello = 'Thanks'

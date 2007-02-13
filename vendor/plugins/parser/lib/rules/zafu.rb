@@ -1,12 +1,12 @@
 require File.join(File.dirname(__FILE__) , 'zena')
 
-module ParserTags
-  module Zafu
+module Zafu
+  module Tags
   end
 end
 
-module ParserRules
-  module Zafu
+module Zafu
+  module Rules
     def start(mode)
       if @options[:zafu_tag]
         @zafu_tag_count = 1
@@ -125,12 +125,12 @@ module ParserRules
           case method
           when 'link'
             if params[:rel].downcase == 'stylesheet'
-              params[:src] = @options[:helper].template_url_for_asset(:stylesheet,params[:src])
+              params[:src] = @options[:helper].send(:template_url_for_asset, :stylesheet , params[:src])
             else
-              params[:src] = @options[:helper].template_url_for_asset(:link, params[:src])
+              params[:src] = @options[:helper].send(:template_url_for_asset, :link, params[:src])
             end
           else
-            params[:src] = @options[:helper].template_url_for_asset(method.to_sym , params[:src])
+            params[:src] = @options[:helper].send(:template_url_for_asset, method.to_sym , params[:src])
           end
           store "<#{method}"
           res = []

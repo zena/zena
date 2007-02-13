@@ -54,7 +54,7 @@ input, textarea { font:inherit; padding:2px;}
 /* navbar */
 .navbar { width:100%; height:25px; background:#450009;font-size:0.85em;}
 .navbar a { color:white; }
-#lang, #path, #logout, #visitor { padding:0.4em 0.8em;}
+#lang, #path, #login, #visitor { padding:0.4em 0.8em;}
 #lang { margin-left:250px; float:left;}
 #lang.empty { padding:0; }
 #lang b { font-weight:normal; color:white;}
@@ -62,7 +62,7 @@ input, textarea { font:inherit; padding:2px;}
 #path a.current { color:white;}
 #path { float:left; }
 #path li { display:inline;}
-#logout, #visitor, #search { float:right; }
+#login, #visitor, #search { float:right; }
 #search { position:relative; font-size:0.9em;}
 .search { position:absolute; z-index:999; right:0; top:4px; padding:0;}
 .search a { color:inherit;}
@@ -88,13 +88,13 @@ input, textarea { font:inherit; padding:2px;}
 .menu ul li:hover ul li:hover ul li:hover ul li:hover ul { display: block; }
 .menu ul li:hover ul li:hover ul li:hover ul li:hover ul li:hover ul { display: block; }
 
-/* ITEM ACTIONS */
-.node_actions { display:inline;}
-.node_actions li { display:inline; margin:0 5px; border:0;}
-.node_actions li:first-child { margin-left:0;}
-.s50 .node_actions { visibility:hidden; }
-.s50:hover .node_actions { visibility:visible; }
-.node_actions li:hover a { border-bottom:5px solid orange; }
+/* ACTIONS */
+.actions { display:inline;}
+.actions li { display:inline; margin:0 5px; border:0;}
+.actions li:first-child { margin-left:0;}
+.s50 .actions { visibility:hidden; }
+.s50:hover .actions { visibility:visible; }
+.actions li:hover a { border-bottom:5px solid orange; }
 
 .node_actions:hover { visibility:visible;  }
 
@@ -168,11 +168,11 @@ input, textarea { border:1px solid grey; margin:0.2em}
 
 /* MAIN CONTENT */
 #main {margin-top:5em;  margin-left:260px; width:890px; }
-#main .header h1 {  font-size:2.5em; margin-bottom:0.17em;}
-.header h1, .text h1, .text h2, .text h3 { font-family: Georgia, Times, serif ; font-style:italic; color:#450009;}
-#main .header .wrong_lang {font-size:0.5em;}
-#main .note .wrong_lang {font-size:1em;}
-#left .header .wrong_lang {font-size:0.6em;}
+h1.title {  font-size:2.5em; margin-bottom:0.17em;}
+h1, h2, h3 { font-family: Georgia, Times, serif ; font-style:italic; color:#450009;}
+.wrong_lang {font-size:0.5em;}
+.note .wrong_lang {font-size:1em;}
+.title .wrong_lang {font-size:0.6em;}
 #content { float:left; width:630px; padding:0 22px 200px 0; margin-top:1em;}
 #left .content { padding-top:10px;}
 #left .header h1 { font-size:1.3em; margin-top:1.2em; margin-bottom:0.5em;}
@@ -327,8 +327,8 @@ border:1px solid #DDDBC1; border-width:1px 0 0 1px; font-size:0.8em;}
 .note .node_actions a { border:0;}
 */
 
-.note .li_s50 .node_actions { visibility:hidden;}
-.note .li_s50:hover .node_actions { visibility:visible;}
+.note .li_s50 .actions { visibility:hidden;}
+.note .li_s50:hover .actions { visibility:visible;}
 .note .text   { clear:both; margin-left:60px; margin-bottom:0.3em; margin-top:10px; }
 .note .text p { margin-top:1.5em; margin-bottom:0;}
 .note .text p:first-child {margin-top:0;}

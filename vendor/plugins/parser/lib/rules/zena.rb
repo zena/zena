@@ -1,29 +1,34 @@
-module ParserTags
-  module Zafu
+module Zena
+  module Tags
     class << self
-      def expose_methods(*args)
+      def inline_methods(*args)
         args.each do |name|
           class_eval <<-END
             def r_#{name}
-              helper.#{name}(@params)
+              "<%= #{name}(:node=>\#{node}) %>"
             end
           END
         end
       end
     end
-    expose_methods :uses_calendar, :lang_links, :login_link, :visitor_link, :search_box, :menu
+    inline_methods :login_link, :visitor_link, :search_box, :menu, :path_links, :lang_links, :uses_calendar
     def r_show
       return unless check_params(:attr)
       attribute = @params[:attr]
       attribute = attribute[1..-1] if attribute[0..0] == ':'
       case attribute[0..1]
       when 'v_'
-        "<%= #{node}.send(:version)[:#{attribute[2..-1]}] %>"
+        "<%= #{node}.version[:#{attribute[2..-1]}] %>"
       when 'c_'
-        "<%= #{node}.send(:version).content[:#{attribute[2..-1]}] %>"
+        "<%= #{node}.version.content[:#{attribute[2..-1]}] %>"
       else
         "<%= #{node}[:#{attribute}] %>"
       end
+    end
+    
+    # convenience tag. Does the same as <z:show attr='v_title'/>
+    def r_title
+      "<%= #{node}.version[:title] %>"
     end
 
     def r_parent
@@ -32,12 +37,16 @@ module ParserTags
       out "<% end -%>"
     end
     
+    # we cannot directly render this (running in controller, not in view...)
     def r_javascripts
-      helper.javascript_include_tag(@params[:list])
+      list = @params[:list].split(',').map{|e| e.strip}
+      helper.javascript_include_tag(*list)
     end
     
-    def r_path_links
-      helper.path_links(:node=>node)
+    # we cannot directly render this (running in controller, not in view...)
+    def r_stylesheets
+      list = @params[:list].split(',').map{|e| e.strip}
+      helper.stylesheet_link_tag(*list)
     end
     
     def r_link

@@ -14,7 +14,8 @@ class Parser
       end
       parser
     end
-    def new_with_url(url, helper=Zafu::DummyHelper)
+    def new_with_url(url, opts={})
+      helper = opts[:helper] || Zafu::DummyHelper
       text, absolute_url = self.find_template_text(url,helper)
       current_folder = absolute_url ? absolute_url.split('/')[0..-2].join('/') : '/'
       self.new(text, :helper=>helper, :current_folder=>current_folder, :included_history=>[absolute_url])
@@ -39,7 +40,7 @@ class Parser
       
       text = absolute_url = nil
       urls.each do |template_url|
-        if text = helper.template_text_for_url(template_url)
+        if text = helper.send(:template_text_for_url,template_url)
           absolute_url = template_url
           break
         end

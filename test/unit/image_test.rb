@@ -15,7 +15,7 @@ class ImageTest < Test::Unit::TestCase
       assert_equal "birdy", img.name
       assert ! img.v_new_record? , "Version is not a new record"
       assert_nil img.v_content_id , "content_id is nil"
-      assert_kind_of ImageVersion , img.send(:version)
+      assert_kind_of ImageVersion , img.version
       assert_equal 'jpg', img.c_ext
       assert_equal "661x600", "#{img.c_width}x#{img.c_height}"
       assert_equal "/jpg/#{img.v_id}/birdy.jpg", img.c_path

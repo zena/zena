@@ -2,7 +2,7 @@
 # Likewise, all the methods added will be available for all controllers.
 class ApplicationController < ActionController::Base
   acts_as_secure_controller
-  helper_method :prefix, :node_url, :notes, :error_messages_for, :render_errors, :add_error
+  helper_method :prefix, :node_url, :notes, :error_messages_for, :render_errors, :add_error, :data_url
   helper 'main'
   before_filter :authorize
   before_filter :set_env
@@ -157,6 +157,14 @@ class ApplicationController < ActionController::Base
   end
   
   # /////// The following methods are common to controllers and views //////////// #
+  
+  def data_url(obj)
+    if obj.kind_of?(Document)
+      {:controller=>'document', :action=>'data', :version_id=>obj.v_id, :filename=>obj.c_filename, :ext=>obj.c_ext}
+    else
+      raise StandardError, "Cannot create 'data_url' for #{obj.class}."
+    end
+  end
   
   def node_url(obj)
     if obj[:id] == ZENA_ENV[:root_id]

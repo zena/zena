@@ -3,8 +3,8 @@ require 'syntax/convertors/html'
 require 'redcloth'
 require File.join(File.dirname(__FILE__) , 'code_syntax')
 
-module ParserTags
-  module Zazen
+module Zazen
+  module Tags
     def r_void
       @context = {:images => true, :pretty_code=>true}.merge(@context)
       @blocks = "" # same reason as why we rewrite 'store'
@@ -19,8 +19,8 @@ module ParserTags
   end
 end
 
-module ParserRules
-  module Zazen
+module Zazen
+  module Rules
     def start(mode)
       @helper = @options[:helper]
       # we do nothing, everything is done when 'render' is called

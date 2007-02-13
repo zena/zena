@@ -3,6 +3,10 @@ module ApplicationHelper
   include Zena::Acts::SecureScope
   include Zena::Acts::SecureController::InstanceMethods
   
+  def truc
+    session.to_s
+  end
+  
   # helpers to include clean javascript
   def javascript( string )
     javascript_start +
@@ -16,25 +20,6 @@ module ApplicationHelper
   
   def javascript_end
     "\n// ]]>\n</script>"
-  end
-  
-  # Calendar seizure setup
-  def uses_calendar
-    if ZENA_ENV[:calendar_langs].include?(lang)
-      l = lang
-    else
-      l = ZENA_ENV[:default_lang]
-    end
-    <<-EOL
-    <script src="/calendar/calendar.js" type="text/javascript"></script>
-    <script src="/calendar/calendar-setup.js" type="text/javascript"></script>
-    <script src="/calendar/lang/calendar-#{lang}-utf8.js" type="text/javascript"></script>
-    <link href="/calendar/calendar-brown.css" media="screen" rel="Stylesheet" type="text/css" />
-    #{javascript_start}
-    Calendar._TT["DEF_DATE_FORMAT"] = "#{transb('datetime')}";
-    Calendar._TT["FIRST_DAY"] = #{transb('week_start_day')};
-    #{javascript_end}
-    EOL
   end
   
   # Date selection tool
@@ -181,7 +166,7 @@ module ApplicationHelper
   end
   
   # Show visitor name if logged in
-  def visitor_link
+  def visitor_link(opts={})
     if session[:user]
       "<div id='visitor'>" + link_to( visitor.fullname, user_home_url ) + "</div>"
     else
@@ -370,14 +355,6 @@ module ApplicationHelper
     prefix + render_to_string( :partial=>'main/list_nodes', :locals=>{:docs=>docs}) + suffix
   end
   
-  def data_url(obj)
-    if obj.kind_of?(Document)
-      {:controller=>'document', :action=>'data', :version_id=>obj.v_id, :filename=>obj.c_filename, :ext=>obj.c_ext}
-    else
-      raise StandardError, "Cannot create 'data_url' for #{obj.class}."
-    end
-  end
-  
   # return a readable text version of a file size
   def fsize(size)
     size = size.to_f
@@ -393,7 +370,7 @@ module ApplicationHelper
   end
   
   # Hierachical menu. (same on all pages)
-  def show_menu
+  def menu(opts={})
     Cache.with(visitor.id, visitor.group_ids, Page.kpath, 'show_menu') do
       if ZENA_ENV[:menu_tag_id] !=nil
         menu  = secure(Tag) { Tag.find(ZENA_ENV[:menu_tag_id]) }
@@ -850,7 +827,8 @@ ENDTXT
   end
   
   # show current path with links to ancestors
-  def path_links(node=@node)
+  def path_links(opts={})
+    node = opts[:node] || @node
     nav = []
     node.ancestors.each do |obj|
       nav << link_to(obj.name, node_url(obj))
@@ -860,7 +838,32 @@ ENDTXT
     res = "<ul class='path'>"
     "#{res}<li>#{nav.join(" / </li><li>")}</li></ul>"
   end
-
+  
+  # TODO: test
+  def node_link(opts={})
+    options = {:node=>@node, :href=>'self'}.merge(opts)
+    text = options[:text] || options[:node].v_title
+    node = options[:node]
+    case options[:href]
+    when 'self'
+      url = node_url(node)
+    when 'root'
+      root = secure(Node) { Node.find(ZENA_ENV[:root_id])}
+      url = node_url(root)
+    when 'parent'
+      if parent = node.parent
+        url = node_url(parent)
+      else
+        url = node_url(node)
+      end
+    when 'project'
+      url = node_url(node.project)
+    else
+      url = node_url(node)
+    end
+    link_to(text,url)
+  end
+  
   # shows links for site features
   def show_link(link, opt={})
     case link
@@ -896,9 +899,28 @@ ENDTXT
       ''
     end
   end
-
+  
+  # Calendar seizure setup
+  def uses_calendar(opt={})
+    if ZENA_ENV[:calendar_langs].include?(lang)
+      l = lang
+    else
+      l = ZENA_ENV[:default_lang]
+    end
+    <<-EOL
+    <script src="/calendar/calendar.js" type="text/javascript"></script>
+    <script src="/calendar/calendar-setup.js" type="text/javascript"></script>
+    <script src="/calendar/lang/calendar-#{lang}-utf8.js" type="text/javascript"></script>
+    <link href="/calendar/calendar-brown.css" media="screen" rel="Stylesheet" type="text/css" />
+    #{javascript_start}
+    Calendar._TT["DEF_DATE_FORMAT"] = "#{transb('datetime')}";
+    Calendar._TT["FIRST_DAY"] = #{transb('week_start_day')};
+    #{javascript_end}
+    EOL
+  end
+  
   # show language selector
-  def lang_links
+  def lang_links(opts={})
     if ZENA_ENV[:monolingual]
       ""
     else
@@ -932,7 +954,7 @@ ENDTXT
   end
   
   # TODO: test
-  def search_box    
+  def search_box(opts={})    
     render_to_string(:partial=>'search/form')
   end
   

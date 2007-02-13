@@ -1,0 +1,55 @@
+default:
+  context:
+    lang: 'en'
+    visitor: 'ant'
+    node: 'status'
+  src: "simple text"
+  tem: "simple text"
+  res: "simple text"
+
+rename_asset:
+  src: "<link rel='stylesheet' src='water' type='text/css'/>"
+  tem: "<link rel='stylesheet' src='/data/pdf/15/water.pdf' type='text/css'/>"
+
+show_title:
+  src: "<z:show attr='v_title'/>"
+  tem: "<%= @node.version[:title] %>"
+  res: "status title"
+
+show_parent_title:
+  src: "<z:parent><h1 zafu='title'>parent title</h1></z:parent>"
+  tem: "<% if var1 = @node.parent -%><h1><%= var1.version[:title] %></h1><% end -%>"
+  res: "<h1>Clean Water project</h1>"
+
+show_name:
+  src:  "my <z:show attr=':name'/>"
+  res: "my status"
+
+show_v_text:
+  src:  "my <z:show attr=':v_text'/>"
+  res: "my status text"
+
+show_c_width:
+  context:
+    node: "bird_jpg"
+  src:  "width = <z:show attr=':c_width'/>"
+  res: "width = 661"
+
+javascripts:
+  src: "<z:javascripts list='prototype,effects,zena'/>"
+  tem: "/<script src.*/javascripts/prototype.js.*script src=.*effects.js.*zena.js/"
+
+stylesheets:
+  src: "<z:stylesheets list='zena,code,search'/>"
+  tem: "/link href.*/stylesheets/zena.css.*text/css.*code.css.*text/css.*search.css.*Stylesheet/"
+
+lang_links:
+  src: "<div id='lang' zafu='lang_links'><a>en</a> | <b>fr</b></div>"
+  tem: "<div id='lang'><%= lang_links(:node=>@node) %></div>"
+  res: "/<div id='lang'><b>en.*test_render.*lang=es.*\|.*test_render.*=en.*fr/"
+
+uses_calendar:
+  src: "<z:uses_calendar/>"
+  tem: "<%= uses_calendar(:node=>@node) %>"
+  res: "/<script.*calendar.js.*calendar-setup.js.*calendar-en-utf8.js.*calendar-brown.css.*CDATA.*DEF_DATE_FORMAT.*%Y-%m-%d %H:%M.*FIRST_DAY.*0/"
+
