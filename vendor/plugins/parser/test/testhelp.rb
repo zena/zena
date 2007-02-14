@@ -9,9 +9,9 @@ class DummyHelper
   
   def template_text_for_url(url)
     url = url[1..-1] # strip leading '/'
-    url = url.gsub('/','_').to_sym
+    url = url.gsub('/','_')
     if test = @strings[url]
-      test[:in]
+      test['src']
     else
       nil
     end
@@ -52,13 +52,8 @@ class Test::Unit::TestCase
         test_methods = []
         YAML::load_documents( File.open( "#{file}.yml" ) ) do |doc|
           doc.each do |elem|
-            hash = elem[1]
-            new_hash = {}
-            hash.each_pair do |k,v|
-              new_hash[k.to_sym] = v
-            end
             test_methods << elem[0]
-            strings[elem[0].to_sym] = new_hash
+            strings[elem[0]] = elem[1]
           end
         end
         class_eval <<-END
@@ -68,7 +63,7 @@ class Test::Unit::TestCase
         END
         @@test_strings[file] = strings.freeze
         mod_name = file.split("_").first.capitalize
-        @@test_parsers[file] = Parser.parser_with_rules(eval("ParserRules::#{mod_name}"), eval("ParserTags::#{mod_name}"))
+        @@test_parsers[file] = Parser.parser_with_rules(eval("#{mod_name}::Rules"), eval("#{mod_name}::Tags"))
         @@test_methods[file] = test_methods
         @@test_files << file
       end
@@ -81,20 +76,11 @@ class Test::Unit::TestCase
           unless tests.include?("test_#{tf}_#{test}")
             puts "ERROR: already defined test #{tf}.yml #{test}}" if tests.include?("test_#{tf}_#{test}")
             tests << "test_#{tf}_#{test}"
-            if @@test_strings[tf][test.to_sym][:out][0..0] == "/"
-              # regex test
-              class_eval <<-END
-                def test_#{tf}_#{test}
-                  assert_match %r{#{@@test_strings[tf][test.to_sym][:out][1..-2]}}m, do_test(#{tf.inspect},#{test.inspect})
-                end
-              END
-            else
-              class_eval <<-END
-                def test_#{tf}_#{test}
-                  assert_equal #{tf}[:#{test}][:out], do_test(#{tf.inspect},#{test.inspect})
-                end
-              END
-            end
+            class_eval <<-END
+              def test_#{tf}_#{test}
+                do_test(#{tf.inspect}, #{test.inspect})
+              end
+            END
           end
         end
       end
@@ -102,6 +88,11 @@ class Test::Unit::TestCase
   end
   
   def do_test(file, test)
-    @@test_parsers[file].new_with_url("/#{test.to_s.gsub('_', '/')}", DummyHelper.new(@@test_strings[file])).render
+    res = @@test_parsers[file].new_with_url("/#{test.gsub('_', '/')}", :helper=>DummyHelper.new(@@test_strings[file])).render
+    if @@test_strings[file][test]['res'][0..0] == "/"
+      assert_match %r{@@test_strings[file][test]['res'][1..-2]}, res
+    else
+      assert_equal @@test_strings[file][test]['res'], res
+    end
   end
 end

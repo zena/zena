@@ -1,118 +1,118 @@
 empty:
-  in: ""
-  out: ""
+  src: ""
+  res: ""
     
 at_code:
-  in: "some @strange < code@"
-  out: "<p>some <code>strange &lt; code</code></p>"
+  src: "some @strange < code@"
+  res: "<p>some <code>strange &lt; code</code></p>"
   
 at_code_ruby:
-  in: "some @ruby|class << self@"
-  out: "<p>some <code class='ruby'><span class=\"keyword\">class </span><span class=\"punct\">&lt;&lt;</span> <span class=\"constant\">self</span></code></p>"
+  src: "some @ruby|class << self@"
+  res: "<p>some <code class='ruby'><span class=\"keyword\">class </span><span class=\"punct\">&lt;&lt;</span> <span class=\"constant\">self</span></code></p>"
   
 code_ruby:
-  in: |
+  src: |
     some text
   
     <code lang='ruby'>def hello
       puts "hello" << " world!"
     end</code>
-  out: "/some text.*<pre>.*<code class='ruby'>.*keyword.*method.*&lt;&lt;/"
+  res: "/some text.*<pre>.*<code class='ruby'>.*keyword.*method.*&lt;&lt;/"
 
 code_params:
-  in:  "this <code onclick='nasty' class='blue' lang='ruby' style='tagada'>def ok</code> ok"
-  out: "<p>this <pre onclick='nasty' class='blue' style='tagada'><code class='ruby'><span class=\"keyword\">def </span><span class=\"method\">ok</span></code></pre> ok</p>"
+  src:  "this <code onclick='nasty' class='blue' lang='ruby' style='tagada'>def ok</code> ok"
+  res: "<p>this <pre onclick='nasty' class='blue' style='tagada'><code class='ruby'><span class=\"keyword\">def </span><span class=\"method\">ok</span></code></pre> ok</p>"
   
 gallery:
-  in: "this ![12,13]! gallery"
-  out: "<p>this [make_gallery |12,13|] gallery</p>"
+  src: "this ![12,13]! gallery"
+  res: "<p>this [make_gallery |12,13|] gallery</p>"
 
 gallery_children:
-  in: "this ![]! gallery"
-  out: "<p>this [make_gallery ||] gallery</p>"
+  src: "this ![]! gallery"
+  res: "<p>this [make_gallery ||] gallery</p>"
   
 docs:
-  in: "these !{11,12}! docs"
-  out: "<p>these [list_nodes ids:|11,12| style:||] docs</p>"
+  src: "these !{11,12}! docs"
+  res: "<p>these [list_nodes ids:|11,12| style:||] docs</p>"
   
 docs_no_ids:
-  in: "these !{}! docs"
-  out: "<p>these [list_nodes ids:|| style:||] docs</p>"
+  src: "these !{}! docs"
+  res: "<p>these [list_nodes ids:|| style:||] docs</p>"
 
 docs_align:
-  in: "these !<.{11,12}! left"
-  out: "<p>these [list_nodes ids:|11,12| style:|&lt;.|] left</p>"
+  src: "these !<.{11,12}! left"
+  res: "<p>these [list_nodes ids:|11,12| style:|&lt;.|] left</p>"
   
 image:
-  in: "look here !12!"
-  out: "<p>look here [make_image id:|12| images:true style:||]</p>"
+  src: "look here !12!"
+  res: "<p>look here [make_image id:|12| images:true style:||]</p>"
   
 image_no_image:
-  in: "look here !12!"
-  out: "<p>look here [make_image id:|12| images:false style:||]</p>"
+  src: "look here !12!"
+  res: "<p>look here [make_image id:|12| images:false style:||]</p>"
 
 image_align:
-  in: "an image !<.12!"
-  out: "<p>an image [make_image id:|12| images:true style:|&lt;.|]</p>"
+  src: "an image !<.12!"
+  res: "<p>an image [make_image id:|12| images:true style:|&lt;.|]</p>"
   
 image_with_format:
-  in: "!21.mini!"
-  out: "<p>[make_image id:|21| images:true size:|mini| style:||]</p>"
+  src: "!21.mini!"
+  res: "<p>[make_image id:|21| images:true size:|mini| style:||]</p>"
   
 image_title:
-  in: "!12/!"
-  out: "<p>[make_image id:|12| images:true style:|| title:||]</p>"
+  src: "!12/!"
+  res: "<p>[make_image id:|12| images:true style:|| title:||]</p>"
 
 image_custom_title:
-  in: "!12/this is some text!"
-  out: "<p>[make_image id:|12| images:true style:|| title:|this is some text|]</p>"
+  src: "!12/this is some text!"
+  res: "<p>[make_image id:|12| images:true style:|| title:|this is some text|]</p>"
 
 image_custom_title_with_markup:
-  in: "!12/this is *some* text!"
-  out: "<p>[make_image id:|12| images:true style:|| title:|this is <strong>some</strong> text|]</p>"
+  src: "!12/this is *some* text!"
+  res: "<p>[make_image id:|12| images:true style:|| title:|this is <strong>some</strong> text|]</p>"
   
 image_with_link:
-  in: "!12.pv!:12"
-  out: "<p>[make_image id:|12| images:true link:|12| size:|pv| style:||]</p>"
+  src: "!12.pv!:12"
+  res: "<p>[make_image id:|12| images:true link:|12| size:|pv| style:||]</p>"
   
 image_with_http_link:
-  in: "!12.pv!:http://www.example.org"
-  out: "<p>[make_image id:|12| images:true link:|http://www.example.org| size:|pv| style:||]</p>"
+  src: "!12.pv!:http://www.example.org"
+  res: "<p>[make_image id:|12| images:true link:|http://www.example.org| size:|pv| style:||]</p>"
 
 image_with_ref:
-  in: "!http://www.example.org/images/test.jpg!"
-  out: "<p><img src=\"http://www.example.org/images/test.jpg\" alt=\"\" /></p>"
+  src: "!http://www.example.org/images/test.jpg!"
+  res: "<p><img src=\"http://www.example.org/images/test.jpg\" alt=\"\" /></p>"
 
 link_with_title:
-  in: '"this is a title":23'
-  out: '<p>[make_link id:|23| title:|this is a title|]</p>'
+  src: '"this is a title":23'
+  res: '<p>[make_link id:|23| title:|this is a title|]</p>'
 
 link_no_title:
-  in: '"":23'
-  out: '<p>[make_link id:|23| title:||]</p>'
+  src: '"":23'
+  res: '<p>[make_link id:|23| title:||]</p>'
   
 wiki_link:
-  in: "why use ?ruby? ?"
-  out: "<p>why use [make_wiki_link title:|ruby|] ?</p>"
+  src: "why use ?ruby? ?"
+  res: "<p>why use [make_wiki_link title:|ruby|] ?</p>"
 
 wiki_link_with_trailing_dot:
-  in: "I love ?ruby?."
-  out: "<p>I love [make_wiki_link title:|ruby|].</p>"
+  src: "I love ?ruby?."
+  res: "<p>I love [make_wiki_link title:|ruby|].</p>"
   
 wiki_link_url:
-  in: "why use ?ruby?:http://en.wikipedia.org/wiki/Ruby_%28programming_language%29 ?"
-  out: "<p>why use [make_wiki_link title:|ruby| url:|http://en.wikipedia.org/wiki/Ruby_%28programming_language%29|] ?</p>"
+  src: "why use ?ruby?:http://en.wikipedia.org/wiki/Ruby_%28programming_language%29 ?"
+  res: "<p>why use [make_wiki_link title:|ruby| url:|http://en.wikipedia.org/wiki/Ruby_%28programming_language%29|] ?</p>"
   
 wiki_link_url_ending_punctuation:
-  in: "why use ?ruby?:http://en.wikipedia.org/wiki/Ruby_%28programming_language%29, or what ?"
-  out: "<p>why use [make_wiki_link title:|ruby| url:|http://en.wikipedia.org/wiki/Ruby_%28programming_language%29|], or what ?</p>"
+  src: "why use ?ruby?:http://en.wikipedia.org/wiki/Ruby_%28programming_language%29, or what ?"
+  res: "<p>why use [make_wiki_link title:|ruby| url:|http://en.wikipedia.org/wiki/Ruby_%28programming_language%29|], or what ?</p>"
 
 erb_recursive_syntax:
-  in: "why <code lang='erb'> this <%= puts \"hello\" %> is ok</code>"
-  out: "/why <pre><code class='erb'>.*<code class='ruby'>.*</code>.*</span> is ok</code></pre>/"
+  src: "why <code lang='erb'> this <%= puts \"hello\" %> is ok</code>"
+  res: "/why <pre><code class='erb'>.*<code class='ruby'>.*</code>.*</span> is ok</code></pre>/"
   
 benchmark:
-  in: |
+  src: |
    h3. design should be fun
 
    It' is very exciting to think of a new templating language. One of the goals we have is to make the template easily editable by graphic designers. A designer will have to add some ?Lorem ipsum? placeholder text, eventually copied from "lipsum":http://lipsum.com/. If he doesn't, this is what happens :
@@ -130,7 +130,7 @@ benchmark:
    renders like this in a web browser or wysiwyg editor :
 
    <div class='box' style='font-size:small; padding:0;'>
-   <h3 style='margin:0;'><z:show attr=':v_title'/></h3>
+   <h3 style='margsrc:0;'><z:show attr=':v_title'/></h3>
      <z:children>
        <ul>
          <z:each><li><z:link/></li></z:each>
@@ -154,7 +154,7 @@ benchmark:
    becomes :
 
    <div class='box' style='font-size:small;'>
-   <h3 style='margin:0;'><z:show attr=':v_title'>qui dolorem</z:show></h3>
+   <h3 style='margsrc:0;'><z:show attr=':v_title'>qui dolorem</z:show></h3>
      <z:children>
        <ul>
          <z:each><li><z:link><a href='#'>ipsum quia</a></z:link></li></z:each>

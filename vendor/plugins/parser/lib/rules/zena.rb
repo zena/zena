@@ -10,8 +10,19 @@ module Zena
           END
         end
       end
+      
+      def direct_methods(*args)
+        args.each do |name|
+          class_eval <<-END
+            def r_#{name}
+              helper.#{name}
+            end
+          END
+        end
+      end
     end
-    inline_methods :login_link, :visitor_link, :search_box, :menu, :path_links, :lang_links, :uses_calendar
+    inline_methods :login_link, :visitor_link, :search_box, :menu, :path_links, :lang_links
+    direct_methods :uses_calendar
     def r_show
       return unless check_params(:attr)
       attribute = @params[:attr]
@@ -47,6 +58,22 @@ module Zena
     def r_stylesheets
       list = @params[:list].split(',').map{|e| e.strip}
       helper.stylesheet_link_tag(*list)
+    end
+    
+    def r_flash_messages
+      type = @params[:show] || 'both'
+      "<div id='messages'>" +
+      if (type == 'notice' || type == 'both')
+        "<% if @flash[:notice] -%><div id='notice' class='flash' onClick='new Effect.Fade(\"error\")'><%= @flash[:notice] %></div><% end -%>"
+      else
+        ''
+      end + 
+      if (type == 'error'  || type == 'both')
+        "<% if @flash[:error] -%><div id='error' class='flash' onClick='new Effect.Fade(\"error\")'><%= @flash[:error] %></div><% end -%>"
+      else
+        ''
+      end +
+      "</div>"
     end
     
     def r_link

@@ -54,8 +54,12 @@ class Parser
   def initialize(text, opts={})
     @stack   = []
     @ok      = true
-    @text    = text.dup
-    @blocks     = []
+    if opts[:sub]
+      @text = text
+    else
+      @text = before_parse(text)
+    end
+    @blocks  = []
     
     @options = {:mode=>:void, :method=>'void'}.merge(opts)
     @params  = @options[:params] || {}
@@ -65,6 +69,9 @@ class Parser
     @options.delete(:method)
     @options.delete(:mode)
     start(mode)
+    unless opts[:sub]
+      @text = after_parse(@text)
+    end
     @ok
   end
   
@@ -130,6 +137,14 @@ class Parser
     end
   end
   
+  def before_parse(text)
+    text
+  end
+  
+  def after_parse(text)
+    text
+  end
+  
   def include_template
     # fetch text
     text = @text
@@ -142,7 +157,7 @@ class Parser
         @options[:current_folder] = absolute_url.split('/')[0..-2].join('/')
       end
     end
-  
+    @text = before_parse(@text)
     enter(:void) # scan fetched text
     @included_blocks = @blocks
     
@@ -207,7 +222,7 @@ class Parser
       opts.delete(:text)
     end
     text = custom_text || @text
-    opts = @options.merge(opts)
+    opts = @options.merge(opts).merge(:sub=>true, :mode=>mode)
     new_obj = self.class.new(text,opts)
     if new_obj.success?
       @text = new_obj.text unless custom_text

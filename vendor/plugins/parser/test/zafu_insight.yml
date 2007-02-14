@@ -1,15 +1,15 @@
 simple:
-  in: "<z:inspect><z:with part='a'>this is a</z:with><z:with part='b'>this is b</z:with></z:inspect>"
-  out: "[inspect {< 'a'=>['this is a'], 'b'=>['this is b']}/]"
+  src: "<z:inspect><z:with part='a'>this is a</z:with><z:with part='b'>this is b</z:with></z:inspect>"
+  res: "[inspect {< 'a'=>['this is a'], 'b'=>['this is b']}/]"
 
 with_sub_tags:
-  in: "<z:inspect><z:with part='hello'>I say <h3 zafu='hello'>hello</h3></z:with></z:inspect>"
-  out: "[inspect {< 'hello'=>['I say <h3>', [hello]hello[/hello], '</h3>']}/]"
+  src: "<z:inspect><z:with part='hello'>I say <h3 zafu='hello'>hello</h3></z:with></z:inspect>"
+  res: "[inspect {< 'hello'=>['I say <h3>', [hello]hello[/hello], '</h3>']}/]"
 
 menu:
-  in: "var a: <z:set_context menu='true'><z:void name='a'><z:hello/></z:void></z:set_context>"
-  out: "var a: hello world!"
+  src: "var a: <z:set_context menu='true'><z:void name='a'><z:hello/></z:void></z:set_context>"
+  res: "var a: hello world!"
 
 include:
-  in: "<z:include template='/menu'><z:with part='a'>do <z:inspect/></z:with></z:include>"
-  out: "var a: do [inspect {> :menu=>'true'}/]"
+  src: "<z:include template='/menu'><z:with part='a'>do <z:inspect/></z:with></z:include>"
+  res: "var a: do [inspect {> :menu=>'true'}/]"

@@ -2,6 +2,37 @@ require File.join(File.dirname(__FILE__) , 'zena')
 
 module Zafu
   module Tags
+    def r_rename_asset
+      return expand_with unless @tag
+      tag = @params[:tag]
+      unless @params[:src][0..0] == '/'
+        case @tag
+        when 'link'
+          if @params[:rel].downcase == 'stylesheet'
+            @params[:src] = @options[:helper].send(:template_url_for_asset, :stylesheet , @params[:src])
+          else
+            @params[:src] = @options[:helper].send(:template_url_for_asset, :link, @params[:src])
+          end
+        else
+          @params[:src] = @options[:helper].send(:template_url_for_asset, @tag.to_sym , @params[:src])
+        end
+      end
+      res = []
+      @params.each do |k,v|
+        res << "#{k}=#{v.inspect.gsub("'","TMPQUOTE").gsub('"',"'").gsub("TMPQUOTE",'"')}"
+      end
+      if res != []
+        res = "<#{@tag} #{res.sort.join(' ')}"
+      else
+        res = "<#{@tag}"
+      end
+      inner = expand_with
+      if inner == ''
+        res + "/>"
+      else
+        res + ">#{inner}"
+      end
+    end
   end
 end
 
@@ -16,12 +47,16 @@ module Zafu
       if @method == 'include'
         include_template
       else
-        if mode == 'tag'
+        if mode == :tag
           scan_tag
         else
           enter(mode)
         end
       end
+    end
+    
+    def before_parse(text)
+      text.gsub('<%', '&lt;%').gsub('%>', '%&gt;')
     end
   
     # scan rules
@@ -114,42 +149,46 @@ module Zafu
         # puts "SAME:[#{$&}]}" # simple html tag same as zafu_tag
         flush $&
         @zafu_tag_count += 1 unless $2 == '/' # count opened zafu tags to be closed before return
-      elsif @text =~ /\A<(link|img|script)([^>]*?)(\/?)>/
+      elsif @text =~ /\A<(link|img|script)/
         # puts "HTML:[#{$&}]}" # html
-        matched   = $&
-        eat $&
-        method    = $1
-        end_slash = $3
-        params = parse_params($2)
-        if params[:src] && params[:src][0..0] != '/'
-          case method
-          when 'link'
-            if params[:rel].downcase == 'stylesheet'
-              params[:src] = @options[:helper].send(:template_url_for_asset, :stylesheet , params[:src])
-            else
-              params[:src] = @options[:helper].send(:template_url_for_asset, :link, params[:src])
-            end
-          else
-            params[:src] = @options[:helper].send(:template_url_for_asset, method.to_sym , params[:src])
-          end
-          store "<#{method}"
-          res = []
-          params.each do |k,v|
-            res << "#{k}=#{v.inspect.gsub("'","TMPQUOTE").gsub('"',"'").gsub("TMPQUOTE",'"')}"
-          end
-          if res != []
-            store " #{res.sort.join(' ')}#{end_slash}>"
-          else
-            store "#{end_slash}>"
-          end
-        else
-          store matched
-        end
+        make(:asset)
       elsif @text =~ /\A[^>]*?>/
         # html tag
         flush $&
       else
         # never closed tag
+        flush
+      end
+    end
+    
+    def scan_asset
+      # puts "ASSET(#{object_id}) [#{@text}]"
+      if @text =~ /\A<(\w*)([^>]*?)(\/?)>/
+        matched = $&
+        eat $&
+        @method = 'rename_asset'
+        @tag = $1
+        closed = ($3 != '')
+        @params = parse_params($2)
+        leave(:asset) 
+        if closed
+          leave(:asset)
+        else
+          enter(:inside_asset)
+        end
+      else
+        # error
+        @method = 'void'
+        flush
+      end
+    end
+    
+    def scan_inside_asset
+      if @text =~ /\A(.*?)<\/#{@params[:tag]}>/
+        flush $&
+        leave(:asset)
+      else
+        # never ending asset
         flush
       end
     end

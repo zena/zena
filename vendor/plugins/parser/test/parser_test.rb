@@ -1,6 +1,6 @@
 require File.join(File.dirname(__FILE__) , 'testhelp.rb')
-module ParserRules
-  module Zafu
+module Zafu
+  module Tags
     def r_hello
       'hello world!'
     end
@@ -19,15 +19,9 @@ module ParserRules
   end
 end
 class ZazenTest < Test::Unit::TestCase
-  testfile :zafu, :zafu_asset, :zafu_insight, :zafu_zena
-
-  def test_zafu_benchmark
-    parser = @@test_parsers['zafu']
-    helper = DummyHelper.new(@@test_strings['zafu'])
-    txt = zafu[:benchmark][:in]
-    0.times do 
-      parser.new(txt, :helper=>helper).render
-    end
+  testfile :zafu_asset #:zafu, :zafu_asset, :zafu_insight, :zafu_zena
+  def test_single
+    do_test('zafu_asset', 'change_img_src')
   end
   make_tests
 end

@@ -7,6 +7,28 @@ default:
   tem: "simple text"
   res: "simple text"
 
+nasty_erb:
+  src: "this <% puts \"could be\" %> nasty"
+  tem: "this &lt;% puts \"could be\" %&gt; nasty"
+
+never_end_erb:
+  src: "never ending erb  <%= puts "
+  tem: "never ending erb  &lt;%= puts "
+  res: "never ending erb  &lt;%= puts "
+
+nasty_evil_erb:
+  src: "this <% puts <% puts 'could be' %> %> nasty"
+  tem: "this &lt;% puts &lt;% puts 'could be' %&gt; %&gt; nasty"
+
+trick_erb:
+  src: "this <<z:void/>% puts 'is bad' %>"
+  tem: "this <<z:void/>% puts 'is bad' %&gt;"
+  res: "this <<z:void/>% puts 'is bad' %&gt;"
+  
+include_erb:
+  src: "include: <z:include template='/nasty_erb'/>"
+  tem: "include: this &lt;% puts \"could be\" %&gt; nasty"
+
 rename_asset:
   src: "<link rel='stylesheet' src='water' type='text/css'/>"
   tem: "<link rel='stylesheet' src='/data/pdf/15/water.pdf' type='text/css'/>"
@@ -50,6 +72,19 @@ lang_links:
 
 uses_calendar:
   src: "<z:uses_calendar/>"
-  tem: "<%= uses_calendar(:node=>@node) %>"
-  res: "/<script.*calendar.js.*calendar-setup.js.*calendar-en-utf8.js.*calendar-brown.css.*CDATA.*DEF_DATE_FORMAT.*%Y-%m-%d %H:%M.*FIRST_DAY.*0/"
+  tem: "/<script.*calendar.js.*calendar-setup.js.*calendar-en-utf8.js.*calendar-brown.css.*CDATA.*DEF_DATE_FORMAT.*%Y-%m-%d %H:%M.*FIRST_DAY.*0/"
 
+flash_messages_both:
+  src: "<z:flash_messages/>"
+  tem: "/id.*messages.*notice.*flash.*notice.*error.*flash.*error/"
+  res: "<div id='messages'></div>"
+  
+flash_messages_error:
+  src: "<z:flash_messages show='error'/>"
+  tem: "/id.*messages.*error.*flash.*error/"
+  res: "<div id='messages'></div>"
+  
+flash_messages_notice:
+  src: "<z:flash_messages show='notice'/>"
+  tem: "/id.*messages.*notice.*flash.*notice/"
+  res: "<div id='messages'></div>"

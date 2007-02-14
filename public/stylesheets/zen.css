@@ -267,10 +267,10 @@ table.fada td:first-child {border-left-width:1px;}
 #right { float:left; width:220px; padding-left:6px; border-left:1px solid #ccc;}
 
 /* LOGIN PAGE, PAGE NOT FOUND */
-#login, #not_found { position:absolute; top:240px; left:0; width:550px; background:#9FA6AC; border:1px dotted #450009; }
-#login div, #not_found div { float:right; font-size:0.9em;}
-#login input { padding:1px;}
-#login table { padding:0.5em; font-size:0.9em; text-align:right;}
+#please_login, #not_found { position:absolute; top:240px; left:0; width:550px; background:#9FA6AC; border:1px dotted #450009; }
+#please_login div, #not_found div { float:right; font-size:0.9em;}
+#please_login input { padding:1px;}
+#please_login table { padding:0.5em; font-size:0.9em; text-align:right;}
 
 #not_found { background:#ADAF87}
 #not_found div { padding:1em; }

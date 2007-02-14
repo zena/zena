@@ -1,24 +1,26 @@
 do_nothing:
-  in: "this is just <h2 class='any'>a title</h2>"
-  out: "this is just <h2 class='any'>a title</h2>"
+  src: "this is just <h2 class='any'>a title</h2>"
+  res: "this is just <h2 class='any'>a title</h2>"
 
 change_stylesheet_src:
-  in: "<link src='local/test.css' rel='stylesheet' type='text/css'/>"
-  out: "<link rel='stylesheet' src='/test_stylesheet/local/test.css' type='text/css'/>"
+  src: "<link src='local/test.css' rel='stylesheet' type='text/css'/>"
+  res: "<link rel='stylesheet' src='/test_stylesheet/local/test.css' type='text/css'/>"
 
 ignore_absolute_path:
-  in: "<link rel='stylesheet' type='text/css' src='/absolute/test.css'/>"
-  out: "<link rel='stylesheet' type='text/css' src='/absolute/test.css'/>"
+  src: "<link rel='stylesheet' type='text/css' src='/absolute/test.css'/>"
+  res: "<link rel='stylesheet' src='/absolute/test.css' type='text/css'/>"
   
 change_img_src:
-  in: "this <img src='images/logo.png'/> image"
-  out: "this <img src='/test_img/images/logo.png'/> image"
+  src: "this <img src='images/logo.png'/> image"
+  res: "this <img src='/test_img/images/logo.png'/> image"
 
 change_script_src:
-  in: |
+  src: |
     <script src='functions.js' type='text/javascript'>
+      <z:blah/>
     </script>
-  out: |
+  res: |
     <script src='/test_script/functions.js' type='text/javascript'>
+      <z:blah/>
     </script>
   

@@ -1,124 +1,124 @@
 empty:
-  in: ""
-  out: ""
+  src: ""
+  res: ""
 
 hello:
-  in: "<z:hello/>"
-  out: "hello world!"
+  src: "<z:hello/>"
+  res: "hello world!"
   
 double_hello:
-  in: "<z:hello/> <z:hello/>"
-  out: "hello world! hello world!"
+  src: "<z:hello/> <z:hello/>"
+  res: "hello world! hello world!"
 
 ignore_html:
-  in: "<div class='test'><p>some <i>funny</i> text</p></div>"
-  out: "<div class='test'><p>some <i>funny</i> text</p></div>"
+  src: "<div class='test'><p>some <i>funny</i> text</p></div>"
+  res: "<div class='test'><p>some <i>funny</i> text</p></div>"
 
 hello_skip_content:
-  in: "<z:hello>I want to live forever</z:hello>"
-  out: "hello world!"
+  src: "<z:hello>I want to live forever</z:hello>"
+  res: "hello world!"
 
 tag_not_closed:
-  in: "this is <z:test super='life' is = \"fine\""
-  out: "this is <z:test super='life' is = \"fine\""
+  src: "this is <z:test super='life' is = \"fine\""
+  res: "this is <z:test super='life' is = \"fine\""
 
 hello_not_closed:
-  in: "I say <z:hello>blah blah"
-  out: "I say hello world!"
+  src: "I say <z:hello>blah blah"
+  res: "I say hello world!"
 
 test:
-  in: "this <z:test>is a test</z:test> <z:hello/>"
-  out: "this [test]is a test[/test] hello world!"
+  src: "this <z:test>is a test</z:test> <z:hello/>"
+  res: "this [test]is a test[/test] hello world!"
   
 very_messy:
-  in: "this <z: blah> </z:truc> whak"
-  out: "this <z: blah> <span class='zafu_error'>&lt;/z:truc&gt;</span> whak"
+  src: "this <z: blah> </z:truc> whak"
+  res: "this <z: blah> <span class='zafu_error'>&lt;/z:truc&gt;</span> whak"
 
 bad_closing_tag:
-  in: "this <z:test>looks </z:truc> ok"
-  out: "this [test]looks <span class='zafu_error'>&lt;/z:truc&gt;</span>[/test] ok"
+  src: "this <z:test>looks </z:truc> ok"
+  res: "this [test]looks <span class='zafu_error'>&lt;/z:truc&gt;</span>[/test] ok"
 
 zafu_tag:
-  in: "I say <p zafu='hello'>blah blah</p>"
-  out: "I say <p>hello world!</p>"
+  src: "I say <p zafu='hello'>blah blah</p>"
+  res: "I say <p>hello world!</p>"
 
 zafu_tag_count:
-  in: "I say <p zafu='hello'>blah <p>super</p> blah</p> is good"
-  out: "I say <p>hello world!</p> is good"
+  src: "I say <p zafu='hello'>blah <p>super</p> blah</p> is good"
+  res: "I say <p>hello world!</p> is good"
 
 zafu_tag_closed:
-  in: "I say <p zafu='hello'/> is good"
-  out: "I say <p>hello world!</p> is good"
+  src: "I say <p zafu='hello'/> is good"
+  res: "I say <p>hello world!</p> is good"
 
 zafu_tag_block:
-  in:  "I say <div zafu='test'>this <div>test</div> is ok</div> right?"
-  out: "I say <div>[test]this <div>test</div> is ok[/test]</div> right?"
+  src:  "I say <div zafu='test'>this <div>test</div> is ok</div> right?"
+  res: "I say <div>[test]this <div>test</div> is ok[/test]</div> right?"
 
 zafu_tag_at_end:
-  in:  "I say <div zafu='test'>this <div>test</div> is ok</div>"
-  out: "I say <div>[test]this <div>test</div> is ok[/test]</div>"
+  src:  "I say <div zafu='test'>this <div>test</div> is ok</div>"
+  res: "I say <div>[test]this <div>test</div> is ok[/test]</div>"
 
 zafu_tag_with_ztags:
-  in: "I say <div zafu='test'>this <z:hello/></div>"
-  out: "I say <div>[test]this [hello/][/test]</div>"
+  src: "I say <div zafu='test'>this <z:hello/></div>"
+  res: "I say <div>[test]this [hello/][/test]</div>"
 
 zafu_keep_params:
-  in: "I love <div zafu='test' class='truc' id='machin' depth='3'>my wife</div>"
-  out: "I love <div class='truc' id='machin'>[test {= :depth=>'3'}]my wife[/test]</div>"
+  src: "I love <div zafu='test' class='truc' id='machin' depth='3'>my wife</div>"
+  res: "I love <div class='truc' id='machin'>[test {= :depth=>'3'}]my wife[/test]</div>"
 
 zafu_and_ztags:
-  in: "Hey <z:test>this is <p zafu='hello'>ok</p></z:test>"
-  out: "Hey [test]this is <p>[hello]ok[/hello]</p>[/test]"
+  src: "Hey <z:test>this is <p zafu='hello'>ok</p></z:test>"
+  res: "Hey [test]this is <p>[hello]ok[/hello]</p>[/test]"
 
 zafu_same_tag:
-  in: "Hey <p zafu='test'> is <p zafu='hello'>hello <p>cool</p></p></p>"
-  out: "Hey <p>[test] is <p>[hello]hello <p>cool</p>[/hello]</p>[/test]</p>"  
+  src: "Hey <p zafu='test'> is <p zafu='hello'>hello <p>cool</p></p></p>"
+  res: "Hey <p>[test] is <p>[hello]hello <p>cool</p>[/hello]</p>[/test]</p>"  
 expand_with:
-  in: "this <z:test>looks </z:test> ok"
-  out: "this [test]looks [/test] ok"
+  src: "this <z:test>looks </z:test> ok"
+  res: "this [test]looks [/test] ok"
   
 params:
-  in: "some <z:test good='choice' nice='work'>things</z:test> are fine"
-  out: "some [test {= :good=>'choice', :nice=>'work'}]things[/test] are fine"
+  src: "some <z:test good='choice' nice='work'>things</z:test> are fine"
+  res: "some [test {= :good=>'choice', :nice=>'work'}]things[/test] are fine"
 
 default_menu:
-  in: "the <z:test>menu</z:test> is nice"
-  out: "the [test]menu[/test] is nice"
+  src: "the <z:test>menu</z:test> is nice"
+  res: "the [test]menu[/test] is nice"
   
 include_menu:
-  in: "include_menu: <z:include template='/default/menu'/>"
-  out: "include_menu: the [test]menu[/test] is nice"
+  src: "include_menu: <z:include template='/default/menu'/>"
+  res: "include_menu: the [test]menu[/test] is nice"
 
 include_context:
-  in: "include_context: <z:include template='menu'/>"
-  out: "include_context: include_menu: the [test]menu[/test] is nice"
+  src: "include_context: <z:include template='menu'/>"
+  res: "include_context: include_menu: the [test]menu[/test] is nice"
 
 infinite_loop:
-  in: "<z:include template='/infinite/loop'/>"
-  out: "<span class='zafu_error'>[include error: /infinite/loop --&gt; /infinite/loop ]</span>"
+  src: "<z:include template='/infinite/loop'/>"
+  res: "<span class='zafu_error'>[include error: /infinite/loop --&gt; /infinite/loop ]</span>"
   
 infinite_foo:
-  in: "<z:include template='bar'/>"
-  out: "<span class='zafu_error'>[include error: /infinite/foo --&gt; /infinite/bar --&gt; /infinite/foo ]</span>"
+  src: "<z:include template='bar'/>"
+  res: "<span class='zafu_error'>[include error: /infinite/foo --&gt; /infinite/bar --&gt; /infinite/foo ]</span>"
   
 infinite_bar:
-  in: "<z:include template='foo'/>"
-  out: "<span class='zafu_error'>[include error: /infinite/bar --&gt; /infinite/foo --&gt; /infinite/bar ]</span>"
+  src: "<z:include template='foo'/>"
+  res: "<span class='zafu_error'>[include error: /infinite/bar --&gt; /infinite/foo --&gt; /infinite/bar ]</span>"
   
 other_context:
-  in: "from other: <z:include template='menu'/> and <z:include template='/include/menu'/>"
-  out: "from other: the [test]menu[/test] is nice and include_menu: the [test]menu[/test] is nice"
+  src: "from other: <z:include template='menu'/> and <z:include template='/include/menu'/>"
+  res: "from other: the [test]menu[/test] is nice and include_menu: the [test]menu[/test] is nice"
 
 set_context:
-  in: "out:<z:test/> <z:set_context truc='machin'>in:<z:test/></z:set_context> out:<z:test/>"
-  out: "out:[test/] in:[test {> :truc=>'machin'}/] out:[test/]"
+  src: "res:<z:test/> <z:set_context truc='machin'>src:<z:test/></z:set_context> res:<z:test/>"
+  res: "res:[test/] src:[test {> :truc=>'machin'}/] res:[test/]"
   
 nested_set_context:
-  in: "<z:set_context var1='out' var2='foo'>1:<z:test/><z:set_context var1='in'>2:<z:test/></z:set_context>3:<z:test/></z:set_context>"
-  out: "1:[test {> :var1=>'out', :var2=>'foo'}/]2:[test {> :var1=>'in', :var2=>'foo'}/]3:[test {> :var1=>'out', :var2=>'foo'}/]"
+  src: "<z:set_context var1='out' var2='foo'>1:<z:test/><z:set_context var1='in'>2:<z:test/></z:set_context>3:<z:test/></z:set_context>"
+  res: "1:[test {> :var1=>'out', :var2=>'foo'}/]2:[test {> :var1=>'in', :var2=>'foo'}/]3:[test {> :var1=>'out', :var2=>'foo'}/]"
 
 complex_example:
-  in: |
+  src: |
     Some people say <z:hello/>
     Some say <z:include template='menu'/>
       <ul class='list' zafu='set_context' life='ok'>
@@ -127,7 +127,7 @@ complex_example:
         <li zafu='test'>sunny day</li>
       </ul>
     <z:set_context var='complex'><z:include template='/default/menu'/></z:set_context>
-  out: |
+  res: |
     Some people say hello world!
     Some say the [test]menu[/test] is nice
       <ul class='list'>
@@ -138,104 +138,30 @@ complex_example:
     the [test {> :var=>'complex'}]menu[/test] is nice
 
 unknown:
-  in:  "this looks bad: <z:system truc='lala'/>"
-  out: "this looks bad: <span class='zafu_unknown'>&lt;z:system truc='lala'/&gt;</span>"
+  src:  "this looks bad: <z:system truc='lala'/>"
+  res: "this looks bad: <span class='zafu_unknown'>&lt;z:system truc='lala'/&gt;</span>"
   
 check_params:
-  in: "bad <z:missing/> params"
-  out: "bad [missing parameter(s) missing:good, night] params"
+  src: "bad <z:missing/> params"
+  res: "bad [missing parameter(s) missing:good, night] params"
 
 check_params_partial:
-  in: "bad <z:missing good='ok'/> params"
-  out: "bad [missing parameter(s) missing:night] params"
+  src: "bad <z:missing good='ok'/> params"
+  res: "bad [missing parameter(s) missing:night] params"
 
 check_params_ok:
-  in: "bad <z:missing good='ok' night='hey'/> params"
-  out: "bad nothing missing params"
+  src: "bad <z:missing good='ok' night='hey'/> params"
+  res: "bad nothing missing params"
 
 doctype:
-  in: |
+  src: |
     <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
         "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
     <title zafu='show' attr=':v_title'>node title</title>
-  out: |
+  res: |
     <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
         "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
     <title><%= @node.version[:title] %></title>
   
-benchmark:
-  in: |
-    <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
-        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
-
-    <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
-    <head>
-      <title zafu='show' attr=':v_title'>node title</title>
-      <meta http-equiv="Content-type" content="text/html; charset=utf-8" />
-      <meta http-equiv="Content-Language" content="fr-fr" />
-
-      <link href="stylesheets/zen.css" rel="Stylesheet" type="text/css" />
-      <link href="stylesheets/comment.css" rel="Stylesheet" type="text/css" />
-      <link href="stylesheets/search.css" rel="Stylesheet" type="text/css" />
-      <link href="stylesheets/code.css" rel="Stylesheet" type="text/css" />
-      <z:javascripts list='prototype,effects,zena'/>
-      <z:uses_calendar/>
-    </head>
-
-    <body>
-      <div class="navbar">
-        <div id='lang' zafu='lang_links'><a>en</a> | <b>fr</b></div>
-        <div id='path' zafu='path_links'><ul><li><a href='#'>first</a></li> / <li><a href='#'>second</a></li> / <li><a href='#' class='current'>here</a></li></ul></div>
-        <div id='logout' zafu='login_link'><a href='#'>login</a></div>
-        <div id='visitor' zafu='visitor_link'><a href='#'>visitor name</a></div>
-        <div id='search' zafu='search_box'><div class='search'><form><input type='text' id='search' name='search'/></form></div></div>
-      </div>
-
-      <div id='menu' zafu='menu'>
-        <ul class='menu'><li><a>first</a></li>
-          <li><a>second</a><ul><li><a>sub</a></li><li><a>sub</a><ul><li><a>subsub</a></li></ul></li></ul></li>
-        </ul>
-      </div>
-
-      <div id='logo' zafu='link' href='root'><img src='img/logo.png' width='220' height='100'/></div>
-
-      <z:flash_messages/>
-
-      <div id="left">
-        <%#= plug :calendar, :tiny %>
-        <%#= plug :notes %>
-      </div>
-      <div id="main">
-
-        <h1 class='title' zafu='show' attr='title' status='true' actions='all'><div class='s50'>page title
-          <ul class='actions'><li><a><img src='images/page_edit.png'/></a></li><li><a><img src='images/wand.png'/></a></li></ul></div>
-        </h1>
-        <div class='subtitle'><%= author(:large) %><%#= plug :links %></div>
-
-        <%= render :partial=>title_partial %>
-
-        <div class="content" id='content'>
-          <%= show(@node, :v_summary, :text=>'')%>
-          <%= show(@node, :v_text   ) %>
-          <%= render :partial=>'comment/list' %>
-        </div>
-
-        <div id="right">
-          <div id='documents'>
-            <%= render :partial=>'document/list' %>
-          </div>
-          <div id='pages'>
-            <%= render :partial=>'page/list'     %>
-          </div>
-        </div>
-      </div>
-      <%= css_edit %>
-      </div>
-    </body>
-    </html>
-  out: "" 
-  
-  
-  
-  
-  
+escape_erb:
+  src: "hey: <% puts \"this could be nasty\" "
