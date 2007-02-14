@@ -57,10 +57,57 @@ module Zena
     end
     
     def r_text
-      
+      out "<div id='v_text<%= #{node}.version[:id] %>' class='zazen'>"
+      unless @params[:empty] == 'true'
+        out "<% if #{node}.kind_of?(TextDocument); l = #{node}.content_lang -%>"
+        out "<%= zazen('<code\#{l ? \" lang='\#{l}'\" : ''} class=\\'full\\'>\#{#{node}.version.text}</code>') %></div>"
+        out "<% else -%>"
+        out "<%= zazen(#{node}.version[:text]) %>"
+        out "<% end -%>"
+      end
+      out "</div>"
     end
     
-    def r_author
+    def r_summary
+      # if opt[:as]
+      #   key = "#{opt[:as]}#{obj.v_id}"
+      #   preview_for = opt[:as]
+      #   opt.delete(:as)
+      # else
+      #   key = "#{sym}#{obj.v_id}"
+      # end
+      # if opt[:text]
+      #   text = opt[:text]
+      #   opt.delete(:text)
+      # else
+      #   text = obj.send(sym)
+      #   if (text.nil? || text == '') && sym == :v_summary
+      #     text = obj.v_text
+      #     opt[:images] = false
+      #   else
+      #     opt.delete(:limit)
+      #   end
+      # end
+      # if [:v_text, :v_summary].include?(sym)
+      #   if obj.kind_of?(TextDocument) && sym == :v_text
+      #     lang = obj.content_lang
+      #     lang = lang ? " lang='#{lang}'" : ""
+      #     text = "<code#{lang} class='full'>#{text}</code>"
+      #   end
+      #   text  = zazen(text, opt)
+      #   klass = " class='text'"
+      # else
+      #   klass = ""
+      # end
+      # if preview_for
+      #   render_to_string :partial=>'node/show_attr', :locals=>{:id=>obj[:id], :text=>text, :preview_for=>preview_for, :key=>key, :klass=>klass,
+      #                                                        :key_on=>"#{key}#{Time.now.to_i}_on", :key_off=>"#{key}#{Time.now.to_i}_off"}
+      # else
+      #   "<div id='#{key}'#{klass}>#{text}</div>"
+      # end
+    end
+    
+    def r_show_author
       if @params[:size] == 'large'
         out "#{helper.trans("posted by")} <b><%= #{node}.author.fullname %></b>"
         out "<% if #{node}[:user_id] != #{node}.version[:user_id] -%>"
@@ -80,6 +127,19 @@ module Zena
           out " <span class='traductions'>(<%= helper.traductions(:node=>#{node}).join(', ') %>)</span>"
         end
       end
+    end
+    
+    # TODO: test
+    def r_author
+      return unless check_node_class(:Node, :Version, :Comment)
+      out "<% if #{var} = #{node}.author -%>"
+      out expand_with(:node=>var, :node_class=>:User)
+      out "<% end -%>"
+    end
+    
+    # TODO: test
+    def r_add
+      
     end
     
     def r_each
@@ -129,13 +189,14 @@ module Zena
     # be carefull, this gives a list of 'versions', not 'nodes'
     def r_traductions
       out "<% if #{var} = #{node}.traductions %>"
-      out expand_with(:list=>var)
+      out expand_with(:list=>var, :node_class=>:Version)
       out "<% end -%>"
     end
     
     def r_parent
+      return unless check_node_class(:Node)
       out "<% if #{var} = #{node}.parent -%>"
-      out expand_with(:node=>var)
+      out expand_with(:node=>var, :node_class=>:Node)
       out "<% end -%>"
     end
     
@@ -194,6 +255,12 @@ module Zena
       else
         ""
       end
+    end
+
+    # TODO: test
+    def check_node_class(*list)
+      list << nil if list.include?(:Node)
+      list.include?(@context[:node_class])
     end
   end
 end

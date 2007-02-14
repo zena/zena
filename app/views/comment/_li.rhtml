@@ -3,7 +3,7 @@
     <%= link_to_remote(transb('reply'), :url=>{:controller=>'comment', :action=>'reply_to', :id=>li[:id] }) if @node && @node.can_comment? && li[:user_id] != visitor.id %>
     <%= link_to_remote(transb('edit'),  :url=>{:controller=>'comment', :action=>'edit', :id=>li[:id] }) if @node && @node.can_comment? && li[:user_id] == visitor.id %>
     </span>
-    <span class='action'>
+    <span class='actions'>
     <%= link_to_remote(transb('btn_remove'), :url=>{:controller=>'comment', :action=>'remove', :id=>li[:id], :bin=>@admin }) if @admin || (@node.can_drive? && li[:status] < Zena::Status[:pub]) %>
     <%= link_to_remote(transb('btn_publish'), :url=>{:controller=>'comment', :action=>'publish', :id=>li[:id], :bin=>@admin }) if (@admin || @node.can_drive?) && li[:status] < Zena::Status[:pub] %>
     </span>

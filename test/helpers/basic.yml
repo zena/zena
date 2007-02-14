@@ -104,13 +104,13 @@ flash_messages_notice:
   tem: "/id.*messages.*notice.*flash.*notice/"
   res: "<div id='messages'></div>"
   
-author_short:
-  src: "<div class='subtitle' zafu='author'><b>SI</b> - 05.12</div>"
+show_author_short:
+  src: "<div class='subtitle' zafu='show_author'><b>SI</b> - 05.12</div>"
   tem: "<div class='subtitle'><b><%= @node.version.author.initials %></b> - <%= format_date(@node.version.updated_at, \"%m.%d\") %></div>"
   res: "<div class='subtitle'><b>SI</b> - 04.11</div>"
 
-author_large:
-  src: "<z:author size='large'/>"
+show_author_large:
+  src: "<z:show_author size='large'/>"
   tem: "/posted by.*@node.author.fullname.*traduction by.*@node.version.author.fullname.*else.*modified by.*@node.version.author.fullname.*on.*@node.version.updated_at, \"%m.%d\"/"
   res: "posted by <b>Solenopsis Invicta</b> on 04.11."
 
