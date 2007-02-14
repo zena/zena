@@ -783,22 +783,6 @@ ENDTXT
     end
   end
   
-  # find the title partial for the current object or parameter
-  def title_partial(obj=@node)
-    klass = obj.class
-    path = nil
-    partial = nil
-    while (partial == nil) && (klass != ActiveRecord::Base) do
-      path = File.join(RAILS_ROOT,'app', 'views', klass.to_s.downcase, '_title.rhtml')
-      if File.exist?(path)
-        partial = "#{klass.to_s.downcase}/title"
-        break
-      end
-      klass = klass.superclass
-    end    
-    partial
-  end
-  
   # show author information
   # size can be either :small or :large, options are
   # :node=>object

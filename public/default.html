@@ -39,13 +39,19 @@
     <%#= plug :notes %>
   </div>
   <div id="main">
-    
-    <h1 class='title' zafu='title' status='true' actions='all'><div class='s50'>page title
-      <ul class='actions'><li><a><img src='images/page_edit.png'/></a></li><li><a><img src='images/wand.png'/></a></li></ul></div>
-    </h1>
-    <div class='subtitle' zafu='author' size='large'>posted by <b>someone</b>. Traductions: <span class='traductions'><a>fr</a>, <a>end</a></div>
-
-    <%= render :partial=>title_partial %>
+    <z:case>
+      <z:when kind_of='Image'><z:include template='image_title'/></z:when>
+      <z:when kind_of='Document'><z:include template='document_title'/></z:when>
+      <z:when kind_of='Contact'><z:include template='contact_title'/></z:when>
+      <z:else>
+        <div class='<%= @node.class.to_s.downcase %>_title'>
+          <h1 class='title' zafu='title' status='true' actions='all'><div class='s50'>page title
+            <ul class='actions'><li><a><img src='images/page_edit.png'/></a></li><li><a><img src='images/wand.png'/></a></li></ul></div>
+          </h1>
+          <div class='subtitle' zafu='author' size='large'>posted by <b>someone</b>. Traductions: <span class='traductions'><a>fr</a>, <a>en</a></div>
+        </div>
+      </z:else>
+    </z:case>
       
     <div class="content" id='content'>
       <%= show(@node, :v_summary, :text=>'')%>

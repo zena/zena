@@ -88,6 +88,44 @@ module Zena
       out "<% end -%>"
     end
     
+    def r_case
+      out "<% if false -%>"
+      @blocks.each do |block|
+        if block.kind_of?(self.class) && ['when', 'else'].include?(block.method)
+          out block.render(@context.merge(:choose=>true))
+        else
+          # drop
+        end
+      end
+      out "<% end -%>"
+    end
+    
+    def r_else
+      return unless @context[:choose]
+      out "<% elsif true -%>"
+      out expand_with(:choose=>false)
+    end
+    
+    def r_when
+      return "<span class='zafu_error'>bad context for when clause</span>" unless @context[:choose]
+      if klass = @params[:kind_of]
+        begin Module::const_get(klass) rescue "NilClass" end
+        cond = "#{node}.kind_of?(#{klass})"
+      elsif klass = (@params[:klass] || @params[:class])
+        begin Module::const_get(klass) rescue "NilClass" end
+        cond = "#{node}.class == #{klass}"
+      elsif status = @params[:status]
+        cond = "#{node}.version[:status] == #{Zena::Status[status.to_sym]}"
+      elsif lang = @params[:lang]
+        cond = "#{node}.version[:lang] == #{lang.inspect}"
+      else
+        cond = nil
+      end
+      return "<span class='zafu_error'>condition error for when clause</span>" unless cond
+      out "<% elsif #{cond} -%>"
+      out expand_with(:choose=>false)
+    end
+    
     # be carefull, this gives a list of 'versions', not 'nodes'
     def r_traductions
       out "<% if #{var} = #{node}.traductions %>"

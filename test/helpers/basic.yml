@@ -119,3 +119,11 @@ each_traductions:
   tem: "<% if var1 = @node.traductions %><ul><li><% (var1 || []).each do |var1| -%><%= var1[:title] %><% end -%></li></ul><% end -%>"
   res: "<ul><li>Etat des travaux</li></ul>"
 
+case_when:
+  src: "<z:case><z:when kind_of='Document'>this is a document</z:when><z:when class='Page'>Page</z:when><z:when status='pub'>Pub</z:when>"
+  tem: "<% if false -%><% elsif @node.kind_of?(Document) -%>this is a document<% elsif @node.class == Page -%>Page<% elsif @node.version[:status] == 50 -%>Pub<% end -%>"
+  res: "Page"
+
+case_when_else:
+  src: "<z:case><z:when kind_of='Document'>Document</z:when><z:else>Not a document</z:else></z:case>"
+  res: "Not a document"
