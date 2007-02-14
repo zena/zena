@@ -142,8 +142,8 @@ input, textarea { font:inherit; padding:2px;}
 #drive_links .btn_add a { visibility:visible;}
 
 /* s50, s40, s30, s20, s10, s0 = pub, prop, red, rep, rem, del */
-.info, .note .info { font-style: italic; font-size: 0.9em; color: #666;}
-.info b, .note .info b { font-weight: normal; color: black;}
+.subtitle, .note .subtitle { font-style: italic; font-size: 0.9em; color: #666;}
+.subtitle b, .note .subtitle b { font-weight: normal; color: black;}
 .li_s50 {}
 .li_s40 a { border-bottom: 2px solid #73A1A5; }
 .li_s35 a { border-bottom: 2px dotted #73A1A5; }
@@ -178,7 +178,7 @@ h1, h2, h3 { font-family: Georgia, Times, serif ; font-style:italic; color:#4500
 #left .header h1 { font-size:1.3em; margin-top:1.2em; margin-bottom:0.5em;}
 #left .header h1 a { color:inherit;}
 #left .subtitle { margin-bottom:0.17em; margin-top:0.17em; }
-#left .subtitle .info { font-style:normal; font-size:0.7em; }
+#left .subtitle { font-style:normal; font-size:0.7em; }
 #left .subtitle { margin-bottom:0;}
 .summary p { font-style:italic; }
 /* ???

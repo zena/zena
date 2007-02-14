@@ -123,46 +123,44 @@ module ApplicationHelper
   
   # display the time with the format provided by the translation of 'long_time'
   def long_time(atime)
-    format_date(atime, "long_time")
+    tformat_date(atime, "long_time")
   end
   
   # display the time with the format provided by the translation of 'short_time'
   def short_time(atime)
-    format_date(atime, "short_time")
+    tformat_date(atime, "short_time")
   end
   
   # display the time with the format provided by the translation of 'full_date'
   def full_date(adate)
-    format_date(adate, "full_date")
+    tformat_date(adate, "full_date")
   end
   
   # display the time with the format provided by the translation of 'long_date'
   def long_date(adate)
-    format_date(adate, "long_date")
+    tformat_date(adate, "long_date")
   end
   
   # display the time with the format provided by the translation of 'short_date'
   def short_date(adate)
-    format_date(adate, "short_date")
+    tformat_date(adate, "short_date")
   end
   
   # format a date with the given format. Translate month and day names.
-  def format_date(thedate, fmt)
-    if thedate
-      adate = visitor.tz.adjust(thedate)
-      format = trans(fmt)
-      if format != fmt
-        # month name
-        format.gsub!("%b", trans(adate.strftime("%b")) )
-        format.gsub!("%B", trans(adate.strftime("%B")) )
-        # weekday name
-        format.gsub!("%a", trans(adate.strftime("%a")) )
-        format.gsub!("%A", trans(adate.strftime("%A")) )
-        adate.strftime(format)
-      else
-        trans fmt
-      end
-    end
+  def tformat_date(thedate, fmt)
+    tformat_date(thedate, trans(fmt))
+  end
+  
+  def format_date(thedate, format)
+    return "" unless thedate
+    adate = visitor.tz.adjust(thedate)
+      # month name
+    format.gsub!("%b", trans(adate.strftime("%b")) )
+    format.gsub!("%B", trans(adate.strftime("%B")) )
+    # weekday name
+    format.gsub!("%a", trans(adate.strftime("%a")) )
+    format.gsub!("%A", trans(adate.strftime("%A")) )
+    adate.strftime(format)
   end
   
   # Show visitor name if logged in
@@ -464,22 +462,23 @@ module ApplicationHelper
   # * :project if true , the project name is added before the object title as 'project / .....'
   #   default = obj project is different from current node project
   # if no options are provided show the current object title
-  def show_title(obj=@node, opt={})
-    unless opt.include?(:link)
-      opt[:link] = (obj[:id] != @node[:id])
+  def show_title(opts={})
+    obj = opts[:node] || @node
+    unless opts.include?(:link)
+      opts[:link] = (obj[:id] != @node[:id])
     end
-    unless opt.include?(:project)
-      opt[:project] = (obj[:project_id] != @node[:project_id] && obj[:id] != @node[:id]) 
+    unless opts.include?(:project)
+      opts[:project] = (obj[:project_id] != @node[:project_id] && obj[:id] != @node[:id]) 
     end
-    if opt[:project]
+    if opts[:project]
       title = "#{obj.project.name} / #{obj.v_title}"
     else
-      title = obj.v_title
+      title = obj.version[:title]
     end
-    if opt[:link]
+    if opts[:link]
       title = link_to(title, node_url(obj))
     end
-    "<span id='v_title#{obj.v_id}'>#{title}#{check_lang(obj)}</span>"
+    "<span id='v_title#{obj.v_id}'>#{title + check_lang(obj)}</span>"
   end
   
   # TODO: test
@@ -634,31 +633,32 @@ module ApplicationHelper
   end
   
   # Buttons are :edit, :add, :propose, :publish, :refuse, or :drive. :all = (:edit, :propose, :publish, :refuse, :drive)
-  def edit_button(action, opt={})
+  def node_actions(opts={})
+    action = (opts[:actions] || :all).to_sym
     res = []
-    if opt[:node]
-      version_id = opt[:node].v_id
-      node = opt[:node]
+    if opts[:node]
+      version_id = opts[:node].v_id
+      node = opts[:node]
     else
       version_id = nil
       node = @node
     end
     if (action == :edit or action == :all) && node.can_edit?
-      res << form_action('edit',version_id, opt[:text])
+      res << form_action('edit',version_id, opts[:text])
     end
     if (action == :propose or action == :all) && node.can_propose?
-      res << form_action('propose',version_id, opt[:text])
+      res << form_action('propose',version_id, opts[:text])
     end
     if (action == :publish or action == :all) && node.can_publish?
-      res << form_action('publish',version_id, opt[:text])
+      res << form_action('publish',version_id, opts[:text])
     end
     if (action == :refuse or action == :all) && node.can_refuse?
-      res << form_action('refuse',version_id, opt[:text])
+      res << form_action('refuse',version_id, opts[:text])
     end
     if (action == :drive or action == :all) && node.can_drive?
-      res << form_action('drive',version_id, opt[:text])
+      res << form_action('drive',version_id, opts[:text])
     end
-    "<li>#{res.join("</li>\n<li>")}</li>"
+    "<ul class='actions'><li>#{res.join("</li>\n<li>")}</li></ul>"
   end
   
   # TODO: test
@@ -764,19 +764,14 @@ module ApplicationHelper
     
 ENDTXT
   end
-  # Create the traduction list for the current node
-  def traductions(obj=@node)
+  
+  # Traductions as a list of links
+  def traductions(opts={})
+    obj = opts[:node] || @node
     trad_list = []
-    lang_found = false
     obj.traductions.map do |ed|
-      if ed == obj.v_lang
-        lang_found = (ed == lang) # current node is in the requested lang
-        trad_list << "<span class='on'>" + link_to( ed, change_lang(ed)) + "</span>"
-      else
-        trad_list << "<span>" + link_to( ed, change_lang(ed)) + "</span>"
-      end
+      trad_list << "<span>" + link_to( trans(ed[:lang]), node_url(ed)) + "</span>"
     end
-    trad_list << "<span class='off'>#{lang}</span>" unless lang_found
     trad_list
   end
   
@@ -807,11 +802,9 @@ ENDTXT
   # show author information
   # size can be either :small or :large, options are
   # :node=>object
-  def author(size, opt={})
-    obj  = opt[:node]  || @node
-    if size == :large
+  def author(opts={})
+    obj  = opts[:node] || @node
       res = []
-      res << "<div class='info'>"
       if  obj.author.id == obj.v_author.id
         res << trans("posted by") + " <b>" + obj.author.fullname + "</b>"
       else
@@ -820,11 +813,7 @@ ENDTXT
       end
       res << trans("on") + " " + short_date(obj.v_updated_at) + "."
       res << trans("Traductions") + " : <span id='trad'>" + traductions.join(", ") + "</span>"
-      res << "</div>"
       res.join("\n")
-    else
-      "<div class='info'><b>#{obj.v_author.initials}</b> - #{short_date(obj.v_updated_at)}</div>"
-    end
   end
   
   # show current path with links to ancestors

@@ -473,4 +473,17 @@ class MultiVersionTest < Test::Unit::TestCase
   def test_remove_redaction
     assert false, 'todo'
   end
+  
+  def test_traductions
+    test_visitor(:lion) # lang = 'en'
+    node = secure(Node) { nodes(:status) }
+    trad = node.traductions
+    assert_equal 1, trad.size
+    assert_equal 'en', node.v_lang
+    assert_equal 'fr', trad[0][:lang]
+    node = secure(Node) { nodes(:wiki) }
+    trad = node.traductions
+    assert_equal 0, trad.size
+  end
+    
 end

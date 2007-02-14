@@ -38,6 +38,11 @@ show_title:
   tem: "<%= @node.version[:title] %>"
   res: "status title"
 
+title:
+  src: "<h2 zafu='title'>super titre</h2>"
+  tem: "<h2><%= show_title(:node=>@node, :link=>false, :project=>false)%></h2>"
+  res: "<h2><span id='v_title12'>status title</span></h2>"
+
 show_parent_title:
   src: "<z:parent><h1 zafu='title'>parent title</h1></z:parent>"
   tem: "<% if var1 = @node.parent -%><h1><%= var1.version[:title] %></h1><% end -%>"
@@ -50,6 +55,11 @@ show_name:
 show_v_text:
   src:  "my <z:show attr=':v_text'/>"
   res: "my status text"
+
+show_title_options:
+  src: "<h1 class='title' zafu='title' status='true' actions='all'>dummy</h1>"
+  tem: "<h1 class='title'><div class='s<%= @node.version.status %>'><%= show_title(:node=>@node, :link=>false, :project=>false) + node_actions(:node=>@node, :actions=>\"all\")%></div></h1>"
+  res: "/<h1 class='title'><div class='s50'><span id='v_title12'>status title</span><ul class='actions'><li>.*\/z\/version\/edit\/12.*\/images\/page_edit.png'/><\/a><\/li><\/ul><\/div><\/h1>/"
 
 show_c_width:
   context:
@@ -70,6 +80,11 @@ lang_links:
   tem: "<div id='lang'><%= lang_links(:node=>@node) %></div>"
   res: "/<div id='lang'><b>en.*test_render.*lang=es.*\|.*test_render.*=en.*fr/"
 
+path_links:
+  src: "<div id='path' zafu='path_links'><ul><li><a href='#'>first</a></li> / <li><a href='#'>second</a></li> / <li><a href='#' class='current'>here</a></li></ul></div>"
+  tem: "<div id='path'><%= path_links(:node=>@node) %></div>"
+  res: "/<div id='path'><ul class='path'><li>.*zena.*<li>.*oo\/page8.html.*<li><.*\/projects\/cleanWater.*cleanWater<\/a>.*\/oo\/projects\/cleanWater\/page12.html.*class='current'>status<\/a>/"
+
 uses_calendar:
   src: "<z:uses_calendar/>"
   tem: "/<script.*calendar.js.*calendar-setup.js.*calendar-en-utf8.js.*calendar-brown.css.*CDATA.*DEF_DATE_FORMAT.*%Y-%m-%d %H:%M.*FIRST_DAY.*0/"
@@ -88,3 +103,19 @@ flash_messages_notice:
   src: "<z:flash_messages show='notice'/>"
   tem: "/id.*messages.*notice.*flash.*notice/"
   res: "<div id='messages'></div>"
+  
+author_short:
+  src: "<div class='subtitle' zafu='author'><b>SI</b> - 05.12</div>"
+  tem: "<div class='subtitle'><b><%= @node.version.author.initials %></b> - <%= format_date(@node.version.updated_at, \"%m.%d\") %></div>"
+  res: "<div class='subtitle'><b>SI</b> - 04.11</div>"
+
+author_large:
+  src: "<z:author size='large'/>"
+  tem: "/posted by.*@node.author.fullname.*traduction by.*@node.version.author.fullname.*else.*modified by.*@node.version.author.fullname.*on.*@node.version.updated_at, \"%m.%d\"/"
+  res: "posted by <b>Solenopsis Invicta</b> on 04.11."
+
+each_traductions:
+  src: "<z:traductions><ul><li zafu='each'><z:show attr='title'></li></ul></z:traductions>"
+  tem: "<% if var1 = @node.traductions %><ul><li><% (var1 || []).each do |var1| -%><%= var1[:title] %><% end -%></li></ul><% end -%>"
+  res: "<ul><li>Etat des travaux</li></ul>"
+

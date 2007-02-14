@@ -67,8 +67,8 @@ module Zena
         end
         
         # return an array of language strings
-        def traductions
-          editions.map {|ed| ed.lang}
+        def traductions(opts={})
+          editions.reject { |ed| ed[:lang] == version[:lang] }
         end
         
         # can propose for validation

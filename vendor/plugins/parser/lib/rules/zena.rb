@@ -37,11 +37,64 @@ module Zena
       end
     end
     
-    # convenience tag. Does the same as <z:show attr='v_title'/>
     def r_title
-      "<%= #{node}.version[:title] %>"
+      res = "<%= show_title(:node=>#{node}"
+      unless @params.include?(:link)
+        res << ", :link=>#{@params[:link] == 'true'}"
+      end
+      unless @params.include?(:project)
+        res << ", :project=>#{@params[:project] == 'true'}"
+      end
+      res << ")"
+      if @params[:actions]
+        res << " + node_actions(:node=>#{node}, #{erb_param(:actions)})"
+      end
+      res << "%>"
+      if @params[:status]
+        res = "<div class='s<%= #{node}.version.status %>'>#{res}</div>"
+      end
+      res
     end
-
+    
+    def r_text
+      
+    end
+    
+    def r_author
+      if @params[:size] == 'large'
+        out "#{helper.trans("posted by")} <b><%= #{node}.author.fullname %></b>"
+        out "<% if #{node}[:user_id] != #{node}.version[:user_id] -%>"
+        out "<% if #{node}[:ref_lang] != #{node}.version[:lang] -%>"
+        out "#{helper.trans("traduction by")} <b><%= #{node}.version.author.fullname %></b>"
+        out "<% else -%>"
+        out "#{helper.trans("modified by")} <b><%= #{node}.version.author.fullname %></b>"
+        out "<% end"
+        out "   end -%>"
+        out " #{helper.trans("on")} <%= format_date(#{node}.version.updated_at, #{helper.trans('short_date').inspect}) %>."
+        if @params[:traductions] == 'true'
+          out " #{helper.trans("Traductions")} : <span class='traductions'><%= helper.traductions(:node=>#{node}).join(', ') %></span>"
+        end
+      else
+        out "<b><%= #{node}.version.author.initials %></b> - <%= format_date(#{node}.version.updated_at, #{helper.trans('short_date').inspect}) %>"
+        if @params[:traductions] == 'true'
+          out " <span class='traductions'>(<%= helper.traductions(:node=>#{node}).join(', ') %>)</span>"
+        end
+      end
+    end
+    
+    def r_each
+      out "<% (#{list} || []).each do |#{var}| -%>"
+      out expand_with(:node=>var)
+      out "<% end -%>"
+    end
+    
+    # be carefull, this gives a list of 'versions', not 'nodes'
+    def r_traductions
+      out "<% if #{var} = #{node}.traductions %>"
+      out expand_with(:list=>var)
+      out "<% end -%>"
+    end
+    
     def r_parent
       out "<% if #{var} = #{node}.parent -%>"
       out expand_with(:node=>var)
@@ -95,6 +148,14 @@ module Zena
     
     def helper
       @options[:helper]
+    end
+    
+    def erb_param(param)
+      if @params[param]
+        "#{param.inspect}=>#{@params[param].strip.inspect}"
+      else
+        ""
+      end
     end
   end
 end
