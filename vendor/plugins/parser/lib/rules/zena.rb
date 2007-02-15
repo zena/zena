@@ -142,6 +142,40 @@ module Zena
       
     end
     
+    def r_edit
+      text = expand_with
+      if @context[:included] && @context[:included] == @context[:node_class]
+        @pass[:edit] = true
+        "<%= link_to_function(#{text.inspect}, :controller=>#{@context[:node_class].inspect}) %>" # FIXME: finish url
+      else
+        "<%= link_to(#{text.inspect}, :controller=>'Blah') %>" # FIXME
+      end
+    end
+      
+    def r_include
+      # set id of first included
+      @context[:node_class] ||= 'Node'
+      expand_with
+      @blocks = @included_blocks || @blocks
+      @pass.merge!(:included=>@context[:node_class], :edit=>false) # we want to know if we have to set a unique id for the included content
+      res = expand_with(@pass)
+      if @pass[:edit] 
+        res.sub!(/\A([^<]*)<(\w+)( [^>]+|)>/) do
+          # we must set the first tag id
+          before = $1
+          tag = $2
+          params = parse_params($3)
+          params[:id] = "#{@context[:node_class].downcase}<%= #{node}[:id] %>"
+          para = ""
+          params.each do |k,v|
+            para << " #{k}=#{params[k].inspect.gsub("'","TMPQUOTE").gsub('"',"'").gsub("TMPQUOTE",'"')}"
+          end
+          "#{before}<#{tag}#{para}>"
+        end
+      end
+      res
+    end
+    
     def r_each
       out "<% (#{list} || []).each do |#{var}| -%>"
       out expand_with(:node=>var)

@@ -41,7 +41,7 @@ body {font: 0.9em Arial, Helvetica, Verdana, sans-serif; background:#9FA6AC; lin
 .tab_content {height:100%; width:100%;font-size:0.9em; padding:3px 0 2px 8px;}
 /* text */
 #text_tab {text-align:right; padding:3px 0 0 0;}
-#node_v_text { width:95%; height:100%; font:inherit; padding:5px 0 5px 5px;}
+#node_v_text { width:95%; height:100%; font:inherit; padding:5px 0 10px 5px;}
 
 /* title */
 #node_v_title, #node_v_comment, #node_v_summary { width:96%; font:inherit; font-size:0.9em; padding:2px;}

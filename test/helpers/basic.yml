@@ -45,8 +45,8 @@ title:
 
 show_parent_title:
   src: "<z:parent><h1 zafu='title'>parent title</h1></z:parent>"
-  tem: "<% if var1 = @node.parent -%><h1><%= var1.version[:title] %></h1><% end -%>"
-  res: "<h1>Clean Water project</h1>"
+  tem: "<% if var1 = @node.parent -%><h1><%= show_title(:node=>var1, :link=>false, :project=>false)%></h1><% end -%>"
+  res: "<h1><span id='v_title11'>Clean Water project</span></h1>"
 
 show_name:
   src:  "my <z:show attr=':name'/>"
@@ -127,3 +127,19 @@ case_when:
 case_when_else:
   src: "<z:case><z:when kind_of='Document'>Document</z:when><z:else>Not a document</z:else></z:case>"
   res: "Not a document"
+
+edit_not_included:
+  src: "<li class='blah'>this is a post <z:edit>edit post</z:edit></li>"
+  tem: "/<li class='blah'>this is a post <%= link_to\(\"edit post\".*\) %><\/li>/"
+
+edit_included:
+  src: "<z:include template='/edit/not/included'/>"
+  tem: "/<li class='blah' id='node<%= @node\[:id\] %>'>this is a post <%= link_to_function\(\"edit post\".*\) %><\/li>/"
+
+dummy_to_include:
+  src: "<li>stupid</li>"
+  tem: "<li>stupid</li>"
+  
+include_no_edit:
+  src: "<z:include template='/dummy/to/include'/>"
+  tem: "<li>stupid</li>"

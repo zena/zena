@@ -165,6 +165,7 @@ class Parser
     @text = text
     enter(:void) # normal scan on content
   end
+  
   def success?
     return @ok
   end
