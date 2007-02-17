@@ -31,6 +31,11 @@ module Zazen
       @blocks << str
     end
     
+    def flush(str=@text)
+      @blocks << str
+      @text = @text[str.length..-1]
+    end
+    
     def scan
       #puts "SCAN:[#{@text}]"
       if @text =~ /\A([^!"<]*)/

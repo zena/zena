@@ -21,7 +21,7 @@
   </div>
 
   <%= menu               %>
-  <%= logo Time.now.utc  %>
+  <%#= logo Time.now.utc  %>
   <%= flash_messages %>
 
   <div id="left">
@@ -30,8 +30,14 @@
   </div>
   <div id="main">
     
-    <%= render :partial=>title_partial %>
-      
+    <div class='<%= @node.class.to_s.downcase %>_title'>
+      <div class='header'>
+        <h1 class='s<%= @node.v_status %>'><%= show_title %>
+          <ul class='node_actions'><%= node_actions(:actions=>:all) %></ul>
+        </h1>
+        <div class='subtitle'><%= author(:size=>:large) %><%#= plug :links %></div>
+      </div>
+    </div> 
     <div class="content" id='content'>
       <%= show(@node, :v_summary, :text=>'')%>
       <%= show(@node, :v_text   ) %>

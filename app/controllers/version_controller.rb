@@ -51,7 +51,7 @@ class VersionController < ApplicationController
       @v_summary = @node.v_summary
       @v_text    = @node.v_text
     end
-    if @node.kind_of?(TextDocument)
+    if @node.kind_of?(TextDocument) && false
       @html = @v_text
     elsif @node.kind_of?(TextDocument)
       lang = @node.content_lang

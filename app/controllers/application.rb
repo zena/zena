@@ -3,12 +3,12 @@
 class ApplicationController < ActionController::Base
   acts_as_secure_controller
   helper_method :prefix, :node_url, :notes, :error_messages_for, :render_errors, :add_error, :data_url
+  helper_method :template_text_for_url, :template_url_for_asset, :save_erb_to_url
   helper 'main'
   before_filter :authorize
   before_filter :set_env
   after_filter  :set_encoding
   layout false
-  
   private
   def render_and_cache(opts={})
     opts = {:template=>opts} if opts.kind_of?(String)
@@ -25,6 +25,7 @@ class ApplicationController < ActionController::Base
   end
   
   def template(tmplt=nil)
+    
     unless tmplt
       if params[:mode]
         tmplt = params[:mode].gsub('..','').gsub('/','') # security to prevent rendering pages out of 'templates'
@@ -32,17 +33,75 @@ class ApplicationController < ActionController::Base
         tmplt = @node.template || 'default'
       end
     end
-    
-    # try to find a class specific template, starting with the most specialized, then the class specific and finally
-    # the contextual template or default
-    ["#{tmplt}_#{@node.class.to_s.downcase}", "any_#{@node.class.to_s.downcase}", tmplt ].each do |filename|
-      if File.exist?(File.join(RAILS_ROOT, 'app', 'views', 'templates', "#{filename}.rhtml"))
-        return filename
-      end
+    return 'default' unless tmplt == 'wiki'
+    # 1. find the best template for the current context (db obj exists)
+    # temp = secure(Template) { Template.find_by_path(tmplt.split('/')) }
+    temp = secure(Template) { Template.find_by_name('wiki') }
+    temp_url = "#{tmplt}_#{lang}"
+    # 2. does the file for the current lang exist ?
+    fullpath = File.join(RAILS_ROOT, 'app', 'views', 'templates', "#{temp_url}.rhtml")
+    if File.exist?(fullpath) && (File.stat(fullpath).mtime > temp.version.updated_at)
+      # we are done
+      return temp_url
     end
-    return 'default'
+    puts "render"
+    # else render for the current lang
+    response.template.instance_eval { @session = {} } # if accessing session when rendering, should be like no one there yet.
+    res = ZafuParser.new(temp.version.text, :helper=>response.template).render
+    File.open(fullpath, "wb") { |f| f.syswrite(res) }
+    return temp_url
+    # 
+    # # try to find a class specific template, starting with the most specialized, then the class specific and finally
+    # # the contextual template or default
+    # # TODO: include 'mode'
+    # ["#{tmplt}_#{@node.class.to_s.downcase}", "any_#{@node.class.to_s.downcase}", tmplt ].each do |filename|
+    #   if File.exist?(File.join(RAILS_ROOT, 'app', 'views', 'templates', "#{filename}.rhtml"))
+    #     return filename
+    #   end
+    # end
+    # return 'default'
   end
-   
+  
+  def template_text_for_url(url)
+    url = url[1..-1] # strip leading '/'
+    @current_template = url
+    url = url.gsub('/','_')
+    if test = @@templates[url]
+      test['src']
+    else
+      nil
+    end
+  end
+
+  def template_url_for_asset(type,url)
+    # current_template = @current_template || "/"
+    # we assume current_template is /projects/cleanWater for testing
+    current_template = 'projects/cleanWater'
+    path = current_template.split('/') + url.split('/')
+    doc = secure(Document) { Document.find_by_path(path)}
+    url = url_for(data_url(doc))
+    if url =~ %r{http://test.host(.*)}
+      $1
+    else
+      url
+    end
+  end
+  
+  def save_erb_to_url(template, template_url)
+    "save '#{template_url}':[#{template}]"
+  end
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
   def page_not_found
     redirect_to :controller => 'main', :action=>'not_found'
   end
@@ -101,7 +160,7 @@ class ApplicationController < ActionController::Base
     
     # turn translation on/off
     if params[:translate] 
-      if visitor_groups.include?(ZENA_ENV[:translate_group])
+      if visitor.group_ids.include?(ZENA_ENV[:translate_group])
         if params[:translate] == 'on'
           session[:translate] = true
         else

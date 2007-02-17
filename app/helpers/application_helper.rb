@@ -113,7 +113,7 @@ module ApplicationHelper
   end
   
   # Shows 'login' or 'logout' button.
-  def login_link
+  def login_link(opts={})
     if session[:user]
       "<div id='logout'><a href='/logout'>#{transb('logout')}</a></div>"
     else
@@ -148,7 +148,7 @@ module ApplicationHelper
   
   # format a date with the given format. Translate month and day names.
   def tformat_date(thedate, fmt)
-    tformat_date(thedate, trans(fmt))
+    format_date(thedate, trans(fmt))
   end
   
   def format_date(thedate, format)
@@ -221,7 +221,7 @@ module ApplicationHelper
         text = paragraphs[0..opt[:limit]].join("\r\n\r\n") + "\r\n\r\np(more). " + trans("read more &#8230;")
       end
     end
-    Zazen::Parser.new(text,self).render(opt)
+    ZazenParser.new(text,:helper=>self).render(opt)
     #r = RedCloth.new(text) #, [:hard_breaks])
     #r.gsub!(  /(\A|[^\w])@(.*?)@(\Z|[^\w])/     ) { "#{$1}\\AT_START\\#{zazen_escape($2)}\\AT_END\\#{$3}" }
     #r.gsub!(  /<code>(.*?)<\/code>/m            ) { "\\CODE_START\\#{zazen_escape($1)}\\CODE_END\\" }
@@ -473,7 +473,7 @@ module ApplicationHelper
     if opts[:project]
       title = "#{obj.project.name} / #{obj.v_title}"
     else
-      title = obj.version[:title]
+      title = obj.version.title
     end
     if opts[:link]
       title = link_to(title, node_url(obj))

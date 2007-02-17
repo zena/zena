@@ -1,4 +1,6 @@
 module Zena
+  module Rules
+  end
   module Tags
     class << self
       def inline_methods(*args)
@@ -24,7 +26,7 @@ module Zena
     inline_methods :login_link, :visitor_link, :search_box, :menu, :path_links, :lang_links
     direct_methods :uses_calendar
     def r_show
-      return unless check_params(:attr)
+      return "" unless check_params(:attr)
       attribute = @params[:attr]
       attribute = attribute[1..-1] if attribute[0..0] == ':'
       case attribute[0..1]
@@ -60,7 +62,7 @@ module Zena
       out "<div id='v_text<%= #{node}.version[:id] %>' class='zazen'>"
       unless @params[:empty] == 'true'
         out "<% if #{node}.kind_of?(TextDocument); l = #{node}.content_lang -%>"
-        out "<%= zazen('<code\#{l ? \" lang='\#{l}'\" : ''} class=\\'full\\'>\#{#{node}.version.text}</code>') %></div>"
+        out "<%= zazen(\"<code\#{l ? \" lang='\#{l}'\" : ''} class=\\'full\\'>\#{#{node}.version.text}</code>\") %></div>"
         out "<% else -%>"
         out "<%= zazen(#{node}.version[:text]) %>"
         out "<% end -%>"
@@ -131,62 +133,125 @@ module Zena
     
     # TODO: test
     def r_author
-      return unless check_node_class(:Node, :Version, :Comment)
+      return "" unless check_node_class(:Node, :Version, :Comment)
       out "<% if #{var} = #{node}.author -%>"
       out expand_with(:node=>var, :node_class=>:User)
       out "<% end -%>"
     end
     
+    def r_edit
+      if @context[:preflight]
+        # preprocessing
+        # we need forms/templates for ajax
+        @pass[:edit] = self
+        return ""
+      end
+      text = expand_with
+      if @context[:each] && @context[:each] == @context[:node_class]
+        # preprocessing
+        # we need forms/templates for ajax
+        @pass[:edit] = true
+        return ""
+      elsif @context[:template_url]
+        # ajax
+        "<%= link_to_function(#{text.inspect}, :controller=>'zafu', :action=>'ajax_edit', :id=>#{node}[:id], :template_url=>#{@context[:template_url].inspect}) %>"
+      else
+        "<%= link_to(#{text.inspect}, :controller=>'zafu', :action=>'edit', :id=>#{node}[:id], :template_url=>#{@context[:template_url].inspect}) %>" # FIXME
+      end
+    end
+    
+    def r_form
+      if @context[:preflight]
+        # preprocessing
+        # we need forms/templates for ajax
+        @pass[:form] = self
+        return ""
+      end
+      if @context[:template_url]
+        # ajax
+        start = "<%= form_remote_tag(:url=>{:controller=>'Zafu', :action=>'ajax_form', :id=>(#{node} ? #{node}[:id] : '')}) %>"
+        start << "<input type='hidden' name='template_url' value='#{@context[:template_url]}'/>"
+      else
+        # no ajax
+        start = "<%= form_tag(:controller=>'Zafu', :action=>'form', :id=>(#{node} ? #{node}[:id] : '')) %>"
+      end
+      exp = expand_with
+      if exp =~ /([^<]*)<(\w+)([^>]*)>(.*)<\/\2>(.*)/
+        out $1
+        tag   = $2
+        inner = $4
+        after = $5
+        if @context[:tag_params]
+          start_tag  = add_params("<#{$2}#{$3}>", @context[:tag_params])
+        elsif @context[:template_url]
+          start_tag  = add_params("<#{$2}#{$3}>", :id=>"#{@context[:template_url].gsub('/', '_')}<%= #{node}[:id] %>")
+        else
+          start_tag = "<#{$2}#{$3}>"
+        end
+        inner.gsub!(/<\/?form[^>]*>/,'')
+        out "#{start_tag}#{start}#{inner}<%= end_form_tag -%></#{tag}>#{after}"
+      else
+        out start
+        out exp
+        out "<%= end_form_tag -%>"
+      end
+    end
+    
     # TODO: test
     def r_add
-      
-    end
-    
-    def r_edit
+      if @context[:preflight]
+        # preprocessing
+        # we need forms/templates for ajax
+        @pass[:add] = self
+        return ""
+      end
       text = expand_with
-      if @context[:included] && @context[:included] == @context[:node_class]
-        @pass[:edit] = true
-        "<%= link_to_function(#{text.inspect}, :controller=>#{@context[:node_class].inspect}) %>" # FIXME: finish url
+      if @context[:form] && @context[:template_url]
+        # ajax add
+        prefix  = @context[:template_url].gsub('/','_')
+        if @params[:tag]
+          out "<#{@params[:tag]} id='#{prefix}<%= @#{node_class.to_s.downcase}[:id] %>'>"
+        else
+          text = add_params(text, :id=>"#{prefix}_add", :onclick=>"new Element.toggle('#{prefix}_add', '#{prefix}_form');return false;")
+        end
+        out text
+        out expand_block(@context[:form],:node=>"@#{node_class.to_s.downcase}", :tag_params=>{:id=>"#{prefix}_form", :style=>"display:none;"})
+        if @params[:tag]
+          out "</#{@params[:tag]}>"
+        end
       else
-        "<%= link_to(#{text.inspect}, :controller=>'Blah') %>" # FIXME
+        # no ajax
+        "<%= link_to(#{text.inspect}, ...) %>" # FIXME
       end
     end
-      
-    def r_include
-      # set id of first included
-      @context[:node_class] ||= 'Node'
-      expand_with
-      @blocks = @included_blocks || @blocks
-      @pass.merge!(:included=>@context[:node_class], :edit=>false) # we want to know if we have to set a unique id for the included content
-      res = expand_with(@pass)
-      if @pass[:edit] 
-        res.sub!(/\A([^<]*)<(\w+)( [^>]+|)>/) do
-          # we must set the first tag id
-          before = $1
-          tag = $2
-          params = parse_params($3)
-          params[:id] = "#{@context[:node_class].downcase}<%= #{node}[:id] %>"
-          para = ""
-          params.each do |k,v|
-            para << " #{k}=#{params[k].inspect.gsub("'","TMPQUOTE").gsub('"',"'").gsub("TMPQUOTE",'"')}"
-          end
-          "#{before}<#{tag}#{para}>"
+ 
+    def r_each
+      if @context[:preflight]
+        expand_with(:preflight=>true)
+        @pass[:each] = self
+      elsif @context[:list]
+        out "<% #{list}.each do |#{var}| -%>"
+        res = expand_with(:node=>var)
+        if @context[:template_url]
+          # ajax, set id
+          res = add_params(res, :id=>"#{@context[:template_url].gsub('/', '_')}<%= #{var}[:id] %>")
+        end
+        out res
+        out "<% end -%>"
+      else  
+        res = expand_with
+        if @context[:template_url]
+          # ajax, set id
+          res = add_params(res, :id=>"#{@context[:template_url].gsub('/', '_')}<%= #{node}[:id] %>")
         end
       end
-      res
     end
-    
-    def r_each
-      out "<% (#{list} || []).each do |#{var}| -%>"
-      out expand_with(:node=>var)
-      out "<% end -%>"
-    end
-    
+   
     def r_case
       out "<% if false -%>"
       @blocks.each do |block|
         if block.kind_of?(self.class) && ['when', 'else'].include?(block.method)
-          out block.render(@context.merge(:choose=>true))
+          out block.render(@context.merge(:case=>true))
         else
           # drop
         end
@@ -195,13 +260,13 @@ module Zena
     end
     
     def r_else
-      return unless @context[:choose]
+      return unless @context[:case]
       out "<% elsif true -%>"
-      out expand_with(:choose=>false)
+      out expand_with(:case=>false)
     end
     
     def r_when
-      return "<span class='zafu_error'>bad context for when clause</span>" unless @context[:choose]
+      return "<span class='zafu_error'>bad context for when clause</span>" unless @context[:case]
       if klass = @params[:kind_of]
         begin Module::const_get(klass) rescue "NilClass" end
         cond = "#{node}.kind_of?(#{klass})"
@@ -217,13 +282,13 @@ module Zena
       end
       return "<span class='zafu_error'>condition error for when clause</span>" unless cond
       out "<% elsif #{cond} -%>"
-      out expand_with(:choose=>false)
+      out expand_with(:case=>false)
     end
     
     # be carefull, this gives a list of 'versions', not 'nodes'
     def r_traductions
-      out "<% if #{var} = #{node}.traductions %>"
-      out expand_with(:list=>var, :node_class=>:Version)
+      out "<% if #{list_var} = #{node}.traductions %>"
+      out expand_with(:list=>list_var, :node_class=>:Version)
       out "<% end -%>"
     end
     
@@ -232,6 +297,11 @@ module Zena
       out "<% if #{var} = #{node}.parent -%>"
       out expand_with(:node=>var, :node_class=>:Node)
       out "<% end -%>"
+    end
+    
+    def r_children
+      return unless check_node_class(:Node)
+      do_list("#{node}.children")
     end
     
     # we cannot directly render this (running in controller, not in view...)
@@ -275,6 +345,28 @@ module Zena
       @context[:node] || '@node'
     end
     
+    def var
+      return @var if @var
+      if node =~ /^var(\d+)$/
+        @var = "var#{$1.to_i + 1}"
+      else
+        @var = "var1"
+      end
+    end
+    
+    def list_var
+      return @list_var if @list_var
+      if (list || "") =~ /^list(\d+)$/
+        @list_var = "list#{$1.to_i + 1}"
+      else
+        @list_var = "list1"
+      end
+    end
+    
+    def node_class
+      @context[:node_class] || :Node
+    end
+    
     def list
       @context[:list]
     end
@@ -290,11 +382,66 @@ module Zena
         ""
       end
     end
+    
+    def do_list(list_finder)
+      out "<% if #{list_var} = #{list_finder} -%>"
+      @context.delete(:template_url) # should not propagate
+      
+      # preflight parse to see what we have
+      expand_with(:preflight=>true)
+      
+      if (form_block = @pass[:form]) && (each_block = @pass[:each]) && (@pass[:edit] || @pass[:add])
+        # ajax
+        template_url  = "#{@options[:current_folder]}/#{@context[:name] || "root"}_#{node_class}"
+        
+        # render without 'add' or 'form'
+        out expand_with(:list=>list_var, :no_add=>true, :no_form=>true, :template_url=>template_url)
+        out "<% end -%>"
+        
+        # render add
+        if add_block = @pass[:add]
+          out expand_block(add_block, :node=>"@#{node_class.to_s.downcase}",
+                                                    :form=>form_block,
+                                                    :template_url=>template_url)
+        end
 
+        # TEMPLATE ========
+        template_node = "@#{node_class.to_s.downcase}"
+        template      = expand_block(each_block, :node=>template_node, :template_url=>template_url, :list=>false)
+        out helper.save_erb_to_url(template, template_url)
+        
+        # FORM ============
+        form_url     = "#{template_url}_form"
+        form = expand_block(form_block, :node=>"@#{node_class.to_s.downcase}", :template_url=>template_url, :tag_params=>{:id=>"<%= @id %>"})
+        out helper.save_erb_to_url(form, form_url)
+      else
+        # no form, render, edit and add are not ajax
+        out expand_with(:list=>list_var)
+        out "<% end -%>"
+      end
+      @pass = {} # do not propagate back
+    end
+       
+    def add_params(text, opts={})
+      text.sub(/\A([^<]*)<(\w+)( [^>]+|)>/) do
+        # we must set the first tag id
+        before = $1
+        tag = $2
+        params = parse_params($3)
+        opts.each do |k,v|
+          params[k] = v
+        end
+        para = ""
+        params.each do |k,v|
+          para << " #{k}=#{params[k].inspect.gsub("'","TMPQUOTE").gsub('"',"'").gsub("TMPQUOTE",'"')}"
+        end
+        "#{before}<#{tag}#{para}>"
+      end
+    end
+    
     # TODO: test
     def check_node_class(*list)
-      list << nil if list.include?(:Node)
-      list.include?(@context[:node_class])
+      list.include?(node_class)
     end
   end
 end

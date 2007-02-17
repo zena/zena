@@ -1,0 +1,2 @@
+class Template < TextDocument
+end

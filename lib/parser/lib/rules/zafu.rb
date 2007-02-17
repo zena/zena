@@ -149,7 +149,7 @@ module Zafu
         # puts "SAME:[#{$&}]}" # simple html tag same as zafu_tag
         flush $&
         @zafu_tag_count += 1 unless $2 == '/' # count opened zafu tags to be closed before return
-      elsif @text =~ /\A<(link|img|script)/
+      elsif @text =~ /\A<(link|img|script).*src\s*=/
         # puts "HTML:[#{$&}]}" # html
         make(:asset)
       elsif @text =~ /\A[^>]*?>/
@@ -170,7 +170,6 @@ module Zafu
         @tag = $1
         closed = ($3 != '')
         @params = parse_params($2)
-        leave(:asset) 
         if closed
           leave(:asset)
         else

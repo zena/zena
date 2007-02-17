@@ -80,7 +80,9 @@ class Parser
   end
   
   def render(context={})
+    return '' if context["no_#{@method}".to_sym]
     @context = context
+    @context[:name] = @params[:name] if @params[:name] # name param is propagated into children (used to label parts of a large template)
     @result  = ""
     @pass    = {} # used to pass information to the parent
     if blocks = @context[@params[:name]]
@@ -88,13 +90,17 @@ class Parser
       @context.delete(@params[:name])
       @blocks = blocks
     end
+    res = nil
     if self.respond_to?("r_#{@method}".to_sym)
       res = self.send("r_#{@method}".to_sym)
     else
       res = r_unknown
     end
-    res ||= ""
-    res = @result if @result != ""
+    if @result != ""
+      res = @result
+    elsif !res.kind_of?(String)
+      res = "#{@method}"
+    end
     res + @text
   end
   
@@ -291,15 +297,20 @@ class Parser
     true
   end
   
-  def expand_with(new_context={})
+  def expand_block(block, new_context={})
+    block.render(@context.merge(new_context))
+  end
+  
+  def expand_with(acontext={})
     res = ""
-    @pass = {} # current object sees some information from it's descendants
+    @pass = {} # current object sees some information from it's direct descendants
+    new_context = @context.merge(acontext)
     @blocks.each do |b|
       if b.kind_of?(String)
         res << b
       else
-        res << b.render(@context.merge(new_context))
-        @pass.merge!(b.pass)
+        res << b.render(new_context)
+        @pass.merge!(b.pass||{})
       end
     end
     res
@@ -328,6 +339,8 @@ class Parser
       unless v.nil?
         if v.kind_of?(Array)
           pass << "#{k.inspect.gsub('"', "'")}=>#{v.inspect.gsub('"', "'")}"
+        elsif v.kind_of?(Parser)
+          pass << "#{k.inspect.gsub('"', "'")}=>'<#{v.method}>'"
         else
           pass << "#{k.inspect.gsub('"', "'")}=>'#{v.inspect.gsub('"', "'")}'"
         end
@@ -350,14 +363,5 @@ class Parser
       result += "/]"
     end
     result + @text
-  end
-  
-  def var
-    return @var if @var
-    if node =~ /^var(\d+)$/
-      @var = "var#{$1.to_i + 1}"
-    else
-      @var = "var1"
-    end
   end
 end

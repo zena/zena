@@ -128,18 +128,19 @@ case_when_else:
   src: "<z:case><z:when kind_of='Document'>Document</z:when><z:else>Not a document</z:else></z:case>"
   res: "Not a document"
 
-edit_not_included:
+simple_each:
+  src: "<z:children><z:each><z:show attr='name'/></z:each></z:children>"
+  tem: "/.*if list1.*each.*var1\[:name\]/"
+  res: ""
+
+edit_not_each:
   src: "<li class='blah'>this is a post <z:edit>edit post</z:edit></li>"
   tem: "/<li class='blah'>this is a post <%= link_to\(\"edit post\".*\) %><\/li>/"
 
-edit_included:
-  src: "<z:include template='/edit/not/included'/>"
-  tem: "/<li class='blah' id='node<%= @node\[:id\] %>'>this is a post <%= link_to_function\(\"edit post\".*\) %><\/li>/"
+edit_each_no_form:
+  src: "<z:each><li>blah <z:edit>do this and that</z:edit></li>"
+  tem: "/<% \[\].each do \|var1\| -%><li>.*link_to\(.*\) %><\/li><% end -%>"
 
-dummy_to_include:
-  src: "<li>stupid</li>"
-  tem: "<li>stupid</li>"
-  
-include_no_edit:
-  src: "<z:include template='/dummy/to/include'/>"
-  tem: "<li>stupid</li>"
+each_add_with_form:
+  src: "<z:children><z:each><li>blah</li></z:each><z:add><li>add new</li></z:add><z:form><li><form>this is the form</form></li></z:form></z:children>"
+  tem: "/.*list1.*@node.children.*each.*<li id='_each_add_with_root_Node<%= var1\[:id\] %>'>blah.*<li id='_each_add_with_root_Node_add' onclick.*add new.*style='display:none;'.*_each_add_with_root_Node_form'><%= form_remote_tag.*.*name='template_url' value='\/each\/add\/with\/root_Node'\/>this is the form.*save '\/each\/add\/with\/root_Node':\[.*_each_add_with_root_Node<%= @node\[:id\] %>'>blah<\/li>\]save '\/each\/add\/with\/root_Node_form.*<%= @id.*/"

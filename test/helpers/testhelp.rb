@@ -3,7 +3,7 @@ require 'yaml'
 module TestHelper
 end
 class TestController < ApplicationController
-  helper_method :template_text_for_url, :template_url_for_asset
+  helper_method :template_text_for_url, :template_url_for_asset, :save_erb_to_url
   before_filter :set_context
   before_filter :authorize
   before_filter :set_env
@@ -73,6 +73,10 @@ class TestController < ApplicationController
       url
     end
   end
+  
+  def save_erb_to_url(template, template_url)
+    "save '#{template_url}':[#{template}]"
+  end
 end
 
 class HelperTest < Test::Unit::TestCase
@@ -92,7 +96,7 @@ class HelperTest < Test::Unit::TestCase
         file = file.to_s
         strings = {}
         test_methods = []
-        YAML::load_documents( File.open( "#{file}.yml" ) ) do |doc|
+        YAML::load_documents( File.open( File.join(File.dirname(__FILE__), "#{file}.yml") ) ) do |doc|
           doc.each do |elem|
             test_methods << elem[0]
             strings[elem[0]] = elem[1]

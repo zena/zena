@@ -157,11 +157,12 @@ doctype:
   src: |
     <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
         "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
-    <title zafu='show' attr=':v_title'>node title</title>
+    <title zafu='test'>node title</title>
   res: |
     <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
         "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
-    <title><%= @node.version[:title] %></title>
+    <title>[test]node title[/test]</title>
   
-escape_erb:
-  src: "hey: <% puts \"this could be nasty\" "
+no_tag:
+  src: "<z:set_context no_test='true'>this is a <z:test>test</z:test>dog</z:set_context>"
+  res: "this is a dog"

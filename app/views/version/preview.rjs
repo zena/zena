@@ -1,6 +1,6 @@
-page.replace_html "template", @html
+# page.replace_html "template", @html
 
-# page.replace_html   "v_title#{@preview_id}", @v_title
-# page.replace_html "v_summary#{@preview_id}", zazen(@v_summary, :pretty_code=>true) unless @node.kind_of?(Note)
-# page.replace_html    "v_text#{@preview_id}", zazen(@v_text, :pretty_code=>true)
+page.replace_html   "v_title#{@preview_id}", @v_title
+page.replace_html "v_summary#{@preview_id}", zazen(@v_summary, :pretty_code=>true) unless @node.kind_of?(Note)
+page.replace_html    "v_text#{@preview_id}", zazen(@v_text, :pretty_code=>true)
 # 

@@ -19,9 +19,9 @@ module Zafu
   end
 end
 class ZazenTest < Test::Unit::TestCase
-  testfile :zafu_asset #:zafu, :zafu_asset, :zafu_insight, :zafu_zena
-  def test_single
-    do_test('zafu_asset', 'change_img_src')
-  end
+  testfile :zafu, :zafu_asset, :zafu_insight
+  #def test_single
+  #  do_test('zafu_asset', 'change_img_src')
+  #end
   make_tests
 end
