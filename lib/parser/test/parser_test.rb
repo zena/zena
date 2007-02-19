@@ -20,8 +20,8 @@ module Zafu
 end
 class ZazenTest < Test::Unit::TestCase
   testfile :zafu, :zafu_asset, :zafu_insight
-  #def test_single
-  #  do_test('zafu_asset', 'change_img_src')
-  #end
+  def test_single
+    do_test('zafu', 'zafu_tag_with_ztags')
+  end
   make_tests
 end

@@ -52,27 +52,27 @@ zafu_tag_closed:
 
 zafu_tag_block:
   src:  "I say <div zafu='test'>this <div>test</div> is ok</div> right?"
-  res: "I say <div>[test]this <div>test</div> is ok[/test]</div> right?"
+  res: "I say [test]<div>this <div>test</div> is ok</div>[/test] right?"
 
 zafu_tag_at_end:
   src:  "I say <div zafu='test'>this <div>test</div> is ok</div>"
-  res: "I say <div>[test]this <div>test</div> is ok[/test]</div>"
+  res: "I say [test]<div>this <div>test</div> is ok</div>[/test]"
 
 zafu_tag_with_ztags:
   src: "I say <div zafu='test'>this <z:hello/></div>"
-  res: "I say <div>[test]this [hello/][/test]</div>"
+  res: "I say [test]<div>this [hello/]</div>[/test]"
 
 zafu_keep_params:
   src: "I love <div zafu='test' class='truc' id='machin' depth='3'>my wife</div>"
-  res: "I love <div class='truc' id='machin'>[test {= :depth=>'3'}]my wife[/test]</div>"
+  res: "I love [test {= :depth=>'3'}]<div class='truc' id='machin'>my wife</div>[/test]"
 
 zafu_and_ztags:
   src: "Hey <z:test>this is <p zafu='hello'>ok</p></z:test>"
-  res: "Hey [test]this is <p>[hello]ok[/hello]</p>[/test]"
+  res: "Hey [test]this is [hello]<p>ok</p>[/hello][/test]"
 
 zafu_same_tag:
   src: "Hey <p zafu='test'> is <p zafu='hello'>hello <p>cool</p></p></p>"
-  res: "Hey <p>[test] is <p>[hello]hello <p>cool</p>[/hello]</p>[/test]</p>"  
+  res: "Hey [test]<p> is [hello]<p>hello <p>cool</p></p>[/hello]</p>[/test]"  
 expand_with:
   src: "this <z:test>looks </z:test> ok"
   res: "this [test]looks [/test] ok"
@@ -133,7 +133,7 @@ complex_example:
       <ul class='list'>
         <li>truc</li>
         <li>machin</li>
-        <li>[test {> :life=>'ok'}]sunny day[/test]</li>
+        [test {> :life=>'ok'}]<li>sunny day</li>[/test]
       </ul>
     the [test {> :var=>'complex'}]menu[/test] is nice
 
@@ -161,7 +161,7 @@ doctype:
   res: |
     <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
         "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
-    <title>[test]node title[/test]</title>
+    [test]<title>node title</title>[/test]
   
 no_tag:
   src: "<z:set_context no_test='true'>this is a <z:test>test</z:test>dog</z:set_context>"

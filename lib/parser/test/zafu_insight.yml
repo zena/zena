@@ -4,7 +4,7 @@ simple:
 
 with_sub_tags:
   src: "<z:inspect><z:with part='hello'>I say <h3 zafu='hello'>hello</h3></z:with></z:inspect>"
-  res: "[inspect {< 'hello'=>['I say <h3>', [hello]hello[/hello], '</h3>']}/]"
+  res: "[inspect {< 'hello'=>['I say ', [hello]<h3>hello</h3>[/hello]]}/]"
 
 menu:
   src: "var a: <z:set_context menu='true'><z:void name='a'><z:hello/></z:void></z:set_context>"
@@ -12,4 +12,4 @@ menu:
 
 include:
   src: "<z:include template='/menu'><z:with part='a'>do <z:inspect/></z:with></z:include>"
-  res: "var a: do [inspect {> :menu=>'true'}/]"
+  res: "var a: do [inspect {> :menu=>'true', :name=>'a'}/]"

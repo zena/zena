@@ -2,6 +2,7 @@ require File.expand_path(File.dirname(__FILE__) + "/../test_helper")
 require 'yaml'
 module TestHelper
 end
+
 class TestController < ApplicationController
   helper_method :template_text_for_url, :template_url_for_asset, :save_erb_to_url
   before_filter :set_context
@@ -9,7 +10,6 @@ class TestController < ApplicationController
   before_filter :set_env
   ZazenParser = Parser.parser_with_rules(Zazen::Rules, Zazen::Tags)
   ZafuParser  = Parser.parser_with_rules(Zafu::Rules, Zena::Rules, Zafu::Tags, Zena::Tags)
-  
   class << self
     def templates=(templates)
       @@templates = templates

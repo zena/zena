@@ -2,6 +2,42 @@ require File.join(File.dirname(__FILE__) , 'zena')
 
 module Zafu
   module Tags
+    
+    def render(context={})
+      @zafu_tag_done = false
+      res = render_zafu_tag(super)
+    end
+    
+    def inspect
+      @zafu_tag_done = false
+      res = super
+      if @zafu_tag && !@zafu_tag_done
+        @zafu_tag_done = true
+        if res =~ /\A\[(\w+)(.*)\/\]\Z/
+          "[#{$1}#{$2}]<#{tag}/>[/#{$1}]"
+        elsif res =~ /\A\[([^\]]+)\](.*)\[\/(\w+)\]\Z/
+          "[#{$1}]#{render_zafu_tag($2)}[/#{$3}]"
+        end
+      else
+        res
+      end
+    end
+    
+    def params_to_html(params)
+      para = []
+      params.each do |k,v|
+        para << " #{k}=#{params[k].inspect.gsub("'","TMPQUOTE").gsub('"',"'").gsub("TMPQUOTE",'"')}"
+      end
+      para.sort.join('')
+    end
+    
+    def render_zafu_tag(text)
+      return text unless (@zafu_tag && !@zafu_tag_done)
+      res = "<#{@zafu_tag}#{params_to_html(@zafu_tag_params)}>#{text}</#{@zafu_tag}>"
+      @zafu_tag_done = true
+      res
+    end
+    
     def r_rename_asset
       return expand_with unless @tag
       tag = @params[:tag]
@@ -17,15 +53,7 @@ module Zafu
           @params[:src] = @options[:helper].send(:template_url_for_asset, @tag.to_sym , @params[:src])
         end
       end
-      res = []
-      @params.each do |k,v|
-        res << "#{k}=#{v.inspect.gsub("'","TMPQUOTE").gsub('"',"'").gsub("TMPQUOTE",'"')}"
-      end
-      if res != []
-        res = "<#{@tag} #{res.sort.join(' ')}"
-      else
-        res = "<#{@tag}"
-      end
+      res   = "<#{@tag}#{params_to_html(@params)}"
       inner = expand_with
       if inner == ''
         res + "/>"
@@ -39,7 +67,13 @@ end
 module Zafu
   module Rules
     def start(mode)
-      if @options[:zafu_tag]
+      if @zafu_tag = @options[:zafu_tag]
+        @options.delete(:zafu_tag)
+        @zafu_tag_params = {}
+        [:id, :class].each do |param|
+          @zafu_tag_params[param] = @params[param] if @params[param]
+          @params.delete(param)
+        end
         @zafu_tag_count = 1
       else
         @zafu_tag_count = 0
@@ -81,10 +115,11 @@ module Zafu
         # closing tag
         if $1 == ''
           # /html
-          if $2 == @options[:zafu_tag]
+          if $2 == @zafu_tag
             # zafu tag
             @zafu_tag_count -= 1
             if @zafu_tag_count == 0
+              eat $&
               leave
             else
               # keep the tag (false alert)
@@ -119,7 +154,7 @@ module Zafu
         params = parse_params($2)
         if closed
           make(:void, :params=>params, :method=>method, :text=>'')
-        else          
+        else
           make(:void, :params=>params, :method=>method)
         end
       elsif @text =~ /\A<(\w+)([^>]*?)zafu\s*=([^>]*?)(\/?)>/
@@ -130,22 +165,12 @@ module Zafu
         params = parse_params($2+"zafu="+$3)
         method = params[:zafu]
         params.delete(:zafu)
-        store "<#{zafu_tag}"
-        [:class, :id].each do |key|
-          if params[key]
-            store " #{key}=#{params[key].inspect.gsub("'","TMPQUOTE").gsub('"',"'").gsub("TMPQUOTE",'"')}"
-            params.delete(key)
-          end
-        end
-        store ">"
         if closed
           make(:void, :zafu_tag=>zafu_tag, :params=>params, :method=>method, :text=>'')
-          store "</#{zafu_tag}>"
-        else
+        else  
           make(:void, :zafu_tag=>zafu_tag, :params=>params, :method=>method)
-          @zafu_tag_count += 1 if zafu_tag == @options[:zafu_tag] # same zafu_tag as the one we are currently in
         end
-      elsif @options[:zafu_tag] && @text =~ /\A<#{@options[:zafu_tag]}([^>]*?)(\/?)>/
+      elsif @zafu_tag && @text =~ /\A<#{@zafu_tag}([^>]*?)(\/?)>/
         # puts "SAME:[#{$&}]}" # simple html tag same as zafu_tag
         flush $&
         @zafu_tag_count += 1 unless $2 == '/' # count opened zafu tags to be closed before return

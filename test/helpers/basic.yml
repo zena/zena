@@ -119,12 +119,16 @@ show_parent_title:
   tem: "<% if var1 = @node.parent -%><h1><%= show_title(:node=>var1, :link=>false, :project=>false)%></h1><% end -%>"
   res: "<h1><span id='v_title11'>Clean Water project</span></h1>"
 
+show_bad_attr:
+  src: "my <z:show attr=':name'/>"
+  res: "my "
+
 show_name:
-  src:  "my <z:show attr=':name'/>"
+  src:  "my <z:show attr='name'/>"
   res: "my status"
 
 show_v_text:
-  src:  "my <z:show attr=':v_text'/>"
+  src:  "my <z:show attr='v_text'/>"
   res: "my status text"
 
 show_title_options:
@@ -135,7 +139,7 @@ show_title_options:
 show_c_width:
   context:
     node: "bird_jpg"
-  src:  "width = <z:show attr=':c_width'/>"
+  src:  "width = <z:show attr='c_width'/>"
   res: "width = 661"
 
 javascripts:
@@ -186,8 +190,8 @@ show_author_large:
   res: "posted by <b>Solenopsis Invicta</b> on 04.11."
 
 each_traductions:
-  src: "<z:traductions><ul><li zafu='each'><z:show attr='title'></li></ul></z:traductions>"
-  tem: "<% if list1 = @node.traductions -%><ul><li><% list1.each do |var1| -%><%= var1[:title] %><% end -%></li></ul><% end -%>"
+  src: "<z:traductions><ul><li zafu='each'><z:show attr='title'/></li></ul></z:traductions>"
+  tem: "<% if list1 = @node.traductions -%><ul><% list1.each do |var1| -%><li><%= var1[:title] %></li><% end -%></ul><% end -%>"
   res: "<ul><li>Etat des travaux</li></ul>"
 
 case_when:
@@ -222,7 +226,7 @@ each_add_with_form:
   context:
     node: 'wiki'
   src: "<z:children><z:each><li zafu='show' attr='name'>blah</li>\n</z:each><z:add><li>add new</li></z:add><z:form><li><form>this is the form</form></li></z:form></z:children>"
-  res: "/<li>bird.*<li>flower.*<li.*toggle.*Node_add.*Node_form.*<li style.*Node_form.*Ajax.Request.*input type='hidden' name='template_url' value='/each/add/with/root_Node'/"
+  res: "/<li>bird.*<li>flower.*<li.*toggle.*Node_add.*Node_form.*<li .*Node_form.*style.*none.*Ajax.Request.*input type='hidden' name='template_url' value='/each/add/with/root_Node'/"
   
 each_edit_with_form:
   context:

@@ -230,19 +230,27 @@ module Zena
         # preprocessing
         return ""
       end
-      text = expand_with
+      if @params[:text]
+        text = @params[:text]
+        text = "<div>#{text}</div>" unless @options[:zafu_tag]
+      elsif @params[:trans]
+        text = helper.trans(@params[:trans])
+        text = "<div>#{text}</div>" unless @options[:zafu_tag]
+      else
+        text = expand_with
+      end
       if @context[:form] && @context[:template_url]
         # ajax add
         prefix  = @context[:template_url].gsub('/','_')
-        if @params[:tag]
+        if @options[:zafu_tag]
           out "<#{@params[:tag]} id='#{prefix}<%= @#{node_class.to_s.downcase}[:id] %>'>"
         else
           text = add_params(text, :id=>"#{prefix}_add", :onclick=>"new Element.toggle('#{prefix}_add', '#{prefix}_form');return false;")
         end
         out text
         out expand_block(@context[:form],:node=>"@#{node_class.to_s.downcase}", :tag_params=>{:id=>"#{prefix}_form", :style=>"display:none;"})
-        if @params[:tag]
-          out "</#{@params[:tag]}>"
+        if @options[:zafu_tag]
+          out "</#{@options[:zafu_tag]}>"
         end
       else
         # no ajax
@@ -264,8 +272,14 @@ module Zena
         res = expand_with(:node=>var)
         if @context[:template_url] && @pass[:edit]
           # ajax, set id
-          res = add_params(res, :id=>"#{@context[:template_url].gsub('/', '_')}<%= #{var}[:id] %>")
+          id_hash = {:id=>"#{@context[:template_url].gsub('/', '_')}<%= #{var}[:id] %>"}
+          if @zafu_tag
+            @zafu_tag_params.merge!(id_hash)
+          else
+            res = add_params(res, :id=>"#{@context[:template_url].gsub('/', '_')}<%= #{var}[:id] %>")
+          end
         end
+        res = render_zafu_tag(res)
         out res
         out "<% end -%>"
       else  
@@ -497,11 +511,7 @@ module Zena
         opts.each do |k,v|
           params[k] = v
         end
-        para = ""
-        params.each do |k,v|
-          para << " #{k}=#{params[k].inspect.gsub("'","TMPQUOTE").gsub('"',"'").gsub("TMPQUOTE",'"')}"
-        end
-        "#{before}<#{tag}#{para}>"
+        "#{before}<#{tag}#{params_to_html(params)}>"
       end
     end
     
@@ -514,11 +524,11 @@ module Zena
     def get_attribute(attribute)
       case attribute[0..1]
       when 'v_'
-        ".version[:#{attribute[2..-1]}]"
+        ".version[#{attribute[2..-1].to_sym.inspect}]"
       when 'c_'
-        ".version.content[:#{attribute[2..-1]}]"
+        ".version.content[#{attribute[2..-1].to_sym.inspect}]"
       else
-        "[:#{attribute}]"
+        "[#{attribute.to_sym.inspect}]"
       end
     end
     
