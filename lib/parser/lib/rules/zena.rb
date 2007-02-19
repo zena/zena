@@ -25,18 +25,22 @@ module Zena
     end
     inline_methods :login_link, :visitor_link, :search_box, :menu, :path_links, :lang_links
     direct_methods :uses_calendar
+
     def r_show
-      return "" unless check_params(:attr)
-      attribute = @params[:attr]
+      return "" unless check_params([:attr], [:tattr]) # :attr or :tattr
+      attribute = @params[:attr] || @params[:tattr]
       attribute = attribute[1..-1] if attribute[0..0] == ':'
-      case attribute[0..1]
-      when 'v_'
-        "<%= #{node}.version[:#{attribute[2..-1]}] %>"
-      when 'c_'
-        "<%= #{node}.version.content[:#{attribute[2..-1]}] %>"
+      if @params[:tattr]
+        "<%= trans(#{node}#{get_attribute(attribute)}) %>"
       else
-        "<%= #{node}[:#{attribute}] %>"
+        "<%= #{node}#{get_attribute(attribute)} %>"
       end
+    end
+    
+    def r_trans
+      inner = @params[:text] || @blocks[0]
+      return "<span class='zafu_error'>'trans' can only translate fixed text</span>" unless inner.kind_of?(String)
+      helper.trans(inner)
     end
     
     def r_title
@@ -230,7 +234,12 @@ module Zena
         expand_with(:preflight=>true)
         @pass[:each] = self
       elsif @context[:list]
-        out "<% #{list}.each do |#{var}| -%>"
+        if @params[:join]
+          out "<% #{list}.each_index do |#{var}_index| -%>"
+          out "<%= #{var}=#{list}[#{var}_index]; #{var}_index > 0 ? #{@params[:join].inspect} : '' %>"
+        else
+          out "<% #{list}.each do |#{var}| -%>"
+        end
         res = expand_with(:node=>var)
         if @context[:template_url]
           # ajax, set id
@@ -287,9 +296,16 @@ module Zena
     
     # be carefull, this gives a list of 'versions', not 'nodes'
     def r_traductions
-      out "<% if #{list_var} = #{node}.traductions %>"
+      out "<% if #{list_var} = #{node}.traductions -%>"
       out expand_with(:list=>list_var, :node_class=>:Version)
       out "<% end -%>"
+    end
+    
+    # TODO: test
+    def r_show_traductions
+      "<% if #{list_var} = #{node}.traductions -%>"
+      "#{helper.trans("Traductions:")} <span class='traductions'><%= #{list_var}.join(', ') %></span>"
+      "<%= traductions(:node=>#{node}).join(', ') %>"
     end
     
     def r_parent
@@ -332,8 +348,35 @@ module Zena
       "</div>"
     end
     
+    
+    # creates a link. Options are:
+    # :href (node, parent, project, root)
+    # :tattr (translated attribute used as text link)
+    # :attr (attribute used as text link)
+    # <z:link href='node'><z:trans attr='lang'/></z:link>
+    # <z:link href='node' tattr='lang'/>
     def r_link
-      helper.node_link(:href=>@params[:href], :node=>@context[:node], :text=>expand_with)
+      # text
+      if @params[:attr]
+      elsif @params[:tattr]
+        text = "<%= #{node}"
+      elsif @params[:text]
+        text = @params[:text]
+      else
+        text = expand_with
+      end
+      # obj
+      if node_class == :Version
+        lnode = "#{node}.node"
+      else
+        lnode = node
+      end
+      # link
+      if node_class == :Version
+        "<%= node_link(:node=>#{lnode})"
+      elsif @params[:href]
+        helper.node_link(:href=>@params[:href], :node=>@context[:node], :text=>expand_with)
+      end
     end
     
     # <z:relation role='hot,project'> = get relation if empty get project
@@ -442,6 +485,18 @@ module Zena
     # TODO: test
     def check_node_class(*list)
       list.include?(node_class)
+    end
+    
+    # TODO: test
+    def get_attribute(attribute)
+      case attribute[0..1]
+      when 'v_'
+        ".version[:#{attribute[2..-1]}]"
+      when 'c_'
+        ".version.content[:#{attribute[2..-1]}]#{postfix} %>"
+      else
+        "[:#{attribute}]"
+      end
     end
   end
 end

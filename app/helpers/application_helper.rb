@@ -769,8 +769,9 @@ ENDTXT
   def traductions(opts={})
     obj = opts[:node] || @node
     trad_list = []
-    obj.traductions.map do |ed|
-      trad_list << "<span>" + link_to( trans(ed[:lang]), node_url(ed)) + "</span>"
+    base_url = node_url(obj)
+    (obj.traductions || []).map do |ed|
+      trad_list << "<span>" + link_to( trans(ed[:lang]), base_url.merge(:lang=>ed[:lang])) + "</span>"
     end
     trad_list
   end
@@ -815,11 +816,13 @@ ENDTXT
   
   # TODO: test
   def node_link(opts={})
-    options = {:node=>@node, :href=>'self'}.merge(opts)
+    options = {:node=>@node, :href=>'self', :url=>{}}.merge(opts)
     text = options[:text] || options[:node].v_title
     node = options[:node]
     case options[:href]
     when 'self'
+      url = node_url(node)
+    when 'node'
       url = node_url(node)
     when 'root'
       root = secure(Node) { Node.find(ZENA_ENV[:root_id])}
@@ -835,7 +838,7 @@ ENDTXT
     else
       url = node_url(node)
     end
-    link_to(text,url)
+    link_to(text,url.merge(options[:url]))
   end
   
   # shows links for site features

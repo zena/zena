@@ -12,11 +12,11 @@ class ApplicationController < ActionController::Base
   private
   def render_and_cache(opts={})
     opts = {:template=>opts} if opts.kind_of?(String)
-    opts = {:template=>nil, :cache=>true}.merge(opts)
+    opts = {:template=>@node[:template], :cache=>true}.merge(opts)
     @node  ||= secure(Node) { Node.find(ZENA_ENV[:root_id]) }
       
     @project = @node.project
-    render :template=>"templates/#{template(opts[:template])}", :layout=>false
+    render :template=>template_url(opts), :layout=>false
     
     # only cache the public pages
     if opts[:cache] && !session[:user]
@@ -24,56 +24,29 @@ class ApplicationController < ActionController::Base
     end
   end
   
-  def template(tmplt=nil)
-    
-    unless tmplt
-      if params[:mode]
-        tmplt = params[:mode].gsub('..','').gsub('/','') # security to prevent rendering pages out of 'templates'
-      else
-        tmplt = @node.template || 'default'
-      end
-    end
-    return 'default' unless tmplt == 'wiki'
-    # 1. find the best template for the current context (db obj exists)
-    # temp = secure(Template) { Template.find_by_path(tmplt.split('/')) }
-    temp = secure(Template) { Template.find_by_name('wiki') }
-    temp_url = "#{tmplt}_#{lang}"
-    # 2. does the file for the current lang exist ?
-    fullpath = File.join(RAILS_ROOT, 'app', 'views', 'templates', "#{temp_url}.rhtml")
-    if File.exist?(fullpath) && (File.stat(fullpath).mtime > temp.version.updated_at)
-      # we are done
-      return temp_url
-    end
-    puts "render"
-    # else render for the current lang
-    response.template.instance_eval { @session = {} } # if accessing session when rendering, should be like no one there yet.
-    res = ZafuParser.new(temp.version.text, :helper=>response.template).render
-    File.open(fullpath, "wb") { |f| f.syswrite(res) }
-    return temp_url
-    # 
-    # # try to find a class specific template, starting with the most specialized, then the class specific and finally
-    # # the contextual template or default
-    # # TODO: include 'mode'
-    # ["#{tmplt}_#{@node.class.to_s.downcase}", "any_#{@node.class.to_s.downcase}", tmplt ].each do |filename|
-    #   if File.exist?(File.join(RAILS_ROOT, 'app', 'views', 'templates', "#{filename}.rhtml"))
-    #     return filename
-    #   end
-    # end
-    # return 'default'
+  def template_url(opts={})
+    template_name = opts[:template] || 'default'
+    return '/templates/default' if template_name == 'default' # while testing
+    template = secure(Template) { Template.best_match(:template=>template_name, :class=>@node.class, :mode=>opts[:mode]) }
+    return '/templates/default' unless template
+    sess = @session
+    response.template.instance_eval { @session = sess }
+    template.template_url(response.template)
   end
   
+  # TODO...
   def template_text_for_url(url)
+    return "NOT IMPLEMENTED YET (#{url})"
     url = url[1..-1] # strip leading '/'
-    @current_template = url
-    url = url.gsub('/','_')
-    if test = @@templates[url]
-      test['src']
-    else
-      nil
-    end
+    url = url.split('/')
+    template = secure(Skin) { Skin.find_by_path(url) }
+    template.version.text
+  rescue ActiveRecord::RecordNotFound
+    return nil
   end
 
   def template_url_for_asset(type,url)
+    return "/#{url}" # TODO IMPLEMENT
     # current_template = @current_template || "/"
     # we assume current_template is /projects/cleanWater for testing
     current_template = 'projects/cleanWater'

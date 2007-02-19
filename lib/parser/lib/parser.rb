@@ -287,8 +287,33 @@ class Parser
   
   def check_params(*args)
     missing = []
-    args.each do |arg|
-      missing << arg.to_s unless @params[arg]
+    if args[0].kind_of?(Array)
+      # or groups
+      ok = false
+      args.each_index do |i|
+        unless args[i].kind_of?(Array)
+          missing[i] = [args[i]]
+          next
+        end
+        missing[i] = []
+        args[i].each do |arg|
+          missing[i] << arg.to_s unless @params[arg]
+        end
+        if missing[i] == []
+          ok = true
+          break
+        end
+      end
+      if ok
+        return true
+      else
+        out "[#{@method} parameter(s) missing:#{missing[0].sort.join(', ')}]"
+        return false
+      end
+    else
+      args.each do |arg|
+        missing << arg.to_s unless @params[arg]
+      end
     end
     if missing != []
       out "[#{@method} parameter(s) missing:#{missing.sort.join(', ')}]"

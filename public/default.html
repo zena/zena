@@ -48,7 +48,8 @@
           <h1 class='title' zafu='title' status='true' actions='all'><div class='s50'>page title
             <ul class='actions'><li><a><img src='images/page_edit.png'/></a></li><li><a><img src='images/wand.png'/></a></li></ul></div>
           </h1>
-          <div class='subtitle' zafu='author' size='large'>posted by <b>someone</b>. Traductions: <span class='traductions'><a>fr</a>, <a>en</a></div>
+          <div class='subtitle' zafu='author' size='large'>posted by <b>someone</b>.
+            <z:traductions>Traductions: <z:each join=', '><z:link trans='lang'/></z:each></z:traductions></div>
         </div>
       </z:else>
     </z:case>

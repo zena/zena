@@ -38,6 +38,17 @@ show_title:
   tem: "<%= @node.version[:title] %>"
   res: "status title"
 
+trans:
+  context:
+    lang: 'fr'
+  src: "<z:trans>Monday</z:trans> <z:trans text='Monday'/>"
+  tem: "lundi lundi"
+  res: "lundi lundi"
+  
+show_tattr:
+  src: "<z:show tattr='ref_lang'/>"
+  tem: "<%= trans(@node[:ref_lang]) %>"
+  res: "english"
 title:
   src: "<h2 zafu='title'>super titre</h2>"
   tem: "<h2><%= show_title(:node=>@node, :link=>false, :project=>false)%></h2>"
@@ -132,6 +143,12 @@ simple_each:
   src: "<z:children><z:each><z:show attr='name'/></z:each></z:children>"
   tem: "/.*if list1.*each.*var1\[:name\]/"
   res: ""
+  
+each_join:
+  context:
+    node: 'wiki'
+  src: "<z:children><z:each join=', '><z:show attr='name'/></z:each></z:children>"
+  res: "bird, flower"
 
 edit_not_each:
   src: "<li class='blah'>this is a post <z:edit>edit post</z:edit></li>"

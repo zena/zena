@@ -341,7 +341,7 @@ class Node < ActiveRecord::Base
       self
     end
   end
-  
+
   # Find the discussion for the current context (v_status and v_lang)
   def discussion
     @discussion ||= Discussion.find(:first, :conditions=>[ "node_id = ? AND inside = ? AND lang = ?", 
