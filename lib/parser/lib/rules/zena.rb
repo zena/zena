@@ -29,18 +29,47 @@ module Zena
     def r_show
       return "" unless check_params([:attr], [:tattr]) # :attr or :tattr
       attribute = @params[:attr] || @params[:tattr]
-      attribute = attribute[1..-1] if attribute[0..0] == ':'
-      if @params[:tattr]
-        "<%= trans(#{node}#{get_attribute(attribute)}) %>"
+      if @context[:trans]
+        "#{node}#{get_attribute(attribute)}"
       else
-        "<%= #{node}#{get_attribute(attribute)} %>"
+        if @params[:tattr]
+          "<%= trans(#{node}#{get_attribute(attribute)}) %>"
+        else
+          "<%= #{node}#{get_attribute(attribute)} %>"
+        end
       end
     end
     
     def r_trans
-      inner = @params[:text] || @blocks[0]
-      return "<span class='zafu_error'>'trans' can only translate fixed text</span>" unless inner.kind_of?(String)
-      helper.trans(inner)
+      static = true
+      if @params[:text]
+        text = @params[:text]
+      elsif @params[:attr]
+        text = "#{node}#{get_attribute(@params[:attr])}"
+        static = false
+      else
+        res  = []
+        text = ""
+        @blocks.each do |b|
+          if b.kind_of?(String)
+            res  << b.inspect
+            text << b
+          elsif ['show'].include?(b.method)
+            res << expand_block(b, :trans=>true)
+            static = false
+          else
+            # ignore
+          end
+        end
+        unless static
+          text = res.join(' + ')
+        end
+      end
+      if static
+        helper.trans(text)
+      else
+        "<%= trans(#{text}) %>"
+      end
     end
     
     def r_title
@@ -144,40 +173,33 @@ module Zena
     end
     
     def r_edit
+      @pass[:edit] = self
       if @context[:preflight]
         # preprocessing
-        # we need forms/templates for ajax
-        @pass[:edit] = self
         return ""
       end
-      text = expand_with
-      if @context[:each] && @context[:each] == @context[:node_class]
-        # preprocessing
-        # we need forms/templates for ajax
-        @pass[:edit] = true
-        return ""
-      elsif @context[:template_url]
+      text = get_text_for_erb
+      if @context[:template_url]
         # ajax
-        "<%= link_to_function(#{text.inspect}, :controller=>'zafu', :action=>'ajax_edit', :id=>#{node}[:id], :template_url=>#{@context[:template_url].inspect}) %>"
+        "<%= link_to_remote(#{text || helper.trans('edit')}, :url=>{:controller=>'zafu', :action=>'ajax_edit', :id=>#{node}[:id], :template_url=>#{@context[:template_url].inspect}}) %>"
       else
-        "<%= link_to(#{text.inspect}, :controller=>'zafu', :action=>'edit', :id=>#{node}[:id], :template_url=>#{@context[:template_url].inspect}) %>" # FIXME
+        "<%= link_to(#{text || helper.trans('edit')}, :controller=>'zafu', :action=>'edit', :id=>#{node}[:id], :template_url=>#{@context[:template_url].inspect}) %>"
       end
     end
     
     def r_form
+      @pass[:form] = self
       if @context[:preflight]
         # preprocessing
-        # we need forms/templates for ajax
-        @pass[:form] = self
         return ""
       end
       if @context[:template_url]
         # ajax
-        start = "<%= form_remote_tag(:url=>{:controller=>'Zafu', :action=>'ajax_form', :id=>(#{node} ? #{node}[:id] : '')}) %>"
+        start = "<%= form_remote_tag(:url=>{:controller=>'zafu', :action=>'ajax_form', :id=>(#{node} ? #{node}[:id] : '')}) %>"
         start << "<input type='hidden' name='template_url' value='#{@context[:template_url]}'/>"
       else
         # no ajax
-        start = "<%= form_tag(:controller=>'Zafu', :action=>'form', :id=>(#{node} ? #{node}[:id] : '')) %>"
+        start = "<%= form_tag(:controller=>'zafu', :action=>'form', :id=>(#{node} ? #{node}[:id] : '')) %>"
       end
       exp = expand_with
       if exp =~ /([^<]*)<(\w+)([^>]*)>(.*)<\/\2>(.*)/
@@ -203,10 +225,9 @@ module Zena
     
     # TODO: test
     def r_add
+      @pass[:add] = self
       if @context[:preflight]
         # preprocessing
-        # we need forms/templates for ajax
-        @pass[:add] = self
         return ""
       end
       text = expand_with
@@ -241,7 +262,7 @@ module Zena
           out "<% #{list}.each do |#{var}| -%>"
         end
         res = expand_with(:node=>var)
-        if @context[:template_url]
+        if @context[:template_url] && @pass[:edit]
           # ajax, set id
           res = add_params(res, :id=>"#{@context[:template_url].gsub('/', '_')}<%= #{var}[:id] %>")
         end
@@ -249,10 +270,11 @@ module Zena
         out "<% end -%>"
       else  
         res = expand_with
-        if @context[:template_url]
+        if @context[:template_url] && @pass[:edit]
           # ajax, set id
           res = add_params(res, :id=>"#{@context[:template_url].gsub('/', '_')}<%= #{node}[:id] %>")
         end
+        res
       end
     end
    
@@ -357,26 +379,27 @@ module Zena
     # <z:link href='node' tattr='lang'/>
     def r_link
       # text
-      if @params[:attr]
-      elsif @params[:tattr]
-        text = "<%= #{node}"
-      elsif @params[:text]
-        text = @params[:text]
+      text = get_text_for_erb
+      if text
+        text = ", :text=>#{text}"
       else
-        text = expand_with
+        text = ""
+      end
+      if @params[:href]
+        href = ", :href=>#{@params[:href].inspect}"
+      else
+        href = ''
       end
       # obj
       if node_class == :Version
         lnode = "#{node}.node"
+        url = ", :url=>{:lang=>#{node}[:lang]}"
       else
         lnode = node
+        url = ''
       end
       # link
-      if node_class == :Version
-        "<%= node_link(:node=>#{lnode})"
-      elsif @params[:href]
-        helper.node_link(:href=>@params[:href], :node=>@context[:node], :text=>expand_with)
-      end
+      "<%= node_link(:node=>#{lnode}#{text}#{href}#{url}) %>"
     end
     
     # <z:relation role='hot,project'> = get relation if empty get project
@@ -422,7 +445,7 @@ module Zena
       if @params[param]
         "#{param.inspect}=>#{@params[param].strip.inspect}"
       else
-        ""
+        "#{param.inspect}=>nil"
       end
     end
     
@@ -493,10 +516,45 @@ module Zena
       when 'v_'
         ".version[:#{attribute[2..-1]}]"
       when 'c_'
-        ".version.content[:#{attribute[2..-1]}]#{postfix} %>"
+        ".version.content[:#{attribute[2..-1]}]"
       else
         "[:#{attribute}]"
       end
+    end
+    
+    def get_text_for_erb
+      if @params[:attr]
+        text = "#{node}#{get_attribute(@params[:attr])}"
+      elsif @params[:tattr]
+        text = "trans(#{node}#{get_attribute(@params[:tattr])})"
+      elsif @params[:trans]
+        text = helper.trans(@params[:trans]).inspect
+      elsif @params[:text]
+        text = @params[:text].inspect
+      elsif @blocks != []
+        res  = []
+        text = ""
+        static = true
+        @blocks.each do |b|
+          if b.kind_of?(String)
+            res  << b.inspect
+            text << b
+          elsif ['show'].include?(b.method)
+            res << expand_block(b, :trans=>true)
+            static = false
+          else
+            # ignore
+          end
+        end
+        if static
+          text = text.inspect
+        else
+          text = res.join(' + ')
+        end
+      else
+        text = nil
+      end
+      text
     end
   end
 end

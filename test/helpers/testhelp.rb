@@ -75,6 +75,7 @@ class TestController < ApplicationController
   end
   
   def save_erb_to_url(template, template_url)
+    return ''
     "save '#{template_url}':[#{template}]"
   end
 end

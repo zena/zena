@@ -817,27 +817,19 @@ ENDTXT
   # TODO: test
   def node_link(opts={})
     options = {:node=>@node, :href=>'self', :url=>{}}.merge(opts)
-    text = options[:text] || options[:node].v_title
     node = options[:node]
     case options[:href]
-    when 'self'
-      url = node_url(node)
-    when 'node'
-      url = node_url(node)
     when 'root'
-      root = secure(Node) { Node.find(ZENA_ENV[:root_id])}
-      url = node_url(root)
+      node = secure(Node) { Node.find(ZENA_ENV[:root_id])}
     when 'parent'
       if parent = node.parent
-        url = node_url(parent)
-      else
-        url = node_url(node)
+        node = parent
       end
     when 'project'
-      url = node_url(node.project)
-    else
-      url = node_url(node)
+      node = node.project
     end
+    url = node_url(node)
+    text = options[:text] || node.version.title
     link_to(text,url.merge(options[:url]))
   end
   

@@ -8,7 +8,6 @@ require 'fileutils'
 # load all fixtures and setup fixture_accessors:
 FIXTURE_PATH = File.join(File.dirname(__FILE__), 'fixtures')
 FILE_FIXTURES_PATH = File.join(File.dirname(__FILE__), 'fixtures', 'files')
-
 # TODO: If you preload your test database with all fixture data (probably in the Rakefile task) and use transactional fixtures, then you may omit all fixtures declarations in your test cases since all the data’s already there and every case rolls back its changes.
 class Test::Unit::TestCase
   @@loaded_fixtures = {}

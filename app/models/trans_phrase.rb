@@ -23,6 +23,7 @@ class TransPhrase < ActiveRecord::Base
   @@key = {}
   class << self
     def translate(keyword)
+      return '' unless keyword
       key = TransPhrase.find_by_phrase(keyword)
       unless key
         key = TransPhrase.create(:phrase=>keyword)
@@ -30,6 +31,7 @@ class TransPhrase < ActiveRecord::Base
       key
     end
     def [](keyword)
+      return '' unless keyword
       @@key[keyword] || begin
         key = TransPhrase.find_by_phrase(keyword) || TransPhrase.create(:phrase=>keyword)
         @@key[keyword] = TransHash.new(key[:id], keyword)

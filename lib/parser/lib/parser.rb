@@ -177,6 +177,7 @@ class Parser
   end
   
   def flush(str=@text)
+    return if str == ''
     if @blocks.last.kind_of?(String)
       @blocks[-1] << str
     else
@@ -188,7 +189,7 @@ class Parser
   def store(obj)
     if obj.kind_of?(String) && @blocks.last.kind_of?(String)
       @blocks[-1] << obj
-    else
+    elsif obj != ''
       @blocks << obj
     end
   end

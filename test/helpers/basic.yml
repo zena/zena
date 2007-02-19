@@ -44,11 +44,71 @@ trans:
   src: "<z:trans>Monday</z:trans> <z:trans text='Monday'/>"
   tem: "lundi lundi"
   res: "lundi lundi"
+
+trans_show:
+  context:
+    lang: 'fr'
+  src: "<z:trans><z:show attr='ref_lang'/></z:trans>"
+  tem: "<%= trans(@node[:ref_lang]) %>"
+  res: "anglais"
+
+trans_attr:
+  context:
+    lang: 'en'
+  src: "<z:trans attr='ref_lang'/>"
+  tem: "<%= trans(@node[:ref_lang]) %>"
+  res: "english"
   
 show_tattr:
   src: "<z:show tattr='ref_lang'/>"
   tem: "<%= trans(@node[:ref_lang]) %>"
   res: "english"
+
+link:
+  src: "<z:link/>"
+  tem: "<%= node_link(:node=>@node) %>"
+  res: "<a href=\"/oo/projects/cleanWater/page12.html\">status title</a>"
+
+link_attr:
+  src: "<z:link attr='ref_lang'/>"
+  tem: "<%= node_link(:node=>@node, :text=>@node[:ref_lang]) %>"
+  res: "<a href=\"/oo/projects/cleanWater/page12.html\">en</a>"
+
+link_tattr:
+  src: "<z:link tattr='ref_lang'/>"
+  tem: "<%= node_link(:node=>@node, :text=>trans(@node[:ref_lang])) %>"
+  res: "<a href=\"/oo/projects/cleanWater/page12.html\">english</a>"
+
+link_trans:
+  context:
+    lang: 'fr'
+  src: "<z:link trans='Monday'/>"
+  tem: "<%= node_link(:node=>@node, :text=>\"lundi\") %>"
+  res: "<a href=\"/oo/projects/cleanWater/page12.html\">lundi</a>"
+
+link_parent:
+  src: "<z:link href='parent' text='click here'/>"
+  tem: "<%= node_link(:node=>@node, :text=>\"click here\", :href=>\"parent\") %>"
+  res: "<a href=\"/oo/projects/cleanWater\">click here</a>"
+
+link_project:
+  context:
+    node: 'bird_jpg'
+  src: "<z:link href='project'/>"
+  tem: "<%= node_link(:node=>@node, :href=>\"project\") %>"
+  res: "<a href=\"/oo/project19.html\">a wiki with zena</a>"
+
+link_root:
+  src: "<z:link href='root'/>"
+  tem: "<%= node_link(:node=>@node, :href=>\"root\") %>"
+  res: "<a href=\"/oo\">Zena the wild CMS</a>"
+  
+link_version:
+  context:
+    node: 'opening'
+  src: "<z:traductions><z:each join=', '><z:link tattr='lang'/></z:each></z:traductions>"
+  res: "<a href=\"/oo/projects/cleanWater/note17.html?lang=fr\">french</a>"
+  
 title:
   src: "<h2 zafu='title'>super titre</h2>"
   tem: "<h2><%= show_title(:node=>@node, :link=>false, :project=>false)%></h2>"
@@ -127,7 +187,7 @@ show_author_large:
 
 each_traductions:
   src: "<z:traductions><ul><li zafu='each'><z:show attr='title'></li></ul></z:traductions>"
-  tem: "<% if var1 = @node.traductions %><ul><li><% (var1 || []).each do |var1| -%><%= var1[:title] %><% end -%></li></ul><% end -%>"
+  tem: "<% if list1 = @node.traductions -%><ul><li><% list1.each do |var1| -%><%= var1[:title] %><% end -%></li></ul><% end -%>"
   res: "<ul><li>Etat des travaux</li></ul>"
 
 case_when:
@@ -156,8 +216,16 @@ edit_not_each:
 
 edit_each_no_form:
   src: "<z:each><li>blah <z:edit>do this and that</z:edit></li>"
-  tem: "/<% \[\].each do \|var1\| -%><li>.*link_to\(.*\) %><\/li><% end -%>"
+  tem: "/<li>blah <%= link_to\(\"do this and that\".* %></li>"
 
 each_add_with_form:
-  src: "<z:children><z:each><li>blah</li></z:each><z:add><li>add new</li></z:add><z:form><li><form>this is the form</form></li></z:form></z:children>"
-  tem: "/.*list1.*@node.children.*each.*<li id='_each_add_with_root_Node<%= var1\[:id\] %>'>blah.*<li id='_each_add_with_root_Node_add' onclick.*add new.*style='display:none;'.*_each_add_with_root_Node_form'><%= form_remote_tag.*.*name='template_url' value='\/each\/add\/with\/root_Node'\/>this is the form.*save '\/each\/add\/with\/root_Node':\[.*_each_add_with_root_Node<%= @node\[:id\] %>'>blah<\/li>\]save '\/each\/add\/with\/root_Node_form.*<%= @id.*/"
+  context:
+    node: 'wiki'
+  src: "<z:children><z:each><li zafu='show' attr='name'>blah</li>\n</z:each><z:add><li>add new</li></z:add><z:form><li><form>this is the form</form></li></z:form></z:children>"
+  res: "/<li>bird.*<li>flower.*<li.*toggle.*Node_add.*Node_form.*<li style.*Node_form.*Ajax.Request.*input type='hidden' name='template_url' value='/each/add/with/root_Node'/"
+  
+each_edit_with_form:
+  context:
+    node: 'wiki'
+  src: "<z:children><z:each><li><z:show attr='name'>blah</z:show> <z:edit>edit</z:edit></li>\n</z:each><z:form><li><form>this is the form</form></li></z:form></z:children>"
+  res: "/<li id='_each_edit_with_root_Node20'>bird <a href=\"#\" onclick=\"new Ajax.Request\('\/z\/zafu\/ajax_edit\/20\?template_url=%2Feach%2Fedit%2Fwith%2Froot_Node'.*flower <a href=\"#\" onclick=\"new Ajax.Request\('\/z\/zafu\/ajax_edit\/21\?template_url=%2Feach%2Fedit%2Fwith%2Froot_Node.*edit</a></li>\n/"
