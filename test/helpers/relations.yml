@@ -1,0 +1,15 @@
+default:
+  context:
+    lang: 'en'
+    visitor: 'ant'
+    node: 'status'
+  
+tags:
+  src: "<z:project><z:show attr='name'/>: <z:tags><z:each join=', '><z:show attr='name'/></z:each></z:tags></z:project>"
+  res: "cleanWater: art"
+
+tag_for:
+  context:
+    node: 'art'
+  src: "<z:tag_for><z:each join=', '><z:show attr='name'/></z:each></z:tag_for>"
+  res: ""

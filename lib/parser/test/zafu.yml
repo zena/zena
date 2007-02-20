@@ -166,3 +166,11 @@ doctype:
 no_tag:
   src: "<z:set_context no_test='true'>this is a <z:test>test</z:test>dog</z:set_context>"
   res: "this is a dog"
+  
+html_comments:
+  src: "<z:test><z:hello/><!-- this is nothing > <z:hello/>  --></z:test>"
+  res: "[test][hello/]<!-- this is nothing > <z:hello/>  -->[/test]"
+
+html_zafu_comment:
+  src: "<z:test><z:hello/><!--|this is not a comment <z:hello/>  --></z:test>"
+  res: "[test][hello/]this is not a comment [hello/]  [/test]"

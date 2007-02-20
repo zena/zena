@@ -100,6 +100,8 @@ module Zafu
         flush $1
         if @text[1..1] == '/'
           scan_close_tag
+        elsif @text[0..3] == '<!--'
+          scan_html_comment
         else
           scan_tag
         end
@@ -138,6 +140,20 @@ module Zafu
           end
           leave
         end
+      else
+        # error
+        flush
+      end
+    end
+
+    def scan_html_comment
+      if @text =~ /<!--\|(.*?)-->/m
+        # zafu html escaped
+        eat $&
+        @text = $1 + @text
+      elsif @text =~ /<!--.*?-->/m
+        # html comment
+        flush $&
       else
         # error
         flush

@@ -322,6 +322,23 @@ module Zena
         cond = "#{node}.version[:status] == #{Zena::Status[status.to_sym]}"
       elsif lang = @params[:lang]
         cond = "#{node}.version[:lang] == #{lang.inspect}"
+      elsif node_cond = @params[:node]
+        if node_kind_of?(Node)
+          case node_cond
+          when 'self'
+            cond = "#{node}[:id] == @node[:id]"
+          when 'parent'
+            cond = "#{node}[:id] == @node[:parent_id]"
+          when 'project'
+            cond = "#{node}[:id] == @node[:project_id]"
+          when 'ancestor'
+            cond = "@node.fullpath =~ /\\A\#{#{node}.fullpath}/"
+          else
+            cond = nil
+          end
+        else
+          cond = nil
+        end
       else
         cond = nil
       end
@@ -344,16 +361,42 @@ module Zena
       "<%= traductions(:node=>#{node}).join(', ') %>"
     end
     
+    def r_root
+      return unless check_node_class(:Node)
+      do_var("secure(Node) { Node.find(ZENA_ENV[:root_id])}")
+    end
+    
     def r_parent
       return unless check_node_class(:Node)
-      out "<% if #{var} = #{node}.parent -%>"
-      out expand_with(:node=>var, :node_class=>:Node)
-      out "<% end -%>"
+      do_var("#{node}.parent")
+    end
+    
+    def r_project
+      return unless check_node_class(:Node)
+      puts "#{node}.project"
+      do_var("#{node}.project")
+    end
+
+    def r_node
+      return unless check_node_class(:Node)
+      if @params[:node_id]
+        cond = "find_by_id(#{@params[:node_id].inspect})"
+      elsif @params[:path]
+        cond = "find_by_path(#{@params[:path].split('/').inspect})"
+      else
+        return "<span class='zafu_error'>Bad node parameters, should be (node_id or path)</span>"
+      end
+      do_var("secure(Node) { Node.#{cond}}")
     end
     
     def r_children
       return unless check_node_class(:Node)
       do_list("#{node}.children")
+    end
+    
+    def r_pages
+      return unless check_node_class(:Node)
+      do_list("#{node}.pages")
     end
     
     # we cannot directly render this (running in controller, not in view...)
@@ -416,6 +459,51 @@ module Zena
       "<%= node_link(:node=>#{lnode}#{text}#{href}#{url}) %>"
     end
     
+    def r_set_attribute
+      if @zafu_tag
+        tag = @zafu_tag
+        params = @params.merge(@zafu_tag_params)
+        @zafu_tag_done = true
+      else
+        tag = 'div'
+        params = @params
+      end
+      res_params = {}
+      params.each do |k,v|
+        if k.to_s =~ /^set_(.+)$/
+          key = $1
+          value = v.gsub(/\[([^\]]+)\]/) do
+            "<%= #{node}#{get_attribute($1)} %>"
+          end
+          res_params[key.to_sym] = value
+        else
+          res_params[k] = v unless res_params[k]
+        end
+      end
+      res = "<#{tag}#{params_to_html(res_params)}"
+      inner = expand_with
+      if inner == ''
+        res + "/>"
+      else
+        res + ">#{inner}</#{tag}>"
+      end
+    end
+    
+    # use all other tags as relations
+    def r_unknown
+      "not a node (#{@method})" unless node_kind_of?(Node)
+      out "<% if #{var} = #{list_var} = #{node}.relation(#{@method.inspect}); if #{var}.kind_of?(Array) then #{var} = #{node} else #{list_var} = #{list} end %>"
+      
+      klass = Module::const_get(node_class)
+      "not a role (#{@method})" unless role = klass.role[@method]
+      puts klass.role.inspect
+      puts role.inspect
+      if role[:unique]
+        do_var("#{node}.#{@method}")
+      else
+        do_list("#{node}.#{@method}")
+      end
+    end
     # <z:relation role='hot,project'> = get relation if empty get project
     # relation ? get ? role ? go ?
     
@@ -447,6 +535,12 @@ module Zena
       @context[:node_class] || :Node
     end
     
+    def node_kind_of?(klass)
+      klass = Module::const_get(node_class)
+      test_class = klass.kind_of?(Symbol) ? Module::const_get(klass) : klass
+      klass.ancestors.include?(test_class)
+    end
+    
     def list
       @context[:list]
     end
@@ -461,6 +555,12 @@ module Zena
       else
         "#{param.inspect}=>nil"
       end
+    end
+    
+    def do_var(var_finder)
+      out "<% if #{var} = #{var_finder} -%>"
+      out expand_with(:node=>var)
+      out "<% end -%>"
     end
     
     def do_list(list_finder)

@@ -241,9 +241,9 @@ module ApplicationHelper
     node = secure(Node) { Node.find(opts[:id]) }
     title = (opts[:title] && opts[:title] != '') ? opts[:title] : node.v_title
     if opts[:id][0..0] == '0'
-      link_to title, {:prefix => prefix, :controller => 'main', :action=>'show', :path=>node.fullpath}, :popup=>true
+      link_to title, {:prefix => prefix, :controller => 'main', :action=>'show', :path=>node.fullpath.split('/')}, :popup=>true
     else
-      link_to title, :prefix => prefix, :controller => 'main', :action=>'show', :path=>node.fullpath
+      link_to title, :prefix => prefix, :controller => 'main', :action=>'show', :path=>node.fullpath.split('/')
     end
   rescue ActiveRecord::RecordNotFound
     "<span class='unknownLink'>#{trans('unknown link')}</span>"

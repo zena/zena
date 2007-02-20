@@ -130,15 +130,15 @@ class Node < ActiveRecord::Base
   # Return the full path as an array if it is cached or build it when asked for.
   def fullpath
     if self[:fullpath]
-      self[:fullpath].split('/')
+      self[:fullpath]
     else
       if parent
-        path = parent.fullpath + [name]
+        path = parent.fullpath.split('/') + [name]
       else
         path = []
       end
       self.connection.execute "UPDATE #{self.class.table_name} SET fullpath='#{path.join('/')}' WHERE id='#{self[:id]}'"
-      path
+      path.join('/')
     end
   end
   
@@ -221,6 +221,17 @@ class Node < ActiveRecord::Base
     end
   end
   
+  # This is defined by the linkable lib, we add access to 'root', 'project', 'parent', 'children', ...
+  def relation(method)
+    return nil unless ['root', 'project', 'parent', 'children', 'pages', 'documents', 'documents_only', 'images', 'notes'] || self.class.role[method]
+    self.send(method.to_sym)
+  end
+  
+  def root
+    secure(Node) { Node.find(ZENA_ENV[:root_id])}
+  rescue ActiveRecord::RecordNotFound
+    nil
+  end
   # Find all children
   def children
     @children ||= secure(Node) { Node.find(:all, :conditions=>['parent_id = ?', self[:id] ]) }
@@ -386,7 +397,7 @@ class Node < ActiveRecord::Base
     return unless Cache.perform_caching
     [self, self.project, self.parent].compact.uniq.each do |obj|
       ZENA_ENV[:languages].each do |lang|
-        filepath = File.join(RAILS_ROOT,'public',lang,*(obj.fullpath))
+        filepath = File.join(RAILS_ROOT,'public',lang,obj.fullpath)
         filepath = "#{filepath}.html"
         if File.exist?(filepath)
           File.delete(filepath)

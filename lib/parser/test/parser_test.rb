@@ -21,7 +21,7 @@ end
 class ZazenTest < Test::Unit::TestCase
   testfile :zafu, :zafu_asset, :zafu_insight
   def test_single
-    do_test('zafu', 'zafu_tag_with_ztags')
+    do_test('zafu', 'html_zafu_comment')
   end
   make_tests
 end

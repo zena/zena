@@ -17,7 +17,7 @@ class NodeTest < Test::Unit::TestCase
     node = nodes(:wiki)
     assert_nil node[:fullpath]
     node = secure(Node) { Node.find_by_path(['projects', 'wiki']) }
-    assert_equal ['projects','wiki'], node.fullpath
+    assert_equal 'projects/wiki', node.fullpath
     node = secure(Node) { Node.find_by_path(['projects', 'wiki']) }
     assert_equal 'projects/wiki', node[:fullpath]
   end
@@ -28,11 +28,11 @@ class NodeTest < Test::Unit::TestCase
     parent = node.parent
     assert_nil parent[:fullpath]
     assert_nil node[:fullpath]
-    assert_equal ['projects', 'cleanWater', 'lake'], node.fullpath
+    assert_equal 'projects/cleanWater/lake', node.fullpath
     node.reload
-    assert_equal ['projects', 'cleanWater', 'lake'], node[:fullpath].split('/')
+    assert_equal 'projects/cleanWater/lake', node[:fullpath]
     parent.reload
-    assert_equal ['projects', 'cleanWater'], parent[:fullpath].split('/')
+    assert_equal 'projects/cleanWater', parent[:fullpath]
   end
   
   def test_get_fullpath_after_private
@@ -77,6 +77,22 @@ class NodeTest < Test::Unit::TestCase
     assert_equal ['zena', 'projects', 'proposition'], node.ancestors.map { |a| a[:name] }
   end
   
+  def test_root
+    test_visitor(:ant)
+    node = secure(Node) { nodes(:status) }
+    root = node.root
+    assert_equal 'zena', root[:name]
+  end
+  
+  def test_relation
+    test_visitor(:ant)
+    node = secure(Node) { nodes(:status) }
+    assert_equal 'cleanWater', node.relation('parent')[:name]
+    assert_equal 'projects', node.relation('parent').relation('parent')[:name]
+    assert_equal 'zena', node.relation('root')[:name]
+    assert_equal 'art', node.relation('parent').relation('tags')[0][:name]
+  end
+  
   def test_ancestor_in_hidden_project
     test_visitor(:ant)
     node = secure(Node) { nodes(:proposition) }
@@ -89,7 +105,7 @@ class NodeTest < Test::Unit::TestCase
     test_page = secure(Node) { Node.create(:name=>"yoba", :parent_id=>nodes_id(:cleanWater), :inherit=>1 ) }
     assert ! test_page.new_record? , "Not a new record"
   end
-
+  
   def test_new_bad_parent
     test_visitor(:tiger)
     attrs = NEW_DEFAULT

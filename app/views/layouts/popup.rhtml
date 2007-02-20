@@ -3,7 +3,7 @@
 
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-  <title><%= @node ? @node.fullpath.join("/") : 'Zena' %></title>
+  <title><%= @node ? @node.fullpath : 'Zena' %></title>
   <meta http-equiv="Content-type" content="text/html; charset=utf-8" />
   <meta http-equiv="Content-Language" content="fr-fr" />
   <%= stylesheet_link_tag 'popup', 'search' %>

@@ -153,6 +153,12 @@ on the post edit page :
         return true
       end
       
+      # calls the method defined with link. This is a wrapper used by templating systems to avoid calling arbitrary methods
+      def relation(method)
+        return nil unless self.class.role[method]
+        self.send(method.to_sym)
+      end
+      
       module AddActsAsMethod
         @@role          = {}
         @@roles         = {}

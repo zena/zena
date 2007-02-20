@@ -21,7 +21,7 @@
     <%= node.img_tag('mini') %>
     <% end %>  
       <p class='result_id'><%= node[:id] %></p>
-      <p class='result_name'><%= link_to(node.name, {:controller=>'main', :action=>'show', :path=>node.fullpath, :prefix=>prefix}, :popup=>params[:edit]) %></p>
+      <p class='result_name'><%= link_to(node.name, {:controller=>'main', :action=>'show', :path=>node.fullpath.split('/'), :prefix=>prefix}, :popup=>params[:edit]) %></p>
       <p class='result_path'><%= node.rootpath.join('/ ')  %></p>
       <div class='clear'></div>
   </li>
