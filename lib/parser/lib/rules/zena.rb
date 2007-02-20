@@ -492,17 +492,21 @@ module Zena
     # use all other tags as relations
     def r_unknown
       "not a node (#{@method})" unless node_kind_of?(Node)
-      out "<% if #{var} = #{list_var} = #{node}.relation(#{@method.inspect}); if #{var}.kind_of?(Array) then #{var} = #{node} else #{list_var} = #{list} end %>"
-      
-      klass = Module::const_get(node_class)
-      "not a role (#{@method})" unless role = klass.role[@method]
-      puts klass.role.inspect
-      puts role.inspect
-      if role[:unique]
-        do_var("#{node}.#{@method}")
-      else
-        do_list("#{node}.#{@method}")
-      end
+      out "<% if #{var} = #{list_var} = #{node}.relation(#{@method.inspect}) -%>"
+      out "<% if #{var}.kind_of?(Array) -%>"
+      do_list
+      out "<% else -%>"
+      do_var
+      out "<% end -%>"
+      # klass = Module::const_get(node_class)
+      # "not a role (#{@method})" unless role = klass.role[@method]
+      # puts klass.role.inspect
+      # puts role.inspect
+      # if role[:unique]
+      #   do_var("#{node}.#{@method}")
+      # else
+      #   do_list("#{node}.#{@method}")
+      # end
     end
     # <z:relation role='hot,project'> = get relation if empty get project
     # relation ? get ? role ? go ?
@@ -557,14 +561,16 @@ module Zena
       end
     end
     
-    def do_var(var_finder)
-      out "<% if #{var} = #{var_finder} -%>"
+    def do_var(var_finder=nil)
+      out "<% if #{var} = #{var_finder} -%>" if var_finder
       out expand_with(:node=>var)
-      out "<% end -%>"
+      out "<% end -%>" if var_finder
     end
     
-    def do_list(list_finder)
-      out "<% if #{list_var} = #{list_finder} -%>"
+    def do_list(list_finder=nil)
+      if list_finder
+        out "<% if #{list_var} = #{list_finder} -%>"
+      end
       @context.delete(:template_url) # should not propagate
       
       # preflight parse to see what we have
@@ -597,7 +603,7 @@ module Zena
       else
         # no form, render, edit and add are not ajax
         out expand_with(:list=>list_var)
-        out "<% end -%>"
+        out "<% end -%>" if list_finder
       end
       @pass = {} # do not propagate back
     end
