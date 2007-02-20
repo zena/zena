@@ -116,7 +116,7 @@ title:
 
 show_parent_title:
   src: "<z:parent><h1 zafu='title'>parent title</h1></z:parent>"
-  tem: "<% if var1 = @node.parent -%><h1><%= show_title(:node=>var1, :link=>false, :project=>false)%></h1><% end -%>"
+  tem: "<% if var1 = @node.relation(\"parent\") -%><h1><%= show_title(:node=>var1, :link=>false, :project=>false)%></h1><% end -%>"
   res: "<h1><span id='v_title11'>Clean Water project</span></h1>"
 
 node_id:
@@ -250,3 +250,28 @@ set_attribute:
   src: "<div class='machin' zafu='set_attribute' set_class='node[id]'/><z:set_attribute set_class='s[v_status]'/>"
   tem: "<div class='node<%= @node[:id] %>'/><div class='s<%= @node.version[:status] %>'/>"
   res: "<div class='node12'/><div class='s50'/>"
+
+img_no_image:
+  src: "<z:img/>"
+  tem: "<%= @node.img_tag(\"std\") rescue '' %>"
+  res: ""
+
+img_image:
+  context:
+    node: 'bird_jpg'
+  src: "<z:img/><z:img format='med'/>"
+  res: "<img src='/data/jpg/20/bird-std.jpg' width='440' height='400' class='std'/><img src='/data/jpg/20/bird-med.jpg' width='205' height='186' class='med'/>"
+
+img_href:
+  context:
+    node: 'bird_jpg'
+  src: "<z:img href='self'/>"
+  res: "<a href=\"/oo/image20.html\"><img src='/data/jpg/20/bird-std.jpg' width='440' height='400' class='std'/></a>"
+
+img_src_id:
+  src: "<z:img src='20'/>"
+  res: "<img src='/data/jpg/20/bird-std.jpg' width='440' height='400' class='std'/>"
+  
+test_children_plural:
+  tem: "<%= 'children'.pluralize %>"
+  res: "children"

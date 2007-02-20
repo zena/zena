@@ -1,4 +1,5 @@
 class Image < Document
+  link :icon_for, :class_name=>'Node', :as=>'icon'
   class << self
     def accept_content_type?(content_type)
       ImageBuilder.image_content_type?(content_type)

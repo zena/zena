@@ -75,6 +75,12 @@ on the post edit page :
 
 =end
     module Linkable
+      class << self
+        def plural_method?(method)
+          m = method.split('_').first
+          m.pluralize == m || method.ends_with?('_for')
+        end
+      end
       # this is called when the module is included into the 'base' module
       def self.included(base)
         # add all methods from the module "AddActsAsMethod" to the 'base' module

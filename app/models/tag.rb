@@ -13,4 +13,16 @@ class Tag < Page
   def documents
     @documents ||= tag_for(:conditions=>"kpath LIKE 'NPD%'", :or=>["parent_id = ?", self[:id]])
   end
+  
+  # Find documents without images
+  # TODO: test
+  def documents_only
+    @doconly ||= tag_for(:conditions=>"kpath LIKE 'NPD%' AND NOT LIKE 'NPDI%'", :or=>["parent_id = ?", self[:id]])
+  end
+  
+  # Find only images
+  # TODO: test
+  def images
+    @images ||= tag_for(:conditions=>"kpath LIKE 'NPDI%'", :or=>["parent_id = ?", self[:id]])
+  end
 end

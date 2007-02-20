@@ -14,19 +14,22 @@ class Project < Page
     end
   end
   
+  def relation_methods
+    super + ['all_notes']
+  end
+  
   # This project's notes
-  def notes(options={})
-    options = {:order=>'log_at DESC'}.merge(options)
-    Note.with_scope(:find=>{:conditions => ["project_id = ?", self[:id] ]}) do
-      secure(Note) { Note.find(:all, options) }
-    end
+  def notes(opts={})
+    opts.delete(:conditions)
+    options = {:order=>'log_at DESC', :conditions=>["project_id = ?", self[:id] ]}.merge(opts)
+    @notes ||= secure(Note) { Note.find(:all, options) }
   end
   
   # TODO: test
   # The project's notes with the added_notes
-  def all_notes(options={})
-    options = {:order=>'log_at DESC', :or=>['project_id = ?', self[:id]]}.merge(options)
-    notes_added(options)
+  def all_notes(opts={})
+    options = {:order=>'log_at DESC', :or=>['project_id = ?', self[:id]]}.merge(opts)
+    @notes_added ||= notes_added(options)
   end
 =begin
     conditions = options[:conditions]

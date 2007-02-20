@@ -202,7 +202,7 @@ class ApplicationController < ActionController::Base
     if obj[:id] == ZENA_ENV[:root_id]
       path = []
     else
-      path = obj.basepath
+      path = obj.basepath.split('/')
       unless obj[:custom_base]
         path += ["#{obj.class.to_s.downcase}#{obj[:id]}.html"]
       end

@@ -82,7 +82,7 @@ module Zena
       end
       res << ")"
       if @params[:actions]
-        res << " + node_actions(:node=>#{node}, #{erb_param(:actions)})"
+        res << " + node_actions(:node=>#{node}#{params_to_erb(:actions=>@params[:actions])})"
       end
       res << "%>"
       if @params[:status]
@@ -361,22 +361,6 @@ module Zena
       "<%= traductions(:node=>#{node}).join(', ') %>"
     end
     
-    def r_root
-      return unless check_node_class(:Node)
-      do_var("secure(Node) { Node.find(ZENA_ENV[:root_id])}")
-    end
-    
-    def r_parent
-      return unless check_node_class(:Node)
-      do_var("#{node}.parent")
-    end
-    
-    def r_project
-      return unless check_node_class(:Node)
-      puts "#{node}.project"
-      do_var("#{node}.project")
-    end
-
     def r_node
       return unless check_node_class(:Node)
       if @params[:node_id]
@@ -387,16 +371,6 @@ module Zena
         return "<span class='zafu_error'>Bad node parameters, should be (node_id or path)</span>"
       end
       do_var("secure(Node) { Node.#{cond}}")
-    end
-    
-    def r_children
-      return unless check_node_class(:Node)
-      do_list("#{node}.children")
-    end
-    
-    def r_pages
-      return unless check_node_class(:Node)
-      do_list("#{node}.pages")
     end
     
     # we cannot directly render this (running in controller, not in view...)
@@ -459,6 +433,21 @@ module Zena
       "<%= node_link(:node=>#{lnode}#{text}#{href}#{url}) %>"
     end
     
+    def r_img
+      return unless check_node_class(:Node)
+      if @params[:src]
+        img = "#{node}.relation(#{@params[:src].inspect})"
+      else
+        img = node
+      end
+      format = @params[:format] || 'std'
+      if @params[:href]
+        "<%= node_link(:node=>#{node}, :href=>#{@params[:href].inspect}, :text=>#{img}.img_tag(#{format.inspect})) rescue '' %>"
+      else
+        "<%= #{img}.img_tag(#{format.inspect}) rescue '' %>"
+      end
+    end
+    
     def r_set_attribute
       if @zafu_tag
         tag = @zafu_tag
@@ -490,24 +479,28 @@ module Zena
     end
     
     # use all other tags as relations
+    # try to add 'conditions' without sql injection possibilities...
     def r_unknown
       "not a node (#{@method})" unless node_kind_of?(Node)
-      out "<% if #{var} = #{list_var} = #{node}.relation(#{@method.inspect}) -%>"
-      out "<% if #{var}.kind_of?(Array) -%>"
-      do_list
-      out "<% else -%>"
-      do_var
-      out "<% end -%>"
-      # klass = Module::const_get(node_class)
-      # "not a role (#{@method})" unless role = klass.role[@method]
-      # puts klass.role.inspect
-      # puts role.inspect
-      # if role[:unique]
-      #   do_var("#{node}.#{@method}")
-      # else
-      #   do_list("#{node}.#{@method}")
-      # end
+      rel = "#{node}.relation(#{@method.inspect})"
+      if @params[:else]
+        rel = "(#{rel} || #{node}.relation(#{@params[:else].inspect}))"
+        @params.delete(:else)
+      end
+      if Zena::Acts::Linkable::plural_method?(@method)
+        # plural
+        # FIXME: could SQL injection be possible here ? (all params are passed to the 'find')
+        erb_params = {}
+        [:limit, :order, :offset].each do |k|
+          erb_params[k] = @params[k] if @params[k]
+        end
+        do_list("#{node}.relation(#{@method.inspect}#{params_to_erb(erb_params)})")
+      else
+        # singular
+        do_var("#{node}.relation(#{@method.inspect})")
+      end
     end
+    # <z:hot else='project'/>
     # <z:relation role='hot,project'> = get relation if empty get project
     # relation ? get ? role ? go ?
     
@@ -553,12 +546,12 @@ module Zena
       @options[:helper]
     end
     
-    def erb_param(param)
-      if @params[param]
-        "#{param.inspect}=>#{@params[param].strip.inspect}"
-      else
-        "#{param.inspect}=>nil"
+    def params_to_erb(params)
+      res = ""
+      params.each do |k,v|
+        res << ", #{k.inspect}=>#{v.inspect}"
       end
+      res
     end
     
     def do_var(var_finder=nil)

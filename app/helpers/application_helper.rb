@@ -818,15 +818,8 @@ ENDTXT
   def node_link(opts={})
     options = {:node=>@node, :href=>'self', :url=>{}}.merge(opts)
     node = options[:node]
-    case options[:href]
-    when 'root'
-      node = secure(Node) { Node.find(ZENA_ENV[:root_id])}
-    when 'parent'
-      if parent = node.parent
-        node = parent
-      end
-    when 'project'
-      node = node.project
+    if options[:href]
+      node = node.relation(options[:href]) || node
     end
     url = node_url(node)
     text = options[:text] || node.version.title

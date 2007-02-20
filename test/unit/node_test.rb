@@ -56,11 +56,11 @@ class NodeTest < Test::Unit::TestCase
   def test_basepath
     test_visitor(:tiger)
     node = secure(Node) { nodes(:status) }
-    assert_equal ['projects', 'cleanWater'], node.basepath
+    assert_equal 'projects/cleanWater', node.basepath
     node = secure(Node) { nodes(:projects) }
-    assert_equal [], node.basepath
+    assert_equal '', node.basepath
     node = secure(Node) { nodes(:proposition) }
-    assert_equal [], node.basepath
+    assert_equal '', node.basepath
   end
   
   def test_ancestors

@@ -24,6 +24,7 @@ Ideas for cached menu:
   d. keep only one menu with public rights for all users
   e. sub-menu : only children with same read_group ==> cache on this group.
 There is a bug when validating a long redaction. The end is stripped off.
+We should use attr_protected instead of filtering forms.
 === Optimization & Cache
 * sweep public page cache :
   * page for all lang

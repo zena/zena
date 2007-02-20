@@ -6,11 +6,51 @@ default:
   
 tags:
   src: "<z:project><z:show attr='name'/>: <z:tags><z:each join=', '><z:show attr='name'/></z:each></z:tags></z:project>"
-  tem: ""
   res: "cleanWater: art"
 
 tag_for:
   context:
     node: 'art'
   src: "<z:tag_for><z:each join=', '><z:show attr='name'/></z:each></z:tag_for>"
-  res: ""
+  res: "cleanWater, opening"
+
+documents:
+  context:
+    node: 'nature'
+  src: "<z:documents><z:each join=', '><z:show attr='name'/></z:each></z:documents>"
+  res: "forest, tree"
+
+documents_only:
+  context:
+    node: 'nature'
+  src: "<z:documents_only><z:each join=', '><z:show attr='name'/></z:each></z:documents_only>"
+  res: "forest"
+
+images:
+  context:
+    node: 'nature'
+  src: "<z:images><z:each join=', '><z:show attr='name'/></z:each></z:images>"
+  res: "tree"
+
+pages:
+  context:
+    node: 'cleanWater'
+  src: "<z:pages><z:each join=', '><z:show attr='name'/></z:each></z:pages>"
+  res: "lake, status, track"
+
+notes:
+  context:
+    node: 'cleanWater'
+  src: "<z:notes><z:each join=', '><z:show attr='name'/></z:each></z:notes>"
+  res: "opening"
+
+pages_limit:
+  context:
+    node: 'cleanWater'
+  src: "<z:pages limit='2' order='name DESC'><z:each join=', '><z:show attr='name'/></z:each></z:pages>"
+  res: "track, status"
+
+pages_random:
+  context:
+    node: 'cleanWater'
+  src: "<z:pages limit='3' order='RAND()' conditions='1'><z:each join=', '><z:show attr='name'/></z:each></z:pages>"

@@ -60,6 +60,7 @@ class Node < ActiveRecord::Base
   acts_as_secure
   acts_as_multiversioned
   link :tags, :class_name=>'Tag'
+  link :icon, :as=>'icon',     :class_name=>'Image',      :unique=>true
   link :hot_for, :as=>'hot',   :class_name=>'Project', :as_unique=>true
   link :home_for, :as=>'home', :class_name=>'Project', :as_unique=>true
   
@@ -112,17 +113,17 @@ class Node < ActiveRecord::Base
     if self[:custom_base]
       fullpath
     elsif !rebuild && self[:basepath]
-      self[:basepath].split('/')
+      self[:basepath]
     else
       if self[:parent_id]
         Node.with_exclusive_scope do
           parent = Node.find_by_id(self[:parent_id])
         end
-        path = parent ? parent.basepath : []
+        path = parent ? parent.basepath : ''
       else
-        path = []
+        path = ''
       end
-      self.connection.execute "UPDATE #{self.class.table_name} SET basepath='#{path.join('/')}' WHERE id='#{self[:id]}'"
+      self.connection.execute "UPDATE #{self.class.table_name} SET basepath='#{path.gsub("'",'')}' WHERE id='#{self[:id]}'"
       path
     end
   end
@@ -137,7 +138,7 @@ class Node < ActiveRecord::Base
       else
         path = []
       end
-      self.connection.execute "UPDATE #{self.class.table_name} SET fullpath='#{path.join('/')}' WHERE id='#{self[:id]}'"
+      self.connection.execute "UPDATE #{self.class.table_name} SET fullpath='#{path.join('/').gsub("'",'')}' WHERE id='#{self[:id]}'"
       path.join('/')
     end
   end
@@ -221,20 +222,38 @@ class Node < ActiveRecord::Base
     end
   end
   
-  # This is defined by the linkable lib, we add access to 'root', 'project', 'parent', 'children', ...
-  def relation(method)
-    return nil unless ['root', 'project', 'parent', 'children', 'pages', 'documents', 'documents_only', 'images', 'notes'] || self.class.role[method]
-    self.send(method.to_sym)
+  def relation_methods
+    ['root', 'project', 'parent', 'self', 'children', 'pages', 'documents', 'documents_only', 'images', 'notes']
   end
   
-  def root
+  # This is defined by the linkable lib, we add access to 'root', 'project', 'parent', 'children', ...
+  def relation(method, opts={})
+    if method =~ /\A\d+\Z/
+      secure(Node) { Node.find(method) }
+    else
+      return nil unless relation_methods.include?(method) || self.class.role[method]
+      if method == 'self'
+        self
+      elsif Zena::Acts::Linkable::plural_method?(method)
+        self.send(method.to_sym, opts)
+      else
+        self.send(method.to_sym)
+      end
+    end
+  rescue ActiveRecord::RecordNotFound
+    nil
+  end
+  
+  def root(opts={})
     secure(Node) { Node.find(ZENA_ENV[:root_id])}
   rescue ActiveRecord::RecordNotFound
     nil
   end
+  
   # Find all children
-  def children
-    @children ||= secure(Node) { Node.find(:all, :conditions=>['parent_id = ?', self[:id] ]) }
+  def children(opts={})
+    options = opts.merge(:conditions=>['parent_id = ?', self[:id] ])
+    @children ||= secure(Node) { Node.find(:all, options) }
   end
   
   # Find parent
@@ -252,34 +271,46 @@ class Node < ActiveRecord::Base
   end
   
   # Find all sub-pages (All but documents)
-  def pages
-    @pages ||= secure(Page) { 
-      Page.find(:all, :order=>'name ASC', :conditions=>["parent_id = ? AND kpath NOT LIKE 'NPD%'", self[:id] ]) }
+  def pages(opts={})
+    #opts.delete(:conditions)
+    options = {:order=>'name ASC', :conditions=>["parent_id = ? AND kpath NOT LIKE 'NPD%'", self[:id] ]}.merge(opts)
+    @pages ||= secure(Page) {
+      Page.find(:all, options) }
   end
   
   # Find documents
-  def documents
-    @documents ||= secure(Document) { Document.find(:all, :order=>'name ASC', :conditions=>['parent_id=?', self[:id]] ) }
+  def documents(opts={})
+    opts.delete(:conditions)
+    options = {:order=>'name ASC', :conditions=>["parent_id = ?", self[:id] ]}.merge(opts)
+    @documents ||= secure(Document) { Document.find(:all, options) }
   end
 
   # Find documents without images
-  def documents_only
-    @doconly ||= secure(Document) { Document.find(:all, :order=>'name ASC', :conditions=>["parent_id=? AND kpath NOT LIKE 'NPDI%'", self[:id]] ) }
+  def documents_only(opts={})
+    opts.delete(:conditions)
+    options = {:order=>'name ASC', :conditions=>["parent_id = ? AND kpath NOT LIKE 'NPDI%'", self[:id] ]}.merge(opts)
+    @doconly ||= secure(Document) { Document.find(:all, options ) }
   end
   
   # Find only images
-  def images
-    @images ||= secure(Image) { Image.find(:all, :order=>'name ASC', :conditions=>['parent_id=?', self[:id]] ) }
+  def images(opts={})
+    opts.delete(:conditions)
+    options = {:order=>'name ASC', :conditions=>["parent_id = ?", self[:id] ]}.merge(opts)
+    @images ||= secure(Image) { Image.find(:all, options ) }
   end
   
   # Find only notes
-  def notes
-    @notes ||= secure(Note) { Note.find(:all, :order=>'name ASC', :conditions=>['parent_id=?', self[:id]] ) }
+  def notes(opts={})
+    opts.delete(:conditions)
+    options = {:order=>'name ASC', :conditions=>["parent_id = ?", self[:id] ]}.merge(opts)
+    @notes ||= secure(Note) { Note.find(:all, options ) }
   end
  
   # Find all trackers
-  def trackers
-    @trackers ||= secure(Tracker) { Tracker.find(:all, :order=>'name ASC', :conditions=>['parent_id=?', self[:id]] ) }
+  def trackers(opts={})
+    opts.delete(:conditions)
+    options = {:order=>'name ASC', :conditions=>["parent_id = ?", self[:id] ]}.merge(opts)
+    @trackers ||= secure(Tracker) { Tracker.find(:all, options ) }
   end
 
   # Create a child and let him inherit from rwp groups and project_id
