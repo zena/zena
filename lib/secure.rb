@@ -528,7 +528,8 @@ Just doing the above will filter all result according to the logged in user.
                   end
                 end
               else
-                # cannot change groups
+                # cannot change groups or inherit mode
+                errors.add('inherit', "you cannot change this") unless inherit == old.inherit
                 errors.add('rgroup_id', "you cannot change this") unless rgroup_id == old.rgroup_id
                 errors.add('wgroup_id', "you cannot change this") unless wgroup_id == old.wgroup_id
                 errors.add('pgroup_id', "you cannot change this") unless pgroup_id == old.pgroup_id
