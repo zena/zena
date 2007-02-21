@@ -514,7 +514,8 @@ Just doing the above will filter all result according to the logged in user.
             if old.can_visible?
               if private?
                 # ok (all groups are 0)
-              else
+              elsif ref.can_visible?
+                # can change groups
                 if rgroup_id != 0 && rgroup_id != old[:rgroup_id] && !visitor_groups.include?(rgroup_id)
                   errors.add('rgroup_id', "unknown group")
                 end
@@ -524,6 +525,13 @@ Just doing the above will filter all result according to the logged in user.
                 if pgroup_id != 0 && pgroup_id != old[:pgroup_id] && !visitor_groups.include?(pgroup_id)
                   errors.add('pgroup_id', "unknown group")
                 end
+              else
+                # cannot change groups
+                errors.add('rgroup_id', "you cannot change this") unless rgroup_id == old.rgroup_id
+                errors.add('wgroup_id', "you cannot change this") unless wgroup_id == old.wgroup_id
+                errors.add('pgroup_id', "you cannot change this") unless pgroup_id == old.pgroup_id
+                # but you can change templates
+                #errors.add('template' , "you cannot change this") unless template  == ref.template
               end
             else
               # must be the same as old
