@@ -573,7 +573,7 @@ Just doing the above will filter all result according to the logged in user.
         def ref
           if !@ref || (@ref.id != self[ref_field])
             # no ref or ref changed
-            @ref = secure_write(ref_class) { ref_class.find(self[ref_field]) }
+            @ref = secure(ref_class) { ref_class.find(self[ref_field]) }
           end
           if self.new_record? || (:id == ref_field) || (self[:id] != @ref[:id] )
             # reference is accepted only if it is not the same as self or self is root (ref_field==:id set by Node)
@@ -584,23 +584,6 @@ Just doing the above will filter all result according to the logged in user.
         rescue ActiveRecord::RecordNotFound
           nil
         end
-        
-        # Reference to inherit rights
-        def inherit_ref
-          if !@inherit_ref || (@inherit_ref.id != self[ref_field])
-            # no ref or ref changed
-            @inherit_ref = secure(ref_class) { ref_class.find(self[ref_field]) }
-          end
-          if self.new_record? || (:id == ref_field) || (self[:id] != @inherit_ref[:id] )
-            # reference is accepted only if it is not the same as self or self is root (ref_field==:id set by Node)
-            @inherit_ref.freeze
-          else
-            nil
-          end
-        rescue ActiveRecord::RecordNotFound
-          nil
-        end
-          
         
         protected
         
