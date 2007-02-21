@@ -22,6 +22,7 @@ class NodeController < ApplicationController
     else
       @node = secure_drive(Node) { Node.find(params[:id]) }
     end
+    page_not_found unless @node #FIXME: redirect to a better error page
   rescue ActiveRecord::RecordNotFound
     page_not_found
   end

@@ -25,6 +25,7 @@ Ideas for cached menu:
   e. sub-menu : only children with same read_group ==> cache on this group.
 There is a bug when validating a long redaction. The end is stripped off.
 We should use attr_protected instead of filtering forms.
+* Remove all .utc (now using ENV['TZ'])
 === Optimization & Cache
 * sweep public page cache :
   * page for all lang
