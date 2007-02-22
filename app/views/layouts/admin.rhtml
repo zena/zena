@@ -19,8 +19,8 @@
     <%= visitor_link %>
   </div>
 
-  <%= show_menu      %>
-  <%= logo Time.now.utc  %>
+  <div id='menu'><%= show_menu %></div>
+  <div id='logo'><a href='/'><img src='img/logo.png' width='220' height='100'/></a></div>
   <%= flash_messages %>
   
   <%= css_edit('admin.css') %>

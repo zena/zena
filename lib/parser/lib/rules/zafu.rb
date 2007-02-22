@@ -12,15 +12,14 @@ module Zafu
       @zafu_tag_done = false
       res = super
       if @zafu_tag && !@zafu_tag_done
-        @zafu_tag_done = true
         if res =~ /\A\[(\w+)(.*)\/\]\Z/
-          "[#{$1}#{$2}]<#{tag}/>[/#{$1}]"
+          res = "[#{$1}#{$2}]<#{tag}/>[/#{$1}]"
         elsif res =~ /\A\[([^\]]+)\](.*)\[\/(\w+)\]\Z/
-          "[#{$1}]#{render_zafu_tag($2)}[/#{$3}]"
+          res = "[#{$1}]#{render_zafu_tag($2)}[/#{$3}]"
         end
-      else
-        res
+        @zafu_tag_done = true
       end
+      res
     end
     
     def params_to_html(params)
@@ -69,23 +68,46 @@ module Zafu
     def start(mode)
       if @zafu_tag = @options[:zafu_tag]
         @options.delete(:zafu_tag)
-        @zafu_tag_params = {}
-        [:id, :class].each do |param|
-          @zafu_tag_params[param] = @params[param] if @params[param]
-          @params.delete(param)
-        end
+        @zafu_tag_params = @options[:zafu_tag_params] || {}
+        @options.delete(:zafu_tag_params)
+        @zafu_tag_count = 1
+      elsif @zafu_tag = @options[:eat_zafu]
+        @eat_zafu = true
+        @options.delete(:eat_zafu)
         @zafu_tag_count = 1
       else
         @zafu_tag_count = 0
       end
       if @method == 'include'
         include_template
+      elsif @options[:do]
+        opts = {:method=>@options[:do]}
+        
+        # the matching zafu tag will be parsed by the last 'do', we must inform it to halt properly :
+        opts[:eat_zafu] = @zafu_tag if @zafu_tag
+        
+        all_params = @options[:do_params]
+        if all_params =~ /\A([^>]*?)do\s*=('|")([^\2]*?[^\\])\2([^>]*)\Z/
+          # we have a sub 'do'
+          match = $~
+          opts[:do] = $3
+          opts[:do_params] = $4
+          opts[:params] = parse_params($1)
+        else
+          @options.delete(:do_params)
+          @options.delete(:do)
+          opts[:params] = parse_params(all_params)
+        end
+        make(:void, opts)
       else
         if mode == :tag
           scan_tag
         else
           enter(mode)
         end
+      end
+      if @eat_zafu
+        @zafu_tag = nil
       end
     end
     
@@ -164,27 +186,44 @@ module Zafu
       # puts "TAG(#{@method}): [#{@text}]"
       if @text =~ /\A<z:(\w+)([^>]*?)(\/?)>/
         # puts "ZTAG:[#{$&}]}" # ztag
-        method = $1
         closed = ($3 != '')
         eat $&
-        params = parse_params($2)
-        if closed
-          make(:void, :params=>params, :method=>method, :text=>'')
+        all_params = $2
+        opts = {:method=>$1}
+        if all_params =~ /\A([^>]*?)do\s*=('|")([^\2]*?[^\\])\2([^>]*)\Z/
+          # we have a 'do'
+          match = $~
+          opts[:do] = $3
+          opts[:do_params] = $4
+          opts[:params] = parse_params($1)
         else
-          make(:void, :params=>params, :method=>method)
+          opts[:params] = parse_params(all_params)
         end
-      elsif @text =~ /\A<(\w+)([^>]*?)zafu\s*=([^>]*?)(\/?)>/
+        if closed
+          make(:void, opts.merge(:text=>''))
+        else  
+          make(:void, opts)
+        end
+      elsif @text =~ /\A<(\w+)([^>]*?)zafu\s*=('|")([^\3]*?[^\\])\3([^>]*?)(\/?)>/
         # puts "ZAFU:[#{$&}]}" # zafu param tag
         eat $&
-        zafu_tag = $1
-        closed = ($4 != '')
-        params = parse_params($2+"zafu="+$3)
-        method = params[:zafu]
-        params.delete(:zafu)
+        match = $~
+        all_params = match[5]
+        closed = (match[6] != '')
+        opts = {:method=>match[4], :zafu_tag=>match[1], :zafu_tag_params=>parse_params(match[2])}
+        if all_params =~ /\A([^>]*?)do\s*=('|")([^\2]*?[^\\])\2([^>]*)\Z/
+          # we have a 'do'
+          match = $~
+          opts[:do] = $3
+          opts[:do_params] = $4
+          opts[:params] = parse_params($1)
+        else
+          opts[:params] = parse_params(all_params)
+        end
         if closed
-          make(:void, :zafu_tag=>zafu_tag, :params=>params, :method=>method, :text=>'')
+          make(:void, opts.merge(:text=>''))
         else  
-          make(:void, :zafu_tag=>zafu_tag, :params=>params, :method=>method)
+          make(:void, opts)
         end
       elsif @zafu_tag && @text =~ /\A<#{@zafu_tag}([^>]*?)(\/?)>/
         # puts "SAME:[#{$&}]}" # simple html tag same as zafu_tag

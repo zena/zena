@@ -187,6 +187,7 @@ module Zena
       end
     end
     
+    # TODO: add parent_id into the form !
     def r_form
       @pass[:form] = self
       if @context[:preflight]
@@ -282,7 +283,7 @@ module Zena
         res = render_zafu_tag(res)
         out res
         out "<% end -%>"
-      else  
+      else
         res = expand_with
         if @context[:template_url] && @pass[:edit]
           # ajax, set id
@@ -496,9 +497,9 @@ module Zena
         erb_params = {}
         if order = @params[:order]
           if order == 'random'
-            erb_params[k] = 'RAND()'
+            erb_params[:order] = 'RAND()'
           elsif order =~ /\A(\w+)( ASC| DESC|)\Z/
-            erb_params[k] = order
+            erb_params[:order] = order
           else
             # ignore
           end

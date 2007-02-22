@@ -15,7 +15,7 @@ class User < ActiveRecord::Base
   # TODO: test link between user and contact
   belongs_to              :contact
   validate                :valid_user
-  after_create            :add_public_group
+  before_create           :add_default_groups
   before_destroy          :dont_destroy_su_or_anon
   
   class << self
@@ -83,6 +83,7 @@ class User < ActiveRecord::Base
     end
     res = res.map{|g| g[:id]}
     res << 1 unless res.include?(1)
+    res << 3 unless res.include?(3) || id == 1 # all logged in users are in the 'site' group except 'anon'
     @group_ids = res
   end
   
@@ -148,33 +149,43 @@ class User < ActiveRecord::Base
       # Public user *must* have an empty login
       self[:login] = nil
       self[:password] = nil
-    elsif new_record?
-      # validate uniqueness of 'login'
-      if User.find(:first, :conditions=>["login = ?", self[:login]])
-        errors.add(:login, 'has already been taken')
-      end
     else
-      # get old password
-      old = User.find(self[:id])
-      self[:password] = old[:password] if self[:password].nil? || self[:password] == ""
-      # validate uniqueness of 'login'
-      if User.find(:first, :conditions=>["login = ? AND id <> ?", self[:login], self[:id]])
-        errors.add(:login, 'has already been taken')
+      if new_record?
+        # validate uniqueness of 'login'
+        if User.find(:first, :conditions=>["login = ?", self[:login]])
+          errors.add(:login, 'has already been taken')
+        end
+        # validate uniqueness of 'login'
+        if User.find(:first, :conditions=>["login = ?", self[:login]])
+          errors.add(:login, 'has already been taken')
+        end
+      else
+        # get old password
+        old = User.find(self[:id])
+        self[:password] = old[:password] if self[:password].nil? || self[:password] == ""
+        # validate uniqueness of 'login'
+        if User.find(:first, :conditions=>["login = ? AND id <> ?", self[:login], self[:id]])
+          errors.add(:login, 'has already been taken')
+        end
+        errors.add(:login, 'too short') unless self[:login] == old[:login] || (self[:login] && self[:login].length > 3)
       end
-      errors.add(:login, 'too short') unless self[:login] == old[:login] || (self[:login] && self[:login].length > 3)
       errors.add(:password, 'too short') unless self[:password] && self[:password].length > 4
     end
   end
   
-  # Make sure all users are in the _public_ group. This method is called +after_create+.
-  def add_public_group #:doc:
-    unless groups.map{|g| g[:id]}.include?(1)
-      groups << Group.find(1)
-    end
+  # Make sure all users are in the _public_ and _site_ groups. This method is called +after_create+.
+  def add_default_groups #:doc:
+    g_ids = groups.map{|g| g[:id]}
+    groups << Group.find(1) unless g_ids.include?(1)
+    groups << Group.find(3) unless g_ids.include?(3) || id == 1
   end
   
   # Do not allow destruction of _su_ or _anon_ users. This method is called +before_destroy+.
   def dont_destroy_su_or_anon #:doc:
     raise Zena::AccessViolation, "su and Anonymous users cannot be destroyed !" if [1,2].include?(id)
+  end
+  
+  def old
+    @old ||= self.class.find(self[:id])
   end
 end

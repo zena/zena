@@ -63,7 +63,7 @@ zafu_tag_with_ztags:
   res: "I say [test]<div>this [hello/]</div>[/test]"
 
 zafu_keep_params:
-  src: "I love <div zafu='test' class='truc' id='machin' depth='3'>my wife</div>"
+  src: "I love <div class='truc' id='machin' zafu='test' depth='3'>my wife</div>"
   res: "I love [test {= :depth=>'3'}]<div class='truc' id='machin'>my wife</div>[/test]"
 
 zafu_and_ztags:
@@ -174,3 +174,19 @@ html_comments:
 html_zafu_comment:
   src: "<z:test><z:hello/><!--|this is not a comment <z:hello/>  --></z:test>"
   res: "[test][hello/]this is not a comment [hello/]  [/test]"
+
+do_simple:
+  src: "<z:test do='hello'/>"
+  res: "[test][hello/][/test]"
+  
+do_zafu:
+  src: "<p zafu='test' param='yo' do='hello' param='hey'>some thing</p>"
+  res: "[test {= :param=>'yo'}]<p>[hello {= :param=>'hey'}]some thing[/hello]</p>[/test]"
+  
+do_multiple:
+  src: "<z:test param='1' do='test' param='2' do='hello' param='3'/>"
+  res: "[test {= :param=>'1'}][test {= :param=>'2'}][hello {= :param=>'3'}/][/test][/test]"
+
+do_multiple_with_zafu:
+  src: ""
+  res: ""

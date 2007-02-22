@@ -34,7 +34,7 @@
     <% unless user_id == 2 || user_id == 1 -%>
     <tr><td class='label'><%= trans("groups")%>     </td><td>
     <%= @groups.inject([]) do |list, g|
-          if 1 == g[:id]
+          if g[:id] == 1 || g[:id] == 3
             list << "<input type='checkbox' name='groups[#{g.id}]' value='#{g.id}' class='box' checked='1' disabled='1' />#{g.name}"
           else
             list << "<input type='checkbox' name='groups[#{g.id}]' value='#{g.id}' class='box' #{(@user && @user.group_set_ids.include?(g[:id])) ? "checked='1'" : ''}/>#{g.name}"

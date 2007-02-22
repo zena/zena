@@ -12,16 +12,17 @@ lion_in_public:
 
 
 
-
-
-ant_in_workers:
+ant_in_site:
   user_id:    3
   group_id:   3
 
-tiger_in_workers:
+tiger_in_site:
   user_id:    4
   group_id:   3
-  
+
+lion_in_site:
+  user_id:    5
+  group_id:   3
 
 
 

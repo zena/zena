@@ -292,3 +292,9 @@ trans_phrases:
 
   - id:   98
     phrase:  'img_home'
+
+  - id:   99
+    phrase:  'img_group'
+
+  - id:   100
+    phrase:  'img_group_site'

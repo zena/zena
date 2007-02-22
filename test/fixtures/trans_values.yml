@@ -915,3 +915,15 @@
   phrase_id:    98
   lang:      en
   value:     "<img src='/images/home.png'/>"
+
+171:
+  id:        171
+  phrase_id:    99
+  lang:      en
+  value:     "<img src='/images/group.png'/>"
+
+172:
+  id:        172
+  phrase_id:    100
+  lang:      en
+  value:     "<img src='/images/group_site.png'/>"

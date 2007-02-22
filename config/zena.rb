@@ -1,7 +1,7 @@
 require 'date'
 AUTHENTICATED_PREFIX = "oo"
 ZENA_ENV = {
-  :site_name => 'cvd',
+  :site_name => 'zena',
   :root_id => 1,
   :authorize => false,
   :translate_group => 2, # default = admin

@@ -25,14 +25,14 @@ class UserTest < Test::Unit::TestCase
   def test_create_admin_with_groups
     user = User.new("login"=>"john", "password"=>"isjjna78a9h", "group_ids"=>["1", "2"])
     assert user.save
-    assert_equal 2, user.groups.size
+    assert_equal 3, user.groups.size
   end
   
   def test_create_without_groups
     user = User.create("login"=>"john", "password"=>"isjjna78a9h")
     assert_kind_of User, user
     assert !user.new_record?, "Not a new record"
-    assert_equal 1, user.groups.size
+    assert_equal 2, user.groups.size
     assert_equal 'public', user.groups[0].name
   end
   
@@ -64,6 +64,7 @@ class UserTest < Test::Unit::TestCase
   def test_empty_password
     bob = User.new
     bob.login = 'bob'
+    bob.save
     assert ! bob.save
     assert_not_nil bob.errors[:password]
   end
@@ -98,6 +99,7 @@ class UserTest < Test::Unit::TestCase
     to_publish = ant.comments_to_publish
     assert_equal 0, to_publish.size
   end
+  
   
   # TODO: finish tests for User
   # groups

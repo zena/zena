@@ -1,8 +1,10 @@
 <% icon = 'group'
-if 1 == li[:id]
+if li[:id] == 1
   icon += '_pub'
-elsif 2 == li[:id]
+elsif li[:id] == 2
   icon += '_admin'
+elsif li[:id] == 3
+  icon += '_site'
 end %>
 <tr id='group<%= li[:id] %>'>
   <td class="icon"><%= if 1 == li[:id] then trans("img_#{icon}") else tlink_to_remote( "img_#{icon}", :update=>"group#{li[:id]}", :url=>{:controller=>'group', :action=>'edit', :id=>li[:id]}) end %></td>

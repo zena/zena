@@ -54,6 +54,8 @@ base_objects.each_pair do |tbl, list|
       record[:password] = User.hash_password(record[:password]) if record[:password]
     elsif :nodes == tbl && record[:log_at] == 'today'
       record[:log_at] = Time.now
+    elsif :groups == tbl && record[:id] == 3
+      record[:name] = ZENA_ENV[:site_name]
     end
     unless Loader.create(record)
       puts "could not create #{klass} #{record.inspect}"

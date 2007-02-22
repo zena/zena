@@ -33,7 +33,11 @@ class UserController < ApplicationController
   def edit
     @user = User.find(params[:id])
     @user.password = nil
-    @groups = Group.find(:all, :order=>'id')
+    if 1 == @user[:id]
+      @groups = Group.find(:all, :conditions=>"id <> 1", :order=>'id')
+    else
+      @groups = Group.find(:all, :order=>'id')
+    end
     render :partial=>'user/form'
   end
   

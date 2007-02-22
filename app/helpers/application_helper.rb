@@ -369,7 +369,7 @@ module ApplicationHelper
   end
   
   # Hierachical menu. (same on all pages)
-  def menu(opts={})
+  def show_menu(opts={})
     Cache.with(visitor.id, visitor.group_ids, Page.kpath, 'show_menu') do
       if ZENA_ENV[:menu_tag_id] !=nil
         menu  = secure(Tag) { Tag.find(ZENA_ENV[:menu_tag_id]) }

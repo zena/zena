@@ -329,15 +329,15 @@ class SecureCreateTest < Test::Unit::TestCase
     attrs = node_defaults
     wiki = nodes(:wiki)
     attrs[:parent_id] = wiki[:id]
-    # ant is in 'workers', all should be ok
-    attrs[:pgroup_id] = groups_id(:workers)
+    # ant is in the 'site' group, all should be ok
+    attrs[:pgroup_id] = groups_id(:site)
     z = secure(Note) { Note.create(attrs) }
-    
+    err z
     assert ! z.new_record? , "Not a new record"
     assert z.errors.empty? , "No errors"
     assert_equal wiki[:rgroup_id], z[:rgroup_id] , "Same rgroup as parent"
     assert_equal wiki[:wgroup_id], z[:wgroup_id] , "Same wgroup as parent"
-    assert_equal groups_id(:workers), z[:pgroup_id] , "New pgroup set"
+    assert_equal groups_id(:site), z[:pgroup_id] , "New pgroup set"
   end
   
   # 4. validate +rw groups+ :

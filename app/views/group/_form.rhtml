@@ -16,8 +16,12 @@
     <table cellspacing='0'>
       <tr><td class='label'><%= trans('name')%>       </td><td><%= text_field('group', 'name',        :size=>15 ) %></td></tr>
       <tr><td class='label'><%= trans('users')%>      </td><td><%= @users.inject([]) do |list, u|
-        unless 1 == u[:id] || 2 == u[:id]
-          list << "<input type='checkbox' name='users[#{u.id}]' value='#{u.id}' class='box' #{(@group && @group.user_ids.include?(u[:id])) ? "checked='1'" : ''}/>#{u.login}"
+        unless u[:id] == 1 || u[:id] == 2
+          if @group && @group[:id] == 3
+            list << "<input type='checkbox' name='users[#{u.id}]' value='#{u.id}' class='box' checked='1' disabled='1'/>#{u.login}"
+          else
+            list << "<input type='checkbox' name='users[#{u.id}]' value='#{u.id}' class='box' #{(@group && @group.user_ids.include?(u[:id])) ? "checked='1'" : ''}/>#{u.login}"
+          end
         end
         list
       end.join(' ') %></ul></td></tr>

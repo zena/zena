@@ -35,7 +35,7 @@ class GroupController < ApplicationController
   # TODO: test
   def update
     render :nothing=>true if 1 == params[:id]
-    if params[:users]
+    if params[:users] && params[:id] != 3
       params[:group][:user_ids] = params[:users].values.map {|v| v.to_i}
     end
     @group = Group.find(params[:id])

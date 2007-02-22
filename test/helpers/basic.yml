@@ -125,7 +125,7 @@ show_parent_title:
 
 node_id:
   src: "I (<z:show attr='name'/>) know: <z:node node_id='2'><z:show attr='name'/> with <z:children><span zafu='each' join=', '><z:show attr='name'>child</z:show></span></z:children></z:node>"
-  res: "I (status) know: people with <span>ant</span>, <span>tiger</span>, <span>lion</span>"
+  res: "I (status) know: people with <span>ant</span>, <span>lion</span>, <span>tiger</span>"
 
 node_path:
   src: "<z:node path='projects/wiki'><z:link/></z:node>"
@@ -279,3 +279,23 @@ img_src_id:
 test_children_plural:
   tem: "<%= 'children'.pluralize %>"
   res: "children"
+
+each_do:
+  context:
+    node: 'wiki'
+  src: "<z:children><z:each join=', ' do='show' attr='name'/></z:children>"
+  res: "bird, flower"
+  
+parent_do:
+  context:
+    node: 'wiki'
+  src: "<z:parent do='link'/>"
+  res: "<a href=\"/oo/page8.html\">projects list</a>"
+
+do_each:
+  src: "<z:children do='each'><z:link/></z:children>"
+  res: ""
+
+do_with_inner:
+  src: "<ul zafu='children' do='each' tag='li'><z:show attr='name'/></ul>"
+  res: "<ul><li>...</li><li>...</li>"

@@ -416,7 +416,7 @@ class MultiVersionTest < Test::Unit::TestCase
     assert node.publish
     node = secure(Node) { nodes(:lake)  } # reload
     assert_equal 2, node.editions.size, "English and french editions"
-    assert_equal ["en", "fr"], node.traductions.sort
+    assert_equal ["en"], node.traductions.map{|t| t[:lang]}.sort
   end
   
   def test_publish_with_custom_date
@@ -483,7 +483,7 @@ class MultiVersionTest < Test::Unit::TestCase
     assert_equal 'fr', trad[0][:lang]
     node = secure(Node) { nodes(:wiki) }
     trad = node.traductions
-    assert_equal 0, trad.size
+    assert_nil trad, 'no traductions'
   end
     
 end

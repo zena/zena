@@ -68,3 +68,7 @@ store_context:
     node: 'projects'
   src: "<z:children store='project' limit='1'><z:each><z:pages from='site' project='stored' limit='5'><z:each join=', '><z:show attr='name'/></z:each></z:pages></z:each></z:children>"
   res: "ant, art, collections, lion, menu"
+
+author_visitor:
+  src: "<z:pages from='site' author='visitor'><z:each do='link'/></z:pages>"
+  res: "ant, art, collections, lion, menu"
