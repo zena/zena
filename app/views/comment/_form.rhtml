@@ -12,7 +12,7 @@ end %>
   <p class="btn_x"><%= link_to_function transb('btn_x'), "new Element.toggle('add_comment', 'add_comment_form');" %></p>
 <% end  -%>
 <div class='header'>
-  <label for="author_name"><%= trans("author")  %></label> <%= session[:user] ? session[:user][:fullname] : text_field('comment', 'author_name', :size=>25) %>
+  <label for="author_name"><%= trans("author")  %></label> <%= session[:user] ? visitor[:fullname] : text_field('comment', 'author_name', :size=>25) %>
   <label for="title"><%= trans("title")  %></label> <%= text_field('comment', 'title', :size=>25) %>
 </div>
 <div class='body'>
