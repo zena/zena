@@ -485,15 +485,53 @@ module Zena
       rel = "#{node}.relation(#{@method.inspect})"
       if @params[:else]
         rel = "(#{rel} || #{node}.relation(#{@params[:else].inspect}))"
-        @params.delete(:else)
       end
-      if Zena::Acts::Linkable::plural_method?(@method) || @params[:in]
+      if @params[:store]
+        @context["stored_#{@params[:store]}".to_sym] = node
+      end
+      if Zena::Acts::Linkable::plural_method?(@method) || @params[:from]
         # plural
         # FIXME: could SQL injection be possible here ? (all params are passed to the 'find')
         erb_params = {}
-        [:limit, :order, :offset, :in].each do |k|
-          erb_params[k] = @params[k] if @params[k]
+        if order = @params[:order]
+          if order == 'random'
+            erb_params[k] = 'RAND()'
+          elsif order =~ /\A(\w+)( ASC| DESC|)\Z/
+            erb_params[k] = order
+          else
+            # ignore
+          end
         end
+        erb_params[:from] = @params[:from] if @params[:from]
+        [:limit, :offset].each do |k|
+          next unless @params[k]
+          erb_params[k] = @params[k].to_i.to_s
+        end
+        conditions = ""
+        if author_cond = @params[:author]
+          if value == 'stored' && stored = @context["stored_#{k}"]
+            conditions << " user_id = '\#{#{stored}[:user_id]}'"
+          elsif value == 'current'
+            conditions << " user_id = '\#{#{node}[:user_id]}'"
+          elsif value =~ /\A\d+\Z/
+            conditions << " user_id = '#{value.to_i}'"
+          elsif value =~ /\A[\w\/]+\Z/
+            # path, not implemented yet
+          end
+        end
+        
+        if project_cond = @params[:project]
+          if value == 'stored' && stored = @context["stored_#{k}"]
+            conditions << " project_id = #{stored}.#{k}_id"
+          elsif value == 'current'
+            conditions << " project_id = #{node}.#{k}_id"
+          elsif value =~ /\A\d+\Z/
+            conditions << " project_id = #{value}"
+          elsif value =~ /\A[\w\/]+\Z/
+            # not implemented yet
+          end
+        end
+        
         do_list("#{node}.relation(#{@method.inspect}#{params_to_erb(erb_params)})")
       else
         # singular

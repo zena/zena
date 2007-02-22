@@ -58,7 +58,7 @@ class SecureReadTest < Test::Unit::TestCase
     test_visitor(:ant)
     # not in any group and not owner
     node = nodes(:secret)
-    node.set_test_visitor(visitor_id, visitor_groups, lang)
+    node.set_visitor(visitor.id, visitor.group_ids, lang)
     assert ! node.can_read? , "Can read"
     assert ! node.can_write? , "Can write"
     assert ! node.can_publish? , "Can publish"
@@ -117,7 +117,7 @@ class SecureReadTest < Test::Unit::TestCase
     assert_raise(ActiveRecord::RecordNotFound) { node = secure(Node) { nodes(:secret)  } }
     assert_raise(ActiveRecord::RecordNotFound) { node = secure_write(Node) { nodes(:secret)  } }
     assert_raise(ActiveRecord::RecordNotFound) { node = secure_drive(Node) { nodes(:secret)  } }
-    node = nodes(:secret) .set_test_visitor(1,[1],'en')
+    node = nodes(:secret) .set_visitor(1,[1],'en')
     assert ! node.can_read? , "Cannot read"
     assert ! node.can_write? , "Cannot write"
     assert ! node.can_publish? , "Cannot publish"
@@ -455,6 +455,25 @@ class SecureCreateTest < Test::Unit::TestCase
     assert_equal 0, z.wgroup_id , "Write group is 0"
     assert_equal 0, z.pgroup_id , "Publish group is 0"
     assert_equal -1, z.inherit , "Inherit mode is -1"
+  end
+  def test_can_man_cannot_make_private
+    bak = ZENA_ENV[:allow_private_nodes]
+    ZENA_ENV[:allow_private_nodes] = false
+    test_visitor(:ant)
+    attrs = node_defaults
+
+    attrs[:parent_id] = nodes_id(:zena) # ant can write but not publish here
+    p = secure(Project) { Project.find(attrs[:parent_id])}
+
+    # make private
+    attrs[:inherit  ] = -1 # make private
+    attrs[:rgroup_id] = 98984984 # anything
+    attrs[:wgroup_id] = 98984984 # anything
+    attrs[:pgroup_id] = 98984984 # anything
+    z = secure(Note) { Note.create(attrs) }
+    assert z.new_record? , "New record"
+    assert "you cannot change this", z.errors[:inherit]
+    ZENA_ENV[:allow_private_nodes] = bak
   end
   def test_can_man_can_inherit_rwp_groups
     test_visitor(:ant)

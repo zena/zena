@@ -356,9 +356,13 @@ Just doing the above will filter all result according to the logged in user.
             self[:template ] = ref.template
           when -1
             # private
-            self[:rgroup_id] = 0
-            self[:wgroup_id] = 0
-            self[:pgroup_id] = 0
+            if ZENA_ENV[:allow_private_nodes]
+              self[:rgroup_id] = 0
+              self[:wgroup_id] = 0
+              self[:pgroup_id] = 0
+            else
+              errors.add('inherit', "you cannot change this")
+            end
           when 0
             if ref.can_visible?
               errors.add('rgroup_id', "unknown group") unless visitor_groups.include?(rgroup_id)
@@ -503,7 +507,7 @@ Just doing the above will filter all result according to the logged in user.
           when -1
             # make private, only if owner
             unless (inherit == old.inherit)
-              if old.can_drive? && (user_id == visitor_id)
+              if old.can_drive? && (user_id == visitor_id) && ZENA_ENV[:allow_private_nodes]
                 [:rgroup_id, :wgroup_id, :pgroup_id].each do |sym|
                   self[sym] = 0
                 end
@@ -534,8 +538,7 @@ Just doing the above will filter all result according to the logged in user.
                 errors.add('rgroup_id', "you cannot change this") unless rgroup_id == old.rgroup_id
                 errors.add('wgroup_id', "you cannot change this") unless wgroup_id == old.wgroup_id
                 errors.add('pgroup_id', "you cannot change this") unless pgroup_id == old.pgroup_id
-                # but you can change templates
-                #errors.add('template' , "you cannot change this") unless template  == ref.template
+                # but you can change templates and name
               end
             else
               # must be the same as old

@@ -20,3 +20,4 @@ config.action_mailer.delivery_method = :test
 
 # configure data directory for uploaded files
 ZENA_ENV[:data_dir] = "#{RAILS_ROOT}/data/test"
+ZENA_ENV[:allow_private_nodes] = true

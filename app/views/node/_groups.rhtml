@@ -1,8 +1,9 @@
 <% if @node.can_visible?
-  inherit_modes = [[trans('inherit'),1],[trans('custom'),0],[trans('private'),-1]]
-elsif @node.can_manage? && @node.max_status < Zena::Status[:pub]
+  inherit_modes = [[trans('inherit'),1],[trans('custom'),0]]
+  inherit_modes << [trans('private'),-1] if ZENA_ENV[:allow_private_nodes]
+elsif @node.can_manage? && @node.max_status < Zena::Status[:pub] && ZENA_ENV[:allow_private_nodes]
   # nothing published yet, node can be reverted to 'inherit' or set 'private' without publish rights
-  inherit_modes = [[trans('inherit'),1],[trans('private'),-1]]
+  inherit_modes = [[trans('inherit'),1], [trans('private'),-1]]
 else
   inherit_modes = nil
 end 

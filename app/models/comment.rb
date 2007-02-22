@@ -3,7 +3,7 @@ Comments can be added on a per discussion basis. There can be replies to other c
 discussion. Comments are signed by the user commenting. Public comments
 belong to the user _anon_ (see #User) and must have the 'athor_name' field set.
 
-If ZENA_ENV[:moderate_public_comments] is set, all public comments are set to 'prop' and are not directly seen on the site.
+If ZENA_ENV[:moderate_anonymous_comments] is set, all public comments are set to 'prop' and are not directly seen on the site.
 =end
 class Comment < ActiveRecord::Base
   belongs_to :author, :class_name=>'User', :foreign_key=>'user_id'
@@ -41,7 +41,7 @@ class Comment < ActiveRecord::Base
     if parent && (self[:title].nil? || self[:title] == '')
       self[:title] = TransPhrase['re:'][discussion.lang] + ' ' + parent.title
     end
-    if user_id == 1 && ZENA_ENV[:moderate_public_comments]
+    if user_id == 1 && ZENA_ENV[:moderate_anonymous_comments]
       self[:status] = Zena::Status[:prop]
     else
       self[:status] = Zena::Status[:pub]

@@ -53,4 +53,12 @@ pages_limit:
 pages_random:
   context:
     node: 'cleanWater'
-  src: "<z:pages limit='3' order='RAND()' conditions='1'><z:each join=', '><z:show attr='name'/></z:each></z:pages>"
+  src: "<z:pages limit='3' order='random'><z:each join=', '><z:show attr='name'/></z:each></z:pages>"
+
+pages_from_project:
+  src: "<z:pages from='project' limit='2'><z:each join=', '><z:show attr='name'/></z:each></z:pages>"
+  res: "cleanWater, lake"
+
+pages_from_site:
+  src: "<z:pages from='site' limit='2'><z:each join=', '><z:show attr='name'/></z:each></z:pages>"
+  res: "ant, art"

@@ -167,6 +167,7 @@ on the post edit page :
       
       def fetch_link(link_def, options)
         klass      = link_def[:class]
+        klass      = Module.const_get(link_def[:class].to_sym) if klass.kind_of?(String)
         link_side  = link_def[:link_side]
         other_side = link_def[:other_side]
         role       = link_def[:role]
@@ -174,18 +175,18 @@ on the post edit page :
         
         conditions = options[:conditions]
         options.delete(:conditions)
-        # :in
+        # :from
         side_cond = ""
         params    = []
-        case options[:in]
+        case options[:from]
         when 'site'  
           count = :all
         when 'project'
           if conditions.kind_of?(Array)
-            conditions[0] << " AND project_id = ?"
+            conditions[0] = "(#{conditions[0]}) AND project_id = ?"
             conditions << self[:project_id]
           elsif conditions
-            conditions = ["#{conditions} AND project_id = ?", self[:project_id]]
+            conditions = ["(#{conditions}) AND project_id = ?", self[:project_id]]
           else
             conditions = ["project_id = ?", self[:project_id]]
           end
@@ -194,7 +195,7 @@ on the post edit page :
           side_cond = " AND links.#{link_side} = ?"
           params = [self[:id]]
         end
-        options.delete(:in)
+        options.delete(:from)
         
         if options[:or]
           join = 'LEFT'
@@ -210,7 +211,7 @@ on the post edit page :
           join = 'INNER'
           inner_conditions = ["links.role='#{role}'#{side_cond}", *params ]
         end
-        options.merge!( :select     => "DISTINCT #{klass.table_name}.*", 
+        options.merge!( :select     => "DISTINCT #{klass.table_name}.*, links.id AS link_id, links.role", 
                         :joins      => "#{join} JOIN links ON #{klass.table_name}.id=links.#{other_side}",
                         :conditions => inner_conditions
                         )
@@ -318,7 +319,7 @@ on the post edit page :
                 if link = Link.find_by_role_and_#{link_side}('#{role}', self[:id])
                   obj_id = link.#{other_side}
                   begin
-                    secure_write(#{class_name}) { #{class_name}.find(obj_id) }
+                    #{find_target}(#{class_name}) { #{class_name}.find(obj_id) }
                   rescue
                     errors.add('#{role}', 'cannot remove old link')
                   end
@@ -329,7 +330,7 @@ on the post edit page :
                 if obj_id && obj_id != ''
                   # set
                   begin
-                    secure_write(#{class_name}) { #{class_name}.find(obj_id) } # make sure we can write in the object
+                    #{find_target}(#{class_name}) { #{class_name}.find(obj_id) } # make sure we can write in the object
                   rescue
                     errors.add('#{role}', 'invalid')
                   end
@@ -399,7 +400,7 @@ on the post edit page :
                 # 1. can remove old link ?
                 @#{meth}_del_ids.each do |obj_id|
                   begin
-                    secure_write(#{class_name}) { #{class_name}.find(obj_id) }
+                    #{find_target}(#{class_name}) { #{class_name}.find(obj_id) }
                   rescue
                     errors.add('#{role}', 'cannot remove link')
                   end
@@ -408,7 +409,7 @@ on the post edit page :
                 # 2. can write in new target ?
                 @#{meth}_add_ids.each do |obj_id|
                   begin
-                    secure_write(#{class_name}) { #{class_name}.find(obj_id) }
+                    #{find_target}(#{class_name}) { #{class_name}.find(obj_id) }
                   rescue
                     errors.add('#{meth}', 'invalid target')
                   end
@@ -451,10 +452,10 @@ on the post edit page :
               end
               
               def #{method}_for_form(options={})
-                options.merge!( :select     => "\#{#{class_name}.table_name}.*, links.id AS link_id", 
+                options.merge!( :select     => "\#{#{class_name}.table_name}.*, links.id AS link_id, links.role", 
                                 :joins      => "LEFT OUTER JOIN links ON \#{#{class_name}.table_name}.id=links.#{other_side} AND links.role='#{role}' AND links.#{link_side} = \#{self[:id].to_i}"
                                 )
-                secure_write(#{class_name}) { #{class_name}.find(:all, options) }
+                #{find_target}(#{class_name}) { #{class_name}.find(:all, options) }
               rescue ActiveRecord::RecordNotFound
                 []
               end

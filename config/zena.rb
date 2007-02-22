@@ -11,8 +11,11 @@ ZENA_ENV = {
   :default_lang => 'en',
  # :news_collector_id => 24,
  # :menu_tag_id => 23,
-  :pub_comments => false,
-  :moderate_public_comments => false,
+  :pub_comments => false,      # do not open a public discussion by default
+  :allow_anonymous_comments    => true,
+  :moderate_anonymous_comments => true,
+  
+  :allow_private_nodes => false,
   :password_salt => "fish zen ho",
   :data_dir => "/var/www/zenadmin.org/data", # configure data directory for uploaded files
   :edit_help_id => 3,

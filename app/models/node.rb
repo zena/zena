@@ -231,12 +231,13 @@ class Node < ActiveRecord::Base
     if method =~ /\A\d+\Z/
       secure(Node) { Node.find(method) }
     else
+      # parse :project, :author conditions
       if relation_methods.include?(method)
         if method == 'self'
           self
         elsif Zena::Acts::Linkable::plural_method?(method)
           self.send(method.to_sym, opts)
-        elsif opts[:in]
+        elsif opts[:from]
           if res = self.send(method.to_sym)
             [res]
           else
@@ -256,6 +257,46 @@ class Node < ActiveRecord::Base
     nil
   end
   
+  def relation_options(opts, cond=nil)
+    case opts[:from]
+    when 'site'
+      conditions = "1"
+    when 'project'
+      conditions = ["project_id = ?", self[:project_id]]
+    else
+      # self or nothing
+      conditions = ["parent_id = ?", self[:id]]
+    end
+    opts.delete(:from)
+    if cond
+      # merge option and condition
+      if conditions.kind_of?(Array)
+        conditions[0] = "(#{conditions[0]}) AND (#{cond})"
+      else  
+        conditions = "(#{conditions}) AND (#{cond})"
+      end
+    end
+    if opt_cond = opts[:conditions]
+      if opt_cond.kind_of?(Array)
+        # merge option and condition
+        if conditions.kind_of?(Array)
+          conditions[0] = "(#{conditions[0]}) AND (#{opt_cond[0]})"
+        else
+          conditions = ["(#{conditions}) AND (#{opt_cond[0]})", *opt_cond[1..-1]]
+        end
+      else
+        # merge option and condition
+        if conditions.kind_of?(Array)
+          conditions[0] = "(#{conditions[0]}) AND (#{opt_cond})"
+        else
+          conditions = "(#{conditions}) AND (#{opt_cond})"
+        end
+      end
+    end
+    opts.delete(:conditions)
+    {:order=>'name ASC', :conditions=>conditions}.merge(opts)
+  end
+
   def root(opts={})
     secure(Node) { Node.find(ZENA_ENV[:root_id])}
   rescue ActiveRecord::RecordNotFound
@@ -287,32 +328,10 @@ class Node < ActiveRecord::Base
   
   # Find all sub-pages (All but documents)
   def pages(opts={})
-    @pages ||= secure(Page) { Page.find(:all, relation_options(opts,"kpath NOT LIKE 'NPD%'")) }
+    options = relation_options(opts,"kpath NOT LIKE 'NPD%'")
+    puts options.inspect
+    @pages ||= secure(Page) { Page.find(:all, options) }
   end
-
-  def relation_options(opts, cond=nil)
-    case opts[:in]
-    when 'site'
-      conditions = "1"
-    when 'project'
-      conditions = ["project_id = ?", self[:project_id]]
-    else
-      # self or nothing
-      conditions = ["parent_id = ?", self[:id]]
-    end
-    opts.delete(:in)
-    opts.delete(:conditions) # maybe merge this someday
-    if cond
-      # merge option and condition
-      if conditions.kind_of?(Array)
-        conditions[0] << " AND #{cond}"
-      else
-        conditions << " AND #{cond}"
-      end
-    end
-    {:order=>'name ASC', :conditions=>conditions}.merge(opts)
-  end
-
   
   # Find documents
   def documents(opts={})
@@ -355,6 +374,10 @@ class Node < ActiveRecord::Base
   # ACCESSORS
   def author
     user
+  end
+  
+  def author_id
+    user_id
   end
   
   def ext
@@ -436,7 +459,7 @@ class Node < ActiveRecord::Base
   
   # Return true if it is allowed to add comments to the node in the current context
   def can_comment?
-    discussion && (discussion.open? || visitor_id == 2)
+    discussion && ((discussion.open? && (visitor_id != 1 || ZENA_ENV[:allow_anonymous_comments])) || visitor_id == 2)
   end
   
   # Add a comment to an node. If reply_to is set, the comment is added to the proper message

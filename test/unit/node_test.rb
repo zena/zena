@@ -689,15 +689,28 @@ class NodeTest < Test::Unit::TestCase
     assert_equal nil, comments[1][:author_name]
   end
   
-  def test_public_add_comment
+  def test_anon_add_comment
+    aanon = ZENA_ENV[:allow_anonymous_comments]
+    manon = ZENA_ENV[:moderate_anonymous_comments]
     node = secure(Node) { nodes(:status) }
     assert_equal 1, node.comments.size
-    assert comment = node.add_comment( :author_name=>'parrot', :title=>'hello', :text=>'world' )
+    ZENA_ENV[:allow_anonymous_comments] = false
+    assert node.can_comment?, "Anonymous cannot comment."
+    ZENA_ENV[:allow_anonymous_comments] = true
+    assert node.can_comment?, "Anonymous can comment."
+    ZENA_ENV[:moderate_anonymous_comments] = true
+    assert comment = node.add_comment( :author_name=>'fierce', :title=>'and', :text=>'ugly spam' )
+    assert_equal Zena::Status[:prop], comment.status
+    ZENA_ENV[:moderate_anonymous_comments] = false
+    assert comment = node.add_comment( :author_name=>'parrot', :title=>'hello', :text=>'world of happiness' )
+    assert_equal Zena::Status[:pub], comment.status
     node = secure(Node) { nodes(:status) }
     comments = node.comments
     assert_equal 2, node.comments.size
     assert_equal 'hello', comments[1][:title]
     assert_equal 'parrot', comments[1][:author_name]
+    ZENA_ENV[:allow_anonymous_comments] = aanon
+    ZENA_ENV[:moderate_anonymous_comments] = manon
   end
   
   def test_add_reply
@@ -710,5 +723,22 @@ class NodeTest < Test::Unit::TestCase
     comments = node.comments
     assert_equal 1, comments.size
     assert_equal 1, comments[0].replies.size
+  end
+  
+  def test_relation_options
+    test_visitor(:ant)
+    node = secure(Node) { nodes(:status) }
+    res = {:conditions=>["project_id = ? AND kpath NOT LIKE 'NPDI%'", 11], :order=>"name ASC"}
+    assert_equal res, node.relation_options({:from=>'project'}, "kpath NOT LIKE 'NPDI%'")
+    res = {:conditions=>["parent_id = ? AND kpath NOT LIKE 'NPDI%'", 12], :order=>"name ASC"}
+    assert_equal res, node.relation_options({}, "kpath NOT LIKE 'NPDI%'")
+  end
+  
+  def test_relation
+    test_visitor(:ant)
+    node = secure(Node) { nodes(:status) }
+    pages = node.relation("pages", :from=>'project', :limit=>2)
+    assert_equal 2, pages.size
+    assert_equal 'cleanWater', pages[0][:name]
   end
 end

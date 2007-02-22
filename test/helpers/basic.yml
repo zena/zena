@@ -69,6 +69,10 @@ link:
   tem: "<%= node_link(:node=>@node) %>"
   res: "<a href=\"/oo/projects/cleanWater/page12.html\">status title</a>"
 
+zafu_link:
+  src: "<li zafu='link'/>"
+  res: "<li><a href=\"/oo/projects/cleanWater/page12.html\">status title</a></li>"
+
 link_attr:
   src: "<z:link attr='ref_lang'/>"
   tem: "<%= node_link(:node=>@node, :text=>@node[:ref_lang]) %>"
