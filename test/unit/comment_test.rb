@@ -33,18 +33,18 @@ class CommentTest < Test::Unit::TestCase
     assert_equal Zena::Status[:rem], comment[:status]
   end
   
-  def test_moderate_public_comments
-    bak = ZENA_ENV[:moderate_public_comments]
+  def test_moderate_anonymous_comments
+    bak = ZENA_ENV[:moderate_anonymous_comments]
     discussion = Discussion.create(:node_id=>11, :lang=>'en')
-    ZENA_ENV[:moderate_public_comments] = true
+    ZENA_ENV[:moderate_anonymous_comments] = true
     comment = Comment.create( :user_id=>1, :title=>'coco', :text=>'spam see my web site', :author_name=>'me', :discussion_id=>discussion[:id] )
     assert !comment.new_record?, "Not a new record"
     assert_equal Zena::Status[:prop], comment[:status]
-    ZENA_ENV[:moderate_public_comments] = false
+    ZENA_ENV[:moderate_anonymous_comments] = false
     comment = Comment.create( :user_id=>1, :title=>'coco again', :text=>'spam see my web site again', :author_name=>'me', :discussion_id=>discussion[:id] )
     assert !comment.new_record?, "Not a new record"
     assert_equal Zena::Status[:pub], comment[:status]
-    ZENA_ENV[:moderate_public_comments] = bak
+    ZENA_ENV[:moderate_anonymous_comments] = bak
     comments = discussion.comments
     assert_equal 1, comments.size
     assert_equal 2, discussion.comments(:with_prop=>true).size
