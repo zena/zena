@@ -55,7 +55,7 @@ ActiveRecord::Schema.define(:version => 0) do
   end
 
   create_table "document_contents", :force => true do |t|
-    t.column "type", :string, :limit => 16
+    t.column "type", :string, :limit => 32
     t.column "version_id", :integer
     t.column "name", :string, :limit => 200, :default => "", :null => false
     t.column "content_type", :string, :limit => 20
@@ -97,7 +97,7 @@ ActiveRecord::Schema.define(:version => 0) do
   end
 
   create_table "nodes", :force => true do |t|
-    t.column "type", :string, :limit => 16
+    t.column "type", :string, :limit => 32
     t.column "event_at", :datetime
     t.column "kpath", :string, :limit => 16
     t.column "created_at", :datetime
@@ -106,7 +106,6 @@ ActiveRecord::Schema.define(:version => 0) do
     t.column "project_id", :integer
     t.column "parent_id", :integer
     t.column "name", :string, :limit => 200
-    t.column "template", :string
     t.column "inherit", :integer
     t.column "rgroup_id", :integer
     t.column "wgroup_id", :integer
@@ -117,9 +116,10 @@ ActiveRecord::Schema.define(:version => 0) do
     t.column "ref_lang", :string, :limit => 10, :default => "", :null => false
     t.column "alias", :string, :limit => 400
     t.column "fullpath", :text
-    t.column "dgroup_id", :integer
     t.column "custom_base", :boolean, :default => false
     t.column "basepath", :text
+    t.column "dgroup_id", :integer
+    t.column "template", :string
   end
 
   create_table "trans_phrases", :force => true do |t|
@@ -147,7 +147,7 @@ ActiveRecord::Schema.define(:version => 0) do
   end
 
   create_table "versions", :force => true do |t|
-    t.column "type", :string, :limit => 16
+    t.column "type", :string, :limit => 32
     t.column "created_at", :datetime
     t.column "updated_at", :datetime
     t.column "node_id", :integer, :default => 0, :null => false
