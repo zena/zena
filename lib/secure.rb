@@ -3,6 +3,7 @@ module Zena
     :pub  => 50,
     :prop => 40,
     :prop_with => 35,
+    :red_visible => 33,
     :red  => 30,
     :rep  => 20,
     :rem  => 10,

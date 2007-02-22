@@ -480,4 +480,20 @@ class LinkTest < Test::Unit::TestCase
     @pages_and_tags = @node.tags(:or=>["parent_id = ?", @node[:id]])
     assert_equal 2, @pages_and_tags.size
   end
+  
+  def test_in_option
+    test_visitor(:lion)
+    @node1 = secure(LinkDummy) { LinkDummy.find(nodes_id(:cleanWater)) } #11
+    @icon1 = secure(LinkDummy) { LinkDummy.find(nodes_id(:bird_jpg)) } #20
+    @node1.icon = @icon1
+    @node1.save
+    @node2 = secure(LinkDummy) { LinkDummy.find(nodes_id(:status)) } #12
+    @icon2 = secure(LinkDummy) { LinkDummy.find(nodes_id(:flower_jpg)) } #21
+    @node2.icon = @icon2
+    @node2.save
+    # reload
+    @node1 = secure(LinkDummy) { LinkDummy.find(nodes_id(:cleanWater)) }
+    assert_equal nodes_id(:bird_jpg), @node1.icon[:id]
+    assert_equal 2, @icon1.icon(:in=>'project').size
+  end
 end

@@ -487,11 +487,11 @@ module Zena
         rel = "(#{rel} || #{node}.relation(#{@params[:else].inspect}))"
         @params.delete(:else)
       end
-      if Zena::Acts::Linkable::plural_method?(@method)
+      if Zena::Acts::Linkable::plural_method?(@method) || @params[:in]
         # plural
         # FIXME: could SQL injection be possible here ? (all params are passed to the 'find')
         erb_params = {}
-        [:limit, :order, :offset].each do |k|
+        [:limit, :order, :offset, :in].each do |k|
           erb_params[k] = @params[k] if @params[k]
         end
         do_list("#{node}.relation(#{@method.inspect}#{params_to_erb(erb_params)})")

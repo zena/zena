@@ -54,6 +54,9 @@ end
 #   inflect.uncountable %w( fish sheep )
 # end
 
+Inflector.inflections do |inflect|
+  inflect.uncountable %w( children )
+end
 
 require File.join(File.dirname(__FILE__), '../lib/secure')
 require File.join(File.dirname(__FILE__), '../lib/multiversion')

@@ -231,13 +231,25 @@ class Node < ActiveRecord::Base
     if method =~ /\A\d+\Z/
       secure(Node) { Node.find(method) }
     else
-      return nil unless relation_methods.include?(method) || self.class.role[method]
-      if method == 'self'
-        self
-      elsif Zena::Acts::Linkable::plural_method?(method)
+      if relation_methods.include?(method)
+        if method == 'self'
+          self
+        elsif Zena::Acts::Linkable::plural_method?(method)
+          self.send(method.to_sym, opts)
+        elsif opts[:in]
+          if res = self.send(method.to_sym)
+            [res]
+          else
+            nil
+          end
+        else
+          self.send(method.to_sym)
+        end
+      elsif self.class.role[method]
         self.send(method.to_sym, opts)
       else
-        self.send(method.to_sym)
+        # invalid method
+        nil
       end
     end
   rescue ActiveRecord::RecordNotFound
@@ -252,8 +264,11 @@ class Node < ActiveRecord::Base
   
   # Find all children
   def children(opts={})
-    options = opts.merge(:conditions=>['parent_id = ?', self[:id] ])
-    @children ||= secure(Node) { Node.find(:all, options) }
+    @children ||= secure(Node) { Node.find(:all, relation_options(opts)) }
+  end
+  
+  def notes
+    nil
   end
   
   # Find parent
@@ -272,45 +287,56 @@ class Node < ActiveRecord::Base
   
   # Find all sub-pages (All but documents)
   def pages(opts={})
-    #opts.delete(:conditions)
-    options = {:order=>'name ASC', :conditions=>["parent_id = ? AND kpath NOT LIKE 'NPD%'", self[:id] ]}.merge(opts)
-    @pages ||= secure(Page) {
-      Page.find(:all, options) }
+    @pages ||= secure(Page) { Page.find(:all, relation_options(opts,"kpath NOT LIKE 'NPD%'")) }
   end
+
+  def relation_options(opts, cond=nil)
+    case opts[:in]
+    when 'site'
+      conditions = "1"
+    when 'project'
+      conditions = ["project_id = ?", self[:project_id]]
+    else
+      # self or nothing
+      conditions = ["parent_id = ?", self[:id]]
+    end
+    opts.delete(:in)
+    opts.delete(:conditions) # maybe merge this someday
+    if cond
+      # merge option and condition
+      if conditions.kind_of?(Array)
+        conditions[0] << " AND #{cond}"
+      else
+        conditions << " AND #{cond}"
+      end
+    end
+    {:order=>'name ASC', :conditions=>conditions}.merge(opts)
+  end
+
   
   # Find documents
   def documents(opts={})
-    opts.delete(:conditions)
-    options = {:order=>'name ASC', :conditions=>["parent_id = ?", self[:id] ]}.merge(opts)
-    @documents ||= secure(Document) { Document.find(:all, options) }
+    @documents ||= secure(Document) { Document.find(:all, relation_options(opts)) }
   end
 
   # Find documents without images
   def documents_only(opts={})
-    opts.delete(:conditions)
-    options = {:order=>'name ASC', :conditions=>["parent_id = ? AND kpath NOT LIKE 'NPDI%'", self[:id] ]}.merge(opts)
-    @doconly ||= secure(Document) { Document.find(:all, options ) }
+    @doconly ||= secure(Document) { Document.find(:all, relation_options(opts, "kpath NOT LIKE 'NPDI%'") ) }
   end
   
   # Find only images
   def images(opts={})
-    opts.delete(:conditions)
-    options = {:order=>'name ASC', :conditions=>["parent_id = ?", self[:id] ]}.merge(opts)
-    @images ||= secure(Image) { Image.find(:all, options ) }
+    @images ||= secure(Image) { Image.find(:all, relation_options(opts) ) }
   end
   
   # Find only notes
   def notes(opts={})
-    opts.delete(:conditions)
-    options = {:order=>'name ASC', :conditions=>["parent_id = ?", self[:id] ]}.merge(opts)
-    @notes ||= secure(Note) { Note.find(:all, options ) }
+    @notes ||= secure(Note) { Note.find(:all, relation_options(opts) ) }
   end
  
   # Find all trackers
   def trackers(opts={})
-    opts.delete(:conditions)
-    options = {:order=>'name ASC', :conditions=>["parent_id = ?", self[:id] ]}.merge(opts)
-    @trackers ||= secure(Tracker) { Tracker.find(:all, options ) }
+    @trackers ||= secure(Tracker) { Tracker.find(:all, relation_options(opts) ) }
   end
 
   # Create a child and let him inherit from rwp groups and project_id
