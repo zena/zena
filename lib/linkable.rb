@@ -233,7 +233,7 @@ on the post edit page :
                 join = 'INNER'
                 inner_conditions = ["links.role='#{role}' AND links.#{link_side} = ?", self[:id] ]
               end
-              options.merge!( :select     => "DISTINCT \#{#{klass}.table_name}.*", 
+              options.merge!( :select     => "DISTINCT \#{#{klass}.table_name}.*, links.id AS link_id", 
                               :joins      => "\#{join} JOIN links ON \#{#{klass}.table_name}.id=links.#{other_side}",
                               :conditions => inner_conditions
                               )
@@ -256,8 +256,10 @@ on the post edit page :
               errors.add('#{role}', 'can not destroy') unless link2.destroy
             end
             END
+            find_target = 'secure_drive'
           else
             destroy_if_as_unique = ""
+            find_target = 'secure_write'
           end
           
           if options[:unique]
@@ -330,7 +332,7 @@ on the post edit page :
                 @#{meth}_ids = obj_ids ? obj_ids.map{|i| i.to_i} : []
               end
               def #{method}=(objs)
-                @#{meth}_ids = objs ? objs.map{|obj| obj.id} : []
+                @#{meth}_ids = objs ? objs.map{|obj| obj[:id]} : []
               end
               def #{meth}_ids; #{method}.map{|r| r[:id]}; end
               
@@ -369,9 +371,9 @@ on the post edit page :
                 # 2. can write in new target ?
                 @#{meth}_add_ids.each do |obj_id|
                   begin
-                    secure_write(#{klass}) { #{klass}.find(obj_id) }
+                    #{find_target}(#{klass}) { #{klass}.find(obj_id) }
                   rescue
-                    errors.add('#{role}', 'invalid')
+                    errors.add('#{meth}', 'invalid target')
                   end
                 end
               end
