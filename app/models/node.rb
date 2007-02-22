@@ -328,9 +328,7 @@ class Node < ActiveRecord::Base
   
   # Find all sub-pages (All but documents)
   def pages(opts={})
-    options = relation_options(opts,"kpath NOT LIKE 'NPD%'")
-    puts options.inspect
-    @pages ||= secure(Page) { Page.find(:all, options) }
+    @pages ||= secure(Page) { Page.find(:all, relation_options(opts,"kpath NOT LIKE 'NPD%'")) }
   end
   
   # Find documents

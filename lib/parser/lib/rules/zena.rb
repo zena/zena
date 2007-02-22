@@ -481,6 +481,7 @@ module Zena
     # use all other tags as relations
     # try to add 'conditions' without sql injection possibilities...
     def r_unknown
+      return '' if @context[:preflight]
       "not a node (#{@method})" unless node_kind_of?(Node)
       rel = "#{node}.relation(#{@method.inspect})"
       if @params[:else]
@@ -507,32 +508,41 @@ module Zena
           next unless @params[k]
           erb_params[k] = @params[k].to_i.to_s
         end
-        conditions = ""
-        if author_cond = @params[:author]
-          if value == 'stored' && stored = @context["stored_#{k}"]
-            conditions << " user_id = '\#{#{stored}[:user_id]}'"
+        conditions = []
+        if value = @params[:author]
+          if value == 'stored' && stored = @context[:stored_author]
+            conditions << "user_id = '\#{#{stored}[:user_id]}'"
           elsif value == 'current'
-            conditions << " user_id = '\#{#{node}[:user_id]}'"
+            conditions << "user_id = '\#{#{node}[:user_id]}'"
           elsif value =~ /\A\d+\Z/
-            conditions << " user_id = '#{value.to_i}'"
+            conditions << "user_id = '#{value.to_i}'"
           elsif value =~ /\A[\w\/]+\Z/
             # path, not implemented yet
           end
         end
         
-        if project_cond = @params[:project]
-          if value == 'stored' && stored = @context["stored_#{k}"]
-            conditions << " project_id = #{stored}.#{k}_id"
+        if value = @params[:project]
+          if value == 'stored' && stored = @context[:stored_project]
+            conditions << "project_id = '\#{#{stored}[:project_id]}'"
           elsif value == 'current'
-            conditions << " project_id = #{node}.#{k}_id"
+            conditions << "project_id = '\#{#{node}[:project_id]}'"
           elsif value =~ /\A\d+\Z/
-            conditions << " project_id = #{value}"
+            conditions << "project_id = '#{value.to_i}'"
           elsif value =~ /\A[\w\/]+\Z/
             # not implemented yet
           end
         end
-        
-        do_list("#{node}.relation(#{@method.inspect}#{params_to_erb(erb_params)})")
+
+        params = params_to_erb(erb_params)
+        if conditions != []
+          conditions = conditions.join(' AND ')
+          if params != ''
+            params << ", :conditions=>\"#{conditions}\""
+          else
+            params = ":conditions=>\"#{conditions}\""
+          end
+        end
+        do_list("#{node}.relation(#{@method.inspect}#{params})")
       else
         # singular
         do_var("#{node}.relation(#{@method.inspect})")
