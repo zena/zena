@@ -1,4 +1,4 @@
-<% if @node.ref.can_visible? %>
+<% if @node.ref.can_visible? || @node[:max_status] < Zena::Status[:pub] %>
 <div class='drive' id='groups'>
   <%= render :partial=>'node/groups'%>
 </div>
