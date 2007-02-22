@@ -258,6 +258,12 @@ module Zena
         "<%= link_to(#{text.inspect}, ...) %>" # FIXME
       end
     end
+    
+    #if RAILS_ENV == 'test'
+    #  def r_test
+    #    inspect
+    #  end
+    #end
  
     def r_each
       if @context[:preflight]

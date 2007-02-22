@@ -293,9 +293,19 @@ parent_do:
   res: "<a href=\"/oo/page8.html\">projects list</a>"
 
 do_each:
+  context:
+    node: 'wiki'
   src: "<z:children do='each'><z:link/></z:children>"
-  res: ""
+  res: "<a href=\"/oo/image20.html\">bird</a><a href=\"/oo/image21.html\">flower</a>"
 
 do_with_inner:
+  context:
+    node: 'wiki'
   src: "<ul zafu='children' do='each' tag='li'><z:show attr='name'/></ul>"
-  res: "<ul><li>...</li><li>...</li>"
+  res: "<ul><li>bird</li><li>flower</li></ul>"
+
+do_each_do:
+  context:
+    node: 'wiki'
+  src: "<ul zafu='children' do='each' tag='li' do='link'/>"
+  res: "<ul><li><a href=\"/oo/image20.html\">bird</a></li><li><a href=\"/oo/image21.html\">flower</a></li></ul>"

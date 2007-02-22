@@ -11,7 +11,7 @@ module Zafu
     def inspect
       @zafu_tag_done = false
       res = super
-      if @zafu_tag && !@zafu_tag_done
+      if (@zafu_tag || @params[:tag]) && !@zafu_tag_done
         if res =~ /\A\[(\w+)(.*)\/\]\Z/
           res = "[#{$1}#{$2}]<#{tag}/>[/#{$1}]"
         elsif res =~ /\A\[([^\]]+)\](.*)\[\/(\w+)\]\Z/
@@ -31,8 +31,8 @@ module Zafu
     end
     
     def render_zafu_tag(text)
-      return text unless (@zafu_tag && !@zafu_tag_done)
-      res = "<#{@zafu_tag}#{params_to_html(@zafu_tag_params)}>#{text}</#{@zafu_tag}>"
+      return text unless ((@zafu_tag || @params[:tag]) && !@zafu_tag_done)
+      res = "<#{(@zafu_tag || @params[:tag])}#{params_to_html(@zafu_tag_params || {})}>#{text}</#{(@zafu_tag || @params[:tag])}>"
       @zafu_tag_done = true
       res
     end
@@ -71,20 +71,27 @@ module Zafu
         @zafu_tag_params = @options[:zafu_tag_params] || {}
         @options.delete(:zafu_tag_params)
         @zafu_tag_count = 1
-      elsif @zafu_tag = @options[:eat_zafu]
-        @eat_zafu = true
-        @options.delete(:eat_zafu)
+      elsif @zafu_tag = @options[:end_zafu]
+        @end_zafu = true
+        @options.delete(:end_zafu)
         @zafu_tag_count = 1
       else
         @zafu_tag_count = 0
       end
+      @end_ztag = @options[:end_ztag] || @method
+      @options.delete(:end_ztag)
+      
       if @method == 'include'
         include_template
       elsif @options[:do]
         opts = {:method=>@options[:do]}
         
         # the matching zafu tag will be parsed by the last 'do', we must inform it to halt properly :
-        opts[:eat_zafu] = @zafu_tag if @zafu_tag
+        if @zafu_tag
+          opts[:end_zafu] = @zafu_tag
+        else
+          opts[:end_ztag] = @method
+        end
         
         all_params = @options[:do_params]
         if all_params =~ /\A([^>]*?)do\s*=('|")([^\2]*?[^\\])\2([^>]*)\Z/
@@ -106,7 +113,7 @@ module Zafu
           enter(mode)
         end
       end
-      if @eat_zafu
+      if @end_zafu
         @zafu_tag = nil
       end
     end
@@ -156,7 +163,7 @@ module Zafu
         else
           # /ztag
           eat $&
-          if $2 != @method
+          if $2 != @end_ztag
             # error bad closing ztag
             store "<span class='zafu_error'>#{$&.gsub('<', '&lt;').gsub('>','&gt;')}</span>"
           end
