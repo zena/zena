@@ -32,45 +32,49 @@ test:
   
 very_messy:
   src: "this <z: blah> </z:truc> whak"
-  res: "this <z: blah> <span class='zafu_error'>&lt;/z:truc&gt;</span> whak"
+  res: "this <z: blah> <span class='parser_error'>&lt;/z:truc&gt;</span> whak"
 
 bad_closing_tag:
   src: "this <z:test>looks </z:truc> ok"
-  res: "this [test]looks <span class='zafu_error'>&lt;/z:truc&gt;</span>[/test] ok"
+  res: "this [test]looks <span class='parser_error'>&lt;/z:truc&gt;</span>[/test] ok"
 
-zafu_tag:
+do_tag:
   src: "I say <p do='hello'>blah blah</p>"
   res: "I say <p>hello world!</p>"
 
-zafu_tag_count:
+do_tag_count:
   src: "I say <p do='hello'>blah <p>super</p> blah</p> is good"
   res: "I say <p>hello world!</p> is good"
 
-zafu_tag_closed:
+do_tag_closed:
   src: "I say <p do='hello'/> is good"
   res: "I say <p>hello world!</p> is good"
 
-zafu_tag_block:
+do_tag_block:
   src:  "I say <div do='test'>this <div>test</div> is ok</div> right?"
   res: "I say [test]<div>this <div>test</div> is ok</div>[/test] right?"
 
-zafu_tag_at_end:
+do_tag_at_end:
   src:  "I say <div do='test'>this <div>test</div> is ok</div>"
   res: "I say [test]<div>this <div>test</div> is ok</div>[/test]"
 
-zafu_tag_with_ztags:
+do_tag_with_ztags:
   src: "I say <div do='test'>this <z:hello/></div>"
   res: "I say [test]<div>this [hello/]</div>[/test]"
 
-zafu_keep_params:
+do_keep_params:
   src: "I love <div class='truc' id='machin' do='test' depth='3'>my wife</div>"
   res: "I love [test {= :depth=>'3'}]<div class='truc' id='machin'>my wife</div>[/test]"
 
-zafu_and_ztags:
+do_class_params:
+  src: "<div class='one' do='test' do='test' tag='p' class='two'>blah</div>"
+  res: "[test]<div class='one'>[test]<p class='two'>blah</p>[/test]</div>[/test]"
+
+do_and_ztags:
   src: "Hey <z:test>this is <p do='hello'>ok</p></z:test>"
   res: "Hey [test]this is [hello]<p>ok</p>[/hello][/test]"
 
-zafu_same_tag:
+do_same_tag:
   src: "Hey <p do='test'> is <p do='hello'>hello <p>cool</p></p></p>"
   res: "Hey [test]<p> is [hello]<p>hello <p>cool</p></p>[/hello]</p>[/test]"  
 expand_with:
@@ -95,15 +99,15 @@ include_context:
 
 infinite_loop:
   src: "<z:include template='/infinite/loop'/>"
-  res: "<span class='zafu_error'>[include error: /infinite/loop --&gt; /infinite/loop ]</span>"
+  res: "<span class='parser_error'>[include error: /infinite/loop --&gt; /infinite/loop ]</span>"
   
 infinite_foo:
   src: "<z:include template='bar'/>"
-  res: "<span class='zafu_error'>[include error: /infinite/foo --&gt; /infinite/bar --&gt; /infinite/foo ]</span>"
+  res: "<span class='parser_error'>[include error: /infinite/foo --&gt; /infinite/bar --&gt; /infinite/foo ]</span>"
   
 infinite_bar:
   src: "<z:include template='foo'/>"
-  res: "<span class='zafu_error'>[include error: /infinite/bar --&gt; /infinite/foo --&gt; /infinite/bar ]</span>"
+  res: "<span class='parser_error'>[include error: /infinite/bar --&gt; /infinite/foo --&gt; /infinite/bar ]</span>"
   
 other_context:
   src: "from other: <z:include template='menu'/> and <z:include template='/include/menu'/>"
@@ -139,7 +143,7 @@ complex_example:
 
 unknown:
   src:  "this looks bad: <z:system truc='lala'/>"
-  res: "this looks bad: <span class='zafu_unknown'>&lt;z:system truc='lala'/&gt;</span>"
+  res: "this looks bad: <span class='parser_unknown'>&lt;z:system truc='lala'/&gt;</span>"
   
 check_params:
   src: "bad <z:missing/> params"
@@ -171,7 +175,7 @@ html_comments:
   src: "<z:test><z:hello/><!-- this is nothing > <z:hello/>  --></z:test>"
   res: "[test][hello/]<!-- this is nothing > <z:hello/>  -->[/test]"
 
-html_zafu_comment:
+html_do_comment:
   src: "<z:test><z:hello/><!--|this is not a comment <z:hello/>  --></z:test>"
   res: "[test][hello/]this is not a comment [hello/]  [/test]"
 

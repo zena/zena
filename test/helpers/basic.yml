@@ -251,9 +251,16 @@ each_edit_with_form:
   res: "/<li id='_each_edit_with_root_Node20'>bird <a href=\"#\" onclick=\"new Ajax.Request\('\/z\/zafu\/ajax_edit\/20\?template_url=%2Feach%2Fedit%2Fwith%2Froot_Node'.*flower <a href=\"#\" onclick=\"new Ajax.Request\('\/z\/zafu\/ajax_edit\/21\?template_url=%2Feach%2Fedit%2Fwith%2Froot_Node.*edit</a></li>\n/"
 
 set_attribute:
-  src: "<div class='machin' do='set_attribute' set_class='node[id]'/><z:set_attribute set_class='s[v_status]'/>"
-  tem: "<div class='node<%= @node[:id] %>'/><div class='s<%= @node.version[:status] %>'/>"
-  res: "<div class='node12'/><div class='s50'/>"
+  src: "<div class='machin' do='void' set_class='node[id]'/><z:void set_class='s[v_status]i[id]'/>"
+  res: "<div class='node12'/><div class='s50i12'/>"
+
+set_attribute_with_inner:
+  src: "<p set_id='node[id]' do='show' attr='name' set_class='s[v_status]'>some blah blah</p>"
+  res: "<p class='s50' id='node12'>status</p>"
+
+set_in_ztag:
+  src: "<z:show attr='name' set_id='node[id]'/>"
+  res: "<div id='node12'>status</div>"
 
 img_no_image:
   src: "<z:img/>"

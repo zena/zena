@@ -233,25 +233,25 @@ module Zena
       end
       if @params[:text]
         text = @params[:text]
-        text = "<div>#{text}</div>" unless @options[:zafu_tag]
+        text = "<div>#{text}</div>" unless @html_tag
       elsif @params[:trans]
         text = helper.trans(@params[:trans])
-        text = "<div>#{text}</div>" unless @options[:zafu_tag]
+        text = "<div>#{text}</div>" unless @html_tag
       else
         text = expand_with
       end
       if @context[:form] && @context[:template_url]
         # ajax add
         prefix  = @context[:template_url].gsub('/','_')
-        if @options[:zafu_tag]
-          out "<#{@params[:tag]} id='#{prefix}<%= @#{node_class.to_s.downcase}[:id] %>'>"
+        if @html_tag
+          out "<#{@html_tag} id='#{prefix}<%= @#{node_class.to_s.downcase}[:id] %>'>"
         else
           text = add_params(text, :id=>"#{prefix}_add", :onclick=>"new Element.toggle('#{prefix}_add', '#{prefix}_form');return false;")
         end
         out text
         out expand_block(@context[:form],:node=>"@#{node_class.to_s.downcase}", :tag_params=>{:id=>"#{prefix}_form", :style=>"display:none;"})
-        if @options[:zafu_tag]
-          out "</#{@options[:zafu_tag]}>"
+        if @html_tag
+          out "</#{@html_tag}>"
         end
       else
         # no ajax
@@ -280,13 +280,13 @@ module Zena
         if @context[:template_url] && @pass[:edit]
           # ajax, set id
           id_hash = {:id=>"#{@context[:template_url].gsub('/', '_')}<%= #{var}[:id] %>"}
-          if @zafu_tag
-            @zafu_tag_params.merge!(id_hash)
+          if @html_tag
+            @html_tag_params.merge!(id_hash)
           else
             res = add_params(res, :id=>"#{@context[:template_url].gsub('/', '_')}<%= #{var}[:id] %>")
           end
         end
-        res = render_zafu_tag(res)
+        res = render_html_tag(res)
         out res
         out "<% end -%>"
       else
@@ -318,7 +318,7 @@ module Zena
     end
     
     def r_when
-      return "<span class='zafu_error'>bad context for when clause</span>" unless @context[:case]
+      return "<span class='parser_error'>bad context for when clause</span>" unless @context[:case]
       if klass = @params[:kind_of]
         begin Module::const_get(klass) rescue "NilClass" end
         cond = "#{node}.kind_of?(#{klass})"
@@ -349,7 +349,7 @@ module Zena
       else
         cond = nil
       end
-      return "<span class='zafu_error'>condition error for when clause</span>" unless cond
+      return "<span class='parser_error'>condition error for when clause</span>" unless cond
       out "<% elsif #{cond} -%>"
       out expand_with(:case=>false)
     end
@@ -375,7 +375,7 @@ module Zena
       elsif @params[:path]
         cond = "find_by_path(#{@params[:path].split('/').inspect})"
       else
-        return "<span class='zafu_error'>Bad node parameters, should be (node_id or path)</span>"
+        return "<span class='parser_error'>Bad node parameters, should be (node_id or path)</span>"
       end
       do_var("secure(Node) { Node.#{cond}}")
     end
@@ -455,34 +455,8 @@ module Zena
       end
     end
     
-    def r_set_attribute
-      if @zafu_tag
-        tag = @zafu_tag
-        params = @params.merge(@zafu_tag_params)
-        @zafu_tag_done = true
-      else
-        tag = 'div'
-        params = @params
-      end
-      res_params = {}
-      params.each do |k,v|
-        if k.to_s =~ /^set_(.+)$/
-          key = $1
-          value = v.gsub(/\[([^\]]+)\]/) do
-            "<%= #{node}#{get_attribute($1)} %>"
-          end
-          res_params[key.to_sym] = value
-        else
-          res_params[k] = v unless res_params[k]
-        end
-      end
-      res = "<#{tag}#{params_to_html(res_params)}"
-      inner = expand_with
-      if inner == ''
-        res + "/>"
-      else
-        res + ">#{inner}</#{tag}>"
-      end
+    def r_void
+      expand_with
     end
     
     # use all other tags as relations
@@ -686,6 +660,35 @@ module Zena
       else
         "[#{attribute.to_sym.inspect}]"
       end
+    end
+    
+    def render_html_tag(text)
+      set_params = {}
+      @params.each do |k,v|
+        next unless k.to_s =~ /^set_/
+        set_params[k] = v
+      end
+      @html_tag = 'div' if !@html_tag && set_params != {}
+      
+      return text unless @html_tag && !@html_tag_done
+      @html_tag_params ||= {}
+      bak = @html_tag_params.dup
+      res_params = {}
+      set_params.merge(@html_tag_params).each do |k,v|
+        if k.to_s =~ /^set_(.+)$/
+          key = $1
+          value = v.gsub(/\[([^\]]+)\]/) do
+            "<%= #{node}#{get_attribute($1)} %>"
+          end
+          res_params[key.to_sym] = value
+        else
+          res_params[k] = v unless res_params[k]
+        end
+      end
+      @html_tag_params = res_params
+      res = super(text)
+      @html_tag_params = bak
+      res
     end
     
     def get_text_for_erb

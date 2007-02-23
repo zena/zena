@@ -4,20 +4,20 @@ module Zafu
   module Tags
     
     def render(context={})
-      @zafu_tag_done = false
-      res = render_zafu_tag(super)
+      @html_tag_done = false
+      res = render_html_tag(super)
     end
     
     def inspect
-      @zafu_tag_done = false
+      @html_tag_done = false
       res = super
-      if (@zafu_tag || @params[:tag]) && !@zafu_tag_done
+      if @html_tag && !@html_tag_done
         if res =~ /\A\[(\w+)(.*)\/\]\Z/
-          res = "[#{$1}#{$2}]<#{tag}/>[/#{$1}]"
+          res = "[#{$1}#{$2}]<#{@html_tag}/>[/#{$1}]"
         elsif res =~ /\A\[([^\]]+)\](.*)\[\/(\w+)\]\Z/
-          res = "[#{$1}]#{render_zafu_tag($2)}[/#{$3}]"
+          res = "[#{$1}]#{render_html_tag($2)}[/#{$3}]"
         end
-        @zafu_tag_done = true
+        @html_tag_done = true
       end
       res
     end
@@ -30,18 +30,22 @@ module Zafu
       para.sort.join('')
     end
     
-    def render_zafu_tag(text)
-      return text unless ((@zafu_tag || @params[:tag]) && !@zafu_tag_done)
-      res = "<#{(@zafu_tag || @params[:tag])}#{params_to_html(@zafu_tag_params || {})}>#{text}</#{(@zafu_tag || @params[:tag])}>"
-      @zafu_tag_done = true
+    def render_html_tag(text)
+      return text unless @html_tag && !@html_tag_done
+      res = "<#{@html_tag}#{params_to_html(@html_tag_params || {})}"
+      if text != ''
+        res << ">#{text}</#{@html_tag}>"
+      else
+        res << "/>"
+      end
+      @html_tag_done = true
       res
     end
     
     def r_rename_asset
-      return expand_with unless @tag
-      tag = @params[:tag]
+      return expand_with unless @html_tag
       unless @params[:src][0..0] == '/'
-        case @tag
+        case @html_tag
         when 'link'
           if @params[:rel].downcase == 'stylesheet'
             @params[:src] = @options[:helper].send(:template_url_for_asset, :stylesheet , @params[:src])
@@ -49,10 +53,11 @@ module Zafu
             @params[:src] = @options[:helper].send(:template_url_for_asset, :link, @params[:src])
           end
         else
-          @params[:src] = @options[:helper].send(:template_url_for_asset, @tag.to_sym , @params[:src])
+          @params[:src] = @options[:helper].send(:template_url_for_asset, @html_tag.to_sym , @params[:src])
         end
       end
-      res   = "<#{@tag}#{params_to_html(@params)}"
+      res   = "<#{@html_tag}#{params_to_html(@params)}"
+      @html_tag_done = true
       inner = expand_with
       if inner == ''
         res + "/>"
@@ -66,20 +71,16 @@ end
 module Zafu
   module Rules
     def start(mode)
-      if @zafu_tag = @options[:zafu_tag]
-        @options.delete(:zafu_tag)
-        @zafu_tag_params = parse_params(@options[:zafu_tag_params])
-        @options.delete(:zafu_tag_params)
-        @zafu_tag_count = 1
-      elsif @zafu_tag = @options[:end_zafu]
-        @end_zafu = true
-        @options.delete(:end_zafu)
-        @zafu_tag_count = 1
-      else
-        @zafu_tag_count = 0
+      # html_tag
+      if @html_tag = @options[:html_tag]
+        @options.delete(:html_tag)
+        @html_tag_params = parse_params(@options[:html_tag_params])
+        @options.delete(:html_tag_params)
       end
-      @end_ztag = @options[:end_ztag] || @method
-      @options.delete(:end_ztag)
+      
+      # end_tag
+      @end_tag = @html_tag || @options[:end_do] || "z:#{@method}"
+      @end_tag_count  = 1
       
       if @params =~ /\A([^>]*?)do\s*=('|")([^\2]*?[^\\])\2([^>]*)\Z/  
         # we have a sub 'do'
@@ -87,11 +88,8 @@ module Zafu
         opts = {:method=>$3, :params=>$4}
         
         # the matching zafu tag will be parsed by the last 'do', we must inform it to halt properly :
-        if @zafu_tag
-          opts[:end_zafu] = @zafu_tag
-        else
-          opts[:end_ztag] = @method
-        end
+        opts[:end_do] = @end_tag
+        
         make(:void, opts)
         if @method == 'include'
           include_template
@@ -106,8 +104,16 @@ module Zafu
           enter(mode)
         end
       end
-      if @end_zafu
-        @zafu_tag = nil
+      
+      if !@html_tag && (@html_tag = @params[:tag])
+        @params.delete(:tag)
+        # get html tag parameters from @params
+        @html_tag_params = {}
+        [:class, :id].each do |k|
+          next unless @params[k]
+          @html_tag_params[k] = @params[k]
+          @params.delete(k)
+        end
       end
     end
     
@@ -134,33 +140,29 @@ module Zafu
     end
   
     def scan_close_tag
-      if @text =~ /\A<\/(z:|)([^>]+)>/
+      if @text =~ /\A<\/([^>]+)>/
         # puts "CLOSE:[#{$&}]}" # ztag
         # closing tag
-        if $1 == ''
-          # /html
-          if $2 == @zafu_tag
-            # zafu tag
-            @zafu_tag_count -= 1
-            if @zafu_tag_count == 0
-              eat $&
-              leave
-            else
-              # keep the tag (false alert)
-              flush $&
-            end
-          else
-            # other html tag closing
+        if $1 == @end_tag
+          @end_tag_count -= 1
+          if @end_tag_count == 0
+            eat $&
+            leave
+          else  
+            # keep the tag (false alert)
             flush $&
           end
-        else
+        elsif $1[0..1] == 'z:'
           # /ztag
           eat $&
-          if $2 != @end_ztag
+          if $1 != @end_tag
             # error bad closing ztag
-            store "<span class='zafu_error'>#{$&.gsub('<', '&lt;').gsub('>','&gt;')}</span>"
+            store "<span class='parser_error'>#{$&.gsub('<', '&lt;').gsub('>','&gt;')}</span>"
           end
           leave
+        else  
+          # other html tag closing
+          flush $&
         end
       else
         # error
@@ -186,7 +188,6 @@ module Zafu
       # puts "TAG(#{@method}): [#{@text}]"
       if @text =~ /\A<z:(\w+)([^>]*?)(\/?)>/
         # puts "ZTAG:[#{$&}]}" # ztag
-        closed = ($3 != '')
         eat $&
         opts = {:method=>$1, :params=>$2}
         opts.merge!(:text=>'') if $3 != ''
@@ -194,13 +195,13 @@ module Zafu
       elsif @text =~ /\A<(\w+)([^>]*?)do\s*=('|")([^\3]*?[^\\])\3([^>]*?)(\/?)>/
         # puts "DO:[#{$&}]}" # do tag
         eat $&
-        opts = {:method=>$4, :zafu_tag=>$1, :zafu_tag_params=>$2, :params=>$5}
+        opts = {:method=>$4, :html_tag=>$1, :html_tag_params=>$2, :params=>$5}
         opts.merge!(:text=>'') if $6 != ''
         make(:void, opts)
-      elsif @zafu_tag && @text =~ /\A<#{@zafu_tag}([^>]*?)(\/?)>/
-        # puts "SAME:[#{$&}]}" # simple html tag same as zafu_tag
+      elsif @end_tag && @text =~ /\A<#{@end_tag}([^>]*?)(\/?)>/
+        # puts "SAME:[#{$&}]}" # simple html tag same as end_tag
         flush $&
-        @zafu_tag_count += 1 unless $2 == '/' # count opened zafu tags to be closed before return
+        @end_tag_count += 1 unless $2 == '/'
       elsif @text =~ /\A<(link|img|script).*src\s*=/
         # puts "HTML:[#{$&}]}" # html
         make(:asset)
@@ -219,7 +220,7 @@ module Zafu
         matched = $&
         eat $&
         @method = 'rename_asset'
-        @tag = $1
+        @html_tag = @end_tag = $1
         closed = ($3 != '')
         @params = parse_params($2)
         if closed
@@ -235,7 +236,7 @@ module Zafu
     end
     
     def scan_inside_asset
-      if @text =~ /\A(.*?)<\/#{@params[:tag]}>/
+      if @text =~ /\A(.*?)<\/#{@end_tag}>/
         flush $&
         leave(:asset)
       else

@@ -45,7 +45,7 @@ class Parser
           break
         end
       end
-      text ||= "<span class='zafu_error'>template '#{url}' not found</span>"
+      text ||= "<span class='parser_error'>template '#{url}' not found</span>"
       return [text, absolute_url]
     end
     
@@ -134,10 +134,10 @@ class Parser
       sp += " #{k}=#{v.inspect.gsub("'","TMPQUOTE").gsub('"',"'").gsub("TMPQUOTE",'"')}"
     end
       
-    res = "<span class='zafu_unknown'>&lt;z:#{@method}#{sp}"
+    res = "<span class='parser_unknown'>&lt;z:#{@method}#{sp}"
     inner = expand_with
     if inner != ''
-      res + "&gt;</span>#{inner}<span class='zafu_unknown'>&lt;z:/#{@method}&gt;</span>"
+      res + "&gt;</span>#{inner}<span class='parser_unknown'>&lt;z:/#{@method}&gt;</span>"
     else
       res + "/&gt;</span>"
     end
@@ -157,7 +157,7 @@ class Parser
     @text, absolute_url = self.class.find_template_text(@params[:template], @options[:helper], @options[:current_folder])
     if absolute_url
       if @options[:included_history].include?(absolute_url)
-        @text = "<span class='zafu_error'>[include error: #{(@options[:included_history] + [absolute_url]).join(' --&gt; ')} ]</span>"
+        @text = "<span class='parser_error'>[include error: #{(@options[:included_history] + [absolute_url]).join(' --&gt; ')} ]</span>"
       else
         @options[:included_history] += [absolute_url]
         @options[:current_folder] = absolute_url.split('/')[0..-2].join('/')
