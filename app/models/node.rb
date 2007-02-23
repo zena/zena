@@ -227,34 +227,53 @@ class Node < ActiveRecord::Base
   end
   
   # This is defined by the linkable lib, we add access to 'root', 'project', 'parent', 'children', ...
-  def relation(method, opts={})
-    if method =~ /\A\d+\Z/
-      secure(Node) { Node.find(method) }
-    else
-      # parse :project, :author conditions
-      if relation_methods.include?(method)
-        if method == 'self'
-          self
-        elsif Zena::Acts::Linkable::plural_method?(method)
-          self.send(method.to_sym, opts)
-        elsif opts[:from]
-          if res = self.send(method.to_sym)
-            [res]
-          else
-            nil
-          end
+  def relation(methods, opts={})
+    res = nil
+    try_list = methods.split(',')
+    plural = Zena::Acts::Linkable::plural_method?(try_list[0])
+    if !plural
+      opts[:limit] = 1
+    end
+    while (!res || res==[]) && try_list != []
+      method = try_list.shift
+      begin
+        if method =~ /\A\d+\Z/
+          res = secure(Node) { Node.find(method) }
         else
-          self.send(method.to_sym)
+          if relation_methods.include?(method)
+            if method == 'self'
+              res = self
+            elsif Zena::Acts::Linkable::plural_method?(method)
+              res = self.send(method.to_sym, opts)
+            elsif opts[:from]
+              if res = self.send(method.to_sym)
+                res = [res]
+              end
+            else
+              res = self.send(method.to_sym)
+            end
+          elsif self.class.role[method]
+            # Find through Linkable
+            res = self.send(method.to_sym, opts)
+          #else
+            # invalid method
+          end
         end
-      elsif self.class.role[method]
-        self.send(method.to_sym, opts)
-      else
-        # invalid method
-        nil
+      rescue ActiveRecord::RecordNotFound
+        res = nil
       end
     end
-  rescue ActiveRecord::RecordNotFound
-    nil
+    if res
+      if plural && !res.kind_of?(Array)
+        [res]
+      elsif !plural && res.kind_of?(Array)
+        res[0]
+      else
+        res
+      end
+    else
+      nil
+    end
   end
   
   def relation_options(opts, cond=nil)

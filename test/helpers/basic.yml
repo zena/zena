@@ -123,14 +123,6 @@ show_parent_title:
   tem: "<% if var1 = @node.relation(\"parent\") -%><h1><%= show_title(:node=>var1, :link=>false, :project=>false)%></h1><% end -%>"
   res: "<h1><span id='v_title11'>Clean Water project</span></h1>"
 
-node_id:
-  src: "I (<z:show attr='name'/>) know: <z:node node_id='2'><z:show attr='name'/> with <z:children><span do='each' join=', '><z:show attr='name'>child</z:show></span></z:children></z:node>"
-  res: "I (status) know: people with <span>ant</span>, <span>lion</span>, <span>tiger</span>"
-
-node_path:
-  src: "<z:node path='projects/wiki'><z:link/></z:node>"
-  res: "<a href=\"/oo/project19.html\">a wiki with zena</a>"
-
 show_bad_attr:
   src: "my <z:show attr=':name'/>"
   res: "my "
@@ -221,7 +213,7 @@ case_ancestor:
 
 simple_each:
   src: "<z:children><z:each><z:show attr='name'/></z:each></z:children>"
-  tem: "/.*if list1.*each.*var1\[:name\]/"
+  tem: "/.*if \(list1.*each.*var1\[:name\]/"
   res: ""
   
 each_join:

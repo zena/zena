@@ -69,6 +69,89 @@ store_context:
   src: "<z:children store='project' limit='1'><z:each><z:pages from='site' project='stored' limit='5'><z:each join=', '><z:show attr='name'/></z:each></z:pages></z:each></z:children>"
   res: "ant, art, collections, lion, menu"
 
+store_node:
+  src: "<z:void store='node'><z:parent><z:show attr='name'/>: <z:node node='stored'><z:show attr='name'/></z:node> + <z:node node='main' do='show' attr='id'/></z:parent></z:void>"
+  res: "cleanWater: status + 12"
+
 author_visitor:
   src: "<z:pages from='site' author='visitor' limit='5'><z:each join=', ' do='show' attr='name'/></z:pages>"
   res: "ant, lake, myLife, nature, status"
+
+node_id:
+  src: "I (<z:show attr='name'/>) know: <z:node node_id='2'><z:show attr='name'/> with <z:children><span do='each' join=', '><z:show attr='name'>child</z:show></span></z:children></z:node>"
+  res: "I (status) know: people with <span>ant</span>, <span>lion</span>, <span>tiger</span>"
+
+node_path:
+  src: "<z:node path='/projects/wiki'><z:link/></z:node>"
+  res: "<a href=\"/oo/project19.html\">a wiki with zena</a>"
+
+node_root:
+  src: "<z:node node='root'><z:show attr='name'/></z:node>"
+  res: "zena"
+
+parent_no_parent:
+  src: "result=<z:node node='root'><z:parent><z:show attr='name'/></z:parent></z:node>="
+  res: "result=="
+  
+node_not_found:
+  src: "result=<z:node node_id='99'>this is something</z:node>="
+  res: "result=="
+
+node_not_found_else:
+  src: "result=<z:node node_id='99'><z:link/><z:else>not found</z:else></z:node>="
+  res: "result=not found="
+
+children_else_block:
+  src: "<z:children>I am a parent !<z:else>I am not tired.</z:else></z:children>"
+  res: "I am not tired."
+
+hot_else_block:
+  src: "<z:hot>I am hot<z:else>I am not</z:else> and funny</z:hot>"
+  res: "I am not"
+
+hot_not_else_block:
+  context:
+    node: 'cleanWater'
+  src: "<z:hot>I am hot<z:else>I am not</z:else> and funny</z:hot>"
+  res: "I am hot and funny"
+  
+children_else:
+  src: "<z:children else='self'><z:each join=', '><z:show attr='name'/></z:each></z:children>"
+  res: "status"
+
+many_else:
+  src: "<z:hot else='children,project'><z:show attr='name'/></z:hot>"
+  res: "cleanWater"
+
+updated_today:
+  src: "<z:pages from='site' updated='today' do='each' join=', ' do='show' attr='name'/>"
+  res: "art, status"
+
+upcoming_events:
+  src: "<z:pages from='site' log='upcoming' do='each' join=', ' do='show' attr='name'/>"
+  res: "people"
+
+in_7_days:
+  src: "<z:pages from='site' log='+7days' do='each' join=', ' do='show' attr='name'/>"
+  res: "cleanWater, projects"
+  
+logged_7_days_ago:
+  src: "<z:pages from='site' log='-7days' do='each' join=', ' do='show' attr='name'/>"
+  res: "cleanWater, projects"
+  
+around_7_days:
+  src: "<z:pages from='site' log='7days' do='each' join=', ' do='show' attr='name'/>"
+  res: "art, cleanWater, projects, status"
+
+this_week:
+  src: "<z:pages from='site' event='week' do='each' join=', ' do='show' attr='name'/>"
+  res: "art, projects"
+
+this_month:
+  src: "<z:pages from='site' event='month' do='each' join=', ' do='show' attr='name'/>"
+  res: "art, projects"
+
+this_year:
+  src: "<z:pages from='site' event='year' do='each' join=', ' do='show' attr='name'/>"
+  res: "art, projects"
+  

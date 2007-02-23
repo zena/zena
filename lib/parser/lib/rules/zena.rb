@@ -313,9 +313,18 @@ module Zena
     end
     
     def r_else
-      return unless @context[:case]
-      out "<% elsif true -%>"
-      out expand_with(:case=>false)
+      if @context[:preflight]
+        @pass[:else] = self
+        return
+      end
+      if @context[:case]
+        out "<% elsif true -%>"
+        out expand_with(:case=>false)
+      elsif @context[:do]
+        out expand_with(:do=>false)
+      else
+        ""
+      end
     end
     
     def r_when
@@ -370,15 +379,27 @@ module Zena
     end
     
     def r_node
-      return unless check_node_class(:Node)
-      if @params[:node_id]
-        cond = "find_by_id(#{@params[:node_id].inspect})"
-      elsif @params[:path]
-        cond = "find_by_path(#{@params[:path].split('/').inspect})"
+      if @params[:node]
+        if @params[:node] == 'main'
+          do_var("@node")
+        elsif @params[:node] == 'root'
+          do_var("secure(Node) { Node.find(#{ZENA_ENV[:root_id]})} rescue nil")
+        elsif @params[:node] == 'stored' && stored = @context[:stored_node]
+          do_var(stored)
+        else
+          "<span class='parser_error'>Bad node parameters, should be (main or stored)</span>"
+        end
       else
-        return "<span class='parser_error'>Bad node parameters, should be (node_id or path)</span>"
+        if @params[:node_id]
+          cond = "find_by_id(#{@params[:node_id].inspect})"
+        elsif path = @params[:path]
+          path = path[1..-1] if path[0..0] == '/'
+          cond = "find_by_path(#{path.split('/').inspect})"
+        else
+          return "<span class='parser_error'>Bad node parameters, should be (node_id or path)</span>"
+        end
+        do_var("secure(Node) { Node.#{cond}} rescue nil")
       end
-      do_var("secure(Node) { Node.#{cond}}")
     end
     
     # we cannot directly render this (running in controller, not in view...)
@@ -457,6 +478,9 @@ module Zena
     end
     
     def r_void
+      if @params[:store]
+        @context["stored_#{@params[:store]}".to_sym] = node
+      end
       expand_with
     end
     
@@ -470,9 +494,12 @@ module Zena
     def r_unknown
       return '' if @context[:preflight]
       "not a node (#{@method})" unless node_kind_of?(Node)
-      rel = "#{node}.relation(#{@method.inspect})"
+      rel = @method
       if @params[:else]
-        rel = "(#{rel} || #{node}.relation(#{@params[:else].inspect}))"
+        rel = [@method] + @params[:else].split(',').map{|e| e.strip}
+        rel = rel.join(',')
+      else
+        rel = @method
       end
       if @params[:store]
         @context["stored_#{@params[:store]}".to_sym] = node
@@ -521,6 +548,12 @@ module Zena
             # not implemented yet
           end
         end
+        
+        [:updated, :created, :event, :log].each do |k|
+          if value = @params[k]
+            conditions << Node.connection.date_condition(value,"#{k}_at")
+          end
+        end
 
         params = params_to_erb(erb_params)
         if conditions != []
@@ -531,10 +564,10 @@ module Zena
             params = ":conditions=>\"#{conditions}\""
           end
         end
-        do_list("#{node}.relation(#{@method.inspect}#{params})")
+        do_list("#{node}.relation(#{rel.inspect}#{params})")
       else
         # singular
-        do_var("#{node}.relation(#{@method.inspect})")
+        do_var("#{node}.relation(#{rel.inspect})")
       end
     end
     # <z:hot else='project'/>
@@ -592,27 +625,36 @@ module Zena
     end
     
     def do_var(var_finder=nil)
+      expand_with(:preflight=>true)
+      else_block = @pass[:else]
       out "<% if #{var} = #{var_finder} -%>" if var_finder
       out expand_with(:node=>var)
+      if else_block
+        out "<% else -%>"
+        out expand_block(else_block, :do=>true)
+      end
       out "<% end -%>" if var_finder
     end
     
     def do_list(list_finder=nil)
       if list_finder
-        out "<% if #{list_var} = #{list_finder} -%>"
+        out "<% if (#{list_var} = #{list_finder}) != [] -%>"
       end
       @context.delete(:template_url) # should not propagate
       
       # preflight parse to see what we have
       expand_with(:preflight=>true)
-      
+      else_block = @pass[:else]
       if (form_block = @pass[:form]) && (each_block = @pass[:each]) && (@pass[:edit] || @pass[:add])
         # ajax
         template_url  = "#{@options[:current_folder]}/#{@context[:name] || "root"}_#{node_class}"
         
         # render without 'add' or 'form'
         out expand_with(:list=>list_var, :no_add=>true, :no_form=>true, :template_url=>template_url)
-        out "<% end -%>"
+        if list_finder
+          out "<% else -%>" + expand_block(else_block, :do=>true) if else_block
+          out "<% end -%>"
+        end
         
         # render add
         if add_block = @pass[:add]
@@ -633,7 +675,10 @@ module Zena
       else
         # no form, render, edit and add are not ajax
         out expand_with(:list=>list_var)
-        out "<% end -%>" if list_finder
+        if list_finder
+          out "<% else -%>" + expand_block(else_block, :do=>true) if else_block
+          out "<% end -%>"
+        end
       end
       @pass = {} # do not propagate back
     end
@@ -730,6 +775,46 @@ module Zena
         text = nil
       end
       text
+    end
+  end
+end
+
+module ActiveRecord
+  module ConnectionAdapters
+    class MysqlAdapter
+      def date_condition(date_cond, field, ref_date='today')
+        if ref_date == 'today'
+          ref_date = 'now()'
+        else
+          ref_date = "'#{ref_date.gsub("'",'')}'"
+        end
+        case date_cond
+        when 'today'
+          "DATE(#{field}) = DATE(#{ref_date})"
+        when 'week'
+          "date_format(#{ref_date},'%Y-%v') = date_format(#{field}, '%Y-%v')"
+        when 'month'
+          "date_format(#{ref_date},'%Y-%m') = date_format(#{field}, '%Y-%m')"
+        when 'year'
+          "date_format(#{ref_date},'%Y') = date_format(#{field}, '%Y')"
+        when 'upcoming'
+          "DATEDIFF(#{field},#{ref_date}) > 0"
+        else
+          if date_cond =~ /^(\+|-|)(\d+)day/
+            count = $2.to_i
+            if $1 == ''
+              # +/- x days
+              "ABS(DATEDIFF(#{field},#{ref_date})) <= #{count}"
+            elsif $1 == '+'
+              # x upcoming days
+              "DATEDIFF(#{field},#{ref_date}) > 0 AND DATEDIFF(#{field},#{ref_date}) <= #{count}"
+            else
+              # x days in the past
+              "DATEDIFF(#{field},#{ref_date}) < 0 AND DATEDIFF(#{field},#{ref_date}) >= -#{count}"
+            end
+          end
+        end
+      end
     end
   end
 end

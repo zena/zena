@@ -27,3 +27,9 @@ opening_in_cleanWater:
   source_id:      17
   target_id:      11
   role:           calendar
+
+status_hot_for_cleanWater:
+  id:             6
+  source_id:      11
+  target_id:      12
+  role:           hot

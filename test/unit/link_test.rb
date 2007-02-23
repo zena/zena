@@ -4,6 +4,7 @@ class LinkDummy < ActiveRecord::Base
   acts_as_multiversioned
   set_table_name 'nodes'
   link :icon, :class_name=>'Image', :unique=>true
+  link :icon_for, :class_name=>'Node', :as_unique=>true, :as=>'icon'
   link :tags
   # test reverse links
   link :hot, :class_name=>'LinkDummy', :unique=>true
@@ -60,12 +61,12 @@ class LinkTest < Test::Unit::TestCase
   
   def test_class_roles
     roles = SpecialLinkDummy.roles
-    assert_equal 10, roles.size
+    assert_equal 11, roles.size
   end
   
   def test_roles_for_form
     roles = SpecialLinkDummy.roles_for_form
-    assert_equal 10, roles.size
+    assert_equal 11, roles.size
     assert_equal ['tag', 'tags'], roles[roles.size-3]
   end
   
@@ -77,7 +78,7 @@ class LinkTest < Test::Unit::TestCase
     assert_equal 2, @node.tags.size
     @node.add_link('tags', nodes_id(:status) )
     assert !@node.save, "Cannot save"
-    assert_equal 'invalid', @node.errors['tag']
+    assert_equal 'invalid target', @node.errors['tag']
   end
   
   def test_add_link_ok
@@ -101,11 +102,10 @@ class LinkTest < Test::Unit::TestCase
     assert @node.save, "Can save"
     tags = @node.tags
     assert_equal 2, @node.tags.size
-    assert_equal 'menu', tags[0][:name]
+    assert_equal 'art', tags[0][:name]
     link_id = tags[0][:link_id]
-    test_visitor(:lion)
-    @node = secure(LinkDummy) { LinkDummy.find(nodes_id(:wiki)) }
-    assert @node.remove_link( link_id ) # ignore bad links on remove
+    @node = secure(LinkDummy) { LinkDummy.find(nodes_id(:cleanWater)) }
+    assert_raise (ActiveRecord::RecordNotFound){ @node.remove_link( link_id ) }
   end
   
 
@@ -481,7 +481,7 @@ class LinkTest < Test::Unit::TestCase
     assert_equal 2, @pages_and_tags.size
   end
   
-  def test_in_option
+  def test_from_option
     test_visitor(:lion)
     @node1 = secure(LinkDummy) { LinkDummy.find(nodes_id(:cleanWater)) } #11
     @icon1 = secure(LinkDummy) { LinkDummy.find(nodes_id(:bird_jpg)) } #20
@@ -494,6 +494,7 @@ class LinkTest < Test::Unit::TestCase
     # reload
     @node1 = secure(LinkDummy) { LinkDummy.find(nodes_id(:cleanWater)) }
     assert_equal nodes_id(:bird_jpg), @node1.icon[:id]
-    assert_equal 2, @node1.icon(:in=>'project').size
+    LinkDummy.logger.info "============== find icon_for =========="
+    assert_equal 2, @node1.icon_for(:from=>'project').size
   end
 end

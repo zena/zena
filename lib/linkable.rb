@@ -6,7 +6,7 @@ Linkable provides the 'link' macro.
 This macro works with a 'links' table with 'role', 'source_id' and 'target_id' fields (plus 'id' auto increment). With this
 set, you can create 'roles' between objects. For example if you have a class Person, you could add
 class Person < ActiveRecord::Base
-  link :wife,    :class_name=>'Person',  :unique=>true, :as_unique=>true
+  link :wife,    :class_name=>'Person', :unique=>true, :as_unique=>true
   link :husband, :class_name=>'Person', :unique=>true, :as=>'wife', :as_unique=>true
 end
 
@@ -211,9 +211,10 @@ on the post edit page :
           join = 'INNER'
           inner_conditions = ["links.role='#{role}'#{side_cond}", *params ]
         end
-        options.merge!( :select     => "DISTINCT #{klass.table_name}.*, links.id AS link_id, links.role", 
+        options.merge!( :select     => "#{klass.table_name}.*, links.id AS link_id, links.role", 
                         :joins      => "#{join} JOIN links ON #{klass.table_name}.id=links.#{other_side}",
-                        :conditions => inner_conditions
+                        :conditions => inner_conditions,
+                        :group      => 'id'
                         )
         if conditions
           klass.with_scope(:find=>{:conditions=>conditions}) do
