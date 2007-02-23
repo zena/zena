@@ -262,6 +262,18 @@ set_in_ztag:
   src: "<z:show attr='name' set_id='node[id]'/>"
   res: "<div id='node12'>status</div>"
 
+each_join_html:
+  context:
+    node: 'wiki'
+  src: "<z:children><z:each join='&lt;br/&gt;'><z:show attr='name'/></z:each></z:children>"
+  res: "bird<br/>flower"
+
+each_join_nasty_erb:
+  context:
+    node: 'wiki'
+  src: "<z:children><z:each join='&lt;% puts \'nasty\' -%&gt;'><z:show attr='name'/></z:each></z:children>"
+  res: "bird&lt;% puts 'nasty' -%&gt;flower"
+  
 img_no_image:
   src: "<z:img/>"
   tem: "<%= @node.img_tag(\"std\") rescue '' %>"
@@ -316,3 +328,13 @@ do_each_do:
     node: 'wiki'
   src: "<ul do='children' do='each' tag='li' do='link'/>"
   res: "<ul><li><a href=\"/oo/image20.html\">bird</a></li><li><a href=\"/oo/image21.html\">flower</a></li></ul>"
+
+ignore:
+  src: "<z:ignore>I think this is not</z:ignore>cool!"
+  res: "cool!"
+
+do_ignore:
+  context:
+    node: 'wiki'
+  src: "<ul do='ignore' do='children' do='each' tag='li'><z:link/></ul>"
+  res: ""

@@ -270,9 +270,10 @@ module Zena
         expand_with(:preflight=>true)
         @pass[:each] = self
       elsif @context[:list]
-        if @params[:join]
+        if join = @params[:join]
+          join = join.gsub(/&lt;([^%])/, '<\1').gsub(/([^%])&gt;/, '\1>')
           out "<% #{list}.each_index do |#{var}_index| -%>"
-          out "<%= #{var}=#{list}[#{var}_index]; #{var}_index > 0 ? #{@params[:join].inspect} : '' %>"
+          out "<%= #{var}=#{list}[#{var}_index]; #{var}_index > 0 ? #{join.inspect} : '' %>"
         else
           out "<% #{list}.each do |#{var}| -%>"
         end
@@ -457,6 +458,11 @@ module Zena
     
     def r_void
       expand_with
+    end
+    
+    def r_ignore
+      @html_tag_done = true
+      ""
     end
     
     # use all other tags as relations
