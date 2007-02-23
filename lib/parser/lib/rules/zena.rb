@@ -27,16 +27,19 @@ module Zena
     direct_methods :uses_calendar
 
     def r_show
-      return "" unless check_params([:attr], [:tattr]) # :attr or :tattr
       attribute = @params[:attr] || @params[:tattr]
       if @context[:trans]
+        # TODO: what do we do here with dates ?
         "#{node}#{get_attribute(attribute)}"
+      elsif @params[:tattr]
+        "<%= trans(#{node}#{get_attribute(attribute)}) %>"
+      elsif @params[:attr]
+        "<%= #{node}#{get_attribute(attribute)} %>"
+      elsif @params[:date]
+        # date can be any attribute v_created_at or updated_at etc.
+        # TODO format with @params[:format] and @params[:tformat] << translated format
       else
-        if @params[:tattr]
-          "<%= trans(#{node}#{get_attribute(attribute)}) %>"
-        else
-          "<%= #{node}#{get_attribute(attribute)} %>"
-        end
+        # error
       end
     end
     
