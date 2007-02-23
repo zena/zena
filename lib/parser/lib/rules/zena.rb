@@ -398,6 +398,28 @@ module Zena
       end
     end
     
+    def r_date
+      select = @params[:select]
+      case select
+      when 'main'
+        expand_with(:date=>'#{main_date.strftime("%Y-%m-%d")}')
+      when 'now'
+        expand_with(:date=>'#{Time.now.strftime("%Y-%m-%d")}')
+      when 'stored'
+        if stored = @context[:stored_date]
+          expand_with(:date=>stored)
+        else
+          "<span class='parser_error'>No stored date in the current context</span>"
+        end
+      else
+        if select =~ /^\d{4}-\d{1,2}-\d{1,2}$/
+          expand_with(:date=>select)
+        else
+          "<span class='parser_error'>Bad parameter for 'date' should be (main,now,stored)</span>"
+        end
+      end
+    end
+    
     # we cannot directly render this (running in controller, not in view...)
     def r_javascripts
       list = @params[:list].split(',').map{|e| e.strip}
@@ -547,7 +569,9 @@ module Zena
         
         [:updated, :created, :event, :log].each do |k|
           if value = @params[k]
-            conditions << Node.connection.date_condition(value,"#{k}_at")
+            # current, same are synonym for 'today'
+            value = 'today' if ['current', 'same'].include?(value)
+            conditions << Node.connection.date_condition(value,"#{k}_at",current_date)
           end
         end
 
@@ -574,6 +598,10 @@ module Zena
     # find the current node name in the context
     def node
       @context[:node] || '@node'
+    end
+    
+    def current_date
+      @context[:date] || '#{main_date.strftime("%Y-%m-%d")}'
     end
     
     def var

@@ -368,6 +368,11 @@ module ApplicationHelper
     end
   end
   
+  # default date used to filter events in templates
+  def main_date
+    @date ||= Time.now
+  end
+  
   # Hierachical menu. (same on all pages)
   def show_menu(opts={})
     Cache.with(visitor.id, visitor.group_ids, Page.kpath, 'show_menu') do

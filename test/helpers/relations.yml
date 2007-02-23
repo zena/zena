@@ -154,4 +154,8 @@ this_month:
 this_year:
   src: "<z:pages from='site' event='year' do='each' join=', ' do='show' attr='name'/>"
   res: "art, projects"
+
+date_select:
+  src: "<z:date select='2006-04-05'><z:notes from='site' log='current' do='each' join=', ' do='show' attr='name'/>"
+  res: "proposition"
   
