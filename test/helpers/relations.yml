@@ -70,7 +70,7 @@ store_context:
   res: "ant, art, collections, lion, menu"
 
 store_node:
-  src: "<z:void store='node'><z:parent><z:show attr='name'/>: <z:node node='stored'><z:show attr='name'/></z:node> + <z:node node='main' do='show' attr='id'/></z:parent></z:void>"
+  src: "<z:void store='node'><z:parent><z:show attr='name'/>: <z:node select='stored'><z:show attr='name'/></z:node> + <z:node select='main' do='show' attr='id'/></z:parent></z:void>"
   res: "cleanWater: status + 12"
 
 author_visitor:
@@ -78,27 +78,27 @@ author_visitor:
   res: "ant, lake, myLife, nature, status"
 
 node_id:
-  src: "I (<z:show attr='name'/>) know: <z:node node_id='2'><z:show attr='name'/> with <z:children><span do='each' join=', '><z:show attr='name'>child</z:show></span></z:children></z:node>"
+  src: "I (<z:show attr='name'/>) know: <z:node select='2'><z:show attr='name'/> with <z:children><span do='each' join=', '><z:show attr='name'>child</z:show></span></z:children></z:node>"
   res: "I (status) know: people with <span>ant</span>, <span>lion</span>, <span>tiger</span>"
 
 node_path:
-  src: "<z:node path='/projects/wiki'><z:link/></z:node>"
+  src: "<z:node select='/projects/wiki'><z:link/></z:node>"
   res: "<a href=\"/oo/project19.html\">a wiki with zena</a>"
 
 node_root:
-  src: "<z:node node='root'><z:show attr='name'/></z:node>"
+  src: "<z:node select='root'><z:show attr='name'/></z:node>"
   res: "zena"
 
 parent_no_parent:
-  src: "result=<z:node node='root'><z:parent><z:show attr='name'/></z:parent></z:node>="
+  src: "result=<z:node select='root'><z:parent><z:show attr='name'/></z:parent></z:node>="
   res: "result=="
   
 node_not_found:
-  src: "result=<z:node node_id='99'>this is something</z:node>="
+  src: "result=<z:node select='99'>this is something</z:node>="
   res: "result=="
 
 node_not_found_else:
-  src: "result=<z:node node_id='99'><z:link/><z:else>not found</z:else></z:node>="
+  src: "result=<z:node select='99'><z:link/><z:else>not found</z:else></z:node>="
   res: "result=not found="
 
 children_else_block:

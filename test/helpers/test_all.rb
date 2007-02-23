@@ -8,7 +8,7 @@ class HelperTest
   
   def test_relations_updated_today
     Node.connection.execute "UPDATE nodes SET updated_at = now() WHERE id IN (12, 23);" # status, art
-    do_test('relations', 'updated_today')
+    do_test('relations', 'node_id')
   end
   
   def test_relations_upcoming_events

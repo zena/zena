@@ -379,26 +379,22 @@ module Zena
     end
     
     def r_node
-      if @params[:node]
-        if @params[:node] == 'main'
-          do_var("@node")
-        elsif @params[:node] == 'root'
-          do_var("secure(Node) { Node.find(#{ZENA_ENV[:root_id]})} rescue nil")
-        elsif @params[:node] == 'stored' && stored = @context[:stored_node]
+      select = @params[:select]
+      if select == 'main'
+        do_var("@node")
+      elsif select == 'root'
+        do_var("secure(Node) { Node.find(#{ZENA_ENV[:root_id]})} rescue nil")
+      elsif select == 'stored'
+        if stored = @context[:stored_node]
           do_var(stored)
         else
-          "<span class='parser_error'>Bad node parameters, should be (main or stored)</span>"
+          "<span class='parser_error'>No stored nodes in the current context</span>"
         end
+      elsif select =~ /^\d+$/
+        do_var("secure(Node) { Node.find_by_id(#{select.inspect})} rescue nil")
       else
-        if @params[:node_id]
-          cond = "find_by_id(#{@params[:node_id].inspect})"
-        elsif path = @params[:path]
-          path = path[1..-1] if path[0..0] == '/'
-          cond = "find_by_path(#{path.split('/').inspect})"
-        else
-          return "<span class='parser_error'>Bad node parameters, should be (node_id or path)</span>"
-        end
-        do_var("secure(Node) { Node.#{cond}} rescue nil")
+        select = select[1..-1] if select[0..0] == '/'
+        do_var("secure(Node) { Node.find_by_path(#{select.split('/').inspect})} rescue nil")
       end
     end
     
