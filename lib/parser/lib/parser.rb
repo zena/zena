@@ -62,7 +62,7 @@ class Parser
     @blocks  = []
     
     @options = {:mode=>:void, :method=>'void'}.merge(opts)
-    @params  = @options[:params] || {}
+    @params  = @options[:params]
     @method  = @options[:method]
     mode     = @options[:mode]
     @options.delete(:params)
@@ -261,6 +261,7 @@ class Parser
   end
   
   def parse_params(text)
+    return {} unless text
     params = {}
     rest = text.strip
     while (rest != '')

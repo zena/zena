@@ -3,7 +3,7 @@ simple:
   res: "[inspect {< 'a'=>['this is a'], 'b'=>['this is b']}/]"
 
 with_sub_tags:
-  src: "<z:inspect><z:with part='hello'>I say <h3 zafu='hello'>hello</h3></z:with></z:inspect>"
+  src: "<z:inspect><z:with part='hello'>I say <h3 do='hello'>hello</h3></z:with></z:inspect>"
   res: "[inspect {< 'hello'=>['I say ', [hello]<h3>hello</h3>[/hello]]}/]"
 
 menu:

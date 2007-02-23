@@ -521,6 +521,8 @@ module Zena
             conditions << "user_id = '\#{#{stored}[:user_id]}'"
           elsif value == 'current'
             conditions << "user_id = '\#{#{node}[:user_id]}'"
+          elsif value == 'visitor'
+            conditions << "user_id = '\#{visitor[:id]}'"
           elsif value =~ /\A\d+\Z/
             conditions << "user_id = '#{value.to_i}'"
           elsif value =~ /\A[\w\/]+\Z/

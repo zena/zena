@@ -23,7 +23,7 @@ class MainController < ApplicationController
       path << ref # unpop ref
       @node = secure(Node) { Node.find_by_path(path) }
     end
-    if path == @node.basepath(true)
+    if path == @node.basepath(true).split('/')
       render_and_cache
     else
       redirect_to node_url(@node)

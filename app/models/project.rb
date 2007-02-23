@@ -20,9 +20,8 @@ class Project < Page
   
   # This project's notes
   def notes(opts={})
-    opts.delete(:conditions)
-    options = {:order=>'log_at DESC', :conditions=>["project_id = ?", self[:id] ]}.merge(opts)
-    @notes ||= secure(Note) { Note.find(:all, options) }
+    options = {:order=>'log_at DESC'}.merge(opts)
+    @notes ||= secure(Note) { Note.find(:all, relation_options(options)) }
   end
   
   # TODO: test

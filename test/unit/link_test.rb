@@ -1,10 +1,5 @@
 require File.dirname(__FILE__) + '/../test_helper'
 class LinkDummy < ActiveRecord::Base
-  class << self
-    def parent_class
-      LinkDummy
-    end
-  end
   acts_as_secure
   acts_as_multiversioned
   set_table_name 'nodes'
@@ -82,7 +77,7 @@ class LinkTest < Test::Unit::TestCase
     assert_equal 2, @node.tags.size
     @node.add_link('tags', nodes_id(:status) )
     assert !@node.save, "Cannot save"
-    assert_equal 'invalid target', @node.errors['tag']
+    assert_equal 'invalid', @node.errors['tag']
   end
   
   def test_add_link_ok
@@ -486,24 +481,7 @@ class LinkTest < Test::Unit::TestCase
     assert_equal 2, @pages_and_tags.size
   end
   
-  def test_alter_hot_for_no_publish_rights
-    LinkDummy.connection.execute "UPDATE nodes SET type='LinkDummy' WHERE id IN (20);" # bird_jpg
-    test_visitor(:ant)
-    @bird = secure(LinkDummy) { LinkDummy.find(nodes_id(:bird_jpg)) }
-    @cleanWater = secure_write(LinkDummy) { LinkDummy.find(nodes_id(:cleanWater)) }
-    assert @bird.can_visible?, "Can alter visible content."
-    assert !@cleanWater.can_visible?, "Cannot alter visible content."
-    assert @cleanWater.can_write?, "Can write in cleanwater"
-    @bird.hot_for = [@cleanWater]
-    assert !@bird.save, "Cannot save"
-    assert_equal "invalid target", @bird.errors[:hot_for]
-    assert_equal 1, @bird.send(:hot_for_for_form, :conditions=>["nodes.id IN (11,19)"]).size
-    test_visitor(:lion)
-    @bird = secure(LinkDummy) { LinkDummy.find(nodes_id(:bird_jpg)) }
-    assert_equal 2, @bird.send(:hot_for_for_form, :conditions=>["nodes.id IN (11,19)"]).size
-  end
-  
-  def test_from_option
+  def test_in_option
     test_visitor(:lion)
     @node1 = secure(LinkDummy) { LinkDummy.find(nodes_id(:cleanWater)) } #11
     @icon1 = secure(LinkDummy) { LinkDummy.find(nodes_id(:bird_jpg)) } #20
@@ -516,7 +494,6 @@ class LinkTest < Test::Unit::TestCase
     # reload
     @node1 = secure(LinkDummy) { LinkDummy.find(nodes_id(:cleanWater)) }
     assert_equal nodes_id(:bird_jpg), @node1.icon[:id]
-    assert_equal 2, @node1.fetch_link(Image.role['icon_for'], :from=>'project').size
-    assert_equal 2, Image.icon_for(:conditions=>["project_id = ?"], @node1[:project_id])
+    assert_equal 2, @node1.icon(:in=>'project').size
   end
 end

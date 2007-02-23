@@ -39,39 +39,39 @@ bad_closing_tag:
   res: "this [test]looks <span class='zafu_error'>&lt;/z:truc&gt;</span>[/test] ok"
 
 zafu_tag:
-  src: "I say <p zafu='hello'>blah blah</p>"
+  src: "I say <p do='hello'>blah blah</p>"
   res: "I say <p>hello world!</p>"
 
 zafu_tag_count:
-  src: "I say <p zafu='hello'>blah <p>super</p> blah</p> is good"
+  src: "I say <p do='hello'>blah <p>super</p> blah</p> is good"
   res: "I say <p>hello world!</p> is good"
 
 zafu_tag_closed:
-  src: "I say <p zafu='hello'/> is good"
+  src: "I say <p do='hello'/> is good"
   res: "I say <p>hello world!</p> is good"
 
 zafu_tag_block:
-  src:  "I say <div zafu='test'>this <div>test</div> is ok</div> right?"
+  src:  "I say <div do='test'>this <div>test</div> is ok</div> right?"
   res: "I say [test]<div>this <div>test</div> is ok</div>[/test] right?"
 
 zafu_tag_at_end:
-  src:  "I say <div zafu='test'>this <div>test</div> is ok</div>"
+  src:  "I say <div do='test'>this <div>test</div> is ok</div>"
   res: "I say [test]<div>this <div>test</div> is ok</div>[/test]"
 
 zafu_tag_with_ztags:
-  src: "I say <div zafu='test'>this <z:hello/></div>"
+  src: "I say <div do='test'>this <z:hello/></div>"
   res: "I say [test]<div>this [hello/]</div>[/test]"
 
 zafu_keep_params:
-  src: "I love <div class='truc' id='machin' zafu='test' depth='3'>my wife</div>"
+  src: "I love <div class='truc' id='machin' do='test' depth='3'>my wife</div>"
   res: "I love [test {= :depth=>'3'}]<div class='truc' id='machin'>my wife</div>[/test]"
 
 zafu_and_ztags:
-  src: "Hey <z:test>this is <p zafu='hello'>ok</p></z:test>"
+  src: "Hey <z:test>this is <p do='hello'>ok</p></z:test>"
   res: "Hey [test]this is [hello]<p>ok</p>[/hello][/test]"
 
 zafu_same_tag:
-  src: "Hey <p zafu='test'> is <p zafu='hello'>hello <p>cool</p></p></p>"
+  src: "Hey <p do='test'> is <p do='hello'>hello <p>cool</p></p></p>"
   res: "Hey [test]<p> is [hello]<p>hello <p>cool</p></p>[/hello]</p>[/test]"  
 expand_with:
   src: "this <z:test>looks </z:test> ok"
@@ -121,10 +121,10 @@ complex_example:
   src: |
     Some people say <z:hello/>
     Some say <z:include template='menu'/>
-      <ul class='list' zafu='set_context' life='ok'>
+      <ul class='list' do='set_context' life='ok'>
         <li>truc</li>
         <li>machin</li>
-        <li zafu='test'>sunny day</li>
+        <li do='test'>sunny day</li>
       </ul>
     <z:set_context var='complex'><z:include template='/default/menu'/></z:set_context>
   res: |
@@ -157,7 +157,7 @@ doctype:
   src: |
     <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
         "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
-    <title zafu='test'>node title</title>
+    <title do='test'>node title</title>
   res: |
     <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
         "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
@@ -180,7 +180,7 @@ do_simple:
   res: "[test][hello/][/test]"
   
 do_zafu:
-  src: "<p zafu='test' param='yo' do='hello' param='hey'>some thing</p>"
+  src: "<p do='test' param='yo' do='hello' param='hey'>some thing</p>"
   res: "[test {= :param=>'yo'}]<p>[hello {= :param=>'hey'}]some thing[/hello]</p>[/test]"
   
 do_multiple:

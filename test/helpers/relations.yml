@@ -70,5 +70,5 @@ store_context:
   res: "ant, art, collections, lion, menu"
 
 author_visitor:
-  src: "<z:pages from='site' author='visitor'><z:each do='link'/></z:pages>"
-  res: "ant, art, collections, lion, menu"
+  src: "<z:pages from='site' author='visitor' limit='5'><z:each join=', ' do='show' attr='name'/></z:pages>"
+  res: "ant, lake, myLife, nature, status"
