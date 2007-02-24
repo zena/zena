@@ -4,8 +4,14 @@ module Zafu
   module Tags
     
     def render(context={})
+      @context = context
       @html_tag_done = false
-      res = render_html_tag(super)
+      res = super
+      if (@context[:parts] || {})[@context[:name]]
+        res
+      else
+        render_html_tag(res)
+      end
     end
     
     def inspect

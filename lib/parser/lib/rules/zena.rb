@@ -26,6 +26,14 @@ module Zena
     inline_methods :login_link, :visitor_link, :search_box, :menu, :path_links, :lang_links
     direct_methods :uses_calendar
 
+    def before_render
+      if @params[:store]
+        @context["stored_#{@params[:store]}".to_sym] = node
+        @params.delete(:store)
+      end
+      true
+    end
+
     def r_show
       attribute = @params[:attr] || @params[:tattr]
       if @context[:trans]
@@ -496,13 +504,6 @@ module Zena
       else
         "<%= #{img}.img_tag(#{format.inspect}) rescue '' %>"
       end
-    end
-    
-    def r_void
-      if @params[:store]
-        @context["stored_#{@params[:store]}".to_sym] = node
-      end
-      expand_with
     end
     
     def r_ignore

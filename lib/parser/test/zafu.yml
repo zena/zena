@@ -198,3 +198,23 @@ do_with_inner:
 ztag_tag:
   src: "<z:hello tag='p'/>"
   res: "<p>hello world!</p>"
+
+name:
+  src: "super: <z:void name='super'>hey <z:text text='ho' name='man'/></z:void>"
+  res: "super: hey ho"
+
+include_super:
+  src: "include_super: <z:include template='/name'><p do='with' part='super' do='hello'/>"
+  res: "include_super: super: <p>hello world!</p>"
+
+include_super_man:
+  src: "include_super: <z:include template='/name'><p do='with' part='super/man' do='hello'/>"
+  res: "include_super: super: hey <p>hello world!</p>"
+
+name_title:
+  src: "title: <h1 do='text' text='dummy' name='title'>blah</h1>"
+  res: "title: <h1>dummy</h1>"
+
+include_with:
+  src: "include_with: <z:include template='/name/title'><h1 do='with' part='title' do='hello'/></z:include>"
+  res: "include_with: title: <h1>hello world!</h1>"

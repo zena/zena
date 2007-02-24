@@ -330,3 +330,11 @@ do_ignore:
     node: 'wiki'
   src: "<ul do='ignore' do='children' do='each' tag='li'><z:link/></ul>"
   res: ""
+
+name_title:
+  src: "title: <h1 do='show' name='title' attr='name'>blah</h1>"
+  res: "title: <h1>status</h1>"
+
+include_with:
+  src: "include_with: <z:include template='/name/title'><h1 do='with' part='title' do='show' attr='id'/>"
+  res: "include_with: title: <h1>12</h1>"

@@ -5,6 +5,10 @@ module Zafu
       'hello world!'
     end
     
+    def r_text
+      @params[:text]
+    end
+    
     def r_set_context
       expand_with(@params)
     end
@@ -21,7 +25,7 @@ end
 class ZazenTest < Test::Unit::TestCase
   testfile :zafu, :zafu_asset, :zafu_insight
   def test_single
-    do_test('zafu', 'do_class_params')
+    do_test('zafu_insight', 'simple')
   end
   make_tests
 end

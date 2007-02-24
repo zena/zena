@@ -81,15 +81,24 @@ class Parser
   
   def render(context={})
     return '' if context["no_#{@method}".to_sym]
+    return '' unless before_render
     @context = context
-    @context[:name] = @params[:name] if @params[:name] # name param is propagated into children (used to label parts of a large template)
+    # name param is propagated into children (used to label parts of a large template)
+    if name = @params[:name]
+      @params.delete(:name)
+      if @context[:name]
+        @context[:name] << "/#{name}"
+      else
+        @context[:name] = name
+      end
+      if replacer = (@context[:parts] || {})[@context[:name]]
+        new_parts = @context[:parts].dup
+        new_parts.delete(@context[:name])
+        return replacer.render(context.merge(:parts=>new_parts))
+      end
+    end
     @result  = ""
     @pass    = {} # used to pass information to the parent
-    if blocks = @context[@params[:name]]
-      # replaced content throught name='..' param
-      @context.delete(@params[:name])
-      @blocks = blocks
-    end
     res = nil
     if self.respond_to?("r_#{@method}".to_sym)
       res = self.send("r_#{@method}".to_sym)
@@ -99,32 +108,42 @@ class Parser
     if @result != ""
       res = @result
     elsif !res.kind_of?(String)
-      res = "#{@method}"
+      res = @method
     end
     res + @text
+  end
+  
+  def r_with
+    return unless part = @params[:part]
+    if @context[:preflight]
+      @pass[:part] = {part => self}
+      ""
+    else
+      r_void
+    end
   end
   
   def r_void
     expand_with
   end
+  
   alias to_s r_void
   
-  def r_with
-    return unless @params[:part]
-    @pass[@params[:part]] = @blocks
-    ""
-  end
-  
   def r_inspect
-    expand_with
+    expand_with(:preflight=>true)
     @blocks = []
+    @pass.merge!(@parts||{})
     self.inspect
   end
   
   def r_include
-    expand_with
+    expand_with(:preflight=>true)
     @blocks = @included_blocks || @blocks
-    expand_with(@pass)
+    if @parts != {}
+      expand_with(:parts=>@parts)
+    else
+      expand_with
+    end
   end
   
   # basic rule to display errors
@@ -141,6 +160,10 @@ class Parser
     else
       res + "/&gt;</span>"
     end
+  end
+  
+  def before_render
+    true
   end
   
   def before_parse(text)
@@ -330,14 +353,21 @@ class Parser
   
   def expand_with(acontext={})
     res = ""
-    @pass = {} # current object sees some information from it's direct descendants
+    @pass  = {} # current object sees some information from it's direct descendants
+    @parts = {}
     new_context = @context.merge(acontext)
     @blocks.each do |b|
       if b.kind_of?(String)
         res << b
       else
         res << b.render(new_context)
-        @pass.merge!(b.pass||{})
+        if pass = b.pass
+          if pass[:part]
+            @parts.merge!(pass[:part])
+            pass.delete(:part)
+          end
+          @pass.merge!(pass)
+        end
       end
     end
     res
@@ -367,9 +397,9 @@ class Parser
         if v.kind_of?(Array)
           pass << "#{k.inspect.gsub('"', "'")}=>#{v.inspect.gsub('"', "'")}"
         elsif v.kind_of?(Parser)
-          pass << "#{k.inspect.gsub('"', "'")}=>'<#{v.method}>'"
+          pass << "#{k.inspect.gsub('"', "'")}=>['#{v}']"
         else
-          pass << "#{k.inspect.gsub('"', "'")}=>'#{v.inspect.gsub('"', "'")}'"
+          pass << "#{k.inspect.gsub('"', "'")}=>#{v.inspect.gsub('"', "'")}"
         end
       end
     end
