@@ -62,5 +62,5 @@ wiki_skin:
   type:           TextDocumentContent
   content_type:   "text/html"
   name:           "wiki"
-  ext:            'zafu'
+  ext:            'html'
   size:           
