@@ -335,7 +335,7 @@ Just doing the above will filter all result according to the logged in user.
             errors.add(ref_field, "invalid reference")
             return false
           end
-          [:rgroup_id, :wgroup_id, :pgroup_id, :template].each do |sym|
+          [:rgroup_id, :wgroup_id, :pgroup_id, :skin].each do |sym|
             # not defined = inherit
             self[sym] ||= ref[sym]
             self[sym] = 0 if self[sym] == ''
@@ -353,7 +353,7 @@ Just doing the above will filter all result according to the logged in user.
             self[:rgroup_id] = ref.rgroup_id
             self[:wgroup_id] = ref.wgroup_id
             self[:pgroup_id] = ref.pgroup_id
-            self[:template ] = ref.template
+            self[:skin ] = ref.skin
           when -1
             # private
             if ZENA_ENV[:allow_private_nodes]
@@ -375,12 +375,11 @@ Just doing the above will filter all result according to the logged in user.
               errors.add('rgroup_id', "you cannot change this") unless rgroup_id == ref.rgroup_id
               errors.add('wgroup_id', "you cannot change this") unless wgroup_id == ref.wgroup_id
               errors.add('pgroup_id', "you cannot change this") unless pgroup_id == ref.pgroup_id
-              errors.add('template' , "you cannot change this") unless template  == ref.template
+              errors.add('skin' , "you cannot change this") unless skin  == ref.skin
             end
           else
             errors.add('inherit', "bad inheritance mode")
-          end  
-          errors.add('template', "unknown template '#{template}.rhtml'") unless File.exist?(File.join(RAILS_ROOT, 'app','views', 'templates', "#{template}.rhtml"))
+          end
 
           # publish_from can only be set by the object itself by setting @publish_from
           self[:publish_from] = @publish_from || nil
@@ -497,7 +496,7 @@ Just doing the above will filter all result according to the logged in user.
             # inherit
             unless inherit == old.inherit
               if old.can_visible? || ( old.can_manage? && (old.max_status_with_heirs < Zena::Status[:pub]) )
-                [:rgroup_id, :wgroup_id, :pgroup_id, :template].each do |sym|
+                [:rgroup_id, :wgroup_id, :pgroup_id, :skin].each do |sym|
                   self[sym] = ref[sym]
                 end
               else
@@ -538,7 +537,7 @@ Just doing the above will filter all result according to the logged in user.
                 errors.add('rgroup_id', "you cannot change this") unless rgroup_id == old.rgroup_id
                 errors.add('wgroup_id', "you cannot change this") unless wgroup_id == old.wgroup_id
                 errors.add('pgroup_id', "you cannot change this") unless pgroup_id == old.pgroup_id
-                # but you can change templates and name
+                # but you can change skins and name
               end
             else
               # must be the same as old
@@ -546,13 +545,12 @@ Just doing the above will filter all result according to the logged in user.
               errors.add('rgroup_id', "you cannot change this") unless rgroup_id == old.rgroup_id
               errors.add('wgroup_id', "you cannot change this") unless wgroup_id == old.wgroup_id
               errors.add('pgroup_id', "you cannot change this") unless pgroup_id == old.pgroup_id
-              errors.add('template', "you cannot change this") unless  template  == old.template
+              errors.add('skin', "you cannot change this") unless  skin  == old.skin
             end
           else
             errors.add('inherit', "bad inheritance mode")
-          end  
-          errors.add('template', "unknown template") unless template == old[:template] || File.exist?(File.join(RAILS_ROOT, 'app', 'views', 'templates', "#{template}.rhtml"))
-          @needs_inheritance_spread = (rgroup_id != old.rgroup_id || wgroup_id != old.wgroup_id || pgroup_id != old.pgroup_id || template != old.template)        
+          end
+          @needs_inheritance_spread = (rgroup_id != old.rgroup_id || wgroup_id != old.wgroup_id || pgroup_id != old.pgroup_id || skin != old.skin)        
           return errors.empty?
         end
         
@@ -616,7 +614,7 @@ Just doing the above will filter all result according to the logged in user.
             h[:rgroup_id] = rgroup_id
             h[:wgroup_id] = wgroup_id
             h[:pgroup_id] = pgroup_id
-            h[:template ] = template
+            h[:skin ] = skin
             # there should never be errors here (if we had the correct rights to change
             # the current node, we can change it's children), so we skip validation
             h.save_with_validation(false)

@@ -31,7 +31,19 @@ module Zena
         @context["stored_#{@params[:store]}".to_sym] = node
         @params.delete(:store)
       end
+      if @params[:anchor] && !@context[:preflight]
+        @anchor = r_anchor
+        @params.delete(:anchor)
+      end
       true
+    end
+    
+    def after_render(text)
+      if @anchor
+        @anchor + text
+      else
+        text
+      end
     end
 
     def r_show
@@ -81,6 +93,10 @@ module Zena
       else
         "<%= trans(#{text}) %>"
       end
+    end
+    
+    def r_anchor(obj=node)
+      "<a name='#{node_class.to_s.downcase}<%= #{obj}[:id] %>'/>"
     end
     
     def r_title
@@ -288,6 +304,8 @@ module Zena
         else
           out "<% #{list}.each do |#{var}| -%>"
         end
+        out r_anchor(var) if @anchor # insert anchor inside the each loop
+        @anchor = nil
         res = expand_with(:node=>var)
         if @context[:template_url] && @pass[:edit]
           # ajax, set id
@@ -468,6 +486,7 @@ module Zena
     # <z:link href='node' tattr='lang'/>
     def r_link
       # text
+      @blocks = [] # do not use block content for link.
       text = get_text_for_erb
       if text
         text = ", :text=>#{text}"
@@ -487,8 +506,13 @@ module Zena
         lnode = node
         url = ''
       end
+      if @params[:dash] == 'true'
+        dash = ", :dash=>\"#{node_class.to_s.downcase}\#{#{node}[:id]}\""
+      else
+        dash = ''
+      end
       # link
-      "<%= node_link(:node=>#{lnode}#{text}#{href}#{url}) %>"
+      "<%= node_link(:node=>#{lnode}#{text}#{href}#{url}#{dash}) %>"
     end
     
     def r_img

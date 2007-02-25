@@ -2,7 +2,7 @@
   <div class='b<%= @node.v_status %>'>
     <div class='title'>      
       <h1 class="s<%= @node.v_status %>"><%= show_title %><br/>
-        <ul class='node_actions'><%= edit_button(:all) %></ul>
+        <ul class='node_actions'><%= node_actions(:actions=>:all) %></ul>
       </h1>
       <%= author(:large) %>
     </div>

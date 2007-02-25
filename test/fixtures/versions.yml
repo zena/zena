@@ -516,3 +516,33 @@ letter_en:
   lang:           en
   number:         1
 <%= @defaults %>
+
+wiki_template_en:
+  type:           TextDocumentVersion
+  id:             38
+  node_id:        33
+  user_id:        4
+  comment:        very simple template for wiki
+  title:          wiki template
+  summary:        This page is a *Letter*.
+  text:           |
+    <html>
+      <head>
+        <title do='show' attr='v_title'>some title</title>
+      </head>
+      <body>
+        <h1 do='show_title'>super title</h1>
+        <h2><a name='contents'/>contents</h2>
+        <ul do='pages'>
+          <li do='each' do='link' dash='true'>some link</li>
+        </ul>
+        
+        <z:pages do='each'>
+          <h3><z:title anchor='true' actions='all'/> <a href='#contents'>top</a></h3>
+          <z:text/>
+        </z:pages>
+      </body>
+    </html>
+  lang:           en
+  number:         1
+<%= @defaults %>

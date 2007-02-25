@@ -13,14 +13,6 @@ class MainControllerTest < Test::Unit::TestCase
     init_controller
   end
   
-  def test_index
-    assert_routing '/en', {:controller=>'main', :action=>'index', :prefix=>'en'}
-    assert_routing '/',   {:controller=>'main', :action=>'redirect'}
-    get 'index', :prefix=>'en'
-    assert_response :success
-    assert_template 'index'
-  end
-  
   def test_render_and_cache
     get 'index'
     assert assigns(:node)
@@ -89,13 +81,6 @@ class MainControllerTest < Test::Unit::TestCase
     assert_redirected_to :action=>'show', :prefix=>'en'
     get 'show',     :path=>['bidule'],  :prefix=>'en'
     assert_redirected_to not_found_url
-  end
-  
-  def test_not_found
-    assert_routing '404', {:controller=>'main', :action=>'not_found'}
-    get 'not_found'
-    assert_response :success
-    assert_template 'not_found'
   end
   
   def test_check_url
@@ -195,44 +180,59 @@ class MainControllerTest < Test::Unit::TestCase
     assert_tag :span, :attributes=>{:class=>'wrong_lang'}
   end
   
-  # test partials
+  # test templates
   
-  def test__pages
-    login(:tiger)  
-    get 'show', :path=>['projects'], :prefix=>prefix
+  def test_index
+    assert_routing '/en', {:controller=>'main', :action=>'index', :prefix=>'en'}
+    assert_routing '/',   {:controller=>'main', :action=>'redirect'}
+    get 'index', :prefix=>'en'
     assert_response :success
-    assert_template 'templates/default'
-    assert_tag :div, :attributes=>{:id=>'pages'}
-    assert_tag :ul, :attributes=>{:class=>'list', :id=>"pages_list"}
-    assert_tag :li, :attributes=>{:class=>'btn_add', :id=>"add_page"}
+    assert_template '/templates/fixed/default/any__index'
   end
   
-  def test__documents
-    login(:tiger)
-    get 'show', :path=>['projects'], :prefix=>prefix
+  def test_index
+    assert_routing '/en', {:controller=>'main', :action=>'index', :prefix=>'en'}
+    assert_routing '/',   {:controller=>'main', :action=>'redirect'}
+    get 'index', :prefix=>'en'
     assert_response :success
-    assert_template 'templates/default'
-    assert_tag :div, :attributes=>{:id=>'documents'}
-    assert_tag :ul, :attributes=>{:class=>'list', :id=>"documents_list"}
-    assert_tag :li, :attributes=>{:class=>'btn_add', :id=>"add_document"}
+    assert_template '/templates/fixed/default/any__index'
   end
   
-  def test__pages_cannot_write
-    get 'show', :path=>['projects'], :prefix=>prefix
+  def test_not_found
+    assert_routing '404', {:controller=>'main', :action=>'not_found'}
+    get 'not_found'
     assert_response :success
-    assert_template 'templates/default'
-    assert_tag :div, :attributes=>{:id=>'pages'}
-    assert_tag :ul, :attributes=>{:class=>'list', :id=>"pages_list"}
-    assert_no_tag :li, :attributes=>{:class=>'btn_add', :id=>"add_page"}
+    assert_template '/templates/fixed/default/any__not_found'
   end
   
-  def test__documents_cannot_write
-    get 'show', :path=>['projects'], :prefix=>prefix
-    assert_response :success
-    assert_template 'templates/default'
-    assert_tag :div, :attributes=>{:id=>'documents'}
-    assert_tag :ul, :attributes=>{:class=>'list', :id=>"documents_list"}
-    assert_no_tag :li, :attributes=>{:class=>'btn_add', :id=>"add_document"}
+  def test_default_any
+    login(:ant)
+    get_node
+    assert_template '/templates/fixed/default/any'
   end
   
+  def test_wiki
+    #preserving_files('app/views/templates') do
+      login(:ant)
+      get_node(:wiki)
+      assert_template '/templates/compiled/wiki/any_fr'
+    #end
+  end
+  
+  private
+  def get_node(node_sym=:status)
+    obj = nodes(node_sym)
+    if obj[:id] == ZENA_ENV[:root_id]
+      path = []
+    else
+      path = obj.basepath.split('/')
+      unless obj[:custom_base]
+        path += ["#{obj.class.to_s.downcase}#{obj[:id]}.html"]
+      end
+    end
+    prefix = @controller.instance_eval{ @session[:user] } ? AUTHENTICATED_PREFIX : 'en'
+    get 'show', :path=>path, :prefix=>prefix
+  end
+  
+    
 end

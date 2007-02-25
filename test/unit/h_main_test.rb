@@ -34,17 +34,17 @@ class MainHelperTest < Test::Unit::TestCase
     assert_equal 'document/title', title_partial
   end
   
-  def test_edit_button_for_public
+  def test_node_actions_for_public
     @node = secure(Node) { nodes(:cleanWater) }
     assert !@node.can_edit?, "Node cannot be edited by the public"
-    res = edit_button(:all)
+    res = node_actions(:actions=>:all)
     assert_equal '', res
   end
   
-  def test_edit_button_wiki_public
+  def test_node_actions_wiki_public
     @node = secure(Node) { nodes(:wiki) } 
     assert @node.can_edit?, "Node can be edited by the public"
-    res = edit_button(:all)
+    res = node_actions(:actions=>:all)
     assert_match %r{/z/version/edit/19}, res
     assert_match %r{/z/node/drive\?.*version_id=19}, res
   end
@@ -52,7 +52,7 @@ class MainHelperTest < Test::Unit::TestCase
   def test_node_actions_for_ant
     login(:ant)
     @node = secure(Node) { Node.find(nodes_id(:cleanWater)) }
-    res = edit_button(:all)
+    res = node_actions(:actions=>:all)
     assert_match    %r{/z/version/edit}, res
     assert_no_match %r{/z/node/drive}, res
   end
@@ -60,11 +60,11 @@ class MainHelperTest < Test::Unit::TestCase
   def test_node_actions_for_tiger
     login(:tiger)
     @node = secure(Node) { Node.find(nodes_id(:cleanWater)) }
-    res = edit_button(:all)
+    res = node_actions(:actions=>:all)
     assert_match %r{/z/version/edit}, res
     assert_match %r{/z/node/drive}, res
     @node.edit!
-    res = edit_button(:all)
+    res = node_actions(:actions=>:all)
     assert_match %r{/z/version/edit}, res
     assert_match %r{/z/version/propose}, res
     assert_match %r{/z/version/publish}, res
@@ -73,12 +73,12 @@ class MainHelperTest < Test::Unit::TestCase
     login(:ant)
     session[:lang] = 'fr'
     @node = secure(Node) { Node.find(nodes_id(:cleanWater)) }
-    res = edit_button(:all)
+    res = node_actions(:actions=>:all)
     assert_match %r{/z/version/edit}, res
     assert_no_match %r{/z/node/drive}, res
     session[:lang] = 'en'
     @node = secure(Node) { Node.find(nodes_id(:cleanWater)) }
-    res = edit_button(:all)
+    res = node_actions(:actions=>:all)
     assert_no_match %r{/z/version/edit}, res
     assert_no_match %r{/z/node/drive}, res
   end

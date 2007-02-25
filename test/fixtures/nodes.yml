@@ -1,5 +1,5 @@
 <% @dates = "  created_at:  2006-03-10\n  updated_at:  2006-04-11\n  publish_from:  2006-03-10" %>
-<% @defaults = "#@dates\n  ref_lang:  en\n  max_status:  50\n  template: default" %>
+<% @defaults = "#@dates\n  ref_lang:  en\n  max_status:  50\n  skin:     default" %>
 <% @rights = "  rgroup_id:  1\n  wgroup_id:  3\n  pgroup_id:  4" %>
 zena:
   id:             1
@@ -15,7 +15,7 @@ zena:
   ref_lang:       en
   max_status:     50
   inherit:        0
-  template:       default
+  skin:           default
 <%= @rights %>
 
 people:
@@ -212,7 +212,7 @@ crocodiles:
   publish_from:   
   max_status:     30
   inherit:        1
-  template:       default
+  skin:           default
 <%= @rights %>
 
 opening:
@@ -227,7 +227,7 @@ opening:
   inherit:        1
   max_status:     50
   log_at:         2006-03-15
-  template:       default
+  skin:           default
 <%= @dates %>
 <%= @rights %>
 
@@ -257,7 +257,7 @@ wiki:
 <%= @dates %>
   ref_lang:       en
   max_status:     50
-  template:       wiki
+  skin:           wiki
   rgroup_id:      1
   wgroup_id:      1
   pgroup_id:      1
@@ -274,7 +274,7 @@ bird_jpg:
 <%= @dates %>
   ref_lang:       en
   max_status:     50
-  template:       wiki
+  skin:           wiki
   rgroup_id:      1
   wgroup_id:      1
   pgroup_id:      1
@@ -291,7 +291,7 @@ flower_jpg:
 <%= @dates %>
   ref_lang:       en
   max_status:     50
-  template:       wiki
+  skin:           wiki
   rgroup_id:      1
   wgroup_id:      1
   pgroup_id:      1
@@ -353,7 +353,7 @@ strange:
   parent_id:      22
   user_id:        5
   inherit:        0
-  template:       default
+  skin:           default
 <%= @dates %>
   ref_lang:       en
   max_status:     30
@@ -382,7 +382,7 @@ talk:
   parent_id:      9
   user_id:        4
   inherit:        0
-  template:       default
+  skin:           default
 <%= @dates %>
   ref_lang:       en
   max_status:     50
@@ -404,7 +404,7 @@ nature:
   publish_from:   
   ref_lang:       en
   max_status:     30
-  template:       default
+  skin:           default
   rgroup_id:      1
   wgroup_id:      3
   pgroup_id:      4
@@ -423,7 +423,7 @@ tree_jpg:
   publish_from:   
   ref_lang:       en
   max_status:     30
-  template:       default
+  skin:           default
   rgroup_id:      1
   wgroup_id:      3
   pgroup_id:      4
@@ -442,7 +442,7 @@ forest_pdf:
   publish_from:   
   ref_lang:       en
   max_status:     30
-  template:       default
+  skin:           default
   rgroup_id:      1
   wgroup_id:      3
   pgroup_id:      4
@@ -454,6 +454,19 @@ letter:
   name:           letter
   project_id:     1
   parent_id:      1
+  user_id:        4
+  inherit:        1
+  log_at:         2006-10-03
+<%= @defaults %>
+<%= @rights %>
+
+wiki_skin:
+  id:             33
+  type:           Skin
+  kpath:          NPDTTS
+  name:           wiki
+  project_id:     1
+  parent_id:      5
   user_id:        4
   inherit:        1
   log_at:         2006-10-03

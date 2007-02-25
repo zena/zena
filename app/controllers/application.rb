@@ -11,11 +11,12 @@ class ApplicationController < ActionController::Base
   layout false
   private
   def render_and_cache(opts={})
-    opts = {:template=>opts} if opts.kind_of?(String)
-    opts = {:template=>@node[:template], :cache=>true}.merge(opts)
     @node  ||= secure(Node) { Node.find(ZENA_ENV[:root_id]) }
+    opts = {:mode=>opts} if opts.kind_of?(String)
+    opts = {:skin=>@node[:skin], :cache=>true}.merge(opts)
       
     @project = @node.project
+    @date  ||= params[:date] ? parse_date(params[:date]) : Time.now
     render :template=>template_url(opts), :layout=>false
     
     # only cache the public pages
@@ -25,13 +26,71 @@ class ApplicationController < ActionController::Base
   end
   
   def template_url(opts={})
-    template_name = opts[:template] || 'default'
-    return '/templates/default' if template_name == 'default' # while testing
-    template = secure(Template) { Template.best_match(:template=>template_name, :class=>@node.class, :mode=>opts[:mode]) }
-    return '/templates/default' unless template
-    sess = @session
-    response.template.instance_eval { @session = sess }
-    template.template_url(response.template)
+    skin  = opts[:skin] || 'default'
+    skin_obj = nil
+    skin_helper = nil
+    # find best match
+    mode  = opts[:mode]
+    mode  = nil if (mode.nil? || mode == '')
+    klass = @node.class.to_s.downcase
+    template = nil
+    choices = []
+    
+    if skin == 'default'
+      #   3. default_class_mode  (101)
+      choices << ["default","any_#{klass}_#{mode}"] if mode && klass
+      #   4. default__mode       (100)
+      choices << ["default","any__#{mode}"] if mode
+      #   7. default_class       (  1)
+      choices << ["default","any_#{klass}"] if klass
+      #   8. default             (  0)
+      choices << ["default","any"]
+    else
+      #                          (mode / template / class)
+      #   1. template_class_mode (111)
+      choices << [skin,"any_#{klass}_#{mode}"] if mode && skin && klass
+      #   2. template__mode      (110)
+      choices << [skin,"any__#{mode}"] if mode && skin
+      #   3. default_class_mode  (101)
+      choices << ["default","any_#{klass}_#{mode}"] if mode && klass
+      #   4. default__mode       (100)
+      choices << ["default","any__#{mode}"] if mode
+      #   5. template_class      ( 11)
+      choices << [skin,"any_#{klass}"] if skin && klass
+      #   6. template            ( 10)
+      choices << [skin,"any"] if skin
+      #   7. default_class       (  1)
+      choices << ["default","any_#{klass}"] if klass
+      #   8. default             (  0)
+      choices << ["default","any"]
+    end
+    if skin
+      begin
+        skin_obj = secure(Skin) { Skin.find_by_name(skin) }
+        sess = @session
+        response.template.instance_eval { @session = sess }
+        skin_helper = response.template
+      rescue
+        skin_obj = nil
+      end
+    end
+    choices.each do |skin, template_name|
+      # find the fixed template
+      template = "/templates/fixed/#{skin}/#{template_name}"
+      break if File.exist?("#{RAILS_ROOT}/app/views#{template}.rhtml")
+      # find the compiled version
+      template = "/templates/compiled/#{skin}/#{template_name}_#{lang}.rhtml"
+      break if File.exist?("#{RAILS_ROOT}/app/views#{template}")
+      # search in the skin_obj
+      if skin_obj
+        break if template = skin_obj.template_url_for_name(template_name, skin_helper)
+      end
+      # continue search
+    end
+    return template
+  rescue ActiveRecord::RecordNotFound
+    # skin name was bad
+    return '/templates/fixed/default/any'
   end
   
   # TODO...

@@ -637,13 +637,13 @@ class SecureUpdateTest < Test::Unit::TestCase
     test_visitor(:tiger)
     node = secure(Node) { nodes(:cleanWater)  }
     node[:inherit  ] = 0
-    node[:template] = 'wiki'
+    node[:skin] = 'wiki'
     assert node.save , "Save succeeds"
-    assert_equal 'wiki', node[:template], "Template changed"
-    assert_equal 'wiki', nodes(:status    ).template, "Child template group changed"
-    assert_equal 'wiki', nodes(:water_pdf ).template, "Child template group changed"
-    assert_equal 'wiki', nodes(:lake_jpg  ).template, "Grandchild template group changed"
-    assert_equal 'default', nodes(:bananas).template, "Not inherited child: template not changed"
+    assert_equal 'wiki', node[:skin], "Template changed"
+    assert_equal 'wiki', nodes(:status    ).skin, "Child skin group changed"
+    assert_equal 'wiki', nodes(:water_pdf ).skin, "Child skin group changed"
+    assert_equal 'wiki', nodes(:lake_jpg  ).skin, "Grandchild skin group changed"
+    assert_equal 'default', nodes(:bananas).skin, "Not inherited child: skin not changed"
   end
   
   # 2. if owner changed from old, make sure only a user in 'admin' can do this

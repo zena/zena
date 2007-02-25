@@ -106,12 +106,34 @@ link_root:
   src: "<z:link href='root'/>"
   tem: "<%= node_link(:node=>@node, :href=>\"root\") %>"
   res: "<a href=\"/oo\">Zena the wild CMS</a>"
+
+link_dash:
+  src: "<z:link dash='true'/>"
+  res: "<a href='#node12'>status title</a>"
+
+anchor:
+  src: "<z:anchor/>"
+  res: "<a name='node12'/>"
+
+show_title_anchor:
+  src: "<z:title anchor='true'/>"
+  res: "<a name='node12'/><span id='v_title12'>status title</span>"
   
+show_attr_anchor:
+  src: "<z:show attr='name' anchor='true'/>"
+  res: "<a name='node12'/>status"
+
 link_version:
   context:
     node: 'opening'
-  src: "<z:traductions><z:each join=', '><z:link tattr='lang'/></z:each></z:traductions>"
+  src: "<z:traductions><z:each join=', '><z:link tattr='lang' /></z:each></z:traductions>"
   res: "<a href=\"/oo/projects/cleanWater/note17.html?lang=fr\">french</a>"
+  
+link_version_anchor_dash:
+  context:
+    node: 'opening'
+  src: "<z:traductions><z:each join=', '><z:link tattr='lang' dash='true' anchor='true'/></z:each></z:traductions>"
+  res: "<a name='version17'/><a href='#version17'>french</a>"
   
 title:
   src: "<h2 do='title'>super titre</h2>"

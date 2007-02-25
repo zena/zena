@@ -2,9 +2,9 @@ require File.join(File.dirname(__FILE__), 'testhelp')
 
 class HelperTest
   testfile :relations, :basic
-  Project # make sure we load all links before trying relations
+  Project # make sure we load Project links before trying relations
   def test_single
-    do_test('relations', 'relation_not_in_current_node')
+    do_test('relations', 'pages_anchor')
   end
   
   def test_relations_updated_today

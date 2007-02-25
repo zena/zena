@@ -13,11 +13,11 @@ groups_list = [0] + form_groups.map{|g| g[1]} %>
 <li class='readers'><%= readers_for(@node) %></li>
 <% if inherit_modes %>
 <%= form_remote_tag(:with=>'groups', :url=>{:controller=>'node', :action=>'update', :id=>@node[:id], :rnd=>rnd}) %>
-  <li><label><%= trans('mode') %></label><%= select('node', 'inherit', inherit_modes, {}, {:onchange=>"Zena.update_rwp(this.value,'#{groups_list.index(@node.ref[:rgroup_id])}','#{groups_list.index(@node.ref[:wgroup_id])}','#{groups_list.index(@node.ref[:pgroup_id])}', '#{form_templates.index(@node.ref[:template])}'); return false;"}) %></li>
+  <li><label><%= trans('mode') %></label><%= select('node', 'inherit', inherit_modes, {}, {:onchange=>"Zena.update_rwp(this.value,'#{groups_list.index(@node.ref[:rgroup_id])}','#{groups_list.index(@node.ref[:wgroup_id])}','#{groups_list.index(@node.ref[:pgroup_id])}', '#{form_skins.index(@node.ref[:skin])}'); return false;"}) %></li>
   <li><label><%= trans('publishers') %></label><%= select('node', 'pgroup_id', form_groups, { :include_blank => true }, {:disabled=>(@node[:inherit] != 0)}) %></li>
   <li><label><%= trans('writers') %></label><%= select('node', 'wgroup_id',    form_groups, { :include_blank => true }, {:disabled=>(@node[:inherit] != 0)}) %></li>
   <li><label><%= trans('readers') %></label><%= select('node', 'rgroup_id',    form_groups, { :include_blank => true }, {:disabled=>(@node[:inherit] != 0)}) %></li>
-  <li><label><%= trans('template') %></label><%= select('node', 'template',    form_templates,{}, {:disabled=>(@node[:inherit] != 0)}) %></li>
+  <li><label><%= trans('skin') %></label><%= select('node', 'skin',    form_skins,{}, {:disabled=>(@node[:inherit] != 0)}) %></li>
   <li class='submit'><%= submit_tag transb('change') %></li>
 <%= end_form_tag %>
 <% else %>

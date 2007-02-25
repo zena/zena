@@ -19,48 +19,48 @@ class ApplicationControllerTest < Test::Unit::TestCase
   
   # render_and_cache and authorize tested in MainControllerTest
   
-  def test_template
+  def test_skin
     wiki = @controller.send(:secure,Node) { Node.find(nodes_id(:wiki)) }
-    assert_equal 'wiki', wiki.template
+    assert_equal 'wiki', wiki.skin
     @controller.instance_eval{ @node = wiki }
-    assert_equal 'wiki', @controller.send(:template)
+    assert_equal 'wiki', @controller.send(:skin)
   end
   
-  def test_class_template
+  def test_class_skin
     proj = @controller.send(:secure,Node) { Node.find(nodes_id(:cleanWater)) }
-    assert_equal 'default', proj.template
+    assert_equal 'default', proj.skin
     @controller.instance_eval{ @node = proj }
-    assert_equal 'default_project', @controller.send(:template)
-    proj.template = 'truc'
-    assert_equal 'truc', proj.template
-    assert_equal 'default', @controller.send(:template)
+    assert_equal 'default_project', @controller.send(:skin)
+    proj.skin = 'truc'
+    assert_equal 'truc', proj.skin
+    assert_equal 'default', @controller.send(:skin)
   end
   
-  def test_general_class_template
+  def test_general_class_skin
     letter = @controller.send(:secure, Node) { Node.find(nodes_id(:letter)) }
-    assert_equal 'default', letter.template
+    assert_equal 'default', letter.skin
     @controller.instance_eval{ @node = letter }
-    assert_equal 'any_letter', @controller.send(:template)
+    assert_equal 'any_letter', @controller.send(:skin)
   end
   
-  def test_custom_template
-    assert_equal 'index', @controller.send(:template,'index')
+  def test_custom_skin
+    assert_equal 'index', @controller.send(:skin,'index')
   end
   
-  def test_mode_template
+  def test_mode_skin
     @controller.instance_eval { @params = {:mode=>'wiki'} }
     proj = @controller.send(:secure,Node) { Node.find(nodes_id(:cleanWater)) }
     @controller.instance_eval { @node = proj }
-    assert_equal 'wiki', @controller.send(:template)
+    assert_equal 'wiki', @controller.send(:skin)
   end
   
   def test_form_tabs
     page = @controller.send(:secure, Node) { Node.find(nodes_id(:status))    }
     doc  = @controller.send(:secure, Node) { Node.find(nodes_id(:water_pdf)) }
     @controller.instance_eval{ @node = page }
-    assert_equal 'forms/default', @controller.send(:form_template)
+    assert_equal 'forms/default', @controller.send(:form_skin)
     @controller.instance_eval{ @node = doc  }
-    assert_equal 'forms/any_document', @controller.send(:form_template)
+    assert_equal 'forms/any_document', @controller.send(:form_skin)
   end
   
   # // test methods common to controllers and views // #

@@ -84,7 +84,7 @@ class Parser
     return '' unless before_render
     @context = context
     # name param is propagated into children (used to label parts of a large template)
-    if name = @params[:name]
+    if @params && name = @params[:name]
       @params.delete(:name)
       if @context[:name]
         @context[:name] << "/#{name}"
@@ -110,7 +110,7 @@ class Parser
     elsif !res.kind_of?(String)
       res = @method
     end
-    res + @text
+    after_render(res + @text)
   end
   
   def r_with
@@ -164,6 +164,10 @@ class Parser
   
   def before_render
     true
+  end
+  
+  def after_render(text)
+    text
   end
   
   def before_parse(text)

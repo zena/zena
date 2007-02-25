@@ -89,10 +89,12 @@ class Test::Unit::TestCase
   
   def do_test(file, test)
     res = @@test_parsers[file].new_with_url("/#{test.gsub('_', '/')}", :helper=>DummyHelper.new(@@test_strings[file])).render
-    if @@test_strings[file][test]['res'][0..0] == "/"
-      assert_match %r{@@test_strings[file][test]['res'][1..-2]}, res
-    else
-      assert_equal @@test_strings[file][test]['res'], res
+    if @@test_strings[file][test]['res']
+      if @@test_strings[file][test]['res'][0..0] == "/"
+        assert_match %r{#{@@test_strings[file][test]['res'][1..-2]}}m, res
+      else
+        assert_equal @@test_strings[file][test]['res'], res
+      end
     end
   end
 end

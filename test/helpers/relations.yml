@@ -172,3 +172,7 @@ order_limit:
 relation_not_in_current_node:
   src: "<ul do='news' from='site' limit='5' order='updated_at DESC'><li do='each'><z:link/></li></ul>"
   res: "<ul><li><a href=\"/oo/projects/cleanWater/note17.html\">parc opening</a></li></ul>"
+  
+pages_anchor:
+  src: "<z:project><z:pages do='each' join=', '><z:show attr='name' anchor='true'/></z:pages></z:project>"
+  res: "<a name='node13'/>lake, <a name='node12'/>status, <a name='node27'/>track"

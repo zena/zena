@@ -9,6 +9,13 @@ module Zafu
       @params[:text]
     end
     
+    def r_repeat
+      count = @params[:count] || 2
+      count.to_i.times do
+        out expand_with
+      end
+    end
+    
     def r_set_context
       expand_with(@params)
     end
@@ -23,9 +30,15 @@ module Zafu
   end
 end
 class ZazenTest < Test::Unit::TestCase
-  testfile :zafu, :zafu_asset, :zafu_insight
+  testfile :zafu, :zafu_asset, :zafu_insight, :zazen
   def test_single
-    do_test('zafu_insight', 'simple')
+    do_test('zafu', 'preserve_newlines')
+  end
+  def test_zazen_image_no_image
+    file = 'zazen'
+    test = 'image_no_image'
+    res = @@test_parsers[file].new_with_url("/#{test.gsub('_', '/')}", :helper=>DummyHelper.new(@@test_strings[file])).render(:images=>false)
+    assert_equal @@test_strings[file][test]['res'], res
   end
   make_tests
 end

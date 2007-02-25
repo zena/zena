@@ -119,7 +119,7 @@ ActiveRecord::Schema.define(:version => 0) do
     t.column "custom_base", :boolean, :default => false
     t.column "basepath", :text
     t.column "dgroup_id", :integer
-    t.column "template", :string
+    t.column "skin", :string
   end
 
   create_table "trans_phrases", :force => true do |t|

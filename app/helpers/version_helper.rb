@@ -1,6 +1,6 @@
 module VersionHelper
   def form_tabs
-    tmplt = @node.template || 'default'
+    tmplt = @node.skin || 'default'
     tabs = [['text','text'],['title','title'],['help','help']]
     ["#{tmplt}_#{@node.class.to_s.downcase}", "any_#{@node.class.to_s.downcase}"].each do |filename|
       if File.exist?(File.join(RAILS_ROOT, 'app', 'views', 'templates', 'form_tabs', "_#{filename}.rhtml"))

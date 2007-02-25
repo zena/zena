@@ -570,15 +570,14 @@ module ApplicationHelper
   
   #TODO: test
   # Return the list of possible templates
-  def form_templates
-    return @form_templates if @form_templates
-    @form_templates = []
-    Dir.foreach(File.join(RAILS_ROOT, 'app', 'views', 'templates')) do |file|
-      next unless file =~ /^([a-zA-Z0-9]+)\.rhtml$/
-      next if ['index', 'not_found'].include?($1)
-      @form_templates << $1
+  def form_skins
+    return @form_skins if @form_skins
+    @form_skins = secure(Skin) { Skin.find(:all, :order=>'name ASC') }.map {|r| r[:name]}
+    Dir.foreach(File.join(RAILS_ROOT, 'app', 'views', 'templates', 'fixed')) do |file|
+      next unless file =~ /^([a-zA-Z0-9_]+)$/
+      @form_skins << $1 unless @form_skins.include?($1)
     end
-    @form_templates
+    @form_skins
   end
   
   #TODO: test
@@ -619,7 +618,7 @@ module ApplicationHelper
   end
   
   
-  # Used by edit_buttons
+  # Used by node_actions
   def form_action(action, version_id=nil, link_text=nil)
     version_id ||= @node.v_id
     if action == 'edit'
@@ -663,7 +662,11 @@ module ApplicationHelper
     if (action == :drive or action == :all) && node.can_drive?
       res << form_action('drive',version_id, opts[:text])
     end
-    "<ul class='actions'><li>#{res.join("</li>\n<li>")}</li></ul>"
+    if res != []
+      "<ul class='actions'><li>#{res.join("</li>\n<li>")}</li></ul>"
+    else
+      ""
+    end
   end
   
   # TODO: test
@@ -792,7 +795,7 @@ ENDTXT
   # show author information
   # size can be either :small or :large, options are
   # :node=>object
-  def author(opts={})
+  def show_author(opts={})
     obj  = opts[:node] || @node
       res = []
       if  obj.author.id == obj.v_author.id
@@ -825,10 +828,14 @@ ENDTXT
     node = options[:node]
     if options[:href]
       node = node.relation(options[:href]) || node
-    end
-    url = node_url(node)
+    end  
     text = options[:text] || node.version.title
-    link_to(text,url.merge(options[:url]))
+    if opts[:dash]
+      "<a href='##{opts[:dash]}'>#{text}</a>"
+    else
+      url = node_url(node)
+      link_to(text,url.merge(options[:url]))
+    end
   end
   
   # shows links for site features

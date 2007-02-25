@@ -2,9 +2,9 @@
   <div class='header'>
     <div class='li_s<%= li.v_status %>'>
       <p class='log_at'><%= @note_date ? short_time(li.event_at) : short_date(li.log_at) %></p>
-      <p class='title'><%= show_title(li, :project=>(li.project != @node.project)) %></p>
+      <p class='title'><%= show_title(:node=>li, :project=>(li.project != @node.project)) %></p>
       <p class='sign'><%= li.v_author.initials %></p>
-      <ul class='node_actions'><%= edit_button(:all, :node=>li) %></ul>
+      <ul class='node_actions'><%= node_actions(:actions=>:all, :node=>li) %></ul>
     </div>
   </div>
   <%= show(li, :v_summary, :as=>:v_text, :limit=>2)  %>
