@@ -165,7 +165,9 @@ on the post edit page :
         self.send(method.to_sym)
       end
       
-      def fetch_link(link_def, options)
+      def fetch_link(link_name, options)
+        return nil unless link_def = self.class.defined_role[link_name]
+        return nil unless options[:from] || self.class.role[link_name]
         klass      = link_def[:class]
         klass      = Module.const_get(link_def[:class].to_sym) if klass.kind_of?(String)
         link_side  = link_def[:link_side]
@@ -230,19 +232,24 @@ on the post edit page :
       module AddActsAsMethod
         @@role          = {}
         @@roles         = {}
-        @@defined_roles = {}
+        @@roles_for_class = {}
+        @@defined_role = {}
         
         # list of links defined for this class (with superclass)
         def roles
           @@roles[self] ||= role.to_a.sort.map{|k,v| v}
         end
         
+        def defined_role
+          @@defined_role
+        end
+        
         # hash with the links defined for this class (with superclass)
         def role
           @@role[self] ||= if superclass == ActiveRecord::Base
-            @@defined_roles[self] || {}
+            @@roles_for_class[self] || {}
           else
-            superclass.role.merge(@@defined_roles[self] || {})
+            superclass.role.merge(@@roles_for_class[self] || {})
           end
         end
         
@@ -258,7 +265,7 @@ on the post edit page :
             class_eval "def secure(*args); yield; end"
             class_eval "def secure_write(*args); yield; end"
           end
-          @@defined_roles[self] ||= {}
+          @@roles_for_class[self] ||= {}
           class_name = options[:class_name] || method.singularize.capitalize
           if options[:for] || options[:as]
             link_side  = 'target_id'
@@ -276,15 +283,11 @@ on the post edit page :
           end
           link_def = { :method=>method, :role=>role, :link_side=>link_side, :other_side=>other_side, :unique=>(options[:unique] == true), :collector=>(options[:collector] == true), :class=>class_name, :count=>count }
           
-          @@defined_roles[self][method] = link_def
+          @@roles_for_class[self][method] = link_def
+          @@defined_role[method] = link_def
           finder = <<-END
             def #{method}(options={})
-              link_def = #{link_def.inspect}.merge(:class=>#{class_name})
-              if options == :inspect
-                link_def
-              else
-                fetch_link(link_def, options)
-              end
+              fetch_link(#{method.inspect}, options)
             end
           END
           class_eval finder

@@ -60,7 +60,7 @@ class Node < ActiveRecord::Base
   acts_as_secure
   acts_as_multiversioned
   link :tags, :class_name=>'Tag'
-  link :icon, :as=>'icon',     :class_name=>'Image',      :unique=>true
+  link :icon, :class_name=>'Image', :unique=>true
   link :hot_for, :as=>'hot',   :class_name=>'Project', :as_unique=>true
   link :home_for, :as=>'home', :class_name=>'Project', :as_unique=>true
   
@@ -252,11 +252,9 @@ class Node < ActiveRecord::Base
             else
               res = self.send(method.to_sym)
             end
-          elsif self.class.role[method]
+          else
             # Find through Linkable
-            res = self.send(method.to_sym, opts)
-          #else
-            # invalid method
+            res = fetch_link(method, opts)
           end
         end
       rescue ActiveRecord::RecordNotFound

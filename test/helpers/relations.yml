@@ -158,4 +158,17 @@ this_year:
 date_select:
   src: "<z:date select='2006-04-05'><z:notes from='site' log='current' do='each' join=', ' do='show' attr='name'/>"
   res: "proposition"
-  
+
+empty_list:
+  src: "<ul do='hot'>blah</ul><z:hot><ul>bib</ul></z:hot>"
+  res: ""
+
+order_limit:
+  context:
+    node: 'zena'
+  src: "<ul do='news' from='site' limit='5' order='updated_at DESC'><li do='each'><z:link/></li></ul>"
+  res: "<ul><li><a href=\"/oo/projects/cleanWater/note17.html\">parc opening</a></li></ul>"
+
+relation_not_in_current_node:
+  src: "<ul do='news' from='site' limit='5' order='updated_at DESC'><li do='each'><z:link/></li></ul>"
+  res: "<ul><li><a href=\"/oo/projects/cleanWater/note17.html\">parc opening</a></li></ul>"

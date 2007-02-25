@@ -656,7 +656,8 @@ module Zena
       expand_with(:preflight=>true)
       else_block = @pass[:else]
       out "<% if #{var} = #{var_finder} -%>" if var_finder
-      out expand_with(:node=>var)
+      res = expand_with(:node=>var)
+      out render_html_tag(res)
       if else_block
         out "<% else -%>"
         out expand_block(else_block, :do=>true)
@@ -666,8 +667,9 @@ module Zena
     
     def do_list(list_finder=nil)
       if list_finder
-        out "<% if (#{list_var} = #{list_finder}) != [] -%>"
+        out "<% if (#{list_var} = #{list_finder}) && #{list_var} != [] -%>"
       end
+      
       @context.delete(:template_url) # should not propagate
       
       # preflight parse to see what we have
@@ -678,7 +680,8 @@ module Zena
         template_url  = "#{@options[:current_folder]}/#{@context[:name] || "root"}_#{node_class}"
         
         # render without 'add' or 'form'
-        out expand_with(:list=>list_var, :no_add=>true, :no_form=>true, :template_url=>template_url)
+        res = expand_with(:list=>list_var, :no_add=>true, :no_form=>true, :template_url=>template_url)
+        out render_html_tag(res)
         if list_finder
           out "<% else -%>" + expand_block(else_block, :do=>true) if else_block
           out "<% end -%>"
@@ -702,7 +705,8 @@ module Zena
         out helper.save_erb_to_url(form, form_url)
       else
         # no form, render, edit and add are not ajax
-        out expand_with(:list=>list_var)
+        res = expand_with(:list=>list_var)
+        out render_html_tag(res)
         if list_finder
           out "<% else -%>" + expand_block(else_block, :do=>true) if else_block
           out "<% end -%>"
