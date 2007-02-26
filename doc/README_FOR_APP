@@ -26,6 +26,8 @@ Ideas for cached menu:
 There is a bug when validating a long redaction. The end is stripped off.
 We should use attr_protected instead of filtering forms.
 * Remove all .utc (now using ENV['TZ'])
+* Provide a 'grows with zena' // 'runs with zena' logo and link
+* Provide a link from zena to teti.ch
 === Optimization & Cache
 * sweep public page cache :
   * page for all lang

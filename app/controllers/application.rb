@@ -27,7 +27,7 @@ class ApplicationController < ActionController::Base
   
   def template_url(opts={})
     skin  = opts[:skin] || 'default'
-    skin_obj = nil
+    @skin_obj = nil
     skin_helper = nil
     # find best match
     mode  = opts[:mode]
@@ -66,12 +66,12 @@ class ApplicationController < ActionController::Base
     end
     if skin
       begin
-        skin_obj = secure(Skin) { Skin.find_by_name(skin) }
+        @skin_obj = secure(Skin) { Skin.find_by_name(skin) }
         sess = @session
         response.template.instance_eval { @session = sess }
         skin_helper = response.template
       rescue
-        skin_obj = nil
+        @skin_obj = nil
       end
     end
     choices.each do |skin, template_name|
@@ -81,9 +81,9 @@ class ApplicationController < ActionController::Base
       # find the compiled version
       template = "/templates/compiled/#{skin}/#{template_name}_#{lang}.rhtml"
       break if File.exist?("#{RAILS_ROOT}/app/views#{template}")
-      # search in the skin_obj
-      if skin_obj
-        break if template = skin_obj.template_url_for_name(template_name, skin_helper)
+      # search in the @skin_obj
+      if @skin_obj
+        break if template = @skin_obj.template_url_for_name(template_name, skin_helper)
       end
       # continue search
     end
@@ -93,14 +93,17 @@ class ApplicationController < ActionController::Base
     return '/templates/fixed/default/any'
   end
   
-  # TODO...
   def template_text_for_url(url)
-    return "NOT IMPLEMENTED YET (#{url})"
     url = url[1..-1] # strip leading '/'
     url = url.split('/')
-    template = secure(Skin) { Skin.find_by_path(url) }
+    skin_name = url.shift
+    if @skin_obj[:name] == skin_name
+      skin = @skin_obj
+    end
+    skin ||= secure(Skin) { Skin.find_by_name(skin_name) }
+    template = skin.template_for_path(url)
     template.version.text
-  rescue ActiveRecord::RecordNotFound
+  rescue
     return nil
   end
 

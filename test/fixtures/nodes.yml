@@ -469,6 +469,17 @@ wiki_skin:
   parent_id:      5
   user_id:        4
   inherit:        1
-  log_at:         2006-10-03
+<%= @defaults %>
+<%= @rights %>
+
+wiki_layout:
+  id:             34
+  type:           Template
+  kpath:          NPDTT
+  name:           layout
+  project_id:     1
+  parent_id:      33
+  user_id:        4
+  inherit:        1
 <%= @defaults %>
 <%= @rights %>

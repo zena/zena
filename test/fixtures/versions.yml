@@ -522,26 +522,92 @@ wiki_template_en:
   id:             38
   node_id:        33
   user_id:        4
-  comment:        very simple template for wiki
+  comment:        very simple skin for wiki
   title:          wiki template
-  summary:        This page is a *Letter*.
+  summary:        Very simple skin.
   text:           |
-    <html>
-      <head>
-        <title do='show' attr='v_title'>some title</title>
-      </head>
-      <body>
-        <h1 do='show_title'>super title</h1>
-        <h2><a name='contents'/>contents</h2>
+    <z:include template='layout'>
+      <z:with id='left' part='body/left'>
+      <a name='contents'></a><h2 do='trans'>Contents</h2>
         <ul do='pages'>
-          <li do='each' do='link' dash='true'>some link</li>
+          <li do='each'><z:link dash='true'>some link</z:link>
+            <ul do='pages'>
+              <li do='each' do='link' dash='true'>sub link</li>
+            </ul>
+          </li>
         </ul>
-        
+      </z:with>
+      <z:with id='content' class='content' part='body/main/content'>
         <z:pages do='each'>
-          <h3><z:title anchor='true' actions='all'/> <a href='#contents'>top</a></h3>
+          <h2><z:title anchor='true' actions='all'/></h2>
           <z:text/>
+          <z:pages do='each'>
+            <h3><z:title anchor='true' actions='all'/></h3>
+            <z:text/>
+          </z:pages>
         </z:pages>
-      </body>
+      </z:with>
+  lang:           en
+  number:         1
+<%= @defaults %>
+
+layout_template_en:
+  type:           TextDocumentVersion
+  id:             39
+  node_id:        34
+  user_id:        4
+  comment:        layout for wiki
+  title:          wiki template
+  summary:        Layout for the wiki skin.
+  text:           |
+    <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+    
+    <html xmlns="http://www.w3.org/1999/xhtml" do='void' lang="en" set_lang='[v_lang]' xml:lang='en'>
+    <head>
+      <title do='show' attr='v_title' name='title'>node title</title>
+      <meta http-equiv="Content-type" content="text/html; charset=utf-8" />
+      <meta http-equiv="Content-Language" do='void' content="fr-fr" tset_content='[v_lang]_content' />
+    
+    <link href="/stylesheets/zen.css" rel="Stylesheet" type="text/css" />
+    <link href="/stylesheets/comment.css" rel="Stylesheet" type="text/css" />
+    <link href="/stylesheets/search.css" rel="Stylesheet" type="text/css" />
+    <link href="/stylesheets/code.css" rel="Stylesheet" type="text/css" />
+    <z:javascripts list='prototype,effects,zena'/>
+    <z:uses_calendar/>
+    </head>
+    
+    <body do='void' name='body'>
+      <div class="navbar">
+        <div id='lang' do='lang_links'><a>en</a> | <b>fr</b></div>
+        <div id='path' do='path_links'><ul><li><a href='#'>first</a></li> / <li><a href='#'>second</a></li> / <li><a href='#' class='current'>here</a></li></ul></div>
+        <div id='login' do='login_link'><a href='#'>login</a></div>
+        <div id='visitor' do='visitor_link'><a href='#'>visitor name</a></div>
+        <div id='search' do='search_box'><div class='search'><form><input type='text' id='search' name='search'/></form></div></div>
+      </div>
+    
+      <div id='menu' do='show_menu'>
+        <ul class='menu'><li><a>first</a></li>
+          <li><a>second</a><ul><li><a>sub</a></li><li><a>sub</a><ul><li><a>subsub</a></li></ul></li></ul></li>
+        </ul>
+      </div>
+    
+      <div id='logo' do='link' href='root'><img src='img/logo.png' width='220' height='100'/></div>
+    
+      <z:flash_messages/>
+    
+      <div id="left" do='void' name='left'>
+      </div>
+      <div id="main" do='void' name='main'>
+    
+        <div class='content' id='content' do='void' name='content'>
+          dummy content
+        </div>
+    
+        <div id="right" do='void' name='right'>
+        </div>
+      </div>
+    </body>
     </html>
   lang:           en
   number:         1

@@ -6,6 +6,17 @@ module Zafu
     def render(context={})
       @context = context
       @html_tag_done = false
+      unless @html_tag
+        if @params[:id] || @params[:class]
+          @html_tag = @params[:tag] || 'div'
+          @params.delete(:tag)
+          @html_tag_params = {}
+          [:id, :class].each do |k|
+            @html_tag_params[k] = @params[k] if @params[k]
+            @params.delete(k)
+          end
+        end
+      end
       res = super
       if (@context[:parts] || {})[@context[:name]]
         res

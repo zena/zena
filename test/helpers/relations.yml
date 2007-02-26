@@ -175,4 +175,4 @@ relation_not_in_current_node:
   
 pages_anchor:
   src: "<z:project><z:pages do='each' join=', '><z:show attr='name' anchor='true'/></z:pages></z:project>"
-  res: "<a name='node13'/>lake, <a name='node12'/>status, <a name='node27'/>track"
+  res: "<a name='node13'></a>lake, <a name='node12'></a>status, <a name='node27'></a>track"

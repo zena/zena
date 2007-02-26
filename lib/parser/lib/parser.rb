@@ -23,7 +23,8 @@ class Parser
     
     # Retrieve the template text in the current folder or as an absolute path.
     # This method is used when 'including' text
-    def find_template_text(url, helper, current_folder='/')
+    def find_template_text(url, helper, current_folder=nil)
+      current_folder ||= '/'
       # remove trailing '/'
       if current_folder[-1..-1] == '/'
         current_folder = current_folder[0..-2]
@@ -87,7 +88,7 @@ class Parser
     if @params && name = @params[:name]
       @params.delete(:name)
       if @context[:name]
-        @context[:name] << "/#{name}"
+        @context[:name] += "/#{name}"
       else
         @context[:name] = name
       end
@@ -181,6 +182,8 @@ class Parser
   def include_template
     # fetch text
     text = @text
+    @options[:included_history] ||= []
+    @options[:current_folder]   ||= '/'
     @text, absolute_url = self.class.find_template_text(@params[:template], @options[:helper], @options[:current_folder])
     if absolute_url
       if @options[:included_history].include?(absolute_url)
@@ -364,7 +367,7 @@ class Parser
       if b.kind_of?(String)
         res << b
       else
-        res << b.render(new_context)
+        res << b.render(new_context.dup)
         if pass = b.pass
           if pass[:part]
             @parts.merge!(pass[:part])

@@ -23,7 +23,7 @@ module Zena
         end
       end
     end
-    inline_methods :login_link, :visitor_link, :search_box, :menu, :path_links, :lang_links
+    inline_methods :login_link, :visitor_link, :search_box, :show_menu, :path_links, :lang_links
     direct_methods :uses_calendar
 
     def before_render
@@ -96,7 +96,7 @@ module Zena
     end
     
     def r_anchor(obj=node)
-      "<a name='#{node_class.to_s.downcase}<%= #{obj}[:id] %>'/>"
+      "<a name='#{node_class.to_s.downcase}<%= #{obj}[:id] %>'></a>"
     end
     
     def r_title
@@ -112,7 +112,7 @@ module Zena
         res << " + node_actions(:node=>#{node}#{params_to_erb(:actions=>@params[:actions])})"
       end
       res << "%>"
-      if @params[:status]
+      if @params[:status] == 'true' || (@params[:status].nil? && @params[:actions])
         res = "<div class='s<%= #{node}.version.status %>'>#{res}</div>"
       end
       res
@@ -361,7 +361,7 @@ module Zena
       if klass = @params[:kind_of]
         begin Module::const_get(klass) rescue "NilClass" end
         cond = "#{node}.kind_of?(#{klass})"
-      elsif klass = (@params[:klass] || @params[:class])
+      elsif klass = @params[:klass]
         begin Module::const_get(klass) rescue "NilClass" end
         cond = "#{node}.class == #{klass}"
       elsif status = @params[:status]

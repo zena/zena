@@ -64,3 +64,12 @@ wiki_skin:
   name:           "wiki"
   ext:            'html'
   size:           
+
+wiki_layout:
+  id:             8
+  version_id:     39
+  type:           TextDocumentContent
+  content_type:   "text/html"
+  name:           "layout"
+  ext:            'html'
+  size:           

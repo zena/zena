@@ -96,8 +96,6 @@ input, textarea { font:inherit; padding:2px;}
 .s50:hover .actions { visibility:visible; }
 .actions li:hover a { border-bottom:5px solid orange; }
 
-.node_actions:hover { visibility:visible;  }
-
 /* INLINE FORMS */
 .inline_form { margin:2px; padding:3px; background:#9FA6AC; border:1px dotted grey;}
 .inline_form select { width:8em; font-size:80%;}
@@ -157,6 +155,8 @@ input, textarea { font:inherit; padding:2px;}
 */
 /* NOTES */
 #left { position:absolute; top:125px; left:20px; width:220px; }
+#left ul { margin:0 0 1em 1em;}
+#left li { padding:2px;}
 #add_note, #add_note_form { margin-left:1em }
 #add_note { padding:10px 3px;}
 /* RIGHT: Documents, Pages */

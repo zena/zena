@@ -113,15 +113,15 @@ link_dash:
 
 anchor:
   src: "<z:anchor/>"
-  res: "<a name='node12'/>"
+  res: "<a name='node12'></a>"
 
 show_title_anchor:
   src: "<z:title anchor='true'/>"
-  res: "<a name='node12'/><span id='v_title12'>status title</span>"
+  res: "<a name='node12'></a><span id='v_title12'>status title</span>"
   
 show_attr_anchor:
   src: "<z:show attr='name' anchor='true'/>"
-  res: "<a name='node12'/>status"
+  res: "<a name='node12'></a>status"
 
 link_version:
   context:
@@ -133,7 +133,7 @@ link_version_anchor_dash:
   context:
     node: 'opening'
   src: "<z:traductions><z:each join=', '><z:link tattr='lang' dash='true' anchor='true'/></z:each></z:traductions>"
-  res: "<a name='version17'/><a href='#version17'>french</a>"
+  res: "<a name='version17'></a><a href='#version17'>french</a>"
   
 title:
   src: "<h2 do='title'>super titre</h2>"
@@ -221,7 +221,7 @@ each_traductions:
   res: "<ul><li>Etat des travaux</li></ul>"
 
 case_when:
-  src: "<z:case><z:when kind_of='Document'>this is a document</z:when><z:when class='Page'>Page</z:when><z:when status='pub'>Pub</z:when>"
+  src: "<z:case><z:when kind_of='Document'>this is a document</z:when><z:when klass='Page'>Page</z:when><z:when status='pub'>Pub</z:when>"
   tem: "<% if false -%><% elsif @node.kind_of?(Document) -%>this is a document<% elsif @node.class == Page -%>Page<% elsif @node.version[:status] == 50 -%>Pub<% end -%>"
   res: "Page"
 
