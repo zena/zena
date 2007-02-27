@@ -7,6 +7,16 @@ class TextDocumentContent < DocumentContent
   
   private
   
+  def valid_file
+    true # overwrite superclass behaviour
+  end
+  
+  # called before_validation
+  def prepare_filename
+    # do nothing
+  end
+    
+  # called before_save
   def prepare_content
     self[:type] = self.class.to_s # FIXME: this should not be needed... find another fix.
     if @file

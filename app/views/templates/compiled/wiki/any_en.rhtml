@@ -1,0 +1,74 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+
+<html lang='<%= @node.version[:lang] %>' xmlns='http://www.w3.org/1999/xhtml'>
+<head>
+  <title><%= @node.version[:title] %></title>
+  <meta http-equiv="Content-type" content="text/html; charset=utf-8" />
+  <meta http-equiv='Content-Language'/>
+
+<link href="/stylesheets/zen.css" rel="Stylesheet" type="text/css" />
+<link href="/stylesheets/comment.css" rel="Stylesheet" type="text/css" />
+<link href="/stylesheets/search.css" rel="Stylesheet" type="text/css" />
+<link href="/stylesheets/code.css" rel="Stylesheet" type="text/css" />
+<script src="/javascripts/prototype.js?1163151420" type="text/javascript"></script>
+<script src="/javascripts/effects.js?1163151420" type="text/javascript"></script>
+<script src="/javascripts/zena.js?1169115197" type="text/javascript"></script>
+    <script src="/calendar/calendar.js" type="text/javascript"></script>
+    <script src="/calendar/calendar-setup.js" type="text/javascript"></script>
+    <script src="/calendar/lang/calendar-en-utf8.js" type="text/javascript"></script>
+    <link href="/calendar/calendar-brown.css" media="screen" rel="Stylesheet" type="text/css" />
+    <script type="text/javascript" language="javascript" charset="utf-8">
+// <![CDATA[
+
+    Calendar._TT["DEF_DATE_FORMAT"] = "%Y-%m-%d %H:%M";
+    Calendar._TT["FIRST_DAY"] = 0;
+    
+// ]]>
+</script>
+
+</head>
+
+<body>
+  <div class="navbar">
+    <div id='lang'><%= lang_links(:node=>@node) %></div>
+    <div id='path'><%= path_links(:node=>@node) %></div>
+    <div id='login'><%= login_link(:node=>@node) %></div>
+    <div id='visitor'><%= visitor_link(:node=>@node) %></div>
+    <div id='search'><%= search_box(:node=>@node) %></div>
+  </div>
+
+  <div id='menu'><%= show_menu(:node=>@node) %></div>
+
+  <div id='logo'><%= node_link(:node=>@node, :href=>"root") %></div>
+
+  <div id='messages'><% if @flash[:notice] -%><div id='notice' class='flash' onClick='new Effect.Fade("error")'><%= @flash[:notice] %></div><% end -%><% if @flash[:error] -%><div id='error' class='flash' onClick='new Effect.Fade("error")'><%= @flash[:error] %></div><% end -%></div>
+
+  <div id='left'>
+  <a name='contents'></a><h2>Contents</h2>
+    <% if (list1 = @node.relation("pages")) && list1 != [] -%><ul>
+      <% list1.each do |var1| -%><li><%= node_link(:node=>var1, :dash=>"node#{var1[:id]}") %>
+        <% if (list2 = var1.relation("pages")) && list2 != [] -%><ul>
+          <% list2.each do |var2| -%><li><%= node_link(:node=>var2, :dash=>"node#{var2[:id]}") %></li><% end -%>
+        </ul><% end -%>
+      </li><% end -%>
+    </ul><% end -%>
+  </div>
+  <div id='main'>
+
+    <div class='content' id='content'>
+    <% if (list1 = @node.relation("pages")) && list1 != [] -%><% list1.each do |var1| -%>
+      <h2><a name='node<%= var1[:id] %>'></a><div class='s<%= var1.version.status %>'><%= show_title(:node=>var1, :link=>false, :project=>false) + node_actions(:node=>var1, :actions=>"all")%></div></h2>
+      <div id='v_text<%= var1.version[:id] %>' class='zazen'><% if var1.kind_of?(TextDocument); l = var1.content_lang -%><%= zazen("<code#{l ? " lang='#{l}'" : ''} class=\'full\'>#{var1.version.text}</code>") %></div><% else -%><%= zazen(var1.version[:text]) %><% end -%></div>
+      <% if (list2 = var1.relation("pages")) && list2 != [] -%><% list2.each do |var2| -%>
+        <h3><a name='node<%= var2[:id] %>'></a><div class='s<%= var2.version.status %>'><%= show_title(:node=>var2, :link=>false, :project=>false) + node_actions(:node=>var2, :actions=>"all")%></div></h3>
+        <div id='v_text<%= var2.version[:id] %>' class='zazen'><% if var2.kind_of?(TextDocument); l = var2.content_lang -%><%= zazen("<code#{l ? " lang='#{l}'" : ''} class=\'full\'>#{var2.version.text}</code>") %></div><% else -%><%= zazen(var2.version[:text]) %><% end -%></div>
+      <% end -%><% end -%>
+    <% end -%><% end -%>
+  </div>
+
+    <div id='right'>
+    </div>
+  </div>
+</body>
+</html>

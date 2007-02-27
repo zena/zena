@@ -16,7 +16,6 @@ class Page < Node
         end
         list
       end.sort
-      list << 'Template'
       list.unshift 'Page'
     end
   end

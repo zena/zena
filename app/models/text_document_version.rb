@@ -3,4 +3,8 @@ class TextDocumentVersion < DocumentVersion
     TextDocumentContent
   end
   private
+  
+  def get_content
+    redaction_content unless content
+  end
 end

@@ -145,7 +145,7 @@ class Node < ActiveRecord::Base
   
   # Same as fullpath, but the path includes the root node.
   def rootpath
-    [ZENA_ENV[:site_name]] + fullpath
+    ZENA_ENV[:site_name] + "/" + fullpath
   end
 
   # Make sure the node is complete before creating it (check parent and project references)

@@ -28,7 +28,7 @@ body {font: 0.9em Arial, Helvetica, Verdana, sans-serif; background:#9FA6AC; lin
 .selector .last {border-top-color:#BBC5CD; }
 .selector a { color:#222; display:block; padding:5px 9px;}
 .selector .selected { background:#BBC5CD; border-bottom-color:#BBC5CD;}
-.tab { margin-top:48px; background:#BBC5CD; height:100%; padding:0; border-top:1px solid #333;}
+.tab { margin-top:29px; background:#BBC5CD; height:100%; padding:0; border-top:1px solid #333;}
 .tab form { height:98%;}
 .tab .validate div { float:right; margin:0 2px; background:none;}
 .tab .validate input { font-size:0.9em; padding:0;}
@@ -55,7 +55,8 @@ ul.link_box { float:left; display:block; margin:2px; padding:2px;}
 .link_box li { display:inline; padding:2px;}
 .link_box input { display:inline; width:2em; margin:0 2px; font-size:0.8em;}
 .link_box input.box { width:1.2em;}
-/* document */
+
+/* created document */
 .document { padding-left:10px; padding-top:15px;}
 .document input, textarea, table { width:90%; margin:2px;}
 .document .btn_validate input {width:auto; float:right;}
@@ -63,6 +64,7 @@ ul.link_box { float:left; display:block; margin:2px; padding:2px;}
 .document .description { vertical-align:top; padding: 6px;}
 .document h3 { font: 1.2em Georgia, Times, serif; letter-spacing: 0; text-transform: none; margin-bottom: 0; color: #333; font-style:italic; color:#450009;}
 .document table { margin-bottom: 25px;}
+
 /* help */
 #help_tab pre { font-size:110%;}
 #help_tab { font-size:0.9em; padding:5px;}

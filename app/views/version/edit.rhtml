@@ -23,7 +23,7 @@
     <p><%= readers_for(@node) %></p></div>
   </div>
 <% partial.each_index do |i| %><div id='<%= partial[i][0] %>_tab' <%= i == 0 ? "" : "style='display:none;'" %> class='tab_content'>
-  <%= render :partial=>"templates/form_tabs/#{partial[i][1]}" %>
+  <%= render :partial=>"templates/edit_tabs/#{partial[i][1]}" %>
 </div><% end %>
 
 <%= end_form_tag %>

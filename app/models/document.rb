@@ -9,6 +9,39 @@ class Document < Page
     def parent_class
       Node
     end
+    
+    alias o_create create
+    
+    # TODO: test more (Templates and Skin tested without files)
+    def create(hash)
+      scope = self.scoped_methods[0] || {}
+      klass = self
+      if hash[:c_file]
+        content_type = hash[:c_file].content_type
+        if Image.accept_content_type?(content_type)
+          klass = Image
+        elsif Template.accept_content_type?(content_type)
+          if hash[:parent_id] && Node.find(hash[:parent_id]).kind_of?(Skin)
+            klass = Template
+          else
+            klass = Skin
+          end
+        elsif TextDocument.accept_content_type?(content_type)
+          klass = TextDocument
+        else
+          klass = Document
+        end
+      elsif hash[:name] =~ /\.html$/
+        if hash[:parent_id] && Node.find(hash[:parent_id]).kind_of?(Skin)
+          klass = Template
+        else  
+          klass = Skin
+        end
+      else
+        klass = TextDocument
+      end
+      klass.with_scope(scope) { klass.o_create(hash) }
+    end
   end
   
   def c_file=(file)

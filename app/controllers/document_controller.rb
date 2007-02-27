@@ -1,5 +1,6 @@
 class DocumentController < ApplicationController
-  layout 'popup'  
+  layout 'popup'
+  helper VersionHelper
 
   def new
     @node = secure_write(Node) { Node.find(params[:parent_id]) }
@@ -11,16 +12,8 @@ class DocumentController < ApplicationController
   def create
     pdoc = params[:document]
     pdoc.delete(:c_file) if pdoc[:c_file] == ""
-    content_type = pdoc[:c_file].content_type
-    if Image.accept_content_type?(content_type)
-      @document = secure(Image) { Image.create(pdoc) }
-    elsif Template.accept_content_type?(content_type)
-      @document = secure(Template) { Template.create(pdoc) }
-    elsif TextDocument.accept_content_type?(content_type)
-      @document = secure(TextDocument) { TextDocument.create(pdoc) }
-    else
-      @document = secure(Document) { Document.create(pdoc) }
-    end
+    @document = secure(Document) { Document.create(pdoc) }
+    
     if @document.new_record?
       render :action=>"new"
     end

@@ -1,17 +1,31 @@
-<div id="loader" class="hidden"><img src="/images/ajax-loader.gif"/> <%= trans("uploading, please wait...") %></div>
-<div class='document'>
-  <p class="btn_x"><%= link_to_function transb('btn_x'), "opener.location.href=opener.location.href; self.close();" %></p>
-  <%= error_messages_for 'document' %>
-  <%= form_tag( {:controller=>'document', :action=>"create"}, :multipart=>true ) %>
-  <%= hidden_field 'document', 'parent_id', :value=>@document[:parent_id]  %>
-  <label><%= trans('file') %></label>
-  <%= file_field 'document', 'c_file', :size=>30, :onChange=>"Zena.get_name('document_c_file','document_name'); $('document_name').focus(); $('document_name').select();" %>
-  <label><%= trans('name') %></label>
-  <%= text_field 'document', 'name', :size=>20 %><br/>
-  <label><%= trans('summary') %></label>
-  <%= text_area 'document', 'v_summary', :cols=>20, :rows=>3 %><br/>
-  <p class="btn_validate"><input type="submit" class="btn_validate" onClick="$('loader').style.visibility = 'visible';" value='<%= transb('validate') %>'/></p>
-  <%= end_form_tag %>
-  
-</div>  
-<%= css_edit('popup.css') %>
+<div id='form_errors' class='errors'><%= error_messages_for "node" %></div>
+<%= search_box %>
+
+<div class='selector'>
+  <% (partial = form_tabs(:create)).each_index do |i| %><div id='<%= partial[i][0] %>_sel' <%= i == 0 ? "class='selected'" : "" %>><%= tlink_to_function(partial[i][0], "select_tab('#{partial[i][0]}');") %></div><% end %>
+</div>
+
+<div class='tab'>
+<% partial.each_index do |i| %><div id='<%= partial[i][0] %>_tab' <%= i == 0 ? "" : "style='display:none;'" %> class='tab_content'>
+  <%= render :partial=>"templates/create_tabs/#{partial[i][1]}" %>
+</div><% end %>
+
+<%= end_form_tag %>
+</div>
+
+<%#= css_edit %>
+<%= javascript_start %>
+var current_tab = $('<%= partial[0][0] %>_tab');
+var current_sel = $('<%= partial[0][0] %>_sel');
+function select_tab(name) {
+  var obj = $(name+'_tab');
+  var obj_sel = $(name+'_sel');
+  current_tab.style.display = 'none';
+  current_sel.className = '';
+  current_tab = obj;
+  current_sel = obj_sel;
+  current_tab.style.display = '';
+  current_sel.className = 'selected';
+}
+new Form.Observer('node_form', 3, function(element,value){ opener.Zena.editor_preview(element,value)});
+<%= javascript_end %>

@@ -6,13 +6,12 @@
   <title><%= @node.v_title %></title>
   <meta http-equiv="Content-type" content="text/html; charset=utf-8" />
   <meta http-equiv="Content-Language" content="fr-fr" />
-  <%= stylesheet_link_tag( 'zen', 'search', 'code' ) %>
+  <%= stylesheet_link_tag( 'zen', 'comment', 'search', 'code' ) %>
   <%= javascript_include_tag 'prototype', 'effects', 'zena' %>
   <%= uses_calendar %>
 </head>
 
-<body <%= @su %>>
-
+<body <%= @su %>><div id='template'>
   <div class="navbar">
     <%= lang_links %>
     <%= path_links   %>
@@ -22,7 +21,7 @@
   </div>
 
   <%= show_menu      %>
-  <%= logo Time.now.utc  %>
+  <%#= logo Time.now.utc  %>
   <%= flash_messages %>
   
   <% hot = @node.hot || @node %>
@@ -30,10 +29,10 @@
     <div id='tinycal'><%= calendar(:find=>:news, :size=>:tiny) %></div>
     <div class='header'>
       <h1 class='s<%= hot.v_status %>'>
-        <ul class='node_actions'><%= edit_button(:all, :node=>hot) %></ul><br/>
-        <%= show(hot, :v_title) %>
+        <ul class='node_actions'><%= node_actions(:actions=>:all, :node=>hot) %></ul><br/>
+        <%= show_title(:node=>hot) %>
       </h1>
-      <div class='subtitle'><%= author(:small, :node=>hot) %></div>
+      <div class='subtitle'><%= show_author(:node=>hot) %></div>
     </div>
     <div id='drive' style='display:none;'></div>
     <div class='content'>
