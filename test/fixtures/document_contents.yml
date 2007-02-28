@@ -65,9 +65,18 @@ wiki_skin:
   ext:            'html'
   size:           
 
-wiki_layout:
+layout_template:
   id:             8
   version_id:     39
+  type:           TextDocumentContent
+  content_type:   "text/html"
+  name:           "layout"
+  ext:            'html'
+  size:           
+
+any_project_template:
+  id:             9
+  version_id:     40
   type:           TextDocumentContent
   content_type:   "text/html"
   name:           "layout"

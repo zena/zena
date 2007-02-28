@@ -168,7 +168,7 @@ class Node < ActiveRecord::Base
     Node.with_exclusive_scope do
       test_same_name = Node.find(:all, :conditions=>["name = ? AND parent_id = ?", self[:name], self[:parent_id]])
     end
-    errors.add("name", "has already been taken") unless test_same_name == []
+    errors.add("name", "has already been taken") unless self.kind_of?(Note) || test_same_name == []
     errors.add("version", "can't be blank") unless @version
   end
 
@@ -199,7 +199,7 @@ class Node < ActiveRecord::Base
     Node.with_exclusive_scope do
       test_same_name = Node.find(:all, :conditions=>["name = ? AND id != ? AND parent_id = ?", self[:name], self[:id], self[:parent_id]])
     end
-    errors.add("name", "has already been taken") unless test_same_name == []
+    errors.add("name", "has already been taken") unless self.kind_of?(Note) || test_same_name == []
     # remove cached fullpath
     self[:fullpath] = nil
   end
@@ -224,7 +224,7 @@ class Node < ActiveRecord::Base
   end
   
   def relation_methods
-    ['root', 'project', 'parent', 'self', 'children', 'pages', 'documents', 'documents_only', 'images', 'notes']
+    ['root', 'project', 'projects', 'parent', 'self', 'children', 'pages', 'documents', 'documents_only', 'images', 'notes']
   end
   
   # This is defined by the linkable lib, we add access to 'root', 'project', 'parent', 'children', ...
@@ -340,6 +340,14 @@ class Node < ActiveRecord::Base
   # Find project
   def project
     secure(Project) { Project.find(self[:project_id]) }
+  rescue ActiveRecord::RecordNotFound
+    nil
+  end
+  
+  # Find projects (projects from='site')
+  def projects(opts={})
+    opts[:from] ||= 'project'
+    secure(Project) { Project.find(:all, relation_options(opts,"kpath LIKE 'NPP%'")) }
   rescue ActiveRecord::RecordNotFound
     nil
   end

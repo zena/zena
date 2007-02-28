@@ -612,3 +612,24 @@ layout_template_en:
   lang:           en
   number:         1
 <%= @defaults %>
+
+any_project_template_en:
+  type:           TextDocumentVersion
+  id:             40
+  node_id:        35
+  user_id:        4
+  comment:        template for wiki projects
+  title:          wiki template
+  summary:        Template for the wiki projects.
+  text:           |
+    <z:include template='layout'>
+      <z:with id='left' part='body/left'>
+        <div class='all_projects' do='projects' from='site'>
+        <h3>all projects</h3>
+        <ul do='each' do='link' tag='li'/>
+        </div>
+      </z:with>
+    </z:include>
+  lang:           en
+  number:         1
+<%= @defaults %>

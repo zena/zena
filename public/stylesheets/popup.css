@@ -63,6 +63,7 @@ ul.link_box { float:left; display:block; margin:2px; padding:2px;}
 .document .preview { width:80px; padding:6px; border-right:1px solid grey; text-align:center;}
 .document .description { vertical-align:top; padding: 6px;}
 .document h3 { font: 1.2em Georgia, Times, serif; letter-spacing: 0; text-transform: none; margin-bottom: 0; color: #333; font-style:italic; color:#450009;}
+.document .description .doc_id {color:#5C2200;}
 .document table { margin-bottom: 25px;}
 
 /* help */

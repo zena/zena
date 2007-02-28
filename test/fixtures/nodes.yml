@@ -472,11 +472,23 @@ wiki_skin:
 <%= @defaults %>
 <%= @rights %>
 
-wiki_layout:
+layout:
   id:             34
   type:           Template
   kpath:          NPDTT
   name:           layout
+  project_id:     1
+  parent_id:      33
+  user_id:        4
+  inherit:        1
+<%= @defaults %>
+<%= @rights %>
+
+any_project:
+  id:             35
+  type:           Template
+  kpath:          NPDTT
+  name:           any_project
   project_id:     1
   parent_id:      33
   user_id:        4

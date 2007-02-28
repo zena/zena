@@ -43,11 +43,11 @@ class NoteTest < Test::Unit::TestCase
     assert_nothing_raised { note = secure(Note) { Note.create(:name=>"test", :parent_id=>nodes_id(:zena), :log_at=>"2006-06-20", :tag_ids=>[nodes_id(:news)])} }
     assert note , "Note created"
     assert ! note.new_record? , "Not a new record"
-    assert_equal "2006-6-20-test", note[:name]
+    assert_equal "test", note[:name]
 
     assert_nothing_raised { note2 = secure(Note) { Note.create(:name=>"test", :parent_id=>nodes_id(:zena), :log_at=>"2006-07-20", :tag_ids=>[nodes_id(:news)])} }
     assert !note2.new_record? , "Not a new record"
-    assert_equal "2006-7-20-test", note2[:name]
+    assert_equal "test", note2[:name]
   end
 
   
@@ -57,15 +57,14 @@ class NoteTest < Test::Unit::TestCase
     assert_nothing_raised { note = secure(Note) { Note.create(:name=>"test", :parent_id=>nodes_id(:zena), :log_at=>"2006-06-20", :tag_ids=>[nodes_id(:news)])} }
     assert note , "Note created"
     assert ! note.new_record? , "Not a new record"
-    assert_equal "2006-6-20-test", note[:name]
+    assert_equal "test", note[:name]
     
     assert_nothing_raised { note2 = secure(Note) { Note.create(:name=>"asdf", :parent_id=>nodes_id(:zena), :log_at=>"2006-06-20", :tag_ids=>[nodes_id(:news)])} }
     assert note , "Note created"
     assert ! note2.new_record? , "Not a new record"
     
     note2.name = "test"
-    assert ! note2.save
-    assert note2.errors[:name]
+    assert note2.save
   end
   
   def test_create_bad_parent

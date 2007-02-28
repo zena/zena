@@ -94,7 +94,7 @@ class ApplicationController < ActionController::Base
     return '/templates/fixed/default/any'
   end
   
-  # TODO: test
+  # tested in MainControllerTest
   def template_text_for_url(url)
     url = url[1..-1] # strip leading '/'
     url = url.split('/')
@@ -105,7 +105,7 @@ class ApplicationController < ActionController::Base
     skin ||= secure(Skin) { Skin.find_by_name(skin_name) }
     template = skin.template_for_path(url.join('/'))
     template ? template.version.text : nil
-  rescue
+  rescue ActiveRecord::RecordNotFound
     return nil
   end
 

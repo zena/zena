@@ -25,7 +25,7 @@ class SkinTest < Test::Unit::TestCase
     tmpl = skin.template_for_path('any')
     assert_equal tmpl, skin
     tmpl = skin.template_for_path('layout')
-    assert_equal nodes_id(:wiki_layout), tmpl[:id]
+    assert_equal nodes_id(:layout), tmpl[:id]
     tmpl = skin.template_for_path('bad')
     assert_nil tmpl
   end

@@ -211,12 +211,24 @@ class MainControllerTest < Test::Unit::TestCase
     assert_template '/templates/fixed/default/any'
   end
   
-  def test_wiki
-    #preserving_files('app/views/templates') do
+  # test loading 'wiki' template and 'layout' include
+  def test_any_wiki
+    preserving_files('app/views/templates') do
+      login(:ant)
+      get_node(:bird_jpg)
+      assert_template '/templates/compiled/wiki/any_fr'
+      assert_tag :div, :attributes=>{:id=>'logo'}
+    end
+  end
+  
+  def test_wiki_project
+    preserving_files('app/views/templates') do
       login(:ant)
       get_node(:wiki)
-      assert_template '/templates/compiled/wiki/any_fr'
-    #end
+      assert_template '/templates/compiled/wiki/any_project_fr'
+      assert_tag :div, :attributes=>{:id=>'logo'}
+      assert_tag :div, :attributes=>{:class=>'all_projects'}
+    end
   end
   
   private
