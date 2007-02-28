@@ -1,8 +1,7 @@
 require 'fileutils'
 class DocumentContent < ActiveRecord::Base
   belongs_to            :version
-  
-  before_validation     :prepare_filename
+
   validate              :valid_file
   validates_presence_of :ext
   validates_presence_of :name
@@ -40,18 +39,27 @@ class DocumentContent < ActiveRecord::Base
     end
   end
   
+  def size=(s)
+    raise StandardError, "Size cannot be set. It is defined by the file size."
+  end
+  
   def file=(aFile)
     @file = aFile
+    
     self[:content_type] = @file.content_type.chomp
     if @file.kind_of?(StringIO)
       self[:size] = @file.size
     else
       self[:size] = @file.stat.size
     end
-  end
-  
-  def size=(s)
-    raise StandardError, "Size cannot be set. It is defined by the file size."
+    extension = self[:ext] || @file.original_filename.split('.').last
+    # is this extension valid ?
+    extensions = TYPE_TO_EXT[content_type]
+    if extensions
+      self[:ext] = extensions.include?(extension) ? extension : extensions[0]
+    else
+      self[:ext] = "???"
+    end
   end
   
   def file(format=nil)
@@ -88,25 +96,6 @@ class DocumentContent < ActiveRecord::Base
   end
   
   private
-
-  def prepare_filename
-    if new_record?
-      self[:name] = version.node.name
-      if @file
-        # set extension
-        ext  = self[:ext] || @file.original_filename.split('.').last
-        # is this extension valid ?
-        extensions = TYPE_TO_EXT[self[:content_type]]
-        if extensions
-          self[:ext] = extensions.include?(ext) ? ext : extensions[0]
-        else
-          self[:ext] = "???"
-        end
-      
-        true
-      end
-    end
-  end
   
   def valid_file
     errors.add('file', "can't be blank") unless !new_record? || @file

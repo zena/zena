@@ -2,43 +2,6 @@ require 'test/unit'
 require 'yaml'
 require File.join(File.dirname(__FILE__) , '..', 'lib', 'parser')
 
-class DummyHelper
-  def initialize(strings = {})
-    @strings = strings
-  end
-  
-  def template_text_for_url(url)
-    url = url[1..-1] # strip leading '/'
-    url = url.gsub('/','_')
-    if test = @strings[url]
-      test['src']
-    else
-      nil
-    end
-  end
-  
-  def template_url_for_asset(type,url)
-    "/test_#{type}/#{url}"
-  end
-  
-  def method_missing(sym, *args)
-    arguments = args.map do |arg|
-      if arg.kind_of?(Hash)
-        res = []
-        arg.each do |k,v|
-          unless v.nil?
-            res << "#{k}:#{v.inspect.gsub(/'|"/, "|")}"
-          end
-        end
-        res.sort.join(' ')
-      else
-        arg.inspect.gsub(/'|"/, "|")
-      end
-    end
-    res = "[#{sym} #{arguments.join(' ')}]"
-  end
-end
-
 class Test::Unit::TestCase
   class << self
     def testfile(*files)

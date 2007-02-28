@@ -7,8 +7,7 @@ class DocumentTest < Test::Unit::TestCase
     assert Node.read_inheritable_attribute(:before_validation).include?(:secure_before_validation)
     assert Document.read_inheritable_attribute(:validate_on_create).include?(:node_on_create)
     assert Document.read_inheritable_attribute(:validate_on_update).include?(:node_on_update)
-    assert Document.read_inheritable_attribute(:before_validation).include?(:set_name)
-    assert Document.read_inheritable_attribute(:before_save).include?(:update_content_name)
+    assert Document.read_inheritable_attribute(:before_validation).include?(:prepare_before_validation)
   end
   
   def test_create_with_file
@@ -76,7 +75,7 @@ class DocumentTest < Test::Unit::TestCase
   
   def get_with_full_path
     test_visitor(:tiger)
-    doc = secure(Document) { Document.find_by_path( visitor_id, visitor_groups, lang, "/projects/cleanWater/water.pdf") }
+    doc = secure(Document) { Document.find_by_path("/projects/cleanWater/water.pdf") }
     assert_kind_of Document, doc
     assert_equal "/projects/cleanWater/water.pdf", doc.fullpath
   end

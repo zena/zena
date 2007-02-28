@@ -70,7 +70,16 @@ class Version < ActiveRecord::Base
     if self[:content_id]
       @content = content_class.find_by_version_id(self[:content_id])
     else
-      content_class.find_by_version_id(self[:id])
+      @content = content_class.find_by_version_id(self[:id])
+    end
+    if @content
+      @content
+    else
+      # create new content
+      @content = content_class.new
+      @content.version = self
+      self[:content_id] = nil
+      @redaction_content = @content
     end
   end
   
@@ -82,11 +91,13 @@ class Version < ActiveRecord::Base
     if @content && @content.version == self
       @redaction_content = @content
     elsif @content
+      # copy current content
       @content = content.clone
       @content.version = self
       self[:content_id] = self[:id]
       @redaction_content = @content
     else
+      # create new content
       @content = content_class.new
       @content.version = self
       self[:content_id] = nil

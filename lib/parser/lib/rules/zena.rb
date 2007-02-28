@@ -423,7 +423,7 @@ module Zena
         do_var("secure(Node) { Node.find_by_id(#{select.inspect})} rescue nil")
       else
         select = select[1..-1] if select[0..0] == '/'
-        do_var("secure(Node) { Node.find_by_path(#{select.split('/').inspect})} rescue nil")
+        do_var("secure(Node) { Node.find_by_path(#{select.inspect})} rescue nil")
       end
     end
     

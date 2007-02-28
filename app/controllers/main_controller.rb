@@ -16,14 +16,12 @@ class MainController < ApplicationController
   # TODO: test new path
   def show
     path = params[:path].dup
-    ref  = path.pop
-    if ref =~ /[a-zA-Z\-_]+([0-9]+)(\.|$)/
+    if path[-1..-1] =~ /[a-zA-Z\-_]+([0-9]+)(\.|$)/
       @node = secure(Node) { Node.find($1.to_i) }
     else
-      path << ref # unpop ref
-      @node = secure(Node) { Node.find_by_path(path) }
+      @node = secure(Node) { Node.find_by_path(path.join('/')) }
     end
-    if path == @node.basepath(true).split('/')
+    if path == @node.basepath(true)
       render_and_cache
     else
       redirect_to node_url(@node)

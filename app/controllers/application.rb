@@ -25,6 +25,7 @@ class ApplicationController < ActionController::Base
     end
   end
   
+  # TODO: test
   def template_url(opts={})
     skin  = opts[:skin] || 'default'
     @skin_obj = nil
@@ -93,6 +94,7 @@ class ApplicationController < ActionController::Base
     return '/templates/fixed/default/any'
   end
   
+  # TODO: test
   def template_text_for_url(url)
     url = url[1..-1] # strip leading '/'
     url = url.split('/')
@@ -101,41 +103,28 @@ class ApplicationController < ActionController::Base
       skin = @skin_obj
     end
     skin ||= secure(Skin) { Skin.find_by_name(skin_name) }
-    template = skin.template_for_path(url)
-    template.version.text
+    template = skin.template_for_path(url.join('/'))
+    template ? template.version.text : nil
   rescue
     return nil
   end
 
+  # TODO: implement
   def template_url_for_asset(type,url)
-    return "/#{url}" # TODO IMPLEMENT
-    # current_template = @current_template || "/"
-    # we assume current_template is /projects/cleanWater for testing
-    current_template = 'projects/cleanWater'
-    path = current_template.split('/') + url.split('/')
-    doc = secure(Document) { Document.find_by_path(path)}
-    url = url_for(data_url(doc))
-    if url =~ %r{http://test.host(.*)}
-      $1
-    else
-      url
+    # 1. find in current skin ?
+    # 2. find in corresponding public directory ?
+    case type
+    when :stylesheet
+    when :link
+    when :script
     end
+    # 3. find in site ?
   end
   
+  # TODO: implement
   def save_erb_to_url(template, template_url)
     "save '#{template_url}':[#{template}]"
   end
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
   
   def page_not_found
     redirect_to :controller => 'main', :action=>'not_found'

@@ -59,25 +59,7 @@ class TestController < ApplicationController
       nil
     end
   end
-
-  def template_url_for_asset(type,url)
-    # current_template = @current_template || "/"
-    # we assume current_template is /projects/cleanWater for testing
-    current_template = 'projects/cleanWater'
-    path = current_template.split('/') + url.split('/')
-    doc = secure(Document) { Document.find_by_path(path)}
-    url = url_for(data_url(doc))
-    if url =~ %r{http://test.host(.*)}
-      $1
-    else
-      url
-    end
-  end
   
-  def save_erb_to_url(template, template_url)
-    return ''
-    "save '#{template_url}':[#{template}]"
-  end
 end
 
 class HelperTest < Test::Unit::TestCase

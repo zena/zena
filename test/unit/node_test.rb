@@ -16,9 +16,9 @@ class NodeTest < Test::Unit::TestCase
     test_visitor(:ant)
     node = nodes(:wiki)
     assert_nil node[:fullpath]
-    node = secure(Node) { Node.find_by_path(['projects', 'wiki']) }
+    node = secure(Node) { Node.find_by_path('projects/wiki') }
     assert_equal 'projects/wiki', node.fullpath
-    node = secure(Node) { Node.find_by_path(['projects', 'wiki']) }
+    node = secure(Node) { Node.find_by_path('projects/wiki') }
     assert_equal 'projects/wiki', node[:fullpath]
   end
   
@@ -41,16 +41,16 @@ class NodeTest < Test::Unit::TestCase
     test_visitor(:tiger)
     assert_nothing_raised { node = secure(Node) { nodes(:status) } }
     assert_kind_of Node, node
-    assert_raises (ActiveRecord::RecordNotFound) { node = secure(Node) { Node.find_by_path(['people', 'ant']) } }
-    assert_nothing_raised { node = secure(Node) { Node.find_by_path(['people', 'ant', 'status'])}}
+    assert_raises (ActiveRecord::RecordNotFound) { node = secure(Node) { Node.find_by_path('people/ant') } }
+    assert_nothing_raised { node = secure(Node) { Node.find_by_path('people/ant/status')}}
   end
   
   def test_rootpath
     test_visitor(:ant)
     node = secure(Node) { nodes(:status) }
-    assert_equal ['zena', 'projects', 'cleanWater', 'status'], node.rootpath
+    assert_equal 'zena/projects/cleanWater/status', node.rootpath
     node = secure(Node) { nodes(:zena) }
-    assert_equal ['zena'], node.rootpath
+    assert_equal 'zena', node.rootpath
   end
   
   def test_basepath
@@ -284,7 +284,7 @@ class NodeTest < Test::Unit::TestCase
   end
   
   def test_project
-    assert_equal nodes(:zena).id, secure(Node) { nodes(:wiki) }.project.id
+    assert_equal nodes(:zena).id, secure(Node) { nodes(:people) }.project.id
   end
   
   def test_pages
@@ -354,10 +354,10 @@ class NodeTest < Test::Unit::TestCase
   
   def test_secure_find_by_path
     test_visitor(:tiger)
-    node = secure(Node) { Node.find_by_path(['projects', 'secret']) }
+    node = secure(Node) { Node.find_by_path('projects/secret') }
     assert_kind_of Node, node
     test_visitor(:ant)
-    assert_raise(ActiveRecord::RecordNotFound) { node = secure(Node) { Node.find_by_path(['projects', 'secret']) }}
+    assert_raise(ActiveRecord::RecordNotFound) { node = secure(Node) { Node.find_by_path('projects/secret') }}
   end
   
   def test_author
@@ -695,7 +695,7 @@ class NodeTest < Test::Unit::TestCase
     node = secure(Node) { nodes(:status) }
     assert_equal 1, node.comments.size
     ZENA_ENV[:allow_anonymous_comments] = false
-    assert node.can_comment?, "Anonymous cannot comment."
+    assert !node.can_comment?, "Anonymous cannot comment."
     ZENA_ENV[:allow_anonymous_comments] = true
     assert node.can_comment?, "Anonymous can comment."
     ZENA_ENV[:moderate_anonymous_comments] = true
@@ -728,9 +728,9 @@ class NodeTest < Test::Unit::TestCase
   def test_relation_options
     test_visitor(:ant)
     node = secure(Node) { nodes(:status) }
-    res = {:conditions=>["project_id = ? AND kpath NOT LIKE 'NPDI%'", 11], :order=>"name ASC"}
+    res = {:conditions=>["(project_id = ?) AND (kpath NOT LIKE 'NPDI%')", 11], :order=>"name ASC"}
     assert_equal res, node.relation_options({:from=>'project'}, "kpath NOT LIKE 'NPDI%'")
-    res = {:conditions=>["parent_id = ? AND kpath NOT LIKE 'NPDI%'", 12], :order=>"name ASC"}
+    res = {:conditions=>["(parent_id = ?) AND (kpath NOT LIKE 'NPDI%')", 12], :order=>"name ASC"}
     assert_equal res, node.relation_options({}, "kpath NOT LIKE 'NPDI%'")
   end
   

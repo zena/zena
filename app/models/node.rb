@@ -72,8 +72,9 @@ class Node < ActiveRecord::Base
     
     # Find an node by it's full path. Cache 'fullpath' if found.
     def find_by_path(path)
-      node = self.find_by_fullpath(path.join('/'))
+      node = self.find_by_fullpath(path)
       if node.nil?
+        path = path.split('/')
         last = path.pop
         Node.with_exclusive_scope do
           node = Node.find(ZENA_ENV[:root_id])
@@ -145,7 +146,7 @@ class Node < ActiveRecord::Base
   
   # Same as fullpath, but the path includes the root node.
   def rootpath
-    ZENA_ENV[:site_name] + "/" + fullpath
+    ZENA_ENV[:site_name] + (fullpath != "" ? "/#{fullpath}" : "")
   end
 
   # Make sure the node is complete before creating it (check parent and project references)

@@ -1,5 +1,10 @@
 class Template < TextDocument
-  before_validation :set_content_type
+  class << self
+    def accept_content_type?(content_type)
+      content_type == 'text/html'
+    end
+  end
+  
   # TODO: test
   def sweep_cache
     super
@@ -18,10 +23,10 @@ class Template < TextDocument
   end
   private
   
-  # TODO: test
-  def set_content_type
-    version.redaction_content.content_type = 'text/html'
-    version.content.ext  = 'html'
-    version.content.name = name
+  def prepare_before_validation
+    super
+    content = version.content
+    content[:content_type] = 'text/html'
+    content[:ext] = 'html'
   end
 end

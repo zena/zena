@@ -2,6 +2,45 @@ Dir.foreach(File.join(File.dirname(__FILE__) , 'rules')) do |file|
   next if file =~ /^\./
   require File.join(File.dirname(__FILE__) , 'rules', file)
 end
+module ParserModule
+  class DummyHelper
+    def initialize(strings = {})
+      @strings = strings
+    end
+
+    def template_text_for_url(url)
+      url = url[1..-1] # strip leading '/'
+      url = url.gsub('/','_')
+      if test = @strings[url]
+        test['src']
+      else
+        nil
+      end
+    end
+
+    def template_url_for_asset(type,url)
+      "/test_#{type}/#{url}"
+    end
+
+    def method_missing(sym, *args)
+      arguments = args.map do |arg|
+        if arg.kind_of?(Hash)
+          res = []
+          arg.each do |k,v|
+            unless v.nil?
+              res << "#{k}:#{v.inspect.gsub(/'|"/, "|")}"
+            end
+          end
+          res.sort.join(' ')
+        else
+          arg.inspect.gsub(/'|"/, "|")
+        end
+      end
+      res = "[#{sym} #{arguments.join(' ')}]"
+    end
+  end
+end
+
 class Parser
   attr_accessor :text, :method
   attr_accessor :pass
@@ -15,7 +54,7 @@ class Parser
       parser
     end
     def new_with_url(url, opts={})
-      helper = opts[:helper] || Zafu::DummyHelper
+      helper = opts[:helper] || ParserModule::DummyHelper.new
       text, absolute_url = self.find_template_text(url,helper)
       current_folder = absolute_url ? absolute_url.split('/')[0..-2].join('/') : '/'
       self.new(text, :helper=>helper, :current_folder=>current_folder, :included_history=>[absolute_url])
