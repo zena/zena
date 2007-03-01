@@ -465,12 +465,12 @@ module Zena
       type = @params[:show] || 'both'
       "<div id='messages'>" +
       if (type == 'notice' || type == 'both')
-        "<% if @flash[:notice] -%><div id='notice' class='flash' onClick='new Effect.Fade(\"error\")'><%= @flash[:notice] %></div><% end -%>"
+        "<% if @flash[:notice] -%><div id='notice' class='flash' onclick='new Effect.Fade(\"error\")'><%= @flash[:notice] %></div><% end -%>"
       else
         ''
       end + 
       if (type == 'error'  || type == 'both')
-        "<% if @flash[:error] -%><div id='error' class='flash' onClick='new Effect.Fade(\"error\")'><%= @flash[:error] %></div><% end -%>"
+        "<% if @flash[:error] -%><div id='error' class='flash' onclick='new Effect.Fade(\"error\")'><%= @flash[:error] %></div><% end -%>"
       else
         ''
       end +

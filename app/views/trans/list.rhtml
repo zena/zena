@@ -20,7 +20,7 @@
     <%= trans('import translations')%>
     <%= form_tag( {:controller=>'trans', :action=>'import'}, :multipart=>true ) %>
     <%= file_field 'trans', 'file', :size=>8 %>
-    <p class="btn_validate"><input type="submit" class="btn_validate" onClick="$('loader').style.visibility = 'visible';" value='<%= transb('validate') %>'/></p>
+    <p class="btn_validate"><input type="submit" class="btn_validate" onclick="$('loader').style.visibility = 'visible';" value='<%= transb('validate') %>'/></p>
     <%= end_form_tag %>
   </li>
   <li><%= trans('inline translations : ') %>

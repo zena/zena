@@ -14,13 +14,13 @@ class ImageContent < DocumentContent
     if format && self[:width] && self[:height]
       # build image tag
       img = image_for_format(format)
-      "<img src='/data#{path(format)}' width='#{img.width}' height='#{img.height}' class='#{format}'/>"
+      "<img src='/data#{path(format)}' width='#{img.width}' height='#{img.height}' alt='#{name}' class='#{format}'/>"
     elsif format
       # cannot build if 'width' and 'height' are not set
       "<img src='/data#{path(format)}' class='#{format}'/>"
     else
       # full size (format = nil)
-      "<img src='/data#{path}' width='#{self.width}' height='#{self.height}' class='full'/>"
+      "<img src='/data#{path}' width='#{self.width}' height='#{self.height}' alt='#{name}' class='full'/>"
     end
   end
   

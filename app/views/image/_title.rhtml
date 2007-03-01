@@ -1,7 +1,7 @@
 <div class='image_title'>
   <div class='header'>
     <h1 class='s<%= @node.v_status %>'><%= show_title %>
-      <ul class='node_actions'><%= node_actions(:actions=>:all) %></ul>
+      <%= node_actions(:actions=>:all) %>
     </h1>
     <div class='subtitle'><%= author(:large) %><%#= plug :links %></div>
   </div>

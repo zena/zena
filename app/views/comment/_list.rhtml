@@ -1,4 +1,5 @@
-<% if node.discussion || @comments %>
+<% node ||= @node
+if node.discussion || @comments %>
 <div class='comment' id='comments_list'>
   <h3><%= trans('comments') %></h3>
   <ul><%= render :partial=>'comment/li', :collection => @comments || node.comments %>

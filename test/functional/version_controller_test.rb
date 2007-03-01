@@ -126,7 +126,6 @@ class VersionControllerTest < Test::Unit::TestCase
     assert_equal Zena::Status[:prop], Version.find(node.v_id).status
   end
   
-  
   def test_can_publish
     login(:ant)
     post 'save', :node=>{:id=>nodes_id(:status), :v_title=>"I am a new title", :v_text=>"I am new text"}
@@ -170,6 +169,27 @@ class VersionControllerTest < Test::Unit::TestCase
     post 'remove', :id=>node.v_id
     assert_redirected_to '404'
     assert_equal Zena::Status[:pub], Version.find(node.v_id).status
+  end
+  
+  def test_can_unpublish_many_versions
+    Node.connection.execute("UPDATE versions SET user_id=4 WHERE id IN (12,30)")
+    # status : version 30(fr) = pub, version 12(en) = pub
+    login(:tiger)
+    session[:lang] = 'fr'
+    node = secure(Node) { nodes(:status) }
+    assert_equal 'fr', node.v_lang
+    assert node.unpublish, "Can unpublish french version."
+    assert_equal Zena::Status[:red], node.v_status
+    
+    # BUG when two version (fr,en). fr = red, en = pub. removing
+    # fr we cannot 'unpublish' en. Reload of drive popup => now we can !!?
+    node = secure(Node) { nodes(:status) }
+    post 'remove', :id=>versions_id(:status_fr), :drive=>true
+    assert_response :success
+    assert_no_match %r{Could not remove plublication}m, response.body
+    post 'unpublish', :id=>versions_id(:status_en), :drive=>true
+    assert_response :success
+    assert_no_match %r{Could not}m, response.body
   end
   
   def test_form_tabs

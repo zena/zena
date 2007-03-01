@@ -284,6 +284,7 @@ Just doing the above will filter all result according to the logged in user.
         # people who can make visible changes
         # * super user
         # * members of +publish_group+
+        # * members of the reference's publish group if the item is private
         def can_visible?(uid=visitor_id, ugps=visitor_groups)
           ( uid == 2 ) ||
           ( ugps.include?(pgroup_id) ) ||

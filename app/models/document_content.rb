@@ -1,12 +1,13 @@
 require 'fileutils'
 class DocumentContent < ActiveRecord::Base
   belongs_to            :version
-
+  
+  before_validation     :prepare_content
   validate              :valid_file
   validates_presence_of :ext
   validates_presence_of :name
   validates_presence_of :version
-  before_save           :prepare_content
+  before_save           :before_save_content
   before_destroy        :destroy_file
 
   # creates and '<img.../>' tag for the file of the document using the extension to show an icon.
@@ -18,7 +19,7 @@ class DocumentContent < ActiveRecord::Base
     end
     unless format
       # img_tag from extension
-      "<img src='/images/ext/#{ext}.png' width='32' height='32' class='doc'/>"
+      "<img src='/images/ext/#{ext}.png' width='32' height='32' alt='#{ext}' class='doc'/>"
     else
       img = ImageBuilder.new(:path=>"#{RAILS_ROOT}/public/images/ext/#{ext}.png", :width=>32, :height=>32)
       img.transform!(format)
@@ -35,7 +36,7 @@ class DocumentContent < ActiveRecord::Base
           File.open(File.join(path, filename), "wb") { |f| f.syswrite(img.read) }
         end
       end
-      "<img src='/images/ext/#{filename}' width='#{img.width}' height='#{img.height}' class='doc'/>"
+      "<img src='/images/ext/#{filename}' width='#{img.width}' height='#{img.height}' alt='#{ext}' class='doc'/>"
     end
   end
   
@@ -102,6 +103,12 @@ class DocumentContent < ActiveRecord::Base
   end
 
   def prepare_content
+    self[:name] = version.node[:name]
+  rescue
+    self[:name] = nil
+  end
+  
+  def before_save_content
     self[:type] = self.class.to_s # FIXME: this should not be needed... find another fix.
     if @file
       # destroy old file

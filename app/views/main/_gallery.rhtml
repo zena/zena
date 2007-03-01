@@ -6,7 +6,7 @@
   <div style='display:none;' id='<%= "#{@gallery_counter}-#{doc.id}" %>'>
     <p><%= link_to(doc.v_title, node_url(doc) ) %></p>
     <p class="summary"><%= zazen doc.v_summary %></p>
-    <a href="#" onClick="new Effect.BlindUp('<%= "gallery#{@gallery_counter}" %>'); return false;"><%= doc.img_tag('std') %></a>
+    <a href="#" onclick="new Effect.BlindUp('<%= "gallery#{@gallery_counter}" %>'); return false;"><%= doc.img_tag('std') %></a>
   </div>
 <% end %>
   <div id='<%= "gallery#{@gallery_counter}" %>' style='display:none;' class="gallery_view"></div>

@@ -6,9 +6,9 @@ class DocumentContentTest < Test::Unit::TestCase
   def test_img_tag
     test_visitor(:tiger)
     doc = document_contents(:water_pdf)
-    assert_equal "<img src='/images/ext/pdf.png' width='32' height='32' class='doc'/>", doc.img_tag
-    assert_equal "<img src='/images/ext/pdf-pv.png' width='70' height='70' class='doc'/>", doc.img_tag('pv')
-    assert_equal "<img src='/images/ext/pdf-std.png' width='32' height='32' class='doc'/>", doc.img_tag('std')
+    assert_equal "<img src='/images/ext/pdf.png' width='32' height='32' alt='pdf' class='doc'/>", doc.img_tag
+    assert_equal "<img src='/images/ext/pdf-pv.png' width='70' height='70' alt='pdf' class='doc'/>", doc.img_tag('pv')
+    assert_equal "<img src='/images/ext/pdf-std.png' width='32' height='32' alt='pdf' class='doc'/>", doc.img_tag('std')
   end
   
   def test_img_tag_other
@@ -16,9 +16,9 @@ class DocumentContentTest < Test::Unit::TestCase
     doc = document_contents(:water_pdf)
     doc.ext = 'bin'
     assert_equal 'bin', doc.ext
-    assert_equal "<img src='/images/ext/other.png' width='32' height='32' class='doc'/>", doc.img_tag
-    assert_equal "<img src='/images/ext/other-pv.png' width='70' height='70' class='doc'/>", doc.img_tag('pv')
-    assert_equal "<img src='/images/ext/other-std.png' width='32' height='32' class='doc'/>", doc.img_tag('std')
+    assert_equal "<img src='/images/ext/other.png' width='32' height='32' alt='other' class='doc'/>", doc.img_tag
+    assert_equal "<img src='/images/ext/other-pv.png' width='70' height='70' alt='other' class='doc'/>", doc.img_tag('pv')
+    assert_equal "<img src='/images/ext/other-std.png' width='32' height='32' alt='other' class='doc'/>", doc.img_tag('std')
   end
   
   def test_set_file
@@ -66,7 +66,7 @@ class DocumentContentTest < Test::Unit::TestCase
   end
   
   def test_filepath
-    without_files('/data/test/pdf/14') do
+    without_files('/data/test/pdf/15') do
       doc = DocumentContent.create( :version_id=>versions_id(:water_pdf_en), :ext=>'tic', :name=>'abc', :file => uploaded_pdf('forest.pdf') )
       assert_equal "#{RAILS_ROOT}/data/test/pdf/15/water.pdf", doc.filepath
     end

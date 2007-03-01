@@ -20,8 +20,8 @@
     <%= search_box   %>
   </div>
 
-  <%= show_menu      %>
-  <%#= logo Time.now.utc  %>
+  <div id='menu'><%= show_menu      %></div>
+  <div id='logo'><a href='/'><img src='/img/logo.png' width='220' height='100'/></a></div>
   <%= flash_messages %>
   
   <% hot = @node.hot || @node %>
@@ -29,7 +29,7 @@
     <div id='tinycal'><%= calendar(:find=>:news, :size=>:tiny) %></div>
     <div class='header'>
       <h1 class='s<%= hot.v_status %>'>
-        <ul class='node_actions'><%= node_actions(:actions=>:all, :node=>hot) %></ul><br/>
+        <%= node_actions(:actions=>:all, :node=>hot) %><br/>
         <%= show_title(:node=>hot) %>
       </h1>
       <div class='subtitle'><%= show_author(:node=>hot) %></div>

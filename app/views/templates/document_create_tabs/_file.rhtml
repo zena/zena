@@ -6,5 +6,5 @@
 <%= text_field 'document', 'name', :size=>20 %><br/>
 <label><%= trans('summary') %></label>
 <%= text_area 'document', 'v_summary', :cols=>20, :rows=>3 %><br/>
-<p class="btn_validate"><input type="submit" class="btn_validate" onClick="$('loader').style.visibility = 'visible';" value='<%= transb('validate') %>'/></p>
+<p class="btn_validate"><input type="submit" class="btn_validate" onclick="$('loader').style.visibility = 'visible';" value='<%= transb('validate') %>'/></p>
 <%= end_form_tag %>

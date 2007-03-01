@@ -15,7 +15,7 @@ class MainController < ApplicationController
   
   # TODO: test new path
   def show
-    path = params[:path]
+    path = params[:path].dup
     if path.last =~ /[a-zA-Z\-_]+([0-9]+)(\.|$)/
       path.pop
       basepath = path.join('/')
@@ -24,6 +24,7 @@ class MainController < ApplicationController
       @node = secure(Node) { Node.find_by_path(path.join('/')) }
       basepath = path.join('/')
     end
+    puts @node.inspect
     if basepath == @node.basepath(true)
       render_and_cache
     else

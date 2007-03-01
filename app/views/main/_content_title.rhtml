@@ -5,9 +5,9 @@
     </td>
     <td class='subtitle'>      
       <h1 class="s<%= @node.v_status %>"><span id='v_title<%= @node.v_id %>'><%= @node.v_title %></span><br/>
-        <ul class='node_actions'><%= node_actions(:actions=>:all) %></ul>
+        <%= node_actions(:actions=>:all) %>
       </h1>
-      <%= author(:large) %><%#= plug :links %>
+      <%= author(:large) %>
     </td>
   </tr>
 </table>

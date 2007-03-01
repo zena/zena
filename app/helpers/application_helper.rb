@@ -15,7 +15,7 @@ module ApplicationHelper
   end
   
   def javascript_start
-    "<script type=\"text/javascript\" language=\"javascript\" charset=\"utf-8\">\n// <![CDATA[\n"
+    "<script type=\"text/javascript\" charset=\"utf-8\">\n// <![CDATA[\n"
   end
   
   def javascript_end
@@ -115,9 +115,9 @@ module ApplicationHelper
   # Shows 'login' or 'logout' button.
   def login_link(opts={})
     if session[:user]
-      "<div id='logout'><a href='/logout'>#{transb('logout')}</a></div>"
+      "<a href='/logout'>#{transb('logout')}</a>"
     else
-      "<div id='logout'><a href='/login'>#{transb('login')}</a></div>"
+      "<a href='/login'>#{transb('login')}</a>"
     end
   end
   
@@ -166,7 +166,7 @@ module ApplicationHelper
   # Show visitor name if logged in
   def visitor_link(opts={})
     if session[:user]
-      "<div id='visitor'>" + link_to( visitor.fullname, user_home_url ) + "</div>"
+      link_to( visitor.fullname, user_home_url )
     else
       ""
     end
@@ -177,12 +177,12 @@ module ApplicationHelper
     type = opts[:show] || 'both'
     "<div id='messages'>" +
     if (type == 'notice' || type == 'both') && @flash[:notice]
-      "<div id='notice' class='flash' onClick='new Effect.Fade(\"notice\")'>#{@flash[:notice]}</div>"
+      "<div id='notice' class='flash' onclick='new Effect.Fade(\"notice\")'>#{@flash[:notice]}</div>"
     else
       ''
     end + 
     if (type == 'error'  || type == 'both') && @flash[:error ]
-      "<div id='error' class='flash' onClick='new Effect.Fade(\"error\")'>#{@flash[:error]}</div>"
+      "<div id='error' class='flash' onclick='new Effect.Fade(\"error\")'>#{@flash[:error]}</div>"
     else
       ''
     end +
@@ -628,13 +628,13 @@ module ApplicationHelper
   def form_action(action, version_id=nil, link_text=nil)
     version_id ||= @node.v_id
     if action == 'edit'
-      "<a href='#' title='#{transb('btn_title_edit')}' onClick=\"editor=window.open('" + 
+      "<a href='#' title='#{transb('btn_title_edit')}' onclick=\"editor=window.open('" + 
       url_for(:controller=>'version', :id=>version_id, :action=>'edit', :rnd=>rnd) + 
       "', 'edit', 'location=0,width=300,height=400,resizable=1');return false;\">" + (link_text || transb('btn_edit')) + "</a>"
     elsif action == 'view'
       tlink_to_function((link_text || 'btn_view'), "opener.Zena.version_preview(#{version_id}); return false;")
     elsif action == 'drive'
-      "<a href='#' title='#{transb('btn_title_drive')}' onClick=\"editor=window.open('" + 
+      "<a href='#' title='#{transb('btn_title_drive')}' onclick=\"editor=window.open('" + 
       url_for(:controller=>'node', :version_id=>version_id, :action=>'drive', :rnd=>rnd) + 
       "', 'drive', 'location=0,width=300,height=400,resizable=1');return false;\">" + (link_text || transb('btn_drive')) + "</a>"
     else
@@ -669,7 +669,7 @@ module ApplicationHelper
       res << form_action('drive',version_id, opts[:text])
     end
     if res != []
-      "<ul class='actions'><li>#{res.join("</li>\n<li>")}</li></ul>"
+      "<span class='actions'>#{res.join(" ")}</span>"
     else
       ""
     end
@@ -745,7 +745,7 @@ module ApplicationHelper
     return '' if RAILS_ENV == 'production'
     str = <<ENDTXT
     <div id='css_edit'>
-      <div id='css' onClick='cssUpdate()'></div>
+      <div id='css' onclick='cssUpdate()'></div>
       <script type="text/javascript">
       var c=0
       var t
@@ -770,8 +770,8 @@ module ApplicationHelper
 
       </script>
       <form>
-        <input type="button" value="Start CSS" onClick="timedCount()">
-        <input type="button" value="Stop  CSS" onClick="stopCount()">
+        <input type="button" value="Start CSS" onclick="timedCount()">
+        <input type="button" value="Stop  CSS" onclick="stopCount()">
         <span id='css_counter'></span> <input type='text' id='css_file' name='css_file' value='#{css_file}'/>
       </form>
     </div>

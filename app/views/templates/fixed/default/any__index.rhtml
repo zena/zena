@@ -29,7 +29,7 @@
     <div id='tinycal'><%= calendar(:find=>:news, :size=>:tiny) %></div>
     <div class='header'>
       <h1 class='s<%= hot.v_status %>'>
-        <ul class='node_actions'><%= node_actions(:actions=>:all, :node=>hot) %></ul><br/>
+        <%= node_actions(:actions=>:all, :node=>hot) %><br/>
         <%= show_title(:node=>hot) %>
       </h1>
       <div class='subtitle'><%= show_author(:node=>hot) %></div>

@@ -164,91 +164,91 @@
   id:        28
   phrase_id:    28
   lang:      en
-  value:     "<img src='/images/add.png'/>"
+  value:     "<img src='/images/add.png' alt='add'/>"
 
 29:
   id:        29
   phrase_id:    29
   lang:      en
-  value:     "<img width='16' height='16' src='/images/tag_blue_add.png'/>"
+  value:     "<img src='/images/tag_blue_add.png' alt='tag_blue_add'/>"
 
 30:
   id:        30
   phrase_id:    30
   lang:      en
-  value:     "<img src='/images/add.png'/>"
+  value:     "<img src='/images/add.png' alt='add'/>"
 
 31:
   id:        31
   phrase_id:    31
   lang:      en
-  value:     "<img src='/images/add.png'/>"
+  value:     "<img src='/images/add.png' alt='add'/>"
 
 32:
   id:        32
   phrase_id:    32
   lang:      en
-  value:     "<img src='/images/page_delete.png'/>"
+  value:     "<img src='/images/page_delete.png' alt='page_delete'/>"
 
 33:
   id:        33
   phrase_id:    33
   lang:      en
-  value:     "<img src='/images/wrench.png'/>"
+  value:     "<img src='/images/wrench.png' alt='wrench'/>"
 
 34:
   id:        34
   phrase_id:    34
   lang:      en
-  value:     "<img src='/images/page_edit.png'/>"
+  value:     "<img src='/images/page_edit.png' alt='page_edit'/>"
 
 35:
   id:        35
   phrase_id:    35
   lang:      en
-  value:     "<img src='/images/group_add.png'/>"
+  value:     "<img src='/images/group_add.png' alt='group_add'/>"
 
 36:
   id:        36
   phrase_id:    36
   lang:      en
-  value:     "<img src='/images/group_delete.png'/>"
+  value:     "<img src='/images/group_delete.png' alt='group_delete'/>"
 
 37:
   id:        37
   phrase_id:    37
   lang:      en
-  value:     "<img src='/images/picture_empty.png'/>"
+  value:     "<img src='/images/picture_empty.png' alt='picture_empty'/>"
 
 38:
   id:        38
   phrase_id:    38
   lang:      en
-  value:     "<img src='/images/wand.png'/>"
+  value:     "<img src='/images/wand.png' alt='wand'/>"
 
 39:
   id:        39
   phrase_id:    39
   lang:      en
-  value:     "<img src='/images/page_edit.png'/>"
+  value:     "<img src='/images/page_edit.png' alt='page_edit'/>"
 
 40:
   id:        40
   phrase_id:    40
   lang:      en
-  value:     "<img src='/images/delete.png'/>"
+  value:     "<img src='/images/delete.png' alt='delete'/>"
 
 41:
   id:        41
   phrase_id:    41
   lang:      en
-  value:     "<img src='/images/delete.png'/>"
+  value:     "<img src='/images/delete.png' alt='delete'/>"
 
 42:
   id:        42
   phrase_id:    42
   lang:      en
-  value:     "<img src='/images/bullet_delete.png'/>"
+  value:     "<img src='/images/bullet_delete.png' alt='bullet_delete'/>"
 
 43:
   id:        43
@@ -284,19 +284,19 @@
   id:        48
   phrase_id:    48
   lang:      en
-  value:     "<img src='/images/user_add.png'/>"
+  value:     "<img src='/images/user_add.png' alt='user_add'/>"
 
 49:
   id:        49
   phrase_id:    49
   lang:      en
-  value:     "<img width='16' height='16' src='/images/eye.png'/>"
+  value:     "<img src='/images/eye.png' alt='eye'/>"
 
 50:
   id:        50
   phrase_id:    50
   lang:      en
-  value:     "<img src='/images/cross.png'/>"
+  value:     "<img src='/images/cross.png' alt='cross'/>"
 
 51:
   id:        51
@@ -320,31 +320,31 @@
   id:        54
   phrase_id:    54
   lang:      en
-  value:     "<img width='16' height='16' src='/images/tag_blue.png'/>"
+  value:     "<img src='/images/tag_blue.png' alt='tag_blue'/>"
 
 55:
   id:        55
   phrase_id:    55
   lang:      en
-  value:     "<img src='/images/user.png'/>"
+  value:     "<img src='/images/user.png' alt='user'/>"
 
 56:
   id:        56
   phrase_id:    56
   lang:      en
-  value:     "<img src='/images/user_admin.png'/>"
+  value:     "<img src='/images/user_admin.png' alt='user_admin'/>"
 
 57:
   id:        57
   phrase_id:    57
   lang:      en
-  value:     "<img src='/images/user_pub.png'/>"
+  value:     "<img src='/images/user_pub.png' alt='user_pub'/>"
 
 58:
   id:        58
   phrase_id:    58
   lang:      en
-  value:     "<img src='/images/user_su.png'/>"
+  value:     "<img src='/images/user_su.png' alt='user_su'/>"
 
 59:
   id:        59
@@ -764,7 +764,7 @@
   id:        145
   phrase_id:    76
   lang:      en
-  value:     "<img src='/images/picture_add.png'/>"
+  value:     "<img src='/images/picture_add.png' alt='picture_add'/>"
 
 146:
   id:        146
@@ -794,25 +794,25 @@
   id:        150
   phrase_id:    79
   lang:      en
-  value:     "<img src='/images/date.png'/>"
+  value:     "<img src='/images/date.png' alt='date'/>"
   
 151:
   id:        151
   phrase_id:    80
   lang:      en
-  value:     "<img src='/images/lightbulb.png'/>"
+  value:     "<img src='/images/lightbulb.png' alt='lightbulb'/>"
   
 152:
   id:        152
   phrase_id:    81
   lang:      en
-  value:     "<img src='/images/user_green.png'/>"
+  value:     "<img src='/images/user_green.png' alt='user_green'/>"
 
 153:
   id:        153
   phrase_id:    82
   lang:      en
-  value:     "<img src='/images/delete.png'/>"
+  value:     "<img src='/images/delete.png' alt='delete'/>"
 
 154:
   id:        154
@@ -824,61 +824,61 @@
   id:        155
   phrase_id:    84
   lang:      en
-  value:     "<img src='/images/lock.png'/>"
+  value:     "<img src='/images/lock.png' alt='lock'/>"
 
 156:
   id:        156
   phrase_id:    85
   lang:      en
-  value:     "<img src='/images/user_pub.png'/>"
+  value:     "<img src='/images/user_pub.png' alt='user_pub'/>"
 
 157:
   id:        157
   phrase_id:    86
   lang:      en
-  value:     "<img src='/images/cog.png'/>"
+  value:     "<img src='/images/cog.png' alt='cog'/>"
 
 158:
   id:        158
   phrase_id:    87
   lang:      en
-  value:     "<img src='/images/comments.png'/>"
+  value:     "<img src='/images/comments.png' alt='comments'/>"
 
 159:
   id:        159
   phrase_id:    88
   lang:      en
-  value:     "<img src='/images/comments_red.png'/>"
+  value:     "<img src='/images/comments_red.png' alt='comments_red'/>"
 
 160:
   id:        160
   phrase_id:    89
   lang:      en
-  value:     "<img src='/images/lock_open.png'/>"
+  value:     "<img src='/images/lock_open.png' alt='lock_open'/>"
 
 161:
   id:        161
   phrase_id:    90
   lang:      en
-  value:     "<img src='/images/lock.png'/>"
+  value:     "<img src='/images/lock.png' alt='lock'/>"
 
 162:
   id:        162
   phrase_id:    91
   lang:      en
-  value:     "<img src='/images/comments_add.png'/>"
+  value:     "<img src='/images/comments_add.png' alt='comments_add'/>"
 
 163:
   id:        163
   phrase_id:    92
   lang:      en
-  value:     "<img src='/images/bomb.png'/>"
+  value:     "<img src='/images/bomb.png' alt='bomb'/>"
 
 164:
   id:        164
   phrase_id:    93
   lang:      en
-  value:     "<img src='/images/comment_add.png'/>"
+  value:     "<img src='/images/comment_add.png' alt='comment_add'/>"
 
 165:
   id:        165
@@ -896,34 +896,34 @@
   id:        167
   phrase_id:    95
   lang:      en
-  value:     "<img src='/images/project.png'/>"
+  value:     "<img src='/images/project.png' alt='project'/>"
   
 168:
   id:        168
   phrase_id:    96
   lang:      en
-  value:     "<img src='/images/group_pub.png'/>"
+  value:     "<img src='/images/group_pub.png' alt='group_pub'/>"
   
 169:
   id:        169
   phrase_id:    97
   lang:      en
-  value:     "<img src='/images/group_admin.png'/>"
+  value:     "<img src='/images/group_admin.png' alt='group_admin'/>"
 
 170:
   id:        170
   phrase_id:    98
   lang:      en
-  value:     "<img src='/images/home.png'/>"
+  value:     "<img src='/images/home.png' alt='home'/>"
 
 171:
   id:        171
   phrase_id:    99
   lang:      en
-  value:     "<img src='/images/group.png'/>"
+  value:     "<img src='/images/group.png' alt='group'/>"
 
 172:
   id:        172
   phrase_id:    100
   lang:      en
-  value:     "<img src='/images/group_site.png'/>"
+  value:     "<img src='/images/group_site.png' alt='group_site'/>"

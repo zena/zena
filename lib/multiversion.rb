@@ -87,19 +87,14 @@ module Zena
           )
         end
         
-        # can refuse a publication
+        # Can refuse a publication. Same rights as can_publish? if the current version is a redaction.
         def can_refuse?
           version.status > Zena::Status[:red] && can_publish?
         end
         
         # Can remove publication
         def can_unpublish?
-          can_drive? && 
-          version.status == Zena::Status[:pub] &&
-          ( (visitor_id == user_id) ||
-            # not owner of the node, cannot unpublish if no edition left
-            (Version.find(:first, :conditions=>["node_id = ? AND publish_from <= now() AND id <> ? AND status = ?", id, v_id, Zena::Status[:pub]]) != nil)
-          )
+          can_drive? && version.status == Zena::Status[:pub]
         end
         
         # can destroy node ? (only logged in user can destroy)
@@ -170,11 +165,11 @@ module Zena
           end
         end
         
+        # A published version can be removed by the members of the publish group
+        # A redaction can be removed by it's owner
         def remove
-          if version.status == Zena::Status[:pub]
-            return false unless can_unpublish?
-          else
-            return false unless version.user_id == visitor_id
+          unless can_unpublish? || (version.status < Zena::Status[:pub] && (version.user_id == visitor_id))
+            return false
           end
           version.status = Zena::Status[:rem]
           if version.save

@@ -11,22 +11,21 @@
   <%= uses_calendar %>
 </head>
 
-<body <%= @su %>><div id='template'>
+<body <%= @su %>>
   <div class="navbar">
-    <%= lang_links %>
-    <%= show_path   %>
-    <%= login_link   %>
-    <%= visitor_link %>
-    <%= search_box   %>
+    <div id='lang'><%= lang_links %></div>
+    <div id='path'><%= show_path   %></div>
+    <div id='login'><%= login_link   %></div>
+    <div id='visitor'><%= visitor_link %></div>
+    <div id='search'><%= search_box   %></div>
   </div>
 
-  <%= show_menu      %>
-  <%#= logo Time.now.utc  %>
+  <div id='menu'><%= show_menu      %></div>
+  <div id='logo'><a href='/'><img src='/img/logo.png' width='220' height='100' alt='logo'/></a></div>
   <%= flash_messages %>
 
   <div id="left">
-    <%#= plug :calendar, :tiny %>
-    <%#= plug :notes %>
+    
   </div>
   <div id="main">
     
@@ -35,7 +34,7 @@
       <div class='b<%= @node.v_status %>'>
         <div class='title'>      
           <h1 class="s<%= @node.v_status %>"><%= show_title %><br/>
-            <ul class='node_actions'><%= node_actions(:actions=>:all) %></ul>
+            <%= node_actions(:actions=>:all) %>
           </h1>
           <%= author(:large) %>
         </div>
@@ -53,9 +52,9 @@
     <div class='image_title'>
       <div class='header'>
         <h1 class='s<%= @node.v_status %>'><%= show_title %>
-          <ul class='node_actions'><%= node_actions(:actions=>:all) %></ul>
+          <%= node_actions(:actions=>:all) %>
         </h1>
-        <div class='subtitle'><%= author(:large) %><%#= plug :links %></div>
+        <div class='subtitle'><%= author(:large) %></div>
       </div>
     </div>
     <% elsif @node.kind_of?(Document) -%>
@@ -67,9 +66,9 @@
           </td>
           <td class='subtitle'>      
             <h1 class="s<%= @node.v_status %>"><%= show_title %><br/>
-              <ul class='node_actions'><%= node_actions(:actions=>:all) %></ul>
+              <%= node_actions(:actions=>:all) %>
             </h1>
-            <%= author(:large) %><%#= plug :links %>
+            <%= author(:large) %>
           </td>
         </tr>
       </table>
@@ -78,9 +77,9 @@
     <div class='<%= @node.class.to_s.downcase %>_title'>
       <div class='header'>
         <h1 class='s<%= @node.v_status %>'><%= show_title %>
-          <ul class='node_actions'><%= node_actions(:actions=>:all) %></ul>
+          <%= node_actions(:actions=>:all) %>
         </h1>
-        <div class='subtitle'><%= show_author(:size=>:large) %><%#= plug :links %></div>
+        <div class='subtitle'><%= show_author(:size=>:large) %></div>
       </div>
     </div>
     <% end -%>
@@ -100,6 +99,5 @@
     </div>
   </div>
   <%= css_edit %>
-  </div>
 </body>
 </html>

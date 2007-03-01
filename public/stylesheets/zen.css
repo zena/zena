@@ -90,11 +90,11 @@ input, textarea { font:inherit; padding:2px;}
 
 /* ACTIONS */
 .actions { display:inline;}
-.actions li { display:inline; margin:0 5px; border:0;}
-.actions li:first-child { margin-left:0;}
+.actions a { padding:0 5px; margin:0;}
+.actions a:first-child { margin-left:0;}
 .s50 .actions { visibility:hidden; }
 .s50:hover .actions { visibility:visible; }
-.actions li:hover a { border-bottom:5px solid orange; }
+.actions a:hover { background:#F9E1AD; }
 
 /* INLINE FORMS */
 .inline_form { margin:2px; padding:3px; background:#9FA6AC; border:1px dotted grey;}

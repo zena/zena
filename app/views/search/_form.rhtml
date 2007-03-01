@@ -3,7 +3,7 @@
             :url=>{:controller=>'search', :action=>'find', :id=>@node[:id],  :edit=>@edit}, 
             :loading => "$('search_results').innerHTML='';Element.show('result_loader');",
             :complete => "Element.hide('result_loader')") %>
-  <input type='text' id='search' name='search'/>
+  <div><input type='text' name='search'/></div>
   <%= end_form_tag %>
   <div id='result_loader' style='display:none;'><img alt='spinner' src='/images/ajax-loader.gif'/></div>
   <div id='search_results'></div>

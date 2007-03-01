@@ -432,13 +432,33 @@ class MultiVersionTest < Test::Unit::TestCase
     assert_equal Time.gm(2007,1,3), node.v_publish_from
   end
   
-  def test_remove
+  def test_remove_all
     test_visitor(:tiger)
     @lang = 'en'
-    node = secure(Node) { nodes(:tiger)  }
+    node = secure(Node) { nodes(:status)  }
+    assert node.remove # remove version
+    assert_equal Zena::Status[:rem], node.v_status
+    assert_equal Zena::Status[:pub], node.max_status
+    node = secure(Node) { nodes(:status)  }
+    assert_equal Zena::Status[:pub], node.v_status
     assert node.remove # remove version
     assert_equal Zena::Status[:rem], node.v_status
     assert_equal Zena::Status[:rem], node.max_status
+  end
+  
+  def test_cannot_remove_red
+    test_visitor(:tiger)
+    @lang = 'en'
+    node = secure(Node) { nodes(:status)  }
+    assert node.remove # remove version
+    assert_equal Zena::Status[:rem], node.v_status
+    assert_equal Zena::Status[:pub], node.max_status
+    node = secure(Node) { nodes(:status)  }
+    assert_equal Zena::Status[:pub], node.v_status
+    assert node.unpublish # unpublish version
+    assert_equal Zena::Status[:red], node.v_status
+    assert_equal Zena::Status[:red], node.max_status
+    assert !node.remove
   end
   
   def test_can_man_cannot_publish

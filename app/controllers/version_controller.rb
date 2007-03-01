@@ -147,7 +147,7 @@ class VersionController < ApplicationController
       flash[:notice] = "Publication removed."
       render_or_redir @request.env['HTTP_REFERER']
     else
-      flash[:error] = "Could not remove plublication."
+      flash[:error] = "Could not remove plublication."+" ==> "+@node.errors.map{|k,v| "[#{k}] #{v}"}.join("\n")
       render_or_redir 404
     end
   rescue ActiveRecord::RecordNotFound
