@@ -22,9 +22,9 @@ class NodeController < ApplicationController
     else
       @node = secure_drive(Node) { Node.find(params[:id]) }
     end
-    page_not_found unless @node #FIXME: redirect to a better error page
+    popup_page_not_found unless @node
   rescue ActiveRecord::RecordNotFound
-    page_not_found
+    popup_page_not_found
   end
   
   # TODO: test
@@ -78,9 +78,16 @@ class NodeController < ApplicationController
     render :inline=>trans('not found')
   end
   
+  def not_found
+    # render 'node/not_found' with popup layout
+  end
   
-  # change to ?
+  private
   
+  def popup_page_not_found
+    redirect_to :controller => 'node', :action=>'not_found'
+  end
+  # TODO: change to ?
   #if @node.type != params[:node][:type]
   #  @node = @node.change_to(eval "#{params[:node][:type]}")
   #end

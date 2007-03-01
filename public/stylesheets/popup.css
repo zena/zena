@@ -147,7 +147,9 @@ ul.link_box { float:left; display:block; margin:2px; padding:2px;}
 .v10 { background:#8B7B65;}
 .v0  { background:#994747;}
 
-
+/* not_found */
+#not_found_tab { margin-top:50px; padding:10px; width:300px; background:#ADAF87; border:1px dotted #450009; border-left-width:0; }
+#not_found_tab p {margin-bottom:0.8em;}
 /* CSS EDIT */
 #css_edit { position: fixed; bottom:0px; left:0; border:1px solid red; background:#879962; font-size:10px;}
 #css_edit span { padding:3px; font-size:80%;}

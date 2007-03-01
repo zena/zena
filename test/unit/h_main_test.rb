@@ -120,23 +120,23 @@ class MainHelperTest < Test::Unit::TestCase
     assert_equal "<div class='info'><b>SI</b> - 11.04</div>", author
   end
   
-  def test_path_links_root
+  def test_show_path_root
     @node = secure(Node) { Node.find(nodes_id(:zena))}
-    assert_equal "<ul id='path' class='path'><li><a href='/en'>zena</a></li></ul>", path_links
+    assert_equal "<ul id='path' class='path'><li><a href='/en'>zena</a></li></ul>", show_path
     node2 = @node
     @node = secure(Node) { Node.find(nodes_id(:status))}
-    assert_equal "<ul class='path'><li><a href='/en'>zena</a></li></ul>", path_links(node2)
+    assert_equal "<ul class='path'><li><a href='/en'>zena</a></li></ul>", show_path(node2)
   end
   
-  def test_path_links_root_with_login
+  def test_show_path_root_with_login
     login(:ant)
     @node = secure(Node) { Node.find(nodes_id(:zena))}
-    assert_equal "<ul id='path' class='path'><li><a href='/#{AUTHENTICATED_PREFIX}'>zena</a></li></ul>", path_links
+    assert_equal "<ul id='path' class='path'><li><a href='/#{AUTHENTICATED_PREFIX}'>zena</a></li></ul>", show_path
   end
   
-  def test_path_links_page
+  def test_show_path_page
     @node = secure(Node) { Node.find(nodes_id(:cleanWater))}
-    assert_match %r{<ul id='path'.*href='/en'>zena.*href='/en/projects'>projects.*href='/en/projects/cleanWater'>cleanWater}, path_links
+    assert_match %r{<ul id='path'.*href='/en'>zena.*href='/en/projects'>projects.*href='/en/projects/cleanWater'>cleanWater}, show_path
   end
   
   def test_admin_link_translation

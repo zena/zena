@@ -1,6 +1,5 @@
 class DocumentController < ApplicationController
   layout 'popup'
-  helper VersionHelper
 
   def new
     @node = secure_write(Node) { Node.find(params[:parent_id]) }

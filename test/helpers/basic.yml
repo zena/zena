@@ -181,9 +181,9 @@ lang_links:
   tem: "<div id='lang'><%= lang_links(:node=>@node) %></div>"
   res: "/<div id='lang'><b>en.*test_render.*lang=es.*\|.*test_render.*=en.*fr/"
 
-path_links:
-  src: "<div id='path' do='path_links'><ul><li><a href='#'>first</a></li> / <li><a href='#'>second</a></li> / <li><a href='#' class='current'>here</a></li></ul></div>"
-  tem: "<div id='path'><%= path_links(:node=>@node) %></div>"
+show_path:
+  src: "<div id='path' do='show_path'><ul><li><a href='#'>first</a></li> / <li><a href='#'>second</a></li> / <li><a href='#' class='current'>here</a></li></ul></div>"
+  tem: "<div id='path'><%= show_path(:node=>@node) %></div>"
   res: "/<div id='path'><ul class='path'><li>.*zena.*<li>.*oo\/page8.html.*<li><.*\/projects\/cleanWater.*cleanWater<\/a>.*\/oo\/projects\/cleanWater\/page12.html.*class='current'>status<\/a>/"
 
 uses_calendar:
@@ -360,3 +360,8 @@ name_title:
 include_with:
   src: "include_with: <z:include template='/name/title'><h1 do='with' part='title' do='show' attr='id'/>"
   res: "include_with: title: <h1>12</h1>"
+
+comments:
+  src: "<z:show_comments/>"
+  tem: "<%= show_comments(:node=>@node) %>"
+  res: "/<div class='comment' id='comments_list'>.*reply.*add/"

@@ -25,9 +25,11 @@ class ApplicationController < ActionController::Base
     end
   end
   
-  # TODO: test
+  # Find the best template for the current node's skin, node's class and mode. The template
+  # files are searched first into 'app/views/templates/fixed'. If the templates are not found
+  # there, they are searched in the database and compiled into 'app/views/templates/compiled'.
   def template_url(opts={})
-    skin  = opts[:skin] || 'default'
+    skin  = opts[:skin] || (@node ? @node[:skin] : nil) || 'default'
     @skin_obj = nil
     skin_helper = nil
     # find best match
@@ -68,10 +70,9 @@ class ApplicationController < ActionController::Base
     if skin
       begin
         @skin_obj = secure(Skin) { Skin.find_by_name(skin) }
-        sess = @session
-        response.template.instance_eval { @session = sess }
+        response.template.instance_variable_set(:@session, @session)
         skin_helper = response.template
-      rescue
+      rescue ActiveRecord::RecordNotFound
         @skin_obj = nil
       end
     end
@@ -80,8 +81,8 @@ class ApplicationController < ActionController::Base
       template = "/templates/fixed/#{skin}/#{template_name}"
       break if File.exist?("#{RAILS_ROOT}/app/views#{template}.rhtml")
       # find the compiled version
-      template = "/templates/compiled/#{skin}/#{template_name}_#{lang}.rhtml"
-      break if File.exist?("#{RAILS_ROOT}/app/views#{template}")
+      template = "/templates/compiled/#{skin}/#{template_name}_#{lang}"
+      break if File.exist?("#{RAILS_ROOT}/app/views#{template}.rhtml")
       # search in the @skin_obj
       if @skin_obj
         break if template = @skin_obj.template_url_for_name(template_name, skin_helper)
@@ -308,9 +309,8 @@ class ApplicationController < ActionController::Base
   end
   
   #TODO: test
-  def error_messages_for(obj)
-    # FIXME: SECURITY is there a better way to do this ?
-    obj = eval("@#{obj}")
+  def error_messages_for(obj_name)
+    obj = instance_variable_get("@#{obj_name}")
     return '' unless obj && !obj.errors.empty?
     res = ["<ul>"]
     obj.errors.each do |er,msg|

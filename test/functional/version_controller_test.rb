@@ -2,13 +2,19 @@ require File.dirname(__FILE__) + '/../test_helper'
 require 'version_controller'
 
 # Re-raise errors caught by the controller.
-class VersionController; def rescue_action(e) raise e end; end
+class VersionController
+  def rescue_action(e); raise e; end
+end
+
+class HelperVersionController < VersionController
+  include VersionHelper
+end
 
 class VersionControllerTest < Test::Unit::TestCase
-
   include ZenaTestController
 
   def setup
+    super
     @controller = VersionController.new
     init_controller
   end
@@ -166,7 +172,16 @@ class VersionControllerTest < Test::Unit::TestCase
     assert_equal Zena::Status[:pub], Version.find(node.v_id).status
   end
   
-  
+  def test_form_tabs
+    @controller = HelperVersionController.new
+    init_controller
+    page     = @controller.send(:secure, Node) { Node.find(nodes_id(:status))    }
+    contact  = @controller.send(:secure, Node) { Node.find(nodes_id(:lake)) }
+    @controller.instance_variable_set(:@node, page)
+    assert_equal [["text", "text"], ["title", "title"], ["help", "help"]], @controller.send(:form_tabs)
+    @controller.instance_variable_set(:@node, contact)
+    assert_equal [["text", "text"], ["title", "title"], ["contact", "any_contact"], ["help", "help"]], @controller.send(:form_tabs)
+  end
   # def test_can_redit
   #   login(:tiger)
   #   post 'save', :node=>{:id=>nodes_id(:status), :v_title=>"I am a new title", :v_text=>"I am new text"}

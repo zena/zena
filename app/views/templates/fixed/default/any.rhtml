@@ -14,7 +14,7 @@
 <body <%= @su %>><div id='template'>
   <div class="navbar">
     <%= lang_links %>
-    <%= path_links   %>
+    <%= show_path   %>
     <%= login_link   %>
     <%= visitor_link %>
     <%= search_box   %>
@@ -30,6 +30,51 @@
   </div>
   <div id="main">
     
+    <% if @node.kind_of?(Contact) -%>
+    <div class='contact_title'>
+      <div class='b<%= @node.v_status %>'>
+        <div class='title'>      
+          <h1 class="s<%= @node.v_status %>"><%= show_title %><br/>
+            <ul class='node_actions'><%= node_actions(:actions=>:all) %></ul>
+          </h1>
+          <%= author(:large) %>
+        </div>
+        <div class='content'>
+          <ul>
+            <% [:fullname, :address, :zip, :city, :telephone, :mobile, :email, :birthday].each do |key| -%>
+              <% next unless value = @node.send("c_#{key}") %>
+              <li><span class='label'><%= trans(key) %></span> <%= value %></li>
+            <% end -%>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <% elsif @node.kind_of?(Image) -%>
+    <div class='image_title'>
+      <div class='header'>
+        <h1 class='s<%= @node.v_status %>'><%= show_title %>
+          <ul class='node_actions'><%= node_actions(:actions=>:all) %></ul>
+        </h1>
+        <div class='subtitle'><%= author(:large) %><%#= plug :links %></div>
+      </div>
+    </div>
+    <% elsif @node.kind_of?(Document) -%>
+    <div class='document_title'>
+      <table class="block" cellspacing="0" borderspacing="0">
+        <tr class="b<%= @node.v_status %>">
+          <td class="content">
+            <%= link_to @node.img_tag('pv'), data_url(@node) %>
+          </td>
+          <td class='subtitle'>      
+            <h1 class="s<%= @node.v_status %>"><%= show_title %><br/>
+              <ul class='node_actions'><%= node_actions(:actions=>:all) %></ul>
+            </h1>
+            <%= author(:large) %><%#= plug :links %>
+          </td>
+        </tr>
+      </table>
+    </div>
+    <% else -%>
     <div class='<%= @node.class.to_s.downcase %>_title'>
       <div class='header'>
         <h1 class='s<%= @node.v_status %>'><%= show_title %>
@@ -37,7 +82,8 @@
         </h1>
         <div class='subtitle'><%= show_author(:size=>:large) %><%#= plug :links %></div>
       </div>
-    </div> 
+    </div>
+    <% end -%>
     <div class="content" id='content'>
       <%= show(@node, :v_summary, :text=>'')%>
       <%= show(@node, :v_text   ) %>

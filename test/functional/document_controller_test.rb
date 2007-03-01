@@ -2,12 +2,19 @@ require File.dirname(__FILE__) + '/../test_helper'
 require 'main_controller'
 
 # Re-raise errors caught by the controller.
-class MainController; def rescue_action(e) raise e end; end
+class DocumentController
+  def rescue_action(e) raise e end;
+end
+
+class HelperDocumentController < DocumentController
+  include DocumentHelper
+end
 
 class DocumenControllerTest < Test::Unit::TestCase
   include ZenaTestController
   
   def setup
+    super
     @controller = DocumentController.new
     init_controller
   end
@@ -71,6 +78,16 @@ class DocumenControllerTest < Test::Unit::TestCase
   end
   
   def test_img
+    assert false
   end
   
+  def test_template
+    assert false
+  end
+  
+  def test_form_tabs
+    @controller = HelperDocumentController.new
+    init_controller
+    assert_equal [["file", "file"], ["text_doc", "text_doc"]], @controller.send(:form_tabs)
+  end
 end

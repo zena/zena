@@ -1,9 +1,9 @@
-<% if @node.discussion || @comments %>
+<% if node.discussion || @comments %>
 <div class='comment' id='comments_list'>
   <h3><%= trans('comments') %></h3>
-  <ul><%= render :partial=>'comment/li', :collection => @comments || @node.comments %>
-    <% if @node.can_comment? -%>
-      <%= render :partial=>'comment/add' %>
+  <ul><%= render :partial=>'comment/li', :collection => @comments || node.comments %>
+    <% if node.can_comment? -%>
+      <%= render :partial=>'comment/add', :locals=>{:node=>node} %>
     <% else %>
       <%= trans('comments closed')%>
     <% end %>

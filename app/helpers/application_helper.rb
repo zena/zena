@@ -392,6 +392,12 @@ module ApplicationHelper
     end
   end
   
+  # Display the list of comments for the current node
+  def show_comments(opts={})
+    node = opts[:node] || @node
+    render_to_string(:partial=>'comment/list', :locals=>{:node=>node})
+  end
+  
   def calendar(options={})
     source = options[:from  ] || (@project ||= (@node ? @node.project : nil))
     date   = options[:date  ] || Date.today
@@ -810,7 +816,7 @@ ENDTXT
   end
   
   # show current path with links to ancestors
-  def path_links(opts={})
+  def show_path(opts={})
     node = opts[:node] || @node
     nav = []
     node.ancestors.each do |obj|

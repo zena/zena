@@ -1,22 +1,19 @@
 module VersionHelper
-  def form_tabs(mode=:edit)
+  
+  # Find the list of tabs for the popup when editing a node. To add a tab for some document class,
+  # create a file named '_any_className.rhtml' in the folder 'app/views/templates/edit_tabs'.
+  # If you want this tab to be used only for a certain skin, use the name '_skinName_className.rhtml'.
+  def form_tabs
     tabs = []
-    case mode
-    when :edit
-      tmplt = @node.skin || 'default'
-      tabs = [[trans('text'),'text'],[trans('title'),'title'],[trans('help'),'help']]
-      ["#{tmplt}_#{@node.class.to_s.downcase}", "any_#{@node.class.to_s.downcase}"].each do |filename|
-        if File.exist?(File.join(RAILS_ROOT, 'app', 'views', 'templates', 'edit_tabs', "_#{filename}.rhtml"))
-          tabs << [trans(@node.class.to_s.downcase), filename]
-          break
-        end
-      end
-    when :create
-      Dir.foreach(File.join(RAILS_ROOT, 'app', 'views', 'templates', 'create_tabs')) do |file|
-        next unless file =~ /^_(.*).rhtml$/
-        tabs << [trans($1), $1]
+    skin = @node.skin || 'default'
+    tabs = [[trans('text'),'text'],[trans('title'),'title']]
+    ["#{skin}_#{@node.class.to_s.downcase}", "any_#{@node.class.to_s.downcase}"].each do |filename|
+      if File.exist?(File.join(RAILS_ROOT, 'app', 'views', 'templates', 'edit_tabs', "_#{filename}.rhtml"))
+        tabs << [trans(@node.class.to_s.downcase), filename]
+        break
       end
     end
+    tabs << [trans('help'),'help']
     tabs
   end
 end

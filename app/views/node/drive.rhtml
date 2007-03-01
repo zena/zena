@@ -1,8 +1,7 @@
-<% partial = ['drive','links','help'] %>
 <%= search_box %>
 
 <div class='selector'>
-  <% partial.each_index do |i| %><div id='<%= partial[i] %>_sel' <%= i == 0 ? "class='selected'" : "" %>><%= link_to_function(partial[i], "select_tab('#{partial[i]}');") %></div><% end %>
+  <% (partial = form_tabs).each_index do |i| %><div id='<%= partial[i] %>_sel' <%= i == 0 ? "class='selected'" : "" %>><%= link_to_function(partial[i], "select_tab('#{partial[i]}');") %></div><% end %>
 </div>
 
 <div class='tab'>

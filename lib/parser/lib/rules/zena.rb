@@ -23,7 +23,7 @@ module Zena
         end
       end
     end
-    inline_methods :login_link, :visitor_link, :search_box, :show_menu, :path_links, :lang_links
+    inline_methods :login_link, :visitor_link, :search_box, :show_menu, :show_comments, :show_path, :lang_links
     direct_methods :uses_calendar
 
     def before_render

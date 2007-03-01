@@ -16,8 +16,7 @@ class NoteController < ApplicationController
   def create
     klass = params[:note][:klass] || 'Note'
     begin
-      # FIXME: [SECURITY] is there a better way to find the class without using eval ?
-      klass = eval "#{klass.gsub(/[^a-zA-Z]/,'').capitalize}"
+      klass = Module::const_get(klass.capitalize.to_sym)
       raise NameError unless klass.ancestors.include?(Note)
       params[:note].delete(:klass)
       parse_dates(params[:note])
@@ -28,7 +27,8 @@ class NoteController < ApplicationController
       params[:note].delete(:klass)
       @note = secure(Note) { Note.new(params[:note]) }
       @note.errors.add('klass', 'invalid')
-      @note.instance_eval {@klass=klass}
+      # this is to show the klass value in the form selection
+      @note.instance_variable_set(:@klass, klass)
       def @note.klass; @klass; end
       @node = @note.parent
     end
