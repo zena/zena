@@ -1,16 +1,17 @@
 <div id='form_errors' class='errors'><%= error_messages_for "node" %></div>
-<%= search_box %>
+<div id='search'><%= search_box %></div>
 
 <div class='selector'>
   <% (partial = form_tabs).each_index do |i| %><div id='<%= partial[i][0] %>_sel' <%= i == 0 ? "class='selected'" : "" %>><%= tlink_to_function(partial[i][0], "select_tab('#{partial[i][0]}');") %></div><% end %>
 </div>
 
 <div class='tab'>
+  <div class='validate'>
+    <div><input type="submit" onclick="$('loader').style.visibility = 'visible';" value='<%= transb('validate') %>'/></div>
+  </div>
 <% partial.each_index do |i| %><div id='<%= partial[i][0] %>_tab' <%= i == 0 ? "" : "style='display:none;'" %> class='tab_content'>
-  <%= render :partial=>"templates/create_tabs/#{partial[i][1]}" %>
+  <%= render :partial=>"templates/document_create_tabs/#{partial[i][1]}" %>
 </div><% end %>
-
-<%= end_form_tag %>
 </div>
 
 <%#= css_edit %>

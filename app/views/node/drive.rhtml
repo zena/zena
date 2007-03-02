@@ -1,12 +1,12 @@
-<%= search_box %>
+<div id='search'><%= search_box %></div>
 
 <div class='selector'>
-  <% (partial = form_tabs).each_index do |i| %><div id='<%= partial[i] %>_sel' <%= i == 0 ? "class='selected'" : "" %>><%= link_to_function(partial[i], "select_tab('#{partial[i]}');") %></div><% end %>
+  <% (partial = form_tabs).each_index do |i| %><div id='<%= partial[i][0] %>_sel' <%= i == 0 ? "class='selected'" : "" %>><%= tlink_to_function(partial[i][0], "select_tab('#{partial[i][0]}');") %></div><% end %>
 </div>
 
 <div class='tab'>
-<% partial.each_index do |i| %><div id='<%= partial[i] %>_tab' <%= i == 0 ? "" : "style='display:none;'" %>>
-  <%= render :partial=>"node/#{partial[i]}" %>
+<% partial.each_index do |i| %><div id='<%= partial[i][0] %>_tab' <%= i == 0 ? "" : "style='display:none;'" %>>
+  <%= render :partial=>"/templates/drive_tabs/#{partial[i][1]}" %>
 </div><% end %>
 </div>
 

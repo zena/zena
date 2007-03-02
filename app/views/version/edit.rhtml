@@ -1,5 +1,5 @@
 <div id='form_errors' class='errors'><%= error_messages_for "node" %></div>
-<%= search_box %>
+<div id='search'><%= search_box %></div>
 
 <div class='selector'>
   <% (partial = form_tabs).each_index do |i| %><div id='<%= partial[i][0] %>_sel' <%= i == 0 ? "class='selected'" : "" %>><%= tlink_to_function(partial[i][0], "select_tab('#{partial[i][0]}');") %></div><% end %>
@@ -44,4 +44,6 @@ function select_tab(name) {
   current_sel.className = 'selected';
 }
 new Form.Observer('node_form', 3, function(element,value){ opener.Zena.editor_preview(element,value)});
+Event.observe(window, 'resize', function() { Zena.resizeElement('node_v_text'); } );
+Zena.resizeElement('node_v_text');
 <%= javascript_end %>

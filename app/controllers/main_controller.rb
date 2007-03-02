@@ -24,7 +24,6 @@ class MainController < ApplicationController
       @node = secure(Node) { Node.find_by_path(path.join('/')) }
       basepath = path.join('/')
     end
-    puts @node.inspect
     if basepath == @node.basepath(true)
       render_and_cache
     else

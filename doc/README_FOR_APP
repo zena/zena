@@ -4,6 +4,8 @@ Zena is a CMS. (c) teti.ch 2007
 
 -------------------------------------------
 == Todo
+#TODO: move all input tags into their label : accessibility !
+#TODO: try Zena without javascript
 #TODO: !! DO NOT PUT 'PATH TO FILES' IN ZENA.rb
 #TODO: !! TRY TO KEEP ONLY ONE CONFIGURATION FILE, LOADED
 #TODO: !! BY environment/...

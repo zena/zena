@@ -1,10 +1,10 @@
 /* GENERAL */
 /*   on background color change, change ajax-loader.gif : http://www.ajaxload.info/ --> */
 * {margin: 0; padding: 0;}
-html { height:100%;}
+html { }
 a {text-decoration: none; color:#266F92;}
 a img {border: none;}
-body {font: 0.9em Arial, Helvetica, Verdana, sans-serif; background:#9FA6AC; line-height: 1; color: #333; height:85%;  behavior: url('stylesheets/csshover2.htc');} /* WinIE hack */
+body {font: 0.9em Arial, Helvetica, Verdana, sans-serif; background:#BBC5CD; line-height: 1; color: #333;  behavior: url('stylesheets/csshover2.htc');} /* WinIE hack */
 .clear { clear:both;}
 .next { float:right; margin-right:10px; }
 .previous { float:left;}
@@ -12,7 +12,7 @@ body {font: 0.9em Arial, Helvetica, Verdana, sans-serif; background:#9FA6AC; lin
 .errors ul { background:#DDC8C8; margin:0 0 5px; padding:4px 0; border-bottom:1px solid #5A3231;}
 
 /* search box */
-#search_box { z-index:999; z-index:999; position:absolute; top:1px; right:20px;}
+#search { z-index:999; z-index:999; position:absolute; top:1px; right:1px; padding-right:1px; font-size:0.8em;}
 
 /* messages and ajax-loader */
 #messages { position:absolute; top:0; line-height:1.4em; width:100%; }
@@ -23,25 +23,26 @@ body {font: 0.9em Arial, Helvetica, Verdana, sans-serif; background:#9FA6AC; lin
 #notice { background:#D8E0C7;}
 
 /* tab selector */
-.selector { position:absolute; z-index:99; top:27px; width:100%; font-size:0.9em;}
-.selector div { float:left; height:20px; border:1px solid #333; border-width:1px 1px 1px 0; margin:0; background:#747D86;}
+.selector { width:100%; height:46px; font-size:0.9em; background:#A0A6AB; border-bottom:1px solid #333;}
+.selector div { float:left; height:20px; border:1px solid #333; border-width:1px 1px 1px 0; margin:25px 0 0; background:#747D86;}
 .selector .last {border-top-color:#BBC5CD; }
 .selector a { color:#222; display:block; padding:5px 9px;}
 .selector .selected { background:#BBC5CD; border-bottom-color:#BBC5CD;}
-.tab { margin-top:29px; background:#BBC5CD; height:100%; padding:0; border-top:1px solid #333;}
-.tab form { height:98%;}
-.tab .validate div { float:right; margin:0 2px; background:none;}
+.tab { padding:0; }
+.tab form { }
+.tab .validate { position:absolute; right:0; margin:0 2px; background:none; padding:3px; width:90%; }
+.tab .validate div { float:right; }
 .tab .validate input { font-size:0.9em; padding:0;}
 .tab .validate a { padding:0 5px; }
-.tab .validate { float:right; padding:3px;}
+.tab .validate { float:right; }
 .tab .validate .readers { float: left;}
 .readers label, .readers p { display: inline;}
 .readers label { font:inherit; font-size:0.9em;}
 
-.tab_content {height:100%; width:100%;font-size:0.9em; padding:3px 0 2px 8px;}
+.tab_content { font-size:0.9em; padding:30px 0 2px 8px; }
 /* text */
-#text_tab {text-align:right; padding:3px 0 0 0;}
-#node_v_text { width:95%; height:100%; font:inherit; padding:5px 0 10px 5px;}
+#text_tab { padding:0;}
+#node_v_text { width:95%; height:75%; margin:30px 5px 5px 5px; font:inherit; padding:5px;}
 
 /* title */
 #node_v_title, #node_v_comment, #node_v_summary { width:96%; font:inherit; font-size:0.9em; padding:2px;}
@@ -56,9 +57,13 @@ ul.link_box { float:left; display:block; margin:2px; padding:2px;}
 .link_box input { display:inline; width:2em; margin:0 2px; font-size:0.8em;}
 .link_box input.box { width:1.2em;}
 
+/* new document */
+#file_tab input, #text_doc_tab input { width:200px; margin:2px;}
+#file_tab textarea, #text_doc_tab textarea { width:90%;}
+#file_tab .file {font-size:0.7em;}
+
 /* created document */
 .document { padding-left:10px; padding-top:15px;}
-.document input, textarea, table { width:90%; margin:2px;}
 .document .btn_validate input {width:auto; float:right;}
 .document .preview { width:80px; padding:6px; border-right:1px solid grey; text-align:center;}
 .document .description { vertical-align:top; padding: 6px;}
@@ -68,7 +73,7 @@ ul.link_box { float:left; display:block; margin:2px; padding:2px;}
 
 /* help */
 #help_tab pre { font-size:110%;}
-#help_tab { font-size:0.9em; padding:5px;}
+#help_tab { font-size:0.9em; padding-left:5px;}
 #help_tab h4 { margin:2em 0 0;}
 #help_tab p { margin:1em 0;}
 #help_tab table { background:#ECEBEA; border:1px solid #CEBB94; border-right-width:0; border-spacing:0;}

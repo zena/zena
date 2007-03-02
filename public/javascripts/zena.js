@@ -27,6 +27,28 @@ Zena.update = function( tag, url ) {
   return false;
 }
 
+// element size follows inside window size
+Zena.resizeElement = function(name) {
+  var obj = $(name);
+  var myWidth = 0, myHeight = 0;
+  if( typeof( window.innerWidth ) == 'number' ) {
+    //Non-IE
+    myWidth  = window.innerWidth;
+    myHeight = window.innerHeight;
+  } else if( document.documentElement && ( document.documentElement.clientWidth || document.documentElement.clientHeight ) ) {
+    //IE 6+ in 'standards compliant mode'
+    myWidth = document.documentElement.clientWidth;
+    myHeight = document.documentElement.clientHeight;
+  } else if( document.body && ( document.body.clientWidth || document.body.clientHeight ) ) {
+    //IE 4 compatible
+    myWidth = document.body.clientWidth;
+    myHeight = document.body.clientHeight;
+  }
+  var hMargin = obj.offsetLeft;
+  var vMargin = obj.offsetTop;
+  obj.style.width  = (myWidth  - hMargin - 5) + 'px';
+  obj.style.height = (myHeight - vMargin - 5) + 'px';
+}
 // transfer html from src tag to trgt tag
 Zena.transfer = function(src,trgt) {
   target = $(trgt);

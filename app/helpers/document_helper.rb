@@ -5,7 +5,7 @@ module DocumentHelper
   def form_tabs
     tabs = []
     help_file = nil
-    Dir.foreach(File.join(RAILS_ROOT, 'app', 'views', 'templates', 'document_create_tabs')).sort do |file|
+    Dir.entries(File.join(RAILS_ROOT, 'app', 'views', 'templates', 'document_create_tabs')).sort.each do |file|
       next unless file =~ /^_(.*).rhtml$/
       if file == "_help.rhtml"
         help_file = file
