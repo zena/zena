@@ -12,15 +12,15 @@
 </head>
 
 <body <%= @su %>>
-  
-  <div class='navbar'>
-    <%= lang_links %>
-    <%= login_link   %>
-    <%= visitor_link %>
+  <div class="navbar">
+    <div id='lang'><%= lang_links %></div>
+    <div id='login'><%= login_link   %></div>
+    <div id='visitor'><%= visitor_link %></div>
+    <div id='search'><%= search_box   %></div>
   </div>
 
-  <div id='menu'><%= show_menu %></div>
-  <div id='logo'><a href='/'><img src='img/logo.png' width='220' height='100'/></a></div>
+  <div id='menu'><%= show_menu      %></div>
+  <div id='logo'><a href='/'><img src='/img/logo.png' width='220' height='100' alt='logo'/></a></div>
   <%= flash_messages %>
   
   <%= css_edit('admin.css') %>

@@ -1,6 +1,7 @@
 .label { color:#560B0A;}
 
 #left ul { margin:70px 25px 0; border:1px solid #35462B; background:#eee;}
+#left li { padding:0;}
 #left li a { margin:0; border-top:1px solid #35462B; padding:10px 5px; font-size:0.9em; color:#560B0A;  display:block;}
 #left li:first-child a { border:0; }
 #left li a:hover { background:#C47330; }
@@ -47,11 +48,11 @@ ul.actions form {margin:8px 0 0;}
 ul.actions ul { margin:0 0 0 1.6em; padding:0; }
 #preferences ul li, ul.actions ul li { padding:4px 0; border:0; margin:0;}
 #preferences .errors li {padding:0px; margin-left:5px;}
-ul.actions .align { line-height:1.5em; }
-ul.actions .align span { position:absolute; right:6px; }
+ul.actions .align { line-height:1.5em; position:relative;}
+ul.actions .align span { position:absolute; right:2px; }
 ul.actions select { font-size:10px; width:186px; margin:2px;} 
-#preferences { width:55%; }
-#preferences li {margin-bottom:30px;}
+#preferences li { width:60%; margin-bottom:30px;}
+#preferences li li { width:100%;}
 #preferences .errors ul { margin:0 -5px 5px;}
 .actions .errors ul { background:#DDC8C8; margin:0 0 5px; padding:4px 0; border-bottom:1px solid #5A3231;}
 .actions .errors li { margin-left:0.4em; background:inherit; line-height:1.2em;}
