@@ -6,12 +6,15 @@ Zena is a CMS. (c) teti.ch 2007
 == Todo
 #TODO: move all input tags into their label : accessibility !
 #TODO: try Zena without javascript
+#TODO: force 1 user = 1 contact :
+  # either create new contact or use existing contact
+  # store new contacts into (select parent when create) with admin/admin/admin rights, owner = user.
+  # comment users ?
+#TODO: move 'admin' layout into 'templates' (use root skin ?, user skin ?)
 #TODO: !! DO NOT PUT 'PATH TO FILES' IN ZENA.rb
-#TODO: !! TRY TO KEEP ONLY ONE CONFIGURATION FILE, LOADED
-#TODO: !! BY environment/...
+#TODO: !! TRY TO KEEP ONLY ONE CONFIGURATION FILE, LOADED BY environment/...
 #TODO: !! BUG WITH DISCUSSION REMOVE: not working
 #TODO: deletion of node
-#TODO: USER : CONTACT_ID ??
 #TODO: popup 'drive' should show vertical scroll bar...
 #TODO: traduire le texte de base pour l'aide en anglais
 #TODO: APPLICATION_TEST : should use same testing as application_helper...
