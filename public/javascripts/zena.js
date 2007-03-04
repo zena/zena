@@ -163,15 +163,20 @@ Zena.key_press = function(e,obj) {
 Zena.Div_editor = Class.create();
 Zena.Div_editor.prototype = {
   moving : false,
-  moveTop : false,
-  moveLeft : false,
+  moveY : false,
+  moveX : false,
+  moveAll : false,
   marker : '',
   clone  : '',
   pos : {
     x : 0,
     y : 0,
     w : 0,
-    h : 0 
+    h : 0,
+    fullw : 0,
+    fullh : 0,
+    allx : 0,
+    ally : 0 
   },
   flds : {
     x : '',
@@ -180,6 +185,8 @@ Zena.Div_editor.prototype = {
     h : ''
   },
   zoom : 1.0,
+  BORDER_WIDTH : 15,
+  BORDER_COLOR : 'black',
 	initialize: function(img_name, x_name, y_name, w_name, h_name, azoom) {
 	  var img = $(img_name); 
 	  this.flds.x = $(x_name);
@@ -189,11 +196,12 @@ Zena.Div_editor.prototype = {
 	  this.zoom  = azoom;
     this.clone = document.createElement('div');
     this.mark  = document.createElement('div');
+    this.pos.fullw = img.width;
+    this.pos.fullh = img.height;
     Element.setStyle(this.clone, {
       width: img.width + 'px',
       height: img.height + 'px',
       background: 'url('+img.src+') no-repeat',
-      border: '1px solid grey',
       position: 'absolute',
       top: '120px',
       left: '120px'
@@ -202,12 +210,16 @@ Zena.Div_editor.prototype = {
     this.clone.onmouseup   = this.end_move.bindAsEventListener(this);
     this.clone.onmousemove = this.do_move.bindAsEventListener(this);
     
-    // this.flds.w
+    this.flds.x.onchange = this.update_from_inputs.bindAsEventListener(this);
+    this.flds.y.onchange = this.update_from_inputs.bindAsEventListener(this);
+    this.flds.w.onchange = this.update_from_inputs.bindAsEventListener(this);
+    this.flds.h.onchange = this.update_from_inputs.bindAsEventListener(this);
     // inputs onchange = update this.
     
     Element.setStyle(this.mark, {
-      border:'1px dotted orange',
-      position: 'absolute'
+      border: this.BORDER_WIDTH + 'px solid ' + this.BORDER_COLOR,
+      position: 'absolute',
+      cursor: 'move'
     });
     this.pos.x = 0;
     this.pos.y = 0;
@@ -218,14 +230,21 @@ Zena.Div_editor.prototype = {
     img.parentNode.removeChild(img);
     this.clone.appendChild(this.mark);
   },
+  update_from_inputs : function(event) {
+    this.pos.x = this.flds.x.value / this.zoom;
+    this.pos.y = this.flds.y.value / this.zoom;
+    this.pos.w = this.flds.w.value / this.zoom;
+    this.pos.h = this.flds.h.value / this.zoom;
+    this.update_sizes();
+  },
   update_sizes: function() {
     this.flds.x.value = this.zoom * this.pos.x;
     this.flds.y.value = this.zoom * this.pos.y;
     this.flds.w.value = this.zoom * this.pos.w;
     this.flds.h.value = this.zoom * this.pos.h;
     Element.setStyle(this.mark, {    
-      left: this.pos.x,
-      top:  this.pos.y,
+      left: this.pos.x - this.BORDER_WIDTH,
+      top:  this.pos.y - this.BORDER_WIDTH,
       width:  this.pos.w + 'px',
       height: this.pos.h + 'px'
     });
@@ -234,45 +253,105 @@ Zena.Div_editor.prototype = {
     var posx = Event.pointerX(event) - this.clone.offsetLeft;
     var posy = Event.pointerY(event) - this.clone.offsetTop;
     if (!this.moving) {
-      if (Math.abs(this.pos.x - posx) < 25.0) {
+      this.moveAll = false;
+      this.pos.startx = posx;
+      if (Math.abs(this.pos.x - posx) < 15.0) {
         // moving left corners
-        this.moveLeft = true;
+        this.moveX  = 'left';
         this.moving = true;
-      } else if (Math.abs(this.pos.x + this.pos.w - posx) < 25.0) {
+      } else if (Math.abs(this.pos.x + this.pos.w - posx) < 15.0) {
         // moving right corners
-        this.moveLeft = false;
+        this.moveX = 'right';
         this.moving = true;
+      } else {
+        this.moveX = false;
+      }
+      if (Math.abs(this.pos.y - posy) < 15.0) {
+        // moving top
+        this.moveY = 'top';
+        this.moving = true;
+      } else if (Math.abs(this.pos.y + this.pos.h - posy) < 15.0)  {
+        // moving bottom
+        this.moveY = 'bottom';
+        this.moving = true;
+      } else {
+        this.moveY = false;
+      }
+      if (this.moving) {
+        // ok
+      } else if (posx >= this.pos.x && posy >= this.pos.y && posx <= (this.pos.x + this.pos.w) && posy <= (this.pos.y + this.pos.h) && !(this.pos.w == this.pos.fullw && this.pos.h == this.pos.fullh) ) {
+        this.moveAll = true;
+        // inside drag
+        this.pos.allx = posx - this.pos.x;
+        this.pos.ally = posy - this.pos.y;
       } else {
         // start new move
         this.pos.x = posx;
         this.pos.y = posy;
         this.pos.w = 1;
         this.pos.h = 1;
-        this.moveLeft = false;
-      }
-      if (this.moving) {
-        if (Math.abs(this.pos.y - posy) < Math.abs(this.pos.y + this.pos.h - posy)) {
-          // moving top
-          this.moveTop = true;
-        } else {
-          // moving bottom
-          this.moveTop = false;
-        }
+        this.moveX = 'right';
+        this.moveY = 'bottom';
       }
       this.moving = true;
     }
-    if (this.moveLeft) {
-      this.pos.w = this.pos.x + this.pos.w - posx;
-      this.pos.x = posx;
-      
+    if (this.moveAll) {
+      // drag
+      this.pos.x = posx - this.pos.allx;
+      this.pos.y = posy - this.pos.ally;
     } else {
-      this.pos.w = posx - this.pos.x;
+      if (this.moveX == 'left') {
+        this.pos.w = this.pos.x + this.pos.w - posx;
+        this.pos.x = posx;
+      } else if (this.moveX == 'right') {
+        this.pos.w = posx - this.pos.x;
+      }
+      if (this.moveY == 'top') {
+        this.pos.h = this.pos.y + this.pos.h - posy;
+        this.pos.y = posy;
+      } else if (this.moveY == 'bottom'){
+        this.pos.h = posy - this.pos.y;
+      }
     }
-    if (this.moveTop) {
-      this.pos.h = this.pos.y + this.pos.h - posy;
+    if (event.shiftKey) {
+      // force square
+      if (this.pos.h > this.pos.w) {
+        this.pos.w = this.pos.h;
+      } else {
+        this.pos.h = this.pos.w;
+      }
+    }
+    if (this.pos.x < 0) {
+      this.pos.x = 0;
+    }
+    if (this.pos.y < 0) {
+      this.pos.y = 0;
+    }
+    if (this.pos.x + this.pos.w > this.pos.fullw) {
+      this.pos.x = this.pos.fullw - this.pos.w;
+    }
+    if (this.pos.y + this.pos.h > this.pos.fullh) {
+      this.pos.y = this.pos.fullh - this.pos.h;
+    }
+    if (this.pos.w < 0) {
+      // swap moving corner
+      this.pos.w = 0;
+      this.pos.x = posx;
+      if (this.moveX == 'right') {
+        this.moveX = 'left';
+      } else {
+        this.moveX = 'right';
+      }
+    }
+    if (this.pos.h < 0) {
+      // swap moving corner
+      this.pos.h = 0;
       this.pos.y = posy;
-    } else {
-      this.pos.h = posy - this.pos.y;
+      if (this.moveY == 'top') {
+        this.moveY = 'bottom';
+      } else {
+        this.moveY = 'top';
+      }
     }
     this.update_sizes();
   },
@@ -282,6 +361,8 @@ Zena.Div_editor.prototype = {
     }
   },
   end_move: function(event) {
+    var posx = Event.pointerX(event) - this.clone.offsetLeft;
+    var posy = Event.pointerY(event) - this.clone.offsetTop;
     this.moving = false;
   }
 }
