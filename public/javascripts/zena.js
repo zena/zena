@@ -159,3 +159,130 @@ Zena.key_press = function(e,obj) {
       break;
   } 
 }
+
+Zena.Div_editor = Class.create();
+Zena.Div_editor.prototype = {
+  moving : false,
+  moveTop : false,
+  moveLeft : false,
+  marker : '',
+  clone  : '',
+  pos : {
+    x : 0,
+    y : 0,
+    w : 0,
+    h : 0 
+  },
+  flds : {
+    x : '',
+    y : '',
+    w : '',
+    h : ''
+  },
+  zoom : 1.0,
+	initialize: function(img_name, x_name, y_name, w_name, h_name, azoom) {
+	  var img = $(img_name); 
+	  this.flds.x = $(x_name);
+	  this.flds.y = $(y_name);
+	  this.flds.w = $(w_name);
+	  this.flds.h = $(h_name);
+	  this.zoom  = azoom;
+    this.clone = document.createElement('div');
+    this.mark  = document.createElement('div');
+    Element.setStyle(this.clone, {
+      width: img.width + 'px',
+      height: img.height + 'px',
+      background: 'url('+img.src+') no-repeat',
+      border: '1px solid grey',
+      position: 'absolute',
+      top: '120px',
+      left: '120px'
+    });
+    this.clone.onmousedown = this.update_position.bindAsEventListener(this);
+    this.clone.onmouseup   = this.end_move.bindAsEventListener(this);
+    this.clone.onmousemove = this.do_move.bindAsEventListener(this);
+    
+    // this.flds.w
+    // inputs onchange = update this.
+    
+    Element.setStyle(this.mark, {
+      border:'1px dotted orange',
+      position: 'absolute'
+    });
+    this.pos.x = 0;
+    this.pos.y = 0;
+    this.pos.w = img.width;
+    this.pos.h = img.height;
+    this.update_sizes();
+    img.parentNode.appendChild(this.clone);
+    img.parentNode.removeChild(img);
+    this.clone.appendChild(this.mark);
+  },
+  update_sizes: function() {
+    this.flds.x.value = this.zoom * this.pos.x;
+    this.flds.y.value = this.zoom * this.pos.y;
+    this.flds.w.value = this.zoom * this.pos.w;
+    this.flds.h.value = this.zoom * this.pos.h;
+    Element.setStyle(this.mark, {    
+      left: this.pos.x,
+      top:  this.pos.y,
+      width:  this.pos.w + 'px',
+      height: this.pos.h + 'px'
+    });
+  },
+  update_position: function(event) {
+    var posx = Event.pointerX(event) - this.clone.offsetLeft;
+    var posy = Event.pointerY(event) - this.clone.offsetTop;
+    if (!this.moving) {
+      if (Math.abs(this.pos.x - posx) < 25.0) {
+        // moving left corners
+        this.moveLeft = true;
+        this.moving = true;
+      } else if (Math.abs(this.pos.x + this.pos.w - posx) < 25.0) {
+        // moving right corners
+        this.moveLeft = false;
+        this.moving = true;
+      } else {
+        // start new move
+        this.pos.x = posx;
+        this.pos.y = posy;
+        this.pos.w = 1;
+        this.pos.h = 1;
+        this.moveLeft = false;
+      }
+      if (this.moving) {
+        if (Math.abs(this.pos.y - posy) < Math.abs(this.pos.y + this.pos.h - posy)) {
+          // moving top
+          this.moveTop = true;
+        } else {
+          // moving bottom
+          this.moveTop = false;
+        }
+      }
+      this.moving = true;
+    }
+    if (this.moveLeft) {
+      this.pos.w = this.pos.x + this.pos.w - posx;
+      this.pos.x = posx;
+      
+    } else {
+      this.pos.w = posx - this.pos.x;
+    }
+    if (this.moveTop) {
+      this.pos.h = this.pos.y + this.pos.h - posy;
+      this.pos.y = posy;
+    } else {
+      this.pos.h = posy - this.pos.y;
+    }
+    this.update_sizes();
+  },
+  do_move: function(event) {
+    if (this.moving) {
+      this.update_position(event);
+    }
+  },
+  end_move: function(event) {
+    this.moving = false;
+  }
+}
+
