@@ -173,6 +173,8 @@ Zena.Div_editor.prototype = {
     y : 0,
     w : 0,
     h : 0,
+    offsetx : 0,
+    offsety : 0,
     fullw : 0,
     fullh : 0,
     allx : 0,
@@ -202,10 +204,10 @@ Zena.Div_editor.prototype = {
       width: img.width + 'px',
       height: img.height + 'px',
       background: 'url('+img.src+') no-repeat',
-      position: 'absolute',
-      top: '120px',
-      left: '120px'
+      position: 'relative'
     });
+    
+    // register callbacks
     this.clone.onmousedown = this.update_position.bindAsEventListener(this);
     this.clone.onmouseup   = this.end_move.bindAsEventListener(this);
     this.clone.onmousemove = this.do_move.bindAsEventListener(this);
@@ -229,6 +231,9 @@ Zena.Div_editor.prototype = {
     img.parentNode.appendChild(this.clone);
     img.parentNode.removeChild(img);
     this.clone.appendChild(this.mark);
+    
+    this.pos.offsetx = Position.page(this.clone)[0];
+    this.pos.offsety = Position.page(this.clone)[1];
   },
   update_from_inputs : function(event) {
     this.pos.x = this.flds.x.value / this.zoom;
@@ -250,8 +255,8 @@ Zena.Div_editor.prototype = {
     });
   },
   update_position: function(event) {
-    var posx = Event.pointerX(event) - this.clone.offsetLeft;
-    var posy = Event.pointerY(event) - this.clone.offsetTop;
+    var posx = Event.pointerX(event) - this.pos.offsetx;
+    var posy = Event.pointerY(event) - this.pos.offsety;
     if (!this.moving) {
       this.moveAll = false;
       this.pos.startx = posx;
@@ -295,6 +300,7 @@ Zena.Div_editor.prototype = {
       }
       this.moving = true;
     }
+    if (posx >= 0 && posy >= 0 && posx <= this.pos.fullw && posy <= this.pos.fullh ) {
     if (this.moveAll) {
       // drag
       this.pos.x = posx - this.pos.allx;
@@ -354,6 +360,7 @@ Zena.Div_editor.prototype = {
       }
     }
     this.update_sizes();
+  }
   },
   do_move: function(event) {
     if (this.moving) {
@@ -361,8 +368,8 @@ Zena.Div_editor.prototype = {
     }
   },
   end_move: function(event) {
-    var posx = Event.pointerX(event) - this.clone.offsetLeft;
-    var posy = Event.pointerY(event) - this.clone.offsetTop;
+    var posx = Event.pointerX(event) - this.pos.offsetx;
+    var posy = Event.pointerY(event) - this.pos.offsety;
     this.moving = false;
   }
 }

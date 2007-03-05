@@ -70,13 +70,11 @@ class ApplicationController < ActionController::Base
         choices << ["default","any"]
       end
     end
-    puts skin.inspect
     if skin
       begin
         @skin_obj = secure(Skin) { Skin.find_by_name(skin) }
         response.template.instance_variable_set(:@session, @session)
         skin_helper = response.template
-        puts skin_helper.class
       rescue ActiveRecord::RecordNotFound
         @skin_obj = nil
       end
@@ -102,7 +100,6 @@ class ApplicationController < ActionController::Base
   
   # tested in MainControllerTest
   def template_text_for_url(url)
-    puts "GET TEXT"
     url = url[1..-1] # strip leading '/'
     url = url.split('/')
     skin_name = url.shift
@@ -110,7 +107,6 @@ class ApplicationController < ActionController::Base
       skin = @skin_obj
     end
     skin ||= secure(Skin) { Skin.find_by_name(skin_name) }
-    puts skin.inspect
     template = skin.template_for_path(url.join('/'))
     template ? template.version.text : nil
   rescue ActiveRecord::RecordNotFound

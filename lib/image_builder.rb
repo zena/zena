@@ -241,6 +241,7 @@ IMAGEBUILDER_FORMAT = {
   'top'  => { :size=>:force, :width=>280, :ratio=>2.0/3.0, :gravity=>Magick::NorthGravity},
   'mid'  => { :size=>:force, :width=>280, :ratio=>2.0/3.0, :gravity=>Magick::CenterGravity},
   'low'  => { :size=>:force, :width=>280, :ratio=>2.0/3.0, :gravity=>Magick::SouthGravity},
+  'edit' => { :size=>:limit, :width=>400, :height=>600             },
   'std'  => { :size=>:limit, :width=>600, :ratio=>2/3.0               },
   'full' => { :size=>:keep },
   'sepia'=> { :size=>:limit, :width=>280, :ratio=>2/3.0, :post=>Proc.new {|img| img.sepiatone(Magick::MaxRGB * 0.8) }},

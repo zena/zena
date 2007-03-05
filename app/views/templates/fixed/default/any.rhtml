@@ -54,7 +54,7 @@
         <h1 class='s<%= @node.v_status %>'><%= show_title %>
           <%= node_actions(:actions=>:all) %>
         </h1>
-        <div class='subtitle'><%= author(:large) %></div>
+        <div class='subtitle'><%= show_author(:size=>:large) %></div>
       </div>
     </div>
     <% elsif @node.kind_of?(Document) -%>
@@ -98,6 +98,6 @@
       </div>
     </div>
   </div>
-  <%= css_edit %>
+  <%#= css_edit %>
 </body>
 </html>
