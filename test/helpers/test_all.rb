@@ -4,7 +4,7 @@ class HelperTest
   testfile :relations, :basic
   Project # make sure we load Project links before trying relations
   def test_single
-    do_test('basic', 'comments')
+    do_test('basic', 'title_for_layout')
   end
   
   def test_relations_updated_today

@@ -1,11 +1,19 @@
 <%= javascript "opener.Zena.update( 'documents', '#{ url_for(:controller=>"document", :action=>"list", :parent_id=>@document.parent_id, :rnd=>rnd) }');" %>
-<div class="document">
-  <p class="btn_x"><%= link_to_function transb('btn_x'), "if (!opener.is_editor) { opener.location.href=opener.location.href;} self.close();" %></p>
-  <table cellspacing="0" borderspacing="0">
-    <tr>
-      <td class='preview'><p><%= @document.img_tag('pv') %></p><p class='size'><%= fsize(@document.c_size) %></p></td>
-      <td class='description'><h3 class='title'><span class='doc_id'><%= @document[:id] %></span><%= @document.name %></h3><p class='summary'><%= zazen(@document.v_summary) %></p></td></tr>
-  </table>
-  <p class='btn_validate'><%= link_to transb("upload more"), :controller=>'document', :action=>'new', :parent_id=>@document.parent_id %></p>
-</div>  
-<%= css_edit('popup.css') %>
+<div id='form_errors' class='errors'><%= error_messages_for "node" %></div>
+<div id='search'><%= search_box %></div>
+
+<div class='selector'>
+  
+</div>
+
+<div class='tab'>
+  <div class="document">
+    <p class="btn_x"><%= link_to_function transb('btn_x'), "if (!opener.is_editor) { opener.location.href=opener.location.href;} self.close();" %></p>
+    <table cellspacing="0" borderspacing="0">
+      <tr>
+        <td class='preview'><p><%= @document.img_tag('pv') %></p><p class='size'><%= fsize(@document.c_size) %></p></td>
+        <td class='description'><h3 class='title'><span class='doc_id'><%= @document[:id] %></span><%= @document.name %></h3><p class='summary'><%= zazen(@document.v_summary) %></p></td></tr>
+    </table>
+    <p class='btn_validate'><%= link_to transb("upload more"), :controller=>'document', :action=>'new', :parent_id=>@document.parent_id %></p>
+  </div>
+</div>

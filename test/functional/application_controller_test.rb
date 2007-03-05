@@ -66,6 +66,8 @@ class ApplicationControllerTest < Test::Unit::TestCase
     assert_equal '/templates/fixed/default/any_letter', @controller.send(:template_url)
   end
   
+  # check_is_admin, admin_layout tested in user_controller_test
+  
   # // test methods common to controllers and views // #
   
   def test_lang

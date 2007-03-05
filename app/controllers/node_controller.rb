@@ -1,5 +1,5 @@
 class NodeController < ApplicationController
-  layout 'popup'
+  layout :popup_layout
   
   # test to here
   def test
@@ -34,6 +34,11 @@ class NodeController < ApplicationController
     if attrs[:inherit]
       @update = 'groups'
     elsif attrs[:parent_id] || attrs[:name]
+      if attrs[:parent_id] && attrs[:parent_id] != '' && attrs[:parent_id].to_i.to_s != attrs[:parent_id]
+        # find by name
+        parent = secure(Node) { Node.find_by_name(params[:parent_id])}
+        attrs[:parent_id] = parent[:id] if parent
+      end
       if attrs[:name]
         @node[:name] = attrs[:name]
         attrs.delete(:name)

@@ -1,5 +1,5 @@
 class DocumentController < ApplicationController
-  layout 'popup'
+  layout :popup_layout
 
   def new
     @node = secure_write(Node) { Node.find(params[:parent_id]) }

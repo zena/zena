@@ -1,6 +1,6 @@
 class TransController < ApplicationController
   before_filter :check_translator, :except=>[:lang_menu]
-  layout 'admin'
+  layout :admin_layout
 
   def lang_menu
     render :layout=>false

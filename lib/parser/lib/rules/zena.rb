@@ -99,6 +99,18 @@ module Zena
       "<a name='#{node_class.to_s.downcase}<%= #{obj}[:id] %>'></a>"
     end
     
+    def r_content_for_layout
+      "<% if @content_for_layout -%><%= @content_for_layout %><% else -%>" +
+      expand_with +
+      "<% end -%>"
+    end
+    
+    def r_title_for_layout
+      "<% if @title_for_layout -%><%= @title_for_layout %><% else -%>" +
+      expand_with +
+      "<% end -%>"
+    end
+    
     def r_title
       res = "<%= show_title(:node=>#{node}"
       unless @params.include?(:link)

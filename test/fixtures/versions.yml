@@ -565,7 +565,7 @@ layout_template_en:
     
     <html xmlns="http://www.w3.org/1999/xhtml" do='void' lang="en" set_lang='[v_lang]' xml:lang='en'>
     <head>
-      <title do='show' attr='v_title' name='title'>node title</title>
+      <title do='title_for_layout' do='show' attr='v_title' name='title'>node title</title>
       <meta http-equiv="Content-type" content="text/html; charset=utf-8" />
       <meta http-equiv="Content-Language" do='void' content="fr-fr" tset_content='[v_lang]_content' />
     
@@ -593,20 +593,23 @@ layout_template_en:
       </div>
     
       <div id='logo' do='link' href='root'><img src='img/logo.png' width='220' height='100'/></div>
+      
+      <div class='wiki_layout'></div>
     
       <z:flash_messages/>
-    
-      <div id="left" do='void' name='left'>
-      </div>
-      <div id="main" do='void' name='main'>
-    
-        <div class='content' id='content' do='void' name='content'>
-          dummy content
+      <z:content_for_layout>
+        <div id="left" do='void' name='left'>
         </div>
+        <div id="main" do='void' name='main'>
     
-        <div id="right" do='void' name='right'>
+          <div class='content' id='content' do='void' name='content'>
+            dummy content
+          </div>
+    
+          <div id="right" do='void' name='right'>
+          </div>
         </div>
-      </div>
+      </z:content_for_layout>
     </body>
     </html>
   lang:           en

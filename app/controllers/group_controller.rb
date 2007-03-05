@@ -1,6 +1,6 @@
 class GroupController < ApplicationController
   before_filter :check_is_admin
-  layout 'admin'
+  layout :admin_layout
   
   # TODO: test
   def show

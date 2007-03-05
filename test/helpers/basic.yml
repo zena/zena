@@ -160,7 +160,7 @@ show_v_text:
 show_title_options:
   src: "<h1 class='title' do='title' status='true' actions='all'>dummy</h1>"
   tem: "<h1 class='title'><div class='s<%= @node.version.status %>'><%= show_title(:node=>@node, :link=>false, :project=>false) + node_actions(:node=>@node, :actions=>\"all\")%></div></h1>"
-  res: "/<h1 class='title'><div class='s50'><span id='v_title12'>status title</span><ul class='actions'><li>.*\/z\/version\/edit\/12.*\/images\/page_edit.png'/><\/a><\/li><\/ul><\/div><\/h1>/"
+  res: "/<h1 class='title'><div class='s50'><span id='v_title12'>status title</span><span class='actions'><a.*\/z\/version\/edit\/12.*\/images\/page_edit.png'.*/><\/a>.*<\/span><\/div><\/h1>/"
 
 show_c_width:
   context:
@@ -297,17 +297,17 @@ img_image:
   context:
     node: 'bird_jpg'
   src: "<z:img/><z:img format='med'/>"
-  res: "<img src='/data/jpg/20/bird-std.jpg' width='440' height='400' class='std'/><img src='/data/jpg/20/bird-med.jpg' width='205' height='186' class='med'/>"
+  res: "<img src='/data/jpg/20/bird-std.jpg' width='440' height='400' alt='bird' class='std'/><img src='/data/jpg/20/bird-med.jpg' width='205' height='186' alt='bird' class='med'/>"
 
 img_href:
   context:
     node: 'bird_jpg'
   src: "<z:img href='self'/>"
-  res: "<a href=\"/oo/image20.html\"><img src='/data/jpg/20/bird-std.jpg' width='440' height='400' class='std'/></a>"
+  res: "<a href=\"/oo/image20.html\"><img src='/data/jpg/20/bird-std.jpg' width='440' height='400' alt='bird' class='std'/></a>"
 
 img_src_id:
   src: "<z:img src='20'/>"
-  res: "<img src='/data/jpg/20/bird-std.jpg' width='440' height='400' class='std'/>"
+  res: "<img src='/data/jpg/20/bird-std.jpg' width='440' height='400' alt='bird' class='std'/>"
   
 test_children_plural:
   tem: "<%= 'children'.pluralize %>"
@@ -365,3 +365,13 @@ comments:
   src: "<z:show_comments/>"
   tem: "<%= show_comments(:node=>@node) %>"
   res: "/<div class='comment' id='comments_list'>.*reply.*add/"
+
+content_for_layout:
+  src: "<z:content_for_layout>blah blah</z:content_for_layout>"
+  tem: "<% if @content_for_layout -%><%= @content_for_layout %><% else -%>blah blah<% end -%>"
+  res: "blah blah"
+
+title_for_layout:
+  src: "<z:title_for_layout>blah blih</z:title_for_layout>"
+  tem: "<% if @title_for_layout -%><%= @title_for_layout %><% else -%>blah blih<% end -%>"
+  res: "blah blih"

@@ -1,5 +1,5 @@
 class VersionController < ApplicationController
-  layout 'popup'
+  layout :popup_layout
   
   #def show
   #  @node = secure(Node) { Node.version(params[:id]) }
@@ -147,7 +147,7 @@ class VersionController < ApplicationController
       flash[:notice] = "Publication removed."
       render_or_redir @request.env['HTTP_REFERER']
     else
-      flash[:error] = "Could not remove plublication."+" ==> "+@node.errors.map{|k,v| "[#{k}] #{v}"}.join("\n")
+      flash[:error] = "Could not remove plublication."
       render_or_redir 404
     end
   rescue ActiveRecord::RecordNotFound

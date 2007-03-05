@@ -181,10 +181,10 @@ h1, h2, h3 { font-family: Georgia, Times, serif ; font-style:italic; color:#4500
 #left .subtitle { font-style:normal; font-size:0.7em; }
 #left .subtitle { margin-bottom:0;}
 .summary .zazen p { font-style:italic; }
-/* ???
+
 .zazen { clear:both;}
 .zazen { line-height:1; margin-bottom:2em;}
-*/
+
 .zazen {font-size:0.9em;padding-left:15px;}
 .zazen a {color:#174190;} /* #8F5225 #174190 */
 .zazen p, .zazen table { line-height:1.4; margin:1.5em 0; font-style:normal;}

@@ -10,6 +10,7 @@ Zena is a CMS. (c) teti.ch 2007
   # either create new contact or use existing contact
   # store new contacts into (select parent when create) with admin/admin/admin rights, owner = user.
   # comment users ?
+#TODO: expire old pages when changing 'custom_base'
 #TODO: move 'admin' layout into 'templates' (use root skin ?, user skin ?)
 #TODO: !! DO NOT PUT 'PATH TO FILES' IN ZENA.rb
 #TODO: !! TRY TO KEEP ONLY ONE CONFIGURATION FILE, LOADED BY environment/...

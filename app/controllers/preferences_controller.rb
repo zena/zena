@@ -1,6 +1,6 @@
 class PreferencesController < ApplicationController
   before_filter :check_user
-  layout 'admin'
+  layout :admin_layout
   
   # TODO: test
   def list

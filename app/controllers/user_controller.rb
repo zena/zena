@@ -1,19 +1,25 @@
 class UserController < ApplicationController
   before_filter :check_is_admin, :except=>[:home, :preferences, :change_password]
-  layout 'admin'
+  layout :admin_layout
+  
   # This view contains all the relevant information for a user's home in the CMS. From here, the
   # user can view the versions his is currently editing, he can publish content, etc
+  # TODO: test
   def home
+    return page_not_found unless session[:user]
     @user = User.find(session[:user])
+  rescue ActiveRecord::RecordNotFound
+    page_not_found
   end
   
-  # TODO: test
+  # RJS action to display a single user in a list.
   def show
     @user = User.find(params[:id])
   end
   
-  # TODO: test
+  # Show the list of users. Rendered in the admin layout.
   def list
+    puts params.inspect
     @user_pages, @users =
             paginate :users, :order => 'id', :per_page => 20
     @groups = Group.find(:all, :order=>'id')

@@ -28,7 +28,7 @@ module ApplicationHelper
 	  defaults = {  :id=>"datef#{rnd_id}", :button=>"dateb#{rnd_id}", :display=>"dated#{rnd_id}", :class=>var.to_s }
 	  opts = defaults.merge(opts)
 	  date = eval("@#{obj} ? @#{obj}.#{var} : nil") || Time.now.utc
-	  value = format_date(date,'datetime')
+	  value = tformat_date(date,'datetime')
     if opts[:size] == 0
       fld = hidden_field obj, var, :id=>opts[:id] , :value=>value, :class=>opts[:class]
     else
@@ -241,9 +241,9 @@ module ApplicationHelper
     node = secure(Node) { Node.find(opts[:id]) }
     title = (opts[:title] && opts[:title] != '') ? opts[:title] : node.v_title
     if opts[:id][0..0] == '0'
-      link_to title, {:prefix => prefix, :controller => 'main', :action=>'show', :path=>node.fullpath.split('/')}, :popup=>true
+      link_to title, node_url(node), :popup=>true
     else
-      link_to title, :prefix => prefix, :controller => 'main', :action=>'show', :path=>node.fullpath.split('/')
+      link_to title, node_url(node)
     end
   rescue ActiveRecord::RecordNotFound
     "<span class='unknownLink'>#{trans('unknown link')}</span>"
@@ -521,7 +521,7 @@ module ApplicationHelper
         text = "<code#{lang} class='full'>#{text}</code>"
       end
       text  = zazen(text, opt)
-      klass = " class='text'"
+      klass = " class='zazen'"
     else
       klass = ""
     end

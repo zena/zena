@@ -40,7 +40,7 @@
             list << "<input type='checkbox' name='groups[#{g.id}]' value='#{g.id}' class='box' #{(@user && @user.group_set_ids.include?(g[:id])) ? "checked='1'" : ''}/>#{g.name}"
           end
           list
-        end.join(" ") %></ul></td></tr>
+        end.join(" ") %></td></tr>
     <% end -%>
     <tr><td colspan='2'><p class='btn_validate'><input type='submit' value='<%= transb('validate') %>'/></p></td></tr>
   </table>

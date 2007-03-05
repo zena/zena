@@ -30,6 +30,7 @@ class ApplicationController < ActionController::Base
   # there, they are searched in the database and compiled into 'app/views/templates/compiled'.
   def template_url(opts={})
     skin  = opts[:skin] || (@node ? @node[:skin] : nil) || 'default'
+    rescue_template = opts[:rescue_template] || '/templates/fixed/default/any'
     @skin_obj = nil
     skin_helper = nil
     # find best match
@@ -37,41 +38,45 @@ class ApplicationController < ActionController::Base
     mode  = nil if (mode.nil? || mode == '')
     klass = @node.class.to_s.downcase
     template = nil
-    choices = []
-    
-    if skin == 'default'
-      #   3. default_class_mode  (101)
-      choices << ["default","any_#{klass}_#{mode}"] if mode && klass
-      #   4. default__mode       (100)
-      choices << ["default","any__#{mode}"] if mode
-      #   7. default_class       (  1)
-      choices << ["default","any_#{klass}"] if klass
-      #   8. default             (  0)
-      choices << ["default","any"]
-    else
-      #                          (mode / template / class)
-      #   1. template_class_mode (111)
-      choices << [skin,"any_#{klass}_#{mode}"] if mode && skin && klass
-      #   2. template__mode      (110)
-      choices << [skin,"any__#{mode}"] if mode && skin
-      #   3. default_class_mode  (101)
-      choices << ["default","any_#{klass}_#{mode}"] if mode && klass
-      #   4. default__mode       (100)
-      choices << ["default","any__#{mode}"] if mode
-      #   5. template_class      ( 11)
-      choices << [skin,"any_#{klass}"] if skin && klass
-      #   6. template            ( 10)
-      choices << [skin,"any"] if skin
-      #   7. default_class       (  1)
-      choices << ["default","any_#{klass}"] if klass
-      #   8. default             (  0)
-      choices << ["default","any"]
+    choices = opts[:choices]
+    unless choices
+      choices = []
+      if skin == 'default'
+        #   3. default_class_mode  (101)
+        choices << ["default","any_#{klass}_#{mode}"] if mode && klass
+        #   4. default__mode       (100)
+        choices << ["default","any__#{mode}"] if mode
+        #   7. default_class       (  1)
+        choices << ["default","any_#{klass}"] if klass
+        #   8. default             (  0)
+        choices << ["default","any"]
+      else
+        #                          (mode / template / class)
+        #   1. template_class_mode (111)
+        choices << [skin,"any_#{klass}_#{mode}"] if mode && klass
+        #   2. template__mode      (110)
+        choices << [skin,"any__#{mode}"] if mode
+        #   3. default_class_mode  (101)
+        choices << ["default","any_#{klass}_#{mode}"] if mode && klass
+        #   4. default__mode       (100)
+        choices << ["default","any__#{mode}"] if mode
+        #   5. template_class      ( 11)
+        choices << [skin,"any_#{klass}"] if klass
+        #   6. template            ( 10)
+        choices << [skin,"any"]
+        #   7. default_class       (  1)
+        choices << ["default","any_#{klass}"] if klass
+        #   8. default             (  0)
+        choices << ["default","any"]
+      end
     end
+    puts skin.inspect
     if skin
       begin
         @skin_obj = secure(Skin) { Skin.find_by_name(skin) }
         response.template.instance_variable_set(:@session, @session)
         skin_helper = response.template
+        puts skin_helper.class
       rescue ActiveRecord::RecordNotFound
         @skin_obj = nil
       end
@@ -92,11 +97,12 @@ class ApplicationController < ActionController::Base
     return template
   rescue ActiveRecord::RecordNotFound
     # skin name was bad
-    return '/templates/fixed/default/any'
+    return rescue_template
   end
   
   # tested in MainControllerTest
   def template_text_for_url(url)
+    puts "GET TEXT"
     url = url[1..-1] # strip leading '/'
     url = url.split('/')
     skin_name = url.shift
@@ -104,6 +110,7 @@ class ApplicationController < ActionController::Base
       skin = @skin_obj
     end
     skin ||= secure(Skin) { Skin.find_by_name(skin_name) }
+    puts skin.inspect
     template = skin.template_for_path(url.join('/'))
     template ? template.version.text : nil
   rescue ActiveRecord::RecordNotFound
@@ -272,9 +279,9 @@ class ApplicationController < ActionController::Base
     end
   end
   
-  # TODO: test
+  # Restrict access some actions to administrators (used as a before_filter)
   def check_is_admin
-    page_not_found unless visitor.is_admin?
+    return page_not_found unless visitor.is_admin?
     @admin = true
   end
   
@@ -334,36 +341,41 @@ class ApplicationController < ActionController::Base
       "<ul><li>#{errs.join("</li>\n<li>")}</li></ul>"
     end
   end
-end
-=begin
-# Filters added to this controller will be run for all controllers in the application.
-# Likewise, all the methods added will be available for all controllers.
-class ApplicationController < ActionController::Base
   
-  
-  include ZenaGlobals
-  model :node,:contact, :user, :group, :page, :tracker, :document, :image, :collector, :project, 
-    :note, :contact, :comment, :version, :doc_version, :image_version, :doc_file, :image_file, :link, :image_builder, :form  # (load models) this is used to make find work with sub-classes
-  before_filter :set_env
-  layout 'default'
-  
+  # Find the proper layout to render 'admin' actions. The layout is searched into the visitor's contact's skin first
+  # and then into default. This action is also responsible for setting a default @title_for_layout.
+  def admin_layout
+    @title_for_layout ||= "#{params[:controller]}/#{params[:action]}"
+    rescue_template = '/templates/fixed/default/admin_layout'
+    return rescue_template unless visitor && contact = visitor.contact
+    
+    skin  = contact[:skin] || 'default'
+    choices = []
 
+    if skin != 'default'
+      choices << [skin,"admin_layout"]
+      choices << [skin,"layout"]
+    end
+    choices << ["default","admin_layout"]
+    choices << ["default","layout"]
+    return template_url(:skin=>skin, :rescue_template=>rescue_template, :choices=>choices)
+  end
   
-end
+  # TODO: test
+  def popup_layout
+    @title_for_layout ||= (@node ? "#{@node.name}: " : "") + "#{params[:controller]}/#{params[:action]}"
+    rescue_template = '/templates/fixed/default/popup_layout'
+    return rescue_template unless @node
+    
+    skin  = @node[:skin] || 'default'
+    choices = []
 
-# Save content to fixtures: this should be removed for security reasons before going to production. TODO.
-class ActiveRecord::Base
-  # code adapted from by http://www.pylonhead.com/code/yaml.html
-  def self.to_fixtures
-    str= self.find(:all).inject("") { |s, record|
-        self.columns.inject(s+"#{record.id}:\n") { |s, c|
-          s+"  #{{c.name => record.attributes[c.name]}.to_yaml[5..-1]}\n" }
-    }
-    filename = File.expand_path("test/fixtures/#{table_name}.yml", RAILS_ROOT)
-    f = File.new(filename, "w")
-    f.puts str
-    f.close
-    [filename, str]
+    if skin != 'default'
+      choices << [skin,"popup_layout"]
+      choices << [skin,"layout"]
+    end
+    choices << ["default","popup_layout"]
+    choices << ["default","layout"]
+    return template_url(:skin=>skin, :rescue_template=>rescue_template, :choices=>choices)
   end
 end
-=end
