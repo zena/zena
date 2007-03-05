@@ -60,6 +60,15 @@ class ImageContentTest < Test::Unit::TestCase
     end
   end
   
+  def test_img_tag_opts
+    preserving_files('/data/test/jpg/20') do
+      img = document_contents(:bird_jpg)
+      assert_equal "<img src='/data/jpg/20/bird.jpg' width='661' height='600' alt='bird' id='yo' class='full'/>", img.img_tag(nil, :id=>'yo')
+      assert_equal "<img src='/data/jpg/20/bird-pv.jpg' width='70' height='70' alt='bird' id='yo' class='super'/>", img.img_tag('pv', :id=>'yo', :class=>'super')
+      assert_equal "<img src='/data/jpg/20/bird-pv.jpg' width='70' height='70' alt='super man' class='pv'/>", img.img_tag('pv', :alt=>'super man')
+    end
+  end
+  
   def test_remove_formatted_on_file_change
     preserving_files('data/test/jpg/20') do
       img  = document_contents(:bird_jpg)

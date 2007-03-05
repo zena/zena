@@ -11,6 +11,13 @@ class DocumentContentTest < Test::Unit::TestCase
     assert_equal "<img src='/images/ext/pdf-std.png' width='32' height='32' alt='pdf' class='doc'/>", doc.img_tag('std')
   end
   
+  def test_img_tag_opts
+    test_visitor(:tiger)
+    doc = document_contents(:water_pdf)
+    assert_equal "<img src='/images/ext/pdf.png' width='32' height='32' alt='pdf' class='super'/>", doc.img_tag(nil,:class=>'super')
+    assert_equal "<img src='/images/ext/pdf-pv.png' width='70' height='70' alt='pdf' id='man' class='super'/>", doc.img_tag('pv',:class=>'super', :id=>'man')
+  end
+  
   def test_img_tag_other
     test_visitor(:tiger)
     doc = document_contents(:water_pdf)
@@ -33,7 +40,7 @@ class DocumentContentTest < Test::Unit::TestCase
     data = nil
     assert_nothing_raised { data = doc.file }
     assert_equal data.read, uploaded_pdf('water.pdf').read
-    doc = DocumentContent.new( :version_id=>7)
+    doc = DocumentContent.new( :version_id=>7 )
     assert_raise(IOError) { doc.file }
   end
   

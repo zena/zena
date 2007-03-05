@@ -9,18 +9,19 @@ class ImageContent < DocumentContent
     self[:height] = img.height
   end
   
-  def img_tag(format=nil)
+  def img_tag(format=nil, opts={})
+    options = {:class=>(format || 'full'), :id=>nil, :alt=>name}.merge(opts)
     format = verify_format(format)
     if format && self[:width] && self[:height]
       # build image tag
       img = image_for_format(format)
-      "<img src='/data#{path(format)}' width='#{img.width}' height='#{img.height}' alt='#{name}' class='#{format}'/>"
+      "<img src='/data#{path(format)}' width='#{img.width}' height='#{img.height}' alt='#{options[:alt]}' #{options[:id] ? "id='#{options[:id]}' " : ""}class='#{options[:class]}'/>"
     elsif format
       # cannot build if 'width' and 'height' are not set
-      "<img src='/data#{path(format)}' class='#{format}'/>"
+      "<img src='/data#{path(format)}' alt='#{options[:alt]}' #{options[:id] ? "id='#{options[:id]}' " : ""}class='#{options[:class]}'/>"
     else
       # full size (format = nil)
-      "<img src='/data#{path}' width='#{self.width}' height='#{self.height}' alt='#{name}' class='full'/>"
+      "<img src='/data#{path}' width='#{self.width}' height='#{self.height}' alt='#{options[:alt]}' #{options[:id] ? "id='#{options[:id]}' " : ""}class='#{options[:class]}'/>"
     end
   end
   

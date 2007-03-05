@@ -12,14 +12,15 @@ class DocumentContent < ActiveRecord::Base
 
   # creates and '<img.../>' tag for the file of the document using the extension to show an icon.
   # format is ignored here. It is needed by the sub-class #ImageContent.
-  def img_tag(format=nil)
+  def img_tag(format=nil, opts={})
+    options = {:class=>'doc', :id=>nil}.merge(opts)
     ext = self[:ext]
     unless File.exist?("#{RAILS_ROOT}/public/images/ext/#{ext}.png")
       ext = 'other'
     end
     unless format
       # img_tag from extension
-      "<img src='/images/ext/#{ext}.png' width='32' height='32' alt='#{ext}' class='doc'/>"
+      "<img src='/images/ext/#{ext}.png' width='32' height='32' alt='#{ext}' #{options[:id] ? "id='#{options[:id]}' " : ""}class='#{options[:class]}'/>"
     else
       img = ImageBuilder.new(:path=>"#{RAILS_ROOT}/public/images/ext/#{ext}.png", :width=>32, :height=>32)
       img.transform!(format)
@@ -36,7 +37,7 @@ class DocumentContent < ActiveRecord::Base
           File.open(File.join(path, filename), "wb") { |f| f.syswrite(img.read) }
         end
       end
-      "<img src='/images/ext/#{filename}' width='#{img.width}' height='#{img.height}' alt='#{ext}' class='doc'/>"
+      "<img src='/images/ext/#{filename}' width='#{img.width}' height='#{img.height}' alt='#{ext}' #{options[:id] ? "id='#{options[:id]}' " : ""}class='#{options[:class]}'/>"
     end
   end
   

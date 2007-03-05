@@ -51,8 +51,8 @@ class Document < Page
     "#{name}.#{version.content.ext}"
   end
   
-  def img_tag(format=nil)
-    version.content.img_tag(format)
+  def img_tag(format=nil, opts={})
+    version.content.img_tag(format, opts)
   end
   
   private
