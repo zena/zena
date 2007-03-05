@@ -187,26 +187,33 @@ Zena.Div_editor.prototype = {
     h : ''
   },
   zoom : 1.0,
-  BORDER_WIDTH : 15,
+  BORDER_WIDTH : 10,
   BORDER_COLOR : 'black',
-	initialize: function(img_name, x_name, y_name, w_name, h_name, azoom) {
-	  var img = $(img_name); 
+	initialize: function(img_name, x_name, y_name, w_name, h_name, azoom, left_pos, top_pos) {
+	  var img      = $(img_name);
+    var img_pos  = Position.positionedOffset(img);
 	  this.flds.x = $(x_name);
 	  this.flds.y = $(y_name);
 	  this.flds.w = $(w_name);
 	  this.flds.h = $(h_name);
 	  this.zoom  = azoom;
-    this.clone = document.createElement('div');
-    this.mark  = document.createElement('div');
+	  
+    this.pos.offsetx = left_pos;
+    this.pos.offsety = top_pos;
     this.pos.fullw = img.width;
     this.pos.fullh = img.height;
-    Element.setStyle(this.clone, {
-      width: img.width + 'px',
-      height: img.height + 'px',
-      background: 'url('+img.src+') no-repeat',
-      position: 'relative'
-    });
     
+    this.clone = document.createElement('div');
+    this.mark  = document.createElement('div');
+    Element.setStyle(this.clone, {
+      width:  this.pos.fullw + 'px',
+      height: this.pos.fullh + 'px',
+      background: 'url('+img.src+') no-repeat',
+      position: 'absolute',
+      left: this.pos.offsetx + 'px',
+      top:  this.pos.offsety + 'px',
+      border: '1px solid grey'
+    });
     // register callbacks
     this.clone.onmousedown = this.update_position.bindAsEventListener(this);
     this.clone.onmouseup   = this.end_move.bindAsEventListener(this);
@@ -231,9 +238,6 @@ Zena.Div_editor.prototype = {
     img.parentNode.appendChild(this.clone);
     img.parentNode.removeChild(img);
     this.clone.appendChild(this.mark);
-    
-    this.pos.offsetx = Position.page(this.clone)[0];
-    this.pos.offsety = Position.page(this.clone)[1];
   },
   update_from_inputs : function(event) {
     this.pos.x = this.flds.x.value / this.zoom;
@@ -243,13 +247,13 @@ Zena.Div_editor.prototype = {
     this.update_sizes();
   },
   update_sizes: function() {
-    this.flds.x.value = this.zoom * this.pos.x;
-    this.flds.y.value = this.zoom * this.pos.y;
-    this.flds.w.value = this.zoom * this.pos.w;
-    this.flds.h.value = this.zoom * this.pos.h;
+    this.flds.x.value = Math.round(this.zoom * this.pos.x);
+    this.flds.y.value = Math.round(this.zoom * this.pos.y);
+    this.flds.w.value = Math.round(this.zoom * this.pos.w);
+    this.flds.h.value = Math.round(this.zoom * this.pos.h);
     Element.setStyle(this.mark, {    
-      left: this.pos.x - this.BORDER_WIDTH,
-      top:  this.pos.y - this.BORDER_WIDTH,
+      left: (this.pos.x - this.BORDER_WIDTH) + 'px',
+      top:  (this.pos.y - this.BORDER_WIDTH) + 'px',
       width:  this.pos.w + 'px',
       height: this.pos.h + 'px'
     });

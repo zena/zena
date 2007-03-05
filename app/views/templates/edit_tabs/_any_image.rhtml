@@ -4,13 +4,6 @@
 
 <% if !ImageBuilder.dummy? %>
 <label for="c_file"><%= trans("crop image")  %></label>
-<input type='text' id='posx'   name='node[crop_x]' size='4'/><br/>
-<input type='text' id='posy'   name='node[crop_y]' size='4'/><br/>
-<input type='text' id='width'  name='node[crop_w]' size='4'/><br/>
-<input type='text' id='height' name='node[crop_h]' size='4'/><br/>
-<input type='text' id='debug' name='debug' size='4'/><br/>
+x: <input type='text' id='posx'   name='node[crop_x]' size='4'/> y: <input type='text' id='posy'   name='node[crop_y]' size='4'/> // w: <input type='text' id='width'  name='node[crop_w]' size='4'/> h: <input type='text' id='height' name='node[crop_h]' size='4'/> (zoom: <%= sprintf('%.2f', @node.c_width('edit') / @node.c_width.to_f) %>)<br/>
 <%= @node.img_tag('edit', :id=>'edit_img') %>
-<%= javascript_start %>
-new Zena.Div_editor('edit_img', 'posx', 'posy', 'width', 'height',<%= @node.c_width / @node.c_width('edit') %>)
-<%= javascript_end %>
 <% end -%>
