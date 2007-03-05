@@ -19,7 +19,7 @@ class VersionController < ApplicationController
         flash[:notice] = trans "Version changed back to redaction."
       else
         flash[:error] = trans "Could not change version back to redaction."
-      end  
+      end    
       render :action=>'update'
     else
       if !@node.edit!
@@ -89,7 +89,7 @@ class VersionController < ApplicationController
       session[:notice] = trans "Redaction saved."
     else
       flash[:error] = trans "Redaction could not be saved"
-      render 'edit'
+      render :action=>'edit'
     end
   rescue ActiveRecord::RecordNotFound
     page_not_found

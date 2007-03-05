@@ -47,6 +47,5 @@ new Form.Observer('node_form', 3, function(element,value){ opener.Zena.editor_pr
 Event.observe(window, 'resize', function() { Zena.resizeElement('node_v_text'); } );
 function popup_loaded() {
   Zena.resizeElement('node_v_text');
-  new Zena.Div_editor('edit_img', 'posx', 'posy', 'width', 'height',<%= @node.c_width / @node.c_width('edit').to_f %>, 30, 200);
 }
 <%= javascript_end %>

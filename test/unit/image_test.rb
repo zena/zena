@@ -63,6 +63,20 @@ class ImageTest < Test::Unit::TestCase
     end
   end
   
+  def test_crop_image
+    preserving_files('data/test/jpg') do
+      test_visitor(:ant)
+      img = secure(Node) { nodes(:bird_jpg) }
+      assert_equal 661, img.c_width
+      assert_equal 600, img.c_height
+      assert_equal 56183, img.c_size
+      assert img.update_attributes(:crop=>{:x=>'500',:y=>30,:w=>'200',:h=>80})
+      assert_equal 2032,   img.c_size
+      assert_equal 161,  img.c_width
+      assert_equal 80, img.c_height
+    end
+  end
+  
   def test_change_name
     preserving_files('data/test/jpg') do
       test_visitor(:ant)

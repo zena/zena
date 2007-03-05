@@ -12,8 +12,8 @@
 
 <%#= css_edit %>
 <%= javascript_start %>
-var current_tab = $('<%= partial[0] %>_tab');
-var current_sel = $('<%= partial[0] %>_sel');
+var current_tab = $('<%= partial[0][0] %>_tab');
+var current_sel = $('<%= partial[0][0] %>_sel');
 function select_tab(name) {
   var obj_tab = $(name+'_tab');
   var obj_sel = $(name+'_sel');

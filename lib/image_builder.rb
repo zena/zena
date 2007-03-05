@@ -110,18 +110,28 @@ class ImageBuilder
   def resize!(s)
     # we do not zoom pixels
     return unless s < 1.0
+    @img = nil # reset current rendered image
     @width  *= s
     @height *= s
     @actions << Proc.new {|img| img.resize!(s) }
   end
-
+  
+  def crop!(x,y,w,h)
+    @img = nil # reset current rendered image
+    @width  = [@width ,x+w].min - x
+    @height = [@height,y+h].min - y
+    @actions << Proc.new {|img| img.crop!(x,y,[@img.columns, x+w].min - x,[@img.rows, y+h].min - y) }
+  end
+  
   def crop_min!(w,h,gravity=Magick::CenterGravity)
+    @img = nil # reset current rendered image
     @width  = [@width ,w].min
     @height = [@height,h].min
-    @actions << Proc.new {|img| img.crop!(gravity,[w,@img.columns].min,[h,@img.rows].min) }
+    @actions << Proc.new {|img| img.crop!(gravity,[@img.columns,w].min,[@img.rows,h].min) }
   end
 
   def set_background!(opacity,w,h)
+    @img = nil # reset current rendered image
     @width  = [@width ,w].max
     @height = [@height,h].max
     @actions << Proc.new do |img|

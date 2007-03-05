@@ -84,7 +84,14 @@ class ImageBuilderTest < Test::Unit::TestCase
     assert_equal 80, img.width
     assert_equal 30, img.height
   end
-
+  
+  def test_crop
+    img = ImageBuilder.new(:width=>100, :height=>30)
+    img.crop!(5, 10, 80, 70)
+    assert_equal 80, img.width
+    assert_equal 20, img.height
+  end
+    
   def test_set_background
     img = ImageBuilder.new(:width=>100, :height=>30)
     img.set_background!(Magick::MaxRGB,120,15)

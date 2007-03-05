@@ -1,0 +1,3 @@
+<%= tlink_to_function('cancel', "new Element.toggle('crop', 'crop_form');$('crop_form').innerHTML = '';")%>
+x: <input type='text' id='posx'   name='node[crop][x]' size='4'/> y: <input type='text' id='posy'   name='node[crop][y]' size='4'/> // w: <input type='text' id='width'  name='node[crop][w]' size='4'/> h: <input type='text' id='height' name='node[crop][h]' size='4'/> (zoom: <%= sprintf('%.2f', @node.c_width('edit') / @node.c_width.to_f) %>)<br/>
+<%= @node.img_tag('edit', :id=>'edit_img') %>

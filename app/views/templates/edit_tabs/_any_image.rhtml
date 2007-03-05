@@ -1,9 +1,9 @@
-<label for="c_file"><%= trans("document file")  %></label>
-<div id="file"><%= link_to_remote(trans("change document"), :update=>'file_form', :url=>{:controller=>'document', :action=>'file_form'}, :complete=>"new Element.toggle('file', 'file_form');") %></div>
-<div id="file_form" style='display:none;'></div>
+<label for="node_c_file"><%= trans("document file")  %></label>
+<div id="file" class='toggle_div'><%= tlink_to_remote("change", :update=>'file_form', :url=>{:controller=>'document', :action=>'file_form'}, :complete=>"new Element.toggle('file', 'file_form');") %></div>
+<div id="file_form" class='toggle_div' style='display:none;'></div>
 
 <% if !ImageBuilder.dummy? %>
-<label for="c_file"><%= trans("crop image")  %></label>
-x: <input type='text' id='posx'   name='node[crop_x]' size='4'/> y: <input type='text' id='posy'   name='node[crop_y]' size='4'/> // w: <input type='text' id='width'  name='node[crop_w]' size='4'/> h: <input type='text' id='height' name='node[crop_h]' size='4'/> (zoom: <%= sprintf('%.2f', @node.c_width('edit') / @node.c_width.to_f) %>)<br/>
-<%= @node.img_tag('edit', :id=>'edit_img') %>
+<label for="c_crop_x"><%= trans("image")  %></label>
+<div id="crop" class='toggle_div'><%= tlink_to_remote("crop", :url=>{:controller=>'document', :action=>'crop_form', :version_id=>@node.v_id}) %></div>
+<div id="crop_form" class='toggle_div' style='display:none;'></div>
 <% end -%>
