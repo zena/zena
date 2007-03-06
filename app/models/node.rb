@@ -98,7 +98,7 @@ class Node < ActiveRecord::Base
     if self[:id] == ZENA_ENV[:root_id]
       []
     elsif parent = Node.find_by_id(self[:parent_id])
-      parent.set_visitor(visitor_id, visitor_groups, visitor_lang)
+      parent.visitor = visitor
       if parent.can_read?
         parent.ancestors + [parent]
       else
@@ -386,7 +386,7 @@ class Node < ActiveRecord::Base
   def new_child(opts={})
     c = Node.new(opts)
     c.parent_id  = self[:id]
-    c.set_visitor(visitor_id, visitor_groups, visitor_lang)
+    c.visitor    = visitor
     c.pgroup_id  = self.pgroup_id
     c.rgroup_id  = self.rgroup_id
     c.wgroup_id  = self.wgroup_id
@@ -483,7 +483,7 @@ class Node < ActiveRecord::Base
   
   # Return true if it is allowed to add comments to the node in the current context
   def can_comment?
-    discussion && ((discussion.open? && (visitor_id != 1 || ZENA_ENV[:allow_anonymous_comments])) || visitor_id == 2)
+    discussion && ((discussion.open? && (visitor[:id] != 1 || ZENA_ENV[:allow_anonymous_comments])) || visitor[:id] == 2)
   end
   
   # Add a comment to an node. If reply_to is set, the comment is added to the proper message
@@ -491,8 +491,8 @@ class Node < ActiveRecord::Base
   def add_comment(opt)
     return nil unless can_comment?
     discussion.save if discussion.new_record?
-    author = opt[:author_name] = nil unless visitor_id == 1
-    opt.merge!( :discussion_id=>discussion[:id], :user_id=>visitor_id )
+    author = opt[:author_name] = nil unless visitor[:id] == 1 # anonymous user
+    opt.merge!( :discussion_id=>discussion[:id], :user_id=>visitor[:id] )
     Comment.create(opt)
   end
   

@@ -3,13 +3,18 @@
 class ApplicationController < ActionController::Base
   acts_as_secure_controller
   helper_method :prefix, :node_url, :notes, :error_messages_for, :render_errors, :add_error, :data_url
-  helper_method :template_text_for_url, :template_url_for_asset, :save_erb_to_url
+  helper_method :template_text_for_url, :template_url_for_asset, :save_erb_to_url, :lang
   helper 'main'
   before_filter :authorize
   before_filter :set_env
   after_filter  :set_encoding
   layout false
+  
   private
+  def lang
+    visitor.lang
+  end
+    
   def render_and_cache(opts={})
     @node  ||= secure(Node) { Node.find(ZENA_ENV[:root_id]) }
     opts = {:mode=>opts} if opts.kind_of?(String)
@@ -199,6 +204,7 @@ class ApplicationController < ActionController::Base
       req.delete(:translate)
       redirect_to req and return false  
     end
+    visitor.lang = session[:lang]
   end
   
   # "Translate" static text into the current lang

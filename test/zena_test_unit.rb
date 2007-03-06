@@ -2,7 +2,7 @@ module ZenaTestUnit
   include Zena::Acts::SecureScope
   include Zena::Acts::SecureController::InstanceMethods
   
-  # redefine lang for tests (avoids using params[:lang]):
+  # redefine lang for tests (avoids using session[:lang]):
   def lang
     return @lang if @lang
     if ZENA_ENV[:monolingual]
@@ -28,10 +28,6 @@ module ZenaTestUnit
       @visitor = User.find(1)
       @lang = ZENA_ENV[:default_lang]
     end
-  end
-  
-  def set_lang(l)
-    @lang = l
   end
   
   def err(obj)

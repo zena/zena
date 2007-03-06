@@ -8,7 +8,6 @@ module Zena
       end
       module AddActsAsMethod
         def acts_as_multiversioned
-          before_validation_on_create :set_on_create # this makes sure we have a version before the element is validated
           validate          :valid_redaction
           after_save        :save_version
           after_save        :after_all
@@ -50,8 +49,8 @@ module Zena
           else
             # can we create a new redaction in the current context ?
             # there can only be one redaction/proposition per lang per node. Only the owner of the red can edit
-            v = versions.find(:first, :conditions=>["status >= #{Zena::Status[:red]} AND status < #{Zena::Status[:pub]} AND lang=?", visitor_lang])
-            v == nil || (v.status == Zena::Status[:red] && v.user_id == visitor_id)
+            v = versions.find(:first, :conditions=>["status >= #{Zena::Status[:red]} AND status < #{Zena::Status[:pub]} AND lang=?", visitor.lang])
+            v == nil || (v.status == Zena::Status[:red] && v.user_id == visitor[:id])
           end 
         rescue ActiveRecord::RecordNotFound
           true
@@ -82,7 +81,7 @@ module Zena
         # * people who #can_manage? if node is private
         def can_publish?
           version.status < Zena::Status[:pub] && 
-          ( ( can_visible? && (version.status > Zena::Status[:red] || version.user_id == visitor_id) ) ||
+          ( ( can_visible? && (version.status > Zena::Status[:red] || version.user_id == visitor[:id]) ) ||
             ( can_manage?  && private? )
           )
         end
@@ -99,12 +98,12 @@ module Zena
         
         # can destroy node ? (only logged in user can destroy)
         def can_destroy?
-          can_drive? && (user_id != 1)
+          can_drive? && (user_id != 1) # not anonymous
         end
         
         # Propose for publication
         def propose(prop_status=Zena::Status[:prop])
-          if version.user_id == visitor_id
+          if version.user_id == visitor[:id]
             version.status = prop_status
             version.save && after_propose && update_max_status
           else
@@ -115,7 +114,7 @@ module Zena
         # Backup a redaction (create a new version)
         # TODO: test
         def backup
-          if version.user_id == visitor_id
+          if version.user_id == visitor[:id]
             version.status = Zena::Status[:rep]
             version.save && edit! && after_refuse && update_max_status
           else
@@ -125,18 +124,9 @@ module Zena
         
         # Refuse publication
         def refuse
-          Node.logger.info "start REFUSE"
           return false unless can_refuse?
-          Node.logger.info "in REFUSE"
           version.status = Zena::Status[:red]
-          res = version.save
-          Node.logger.info "SAVED"
-          res = res && after_refuse
-          Node.logger.info "AFTER REFUSED"
-          res = res && update_max_status
-          Node.logger.info "UPDATED MAX STATUS"
-          Node.logger.info "end REFUSE (#{res})"
-          res
+          version.save && after_refuse && update_max_status
         end
         
         # publish if version status is : redaction, proposition, replaced or removed
@@ -179,7 +169,7 @@ module Zena
         # A published version can be removed by the members of the publish group
         # A redaction can be removed by it's owner
         def remove
-          unless can_unpublish? || (version.status < Zena::Status[:pub] && (version.user_id == visitor_id))
+          unless can_unpublish? || (version.status < Zena::Status[:pub] && (version.user_id == visitor[:id]))
             return false
           end
           version.status = Zena::Status[:rem]
@@ -276,35 +266,34 @@ module Zena
           if ! @version
             if new_record?
               @version = version_class.new
-              @version.user_id = @visitor_id || nil
-              @version.lang = @visitor_lang || nil
+              # owner and lang set in secure_scope
               @version.status = Zena::Status[:red]
               @version.node = self
             elsif can_drive?
               # sees propositions
-              lang = visitor_lang.gsub(/[^\w]/,'')
+              lang = visitor.lang.gsub(/[^\w]/,'')
               @version =  Version.find(:first,
                             :select=>"*, (lang = '#{lang}') as lang_ok, (lang = '#{ref_lang}') as ref_ok",
                             :conditions=>[ "((status >= ? AND user_id = ? AND lang = ?) OR status > ?) AND node_id = ?", 
-                                            Zena::Status[:red], visitor_id, lang, Zena::Status[:red], self[:id] ],
+                                            Zena::Status[:red], visitor[:id], lang, Zena::Status[:red], self[:id] ],
                             :order=>"lang_ok DESC, ref_ok DESC, status ASC ")
               if !@version
                 @version = versions.find(:first, :order=>'id DESC')
               end
             else
               # only own redactions and published versions
-              lang = visitor_lang.gsub(/[^\w]/,'')
+              lang = visitor.lang.gsub(/[^\w]/,'')
               @version =  Version.find(:first,
                             :select=>"*, (lang = '#{lang}') as lang_ok, (lang = '#{ref_lang}') as ref_ok",
                             :conditions=>[ "((status >= ? AND user_id = ? AND lang = ?) OR status = ?) and node_id = ?", 
-                                            Zena::Status[:red], visitor_id, lang, Zena::Status[:pub], self[:id] ],
+                                            Zena::Status[:red], visitor[:id], lang, Zena::Status[:pub], self[:id] ],
                             :order=>"lang_ok DESC, ref_ok DESC, status ASC, publish_from ASC")
 
             end
             @version.node = self # preload self as node in version
           end
           if @version.nil?
-            raise Exception.exception("Node #{self[:id]} does not have any version !!")
+            raise Exception.new("Node #{self[:id]} does not have any version !!")
           end
           @version
         end
@@ -325,27 +314,31 @@ module Zena
         
         def redaction
           return @redaction if @redaction
-          begin
-            # is there a current redaction ?
-            v = versions.find(:first, :conditions=>["status >= #{Zena::Status[:red]} AND status < #{Zena::Status[:pub]} AND lang=?", visitor_lang])
-          rescue ActiveRecord::RecordNotFound
-            v = nil
-          end
-          if v == nil && (can_write? || new_record?)
-            # create new redaction
-            v = version.clone
-            v.status = Zena::Status[:red]
-            v.publish_from = v.created_at = nil
-            v.comment = v.number = ''
-            v.user_id = visitor_id
-            v.lang = visitor_lang
-            v[:content_id] = version[:content_id] || version[:id]
-            v.node = self
-          end
-          if v && (v.user_id == visitor_id) && v.status == Zena::Status[:red]
-            @redaction = @version = v
+          if new_record?
+            @redaction = version
           else
-            nil
+            begin
+              # is there a current redaction ?
+              v = versions.find(:first, :conditions=>["status >= #{Zena::Status[:red]} AND status < #{Zena::Status[:pub]} AND lang=?", visitor.lang])
+            rescue ActiveRecord::RecordNotFound
+              v = nil
+            end
+            if v == nil && can_write?
+              # create new redaction
+              v = version.clone
+              v.status = Zena::Status[:red]
+              v.publish_from = v.created_at = nil
+              v.comment = v.number = ''
+              v.user_id = visitor[:id]
+              v.lang = visitor.lang
+              v[:content_id] = version[:content_id] || version[:id]
+              v.node = self
+            end
+            if v && (v.user_id == visitor[:id]) && v.status == Zena::Status[:red]
+              @redaction = @version = v
+            else
+              nil
+            end
           end
         end
         
@@ -411,9 +404,8 @@ module Zena
         end
         
         def set_on_create
-          self[:ref_lang] = visitor_lang
-          version.user_id = visitor_id
-          version.lang = visitor_lang
+          version.user_id = visitor[:id]
+          version.lang    = visitor.lang
           true
         end
         
@@ -421,12 +413,12 @@ module Zena
         module ClassMethods
           # PUT YOUR CLASS METHODS HERE
           
-          # Find an node based on a version id
+          # Find a node based on a version id
           def version(version_id)
             version = Version.find(version_id.to_i)
             node = self.find(version.node_id)
             node.version = version
-            node.eval_with_visitor 'errors.add("base", "you do not have the rights to do this") unless version.status == 50 || can_drive? || version.user_id == visitor_id'
+            node.eval_with_visitor 'errors.add("base", "you do not have the rights to do this") unless version.status == 50 || can_drive? || version.user_id == visitor[:id]'
           end
         end
       end

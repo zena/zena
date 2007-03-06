@@ -8,14 +8,14 @@ body {font: 0.9em Arial, Helvetica, Verdana, sans-serif; background:#BBC5CD; lin
 .clear { clear:both;}
 .next { float:right; margin-right:10px; }
 .previous { float:left;}
-.btn_x {float:right;}
+.btn_x {float:right; padding-right:10px;}
 .errors ul { background:#DDC8C8; margin:0 0 5px; padding:4px 0; border-bottom:1px solid #5A3231;}
 
 /* search box */
 #search { z-index:999; z-index:999; position:absolute; top:1px; right:1px; padding-right:1px; font-size:0.8em;}
 
 /* messages and ajax-loader */
-#messages { position:absolute; top:0; line-height:1.4em; width:100%; }
+#messages { position:absolute; top:0; line-height:1.4em; width:95%; }
 #loader { visibility:hidden;}
 #loader img {float:left;}
 #notice, #error {padding:2px 8px; border: 1px dotted #835857; width: 100%;}
@@ -63,7 +63,10 @@ ul.link_box { float:left; display:block; margin:2px; padding:2px;}
 #image_tab a, #document_tab a { width:80px; display:block; float:left;}
 
 /* new document */
+#file_tab, #text_doc_tab { padding-top:0.5em;}
 #file_tab input, #text_doc_tab input { width:200px; margin:2px;}
+#file_tab .btn_validate input, #text_doc_tab .btn_validate input { width:auto;}
+#file_tab .btn_validate, #text_doc_tab .btn_validate { float:right; padding-right:10px; }
 #file_tab textarea, #text_doc_tab textarea { width:90%;}
 #file_tab .file {font-size:0.7em;}
 

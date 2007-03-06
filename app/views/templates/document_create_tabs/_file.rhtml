@@ -1,5 +1,6 @@
 <%= form_tag( {:controller=>'document', :action=>"create"}, :multipart=>true ) %>
 <%= hidden_field 'document', 'parent_id', :value=>@document[:parent_id]  %>
+<p class="btn_validate"><input type="submit" class="btn_validate" onclick="$('loader').style.visibility = 'visible';" value='<%= transb('validate') %>'/></p>
 
 <label for='document_c_file'><%= trans('file') %></label>
 <input id="document_c_file" name="document[c_file]" onchange="Zena.get_name('document_c_file','document_name'); $('document_name').focus(); $('document_name').select();" class='file' type="file" />
@@ -9,7 +10,5 @@
 
 <label for='document_v_summary'><%= trans('summary') %></label>
 <textarea id='document_v_summary' rows='3' name='document[v_summary]'></textarea><br/>
-
-<p class="btn_validate"><input type="submit" class="btn_validate" onclick="$('loader').style.visibility = 'visible';" value='<%= transb('validate') %>'/></p>
 <%= end_form_tag %>
 <%#= css_edit('popup.css')%>

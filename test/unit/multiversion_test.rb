@@ -82,11 +82,11 @@ class MultiVersionTest < Test::Unit::TestCase
     node = secure(Node) { nodes(:opening)  }
     assert_equal "fr", node.v_lang
     assert_equal "ouverture du parc", node.v_title
-    @lang = "en"
+    visitor.lang = "en"
     node = secure(Node) { nodes(:opening)  }
     assert_equal "en", node.v_lang
     assert_equal "parc opening", node.v_title
-    @lang = 'ru'
+    visitor.lang = 'ru'
     node = secure(Node) { nodes(:opening)  }
     assert_equal "fr", node.v_lang
     assert_equal "ouverture du parc", node.v_title
@@ -94,7 +94,7 @@ class MultiVersionTest < Test::Unit::TestCase
     node = secure(Node) { nodes(:opening)  }
     assert_equal "en", node.v_lang
     assert_equal "parc opening", node.v_title
-    @lang = 'ru'
+    visitor.lang = 'ru'
     node = secure(Node) { nodes(:opening)  }
     assert_equal "fr", node.v_lang
     assert_equal "ouverture du parc", node.v_title
@@ -133,7 +133,7 @@ class MultiVersionTest < Test::Unit::TestCase
   
   def test_set_redaction
     test_visitor(:tiger)
-    set_lang('es')
+    visitor.lang = 'es'
     node = secure(Node) { nodes(:status) }
     node.v_title = 'labias'
     assert_equal 'es', node.v_lang
@@ -143,12 +143,12 @@ class MultiVersionTest < Test::Unit::TestCase
   
   def test_proposition
     test_visitor(:tiger)
-    @lang = 'en'
+    visitor.lang = 'en'
     node = secure(Node) { nodes(:lake)  }
     assert_equal Zena::Status[:pub], node.v_status , "Any visitor sees the publication"
     assert_equal versions_id(:lake_en) , node.v_id
     test_visitor(:ant)
-    @lang = 'en'
+    visitor.lang = 'en'
     node = secure(Node) { nodes(:lake)  }
     assert_equal Zena::Status[:red], node.v_status , "Owner of a redaction sees the redaction"
     assert_equal versions_id(:lake_red_en) , node.v_id
@@ -164,7 +164,7 @@ class MultiVersionTest < Test::Unit::TestCase
     assert_equal versions_id(:lake_en) , node.v_id
     
     test_visitor(:tiger)
-    @lang = 'en'
+    visitor.lang = 'en'
     node = secure(Node) { nodes(:lake)  }
     assert_equal Zena::Status[:prop], node.v_status , "Publisher sees the proposition"
     assert_equal versions_id(:lake_red_en) , node.v_id
@@ -172,13 +172,13 @@ class MultiVersionTest < Test::Unit::TestCase
   
   def test_can_edit
     test_visitor(:ant)
-    @lang = 'en'
+    visitor.lang = 'en'
     node = secure(Node) { nodes(:lake)  }
     node2 = secure(Node) { nodes(:status)  }
     assert node.can_edit?
     assert node2.can_edit?
     test_visitor(:tiger)
-    @lang = 'en'
+    visitor.lang = 'en'
     node = secure(Node) { nodes(:lake)  }
     node2 = secure(Node) { nodes(:status)  }
     assert ! node.can_edit?
@@ -232,13 +232,13 @@ class MultiVersionTest < Test::Unit::TestCase
     
     # no two redactions for the same language
     test_visitor(:tiger)
-    @lang = "fr"
+    visitor.lang = "fr"
     node = secure_write(Node) { nodes(:wiki)  }
     assert ! node.edit! , "Edit fails"
     assert ! node.update_attributes( :v_title=>"Mon amour") , "Edit fails"
     
     # can add redactions for different languages
-    @lang = "de"
+    visitor.lang = "de"
     node = secure_write(Node) { nodes(:wiki)  }
     assert node.update_attributes( :v_title=> "Spieluhr") , "Edit succeeds"
     redactions = Version.find(:all, :conditions=>['node_id = ? AND status = ?', nodes_id(:wiki), Zena::Status[:red]])
@@ -247,7 +247,7 @@ class MultiVersionTest < Test::Unit::TestCase
   
   def test_update_attributes
     test_visitor(:ant)
-    @lang = 'en'
+    visitor.lang = 'en'
     node = secure_write(Node) { nodes(:lake)  }
     assert node.edit! , "Edit succeeds"
     assert_equal "The lake we love", node.v_title
@@ -274,7 +274,7 @@ class MultiVersionTest < Test::Unit::TestCase
   def test_update_cannot_create_redaction
     # changes node and creates a new redaction
     test_visitor(:lion)
-    @lang = 'en'
+    visitor.lang = 'en'
     node = secure(Node) { nodes(:lake)  }
     attrs = { :rgroup_id => 4, :v_title => "Manager's lake" }
     assert ! node.update_attributes( attrs ), "Update attributes fails"
@@ -284,7 +284,7 @@ class MultiVersionTest < Test::Unit::TestCase
   def test_update_attributes_ok
     # changes node and creates a new redaction
     test_visitor(:lion)
-    @lang = 'ru'
+    visitor.lang = 'ru'
     node = secure(Node) { nodes(:lake)  }
     attrs = { :inherit=>0, :rgroup_id => 4, :v_title => "Manager's lake"}
     assert node.update_attributes( attrs ), "Update attributes succeeds"
@@ -333,7 +333,7 @@ class MultiVersionTest < Test::Unit::TestCase
   
   def test_save_redaction
     test_visitor(:ant)
-    @lang = 'en'
+    visitor.lang = 'en'
     node = secure(Node) { nodes(:lake)  }
     node.edit!
     version_id = node.v_id
@@ -372,7 +372,7 @@ class MultiVersionTest < Test::Unit::TestCase
     node = secure(Node) { Node.version(versions_id(:lake_red_en)) }
     assert node.propose, "Propose for publication succeeds"
     test_visitor(:tiger)
-    @lang = 'en'
+    visitor.lang = 'en'
     node = secure(Node) { nodes(:lake)  }
     assert_equal versions_id(:lake_red_en), node.v_id, "Publisher sees the proposition"
     assert node.publish
@@ -384,7 +384,7 @@ class MultiVersionTest < Test::Unit::TestCase
   
   def test_publish_with_two_lang_red
     test_visitor(:tiger)
-    @lang = 'en'
+    visitor.lang = 'en'
     node = secure(Node) { nodes(:opening) }
     assert_equal 3, Version.find(:all, :conditions=>["node_id = ?", node[:id]]).size
     assert_equal 1, Version.find(:all, :conditions=>["node_id = ? AND status=#{Zena::Status[:red]}", node[:id]]).size
@@ -408,7 +408,7 @@ class MultiVersionTest < Test::Unit::TestCase
   
   def test_publish_new_lang_new_author
     test_visitor(:tiger)
-    @lang = 'fr'
+    visitor.lang = 'fr'
     node = secure(Node) { nodes(:lake)  }
     assert_equal 1, node.editions.size, "English edition exists"
     assert node.update_attributes( :v_title => "Joli petit lac" )
@@ -434,7 +434,7 @@ class MultiVersionTest < Test::Unit::TestCase
   
   def test_remove_all
     test_visitor(:tiger)
-    @lang = 'en'
+    visitor.lang = 'en'
     node = secure(Node) { nodes(:status)  }
     assert node.remove # remove version
     assert_equal Zena::Status[:rem], node.v_status
@@ -448,7 +448,7 @@ class MultiVersionTest < Test::Unit::TestCase
   
   def test_cannot_remove_red
     test_visitor(:tiger)
-    @lang = 'en'
+    visitor.lang = 'en'
     node = secure(Node) { nodes(:status)  }
     assert node.remove # remove version
     assert_equal Zena::Status[:rem], node.v_status

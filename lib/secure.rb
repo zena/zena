@@ -20,13 +20,13 @@ module Zena
       # * owner
       # * members of +read_group+ if the node is published and the current date is greater or equal to the publication date
       # * members of +publish_group+ if +max_status+ >= prop
-      def secure_scope(visitor_id, visitor_groups)
-        if visitor_id == 2
+      def secure_scope
+        if visitor[:id] == 2 # super user
           '1'
         else
-          "user_id = '#{visitor_id}' OR "+
-          "(rgroup_id IN (#{visitor_groups.join(',')}) AND publish_from <= now() ) OR " +
-          "(pgroup_id IN (#{visitor_groups.join(',')}) AND max_status > #{Zena::Status[:red]})"
+          "user_id = '#{visitor[:id]}' OR "+
+          "(rgroup_id IN (#{visitor.group_ids.join(',')}) AND publish_from <= now() ) OR " +
+          "(pgroup_id IN (#{visitor.group_ids.join(',')}) AND max_status > #{Zena::Status[:red]})"
         end
       end
 
@@ -35,12 +35,12 @@ module Zena
       # * super user
       # * owner
       # * members of +write_group+ if node is published and the current date is greater or equal to the publication date
-      def secure_write_scope(visitor_id, visitor_groups)
-        if visitor_id == 2
+      def secure_write_scope
+        if visitor[:id] == 2 # super user
           '1'
         else
-          "user_id = '#{visitor_id}' OR "+
-          "(wgroup_id IN (#{visitor_groups.join(',')}) AND publish_from <= now())"
+          "user_id = '#{visitor[:id]}' OR "+
+          "(wgroup_id IN (#{visitor.group_ids.join(',')}) AND publish_from <= now())"
         end
       end
       
@@ -53,14 +53,14 @@ module Zena
       # [manage]
       # * owner if +max_status+ <= red
       # * owner if private
-      def secure_drive_scope(visitor_id, visitor_groups)
-        if visitor_id == 2
+      def secure_drive_scope
+        if visitor[:id] == 2 # super user
           '1'
         else
-          "(user_id = '#{visitor_id}' AND "+
-            "( (rgroup_id = 0 AND wgroup_id = 0 AND pgroup_id = 0) OR max_status <= #{Zena::Status[:red]} OR pgroup_id IN (#{visitor_groups.join(',')}) )" +
+          "(user_id = '#{visitor[:id]}' AND "+
+            "( (rgroup_id = 0 AND wgroup_id = 0 AND pgroup_id = 0) OR max_status <= #{Zena::Status[:red]} OR pgroup_id IN (#{visitor.group_ids.join(',')}) )" +
           ") OR "+
-          "( pgroup_id IN (#{visitor_groups.join(',')}) AND max_status > #{Zena::Status[:red]} )"
+          "( pgroup_id IN (#{visitor.group_ids.join(',')}) AND max_status > #{Zena::Status[:red]} )"
         end
       end
     end
@@ -183,18 +183,23 @@ Just doing the above will filter all result according to the logged in user.
       
       
       module InstanceMethods
-        attr_accessor :visitor_id, :visitor_groups, :visitor_lang
+        attr_accessor :visitor
         
         def self.included(base)
           base.extend ClassMethods
         end
           
         # Store visitor to produce scope when needed and to retrieve correct editions.
-        def set_visitor(visitor_id, visitor_groups, user_lang)
-          @visitor_id = visitor_id
-          @visitor_groups = visitor_groups
-          @visitor_lang = user_lang
-          # callback used by functions triggered before 'set_visitor'
+        def visitor=(visitor)
+          @visitor = visitor
+          if new_record?
+            # set kpath
+            self[:kpath]    = self.class.kpath
+            self[:user_id]  = visitor[:id]
+            self[:ref_lang] = visitor.lang
+            set_on_create
+          end
+          # callback used by functions triggered before 'visitor='
           if @eval_on_visitor
             @eval_on_visitor.each do |str|
               eval(str)
@@ -213,44 +218,43 @@ Just doing the above will filter all result according to the logged in user.
           self
         end
   
-        # Secure used by the object itself (to find children, etc). This scope uses @visitor_id, @visitor_groups and @visitor_lang
-        # as set by #set_visitor. The options hash is used internally by zena when maintaining parent to children inheritance and should not be used for other purpose if you do not want to break secure access.
-        def secure_with_scope(obj, scope, opts={})
-          if opts[:secure] == false
-            yield
-          else
-            obj.with_scope(
-              :create => { :user_id => @visitor_id, :lang => @visitor_lang }, 
-              :find   => { :conditions => scope }) do
-              result = yield
-              if result
-                # propagate secure scope to children
-                if result.kind_of? Array
-                  result.each {|r| r.set_visitor(@visitor_id || 1, @visitor_groups || [1], @visitor_lang)}
-                else
-                  result.set_visitor(@visitor_id || 1, @visitor_groups || [1], @visitor_lang)
-                end
-                result
+        # Secure used by the object itself (to find children, etc) with the visitor as set by #visitor=.
+        def secure_with_scope(obj, scope)
+          obj.with_scope(
+            :create => { :visitor => visitor },
+            :find   => { :conditions => scope   }) do
+            result = yield
+            if result
+              # propagate secure scope to children
+              if result.kind_of? Array
+                result.each {|r| r.visitor = visitor }
               else
-                raise ActiveRecord::RecordNotFound
+                result.visitor = visitor
               end
+              result
+            else
+              raise ActiveRecord::RecordNotFound
             end
           end
         end
         
         # secure for read access used by the object itself. The options hash is used internally by zena when maintaining parent to children inheritance and should not be used for other purpose if you do not want to break secure access.
         def secure(obj, opts={}, &block)
-          secure_with_scope(obj,secure_scope(visitor_id, visitor_groups), opts, &block)
+          if opts[:secure] == false
+            yield
+          else
+            secure_with_scope(obj,secure_scope, &block)
+          end
         end
   
         # secure for write access used by the object itself
         def secure_write(obj, &block)
-          secure_with_scope(obj,secure_write_scope(visitor_id, visitor_groups), &block)
+          secure_with_scope(obj,secure_write_scope, &block)
         end
         
         # secure for publish access used by the object itself
         def secure_drive(obj, &block)
-          secure_with_scope(obj,secure_drive_scope(visitor_id, visitor_groups), &block)
+          secure_with_scope(obj,secure_drive_scope, &block)
         end
     
         # Return true if the node is considered as private (+read_group+, +write_group+ and +publish_group+ are +0+)
@@ -260,7 +264,7 @@ Just doing the above will filter all result according to the logged in user.
         
         # Return true if the node can be viewed by all (public)
         def public?
-          can_read?(1,[1])
+          can_read?(1,[1]) # visible by anonymous
         end
   
         # people who can read:
@@ -268,8 +272,8 @@ Just doing the above will filter all result according to the logged in user.
         # * owner
         # * members of +read_group+ if the node is published and the current date is greater or equal to the publication date
         # * members of +publish_group+ if +max_status+ >= prop
-        def can_read?(uid=visitor_id, ugps=visitor_groups)
-          ( uid == 2 ) ||
+        def can_read?(uid=visitor[:id], ugps=visitor.group_ids)
+          ( uid == 2 ) || # super user
           ( uid == user_id ) ||
           ( ugps.include?(rgroup_id) && publish_from && Time.now.utc >= publish_from ) ||
           ( ugps.include?(pgroup_id) && max_status > Zena::Status[:red] )
@@ -279,8 +283,8 @@ Just doing the above will filter all result according to the logged in user.
         # * super user
         # * owner
         # * members of +write_group+ if published and the current date is greater or equal to the publication date
-        def can_write?(uid=visitor_id, ugps=visitor_groups)
-          ( uid == 2 ) ||
+        def can_write?(uid=visitor[:id], ugps=visitor.group_ids)
+          ( uid == 2 ) || # super user
           ( uid == user_id ) ||
           ( ugps.include?(wgroup_id) && publish_from && Time.now.utc >= publish_from )
         end
@@ -289,8 +293,8 @@ Just doing the above will filter all result according to the logged in user.
         # * super user
         # * members of +publish_group+
         # * members of the reference's publish group if the item is private
-        def can_visible?(uid=visitor_id, ugps=visitor_groups)
-          ( uid == 2 ) ||
+        def can_visible?(uid=visitor[:id], ugps=visitor.group_ids)
+          ( uid == 2 ) || # super user
           ( ugps.include?(pgroup_id) ) ||
           ( private? && ugps.include?(ref.pgroup_id))
         end
@@ -298,8 +302,8 @@ Just doing the above will filter all result according to the logged in user.
         # people who can manage:
         # * owner if +max_status+ <= red
         # * owner if private
-        def can_manage?(uid=visitor_id)
-          ( uid == 2 ) ||
+        def can_manage?(uid=visitor[:id])
+          ( uid == 2 ) || # super user
           ( publish_from == nil && uid == user_id && max_status <= Zena::Status[:red] ) ||
           ( private? && uid == user_id )
         end
@@ -310,6 +314,10 @@ Just doing the above will filter all result according to the logged in user.
         end
         
         def secure_before_validation
+          unless @visitor
+            errors.add('base', "record not secured")
+            return false
+          end
           if new_record?
             secure_on_create
           else
@@ -317,7 +325,10 @@ Just doing the above will filter all result according to the logged in user.
           end
         end
         
-        # 0. set node.user_id = visitor_id
+        # Set owner and lang before validations on create (overwritten by multiversion)
+        def set_on_create
+        end
+        
         # 1. validate the presence of a valid project (one in which the visitor has write access and project<>self !)
         # 2. validate the presence of a valid reference (project or parent) (in which the visitor has write access and ref<>self !)
         # 3. validate +publish_group+ value (same as parent or ref.can_visible? and valid)
@@ -326,16 +337,7 @@ Just doing the above will filter all result according to the logged in user.
         #     b. else inherit or private
         # 5. validate the rest
         def secure_on_create
-          # set kpath
-          self[:kpath] = self.class.kpath
-          
-          unless @visitor_id
-            errors.add('base', "record not secured") 
-            return false
-          end
-          self[:user_id] = visitor_id
           # validate reference
-          
           if ref == nil
             errors.add(ref_field, "invalid reference")
             return false
@@ -370,9 +372,9 @@ Just doing the above will filter all result according to the logged in user.
             end
           when 0
             if ref.can_visible?
-              errors.add('rgroup_id', "unknown group") unless visitor_groups.include?(rgroup_id)
-              errors.add('wgroup_id', "unknown group") unless visitor_groups.include?(wgroup_id)
-              errors.add('pgroup_id', "unknown group") unless visitor_groups.include?(pgroup_id)
+              errors.add('rgroup_id', "unknown group") unless visitor.group_ids.include?(rgroup_id)
+              errors.add('wgroup_id', "unknown group") unless visitor.group_ids.include?(wgroup_id)
+              errors.add('pgroup_id', "unknown group") unless visitor.group_ids.include?(pgroup_id)
             elsif private?
               # ok
             else
@@ -403,10 +405,6 @@ Just doing the above will filter all result according to the logged in user.
         #     c. can change to 'custom' if can_visible?
         # 6. validate the rest
         def secure_on_update
-          unless @visitor_id
-            errors.add('base', "record not secured")
-            return false
-          end
           @old = nil # force reload of 'old'
           unless old
             # cannot change node if old not found
@@ -418,7 +416,7 @@ Just doing the above will filter all result according to the logged in user.
             return false
           end
           if user_id != old.user_id
-            if visitor_groups.include?(2) # admin group
+            if visitor.group_ids.include?(2) # admin group
               # only admin can change owners
               begin
                 User.find(user_id)
@@ -511,7 +509,7 @@ Just doing the above will filter all result according to the logged in user.
           when -1
             # make private, only if owner
             unless (inherit == old.inherit)
-              if old.can_drive? && (user_id == visitor_id) && ZENA_ENV[:allow_private_nodes]
+              if old.can_drive? && (user_id == visitor[:id]) && ZENA_ENV[:allow_private_nodes]
                 [:rgroup_id, :wgroup_id, :pgroup_id].each do |sym|
                   self[sym] = 0
                 end
@@ -526,13 +524,13 @@ Just doing the above will filter all result according to the logged in user.
                 if private?
                   # ok (all groups are 0)
                 else
-                  if rgroup_id != 0 && rgroup_id != old[:rgroup_id] && !visitor_groups.include?(rgroup_id)
+                  if rgroup_id != 0 && rgroup_id != old[:rgroup_id] && !visitor.group_ids.include?(rgroup_id)
                     errors.add('rgroup_id', "unknown group")
                   end
-                  if wgroup_id != 0 && wgroup_id != old[:wgroup_id] && !visitor_groups.include?(wgroup_id)
+                  if wgroup_id != 0 && wgroup_id != old[:wgroup_id] && !visitor.group_ids.include?(wgroup_id)
                     errors.add('wgroup_id', "unknown group") 
                   end
-                  if pgroup_id != 0 && pgroup_id != old[:pgroup_id] && !visitor_groups.include?(pgroup_id)
+                  if pgroup_id != 0 && pgroup_id != old[:pgroup_id] && !visitor.group_ids.include?(pgroup_id)
                     errors.add('pgroup_id', "unknown group")
                   end
                 end
@@ -570,22 +568,16 @@ Just doing the above will filter all result according to the logged in user.
           errors.add('base', "you do not have the rights to do this")
           return false          
         end
-        
-        # Return the language used by this node.
-        def visitor_lang
-          @visitor_lang || ref_lang
-        end
   
         # Return the current visitor id or 'anonymous' if it is not set.
-        def visitor_id
-          @visitor_id || 1
+        def visitor
+          return @visitor if @visitor
+          #if new_record?
+          #  @visitor = User.new
+          #else
+            raise RecordNotSecured.new("Visitor not set, record not secured.")
+          #end
         end
-  
-        # Return the current visitor's groups or 'public' if nothing set.
-        def visitor_groups
-          @visitor_groups || [1]
-        end
-        
 
         # Reference to validate access rights
         def ref
@@ -669,23 +661,26 @@ Just doing the above will filter all result according to the logged in user.
         def base_class
           self.class
         end
+        
         # Reference foreign_key. Can be overwritten by sub-classes.
         def ref_field
           :reference_id
         end
 
-        public         
+        public
+
         # helper for testing validations
         def show_errors
           errors.each {|k,m| puts "[#{k}] #{m}"}
         end
+        
         module ClassMethods
           # kpath is a class shortcut to avoid tons of 'OR type = Page OR type = Document'
           # we build this path with the first letter of each class. The example bellow
           # shows how the kpath is built:
           #           class hierarchy
-          #                Node --> I           
-          #       Note --> IN          Page --> NP
+          #                Node --> N           
+          #       Note --> NN          Page --> NP
           #                    Document   Form   Project
           #                       NPD      NPF      NPP
           # So now, to get all Pages, your sql becomes : WHERE kpath LIKE 'NP%'
@@ -710,11 +705,6 @@ Just doing the above will filter all result according to the logged in user.
           def type_condition
             " #{table_name}.kpath LIKE '#{kpath}%' "
           end
-          
-          # Replace Rails subclasses normal behavior
-          def type_condition
-            " #{table_name}.kpath LIKE '#{kpath}%' "
-          end
         end
       end
     end
@@ -729,8 +719,6 @@ Just doing the above will filter all result according to the logged in user.
       end
       module AddActsAsMethod
         def acts_as_secure_controller
-          helper_method :lang
-
           class_eval <<-END
             include Zena::Acts::SecureController::InstanceMethods
           END
@@ -746,53 +734,44 @@ Just doing the above will filter all result according to the logged in user.
         # these methods are not actions that can be called from the web !!
         private
         
-        # get current lang
-        def lang
-          if ZENA_ENV[:monolingual]
-            ZENA_ENV[:default_lang]
-          else
-            session[:lang] ||= (ZENA_ENV[:languages].include?(visitor.lang) ? visitor.lang : ZENA_ENV[:default_lang])
-          end
-        end
-        
-        # secure find with scope (for read/write or publish access). The options hash is used internally by zena when maintaining parent to children inheritance and should not be used for other purpose if you do not want to break secure access.
+        # secure find with scope (for read/write or publish access).
         def secure_with_scope(obj, scope, opts={})
-          if opts[:secure] == false
-            yield
-          else
-            obj.with_scope(
-              :create => { :visitor_id => visitor.id, :visitor_groups => visitor.group_ids, :visitor_lang => lang }, 
-              :find   => { :conditions => scope }) do
-              result = yield
-              if result
-                if result.kind_of? Array
-                  result.each {|r| r.set_visitor(visitor.id, visitor.group_ids, lang)}
-                else
-                  # give the node some info on the current visitor. This lets security and lang info
-                  # propagate naturally through the nodes.
-                  result.set_visitor(visitor.id, visitor.group_ids, lang)
-                end
-                result
+          obj.with_scope(
+            :create => { :visitor => visitor },
+            :find   => { :conditions => scope    }) do
+            result = yield
+            if result
+              if result.kind_of? Array
+                result.each {|r| r.visitor = visitor }
               else
-                raise ActiveRecord::RecordNotFound
+                # give the node some info on the current visitor. This lets security and lang info
+                # propagate naturally through the nodes.
+                result.visitor = visitor
               end
+              result
+            else
+              raise ActiveRecord::RecordNotFound
             end
           end
         end
         
         # secure find for read access. The options hash is used internally by zena when maintaining parent to children inheritance and should not be used for other purpose if you do not want to break secure access.
         def secure(obj, opts={}, &block)
-          secure_with_scope(obj, secure_scope(visitor.id, visitor.group_ids), opts, &block)
+          if opts[:secure] == false
+            yield
+          else
+            secure_with_scope(obj, secure_scope, &block)
+          end
         end
 
         # secure find for write access.
         def secure_write(obj, &block)
-          secure_with_scope(obj, secure_write_scope(visitor.id, visitor.group_ids), &block)
+          secure_with_scope(obj, secure_write_scope, &block)
         end
         
         # secure find for publish (and manage) access.
         def secure_drive(obj, &block)
-          secure_with_scope(obj, secure_drive_scope(visitor.id, visitor.group_ids), &block)
+          secure_with_scope(obj, secure_drive_scope, &block)
         end
 
         # TODO: test
@@ -801,7 +780,7 @@ Just doing the above will filter all result according to the logged in user.
             if session[:user]
               user = User.find(session[:user])
             else
-              user = User.find(1)
+              user = anonymous_user
             end 
             # we do not want the password hanging around if not necessary, even hashed
             user[:password] = nil
@@ -809,17 +788,9 @@ Just doing the above will filter all result according to the logged in user.
           end
         end
         
-        def visitor_id
-          raise Exception.new
-        end
-
-        def visitor_groups
-          raise Exception.new
-          if session && session[:user]
-            session[:user][:groups]
-          else
-            [1] # public group
-          end
+        # Find the 'anonymous' user (public)
+        def anonymous_user
+          User.find(1)
         end
         
         module ClassMethods
@@ -830,6 +801,10 @@ Just doing the above will filter all result according to the logged in user.
   end
   # This exception handles all flagrant access violations or tentatives (like suppression of _su_ user)
   class AccessViolation < Exception
+  end
+  
+  # This exception occurs when a visitor is needed but none was provided.
+  class RecordNotSecured < Exception
   end
 end
 

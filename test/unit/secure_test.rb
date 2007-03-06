@@ -58,7 +58,7 @@ class SecureReadTest < Test::Unit::TestCase
     test_visitor(:ant)
     # not in any group and not owner
     node = nodes(:secret)
-    node.set_visitor(visitor.id, visitor.group_ids, lang)
+    node.visitor = visitor
     assert ! node.can_read? , "Can read"
     assert ! node.can_write? , "Can write"
     assert ! node.can_publish? , "Can publish"
@@ -117,11 +117,13 @@ class SecureReadTest < Test::Unit::TestCase
     assert_raise(ActiveRecord::RecordNotFound) { node = secure(Node) { nodes(:secret)  } }
     assert_raise(ActiveRecord::RecordNotFound) { node = secure_write(Node) { nodes(:secret)  } }
     assert_raise(ActiveRecord::RecordNotFound) { node = secure_drive(Node) { nodes(:secret)  } }
-    node = nodes(:secret) .set_visitor(1,[1],'en')
+    node = nodes(:secret)
+    node.visitor = anonymous_user
     assert ! node.can_read? , "Cannot read"
     assert ! node.can_write? , "Cannot write"
     assert ! node.can_publish? , "Cannot publish"
   end
+  
   def test_pgroup_can_read_unplished_nodes
     # create an unpublished node
     test_visitor(:lion)

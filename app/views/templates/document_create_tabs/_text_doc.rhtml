@@ -1,6 +1,6 @@
 <%= form_tag( {:controller=>'document', :action=>"create"}) %>
 <%= hidden_field 'document', 'parent_id', :value=>@document[:parent_id]  %>
-
+<p class="btn_validate"><input type="submit" class="btn_validate" onclick="$('loader').style.visibility = 'visible';" value='<%= transb('validate') %>'/></p>
 
 <label for='document_content_type'><%= trans('content type') %></label>
 <input  id='document_content_type' type='text' name='document[c_content_type]'/><br/>
@@ -11,5 +11,4 @@
 <label   for='document_v_summary'><%= trans('summary') %></label>
 <textarea id='document_v_summary' rows='3' name='document[v_summary]'></textarea><br/>
 
-<p class="btn_validate"><input type="submit" class="btn_validate" onclick="$('loader').style.visibility = 'visible';" value='<%= transb('validate') %>'/></p>
 <%= end_form_tag %>
