@@ -11,7 +11,7 @@ class Skin < Template
       template = secure(Template) { Template.find(:first, :conditions=>["parent_id = ? AND name = ?", self[:id], template_name])}
       zafu_url = "/#{self[:name]}/#{template_name}"
     end
-    tmpl_name = "#{template_name}_#{visitor_lang}"
+    tmpl_name = "#{template_name}_#{visitor.lang}"
     tmpl_dir = "/templates/compiled/#{self[:name]}"
     FileUtils::mkpath("#{RAILS_ROOT}/app/views#{tmpl_dir}")
     # render for the current lang
