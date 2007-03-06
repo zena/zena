@@ -36,7 +36,7 @@
           <h1 class="s<%= @node.v_status %>"><%= show_title %><br/>
             <%= node_actions(:actions=>:all) %>
           </h1>
-          <%= author(:large) %>
+          <%= show_author(:size=>:large) %>
         </div>
         <div class='content'>
           <ul>
@@ -68,7 +68,7 @@
             <h1 class="s<%= @node.v_status %>"><%= show_title %><br/>
               <%= node_actions(:actions=>:all) %>
             </h1>
-            <%= author(:large) %>
+            <%= show_author(:size=>:large) %>
           </td>
         </tr>
       </table>

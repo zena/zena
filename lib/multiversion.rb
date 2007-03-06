@@ -112,6 +112,17 @@ module Zena
           end
         end
         
+        # Backup a redaction (create a new version)
+        # TODO: test
+        def backup
+          if version.user_id == visitor_id
+            version.status = Zena::Status[:rep]
+            version.save && edit! && after_refuse && update_max_status
+          else
+            false
+          end
+        end
+        
         # Refuse publication
         def refuse
           Node.logger.info "start REFUSE"

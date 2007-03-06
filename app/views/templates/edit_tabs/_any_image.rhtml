@@ -4,6 +4,6 @@
 
 <% if !ImageBuilder.dummy? %>
 <label for="c_crop_x"><%= trans("image")  %></label>
-<div id="crop" class='toggle_div'><%= tlink_to_remote("crop", :url=>{:controller=>'document', :action=>'crop_form', :version_id=>@node.v_id}) %></div>
+<div id="crop" class='toggle_div'><%= tlink_to_remote("crop", :url=>{:controller=>'document', :action=>'crop_form', :id=>@node[:id]}) %></div>
 <div id="crop_form" class='toggle_div' style='display:none;'></div>
 <% end -%>

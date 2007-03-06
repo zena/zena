@@ -78,6 +78,6 @@ class DocumentController < ApplicationController
   
   # TODO: test
   def crop_form
-    @node = secure(Image) { Image.version(params[:version_id])}
+    @node = secure(Image) { Image.find(params[:id]) }
   end
 end
