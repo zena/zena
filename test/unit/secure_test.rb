@@ -332,7 +332,6 @@ class SecureCreateTest < Test::Unit::TestCase
     # ant is in the 'site' group, all should be ok
     attrs[:pgroup_id] = groups_id(:site)
     z = secure(Note) { Note.create(attrs) }
-    err z
     assert ! z.new_record? , "Not a new record"
     assert z.errors.empty? , "No errors"
     assert_equal wiki[:rgroup_id], z[:rgroup_id] , "Same rgroup as parent"

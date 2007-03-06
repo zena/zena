@@ -11,7 +11,7 @@ class Template < TextDocument
     if self.kind_of?(Skin)
       tmpl = "#{name}/any"
     else
-      tmpl = "#{parent[:name]}/#{name}"
+      tmpl = "#{parent(:secure=>false)[:name]}/#{name}"
     end
     ZENA_ENV[:languages].each do |lang|
       filepath = File.join(RAILS_ROOT,'app', 'views', 'templates', 'compiled')

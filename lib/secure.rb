@@ -214,29 +214,33 @@ Just doing the above will filter all result according to the logged in user.
         end
   
         # Secure used by the object itself (to find children, etc). This scope uses @visitor_id, @visitor_groups and @visitor_lang
-        # as set by #set_visitor
-        def secure_with_scope(obj, scope)
-          obj.with_scope(
-            :create => { :user_id => @visitor_id, :lang => @visitor_lang }, 
-            :find   => { :conditions => scope }) do
-            result = yield
-            if result
-              # propagate secure scope to children
-              if result.kind_of? Array
-                result.each {|r| r.set_visitor(@visitor_id || 1, @visitor_groups || [1], @visitor_lang)}
+        # as set by #set_visitor. The options hash is used internally by zena when maintaining parent to children inheritance and should not be used for other purpose if you do not want to break secure access.
+        def secure_with_scope(obj, scope, opts={})
+          if opts[:secure] == false
+            yield
+          else
+            obj.with_scope(
+              :create => { :user_id => @visitor_id, :lang => @visitor_lang }, 
+              :find   => { :conditions => scope }) do
+              result = yield
+              if result
+                # propagate secure scope to children
+                if result.kind_of? Array
+                  result.each {|r| r.set_visitor(@visitor_id || 1, @visitor_groups || [1], @visitor_lang)}
+                else
+                  result.set_visitor(@visitor_id || 1, @visitor_groups || [1], @visitor_lang)
+                end
+                result
               else
-                result.set_visitor(@visitor_id || 1, @visitor_groups || [1], @visitor_lang)
+                raise ActiveRecord::RecordNotFound
               end
-              result
-            else
-              raise ActiveRecord::RecordNotFound
             end
           end
         end
         
-        # secure for read access used by the object itself
-        def secure(obj, &block)
-          secure_with_scope(obj,secure_scope(visitor_id, visitor_groups), &block)
+        # secure for read access used by the object itself. The options hash is used internally by zena when maintaining parent to children inheritance and should not be used for other purpose if you do not want to break secure access.
+        def secure(obj, opts={}, &block)
+          secure_with_scope(obj,secure_scope(visitor_id, visitor_groups), opts, &block)
         end
   
         # secure for write access used by the object itself
@@ -751,30 +755,34 @@ Just doing the above will filter all result according to the logged in user.
           end
         end
         
-        # secure find with scope (for read/write or publish access)
-        def secure_with_scope(obj, scope)
-          obj.with_scope(
-            :create => { :visitor_id => visitor.id, :visitor_groups => visitor.group_ids, :visitor_lang => lang }, 
-            :find   => { :conditions => scope }) do
-            result = yield
-            if result
-              if result.kind_of? Array
-                result.each {|r| r.set_visitor(visitor.id, visitor.group_ids, lang)}
+        # secure find with scope (for read/write or publish access). The options hash is used internally by zena when maintaining parent to children inheritance and should not be used for other purpose if you do not want to break secure access.
+        def secure_with_scope(obj, scope, opts={})
+          if opts[:secure] == false
+            yield
+          else
+            obj.with_scope(
+              :create => { :visitor_id => visitor.id, :visitor_groups => visitor.group_ids, :visitor_lang => lang }, 
+              :find   => { :conditions => scope }) do
+              result = yield
+              if result
+                if result.kind_of? Array
+                  result.each {|r| r.set_visitor(visitor.id, visitor.group_ids, lang)}
+                else
+                  # give the node some info on the current visitor. This lets security and lang info
+                  # propagate naturally through the nodes.
+                  result.set_visitor(visitor.id, visitor.group_ids, lang)
+                end
+                result
               else
-                # give the node some info on the current visitor. This lets security and lang info
-                # propagate naturally through the nodes.
-                result.set_visitor(visitor.id, visitor.group_ids, lang)
+                raise ActiveRecord::RecordNotFound
               end
-              result
-            else
-              raise ActiveRecord::RecordNotFound
             end
           end
         end
         
-        # secure find for read access.
-        def secure(obj, &block)
-          secure_with_scope(obj, secure_scope(visitor.id, visitor.group_ids), &block)
+        # secure find for read access. The options hash is used internally by zena when maintaining parent to children inheritance and should not be used for other purpose if you do not want to break secure access.
+        def secure(obj, opts={}, &block)
+          secure_with_scope(obj, secure_scope(visitor.id, visitor.group_ids), opts, &block)
         end
 
         # secure find for write access.
