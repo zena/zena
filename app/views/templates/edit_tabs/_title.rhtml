@@ -10,8 +10,6 @@
 <label for="v_summary"><%= trans("summary")  %></label>
 <%= text_area 'node', 'v_summary', :cols=>nil, :rows=>4, :value=>@node.v_summary %>
 
-<%= zazen("!>.#{@node.id}.pv!") if @node.kind_of?(Document) %>
-
 <label for='links'><%= trans("links") %></label>
 <%= link_box('node', 'calendars') if @node.kind_of?(Note)%>
 <%= link_box('node', 'hot_for', :in=>[@node.project_id,1])%>
