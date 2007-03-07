@@ -107,10 +107,12 @@ class VersionController < ApplicationController
   
   # TODO: test
   def backup
-    save
+    @node = secure_write(Node) { Node.find(params[:node][:id]) }
+    @node.backup
     if @node.errors.empty?
-      @node.backup
-      flash[:notice] = trans "Backup created"
+      flash[:notice] = trans "Backup created."
+    else
+      flash[:error] = trans "Could not create backup."
     end
   end
   

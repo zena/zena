@@ -1,10 +1,8 @@
-<%= if @edit
+<%= node ||= @node; if @edit
   form_remote_tag(:with=>"add_comment_form", :url=>{:controller=>'comment', :action=>"update", :rnd=>rnd}) 
 else
   form_remote_tag(:with=>"add_comment_form", :url=>{:controller=>'comment', :action=>"create", :rnd=>rnd})
-end 
-node ||= @node
-%>
+end %>
 <% if @edit -%>
   <div class='inline_form'>
   <p class="btn_x"><%= link_to_remote(transb('btn_x'), :with=>'main', :url=>{:controller=>'discussion', :action=>'show', :id=>@comment[:discussion_id]} ) %></p>

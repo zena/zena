@@ -486,6 +486,17 @@ class MultiVersionTest < Test::Unit::TestCase
     assert_equal Zena::Status[:red], node.max_status
   end
   
+  def test_can_unpublish_version
+    test_visitor(:lion)
+    node = secure(Node) { nodes(:lion) }
+    pub_version = node.version
+    assert node.can_unpublish?
+    assert node.update_attributes(:v_title=>'leopard')
+    assert_equal Zena::Status[:red], node.v_status
+    assert !node.can_unpublish?
+    assert node.can_unpublish?(pub_version)
+  end
+  
   def test_backup
     test_visitor(:ant)
     visitor.lang = 'en'

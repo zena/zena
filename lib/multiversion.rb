@@ -92,8 +92,8 @@ module Zena
         end
         
         # Can remove publication
-        def can_unpublish?
-          can_drive? && version.status == Zena::Status[:pub]
+        def can_unpublish?(v=version)
+          can_drive? && v.status == Zena::Status[:pub]
         end
         
         # can destroy node ? (only logged in user can destroy)

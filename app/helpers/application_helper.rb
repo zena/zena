@@ -697,7 +697,7 @@ module ApplicationHelper
     elsif opt[:action] == :all
       case version.status
       when Zena::Status[:pub]
-        actions << version_form_action('unpublish',version[:id]) if @node.can_unpublish?
+        actions << version_form_action('unpublish',version[:id]) if @node.can_unpublish?(version)
       when Zena::Status[:prop]
         actions << version_form_action('publish',version[:id])
         actions << version_form_action('refuse',version[:id])

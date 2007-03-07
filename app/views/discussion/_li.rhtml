@@ -4,6 +4,6 @@
   <td class="box"><%= li.lang %></td>
   <td class="status"><%= trans(li.inside? ? 'inside' : 'outside') %> / <%= trans(li.open? ? 'open' : 'closed') %></td>
   <td class="comment"><%= li.all_comments.size.to_s + ' ' + trans('comment(s)') %></td>
-  <td class="date"><%= format_date(li.updated_at, 'datetime') %></td>
+  <td class="date"><%= tformat_date(li.updated_at, 'datetime') %></td>
   <td class="actions"><%= discussion_actions(li) %></td>
 </tr>

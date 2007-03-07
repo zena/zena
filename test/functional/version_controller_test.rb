@@ -202,6 +202,30 @@ class VersionControllerTest < Test::Unit::TestCase
     @controller.instance_variable_set(:@node, contact)
     assert_equal [["text", "text"], ["title", "title"], ["contact", "any_contact"], ["help", "help"]], @controller.send(:form_tabs)
   end
+  
+  def test_backup
+    without_files('data/test/jpg') do
+      login(:ant)
+      img = secure(Image) { Image.create( :parent_id=>nodes_id(:cleanWater),
+                                          :inherit => 1,
+                                          :name=>'birdy',
+                                          :v_title=>'Bird nest',
+                                          :c_file => uploaded_jpg('bird.jpg')) }
+      assert_kind_of Image , img
+      assert ! img.new_record? , "Not a new record"
+      assert_equal 'Bird nest', img.v_title
+      version_id = img.v_id
+      
+      # backup (and try to fool with post data)
+      get 'backup', :node=>{:id=>img[:id], :v_title=>'funky', :crop=>{:x=>'10',:y=>'10',:w=>'20',:h=>'20'}}
+      version = Version.find(version_id)
+      assert_equal 'Bird nest', version[:title]
+      
+      assert_equal 661, img.c_width
+      assert_equal 600, img.c_height
+      assert_equal 56183, img.c_size
+    end
+  end
   # def test_can_redit
   #   login(:tiger)
   #   post 'save', :node=>{:id=>nodes_id(:status), :v_title=>"I am a new title", :v_text=>"I am new text"}

@@ -1,6 +1,6 @@
 <% node ||= @node
 if node.discussion || @comments %>
-<div class='comment' id='comments_list'>
+<div class='comments' id='comments'>
   <h3><%= trans('comments') %></h3>
   <ul><%= render :partial=>'comment/li', :collection => @comments || node.comments %>
     <% if node.can_comment? -%>
