@@ -32,12 +32,12 @@ end
 class ZazenTest < Test::Unit::TestCase
   testfile :zafu, :zafu_asset, :zafu_insight, :zazen
   def test_single
-    do_test('zafu', 'names')
+    do_test('zazen', 'gallery_and_images')
   end
   def test_zazen_image_no_image
     file = 'zazen'
     test = 'image_no_image'
-    res = @@test_parsers[file].new_with_url("/#{test.gsub('_', '/')}", :helper=>DummyHelper.new(@@test_strings[file])).render(:images=>false)
+    res = @@test_parsers[file].new_with_url("/#{test.gsub('_', '/')}", :helper=>ParserModule::DummyHelper.new(@@test_strings[file])).render(:images=>false)
     assert_equal @@test_strings[file][test]['res'], res
   end
   make_tests

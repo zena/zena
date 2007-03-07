@@ -319,9 +319,12 @@ module ApplicationHelper
     if ids == ""
       images = @node.images
     else
-      ids = ids.split(',').map{|i| i.to_i}.join(',') # sql injection security
-      images = secure(Document) { Document.find(:all, :conditions=>"id IN (#{ids})") }
+      ids = ids.split(',').map{|i| i.to_i} # sql injection security
+      images = secure(Document) { Document.find(:all, :conditions=>"id IN (#{ids.join(',')})") }
+      # order like ids :
+      images.sort! {|a,b| ids.index(a[:id].to_i) <=> ids.index(b[:id].to_i) }
     end
+    
     render_to_string( :partial=>'main/gallery', :locals=>{:gallery=>images} )
   end
 

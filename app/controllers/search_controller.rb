@@ -16,7 +16,7 @@ class SearchController < ApplicationController
     @result_pages = nil
     @results = nil
     secure(Node) do
-      @result_pages, @results = paginate :nodes, :conditions=>conditions, :order => "name ASC", :per_page => 15
+      @result_pages, @results = paginate :nodes, :conditions=>conditions, :order => "name ASC", :per_page => 10
       @results # important: this is the 'secure' yield return, it is used to secure found nodes
     end
     render :partial=>'search/results', :locals=>{:results =>@results}

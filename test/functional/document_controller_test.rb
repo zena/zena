@@ -1,5 +1,5 @@
 require File.dirname(__FILE__) + '/../test_helper'
-require 'main_controller'
+require 'document_controller'
 
 # Re-raise errors caught by the controller.
 class DocumentController
@@ -32,12 +32,22 @@ class DocumenControllerTest < Test::Unit::TestCase
   
   def test_create_pdf
     login(:tiger)
-    post 'create', :document=>{:parent_id=>nodes_id(:zena), :c_file=>uploaded_pdf('water.pdf')}
+    preserving_files('/data/test/pdf') do
+      post 'create', :document=>{:parent_id=>nodes_id(:zena), :c_file=>uploaded_pdf('water.pdf')}
+      assert_response :redirect
+      assert_redirected_to :action=>'show', :id=>assigns(:document)[:id]
+      zena = secure(Node) { nodes(:zena) }
+      docs = zena.documents
+      assert_equal 'water', docs[0][:name]
+    end
+  end
+  
+  def test_show
+    get 'show'
+    assert_redirected_to :controller=>'main', :action=>'not_found'
+    get 'show', :id=>nodes_id(:bird_jpg)
     assert_response :success
-    assert_template 'document/create'
-    zena = secure(Node) { nodes(:zena) }
-    docs = zena.documents
-    assert_equal 'water', docs[0][:name]
+    assert_template 'document/show'
   end
   
   def test_data

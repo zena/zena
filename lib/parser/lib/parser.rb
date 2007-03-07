@@ -334,7 +334,7 @@ class Parser
     params = {}
     rest = text.strip
     while (rest != '')
-      if rest =~ /(.*?)=/
+      if rest =~ /(.+?)=/
         key = $1.strip.to_sym
         rest = rest[$&.length..-1].strip
         if rest =~ /('|")([^\1]*?[^\\])\1/

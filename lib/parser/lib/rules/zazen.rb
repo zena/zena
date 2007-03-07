@@ -38,7 +38,7 @@ module Zazen
     
     def scan
       #puts "SCAN:[#{@text}]"
-      if @text =~ /\A([^!"<]*)/
+      if @text =~ /\A([^!"<]*)/m
         flush $&
         if @text[0..0] == '!'
           scan_exclam
@@ -46,7 +46,7 @@ module Zazen
           scan_quote
         elsif @text[0..4] == '<code'
           scan_code
-        elsif @text =~ /\A([^>]*)>/
+        elsif @text =~ /\A([^>]*)>/m
           flush $&
         else
           # error never closed tag
@@ -60,7 +60,7 @@ module Zazen
     
     def scan_exclam
       #puts "EXCL:[#{@text}]"
-      if @text =~ /\!\[([^\]]*)\]\!/
+      if @text =~ /\A\!\[([^\]]*)\]\!/m
         # create a gallery ![...]!
         eat $&
         if @context[:images]
@@ -68,7 +68,7 @@ module Zazen
         else
           store @helper.trans('[gallery]')
         end
-      elsif @text =~ /\!([^0-9]{0,2})\{([^\}]*)\}\!/
+      elsif @text =~ /\A\!([^0-9]{0,2})\{([^\}]*)\}\!/m
         # list of documents !<.{...}!
         eat $&
         if @context[:images]
@@ -76,8 +76,9 @@ module Zazen
         else
           store @helper.trans('[documents]')
         end
-      elsif @text =~ /\!([^0-9]{0,2})([0-9]+)(\.([^\/\!]+)|)(\/([^\!]*)|)\!(:([^\s]+)|)/
+      elsif @text =~ /\A\!([^0-9]{0,2})([0-9]+)(\.([^\/\!]+)|)(\/([^\!]*)|)\!(:([^\s]+)|)/m
         # image !<.12.pv/blah blah!:12
+        #puts "IMAGE:[#{$&}]"
         eat $&
         store @helper.make_image(:style=>$1, :id=>$2, :size=>$4, :title=>$6, :link=>$8, :images=>@context[:images])
       else
@@ -87,7 +88,7 @@ module Zazen
     end
     
     def scan_quote
-      if @text =~ /"([^"]*)":([0-9]+)/
+      if @text =~ /\A"([^"]*)":([0-9]+)/m
         eat $&
         # link inside the cms "":34
         store @helper.make_link(:title=>$1,:id=>$2)
@@ -98,7 +99,7 @@ module Zazen
     
     def scan_wiki
       #puts "WIKI:[#{@text}]"
-      if @text =~ /\A([^\?])*/
+      if @text =~ /\A([^\?])*/m
         flush $&
         scan_wiki_link
       else
@@ -108,7 +109,7 @@ module Zazen
     end
     
     def scan_wiki_link
-      if @text =~ /\?(\w[^\?]+?\w)\?([^\w:]|:([^\s]+))/
+      if @text =~ /\A\?(\w[^\?]+?\w)\?([^\w:]|:([^\s]+))/m
         eat $&
         title = $1
         url   = $3
@@ -133,7 +134,7 @@ module Zazen
     def extract_code(text)
       @escaped_at = []
       block_counter = -1
-      text.gsub!( /(\A|[^\w])@(.*?)@(\Z|[^\w])/ ) do
+      text.gsub!( /(\A|[^\w])@(.*?)@(\Z|[^\w])/m ) do
         @escaped_at << $2
         block_counter += 1
         "#{$1}\\ZAZENBLOCKAT#{block_counter}ZAZENBLOCKAT\\#{$3}"
@@ -144,7 +145,7 @@ module Zazen
       text.gsub!( /<code([^>]*)>(.*?)<\/code>/m ) do
         params, text = $1, $2
         divparams = []
-        if params =~ /^(.*)lang\s*=\s*("|')([^"']+)\2(.*)$/
+        if params =~ /\A(.*)lang\s*=\s*("|')([^"']+)\2(.*)\Z/m
           pre, lang, post = $1.strip, $3, $4.strip
           divparams << pre if pre && pre != ""
           divparams << post if post && post != ""

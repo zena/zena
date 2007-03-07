@@ -48,11 +48,10 @@ class MainControllerTest < Test::Unit::TestCase
   
   def test_index
     assert_routing '/en', {:controller=>'main', :action=>'index', :prefix=>'en'}
-    assert_routing '/', {:controller=>'main', :action=>'redirect'}
+    assert_routing '/', {:controller=>'main', :action=>'show', :path=>[]}
     get 'index'
     assert_redirected_to :controller=>'main', :action=>'index', :prefix=>'en'
     get 'index', :prefix=>'en'
-    assert_response :success
     assert_response :success
   end
   

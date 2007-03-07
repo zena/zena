@@ -73,10 +73,10 @@ class MainController < ApplicationController
   
   # do not accept a logged in user to browse as if he was anonymous
   def check_url
-    if !params[:prefix] || (session[:user] && params[:prefix] != AUTHENTICATED_PREFIX)
+    if (params[:action] == 'show' && (!params[:path].kind_of?(Array) || params[:path] == []))
+      redirect_to :action=>'index', :prefix=>prefix
+    elsif !params[:prefix] || (session[:user] && params[:prefix] != AUTHENTICATED_PREFIX)
       redirect_with_prefix
-    elsif (params[:action] == 'show' && !params[:path].kind_of?(Array))
-      redirect_to :action=>'index'
     end
   end
   

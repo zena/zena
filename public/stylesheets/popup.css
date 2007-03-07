@@ -59,6 +59,7 @@ ul.link_box { float:left; display:block; margin:2px; padding:2px;}
 
 #image_tab .toggle_div, #document_tab .toggle_div { margin-top: 1em; margin-bottom:0.5em;}
 #file, #file_form { height:2em;}
+#image_tab img {border:1px solid #333; margin-top:4px;}
 #image_tab, #document_tab { padding-left:3em; padding-top:3em; }
 #image_tab a, #document_tab a { width:80px; display:block; float:left;}
 #image_tab .edit_info {font-size:0.8em; color:#333; margin-top:0.4em;}

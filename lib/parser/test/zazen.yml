@@ -27,6 +27,14 @@ gallery:
   src: "this ![12,13]! gallery"
   res: "<p>this [make_gallery |12,13|] gallery</p>"
 
+gallery_and_images:
+  src: |
+    
+    !23!
+    
+    ![12]!
+  res: "<p>[make_image id:|23| images:true style:||]</p>\n\n\n\t<p>[make_gallery |12|]</p>"
+
 gallery_children:
   src: "this ![]! gallery"
   res: "<p>this [make_gallery ||] gallery</p>"

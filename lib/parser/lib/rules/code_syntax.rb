@@ -32,6 +32,33 @@ module Syntax
       flush_chunk
       @callback.call( Token.new( data, gr, :none, false ) )
     end
+    
+    def parse_params(text)
+      return [] unless text
+      params = []
+      rest = text.strip
+      while (rest != '')
+        if rest =~ /(.+?)=/
+          key = $1.strip.to_sym
+          rest = rest[$&.length..-1].strip
+          if rest =~ /('|")([^\1]*?[^\\])\1/
+            rest = rest[$&.length..-1].strip
+            if $1 == "'"
+              params << [key,$2.gsub("\\'", "'")]
+            else
+              params << [key,$2.gsub('\\"', '"')]
+            end
+          else
+            # error, bad format, return found params.
+            break
+          end
+        else
+          # error, bad format
+          break
+        end
+      end
+      params
+    end
   end
   
   module Convertors
@@ -73,21 +100,53 @@ end
 
 class ZafuTokenizer < Syntax::Tokenizer
   def step
-    if methods = scan(/<\/?z:[^>]+>/)  
-      methods =~ /<(\/?)z:([^> ]+)([^>]*)(\/?)>/
-      start_group :punct, "<#{$1}z:"
+    if ztag = scan(/\A<\/?z:[^>]+>/)  
+      ztag =~ /<(\/?)z:([^> ]+)([^>]*)(\/?)>/
+      start_group :tag, "<#{$1}z:"
       start_group :ztag, $2
       trailing = $4
-      params = $3.strip.split(/ +/)
-      params.each do |kv|
-        key, value = *(kv.split('='))
+      params = parse_params($3)
+      params.each do |k,v|
         append " "
-        start_group :param, key
-        append "="
-        start_group :value, value
+        if v =~ /[^\\]'/
+          v = "\"#{v}\""
+        else
+          v = "'#{v}'"
+        end
+        start_group :param, k.to_s
+        append '='
+        start_group :value, v
       end
-      start_group :punct, "#{trailing}>"
-    elsif html = scan(/<\/?[^>]+>/)
+      start_group :tag, "#{trailing}>"
+    elsif dotag = scan(/<([^>]+)do\s*=([^>]+)>/)
+        if dotag =~ /\A<(\w+)([^>]*?)do\s*=('|")([^\3]*?[^\\])\3([^>]*?)(\/?)>/
+          start_group :tag, "<#{$1}#{$2}"
+          start_group :tag, "do="
+          start_group :ztag, "'#{$4}'"
+          trailing = $6
+          params = parse_params($5)
+          params.each do |k,v|
+            append " "
+            if v =~ /[^\\]'/
+              v = "\"#{v}\""
+            else
+              v = "'#{v}'"
+            end
+            if k == :do
+              start_group :tag, k.to_s
+              append '='
+              start_group :ztag, v
+            else
+              start_group :param, k.to_s
+              append '='
+              start_group :value, v
+            end
+          end
+          start_group :tag, "#{trailing}>"
+        else
+          start_group :normal, dotag
+        end
+    elsif html = scan(/\A<\/?[^>]+>/)
       html =~/<\/?([^>]+)>/
       start_group :tag, html
     else

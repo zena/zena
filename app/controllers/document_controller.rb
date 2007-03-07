@@ -12,16 +12,24 @@ class DocumentController < ApplicationController
     pdoc = params[:document]
     pdoc.delete(:c_file) if pdoc[:c_file] == ""
     @document = secure(Document) { Document.create(pdoc) }
-    
     if @document.new_record?
       render :action=>"new"
+    else
+      flash[:notice] = trans "Upload succeeded."
+      redirect_to :action=>'show', :id=>@document[:id]
     end
-    flash[:notice] = trans "upload succeeded"
   rescue ActiveRecord::RecordNotFound
     # user does not have write access to parent. This error should never happen (parent list is filtered)
     page_not_found
   end
-
+  
+  # Display the document after creation
+  def show
+    @document = secure(Document) { Document.find(params[:id])}
+  rescue ActiveRecord::RecordNotFound
+    page_not_found
+  end
+  
   # Get document data (inline if possible)
   def data
     if params[:filename] =~ /(.+)-([^-]+)\.(.+)/
