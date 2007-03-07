@@ -6,5 +6,6 @@
 <label for="c_crop_x"><%= trans("image")  %></label>
 <div id="crop" class='toggle_div'><%= tlink_to_remote("crop #{@node.img_tag('pv')}", :url=>{:controller=>'document', :action=>'crop_form', :id=>@node[:id]}) %>
 </div>
+
 <div id="crop_form" class='toggle_div' style='display:none;'></div>
 <% end -%>

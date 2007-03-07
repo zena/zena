@@ -105,9 +105,9 @@ class VersionController < ApplicationController
     @node.update_attributes(:v_text=>params[:node][:v_text], :v_summary=>params[:node][:v_summary], :v_title=>params[:node][:v_title])
   end
   
-  # TODO: test
+  # Create a backup copy of the current redaction.
   def backup
-    @node = secure_write(Node) { Node.find(params[:node][:id]) }
+    @node = secure_write(Node) { Node.version(params[:id]) }
     @node.backup
     if @node.errors.empty?
       flash[:notice] = trans "Backup created."

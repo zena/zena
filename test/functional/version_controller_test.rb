@@ -217,7 +217,7 @@ class VersionControllerTest < Test::Unit::TestCase
       version_id = img.v_id
       
       # backup (and try to fool with post data)
-      get 'backup', :node=>{:id=>img[:id], :v_title=>'funky', :crop=>{:x=>'10',:y=>'10',:w=>'20',:h=>'20'}}
+      get 'backup', :id=>img.v_id, :node=>{ :v_title=>'funky', :crop=>{:x=>'10',:y=>'10',:w=>'20',:h=>'20'}}
       version = Version.find(version_id)
       assert_equal 'Bird nest', version[:title]
       

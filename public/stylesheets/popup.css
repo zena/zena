@@ -63,7 +63,7 @@ ul.link_box { float:left; display:block; margin:2px; padding:2px;}
 #image_tab, #document_tab { padding-left:3em; padding-top:3em; }
 #image_tab a, #document_tab a { width:80px; display:block; float:left;}
 #image_tab .edit_info {font-size:0.8em; color:#333; margin-top:0.4em;}
-#image_tab .caution { color:red; font-variant:small-caps; font-size:1.5em; position: relative; top:-60px;}
+#crop_caution { color:red; font-variant:small-caps; font-size:1.5em; position: relative; top:-60px;}
 
 /* new document */
 #file_tab, #text_doc_tab { padding-top:0.5em;}
