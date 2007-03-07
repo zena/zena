@@ -606,18 +606,28 @@ Just doing the above will filter all result according to the logged in user.
         end
         
         # When the rwp groups are changed, spread this change to the 'children' with
-        # inheritance mode set to '1'.
-        def spread_inheritance
-          heirs.each do |h|
-            h[:rgroup_id] = rgroup_id
-            h[:wgroup_id] = wgroup_id
-            h[:pgroup_id] = pgroup_id
-            h[:skin ] = skin
-            # there should never be errors here (if we had the correct rights to change
-            # the current node, we can change it's children), so we skip validation
-            h.save_with_validation(false)
-            h.spread_inheritance
+        # inheritance mode set to '1'. 17.2s
+        #def spread_inheritance
+        def spread_inheritance(id = self[:id])
+          # This is a tad faster : 13.7s instead of 16s for all secure tests. Is it worth it ?
+          base_class.connection.execute "UPDATE nodes SET rgroup_id='#{rgroup_id}', wgroup_id='#{wgroup_id}', pgroup_id='#{pgroup_id}', skin='#{skin}' WHERE #{ref_field(false)}='#{id}' AND inherit='1'"
+          ids = nil
+          base_class.with_exclusive_scope do
+            ids = base_class.find(:all, :select=>'id', :conditions=>["#{ref_field(true)} = ? AND inherit='1'" , id ] )
           end
+          ids.each do |r|
+            spread_inheritance(r[:id])
+          end
+          # heirs.each do |h|
+          #   h[:rgroup_id] = rgroup_id
+          #   h[:wgroup_id] = wgroup_id
+          #   h[:pgroup_id] = pgroup_id
+          #   h[:skin ] = skin
+          #   # there should never be errors here (if we had the correct rights to change
+          #   # the current node, we can change it's children), so we skip validation
+          #   h.save_with_validation(false)
+          #   h.spread_inheritance
+          # end
         end
         
         # return the maximum status of the current node and all it's heirs. This is used to allow
