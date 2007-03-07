@@ -3,8 +3,9 @@ module ZenaTestController
   def init_controller
     @request    = ActionController::TestRequest.new
     @response   = ActionController::TestResponse.new
-    @controller.instance_eval { @session = {}; @params = {}; @url = ActionController::UrlRewriter.new( @request, {} )}
+    @controller.instance_eval { @params = {}; @url = ActionController::UrlRewriter.new( @request, {} )}
     @controller.instance_variable_set(:@response, @response)
+    @controller.instance_variable_set(:@session, @request.session)
   end
 
   def login(visitor=:ant)
@@ -12,6 +13,7 @@ module ZenaTestController
     @controller = LoginController.new
     post 'login', :user=>{:login=>visitor.to_s, :password=>visitor.to_s}
     @controller_bak.instance_variable_set(:@session, @controller.instance_variable_get(:@session) )
+    puts @controller.instance_variable_get(:@session).inspect
     @controller_bak.instance_variable_set(:@visitor, nil ) # clear cached visitor
     @controller = @controller_bak
   end

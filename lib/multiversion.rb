@@ -116,7 +116,11 @@ module Zena
         def backup
           if version.user_id == visitor[:id]
             version.status = Zena::Status[:rep]
-            version.save && edit! && after_refuse && update_max_status
+            @redaction = nil
+            if version.save
+              redaction.save
+              # new redaction created
+            end
           else
             false
           end
@@ -151,6 +155,7 @@ module Zena
             end
             after_publish(pub_time) && update_publish_from && update_max_status
           else
+            merge_version_errors
             false
           end
         end
@@ -234,6 +239,7 @@ module Zena
         # :v_... or :c_... keys, then only the version will be saved
         def update_attributes(hash)
           redaction_only = true
+          return unless edit!
           hash.each do |k,v|
             next if k.to_s == 'id' # just ignore 'id' (cannot be set but is often around)
             unless k.to_s =~ /^(v_|c_)/
@@ -377,21 +383,25 @@ module Zena
         
         def valid_redaction
           if @version && !@version.valid?
-            @version.errors.each do |k,v|
-              if k.to_s =~ /^c_/
-                key = k.to_s
-              elsif k.to_s == 'base'
-                key = 'base'
-              else
-                key = "v_#{k}"
-              end
-              errors.add(key, v)
-            end
+            merge_version_errors
           end
           if @redaction_errors
             @redaction_errors.each do |k,v|
               errors.add(k,v)
             end
+          end
+        end
+        
+        def merge_version_errors
+          @version.errors.each do |k,v|
+            if k.to_s =~ /^c_/
+              key = k.to_s
+            elsif k.to_s == 'base'
+              key = 'base'
+            else
+              key = "v_#{k}"
+            end
+            errors.add(key, v)
           end
         end
         

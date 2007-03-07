@@ -631,8 +631,6 @@ module ApplicationHelper
       "<a href='#' title='#{transb('btn_title_edit')}' onclick=\"editor=window.open('" + 
       url_for(:controller=>'version', :id=>version_id, :action=>'edit', :rnd=>rnd) + 
       "', 'edit', 'location=0,width=300,height=400,resizable=1');return false;\">" + (link_text || transb('btn_edit')) + "</a>"
-    elsif action == 'view'
-      tlink_to_function((link_text || 'btn_view'), "opener.Zena.version_preview(#{version_id}); return false;")
     elsif action == 'drive'
       "<a href='#' title='#{transb('btn_title_drive')}' onclick=\"editor=window.open('" + 
       url_for(:controller=>'node', :version_id=>version_id, :action=>'drive', :rnd=>rnd) + 
@@ -677,7 +675,11 @@ module ApplicationHelper
   
   # TODO: test
   def version_form_action(action,version_id)
-    tlink_to_remote( "btn_#{action}", :url=>{:controller=>'version', :action => action , :id => version_id, :drive=>true}, :title=>transb("btn_title_#{action}"), :post=>true ) + "\n"
+    if action == 'view'
+      tlink_to_function('btn_view', "opener.Zena.version_preview(#{version_id}); return false;")
+    else
+      tlink_to_remote( "btn_#{action}", :url=>{:controller=>'version', :action => action , :id => version_id, :drive=>true}, :title=>transb("btn_title_#{action}"), :post=>true ) + "\n"
+    end
   end
   # TODO: test
   # show actions on versions

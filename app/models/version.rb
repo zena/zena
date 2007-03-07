@@ -108,8 +108,7 @@ class Version < ActiveRecord::Base
   private
   
   def can_update_content
-    if @content && Version.find_all_by_content_id(self[:id]).size > 0
-      Version.logger.info "CAN UPDATE CONTENT"
+    if @redaction_content && Version.find_all_by_content_id(self[:id]).size > 0
       # some versions link to this version's content directly. Cannot change content.
       errors.add('base', 'cannot change content (used by other versions)')
     end

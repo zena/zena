@@ -86,7 +86,7 @@ class Document < Page
       
     if @file
       # set file
-      content.file = @file
+      version.redaction_content.file = @file
     end
   end
 

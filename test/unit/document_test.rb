@@ -130,6 +130,7 @@ class DocumentTest < Test::Unit::TestCase
       doc = secure(Document) { Document.find(nodes_id(:water_pdf)) }
       assert_equal 29279, doc.c_size
       assert_equal "#{RAILS_ROOT}/data/test/pdf/15/water.pdf", doc.c_filepath
+      content_id = doc.c_id
       # new redaction in 'en'
       assert doc.update_attributes(:c_file=>uploaded_pdf('forest.pdf'), :v_title=>'forest gump'), "Can change file"
       
@@ -147,6 +148,5 @@ class DocumentTest < Test::Unit::TestCase
       assert_equal 29279, doc.c_size
       assert_equal "#{RAILS_ROOT}/data/test/pdf/#{last_id}/water.pdf", doc.c_filepath
     end
-  end
-      
+  end 
 end

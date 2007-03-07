@@ -156,7 +156,6 @@ class ApplicationController < ActionController::Base
     suppress(ActiveRecord::StatementInvalid) do
       ActiveRecord::Base.connection.execute 'SET NAMES UTF8'
     end
-    
     new_lang = nil
     if params[:lang]
       if ZENA_ENV[:languages].include?(params[:lang])
@@ -204,7 +203,7 @@ class ApplicationController < ActionController::Base
       req.delete(:translate)
       redirect_to req and return false  
     end
-    visitor.lang = session[:lang]
+    visitor.lang = session[:lang] ||= (visitor.lang || ZENA_ENV[:default_lang])
   end
   
   # "Translate" static text into the current lang

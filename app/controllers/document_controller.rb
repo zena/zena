@@ -73,7 +73,7 @@ class DocumentController < ApplicationController
   
   # TODO: test
   def file_form
-    render :inline=>"<%= link_to_function(trans('cancel'), \"new Element.toggle('file', 'file_form');$('file_form').innerHTML = '';\")%><%= file_field 'node', 'c_file', :size=>nil %>"
+    render :inline=>"<%= link_to_function(trans('cancel'), \"new Element.toggle('file', 'file_form');$('file_form').innerHTML = '';\")%><%= file_field 'node', 'c_file', :size=>15 %>"
   end
   
   # TODO: test

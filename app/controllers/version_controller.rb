@@ -50,6 +50,10 @@ class VersionController < ApplicationController
       @v_title   = @node.v_title
       @v_summary = @node.v_summary
       @v_text    = @node.v_text
+      if @node.kind_of?(Image)
+        # show image
+        @v_text = @node.img_tag('full')
+      end
     end
     if @node.kind_of?(TextDocument) && false
       @html = @v_text
@@ -101,6 +105,15 @@ class VersionController < ApplicationController
     @node.update_attributes(:v_text=>params[:node][:v_text], :v_summary=>params[:node][:v_summary], :v_title=>params[:node][:v_title])
   end
   
+  # TODO: test
+  def backup
+    save
+    if @node.errors.empty?
+      @node.backup
+      flash[:notice] = trans "Backup created"
+    end
+  end
+  
   def propose
     @node = secure(Node) { Node.version(params[:id]) }
     if @node.propose
@@ -134,7 +147,7 @@ class VersionController < ApplicationController
       flash[:notice] = "Redaction published."
       render_or_redir @request.env['HTTP_REFERER']
     else
-      flash[:error] = "Could not publish."
+      flash[:error] = "Could not publish: #{error_messages_for('node')}"
       render_or_redir 404
     end
   rescue ActiveRecord::RecordNotFound

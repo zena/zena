@@ -486,6 +486,21 @@ class MultiVersionTest < Test::Unit::TestCase
     assert_equal Zena::Status[:red], node.max_status
   end
   
+  def test_backup
+    test_visitor(:ant)
+    visitor.lang = 'en'
+    node = secure(Node) { nodes(:lake) }
+    assert_equal Zena::Status[:red], node.v_status
+    assert_equal versions_id(:lake_red_en), node.v_id
+    assert node.backup, "Backup succeeds"
+    old_version = versions(:lake_red_en)
+    assert_equal Zena::Status[:rep], old_version.status
+    
+    node = secure(Node) { nodes(:lake) }
+    assert_equal Zena::Status[:red], node.v_status
+    assert_not_equal versions_id(:lake_red_en), node.v_id
+  end
+  
   def test_redit
     assert false, 'todo'
   end

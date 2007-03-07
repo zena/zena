@@ -47,13 +47,6 @@ class MainController < ApplicationController
     end
   end
   
-  def redirect
-    req = request.parameters
-    req[:action] = 'show'
-    req[:prefix] = prefix
-    redirect_to req
-  end
-  
   # Used to prevent Safari not reloading bug
   def redir
     [:notice, :error].each do |sym|
@@ -64,15 +57,26 @@ class MainController < ApplicationController
     end
     redirect_to params[:url]
   end
+  
+  def select_prefix
+    redirect_with_prefix
+  end
 
   private
   
+  def redirect_with_prefix
+    req = request.parameters
+    req[:prefix] = prefix
+    req[:action] = 'index' if req[:action] == 'select_prefix'
+    redirect_to req
+  end
+  
   # do not accept a logged in user to browse as if he was anonymous
   def check_url
-    if session[:user] && params[:prefix] != AUTHENTICATED_PREFIX
-      req = request.parameters
-      req[:prefix] = AUTHENTICATED_PREFIX
-      redirect_to req
+    if !params[:prefix] || (session[:user] && params[:prefix] != AUTHENTICATED_PREFIX)
+      redirect_with_prefix
+    elsif (params[:action] == 'show' && !params[:path].kind_of?(Array))
+      redirect_to :action=>'index'
     end
   end
   

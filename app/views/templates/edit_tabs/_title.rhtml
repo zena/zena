@@ -1,7 +1,6 @@
 <label for="v_title"><%= trans("title")  %></label>
 <%= text_field 'node', 'v_title', :size=>nil %>
-v_id:<%= @node.v_id %><br/>
-id:<%= @node[:id] %>
+
 <% if @node.kind_of?(Note) -%>
 <label for='event_at'><%= trans("event date") %></label>
 <%= date_box('node', 'event_at')%>

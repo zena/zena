@@ -46,6 +46,36 @@ class MainControllerTest < Test::Unit::TestCase
     ZENA_ENV[:authorize] = bak
   end
   
+  def test_index
+    assert_routing '/en', {:controller=>'main', :action=>'index', :prefix=>'en'}
+    assert_routing '/', {:controller=>'main', :action=>'redirect'}
+    get 'index'
+    assert_redirected_to :controller=>'main', :action=>'index', :prefix=>'en'
+    get 'index', :prefix=>'en'
+    assert_response :success
+    assert_response :success
+  end
+  
+  def test_show_without_path
+    assert_routing '/z/main/show', {:controller=>'main', :action=>'show'}
+    get 'show'
+    assert_redirected_to :controller=>'main', :action=>'index'
+    get 'show', :path=>'hello/world'
+    assert_redirected_to :controller=>'main', :action=>'index'
+  end
+  
+  def test_visitor_lang
+    session[:lang] = nil
+    get 'index'
+    assert_equal 'en', assigns(:visitor).lang
+  end
+  
+  def test_session_lang
+    session[:lang] = 'fr'
+    get 'index'
+    assert_equal 'fr', assigns(:visitor).lang
+  end
+  
   def test_show
     assert_routing '/en/node19', {:controller=>'main', :action=>'show', :prefix=>'en', :path=>['node19']}
     get 'show', :path=>['node19'], :prefix=>'en'
@@ -182,15 +212,7 @@ class MainControllerTest < Test::Unit::TestCase
   
   # test templates
   
-  def test_index
-    assert_routing '/en', {:controller=>'main', :action=>'index', :prefix=>'en'}
-    assert_routing '/',   {:controller=>'main', :action=>'redirect'}
-    get 'index', :prefix=>'en'
-    assert_response :success
-    assert_template '/templates/fixed/default/any__index'
-  end
-  
-  def test_index
+  def test_index_template
     assert_routing '/en', {:controller=>'main', :action=>'index', :prefix=>'en'}
     assert_routing '/',   {:controller=>'main', :action=>'redirect'}
     get 'index', :prefix=>'en'

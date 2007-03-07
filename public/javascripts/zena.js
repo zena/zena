@@ -244,9 +244,11 @@ Zena.Div_editor.prototype = {
     this.pos.y = this.flds.y.value / this.zoom;
     this.pos.w = this.flds.w.value / this.zoom;
     this.pos.h = this.flds.h.value / this.zoom;
+    //this.limit_positions();
     this.update_sizes();
   },
   update_sizes: function() {
+    this.limit_positions();
     this.flds.x.value = Math.round(this.zoom * this.pos.x);
     this.flds.y.value = Math.round(this.zoom * this.pos.y);
     this.flds.w.value = Math.round(this.zoom * this.pos.w);
@@ -305,48 +307,45 @@ Zena.Div_editor.prototype = {
       this.moving = true;
     }
     if (posx >= 0 && posy >= 0 && posx <= this.pos.fullw && posy <= this.pos.fullh ) {
-    if (this.moveAll) {
-      // drag
-      this.pos.x = posx - this.pos.allx;
-      this.pos.y = posy - this.pos.ally;
-    } else {
-      if (this.moveX == 'left') {
-        this.pos.w = this.pos.x + this.pos.w - posx;
-        this.pos.x = posx;
-      } else if (this.moveX == 'right') {
-        this.pos.w = posx - this.pos.x;
-      }
-      if (this.moveY == 'top') {
-        this.pos.h = this.pos.y + this.pos.h - posy;
-        this.pos.y = posy;
-      } else if (this.moveY == 'bottom'){
-        this.pos.h = posy - this.pos.y;
-      }
-    }
-    if (event.shiftKey) {
-      // force square
-      if (this.pos.h > this.pos.w) {
-        this.pos.w = this.pos.h;
+      if (this.moveAll) {
+        // drag
+        this.pos.x = posx - this.pos.allx;
+        this.pos.y = posy - this.pos.ally;
       } else {
-        this.pos.h = this.pos.w;
+        if (this.moveX == 'left') {
+          this.pos.w = this.pos.x + this.pos.w - posx;
+          this.pos.x = posx;
+        } else if (this.moveX == 'right') {
+          this.pos.w = posx - this.pos.x;
+        }
+        if (this.moveY == 'top') {
+          this.pos.h = this.pos.y + this.pos.h - posy;
+          this.pos.y = posy;
+        } else if (this.moveY == 'bottom'){
+          this.pos.h = posy - this.pos.y;
+        }
       }
+      if (event.shiftKey) {
+        // force square
+        if (this.pos.h > this.pos.w) {
+          this.pos.w = this.pos.h;
+        } else {
+          this.pos.h = this.pos.w;
+        }
+      }
+      this.update_sizes();
     }
+  },
+  limit_positions: function() {
     if (this.pos.x < 0) {
       this.pos.x = 0;
     }
     if (this.pos.y < 0) {
       this.pos.y = 0;
     }
-    if (this.pos.x + this.pos.w > this.pos.fullw) {
-      this.pos.x = this.pos.fullw - this.pos.w;
-    }
-    if (this.pos.y + this.pos.h > this.pos.fullh) {
-      this.pos.y = this.pos.fullh - this.pos.h;
-    }
     if (this.pos.w < 0) {
       // swap moving corner
-      this.pos.w = 0;
-      this.pos.x = posx;
+      this.pos.w = -this.pos.w;
       if (this.moveX == 'right') {
         this.moveX = 'left';
       } else {
@@ -355,16 +354,34 @@ Zena.Div_editor.prototype = {
     }
     if (this.pos.h < 0) {
       // swap moving corner
-      this.pos.h = 0;
-      this.pos.y = posy;
+      this.pos.h = -this.pos.h;
       if (this.moveY == 'top') {
         this.moveY = 'bottom';
       } else {
         this.moveY = 'top';
       }
     }
-    this.update_sizes();
-  }
+    if (this.moveAll) {
+      if (this.pos.x + this.pos.w > this.pos.fullw) {
+        this.pos.x = this.pos.fullw - this.pos.w;
+      }
+      if (this.pos.y + this.pos.h > this.pos.fullh) {
+        this.pos.y = this.pos.fullh - this.pos.h;
+      }
+    } else {
+      if (this.pos.x + this.pos.w > this.pos.fullw) {
+        this.pos.w = this.pos.fullw - this.pos.x;
+      }
+      if (this.pos.y + this.pos.h > this.pos.fullh) {
+        this.pos.h = this.pos.fullh - this.pos.y;
+      }
+    }
+    if (this.pos.w > this.pos.fullw) {
+      this.pos.w = this.pos.fullw;
+    }
+    if (this.pos.h > this.pos.fullh) {
+      this.pos.h = this.pos.fullh;
+    }
   },
   do_move: function(event) {
     if (this.moving) {

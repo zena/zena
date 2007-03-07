@@ -22,11 +22,11 @@ ActionController::Routing::Routes.draw do |map|
     map.site_tree 'site_tree/:id', :controller=>'main', :action=>'site_tree', :prefix=>''
     map.connect '*path', :controller=>'main', :action=>'show', :prefix=>''  
   else
-    map.connect '', :controller => "main", :action=>'redirect'
+    map.connect '', :controller => "main", :action=>'select_prefix'
     map.site_tree ':prefix/site_tree/:id', :controller=>'main', :action=>'site_tree', :prefix=>/^(#{AUTHENTICATED_PREFIX}|\w\w)$/
     map.connect ':prefix/*path', :controller=>'main', :action=>'show', :prefix=>/^(#{AUTHENTICATED_PREFIX}|\w\w)$/
     map.default 'z/:controller/:action/:id'
-    map.connect '*path', :controller=>'main', :action=>'redirect'
+    map.connect '*path', :controller=>'main', :action=>'select_prefix'
   end
   ## 
   ## # Allow downloading Web Service WSDL as a file with an extension

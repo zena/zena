@@ -24,4 +24,5 @@ function select_tab(name) {
   current_tab.style.display = '';
   current_sel.className = 'selected';
 }
+new Form.Observer('node_form', 3, function(element,value){ opener.Zena.editor_preview(element,value)});
 <%= javascript_end %>

@@ -67,10 +67,16 @@ class ImageTest < Test::Unit::TestCase
     preserving_files('data/test/jpg') do
       test_visitor(:ant)
       img = secure(Node) { nodes(:bird_jpg) }
+      assert_equal Zena::Status[:pub], img.v_status
+      pub_version_id = img.v_id
+      pub_content_id = img.c_id
       assert_equal 661, img.c_width
       assert_equal 600, img.c_height
       assert_equal 56183, img.c_size
       assert img.update_attributes(:crop=>{:x=>'500',:y=>30,:w=>'200',:h=>80})
+      img = secure(Node) { nodes(:bird_jpg) }
+      assert_not_equal pub_version_id, img.v_id
+      assert_not_equal pub_content_id, img.c_id
       assert_equal 2032,   img.c_size
       assert_equal 161,  img.c_width
       assert_equal 80, img.c_height
