@@ -404,6 +404,10 @@ module Zena
         end
         
         def set_on_create
+          # set kpath 
+          self[:kpath]    = self.class.kpath
+          self[:user_id]  = visitor[:id]
+          self[:ref_lang] = visitor.lang
           version.user_id = visitor[:id]
           version.lang    = visitor.lang
           true

@@ -372,12 +372,10 @@ class ApplicationController < ActionController::Base
     skin  = @node[:skin] || 'default'
     choices = []
 
-    if skin != 'default'
-      choices << [skin,"popup_layout"]
-      choices << [skin,"layout"]
-    end
+    choices << [skin,"popup_layout"] if skin != 'default'
+
     choices << ["default","popup_layout"]
     choices << ["default","layout"]
-    return template_url(:skin=>skin, :rescue_template=>rescue_template, :choices=>choices)
+    template_url(:skin=>skin, :rescue_template=>rescue_template, :choices=>choices)
   end
 end

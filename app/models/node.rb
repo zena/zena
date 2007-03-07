@@ -634,8 +634,8 @@ class Node < ActiveRecord::Base
   end
   
   # return the id of the reference
-  def ref_field
-    if self[:id] == ZENA_ENV[:root_id]
+  def ref_field(for_heirs=false)
+    if !for_heirs && (self[:id] == ZENA_ENV[:root_id])
       :id # root is it's own reference
     else
       :parent_id

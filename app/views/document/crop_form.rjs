@@ -1,4 +1,4 @@
 page.replace_html 'crop_form', :partial=>'crop'
 page.toggle 'crop_form', 'crop'
 page << "new Zena.Div_editor('edit_img', 'posx', 'posy', 'width', 'height', #{@node.c_width / @node.c_width('edit').to_f}, 125, 235);"
-page << "self.resizeTo(550,646);"
+page << "self.resizeTo(#{@node.c_width('edit') + 125 + 10},#{@node.c_height('edit') + 235 + 10});"

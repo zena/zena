@@ -342,7 +342,6 @@ on the post edit page :
               end
               
               def save_#{method}
-                self.class.logger.info '=============== save_#{method} called ==============='
                 return unless defined? @#{method}_id
                 obj_id = @#{method}_id
                 if obj_id && obj_id != ''
@@ -421,7 +420,6 @@ on the post edit page :
               end
               
               def save_#{method}
-                self.class.logger.info '=============== save_#{method} called ==============='
                 return true unless defined? @#{meth}_ids
                 if (obj_ids = @#{meth}_del_ids) != []
                   # remove all old links for this role

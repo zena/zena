@@ -634,17 +634,30 @@ class SecureUpdateTest < Test::Unit::TestCase
   end
   
   
-  def test_template_changed_children_too
+  def test_skin_changed_children_too
     test_visitor(:tiger)
     node = secure(Node) { nodes(:cleanWater)  }
     node[:inherit  ] = 0
     node[:skin] = 'wiki'
     assert node.save , "Save succeeds"
     assert_equal 'wiki', node[:skin], "Template changed"
-    assert_equal 'wiki', nodes(:status    ).skin, "Child skin group changed"
-    assert_equal 'wiki', nodes(:water_pdf ).skin, "Child skin group changed"
-    assert_equal 'wiki', nodes(:lake_jpg  ).skin, "Grandchild skin group changed"
+    assert_equal 'wiki', nodes(:status    ).skin, "Child skin changed"
+    assert_equal 'wiki', nodes(:water_pdf ).skin, "Child skin changed"
+    assert_equal 'wiki', nodes(:lake_jpg  ).skin, "Grandchild skin changed"
     assert_equal 'default', nodes(:bananas).skin, "Not inherited child: skin not changed"
+  end
+  
+  def test_skin_change_root_node
+    test_visitor(:tiger)
+    node = secure(Node) { nodes(:zena)  }
+    Node.connection.execute "UPDATE nodes SET inherit = 0 WHERE id = '#{nodes_id(:cleanWater)}'"
+    node[:skin] = 'wiki'
+    assert node.save , "Save succeeds"
+    assert_equal 'wiki', node[:skin], "Template changed"
+    assert_equal 'wiki', nodes(:people).skin, "Child skin changed"
+    assert_equal 'wiki', nodes(:projects).skin, "Child skin changed"
+    assert_equal 'wiki', nodes(:lion).skin, "Grandchild skin changed"
+    assert_equal 'default', nodes(:status).skin, "Not inherited child: skin not changed"
   end
   
   # 2. if owner changed from old, make sure only a user in 'admin' can do this

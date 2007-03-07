@@ -193,10 +193,6 @@ Just doing the above will filter all result according to the logged in user.
         def visitor=(visitor)
           @visitor = visitor
           if new_record?
-            # set kpath
-            self[:kpath]    = self.class.kpath
-            self[:user_id]  = visitor[:id]
-            self[:ref_lang] = visitor.lang
             set_on_create
           end
           # callback used by functions triggered before 'visitor='
@@ -319,6 +315,7 @@ Just doing the above will filter all result according to the logged in user.
             return false
           end
           if new_record?
+            set_on_create
             secure_on_create
           else
             secure_on_update
@@ -327,6 +324,10 @@ Just doing the above will filter all result according to the logged in user.
         
         # Set owner and lang before validations on create (overwritten by multiversion)
         def set_on_create
+          # set kpath 
+          self[:kpath]    = self.class.kpath
+          self[:user_id]  = visitor[:id]
+          self[:ref_lang] = visitor.lang
         end
         
         # 1. validate the presence of a valid project (one in which the visitor has write access and project<>self !)
@@ -553,7 +554,7 @@ Just doing the above will filter all result according to the logged in user.
           else
             errors.add('inherit', "bad inheritance mode")
           end
-          @needs_inheritance_spread = (rgroup_id != old.rgroup_id || wgroup_id != old.wgroup_id || pgroup_id != old.pgroup_id || skin != old.skin)        
+          @needs_inheritance_spread = (rgroup_id != old.rgroup_id || wgroup_id != old.wgroup_id || pgroup_id != old.pgroup_id || skin != old.skin)
           return errors.empty?
         end
         
@@ -649,7 +650,9 @@ Just doing the above will filter all result according to the logged in user.
         # List of elements using the current element as a reference. Used to update
         # the rwp groups if they inherit from the reference. Can be overwritten by sub-classes.
         def heirs
-          base_class.find(:all, :conditions=>["#{ref_field} = ? AND inherit='1'" , self[:id] ] ) || []
+          base_class.with_exclusive_scope do
+            base_class.find(:all, :conditions=>["#{ref_field(true)} = ? AND inherit='1'" , self[:id] ] ) || []
+          end
         end
         
         # Reference class. Must be overwritten by sub-classes.
@@ -663,7 +666,7 @@ Just doing the above will filter all result according to the logged in user.
         end
         
         # Reference foreign_key. Can be overwritten by sub-classes.
-        def ref_field
+        def ref_field(for_heirs=false)
           :reference_id
         end
 

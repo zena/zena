@@ -15,12 +15,12 @@ body {font: 0.9em Arial, Helvetica, Verdana, sans-serif; background:#BBC5CD; lin
 #search { z-index:999; z-index:999; position:absolute; top:1px; right:1px; padding-right:1px; font-size:0.8em;}
 
 /* messages and ajax-loader */
-#messages { position:absolute; top:0; line-height:1.4em; width:95%; }
+#messages { position:absolute; top:0; line-height:1.4em; width:60%; }
 #loader { visibility:hidden;}
 #loader img {float:left;}
-#notice, #error {padding:2px 8px; border: 1px dotted #835857; width: 100%;}
-#error  { background:#DDC8C8;}
-#notice { background:#D8E0C7;}
+#notice, #error {padding:2px 8px;}
+#error  { background:#DDC8C8;border: 1px dotted #B57B7C;}
+#notice { background:#D8E0C7;border: 1px dotted #A8BA6E;}
 
 /* tab selector */
 .selector { width:100%; height:46px; font-size:0.9em; background:#A0A6AB; border-bottom:1px solid #333;}
