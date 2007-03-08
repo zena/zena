@@ -1,3 +1,5 @@
 <label for="node_c_file"><%= trans("document file")  %></label>
 <div id="file"><%= link_to_remote(trans("change document"), :update=>'file_form', :url=>{:controller=>'document', :action=>'file_form'}, :complete=>"new Element.toggle('file', 'file_form');") %></div>
 <div id="file_form" style='display:none;'></div>
+
+<%= @node.c_version_id == @node.v_id ? "<b id='original_caution'>#{trans('you are editing the original')}</b>" : "" %>

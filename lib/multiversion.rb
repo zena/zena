@@ -393,15 +393,17 @@ module Zena
         end
         
         def merge_version_errors
-          @version.errors.each do |k,v|
-            if k.to_s =~ /^c_/
-              key = k.to_s
-            elsif k.to_s == 'base'
-              key = 'base'
-            else
-              key = "v_#{k}"
+          unless @version.errors.empty?
+            @version.errors.each do |k,v|
+              if k.to_s =~ /^c_/
+                key = k.to_s
+              elsif k.to_s == 'base'
+                key = 'base'
+              else
+                key = "v_#{k}"
+              end
+              errors.add(key, v)
             end
-            errors.add(key, v)
           end
         end
         

@@ -72,15 +72,14 @@ class Version < ActiveRecord::Base
     else
       @content = content_class.find_by_version_id(self[:id])
     end
-    if @content
-      @content
-    else
+    unless @content
       # create new content
       @content = content_class.new
       @content.version = self
       self[:content_id] = nil
       @redaction_content = @content
     end
+    @content
   end
   
   # called by 'multiversion' when we need a new redaction for a version
@@ -89,12 +88,14 @@ class Version < ActiveRecord::Base
     return unless content_class
     @content = content
     if @content && @content.version == self
+      # own content
       @redaction_content = @content
     elsif @content
-      # copy current content
-      @content = content.clone
+      # content shared, make it our own
+      @old_content = @content # keep the old own in case we cannot save and need to rollback
+      @content = @content.clone
       @content.version = self
-      self[:content_id] = self[:id]
+      self[:content_id] = nil
       @redaction_content = @content
     else
       # create new content
@@ -142,6 +143,17 @@ class Version < ActiveRecord::Base
           errors.add("c_#{key}",message)
         end
       end
+      
+      if @old_content
+        @content = @old_content # rollback initial content
+      else
+        # clean empty content
+        @content = content_class.new
+        @content.version = self
+        self[:content_id] = nil
+        @redaction_content = @content
+      end
+      return false
     end
   end
   

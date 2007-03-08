@@ -90,6 +90,16 @@ class Document < Page
       version.redaction_content.file = @file
     end
   end
+  
+  # Sweep cached data for the document
+  # TODO: test 
+  def sweep_cache
+    super
+    # Remove cached data from the public directory.
+    versions.each do |v|
+      FileUtils::rmtree("#{RAILS_ROOT}/public/data/#{ext}/#{v[:id]}")
+    end
+  end
 
   # This is a callback from acts_as_multiversioned
   def version_class

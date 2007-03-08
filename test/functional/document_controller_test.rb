@@ -57,6 +57,44 @@ class DocumenControllerTest < Test::Unit::TestCase
     assert_equal 'application/pdf', @response.headers['Content-Type']
   end
   
+  def test_remove_format_images # test cached data is removed
+    # make 'flower' owned by :ant and used by managers
+    Node.connection.execute "UPDATE nodes SET rgroup_id = 4, wgroup_id = 4, pgroup_id = 4, user_id=3 WHERE id = '#{nodes_id(:flower_jpg)}'"
+    @perform_caching_bak = ApplicationController.perform_caching
+    ApplicationController.perform_caching = true
+    preserving_files('data/test/jpg') do
+      without_files('public/data/jpg') do
+        assert ! File.exist?("#{RAILS_ROOT}/public/data/jpg/20"), "No cached data for bird"
+        assert ! File.exist?("#{RAILS_ROOT}/data/test/jpg/20/bird-pv.jpg"), "No pv image for bird"
+        get 'data', :version_id=>'20', :ext=>'jpg', :filename=>'bird.jpg'
+        assert_response :success
+        assert File.exist?("#{RAILS_ROOT}/public/data/jpg/20/bird.jpg"), "Bird full cached"
+        get 'data', :version_id=>'20', :ext=>'jpg', :filename=>'bird-pv.jpg'
+        assert_response :success
+        assert File.exist?("#{RAILS_ROOT}/public/data/jpg/20/bird-pv.jpg"), "Bird pv cached"
+        assert ! File.exist?("#{RAILS_ROOT}/data/test/jpg/20/bird-pv.jpg"), "No pv image stored"
+        
+        # sweep_all
+        img = nodes(:bird_jpg)
+        img.send(:sweep_all)
+        assert ! File.exist?("#{RAILS_ROOT}/public/data/jpg/20"), "No cached data for bird"
+        
+        login(:tiger)
+        
+        assert ! File.exist?("#{RAILS_ROOT}/public/data/jpg/21"), "No cached data for flower"
+        assert ! File.exist?("#{RAILS_ROOT}/data/test/jpg/20/flower-pv.jpg"), "No pv image for flower"
+        get 'data', :version_id=>'20', :ext=>'pdf', :filename=>'flower.jpg'
+        assert_response :success
+        assert ! File.exist?("#{RAILS_ROOT}/public/data/jpg/20/flower.jpg"), "No flower full cached"
+        get 'data', :version_id=>'20', :ext=>'pdf', :filename=>'flower-pv.jpg'
+        assert_response :success
+        assert ! File.exist?("#{RAILS_ROOT}/public/data/jpg/20/flower-pv.jpg"), "No flower pv cached"
+        assert File.exist?("#{RAILS_ROOT}/data/test/jpg/20/flower-pv.jpg"), "PV image stored"
+      end
+    end
+    ApplicationController.perform_caching = @perform_caching
+  end
+  
   def test_data_bad_name
     get 'data', :version_id=>'15', :ext=>'pdf', :filename=>'blue.jpg'
     assert_response :redirect

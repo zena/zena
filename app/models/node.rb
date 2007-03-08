@@ -134,7 +134,7 @@ class Node < ActiveRecord::Base
     if self[:fullpath]
       self[:fullpath]
     else
-      if parent
+      if parent = parent(:secure=>false)
         path = parent.fullpath.split('/') + [name]
       else
         path = []

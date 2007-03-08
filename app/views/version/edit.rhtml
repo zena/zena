@@ -1,4 +1,4 @@
-<div id='form_errors' class='errors'><%= error_messages_for "node" %></div>
+<div id='form_errors' class='errors' onclick='new Element.hide("form_errors")'><%= error_messages_for "node" %></div>
 <div id='search'><%= search_box %></div>
 
 <div class='selector'>
@@ -23,7 +23,7 @@
     <% end -%>
     <div><a href='#' onclick='uploader=window.open("<%= url_for :controller=>'document', :action=>'new', :parent_id=>@node %>", "uploader", "location=1,width=400,height=300");uploader.opener = opener;return false;'><%= transb('btn_add_document')%></a></div>
   </div>
-  <div class='readers'><label for='readers'><%= trans('readers :') %></label>
+  <div class='readers'>
   <p><%= readers_for(@node) %></p></div>
 <% partial.each_index do |i| %><div id='<%= partial[i][0] %>_tab' <%= i == 0 ? "" : "style='display:none;'" %> class='tab_content'>
   <%= render :partial=>"templates/edit_tabs/#{partial[i][1]}" %>

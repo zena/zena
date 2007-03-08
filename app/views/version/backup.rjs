@@ -2,7 +2,7 @@ if @errors || !@node.errors.empty?
   page.replace_html "form_errors", :inline => @errors ? render_errors : error_messages_for('node')
 else
   page << "try {"
-  page.replace_html 'crop_caution', :inline=>""
+  page.replace_html 'original_caution', :inline=>""
   page << "} catch(err) {}"
   page.replace 'messages', :inline => flash_messages
   page['node_v_id'].value = @node.v_id

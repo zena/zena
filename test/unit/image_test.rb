@@ -63,6 +63,19 @@ class ImageTest < Test::Unit::TestCase
     end
   end
   
+  def test_change_image_bad_file
+    preserving_files('data/test') do
+      login(:ant)
+      img = secure(Node) { nodes(:bird_jpg) }
+      flo = secure(Node) { nodes(:flower_jpg)}
+      assert_equal 56183, img.c_size
+      assert_equal 'image/jpeg', img.c_content_type
+      assert !img.update_attributes(:c_file=>uploaded_text('some.txt'))
+      assert_equal 56183, img.c_size
+      assert_equal 'image/jpeg', img.c_content_type
+    end
+  end
+  
   def test_crop_image
     preserving_files('data/test/jpg') do
       login(:ant)

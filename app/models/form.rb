@@ -1,4 +1,4 @@
-# FIXME: add a model for form_data
+# TODO: integration test and doc for FormSeizure
 class Form < Page
   before_create :set_dgroup
   

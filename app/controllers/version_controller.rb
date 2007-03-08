@@ -82,7 +82,7 @@ class VersionController < ApplicationController
     end
   end
   
-  
+  # Save a redaction with all it's content
   def save
     params[:node].delete(:preview_id)
     # use current context.
@@ -92,7 +92,7 @@ class VersionController < ApplicationController
     if @node.update_attributes(params[:node])
       session[:notice] = trans "Redaction saved."
     else
-      flash[:error] = trans "Redaction could not be saved"
+      flash[:error] = trans "Redaction not saved."
       render :action=>'edit' unless params[:action] == 'save_text'
     end
   rescue ActiveRecord::RecordNotFound

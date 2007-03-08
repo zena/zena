@@ -226,6 +226,28 @@ class VersionControllerTest < Test::Unit::TestCase
       assert_equal 56183, img.c_size
     end
   end
+  
+  def test_change_bad_file_format
+    without_files('data/test') do
+      login(:tiger)
+      img = secure(Image) { Image.create( :parent_id=>nodes_id(:cleanWater),
+                                          :inherit => 1,
+                                          :name=>'birdy',
+                                          :v_title=>'Bird nest',
+                                          :c_file => uploaded_jpg('bird.jpg')) }
+      assert_kind_of Image , img
+      assert ! img.new_record? , "Not a new record"
+      assert_equal 'Bird nest', img.v_title
+      version_id = img.v_id
+      
+      # backup (and try to fool with post data)
+      post 'save', :node=>{:id=>img[:id], :c_file=>uploaded_text('some.txt') }
+      assert_response :success
+      img = secure(Node) { Node.find(img[:id]) }
+      assert_equal 56183, img.c_size
+    end
+  end
+  
   # def test_can_redit
   #   login(:tiger)
   #   post 'save', :node=>{:id=>nodes_id(:status), :v_title=>"I am a new title", :v_text=>"I am new text"}

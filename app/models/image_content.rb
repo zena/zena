@@ -91,28 +91,37 @@ class ImageContent < DocumentContent
     end
   end
   
+  # Used to remove specific formatted images when these images are cached in the public directory
   def remove_image(format)
     return false unless format = verify_format(format)
     FileUtils::rm(filepath(format)) if File.exist?(filepath(format))
-    # FIXME: remove cached image as well !!
+    version.node.sweep_cache
   end
   
+  # Removes all images created by ImageBuilder for this image_content. This is used when the file changes.
   def remove_format_images
     dir = File.dirname(filepath)
-    return unless File.exist?(dir)
-    Dir.foreach(dir) do |file|
-      next if file =~ /^\./
-      next if file == filename
-      FileUtils::rm(File.join(dir,file))
+    if File.exist?(dir)
+      Dir.foreach(dir) do |file|
+        next if file =~ /^\./
+        next if file == filename
+        FileUtils::rm(File.join(dir,file))
+      end
     end
+    # Remove cached images from the public directory.
+    # TODO: test
+    FileUtils::rmtree(File.dirname(cachepath))
   end
   
   private
   
   def valid_file
-    super
+    return false unless super
     if @file && !ImageBuilder.image_content_type?(@file.content_type)
       errors.add('file', 'must be an image')
+      return false
+    else
+      return true
     end
   end
   

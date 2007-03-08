@@ -47,7 +47,7 @@ class DocumentContent < ActiveRecord::Base
   
   def file=(aFile)
     @file = aFile
-    
+    return unless valid_file
     self[:content_type] = @file.content_type.chomp
     if @file.kind_of?(StringIO)
       self[:size] = @file.size
@@ -87,20 +87,30 @@ class DocumentContent < ActiveRecord::Base
     "#{name}.#{ext}"
   end
   
+  # If this is changed, also change #Document.sweep_cache
   def path(format=nil)
     "/#{ext}/#{self[:version_id]}/#{filename(format)}"
   end
   
-  # path is build with the version id so we can do the security checks when uploading data
+  # Path to store the data. The path is build with the version id so we can do the security checks when uploading data.
   def filepath(format=nil)
     raise StandardError, "version not set" unless self[:version_id]
     "#{ZENA_ENV[:data_dir]}#{path(format)}"
   end
   
+  # Path for cached document in the public directory.
+  # If this is changed, also change #Document.sweep_cache
+  def cachepath(format=nil)
+    raise StandardError, "version not set" unless self[:version_id]
+    "#{RAILS_ROOT}/public/data#{path(format)}" # TODO: [site_id] change all RAILS_ROOT when used in paths...
+  end
+  
   private
   
   def valid_file
-    errors.add('file', "can't be blank") unless !new_record? || @file
+    return true if !new_record? || @file
+    errors.add('file', "can't be blank")
+    return false
   end
 
   def prepare_content
@@ -110,7 +120,7 @@ class DocumentContent < ActiveRecord::Base
   end
   
   def before_save_content
-    self[:type] = self.class.to_s # FIXME: this should not be needed... find another fix.
+    self[:type] = self.class.to_s # make sure the type is set in case no sub-classes are loaded.
     if @file
       # destroy old file
       destroy_file unless new_record?

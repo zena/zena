@@ -266,22 +266,22 @@ Zena.Div_editor.prototype = {
     if (!this.moving) {
       this.moveAll = false;
       this.pos.startx = posx;
-      if (Math.abs(this.pos.x - posx) < 15.0) {
+      if ((Math.abs(this.pos.x - posx) < 15.0) && (posy > this.pos.y - 15) && (posy < this.pos.y + this.pos.h + 15)) {
         // moving left corners
         this.moveX  = 'left';
         this.moving = true;
-      } else if (Math.abs(this.pos.x + this.pos.w - posx) < 15.0) {
+      } else if ((Math.abs(this.pos.x + this.pos.w - posx) < 15.0) && (posy > this.pos.y - 15) && (posy < this.pos.y + this.pos.h + 15)) {
         // moving right corners
         this.moveX = 'right';
         this.moving = true;
       } else {
         this.moveX = false;
       }
-      if (Math.abs(this.pos.y - posy) < 15.0) {
+      if ((Math.abs(this.pos.y - posy) < 15.0) && (posx > this.pos.x - 15) && (posx < this.pos.x + this.pos.h + 15)) {
         // moving top
         this.moveY = 'top';
         this.moving = true;
-      } else if (Math.abs(this.pos.y + this.pos.h - posy) < 15.0)  {
+      } else if ((Math.abs(this.pos.y + this.pos.h - posy) < 15.0) && (posx > this.pos.x - 15) && (posx < this.pos.x + this.pos.h + 15))  {
         // moving bottom
         this.moveY = 'bottom';
         this.moving = true;

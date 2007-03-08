@@ -16,7 +16,8 @@ body {font: 0.9em Arial, Helvetica, Verdana, sans-serif; background:#BBC5CD; lin
 
 /* messages and ajax-loader */
 #messages { position:absolute; top:0; line-height:1.4em; width:70%; font-size:0.9em; }
-#form_errors { position:absolute; top:0; line-height:1.4em; width:70%; font-size:0.9em; }
+#form_errors ul { position:absolute; border:3px solid #B57B7C; top:100px; left:20px; width:400px; line-height:1.4em; width:70%; font-size:0.9em; padding:0;}
+#form_errors li { padding-left:1em; line-height:1em;}
 #loader { visibility:hidden;}
 #loader img {float:left;}
 #notice, #error {padding:2px 8px;}
@@ -37,8 +38,7 @@ body {font: 0.9em Arial, Helvetica, Verdana, sans-serif; background:#BBC5CD; lin
 .tab .validate a { padding:0 5px; }
 .tab .validate { float:right; }
 div.readers { position:absolute; left:5px; top:55px;}
-.readers label, .readers p { display: inline;}
-.readers label { font:inherit; font-size:0.9em;}
+.readers p { display: inline; font-size:0.7em; font-style:italic; color:#888;}
 
 .tab_content { font-size:0.9em; padding:30px 0 2px 8px; }
 /* text */
@@ -64,7 +64,7 @@ ul.link_box { float:left; display:block; margin:2px; padding:2px;}
 #image_tab, #document_tab { padding-left:3em; padding-top:3em; }
 #image_tab a, #document_tab a { width:80px; display:block; float:left;}
 #image_tab .edit_info {font-size:0.8em; color:#333; margin-top:0.4em;}
-#crop_caution { color:red; font-variant:small-caps; font-size:1.5em; position: relative; top:-60px;}
+#original_caution { color:red; font-variant:small-caps; font-size:1.5em; position: absolute; top:70px;}
 
 /* new document */
 #file_tab, #text_doc_tab { padding-top:0.5em;}

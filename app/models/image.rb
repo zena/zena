@@ -7,7 +7,6 @@ class Image < Document
   end
   
   def crop=(crop)
-    puts "CROP?"
     return if @file # we do not want to crop on file upload in case the crop params lie around in the user's form
     x, y, w, h = crop[:x].to_i, crop[:y].to_i, crop[:w].to_i, crop[:h].to_i
     if (x >= 0 && y >= 0 && w <= c_width && h <= c_height)

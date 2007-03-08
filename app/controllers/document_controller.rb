@@ -60,7 +60,7 @@ class DocumentController < ApplicationController
     if @document.public? && @document.v_status == Zena::Status[:pub] && perform_caching && caching_allowed
       cache_page
       if @document.kind_of?(Image) && format != nil
-        # remove 'formatted' file
+        # only keep the public cached file: remove formatted file from the data directory.
         @document.c_remove_image(format)
       end
     end
