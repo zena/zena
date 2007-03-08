@@ -12,7 +12,7 @@
     <span class='title'><%= li.title %></span>
   </div>
   <div class='body'>
-    <div class='text'><%= zazen(li.text) %></div>
+    <div class='zazen'><%= zazen(li.text) %></div>
     <ul class='sub' id='replies_to<%= li[:id] %>'><%= render(:partial=>'comment/li', :collection=>li.replies(:with_prop=>@node.can_publish?)) unless @admin %></ul>
   </div>
 </li>

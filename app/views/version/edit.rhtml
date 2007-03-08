@@ -19,7 +19,7 @@
     <div><input type="submit" onclick="$('loader').style.visibility = 'visible';" value='<%= transb('validate') %>'/></div>
     <div><%= submit_to_remote('save', transb('save'), :url=>{:action => 'save_text', :controller=>'version', :id=>@node[:id]}) %></div>
     <% unless @node.version.new_record? %>
-    <div><%= tlink_to_remote('backup', :url=>{:action => 'backup', :controller=>'version', :id=>@node.v_id}) %></div>
+    <div><%= submit_to_remote('backup', transb('backup'), :url=>{:action => 'backup', :controller=>'version', :id=>@node.v_id}) %></div>
     <% end -%>
     <div><a href='#' onclick='uploader=window.open("<%= url_for :controller=>'document', :action=>'new', :parent_id=>@node %>", "uploader", "location=1,width=400,height=300");uploader.opener = opener;return false;'><%= transb('btn_add_document')%></a></div>
   </div>

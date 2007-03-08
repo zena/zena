@@ -17,7 +17,7 @@ end %>
 </div>
 <div class='body'>
   <div id='comment_errors<%= @comment && @comment.reply_to ? @comment.reply_to : '' %>' class='errors'></div>
-  <div class='text'><%= text_area('comment', 'text', :cols=>nil, :rows=>12 ) %></div>
+  <div class='zazen'><%= text_area('comment', 'text', :cols=>nil, :rows=>12 ) %></div>
   <%= hidden_field('comment', 'id') %>
   <%= hidden_field('node', 'id', :value=>(node ? node[:id] : "")) %>
   <%= hidden_field('comment', 'reply_to') %>
