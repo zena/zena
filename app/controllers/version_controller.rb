@@ -93,7 +93,7 @@ class VersionController < ApplicationController
       session[:notice] = trans "Redaction saved."
     else
       flash[:error] = trans "Redaction could not be saved"
-      render :action=>'edit'
+      render :action=>'edit' unless params[:action] == 'save_text'
     end
   rescue ActiveRecord::RecordNotFound
     page_not_found
@@ -101,8 +101,7 @@ class VersionController < ApplicationController
   
   # TODO: test
   def save_text
-    @node = secure_write(Node) { Node.find(params[:id]) }
-    @node.update_attributes(:v_text=>params[:node][:v_text], :v_summary=>params[:node][:v_summary], :v_title=>params[:node][:v_title])
+    save
   end
   
   # Create a backup copy of the current redaction.
@@ -187,8 +186,6 @@ class VersionController < ApplicationController
   
   def render_or_redir(url)
     if params[:drive]
-      # FIXME: BUG when two version (fr,en). fr = red, en = pub. removing
-      # fr we cannot 'unpublish' en. Reload of drive popup => now we can !!?
       render :action=>'update'
     elsif url == 404
       page_not_found

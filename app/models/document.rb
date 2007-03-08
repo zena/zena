@@ -40,6 +40,7 @@ class Document < Page
   end
   
   def c_file=(file)
+    puts "SET FILE"
     @file = file
   end
   

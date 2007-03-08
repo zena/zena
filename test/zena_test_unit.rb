@@ -18,9 +18,8 @@ module ZenaTestUnit
     @visitor = User.find(visitor_id)
   end
   
-  # 
   # Set visitor for unit testing
-  def test_visitor(name=nil)
+  def login(name=nil)
     if name
       @visitor = User.find_by_login(name.to_s)
       @lang = @visitor.lang

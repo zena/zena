@@ -12,8 +12,8 @@
     <table cellspacing="0" borderspacing="0">
       <tr>
         <td class='preview'><p><%= @document.img_tag('pv') %></p><p class='size'><%= fsize(@document.c_size) %></p></td>
-        <td class='description'><h3 class='title'><span class='doc_id'><%= @document[:id] %></span><%= @document.name %></h3><p class='summary'><%= zazen(@document.v_summary) %></p></td></tr>
+        <td class='description'><h3 class='title'><span class='doc_id'><%= @document[:id] %></span> <%= @document.name %></h3><p class='summary'><%= zazen(@document.v_summary) %></p></td></tr>
     </table>
-    <p class='btn_validate'><%= link_to transb("upload more"), :controller=>'document', :action=>'new', :parent_id=>@document.parent_id %> // <%= form_action('edit',@document.v_id) %> </p>
+    <p class='btn_validate'><%= link_to transb("upload more"), :controller=>'document', :action=>'new', :parent_id=>@document.parent_id %> // <%= form_action('edit',@document.v_id, transb('edit')) %> </p>
   </div>
 </div>

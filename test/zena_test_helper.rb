@@ -43,6 +43,7 @@ module ZenaTestHelper
     @controller_bak = @controller
     @controller = LoginController.new
     post 'login', :user=>{:login=>visitor.to_s, :password=>visitor.to_s}
+    @visitor = nil # clear cached visitor
     @controller = @controller_bak
   end
   

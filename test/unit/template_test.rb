@@ -4,7 +4,7 @@ class TemplateTest < Test::Unit::TestCase
   include ZenaTestUnit
   
   def test_create_simplest
-    test_visitor(:tiger)
+    login(:tiger)
     doc = secure(Document) { Document.create(:parent_id=>nodes_id(:cleanWater), :name=>'skiny.html')}
     assert_kind_of Skin, doc
     assert !doc.new_record?, "Not a new record"
@@ -17,7 +17,7 @@ class TemplateTest < Test::Unit::TestCase
   end
   
   def test_create_with_file
-    test_visitor(:tiger)
+    login(:tiger)
     doc = secure(Document) { Document.create(:parent_id=>nodes_id(:cleanWater), :name=>'skiny', 
       :c_file=>uploaded_file('some.txt', content_type="text/html", 'smoke'))}
     assert_kind_of Skin, doc

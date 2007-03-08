@@ -536,10 +536,11 @@ module ApplicationHelper
     end
   end
   
-  # TODO: test
+  # Display a selection 'box' for a given role (provided by the sym argument). Depending on the role type
+  # this helper may render a checkbox list, a select menu or an input field for an id. Available choices
+  # may be reduced by providing a list as :in argument : link_box('node', :calendars, :in=>[1,11]).
   def link_box(obj, sym, opt={})
-    # FIXME: SECURITY is there a better way to do this ?
-    node = eval("@#{obj}")
+    node = instance_variable_get("@#{obj}".to_sym)
     method = "#{sym}_for_form".to_sym
     role = node.class.role[sym.to_s]
     setter = sym.to_s.singularize
@@ -633,11 +634,11 @@ module ApplicationHelper
     if action == 'edit'
       "<a href='#' title='#{transb('btn_title_edit')}' onclick=\"editor=window.open('" + 
       url_for(:controller=>'version', :id=>version_id, :action=>'edit', :rnd=>rnd) + 
-      "', 'edit', 'location=0,width=300,height=400,resizable=1');return false;\">" + (link_text || transb('btn_edit')) + "</a>"
+      "', '_blank', 'location=0,width=300,height=400,resizable=1');return false;\">" + (link_text || transb('btn_edit')) + "</a>"
     elsif action == 'drive'
       "<a href='#' title='#{transb('btn_title_drive')}' onclick=\"editor=window.open('" + 
       url_for(:controller=>'node', :version_id=>version_id, :action=>'drive', :rnd=>rnd) + 
-      "', 'drive', 'location=0,width=300,height=400,resizable=1');return false;\">" + (link_text || transb('btn_drive')) + "</a>"
+      "', '_blank', 'location=0,width=300,height=400,resizable=1');return false;\">" + (link_text || transb('btn_drive')) + "</a>"
     else
       tlink_to( (link_text || "btn_#{action}"), {:controller=>'version', :action => action , :id => version_id}, :title=>transb("btn_title_#{action}"), :post=>true ) + "\n"
     end

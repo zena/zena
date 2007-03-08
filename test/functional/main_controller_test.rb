@@ -63,7 +63,7 @@ class MainControllerTest < Test::Unit::TestCase
     assert_redirected_to :controller=>'main', :action=>'index'
   end
   
-  def test_visitor_lang
+  def login_lang
     session[:lang] = nil
     get 'index'
     assert_equal 'en', assigns(:visitor).lang

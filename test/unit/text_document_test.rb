@@ -11,7 +11,7 @@ class TextDocumentTest < Test::Unit::TestCase
   end
   
   def test_create_simplest
-    test_visitor(:tiger)
+    login(:tiger)
     doc = secure(Document) { Document.create(:parent_id=>nodes_id(:cleanWater), :name=>'skiny')}
     assert_equal TextDocument, doc.class
     err doc

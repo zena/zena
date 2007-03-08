@@ -1,8 +1,8 @@
 <div id='dates_errors' class='errors'></div>
 <ul>
 <%= form_remote_tag(:with=>'dates', :url=>{:controller=>'node', :action=>'update', :id=>@node[:id], :rnd=>rnd}) %>
-  <li><label><%= trans('event date') %></label><%= date_box('node', 'event_at') %></li>
-  <li><label><%= trans('log date') %></label><%= date_box('node', 'log_at') %></li>
+  <li><label for='node_event_at'><%= trans('event date') %></label><%= date_box('node', 'event_at') %></li>
+  <li><label for='node_log_at'><%= trans('log date') %></label><%= date_box('node', 'log_at') %></li>
   <li class='submit'><%= submit_tag transb('change') %></li>
 <%= end_form_tag %>
 </ul>

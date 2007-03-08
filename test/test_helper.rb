@@ -47,7 +47,9 @@ class Test::Unit::TestCase
       name = path.pop
       FileUtils::mkpath(File.join(RAILS_ROOT,'data', 'test', *path))
       path << name
-      FileUtils::cp(File.join(FILE_FIXTURES_PATH,name),File.join(RAILS_ROOT,'data', 'test', *path))
+      if File.exist?(File.join(FILE_FIXTURES_PATH,name))
+        FileUtils::cp(File.join(FILE_FIXTURES_PATH,name),File.join(RAILS_ROOT,'data', 'test', *path))
+      end
     end
   end
   

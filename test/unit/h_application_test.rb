@@ -32,6 +32,18 @@ class ApplicationHelperTest < Test::Unit::TestCase
     assert_match %r{/calendar/lang/calendar-en-utf8.js}, res
   end
   
+  def test_link_box
+    @node = secure(Node) { nodes(:letter) }
+    assert_equal "<ul class='link_box'><li><b>calendars</b></li><li><input type='checkbox' name='node[calendar_ids][]' value='19' class='box' />wiki</li></ul>", link_box('node', :calendars)
+    login(:tiger)
+    @node = secure(Node) { nodes(:letter) }
+    assert_match %r{ul class='link_box'.*node\[calendar_ids\]\[\].*1.*9.*11.*19}, link_box('node', :calendars)
+    assert_match %r{node\[hot_for_ids\]\[\].*11.*19}, link_box('node', :hot_for, :in=>[11,19,13])
+    assert_no_match %r{13}, link_box('node', :hot_for, :in=>[11,19,13])
+    @node = secure(Node) { nodes(:cleanWater) }
+    assert_match %r{node\[hot_id\].*12}, link_box('node', :hot)
+  end 
+  
   def test_date_box
     assert false, 'todo'
   end
@@ -142,7 +154,7 @@ class ApplicationHelperTest < Test::Unit::TestCase
     assert_equal Time.gm(2006,11,10,12,30), parse_date('10.11.2006 12:30', '%d.%m.%Y %H:%M')
   end
   
-  def test_visitor_link
+  def login_link
     assert_equal '', visitor_link
     login(:ant)
     assert_match /div id='visitor'.*home.*Solenopsis Invicta/, visitor_link

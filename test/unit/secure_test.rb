@@ -31,7 +31,7 @@ class SecureReadTest < Test::Unit::TestCase
   # SECURE FIND TESTS  ===== TODO CORRECT THESE TEST FROM CHANGES TO RULES ========
   # [user]          Node owner. Can *read*, *write* and (*manage*: if node not published yet or node is private).
   def test_can_rwm_own_private_node
-    test_visitor(:ant)
+    login(:ant)
     node = secure(Node) { nodes(:myLife)  }
     assert_kind_of Node, node
     assert_equal 'myLife', node.name
@@ -43,11 +43,11 @@ class SecureReadTest < Test::Unit::TestCase
     assert !node.can_visible? , "Cannot make visible changes"
   end
   def test_cannot_view_others_private_nodes
-    test_visitor(:lion)
+    login(:lion)
     assert_raise(ActiveRecord::RecordNotFound) { node = secure(Node) { nodes(:myLife)  }}
   end
   def test_owner_but_not_in_rgroup
-    test_visitor(:ant)
+    login(:ant)
     node = secure(Node) { nodes(:proposition)  }
     assert_kind_of Node, node
     assert node.can_read? , "Can read"
@@ -55,7 +55,7 @@ class SecureReadTest < Test::Unit::TestCase
     assert ! node.can_publish? , "Can publish"
   end
   def test_cannot_rwpm_if_not_owner_and_not_in_any_group
-    test_visitor(:ant)
+    login(:ant)
     # not in any group and not owner
     node = nodes(:secret)
     node.visitor = visitor
@@ -76,7 +76,7 @@ class SecureReadTest < Test::Unit::TestCase
   end
   # write group can only write
   def test_write_group_can_w
-    test_visitor(:tiger)
+    login(:tiger)
     node = ""
     assert_raise(ActiveRecord::RecordNotFound) { node = secure(Node) { nodes(:strange)  } }
     assert_nothing_raised { node = secure_write(Node) { nodes(:strange)  } }
@@ -85,20 +85,20 @@ class SecureReadTest < Test::Unit::TestCase
   end
   # pgroup can only publish
   def test_publish_group_can_rwp
-    test_visitor(:ant)
+    login(:ant)
     node = ""
     ant = users(:ant)
     assert_raise(ActiveRecord::RecordNotFound) { node = secure(Node) { nodes(:strange)  } }
     assert_raise(ActiveRecord::RecordNotFound) { node = secure_write(Node) { nodes(:strange)  } }
     assert_raise(ActiveRecord::RecordNotFound) { node = secure_drive(Node) { nodes(:strange)  } }
     
-    test_visitor(:lion)
+    login(:lion)
     lion_node = ""
     assert_nothing_raised { lion_node = secure(Node) { nodes(:strange)  } }
     assert lion_node.can_read? , "Owner can read"
     assert lion_node.propose , "Can propose"
     
-    test_visitor(:ant)
+    login(:ant)
     # now node is 'prop', pgroup can see it
     assert_nothing_raised { node = secure(Node) { nodes(:strange)  } }
     assert_raise(ActiveRecord::RecordNotFound) { node = secure_write(Node) { nodes(:strange)  } }
@@ -126,7 +126,7 @@ class SecureReadTest < Test::Unit::TestCase
   
   def test_pgroup_can_read_unplished_nodes
     # create an unpublished node
-    test_visitor(:lion)
+    login(:lion)
     node = secure(Node) { nodes(:strange)  }
     node = secure(Node) { node.clone }
     node[:publish_from] = nil
@@ -134,14 +134,14 @@ class SecureReadTest < Test::Unit::TestCase
     assert node.new_record?
     assert node.save
     
-    test_visitor(:ant)
+    login(:ant)
     # node is 'red', cannot see it
     assert_raise(ActiveRecord::RecordNotFound) { node = secure(Page) { Page.find_by_name("new_rec") } }
     
-    test_visitor(:lion)
+    login(:lion)
     assert node.propose , "Can propose node for publication."
     
-    test_visitor(:ant)
+    login(:ant)
     # node can now be seen
     assert_nothing_raised { node = secure(Page) { Page.find_by_name("new_rec") } }
     assert_nil node[:publish_from] , "Not published yet"
@@ -160,25 +160,25 @@ class SecureCreateTest < Test::Unit::TestCase
   
   # VALIDATE ON CREATE TESTS
   def test_unsecure_new_fails
-    test_visitor(:ant)
+    login(:ant)
     # unsecure creation :
     test_page = Node.new(node_defaults)
     assert ! test_page.save , "Save fails"
     assert_equal "record not secured", test_page.errors[:base]
   end
   def test_secure_new_succeeds
-    test_visitor(:ant)
+    login(:ant)
     test_page = secure(Node) { Node.new(:name=>"yoba", :parent_id=>1) }
     assert test_page.save , "Save succeeds"
   end
   def test_unsecure_create_fails
-    test_visitor(:ant)
+    login(:ant)
     p = Node.create(node_defaults)
     assert p.new_record? , "New record"
     assert_equal "record not secured", p.errors[:base]
   end
   def test_secure_create_succeeds
-    test_visitor(:ant)
+    login(:ant)
     p = secure(Node) { Node.create(node_defaults) }
     assert ! p.new_record? , "Not a new record"
     assert p.id , "Has an id"
@@ -186,21 +186,21 @@ class SecureCreateTest < Test::Unit::TestCase
   
   # 0. set node.user_id = visitor_id
   def test_owner_is_visitor_on_new
-    test_visitor(:ant)
+    login(:ant)
     test_page = secure(Node) { Node.new(node_defaults) }
     test_page[:user_id] = 99 # try to fool
     assert test_page.save , "Save succeeds"
     assert_equal users_id(:ant), test_page.user_id
   end
   def test_owner_is_visitor_on_create
-    test_visitor(:ant)
+    login(:ant)
     attrs = node_defaults
     attrs[:user_id] = 99
     page = secure(Node) { Node.create(attrs) }
     assert_equal users_id(:ant), page.user_id
   end
   def test_status
-    test_visitor(:tiger)
+    login(:tiger)
     node = secure(Node) { Node.new(node_defaults) }
     assert_equal Zena::Status[:red], node.max_status, "New node max_status is 'red'"
     assert_equal Zena::Status[:red], node.v_status, "Version status is 'red'"
@@ -212,7 +212,7 @@ class SecureCreateTest < Test::Unit::TestCase
     assert node.publish, "Can publish node"
     assert_equal Zena::Status[:pub], node.max_status, "node max_status in now 'pub'"
     id = node.id
-    test_visitor(:ant)
+    login(:ant)
     assert_nothing_raised { node = secure(Node) { Node.find(id) } }
     assert node.update_attributes(:v_summary=>'hello my friends'), "Can create a new edition"
     assert_equal Zena::Status[:pub], node.max_status, "Node max_status did not change"
@@ -222,7 +222,7 @@ class SecureCreateTest < Test::Unit::TestCase
   end
   # 2. valid reference (in which the visitor has write access and ref<>self !)
   def test_invalid_reference_cannot_write_in_new
-    test_visitor(:ant)
+    login(:ant)
     attrs = node_defaults
     
     # ant cannot write into secret
@@ -233,7 +233,7 @@ class SecureCreateTest < Test::Unit::TestCase
     assert_equal "invalid reference", z.errors[:parent_id]
   end
   def test_invalid_reference_not_correct_class
-    test_visitor(:ant)
+    login(:ant)
     attrs = node_defaults
     
     # lake is not a Project (Notes use Projects as references)
@@ -246,7 +246,7 @@ class SecureCreateTest < Test::Unit::TestCase
   def test_no_reference
     # root nodes do not have a parent_id !!
     # reference = self
-    test_visitor(:lion)
+    login(:lion)
     z = secure(Node) { nodes(:zena)  }
     assert_nil z[:parent_id]
     z[:pgroup_id] = 1
@@ -254,7 +254,7 @@ class SecureCreateTest < Test::Unit::TestCase
   end
   
   def test_circular_reference
-    test_visitor(:tiger)
+    login(:tiger)
     node = secure(Node) { nodes(:projects)  }
     node[:parent_id] = nodes_id(:status)
     assert ! node.save, 'Save fails'
@@ -262,7 +262,7 @@ class SecureCreateTest < Test::Unit::TestCase
   end
   
   def test_existing_circular_reference
-    test_visitor(:tiger)
+    login(:tiger)
     Node.connection.execute "UPDATE nodes SET parent_id = #{nodes_id(:cleanWater)} WHERE id=#{nodes_id(:projects)}"
     node = secure(Node) { nodes(:status)  }
     node[:parent_id] = nodes_id(:projects)
@@ -271,14 +271,14 @@ class SecureCreateTest < Test::Unit::TestCase
   end
   
   def test_valid_without_circular
-    test_visitor(:tiger)
+    login(:tiger)
     node = secure(Node) { nodes(:status)  }
     node[:parent_id] = nodes_id(:zena)
     assert node.save, 'Save succeeds'
   end
   
   def test_set_reference_for_root
-    test_visitor(:tiger)
+    login(:tiger)
     node = secure(Node) { nodes(:zena)  }
     node.name = 'bob'
     assert node.save
@@ -288,7 +288,7 @@ class SecureCreateTest < Test::Unit::TestCase
   end
   
   def test_valid_reference
-    test_visitor(:ant)
+    login(:ant)
     attrs = node_defaults
     
     # ok
@@ -300,7 +300,7 @@ class SecureCreateTest < Test::Unit::TestCase
   
   # 3. validate +publish_group+ value (same as parent or ref.can_publish? and valid)
   def test_valid_publish_group_cannot_change_if_not_ref_can_publish
-    test_visitor(:ant)
+    login(:ant)
     attrs = node_defaults
     
     # can create node in cleanWater
@@ -315,7 +315,7 @@ class SecureCreateTest < Test::Unit::TestCase
     assert_equal "you cannot change this", z.errors[:pgroup_id]
   end
   def test_invalid_publish_group_visitor_not_in_group_set
-    test_visitor(:ant)
+    login(:ant)
     attrs = node_defaults
     
     # can publish in ref 'wiki', but is not in group managers
@@ -327,7 +327,7 @@ class SecureCreateTest < Test::Unit::TestCase
     assert_equal "unknown group", z.errors[:pgroup_id]
   end
   def test_valid_publish_group
-    test_visitor(:ant)
+    login(:ant)
     attrs = node_defaults
     wiki = nodes(:wiki)
     attrs[:parent_id] = wiki[:id]
@@ -344,7 +344,7 @@ class SecureCreateTest < Test::Unit::TestCase
   # 4. validate +rw groups+ :
   #     a. if can_publish? : valid groups
   def test_can_vis_bad_rgroup
-    test_visitor(:tiger)
+    login(:tiger)
     attrs = node_defaults
 
     p = secure(Node) { Node.find(attrs[:parent_id])}
@@ -358,7 +358,7 @@ class SecureCreateTest < Test::Unit::TestCase
     assert_equal "unknown group", z.errors[:rgroup_id]
   end
   def test_can_vis_bad_rgroup_visitor_not_in_group
-    test_visitor(:tiger)
+    login(:tiger)
     attrs = node_defaults
     attrs[:rgroup_id] = groups_id(:admin) # tiger is not in admin
     z = secure(Note) { Note.create(attrs) }
@@ -367,7 +367,7 @@ class SecureCreateTest < Test::Unit::TestCase
     assert_equal "unknown group", z.errors[:rgroup_id]
   end
   def test_can_vis_bad_wgroup
-    test_visitor(:tiger)
+    login(:tiger)
     attrs = node_defaults
     # bad wgroup
     attrs[:wgroup_id] = 99999
@@ -377,7 +377,7 @@ class SecureCreateTest < Test::Unit::TestCase
     assert_equal "unknown group", z.errors[:wgroup_id]
   end
   def test_can_vis_bad_wgroup_visitor_not_in_group
-    test_visitor(:tiger)
+    login(:tiger)
     attrs = node_defaults
     
     attrs[:wgroup_id] = groups_id(:admin) # tiger is not in admin
@@ -387,7 +387,7 @@ class SecureCreateTest < Test::Unit::TestCase
     assert_equal "unknown group", z.errors[:wgroup_id]
   end
   def test_can_vis_rwgroups_ok
-    test_visitor(:tiger)
+    login(:tiger)
     attrs = node_defaults
     zena = nodes(:zena)
     attrs[:parent_id] = zena[:id]
@@ -404,7 +404,7 @@ class SecureCreateTest < Test::Unit::TestCase
   
   #     b. else (can_manage as node is new) : rgroup_id = 0 => inherit, rgroup_id = -1 => private else error.
   def test_can_man_cannot_change_pgroup
-    test_visitor(:ant)
+    login(:ant)
     attrs = node_defaults
 
     attrs[:parent_id] = nodes_id(:zena) # ant can write but not publish here
@@ -421,7 +421,7 @@ class SecureCreateTest < Test::Unit::TestCase
     assert_equal "you cannot change this", z.errors[:pgroup_id]
   end
   def test_can_man_cannot_change_rw_groups
-    test_visitor(:ant)
+    login(:ant)
     attrs = node_defaults
 
     attrs[:parent_id] = nodes_id(:zena) # ant can write but not publish here
@@ -439,7 +439,7 @@ class SecureCreateTest < Test::Unit::TestCase
     assert_equal "you cannot change this", z.errors[:wgroup_id]
   end
   def test_can_man_can_make_private
-    test_visitor(:ant)
+    login(:ant)
     attrs = node_defaults
 
     attrs[:parent_id] = nodes_id(:zena) # ant can write but not publish here
@@ -460,7 +460,7 @@ class SecureCreateTest < Test::Unit::TestCase
   def test_can_man_cannot_make_private
     bak = ZENA_ENV[:allow_private_nodes]
     ZENA_ENV[:allow_private_nodes] = false
-    test_visitor(:ant)
+    login(:ant)
     attrs = node_defaults
 
     attrs[:parent_id] = nodes_id(:zena) # ant can write but not publish here
@@ -477,7 +477,7 @@ class SecureCreateTest < Test::Unit::TestCase
     ZENA_ENV[:allow_private_nodes] = bak
   end
   def test_can_man_can_inherit_rwp_groups
-    test_visitor(:ant)
+    login(:ant)
     attrs = node_defaults
 
     attrs[:parent_id] = nodes_id(:zena) # ant can write but not publish here
@@ -505,7 +505,7 @@ class SecureUpdateTest < Test::Unit::TestCase
   # 1. if pgroup changed from old, make sure user could do this and new group is valid
   def test_pgroup_changed_cannot_visible
     # cannot visible
-    test_visitor(:ant)
+    login(:ant)
     node = secure(Node) { nodes(:lake) }
     assert_kind_of Node, node
     assert ! node.can_visible? , "Cannot make visible changes"
@@ -516,7 +516,7 @@ class SecureUpdateTest < Test::Unit::TestCase
   end
   def test_inherit_changed_cannot_visible
     # cannot visible
-    test_visitor(:ant)
+    login(:ant)
     parent = nodes(:cleanWater)
     node = secure(Page) { Page.create(:parent_id=>parent[:id], :name=>'thing')}
     assert_kind_of Node, node
@@ -531,7 +531,7 @@ class SecureUpdateTest < Test::Unit::TestCase
   end
   def test_pgroup_changed_bad_pgroup_visitor_not_in_group
     # bad pgroup
-    test_visitor(:tiger)
+    login(:tiger)
     node = secure(Node) { nodes(:lake) }
     assert_kind_of Node, node
     assert node.can_visible? , "Can visible"
@@ -543,7 +543,7 @@ class SecureUpdateTest < Test::Unit::TestCase
   end
   def test_pgroup_changed_ok
     # ok
-    test_visitor(:tiger)
+    login(:tiger)
     node = secure(Node) { nodes(:lake) }
     assert_kind_of Contact, node
     assert node.can_visible? , "Can visible"
@@ -555,7 +555,7 @@ class SecureUpdateTest < Test::Unit::TestCase
   end
   def test_pgroup_cannot_nil_unless_owner
     # ok
-    test_visitor(:tiger)
+    login(:tiger)
     node = secure(Node) { nodes(:lake) }
     assert_equal users_id(:ant), node[:user_id]
     assert node.can_visible? , "Can visible"
@@ -568,7 +568,7 @@ class SecureUpdateTest < Test::Unit::TestCase
   end
   def test_pgroup_can_nil_if_owner
     # ok
-    test_visitor(:tiger)
+    login(:tiger)
     node = secure(Node) { nodes(:people) }
     assert_equal users_id(:tiger), node[:user_id]
     assert node.can_visible? , "Can visible"
@@ -581,7 +581,7 @@ class SecureUpdateTest < Test::Unit::TestCase
   end
   def test_rgroup_change_rgroup_with_nil_ok
     # ok
-    test_visitor(:tiger)
+    login(:tiger)
     node = secure(Node) { nodes(:lake) }
     assert node.can_visible? , "Can visible"
     assert_equal 1, node.inherit , "Inherit mode is 1"
@@ -595,7 +595,7 @@ class SecureUpdateTest < Test::Unit::TestCase
   end
   def test_rgroup_change_rgroup_with_0_ok
     # ok
-    test_visitor(:tiger)
+    login(:tiger)
     node = secure(Node) { nodes(:lake) }
     assert node.can_visible? , "Can visible"
     assert_equal 1, node.inherit , "Inherit mode is 1"
@@ -608,7 +608,7 @@ class SecureUpdateTest < Test::Unit::TestCase
   end
   def test_rgroup_change_to_private_with_empty_ok
     # ok
-    test_visitor(:tiger)
+    login(:tiger)
     node = secure(Node) { nodes(:lake) }
     assert_kind_of Node, node
     assert node.can_visible? , "Can visible"
@@ -621,7 +621,7 @@ class SecureUpdateTest < Test::Unit::TestCase
     assert_equal 0, node.rgroup_id
   end
   def test_group_changed_children_too
-    test_visitor(:tiger)
+    login(:tiger)
     node = secure(Node) { nodes(:cleanWater)  }
     node[:inherit  ] = 0
     node[:rgroup_id] = 3
@@ -635,7 +635,7 @@ class SecureUpdateTest < Test::Unit::TestCase
   
   
   def test_skin_changed_children_too
-    test_visitor(:tiger)
+    login(:tiger)
     node = secure(Node) { nodes(:cleanWater)  }
     node[:inherit  ] = 0
     node[:skin] = 'wiki'
@@ -648,7 +648,7 @@ class SecureUpdateTest < Test::Unit::TestCase
   end
   
   def test_skin_change_root_node
-    test_visitor(:tiger)
+    login(:tiger)
     node = secure(Node) { nodes(:zena)  }
     Node.connection.execute "UPDATE nodes SET inherit = 0 WHERE id = '#{nodes_id(:cleanWater)}'"
     node[:skin] = 'wiki'
@@ -663,7 +663,7 @@ class SecureUpdateTest < Test::Unit::TestCase
   # 2. if owner changed from old, make sure only a user in 'admin' can do this
   def test_owner_changed_visitor_not_admin
     # not in 'admin' group
-    test_visitor(:tiger)
+    login(:tiger)
     node = secure(Node) { nodes(:bananas) }
     assert_kind_of Node, node
     assert_equal users_id(:lion), node.user_id
@@ -674,7 +674,7 @@ class SecureUpdateTest < Test::Unit::TestCase
   end
   def test_owner_changed_bad_user
     # cannot write in new contact
-    test_visitor(:lion)
+    login(:lion)
     node = secure(Node) { nodes(:bananas) }
     assert_kind_of Node, node
     assert_equal users_id(:lion), node.user_id
@@ -684,7 +684,7 @@ class SecureUpdateTest < Test::Unit::TestCase
     assert_equal "unknown user", node.errors[:user_id]
   end
   def test_owner_changed_ok
-    test_visitor(:lion)
+    login(:lion)
     node = secure(Node) { nodes(:bananas) }
     node.user_id = users_id(:tiger)
     assert node.save , "Save succeeds"
@@ -694,7 +694,7 @@ class SecureUpdateTest < Test::Unit::TestCase
   
   # 3. error if user cannot visible nor manage
   def test_cannot_visible_nor_manage
-    test_visitor(:ant)
+    login(:ant)
     node = secure(Node) { nodes(:collections) }
     assert ! node.can_visible? , "Cannot visible"
     assert ! node.can_manage? , "Cannot manage"
@@ -705,7 +705,7 @@ class SecureUpdateTest < Test::Unit::TestCase
   
   # 4. parent changed ? verify 'visible access to new *and* old'
   def test_reference_changed_cannot_pub_in_new
-    test_visitor(:ant)
+    login(:ant)
     # cannot visible in new ref
     node = secure(Node) { nodes(:bird_jpg) } # can visible in reference
     node[:parent_id] = nodes_id(:cleanWater) # cannot visible here
@@ -714,7 +714,7 @@ class SecureUpdateTest < Test::Unit::TestCase
     assert "invalid reference", node.errors[:parent_id]
   end
   def test_reference_changed_cannot_pub_in_old
-    test_visitor(:ant)
+    login(:ant)
     # cannot visible in old ref
     node = secure(Node) { nodes(:talk)  } # cannot visible in parent 'secret'
     node[:parent_id] = nodes_id(:wiki) # can visible here
@@ -724,7 +724,7 @@ class SecureUpdateTest < Test::Unit::TestCase
   end
   def test_reference_changed_ok
     # ok
-    test_visitor(:tiger)
+    login(:tiger)
     node = secure(Node) { nodes(:lake) } # can visible here
     node[:parent_id] = nodes_id(:wiki) # can visible here
     assert node.save , "Save succeeds"
@@ -736,7 +736,7 @@ class SecureUpdateTest < Test::Unit::TestCase
   #     b. can change to 'private' if can_manage?
   #     c. can change to 'custom'  if can_visible?
   def test_update_rw_groups_for_publisher_bad_rgroup
-    test_visitor(:tiger)
+    login(:tiger)
     node = secure(Node) { nodes(:lake) }
     p = secure(Page) { Page.find(node[:parent_id])}
     assert p.can_visible? , "Can visible in reference" # can visible in reference
@@ -750,7 +750,7 @@ class SecureUpdateTest < Test::Unit::TestCase
     assert_equal "unknown group", node.errors[:rgroup_id]
   end
   def test_update_rw_groups_for_publisher_not_in_new_rgroup
-    test_visitor(:tiger)
+    login(:tiger)
     node = secure(Node) { nodes(:lake) }
     node[:inherit  ] = 0
     node[:rgroup_id] = groups_id(:admin) # tiger is not in admin
@@ -759,7 +759,7 @@ class SecureUpdateTest < Test::Unit::TestCase
     assert_equal "unknown group", node.errors[:rgroup_id]
   end
   def test_update_rw_groups_for_publisher_bad_wgroup
-    test_visitor(:tiger)
+    login(:tiger)
     node = secure(Node) { nodes(:lake) }
     # bad wgroup
     node[:inherit  ] = 0
@@ -769,7 +769,7 @@ class SecureUpdateTest < Test::Unit::TestCase
     assert_equal "unknown group", node.errors[:wgroup_id]
   end
   def test_update_rw_groups_for_publisher_not_in_new_wgroup
-    test_visitor(:tiger)
+    login(:tiger)
     node = secure(Node) { nodes(:lake) }
     node[:inherit  ] = 0
     node[:wgroup_id] = groups_id(:admin) # tiger is not in admin
@@ -778,7 +778,7 @@ class SecureUpdateTest < Test::Unit::TestCase
     assert_equal "unknown group", node.errors[:wgroup_id]
   end
   def test_update_rw_groups_for_publisher_ok
-    test_visitor(:tiger)
+    login(:tiger)
     node = secure(Node) { nodes(:lake) }
     # all ok
     node[:inherit  ] = 0
@@ -792,7 +792,7 @@ class SecureUpdateTest < Test::Unit::TestCase
   #     b. can change to 'private' if can_manage?
   #     c. can change to 'custom'  if can_visible?
   def hello_ant
-    test_visitor(:ant)
+    login(:ant)
     # create new node
     attrs =  {
     :name => 'hello',
@@ -880,7 +880,7 @@ class SecureUpdateTest < Test::Unit::TestCase
   end
   
   def test_cannot_set_publish_from
-    test_visitor(:tiger)
+    login(:tiger)
     node = secure(Node) { nodes(:lake)  }
     now = Time.now
     old = node.publish_from
@@ -894,22 +894,22 @@ class SecureUpdateTest < Test::Unit::TestCase
   end
   
   def test_update_name_publish_group
-    test_visitor(:lion) # owns 'strange'
+    login(:lion) # owns 'strange'
     node = secure(Node) { nodes(:strange)  }
     assert node.propose
-    test_visitor(:ant)
+    login(:ant)
     node = secure_drive(Node) { nodes(:strange)  } # only in pgroup
     node.name = "kali"
     assert node.save
   end
   #     3. removing the node and/or sub-nodes
   def test_destroy
-    test_visitor(:ant)
+    login(:ant)
     node = secure(Node) { nodes(:status)  }
     assert !node.destroy, "Cannot destroy"
     assert_equal node.errors[:base], 'you do not have the rights to do this'
   
-    test_visitor(:tiger)
+    login(:tiger)
     node = secure(Node) { nodes(:status)  }
     assert node.destroy, "Can destroy"
   end

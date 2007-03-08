@@ -4,7 +4,7 @@ class DocumentContentTest < Test::Unit::TestCase
   include ZenaTestUnit
   
   def test_img_tag
-    test_visitor(:tiger)
+    login(:tiger)
     doc = document_contents(:water_pdf)
     assert_equal "<img src='/images/ext/pdf.png' width='32' height='32' alt='pdf' class='doc'/>", doc.img_tag
     assert_equal "<img src='/images/ext/pdf-pv.png' width='70' height='70' alt='pdf' class='doc'/>", doc.img_tag('pv')
@@ -12,14 +12,14 @@ class DocumentContentTest < Test::Unit::TestCase
   end
   
   def test_img_tag_opts
-    test_visitor(:tiger)
+    login(:tiger)
     doc = document_contents(:water_pdf)
     assert_equal "<img src='/images/ext/pdf.png' width='32' height='32' alt='pdf' class='super'/>", doc.img_tag(nil,:class=>'super')
     assert_equal "<img src='/images/ext/pdf-pv.png' width='70' height='70' alt='pdf' id='man' class='super'/>", doc.img_tag('pv',:class=>'super', :id=>'man')
   end
   
   def test_img_tag_other
-    test_visitor(:tiger)
+    login(:tiger)
     doc = document_contents(:water_pdf)
     doc.ext = 'bin'
     assert_equal 'bin', doc.ext
@@ -118,7 +118,7 @@ class DocumentContentTest < Test::Unit::TestCase
   end
   
   def test_has_file
-    test_visitor(:ant)
+    login(:ant)
     doc = secure(Document) { Document.new(:parent_id=>nodes_id(:cleanWater), :name=>'lalala', :c_name=>'wak') }
     assert ! doc.save, 'Cannot save'
     assert_equal "can't be blank", doc.errors[:c_file]
@@ -126,7 +126,7 @@ class DocumentContentTest < Test::Unit::TestCase
   
   def test_wrong_file_type
     preserving_files("/data/test/jpg/20") do
-      test_visitor(:tiger)
+      login(:tiger)
       node = secure(Node) { nodes(:bird_jpg) }
       assert !node.update_attributes(:c_file=>uploaded_pdf('water.pdf'))
       assert_equal 'must be an image', node.errors[:c_file]

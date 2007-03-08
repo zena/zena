@@ -68,7 +68,7 @@ class MultiversionTest < ActionController::IntegrationTest
     # assert_equal Zena::Status[:prop_with], tree.v_status
     # assert_equal Zena::Status[:prop_with], forest.v_status
     # 
-    # test_visitor(:tiger)
+    # login(:tiger)
     # # can now see all propositions
     # node = secure(Node) { Node.find(nodes_id(:nature)) }
     # tree = secure(Node) { Node.find(nodes_id(:tree))   }
@@ -79,7 +79,7 @@ class MultiversionTest < ActionController::IntegrationTest
     # 
     # assert node.refuse, "Can refuse publication"
     # 
-    # test_visitor(:ant)
+    # login(:ant)
     # # redactions again
     # node = secure(Node) { Node.find(nodes_id(:nature)) }
     # tree = secure(Node) { Node.find(nodes_id(:tree))   }
@@ -89,7 +89,7 @@ class MultiversionTest < ActionController::IntegrationTest
     # assert_equal Zena::Status[:red], forest.v_status
     # assert node.propose, "Propose for publication succeeds"
     # 
-    # test_visitor(:tiger)
+    # login(:tiger)
     # # sees the propositions again
     # node = secure(Node) { Node.find(nodes_id(:nature)) }
     # tree = secure(Node) { Node.find(nodes_id(:tree))   }
@@ -100,7 +100,7 @@ class MultiversionTest < ActionController::IntegrationTest
     # 
     # assert node.publish, "Publication succeeds"
     # 
-    # test_visitor(:ant)
+    # login(:ant)
     # # redactions again
     # node = secure(Node) { Node.find(nodes_id(:nature)) }
     # tree = secure(Node) { Node.find(nodes_id(:tree))   }

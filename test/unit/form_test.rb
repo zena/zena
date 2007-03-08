@@ -6,7 +6,7 @@ class FormTest < Test::Unit::TestCase
 
   # Replace this with your real tests.
   #def test_parse_data
-  #  test_visitor(:ant)
+  #  login(:ant)
   #  form = secure(Form) { Form.find(nodes_id(:form)) }
   #  assert_kind_of Form, form
   #  assert_equal 12, form.parse("[data, filter=>year=2006]{[sum births]}").to_i
@@ -21,8 +21,8 @@ class FormTest < Test::Unit::TestCase
   end
   
   def test_parser
-    #test_visitor(:ant)
-    #test_visitor(:ant)
+    #login(:ant)
+    #login(:ant)
     #form = secure(Form) { Form.find(nodes_id(:form)) }
     #assert_kind_of Form, form
   end

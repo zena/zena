@@ -4,7 +4,7 @@ class CollectorTest < Test::Unit::TestCase
   include ZenaTestUnit
   
   def test_pages
-    test_visitor(:tiger)
+    login(:tiger)
     tag = secure(Node) { nodes(:art) }
     pages = tag.pages
     assert_equal 2, pages.size
@@ -18,7 +18,7 @@ class CollectorTest < Test::Unit::TestCase
   end
   
   def test_documents
-    test_visitor(:tiger)
+    login(:tiger)
     doc = secure(Node) { nodes(:water_pdf) }
     doc.tag_ids = [nodes_id(:art)]
     assert doc.save, "Can save"

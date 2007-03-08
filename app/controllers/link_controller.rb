@@ -62,7 +62,7 @@ class LinkController < ApplicationController
       if @role[:collector]
         render :inline=>"<%= select_id('link', 'other_id', :show=>:short_path) %>"
       else
-        render :inline=>"<%= hidden_field('node','box', :value=>'#{@role[:method]}') %><%= link_box 'node', '#{@role[:method]}', :title=>nil, :as_unique=>#{@role[:as_unique]} %>"
+        render :inline=>"<%= hidden_field('node','box', :value=>'#{@role[:method]}') %><%= link_box 'node', '#{@role[:method]}', :title=>nil, :as_unique=>#{@role[:as_unique].inspect} %>"
       end
     else
       render :inline=>trans('role not valid')
