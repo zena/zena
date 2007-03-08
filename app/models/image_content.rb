@@ -10,82 +10,95 @@ class ImageContent < DocumentContent
   end
   
   def img_tag(format=nil, opts={})
+    format = verify_format(format) || 'std'
     options = {:class=>(format || 'full'), :id=>nil, :alt=>name}.merge(opts)
-    format = verify_format(format)
-    if format && self[:width] && self[:height]
+    if format == 'full'
+      # full size (format = nil)
+      "<img src='/data#{path}' width='#{self.width}' height='#{self.height}' alt='#{options[:alt]}' #{options[:id] ? "id='#{options[:id]}' " : ""}class='#{options[:class]}'/>"
+    elsif self[:width] && self[:height]
       # build image tag
       img = image_for_format(format)
       "<img src='/data#{path(format)}' width='#{img.width}' height='#{img.height}' alt='#{options[:alt]}' #{options[:id] ? "id='#{options[:id]}' " : ""}class='#{options[:class]}'/>"
-    elsif format
+    else
       # cannot build if 'width' and 'height' are not set
       "<img src='/data#{path(format)}' alt='#{options[:alt]}' #{options[:id] ? "id='#{options[:id]}' " : ""}class='#{options[:class]}'/>"
-    else
-      # full size (format = nil)
-      "<img src='/data#{path}' width='#{self.width}' height='#{self.height}' alt='#{options[:alt]}' #{options[:id] ? "id='#{options[:id]}' " : ""}class='#{options[:class]}'/>"
     end
   end
   
   def size(format=nil)
     format = verify_format(format)
-    if format
+    if format == 'full'
+      super
+    elsif format
       if File.exist?(filepath(format)) || make_image(format)
         File.stat(filepath(format)).size
       else
         nil
       end
     else
-      super
+      nil
     end
   end
   
   def width(format=nil)
     format = verify_format(format)
-    if format
+    if format == 'full'
+      self[:width]
+    elsif format
       if img = image_for_format(format)
         img.width
       else
         nil
       end
     else
-      self[:width]
+      nil
     end
   end
   
   def height(format=nil)
     format = verify_format(format)
-    if format
+    if format == 'full'
+      self[:height]
+    elsif format
       if img = image_for_format(format)
         img.height
       else
         nil
       end
     else
-      self[:height]
+      nil
     end
   end
 
   def filename(format=nil)
     format = verify_format(format)
-    if format
+    if format == 'full'
+      super
+    elsif format
       "#{name}-#{format}.#{ext}"
     else
-      super(nil)
+      nil
     end
   end
   
   # Send a file with the data for the given format. It is the receiver's responsability to close the file.
   def file(format=nil)
+    return nil if format == 'full' # We only send full data when asked with format is nil.
     format = verify_format(format)
-    if format
+    if format == 'full'
+      if @file
+        @file
+      elsif File.exist?(filepath)
+        File.new(filepath)
+      else
+        nil
+      end
+    elsif format
       if File.exist?(filepath(format)) || make_image(format)
         File.new(filepath(format))
       else
         nil
       end
-    elsif @file
-      @file
-    elsif File.exist?(filepath)
-      File.new(filepath)
     else
       nil
     end
@@ -95,7 +108,6 @@ class ImageContent < DocumentContent
   def remove_image(format)
     return false unless format = verify_format(format)
     FileUtils::rm(filepath(format)) if File.exist?(filepath(format))
-    version.node.sweep_cache
   end
   
   # Removes all images created by ImageBuilder for this image_content. This is used when the file changes.
@@ -144,12 +156,13 @@ class ImageContent < DocumentContent
   end
   
   def verify_format(format)
-    if format == 'full' || format.nil?
-      nil
-    elsif format =~ /^[a-z0-9]{1,16}$/
+    if format.nil?
+      format = 'full'
+    end
+    if IMAGEBUILDER_FORMAT[format]
       format
     else
-      'std'
+      nil
     end
   end
 end

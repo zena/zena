@@ -42,6 +42,7 @@ class DocumentController < ApplicationController
       raise ActiveRecord::RecordNotFound
     end
     @document = secure(Document) { Document.version(params[:version_id]) }
+    
     content_type = @document.c_content_type
     if @document.kind_of?(Image) && !ImageBuilder.dummy?
       data = @document.c_file(format)
@@ -53,17 +54,18 @@ class DocumentController < ApplicationController
       data = @document.c_file
       disposition = 'inline'
     end
-    raise ActiveRecord::RecordNotFound unless @document.name == name
+    raise ActiveRecord::RecordNotFound unless data && @document.name == name
     send_data( data.read , :filename=>@document.c_filename, :type=>content_type, :disposition=>disposition)
     
-    # TODO: cache_document not tested yet. Also need sweepers !!
     if @document.public? && @document.v_status == Zena::Status[:pub] && perform_caching && caching_allowed
+      # cache data
       cache_page
       if @document.kind_of?(Image) && format != nil
         # only keep the public cached file: remove formatted file from the data directory.
         @document.c_remove_image(format)
       end
     end
+    data.close
   rescue ActiveRecord::RecordNotFound
     page_not_found
   rescue IOError

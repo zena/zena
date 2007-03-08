@@ -64,37 +64,49 @@ class DocumenControllerTest < Test::Unit::TestCase
     ApplicationController.perform_caching = true
     preserving_files('data/test/jpg') do
       without_files('public/data/jpg') do
-        assert ! File.exist?("#{RAILS_ROOT}/public/data/jpg/20"), "No cached data for bird"
-        assert ! File.exist?("#{RAILS_ROOT}/data/test/jpg/20/bird-pv.jpg"), "No pv image for bird"
-        get 'data', :version_id=>'20', :ext=>'jpg', :filename=>'bird.jpg'
+        v_id = versions_id(:bird_jpg_en)
+        assert ! File.exist?("#{RAILS_ROOT}/public/data/jpg/#{v_id}"), "No cached data for bird"
+        assert ! File.exist?("#{RAILS_ROOT}/data/test/jpg/#{v_id}/bird-pv.jpg"), "No pv image for bird"
+        get 'data', :version_id=>v_id, :ext=>'jpg', :filename=>'bird.jpg'
         assert_response :success
-        assert File.exist?("#{RAILS_ROOT}/public/data/jpg/20/bird.jpg"), "Bird full cached"
-        get 'data', :version_id=>'20', :ext=>'jpg', :filename=>'bird-pv.jpg'
+        assert File.exist?("#{RAILS_ROOT}/public/data/jpg/#{v_id}/bird.jpg"), "Bird full cached"
+        get 'data', :version_id=>v_id, :ext=>'jpg', :filename=>'bird-pv.jpg'
         assert_response :success
-        assert File.exist?("#{RAILS_ROOT}/public/data/jpg/20/bird-pv.jpg"), "Bird pv cached"
-        assert ! File.exist?("#{RAILS_ROOT}/data/test/jpg/20/bird-pv.jpg"), "No pv image stored"
+        assert File.exist?("#{RAILS_ROOT}/public/data/jpg/#{v_id}/bird-pv.jpg"), "Bird pv cached"
+        assert ! File.exist?("#{RAILS_ROOT}/data/test/jpg/#{v_id}/bird-pv.jpg"), "No pv image stored"
         
         # sweep_all
         img = nodes(:bird_jpg)
-        img.send(:sweep_all)
-        assert ! File.exist?("#{RAILS_ROOT}/public/data/jpg/20"), "No cached data for bird"
+        img.send(:sweep_cache)
+        assert ! File.exist?("#{RAILS_ROOT}/public/data/jpg/#{v_id}"), "No cached data for bird"
         
         login(:tiger)
-        
-        assert ! File.exist?("#{RAILS_ROOT}/public/data/jpg/21"), "No cached data for flower"
-        assert ! File.exist?("#{RAILS_ROOT}/data/test/jpg/20/flower-pv.jpg"), "No pv image for flower"
-        get 'data', :version_id=>'20', :ext=>'pdf', :filename=>'flower.jpg'
+        v_id = versions_id(:flower_jpg_en)
+        assert ! File.exist?("#{RAILS_ROOT}/public/data/jpg/#{v_id}"), "No cached data for flower"
+        assert ! File.exist?("#{RAILS_ROOT}/data/test/jpg/#{v_id}/flower-pv.jpg"), "No pv image for flower"
+        get 'data', :version_id=>v_id, :ext=>'pdf', :filename=>'flower.jpg'
         assert_response :success
-        assert ! File.exist?("#{RAILS_ROOT}/public/data/jpg/20/flower.jpg"), "No flower full cached"
-        get 'data', :version_id=>'20', :ext=>'pdf', :filename=>'flower-pv.jpg'
+        assert ! File.exist?("#{RAILS_ROOT}/public/data/jpg/#{v_id}/flower.jpg"), "No flower full cached"
+        get 'data', :version_id=>v_id, :ext=>'pdf', :filename=>'flower-pv.jpg'
         assert_response :success
-        assert ! File.exist?("#{RAILS_ROOT}/public/data/jpg/20/flower-pv.jpg"), "No flower pv cached"
-        assert File.exist?("#{RAILS_ROOT}/data/test/jpg/20/flower-pv.jpg"), "PV image stored"
+        assert ! File.exist?("#{RAILS_ROOT}/public/data/jpg/#{v_id}/flower-pv.jpg"), "No flower pv cached"
+        assert File.exist?("#{RAILS_ROOT}/data/test/jpg/#{v_id}/flower-pv.jpg"), "PV image stored"
       end
     end
     ApplicationController.perform_caching = @perform_caching
   end
   
+  def test_cannot_fill_cache_with_random_format
+    @perform_caching_bak = ApplicationController.perform_caching
+    ApplicationController.perform_caching = true
+    preserving_files('data/test/jpg') do
+      without_files('public/data/jpg') do
+        get 'data', :version_id=>20, :ext=>'jpg', :filename=>'bird-whatever.jpg'
+        assert_redirected_to  :action=>'not_found', :controller=>'main'
+      end
+    end
+    ApplicationController.perform_caching = @perform_caching
+  end
   def test_data_bad_name
     get 'data', :version_id=>'15', :ext=>'pdf', :filename=>'blue.jpg'
     assert_response :redirect

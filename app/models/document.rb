@@ -40,7 +40,6 @@ class Document < Page
   end
   
   def c_file=(file)
-    puts "SET FILE"
     @file = file
   end
   
@@ -97,7 +96,8 @@ class Document < Page
     super
     # Remove cached data from the public directory.
     versions.each do |v|
-      FileUtils::rmtree("#{RAILS_ROOT}/public/data/#{ext}/#{v[:id]}")
+      next if v[:content_id]
+      FileUtils::rmtree(File.dirname(v.content.cachepath))
     end
   end
 

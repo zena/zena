@@ -87,7 +87,7 @@ class DocumentContent < ActiveRecord::Base
     "#{name}.#{ext}"
   end
   
-  # If this is changed, also change #Document.sweep_cache
+  # Return the unique path for this content. The path is used to build 'filepath' and 'cachepath'
   def path(format=nil)
     "/#{ext}/#{self[:version_id]}/#{filename(format)}"
   end
@@ -99,7 +99,6 @@ class DocumentContent < ActiveRecord::Base
   end
   
   # Path for cached document in the public directory.
-  # If this is changed, also change #Document.sweep_cache
   def cachepath(format=nil)
     raise StandardError, "version not set" unless self[:version_id]
     "#{RAILS_ROOT}/public/data#{path(format)}" # TODO: [site_id] change all RAILS_ROOT when used in paths...
@@ -136,9 +135,7 @@ class DocumentContent < ActiveRecord::Base
   
   def make_file(path, data)
     p = File.join(*path.split('/')[0..-2])
-    unless File.exist?(p)
-      FileUtils::mkpath(p)
-    end
+    FileUtils::mkpath(p) unless File.exist?(p)
     File.open(path, "wb") { |f| f.syswrite(data.read) }
   end
   
