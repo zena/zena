@@ -44,6 +44,17 @@ class ApplicationHelperTest < Test::Unit::TestCase
     assert_match %r{node\[hot_id\].*12}, link_box('node', :hot)
   end 
   
+  def test_select_id
+    @node = secure(Node) { nodes(:status) }
+    select = select_id('node', :parent_id, :class=>'Project')
+    assert_no_match %r{select.*node\[parent_id\].*11.*9.*19.*1}m, select
+    assert_match %r{select.*node\[parent_id\].*19}, select
+    login(:tiger)
+    @node = secure(Node) { nodes(:status) }
+    assert_match %r{select.*node\[parent_id\].*11.*9.*19.*1}m, select_id('node', :parent_id, :class=>'Project')
+    assert_match %r{input type='text'.*node\[icon_id\].*node_icon_id_name}m, select_id('node', :icon_id)
+  end
+  
   def test_date_box
     assert false, 'todo'
   end

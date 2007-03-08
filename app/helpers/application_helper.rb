@@ -989,15 +989,16 @@ ENDTXT
     @controller.send(:render_to_string, *args)
   end
   
-  # TODO: test
-  # clever id selector
+  # Display an input field to select an id. The user can enter an id or a name in the field and the
+  # node's path is shown next to the input field. If the :class option is specified and the elements
+  # in this class are not too many, a select menu is shown instead (nodes in the menu are found using secure_write scope).
+  # 'Sym' is the field to select the id for (parent_id, ...).
   def select_id(obj, sym, opt={})
     if ['Project', 'Tag', 'Contact'].include?(opt[:class].to_s)
-      klass = opt[:class].kind_of?(Class) ? opt[:class] : eval(opt[:class])
-      return select(obj,sym,  secure(klass) { klass.find(:all, :select=>'id,name', :order=>'name ASC') }.map{|r| [r[:name], r[:id]]}, { :include_blank => opt[:include_blank] })
+      klass = opt[:class].kind_of?(Class) ? opt[:class] : Module::const_get(opt[:class].to_sym)
+      return select(obj,sym,  secure_write(klass) { klass.find(:all, :select=>'id,name', :order=>'name ASC') }.map{|r| [r[:name], r[:id]]}, { :include_blank => opt[:include_blank] })
     end
-    # FIXME: SECURITY is there a better way to do this ?
-    node = eval("@#{obj}")
+    node = instance_variable_get("@#{obj}".to_sym)
     if node
       id = node.send(sym.to_sym)
       current_obj = secure(Node) { Node.find_by_id(id) } if id
