@@ -414,48 +414,50 @@ class Node < ActiveRecord::Base
     self[:name] = camelize(str)
   end
   
+  # More reflection needed before implementation.
+  
   # transform an Node into another Object. This is a two step operation :
   # 1. create a new object with the attributes from the old one
   # 2. move old object out of the way (setting parent_id and project_id to -1)
   # 3. try to save new object
   # 4. delete old and set new object id to old
   # THIS IS DANGEROUS !! NEEDS TESTING
-  def change_to(klass)
-    return nil if self[:id] == ZENA_ENV[:root_id]
-    # FIXME: check for class specific information (file to remove, participations, tags, etc) ... should we leave these things and
-    # not care ?
-    # FIXME: when changing into something else : update version type and data !!!
-    my_id = self[:id].to_i
-    my_parent = self[:parent_id].to_i
-    my_project = self[:project_id].to_i
-    connection = self.class.connection
-    # 1. create a new object with the attributes from the old one
-    new_obj = secure(klass) { klass.new(self.attributes) }
-    # 2. move old object out of the way (setting parent_id and project_id to -1)
-    self.class.connection.execute "UPDATE #{self.class.table_name} SET parent_id='0', project_id='0' WHERE id=#{my_id}"
-    # 3. try to save new object
-    if new_obj.save
-      tmp_id = new_obj[:id]
-      # 4. delete old and set new object id to old. Delete tmp Version.
-      self.class.connection.execute "DELETE FROM #{self.class.table_name} WHERE id=#{my_id}"
-      self.class.connection.execute "DELETE FROM #{Version.table_name} WHERE node_id=#{tmp_id}"
-      self.class.connection.execute "UPDATE #{self.class.table_name} SET id='#{my_id}' WHERE id=#{tmp_id}"
-      self.class.connection.execute "UPDATE #{self.class.table_name} SET project_id=id WHERE id=#{my_id}" if new_obj.kind_of?(Project)
-      self.class.logger.info "[#{self[:id]}] #{self.class} --> #{klass}"
-      if new_obj.kind_of?(Project)
-        # update project_id for children
-        sync_project(my_id)
-      elsif self.kind_of?(Project)
-        # update project_id for children
-        sync_project(parent[:project_id])
-      end
-      secure ( klass ) { klass.find(my_id) }
-    else
-      # set object back
-      self.class.connection.execute "UPDATE #{self.class.table_name} SET parent_id='#{my_parent}', project_id='#{my_project}' WHERE id=#{my_id}"
-      self
-    end
-  end
+  # def change_to(klass)
+  #   return nil if self[:id] == ZENA_ENV[:root_id]
+  #   # ==> Check for class specific information (file to remove, participations, tags, etc) ... should we leave these things and
+  #   # not care ?
+  #   # ==> When changing into something else : update version type and data !!!
+  #   my_id = self[:id].to_i
+  #   my_parent = self[:parent_id].to_i
+  #   my_project = self[:project_id].to_i
+  #   connection = self.class.connection
+  #   # 1. create a new object with the attributes from the old one
+  #   new_obj = secure(klass) { klass.new(self.attributes) }
+  #   # 2. move old object out of the way (setting parent_id and project_id to -1)
+  #   self.class.connection.execute "UPDATE #{self.class.table_name} SET parent_id='0', project_id='0' WHERE id=#{my_id}"
+  #   # 3. try to save new object
+  #   if new_obj.save
+  #     tmp_id = new_obj[:id]
+  #     # 4. delete old and set new object id to old. Delete tmp Version.
+  #     self.class.connection.execute "DELETE FROM #{self.class.table_name} WHERE id=#{my_id}"
+  #     self.class.connection.execute "DELETE FROM #{Version.table_name} WHERE node_id=#{tmp_id}"
+  #     self.class.connection.execute "UPDATE #{self.class.table_name} SET id='#{my_id}' WHERE id=#{tmp_id}"
+  #     self.class.connection.execute "UPDATE #{self.class.table_name} SET project_id=id WHERE id=#{my_id}" if new_obj.kind_of?(Project)
+  #     self.class.logger.info "[#{self[:id]}] #{self.class} --> #{klass}"
+  #     if new_obj.kind_of?(Project)
+  #       # update project_id for children
+  #       sync_project(my_id)
+  #     elsif self.kind_of?(Project)
+  #       # update project_id for children
+  #       sync_project(parent[:project_id])
+  #     end
+  #     secure ( klass ) { klass.find(my_id) }
+  #   else
+  #     # set object back
+  #     self.class.connection.execute "UPDATE #{self.class.table_name} SET parent_id='#{my_parent}', project_id='#{my_project}' WHERE id=#{my_id}"
+  #     self
+  #   end
+  # end
 
   # Find the discussion for the current context (v_status and v_lang)
   def discussion
