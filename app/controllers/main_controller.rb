@@ -75,7 +75,7 @@ class MainController < ApplicationController
   def check_url
     if (params[:action] == 'show' && (!params[:path].kind_of?(Array) || params[:path] == []))
       redirect_to :action=>'index', :prefix=>prefix
-    elsif !params[:prefix] || (session[:user] && params[:prefix] != AUTHENTICATED_PREFIX)
+    elsif !params[:prefix] || (!visitor.anon? && params[:prefix] != AUTHENTICATED_PREFIX)
       redirect_with_prefix
     end
   end

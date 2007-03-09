@@ -53,6 +53,7 @@ project). Some special rules apply to this node : TODO...
 =end
 class Node < ActiveRecord::Base
   has_many           :discussions
+  has_and_belongs_to_many :cached_pages
   validate_on_create :node_on_create
   validate_on_update :node_on_update
   after_save         :spread_project_id
@@ -218,7 +219,10 @@ class Node < ActiveRecord::Base
     unless all_children.size == 0
       errors.add('base', "contains subpages")
       return false
-    else
+    else  
+      # expire cache
+      # TODO: test
+      CachedPage.expire_with(self)
       return true
     end
   end
@@ -332,7 +336,7 @@ class Node < ActiveRecord::Base
   
   # Find parent
   def parent(opts={})
-    secure(Node, opts) { Node.find(self[:parent_id]) }
+    @parent ||= secure(Node, opts) { Node.find(self[:parent_id]) }
   rescue ActiveRecord::RecordNotFound
     nil
   end
@@ -501,16 +505,12 @@ class Node < ActiveRecord::Base
   # TODO: test
   def sweep_cache
     return unless Cache.perform_caching
+    Cache.sweep(:visitor_id=>self[:user_id], :visitor_groups=>[rgroup_id, wgroup_id, pgroup_id], :kpath=>self.class.kpath)
     # we want to be sure to find the project and parent, even if the visitor does not have an
     # access to these elements.
+    return unless old.public? || self.public? # was/is visible to anon user
     [self, self.project(:secure=>false), self.parent(:secure=>false)].compact.uniq.each do |obj|
-      ZENA_ENV[:languages].each do |lang|
-        filepath = File.join(RAILS_ROOT,'public',lang,obj.fullpath)
-        filepath = "#{filepath}.html"
-        if File.exist?(filepath)
-          File.delete(filepath)
-        end
-      end
+      CachedPage.expire_with(obj)
     end
   end
   
@@ -591,7 +591,6 @@ class Node < ActiveRecord::Base
   
   # Whenever something changed (publication/proposition/redaction/link/...)
   def after_all
-    Cache.sweep(:visitor_id=>self[:user_id], :visitor_groups=>[rgroup_id, wgroup_id, pgroup_id], :kpath=>self.class.kpath)
     sweep_cache
     true
   end

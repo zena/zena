@@ -252,18 +252,45 @@ class MainControllerTest < Test::Unit::TestCase
     end
   end
   
-  private
-  def get_node(node_sym=:status)
-    obj = nodes(node_sym)
-    if obj[:id] == ZENA_ENV[:root_id]
-      path = []
-    else
-      path = obj.basepath.split('/')
-      unless obj[:custom_base]
-        path += ["#{obj.class.to_s.downcase}#{obj[:id]}.html"]
+  def test_cached_visited_node_ids
+    without_files('/public/en') do
+      with_caching do
+        path = "/en/projects/cleanWater/contact13.html"
+        assert !File.exist?("#{RAILS_ROOT}/public#{path}"), "No cached file yet"
+        get_node(:lake)
+        assert_response :success
+        assert_equal 16, visitor.visited_node_ids.uniq.size
+        assert File.exist?("#{RAILS_ROOT}/public#{path}"), "Cached file created"
+        assert cached = CachedPage.find_by_path(path), "Cached page set"
+        CachedPage.expire_with(@node)
+        assert !File.exist?("#{RAILS_ROOT}/public#{path}"), "Cached file destroyed"
+        #find(:all, :conditions=>"match(expire_with) against ('.#{node_id}.')")
       end
     end
-    prefix = @controller.instance_eval{ @session[:user] } ? AUTHENTICATED_PREFIX : 'en'
+  end
+  
+  
+  
+  private
+  def with_caching
+    @perform_caching_bak = ApplicationController.perform_caching
+    ApplicationController.perform_caching = true
+    yield
+    ApplicationController.perform_caching = @perform_caching_bak
+  end
+  
+  def get_node(node_sym=:status)
+    login unless session[:user]
+    @node = secure(Node) { nodes(node_sym) }
+    if @node[:id] == ZENA_ENV[:root_id]
+      path = []
+    else
+      path = @node.basepath.split('/')
+      unless @node[:custom_base]
+        path += ["#{@node.class.to_s.downcase}#{@node[:id]}.html"]
+      end
+    end
+    prefix = visitor.anon? ? 'en' : AUTHENTICATED_PREFIX
     get 'show', :path=>path, :prefix=>prefix
   end
   

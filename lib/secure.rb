@@ -223,9 +223,9 @@ Just doing the above will filter all result according to the logged in user.
             if result
               # propagate secure scope to children
               if result.kind_of? Array
-                result.each {|r| r.visitor = visitor }
+                result.each {|r| visitor.visit(r) }
               else
-                result.visitor = visitor
+                visitor.visit(result)
               end
               result
             else
@@ -755,11 +755,11 @@ Just doing the above will filter all result according to the logged in user.
             result = yield
             if result
               if result.kind_of? Array
-                result.each {|r| r.visitor = visitor }
+                result.each {|r| visitor.visit(r) }
               else
                 # give the node some info on the current visitor. This lets security and lang info
                 # propagate naturally through the nodes.
-                result.visitor = visitor
+                visitor.visit(result)
               end
               result
             else

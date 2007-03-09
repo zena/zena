@@ -9,6 +9,18 @@ ActiveRecord::Schema.define(:version => 0) do
     t.column "brick", :string
   end
 
+  create_table "cached_pages", :force => true do |t|
+    t.column "path", :text
+    t.column "expire_after", :datetime
+    t.column "created_at", :datetime
+    t.column "node_id", :integer
+  end
+
+  create_table "cached_pages_nodes", :id => false, :force => true do |t|
+    t.column "cached_page_id", :integer
+    t.column "node_id", :integer
+  end
+
   create_table "caches", :force => true do |t|
     t.column "updated_at", :datetime
     t.column "visitor_id", :integer
@@ -105,8 +117,8 @@ ActiveRecord::Schema.define(:version => 0) do
     t.column "user_id", :integer, :default => 0, :null => false
     t.column "project_id", :integer
     t.column "parent_id", :integer
-    t.column "name", :string, :limit => 200
-    t.column "skin", :string
+    t.column "name", :text
+    t.column "skin", :string, :limit => 200
     t.column "inherit", :integer
     t.column "rgroup_id", :integer
     t.column "wgroup_id", :integer

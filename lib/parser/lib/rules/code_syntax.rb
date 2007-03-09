@@ -28,7 +28,7 @@ module Syntax
   
   class Tokenizer
     private
-    def subgroup( gr, data )
+    def sub_lang( gr, data )
       flush_chunk
       @callback.call( Token.new( data, gr, :none, false ) )
     end
@@ -163,7 +163,7 @@ class ErbTokenizer < Syntax::Tokenizer
       methods =~ /<%(=?)([^>]+?)(-?)%>/m
       start_group :punct, "<%#{$1}"
       trailing = $3
-      subgroup :expr, "<code class='ruby'>#{Syntax::Convertors::HTML.for_syntax('ruby').convert($2, false)}</code>"
+      sub_lang :expr, "<code class='ruby'>#{Syntax::Convertors::HTML.for_syntax('ruby').convert($2, false)}</code>"
       start_group :punct, "#{trailing}%>"
     elsif html = scan(/<\/?[^>]+>/)
       html =~/<\/?([^>]+)>/

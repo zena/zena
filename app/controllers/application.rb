@@ -25,9 +25,26 @@ class ApplicationController < ActionController::Base
     render :template=>template_url(opts), :layout=>false
     
     # only cache the public pages
-    if opts[:cache] && !session[:user]
+    if opts[:cache] && visitor.anon?
       cache_page
     end
+  end
+  
+  # TODO: test (adapt for site_id)
+  def cache_page(expire_after = nil)
+    return unless perform_caching && caching_allowed
+    url = url_for(:only_path => true, :skip_relative_url_root => true, :format => params[:format])
+    self.class.cache_page(response.body, url)
+    path        = self.class.send(:page_cache_file,url)
+    puts path
+    puts "========================================"
+    cache = CachedPage.create(:path => path, :expire_after=>expire_after)
+    cache.errors.each do |k,v|
+      puts "[#{k}] #{v}"
+    end
+    values = visitor.visited_node_ids.uniq.map {|id| "(#{cache[:id]}, #{id})"}.join(',')
+    CachedPage.connection.execute "INSERT INTO cached_pages_nodes (cached_page_id, node_id) VALUES #{values}"
+
   end
   
   # Find the best template for the current node's skin, node's class and mode. The template
@@ -269,14 +286,16 @@ class ApplicationController < ActionController::Base
     end
     {:controller => 'main', :action=>'show', :path=>path, :prefix=>prefix}
   end
-  
+
   def prefix
-    if session && session[:user]
-      AUTHENTICATED_PREFIX
-    elsif ZENA_ENV[:monolingual]
-      ''
+    if visitor.anon?
+      if ZENA_ENV[:monolingual]
+        ''
+      else
+        lang
+      end
     else
-      lang
+      AUTHENTICATED_PREFIX
     end
   end
   

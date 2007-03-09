@@ -9,6 +9,7 @@ If you want to give administrative rights to a user, simply put him into the _ad
 TODO: when a user is 'destroyed', pass everything he owns to another user or just mark the user as 'deleted'...
 =end
 class User < ActiveRecord::Base
+  attr_accessor           :visited_node_ids
   has_and_belongs_to_many :groups
   has_many                :nodes
   has_many                :versions
@@ -40,6 +41,16 @@ class User < ActiveRecord::Base
     end
   end
   
+  def visit(node, opts={})
+    node.visitor = self
+    # keep track of the nodes connected to this visit to build the 'expire_with' list
+    visited_node_ids << node[:id] if anon? && CachedPage.perform_caching
+  end
+  
+  def visited_node_ids
+    @visited_node_ids ||= []
+  end
+  
   # Full contact name to show in views.
   def fullname
     first_name + " " + name
@@ -61,9 +72,14 @@ class User < ActiveRecord::Base
     end
   end
   
-  # TODO: test
+  # TODO: test (replace by admin?)
   def is_admin?
     (self[:id] == 2) || self.group_ids.include?(2)
+  end
+  
+  # TODO: test
+  def anon?
+    (self[:id] == 1)
   end
   
   # Returns a list of the group ids separated by commas for the user (this is used mainly in SQL clauses).

@@ -8,11 +8,15 @@ module ZenaTestController
     @controller.instance_variable_set(:@session, @request.session)
   end
 
-  def login(visitor=:ant)
+  def login(visitor=:anon)
     @controller_bak = @controller
     @controller = LoginController.new
     post 'login', :user=>{:login=>visitor.to_s, :password=>visitor.to_s}
-    @controller_bak.instance_variable_set(:@session, @controller.instance_variable_get(:@session) )
+    sess = @controller.instance_variable_get(:@session)
+    if visitor == :anon
+      sess[:user] = 1
+    end
+    @controller_bak.instance_variable_set(:@session, sess )
     @controller_bak.instance_variable_set(:@visitor, nil ) # clear cached visitor
     @controller = @controller_bak
   end
