@@ -236,6 +236,11 @@ module ApplicationHelper
     #r
   end
   
+  # TODO: test
+  def zazen_diff(text1, text2, opt={})
+    HTMLDiff::diff(zazen(text1), zazen(text2))
+  end
+  
   # Creates a link to the node referenced by id
   def make_link(opts)
     node = secure(Node) { Node.find(opts[:id]) }
@@ -680,7 +685,7 @@ module ApplicationHelper
   # TODO: test
   def version_form_action(action,version_id)
     if action == 'view'
-      tlink_to_function('btn_view', "opener.Zena.version_preview(#{version_id}); return false;")
+      tlink_to_function('btn_view', "opener.Zena.version_preview(#{version_id});")
     else
       tlink_to_remote( "btn_#{action}", :url=>{:controller=>'version', :action => action , :id => version_id, :drive=>true}, :title=>transb("btn_title_#{action}"), :post=>true ) + "\n"
     end

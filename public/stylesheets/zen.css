@@ -350,6 +350,12 @@ border:1px solid #DDDBC1; border-width:1px 0 0 1px; font-size:0.8em;}
 .tinycal .body td.sun, .tinycal .body td.sun a { color:#35950B; }
 .tinycal .body td.sunother, .tinycal .body td.sunother a { color:#C8DEC1; }
 
+/* diff */
+del.diffmod, del.diffdel { color: #a22; text-decoration:strikethrough; background-color: #efefef; padding:3px; }
+.zazen del.diffmod img, .zazen del.diffdel img { border:3px solid red; }
+
+.zazen ins.diffmod img, .zazen ins.diffins img { border:3px solid #2a2; }
+ins.diffmod, ins.diffins { background-color: #bfb; text-decoration: none; color: #000;}
 
 /* site_tree */
 #site_tree { position:relative; font-size:0.9em; font-family:Arial; padding-left:15em;}

@@ -918,12 +918,18 @@
 
 171:
   id:        171
-  phrase_id:    99
+  phrase_id: 99
   lang:      en
   value:     "<img src='/images/group.png' alt='group'/>"
 
 172:
   id:        172
-  phrase_id:    100
+  phrase_id: 100
   lang:      en
   value:     "<img src='/images/group_site.png' alt='group_site'/>"
+
+173:
+  id:        173
+  phrase_id: 101
+  lang:      en
+  value:     "<img src='/images/layers.png' alt='diff'/>"

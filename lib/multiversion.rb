@@ -268,38 +268,43 @@ module Zena
         # * find an edition for current lang
         # * find an edition in the reference lang for this node
         # * find the first publication
-        def version #:doc:
-          if ! @version
-            if new_record?
-              @version = version_class.new
-              # owner and lang set in secure_scope
-              @version.status = Zena::Status[:red]
-              @version.node = self
-            elsif can_drive?
-              # sees propositions
-              lang = visitor.lang.gsub(/[^\w]/,'')
-              @version =  Version.find(:first,
-                            :select=>"*, (lang = '#{lang}') as lang_ok, (lang = '#{ref_lang}') as ref_ok",
-                            :conditions=>[ "((status >= ? AND user_id = ? AND lang = ?) OR status > ?) AND node_id = ?", 
-                                            Zena::Status[:red], visitor[:id], lang, Zena::Status[:red], self[:id] ],
-                            :order=>"lang_ok DESC, ref_ok DESC, status ASC ")
-              if !@version
-                @version = versions.find(:first, :order=>'id DESC')
-              end
-            else
-              # only own redactions and published versions
-              lang = visitor.lang.gsub(/[^\w]/,'')
-              @version =  Version.find(:first,
-                            :select=>"*, (lang = '#{lang}') as lang_ok, (lang = '#{ref_lang}') as ref_ok",
-                            :conditions=>[ "((status >= ? AND user_id = ? AND lang = ?) OR status = ?) and node_id = ?", 
-                                            Zena::Status[:red], visitor[:id], lang, Zena::Status[:pub], self[:id] ],
-                            :order=>"lang_ok DESC, ref_ok DESC, status ASC, publish_from ASC")
+        def version(number=nil) #:doc:
+          if number && !new_record? && can_drive?
+            # TODO: test
+            @version = versions.find(:first, :conditions=>[ "number = ? AND node_id = ?", number, self[:id] ])
+          else
+            if ! @version
+              if new_record?
+                @version = version_class.new
+                # owner and lang set in secure_scope
+                @version.status = Zena::Status[:red]
+                @version.node = self
+              elsif can_drive?
+                # sees propositions
+                lang = visitor.lang.gsub(/[^\w]/,'')
+                @version =  Version.find(:first,
+                              :select=>"*, (lang = '#{lang}') as lang_ok, (lang = '#{ref_lang}') as ref_ok",
+                              :conditions=>[ "((status >= ? AND user_id = ? AND lang = ?) OR status > ?) AND node_id = ?", 
+                                              Zena::Status[:red], visitor[:id], lang, Zena::Status[:red], self[:id] ],
+                              :order=>"lang_ok DESC, ref_ok DESC, status ASC ")
+                if !@version
+                  @version = versions.find(:first, :order=>'id DESC')
+                end
+              else
+                # only own redactions and published versions
+                lang = visitor.lang.gsub(/[^\w]/,'')
+                @version =  Version.find(:first,
+                              :select=>"*, (lang = '#{lang}') as lang_ok, (lang = '#{ref_lang}') as ref_ok",
+                              :conditions=>[ "((status >= ? AND user_id = ? AND lang = ?) OR status = ?) and node_id = ?", 
+                                              Zena::Status[:red], visitor[:id], lang, Zena::Status[:pub], self[:id] ],
+                              :order=>"lang_ok DESC, ref_ok DESC, status ASC, publish_from ASC")
 
+              end
+              @version.node = self # preload self as node in version
             end
-            @version.node = self # preload self as node in version
-          end
-          if @version.nil?
-            raise Exception.new("Node #{self[:id]} does not have any version !!")
+            if @version.nil?
+              raise Exception.new("Node #{self[:id]} does not have any version !!")
+            end
           end
           @version
         end

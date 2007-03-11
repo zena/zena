@@ -12,6 +12,47 @@ Zena.version_preview = function(version_id) {
 	new Ajax.Request('/z/version/preview/' + version_id, {asynchronous:true, evalScripts:true})
 }
 
+// version diff.
+Zena.version_diff = function(id, from, to) {
+	new Ajax.Request('/z/version/diff/'+id+'?from=' + from.innerHTML + '&to=' + to.innerHTML, {asynchronous:true, evalScripts:true})
+}
+
+var diff_from = '';
+var diff_to = '';
+var diff_next_sel = 'from';
+Zena.show_diff = function(id) {
+  opener.Zena.version_diff(id, diff_from, diff_to);
+}
+
+Zena.diff_select = function(tag) {
+  if (diff_next_sel == 'from') {
+    if (diff_from != '') {
+      diff_from.style.background = 'none';
+    }
+    diff_from = tag;
+    diff_next_sel = 'to';
+  } else {  
+    if (diff_to != '') {
+      diff_to.style.background = 'none';
+    }
+    diff_to = tag;
+    diff_next_sel = 'from';
+  }
+  if (diff_from != '' && diff_to != '' && parseInt(diff_from.innerHTML) > parseInt(diff_to.innerHTML)) {
+    var tmp = diff_from;
+    diff_from = diff_to;
+    diff_to = tmp;
+    if (diff_next_sel == 'from') {
+      diff_next_sel = 'to';
+    } else {
+      diff_next_sel = 'from';
+    }
+  }
+  
+  diff_from.style.background = '#7A6414';
+  diff_to.style.background = '#FAD12A';
+}
+
 // preview discussion.
 Zena.discussion_show = function(discussion_id) {
 	new Ajax.Request('/z/discussion/show/' + discussion_id, {asynchronous:true, evalScripts:true})

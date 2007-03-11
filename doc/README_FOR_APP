@@ -25,6 +25,7 @@ Zena is a CMS. (c) teti.ch 2007
 #TODO: open/close note: the :as option should be worked out in zazen, when using limit to get the text.
 #TODO: 'delete' a node (Zena::Status[:del]) => rubish bin
 #TODO: cached pages do not consider passing time (future publish_from dates)
+#TODO: finish diff with selection on version number
 Ideas for cached menu: 
   a. expire less often
   b. build with 1 cache for each sub-menu

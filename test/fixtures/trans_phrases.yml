@@ -397,3 +397,7 @@
 100:
   id:   100
   phrase:  'img_group_site'
+  
+101:
+  id:   101
+  phrase:  'btn_diff'

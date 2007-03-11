@@ -1,0 +1,3 @@
+page << "try {"
+page.replace_html    "v_text#{@preview_id}", :inline=>"<%= zazen_diff(@from.text, @to.text) %>"
+page << "} catch(err) {}"

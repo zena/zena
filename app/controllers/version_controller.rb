@@ -35,6 +35,18 @@ class VersionController < ApplicationController
     page_not_found
   end
   
+  # TODO: test/improve or remove (experiments)
+  def diff
+    puts params.inspect
+    @preview_id = session[:preview_id]
+    # drive view
+    @node = secure(Node) { Node.find(params[:id]) }
+    @from = @node.version(params[:from])
+    @to   = @node.version(params[:to])
+  rescue ActiveRecord::RecordNotFound
+    page_not_found
+  end
+  
   # preview when editing node
   def preview
     @preview_id = session[:preview_id]

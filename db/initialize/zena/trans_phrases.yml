@@ -298,3 +298,6 @@ trans_phrases:
 
   - id:   100
     phrase:  'img_group_site'
+
+  - id:   101
+    phrase:  'btn_diff'

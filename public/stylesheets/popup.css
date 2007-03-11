@@ -145,6 +145,8 @@ ul.link_box { float:left; display:block; margin:2px; padding:2px;}
 
 
 #versions .sign { width:20px; }
+#links_tab .diff .box { border-right-width:0; }
+#links_tab .diff .text { font-style:italic; text-align:left;}
 
 #discussions .inline_form div { float: left; padding:0 8px; }
 #discussions .inline_form .inside { margin-top:2px; }
