@@ -5,8 +5,7 @@ require 'project'
 require 'tracker'
 require 'contact'
 
-class PageTest < Test::Unit::TestCase
-  include ZenaTestUnit
+class PageTest < ZenaTestUnit
   
   def test_select_classes
     assert_equal ["Page", "Contact", "Project", "Tag", "Tracker"], Page.select_classes

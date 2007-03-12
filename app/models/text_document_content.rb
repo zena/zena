@@ -15,9 +15,10 @@ class TextDocumentContent < DocumentContent
   def prepare_filename
     # do nothing
   end
-    
+  
   # called before_save
   def prepare_content
+    super
     self[:type] = self.class.to_s # FIXME: this should not be needed... find another fix.
     if @file
       # nothing to do

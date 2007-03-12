@@ -1,7 +1,6 @@
 require File.dirname(__FILE__) + '/../test_helper'
 
-class FormTest < Test::Unit::TestCase
-  include ZenaTestUnit
+class FormTest < ZenaTestUnit
 
 
   # Replace this with your real tests.

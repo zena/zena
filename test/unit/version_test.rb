@@ -1,6 +1,5 @@
 require File.dirname(__FILE__) + '/../test_helper'
-class VersionTest < Test::Unit::TestCase
-  include ZenaTestUnit
+class VersionTest < ZenaTestUnit
   
   def version(sym)
     secure(Node) { nodes(sym) }.version

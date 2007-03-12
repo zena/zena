@@ -4,8 +4,7 @@ require 'calendar_controller'
 # Re-raise errors caught by the controller.
 class CalendarController; def rescue_action(e) raise e end; end
 
-class CalendarControllerTest < Test::Unit::TestCase
-  include ZenaTestController
+class CalendarControllerTest < ZenaTestController
 
   def setup
     super

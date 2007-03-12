@@ -1,7 +1,6 @@
 require File.dirname(__FILE__) + '/../test_helper'
 
-class ProjectTest < Test::Unit::TestCase
-  include ZenaTestUnit
+class ProjectTest < ZenaTestUnit
 
   
   def test_check_project_id_on_create

@@ -4,8 +4,7 @@ require 'link_controller'
 # Re-raise errors caught by the controller.
 class LinkController; def rescue_action(e) raise e end; end
 
-class LinkControllerTest < Test::Unit::TestCase
-  include ZenaTestController
+class LinkControllerTest < ZenaTestController
   def setup
     @controller = LinkController.new
     init_controller

@@ -4,8 +4,7 @@ require 'group_controller'
 # Re-raise errors caught by the controller.
 class GroupController; def rescue_action(e) raise e end; end
 
-class GroupControllerTest < Test::Unit::TestCase
-  include ZenaTestController
+class GroupControllerTest < ZenaTestController
   
   def setup
     super

@@ -4,8 +4,7 @@ require 'search_controller'
 # Re-raise errors caught by the controller.
 class SearchController; def rescue_action(e) raise e end; end
 
-class SearchControllerTest < Test::Unit::TestCase
-  include ZenaTestController
+class SearchControllerTest < ZenaTestController
 
   def setup
     super

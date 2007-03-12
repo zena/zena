@@ -1,7 +1,6 @@
 require File.dirname(__FILE__) + '/../test_helper'
 
-class TextDocumentTest < Test::Unit::TestCase
-  include ZenaTestUnit
+class TextDocumentTest < ZenaTestUnit
   
   def test_callbacks_for_documents
     assert Node.read_inheritable_attribute(:before_validation).include?(:secure_before_validation)
@@ -33,6 +32,8 @@ class TextDocumentTest < Test::Unit::TestCase
   def test_content_lang
     doc = secure(Document) { Document.create( :parent_id=>nodes_id(:cleanWater), :v_title => 'super script', 
                                               :c_content_type => 'text/x-ruby-script')}
+
+    assert !doc.new_record?, "Not a new record"
     assert_equal TextDocument, doc.class
     assert_equal 'ruby', doc.content_lang
     

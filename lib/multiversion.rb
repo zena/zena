@@ -68,6 +68,9 @@ module Zena
         # return an array of language strings
         def traductions(opts={})
           trad = editions.reject { |ed| ed[:lang] == version[:lang] }
+          trad.each do |t|
+            t.node = self # make sure relation is kept and we do not reload a node that is not secured
+          end
           trad == [] ? nil : trad
         end
         

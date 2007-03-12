@@ -4,8 +4,7 @@ require 'note_controller'
 # Re-raise errors caught by the controller.
 class NoteController; def rescue_action(e) raise e end; end
 
-class NoteControllerTest < Test::Unit::TestCase
-  include ZenaTestController
+class NoteControllerTest < ZenaTestController
 
   def setup
     @controller = NoteController.new

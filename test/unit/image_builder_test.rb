@@ -1,7 +1,6 @@
 require File.dirname(__FILE__) + '/../test_helper'
 
-class ImageBuilderTest < Test::Unit::TestCase
-  include ZenaTestUnit
+class ImageBuilderTest < ZenaTestUnit
   
   # Dummy tests
   if Magick.const_defined?(:ZenaDummy)

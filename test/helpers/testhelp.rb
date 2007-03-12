@@ -37,7 +37,7 @@ class TestController < ApplicationController
 
   def set_context
     session[:user] = User.find(@params[:user_id])[:id] # make sure the user exists
-    session[:lang] = @params[:prefix]
+    session[:lang] = visitor.lang = @params[:prefix]
     @node = secure(Node) { Node.find(@params[:node_id])}
     @text = @params[:text]
     @test_url  = @params[:url]
@@ -62,13 +62,15 @@ class TestController < ApplicationController
   
 end
 
-class HelperTest < Test::Unit::TestCase
+class HelperTest < ZenaTestController
+  
   def setup
     @controller = TestController.new
     @request    = ActionController::TestRequest.new
     @response   = ActionController::TestResponse.new
     super
   end
+  
   class << self
     def testfile(*files)
       @@test_strings = {}
@@ -126,7 +128,7 @@ class HelperTest < Test::Unit::TestCase
     params = {}
     params[:user_id] = users_id(context['visitor'].to_sym)
     params[:node_id] = nodes_id(context['node'].to_sym)
-    params[:prefix] = context['lang']
+    params[:prefix]  = context['lang']
     params[:url] = "/#{test.to_s.gsub('_', '/')}"
     TestController.templates = @@test_strings[file]
     if src

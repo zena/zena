@@ -1,7 +1,6 @@
 require File.dirname(__FILE__) + '/../test_helper'
 require 'fileutils'
-class DocumentTest < Test::Unit::TestCase
-  include ZenaTestUnit
+class DocumentTest < ZenaTestUnit
   
   def test_callbacks_for_documents
     assert Node.read_inheritable_attribute(:before_validation).include?(:secure_before_validation)

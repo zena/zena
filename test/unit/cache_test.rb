@@ -1,7 +1,6 @@
 require File.dirname(__FILE__) + '/../test_helper'
 
-class CacheTest < Test::Unit::TestCase
-  include ZenaTestUnit
+class CacheTest < ZenaTestUnit
   
   def setup
     super

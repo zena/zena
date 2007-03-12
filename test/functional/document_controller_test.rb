@@ -10,8 +10,7 @@ class HelperDocumentController < DocumentController
   include DocumentHelper
 end
 
-class DocumenControllerTest < Test::Unit::TestCase
-  include ZenaTestController
+class DocumenControllerTest < ZenaTestController
   
   def setup
     super

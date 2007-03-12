@@ -1,7 +1,6 @@
 require File.dirname(__FILE__) + '/../test_helper'
 
-class DocumentVersionTest < Test::Unit::TestCase
-  include ZenaTestUnit
+class DocumentVersionTest < ZenaTestUnit
   
   def test_content
     v = versions(:water_pdf_en)

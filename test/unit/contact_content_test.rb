@@ -1,7 +1,6 @@
 require File.dirname(__FILE__) + '/../test_helper'
 
-class ContactContentTest < Test::Unit::TestCase
-  include ZenaTestUnit
+class ContactContentTest < ZenaTestUnit
   
   def test_truth
     assert true

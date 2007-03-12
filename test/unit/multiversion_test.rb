@@ -1,8 +1,7 @@
 require File.dirname(__FILE__) + '/../test_helper'
 
-class MultiVersionTest < Test::Unit::TestCase
-
-  include ZenaTestUnit
+class MultiVersionTest < ZenaTestUnit
+  
   def node_defaults
     {
     :name => 'hello',
@@ -525,11 +524,12 @@ class MultiVersionTest < Test::Unit::TestCase
     node = secure(Node) { nodes(:status) }
     trad = node.traductions
     assert_equal 1, trad.size
+    trad_node = trad[0].node
+    assert_equal node.object_id, trad_node.object_id # make sure object is not reloaded and not secured
     assert_equal 'en', node.v_lang
     assert_equal 'fr', trad[0][:lang]
     node = secure(Node) { nodes(:wiki) }
     trad = node.traductions
     assert_nil trad, 'no traductions'
   end
-    
 end

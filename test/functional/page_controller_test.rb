@@ -4,8 +4,7 @@ require 'page_controller'
 # Re-raise errors caught by the controller.
 class PageController; def rescue_action(e) raise e end; end
 
-class PageControllerTest < Test::Unit::TestCase
-  include ZenaTestController
+class PageControllerTest < ZenaTestController
 
   def setup
     @controller = PageController.new

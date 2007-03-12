@@ -1,7 +1,6 @@
 require File.dirname(__FILE__) + '/../test_helper'
 
-class CommentTest < Test::Unit::TestCase
-  include ZenaTestUnit
+class CommentTest < ZenaTestUnit
 
   def test_replies
     comment = comments(:ant_says_inside)

@@ -1,7 +1,6 @@
 require File.dirname(__FILE__) + '/../test_helper'
 
-class DiscussionTest < Test::Unit::TestCase
-  include ZenaTestUnit
+class DiscussionTest < ZenaTestUnit
 
   def test_comments
     discussion = Discussion.find(1)

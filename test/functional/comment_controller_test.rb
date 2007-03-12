@@ -8,8 +8,7 @@ class CommentController
   end
 end
 
-class CommentControllerTest < Test::Unit::TestCase
-  include ZenaTestController
+class CommentControllerTest < ZenaTestController
 
   def setup
     super

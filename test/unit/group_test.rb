@@ -1,7 +1,6 @@
 require File.dirname(__FILE__) + '/../test_helper'
 
-class GroupTest < Test::Unit::TestCase
-  include ZenaTestUnit
+class GroupTest < ZenaTestUnit
 
 
   def test_truth

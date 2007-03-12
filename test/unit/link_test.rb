@@ -33,8 +33,7 @@ class SuperDummy < ActiveRecord::Base
   link :boss, :class_name=>'SuperDummy', :as=>'employee', :unique=>true
 end
 
-class LinkTest < Test::Unit::TestCase
-  include ZenaTestUnit
+class LinkTest < ZenaTestUnit
 
   def setup
     super

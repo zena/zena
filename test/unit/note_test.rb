@@ -1,7 +1,6 @@
 require File.dirname(__FILE__) + '/../test_helper'
 
-class NoteTest < Test::Unit::TestCase
-  include ZenaTestUnit
+class NoteTest < ZenaTestUnit
   
   def test_create_with_name
     login(:tiger)

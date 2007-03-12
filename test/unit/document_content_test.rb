@@ -1,7 +1,6 @@
 require File.dirname(__FILE__) + '/../test_helper'
 
-class DocumentContentTest < Test::Unit::TestCase
-  include ZenaTestUnit
+class DocumentContentTest < ZenaTestUnit
   
   def test_img_tag
     login(:tiger)

@@ -4,8 +4,7 @@ require 'application'
 # Re-raise errors caught by the controller.
 class ApplicationController; def rescue_action(e) raise e end; end
 
-class ApplicationControllerTest < Test::Unit::TestCase
-  include ZenaTestController
+class ApplicationControllerTest < ZenaTestController
   
   def setup
     super

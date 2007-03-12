@@ -1,7 +1,6 @@
 require File.dirname(__FILE__) + '/../test_helper'
 
-class CollectorTest < Test::Unit::TestCase
-  include ZenaTestUnit
+class CollectorTest < ZenaTestUnit
   
   def test_pages
     login(:tiger)

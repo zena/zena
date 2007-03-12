@@ -10,8 +10,7 @@ class HelperVersionController < VersionController
   include VersionHelper
 end
 
-class VersionControllerTest < Test::Unit::TestCase
-  include ZenaTestController
+class VersionControllerTest < ZenaTestController
 
   def setup
     super

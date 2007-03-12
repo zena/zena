@@ -65,6 +65,8 @@ class Document < Page
         base = self[:name]
       elsif @file
         base = @file.original_filename
+      else
+        base = self.name = version.title
       end
       if base =~ /\./
         self[:name] = base.split('.')[0..-2].join('.')

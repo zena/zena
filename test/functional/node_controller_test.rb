@@ -10,8 +10,7 @@ class TestNodeController < NodeController
   include NodeHelper
 end
 
-class NodeControllerTest < Test::Unit::TestCase
-  include ZenaTestController
+class NodeControllerTest < ZenaTestController
 
   def setup
     super

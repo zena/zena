@@ -3,7 +3,7 @@
 class ApplicationController < ActionController::Base
   acts_as_secure_controller
   helper_method :prefix, :node_url, :notes, :error_messages_for, :render_errors, :add_error, :data_url
-  helper_method :template_text_for_url, :template_url_for_asset, :save_erb_to_url, :lang
+  helper_method :template_text_for_url, :template_url_for_asset, :save_erb_to_url, :lang, :visitor
   helper 'main'
   before_filter :authorize
   before_filter :set_env

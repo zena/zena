@@ -1,7 +1,6 @@
 require File.dirname(__FILE__) + '/../test_helper'
 
-class SkinTest < Test::Unit::TestCase
-  include ZenaTestUnit
+class SkinTest < ZenaTestUnit
 
   def test_template_url_for_name
     without_files('app/views/templates/compiled') do
