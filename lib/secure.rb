@@ -573,11 +573,7 @@ Just doing the above will filter all result according to the logged in user.
         # Return the current visitor id or 'anonymous' if it is not set.
         def visitor
           return @visitor if @visitor
-          #if new_record?
-          #  @visitor = User.new
-          #else
-            raise RecordNotSecured.new("Visitor not set, record not secured.")
-          #end
+          raise RecordNotSecured.new("Visitor not set, record not secured.")
         end
 
         # Reference to validate access rights
@@ -787,19 +783,7 @@ Just doing the above will filter all result according to the logged in user.
           secure_with_scope(obj, secure_drive_scope, &block)
         end
 
-        # TODO: test
-        def visitor
-          @visitor ||= begin
-            if session[:user]
-              user = User.find(session[:user])
-            else
-              user = anonymous_user
-            end 
-            # we do not want the password hanging around if not necessary, even hashed
-            user[:password] = nil
-            user
-          end
-        end
+        # visitor method must be defined in Application
         
         # Find the 'anonymous' user (public)
         def anonymous_user

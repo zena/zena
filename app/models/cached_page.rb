@@ -12,7 +12,6 @@ class CachedPage < ActiveRecord::Base
     
     # Remove cached pages related to the given node.
     def expire_with(node)
-      puts "================= #{node[:name]} =========="
       expire(node.cached_pages)
     end
     

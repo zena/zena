@@ -11,6 +11,22 @@ class ApplicationController < ActionController::Base
   layout false
   
   private
+  
+  # TODO: test
+  def visitor
+    @visitor ||= begin
+      if session[:user]
+        user = User.find(session[:user])
+      else
+        user = anonymous_user
+      end 
+      # we do not want the password hanging around if not necessary, even hashed
+      user[:password] = nil
+      user
+    end
+  end
+  
+  # TODO: test
   def lang
     visitor.lang
   end
@@ -221,6 +237,7 @@ class ApplicationController < ActionController::Base
       redirect_to req and return false  
     end
     visitor.lang = session[:lang] ||= (visitor.lang || ZENA_ENV[:default_lang])
+    visitor.host = request.host
   end
   
   # "Translate" static text into the current lang

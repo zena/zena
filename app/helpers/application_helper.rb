@@ -155,7 +155,7 @@ module ApplicationHelper
     return "" unless thedate
     adate = visitor.tz.adjust(thedate)
       # month name
-    format.gsub!("%b", trans(adate.strftime("%b")) )
+    format = format.gsub("%b", trans(adate.strftime("%b")) )
     format.gsub!("%B", trans(adate.strftime("%B")) )
     # weekday name
     format.gsub!("%a", trans(adate.strftime("%a")) )

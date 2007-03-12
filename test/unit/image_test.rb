@@ -1,7 +1,6 @@
 require File.dirname(__FILE__) + '/../test_helper'
 
-class ImageTest < Test::Unit::TestCase
-  include ZenaTestUnit
+class ImageTest < ZenaTestUnit
 
   def test_create_with_file
     without_files('data/test/jpg') do

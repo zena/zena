@@ -1,7 +1,6 @@
 require File.dirname(__FILE__) + '/../test_helper'
 
-class NodeTest < Test::Unit::TestCase
-  include ZenaTestUnit
+class NodeTest < ZenaTestUnit
 
   NEW_DEFAULT = {
     :name => 'hello',
@@ -280,11 +279,11 @@ class NodeTest < Test::Unit::TestCase
   end
   
   def test_parent
-    assert_equal nodes(:projects).v_title, secure(Node) { nodes(:wiki) }.parent.v_title
+    assert_equal nodes_id(:projects), secure(Node) { nodes(:wiki) }.parent[:id]
   end
   
   def test_project
-    assert_equal nodes(:zena).id, secure(Node) { nodes(:people) }.project.id
+    assert_equal nodes_id(:zena), secure(Node) { nodes(:people) }.project[:id]
   end
   
   def test_pages
@@ -387,54 +386,55 @@ class NodeTest < Test::Unit::TestCase
     assert_equal 'LIEUX', node.name
   end
  
-  def test_change_to_page_to_project
-    login(:tiger)
-    node = secure(Node) { nodes(:people)  }
-    id, parent_id, project_id = node[:id], node[:parent_id], node[:project_id]
-    vers_count = Version.find(:all).size
-    vers_id = node.v_id
-    node = node.change_to(Project)
-    assert_kind_of Project, node
-    node = secure(Project) { Project.find(nodes_id(:people)) }
-    assert_kind_of Project, node
-    assert_equal 'NPP', node[:kpath]
-    assert_equal id, node[:id]
-    assert_equal parent_id, node[:parent_id]
-    assert_equal node[:id], node[:project_id]
-    assert_equal vers_count, Version.find(:all).size
-    assert_equal vers_id, node.v_id
-    assert_equal node[:id], nodes(:ant)[:project_id] # children inherit new project_id
-    assert_equal node[:id], nodes(:myLife)[:project_id]
-  end
-  
-  def test_change_project_to_page
-    login(:tiger)
-    node = secure(Node) { nodes(:cleanWater)  }
-    id, parent_id = node[:id], node[:parent_id]
-    vers_count = Version.find(:all).size
-    vers_id = node.v_id
-    node = node.change_to(Page)
-    assert_kind_of Page, node
-    node = secure(Page) { Page.find(nodes_id(:cleanWater)) }
-    assert_kind_of Page, node
-    assert_equal 'NP', node[:kpath]
-    assert_equal id, node[:id]
-    assert_equal parent_id,  node[:parent_id]
-    assert_equal nodes_id(:zena), node[:project_id]
-    assert_equal vers_count, Version.find(:all).size
-    assert_equal vers_id, node.v_id
-    assert_equal nodes_id(:zena), nodes(:status)[:project_id] # children inherit new project_id
-    assert_equal nodes_id(:zena), nodes(:lake)[:project_id]
-  end
-  
-  def test_cannot_change_root
-    login(:tiger)
-    node = secure(Node) { Node.find(ZENA_ENV[:root_id]) }
-    node = node.change_to(Page)
-    assert_nil node
-    node = secure(Node) { Node.find(ZENA_ENV[:root_id]) }
-    assert_kind_of Project, node
-  end
+  # TESTS FOR CHANGE_TO
+  # def test_change_to_page_to_project
+  #   login(:tiger)
+  #   node = secure(Node) { nodes(:people)  }
+  #   id, parent_id, project_id = node[:id], node[:parent_id], node[:project_id]
+  #   vers_count = Version.find(:all).size
+  #   vers_id = node.v_id
+  #   node = node.change_to(Project)
+  #   assert_kind_of Project, node
+  #   node = secure(Project) { Project.find(nodes_id(:people)) }
+  #   assert_kind_of Project, node
+  #   assert_equal 'NPP', node[:kpath]
+  #   assert_equal id, node[:id]
+  #   assert_equal parent_id, node[:parent_id]
+  #   assert_equal node[:id], node[:project_id]
+  #   assert_equal vers_count, Version.find(:all).size
+  #   assert_equal vers_id, node.v_id
+  #   assert_equal node[:id], nodes(:ant)[:project_id] # children inherit new project_id
+  #   assert_equal node[:id], nodes(:myLife)[:project_id]
+  # end
+  # 
+  # def test_change_project_to_page
+  #   login(:tiger)
+  #   node = secure(Node) { nodes(:cleanWater)  }
+  #   id, parent_id = node[:id], node[:parent_id]
+  #   vers_count = Version.find(:all).size
+  #   vers_id = node.v_id
+  #   node = node.change_to(Page)
+  #   assert_kind_of Page, node
+  #   node = secure(Page) { Page.find(nodes_id(:cleanWater)) }
+  #   assert_kind_of Page, node
+  #   assert_equal 'NP', node[:kpath]
+  #   assert_equal id, node[:id]
+  #   assert_equal parent_id,  node[:parent_id]
+  #   assert_equal nodes_id(:zena), node[:project_id]
+  #   assert_equal vers_count, Version.find(:all).size
+  #   assert_equal vers_id, node.v_id
+  #   assert_equal nodes_id(:zena), nodes(:status)[:project_id] # children inherit new project_id
+  #   assert_equal nodes_id(:zena), nodes(:lake)[:project_id]
+  # end
+  # 
+  # def test_cannot_change_root
+  #   login(:tiger)
+  #   node = secure(Node) { Node.find(ZENA_ENV[:root_id]) }
+  #   node = node.change_to(Page)
+  #   assert_nil node
+  #   node = secure(Node) { Node.find(ZENA_ENV[:root_id]) }
+  #   assert_kind_of Project, node
+  # end
   
   def test_sync_project
     login(:tiger)
@@ -678,7 +678,7 @@ class NodeTest < Test::Unit::TestCase
   
   def test_add_comment
     login(:ant)
-    set_lang('en')
+    visitor.lang = 'en'
     node = secure(Node) { nodes(:status) }
     assert_equal 1, node.comments.size
     assert comment = node.add_comment( :author_name=>'parrot', :title=>'hello', :text=>'world' )
@@ -715,7 +715,7 @@ class NodeTest < Test::Unit::TestCase
   
   def test_add_reply
     login(:ant)
-    set_lang('en')
+    visitor.lang = 'en'
     node = secure(Node) { nodes(:status) }
     assert_equal 1, node.comments.size
     assert comment = node.add_comment( :author_name=>'parrot', :title=>'hello', :text=>'world', :reply_to=>comments_id(:public_says_in_en) )

@@ -10,6 +10,7 @@ TODO: when a user is 'destroyed', pass everything he owns to another user or jus
 =end
 class User < ActiveRecord::Base
   attr_accessor           :visited_node_ids
+  attr_accessor           :host
   has_and_belongs_to_many :groups
   has_many                :nodes
   has_many                :versions

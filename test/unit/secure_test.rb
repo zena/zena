@@ -6,9 +6,7 @@ class PagerDummy < Node
 end
 class SubPagerDummy < PagerDummy
 end
-class SecureReadTest < Test::Unit::TestCase
-
-  include ZenaTestUnit
+class SecureReadTest < ZenaTestUnit
   
   def test_fixture_by_id
     assert_equal 1, nodes_id(:zena)
@@ -148,9 +146,8 @@ class SecureReadTest < Test::Unit::TestCase
   end
 end
 
-class SecureCreateTest < Test::Unit::TestCase
+class SecureCreateTest < ZenaTestUnit
 
-  include ZenaTestUnit
   def node_defaults
     {
     :name       => 'hello',
@@ -497,9 +494,7 @@ class SecureCreateTest < Test::Unit::TestCase
   # testing is done in page_test or node_test
 end
 
-class SecureUpdateTest < Test::Unit::TestCase
-
-  include ZenaTestUnit
+class SecureUpdateTest < ZenaTestUnit
   
   # VALIDATE ON UPDATE TESTS
   # 1. if pgroup changed from old, make sure user could do this and new group is valid
