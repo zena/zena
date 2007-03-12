@@ -5,9 +5,19 @@ class MultipleHostsTest < ActionController::IntegrationTest
   
   def test_visitor_host
     anon.get_node(:status)
-    assert_equal 'www.example.com', anon.assigns(:visitor).host
-    anon.get_node(:status, :host=>'other.host')
-    assert_equal 'other.host', anon.assigns(:visitor).host
+    assert_equal 200, anon.status
+    assert_equal 'test.host', anon.assigns(:visitor).site.host
+    host! 'ocean.host'
+    anon.get '/en'
+    assert_equal 'ocean.host', anon.assigns(:visitor).site.host
+  end
+  
+  def test_visitor_anon
+    anon.get_node(:status)
+    assert_kind_of User, anon.assigns(:visitor)
+    assert_equal users(:anon).id, anon.assigns(:visitor).id
+    anon.get_node(:ocean, :host=>'ocean.host')
+    assert_equal users(:incognito).id, anon.assigns(:visitor).id
   end
   
   private
@@ -21,22 +31,14 @@ class MultipleHostsTest < ActionController::IntegrationTest
   
   module CustomAssertions
     include Zena::Test::Integration
-    def visitor
-      @visitor ||= begin
-        if @response && session && session[:user]
-          user = User.find(self[:user])
-        else
-          user = anonymous_user
-        end 
-        # we do not want the password hanging around if not necessary, even hashed
-        user[:password] = nil
-        user
-      end
-    end
     
     def get_node(node_sym=:status, opts={})
-      @node = secure(Node) { nodes(node_sym) }
-      if @node[:id] == ZENA_ENV[:root_id]
+      @node = nodes(node_sym)
+      host! opts[:host] || 'test.host'
+      opts.delete(:host)
+      
+      @site = Site.find_by_host(host)
+      if @node[:id] == @site.root_id
         path = []
       else
         path = @node.basepath.split('/')
@@ -44,12 +46,10 @@ class MultipleHostsTest < ActionController::IntegrationTest
           path += ["#{@node.class.to_s.downcase}#{@node[:id]}.html"]
         end
       end
-      prefix = visitor.anon? ? 'en' : AUTHENTICATED_PREFIX
-      if opts[:host]
-        host! opts[:host]
-        opts.delete(:host)
-      end
-      get 'show', {:path=>path, :prefix=>prefix}.merge(opts)
+      prefix = (!request || session[:user] == @site.anon_id) ? 'en' : AUTHENTICATED_PREFIX
+      url = "#{prefix}/#{path.join('/')}"
+      puts "get #{url}"
+      get url
     end
   end
 

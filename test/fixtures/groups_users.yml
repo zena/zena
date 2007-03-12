@@ -1,3 +1,7 @@
+anon_in_public:
+  user_id:    1
+  group_id:   1
+  
 ant_in_public:
   user_id:    3
   group_id:   1
@@ -25,11 +29,9 @@ lion_in_site:
   group_id:   3
 
 
-
 tiger_in_managers:
   user_id:    4
   group_id:   4
-
 
 
 lion_in_admin:
@@ -38,6 +40,20 @@ lion_in_admin:
 
 
 
+incognito_in_other_public:
+  user_id:    6
+  group_id:   7
+
+whale_in_other_public:
+  user_id:    8
+  group_id:   7
 
   
+whale_in_aqua:
+  user_id:    8
+  group_id:   5
 
+
+whale_in_masters:
+  user_id:    8
+  group_id:   6

@@ -615,3 +615,17 @@ layout_template_en:
   lang:           en
   number:         1
 <%= @defaults %>
+
+
+ocean_en:
+  type:           Version
+  id:             40
+  node_id:        35
+  user_id:        8
+  comment:        new site
+  title:          Deep Ocean
+  summary:        The deep sound of peace
+  text:           Our oceans, when kept full of life, are full of animals
+  lang:           en
+  number:         1
+<%= @defaults %>

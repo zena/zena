@@ -38,11 +38,11 @@ module Zena
         end
       end
 
-      unless File.exist?("#{RAILS_ROOT}/data/test")
+      unless File.exist?("#{RAILS_ROOT}/sites/test.host/data")
         @@loaded_fixtures['document_contents'].each do |name,fixture|
           path = fixture.instance_eval { [@fixture['ext'],@fixture['version_id'].to_s,@fixture['name']+"."+@fixture['ext']] }
           name = path.pop
-          FileUtils::mkpath(File.join(RAILS_ROOT,'data', 'test', *path))
+          FileUtils::mkpath(File.join(RAILS_ROOT,'sites', 'test.host', 'data', *path))
           path << name
           if File.exist?(File.join(FILE_FIXTURES_PATH,name))
             FileUtils::cp(File.join(FILE_FIXTURES_PATH,name),File.join(RAILS_ROOT,'data', 'test', *path))

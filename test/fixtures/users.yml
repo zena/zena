@@ -45,3 +45,29 @@ lion:
   password:   <%= User.hash_password('lion') %>
   contact_id: 5
   lang:       en
+
+incognito:
+  id:         6
+<%= @defaults %>
+  first_name: Miss
+  name:       Incognito
+  contact_id: 
+  lang:       en
+
+other_su:
+  id:         7
+<%= @defaults %>
+  first_name: Hyper
+  name:       Super
+  login:      other_su
+  password:   <%= User.hash_password('other_su') %>
+  lang:       en
+  
+whale:
+  id:         8
+<%= @defaults %>
+  first_name: Miss
+  name:       Whale
+  login:      whale
+  password:   <%= User.hash_password('whale') %>
+  lang:       en

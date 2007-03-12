@@ -17,7 +17,7 @@ class MainController < ApplicationController
     render :inline=>@request.host
   end
   
-  # TODO: test new path
+  # TODO: test new path, test wrong node.site == visitor.site
   def show
     path = params[:path].dup
     if path.last =~ /[a-zA-Z\-_]+([0-9]+)(\.|$)/
@@ -33,6 +33,7 @@ class MainController < ApplicationController
     else
       redirect_to node_url(@node)
     end
+    puts visitor.object_id
   rescue ActiveRecord::RecordNotFound
     page_not_found
   end
@@ -79,7 +80,7 @@ class MainController < ApplicationController
   def check_url
     if (params[:action] == 'show' && (!params[:path].kind_of?(Array) || params[:path] == []))
       redirect_to :action=>'index', :prefix=>prefix
-    elsif !params[:prefix] || (!visitor.anon? && params[:prefix] != AUTHENTICATED_PREFIX)
+    elsif !params[:prefix] || (!visitor.is_anon? && params[:prefix] != AUTHENTICATED_PREFIX)
       redirect_with_prefix
     end
   end

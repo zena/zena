@@ -10,7 +10,7 @@ TODO: when a user is 'destroyed', pass everything he owns to another user or jus
 =end
 class User < ActiveRecord::Base
   attr_accessor           :visited_node_ids
-  attr_accessor           :host
+  attr_accessor           :site
   has_and_belongs_to_many :groups
   has_many                :nodes
   has_many                :versions
@@ -45,7 +45,7 @@ class User < ActiveRecord::Base
   def visit(node, opts={})
     node.visitor = self
     # keep track of the nodes connected to this visit to build the 'expire_with' list
-    visited_node_ids << node[:id] if anon? && CachedPage.perform_caching
+    visited_node_ids << node[:id] if is_anon? && CachedPage.perform_caching
   end
   
   def visited_node_ids
@@ -78,9 +78,16 @@ class User < ActiveRecord::Base
     (self[:id] == 2) || self.group_ids.include?(2)
   end
   
-  # TODO: test
-  def anon?
-    (self[:id] == 1)
+  # Return true if the user is the anonymous user for the current visited site
+  def is_anon?
+    # tested in site_test
+    @site && @site.anon_id == self[:id]
+  end
+  
+  # Return true if the user is the super user for the current visited site
+  def is_su?
+    # tested in site_test
+    @site && @site.su_id == self[:id]
   end
   
   # Returns a list of the group ids separated by commas for the user (this is used mainly in SQL clauses).

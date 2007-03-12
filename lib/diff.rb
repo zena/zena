@@ -1,3 +1,4 @@
+# code taken from Instiki (http://www.instiki.org)
 module HTMLDiff
 
   Match = Struct.new(:start_in_old, :start_in_new, :size)

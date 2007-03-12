@@ -1,5 +1,6 @@
 require 'date'
 AUTHENTICATED_PREFIX = "oo"
+
 ZENA_ENV = {
   :site_name => 'zena',
   :root_id => 1,
@@ -20,6 +21,9 @@ ZENA_ENV = {
   :data_dir => "/var/www/zenadmin.org/data", # configure data directory for uploaded files
   :edit_help_id => 3,
 }
+if ENV["RAILS_ENV"] != "test"
+  ZENA_ENV.freeze
+end
 # additions to class String
 class String
   def limit(num)

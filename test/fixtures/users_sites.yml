@@ -1,26 +1,41 @@
 <% @defaults = "  created_at: 2006-04-11\n  updated_at: 2006-04-11" %>
 
-anon:
+anon_in_zena:
   user_id:    1
   site_id:    1
   status:     10
 
-su:
+su_in_zena:
   user_id:    2
   site_id:    1
   status:     80
 
-ant:
+ant_in_zena:
   user_id:    3
   site_id:    1
   status:     40
 
-tiger:
+tiger_in_zena:
   user_id:    4
   site_id:    1
   status:     40
 
-lion:
+lion_in_zena:
   user_id:    5
   site_id:    1
+  status:     60
+
+incognito_in_other:
+  user_id:    6
+  site_id:    2
+  status:     20
+
+other_su_in_other:
+  user_id:    7
+  site_id:    2
+  status:     80
+  
+whale_in_other:
+  user_id:    8
+  site_id:    2
   status:     60

@@ -289,7 +289,7 @@ class MainControllerTest < ZenaTestController
         path += ["#{@node.class.to_s.downcase}#{@node[:id]}.html"]
       end
     end
-    prefix = visitor.anon? ? 'en' : AUTHENTICATED_PREFIX
+    prefix = visitor.is_anon? ? 'en' : AUTHENTICATED_PREFIX
     get 'show', :path=>path, :prefix=>prefix
   end
   

@@ -14,16 +14,44 @@ class ApplicationController < ActionController::Base
   
   # TODO: test
   def visitor
-    @visitor ||= begin
-      if session[:user]
-        user = User.find(session[:user])
+    return @visitor if @visitor
+    
+    if session[:user]
+      # we already have a user, check host
+      if session[:host] == request[:host]
+        # host hasn't changed, set visitor and site
+        @visitor = User.find(session[:user])
+        if site = Site.find_by_host(request[:host])
+          @visitor.site = site
+        else
+          raise ActiveRecord::RecordNotFound # FIXME: maybe redirect...
+        end
       else
-        user = anonymous_user
-      end 
-      # we do not want the password hanging around if not necessary, even hashed
-      user[:password] = nil
-      user
+        # changed host
+        if site = Site.find(:first, :select=>"sites.*", :from=>"sites, users_sites", :conditions=>["sites_users.site_id = sites.id AND host = ? AND users.id = ?",request.host,session[:user]])
+          # current user is in the new site
+          @visitor = User.find(session[:user])
+          @visitor.site = site
+        end
+      end
     end
+    
+    unless @visitor
+      # find the anonymous visitor for the current site
+      if site = Site.find_by_host(request.host)
+        @visitor = site.anon
+        @visitor.site = site
+      else
+        # FIXME: error page 505
+        raise ActiveRecord::RecordNotFound
+        return false
+      end
+    end
+    
+    session[:host] = request[:host]
+    session[:user] = @visitor[:id]
+    @visitor.password = nil
+    @visitor
   end
   
   # TODO: test
@@ -41,7 +69,7 @@ class ApplicationController < ActionController::Base
     render :template=>template_url(opts), :layout=>false
     
     # only cache the public pages
-    if opts[:cache] && visitor.anon?
+    if opts[:cache] && visitor.is_anon?
       cache_page
     end
   end
@@ -197,7 +225,7 @@ class ApplicationController < ActionController::Base
         new_lang = :bad_language
       end
     elsif params[:prefix] && params[:prefix] != AUTHENTICATED_PREFIX
-      if ZENA_ENV[:languages].include?(params[:prefix])
+      if visitor.site.languages.split(',').include?(params[:prefix])
         session[:lang] = params[:prefix]
       else
         new_lang = :bad_language
@@ -217,7 +245,7 @@ class ApplicationController < ActionController::Base
       redirect_to req and return false
     end
     # If the current user is su, make the CSS ugly so the user does not stay logged in as su.
-    if session[:user] == 2
+    if visitor.is_su?
       @su=' style="background:#060;" '
     else
       @su=''
@@ -237,7 +265,7 @@ class ApplicationController < ActionController::Base
       redirect_to req and return false  
     end
     visitor.lang = session[:lang] ||= (visitor.lang || ZENA_ENV[:default_lang])
-    visitor.host = request.host
+    true
   end
   
   # "Translate" static text into the current lang
@@ -305,7 +333,7 @@ class ApplicationController < ActionController::Base
   end
 
   def prefix
-    if visitor.anon?
+    if visitor.is_anon?
       if ZENA_ENV[:monolingual]
         ''
       else

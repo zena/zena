@@ -1,30 +1,39 @@
 default:
-  id: 1
-  host: 'test.host'
-  root_id: 1
-  su_id: 2
-  anon_id: 1
+  id:             1
+  host:           'test.host'
+  root_id:        1
+  data_path:      
+  public_path:    
+  su_id:          2
+  anon_id:        1
+  public_group_id: 1
+  admin_group_id: 2
+  site_group_id:  3
   trans_group_id: 2
-  authenticated_prefix: 'oo'
-  name: 'zena'
-  authorize: NO
-  monolingual: NO
-  allow_private: NO
-  password_salt: 'fish zen ho'
-  languages: "en,fr"
-  default_lang: "en"
-other:
-  id: 2
-  host: 'other.host'
-  root_id: 1
-  su_id: 2
-  anon_id: 1
+  name:           'zena'
+  authorize:      NO
+  monolingual:    NO
+  allow_private:  NO
+  password_salt:  'fish zen ho'
+  languages:      "en,fr"
+  default_lang:   "en"
+
+ocean:
+  id:             2
+  host:           'ocean.host'
+  root_id:        35
+  data_path:      
+  public_path:    
+  su_id:          7
+  anon_id:        6
+  public_group_id: 7
+  admin_group_id: 6
+  site_group_id:  5
   trans_group_id: 2
-  authenticated_prefix: 'oo'
-  name: 'zena'
-  authorize: NO
-  monolingual: NO
-  allow_private: NO
-  password_salt: 'fish zen ho'
-  languages: "en,fr"
-  default_lang: "en"
+  name:           'ocean'
+  authorize:      NO
+  monolingual:    NO
+  allow_private:  NO
+  password_salt:  'fishing in the wild'
+  languages:      "en,fr"
+  default_lang:   "en"

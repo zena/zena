@@ -16,6 +16,3 @@ config.action_controller.perform_caching             = true
 
 # Disable delivery errors if you bad email addresses should just be ignored
 # config.action_mailer.raise_delivery_errors = false
-
-# configure data directory for uploaded files
-ZENA_ENV[:data_dir] = "#{RAILS_ROOT}/data/development"

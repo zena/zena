@@ -67,7 +67,7 @@ ActiveRecord::Schema.define(:version => 0) do
   end
 
   create_table "document_contents", :force => true do |t|
-    t.column "type", :string, :limit => 16
+    t.column "type", :string, :limit => 32
     t.column "version_id", :integer
     t.column "name", :string, :limit => 200, :default => "", :null => false
     t.column "content_type", :string, :limit => 20
@@ -118,8 +118,7 @@ ActiveRecord::Schema.define(:version => 0) do
     t.column "user_id", :integer, :default => 0, :null => false
     t.column "project_id", :integer
     t.column "parent_id", :integer
-    t.column "name", :text
-    t.column "skin", :string, :limit => 200
+    t.column "name", :string, :limit => 200
     t.column "inherit", :integer
     t.column "rgroup_id", :integer
     t.column "wgroup_id", :integer
@@ -130,19 +129,25 @@ ActiveRecord::Schema.define(:version => 0) do
     t.column "ref_lang", :string, :limit => 10, :default => "", :null => false
     t.column "alias", :string, :limit => 400
     t.column "fullpath", :text
-    t.column "dgroup_id", :integer
     t.column "custom_base", :boolean, :default => false
     t.column "basepath", :text
+    t.column "dgroup_id", :integer
+    t.column "skin", :string
     t.column "site_id", :integer
   end
 
   create_table "sites", :force => true do |t|
     t.column "host", :string
     t.column "root_id", :integer
+    t.column "data_path", :text
+    t.column "public_path", :text
     t.column "su_id", :integer
     t.column "anon_id", :integer
+    t.column "public_group_id", :integer
+    t.column "admin_group_id", :integer
+    t.column "site_group_id", :integer
     t.column "trans_group_id", :integer
-    t.column "authenticated_prefix", :string
+    t.column "auth_prefix", :string
     t.column "name", :string
     t.column "authorize", :boolean
     t.column "monolingual", :boolean
@@ -178,7 +183,7 @@ ActiveRecord::Schema.define(:version => 0) do
 
   create_table "users_sites", :id => false, :force => true do |t|
     t.column "user_id", :integer
-    t.column "group_id", :integer
+    t.column "site_id", :integer
     t.column "status", :integer
   end
 

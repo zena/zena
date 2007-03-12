@@ -18,6 +18,8 @@ class ApplicationControllerTest < ZenaTestController
   
   # render_and_cache and authorize tested in MainControllerTest
   
+  # visitor tested in multiple_hosts integration test
+  
   def test_template_url_any_project
     without_files('app/views/templates/compiled') do
       wiki = @controller.send(:secure,Node) { Node.find(nodes_id(:wiki)) }
