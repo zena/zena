@@ -1,0 +1,30 @@
+default:
+  id: 1
+  host: 'test.host'
+  root_id: 1
+  su_id: 2
+  anon_id: 1
+  trans_group_id: 2
+  authenticated_prefix: 'oo'
+  name: 'zena'
+  authorize: NO
+  monolingual: NO
+  allow_private: NO
+  password_salt: 'fish zen ho'
+  languages: "en,fr"
+  default_lang: "en"
+other:
+  id: 2
+  host: 'other.host'
+  root_id: 1
+  su_id: 2
+  anon_id: 1
+  trans_group_id: 2
+  authenticated_prefix: 'oo'
+  name: 'zena'
+  authorize: NO
+  monolingual: NO
+  allow_private: NO
+  password_salt: 'fish zen ho'
+  languages: "en,fr"
+  default_lang: "en"

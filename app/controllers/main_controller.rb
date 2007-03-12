@@ -13,6 +13,10 @@ class MainController < ApplicationController
     page_not_found
   end
   
+  def test
+    render :inline=>@request.host
+  end
+  
   # TODO: test new path
   def show
     path = params[:path].dup

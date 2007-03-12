@@ -1,5 +1,5 @@
 <% @dates = "  created_at:  2006-03-10\n  updated_at:  2006-04-11\n  publish_from:  2006-03-10" %>
-<% @defaults = "#@dates\n  ref_lang:  en\n  max_status:  50\n  skin:     default" %>
+<% @defaults = "#@dates\n  ref_lang:  en\n  max_status:  50\n  skin:     default\n  site_id:     1" %>
 <% @rights = "  rgroup_id:  1\n  wgroup_id:  3\n  pgroup_id:  4" %>
 zena:
   id:             1

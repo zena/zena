@@ -95,6 +95,7 @@ ActiveRecord::Schema.define(:version => 0) do
     t.column "created_at", :datetime
     t.column "updated_at", :datetime
     t.column "name", :string, :limit => 20, :default => "", :null => false
+    t.column "site_id", :integer
   end
 
   create_table "groups_users", :id => false, :force => true do |t|
@@ -132,6 +133,23 @@ ActiveRecord::Schema.define(:version => 0) do
     t.column "dgroup_id", :integer
     t.column "custom_base", :boolean, :default => false
     t.column "basepath", :text
+    t.column "site_id", :integer
+  end
+
+  create_table "sites", :force => true do |t|
+    t.column "host", :string
+    t.column "root_id", :integer
+    t.column "su_id", :integer
+    t.column "anon_id", :integer
+    t.column "trans_group_id", :integer
+    t.column "authenticated_prefix", :string
+    t.column "name", :string
+    t.column "authorize", :boolean
+    t.column "monolingual", :boolean
+    t.column "allow_private", :boolean
+    t.column "password_salt", :string
+    t.column "languages", :string
+    t.column "default_lang", :string
   end
 
   create_table "trans_phrases", :force => true do |t|
@@ -156,6 +174,12 @@ ActiveRecord::Schema.define(:version => 0) do
     t.column "name", :string, :limit => 60
     t.column "email", :string, :limit => 60
     t.column "time_zone", :string
+  end
+
+  create_table "users_sites", :id => false, :force => true do |t|
+    t.column "user_id", :integer
+    t.column "group_id", :integer
+    t.column "status", :integer
   end
 
   create_table "versions", :force => true do |t|
