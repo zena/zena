@@ -1,7 +1,7 @@
 # Filters added to this controller will be run for all controllers in the application.
 # Likewise, all the methods added will be available for all controllers.
 class ApplicationController < ActionController::Base
-  acts_as_secure_controller
+  acts_as_secure
   helper_method :prefix, :node_url, :notes, :error_messages_for, :render_errors, :add_error, :data_url
   helper_method :template_text_for_url, :template_url_for_asset, :save_erb_to_url, :lang, :visitor
   helper 'main'

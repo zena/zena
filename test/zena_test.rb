@@ -146,7 +146,7 @@ module Zena
       include Zena::Test::LoadFixtures
       include Zena::Test::Base
       include Zena::Acts::SecureScope
-      include Zena::Acts::SecureController::InstanceMethods
+      include Zena::Acts::Secure::InstanceMethods
 
       # redefine lang for tests (avoids using session[:lang]):
       def lang
@@ -165,13 +165,13 @@ module Zena
       end
 
       # Set visitor for unit testing
-      def login(name=nil)
+      def login(name='anon')
         if name
           @visitor = User.find_by_login(name.to_s)
+          # set site
+          @visitor.site = Site.find(:first, :select=>"sites.*", :from=>"sites, users_sites",
+                                    :conditions=>["users_sites.site_id = sites.id AND users_sites.user_id = ?", @visitor[:id]])
           @lang = @visitor.lang
-        else
-          @visitor = User.find(1)
-          @lang = ZENA_ENV[:default_lang]
         end
       end
 
@@ -232,7 +232,7 @@ module Zena
     
     module Integration
       include Zena::Acts::SecureScope
-      include Zena::Acts::SecureController::InstanceMethods
+      include Zena::Acts::Secure::InstanceMethods
     end
 
     module HelperSetup

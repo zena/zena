@@ -9,27 +9,25 @@ class SiteTest < ZenaTestUnit
     assert_equal "Anonymous User", site.anon.fullname
     assert_not_equal users(:anon), site.anon[:id]
     assert admin = User.login('admin', 'secret', site), "Admin user can login"
-    assert_equal 2, admin.group_ids
+    assert_equal 3, admin.group_ids.size
   end
 
   def test_public_path
-    site = sites(:default)
-    assert_equal "#{RAILS_ROOT}/sites/test.host/public", site.public_path
-    site[:public_path] = "/var/www/test.host"
-    assert_equal "/var/www/test.host", site.public_path
+    site = sites(:zena)
+    assert_equal "/test.host/public", site.public_path
     site = sites(:ocean)
-    assert_equal "#{RAILS_ROOT}/sites/ocean.host/public", site.public_path
+    assert_equal "/ocean.host/public", site.public_path
   end
   
   def test_data_path
-    site = sites(:default)
+    site = sites(:zena)
     assert_equal "/test.host/data", site.data_path
     site = sites(:ocean)
     assert_equal "/ocean.host/data", site.data_path
   end
   
   def test_anonymous
-    site = sites(:default)
+    site = sites(:zena)
     anon = site.anon
     assert_kind_of User, anon
     assert_equal 'Anonymous', anon.first_name
@@ -46,7 +44,7 @@ class SiteTest < ZenaTestUnit
   end
   
   def test_su
-    site = sites(:default)
+    site = sites(:zena)
     su = site.su
     assert_kind_of User, su
     assert_equal 'Super', su.first_name
@@ -61,5 +59,41 @@ class SiteTest < ZenaTestUnit
     assert_equal users_id(:other_su), su[:id]
     su.site = site
     assert su.is_su?
+  end
+  
+  def test_public_group
+    site = sites(:zena)
+    grp = site.public_group
+    assert_kind_of Group, grp
+    assert_equal groups_id(:public), grp[:id]
+    
+    site = sites(:ocean)
+    grp = site.public_group
+    assert_kind_of Group, grp
+    assert_equal groups_id(:pub_ocean), grp[:id]
+  end
+  
+  def test_site_group
+    site = sites(:zena)
+    grp = site.site_group
+    assert_kind_of Group, grp
+    assert_equal groups_id(:site), grp[:id]
+    
+    site = sites(:ocean)
+    grp = site.site_group
+    assert_kind_of Group, grp
+    assert_equal groups_id(:aqua), grp[:id]
+  end
+  
+  def test_admin_group
+    site = sites(:zena)
+    grp = site.admin_group
+    assert_kind_of Group, grp
+    assert_equal groups_id(:admin), grp[:id]
+    
+    site = sites(:ocean)
+    grp = site.admin_group
+    assert_kind_of Group, grp
+    assert_equal groups_id(:masters), grp[:id]
   end
 end

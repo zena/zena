@@ -40,7 +40,7 @@ masters:
   updated_at:     2006-03-12
   name:           masters
 
-other_public:
+pub_ocean:
   id:             7
   site_id:        2
   created_at:     2006-03-10

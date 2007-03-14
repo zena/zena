@@ -49,14 +49,14 @@ class UserTest < ZenaTestUnit
   end
   
   def test_unique_login
-    bob = User.new
-    bob.login = 'tiger'
-    bob.password = 'anypassword'
-    assert ! bob.save
+    login(:lion)
+    bob = secure(User) { User.create(:login=>'tiger', :password=>'anypassword') }
+    assert bob.new_record?
     assert_not_nil bob.errors[:login]
     
-    bob.login = 'bobby'
-    assert bob.save
+    login(:whale)
+    bob = secure(User) { User.create(:login=>'tiger', :password=>'anypassword') }
+    assert !bob.new_record?
     assert_nil bob.errors[:login]
   end
   

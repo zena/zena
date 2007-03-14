@@ -10,13 +10,14 @@ TODO: when a user is 'destroyed', pass everything he owns to another user or jus
 TODO: when creating a user, define in which sites he belongs
 =end
 class User < ActiveRecord::Base
+  attr_accessible         :login, :password, :lang, :contact_id, :first_name, :name, :email, :time_zone
   attr_accessor           :visited_node_ids
   attr_accessor           :visitor
   attr_accessor           :site
   has_and_belongs_to_many :groups
   has_many                :nodes
   has_many                :versions
-  # DO NOT SET has_many :sites  or make sure all set/remove user from sites is secure.
+  has_and_belongs_to_many :sites
   # TODO: test link between user and contact
   belongs_to              :contact
   validate                :valid_user
@@ -32,9 +33,9 @@ class User < ActiveRecord::Base
         # FIXME: test
         user = find(:first, :conditions=>['login=? and password=?',login, hash_password( password )])
         return nil unless user
-        puts "User found"
         return nil unless Site.find(:first, :from=>"sites_users", :conditions=>["site_id = ? AND user_id = ?",site[:id],user[:id]])
-        user.site = site
+        user.site    = site
+        user.visit(user)
         return nil if user.is_anon? # no anonymous login !!
         # OK
         user
@@ -47,10 +48,10 @@ class User < ActiveRecord::Base
     end
   end
   
-  def visit(node, opts={})
-    node.visitor = self
+  def visit(obj, opts={})
+    obj.visitor = self
     # keep track of the nodes connected to this visit to build the 'expire_with' list
-    visited_node_ids << node[:id] if is_anon? && CachedPage.perform_caching
+    visited_node_ids << obj[:id] if is_anon? && CachedPage.perform_caching && obj.kind_of?(Node)
   end
   
   def visited_node_ids
@@ -71,17 +72,19 @@ class User < ActiveRecord::Base
   end
 
   def password=(string)
-    unless string.nil? || string == ''
+    if string.nil? || string == ''
+      self[:password] = nil
+    elsif string && string.length > 4
       self[:password] = User.hash_password(string)
     else
-      self[:password] = nil
+      @password_too_short = true
     end
   end
   
   # TODO: test (replace by admin?) 
   # FIXME: site_id
   def is_admin?
-    (self[:id] == 2) || self.group_ids.include?(2)
+    @is_admin ||= (@site || visitor.site).admin_group.user_ids.include?(self[:id])
   end
   
   # Return true if the user is the anonymous user for the current visited site
@@ -93,27 +96,20 @@ class User < ActiveRecord::Base
   # Return true if the user is the super user for the current visited site
   def is_su?
     # tested in site_test
-    visitor.site.su_id == self[:id]
+    (@site || visitor.site).su_id == self[:id]
   end
   
   # Returns a list of the group ids separated by commas for the user (this is used mainly in SQL clauses).
   def group_ids
     return @group_ids if @group_ids
-    if id==2
+    if is_su? || is_admin?
       # su user
-      res = Group.find(:all)
+      res = visitor.site.groups
     else
-      if !new_record? && Group.find_by_sql("SELECT * FROM groups_users WHERE group_id=2 AND user_id = #{id}") != []
-        # user is in admin group
-        res = Group.find(:all)
-      else
-        # normal operation
-        res = groups
-      end
+      # normal operation
+      res = groups.find(:conditions=>["site_id = ?", visitor.site[:id]]) # only groups from the current site
     end
     res = res.map{|g| g[:id]}
-    res << 1 unless res.include?(1)
-    res << 3 unless res.include?(3) || id == 1 # all logged in users are in the 'site' group except 'anon'
     @group_ids = res
   end
   
@@ -185,30 +181,33 @@ class User < ActiveRecord::Base
         # FIXME: how to handle unique 'login' through many sites ?
         # Refuse to add a user in a site if already a user with same login.
         # validate uniqueness of 'login'
-        if User.find(:first, :conditions=>["login = ?", self[:login]])
+        if visitor.site.users.find_by_login(self[:login])
           errors.add(:login, 'has already been taken')
         end
-        # validate uniqueness of 'login'
-        if User.find(:first, :conditions=>["login = ?", self[:login]])
-          errors.add(:login, 'has already been taken')
-        end
+        Node.logger.info "===============>>>>>>>>>>>>>>>>>============="
       else
         # get old password
         old = User.find(self[:id])
         self[:password] = old[:password] if self[:password].nil? || self[:password] == ""
-        # validate uniqueness of 'login'
-        if User.find(:first, :conditions=>["login = ? AND id <> ?", self[:login], self[:id]])
-          errors.add(:login, 'has already been taken')
+        # validate uniqueness of 'login' through all sites
+        sites.each do |site|
+          if site.users.find(:first, :conditions=>["login = ? AND id <> ?", self[:login], self[:id]])
+            errors.add(:login, 'has already been taken')
+          end
         end
-        # FIXME: we measure length of the hashed content !!
         errors.add(:login, 'too short') unless self[:login] == old[:login] || (self[:login] && self[:login].length > 3)
       end
-      errors.add(:password, 'too short') unless self[:password] && self[:password].length > 4
+      if @password_too_short
+        errors.add(:password, 'too short')
+        remove_instance_variable :@password_too_short
+      end
     end
   end
   
-  # Make sure all users are in the _public_ and _site_ groups. This method is called +after_create+.
+  # Make sure all users are in the _public_ and _site_ groups. This method is called +before_create+.
   def add_default_groups #:doc:
+    sites << visitor.site
+    
     return if is_su?
     g_ids = groups.map{|g| g[:id]}
     groups << visitor.site.public_group unless g_ids.include?(visitor.site.public_group_id)
@@ -217,7 +216,7 @@ class User < ActiveRecord::Base
   
   # Do not allow destruction of _su_ or _anon_ users. This method is called +before_destroy+.
   def dont_destroy_su_or_anon #:doc:
-    raise Zena::AccessViolation, "su and Anonymous users cannot be destroyed !" if [1,2].include?(id)
+    raise Zena::AccessViolation, "su and Anonymous users cannot be destroyed !" if (@site || visitor.site).protected_user_ids.include?(id)
   end
   
   def visitor

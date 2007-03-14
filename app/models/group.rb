@@ -5,11 +5,13 @@ Groups are used for access control. Two groups cannot be destroyed and have a sp
         users, change user groups, monitor content, etc.
 =end
 class Group < ActiveRecord::Base
+  attr_accessible         :name # FIXME: add user_ids ? + add users validation (are in site)
   has_and_belongs_to_many :users, :order=>'login'
   validates_presence_of   :name
   validate                :valid_group
   validates_uniqueness_of :name, :scope => :site_id # TODO: test
   before_destroy          :dont_destroy_public_or_admin
+  acts_as_secure
   
   # TODO: test
   def user_ids
@@ -24,12 +26,12 @@ class Group < ActiveRecord::Base
   private  
   # Public and admin groups are special. They cannot be destroyed.
   def dont_destroy_public_or_admin
-    raise "'admin' or 'public' groups cannot be destroyed" if [1,2].include? id
+    raise "'admin' or 'public' groups cannot be destroyed" if visitor.site.protected_group_ids.include?( id )
   end
   
   # TODO: test
   # TODO: test secure (group can be created in this site...)
   def valid_group
-    errors.add('site_id', 'invalid id') unless site_id && Site.find(:first, :conditions=>["id = ?", site_id])
+    self[:site_id] = visitor.site[:id]
   end
 end

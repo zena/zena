@@ -741,4 +741,27 @@ class NodeTest < ZenaTestUnit
     assert_equal 2, pages.size
     assert_equal 'cleanWater', pages[0][:name]
   end
+  
+  def test_site_id
+    login(:ant)
+    node = secure(Node) { Node.create(NEW_DEFAULT) }
+    assert !node.new_record?, "Not a new record"
+    assert_equal sites_id(:zena), node[:site_id]
+  end
+  
+  def test_other_site_id
+    login(:whale)
+    node = secure(Node) { Node.create(:parent_id=>nodes_id(:ocean), :rgroup_id=>groups_id(:aqua), :wgroup_id=>groups_id(:masters), :pgroup_id=>groups_id(:masters), :name=>"fish") }
+    err node
+    assert !node.new_record?, "Not a new record"
+    assert_equal sites_id(:ocean), node[:site_id]
+  end
+  
+  def test_other_site_id_fool_id
+    login(:whale)
+    node = secure(Node) { Node.create(:parent_id=>nodes_id(:ocean), :rgroup_id=>groups_id(:aqua), :wgroup_id=>groups_id(:masters), :pgroup_id=>groups_id(:masters), :name=>"fish", :site_id=>sites_id(:zena)) }
+    err node
+    assert !node.new_record?, "Not a new record"
+    assert_equal sites_id(:ocean), node[:site_id]
+  end
 end

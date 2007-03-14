@@ -21,8 +21,8 @@ module Zena
       # * members of +read_group+ if the node is published and the current date is greater or equal to the publication date
       # * members of +publish_group+ if +max_status+ >= prop
       def secure_scope
-        if visitor[:id] == 2 # super user
-          '1'
+        if visitor.is_su? # super user
+          "site_id = (#{visitor.site[:id]})"
         else
           "user_id = '#{visitor[:id]}' OR "+
           "(rgroup_id IN (#{visitor.group_ids.join(',')}) AND publish_from <= now() ) OR " +
@@ -36,8 +36,8 @@ module Zena
       # * owner
       # * members of +write_group+ if node is published and the current date is greater or equal to the publication date
       def secure_write_scope
-        if visitor[:id] == 2 # super user
-          '1'
+        if visitor.is_su? # super user
+          "site_id = (#{visitor.site[:id]})"
         else
           "user_id = '#{visitor[:id]}' OR "+
           "(wgroup_id IN (#{visitor.group_ids.join(',')}) AND publish_from <= now())"
@@ -54,8 +54,8 @@ module Zena
       # * owner if +max_status+ <= red
       # * owner if private
       def secure_drive_scope
-        if visitor[:id] == 2 # super user
-          '1'
+        if visitor.is_su? # super user
+          "site_id = (#{visitor.site[:id]})"
         else
           "(user_id = '#{visitor[:id]}' AND "+
             "( (rgroup_id = 0 AND wgroup_id = 0 AND pgroup_id = 0) OR max_status <= #{Zena::Status[:red]} OR pgroup_id IN (#{visitor.group_ids.join(',')}) )" +
@@ -133,7 +133,7 @@ In the controller :
   require 'lib/acts_as_secure'
   class PagesController < ApplicationController
     before_filter :set_logged_in_user
-    acts_as_secure_controller
+    acts_as_secure
 
     def show
       @page = secure { Page.find(params[:id]) }
@@ -147,19 +147,19 @@ In the controller :
 In the model :
   require 'lib/acts_as_secure'
   class Page < ActiveRecord::Base
-    acts_as_secure
+    acts_as_secure_node
   end
 
 In the helpers (if you intend to use secure find there...)
   require 'lib/acts_as_secure'
   module ApplicationHelper
     include Zena::Acts::SecureScope
-    include Zena::Acts::SecureController::InstanceMethods
+    include Zena::Acts::Secure::InstanceMethods
     # ...
   end
 Just doing the above will filter all result according to the logged in user.
 =end
-    module Secure
+    module SecureNode
       include SecureScope
       # this is called when the module is included into the 'base' module
       def self.included(base)
@@ -167,7 +167,7 @@ Just doing the above will filter all result according to the logged in user.
         base.extend AddActsAsMethod
       end
       module AddActsAsMethod
-        def acts_as_secure
+        def acts_as_secure_node
           belongs_to :rgroup, :class_name=>'Group', :foreign_key=>'rgroup_id'
           belongs_to :wgroup, :class_name=>'Group', :foreign_key=>'wgroup_id'
           belongs_to :pgroup, :class_name=>'Group', :foreign_key=>'pgroup_id'
@@ -177,6 +177,7 @@ Just doing the above will filter all result according to the logged in user.
           before_destroy :secure_on_destroy
           class_eval <<-END         
             include Zena::Acts::Secure::InstanceMethods
+            include Zena::Acts::SecureNode::InstanceMethods
           END
         end
       end
@@ -212,45 +213,6 @@ Just doing the above will filter all result according to the logged in user.
           @eval_on_visitor ||= []
           @eval_on_visitor << str
           self
-        end
-  
-        # Secure used by the object itself (to find children, etc) with the visitor as set by #visitor=.
-        def secure_with_scope(obj, scope)
-          obj.with_scope(
-            :create => { :visitor => visitor },
-            :find   => { :conditions => scope   }) do
-            result = yield
-            if result
-              # propagate secure scope to children
-              if result.kind_of? Array
-                result.each {|r| visitor.visit(r) }
-              else
-                visitor.visit(result)
-              end
-              result
-            else
-              raise ActiveRecord::RecordNotFound
-            end
-          end
-        end
-        
-        # secure for read access used by the object itself. The options hash is used internally by zena when maintaining parent to children inheritance and should not be used for other purpose if you do not want to break secure access.
-        def secure(obj, opts={}, &block)
-          if opts[:secure] == false
-            yield
-          else
-            secure_with_scope(obj,secure_scope, &block)
-          end
-        end
-  
-        # secure for write access used by the object itself
-        def secure_write(obj, &block)
-          secure_with_scope(obj,secure_write_scope, &block)
-        end
-        
-        # secure for publish access used by the object itself
-        def secure_drive(obj, &block)
-          secure_with_scope(obj,secure_drive_scope, &block)
         end
     
         # Return true if the node is considered as private (+read_group+, +write_group+ and +publish_group+ are +0+)
@@ -569,12 +531,6 @@ Just doing the above will filter all result according to the logged in user.
           errors.add('base', "you do not have the rights to do this")
           return false          
         end
-  
-        # Return the current visitor id or 'anonymous' if it is not set.
-        def visitor
-          return @visitor if @visitor
-          raise RecordNotSecured.new("Visitor not set, record not secured.")
-        end
 
         # Reference to validate access rights
         def ref
@@ -720,7 +676,7 @@ Just doing the above will filter all result according to the logged in user.
     end
     
     # ============================================= SECURE CONTROLLER ===============
-    module SecureController
+    module Secure
       include SecureScope
       # this is called when the module is included into the 'base' module
       def self.included(base)
@@ -728,10 +684,16 @@ Just doing the above will filter all result according to the logged in user.
         base.extend AddActsAsMethod
       end
       module AddActsAsMethod
-        def acts_as_secure_controller
+        def acts_as_secure
           class_eval <<-END
-            include Zena::Acts::SecureController::InstanceMethods
+            attr_accessor :visitor
+            include Zena::Acts::Secure::InstanceMethods
           END
+          if self.ancestors.include?(ActiveRecord::Base)
+            class_eval <<-END
+              validate  :visitor
+            END
+          end
         end
       end
       
@@ -746,9 +708,12 @@ Just doing the above will filter all result according to the logged in user.
         
         # secure find with scope (for read/write or publish access).
         def secure_with_scope(obj, scope, opts={})
-          obj.with_scope(
-            :create => { :visitor => visitor },
-            :find   => { :conditions => scope    }) do
+          scoping = {:create => { :visitor => visitor }}
+          if obj.kind_of?(Node)
+            # Restrict find access to Nodes
+            scoping[:find] = { :conditions => scope }
+          end
+          obj.with_scope( scoping ) do
             result = yield
             if result
               if result.kind_of? Array
@@ -769,8 +734,10 @@ Just doing the above will filter all result according to the logged in user.
         def secure(obj, opts={}, &block)
           if opts[:secure] == false
             yield
-          else
+          elsif obj.kind_of?(Node) # FIXME: use 'acts_as_secure_node' as clue (method_defined?(:secure_on_create))
             secure_with_scope(obj, secure_scope, &block)
+          else
+            secure_with_scope(obj, '1', &block)
           end
         end
 
@@ -784,11 +751,11 @@ Just doing the above will filter all result according to the logged in user.
           secure_with_scope(obj, secure_drive_scope, &block)
         end
 
-        # visitor method must be defined in Application
-        
-        # Find the 'anonymous' user (public)
-        def anonymous_user
-          User.find(1)
+        # Return the current visitor. Raise an error if the visitor is not set.
+        # For controllers, this method must be redefined in Application
+        def visitor
+          return @visitor if @visitor
+          raise RecordNotSecured.new("Visitor not set, record not secured.")
         end
         
         module ClassMethods
@@ -807,5 +774,6 @@ Just doing the above will filter all result according to the logged in user.
 end
 
 
-ActiveRecord::Base.send :include, Zena::Acts::Secure
-ActionController::Base.send :include, Zena::Acts::SecureController
+ActiveRecord::Base.send :include, Zena::Acts::SecureNode # for Nodes
+ActiveRecord::Base.send :include, Zena::Acts::Secure     # for other classes
+ActionController::Base.send :include, Zena::Acts::Secure

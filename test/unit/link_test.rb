@@ -1,6 +1,6 @@
 require File.dirname(__FILE__) + '/../test_helper'
 class LinkDummy < ActiveRecord::Base
-  acts_as_secure
+  acts_as_secure_node
   acts_as_multiversioned
   set_table_name 'nodes'
   link :icon, :class_name=>'Image', :unique=>true

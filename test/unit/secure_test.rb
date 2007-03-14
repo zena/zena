@@ -908,4 +908,8 @@ class SecureUpdateTest < ZenaTestUnit
     node = secure(Node) { nodes(:status)  }
     assert node.destroy, "Can destroy"
   end
+  
+  def test_secure_user
+    login(:ant)
+    user = secure(User) { users(:)}
 end

@@ -58,7 +58,8 @@ class Node < ActiveRecord::Base
   validate_on_update :node_on_update
   after_save         :spread_project_id
   before_destroy     :node_on_destroy
-  acts_as_secure
+  attr_protected     :site_id
+  acts_as_secure_node
   acts_as_multiversioned
   link :tags, :class_name=>'Tag'
   link :icon, :class_name=>'Image', :unique=>true
@@ -155,7 +156,7 @@ class Node < ActiveRecord::Base
   # Make sure the node is complete before creating it (check parent and project references)
   def node_on_create
     return true if visitor.site.root_id.nil? # creating the first node
-    # FIXME: make sure site_id is set
+    self[:site_id] = visitor.site[:id]
     # make sure project is the same as the parent
     if self.kind_of?(Project)
       self[:project_id] = nil
