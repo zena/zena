@@ -88,7 +88,13 @@ module Zena
           end
         end
       end
-
+      
+      def with_caching
+        @perform_caching_bak = ApplicationController.perform_caching
+        ApplicationController.perform_caching = true
+        yield
+        ApplicationController.perform_caching = @perform_caching_bak
+      end
 
       # taken from http://manuals.rubyonrails.com/read/chapter/28#page237 with some modifications
       def uploaded_file(fname, content_type="application/octet-stream", filename=nil)

@@ -33,7 +33,6 @@ class MainController < ApplicationController
     else
       redirect_to node_url(@node)
     end
-    puts visitor.object_id
   rescue ActiveRecord::RecordNotFound
     page_not_found
   end

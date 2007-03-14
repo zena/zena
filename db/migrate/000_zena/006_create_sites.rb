@@ -3,8 +3,6 @@ class CreateSites < ActiveRecord::Migration
     create_table(:sites, :options => 'type=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci') do |t|
       t.column :host, :string
       t.column :root_id, :integer
-      t.column :data_path, :text
-      t.column :public_path, :text
       t.column :su_id, :integer
       t.column :anon_id, :integer
       t.column :public_group_id, :integer
@@ -15,12 +13,11 @@ class CreateSites < ActiveRecord::Migration
       t.column :authorize, :boolean
       t.column :monolingual, :boolean
       t.column :allow_private, :boolean
-      t.column :password_salt, :string
       t.column :languages, :string, :size=>400
       t.column :default_lang, :string, :size=>2
     end
     
-    create_table(:users_sites, :id=>false,:options => 'type=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci') do |t|
+    create_table(:sites_users, :id=>false,:options => 'type=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci') do |t|
       t.column :user_id, :integer
       t.column :site_id, :integer
       t.column :status, :integer
@@ -32,7 +29,7 @@ class CreateSites < ActiveRecord::Migration
 
   def self.down
     drop_table :sites
-    drop_table :users_sites
+    drop_table :sites_users
     remove_column :groups, :site_id
     remove_column :nodes, :site_id
   end

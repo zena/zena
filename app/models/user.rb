@@ -7,13 +7,16 @@ A User is a #Contact with a login and password. There are two special users :
       logged in as su.
 If you want to give administrative rights to a user, simply put him into the _admin_ group.
 TODO: when a user is 'destroyed', pass everything he owns to another user or just mark the user as 'deleted'...
+TODO: when creating a user, define in which sites he belongs
 =end
 class User < ActiveRecord::Base
   attr_accessor           :visited_node_ids
+  attr_accessor           :visitor
   attr_accessor           :site
   has_and_belongs_to_many :groups
   has_many                :nodes
   has_many                :versions
+  # DO NOT SET has_many :sites  or make sure all set/remove user from sites is secure.
   # TODO: test link between user and contact
   belongs_to              :contact
   validate                :valid_user
@@ -22,23 +25,25 @@ class User < ActiveRecord::Base
   
   class << self
     # Returns the logged in user or nil if login and password do not match
-    def login(login, password)
+    def login(login, password, site)
       if !login || !password || login == "" || password == ""
         nil
       else
+        # FIXME: test
         user = find(:first, :conditions=>['login=? and password=?',login, hash_password( password )])
-        # do not allow 'anonymous' login (user_id = 1 is the anonymous login)
-        if user && user.id.to_i != 1
-          user
-        else
-          nil
-        end
+        return nil unless user
+        puts "User found"
+        return nil unless Site.find(:first, :from=>"sites_users", :conditions=>["site_id = ? AND user_id = ?",site[:id],user[:id]])
+        user.site = site
+        return nil if user.is_anon? # no anonymous login !!
+        # OK
+        user
       end
     end
 
     # Do not store clear passwords in the database (salted hash) :
     def hash_password(string)
-      Digest::SHA1.hexdigest(string + ZENA_ENV[:password_salt])
+      Digest::SHA1.hexdigest(string + PASSWORD_SALT)
     end
   end
   
@@ -73,7 +78,8 @@ class User < ActiveRecord::Base
     end
   end
   
-  # TODO: test (replace by admin?)
+  # TODO: test (replace by admin?) 
+  # FIXME: site_id
   def is_admin?
     (self[:id] == 2) || self.group_ids.include?(2)
   end
@@ -81,13 +87,13 @@ class User < ActiveRecord::Base
   # Return true if the user is the anonymous user for the current visited site
   def is_anon?
     # tested in site_test
-    @site && @site.anon_id == self[:id]
+    (@site || visitor.site).anon_id == self[:id] && (!new_record? || login.nil?)# (when creating a new site, anon_id == nil)
   end
   
   # Return true if the user is the super user for the current visited site
   def is_su?
     # tested in site_test
-    @site && @site.su_id == self[:id]
+    visitor.site.su_id == self[:id]
   end
   
   # Returns a list of the group ids separated by commas for the user (this is used mainly in SQL clauses).
@@ -168,13 +174,16 @@ class User < ActiveRecord::Base
   private
   
   # TODO: test
+  # FIXME: with site_id
   def valid_user
-    if self[:id] == 1
-      # Public user *must* have an empty login
+    if is_anon?
+      # Anonymous user *must* have an empty login
       self[:login] = nil
       self[:password] = nil
     else
       if new_record?
+        # FIXME: how to handle unique 'login' through many sites ?
+        # Refuse to add a user in a site if already a user with same login.
         # validate uniqueness of 'login'
         if User.find(:first, :conditions=>["login = ?", self[:login]])
           errors.add(:login, 'has already been taken')
@@ -191,6 +200,7 @@ class User < ActiveRecord::Base
         if User.find(:first, :conditions=>["login = ? AND id <> ?", self[:login], self[:id]])
           errors.add(:login, 'has already been taken')
         end
+        # FIXME: we measure length of the hashed content !!
         errors.add(:login, 'too short') unless self[:login] == old[:login] || (self[:login] && self[:login].length > 3)
       end
       errors.add(:password, 'too short') unless self[:password] && self[:password].length > 4
@@ -199,14 +209,20 @@ class User < ActiveRecord::Base
   
   # Make sure all users are in the _public_ and _site_ groups. This method is called +after_create+.
   def add_default_groups #:doc:
+    return if is_su?
     g_ids = groups.map{|g| g[:id]}
-    groups << Group.find(1) unless g_ids.include?(1)
-    groups << Group.find(3) unless g_ids.include?(3) || id == 1
+    groups << visitor.site.public_group unless g_ids.include?(visitor.site.public_group_id)
+    groups << visitor.site.site_group unless g_ids.include?(visitor.site.site_group_id) || is_anon?
   end
   
   # Do not allow destruction of _su_ or _anon_ users. This method is called +before_destroy+.
   def dont_destroy_su_or_anon #:doc:
     raise Zena::AccessViolation, "su and Anonymous users cannot be destroyed !" if [1,2].include?(id)
+  end
+  
+  def visitor
+    return @visitor if @visitor
+    raise Zena::RecordNotSecured.new("Visitor not set, record not secured.")
   end
   
   def old

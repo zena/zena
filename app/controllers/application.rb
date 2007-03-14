@@ -18,17 +18,13 @@ class ApplicationController < ActionController::Base
     
     if session[:user]
       # we already have a user, check host
-      if session[:host] == request[:host]
+      if session[:host] == request.host
         # host hasn't changed, set visitor and site
         @visitor = User.find(session[:user])
-        if site = Site.find_by_host(request[:host])
-          @visitor.site = site
-        else
-          raise ActiveRecord::RecordNotFound # FIXME: maybe redirect...
-        end
+        @visitor.site = Site.find(:first, :conditions=>["host = ? ",request.host]) # raises RecordNotFound if site not found
       else
         # changed host
-        if site = Site.find(:first, :select=>"sites.*", :from=>"sites, users_sites", :conditions=>["sites_users.site_id = sites.id AND host = ? AND users.id = ?",request.host,session[:user]])
+        if site = Site.find(:first, :select=>"sites.*", :from=>"sites, users_sites", :conditions=>["users_sites.site_id = sites.id AND host = ? AND users_sites.user_id = ?",request.host,session[:user]])
           # current user is in the new site
           @visitor = User.find(session[:user])
           @visitor.site = site
@@ -48,9 +44,10 @@ class ApplicationController < ActionController::Base
       end
     end
     
-    session[:host] = request[:host]
+    session[:host] = request.host
     session[:user] = @visitor[:id]
     @visitor.password = nil
+    @visitor.visit(@visitor) # used to check 'su', 'anon', etc
     @visitor
   end
   
@@ -60,7 +57,7 @@ class ApplicationController < ActionController::Base
   end
     
   def render_and_cache(opts={})
-    @node  ||= secure(Node) { Node.find(ZENA_ENV[:root_id]) }
+    @node  ||= secure(Node) { Node.find(visitor.site[:root_id]) }
     opts = {:mode=>opts} if opts.kind_of?(String)
     opts = {:skin=>@node[:skin], :cache=>true}.merge(opts)
       
@@ -74,21 +71,30 @@ class ApplicationController < ActionController::Base
     end
   end
   
-  # TODO: test (adapt for site_id)
+  # Cache page content into a static file in the current sites directory : SITES_ROOT/test.host/public
   def cache_page(expire_after = nil)
     return unless perform_caching && caching_allowed
-    url = url_for(:only_path => true, :skip_relative_url_root => true, :format => params[:format])
-    self.class.cache_page(response.body, url)
-    path        = self.class.send(:page_cache_file,url)
-    puts path
-    puts "========================================"
+    
+    # get path
+    path = visitor.site.public_path + page_cache_file
+    filepath = "#{SITES_ROOT}#{path}"
+    # save content into cache
+    FileUtils.mkpath(File.dirname(filepath))
+    File.open(filepath, "wb+") { |f| f.write(response.body) }
+    
+    # save cache context for automatic expire
     cache = CachedPage.create(:path => path, :expire_after=>expire_after)
-    cache.errors.each do |k,v|
-      puts "[#{k}] #{v}"
-    end
     values = visitor.visited_node_ids.uniq.map {|id| "(#{cache[:id]}, #{id})"}.join(',')
     CachedPage.connection.execute "INSERT INTO cached_pages_nodes (cached_page_id, node_id) VALUES #{values}"
-
+  end
+  
+  # Cache file path that reflects the called url
+  def page_cache_file
+    # FIXME: include 'mode' into url with mod_rewrite ? /blah /blah-print.html ?
+    path = url_for(:only_path => true, :skip_relative_url_root => true)
+    name = ((path.empty? || path == "/") ? "/index" : URI.unescape(path))
+    name << self.class.page_cache_extension unless (name.split('/').last || name).include? '.'
+    name
   end
   
   # Find the best template for the current node's skin, node's class and mode. The template
@@ -212,6 +218,8 @@ class ApplicationController < ActionController::Base
   
   # change current language, set @su warning color (tested in MainControllerTest)
   def set_env
+    
+    #debugger
     # Set connection charset. MySQL 4.0 doesn't support this so it
     # will throw an error, MySQL 4.1 needs this
     suppress(ActiveRecord::StatementInvalid) do
@@ -225,6 +233,7 @@ class ApplicationController < ActionController::Base
         new_lang = :bad_language
       end
     elsif params[:prefix] && params[:prefix] != AUTHENTICATED_PREFIX
+      visitor
       if visitor.site.languages.split(',').include?(params[:prefix])
         session[:lang] = params[:prefix]
       else
@@ -326,7 +335,7 @@ class ApplicationController < ActionController::Base
     else
       path = obj.basepath.split('/')
       unless obj[:custom_base]
-        path += ["#{obj.class.to_s.downcase}#{obj[:id]}.html"]
+        path += ["#{obj.class.to_s.downcase}#{obj[:id]}#{self.class.page_cache_extension}"]
       end
     end
     {:controller => 'main', :action=>'show', :path=>path, :prefix=>prefix}

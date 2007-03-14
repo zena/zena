@@ -1,14 +1,14 @@
 require "#{File.dirname(__FILE__)}/../test_helper"
 
 class MultipleHostsTest < ActionController::IntegrationTest
+  include Zena::Test::Base
   fixtures :nodes, :versions, :users, :groups_users
   
   def test_visitor_host
     anon.get_node(:status)
     assert_equal 200, anon.status
     assert_equal 'test.host', anon.assigns(:visitor).site.host
-    host! 'ocean.host'
-    anon.get '/en'
+    anon.get 'http://ocean.host/en'
     assert_equal 'ocean.host', anon.assigns(:visitor).site.host
   end
   
@@ -20,21 +20,41 @@ class MultipleHostsTest < ActionController::IntegrationTest
     assert_equal users(:incognito).id, anon.assigns(:visitor).id
   end
   
-  private
-  def with_caching
-    @perform_caching_bak = ApplicationController.perform_caching
-    ApplicationController.perform_caching = true
-    yield
-    ApplicationController.perform_caching = @perform_caching_bak
+  def test_cache
+    without_files("sites") do
+      with_caching do
+        path = "/en/projects/cleanWater/page11.html"
+        filepath = "#{RAILS_ROOT}/sites/test.host/public#{path}"
+        assert !File.exist?(filepath)
+        anon.get "http://test.host#{path}"
+        assert_equal 200, anon.status
+        assert File.exist?(filepath), "Cache file created"
+        node = nodes(:status)
+        assert_equal 1, CachedPage.count
+        assert_not_equal 0, CachedPage.connection.execute("SELECT COUNT(*) as count_all FROM cached_pages_nodes").fetch_row[0].to_i
+        node.sweep_cache
+        assert_equal 0, CachedPage.count
+        assert_equal 0, CachedPage.connection.execute("SELECT COUNT(*) as count_all FROM cached_pages_nodes").fetch_row[0].to_i
+        assert !File.exist?(filepath)
+      end
+    end
   end
   
+  def test_index
+    anon.get 'http://test.host/en'
+    assert_equal nodes(:zena)[:id], anon.assigns(:node)[:id]
+    anon.get 'http://ocean.host/en'
+    assert_equal nodes(:ocean)[:id], anon.assigns(:node)[:id]
+  end
+  
+  private
   
   module CustomAssertions
     include Zena::Test::Integration
     
     def get_node(node_sym=:status, opts={})
       @node = nodes(node_sym)
-      host! opts[:host] || 'test.host'
+      host = opts[:host] || 'test.host'
       opts.delete(:host)
       
       @site = Site.find_by_host(host)
@@ -47,7 +67,7 @@ class MultipleHostsTest < ActionController::IntegrationTest
         end
       end
       prefix = (!request || session[:user] == @site.anon_id) ? 'en' : AUTHENTICATED_PREFIX
-      url = "#{prefix}/#{path.join('/')}"
+      url = "http://#{host}/#{prefix}/#{path.join('/')}"
       puts "get #{url}"
       get url
     end

@@ -2,8 +2,6 @@ default:
   id:             1
   host:           'test.host'
   root_id:        1
-  data_path:      
-  public_path:    
   su_id:          2
   anon_id:        1
   public_group_id: 1
@@ -14,7 +12,6 @@ default:
   authorize:      NO
   monolingual:    NO
   allow_private:  NO
-  password_salt:  'fish zen ho'
   languages:      "en,fr"
   default_lang:   "en"
 
@@ -22,8 +19,6 @@ ocean:
   id:             2
   host:           'ocean.host'
   root_id:        35
-  data_path:      
-  public_path:    
   su_id:          7
   anon_id:        6
   public_group_id: 7
@@ -34,6 +29,5 @@ ocean:
   authorize:      NO
   monolingual:    NO
   allow_private:  NO
-  password_salt:  'fishing in the wild'
   languages:      "en,fr"
   default_lang:   "en"

@@ -78,6 +78,7 @@ class Node < ActiveRecord::Base
         path = path.split('/')
         last = path.pop
         Node.with_exclusive_scope do
+          # FIXME: where do we get the root_id from ???
           node = Node.find(ZENA_ENV[:root_id])
           path.each do |p|
             raise ActiveRecord::RecordNotFound unless node = Node.find_by_name_and_parent_id(p, node[:id])
@@ -153,6 +154,8 @@ class Node < ActiveRecord::Base
 
   # Make sure the node is complete before creating it (check parent and project references)
   def node_on_create
+    return true if visitor.site.root_id.nil? # creating the first node
+    # FIXME: make sure site_id is set
     # make sure project is the same as the parent
     if self.kind_of?(Project)
       self[:project_id] = nil
@@ -160,7 +163,7 @@ class Node < ActiveRecord::Base
       self[:project_id] = parent[:project_id]
     end
     # make sure parent is not a 'Note'
-    errors.add("parent_id", "invalid parent") unless parent.kind_of?(self.class.parent_class) || (self[:id] == ZENA_ENV[:root_id] && self[:parent_id] == nil)
+    errors.add("parent_id", "invalid parent") unless parent.kind_of?(self.class.parent_class) || (self[:id] == visitor.site[:root_id] && self[:parent_id] == nil)
     # set name from title if name not set yet
     self.name = version[:title] unless self[:name]
     errors.add("name", "can't be blank") unless self[:name] and self[:name] != ""
@@ -187,12 +190,12 @@ class Node < ActiveRecord::Base
       @spread_project_id = true
     end
     
-    if self[:id] == ZENA_ENV[:root_id]
+    if self[:id] == visitor.site[:root_id]
       errors.add('parent_id', 'parent must be empty for root') unless self[:parent_id].nil?
     end
     
     # make sure parent is valid
-    errors.add("parent_id", "invalid parent") unless parent.kind_of?(self.class.parent_class) || (self[:id] == ZENA_ENV[:root_id] && self[:parent_id] == nil)
+    errors.add("parent_id", "invalid parent") unless parent.kind_of?(self.class.parent_class) || (self[:id] == visitor.site[:root_id] && self[:parent_id] == nil)
     
     self.name = version[:title] unless self[:name]
     errors.add("name", "can't be blank") unless self[:name] and self[:name] != ""
@@ -321,7 +324,7 @@ class Node < ActiveRecord::Base
   end
 
   def root(opts={})
-    secure(Node) { Node.find(ZENA_ENV[:root_id])}
+    secure(Node) { Node.find(visitor.site[:root_id])}
   rescue ActiveRecord::RecordNotFound
     nil
   end
@@ -428,7 +431,7 @@ class Node < ActiveRecord::Base
   # 4. delete old and set new object id to old
   # THIS IS DANGEROUS !! NEEDS TESTING
   # def change_to(klass)
-  #   return nil if self[:id] == ZENA_ENV[:root_id]
+  #   return nil if self[:id] == visitor.site[:root_id]
   #   # ==> Check for class specific information (file to remove, participations, tags, etc) ... should we leave these things and
   #   # not care ?
   #   # ==> When changing into something else : update version type and data !!!
@@ -509,7 +512,8 @@ class Node < ActiveRecord::Base
     Cache.sweep(:visitor_id=>self[:user_id], :visitor_groups=>[rgroup_id, wgroup_id, pgroup_id], :kpath=>self.class.kpath)
     # we want to be sure to find the project and parent, even if the visitor does not have an
     # access to these elements.
-    return unless old.public? || self.public? # was/is visible to anon user
+    return unless (@old || Node.find(id)).public? || self.public? # was/is visible to anon user
+    # FIXME: use self + modified relations instead of parent/project
     [self, self.project(:secure=>false), self.parent(:secure=>false)].compact.uniq.each do |obj|
       CachedPage.expire_with(obj)
     end
@@ -637,7 +641,7 @@ class Node < ActiveRecord::Base
   
   # return the id of the reference
   def ref_field(for_heirs=false)
-    if !for_heirs && (self[:id] == ZENA_ENV[:root_id])
+    if !for_heirs && (self[:id] == visitor.site[:root_id])
       :id # root is it's own reference
     else
       :parent_id

@@ -6,7 +6,8 @@ class LoginController < ApplicationController
       # empty session
     else
       # request with completed form
-      logged_in_user = User.login(params[:user][:login], params[:user][:password])
+      puts visitor.site.inspect
+      logged_in_user = User.login(params[:user][:login], params[:user][:password], visitor.site)
       params[:user][:password] = ""
       if logged_in_user
         session[:user] = logged_in_user[:id]

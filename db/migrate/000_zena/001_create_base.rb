@@ -7,7 +7,6 @@ class CreateBase < ActiveRecord::Migration
       t.column "login", :string, :limit => 20
       t.column "password", :string, :limit => 40
       t.column "lang", :string, :limit => 10, :default => "", :null => false
-      t.column "password_salt", :string, :limit => 40
       t.column "contact_id", :integer
       t.column "first_name", :string, :limit => 60 # cached from contact_content
       t.column "name", :string, :limit => 60       # cached from contact_content

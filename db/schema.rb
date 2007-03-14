@@ -119,6 +119,7 @@ ActiveRecord::Schema.define(:version => 0) do
     t.column "project_id", :integer
     t.column "parent_id", :integer
     t.column "name", :string, :limit => 200
+    t.column "skin", :string
     t.column "inherit", :integer
     t.column "rgroup_id", :integer
     t.column "wgroup_id", :integer
@@ -131,30 +132,30 @@ ActiveRecord::Schema.define(:version => 0) do
     t.column "fullpath", :text
     t.column "custom_base", :boolean, :default => false
     t.column "basepath", :text
-    t.column "dgroup_id", :integer
-    t.column "skin", :string
     t.column "site_id", :integer
   end
 
   create_table "sites", :force => true do |t|
     t.column "host", :string
     t.column "root_id", :integer
-    t.column "data_path", :text
-    t.column "public_path", :text
     t.column "su_id", :integer
     t.column "anon_id", :integer
     t.column "public_group_id", :integer
     t.column "admin_group_id", :integer
     t.column "site_group_id", :integer
     t.column "trans_group_id", :integer
-    t.column "auth_prefix", :string
     t.column "name", :string
     t.column "authorize", :boolean
     t.column "monolingual", :boolean
     t.column "allow_private", :boolean
-    t.column "password_salt", :string
     t.column "languages", :string
     t.column "default_lang", :string
+  end
+
+  create_table "sites_users", :id => false, :force => true do |t|
+    t.column "user_id", :integer
+    t.column "site_id", :integer
+    t.column "status", :integer
   end
 
   create_table "trans_phrases", :force => true do |t|
@@ -179,12 +180,6 @@ ActiveRecord::Schema.define(:version => 0) do
     t.column "name", :string, :limit => 60
     t.column "email", :string, :limit => 60
     t.column "time_zone", :string
-  end
-
-  create_table "users_sites", :id => false, :force => true do |t|
-    t.column "user_id", :integer
-    t.column "site_id", :integer
-    t.column "status", :integer
   end
 
   create_table "versions", :force => true do |t|

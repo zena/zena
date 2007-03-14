@@ -3,7 +3,8 @@ class CachedPage < ActiveRecord::Base
   before_destroy :cached_page_on_destroy
   class << self
     def perform_caching
-      ApplicationController.perform_caching
+      # we check for const definition for calls from rake/console/etc
+      Module.const_defined?(:ApplicationController) ? ApplicationController.perform_caching : false
     end
     
     def expire_old
@@ -26,11 +27,10 @@ class CachedPage < ActiveRecord::Base
     end
   end
   
-  # TODO: test
+  # When destroying a cache record, remove the related cached file.
   def cached_page_on_destroy
-    filepath = "#{RAILS_ROOT}/public#{path.gsub('..','')}" # just in case...
+    filepath = "#{SITES_ROOT}#{path.gsub('..','')}" # just in case...
     CachedPage.logger.info "remove #{filepath}"
-    puts "remove #{filepath}"
     if File.exist?(filepath)
       FileUtils::rm(filepath)
     end

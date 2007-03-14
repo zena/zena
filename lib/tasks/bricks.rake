@@ -4,7 +4,6 @@ namespace :bricks do
     `bricks`
   end
   
-
   desc "Migrate the database through scripts in db/migrate. Target specific brick and version with BRICK=x and VERSION=x"
   task :migrate => :environment do
     if ENV['BRICK']

@@ -1,6 +1,16 @@
 require File.dirname(__FILE__) + '/../test_helper'
 
 class SiteTest < ZenaTestUnit
+  
+  def test_create_site
+    site = nil
+    assert_nothing_raised { site = Site.create_for_host('super.host', 'secret') }
+    site = Site.find(site[:id]) # reload
+    assert_equal "Anonymous User", site.anon.fullname
+    assert_not_equal users(:anon), site.anon[:id]
+    assert admin = User.login('admin', 'secret', site), "Admin user can login"
+    assert_equal 2, admin.group_ids
+  end
 
   def test_public_path
     site = sites(:default)
@@ -13,11 +23,9 @@ class SiteTest < ZenaTestUnit
   
   def test_data_path
     site = sites(:default)
-    assert_equal "#{RAILS_ROOT}/sites/test.host/data", site.data_path
-    site[:data_path] = "/var/data/test.host"
-    assert_equal "/var/data/test.host", site.data_path
+    assert_equal "/test.host/data", site.data_path
     site = sites(:ocean)
-    assert_equal "#{RAILS_ROOT}/sites/ocean.host/data", site.data_path
+    assert_equal "/ocean.host/data", site.data_path
   end
   
   def test_anonymous

@@ -10,8 +10,9 @@ class DocumentContent < ActiveRecord::Base
   before_save           :before_save_content
   before_destroy        :destroy_file
 
-  # creates and '<img.../>' tag for the file of the document using the extension to show an icon.
-  # format is ignored here. It is needed by the sub-class #ImageContent.
+  # Creates an '<img.../>' tag for the file of the document using the extension to show an icon.
+  # The format argument is ignored here. It is needed by the sub-class #ImageContent.
+  # FIXME: use site for paths !
   def img_tag(format=nil, opts={})
     options = {:class=>'doc', :id=>nil}.merge(opts)
     ext = self[:ext]

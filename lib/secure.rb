@@ -578,6 +578,7 @@ Just doing the above will filter all result according to the logged in user.
 
         # Reference to validate access rights
         def ref
+          return self if ref_field == :id && new_record? # new record and self as reference (creating root node)
           if !@ref || (@ref.id != self[ref_field])
             # no ref or ref changed
             @ref = secure(ref_class) { ref_class.find(self[ref_field]) }

@@ -7,11 +7,12 @@
 # Specifies gem version of Rails to use when vendor/rails is not present
 RAILS_GEM_VERSION = '1.1.6'
 
-# Set ZENA_ENV
-require File.join(File.dirname(__FILE__), 'zena')
 
 # Bootstrap the Rails environment, frameworks, and default configuration
 require File.join(File.dirname(__FILE__), 'boot')
+
+# Set ZENA_ENV
+require File.join(File.dirname(__FILE__), 'zena')
 
 Rails::Initializer.run do |config|
   # Settings in config/environments/* take precedence those specified here
