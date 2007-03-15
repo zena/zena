@@ -65,7 +65,6 @@ class CommentController < ApplicationController
       render :nothing=>true
     end
   rescue ActiveRecord::RecordNotFound
-    puts params.inspect
     render :nothing=>true
   end
   

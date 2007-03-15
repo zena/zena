@@ -109,6 +109,12 @@ class ApplicationControllerTest < ZenaTestController
     node = @controller.send(:secure, Node) { Node.find(nodes_id(:wiki)) }
     assert_equal ['project19.html'], @controller.send(:node_url,node)[:path]
   end
+  
+  def test_bad_session_user
+    @controller.instance_variable_set(:@session, :user=>999, :host=>'test.host')
+    assert_equal users_id(:anon), @controller.send(:visitor)[:id]
+  end
+  
   # authorize tested in 'MainController' tests
   
 end

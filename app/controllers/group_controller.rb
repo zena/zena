@@ -41,7 +41,6 @@ class GroupController < ApplicationController
     @group = Group.find(params[:id])
     @group.update_attributes(params[:group])
     @group.save
-    puts @group.inspect
     render :action=>'show'
   end
 end

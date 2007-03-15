@@ -40,7 +40,6 @@ class TransController < ApplicationController
   
   # TODO: test
   def remove
-    puts params.inspect
     if @phrase_id = params[:phrase_id]
       obj = TransPhrase.find(@phrase_id)
       obj.destroy

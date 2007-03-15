@@ -911,5 +911,12 @@ class SecureUpdateTest < ZenaTestUnit
   
   def test_secure_user
     login(:ant)
-    user = secure(User) { users(:)}
+    user = secure(User) { users(:whale) }
+    assert_kind_of User, user
+    assert_equal users_id(:ant), user.send(:visitor).id
+  end
+  
+  def test_cannot_view_own_stuff_in_other_host
+    assert false, "todo"
+  end
 end

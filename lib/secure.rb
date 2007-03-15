@@ -21,13 +21,14 @@ module Zena
       # * members of +read_group+ if the node is published and the current date is greater or equal to the publication date
       # * members of +publish_group+ if +max_status+ >= prop
       def secure_scope
-        if visitor.is_su? # super user
-          "site_id = (#{visitor.site[:id]})"
+        base = if visitor.is_su? # super user
+          "1"
         else
           "user_id = '#{visitor[:id]}' OR "+
           "(rgroup_id IN (#{visitor.group_ids.join(',')}) AND publish_from <= now() ) OR " +
           "(pgroup_id IN (#{visitor.group_ids.join(',')}) AND max_status > #{Zena::Status[:red]})"
         end
+        "(#{base}) AND (site_id = #{visitor.site[:id]})"
       end
 
       # Secure scope for write access.
@@ -168,6 +169,7 @@ Just doing the above will filter all result according to the logged in user.
       end
       module AddActsAsMethod
         def acts_as_secure_node
+          acts_as_secure
           belongs_to :rgroup, :class_name=>'Group', :foreign_key=>'rgroup_id'
           belongs_to :wgroup, :class_name=>'Group', :foreign_key=>'wgroup_id'
           belongs_to :pgroup, :class_name=>'Group', :foreign_key=>'pgroup_id'
@@ -175,8 +177,7 @@ Just doing the above will filter all result according to the logged in user.
           before_validation :secure_before_validation
           after_save :check_inheritance
           before_destroy :secure_on_destroy
-          class_eval <<-END         
-            include Zena::Acts::Secure::InstanceMethods
+          class_eval <<-END
             include Zena::Acts::SecureNode::InstanceMethods
           END
         end
@@ -677,7 +678,6 @@ Just doing the above will filter all result according to the logged in user.
     
     # ============================================= SECURE CONTROLLER ===============
     module Secure
-      include SecureScope
       # this is called when the module is included into the 'base' module
       def self.included(base)
         # add all methods from the module "AddActsAsMethod" to the 'base' module
@@ -687,6 +687,8 @@ Just doing the above will filter all result according to the logged in user.
         def acts_as_secure
           class_eval <<-END
             attr_accessor :visitor
+            
+            include Zena::Acts::SecureScope
             include Zena::Acts::Secure::InstanceMethods
           END
           if self.ancestors.include?(ActiveRecord::Base)
@@ -709,8 +711,8 @@ Just doing the above will filter all result according to the logged in user.
         # secure find with scope (for read/write or publish access).
         def secure_with_scope(obj, scope, opts={})
           scoping = {:create => { :visitor => visitor }}
-          if obj.kind_of?(Node)
-            # Restrict find access to Nodes
+          if obj.ancestors.include?(Zena::Acts::SecureNode::InstanceMethods)
+            # Restrict find access for SecuredNodes
             scoping[:find] = { :conditions => scope }
           end
           obj.with_scope( scoping ) do
@@ -734,7 +736,7 @@ Just doing the above will filter all result according to the logged in user.
         def secure(obj, opts={}, &block)
           if opts[:secure] == false
             yield
-          elsif obj.kind_of?(Node) # FIXME: use 'acts_as_secure_node' as clue (method_defined?(:secure_on_create))
+          elsif obj.ancestors.include?(Zena::Acts::SecureNode::InstanceMethods)
             secure_with_scope(obj, secure_scope, &block)
           else
             secure_with_scope(obj, '1', &block)

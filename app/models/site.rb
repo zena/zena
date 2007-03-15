@@ -1,7 +1,7 @@
 class Site < ActiveRecord::Base
   validates_uniqueness_of :host
   attr_protected :host, :su_id, :anon_id, :root_id
-  has_many :groups
+  has_many :groups, :order=>"name"
   has_many :nodes
   has_and_belongs_to_many :users
   acts_as_secure
@@ -31,10 +31,9 @@ class Site < ActiveRecord::Base
       su = User.new( :login => host, :password => su_password,
         :first_name => "Super", :name => "User", :lang=>'en')
       su.site    = site
-      su.visit(su) # <-- own visitor...
       raise Exception.new("Could not create super user for site [#{host}] (site#{site[:id]})\n#{su.errors.map{|k,v| "[#{k}] #{v}"}.join("\n")}") unless su.save
+      su.visit(site) # su is visitor
       
-      su.visit(site)
       # create anon user
       anon = site.send(:secure,User) { User.create( :login => nil, :password => nil,
         :first_name => "Anonymous", :name => "User", :lang=>'en') }
@@ -44,7 +43,6 @@ class Site < ActiveRecord::Base
       admin_user = site.send(:secure,User) {User.create( :login => 'admin', :password => su_password,
         :first_name => "Admin", :name => "User", :lang=>'en') }
       raise Exception.new("Could not create admin user for site [#{host}] (site#{site[:id]})\n#{admin_user.errors.map{|k,v| "[#{k}] #{v}"}.join("\n")}") if admin_user.new_record?
-      
       
       # =========== CREATE PUBLIC, ADMIN, SITE GROUPS ===========
       # create public group
@@ -88,18 +86,13 @@ class Site < ActiveRecord::Base
       
       
       # =========== CREATE ROOT NODE ============================
-      
-      # create root node
-      root = Project.new( :name => site.name, :site_id => site[:id], :rgroup_id => pub[:id], :wgroup_id => sgroup[:id], :pgroup_id => admin[:id], :user_id => admin_user[:id] )
-      admin_user.site = site # <-- make admin the current visitor
-      admin_user.visit(root) # <-- secure so we can save the node
-      root.save
+      admin_user.site = site
+      admin_user.visit(site) # now admin is the 'visitor' for 'site'
+      root = site.send(:secure,Project) { Project.create( :name => site.name, :rgroup_id => pub[:id], :wgroup_id => sgroup[:id], :pgroup_id => admin[:id], :v_title => site.name) }
       raise Exception.new("Could not create root node for site [#{host}] (site#{site[:id]})\n#{root.errors.map{|k,v| "[#{k}] #{v}"}.join("\n")}") if root.new_record?
+      raise Exception.new("Could not publish root node for site [#{host}] (site#{site[:id]})\n#{root.errors.map{|k,v| "[#{k}] #{v}"}.join("\n")}") unless root.publish
+      
       site.root_id         = root[:id]
-      
-      root[:project_id] = root[:id]
-      raise Exception.new("Could not set project_id for root node for site [#{host}] (site#{site[:id]})\n#{root.errors.map{|k,v| "[#{k}] #{v}"}.join("\n")}") unless root.save
-      
       
       # =========== UPDATE SITE =================================
       # save site definition

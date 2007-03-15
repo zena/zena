@@ -269,6 +269,17 @@ class MainControllerTest < ZenaTestController
   end
   
   
+  def test_login_test_host_not_logged_in_ocean
+    login(:lion)
+    get 'index', :prefix => AUTHENTICATED_PREFIX
+    assert_response :success
+    assert_tag :tag => 'div', :attributes => { :id => 'visitor' }, :child => {:tag=>'a', :content=>'Panthera Leo Verneyi'}
+    request.host = 'ocean.host'
+    @controller.instance_variable_set(:@visitor, nil)
+    get 'index', :prefix => AUTHENTICATED_PREFIX
+    assert_no_tag :tag => 'div', :attributes => { :id => 'visitor' }, :child => {:tag=>'a', :content=>'Panthera Leo Verneyi'}
+  end
+  
   
   private
   def with_caching

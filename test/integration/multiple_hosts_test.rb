@@ -75,11 +75,10 @@ class MultipleHostsTest < ActionController::IntegrationTest
 
   def login(user = nil)
     open_session do |sess|
-      @node = secure(Node) { nodes(node_sym) }
       sess.extend(CustomAssertions)
       if user
         sess.post 'login', :user=>{:login=>user.to_s, :password=>user.to_s}
-        assert_equal users_id(user), sess.session[:user]
+        assert_equal users(user)[:id], sess.response.session[:user]
         assert sess.redirect?
         sess.follow_redirect!
       end

@@ -5,8 +5,8 @@ class ApplicationController < ActionController::Base
   helper_method :prefix, :node_url, :notes, :error_messages_for, :render_errors, :add_error, :data_url
   helper_method :template_text_for_url, :template_url_for_asset, :save_erb_to_url, :lang, :visitor
   helper 'main'
-  before_filter :authorize
   before_filter :set_env
+  before_filter :authorize
   after_filter  :set_encoding
   layout false
   
@@ -17,18 +17,23 @@ class ApplicationController < ActionController::Base
     return @visitor if @visitor
     
     if session[:user]
-      # we already have a user, check host
-      if session[:host] == request.host
-        # host hasn't changed, set visitor and site
-        @visitor = User.find(session[:user])
-        @visitor.site = Site.find(:first, :conditions=>["host = ? ",request.host]) # raises RecordNotFound if site not found
-      else
-        # changed host
-        if site = Site.find(:first, :select=>"sites.*", :from=>"sites, users_sites", :conditions=>["users_sites.site_id = sites.id AND host = ? AND users_sites.user_id = ?",request.host,session[:user]])
-          # current user is in the new site
+      begin
+        # we already have a user, check host
+        if session[:host] == request.host
+          # host hasn't changed, set visitor and site
           @visitor = User.find(session[:user])
-          @visitor.site = site
+          @visitor.site = Site.find(:first, :conditions=>["host = ? ",request.host]) # raises RecordNotFound if site not found
+        else
+          # changed host
+          if site = Site.find(:first, :select=>"sites.*", :from=>"sites, users_sites", :conditions=>["users_sites.site_id = sites.id AND host = ? AND users_sites.user_id = ?",request.host,session[:user]])
+            # current user is in the new site
+            @visitor = User.find(session[:user])
+            @visitor.site = site
+          end
         end
+      rescue ActiveRecord::RecordNotFound
+        # user was not in host or bad session id
+        @visitor = nil
       end
     end
     
@@ -46,7 +51,7 @@ class ApplicationController < ActionController::Base
     
     session[:host] = request.host
     session[:user] = @visitor[:id]
-    @visitor.password = nil
+    @visitor[:password] = nil
     @visitor.visit(@visitor) # used to check 'su', 'anon', etc
     @visitor
   end
@@ -152,6 +157,7 @@ class ApplicationController < ActionController::Base
       end
     end
     choices.each do |skin, template_name|
+      # FIXME: use visitor.site.host "/templates/compiled/#{visitor.site.host}/..."
       # find the fixed template
       template = "/templates/fixed/#{skin}/#{template_name}"
       break if File.exist?("#{RAILS_ROOT}/app/views#{template}.rhtml")
@@ -209,7 +215,7 @@ class ApplicationController < ActionController::Base
   # Verify that only logged in users access to some protected resources. This can be used to remove public access to an
   # entire site. +authorize+ is called before any action in any controller.
   def authorize
-    if (ZENA_ENV[:authorize] || params[:prefix] == AUTHENTICATED_PREFIX) && ! session[:user]
+    if (visitor.site[:authorize] || params[:prefix] == AUTHENTICATED_PREFIX) && ! session[:user]
       flash[:notice] = trans "Please log in"
       session[:after_login_url] = request.parameters
       redirect_to :controller =>'login', :action=>'login' and return false
@@ -218,8 +224,6 @@ class ApplicationController < ActionController::Base
   
   # change current language, set @su warning color (tested in MainControllerTest)
   def set_env
-    
-    #debugger
     # Set connection charset. MySQL 4.0 doesn't support this so it
     # will throw an error, MySQL 4.1 needs this
     suppress(ActiveRecord::StatementInvalid) do
@@ -227,13 +231,12 @@ class ApplicationController < ActionController::Base
     end
     new_lang = nil
     if params[:lang]
-      if ZENA_ENV[:languages].include?(params[:lang])
+      if visitor.site[:languages].include?(params[:lang])
         new_lang = params[:lang]
       else
         new_lang = :bad_language
       end
     elsif params[:prefix] && params[:prefix] != AUTHENTICATED_PREFIX
-      visitor
       if visitor.site.languages.split(',').include?(params[:prefix])
         session[:lang] = params[:prefix]
       else
@@ -244,7 +247,7 @@ class ApplicationController < ActionController::Base
     if new_lang
       if new_lang == :bad_language
         flash[:notice] = trans "The requested language is not available."
-        session[:lang] ||= ZENA_ENV[:default_lang]
+        session[:lang] ||= visitor.site[:default_lang]
       else
         session[:lang] = new_lang
       end
@@ -262,7 +265,7 @@ class ApplicationController < ActionController::Base
     
     # turn translation on/off
     if params[:translate] 
-      if visitor.group_ids.include?(ZENA_ENV[:translate_group])
+      if visitor.group_ids.include?(visitor.site[:trans_group_id])
         if params[:translate] == 'on'
           session[:translate] = true
         else
@@ -273,7 +276,7 @@ class ApplicationController < ActionController::Base
       req.delete(:translate)
       redirect_to req and return false  
     end
-    visitor.lang = session[:lang] ||= (visitor.lang || ZENA_ENV[:default_lang])
+    visitor.lang = session[:lang] ||= (visitor.lang || visitor.site[:default_lang])
     true
   end
   
@@ -330,7 +333,7 @@ class ApplicationController < ActionController::Base
   end
   
   def node_url(obj)
-    if obj[:id] == ZENA_ENV[:root_id]
+    if obj[:id] == visitor.site[:root_id]
       path = []
     else
       path = obj.basepath.split('/')
@@ -343,7 +346,7 @@ class ApplicationController < ActionController::Base
 
   def prefix
     if visitor.is_anon?
-      if ZENA_ENV[:monolingual]
+      if visitor.site[:monolingual]
         ''
       else
         lang

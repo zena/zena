@@ -99,6 +99,20 @@ class UserTest < ZenaTestUnit
     assert_equal 0, to_publish.size
   end
   
+  def test_is_admin
+    login(:ant)
+    user = secure(User) { users(:lion) }
+    assert user.is_admin?
+  end
+  
+  def test_group_ids
+    login(:ant)
+    user = secure(User) { users(:tiger) }
+    assert_equal [groups_id(:managers), groups_id(:public), groups_id(:site)], user.group_ids
+    user = secure(User) { users(:lion) }
+    assert_equal [groups_id(:admin), groups_id(:managers), groups_id(:public), groups_id(:site)], user.group_ids
+  end
+  
   
   # TODO: finish tests for User
   # groups

@@ -79,8 +79,7 @@ class Node < ActiveRecord::Base
         path = path.split('/')
         last = path.pop
         Node.with_exclusive_scope do
-          # FIXME: where do we get the root_id from ???
-          node = Node.find(ZENA_ENV[:root_id])
+          node = Node.find(visitor_site[:root_id])
           path.each do |p|
             raise ActiveRecord::RecordNotFound unless node = Node.find_by_name_and_parent_id(p, node[:id])
           end
@@ -155,7 +154,6 @@ class Node < ActiveRecord::Base
 
   # Make sure the node is complete before creating it (check parent and project references)
   def node_on_create
-    return true if visitor.site.root_id.nil? # creating the first node
     self[:site_id] = visitor.site[:id]
     # make sure project is the same as the parent
     if self.kind_of?(Project)

@@ -37,7 +37,6 @@ class VersionController < ApplicationController
   
   # TODO: test/improve or remove (experiments)
   def diff
-    puts params.inspect
     @preview_id = session[:preview_id]
     # drive view
     @node = secure(Node) { Node.find(params[:id]) }

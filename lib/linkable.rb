@@ -260,7 +260,7 @@ on the post edit page :
         # macro to add links to a class
         def link(method, options={})
           method = method.to_s
-          unless instance_methods.include?('secure')
+          unless method_defined?(:secure) || private_method_defined?(:secure)
             # define dummy 'secure' and 'secure_write' to work out of Zena
             class_eval "def secure(*args); yield; end"
             class_eval "def secure_write(*args); yield; end"

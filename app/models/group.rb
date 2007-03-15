@@ -13,20 +13,37 @@ class Group < ActiveRecord::Base
   before_destroy          :dont_destroy_public_or_admin
   acts_as_secure
   
-  # TODO: test
+  def public_group?
+    self[:id] == visitor.site[:public_group_id]
+  end
+  
+  def admin_group?
+    self[:id] == visitor.site[:admin_group_id]
+  end
+  
+  def site_group?
+    self[:id] == visitor.site[:site_group_id]
+  end
+  
   def user_ids
-    @user_ids ||= if id==1
-      # public user
-      User.find(:all)
-    else
-      users
-    end.map{|u| u[:id]}
+    @user_ids ||= users.map {|r| r[:id]}
+  end
+  
+  alias o_users users
+  def users
+    @users ||= begin
+      usr = o_users
+      usr.each do |r|
+        r[:password] = nil
+      end
+      usr
+    end
   end
   
   private  
   # Public and admin groups are special. They cannot be destroyed.
   def dont_destroy_public_or_admin
-    raise "'admin' or 'public' groups cannot be destroyed" if visitor.site.protected_group_ids.include?( id )
+    raise Zena::AccessViolation.new("'admin', 'site' or 'public' groups cannot be destroyed") if visitor.site.protected_group_ids.include?( id )
   end
   
   # TODO: test

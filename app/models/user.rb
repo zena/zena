@@ -30,12 +30,9 @@ class User < ActiveRecord::Base
       if !login || !password || login == "" || password == ""
         nil
       else
-        # FIXME: test
-        user = find(:first, :conditions=>['login=? and password=?',login, hash_password( password )])
+        user = find(:first, :from=>'users, sites_users', :conditions=>['login=? AND password=? AND sites_users.user_id = users.id AND sites_users.site_id = ?',login, hash_password(password), site[:id]])
         return nil unless user
-        return nil unless Site.find(:first, :from=>"sites_users", :conditions=>["site_id = ? AND user_id = ?",site[:id],user[:id]])
         user.site    = site
-        user.visit(user)
         return nil if user.is_anon? # no anonymous login !!
         # OK
         user
@@ -84,19 +81,19 @@ class User < ActiveRecord::Base
   # TODO: test (replace by admin?) 
   # FIXME: site_id
   def is_admin?
-    @is_admin ||= (@site || visitor.site).admin_group.user_ids.include?(self[:id])
+    @is_admin ||= visitor_site.admin_group.user_ids.include?(self[:id])
   end
   
   # Return true if the user is the anonymous user for the current visited site
   def is_anon?
     # tested in site_test
-    (@site || visitor.site).anon_id == self[:id] && (!new_record? || login.nil?)# (when creating a new site, anon_id == nil)
+    visitor_site.anon_id == self[:id] && (!new_record? || login.nil?)# (when creating a new site, anon_id == nil)
   end
   
   # Return true if the user is the super user for the current visited site
   def is_su?
     # tested in site_test
-    (@site || visitor.site).su_id == self[:id]
+    visitor_site.su_id == self[:id]
   end
   
   # Returns a list of the group ids separated by commas for the user (this is used mainly in SQL clauses).
@@ -104,10 +101,10 @@ class User < ActiveRecord::Base
     return @group_ids if @group_ids
     if is_su? || is_admin?
       # su user
-      res = visitor.site.groups
+      res = visitor_site.groups
     else
       # normal operation
-      res = groups.find(:conditions=>["site_id = ?", visitor.site[:id]]) # only groups from the current site
+      res = groups.find(:all, :conditions=>["site_id = ?", visitor_site[:id]], :order=>'name') # only groups from the current site
     end
     res = res.map{|g| g[:id]}
     @group_ids = res
@@ -169,6 +166,11 @@ class User < ActiveRecord::Base
   ### ================================================ PRIVATE
   private
   
+  # Returns the current site (self = visitor) or the visitor's site
+  def visitor_site
+    @site || visitor.site
+  end
+  
   # TODO: test
   # FIXME: with site_id
   def valid_user
@@ -181,7 +183,7 @@ class User < ActiveRecord::Base
         # FIXME: how to handle unique 'login' through many sites ?
         # Refuse to add a user in a site if already a user with same login.
         # validate uniqueness of 'login'
-        if visitor.site.users.find_by_login(self[:login])
+        if visitor_site.users.find_by_login(self[:login])
           errors.add(:login, 'has already been taken')
         end
         Node.logger.info "===============>>>>>>>>>>>>>>>>>============="
@@ -206,17 +208,17 @@ class User < ActiveRecord::Base
   
   # Make sure all users are in the _public_ and _site_ groups. This method is called +before_create+.
   def add_default_groups #:doc:
-    sites << visitor.site
+    sites << visitor_site
     
     return if is_su?
     g_ids = groups.map{|g| g[:id]}
-    groups << visitor.site.public_group unless g_ids.include?(visitor.site.public_group_id)
-    groups << visitor.site.site_group unless g_ids.include?(visitor.site.site_group_id) || is_anon?
+    groups << visitor_site.public_group unless g_ids.include?(visitor_site.public_group_id)
+    groups << visitor_site.site_group unless g_ids.include?(visitor_site.site_group_id) || is_anon?
   end
   
   # Do not allow destruction of _su_ or _anon_ users. This method is called +before_destroy+.
   def dont_destroy_su_or_anon #:doc:
-    raise Zena::AccessViolation, "su and Anonymous users cannot be destroyed !" if (@site || visitor.site).protected_user_ids.include?(id)
+    raise Zena::AccessViolation, "su and Anonymous users cannot be destroyed !" if visitor_site.protected_user_ids.include?(id)
   end
   
   def visitor

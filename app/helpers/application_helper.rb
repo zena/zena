@@ -114,7 +114,7 @@ module ApplicationHelper
   
   # Shows 'login' or 'logout' button.
   def login_link(opts={})
-    if session[:user]
+    unless visitor.is_anon?
       "<a href='/logout'>#{transb('logout')}</a>"
     else
       "<a href='/login'>#{transb('login')}</a>"
@@ -165,7 +165,7 @@ module ApplicationHelper
   
   # Show visitor name if logged in
   def visitor_link(opts={})
-    if session[:user]
+    unless visitor.is_anon?
       link_to( visitor.fullname, user_home_url )
     else
       ""
@@ -381,17 +381,12 @@ module ApplicationHelper
     @date ||= Time.now
   end
   
-  # Hierachical menu. (same on all pages)
+  # Creates a hierachical menu. When :collection is specified, use this as the menu's root elements. Otherwise, uses
+  # the root element as the menu's start.
   def show_menu(opts={})
-    Cache.with(visitor.id, visitor.group_ids, Page.kpath, 'show_menu') do
-      if ZENA_ENV[:menu_tag_id] !=nil
-        menu  = secure(Tag) { Tag.find(ZENA_ENV[:menu_tag_id]) }
-        menus = menu.pages
-      elsif ZENA_ENV[:root_id] != nil
-        menus = secure(Node) { Node.find(ZENA_ENV[:root_id]) }.pages
-      else
-        menus = secure(Page) { Page.find(:all, :conditions=>"parent_id IS NULL") }
-      end
+    collection = opts[:collection] ? opts[:collection].map{|r| r[:id]}.join(',') : ""
+    Cache.with(visitor.id, visitor.group_ids, Page.kpath, 'show_menu', collection) do
+      menus  = opts[:collection] || secure(Node) { Node.find(visitor.site[:root_id]) }.pages
       res = []
       res << "<ul class='menu'>"
       res << render_to_string(:partial=>'main/menu', :collection=>menus)
@@ -598,7 +593,7 @@ module ApplicationHelper
   #TODO: test
   def site_tree(obj=nil)
     skip  = obj ? obj[:id] : nil
-    base  = secure(Node) { Node.find(ZENA_ENV[:root_id]) }
+    base  = secure(Node) { Node.find(visitor.site[:root_id]) }
     level = 0
     if obj.nil?
       klass = Node
@@ -867,7 +862,7 @@ ENDTXT
       return '' unless session[:user]
       tlink_to_with_state('preferences', :controller=>'preferences', :action=>'list')
     when :translation
-      return '' unless visitor.group_ids.include?(ZENA_ENV[:translate_group])
+      return '' unless visitor.group_ids.include?(visitor.site[:trans_group_id])
       tlink_to_with_state('translate interface', :controller=>'trans', :action=>'list')
     when :comments
       return '' unless visitor.is_admin?
@@ -893,10 +888,10 @@ ENDTXT
   
   # Calendar seizure setup
   def uses_calendar(opt={})
-    if ZENA_ENV[:calendar_langs].include?(lang)
+    if ZENA_CALENDAR_LANGS.include?(lang)
       l = lang
     else
-      l = ZENA_ENV[:default_lang]
+      l = visitor.site[:default_lang]
     end
     <<-EOL
     <script src="/calendar/calendar.js" type="text/javascript"></script>
@@ -912,11 +907,11 @@ ENDTXT
   
   # show language selector
   def lang_links(opts={})
-    if ZENA_ENV[:monolingual]
+    if visitor.site[:monolingual]
       ""
     else
       res = []
-      ZENA_ENV[:languages].sort.each do |l|
+      visitor.site[:languages].sort.each do |l|
         if l == lang
           res << "<b>#{l}</b>"
         else
@@ -932,7 +927,7 @@ ENDTXT
   end
   
   def lang_ajax_link
-    if ZENA_ENV[:monolingual]
+    if visitor.site[:monolingual]
       "<div id='lang' class='empty'></div>"
     else
       res = "<div id='lang'><span>" + link_to_remote( lang, :update=>'lang', :url=>{:controller => 'trans', :action=>'lang_menu'})

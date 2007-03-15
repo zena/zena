@@ -2,6 +2,7 @@ require 'date'
 AUTHENTICATED_PREFIX = "oo"
 SITES_ROOT = "#{RAILS_ROOT}/sites"
 PASSWORD_SALT = "jf93jfnvnas09093nas0923" # type anything here (but change this line !)
+ZENA_CALENDAR_LANGS = ["en", "fr"] # FIXME: build this dynamically from existing files
 ZENA_ENV = {
   :site_name => 'zena',
   :root_id => 1,

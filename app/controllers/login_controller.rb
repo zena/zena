@@ -6,7 +6,6 @@ class LoginController < ApplicationController
       # empty session
     else
       # request with completed form
-      puts visitor.site.inspect
       logged_in_user = User.login(params[:user][:login], params[:user][:password], visitor.site)
       params[:user][:password] = ""
       if logged_in_user

@@ -166,13 +166,11 @@ module Zena
 
       # Set visitor for unit testing
       def login(name='anon')
-        if name
-          @visitor = User.find_by_login(name.to_s)
-          # set site
-          @visitor.site = Site.find(:first, :select=>"sites.*", :from=>"sites, users_sites",
-                                    :conditions=>["users_sites.site_id = sites.id AND users_sites.user_id = ?", @visitor[:id]])
-          @lang = @visitor.lang
-        end
+        @visitor = users(name)
+        # set site (find first matching site)
+        @visitor.site = Site.find(:first, :select=>"sites.*", :from=>"sites, users_sites",
+                                  :conditions=>["users_sites.site_id = sites.id AND users_sites.user_id = ?", @visitor[:id]])
+        @lang = @visitor.lang
       end
 
       def err(obj)
@@ -191,6 +189,7 @@ module Zena
         @response   = ActionController::TestResponse.new
         @controller.instance_eval { @params = {}; @url = ActionController::UrlRewriter.new( @request, {} )}
         @controller.instance_variable_set(:@response, @response)
+        @controller.instance_variable_set(:@request, @request)
         @controller.instance_variable_set(:@session, @request.session)
       end
 
