@@ -65,7 +65,7 @@ class Node < ActiveRecord::Base
   link :icon, :class_name=>'Image', :unique=>true
   link :hot_for, :as=>'hot',   :class_name=>'Project', :as_unique=>true
   link :home_for, :as=>'home', :class_name=>'Project', :as_unique=>true
-  
+  # FIXME: use mysql sequence: UPDATE sequence SET last_val=@val:=last_val+1 WHERE name='foo';select @val;
   class << self
     # valid parent class
     def parent_class
