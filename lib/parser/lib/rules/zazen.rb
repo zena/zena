@@ -109,7 +109,7 @@ module Zazen
     end
     
     def scan_wiki_link
-      if @text =~ /\A\?(\w[^\?]+?\w)\?([^\w:]|:([^\s]+))/m
+      if @text =~ /\A\?(\w[^\?]+?\w)\?([^\w:]|:([^\s<]+))/m
         eat $&
         title = $1
         url   = $3

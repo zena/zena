@@ -4,7 +4,8 @@ Zena is a CMS. (c) teti.ch 2007
 
 -------------------------------------------
 == Todo
-#TODO: move all input tags into their label : accessibility !
+#TODO: BUG: when move, update inherited rights from new parent.
+#TODO: move all input tags into <p> w3c xhtml !
 #TODO: try Zena without javascript
 #TODO: force 1 user = 1 contact :
   # either create new contact or use existing contact
