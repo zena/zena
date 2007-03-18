@@ -2,12 +2,12 @@ require 'fileutils'
 class DocumentContent < ActiveRecord::Base
   belongs_to            :version
   
-  before_validation     :prepare_content
+  before_validation     :content_before_validation
   validate              :valid_file
   validates_presence_of :ext
   validates_presence_of :name
   validates_presence_of :version
-  before_save           :before_save_content
+  before_save           :content_before_save
   before_destroy        :destroy_file
 
   # Creates an '<img.../>' tag for the file of the document using the extension to show an icon.
@@ -42,6 +42,12 @@ class DocumentContent < ActiveRecord::Base
     end
   end
   
+  # protect access to site_id : should not be changed by users
+  def site_id=(i)
+    raise Zena::AccessViolation, "Version '#{self.id}': tried to change 'site_id' to '#{i}'."
+  end
+  
+  # protect access to size.
   def size=(s)
     raise StandardError, "Size cannot be set. It is defined by the file size."
   end
@@ -113,13 +119,14 @@ class DocumentContent < ActiveRecord::Base
     return false
   end
 
-  def prepare_content
-    self[:name] = version.node[:name]
+  def content_before_validation
+    self[:name]    = version.node[:name]
+    self[:site_id] = version.node[:site_id]
   rescue
     self[:name] = nil
   end
   
-  def before_save_content
+  def content_before_save
     self[:type] = self.class.to_s # make sure the type is set in case no sub-classes are loaded.
     if @file
       # destroy old file

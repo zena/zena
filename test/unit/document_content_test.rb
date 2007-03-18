@@ -2,6 +2,20 @@ require File.dirname(__FILE__) + '/../test_helper'
 
 class DocumentContentTest < ZenaTestUnit
   
+  def test_site_id
+    without_files('/data/test/pdf/15') do
+      doc = DocumentContent.create( :version_id=>versions_id(:water_pdf_en), :ext=>'tic', :name=>'abc', :file => uploaded_pdf('forest.pdf') )
+      assert_equal sites_id(:zena), doc.site_id
+    end
+  end
+  
+  def test_cannot_set_site_id
+    login(:tiger)
+    node = secure(Node) { nodes(:water_pdf) }
+    assert_raise(Zena::AccessViolation) { node.c_site_id = sites_id(:ocean) }
+    assert_raise(Zena::AccessViolation) { document_contents(:water_pdf).site_id = sites_id(:ocean) }
+  end
+  
   def test_img_tag
     login(:tiger)
     doc = document_contents(:water_pdf)

@@ -8,12 +8,14 @@ class CreateForms < ActiveRecord::Migration
       t.column 'created_at', :datetime
       t.column 'updated_at', :datetime
       t.column 'form_id', :integer
+      t.column 'site_id', :integer
     end
     
     create_table('form_lines', :options => 'type=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci') do |t|
       t.column 'seizure_id', :integer
       t.column 'key', :string
       t.column 'value', :string, :limit=>255
+      t.column 'site_id', :integer
     end
   end
 

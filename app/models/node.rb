@@ -65,7 +65,7 @@ class Node < ActiveRecord::Base
   link :icon, :class_name=>'Image', :unique=>true
   link :hot_for, :as=>'hot',   :class_name=>'Project', :as_unique=>true
   link :home_for, :as=>'home', :class_name=>'Project', :as_unique=>true
-  # FIXME: use mysql sequence: UPDATE sequence SET last_val=@val:=last_val+1 WHERE name='foo';select @val;
+  
   class << self
     # valid parent class
     def parent_class
@@ -154,7 +154,6 @@ class Node < ActiveRecord::Base
 
   # Make sure the node is complete before creating it (check parent and project references)
   def node_on_create
-    self[:site_id] = visitor.site[:id]
     # make sure project is the same as the parent
     if self.kind_of?(Project)
       self[:project_id] = nil
@@ -419,6 +418,11 @@ class Node < ActiveRecord::Base
   def name=(str)
     return unless str && str != ""
     self[:name] = camelize(str)
+  end
+  
+  # protect access to site_id : should not be changed by users
+  def site_id=(i)
+    raise Zena::AccessViolation, "Version '#{self.id}': tried to change 'site_id' to '#{i}'."
   end
   
   # More reflection needed before implementation.

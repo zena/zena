@@ -14,6 +14,7 @@ ActiveRecord::Schema.define(:version => 0) do
     t.column "expire_after", :datetime
     t.column "created_at", :datetime
     t.column "node_id", :integer
+    t.column "site_id", :integer
   end
 
   create_table "cached_pages_nodes", :id => false, :force => true do |t|
@@ -28,6 +29,7 @@ ActiveRecord::Schema.define(:version => 0) do
     t.column "kpath", :string, :limit => 200
     t.column "context", :string, :limit => 200
     t.column "content", :text
+    t.column "site_id", :integer
   end
 
   create_table "comments", :force => true do |t|
@@ -40,6 +42,7 @@ ActiveRecord::Schema.define(:version => 0) do
     t.column "title", :string, :limit => 250, :default => "", :null => false
     t.column "text", :text, :default => "", :null => false
     t.column "author_name", :string, :limit => 300
+    t.column "site_id", :integer
   end
 
   create_table "contact_contents", :force => true do |t|
@@ -55,6 +58,7 @@ ActiveRecord::Schema.define(:version => 0) do
     t.column "mobile", :string, :limit => 60, :default => "", :null => false
     t.column "email", :string, :limit => 60, :default => "", :null => false
     t.column "birthday", :date
+    t.column "site_id", :integer
   end
 
   create_table "discussions", :force => true do |t|
@@ -64,6 +68,7 @@ ActiveRecord::Schema.define(:version => 0) do
     t.column "inside", :boolean, :default => false
     t.column "open", :boolean, :default => true
     t.column "lang", :string, :limit => 10, :default => "", :null => false
+    t.column "site_id", :integer
   end
 
   create_table "document_contents", :force => true do |t|
@@ -76,6 +81,7 @@ ActiveRecord::Schema.define(:version => 0) do
     t.column "format", :string, :limit => 20
     t.column "width", :integer
     t.column "height", :integer
+    t.column "site_id", :integer
   end
 
   create_table "form_lines", :force => true do |t|
@@ -135,6 +141,11 @@ ActiveRecord::Schema.define(:version => 0) do
     t.column "site_id", :integer
   end
 
+  create_table "sequence", :id => false, :force => true do |t|
+    t.column "name", :string, :limit => 10, :default => "", :null => false
+    t.column "last_val", :integer, :limit => 10, :default => 0, :null => false
+  end
+
   create_table "sites", :force => true do |t|
     t.column "host", :string
     t.column "root_id", :integer
@@ -160,6 +171,7 @@ ActiveRecord::Schema.define(:version => 0) do
 
   create_table "trans_phrases", :force => true do |t|
     t.column "phrase", :string, :limit => 100, :default => "", :null => false
+    t.column "site_id", :integer
   end
 
   create_table "trans_values", :force => true do |t|
@@ -197,6 +209,7 @@ ActiveRecord::Schema.define(:version => 0) do
     t.column "status", :integer, :default => 30
     t.column "number", :integer, :default => 1
     t.column "content_id", :integer
+    t.column "site_id", :integer
   end
 
 end

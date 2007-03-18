@@ -3,6 +3,7 @@
 zena_en:
   type:           Version
   id:             1
+  site_id:        1
   node_id:        1
   user_id:        4
   comment:        no comment yet
@@ -17,6 +18,7 @@ zena_en:
 people_en:
   type:           Version
   id:             2
+  site_id:        1
   node_id:        2
   user_id:        4
   comment:        no comment yet
@@ -31,6 +33,7 @@ people_en:
 ant_en:
   type:           ContactVersion
   id:             3
+  site_id:        1
   node_id:        3
   user_id:        3
   comment:        no comment yet
@@ -45,6 +48,7 @@ ant_en:
 myLife_en:
   type:           Version
   id:             6
+  site_id:        1
   node_id:        6
   user_id:        3
   comment:        no comment yet
@@ -59,6 +63,7 @@ myLife_en:
 tiger_en:
   type:           ContactVersion
   id:             4
+  site_id:        1
   node_id:        4
   user_id:        4
   comment:        no comment yet
@@ -73,6 +78,7 @@ tiger_en:
 lion_en:
   type:           ContactVersion
   id:             5
+  site_id:        1
   node_id:        5
   user_id:        5
   comment:        no comment yet
@@ -87,6 +93,7 @@ lion_en:
 myDreams_en:
   type:           Version
   id:             7
+  site_id:        1
   node_id:        7
   user_id:        5
   comment:        no comment yet
@@ -101,6 +108,7 @@ myDreams_en:
 projects_en:
   type:           Version
   id:             8
+  site_id:        1
   node_id:        8
   user_id:        4
   comment:        no comment yet
@@ -115,6 +123,7 @@ projects_en:
 secret_en:
   type:           Version
   id:             9
+  site_id:        1
   node_id:        9
   user_id:        4
   comment:        no comment yet
@@ -129,6 +138,7 @@ secret_en:
 proposition_en:
   type:           Version
   id:             10
+  site_id:        1
   node_id:        10
   user_id:        4
   comment:        no comment yet
@@ -143,6 +153,7 @@ proposition_en:
 cleanWater_en:
   type:           Version
   id:             11
+  site_id:        1
   node_id:        11
   user_id:        4
   comment:        no comment yet
@@ -157,6 +168,7 @@ cleanWater_en:
 status_en:
   type:           Version
   id:             12
+  site_id:        1
   node_id:        12
   user_id:        3
   comment:        status comment
@@ -171,6 +183,7 @@ status_en:
 lake_en:
   type:           ContactVersion
   id:             13
+  site_id:        1
   node_id:        13
   user_id:        3
   comment:        no comment yet
@@ -185,6 +198,7 @@ lake_en:
 lake_jpg_en:
   type:           ImageVersion
   id:             14
+  site_id:        1
   node_id:        14
   user_id:        3
   comment:        no comment yet
@@ -199,6 +213,7 @@ lake_jpg_en:
 water_pdf_en:
   type:           DocumentVersion
   id:             15
+  site_id:        1
   node_id:        15
   user_id:        4
   comment:        no comment yet
@@ -213,6 +228,7 @@ water_pdf_en:
 crocodiles_en:
   type:           Version
   id:             16
+  site_id:        1
   node_id:        16
   user_id:        3
   created_at:     2006-03-10
@@ -225,6 +241,7 @@ crocodiles_en:
 opening_fr:
   type:           Version
   id:             17
+  site_id:        1
   node_id:        17
   user_id:        3
   comment:        french opening
@@ -239,6 +256,7 @@ opening_fr:
 bananas_en:
   type:           Version
   id:             18
+  site_id:        1
   node_id:        18
   user_id:        5
   comment:        no comment yet
@@ -253,6 +271,7 @@ bananas_en:
 wiki_en:
   type:           Version
   id:             19
+  site_id:        1
   node_id:        19
   user_id:        5
   comment:        no comment yet
@@ -267,6 +286,7 @@ wiki_en:
 bird_jpg_en:
   type:           ImageVersion
   id:             20
+  site_id:        1
   node_id:        20
   user_id:        1
   comment:        a pretty little bird
@@ -281,6 +301,7 @@ bird_jpg_en:
 flower_jpg_en:
   type:           ImageVersion
   id:             21
+  site_id:        1
   node_id:        21
   user_id:        1
   comment:        "Photo taken from \"wikimedia\":http://commons.wikimedia.org/wiki/Image:Flor_GDFL_660eue.jpg."
@@ -294,6 +315,7 @@ flower_jpg_en:
 collections_en:
   type:           Version
   id:             22
+  site_id:        1
   node_id:        22
   user_id:        4
   comment:        no comment yet
@@ -307,6 +329,7 @@ collections_en:
 art_en:
   type:           Version
   id:             23
+  site_id:        1
   node_id:        23
   user_id:        4
   comment:        no comment yet
@@ -320,6 +343,7 @@ art_en:
 news_en:
   type:           Version
   id:             24
+  site_id:        1
   node_id:        24
   user_id:        4
   comment:        no comment yet
@@ -333,6 +357,7 @@ news_en:
 menu_en:
   type:           Version
   id:             25
+  site_id:        1
   node_id:        25
   user_id:        4
   comment:        no comment yet
@@ -346,6 +371,7 @@ menu_en:
 strange_en:
   type:           Version
   id:             26
+  site_id:        1
   node_id:        26
   user_id:        5
   comment:        no comment yet
@@ -359,6 +385,7 @@ strange_en:
 lake_red_en:
   type:           ContactVersion
   id:             27
+  site_id:        1
   node_id:        13
   user_id:        3
   comment:        this is a new redaction for lake
@@ -375,6 +402,7 @@ lake_red_en:
 opening_en:
   type:           Version
   id:             28
+  site_id:        1
   node_id:        17
   user_id:        4
   comment:        english opening
@@ -388,6 +416,7 @@ opening_en:
 opening_red_fr:
   type:           Version
   id:             29
+  site_id:        1
   node_id:        17
   user_id:        4
   comment:        new redaction for opening
@@ -404,6 +433,7 @@ opening_red_fr:
 status_fr:
   type:           Version
   id:             30
+  site_id:        1
   node_id:        12
   user_id:        3
   comment:        status comment
@@ -417,6 +447,7 @@ status_fr:
 track_en:
   type:           Version
   id:             31
+  site_id:        1
   node_id:        27
   user_id:        4
   comment:        small presentation
@@ -430,6 +461,7 @@ track_en:
 strange_en_red:
   type:           Version
   id:             32
+  site_id:        1
   node_id:        26
   user_id:        5
   comment:        strange configuration. Proposed
@@ -446,6 +478,7 @@ strange_en_red:
 talk_en:
   type:           Version
   id:             33
+  site_id:        1
   node_id:        28
   user_id:        4
   comment:        Please read all this.
@@ -459,6 +492,7 @@ talk_en:
 nature_red_en:
   type:           Version
   id:             34
+  site_id:        1
   node_id:        29
   user_id:        3
   comment:        Beauty of nature
@@ -475,6 +509,7 @@ nature_red_en:
 tree_red_en:
   type:           ImageVersion
   id:             35
+  site_id:        1
   node_id:        30
   user_id:        3
   comment:        a tree
@@ -491,6 +526,7 @@ tree_red_en:
 forest_red_en:
   type:           DocumentVersion
   id:             36
+  site_id:        1
   node_id:        31
   user_id:        3
   comment:        a forest
@@ -507,6 +543,7 @@ forest_red_en:
 letter_en:
   type:           Version
   id:             37
+  site_id:        1
   node_id:        32
   user_id:        4
   comment:        letter for testing
@@ -520,6 +557,7 @@ letter_en:
 wiki_template_en:
   type:           TextDocumentVersion
   id:             38
+  site_id:        1
   node_id:        33
   user_id:        4
   comment:        very simple skin for wiki
@@ -554,6 +592,7 @@ wiki_template_en:
 layout_template_en:
   type:           TextDocumentVersion
   id:             39
+  site_id:        1
   node_id:        34
   user_id:        4
   comment:        layout for wiki
@@ -620,6 +659,7 @@ layout_template_en:
 ocean_en:
   type:           Version
   id:             40
+  site_id:        2
   node_id:        35
   user_id:        8
   comment:        new site

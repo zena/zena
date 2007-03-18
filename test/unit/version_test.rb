@@ -17,10 +17,22 @@ class VersionTest < ZenaTestUnit
     assert_raise(Zena::AccessViolation) { node.v_node_id = nodes_id(:lake) }
   end
   
+  def test_cannot_set_site_id
+    login(:tiger)
+    node = secure(Node) { nodes(:status) }
+    assert_raise(Zena::AccessViolation) { node.v_site_id = sites_id(:ocean) }
+  end
+  
   def test_cannot_set_node_id_by_attribute
     login(:tiger)
     node = secure(Node) { nodes(:status) }
     assert_raise(Zena::AccessViolation) { node.update_attributes(:v_node_id=>nodes_id(:lake)) }
+  end
+  
+  def test_cannot_set_site_id_by_attribute
+    login(:tiger)
+    node = secure(Node) { nodes(:status) }
+    assert_raise(Zena::AccessViolation) { node.update_attributes(:v_site_id=>sites_id(:ocean)) }
   end
   
   def test_cannot_set_node_id_on_create
@@ -41,6 +53,13 @@ class VersionTest < ZenaTestUnit
   
   def test_cannot_set_content_id_on_create
     assert_raise(Zena::AccessViolation) { Node.create(:v_content_id=>nodes_id(:lake)) }
+  end
+  
+  def test_new_site_id_set
+    login(:ant)
+    node = secure(Node) { Node.create(:v_title=>'super', :parent_id=>nodes_id(:wiki)) }
+    assert !node.new_record?, "Not a new record"
+    assert_equal sites_id(:zena), node.version.site_id
   end
   
   def test_version_number_edit_by_attribute

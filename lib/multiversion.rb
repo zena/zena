@@ -389,6 +389,7 @@ module Zena
           @redaction_errors << [field, message]
         end
         
+        # Make sure the redaction is valid before we save anything.
         def valid_redaction
           if @version && !@version.valid?
             merge_version_errors

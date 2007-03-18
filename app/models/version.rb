@@ -32,12 +32,12 @@ a new redaction), the system will not allow us to save the modified content as i
 class Version < ActiveRecord::Base
   belongs_to            :node
   belongs_to            :user, :foreign_key=>'user_id'
+  before_validation     :version_before_validation
   validates_presence_of :node
   validates_presence_of :user
-  validate              :valid_content
+  validate              :valid_version
   validate_on_update    :can_update_content
   after_save            :save_content
-  before_create         :set_number
   
   # not tested belongs_to :comment_group, :class_name=>'Group', :foreign_key=>'cgroup_id'
   # not tested has_many :comments, :order=>'created_at'
@@ -55,9 +55,14 @@ class Version < ActiveRecord::Base
     end
   end
   
-  # protect access to node_id and content_id : should not be changed by users
+  # protect access to node_id : should not be changed by users
   def node_id=(i)
     raise Zena::AccessViolation, "Version '#{self.id}': tried to change 'node_id' to '#{i}'."
+  end
+  
+  # protect access to site_id : should not be changed by users
+  def site_id=(i)
+    raise Zena::AccessViolation, "Version '#{self.id}': tried to change 'site_id' to '#{i}'."
   end
   
   # protect access to content_id
@@ -123,8 +128,9 @@ class Version < ActiveRecord::Base
     end
   end
   
-  # Set version number
-  def set_number
+  # Set version number and site_id before validation tests.
+  def version_before_validation
+    self[:site_id] = node[:site_id]
     last = Version.find(:first, :conditions=>['node_id = ?', node[:id]], :order=>'number DESC')
     self[:type] = self.class.to_s
     if last
@@ -134,7 +140,10 @@ class Version < ActiveRecord::Base
     end
   end
   
-  def valid_content
+  # Make sure the version and it's related content are in a correct state.
+  def valid_version
+    errors.add("site_id", "can't be blank") unless self[:site_id] and self[:site_id] != ""
+    # validate content
     if @content && !@content.valid?
       @content.errors.each do |key,message|
         if key.to_s == 'base'

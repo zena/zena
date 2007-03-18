@@ -277,6 +277,7 @@ Just doing the above will filter all result according to the logged in user.
             errors.add('base', "record not secured")
             return false
           end
+          self[:site_id] = @visitor.site[:id]
           if new_record?
             set_on_create
             secure_on_create

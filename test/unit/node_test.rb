@@ -764,4 +764,10 @@ class NodeTest < ZenaTestUnit
     assert !node.new_record?, "Not a new record"
     assert_equal sites_id(:ocean), node[:site_id]
   end
+  
+  def test_cannot_set_site_id
+    login(:tiger)
+    node = secure(Node) { nodes(:status) }
+    assert_raise(Zena::AccessViolation) { node.site_id = sites_id(:ocean) }
+  end
 end
