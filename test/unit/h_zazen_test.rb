@@ -1,7 +1,6 @@
 require File.dirname(__FILE__) + '/../test_helper'
 
-class ApplicationHelperTest < Test::Unit::TestCase
-  include ZenaTestHelper
+class ApplicationHelperTest < ZenaTestHelper
   include ApplicationHelper
 
   def setup

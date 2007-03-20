@@ -917,9 +917,12 @@ class SecureUpdateTest < ZenaTestUnit
   def test_cannot_view_own_stuff_in_other_host
     # make 'whale' a cross site user
     User.connection.execute "INSERT INTO sites_users (user_id, site_id) VALUES (#{users_id(:whale)}, #{sites_id(:zena)})"
+    User.connection.execute "INSERT INTO groups_users (user_id, group_id) VALUES (#{users_id(:whale)}, #{groups_id(:site)})"
+    User.connection.execute "INSERT INTO groups_users (user_id, group_id) VALUES (#{users_id(:whale)}, #{groups_id(:public)})"
     login(:whale)
+    visitor.site = sites(:ocean)
     node = nil
-    assert_nothing_raised { node = secure(Node) { nodes(:ocean) }}
+    assert_nothing_raised{ node = secure(Node) { nodes(:ocean) }}
     assert_kind_of Node, node
     visitor.site = sites(:zena)
     # whale is now visiting 'zena'

@@ -1,19 +1,20 @@
 =begin rdoc
-There are two special users :
+There are two special users in each site :
 [anon] Anonymous user. Used to set defaults for newly created users.
 [su] This user has full access to all the content in zena. He/she can read/write/destroy
       about anything. Even private content can be read/edited/removed by su. <em>This user should
       only be used for emergency purpose</em>. This is why an ugly warning is shown on all pages when
       logged in as su.
-If you want to give administrative rights to a user, simply put him into the _admin_ group.
+      
+If you want to give administrative rights to a user, simply put him/her into the _admin_ group.
 
 Users have access rights defined by the groups they belong to. They also have a 'status' indicating the kind of
 things they can/cannot do :
-[:user]        (60): can read/write/publish
-[:commentator] (40): can write comments
-[:moderated]   (30): can write moderated comments
-[:reader]      (20): can only read
-[:deleted]     ( 0): cannot login
++:user+::        (60): can read/write/publish
++:commentator+:: (40): can write comments
++:moderated+::   (30): can write moderated comments
++:reader+::      (20): can only read
++:deleted+::     ( 0): cannot login
 
 TODO: when a user is 'destroyed', pass everything he owns to another user or just mark the user as 'deleted'...
 =end
@@ -30,7 +31,7 @@ class User < ActiveRecord::Base
   validate                :valid_user
   validate                :verify_groups
   validate                :verify_sites
-  before_destroy          :dont_destroy_su_or_anon
+  before_destroy          :dont_destroy_protected_users
   
   Status = {
     :user        => 60,
@@ -40,7 +41,7 @@ class User < ActiveRecord::Base
     :deleted     => 0,
   }
   class << self
-    # Returns the logged in user or nil if login and password do not match
+    # Returns the logged in user or nil if login and password do not match or if the user has no login access to the current site.
     def login(login, password, site)
       if !login || !password || login == "" || password == ""
         nil
@@ -59,9 +60,28 @@ class User < ActiveRecord::Base
       Digest::SHA1.hexdigest(string + PASSWORD_SALT)
     end
     
-    # TODO: make sure new user defaults are set to anonymous user
+    # Creates a new user without setting the defaults (used to create the first users of the site). Use
+    # new instead.
+    alias new_no_defaults new
+    
+    # Creates a new user with the defaults set from the anonymous user.
+    def new(*args)
+      return nil unless scope = scoped_methods[0]
+      return nil unless scope[:create]
+      visitor = scoped_methods[0][:create][:visitor] # use secure scope to get visitor
+      anon = visitor.site.anon
+      returning(user = super) do
+        # Set new user defaults based on the anonymous user.
+        [:lang, :time_zone, :status].each do |sym|
+          user[sym] = anon[sym]
+        end
+      end
+    end
   end
   
+  # Each time a node is found using secure (Zena::Acts::Secure or Zena::Acts::SecureNode), this method is
+  # called to set the visitor in the found object. This is also used to keep track of the opened nodes
+  # when rendering a page for the cache so we can know when to expire the cache.
   def visit(obj, opts={})
     obj.visitor = self
     # keep track of the nodes connected to this visit to build the 'expire_with' list
@@ -72,7 +92,6 @@ class User < ActiveRecord::Base
     @visited_node_ids ||= []
   end
   
-  # Full contact name to show in views.
   def fullname
     first_name + " " + name
   end
@@ -84,7 +103,9 @@ class User < ActiveRecord::Base
   def email
     self[:email] || ""
   end
-
+  
+  # Store the password, using SHA1. You should change the default value of PASSWORD_SALT (in RAILS_ROOT/config/zena.rb). This makes it harder to use 
+  # rainbow tables to find clear passwords from hashed values.
   def password=(string)
     if string.nil? || string == ''
       self[:password] = nil
@@ -95,14 +116,14 @@ class User < ActiveRecord::Base
     end
   end
   
+  # Never display the password (even the hash) outside.
   def password
     ""
   end
   
-  # TODO: test (replace by admin?) 
-  # FIXME: site_id
+  # Return true if the user is in the admin group or if the user is the super user.
   def is_admin?
-    @is_admin ||= visitor_site.is_admin?(self)
+    @is_admin ||= is_su? || visitor_site.is_admin?(self)
   end
   
   # Return true if the user is the anonymous user for the current visited site
@@ -118,7 +139,6 @@ class User < ActiveRecord::Base
   end
   
   # Return true if the user's status is high enough to start editing nodes.
-  # TODO: test
   def user?
     status >= User::Status[:user]
   end
@@ -189,8 +209,6 @@ class User < ActiveRecord::Base
     @tz ||= TimeZone.new(self[:time_zone] || '') || TimeZone.new("Bern")
   end
   
-  ### ================================================ ACTIONS AND OWNED ITEMS
-  
   def comments_to_publish
     if id == 2
       # su can view all
@@ -231,7 +249,6 @@ class User < ActiveRecord::Base
     end
   end
   
-  ### ================================================ PRIVATE
   private
   
   # Set user defaults.
@@ -337,17 +354,17 @@ class User < ActiveRecord::Base
     g_ids.compact!
     self.groups = []
     g_ids.each do |id|
-      group = Group.find(id) #secure(Group) { Group.find(id) }
+      group = Group.find(id)
       unless s_ids.include?(group[:site_id])
-        errors.add('group', 'invalid value') 
+        errors.add('group', 'not found') 
         next
       end
       self.groups << group
     end
   end
   
-  # Do not allow destruction of _su_ or _anon_ users. This method is called +before_destroy+.
-  def dont_destroy_su_or_anon #:doc:
+  # Do not allow destruction of the site's special users.
+  def dont_destroy_protected_users #:doc:
     raise Zena::AccessViolation, "su and Anonymous users cannot be destroyed !" if visitor_site.protected_user_ids.include?(id)
   end
   

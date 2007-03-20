@@ -28,14 +28,19 @@ class UserTest < ZenaTestUnit
   
   def test_create
     login(:whale)
+    User.connection.execute "UPDATE users SET lang='ru', time_zone='Hawaii'"
     user = secure(User) { User.create("login"=>"john", "password"=>"isjjna78a9h") }
-    err user
     assert !user.new_record?, "Not a new record"
     user = secure(User) { User.find(user[:id]) } # reload
     assert user.sites.include?(sites(:ocean))
     assert_equal 2, user.groups.size
     assert user.groups.include?(groups(:pub_ocean)), "Is in the public group"
     assert user.groups.include?(groups(:aqua)), "Is in the 'site' group"
+    assert_equal User::Status[:moderated], user.status
+    assert_equal 'ru', user.lang
+    assert_equal 'Hawaii', user[:time_zone]
+    assert !user.user?, "Not a real user yet"
+    assert visitor.user?, "Whale is a user"
   end
   
   def test_create_admin_with_groups

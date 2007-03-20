@@ -47,9 +47,9 @@ class GroupTest < ZenaTestUnit
     sitegrp = groups(:site)
     users = sitegrp.users
     assert_equal 3, users.size
-    assert_nil users[0].password
-    assert_nil users[1].password
-    assert_nil users[2].password
+    assert_nil users[0][:password]
+    assert_nil users[1][:password]
+    assert_nil users[2][:password]
   end
   
   def test_dont_destroy_public_or_admin
@@ -76,9 +76,57 @@ class GroupTest < ZenaTestUnit
     assert_raise(Zena::AccessViolation) { grp.site_id = sites_id(:ocean) }
   end
   
-  # TODO: test secure (group can be created in this site...)
-  def test_valid_group
-    self[:site_id] = visitor.site[:id]
+  def test_add_to_site
+    login(:tiger)
+    group = secure(Group) { Group.new(:name=>'bidule') }
+    assert !group.save
+    group = secure(Group) { groups(:site) }
+    assert !group.update_attributes(:name=>'stressedWorkers')
+    
+    login(:lion)
+    group = secure(Group) { Group.new(:name=>'bidule') }
+    assert group.save
+    assert_equal sites_id(:zena), group.site_id
+    group = secure(Group) { groups(:site) }
+    assert group.update_attributes(:name=>'stressedWorkers')
   end
   
+  def test_add_user
+    login(:lion)
+    group = secure(Group) { Group.new(:name=>'bidule') }
+    assert group.save
+    group = secure(Group) { Group.find(group[:id]) }
+    assert group.update_attributes(:name=>'stressedWorkers', :user_ids=>[users_id(:ant)])
+    assert group.users.include?(users(:ant))
+    group = secure(Group) { Group.find(group[:id]) }
+    # in site
+    assert group.update_attributes(:name=>'stressedWorkers', :user_ids=>[users_id(:tiger)])
+    assert !group.users.include?(users(:ant))
+    assert group.users.include?(users(:tiger))
+    # not in site
+    assert !group.update_attributes(:name=>'stressedWorkers', :user_ids=>[users_id(:whale)])
+  end
+  
+  def test_cannot_remove_self_from_admin
+    login(:lion)
+    group = secure(Group) { groups(:admin) }
+    assert group.update_attributes(:user_ids=>[])
+    assert groups(:admin).users.include?(visitor)
+  end
+  
+  def test_can_add_to_admin
+    login(:lion)
+    group = secure(Group) { groups(:admin) }
+    assert group.update_attributes(:user_ids=>[users_id(:ant)])
+    assert groups(:admin).users.include?(visitor)
+    assert groups(:admin).users.include?(users(:ant))
+  end
+  
+  def test_cannot_update_site_or_public
+    login(:lion)
+    group = secure(Group) { groups(:public) }
+    assert !group.update_attributes(:user_ids=>[])
+    group = secure(Group) { groups(:site) }
+    assert !group.update_attributes(:user_ids=>[])
+  end
 end

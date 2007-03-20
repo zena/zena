@@ -4,13 +4,17 @@ class CachedPage
   def randomize_visited_nodes!
     @expire_with = (200 * rand).to_i.times { ids << (500000 * rand).to_i}
   end
-class CachedPageTest < Test::Unit::TestCase
+end
+class CachedPageTest < ZenaTestUnit
   
   def self.use_transactional_fixtures
     false
   end
-
-#=begin
+  
+  def test_dummy
+    assert true
+  end
+=begin
   # these speed tests take a lot of time, they are disabled when running other tests
   
   # run this once before testing (can take up to several minutes)
@@ -53,5 +57,5 @@ class CachedPageTest < Test::Unit::TestCase
     end
     printf "%s: %0.2fs\n", message, (Time.now-start).to_f
   end
-#=end
+=end
 end

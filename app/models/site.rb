@@ -45,7 +45,7 @@ class Site < ActiveRecord::Base
       
       # =========== CREATE Super User ===========================
       # create su user
-      su = User.new( :login => host, :password => su_password,
+      su = User.new_no_defaults( :login => host, :password => su_password,
         :first_name => "Super", :name => "User", :lang=>'en')
       su.site    = site
       su.visit(su)
@@ -74,14 +74,14 @@ class Site < ActiveRecord::Base
       
       # =========== CREATE Anonymous, admin =====================
       # create anon user
-      anon = site.send(:secure,User) { User.create( :login => nil, :password => nil,
+      anon = site.send(:secure,User) { User.new_no_defaults( :login => nil, :password => nil,
         :first_name => "Anonymous", :name => "User", :lang=>'en', :status=>User::Status[:moderated]) }
-      raise Exception.new("Could not create anonymous user for site [#{host}] (site#{site[:id]})\n#{anon.errors.map{|k,v| "[#{k}] #{v}"}.join("\n")}") if anon.new_record?
+      raise Exception.new("Could not create anonymous user for site [#{host}] (site#{site[:id]})\n#{anon.errors.map{|k,v| "[#{k}] #{v}"}.join("\n")}") unless anon.save
       
       # create admin user
-      admin_user = site.send(:secure,User) {User.create( :login => 'admin', :password => su_password,
+      admin_user = site.send(:secure,User) {User.new_no_defaults( :login => 'admin', :password => su_password,
         :first_name => "Admin", :name => "User", :lang=>'en') }
-      raise Exception.new("Could not create admin user for site [#{host}] (site#{site[:id]})\n#{admin_user.errors.map{|k,v| "[#{k}] #{v}"}.join("\n")}") if admin_user.new_record?
+      raise Exception.new("Could not create admin user for site [#{host}] (site#{site[:id]})\n#{admin_user.errors.map{|k,v| "[#{k}] #{v}"}.join("\n")}") unless admin_user.save
       
       site.anon_id         = anon[:id]
       
