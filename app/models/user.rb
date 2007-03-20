@@ -16,21 +16,20 @@ things they can/cannot do :
 [:deleted]     ( 0): cannot login
 
 TODO: when a user is 'destroyed', pass everything he owns to another user or just mark the user as 'deleted'...
-TODO: when creating a user, define in which sites he belongs
 =end
 class User < ActiveRecord::Base
-  attr_accessible         :login, :password, :lang, :contact_id, :first_name, :name, :email, :time_zone, :status
+  attr_accessible         :login, :password, :lang, :contact_id, :first_name, :name, :email, :time_zone, :status, :group_ids, :site_ids
   attr_accessor           :visited_node_ids
   attr_accessor           :site
   has_and_belongs_to_many :groups
   has_many                :nodes
   has_many                :versions
   has_and_belongs_to_many :sites
-  # TODO: test link between user and contact
   belongs_to              :contact
   before_validation       :user_before_validation
   validate                :valid_user
-  before_create           :add_default_groups
+  validate                :verify_groups
+  validate                :verify_sites
   before_destroy          :dont_destroy_su_or_anon
   
   Status = {
@@ -160,6 +159,21 @@ class User < ActiveRecord::Base
     @group_ids = res
   end
   
+  # Define the groups the user belongs to.
+  def group_ids=(list)
+    # We have to do our own method to avoid rails loading groups which will not be secured.
+    @defined_group_ids = list
+  end
+  
+  def site_ids
+    @site_ids ||= sites.map {|r| r[:id]}
+  end
+  
+  # Change the sites a user has access to.
+  def site_ids=(list)
+    @defined_site_ids = list
+  end
+  
   #TODO: test
   # return only the ids of the groups really set (not all groups for admin or the like)
   def group_set_ids
@@ -228,22 +242,22 @@ class User < ActiveRecord::Base
     @site || visitor.site
   end
   
-  # TODO: test
-  # FIXME: with site_id
+  # Validates that anon user does not have a login, that other users have a password
+  # and that the login is unique for the sites the user belongs to.
   def valid_user
+    return false unless visitor.is_admin?
     if is_anon?
       # Anonymous user *must* have an empty login
       self[:login] = nil
       self[:password] = nil
     else
       if new_record?
-        # FIXME: how to handle unique 'login' through many sites ?
         # Refuse to add a user in a site if already a user with same login.
         # validate uniqueness of 'login'
         if visitor_site.users.find_by_login(self[:login])
           errors.add(:login, 'has already been taken')
         end
-        Node.logger.info "===============>>>>>>>>>>>>>>>>>============="
+        errors.add(:password, "can't be blank") if self[:password].nil? || self[:password] == ""
       else
         # get old password
         old = User.find(self[:id])
@@ -256,21 +270,67 @@ class User < ActiveRecord::Base
         end
         errors.add(:login, 'too short') unless self[:login] == old[:login] || (self[:login] && self[:login].length > 3)
       end
-      if @password_too_short
-        errors.add(:password, 'too short')
-        remove_instance_variable :@password_too_short
-      end
+    end
+    if @password_too_short
+      errors.add(:password, 'too short')
+      remove_instance_variable :@password_too_short
     end
   end
   
-  # Make sure all users are in the _public_ and _site_ groups. This method is called +before_create+.
-  def add_default_groups #:doc:
-    sites << visitor_site
+  # Make sure admin does not change it's site ids (adding or removing an admin
+  # is done with rake). Make sure admin visitor is allowed to set the site ids 
+  # for the user (he must be admin in all the sites)
+  def verify_sites #:doc:
+    if new_record?
+      if @defined_site_ids
+        @defined_site_ids << visitor_site[:id]
+        @defined_site_ids.uniq!
+      else
+        sites << visitor_site
+      end
+    end
     
-    return if is_su?
-    g_ids = groups.map{|g| g[:id]}
-    groups << visitor_site.public_group unless g_ids.include?(visitor_site.public_group_id)
-    groups << visitor_site.site_group unless g_ids.include?(visitor_site.site_group_id) || is_anon?
+    if @defined_site_ids
+      if self.is_admin?
+        errors.add('sites', 'you cannot change this')
+        return false
+      end
+      
+      added_site_ids = @defined_site_ids.reject do |id|
+        site_ids.include?(id)
+      end
+      
+      removed_site_ids = site_ids.reject do |id|
+        @defined_site_ids.include?(id)
+      end
+      
+      # make sure visitor is an admin in all the modified site ids:
+      (removed_site_ids + added_site_ids).each do |id|
+        site = Site.find(id)
+        unless site.admin_group.users.include?(visitor)
+          raise Zena::AccessViolation.new("visitor (#{visitor[:id]}) tried to add user (#{self[:id].inspect}) to site (#{site[:host]}) where he/she is not an admin")
+        end
+      end
+      self.sites = Site.find(@defined_site_ids)
+    end
+  rescue ActiveRecord::RecordNotFound
+    errors.add('sites', 'invalid site')
+    false
+  end
+  
+  
+  # Make sure all users are in the _public_ and _site_ groups. Make sure
+  # the user only belongs to groups from sites he/she is in.
+  def verify_groups #:doc:
+    s_ids = sites.map {|s| s[:id]}
+    group_ids << visitor_site.public_group_id
+    group_ids << visitor_site.site_group_id unless is_anon?
+    group_ids.uniq!
+    group_ids.each do |id|
+      group = secure(Group) { Group.find(id) }
+      next unless s_ids.include?(group[:site_id])
+      groups << group
+    end
   end
   
   # Do not allow destruction of _su_ or _anon_ users. This method is called +before_destroy+.

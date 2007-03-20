@@ -11,6 +11,7 @@ class Group < ActiveRecord::Base
   validate                :valid_group
   validates_uniqueness_of :name, :scope => :site_id # TODO: test
   before_destroy          :dont_destroy_public_or_admin
+  belongs_to              :site
   
   def public_group?
     self[:id] == visitor.site[:public_group_id]

@@ -5,47 +5,57 @@ class UserTest < ZenaTestUnit
   
   def test_cannot_destroy_su
     su = users(:su)
-    assert_kind_of User, su
+    assert_raise(Zena::RecordNotSecured){ su.destroy }
+    login(:su)
+    su = secure(User) { users(:su) }
     assert_raise(Zena::AccessViolation){ su.destroy }
   end
   
   def test_cannot_destroy_anon
     anon = users(:anon)
-    assert_kind_of User, anon
+    assert_raise(Zena::RecordNotSecured){ anon.destroy }
+    login(:su)
+    anon = secure(User) { users(:anon) }
     assert_raise(Zena::AccessViolation){ anon.destroy }
   end
   
   def test_can_destroy_ant
-    ant = users(:ant)
-    assert_kind_of User, ant
+    assert_raise(Zena::RecordNotSecured){ users(:ant).destroy }
+    login(:lion)
+    ant = secure(User) { users(:ant) }
     assert_nothing_raised( Zena::AccessViolation ) { ant.destroy }
   end
   
+  def test_create
+    login(:whale)
+    user = secure(User) { User.create("login"=>"john", "password"=>"isjjna78a9h") }
+    assert !user.new_record?, "Not a new record"
+    user = secure(User) { User.find(user[:id]) } # reload
+    assert user.sites.include?(sites(:ocean))
+    assert_equal 2, user.groups.size
+    assert user.groups.include?(groups(:pub_ocean)), "Is in the public group"
+    assert user.groups.include?(groups(:aqua)), "Is in the 'site' group"
+  end
+  
   def test_create_admin_with_groups
-    user = User.new("login"=>"john", "password"=>"isjjna78a9h", "group_ids"=>["1", "2"])
+    login(:lion)
+    user = secure(User) { User.new("login"=>"john", "password"=>"isjjna78a9h", "group_ids"=>[groups_id(:admin)]) }
     assert user.save
+    user = secure(User) { User.find(user[:id])}
     assert_equal 3, user.groups.size
   end
   
-  def test_create_without_groups
-    user = User.create("login"=>"john", "password"=>"isjjna78a9h")
-    assert_kind_of User, user
-    assert !user.new_record?, "Not a new record"
-    assert_equal 2, user.groups.size
-    assert_equal 'public', user.groups[0].name
-  end
-  
   def test_update_keep_password
-    user = users(:tiger)
-    pass = user.password
+    login(:tiger)
+    pass = visitor.password
     assert pass != "", "Password not empty"
-    assert user.update_attributes(:login=>'bigme', :password=>'')
-    assert_equal 'bigme', user.login
-    assert_equal pass, user.password
+    assert visitor.update_attributes(:login=>'bigme', :password=>'')
+    assert_equal 'bigme', visitor.login
+    assert_equal pass, visitor.password
   end
   
   def test_anon_cannot_login
-    assert_nil User.login('anon', '')
+    assert_nil User.login('anon', '', sites(:zena))
   end
   
   def test_unique_login
@@ -61,7 +71,8 @@ class UserTest < ZenaTestUnit
   end
   
   def test_empty_password
-    bob = User.new
+    login(:lion)
+    bob = secure(User) { User.new }
     bob.login = 'bob'
     bob.save
     assert ! bob.save
@@ -69,13 +80,14 @@ class UserTest < ZenaTestUnit
   end
   
   def test_update_public
-    pub = User.find(1)
+    login(:lion)
+    pub = secure(User) { users(:anon) }
     assert_equal 'en', pub.lang
     assert_nil pub.login
     assert_nil pub.password
     
     pub.login = "hello"
-    pub.password = 'hey'
+    pub.password = 'heyjoe'
     pub.lang = 'es'
     assert pub.save
     assert_equal 'es', pub.lang
@@ -84,18 +96,18 @@ class UserTest < ZenaTestUnit
   end
   
   def test_comments_to_publish
+    login(:tiger)
     # status pgroup = managers
     node = nodes(:status)
     assert_equal groups_id(:managers), node.pgroup_id
     # tiger in managers
-    tiger = users(:tiger)
-    to_publish = tiger.comments_to_publish
+    to_publish = visitor.comments_to_publish
     assert_equal 1, to_publish.size
     assert_equal 'Nice site', to_publish[0][:title]
     
     # ant not in managers
-    ant = users(:ant)
-    to_publish = ant.comments_to_publish
+    login(:ant)
+    to_publish = visitor.comments_to_publish
     assert_equal 0, to_publish.size
   end
   
@@ -113,30 +125,23 @@ class UserTest < ZenaTestUnit
     assert_equal [groups_id(:admin), groups_id(:managers), groups_id(:public), groups_id(:site)], user.group_ids
   end
   
-  
-  # TODO: finish tests for User
-  # groups
-end
-=begin
-  def test_versions_to_publish
-    gaspard = contacts(:gaspard)
-    kai = contacts(:kai)
-    assert_equal 1, kai.versions_to_publish.size
-    assert_equal 2, gaspard.versions_to_publish.size
-  end
-  def test_redactions
-    gaspard = contacts(:gaspard)
-    assert_equal 2, gaspard.redactions.size
-    kai = contacts(:kai)
-    assert_equal 0, kai.redactions.size
-  end
-  def test_proposed_versions
-    gaspard = contacts(:gaspard)
-    assert_equal 1, gaspard.proposed_versions.size
-    assert_equal versions(:zena_fr_proposed).id, gaspard.proposed_versions[0].id
-    kai = contacts(:kai)
-    assert_equal 1, kai.proposed_versions.size
-    assert_equal versions(:management_en_prop).id, kai.proposed_versions[0].id
+  def test_add_to_site
+    login(:lion)
+    user = secure(User) { User.new(:login=>'joe', :password=>'secret', :site_ids=>['1','2'])}
+    assert_raise(Zena::AccessViolation) { user.save }
+    
+    # make lion a user of ocean
+    Group.connection.execute "INSERT INTO sites_users (site_id, user_id) VALUES (#{sites_id(:ocean)}, #{users_id(:lion)})"
+    login(:lion)
+    user = secure(User) { User.new(:login=>'joe', :password=>'secret', :site_ids=>[sites_id(:zena),sites_id(:ocean)])}
+    assert_raise(Zena::AccessViolation) { user.save }
+    
+    # make lion an admin in ocean
+    Group.connection.execute "INSERT INTO groups_users (group_id, user_id) VALUES (#{groups_id(:masters)}, #{users_id(:lion)})"
+    login(:lion)
+    user = secure(User) { User.new(:login=>'joe', :password=>'secret', :site_ids=>[sites_id(:zena),sites_id(:ocean)])}
+    assert user.save
+    assert user.sites.include?(sites(:zena))
+    assert user.sites.include?(sites(:ocean))
   end
 end
-=end

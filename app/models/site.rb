@@ -19,7 +19,7 @@ The #Site model holds configuration information for a site:
 =end
 class Site < ActiveRecord::Base
   validates_uniqueness_of :host
-  attr_protected :host, :su_id, :anon_id, :root_id
+  attr_accessible :name, :authorize, :monolingual, :allow_private, :languages, :default_lang, :admin_group_id, :trans_group_id, :site_group_id
   has_many :groups, :order=>"name"
   has_many :nodes
   has_and_belongs_to_many :users
@@ -151,17 +151,17 @@ class Site < ActiveRecord::Base
   
   # Return the public group: the one in which every visitor belongs.
   def public_group
-    @pub ||= Group.find(self[:public_group_id])
+    @public_group ||= Group.find(self[:public_group_id])
   end
   
   # Return the site group: the one in which every visitor except 'anonymous' belongs (= all logged in users).
   def site_group
-    @pub ||= Group.find(self[:site_group_id])
+    @site_group ||= Group.find(self[:site_group_id])
   end
   
   # Return the admin group: any user in this group automatically belongs in all other groups from the site.
   def admin_group
-    @adm ||= Group.find(self[:admin_group_id])
+    @admin_group ||= Group.find(self[:admin_group_id])
   end
   
   # ids of the groups that cannot be removed

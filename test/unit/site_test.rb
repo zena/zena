@@ -106,4 +106,13 @@ class SiteTest < ZenaTestUnit
     assert_kind_of Group, grp
     assert_equal groups_id(:masters), grp[:id]
   end
+  
+  def test_protected_fields
+    site = sites(:zena)
+    site.update_attributes(:id=>sites_id(:ocean), :root_id=>11, :host=>'example.com')
+    site = sites(:zena) # reload
+    assert_equal sites_id(:zena), site[:id]
+    assert_equal nodes_id(:zena), site[:root_id]
+    assert_equal 'test.host', site[:host]
+  end
 end
