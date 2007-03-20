@@ -10,7 +10,12 @@ class SiteTest < ZenaTestUnit
     assert_not_equal users(:anon), site.anon[:id]
     assert admin = User.login('admin', 'secret', site), "Admin user can login"
     assert_equal 3, admin.group_ids.size
-    login(:anon)
+    @visitor = admin
+    root = secure(Node) { Node.find(site[:root_id]) }
+    assert_equal Zena::Status[:pub], root.v_status
+    assert_equal Zena::Status[:pub], root.max_status
+    assert Time.now >= root.publish_from
+    @visitor = site.anon
     root = secure(Node) { Node.find(site[:root_id]) }
     assert_kind_of Node, root
     assert_equal 'super', root.v_title

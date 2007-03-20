@@ -167,8 +167,8 @@ module Zena
       def login(name='anon')
         @visitor = users(name)
         # set site (find first matching site)
-        @visitor.site = Site.find(:first, :select=>"sites.*", :from=>"sites, users_sites",
-                                  :conditions=>["users_sites.site_id = sites.id AND users_sites.user_id = ?", @visitor[:id]])
+        @visitor.site = Site.find(:first, :select=>"sites.*", :from=>"sites, sites_users",
+                                  :conditions=>["sites_users.site_id = sites.id AND sites_users.user_id = ?", @visitor[:id]])
         @lang = @visitor.lang
       end
 
@@ -275,7 +275,7 @@ module Zena
       end
 
       # login for functional testing
-      def login(visitor=:ant)
+      def login(visitor=:anon)
         @controller_bak = @controller
         @controller = LoginController.new
         post 'login', :user=>{:login=>visitor.to_s, :password=>visitor.to_s}

@@ -82,8 +82,8 @@ body, td, p {
   color: #FFF;
 }
 
-h1 a, h2 a, .sectiontitle a, .banner a {
-  color: inherit;
+h1 a, h2 a, h3 a, .sectiontitle a, .banner a {
+  color: black;
 }
 
 h1 a:hover, h2 a:hover, .sectiontitle a:hover, .banner a:hover {
@@ -167,7 +167,7 @@ h3, h4, h5, h6 {
   padding: 0.2em 1em 0.2em 1em;
   border: 1px dashed black;
   color: #000;
-  background: #AAF;
+  background: #C59996;
 }
 
 .sourcecode > pre {

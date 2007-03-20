@@ -140,13 +140,13 @@ class Site < ActiveRecord::Base
   # Return the anonymous user, the one used by anonymous visitors to visit the public part
   # of the site.
   def anon
-    @anon ||= User.find(self[:anon_id]) {|user| user.site = self}
+    @anon ||= returning(User.find(self[:anon_id])) {|user| user.site = self}
   end
   
   # Return the super user. This user has extended priviledges on the data (has access to private other's data).
   # This is an emergency user.
   def su
-    @su ||= User.find(self[:su_id]) {|user| user.site = self}
+    @su ||= returning(User.find(self[:su_id])) {|user| user.site = self}
   end
   
   # Return the public group: the one in which every visitor belongs.

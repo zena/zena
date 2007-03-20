@@ -32,6 +32,7 @@ class User < ActiveRecord::Base
   validate                :valid_user
   before_create           :add_default_groups
   before_destroy          :dont_destroy_su_or_anon
+  
   Status = {
     :user        => 60,
     :commentator => 40,
@@ -45,7 +46,7 @@ class User < ActiveRecord::Base
       if !login || !password || login == "" || password == ""
         nil
       else
-        user = find(:first, :from=>'users, sites_users', :conditions=>['login=? AND password=? AND sites_users.user_id = users.id AND sites_users.site_id = ?',login, hash_password(password), site[:id]])
+        user = find(:first, :select=>"users.*", :from=>'users, sites_users', :conditions=>['login=? AND password=? AND sites_users.user_id = users.id AND sites_users.site_id = ?',login, hash_password(password), site[:id]])
         return nil unless user && user.reader?
         user.site    = site
         return nil if user.is_anon? # no anonymous login !!
@@ -144,7 +145,6 @@ class User < ActiveRecord::Base
   
   # Returns a list of the group ids separated by commas for the user (this is used mainly in SQL clauses).
   def group_ids
-    puts self
     return @group_ids if @group_ids
     if is_su?
       # su user
@@ -216,8 +216,11 @@ class User < ActiveRecord::Base
   ### ================================================ PRIVATE
   private
   
+  # Set user defaults.
   def user_before_validation
-    self[:status] ||= User::Status[:user]
+    if self[:status].nil? || self[:status] == ""
+      self[:status] = User::Status[:user]
+    end
   end
   
   # Returns the current site (self = visitor) or the visitor's site

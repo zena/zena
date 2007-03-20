@@ -9,7 +9,7 @@ class NodeTest < ZenaTestUnit
     :pgroup_id => 4,
     :parent_id => 1,
     :project_id => 1,
-  }
+  }.freeze
   
   def test_find_by_path
     login(:ant)
@@ -107,7 +107,7 @@ class NodeTest < ZenaTestUnit
   
   def test_new_bad_parent
     login(:tiger)
-    attrs = NEW_DEFAULT
+    attrs = NEW_DEFAULT.dup
     attrs[:parent_id] = nodes(:proposition).id
     node = secure(Page) { Page.new(attrs) }
     assert ! node.save , "Save fails"
@@ -127,7 +127,7 @@ class NodeTest < ZenaTestUnit
   
   def test_new_without_parent
     login(:tiger)
-    attrs = NEW_DEFAULT
+    attrs = NEW_DEFAULT.dup
     attrs.delete(:parent_id)
     node = secure(Node) { Node.new(attrs) }
     assert ! node.save , "Save fails"

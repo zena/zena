@@ -2,41 +2,40 @@
 
 Zena is a CMS. (c) teti.ch 2007
 
--------------------------------------------
 == Todo
-#TODO: BUG: when move, update inherited rights from new parent.
-#TODO: move all input tags into <p> w3c xhtml !
-#TODO: try Zena without javascript
-#TODO: force 1 user = 1 contact :
+* BUG: when move, update inherited rights from new parent.
+* move all input tags into <p> w3c xhtml !
+* try Zena without javascript
+* force 1 user = 1 contact :
   # either create new contact or use existing contact
   # store new contacts into (select parent when create) with admin/admin/admin rights, owner = user.
   # comment users ?
-#TODO: expire old pages when changing 'custom_base'
-#TODO: move 'admin' layout into 'templates' (use root skin ?, user skin ?)
-#TODO: !! DO NOT PUT 'PATH TO FILES' IN ZENA.rb
-#TODO: !! TRY TO KEEP ONLY ONE CONFIGURATION FILE, LOADED BY environment/...
-#TODO: !! BUG WITH DISCUSSION REMOVE: not working
-#TODO: deletion of node
-#TODO: popup 'drive' should show vertical scroll bar...
-#TODO: traduire le texte de base pour l'aide en anglais
-#TODO: APPLICATION_TEST : should use same testing as application_helper...
-#TODO: PATH_LINKS: correct and try to find some way to cache the base in project ?
-#TODO: is app/views/node/_tags used ?
-#TODO: multiversion: version finder: why use lang = ? Testing needed : example : I have a new page, with a redaction in 'en'. I navigate in 'fr' I am in no group: the version never shows up and BANG !
-#TODO: open/close note: the :as option should be worked out in zazen, when using limit to get the text.
-#TODO: 'delete' a node (Zena::Status[:del]) => rubish bin
-#TODO: cached pages do not consider passing time (future publish_from dates)
-#TODO: finish diff with selection on version number
+* expire old pages when changing 'custom_base'
+* move 'admin' layout into 'templates' (use root skin ?, user skin ?)
+* !! DO NOT PUT 'PATH TO FILES' IN ZENA.rb
+* !! TRY TO KEEP ONLY ONE CONFIGURATION FILE, LOADED BY environment/...
+* !! BUG WITH DISCUSSION REMOVE: not working
+* deletion of node
+* popup 'drive' should show vertical scroll bar...
+* traduire le texte de base pour l'aide en anglais
+* APPLICATION_TEST : should use same testing as application_helper...
+* PATH_LINKS: correct and try to find some way to cache the base in project ?
+* is app/views/node/_tags used ?
+* multiversion: version finder: why use lang = ? Testing needed : example : I have a new page, with a redaction in 'en'. I navigate in 'fr' I am in no group: the version never shows up and BANG !
+* open/close note: the :as option should be worked out in zazen, when using limit to get the text.
+* 'delete' a node (Zena::Status[:del]) => rubish bin
+* cached pages do not consider passing time (future publish_from dates)
+* finish diff with selection on version number
 Ideas for cached menu: 
   a. expire less often
   b. build with 1 cache for each sub-menu
   c. expire by hand
   d. keep only one menu with public rights for all users
   e. sub-menu : only children with same read_group ==> cache on this group.
-#TODO: We should use attr_protected instead of filtering forms.
-#TODO: * Remove all .utc (now using ENV['TZ'])
-#TODO: * Provide a 'grows with zena' // 'runs with zena' logo and link
-#TODO: * Provide a link from zena to teti.ch
+* We should use attr_protected instead of filtering forms.
+* Remove all .utc (now using ENV['TZ'])
+* Provide a 'grows with zena' // 'runs with zena' logo and link
+* Provide a link from zena to teti.ch
 === Optimization & Cache
 * sweep public page cache :
   * page for all lang
@@ -50,7 +49,10 @@ Ideas for cached menu:
 * replace session[:user][...] by visitor[...] (cache in User if needed..)
 * replace rmagick with a more simple library or use something like system "convert #{escape(temp)} -resize 48x48! #{escape(target)}"
 * show_title could guess when to display a title and when not to
--------------------------------------------
+=== Documentation
+* cleanup README_FOR_APP
+* cleanup
+
 == Enhancements
 === Zazen
 * code to show table of contents (with depth option)
@@ -85,12 +87,12 @@ Custom info that could be stored
 
 === Other
 * is +text+ a good format for *paths* ? What should be the size of a string ?
--------------------------------------------
+
+
 == general info
 * when creating the database: "create database zena DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;"
 
 
--------------------------------------------
 = Conception
 Zena is divided into modules. These modules are :
 == web (base engine)
