@@ -95,10 +95,14 @@ class User < ActiveRecord::Base
     end
   end
   
+  def password
+    ""
+  end
+  
   # TODO: test (replace by admin?) 
   # FIXME: site_id
   def is_admin?
-    @is_admin ||= visitor_site.admin_group.user_ids.include?(self[:id])
+    @is_admin ||= visitor_site.is_admin?(self)
   end
   
   # Return true if the user is the anonymous user for the current visited site
@@ -245,7 +249,10 @@ class User < ActiveRecord::Base
   # Validates that anon user does not have a login, that other users have a password
   # and that the login is unique for the sites the user belongs to.
   def valid_user
-    return false unless visitor.is_admin?
+    if !visitor.is_su? && visitor[:id] != self[:id] && !visitor.is_admin?
+      errors.add('base', 'you do not have the rights to do this')
+      return false
+    end
     if is_anon?
       # Anonymous user *must* have an empty login
       self[:login] = nil
@@ -323,13 +330,19 @@ class User < ActiveRecord::Base
   # the user only belongs to groups from sites he/she is in.
   def verify_groups #:doc:
     s_ids = sites.map {|s| s[:id]}
-    group_ids << visitor_site.public_group_id
-    group_ids << visitor_site.site_group_id unless is_anon?
-    group_ids.uniq!
-    group_ids.each do |id|
-      group = secure(Group) { Group.find(id) }
-      next unless s_ids.include?(group[:site_id])
-      groups << group
+    g_ids = @defined_group_ids || group_ids
+    g_ids << visitor_site.public_group_id
+    g_ids << visitor_site.site_group_id unless is_anon?
+    g_ids.uniq!
+    g_ids.compact!
+    self.groups = []
+    g_ids.each do |id|
+      group = Group.find(id) #secure(Group) { Group.find(id) }
+      unless s_ids.include?(group[:site_id])
+        errors.add('group', 'invalid value') 
+        next
+      end
+      self.groups << group
     end
   end
   

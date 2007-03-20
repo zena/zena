@@ -43,23 +43,15 @@ class Site < ActiveRecord::Base
         return site
       end
       
-      # =========== CREATE SU, ANON, ADMIN USERS ================
+      # =========== CREATE Super User ===========================
       # create su user
       su = User.new( :login => host, :password => su_password,
         :first_name => "Super", :name => "User", :lang=>'en')
       su.site    = site
+      su.visit(su)
       raise Exception.new("Could not create super user for site [#{host}] (site#{site[:id]})\n#{su.errors.map{|k,v| "[#{k}] #{v}"}.join("\n")}") unless su.save
       su.visit(site) # su is visitor
-      
-      # create anon user
-      anon = site.send(:secure,User) { User.create( :login => nil, :password => nil,
-        :first_name => "Anonymous", :name => "User", :lang=>'en', :status=>User::Status[:moderated]) }
-      raise Exception.new("Could not create anonymous user for site [#{host}] (site#{site[:id]})\n#{anon.errors.map{|k,v| "[#{k}] #{v}"}.join("\n")}") if anon.new_record?
-      
-      # create admin user
-      admin_user = site.send(:secure,User) {User.create( :login => 'admin', :password => su_password,
-        :first_name => "Admin", :name => "User", :lang=>'en') }
-      raise Exception.new("Could not create admin user for site [#{host}] (site#{site[:id]})\n#{admin_user.errors.map{|k,v| "[#{k}] #{v}"}.join("\n")}") if admin_user.new_record?
+      site.su_id           = su[:id]
       
       # =========== CREATE PUBLIC, ADMIN, SITE GROUPS ===========
       # create public group
@@ -74,14 +66,24 @@ class Site < ActiveRecord::Base
       sgroup = site.send(:secure,Group) { Group.create( :name => site.name) }
       raise Exception.new("Could not create group for site [#{host}] (site#{site[:id]})\n#{sgroup.errors.map{|k,v| "[#{k}] #{v}"}.join("\n")}") if sgroup.new_record?
       
-      
-      # =========== ADD USERS TO GROUPS =========================
-      site.anon_id         = anon[:id]
       site.public_group_id = pub[:id]
-      site.su_id           = su[:id]
       site.admin_group_id  = admin[:id]
       site.trans_group_id  = admin[:id]
       site.site_group_id   = sgroup[:id]
+      site.groups << pub << sgroup << admin
+      
+      # =========== CREATE Anonymous, admin =====================
+      # create anon user
+      anon = site.send(:secure,User) { User.create( :login => nil, :password => nil,
+        :first_name => "Anonymous", :name => "User", :lang=>'en', :status=>User::Status[:moderated]) }
+      raise Exception.new("Could not create anonymous user for site [#{host}] (site#{site[:id]})\n#{anon.errors.map{|k,v| "[#{k}] #{v}"}.join("\n")}") if anon.new_record?
+      
+      # create admin user
+      admin_user = site.send(:secure,User) {User.create( :login => 'admin', :password => su_password,
+        :first_name => "Admin", :name => "User", :lang=>'en') }
+      raise Exception.new("Could not create admin user for site [#{host}] (site#{site[:id]})\n#{admin_user.errors.map{|k,v| "[#{k}] #{v}"}.join("\n")}") if admin_user.new_record?
+      
+      site.anon_id         = anon[:id]
       
       # add all users to this site
       site.users << su
@@ -103,10 +105,14 @@ class Site < ActiveRecord::Base
       
       
       # =========== CREATE ROOT NODE ============================
+      # reload admin so all groups are set
+      
+      admin_user = site.send(:secure, User) { User.find(admin_user[:id]) }
       admin_user.site = site
       admin_user.visit(site) # now admin is the 'visitor' for 'site'
       root = site.send(:secure,Project) { Project.create( :name => site.name, :rgroup_id => pub[:id], :wgroup_id => sgroup[:id], :pgroup_id => admin[:id], :v_title => site.name) }
       raise Exception.new("Could not create root node for site [#{host}] (site#{site[:id]})\n#{root.errors.map{|k,v| "[#{k}] #{v}"}.join("\n")}") if root.new_record?
+      
       raise Exception.new("Could not publish root node for site [#{host}] (site#{site[:id]})\n#{root.errors.map{|k,v| "[#{k}] #{v}"}.join("\n")}") unless root.publish
       
       site.root_id         = root[:id]
@@ -157,6 +163,17 @@ class Site < ActiveRecord::Base
   # Return the site group: the one in which every visitor except 'anonymous' belongs (= all logged in users).
   def site_group
     @site_group ||= Group.find(self[:site_group_id])
+  end
+
+  # Return true if the given user is an administrator for this site.
+  def is_admin?(user)
+    admin_user_ids.include?(user[:id])
+  end
+  
+  # Return the ids of the administrators of the current site.
+  def admin_user_ids
+    # TODO: admin_user_ids could be cached in the 'site' record.
+    @admin_user_ids ||= admin_group.user_ids
   end
   
   # Return the admin group: any user in this group automatically belongs in all other groups from the site.

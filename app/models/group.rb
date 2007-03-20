@@ -8,7 +8,7 @@ class Group < ActiveRecord::Base
   attr_accessible         :name # FIXME: add user_ids ? + add users validation (are in site)
   has_and_belongs_to_many :users, :order=>'login'
   validates_presence_of   :name
-  validate                :valid_group
+  before_save             :set_group
   validates_uniqueness_of :name, :scope => :site_id # TODO: test
   before_destroy          :dont_destroy_public_or_admin
   belongs_to              :site
@@ -48,7 +48,7 @@ class Group < ActiveRecord::Base
   
   # TODO: test
   # TODO: test secure (group can be created in this site...)
-  def valid_group
+  def set_group
     self[:site_id] = visitor.site[:id]
   end
 end

@@ -29,6 +29,7 @@ class UserTest < ZenaTestUnit
   def test_create
     login(:whale)
     user = secure(User) { User.create("login"=>"john", "password"=>"isjjna78a9h") }
+    err user
     assert !user.new_record?, "Not a new record"
     user = secure(User) { User.find(user[:id]) } # reload
     assert user.sites.include?(sites(:ocean))
@@ -47,11 +48,34 @@ class UserTest < ZenaTestUnit
   
   def test_update_keep_password
     login(:tiger)
-    pass = visitor.password
+    user = secure(User) { users(:tiger) }
+    pass = user[:password]
     assert pass != "", "Password not empty"
-    assert visitor.update_attributes(:login=>'bigme', :password=>'')
-    assert_equal 'bigme', visitor.login
-    assert_equal pass, visitor.password
+    assert user.update_attributes(:login=>'bigme', :password=>'')
+    assert_equal 'bigme', user.login
+    assert_equal pass, user[:password]
+  end
+  
+  def test_only_self_or_admin_can_update
+    login(:tiger)
+    user = secure(User) { users(:ant) }
+    user.email = "eat@spam.com"
+    assert !user.save
+    assert user.errors[:base]
+    user = secure(User) { users(:tiger) }
+    user.email = "socr@isa.man"
+    assert user.save
+    assert_equal "socr@isa.man", user.email
+  end
+  
+  def test_only_admin_can_create
+    login(:tiger)
+    user = secure(User) { User.create(:login=>'joe', :password=>'whatever') }
+    assert user.new_record?
+    assert user.errors[:base]
+    login(:lion)
+    user = secure(User) { User.create(:login=>'joe', :password=>'whatever') }
+    assert !user.new_record?
   end
   
   def test_anon_cannot_login
@@ -84,7 +108,7 @@ class UserTest < ZenaTestUnit
     pub = secure(User) { users(:anon) }
     assert_equal 'en', pub.lang
     assert_nil pub.login
-    assert_nil pub.password
+    assert_nil pub[:password]
     
     pub.login = "hello"
     pub.password = 'heyjoe'
@@ -92,7 +116,7 @@ class UserTest < ZenaTestUnit
     assert pub.save
     assert_equal 'es', pub.lang
     assert_equal nil, pub.login
-    assert_equal nil, pub.password
+    assert_equal nil, pub[:password]
   end
   
   def test_comments_to_publish
