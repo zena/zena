@@ -2,16 +2,16 @@ require File.dirname(__FILE__) + '/../test_helper'
 
 class CommentTest < ZenaTestUnit
 
-  def test_replies
+  def test_cannot_set_site_id
     comment = comments(:ant_says_inside)
-    prop_reply = Comment.create(:discussion_id=>comment[:discussion_id], :reply_to=>comment[:id], :title=>'bob', :author_name=>'any', :text=>'blah')
-    assert !prop_reply.new_record?, "Not a new record"
-    assert_equal Zena::Status[:prop], prop_reply[:status]
-    replies = comment.replies
-    assert_equal 1, replies.size
-    assert_equal comments_id(:tiger_reply_inside), replies[0][:id]
-    assert_equal 2, replies(:with_prop=>true).size
-    assert_equal prop_reply[:id], replies[1][:id]
+    assert_raise(Zena::AccessViolation) { comment.site_id = sites_id(:ocean) }
+  end
+  
+  def test_site_id
+    login(:anon)
+    comment = secure(Comment) { Comment.create( :user_id=>1, :title=>'boo', :text=>'blah', :discussion_id=>2, :author_name=>'joe' ) }
+    assert !comment.new_record?, "Not a new record"
+    assert_equal sites_id(:zena), comment.site_id
   end
   
   def test_no_replies
@@ -68,7 +68,20 @@ class CommentTest < ZenaTestUnit
     assert_nil comment.author_name, "Author name is nil"
   end
   
+
   def test_replies
+    comment = comments(:ant_says_inside)
+    prop_reply = Comment.create(:discussion_id=>comment[:discussion_id], :reply_to=>comment[:id], :title=>'bob', :author_name=>'any', :text=>'blah')
+    assert !prop_reply.new_record?, "Not a new record"
+    assert_equal Zena::Status[:prop], prop_reply[:status]
+    replies = comment.replies
+    assert_equal 1, replies.size
+    assert_equal comments_id(:tiger_reply_inside), replies[0][:id]
+    assert_equal 2, replies(:with_prop=>true).size
+    assert_equal prop_reply[:id], replies[1][:id]
+  end
+  
+  def test_prop_replies
     comment = comments(:tiger_reply_inside)
     reply1 = Comment.create( :user_id=>1, :title=>'boo1', :author_name=>'bob', :text=>'blah', :discussion_id=>2, :reply_to=>comment[:id] )
     err reply1

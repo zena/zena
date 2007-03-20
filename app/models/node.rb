@@ -420,11 +420,6 @@ class Node < ActiveRecord::Base
     self[:name] = camelize(str)
   end
   
-  # protect access to site_id : should not be changed by users
-  def site_id=(i)
-    raise Zena::AccessViolation, "Version '#{self.id}': tried to change 'site_id' to '#{i}'."
-  end
-  
   # More reflection needed before implementation.
   
   # transform an Node into another Object. This is a two step operation :
@@ -470,11 +465,13 @@ class Node < ActiveRecord::Base
   #   end
   # end
 
-  # Find the discussion for the current context (v_status and v_lang)
+  # Find the discussion for the current context (v_status and v_lang). This automatically creates a new #Discussion if there
+  # already exists an +outside+, +open+ discussion for another language.
+  # TODO: update tests with visitor status.
   def discussion
     @discussion ||= Discussion.find(:first, :conditions=>[ "node_id = ? AND inside = ? AND lang = ?", 
                     self[:id], v_status != Zena::Status[:pub], v_lang ]) ||
-          if ZENA_ENV[:pub_comments] || ( v_status != Zena::Status[:pub] ) ||
+          if ( v_status != Zena::Status[:pub] ) ||
              ( Discussion.find(:first, :conditions=>[ "node_id = ? AND inside = ? AND open = ?", 
                                      self[:id], false, true ]))
             # v_status is not :pub or we already have an outside, open discussion for this node             
@@ -495,27 +492,27 @@ class Node < ActiveRecord::Base
   end
   
   # Return true if it is allowed to add comments to the node in the current context
+  # TODO: update test with 'commentator?'
   def can_comment?
-    discussion && ((discussion.open? && (visitor[:id] != 1 || ZENA_ENV[:allow_anonymous_comments])) || visitor[:id] == 2)
+    visitor.commentator? && discussion && discussion.open?
   end
   
   # Add a comment to an node. If reply_to is set, the comment is added to the proper message
-  # TODO: test
   def add_comment(opt)
     return nil unless can_comment?
     discussion.save if discussion.new_record?
     author = opt[:author_name] = nil unless visitor[:id] == 1 # anonymous user
     opt.merge!( :discussion_id=>discussion[:id], :user_id=>visitor[:id] )
-    Comment.create(opt)
+    secure(Comment) { Comment.create(opt) }
   end
   
   # TODO: test
   def sweep_cache
     return unless Cache.perform_caching
     Cache.sweep(:visitor_id=>self[:user_id], :visitor_groups=>[rgroup_id, wgroup_id, pgroup_id], :kpath=>self.class.kpath)
+    return unless  self.public? || old.public? # is/was visible to anon user
     # we want to be sure to find the project and parent, even if the visitor does not have an
     # access to these elements.
-    return unless (@old || Node.find(id)).public? || self.public? # was/is visible to anon user
     # FIXME: use self + modified relations instead of parent/project
     [self, self.project(:secure=>false), self.parent(:secure=>false)].compact.uniq.each do |obj|
       CachedPage.expire_with(obj)

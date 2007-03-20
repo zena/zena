@@ -36,7 +36,7 @@ class CreateSites < ActiveRecord::Migration
     # relation, no site_id: :links
     add_column :nodes,:site_id, :integer
     add_column :trans_phrases, :site_id, :integer
-    # relation, no site_id: :trans_values
+    add_column :trans_values, :site_id, :integer
     # users : cross site
     add_column :versions, :site_id, :integer
   end
@@ -54,6 +54,7 @@ class CreateSites < ActiveRecord::Migration
     remove_column :groups, :site_id
     remove_column :nodes,:site_id
     remove_column :trans_phrases, :site_id
+    remove_column :trans_values, :site_id
     remove_column :versions, :site_id
   end
 end

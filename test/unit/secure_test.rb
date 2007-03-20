@@ -66,6 +66,7 @@ class SecureReadTest < ZenaTestUnit
   
   def test_rgroup_can_read_if_published
     # visitor = public
+    login(:anon)
     # not published, cannot read
     assert_raise(ActiveRecord::RecordNotFound) { node = secure(Node) { nodes(:crocodiles)  }}
     # published: can read
@@ -85,7 +86,7 @@ class SecureReadTest < ZenaTestUnit
   def test_publish_group_can_rwp
     login(:ant)
     node = ""
-    ant = users(:ant)
+    ant = secure(User) { users(:ant) }
     assert_raise(ActiveRecord::RecordNotFound) { node = secure(Node) { nodes(:strange)  } }
     assert_raise(ActiveRecord::RecordNotFound) { node = secure_write(Node) { nodes(:strange)  } }
     assert_raise(ActiveRecord::RecordNotFound) { node = secure_drive(Node) { nodes(:strange)  } }
@@ -112,11 +113,13 @@ class SecureReadTest < ZenaTestUnit
   end
   
   def test_public_not_in_rgroup_cannot_rwp
+    login(:anon)
     assert_raise(ActiveRecord::RecordNotFound) { node = secure(Node) { nodes(:secret)  } }
     assert_raise(ActiveRecord::RecordNotFound) { node = secure_write(Node) { nodes(:secret)  } }
     assert_raise(ActiveRecord::RecordNotFound) { node = secure_drive(Node) { nodes(:secret)  } }
     node = nodes(:secret)
-    node.visitor = anonymous_user
+    assert_raise(Zena::RecordNotSecured) { node.can_read? }
+    visitor.visit(node)
     assert ! node.can_read? , "Cannot read"
     assert ! node.can_write? , "Cannot write"
     assert ! node.can_publish? , "Cannot publish"
@@ -435,7 +438,7 @@ class SecureCreateTest < ZenaTestUnit
     assert_equal "you cannot change this", z.errors[:rgroup_id]
     assert_equal "you cannot change this", z.errors[:wgroup_id]
   end
-  def test_can_man_can_make_private
+  def test_can_man_can_update_private
     login(:ant)
     attrs = node_defaults
 
@@ -454,25 +457,7 @@ class SecureCreateTest < ZenaTestUnit
     assert_equal 0, z.pgroup_id , "Publish group is 0"
     assert_equal -1, z.inherit , "Inherit mode is -1"
   end
-  def test_can_man_cannot_make_private
-    bak = ZENA_ENV[:allow_private_nodes]
-    ZENA_ENV[:allow_private_nodes] = false
-    login(:ant)
-    attrs = node_defaults
-
-    attrs[:parent_id] = nodes_id(:zena) # ant can write but not publish here
-    p = secure(Project) { Project.find(attrs[:parent_id])}
-
-    # make private
-    attrs[:inherit  ] = -1 # make private
-    attrs[:rgroup_id] = 98984984 # anything
-    attrs[:wgroup_id] = 98984984 # anything
-    attrs[:pgroup_id] = 98984984 # anything
-    z = secure(Note) { Note.create(attrs) }
-    assert z.new_record? , "New record"
-    assert "you cannot change this", z.errors[:inherit]
-    ZENA_ENV[:allow_private_nodes] = bak
-  end
+  
   def test_can_man_can_inherit_rwp_groups
     login(:ant)
     attrs = node_defaults
@@ -811,7 +796,7 @@ class SecureUpdateTest < ZenaTestUnit
     assert node.errors[:inherit] , "Errors on pgroup_id"
     assert_equal "you cannot change this", node.errors[:inherit]
   end
-  def test_can_man_can_make_private
+  def test_can_man_can_create_private
     node, ref = hello_ant
     # make private
     node[:inherit  ] = -1 # make private
@@ -824,6 +809,19 @@ class SecureUpdateTest < ZenaTestUnit
     assert_equal 0, node.pgroup_id , "Publish group is 0"
     assert_equal 0, node.pgroup_id , "Inherit mode is 0"
   end
+  
+  def test_can_man_cannot_create_private_if_site_no_private
+    node, ref = hello_ant
+    visitor.site[:allow_private] = false
+    # make private
+    node[:inherit  ] = -1 # make private
+    node[:rgroup_id] = 98984984 # anything
+    node[:wgroup_id] = 98984984 # anything
+    node[:pgroup_id] = 98984984 # anything
+    assert !node.save , "Save fails"
+    assert_equal node.errors[:inherit], "you cannot change this"
+  end
+  
   def test_can_man_cannot_lock_inherit
     node, ref = hello_ant
     # make private
@@ -917,6 +915,14 @@ class SecureUpdateTest < ZenaTestUnit
   end
   
   def test_cannot_view_own_stuff_in_other_host
-    assert false, "todo"
+    # make 'whale' a cross site user
+    User.connection.execute "INSERT INTO sites_users (user_id, site_id) VALUES (#{users_id(:whale)}, #{sites_id(:zena)})"
+    login(:whale)
+    node = nil
+    assert_nothing_raised { node = secure(Node) { nodes(:ocean) }}
+    assert_kind_of Node, node
+    visitor.site = sites(:zena)
+    # whale is now visiting 'zena'
+    assert_raise(ActiveRecord::RecordNotFound) { secure(Node) { nodes(:ocean) }}
   end
 end

@@ -1,16 +1,33 @@
+=begin rdoc
+A zena installation supports many sites. Each site is uniquely identified by it's host name.
+The #Site model holds configuration information for a site:
+
++host+::            Unique host name. (teti.ch, zenadmin.org, dev.example.org, ...)
++root_id+::         Site root node id. This is the only node in the site without a parent.
++su_id+::           Super User id. This user has extended priviledges on the site. It should only be used in case of emergency.
++anon_id+::         Anonymous user id. This user is the 'public' user of the site. Even if +authorize+ is set to true, this user is needed to configure the defaults for all newly created users.
++public_group_id+:: Id of the 'public' group. Every user of the site (with 'anonymous user') belongs to this group.
++admin_group_id+::  Users in this group automatically belong to all other groups. These users can change site settings and manage users.
++site_group_id+::   Id of the 'site' group. Every user except anonymous are part of this group. This group can be seen as the 'logged in users' group.
++trans_group_id+::  Interface translators' group. People in this group can edit the interface translations.
++name+::            Site name (used to display grouped information for cross sites users).
++authorize+::       If this is set to true a login is required: anonymous visitor will not be allowed to browse the site as there is no login/password for the 'anonymous user'.
++monolingual+::     Only use the +default_lang+. This will disable the language selection menu and will remove the language prefix from all urls.
++allow_private+::   If set to true, users will be allowed to create private nodes (seen only by themselves).
++languages+::       A comma separated list of the languages used for the current site. Do not insert spaces in this list.
++default_lang+::    The default language of the site (or the unique language if +monolingual+ is true).
+=end
 class Site < ActiveRecord::Base
   validates_uniqueness_of :host
   attr_protected :host, :su_id, :anon_id, :root_id
   has_many :groups, :order=>"name"
   has_many :nodes
   has_and_belongs_to_many :users
-  acts_as_secure
   
   class << self
     
     # Create a new site in the database. This should not be called directly. Use
-    # rake zena:mksite HOST=[host_name] instead
-    # TODO: test !
+    # +rake zena:mksite HOST=[host_name]+ instead
     def create_for_host(host, su_password)
       site = self.new
       site.host            = host
@@ -36,7 +53,7 @@ class Site < ActiveRecord::Base
       
       # create anon user
       anon = site.send(:secure,User) { User.create( :login => nil, :password => nil,
-        :first_name => "Anonymous", :name => "User", :lang=>'en') }
+        :first_name => "Anonymous", :name => "User", :lang=>'en', :status=>User::Status[:moderated]) }
       raise Exception.new("Could not create anonymous user for site [#{host}] (site#{site[:id]})\n#{anon.errors.map{|k,v| "[#{k}] #{v}"}.join("\n")}") if anon.new_record?
       
       # create admin user
@@ -120,28 +137,29 @@ class Site < ActiveRecord::Base
     "/#{self[:host]}/data"
   end
   
-  # Anonymous user, the one used by anonymous visitors to visit the public part
+  # Return the anonymous user, the one used by anonymous visitors to visit the public part
   # of the site.
   def anon
-    @anon ||= User.find(self[:anon_id])
+    @anon ||= User.find(self[:anon_id]) {|user| user.site = self}
   end
   
-  # Super user: has extended priviledges on the data (has access to private data)
+  # Return the super user. This user has extended priviledges on the data (has access to private other's data).
+  # This is an emergency user.
   def su
-    @su ||= User.find(self[:su_id])
+    @su ||= User.find(self[:su_id]) {|user| user.site = self}
   end
   
-  # Public group, the one in which every visitor belongs.
+  # Return the public group: the one in which every visitor belongs.
   def public_group
     @pub ||= Group.find(self[:public_group_id])
   end
   
-  # Site group, the one in which every visitor except 'anonymous' belongs (= all logged in users).
+  # Return the site group: the one in which every visitor except 'anonymous' belongs (= all logged in users).
   def site_group
     @pub ||= Group.find(self[:site_group_id])
   end
   
-  # Admin group: any user in this group automatically belongs in all other groups from the site.
+  # Return the admin group: any user in this group automatically belongs in all other groups from the site.
   def admin_group
     @adm ||= Group.find(self[:admin_group_id])
   end

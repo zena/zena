@@ -157,7 +157,7 @@ class MultiVersionTest < ZenaTestUnit
     assert_equal Zena::Status[:prop], node.v_status , "Owner sees the proposition"
     assert_equal versions_id(:lake_red_en) , node.v_id
     
-    login(nil) # public
+    login(:anon) # public
     node = secure(Node) { nodes(:lake)  }
     assert_equal Zena::Status[:pub], node.v_status , "Visitor sees the publication"
     assert_equal versions_id(:lake_en) , node.v_id
@@ -271,13 +271,13 @@ class MultiVersionTest < ZenaTestUnit
   end
   
   def test_update_cannot_create_redaction
-    # changes node and creates a new redaction
+    # ant already has a redaction for 'lake', lion cannot create another
     login(:lion)
     visitor.lang = 'en'
     node = secure(Node) { nodes(:lake)  }
     attrs = { :rgroup_id => 4, :v_title => "Manager's lake" }
     assert ! node.update_attributes( attrs ), "Update attributes fails"
-    assert node.errors[:v_title] , "Errors on title"
+    assert node.errors[:base] , "(ant) is editing this node"
   end
   
   def test_update_attributes_ok
@@ -512,11 +512,33 @@ class MultiVersionTest < ZenaTestUnit
   end
   
   def test_redit
-    assert false, 'todo'
+    login(:ant)
+    visitor.lang = 'en'
+    node = secure(Node) { nodes(:lake) }
+    assert_equal Zena::Status[:red], node.v_status
+    assert_equal versions_id(:lake_red_en), node.v_id
+    assert node.propose, "Can propose"
+    login(:tiger)
+    node = secure(Node) { nodes(:lake) }
+    assert node.publish, "Can publish"
+    assert_equal Zena::Status[:pub], node.v_status
+    assert node.redit, "Can re-edit node"
+    
+    login(:ant)
+    visitor.lang = 'en'
+    node = secure(Node) { nodes(:lake) }
+    assert_equal Zena::Status[:red], node.v_status
+    assert_equal versions_id(:lake_red_en), node.v_id
   end
   
   def test_remove_redaction
-    assert false, 'todo'
+    login(:ant)
+    visitor.lang = 'en'
+    node = secure(Node) { nodes(:lake) }
+    assert_equal Zena::Status[:red], node.v_status
+    assert_equal versions_id(:lake_red_en), node.v_id
+    assert node.remove, "Can remove"
+    assert_equal Zena::Status[:rem], node.v_status
   end
   
   def test_traductions

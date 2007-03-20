@@ -145,9 +145,8 @@ module Zena
     module Unit
       include Zena::Test::LoadFixtures
       include Zena::Test::Base
-      include Zena::Acts::SecureScope
-      include Zena::Acts::Secure::InstanceMethods
-
+      include Zena::Acts::Secure
+      
       # redefine lang for tests (avoids using session[:lang]):
       def lang
         return @lang if @lang
@@ -230,8 +229,7 @@ module Zena
     end
     
     module Integration
-      include Zena::Acts::SecureScope
-      include Zena::Acts::Secure::InstanceMethods
+      include Zena::Acts::Secure
     end
 
     module HelperSetup

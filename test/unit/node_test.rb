@@ -279,10 +279,12 @@ class NodeTest < ZenaTestUnit
   end
   
   def test_parent
+    login(:anon)
     assert_equal nodes_id(:projects), secure(Node) { nodes(:wiki) }.parent[:id]
   end
   
   def test_project
+    login(:anon)
     assert_equal nodes_id(:zena), secure(Node) { nodes(:people) }.project[:id]
   end
   
@@ -429,10 +431,10 @@ class NodeTest < ZenaTestUnit
   # 
   # def test_cannot_change_root
   #   login(:tiger)
-  #   node = secure(Node) { Node.find(ZENA_ENV[:root_id]) }
+  #   node = secure(Node) { Node.find(visitor.site[:root_id]) }
   #   node = node.change_to(Page)
   #   assert_nil node
-  #   node = secure(Node) { Node.find(ZENA_ENV[:root_id]) }
+  #   node = secure(Node) { Node.find(visitor.site[:root_id]) }
   #   assert_kind_of Project, node
   # end
   
@@ -690,18 +692,18 @@ class NodeTest < ZenaTestUnit
   end
   
   def test_anon_add_comment
-    aanon = ZENA_ENV[:allow_anonymous_comments]
-    manon = ZENA_ENV[:moderate_anonymous_comments]
+    login(:anon)
     node = secure(Node) { nodes(:status) }
     assert_equal 1, node.comments.size
-    ZENA_ENV[:allow_anonymous_comments] = false
+    visitor.status = User::Status[:reader]
     assert !node.can_comment?, "Anonymous cannot comment."
-    ZENA_ENV[:allow_anonymous_comments] = true
+    visitor.status = User::Status[:moderated]
+    
     assert node.can_comment?, "Anonymous can comment."
-    ZENA_ENV[:moderate_anonymous_comments] = true
     assert comment = node.add_comment( :author_name=>'fierce', :title=>'and', :text=>'ugly spam' )
     assert_equal Zena::Status[:prop], comment.status
-    ZENA_ENV[:moderate_anonymous_comments] = false
+    visitor.status = User::Status[:commentator]
+    assert node.can_comment?, "Anonymous can comment."
     assert comment = node.add_comment( :author_name=>'parrot', :title=>'hello', :text=>'world of happiness' )
     assert_equal Zena::Status[:pub], comment.status
     node = secure(Node) { nodes(:status) }
@@ -709,8 +711,6 @@ class NodeTest < ZenaTestUnit
     assert_equal 2, node.comments.size
     assert_equal 'hello', comments[1][:title]
     assert_equal 'parrot', comments[1][:author_name]
-    ZENA_ENV[:allow_anonymous_comments] = aanon
-    ZENA_ENV[:moderate_anonymous_comments] = manon
   end
   
   def test_add_reply
@@ -760,7 +760,6 @@ class NodeTest < ZenaTestUnit
   def test_other_site_id_fool_id
     login(:whale)
     node = secure(Node) { Node.create(:parent_id=>nodes_id(:ocean), :rgroup_id=>groups_id(:aqua), :wgroup_id=>groups_id(:masters), :pgroup_id=>groups_id(:masters), :name=>"fish", :site_id=>sites_id(:zena)) }
-    err node
     assert !node.new_record?, "Not a new record"
     assert_equal sites_id(:ocean), node[:site_id]
   end

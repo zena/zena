@@ -350,7 +350,11 @@ module Zena
             end
             if v && (v.user_id == visitor[:id]) && v.status == Zena::Status[:red]
               @redaction = @version = v
+            elsif v
+              errors.add('base', "(#{v.author.login}) is editing this node")
+              nil
             else
+              errors.add('base', 'you do not have the rights to do this')
               nil
             end
           end
@@ -384,6 +388,7 @@ module Zena
           end
         end
         
+        # Errors that occur while setting attributes from the form are recorded here.
         def redaction_error(field, message)
           @redaction_errors ||= []
           @redaction_errors << [field, message]

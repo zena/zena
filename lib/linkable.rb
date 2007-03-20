@@ -1,36 +1,36 @@
 module Zena
   module Acts
-=begin
+=begin rdoc
 Linkable provides the 'link' macro.
 
 This macro works with a 'links' table with 'role', 'source_id' and 'target_id' fields (plus 'id' auto increment). With this
 set, you can create 'roles' between objects. For example if you have a class Person, you could add
-class Person < ActiveRecord::Base
-  link :wife,    :class_name=>'Person', :unique=>true, :as_unique=>true
-  link :husband, :class_name=>'Person', :unique=>true, :as=>'wife', :as_unique=>true
-end
+  class Person < ActiveRecord::Base
+    link :wife,    :class_name=>'Person', :unique=>true, :as_unique=>true
+    link :husband, :class_name=>'Person', :unique=>true, :as=>'wife', :as_unique=>true
+  end
 
 This creates the following methods for your Person objects:
-@john.wife                   ==> finds wife
-@mary.husband                ==> find husband
-@john.wife = @mary           ==> set wife
-@john.wife_id = @mary.id     ==> set wife by id
-@mary.husband = @john        ==> set husband
-@mary.husband_id = @john.id  ==> set husband by id
-
+  @john.wife                   ==> finds wife
+  @mary.husband                ==> find husband
+  @john.wife = @mary           ==> set wife
+  @john.wife_id = @mary.id     ==> set wife by id
+  @mary.husband = @john        ==> set husband
+  @mary.husband_id = @john.id  ==> set husband by id
+  
 Because of the ":as" clause, 'husbands' and 'wifes' are related together, so
-@john.wife = @mary   ==> @mary.husband gives @john
+  @john.wife = @mary   ==> @mary.husband gives @john
 
 The ":unique" and ":as_unique" clauses make sure @john has only one wife and @mary has only one husband
 
 Another example with the infamous 'tags'
-class Post < ActiveRecord::Base
-  link :tags, :class_name=>'Tag'
-end
+  class Post < ActiveRecord::Base
+    link :tags, :class_name=>'Tag'
+  end
 
-class Tag < ActiveRecord::Base
-  link :posts, :class_name=>'Post', :as=>'tag'
-end
+  class Tag < ActiveRecord::Base
+    link :posts, :class_name=>'Post', :as=>'tag'
+  end
 
 This gives the posts the following methods:
 @post.tags          ==> list of tags
@@ -39,39 +39,38 @@ for an 'OR' clause in case you need to 'merge' linked objects with direct childr
   @post.tags(:or=>["parent_id = ?", self[:id]]) # this does a single call, so ':order, :limit' and pagination
   work just fine...
 
-@post.tag_ids       ==> list of tag ids
-@post.tags = ...    ==> set with list of tag objects
-@post.tag_ids = ... ==> set with list of ids
-@post.add_tag(id)
-@post.remove_tag(id)
+  @post.tag_ids       ==> list of tag ids
+  @post.tags = ...    ==> set with list of tag objects
+  @post.tag_ids = ... ==> set with list of ids
+  @post.add_tag(id)
+  @post.remove_tag(id)
 
 And the tags get :
-@tag.posts          ==> list of posts
-@tag.post_ids       ==> list of post ids
-@tag.posts = ...    ==> set with list of post objects
-@tag.post_ids = ... ==> set with list of ids
-@tag.add_post(id)
-@tag.remove_post(id)
-
+  @tag.posts          ==> list of posts
+  @tag.post_ids       ==> list of post ids
+  @tag.posts = ...    ==> set with list of post objects
+  @tag.post_ids = ... ==> set with list of ids
+  @tag.add_post(id)
+  @tag.remove_post(id)
+  
 As an extra, you get 'tags_for_form' and 'posts_for_form' : a list of all 'tags' or 'posts' with the attribute 'link_id' not null if
 the two objects are linked. Example :
-@post.tags_for_form = ['art object with link_id=nil', 'news object with link_id=3'] ==> @post has a link to news. *Beware* that this
-finder will *only* find objects which are of the same kind or subclasses of the class of the linked object (Tag here)
+  @post.tags_for_form = ['art object with link_id=nil', 'news object with link_id=3'] ==> @post has a link to news. *Beware* that this finder will *only* find objects which are of the same kind or subclasses of the class of the linked object (Tag here)
 
 Linkable is great for single table inheritance and lots of 'roles' between classes. It is also very easy to create a new role like
 'hot' topic for example. Having the hottest post on each project is easy as adding a check box on the post edit page and adding
 the 'hot' roles :
 
-class Project < ActiveRecord::Base
-  link :hot, :class_name=>'Post', :unique=>true
-end
+  class Project < ActiveRecord::Base
+    link :hot, :class_name=>'Post', :unique=>true
+  end
 
-class Post < ActiveRecord::Base
-  link :hot_for, :class_name=>'Project', :as_unique=>true, :unique=>true
-end
+  class Post < ActiveRecord::Base
+    link :hot_for, :class_name=>'Project', :as_unique=>true, :unique=>true
+  end
 
 on the post edit page :
-<input type="checkbox" id="post_hot_for_id" name="post[hot_for_id]" value="<%= @project.id %>" />
+  <input type="checkbox" id="post_hot_for_id" name="post[hot_for_id]" value="<%= @project.id %>" />
 
 =end
     module Linkable
@@ -257,7 +256,7 @@ on the post edit page :
           roles.map {|r| [r[:method].singularize, r[:method]] }
         end
         
-        # macro to add links to a class
+        # Look at Zena::Acts::Linkable for documentation.
         def link(method, options={})
           method = method.to_s
           unless method_defined?(:secure) || private_method_defined?(:secure)

@@ -1,7 +1,6 @@
 # Methods added to this helper will be available to all templates in the application.
 module ApplicationHelper
-  include Zena::Acts::SecureScope
-  include Zena::Acts::Secure::InstanceMethods
+  include Zena::Acts::Secure
   
   def truc
     session.to_s

@@ -2,7 +2,7 @@ class Cache < ActiveRecord::Base
   class << self
     def perform_caching
       # we check for const definition for calls from rake/console/etc
-      Module.const_defined?(:ApplicationController) ? ApplicationController.perform_caching : false
+      Object.const_defined?(:ApplicationController) ? ApplicationController.perform_caching : false
     end
     def with(visitor_id, visitor_groups, kpath, *context)
       return yield unless perform_caching

@@ -31,7 +31,7 @@ a new redaction), the system will not allow us to save the modified content as i
 =end
 class Version < ActiveRecord::Base
   belongs_to            :node
-  belongs_to            :user, :foreign_key=>'user_id'
+  belongs_to            :user, :foreign_key=>'user_id' # FIXME: can we remove this
   before_validation     :version_before_validation
   validates_presence_of :node
   validates_presence_of :user
@@ -58,11 +58,6 @@ class Version < ActiveRecord::Base
   # protect access to node_id : should not be changed by users
   def node_id=(i)
     raise Zena::AccessViolation, "Version '#{self.id}': tried to change 'node_id' to '#{i}'."
-  end
-  
-  # protect access to site_id : should not be changed by users
-  def site_id=(i)
-    raise Zena::AccessViolation, "Version '#{self.id}': tried to change 'site_id' to '#{i}'."
   end
   
   # protect access to content_id
@@ -131,12 +126,14 @@ class Version < ActiveRecord::Base
   # Set version number and site_id before validation tests.
   def version_before_validation
     self[:site_id] = node[:site_id]
-    last = Version.find(:first, :conditions=>['node_id = ?', node[:id]], :order=>'number DESC')
-    self[:type] = self.class.to_s
-    if last
-      self[:number] = last[:number] + 1
-    else
-      self[:number] = 1
+    if new_record?
+      last = Version.find(:first, :conditions=>['node_id = ?', node[:id]], :order=>'number DESC')
+      self[:type] = self.class.to_s
+      if last
+        self[:number] = last[:number] + 1
+      else
+        self[:number] = 1
+      end
     end
   end
   

@@ -25,7 +25,7 @@ class DiscussionController < ApplicationController
     @node = secure(Node) { Node.find(params[:discussion][:node_id])}
     @discussion = Discussion.create(params[:discussion])
   rescue ActiveRecord::RecordNotFound
-    add_error'node not found'
+    add_error 'node not found'
   end
   
   # TODO: test

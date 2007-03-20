@@ -2,12 +2,14 @@
 
 anon:
   id:         1
+  status:     30
   first_name: Anonymous
   name:       User
   lang:       en
 
 su:
   id:         2
+  status:     60
   login:      su
   password:   <%= User.hash_password('su') %>
   first_name: Super
@@ -15,6 +17,7 @@ su:
 
 ant:
   id:         3
+  status:     60
 <%= @defaults %>
   first_name: Solenopsis
   name:       Invicta
@@ -26,6 +29,7 @@ ant:
 
 tiger:
   id:         4
+  status:     60
 <%= @defaults %>
   first_name: Panther
   name:       Tigris Sumatran
@@ -37,6 +41,7 @@ tiger:
 
 lion:
   id:         5
+  status:     60
 <%= @defaults %>
   first_name: Panthera
   name:       Leo Verneyi
@@ -48,6 +53,7 @@ lion:
 
 incognito:
   id:         6
+  status:     30
 <%= @defaults %>
   first_name: Miss
   name:       Incognito
@@ -56,6 +62,7 @@ incognito:
 
 other_su:
   id:         7
+  status:     60
 <%= @defaults %>
   first_name: Hyper
   name:       Super
@@ -65,6 +72,7 @@ other_su:
   
 whale:
   id:         8
+  status:     60
 <%= @defaults %>
   first_name: Miss
   name:       Whale

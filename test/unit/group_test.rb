@@ -62,12 +62,18 @@ class GroupTest < ZenaTestUnit
     assert_raise(Zena::AccessViolation) { grp.destroy }
   end
   
-  def test_create_and_destroy
+  def test_site_id
     login(:lion)
     grp = secure(Group) { Group.create(:name=>'test') }
     assert !grp.new_record?, "Not a new record"
-    assert_equal sites(:zena)[:id], grp[:site_id]
+    assert_equal sites_id(:zena), grp[:site_id]
     assert grp.destroy, "Can destroy group"
+  end
+  
+  def test_cannot_set_site_id
+    login(:tiger)
+    grp = secure(Group) { groups(:site) }
+    assert_raise(Zena::AccessViolation) { grp.site_id = sites_id(:ocean) }
   end
   
   # TODO: test secure (group can be created in this site...)

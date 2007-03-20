@@ -42,11 +42,6 @@ class DocumentContent < ActiveRecord::Base
     end
   end
   
-  # protect access to site_id : should not be changed by users
-  def site_id=(i)
-    raise Zena::AccessViolation, "Version '#{self.id}': tried to change 'site_id' to '#{i}'."
-  end
-  
   # protect access to size.
   def size=(s)
     raise StandardError, "Size cannot be set. It is defined by the file size."

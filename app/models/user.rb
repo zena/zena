@@ -1,18 +1,26 @@
 =begin rdoc
-A User is a #Contact with a login and password. There are two special users :
-[anon] user_id=1. Anonymous user. Becomes the owner of anything created without login.
-[su] user_id=2. This user has full access to all the content in zena. He/she can read/write/destroy
+There are two special users :
+[anon] Anonymous user. Used to set defaults for newly created users.
+[su] This user has full access to all the content in zena. He/she can read/write/destroy
       about anything. Even private content can be read/edited/removed by su. <em>This user should
       only be used for emergency purpose</em>. This is why an ugly warning is shown on all pages when
       logged in as su.
 If you want to give administrative rights to a user, simply put him into the _admin_ group.
+
+Users have access rights defined by the groups they belong to. They also have a 'status' indicating the kind of
+things they can/cannot do :
+[:user]        (60): can read/write/publish
+[:commentator] (40): can write comments
+[:moderated]   (30): can write moderated comments
+[:reader]      (20): can only read
+[:deleted]     ( 0): cannot login
+
 TODO: when a user is 'destroyed', pass everything he owns to another user or just mark the user as 'deleted'...
 TODO: when creating a user, define in which sites he belongs
 =end
 class User < ActiveRecord::Base
-  attr_accessible         :login, :password, :lang, :contact_id, :first_name, :name, :email, :time_zone
+  attr_accessible         :login, :password, :lang, :contact_id, :first_name, :name, :email, :time_zone, :status
   attr_accessor           :visited_node_ids
-  attr_accessor           :visitor
   attr_accessor           :site
   has_and_belongs_to_many :groups
   has_many                :nodes
@@ -20,10 +28,17 @@ class User < ActiveRecord::Base
   has_and_belongs_to_many :sites
   # TODO: test link between user and contact
   belongs_to              :contact
+  before_validation       :user_before_validation
   validate                :valid_user
   before_create           :add_default_groups
   before_destroy          :dont_destroy_su_or_anon
-  
+  Status = {
+    :user        => 60,
+    :commentator => 40,
+    :moderated   => 30,
+    :reader      => 20,
+    :deleted     => 0,
+  }
   class << self
     # Returns the logged in user or nil if login and password do not match
     def login(login, password, site)
@@ -31,7 +46,7 @@ class User < ActiveRecord::Base
         nil
       else
         user = find(:first, :from=>'users, sites_users', :conditions=>['login=? AND password=? AND sites_users.user_id = users.id AND sites_users.site_id = ?',login, hash_password(password), site[:id]])
-        return nil unless user
+        return nil unless user && user.reader?
         user.site    = site
         return nil if user.is_anon? # no anonymous login !!
         # OK
@@ -43,6 +58,8 @@ class User < ActiveRecord::Base
     def hash_password(string)
       Digest::SHA1.hexdigest(string + PASSWORD_SALT)
     end
+    
+    # TODO: make sure new user defaults are set to anonymous user
   end
   
   def visit(obj, opts={})
@@ -96,17 +113,50 @@ class User < ActiveRecord::Base
     visitor_site.su_id == self[:id]
   end
   
+  # Return true if the user's status is high enough to start editing nodes.
+  # TODO: test
+  def user?
+    status >= User::Status[:user]
+  end
+  
+  # Return true if the user's status is high enough to write comments.
+  def commentator?
+    status >= User::Status[:moderated]
+  end
+
+  # Return true if the user's comments should be moderated.
+  def moderated?
+    status < User::Status[:commentator]
+  end
+  
+  # Return true if the user's status is high enough to read. This is basically the same as
+  # not deleted?.
+  # TODO: test
+  def reader?
+    status >= User::Status[:reader]
+  end
+  
+  # Return true if the user is deleted and should not be allowed to login.
+  # TODO: test
+  def deleted?
+    status == User::Status[:deleted]
+  end
+  
   # Returns a list of the group ids separated by commas for the user (this is used mainly in SQL clauses).
   def group_ids
+    puts self
     return @group_ids if @group_ids
-    if is_su? || is_admin?
+    if is_su?
       # su user
-      res = visitor_site.groups
+      res = visitor_site.groups.map{|g| g[:id]}
     else
       # normal operation
-      res = groups.find(:all, :conditions=>["site_id = ?", visitor_site[:id]], :order=>'name') # only groups from the current site
+      res = groups.find(:all, :conditions=>["site_id = ?", visitor_site[:id]], :order=>'name').map{|g| g[:id]} # only groups from the current site
+      if res.include?(visitor_site[:admin_group_id])
+        # admin user, find all groups
+        res = visitor_site.groups.map{|g| g[:id]}
+      end
     end
-    res = res.map{|g| g[:id]}
     @group_ids = res
   end
   
@@ -166,6 +216,10 @@ class User < ActiveRecord::Base
   ### ================================================ PRIVATE
   private
   
+  def user_before_validation
+    self[:status] ||= User::Status[:user]
+  end
+  
   # Returns the current site (self = visitor) or the visitor's site
   def visitor_site
     @site || visitor.site
@@ -219,11 +273,6 @@ class User < ActiveRecord::Base
   # Do not allow destruction of _su_ or _anon_ users. This method is called +before_destroy+.
   def dont_destroy_su_or_anon #:doc:
     raise Zena::AccessViolation, "su and Anonymous users cannot be destroyed !" if visitor_site.protected_user_ids.include?(id)
-  end
-  
-  def visitor
-    return @visitor if @visitor
-    raise Zena::RecordNotSecured.new("Visitor not set, record not secured.")
   end
   
   def old

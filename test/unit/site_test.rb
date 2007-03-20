@@ -34,6 +34,7 @@ class SiteTest < ZenaTestUnit
     site = sites(:zena)
     anon = site.anon
     assert_kind_of User, anon
+    assert anon.is_anon?
     assert_equal 'Anonymous', anon.first_name
     assert_equal users_id(:anon), anon[:id]
     anon.site = site

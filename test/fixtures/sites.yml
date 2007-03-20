@@ -11,7 +11,7 @@ zena:
   name:           'zena'
   authorize:      NO
   monolingual:    NO
-  allow_private:  NO
+  allow_private:  YES
   languages:      "en,fr"
   default_lang:   "en"
 

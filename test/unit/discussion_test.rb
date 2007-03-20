@@ -16,4 +16,17 @@ class DiscussionTest < ZenaTestUnit
     assert_equal comments_id(:ant_says_inside),    allcomm[1][:id]
     assert_equal comments_id(:tiger_reply_inside), allcomm[3][:id]
   end
+  
+  def test_cannot_set_site_id
+    login(:tiger)
+    disc = discussions(:inside_discussion_on_status)
+    assert_raise(Zena::AccessViolation) { disc.site_id = sites_id(:ocean) }
+  end
+  
+  def test_site_id
+    login(:tiger)
+    disc = Discussion.create(:node_id=>nodes_id(:projects))
+    assert !disc.new_record?, "Not a new record"
+    assert_equal sites_id(:zena), disc.site_id
+  end
 end

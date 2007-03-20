@@ -139,6 +139,7 @@ ActiveRecord::Schema.define(:version => 0) do
     t.column "custom_base", :boolean, :default => false
     t.column "basepath", :text
     t.column "site_id", :integer
+    t.column "zip", :integer
   end
 
   create_table "sequence", :id => false, :force => true do |t|
@@ -178,6 +179,7 @@ ActiveRecord::Schema.define(:version => 0) do
     t.column "phrase_id", :integer
     t.column "lang", :string, :limit => 10, :default => "", :null => false
     t.column "value", :text, :default => "", :null => false
+    t.column "site_id", :integer
   end
 
   create_table "users", :force => true do |t|
@@ -192,6 +194,7 @@ ActiveRecord::Schema.define(:version => 0) do
     t.column "name", :string, :limit => 60
     t.column "email", :string, :limit => 60
     t.column "time_zone", :string
+    t.column "status", :integer
   end
 
   create_table "versions", :force => true do |t|
@@ -210,6 +213,11 @@ ActiveRecord::Schema.define(:version => 0) do
     t.column "number", :integer, :default => 1
     t.column "content_id", :integer
     t.column "site_id", :integer
+  end
+
+  create_table "zip_counter", :id => false, :force => true do |t|
+    t.column "site_id", :integer
+    t.column "zip", :integer
   end
 
 end

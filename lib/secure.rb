@@ -1,4 +1,5 @@
 module Zena
+  # version status  
   Status = {
     :pub  => 50,
     :prop => 40,
@@ -9,63 +10,7 @@ module Zena
     :rem  => 10,
     :del  => 0,
   }.freeze
-end
-module Zena
   module Acts 
-    module SecureScope
-      
-      # Secure scope for read access.
-      # [read]
-      # * super user
-      # * owner
-      # * members of +read_group+ if the node is published and the current date is greater or equal to the publication date
-      # * members of +publish_group+ if +max_status+ >= prop
-      def secure_scope
-        base = if visitor.is_su? # super user
-          "1"
-        else
-          "user_id = '#{visitor[:id]}' OR "+
-          "(rgroup_id IN (#{visitor.group_ids.join(',')}) AND publish_from <= now() ) OR " +
-          "(pgroup_id IN (#{visitor.group_ids.join(',')}) AND max_status > #{Zena::Status[:red]})"
-        end
-        "(#{base}) AND (site_id = #{visitor.site[:id]})"
-      end
-
-      # Secure scope for write access.
-      # [write]
-      # * super user
-      # * owner
-      # * members of +write_group+ if node is published and the current date is greater or equal to the publication date
-      def secure_write_scope
-        if visitor.is_su? # super user
-          "site_id = (#{visitor.site[:id]})"
-        else
-          "user_id = '#{visitor[:id]}' OR "+
-          "(wgroup_id IN (#{visitor.group_ids.join(',')}) AND publish_from <= now())"
-        end
-      end
-      
-      # Secure scope for publish or management access.
-      # [publish]
-      # * super user
-      # * members of +publish_group+ if +max_status+ >= prop
-      # * owner if member of +publish_group+ or private
-      # 
-      # [manage]
-      # * owner if +max_status+ <= red
-      # * owner if private
-      def secure_drive_scope
-        if visitor.is_su? # super user
-          "site_id = (#{visitor.site[:id]})"
-        else
-          "(user_id = '#{visitor[:id]}' AND "+
-            "( (rgroup_id = 0 AND wgroup_id = 0 AND pgroup_id = 0) OR max_status <= #{Zena::Status[:red]} OR pgroup_id IN (#{visitor.group_ids.join(',')}) )" +
-          ") OR "+
-          "( pgroup_id IN (#{visitor.group_ids.join(',')}) AND max_status > #{Zena::Status[:red]} )"
-        end
-      end
-    end
-    
 =begin rdoc
 == Secure model
 Read, write and publication access to an node is defined with four elements: one user and three groups.
@@ -145,6 +90,7 @@ In the controller :
       session[:user] = @user[:id]
   end
 
+#FIXME: correct doc.
 In the model :
   require 'lib/acts_as_secure'
   class Page < ActiveRecord::Base
@@ -154,14 +100,12 @@ In the model :
 In the helpers (if you intend to use secure find there...)
   require 'lib/acts_as_secure'
   module ApplicationHelper
-    include Zena::Acts::SecureScope
-    include Zena::Acts::Secure::InstanceMethods
+    include Zena::Acts::Secure
     # ...
   end
 Just doing the above will filter all result according to the logged in user.
 =end
     module SecureNode
-      include SecureScope
       # this is called when the module is included into the 'base' module
       def self.included(base)
         # add all methods from the module "AddActsAsMethod" to the 'base' module
@@ -169,7 +113,6 @@ Just doing the above will filter all result according to the logged in user.
       end
       module AddActsAsMethod
         def acts_as_secure_node
-          acts_as_secure
           belongs_to :rgroup, :class_name=>'Group', :foreign_key=>'rgroup_id'
           belongs_to :wgroup, :class_name=>'Group', :foreign_key=>'wgroup_id'
           belongs_to :pgroup, :class_name=>'Group', :foreign_key=>'pgroup_id'
@@ -185,7 +128,6 @@ Just doing the above will filter all result according to the logged in user.
       
       
       module InstanceMethods
-        attr_accessor :visitor
         
         def self.included(base)
           base.extend ClassMethods
@@ -223,7 +165,7 @@ Just doing the above will filter all result according to the logged in user.
         
         # Return true if the node can be viewed by all (public)
         def public?
-          can_read?(1,[1]) # visible by anonymous
+          can_read?(visitor.site.anon,visitor.site.anon.group_ids) # visible by anonymous
         end
   
         # people who can read:
@@ -231,9 +173,9 @@ Just doing the above will filter all result according to the logged in user.
         # * owner
         # * members of +read_group+ if the node is published and the current date is greater or equal to the publication date
         # * members of +publish_group+ if +max_status+ >= prop
-        def can_read?(uid=visitor[:id], ugps=visitor.group_ids)
-          ( uid == 2 ) || # super user
-          ( uid == user_id ) ||
+        def can_read?(vis = visitor, ugps=visitor.group_ids)
+          ( vis.is_su? ) || # super user
+          ( vis[:id] == user_id ) ||
           ( ugps.include?(rgroup_id) && publish_from && Time.now.utc >= publish_from ) ||
           ( ugps.include?(pgroup_id) && max_status > Zena::Status[:red] )
         end
@@ -242,9 +184,9 @@ Just doing the above will filter all result according to the logged in user.
         # * super user
         # * owner
         # * members of +write_group+ if published and the current date is greater or equal to the publication date
-        def can_write?(uid=visitor[:id], ugps=visitor.group_ids)
-          ( uid == 2 ) || # super user
-          ( uid == user_id ) ||
+        def can_write?(vis=visitor, ugps=visitor.group_ids)
+          ( vis.is_su? ) || # super user
+          ( vis[:id] == user_id ) ||
           ( ugps.include?(wgroup_id) && publish_from && Time.now.utc >= publish_from )
         end
         
@@ -252,8 +194,8 @@ Just doing the above will filter all result according to the logged in user.
         # * super user
         # * members of +publish_group+
         # * members of the reference's publish group if the item is private
-        def can_visible?(uid=visitor[:id], ugps=visitor.group_ids)
-          ( uid == 2 ) || # super user
+        def can_visible?(vis=visitor, ugps=visitor.group_ids)
+          ( vis.is_su? ) || # super user
           ( ugps.include?(pgroup_id) ) ||
           ( private? && ugps.include?(ref.pgroup_id))
         end
@@ -261,10 +203,10 @@ Just doing the above will filter all result according to the logged in user.
         # people who can manage:
         # * owner if +max_status+ <= red
         # * owner if private
-        def can_manage?(uid=visitor[:id])
-          ( uid == 2 ) || # super user
-          ( publish_from == nil && uid == user_id && max_status <= Zena::Status[:red] ) ||
-          ( private? && uid == user_id )
+        def can_manage?(vis=visitor)
+          ( vis.is_su? ) || # super user
+          ( publish_from == nil && vis[:id] == user_id && max_status <= Zena::Status[:red] ) ||
+          ( private? && vis[:id] == user_id )
         end
         
         # can change position, name, rwp groups, etc
@@ -328,7 +270,7 @@ Just doing the above will filter all result according to the logged in user.
             self[:skin ] = ref.skin
           when -1
             # private
-            if ZENA_ENV[:allow_private_nodes]
+            if visitor.site[:allow_private]
               self[:rgroup_id] = 0
               self[:wgroup_id] = 0
               self[:pgroup_id] = 0
@@ -433,7 +375,7 @@ Just doing the above will filter all result according to the logged in user.
                 break
               end
               ref_ids << curr_ref
-              break if curr_ref == ZENA_ENV[:root_id]
+              break if curr_ref == visitor.site[:root_id]
               rows = self.class.connection.execute("SELECT #{ref_field} FROM #{self.class.table_name} WHERE id=#{curr_ref}")
               if rows.num_rows == 0
                 errors.add(ref_field, "reference missing in reference hierarchy")
@@ -474,7 +416,7 @@ Just doing the above will filter all result according to the logged in user.
           when -1
             # make private, only if owner
             unless (inherit == old.inherit)
-              if old.can_drive? && (user_id == visitor[:id]) && ZENA_ENV[:allow_private_nodes]
+              if old.can_drive? && (user_id == visitor[:id]) && visitor.site[:allow_private]
                 [:rgroup_id, :wgroup_id, :pgroup_id].each do |sym|
                   self[sym] = 0
                 end
@@ -677,92 +619,112 @@ Just doing the above will filter all result according to the logged in user.
       end
     end
     
-    # ============================================= SECURE CONTROLLER ===============
+    # ============================================= SECURE  ===============
     module Secure
-      # this is called when the module is included into the 'base' module
-      def self.included(base)
-        # add all methods from the module "AddActsAsMethod" to the 'base' module
-        base.extend AddActsAsMethod
+      # protect access to site_id : should not be changed by users
+      def site_id=(i)
+        raise Zena::AccessViolation, "\#{self.class.to_s} '\#{self.id}': tried to change 'site_id' to '\#{i}'."
       end
-      module AddActsAsMethod
-        def acts_as_secure
-          class_eval <<-END
-            attr_accessor :visitor
-            
-            include Zena::Acts::SecureScope
-            include Zena::Acts::Secure::InstanceMethods
-          END
-          if self.ancestors.include?(ActiveRecord::Base)
-            class_eval <<-END
-              validate  :visitor
-            END
-          end
-        end
+
+      # Set current visitor
+      def visitor=(visitor)
+        @visitor = visitor
       end
       
+      # these methods are not actions that can be called from the web !!
+      private
       
-      module InstanceMethods
-        def self.included(base)
-          base.extend ClassMethods
+      # Return the current visitor. Raise an error if the visitor is not set.
+      # For controllers, this method must be redefined in Application
+      def visitor
+        return @visitor if @visitor
+        raise RecordNotSecured.new("Visitor not set, record not secured.")
+      end
+      
+      # secure find with scope (for read/write or publish access).
+      def secure_with_scope(obj, find_scope, opts={})
+        scope = {:create => { :visitor => visitor }}
+        if find_scope
+          find_scope = "(#{find_scope}) AND (site_id = #{visitor.site[:id]})"
+        else
+          find_scope = "site_id = #{visitor.site[:id]}"
         end
-        
-        # these methods are not actions that can be called from the web !!
-        private
-        
-        # secure find with scope (for read/write or publish access).
-        def secure_with_scope(obj, scope, opts={})
-          scoping = {:create => { :visitor => visitor }}
-          if obj.ancestors.include?(Zena::Acts::SecureNode::InstanceMethods)
-            # Restrict find access for SecuredNodes
-            scoping[:find] = { :conditions => scope }
-          end
-          obj.with_scope( scoping ) do
-            result = yield
-            if result
-              if result.kind_of? Array
-                result.each {|r| visitor.visit(r) }
-              else
-                # give the node some info on the current visitor. This lets security and lang info
-                # propagate naturally through the nodes.
-                visitor.visit(result)
-              end
-              result
+        if obj.ancestors.include?(Zena::Acts::SecureNode::InstanceMethods)
+          # Restrict find access for SecuredNodes
+          scope[:find] = { :conditions => find_scope }
+        end
+        obj.with_scope( scope ) do
+          result = yield
+          if result
+            if result.kind_of? Array
+              result.each {|r| visitor.visit(r) }
             else
-              raise ActiveRecord::RecordNotFound
+              # Give the node some info on the current visitor. This lets security and lang info
+              # propagate naturally through the nodes.
+              visitor.visit(result)
             end
-          end
-        end
-        
-        # secure find for read access. The options hash is used internally by zena when maintaining parent to children inheritance and should not be used for other purpose if you do not want to break secure access.
-        def secure(obj, opts={}, &block)
-          if opts[:secure] == false
-            yield
-          elsif obj.ancestors.include?(Zena::Acts::SecureNode::InstanceMethods)
-            secure_with_scope(obj, secure_scope, &block)
+            result
           else
-            secure_with_scope(obj, '1', &block)
+            raise ActiveRecord::RecordNotFound
           end
         end
+      end
+      
+      # Secure for read/create.
+      # [read]
+      # * super user
+      # * owner
+      # * members of +read_group+ if the node is published and the current date is greater or equal to the publication date
+      # * members of +publish_group+ if +max_status+ >= prop
+      # The options hash is used internally by zena when maintaining parent to children inheritance and should not be used for other purpose if you do not want to break secure access.
+      def secure(obj, opts={}, &block)
+        if opts[:secure] == false
+          yield
+        elsif obj.ancestors.include?(Zena::Acts::SecureNode::InstanceMethods) && !visitor.is_su? # not super user
+          scope = "user_id = '#{visitor[:id]}' OR "+
+                  "(rgroup_id IN (#{visitor.group_ids.join(',')}) AND publish_from <= now() ) OR " +
+                  "(pgroup_id IN (#{visitor.group_ids.join(',')}) AND max_status > #{Zena::Status[:red]})"
+          secure_with_scope(obj, scope, &block)
+        else
+          secure_with_scope(obj, nil, &block)
+        end
+      end
 
-        # secure find for write access.
-        def secure_write(obj, &block)
-          secure_with_scope(obj, secure_write_scope, &block)
-        end
-        
-        # secure find for publish (and manage) access.
-        def secure_drive(obj, &block)
-          secure_with_scope(obj, secure_drive_scope, &block)
+      # Secure scope for write access.
+      # [write]
+      # * super user
+      # * owner
+      # * members of +write_group+ if node is published and the current date is greater or equal to the publication date
+      def secure_write(obj, &block)
+        if visitor.is_su? # super user
+          secure_with_scope(obj, nil, &block)
+        else
+          scope = "user_id = '#{visitor[:id]}' OR "+
+          "(wgroup_id IN (#{visitor.group_ids.join(',')}) AND publish_from <= now())"
+          secure_with_scope(obj, scope, &block)
         end
 
-        # Return the current visitor. Raise an error if the visitor is not set.
-        # For controllers, this method must be redefined in Application
-        def visitor
-          return @visitor if @visitor
-          raise RecordNotSecured.new("Visitor not set, record not secured.")
-        end
-        
-        module ClassMethods
-          # PUT YOUR CLASS METHODS HERE (without self...)
+      end
+      
+      # Secure scope for publish or management access.
+      # [publish]
+      # * super user
+      # * members of +publish_group+ if +max_status+ >= prop
+      # * owner if member of +publish_group+ or private
+      # 
+      # [manage]
+      # * owner if +max_status+ <= red
+      # * owner if private
+      def secure_drive(obj, &block)
+        if visitor.is_su? # super user
+          secure_with_scope(obj, nil, &block)
+        else
+          scope = "(user_id = '#{visitor[:id]}' AND "+
+                  "( (rgroup_id = 0 AND wgroup_id = 0 AND pgroup_id = 0) OR max_status <= #{Zena::Status[:red]} " + 
+                  "OR pgroup_id IN (#{visitor.group_ids.join(',')}) )" +
+                  ") OR "+
+                  "( pgroup_id IN (#{visitor.group_ids.join(',')}) AND max_status > #{Zena::Status[:red]} )"
+          secure_with_scope(obj, scope, &block)
         end
       end
     end
@@ -777,6 +739,6 @@ Just doing the above will filter all result according to the logged in user.
 end
 
 
-ActiveRecord::Base.send :include, Zena::Acts::SecureNode # for Nodes
 ActiveRecord::Base.send :include, Zena::Acts::Secure     # for other classes
+ActiveRecord::Base.send :include, Zena::Acts::SecureNode # for Nodes
 ActionController::Base.send :include, Zena::Acts::Secure
