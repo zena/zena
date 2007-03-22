@@ -1,0 +1,281 @@
+/* Stylesheet for Allison RDoc template */
+/* Copyright 2006 Cloudburst LLC */
+
+/* default styles */
+
+* {
+	margin: 0;
+	padding: 0;
+	border: none;
+	}
+
+a {
+	color: #090090;
+	text-decoration: none;
+	}
+
+a:hover { color: orange; }
+
+html, body {
+	color: black;
+	font: 0.9em verdana, helvetica, sans;
+	background-color: #faf6fa;
+	margin: 0;
+	padding: 0;
+	}
+
+p, ul, ol, li {
+	line-height: 1.4em;
+	margin: .4em;
+	}
+
+p { margin: 1.4em 1.4em 1.4em 30px; }
+
+tt {
+	font-size: 1.3em;
+	color: #463E1B;
+	}
+
+#header a { color: inherit; }
+
+#content h1 {
+	font-size: 1.5em;
+	border-bottom: 2px solid #6F673F;
+	}
+
+#item_name { margin-bottom: 0; }
+
+#content h1, #content h2, #content h3 {
+	font-size: 1.1em;
+	padding: 3px 0;
+	font-weight: bold;
+	margin: 2em 30px 1em;
+	}
+
+h1 a, h2 a, h3 a { color: inherit; }
+
+#content h1 {
+	font-size: 1.5em;
+	border-bottom: 2px solid #6F673F;
+	}
+
+#content h2 { font-size: 1.3em; }
+/* center everything */
+
+#container {
+	font-size: 1em;
+	width: 100%;
+	height: 100%;
+	}
+
+#container td { vertical-align: top; }
+
+
+
+/* header stuff */
+
+#header {
+	padding: 10px;
+	width: 100%;
+	height: 50px;
+	border-bottom: 1px solid black;
+	background: #6F673F;
+	margin-bottom: 0;
+	overflow: hidden;
+	}
+
+#header h1 {
+	color: #fff;
+	font-size: 1.8em;
+	margin: 0;
+	}
+
+#header p {
+	margin: 0;
+	padding: 0;
+	padding-left: 3px;
+	color: #fff;
+	}
+
+
+/* basic layout and navigation bars */
+
+#left {
+	border-right: 1px solid black;
+	border-bottom: 1px solid black;
+	background: #6F673F;
+	width: 199px;
+	}
+
+#left a { line-height: 1.3em; }
+
+/* navigation bar colors and text styles */
+
+.navigation {
+	width: auto;
+	margin: 5px;
+	padding: 5px;
+	text-align: left;
+	background-color: white;
+	overflow: hidden;
+	}
+
+.navigation a {
+	margin-left: 10px;
+	font-size: 0.9em;
+	}
+
+.navigation h3 {
+	font-weight: bold;
+	margin-bottom: 5px;
+	}
+
+.dark {
+	color: black;
+	background-color: #938C6C;
+	}
+
+.dark a, .dark span { margin-left: 10px; }
+/*
+span.bpink { color: #E5366F; font-weight: bold; margin-left: 10px; }
+span.bpink a, .dark span a { margin-left: 0; } */
+#spacer {
+	background-color: #faf6fa;
+	height: 30px;
+	display: none;
+	}
+
+#content {
+	padding: 0;
+	vertical-align: top;
+	background: none;
+	}
+
+.clear { clear: both; }
+
+#allison {
+	float: right;
+	color: #B6AB7A;
+	padding:20px;
+	font-size:0.8em;
+	}
+#allison a {
+  color: #DDD099;
+}
+
+/* for that dumb redirect index page I can't avoid */
+
+#redirect { text-align: center; }
+#redirect a { color: #411948; }
+
+/* tables */
+table {
+	border-collapse: collapse;
+	font-size: 1em;
+	}
+
+#content table {
+	margin: 1.4em 1.4em 1.4em 30px;
+	border: 1px solid grey;
+	font-size: 0.9em;
+	}
+
+#content table td,
+#content table th {
+	background-color: #faf6fa;
+	text-align: left;
+	padding: 5px;
+	line-height: 1.2em;
+	border-top: 1px solid grey;
+	}
+
+#content table tr:first-child td { border-top-width: 0; }
+
+#content table th {
+  font-weight:normal;
+	color: #fff;
+	background-color: #6F673F;
+	}
+
+#content table th.description { text-align: center; }
+#content table td.highlight { color: #463E1B; }
+
+/* method details */
+
+div.a_method {
+	padding-left: 10px;
+	margin-left: 22px;
+	}
+
+div.a_method a.small {
+	font-size: .1em;
+	line-height: .1em;
+	}
+
+div.a_method p {
+	margin: .6em;
+	margin-left: 1.4em;
+	}
+
+div.section_spacer {
+	height: 0;
+	margin-top: 20px;
+	}
+
+#content div.a_method h3 {
+	font-family: monospace;
+	font-size: large;
+	border-bottom: 1px dashed grey;
+	margin: 0.3em;
+	padding-bottom: 0.2em;
+	}
+
+div.a_method h3 a { color: inherit; }
+div.a_method h3 span.params { font-weight: normal; }
+/* index includes on the navigation bar */
+
+div.index a { font-size: .8em; }
+#method { display: none; }
+#file, #class { display: block; }
+div.list_header { float: left; }
+
+div.list_header_link {
+	float: right;
+	padding-top: 3px;
+	}
+
+div.list_header_link a { font-weight: normal; }
+.index label { font-size: 0.8em; }
+.index form input { width: 110px; }
+.index form { margin-bottom: 10px; }
+ol, ul { margin-left: 40px; }
+div.source { display: none; }
+
+pre {
+	color: black;
+	font-weight: normal;
+	font-family: Courier, Courier New, monospace;
+	font-size: 1em;
+	line-height: 1.3em;
+	padding: 0.5em;
+	border: 1px dotted black;
+	margin-left: 20px;
+	background: #ffe;
+	overflow: auto;
+	/* next 4 lines because IE sucks */
+	_position: relative;
+	_width: 567px;
+	_overflow-x: scroll;
+	_overflow-y: visible;
+	}
+
+div.source pre { margin-left: 0; }
+
+/* source code highlighting */
+
+pre .ruby-value, pre .ruby-symbol { color: #1104bb; }
+pre .ruby-value.str, pre .ruby-node { color: #E5366F; }
+pre .ruby-ivar, pre .ruby-cvar { }
+pre .ruby-comment { color: #009500; }
+pre .ruby-constant { color: #cd8802; }
+pre .ruby-keyword { color: #8d04aa; }

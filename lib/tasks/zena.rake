@@ -107,7 +107,7 @@ namespace :zena do
   
   desc "Generate documentation for the application (including lib files)"
   task :doc do
-    `rdoc --line-numbers --inline-source --template=zena --op 'doc/app' 'doc/README_FOR_APP' 'app' 'lib'`
+    `rdoc --line-numbers --title 'Zena Documentation' --inline-source --template=./doc/template/allison.rb --main doc/README_FOR_APP --op 'doc/app' 'doc/README_FOR_APP' 'app' 'lib'`
   end
 end
 

@@ -1,10 +1,17 @@
 javascript date selection
 -------------------------
-    dynarch.com 2002-2005 / Author: Mihai Bazon
-    adapted to Rails by Gaspard Bucher, teti.ch
+    Mihai Bazon
+    http://dynarch.com
+    adapted to Rails by Gaspard Bucher
     
 soft icons
 ----------
     Mark James
     http://www.famfamfam.com/lab/icons/silk/
+    
+rdoc template
+-------------
+    Evan Weaver
+    http://blog.evanweaver.com/pages/allison-rdoc-template
+    adapted to Rails by Gaspard Bucher
 

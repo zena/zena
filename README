@@ -15,4 +15,4 @@ This is done through the web
 
 dependencies:
 
-rmagick, redcloth, syntax
+rmagick, redcloth, syntax, markaby
