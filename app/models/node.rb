@@ -1,55 +1,27 @@
 =begin rdoc
-An Node is the parent for all web content classes (#Page, #Event, #Log, #Document, #Category, #Project).
 
-== #Note vs #Page vs #Documents
-A #Note is something related to *time* for a certain #Project. A #Page is some structured data organised as a tree.
-A note's parent can only be a Project. A page's parent can be any kind of #Page. There is a special case for documents. A #Document
-can have a #Note as parent and it cannot have children.
+== Node, Version and Content
 
-== Secure access
-See #Zena::Acts::Secure
+The +nodes+ table only holds columns to secure the access. This table does not hold every possible data for every sub-class of Node. The text data is stored into the +versions+ table and any other specific content goes in its own table (+document_contents+ for example). This is an example of how an Image is stored :
 
-== Editions vs Versions
-An edition is a _published_ version. An node can only have one edition per language. If there is no edition
-available in the current language the +ref_lang+ edition is shown instead. If the latter does not exist any
-edition is shown.
+ Node         o-----------   Version   o---------  Content
+ pgroup_id                   title                 width
+ wgroup_id                   text                  height
+ user_id                     summary               content_type
+ ...                         ...                   ...
+ 
+== Acessing version and content data
 
-If an node does not have any editions : it <i>does not exist</i>. It will appear nowhere. Only it's current versions
-will show up as <i>working copies</i> on the user's home page.
+To ease the work to set/retrieve the data from the version and or content, we use some special notation. This notation abstracts this Node/Version/Content structure so you can use a version's attribute as if it was in the node directly.
 
-Changing versions (rollback, rollforward) is done by first choosing 'manage' action. This action shows a list of versions for 
-the current language (in node_actions). There should be a possibility to change lang or show all. Each line has 'show' 
-(live_preview). Once the version is shown: 'rollxxx', 'show_diff'.
+Any attribute starting with +v_+ is sent to the node's version. For example, this is the recommended way to get the node's title :
 
-Here is a drawing of version status :
-link://../img/zena_versions_life.png
+  @node.v_title   # in a form: <%= text_field 'node', 'v_title' %>
+  
+Any method starting with +c_+ is sent directly to the node's content. For example, this is the recommended way to get an image's width :
 
-= Node life cycle
-
-== New
-link://../img/zena_new_node.png
-
-== Publication
-There can only be one published version per language. The published_at date is set to some datetime in the future or
-simply to +now+. The publication date cannot be set to a moment in the past (it should only be used to make the node appear
-on the site at a specified date). This ensures that we can see how the site was, somewhere in the past.
-
-Setting a #Version from +red+ to +prop+ proposes to change all children (status=red, same owner) to 'prop'.
-Publishing a #Version proposes to publish all children (status=prop, same owner).
-
-== Display
-When an node is displayed, it shows it's edition and some other element :
-[contact] If the node is a presentation page for a contact : display contact partial
-[document] If the node is a #Document : display preview and link for download.
-[book] Display a book reference if there is one.
-[action] Depending on user rights, display buttons to 'edit, add, remove' node.
-
-= Relation to project
-This part is not very clear yet. A Note must have a project as this is it's inheritance reference. A page does not really
-need a project to be set...
-= Index node
-By default, node with id=1 is the 'root' of all other nodes. It's the only node in Zena without a reference (no parent and no
-project). Some special rules apply to this node : TODO...
+ @node.c_width   # in a form: <%= text_field 'node', 'c_width' %>
+ 
 =end
 class Node < ActiveRecord::Base
   has_many           :discussions

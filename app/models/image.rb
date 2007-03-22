@@ -30,10 +30,10 @@ The version class used by images is the ImageVersion.
 
 Content (file data) is managed by the ImageContent. This class is responsible for storing the file and retrieving the data. It provides the following attributes to the Image :
 
-+c_size(format)+::  file size for the image at the given format
-+c_ext+::   file extension
-+c_width(format)+:: image width in pixel for the given format
-+c_height(format)+:: image height in pixel for the given format
+c_size(format)::    file size for the image at the given format
+c_ext::             file extension                              
+c_width(format)::   image width in pixel for the given format
+c_height(format)::  image height in pixel for the given format
 
 =end
 class Image < Document
@@ -44,7 +44,7 @@ class Image < Document
     end
   end
   
-  # Crops an image. See ImageContent#crop for details on this method.
+  # Crops an image. See ImageContent for details on this method.
   def c_crop=(crop)
     x, y, w, h = crop[:x].to_i, crop[:y].to_i, crop[:w].to_i, crop[:h].to_i
     if (x >= 0 && y >= 0 && w <= c_width && h <= c_height) && !(x==0 && y==0 && w == c_width && h == c_height)

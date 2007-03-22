@@ -1,5 +1,9 @@
 =begin rdoc
-A Document is a node with a file. There can be one file per version but when a new version created without a new file, the new version uses the same file as the original:
+A Document is a node with a file.
+
+=== File storage
+
+There can be one file per version but when a new version created without a new file, the new version uses the same file as the original:
 
  original version -------> file1   (this file cannot be changed)
                             /
@@ -23,9 +27,8 @@ The version class used by documents is the DocumentVersion.
 
 Content (file data) is managed by the DocumentContent. This class is responsible for storing the file and retrieving the data. It provides the following attributes to the Document :
 
-+c_size+::  file size
-+c_ext+::   file extension
-
+c_size::  file size      
+c_ext::   file extension 
 =end
 class Document < Page
   before_validation :document_before_validation
