@@ -40,8 +40,8 @@ class ImageTest < ZenaTestUnit
   end
   
   def test_image_content_type
-    assert Image.image_content_type?('image/jpeg')
-    assert !Image.image_content_type?('application/pdf')
+    assert Image.accept_content_type?('image/jpeg')
+    assert !Image.accept_content_type?('application/pdf')
   end
   
   def test_change_image
@@ -70,6 +70,7 @@ class ImageTest < ZenaTestUnit
       assert_equal 56183, img.c_size
       assert_equal 'image/jpeg', img.c_content_type
       assert !img.update_attributes(:c_file=>uploaded_text('some.txt'))
+      img = secure(Node) { nodes(:bird_jpg) } # reload
       assert_equal 56183, img.c_size
       assert_equal 'image/jpeg', img.c_content_type
     end
@@ -85,7 +86,7 @@ class ImageTest < ZenaTestUnit
       assert_equal 661, img.c_width
       assert_equal 600, img.c_height
       assert_equal 56183, img.c_size
-      assert img.update_attributes(:crop=>{:x=>'500',:y=>30,:w=>'200',:h=>80})
+      assert img.update_attributes(:c_crop=>{:x=>'500',:y=>30,:w=>'200',:h=>80})
       img = secure(Node) { nodes(:bird_jpg) }
       assert_not_equal pub_version_id, img.v_id
       assert_not_equal pub_content_id, img.c_id
@@ -105,10 +106,11 @@ class ImageTest < ZenaTestUnit
       assert_equal 661, img.c_width
       assert_equal 600, img.c_height
       # crop keeping same size = do nothing
-      assert img.update_attributes(:crop=>{:x=>'0',:y=>0,:w=>'661',:h=>600})
+      assert img.update_attributes(:v_text=>"hey", :c_crop=>{:x=>'0',:y=>0,:w=>'661',:h=>600})
       img = secure(Node) { nodes(:bird_jpg) }
       assert_not_equal pub_version_id, img.v_id
-      assert_equal pub_content_id, img.c_id
+      assert_equal pub_version_id, img.version.content_id
+      assert_equal pub_content_id, img.version.content.id
       assert_equal 661, img.c_width
       assert_equal 600, img.c_height
     end
@@ -124,7 +126,7 @@ class ImageTest < ZenaTestUnit
       assert_equal 661, img.c_width
       assert_equal 600, img.c_height
       assert_equal 56183, img.c_size
-      assert img.update_attributes(:c_file=>uploaded_jpg('flower.jpg'), :crop=>{:x=>'500',:y=>30,:w=>'200',:h=>80})
+      assert img.update_attributes(:c_file=>uploaded_jpg('flower.jpg'), :c_crop=>{:x=>'500',:y=>30,:w=>'200',:h=>80})
       img = secure(Node) { nodes(:bird_jpg) }
       assert_equal 800, img.c_width
       assert_equal 600, img.c_height
@@ -158,34 +160,40 @@ class ImageTest < ZenaTestUnit
   
   def test_change_name_many_versions
     preserving_files('data/test/jpg') do
-      login(:ant)
+      login(:lion)
       img = secure(Image) { Image.create( :parent_id=>nodes_id(:cleanWater),
                                           :inherit => 1,
                                           :name=>'birdy', 
                                           :c_file => uploaded_jpg('bird.jpg')) }
       assert !img.new_record?
+      
       img = secure(Image) { Image.find(img[:id]) }
       assert img.publish
-      img_id = img[:id]
+      img_id  = img[:id]
       v1      = img.v_id
       old1    = img.c_filepath
       old1_pv = img.c_filepath('pv')
+      
       img.c_file('pv') # creates 'pv' file
+      
       img = secure(Image) { Image.find(img_id) }
+      # create a new redaction with a new file
       assert img.update_attributes(:c_file=> uploaded_jpg('flower.jpg'))
-      img = secure(Image) { Image.find(img_id) }
-       img.publish
-       puts img[:id]
-       err img
+      
+      # publish new redaction
+      assert img.publish
+      
       v2      = img.v_id
       old2    = img.c_filepath
       old2_pv = img.c_filepath('pv')
+      
       img.c_file('pv') # creates 'pv' file
       [old1,old1_pv,old2,old2_pv].each do |path|
         assert File.exists?(path)
       end
-       img.update_attributes(:name=>'moineau')
-       err img
+      
+      assert img.update_attributes(:name=>'moineau')
+      
       [old1,old1_pv,old2,old2_pv].each do |path|
         assert !File.exists?(path)
       end
@@ -193,8 +201,8 @@ class ImageTest < ZenaTestUnit
       version2 = Version.find(v2)
       new1 = version1.content.filepath
       new2 = version2.content.filepath
-      assert File.exists(new1), "New file exists"
-      assert File.exists(new2), "New file exists"
+      assert File.exists?(new1), "New file exists"
+      assert File.exists?(new2), "New file exists"
     end
   end
   

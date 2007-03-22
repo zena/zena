@@ -75,9 +75,9 @@ class Version < ActiveRecord::Base
     unless @content
       # create new content
       @content = content_class.new
-      @content.version = self
       self[:content_id] = nil
       @redaction_content = @content
+      @content.version = self
     end
     @content
   end
@@ -87,23 +87,21 @@ class Version < ActiveRecord::Base
     return @redaction_content if @redaction_content
     return unless content_class
     @content = content
-    if @content && @content.version == self
-      # own content
-      @redaction_content = @content
+    if @content && @content[:version_id] == self[:id]
+      # own content, nothing to do
     elsif @content
       # content shared, make it our own
       @old_content = @content # keep the old own in case we cannot save and need to rollback
       @content = @content.clone
       @content.version = self
       self[:content_id] = nil
-      @redaction_content = @content
     else
       # create new content
       @content = content_class.new
       @content.version = self
       self[:content_id] = nil
-      @redaction_content = @content
-    end
+    end  
+    @redaction_content = @content
   end
   
   private
@@ -134,6 +132,10 @@ class Version < ActiveRecord::Base
       else
         self[:number] = 1
       end
+    end
+    if content_class
+      content[:name]    = node[:name]
+      content[:site_id] = self[:site_id]
     end
   end
   

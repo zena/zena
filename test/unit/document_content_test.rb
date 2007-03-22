@@ -130,13 +130,6 @@ class DocumentContentTest < ZenaTestUnit
     end
   end
   
-  def test_has_file
-    login(:ant)
-    doc = secure(Document) { Document.new(:parent_id=>nodes_id(:cleanWater), :name=>'lalala', :c_name=>'wak') }
-    assert ! doc.save, 'Cannot save'
-    assert_equal "can't be blank", doc.errors[:c_file]
-  end
-  
   def test_wrong_file_type
     preserving_files("/data/test/jpg/20") do
       login(:tiger)

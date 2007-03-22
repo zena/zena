@@ -5,6 +5,16 @@ class TextDocumentContent < DocumentContent
     version.text = @file.read
   end
   
+  # Return document file size (= version's text size)
+  def size(format=nil)
+    return self[:size] if self[:size]
+    if !new_record? && File.exist?(filepath)
+      self[:size] = File.stat(filepath).size
+      self.save
+    end
+    self[:size]
+  end
+  
   private
   
   def valid_file
@@ -17,9 +27,9 @@ class TextDocumentContent < DocumentContent
   end
   
   # called before_save
-  def prepare_content
+  def content_before_save
     super
-    self[:type] = self.class.to_s # FIXME: this should not be needed... find another fix.
+    self[:size] = version.text.size
     if @file
       # nothing to do
     elsif !new_record? && (old = DocumentContent.find(self[:id])).name != self[:name]

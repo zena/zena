@@ -58,13 +58,12 @@ module Zena
         
         # try to set the node's version to a redaction
         def edit!
-          if redaction
-            true
-          else
-            false
-          end
+          redaction
         end
         
+        def edit_content!
+          redaction && redaction.redaction_content
+        end
         # return an array of language strings
         def traductions(opts={})
           trad = editions.reject { |ed| ed[:lang] == version[:lang] }
@@ -242,7 +241,7 @@ module Zena
         # :v_... or :c_... keys, then only the version will be saved
         def update_attributes(hash)
           redaction_only = true
-          return unless edit!
+          return false unless edit!
           hash.each do |k,v|
             next if k.to_s == 'id' # just ignore 'id' (cannot be set but is often around)
             unless k.to_s =~ /^(v_|c_)/
@@ -253,7 +252,7 @@ module Zena
           if redaction_only
             hash.each do |k,v|
               next if k.to_s == 'id' # just ignore 'id' (cannot be set but is often around)
-              method_missing("#{k}=".to_sym, v)
+              self.send("#{k}=".to_sym, v)
             end
             valid_redaction
             if errors.empty?
@@ -303,12 +302,12 @@ module Zena
                               :order=>"lang_ok DESC, ref_ok DESC, status ASC, publish_from ASC")
 
               end
-              @version.node = self # preload self as node in version
             end
             if @version.nil?
               raise Exception.new("Node #{self[:id]} does not have any version !!")
             end
-          end
+          end  
+          @version.node = self # preload self as node in version
           @version
         end
         

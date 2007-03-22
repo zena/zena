@@ -6,7 +6,7 @@ class DocumentTest < ZenaTestUnit
     assert Node.read_inheritable_attribute(:before_validation).include?(:secure_before_validation)
     assert Document.read_inheritable_attribute(:validate_on_create).include?(:node_on_create)
     assert Document.read_inheritable_attribute(:validate_on_update).include?(:node_on_update)
-    assert Document.read_inheritable_attribute(:before_validation).include?(:prepare_before_validation)
+    assert Document.read_inheritable_attribute(:before_validation).include?(:document_before_validation)
   end
   
   def test_create_with_file
@@ -42,6 +42,13 @@ class DocumentTest < ZenaTestUnit
       assert_equal "My new project", doc.v_title
       v = doc.send :version
     end
+  end
+
+  def test_create_without_file
+    login(:ant)
+    doc = secure(Document) { Document.new(:parent_id=>nodes_id(:cleanWater), :name=>'lalala') }
+    assert_kind_of TextDocument, doc
+    assert doc.save, "Can save"
   end
   
   def test_create_with_duplicate_name
@@ -94,7 +101,7 @@ class DocumentTest < ZenaTestUnit
     doc.name = 'test'
     assert_equal 'test.jpg', doc.filename
     doc.c_ext = 'pdf'
-    assert_equal 'test.pdf', doc.filename
+    assert_equal 'test.jpg', doc.filename
   end
   
   def test_c_img_tag

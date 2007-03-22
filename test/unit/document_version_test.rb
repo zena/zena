@@ -4,13 +4,8 @@ class DocumentVersionTest < ZenaTestUnit
   
   def test_content
     v = versions(:water_pdf_en)
+    assert_equal DocumentContent, v.content_class
     assert_kind_of DocumentContent, v.content
     assert_equal 'water.pdf', v.content.filename
-  end
-  
-  def test_presence_of_content
-    login(:tiger)
-    doc = secure(Document) { Document.create(:parent_id=>nodes_id(:status), :name=>'test') }
-    assert_equal "can't be blank", doc.errors[:c_file]
   end
 end

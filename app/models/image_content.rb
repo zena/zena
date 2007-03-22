@@ -1,9 +1,31 @@
 class ImageContent < DocumentContent
   
+  # Crop the image using the 'crop' hash with the top left corner position (:x, :y) and the width and height (:width, :heigt). Example:
+  #   @node.crop = {:x=>10, :y=>10, :width=>30, :height=>60}
+  # Be carefull as this method changes the current file. So you should make a backup version before croping the image (the popup editor displays a warning).
+  def crop=(crop)
+    return if @file # we do not want to crop on file upload in case the crop params lie around in the user's form
+    x, y, w, h = crop[:x].to_i, crop[:y].to_i, crop[:w].to_i, crop[:h].to_i
+
+    # crop image
+    img = ImageBuilder.new(:file=>file)
+    img.crop!(x, y, w, h)
+    file = Tempfile.new(filename)
+    File.open(file.path, "wb") { |f| f.syswrite(img.read) }
+    fname = filename
+    ctype = content_type
+    (class << file; self; end;).class_eval do
+      alias local_path path if defined?(:path)
+      define_method(:original_filename) { fname }
+      define_method(:content_type) { ctype }
+    end
+    self.file = file
+  end
+  
   def file=(aFile)
     super
-    remove_format_images if !new_record?
     return unless ImageBuilder.image_content_type?(aFile.content_type)
+    remove_format_images if !new_record?
     img = image_for_format(nil)
     self[:width ] = img.width
     self[:height] = img.height

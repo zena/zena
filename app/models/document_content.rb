@@ -1,8 +1,10 @@
 require 'fileutils'
+=begin rdoc
+Used by Document and Image to store file data. See the documentation on these classes for more information.
+=end
 class DocumentContent < ActiveRecord::Base
   belongs_to            :version
   
-  before_validation     :content_before_validation
   validate              :valid_file
   validates_presence_of :ext
   validates_presence_of :name
@@ -56,7 +58,15 @@ class DocumentContent < ActiveRecord::Base
     else
       self[:size] = @file.stat.size
     end
-    extension = self[:ext] || @file.original_filename.split('.').last
+    self.ext = self[:ext] || @file.original_filename.split('.').last
+  end
+  
+  def ext=(theExt)
+    if theExt && theExt != ''
+      extention = theExt
+    else
+      extension = self[:ext]
+    end
     # is this extension valid ?
     extensions = TYPE_TO_EXT[content_type]
     if extensions
@@ -112,13 +122,6 @@ class DocumentContent < ActiveRecord::Base
     return true if !new_record? || @file
     errors.add('file', "can't be blank")
     return false
-  end
-
-  def content_before_validation
-    self[:name]    = version.node[:name]
-    self[:site_id] = version.node[:site_id]
-  rescue
-    self[:name] = nil
   end
   
   def content_before_save

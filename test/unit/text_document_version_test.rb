@@ -1,10 +1,10 @@
 require File.dirname(__FILE__) + '/../test_helper'
 
-class TextDocumentVersionTest < Test::Unit::TestCase
-  fixtures :text_document_versions
-
-  # Replace this with your real tests.
-  def test_truth
-    assert true
+class TextDocumentVersionTest < ZenaTestUnit
+  
+  def test_content
+    v = TextDocumentVersion.new
+    assert_equal TextDocumentContent, v.content_class
+    assert_kind_of TextDocumentContent, v.content
   end
 end

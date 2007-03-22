@@ -88,6 +88,7 @@ ActiveRecord::Schema.define(:version => 0) do
     t.column "seizure_id", :integer
     t.column "key", :string
     t.column "value", :string
+    t.column "site_id", :integer
   end
 
   create_table "form_seizures", :force => true do |t|
@@ -95,6 +96,7 @@ ActiveRecord::Schema.define(:version => 0) do
     t.column "created_at", :datetime
     t.column "updated_at", :datetime
     t.column "form_id", :integer
+    t.column "site_id", :integer
   end
 
   create_table "groups", :force => true do |t|
@@ -140,11 +142,7 @@ ActiveRecord::Schema.define(:version => 0) do
     t.column "basepath", :text
     t.column "site_id", :integer
     t.column "zip", :integer
-  end
-
-  create_table "sequence", :id => false, :force => true do |t|
-    t.column "name", :string, :limit => 10, :default => "", :null => false
-    t.column "last_val", :integer, :limit => 10, :default => 0, :null => false
+    t.column "dgroup_id", :integer
   end
 
   create_table "sites", :force => true do |t|
@@ -188,7 +186,6 @@ ActiveRecord::Schema.define(:version => 0) do
     t.column "login", :string, :limit => 20
     t.column "password", :string, :limit => 40
     t.column "lang", :string, :limit => 10, :default => "", :null => false
-    t.column "password_salt", :string, :limit => 40
     t.column "contact_id", :integer
     t.column "first_name", :string, :limit => 60
     t.column "name", :string, :limit => 60
