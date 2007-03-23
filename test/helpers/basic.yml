@@ -29,9 +29,9 @@ include_erb:
   src: "include: <z:include template='/nasty_erb'/>"
   tem: "include: this &lt;% puts \"could be\" %&gt; nasty"
 
-rename_asset:
-  src: "<link rel='stylesheet' src='water' type='text/css'/>"
-  tem: "<link rel='stylesheet' src='/data/pdf/15/water.pdf' type='text/css'/>"
+wiki:
+  src: "<img src='bird' alt='bird'/>"
+  tem: "<img alt='bird' src='/data/jpg/20/bird.jpg'/>"
 
 show_title:
   src: "<z:show attr='v_title'/>"
@@ -179,7 +179,7 @@ stylesheets:
 lang_links:
   src: "<div id='lang' do='lang_links'><a>en</a> | <b>fr</b></div>"
   tem: "<div id='lang'><%= lang_links(:node=>@node) %></div>"
-  res: "/<div id='lang'><b>en.*test_render.*lang=es.*\|.*test_render.*=en.*fr/"
+  res: "/<div id='lang'><b>en.*\|.*test_render.*=fr/"
 
 show_path:
   src: "<div id='path' do='show_path'><ul><li><a href='#'>first</a></li> / <li><a href='#'>second</a></li> / <li><a href='#' class='current'>here</a></li></ul></div>"
@@ -364,7 +364,7 @@ include_with:
 comments:
   src: "<z:show_comments/>"
   tem: "<%= show_comments(:node=>@node) %>"
-  res: "/<div class='comment' id='comments_list'>.*reply.*add/"
+  res: "/<div class='comments' id='comments'>.*reply.*add/"
 
 content_for_layout:
   src: "<z:content_for_layout>blah blah</z:content_for_layout>"
@@ -375,3 +375,32 @@ title_for_layout:
   src: "<z:title_for_layout>blah blih</z:title_for_layout>"
   tem: "<% if @title_for_layout -%><%= @title_for_layout %><% else -%>blah blih<% end -%>"
   res: "blah blih"
+
+tada:
+  context:
+    node: 'opening'
+  src: |
+    <h1 id='main_title' do='show' attr='v_title'>Super project</h1>
+
+    <ul do='tags'>
+      <li do='each' do='link'>art</li>
+      <li do='ignore'>life</li>
+      <li do='ignore'>ruby</li>
+    </ul>
+
+    <div id='text' do='zazen' attr='v_text'>
+      <p>Lorem ipsum dolor sit amet, consectetuer elit....</p>
+      <h3>some title</h3>
+    </div>
+  res: |
+    <h1 id='main_title'>parc opening</h1>
+    
+    <ul>
+      <li><a href="/oo/tag23.html">Art</a></li>
+      <li><a href="/oo/tag24.html">News list</a></li>
+    </ul>
+    
+    <div id='text'><p>We are glad to announce the opening of our new project !</p>
+    
+    
+    	<p>You are all invited to <strong>Romanel</strong> for a great party this weekend.</p></div>

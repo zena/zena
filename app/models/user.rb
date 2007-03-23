@@ -79,6 +79,12 @@ class User < ActiveRecord::Base
     end
   end
   
+  def contact
+    secure(Contact) { Contact.find(self[:contact_id]) }
+  rescue ActiveRecord::RecordNotFound
+    nil
+  end
+  
   # Each time a node is found using secure (Zena::Acts::Secure or Zena::Acts::SecureNode), this method is
   # called to set the visitor in the found object. This is also used to keep track of the opened nodes
   # when rendering a page for the cache so we can know when to expire the cache.
@@ -320,13 +326,9 @@ class User < ActiveRecord::Base
         return false
       end
       
-      added_site_ids = @defined_site_ids.reject do |id|
-        site_ids.include?(id)
-      end
+      added_site_ids = @defined_site_ids - site_ids
       
-      removed_site_ids = site_ids.reject do |id|
-        @defined_site_ids.include?(id)
-      end
+      removed_site_ids = site_ids - @defined_site_ids
       
       # make sure visitor is an admin in all the modified site ids:
       (removed_site_ids + added_site_ids).each do |id|

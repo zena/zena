@@ -190,4 +190,9 @@ class Site < ActiveRecord::Base
   def protected_user_ids
     [anon_id, su_id]
   end
+  
+  # Return an array with the languages for the site.
+  def lang_list
+    (self[:languages] || "").split(',').map(&:strip)
+  end
 end

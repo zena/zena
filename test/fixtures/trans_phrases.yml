@@ -401,3 +401,7 @@
 101:
   id:   101
   phrase:  'btn_diff'
+  
+102:
+  id:   102
+  phrase:  'favorite'

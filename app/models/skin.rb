@@ -23,6 +23,11 @@ class Skin < Template
   end
   
   def template_for_path(path)
+    asset_for_path(path, Template)
+  end
+  
+  
+  def asset_for_path(path, klass=Node)
     current = self
     if path == 'any'
       return current
@@ -30,11 +35,11 @@ class Skin < Template
       path = path.split('/')
       while path != []
         template_name = path.shift
-        current = secure(Template) { Template.find(:first, :conditions=>["parent_id = ? AND name = ?", current[:id], template_name])}
+        current = secure(klass) { klass.find(:first, :conditions=>["parent_id = ? AND name = ?", current[:id], template_name])}
       end
       current
     end
   rescue ActiveRecord::RecordNotFound
     nil
-  end   
+  end
 end

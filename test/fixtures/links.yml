@@ -33,3 +33,9 @@ status_hot_for_cleanWater:
   source_id:      11
   target_id:      12
   role:           hot
+  
+nature_favorite_for_ant:
+  id:             7
+  source_id:      3
+  target_id:      29
+  role:           favorite

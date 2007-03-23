@@ -933,3 +933,9 @@
   phrase_id: 101
   lang:      en
   value:     "<img src='/images/layers.png' alt='diff'/>"
+
+174:
+  id:        174
+  phrase_id: 102
+  lang:      en
+  value:     "<img src='/images/heart.png' alt='favorite'/>"

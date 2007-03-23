@@ -19,7 +19,7 @@ module Zafu
       end
       res = super
       if (@context[:parts] || {})[@context[:name]]
-        res
+        (@space_before || '') + res + (@space_after || '')
       else
         render_html_tag(res)
       end
@@ -48,30 +48,37 @@ module Zafu
     end
     
     def render_html_tag(text)
-      return text unless @html_tag && !@html_tag_done
-      res = "<#{@html_tag}#{params_to_html(@html_tag_params || {})}"
-      if text != ''
-        res << ">#{text}</#{@html_tag}>"
+      return text if @html_tag_done
+      if @html_tag
+        res = "<#{@html_tag}#{params_to_html(@html_tag_params || {})}"
+        if text != ''
+          res << ">#{text}</#{@html_tag}>"
+        else
+          res << "/>"
+        end
       else
-        res << "/>"
+        res = text
       end
       @html_tag_done = true
-      res
+      (@space_before || '') + res + (@space_after || '')
     end
     
     def r_rename_asset
       return expand_with unless @html_tag
       unless @params[:src][0..0] == '/'
+        opts = {:src => @params[:src]}
         case @html_tag
         when 'link'
           if @params[:rel].downcase == 'stylesheet'
-            @params[:src] = @options[:helper].send(:template_url_for_asset, :stylesheet , @params[:src])
+            opts[:type] = :stylesheet
           else
-            @params[:src] = @options[:helper].send(:template_url_for_asset, :link, @params[:src])
+            opts[:type] = :link
           end
         else
-          @params[:src] = @options[:helper].send(:template_url_for_asset, @html_tag.to_sym , @params[:src])
+          opts[:type] = @html_tag.to_sym
         end
+        opts[:current_template] = @options[:included_history].last
+        @params[:src] = @options[:helper].send(:template_url_for_asset, opts)
       end
       res   = "<#{@html_tag}#{params_to_html(@params)}"
       @html_tag_done = true
@@ -99,6 +106,11 @@ module Zafu
       @end_tag = @html_tag || @options[:end_do] || "z:#{@method}"
       @end_tag_count  = 1
       
+      # code indentation
+      @space_before = @options[:space_before]
+      @options.delete(:space_before)
+      
+      # puts "[#{@space_before}(#{@method})#{@space_after}]"
       if @params =~ /\A([^>]*?)do\s*=('|")([^\2]*?[^\\])\2([^>]*)\Z/  
         # we have a sub 'do'
         @params = parse_params($1)
@@ -107,7 +119,9 @@ module Zafu
         # the matching zafu tag will be parsed by the last 'do', we must inform it to halt properly :
         opts[:end_do] = @end_tag
         
-        make(:void, opts)
+        sub = make(:void, opts)
+        @space_after = sub.instance_variable_get(:@space_after)
+        sub.instance_variable_set(:@space_after,"")
         if @method == 'include'
           include_template
         end
@@ -121,7 +135,6 @@ module Zafu
           enter(mode)
         end
       end
-      
       if !@html_tag && (@html_tag = @params[:tag])
         @params.delete(:tag)
         # get html tag parameters from @params
@@ -141,14 +154,16 @@ module Zafu
     # scan rules
     def scan
       # puts "SCAN(#{@method}): [#{@text}]"
-      if @text =~ /\A([^<]*)</
+      if @text =~ /\A([^<]*?)(^ *|)</m
         flush $1
+        eat $2
         if @text[1..1] == '/'
+          store $2
           scan_close_tag
         elsif @text[0..3] == '<!--'
-          scan_html_comment
+          scan_html_comment(:space_before=> $2)
         else
-          scan_tag
+          scan_tag(:space_before=> $2)
         end
       else
         # no more tags
@@ -157,13 +172,14 @@ module Zafu
     end
   
     def scan_close_tag
-      if @text =~ /\A<\/([^>]+)>/
+      if @text =~ /\A<\/([^>]+)>( *\n+|)/m
         # puts "CLOSE:[#{$&}]}" # ztag
         # closing tag
         if $1 == @end_tag
           @end_tag_count -= 1
           if @end_tag_count == 0
             eat $&
+            @space_after = $2
             leave
           else  
             # keep the tag (false alert)
@@ -187,11 +203,11 @@ module Zafu
       end
     end
 
-    def scan_html_comment
+    def scan_html_comment(opts={})
       if @text =~ /<!--\|(.*?)-->/m
         # zafu html escaped
         eat $&
-        @text = $1 + @text
+        @text = opts[:space_before] + $1 + @text
       elsif @text =~ /<!--.*?-->/m
         # html comment
         flush $&
@@ -201,18 +217,18 @@ module Zafu
       end
     end
   
-    def scan_tag
+    def scan_tag(opts={})
       # puts "TAG(#{@method}): [#{@text}]"
       if @text =~ /\A<z:(\w+)([^>]*?)(\/?)>/
         # puts "ZTAG:[#{$&}]}" # ztag
         eat $&
-        opts = {:method=>$1, :params=>$2}
+        opts.merge!(:method=>$1, :params=>$2)
         opts.merge!(:text=>'') if $3 != ''
         make(:void, opts)
       elsif @text =~ /\A<(\w+)([^>]*?)do\s*=('|")([^\3]*?[^\\])\3([^>]*?)(\/?)>/
         # puts "DO:[#{$&}]}" # do tag
         eat $&
-        opts = {:method=>$4, :html_tag=>$1, :html_tag_params=>$2, :params=>$5}
+        opts.merge!(:method=>$4, :html_tag=>$1, :html_tag_params=>$2, :params=>$5)
         opts.merge!(:text=>'') if $6 != ''
         make(:void, opts)
       elsif @end_tag && @text =~ /\A<#{@end_tag}([^>]*?)(\/?)>/

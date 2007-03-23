@@ -301,3 +301,6 @@ trans_phrases:
 
   - id:   101
     phrase:  'btn_diff'
+
+  - id:   102
+    phrase:  'favorite'

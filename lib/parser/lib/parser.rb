@@ -18,8 +18,8 @@ module ParserModule
       end
     end
 
-    def template_url_for_asset(type,url)
-      "/test_#{type}/#{url}"
+    def template_url_for_asset(opts)
+      "/test_#{opts[:type]}/#{opts[:src]}"
     end
 
     def method_missing(sym, *args)
@@ -42,8 +42,7 @@ module ParserModule
 end
 
 class Parser
-  attr_accessor :text, :method
-  attr_accessor :pass
+  attr_accessor :text, :method, :pass, :options
     
   class << self
     def parser_with_rules(*modules)
@@ -310,6 +309,7 @@ class Parser
     end
     # puts "MADE #{new_obj.inspect}"
     # puts "TEXT #{@text.inspect}"
+    new_obj
   end
   
   def leave(mode=nil)

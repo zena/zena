@@ -169,6 +169,7 @@ module Zena
         # set site (find first matching site)
         @visitor.site = Site.find(:first, :select=>"sites.*", :from=>"sites, sites_users",
                                   :conditions=>["sites_users.site_id = sites.id AND sites_users.user_id = ?", @visitor[:id]])
+        @visitor.visit(@visitor)
         @lang = @visitor.lang
       end
 

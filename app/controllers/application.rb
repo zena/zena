@@ -191,15 +191,20 @@ class ApplicationController < ActionController::Base
   end
 
   # TODO: implement
-  def template_url_for_asset(type,url)
+  def template_url_for_asset(opts)
+    
     # 1. find in current skin ?
-    # 2. find in corresponding public directory ?
-    case type
-    when :stylesheet
-    when :link
-    when :script
+    url = opts[:current_template][1..-1].split('/') + opts[:src].split('/')
+    url.compact!
+    skin_name = url.shift
+    if @skin_obj && @skin_obj[:name] == skin_name
+      skin = @skin_obj
     end
-    # 3. find in site ?
+    skin ||= secure(Skin) { Skin.find_by_name(skin_name) }
+    asset = skin.asset_for_path(url.join('/'), Document)
+    asset ? url_for(data_url(asset).merge(:only_path=>true)) : nil
+  rescue ActiveRecord::RecordNotFound
+    return nil
   end
   
   # TODO: implement
@@ -230,13 +235,13 @@ class ApplicationController < ActionController::Base
     end
     new_lang = nil
     if params[:lang]
-      if visitor.site[:languages].include?(params[:lang])
+      if visitor.site.lang_list.include?(params[:lang])
         new_lang = params[:lang]
       else
         new_lang = :bad_language
       end
     elsif params[:prefix] && params[:prefix] != AUTHENTICATED_PREFIX
-      if visitor.site.languages.split(',').include?(params[:prefix])
+      if visitor.site.lang_list.include?(params[:prefix])
         session[:lang] = params[:prefix]
       else
         new_lang = :bad_language

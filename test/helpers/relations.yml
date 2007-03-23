@@ -186,5 +186,9 @@ projects:
   res: "cleanWater"
 
 menu_with_favorites:
-  src: "<ul><z:root do='pages' only='public' cache='true' name='menu'><li do='each'><z:link/><ul do='pages'><li do='each' do='link'/></ul></li></z:root><z:node select='visitor' do='favorites'><li do='trans'>favorites<ul><li do='each' do='link'/></ul></li></ul>"
-  res: ""
+  src: "<ul><z:root do='pages' only='public' cache='true' name='menu'><li do='each'><z:link/><ul do='pages'><li do='each' do='link'/></ul></li></z:root><z:node select='visitor' do='favorites'><li class='favorites'><z:trans>favorites</z:trans><ul><li do='each' do='link'/></ul></li></ul>"
+  res: "/.*tag23.*tag25.*Clean Water.*favorites.*Nature/"
+  
+visitor_favorites:
+  src: "<z:node select='visitor'><ul do='favorites'><li do='each' do='link'/></ul></z:node>"
+  res: "<ul><li><a href=\"/oo/page29.html\">Nature</a></li></ul>"

@@ -408,7 +408,10 @@ opening_en:
   comment:        english opening
   title:          parc opening
   summary:        no summary yet
-  text:           nothing written yet
+  text:           |
+    We are glad to announce the opening of our new project !
+    
+    You are all invited to *Romanel* for a great party this weekend.
   lang:           en
   number:         2
 <%= @defaults %>

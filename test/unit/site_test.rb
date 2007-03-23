@@ -115,4 +115,12 @@ class SiteTest < ZenaTestUnit
     assert_equal nodes_id(:zena), site[:root_id]
     assert_equal 'test.host', site[:host]
   end
+  
+  def test_lang_list
+    site = sites(:zena)
+    site.languages = "en,fr"
+    assert_equal ['en', 'fr'], site.lang_list
+    site.languages = "en,fr, ru , es"
+    assert_equal ['en', 'fr', 'ru', 'es'], site.lang_list
+  end
 end

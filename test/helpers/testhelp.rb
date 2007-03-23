@@ -36,12 +36,16 @@ class TestController < ApplicationController
   end
 
   def set_context
-    session[:user] = User.find(@params[:user_id])[:id] # make sure the user exists
-    session[:lang] = visitor.lang = @params[:prefix]
+    @visitor = User.find(@params[:user_id])
+    @visitor.lang = @params[:prefix]
+    @visitor.site = Site.find(:first, :select=>"sites.*", :from=>"sites, sites_users",
+                              :conditions=>["sites_users.site_id = sites.id AND sites_users.user_id = ?", visitor[:id]])
+    @visitor.visit(@visitor)
     @node = secure(Node) { Node.find(@params[:node_id])}
     @text = @params[:text]
     @test_url  = @params[:url]
     @params.delete(:user_id)
+    @params.delete(:prefix)
     @params.delete(:node_id)
     @params.delete(:text)
     @params.delete(:url)

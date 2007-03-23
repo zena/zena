@@ -178,3 +178,7 @@ trans_values:
   - phrase_id:    101
     lang:      en
     value:     "<img src='/images/layers.png' alt='diff'/>"
+
+  - phrase_id:    102
+    lang:      en
+    value:     "<img src='/images/heart.png' alt='favorite'/>"

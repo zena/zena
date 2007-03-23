@@ -717,7 +717,7 @@ module ApplicationHelper
         actions << version_form_action('publish',version[:id])
         actions << version_form_action('propose',version[:id])
       when Zena::Status[:del]
-        if (version[:user_id] == session[:user][:id])
+        if (version[:user_id] == visitor[:id])
           actions << version_form_action('edit',version[:id]) if @node.can_edit_lang?(version.lang)
         end
       end
@@ -796,10 +796,10 @@ ENDTXT
   end
   
   def change_lang(new_lang)
-    if session[:user]
-      {:overwrite_params => { :lang => new_lang }}
-    else
+    if visitor.is_anon?
       {:overwrite_params => { :prefix => new_lang }}
+    else
+      {:overwrite_params => { :lang => new_lang }}
     end
   end
   
@@ -855,10 +855,10 @@ ENDTXT
     when :admin_links
       [show_link(:home), show_link(:preferences), show_link(:comments), show_link(:users), show_link(:groups), show_link(:translation)].reject {|l| l==''}
     when :home
-      return '' unless session[:user]
+      return '' if visitor.is_anon?
       tlink_to_with_state('my home', :controller=>'user', :action=>'home')
     when :preferences
-      return '' unless session[:user]
+      return '' if visitor.is_anon?
       tlink_to_with_state('preferences', :controller=>'preferences', :action=>'list')
     when :translation
       return '' unless visitor.group_ids.include?(visitor.site[:trans_group_id])
@@ -910,14 +910,14 @@ ENDTXT
       ""
     else
       res = []
-      visitor.site[:languages].sort.each do |l|
+      visitor.site.lang_list.sort.each do |l|
         if l == lang
           res << "<b>#{l}</b>"
         else
-          if session[:user]
-            res << link_to(l, request.parameters.merge(:lang=>l))
-          else
+          if visitor.is_anon?
             res << link_to(l, request.parameters.merge(:prefix=>l))
+          else
+            res << link_to(l, request.parameters.merge(:lang=>l))
           end
         end
       end

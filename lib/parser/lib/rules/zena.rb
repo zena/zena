@@ -63,6 +63,23 @@ module Zena
       end
     end
     
+    def r_zazen
+      attribute = @params[:attr] || @params[:tattr]
+      if @context[:trans]
+        # TODO: what do we do here with dates ?
+        "#{node}#{get_attribute(attribute)}"
+      elsif @params[:tattr]
+        "<%= zazen(trans(#{node}#{get_attribute(attribute)})) %>"
+      elsif @params[:attr]
+        "<%= zazen(#{node}#{get_attribute(attribute)}) %>"
+      elsif @params[:date]
+        # date can be any attribute v_created_at or updated_at etc.
+        # TODO format with @params[:format] and @params[:tformat] << translated format
+      else
+        # error
+      end
+    end
+    
     def r_trans
       static = true
       if @params[:text]
@@ -431,6 +448,8 @@ module Zena
         else
           "<span class='parser_error'>No stored nodes in the current context</span>"
         end
+      elsif select == 'visitor'
+        do_var("visitor.contact")
       elsif select =~ /^\d+$/
         do_var("secure(Node) { Node.find_by_id(#{select.inspect})} rescue nil")
       else
@@ -781,7 +800,25 @@ module Zena
       end
     end
     
+    
     def render_html_tag(text)
+      return text if @html_tag_done
+      if @html_tag
+        res = "<#{@html_tag}#{params_to_html(@html_tag_params || {})}"
+        if text != ''
+          res << ">#{text}</#{@html_tag}>"
+        else
+          res << "/>"
+        end
+      else
+        res = text
+      end
+      @html_tag_done = true
+      (@options[:space_before] || '') + res + (@options[:space_after] || '')
+    end
+    
+    def render_html_tag(text)
+      return text if @html_tag_done
       set_params = {}
       @params.each do |k,v|
         next unless k.to_s =~ /^set_/
@@ -789,7 +826,6 @@ module Zena
       end
       @html_tag = 'div' if !@html_tag && set_params != {}
       
-      return text unless @html_tag && !@html_tag_done
       @html_tag_params ||= {}
       bak = @html_tag_params.dup
       res_params = {}

@@ -3,8 +3,15 @@ require File.join(File.dirname(__FILE__), 'testhelp')
 class HelperTest
   testfile :relations, :basic
   Project # make sure we load Project links before trying relations
+  
   def test_single
-    do_test('basic', 'link_version')
+    do_test('basic', 'show_title')
+  end
+  
+  # test rename asset (has to be called wiki to find the proper skin)
+  def test_basic_wiki
+    Node.connection.execute "UPDATE nodes SET parent_id = 33 WHERE id = 20;" # status, art
+    do_test('basic', 'wiki')
   end
   
   def test_relations_updated_today
