@@ -1,5 +1,6 @@
 bird_jpg:
   id:             1
+  site_id:        1
   version_id:     20
   type:           ImageContent
   content_type:   "image/jpeg"
@@ -10,6 +11,7 @@ bird_jpg:
   
 flower_jpg:  
   id:             2
+  site_id:        1
   version_id:     21
   type:           ImageContent
   content_type:   "image/jpeg"
@@ -20,6 +22,7 @@ flower_jpg:
   
 lake_jpg:  
   id:             3
+  site_id:        1
   version_id:     14
   type:           ImageContent
   content_type:   "image/jpeg"
@@ -30,6 +33,7 @@ lake_jpg:
   
 water_pdf:  
   id:             4
+  site_id:        1
   version_id:     15
   type:           DocumentContent
   content_type:   "application/pdf"
@@ -39,6 +43,7 @@ water_pdf:
   
 tree_jpg:  
   id:             5
+  site_id:        1
   version_id:     35
   type:           ImageContent
   content_type:   "image/jpeg"
@@ -49,6 +54,7 @@ tree_jpg:
   
 forest_pdf:  
   id:             6
+  site_id:        1
   version_id:     36
   type:           DocumentContent
   content_type:   "application/pdf"
@@ -58,6 +64,7 @@ forest_pdf:
 
 wiki_skin:
   id:             7
+  site_id:        1
   version_id:     38
   type:           TextDocumentContent
   content_type:   "text/html"
@@ -67,6 +74,7 @@ wiki_skin:
 
 layout_template:
   id:             8
+  site_id:        1
   version_id:     39
   type:           TextDocumentContent
   content_type:   "text/html"
@@ -76,6 +84,7 @@ layout_template:
 
 any_project_template:
   id:             9
+  site_id:        1
   version_id:     40
   type:           TextDocumentContent
   content_type:   "text/html"

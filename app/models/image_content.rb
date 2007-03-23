@@ -1,3 +1,18 @@
+=begin rdoc
+Used by Image to store image data. See the documentation on this class for more information.
+
+=== Attributes
+
+Provides the following attributes/methods to Image :
+
+size(format)::    file size for the image at the given format
+ext::             file extension
+content_type::    file content_type                
+width(format)::   image width in pixel for the given format
+height(format)::  image height in pixel for the given format
+
+ImageContent also provides a +crop+ pseudo attribute to crop an image. See crop=.
+=end
 class ImageContent < DocumentContent
   
   # Crop the image using the 'crop' hash with the top left corner position (:x, :y) and the width and height (:width, :heigt). Example:
@@ -22,6 +37,7 @@ class ImageContent < DocumentContent
     self.file = file
   end
   
+  # Set content file, will refuse to accept the file if it is not an image.
   def file=(aFile)
     super
     return unless ImageBuilder.image_content_type?(aFile.content_type)
@@ -31,6 +47,9 @@ class ImageContent < DocumentContent
     self[:height] = img.height
   end
   
+  # Display an image tag for the given format. If no format is provided, 'full' is used. Options are ':id', ':alt' and ':class'. If no class option is passed,
+  # the format is used as the image class. Example :
+  #   @node.img_tag('pv')  => <img src='/sites/test.host/data/jpg/20/bird-pv.jpg' height='80' width='80' alt='bird' class='pv'/>
   def img_tag(format=nil, opts={})
     format = verify_format(format) || 'std'
     options = {:class=>(format || 'full'), :id=>nil, :alt=>name}.merge(opts)
@@ -47,6 +66,7 @@ class ImageContent < DocumentContent
     end
   end
   
+  # Return the size for an image at the given format. If no format is provided, 'full' is used.
   def size(format=nil)
     format = verify_format(format)
     if format == 'full'
@@ -62,6 +82,7 @@ class ImageContent < DocumentContent
     end
   end
   
+  # Return the width in pixels for an image at the given format. If no format is provided, 'full' is used.
   def width(format=nil)
     format = verify_format(format)
     if format == 'full'
@@ -77,6 +98,7 @@ class ImageContent < DocumentContent
     end
   end
   
+  # Return the height in pixels for an image at the given format. If no format is provided, 'full' is used.
   def height(format=nil)
     format = verify_format(format)
     if format == 'full'
@@ -91,7 +113,8 @@ class ImageContent < DocumentContent
       nil
     end
   end
-
+  
+  # Image filename for the given format. For example, 'bird-pv.jpg' is the name for 'pv' format. The name without a format or 'full' format would be 'bird.jpg'
   def filename(format=nil)
     format = verify_format(format)
     if format == 'full'
@@ -103,7 +126,7 @@ class ImageContent < DocumentContent
     end
   end
   
-  # Send a file with the data for the given format. It is the receiver's responsability to close the file.
+  # Return a file with the data for the given format. It is the receiver's responsability to close the file.
   def file(format=nil)
     return nil if format == 'full' # We only send full data when asked with format is nil.
     format = verify_format(format)
@@ -126,13 +149,13 @@ class ImageContent < DocumentContent
     end
   end
   
-  # Used to remove specific formatted images when these images are cached in the public directory
+  # Used to remove formatted images when these images are cached in the public directory
   def remove_image(format)
-    return false unless format = verify_format(format)
+    return false unless (format = verify_format(format)) && (format != 'full')
     FileUtils::rm(filepath(format)) if File.exist?(filepath(format))
   end
   
-  # Removes all images created by ImageBuilder for this image_content. This is used when the file changes.
+  # Removes all images created by ImageBuilder for this image_content. This is used when the file changes or when the name changes.
   def remove_format_images
     dir = File.dirname(filepath)
     if File.exist?(dir)
@@ -184,7 +207,7 @@ class ImageContent < DocumentContent
     if IMAGEBUILDER_FORMAT[format]
       format
     else
-      nil
+      'std'
     end
   end
 end

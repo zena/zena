@@ -260,7 +260,7 @@ pre {
 	padding: 0.5em;
 	border: 1px dotted black;
 	margin-left: 20px;
-	background: #ffe;
+	background: #EBEBDE;
 	overflow: auto;
 	/* next 4 lines because IE sucks */
 	_position: relative;

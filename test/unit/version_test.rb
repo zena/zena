@@ -104,7 +104,7 @@ class VersionTest < ZenaTestUnit
   def test_update_content_one_version
     preserving_files("/data/test/pdf/36") do
       login(:ant)
-      set_lang('en')
+      visitor.lang = 'en'
       node = secure(Node) { nodes(:forest_pdf) }
       assert_equal Zena::Status[:red], node.v_status
       assert_equal versions_id(:forest_red_en), node.c_version_id
@@ -122,7 +122,7 @@ class VersionTest < ZenaTestUnit
   def test_cannot_change_content_if_many_uses
     preserving_files("/data/test/pdf") do
       login(:ant)
-      set_lang('fr')
+      visitor.lang = 'fr'
       node = secure(Node) { nodes(:forest_pdf) }
       old_vers_id = node.v_id
       # ant's english redaction
@@ -136,7 +136,7 @@ class VersionTest < ZenaTestUnit
       assert_equal     node.v_content_id, old_vers_id
       
       login(:ant)
-      set_lang('en')
+      visitor.lang = 'en'
       node = secure(Node) { nodes(:forest_pdf) }
       # get ant's english redaction
       assert_equal old_vers_id, node.v_id

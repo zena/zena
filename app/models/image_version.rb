@@ -1,6 +1,5 @@
 =begin rdoc
-This class stores version text for Image. If a translation or new redaction of the text
-is created, both the new and the old DocumentVersion refer to the same file (DocumentContent). See Document for more information.
+This class stores version text for Image. See Version for details.
 =end
 class ImageVersion < DocumentVersion
   before_create :set_image_text

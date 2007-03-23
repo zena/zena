@@ -38,14 +38,14 @@ module Zena
         end
       end
 
-      unless File.exist?("#{RAILS_ROOT}/sites/test.host/data")
+      unless File.exist?("#{SITES_ROOT}/test.host/data")
         @@loaded_fixtures['document_contents'].each do |name,fixture|
           path = fixture.instance_eval { [@fixture['ext'],@fixture['version_id'].to_s,@fixture['name']+"."+@fixture['ext']] }
           name = path.pop
           FileUtils::mkpath(File.join(RAILS_ROOT,'sites', 'test.host', 'data', *path))
           path << name
           if File.exist?(File.join(FILE_FIXTURES_PATH,name))
-            FileUtils::cp(File.join(FILE_FIXTURES_PATH,name),File.join(RAILS_ROOT,'data', 'test', *path))
+            FileUtils::cp(File.join(FILE_FIXTURES_PATH,name),File.join(RAILS_ROOT,'sites', 'test.host', 'data', *path))
           end
         end
       end
@@ -55,8 +55,8 @@ module Zena
 
       def preserving_files(path, &block)
         path = "/#{path}" unless path[0..0] == '/'
-        if File.exist?("#{RAILS_ROOT}#{path}")
-          FileUtils::cp_r("#{RAILS_ROOT}#{path}","#{RAILS_ROOT}#{path}.bak")
+        if File.exist?("#{SITES_ROOT}#{path}")
+          FileUtils::cp_r("#{SITES_ROOT}#{path}","#{SITES_ROOT}#{path}.bak")
           move_back = true
         else
           move_back = false
@@ -64,17 +64,17 @@ module Zena
         begin
           yield
         ensure
-          FileUtils::rmtree("#{RAILS_ROOT}#{path}")
+          FileUtils::rmtree("#{SITES_ROOT}#{path}")
           if move_back
-            FileUtils::mv("#{RAILS_ROOT}#{path}.bak","#{RAILS_ROOT}#{path}")
+            FileUtils::mv("#{SITES_ROOT}#{path}.bak","#{SITES_ROOT}#{path}")
           end
         end
       end
 
       def without_files(path, &block)
         path = "/#{path}" unless path[0..0] == '/'
-        if File.exist?("#{RAILS_ROOT}#{path}")
-          FileUtils::mv("#{RAILS_ROOT}#{path}","#{RAILS_ROOT}#{path}.bak")
+        if File.exist?("#{SITES_ROOT}#{path}")
+          FileUtils::mv("#{SITES_ROOT}#{path}","#{SITES_ROOT}#{path}.bak")
           move_back = true
         else
           move_back = false
@@ -82,9 +82,9 @@ module Zena
         begin
           yield
         ensure
-          FileUtils::rmtree("#{RAILS_ROOT}#{path}")
+          FileUtils::rmtree("#{SITES_ROOT}#{path}")
           if move_back
-            FileUtils::mv("#{RAILS_ROOT}#{path}.bak","#{RAILS_ROOT}#{path}")
+            FileUtils::mv("#{SITES_ROOT}#{path}.bak","#{SITES_ROOT}#{path}")
           end
         end
       end

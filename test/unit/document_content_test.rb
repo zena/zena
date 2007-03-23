@@ -3,17 +3,42 @@ require File.dirname(__FILE__) + '/../test_helper'
 class DocumentContentTest < ZenaTestUnit
   
   def test_site_id
-    without_files('/data/test/pdf/15') do
+    without_files('/test.host/data/pdf/15') do
       doc = DocumentContent.create( :version_id=>versions_id(:water_pdf_en), :ext=>'tic', :name=>'abc', :file => uploaded_pdf('forest.pdf') )
       assert_equal sites_id(:zena), doc.site_id
     end
   end
   
+  def test_site_id
+    without_files('/test.host/data/pdf') do
+      login(:ant)
+      doc = secure(Document) { Document.create( :parent_id=>nodes_id(:cleanWater),
+                                                :name=>'report', 
+                                                :c_file => uploaded_pdf('water.pdf') ) }
+      assert_kind_of Document , doc
+      content = doc.v_content
+      assert_kind_of DocumentContent, content
+      assert_equal sites_id(:zena), content.site_id
+      assert File.exist?(content.filepath)
+      assert_equal File.stat(content.filepath).size, content.size
+    end
+  end
+  
   def test_cannot_set_site_id
-    login(:tiger)
-    node = secure(Node) { nodes(:water_pdf) }
-    assert_raise(Zena::AccessViolation) { node.c_site_id = sites_id(:ocean) }
-    assert_raise(Zena::AccessViolation) { document_contents(:water_pdf).site_id = sites_id(:ocean) }
+    without_files('/test.host/data/pdf') do
+      login(:ant)
+      doc = secure(Document) { Document.create( :parent_id=>nodes_id(:cleanWater),
+                                                :name=>'report', 
+                                                :c_file => uploaded_pdf('water.pdf') ) }
+      
+
+      assert !doc.new_record?, "Not a new record"
+      assert_kind_of Document , doc
+      content = doc.v_content
+      assert_kind_of DocumentContent, content
+      assert_raise(Zena::AccessViolation) { doc.c_site_id = sites_id(:ocean) }
+      assert_raise(Zena::AccessViolation) { content.site_id = sites_id(:ocean) }
+    end
   end
   
   def test_img_tag
@@ -35,6 +60,8 @@ class DocumentContentTest < ZenaTestUnit
     login(:tiger)
     doc = document_contents(:water_pdf)
     doc.ext = 'bin'
+    assert_equal 'pdf', doc.ext
+    doc[:ext] = 'bin'
     assert_equal 'bin', doc.ext
     assert_equal "<img src='/images/ext/other.png' width='32' height='32' alt='other' class='doc'/>", doc.img_tag
     assert_equal "<img src='/images/ext/other-pv.png' width='70' height='70' alt='other' class='doc'/>", doc.img_tag('pv')
@@ -54,6 +81,7 @@ class DocumentContentTest < ZenaTestUnit
     assert_nothing_raised { data = doc.file }
     assert_equal data.read, uploaded_pdf('water.pdf').read
     doc = DocumentContent.new( :version_id=>7 )
+    doc[:site_id] = sites_id(:zena)
     assert_raise(IOError) { doc.file }
   end
   
@@ -67,49 +95,19 @@ class DocumentContentTest < ZenaTestUnit
     assert_equal 'bob.tot', doc.filename
   end
   
-  def test_change_name
-    without_files("/data/test/pdf/15") do
-      doc = DocumentContent.new( :version_id=>15, :file=>uploaded_pdf('water.pdf') )
-      assert !File.exist?("#{RAILS_ROOT}/data/test/pdf/15/water.pdf")
-      assert doc.save, "Can save"
-      assert File.exist?("#{RAILS_ROOT}/data/test/pdf/15/water.pdf")
-      doc.name = 'blom'
-      assert doc.save, "Can save"
-      # name must be the same as 'node'
-      assert_equal "#{RAILS_ROOT}/data/test/pdf/15/water.pdf", doc.filepath
-      doc.version.node.name = 'blom'
-      assert doc.save, "Can save"
-      assert_equal "#{RAILS_ROOT}/data/test/pdf/15/blom.pdf", doc.filepath
-      assert !File.exist?("#{RAILS_ROOT}/data/test/pdf/15/water.pdf")
-      assert File.exist?("#{RAILS_ROOT}/data/test/pdf/15/blom.pdf")
-    end
-  end
-  
-  def test_filepath
-    without_files('/data/test/pdf/15') do
-      doc = DocumentContent.create( :version_id=>versions_id(:water_pdf_en), :ext=>'tic', :name=>'abc', :file => uploaded_pdf('forest.pdf') )
-      assert_equal "#{RAILS_ROOT}/data/test/pdf/15/water.pdf", doc.filepath
-    end
-  end
       
   def test_filepath_without_version
     doc = DocumentContent.new( :file=>uploaded_pdf('water.pdf') )
     assert_raise(StandardError) { doc.filepath }
   end
   
-  def test_filepath_ok
-    without_files('/data/test/jpg') do
-      doc = DocumentContent.create( :version_id=>versions_id(:bird_jpg_en), :ext=>'jpg' )
-      assert_equal "#{RAILS_ROOT}/data/test/jpg/#{versions_id(:bird_jpg_en)}/bird.jpg", doc.filepath
-    end
-  end
-  
   def test_save_file
-    without_files("/data/test/pdf/15") do
-      doc = DocumentContent.new( :version_id=>15, :file=>uploaded_pdf('water.pdf') )
-      assert !File.exist?("#{RAILS_ROOT}/data/test/pdf/15/water.pdf")
+    without_files("/test.host/data/pdf/15") do
+      doc = DocumentContent.new( :name=>'water', :version_id=>15, :file=>uploaded_pdf('water.pdf') )
+      doc[:site_id] = sites_id(:zena)
+      assert !File.exist?("#{SITES_ROOT}/test.host/data/pdf/15/water.pdf")
       assert doc.save, "Can save"
-      assert File.exist?("#{RAILS_ROOT}/data/test/pdf/15/water.pdf")
+      assert File.exist?("#{SITES_ROOT}/test.host/data/pdf/15/water.pdf")
       assert_equal 29279, doc.size
       doc = DocumentContent.find(doc.id)
       assert doc.save, "Can save again"
@@ -120,18 +118,18 @@ class DocumentContentTest < ZenaTestUnit
   end
   
   def test_destroy
-    preserving_files('data/test/pdf/15') do
+    preserving_files('/test.host/data/pdf/15') do
       doc = DocumentContent.find(document_contents_id(:water_pdf))
       assert_equal DocumentContent, doc.class
       assert File.exist?(doc.filepath), "File exist"
       assert doc.destroy, "Can destroy"
       assert !File.exist?(doc.filepath), "File does not exist"
-      assert !File.exist?("#{RAILS_ROOT}/data/test/pdf/15"), "Directory does not exist"
+      assert !File.exist?("#{SITES_ROOT}/test.host/data/pdf/15"), "Directory does not exist"
     end
   end
   
   def test_wrong_file_type
-    preserving_files("/data/test/jpg/20") do
+    preserving_files("/test.host/data/jpg/20") do
       login(:tiger)
       node = secure(Node) { nodes(:bird_jpg) }
       assert !node.update_attributes(:c_file=>uploaded_pdf('water.pdf'))

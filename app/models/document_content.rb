@@ -1,10 +1,18 @@
 require 'fileutils'
 =begin rdoc
 Used by Document and Image to store file data. See the documentation on these classes for more information.
+
+=== Attributes
+
+Provides the following attributes to Document and Image :
+
+size::            file size
+ext::             file extension 
+content_type::    file content_type
 =end
 class DocumentContent < ActiveRecord::Base
   belongs_to            :version
-  
+  belongs_to            :site
   validate              :valid_file
   validates_presence_of :ext
   validates_presence_of :name
@@ -63,16 +71,16 @@ class DocumentContent < ActiveRecord::Base
   
   def ext=(theExt)
     if theExt && theExt != ''
-      extention = theExt
+      e = theExt
     else
-      extension = self[:ext]
+      e = self[:ext]
     end
     # is this extension valid ?
     extensions = TYPE_TO_EXT[content_type]
     if extensions
-      self[:ext] = extensions.include?(extension) ? extension : extensions[0]
+      self[:ext] = extensions.include?(e) ? e : extensions[0]
     else
-      self[:ext] = "???"
+      self[:ext] = e
     end
   end
   
@@ -107,13 +115,13 @@ class DocumentContent < ActiveRecord::Base
   # Path to store the data. The path is build with the version id so we can do the security checks when uploading data.
   def filepath(format=nil)
     raise StandardError, "version not set" unless self[:version_id]
-    "#{ZENA_ENV[:data_dir]}#{path(format)}"
+    "#{SITES_ROOT}#{site.data_path}#{path(format)}"
   end
   
   # Path for cached document in the public directory.
   def cachepath(format=nil)
     raise StandardError, "version not set" unless self[:version_id]
-    "#{RAILS_ROOT}/public/data#{path(format)}" # TODO: [site_id] change all RAILS_ROOT when used in paths...
+    "#{SITES_ROOT}#{site.public_path}/data#{path(format)}"
   end
   
   private
@@ -132,7 +140,8 @@ class DocumentContent < ActiveRecord::Base
       # save new file
       make_file(filepath, @file)
     elsif !new_record? && (old = DocumentContent.find(self[:id])).name != self[:name]
-      # TODO: clear cache
+      # TODO: test clear cache
+      FileUtils::rmtree(File.dirname(old.cachepath))
       # clear format images
       old.remove_format_images if old.respond_to?(:remove_format_images)
       FileUtils::mv(old.filepath, filepath)

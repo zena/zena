@@ -36,7 +36,7 @@ class TextDocument < Document
   
   private
   
-  def prepare_before_validation
+  def document_before_validation
     super
     content = version.content
     content[:content_type] ||= 'text/plain'

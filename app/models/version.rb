@@ -1,33 +1,26 @@
 =begin rdoc
-Implements versioning and permits multiple editions on nodes.
+A version implements versioning and permits multiple publications (one for each language).
 
-== Attributes and definitions
-[edition] an edition is a published version for a specific language. There can only be on edition per language per node.
-[status] can be
-         [pub] version is published
-         [prop] proposed for publication
-         [red] version is being written (redaction)
-         [rep] replaced by a newer version (can be an elligible version for rollback)
-         [rem] removed (from a rollback)
-         [del] this is like 'moved to trash'
-[comment] The comment is a little word saying what this particular version is about or a full text on all
-          the modifications done or to be done or anything usefull (it is normally to published).
-[text] The text is the full content of a version. This method returns the text as a
-       RedCloth object. Use ApplicationHelper#h method to render with zena additions to Textile.
-[summary] The summary is a brief presentation. Its main purpose is to give some clues on an node in a list view.
-[comment_group] This is the group users must be in if they want to add comments to this version/edition. If this
-                group is set to _public_ anyone can comment.
-[doc_path] path to file containing the data if this is a version of a document.
-[doc_preview] optional image preview of the document
+=== Status
+
+A version's status changes over time. A version usually starts by being a 'redaction', these eventually a 'proposition', etc. The version's status changes by executing actions on the node (publish, remove, etc). Have a look at Acts::As::Multiversion for details. Zena::Status are :
+
+pub (50)::  version is published (can be seen by all readers)
+prop (40):: proposed for publication (seen only by the members of the publish group of the node)
+prop_with (35):: document proposed with the redaction. Will be automatically published/removed with the redaction.
+red (30):: version is being written (the redaction is only seen by its author)
+rep (20):: replaced by a newer version (can be an elligible version for rollback)
+rem (10):: removed (from a rollback)
+del (0):: this is like 'moved to trash'
+
+=== Version attributes
+
+comment:: The comment is a little word saying what this particular version is about or a full text on all the modifications done or to be done or anything usefull that should be communicated inside the team.
+text:: The text is the full content of a version. The text usually contains zazen formatted text (textile with additions). See Zazen for details.
 
 == Content
 If a we need to create a more sophisticated version class, all the required fields go in a 'content' class, like 
-#DocumentContent stores document type and size for #DocumentVersion. In some cases, the text in a version is translated but the 
-content in the 'content' record must stay the same (for example, you can translate the comment on an image but the image s
-tays the same). In this case, the new #Version's content is linked through : version.content_id-->content.version_id.
-Thus the field 'content_id' means 'use content from version x'. As soon as we edit the content from a version using another's
-content, we create our own copy to work on. In some rare cases where we publish a version and then we edit it again (without creating
-a new redaction), the system will not allow us to save the modified content as it is used by other (potentially published) versions.
+#DocumentContent stores document type and size for #DocumentVersion. See #Document for the details on the relation between Version and Content.
 =end
 class Version < ActiveRecord::Base
   belongs_to            :node
@@ -47,6 +40,7 @@ class Version < ActiveRecord::Base
     user
   end
   
+  # Return the title or the node's name if the field is empty.
   def title
     if self[:title] && self[:title] != ""
       self[:title]
@@ -64,7 +58,8 @@ class Version < ActiveRecord::Base
   def content_id=(i)
     raise Zena::AccessViolation, "Version '#{self.id}': tried to change 'content_id' to '#{i}'."
   end
-    
+  
+  # Return the content for the version. Can it's 'own' content or the same as the version this one was copied from.
   def content
     return @content if @content
     if self[:content_id]
@@ -82,7 +77,7 @@ class Version < ActiveRecord::Base
     @content
   end
   
-  # called by 'multiversion' when we need a new redaction for a version
+  # Return the version's own content or creates a new one so it can be edited.
   def redaction_content
     return @redaction_content if @redaction_content
     return unless content_class
@@ -123,6 +118,7 @@ class Version < ActiveRecord::Base
   
   # Set version number and site_id before validation tests.
   def version_before_validation
+    return unless node
     self[:site_id] = node[:site_id]
     if new_record?
       last = Version.find(:first, :conditions=>['node_id = ?', node[:id]], :order=>'number DESC')

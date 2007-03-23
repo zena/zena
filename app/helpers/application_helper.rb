@@ -691,7 +691,7 @@ module ApplicationHelper
     return "" unless version.kind_of?(Version)
     actions = []
     if opt[:action] == :view
-      if (version.status != Zena::Status[:del]) ||  (version[:user_id] == visitor.id )
+      if (version.status != Zena::Status[:del] && version.status != Zena::Status[:red]) ||  (version[:user_id] == visitor.id )
         actions << version_form_action('view', version[:id])
       end
     elsif opt[:action] == :all
@@ -705,9 +705,11 @@ module ApplicationHelper
         actions << version_form_action('publish',version[:id])
         actions << version_form_action('refuse',version[:id])
       when Zena::Status[:red]
-        actions << version_form_action('publish',version[:id])
-        actions << version_form_action('propose',version[:id])
-        actions << version_form_action('remove',version[:id]) if version.user[:id] == visitor.id
+        if version.user[:id] == visitor.id
+          actions << version_form_action('publish',version[:id])
+          actions << version_form_action('propose',version[:id])
+          actions << version_form_action('remove',version[:id])
+        end
       when Zena::Status[:rep]
         actions << version_form_action('edit',version[:id]) if @node.can_edit_lang?(version.lang)
         actions << version_form_action('publish',version[:id])

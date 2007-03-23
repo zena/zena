@@ -105,9 +105,15 @@ namespace :zena do
     end
   end
   
-  desc "Generate documentation for the application (including lib files)"
-  task :doc do
-    `rdoc --line-numbers --title 'Zena Documentation' --inline-source --template=./doc/template/allison.rb --main doc/README_FOR_APP --op 'doc/app' 'doc/README_FOR_APP' 'app' 'lib'`
+  Rake::RDocTask.new do |rdoc|
+       files = ['README', 'doc/README_FOR_APP', 'CREDITS', 'LICENSE', 'app/**/*.rb', 
+                'lib/**/*.rdoc']
+       rdoc.rdoc_files.add(files)
+       rdoc.main = "doc/README_FOR_APP" # page to start on
+       rdoc.title = "Zena Documentation"
+       rdoc.template = "./doc/template/allison.rb"
+       rdoc.rdoc_dir = 'doc/app' # rdoc output folder
+       rdoc.options << '--line-numbers' << '--inline-source'
   end
 end
 

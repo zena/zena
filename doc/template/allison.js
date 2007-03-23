@@ -66,7 +66,7 @@ function highlightSymbols() {
 
  function stripe() {
     var even = true;
-    var color = "#EDE8D4";
+    var color = "#EEF0F3";
     var tables = $('content').getElementsByTagName('table');
     if (tables.length == 0) { return; }
     for (var h = 0; h < tables.length; h++) {

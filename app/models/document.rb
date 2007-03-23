@@ -29,6 +29,7 @@ Content (file data) is managed by the DocumentContent. This class is responsible
 
 c_size::  file size      
 c_ext::   file extension 
+c_content_type:: file content-type
 =end
 class Document < Page
   before_validation :document_before_validation
@@ -88,7 +89,7 @@ class Document < Page
     "#{name}.#{version.content.ext}"
   end
   
-  # Display an image tag to show the document inline.
+  # Display an image tag to show the document inline. See DocumentContent and ImageContent for details.
   def img_tag(format=nil, opts={})
     version.content.img_tag(format, opts)
   end

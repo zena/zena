@@ -31,13 +31,14 @@ The version class used by images is the ImageVersion.
 Content (file data) is managed by the ImageContent. This class is responsible for storing the file and retrieving the data. It provides the following attributes to the Image :
 
 c_size(format)::    file size for the image at the given format
-c_ext::             file extension                              
+c_ext::             file extension
+c_content_type::    file content_type   
 c_width(format)::   image width in pixel for the given format
 c_height(format)::  image height in pixel for the given format
-
 =end
 class Image < Document
   link :icon_for, :class_name=>'Node', :as=>'icon'
+  
   class << self
     def accept_content_type?(content_type)
       ImageBuilder.image_content_type?(content_type)
