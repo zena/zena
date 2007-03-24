@@ -2,6 +2,12 @@
 
 Zena is a CMS. (c) teti.ch 2007
 
+This documentation is being massively cleaned up before release.
+
+You can start by looking at Node or by reading http://zenadmin.org/en/documentation.
+
+Thanks for your patience.
+
 == Todo
 * BUG: when move, update inherited rights from new parent.
 * move all input tags into <p> w3c xhtml !
@@ -43,10 +49,7 @@ Ideas for cached menu:
   * old links & new links
 * on destroy : remove all (including document files)
 * why not use 'action' caching instead ?
-=== Test
-* users, groups see all TODO: test...
 === Misc
-* replace session[:user][...] by visitor[...] (cache in User if needed..)
 * replace rmagick with a more simple library or use something like system "convert #{escape(temp)} -resize 48x48! #{escape(target)}"
 * show_title could guess when to display a title and when not to
 === Documentation
