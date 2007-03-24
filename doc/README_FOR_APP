@@ -4,10 +4,47 @@ Zena is a CMS. (c) teti.ch 2007
 
 This documentation is being massively cleaned up before release.
 
-You can start by looking at Node or by reading http://zenadmin.org/en/documentation.
+You can start by looking at Node or by reading zenadmin.org[http://zenadmin.org/en/documentation].
 
 Thanks for your patience.
 
+== Presentation
+
+Zena is a content management system. It lets you manage, share and write information.
+
+=== Design
+
+One of the strong design ideas in zena was to use class inheritance to reflect the type of data managed. This is the actual class inheritance diagram :
+
+  Node (manages access and publication cycle)
+    |
+    +-- Page (web pages)
+    |     |
+    |     +--- Document
+    |     |      |
+    |     |      +--- Image
+    |     |      |
+    |     |      +--- TextDocument       (for css, scripts)
+    |     |             |
+    |     |             +--- Template    (using the zafu templating language)
+    |     |                    |
+    |     |                    +--- Skin (theme: contains css, templates, etc)
+    |     |
+    |     +--- Project (can contain a blog, collaborators, etc)
+    |
+    +-- Note (date related information)
+    |     |
+    |     +--- Letter
+    |
+    +-- Reference
+          |
+          +-- Contact (address, name, phone)
+
+
+=== Templating
+
+Please look at zafu[http://zenadmin.org/en/documentation/page24.html] until we finish writing this section.
+ 
 == Todo
 * BUG: when move, update inherited rights from new parent.
 * move all input tags into <p> w3c xhtml !
@@ -76,82 +113,11 @@ Ideas for cached menu:
 * Implement salt login with client side JS : http://pajhome.org.uk/crypt/md5/
 === Error messages
 * translate flash 'notice' and 'error', with clever '%s'. Translate error messages (message and field name)
-=== Preferences, ZENA_ENV
-Store user defaults, prefs and site config, etc in the database. STI starting with 'settings' (id, key(string), value(yaml), type) :
-* settings <--- UserPreferences
-* settings <--- ProjectSettings
-* settings <--- SiteConfiguration
+=== Site
+* user access to site configuration
 === Translations
 * load new languages from the web interface
-
-Custom info that could be stored
-* custom menu = std menu + own menu (= user[:custom_menu_collector])
-* default comment_group
-
-=== Other
-* is +text+ a good format for *paths* ? What should be the size of a string ?
 
 
 == general info
 * when creating the database: "create database zena DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;"
-
-
-= Conception
-Zena is divided into modules. These modules are :
-== web (base engine)
-Content management system. The web module can contain different nodes 
-* *Contacts* people with addresses
-* *Logs* weblog
-* *Events* time related events shown in a calendar or as a 'news' list
-* *Pages* just normal html content
-* *Documents* files, photos, videos, anything up/downloadable
-* *Tags* special pages collecting information from other pages
-* *Projects* basic place into which the other modules can plug in.
-=== calendar component
-Provides views and filters for #Events.
-=== menu component
-Monitor readings, book collection
-Provides navigation through #StructuredNodes
-=== book component
-== book engine
-Monitor readings, book collection. It makes it very easy to add book references to documents. Or
-just a list of the books the person is reading.
-== login engine
-* will first implement this in web...
-== task engine
-Task management (something like trac). This module will help solve questions such as
-* who does what
-* what has already been done
-* take care of new problems, tasks, bugs
-* make a like with versioning systems (Subversion)
-* milestones
-* project progression, planning
-* actions done can have a duration thus permitting time invoices
-== accounting engine
-Accounting user oriented.
-* All seizure of monetary flows are done through budget envelopes
-* It is trivial to enter things like 'John gave 100.- to Cecilia in advance for the costumes of our next play'
-* Monitoring of budget and actual expenses is easy and intuitive
-* There is a 1 clic production of legal documents.
-
-== Security management
-See Zena::Acts::Secure
-link://../img/zena_security.png
-=== Salt Login
-link://../img/zena_salt_login.png
-== Schema
-link://../img/zena.png
-== Fixtures
-link://../img/zena_fixtures.png
-== Node life cycle
-link://../img/zena_create_event.png
-link://../img/zena_add_document.png
-link://../img/zena_view_document.png
-== Layout propositions
-link://../img/zena_layout.png
-link://../img/zena_layout2.png
-link://../img/zena_layout3.png
-== Gems to install
-gem install RedCloth
-== Plugins
-(used http://rails-engines.org/wiki/pages/DateboxEngine for date_box)
