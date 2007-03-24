@@ -3,7 +3,7 @@ This class stores version text for Document. See Version for details.
 
 === Content
 
-see DocumentContent.
+Uses DocumentContent.
 =end
 class DocumentVersion < Version
   validates_presence_of       :content

@@ -35,6 +35,22 @@ c_ext::             file extension
 c_content_type::    file content_type   
 c_width(format)::   image width in pixel for the given format
 c_height(format)::  image height in pixel for the given format
+
+=== links
+
+Default links for Image are:
+
+icon_for::  become the unique 'icon' for the linked node.
+
+Example on how to use 'icon' with ruby:
+ @node.icon.img_tag('pv')   <= display the node's icon with the 'pv' (preview) format.
+
+Same example in a zafu template:
+ <z:img src='icon' format='pv'/>
+
+or to create a link to the article using the icon:
+ <z:img src='icon' format='pv' href='self'/>
+ 
 =end
 class Image < Document
   link :icon_for, :class_name=>'Node', :as=>'icon'

@@ -36,10 +36,10 @@ ant:
   id:             3
   site_id:        1
   type:           Contact
-  kpath:          NPC
+  kpath:          NRC
   name:           ant
   project_id:     1
-  parent_id:      2
+  parent_id:      1
   user_id:        3
 <%= @defaults %>
   inherit:        0
@@ -67,10 +67,10 @@ tiger:
   id:             4
   site_id:        1
   type:           Contact
-  kpath:          NPC
+  kpath:          NRC
   name:           tiger
   project_id:     1
-  parent_id:      2
+  parent_id:      1
   user_id:        4
   inherit:        1
 <%= @defaults %>
@@ -80,10 +80,10 @@ lion:
   id:             5
   site_id:        1
   type:           Contact
-  kpath:          NPC
+  kpath:          NRC
   name:           lion
   project_id:     1
-  parent_id:      2
+  parent_id:      1
   user_id:        5
   inherit:        1
 <%= @defaults %>
@@ -180,7 +180,7 @@ lake:
   id:             13
   site_id:        1
   type:           Contact
-  kpath:          NPC
+  kpath:          NRC
   name:           lake
   project_id:     11
   parent_id:      11
@@ -196,7 +196,7 @@ lake_jpg:
   kpath:          NPDI
   name:           lake
   project_id:     11
-  parent_id:      13
+  parent_id:      11
   user_id:        3
   inherit:        1
 <%= @defaults %>

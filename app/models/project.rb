@@ -5,6 +5,7 @@ class Project < Page
   link :hot,  :class_name=>'Node', :unique=>true
   link :home, :class_name=>'Node', :unique=>true
   link :contact, :class_name=>'Contact', :unique=>true
+  link :collaborators, :class_name=>'Contact'
   link :notes_added, :class_name=>'Note', :as=>'project', :collector=>true
   
   def before_destroy

@@ -1,10 +1,9 @@
 =begin rdoc
-=== Read/Write for a tag
-Users can add nodes to a tag collection, if they have *write access* to the #Tag. It is exactly the same as adding a
-sub page or a document. See #Link for more details.
 =end
 class Tag < Page
   link :tag_for, :class_name=>'Node', :as=>'tag', :collector=>true
+  
+  # ====== all this needs refactoring ========= #
   
   def pages(opts={})
     return super if opts[:in]

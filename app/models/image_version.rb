@@ -3,7 +3,7 @@ This class stores version text for Image. See Version for details.
 
 === Content
 
-see ImageContent.
+Uses ImageContent.
 =end
 class ImageVersion < DocumentVersion
   before_create :set_image_text

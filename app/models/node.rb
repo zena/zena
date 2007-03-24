@@ -34,6 +34,7 @@ class Node < ActiveRecord::Base
   acts_as_secure_node
   acts_as_multiversioned
   link :tags, :class_name=>'Tag'
+  link :references, :class_name=>'Reference'
   link :icon, :class_name=>'Image', :unique=>true
   link :hot_for, :as=>'hot',   :class_name=>'Project', :as_unique=>true
   link :home_for, :as=>'home', :class_name=>'Project', :as_unique=>true

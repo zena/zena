@@ -1,7 +1,12 @@
 =begin rdoc
-== Index Page
-+ZENA_ENV[:index_id]+ refers to a special project. This project is the root of all other pages or logs. It is used
-to set default groups for new projects, to store 'global' events and pages.
+=== subclasses
+
+Tag::       used to create collections of items.
+Document::  contains data from uploaded files.
+Image::     subclass of Document, contains image data that can be resized/viewed in the browser.
+TextDocument::  subclass of Document, used by documents that can be edited online (scripts, text).
+Template::  subclass of TextDocument. Contains the zafu code to make the look and feel of the site.
+Skin::      subclass of Template. Contains other templates. The skin name must be unique throughout the site as it is used to identify the 'theme' of the site or parts of the site.
 =end
 class Page < Node
   class << self
