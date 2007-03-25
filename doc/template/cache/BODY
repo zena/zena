@@ -309,7 +309,7 @@ addEvent(window, 'load', hacks, false);
 IF:full_path
 %full_path%
 ENDIF:full_path
-</p><span id="allison">rdoc template adapted from <a href="http://blog.evanweaver.com/articles/2006/06/02/allison">Allison</a></span><span><h1 id="title">
+</p><span><h1 id="title">
 IF:title
 %title%
 ENDIF:title
@@ -401,7 +401,7 @@ ENDIF:name
 END:methods
 </div>
 ENDIF:methods
-<div id="spacer"></div><div class="navigation dark index" id="class_wrapper"><div class="list_header"><h3>All classes</h3></div><div class="list_header_link"><a onclick="toggle('class'); toggleText('class_link'); return false;" id="class_link" href="#">Hide...</a></div><div class="clear"></div><div id="class"><form><label for="filter_class">Filter:&nbsp;&nbsp;</label><input id="filter_class" onKeyUp="return filterList('class', this.value, event);" type="text" onKeyPress="return disableSubmit(event);"></input></form></div></div><div class="navigation dark index" id="file_wrapper"><div class="list_header"><h3>All files</h3></div><div class="list_header_link"><a onclick="toggle('file'); toggleText('file_link'); return false;" id="file_link" href="#">Hide...</a></div><div class="clear"></div><div id="file"><form><label for="filter_file">Filter:&nbsp;&nbsp;</label><input id="filter_file" onKeyUp="return filterList('file', this.value, event);" type="text" onKeyPress="return disableSubmit(event);"></input></form></div></div><div class="navigation dark index" id="method_wrapper"><div class="list_header"><h3>All methods</h3></div><div class="list_header_link"><a onclick="toggle('method'); toggleText('method_link'); return false;" id="method_link" href="#">Show...</a></div><div class="clear"></div><div id="method"><form><label for="filter_method">Filter:&nbsp;&nbsp;</label><input id="filter_method" onKeyUp="return filterList('method', this.value, event);" type="text" onKeyPress="return disableSubmit(event);"></input></form></div></div></td><td id="content">
+<div id="spacer"></div><div class="navigation dark index" id="class_wrapper"><div class="list_header"><h3>All classes</h3></div><div class="list_header_link"><a onclick="toggle('class'); toggleText('class_link'); return false;" id="class_link" href="#">Hide...</a></div><div class="clear"></div><div id="class"><form><label for="filter_class">Filter:&nbsp;&nbsp;</label><input onKeyUp="return filterList('class', this.value, event);" id="filter_class" onKeyPress="return disableSubmit(event);" type="text"></input></form></div></div><div class="navigation dark index" id="file_wrapper"><div class="list_header"><h3>All files</h3></div><div class="list_header_link"><a onclick="toggle('file'); toggleText('file_link'); return false;" id="file_link" href="#">Hide...</a></div><div class="clear"></div><div id="file"><form><label for="filter_file">Filter:&nbsp;&nbsp;</label><input onKeyUp="return filterList('file', this.value, event);" id="filter_file" onKeyPress="return disableSubmit(event);" type="text"></input></form></div></div><div class="navigation dark index" id="method_wrapper"><div class="list_header"><h3>All methods</h3></div><div class="list_header_link"><a onclick="toggle('method'); toggleText('method_link'); return false;" id="method_link" href="#">Show...</a></div><div class="clear"></div><div id="method"><form><label for="filter_method">Filter:&nbsp;&nbsp;</label><input onKeyUp="return filterList('method', this.value, event);" id="filter_method" onKeyPress="return disableSubmit(event);" type="text"></input></form></div></div></td><td id="content">
 IF:title
 <h1 id="item_name">%title%</h1>
 ENDIF:title
@@ -585,4 +585,4 @@ ENDIF:method_list
 END:sections
 
 ENDIF:sections
-</td></tr></table></body></html>
+</td></tr></table><p id="allison">template adapted from <a href="http://blog.evanweaver.com/articles/2006/06/02/allison">Allison</a></p></body></html>

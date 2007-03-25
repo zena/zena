@@ -154,7 +154,9 @@ span.bpink a, .dark span a { margin-left: 0; } */
 .clear { clear: both; }
 
 #allison {
-	float: right;
+	position: absolute;
+	top:50px;
+	right:5px;
 	color: #B6AB7A;
 	padding:20px;
 	font-size:0.8em;

@@ -55,10 +55,6 @@ module RDoc
           body do
             div.container! do
               div.header! do
-                span.allison! do
-                   self << 'template adapted from '
-                   a 'Allison', :href => URL
-                end
                 span.title! do
                   h1 "Zena Documentation"
                 end
@@ -69,6 +65,10 @@ module RDoc
                   h1 "Redirect"
                 end
               end
+            end
+            p.allison! do
+               self << 'template adapted from '
+               a 'Allison', :href => URL
             end
           end
         end.to_s
@@ -91,10 +91,6 @@ module RDoc
           body do 
               div.header! do
                 p {'%full_path%'.if_exists}
-                span.allison! do
-                   self << 'rdoc template adapted from '
-                   a 'Allison', :href => URL
-                end
                 span do
                   h1.title! '%title%'.if_exists
                 end
@@ -143,6 +139,7 @@ module RDoc
                                      :onKeyPress => "return disableSubmit(event);"
                        end
                      end
+                     # insert classes here...
                     end
                   end
                 end            
@@ -233,6 +230,10 @@ module RDoc
                 
                 end            
               end
+            end
+            p.allison! do
+               self << 'template adapted from '
+               a 'Allison', :href => URL
             end
           end
         end.to_s                 

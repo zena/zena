@@ -34,7 +34,15 @@ One of the strong design ideas in zena was to use class inheritance to reflect t
     |
     +-- Note (date related information)
     |     |
-    |     +--- Letter
+    |     +--- Task
+    |     |      |
+    |     |      +--- Letter
+    |     |      |
+    |     |      +--- Request
+    |     |             |
+    |     |             +--- Bug
+    |     |
+    |     +--- Milestone
     |
     +-- Reference
           |
@@ -44,7 +52,7 @@ One of the strong design ideas in zena was to use class inheritance to reflect t
 === Templating
 
 Please look at zafu[http://zenadmin.org/en/documentation/page24.html] until we finish writing this section.
- 
+
 == Todo
 * BUG: when move, update inherited rights from new parent.
 * move all input tags into <p> w3c xhtml !
