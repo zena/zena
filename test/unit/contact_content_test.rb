@@ -14,4 +14,12 @@ class ContactContentTest < ZenaTestUnit
     assert !cont.new_record?, "Not a new record"
     assert_equal sites_id(:zena), cont.site_id
   end
+  
+  def test_fullname
+    assert_equal "Panthera Leo Verneyi", contact_contents(:lion).fullname
+  end
+
+ def test_initials
+   assert_equal "PLV", contact_contents(:lion).initials
+ end
 end

@@ -14,40 +14,7 @@ Zena is a content management system. It lets you manage, share and write informa
 
 === Design
 
-One of the strong design ideas in zena was to use class inheritance to reflect the type of data managed. This is the actual class inheritance diagram :
-
-  Node (manages access and publication cycle)
-    |
-    +-- Page (web pages)
-    |     |
-    |     +--- Document
-    |     |      |
-    |     |      +--- Image
-    |     |      |
-    |     |      +--- TextDocument       (for css, scripts)
-    |     |             |
-    |     |             +--- Template    (using the zafu templating language)
-    |     |                    |
-    |     |                    +--- Skin (theme: contains css, templates, etc)
-    |     |
-    |     +--- Project (can contain a blog, collaborators, etc)
-    |
-    +-- Note (date related information)
-    |     |
-    |     +--- Task
-    |     |      |
-    |     |      +--- Letter
-    |     |      |
-    |     |      +--- Request
-    |     |             |
-    |     |             +--- Bug
-    |     |
-    |     +--- Milestone
-    |
-    +-- Reference
-          |
-          +-- Contact (address, name, phone)
-
+One of the strong design ideas in zena was to use class inheritance to reflect the type of data managed. Please look at Node to view the actual class inheritance diagram.
 
 === Templating
 

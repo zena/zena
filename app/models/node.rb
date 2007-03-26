@@ -1,27 +1,117 @@
 =begin rdoc
+A Node is the root class of all elements in the zena application. Actual class inheritance diagram:
 
-== Node, Version and Content
+ Node (manages access and publication cycle)
+   |
+   +-- Page (web pages)
+   |     |
+   |     +--- Document
+   |     |      |
+   |     |      +--- Image
+   |     |      |
+   |     |      +--- TextDocument       (for css, scripts)
+   |     |             |
+   |     |             +--- Template    (using the zafu templating language)
+   |     |                    |
+   |     |                    +--- Skin (theme: contains css, templates, etc)
+   |     |
+   |     +--- Project (can contain a blog, collaborators, etc)
+   |
+   +-- Note (date related information)
+   |     |
+   |     +--- Task
+   |     |      |
+   |     |      +--- Letter
+   |     |      |
+   |     |      +--- Request
+   |     |             |
+   |     |             +--- Bug
+   |     |
+   |     +--- Milestone
+   |
+   +-- Reference
+         |
+         +-- Contact (address, name, phone)
 
-The +nodes+ table only holds columns to secure the access. This table does not hold every possible data for every sub-class of Node. The text data is stored into the +versions+ table and any other specific content goes in its own table (+document_contents+ for example). This is an example of how an Image is stored :
+         === Node, Version and Content
 
- Node         o-----------   Version   o---------  Content
- pgroup_id                   title                 width
- wgroup_id                   text                  height
- user_id                     summary               content_type
- ...                         ...                   ...
- 
-== Acessing version and content data
+         The +nodes+ table only holds columns to secure the access. This table does not hold every possible data for every sub-class of Node. The text data is stored into the +versions+ table and any other specific content goes in its own table (+document_contents+ for example). This is an example of how an Image is stored :
 
-To ease the work to set/retrieve the data from the version and or content, we use some special notation. This notation abstracts this Node/Version/Content structure so you can use a version's attribute as if it was in the node directly.
+          Node         o-----------   Version   o---------  Content
+          pgroup_id                   title                 width
+          wgroup_id                   text                  height
+          user_id                     summary               content_type
+          ...                         ...                   ...
 
-Any attribute starting with +v_+ is sent to the node's version. For example, this is the recommended way to get the node's title :
+         === Acessing version and content data
 
-  @node.v_title   # in a form: <%= text_field 'node', 'v_title' %>
-  
-Any method starting with +c_+ is sent directly to the node's content. For example, this is the recommended way to get an image's width :
+         To ease the work to set/retrieve the data from the version and or content, we use some special notation. This notation abstracts this Node/Version/Content structure so you can use a version's attribute as if it was in the node directly.
 
- @node.c_width   # in a form: <%= text_field 'node', 'c_width' %>
- 
+         Any attribute starting with +v_+ is sent to the node's version. For example, this is the recommended way to get the node's title :
+
+           @node.v_title   # in a form: <%= text_field 'node', 'v_title' %>
+
+         Any method starting with +c_+ is sent directly to the node's content. For example, this is the recommended way to get an image's width :
+
+          @node.c_width   # in a form: <%= text_field 'node', 'c_width' %>
+          
+=== Attributes
+
+Each node uses the following basic attributes:
+
+Base attributes:
+
+zip:: unique id (incremented in each site's scope).
+name:: used to build the node's url when 'custom_base' is set. Used for document names.
+site_id:: site to which this node belongs to.
+parent_id:: parent node (every node except root is inserted in a unique place through this attribute).
+user_id:: owner of the node.
+ref_lang:: original node language.
+created_at:: creation date.
+updated_at:: modification date.
+custom_base:: boolean value. When set to true, the node's url becomes it's fullpath. All it descendants will use this node's fullpath as their base url. See below for an example.
+inherit:: inheritance mode (0=custom, 1=inherit, -1=private).
+
+Attributes inherited from the parent:
+project_id:: reference project (cannot be overwritten even if inheritance mode is custom).
+rgroup_id:: id of the readers group.
+wgroup_id:: id of the writers group.
+pgroup_id:: id of the publishers group.
+skin:: name of theSkin to use when rendering the pate ('theme').
+
+Attributes used internally:
+publish_from:: earliest publication date from all published versions.
+max_status:: maximal status from all versions (see Version)
+kpath:: inheritance hierarchy. For example an Image has 'NPDI' (Node, Page, Document, Image), a Letter would have 'NNTL' (Node, Note, Task. Letter). This is used to optimize sql queries.
+fullpath:: cached full path made of ancestors' names (<gdparent name>/<parent name>/<self name>).
+basepath:: cached base path (the base path is used to build the url depending on the 'custom_base' flag).
+
+
+=== Node url
+A node's url is made of it's class and +zip+. For the examples below, this is our site tree:
+ root
+   |
+   +--- projects (Page)
+           |
+           +--- worldTour (Project)
+           |      |
+           |      +--- photos (Page)
+           |
+           +--- music (Project)
+
+The worldTour project's url would look like:
+ /en/project21.html
+
+The 'photos' url would be:
+ /en/page23.html
+
+When custom base is set, worldTour url becomes its fullpath:
+ /en/projects/worldTour
+
+and the 'photos' url is now in the worldTour project's basepath:
+ /en/projects/worldTour/page23.html
+
+Setting 'custom_base' on a node should be done with caution as the node's zip is on longer in the url and when you move the node around, there is no way to find the new location from the old url. Custom_base should therefore only be used for nodes that are not going to move.
 =end
 class Node < ActiveRecord::Base
   has_many           :discussions
@@ -36,7 +126,7 @@ class Node < ActiveRecord::Base
   link :tags, :class_name=>'Tag'
   link :references, :class_name=>'Reference'
   link :icon, :class_name=>'Image', :unique=>true
-  link :hot_for, :as=>'hot',   :class_name=>'Project', :as_unique=>true
+  link :hot_for,  :as=>'hot' , :class_name=>'Project', :as_unique=>true
   link :home_for, :as=>'home', :class_name=>'Project', :as_unique=>true
   
   class << self
