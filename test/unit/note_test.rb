@@ -28,12 +28,7 @@ class NoteTest < ZenaTestUnit
     assert_equal "test", note[:name]
     
     assert_nothing_raised { note2 = secure(Note) { Note.create(:name=>"test", :parent_id=>nodes_id(:zena), :log_at=>"2006-06-20", :tag_ids=>[nodes_id(:news)])} }
-    assert note2.new_record? , "Is not saved (new_record)"
-    assert note2.errors[:name]
-    
-    assert_nothing_raised { note3 = secure(Note) { Note.create(:v_title=>"test", :parent_id=>nodes_id(:zena), :log_at=>"2006-06-20", :tag_ids=>[nodes_id(:news)])} }
-    assert note3.new_record? , "Not saved"
-    assert note3.errors[:name]
+    assert ! note2.new_record? , "Not a new record" # same name allowed for notes
   end
   
   def test_create_same_name_other_day

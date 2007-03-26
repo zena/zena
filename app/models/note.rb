@@ -19,10 +19,10 @@ projects::   make this note appear in the blog of the given project. A note alwa
 
 === subclasses
 
-Letter::     like the name says...
 
 === subclasses to implement before 1.0
-Todo::       manage things to be done (parent = Note = Todo). The parent provides the 'due date'.
+Task::       manage things to be done (parent = Note = Todo). The parent provides the 'due date'.
+Letter::     like the name says...
 Request::    subclass of Todo. Manage user/client requests.
 Bug::        (the class we most need!). subclass of Request.
 Milestone::  special event used when choosing a Request/Bug's parent.
