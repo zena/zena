@@ -33,27 +33,27 @@ A Node is the root class of all elements in the zena application. Actual class i
          |
          +-- Contact (address, name, phone)
 
-         === Node, Version and Content
+=== Node, Version and Content
 
-         The +nodes+ table only holds columns to secure the access. This table does not hold every possible data for every sub-class of Node. The text data is stored into the +versions+ table and any other specific content goes in its own table (+document_contents+ for example). This is an example of how an Image is stored :
+The +nodes+ table only holds columns to secure the access. This table does not hold every possible data for every sub-class of Node. The text data is stored into the +versions+ table and any other specific content goes in its own table (+document_contents+ for example). This is an example of how an Image is stored :
 
-          Node         o-----------   Version   o---------  Content
-          pgroup_id                   title                 width
-          wgroup_id                   text                  height
-          user_id                     summary               content_type
-          ...                         ...                   ...
+Node         o-----------   Version   o---------  Content
+pgroup_id                   title                 width
+wgroup_id                   text                  height
+user_id                     summary               content_type
+...                         ...                   ...
 
-         === Acessing version and content data
+=== Acessing version and content data
 
-         To ease the work to set/retrieve the data from the version and or content, we use some special notation. This notation abstracts this Node/Version/Content structure so you can use a version's attribute as if it was in the node directly.
+To ease the work to set/retrieve the data from the version and or content, we use some special notation. This notation abstracts this Node/Version/Content structure so you can use a version's attribute as if it was in the node directly.
 
-         Any attribute starting with +v_+ is sent to the node's version. For example, this is the recommended way to get the node's title :
+Any attribute starting with +v_+ is sent to the node's version. For example, this is the recommended way to get the node's title :
 
-           @node.v_title   # in a form: <%= text_field 'node', 'v_title' %>
+ @node.v_title   # in a form: <%= text_field 'node', 'v_title' %>
 
-         Any method starting with +c_+ is sent directly to the node's content. For example, this is the recommended way to get an image's width :
+Any method starting with +c_+ is sent directly to the node's content. For example, this is the recommended way to get an image's width :
 
-          @node.c_width   # in a form: <%= text_field 'node', 'c_width' %>
+@node.c_width   # in a form: <%= text_field 'node', 'c_width' %>
           
 === Attributes
 
