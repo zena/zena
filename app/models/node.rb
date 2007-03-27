@@ -53,7 +53,7 @@ Any attribute starting with +v_+ is sent to the node's version. For example, thi
 
 Any method starting with +c_+ is sent directly to the node's content. For example, this is the recommended way to get an image's width :
 
-@node.c_width   # in a form: <%= text_field 'node', 'c_width' %>
+ @node.c_width   # in a form: <%= text_field 'node', 'c_width' %>
           
 === Attributes
 
