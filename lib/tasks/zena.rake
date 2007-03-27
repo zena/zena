@@ -106,7 +106,7 @@ namespace :zena do
   end
   
   Rake::RDocTask.new do |rdoc|
-       files = ['README', 'doc/README_FOR_APP', 'CREDITS', 'LICENSE', 'app/**/*.rb', 
+       files = ['README', 'doc/README_FOR_APP', 'CREDITS', 'TODO', 'LICENSE', 'app/**/*.rb', 
                 'lib/**/*.rdoc']
        rdoc.rdoc_files.add(files)
        rdoc.main = "doc/README_FOR_APP" # page to start on
