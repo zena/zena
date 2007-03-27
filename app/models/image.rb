@@ -60,13 +60,14 @@ class Image < Document
       ImageBuilder.image_content_type?(content_type)
     end
   end
-  
-  # Crops an image. See ImageContent for details on this method.
+  # Crop the image using the 'crop' hash with the top left corner position (:x, :y) and the width and height (:width, :heigt). Example:
+  #   @node.crop = {:x=>10, :y=>10, :width=>30, :height=>60}
+  # Be carefull as this method changes the current file. So you should make a backup version before croping the image (the popup editor displays a warning).
   def c_crop=(crop)
     x, y, w, h = crop[:x].to_i, crop[:y].to_i, crop[:w].to_i, crop[:h].to_i
     if (x >= 0 && y >= 0 && w <= c_width && h <= c_height) && !(x==0 && y==0 && w == c_width && h == c_height)
       # do crop
-      redaction.redaction_content.crop = crop
+      self.c_file = version.content.crop(crop)
     else
       # nothing to do: ignore this operation.
     end

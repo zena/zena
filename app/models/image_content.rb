@@ -15,10 +15,8 @@ ImageContent also provides a +crop+ pseudo attribute to crop an image. See crop=
 =end
 class ImageContent < DocumentContent
   
-  # Crop the image using the 'crop' hash with the top left corner position (:x, :y) and the width and height (:width, :heigt). Example:
-  #   @node.crop = {:x=>10, :y=>10, :width=>30, :height=>60}
-  # Be carefull as this method changes the current file. So you should make a backup version before croping the image (the popup editor displays a warning).
-  def crop=(crop)
+  # Return a cropped image using the 'crop' hash with the top left corner position (:x, :y) and the width and height (:width, :heigt).
+  def crop(crop)
     return if @file # we do not want to crop on file upload in case the crop params lie around in the user's form
     x, y, w, h = crop[:x].to_i, crop[:y].to_i, crop[:w].to_i, crop[:h].to_i
 
@@ -34,7 +32,7 @@ class ImageContent < DocumentContent
       define_method(:original_filename) { fname }
       define_method(:content_type) { ctype }
     end
-    self.file = file
+    file
   end
   
   # Set content file, will refuse to accept the file if it is not an image.
