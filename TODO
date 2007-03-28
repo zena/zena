@@ -1,6 +1,8 @@
 
 == Todo
 * BUG: when move, update inherited rights from new parent.
+* update 'deploy.rb' for multisite and update mksite for 'cap' context
+* create site = transaction (or do a rollback)
 * move all input tags into <p> w3c xhtml !
 * try Zena without javascript
 * force 1 user = 1 contact :

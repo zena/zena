@@ -37,6 +37,11 @@ class UserControllerTest < ZenaTestController
     assert_equal 5, assigns(:users).size
   end
   
+  def test_home
+    login(:lion)
+    get 'home'
+    assert_response :success
+  end
   
   def test_admin_layout
     #without_files('app/views/templates/compiled/wiki') do
