@@ -1,0 +1,11 @@
+# zena apache2 setup for <%= balancer %>
+# automatically generated file
+
+NameVirtualHost <%= address %>
+<Proxy *>
+  Order allow,deny
+  Allow from all
+</Proxy>
+<Proxy balancer://<%= balancer %>><% ports.each do |port| %>
+  BalancerMember http://127.0.0.1:<%= port %><% end %>
+</Proxy>

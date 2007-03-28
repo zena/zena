@@ -1,24 +1,20 @@
-# some configurations of this file have been taken from http://mongrel.rubyforge.org/docs/apache.html
-# any errors and bugs are mine, though.
-
-<Proxy balancer://<%= mongrel_cluster %>>
-<% ports.each do |port| -%>
-  BalancerMember http://127.0.0.1:<%= port %><% end %>
-</Proxy>
+# zena apache2 vhost for <%= host %>
+# automatically generated file
 
 <VirtualHost <%= address %>>
-  ServerName <%= server_name %>
+  ServerName <%= host %>
 
-  DocumentRoot <%= deploy_to %>/public
-  ErrorLog     <%= deploy_to %>/log/apache2.error.log
-  CustomLog    <%= deploy_to %>/log/apache2.access.log combined
+  DocumentRoot /var/www/zena/<%= host %>/public
+  ErrorLog     /var/www/zena/<%= host %>/log/apache2.error.log
+  CustomLog    /var/www/zena/<%= host %>/log/apache2.access.log combined
 
-  <Directory "<%= deploy_to %>/public">
+  <Directory "/var/www/zena/<%= host %>/public">
     Options FollowSymLinks
     AllowOverride None
     Order allow,deny
     Allow from all
   </Directory>
+  
   <% if static.include?('cgi-bin') %>
   ScriptAlias /cgi-bin/ /usr/lib/cgi-bin/
   <Directory "/usr/lib/cgi-bin">
@@ -49,7 +45,7 @@
   RewriteEngine On
   <% if options[:debug_rewrite] %>
   # rewrite debugging
-  RewriteLog <%= deploy_to %>/shared/log/rewrite.log
+  RewriteLog /var/www/zena/<%= host %>/log/rewrite.log
   RewriteLogLevel 9 
   
   <% end %>
@@ -67,7 +63,7 @@
 
   # Redirect all non-static requests to cluster
   RewriteCond %{DOCUMENT_ROOT}/%{REQUEST_FILENAME} !-f
-  RewriteRule ^/(.*)$ balancer://<%= mongrel_cluster %>%{REQUEST_URI} [P,QSA,L]
+  RewriteRule ^/(.*)$ balancer://<%= balancer %>%{REQUEST_URI} [P,QSA,L]
   
   <% if options[:deflate] %>
   # Deflate (compress data before sending to browser)
@@ -83,83 +79,6 @@
   DeflateFilterNote Output output_info
   DeflateFilterNote Ratio ratio_info
   LogFormat '"%r" %{output_info}n/%{input_info}n (%{ratio_info}n%%)' deflate
-  CustomLog <%= deploy_to %>/shared/log/deflate.log deflate
+  CustomLog /var/www/zena/<%= host %>/log/deflate.log deflate
   <% end %>
-</VirtualHost>
-
-
-<Proxy balancer://tetivps_net>
-  BalancerMember http://127.0.0.1:8000
-  BalancerMember http://127.0.0.1:8001
-  BalancerMember http://127.0.0.1:8002
-</Proxy>
-
-<VirtualHost 217.162.2.96>
-  ServerName tetivps.net
-
-  DocumentRoot /var/www/zena/tetivps.net/public
-  ErrorLog     /var/www/zena/tetivps.net/log/apache2.error.log
-  CustomLog    /var/www/zena/tetivps.net/log/apache2.access.log combined
-
-  <Directory "/var/www/zena/tetivps.net/public">
-    Options FollowSymLinks
-    AllowOverride None
-    Order allow,deny
-    Allow from all
-  </Directory>
-
-
-  ScriptAlias /cgi-bin/ /usr/lib/cgi-bin/
-  <Directory "/usr/lib/cgi-bin">
-    AllowOverride None
-    Options ExecCGI -MultiViews +SymLinksIfOwnerMatch
-    Order allow,deny
-    Allow from all
-  </Directory>
-
-
-  Alias /awstats-icon/ /usr/share/awstats/icon/
-  <Directory "/usr/share/awstats/icon">
-    Options None
-    AllowOverride None
-    Order allow,deny
-    Allow from all
-  </Directory>
-
-
-  # hide all .whatever files
-  <DirectoryMatch "^/.*/\.">
-    ErrorDocument 403 /404.html
-    Order allow,deny
-    Deny from all
-    Satisfy All
-  </DirectoryMatch>
-
-  RewriteEngine On
-
-  # RewriteLog /var/www/zena/tetivps.net/log/rewrite.log
-  # RewriteLogLevel 9
-
-  # Check for maintenance file and redirect all requests
-  RewriteCond %{DOCUMENT_ROOT}/system/maintenance.html -f
-  RewriteCond %{SCRIPT_FILENAME} !maintenance.html
-  RewriteRule ^.*$ /system/maintenance.html [L]
-
-  # Rewrite index to check for static
-  RewriteRule ^/$ /index.html [QSA]
-
-  # Rewrite to check for Rails cached page
-  RewriteRule ^([^.]+)$ $1.html [QSA]
-
-  # Redirect all non-static requests to cluster
-  RewriteCond %{DOCUMENT_ROOT}/%{REQUEST_FILENAME} !-f
-  RewriteRule ^/(.*)$ balancer://tetivps_net%{REQUEST_URI} [P,QSA,L]
-
-
-  # Deflate (compress data before sending to browser)
-  # AddOutputFilterByType DEFLATE text/html text/plain text/xml application/xml application/xhtml+xml text/javascript text/css
-  # BrowserMatch ^Mozilla/4 gzip-only-text/html
-  # BrowserMatch ^Mozilla/4.0[678] no-gzip
-  # BrowserMatch \bMSIE !no-gzip !gzip-only-text/html
-
 </VirtualHost>
