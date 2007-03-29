@@ -6,56 +6,94 @@ class CachedPage
   end
 end
 class CachedPageTest < ZenaTestUnit
-  
-  def self.use_transactional_fixtures
-    false
-  end
-  
-  def test_dummy
-    assert true
-  end
-=begin
-  # these speed tests take a lot of time, they are disabled when running other tests
-  
-  # run this once before testing (can take up to several minutes)
-  def setup
-    super
-    for i in 1..10000
-      path = Digest::SHA1.hexdigest(rand.to_s)
-      ids = []
-      (200 * rand).to_i.times { ids << (500000 * rand).to_i}
-      expire_with = ".#{ids.join('.')}."
-      
-      Node.connection.execute "INSERT INTO cached_pages (path, expire_with) VALUES ('#{path}', '#{expire_with}')"
-    end
-  end
-  
-  
-  def test_speed
-    speed_helper('MySQL: FULLTEXT   ') do
-      "SELECT id from cached_pages where match(expire_with) against ('#{(5000 * rand).to_i}')"
-    end
-    speed_helper('MySQL: LIKE syntax') do
-      "SELECT id from cached_pages where expire_with LIKE '%.#{(5000 * rand).to_i}.%'"
-    end
-    Node.connection.execute "DROP INDEX cached_pages_expire_with_index ON cached_pages"
-    Node.connection.execute "ALTER TABLE cached_pages type=InnoDB"
-    speed_helper('InnoDB:LIKE syntax') do
-      "SELECT id from cached_pages where expire_with LIKE '%.#{(5000 * rand).to_i}.%'"
-    end
-    Node.connection.execute "ALTER TABLE cached_pages ENGINE = MyISAM"
-    Node.connection.execute "CREATE FULLTEXT INDEX cached_pages_expire_with_index ON cached_pages (expire_with)"
-  end
 
-  def speed_helper(message, count=1000)
-    start = Time.now
-    i = 0
-    count.times do
-      puts i if (i % 100) == 0
-      i += 1
-      Node.connection.execute(yield(i))
+  def test_create
+    without_files('test.host/public') do
+      with_caching do
+        login(:anon)
+        secure(Node) { nodes(:status) }
+        secure(Node) { nodes(:bird_jpg) }
+        assert_equal [nodes_id(:status), nodes_id(:bird_jpg)], visitor.visited_node_ids
+        path = "#{SITES_ROOT}#{visitor.site.public_path + "/some/place.html"}"
+        assert !File.exists?(path), "No cached file yet"
+        cache = secure(CachedPage) { CachedPage.create(
+          :path => (visitor.site.public_path + "/some/place.html"),
+          :expire_after  => nil,
+          :cache_content => "this is the cached content") }
+        assert File.exists?(path), "Cache file created"
+        data = File.open(path) {|f| f.read }
+        assert_equal "this is the cached content", data
+        assert_equal ["12", "20"], cache.node_ids
+        # test expire
+        login(:tiger)
+        node = secure(Node) { nodes(:status) }
+        assert node.update_attributes(:v_title=>'hey'), "Can save"
+        assert !File.exists?(path), "Cache file removed"
+        assert_equal [], cache.node_ids
+      end
     end
-    printf "%s: %0.2fs\n", message, (Time.now-start).to_f
   end
-=end
+  
+  def test_expire_old
+    without_files('test.host/public') do
+      with_caching do
+        login(:anon)
+        secure(Node) { nodes(:status) }
+        secure(Node) { nodes(:bird_jpg) }
+        assert_equal [nodes_id(:status), nodes_id(:bird_jpg)], visitor.visited_node_ids
+        path = "#{SITES_ROOT}#{visitor.site.public_path + "/some/place.html"}"
+        assert !File.exists?(path), "No cached file yet"
+        cache = secure(CachedPage) { CachedPage.create(
+          :path => (visitor.site.public_path + "/some/place.html"),
+          :expire_after  => Time.now - 3600,
+          :cache_content => "this is the cached content") }
+        assert File.exists?(path), "Cache file created"
+        data = File.open(path) {|f| f.read }
+        assert_equal "this is the cached content", data
+        assert_equal ["12", "20"], cache.node_ids
+        # test expire
+        CachedPage.expire_old
+        assert !File.exists?(path), "Cache file removed"
+        assert_equal [], cache.node_ids
+      end
+    end
+  end
+  
+  def test_site_id
+    without_files('test.host/public') do
+      with_caching do
+        login(:anon)
+        secure(Node) { nodes(:people) }
+        cache = secure(CachedPage) { CachedPage.create(
+          :path => (visitor.site.public_path + "/some/place.html"),
+          :expire_after  => nil,
+          :cache_content => "this is the cached content") }
+        assert !cache.new_record?, "Not a new record"
+        assert_equal sites_id(:zena), cache[:site_id]
+      end
+    end
+  end
+  
+  def test_cannot_set_site_id
+    without_files('test.host/public') do
+      with_caching do
+        login(:anon)
+        secure(Node) { nodes(:people) }
+        assert_raise(Zena::AccessViolation) do
+          cache = secure(CachedPage) { CachedPage.create(
+            :path => (visitor.site.public_path + "/some/place.html"),
+            :expire_after  => nil,
+            :cache_content => "this is the cached content",
+            :site_id => sites_id(:ocean))}
+        end
+        cache = secure(CachedPage) { CachedPage.create(
+          :path => (visitor.site.public_path + "/some/place.html"),
+          :expire_after  => nil,
+          :cache_content => "this is the cached content") }
+        assert !cache.new_record?, "Not a new record"
+        assert_raise(Zena::AccessViolation) { cache.site_id = sites_id(:ocean) }
+        assert_equal sites_id(:zena), cache[:site_id]
+      end
+    end
+  end
 end

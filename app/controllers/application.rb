@@ -78,18 +78,10 @@ class ApplicationController < ActionController::Base
   # Cache page content into a static file in the current sites directory : SITES_ROOT/test.host/public
   def cache_page(expire_after = nil)
     return unless perform_caching && caching_allowed
-    
-    # get path
-    path = visitor.site.public_path + page_cache_file
-    filepath = "#{SITES_ROOT}#{path}"
-    # save content into cache
-    FileUtils.mkpath(File.dirname(filepath))
-    File.open(filepath, "wb+") { |f| f.write(response.body) }
-    
-    # save cache context for automatic expire
-    cache = CachedPage.create(:path => path, :expire_after=>expire_after)
-    values = visitor.visited_node_ids.uniq.map {|id| "(#{cache[:id]}, #{id})"}.join(',')
-    CachedPage.connection.execute "INSERT INTO cached_pages_nodes (cached_page_id, node_id) VALUES #{values}"
+    secure(CachedPage) { CachedPage.create(
+                      :path => (visitor.site.public_path + page_cache_file),
+                      :expire_after  => expire_after,
+                      :cache_content => response.body) }
   end
   
   # Cache file path that reflects the called url

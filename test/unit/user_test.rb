@@ -1,7 +1,27 @@
 require File.dirname(__FILE__) + '/../test_helper'
-
+ApplicationController # need to load to test caching
 class UserTest < ZenaTestUnit
 
+  def test_visited_node_ids
+    login(:tiger)
+    secure(Node) { nodes(:status) }
+    secure(Node) { nodes(:bird_jpg) }
+    assert_equal [], visitor.visited_node_ids
+    login(:anon)
+    secure(Node) { nodes(:status) }
+    secure(Node) { nodes(:bird_jpg) }
+    assert_equal [], visitor.visited_node_ids
+    with_caching do
+      login(:tiger)
+      secure(Node) { nodes(:status) }
+      secure(Node) { nodes(:bird_jpg) }
+      assert_equal [], visitor.visited_node_ids
+      login(:anon)
+      secure(Node) { nodes(:status) }
+      secure(Node) { nodes(:bird_jpg) }
+      assert_equal [nodes_id(:status), nodes_id(:bird_jpg)], visitor.visited_node_ids
+    end
+  end
   
   def test_cannot_destroy_su
     su = users(:su)

@@ -66,5 +66,6 @@ require File.join(File.dirname(__FILE__), '../lib/image_builder')
 require File.join(File.dirname(__FILE__), '../lib/parser')
 ZazenParser = Parser.parser_with_rules(Zazen::Rules, Zazen::Tags)
 ZafuParser  = Parser.parser_with_rules(Zafu::Rules, Zena::Rules, Zafu::Tags, Zena::Tags)
+require File.join(File.dirname(__FILE__), '../lib/base_additions')
 #require File.join(File.dirname(__FILE__), '..', 'settings')
 require 'diff'

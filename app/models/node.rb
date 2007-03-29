@@ -597,120 +597,119 @@ class Node < ActiveRecord::Base
   end
   
   private
-      
-  # Called after an node is 'removed'
-  def after_remove
-    if self[:max_status] < Zena::Status[:pub]
-      # not published any more. 'remove' documents
-      sync_documents(:remove)
-    else
+    # Called after an node is 'removed'
+    def after_remove
+      if self[:max_status] < Zena::Status[:pub]
+        # not published any more. 'remove' documents
+        sync_documents(:remove)
+      else
+        true
+      end
+    end
+  
+    # Called after an node is 'proposed'
+    def after_propose
+      sync_documents(:propose)
+    end
+  
+    # Called after an node is 'refused'
+    def after_refuse
+      sync_documents(:refuse)
+    end
+  
+    # Called after an node is published
+    def after_publish(pub_time=nil)
+      sync_documents(:publish, pub_time)
+    end
+
+    # Publish, refuse, propose the Documents of a redaction
+    def sync_documents(action, pub_time=nil)
+      allOK = true
+      documents = secure_drive(Document) { Document.find(:all, :conditions=>"parent_id = #{self[:id]}") }
+      case action
+      when :propose
+        documents.each do |doc|
+          if doc.can_propose?
+            allOK = doc.propose(Zena::Status[:prop_with]) && allOK
+          end
+        end
+      when :refuse
+        documents.each do |doc|
+          if doc.can_refuse?
+            allOK = doc.refuse && allOK
+          end
+        end
+      when :publish
+        documents.each do |doc|
+          if doc.can_publish?
+            allOK = doc.publish(pub_time) && allOK
+          end
+        end
+      when :remove
+        # FIXME: use a 'before_remove' callback to make sure all sub-nodes can be removed...
+        documents.each do |doc|
+          unless doc.remove
+            doc.errors.each do |err|
+              errors.add('document', err.to_s)
+            end
+            allOK = false
+          end
+        end
+      end
+      allOK
+    end
+  
+    # Whenever something changed (publication/proposition/redaction/link/...)
+    def after_all
+      sweep_cache
       true
     end
-  end
   
-  # Called after an node is 'proposed'
-  def after_propose
-    sync_documents(:propose)
-  end
-  
-  # Called after an node is 'refused'
-  def after_refuse
-    sync_documents(:refuse)
-  end
-  
-  # Called after an node is published
-  def after_publish(pub_time=nil)
-    sync_documents(:publish, pub_time)
-  end
-
-  # Publish, refuse, propose the Documents of a redaction
-  def sync_documents(action, pub_time=nil)
-    allOK = true
-    documents = secure_drive(Document) { Document.find(:all, :conditions=>"parent_id = #{self[:id]}") }
-    case action
-    when :propose
-      documents.each do |doc|
-        if doc.can_propose?
-          allOK = doc.propose(Zena::Status[:prop_with]) && allOK
-        end
-      end
-    when :refuse
-      documents.each do |doc|
-        if doc.can_refuse?
-          allOK = doc.refuse && allOK
-        end
-      end
-    when :publish
-      documents.each do |doc|
-        if doc.can_publish?
-          allOK = doc.publish(pub_time) && allOK
-        end
-      end
-    when :remove
-      # FIXME: use a 'before_remove' callback to make sure all sub-nodes can be removed...
-      documents.each do |doc|
-        unless doc.remove
-          doc.errors.each do |err|
-            errors.add('document', err.to_s)
-          end
-          allOK = false
-        end
+    # Find all children, whatever visitor is here (used to check if the node can be destroyed or to update project)
+    def all_children
+      Node.with_exclusive_scope do
+        Node.find(:all, :conditions=>['parent_id = ?', self[:id] ])
       end
     end
-    allOK
-  end
   
-  # Whenever something changed (publication/proposition/redaction/link/...)
-  def after_all
-    sweep_cache
-    true
-  end
-  
-  # Find all children, whatever visitor is here (used to check if the node can be destroyed or to update project)
-  def all_children
-    Node.with_exclusive_scope do
-      Node.find(:all, :conditions=>['parent_id = ?', self[:id] ])
+    def camelize(str)
+      str = str.dup
+      accents = { 
+        ['á',    'à','À','â','Â','ä','Ä','ã','Ã'] => 'a',
+        ['é','É','è','È','ê','Ê','ë','Ë',       ] => 'e',
+        ['í',    'ì','Ì','î','Î','ï','Ï'        ] => 'i',
+        ['ó',    'ò','Ò','ô','Ô','ö','Ö','õ','Õ'] => 'o',
+        ['ú',    'ù','Ù','û','Û','ü','Ü'        ] => 'u',
+        ['œ'] => 'oe',
+        ['ß'] => 'ss',
+        }
+      accents.each do |ac,rep|
+        ac.each do |s|
+          str.gsub!(s, rep)
+        end
+      end
+      str.gsub!(/[^a-zA-Z0-9_\. ]/," ")
+      str = str.split.join(" ")
+      str.gsub!(/ (.)/) { $1.upcase }
+      str
     end
-  end
   
-  def camelize(str)
-    str = str.dup
-    accents = { 
-      ['á',    'à','À','â','Â','ä','Ä','ã','Ã'] => 'a',
-      ['é','É','è','È','ê','Ê','ë','Ë',       ] => 'e',
-      ['í',    'ì','Ì','î','Î','ï','Ï'        ] => 'i',
-      ['ó',    'ò','Ò','ô','Ô','ö','Ö','õ','Õ'] => 'o',
-      ['ú',    'ù','Ù','û','Û','ü','Ü'        ] => 'u',
-      ['œ'] => 'oe',
-      ['ß'] => 'ss',
-      }
-    accents.each do |ac,rep|
-      ac.each do |s|
-        str.gsub!(s, rep)
+    # Base class
+    def base_class
+      Node
+    end
+  
+    # Reference class
+    def ref_class
+      Node
+    end
+  
+    # return the id of the reference
+    def ref_field(for_heirs=false)
+      if !for_heirs && (self[:id] == visitor.site[:root_id])
+        :id # root is it's own reference
+      else
+        :parent_id
       end
     end
-    str.gsub!(/[^a-zA-Z0-9_\. ]/," ")
-    str = str.split.join(" ")
-    str.gsub!(/ (.)/) { $1.upcase }
-    str
-  end
-  
-  # Base class
-  def base_class
-    Node
-  end
-  
-  # Reference class
-  def ref_class
-    Node
-  end
-  
-  # return the id of the reference
-  def ref_field(for_heirs=false)
-    if !for_heirs && (self[:id] == visitor.site[:root_id])
-      :id # root is it's own reference
-    else
-      :parent_id
-    end
-  end
 end
