@@ -242,7 +242,7 @@ module ApplicationHelper
   
   # Creates a link to the node referenced by id
   def make_link(opts)
-    node = secure(Node) { Node.find(opts[:id]) }
+    node = secure(Node) { Node.find_by_zip(opts[:id]) }
     title = (opts[:title] && opts[:title] != '') ? opts[:title] : node.v_title
     if opts[:id][0..0] == '0'
       link_to title, node_url(node), :popup=>true
@@ -268,7 +268,7 @@ module ApplicationHelper
   # Create an img tag for the given image. See ApplicationHelper#zazen for details.
   def make_image(opts)
     id, style, link, size, title = opts[:id], opts[:style], opts[:link], opts[:size], opts[:title]
-    img = secure(Document) { Document.find(id) }
+    img = secure(Document) { Document.find_by_zip(id) }
     if !opts[:images].nil? && !opts[:images]
       return "[#{trans('image')}: #{img.v_title}]"
     end
@@ -324,7 +324,7 @@ module ApplicationHelper
       images = @node.images
     else
       ids = ids.split(',').map{|i| i.to_i} # sql injection security
-      images = secure(Document) { Document.find(:all, :conditions=>"id IN (#{ids.join(',')})") }
+      images = secure(Document) { Document.find_by_zip(:all, :conditions=>"zip IN (#{ids.join(',')})") }
       # order like ids :
       images.sort! {|a,b| ids.index(a[:id].to_i) <=> ids.index(b[:id].to_i) }
     end
@@ -356,7 +356,7 @@ module ApplicationHelper
       docs = @node.images
     else
       ids = ids.split(',').map{|i| i.to_i}.join(',') # sql injection security
-      docs = secure(Document) { Document.find(:all, :order=>'name ASC', :conditions=>"id IN (#{ids})") }
+      docs = secure(Document) { Document.find(:all, :order=>'name ASC', :conditions=>"zip IN (#{ids})") }
     end
     prefix + render_to_string( :partial=>'main/list_nodes', :locals=>{:docs=>docs}) + suffix
   end

@@ -1,6 +1,6 @@
 class ReplaceIdByZip < ActiveRecord::Migration
   def self.up
-    create_table(:zip_counter, :id=>false, :options => 'type=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci') do |t|
+    create_table(:zips, :id=>false, :options => 'type=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci') do |t|
       t.column :site_id, :integer
       t.column :zip, :integer
     end
@@ -9,7 +9,7 @@ class ReplaceIdByZip < ActiveRecord::Migration
   end
 
   def self.down
-    drop_table :zip_counter
+    drop_table :zips
     remove_column :nodes, :zip
   end
 end

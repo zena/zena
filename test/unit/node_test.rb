@@ -769,4 +769,17 @@ class NodeTest < ZenaTestUnit
     node = secure(Node) { nodes(:status) }
     assert_raise(Zena::AccessViolation) { node.site_id = sites_id(:ocean) }
   end
+  
+  def test_zip
+    login(:tiger)
+    node = secure(Node) { Node.create(:parent_id=>nodes_id(:zena), :name=>"fly")}
+    assert !node.new_record?, "Not a new record"
+    assert_equal 35, node.zip
+  end
+  
+  def test_find_by_zip
+    login(:tiger)
+    assert_raise(ActiveRecord::RecordNotFound) { node = Node.find_by_zip(99) }
+    assert_kind_of Node, node = Node.find_by_zip(3)
+  end
 end

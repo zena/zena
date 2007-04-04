@@ -212,7 +212,7 @@ ActiveRecord::Schema.define(:version => 0) do
     t.column "site_id", :integer
   end
 
-  create_table "zip_counter", :id => false, :force => true do |t|
+  create_table "zips", :id => false, :force => true do |t|
     t.column "site_id", :integer
     t.column "zip", :integer
   end

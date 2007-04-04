@@ -43,6 +43,9 @@ class Site < ActiveRecord::Base
         return site
       end
       
+      # =========== CREATE zip counter ==========================
+      connection.execute "INSERT INTO zips (site_id, zip) VALUES (#{site[:id]},0)"
+      
       # =========== CREATE Super User ===========================
       # create su user
       su = User.new_no_defaults( :login => host, :password => su_password,

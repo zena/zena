@@ -118,9 +118,10 @@ class Node < ActiveRecord::Base
   has_and_belongs_to_many :cached_pages
   validate_on_create :node_on_create
   validate_on_update :node_on_update
+  before_save        :node_before_create
   after_save         :spread_project_id
   before_destroy     :node_on_destroy
-  attr_protected     :site_id
+  attr_protected     :site_id, :zip, :id
   acts_as_secure_node
   acts_as_multiversioned
   link :tags, :class_name=>'Tag'
@@ -133,6 +134,12 @@ class Node < ActiveRecord::Base
     # valid parent class
     def parent_class
       Node
+    end
+    
+    def find_by_zip(zip)
+      node = find(:first, :conditions=>"zip = #{zip.to_i}")
+      raise ActiveRecord::RecordNotFound unless node
+      node
     end
     
     # Find an node by it's full path. Cache 'fullpath' if found.
@@ -586,17 +593,21 @@ class Node < ActiveRecord::Base
   end
   
   protected
-  
-  def sync_project(project_id)
-    all_children.each do |child|
-      next if child.kind_of?(Project)
-      child[:project_id] = project_id
-      child.save_with_validation(false)
-      child.sync_project(project_id)
+    def sync_project(project_id)
+      all_children.each do |child|
+        next if child.kind_of?(Project)
+        child[:project_id] = project_id
+        child.save_with_validation(false)
+        child.sync_project(project_id)
+      end
     end
-  end
   
   private
+    # Get unique zip in the current site's scope
+    def node_before_create
+      self[:zip] ||= Node.next_zip(self[:site_id])
+    end
+    
     # Called after an node is 'removed'
     def after_remove
       if self[:max_status] < Zena::Status[:pub]

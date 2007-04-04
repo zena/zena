@@ -19,6 +19,7 @@ class SiteTest < ZenaTestUnit
     root = secure(Node) { Node.find(site[:root_id]) }
     assert_kind_of Node, root
     assert_equal 'super', root.v_title
+    assert_nothing_raised { Node.next_zip(site[:id]) }
   end
 
   def test_public_path

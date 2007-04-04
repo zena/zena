@@ -23,7 +23,7 @@ class MainController < ApplicationController
     if path.last =~ /[a-zA-Z\-_]+([0-9]+)(\.|$)/
       path.pop
       basepath = path.join('/')
-      @node = secure(Node) { Node.find($1.to_i) }
+      @node = secure(Node) { Node.find_by_zip($1.to_i) }
     else
       @node = secure(Node) { Node.find_by_path(path.join('/')) }
       basepath = path.join('/')

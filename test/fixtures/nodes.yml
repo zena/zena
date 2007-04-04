@@ -3,6 +3,7 @@
 <% @rights = "  rgroup_id:  1\n  wgroup_id:  3\n  pgroup_id:  4" %>
 zena:
   id:             1
+  zip:            1
   site_id:        1
   type:           Project
   kpath:          NPP
@@ -21,6 +22,7 @@ zena:
 
 people:
   id:             2
+  zip:            2
   site_id:        1
   type:           Page
   kpath:          NP
@@ -34,6 +36,7 @@ people:
 
 ant:
   id:             3
+  zip:            3
   site_id:        1
   type:           Contact
   kpath:          NRC
@@ -49,6 +52,7 @@ ant:
 
 myLife:
   id:             6
+  zip:            6
   site_id:        1
   type:           Page
   kpath:          NP
@@ -65,6 +69,7 @@ myLife:
 
 tiger:
   id:             4
+  zip:            4
   site_id:        1
   type:           Contact
   kpath:          NRC
@@ -78,6 +83,7 @@ tiger:
 
 lion:
   id:             5
+  zip:            5
   site_id:        1
   type:           Contact
   kpath:          NRC
@@ -91,6 +97,7 @@ lion:
 
 myDreams:
   id:             7
+  zip:            7
   site_id:        1
   type:           Page
   kpath:          NP
@@ -106,6 +113,7 @@ myDreams:
   
 projects:
   id:             8
+  zip:            8
   site_id:        1
   type:           Page
   kpath:          NP
@@ -119,6 +127,7 @@ projects:
 
 secret:
   id:             9
+  zip:            9
   site_id:        1
   type:           Project
   kpath:          NPP
@@ -134,6 +143,7 @@ secret:
   
 proposition:
   id:             10
+  zip:            10
   site_id:        1
   type:           Note
   kpath:          NN
@@ -150,6 +160,7 @@ proposition:
 
 cleanWater:
   id:             11
+  zip:            11
   site_id:        1
   type:           Project
   kpath:          NPP
@@ -164,6 +175,7 @@ cleanWater:
 
 status:
   id:             12
+  zip:            12
   site_id:        1
   type:           Page
   kpath:          NP
@@ -178,6 +190,7 @@ status:
 
 lake:
   id:             13
+  zip:            13
   site_id:        1
   type:           Contact
   kpath:          NRC
@@ -191,6 +204,7 @@ lake:
 
 lake_jpg:
   id:             14
+  zip:            14
   site_id:        1
   type:           Image
   kpath:          NPDI
@@ -204,6 +218,7 @@ lake_jpg:
 
 water_pdf:
   id:             15
+  zip:            15
   site_id:        1
   type:           Document
   kpath:          NPD
@@ -217,6 +232,7 @@ water_pdf:
 
 crocodiles:
   id:             16
+  zip:            16
   site_id:        1
   type:           Page
   kpath:          NP
@@ -234,6 +250,7 @@ crocodiles:
 
 opening:
   id:             17
+  zip:            17
   site_id:        1
   type:           Note
   kpath:          NN
@@ -251,6 +268,7 @@ opening:
 
 bananas:
   id:             18
+  zip:            18
   site_id:        1
   type:           Page
   kpath:          NP
@@ -266,6 +284,7 @@ bananas:
   
 wiki:
   id:             19
+  zip:            19
   site_id:        1
   type:           Project
   kpath:          NPP
@@ -284,6 +303,7 @@ wiki:
   
 bird_jpg:
   id:             20
+  zip:            20
   site_id:        1
   type:           Image
   kpath:          NPDI
@@ -302,6 +322,7 @@ bird_jpg:
   
 flower_jpg:
   id:             21
+  zip:            21
   site_id:        1
   type:           Image
   kpath:          NPDI
@@ -320,6 +341,7 @@ flower_jpg:
 
 collections:
   id:             22
+  zip:            22
   site_id:        1
   type:           Page
   kpath:          NP
@@ -333,6 +355,7 @@ collections:
 
 art:
   id:             23
+  zip:            23
   site_id:        1
   type:           Tag
   kpath:          NPT
@@ -346,6 +369,7 @@ art:
 
 news:
   id:             24
+  zip:            24
   site_id:        1
   type:           Tag
   kpath:          NPT
@@ -359,6 +383,7 @@ news:
 
 menu:
   id:             25
+  zip:            25
   site_id:        1
   type:           Tag
   kpath:          NPT
@@ -372,6 +397,7 @@ menu:
 
 strange:
   id:             26
+  zip:            26
   site_id:        1
   type:           Page
   kpath:          NP
@@ -390,6 +416,7 @@ strange:
   
 tracker:
   id:             27
+  zip:            27
   site_id:        1
   type:           Tracker
   kpath:          NPA
@@ -403,6 +430,7 @@ tracker:
 
 talk:
   id:             28
+  zip:            28
   site_id:        1
   type:           Page
   kpath:          NP
@@ -421,6 +449,7 @@ talk:
   
 nature:
   id:             29
+  zip:            29
   site_id:        1
   type:           Page
   kpath:          NP
@@ -441,6 +470,7 @@ nature:
   
 tree_jpg:
   id:             30
+  zip:            30
   site_id:        1
   type:           Image
   kpath:          NPDI
@@ -461,6 +491,7 @@ tree_jpg:
   
 forest_pdf:
   id:             31
+  zip:            31
   site_id:        1
   type:           Document
   kpath:          NPD
@@ -481,6 +512,7 @@ forest_pdf:
   
 letter:
   id:             32
+  zip:            32
   site_id:        1
   type:           Letter
   kpath:          NNL
@@ -495,6 +527,7 @@ letter:
 
 wiki_skin:
   id:             33
+  zip:            33
   site_id:        1
   type:           Skin
   kpath:          NPDTTS
@@ -508,6 +541,7 @@ wiki_skin:
 
 layout:
   id:             34
+  zip:            34
   site_id:        1
   type:           Template
   kpath:          NPDTT
@@ -521,6 +555,7 @@ layout:
 
 ocean:
   id:             35
+  zip:            1
   site_id:        2
   type:           Project
   kpath:          NPP

@@ -334,7 +334,7 @@ class ApplicationController < ActionController::Base
     else
       path = obj.basepath.split('/')
       unless obj[:custom_base]
-        path += ["#{obj.class.to_s.downcase}#{obj[:id]}#{self.class.page_cache_extension}"]
+        path += ["#{obj.class.to_s.downcase}#{obj[:zip]}#{self.class.page_cache_extension}"]
       end
     end
     {:controller => 'main', :action=>'show', :path=>path, :prefix=>prefix}
