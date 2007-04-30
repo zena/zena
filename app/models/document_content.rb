@@ -18,6 +18,7 @@ class DocumentContent < ActiveRecord::Base
   validates_presence_of :name
   validates_presence_of :version
   before_save           :content_before_save
+  after_save            :content_after_save
   before_destroy        :destroy_file
   
   # protect access to size.
@@ -109,6 +110,11 @@ class DocumentContent < ActiveRecord::Base
       old.remove_format_images if old.respond_to?(:remove_format_images)
       FileUtils::mv(old.filepath, filepath)
     end
+  end
+  
+  def content_after_save
+    # we are done with this file
+    @file = nil
   end
   
   def make_file(path, data)

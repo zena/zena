@@ -335,10 +335,11 @@ class NodesController < ApplicationController
           sub_folder = path
           # look-ahead to see if we have any related yml files before processing the folder
         elsif filename =~ /^(.+)(\.\w\w|)(\.\d+|)\.yml$/  
-          name = $1
+          name, lang = $1, ($2 ? $2[1..-1] : visitor.lang)
           # yaml node
           attrs = get_attributes_from_yaml(path).merge(:parent_id => parent[:id])
-          attrs['name'] ||= name
+          attrs['name']   ||= name
+          attrs['v_lang'] ||= lang
           current_obj = create_node(attrs)
         else
           # document
@@ -350,10 +351,17 @@ class NodesController < ApplicationController
         # FIXME: how to set version status and user_id ?
 
         while entries[index] =~ /^#{filename}(\.\w\w|)(\.\d+|)\.yml$/
+          lang = $1 ? $1[1..-1] : visitor.lang
+          
           # we have a yml file. Create a version with this file
-          attrs = get_attributes_from_yaml(File.join(path,entries[index])).merge(:parent_id => parent[:id])
-          attrs['name'] ||= filename
+          attrs = get_attributes_from_yaml(File.join(folder,entries[index])).merge(:parent_id => parent[:id])
+          attrs['name']   ||= filename.split('.').first
+          attrs['v_lang'] ||= lang
+          
           if current_obj
+            # FIXME: what publication status for these things ?
+            current_obj.remove if current_obj.v_lang == attrs['v_lang']
+            current_obj.edit!(attrs['v_lang'])
             current_obj.update_attributes(attrs)
           elsif document
             # processing a document
@@ -377,7 +385,7 @@ class NodesController < ApplicationController
         # finished with the current object's yaml
         if sub_folder
           # create minimal object to store the children
-          current_obj ||= secure(Page) { Page.create(:parent_id => parent[:id], :name => filename) }
+          current_obj ||= secure(Page) { Page.create(:parent_id => parent[:id], :name => filename.split('.').first ) }
           create_nodes_from_folder(:folder => sub_folder, :parent => current_obj)
         elsif document && !current_obj  
           # processing a document

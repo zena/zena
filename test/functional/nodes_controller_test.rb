@@ -62,6 +62,12 @@ done: \"I am done\""
     assert_equal 'simple', simple[:name]
     assert_equal 'The sky is blue', simple.v_title
     assert_equal 'jpg', bird.c_ext
+    assert_equal 'Lucy in the sky', bird.v_title
+    versions = bird.versions
+    assert_equal 2, versions.size
+    assert_equal 'fr', versions[0].lang
+    assert_equal 'en', versions[1].lang
+    assert_equal 'Le septième ciel', versions[0].title
   end
   
   def test_import

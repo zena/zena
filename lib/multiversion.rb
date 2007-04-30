@@ -57,8 +57,8 @@ module Zena
         end
         
         # try to set the node's version to a redaction
-        def edit!
-          redaction
+        def edit!(lang = nil)
+          redaction(lang)
         end
         
         def edit_content!
@@ -331,14 +331,14 @@ module Zena
           self.class.connection.execute "UPDATE #{self.class.table_name} SET #{att}=#{value} WHERE id=#{self[:id]}"
         end
         
-        def redaction
-          return @redaction if @redaction
+        def redaction(lang = nil)
+          return @redaction if @redaction && (lang.nil? || lang == @redaction.lang)
           if new_record?
             @redaction = version
           else
             begin
               # is there a current redaction ?
-              v = versions.find(:first, :conditions=>["status >= #{Zena::Status[:red]} AND status < #{Zena::Status[:pub]} AND lang=?", visitor.lang])
+              v = versions.find(:first, :conditions=>["status >= #{Zena::Status[:red]} AND status < #{Zena::Status[:pub]} AND lang=?", (lang || visitor.lang)])
             rescue ActiveRecord::RecordNotFound
               v = nil
             end
@@ -349,7 +349,7 @@ module Zena
               v.publish_from = v.created_at = nil
               v.comment = v.number = ''
               v.user_id = visitor[:id]
-              v.lang = visitor.lang
+              v.lang = lang || visitor.lang
               v[:content_id] = version[:content_id] || version[:id]
               v.node = self
             end
