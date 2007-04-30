@@ -21,10 +21,9 @@ class DocumentsController < ApplicationController
   
   # create a document (upload)
   def create
-    pdoc = cleanup_node_params
-    pdoc.delete(:c_file) if pdoc[:c_file] == ""
-    pdoc[:klass] ||= 'Document'
-    @node = create_node(pdoc)
+    attrs = cleanup_node_params
+    attrs[:klass] ||= 'Document'
+    @node = create_node(attrs)
     
     respond_to do |format|
       if @node.new_record?

@@ -17,6 +17,7 @@ ActionController::Routing::Routes.draw do |map|
   
   map.resources :nodes, :collection => { :search => :get, :attribute => :get } do |nodes|
     nodes.resources :versions, 
+                    :name_prefix => nil,
                     :member => { :edit    => :get,
                                  :propose => :put,
                                  :publish => :put,

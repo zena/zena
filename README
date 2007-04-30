@@ -7,12 +7,24 @@ You need to set collation and charset to utf8 when creating the database. Exampl
 
 == Migrating the database (setup)
 Once config/database.yml is properly set, run the following command
+# rake bricks:migrate RAILS_ENV=production
+
+== Create a new site
+# rake zena:mksite HOST=example.com PASSWORD=secret RAILS_ENV=production
+
+== For development/testing
+1. Create the database with (using a mysql client)
+  create database zena_dev DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
+2. Migrate the database (from within zena directory)
 # rake bricks:migrate
-# rake bricks:init BRICK=zena
+3. Create a first site  (from within zena directory)
+# rake zena:mksite HOST=localhost PASSWORD=secret
 
-== Loading new languages
-This is done through the web
+== Start
+# script/server
 
-dependencies:
+== Login
+You can now login with 'admin' and the password you used to make the site.
 
+== Dependencies
 rmagick, redcloth, syntax, markaby

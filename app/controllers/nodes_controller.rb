@@ -109,7 +109,7 @@ class NodesController < ApplicationController
   end
   
   def create
-    @node = create_node(params[:node].delete(:klass) || 'Page', cleanup_node_params)
+    @node = create_node
     
     respond_to do |format|
       if @node.errors.empty?
@@ -157,6 +157,7 @@ class NodesController < ApplicationController
   def update
     attrs = cleanup_node_params
     attrs.delete(:klass)
+    attrs.delete(:c_file) if attrs[:c_file] == ""
     
     if params[:template_url]
       # edit from inline form in zafu

@@ -20,6 +20,9 @@ module Zena
           super(h)
         end
       end
+      def site_id=(i)
+        self[:site_id] = i
+      end
       def _type_=(t)
         self.type = t
       end
