@@ -200,7 +200,7 @@ module Zena
         @response   = ActionController::TestResponse.new
         @controller.instance_eval { @params = {}; @url = ActionController::UrlRewriter.new( @request, {} )}
         @controller.instance_variable_set(:@response, @response)
-        @controller.instance_variable_set(:@request, @request)
+        @controller.send(:request=, @request)
         @controller.instance_variable_set(:@session, @request.session)
       end
 
@@ -209,8 +209,8 @@ module Zena
         @controller_bak = @controller
         @controller = SessionController.new
         post 'create', :login=>visitor.to_s, :password=>visitor.to_s
-        sess = @controller.instance_variable_get(:@session)
-        @controller_bak.instance_variable_set(:@session, sess )
+        sess = @controller.send(:session)
+        @controller_bak.send(:session=, sess )
         @controller_bak.instance_variable_set(:@visitor, nil ) # clear cached visitor
         @controller = @controller_bak
       end

@@ -15,7 +15,7 @@ ActionController::Routing::Routes.draw do |map|
   
   map.connect 'nodes/:node_id/versions/:id.:format', :controller => 'versions', :action => 'show' #, :requirements => { :method => :get }
   
-  map.resources :nodes, :collection => { :search => :get, :attribute => :get } do |nodes|
+  map.resources :nodes, :collection => { :search => :get, :attribute => :get }, :member => { :import => :post } do |nodes|
     nodes.resources :versions, 
                     :name_prefix => nil,
                     :member => { :edit    => :get,

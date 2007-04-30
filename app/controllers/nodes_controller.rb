@@ -154,6 +154,32 @@ class NodesController < ApplicationController
     end
   end
   
+  # import sub-nodes from a file
+  def import
+    unless params[:file] && params[:file].kind_of?(File)
+      # FIXME: errors
+      return
+    end
+    
+    file  = params[:file]
+    n     = 0
+    while true
+      tmp_folder = File.join(RAILS_ROOT, 'tmp', sprintf('%s.%d.%d', 'import', $$, n))
+      break unless File.exists?(tmp_folder)
+    end
+    
+    begin
+      Fileutils.mkpath(tmp_folder)
+      # extract file in this temporary folder.
+      # FIXME: is there a security risk here ?
+      system "tar -C '#{tmp_folder}' -xz < '#{file.path}'"
+      
+      create_nodes_from_folder(:folder => tmp_folder, :parent => @node)
+    ensure
+      Fileutils.rmtree(tmp_folder)
+    end
+  end
+  
   def update
     attrs = cleanup_node_params
     attrs.delete(:klass)
@@ -290,6 +316,93 @@ class NodesController < ApplicationController
       elsif params[:id]
         @node = secure(Node) { Node.find_by_zip(params[:id]) }
       end
+    end
+    
+    def create_nodes_from_folder(opts)
+      parent = opts[:parent] || @node
+      folder = opts[:folder]
+      
+      entries = Dir.entries(folder).reject { |f| f =~ /^[^\w]/ }
+      
+      index  = 0
+      
+      while index < entries.size
+        current_obj = document = sub_folder = nil # new object
+        filename = entries[index]
+        path     = File.join(folder, filename)
+        
+        if File.stat(path).directory?
+          sub_folder = path
+          # look-ahead to see if we have any related yml files before processing the folder
+        elsif filename =~ /^(.+)(\.\w\w|)(\.\d+|)\.yml$/  
+          name = $1
+          # yaml node
+          attrs = get_attributes_from_yaml(path).merge(:parent_id => parent[:id])
+          attrs['name'] ||= name
+          current_obj = create_node(attrs)
+        else
+          # document
+          document   = path
+          # look-ahead
+        end  
+        index += 1
+        
+        # FIXME: how to set version status and user_id ?
+
+        while entries[index] =~ /^#{filename}(\.\w\w|)(\.\d+|)\.yml$/
+          # we have a yml file. Create a version with this file
+          attrs = get_attributes_from_yaml(File.join(path,entries[index])).merge(:parent_id => parent[:id])
+          attrs['name'] ||= filename
+          if current_obj
+            current_obj.update_attributes(attrs)
+          elsif document
+            # processing a document
+            ctype = EXT_TO_TYPE[document.split('.').last][0] || "application/octet-stream"
+            File.open(document) do |file|
+              (class << file; self; end;).class_eval do
+                alias local_path path if defined?(:path)
+                define_method(:original_filename) { filename }
+                define_method(:content_type) { ctype }
+              end
+              current_obj = create_node(attrs.merge(:c_file => file, :klass => 'Document'))
+            end
+            document = nil
+          else
+            # processing a folder
+            current_obj = create_node(attrs)
+          end
+          index += 1
+        end
+        
+        # finished with the current object's yaml
+        if sub_folder
+          # create minimal object to store the children
+          current_obj ||= secure(Page) { Page.create(:parent_id => parent[:id], :name => filename) }
+          create_nodes_from_folder(:folder => sub_folder, :parent => current_obj)
+        elsif document && !current_obj  
+          # processing a document
+          # TODO: DRY this someday...
+          ctype = EXT_TO_TYPE[document.split('.').last][0] || "application/octet-stream"
+          File.open(document) do |file|
+            (class << file; self; end;).class_eval do
+              alias local_path path if defined?(:path)
+              define_method(:original_filename) { filename }
+              define_method(:content_type) { ctype }
+            end
+            current_obj = secure(Document) { Document.create(:c_file => file, :parent_id => parent[:id], :name => filename) }
+          end
+        end
+      end
+    end
+    
+    def get_attributes_from_yaml(filepath)
+      attributes = {}
+      YAML::load_documents( File.open( filepath ) ) do |entries|
+        entries.each do |key,value|
+          attributes[key] = value
+        end
+      end
+      attributes
     end
 =begin
   

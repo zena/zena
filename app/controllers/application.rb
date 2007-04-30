@@ -377,7 +377,7 @@ class ApplicationController < ActionController::Base
     end
     
     def create_node(attrs=params['node'])
-      klass = attrs.delete(:klass) || 'Page'
+      klass = attrs.delete('class') || attrs.delete('klass') || attrs.delete(:class) || attrs.delete(:klass) || 'Page'
       attrs = cleanup_node_params(attrs)
       
       klass = Module::const_get(klass.capitalize.to_sym)

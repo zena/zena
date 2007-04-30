@@ -215,6 +215,6 @@ class Site < ActiveRecord::Base
   
   private
     def valid_host
-      errors.add(:host, "invalid host name #{self[:host].inspect}") if (self[:host] == 'shared') || (self[:host] =~ /\.\./) || (self[:host] =~ /[^\w\.\-]/)
+      errors.add(:host, "invalid host name #{self[:host].inspect}") if (self[:host] =~ /\.\./) || (self[:host] =~ /[^\w\.\-]/)
     end
 end
