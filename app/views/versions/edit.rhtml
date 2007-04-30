@@ -1,0 +1,50 @@
+<div id='form_errors' class='errors' onclick='new Element.hide("form_errors")'><%= error_messages_for "node" %></div>
+<div id='search'><%= search_box %></div>
+
+<div class='selector'>
+  <% (partial = form_tabs).each_index do |i| %><div id='<%= partial[i][0] %>_sel' <%= i == 0 ? "class='selected'" : "" %>><%= tlink_to_function(partial[i][0], "select_tab('#{partial[i][0]}');") %></div><% end %>
+</div>
+
+<div class='tab'>
+  <% form_remote_tag( :url=>node_path(@node[:zip]), :html => {:method => :put, :multipart => @node.kind_of?(Document), :id => 'node_form'}) do -%>
+  <%= hidden_field 'node', 'v_lang', :value=>@node.v_lang %>
+  <div class='validate'>
+    <div><input type="submit" onclick="$('loader').style.visibility = 'visible';" value='<%= transb('validate') %>'/></div>
+    <div><%# FIXME = submit_to_remote('save', transb('save'), :url=>{:action => 'save_text', :controller=>'version', :id=>@node[:id]}, :loading=>"$('loader').style.visibility = 'visible';") %></div>
+    <% unless @node.version.new_record? %>
+    <div><%# FIXME = submit_to_remote('backup', transb('backup'), :url=>{:action => 'backup', :controller=>'version', :id=>@node.v_id}, :loading=>"$('loader').style.visibility = 'visible';") %></div>
+    <% end -%>
+    <div><a href='#' onclick='uploader=window.open("<%# FIXME = url_for :controller=>'document', :action=>'new', :parent_id=>@node %>", "uploader", "location=1,width=400,height=300");uploader.opener = opener;return false;'><%= transb('btn_add_document')%></a></div>
+  </div>
+  <div class='readers'>
+  <p><%= readers_for(@node) %></p></div>
+<% partial.each_index do |i| %><div id='<%= partial[i][0] %>_tab' <%= i == 0 ? "" : "style='display:none;'" %> class='tab_content'>
+  <%= render :partial=>"templates/edit_tabs/#{partial[i][1]}" %>
+</div><% end %>
+
+<% end -%>
+</div>
+
+<%#= css_edit %>
+<%= javascript_start %>
+var current_tab = $('<%= partial[0][0] %>_tab');
+var current_sel = $('<%= partial[0][0] %>_sel');
+function select_tab(name) {
+  var obj = $(name+'_tab');
+  var obj_sel = $(name+'_sel');
+  current_tab.style.display = 'none';
+  current_sel.className = '';
+  current_tab = obj;
+  current_sel = obj_sel;
+  current_tab.style.display = '';
+  current_sel.className = 'selected';
+}
+Event.observe(window, 'resize', function() { Zena.resizeElement('node_v_text'); } );
+Event.observe(window, 'resize', function() { Zena.resizeElement('node_v_text'); } );
+function popup_loaded() {
+  Zena.resizeElement('node_v_text');
+}
+<%= javascript_end %>
+<% ['v_text', 'v_summary', 'v_title'].each do |field| -%>
+<%= observe_field("node_#{field}", :frequency=>3, :function=>"opener.Zena.editor_preview('#{preview_version_url(:node_id=>@node[:zip], :id=>(@node.v_number || 0), :_method => :put, :key => field, :escape => false)}',element,value)") %>
+<% end -%>

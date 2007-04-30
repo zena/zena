@@ -2,6 +2,7 @@ require File.expand_path(File.dirname(__FILE__) + "/../test_helper")
 require 'yaml'
 module TestHelper
 end
+ActionController::Routing::Routes.add_route '----/test/:action', :controller => 'test'
 
 class TestController < ApplicationController
   helper_method :template_text_for_url, :template_url_for_asset, :save_erb_to_url
@@ -36,20 +37,20 @@ class TestController < ApplicationController
   end
 
   def set_context
-    @visitor = User.find(@params[:user_id])
-    @visitor.lang = @params[:prefix]
+    @visitor = User.find(params[:user_id])
+    @visitor.lang = params[:prefix]
     @visitor.site = Site.find(:first, :select=>"sites.*", :from=>"sites, sites_users",
                               :conditions=>["sites_users.site_id = sites.id AND sites_users.user_id = ?", visitor[:id]])
     @visitor.visit(@visitor)
-    @node = secure(Node) { Node.find(@params[:node_id])}
-    @text = @params[:text]
-    @test_url  = @params[:url]
-    @params.delete(:user_id)
-    @params.delete(:prefix)
-    @params.delete(:node_id)
-    @params.delete(:text)
-    @params.delete(:url)
-    sess = @session
+    @node = secure(Node) { Node.find(params[:node_id])}
+    @text = params[:text]
+    @test_url  = params[:url]
+    params.delete(:user_id)
+    params.delete(:prefix)
+    params.delete(:node_id)
+    params.delete(:text)
+    params.delete(:url)
+    
     response.template.instance_eval { @session = {} } # if accessing session when rendering, should be like no one there yet.
   end
 

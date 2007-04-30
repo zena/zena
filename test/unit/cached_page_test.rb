@@ -19,7 +19,7 @@ class CachedPageTest < ZenaTestUnit
         cache = secure(CachedPage) { CachedPage.create(
           :path => (visitor.site.public_path + "/some/place.html"),
           :expire_after  => nil,
-          :cache_content => "this is the cached content") }
+          :content_data => "this is the cached content") }
         assert File.exists?(path), "Cache file created"
         data = File.open(path) {|f| f.read }
         assert_equal "this is the cached content", data
@@ -30,6 +30,28 @@ class CachedPageTest < ZenaTestUnit
         assert node.update_attributes(:v_title=>'hey'), "Can save"
         assert !File.exists?(path), "Cache file removed"
         assert_equal [], cache.node_ids
+      end
+    end
+  end
+  
+  def test_create_symlink
+    without_files('test.host/public') do
+      with_caching do
+        login(:anon)
+        node = secure(Node) { nodes(:bird_jpg) }
+        path = "#{SITES_ROOT}#{visitor.site.public_path + "/some/place/image12.jpg"}"
+        assert !File.exists?(path), "No cached file yet"
+        cache = secure(CachedPage) { CachedPage.create(
+          :path => (visitor.site.public_path + "/some/place/image12.jpg"),
+          :expire_after  => nil,
+          :content_path  => node.c_filepath) }
+        assert File.exists?(path), "Cache file created"
+        assert File.symlink?(path), "Cache file is a symlink"
+        # test expire
+        login(:tiger)
+        node = secure(Node) { nodes(:bird_jpg) }
+        assert node.update_attributes(:v_title=>'hey'), "Can save"
+        assert !File.exists?(path), "Cache file removed"
       end
     end
   end
@@ -46,7 +68,7 @@ class CachedPageTest < ZenaTestUnit
         cache = secure(CachedPage) { CachedPage.create(
           :path => (visitor.site.public_path + "/some/place.html"),
           :expire_after  => Time.now - 3600,
-          :cache_content => "this is the cached content") }
+          :content_data => "this is the cached content") }
         assert File.exists?(path), "Cache file created"
         data = File.open(path) {|f| f.read }
         assert_equal "this is the cached content", data
@@ -67,7 +89,7 @@ class CachedPageTest < ZenaTestUnit
         cache = secure(CachedPage) { CachedPage.create(
           :path => (visitor.site.public_path + "/some/place.html"),
           :expire_after  => nil,
-          :cache_content => "this is the cached content") }
+          :content_data => "this is the cached content") }
         assert !cache.new_record?, "Not a new record"
         assert_equal sites_id(:zena), cache[:site_id]
       end
@@ -83,13 +105,13 @@ class CachedPageTest < ZenaTestUnit
           cache = secure(CachedPage) { CachedPage.create(
             :path => (visitor.site.public_path + "/some/place.html"),
             :expire_after  => nil,
-            :cache_content => "this is the cached content",
+            :content_data => "this is the cached content",
             :site_id => sites_id(:ocean))}
         end
         cache = secure(CachedPage) { CachedPage.create(
           :path => (visitor.site.public_path + "/some/place.html"),
           :expire_after  => nil,
-          :cache_content => "this is the cached content") }
+          :content_data => "this is the cached content") }
         assert !cache.new_record?, "Not a new record"
         assert_raise(Zena::AccessViolation) { cache.site_id = sites_id(:ocean) }
         assert_equal sites_id(:zena), cache[:site_id]

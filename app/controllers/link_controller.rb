@@ -23,7 +23,7 @@ class LinkController < ApplicationController
         @method = params[:node].keys[0]
         unless @method =~ /^(.+)_id(s|)$/
           # bad method...
-          add_error'unknown link role'
+          processing_error'unknown link role'
         else
           @node.send("#{@method}=".to_sym, params[:node][@method])
           @node.save
@@ -47,7 +47,7 @@ class LinkController < ApplicationController
       end
     end
   rescue ActiveRecord::RecordNotFound
-    add_error 'node not found'
+    processing_error 'node not found'
   end
   
   def select_for
@@ -75,6 +75,6 @@ class LinkController < ApplicationController
     @link_id = params[:id]
     @node.remove_link(@link_id) && @node.save
   rescue ActiveRecord::RecordNotFound
-    add_error'node not found'
+    processing_error'node not found'
   end
 end

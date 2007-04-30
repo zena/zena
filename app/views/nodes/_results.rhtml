@@ -1,0 +1,31 @@
+<div class='results'>
+  <div class='previous'><%= link_to_remote('previous', :update=>'search_results', 
+      :url=>{:controller=>'search', :action=>'find', :search=>params[:search], :id=>params[:id], :edit=>params[:edit], :page => @node_pages.current.previous}, 
+      :loading => "$('search_results').innerHTML='';Element.show('result_loader');",
+      :complete => "Element.hide('result_loader')") if @node_pages.current.previous %>
+  </div>
+  <div class='btn_x'><%= link_to_function(transb('btn_x'), "$('search_results').innerHTML = '';") %></div>
+  <div class='next'><%= link_to_remote('next', :update=>'search_results', 
+      :url=>{:controller=>'search', :action=>'find', :search=>params[:search], :id=>params[:id], :edit=>params[:edit], :page => @node_pages.current.next}, 
+      :loading => "$('search_results').innerHTML='';Element.show('result_loader');",
+      :complete => "Element.hide('result_loader')") if @node_pages.current.next %>
+  </div>
+  <div class='clear'></div>
+<% if @nodes.empty? %>
+  <%= trans("'SEARCH_STRING' not found").sub('SEARCH_STRING', h(params[:q])) if params[:q] %>
+<% else %>
+<ul>
+  <% @nodes.each do |node| -%>
+  <li>
+    <% if node.kind_of?(Document) %>
+    <%= img_tag(node, 'mini') %>
+    <% end %>  
+      <p class='result_id'><%= node[:id] %></p>
+      <p class='result_name'><%= link_to(node.name, zen_path(node), :popup=>params[:edit]) %></p>
+      <p class='result_path'><%= node.rootpath %></p>
+      <div class='clear'></div>
+  </li>
+  <% end %>
+</ul>
+<% end %>
+</div>

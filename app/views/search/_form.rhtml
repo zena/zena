@@ -1,10 +1,7 @@
 <div class="search">
-  <%= form_remote_tag(:update=>'search_results', 
-            :url=>{:controller=>'search', :action=>'find', :id=>@node,  :edit=>@edit}, 
-            :loading => "$('search_results').innerHTML='';Element.show('result_loader');",
-            :complete => "Element.hide('result_loader'); Element.show('search_results');") %>
-  <div><input type='text' accesskey='s' id='search_field' style="color:#aaa;" name='search' onfocus='this.style.color="black";this.value="";' value='search'/></div>
-  <%= end_form_tag %>
+  <%= form_tag( search_nodes_path, :method => 'get' ) %>
+  <div class='wrapper'><input type='text' accesskey='s' id='search_field' style="color:#aaa;" name='q' onfocus='this.style.color="black";this.value="";' value='<%= params[:q] || 'search' %>'/></div>
+  </form>
   <div id='result_loader' style='display:none;'><img alt='spinner' src='/images/ajax-loader.gif'/></div>
   <div id='search_results'></div>
 </div>

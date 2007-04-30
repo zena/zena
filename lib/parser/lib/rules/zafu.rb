@@ -17,12 +17,7 @@ module Zafu
           end
         end
       end
-      res = super
-      if (@context[:parts] || {})[@context[:name]]
-        (@space_before || '') + res + (@space_after || '')
-      else
-        render_html_tag(res)
-      end
+      render_html_tag(super)
     end
     
     def inspect
@@ -42,8 +37,14 @@ module Zafu
     def params_to_html(params)
       para = []
       params.each do |k,v|
-        para << " #{k}=#{params[k].inspect.gsub("'","TMPQUOTE").gsub('"',"'").gsub("TMPQUOTE",'"')}"
+        if v.kind_of?(Array)
+          # Array is used to indicate that the code is already escaped.
+          para << " #{k}=#{v}"
+        else
+          para << " #{k}='#{v}'" # .gsub("'","\\'")}
+        end
       end
+      # puts para.inspect
       para.sort.join('')
     end
     
@@ -96,11 +97,10 @@ module Zafu
   module Rules
     def start(mode)
       # html_tag
-      if @html_tag = @options[:html_tag]
-        @options.delete(:html_tag)
-        @html_tag_params = parse_params(@options[:html_tag_params])
-        @options.delete(:html_tag_params)
-      end
+      @html_tag = @options[:html_tag]
+      @options.delete(:html_tag)
+      @html_tag_params = parse_params(@options[:html_tag_params])
+      @options.delete(:html_tag_params)
       
       # end_tag
       @end_tag = @html_tag || @options[:end_do] || "z:#{@method}"

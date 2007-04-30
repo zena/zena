@@ -1,37 +1,43 @@
 =begin rdoc
 A Node is the root class of all elements in the zena application. Actual class inheritance diagram:
 
- Node (manages access and publication cycle)
-   |
-   +-- Page (web pages)
-   |     |
-   |     +--- Document
-   |     |      |
-   |     |      +--- Image
-   |     |      |
-   |     |      +--- TextDocument       (for css, scripts)
-   |     |             |
-   |     |             +--- Template    (using the zafu templating language)
-   |     |                    |
-   |     |                    +--- Skin (theme: contains css, templates, etc)
-   |     |
-   |     +--- Project (can contain a blog, collaborators, etc)
-   |
-   +-- Note (date related information)
-   |     |
-   |     +--- Task
-   |     |      |
-   |     |      +--- Letter
-   |     |      |
-   |     |      +--- Request
-   |     |             |
-   |     |             +--- Bug
-   |     |
-   |     +--- Milestone
-   |
-   +-- Reference
-         |
-         +-- Contact (address, name, phone)
+Node (manages access and publication cycle)
+  |
+  +-- Page (web pages)
+  |     |
+  |     +--- Document
+  |     |      |
+  |     |      +--- Image
+  |     |      |
+  |     |      +--- TextDocument       (for css, scripts)
+  |     |             |
+  |     |             +--- Partial     (uses the zafu templating language)
+  |     |                    |
+  |     |                    +--- Template  (entry for rendering)
+  |     |
+  |     +--- Project (has it's own project_id. Can contain notes, collaborators, etc)
+  |     |
+  |     +--- Section (has it's own section_id = group of pages)
+  |            |
+  |            +--- Skin (theme: contains css, templates, etc)
+  |
+  +-- Note (date related information, event)
+  |     |
+  |     +--- Post
+  |     |
+  |     +--- Task
+  |     |      |
+  |     |      +--- Letter
+  |     |      |
+  |     |      +--- Request
+  |     |             |
+  |     |             +--- Bug
+  |     |
+  |     +--- Milestone
+  |
+  +-- Reference
+        |
+        +-- Contact (address, name, phone)
 
 === Node, Version and Content
 
@@ -73,7 +79,7 @@ custom_base:: boolean value. When set to true, the node's url becomes it's fullp
 inherit:: inheritance mode (0=custom, 1=inherit, -1=private).
 
 Attributes inherited from the parent:
-project_id:: reference project (cannot be overwritten even if inheritance mode is custom).
+section_id:: reference project (cannot be overwritten even if inheritance mode is custom).
 rgroup_id:: id of the readers group.
 wgroup_id:: id of the writers group.
 pgroup_id:: id of the publishers group.
@@ -105,7 +111,7 @@ The worldTour project's url would look like:
 The 'photos' url would be:
  /en/page23.html
 
-When custom base is set, worldTour url becomes its fullpath:
+When custom base is set (only for descendants of Page), worldTour url becomes its fullpath:
  /en/projects/worldTour
 
 and the 'photos' url is now in the worldTour project's basepath:
@@ -116,12 +122,12 @@ Setting 'custom_base' on a node should be done with caution as the node's zip is
 class Node < ActiveRecord::Base
   has_many           :discussions
   has_and_belongs_to_many :cached_pages
-  validate_on_create :node_on_create
-  validate_on_update :node_on_update
+  before_validation  :node_before_validation
+  validate           :validate_node
   before_save        :node_before_create
-  after_save         :spread_project_id
+  after_save         :spread_project_and_section
   before_destroy     :node_on_destroy
-  attr_protected     :site_id, :zip, :id
+  attr_protected     :site_id, :zip, :id, :section_id, :project_id, :publish_from, :max_status
   acts_as_secure_node
   acts_as_multiversioned
   link :tags, :class_name=>'Tag'
@@ -165,37 +171,53 @@ class Node < ActiveRecord::Base
       end
       node
     end
+    
+    def class_for_relation(rel)
+      case rel
+      when 'author'
+        User
+      when 'traductions'
+        Version
+      when 'versions'
+        Version
+      else
+        Node
+      end
+    end
   end
   
-  # return the list of ancestors (without self): [root, obj, obj]
+  # Return the class name of the node (used by forms)
+  def klass
+    self.class.to_s
+  end
+  
+  # Return the list of ancestors (without self): [root, obj, obj]
   # ancestors to which the visitor has no access are removed from the list
-  def ancestors
-    if self[:id] == ZENA_ENV[:root_id]
+  def ancestors(start=[])
+    raise Zena::InvalidRecord, "Infinit loop in 'ancestors' (#{start.inspect} --> #{self[:id]})" if start.include?(self[:id]) 
+    start += [self[:id]]
+    if self[:id] == visitor.site[:root_id]
       []
-    elsif parent = Node.find_by_id(self[:parent_id])
+    else
+      parent = @parent || Node.find(self[:parent_id])
       parent.visitor = visitor
       if parent.can_read?
-        parent.ancestors + [parent]
+        parent.ancestors(start) + [parent]
       else
-        parent.ancestors
+        parent.ancestors(start)
       end
-    else
-      []
     end
+  rescue ActiveRecord::RecordNotFound
+    []
   end
   
   # url base path. cached. If rebuild is set to true, the cache is updated.
   def basepath(rebuild=false)
-    if self[:custom_base]
-      fullpath
-    elsif !rebuild && self[:basepath]
+    if !rebuild && self[:basepath]
       self[:basepath]
     else
       if self[:parent_id]
-        parent = nil
-        Node.with_exclusive_scope do
-          parent = Node.find_by_id(self[:parent_id])
-        end
+        parent = @parent || Node.with_exclusive_scope { Node.find_by_id(self[:parent_id]) }
         path = parent ? parent.basepath : ''
       else
         path = ''
@@ -224,86 +246,10 @@ class Node < ActiveRecord::Base
   def rootpath
     ZENA_ENV[:site_name] + (fullpath != "" ? "/#{fullpath}" : "")
   end
-
-  # Make sure the node is complete before creating it (check parent and project references)
-  def node_on_create
-    # make sure project is the same as the parent
-    if self.kind_of?(Project)
-      self[:project_id] = nil
-    else
-      self[:project_id] = parent[:project_id]
-    end
-    # make sure parent is not a 'Note'
-    errors.add("parent_id", "invalid parent") unless parent.kind_of?(self.class.parent_class) || (self[:id] == visitor.site[:root_id] && self[:parent_id] == nil)
-    # set name from title if name not set yet
-    self.name = version[:title] unless self[:name]
-    errors.add("name", "can't be blank") unless self[:name] and self[:name] != ""
-    
-    # we are in a scope, we cannot just use the normal validates_... (+ it is done before this validation, which is bad as we set 'name' here...)
-    test_same_name = nil
-    Node.with_exclusive_scope do
-      test_same_name = Node.find(:all, :conditions=>["name = ? AND parent_id = ?", self[:name], self[:parent_id]])
-    end
-    errors.add("name", "has already been taken") unless self.kind_of?(Note) || test_same_name == []
-    errors.add("version", "can't be blank") unless @version
-  end
-
-  # Make sure parent and project references are valid on update
-  def node_on_update
-    # make sure project is the same as the parent
-    if self.kind_of?(Project)
-      self[:project_id] = self[:id]
-    else
-      self[:project_id] = parent[:project_id]
-    end
-    
-    if self[:project_id] != old[:project_id]
-      @spread_project_id = true
-    end
-    
-    if self[:id] == visitor.site[:root_id]
-      errors.add('parent_id', 'parent must be empty for root') unless self[:parent_id].nil?
-    end
-    
-    # make sure parent is valid
-    errors.add("parent_id", "invalid parent") unless parent.kind_of?(self.class.parent_class) || (self[:id] == visitor.site[:root_id] && self[:parent_id] == nil)
-    
-    self.name = version[:title] unless self[:name]
-    errors.add("name", "can't be blank") unless self[:name] and self[:name] != ""
-    
-    test_same_name = nil
-    Node.with_exclusive_scope do
-      test_same_name = Node.find(:all, :conditions=>["name = ? AND id != ? AND parent_id = ?", self[:name], self[:id], self[:parent_id]])
-    end
-    errors.add("name", "has already been taken") unless self.kind_of?(Note) || test_same_name == []
-    # remove cached fullpath
-    self[:fullpath] = nil
-  end
   
-  # after node is saved, make sure it's children have the correct project set
-  def spread_project_id
-    if @spread_project_id
-      # update children
-      sync_project(project_id)
-      remove_instance_variable :@spread_project_id
-    end
-  end
-  
-  # Called before destroy. An node must be empty to be destroyed
-  def node_on_destroy
-    unless all_children.size == 0
-      errors.add('base', "contains subpages")
-      return false
-    else  
-      # expire cache
-      # TODO: test
-      CachedPage.expire_with(self)
-      return true
-    end
-  end
   
   def relation_methods
-    ['root', 'project', 'projects', 'parent', 'self', 'children', 'pages', 'documents', 'documents_only', 'images', 'notes']
+    ['root', 'project', 'section', 'parent', 'self', 'nodes', 'projects', 'sections', 'children', 'pages', 'documents', 'documents_only', 'images', 'notes', 'author', 'traductions', 'versions']
   end
   
   # This is defined by the linkable lib, we add access to 'root', 'project', 'parent', 'children', ...
@@ -354,12 +300,15 @@ class Node < ActiveRecord::Base
     end
   end
   
+  
   def relation_options(opts, cond=nil)
     case opts[:from]
     when 'site'
       conditions = "1"
     when 'project'
       conditions = ["project_id = ?", self[:project_id]]
+    when 'section'
+      conditions = ["section_id = ?", self[:section_id]]
     else
       # self or nothing
       conditions = ["parent_id = ?", self[:id]]
@@ -393,7 +342,8 @@ class Node < ActiveRecord::Base
     opts.delete(:conditions)
     {:order=>'name ASC', :conditions=>conditions}.merge(opts)
   end
-
+  
+  # Get root node
   def root(opts={})
     secure(Node) { Node.find(visitor.site[:root_id])}
   rescue ActiveRecord::RecordNotFound
@@ -405,6 +355,7 @@ class Node < ActiveRecord::Base
     @children ||= secure(Node) { Node.find(:all, relation_options(opts)) }
   end
   
+  # Find notes (overwritten in Project)
   def notes
     nil
   end
@@ -416,6 +367,14 @@ class Node < ActiveRecord::Base
     nil
   end
   
+  # Find section
+  def section(opts={})
+    # we cannot use Section to find because the root node behaves like a Section but is a Project.
+    secure(Node, opts) { Node.find(self[:section_id]) }
+  rescue ActiveRecord::RecordNotFound
+    nil
+  end
+  
   # Find project
   def project(opts={})
     secure(Project, opts) { Project.find(self[:project_id]) }
@@ -423,12 +382,25 @@ class Node < ActiveRecord::Base
     nil
   end
   
+  # Find sections (sections from='site')
+  def sections(opts={})
+    opts[:from] ||= 'project'
+    secure(Section) { Section.find(:all, relation_options(opts)) }
+  rescue ActiveRecord::RecordNotFound
+    nil
+  end
+  
   # Find projects (projects from='site')
   def projects(opts={})
     opts[:from] ||= 'project'
-    secure(Project) { Project.find(:all, relation_options(opts,"kpath LIKE 'NPP%'")) }
+    secure(Project) { Project.find(:all, relation_options(opts)) }
   rescue ActiveRecord::RecordNotFound
     nil
+  end
+  
+  # Find all sub-nodes (all children / all nodes in a section)
+  def nodes(opts={})
+    @nodes ||= secure(Node) { Node.find(:all, relation_options(opts)) }
   end
   
   # Find all sub-pages (All but documents)
@@ -460,17 +432,21 @@ class Node < ActiveRecord::Base
   def trackers(opts={})
     @trackers ||= secure(Tracker) { Tracker.find(:all, relation_options(opts) ) }
   end
-
-  # Create a child and let him inherit from rwp groups and project_id
+  
+  # Create a child and let him inherit from rwp groups and section_id
   def new_child(opts={})
-    c = Node.new(opts)
+    klass = opts.delete(:class) || Page
+    c = klass.new(opts)
     c.parent_id  = self[:id]
     c.visitor    = visitor
-    c.pgroup_id  = self.pgroup_id
+    
+    c.inherit = 1
     c.rgroup_id  = self.rgroup_id
     c.wgroup_id  = self.wgroup_id
-    c.project_id = self.project_id
-    c.inherit = 1
+    c.pgroup_id  = self.pgroup_id
+    
+    c.section_id = self.get_section_id
+    c.project_id = self.get_project_id
     c
   end
 
@@ -493,11 +469,41 @@ class Node < ActiveRecord::Base
     self[:name] = camelize(str)
   end
   
+  # Return self[:id] if the node is a kind of Section. Return section_id otherwise.
+  def get_section_id
+    return self[:id] if self[:parent_id].nil? # root node is it's own section and project
+    self.kind_of?(Section) ? self[:id] : self[:section_id]
+  end
+  
+  # Return self[:id] if the node is a kind of Project. Return project_id otherwise.
+  def get_project_id
+    return self[:id] if self[:parent_id].nil? # root node is it's own section and project
+    self.kind_of?(Project) ? self[:id] : self[:project_id]
+  end
+  
+  # Id to zip mapping for parent_id. Used by zafu and forms.
+  def parent_zip
+    parent[:zip]
+  end
+  
+  # Id to zip mapping for section_id. Used by zafu and forms.
+  def section_zip
+    section[:zip]
+  end
+
+  # Id to zip mapping for project_id. Used by zafu and forms.
+  def project_zip
+    project[:zip]
+  end
+  
+  # Id to zip mapping for user_id. Used by zafu and forms.
+  def user_zip; self[:user_id]; end
+  
   # More reflection needed before implementation.
   
   # transform an Node into another Object. This is a two step operation :
   # 1. create a new object with the attributes from the old one
-  # 2. move old object out of the way (setting parent_id and project_id to -1)
+  # 2. move old object out of the way (setting parent_id and section_id to -1)
   # 3. try to save new object
   # 4. delete old and set new object id to old
   # THIS IS DANGEROUS !! NEEDS TESTING
@@ -508,12 +514,12 @@ class Node < ActiveRecord::Base
   #   # ==> When changing into something else : update version type and data !!!
   #   my_id = self[:id].to_i
   #   my_parent = self[:parent_id].to_i
-  #   my_project = self[:project_id].to_i
+  #   my_project = self[:section_id].to_i
   #   connection = self.class.connection
   #   # 1. create a new object with the attributes from the old one
   #   new_obj = secure(klass) { klass.new(self.attributes) }
-  #   # 2. move old object out of the way (setting parent_id and project_id to -1)
-  #   self.class.connection.execute "UPDATE #{self.class.table_name} SET parent_id='0', project_id='0' WHERE id=#{my_id}"
+  #   # 2. move old object out of the way (setting parent_id and section_id to -1)
+  #   self.class.connection.execute "UPDATE #{self.class.table_name} SET parent_id='0', section_id='0' WHERE id=#{my_id}"
   #   # 3. try to save new object
   #   if new_obj.save
   #     tmp_id = new_obj[:id]
@@ -521,19 +527,19 @@ class Node < ActiveRecord::Base
   #     self.class.connection.execute "DELETE FROM #{self.class.table_name} WHERE id=#{my_id}"
   #     self.class.connection.execute "DELETE FROM #{Version.table_name} WHERE node_id=#{tmp_id}"
   #     self.class.connection.execute "UPDATE #{self.class.table_name} SET id='#{my_id}' WHERE id=#{tmp_id}"
-  #     self.class.connection.execute "UPDATE #{self.class.table_name} SET project_id=id WHERE id=#{my_id}" if new_obj.kind_of?(Project)
+  #     self.class.connection.execute "UPDATE #{self.class.table_name} SET section_id=id WHERE id=#{my_id}" if new_obj.kind_of?(Section)
   #     self.class.logger.info "[#{self[:id]}] #{self.class} --> #{klass}"
-  #     if new_obj.kind_of?(Project)
-  #       # update project_id for children
-  #       sync_project(my_id)
-  #     elsif self.kind_of?(Project)
-  #       # update project_id for children
-  #       sync_project(parent[:project_id])
+  #     if new_obj.kind_of?(Section)
+  #       # update section_id for children
+  #       sync_section(my_id)
+  #     elsif self.kind_of?(Section)
+  #       # update section_id for children
+  #       sync_section(parent[:section_id])
   #     end
   #     secure ( klass ) { klass.find(my_id) }
   #   else
   #     # set object back
-  #     self.class.connection.execute "UPDATE #{self.class.table_name} SET parent_id='#{my_parent}', project_id='#{my_project}' WHERE id=#{my_id}"
+  #     self.class.connection.execute "UPDATE #{self.class.table_name} SET parent_id='#{my_parent}', section_id='#{my_project}' WHERE id=#{my_id}"
   #     self
   #   end
   # end
@@ -587,22 +593,128 @@ class Node < ActiveRecord::Base
     # we want to be sure to find the project and parent, even if the visitor does not have an
     # access to these elements.
     # FIXME: use self + modified relations instead of parent/project
-    [self, self.project(:secure=>false), self.parent(:secure=>false)].compact.uniq.each do |obj|
+    [self, self.section(:secure=>false), self.parent(:secure=>false)].compact.uniq.each do |obj|
       CachedPage.expire_with(obj)
     end
   end
+
+  protected  
+    # after node is saved, make sure it's children have the correct section set
+    def spread_project_and_section
+      if @spread_section_id || @spread_project_id
+        # update children
+        sync_section_and_project(@spread_section_id, @spread_project_id)
+        remove_instance_variable :@spread_section_id if @spread_section_id
+        remove_instance_variable :@spread_project_id if @spread_project_id
+      end
+    end
   
-  protected
-    def sync_project(project_id)
+    #  node                       [change project and section]
+    #    |
+    #    +-- node                 [set project] [set section]
+    #          |                  
+    #          +-- section 4      [set project] [  keep     ]
+    #          |     |            
+    #          |     +-- node     [set project] [  keep     ]
+    #          |     |            
+    #          |     +-- project  [  keep     ] [  keep     ] => skip
+    #          |
+    #          +-- page           [set project] [set section]
+    #          |
+    #          +-- project        [  keep     ] [set section]
+    #                |
+    #                +-- node     [  keep     ] [set section]
+    #                |
+    #                +-- section  [  keep     ] [  keep     ] => skip
+    def sync_section_and_project(section_id, project_id)
+      
+      # If this code is optimized, do not forget to sweep_cache for each modified child.
       all_children.each do |child|
-        next if child.kind_of?(Project)
-        child[:project_id] = project_id
-        child.save_with_validation(false)
-        child.sync_project(project_id)
+        if child.kind_of?(Section)                     # [keep section] [set  project]
+          next unless project_id                       # => skip
+          # needed when doing 'sweep_cache'.
+          visitor.visit(child) 
+          
+          child[:project_id] = project_id              #                [set  project]
+          child.save_with_validation(false)
+          child.sync_section_and_project(    nil    , project_id)
+          
+        elsif child.kind_of?(Project)                  # [set  section] [keep project]
+          next unless section_id                       # => skip
+          # needed when doing 'sweep_cache'.
+          visitor.visit(child)
+          
+          child[:section_id] = section_id              # [set  section]
+          child.save_with_validation(false)
+          child.sync_section_and_project(section_id,     nil   )
+        else                                           # [set  section] [set  project]  
+          # needed when doing 'sweep_cache'.
+          visitor.visit(child)
+          
+          child[:section_id] = section_id if section_id #[set  section]
+          child[:project_id] = project_id if project_id #               [set  project]
+          child.save_with_validation(false)
+          child.sync_section_and_project(section_id, project_id)
+        end
       end
     end
   
   private
+  
+  private
+    def node_before_validation
+      # remove cached fullpath
+      self[:fullpath] = nil
+
+      # make sure section is the same as the parent
+      if self[:parent_id].nil?
+        # root node
+        self[:section_id] = self[:id]
+        self[:project_id] = self[:id]
+      elsif parent
+        self[:section_id] = parent.get_section_id
+        self[:project_id] = parent.get_project_id
+      else
+        # bad parent will be caught later.
+      end
+
+      # set name from title if name not set yet
+      self.name = version[:title] unless self[:name]
+      
+      if !new_record?
+        if self[:section_id] != old[:section_id]
+          @spread_section_id = self[:section_id]
+        end
+        if self[:project_id] != old[:project_id]
+          @spread_project_id = self[:project_id]
+        end
+        
+      end
+    end
+
+    # Make sure the node is complete before creating it (check parent and project references)
+    def validate_node
+      # when creating root node, self[:id] and :root_id are both nil, so it works.
+      errors.add("parent_id", "invalid parent") unless parent.kind_of?(self.class.parent_class) || (self[:id] == visitor.site[:root_id] && self[:parent_id] == nil)
+      
+      errors.add("name", "can't be blank") unless self[:name] and self[:name] != ""
+      
+      errors.add("version", "can't be blank") if new_record? && !@version
+    end
+    
+    # Called before destroy. An node must be empty to be destroyed
+    def node_on_destroy
+      unless all_children.size == 0
+        errors.add('base', "contains subpages")
+        return false
+      else  
+        # expire cache
+        # TODO: test
+        CachedPage.expire_with(self)
+        return true
+      end
+    end
+  
     # Get unique zip in the current site's scope
     def node_before_create
       self[:zip] ||= Node.next_zip(self[:site_id])
@@ -636,7 +748,7 @@ class Node < ActiveRecord::Base
     # Publish, refuse, propose the Documents of a redaction
     def sync_documents(action, pub_time=nil)
       allOK = true
-      documents = secure_drive(Document) { Document.find(:all, :conditions=>"parent_id = #{self[:id]}") }
+      documents = secure_drive(Document) { Document.find(:all, :conditions=>"parent_id = #{self[:id]}") } || []
       case action
       when :propose
         documents.each do |doc|
@@ -676,7 +788,7 @@ class Node < ActiveRecord::Base
       true
     end
   
-    # Find all children, whatever visitor is here (used to check if the node can be destroyed or to update project)
+    # Find all children, whatever visitor is here (used to check if the node can be destroyed or to update section_id)
     def all_children
       Node.with_exclusive_scope do
         Node.find(:all, :conditions=>['parent_id = ?', self[:id] ])

@@ -1,0 +1,4 @@
+<table cellspacing="0" id='discussions'>
+  <%= render_to_string :partial=>'discussions/li', :collection=>@node.discussions %>
+  <%= render_to_string :partial=>'discussions/add' %>
+</table>

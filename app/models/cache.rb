@@ -1,9 +1,8 @@
 class Cache < ActiveRecord::Base
+  cattr_accessor :perform_caching
+  
   class << self
-    def perform_caching
-      # we check for const definition for calls from rake/console/etc
-      Object.const_defined?(:ApplicationController) ? ApplicationController.perform_caching : false
-    end
+    
     def with(visitor_id, visitor_groups, kpath, *context)
       return yield unless perform_caching
       if cached = self.find_by_visitor_id_and_context(visitor_id,context.join('.'))
@@ -18,8 +17,10 @@ class Cache < ActiveRecord::Base
     
     # We can provide a kpath selector for sweeping. If the kpath is in the cached scope, the cache is removed.
     def sweep(hash)
-      if hash[:kpath]
-        kpath_selector = " AND left('#{hash[:kpath]}',length(kpath)) = kpath "
+      if kpath  = hash[:kpath]
+        klasses = []
+        kpath.split(//).each_index { |i| klasses << kpath[0..i].inspect }
+        kpath_selector = " AND kpath IN (#{klasses.join(',')})"
       else
         kpath_selector = ""
       end

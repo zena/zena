@@ -27,6 +27,16 @@ module Zena
             raise StandardError, "No fixture with name '#{fixture}' found for table '#{table_name}'"
           end
         end
+        
+        if table_name == 'nodes' || table_name == 'zips'
+          define_method(table_name + "_zip") do |fixture|
+            if @@loaded_fixtures[table_name][fixture.to_s]
+              @@loaded_fixtures[table_name][fixture.to_s].instance_eval { @fixture['zip'].to_i }
+            else
+              raise StandardError, "No fixture with name '#{fixture}' found for table '#{table_name}'"
+            end
+          end
+        end
       end
 
       fixtures = Fixtures.create_fixtures(FIXTURE_PATH, fixture_table_names)
@@ -52,7 +62,7 @@ module Zena
     end
     
     module Base
-
+      
       def preserving_files(path, &block)
         path = "/#{path}" unless path[0..0] == '/'
         if File.exist?("#{SITES_ROOT}#{path}")
@@ -93,6 +103,7 @@ module Zena
         @perform_caching_bak = ApplicationController.perform_caching
         ApplicationController.perform_caching = true
         yield
+      ensure
         ApplicationController.perform_caching = @perform_caching_bak
       end
 
@@ -194,13 +205,11 @@ module Zena
       end
 
       def login(visitor=:anon)
+        return logout if visitor == :anon
         @controller_bak = @controller
-        @controller = LoginController.new
-        post 'login', :user=>{:login=>visitor.to_s, :password=>visitor.to_s}
+        @controller = SessionController.new
+        post 'create', :login=>visitor.to_s, :password=>visitor.to_s
         sess = @controller.instance_variable_get(:@session)
-        if visitor == :anon
-          sess[:user] = 1
-        end
         @controller_bak.instance_variable_set(:@session, sess )
         @controller_bak.instance_variable_set(:@visitor, nil ) # clear cached visitor
         @controller = @controller_bak
@@ -208,14 +217,15 @@ module Zena
 
       def logout
         @controller_bak = @controller
-        @controller = LoginController.new
-        post 'logout'
-        @controller_bak.instance_variable_set(:@session, @controller.instance_variable_get(:@session) )
+        @controller = SessionController.new
+        post 'destroy'
+        @controller_bak.send(:session=,@controller.send(:session))
+        @controller_bak.instance_variable_set(:@visitor,nil) # clear cached visitor
         @controller = @controller_bak
       end
 
       def session
-        @controller.instance_eval { @session }
+        @controller.send(:session)
       end
 
       def err(obj)
@@ -273,21 +283,26 @@ module Zena
         @controller.setup(@request, @response, @url)
         @flash = {}
         ActionView::Helpers::AssetTagHelper::reset_javascript_include_default
+        
       end
 
-      # login for functional testing
-      def login(visitor=:anon)
+      # login for helper testing
+      def login(name=:anon)
+        return logout if name == :anon
         @controller_bak = @controller
-        @controller = LoginController.new
-        post 'login', :user=>{:login=>visitor.to_s, :password=>visitor.to_s}
-        @controller_bak.set_instance_variable(:@visitor,nil) # clear cached visitor
+        @controller = SessionController.new
+        post 'create', :login=>name.to_s, :password=>name.to_s
+        @controller_bak.send(:session=,@controller.send(:session))
+        @controller_bak.instance_variable_set(:@visitor,nil) # clear cached visitor
         @controller = @controller_bak
       end
 
       def logout
         @controller_bak = @controller
-        @controller = LoginController.new
-        post 'logout'
+        @controller = SessionController.new
+        post 'destroy'
+        @controller_bak.send(:session=,@controller.send(:session))
+        @controller_bak.instance_variable_set(:@visitor,nil) # clear cached visitor
         @controller = @controller_bak
       end
 
@@ -301,9 +316,13 @@ module Zena
         end
       end
       
-      # helper_method
+      # methods for accessing the controller:
       def visitor
         @controller.send(:visitor)
+      end
+      
+      def params
+        @controller.send(:params)
       end
     end
   end

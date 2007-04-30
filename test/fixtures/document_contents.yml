@@ -61,33 +61,3 @@ forest_pdf:
   name:           "forest"
   ext:            'pdf'
   size:           63569
-
-wiki_skin:
-  id:             7
-  site_id:        1
-  version_id:     38
-  type:           TextDocumentContent
-  content_type:   "text/html"
-  name:           "wiki"
-  ext:            'html'
-  size:           
-
-layout_template:
-  id:             8
-  site_id:        1
-  version_id:     39
-  type:           TextDocumentContent
-  content_type:   "text/html"
-  name:           "layout"
-  ext:            'html'
-  size:           
-
-any_project_template:
-  id:             9
-  site_id:        1
-  version_id:     40
-  type:           TextDocumentContent
-  content_type:   "text/html"
-  name:           "layout"
-  ext:            'html'
-  size:           

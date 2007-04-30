@@ -229,6 +229,14 @@ case_when_else:
   src: "<z:case><z:when kind_of='Document'>Document</z:when><z:else>Not a document</z:else></z:case>"
   res: "Not a document"
 
+case_when_test:
+  src: "<z:case><z:when test='[id] &gt; 10'>one</z:when><z:when test='[v_updated_at] &gt; [updated_at]'>two</z:when></z:case>"
+  res: "one"
+
+case_when_evil_test:
+  src: "<z:case><z:when test='1 == == [id]'>one</z:when><z:when test='system == \"date\"'>two</z:when><z:else>three</z:else></z:case>"
+  res: "three"
+  
 case_ancestor:
   src: "<z:root><z:pages><z:each join=', '><z:case><z:when node='ancestor'><b><z:show attr='name'/></b></z:when><z:else><z:show attr='name'/></z:else></z:case></z:each></z:pages></z:root>"
   res: "collections, nature, people, <b>projects</b>"
@@ -404,3 +412,7 @@ tada:
     
     
     	<p>You are all invited to <strong>Romanel</strong> for a great party this weekend.</p></div>
+
+empty_param:
+  src: "<z:summary text=''/>"
+  res: "<div id='v_summary11.1' class='zazen'></div>"

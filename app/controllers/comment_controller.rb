@@ -20,10 +20,10 @@ class CommentController < ApplicationController
   def create
     @node = secure(Node) { Node.find(params[:node][:id]) }
     unless @comment = @node.add_comment(params[:comment])
-      add_error 'cannot comment'
+      processing_error 'cannot comment'
     end
   rescue ActiveRecord::RecordNotFound  
-    add_error 'node not found'
+    processing_error 'node not found'
   end
   
   # TODO: test

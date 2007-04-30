@@ -154,7 +154,7 @@ class SecureCreateTest < ZenaTestUnit
   def node_defaults
     {
     :name       => 'hello',
-    :parent_id  => 1
+    :parent_id  => nodes_id(:zena)
     }
   end
   
@@ -168,7 +168,7 @@ class SecureCreateTest < ZenaTestUnit
   end
   def test_secure_new_succeeds
     login(:ant)
-    test_page = secure(Node) { Node.new(:name=>"yoba", :parent_id=>1) }
+    test_page = secure(Node) { Node.new(:name=>"yoba", :parent_id=>nodes_id(:zena)) }
     assert test_page.save , "Save succeeds"
   end
   def test_unsecure_create_fails
@@ -702,13 +702,13 @@ class SecureUpdateTest < ZenaTestUnit
     assert node.errors[:parent_id] , "Errors on parent_id"
     assert "invalid reference", node.errors[:parent_id]
   end
+  
   def test_reference_changed_ok
-    # ok
     login(:tiger)
     node = secure(Node) { nodes(:lake) } # can visible here
     node[:parent_id] = nodes_id(:wiki) # can visible here
     assert node.save , "Save succeeds"
-    assert_equal node[:project_id], nodes(:wiki).project_id, "Same project as parent"
+    assert_equal node[:project_id], nodes(:wiki)[:id], "Same project as parent"
   end
   
   # 5. validate +rw groups+ :
@@ -768,22 +768,25 @@ class SecureUpdateTest < ZenaTestUnit
     assert node.errors.empty? , "Errors empty"
   end
   
+  def create_simple_note(opts={})
+    login(opts[:login] || :ant)
+    # create new node
+    attrs =  {
+      :name => 'hello',
+      :parent_id   => nodes_id(:cleanWater),
+    }.merge(opts[:node] || {})
+    
+    node = secure(Note) { Note.create(attrs) }
+    ref  = secure(Node) { Node.find_by_zip(attrs[:parent_id])}
+    
+    [node, ref]
+  end
+  
   #     a. can change to 'inherit' if can_drive?
   #     b. can change to 'private' if can_manage?
   #     c. can change to 'custom'  if can_visible?
-  def hello_ant
-    login(:ant)
-    # create new node
-    attrs =  {
-    :name => 'hello',
-    :parent_id   => nodes_id(:cleanWater),
-    }
-    node = secure(Note) { Note.create(attrs) }
-    ref  = secure(Node) { Node.find(node[:parent_id])}
-    [node, ref]
-  end
   def test_can_man_cannot_custom_inherit
-    node, ref = hello_ant
+    node, ref = create_simple_note
     assert ! node.new_record? , "Not a new record"
     assert ! ref.can_visible? , "Cannot visible in reference"
     assert ref.can_write? , "Can write in reference"
@@ -796,8 +799,9 @@ class SecureUpdateTest < ZenaTestUnit
     assert node.errors[:inherit] , "Errors on pgroup_id"
     assert_equal "you cannot change this", node.errors[:inherit]
   end
+  
   def test_can_man_can_create_private
-    node, ref = hello_ant
+    node, ref = create_simple_note
     # make private
     node[:inherit  ] = -1 # make private
     node[:rgroup_id] = 98984984 # anything
@@ -811,7 +815,7 @@ class SecureUpdateTest < ZenaTestUnit
   end
   
   def test_can_man_cannot_create_private_if_site_no_private
-    node, ref = hello_ant
+    node, ref = create_simple_note
     visitor.site[:allow_private] = false
     # make private
     node[:inherit  ] = -1 # make private
@@ -823,7 +827,7 @@ class SecureUpdateTest < ZenaTestUnit
   end
   
   def test_can_man_cannot_lock_inherit
-    node, ref = hello_ant
+    node, ref = create_simple_note
     # make private
     node[:inherit  ] = 0 # lock inheritance
     assert ! node.save , "Save fails"
@@ -832,7 +836,7 @@ class SecureUpdateTest < ZenaTestUnit
   end
   
   def test_can_man_update_inherit
-    node, ref = hello_ant
+    node, ref = create_simple_note
     assert node.update_attributes(:inherit=>-1)
     assert node.publish
     assert node.can_drive?, "Can drive"
@@ -851,7 +855,7 @@ class SecureUpdateTest < ZenaTestUnit
   #     b. can change to 'private' if can_manage?
   #     c. can change to 'custom'  if can_visible?
   def test_can_man_update_attributes
-    node, ref = hello_ant
+    node, ref = create_simple_note
     # make private
     attrs = { :inherit => -1, :rgroup_id=> 98748987, :wgroup_id => 98984984, :pgroup_id => 98984984 }
     assert node.update_attributes(attrs), "Update attributes succeeds"
@@ -862,7 +866,7 @@ class SecureUpdateTest < ZenaTestUnit
   end
   
   def test_can_man_can_inherit
-    node, ref = hello_ant
+    node, ref = create_simple_note
     # inherit
     node[:inherit  ] = 1 # inherit
     assert node.save , "Save succeeds"

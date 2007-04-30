@@ -41,6 +41,10 @@ class Version < ActiveRecord::Base
     user
   end
   
+  def user_zip
+    user_id
+  end
+  
   # Return the title or the node's name if the field is empty.
   def title
     if self[:title] && self[:title] != ""
@@ -102,69 +106,76 @@ class Version < ActiveRecord::Base
   
   private
   
-  def can_update_content
-    if @redaction_content && Version.find_all_by_content_id(self[:id]).size > 0
-      # some versions link to this version's content directly. Cannot change content.
-      errors.add('base', 'cannot change content (used by other versions)')
-    end
-  end
-  
-  def save_content
-    if @content
-      @content.save_without_validation # validations checked with 'valid_content'
-    else
-      true
-    end
-  end
-  
-  # Set version number and site_id before validation tests.
-  def version_before_validation
-    return unless node
-    self[:site_id] = node[:site_id]
-    if new_record?
-      last = Version.find(:first, :conditions=>['node_id = ?', node[:id]], :order=>'number DESC')
-      self[:type] = self.class.to_s
-      if last
-        self[:number] = last[:number] + 1
-      else
-        self[:number] = 1
+    def can_update_content
+      if @redaction_content && Version.find_all_by_content_id(self[:id]).size > 0
+        # some versions link to this version's content directly. Cannot change content.
+        errors.add('base', 'cannot change content (used by other versions)')
       end
     end
-    if content_class
-      content[:name]    = node[:name]
-      content[:site_id] = self[:site_id]
-    end
-  end
   
-  # Make sure the version and it's related content are in a correct state.
-  def valid_version
-    errors.add("site_id", "can't be blank") unless self[:site_id] and self[:site_id] != ""
-    # validate content
-    if @content && !@content.valid?
-      @content.errors.each do |key,message|
-        if key.to_s == 'base'
-          errors.add(key.to_s,message)
+    def save_content
+      if @content
+        @content.save_without_validation # validations checked with 'valid_content'
+      else
+        true
+      end
+    end
+  
+    # Set version number and site_id before validation tests.
+    def version_before_validation
+      return unless node
+      self[:site_id] = node[:site_id]
+    
+      # [ why do we need these defaults now ? (since rails 1.2)
+      self[:text]  ||= ""
+      self[:title] ||= node[:name]
+      self[:summary] ||= ""
+      self[:comment] ||= ""
+      # ]
+      if new_record?
+        last = Version.find(:first, :conditions=>['node_id = ?', node[:id]], :order=>'number DESC')
+        self[:type] = self.class.to_s
+        if last
+          self[:number] = last[:number] + 1
         else
-          errors.add("c_#{key}",message)
+          self[:number] = 1
         end
       end
-      
-      if @old_content
-        @content = @old_content # rollback initial content
-      else
-        # clean empty content
-        @content = content_class.new
-        @content.version = self
-        self[:content_id] = nil
-        @redaction_content = @content
+      if content_class
+        content[:name]    = node[:name]
+        content[:site_id] = self[:site_id]
       end
-      return false
     end
-  end
   
-  # Some #Version sub-classes need to have more specific content than just 'text' and 'summary'.
-  # this content is stored in a delegate 'content' object found with the 'content_class' class method
-  def content_class
-    nil
-  end
+    # Make sure the version and it's related content are in a correct state.
+    def valid_version
+      errors.add("site_id", "can't be blank") unless self[:site_id] and self[:site_id] != ""
+      # validate content
+      if @content && !@content.valid?
+        @content.errors.each do |key,message|
+          if key.to_s == 'base'
+            errors.add(key.to_s,message)
+          else
+            errors.add("c_#{key}",message)
+          end
+        end
+      
+        if @old_content
+          @content = @old_content # rollback initial content
+        else
+          # clean empty content
+          @content = content_class.new
+          @content.version = self
+          self[:content_id] = nil
+          @redaction_content = @content
+        end
+        return false
+      end
+    end
+  
+    # Some #Version sub-classes need to have more specific content than just 'text' and 'summary'.
+    # this content is stored in a delegate 'content' object found with the 'content_class' class method
+    def content_class
+      nil
+    end
 end

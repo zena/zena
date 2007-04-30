@@ -6,16 +6,92 @@ class ApplicationHelperTest < ZenaTestHelper
   def setup
     @controllerClass = ApplicationController
     super
+    login(:anon)
+  end
+  
+  # We have to define section this way in order to share with the StubController. I do not understand why we need to do this, but
+  # it works. If anyone has a better idea...
+  def session
+    @response.session
   end
   
   def test_nodes_id
     assert_equal nodes(:zena)[:id], nodes_id(:zena)
   end
   
-  def test_acts_as_secure
+  def test_zen_path
+    
     login(:ant)
-    assert_nothing_raised { @node = secure(Node) { Node.find(nodes_id(:myLife))} }
-    assert_equal 'myLife', @node.name
+    params[:format] = 'html'
+    node = secure(Node) { nodes(:zena) }
+    assert_equal "/oo", zen_path(node)
+    assert_equal "/oo/project11_test.html", zen_path(node, :mode=>'test')
+    
+    login(:anon)
+    params[:format] = 'html'
+    node = secure(Node) { nodes(:zena) }
+    assert_equal "/en", zen_path(node)
+    assert_equal "/en/project11_test.html", zen_path(node, :mode=>'test')
+    node = secure(Node) { nodes(:people) }
+    assert_equal "/en/section12.html", zen_path(node)
+    assert_equal "/en/section12_test.html", zen_path(node, :mode=>'test')
+    assert_equal "/tt/section12_test.jpg", zen_path(node, :mode=>'test', :prefix=>'tt', :format=>'jpg')
+    node = secure(Node) { nodes(:cleanWater) }
+    assert_equal "/en/projects/cleanWater.html", zen_path(node)
+    assert_equal "/en/projects/cleanWater_test.html", zen_path(node, :mode=>'test')
+    node = secure(Node) { nodes(:status) }
+    assert_equal "/en/projects/cleanWater/page22.html", zen_path(node)
+    assert_equal "/en/projects/cleanWater/page22_test.html", zen_path(node, :mode=>'test')
+  end
+  
+  def test_zen_url
+    params[:format] = 'html'
+    node = secure(Node) { nodes(:zena) }
+    assert_equal "http://test.host/en", zen_url(node)
+    assert_equal "http://test.host/en/project11_test.html", zen_url(node, :mode=>'test')
+  end
+  
+  
+  def test_img_tag
+    login(:ant)
+    img = secure(Node) { nodes(:bird_jpg) }
+    assert_equal "<img src='/oo/image30.jpg' width='661' height='600' alt='bird' class='full'/>", img_tag(img)
+    assert_equal "<img src='/oo/image30_pv.jpg' width='70' height='70' alt='bird' class='pv'/>", img_tag(img, :mode=>'pv')
+  end
+  
+  def test_img_tag_document
+    login(:ant)
+    doc = secure(Node) { nodes(:water_pdf) }
+    assert_equal "<img src='/images/ext/pdf.png' width='32' height='32' alt='pdf document' class='doc'/>", img_tag(doc)
+    assert_equal "<img src='/images/ext/pdf_pv.png' width='70' height='70' alt='pdf document' class='doc'/>",  img_tag(doc, :mode=>'pv')
+  end
+  
+  def test_img_tag_opts
+    login(:anon)
+    img = secure(Node) { nodes(:bird_jpg) }
+    assert_equal "<img src='/en/image30.jpg' width='661' height='600' alt='bird' id='yo' class='full'/>",
+                  img_tag(img, :mode=>nil, :id=>'yo')
+    assert_equal "<img src='/en/image30_pv.jpg' width='70' height='70' alt='bird' id='yo' class='super'/>",
+                  img_tag(img, :mode=>'pv', :id=>'yo', :class=>'super')
+    assert_equal "<img src='/en/image30_med.jpg' width='205' height='186' alt='super man' class='med'/>",
+                  img_tag(img, :mode=>'med', :alt=>'super man')
+  end
+  
+  def test_img_tag_other
+    login(:tiger)
+    doc = secure(Node) { nodes(:water_pdf) }
+    doc.c_ext = 'bin'
+    assert_equal 'pdf', doc.c_ext
+    doc.version.content[:ext] = 'bin'
+    assert_equal 'bin', doc.c_ext
+    assert_equal "<img src='/images/ext/other.png' width='32' height='32' alt='water' class='doc'/>", img_tag(doc)
+    assert_equal "<img src='/images/ext/other_pv.png' width='70' height='70' alt='water' class='doc'/>", img_tag(doc, :mode=>'pv')
+    assert_equal "<img src='/images/ext/other_std.png' width='32' height='32' alt='water' class='doc'/>", img_tag(doc, :mode=>'std')
+  end
+  
+  def test_alt_with_apos
+    doc = secure(Node) { nodes(:lake_jpg) }
+    assert_equal "<img src='/en/projects/cleanWater/image24.jpg' width='600' height='440' alt='it&apos;s a lake' class='full'/>", img_tag(doc)
   end
   
   def test_uses_calendar_with_lang
@@ -32,48 +108,44 @@ class ApplicationHelperTest < ZenaTestHelper
   
   def test_link_box
     @node = secure(Node) { nodes(:letter) }
-    assert_equal "<ul class='link_box'><li><b>calendars</b></li><li><input type='checkbox' name='node[calendar_ids][]' value='19' class='box' />wiki</li></ul>", link_box('node', :calendars)
+    assert_equal "<ul class='link_box'><li><b>calendars</b></li><li><input type='checkbox' name='node[calendar_ids][]' value='29' class='box' />wiki</li></ul>", link_box('node', :calendars)
     login(:tiger)
     @node = secure(Node) { nodes(:letter) }
-    assert_match %r{ul class='link_box'.*node\[calendar_ids\]\[\].*1.*9.*11.*19}, link_box('node', :calendars)
-    assert_match %r{node\[hot_for_ids\]\[\].*11.*19}, link_box('node', :hot_for, :in=>[11,19,13])
-    assert_no_match %r{13}, link_box('node', :hot_for, :in=>[11,19,13])
+    assert_match %r{ul class='link_box'.*node\[calendar_ids\]\[\].*11.*19.*21.*29}, link_box('node', :calendars)
+    assert_match %r{node\[hot_for_ids\]\[\].*21.*29}, link_box('node', :hot_for, :in=>[11,19,13])
+    assert_no_match %r{23}, link_box('node', :hot_for, :in=>[11,19,13])
     @node = secure(Node) { nodes(:cleanWater) }
-    assert_match %r{node\[hot_id\].*12}, link_box('node', :hot)
+    assert_match %r{node\[hot_id\].*22}, link_box('node', :hot)
   end 
   
   def test_select_id
     @node = secure(Node) { nodes(:status) }
     select = select_id('node', :parent_id, :class=>'Project')
-    assert_no_match %r{select.*node\[parent_id\].*11.*9.*19.*1}m, select
-    assert_match %r{select.*node\[parent_id\].*19}, select
+    assert_no_match %r{select.*node\[parent_id\].*21.*19.*29.*11}m, select
+    assert_match %r{select.*node\[parent_id\].*29}, select
     login(:tiger)
     @node = secure(Node) { nodes(:status) }
-    assert_match %r{select.*node\[parent_id\].*11.*9.*19.*1}m, select_id('node', :parent_id, :class=>'Project')
+    assert_match %r{select.*node\[parent_id\].*21.*19.*29.*11}m, select_id('node', :parent_id, :class=>'Project')
     assert_match %r{input type='text'.*node\[icon_id\].*node_icon_id_name}m, select_id('node', :icon_id)
   end
   
   def test_date_box
-    assert false, 'todo'
+    @node = secure(Node) { nodes(:status) }
+    assert_match %r{div class="date_box".*img src="\/calendar\/iconCalendar.gif".*input class="updated_at" id="datef.*" name="node\[updated_at\]" size="30" type="text" value="2006-04-11 01:00"}m, date_box('node', 'updated_at')
   end
   
   def test_javascript
     assert_nothing_raised { javascript('test') }
   end
   
-  def test_tsubmit_tag
-    visitor.lang = 'fr'
-    assert_equal '<input name="commit" type="submit" value="lundi" />', tsubmit_tag('Monday')
-  end
-  
   def test_tlink_to_remote
     visitor.lang = 'fr'
-    assert_equal "<a href=\"#\" onclick=\"new Ajax.Request('', {asynchronous:true, evalScripts:true}); return false;\">lundi</a>", tlink_to_remote('Monday', :controller=>'version', :action=>'edit')
+    assert_equal "<a href=\"#\" onclick=\"new Ajax.Request('/nodes/12/versions/1/publish', {asynchronous:true, evalScripts:true}); return false;\">lundi</a>", tlink_to_remote('Monday', :url=>publish_version_path(:node_id => 12, :id => 1))
   end
   
   def test_tlink_to
     visitor.lang = 'fr'
-    assert_equal "<a href=\"/z/version/edit\">lundi</a>", tlink_to('Monday', :controller=>'version', :action=>'edit')
+    assert_equal "<a href=\"/nodes/12/versions/1/edit\">lundi</a>", tlink_to('Monday', edit_version_path(:node_id=>12, :id=>1))
   end
   
   def test_tlink_to_function
@@ -82,8 +154,8 @@ class ApplicationHelperTest < ZenaTestHelper
   end
   
   def test_transb
-    session[:translate] = true
-    assert_equal trans('Monday',false), transb('Monday')
+    set_session[:translate] = true
+    assert_equal trans('Monday',:edit => false), transb('Monday')
     assert_not_equal 'lundi', trans('Monday')
   end
   
@@ -92,9 +164,9 @@ class ApplicationHelperTest < ZenaTestHelper
   end
   
   def test_login_link
-    assert_equal "<div id='logout'><a href='/login'>login</a></div>", login_link
+    assert_equal "<a href='/login'>login</a>", login_link
     login(:ant)
-    assert_equal "<div id='logout'><a href='/logout'>logout</a></div>", login_link
+    assert_equal "<a href='/logout'>logout</a>", login_link
   end
   
   def test_trans
@@ -107,7 +179,7 @@ class ApplicationHelperTest < ZenaTestHelper
     session[:translate] = true
     assert_match /div.*phrase75.*Ajax.*\%A, \%B \%d \%Y/, trans('full_date')
   end
-  
+  # ======================== tests pass to here ================
   def test_long_time
     atime = visitor.tz.unadjust(Time.gm(2006,11,10,17,42,25)) # local time for visitor
     assert_equal "17:42:25", long_time(atime)
@@ -163,7 +235,7 @@ class ApplicationHelperTest < ZenaTestHelper
     assert_equal Time.gm(2006,11,10,12,30), parse_date('10.11.2006 12:30', '%d.%m.%Y %H:%M')
   end
   
-  def login_link
+  def test_visitor_link
     assert_equal '', visitor_link
     login(:ant)
     assert_match /div id='visitor'.*home.*Solenopsis Invicta/, visitor_link
@@ -258,19 +330,17 @@ class ApplicationHelperTest < ZenaTestHelper
   end
   
   # ------ these tests were in main helper ----
-  
-  
 
   def test_check_lang_same
     session[:lang] = 'en'
-    obj = nodes(:zena)
+    obj = secure(Node) { nodes(:zena) }
     assert_equal 'en', obj.v_lang
     assert_no_match /\[en\]/, check_lang(obj)
   end
   
   def test_check_other_lang
     session[:lang] = 'io'
-    obj = nodes(:zena)
+    obj = secure(Node) { nodes(:zena) }
     assert_match /\[en\]/, check_lang(obj)
   end
   
@@ -341,7 +411,7 @@ class ApplicationHelperTest < ZenaTestHelper
   def test_traductions
     session[:lang] = 'en'
     # we must initialize an url for url_rewriting in 'traductions'
-    @controller.instance_eval { @url = ActionController::UrlRewriter.new( @request, {:controller=>'main', :action=>'index'} ) }
+    @controller.instance_eval { @url = ActionController::UrlRewriter.new( @request, {:controller=>'nodes', :action=>'index'} ) }
     @node = secure(Node) { Node.find(nodes_id(:status)) } # en,fr
     trad = traductions
     assert_equal 2, trad.size
@@ -356,56 +426,32 @@ class ApplicationHelperTest < ZenaTestHelper
     assert_match /class='off'/, trad[1]
   end
   
-  def test_author
-    # we must initialize an url for url_rewriting in 'traductions'
-    @controller.instance_eval { @url = ActionController::UrlRewriter.new( @request, {:controller=>'main', :action=>'index'} ) }
-    @node = Node.find(nodes_id(:projects))
-    session[:lang] = 'en'
-    assert_match /class='info'.*posted by.*Panther Tigris Sumatran.*on 04.11.*Traductions :/m , author(:large)
-    assert_equal "<div class='info'><b>PTS</b> - 04.11</div>", author
-    assert_equal "<div class='info'><b>PTS</b> - 04.11</div>", author(:small)
-    @node = secure(Node) { Node.find(nodes_id(:opening)) }
-    assert_equal users_id(:tiger), @node.v_author[:id]
-    assert_match /class='info'.*posted by.*Panther Tigris Sumatran/m, author(:large)
-    assert_equal "<div class='info'><b>PTS</b> - 04.11</div>", author
-    session[:lang] = 'fr'
-    @node = secure(Node) { Node.find(nodes_id(:opening)) }
-    assert_equal users_id(:ant), @node.v_author[:id]
-    assert_match /class='info'.*original by.*Panther Tigris Sumatran.*new post by.*Solenopsis Invicta/m, author(:large)
-    assert_equal "<div class='info'><b>SI</b> - 11.04</div>", author
-  end
-  
   def test_show_path_root
     @node = secure(Node) { Node.find(nodes_id(:zena))}
-    assert_equal "<ul id='path' class='path'><li><a href='/en'>zena</a></li></ul>", show_path
+    assert_equal "<ul class='path'><li><a href='/en' class='current'>zena</a></li></ul>", show_path
     node2 = @node
     @node = secure(Node) { Node.find(nodes_id(:status))}
-    assert_equal "<ul class='path'><li><a href='/en'>zena</a></li></ul>", show_path(node2)
+    assert_match %r{ul class='path'.*zena.*projects.*cleanWater.*li.*page22\.html' class='current'>status}m, show_path(node2)
   end
   
   def test_show_path_root_with_login
     login(:ant)
     @node = secure(Node) { Node.find(nodes_id(:zena))}
-    assert_equal "<ul id='path' class='path'><li><a href='/#{AUTHENTICATED_PREFIX}'>zena</a></li></ul>", show_path
-  end
-  
-  def test_show_path_page
-    @node = secure(Node) { Node.find(nodes_id(:cleanWater))}
-    assert_match %r{<ul id='path'.*href='/en'>zena.*href='/en/projects'>projects.*href='/en/projects/cleanWater'>cleanWater}, show_path
+    assert_equal "<ul class='path'><li><a href='/#{AUTHENTICATED_PREFIX}' class='current'>zena</a></li></ul>", show_path
   end
   
   def test_admin_link_translation
-    assert_equal '', admin_link(:translation)
+    assert_equal '', show_link(:translation)
     login(:lion)
-    assert_match %r{Translate interface.*z/trans/list.*\?translate=on}, admin_link(:translation)
+    assert_match %r{Translate interface.*z/trans/list.*\?translate=on}, show_link(:translation)
     session[:translate] = true
-    assert_match %r{Translate interface.*z/trans/list.*\?translate=off}, admin_link(:translation)
+    assert_match %r{Translate interface.*z/trans/list.*\?translate=off}, show_link(:translation)
   end
 
   def test_lang_links
     login(:lion)
     @request = ActionController::TestRequest.new
-    @request.instance_eval{ @parameters = {:controller=>'main', :action=>'show', :path=>'projects/cleanWater', :prefix=>AUTHENTICATED_PREFIX}}
+    @request.instance_eval{ @parameters = {:controller=>'nodes', :action=>'show', :path=>'projects/cleanWater', :prefix=>AUTHENTICATED_PREFIX}}
     class << self
       def request
         @request
@@ -422,7 +468,7 @@ class ApplicationHelperTest < ZenaTestHelper
   
   def test_lang_links_no_login
     @request = ActionController::TestRequest.new
-    @request.instance_eval{ @parameters = {:controller=>'main', :action=>'show', :path=>'projects/cleanWater', :prefix=>AUTHENTICATED_PREFIX}}
+    @request.instance_eval{ @parameters = {:controller=>'nodes', :action=>'show', :path=>'projects/cleanWater', :prefix=>AUTHENTICATED_PREFIX}}
     class << self
       def request
         @request
@@ -440,5 +486,10 @@ class ApplicationHelperTest < ZenaTestHelper
     assert_match %r{<div id='lang'><span>.*new Ajax.Update.*/z/trans/lang_menu}, lang_ajax_link
     session[:translate] = true
     assert_match %r{<div id='lang'><span>.*new Ajax.Update.*/z/trans/lang_menu.*translate=off}, lang_ajax_link
+  end
+  
+  def rescue_action(e)
+    puts "ERROR"
+    raise
   end
 end

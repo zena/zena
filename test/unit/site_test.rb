@@ -17,9 +17,23 @@ class SiteTest < ZenaTestUnit
     assert Time.now >= root.publish_from
     @visitor = site.anon
     root = secure(Node) { Node.find(site[:root_id]) }
-    assert_kind_of Node, root
+    assert_kind_of Project, root
     assert_equal 'super', root.v_title
     assert_nothing_raised { Node.next_zip(site[:id]) }
+    
+    admin = secure(User) { User.find(admin[:id]) }
+    assert_kind_of Contact, admin.contact
+    anon  = secure(User) { User.find(site.anon[:id]) }
+    assert_kind_of Contact, anon.contact
+  end
+  
+  def test_create_site_bad_name
+    site = Site.create_for_host('shared', 'zoom')
+    assert site.new_record?
+    assert site.errors[:host]
+    site = Site.create_for_host('../evil.com', 'zoom')
+    assert site.new_record?
+    assert site.errors[:host]
   end
 
   def test_public_path
@@ -106,6 +120,14 @@ class SiteTest < ZenaTestUnit
     grp = site.admin_group
     assert_kind_of Group, grp
     assert_equal groups_id(:masters), grp[:id]
+  end
+  
+  def test_monolingual
+    site = sites(:zena)
+    assert !site.monolingual, "Multi lang site"
+    site.monolingual = true
+    assert site.save, "Can save"
+    assert site.monolingual, "Mono lang site"
   end
   
   def test_protected_fields

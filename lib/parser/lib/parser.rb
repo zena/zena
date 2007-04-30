@@ -42,7 +42,7 @@ module ParserModule
 end
 
 class Parser
-  attr_accessor :text, :method, :pass, :options
+  attr_accessor :text, :method, :pass, :options, :blocks, :params
     
   class << self
     def parser_with_rules(*modules)
@@ -131,9 +131,8 @@ class Parser
         @context[:name] = name
       end
       if replacer = (@context[:parts] || {})[@context[:name]]
-        new_parts = @context[:parts].dup
-        new_parts.delete(@context[:name])
-        return replacer.render(context.merge(:parts=>new_parts))
+        @blocks   = replacer.blocks
+        @params   = replacer.params
       end
     end
     @result  = ""
@@ -179,7 +178,7 @@ class Parser
     expand_with(:preflight=>true)
     @blocks = @included_blocks || @blocks
     if @parts != {}
-      expand_with(:parts=>@parts)
+      expand_with(:parts => (@context[:parts] || {}).merge(@parts))
     else
       expand_with
     end
@@ -337,7 +336,7 @@ class Parser
       if rest =~ /(.+?)=/
         key = $1.strip.to_sym
         rest = rest[$&.length..-1].strip
-        if rest =~ /('|")([^\1]*?[^\\])\1/
+        if rest =~ /('|")([^\1]*?[^\\]|)\1/
           rest = rest[$&.length..-1].strip
           if $1 == "'"
             params[key] = $2.gsub("\\'", "'")

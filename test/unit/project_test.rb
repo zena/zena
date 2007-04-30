@@ -3,25 +3,25 @@ require File.dirname(__FILE__) + '/../test_helper'
 class ProjectTest < ZenaTestUnit
 
   
-  def test_check_project_id_on_create
+  def test_check_section_id_on_create
     login(:tiger)
     node = secure(Project) { Project.create(:parent_id=>nodes_id(:status), :name=>'SuperProject') }
     assert ! node.new_record?, 'Not a new record'
-    assert_equal node[:id], node[:project_id]
+    assert_equal node[:id], node[:section_id]
   end
   
-  def test_update_set_project_id_on_update
+  def test_update_set_section_id_on_update
     login(:tiger)
     node = secure(Project) { Project.find(nodes_id(:cleanWater))}
-    assert_equal nodes_id(:cleanWater), node[:project_id]
+    assert_equal nodes_id(:cleanWater), node[:section_id]
     node[:parent_id] = nodes_id(:zena)
     assert node.save, 'Can save node'
     node.reload
-    assert_equal nodes_id(:cleanWater), node[:project_id]
-    node[:project_id] = nodes_id(:zena)
+    assert_equal nodes_id(:cleanWater), node[:section_id]
+    node[:section_id] = nodes_id(:zena)
     assert node.save, 'Can save node'
     node.reload
-    assert_equal nodes_id(:cleanWater), node[:project_id]
+    assert_equal nodes_id(:cleanWater), node[:section_id]
   end
   
   def test_notes

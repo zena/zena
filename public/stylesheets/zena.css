@@ -1,0 +1,28 @@
+/* ========================= Zena css ========================= */
+/* version status */
+.s10, .s20, .s30, .s35, .s40 { border-bottom: 10px solid grey;}
+.s10, .s20 { border-bottom-color:#685958;}
+.s30, .s35 { border-bottom-color:#B7CC87;}
+.s40       { border-bottom-color:#73A1A5;}
+
+/* actions */
+.actions   { margin-left:5px; }
+.actions a { padding:2px;     }
+.s50 .actions       { visibility:hidden;  }
+.s50:hover .actions { visibility:visible; }
+.actions a:hover { background:#F9E1AD; }
+
+/* forms & form actions */
+.btn_add a { visibility:hidden; display:block; }
+.btn_add:hover a { visibility:visible; }
+
+
+/* ========================= Zazen css ======================== */
+
+/* images */
+.img_left {float:left; display:table;}
+.img_right {float:right;display:table;}
+.img_center { text-align:center; margin:12px;}
+
+/* paragraphs */
+.clear { clear:both;}

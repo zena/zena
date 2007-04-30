@@ -2,13 +2,6 @@ require File.dirname(__FILE__) + '/../test_helper'
 require 'fileutils'
 class DocumentTest < ZenaTestUnit
   
-  def test_callbacks_for_documents
-    assert Node.read_inheritable_attribute(:before_validation).include?(:secure_before_validation)
-    assert Document.read_inheritable_attribute(:validate_on_create).include?(:node_on_create)
-    assert Document.read_inheritable_attribute(:validate_on_update).include?(:node_on_update)
-    assert Document.read_inheritable_attribute(:before_validation).include?(:document_before_validation)
-  end
-  
   def test_create_with_file
     without_files('/test.host/data/pdf') do
       login(:ant)
@@ -102,12 +95,6 @@ class DocumentTest < ZenaTestUnit
     assert_equal 'test.jpg', doc.filename
     doc.c_ext = 'pdf'
     assert_equal 'test.jpg', doc.filename
-  end
-  
-  def test_c_img_tag
-    login(:tiger)
-    doc = secure(Document) { Document.find( nodes_id(:water_pdf) ) }
-    assert_nothing_raised { doc.img_tag; doc.img_tag('std') }
   end
   
   def test_filesize

@@ -1,0 +1,59 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml" do='void' lang="en" set_lang='[v_lang]' xml:lang='en'>
+<head>
+  <title do='title_for_layout' do='show' attr='v_title' name='title'>node title</title>
+  <meta http-equiv="Content-type" content="text/html; charset=utf-8" />
+  <meta http-equiv="Content-Language" do='void' content="fr-fr" tset_content='[v_lang]_content' />
+
+  <z:stylesheets name='stylesheets' list='reset,zena,default,code'/>
+  <z:javascripts list='prototype,effects,zena'/>
+  <z:uses_calendar/>
+</head>
+
+<body do='void' name='body'>
+  <div id='navigation' do='void' name='navigation'>
+    <div id='nav_main'>
+      <div id='lang' do='lang_links'><a>en</a> | <b>fr</b></div>
+      <div id='path' do='show_path'><ul><li><a href='#'>first</a></li> / <li><a href='#'>second</a></li> / <li><a href='#' class='current'>here</a></li></ul></div>
+      <div id='login' do='login_link'><a href='#'>login</a></div>
+      <div id='visitor' do='visitor_link'><a href='#'>visitor name</a></div>
+      <div id='search' do='search_box'><div class='search'><form><input type='text' id='search' name='search'/></form></div></div>
+    </div>
+
+    <div id='nav_menu' do='node' select='root'>
+      <ul do='pages'>
+        <li do='each'><z:link attr='name'/>
+          <ul do='pages'>
+            <li do='each'><z:link attr='name'/>
+              <ul do='pages'>
+                <li do='each' do='link' attr='name'/>
+              </ul>
+            </li>
+          </ul>
+        </li>
+      </ul>
+    </div>
+    <div id='branding' do='link' href='root'><img src='/img/logo.png' width='220' height='100'/></div>
+  </div>
+
+
+  <z:flash_messages/>
+
+  <div id='context' do='void' name='context'>
+  </div>
+
+
+  <div id='content' do='content_for_layout' name='content'>
+    <div id='main' do='void' name='main'>
+      dummy content
+    </div>
+
+    <div id='related' do='void' name='related'>
+    </div>
+  </div>
+
+</div>
+</body>
+</html>

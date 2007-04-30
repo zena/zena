@@ -1,0 +1,20 @@
+<% @discussion ||= Discussion.new(:node_id=>@node[:id])%>
+<!-- FIXME: set both edit/create form hash -->
+<td colspan='7'>
+<%= form_remote_tag(:url => discussions_path(:node_id => @node[:zip])) %>
+  <div id='discussion_errors' class='errors'></div>
+  <div class='add'>
+    <%= link_to_function transb('btn_x'), "['add_discussion', 'add_discussion_form'].each(Element.toggle);" %>
+  </div>
+  <div class='inside'>
+    <%= radio_button('discussion', 'inside', false) %> <%= trans('outside') %>
+    <%= radio_button('discussion', 'inside', true ) %> <%= trans('inside') %>
+  </div>
+  <div class='lang'>
+    <%= select('discussion', 'lang', ZENA_ENV[:languages]) %>
+  </div>
+  <div class='action'>
+  <input type="submit" class="btn_validate" value='<%= transb('create') %>'/>
+  </div>
+</form>
+</td>

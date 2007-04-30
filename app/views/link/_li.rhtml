@@ -1,5 +1,5 @@
 <tr id='link<%= li[:link_id] %>'>
   <td class="box"><%= trans("img_#{li[:role]}" ) %></td>
-  <td class="path" colspan='2'><%= link_to( li.rootpath, node_url(li), :popup=>true ) %></td>
+  <td class="path" colspan='2'><%= link_to( li.rootpath, zen_path(li), :popup=>true ) %></td>
   <td class="actions"> <%= link_to_remote(transb('btn_tiny_del'), :url=>{:controller=>'link', :action=>'remove', :id=>li[:link_id], :node_id=>@node[:id]}, :post=>true)%> </td>
 </tr>

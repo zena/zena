@@ -103,11 +103,11 @@ class ApplicationControllerTest < ZenaTestController
     ZENA_ENV[:monolingual] = bak
   end
   
-  def test_node_url
+  def test_zen_path
     node = @controller.send(:secure, Node) { Node.find(nodes_id(:status)) }
-    assert_equal ['projects','cleanWater','page12.html'], @controller.send(:node_url, node)[:path]
+    assert_equal ['projects','cleanWater','page12.html'], @controller.send(:zen_path, node)[:path]
     node = @controller.send(:secure, Node) { Node.find(nodes_id(:wiki)) }
-    assert_equal ['project19.html'], @controller.send(:node_url,node)[:path]
+    assert_equal ['project19.html'], @controller.send(:zen_path,node)[:path]
   end
   
   def test_bad_session_user

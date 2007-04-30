@@ -21,5 +21,3 @@ config.action_mailer.delivery_method = :test
 
 require 'ruby-debug'
 Debugger.start
-
-ZENA_ENV[:data_dir] = "#{RAILS_ROOT}/data/test"

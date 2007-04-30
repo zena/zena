@@ -1,4 +1,5 @@
 class TextDocumentContent < DocumentContent
+  before_validation :text_doc_content_before_validation
   
   def file=(aFile)
     super
@@ -22,14 +23,14 @@ class TextDocumentContent < DocumentContent
   end
   
   # called before_validation
-  def prepare_filename
-    # do nothing
+  def text_doc_content_before_validation
+    self[:name] ||= version.node.name
+    self[:size] = version.text.size
   end
   
   # called before_save
   def content_before_save
     super
-    self[:size] = version.text.size
     if @file
       # nothing to do
     elsif !new_record? && (old = DocumentContent.find(self[:id])).name != self[:name]

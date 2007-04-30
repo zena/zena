@@ -3,13 +3,13 @@ var Zena = {};
 Zena.env = new Array();
 
 // preview content from another window.
-Zena.editor_preview = function(element, value) {
-	new Ajax.Request('/z/version/preview', {asynchronous:true, evalScripts:true, parameters:'content=' + value})
+Zena.editor_preview = function(url, element, value) {
+	new Ajax.Request(url, {asynchronous:true, evalScripts:true, parameters:'content=' + value})
 }
 
 // preview version.
-Zena.version_preview = function(version_id) {
-	new Ajax.Request('/z/version/preview/' + version_id, {asynchronous:true, evalScripts:true})
+Zena.version_preview = function(url) {
+	new Ajax.Request(url, {asynchronous:true, evalScripts:true})
 }
 
 // version diff.
@@ -101,11 +101,11 @@ Zena.transfer = function(src,trgt) {
 }
 
 // get the name of a file from the path
-Zena.get_name = function(source, target) {
+Zena.get_filename = function(source, target) {
 	if ($(target).value == '') {
 		var path = $(source).value;
 	  elements = path.split('/');
-		$('document_name').value = elements[elements.length - 1];
+		$(target).value = elements[elements.length - 1];
 	}
 }
 
@@ -131,13 +131,13 @@ Zena.open_cal = function(e, url) {
  	return false;
 }
 
-Zena.update_rwp = function(inherit_val,r_index,w_index,p_index,t_index) {
+Zena.update_rwp = function(inherit_val,r_index,w_index,p_index,s_index) {
 	if (inherit_val == "-1") {
 		$("node_rgroup_id").selectedIndex = 0;
 		$("node_wgroup_id").selectedIndex = 0;
 		$("node_rgroup_id").disabled = true;
 		$("node_wgroup_id").disabled = true;
-		$("node_template" ).disabled = false;
+		$("node_skin" ).disabled = false;
 		if (p_index != '') {
 			$("node_pgroup_id").selectedIndex = 0;
 			$("node_pgroup_id").disabled = true;
@@ -145,10 +145,10 @@ Zena.update_rwp = function(inherit_val,r_index,w_index,p_index,t_index) {
 	} else if (inherit_val == "1") {
 		$("node_rgroup_id").selectedIndex = r_index;
 		$("node_wgroup_id").selectedIndex = w_index;
-		$("node_template" ).selectedIndex = t_index;
+		$("node_skin" ).selectedIndex     = s_index;
 		$("node_rgroup_id").disabled = true;
 		$("node_wgroup_id").disabled = true;
-		$("node_template" ).disabled = true;
+		$("node_skin" ).disabled = true;
 		if (p_index != '') {
 			$("node_pgroup_id").selectedIndex = p_index;
 			$("node_pgroup_id").disabled = true;
@@ -157,7 +157,7 @@ Zena.update_rwp = function(inherit_val,r_index,w_index,p_index,t_index) {
 		$("node_rgroup_id").disabled = false;
 		$("node_wgroup_id").disabled = false;
 		$("node_pgroup_id").disabled = false;
-		$("node_template" ).disabled = false;
+		$("node_skin" ).disabled = false;
 		if (p_index != '') {
 			$("node_pgroup_id").disabled = false;
 		}

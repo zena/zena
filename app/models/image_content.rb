@@ -16,9 +16,9 @@ ImageContent also provides a +crop+ pseudo attribute to crop an image. See crop=
 class ImageContent < DocumentContent
   
   # Return a cropped image using the 'crop' hash with the top left corner position (:x, :y) and the width and height (:width, :heigt).
-  def crop(crop)
+  def crop(format)
     return if @file # we do not want to crop on file upload in case the crop params lie around in the user's form
-    x, y, w, h = crop[:x].to_i, crop[:y].to_i, crop[:w].to_i, crop[:h].to_i
+    x, y, w, h = format[:x].to_i, format[:y].to_i, format[:w].to_i, format[:h].to_i
 
     # crop image
     img = ImageBuilder.new(:file=>file)
@@ -43,25 +43,6 @@ class ImageContent < DocumentContent
     img = image_for_format(nil)
     self[:width ] = img.width
     self[:height] = img.height
-  end
-  
-  # Display an image tag for the given format. If no format is provided, 'full' is used. Options are ':id', ':alt' and ':class'. If no class option is passed,
-  # the format is used as the image class. Example :
-  #   @node.img_tag('pv')  => <img src='/sites/test.host/data/jpg/20/bird-pv.jpg' height='80' width='80' alt='bird' class='pv'/>
-  def img_tag(format=nil, opts={})
-    format = verify_format(format) || 'std'
-    options = {:class=>(format || 'full'), :id=>nil, :alt=>name}.merge(opts)
-    if format == 'full'
-      # full size (format = nil)
-      "<img src='/data#{path}' width='#{self.width}' height='#{self.height}' alt='#{options[:alt]}' #{options[:id] ? "id='#{options[:id]}' " : ""}class='#{options[:class]}'/>"
-    elsif self[:width] && self[:height]
-      # build image tag
-      img = image_for_format(format)
-      "<img src='/data#{path(format)}' width='#{img.width}' height='#{img.height}' alt='#{options[:alt]}' #{options[:id] ? "id='#{options[:id]}' " : ""}class='#{options[:class]}'/>"
-    else
-      # cannot build if 'width' and 'height' are not set
-      "<img src='/data#{path(format)}' alt='#{options[:alt]}' #{options[:id] ? "id='#{options[:id]}' " : ""}class='#{options[:class]}'/>"
-    end
   end
   
   # Return the size for an image at the given format. If no format is provided, 'full' is used.
@@ -118,7 +99,7 @@ class ImageContent < DocumentContent
     if format == 'full'
       super
     elsif format
-      "#{name}-#{format}.#{ext}"
+      "#{name}_#{format}.#{ext}"
     else
       nil
     end
@@ -163,20 +144,19 @@ class ImageContent < DocumentContent
         FileUtils::rm(File.join(dir,file))
       end
     end
-    # Remove cached images from the public directory.
+    # FIXME: Remove cached images from the public directory.
     # TODO: test
-    FileUtils::rmtree(File.dirname(cachepath))
+    # FileUtils::rmtree(File.dirname(cachepath))
   end
   
-  private
-  
-  def valid_file
-    return false unless super
-    if @file && !ImageBuilder.image_content_type?(@file.content_type)
-      errors.add('file', 'must be an image')
-      return false
+  def verify_format(format)
+    if format.nil?
+      format = 'full'
+    end
+    if IMAGEBUILDER_FORMAT[format]
+      format
     else
-      return true
+      nil
     end
   end
   
@@ -192,20 +172,21 @@ class ImageContent < DocumentContent
     end
   end
   
+  private
+  
+  def valid_file
+    return false unless super
+    if @file && !ImageBuilder.image_content_type?(@file.content_type)
+      errors.add('file', 'must be an image')
+      return false
+    else
+      return true
+    end
+  end
+  
   def make_image(format)
     return nil unless format && (img = image_for_format(format))
     return nil if img.dummy?
     make_file(filepath(format),img)
-  end
-  
-  def verify_format(format)
-    if format.nil?
-      format = 'full'
-    end
-    if IMAGEBUILDER_FORMAT[format]
-      format
-    else
-      'std'
-    end
   end
 end

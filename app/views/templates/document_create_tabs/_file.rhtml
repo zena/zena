@@ -1,14 +1,14 @@
-<%= form_tag( {:controller=>'document', :action=>"create"}, :multipart=>true ) %>
-<%= hidden_field 'document', 'parent_id', :value=>@document[:parent_id]  %>
+<%= form_tag( documents_path, :multipart => true) %>
+<%= hidden_field 'node', 'parent_id', :value=>@node.parent_zip  %>
 <p class="btn_validate"><input type="submit" class="btn_validate" onclick="$('loader').style.visibility = 'visible';" value='<%= transb('validate') %>'/></p>
 
-<label for='document_c_file'><%= trans('file') %></label>
-<input id="document_c_file" name="document[c_file]" onchange="Zena.get_name('document_c_file','document_name'); $('document_name').focus(); $('document_name').select();" class='file' type="file" />
+<label for='node_c_file'><%= trans('file') %></label>
+<input id="node_c_file" name="node[c_file]" onchange="Zena.get_filename('node_c_file','node_name'); $('node_name').focus(); $('node_name').select();" class='file' type="file" />
 
-<label for='document_name'><%= trans('name') %></label>
-<input id='document_name' type='text' name='document[name]'/><br/>
+<label for='node_name'><%= trans('name') %></label>
+<input id='node_name' type='text' name='node[name]'/><br/>
 
-<label for='document_v_summary'><%= trans('summary') %></label>
-<textarea id='document_v_summary' rows='3' name='document[v_summary]'></textarea><br/>
-<%= end_form_tag %>
+<label for='node_v_summary'><%= trans('summary') %></label>
+<textarea id='node_v_summary' rows='3' name='node[v_summary]'></textarea><br/>
+</form>
 <%#= css_edit('popup.css')%>

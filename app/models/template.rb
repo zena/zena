@@ -1,10 +1,13 @@
 class Template < TextDocument
+  validate :valid_section
+  
   class << self
     def accept_content_type?(content_type)
-      content_type == 'text/html'
+      content_type =~ /text\/(html|xml)/
     end
   end
   
+  # Find the
   # TODO: test
   def sweep_cache
     super
@@ -21,12 +24,20 @@ class Template < TextDocument
       end
     end
   end
+  
   private
   
-  def prepare_before_validation
-    super
-    content = version.content
-    content[:content_type] = 'text/html'
-    content[:ext] = 'html'
-  end
+    # Overwrite document behaviour.
+    def document_before_validation
+      content = version.content
+      content[:format] ||= 'html'
+    end
+    
+    def valid_section
+      errors.add('parent_id', 'Invalid parent (section is not a Skin)') unless section.kind_of?(Skin)
+    end
+    
+    def version_class
+      TemplateVersion
+    end
 end

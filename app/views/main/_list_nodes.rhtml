@@ -2,8 +2,8 @@
   <% docs.each do |doc| %>
   <tr><td colspan='2' class='result_break'></td></tr>
   <tr>
-    <td class='docpv'><%= link_to doc.img_tag('mini'), data_url(doc) %><p><%= fsize(doc.c_size) %></p></td>
-    <td class='docinfo'><h4><%= link_to(doc.v_title, node_url(doc)) %></h4><p><%= doc.v_summary %></p></td>
+    <td class='docpv'><%= link_to img_tag(doc, :mode=>'mini'), data_path(doc) %><p><%= fsize(doc.c_size) %></p></td>
+    <td class='docinfo'><h4><%= link_to(doc.v_title, zen_path(doc)) %></h4><p><%= doc.v_summary %></p></td>
   </tr>
   <% end %>
 </table>

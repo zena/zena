@@ -3,12 +3,13 @@
 <% @rights = "  rgroup_id:  1\n  wgroup_id:  3\n  pgroup_id:  4" %>
 zena:
   id:             1
-  zip:            1
+  zip:            11
   site_id:        1
   type:           Project
   kpath:          NPP
   name:           zena
   project_id:     1
+  section_id:     1
   parent_id:      
   user_id:        4
   created_at:     2006-02-01
@@ -22,12 +23,13 @@ zena:
 
 people:
   id:             2
-  zip:            2
+  zip:            12
   site_id:        1
-  type:           Page
-  kpath:          NP
+  type:           Section
+  kpath:          NPS
   name:           people
   project_id:     1
+  section_id:     1
   parent_id:      1
   user_id:        4
 <%= @defaults %>
@@ -36,13 +38,14 @@ people:
 
 ant:
   id:             3
-  zip:            3
+  zip:            13
   site_id:        1
   type:           Contact
   kpath:          NRC
   name:           ant
   project_id:     1
-  parent_id:      1
+  section_id:     2
+  parent_id:      2
   user_id:        3
 <%= @defaults %>
   inherit:        0
@@ -52,12 +55,13 @@ ant:
 
 myLife:
   id:             6
-  zip:            6
+  zip:            16
   site_id:        1
   type:           Page
   kpath:          NP
   name:           myLife
   project_id:     1
+  section_id:     2
   parent_id:      3
   user_id:        3
 <%= @defaults %>
@@ -69,13 +73,14 @@ myLife:
 
 tiger:
   id:             4
-  zip:            4
+  zip:            14
   site_id:        1
   type:           Contact
   kpath:          NRC
   name:           tiger
   project_id:     1
-  parent_id:      1
+  section_id:     2
+  parent_id:      2
   user_id:        4
   inherit:        1
 <%= @defaults %>
@@ -83,13 +88,14 @@ tiger:
 
 lion:
   id:             5
-  zip:            5
+  zip:            15
   site_id:        1
   type:           Contact
   kpath:          NRC
   name:           lion
   project_id:     1
-  parent_id:      1
+  section_id:     2
+  parent_id:      2
   user_id:        5
   inherit:        1
 <%= @defaults %>
@@ -97,12 +103,13 @@ lion:
 
 myDreams:
   id:             7
-  zip:            7
+  zip:            17
   site_id:        1
   type:           Page
   kpath:          NP
   name:           myDreams
   project_id:     1
+  section_id:     2
   parent_id:      5
   user_id:        5
   inherit:        0
@@ -113,12 +120,13 @@ myDreams:
   
 projects:
   id:             8
-  zip:            8
+  zip:            18
   site_id:        1
   type:           Page
   kpath:          NP
   name:           projects
   project_id:     1
+  section_id:     1
   parent_id:      1
   user_id:        4
   inherit:        1
@@ -127,12 +135,13 @@ projects:
 
 secret:
   id:             9
-  zip:            9
+  zip:            19
   site_id:        1
   type:           Project
   kpath:          NPP
   name:           secret
-  project_id:     9
+  project_id:     1
+  section_id:     1
   parent_id:      8
   user_id:        4
   inherit:        0
@@ -143,13 +152,14 @@ secret:
   
 proposition:
   id:             10
-  zip:            10
+  zip:            20
   site_id:        1
-  type:           Note
-  kpath:          NN
+  type:           Post
+  kpath:          NNP
   name:           proposition
   parent_id:      9
   project_id:     9
+  section_id:     1
   user_id:        3
   inherit:        1
 <%= @defaults %>
@@ -160,12 +170,13 @@ proposition:
 
 cleanWater:
   id:             11
-  zip:            11
+  zip:            21
   site_id:        1
   type:           Project
   kpath:          NPP
   name:           cleanWater
-  project_id:     11
+  project_id:     1
+  section_id:     1
   custom_base:    true
   parent_id:      8
   user_id:        4
@@ -175,13 +186,14 @@ cleanWater:
 
 status:
   id:             12
-  zip:            12
+  zip:            22
   site_id:        1
   type:           Page
   kpath:          NP
   name:           status
   basepath:       
   project_id:     11
+  section_id:     11
   parent_id:      11
   user_id:        3
   inherit:        1
@@ -190,12 +202,13 @@ status:
 
 lake:
   id:             13
-  zip:            13
+  zip:            23
   site_id:        1
   type:           Contact
   kpath:          NRC
-  name:           lake
+  name:           lakeAddress
   project_id:     11
+  section_id:     11
   parent_id:      11
   user_id:        3
   inherit:        1
@@ -204,12 +217,13 @@ lake:
 
 lake_jpg:
   id:             14
-  zip:            14
+  zip:            24
   site_id:        1
   type:           Image
   kpath:          NPDI
   name:           lake
   project_id:     11
+  section_id:     11
   parent_id:      11
   user_id:        3
   inherit:        1
@@ -218,12 +232,13 @@ lake_jpg:
 
 water_pdf:
   id:             15
-  zip:            15
+  zip:            25
   site_id:        1
   type:           Document
   kpath:          NPD
   name:           water
   project_id:     11
+  section_id:     11
   parent_id:      11
   user_id:        4
   inherit:        1
@@ -232,12 +247,13 @@ water_pdf:
 
 crocodiles:
   id:             16
-  zip:            16
+  zip:            26
   site_id:        1
   type:           Page
   kpath:          NP
   name:           crocodiles
   project_id:     11
+  section_id:     11
   parent_id:      11
   user_id:        4
   created_at:     2006-04-11
@@ -250,12 +266,13 @@ crocodiles:
 
 opening:
   id:             17
-  zip:            17
+  zip:            27
   site_id:        1
-  type:           Note
-  kpath:          NN
+  type:           Post
+  kpath:          NNP
   name:           opening
   project_id:     11
+  section_id:     11
   parent_id:      11
   user_id:        4
   ref_lang:       fr
@@ -268,12 +285,13 @@ opening:
 
 bananas:
   id:             18
-  zip:            18
+  zip:            28
   site_id:        1
   type:           Page
   kpath:          NP
   name:           bananas
   project_id:     11
+  section_id:     11
   parent_id:      11
   user_id:        5
   inherit:        0
@@ -284,12 +302,13 @@ bananas:
   
 wiki:
   id:             19
-  zip:            19
+  zip:            29
   site_id:        1
   type:           Project
   kpath:          NPP
   name:           wiki
-  project_id:     19
+  project_id:     1
+  section_id:     1
   parent_id:      8
   user_id:        5
   inherit:        0
@@ -303,12 +322,13 @@ wiki:
   
 bird_jpg:
   id:             20
-  zip:            20
+  zip:            30
   site_id:        1
   type:           Image
   kpath:          NPDI
   name:           bird
   project_id:     19
+  section_id:     1
   parent_id:      19
   user_id:        1
   inherit:        1
@@ -322,12 +342,13 @@ bird_jpg:
   
 flower_jpg:
   id:             21
-  zip:            21
+  zip:            31
   site_id:        1
   type:           Image
   kpath:          NPDI
   name:           flower
   project_id:     19
+  section_id:     1
   parent_id:      19
   user_id:        1
   inherit:        1
@@ -341,12 +362,13 @@ flower_jpg:
 
 collections:
   id:             22
-  zip:            22
+  zip:            32
   site_id:        1
   type:           Page
   kpath:          NP
   name:           collections
   project_id:     1
+  section_id:     1
   parent_id:      1
   user_id:        4
   inherit:        1
@@ -355,12 +377,13 @@ collections:
 
 art:
   id:             23
-  zip:            23
+  zip:            33
   site_id:        1
   type:           Tag
   kpath:          NPT
   name:           art
   project_id:     1
+  section_id:     1
   parent_id:      22
   user_id:        4
   inherit:        1
@@ -369,12 +392,13 @@ art:
 
 news:
   id:             24
-  zip:            24
+  zip:            34
   site_id:        1
   type:           Tag
   kpath:          NPT
   name:           news
   project_id:     1
+  section_id:     1
   parent_id:      22
   user_id:        4
   inherit:        1
@@ -383,12 +407,13 @@ news:
 
 menu:
   id:             25
-  zip:            25
+  zip:            35
   site_id:        1
   type:           Tag
   kpath:          NPT
   name:           menu
   project_id:     1
+  section_id:     1
   parent_id:      22
   user_id:        4
   inherit:        1
@@ -397,12 +422,13 @@ menu:
 
 strange:
   id:             26
-  zip:            26
+  zip:            36
   site_id:        1
   type:           Page
   kpath:          NP
   name:           strange
   project_id:     1
+  section_id:     1
   parent_id:      22
   user_id:        5
   inherit:        0
@@ -416,12 +442,13 @@ strange:
   
 tracker:
   id:             27
-  zip:            27
+  zip:            37
   site_id:        1
   type:           Tracker
   kpath:          NPA
   name:           track
   project_id:     1
+  section_id:     1
   parent_id:      11
   user_id:        4
   inherit:        1
@@ -430,12 +457,13 @@ tracker:
 
 talk:
   id:             28
-  zip:            28
+  zip:            38
   site_id:        1
   type:           Page
   kpath:          NP
   name:           talk
   project_id:     9
+  section_id:     9
   parent_id:      9
   user_id:        4
   inherit:        0
@@ -449,12 +477,13 @@ talk:
   
 nature:
   id:             29
-  zip:            29
+  zip:            39
   site_id:        1
   type:           Page
   kpath:          NP
   name:           nature
   project_id:     1
+  section_id:     1
   parent_id:      1
   user_id:        3
   inherit:        1
@@ -470,12 +499,13 @@ nature:
   
 tree_jpg:
   id:             30
-  zip:            30
+  zip:            40
   site_id:        1
   type:           Image
   kpath:          NPDI
   name:           tree
   project_id:     1
+  section_id:     1
   parent_id:      29
   user_id:        3
   inherit:        1
@@ -491,12 +521,13 @@ tree_jpg:
   
 forest_pdf:
   id:             31
-  zip:            31
+  zip:            41
   site_id:        1
   type:           Document
   kpath:          NPD
   name:           forest
   project_id:     1
+  section_id:     1
   parent_id:      29
   user_id:        3
   inherit:        1
@@ -512,12 +543,13 @@ forest_pdf:
   
 letter:
   id:             32
-  zip:            32
+  zip:            42
   site_id:        1
   type:           Letter
   kpath:          NNL
   name:           letter
   project_id:     1
+  section_id:     1
   parent_id:      1
   user_id:        4
   inherit:        1
@@ -527,13 +559,14 @@ letter:
 
 wiki_skin:
   id:             33
-  zip:            33
+  zip:            43
   site_id:        1
   type:           Skin
-  kpath:          NPDTTS
+  kpath:          NPSS
   name:           wiki
   project_id:     1
-  parent_id:      5
+  section_id:     1
+  parent_id:      22
   user_id:        4
   inherit:        1
 <%= @defaults %>
@@ -541,12 +574,13 @@ wiki_skin:
 
 layout:
   id:             34
-  zip:            34
+  zip:            44
   site_id:        1
-  type:           Template
-  kpath:          NPDTT
-  name:           layout
+  type:           TextDocument
+  kpath:          NPDT
+  name:           layout.html
   project_id:     1
+  section_id:     33
   parent_id:      33
   user_id:        4
   inherit:        1
@@ -560,7 +594,8 @@ ocean:
   type:           Project
   kpath:          NPP
   name:           other
-  project_id:     35
+  project_id:     1
+  section_id:     1
   parent_id:      
   user_id:        8
   created_at:     2006-02-01
@@ -573,3 +608,104 @@ ocean:
   rgroup_id:      7
   wgroup_id:      6
   pgroup_id:      6
+
+wiki_project_changes_xml:
+  id:             36
+  zip:            45
+  site_id:        1
+  type:           Template
+  kpath:          NPDTT
+  name:           project_changes.xml
+  project_id:     1
+  section_id:     33
+  parent_id:      33
+  user_id:        4
+  inherit:        1
+<%= @defaults %>
+<%= @rights %>
+
+wiki_page_changes:
+  id:             37
+  zip:            46
+  site_id:        1
+  type:           Template
+  kpath:          NPDTT
+  name:           page_changes.html
+  project_id:     1
+  section_id:     33
+  parent_id:      33
+  user_id:        4
+  inherit:        1
+<%= @defaults %>
+<%= @rights %>
+
+anonymous:
+  id:             38
+  zip:            47
+  site_id:        1
+  type:           Contact
+  kpath:          NRC
+  name:           anonymous
+  section_id:     1
+  parent_id:      2
+  user_id:        5
+  inherit:        1
+<%= @defaults %>
+<%= @rights %>
+
+incognito:
+  id:             39
+  zip:            2
+  site_id:        2
+  type:           Contact
+  kpath:          NRC
+  name:           incognito
+  section_id:     1
+  parent_id:      1
+  user_id:        8
+  created_at:     2006-02-01
+  updated_at:     2006-04-11
+  publish_from:   2006-03-10
+  ref_lang:       en
+  max_status:     50
+  inherit:        1
+  skin:           default
+  rgroup_id:      7
+  wgroup_id:      6
+  pgroup_id:      6
+  
+whale:
+  id:             40
+  zip:            3
+  site_id:        2
+  type:           Contact
+  kpath:          NRC
+  name:           whale
+  section_id:     1
+  parent_id:      1
+  user_id:        8
+  created_at:     2006-02-01
+  updated_at:     2006-04-11
+  publish_from:   2006-03-10
+  ref_lang:       en
+  max_status:     50
+  inherit:        1
+  skin:           default
+  rgroup_id:      7
+  wgroup_id:      6
+  pgroup_id:      6
+
+wiki_node:
+  id:             41
+  zip:            48
+  site_id:        1
+  type:           Template
+  kpath:          NPDTT
+  name:           node.html
+  project_id:     1
+  section_id:     33
+  parent_id:      33
+  user_id:        4
+  inherit:        1
+<%= @defaults %>
+<%= @rights %>

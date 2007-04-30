@@ -1,0 +1,17 @@
+<% icon = 'user'
+if li.is_anon?
+  icon += '_pub'
+elsif li.is_su?
+  icon += '_su'
+elsif li.is_admin?
+  icon += '_admin'
+end %>
+<tr id='user<%= li[:id] %>'>
+  <td class="icon"><%= link_to_remote(trans("img_#{icon}"), 
+          :update=>"user#{li[:id]}", 
+          :url=>"/z/user/edit/#{li[:id]}") %></td>
+  <td class="login"><%= 
+    if 1 == li[:id] then '<i>public</i>' else li.login end %></td>
+  <td class="fullname" ><%= li.fullname %></td>
+  <td class="groups"><%= li.groups.map {|g| g.name }.join(', ') %></td>
+</tr>

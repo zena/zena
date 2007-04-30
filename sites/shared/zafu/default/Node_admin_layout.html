@@ -1,0 +1,21 @@
+<z:include template='layout.html'>
+  <z:with part='stylesheets' list='zen,comment,admin,search'/>
+  <z:with part='body/content'>
+    <div id="left" do='void' name='left'>
+      <h3>admin zafu</h3>
+      <ul>
+        <li do='admin_links'><a href='#'>do this</a></li>
+      </ul>
+    </div>
+    
+    <div id="main" do='void' name='main'>
+
+      <div class='content' id='content' do='content_for_layout' name='content'>
+        dummy content
+      </div>
+
+      <div id="right" do='void' name='right'>
+      </div>
+    </div>
+  </z:with>
+</z:include>

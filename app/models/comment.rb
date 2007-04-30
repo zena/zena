@@ -41,28 +41,33 @@ class Comment < ActiveRecord::Base
   end
   
   private
-  def valid_comment
-    errors.add('text', "can't be blank") unless self[:text] && self[:text] != ''
-    errors.add('title', "can't be blank") unless self[:title] && self[:title] != ''
-    errors.add('discussion', 'invalid') unless discussion
-    if author.is_anon?
-      errors.add('author_name', "can't be blank") unless self[:author_name] && self[:author_name] != ""
-    end
-  end
   
-  def comment_before_validation
-    return false unless discussion
-    self[:site_id] = discussion.node[:site_id]
-    if new_record?
-      if parent && (self[:title].nil? || self[:title] == '')
-        self[:title] = TransPhrase['re:'][discussion.lang] + ' ' + parent.title
+    def comment_before_validation
+      return false unless discussion
+      self[:site_id] = discussion.node[:site_id]
+      if new_record?
+        if parent && (self[:title].nil? || self[:title] == '')
+          self[:title] = TransPhrase['re:'][discussion.lang] + ' ' + parent.title
+        end
+        if visitor.moderated?
+          self[:status] = Zena::Status[:prop]
+        else
+          self[:status] = Zena::Status[:pub]
+        end
+        
+        self[:author_name] = nil unless visitor.is_anon?
       end
-      if visitor.moderated?
-        self[:status] = Zena::Status[:prop]
-      else
-        self[:status] = Zena::Status[:pub]
-      end
-      self[:author_name] = nil unless visitor.is_anon?
+      
+      self[:user_id] = visitor[:id]
     end
-  end
+    
+    def valid_comment
+      errors.add('text', "can't be blank") unless self[:text] && self[:text] != ''
+      errors.add('title', "can't be blank") unless self[:title] && self[:title] != ''
+      errors.add('discussion', 'invalid') unless discussion
+      if author.is_anon?
+        errors.add('author_name', "can't be blank") unless self[:author_name] && self[:author_name] != ""
+      end
+    end
+  
 end

@@ -7,9 +7,9 @@ end %>
   <div class='inline_form'>
   <p class="btn_x"><%= link_to_remote(transb('btn_x'), :with=>'main', :url=>{:controller=>'discussion', :action=>'show', :id=>@comment[:discussion_id]} ) %></p>
 <% elsif @comment && @comment.reply_to -%>
-  <p class="btn_x"><%= link_to_function transb('btn_x'), "new Element.remove('add_comment_form#{@comment.reply_to}');" %></p>
+  <p class="btn_x"><%= link_to_function transb('btn_x'), "Element.remove('add_comment_form#{@comment.reply_to}');" %></p>
 <% else -%>
-  <p class="btn_x"><%= link_to_function transb('btn_x'), "new Element.toggle('add_comment', 'add_comment_form');" %></p>
+  <p class="btn_x"><%= link_to_function transb('btn_x'), "['add_comment', 'add_comment_form'].each(Element.toggle);" %></p>
 <% end  -%>
 <div class='header'>
   <label for="author_name"><%= trans("author")  %></label> <%= session[:user] ? visitor.fullname : text_field('comment', 'author_name', :size=>25) %>
@@ -23,5 +23,5 @@ end %>
   <%= hidden_field('comment', 'reply_to') %>
   <p class='btn_validate'><input type='submit' value='<%= transb('validate') %>'/></p>
 </div>
-<%= end_form_tag %>
+</form>
 <%= '</div>' if @edit %>

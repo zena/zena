@@ -1,6 +1,0 @@
-<h3><%= trans "Documents" %></h3>
-
-<ul class="list" id="documents_list">
-  <%= render :partial=>'document/li', :collection=>@node.documents %>
-  <%= render :partial=>'document/add' if @node.can_write? %>
-</ul>

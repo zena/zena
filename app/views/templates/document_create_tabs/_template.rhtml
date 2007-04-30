@@ -1,0 +1,23 @@
+<%= form_tag( documents_path ) %>
+<%= hidden_field 'node', 'parent_id', :value=>@node.parent_zip  %>
+<p class="btn_validate"><input type="submit" class="btn_validate" onclick="$('loader').style.visibility = 'visible';" value='<%= transb('validate') %>'/></p>
+
+<label for='node_content_type'><%= trans('class') %></label>
+<%= select('node', 'klass', ["Skin", "Template"]) %><br/>
+
+<label for='node_name'><%= trans('name') %></label>
+<input  id='node_name' type='text' name='node[name]'/><br/>
+
+<label for='node_format'><%= trans('format') %></label>
+<input  id='node_format' type='text' name='node[c_format]' value='html'/><br/>
+
+<label for='node_c_mode'><%= trans('mode') %></label>
+<input  id='node_c_mode' type='text' name='node[c_mode]'/><br/>
+
+<label for='node_c_klass'><%= trans('class scope') %></label>
+<input  id='node_c_klass' type='text' name='node[c_klass]'/><br/>
+
+<label   for='node_v_summary'><%= trans('summary') %></label>
+<textarea id='node_v_summary' rows='3' name='node[v_summary]'></textarea><br/>
+
+</form>

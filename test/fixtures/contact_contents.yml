@@ -3,6 +3,7 @@
 ant:
   id:         3
   version_id: 3
+  site_id:    1
 <%= @defaults %>
   first_name: Solenopsis
   name:       Invicta
@@ -17,6 +18,7 @@ ant:
 tiger:
   id:         4
   version_id: 4
+  site_id:    1
 <%= @defaults %>
   first_name: Panther
   name:       Tigris Sumatran
@@ -31,6 +33,7 @@ tiger:
 lion:
   id:         5
   version_id: 5
+  site_id:    1
 <%= @defaults %>
   first_name: Panthera
   name:       Leo Verneyi
@@ -45,9 +48,43 @@ lion:
 lake:
   id:         6
   version_id: 13
+  site_id:    1
 <%= @defaults %>
   first_name: Lake
   name:       Tanganyika
   address:    Between Tanzania, Congo and Zambia
   zip:        848
   city:       Africa
+
+anonymous:
+  id:         7
+  version_id: 43
+  site_id:    1
+<%= @defaults %>
+  first_name: The Invisble
+  name:       Man
+  address:    Iping
+  zip:        848
+  city:       West Sussex
+
+incognito_en:
+  id:         8
+  version_id: 44
+  site_id:    2
+<%= @defaults %>
+  first_name: Miss
+  name:       Incognito
+  address:    c/o Lilith
+  zip:        804
+  city:       Somewhere
+
+whale_en:
+  id:         9
+  version_id: 45
+  site_id:    2
+<%= @defaults %>
+  first_name: Humpback
+  name:       Whale
+  address:    Anywhere Left Alone
+  zip:        903
+  city:       Ocean

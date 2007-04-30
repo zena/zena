@@ -31,7 +31,7 @@ class MainController < ApplicationController
     if basepath == @node.basepath(true)
       render_and_cache
     else
-      redirect_to node_url(@node)
+      redirect_to zen_path(@node)
     end
   rescue ActiveRecord::RecordNotFound
     page_not_found
@@ -52,7 +52,7 @@ class MainController < ApplicationController
   end
   
   # Used to prevent Safari not reloading bug
-  def redir
+  def redirect
     [:notice, :error].each do |sym|
       if session[sym]
         flash[sym] = session[sym] 

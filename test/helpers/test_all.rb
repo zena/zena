@@ -2,10 +2,10 @@ require File.join(File.dirname(__FILE__), 'testhelp')
 
 class HelperTest
   testfile :relations, :basic
-  Project # make sure we load Project links before trying relations
+  Section # make sure we load Section links before trying relations
   
   def test_single
-    do_test('basic', 'show_title')
+    do_test('basic', 'case_when_evil_test')
   end
   
   # test rename asset (has to be called wiki to find the proper skin)

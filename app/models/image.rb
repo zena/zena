@@ -1,5 +1,5 @@
 =begin rdoc
-An Image is a Document with a file that we can view inline. An image can be displayed in various formats. These formats are defined for each Site through ImageFormat (not implemented yet: use fixed formats for now). Until the ImageFormat class is implemented, you can use the following formats :
+An Image is a Document with a file that we can view inline. An image can be displayed in various formats (modes). These modes are defined for each Site through ImageMode (not implemented yet: use fixed modes for now). Until the ImageMode class is implemented, you can use the following modes :
 
   'tiny' => { :size=>:force, :width=>15,  :height=>15,  :scale=>1.7   },
   'mini' => { :size=>:force, :width=>32,  :ratio=>1.0,  :scale=>1.3   },
@@ -12,15 +12,15 @@ An Image is a Document with a file that we can view inline. An image can be disp
   'std'  => { :size=>:limit, :width=>600, :ratio=>2/3.0               },
   'full' => { :size=>:keep },
   
-To display an image with one of those formats, you use the 'img_tag' :
+To display an image with one of those formats, you use the 'img_tag' helper :
 
-  @node.img_tag('med')
+  img_tag(@node, :mode=>'med')
   
-For more information on img_tag, have a look at ImageContent#img_tag.
+For more information on img_tag, have a look at ApplicationHelper#img_tag.
 
 An image can be croped by changing the 'crop' pseudo attribute (see Image#crop= ) :
 
-  @node.update_attributes(:crop=>{:x=>10, :y=>10, :width=>30, :height=>60})
+  @node.update_attributes(:c_crop=>{:x=>10, :y=>10, :width=>30, :height=>60})
 
 === Version
 
@@ -63,11 +63,14 @@ class Image < Document
   # Crop the image using the 'crop' hash with the top left corner position (:x, :y) and the width and height (:width, :heigt). Example:
   #   @node.crop = {:x=>10, :y=>10, :width=>30, :height=>60}
   # Be carefull as this method changes the current file. So you should make a backup version before croping the image (the popup editor displays a warning).
-  def c_crop=(crop)
-    x, y, w, h = crop[:x].to_i, crop[:y].to_i, crop[:w].to_i, crop[:h].to_i
+  def c_crop=(format)
+    x, y, w, h = format[:x].to_i, format[:y].to_i, format[:w].to_i, format[:h].to_i
     if (x >= 0 && y >= 0 && w <= c_width && h <= c_height) && !(x==0 && y==0 && w == c_width && h == c_height)
       # do crop
-      self.c_file = version.content.crop(crop)
+      if file = version.content.crop(format)
+        # crop can return nil, check first.
+        self.c_file = file
+      end
     else
       # nothing to do: ignore this operation.
     end

@@ -1,14 +1,14 @@
-<%= form_tag( {:controller=>'document', :action=>"create"}) %>
-<%= hidden_field 'document', 'parent_id', :value=>@document[:parent_id]  %>
+<%= form_tag( documents_path ) %>
+<%= hidden_field 'node', 'parent_id', :value=>@node.parent_zip  %>
 <p class="btn_validate"><input type="submit" class="btn_validate" onclick="$('loader').style.visibility = 'visible';" value='<%= transb('validate') %>'/></p>
 
-<label for='document_content_type'><%= trans('content type') %></label>
-<input  id='document_content_type' type='text' name='document[c_content_type]'/><br/>
+<label for='node_content_type'><%= trans('content type') %></label>
+<input  id='node_content_type' type='text' name='node[c_content_type]'/><br/>
 
-<label for='document_name'><%= trans('name') %></label>
-<input  id='document_name' type='text' name='document[name]'/><br/>
+<label for='node_name'><%= trans('name') %></label>
+<input  id='node_name' type='text' name='node[name]'/><br/>
 
-<label   for='document_v_summary'><%= trans('summary') %></label>
-<textarea id='document_v_summary' rows='3' name='document[v_summary]'></textarea><br/>
+<label   for='node_v_summary'><%= trans('summary') %></label>
+<textarea id='node_v_summary' rows='3' name='node[v_summary]'></textarea><br/>
 
-<%= end_form_tag %>
+</form>

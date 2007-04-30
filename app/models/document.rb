@@ -57,11 +57,7 @@ class Document < Page
       if Image.accept_content_type?(content_type)
         klass = Image
       elsif Template.accept_content_type?(content_type)
-        if hash[:parent_id] && Node.find(hash[:parent_id]).kind_of?(Skin)
-          klass = Template
-        else
-          klass = Skin
-        end
+        klass = Template
       elsif TextDocument.accept_content_type?(content_type)
         klass = TextDocument
       else
@@ -89,11 +85,6 @@ class Document < Page
     "#{name}.#{version.content.ext}"
   end
   
-  # Display an image tag to show the document inline. See DocumentContent and ImageContent for details.
-  def img_tag(format=nil, opts={})
-    version.content.img_tag(format, opts)
-  end
-  
   private
   
   # Set name from filename
@@ -119,6 +110,7 @@ class Document < Page
     else
       # when cannot use 'old' here as this record is not secured when spreading inheritance
       if self[:name] != self.class.find(self[:id])[:name] && self[:name] && self[:name] != ''
+        # FIXME: name is not important (just used to find file in case db crash: do not sync.)
         # update all content names :
         versions.each do |v|
           if v[:id] == @version[:id]
@@ -131,17 +123,6 @@ class Document < Page
           content.save
         end
       end
-    end
-  end
-  
-  # Sweep cached data for the document
-  # TODO: test 
-  def sweep_cache
-    super
-    # Remove cached data from the public directory.
-    versions.each do |v|
-      next if v[:content_id]
-      FileUtils::rmtree(File.dirname(v.content.cachepath))
     end
   end
 

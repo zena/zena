@@ -32,5 +32,8 @@ class ContactContent < ActiveRecord::Base
   private
   def content_before_validation
     self[:site_id] = version.node[:site_id]
+    [:first_name, :name, :address, :zip, :city, :telephone, :mobile, :email].each do |sym|
+      self[sym] ||= ""
+    end
   end
 end

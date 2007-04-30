@@ -1,0 +1,3 @@
+page << "try {"
+page.replace_html   "#{@key}#{@preview_id}", zazen(@value, :pretty_code=>true)
+page << "} catch(err) {}"

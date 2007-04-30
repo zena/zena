@@ -504,27 +504,16 @@ Just doing the above will filter all result according to the logged in user.
         
         # When the rwp groups are changed, spread this change to the 'children' with
         # inheritance mode set to '1'. 17.2s
-        #def spread_inheritance
-        def spread_inheritance(id = self[:id])
-          # This is a tad faster : 13.7s instead of 16s for all secure tests. Is it worth it ?
-          base_class.connection.execute "UPDATE nodes SET rgroup_id='#{rgroup_id}', wgroup_id='#{wgroup_id}', pgroup_id='#{pgroup_id}', skin='#{skin}' WHERE #{ref_field(false)}='#{id}' AND inherit='1'"
+        # FIXME: make a single pass for spread_inheritance and update section_id and project_id ?
+        # FIXME: should also remove cached pages...
+        def spread_inheritance(i = self[:id])
+          base_class.connection.execute "UPDATE nodes SET rgroup_id='#{rgroup_id}', wgroup_id='#{wgroup_id}', pgroup_id='#{pgroup_id}', skin='#{skin}' WHERE #{ref_field(false)}='#{i}' AND inherit='1'"
           ids = nil
           base_class.with_exclusive_scope do
-            ids = base_class.find(:all, :select=>'id', :conditions=>["#{ref_field(true)} = ? AND inherit='1'" , id ] )
+            ids = base_class.fetch_ids("SELECT id FROM #{base_class.table_name} WHERE #{ref_field(true)} = '#{i.to_i}' AND inherit='1'")
           end
-          ids.each do |r|
-            spread_inheritance(r[:id])
-          end
-          # heirs.each do |h|
-          #   h[:rgroup_id] = rgroup_id
-          #   h[:wgroup_id] = wgroup_id
-          #   h[:pgroup_id] = pgroup_id
-          #   h[:skin ] = skin
-          #   # there should never be errors here (if we had the correct rights to change
-          #   # the current node, we can change it's children), so we skip validation
-          #   h.save_with_validation(false)
-          #   h.spread_inheritance
-          # end
+          
+          ids.each { |i| spread_inheritance(i) }
         end
         
         # return the maximum status of the current node and all it's heirs. This is used to allow
@@ -591,7 +580,7 @@ Just doing the above will filter all result according to the logged in user.
           #           class hierarchy
           #                Node --> N           
           #       Note --> NN          Page --> NP
-          #                    Document   Form   Project
+          #                    Document   Form   Section
           #                       NPD      NPF      NPP
           # So now, to get all Pages, your sql becomes : WHERE kpath LIKE 'NP%'
           # to get all Documents : WHERE kpath LIKE 'NPD%'
@@ -634,27 +623,48 @@ Just doing the above will filter all result according to the logged in user.
       # these methods are not actions that can be called from the web !!
       private
       
-      # Return the current visitor. Raise an error if the visitor is not set.
-      # For controllers, this method must be redefined in Application
-      def visitor
-        return @visitor if @visitor
-        raise RecordNotSecured.new("Visitor not set, record not secured.")
-      end
+        # Return the current visitor. Raise an error if the visitor is not set.
+        # For controllers, this method must be redefined in Application
+        def visitor
+          @visitor ||= ((self.class.send(:scoped_methods)[0] || {})[:create] || {})[:visitor]
+          return @visitor if @visitor
+          raise RecordNotSecured.new("Visitor not set, record not secured.")
+        end
+        
+        def secured?
+          @visitor != nil
+        end
       
-      # secure find with scope (for read/write or publish access).
-      def secure_with_scope(obj, find_scope, opts={})
-        scope = {:create => { :visitor => visitor }}
-        if find_scope
-          find_scope = "(#{find_scope}) AND (site_id = #{visitor.site[:id]})"
-        else
-          find_scope = "site_id = #{visitor.site[:id]}"
+        # Return the current site. Raise an error if the visitor is not set.
+        def site
+          return @visitor.site if @visitor
+          raise RecordNotSecured.new("Visitor not set, record not secured.")
         end
-        if obj.ancestors.include?(Zena::Acts::SecureNode::InstanceMethods)
-          # Restrict find access for SecuredNodes
-          scope[:find] = { :conditions => find_scope }
-        end
-        obj.with_scope( scope ) do
-          result = yield
+      
+        # secure find with scope (for read/write or publish access).
+        def secure_with_scope(obj, find_scope, opts={})
+          if ((obj.send(:scoped_methods)[0] || {})[:create] || {})[:visitor]
+            # we are already in secure scope: this scope is the new 'exclusive' scope.
+            last_scope = obj.send(:scoped_methods).shift
+          end
+
+          scope = {:create => { :visitor => visitor }}
+          if find_scope
+            find_scope = "(#{find_scope}) AND (#{obj.table_name}.site_id = #{visitor.site[:id]})"
+          else
+            find_scope = "#{obj.table_name}.site_id = #{visitor.site[:id]}"
+          end
+          if obj.ancestors.include?(Zena::Acts::SecureNode::InstanceMethods)
+            # Restrict find access for SecuredNodes
+            scope[:find] = { :conditions => find_scope }
+          end
+          
+          result = obj.with_scope( scope ) { yield }
+          
+          obj.send(:scoped_methods).unshift last_scope if last_scope
+          
+          return nil if result == []
+          
           if result
             if result.kind_of? Array
               result.each {|r| visitor.visit(r) }
@@ -668,73 +678,76 @@ Just doing the above will filter all result according to the logged in user.
             raise ActiveRecord::RecordNotFound
           end
         end
-      end
       
-      # Secure for read/create.
-      # [read]
-      # * super user
-      # * owner
-      # * members of +read_group+ if the node is published and the current date is greater or equal to the publication date
-      # * members of +publish_group+ if +max_status+ >= prop
-      # The options hash is used internally by zena when maintaining parent to children inheritance and should not be used for other purpose if you do not want to break secure access.
-      def secure(obj, opts={}, &block)
-        if opts[:secure] == false
-          yield
-        elsif obj.ancestors.include?(Zena::Acts::SecureNode::InstanceMethods) && !visitor.is_su? # not super user
-          scope = "user_id = '#{visitor[:id]}' OR "+
-                  "(rgroup_id IN (#{visitor.group_ids.join(',')}) AND publish_from <= now() ) OR " +
-                  "(pgroup_id IN (#{visitor.group_ids.join(',')}) AND max_status > #{Zena::Status[:red]})"
-          secure_with_scope(obj, scope, &block)
-        else
-          secure_with_scope(obj, nil, &block)
-        end
-      end
-
-      # Secure scope for write access.
-      # [write]
-      # * super user
-      # * owner
-      # * members of +write_group+ if node is published and the current date is greater or equal to the publication date
-      def secure_write(obj, &block)
-        if visitor.is_su? # super user
-          secure_with_scope(obj, nil, &block)
-        else
-          scope = "user_id = '#{visitor[:id]}' OR "+
-          "(wgroup_id IN (#{visitor.group_ids.join(',')}) AND publish_from <= now())"
-          secure_with_scope(obj, scope, &block)
+        # Secure for read/create.
+        # [read]
+        # * super user
+        # * owner
+        # * members of +read_group+ if the node is published and the current date is greater or equal to the publication date
+        # * members of +publish_group+ if +max_status+ >= prop
+        # The options hash is used internally by zena when maintaining parent to children inheritance and should not be used for other purpose if you do not want to break secure access.
+        def secure(obj, opts={}, &block)
+          if opts[:secure] == false
+            yield
+          elsif obj.ancestors.include?(Zena::Acts::SecureNode::InstanceMethods) && !visitor.is_su? # not super user
+            scope = "#{obj.table_name}.user_id = '#{visitor[:id]}' OR "+
+                    "(rgroup_id IN (#{visitor.group_ids.join(',')}) AND #{obj.table_name}.publish_from <= now() ) OR " +
+                    "(pgroup_id IN (#{visitor.group_ids.join(',')}) AND max_status > #{Zena::Status[:red]})"
+            secure_with_scope(obj, scope, &block)
+          else
+            secure_with_scope(obj, nil, &block)
+          end
         end
 
-      end
-      
-      # Secure scope for publish or management access.
-      # [publish]
-      # * super user
-      # * members of +publish_group+ if +max_status+ >= prop
-      # * owner if member of +publish_group+ or private
-      # 
-      # [manage]
-      # * owner if +max_status+ <= red
-      # * owner if private
-      def secure_drive(obj, &block)
-        if visitor.is_su? # super user
-          secure_with_scope(obj, nil, &block)
-        else
-          scope = "(user_id = '#{visitor[:id]}' AND "+
-                  "( (rgroup_id = 0 AND wgroup_id = 0 AND pgroup_id = 0) OR max_status <= #{Zena::Status[:red]} " + 
-                  "OR pgroup_id IN (#{visitor.group_ids.join(',')}) )" +
-                  ") OR "+
-                  "( pgroup_id IN (#{visitor.group_ids.join(',')}) AND max_status > #{Zena::Status[:red]} )"
-          secure_with_scope(obj, scope, &block)
+        # Secure scope for write access.
+        # [write]
+        # * super user
+        # * owner
+        # * members of +write_group+ if node is published and the current date is greater or equal to the publication date
+        def secure_write(obj, &block)
+          if visitor.is_su? # super user
+            secure_with_scope(obj, nil, &block)
+          else
+            scope = "user_id = '#{visitor[:id]}' OR "+
+            "(wgroup_id IN (#{visitor.group_ids.join(',')}) AND publish_from <= now())"
+            secure_with_scope(obj, scope, &block)
+          end
+
         end
-      end
+      
+        # Secure scope for publish or management access.
+        # [publish]
+        # * super user
+        # * members of +publish_group+ if +max_status+ >= prop
+        # * owner if member of +publish_group+ or private
+        # 
+        # [manage]
+        # * owner if +max_status+ <= red
+        # * owner if private
+        def secure_drive(obj, &block)
+          if visitor.is_su? # super user
+            secure_with_scope(obj, nil, &block)
+          else
+            scope = "(user_id = '#{visitor[:id]}' AND "+
+                    "( (rgroup_id = 0 AND wgroup_id = 0 AND pgroup_id = 0) OR max_status <= #{Zena::Status[:red]} " + 
+                    "OR pgroup_id IN (#{visitor.group_ids.join(',')}) )" +
+                    ") OR "+
+                    "( pgroup_id IN (#{visitor.group_ids.join(',')}) AND max_status > #{Zena::Status[:red]} )"
+            secure_with_scope(obj, scope, &block)
+          end
+        end
     end
   end
   # This exception handles all flagrant access violations or tentatives (like suppression of _su_ user)
-  class AccessViolation < Exception
+  class AccessViolation < StandardError
   end
   
   # This exception occurs when a visitor is needed but none was provided.
-  class RecordNotSecured < Exception
+  class RecordNotSecured < StandardError
+  end
+  
+  # This exception occurs when corrupt data in encountered (infinit loops, etc)
+  class InvalidRecord < StandardError
   end
 end
 

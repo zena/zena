@@ -1,0 +1,67 @@
+class DocumentsController < ApplicationController
+  before_filter :find_node, :except => [ :file_form ]
+  layout :popup_layout
+  
+  
+  # add a new document to the current node
+  def new
+    @node = @parent.new_child(:class => Document)
+    
+    respond_to do |format|
+      format.html
+    end
+  end
+  
+  # show the result of an upload
+  def show
+    respond_to do |format|
+      format.html
+    end
+  end
+  
+  # create a document (upload)
+  def create
+    pdoc = cleanup_node_params
+    pdoc.delete(:c_file) if pdoc[:c_file] == ""
+    pdoc[:klass] ||= 'Document'
+    @node = create_node(pdoc)
+    
+    respond_to do |format|
+      if @node.new_record?
+        flash[:error] = trans "Upload failed."
+        format.html { render :action => 'new'}
+      else
+        flash[:notice] = trans "Upload succeeded."
+        format.html { redirect_to document_url(@node[:zip]) }
+      end
+    end
+  end
+  
+  # TODO: test
+  def file_form
+    respond_to do |format|
+      format.html { render :inline=>"<%= link_to_function(trans('cancel'), \"['file', 'file_form'].each(Element.toggle);$('file_form').innerHTML = '';\")%><%= file_field 'node', 'c_file', :size=>15 %>" }
+    end
+  end
+  
+  # TODO: test
+  def crop_form
+    respond_to do |format|
+      format.js
+    end
+  end
+  
+  protected
+    def find_node
+      
+      if params[:id]
+        @node = secure(Document) { Document.find_by_zip(params[:id]) }
+      elsif parent_zip = (params[:node] || params)[:parent_id]
+        @parent = secure(Node) { Node.find_by_zip(parent_zip)}
+      else
+        # TODO: a better error message
+        raise ActiveRecord::RecordNotFound
+      end
+    end
+
+end

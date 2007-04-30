@@ -3,7 +3,7 @@ This class is responsible for caching/expiring pages. It is called each time a w
 
 === Cache
 
-When a CachedPage page is created, it stores the +cache_content+ in the current site's static cache location and remembers the context used to create this page in order to expire it later.
+When a CachedPage page is created, it stores the +content_data+ in the current site's static cache location and remembers the context used to create this page in order to expire it later. If passed +content_path+ it creates a symlink instead of a new file (used to cache documents, images).
 
 === Context
 
@@ -26,19 +26,15 @@ The visited_nodes list is [11,1,12,13,39,23,82,15,43,23].
 Later, joe edits one of the hot topics (id=43). As +43+ is in the context for the 'projects' page, the latter is expired.
 =end
 class CachedPage < ActiveRecord::Base
-  attr_accessor :cache_content
+  cattr_accessor :perform_caching
+  attr_accessor  :content_data, :content_path
   has_and_belongs_to_many :nodes
   validate       :cached_page_valid
   after_save     :cached_page_after_save
   before_destroy :cached_page_on_destroy
+  
   class << self
-    
-    # Return true if we are currently performing caching
-    def perform_caching
-      # we check for const definition for calls from rake/console/etc
-      defined?(:ApplicationController) ? ApplicationController.perform_caching : false
-    end
-    
+        
     # Expire all pages whose expire date is in the past
     def expire_old
       expire(CachedPage.find(:all, :conditions=>["expire_after < ?", Time.now]))
@@ -74,7 +70,11 @@ class CachedPage < ActiveRecord::Base
       # create cache file
       filepath = "#{SITES_ROOT}#{path}"
       FileUtils.mkpath(File.dirname(filepath))
-      File.open(filepath, "wb+") { |f| f.write(cache_content) }
+      if content_path
+        File.symlink(content_path, filepath)
+      else
+        File.open(filepath, "wb+") { |f| f.write(content_data) }
+      end
     
       # create join values from context for automatic expire
       values = visitor.visited_node_ids.uniq.map {|id| "(#{self[:id]}, #{id})"}.join(',')

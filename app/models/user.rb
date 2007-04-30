@@ -1,3 +1,4 @@
+require 'digest/sha1'
 =begin rdoc
 There are two special users in each site :
 [anon] Anonymous user. Used to set defaults for newly created users.
@@ -19,18 +20,18 @@ things they can/cannot do :
 TODO: when a user is 'destroyed', pass everything he owns to another user or just mark the user as 'deleted'...
 =end
 class User < ActiveRecord::Base
-  attr_accessible         :login, :password, :lang, :contact_id, :first_name, :name, :email, :time_zone, :status, :group_ids, :site_ids
+  attr_accessible         :login, :password, :lang, :first_name, :name, :email, :time_zone, :status, :group_ids, :site_ids
   attr_accessor           :visited_node_ids
   attr_accessor           :site
   has_and_belongs_to_many :groups
   has_many                :nodes
   has_many                :versions
   has_and_belongs_to_many :sites
-  belongs_to              :contact
+  after_create            :create_contact
   before_validation       :user_before_validation
   validate                :valid_user
-  validate                :verify_groups
   validate                :verify_sites
+  validate                :verify_groups
   before_destroy          :dont_destroy_protected_users
   
   Status = {
@@ -77,10 +78,32 @@ class User < ActiveRecord::Base
         end
       end
     end
+    
+    def class_for_relation(rel)
+      case rel
+      when 'contact'
+        Contact
+      when 'to_publish'
+        Version
+      when 'redactions'
+        Version
+      when 'proposed'
+        Version
+      when 'comments_to_publish'
+        Comment
+      else
+        nil
+      end
+    end
+  end
+  
+  def relation(method, opts={})
+    return nil unless User.class_for_relation(method) != nil
+    self.send(method.to_sym)
   end
   
   def contact
-    secure(Contact) { Contact.find(self[:contact_id]) }
+    @contact ||= secure(Contact) { Contact.find(self[:contact_id]) }
   rescue ActiveRecord::RecordNotFound
     nil
   end
@@ -125,6 +148,11 @@ class User < ActiveRecord::Base
   # Never display the password (even the hash) outside.
   def password
     ""
+  end
+  
+  # Test password
+  def password_is?(str)
+    self[:password] == User.hash_password(str)
   end
   
   # Return true if the user is in the admin group or if the user is the super user.
@@ -257,120 +285,147 @@ class User < ActiveRecord::Base
   
   private
   
-  # Set user defaults.
-  def user_before_validation
-    if self[:status].nil? || self[:status] == ""
-      self[:status] = User::Status[:user]
+    # every user has a unique contact node
+    def create_contact
+      return unless visitor.site[:root_id] # do not try to create a contact if the root node is not created yet
+      @contact = secure(Contact) { Contact.new( 
+        # owner is the user except for anonymous and super user.
+        # TODO: not sure this is a good idea...
+        :user_id       => (self[:id] == visitor.site[:anon_id] || self[:id] == visitor.site[:su_id]) ? visitor[:id] : self[:id],
+        :v_title       => name ? fullname : login,
+        :c_first_name  => first_name,
+        :c_name        => (name || login ),
+        :c_email       => email
+      )}
+      @contact[:parent_id] = visitor.site[:root_id] # FIXME: what should be the rwp groups for 'user' ?
+      unless @contact.save
+        # What do we do with this error ?
+        raise Zena::InvalidRecord, "Could not create contact node for user #{user[:id]}"
+      end
+      unless @contact.publish
+        raise Zena::InvalidRecord, "Could not publish contact node for user #{user[:id]}"
+      end
+      self[:contact_id] = @contact[:id]
+      User.connection.execute "UPDATE users SET contact_id = #{@contact[:id]} WHERE id = #{self[:id]}"
+
+      # FIXME: do we want this ?
+      # User.connection.execute "UPDATE nodes SET user_id = #{self[:id]} WHERE id = #{@contact[:id]}"
     end
-  end
   
-  # Returns the current site (self = visitor) or the visitor's site
-  def visitor_site
-    @site || visitor.site
-  end
-  
-  # Validates that anon user does not have a login, that other users have a password
-  # and that the login is unique for the sites the user belongs to.
-  def valid_user
-    if !visitor.is_su? && visitor[:id] != self[:id] && !visitor.is_admin?
-      errors.add('base', 'you do not have the rights to do this')
-      return false
-    end
-    if is_anon?
-      # Anonymous user *must* have an empty login
-      self[:login] = nil
-      self[:password] = nil
-    else
-      if new_record?
-        # Refuse to add a user in a site if already a user with same login.
-        # validate uniqueness of 'login'
-        if visitor_site.users.find_by_login(self[:login])
-          errors.add(:login, 'has already been taken')
-        end
-        errors.add(:password, "can't be blank") if self[:password].nil? || self[:password] == ""
-      else
-        # get old password
-        old = User.find(self[:id])
-        self[:password] = old[:password] if self[:password].nil? || self[:password] == ""
-        # validate uniqueness of 'login' through all sites
-        sites.each do |site|
-          if site.users.find(:first, :conditions=>["login = ? AND id <> ?", self[:login], self[:id]])
-            errors.add(:login, 'has already been taken')
-          end
-        end
-        errors.add(:login, 'too short') unless self[:login] == old[:login] || (self[:login] && self[:login].length > 3)
+    # Set user defaults.
+    def user_before_validation
+      if self[:status].nil? || self[:status] == ""
+        self[:status] = User::Status[:user]
       end
     end
-    if @password_too_short
-      errors.add(:password, 'too short')
-      remove_instance_variable :@password_too_short
-    end
-  end
   
-  # Make sure admin does not change it's site ids (adding or removing an admin
-  # is done with rake). Make sure admin visitor is allowed to set the site ids 
-  # for the user (he must be admin in all the sites)
-  def verify_sites #:doc:
-    if new_record?
-      if @defined_site_ids
-        @defined_site_ids << visitor_site[:id]
-        @defined_site_ids.uniq!
-      else
-        sites << visitor_site
-      end
+    # Returns the current site (self = visitor) or the visitor's site
+    def visitor_site
+      @site || visitor.site
     end
-    
-    if @defined_site_ids
-      if self.is_admin?
-        errors.add('sites', 'you cannot change this')
+  
+    # Validates that anon user does not have a login, that other users have a password
+    # and that the login is unique for the sites the user belongs to.
+    def valid_user
+      if !visitor.is_su? && visitor[:id] != self[:id] && !visitor.is_admin?
+        errors.add('base', 'you do not have the rights to do this')
         return false
       end
-      
-      added_site_ids = @defined_site_ids - site_ids
-      
-      removed_site_ids = site_ids - @defined_site_ids
-      
-      # make sure visitor is an admin in all the modified site ids:
-      (removed_site_ids + added_site_ids).each do |id|
-        site = Site.find(id)
-        unless site.admin_group.users.include?(visitor)
-          raise Zena::AccessViolation.new("visitor (#{visitor[:id]}) tried to add user (#{self[:id].inspect}) to site (#{site[:host]}) where he/she is not an admin")
+      if is_anon?
+        # Anonymous user *must* have an empty login
+        self[:login] = nil
+        self[:password] = nil
+      else
+        if new_record?
+          # Refuse to add a user in a site if already a user with same login.
+          # validate uniqueness of 'login'
+          if visitor_site.users.find_by_login(self[:login])
+            errors.add(:login, 'has already been taken')
+          end
+          errors.add(:password, "can't be blank") if self[:password].nil? || self[:password] == ""
+        else
+          # get old password
+          old = User.find(self[:id])
+          self[:password] = old[:password] if self[:password].nil? || self[:password] == ""
+          # validate uniqueness of 'login' through all sites
+          sites.each do |site|
+            if site.users.find(:first, :conditions=>["login = ? AND id <> ?", self[:login], self[:id]])
+              errors.add(:login, 'has already been taken')
+            end
+          end
+          errors.add(:login, 'too short') unless self[:login] == old[:login] || (self[:login] && self[:login].length > 3)
         end
       end
-      self.sites = Site.find(@defined_site_ids)
-    end
-  rescue ActiveRecord::RecordNotFound
-    errors.add('sites', 'invalid site')
-    false
-  end
-  
-  
-  # Make sure all users are in the _public_ and _site_ groups. Make sure
-  # the user only belongs to groups from sites he/she is in.
-  def verify_groups #:doc:
-    s_ids = sites.map {|s| s[:id]}
-    g_ids = @defined_group_ids || group_ids
-    g_ids << visitor_site.public_group_id
-    g_ids << visitor_site.site_group_id unless is_anon?
-    g_ids.uniq!
-    g_ids.compact!
-    self.groups = []
-    g_ids.each do |id|
-      group = Group.find(id)
-      unless s_ids.include?(group[:site_id])
-        errors.add('group', 'not found') 
-        next
+      if @password_too_short
+        errors.add(:password, 'too short')
+        remove_instance_variable :@password_too_short
       end
-      self.groups << group
     end
-  end
   
-  # Do not allow destruction of the site's special users.
-  def dont_destroy_protected_users #:doc:
-    raise Zena::AccessViolation, "su and Anonymous users cannot be destroyed !" if visitor_site.protected_user_ids.include?(id)
-  end
+    # Make sure admin does not change it's site ids (adding or removing an admin
+    # is done with rake). Make sure admin visitor is allowed to set the site ids 
+    # for the user (he must be admin in all the sites)
+    def verify_sites #:doc:
+      if new_record?
+        if @defined_site_ids
+          @defined_site_ids << visitor_site[:id]
+          @defined_site_ids.uniq!
+        else
+          sites << visitor_site
+        end
+      end
+    
+      if @defined_site_ids
+        if self.is_admin?
+          errors.add('sites', 'you cannot change this')
+          return false
+        end
+      
+        added_site_ids = @defined_site_ids - site_ids
+      
+        removed_site_ids = site_ids - @defined_site_ids
+      
+        # make sure visitor is an admin in all the modified site ids:
+        (removed_site_ids + added_site_ids).each do |id|
+          site = Site.find(id)
+          unless site.admin_group.users.include?(visitor)
+            raise Zena::AccessViolation.new("visitor (#{visitor[:id]}) tried to add user (#{self[:id].inspect}) to site (#{site[:host]}) where he/she is not an admin")
+          end
+        end
+        self.sites = Site.find(@defined_site_ids)
+      end
+    rescue ActiveRecord::RecordNotFound
+      errors.add('sites', 'invalid site')
+      false
+    end
   
-  def old
-    @old ||= self.class.find(self[:id])
-  end
+  
+    # Make sure all users are in the _public_ and _site_ groups. Make sure
+    # the user only belongs to groups from sites he/she is in.
+    def verify_groups #:doc:
+      s_ids = sites.map {|s| s[:id]}
+      g_ids = @defined_group_ids || group_ids
+      g_ids << visitor_site.public_group_id
+      g_ids << visitor_site.site_group_id unless is_anon?
+      g_ids.uniq!
+      g_ids.compact!
+      self.groups = []
+      g_ids.each do |id|
+        group = Group.find(id)
+        unless s_ids.include?(group[:site_id])
+          errors.add('group', 'not found') 
+          next
+        end
+        self.groups << group
+      end
+    end
+  
+    # Do not allow destruction of the site's special users.
+    def dont_destroy_protected_users #:doc:
+      raise Zena::AccessViolation, "su and Anonymous users cannot be destroyed !" if visitor_site.protected_user_ids.include?(id)
+    end
+  
+    def old
+      @old ||= self.class.find(self[:id])
+    end
 end

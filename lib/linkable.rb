@@ -61,12 +61,12 @@ Linkable is great for single table inheritance and lots of 'roles' between class
 'hot' topic for example. Having the hottest post on each project is easy as adding a check box on the post edit page and adding
 the 'hot' roles :
 
-  class Project < ActiveRecord::Base
+  class Section < ActiveRecord::Base
     link :hot, :class_name=>'Post', :unique=>true
   end
 
   class Post < ActiveRecord::Base
-    link :hot_for, :class_name=>'Project', :as_unique=>true, :unique=>true
+    link :hot_for, :class_name=>'Section', :as_unique=>true, :unique=>true
   end
 
 on the post edit page :
@@ -184,12 +184,12 @@ on the post edit page :
           count = :all
         when 'project'
           if conditions.kind_of?(Array)
-            conditions[0] = "(#{conditions[0]}) AND project_id = ?"
-            conditions << self[:project_id]
+            conditions[0] = "(#{conditions[0]}) AND section_id = ?"
+            conditions << self[:section_id]
           elsif conditions
-            conditions = ["(#{conditions}) AND project_id = ?", self[:project_id]]
+            conditions = ["(#{conditions}) AND section_id = ?", self[:section_id]]
           else
-            conditions = ["project_id = ?", self[:project_id]]
+            conditions = ["section_id = ?", self[:section_id]]
           end
           count = :all
         else
@@ -389,7 +389,7 @@ on the post edit page :
                 obj_ids = @#{meth}_ids.map{|i| i.to_i }
                 del_ids = []
                 # find all current links
-                #{method}.each do |link|
+                (#{method} || []).each do |link|
                   obj_id = link[:id]
                   unless obj_ids.include?(obj_id)
                     del_ids << obj_id

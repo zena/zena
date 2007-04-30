@@ -1,0 +1,6 @@
+<div id='<%= key %>'<%= klass %>>
+  <div id='<%= key_on %>' class='slider' onclick="<%= remote_function(:update=>"#{key_off}", :url=>{:controller=>'nodes', :action=>'attribute', :id=>id, :attr=>preview_for}, :complete=>"Effect.BlindDown('#{key_off}'); Element.toggle('#{key_on}');") %>; return false;">
+    <%= text %>
+  </div>
+  <div id='<%= key_off %>' class='slider' style='display:none;' onclick="Effect.BlindUp('<%= key_off %>'); Element.toggle('<%= key_on %>');">&nbsp;</div>
+</div>

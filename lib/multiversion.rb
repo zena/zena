@@ -238,18 +238,24 @@ module Zena
         end
         
         # Update an node's attributes or the node's version/content attributes. If the hash contains only
-        # :v_... or :c_... keys, then only the version will be saved
+        # :v_... or :c_... keys, then only the version will be saved. If the hash does not contain any :v_... or :c_...
+        # attributes, only the node is saved, without creating a new version.
         def update_attributes(hash)
-          redaction_only = true
-          return false unless edit!
+          redaction_attr = false
+          node_attr      = false
           hash.each do |k,v|
             next if k.to_s == 'id' # just ignore 'id' (cannot be set but is often around)
-            unless k.to_s =~ /^(v_|c_)/
-              redaction_only = false
-              break
+            if k.to_s =~ /^(v_|c_)/
+              redaction_attr = true
+            else
+              node_attr      = true
             end
+            break if node_attr && redaction_attr
           end
-          if redaction_only
+          if redaction_attr
+            return false unless edit!
+          end
+          unless node_attr
             hash.each do |k,v|
               next if k.to_s == 'id' # just ignore 'id' (cannot be set but is often around)
               self.send("#{k}=".to_sym, v)
@@ -273,7 +279,7 @@ module Zena
         def version(number=nil) #:doc:
           if number && !new_record? && can_drive?
             # TODO: test
-            @version = versions.find(:first, :conditions=>[ "number = ? AND node_id = ?", number, self[:id] ])
+            @version = versions.find_by_number(number)
           else
             if ! @version
               if new_record?

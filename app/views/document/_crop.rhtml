@@ -1,4 +1,0 @@
-<%= tlink_to_function('cancel', "new Element.toggle('crop', 'crop_form');$('crop_form').innerHTML = '';")%>
-x: <input type='text' id='posx'   name='node[c_crop][x]' size='4'/> y: <input type='text' id='posy'   name='node[c_crop][y]' size='4'/> // w: <input type='text' id='width'  name='node[c_crop][w]' size='4'/> h: <input type='text' id='height' name='node[c_crop][h]' size='4'/>
-<p class='edit_info'>original: <%= @node.c_width %>x<%= @node.c_height %>, <%= trans('original is #X this view').sub('#X', "<b>#{sprintf('%.1f', @node.c_width.to_f / @node.c_width('edit'))}x</b>")%></p>
-<%= @node.img_tag('edit', :id=>'edit_img') %>

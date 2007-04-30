@@ -1,0 +1,37 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+<head>
+  <title>Login</title>
+  <meta http-equiv="Content-type" content="text/html; charset=utf-8" />
+  <meta http-equiv="Content-Language" content="fr-fr" />
+  <%= stylesheet_link_tag( 'zen' ) %>
+  <%= javascript_include_tag 'prototype', 'effects', 'zena' %>
+  <%= uses_calendar %>
+</head>
+
+<body <%= @su %>>
+
+  <div class="navbar">
+  </div>
+
+  <div id='logo'><a href='/'><img src='/img/logo.png' width='220' height='100'/></a></div>
+  <%= flash_messages %>
+  <div id="please_login"><div>
+  <% form_tag login_path do -%>
+    <table>
+      <tr>
+        <td><label for='user_login'><%= trans('User name:') %></label></td>
+        <td><%= text_field_tag(:login, params[:login], :size=>20) %></td>
+      </tr>
+      <tr>
+        <td><label for='user_password'><%= trans('Password:')%></label></td>
+        <td><%= password_field_tag(:password, nil, :size=>20) %></td>
+      </tr>
+      <tr><td></td><td><%= submit_tag 'login' %></td></tr>
+    </table>
+  <% end -%>
+  </div></div>
+</body>
+</html>

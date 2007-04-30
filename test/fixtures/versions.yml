@@ -114,7 +114,56 @@ projects_en:
   comment:        no comment yet
   title:          projects list
   summary:        no summary yet
-  text:           nothing written yet
+  text:           |
+    Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Mauris facilisis felis in lacus. In sollicitudin turpis nec tellus. Nam ut nibh nec nulla aliquam vehicula. Integer diam tortor, bibendum non, eleifend a, auctor nec, dolor. Fusce consequat elit et purus. Vivamus ornare lectus vel ligula. Quisque blandit. Nam ut odio. Sed scelerisque vulputate ipsum. Nam in eros. Sed neque mauris, aliquet sed, convallis ultrices, imperdiet rutrum, odio. Donec eros. In sagittis. Quisque rutrum facilisis mauris. Suspendisse potenti. Suspendisse congue.
+    
+    h1. h1 title
+    
+    Maecenas at est. Morbi sem enim, posuere in, commodo vel, imperdiet non, augue. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Phasellus consequat pharetra elit. Pellentesque purus ante, ornare ac, tristique vitae, congue sit amet, pede. Curabitur eu nibh at lorem luctus lacinia. Proin lobortis. Nullam leo. Fusce fermentum facilisis erat. Nam dolor.
+    
+    Fusce erat erat, nonummy non, facilisis ut, tristique quis, risus. Vestibulum libero sem, aliquet id, varius at, pellentesque in, diam. Fusce in diam. Quisque congue eros pellentesque leo. Phasellus tortor odio, cursus sed, ullamcorper sed, luctus et, velit. Etiam consectetuer. In luctus, quam eget dictum euismod, mi dui sollicitudin ante, nec nonummy erat dui nec tellus. Quisque quam. Curabitur in orci. Vivamus eu turpis.
+    
+    !<.31.med!
+    
+    Maecenas at est. Morbi sem enim, posuere in, commodo vel, imperdiet non, augue. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Phasellus consequat pharetra elit. Pellentesque purus ante, ornare ac, tristique vitae, congue sit amet, pede. Curabitur eu nibh at lorem luctus lacinia. Proin lobortis. Nullam leo. Fusce fermentum facilisis erat. Nam dolor.
+    
+    p(clear). Fusce erat erat, nonummy non, facilisis ut, tristique quis, risus. Vestibulum libero sem, aliquet id, varius at, pellentesque in, diam. Fusce in diam. Quisque congue eros pellentesque leo. Phasellus tortor odio, cursus sed, ullamcorper sed, luctus et, velit. Etiam consectetuer. In luctus, quam eget dictum euismod, mi dui sollicitudin ante, nec nonummy erat dui nec tellus. Quisque quam. Curabitur in orci. Vivamus eu turpis.
+    
+    h2. h2 title
+    
+    Sed aliquam accumsan sapien. Cras adipiscing euismod orci. Aliquam magna risus, vestibulum eget, interdum ac, hendrerit sit amet, leo. Proin mi diam, rutrum ac, rhoncus adipiscing, sollicitudin rhoncus, elit. Vivamus metus nunc, mollis congue, ullamcorper ac, euismod varius, nunc. Morbi quis velit dapibus sem mattis pharetra. Mauris at augue quis dolor dignissim nonummy. Nam rutrum ante suscipit urna dignissim aliquet. Curabitur ut tortor ac dui nonummy blandit. Nam malesuada enim in nulla. Nunc cursus, orci eu venenatis tincidunt, nunc elit accumsan magna, in cursus erat augue eu erat. Etiam ac neque. Proin tellus nunc, semper ac, consectetuer at, dictum in, nulla.
+    
+    h3. h3 title
+    
+    Nam cursus orci vitae leo fermentum sodales. Morbi eu justo id erat vulputate mattis. Quisque sed leo eu elit faucibus convallis. Quisque laoreet dignissim nisl. Quisque dictum felis a ligula. Nullam consequat. Quisque vulputate sapien quis leo. Mauris ornare massa et ligula. Nulla malesuada. Sed erat. Fusce sit amet urna a enim adipiscing dapibus. Aliquam semper. Proin ac nisi. Mauris in elit non nisi gravida dapibus. Quisque felis metus, eleifend et, pharetra eu, vestibulum ac, urna. Ut pharetra convallis augue. Maecenas augue. Quisque cursus, nunc sed lacinia tincidunt, eros elit luctus ante, eu elementum metus magna dapibus felis. Cras sed elit. Vestibulum aliquam quam sit amet augue.
+    
+    h4. h4 title
+    
+    Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Mauris facilisis felis in lacus. In sollicitudin turpis nec tellus. Nam ut nibh nec nulla aliquam vehicula. Integer diam tortor, bibendum non, eleifend a, auctor nec, dolor. Fusce consequat elit et purus. Vivamus ornare lectus vel ligula. Quisque blandit. Nam ut odio. Sed scelerisque vulputate ipsum. Nam in eros. Sed neque mauris, aliquet sed, convallis ultrices, imperdiet rutrum, odio. Donec eros. In sagittis. Quisque rutrum facilisis mauris. Suspendisse potenti. Suspendisse congue.
+    
+    * this is
+    * a simple
+    ** list with
+    ** sub items
+    * like this
+    
+    # this is
+    # a simple
+    ## list with
+    ## sub items
+    # like this
+    
+    Maecenas at est. Morbi sem enim, posuere in, commodo vel, imperdiet non, augue. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Phasellus consequat pharetra elit. Pellentesque purus ante, ornare ac, tristique vitae, congue sit amet, pede. Curabitur eu nibh at lorem luctus lacinia. Proin lobortis. Nullam leo. Fusce fermentum facilisis erat. Nam dolor.
+    
+    |_. name |_. color |
+    | gaspard | blue |
+    | zacharie | yellow |
+    
+    Fusce erat erat, nonummy non, facilisis ut, tristique quis, risus. Vestibulum libero sem, aliquet id, varius at, pellentesque in, diam. Fusce in diam. Quisque congue eros pellentesque leo. Phasellus tortor odio, cursus sed, ullamcorper sed, luctus et, velit. Etiam consectetuer. In luctus, quam eget dictum euismod, mi dui sollicitudin ante, nec nonummy erat dui nec tellus. Quisque quam. Curabitur in orci. Vivamus eu turpis.
+    
+    Sed aliquam accumsan sapien. Cras adipiscing euismod orci. Aliquam magna risus, vestibulum eget, interdum ac, hendrerit sit amet, leo. Proin mi diam, rutrum ac, rhoncus adipiscing, sollicitudin rhoncus, elit. Vivamus metus nunc, mollis congue, ullamcorper ac, euismod varius, nunc. Morbi quis velit dapibus sem mattis pharetra. Mauris at augue quis dolor dignissim nonummy. Nam rutrum ante suscipit urna dignissim aliquet. Curabitur ut tortor ac dui nonummy blandit. Nam malesuada enim in nulla. Nunc cursus, orci eu venenatis tincidunt, nunc elit accumsan magna, in cursus erat augue eu erat. Etiam ac neque. Proin tellus nunc, semper ac, consectetuer at, dictum in, nulla.
+    
+    Nam cursus orci vitae leo fermentum sodales. Morbi eu justo id erat vulputate mattis. Quisque sed leo eu elit faucibus convallis. Quisque laoreet dignissim nisl. Quisque dictum felis a ligula. Nullam consequat. Quisque vulputate sapien quis leo. Mauris ornare massa et ligula. Nulla malesuada. Sed erat. Fusce sit amet urna a enim adipiscing dapibus. Aliquam semper. Proin ac nisi. Mauris in elit non nisi gravida dapibus. Quisque felis metus, eleifend et, pharetra eu, vestibulum ac, urna. Ut pharetra convallis augue. Maecenas augue. Quisque cursus, nunc sed lacinia tincidunt, eros elit luctus ante, eu elementum metus magna dapibus felis. Cras sed elit. Vestibulum aliquam quam sit amet augue.  
   lang:           en
   number:         1
 <%= @defaults %>
@@ -201,8 +250,8 @@ lake_jpg_en:
   site_id:        1
   node_id:        14
   user_id:        3
-  comment:        no comment yet
-  title:          ""
+  comment:        ""
+  title:          it's a lake
   summary:        "Photo taken from \"wildchimpanzees.org\":http://www.wildchimpanzees.org/press/photo02.php."
   text:           ""
   lang:           en
@@ -557,37 +606,16 @@ letter_en:
   number:         1
 <%= @defaults %>
 
-wiki_template_en:
-  type:           TextDocumentVersion
+wiki_skin_en:
+  type:           Version
   id:             38
   site_id:        1
   node_id:        33
   user_id:        4
   comment:        very simple skin for wiki
-  title:          wiki template
+  title:          wiki skin
   summary:        Very simple skin.
-  text:           |
-    <z:include template='layout'>
-      <z:with id='left' part='body/left'>
-      <a name='contents'></a><h2 do='trans'>Contents</h2>
-        <ul do='pages'>
-          <li do='each'><z:link dash='true'>some link</z:link>
-            <ul do='pages'>
-              <li do='each' do='link' dash='true'>sub link</li>
-            </ul>
-          </li>
-        </ul>
-      </z:with>
-      <z:with id='content' class='content' part='body/main/content'>
-        <z:pages do='each'>
-          <h2><z:title anchor='true' actions='all'/></h2>
-          <z:text/>
-          <z:pages do='each'>
-            <h3><z:title anchor='true' actions='all'/></h3>
-            <z:text/>
-          </z:pages>
-        </z:pages>
-      </z:with>
+  text:           lorem ipsum blah dolor.
   lang:           en
   number:         1
 <%= @defaults %>
@@ -599,11 +627,11 @@ layout_template_en:
   node_id:        34
   user_id:        4
   comment:        layout for wiki
-  title:          wiki template
+  title:          layout
   summary:        Layout for the wiki skin.
   text:           |
     <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
-        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+      "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
     
     <html xmlns="http://www.w3.org/1999/xhtml" do='void' lang="en" set_lang='[v_lang]' xml:lang='en'>
     <head>
@@ -611,47 +639,53 @@ layout_template_en:
       <meta http-equiv="Content-type" content="text/html; charset=utf-8" />
       <meta http-equiv="Content-Language" do='void' content="fr-fr" tset_content='[v_lang]_content' />
     
-    <link href="/stylesheets/zen.css" rel="Stylesheet" type="text/css" />
-    <link href="/stylesheets/comment.css" rel="Stylesheet" type="text/css" />
-    <link href="/stylesheets/search.css" rel="Stylesheet" type="text/css" />
-    <link href="/stylesheets/code.css" rel="Stylesheet" type="text/css" />
-    <z:javascripts list='prototype,effects,zena'/>
-    <z:uses_calendar/>
+      <z:stylesheets name='stylesheets' list='reset,zena,default,code'/>
+      <z:javascripts list='prototype,effects,zena'/>
+      <z:uses_calendar/>
     </head>
     
     <body do='void' name='body'>
-      <div class="navbar">
-        <div id='lang' do='lang_links'><a>en</a> | <b>fr</b></div>
-        <div id='path' do='show_path'><ul><li><a href='#'>first</a></li> / <li><a href='#'>second</a></li> / <li><a href='#' class='current'>here</a></li></ul></div>
-        <div id='login' do='login_link'><a href='#'>login</a></div>
-        <div id='visitor' do='visitor_link'><a href='#'>visitor name</a></div>
-        <div id='search' do='search_box'><div class='search'><form><input type='text' id='search' name='search'/></form></div></div>
-      </div>
+      <div id='navigation' do='void' name='navigation'>
+        <div id='nav_main'>
+          <div id='lang' do='lang_links'><a>en</a> | <b>fr</b></div>
+          <div id='path' do='show_path'><ul><li><a href='#'>first</a></li> / <li><a href='#'>second</a></li> / <li><a href='#' class='current'>here</a></li></ul></div>
+          <div id='login' do='login_link'><a href='#'>login</a></div>
+          <div id='visitor' do='visitor_link'><a href='#'>visitor name</a></div>
+          <div id='search' do='search_box'><div class='search'><form><input type='text' id='search' name='search'/></form></div></div>
+        </div>
     
-      <div id='menu' do='show_menu'>
-        <ul class='menu'><li><a>first</a></li>
-          <li><a>second</a><ul><li><a>sub</a></li><li><a>sub</a><ul><li><a>subsub</a></li></ul></li></ul></li>
-        </ul>
+        <div id='nav_menu' do='node' select='root'>
+          <ul do='pages'>
+            <li do='each'><z:link attr='name'/>
+              <ul do='pages'>
+                <li do='each'><z:link attr='name'/>
+                  <ul do='pages'>
+                    <li do='each' do='link' attr='name'/>
+                  </ul>
+                </li>
+              </ul>
+            </li>
+          </ul>
+        </div>
+        <div id='branding' do='link' href='root'><img src='/img/logo.png' width='220' height='100'/></div>
       </div>
-    
-      <div id='logo' do='link' href='root'><img src='img/logo.png' width='220' height='100'/></div>
-      
-      <div class='wiki_layout'></div>
     
       <z:flash_messages/>
-      <z:content_for_layout>
-        <div id="left" do='void' name='left'>
-        </div>
-        <div id="main" do='void' name='main'>
+
+      <div id='context' do='void' name='context'>
+      </div>
     
-          <div class='content' id='content' do='void' name='content'>
-            dummy content
-          </div>
     
-          <div id="right" do='void' name='right'>
-          </div>
+      <div id='content' do='content_for_layout' name='content'>
+        <div id='main' do='void' name='main'>
+          <div id='wiki'>this is the wiki layout</div>
         </div>
-      </z:content_for_layout>
+
+        <div id='related' do='void' name='related'>
+        </div>
+      </div>
+    
+    </div>
     </body>
     </html>
   lang:           en
@@ -669,6 +703,112 @@ ocean_en:
   title:          Deep Ocean
   summary:        The deep sound of peace
   text:           Our oceans, when kept full of life, are full of animals
+  lang:           en
+  number:         1
+<%= @defaults %>
+
+
+wiki_project_changes_xml_en:
+  type:           TemplateVersion
+  id:             41
+  site_id:        1
+  node_id:        36
+  user_id:        4
+  comment:        layout for wiki
+  title:          Project - changes (xml)
+  summary:        Layout for the wiki skin.
+  text:           |
+    <?xml version="1.0" encoding="UTF-8"?>
+    <name><z:show attr='name'/></name>
+    <changes do='nodes' from='project' order='updated_at DESC' limit='10'>
+      <node do='each'>
+        <type><z:show attr='type'/></type>
+        <name><z:show attr='name'/></name>
+        <id><z:show attr='id'/></id>
+      </note>
+    </notes>
+  lang:           en
+  number:         1
+<%= @defaults %>
+
+
+wiki_page_changes_en:
+  type:           TemplateVersion
+  id:             42
+  site_id:        1
+  node_id:        37
+  user_id:        4
+  comment:        layout for wiki
+  title:          Page - changes
+  summary:        Layout for the wiki skin.
+  text:           |
+    <z:include template='layout.html'>
+      <z:with part='body/content/main'>
+        page changes
+      </z:with>
+    </z:include>
+  lang:           en
+  number:         1
+<%= @defaults %>
+
+anonymous_en:
+  type:           ContactVersion
+  id:             43
+  site_id:        1
+  node_id:        38
+  user_id:        8
+  comment:        The Invisible Man
+  title:          Mr nobody
+  summary:        ""
+  text:           ""
+  lang:           en
+  number:         1
+<%= @defaults %>
+
+incognito_en:
+  type:           ContactVersion
+  id:             44
+  site_id:        2
+  node_id:        39
+  user_id:        8
+  comment:        anonymous user
+  title:          Miss incognito
+  summary:        ""
+  text:           ""
+  lang:           en
+  number:         1
+<%= @defaults %>
+
+whale_en:
+  type:           ContactVersion
+  id:             45
+  site_id:        2
+  node_id:        40
+  user_id:        8
+  comment:        admin user
+  title:          Miss Whale
+  summary:        ""
+  text:           ""
+  lang:           en
+  number:         1
+<%= @defaults %>
+
+
+wiki_main:
+  type:           TemplateVersion
+  id:             46
+  site_id:        1
+  node_id:        41
+  user_id:        4
+  comment:        master template for wiki
+  title:          main template
+  summary:        master template for wiki skin.
+  text:           |
+    <z:include template='layout.html'>
+      <z:with part='body/content/main'>
+        HELLO
+      </z:with>
+    </z:include>
   lang:           en
   number:         1
 <%= @defaults %>

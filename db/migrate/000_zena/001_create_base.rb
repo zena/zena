@@ -35,7 +35,7 @@ class CreateBase < ActiveRecord::Migration
       t.column "content_type", :string, :limit => 20
       t.column "ext", :string, :limit=>20
       t.column "size", :integer
-      t.column "format", :string, :limit => 20
+      # NOT USED ? t.column "format", :string, :limit => 20
       t.column "width", :integer
       t.column "height", :integer
     end

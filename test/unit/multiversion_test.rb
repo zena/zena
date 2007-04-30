@@ -5,7 +5,7 @@ class MultiVersionTest < ZenaTestUnit
   def node_defaults
     {
     :name => 'hello',
-    :parent_id => 1,
+    :parent_id => nodes_id(:zena),
     }
   end
   

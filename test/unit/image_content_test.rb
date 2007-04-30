@@ -52,23 +52,6 @@ class ImageContentTest < ZenaTestUnit
     end
   end
   
-  def test_img_tag
-    preserving_files('/test.host/data/jpg/20') do
-      img = get_content(:bird_jpg)
-      assert_equal "<img src='/data/jpg/20/bird.jpg' width='661' height='600' alt='bird' class='full'/>", img.img_tag
-      assert_equal "<img src='/data/jpg/20/bird-pv.jpg' width='70' height='70' alt='bird' class='pv'/>", img.img_tag('pv')
-    end
-  end
-  
-  def test_img_tag_opts
-    preserving_files('/test.host/data/jpg/20') do
-      img = get_content(:bird_jpg)
-      assert_equal "<img src='/data/jpg/20/bird.jpg' width='661' height='600' alt='bird' id='yo' class='full'/>", img.img_tag(nil, :id=>'yo')
-      assert_equal "<img src='/data/jpg/20/bird-pv.jpg' width='70' height='70' alt='bird' id='yo' class='super'/>", img.img_tag('pv', :id=>'yo', :class=>'super')
-      assert_equal "<img src='/data/jpg/20/bird-pv.jpg' width='70' height='70' alt='super man' class='pv'/>", img.img_tag('pv', :alt=>'super man')
-    end
-  end
-  
   def test_remove_formatted_on_file_change
     preserving_files('/test.host/data/jpg/20') do
       img  = get_content(:bird_jpg)
@@ -135,9 +118,9 @@ class ImageContentTest < ZenaTestUnit
     end
   end
   private
-  def get_content(sym)
-    login(:ant) unless @visitor
-    doc = secure(Document) { Document.find(nodes_id(sym)) }
-    doc.version.content
-  end
+    def get_content(sym)
+      login(:ant) unless @visitor
+      doc = secure(Document) { Document.find(nodes_id(sym)) }
+      doc.version.content
+    end
 end

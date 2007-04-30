@@ -48,9 +48,13 @@ class UserTest < ZenaTestUnit
   
   def test_create
     login(:whale)
-    User.connection.execute "UPDATE users SET lang='ru', time_zone='Hawaii'"
+    User.connection.execute "UPDATE users SET lang='ru', time_zone='Hawaii' WHERE id=#{users_id(:incognito)}"
+    
     user = secure(User) { User.create("login"=>"john", "password"=>"isjjna78a9h") }
+    err user
     assert !user.new_record?, "Not a new record"
+    assert !user.contact.new_record?, "Users's contact node is not a new record"
+    
     user = secure(User) { User.find(user[:id]) } # reload
     assert user.sites.include?(sites(:ocean))
     assert_equal 2, user.groups.size
@@ -61,6 +65,10 @@ class UserTest < ZenaTestUnit
     assert_equal 'Hawaii', user[:time_zone]
     assert !user.user?, "Not a real user yet"
     assert visitor.user?, "Whale is a user"
+    
+    contact = user.contact
+    assert_equal contact.v_title, "john"
+    assert_equal contact.user_id, visitor[:id] # or should it be user[:id] ?
   end
   
   def test_create_admin_with_groups

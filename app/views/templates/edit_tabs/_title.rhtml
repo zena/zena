@@ -12,9 +12,9 @@
 
 <label for='links'><%= trans("links") %></label>
 <%= link_box('node', 'calendars') if @node.kind_of?(Note)%>
-<%= link_box('node', 'hot_for', :in=>[@node.project_id,1])%>
-<%= link_box('node', 'contact_for', :in=>[@node.project_id]) if @node.kind_of?(Contact)%>
-<%= link_box('node', 'hot') if @node.kind_of?(Project) %>
+<%= link_box('node', 'hot_for', :in=>[@node.section_id,1])%>
+<%= link_box('node', 'contact_for', :in=>[@node.section_id]) if @node.kind_of?(Contact)%>
+<%= link_box('node', 'hot') if @node.kind_of?(Section) %>
 
 <label for="v_comment"><%= trans("comment") %></label>
 <%= text_area 'node', 'v_comment', :cols=>nil, :rows=>2 %>

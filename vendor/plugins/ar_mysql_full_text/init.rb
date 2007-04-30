@@ -1,0 +1,1 @@
+require "ar_mysql_full_text"

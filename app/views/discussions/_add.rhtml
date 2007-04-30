@@ -1,0 +1,6 @@
+<tr id='add_discussion' class='btn_add'>
+  <td class='add' colspan='7'><%= link_to_function transb('btn_add_discussion'), "['add_discussion', 'add_discussion_form'].each(Element.toggle); $('page_parent_id').focus();" %></td>
+</tr>
+<tr id='add_discussion_form' style='display:none;' class='inline_form'>
+  <%= render :partial=>'discussions/form'%>
+</tr>

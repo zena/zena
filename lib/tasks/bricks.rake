@@ -1,3 +1,5 @@
+require "#{File.dirname(__FILE__)}/../../config/environment" # needed to load ActiveRecord::Migrator
+
 namespace :bricks do
   desc "Run the bricks server"
   task :server do

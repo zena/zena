@@ -41,33 +41,6 @@ class DocumentContentTest < ZenaTestUnit
     end
   end
   
-  def test_img_tag
-    login(:tiger)
-    doc = document_contents(:water_pdf)
-    assert_equal "<img src='/images/ext/pdf.png' width='32' height='32' alt='pdf' class='doc'/>", doc.img_tag
-    assert_equal "<img src='/images/ext/pdf-pv.png' width='70' height='70' alt='pdf' class='doc'/>", doc.img_tag('pv')
-    assert_equal "<img src='/images/ext/pdf-std.png' width='32' height='32' alt='pdf' class='doc'/>", doc.img_tag('std')
-  end
-  
-  def test_img_tag_opts
-    login(:tiger)
-    doc = document_contents(:water_pdf)
-    assert_equal "<img src='/images/ext/pdf.png' width='32' height='32' alt='pdf' class='super'/>", doc.img_tag(nil,:class=>'super')
-    assert_equal "<img src='/images/ext/pdf-pv.png' width='70' height='70' alt='pdf' id='man' class='super'/>", doc.img_tag('pv',:class=>'super', :id=>'man')
-  end
-  
-  def test_img_tag_other
-    login(:tiger)
-    doc = document_contents(:water_pdf)
-    doc.ext = 'bin'
-    assert_equal 'pdf', doc.ext
-    doc[:ext] = 'bin'
-    assert_equal 'bin', doc.ext
-    assert_equal "<img src='/images/ext/other.png' width='32' height='32' alt='other' class='doc'/>", doc.img_tag
-    assert_equal "<img src='/images/ext/other-pv.png' width='70' height='70' alt='other' class='doc'/>", doc.img_tag('pv')
-    assert_equal "<img src='/images/ext/other-std.png' width='32' height='32' alt='other' class='doc'/>", doc.img_tag('std')
-  end
-  
   def test_set_file
     doc = DocumentContent.new
     assert_nothing_raised { doc.file = uploaded_pdf('water.pdf') }

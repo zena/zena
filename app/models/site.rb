@@ -18,6 +18,7 @@ The #Site model holds configuration information for a site:
 +default_lang+::    The default language of the site (or the unique language if +monolingual+ is true).
 =end
 class Site < ActiveRecord::Base
+  validate :valid_host
   validates_uniqueness_of :host
   attr_accessible :name, :authorize, :monolingual, :allow_private, :languages, :default_lang, :admin_group_id, :trans_group_id, :site_group_id
   has_many :groups, :order=>"name"
@@ -77,6 +78,7 @@ class Site < ActiveRecord::Base
       
       # =========== CREATE Anonymous, admin =====================
       # create anon user
+      # FIXME: make sure user_id = admin user
       anon = site.send(:secure,User) { User.new_no_defaults( :login => nil, :password => nil,
         :first_name => "Anonymous", :name => "User", :lang=>'en', :status=>User::Status[:moderated]) }
       raise Exception.new("Could not create anonymous user for site [#{host}] (site#{site[:id]})\n#{anon.errors.map{|k,v| "[#{k}] #{v}"}.join("\n")}") unless anon.save
@@ -124,6 +126,9 @@ class Site < ActiveRecord::Base
       # save site definition
       raise Exception.new("Could not save site definition for site [#{host}] (site#{site[:id]})\n#{site.errors.map{|k,v| "[#{k}] #{v}"}.join("\n")}") unless site.save
       
+      # =========== CREATE CONTACT NODES FOR USERS ==============
+      [su, anon, admin_user].each { |user| user.send(:create_contact) }
+      
       # =========== LOAD DEFAULT TRANSLATIONS ===================
       Site.logger.info "=========================================================="
       Site.logger.info "  NEW SITE CREATED FOR [#{host}] (site#{site[:id]})"
@@ -138,7 +143,6 @@ class Site < ActiveRecord::Base
   def public_path
     "/#{self[:host]}/public"
   end
-  
   
   # Return path for documents data: RAILS_ROOT/sites/_host_/data
   # You can symlink the 'data' directory if you need to keep the data in some other place.
@@ -156,6 +160,11 @@ class Site < ActiveRecord::Base
   # This is an emergency user.
   def su
     @su ||= returning(User.find(self[:su_id])) {|user| user.site = self}
+  end
+  
+  # TODO: test
+  def root_node
+    secure(Node) { Node.find(self[:root_id]) }
   end
   
   # Return the public group: the one in which every visitor belongs.
@@ -184,6 +193,11 @@ class Site < ActiveRecord::Base
     @admin_group ||= Group.find(self[:admin_group_id])
   end
   
+  # Return true if the site is configured to use a single language
+  def monolingual?
+    self[:monolingual]
+  end
+  
   # ids of the groups that cannot be removed
   def protected_group_ids
     [admin_group_id, site_group_id, public_group_id]
@@ -198,4 +212,9 @@ class Site < ActiveRecord::Base
   def lang_list
     (self[:languages] || "").split(',').map(&:strip)
   end
+  
+  private
+    def valid_host
+      errors.add(:host, "invalid host name #{self[:host].inspect}") if (self[:host] == 'shared') || (self[:host] =~ /\.\./) || (self[:host] =~ /[^\w\.\-]/)
+    end
 end

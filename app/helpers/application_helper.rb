@@ -2,10 +2,6 @@
 module ApplicationHelper
   include Zena::Acts::Secure
   
-  def truc
-    session.to_s
-  end
-  
   # helpers to include clean javascript
   def javascript( string )
     javascript_start +
@@ -46,12 +42,6 @@ module ApplicationHelper
 </script></div>
 		EOL
 	end
-  
-  # Translate submit_tag
-  def tsubmit_tag(*args)
-    args[0] = trans(args[0],:edit=>false)
-    submit_tag(*args)
-  end
   
   # Translate link_to_remote
   def tlink_to_remote(*args)
@@ -94,16 +84,26 @@ module ApplicationHelper
   def rnd
     Time.now.to_i
   end
-
+  
+  # We need to create the accessor for zafu calls to the helper to work when compiling templates. Do not ask me why this works...
+  def session
+    @session || {}
+  end
+  
+  # We need to create the accessor for zafu calls to the helper to work when compiling templates. Do not ask me why this works...
+  def flash
+    @flash || {}
+  end
+  
   # "Translate" static text into the current lang
   def trans(keyword, opt={})
     opt = {:edit=>true}.merge(opt)
     if opt[:translate] || (session[:translate] && opt[:edit])
       key = TransPhrase.translate(keyword)
       "<div id='phrase#{key[:id]}' class='trans'>" + 
-      link_to_remote(key.into(lang), 
+      link_to_remote(key.into(lang),
           :update=>"phrase#{key[:id]}", 
-          :url=>{:controller=>'trans', :action=>'edit', :id=>key[:id]},
+          :url => {:controller=>'trans', :action=>'edit', :id=>key[:id]},
           :complete=>'$("trans_value").focus();$("trans_value").select()') +
       "</div>"
     else
@@ -113,10 +113,10 @@ module ApplicationHelper
   
   # Shows 'login' or 'logout' button.
   def login_link(opts={})
-    unless visitor.is_anon?
-      "<a href='/logout'>#{transb('logout')}</a>"
-    else
+    if visitor.is_anon?
       "<a href='/login'>#{transb('login')}</a>"
+    else  
+      "<a href='/logout'>#{transb('logout')}</a>"
     end
   end
   
@@ -165,7 +165,7 @@ module ApplicationHelper
   # Show visitor name if logged in
   def visitor_link(opts={})
     unless visitor.is_anon?
-      link_to( visitor.fullname, user_home_url )
+      link_to( visitor.fullname, user_home_path )
     else
       ""
     end
@@ -175,13 +175,13 @@ module ApplicationHelper
   def flash_messages(opts={})
     type = opts[:show] || 'both'
     "<div id='messages'>" +
-    if (type == 'notice' || type == 'both') && @flash[:notice]
-      "<div id='notice' class='flash' onclick='new Effect.Fade(\"notice\")'>#{@flash[:notice]}</div>"
+    if (type == 'notice' || type == 'both') && flash[:notice]
+      "<div id='notice' class='flash' onclick='new Effect.Fade(\"notice\")'>#{flash[:notice]}</div>"
     else
       ''
     end + 
-    if (type == 'error'  || type == 'both') && @flash[:error ]
-      "<div id='error' class='flash' onclick='new Effect.Fade(\"error\")'>#{@flash[:error]}</div>"
+    if (type == 'error'  || type == 'both') && flash[:error ]
+      "<div id='error' class='flash' onclick='new Effect.Fade(\"error\")'>#{flash[:error]}</div>"
     else
       ''
     end +
@@ -221,18 +221,6 @@ module ApplicationHelper
       end
     end
     ZazenParser.new(text,:helper=>self).render(opt)
-    #r = RedCloth.new(text) #, [:hard_breaks])
-    #r.gsub!(  /(\A|[^\w])@(.*?)@(\Z|[^\w])/     ) { "#{$1}\\AT_START\\#{zazen_escape($2)}\\AT_END\\#{$3}" }
-    #r.gsub!(  /<code>(.*?)<\/code>/m            ) { "\\CODE_START\\#{zazen_escape($1)}\\CODE_END\\" }
-    #r.gsub!(  /\!\[([^\]]*)\]\!/                      ) { img ? make_gallery($1) : trans('[gallery]') }
-    #r.gsub!(  /\!([^0-9]{0,2})\{([^\}]*)\}\!/                      ) { img ? list_nodes(:style=>$1, :ids=>$2)   : trans('[documents]')}
-    #r.gsub!(  /\!([^0-9]{0,2})([0-9]+)(\.([^\/\!]+)|)(\/([^\!]*)|)\!(:([^\s]+)|)/ ) { img ? make_image(:style=>$1, :id=>$2, :size=>$4, :title=>$6, :link=>$8) : "[#{trans('image')}#{$6 ? (": " + zazen($6,:images=>false)) : ''}]"}
-    #r.gsub!(  /"([^"]*)":([0-9]+)/                    ) { make_link(:title=>$1,:id=>$2)}
-    #r = r.to_html
-    #r.gsub!(  /(\\CODE_START\\)(.*?)(\\CODE_END\\)/m    ) { "<div class='box'>#{zazen_unescape($2)}</div>" }
-    #r.gsub!(  /(\\AT_START\\)(.*?)(\\AT_END\\)/         ) { "#{zazen_unescape($2)}" }
-    #r.gsub!(  /\?(\w[^\?]+?\w)\?/               ) { make_wiki_link($1) }
-    #r
   end
   
   # TODO: test
@@ -245,9 +233,9 @@ module ApplicationHelper
     node = secure(Node) { Node.find_by_zip(opts[:id]) }
     title = (opts[:title] && opts[:title] != '') ? opts[:title] : node.v_title
     if opts[:id][0..0] == '0'
-      link_to title, node_url(node), :popup=>true
+      link_to title, zen_path(node), :popup=>true
     else
-      link_to title, node_url(node)
+      link_to title, zen_path(node)
     end
   rescue ActiveRecord::RecordNotFound
     "<span class='unknownLink'>#{trans('unknown link')}</span>"
@@ -265,6 +253,7 @@ module ApplicationHelper
       "<a href='http://#{lang}.wikipedia.org/wiki/Special:Search?search=#{CGI::escape(opts[:title])}' class='wiki'>#{opts[:title]}</a>"
     end
   end
+  
   # Create an img tag for the given image. See ApplicationHelper#zazen for details.
   def make_image(opts)
     id, style, link, size, title = opts[:id], opts[:style], opts[:link], opts[:size], opts[:title]
@@ -277,12 +266,13 @@ module ApplicationHelper
     if !size && img.kind_of?(Image)
       size = 'std'
     end
-    image = img.img_tag(size)
+    
+    image = img_tag(img, :mode=>size)
     
     unless link
       if id[0..0] == "0" || !img.kind_of?(Image)
         # if the id starts with '0' or it is not an Image, link to data
-        link = url_for(data_url(img))
+        link = zen_url(img, :format => img.c_ext)
       end
     end
     
@@ -303,7 +293,7 @@ module ApplicationHelper
     
     if title
       prefix = "#{prefix}<div class='img_with_title'>"
-      suffix = "<div class='img_title'>#{Zazen::Parser.new(title,self).render(:images=>false)}</div></div>#{suffix}"
+      suffix = "<div class='img_title'>#{ZazenParser.new(title,:helper=>self).render(:images=>false)}</div></div>#{suffix}"
     end
     
     if link.nil?
@@ -324,9 +314,9 @@ module ApplicationHelper
       images = @node.images
     else
       ids = ids.split(',').map{|i| i.to_i} # sql injection security
-      images = secure(Document) { Document.find_by_zip(:all, :conditions=>"zip IN (#{ids.join(',')})") }
+      images = secure(Document) { Document.find(:all, :conditions=>"zip IN (#{ids.join(',')})") }
       # order like ids :
-      images.sort! {|a,b| ids.index(a[:id].to_i) <=> ids.index(b[:id].to_i) }
+      images.sort! {|a,b| ids.index(a[:zip].to_i) <=> ids.index(b[:zip].to_i) }
     end
     
     render_to_string( :partial=>'main/gallery', :locals=>{:gallery=>images} )
@@ -359,6 +349,81 @@ module ApplicationHelper
       docs = secure(Document) { Document.find(:all, :order=>'name ASC', :conditions=>"zip IN (#{ids})") }
     end
     prefix + render_to_string( :partial=>'main/list_nodes', :locals=>{:docs=>docs}) + suffix
+  end
+  
+  # Display an image tag for the given node (must be a sub-class of Document). If no mode is provided, 'full' is used. Options are ':mode', ':id', ':alt' and ':class'. If no class option is passed,
+  # the format is used as the image class. Example :
+  #   img_tag(@node, :mode=>'pv')  => <img src='/sites/test.host/data/jpg/20/bird_pv.jpg' height='80' width='80' alt='bird' class='pv'/>
+  def img_tag(obj, opts={})
+    return "" unless obj.kind_of?(Document)
+    mode    = opts[:mode]
+    content = obj.v_content
+    ext     = content[:ext]
+    opts    = opts.merge(:format => ext)
+    
+    alt       = opts[:alt]   || obj.v_title.gsub("'", '&apos;')
+    img_id    = opts[:id]
+    
+    src = width = height = img_class = nil
+    if obj.kind_of?(Image)
+      mode = content.verify_format(mode) || 'std'
+      
+      src       = zen_path(obj, opts.merge(:mode => (mode == 'full' ? nil : mode)))
+      
+      img_class = opts[:class] || mode
+      if mode == 'full'
+        # full size (format = nil)
+        width = content.width
+        height= content.height
+      elsif content[:width] && content[:height]
+        # compute image size
+        width = content.width(mode)
+        height= content.height(mode)
+      end
+    elsif obj.kind_of?(Document)
+      mode      = IMAGEBUILDER_FORMAT[mode] ? mode : nil
+      
+      img_class = opts[:class] || 'doc'
+      unless File.exist?("#{RAILS_ROOT}/public/images/ext/#{ext}.png")
+        ext = 'other'
+      end
+      unless mode
+        # img_tag from extension
+        width  = 32
+        height = 32
+        src    = "/images/ext/#{ext}.png"
+      else
+        img = ImageBuilder.new(:path=>"#{RAILS_ROOT}/public/images/ext/#{ext}.png", :width=>32, :height=>32)
+        img.transform!(mode)
+        width  = img.width
+        height = img.height
+        
+        filename = "#{ext}_#{mode}.png"
+        path     = "#{RAILS_ROOT}/public/images/ext/"
+        unless File.exist?(File.join(path,filename))
+          # make new image with the mode
+          unless File.exist?(path)
+            FileUtils::mkpath(path)
+          end
+          if img.dummy?
+            File.cp("#{RAILS_ROOT}/public/images/ext/#{ext}.png", "#{RAILS_ROOT}/public/images/ext/#{filename}")
+          else
+            File.open(File.join(path, filename), "wb") { |f| f.syswrite(img.read) }
+          end
+        end
+        
+        src    = "/images/ext/#{filename}"
+      end
+    else
+      # what do we do here ?
+      # return nothing ? nil ?
+    end
+    res = "<img src='#{src}'"
+    [[:width, width], [:height, height], [:alt, alt], [:id, img_id], [:class, img_class]].each do |k,v|
+      next unless v
+      res << " #{k}='#{v}'"
+    end
+    res << "/>"
   end
   
   # return a readable text version of a file size
@@ -481,28 +546,27 @@ module ApplicationHelper
       opts[:link] = (obj[:id] != @node[:id])
     end
     unless opts.include?(:project)
-      opts[:project] = (obj[:project_id] != @node[:project_id] && obj[:id] != @node[:id]) 
+      opts[:project] = (obj[:section_id] != @node[:section_id] && obj[:id] != @node[:id]) 
     end
+    title = opts[:text] || obj.version.title
     if opts[:project]
-      title = "#{obj.project.name} / #{obj.v_title}"
-    else
-      title = obj.version.title
+      title = "#{obj.project.name} / #{title}"
     end
     if opts[:link]
-      title = link_to(title, node_url(obj))
+      title = link_to(title, zen_path(obj))
     end
-    "<span id='v_title#{obj.v_id}'>#{title + check_lang(obj)}</span>"
+    "<span id='v_title#{obj.zip}.#{obj.v_number}'>#{title + check_lang(obj)}</span>"
   end
   
   # TODO: test
   def show(obj, sym, opt={})
     return show_title(obj, opt) if sym == :v_title
     if opt[:as]
-      key = "#{opt[:as]}#{obj.v_id}"
+      key = "#{opt[:as]}#{obj.zip}.#{obj.v_number}"
       preview_for = opt[:as]
       opt.delete(:as)
     else
-      key = "#{sym}#{obj.v_id}"
+      key = "#{sym}#{obj.zip}.#{obj.v_number}"
     end
     if opt[:text]
       text = opt[:text]
@@ -528,7 +592,7 @@ module ApplicationHelper
       klass = ""
     end
     if preview_for
-      render_to_string :partial=>'node/show_attr', :locals=>{:id=>obj[:id], :text=>text, :preview_for=>preview_for, :key=>key, :klass=>klass,
+      render_to_string :partial=>'nodes/show_attr', :locals=>{:id=>obj[:id], :text=>text, :preview_for=>preview_for, :key=>key, :klass=>klass,
                                                            :key_on=>"#{key}#{Time.now.to_i}_on", :key_off=>"#{key}#{Time.now.to_i}_off"}
     else
       "<div id='#{key}'#{klass}>#{text}</div>"
@@ -555,7 +619,7 @@ module ApplicationHelper
         list = node.send(method)
       end
       res = list.inject([]) do |list, l|
-        list << "<input type='checkbox' name='node[#{setter}_ids][]' value='#{l.id}' class='box' #{ l[:link_id] ? "checked='1' " : ""}/>#{l.name}"
+        list << "<input type='checkbox' name='node[#{setter}_ids][]' value='#{l.zip}' class='box' #{ l[:link_id] ? "checked='1' " : ""}/>#{l.name}"
         list
       end
     end
@@ -626,49 +690,41 @@ module ApplicationHelper
     "#{custom} #{readers}"
   end
   
-  
-  # Used by node_actions
-  def form_action(action, version_id=nil, link_text=nil)
-    version_id ||= @node.v_id
-    if action == 'edit'
-      "<a href='#' title='#{transb('btn_title_edit')}' onclick=\"editor=window.open('" + 
-      url_for(:controller=>'version', :id=>version_id, :action=>'edit', :rnd=>rnd) + 
-      "', '_blank', 'location=0,width=300,height=400,resizable=1');return false;\">" + (link_text || transb('btn_edit')) + "</a>"
-    elsif action == 'drive'
-      "<a href='#' title='#{transb('btn_title_drive')}' onclick=\"editor=window.open('" + 
-      url_for(:controller=>'node', :version_id=>version_id, :action=>'drive', :rnd=>rnd) + 
-      "', '_blank', 'location=0,width=300,height=400,resizable=1');return false;\">" + (link_text || transb('btn_drive')) + "</a>"
-    else
-      tlink_to( (link_text || "btn_#{action}"), {:controller=>'version', :action => action , :id => version_id}, :title=>transb("btn_title_#{action}"), :post=>true ) + "\n"
-    end
-  end
-  
   # Buttons are :edit, :add, :propose, :publish, :refuse, or :drive. :all = (:edit, :propose, :publish, :refuse, :drive)
   def node_actions(opts={})
     action = (opts[:actions] || :all).to_sym
-    res = []
-    if opts[:node]
-      version_id = opts[:node].v_id
-      node = opts[:node]
-    else
-      version_id = nil
-      node = @node
-    end
+    opts = { :node => @node }.merge(opts)
+    text = opts[:text]
+    node = opts[:node]
+    hash = { :node_id => node[:zip], :id => node.v_number }
+    
+    res  = []
     if (action == :edit or action == :all) && node.can_edit?
-      res << form_action('edit',version_id, opts[:text])
+      res << "<a href='#' title='#{transb('btn_title_edit')}' onclick=\"editor=window.open('" + 
+             edit_version_url(hash) + 
+             "', '_blank', 'location=0,width=300,height=400,resizable=1');return false;\">" + 
+             (text || transb('btn_edit')) + "</a>"
     end
+    
     if (action == :propose or action == :all) && node.can_propose?
-      res << form_action('propose',version_id, opts[:text])
+      res << tlink_to((text || "btn_propose"), propose_version_path(hash), :method => :put)
     end
+    
     if (action == :publish or action == :all) && node.can_publish?
-      res << form_action('publish',version_id, opts[:text])
+      res << tlink_to((text || "btn_publish"), publish_version_path(hash), :method => :put)
     end
+    
     if (action == :refuse or action == :all) && node.can_refuse?
-      res << form_action('refuse',version_id, opts[:text])
+      res << tlink_to((text || "btn_refuse"), refuse_version_path(hash), :method => :put)
     end
+    
     if (action == :drive or action == :all) && node.can_drive?
-      res << form_action('drive',version_id, opts[:text])
+      res << "<a href='#' title='#{transb('btn_title_drive')}' onclick=\"editor=window.open('" + 
+             edit_node_url(:id => node[:zip] ) + 
+             "', '_blank', 'location=0,width=300,height=400,resizable=1');return false;\">" + 
+             (text || transb('btn_drive')) + "</a>"
     end
+    
     if res != []
       "<span class='actions'>#{res.join(" ")}</span>"
     else
@@ -677,11 +733,12 @@ module ApplicationHelper
   end
   
   # TODO: test
-  def version_form_action(action,version_id)
+  def version_form_action(action,version)
     if action == 'view'
-      tlink_to_function('btn_view', "opener.Zena.version_preview(#{version_id});")
+      # FIXME
+      tlink_to_function('btn_view', "opener.Zena.version_preview(#{version.number});")
     else
-      tlink_to_remote( "btn_#{action}", :url=>{:controller=>'version', :action => action , :id => version_id, :drive=>true}, :title=>transb("btn_title_#{action}"), :post=>true ) + "\n"
+      tlink_to_remote( "btn_#{action}", :url=>{:controller=>'versions', :action => action, :node_id => version.node[:zip], :id => version.number, :drive=>true}, :title=>transb("btn_title_#{action}"), :method => :put ) + "\n"
     end
   end
   # TODO: test
@@ -689,38 +746,42 @@ module ApplicationHelper
   def version_actions(version, opt={})
     opt = {:action=>:all}.merge(opt)
     return "" unless version.kind_of?(Version)
+    
+    node = version.node
+    visitor.visit(node) unless node.secured?
+    
     actions = []
     if opt[:action] == :view
       if (version.status != Zena::Status[:del] && version.status != Zena::Status[:red]) ||  (version[:user_id] == visitor.id )
-        actions << version_form_action('view', version[:id])
+        actions << version_form_action('view', version)
       end
     elsif opt[:action] == :all
       case version.status
       when Zena::Status[:pub]
-        actions << version_form_action('unpublish',version[:id]) if @node.can_unpublish?(version)
+        actions << version_form_action('unpublish',version) if node.can_unpublish?(version)
       when Zena::Status[:prop]
-        actions << version_form_action('publish',version[:id])
-        actions << version_form_action('refuse',version[:id])
+        actions << version_form_action('publish',version)
+        actions << version_form_action('refuse',version)
       when Zena::Status[:prop_with]
-        actions << version_form_action('publish',version[:id])
-        actions << version_form_action('refuse',version[:id])
+        actions << version_form_action('publish',version)
+        actions << version_form_action('refuse',version)
       when Zena::Status[:red]
         if version.user[:id] == visitor.id
-          actions << version_form_action('publish',version[:id])
-          actions << version_form_action('propose',version[:id])
-          actions << version_form_action('remove',version[:id])
+          actions << version_form_action('publish',version)
+          actions << version_form_action('propose',version)
+          actions << version_form_action('remove',version)
         end
       when Zena::Status[:rep]
-        actions << version_form_action('edit',version[:id]) if @node.can_edit_lang?(version.lang)
-        actions << version_form_action('publish',version[:id])
-        actions << version_form_action('propose',version[:id])
+        actions << version_form_action('edit',version) if node.can_edit_lang?(version.lang)
+        actions << version_form_action('publish',version)
+        actions << version_form_action('propose',version)
       when Zena::Status[:rem]
-        actions << version_form_action('edit',version[:id]) if @node.can_edit_lang?(version.lang)
-        actions << version_form_action('publish',version[:id])
-        actions << version_form_action('propose',version[:id])
+        actions << version_form_action('edit',version) if node.can_edit_lang?(version.lang)
+        actions << version_form_action('publish',version)
+        actions << version_form_action('propose',version)
       when Zena::Status[:del]
         if (version[:user_id] == visitor[:id])
-          actions << version_form_action('edit',version[:id]) if @node.can_edit_lang?(version.lang)
+          actions << version_form_action('edit',version) if node.node.can_edit_lang?(version.lang)
         end
       end
     end
@@ -790,7 +851,7 @@ ENDTXT
   def traductions(opts={})
     obj = opts[:node] || @node
     trad_list = []
-    base_url = node_url(obj)
+    base_url = zen_path(obj)
     (obj.traductions || []).map do |ed|
       trad_list << "<span>" + link_to( trans(ed[:lang]), base_url.merge(:lang=>ed[:lang])) + "</span>"
     end
@@ -805,37 +866,22 @@ ENDTXT
     end
   end
   
-  # show author information
-  # size can be either :small or :large, options are
-  # :node=>object
-  def show_author(opts={})
-    obj  = opts[:node] || @node
-      res = []
-      if  obj.author.id == obj.v_author.id
-        res << trans("posted by") + " <b>" + obj.author.fullname + "</b>"
-      else
-        res << trans("original by") + " <b>" + obj.author.fullname + "</b>"
-        res << trans("new post by") + " <b>" + obj.v_author.fullname + "</b>"
-      end
-      res << trans("on") + " " + short_date(obj.v_updated_at) + "."
-      res << trans("Traductions") + " : <span id='trad'>" + traductions.join(", ") + "</span>"
-      res.join("\n")
-  end
-  
   # show current path with links to ancestors
   def show_path(opts={})
     node = opts[:node] || @node
     nav = []
     node.ancestors.each do |obj|
-      nav << link_to(obj.name, node_url(obj))
+      nav << link_to(obj.name, zen_path(obj))
     end
     
-    nav << "<a href='#{url_for(node_url(node))}' class='current'>#{node.name}</a>"
+    nav << "<a href='#{url_for(zen_path(node))}' class='current'>#{node.name}</a>"
     res = "<ul class='path'>"
     "#{res}<li>#{nav.join(" / </li><li>")}</li></ul>"
   end
   
   # TODO: test
+  # TODO: could be used by all helpers: faster then routes...
+  # Used by zafu
   def node_link(opts={})
     options = {:node=>@node, :href=>'self', :url=>{}}.merge(opts)
     node = options[:node]
@@ -843,11 +889,13 @@ ENDTXT
       node = node.relation(options[:href]) || node
     end  
     text = options[:text] || node.version.title
+    
     if opts[:dash]
       "<a href='##{opts[:dash]}'>#{text}</a>"
+    elsif options[:url] == {}
+      "<a href='#{zen_path(node)}'>#{text}</a>"
     else
-      url = node_url(node)
-      link_to(text,url.merge(options[:url]))
+      link_to(text, zen_path(node[:zip],options[:url]))
     end
   end
   
@@ -858,10 +906,10 @@ ENDTXT
       [show_link(:home), show_link(:preferences), show_link(:comments), show_link(:users), show_link(:groups), show_link(:translation)].reject {|l| l==''}
     when :home
       return '' if visitor.is_anon?
-      tlink_to_with_state('my home', :controller=>'user', :action=>'home')
+      tlink_to_with_state('my home', user_home_path)
     when :preferences
       return '' if visitor.is_anon?
-      tlink_to_with_state('preferences', :controller=>'preferences', :action=>'list')
+      tlink_to_with_state('preferences', preferences_user_path(visitor[:id]))
     when :translation
       return '' unless visitor.group_ids.include?(visitor.site[:trans_group_id])
       tlink_to_with_state('translate interface', :controller=>'trans', :action=>'list')
@@ -870,7 +918,7 @@ ENDTXT
       tlink_to_with_state('manage comments', :controller=>'comment', :action=>'list')
     when :users
       return '' unless visitor.is_admin?
-      tlink_to_with_state('manage users', :controller=>'user', :action=>'list')
+      tlink_to_with_state('manage users', users_path)
     when :groups
       return '' unless visitor.is_admin?
       tlink_to_with_state('manage groups', :controller=>'group', :action=>'list')
@@ -897,7 +945,7 @@ ENDTXT
     <<-EOL
     <script src="/calendar/calendar.js" type="text/javascript"></script>
     <script src="/calendar/calendar-setup.js" type="text/javascript"></script>
-    <script src="/calendar/lang/calendar-#{lang}-utf8.js" type="text/javascript"></script>
+    <script src="/calendar/lang/calendar-#{l}-utf8.js" type="text/javascript"></script>
     <link href="/calendar/calendar-brown.css" media="screen" rel="Stylesheet" type="text/css" />
     #{javascript_start}
     Calendar._TT["DEF_DATE_FORMAT"] = "#{transb('datetime')}";
@@ -941,7 +989,7 @@ ENDTXT
   end
   
   # TODO: test
-  def search_box(opts={})    
+  def search_box(opts={})
     render_to_string(:partial=>'search/form')
   end
   
@@ -997,12 +1045,12 @@ ENDTXT
   def select_id(obj, sym, opt={})
     if ['Project', 'Tag', 'Contact'].include?(opt[:class].to_s)
       klass = opt[:class].kind_of?(Class) ? opt[:class] : Module::const_get(opt[:class].to_sym)
-      return select(obj,sym,  secure_write(klass) { klass.find(:all, :select=>'id,name', :order=>'name ASC') }.map{|r| [r[:name], r[:id]]}, { :include_blank => opt[:include_blank] })
+      return select(obj,sym,  secure_write(klass) { klass.find(:all, :select=>'zip,name', :order=>'name ASC') }.map{|r| [r[:name], r[:zip]]}, { :include_blank => opt[:include_blank] })
     end
     node = instance_variable_get("@#{obj}".to_sym)
     if node
       id = node.send(sym.to_sym)
-      current_obj = secure(Node) { Node.find_by_id(id) } if id
+      current_obj = secure(Node) { Node.find(id) } if id
     else
       id = ''
       current_obj = nil
@@ -1010,16 +1058,18 @@ ENDTXT
     name_ref = "#{obj}_#{sym}_name"
     attribute = opt[:show] || 'name'
     if current_obj
+      zip = current_obj[:zip]
       current = current_obj.send(attribute.to_sym)
       if current.kind_of?(Array)
         current = current.join('/')
       end
     else
+      zip = ''
       current = ''
     end
     # we use both 'onChange' and 'onKeyup' for old javascript compatibility
-    update = "new Ajax.Updater('#{name_ref}', '/z/node/attribute/' + this.value + '?attr=#{attribute}', {asynchronous:true, evalScripts:true});"
-    "<div class='select_id'><input type='text' size='8' id='#{obj}_#{sym}' name='#{obj}[#{sym}]' value='#{id}' onChange=\"#{update}\" onKeyup=\"#{update}\"/>"+
+    update = "new Ajax.Updater('#{name_ref}', '/nodes/attribute?node=' + this.value + '&attr=#{attribute}', {asynchronous:true, evalScripts:true});"
+    "<div class='select_id'><input type='text' size='8' id='#{obj}_#{sym}' name='#{obj}[#{sym}]' value='#{zip}' onChange=\"#{update}\" onKeyup=\"#{update}\"/>"+
     "<span class='select_id_name' id='#{name_ref}'>#{current}</span></div>"
   end
 end

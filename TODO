@@ -1,5 +1,8 @@
 
 == Todo
+* Replace Trans... with Gettext
+* BUG: flash not working in UsersController when updating preferences.
+* (BUG): a user in many sites: where is this user's "contact" node ? One for each site ? Alias ? Alias seems a good choice.
 * BUG: when move, update inherited rights from new parent.
 * update 'deploy.rb' for multisite and update mksite for 'cap' context
 * create site = transaction (or do a rollback)
@@ -45,6 +48,7 @@ Ideas for cached menu:
 === Misc
 * replace rmagick with a more simple library or use something like system "convert #{escape(temp)} -resize 48x48! #{escape(target)}"
 * show_title could guess when to display a title and when not to
+* why are '&' in the url escaped if escape => false is not set ??? (versions/edit.rhtml)
 === Documentation
 * cleanup README_FOR_APP
 * cleanup
@@ -74,3 +78,7 @@ Ideas for cached menu:
 === Translations
 * load new languages from the web interface
 
+=== Cleanup tool
+* root node check :
+** parent_id = NULL, section_id = id, project_id = id
+* spread section and project id...

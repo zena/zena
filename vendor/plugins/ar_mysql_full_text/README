@@ -1,0 +1,15 @@
+This plug-in adds ActiveRecord support for MySQL Full Text Search. It is adapted from
+Zak Mandhro http://mandhro.com/2006/11/20/using-mysql-full-text-querying-with-rails/
+
+For example:
+
+    create_table("stories", :force => true, :options => "ENGINE=MyISAM") do |t|
+      t.column("subject", :string, :limit => 150)
+      t.column("created_by_member_id", :integer, :limit => 10)
+      t.column("body", :text)
+    end
+
+    #Create MySQL specific full-text index_type
+    
+Then simply use the standard Rake tasks db:schema:dump and dependent tasks (test clone, units, etc.)
+as you would.

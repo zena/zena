@@ -5,5 +5,5 @@ else
   @note = Page.new
   page.insert_html :after, 'add_note_form', :partial=>'note/li', :locals=>{:li=>new_note}
   page.replace_html 'add_note_form', :partial=>'note/form'
-  page << "new Element.toggle('add_note', 'add_note_form');"
+  page.toggle('add_note', 'add_note_form')
 end

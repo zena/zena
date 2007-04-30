@@ -1,12 +1,12 @@
 <label for="node_c_file"><%= trans("document file")  %></label>
-<div id="file" class='toggle_div'><%= tlink_to_remote("change", :update=>'file_form', :url=>{:controller=>'document', :action=>'file_form'}, :complete=>"new Element.toggle('file', 'file_form');") %></div>
+<div id="file" class='toggle_div'><%= tlink_to_remote("change", :update=>'file_form', :url=>file_form_document_path, :method => :get, :complete=>"['file', 'file_form'].each(Element.toggle);") %></div>
 <div id="file_form" class='toggle_div' style='display:none;'></div>
 
 <%= @node.c_version_id == @node.v_id ? "<b id='original_caution'>#{trans('you are editing the original')}</b>" : "" %>
 
 <% if !ImageBuilder.dummy? %>
 <label for="c_crop_x"><%= trans("image")  %></label>
-<div id="crop" class='toggle_div'><%= tlink_to_remote("crop #{@node.img_tag('pv')}", :url=>{:controller=>'document', :action=>'crop_form', :id=>@node[:id]}) %>
+<div id="crop" class='toggle_div'><%= tlink_to_remote("crop #{img_tag(@node,:mode=>'pv')}", :url => crop_form_document_path(@node[:zip]), :method => :get) %>
 </div>
 
 <div id="crop_form" class='toggle_div' style='display:none;'></div>

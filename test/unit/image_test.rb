@@ -17,9 +17,9 @@ class ImageTest < ZenaTestUnit
       assert_kind_of ImageVersion , img.version
       assert_equal 'jpg', img.c_ext
       assert_equal "661x600", "#{img.c_width}x#{img.c_height}"
-      assert_equal "/jpg/#{img.v_id}/birdy.jpg", img.c_path
-      assert File.exist?("#{SITES_ROOT}/test.host/data#{img.c_path}")
-      assert_equal File.stat("#{SITES_ROOT}/test.host/data#{img.c_path}").size, img.c_size
+      assert_equal "#{SITES_ROOT}/test.host/data/jpg/#{img.v_id}/birdy.jpg", img.c_filepath
+      assert File.exist?(img.c_filepath)
+      assert_equal File.stat(img.c_filepath).size, img.c_size
     end
   end
   
@@ -35,7 +35,7 @@ class ImageTest < ZenaTestUnit
       assert !File.exist?( img.c_filepath('pv') ), "File does not exist"
       assert  img.c_file('pv'), "Can make 'pv' image"
       assert  File.exist?( img.c_filepath('pv') ), "File exist"
-      assert_equal "#{SITES_ROOT}/test.host/data/jpg/#{img.v_id}/birdy-pv.jpg", img.c_filepath('pv')
+      assert_equal "#{SITES_ROOT}/test.host/data/jpg/#{img.v_id}/birdy_pv.jpg", img.c_filepath('pv')
     end
   end
   
@@ -147,7 +147,7 @@ class ImageTest < ZenaTestUnit
       old_path2 = img.c_filepath('pv')
       img.c_file('pv') # creates 'pv' file
       assert_equal "#{SITES_ROOT}/test.host/data/jpg/#{img.v_id}/birdy.jpg", old_path1
-      assert_equal "#{SITES_ROOT}/test.host/data/jpg/#{img.v_id}/birdy-pv.jpg", old_path2
+      assert_equal "#{SITES_ROOT}/test.host/data/jpg/#{img.v_id}/birdy_pv.jpg", old_path2
       assert File.exists?(old_path1), "Old file exist."
       assert File.exists?(old_path2), "Old file with 'pv' format exist."
       assert img.update_attributes(:name=>'moineau')

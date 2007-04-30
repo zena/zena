@@ -1,7 +1,7 @@
 <table class="block" cellspacing="0" borderspacing="0">
   <tr class="b<%= @node.v_status %>">
     <td class="preview">
-      <%= link_to @node.img_tag('pv'), data_url(@node) %>
+      <%= link_to img_tag(@node, :mode=>'pv'), data_path(@node) %>
     </td>
     <td class='subtitle'>      
       <h1 class="s<%= @node.v_status %>"><span id='v_title<%= @node.v_id %>'><%= @node.v_title %></span><br/>

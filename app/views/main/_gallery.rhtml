@@ -2,11 +2,11 @@
 <table class="gallery">
   <tr><td>
 <% gallery.each do |doc| %>
-  <%= link_to_function("#{doc.img_tag('pv')}","Zena.transfer('#{@gallery_counter}-#{doc.id}','gallery#{@gallery_counter}')") %>
+  <%= link_to_function("#{img_tag(doc, :mode=>'pv')}","Zena.transfer('#{@gallery_counter}-#{doc.id}','gallery#{@gallery_counter}')") %>
   <div style='display:none;' id='<%= "#{@gallery_counter}-#{doc.id}" %>'>
-    <p><%= link_to(doc.v_title, node_url(doc) ) %></p>
+    <p><%= link_to(doc.v_title, zen_path(doc) ) %></p>
     <p class="summary"><%= zazen doc.v_summary %></p>
-    <a href="#" onclick="new Effect.BlindUp('<%= "gallery#{@gallery_counter}" %>'); return false;"><%= doc.img_tag('std') %></a>
+    <a href="#" onclick="new Effect.BlindUp('<%= "gallery#{@gallery_counter}" %>'); return false;"><%= img_tag(doc, :mode=>'std') %></a>
   </div>
 <% end %>
   <div id='<%= "gallery#{@gallery_counter}" %>' style='display:none;' class="gallery_view"></div>
