@@ -15,8 +15,8 @@ Once config/database.yml is properly set, run the following command
 == For development/testing
 1. Create the database with (using a mysql client)
   create database zena_dev DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
-2. Migrate the database (from within zena directory)
-# rake bricks:migrate
+2. Migrate the database and add initialize db (from within zena directory)
+# rake zena:init
 3. Create a first site  (from within zena directory)
 # rake zena:mksite HOST=localhost PASSWORD=secret
 

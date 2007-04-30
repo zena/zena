@@ -6,43 +6,6 @@ namespace :bricks do
     `bricks`
   end
   
-  desc "Migrate the database through scripts in db/migrate. Target specific brick and version with BRICK=x and VERSION=x"
-  task :migrate => :environment do
-    if ENV['BRICK']
-      # migrate specific bricks only
-      mig_path = nil
-      Dir.foreach('db/migrate') do |file|
-        next if file =~ /^\./
-        next unless File.stat("db/migrate/#{file}").directory?
-        if file =~ /^[0-9-_]*#{ENV["BRICK"]}/
-          mig_path = "db/migrate/#{file}"
-          break
-        end
-      end
-      if mig_path
-        ActiveRecord::BricksMigrator.migrate(mig_path, ENV["BRICK"], ENV["VERSION"] ? ENV["VERSION"].to_i : nil)
-      else
-        puts "Brick migrations must exist in db/migrate/BRICK"
-      end
-    elsif ENV['VERSION']
-      # migrate normal app files with version
-      ActiveRecord::Migrator.migrate("db/migrate/", ENV["VERSION"].to_i)
-    else
-      # migrate all to latest
-      directories = []
-      Dir.foreach('db/migrate') do |file|
-        next if file =~ /^\./
-        next unless File.stat("db/migrate/#{file}").directory?
-        directories << file
-      end
-      directories.sort.each do |file|
-        brick_name = file.sub(/^[0-9-_]*/,'')
-        ActiveRecord::BricksMigrator.migrate("db/migrate/#{file}", brick_name, nil)
-      end
-      ActiveRecord::Migrator.migrate("db/migrate/", nil)
-    end
-    Rake::Task["db:schema:dump"].invoke if ActiveRecord::Base.schema_format == :ruby
-  end
   
   desc "Perform initial setup defined in db/initialize/BRICK. Target brick with BRICK=x"
   task :init => :environment do

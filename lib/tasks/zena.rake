@@ -8,21 +8,39 @@ module Zena
           set_table_name tbl
           reset_column_information
         end
-        def create(opts)
+        
+        def create_or_update(opts)
           h = {}
           opts.each_pair do |k,v|
             if :type == k
-              h[:_type_] = v
+              h['_type_'] = v
             else
-              h[k] = v
+              h[k.to_s] = v
             end
           end
-          super(h)
+          
+          if h['id'] && obj = find_by_id(h['id'])
+            res = []
+            h.each do |k,v|
+              res << "`#{k}` = #{v ? v.inspect : 'NULL'}"
+            end
+            connection.execute "UPDATE #{table_name}  SET #{res.join(', ')} WHERE id = #{h['id']}"
+          else
+            keys   = []
+            values = []
+            h.each do |k,v|
+              keys   << "`#{k}`"
+              values << (v ? v.inspect : 'NULL')
+            end
+            connection.execute "INSERT INTO #{table_name} (#{keys.join(', ')}) VALUES (#{values.join(', ')})"
+          end
         end
       end
+      
       def site_id=(i)
         self[:site_id] = i
       end
+      
       def _type_=(t)
         self.type = t
       end
@@ -52,9 +70,7 @@ module Zena
       base_objects.each_pair do |tbl, list|
         YamlLoader.set_table(tbl.to_s)
         list.each do |record|
-          unless YamlLoader.create(record)
-            puts "could not create #{klass} #{record.inspect}"
-          end
+          YamlLoader.create_or_update(record)
         end
       end
     end
@@ -96,16 +112,56 @@ namespace :zena do
               FileUtils.ln_s("#{RAILS_ROOT}/public/#{dir}", "#{host_path}/public/#{dir}")
             end
             
-            Dir.foreach("#{RAILS_ROOT}/db/init") do |file|
-              next unless file =~ /.+\.yml$/
-              Zena::Loader::load_file(File.join("#{RAILS_ROOT}/db/init", file))
-            end
-            
             puts "Site [#{host}] created."
           end
         end
       end
     end
+  end
+  
+  task :init => :migrate do
+    Dir.foreach("#{RAILS_ROOT}/db/init") do |file|
+      next unless file =~ /.+\.yml$/
+      Zena::Loader::load_file(File.join("#{RAILS_ROOT}/db/init", file))
+    end
+  end
+  
+  desc "Migrate the database through scripts in db/migrate. Target specific brick and version with BRICK=x and VERSION=x"
+  task :migrate => :environment do
+    if ENV['BRICK']
+      # migrate specific bricks only
+      mig_path = nil
+      Dir.foreach('db/migrate') do |file|
+        next if file =~ /^\./
+        next unless File.stat("db/migrate/#{file}").directory?
+        if file =~ /^[0-9-_]*#{ENV["BRICK"]}/
+          mig_path = "db/migrate/#{file}"
+          break
+        end
+      end
+      if mig_path
+        ActiveRecord::BricksMigrator.migrate(mig_path, ENV["BRICK"], ENV["VERSION"] ? ENV["VERSION"].to_i : nil)
+      else
+        puts "Brick migrations must exist in db/migrate/BRICK"
+      end
+    elsif ENV['VERSION']
+      # migrate normal app files with version
+      ActiveRecord::Migrator.migrate("db/migrate/", ENV["VERSION"].to_i)
+    else
+      # migrate all to latest
+      directories = []
+      Dir.foreach('db/migrate') do |file|
+        next if file =~ /^\./
+        next unless File.stat("db/migrate/#{file}").directory?
+        directories << file
+      end
+      directories.sort.each do |file|
+        brick_name = file.sub(/^[0-9-_]*/,'')
+        ActiveRecord::BricksMigrator.migrate("db/migrate/#{file}", brick_name, nil)
+      end
+      ActiveRecord::Migrator.migrate("db/migrate/", nil)
+    end
+    Rake::Task["db:schema:dump"].invoke if ActiveRecord::Base.schema_format == :ruby
   end
   
   Rake::RDocTask.new do |rdoc|
