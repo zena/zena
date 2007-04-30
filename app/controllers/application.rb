@@ -128,87 +128,70 @@ class ApplicationController < ActionController::Base
     # files are searched first into 'sites/shared/views/templates/fixed'. If the templates are not found
     # there, they are searched in the database and compiled into 'app/views/templates/compiled'.
     def template_url(opts={})
-      skin_name = opts[:skin]   || (@node ? @node[:skin] : nil) || 'default'
-      skin_name = skin_name.gsub(/[^a-zA-Z]/,'') # security
+      @skin_name = opts[:skin]   || (@node ? @node[:skin] : nil) || 'default'
+      @skin_name = @skin_name.gsub(/[^a-zA-Z]/,'') # security
       mode      = opts[:mode]   || params[:mode]
       format    = opts[:format] || params[:format] || 'html'
       klass     = @node.class
-      # FIXME: rescue_template = opts[:rescue_template] || '/templates/fixed/default/any'
-      # FIXME: @skin_obj   = nil
-      # classes :
+      
+      # possible classes for the master template :
       klasses = []
       klass.kpath.split(//).each_index { |i| klasses << klass.kpath[0..i] }
-    
-      best_match = { 
-        :conditions => ["tkpath IN (?) AND format = ? AND mode #{mode ? '=' : 'IS'} ?", klasses, format, mode],
-        :select     => "*, (template_contents.skin_name = '#{skin_name}') AS skin_ok",
-        :order      => "length(tkpath) DESC, skin_ok DESC"
-      }
-    
-      if skin_name == 'default'
-        template = TemplateContent.find(:first, best_match)
-        skin_root = "#{SITES_ROOT}/shared"
-      else
-        best_match[:conditions][0] += " AND template_contents.node_id = nodes.id"
-        best_match[:from]   = "nodes, template_contents"
-        best_match[:select] = "nodes.*, template_contents.*, (template_contents.skin_name = #{skin_name}) AS skin_ok",
-        template = secure(Template) { Template.find(:first, best_match) }
-        
-        skin_root = "#{SITES_ROOT}/#{visitor.site.host}"
-      end
       
+      template = secure(Template) { Template.find(:first, 
+        :conditions => ["tkpath IN (?) AND format = ? AND mode #{mode ? '=' : 'IS'} ? AND template_contents.node_id = nodes.id", klasses, format, mode],
+        :from       => "nodes, template_contents",
+        :select     => "nodes.*, template_contents.*, (template_contents.skin_name = #{@skin_name}) AS skin_ok",
+        :order      => "length(tkpath) DESC, skin_ok DESC"
+      )}
+      
+      # FIXME use a default fixed template.
       raise ActiveRecord::RecordNotFound unless template
       
       mode = "_#{mode}" if mode
+      # FIXME use fullpath instead of 'skin_name'
+      skin_root = "#{SITES_ROOT}/#{visitor.site.host}"
       skin_path = "/#{template[:skin_name]}/#{template[:klass]}#{mode}.#{format}"
       main_path = "/#{visitor.lang}/main.erb"
       url = "#{skin_root}/zafu.compiled#{skin_path}#{main_path}"
       
       if File.exists?(url)
-        if skin_name == 'default' && (File.stat(url).mtime < File.stat("#{skin_root}/zafu#{skin_path}").mtime || RAILS_ENV == 'development')
+        # FIXME: use CachedPage to store the compiled template instead of this File.stat test
+        if File.stat(url).mtime < template.v_updated_at
+          # template changed, render
           FileUtils.rmtree("#{skin_root}/zafu.compiled#{skin_path}")
-        elsif skin_name != 'default' && (File.stat(url).mtime < template.v_updated_at || RAILS_ENV == 'development')
-          FileUtils.rmtree("#{skin_root}/zafu.compiled#{skin_path}")
-        else
-          # we can use the cached version
-          return url
+          response.template.instance_variable_set(:@session, session)
+          skin_helper = response.template
+          res = ZafuParser.new_with_url(skin_path, :helper => skin_helper).render
+          FileUtils::mkpath(File.dirname(url)) unless File.exists?(File.dirname(url))
+          File.open(url, "wb") { |f| f.syswrite(res) }
         end
       end
-    
-      # render zafu
-      response.template.instance_variable_set(:@session, session)
-      skin_helper = response.template
-      res = ZafuParser.new_with_url(skin_path, :helper => skin_helper).render
-      FileUtils::mkpath(File.dirname(url)) unless File.exists?(File.dirname(url))
-      File.open(url, "wb") { |f| f.syswrite(res) }    
     
       return url
     end
   
+    # Return a template's content from an url. If the url does not start with a '/', we try by replacing the
+    # first element with the current skin_name and if it does not work, we try with the full url. If the url
+    # start with a '/' we use the full url directly.
     # tested in MainControllerTest
     def template_text_for_url(url)
-      
-      url = url[1..-1] # strip leading '/'
-      url = url.split('/')
-      skin_name = url.shift
-      if skin_name == 'default'
-        path = File.join(SITES_ROOT, 'shared', 'zafu', 'default', *url)
-        if File.exists?(path)
-          File.read(path)
-        else
-          nil
-        end
+      @skin ||= {}
+      if url =~ /^\//
+        url = url[1..-1].split('/')
+        skin_names = [url.shift]
       else
-        if @skin_obj && @skin_obj[:name] == skin_name
-          skin = @skin_obj
-        end
-        skin ||= secure(Skin) { Skin.find_by_name(skin_name) }
-        path = (skin.fullpath.split('/') + url).join('/')
-        partial = secure(TextDocument) { TextDocument.find_by_path(path) }
-        partial.version.text
+        url = url.split('/')
+        skin_names = [@skin_name, url.shift]
       end
-    rescue ActiveRecord::RecordNotFound
-      return nil
+      
+      partial = nil
+      skin_names.each do |skin_name|
+        skin = @skin[skin_name] ||= secure(Skin) { Skin.find_by_name(skin_name) }
+        path = (skin.fullpath.split('/') + url).join('/')
+        break if partial = secure(TextDocument) { TextDocument.find_by_path(path) }
+      end
+      partial ? partial.version.text : nil
     end
 
     # TODO: implement

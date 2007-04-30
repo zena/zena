@@ -9,9 +9,9 @@ module ParserModule
     end
 
     def template_text_for_url(url)
-      url = url[1..-1] # strip leading '/'
-      url = url.gsub('/','_')
-      if test = @strings[url]
+      url = url[1..-1] if url[0..0] == '/' # just ignore the 'relative' or 'absolute' tricks.
+      
+      if test = @strings[url.gsub('/','_')]
         test['src']
       else
         nil
@@ -55,37 +55,21 @@ class Parser
     def new_with_url(url, opts={})
       helper = opts[:helper] || ParserModule::DummyHelper.new
       text, absolute_url = self.find_template_text(url,helper)
-      current_folder = absolute_url ? absolute_url.split('/')[0..-2].join('/') : '/'
+      current_folder     = absolute_url ? absolute_url.split('/')[1..-2].join('/') : nil
       self.new(text, :helper=>helper, :current_folder=>current_folder, :included_history=>[absolute_url])
     end
     
     # Retrieve the template text in the current folder or as an absolute path.
     # This method is used when 'including' text
     def find_template_text(url, helper, current_folder=nil)
-      current_folder ||= '/'
-      # remove trailing '/'
-      if current_folder[-1..-1] == '/'
-        current_folder = current_folder[0..-2]
+      
+      if (url[0..0] != '/') && current_folder
+        url = "#{current_folder}/#{url}"
       end
       
-      if url[0..0] == '/'
-        # absolute url
-        urls = [url,"#{url}/_#{url.split('/').last}"]
-      else
-        # relative path
-        urls = ["#{current_folder}/#{url}", "#{current_folder}/#{url}/_#{url.split('/').last}",
-        "/default/#{url}", "/default/#{url}/_#{url.split('/').last}"]
-      end
-      
-      text = absolute_url = nil
-      urls.each do |template_url|
-        if text = helper.send(:template_text_for_url,template_url)
-          absolute_url = template_url
-          break
-        end
-      end
-      text ||= "<span class='parser_error'>template '#{url}' not found</span>"
-      return [text, absolute_url]
+      text = helper.send(:template_text_for_url, url) || "<span class='parser_error'>template '#{url}' not found</span>"
+      url = "/#{url}" unless url[0..0] == '/' # has to be an absolute path
+      return [text, url]
     end
     
   end
@@ -118,6 +102,11 @@ class Parser
     enter(mode)
   end
   
+  def replace_with(obj)  
+    @blocks   = obj.blocks
+    @params   = obj.params
+  end
+  
   def render(context={})
     return '' if context["no_#{@method}".to_sym]
     return '' unless before_render
@@ -131,8 +120,7 @@ class Parser
         @context[:name] = name
       end
       if replacer = (@context[:parts] || {})[@context[:name]]
-        @blocks   = replacer.blocks
-        @params   = replacer.params
+        replace_with(replacer)
       end
     end
     @result  = ""
@@ -176,11 +164,10 @@ class Parser
   
   def r_include
     expand_with(:preflight=>true)
-    @blocks = @included_blocks || @blocks
     if @parts != {}
-      expand_with(:parts => (@context[:parts] || {}).merge(@parts))
+      expand_with(:parts  => (@context[:parts] || {}).merge(@parts), :blocks => @included_blocks)
     else
-      expand_with
+      expand_with(:blocks => @included_blocks)
     end
   end
   
@@ -220,16 +207,18 @@ class Parser
     # fetch text
     text = @text
     @options[:included_history] ||= []
-    @options[:current_folder]   ||= '/'
+    
     @text, absolute_url = self.class.find_template_text(@params[:template], @options[:helper], @options[:current_folder])
+    
     if absolute_url
       if @options[:included_history].include?(absolute_url)
         @text = "<span class='parser_error'>[include error: #{(@options[:included_history] + [absolute_url]).join(' --&gt; ')} ]</span>"
       else
         @options[:included_history] += [absolute_url]
-        @options[:current_folder] = absolute_url.split('/')[0..-2].join('/')
+        @options[:current_folder]    = absolute_url.split('/')[1..-2].join('/')
       end
     end
+    
     @text = before_parse(@text)
     enter(:void) # scan fetched text
     @included_blocks = @blocks
@@ -253,6 +242,7 @@ class Parser
     @text = @text[str.length..-1]
   end
   
+  # Build blocks
   def store(obj)
     if obj.kind_of?(String) && @blocks.last.kind_of?(String)
       @blocks[-1] << obj
@@ -261,6 +251,7 @@ class Parser
     end
   end
   
+  # Set output during render
   def out(obj)
     @result << obj
   end
@@ -397,11 +388,12 @@ class Parser
   end
   
   def expand_with(acontext={})
+    blocks = acontext.delete(:blocks) || @blocks
     res = ""
     @pass  = {} # current object sees some information from it's direct descendants
     @parts = {}
     new_context = @context.merge(acontext)
-    @blocks.each do |b|
+    blocks.each do |b|
       if b.kind_of?(String)
         res << b
       else

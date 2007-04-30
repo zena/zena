@@ -12,4 +12,4 @@ menu:
 
 include:
   src: "<z:include template='/menu'><z:with part='a'>do <z:inspect/></z:with></z:include>"
-  res: "var a: do [inspect {> :menu=>'true', :name=>'a', :parts=>''}/]"
+  res: "var a: do [inspect {> :menu=>'true', :name=>'a', :parts=>'ado [inspect {> :preflight=>'true'}/]'}/]"

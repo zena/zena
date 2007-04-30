@@ -109,7 +109,7 @@ infinite_bar:
   src: "<z:include template='foo'/>"
   res: "<span class='parser_error'>[include error: /infinite/bar --&gt; /infinite/foo --&gt; /infinite/bar ]</span>"
   
-other_context:
+default_context:
   src: "from other: <z:include template='menu'/> and <z:include template='/include/menu'/>"
   res: "from other: the [test]menu[/test] is nice and include_menu: the [test]menu[/test] is nice"
 
@@ -124,7 +124,7 @@ nested_set_context:
 complex_example:
   src: |
     Some people say <z:hello/>
-    Some say <z:include template='menu'/>
+    Some say <z:include template='/default/menu'/>
       <ul class='list' do='set_context' life='ok'>
         <li>truc</li>
         <li>machin</li>
@@ -137,8 +137,8 @@ complex_example:
       <ul class='list'>
         <li>truc</li>
         <li>machin</li>
-        [test {> :life=>'ok'}]<li>sunny day</li>[/test]
-      </ul>
+    [test {> :life=>'ok'}]    <li>sunny day</li>
+    [/test]  </ul>
     the [test {> :var=>'complex'}]menu[/test] is nice
 
 unknown:
@@ -162,11 +162,12 @@ doctype:
     <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
         "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
     <title do='test'>node title</title>
+    end
   res: |
     <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
         "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
-    [test]<title>node title</title>[/test]
-  
+    [test]<title>node title</title>
+    [/test]end
 no_tag:
   src: "<z:set_context no_test='true'>this is a <z:test>test</z:test>dog</z:set_context>"
   res: "this is a dog"
@@ -200,7 +201,7 @@ ztag_tag:
   res: "<p>hello world!</p>"
 
 name:
-  src: "super: <z:void name='super'>hey <z:text text='ho' name='man'/></z:void>"
+  src: "super: <z:void name='super'>hey <z:void name='man' do='text' text='ho'/></z:void>"
   res: "super: hey ho"
 
 include_super:
@@ -212,7 +213,7 @@ include_super_man:
   res: "include_super: super: hey <p>hello world!</p>"
 
 name_title:
-  src: "title: <h1 do='text' text='dummy' name='title'>blah</h1>"
+  src: "title: <h1 do='void' name='title' do='text' text='dummy'>blah</h1>"
   res: "title: <h1>dummy</h1>"
 
 include_with:
@@ -225,9 +226,9 @@ preserve_newlines:
     </z:repeat>ok
     
   res: |
-    [test]<p>blah</p>[/test]
-    [test]<p>blah</p>[/test]
-    ok
+    [test]<p>blah</p>
+    [/test][test]<p>blah</p>
+    [/test]ok
 
 names:
   src: "<p do='void' name='root'><p do='inspect' name='first'/><p do='inspect' name='second'/></p>"

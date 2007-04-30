@@ -148,30 +148,6 @@ class Node < ActiveRecord::Base
       node
     end
     
-    # Find an node by it's full path. Cache 'fullpath' if found.
-    def find_by_path(path)
-      return nil unless scope = scoped_methods[0]
-      return nil unless scope[:create]
-      visitor = scoped_methods[0][:create][:visitor] # use secure scope to get visitor
-      node = self.find_by_fullpath(path)
-      if node.nil?
-        path = path.split('/')
-        last = path.pop
-        Node.with_exclusive_scope do
-          node = Node.find(visitor.site[:root_id])
-          path.each do |p|
-            raise ActiveRecord::RecordNotFound unless node = Node.find_by_name_and_parent_id(p, node[:id])
-          end
-        end
-        raise ActiveRecord::RecordNotFound unless node = self.find_by_name_and_parent_id(last, node[:id])
-        path << last
-        node.fullpath = path.join('/')
-        # bypass callbacks here
-        Node.connection.execute "UPDATE #{Node.table_name} SET fullpath='#{path.join('/').gsub("'",'"')}' WHERE id='#{node[:id]}'"
-      end
-      node
-    end
-    
     def class_for_relation(rel)
       case rel
       when 'author'

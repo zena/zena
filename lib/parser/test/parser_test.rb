@@ -32,7 +32,7 @@ end
 class ZazenTest < Test::Unit::TestCase
   testfile :zafu, :zafu_asset, :zafu_insight, :zazen
   def test_single
-    do_test('zafu', 'tada')
+    do_test('zafu', 'complex_example')
   end
   def test_zazen_image_no_image
     file = 'zazen'

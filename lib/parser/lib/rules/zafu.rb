@@ -2,6 +2,13 @@ require File.join(File.dirname(__FILE__) , 'zena')
 
 module Zafu
   module Tags
+    attr_accessor :html_tag, :html_tag_params
+    
+    def replace_with(obj)
+      super
+      @html_tag          = obj.html_tag        || @html_tag
+      @html_tag_params   = obj.html_tag_params || @html_tag_params
+    end
     
     def render(context={})
       @context = context
@@ -240,6 +247,7 @@ module Zafu
         make(:asset)
       elsif @text =~ /\A[^>]*?>/
         # html tag
+        store opts[:space_before]
         flush $&
       else
         # never closed tag
