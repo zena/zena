@@ -7,6 +7,7 @@ load File.join(File.dirname(__FILE__), 'deploy_config')
 #================= ADVANCED SETTINGS =============#
 
 set :deploy_to,    "/var/zena"
+set :repository,   "http://svn.zenadmin.org/zena/trunk"
 set :db_name,      "#{application.gsub(/\W/,'_')}"
 role :web,         "root@#{apache2_ip}"
 role :app,         "root@#{apache2_ip}"
