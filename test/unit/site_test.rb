@@ -25,6 +25,11 @@ class SiteTest < ZenaTestUnit
     assert_kind_of Contact, admin.contact
     anon  = secure(User) { User.find(site.anon[:id]) }
     assert_kind_of Contact, anon.contact
+    
+    skin  = secure(Skin) { Skin.find_by_name('default') }
+    assert_kind_of Skin, skin
+    node = secure(Node)  { Node.find_by_parent_id_and_name(skin[:id], 'Project.html') }
+    assert_kind_of Template, node
   end
   
   def test_create_site_bad_name

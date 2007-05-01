@@ -129,7 +129,12 @@ class Site < ActiveRecord::Base
       # =========== CREATE CONTACT NODES FOR USERS ==============
       [su, anon, admin_user].each { |user| user.send(:create_contact) }
       
-      # =========== LOAD DEFAULT TRANSLATIONS ===================
+      # =========== LOAD INITIAL DATA (default skin) =============
+      
+      site.send(:secure,Node) { Node.create_nodes_from_folder(:archive => File.join(RAILS_ROOT, 'db', 'init', 'default.tgz'), :parent_id => root[:id], :defaults => { :rgroup_id => pub[:id], :wgroup_id => sgroup[:id], :pgroup_id => admin[:id] } ) }
+      
+      
+      # == done.
       Site.logger.info "=========================================================="
       Site.logger.info "  NEW SITE CREATED FOR [#{host}] (site#{site[:id]})"
       Site.logger.info "=========================================================="

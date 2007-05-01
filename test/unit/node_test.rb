@@ -851,4 +851,31 @@ done: \"I am done\""
     assert_equal 'en', versions[1].lang
     assert_equal 'Le septième ciel', versions[0].title
   end
+  
+  def test_create_nodes_from_folder_with_defaults
+    login(:tiger)
+    parent = secure(Project) { Project.create(:name => 'import', :parent_id => nodes_id(:zena), :rgroup_id => 4, :wgroup_id => 4) }
+    assert !parent.new_record?, "Not a new record"
+    secure(Node) { Node.create_nodes_from_folder(:folder => File.join(RAILS_ROOT, 'test', 'fixtures', 'import'), :parent_id => parent[:id] )}
+    children = parent.children
+    assert_equal 2, children.size
+    assert_equal 4, children[0].rgroup_id
+    
+    secure(Node) { Node.create_nodes_from_folder(:folder => File.join(RAILS_ROOT, 'test', 'fixtures', 'import'), :parent_id => children[0][:id], :defaults => { :rgroup_id => 1 } )}
+    
+    children = children[0].children
+    assert_equal 1, children.size # cannot create a Note inside an Image
+    assert_equal 1, children[0].rgroup_id
+  end
+  
+  def test_create_nodes_from_archive
+    login(:tiger)
+    secure(Node) { Node.create_nodes_from_folder(:archive => File.join(RAILS_ROOT, 'db', 'init', 'default.tgz'), :parent_id => nodes_id(:zena)) }
+    
+    node = secure(Skin) { Skin.find_by_name('default') }
+    assert_kind_of Skin, node
+    node = secure(Node) { Node.find_by_parent_id_and_name(node[:id], 'Project.html') }
+    assert_kind_of Template, node
+    assert_equal 'NPP', node.c_tkpath
+  end
 end

@@ -162,23 +162,7 @@ class NodesController < ApplicationController
       return
     end
     
-    file  = params[:file]
-    n     = 0
-    while true
-      tmp_folder = File.join(RAILS_ROOT, 'tmp', sprintf('%s.%d.%d', 'import', $$, n))
-      break unless File.exists?(tmp_folder)
-    end
-    
-    begin
-      Fileutils.mkpath(tmp_folder)
-      # extract file in this temporary folder.
-      # FIXME: is there a security risk here ?
-      system "tar -C '#{tmp_folder}' -xz < '#{file.path}'"
-      
-      create_nodes_from_folder(:folder => tmp_folder, :parent => @node)
-    ensure
-      Fileutils.rmtree(tmp_folder)
-    end
+    # TODO: FINISH
   end
   
   def update

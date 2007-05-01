@@ -7,6 +7,21 @@ class Template < TextDocument
     end
   end
   
+  def name=(str)
+    if str =~ /^([A-Z][a-zA-Z]+)(_([a-zA-Z]+)|)(\.(\w+)|)\.html/
+      # starts with a capital letter = master template
+      version.content.klass  = $1
+      version.content.mode   = $3
+      version.content.format = $5 || 'html'
+    else
+      # FIXME: we do not even need a TemplateContent...
+      version.content.klass  = nil
+      version.content.mode   = nil
+      version.content.format = nil
+    end
+    super
+  end
+  
   # Find the
   # TODO: test
   def sweep_cache

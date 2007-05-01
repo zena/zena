@@ -138,7 +138,7 @@ class Node < ActiveRecord::Base
   
   class << self
     
-    # TODO: rename with something indicating the attrs cleanup that this method does.
+    # TODO: cleanup and rename with something indicating the attrs cleanup that this method does.
     def create_node(attrs)
       scope   = self.scoped_methods[0] || {}
       visitor = scope[:create][:visitor]
@@ -156,7 +156,7 @@ class Node < ActiveRecord::Base
       end
 
       attrs.keys.each do |key|
-        if key.to_s =~ /^(\w+)_id$/
+        if key.to_s =~ /^(\w+)_id$/ && ! ['rgroup_id', 'wgroup_id', 'pgroup_id', 'user_id'].include?(key.to_s)
           attrs[key] = Node.connection.execute( "SELECT id FROM nodes WHERE site_id = #{visitor.site[:id]} AND zip = '#{attrs[key].to_i}'" ).fetch_row[0]
         end
       end
@@ -174,7 +174,7 @@ class Node < ActiveRecord::Base
       end
     rescue NameError => err
       node = self.new
-      node.attributes = attrs
+      node.instance_eval { @attributes = attrs }
       node.errors.add('klass', 'invalid')
       # This is to show the klass in the form seizure
       node.instance_variable_set(:@klass, klass)
@@ -184,10 +184,33 @@ class Node < ActiveRecord::Base
     
     
     def create_nodes_from_folder(opts)
-      return nil unless opts[:folder] && (opts[:parent] || opts[:parent_id])
+      return nil unless (opts[:folder] || opts[:archive]) && (opts[:parent] || opts[:parent_id])
       scope = self.scoped_methods[0] || {}
       parent_id = opts[:parent_id] || opts[:parent][:id]
       folder    = opts[:folder]
+      defaults  = opts[:defaults] || {}
+      
+      # create from archive
+      unless folder
+        archive = File.new(opts[:archive])
+        n       = 0
+        while true
+          folder = File.join(RAILS_ROOT, 'tmp', sprintf('%s.%d.%d', 'import', $$, n))
+          break unless File.exists?(folder)
+        end
+
+        begin
+          FileUtils::mkpath(folder)
+          # extract file in this temporary folder.
+          # FIXME: is there a security risk here ?
+          system "tar -C '#{folder}' -xz < '#{archive.path}'"
+          res = create_nodes_from_folder(:folder => folder, :parent_id => parent_id, :defaults => defaults)
+        ensure
+          FileUtils::rmtree(folder)
+        end
+        return res
+      end
+ 
 
       entries = Dir.entries(folder).reject { |f| f =~ /^[^\w]/ }
 
@@ -204,7 +227,7 @@ class Node < ActiveRecord::Base
         elsif filename =~ /^(.+)(\.\w\w|)(\.\d+|)\.yml$/  
           name, lang = $1, ($2 ? $2[1..-1] : visitor.lang)
           # yaml node
-          attrs = get_attributes_from_yaml(path).merge(:_parent_id => parent_id)
+          attrs = defaults.merge(get_attributes_from_yaml(path)).merge(:_parent_id => parent_id)
           attrs['name']   ||= name
           attrs['v_lang'] ||= lang
           current_obj = create_node(attrs)
@@ -221,7 +244,7 @@ class Node < ActiveRecord::Base
           lang = $1 ? $1[1..-1] : visitor.lang
 
           # we have a yml file. Create a version with this file
-          attrs = get_attributes_from_yaml(File.join(folder,entries[index]))
+          attrs = defaults.merge(get_attributes_from_yaml(File.join(folder,entries[index])))
           attrs['name']   ||= filename.split('.').first
           attrs['v_lang'] ||= lang
 
@@ -245,7 +268,7 @@ class Node < ActiveRecord::Base
             document = nil
           else
             # processing a folder
-            current_obj = create_node(attrs)
+            current_obj = create_node(attrs.merge(:_parent_id => parent_id))
           end
           index += 1
         end
@@ -253,8 +276,8 @@ class Node < ActiveRecord::Base
         # finished with the current object's yaml
         if sub_folder
           # create minimal object to store the children
-          current_obj ||= Page.with_exclusive_scope(scope) { Page.create(:parent_id => parent_id, :name => filename.split('.').first ) }
-          create_nodes_from_folder(:folder => sub_folder, :parent => current_obj)
+          current_obj ||= Page.with_exclusive_scope(scope) { Page.create( defaults.merge(:parent_id => parent_id, :name => filename.split('.').first) )}
+          create_nodes_from_folder(:folder => sub_folder, :parent_id => current_obj[:id], :defaults => defaults)
         elsif document && !current_obj  
           # processing a document
           # TODO: DRY this someday...
@@ -265,7 +288,7 @@ class Node < ActiveRecord::Base
               define_method(:original_filename) { filename }
               define_method(:content_type) { ctype }
             end
-            current_obj = Document.with_exclusive_scope(scope) { Document.create(:c_file => file, :parent_id => parent_id, :name => filename) }
+            current_obj = Document.with_exclusive_scope(scope) { Document.create(defaults.merge(:c_file => file, :parent_id => parent_id, :name => filename)) }
           end
         end
       end
