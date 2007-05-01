@@ -546,7 +546,7 @@ module ApplicationHelper
       opts[:link] = (obj[:id] != @node[:id])
     end
     unless opts.include?(:project)
-      opts[:project] = (obj[:section_id] != @node[:section_id] && obj[:id] != @node[:id]) 
+      opts[:project] = (obj[:project_id] != @node.get_project_id && obj[:id] != @node[:id]) 
     end
     title = opts[:text] || obj.version.title
     if opts[:project]

@@ -106,8 +106,8 @@ class Parser
   end
   
   def replace_with(obj)  
-    @blocks   = obj.blocks
-    @params   = obj.params
+    @blocks   = obj.blocks || @blocks
+    @params   = obj.params || @params
   end
   
   def render(context={})

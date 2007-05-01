@@ -16,7 +16,7 @@ class VersionsController < ApplicationController
       format.all  do
         # Get document data (inline if possible)
         if params[:format] != @node.c_ext
-          return redirect_to params.merge(:format => @node.c_ext)
+          return redirect_to(params.merge(:format => @node.c_ext))
         end
         
         if @node.kind_of?(Image) && !ImageBuilder.dummy?

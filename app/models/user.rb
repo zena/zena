@@ -112,9 +112,11 @@ class User < ActiveRecord::Base
   # called to set the visitor in the found object. This is also used to keep track of the opened nodes
   # when rendering a page for the cache so we can know when to expire the cache.
   def visit(obj, opts={})
-    obj.visitor = self
-    # keep track of the nodes connected to this visit to build the 'expire_with' list
-    visited_node_ids << obj[:id] if is_anon? && CachedPage.perform_caching && obj.kind_of?(Node)
+    if obj.kind_of? ActiveRecord::Base
+      obj.visitor = self
+      # keep track of the nodes connected to this visit to build the 'expire_with' list
+      visited_node_ids << obj[:id] if is_anon? && CachedPage.perform_caching && obj.kind_of?(Node)
+    end
   end
   
   def visited_node_ids

@@ -231,7 +231,7 @@ module Zafu
   
     def scan_tag(opts={})
       # puts "TAG(#{@method}): [#{@text}]"
-      if @text =~ /\A<z:(\w+)([^>]*?)(\/?)>/
+      if @text =~ /\A<z:([\w_]+)([^>]*?)(\/?)>/
         # puts "ZTAG:[#{$&}]}" # ztag
         eat $&
         opts.merge!(:method=>$1, :params=>$2)
@@ -283,7 +283,7 @@ module Zafu
     end
     
     def scan_inside_asset
-      if @text =~ /\A(.*?)<\/#{@end_tag}>/
+      if @text =~ /\A(.*?)<\/#{@end_tag}>/m
         flush $&
         leave(:asset)
       else

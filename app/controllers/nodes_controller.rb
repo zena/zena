@@ -98,7 +98,7 @@ class NodesController < ApplicationController
           disposition  = 'inline'
         end
         raise ActiveRecord::RecordNotFound unless data
-          
+        
         send_data( data.read , :filename=>@node.c_filename, :type=>@node.c_content_type, :disposition=>disposition)
         data.close
         cache_page(:content_path => content_path, :authenticated => @node.public?) # content_path is used to cache by creating a symlink
@@ -139,7 +139,7 @@ class NodesController < ApplicationController
   
   # TODO: test
   def save_text
-    save
+    update
   end
   
   # Create a backup copy of the current redaction.
@@ -164,7 +164,7 @@ class NodesController < ApplicationController
   end
   
   def update
-    attrs = cleanup_node_params
+    attrs = clean_attributes
     attrs.delete(:klass)
     attrs.delete(:c_file) if attrs[:c_file] == ""
     

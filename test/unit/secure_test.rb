@@ -932,4 +932,13 @@ class SecureUpdateTest < ZenaTestUnit
     # whale is now visiting 'zena'
     assert_raise(ActiveRecord::RecordNotFound) { secure(Node) { nodes(:ocean) }}
   end
+  
+  def test_secure_whatever
+    login(:ant)
+    # test to if a 'secure scope' can return anything
+    hash = nil
+    assert_nothing_raised(ActiveRecord::RecordNotFound) { hash = secure(Node) { Hash[:a, 'a', :b, 'b'] } }
+    assert_kind_of Hash, hash
+    assert_equal 'a', hash[:a]
+  end
 end

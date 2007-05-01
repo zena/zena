@@ -371,10 +371,11 @@ module Zena
         # Any attribute starting with 'v_' belongs to the 'version' or 'redaction'
         # Any attribute starting with 'c_' belongs to the 'version' or 'redaction' content
         def method_missing(meth, *args)
-          if meth.to_s =~ /^(v_|c_)([\w_\?]+(=?))$/
+          if meth.to_s =~ /^(v_|c_)(([\w_\?]+)(=?))$/
             target = $1
             method = $2.to_sym
-            mode   = $3
+            value  = $3.to_sym
+            mode   = $4
             if mode == '='
               # set
               unless recipient = redaction
@@ -382,7 +383,8 @@ module Zena
                 redaction_error(meth.to_s[0..-2], "could not be set (no redaction)")
                 return
               end
-              recipient = recipient.redaction_content if target == 'c_'
+              # TODO: test the value != stuff
+              recipient = recipient.redaction_content if target == 'c_' && recipient.content.send(value) != args[0]
               # puts "SEND #{method.inspect} #{args.inspect} TO #{recipient.class}"
               recipient.send(method,*args)  
             else

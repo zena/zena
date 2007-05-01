@@ -10,7 +10,7 @@
   <%= hidden_field 'node', 'v_lang', :value=>@node.v_lang %>
   <div class='validate'>
     <div><input type="submit" onclick="$('loader').style.visibility = 'visible';" value='<%= transb('validate') %>'/></div>
-    <div><%# FIXME = submit_to_remote('save', transb('save'), :url=>{:action => 'save_text', :controller=>'version', :id=>@node[:id]}, :loading=>"$('loader').style.visibility = 'visible';") %></div>
+    <div><%= submit_to_remote('save', transb('save'), :url => save_text_node_path(:id => @node[:zip]), :loading=>"$('loader').style.visibility = 'visible';") %></div>
     <% unless @node.version.new_record? %>
     <div><%# FIXME = submit_to_remote('backup', transb('backup'), :url=>{:action => 'backup', :controller=>'version', :id=>@node.v_id}, :loading=>"$('loader').style.visibility = 'visible';") %></div>
     <% end -%>

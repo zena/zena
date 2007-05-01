@@ -131,7 +131,6 @@ class ApplicationController < ActionController::Base
       @skin_name = opts[:skin]   || (@node ? @node[:skin] : nil) || 'default'
       @skin_name = @skin_name.gsub(/[^a-zA-Z]/,'') # security
       mode      = opts[:mode]   || params[:mode]
-      puts mode.inspect
       format    = opts[:format] || params[:format] || 'html'
       klass     = @node.class
       
@@ -157,7 +156,7 @@ class ApplicationController < ActionController::Base
       url = "#{skin_root}/zafu#{skin_path}#{main_path}"
       
       # FIXME: use CachedPage to store the compiled template instead of this File.stat test
-      if true #!File.exists?(url) || (File.stat(url).mtime < template.v_updated_at)
+      if !File.exists?(url) || (File.stat(url).mtime < template.v_updated_at)
         # template changed, render
         FileUtils.rmtree("#{skin_root}/zafu#{skin_path}")
         response.template.instance_variable_set(:@session, session)
@@ -234,11 +233,7 @@ class ApplicationController < ActionController::Base
       template_url = template_url[1..-1].split('/')
       path = "/#{template_url[0]}/#{template_url[1]}/#{visitor.lang}/#{template_url[2..-1].join('/')}"
 
-      if template_url[0] == 'default'
-        "#{SITES_ROOT}/shared/zafu#{path}"
-      else
-        "#{SITES_ROOT}/#{visitor.site.host}/zafu#{path}"
-      end
+      "#{SITES_ROOT}/#{visitor.site.host}/zafu#{path}"
     end
   
     # Verify that only logged in users access to some protected resources. This can be used to remove public access to an
@@ -348,7 +343,10 @@ class ApplicationController < ActionController::Base
         nil
       end
     end
-    
+
+    def clean_attributes(attrs=params['node'])
+      secure(Node) { Node.clean_attributes(attrs) }
+    end
     
     def parse_dates(attrs=params['node'])
       # parse dates

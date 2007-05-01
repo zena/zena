@@ -82,12 +82,6 @@ class DocumentContent < ActiveRecord::Base
     "#{SITES_ROOT}#{site.data_path}/#{ext}/#{self[:version_id]}/#{filename(format)}"
   end
   
-  # Path for cached document in the public directory.
-  # def cachepath(format=nil)
-  #   raise StandardError, "version not set" unless self[:version_id]
-  #   "#{SITES_ROOT}#{site.public_path}/data#{path(format)}"
-  # end
-  
   private
   
   def valid_file
@@ -97,6 +91,7 @@ class DocumentContent < ActiveRecord::Base
   end
   
   def content_before_save
+    puts self[:content_type]
     self[:type] = self.class.to_s # make sure the type is set in case no sub-classes are loaded.
     if @file
       # destroy old file

@@ -8,7 +8,7 @@ class Template < TextDocument
   end
   
   def name=(str)
-    if str =~ /^([A-Z][a-zA-Z]+)(_([a-zA-Z]+)|)(\.(\w+)|)\.html/
+    if str =~ /^([A-Z][a-zA-Z]+?)(_([a-zA-Z_]+)|)(\.(\w+)|)\.html/
       # starts with a capital letter = master template
       version.content.klass  = $1
       version.content.mode   = $3

@@ -91,8 +91,9 @@ class Version < ActiveRecord::Base
       # own content, nothing to do
     elsif @content
       # content shared, make it our own
-      @old_content = @content # keep the old own in case we cannot save and need to rollback
-      @content = @content.clone
+      @old_content = @content # keep the old one in case we cannot save and need to rollback
+      @content = @old_content.clone
+      puts @content.inspect
       @content.version = self
       self[:content_id] = nil
     else

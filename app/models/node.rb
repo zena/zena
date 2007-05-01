@@ -138,13 +138,11 @@ class Node < ActiveRecord::Base
   
   class << self
     
-    # TODO: cleanup and rename with something indicating the attrs cleanup that this method does.
-    def create_node(new_attributes)
+    def clean_attributes(new_attributes)
       attributes = new_attributes.stringify_keys
-      publish = (attributes.delete('v_status').to_i == Zena::Status[:pub])
-      klass   = attributes.delete('class') || attributes.delete('klass')|| self.to_s
       
       scope   = self.scoped_methods[0] || {}
+      
       visitor = scope[:create][:visitor]
       
       if parent_id = attributes.delete('_parent_id')
@@ -167,7 +165,15 @@ class Node < ActiveRecord::Base
       attributes['parent_id'] = parent_id if parent_id
 
       attributes.delete('file') if attributes['file'] == ''
-
+      attributes
+    end
+    
+    # TODO: cleanup and rename with something indicating the attrs cleanup that this method does.
+    def create_node(new_attributes)
+      attributes = clean_attributes(new_attributes)
+      publish = (attributes.delete('v_status').to_i == Zena::Status[:pub])
+      
+      klass   = attributes.delete('class') || attributes.delete('klass')|| self.to_s
       klass = Module::const_get(klass.to_sym)
       raise NameError unless klass.ancestors.include?(Node)
       
@@ -253,7 +259,7 @@ class Node < ActiveRecord::Base
           lang = $1 ? $1[1..-1] : visitor.lang
 
           # we have a yml file. Create a version with this file
-          attrs = defaults.merge(get_attributes_from_yaml(File.join(folder,entries[index])))
+          attrs = defaults.merge(clean_attributes(get_attributes_from_yaml(File.join(folder,entries[index]))))
           attrs['name']   ||= filename.split('.').first
           attrs['v_lang'] ||= lang
 
@@ -262,7 +268,6 @@ class Node < ActiveRecord::Base
             current_obj.remove if current_obj.v_lang == attrs['v_lang']
             current_obj.edit!(attrs['v_lang'])
             
-            # FIXME: This should pass through the 'attrs' cleanup...
             current_obj.update_attributes(attrs.merge(:parent_id => parent_id))
             current_obj.publish if attrs['v_status'].to_i == Zena::Status[:pub]
           elsif document
@@ -557,6 +562,7 @@ class Node < ActiveRecord::Base
   
   # Find section
   def section(opts={})
+    return self if self[:parent_id].nil?
     # we cannot use Section to find because the root node behaves like a Section but is a Project.
     secure(Node, opts) { Node.find(self[:section_id]) }
   rescue ActiveRecord::RecordNotFound
@@ -565,6 +571,7 @@ class Node < ActiveRecord::Base
   
   # Find project
   def project(opts={})
+    return self if self[:parent_id].nil?
     secure(Project, opts) { Project.find(self[:project_id]) }
   rescue ActiveRecord::RecordNotFound
     nil
