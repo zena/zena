@@ -33,44 +33,7 @@ class NodesControllerTest < ZenaTestController
     assert_template 'node/not_found'
   end
   
-  def test_get_attributes_from_yaml
-    f = Tempfile.new('any.yml')
-    path = f.path
-    File.open(path, 'w') do |file|
-      path = file.path
-      file.puts "first: I am the first
-five: 5
-done: \"I am done\""
-    end
-    attrs = @controller.send(:get_attributes_from_yaml, path)
-    
-    assert_equal 'I am the first', attrs['first']
-    assert_equal 5,                attrs['five']
-    assert_equal 'I am done',      attrs['done']
-  end
-  
-  def test_create_nodes_from_folder
-    login(:tiger)
-    parent = secure(Project) { Project.create(:name => 'import', :parent_id => nodes_id(:zena)) }
-    assert !parent.new_record?, "Not a new record"
-    @controller.send(:create_nodes_from_folder, :folder => File.join(RAILS_ROOT, 'test', 'fixtures', 'import'), :parent => parent )
-    children = parent.children
-    assert_equal 2, children.size
-    bird, simple = children
-    
-    assert_equal 'bird', bird[:name]
-    assert_equal 'simple', simple[:name]
-    assert_equal 'The sky is blue', simple.v_title
-    assert_equal 'jpg', bird.c_ext
-    assert_equal 'Lucy in the sky', bird.v_title
-    versions = bird.versions
-    assert_equal 2, versions.size
-    assert_equal 'fr', versions[0].lang
-    assert_equal 'en', versions[1].lang
-    assert_equal 'Le septième ciel', versions[0].title
-  end
-  
   def test_import
-    
+    assert false
   end
 end

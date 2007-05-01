@@ -63,7 +63,11 @@ class Document < Page
       else
         klass = Document
       end
-      klass.with_scope(scope) { klass.o_new(hash) }
+      if klass != self
+        klass.with_scope(scope) { klass.o_new(hash) }
+      else
+        klass.o_new(hash)
+      end
     end
   end
   

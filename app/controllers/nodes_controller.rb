@@ -109,7 +109,8 @@ class NodesController < ApplicationController
   end
   
   def create
-    @node = create_node
+    attrs = parse_dates
+    @node = secure(Node) { Node.create_node(attrs) }
     
     respond_to do |format|
       if @node.errors.empty?
@@ -316,101 +317,6 @@ class NodesController < ApplicationController
       elsif params[:id]
         @node = secure(Node) { Node.find_by_zip(params[:id]) }
       end
-    end
-    
-    def create_nodes_from_folder(opts)
-      parent = opts[:parent] || @node
-      folder = opts[:folder]
-      
-      entries = Dir.entries(folder).reject { |f| f =~ /^[^\w]/ }
-      
-      index  = 0
-      
-      while index < entries.size
-        current_obj = document = sub_folder = nil # new object
-        filename = entries[index]
-        path     = File.join(folder, filename)
-        
-        if File.stat(path).directory?
-          sub_folder = path
-          # look-ahead to see if we have any related yml files before processing the folder
-        elsif filename =~ /^(.+)(\.\w\w|)(\.\d+|)\.yml$/  
-          name, lang = $1, ($2 ? $2[1..-1] : visitor.lang)
-          # yaml node
-          attrs = get_attributes_from_yaml(path).merge(:parent_id => parent[:id])
-          attrs['name']   ||= name
-          attrs['v_lang'] ||= lang
-          current_obj = create_node(attrs)
-        else
-          # document
-          document   = path
-          # look-ahead
-        end  
-        index += 1
-        
-        # FIXME: how to set version status and user_id ?
-
-        while entries[index] =~ /^#{filename}(\.\w\w|)(\.\d+|)\.yml$/
-          lang = $1 ? $1[1..-1] : visitor.lang
-          
-          # we have a yml file. Create a version with this file
-          attrs = get_attributes_from_yaml(File.join(folder,entries[index])).merge(:parent_id => parent[:id])
-          attrs['name']   ||= filename.split('.').first
-          attrs['v_lang'] ||= lang
-          
-          if current_obj
-            # FIXME: what publication status for these things ?
-            current_obj.remove if current_obj.v_lang == attrs['v_lang']
-            current_obj.edit!(attrs['v_lang'])
-            current_obj.update_attributes(attrs)
-          elsif document
-            # processing a document
-            ctype = EXT_TO_TYPE[document.split('.').last][0] || "application/octet-stream"
-            File.open(document) do |file|
-              (class << file; self; end;).class_eval do
-                alias local_path path if defined?(:path)
-                define_method(:original_filename) { filename }
-                define_method(:content_type) { ctype }
-              end
-              current_obj = create_node(attrs.merge(:c_file => file, :klass => 'Document'))
-            end
-            document = nil
-          else
-            # processing a folder
-            current_obj = create_node(attrs)
-          end
-          index += 1
-        end
-        
-        # finished with the current object's yaml
-        if sub_folder
-          # create minimal object to store the children
-          current_obj ||= secure(Page) { Page.create(:parent_id => parent[:id], :name => filename.split('.').first ) }
-          create_nodes_from_folder(:folder => sub_folder, :parent => current_obj)
-        elsif document && !current_obj  
-          # processing a document
-          # TODO: DRY this someday...
-          ctype = EXT_TO_TYPE[document.split('.').last][0] || "application/octet-stream"
-          File.open(document) do |file|
-            (class << file; self; end;).class_eval do
-              alias local_path path if defined?(:path)
-              define_method(:original_filename) { filename }
-              define_method(:content_type) { ctype }
-            end
-            current_obj = secure(Document) { Document.create(:c_file => file, :parent_id => parent[:id], :name => filename) }
-          end
-        end
-      end
-    end
-    
-    def get_attributes_from_yaml(filepath)
-      attributes = {}
-      YAML::load_documents( File.open( filepath ) ) do |entries|
-        entries.each do |key,value|
-          attributes[key] = value
-        end
-      end
-      attributes
     end
 =begin
   

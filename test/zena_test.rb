@@ -102,8 +102,12 @@ module Zena
       def with_caching
         @perform_caching_bak = ApplicationController.perform_caching
         ApplicationController.perform_caching = true
+        Cache.perform_caching = true
+        CachedPage.perform_caching = true
         yield
       ensure
+        Cache.perform_caching = @perform_caching_bak
+        CachedPage.perform_caching = @perform_caching_bak
         ApplicationController.perform_caching = @perform_caching_bak
       end
 

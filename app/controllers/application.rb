@@ -306,39 +306,6 @@ class ApplicationController < ActionController::Base
       
       true
     end
-    
-    # translate 'fake' ids into real ones
-    def cleanup_node_params(attrs=params['node'])
-      res = attrs.dup
-      
-      parent_id = res.delete('parent_id')
-      if parent_id && parent_id.to_i.to_s != parent_id.strip
-        # find by name
-        parent_id = secure(Node) { Node.find_by_name(parent_id) }[:id]
-      elsif parent_id
-        # pass it to the 'zip translator below'
-        res['parent_id'] = parent_id
-        parent_id = nil
-      end
-      
-      res.keys.each do |key|
-        if key =~ /^(\w+)_id$/
-          res[key] = Node.connection.execute( "SELECT id FROM nodes WHERE site_id = #{visitor.site[:id]} AND zip = '#{attrs[key].to_i}'" ).fetch_row[0]
-        end
-      end
-      
-      res['parent_id'] = parent_id if parent_id
-      
-      res.delete('file') if res['file'] == ''
-          
-      # parse dates
-      fmt=trans('datetime')
-      [:v_publish_from, :log_at, :event_at].each do |sym|
-        res[sym] = parse_date(res[sym], fmt) if res[sym]
-      end
-      res
-    end
-    
   
     # "Translate" static text into the current lang
     def trans(keyword, edit=true)
@@ -376,23 +343,16 @@ class ApplicationController < ActionController::Base
       end
     end
     
-    def create_node(attrs=params['node'])
-      klass = attrs.delete('class') || attrs.delete('klass') || attrs.delete(:class) || attrs.delete(:klass) || 'Page'
-      attrs = cleanup_node_params(attrs)
-      
-      klass = Module::const_get(klass.capitalize.to_sym)
-      raise NameError unless klass.ancestors.include?(Node)
-      node = secure(klass) { klass.create(attrs) }
-    rescue NameError => err
-      node = secure(Node) { Node.new }
-      node.attributes = attrs
-      node.errors.add('klass', 'invalid')
-      # This is to show the klass in the form seizure
-      node.instance_variable_set(:@klass, klass)
-      def node.klass; @klass; end
-      node
+    
+    def parse_dates(attrs=params['node'])
+      # parse dates
+      fmt=trans('datetime')
+      [:v_publish_from, :log_at, :event_at].each do |sym|
+        attrs[sym] = parse_date(attrs[sym], fmt) if attrs[sym]
+      end
+      attrs
     end
-  
+    
     # /////// The following methods are common to controllers and views //////////// #
   
     def data_path(obj)

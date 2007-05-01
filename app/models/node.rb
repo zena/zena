@@ -137,6 +137,142 @@ class Node < ActiveRecord::Base
   link :home_for, :as=>'home', :class_name=>'Project', :as_unique=>true
   
   class << self
+    
+    # TODO: rename with something indicating the attrs cleanup that this method does.
+    def create_node(attrs)
+      scope   = self.scoped_methods[0] || {}
+      visitor = scope[:create][:visitor]
+      klass = attrs.delete('class') || attrs.delete('klass') || attrs.delete(:class) || attrs.delete(:klass) || self.to_s
+      
+      if parent_id = attrs.delete(:_parent_id)
+        attrs.delete('parent_id')
+      else
+         p = attrs['parent_id']
+        if p && p.to_i.to_s != p.to_s.strip
+          # find by name
+          parent_id = Node.with_exclusive_scope(scope) { Node.find_by_name(p) }[:id]
+          attrs.delete('parent_id')
+        end
+      end
+
+      attrs.keys.each do |key|
+        if key.to_s =~ /^(\w+)_id$/
+          attrs[key] = Node.connection.execute( "SELECT id FROM nodes WHERE site_id = #{visitor.site[:id]} AND zip = '#{attrs[key].to_i}'" ).fetch_row[0]
+        end
+      end
+
+      attrs['parent_id'] = parent_id if parent_id
+
+      attrs.delete('file') if attrs['file'] == ''
+
+      klass = Module::const_get(klass.to_sym)
+      raise NameError unless klass.ancestors.include?(Node)
+      if klass != self
+        klass.with_exclusive_scope(scope) { klass.create(attrs) }
+      else
+        self.create(attrs)
+      end
+    rescue NameError => err
+      node = self.new
+      node.attributes = attrs
+      node.errors.add('klass', 'invalid')
+      # This is to show the klass in the form seizure
+      node.instance_variable_set(:@klass, klass)
+      def node.klass; @klass; end
+      node
+    end
+    
+    
+    def create_nodes_from_folder(opts)
+      return nil unless opts[:folder] && (opts[:parent] || opts[:parent_id])
+      scope = self.scoped_methods[0] || {}
+      parent_id = opts[:parent_id] || opts[:parent][:id]
+      folder    = opts[:folder]
+
+      entries = Dir.entries(folder).reject { |f| f =~ /^[^\w]/ }
+
+      index  = 0
+
+      while index < entries.size
+        current_obj = document = sub_folder = nil # new object
+        filename = entries[index]
+        path     = File.join(folder, filename)
+
+        if File.stat(path).directory?
+          sub_folder = path
+          # look-ahead to see if we have any related yml files before processing the folder
+        elsif filename =~ /^(.+)(\.\w\w|)(\.\d+|)\.yml$/  
+          name, lang = $1, ($2 ? $2[1..-1] : visitor.lang)
+          # yaml node
+          attrs = get_attributes_from_yaml(path).merge(:_parent_id => parent_id)
+          attrs['name']   ||= name
+          attrs['v_lang'] ||= lang
+          current_obj = create_node(attrs)
+        else
+          # document
+          document   = path
+          # look-ahead
+        end  
+        index += 1
+
+        # FIXME: how to set version status and user_id ?
+
+        while entries[index] =~ /^#{filename}(\.\w\w|)(\.\d+|)\.yml$/
+          lang = $1 ? $1[1..-1] : visitor.lang
+
+          # we have a yml file. Create a version with this file
+          attrs = get_attributes_from_yaml(File.join(folder,entries[index]))
+          attrs['name']   ||= filename.split('.').first
+          attrs['v_lang'] ||= lang
+
+          if current_obj
+            # FIXME: what publication status for these things ?
+            current_obj.remove if current_obj.v_lang == attrs['v_lang']
+            current_obj.edit!(attrs['v_lang'])
+            # FIXME: This should pass through the 'attrs' cleanup...
+            current_obj.update_attributes(attrs.merge(:parent_id => parent_id))
+          elsif document
+            # processing a document
+            ctype = EXT_TO_TYPE[document.split('.').last][0] || "application/octet-stream"
+            File.open(document) do |file|
+              (class << file; self; end;).class_eval do
+                alias local_path path if defined?(:path)
+                define_method(:original_filename) { filename }
+                define_method(:content_type) { ctype }
+              end
+              current_obj = create_node(attrs.merge(:c_file => file, :klass => 'Document', :_parent_id => parent_id))
+            end
+            document = nil
+          else
+            # processing a folder
+            current_obj = create_node(attrs)
+          end
+          index += 1
+        end
+
+        # finished with the current object's yaml
+        if sub_folder
+          # create minimal object to store the children
+          current_obj ||= Page.with_exclusive_scope(scope) { Page.create(:parent_id => parent_id, :name => filename.split('.').first ) }
+          create_nodes_from_folder(:folder => sub_folder, :parent => current_obj)
+        elsif document && !current_obj  
+          # processing a document
+          # TODO: DRY this someday...
+          ctype = EXT_TO_TYPE[document.split('.').last][0] || "application/octet-stream"
+          File.open(document) do |file|
+            (class << file; self; end;).class_eval do
+              alias local_path path if defined?(:path)
+              define_method(:original_filename) { filename }
+              define_method(:content_type) { ctype }
+            end
+            current_obj = Document.with_exclusive_scope(scope) { Document.create(:c_file => file, :parent_id => parent_id, :name => filename) }
+          end
+        end
+      end
+      current_obj
+    end
+
+
     # valid parent class
     def parent_class
       Node
@@ -183,6 +319,16 @@ class Node < ActiveRecord::Base
       else
         Node
       end
+    end
+    
+    def get_attributes_from_yaml(filepath)
+      attributes = {}
+      YAML::load_documents( File.open( filepath ) ) do |entries|
+        entries.each do |key,value|
+          attributes[key] = value
+        end
+      end
+      attributes
     end
   end
   
@@ -449,7 +595,7 @@ class Node < ActiveRecord::Base
     c.project_id = self.get_project_id
     c
   end
-
+  
   # ACCESSORS
   def author
     user
@@ -658,8 +804,6 @@ class Node < ActiveRecord::Base
         end
       end
     end
-  
-  private
   
   private
     def node_before_validation

@@ -781,4 +781,74 @@ class NodeTest < ZenaTestUnit
     assert_equal nodes_id( :cleanWater), parent[:id]
     assert_equal nodes_zip(:cleanWater), node.parent_zip
   end
+  
+  def test_create_node
+    login(:ant)
+    node = secure(Node) { Node.create_node(:parent_id => nodes_zip(:secret), :name => 'funy') }
+    assert_equal nodes_id(:secret), node[:parent_id]
+    assert node.new_record?, "Not saved"
+    assert node.errors[:parent_id], "invalid reference"
+  end
+  
+  def test_create_node_with__parent_id
+    login(:ant)
+    node = secure(Node) { Node.create_node(:_parent_id => nodes_id(:secret), :name => 'funy') }
+    assert_equal nodes_id(:secret), node[:parent_id]
+    assert node.new_record?, "Not saved"
+    assert node.errors[:parent_id], "invalid reference"
+  end
+  
+  def test_create_node_ok
+    login(:ant)
+    node = secure(Node) { Node.create_node('parent_id' => nodes_zip(:myLife), 'name' => 'funy') }
+    assert_equal nodes_id(:myLife), node[:parent_id]
+    assert_equal 'funy', node[:name]
+    assert !node.new_record?, "Saved"
+  end
+  
+  def test_create_with_klass
+    login(:tiger)
+    node = secure(Node) { Node.create_node('parent_id' => nodes_zip(:projects), 'name' => 'funy', 'klass' => 'TextDocument', 'c_content_type' => 'application/x-javascript') }
+    assert_kind_of TextDocument, node
+    assert_equal nodes_id(:projects), node[:parent_id]
+    assert_equal 'funy', node[:name]
+    assert !node.new_record?, "Saved"
+  end
+  
+  def test_get_attributes_from_yaml
+    f = Tempfile.new('any.yml')
+    path = f.path
+    File.open(path, 'w') do |file|
+      path = file.path
+      file.puts "first: I am the first
+five: 5
+done: \"I am done\""
+    end
+    attrs = Node.get_attributes_from_yaml(path)
+    
+    assert_equal 'I am the first', attrs['first']
+    assert_equal 5,                attrs['five']
+    assert_equal 'I am done',      attrs['done']
+  end
+  
+  def test_create_nodes_from_folder
+    login(:tiger)
+    parent = secure(Project) { Project.create(:name => 'import', :parent_id => nodes_id(:zena)) }
+    assert !parent.new_record?, "Not a new record"
+    secure(Node) { Node.create_nodes_from_folder(:folder => File.join(RAILS_ROOT, 'test', 'fixtures', 'import'), :parent_id => parent[:id] )}
+    children = parent.children
+    assert_equal 2, children.size
+    bird, simple = children
+    
+    assert_equal 'bird', bird[:name]
+    assert_equal 'simple', simple[:name]
+    assert_equal 'The sky is blue', simple.v_title
+    assert_equal 'jpg', bird.c_ext
+    assert_equal 'Lucy in the sky', bird.v_title
+    versions = bird.versions
+    assert_equal 2, versions.size
+    assert_equal 'fr', versions[0].lang
+    assert_equal 'en', versions[1].lang
+    assert_equal 'Le septième ciel', versions[0].title
+  end
 end
