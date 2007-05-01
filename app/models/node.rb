@@ -127,7 +127,7 @@ class Node < ActiveRecord::Base
   before_save        :node_before_create
   after_save         :spread_project_and_section
   before_destroy     :node_on_destroy
-  attr_protected     :site_id, :zip, :id, :section_id, :project_id, :publish_from, :max_status
+  attr_protected     :site_id, :zip, :id, :section_id, :project_id, :publish_from, :max_status, :v_status
   acts_as_secure_node
   acts_as_multiversioned
   link :tags, :class_name=>'Tag'
@@ -139,42 +139,48 @@ class Node < ActiveRecord::Base
   class << self
     
     # TODO: cleanup and rename with something indicating the attrs cleanup that this method does.
-    def create_node(attrs)
+    def create_node(new_attributes)
+      attributes = new_attributes.stringify_keys
+      publish = (attributes.delete('v_status').to_i == Zena::Status[:pub])
+      klass   = attributes.delete('class') || attributes.delete('klass')|| self.to_s
+      
       scope   = self.scoped_methods[0] || {}
       visitor = scope[:create][:visitor]
-      klass = attrs.delete('class') || attrs.delete('klass') || attrs.delete(:class) || attrs.delete(:klass) || self.to_s
       
-      if parent_id = attrs.delete(:_parent_id)
-        attrs.delete('parent_id')
+      if parent_id = attributes.delete('_parent_id')
+        attributes.delete('parent_id')
       else
-         p = attrs['parent_id']
+         p = attributes['parent_id']
         if p && p.to_i.to_s != p.to_s.strip
           # find by name
           parent_id = Node.with_exclusive_scope(scope) { Node.find_by_name(p) }[:id]
-          attrs.delete('parent_id')
+          attributes.delete('parent_id')
         end
       end
 
-      attrs.keys.each do |key|
-        if key.to_s =~ /^(\w+)_id$/ && ! ['rgroup_id', 'wgroup_id', 'pgroup_id', 'user_id'].include?(key.to_s)
-          attrs[key] = Node.connection.execute( "SELECT id FROM nodes WHERE site_id = #{visitor.site[:id]} AND zip = '#{attrs[key].to_i}'" ).fetch_row[0]
+      attributes.keys.each do |key|
+        if key =~ /^(\w+)_id$/ && ! ['rgroup_id', 'wgroup_id', 'pgroup_id', 'user_id'].include?(key)
+          attributes[key] = Node.connection.execute( "SELECT id FROM nodes WHERE site_id = #{visitor.site[:id]} AND zip = '#{attributes[key].to_i}'" ).fetch_row[0]
         end
       end
 
-      attrs['parent_id'] = parent_id if parent_id
+      attributes['parent_id'] = parent_id if parent_id
 
-      attrs.delete('file') if attrs['file'] == ''
+      attributes.delete('file') if attributes['file'] == ''
 
       klass = Module::const_get(klass.to_sym)
       raise NameError unless klass.ancestors.include?(Node)
-      if klass != self
-        klass.with_exclusive_scope(scope) { klass.create(attrs) }
+      
+      node = if klass != self
+        klass.with_exclusive_scope(scope) { klass.create(attributes) }
       else
-        self.create(attrs)
+        self.create(attributes)
       end
+      node.publish if publish
+      node
     rescue NameError => err
       node = self.new
-      node.instance_eval { @attributes = attrs }
+      node.instance_eval { @attributes = attributes }
       node.errors.add('klass', 'invalid')
       # This is to show the klass in the form seizure
       node.instance_variable_set(:@klass, klass)
@@ -182,13 +188,15 @@ class Node < ActiveRecord::Base
       node
     end
     
-    
+    # Create new nodes from the data in a folder or archive.
     def create_nodes_from_folder(opts)
+      # TODO: all this method needs cleaning, it's a mess.
       return nil unless (opts[:folder] || opts[:archive]) && (opts[:parent] || opts[:parent_id])
       scope = self.scoped_methods[0] || {}
       parent_id = opts[:parent_id] || opts[:parent][:id]
       folder    = opts[:folder]
-      defaults  = opts[:defaults] || {}
+      defaults  = (opts[:defaults] || {}).stringify_keys
+      res       = []
       
       # create from archive
       unless folder
@@ -204,7 +212,7 @@ class Node < ActiveRecord::Base
           # extract file in this temporary folder.
           # FIXME: is there a security risk here ?
           system "tar -C '#{folder}' -xz < '#{archive.path}'"
-          res = create_nodes_from_folder(:folder => folder, :parent_id => parent_id, :defaults => defaults)
+          res += create_nodes_from_folder(:folder => folder, :parent_id => parent_id, :defaults => defaults)
         ensure
           FileUtils::rmtree(folder)
         end
@@ -231,6 +239,7 @@ class Node < ActiveRecord::Base
           attrs['name']   ||= name
           attrs['v_lang'] ||= lang
           current_obj = create_node(attrs)
+          res << current_obj
         else
           # document
           document   = path
@@ -252,8 +261,10 @@ class Node < ActiveRecord::Base
             # FIXME: what publication status for these things ?
             current_obj.remove if current_obj.v_lang == attrs['v_lang']
             current_obj.edit!(attrs['v_lang'])
+            
             # FIXME: This should pass through the 'attrs' cleanup...
             current_obj.update_attributes(attrs.merge(:parent_id => parent_id))
+            current_obj.publish if attrs['v_status'].to_i == Zena::Status[:pub]
           elsif document
             # processing a document
             ctype = EXT_TO_TYPE[document.split('.').last][0] || "application/octet-stream"
@@ -264,11 +275,13 @@ class Node < ActiveRecord::Base
                 define_method(:content_type) { ctype }
               end
               current_obj = create_node(attrs.merge(:c_file => file, :klass => 'Document', :_parent_id => parent_id))
+              res << current_obj
             end
             document = nil
           else
             # processing a folder
             current_obj = create_node(attrs.merge(:_parent_id => parent_id))
+            res << current_obj
           end
           index += 1
         end
@@ -276,8 +289,12 @@ class Node < ActiveRecord::Base
         # finished with the current object's yaml
         if sub_folder
           # create minimal object to store the children
-          current_obj ||= Page.with_exclusive_scope(scope) { Page.create( defaults.merge(:parent_id => parent_id, :name => filename.split('.').first) )}
-          create_nodes_from_folder(:folder => sub_folder, :parent_id => current_obj[:id], :defaults => defaults)
+          unless current_obj
+            current_obj = Page.with_exclusive_scope(scope) { Page.create( defaults.merge(:parent_id => parent_id, :name => filename.split('.').first) )}
+            current_obj.publish if defaults['v_status'].to_i == Zena::Status[:pub]
+            res << current_obj
+          end
+          res += create_nodes_from_folder(:folder => sub_folder, :parent_id => current_obj[:id], :defaults => defaults)
         elsif document && !current_obj  
           # processing a document
           # TODO: DRY this someday...
@@ -289,10 +306,12 @@ class Node < ActiveRecord::Base
               define_method(:content_type) { ctype }
             end
             current_obj = Document.with_exclusive_scope(scope) { Document.create(defaults.merge(:c_file => file, :parent_id => parent_id, :name => filename)) }
+            current_obj.publish if defaults['v_status'].to_i == Zena::Status[:pub]
+            res << current_obj
           end
         end
       end
-      current_obj
+      res
     end
 
 
@@ -873,7 +892,7 @@ class Node < ActiveRecord::Base
     def node_on_destroy
       unless all_children.size == 0
         errors.add('base', "contains subpages")
-        return false
+        return false§
       else  
         # expire cache
         # TODO: test
@@ -889,7 +908,7 @@ class Node < ActiveRecord::Base
     
     # Called after an node is 'removed'
     def after_remove
-      if self[:max_status] < Zena::Status[:pub]
+      if (self[:max_status] < Zena::Status[:pub]) && !@new_record_before_save
         # not published any more. 'remove' documents
         sync_documents(:remove)
       else
@@ -899,16 +918,19 @@ class Node < ActiveRecord::Base
   
     # Called after an node is 'proposed'
     def after_propose
+      return true if @new_record_before_save
       sync_documents(:propose)
     end
   
     # Called after an node is 'refused'
     def after_refuse
+      return true if @new_record_before_save
       sync_documents(:refuse)
     end
   
     # Called after an node is published
     def after_publish(pub_time=nil)
+      return true if @new_record_before_save
       sync_documents(:publish, pub_time)
     end
 

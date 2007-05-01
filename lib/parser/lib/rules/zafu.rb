@@ -73,21 +73,26 @@ module Zafu
     
     def r_rename_asset
       return expand_with unless @html_tag
-      unless @params[:src][0..0] == '/'
-        opts = {:src => @params[:src]}
-        case @html_tag
-        when 'link'
-          if @params[:rel].downcase == 'stylesheet'
-            opts[:type] = :stylesheet
-          else
-            opts[:type] = :link
-          end
+      opts = {}
+      case @html_tag
+      when 'link'
+        key = :href
+        if @params[:rel].downcase == 'stylesheet'
+          opts[:type] = :stylesheet
         else
-          opts[:type] = @html_tag.to_sym
+          opts[:type] = :link
         end
-        opts[:current_template] = @options[:included_history].last
-        @params[:src] = @options[:helper].send(:template_url_for_asset, opts)
+      else
+        key = :src
+        opts[:type] = @html_tag.to_sym
       end
+      
+      opts[:src] = @params[key]
+      if opts[:src] && opts[:src][0..0] != '/'
+        opts[:current_folder] = @options[:current_folder]
+        @params[key] = @options[:helper].send(:template_url_for_asset, opts)
+      end
+      
       res   = "<#{@html_tag}#{params_to_html(@params)}"
       @html_tag_done = true
       inner = expand_with
@@ -242,11 +247,12 @@ module Zafu
         # puts "SAME:[#{$&}]}" # simple html tag same as end_tag
         flush $&
         @end_tag_count += 1 unless $2 == '/'
-      elsif @text =~ /\A<(link|img|script).*src\s*=/
+      elsif @text =~ /\A<(link|img|script)/
         # puts "HTML:[#{$&}]}" # html
         make(:asset)
       elsif @text =~ /\A[^>]*?>/
         # html tag
+        # puts "OTHER:[#{$&}]"
         store opts[:space_before]
         flush $&
       else

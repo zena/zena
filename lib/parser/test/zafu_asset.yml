@@ -2,13 +2,17 @@ do_nothing:
   src: "this is just <h2 class='any'>a title</h2>"
   res: "this is just <h2 class='any'>a title</h2>"
 
-change_stylesheet_src:
-  src: "<link src='local/test.css' rel='stylesheet' type='text/css'/>"
-  res: "<link rel='stylesheet' src='/test_stylesheet/local/test.css' type='text/css'/>"
+change_stylesheet:
+  src: "<link href='local/test.css' rel='stylesheet' type='text/css'/>"
+  res: "<link href='/test_stylesheet/local/test.css' rel='stylesheet' type='text/css'/>"
 
 ignore_absolute_path:
-  src: "<link rel='stylesheet' type='text/css' src='/absolute/test.css'/>"
-  res: "<link rel='stylesheet' src='/absolute/test.css' type='text/css'/>"
+  src: "<link rel='stylesheet' type='text/css' href='/absolute/test.css'/>"
+  res: "<link href='/absolute/test.css' rel='stylesheet' type='text/css'/>"
+
+bad_link:
+  src: "<link rel='stylesheet'/>"
+  res: "<link rel='stylesheet'/>"
   
 change_img_src:
   src: "this <img src='images/logo.png'/> image"

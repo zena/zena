@@ -8,10 +8,13 @@ module ParserModule
       @strings = strings
     end
 
-    def template_text_for_url(url)
-      url = url[1..-1] if url[0..0] == '/' # just ignore the 'relative' or 'absolute' tricks.
+    def get_template_text(opts)
+      src    = opts[:src]
+      folder = (opts[:current_folder] && opts[:current_folder] != '') ? opts[:current_folder][1..-1].split('/') : []
+      src = src[1..-1] if src[0..0] == '/' # just ignore the 'relative' or 'absolute' tricks.
+      url = (folder + src.split('/')).join('_')
       
-      if test = @strings[url.gsub('/','_')]
+      if test = @strings[url]
         test['src']
       else
         nil
@@ -54,20 +57,20 @@ class Parser
     end
     def new_with_url(url, opts={})
       helper = opts[:helper] || ParserModule::DummyHelper.new
-      text, absolute_url = self.find_template_text(url,helper)
+      text, absolute_url = self.get_template_text(url,helper)
       current_folder     = absolute_url ? absolute_url.split('/')[1..-2].join('/') : nil
       self.new(text, :helper=>helper, :current_folder=>current_folder, :included_history=>[absolute_url])
     end
     
     # Retrieve the template text in the current folder or as an absolute path.
     # This method is used when 'including' text
-    def find_template_text(url, helper, current_folder=nil)
+    def get_template_text(url, helper, current_folder=nil)
       
       if (url[0..0] != '/') && current_folder
         url = "#{current_folder}/#{url}"
       end
       
-      text = helper.send(:template_text_for_url, url) || "<span class='parser_error'>template '#{url}' not found</span>"
+      text = helper.send(:get_template_text, :src=>url, :current_folder=>'') || "<span class='parser_error'>template '#{url}' not found</span>"
       url = "/#{url}" unless url[0..0] == '/' # has to be an absolute path
       return [text, url]
     end
@@ -208,7 +211,7 @@ class Parser
     text = @text
     @options[:included_history] ||= []
     
-    @text, absolute_url = self.class.find_template_text(@params[:template], @options[:helper], @options[:current_folder])
+    @text, absolute_url = self.class.get_template_text(@params[:template], @options[:helper], @options[:current_folder])
     
     if absolute_url
       if @options[:included_history].include?(absolute_url)

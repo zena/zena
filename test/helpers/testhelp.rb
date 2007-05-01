@@ -5,7 +5,7 @@ end
 ActionController::Routing::Routes.add_route '----/test/:action', :controller => 'test'
 
 class TestController < ApplicationController
-  helper_method :template_text_for_url, :template_url_for_asset, :save_erb_to_url
+  helper_method :get_template_text, :template_url_for_asset, :save_erb_to_url
   before_filter :set_context
   before_filter :authorize
   before_filter :set_env
@@ -33,6 +33,7 @@ class TestController < ApplicationController
   # by pass application before actions
   def authorize
   end
+  
   def set_env
   end
 
@@ -54,11 +55,13 @@ class TestController < ApplicationController
     response.template.instance_eval { @session = {} } # if accessing session when rendering, should be like no one there yet.
   end
 
-  def template_text_for_url(url)
-    url = url[1..-1] # strip leading '/'
-    @current_template = url
-    url = url.gsub('/','_')
-    if test = @@templates[url]
+  def get_template_text(url)
+    src    = opts[:src]
+    folder = (opts[:current_folder] && opts[:current_folder] != '') ? opts[:current_folder][1..-1].split('/') : []
+    src = src[1..-1] if src[0..0] == '/' # just ignore the 'relative' or 'absolute' tricks.
+    url = (folder + src.split('/')).join('_')
+    
+    if test = @strings[url]
       test['src']
     else
       nil

@@ -237,13 +237,16 @@ module Zena
           after_all
         end
         
-        # Update an node's attributes or the node's version/content attributes. If the hash contains only
-        # :v_... or :c_... keys, then only the version will be saved. If the hash does not contain any :v_... or :c_...
+        # Update an node's attributes or the node's version/content attributes. If the attributes contains only
+        # :v_... or :c_... keys, then only the version will be saved. If the attributes does not contain any :v_... or :c_...
         # attributes, only the node is saved, without creating a new version.
-        def update_attributes(hash)
+        def update_attributes(new_attributes)
           redaction_attr = false
           node_attr      = false
-          hash.each do |k,v|
+          
+          attributes = new_attributes.stringify_keys
+          attributes = remove_attributes_protected_from_mass_assignment(attributes)
+          attributes.each do |k,v|
             next if k.to_s == 'id' # just ignore 'id' (cannot be set but is often around)
             if k.to_s =~ /^(v_|c_)/
               redaction_attr = true
@@ -256,7 +259,7 @@ module Zena
             return false unless edit!
           end
           unless node_attr
-            hash.each do |k,v|
+            attributes.each do |k,v|
               next if k.to_s == 'id' # just ignore 'id' (cannot be set but is often around)
               self.send("#{k}=".to_sym, v)
             end
@@ -310,7 +313,7 @@ module Zena
               end
             end
             if @version.nil?
-              raise Exception.new("Node #{self[:id]} does not have any version !!")
+              raise Exception.new("#{self.class} #{self[:id]} does not have any version !!")
             end
           end  
           @version.node = self # preload self as node in version

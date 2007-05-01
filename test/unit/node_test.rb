@@ -108,9 +108,17 @@ class NodeTest < ZenaTestUnit
   def test_create_simplest
     login(:ant)
     test_page = secure(Node) { Node.create(:name=>"yoba", :parent_id => nodes_id(:cleanWater), :inherit=>1 ) }
-    err test_page
     assert ! test_page.new_record? , "Not a new record"
     assert_equal nodes_id(:cleanWater), test_page.parent[:id]
+  end
+  
+  def test_cannot_update_v_status
+    login(:ant)
+    test_page = secure(Node) { nodes(:status) }
+    assert_equal 2, test_page.v_number
+    test_page.update_attributes( :v_status => Zena::Status[:pub], :v_title => "New funky title")
+    assert_equal 3, test_page.v_number
+    assert_equal Zena::Status[:red], test_page.v_status
   end
   
   def test_new_bad_parent
@@ -835,17 +843,18 @@ done: \"I am done\""
     login(:tiger)
     parent = secure(Project) { Project.create(:name => 'import', :parent_id => nodes_id(:zena)) }
     assert !parent.new_record?, "Not a new record"
-    secure(Node) { Node.create_nodes_from_folder(:folder => File.join(RAILS_ROOT, 'test', 'fixtures', 'import'), :parent_id => parent[:id] )}
+    nodes = secure(Node) { Node.create_nodes_from_folder(:folder => File.join(RAILS_ROOT, 'test', 'fixtures', 'import'), :parent_id => parent[:id] )}
     children = parent.children
     assert_equal 2, children.size
-    bird, simple = children
+    assert_equal 2, nodes.size
+    bird, simple = nodes
     
     assert_equal 'bird', bird[:name]
     assert_equal 'simple', simple[:name]
     assert_equal 'The sky is blue', simple.v_title
     assert_equal 'jpg', bird.c_ext
-    assert_equal 'Lucy in the sky', bird.v_title
-    versions = bird.versions
+    assert_equal 'Le septième ciel', bird.v_title
+    versions = secure(Node) { Node.find(bird[:id]) }.versions
     assert_equal 2, versions.size
     assert_equal 'fr', versions[0].lang
     assert_equal 'en', versions[1].lang
@@ -866,6 +875,15 @@ done: \"I am done\""
     children = children[0].children
     assert_equal 1, children.size # cannot create a Note inside an Image
     assert_equal 1, children[0].rgroup_id
+  end
+  
+  def test_create_nodes_from_folder_with_publish
+    login(:tiger)
+    nodes = secure(Node) { Node.create_nodes_from_folder(:folder => File.join(RAILS_ROOT, 'test', 'fixtures', 'import'), :parent_id => nodes_id(:zena) )}
+    assert_equal Zena::Status[:red], nodes[0].v_status
+    
+    nodes = secure(Node) { Node.create_nodes_from_folder(:folder => File.join(RAILS_ROOT, 'test', 'fixtures', 'import'), :parent_id => nodes_id(:cleanWater), :defaults => { :v_status => Zena::Status[:pub] }) }
+    assert_equal Zena::Status[:pub], nodes[0].v_status
   end
   
   def test_create_nodes_from_archive

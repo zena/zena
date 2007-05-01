@@ -32,8 +32,9 @@ end
 class ZazenTest < Test::Unit::TestCase
   testfile :zafu, :zafu_asset, :zafu_insight, :zazen
   def test_single
-    do_test('zafu', 'complex_example')
+    do_test('zafu_asset', 'change_stylesheet')
   end
+  
   def test_zazen_image_no_image
     file = 'zazen'
     test = 'image_no_image'

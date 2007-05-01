@@ -20,6 +20,11 @@ class ApplicationControllerTest < ZenaTestController
   
   # visitor tested in multiple_hosts integration test
   
+  def test_find_template_document
+    res = @controller.instance_variable_set(:@skin_name, 'wiki')
+    assert false, "finish test"
+  end
+
   def test_template_url_any_project
     without_files('app/views/templates/compiled') do
       wiki = @controller.send(:secure,Node) { Node.find(nodes_id(:wiki)) }

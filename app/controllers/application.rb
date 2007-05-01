@@ -2,7 +2,7 @@
 # Likewise, all the methods added will be available for all controllers.
 class ApplicationController < ActionController::Base
   helper_method :prefix, :zen_path, :zen_url, :data_path, :node_url, :notes, :error_messages_for, :render_errors, :processing_error
-  helper_method :template_text_for_url, :template_url_for_asset, :save_erb_to_url, :lang, :visitor, :fullpath_from_template_url
+  helper_method :get_template_text, :template_url_for_asset, :save_erb_to_url, :lang, :visitor, :fullpath_from_template_url
   helper 'main'
   before_filter :check_env
   before_filter :authorize
@@ -131,6 +131,7 @@ class ApplicationController < ActionController::Base
       @skin_name = opts[:skin]   || (@node ? @node[:skin] : nil) || 'default'
       @skin_name = @skin_name.gsub(/[^a-zA-Z]/,'') # security
       mode      = opts[:mode]   || params[:mode]
+      puts mode.inspect
       format    = opts[:format] || params[:format] || 'html'
       klass     = @node.class
       
@@ -141,7 +142,7 @@ class ApplicationController < ActionController::Base
       template = secure(Template) { Template.find(:first, 
         :conditions => ["tkpath IN (?) AND format = ? AND mode #{mode ? '=' : 'IS'} ? AND template_contents.node_id = nodes.id", klasses, format, mode],
         :from       => "nodes, template_contents",
-        :select     => "nodes.*, template_contents.*, (template_contents.skin_name = #{@skin_name}) AS skin_ok",
+        :select     => "nodes.*, template_contents.skin_name, template_contents.klass, (template_contents.skin_name = #{@skin_name.inspect}) AS skin_ok",
         :order      => "length(tkpath) DESC, skin_ok DESC"
       )}
       
@@ -153,19 +154,17 @@ class ApplicationController < ActionController::Base
       skin_root = "#{SITES_ROOT}/#{visitor.site.host}"
       skin_path = "/#{template[:skin_name]}/#{template[:klass]}#{mode}.#{format}"
       main_path = "/#{visitor.lang}/main.erb"
-      url = "#{skin_root}/zafu.compiled#{skin_path}#{main_path}"
+      url = "#{skin_root}/zafu#{skin_path}#{main_path}"
       
-      if File.exists?(url)
-        # FIXME: use CachedPage to store the compiled template instead of this File.stat test
-        if File.stat(url).mtime < template.v_updated_at
-          # template changed, render
-          FileUtils.rmtree("#{skin_root}/zafu.compiled#{skin_path}")
-          response.template.instance_variable_set(:@session, session)
-          skin_helper = response.template
-          res = ZafuParser.new_with_url(skin_path, :helper => skin_helper).render
-          FileUtils::mkpath(File.dirname(url)) unless File.exists?(File.dirname(url))
-          File.open(url, "wb") { |f| f.syswrite(res) }
-        end
+      # FIXME: use CachedPage to store the compiled template instead of this File.stat test
+      if true #!File.exists?(url) || (File.stat(url).mtime < template.v_updated_at)
+        # template changed, render
+        FileUtils.rmtree("#{skin_root}/zafu#{skin_path}")
+        response.template.instance_variable_set(:@session, session)
+        skin_helper = response.template
+        res = ZafuParser.new_with_url(skin_path, :helper => skin_helper).render
+        FileUtils::mkpath(File.dirname(url)) unless File.exists?(File.dirname(url))
+        File.open(url, "wb") { |f| f.syswrite(res) }
       end
     
       return url
@@ -175,40 +174,47 @@ class ApplicationController < ActionController::Base
     # first element with the current skin_name and if it does not work, we try with the full url. If the url
     # start with a '/' we use the full url directly.
     # tested in MainControllerTest
-    def template_text_for_url(url)
-      @skin ||= {}
-      if url =~ /^\//
-        url = url[1..-1].split('/')
-        skin_names = [url.shift]
-      else
-        url = url.split('/')
-        skin_names = [@skin_name, url.shift]
-      end
-      
-      partial = nil
-      skin_names.each do |skin_name|
-        skin = @skin[skin_name] ||= secure(Skin) { Skin.find_by_name(skin_name) }
-        path = (skin.fullpath.split('/') + url).join('/')
-        break if partial = secure(TextDocument) { TextDocument.find_by_path(path) }
-      end
-      partial ? partial.version.text : nil
+    def get_template_text(opts)
+      return nil unless doc = find_template_document(opts)
+      doc.version.text
     end
 
     # TODO: implement
     def template_url_for_asset(opts)
-    
-      # 1. find in current skin ?
-      url = opts[:current_template][1..-1].split('/') + opts[:src].split('/')
-      url.compact!
-      skin_name = url.shift
-      if @skin_obj && @skin_obj[:name] == skin_name
-        skin = @skin_obj
-      end
-      skin ||= secure(Skin) { Skin.find_by_name(skin_name) }
-      asset = skin.asset_for_path(url.join('/'), Document)
-      asset ? node_url(asset) : nil
+      return nil unless asset = find_template_document(opts)
+      asset ? data_path(asset, :prefix=>lang) : nil
     rescue ActiveRecord::RecordNotFound
       return nil
+    end
+    
+    # opts should contain :current_template and :src
+    def find_template_document(opts)
+      src    = opts[:src].split('.')
+      mode   = src.pop
+      src    = src.join('.')
+      folder = (opts[:current_folder] && opts[:current_folder] != '') ? opts[:current_folder].split('/') : []
+      @skin ||= {}
+      
+      if src =~ /^\//
+        # /default       /fun/layout.html
+        # look in fun --> layout.html
+        url = src[1..-1].split('/')
+        skin_names = [url.shift]
+      else
+        # /default       default.css
+        # look in @skin_name, default --> default.css
+        url = folder + src.split('/')
+        skin_names = [@skin_name]
+        skin_names << url.shift if url.size > 1
+      end
+
+      document = nil
+      skin_names.each do |skin_name|
+        next unless skin = @skin[skin_name] ||= secure(Skin) { Skin.find_by_name(skin_name) }
+        path = (skin.fullpath.split('/') + url).join('/')
+        break if document = secure(TextDocument) { TextDocument.find_by_path(path) }
+      end
+      document
     end
   
     # TODO: test
@@ -229,9 +235,9 @@ class ApplicationController < ActionController::Base
       path = "/#{template_url[0]}/#{template_url[1]}/#{visitor.lang}/#{template_url[2..-1].join('/')}"
 
       if template_url[0] == 'default'
-        "#{SITES_ROOT}/shared/zafu.compiled#{path}"
+        "#{SITES_ROOT}/shared/zafu#{path}"
       else
-        "#{SITES_ROOT}/#{visitor.site.host}/zafu.compiled#{path}"
+        "#{SITES_ROOT}/#{visitor.site.host}/zafu#{path}"
       end
     end
   
@@ -355,8 +361,8 @@ class ApplicationController < ActionController::Base
     
     # /////// The following methods are common to controllers and views //////////// #
   
-    def data_path(obj)
-      zen_path(obj, :format => obj.c_ext)
+    def data_path(obj, opts={})
+      zen_path(obj, {:format => obj.c_ext}.merge(opts))
     end
   
     # Path for the node (as string). Options can be :format and :mode.

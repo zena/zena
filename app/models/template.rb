@@ -19,7 +19,11 @@ class Template < TextDocument
       version.content.mode   = nil
       version.content.format = nil
     end
-    super
+    if str =~ /(.+)\.(.*)/
+      super($1)
+    else
+      super
+    end
   end
   
   # Find the

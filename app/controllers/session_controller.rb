@@ -14,7 +14,7 @@ class SessionController < ApplicationController
   # Clears session information and redirects to login page.
   def destroy
     reset_session
-    redirect_to :controller=>'node', :action=>'index', :prefix=>(visitor.site.monolingual? ? '' : visitor.lang)
+    redirect_to :controller=>'nodes', :action=>'index', :prefix=>(visitor.site.monolingual? ? '' : visitor.lang)
   end
   
   protected
