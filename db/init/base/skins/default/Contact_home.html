@@ -1,0 +1,30 @@
+<z:include template='Node_admin_layout.html'>
+  <z:with part='body/main/content'>
+    <h2><z:trans>home of</z:trans> <z:user do='show' attr='fullname'>Panther Tigris</z:user></h2>
+  </z:with>
+
+  <z:with part='body/main/right'>
+    <ul class='actions' do='user'>
+      <li do='to_publish'><z:trans>to publish</z:trans>
+        <ul class='list'>
+          <li do='each' set_class='li_s[status]'><z:link attr='title'>title</z:show></li>
+        </ul>
+      </li>
+      <li do='comments_to_publish'><z:trans>comments to publish</z:trans>
+        <ul class='list'>
+          <li do='each'><z:show attr='title'>title</z:show></li>
+        </ul>
+      </li>
+      <li do='proposed'><z:trans>waiting for publication</z:trans>
+        <ul class='list'>
+          <li do='each'><z:show attr='title'>title</z:show></li>
+        </ul>
+      </li>
+      <li do='redactions'><z:trans>redactions</z:trans>
+        <ul class='list'>
+          <li do='each' set_class='li_s[status]'><z:link attr='title'>title</z:show></li>
+        </ul>
+      </li>
+    </ul>
+  </z:with>
+</z:include>

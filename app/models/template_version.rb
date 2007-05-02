@@ -17,10 +17,14 @@ class TemplateVersion < Version
       # create new content
       @content = content_class.new
       @redaction_content = @content
-      @content.node = node
       @content[:site_id] = node[:site_id]
-    end
+    end  
+    @content.node = node
     @content
+  end
+  
+  def redaction_content
+    content
   end
   
   def content_class

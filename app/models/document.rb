@@ -42,18 +42,22 @@ class Document < Page
     alias o_new new
     
     # Return a new Document or a sub-class of Document depending on the file's content type. Returns a TextDocument if there is no file.
-    def new(hash)
+    def new(hash = {})
       scope = self.scoped_methods[0] || {}
       klass = self
-      if hash[:c_file]
-        content_type = hash[:c_file].content_type
-      elsif hash[:c_content_type]
-        content_type = hash[:c_content_type]
-      elsif hash[:name] =~ /^.*\.(\w+)$/ && types = EXT_TO_TYPE[$1]
+      hash  = hash.stringify_keys
+      
+      if hash['c_file']
+        content_type = hash['c_file'].content_type
+      elsif hash['c_content_type']
+        content_type = hash['c_content_type']
+      elsif hash['name'] =~ /^.*\.(\w+)$/ && types = EXT_TO_TYPE[$1]
         content_type = types[0]
       else
         content_type = 'text/plain'
       end
+      puts "\n\n\n\n"
+      puts content_type.inspect
       if Image.accept_content_type?(content_type)
         klass = Image
       elsif Template.accept_content_type?(content_type)

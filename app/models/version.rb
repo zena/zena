@@ -77,8 +77,8 @@ class Version < ActiveRecord::Base
       @content = content_class.new
       self[:content_id] = nil
       @redaction_content = @content
-      @content.version = self
-    end
+    end    
+    @content.version = self
     @content
   end
   
@@ -93,15 +93,14 @@ class Version < ActiveRecord::Base
       # content shared, make it our own
       @old_content = @content # keep the old one in case we cannot save and need to rollback
       @content = @old_content.clone
-      puts @content.inspect
-      @content.version = self
       self[:content_id] = nil
+      @content.version = self
     else
       # create new content
       @content = content_class.new
-      @content.version = self
       self[:content_id] = nil
-    end  
+      @content.version = self
+    end
     @redaction_content = @content
   end
   
@@ -150,6 +149,7 @@ class Version < ActiveRecord::Base
   
     # Make sure the version and it's related content are in a correct state.
     def valid_version
+      puts "VALID_VERSION (#{node.object_id})"
       errors.add("site_id", "can't be blank") unless self[:site_id] and self[:site_id] != ""
       # validate content
       if @content && !@content.valid?

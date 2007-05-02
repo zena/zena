@@ -1,0 +1,24 @@
+<div id='notes' do='notes_all' limit='10' order='log_at DESC'>
+  <ul class='note_list'>
+    <z:add after='self' tag='li'/>
+    <z:form><li class='inline_form'><form>
+      <input type='hidden' name='node[parent_id]' value='' do='void' set_value='[project_id]'/>
+      <z:input type='select' attr='klass' options='Note,Letter'/>
+      <z:input type='date_box' attr='log_at'/>
+      <input type='text' name='node[v_title]' do='void' set_value='[v_title]' size='25'/>
+      <input type="submit" class="btn_validate" value='validate' do='void' tset_value='validate'/>
+      </form></li></z:form>
+    <li class='note' do='each'>
+      <div class='header'>
+        <div do='void' class='s30' set_class='s[v_status]'>
+          <p class='log_at' do='show' date='log_at' tformat='short_date'>04.10</p> <!-- FIXME: @note_date ? short_time(li.event_at) : short_date(li.log_at) -->
+          <p class='title' do='title'>our new cms runs in a zen garden</p>
+          <p class='sign' do='version' do='author' do='show' attr='initials'>GB</p>
+          <z:actions select='all'/>
+        </div>
+      </div>
+      <z:summary/>
+      <div class='clear'></div>
+    </li>
+  </ul>
+</div>

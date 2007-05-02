@@ -1,5 +1,6 @@
 
 == Todo
+* if mksite fails (password too short, etc): rollback !
 * What if a Note/Contact contains pages and one of these pages has 'custom_base' set ?
 * Replace Trans... with Gettext
 * BUG: flash not working in UsersController when updating preferences.

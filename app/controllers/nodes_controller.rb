@@ -85,21 +85,18 @@ class NodesController < ApplicationController
         if @node.kind_of?(Image) && !ImageBuilder.dummy?
           data = @node.c_file(params[:mode])
           content_path = @node.c_filepath(params[:mode])
-          disposition  = 'inline'
           
         elsif @node.kind_of?(TextDocument)
           data = StringIO.new(@node.v_text)
           content_path = nil
-          disposition  = 'attachment'
           
         else
           data         = @node.c_file
           content_path = @node.c_filepath
-          disposition  = 'inline'
         end
         raise ActiveRecord::RecordNotFound unless data
         puts @node.c_content_type
-        send_data( data.read , :filename=>@node.c_filename, :type => @node.c_content_type, :disposition=>disposition)
+        send_data( data.read , :filename=>@node.c_filename, :type => @node.c_content_type, :disposition=>'inline')
         data.close
         cache_page(:content_path => content_path, :authenticated => @node.public?) # content_path is used to cache by creating a symlink
       end

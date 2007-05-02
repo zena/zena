@@ -131,7 +131,7 @@ class Site < ActiveRecord::Base
       
       # =========== LOAD INITIAL DATA (default skin) =============
       
-      nodes = site.send(:secure,Node) { Node.create_nodes_from_folder(:archive => File.join(RAILS_ROOT, 'db', 'init', 'default.tgz'), :parent_id => root[:id], :defaults => { :v_status => Zena::Status[:pub], :rgroup_id => pub[:id], :wgroup_id => sgroup[:id], :pgroup_id => admin[:id] } ) }
+      nodes = site.send(:secure,Node) { Node.create_nodes_from_folder(:folder => File.join(RAILS_ROOT, 'db', 'init', 'base'), :parent_id => root[:id], :defaults => { :v_status => Zena::Status[:pub], :rgroup_id => pub[:id], :wgroup_id => sgroup[:id], :pgroup_id => admin[:id] } ) }
       
       
       # == done.

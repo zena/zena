@@ -148,7 +148,9 @@ class Node < ActiveRecord::Base
       if parent_id = attributes.delete('_parent_id')
         attributes.delete('parent_id')
       else
-         p = attributes['parent_id']
+        p = attributes['parent_id']
+        puts "\n\n\n"
+        puts p.inspect
         if p && p.to_i.to_s != p.to_s.strip
           # find by name
           parent_id = Node.with_exclusive_scope(scope) { Node.find_by_name(p) }[:id]
@@ -171,11 +173,26 @@ class Node < ActiveRecord::Base
     # TODO: cleanup and rename with something indicating the attrs cleanup that this method does.
     def create_node(new_attributes)
       attributes = clean_attributes(new_attributes)
+      # TODO: replace this hack with a proper class method 'secure' behaving like the
+      # instance method. It would get the visitor and scope from the same hack below.
+      scope   = self.scoped_methods[0] || {}
+      
       publish = (attributes.delete('v_status').to_i == Zena::Status[:pub])
       
-      klass   = attributes.delete('class') || attributes.delete('klass')|| self.to_s
-      klass = Module::const_get(klass.to_sym)
-      raise NameError unless klass.ancestors.include?(Node)
+      klass   = attributes.delete('class') || attributes.delete('klass') || self.to_s
+      
+      begin
+        klass = Module::const_get(klass)
+        raise NameError unless klass.ancestors.include?(Node)
+      rescue NameError => err
+        node = self.new
+        node.instance_eval { @attributes = attributes }
+        node.errors.add('klass', 'invalid')
+        # This is to show the klass in the form seizure
+        node.instance_variable_set(:@klass, klass.to_s)
+        def node.klass; @klass; end
+        return node
+      end
       
       node = if klass != self
         klass.with_exclusive_scope(scope) { klass.create(attributes) }
@@ -183,14 +200,6 @@ class Node < ActiveRecord::Base
         self.create(attributes)
       end
       node.publish if publish
-      node
-    rescue NameError => err
-      node = self.new
-      node.instance_eval { @attributes = attributes }
-      node.errors.add('klass', 'invalid')
-      # This is to show the klass in the form seizure
-      node.instance_variable_set(:@klass, klass)
-      def node.klass; @klass; end
       node
     end
     

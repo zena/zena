@@ -883,19 +883,17 @@ ENDTXT
   # TODO: could be used by all helpers: faster then routes...
   # Used by zafu
   def node_link(opts={})
-    options = {:node=>@node, :href=>'self', :url=>{}}.merge(opts)
-    node = options[:node]
-    if options[:href]
-      node = node.relation(options[:href]) || node
+    options = {:node=>@node, :href=>'self'}.merge(opts)
+    node = options.delete(:node)
+    if href = options.delete(:href)
+      node = node.relation(href) || node
     end  
-    text = options[:text] || node.version.title
+    text = options.delete(:text) || node.version.title
     
-    if opts[:dash]
-      "<a href='##{opts[:dash]}'>#{text}</a>"
-    elsif options[:url] == {}
-      "<a href='#{zen_path(node)}'>#{text}</a>"
+    if dash = options.delete(:dash)
+      "<a href='##{dash}'>#{text}</a>"
     else
-      link_to(text, zen_path(node[:zip],options[:url]))
+      "<a href='#{zen_path(node, options)}'>#{text}</a>"
     end
   end
   
@@ -924,12 +922,6 @@ ENDTXT
       tlink_to_with_state('manage groups', :controller=>'group', :action=>'list')
     when :site_tree
       tlink_to_with_state('site tree', :controller=>'main', :action=>'site_tree', :id=>@node)
-    when :print
-      if @node
-        tlink_to('print', :controller=>'main', :action=>'print', :id=>@node)
-      else
-        ''
-      end
     else
       ''
     end

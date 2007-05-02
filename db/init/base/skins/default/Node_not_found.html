@@ -1,0 +1,12 @@
+<z:include template='layout.html'>
+  <!-- z:with part='body/navbar/menu'/ -->
+  <z:with part='body/content'>
+    <div id="not_found"><div>
+      <p><b><z:trans>Sorry, the requested page could not be found.</z:trans></b></p>
+      <p><z:trans>Please go </z:trans><a do='link' href='root' do='trans'>home</a>,
+         <a onclick="history.go(-2)" href="#"><z:trans>back</z:trans></a>
+         <z:trans>or</z:trans> <a href="/login" do='trans'>login</a>
+      </p>
+    </div></div>
+  </z:with>
+</z:include>

@@ -327,6 +327,7 @@ module Zena
     end
     
     # TODO: add parent_id into the form !
+    # FIXME: use <z:form href='self'> or <z:form action='...'>
     def r_form
       @pass[:form] = self
       if @context[:preflight]
@@ -339,6 +340,7 @@ module Zena
       if @context[:template_url]
         # ajax
         # TODO: use remote_form_for :#{node_class.to_s.downcase}, :url ... and replace all input/select/...
+
         if @context[:in_add]
           form =  "<p class='btn_x'><a href='#' onclick='[\"#{prefix}_add\", \"#{prefix}_form\"].each(Element.toggle);return false;'>#{helper.trans('btn_x')}</a></p>\n"
           form << "<%= form_remote_tag(:url => #{node_class.to_s.downcase.pluralize}_path) %>\n"
@@ -512,6 +514,23 @@ END_TXT
       out "<% end -%>"
     end
     
+    # TODO: test
+    def r_if
+      cond = get_test_condition
+      return "<span class='parser_error'>condition error for if clause</span>" unless cond
+      
+      out "<% if #{cond} -%>"
+      out expand_with(:case=>false)
+      @blocks.each do |block|
+        if block.kind_of?(self.class) && ['elsif', 'else'].include?(block.method)
+          out block.render(@context.merge(:case=>true))
+        else
+          # rendered before
+        end
+      end
+      out "<% end -%>"
+    end
+    
     def r_else
       if @context[:preflight]
         @pass[:else] = self
@@ -527,66 +546,16 @@ END_TXT
       end
     end
     
-    def r_when
-      return "<span class='parser_error'>bad context for when clause</span>" unless @context[:case]
-      if klass = @params[:kind_of]
-        begin Module::const_get(klass) rescue "NilClass" end
-        cond = "#{node}.kind_of?(#{klass})"
-      elsif klass = @params[:klass]
-        begin Module::const_get(klass) rescue "NilClass" end
-        cond = "#{node}.class == #{klass}"
-      elsif status = @params[:status]
-        cond = "#{node}.version[:status] == #{Zena::Status[status.to_sym]}"
-      elsif lang = @params[:lang]
-        cond = "#{node}.version[:lang] == #{lang.inspect}"
-      elsif test = @params[:test]
-        value1, op, value2 = test.split(/\s+/)
-        allOK = value1 && op && value2
-        toi   = ( op =~ /\&/ )
-        if ['==', '!=', '&gt;', '&gt;=', '&lt;', '&lt;='].include?(op)
-          op = op.gsub('&gt;', '>').gsub('&lt', '<')
-        else
-          allOK = false
-        end
-        if allOK
-          value1, value2 = [value1, value2].map do |e|
-            if e =~ /\[(\w+)\]/
-              v = node_attribute($1)
-              v = "#{v}.to_i" if toi
-              v
-            else
-              if toi
-                e.to_i
-              else
-                e.inspect
-              end
-            end
-          end
-        end
-        cond = "#{value1} #{op} #{value2}" if allOK
-      elsif node_cond = @params[:node]
-        if node_kind_of?(Node)
-          case node_cond
-          when 'self'
-            cond = "#{node}[:id] == @node[:id]"
-          when 'parent'
-            cond = "#{node}[:id] == @node[:parent_id]"
-          when 'project'
-            cond = "#{node}[:id] == @node[:section_id]"
-          when 'ancestor'
-            cond = "@node.fullpath =~ /\\A\#{#{node}.fullpath}/"
-          else
-            cond = nil
-          end
-        else
-          cond = nil
-        end
-      else
-        cond = nil
-      end
+    def r_elsif
+      return "<span class='parser_error'>bad context for when/else/elsif clause</span>" unless @context[:case]
+      cond = get_test_condition
       return "<span class='parser_error'>condition error for when clause</span>" unless cond
       out "<% elsif #{cond} -%>"
       out expand_with(:case=>false)
+    end
+    
+    def r_when
+      r_elsif
     end
     
     # be carefull, this gives a list of 'versions', not 'nodes'
@@ -736,9 +705,9 @@ END_TXT
       mode = @params[:mode] || 'std'
       if @params[:href]
         # FIXME: replace with full r_link options
-        res = "node_link(:node=>#{node}, :href=>#{@params[:href].inspect}, :text=>img_tag(#{img}, :mode=>#{mode.inspect})) rescue ''"
+        res = "node_link(:node=>#{node}, :href=>#{@params[:href].inspect}, :text=>img_tag(#{img}, :mode=>#{mode.inspect}))"
       else
-        res = "img_tag(#{img}, :mode=>#{mode.inspect}) rescue ''"
+        res = "img_tag(#{img}, :mode=>#{mode.inspect})"
       end
       @context[:trans] ? "(#{res})" : "<%= #{res} %>"
     end
@@ -966,6 +935,64 @@ END_TXT
           params[k] = v
         end
         "#{before}<#{tag}#{params_to_html(params)}>"
+      end
+    end
+    
+    def get_test_condition
+      if klass = @params[:kind_of]
+        begin Module::const_get(klass) rescue "NilClass" end
+        "#{node}.kind_of?(#{klass})"
+      elsif klass = @params[:klass]
+        begin Module::const_get(klass) rescue "NilClass" end
+        "#{node}.class == #{klass}"
+      elsif status = @params[:status]
+        "#{node}.version[:status] == #{Zena::Status[status.to_sym]}"
+      elsif lang = @params[:lang]
+        "#{node}.version[:lang] == #{lang.inspect}"
+      elsif test = @params[:test]
+        value1, op, value2 = test.split(/\s+/)
+        allOK = value1 && op && value2
+        toi   = ( op =~ /\&/ )
+        if ['==', '!=', '&gt;', '&gt;=', '&lt;', '&lt;='].include?(op)
+          op = op.gsub('&gt;', '>').gsub('&lt', '<')
+        else
+          allOK = false
+        end
+        if allOK
+          value1, value2 = [value1, value2].map do |e|
+            if e =~ /\[(\w+)\]/
+              v = node_attribute($1)
+              v = "#{v}.to_i" if toi
+              v
+            else
+              if toi
+                e.to_i
+              else
+                e.inspect
+              end
+            end
+          end
+        end
+        allOK ? "#{value1} #{op} #{value2}" : nil
+      elsif node_cond = @params[:node]
+        if node_kind_of?(Node)
+          case node_cond
+          when 'self'
+            "#{node}[:id] == @node[:id]"
+          when 'parent'
+            "#{node}[:id] == @node[:parent_id]"
+          when 'project'
+            "#{node}[:id] == @node[:section_id]"
+          when 'ancestor'
+            "@node.fullpath =~ /\\A\#{#{node}.fullpath}/"
+          else
+            nil
+          end
+        else
+          nil
+        end
+      else
+        nil
       end
     end
     

@@ -140,7 +140,7 @@ module Zena
         # if version to publish is 'rep' : old publication => 'removed'
         def publish(pub_time=nil)
           return false unless can_publish?
-          old_versions = versions.find_all_by_status_and_lang(Zena::Status[:pub], version[:lang])
+          old_ids = version.class.fetch_ids "node_id = '#{self[:id]}' AND lang = '#{version[:lang]}' AND status = '#{Zena::Status[:pub]}'"
           case version.status
           when Zena::Status[:rep]
             new_status = Zena::Status[:rem]
@@ -151,10 +151,8 @@ module Zena
           version.status = Zena::Status[:pub]
           if version.save
             # only remove previous publications if save passed
-            old_versions.each do |p|
-              p.status = new_status
-              p.save
-            end
+            
+            connection.execute "UPDATE #{version.class.table_name} SET status = '#{new_status}' WHERE id IN (#{old_ids.join(', ')})" unless old_ids == []
             after_publish(pub_time) && update_publish_from && update_max_status
           else
             merge_version_errors
@@ -225,7 +223,8 @@ module Zena
         end
         
         # Set +publish_from+ to the minimum publication time of all editions
-        def update_max_status
+        def update_max_status(new_status = version.status)
+          return if new_status == max_status
           result = versions.find(:first, :order=>"status DESC")
           # we cannot set status directly with self[:max_status] : a security measure in acts_as_secure#secure_on_update
           # only accepts the @max_status (private attribute) style.
@@ -355,7 +354,9 @@ module Zena
               v.lang = lang || visitor.lang
               v[:content_id] = version[:content_id] || version[:id]
               v.node = self
-            end
+            end  
+            v.node = self if v
+            puts "SECURE (#{self.object_id})"
             if v && (v.user_id == visitor[:id]) && v.status == Zena::Status[:red]
               @redaction = @version = v
             elsif v
@@ -384,9 +385,16 @@ module Zena
                 return
               end
               # TODO: test the value != stuff
-              recipient = recipient.redaction_content if target == 'c_' && recipient.content.send(value) != args[0]
-              # puts "SEND #{method.inspect} #{args.inspect} TO #{recipient.class}"
-              recipient.send(method,*args)  
+              if target == 'c_' 
+                if ( args[0].kind_of?(String) && recipient.content.send(value) == args[0] )
+                  # do not force a new redaction = ignore
+                else
+                  recipient = recipient.redaction_content
+                  recipient.send(method,*args) 
+                end
+              else
+                recipient.send(method,*args)
+              end
             else
               # read
               recipient = version

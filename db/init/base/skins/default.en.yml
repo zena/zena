@@ -1,0 +1,10 @@
+class: Skin
+v_title: Default skin
+v_summary: official default skin
+v_comment: version 0.8
+v_text: |
+  This is the default skin for zena. You should be *very careful* if you change this skin: it is used to display/edit itself.
+  
+  When creating your own skins, you should *always avoid* to display your skins with themselves. This is tempting but will put you in trouble if you need to edit a broken template.
+  
+  By the way, have a look at the designer documentation for "zafu":http://zenadmin.org/en/documentation/page44.html for ideas on how to create a new skin with very few lines of zafu (using clever include tricks).
