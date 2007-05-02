@@ -175,6 +175,52 @@ class ErbTokenizer < Syntax::Tokenizer
 end
 Syntax::SYNTAX['erb'] = ErbTokenizer
 
+class CssTokenizer < Syntax::Tokenizer
+  def step
+    if comments = scan(/\s*\/\*.*?\*\/\s*/m)
+      start_group :comment, comments
+    elsif variables = scan(/[^\{]*?\{[^\}]*?\}/m)
+      variables =~ /(\s*)([^\{]*?)\{([^\}]*?)\}/m
+      start_group :normal, $1
+      vars = $3
+      selectors = $2.split(',').map { |s| s.strip }
+      selectors.each_index do |i|
+        selectors[i].gsub('.','|.').gsub('#','|#').split('|').each do |g|
+          g = g.split(' ')
+          g.each_index do |gi|
+            s = g[gi]
+            if s[0..0] == '#'
+              start_group :id, s
+            elsif s[0..0] == '.'
+              start_group :class, s
+            else
+              start_group :tag, s
+            end
+            start_group :normal, ' ' unless gi == g.size - 1
+          end
+        end
+        unless i == selectors.size - 1
+          start_group :punct, ', '
+        end
+      end
+      start_group :punct, '{ '
+      
+      rest = vars
+      while rest != '' && rest =~ /([\w-]+)\s*:\s*(.*?)\s*;(.*)/m
+        start_group :variable, $1
+        start_group :punct, ':'
+        start_group :normal, $2
+        start_group :punct, '; '
+        rest = $3
+      end
+      start_group :punct, "#{rest}}"
+    else
+      start_group :normal, scan(/./m)
+    end
+  end
+end
+Syntax::SYNTAX['css'] = CssTokenizer
+
 
 class ShTokenizer < Syntax::Tokenizer
   def step

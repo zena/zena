@@ -171,7 +171,7 @@ module Zazen
         end
         if Syntax::SYNTAX[lang] && @context[:pretty_code]
           convertor = Syntax::Convertors::HTML.for_syntax(lang)
-          "#{code_tag}#{convertor.convert( text, false )}</code>"
+          "#{code_tag}#{convertor.convert( text, false ).gsub(/\n( *)/m) { "<br/>\n" + ('&nbsp;' * $1.length) }}</code>"
         else
           RedCloth.new("#{code_tag}#{text}</code>").to_html
         end

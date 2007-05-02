@@ -584,7 +584,7 @@ module ApplicationHelper
       if obj.kind_of?(TextDocument) && sym == :v_text
         lang = obj.content_lang
         lang = lang ? " lang='#{lang}'" : ""
-        text = "<code#{lang} class='full'>#{text}</code>"
+        text = "<code#{lang} class='full'>HEYHEY#{text.gsub("\n", '<br/>')}</code>"
       end
       text  = zazen(text, opt)
       klass = " class='zazen'"

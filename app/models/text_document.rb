@@ -27,7 +27,7 @@ class TextDocument < Document
       when 'html'
         'zafu'
       else
-        nil
+        $1
       end
     else
       nil
