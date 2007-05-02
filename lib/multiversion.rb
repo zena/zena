@@ -214,6 +214,7 @@ module Zena
         
         # Set +publish_from+ to the minimum publication time of all editions
         def update_publish_from
+          return true if self[:publish_from] == version[:publish_from] && version[:status] == Zena::Status[:pub]
           result  = versions.find(:first, :conditions=>"status = #{Zena::Status[:pub]}", :order=>"publish_from ASC")
           new_pub = result ? result[:publish_from] : nil
           if self[:publish_from] != new_pub
@@ -223,8 +224,8 @@ module Zena
         end
         
         # Set +publish_from+ to the minimum publication time of all editions
-        def update_max_status(new_status = version.status)
-          return if new_status == max_status
+        def update_max_status(version = self.version)
+          return true if version[:status] == max_status
           result = versions.find(:first, :order=>"status DESC")
           # we cannot set status directly with self[:max_status] : a security measure in acts_as_secure#secure_on_update
           # only accepts the @max_status (private attribute) style.
@@ -356,7 +357,7 @@ module Zena
               v.node = self
             end  
             v.node = self if v
-            puts "SECURE (#{self.object_id})"
+            
             if v && (v.user_id == visitor[:id]) && v.status == Zena::Status[:red]
               @redaction = @version = v
             elsif v

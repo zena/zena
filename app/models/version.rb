@@ -149,7 +149,6 @@ class Version < ActiveRecord::Base
   
     # Make sure the version and it's related content are in a correct state.
     def valid_version
-      puts "VALID_VERSION (#{node.object_id})"
       errors.add("site_id", "can't be blank") unless self[:site_id] and self[:site_id] != ""
       # validate content
       if @content && !@content.valid?

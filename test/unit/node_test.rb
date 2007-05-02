@@ -846,8 +846,10 @@ done: \"I am done\""
     nodes = secure(Node) { Node.create_nodes_from_folder(:folder => File.join(RAILS_ROOT, 'test', 'fixtures', 'import'), :parent_id => parent[:id] )}
     children = parent.children
     assert_equal 2, children.size
-    assert_equal 2, nodes.size
-    bird, simple = nodes
+    assert_equal 3, nodes.size
+    bird   = nodes[1]
+    simple = secure(Node)  { Node.find_by_name_and_parent_id('simple', parent[:id]) }
+    photos = secure(Node) { Node.find_by_name_and_parent_id('photos', parent[:id]) }
     
     assert_equal 'bird', bird[:name]
     assert_equal 'simple', simple[:name]
@@ -859,20 +861,27 @@ done: \"I am done\""
     assert_equal 'fr', versions[0].lang
     assert_equal 'en', versions[1].lang
     assert_equal 'Le septième ciel', versions[0].title
+    assert_equal 'Photos !', photos.v_title
+    assert_match %r{Here are some photos.*!\[\]!}m, photos.v_text
+    assert_equal bird[:id], photos.children[0][:id]
   end
   
   def test_create_nodes_from_folder_with_defaults
     login(:tiger)
     parent = secure(Project) { Project.create(:name => 'import', :parent_id => nodes_id(:zena), :rgroup_id => 4, :wgroup_id => 4) }
     assert !parent.new_record?, "Not a new record"
-    secure(Node) { Node.create_nodes_from_folder(:folder => File.join(RAILS_ROOT, 'test', 'fixtures', 'import'), :parent_id => parent[:id] )}
+    result = secure(Node) { Node.create_nodes_from_folder(:folder => File.join(RAILS_ROOT, 'test', 'fixtures', 'import'), :parent_id => parent[:id] )}
     children = parent.children
     assert_equal 2, children.size
-    assert_equal 4, children[0].rgroup_id
+    assert_equal 'bird', result[1].name
+    assert_equal 4, children[1].rgroup_id
+    assert_equal 'photos', result[0].name
+    assert_equal 1, children[0].rgroup_id
     
-    secure(Node) { Node.create_nodes_from_folder(:folder => File.join(RAILS_ROOT, 'test', 'fixtures', 'import'), :parent_id => children[0][:id], :defaults => { :rgroup_id => 1 } )}
+    result = secure(Node) { Node.create_nodes_from_folder(:folder => File.join(RAILS_ROOT, 'test', 'fixtures', 'import'), :parent_id => result[1][:id], :defaults => { :rgroup_id => 1 } )}
     
     children = children[0].children
+    assert_equal 3, result.size
     assert_equal 1, children.size # cannot create a Note inside an Image
     assert_equal 1, children[0].rgroup_id
   end
@@ -888,7 +897,7 @@ done: \"I am done\""
   
   def test_create_nodes_from_archive
     login(:tiger)
-    secure(Node) { Node.create_nodes_from_folder(:archive => File.join(RAILS_ROOT, 'db', 'init', 'default.tgz'), :parent_id => nodes_id(:zena)) }
+    secure(Node) { Node.create_nodes_from_folder(:archive => File.join(RAILS_ROOT, 'test', 'fixtures', 'import.tgz'), :parent_id => nodes_id(:zena)) }
     
     node = secure(Skin) { Skin.find_by_name('default') }
     assert_kind_of Skin, node

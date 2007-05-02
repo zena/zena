@@ -114,7 +114,7 @@ class VersionTest < ZenaTestUnit
       # version and content did not change
       assert_equal versions_id(:forest_red_en), node.c_version_id
       assert_equal 29279, node.c_size
-      assert_kind_of Tempfile, node.c_file
+      assert_kind_of File, node.c_file
       assert_equal 29279, node.c_file.stat.size
     end
   end

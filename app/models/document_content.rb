@@ -91,7 +91,7 @@ class DocumentContent < ActiveRecord::Base
   end
   
   def content_before_save
-    puts self[:content_type]
+    
     self[:type] = self.class.to_s # make sure the type is set in case no sub-classes are loaded.
     if @file
       # destroy old file

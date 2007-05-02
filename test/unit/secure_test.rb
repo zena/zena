@@ -18,14 +18,7 @@ class SecureReadTest < ZenaTestUnit
     assert_equal PagerDummy.kpath, 'NU'
     assert_equal SubPagerDummy.kpath, 'NUS'
   end
-  def test_callbacks
-    assert Node.read_inheritable_attribute(:before_validation).include?(:secure_before_validation)
-    assert Page.read_inheritable_attribute(:before_validation).include?(:secure_before_validation)
-    assert Node.read_inheritable_attribute(:validate_on_create).include?(:node_on_create)
-    assert Node.read_inheritable_attribute(:validate_on_update).include?(:node_on_update)
-    assert Page.read_inheritable_attribute(:validate_on_create).include?(:node_on_create)
-    assert Page.read_inheritable_attribute(:validate_on_update).include?(:node_on_update)
-  end
+  
   # SECURE FIND TESTS  ===== TODO CORRECT THESE TEST FROM CHANGES TO RULES ========
   # [user]          Node owner. Can *read*, *write* and (*manage*: if node not published yet or node is private).
   def test_can_rwm_own_private_node
@@ -284,7 +277,7 @@ class SecureCreateTest < ZenaTestUnit
     assert node.save
     node[:parent_id] = nodes_id(:status)
     assert ! node.save, 'Save fails'
-    assert_equal 'parent must be empty for root', node.errors[:parent_id]
+    assert_equal 'invalid parent', node.errors[:parent_id]
   end
   
   def test_valid_reference

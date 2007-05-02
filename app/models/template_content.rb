@@ -39,7 +39,6 @@ class TemplateContent < ActiveRecord::Base
   
   private
     def template_content_before_validation
-      puts "TMP_CONT (#{node.object_id})"
       self[:skin_name] = node.section.name
     end
   

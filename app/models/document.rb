@@ -56,8 +56,7 @@ class Document < Page
       else
         content_type = 'text/plain'
       end
-      puts "\n\n\n\n"
-      puts content_type.inspect
+      
       if Image.accept_content_type?(content_type)
         klass = Image
       elsif Template.accept_content_type?(content_type)

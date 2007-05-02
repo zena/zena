@@ -122,7 +122,6 @@ Setting 'custom_base' on a node should be done with caution as the node's zip is
 class Node < ActiveRecord::Base
   has_many           :discussions
   has_and_belongs_to_many :cached_pages
-  before_validation  :node_before_validation
   validate           :validate_node
   before_save        :node_before_create
   after_save         :spread_project_and_section
@@ -130,6 +129,7 @@ class Node < ActiveRecord::Base
   attr_protected     :site_id, :zip, :id, :section_id, :project_id, :publish_from, :max_status, :v_status
   acts_as_secure_node
   acts_as_multiversioned
+  before_validation  :node_before_validation  # run our 'before_validation' after 'secure'
   link :tags, :class_name=>'Tag'
   link :references, :class_name=>'Reference'
   link :icon, :class_name=>'Image', :unique=>true
@@ -149,8 +149,6 @@ class Node < ActiveRecord::Base
         attributes.delete('parent_id')
       else
         p = attributes['parent_id']
-        puts "\n\n\n"
-        puts p.inspect
         if p && p.to_i.to_s != p.to_s.strip
           # find by name
           parent_id = Node.with_exclusive_scope(scope) { Node.find_by_name(p) }[:id]
@@ -160,7 +158,9 @@ class Node < ActiveRecord::Base
 
       attributes.keys.each do |key|
         if key =~ /^(\w+)_id$/ && ! ['rgroup_id', 'wgroup_id', 'pgroup_id', 'user_id'].include?(key)
-          attributes[key] = Node.connection.execute( "SELECT id FROM nodes WHERE site_id = #{visitor.site[:id]} AND zip = '#{attributes[key].to_i}'" ).fetch_row[0]
+          value = Node.connection.execute( "SELECT id FROM nodes WHERE site_id = #{visitor.site[:id]} AND zip = '#{attributes[key].to_i}'" ).fetch_row
+          raise ActiveRecord::RecordNotFound unless value
+          attributes[key] = value[0]
         end
       end
 
@@ -871,8 +871,8 @@ class Node < ActiveRecord::Base
       # make sure section is the same as the parent
       if self[:parent_id].nil?
         # root node
-        self[:section_id] = self[:id]
-        self[:project_id] = self[:id]
+        self[:section_id] = nil
+        self[:project_id] = nil
       elsif parent
         self[:section_id] = parent.get_section_id
         self[:project_id] = parent.get_project_id
@@ -883,11 +883,12 @@ class Node < ActiveRecord::Base
       # set name from title if name not set yet
       self.name = version[:title] unless self[:name]
       
-      if !new_record?
-        if self[:section_id] != old[:section_id]
+      if !new_record? && self[:parent_id]
+        # update and this is not the root node
+        if !kind_of?(Section) && self[:section_id] != old[:section_id]
           @spread_section_id = self[:section_id]
         end
-        if self[:project_id] != old[:project_id]
+        if !kind_of?(Project) && self[:project_id] != old[:project_id]
           @spread_project_id = self[:project_id]
         end
         
@@ -897,7 +898,7 @@ class Node < ActiveRecord::Base
     # Make sure the node is complete before creating it (check parent and project references)
     def validate_node
       # when creating root node, self[:id] and :root_id are both nil, so it works.
-      errors.add("parent_id", "invalid parent") unless parent.kind_of?(self.class.parent_class) || (self[:id] == visitor.site[:root_id] && self[:parent_id] == nil)
+      errors.add("parent_id", "invalid parent") unless (parent.kind_of?(self.class.parent_class) && self[:id] != visitor.site[:root_id]) || (self[:id] == visitor.site[:root_id] && self[:parent_id] == nil)
       
       errors.add("name", "can't be blank") unless self[:name] and self[:name] != ""
       
@@ -908,7 +909,7 @@ class Node < ActiveRecord::Base
     def node_on_destroy
       unless all_children.size == 0
         errors.add('base', "contains subpages")
-        return false§
+        return false
       else  
         # expire cache
         # TODO: test

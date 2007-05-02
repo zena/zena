@@ -369,13 +369,12 @@ Just doing the above will filter all result according to the logged in user.
             ref_ids  = [self[:id]]
             curr_ref = self[:parent_id]
             ok = true
-            while true
+            while curr_ref != 0
               if ref_ids.include?(curr_ref) # detect loops
                 ok = false
                 break
               end
               ref_ids << curr_ref
-              break if curr_ref == visitor.site[:root_id]
               rows = self.class.connection.execute("SELECT #{ref_field} FROM #{self.class.table_name} WHERE id=#{curr_ref}")
               if rows.num_rows == 0
                 errors.add(ref_field, "reference missing in reference hierarchy")

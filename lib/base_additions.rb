@@ -7,7 +7,7 @@ class ActiveRecord::Base
     end
     def fetch_ids(sql, id_attr='id')
       # TODO: test sql without 'SELECT'
-      unless sql.downcase.strip[0..6] == 'select'
+      unless sql =~ /SELECT/i
         sql = "SELECT #{id_attr} FROM #{self.table_name} WHERE #{sql}"
       end
       connection.select_all(sql, "#{name} Load").map! do |record| 

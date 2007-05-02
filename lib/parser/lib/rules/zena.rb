@@ -642,6 +642,16 @@ END_TXT
       "</div>"
     end
     
+    # Shows a 'made with zena' link or logo. ;-) Thanks for using this !
+    # TODO: test and add translation.
+    # <z:zena show='logo'/> or <z:zena show='text'/> == <z:zena/>
+    def r_zena
+      if @params[:show] == 'logo'
+        # FIXME
+      else
+        "<a class='made_with_zena' href='http://zenadmin.org'>made with Zena</a>"
+      end
+    end
     
     # creates a link. Options are:
     # :href (node, parent, project, root)

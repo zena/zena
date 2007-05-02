@@ -1,3 +1,9 @@
+== MOST IMPORTANT:
+prepare a boot script for zena so it is restarted on hardware reboot :
+'send a mail'
+rm -rf log/mongrel.*.pid
+mongrel_rails cluster::start
+
 
 == Todo
 * if mksite fails (password too short, etc): rollback !
