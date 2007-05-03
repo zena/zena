@@ -279,6 +279,7 @@ opening:
   inherit:        1
   max_status:     50
   log_at:         2006-03-15
+  event_at:       2006-03-18
   skin:           default
 <%= @dates %>
 <%= @rights %>

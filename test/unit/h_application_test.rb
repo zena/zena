@@ -98,9 +98,9 @@ class ApplicationHelperTest < ZenaTestHelper
     assert_equal 'pdf', doc.c_ext
     doc.version.content[:ext] = 'bin'
     assert_equal 'bin', doc.c_ext
-    assert_equal "<img src='/images/ext/other.png' width='32' height='32' alt='water' class='doc'/>", img_tag(doc)
-    assert_equal "<img src='/images/ext/other_pv.png' width='70' height='70' alt='water' class='doc'/>", img_tag(doc, :mode=>'pv')
-    assert_equal "<img src='/images/ext/other_std.png' width='32' height='32' alt='water' class='doc'/>", img_tag(doc, :mode=>'std')
+    assert_equal "<img src='/images/ext/other.png' width='32' height='32' alt='bin document' class='doc'/>", img_tag(doc)
+    assert_equal "<img src='/images/ext/other_pv.png' width='70' height='70' alt='bin document' class='doc'/>", img_tag(doc, :mode=>'pv')
+    assert_equal "<img src='/images/ext/other_std.png' width='32' height='32' alt='bin document' class='doc'/>", img_tag(doc, :mode=>'std')
   end
   
   def test_alt_with_apos
@@ -244,16 +244,16 @@ class ApplicationHelperTest < ZenaTestHelper
   
   def test_flash_messages
     login(:ant)
-    assert_equal '', flash_messages(:show=>:both)
+    assert_equal "<div id='messages'></div>", flash_messages(:show=>'both')
     flash[:notice] = 'yoba'
-    assert_match /notice.*yoba/, flash_messages(:show=>:both)
-    assert_no_match /error/, flash_messages(:show=>:both)
+    assert_match /notice.*yoba/, flash_messages(:show=>'both')
+    assert_no_match /error/, flash_messages(:show=>'both')
     flash[:error] = 'taio'
-    assert_match /notice.*yoba/, flash_messages(:show=>:both)
-    assert_match /error.*taio/, flash_messages(:show=>:both)
+    assert_match /notice.*yoba/, flash_messages(:show=>'both')
+    assert_match /error.*taio/, flash_messages(:show=>'both')
     flash[:notice] = nil
-    assert_no_match /notice/, flash_messages(:show=>:both)
-    assert_match /error/, flash_messages(:show=>:both)
+    assert_no_match /notice/, flash_messages(:show=>'both')
+    assert_match /error/, flash_messages(:show=>'both')
   end
   
   def test_fsize
@@ -270,13 +270,13 @@ class ApplicationHelperTest < ZenaTestHelper
   end
   
   def test_calendar_has_note
-    op_at = nodes(:opening).log_at
+    op_at = nodes(:opening).event_at
     zena = secure(Node) { nodes(:zena) }
     cal = calendar(:from=>zena, :find=>:news, :date=>Date.civil(op_at.year, op_at.month, 5), :size=>:tiny)
     assert_match %r{class='sun'><p>12}, cal
-    assert_match %r{<b class='has_note'>15}, cal
+    assert_match %r{<b>18</b>}, cal
     cal = calendar(:from=>zena, :find=>:news, :date=>Date.civil(op_at.year, op_at.month, 5), :size=>:large)
-    assert_match %r{<p>15.*onclick=.*Updater.*largecal_preview.*/z/calendar/list/.*(selected=17.*|2006-03-15.*)(selected=17.*|2006-03-15.*)</div></p>}m, cal
+    assert_match %r{<p>18.*onclick=.*Updater.*largecal_preview.*/z/note/day_list.*(selected=27.*|2006-03-18.*)(selected=27.*|2006-03-18.*)</div></p>}m, cal
   end
   
   def test_calendar_today
@@ -290,7 +290,7 @@ class ApplicationHelperTest < ZenaTestHelper
   def test_notes_list_tiny_calendar_list
     login(:tiger)
     proj = secure(Node) { nodes(:cleanWater) }
-    note = secure(Note) { Note.create(:parent_id=>nodes_id(:cleanWater), :v_title=>'hello')}
+    note = secure(Note) { Note.create(:parent_id=>nodes_id(:cleanWater), :v_title=>'hello') }
     list = notes(:from=>proj, :find=>:news)
     assert_equal 1, list.size
     assert_equal 'opening', list[0].name
@@ -299,7 +299,7 @@ class ApplicationHelperTest < ZenaTestHelper
   def test_notes_list_from_project
     login(:tiger)
     proj = secure(Node) { nodes(:cleanWater) }
-    note = secure(Note) { Note.create(:parent_id=>nodes_id(:cleanWater), :v_title=>'hello')}
+    note = secure(Note) { Note.create(:parent_id=>nodes_id(:cleanWater), :v_title=>'hello') }
     list = notes(:from=>proj, :find=>:notes)
     assert_equal 2, list.size
     assert_equal 'opening', list[0].name
@@ -309,14 +309,14 @@ class ApplicationHelperTest < ZenaTestHelper
   # ------ these tests were in main helper ----
 
   def test_check_lang_same
-    session[:lang] = 'en'
+    visitor.lang = 'en'
     obj = secure(Node) { nodes(:zena) }
     assert_equal 'en', obj.v_lang
     assert_no_match /\[en\]/, check_lang(obj)
   end
   
   def test_check_other_lang
-    session[:lang] = 'io'
+    visitor.lang = 'io'
     obj = secure(Node) { nodes(:zena) }
     assert_match /\[en\]/, check_lang(obj)
   end
@@ -409,9 +409,7 @@ class ApplicationHelperTest < ZenaTestHelper
   def test_admin_link_translation
     assert_equal '', show_link(:translation)
     login(:lion)
-    assert_match %r{Translate interface.*z/trans/list.*\?translate=on}, show_link(:translation)
-    session[:translate] = true
-    assert_match %r{Translate interface.*z/trans/list.*\?translate=off}, show_link(:translation)
+    assert_match %r{z/trans/list.*translate interface}, show_link(:translation)
   end
 
   def test_lang_links
@@ -444,10 +442,5 @@ class ApplicationHelperTest < ZenaTestHelper
       remove_method(:request)
     end
     remove_instance_variable :@request
-  end
-  
-  def rescue_action(e)
-    puts "ERROR"
-    raise
   end
 end

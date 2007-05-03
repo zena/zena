@@ -272,7 +272,7 @@ module ApplicationHelper
     unless link
       if id[0..0] == "0" || !img.kind_of?(Image)
         # if the id starts with '0' or it is not an Image, link to data
-        link = zen_url(img, :format => img.c_ext)
+        link = zen_path(img, :format => img.c_ext)
       end
     end
     
@@ -348,6 +348,7 @@ module ApplicationHelper
       ids = ids.split(',').map{|i| i.to_i}.join(',') # sql injection security
       docs = secure(Document) { Document.find(:all, :order=>'name ASC', :conditions=>"zip IN (#{ids})") }
     end
+    return '' unless docs
     prefix + render_to_string( :partial=>'main/list_nodes', :locals=>{:docs=>docs}) + suffix
   end
   
@@ -361,11 +362,12 @@ module ApplicationHelper
     ext     = content[:ext]
     opts    = opts.merge(:format => ext)
     
-    alt       = opts[:alt]   || obj.v_title.gsub("'", '&apos;')
+    alt       = opts[:alt]
     img_id    = opts[:id]
     
     src = width = height = img_class = nil
     if obj.kind_of?(Image)
+      alt ||= obj.v_title.gsub("'", '&apos;')
       mode = content.verify_format(mode) || 'std'
       
       src       = zen_path(obj, opts.merge(:mode => (mode == 'full' ? nil : mode)))
@@ -381,7 +383,8 @@ module ApplicationHelper
         height= content.height(mode)
       end
     elsif obj.kind_of?(Document)
-      mode      = IMAGEBUILDER_FORMAT[mode] ? mode : nil
+      mode    = IMAGEBUILDER_FORMAT[mode] ? mode : nil
+      alt   ||= "#{content.ext} document"
       
       img_class = opts[:class] || 'doc'
       unless File.exist?("#{RAILS_ROOT}/public/images/ext/#{ext}.png")
@@ -963,21 +966,21 @@ ENDTXT
     case size
     when :tiny
       day_names = Date::ABBR_DAYNAMES
-      on_day    = Proc.new { |e,d| e ? "<b class='has_note'>#{d.day}</b>" : d.day }
+      on_day    = Proc.new { |events, date| events ? "<b>#{date.day}</b>" : date.day }
     when :large
       day_names = Date::DAYNAMES
-      on_day    = Proc.new do |notes,d|
-        if notes
-          res = ["#{d.day}"]
-          notes.each do |e| #largecal_preview
+      on_day    = Proc.new do |events, date|
+        if events
+          res = ["#{date.day}"]
+          events.each do |e| #largecal_preview
             res << "<div>" + link_to_remote(e.v_title.limit(14), 
                                   :update=>'largecal_preview',
                                   :url=>{:controller=>'note', :action=>'day_list', :id=>source[:id], :find=>method, 
-                                  :date=>d, :selected=>e[:id] }) + "</div>"
+                                  :date=>date, :selected=>e[:zip] }) + "</div>"
           end
           res.join("\n")
         else
-          d.day
+          date.day
         end
       end
     end

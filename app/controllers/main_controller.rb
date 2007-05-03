@@ -1,7 +1,5 @@
 =begin
-The MainController is a navigation controller. No operation is done here: the web controller just selects
-the information that will appear on the different pages or asks other controllers to do part of the job
-for him.
+FIXME: merge what this controller does somewhere else and remove.
 =end
 class MainController < ApplicationController
   before_filter :check_url, :except => [:not_found, :redirect]

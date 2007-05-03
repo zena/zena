@@ -231,6 +231,10 @@ module Zena
       def session
         @controller.send(:session)
       end
+      
+      def flash
+        session['flash']
+      end
 
       def err(obj)
         obj.errors.each do |er,msg|

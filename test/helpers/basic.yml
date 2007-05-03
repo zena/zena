@@ -31,11 +31,7 @@ include_erb:
 
 cache_part:
   src: "<z:cache><z:show attr='name'/></z:cache>"
-  tem: "<% cache1 = Cache.with(visitor.id, visitor.group_ids, \"NP\", \"/cache/part\") do capture do %><%= @node.name %><% end; end %><%= cache1 %>"
-
-yield:
-  tem: "<% res = capture do [1,2,3].map do |i| %>yes<%= i %><% end; end %> The result is <%= res %>"
-  res: "sa"
+  tem: "<% cache1 = Cache.with(visitor.id, visitor.group_ids, \"en\", \"NP\", \"/cache/part\") do capture do %><%= @node.name %><% end; end %><%= cache1 %>"
 
 show_title:
   src: "<z:show attr='v_title'/>"
