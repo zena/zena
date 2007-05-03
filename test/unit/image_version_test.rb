@@ -11,7 +11,7 @@ class ImageVersionTest < ZenaTestUnit
                                           :c_file => uploaded_jpg('bird.jpg')) }
       assert_kind_of Image , img
       assert ! img.new_record? , "Not a new record"
-      assert_equal "!#{img[:id]}!", img.v_text
+      assert_equal "!#{img[:zip]}!", img.v_text
     end
   end
 

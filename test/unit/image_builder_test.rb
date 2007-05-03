@@ -50,10 +50,10 @@ class ImageBuilderTest < ZenaTestUnit
     def test_write_sepia
       img = ImageBuilder.new(:path=>uploaded_jpg('bird.jpg').path)
       img.transform!('sepia')
-      assert !File.exist?("#{RAILS_ROOT}/data/test/sepia.jpg"), "File does not exist"
-      assert_nothing_raised { img.write("#{RAILS_ROOT}/data/test/sepia.jpg")}
-      assert File.exist?("#{RAILS_ROOT}/data/test/sepia.jpg"), "File saved ok"
-      FileUtils.rm("#{RAILS_ROOT}/data/test/sepia.jpg")
+      assert !File.exist?("#{SITES_ROOT}/test.host/sepia.jpg"), "File does not exist"
+      assert_nothing_raised { img.write("#{SITES_ROOT}/test.host/sepia.jpg")}
+      assert File.exist?("#{SITES_ROOT}/test.host/sepia.jpg"), "File saved ok"
+      FileUtils.rm("#{SITES_ROOT}/test.host/sepia.jpg")
     end
     
     def test_png

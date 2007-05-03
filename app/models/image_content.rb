@@ -93,7 +93,7 @@ class ImageContent < DocumentContent
     end
   end
   
-  # Image filename for the given format. For example, 'bird-pv.jpg' is the name for 'pv' format. The name without a format or 'full' format would be 'bird.jpg'
+  # Image filename for the given format. For example, 'bird_pv.jpg' is the name for 'pv' format. The name without a format or 'full' format would be 'bird.jpg'
   def filename(format=nil)
     format = verify_format(format)
     if format == 'full'

@@ -374,7 +374,7 @@ on the post edit page :
               def #{method}=(objs)
                 @#{meth}_ids = objs ? objs.map{|obj| obj[:id]} : []
               end
-              def #{meth}_ids; #{method}.map{|r| r[:id]}; end
+              def #{meth}_ids; res = #{method}; res ? res.map{|r| r[:id]} : nil; end
               
               # link can be changed if user can write in old and new
               # 1. can remove old links
@@ -440,14 +440,14 @@ on the post edit page :
               end
               
               def remove_#{meth}(obj_id)
-                @#{meth}_ids ||= #{meth}_ids
+                @#{meth}_ids ||= #{meth}_ids || []
                 # ignore bad obj_ids, just pass
                 @#{meth}_ids.delete(obj_id.to_i)
                 return true
               end
               
               def add_#{meth}(obj_id)
-                @#{meth}_ids ||= #{meth}_ids
+                @#{meth}_ids ||= #{meth}_ids || []
                 @#{meth}_ids << obj_id.to_i unless @#{meth}_ids.include?(obj_id.to_i)
                 return true
               end

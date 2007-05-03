@@ -415,7 +415,7 @@ class MultiVersionTest < ZenaTestUnit
     assert node.publish
     node = secure(Node) { nodes(:lake)  } # reload
     assert_equal 2, node.editions.size, "English and french editions"
-    assert_equal ["en"], node.traductions.map{|t| t[:lang]}.sort
+    assert_equal ["en", "fr"], node.traductions.map{|t| t[:lang]}.sort
   end
   
   def test_publish_with_custom_date
@@ -545,13 +545,13 @@ class MultiVersionTest < ZenaTestUnit
     login(:lion) # lang = 'en'
     node = secure(Node) { nodes(:status) }
     trad = node.traductions
-    assert_equal 1, trad.size
+    assert_equal 2, trad.size
     trad_node = trad[0].node
     assert_equal node.object_id, trad_node.object_id # make sure object is not reloaded and not secured
     assert_equal 'en', node.v_lang
-    assert_equal 'fr', trad[0][:lang]
+    assert_equal 'fr', trad[1][:lang]
     node = secure(Node) { nodes(:wiki) }
     trad = node.traductions
-    assert_nil trad, 'no traductions'
+    assert_equal 1, trad.size
   end
 end

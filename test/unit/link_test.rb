@@ -24,10 +24,20 @@ end
 
 class DummyVersion < ActiveRecord::Base
   belongs_to :node, :class_name=>'LinkDummy', :foreign_key=>'node_id'
+  before_validation     :version_before_validation
   set_table_name 'versions'
+  
+  def version_before_validation
+    self[:text]    ||= ""
+    self[:title]   ||= node[:name]
+    self[:summary] ||= ""
+    self[:comment] ||= ""
+  end
 end
 
 class SuperDummy < ActiveRecord::Base
+  # remove 'secure' method defined in ActiveRecord::Base
+  undef_method :secure
   set_table_name 'contact_contents'
   link :employees, :class_name=>'SuperDummy'
   link :boss, :class_name=>'SuperDummy', :as=>'employee', :unique=>true
@@ -38,7 +48,7 @@ class LinkTest < ZenaTestUnit
   def setup
     super
     # cleanWater, status, wiki
-    LinkDummy.connection.execute "UPDATE nodes SET type='LinkDummy' WHERE id IN (11,12,18,19);"
+    LinkDummy.connection.execute "UPDATE nodes SET type='LinkDummy' WHERE id IN (11,12,13,18,19);"
     # 'menu' Tag si private for tiger
     LinkDummy.connection.execute "UPDATE nodes SET inherit=0, rgroup_id=NULL, wgroup_id=NULL, pgroup_id=NULL WHERE id = '25';"
   end
@@ -192,7 +202,7 @@ class LinkTest < ZenaTestUnit
     login(:lion)
     @node = secure(LinkDummy) { LinkDummy.find(nodes_id(:wiki)) }
     assert_nothing_raised { @node.tags }
-    assert_equal [], @node.tags
+    assert_nil @node.tags
     @node.tag_ids = [nodes_id(:art),nodes_id(:news)]
     @node.save
     tags = @node.tags
@@ -213,7 +223,7 @@ class LinkTest < ZenaTestUnit
     login(:lion)
     @node = secure(LinkDummy) { LinkDummy.find(nodes_id(:wiki)) }
     assert_nothing_raised { @node.tags }
-    assert_equal [], @node.tags
+    assert_nil @node.tags
     @node.tags = [nodes(:art),nodes(:news)]
     @node.save
     tags = @node.tags
@@ -259,7 +269,7 @@ class LinkTest < ZenaTestUnit
     @node = secure(LinkDummy) { LinkDummy.find(nodes_id(:wiki)) }
     @node.tag_ids = []
     @node.save
-    assert_equal 0, @node.tags.size
+    assert_nil @node.tags
   end
 
   def test_hot_for
@@ -319,7 +329,7 @@ class LinkTest < ZenaTestUnit
     @target1.remove_letter(nodes_id(:wiki))
     @target1.save
     assert_equal 1, @source.recipients.size
-    assert_equal [], @target1.letters
+    assert_nil @target1.letters
     assert_equal @source[:name], @target2.letters[0][:name]
   end
   
@@ -444,7 +454,7 @@ class LinkTest < ZenaTestUnit
     login(:lion)
     @node = secure(LinkDummy) { LinkDummy.find(nodes_id(:wiki)) }
     assert_nothing_raised { @node.tags }
-    assert_equal [], @node.tags
+    assert_nil @node.tags
     @node.tag_ids = [nodes_id(:art),nodes_id(:news)]
     @node.save
     tags = @node.tags(:limit=>1, :order=>'name DESC')
@@ -482,16 +492,16 @@ class LinkTest < ZenaTestUnit
   
   def test_from_option
     login(:lion)
-    @node1 = secure(LinkDummy) { LinkDummy.find(nodes_id(:cleanWater)) } #11
-    @icon1 = secure(LinkDummy) { LinkDummy.find(nodes_id(:bird_jpg)) } #20
+    @node1 = secure(LinkDummy) { LinkDummy.find(nodes_id(:lake)) }
+    @icon1 = secure(LinkDummy) { LinkDummy.find(nodes_id(:bird_jpg)) }
     @node1.icon = @icon1
     @node1.save
-    @node2 = secure(LinkDummy) { LinkDummy.find(nodes_id(:status)) } #12
-    @icon2 = secure(LinkDummy) { LinkDummy.find(nodes_id(:flower_jpg)) } #21
+    @node2 = secure(LinkDummy) { LinkDummy.find(nodes_id(:status)) }
+    @icon2 = secure(LinkDummy) { LinkDummy.find(nodes_id(:flower_jpg)) }
     @node2.icon = @icon2
     @node2.save
     # reload
-    @node1 = secure(LinkDummy) { LinkDummy.find(nodes_id(:cleanWater)) }
+    @node1 = secure(LinkDummy) { LinkDummy.find(nodes_id(:lake)) }
     assert_equal nodes_id(:bird_jpg), @node1.icon[:id]
     LinkDummy.logger.info "============== find icon_for =========="
     assert_equal 2, @node1.icon_for(:from=>'project').size

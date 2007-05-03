@@ -124,12 +124,12 @@ class Version < ActiveRecord::Base
   
     # Set version number and site_id before validation tests.
     def version_before_validation
-      return unless node
+      return false unless node
       self[:site_id] = node[:site_id]
     
       # [ why do we need these defaults now ? (since rails 1.2)
-      self[:text]  ||= ""
-      self[:title] ||= node[:name]
+      self[:text]    ||= ""
+      self[:title]   ||= node[:name]
       self[:summary] ||= ""
       self[:comment] ||= ""
       # ]

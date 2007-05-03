@@ -29,12 +29,12 @@ class ImageContentTest < ZenaTestUnit
     preserving_files('/test.host/data/jpg/20') do
       img = get_content(:bird_jpg)
       assert File.exist?("#{SITES_ROOT}/test.host/data/jpg/20/bird.jpg"), "File exists"
-      assert !File.exist?("#{SITES_ROOT}/test.host/data/jpg/20/bird-pv.jpg"), "File does not exist"
+      assert !File.exist?("#{SITES_ROOT}/test.host/data/jpg/20/bird_pv.jpg"), "File does not exist"
       assert_equal 661, img.width
       assert_equal 70,  img.width('pv')
-      assert !File.exist?("#{SITES_ROOT}/test.host/data/jpg/20/bird-pv.jpg"), "File does not exist"
+      assert !File.exist?("#{SITES_ROOT}/test.host/data/jpg/20/bird_pv.jpg"), "File does not exist"
       assert_equal 2249, img.size('pv')
-      assert File.exist?("#{SITES_ROOT}/test.host/data/jpg/20/bird-pv.jpg"), "File exist"
+      assert File.exist?("#{SITES_ROOT}/test.host/data/jpg/20/bird_pv.jpg"), "File exist"
     end
   end
   
@@ -42,13 +42,13 @@ class ImageContentTest < ZenaTestUnit
     preserving_files('/test.host/data/jpg/20') do
       img = get_content(:bird_jpg)
       assert File.exist?("#{SITES_ROOT}/test.host/data/jpg/20/bird.jpg"     ), "File exists"
-      assert !File.exist?("#{SITES_ROOT}/test.host/data/jpg/20/bird-pv.jpg" ), "File does not exist"
-      assert !File.exist?("#{SITES_ROOT}/test.host/data/jpg/20/bird-med.jpg"), "File does not exist"
+      assert !File.exist?("#{SITES_ROOT}/test.host/data/jpg/20/bird_pv.jpg" ), "File does not exist"
+      assert !File.exist?("#{SITES_ROOT}/test.host/data/jpg/20/bird_med.jpg"), "File does not exist"
       assert img.file
       assert img.file('pv')
       assert img.file('med')
-      assert File.exist?("#{SITES_ROOT}/test.host/data/jpg/20/bird-pv.jpg"  ), "File exist"
-      assert File.exist?("#{SITES_ROOT}/test.host/data/jpg/20/bird-med.jpg" ), "File exist"
+      assert File.exist?("#{SITES_ROOT}/test.host/data/jpg/20/bird_pv.jpg"  ), "File exist"
+      assert File.exist?("#{SITES_ROOT}/test.host/data/jpg/20/bird_med.jpg" ), "File exist"
     end
   end
   
@@ -98,7 +98,6 @@ class ImageContentTest < ZenaTestUnit
       assert !File.exist?(img.filepath('pv') ), "File does not exist"
       assert File.exist?(img.filepath('med')), "File exist"
       
-      
       assert img.remove_image('med')
       assert File.exist?(img.filepath       ), "File exist"
       assert !File.exist?(img.filepath('med') ), "File does not exist"
@@ -111,10 +110,8 @@ class ImageContentTest < ZenaTestUnit
   def test_verify_format
     preserving_files('/test.host/data/jpg/20') do
       img  = get_content(:bird_jpg)
-      assert_equal "#{SITES_ROOT}/test.host/data/jpg/20/bird-std.jpg", img.filepath('../../')
-      assert !File.exist?(img.filepath('std') ), "File does not exist"
-      assert img.file('../../')
-      assert File.exist?(img.filepath('std') ), "File exist"
+      assert_nil img.filepath('../../')
+      assert_nil img.file('../../')
     end
   end
   private
