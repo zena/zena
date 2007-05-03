@@ -71,14 +71,15 @@ class Version < ActiveRecord::Base
       @content = content_class.find_by_version_id(self[:content_id])
     else
       @content = content_class.find_by_version_id(self[:id])
+      @content.version = self if @content
     end
     unless @content
       # create new content
       @content = content_class.new
       self[:content_id] = nil
+      @content.version = self
       @redaction_content = @content
     end    
-    @content.version = self
     @content
   end
   

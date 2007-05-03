@@ -127,6 +127,7 @@ class Node < ActiveRecord::Base
   after_save         :spread_project_and_section
   before_destroy     :node_on_destroy
   attr_protected     :site_id, :zip, :id, :section_id, :project_id, :publish_from, :max_status, :v_status
+  attr_protected     :c_version_id, :c_node_id # TODO: test
   acts_as_secure_node
   acts_as_multiversioned
   before_validation  :node_before_validation  # run our 'before_validation' after 'secure'
