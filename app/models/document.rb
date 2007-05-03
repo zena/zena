@@ -64,7 +64,7 @@ class Document < Page
       elsif TextDocument.accept_content_type?(content_type)
         klass = TextDocument
       else
-        klass = Document
+        klass = self
       end
       if klass != self
         klass.with_scope(scope) { klass.o_new(hash) }

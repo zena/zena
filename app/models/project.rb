@@ -10,6 +10,11 @@ class Project < Page
   link :collaborators, :class_name=>'Contact'
   link :notes_added, :class_name=>'Note', :as=>'project', :collector=>true
   
+  
+  def get_project_id
+    self[:id]
+  end
+  
   def relation_methods
     super + ['notes_all']
   end
@@ -17,14 +22,14 @@ class Project < Page
   # This project's notes
   def notes(opts={})
     options = {:order=>'log_at DESC'}.merge(opts)
-    @notes ||= secure(Note) { Note.find(:all, relation_options(options)) }
+    secure(Note) { Note.find(:all, relation_options(options)) }
   end
 
   # TODO: test
   # The project's notes with the added_notes
   def notes_all(opts={})
-    options = {:order=>'log_at DESC', :or=>['section_id = ?', self[:id]]}.merge(opts)
-    @notes_all ||= notes_added(options)
+    options = {:order=>'log_at DESC', :or=>['project_id = ?', self[:id]]}.merge(opts)
+    notes_added(options)
   end
 =begin
     conditions = options[:conditions]

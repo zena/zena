@@ -13,7 +13,7 @@ class TextDocument < Document
   class << self
     # Return true if a new text document can be created with the content_type. Used by the superclass Document to choose the corret subclass when creating a new object.
     def accept_content_type?(content_type)
-      content_type =~ /^text/
+      content_type =~ /^(text)/
     end
   end
   
@@ -35,15 +35,20 @@ class TextDocument < Document
   end
   
   private
+    
+    # Overwrite superclass (DocumentContent) behavior
+    def valid_file
+      return true
+    end
   
-  def document_before_validation
-    super
-    content = version.content
-    content[:content_type] ||= 'text/plain'
-    content[:ext]  ||= 'txt'
-  end  
-  # This is a callback from acts_as_multiversioned
-  def version_class
-    TextDocumentVersion
-  end
+    def document_before_validation
+      super
+      content = version.content
+      content[:content_type] ||= 'text/plain'
+      content[:ext]  ||= 'txt'
+    end  
+    # This is a callback from acts_as_multiversioned
+    def version_class
+      TextDocumentVersion
+    end
 end

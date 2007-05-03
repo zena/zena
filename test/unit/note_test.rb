@@ -74,6 +74,7 @@ class NoteTest < ZenaTestUnit
     assert !note.new_record?, "Not a new record"
     note[:parent_id] = nodes_id(:status)
     assert !note.save, "Cannot save"
+    
     assert_equal "invalid parent", note.errors[:parent_id]
   end
   

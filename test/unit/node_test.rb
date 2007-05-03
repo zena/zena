@@ -899,10 +899,10 @@ done: \"I am done\""
     login(:tiger)
     secure(Node) { Node.create_nodes_from_folder(:archive => File.join(RAILS_ROOT, 'test', 'fixtures', 'import.tgz'), :parent_id => nodes_id(:zena)) }
     
-    node = secure(Skin) { Skin.find_by_name('default') }
-    assert_kind_of Skin, node
-    node = secure(Node) { Node.find_by_parent_id_and_name(node[:id], 'Project.html') }
-    assert_kind_of Template, node
-    assert_equal 'NPP', node.c_tkpath
+    node = secure(Section) { Section.find_by_name('photos') }
+    assert_kind_of Section, node
+    node = secure(Node) { Node.find_by_parent_id_and_name(node[:id], 'bird') }
+    assert_kind_of Image, node
+    assert_equal 56183, node.c_size
   end
 end

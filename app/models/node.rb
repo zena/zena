@@ -272,7 +272,7 @@ class Node < ActiveRecord::Base
           attrs = defaults.merge(clean_attributes(get_attributes_from_yaml(File.join(folder,entries[index]))))
           attrs['name']   ||= filename.split('.').first
           attrs['v_lang'] ||= lang
-
+          
           if current_obj
             # FIXME: what publication status for these things ?
             current_obj.remove if current_obj.v_lang == attrs['v_lang']
@@ -555,7 +555,7 @@ class Node < ActiveRecord::Base
   
   # Find all children
   def children(opts={})
-    @children ||= secure(Node) { Node.find(:all, relation_options(opts)) }
+    secure(Node) { Node.find(:all, relation_options(opts)) }
   end
   
   # Find notes (overwritten in Project)
@@ -565,7 +565,9 @@ class Node < ActiveRecord::Base
   
   # Find parent
   def parent(opts={})
-    @parent ||= secure(Node, opts) { Node.find(self[:parent_id]) }
+    # make sure the cache is in sync with 'parent_id' (used during validation)
+    return @parent if @parent && @parent[:id] == self[:parent_id]
+    @parent = secure(Node, opts) { Node.find(self[:parent_id]) }
   rescue ActiveRecord::RecordNotFound
     nil
   end
@@ -605,37 +607,37 @@ class Node < ActiveRecord::Base
   
   # Find all sub-nodes (all children / all nodes in a section)
   def nodes(opts={})
-    @nodes ||= secure(Node) { Node.find(:all, relation_options(opts)) }
+    secure(Node) { Node.find(:all, relation_options(opts)) }
   end
   
   # Find all sub-pages (All but documents)
   def pages(opts={})
-    @pages ||= secure(Page) { Page.find(:all, relation_options(opts,"kpath NOT LIKE 'NPD%'")) }
+    secure(Page) { Page.find(:all, relation_options(opts,"kpath NOT LIKE 'NPD%'")) }
   end
   
   # Find documents
   def documents(opts={})
-    @documents ||= secure(Document) { Document.find(:all, relation_options(opts)) }
+    secure(Document) { Document.find(:all, relation_options(opts)) }
   end
 
   # Find documents without images
   def documents_only(opts={})
-    @doconly ||= secure(Document) { Document.find(:all, relation_options(opts, "kpath NOT LIKE 'NPDI%'") ) }
+    secure(Document) { Document.find(:all, relation_options(opts, "kpath NOT LIKE 'NPDI%'") ) }
   end
   
   # Find only images
   def images(opts={})
-    @images ||= secure(Image) { Image.find(:all, relation_options(opts) ) }
+    secure(Image) { Image.find(:all, relation_options(opts) ) }
   end
   
   # Find only notes
   def notes(opts={})
-    @notes ||= secure(Note) { Note.find(:all, relation_options(opts) ) }
+    secure(Note) { Note.find(:all, relation_options(opts) ) }
   end
  
   # Find all trackers
   def trackers(opts={})
-    @trackers ||= secure(Tracker) { Tracker.find(:all, relation_options(opts) ) }
+    secure(Tracker) { Tracker.find(:all, relation_options(opts) ) }
   end
   
   # Create a child and let him inherit from rwp groups and section_id
@@ -676,14 +678,14 @@ class Node < ActiveRecord::Base
   
   # Return self[:id] if the node is a kind of Section. Return section_id otherwise.
   def get_section_id
-    return self[:id] if self[:parent_id].nil? # root node is it's own section and project
-    self.kind_of?(Section) ? self[:id] : self[:section_id]
+    # root node is it's own section and project
+    self[:parent_id].nil? ? self[:id] : self[:section_id]
   end
   
   # Return self[:id] if the node is a kind of Project. Return project_id otherwise.
   def get_project_id
-    return self[:id] if self[:parent_id].nil? # root node is it's own section and project
-    self.kind_of?(Project) ? self[:id] : self[:project_id]
+    # root node is it's own section and project
+    self[:parent_id].nil? ? self[:id] : self[:project_id]
   end
   
   # Id to zip mapping for parent_id. Used by zafu and forms.
@@ -803,6 +805,14 @@ class Node < ActiveRecord::Base
     end
   end
 
+  def inspect
+    "#<#{self.class}:#{sprintf('%x',self.object_id)}\n" +
+    "@attributes =\n{ " +
+     @attributes.map do |k,v|
+       "#{k.inspect} => #{v.inspect}"
+     end.join("\n  ") + "} >"
+  end
+  
   protected  
     # after node is saved, make sure it's children have the correct section set
     def spread_project_and_section
