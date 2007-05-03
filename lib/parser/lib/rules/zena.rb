@@ -727,6 +727,15 @@ END_TXT
       ""
     end
     
+    # part caching
+    def r_cache
+      kpath   = @params[:kpath] || Page.kpath
+      context = @params[:context] || @context[:name] || @options[:included_history][0]
+      out "<% #{cache} = Cache.with(visitor.id, visitor.group_ids, #{kpath.inspect}, #{context.inspect}) do capture do %>"
+      out expand_with
+      out "<% end; end %><%= #{cache} %>"
+    end
+    
     # use all other tags as relations
     # try to add 'conditions' without sql injection possibilities...
     def r_unknown
@@ -831,6 +840,15 @@ END_TXT
         @var = "var#{$1.to_i + 1}"
       else
         @var = "var1"
+      end
+    end
+    
+    def cache
+      return @cache if @cache
+      if @context[:cache] =~ /^cache(\d+)$/
+        @cache = "cache#{$1.to_i + 1}"
+      else
+        @cache = "cache1"
       end
     end
     

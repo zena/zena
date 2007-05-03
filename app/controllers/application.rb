@@ -320,8 +320,7 @@ class ApplicationController < ActionController::Base
       end
     end
   
-    # Parse date : return a date from a string
-    # TODO: test time_zone..
+    # Parse date : return an utc date from a string
     def parse_date(datestr, fmt=trans('datetime'))
       elements = datestr.split(/(\.|\-|\/|\s|:)+/)
       format = fmt.split(/(\.|\-|\/|\s|:)+/)
@@ -360,7 +359,8 @@ class ApplicationController < ActionController::Base
     # /////// The following methods are common to controllers and views //////////// #
   
     def data_path(obj, opts={})
-      zen_path(obj, {:format => obj.c_ext}.merge(opts))
+      format = obj.kind_of?(Document) ? obj.c_ext : nil
+      zen_path(obj, {:format => format}.merge(opts))
     end
   
     # Path for the node (as string). Options can be :format and :mode.

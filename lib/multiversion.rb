@@ -64,11 +64,12 @@ module Zena
         def edit_content!
           redaction && redaction.redaction_content
         end
-        # return an array of language strings
+        
+        # return an array of published versions
         def traductions(opts={})
-          trad = editions.reject { |ed| ed[:lang] == version[:lang] }
-          trad.each do |t|
+          trad = editions.map do |t|
             t.node = self # make sure relation is kept and we do not reload a node that is not secured
+            t
           end
           trad == [] ? nil : trad
         end

@@ -44,8 +44,8 @@ class Comment < ActiveRecord::Base
   
     def comment_before_validation
       return false unless discussion
-      self[:site_id] = discussion.node[:site_id]
       if new_record?
+        self[:site_id] = discussion.node[:site_id]
         if parent && (self[:title].nil? || self[:title] == '')
           self[:title] = TransPhrase['re:'][discussion.lang] + ' ' + parent.title
         end
@@ -55,10 +55,9 @@ class Comment < ActiveRecord::Base
           self[:status] = Zena::Status[:pub]
         end
         
+        self[:user_id] = visitor[:id]
         self[:author_name] = nil unless visitor.is_anon?
       end
-      
-      self[:user_id] = visitor[:id]
     end
     
     def valid_comment

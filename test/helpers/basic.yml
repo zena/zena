@@ -29,13 +29,17 @@ include_erb:
   src: "include: <z:include template='/nasty_erb'/>"
   tem: "include: this &lt;% puts \"could be\" %&gt; nasty"
 
-wiki:
-  src: "<img src='bird' alt='bird'/>"
-  tem: "<img alt='bird' src='/data/jpg/20/bird.jpg'/>"
+cache_part:
+  src: "<z:cache><z:show attr='name'/></z:cache>"
+  tem: "<% cache1 = Cache.with(visitor.id, visitor.group_ids, \"NP\", \"/cache/part\") do capture do %><%= @node.name %><% end; end %><%= cache1 %>"
+
+yield:
+  tem: "<% res = capture do [1,2,3].map do |i| %>yes<%= i %><% end; end %> The result is <%= res %>"
+  res: "sa"
 
 show_title:
   src: "<z:show attr='v_title'/>"
-  tem: "<%= @node.version[:title] %>"
+  tem: "<%= @node.version.title %>"
   res: "status title"
 
 trans:

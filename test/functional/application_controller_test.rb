@@ -10,6 +10,8 @@ class ApplicationControllerTest < ZenaTestController
     super
     @controller = ApplicationController.new
     init_controller
+    login(:anon)
+    @controller.send(:params=, {})
   end
   
   def test_acts_as_secure
@@ -72,6 +74,26 @@ class ApplicationControllerTest < ZenaTestController
     assert_equal '/templates/fixed/default/any_letter', @controller.send(:template_url)
   end
   
+  
+  def test_parse_date
+    visitor.instance_eval { @tz = TimeZone.new("Azores") } # UTC - 1h
+    assert_equal Time.gm(2006,11,10,1), visitor.tz.unadjust(Time.gm(2006,11,10))
+    assert_equal Time.gm(2006,11,10,1), @controller.send(:parse_date, '2006-11-10', '%Y-%m-%d')
+    assert_equal Time.gm(2006,11,10,1), @controller.send(:parse_date, '10.11 2006', '%d.%m %Y')
+    assert_equal Time.gm(2006,11,10,1), @controller.send(:parse_date, '10.11 / 06', '%d.%m.%y')
+    assert_equal Time.gm(Time.now.year,11,10,1), @controller.send(:parse_date, '11-10', '%m.%d')
+  end
+  
+  def test_parse_date_time
+    visitor.instance_eval { @tz = TimeZone.new("Azores") } # UTC - 1h
+    assert_equal Time.gm(2006,11,10,13,30), @controller.send(:parse_date, '2006-11-10 12:30', '%Y-%m-%d %H:%M')
+    visitor.instance_eval { @tz = TimeZone.new("Bern") } # UTC + 1h
+    assert_equal Time.gm(2006,11,10,11,30), @controller.send(:parse_date, '2006-11-10 12:30', '%Y-%m-%d %H:%M')
+    assert_equal Time.gm(2006,11,10,11,30), @controller.send(:parse_date, '2006-11-10 12:30')
+    visitor.instance_eval { @tz = TimeZone.new("London") } # UTC
+    assert_equal Time.gm(2006,11,10,12,30), @controller.send(:parse_date, '10.11.2006 12:30', '%d.%m.%Y %H:%M')
+  end
+  
   # check_is_admin, admin_layout tested in user_controller_test
   
   # // test methods common to controllers and views // #
@@ -106,13 +128,6 @@ class ApplicationControllerTest < ZenaTestController
     @controller.instance_variable_set(:@session, :user=>{:id=>4, :lang=>'en', :groups=>[1,2,3]})
     assert_equal AUTHENTICATED_PREFIX, @controller.send(:prefix)
     ZENA_ENV[:monolingual] = bak
-  end
-  
-  def test_zen_path
-    node = @controller.send(:secure, Node) { Node.find(nodes_id(:status)) }
-    assert_equal ['projects','cleanWater','page12.html'], @controller.send(:zen_path, node)[:path]
-    node = @controller.send(:secure, Node) { Node.find(nodes_id(:wiki)) }
-    assert_equal ['project19.html'], @controller.send(:zen_path,node)[:path]
   end
   
   def test_bad_session_user

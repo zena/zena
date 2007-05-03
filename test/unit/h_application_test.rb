@@ -51,6 +51,20 @@ class ApplicationHelperTest < ZenaTestHelper
     assert_equal "http://test.host/en/project11_test.html", zen_url(node, :mode=>'test')
   end
   
+  def test_data_path
+    login(:ant)
+    node = secure(Node) { nodes(:water_pdf) }
+    assert_equal "/oo/projects/cleanWater/document25.pdf", data_path(node)
+    node = secure(Node) { nodes(:status) }
+    assert_equal "/oo/projects/cleanWater/page22.html", data_path(node)
+    
+    login(:anon)
+    node = secure(Node) { nodes(:water_pdf) }
+    assert_equal "/en/projects/cleanWater/document25.pdf", data_path(node)
+    node = secure(Node) { nodes(:status) }
+    assert_equal "/en/projects/cleanWater/page22.html", data_path(node)
+  end
+  
   
   def test_img_tag
     login(:ant)
@@ -154,7 +168,7 @@ class ApplicationHelperTest < ZenaTestHelper
   end
   
   def test_transb
-    set_session[:translate] = true
+    session[:translate] = true
     assert_equal trans('Monday',:edit => false), transb('Monday')
     assert_not_equal 'lundi', trans('Monday')
   end
@@ -222,53 +236,24 @@ class ApplicationHelperTest < ZenaTestHelper
     assert_equal atime.strftime('%d.%m'), tformat_date(atime, 'short_date')
   end
   
-  def test_parse_date
-    assert_equal Time.gm(2006,11,10), parse_date('2006-11-10', '%Y-%m-%d')
-    assert_equal Time.gm(2006,11,10), parse_date('10.11 2006', '%d.%m %Y')
-    assert_equal Time.gm(2006,11,10), parse_date('10.11 / 06', '%d.%m.%y')
-    assert_equal Time.gm(Time.now.year,11,10), parse_date('11-10', '%m.%d')
-  end
-  
-  def test_parse_date_time
-    assert_equal Time.gm(2006,11,10,12,30), parse_date('2006-11-10 12:30', '%Y-%m-%d %H:%M')
-    assert_equal Time.gm(2006,11,10,12,30), parse_date('2006-11-10 12:30')
-    assert_equal Time.gm(2006,11,10,12,30), parse_date('10.11.2006 12:30', '%d.%m.%Y %H:%M')
-  end
-  
   def test_visitor_link
     assert_equal '', visitor_link
     login(:ant)
-    assert_match /div id='visitor'.*home.*Solenopsis Invicta/, visitor_link
+    assert_match /home.*Solenopsis Invicta/, visitor_link
   end
   
   def test_flash_messages
     login(:ant)
-    assert_equal '', flash_messages(:both)
+    assert_equal '', flash_messages(:show=>:both)
     flash[:notice] = 'yoba'
-    assert_match /notice.*yoba/, flash_messages(:both)
-    assert_no_match /error/, flash_messages(:both)
+    assert_match /notice.*yoba/, flash_messages(:show=>:both)
+    assert_no_match /error/, flash_messages(:show=>:both)
     flash[:error] = 'taio'
-    assert_match /notice.*yoba/, flash_messages(:both)
-    assert_match /error.*taio/, flash_messages(:both)
+    assert_match /notice.*yoba/, flash_messages(:show=>:both)
+    assert_match /error.*taio/, flash_messages(:show=>:both)
     flash[:notice] = nil
-    assert_no_match /notice/, flash_messages(:both)
-    assert_match /error/, flash_messages(:both)
-  end
-  
-  def test_logo
-    assert_match /logo.*img\/logo.png.*logo_msg/, logo
-    assert_match /logo.*img\/logo.png.*logo_msg.*yoba/, logo('yoba')
-    assert_match /logo.*img\/logo.png.*logo_msg.*Friday.*November/, logo(Time.gm(2006,11,10))
-    visitor.lang = 'fr'
-    assert_match /logo.*img\/logo.png.*logo_msg.*vendredi.*novembre/, logo(Time.gm(2006,11,10))
-  end
-  
-  def test_data_url
-    obj = secure(Node) { nodes(:water_pdf) }
-    hash = {:controller=>'document', :action=>'data', :version_id=>obj.v_id, :filename=>obj.c_filename, :ext=>obj.c_ext}
-    assert_equal hash, data_url(obj)
-    obj = secure(Node) { nodes(:projects) }
-    assert_raise(StandardError) { data_url(obj) }
+    assert_no_match /notice/, flash_messages(:show=>:both)
+    assert_match /error/, flash_messages(:show=>:both)
   end
   
   def test_fsize
@@ -282,14 +267,6 @@ class ApplicationHelperTest < ZenaTestHelper
   
   def test_render_to_string
     assert_match 'stupid test 25', render_to_string(:inline=>'stupid <%= "test" %> <%= 5*5 %>')
-  end
-  
-  def test_menu
-    menus = nil
-    assert_nothing_raised { menus = show_menu }
-    assert_no_match %r{bananas}, menus
-    login(:tiger)
-    assert_match %r{bananas}, show_menu
   end
   
   def test_calendar_has_note
@@ -350,15 +327,6 @@ class ApplicationHelperTest < ZenaTestHelper
     assert_equal ({:overwrite_params=>{:lang=>'io'}}), change_lang('io')
   end
   
-  def test_title_partial
-    @node = secure(Node) { nodes(:tiger) }
-    assert_equal 'contact/title', title_partial
-    @node = secure(Node) { nodes(:tracker) }
-    assert_equal 'main/title', title_partial
-    @node = secure(Node) { nodes(:bird_jpg)}
-    assert_equal 'document/title', title_partial
-  end
-  
   def test_node_actions_for_public
     @node = secure(Node) { nodes(:cleanWater) }
     assert !@node.can_edit?, "Node cannot be edited by the public"
@@ -370,42 +338,44 @@ class ApplicationHelperTest < ZenaTestHelper
     @node = secure(Node) { nodes(:wiki) } 
     assert @node.can_edit?, "Node can be edited by the public"
     res = node_actions(:actions=>:all)
-    assert_match %r{/z/version/edit/19}, res
-    assert_match %r{/z/node/drive\?.*version_id=19}, res
+    assert_match %r{/nodes/29/versions/1/edit}, res
+    assert_match %r{/nodes/29/edit}, res
   end
   
   def test_node_actions_for_ant
     login(:ant)
     @node = secure(Node) { Node.find(nodes_id(:cleanWater)) }
     res = node_actions(:actions=>:all)
-    assert_match    %r{/z/version/edit}, res
-    assert_no_match %r{/z/node/drive}, res
+    assert_match    %r{/nodes/21/versions/1/edit}, res
+    assert_no_match %r{/nodes/21/edit}, res
   end
   
   def test_node_actions_for_tiger
     login(:tiger)
     @node = secure(Node) { Node.find(nodes_id(:cleanWater)) }
     res = node_actions(:actions=>:all)
-    assert_match %r{/z/version/edit}, res
-    assert_match %r{/z/node/drive}, res
+    assert_match %r{/nodes/21/versions/1/edit}, res
+    assert_match %r{/nodes/21/edit}, res
     @node.edit!
+    assert @node.save
     res = node_actions(:actions=>:all)
-    assert_match %r{/z/version/edit}, res
-    assert_match %r{/z/version/propose}, res
-    assert_match %r{/z/version/publish}, res
-    assert_match %r{/z/node/drive}, res
+    assert_match %r{/nodes/21/versions/2/edit}, res
+    assert_match %r{/nodes/21/versions/2/propose}, res
+    assert_match %r{/nodes/21/versions/2/publish}, res
+    assert_match %r{/nodes/21/edit}, res
     @node.save
     login(:ant)
     session[:lang] = 'fr'
     @node = secure(Node) { Node.find(nodes_id(:cleanWater)) }
     res = node_actions(:actions=>:all)
-    assert_match %r{/z/version/edit}, res
-    assert_no_match %r{/z/node/drive}, res
+    assert_match %r{/nodes/21/versions/1/edit}, res
+    assert_no_match %r{/nodes/21/edit}, res
     session[:lang] = 'en'
     @node = secure(Node) { Node.find(nodes_id(:cleanWater)) }
     res = node_actions(:actions=>:all)
-    assert_no_match %r{/z/version/edit}, res
-    assert_no_match %r{/z/node/drive}, res
+    assert_no_match %r{/nodes/21/versions/2/edit}, res
+    assert_match %r{/nodes/21/versions/1/edit}, res
+    assert_no_match %r{/nodes/21/edit}, res
   end
   
   def test_traductions
@@ -415,15 +385,11 @@ class ApplicationHelperTest < ZenaTestHelper
     @node = secure(Node) { Node.find(nodes_id(:status)) } # en,fr
     trad = traductions
     assert_equal 2, trad.size
-    assert_match /class='on'.*href="\/en"/, trad[0]
-    assert_no_match /class='on'/, trad[1]
+    assert_match %r{class='current'.*href="/en}, trad[0]
+    assert_no_match %r{class='current'}, trad[1]
     @node = secure(Node) { Node.find(nodes_id(:cleanWater)) } #  en
     trad = traductions
     assert_equal 1, trad.size
-    session[:lang] = 'io'
-    trad = traductions
-    assert_equal 2, trad.size
-    assert_match /class='off'/, trad[1]
   end
   
   def test_show_path_root
@@ -457,9 +423,7 @@ class ApplicationHelperTest < ZenaTestHelper
         @request
       end
     end
-    assert_match %r{id='lang'.*span.*b.*en.*href=.*/oo/projects/cleanWater\?lang=es.*es.*fr.*}, lang_links
-    session[:translate] = true
-    assert_match %r{id='lang'.*span.*b.*en.*href=.*/oo/projects/cleanWater\?lang=es.*es.*fr.*z/trans/list.*translate=off}, lang_links
+    assert_match %r{<b>en</b>.*href=.*/oo/projects/cleanWater\?lang=.*fr.*}, lang_links
     class << self
       remove_method(:request)
     end
@@ -467,6 +431,7 @@ class ApplicationHelperTest < ZenaTestHelper
   end
   
   def test_lang_links_no_login
+    login(:anon)
     @request = ActionController::TestRequest.new
     @request.instance_eval{ @parameters = {:controller=>'nodes', :action=>'show', :path=>'projects/cleanWater', :prefix=>AUTHENTICATED_PREFIX}}
     class << self
@@ -474,18 +439,11 @@ class ApplicationHelperTest < ZenaTestHelper
         @request
       end
     end
-    assert_match %r{id='lang'.*span.*b.*en.*href=.*/es/projects/cleanWater.*es.*/fr/projects/cleanWater.*fr.*}, lang_links
+    assert_match %r{<b>en</b>.*href=.*/fr/projects/cleanWater.*fr.*}, lang_links
     class << self
       remove_method(:request)
     end
     remove_instance_variable :@request
-  end
-  
-  def test_lang_ajax_link
-    login(:lion)
-    assert_match %r{<div id='lang'><span>.*new Ajax.Update.*/z/trans/lang_menu}, lang_ajax_link
-    session[:translate] = true
-    assert_match %r{<div id='lang'><span>.*new Ajax.Update.*/z/trans/lang_menu.*translate=off}, lang_ajax_link
   end
   
   def rescue_action(e)

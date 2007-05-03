@@ -5,11 +5,11 @@ class CacheTest < ZenaTestUnit
   def setup
     super
     @perform_caching_bak = ApplicationController.perform_caching
-    ApplicationController.perform_caching = true
+    Cache.perform_caching = true
   end
   
   def teardown
-    ApplicationController.perform_caching = @perform_caching_bak
+    Cache.perform_caching = @perform_caching_bak
   end
   
   def test_create_cache

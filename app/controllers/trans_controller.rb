@@ -1,10 +1,6 @@
 class TransController < ApplicationController
   before_filter :check_translator, :except=>[:lang_menu]
   layout :admin_layout
-
-  def lang_menu
-    render :layout=>false
-  end
   
   def edit
     @trans = TransPhrase.find(params[:id])

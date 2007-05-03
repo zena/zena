@@ -445,20 +445,6 @@ module ApplicationHelper
     @date ||= Time.now
   end
   
-  # Creates a hierachical menu. When :collection is specified, use this as the menu's root elements. Otherwise, uses
-  # the root element as the menu's start.
-  def show_menu(opts={})
-    collection = opts[:collection] ? opts[:collection].map{|r| r[:id]}.join(',') : ""
-    Cache.with(visitor.id, visitor.group_ids, Page.kpath, 'show_menu', collection) do
-      menus  = opts[:collection] || secure(Node) { Node.find(visitor.site[:root_id]) }.pages
-      res = []
-      res << "<ul class='menu'>"
-      res << render_to_string(:partial=>'main/menu', :collection=>menus)
-      res << "</ul>"
-      res.join("\n")
-    end
-  end
-  
   # Display the list of comments for the current node
   def show_comments(opts={})
     node = opts[:node] || @node
@@ -483,7 +469,7 @@ module ApplicationHelper
       
       # get list of notes in this scope
       # TODO: use time_zone here ?
-      notes = source.send(method,:conditions=>["#{using} >= ? AND #{using} <= ?", start_date, end_date], :order=>"#{using} ASC")
+      notes = source.send(method,:conditions=>["#{using} >= ? AND #{using} <= ?", start_date, end_date], :order=>"#{using} ASC") || []
       
       # build event hash
       calendar = {}
@@ -851,9 +837,8 @@ ENDTXT
   def traductions(opts={})
     obj = opts[:node] || @node
     trad_list = []
-    base_url = zen_path(obj)
-    (obj.traductions || []).map do |ed|
-      trad_list << "<span>" + link_to( trans(ed[:lang]), base_url.merge(:lang=>ed[:lang])) + "</span>"
+    (obj.traductions || []).each do |ed|
+      trad_list << "<span#{ ed.lang == lang ? " class='current'" : ''}>" + link_to( trans(ed[:lang]), zen_path(obj,:lang=>ed[:lang])) + "</span>"
     end
     trad_list
   end
@@ -964,19 +949,6 @@ ENDTXT
         end
       end
       res.join(' | ')
-    end
-  end
-  
-  def lang_ajax_link
-    if visitor.site[:monolingual]
-      "<div id='lang' class='empty'></div>"
-    else
-      res = "<div id='lang'><span>" + link_to_remote( lang, :update=>'lang', :url=>{:controller => 'trans', :action=>'lang_menu'})
-      if session[:translate]
-        res << show_link(:translation, :menu=>true)
-      end
-      res << '</span></div>'
-      res
     end
   end
   

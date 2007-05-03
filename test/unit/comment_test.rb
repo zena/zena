@@ -3,13 +3,15 @@ require File.dirname(__FILE__) + '/../test_helper'
 class CommentTest < ZenaTestUnit
 
   def test_cannot_set_site_id
+    login(:anon)
     comment = comments(:ant_says_inside)
     assert_raise(Zena::AccessViolation) { comment.site_id = sites_id(:ocean) }
+    assert_raise(Zena::AccessViolation) { secure(Comment) { Comment.create( :user_id=>1, :title=>'boo', :text=>'blah', :discussion_id=>2, :author_name=>'joe', :site_id => 2 ) } }
   end
   
   def test_site_id
     login(:anon)
-    comment = secure(Comment) { Comment.create( :user_id=>1, :title=>'boo', :text=>'blah', :discussion_id=>2, :author_name=>'joe' ) }
+    comment = secure(Comment) { Comment.create( :user_id=>1, :title=>'boo', :text=>'blah', :discussion_id=>2, :author_name=>'joe') }
     assert !comment.new_record?, "Not a new record"
     assert_equal sites_id(:zena), comment.site_id
   end
@@ -26,7 +28,8 @@ class CommentTest < ZenaTestUnit
   end
   
   def test_remove
-    comment = comments(:lion_says_inside)
+    login(:lion)
+    comment = secure(Comment) { comments(:lion_says_inside) }
     assert_equal Zena::Status[:pub], comment[:status]
     assert comment.remove
     comment = comments(:lion_says_inside)
@@ -40,7 +43,7 @@ class CommentTest < ZenaTestUnit
     
     discussion = secure(Discussion) { Discussion.create(:node_id=>11, :lang=>'en') }
     
-    comment    = secure(Comment   ) { Comment.create(:title=>'coco', :text=>'spam see my web site', :author_name=>'me', :discussion_id=>discussion[:id] ) }
+    comment    = secure(Comment   ) { Comment.create( :title=>'coco', :text=>'spam see my web site', :author_name=>'me', :discussion_id=>discussion[:id] ) }
     assert !comment.new_record?, "Not a new record"
     assert_equal Zena::Status[:prop], comment[:status]
     
@@ -55,21 +58,22 @@ class CommentTest < ZenaTestUnit
   end
   
   def test_set_comment
-    comment    = comments(:lion_says_inside)
+    login(:anon)
+    comment    = secure(Comment) { comments(:lion_says_inside) }
     discussion = comment.discussion
-    reply      = Comment.create( :user_id=>1, :text=>'blah blah', :author_name=>'me', :reply_to=>comment[:id], :discussion_id=>discussion[:id] )
+    reply      = secure(Comment) { Comment.create( :text=>'blah blah', :author_name=>'me', :reply_to=>comment[:id], :discussion_id=>discussion[:id] ) }
     assert !reply.new_record?, "Not a new record"
     assert_equal 're: OK for me', reply[:title]
   end
   
   def test_valid_comment
-    login(:tiger)
-    comment = secure(Comment) { Comment.create( :user_id=>1, :title=>'boo', :text=>'blah', :discussion_id=>2 ) }
+    login(:anon)
+    comment = secure(Comment) { Comment.create( :title=>'boo', :text=>'blah', :discussion_id=>2 ) }
     assert comment.new_record?, "Is a new record"
     assert_equal "can't be blank", comment.errors[:author_name]
     
-    comment = secure(Comment) { Comment.create( :user_id=>3, :title=>'boo', :text=>'blah', :discussion_id=>2 ) }
-    err comment
+    login(:tiger)
+    comment = secure(Comment) { Comment.create( :title=>'boo', :text=>'blah', :discussion_id=>2 ) }
     assert ! comment.new_record?, "Not a new record"
     assert_nil comment.author_name, "Author name is nil"
   end

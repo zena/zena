@@ -5,7 +5,41 @@ class HelperTest
   Section # make sure we load Section links before trying relations
   
   def test_single
-    do_test('basic', 'case_when_evil_test')
+    do_test('basic', 'yield')
+  end
+
+  def test_basic_cache_part
+    with_caching do
+      Node.connection.execute "UPDATE nodes SET name = 'first' WHERE id = 12;" # status
+      caches = Cache.find(:all)
+      assert_equal [], caches
+      do_test('basic', 'cache_part')
+      
+      cont = {
+        :user_id => users_id(:anon),
+        :node_id => nodes_id(:status),
+        :prefix  => 'en',
+        :url => "/#{'cache_part'.to_s.gsub('_', '/')}",
+        :text => @response.body
+      }.freeze
+      
+      post 'test_render', cont
+      assert_equal 'first', @response.body
+      
+      cache  = Cache.find(:first)
+      assert_kind_of Cache, cache
+      assert_equal "first", cache.content
+      Node.connection.execute "UPDATE nodes SET name = 'second' WHERE id = 12;" # status
+      
+      Node.logger.info cont.inspect
+      post 'test_render', cont
+      assert_equal 'first', @response.body
+      
+      Node.connection.execute "DELETE FROM #{Cache.table_name};"
+      
+      post 'test_render', cont
+      assert_equal 'second', @response.body
+    end
   end
   
   # test rename asset (has to be called wiki to find the proper skin)
