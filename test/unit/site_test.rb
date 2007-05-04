@@ -28,15 +28,12 @@ class SiteTest < ZenaTestUnit
     
     skin  = secure(Skin) { Skin.find_by_name('default') }
     assert_kind_of Skin, skin
-    node = secure(Node)  { Node.find_by_parent_id_and_name(skin[:id], 'Project.html') }
+    node = secure(Node)  { Node.find_by_parent_id_and_name(skin[:id], 'Project') }
     assert_kind_of Template, node
   end
   
   def test_create_site_bad_name
-    site = Site.create_for_host('shared', 'zoom')
-    assert site.new_record?
-    assert site.errors[:host]
-    site = Site.create_for_host('../evil.com', 'zoom')
+    site = Site.create_for_host('../evil.com', 'zoomzoom')
     assert site.new_record?
     assert site.errors[:host]
   end

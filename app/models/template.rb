@@ -14,7 +14,6 @@ class Template < TextDocument
       version.content.mode   = $3
       version.content.format = $5 || 'html'
     else
-      # FIXME: we do not even need a TemplateContent...
       version.content.klass  = nil
       version.content.mode   = nil
       version.content.format = nil

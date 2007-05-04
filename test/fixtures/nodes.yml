@@ -710,3 +710,210 @@ wiki_node:
   inherit:        1
 <%= @defaults %>
 <%= @rights %>
+
+
+
+
+
+
+
+
+
+
+
+
+
+skins:
+  id:             42
+  zip:            49
+  site_id:        1
+  type:           Page
+  kpath:          NP
+  name:           skins
+  project_id:     1
+  section_id:     1
+  parent_id:      1
+  user_id:        4
+  inherit:        1
+<%= @defaults %>
+<%= @rights %>
+
+default:
+  id:             43
+  zip:            50
+  site_id:        1
+  type:           Skin
+  kpath:          NPSS
+  name:           default
+  project_id:     1
+  section_id:     1
+  parent_id:      42
+  user_id:        4
+  inherit:        1
+<%= @defaults %>
+<%= @rights %>
+
+Contact_html:
+  id:             44
+  zip:            51
+  site_id:        1
+  type:           Template
+  kpath:          NPDTT
+  name:           Contact
+  project_id:     1
+  section_id:     43
+  parent_id:      43
+  user_id:        4
+  inherit:        1
+<%= @defaults %>
+<%= @rights %>
+  
+Contact_home_html:
+  id:             45
+  zip:            52
+  site_id:        1
+  type:           Template
+  kpath:          NPDTT
+  name:           Contact_home
+  project_id:     1
+  section_id:     43
+  parent_id:      43
+  user_id:        4
+  inherit:        1
+<%= @defaults %>
+<%= @rights %>
+
+default_css:
+  id:             46
+  zip:            53
+  site_id:        1
+  type:           TextDocument
+  kpath:          NPDT
+  name:           default
+  project_id:     1
+  section_id:     43
+  parent_id:      43
+  user_id:        4
+  inherit:        1
+<%= @defaults %>
+<%= @rights %>
+
+layout_html:
+  id:             47
+  zip:            54
+  site_id:        1
+  type:           Template
+  kpath:          NPDTT
+  name:           layout
+  project_id:     1
+  section_id:     43
+  parent_id:      43
+  user_id:        4
+  inherit:        1
+<%= @defaults %>
+<%= @rights %>
+
+Node_html:
+  id:             48
+  zip:            55
+  site_id:        1
+  type:           Template
+  kpath:          NPDTT
+  name:           Node
+  project_id:     1
+  section_id:     43
+  parent_id:      43
+  user_id:        4
+  inherit:        1
+<%= @defaults %>
+<%= @rights %>
+
+Node_admin_layout_html:
+  id:             49
+  zip:            56
+  site_id:        1
+  type:           Template
+  kpath:          NPDTT
+  name:           Node_admin_layout
+  project_id:     1
+  section_id:     43
+  parent_id:      43
+  user_id:        4
+  inherit:        1
+<%= @defaults %>
+<%= @rights %>
+
+Node_index_html:
+  id:             50
+  zip:            57
+  site_id:        1
+  type:           Template
+  kpath:          NPDTT
+  name:           Node_index
+  project_id:     1
+  section_id:     43
+  parent_id:      43
+  user_id:        4
+  inherit:        1
+<%= @defaults %>
+<%= @rights %>
+
+Node_not_found_html:
+  id:             51
+  zip:            58
+  site_id:        1
+  type:           Template
+  kpath:          NPDTT
+  name:           Node_not_found
+  project_id:     1
+  section_id:     43
+  parent_id:      43
+  user_id:        4
+  inherit:        1
+<%= @defaults %>
+<%= @rights %>
+
+Node_popup_layout_html:
+  id:             52
+  zip:            59
+  site_id:        1
+  type:           Template
+  kpath:          NPDTT
+  name:           Node_popup_layout
+  project_id:     1
+  section_id:     43
+  parent_id:      43
+  user_id:        4
+  inherit:        1
+<%= @defaults %>
+<%= @rights %>
+
+notes_html:
+  id:             53
+  zip:            60
+  site_id:        1
+  type:           Template
+  kpath:          NPDTT
+  name:           notes
+  project_id:     1
+  section_id:     43
+  parent_id:      43
+  user_id:        4
+  inherit:        1
+<%= @defaults %>
+<%= @rights %>
+
+Porject_html:
+  id:             54
+  zip:            61
+  site_id:        1
+  type:           Template
+  kpath:          NPDTT
+  name:           Project
+  project_id:     1
+  section_id:     43
+  parent_id:      43
+  user_id:        4
+  inherit:        1
+<%= @defaults %>
+<%= @rights %>

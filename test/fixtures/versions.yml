@@ -620,7 +620,7 @@ wiki_skin_en:
   number:         1
 <%= @defaults %>
 
-layout_template_en:
+wiki_layout:
   type:           TextDocumentVersion
   id:             39
   site_id:        1
@@ -671,7 +671,7 @@ layout_template_en:
       </div>
     
       <z:flash_messages/>
-
+    
       <div id='context' do='void' name='context'>
       </div>
     
@@ -680,7 +680,7 @@ layout_template_en:
         <div id='main' do='void' name='main'>
           <div id='wiki'>this is the wiki layout</div>
         </div>
-
+    
         <div id='related' do='void' name='related'>
         </div>
       </div>
@@ -811,4 +811,506 @@ wiki_main:
     </z:include>
   lang:           en
   number:         1
+<%= @defaults %>
+
+
+
+
+
+skins_en:
+  type:           Version
+  id:             47
+  site_id:        1
+  node_id:        42
+  user_id:        4
+  comment:        ""
+  title:          Skins (layout themes)
+  summary:        List of skins used by this website
+  text:           This page contains the skins used by this website.
+  lang:           en
+  number:         1
+<%= @defaults %>
+
+
+default_en:
+  type:           Version
+  id:             48
+  site_id:        1
+  node_id:        43
+  user_id:        4
+  comment:        "version 0.8"
+  title:          Default skin
+  summary:        official default skin
+  text:           |
+    This is the default skin for zena. You should be *very careful* if you change this skin: it is used to display/edit itself.
+    
+    When creating your own skins, you should *always avoid* to display your skins with themselves. This is tempting but will put you in trouble if you need to edit a broken template.
+    
+    By the way, have a look at the designer documentation for "zafu":http://zenadmin.org/en/documentation/page44.html for ideas on how to create a new skin with very few lines of zafu (using clever include tricks).
+  lang:           en
+  number:         1
+<%= @defaults %>
+
+
+
+
+
+
+
+Contact_html:
+  id:             49
+  node_id:        44
+  site_id:        1
+  user_id:        4
+  text: |
+    <z:include template='layout.html'>
+      <z:with part='body/main/content'>
+        <h1 do='title' attr='c_fullname' actions='all'>Gaspard Bucher</h1>
+      </z:with>
+    </z:include>
+<%= @defaults %>
+  
+Contact_home_html:
+  id:             50
+  node_id:        45
+  site_id:        1
+  user_id:        4
+  text: |
+    <z:include template='Node_admin_layout.html'>
+      <z:with part='body/main/content'>
+        <h2><z:trans>home of</z:trans> <z:user do='show' attr='fullname'>Panther Tigris</z:user></h2>
+      </z:with>
+    
+      <z:with part='body/main/right'>
+        <ul class='actions' do='user'>
+          <li do='to_publish'><z:trans>to publish</z:trans>
+            <ul class='list'>
+              <li do='each' set_class='li_s[status]'><z:link attr='title'>title</z:show></li>
+            </ul>
+          </li>
+          <li do='comments_to_publish'><z:trans>comments to publish</z:trans>
+            <ul class='list'>
+              <li do='each'><z:show attr='title'>title</z:show></li>
+            </ul>
+          </li>
+          <li do='proposed'><z:trans>waiting for publication</z:trans>
+            <ul class='list'>
+              <li do='each'><z:show attr='title'>title</z:show></li>
+            </ul>
+          </li>
+          <li do='redactions'><z:trans>redactions</z:trans>
+            <ul class='list'>
+              <li do='each' set_class='li_s[status]'><z:link attr='title'>title</z:show></li>
+            </ul>
+          </li>
+        </ul>
+      </z:with>
+    </z:include>
+<%= @defaults %>
+
+default_css:
+  id:             51
+  node_id:        46
+  site_id:        1
+  user_id:        4
+  text: |
+    /* ==================== LAYOUT ============== */
+  
+    /* nav main */
+    #nav_main { height:25px; }
+    #nav_main a { color:white; }
+  
+    #lang, #path, #login, #visitor { padding:0.4em 0.8em; }
+    #lang { margin-left:250px; float:left;}
+    #lang.empty { padding:0; }
+    #path { float:left; }
+    #path li { display:inline;}
+    #login, #visitor, #search { float:right; }
+  
+    /* menu. see below for styling */
+    #nav_menu { z-index:9999; position:absolute; top:25px; left:260px;}
+    #nav_menu li    { float:left; position:relative; }
+    #nav_menu li ul { position:absolute; left:-1px; width:10em; }
+    #nav_menu li ul li { float:none; }
+    #nav_menu li ul li ul { position:absolute; left:10em; top:-1px;}
+    /* if IE was any good we could use
+    #nav_menu li       > ul { display:none;  }
+    #nav_menu li:hover > ul { display:block; }
+    but we have to use :*/
+    #nav_menu li       ul { display:none;  }
+    #nav_menu li:hover ul { display:block; }
+    #nav_menu li:hover ul li       ul { display:none;  }
+    #nav_menu li:hover ul li:hover ul { display:block; }
+    #nav_menu li:hover ul li:hover ul li       ul { display:none;  }
+    #nav_menu li:hover ul li:hover ul li:hover ul { display:block; }
+    #nav_menu li:hover ul li:hover ul li:hover ul li       ul { display:none;  }
+    #nav_menu li:hover ul li:hover ul li:hover ul li:hover ul { display:block; }
+    #nav_menu li:hover ul li:hover ul li:hover ul li:hover ul li       ul { display:none;  }
+    #nav_menu li:hover ul li:hover ul li:hover ul li:hover ul li:hover ul { display:block; }
+    /* end IE */
+  
+    /* branding */
+    #branding { position:absolute; top:0; left:20px; }
+  
+    /* search */
+    #search { position:relative; font-size:0.9em; }
+    .search { position:absolute; z-index:999; right:0; top:3px; }
+  
+    /* context, content, related */
+    #context { position:absolute; top:125px; left:20px; width:220px; }
+    #content { margin-top:5em;  margin-left:260px; margin-right:230px;}
+    #related { position:absolute; top:125px; right:5px; width:215px; padding-left:5px; }
+  
+    /* ==================== STYLES ============== */
+  
+    /* general settings */
+    body { font:0.9em Verdana, Arial, sans-serif; line-height:1; color:#242424; behavior:url('stylesheets/csshover2.htc');} /* IE hack */
+  
+    a      { color:#266F92; text-decoration:none; }
+    a.wiki { color:inherit; border-bottom:1px dotted #2F73A0; }
+  
+    h1, h2, h3, h4, h5 { margin-bottom:1em; }
+    h1, h2 { font-family:Georgia, Times, serif; color:#450009; margin-top:1.5em; font-style:italic; font-weight:bold;}
+    h1 { font-size:2.2em;}
+    .zazen h1 { font-size:1.8em;}
+    h2 { font-size:1.3em; }
+    h3, h4, h5 { font-size:0.9em; font-weight:bold; font-weight:bold; }
+    h3 { color:#450009;}
+  
+    p, ul, ol, table, pre  { line-height:1.2; margin-bottom:1.5em; }
+    ul ul, ul ol, ol ol, ol ul { margin-bottom:0; }
+  
+    /* navigation */
+    #nav_main { background:#450009; font-size:0.85em; }
+    #nav_main a { color:white; }
+  
+    #lang b { font-weight:normal; color:white;}
+    #path, #lang, #lang a, #path a { color:#A27C6E;}
+    #path a.current { color:white;}
+  
+    /* menu */
+    #nav_menu { background-color:#F3F2E8; }
+    #nav_menu li { border:solid grey; border-width:0 1px 1px 0px; background-color:#F3F2E8; }
+    #nav_menu a  { display:block; color:black; padding:1px 8px 3px; font:1.1em Georgia, Times, serif;}
+    #nav_menu li:first-child { border-left-width:1px; }
+    #nav_menu li:hover { background-color:#D3D0B0;}
+    #nav_menu li ul { border:solid grey; border-width:1px 1px 0; background-color:#F3F2E8; }
+    #nav_menu li ul li { width:100%; border:solid grey; border-width:0 0 1px; }
+    #nav_menu li ul li:first-child { border-left-width:0; }
+  
+    /* branding */
+    #branding { background:white; }
+    #branding img { border:1px solid #450009; }
+  
+    /* search */
+    .search a { color:inherit; }
+    .search p { font-size:0.85em; }
+  
+    /* context, content, related */
+    #context { }
+    #content { }
+    #related { border-left:1px solid grey; font-size:0.9em; }
+    #related .group { font-size:1em; font-weight:normal;}
+    #related ol { margin-left:1.5em; margin-bottom:0; }
+  
+    /* -------- ZAZEN -------- */
+    .zazen img { border:1px solid #333;}
+    .zazen img.full { border-width:0;  }
+    .zazen img.doc { border:0;}
+  
+    .zazen { padding-left:15px; }
+    .zazen h1, .zazen h2, .zazen h3 { margin-left:-15px; }
+  
+    .zazen ul, .zazen ol, .zazen table { display:table; margin-left:2em; font-size:0.95em;}
+    .zazen ul { list-style:disc;}
+    .zazen li li { list-style:circle;}
+    .zazen ol { list-style:decimal;}
+  
+    .zazen .box, .zazen pre { border:1px dashed #CEBB94; border-width:1px 0; background:#EAE9E8; padding:5px 4px 3px; display:table; }
+    .zazen pre, .zazen div .code, .zazen div .code_large {border:2px solid #bbb; margin:1em 80px 3em; display:block; white-space:pre;}
+    pre.left  { float:left;  margin-left:2em; margin-right:2em;}
+    pre.right { float:right; margin-left:2em; margin-right:2em;}
+    pre.full  { margin:0 0 0 -15px; }
+  
+    .zazen table { background:#ECEBEA; border:1px solid #CEBB94; border-right-width:0; border-spacing:0;}
+    .zazen th { background:#C8C4BF; font-weight:normal; border-right:1px solid #CEBB94; padding:1px 4px; font-size:1.1em; font-style:italic; font-family:Times, serif;}
+    .zazen td { border:1px solid #CEBB94; border-width:1px 1px 0 0; padding:0px 4px;}
+    .zazen tr:first-child td { border-top-width:0;}
+  
+    /* gallery */
+  
+    .gallery { margin:auto; border:1px solid #bbb;  background:#eee; }
+    .gallery td     { padding:10px; }
+    .gallery img.pv { margin:5px;   }
+    .gallery_view   { width:613px; text-align:center; }
+<%= @defaults %>
+
+layout_html:
+  id:             52
+  node_id:        47
+  site_id:        1
+  user_id:        4
+  text: |
+    <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+      "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+  
+    <html xmlns="http://www.w3.org/1999/xhtml" do='void' lang="en" set_lang='[v_lang]' xml:lang='en'>
+    <head>
+      <title do='title_for_layout' do='show' attr='v_title' name='title'>node title</title>
+      <meta http-equiv="Content-type" content="text/html; charset=utf-8" />
+      <meta http-equiv="Content-Language" do='void' content="fr-fr" tset_content='[v_lang]_content' />
+  
+      <z:stylesheets name='stylesheets' list='reset,zena,code'/>
+      <link href="default.css" rel="Stylesheet" type="text/css"/>
+  
+      <z:javascripts list='prototype,effects,zena'/>
+      <z:uses_calendar/>
+    </head>
+  
+    <body do='void' name='body'>
+      <div id='navigation' do='void' name='navigation'>
+        <div id='nav_main'>
+          <div id='lang' do='lang_links'><a>en</a> | <b>fr</b></div>
+          <div id='path' do='show_path'><ul><li><a href='#'>first</a></li> / <li><a href='#'>second</a></li> / <li><a href='#' class='current'>here</a></li></ul></div>
+          <div id='login' do='login_link'><a href='#'>login</a></div>
+          <div id='visitor' do='visitor_link'><a href='#'>visitor name</a></div>
+          <div id='search' do='search_box'><div class='search'><form><input type='text' id='search' name='search'/></form></div></div>
+        </div>
+  
+        <div id='nav_menu' do='node' select='root'>
+          <ul do='pages'>
+            <li do='each'><z:link attr='name'/>
+              <ul do='pages'>
+                <li do='each'><z:link attr='name'/>
+                  <ul do='pages'>
+                    <li do='each' do='link' attr='name'/>
+                  </ul>
+                </li>
+              </ul>
+            </li>
+          </ul>
+        </div>
+        <div id='branding' do='link' href='root'><img src='/img/logo.png' width='220' height='100'/></div>
+      </div>
+  
+  
+      <z:flash_messages/>
+  
+      <div id='context' do='void' name='context'>
+      </div>
+  
+  
+      <div id='content' do='content_for_layout' name='content'>
+        <div id='main' do='void' name='main'>
+          dummy content
+        </div>
+  
+        <div id='related' do='void' name='related'>
+        </div>
+      </div>
+  
+      <div do='void' name='siteinfo'><z:zena/></div>
+    </body>
+    </html>
+<%= @defaults %>
+
+Node_html:
+  id:             53
+  node_id:        48
+  site_id:        1
+  user_id:        4
+  text: |
+    <z:include template='layout.html'>
+      <z:with part='body/context'>
+        this is left
+      </z:with>
+      <z:with part='body/content/main'>
+        <div class='node_title'>
+          <div class='header'>
+            <h1 do='title' class='s30' status='true' actions='all'>this is the title</h1>
+            <div class='subtitle'>
+              <z:case>
+                <z:when test='[user_id] == [v_user_id]'>
+                  <z:trans>posted by</z:trans> <b do='author' do='show' attr='fullname'>Super Man</b>
+                </z:when>
+                <z:else>
+                  <z:trans>original by</z:trans> <b do='show' attr='fullname'>Platon</b>
+                  <z:trans>modified by</z:trans> <b do='version' do='author' do='show' attr='fullname'>Socrate</b>
+                </z:else>
+              </z:case>
+  
+            </div>
+          </div>
+        </div>
+  
+        <z:summary text=''/>
+        <z:text/>
+        <!-- FIXME: comments -->
+      </z:with>
+  
+      <z:with part='body/content/related'>
+        <z:documents name='documents'><h3 class='group' do='trans'>documents</h3>
+          <ol>
+            <li do='each'><z:link format='data'><z:img mode='tiny'/></z:link> <z:link><z:show attr='name'/>.<z:show attr='c_ext'/></z:link></li>
+            <li do='add'><a href='#' do='void' set_onclick='uploader=window.open("/documents/new?parent_id=[id]", "uploader", "location=1,width=400,height=300");return false;'><z:trans>btn_add_doc</z:trans></a></li>
+          </ol>
+        </z:documents>
+        <z:if kind_of='Page' do='pages' name='pages'><h3 class='group' do='trans'>pages</h3>
+          <ol>
+            <li do='each' do='link'/>
+            <z:add before='self' tag='li'/>
+            <z:form><li class='inline_form'><form>
+              <input type='hidden' name='node[parent_id]' value='' do='void' set_value='[id]'/>
+              <z:input type='select' attr='klass' options='Page,Section,Project'/>
+              <input type='text' name='node[v_title]' value='' size='25'/>
+              <input type="submit" class="btn_validate" value='validate' do='void' tset_value='validate'/>
+              </form></li>
+            </z:form>
+          </ol>
+        </z:if>
+      </z:with>
+    </z:include>
+<%= @defaults %>
+
+Node_admin_layout_html:
+  id:             54
+  node_id:        49
+  site_id:        1
+  user_id:        4
+  text: |
+    <z:include template='layout.html'>
+      <z:with part='stylesheets' list='zen,comment,admin,search'/>
+      <z:with part='body/content'>
+        <div id="left" do='void' name='left'>
+          <h3>admin zafu</h3>
+          <ul>
+            <li do='admin_links'><a href='#'>do this</a></li>
+          </ul>
+        </div>
+  
+        <div id="main" do='void' name='main'>
+  
+          <div class='content' id='content' do='content_for_layout' name='content'>
+            dummy content
+          </div>
+  
+          <div id="right" do='void' name='right'>
+          </div>
+        </div>
+      </z:with>
+    </z:include>
+<%= @defaults %>
+
+Node_index_html:
+  id:             55
+  node_id:        50
+  site_id:        1
+  user_id:        4
+  text:           "<z:include template='Project.html'/>"
+<%= @defaults %>
+
+Node_not_found_html:
+  id:             56
+  node_id:        51
+  site_id:        1
+  user_id:        4
+  text: |
+    <z:include template='layout.html'>
+      <!-- z:with part='body/navbar/menu'/ -->
+      <z:with part='body/content'>
+        <div id="not_found"><div>
+          <p><b><z:trans>Sorry, the requested page could not be found.</z:trans></b></p>
+          <p><z:trans>Please go </z:trans><a do='link' href='root' do='trans'>home</a>,
+             <a onclick="history.go(-2)" href="#"><z:trans>back</z:trans></a>
+             <z:trans>or</z:trans> <a href="/login" do='trans'>login</a>
+          </p>
+        </div></div>
+      </z:with>
+    </z:include>
+<%= @defaults %>
+
+Node_popup_layout_html:
+  id:             57
+  node_id:        52
+  site_id:        1
+  user_id:        4
+  text: |
+    <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+  
+    <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+    <head>
+      <title do='title_for_layout'>title for layout</title>
+      <meta http-equiv="Content-type" content="text/html; charset=utf-8" />
+      <meta http-equiv="Content-Language" content="fr-fr" />
+  
+      <z:stylesheets list='popup,search'/>
+      <z:javascripts list='prototype,effects,zena'/>
+    <script type="text/javascript" charset="utf-8">
+    // <![CDATA[
+      // for popup windows (do not reload page)
+      var is_editor = true;
+    // ]]>
+    </script>
+      <z:uses_calendar/>
+    </head>
+  
+    <body onLoad='popup_loaded();'>
+      <div id='messages'>
+        <div id='loader'><img src='/images/ajax-loader.gif'/> <z:trans text='uploading'/></div>
+      </div>
+  
+    <z:content_for_layout/>
+  
+    </body>
+    </html>
+<%= @defaults %>
+
+notes_html:
+  id:             58
+  node_id:        53
+  site_id:        1
+  user_id:        4
+  text: |
+    <div id='notes' do='notes_all' limit='10' order='log_at DESC'>
+      <ul class='note_list'>
+        <z:add after='self' tag='li'/>
+        <z:form><li class='inline_form'><form>
+          <input type='hidden' name='node[parent_id]' value='' do='void' set_value='[project_id]'/>
+          <z:input type='select' attr='klass' options='Note,Letter'/>
+          <z:input type='date_box' attr='log_at'/>
+          <input type='text' name='node[v_title]' do='void' set_value='[v_title]' size='25'/>
+          <input type="submit" class="btn_validate" value='validate' do='void' tset_value='validate'/>
+          </form></li></z:form>
+        <li class='note' do='each'>
+          <div class='header'>
+            <div do='void' class='s30' set_class='s[v_status]'>
+              <p class='log_at' do='show' date='log_at' tformat='short_date'>04.10</p> <!-- FIXME: @note_date ? short_time(li.event_at) : short_date(li.log_at) -->
+              <p class='title' do='title'>our new cms runs in a zen garden</p>
+              <p class='sign' do='version' do='author' do='show' attr='initials'>GB</p>
+              <z:actions select='all'/>
+            </div>
+          </div>
+          <z:summary/>
+          <div class='clear'></div>
+        </li>
+      </ul>
+    </div>
+<%= @defaults %>
+
+Porject_html:
+  id:             59
+  node_id:        54
+  site_id:        1
+  user_id:        4
+  text: |
+    <z:include template='layout.html'>
+      <z:with part='body/left'>
+        this is left
+      </z:with>
+      <z:with part='body/content/main'>
+        <div id='largecal' style='display:none;'></div>
+        <z:include template='notes.html'/>
+      </z:with>
+    </z:include>
 <%= @defaults %>
