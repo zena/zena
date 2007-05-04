@@ -5,6 +5,7 @@ module Zafu
     attr_accessor :html_tag, :html_tag_params
     
     def replace_with(obj)
+      return nil unless (@params && @params != {}) || (@blocks != []) # empty: do not render 
       super
       @html_tag          = obj.html_tag        || @html_tag
       @html_tag_params   = obj.html_tag_params || @html_tag_params

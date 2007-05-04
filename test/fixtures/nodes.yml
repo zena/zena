@@ -917,3 +917,18 @@ Porject_html:
   inherit:        1
 <%= @defaults %>
 <%= @rights %>
+
+Node_login:
+  id:             55
+  zip:            62
+  site_id:        1
+  type:           Template
+  kpath:          NPDTT
+  name:           Node_login
+  project_id:     1
+  section_id:     43
+  parent_id:      43
+  user_id:        4
+  inherit:        1
+<%= @defaults %>
+<%= @rights %>

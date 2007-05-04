@@ -127,3 +127,13 @@ wiki_page_changes:
   tkpath:         NP
   mode:           changes
   klass:          Page
+  
+Node_login:
+  id:             14
+  site_id:        1
+  node_id:        55
+  skin_name:      default
+  format:         html
+  tkpath:         N
+  mode:           login
+  klass:          Node

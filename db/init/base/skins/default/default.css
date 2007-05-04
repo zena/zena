@@ -1,5 +1,16 @@
 /* ==================== LAYOUT ============== */
 
+/* minimal layout (login,not found) */
+
+#login_form, #not_found { position:absolute; top:240px; left:0; width:550px; background:#9FA6AC; border:1px dotted #450009; }
+#login_form div, #not_found div { float:right; font-size:0.85em; padding:5px;}
+#login_form input { padding:1px; margin:0.3em; border:1px solid grey; }
+#login_form table { text-align:right; margin:0;}
+
+#not_found { background:#ADAF87}
+#not_found div { padding:1em; }
+#not_found p { margin-bottom:0.3em;}
+
 /* nav main */
 #nav_main { height:25px; }
 #nav_main a { color:white; }
@@ -38,7 +49,7 @@ but we have to use :*/
 
 /* search */
 #search { position:relative; font-size:0.9em; }
-.search { position:absolute; z-index:999; right:0; top:3px; }
+.search { position:absolute; z-index:999; right:0; top:4px; }
 
 /* context, content, related */
 #context { position:absolute; top:125px; left:20px; width:220px; }
@@ -66,6 +77,8 @@ h3 { color:#450009;}
 
 p, ul, ol, table, pre  { line-height:1.2; margin-bottom:1.5em; }
 ul ul, ul ol, ol ol, ol ul { margin-bottom:0; }
+
+input, textarea { border:1px inset grey; }
 
 /* navigation */
 #nav_main { background:#450009; font-size:0.85em; }
@@ -101,9 +114,10 @@ ul ul, ul ol, ol ol, ol ul { margin-bottom:0; }
 #related ol { margin-left:1.5em; margin-bottom:0; }
 
 /* site info */
-#siteinfo { color:#B28B86; font-size:0.8em; border-top:1px solid #ccc; margin:5em; text-align:center; padding-top:1em; font-style:italic;}
-#siteinfo li { margin-top:0.3em;}
-#siteinfo a { text-decoration:underline; color:inherit; }
+#siteinfo { color:#B28B86; font-size:0.8em; border-top:1px solid #ccc; margin:5em; text-align:center; padding-top:1em; }
+#siteinfo li { margin-top:0.3em; padding-left:2em; display:inline; }
+#siteinfo li:first-chile { padding-left:0; }
+#siteinfo a { color:#906060; }
 
 /* notes */
 
@@ -117,7 +131,6 @@ ul ul, ul ol, ol ol, ol ul { margin-bottom:0; }
 
 /* small calendar */
 
-/* TINY CALENDAR */
 #small_calendar { height: 9em; margin-bottom:0.8em; }
 .tinycal { font-size:0.7em; margin:auto; }
 .tinycal table { border: 1px solid #CAD4DA; background:#F5F8F9; }

@@ -573,7 +573,7 @@ END_TXT
     end
     
     def r_node
-      select = @params[:select]
+      select = @params[:select] || 'self'
       if select == 'main'
         do_var("@node")
       elsif select == 'root'

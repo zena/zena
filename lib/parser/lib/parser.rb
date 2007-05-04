@@ -105,7 +105,7 @@ class Parser
     enter(mode)
   end
   
-  def replace_with(obj)  
+  def replace_with(obj)
     @blocks   = obj.blocks || @blocks
     @params   = obj.params || @params
   end
@@ -115,8 +115,7 @@ class Parser
     return '' unless before_render
     @context = context
     # name param is propagated into children (used to label parts of a large template)
-    if @params && name = @params[:name]
-      @params.delete(:name)
+    if @params && (name = @params.delete(:name))
       if @context[:name]
         @context[:name] += "/#{name}"
       else
@@ -124,6 +123,7 @@ class Parser
       end
       if replacer = (@context[:parts] || {})[@context[:name]]
         replace_with(replacer)
+        return "" unless replace_with(replacer)
       end
     end
     @result  = ""

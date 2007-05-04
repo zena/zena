@@ -2,7 +2,7 @@
   <z:with part='body/context'>
     context
   </z:with>
-  <z:with part='body/content/main'>
+  <z:with part='body/container/content/main'>
     <div class='node_title'>
       <div class='header'>
         <h1 do='title' class='s30' status='true' actions='all'>this is the title</h1>
@@ -26,7 +26,7 @@
     <!-- FIXME: comments -->
   </z:with>
   
-  <z:with part='body/content/related'>
+  <z:with part='body/container/content/related'>
     <z:documents name='documents'><h3 class='group' do='trans'>documents</h3>
       <ol>
         <li do='each'><z:link format='data'><z:img mode='tiny'/></z:link> <z:link><z:show attr='name'/>.<z:show attr='c_ext'/></z:link></li>

@@ -3,6 +3,15 @@ Create, destroy sessions by letting users login and logout. When the user does n
 =end
 class SessionController < ApplicationController
   
+  def new
+    respond_to do |format|
+      format.html do
+        @node = visitor.site.root_node
+        render_and_cache :mode => 'login'
+      end
+    end
+  end
+  
   def create
     if user = User.login(params[:login], params[:password], visitor.site)
       successful_login(user)

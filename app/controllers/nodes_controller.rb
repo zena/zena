@@ -24,7 +24,7 @@ class NodesController < ApplicationController
   def index
     @node = site.root_node
     respond_to do |format|
-      format.html { render_and_cache(:mode => 'index') }
+      format.html { render_and_cache :mode => 'index' }
       format.xml  { render :xml => @node.to_xml }
     end
   end
@@ -32,7 +32,7 @@ class NodesController < ApplicationController
   def not_found
     @node = site.root_node
     respond_to do |format|
-      format.html { render_and_cache(:mode => 'not_found') }
+      format.html { render_and_cache :mode => 'not_found' }
       format.all { render :nothing => true }
     end
   end
