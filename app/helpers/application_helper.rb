@@ -445,7 +445,7 @@ module ApplicationHelper
   
   # default date used to filter events in templates
   def main_date
-    @date ||= Time.now
+    @date ||= Date.today
   end
   
   # Display the list of comments for the current node
@@ -455,7 +455,7 @@ module ApplicationHelper
   end
   
   def calendar(options={})
-    source = options[:from  ] || (@project ||= (@node ? @node.project : nil))
+    source = options[:node  ] || (@project ||= (@node ? @node.project : nil))
     date   = options[:date  ] || Date.today
     method = options[:find  ] || :notes
     size   = options[:size  ] || :tiny
@@ -471,14 +471,15 @@ module ApplicationHelper
       end_date   += (6 + week_start_day - end_date.wday) % 7
       
       # get list of notes in this scope
-      # TODO: use time_zone here ?
-      notes = source.send(method,:conditions=>["#{using} >= ? AND #{using} <= ?", start_date, end_date], :order=>"#{using} ASC") || []
+      notes = source.send(method, :conditions=>["#{using} >= ? AND #{using} <= ?", start_date, end_date], :order=>"#{using} ASC") || []
       
       # build event hash
       calendar = {}
       notes.each do |n|
-        calendar[n.send(using.to_sym).strftime("%Y-%m-%d")] ||= []
-        calendar[n.send(using.to_sym).strftime("%Y-%m-%d")] << n
+        d = n.send(using)
+        next unless d
+        calendar[d.strftime("%Y-%m-%d")] ||= []
+        calendar[d.strftime("%Y-%m-%d")] << n
       end
   
       title = "#{trans(Date::MONTHNAMES[date.mon])} #{date.year}"

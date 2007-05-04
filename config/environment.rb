@@ -13,6 +13,7 @@ require File.join(File.dirname(__FILE__), 'boot')
 
 # Set ZENA_ENV
 require File.join(File.dirname(__FILE__), 'zena')
+require File.join(File.dirname(__FILE__), 'version')
 
 Rails::Initializer.run do |config|
   # Settings in config/environments/* take precedence those specified here

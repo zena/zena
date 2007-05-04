@@ -45,6 +45,9 @@ but we have to use :*/
 #content { margin-top:5em;  margin-left:260px; margin-right:230px;}
 #related { position:absolute; top:125px; right:5px; width:215px; padding-left:5px; }
 
+/* site info */
+#siteinfo { clear:both; }
+
 /* ==================== STYLES ============== */
 
 /* general settings */
@@ -96,6 +99,40 @@ ul ul, ul ol, ol ol, ol ul { margin-bottom:0; }
 #related { border-left:1px solid grey; font-size:0.9em; }
 #related .group { font-size:1em; font-weight:normal;}
 #related ol { margin-left:1.5em; margin-bottom:0; }
+
+/* site info */
+#siteinfo { color:#B28B86; font-size:0.8em; border-top:1px solid #ccc; margin:5em; text-align:center; padding-top:1em; font-style:italic;}
+#siteinfo li { margin-top:0.3em;}
+#siteinfo a { text-decoration:underline; color:inherit; }
+
+/* notes */
+
+.note { padding:10px 3px 10px; border-left:4px solid white; border-top:1px solid #ddd;}
+.note .header { font-size:0.8em; color:#999;}
+.note .header p { float:left;}
+.note .title  { font:1em Helvetica, Arial, sans-serif; text-transform: uppercase; letter-spacing: 0.03em; font-weight:bold; color:#450009; width:316px; }
+.note .header a { color:inherit;}
+.note .log_at { padding-top:2px; width:60px;}
+.note .zazen  { clear:both; }
+
+/* small calendar */
+
+/* TINY CALENDAR */
+#small_calendar { height: 9em; margin-bottom:0.8em; }
+.tinycal { font-size:0.7em; margin:auto; }
+.tinycal table { border: 1px solid #CAD4DA; background:#F5F8F9; }
+.tinycal td { text-align:center; color:#333; }
+.tinycal a { color:inherit; }
+.tinycal b { border-bottom:2px solid orange; }
+.tinycal .head td { font-weight:bold; padding: 2px; font-size:0.9em; color:#655; }
+.tinycal .head td.button a { border:0; text-decoration:none; color:#568BB9;}
+.tinycal .body p { line-height:1.5; margin:0; padding:2px; text-align:center; cursor:pointer; }
+.tinycal .body #tiny_today p { background:#CFD6DA; }
+.tinycal .body td.other, .tinycal .body td.other a { color:#ccc; }
+.tinycal .body td.sat, .tinycal .body td.sat a { color:#35950B; }
+.tinycal .body td.satother, .tinycal .body td.satother a { color:#C8DEC1; }
+.tinycal .body td.sun, .tinycal .body td.sun a { color:#35950B; }
+.tinycal .body td.sunother, .tinycal .body td.sunother a { color:#C8DEC1; }
 
 /* -------- ZAZEN -------- */
 .zazen img { border:1px solid #333;}

@@ -649,7 +649,16 @@ END_TXT
       if @params[:show] == 'logo'
         # FIXME
       else
-        "<a class='made_with_zena' href='http://zenadmin.org'>made with Zena</a>"
+        case @params[:type]
+        when 'riding'
+          message = helper.send(:trans, "riding <a class='zena' href='http://zenadmin.org'>zena</a>")
+        when 'peace'
+          message = helper.send(:trans, "in peace with <a class='zena' href='http://zenadmin.org'>zena</a>")
+        else
+          message = helper.send(:trans, "made with <a class='zena' href='http://zenadmin.org'>zena</a>'")
+        end
+        version = @params[:version] ? " #{Zena::VERSION::MAJOR}.#{Zena::VERSION::MINOR}" : ""
+        message + version
       end
     end
     
@@ -727,9 +736,19 @@ END_TXT
       ""
     end
     
+    # TODO: test
+    def r_calendar
+      from   = 'project'.inspect
+      date   = 'main_date'
+      method = (@params[:find  ] || 'notes'   ).to_sym.inspect
+      size   = (@params[:size  ] || 'tiny'    ).to_sym.inspect
+      using  = (@params[:using ] || 'event_at').gsub(/[^a-z_]/,'').to_sym.inspect # SQL injection security
+      "<%= calendar(:node=>#{node}, :from=>#{from}, :date=>#{date}, :method=>#{method}, :size=>#{size}, :using=>#{using}) %>"
+    end
+    
     # part caching
     def r_cache
-      kpath   = @params[:kpath] || Page.kpath
+      kpath   = @params[:kpath]   || Page.kpath
       context = @params[:context] || @context[:name] || @options[:included_history][0]
       out "<% #{cache} = Cache.with(visitor.id, visitor.group_ids, #{helper.send(:lang).inspect}, #{kpath.inspect}, #{context.inspect}) do capture do %>"
       out expand_with

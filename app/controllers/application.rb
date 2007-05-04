@@ -95,7 +95,8 @@ class ApplicationController < ActionController::Base
       opts = {:skin=>@node[:skin], :cache=>true}.merge(opts)
       
       @section = @node.section
-      @date  ||= params[:date] ? parse_date(params[:date]) : Time.now
+      # init default date used for calendars, etc
+      @date  ||= params[:date] ? parse_date(params[:date]) : Date.today
       render :file => template_url(opts), :layout=>false
     
       cache_page if opts[:cache]
@@ -206,7 +207,6 @@ class ApplicationController < ActionController::Base
         skin_names = [@skin_name]
         skin_names << url.shift if url.size > 1
       end
-
       document = nil
       skin_names.each do |skin_name|
         next unless skin = @skin[skin_name] ||= secure(Skin) { Skin.find_by_name(skin_name) }

@@ -505,13 +505,14 @@ class Node < ActiveRecord::Base
   
   
   def relation_options(opts, cond=nil)
+    opts = opts.dup
     case opts[:from]
     when 'site'
       conditions = "1"
     when 'project'
-      conditions = ["project_id = ?", self[:project_id]]
+      conditions = ["project_id = ?", get_project_id]
     when 'section'
-      conditions = ["section_id = ?", self[:section_id]]
+      conditions = ["section_id = ?", get_section_id]
     else
       # self or nothing
       conditions = ["parent_id = ?", self[:id]]
@@ -529,7 +530,7 @@ class Node < ActiveRecord::Base
       if opt_cond.kind_of?(Array)
         # merge option and condition
         if conditions.kind_of?(Array)
-          conditions[0] = "(#{conditions[0]}) AND (#{opt_cond[0]})"
+          conditions = ["(#{conditions[0]}) AND (#{opt_cond[0]})"] + conditions[1..-1] + opt_cond[1..-1]
         else
           conditions = ["(#{conditions}) AND (#{opt_cond[0]})", *opt_cond[1..-1]]
         end

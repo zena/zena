@@ -61,3 +61,13 @@ forest_pdf:
   name:           "forest"
   ext:            'pdf'
   size:           63569
+  
+default_css:  
+  id:             7
+  site_id:        1
+  version_id:     51
+  type:           TextDocumentContent
+  content_type:   "text/css"
+  name:           "default"
+  ext:            'css'
+  size:           5262
