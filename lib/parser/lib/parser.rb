@@ -106,26 +106,19 @@ class Parser
   end
   
   def replace_with(obj)
+    @method   = 'void' # (replacer's method is always 'with')
     @blocks   = obj.blocks || @blocks
     @params   = obj.params || @params
   end
   
+  def empty?
+    @blocks == [] && (@params == {} || @params == {:part => @params[:part]})
+  end
+  
   def render(context={})
     return '' if context["no_#{@method}".to_sym]
-    return '' unless before_render
     @context = context
-    # name param is propagated into children (used to label parts of a large template)
-    if @params && (name = @params.delete(:name))
-      if @context[:name]
-        @context[:name] += "/#{name}"
-      else
-        @context[:name] = name
-      end
-      if replacer = (@context[:parts] || {})[@context[:name]]
-        replace_with(replacer)
-        return "" unless replace_with(replacer)
-      end
-    end
+    return '' unless before_render
     @result  = ""
     @pass    = {} # used to pass information to the parent
     res = nil
@@ -191,6 +184,18 @@ class Parser
   end
   
   def before_render
+    # name param is propagated into children (used to label parts of a large template)
+    if @params && (name = @params.delete(:name))
+      if @context[:name]
+        @context[:name] += "/#{name}"
+      else
+        @context[:name] = name
+      end
+      if replacer = (@context[:parts] || {})[@context[:name]]
+        return false if replacer.empty?
+        replace_with(replacer)
+      end
+    end
     true
   end
   

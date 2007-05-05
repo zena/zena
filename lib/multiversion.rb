@@ -67,7 +67,12 @@ module Zena
         
         # return an array of published versions
         def traductions(opts={})
-          trad = editions.map do |t|
+          if opts == {}
+            trad = editions
+          else
+            trad = editions.find(:all, opts)
+          end
+          trad.map! do |t|
             t.node = self # make sure relation is kept and we do not reload a node that is not secured
             t
           end

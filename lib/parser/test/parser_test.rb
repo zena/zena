@@ -1,4 +1,7 @@
 require File.join(File.dirname(__FILE__) , 'testhelp.rb')
+#require 'ruby-debug'
+#Debugger.start
+
 module Zafu
   module Tags
     def r_hello
@@ -32,7 +35,7 @@ end
 class ZazenTest < Test::Unit::TestCase
   testfile :zafu, :zafu_asset, :zafu_insight, :zazen
   def test_single
-    do_test('zafu_asset', 'change_stylesheet')
+    do_test('zafu', 'include_empty')
   end
   
   def test_zazen_image_no_image

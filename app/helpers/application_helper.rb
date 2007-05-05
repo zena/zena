@@ -543,7 +543,7 @@ module ApplicationHelper
       title = "#{obj.project.name} / #{title}"
     end
     if opts[:link]
-      title = link_to(title, zen_path(obj))
+      title = "<a href='#{zen_path(obj)}'>#{title}</a>"
     end
     "<span id='v_title#{obj.zip}.#{obj.v_number}'>#{title + check_lang(obj)}</span>"
   end
@@ -690,9 +690,7 @@ module ApplicationHelper
     
     res  = []
     if (action == :edit or action == :all) && node.can_edit?
-      res << "<a href='#' title='#{transb('btn_title_edit')}' onclick=\"editor=window.open('" + 
-             edit_version_url(hash) + 
-             "', '_blank', 'location=0,width=300,height=400,resizable=1');return false;\">" + 
+      res << "<a href='#{edit_version_url(hash)}' target='_blank' title='#{transb('btn_title_edit')}' onclick=\"editor=window.open('#{edit_version_url(hash)}', '_blank', 'location=0,width=300,height=400,resizable=1');return false;\">" + 
              (text || transb('btn_edit')) + "</a>"
     end
     

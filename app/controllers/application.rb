@@ -364,24 +364,30 @@ class ApplicationController < ActionController::Base
     end
   
     # Path for the node (as string). Options can be :format and :mode.
-    def zen_path(obj, opts={})
-      opts = {:format => params[:format], :prefix => prefix}.merge(opts)
-      opts[:format] = 'html' if opts[:format].nil? || opts[:format] == ''
-      if obj[:id] == visitor.site[:root_id] && opts[:mode].nil?
-        "/#{opts[:prefix]}" # index page
+    def zen_path(obj, options={})
+      opts   = options.dup
+      format = opts.delete(:format) || 'html'
+      pre    = opts.delete(:prefix) || prefix
+      mode   = opts.delete(:mode)
+      format = 'html' if format.nil? || format == ''
+      
+      params = (opts == {}) ? '' : ('?' + opts.map{ |k,v| "#{k}=#{v}"}.join('&'))
+      
+      if obj[:id] == visitor.site[:root_id] && mode.nil?
+        "/#{pre}" # index page
       elsif obj[:custom_base]
-        "/#{opts[:prefix]}/" +
+        "/#{pre}/" +
         obj.basepath +
-        (opts[:mode]    ? "_#{opts[:mode]}" : '') +
-        ".#{opts[:format]}"
+        (mode         ? "_#{mode}" : '') +
+        ".#{format}"
       else
-        "/#{opts[:prefix]}/" +
+        "/#{pre}/" +
         (obj.basepath != '' ? "#{obj.basepath}/"    : '') +
         (obj.class.to_s.downcase               ) +
         (obj[:zip].to_s                        ) +
-        (opts[:mode]    ? "_#{opts[:mode]}" : '') +
-        ".#{opts[:format]}"
-      end
+        (mode          ? "_#{mode}" : '') +
+        ".#{format}"
+      end + params
     end
   
     def zen_url(obj, opts={})

@@ -27,6 +27,8 @@ module Zena
     direct_methods :uses_calendar
 
     def before_render
+      return unless super
+      
       @var = nil # reset var counter
       
       # some 'id' information can be set during rendering and should merge into tag_params
@@ -46,9 +48,9 @@ module Zena
     def after_render(text)
       @html_tag_params = @html_tag_params_bak
       if @anchor
-        @anchor + text
+        render_html_tag(@anchor + super)
       else
-        text
+        render_html_tag(super)
       end
     end
 
@@ -128,7 +130,7 @@ module Zena
     end
     
     def r_anchor(obj=node)
-      "<a name='#{node_class.to_s.downcase}<%= #{obj}[:zip] %>'></a>"
+      "<a name='#{node_class.to_s.downcase}<%= #{obj}.zip %>'></a>"
     end
     
     def r_content_for_layout
@@ -304,13 +306,13 @@ module Zena
         return ""
       end
       text = get_text_for_erb
-      #if @context[:template_url]
+      if @context[:template_url]
         # ajax
         "<%= link_to_remote(#{text || helper.trans('edit')}, :url => edit_node_path(#{node}[:zip]) + '?template_url=#{CGI.escape(@context[:template_url])}', :method => :get) %>"
-      #else
-        # FIXME
-      #  "<%= link_to(#{text || helper.trans('edit')}, :controller=>'zafu', :action=>'edit', :id=>#{node}[:id], :template_url=>#{@context[:template_url].inspect}) %>"
-      #end
+      else
+        # FIXME: we could link to some html page to edit the item.
+        ""
+      end
     end
     
     # FIXME: implement all inputs correctly !
@@ -560,7 +562,31 @@ END_TXT
     
     # be carefull, this gives a list of 'versions', not 'nodes'
     def r_traductions
-      out "<% if #{list_var} = #{node}.traductions -%>"
+      if @params[:except]
+        case @params[:except]
+        when 'current'
+          opts = "(:conditions=>\"lang != '#{helper.lang}'\")"
+        else
+          # list of lang
+          # TODO: test
+          langs = @params[:except].split(',').map{|l| l.gsub(/[^a-z]/,'').strip }
+          opts = "(:conditions=>\"lang NOT IN ('#{langs.join("','")}')\")"
+        end
+      elsif @params[:only]
+        # TODO: test
+        case @params[:only]
+        when 'current'
+          opts = "(:conditions=>\"lang = '#{helper.lang}'\")"
+        else
+          # list of lang
+          # TODO: test
+          langs = @params[:only].split(',').map{|l| l.gsub(/[^a-z]/,'').strip }
+          opts = "(:conditions=>\"lang IN ('#{langs.join("','")}')\")"
+        end
+      else
+        opts = ""
+      end
+      out "<% if #{list_var} = #{node}.traductions#{opts} -%>"
       out expand_with(:list=>list_var, :node_class=>:Version)
       out "<% end -%>"
     end
@@ -587,7 +613,7 @@ END_TXT
       elsif select == 'visitor'
         do_var("visitor.contact")
       elsif select =~ /^\d+$/
-        do_var("secure(Node) { Node.find_by_id(#{select.inspect})} rescue nil")
+        do_var("secure(Node) { Node.find_by_zip(#{select.inspect})} rescue nil")
       else
         select = select[1..-1] if select[0..0] == '/'
         do_var("secure(Node) { Node.find_by_path(#{select.inspect})} rescue nil")
@@ -685,7 +711,7 @@ END_TXT
       # obj
       if node_class == :Version
         lnode = "#{node}.node"
-        url = ", :url=>{:lang=>#{node}[:lang]}"
+        url = ", :lang=>#{node}.lang"
       else
         lnode = node
         url = ''
@@ -705,7 +731,7 @@ END_TXT
         mode = ''
       end
       if @params[:dash] == 'true'
-        dash = ", :dash=>\"#{node_class.to_s.downcase}\#{#{node}[:zip]}\""
+        dash = ", :dash=>\"#{node_class.to_s.downcase}\#{#{node}.zip}\""
       else
         dash = ''
       end
@@ -993,9 +1019,9 @@ END_TXT
         begin Module::const_get(klass) rescue "NilClass" end
         "#{node}.class == #{klass}"
       elsif status = @params[:status]
-        "#{node}.version[:status] == #{Zena::Status[status.to_sym]}"
+        "#{node}.version.status == #{Zena::Status[status.to_sym]}"
       elsif lang = @params[:lang]
-        "#{node}.version[:lang] == #{lang.inspect}"
+        "#{node}.version.lang == #{lang.inspect}"
       elsif test = @params[:test]
         value1, op, value2 = test.split(/\s+/)
         allOK = value1 && op && value2
@@ -1049,9 +1075,10 @@ END_TXT
     end
     
     # TODO: test
-    # TODO: SECURITY is there a risk here ?
+    # TODO: SECURITY is there a risk here ? We need to use the 'method' syntax instead of the [:attribute] syntax
+    # because of how some custom methods implement 'initials' for example.
     def node_attribute(attribute)
-      attribute = attribute.gsub('id', 'zip') if node_kind_of?(Node)
+      attribute = attribute.gsub(/(^|_)id|id$/, '\1zip') if node_kind_of?(Node)
       case attribute[0..1]
       when 'v_'
         "#{node}.version.#{attribute[2..-1]}"

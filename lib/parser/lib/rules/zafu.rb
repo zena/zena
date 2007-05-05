@@ -5,14 +5,17 @@ module Zafu
     attr_accessor :html_tag, :html_tag_params
     
     def replace_with(obj)
-      return nil unless (@params && @params != {}) || (@blocks != []) # empty: do not render 
       super
       @html_tag          = obj.html_tag        || @html_tag
       @html_tag_params   = obj.html_tag_params || @html_tag_params
     end
     
-    def render(context={})
-      @context = context
+    def empty?
+      super && @html_tag_params == {} && @html_tag.nil?
+    end
+    
+    def before_render
+      return unless super
       @html_tag_done = false
       unless @html_tag
         if @params[:id] || @params[:class]
@@ -25,6 +28,10 @@ module Zafu
           end
         end
       end
+      true
+    end
+    
+    def after_render(text)
       render_html_tag(super)
     end
     

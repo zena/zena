@@ -1,11 +1,14 @@
 require File.join(File.dirname(__FILE__), 'testhelp')
 
+require 'ruby-debug'
+Debugger.start
+
 class HelperTest
   testfile :relations, :basic
   Section # make sure we load Section links before trying relations
   
   def test_single
-    do_test('basic', 'yield')
+    do_test('basic', 'tada')
   end
 
   def test_basic_cache_part
@@ -42,15 +45,9 @@ class HelperTest
     end
   end
   
-  # test rename asset (has to be called wiki to find the proper skin)
-  def test_basic_wiki
-    Node.connection.execute "UPDATE nodes SET parent_id = 33 WHERE id = 20;" # status, art
-    do_test('basic', 'wiki')
-  end
-  
   def test_relations_updated_today
     Node.connection.execute "UPDATE nodes SET updated_at = now() WHERE id IN (12, 23);" # status, art
-    do_test('relations', 'node_id')
+    do_test('relations', 'updated_today')
   end
   
   def test_relations_upcoming_events

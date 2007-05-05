@@ -23,7 +23,7 @@ Node (manages access and publication cycle)
   |
   +-- Note (date related information, event)
   |     |
-  |     +--- Post
+  |     +--- Post (blog entry)
   |     |
   |     +--- Task
   |     |      |

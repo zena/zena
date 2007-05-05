@@ -220,6 +220,10 @@ include_with:
   src: "include_with: <z:include template='/name/title'><h1 do='with' part='title' do='hello'/></z:include>"
   res: "include_with: title: <h1>hello world!</h1>"
 
+include_empty:
+  src: "include_empty: <z:include template='/name/title'><z:with part='title'/></z:include>"
+  res: "include_empty: title: "
+
 preserve_newlines:
   src: |
     <z:repeat><p do='test'>blah</p>

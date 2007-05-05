@@ -45,6 +45,10 @@ class Version < ActiveRecord::Base
     user_id
   end
   
+  def zip
+    "#{node.zip}.#{number}"
+  end
+  
   # Return the title or the node's name if the field is empty.
   def title
     if self[:title] && self[:title] != ""

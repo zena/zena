@@ -36,7 +36,7 @@ pages:
   context:
     node: 'cleanWater'
   src: "<z:pages><z:each join=', '><z:show attr='name'/></z:each></z:pages>"
-  res: "lake, status, track"
+  res: "status, track"
 
 notes:
   context:
@@ -55,35 +55,35 @@ pages_random:
     node: 'cleanWater'
   src: "<z:pages limit='3' order='random'><z:each join=', '><z:show attr='name'/></z:each></z:pages>"
 
-pages_from_project:
-  src: "<z:pages from='project' limit='2'><z:each join=', '><z:show attr='name'/></z:each></z:pages>"
-  res: "cleanWater, lake"
+nodes_from_project:
+  src: "<z:nodes from='project' limit='2'><z:each join=', '><z:show attr='name'/></z:each></z:nodes>"
+  res: "lake, lakeAddress"
 
-pages_from_site:
-  src: "<z:pages from='site' limit='2'><z:each join=', '><z:show attr='name'/></z:each></z:pages>"
-  res: "ant, art"
+nodes_from_site:
+  src: "<z:nodes from='site' limit='3'><z:each join=', '><z:show attr='name'/></z:each></z:nodes>"
+  res: "anonymous, ant, art"
 
 store_context:
   context:
     node: 'projects'
   src: "<z:children store='project' limit='1'><z:each><z:pages from='site' project='stored' limit='5'><z:each join=', '><z:show attr='name'/></z:each></z:pages></z:each></z:children>"
-  res: "ant, art, collections, lion, menu"
+  res: "art, cleanWater, collections, default, menu"
 
 store_node:
   src: "<z:void store='node'><z:parent><z:show attr='name'/>: <z:node select='stored'><z:show attr='name'/></z:node> + <z:node select='main' do='show' attr='id'/></z:parent></z:void>"
-  res: "cleanWater: status + 12"
+  res: "cleanWater: status + 22"
 
 author_visitor:
   src: "<z:pages from='site' author='visitor' limit='5'><z:each join=', ' do='show' attr='name'/></z:pages>"
-  res: "ant, lake, myLife, nature, status"
+  res: "myLife, nature, status"
 
 node_id:
-  src: "I (<z:show attr='name'/>) know: <z:node select='2'><z:show attr='name'/> with <z:children><span do='each' join=', '><z:show attr='name'>child</z:show></span></z:children></z:node>"
-  res: "I (status) know: people with <span>ant</span>, <span>lion</span>, <span>tiger</span>"
+  src: "I (<z:show attr='name'/>) know: <z:node select='12'><z:show attr='name'/> with <z:children><span do='each' join=', '><z:show attr='name'>child</z:show></span></z:children></z:node>"
+  res: "I (status) know: people with <span>anonymous</span>, <span>ant</span>, <span>lion</span>, <span>tiger</span>"
 
 node_path:
   src: "<z:node select='/projects/wiki'><z:link/></z:node>"
-  res: "<a href=\"/oo/project19.html\">a wiki with zena</a>"
+  res: "<a href='/oo/project29.html'>a wiki with zena</a>"
 
 node_root:
   src: "<z:node select='root'><z:show attr='name'/></z:node>"
@@ -167,32 +167,32 @@ order_limit:
   context:
     node: 'zena'
   src: "<ul do='news' from='site' limit='5' order='updated_at DESC'><li do='each'><z:link/></li></ul>"
-  res: "<ul><li><a href=\"/oo/projects/cleanWater/note17.html\">parc opening</a></li></ul>"
+  res: "<ul><li><a href='/oo/projects/cleanWater/post27.html'>parc opening</a></li></ul>"
 
 relation_not_in_current_node:
   src: "<ul do='news' from='site' limit='5' order='updated_at DESC'><li do='each'><z:link/></li></ul>"
-  res: "<ul><li><a href=\"/oo/projects/cleanWater/note17.html\">parc opening</a></li></ul>"
+  res: "<ul><li><a href='/oo/projects/cleanWater/post27.html'>parc opening</a></li></ul>"
   
 pages_anchor:
-  src: "<z:project><z:pages do='each' join=', '><z:show attr='name' anchor='true'/></z:pages></z:project>"
-  res: "<a name='node13'></a>lake, <a name='node12'></a>status, <a name='node27'></a>track"
+  src: "<z:pages from='site' limit='3' do='each' join=', '><z:show attr='name' anchor='true'/></z:pages>"
+  res: "<a name='node33'></a>art, <a name='node21'></a>cleanWater, <a name='node32'></a>collections"
 
 projects_from_site:
   src: "<div class='all_projects' do='projects' from='site'><z:each join=', ' do='show' attr='name'/></div>"
   res: "<div class='all_projects'>cleanWater, wiki, zena</div>"
 
 projects:
-  src: "<z:projects><z:each join=', ' do='show' attr='name'/></z:projects>"
-  res: "cleanWater"
+  src: "<z:projects from='site'><z:each join=', ' do='show' attr='name'/></z:projects>"
+  res: "cleanWater, wiki, zena"
 
 nodes:
   src: "<z:nodes from='project'><z:each join=', ' do='show' attr='name'/></z:nodes>"
-  res: "cleanWater"
+  res: "lake, lakeAddress, opening, status, water"
 
 menu_with_favorites:
   src: "<ul><z:root do='pages' only='public' cache='true' name='menu'><li do='each'><z:link/><ul do='pages'><li do='each' do='link'/></ul></li></z:root><z:node select='visitor' do='favorites'><li class='favorites'><z:trans>favorites</z:trans><ul><li do='each' do='link'/></ul></li></ul>"
-  res: "/.*tag23.*tag25.*Clean Water.*favorites.*Nature/"
+  res: "/.*tag33.*tag35.*Clean Water.*favorites.*Nature/"
   
 visitor_favorites:
   src: "<z:node select='visitor'><ul do='favorites'><li do='each' do='link'/></ul></z:node>"
-  res: "<ul><li><a href=\"/oo/page29.html\">Nature</a></li></ul>"
+  res: "<ul><li><a href='/oo/page39.html'>Nature</a></li></ul>"

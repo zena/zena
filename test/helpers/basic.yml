@@ -49,101 +49,106 @@ trans_show:
   context:
     lang: 'fr'
   src: "<z:trans><z:show attr='ref_lang'/></z:trans>"
-  tem: "<%= trans(@node[:ref_lang]) %>"
+  tem: "<%= trans(@node.ref_lang) %>"
   res: "anglais"
 
 trans_attr:
   context:
     lang: 'en'
   src: "<z:trans attr='ref_lang'/>"
-  tem: "<%= trans(@node[:ref_lang]) %>"
+  tem: "<%= trans(@node.ref_lang) %>"
   res: "english"
   
 show_tattr:
   src: "<z:show tattr='ref_lang'/>"
-  tem: "<%= trans(@node[:ref_lang]) %>"
+  tem: "<%= trans(@node.ref_lang) %>"
   res: "english"
 
 link:
   src: "<z:link/>"
   tem: "<%= node_link(:node=>@node) %>"
-  res: "<a href=\"/oo/projects/cleanWater/page12.html\">status title</a>"
+  res: "<a href='/oo/projects/cleanWater/page22.html'>status title</a>"
 
 zafu_link:
   src: "<li do='link'/>"
-  res: "<li><a href=\"/oo/projects/cleanWater/page12.html\">status title</a></li>"
+  res: "<li><a href='/oo/projects/cleanWater/page22.html'>status title</a></li>"
 
 link_attr:
   src: "<z:link attr='ref_lang'/>"
-  tem: "<%= node_link(:node=>@node, :text=>@node[:ref_lang]) %>"
-  res: "<a href=\"/oo/projects/cleanWater/page12.html\">en</a>"
+  tem: "<%= node_link(:node=>@node, :text=>@node.ref_lang) %>"
+  res: "<a href='/oo/projects/cleanWater/page22.html'>en</a>"
 
 link_tattr:
   src: "<z:link tattr='ref_lang'/>"
-  tem: "<%= node_link(:node=>@node, :text=>trans(@node[:ref_lang])) %>"
-  res: "<a href=\"/oo/projects/cleanWater/page12.html\">english</a>"
+  tem: "<%= node_link(:node=>@node, :text=>trans(@node.ref_lang)) %>"
+  res: "<a href='/oo/projects/cleanWater/page22.html'>english</a>"
 
 link_trans:
   context:
     lang: 'fr'
   src: "<z:link trans='Monday'/>"
   tem: "<%= node_link(:node=>@node, :text=>\"lundi\") %>"
-  res: "<a href=\"/oo/projects/cleanWater/page12.html\">lundi</a>"
+  res: "<a href='/oo/projects/cleanWater/page22.html'>lundi</a>"
 
 link_parent:
   src: "<z:link href='parent' text='click here'/>"
   tem: "<%= node_link(:node=>@node, :text=>\"click here\", :href=>\"parent\") %>"
-  res: "<a href=\"/oo/projects/cleanWater\">click here</a>"
+  res: "<a href='/oo/projects/cleanWater.html'>click here</a>"
 
+link_with_block:
+  src: "<z:link href='parent'>click here</z:link>"
+  tem: "<%= node_link(:node=>@node, :text=>\"click here\", :href=>\"parent\") %>"
+  res: "<a href='/oo/projects/cleanWater.html'>click here</a>"
+  
 link_project:
   context:
     node: 'bird_jpg'
   src: "<z:link href='project'/>"
   tem: "<%= node_link(:node=>@node, :href=>\"project\") %>"
-  res: "<a href=\"/oo/project19.html\">a wiki with zena</a>"
+  res: "<a href='/oo/project29.html'>a wiki with zena</a>"
 
 link_root:
   src: "<z:link href='root'/>"
   tem: "<%= node_link(:node=>@node, :href=>\"root\") %>"
-  res: "<a href=\"/oo\">Zena the wild CMS</a>"
+  res: "<a href='/oo'>Zena the wild CMS</a>"
 
 link_dash:
   src: "<z:link dash='true'/>"
-  res: "<a href='#node12'>status title</a>"
+  res: "<a href='#node22'>status title</a>"
 
 anchor:
   src: "<z:anchor/>"
-  res: "<a name='node12'></a>"
+  res: "<a name='node22'></a>"
 
 show_title_anchor:
   src: "<z:title anchor='true'/>"
-  res: "<a name='node12'></a><span id='v_title12'>status title</span>"
+  res: "<a name='node22'></a><span id='v_title22.1'>status title</span>"
   
 show_attr_anchor:
   src: "<z:show attr='name' anchor='true'/>"
-  res: "<a name='node12'></a>status"
+  res: "<a name='node22'></a>status"
 
 link_version:
   context:
     node: 'opening'
   src: "<z:traductions><z:each join=', '><z:link tattr='lang' /></z:each></z:traductions>"
-  res: "<a href=\"/oo/projects/cleanWater/note17.html?lang=fr\">french</a>"
+  res: "<a href='/oo/projects/cleanWater/post27.html?lang=en'>english</a>, <a href='/oo/projects/cleanWater/post27.html?lang=fr'>french</a>"
   
 link_version_anchor_dash:
   context:
     node: 'opening'
   src: "<z:traductions><z:each join=', '><z:link tattr='lang' dash='true' anchor='true'/></z:each></z:traductions>"
-  res: "<a name='version17'></a><a href='#version17'>french</a>"
+  res: "<a name='version27.2'></a><a href='#version27.2'>english</a>, <a name='version27.1'></a><a href='#version27.1'>french</a>"
   
 title:
   src: "<h2 do='title'>super titre</h2>"
-  tem: "<h2><%= show_title(:node=>@node, :link=>false, :project=>false)%></h2>"
-  res: "<h2><span id='v_title12'>status title</span></h2>"
+  tem: "<h2><%= show_title(:node=>@node)%></h2>"
+  res: "<h2><span id='v_title22.1'>status title</span></h2>"
 
 show_parent_title:
   src: "<z:parent><h1 do='title'>parent title</h1></z:parent>"
-  tem: "<% if var1 = @node.relation(\"parent\") -%><h1><%= show_title(:node=>var1, :link=>false, :project=>false)%></h1><% end -%>"
-  res: "<h1><span id='v_title11'>Clean Water project</span></h1>"
+  tem: "<% if var1 = @node.relation(\"parent\") -%><h1><%= show_title(:node=>var1)%></h1><% end -%>"
+  res: "<h1><span id='v_title21.1'><a href='/oo/projects/cleanWater.html'>zena / Clean Water project</a></span></h1>"
 
 show_bad_attr:
   src: "my <z:show attr=':name'/>"
@@ -159,8 +164,8 @@ show_v_text:
 
 show_title_options:
   src: "<h1 class='title' do='title' status='true' actions='all'>dummy</h1>"
-  tem: "<h1 class='title'><div class='s<%= @node.version.status %>'><%= show_title(:node=>@node, :link=>false, :project=>false) + node_actions(:node=>@node, :actions=>\"all\")%></div></h1>"
-  res: "/<h1 class='title'><div class='s50'><span id='v_title12'>status title</span><span class='actions'><a.*\/z\/version\/edit\/12.*\/images\/page_edit.png'.*/><\/a>.*<\/span><\/div><\/h1>/"
+  tem: "<h1 class='title'><div class='s<%= @node.version.status %>'><%= show_title(:node=>@node) + node_actions(:node=>@node, :actions=>\"all\")%></div></h1>"
+  res: "/<h1 class='title'><div class='s50'><span id='v_title22.1'>status title</span><span class='actions'><a.*\/nodes\/22\/versions\/1\/edit.*\/images\/page_edit.png'.*/><\/a>.*<\/span><\/div><\/h1>/"
 
 show_c_width:
   context:
@@ -184,7 +189,7 @@ lang_links:
 show_path:
   src: "<div id='path' do='show_path'><ul><li><a href='#'>first</a></li> / <li><a href='#'>second</a></li> / <li><a href='#' class='current'>here</a></li></ul></div>"
   tem: "<div id='path'><%= show_path(:node=>@node) %></div>"
-  res: "/<div id='path'><ul class='path'><li>.*zena.*<li>.*oo\/page8.html.*<li><.*\/projects\/cleanWater.*cleanWater<\/a>.*\/oo\/projects\/cleanWater\/page12.html.*class='current'>status<\/a>/"
+  res: "/<div id='path'><ul class='path'><li>.*zena.*<li>.*oo\/page18.html.*<li><.*\/projects\/cleanWater.*cleanWater<\/a>.*\/oo\/projects\/cleanWater\/page22.html.*class='current'>status<\/a>/"
 
 uses_calendar:
   src: "<z:uses_calendar/>"
@@ -216,13 +221,21 @@ show_author_large:
   res: "posted by <b>Solenopsis Invicta</b> on 04.11."
 
 each_traductions:
-  src: "<z:traductions><ul><li do='each'><z:show attr='title'/></li></ul></z:traductions>"
-  tem: "<% if list1 = @node.traductions -%><ul><% list1.each do |var1| -%><li><%= var1[:title] %></li><% end -%></ul><% end -%>"
+  src: "<z:traductions except='current'><ul><li do='each'><z:show attr='title'/></li></ul></z:traductions>"
+  tem: "<% if list1 = @node.traductions(:conditions=>\"lang != 'en'\") -%><ul><% list1.each do |var1| -%><li><%= var1.title %></li><% end -%></ul><% end -%>"
   res: "<ul><li>Etat des travaux</li></ul>"
+
+each_traductions_except_list:
+  src: "<z:traductions except='en,ru'><ul><li do='each'><z:show attr='title'/></li></ul></z:traductions>"
+  res: "<ul><li>Etat des travaux</li></ul>"
+
+each_traductions_only_list:
+  src: "<z:traductions only='en,ru'><ul><li do='each'><z:show attr='title'/></li></ul></z:traductions>"
+  res: "<ul><li>status title</li></ul>"
 
 case_when:
   src: "<z:case><z:when kind_of='Document'>this is a document</z:when><z:when klass='Page'>Page</z:when><z:when status='pub'>Pub</z:when>"
-  tem: "<% if false -%><% elsif @node.kind_of?(Document) -%>this is a document<% elsif @node.class == Page -%>Page<% elsif @node.version[:status] == 50 -%>Pub<% end -%>"
+  tem: "<% if false -%><% elsif @node.kind_of?(Document) -%>this is a document<% elsif @node.class == Page -%>Page<% elsif @node.version.status == 50 -%>Pub<% end -%>"
   res: "Page"
 
 case_when_else:
@@ -239,11 +252,11 @@ case_when_evil_test:
   
 case_ancestor:
   src: "<z:root><z:pages><z:each join=', '><z:case><z:when node='ancestor'><b><z:show attr='name'/></b></z:when><z:else><z:show attr='name'/></z:else></z:case></z:each></z:pages></z:root>"
-  res: "collections, nature, people, <b>projects</b>"
+  res: "collections, nature, people, <b>projects</b>, skins"
 
 simple_each:
   src: "<z:children><z:each><z:show attr='name'/></z:each></z:children>"
-  tem: "/.*if \(list1.*each.*var1\[:name\]/"
+  tem: "/.*if list1.*each.*var1.name/"
   res: ""
   
 each_join:
@@ -254,11 +267,11 @@ each_join:
 
 edit_not_each:
   src: "<li class='blah'>this is a post <z:edit>edit post</z:edit></li>"
-  tem: "/<li class='blah'>this is a post <%= link_to\(\"edit post\".*\) %><\/li>/"
+  tem: "/<li class='blah'>this is a post <\/li>/"
 
 edit_each_no_form:
   src: "<z:each><li>blah <z:edit>do this and that</z:edit></li>"
-  tem: "/<li>blah <%= link_to\(\"do this and that\".* %></li>"
+  tem: "/<li>blah </li>"
 
 each_add_with_form:
   context:
@@ -270,19 +283,19 @@ each_edit_with_form:
   context:
     node: 'wiki'
   src: "<z:children><z:each><li><z:show attr='name'>blah</z:show> <z:edit>edit</z:edit></li>\n</z:each><z:form><li><form>this is the form</form></li></z:form></z:children>"
-  res: "/<li id='_each_edit_with_root_Node20'>bird <a href=\"#\" onclick=\"new Ajax.Request\('\/z\/zafu\/ajax_edit\/20\?template_url=%2Feach%2Fedit%2Fwith%2Froot_Node'.*flower <a href=\"#\" onclick=\"new Ajax.Request\('\/z\/zafu\/ajax_edit\/21\?template_url=%2Feach%2Fedit%2Fwith%2Froot_Node.*edit</a></li>\n/"
+  res: "/<li id='_each_edit_with_root_Node20'>bird <a href='#' onclick=\"new Ajax.Request\('\/z\/zafu\/ajax_edit\/20\?template_url=%2Feach%2Fedit%2Fwith%2Froot_Node'.*flower <a href=\"#\" onclick=\"new Ajax.Request\('\/z\/zafu\/ajax_edit\/21\?template_url=%2Feach%2Fedit%2Fwith%2Froot_Node.*edit</a></li>\n/"
 
 set_attribute:
   src: "<div class='machin' do='void' set_class='node[id]'/><z:void set_class='s[v_status]i[id]'/>"
-  res: "<div class='node12'/><div class='s50i12'/>"
+  res: "<div class='node22'/><div class='s50i22'/>"
 
 set_attribute_with_inner:
   src: "<p set_id='node[id]' do='show' attr='name' set_class='s[v_status]'>some blah blah</p>"
-  res: "<p class='s50' id='node12'>status</p>"
+  res: "<p class='s50' id='node22'>status</p>"
 
 set_in_ztag:
   src: "<z:show attr='name' set_id='node[id]'/>"
-  res: "<div id='node12'>status</div>"
+  res: "<div id='node22'>status</div>"
 
 each_join_html:
   context:
@@ -298,24 +311,24 @@ each_join_nasty_erb:
   
 img_no_image:
   src: "<z:img/>"
-  tem: "<%= @node.img_tag(\"std\") rescue '' %>"
+  tem: "<%= img_tag(@node, :mode=>\"std\") %>"
   res: ""
 
 img_image:
   context:
     node: 'bird_jpg'
-  src: "<z:img/><z:img format='med'/>"
-  res: "<img src='/data/jpg/20/bird-std.jpg' width='440' height='400' alt='bird' class='std'/><img src='/data/jpg/20/bird-med.jpg' width='205' height='186' alt='bird' class='med'/>"
+  src: "<z:img/><z:img mode='med'/>"
+  res: "<img src='/oo/image30_std.jpg' width='440' height='400' alt='bird' class='std'/><img src='/oo/image30_med.jpg' width='205' height='186' alt='bird' class='med'/>"
 
 img_href:
   context:
     node: 'bird_jpg'
   src: "<z:img href='self'/>"
-  res: "<a href=\"/oo/image20.html\"><img src='/data/jpg/20/bird-std.jpg' width='440' height='400' alt='bird' class='std'/></a>"
+  res: "<a href='/oo/image30.html'><img src='/oo/image30_std.jpg' width='440' height='400' alt='bird' class='std'/></a>"
 
 img_src_id:
   src: "<z:img src='20'/>"
-  res: "<img src='/data/jpg/20/bird-std.jpg' width='440' height='400' alt='bird' class='std'/>"
+  res: "<img src='/oo/image30_std.jpg' width='440' height='400' alt='bird' class='std'/>"
   
 test_children_plural:
   tem: "<%= 'children'.pluralize %>"
@@ -331,13 +344,13 @@ parent_do:
   context:
     node: 'wiki'
   src: "<z:parent do='link'/>"
-  res: "<a href=\"/oo/page8.html\">projects list</a>"
+  res: "<a href='/oo/page18.html'>projects list</a>"
 
 do_each:
   context:
     node: 'wiki'
   src: "<z:children do='each'><z:link/></z:children>"
-  res: "<a href=\"/oo/image20.html\">bird</a><a href=\"/oo/image21.html\">flower</a>"
+  res: "<a href='/oo/image20.html'>bird</a><a href='/oo/image31.html'>flower</a>"
 
 do_with_inner:
   context:
@@ -349,7 +362,7 @@ do_each_do:
   context:
     node: 'wiki'
   src: "<ul do='children' do='each' tag='li' do='link'/>"
-  res: "<ul><li><a href=\"/oo/image20.html\">bird</a></li><li><a href=\"/oo/image21.html\">flower</a></li></ul>"
+  res: "<ul><li><a href='/oo/image30.html'>bird</a></li><li><a href='/oo/image31.html'>flower</a></li></ul>"
 
 ignore:
   src: "<z:ignore>I think this is not</z:ignore>cool!"
@@ -367,7 +380,7 @@ name_title:
 
 include_with:
   src: "include_with: <z:include template='/name/title'><h1 do='with' part='title' do='show' attr='id'/>"
-  res: "include_with: title: <h1>12</h1>"
+  res: "include_with: title: <h1>22</h1>"
 
 comments:
   src: "<z:show_comments/>"
@@ -391,7 +404,7 @@ tada:
     <h1 id='main_title' do='show' attr='v_title'>Super project</h1>
 
     <ul do='tags'>
-      <li do='each' do='link'>art</li>
+      <li do='each' do='link' attr='v_title'>art</li>
       <li do='ignore'>life</li>
       <li do='ignore'>ruby</li>
     </ul>
@@ -404,8 +417,8 @@ tada:
     <h1 id='main_title'>parc opening</h1>
     
     <ul>
-      <li><a href="/oo/tag23.html">Art</a></li>
-      <li><a href="/oo/tag24.html">News list</a></li>
+      <li><a href='/oo/tag33.html'>Art</a></li>
+      <li><a href='/oo/tag34.html'>News list</a></li>
     </ul>
     
     <div id='text'><p>We are glad to announce the opening of our new project !</p>
@@ -415,4 +428,4 @@ tada:
 
 empty_param:
   src: "<z:summary text=''/>"
-  res: "<div id='v_summary11.1' class='zazen'></div>"
+  res: "<div id='v_summary22.1' class='zazen'></div>"

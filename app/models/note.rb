@@ -39,10 +39,11 @@ class Note < Node
     
     def select_classes
       list = subclasses.inject([]) do |list, k|
+        next if k.to_s == 'Post'
         list << k.to_s
         list
       end.sort
-      list.unshift 'Note'
+      list.unshift 'Post'
     end
   end
   
