@@ -7,7 +7,7 @@ module Zafu
     def replace_with(obj)
       super
       @html_tag          = obj.html_tag        || @html_tag
-      @html_tag_params   = obj.html_tag_params || @html_tag_params
+      @html_tag_params   = (obj.html_tag_params.empty? && !@html_tag_params.empty?) ? @html_tag_params : obj.html_tag_params
     end
     
     def empty?

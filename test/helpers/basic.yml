@@ -350,7 +350,7 @@ do_each:
   context:
     node: 'wiki'
   src: "<z:children do='each'><z:link/></z:children>"
-  res: "<a href='/oo/image20.html'>bird</a><a href='/oo/image31.html'>flower</a>"
+  res: "<a href='/oo/image30.html'>bird</a><a href='/oo/image31.html'>flower</a>"
 
 do_with_inner:
   context:
@@ -375,13 +375,13 @@ do_ignore:
   res: ""
 
 name_title:
-  src: "title: <h1 do='show' name='title' attr='name'>blah</h1>"
-  res: "title: <h1>status</h1>"
+  src: "title: <h1 id='main' do='show' name='title' attr='name'>blah</h1>"
+  res: "title: <h1 id='main'>status</h1>"
 
 include_with:
   src: "include_with: <z:include template='/name/title'><h1 do='with' part='title' do='show' attr='id'/>"
-  res: "include_with: title: <h1>22</h1>"
-
+  res: "include_with: title: <h1 id='main'>22</h1>"
+  
 comments:
   src: "<z:show_comments/>"
   tem: "<%= show_comments(:node=>@node) %>"

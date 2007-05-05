@@ -1,6 +1,6 @@
 /* ==================== LAYOUT ============== */
 
-/* minimal layout (login,not found) */
+/* login, not found */
 
 #login_form, #not_found { position:absolute; top:240px; left:0; width:550px; background:#9FA6AC; border:1px dotted #450009; }
 #login_form div, #not_found div { float:right; font-size:0.85em; padding:5px;}
@@ -53,7 +53,7 @@ but we have to use :*/
 
 /* context, content, related */
 #context { position:absolute; top:125px; left:20px; width:220px; }
-#content { margin-top:5em;  margin-left:260px; margin-right:230px;}
+#content { margin-top:5em;  margin-left:260px; margin-right:230px; min-height:400px; }
 #related { position:absolute; top:125px; right:5px; width:215px; padding-left:5px; }
 
 /* site info */

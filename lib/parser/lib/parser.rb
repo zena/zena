@@ -107,8 +107,8 @@ class Parser
   
   def replace_with(obj)
     @method   = 'void' # (replacer's method is always 'with')
-    @blocks   = obj.blocks || @blocks
-    @params   = obj.params || @params
+    @blocks   = obj.blocks.empty? ? @blocks : obj.blocks
+    @params   = obj.params.empty? ? @params : obj.params
   end
   
   def empty?
