@@ -287,7 +287,7 @@ each_edit_with_form:
 
 set_attribute:
   src: "<div class='machin' do='void' set_class='node[id]'/><z:void set_class='s[v_status]i[id]'/>"
-  res: "<div class='node22'/><div class='s50i22'/>"
+  res: "<div class='node22'/><div class='s50i22'></div>"
 
 set_attribute_with_inner:
   src: "<p set_id='node[id]' do='show' attr='name' set_class='s[v_status]'>some blah blah</p>"

@@ -66,12 +66,7 @@ module Zafu
     def render_html_tag(text)
       return text if @html_tag_done
       if @html_tag
-        res = "<#{@html_tag}#{params_to_html(@html_tag_params || {})}"
-        if text != ''
-          res << ">#{text}</#{@html_tag}>"
-        else
-          res << "/>"
-        end
+        res = "<#{@html_tag}#{params_to_html(@html_tag_params || {})}>#{text}</#{@html_tag}>"
       else
         res = text
       end
