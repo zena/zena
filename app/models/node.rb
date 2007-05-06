@@ -805,14 +805,6 @@ class Node < ActiveRecord::Base
       CachedPage.expire_with(obj)
     end
   end
-
-  def inspect
-    "#<#{self.class}:#{sprintf('%x',self.object_id)}\n" +
-    "@attributes =\n{ " +
-     @attributes.map do |k,v|
-       "#{k.inspect} => #{v.inspect}"
-     end.join("\n  ") + "} >"
-  end
   
   protected  
     # after node is saved, make sure it's children have the correct section set

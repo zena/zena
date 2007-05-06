@@ -286,6 +286,8 @@ module Zena
         # * find an edition in the reference lang for this node
         # * find the first publication
         def version(number=nil) #:doc:
+          return @version if @version
+          
           if number && !new_record? && can_drive?
             # TODO: test
             @version = versions.find_by_number(number)
@@ -295,7 +297,6 @@ module Zena
                 @version = version_class.new
                 # owner and lang set in secure_scope
                 @version.status = Zena::Status[:red]
-                @version.node = self
               elsif can_drive?
                 # sees propositions
                 lang = visitor.lang.gsub(/[^\w]/,'')

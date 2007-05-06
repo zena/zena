@@ -91,13 +91,13 @@ ActiveRecord::Schema.define(:version => 0) do
   end
 
   create_table "groups_users", :id => false, :force => true do |t|
-    t.column "group_id", :integer, :default => 0, :null => false
-    t.column "user_id",  :integer, :default => 0, :null => false
+    t.column "group_id", :integer
+    t.column "user_id",  :integer
   end
 
   create_table "links", :force => true do |t|
-    t.column "source_id", :integer,               :default => 0, :null => false
-    t.column "target_id", :integer,               :default => 0, :null => false
+    t.column "source_id", :integer
+    t.column "target_id", :integer
     t.column "role",      :string,  :limit => 20
   end
 
@@ -107,7 +107,7 @@ ActiveRecord::Schema.define(:version => 0) do
     t.column "kpath",        :string,   :limit => 16
     t.column "created_at",   :datetime
     t.column "updated_at",   :datetime
-    t.column "user_id",      :integer,                 :default => 0,     :null => false
+    t.column "user_id",      :integer
     t.column "section_id",   :integer
     t.column "parent_id",    :integer
     t.column "name",         :string,   :limit => 200
@@ -192,8 +192,8 @@ ActiveRecord::Schema.define(:version => 0) do
     t.column "type",         :string,   :limit => 32
     t.column "created_at",   :datetime
     t.column "updated_at",   :datetime
-    t.column "node_id",      :integer,                 :default => 0,  :null => false
-    t.column "user_id",      :integer,                 :default => 0,  :null => false
+    t.column "node_id",      :integer
+    t.column "user_id",      :integer
     t.column "lang",         :string,   :limit => 10,  :default => "", :null => false
     t.column "publish_from", :datetime
     t.column "comment",      :text,                                    :null => false

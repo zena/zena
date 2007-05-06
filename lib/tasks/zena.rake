@@ -119,7 +119,7 @@ namespace :zena do
     end
   end
   
-  task :init => :migrate do
+  task :init => :environment do
     Dir.foreach("#{RAILS_ROOT}/db/init") do |file|
       next unless file =~ /.+\.yml$/
       Zena::Loader::load_file(File.join("#{RAILS_ROOT}/db/init", file))

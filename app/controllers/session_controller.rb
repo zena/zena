@@ -40,7 +40,7 @@ class SessionController < ApplicationController
     end
     
     def failed_login(message)
-      flash.now[:error] = message
-      render :action => 'new'
+      flash[:error] = message
+      redirect_to '/login'
     end
 end
