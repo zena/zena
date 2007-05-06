@@ -1,11 +1,11 @@
 <%= node ||= @node; if @edit
-  form_remote_tag(:with=>"add_comment_form", :url=>{:controller=>'comment', :action=>"update", :rnd=>rnd}) 
+  form_remote_tag(:with=>"add_comment_form", :url=>{:controller=>'comments', :action=>"update", :rnd=>rnd}) 
 else
-  form_remote_tag(:with=>"add_comment_form", :url=>{:controller=>'comment', :action=>"create", :rnd=>rnd})
+  form_remote_tag(:with=>"add_comment_form", :url=>{:controller=>'comments', :action=>"create", :rnd=>rnd})
 end %>
 <% if @edit -%>
   <div class='inline_form'>
-  <p class="btn_x"><%= link_to_remote(transb('btn_x'), :with=>'main', :url=>{:controller=>'discussion', :action=>'show', :id=>@comment[:discussion_id]} ) %></p>
+  <p class="btn_x"><%= link_to_remote(transb('btn_x'), :with=>'main', :url=>{:controller=>'discussions', :action=>'show', :id=>@comment[:discussion_id]} ) %></p>
 <% elsif @comment && @comment.reply_to -%>
   <p class="btn_x"><%= link_to_function transb('btn_x'), "Element.remove('add_comment_form#{@comment.reply_to}');" %></p>
 <% else -%>

@@ -29,11 +29,14 @@ ActionController::Routing::Routes.draw do |map|
                                  :preview => :put,
                                  :link    => :any }
                                  
-    nodes.resources :discussions
+    # nodes.resources :discussions do |discussions|
+    #   discussions.resources :comments,
+    #                 :name_prefix => nil,
+    #                 :member => { :reply_to => :post }
+    # end
   end
   
   map.resources :documents, :member => { :crop_form => :get, :file_form => :get }
-  
   # map.resources :trans_phrases do |phrases|
   #   phrases.resources :trans_values
   # end
@@ -77,6 +80,7 @@ ActionController::Routing::Routes.draw do |map|
   # map.connect ':controller/:action/:id'
   
   # temporary routes...
+  map.connect 'comments/:action/:id', :controller => 'comments'
   map.connect 'z/trans/:action', :controller => 'trans'
   map.connect 'z/calendar/:action', :controller => 'calendar'
   map.connect 'z/note/:action', :controller => 'note'

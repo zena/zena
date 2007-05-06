@@ -1,9 +1,6 @@
 require File.dirname(__FILE__) + '/../test_helper'
 
-class TemplateVersionTest < Test::Unit::TestCase
-  fixtures :template_versions
-
-  # Replace this with your real tests.
+class TemplateVersionTest < ZenaTestUnit
   def test_truth
     assert true
   end

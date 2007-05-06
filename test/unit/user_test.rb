@@ -1,5 +1,5 @@
 require File.dirname(__FILE__) + '/../test_helper'
-ApplicationController # need to load to test caching
+
 class UserTest < ZenaTestUnit
 
   def test_visited_node_ids

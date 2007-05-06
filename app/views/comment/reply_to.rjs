@@ -1,2 +1,0 @@
-page.insert_html :bottom, "replies_to#{@reply_to[:id]}", :inline=>"<li class='inline_form' id='add_comment_form#{@reply_to[:id]}'><%= render :partial=>'comment/form' %></li>"
-page << "$('comment_text').focus();"

@@ -10,12 +10,6 @@ class TransPhraseTest < Test::Unit::TestCase
     assert_equal 'lundi', TransPhrase['Monday']['fr']
   end
   
-  def test_create_new_key
-    assert_nil TransPhrase.find_by_key('yoba')
-    key = TransPhrase['yoba']
-    assert_not_nil TransPhrase.find_by_key('yoba')
-  end
-  
   def test_set_value
     assert TransPhrase.translate('Monday').set('de','Montag')
     assert_equal 3, TransPhrase.translate('Monday').size

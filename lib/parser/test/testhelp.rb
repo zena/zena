@@ -13,7 +13,7 @@ class Test::Unit::TestCase
         file = file.to_s
         strings = {}
         test_methods = []
-        YAML::load_documents( File.open( "#{file}.yml" ) ) do |doc|
+        YAML::load_documents( File.open( File.join(File.dirname(__FILE__), "#{file}.yml") ) ) do |doc|
           doc.each do |elem|
             test_methods << elem[0]
             strings[elem[0]] = elem[1]

@@ -1,2 +1,0 @@
-page.visual_effect :highlight, "comment#{@comment[:id]}", :duration => 1.0
-page.replace "comment#{@comment[:id]}", :partial=>'comment/li', :collection=>[@comment]

@@ -1,14 +1,14 @@
 require File.dirname(__FILE__) + '/../test_helper'
-require 'document' # this is needed to load the document model.
-require 'tag'
-require 'project'
-require 'tracker'
-require 'contact'
 
 class PageTest < ZenaTestUnit
   
   def test_select_classes
-    assert_equal ["Page", "Project", "Section", "Tag", "Tracker"], Page.select_classes
+    # preload models
+    Project
+    Skin
+    Tag
+    Tracker
+    assert_equal ["Page", "Project", "Section", "Skin", "Tag", "Tracker"], Page.select_classes
   end
   
   def test_create_same_name

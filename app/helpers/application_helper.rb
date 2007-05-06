@@ -355,15 +355,18 @@ module ApplicationHelper
   # Display an image tag for the given node (must be a sub-class of Document). If no mode is provided, 'full' is used. Options are ':mode', ':id', ':alt' and ':class'. If no class option is passed,
   # the format is used as the image class. Example :
   #   img_tag(@node, :mode=>'pv')  => <img src='/sites/test.host/data/jpg/20/bird_pv.jpg' height='80' width='80' alt='bird' class='pv'/>
-  def img_tag(obj, opts={})
+  def img_tag(obj, options={})
     return "" unless obj.kind_of?(Document)
-    mode    = opts[:mode]
-    content = obj.v_content
-    ext     = content[:ext]
-    opts    = opts.merge(:format => ext)
+    opts    = options.dup
     
-    alt       = opts[:alt]
-    img_id    = opts[:id]
+    mode    = opts.delete(:mode)
+    klass   = opts.delete(:class)
+    alt     = opts.delete(:alt)
+    img_id  = opts.delete(:id)
+    
+    content = obj.v_content
+    ext     = content.ext
+    opts    = opts.merge(:format => ext)
     
     src = width = height = img_class = nil
     if obj.kind_of?(Image)
@@ -372,7 +375,7 @@ module ApplicationHelper
       
       src       = zen_path(obj, opts.merge(:mode => (mode == 'full' ? nil : mode)))
       
-      img_class = opts[:class] || mode
+      img_class = klass || mode
       if mode == 'full'
         # full size (format = nil)
         width = content.width
@@ -386,7 +389,7 @@ module ApplicationHelper
       mode    = IMAGEBUILDER_FORMAT[mode] ? mode : nil
       alt   ||= "#{content.ext} document"
       
-      img_class = opts[:class] || 'doc'
+      img_class = klass || 'doc'
       unless File.exist?("#{RAILS_ROOT}/public/images/ext/#{ext}.png")
         ext = 'other'
       end
@@ -451,7 +454,7 @@ module ApplicationHelper
   # Display the list of comments for the current node
   def show_comments(opts={})
     node = opts[:node] || @node
-    render_to_string(:partial=>'comment/list', :locals=>{:node=>node})
+    render_to_string(:partial=>'comments/list', :locals=>{:node=>node})
   end
   
   def calendar(options={})

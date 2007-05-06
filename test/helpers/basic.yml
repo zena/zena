@@ -165,7 +165,7 @@ show_v_text:
 show_title_options:
   src: "<h1 class='title' do='title' status='true' actions='all'>dummy</h1>"
   tem: "<h1 class='title'><div class='s<%= @node.version.status %>'><%= show_title(:node=>@node) + node_actions(:node=>@node, :actions=>\"all\")%></div></h1>"
-  res: "/<h1 class='title'><div class='s50'><span id='v_title22.1'>status title</span><span class='actions'><a.*\/nodes\/22\/versions\/1\/edit.*\/images\/page_edit.png'.*/><\/a>.*<\/span><\/div><\/h1>/"
+  res: "/<h1 class='title'><div class='s50'><span id='v_title22.1'>status title</span><span class='actions'><a.*/nodes/22/versions/1/edit.*/images/page_edit.png'.*/></a>.*</span></div></h1>/"
 
 show_c_width:
   context:
@@ -189,7 +189,7 @@ lang_links:
 show_path:
   src: "<div id='path' do='show_path'><ul><li><a href='#'>first</a></li> / <li><a href='#'>second</a></li> / <li><a href='#' class='current'>here</a></li></ul></div>"
   tem: "<div id='path'><%= show_path(:node=>@node) %></div>"
-  res: "/<div id='path'><ul class='path'><li>.*zena.*<li>.*oo\/page18.html.*<li><.*\/projects\/cleanWater.*cleanWater<\/a>.*\/oo\/projects\/cleanWater\/page22.html.*class='current'>status<\/a>/"
+  res: "/<div id='path'><ul class='path'><li>.*zena.*<li>.*oo/page18.html.*<li><.*/projects/cleanWater.*cleanWater</a>.*/oo/projects/cleanWater/page22.html.*class='current'>status</a>/"
 
 uses_calendar:
   src: "<z:uses_calendar/>"
@@ -267,7 +267,7 @@ each_join:
 
 edit_not_each:
   src: "<li class='blah'>this is a post <z:edit>edit post</z:edit></li>"
-  tem: "/<li class='blah'>this is a post <\/li>/"
+  tem: "/<li class='blah'>this is a post </li>/"
 
 edit_each_no_form:
   src: "<z:each><li>blah <z:edit>do this and that</z:edit></li>"
@@ -277,17 +277,17 @@ each_add_with_form:
   context:
     node: 'wiki'
   src: "<z:children><z:each><li do='show' attr='name'>blah</li>\n</z:each><z:add><li>add new</li></z:add><z:form><li><form>this is the form</form></li></z:form></z:children>"
-  res: "/<li>bird.*<li>flower.*<li.*toggle.*Node_add.*Node_form.*<li .*Node_form.*style.*none.*Ajax.Request.*input type='hidden' name='template_url' value='/each/add/with/root_Node'/"
+  res: "/<li>bird.*<li>flower.*<li.*list_add.*list_form.*toggle.*<li .*list_form.*style.*none.*Ajax.Request.*input type='hidden' name='template_url' value='/each/add/with/form/list'/"
   
 each_edit_with_form:
   context:
     node: 'wiki'
   src: "<z:children><z:each><li><z:show attr='name'>blah</z:show> <z:edit>edit</z:edit></li>\n</z:each><z:form><li><form>this is the form</form></li></z:form></z:children>"
-  res: "/<li id='_each_edit_with_root_Node20'>bird <a href='#' onclick=\"new Ajax.Request\('\/z\/zafu\/ajax_edit\/20\?template_url=%2Feach%2Fedit%2Fwith%2Froot_Node'.*flower <a href=\"#\" onclick=\"new Ajax.Request\('\/z\/zafu\/ajax_edit\/21\?template_url=%2Feach%2Fedit%2Fwith%2Froot_Node.*edit</a></li>\n/"
+  res: "/<li id='/each/edit/with/form/list30'>bird <a href=\"#\" onclick=\"new Ajax.Request\('/nodes/30/edit\?template_url=%2Feach%2Fedit%2Fwith%2Fform%2Flist/"
 
 set_attribute:
   src: "<div class='machin' do='void' set_class='node[id]'/><z:void set_class='s[v_status]i[id]'/>"
-  res: "<div class='node22'/><div class='s50i22'></div>"
+  res: "<div class='node22'></div><div class='s50i22'></div>"
 
 set_attribute_with_inner:
   src: "<p set_id='node[id]' do='show' attr='name' set_class='s[v_status]'>some blah blah</p>"

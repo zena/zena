@@ -25,7 +25,7 @@ If a we need to create a more sophisticated version class, all the required fiel
 =end
 class Version < ActiveRecord::Base
   belongs_to            :node
-  belongs_to            :user, :foreign_key=>'user_id' # FIXME: can we remove this
+  belongs_to            :user
   before_validation     :version_before_validation
   validates_presence_of :node
   validates_presence_of :user
@@ -128,7 +128,10 @@ class Version < ActiveRecord::Base
   
     # Set version number and site_id before validation tests.
     def version_before_validation
-      return false unless node
+      unless node
+        errors.add('base', 'node missing')
+        return false
+      end
       self[:site_id] = node[:site_id]
     
       # [ why do we need these defaults now ? (since rails 1.2)

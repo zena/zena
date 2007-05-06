@@ -70,7 +70,7 @@ copy;app/views/comment/_bin.rhtml;app/views/comment/_bin.rhtml
 copy;app/views/comment/_form.rhtml;app/views/comment/_form.rhtml
 copy;app/views/comment/_li.rhtml;app/views/comment/_li.rhtml
 copy;app/views/comment/_li_simple.rhtml;app/views/comment/_li_simple.rhtml
-copy;app/views/comment/_list.rhtml;app/views/comment/_list.rhtml
+copy;app/views/comments/_list.rhtml;app/views/comments/_list.rhtml
 copy;app/views/comment/create.rjs;app/views/comment/create.rjs
 copy;app/views/comment/edit.rjs;app/views/comment/edit.rjs
 copy;app/views/comment/empty_bin.rjs;app/views/comment/empty_bin.rjs

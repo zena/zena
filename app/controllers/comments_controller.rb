@@ -1,4 +1,5 @@
-class CommentController < ApplicationController
+# FIXME: rewrite !
+class CommentsController < ApplicationController
   before_filter :check_is_admin, :only=>[:list, :empty_bin]
   helper_method :bin_content
   

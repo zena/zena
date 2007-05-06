@@ -95,10 +95,9 @@ class VersionTest < ZenaTestUnit
     login(:tiger)
     node = secure(Node) { Node.new(:parent_id=>1, :name=>'bob') }
     assert node.save
-    vers = Version.new
+    vers = secure(Version) { Version.new }
     assert !vers.save
-    assert_equal "can't be blank", vers.errors[:node]
-    assert_equal "can't be blank", vers.errors[:user]
+    assert_equal "node missing", vers.errors[:base]
   end
   
   def test_update_content_one_version

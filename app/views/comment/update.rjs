@@ -1,1 +1,0 @@
-page.replace_html "comment#{@comment[:id]}", :partial=>'comment/li', :collection=>[@comment]

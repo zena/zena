@@ -8,7 +8,7 @@ Uses TemplateContent.
 class TemplateVersion < Version
   validates_presence_of       :content
   
-  # Return the content for the version. Can it's 'own' content or the same as the version this one was copied from.
+  # TODO: test
   def content
     return @content if @content
     @content = content_class.find_by_node_id(self[:node_id])
@@ -23,10 +23,12 @@ class TemplateVersion < Version
     @content
   end
   
+  # TODO: test
   def redaction_content
     content
   end
   
+  # TODO: test
   def content_class
     TemplateContent
   end

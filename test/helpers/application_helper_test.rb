@@ -272,19 +272,19 @@ class ApplicationHelperTest < ZenaTestHelper
   def test_calendar_has_note
     op_at = nodes(:opening).event_at
     zena = secure(Node) { nodes(:zena) }
-    cal = calendar(:from=>zena, :find=>:news, :date=>Date.civil(op_at.year, op_at.month, 5), :size=>:tiny)
+    cal = calendar(:node=>zena, :find=>:news, :date=>Date.civil(op_at.year, op_at.month, 5), :size=>:tiny)
     assert_match %r{class='sun'><p>12}, cal
     assert_match %r{<b>18</b>}, cal
-    cal = calendar(:from=>zena, :find=>:news, :date=>Date.civil(op_at.year, op_at.month, 5), :size=>:large)
+    cal = calendar(:node=>zena, :find=>:news, :date=>Date.civil(op_at.year, op_at.month, 5), :size=>:large)
     assert_match %r{<p>18.*onclick=.*Updater.*largecal_preview.*/z/note/day_list.*(selected=27.*|2006-03-18.*)(selected=27.*|2006-03-18.*)</div></p>}m, cal
   end
   
   def test_calendar_today
     zena = secure(Node) { nodes(:zena) }
-    cal = calendar(:from=>zena, :find=>:news, :size=>:large)
-    assert_match %r{<td[^>*]id='large_today'><p>#{Date.today.day}</p></td>}, cal
-    cal = calendar(:from=>zena, :find=>:news, :size=>:tiny)
-    assert_match %r{<td[^>*]id='tiny_today'><p>#{Date.today.day}</p></td>}, cal
+    cal = calendar(:node=>zena, :find=>:news, :size=>:large)
+    assert_match %r{<td[^>]*id='large_today'><p>#{Date.today.day}</p></td>}, cal
+    cal = calendar(:node=>zena, :find=>:news, :size=>:tiny)
+    assert_match %r{<td[^>]*id='tiny_today'><p>#{Date.today.day}</p></td>}, cal
   end
   
   def test_notes_list_tiny_calendar_list

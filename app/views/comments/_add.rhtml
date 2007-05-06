@@ -2,5 +2,5 @@
   <%= link_to_function transb('btn_add_comment'), "['add_comment', 'add_comment_form'].each(Element.toggle); $('comment_text').focus();" %>
 </li>
 <li id='add_comment_form' style='display:none;' class='inline_form'>
-  <%= render :partial=>'comment/form', :locals=>{:node=>node} %>
+  <%= render :partial=>'comments/form', :locals=>{:node=>node} %>
 </li>

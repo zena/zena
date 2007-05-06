@@ -174,5 +174,23 @@ namespace :zena do
        rdoc.rdoc_dir = 'doc/app' # rdoc output folder
        rdoc.options << '--line-numbers' << '--inline-source'
   end
+  Rake::Task['zena:rdoc'].comment = "Create the rdoc documentation"
+  
+  Rake::TestTask.new(:test => "db:test:prepare") do |t|
+    t.libs << "test"
+    t.pattern = ['test/helpers/**/*_test.rb','test/unit/**/*_test.rb', 'lib/parser/test/*_test.rb']
+    t.verbose = true
+  end
+  Rake::Task['zena:test'].comment = "Run the tests in test/helpers and test/unit"
+end
+
+namespace :test do
+  
+  Rake::TestTask.new(:helpers => "db:test:prepare") do |t|
+    t.libs << "test"
+    t.pattern = 'test/helpers/**/*_test.rb'
+    t.verbose = true
+  end
+  Rake::Task['test:helpers'].comment = "Run the tests in test/helpers"
 end
 

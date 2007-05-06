@@ -10,6 +10,11 @@ class HelperTest
   def test_single
     do_test('basic', 'tada')
   end
+  
+  def test_basic_show_bad_attr
+    # FIXME: we must do something about bad attributes : use a 'rescue' when rendering ?
+    assert true
+  end
 
   def test_basic_cache_part
     with_caching do
