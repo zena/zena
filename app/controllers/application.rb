@@ -87,12 +87,15 @@ class ApplicationController < ActionController::Base
       visitor.lang
     end
     
-    def render_and_cache(opts={})
+    def render_and_cache(options={})
+    
+      opts = {:skin=>@node[:skin], :cache=>true}.merge(options)
+      opts[:mode  ] ||= params[:mode]
+      opts[:format] ||= params[:format]
+      
       # cleanup before rendering
       params.delete(:mode)
       params.delete(:format)
-    
-      opts = {:skin=>@node[:skin], :cache=>true}.merge(opts)
       
       @section = @node.section
       # init default date used for calendars, etc
@@ -131,8 +134,8 @@ class ApplicationController < ActionController::Base
     def template_url(opts={})
       @skin_name = opts[:skin]   || (@node ? @node[:skin] : nil) || 'default'
       @skin_name = @skin_name.gsub(/[^a-zA-Z]/,'') # security
-      mode      = opts[:mode]   || params[:mode]
-      format    = opts[:format] || params[:format] || 'html'
+      mode      = opts[:mode]
+      format    = opts[:format] || 'html'
       klass     = @node.class
       
       # possible classes for the master template :
@@ -146,6 +149,7 @@ class ApplicationController < ActionController::Base
         :order      => "length(tkpath) DESC, skin_ok DESC"
       )}
       
+      Node.logger.info "\n\n\n\n\n\n\n"
       # FIXME use a default fixed template.
       raise ActiveRecord::RecordNotFound unless template
       

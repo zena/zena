@@ -129,6 +129,10 @@ input, textarea { border:1px inset grey; }
 .note .log_at { padding-top:2px; width:60px;}
 .note .zazen  { clear:both; }
 
+/* tree */
+.tree a  { color:inherit;   }
+.tree li { margin-left:2em; }
+
 /* small calendar */
 
 #small_calendar { height: 9em; margin-bottom:0.8em; }
