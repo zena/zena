@@ -393,21 +393,38 @@ module Zena
                 return
               end
               # TODO: test the value != stuff
-              if target == 'c_' 
-                if !new_record? || ( args[0].kind_of?(String) && recipient.content[value] == args[0] )
+              if target == 'c_'
+                return nil unless recipient.content_class
+                if !new_record? && ( args[0].kind_of?(String) && recipient.content[value] == args[0] )
                   # do not force a new redaction = ignore
                 else
                   recipient = recipient.redaction_content
-                  recipient.send(method,*args) rescue nil # bad attribute
+                  begin
+                    recipient.send(method,*args)
+                  rescue NoMethodError
+                    # bad attribute
+                    return nil
+                  end
                 end
               else
-                recipient.send(method,*args) rescue nil # bad attribute
+                begin
+                  recipient.send(method,*args)
+                rescue NoMethodError
+                  # bad attribute
+                  return nil
+                end
               end
             else
               # read
               recipient = version
               recipient = recipient.content if target == 'c_'
-              recipient.send(method,*args) rescue nil # bad attribute
+              return nil unless recipient
+              begin
+                recipient.send(method,*args)
+              rescue NoMethodError
+                # bad attribute
+                return nil
+              end
             end
           else
             super

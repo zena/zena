@@ -70,6 +70,7 @@ class Version < ActiveRecord::Base
   
   # Return the content for the version. Can it's 'own' content or the same as the version this one was copied from.
   def content
+    return nil unless content_class
     return @content if @content
     if self[:content_id]
       @content = content_class.find_by_version_id(self[:content_id])
@@ -107,6 +108,12 @@ class Version < ActiveRecord::Base
       @content.version = self
     end
     @redaction_content = @content
+  end
+  
+  # Some #Version sub-classes need to have more specific content than just 'text' and 'summary'.
+  # this content is stored in a delegate 'content' object found with the 'content_class' class method
+  def content_class
+    nil
   end
   
   private
@@ -179,11 +186,5 @@ class Version < ActiveRecord::Base
         end
         return false
       end
-    end
-  
-    # Some #Version sub-classes need to have more specific content than just 'text' and 'summary'.
-    # this content is stored in a delegate 'content' object found with the 'content_class' class method
-    def content_class
-      nil
     end
 end

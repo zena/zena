@@ -41,6 +41,7 @@ class DocumentTest < ZenaTestUnit
     login(:ant)
     doc = secure(Document) { Document.new(:parent_id=>nodes_id(:cleanWater), :name=>'lalala') }
     assert_kind_of TextDocument, doc
+    assert_equal 'text/plain', doc.c_content_type
     assert doc.save, "Can save"
   end
   

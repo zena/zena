@@ -63,6 +63,10 @@ class Document < Page
         elsif TextDocument.accept_content_type?(content_type)
           klass = TextDocument
         end
+      elsif self == Document
+        # no content_type means no file. Only TextDocuments can be created without files
+        hash['c_content_type'] = 'text/plain'
+        klass = TextDocument
       end
       
       if klass != self

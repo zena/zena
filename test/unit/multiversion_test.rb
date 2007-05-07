@@ -33,7 +33,7 @@ class MultiVersionTest < ZenaTestUnit
     login(:tiger)
     node = secure(Node) { nodes(:zena) }
     node.edit!
-    node.version.instance_eval { @content = @redaction_content = content }
+    node.version.instance_eval { @content = @redaction_content = content; def content_class; @content.class; end }
     assert_equal 'hello', node.c_hello
     assert_equal 'guys', node.c_name
     node.c_hello = 'Thanks'
@@ -41,6 +41,26 @@ class MultiVersionTest < ZenaTestUnit
     assert_equal 'Thanks', node.c_hello
     assert_equal 'Matz', node.c_name
   end
+  
+  def test_accessors_bad_attributes
+    login(:tiger)
+    node = secure(Node) { nodes(:zena) }
+    assert_nothing_raised(NoMethodError) { node.v_smol }
+    assert_nothing_raised(NoMethodError) { node.v_smol = 'io' }
+    assert_nothing_raised(NoMethodError) { node.c_smol }
+    assert_nothing_raised(NoMethodError) { node.c_smol = 'io' }
+    assert_nil node.v_shmol
+    assert_nil node.c_shmol
+    
+    node = secure(Node) { nodes(:bird_jpg) }
+    assert_nothing_raised(NoMethodError) { node.v_smol }
+    assert_nothing_raised(NoMethodError) { node.v_smol = 'io' }
+    assert_nothing_raised(NoMethodError) { node.c_smol }
+    assert_nothing_raised(NoMethodError) { node.c_smol = 'io' }
+    assert_nil node.v_shmol
+    assert_nil node.c_shmol
+  end
+    
   
   def test_new_has_redaction
     login(:ant)
