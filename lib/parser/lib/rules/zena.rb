@@ -179,7 +179,7 @@ module Zena
     
     def r_text
       text = @params[:text] ? @params[:text].inspect : "#{node_attribute('v_text')}"
-      out "<div id='v_text<%= #{node}.zip %>.<%= #{node}.version.number %>' class='zazen'>"
+      out "<div id='v_text<%= #{node}.zip %>' class='zazen'>"
       unless @params[:empty] == 'true'
         out "<% if #{node}.kind_of?(TextDocument); l = #{node}.content_lang -%>"
         out "<%= zazen(\"<code\#{l ? \" lang='\#{l}'\" : ''} class=\\'full\\'>\#{#{text}}</code>\") %></div>"
@@ -190,9 +190,16 @@ module Zena
       out "</div>"
     end
     
+    # TODO: test
     def r_summary
-      text = @params[:text] ? @params[:text].inspect : "#{node_attribute('v_summary')}"
-      "<div id='v_summary<%= #{node}.zip %>.<%= #{node}.version.number %>' class='zazen'><%= zazen(#{text}) %></div>"
+      if @params[:text]
+        "<div id='v_summary<%= #{node}.zip %>' class='zazen'><%= zazen(#{@params[:text].inspect}) %></div>"
+      else
+        v_summary = node_attribute('v_summary')
+        limit     = (@params[:limit] || 2).to_i
+        "<div id='v_summary<%= #{node}.zip %>' class='zazen'><%= #{v_summary} != '' ? zazen(#{v_summary}) : zazen(#{node_attribute('v_text')}, :limit=>#{limit}) %></div>"
+      end
+        
       # if opt[:as]
       #   key = "#{opt[:as]}#{obj.v_id}"
       #   preview_for = opt[:as]

@@ -217,7 +217,7 @@ module ApplicationHelper
       opt[:limit] -= 1 unless opt[:limit] <= 0
       paragraphs = text.split(/\n\n|\r\n\r\n/)
       if paragraphs.size > (opt[:limit]+1) && opt[:limit] != -1
-        text = paragraphs[0..opt[:limit]].join("\r\n\r\n") + "\r\n\r\np(more). " + trans("read more &#8230;")
+        text = paragraphs[0..opt[:limit]].join("\r\n\r\n") + " &#8230;"
       end
     end
     ZazenParser.new(text,:helper=>self).render(opt)
@@ -565,7 +565,7 @@ module ApplicationHelper
         
       title = "<a href='#{zen_path(obj, link_opts)}'>#{title}</a>"
     end
-    "<span id='v_title#{obj.zip}.#{obj.v_number}'>#{title + check_lang(obj)}</span>"
+    "<span id='v_title#{obj.zip}'>#{title + check_lang(obj)}</span>"
   end
   
   # TODO: test

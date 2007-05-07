@@ -59,7 +59,7 @@ class VersionsController < ApplicationController
         render_or_redir 404
       else
         # store the id used to preview when editing
-        session[:preview_id] = "#{params[:node_id]}.#{params[:id]}"
+        session[:preview_id] = params[:node_id]
         @edit = true
       end
     end

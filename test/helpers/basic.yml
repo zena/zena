@@ -122,7 +122,7 @@ anchor:
 
 show_title_anchor:
   src: "<z:title anchor='true'/>"
-  res: "<a name='node22'></a><span id='v_title22.1'>status title</span>"
+  res: "<a name='node22'></a><span id='v_title22'>status title</span>"
   
 show_attr_anchor:
   src: "<z:show attr='name' anchor='true'/>"
@@ -143,34 +143,34 @@ link_version_anchor_dash:
 title:
   src: "<h2 do='title'>super titre</h2>"
   tem: "<h2><%= show_title(:node=>@node)%></h2>"
-  res: "<h2><span id='v_title22.1'>status title</span></h2>"
+  res: "<h2><span id='v_title22'>status title</span></h2>"
 
 title_link:
   src: "<h2 do='title' link='details'>super titre</h2>"
   tem: "<h2><%= show_title(:node=>@node, :link=>\"details\")%></h2>"
-  res: "<h2><span id='v_title22.1'><a href='/oo/projects/cleanWater/page22_details.html'>status title</a></span></h2>"
+  res: "<h2><span id='v_title22'><a href='/oo/projects/cleanWater/page22_details.html'>status title</a></span></h2>"
 
 title_link_format:
   src: "<h2 do='title' link='details.xml'>super titre</h2>"
   tem: "<h2><%= show_title(:node=>@node, :link=>\"details.xml\")%></h2>"
-  res: "<h2><span id='v_title22.1'><a href='/oo/projects/cleanWater/page22_details.xml'>status title</a></span></h2>"
+  res: "<h2><span id='v_title22'><a href='/oo/projects/cleanWater/page22_details.xml'>status title</a></span></h2>"
 
 title_link_data:
   context:
     node: 'bird_jpg'
   src: "<h2 do='title' link='data'>super titre</h2>"
-  res: "<h2><span id='v_title30.1'><a href='/oo/image30.jpg'>bird</a></span></h2>"
+  res: "<h2><span id='v_title30'><a href='/oo/image30.jpg'>bird</a></span></h2>"
 
 title_link_data_mode:
   context:
     node: 'bird_jpg'
   src: "<h2 do='title' link='pv.data'>super titre</h2>"
-  res: "<h2><span id='v_title30.1'><a href='/oo/image30_pv.jpg'>bird</a></span></h2>"
+  res: "<h2><span id='v_title30'><a href='/oo/image30_pv.jpg'>bird</a></span></h2>"
 
 show_parent_title:
   src: "<z:parent><h1 do='title'>parent title</h1></z:parent>"
   tem: "<% if var1 = @node.relation(\"parent\") -%><h1><%= show_title(:node=>var1)%></h1><% end -%>"
-  res: "<h1><span id='v_title21.1'><a href='/oo/projects/cleanWater.html'>zena / Clean Water project</a></span></h1>"
+  res: "<h1><span id='v_title21'><a href='/oo/projects/cleanWater.html'>zena / Clean Water project</a></span></h1>"
 
 show_bad_attr:
   src: "my <z:show attr=':name'/>"
@@ -187,7 +187,7 @@ show_v_text:
 show_title_options:
   src: "<h1 class='title' do='title' status='true' actions='all'>dummy</h1>"
   tem: "<h1 class='title'><div class='s<%= @node.version.status %>'><%= show_title(:node=>@node) + node_actions(:node=>@node, :actions=>\"all\")%></div></h1>"
-  res: "/<h1 class='title'><div class='s50'><span id='v_title22.1'>status title</span><span class='actions'><a.*/nodes/22/versions/1/edit.*/images/page_edit.png'.*/></a>.*</span></div></h1>/"
+  res: "/<h1 class='title'><div class='s50'><span id='v_title22'>status title</span><span class='actions'><a.*/nodes/22/versions/1/edit.*/images/page_edit.png'.*/></a>.*</span></div></h1>/"
 
 show_c_width:
   context:
@@ -450,4 +450,4 @@ tada:
 
 empty_param:
   src: "<z:summary text=''/>"
-  res: "<div id='v_summary22.1' class='zazen'></div>"
+  res: "<div id='v_summary22' class='zazen'></div>"
