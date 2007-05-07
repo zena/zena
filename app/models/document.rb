@@ -53,19 +53,18 @@ class Document < Page
         content_type = hash['c_content_type']
       elsif hash['name'] =~ /^.*\.(\w+)$/ && types = EXT_TO_TYPE[$1]
         content_type = types[0]
-      else
-        content_type = 'text/plain'
       end
       
-      if Image.accept_content_type?(content_type)
-        klass = Image
-      elsif Template.accept_content_type?(content_type)
-        klass = Template
-      elsif TextDocument.accept_content_type?(content_type)
-        klass = TextDocument
-      else
-        klass = self
+      if content_type
+        if Image.accept_content_type?(content_type)
+          klass = Image
+        elsif Template.accept_content_type?(content_type)
+          klass = Template
+        elsif TextDocument.accept_content_type?(content_type)
+          klass = TextDocument
+        end
       end
+      
       if klass != self
         klass.with_scope(scope) { klass.o_new(hash) }
       else

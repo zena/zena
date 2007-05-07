@@ -44,6 +44,16 @@ class DocumentTest < ZenaTestUnit
     assert doc.save, "Can save"
   end
   
+  def test_create_with_content_type
+    login(:tiger)
+    doc = secure(Template) { Template.create("name"=>"Node_tree", "c_content_type"=>"text/css", "c_mode"=>"tree", "c_klass"=>"Node", "v_summary"=>"", "parent_id"=>nodes_id(:default))}
+    assert !doc.kind_of?(Template)
+    assert_kind_of TextDocument, doc
+    assert !doc.new_record?, "Not a new record"
+    assert_equal 'text/css', doc.c_content_type
+    assert_equal 'css', doc.c_ext
+  end
+  
   def test_create_with_duplicate_name
     preserving_files('/test.host/data/pdf') do
       login(:ant)
