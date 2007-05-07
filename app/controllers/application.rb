@@ -243,7 +243,7 @@ class ApplicationController < ActionController::Base
     # Verify that only logged in users access to some protected resources. This can be used to remove public access to an
     # entire site. +authorize+ is called before any action in any controller.
     def authorize
-      if (visitor.site[:authorize] || params[:prefix] == AUTHENTICATED_PREFIX) && ! session[:user]
+      if (visitor.site[:authorize] || params[:prefix] == AUTHENTICATED_PREFIX) && visitor.is_anon?
         flash[:notice] = trans "Please log in"
         session[:after_login_url] = request.parameters
         redirect_to :controller =>'login', :action=>'login' and return false

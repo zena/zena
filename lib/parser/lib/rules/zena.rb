@@ -148,7 +148,7 @@ module Zena
     def r_title
       res = "<%= show_title(:node=>#{node}"
       if @params.include?(:link)
-        res << ", :link=>#{@params[:link] == 'true'}"
+        res << ", :link=>#{@params[:link].inspect}"
       end
       if @params.include?(:attr)
         res << ", :text=>#{node_attribute(@params[:attr])}"

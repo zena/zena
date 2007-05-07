@@ -1,13 +1,15 @@
 <z:include template='layout.html'>
-<z:with part='body/navigation/menu'/>
-<z:with part='body/container/content/main'>
-  <z:title/>
+  <z:with part='body/navigation/menu'/>
+  
+  <z:with part='body/container/content/main'>
+  <div class='header'><h1 do='title' class='s30' status='true' actions='all'>this is the title</h1></div>
     <ul class='tree' do='nodes'>
       <li do='each'><z:title actions='all'/>
         <ul do='nodes'>
-          <li do='each'><z:title actions='all'/></li>
+          <li do='each'><z:title actions='all' link='tree'/></li>
         </ul>
       </li>
     </ul>
   </z:with>
+
 </z:include>
