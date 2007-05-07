@@ -191,13 +191,23 @@ module Zena
     end
     
     # TODO: test
+    # TODO: replace with a more general 'zazen' or 'show' with id ?
     def r_summary
-      if @params[:text]
+      unless @params[:or]
+        text = @params[:text] ? @params[:text].inspect : node_attribute('v_summary')
         "<div id='v_summary<%= #{node}.zip %>' class='zazen'><%= zazen(#{@params[:text].inspect}) %></div>"
       else
-        v_summary = node_attribute('v_summary')
+        first_name = 'v_summary'
+        first  = node_attribute(first_name)
+        
+        second_name = @params[:or].gsub(/[^a-z_]/,'') # ERB injection
+        second = node_attribute(second_name)
         limit     = (@params[:limit] || 2).to_i
-        "<div id='v_summary<%= #{node}.zip %>' class='zazen'><%= #{v_summary} != '' ? zazen(#{v_summary}) : zazen(#{node_attribute('v_text')}, :limit=>#{limit}) %></div>"
+        "<% if #{first} != '' %>" +
+        "<div id='#{first_name}<%= #{node}.zip %>' class='zazen'><%= zazen(#{first}) %></div>" +
+        "<% else %>" +
+        "<div id='#{second_name}<%= #{node}.zip %>' class='zazen'><%= zazen(#{second}, :limit=>#{limit}) %></div>" +
+        "<% end %>"
       end
         
       # if opt[:as]

@@ -448,6 +448,6 @@ tada:
     
     	<p>You are all invited to <strong>Romanel</strong> for a great party this weekend.</p></div>
 
-empty_param:
+empty_summary:
   src: "<z:summary text=''/>"
   res: "<div id='v_summary22' class='zazen'></div>"
