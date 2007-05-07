@@ -111,7 +111,7 @@ ul.link_box { float:left; display:block; margin:2px; padding:2px;}
 #parent #parent_errors { margin:0; font-size:0.8em; }
 #groups #groups_errors { margin:0; font-size:0.8em; }
 #drive .event_at { font-size:0.8em; width:95%;}
-#positions li { border:1px solid #777; padding:2px; margin:2px; background:#D9E3EC; }
+.position li { border:1px solid #777; padding:2px; margin:2px; background:#D9E3EC; }
 #position_info { text-align:center; padding:3px; }
 
 #links_tab table { border:1px solid #333; border-width:1px 0 0 1px; padding:0; width:95%;}

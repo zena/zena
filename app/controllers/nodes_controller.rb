@@ -279,7 +279,15 @@ class NodesController < ApplicationController
   # TODO: what happens if not all the children are present due to access rights ?
   def order
     allOK = true
-    params[:positions].each_with_index do |zip,idx|
+    positions = []
+    params.each do |k,v|
+      if k =~ /^sort_(.*)/
+        positions = v
+        break
+      end
+    end
+    
+    positions.each_with_index do |zip,idx|
       child = secure(Node) { Node.find_by_zip(zip) }
       child.position = idx
       allOk = child.save && allOK
