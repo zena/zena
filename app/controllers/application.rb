@@ -278,7 +278,7 @@ class ApplicationController < ActionController::Base
       if new_lang
         if new_lang == :bad_language
           flash[:notice] = trans "The requested language is not available."
-          session[:lang] ||= visitor.site[:default_lang]
+          session[:lang] = visitor.site[:default_lang]
         else
           session[:lang] = new_lang
         end

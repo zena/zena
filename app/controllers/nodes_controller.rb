@@ -79,6 +79,7 @@ class NodesController < ApplicationController
       format.all  do
         # Get document data (inline if possible)
         if params[:format] != @node.c_ext
+          puts "redirect in show"
           return redirect_to(zen_path(@node), :mode => params[:mode])
         end
         
@@ -320,6 +321,7 @@ class NodesController < ApplicationController
           end
         end
         if params[:format] == '' || (params[:format] == 'html' && ( (zip != '' && @node.custom_base) || basepath != @node.basepath(true)))
+          puts 'redirect in find_node'
           redirect_to zen_path(@node, :mode => params[:mode])
         end
       elsif params[:id]

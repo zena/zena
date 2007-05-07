@@ -29,15 +29,21 @@ class Site < ActiveRecord::Base
     
     # Create a new site in the database. This should not be called directly. Use
     # +rake zena:mksite HOST=[host_name]+ instead
-    def create_for_host(host, su_password)
-      site = self.new
-      site.host            = host
-      site.name            = host.split('.').first
-      site.authorize       = false
-      site.monolingual     = false
-      site.allow_private   = false
-      site.languages       = "en"
-      site.default_lang    = "en"
+    def create_for_host(host, su_password, opts={})
+      params = {
+        :name            => host.split('.').first,
+        :authorize       => false,
+        :monolingual     => false,
+        :allow_private   => false,
+        :languages       => '',
+        :default_lang    => "en",
+      }.merge(opts)
+      langs = params[:languages].split('.')
+      langs += [params[:default_lang]] unless langs.include?(params[:default_lang])
+      params[:languages] = langs.join(',')
+      
+      site      = self.new(params)
+      site.host = host
       site.save
       
       if site.new_record?
@@ -50,7 +56,7 @@ class Site < ActiveRecord::Base
       # =========== CREATE Super User ===========================
       # create su user
       su = User.new_no_defaults( :login => host, :password => su_password,
-        :first_name => "Super", :name => "User", :lang=>'en')
+        :first_name => "Super", :name => "User", :lang=>site.default_lang)
       su.site    = site
       su.visit(su)
       raise Exception.new("Could not create super user for site [#{host}] (site#{site[:id]})\n#{su.errors.map{|k,v| "[#{k}] #{v}"}.join("\n")}") unless su.save
@@ -80,12 +86,12 @@ class Site < ActiveRecord::Base
       # create anon user
       # FIXME: make sure user_id = admin user
       anon = site.send(:secure,User) { User.new_no_defaults( :login => nil, :password => nil,
-        :first_name => "Anonymous", :name => "User", :lang=>'en', :status=>User::Status[:moderated]) }
+        :first_name => "Anonymous", :name => "User", :lang=>site.default_lang, :status=>User::Status[:moderated]) }
       raise Exception.new("Could not create anonymous user for site [#{host}] (site#{site[:id]})\n#{anon.errors.map{|k,v| "[#{k}] #{v}"}.join("\n")}") unless anon.save
       
       # create admin user
-      admin_user = site.send(:secure,User) {User.new_no_defaults( :login => 'admin', :password => su_password,
-        :first_name => "Admin", :name => "User", :lang=>'en') }
+      admin_user = site.send(:secure,User) { User.new_no_defaults( :login => 'admin', :password => su_password,
+        :first_name => "Admin", :name => "User", :lang=>site.default_lang) }
       raise Exception.new("Could not create admin user for site [#{host}] (site#{site[:id]})\n#{admin_user.errors.map{|k,v| "[#{k}] #{v}"}.join("\n")}") unless admin_user.save
       
       site.anon_id         = anon[:id]
@@ -222,6 +228,6 @@ class Site < ActiveRecord::Base
   
   private
     def valid_host
-      errors.add(:host, "invalid host name #{self[:host].inspect}") if (self[:host] =~ /\.\./) || (self[:host] =~ /[^\w\.\-]/)
+      errors.add(:host, "invalid host name #{self[:host].inspect}") if self[:host].nil? || (self[:host] =~ /^\./) || (self[:host] =~ /[^\w\.\-]/)
     end
 end

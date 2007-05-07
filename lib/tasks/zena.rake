@@ -79,7 +79,7 @@ end
 
 
 namespace :zena do
-  desc "Create a new site"
+  desc "Create a new site, parameters are PASSWORD, HOST, LANG"
   task :mksite => :environment do
     # 0. set host name
     unless host = ENV['HOST']
@@ -88,13 +88,14 @@ namespace :zena do
       unless pass = ENV['PASSWORD']
         puts "Please set PASSWORD to the admin password for the new site. Aborting."
       else  
+        ENV['LANG'] ||= 'en'
         host_path = "#{SITES_ROOT}/#{host}"
         if Site.find_by_host(host)
           puts "Host allready exists in the database. Aborting."
         elsif File.exist?(host_path)
           puts "Path for host files exists (#{host_path}). Aborting."
         else
-          site = Site.create_for_host(host, pass)
+          site = Site.create_for_host(host, pass, :default_lang => ENV['LANG'])
           if site.new_record?
             puts "Could not create site ! Errors:"
             site.errors.each do |k,v|
