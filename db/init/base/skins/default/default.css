@@ -134,7 +134,9 @@ input, textarea { border:1px inset grey; }
 .tree a  { color:#450009; }
 .tree li { margin-left:2em; list-style:disc; }
 .tree li li { list-style:circle;}
-
+.tree .current, .tree .parent { list-style:none; }
+.tree .current { margin-bottom:2em; font-weight:bold; margin-left:1em; }
+.tree .parent  { margin-left:0; }
 /* small calendar */
 
 #small_calendar { height: 9em; margin-bottom:0.8em; }

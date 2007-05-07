@@ -4,7 +4,9 @@
   <z:with part='body/container/content/main'>
   <div class='header'><h1 do='title' class='s30' status='true' actions='all'>this is the title</h1></div>
     <ul class='tree' do='nodes'>
-      <li do='each'><z:title actions='all'/>
+      <li class='parent' do='parent'><z:title actions='all' link='tree'/></li>
+      <li class='current'><z:show attr='v_title'/></li>
+      <li do='each'><z:title actions='all' link='tree'/>
         <ul do='nodes'>
           <li do='each'><z:title actions='all' link='tree'/></li>
         </ul>
