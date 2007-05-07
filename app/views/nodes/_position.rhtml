@@ -1,0 +1,14 @@
+<div id='position_errors' class='errors'></div>
+<ul><li><label><%= trans('sort order') %></label></li>
+  <li>
+    <ul id='positions'>
+      <% (@node.children || []).each do |child| -%>
+      <li id='child_<%= child[:zip] %>'><%= child.name %></li>
+      <% end -%>
+    </ul>
+  </li>
+</ul>
+
+<p id='position_info'></p>
+
+<%= sortable_element('positions', :update => 'position_info', :url => order_node_path(@node[:zip]), :complete => visual_effect(:highlight, 'positions') ) %>

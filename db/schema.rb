@@ -127,6 +127,7 @@ ActiveRecord::Schema.define(:version => 0) do
     t.column "site_id",      :integer
     t.column "zip",          :integer
     t.column "project_id",   :integer
+    t.column "position",     :float,                   :default => 1.0
   end
 
   create_table "sites", :force => true do |t|

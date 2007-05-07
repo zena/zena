@@ -14,9 +14,9 @@ ActionController::Routing::Routes.draw do |map|
   
   map.connect 'nodes/:node_id/versions/:id.:format', :controller => 'versions', :action => 'show' #, :requirements => { :method => :get }
   
-  map.resources :nodes, 
-    :collection => { :search => :get,  :attribute => :get }, 
-    :member =>     { :import => :post, :save_text => :put } do |nodes|
+  map.resources :nodes,                                           # FIXME: should be :put but it does not work
+    :collection => { :search => :get,  :attribute => :get },      #   |
+    :member =>     { :import => :post, :save_text => :put, :order => :any } do |nodes|
     nodes.resources :versions, 
                     :name_prefix => nil,
                     :member => { :edit    => :get,
@@ -28,11 +28,11 @@ ActionController::Routing::Routes.draw do |map|
                                  :preview => :put,
                                  :link    => :any }
                                  
-    # nodes.resources :discussions do |discussions|
-    #   discussions.resources :comments,
-    #                 :name_prefix => nil,
-    #                 :member => { :reply_to => :post }
-    # end
+    nodes.resources :discussions, :name_prefix => nil do |discussions|
+      #discussions.resources :comments,
+      #              :name_prefix => nil,
+      #              :member => { :reply_to => :post }
+    end
   end
   
   map.resources :documents, :member => { :crop_form => :get, :file_form => :get }

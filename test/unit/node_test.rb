@@ -722,13 +722,13 @@ class NodeTest < ZenaTestUnit
   def test_relation_options
     login(:ant)
     node = secure(Node) { nodes(:status) }
-    res = {:conditions=>["(project_id = ?) AND (kpath NOT LIKE 'NPDI%')", 11], :order=>"name ASC"}
+    res = {:conditions=>["(project_id = ?) AND (kpath NOT LIKE 'NPDI%')", 11], :order=>"position ASC, name ASC"}
     assert_equal res, node.relation_options({:from=>'project'}, "kpath NOT LIKE 'NPDI%'")
     
-    res = {:conditions=>["(section_id = ?) AND (kpath NOT LIKE 'NPDI%')", 11], :order=>"name ASC"}
+    res = {:conditions=>["(section_id = ?) AND (kpath NOT LIKE 'NPDI%')", 11], :order=>"position ASC, name ASC"}
     assert_equal res, node.relation_options({:from=>'section'}, "kpath NOT LIKE 'NPDI%'")
     
-    res = {:conditions=>["(parent_id = ?) AND (kpath NOT LIKE 'NPDI%')", 12], :order=>"name ASC"}
+    res = {:conditions=>["(parent_id = ?) AND (kpath NOT LIKE 'NPDI%')", 12], :order=>"position ASC, name ASC"}
     assert_equal res, node.relation_options({}, "kpath NOT LIKE 'NPDI%'")
   end
   
@@ -904,5 +904,21 @@ done: \"I am done\""
     node = secure(Node) { Node.find_by_parent_id_and_name(node[:id], 'bird') }
     assert_kind_of Image, node
     assert_equal 56183, node.c_size
+  end
+  
+  def test_order_position
+    login(:tiger)
+    parent = secure(Node) { nodes(:cleanWater) }
+    children = parent.children
+    assert_equal 8, children.size
+    assert_equal 'bananas', children[0].name
+    assert_equal 'crocodiles', children[1].name
+    
+    Node.connection.execute "UPDATE nodes SET position = 0.0 WHERE id = #{nodes_id(:water_pdf)}"
+    Node.connection.execute "UPDATE nodes SET position = 0.1 WHERE id = #{nodes_id(:lake)}"
+    children = parent.children
+    assert_equal 8, children.size
+    assert_equal 'water', children[0].name
+    assert_equal 'lakeAddress', children[1].name
   end
 end

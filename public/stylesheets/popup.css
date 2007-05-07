@@ -107,10 +107,12 @@ ul.link_box { float:left; display:block; margin:2px; padding:2px;}
 .drive li.submit { text-align:right; padding-top:1em;}
 .select_id span { margin-left:0.2em;}
 
-#parent, #groups, #dates { float:left; width:110px;}
+#parent, #groups, #dates, #position { float:left; width:110px;}
 #parent #parent_errors { margin:0; font-size:0.8em; }
 #groups #groups_errors { margin:0; font-size:0.8em; }
 #drive .event_at { font-size:0.8em; width:95%;}
+#positions li { border:1px solid #777; padding:2px; margin:2px; background:#D9E3EC; }
+#position_info { text-align:center; padding:3px; }
 
 #links_tab table { border:1px solid #333; border-width:1px 0 0 1px; padding:0; width:95%;}
 #links_tab td { padding: 3px; font-size:0.8em; height:18px; border:1px solid #333; border-width:0 1px 1px 0; text-align:center;}

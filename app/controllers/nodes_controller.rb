@@ -274,6 +274,27 @@ class NodesController < ApplicationController
     render :inline=>trans('not found')
   end
   
+  # TODO: test
+  # change the position of the children of the current element.
+  # TODO: what happens if not all the children are present due to access rights ?
+  def order
+    allOK = true
+    params[:positions].each_with_index do |zip,idx|
+      child = secure(Node) { Node.find_by_zip(zip) }
+      child.position = idx
+      allOk = child.save && allOK
+    end
+    
+    respond_to do |format|
+      if allOK
+        format.html { render :text => trans('Order updated')}
+      else  
+        format.html { render :text => trans('Could not update order.')}
+      end
+    end
+  end
+  
+  
   protected
     def find_node
       if path = params[:path]

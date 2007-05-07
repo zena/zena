@@ -544,7 +544,7 @@ class Node < ActiveRecord::Base
       end
     end
     opts.delete(:conditions)
-    {:order=>'name ASC', :conditions=>conditions}.merge(opts)
+    {:order=>'position ASC, name ASC', :conditions=>conditions}.merge(opts)
   end
   
   # Get root node
