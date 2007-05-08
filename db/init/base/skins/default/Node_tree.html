@@ -6,13 +6,10 @@
     <ul class='tree' do='nodes'>
       <li class='parent' do='parent'><z:title actions='all' link='tree'/></li>
       <li class='current'><z:show attr='name'/></li>
-      <li do='each'><z:link mode='tree' attr='name'/>
+      <li do='each'><z:show attr='name' edit='true'/>
         <ul do='nodes' name='tree'>
           <li do='each'>
-            <z:edit attr='name'/>
-          </li>
-          <li class='inline_form' do='form'>
-            <form><input name='node[name]' value='' do='void' set_value='[name]'/></form>
+            <z:link mode='tree' attr='name'/>
           </li>
         </ul>
       </li>

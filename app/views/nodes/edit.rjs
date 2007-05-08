@@ -1,1 +1,5 @@
-page.replace "#{params[:template_url]}#{@node[:zip]}", :file => fullpath_from_template_url + "_form.erb"
+if params[:attribute]
+  page.replace_html params[:identifier], :partial => 'edit_attribute'
+else
+  page.replace "#{params[:template_url]}#{@node[:zip]}", :file => fullpath_from_template_url + "_form.erb"
+end

@@ -1,0 +1,4 @@
+<% remote_form_for(:node, @node, :url => node_path(@node[:zip]), :method => :put) do |f| -%>
+  <input type='hidden' class='hidden' name='identifier' value='<%= params[:identifier] %>'/>
+  <%= f.text_field(params[:attribute]) %>
+<% end -%>

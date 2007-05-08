@@ -171,6 +171,8 @@ class NodesController < ApplicationController
     if params[:template_url]
       # edit from inline form in zafu
       @update = 'zafu'
+    elsif params[:identifier]
+      @update = 'attribute'
     elsif params[:drive]
       # drive editing
       @update = params[:drive]

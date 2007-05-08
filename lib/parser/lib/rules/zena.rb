@@ -59,24 +59,29 @@ module Zena
       if @context[:trans]
         # TODO: what do we do here with dates ?
         "#{node_attribute(attribute)}"
-      elsif @params[:tattr]
-        "<%= trans(#{node_attribute(attribute)}) %>"
-      elsif @params[:attr]
-        "<%= #{node_attribute(attribute)} %>"
-      elsif @params[:date]
-        # date can be any attribute v_created_at or updated_at etc.
-        # TODO format with @params[:format] and @params[:tformat] << translated format
-        # TODO: test
-        if @params[:tformat]
-          format = helper.trans(@params[:tformat])
-        elsif @params[:format]
-          format = @params[:format]
-        else
-          format = "%Y-%m-%d"
-        end
-        "<%= format_date(#{node_attribute(@params[:date])}, #{format.inspect}) %>"
       else
-        # error
+        if @params[:tattr]
+          "<%= trans(#{node_attribute(attribute)}) %>"
+        elsif @params[:edit] == 'true' && @params[:attr]
+          name = unique_name
+          "<span id='#{name}<%= #{node}[:zip] %>'><%= link_to_remote(#{node_attribute(attribute)}, :url => edit_node_path(#{node}[:zip]) + \"?attribute=#{attribute}&identifier=#{CGI.escape(name)}\#{#{node}[:zip]}\", :method => :get) %></span>"
+        elsif @params[:attr]
+          "<%= #{node_attribute(attribute)} %>"
+        elsif @params[:date]
+          # date can be any attribute v_created_at or updated_at etc.
+          # TODO format with @params[:format] and @params[:tformat] << translated format
+          # TODO: test
+          if @params[:tformat]
+            format = helper.trans(@params[:tformat])
+          elsif @params[:format]
+            format = @params[:format]
+          else
+            format = "%Y-%m-%d"
+          end
+          "<%= format_date(#{node_attribute(@params[:date])}, #{format.inspect}) %>"
+        else
+          # error
+        end
       end
     end
     
@@ -973,7 +978,7 @@ END_TXT
         end
         
         # template_url  = "#{@options[:current_folder]}/#{@context[:name] || "root"}_#{node_class}"
-        template_url = "#{@options[:included_history][0]}/#{((@context[:name] || 'list').split('/')[-1]).gsub(/[^\w\/]/,'_')}"
+        template_url = unique_name
         
         # render without 'add' or 'form'
         # FIXME: what is this :form=>form_block thing ?
@@ -1010,6 +1015,10 @@ END_TXT
         end
       end
       @pass = {} # do not propagate back
+    end
+    
+    def unique_name
+      "#{@options[:included_history][0]}/#{((@context[:name] || 'list').split('/')[-1]).gsub(/[^\w\/]/,'_')}"
     end
        
     def add_params(text, opts={})
