@@ -316,29 +316,30 @@ module Zena
         return ""
       end
       
-      prefix  = @context[:template_url]
       
-      if @context[:template_url]
+      if template_url = @context[:template_url]
         # ajax
         # TODO: use remote_form_for :#{node_class.to_s.downcase}, :url ... and replace all input/select/...
 
         if @context[:in_add]
-          form =  "<p class='btn_x'><a href='#' onclick='[\"#{prefix}_add\", \"#{prefix}_form\"].each(Element.toggle);return false;'>#{helper.trans('btn_x')}</a></p>\n"
+          @html_tag_params.merge!(:id=>"#{template_url}_form")
+          form =  "<p class='btn_x'><a href='#' onclick='[\"#{template_url}_add\", \"#{template_url}_form\"].each(Element.toggle);return false;'>#{helper.trans('btn_x')}</a></p>\n"
           form << "<%= form_remote_tag(:url => #{node_class.to_s.downcase.pluralize}_path) %>\n"
         else
           # saved form
+          @html_tag_params.merge!(:id=>"#{template_url}<%= @node.new_record? ? '_form' : @node[:zip] %>")
           form =<<-END_TXT
 <% if @node.new_record? -%>
-  <p class='btn_x'><a href='#' onclick='[\"#{prefix}_add\", \"#{prefix}_form\"].each(Element.toggle);return false;'>#{helper.trans('btn_x')}</a></p>
+  <p class='btn_x'><a href='#' onclick='[\"#{template_url}_add\", \"#{template_url}_form\"].each(Element.toggle);return false;'>#{helper.trans('btn_x')}</a></p>
   <%= form_remote_tag(:url => #{node_class.to_s.downcase.pluralize}_path) %>
 <% else -%>
-  <p class='btn_x'><%= link_to_remote(#{helper.trans('btn_x').inspect}, :url => #{node_class.to_s.downcase}_path(#{node}[:zip]) + '?template_url=#{CGI.escape(@context[:template_url])}', :method => :get) %></a></p>
+  <p class='btn_x'><%= link_to_remote(#{helper.trans('btn_x').inspect}, :url => #{node_class.to_s.downcase}_path(#{node}[:zip]) + '?template_url=#{CGI.escape(template_url)}', :method => :get) %></a></p>
   <%= form_remote_tag(:url => #{node_class.to_s.downcase}_path(#{node}[:zip]), :method => :put) %>
 <% end -%>
 END_TXT
         end
         form << "<div class='hidden'>"
-        form << "<input type='hidden' name='template_url' value='#{@context[:template_url]}'/>\n"
+        form << "<input type='hidden' name='template_url' value='#{template_url}'/>\n"
         
         if @params[:klass]
           # FIXME: add the 'klass' attribute to node_class if no input for klass
@@ -360,9 +361,8 @@ END_TXT
       exp = expand_with
       
       exp.gsub!(/<form[^>]*>/,form)
-      
       if @html_tag
-        out exp
+        out render_html_tag(exp)
       elsif exp =~ /\A([^<]*)<(\w+)([^>]*)>(.*)<\/\2>(.*)/m
         out $1
         tag   = $2
@@ -467,7 +467,8 @@ END_TXT
         out r_anchor(var) if @anchor # insert anchor inside the each loop
         @anchor = nil
         res = expand_with(:node=>var)
-        if @context[:template_url] && @pass[:edit]
+        
+        if @context[:template_url]
           # ajax, set id
           id_hash = {:id=>"#{@context[:template_url]}<%= #{var}[:zip] %>"}
           if @html_tag
@@ -481,7 +482,17 @@ END_TXT
       else
         # FIXME: why does the explicit render_html_tag work but not
         # expand_with (render_html_tag implicit) ?
-        render_html_tag(expand_with)
+        
+        if @context[:template_url]
+          # saved template
+          id_hash = {:id=>"#{@context[:template_url]}<%= @node[:zip] %>"}
+          if @html_tag
+            @html_tag_params.merge!(id_hash)
+            render_html_tag(expand_with)
+          else
+            add_params(res, id_hash)
+          end
+        end
       end
     end
    
@@ -962,9 +973,10 @@ END_TXT
         end
         
         # template_url  = "#{@options[:current_folder]}/#{@context[:name] || "root"}_#{node_class}"
-        template_url = "#{@options[:included_history][0]}/#{(@html_tag_params[:id] || 'list').gsub(/[^\w\/]/,'_')}"
+        template_url = "#{@options[:included_history][0]}/#{((@context[:name] || 'list').split('/')[-1]).gsub(/[^\w\/]/,'_')}"
         
         # render without 'add' or 'form'
+        # FIXME: what is this :form=>form_block thing ?
         res = expand_with(opts.merge(:list=>list_var, :form=>form_block, :no_form=>true, :template_url=>template_url))
         out render_html_tag(res)
         if list_finder
@@ -974,12 +986,12 @@ END_TXT
 
         # TEMPLATE ========
         template_node = "@#{node_class.to_s.downcase}"
-        template      = expand_block(each_block, :list=>false, :node=>template_node, :html_tag_params=>{:id=>"#{template_url}<%= #{template_node}[:zip] %>"}, :template_url=>template_url)
+        template      = expand_block(each_block, :list=>false, :node=>template_node, :template_url=>template_url)
         out helper.save_erb_to_url(template, template_url)
         
         # FORM ============
         form_url = "#{template_url}_form"
-        form = expand_block(form_block, :node=>template_node, :template_url=>template_url, :html_tag_params=>{:id=>"#{template_url}<%= @node.new_record? ? '_form' : @node[:zip] %>"})
+        form = expand_block(form_block, :node=>template_node, :template_url=>template_url)
         out helper.save_erb_to_url(form, form_url)
       else
         # no form, render, edit and add are not ajax

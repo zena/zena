@@ -188,7 +188,7 @@ class Parser
   
   def before_render
     # name param is propagated into children (used to label parts of a large template)
-    if @params && (name = @params.delete(:name))
+    if @params && (name = @params[:name])
       if @context[:name]
         @context[:name] += "/#{name}"
       else

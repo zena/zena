@@ -66,15 +66,17 @@ class NodesController < ApplicationController
   
   
   def show
-    return redirect_to(zen_path(@node), :mode => params[:mode]) unless params[:path]
     
     respond_to do |format|
       
-      format.html { render_and_cache }
+      format.html do
+        return redirect_to(zen_path(@node), :mode => params[:mode]) unless params[:path]
+        render_and_cache 
+      end
       
       format.xml  { render :xml => @node.to_xml }
       
-      format.js   { @template_file = fullpath_from_template_url(params[:template_url]) }
+      format.js   { @template_file = fullpath_from_template_url(params[:template_url]) } # zafu ajax
       
       format.all  do
         # Get document data (inline if possible)

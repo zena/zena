@@ -5,10 +5,15 @@
   <div class='header'><h1 do='title' class='s30' status='true' actions='all'>this is the title</h1></div>
     <ul class='tree' do='nodes'>
       <li class='parent' do='parent'><z:title actions='all' link='tree'/></li>
-      <li class='current'><z:show attr='v_title'/></li>
-      <li do='each'><z:title actions='all' link='tree'/>
-        <ul do='nodes'>
-          <li do='each'><z:title actions='all' link='tree'/></li>
+      <li class='current'><z:show attr='name'/></li>
+      <li do='each'><z:link mode='tree' attr='name'/>
+        <ul do='nodes' name='tree'>
+          <li do='each'>
+            <z:edit attr='name'/>
+          </li>
+          <li class='inline_form' do='form'>
+            <form><input name='node[name]' value='' do='void' set_value='[name]'/></form>
+          </li>
         </ul>
       </li>
     </ul>
