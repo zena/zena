@@ -136,7 +136,7 @@ ul ul, ul ol, ol ol, ol ul { margin-bottom:0; }
 
 /* notes */
 
-.note { padding:10px 3px 10px; border-left:4px solid white; border-top:1px solid #ddd;}
+.note { padding:10px 3px 10px; border-left:4px solid white; border-top:1px solid #e0e0e0;}
 .note .header { font-size:0.8em; color:#999; margin-bottom:0.5em; }
 .note .header p { float:left; padding-top:2px; }
 .note .header a { color:inherit;}

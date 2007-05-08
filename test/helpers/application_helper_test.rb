@@ -145,7 +145,7 @@ class ApplicationHelperTest < ZenaTestHelper
   
   def test_date_box
     @node = secure(Node) { nodes(:status) }
-    assert_match %r{div class="date_box".*img src="\/calendar\/iconCalendar.gif".*input class="updated_at" id="datef.*" name="node\[updated_at\]" size="30" type="text" value="2006-04-11 01:00"}m, date_box('node', 'updated_at')
+    assert_match %r{div class="date_box".*img src="\/calendar\/iconCalendar.gif".*input id="datef.*" name="node\[updated_at\]" size="30" type="text" value="2006-04-11 01:00"}m, date_box('node', 'updated_at')
   end
   
   def test_javascript
@@ -273,18 +273,18 @@ class ApplicationHelperTest < ZenaTestHelper
     op_at = nodes(:opening).event_at
     zena = secure(Node) { nodes(:zena) }
     cal = calendar(:node=>zena, :find=>:news, :date=>Date.civil(op_at.year, op_at.month, 5), :size=>:tiny)
-    assert_match %r{class='sun'><p>12}, cal
-    assert_match %r{<b>18</b>}, cal
+    assert_match %r{class='sun'>12}, cal
+    assert_match %r{<em>18</em>}, cal
     cal = calendar(:node=>zena, :find=>:news, :date=>Date.civil(op_at.year, op_at.month, 5), :size=>:large)
-    assert_match %r{<p>18.*onclick=.*Updater.*largecal_preview.*/z/note/day_list.*(selected=27.*|2006-03-18.*)(selected=27.*|2006-03-18.*)</div></p>}m, cal
+    assert_match %r{18.*onclick=.*Updater.*largecal_preview.*/z/note/day_list.*(selected=27.*|2006-03-18.*)(selected=27.*|2006-03-18.*)</p></td>}m, cal
   end
   
   def test_calendar_today
     zena = secure(Node) { nodes(:zena) }
     cal = calendar(:node=>zena, :find=>:news, :size=>:large)
-    assert_match %r{<td[^>]*id='large_today'><p>#{Date.today.day}</p></td>}, cal
+    assert_match %r{<td[^>]*id='large_today'>#{Date.today.day}</td>}, cal
     cal = calendar(:node=>zena, :find=>:news, :size=>:tiny)
-    assert_match %r{<td[^>]*id='tiny_today'><p>#{Date.today.day}</p></td>}, cal
+    assert_match %r{<td[^>]*id='tiny_today'>#{Date.today.day}</td>}, cal
   end
   
   def test_notes_list_tiny_calendar_list

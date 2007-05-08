@@ -191,7 +191,7 @@ projects:
 
 nodes:
   src: "<z:nodes from='project'><z:each join=', ' do='show' attr='name'/></z:nodes>"
-  res: "lake, lakeAddress, opening, status, water"
+  res: "lake, lakeAddress, opening, status, track, water"
 
 menu_with_favorites:
   src: "<ul><z:root do='pages' only='public' cache='true' name='menu'><li do='each'><z:link/><ul do='pages'><li do='each' do='link'/></ul></li></z:root><z:node select='visitor' do='favorites'><li class='favorites'><z:trans>favorites</z:trans><ul><li do='each' do='link'/></ul></li></ul>"

@@ -206,7 +206,6 @@ module Zafu
           eat $&
           if $1 != @end_tag
             # error bad closing ztag
-            debugger
             store "<span class='parser_error'>#{$&.gsub('<', '&lt;').gsub('>','&gt;')}</span>"
           end
           leave

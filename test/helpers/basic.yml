@@ -472,16 +472,6 @@ summary_or_text_no_summary:
   src: "<z:summary or='v_text'/>"
   res: "<div id='v_text11' class='zazen'><p>This is the root of your peaceful tests.</p></div>"
 
-ztag_form_and_form:
-  src: |
-    <z:form>
-      <li class='inline_form'>
-        <form>
-          <input type='hidden' name='node[parent_id]' value='' do='void' set_value='[id]'/>
-          <z:input type='select' attr='klass' options='Page,Section,Project'/>
-          <input type='text' name='node[v_title]' value='' size='25'/>
-          <input type="submit" class="btn_validate" value='validate' do='void' tset_value='validate'/>
-        </form>
-      </li>
-    </z:form>
-  tem: ".."
+ztag_in_do:
+  src: "<ol do='parent'><z:children>no error</z:children></ol>"
+  res: "<ol>no error</ol>"
