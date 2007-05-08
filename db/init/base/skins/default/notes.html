@@ -2,12 +2,13 @@
   <ul class='note_list'>
     <z:add after='self' tag='li'/>
     <z:form><li class='inline_form'><form>
-      <input type='hidden' name='node[parent_id]' value='' do='void' set_value='[project_id]'/>
-      <z:input type='select' attr='klass' options='Post,Letter'/>
-      <z:input type='date_box' attr='log_at'/>
-      <input type='text' name='node[v_title]' do='void' set_value='[v_title]' size='25'/>
-      <input type="submit" class="btn_validate" value='validate' do='void' tset_value='validate'/>
-      </form></li></z:form>
+        <p class='hidden'>      <input type='hidden' name='node[parent_id]' value='' do='void' set_value='[project_id]'/></p>
+        <p class='node_klass'>  <z:input type='select' attr='klass' options='Post,Letter'/></p>
+        <p class='node_log_at'> <z:input type='date_box' attr='log_at'/></p>
+        <p class='node_v_title'><input type='text' name='node[v_title]' do='void' set_value='[v_title]' size='25'/></p>
+        <p class='validate'>    <input type="submit" value='validate' do='void' tset_value='validate'/></p>
+      </form></li>
+    </z:form>
     <li class='note' do='each'>
       <div class='header'>
         <div do='void' class='s30' set_class='s[v_status]'>

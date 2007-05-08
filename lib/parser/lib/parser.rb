@@ -80,11 +80,6 @@ class Parser
   def initialize(text, opts={})
     @stack   = []
     @ok      = true
-    if opts[:sub]
-      @text = text
-    else
-      @text = before_parse(text)
-    end
     @blocks  = []
     
     @options = {:mode=>:void, :method=>'void'}.merge(opts)
@@ -94,7 +89,15 @@ class Parser
     @options.delete(:params)
     @options.delete(:method)
     @options.delete(:mode)
+    
+    if opts[:sub]
+      @text = text
+    else
+      @text = before_parse(text)
+    end
+    
     start(mode)
+    
     unless opts[:sub]
       @text = after_parse(@text)
     end
@@ -400,6 +403,7 @@ class Parser
     res = ""
     @pass  = {} # current object sees some information from it's direct descendants
     @parts = {}
+    
     new_context = @context.merge(acontext)
     blocks.each do |b|
       if b.kind_of?(String)

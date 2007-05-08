@@ -246,7 +246,7 @@ class ApplicationController < ActionController::Base
       if (visitor.site[:authorize] || params[:prefix] == AUTHENTICATED_PREFIX) && visitor.is_anon?
         flash[:notice] = trans "Please log in"
         session[:after_login_url] = request.parameters
-        redirect_to :controller =>'login', :action=>'login' and return false
+        redirect_to login_path and return false
       end
     end
   

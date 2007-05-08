@@ -55,19 +55,22 @@
           <z:documents name='documents'><h3 class='group' do='trans'>documents</h3>
             <ol>
               <li do='each'><z:link format='data'><z:img mode='tiny'/></z:link> <z:link><z:show attr='name'/>.<z:show attr='c_ext'/></z:link></li>
-              <li do='add'><a href='#' do='void' set_onclick='uploader=window.open("/documents/new?parent_id=[id]", "uploader", "location=1,width=400,height=300");return false;'><z:trans>btn_add_doc</z:trans></a></li>
+              <li do='add'><a href='#' do='void' set_onclick='uploader=window.open("/documents/new?parent_id=[id]", "uploader", "location=1,width=400,height=300");return false;' set_href='/documents/new?parent_id=[id]'><z:trans>btn_add_doc</z:trans></a></li>
             </ol>
           </z:documents>
           <z:if kind_of='Page' do='pages' name='pages'><h3 class='group' do='trans'>pages</h3>
             <ol>
               <li do='each' do='link'/>
               <z:add before='self' tag='li'/>
-              <z:form><li class='inline_form'><form>
-                <input type='hidden' name='node[parent_id]' value='' do='void' set_value='[id]'/>
-                <z:input type='select' attr='klass' options='Page,Section,Project'/>
-                <input type='text' name='node[v_title]' value='' size='25'/>
-                <input type="submit" class="btn_validate" value='validate' do='void' tset_value='validate'/>
-                </form></li>
+              <z:form>
+                <li class='inline_form'>
+                  <form>
+                    <p class='hidden'>      <input type='hidden' name='node[parent_id]' value='' do='void' set_value='[id]'/></p>
+                    <p class='node_klass'>  <z:input type='select' attr='klass' options='Page,Section,Project'/></p>
+                    <p class='node_v_title'><input type='text' name='node[v_title]' value=''/></p>
+                    <p class='btn_validate'><input type="submit" value='validate' do='void' tset_value='validate'/></p>
+                  </form>
+                </li>
               </z:form>
             </ol>
           </z:if>

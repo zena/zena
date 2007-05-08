@@ -216,6 +216,10 @@ name_title:
   src: "title: <h1 do='void' name='title' do='text' text='dummy'>blah</h1>"
   res: "title: <h1>dummy</h1>"
 
+ztag_same_name_as_tag:
+  src: "<z:test>this is a <test>test</test></z:test>"
+  res: "[test]this is a <test>test</test>[/test]"
+
 include_with:
   src: "include_with: <z:include template='/name/title'><h1 do='with' part='title' do='hello'/></z:include>"
   res: "include_with: title: <h1>hello world!</h1>"

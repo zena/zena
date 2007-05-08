@@ -73,6 +73,10 @@ store_node:
   src: "<z:void store='node'><z:parent><z:show attr='name'/>: <z:node select='stored'><z:show attr='name'/></z:node> + <z:node select='main' do='show' attr='id'/></z:parent></z:void>"
   res: "cleanWater: status + 22"
 
+store_img:
+  src: "<z:parent><z:icon store='bob'><z:show attr='name'/><z:img link='stored_bob'/></z:icon></z:parent>"
+  tem: "<% if var1 = @node.relation(\"parent\") -%><% if var2 = var1.relation(\"icon\") -%><%= var2.name %><%= node_link(:node=>var1, :text=>img_tag(var2, :mode=>\"std\")) %><% end -%><% end -%>"
+  
 author_visitor:
   src: "<z:pages from='site' author='visitor' limit='5'><z:each join=', ' do='show' attr='name'/></z:pages>"
   res: "myLife, nature, status"

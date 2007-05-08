@@ -39,3 +39,9 @@ nature_favorite_for_ant:
   source_id:      3
   target_id:      29
   role:           favorite
+  
+lake_icon_for_cleanWater:
+  id:             8
+  source_id:      11
+  target_id:      14
+  role:           icon

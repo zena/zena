@@ -19,6 +19,7 @@
 .btn_add a { visibility:hidden; display:block; }
 .btn_add:hover a { visibility:visible; }
 
+.hidden { display:none; }
 
 /* ========================= Zazen css ======================== */
 

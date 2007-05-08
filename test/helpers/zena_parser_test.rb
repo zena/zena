@@ -8,7 +8,7 @@ class HelperTest
   Section # make sure we load Section links before trying relations
   
   def test_single
-    do_test('basic', 'title_link_data')
+    do_test('basic', 'ztag_form_and_form')
   end
   
   def test_basic_show_bad_attr

@@ -622,10 +622,10 @@ Just doing the above will filter all result according to the logged in user.
       def inspect
         "#<#{self.class}:#{sprintf('%x',self.object_id)}\n" +
         "@attributes =\n{ " +
-         (@attributes.sort.map do |k,v|
+         ((@attributes || {}).sort.map do |k,v|
            sprintf("%15s => %s", k, v.inspect)
          end + [
-            sprintf("%15s => %s", 'id', id.inspect),
+            sprintf("%15s => %s", 'id', self[:id].inspect),
             sprintf("%15s => %s", '@new_record', new_record?.to_s),
             sprintf("%15s => %s", '@visitor', (@visitor ? "User#{@visitor[:id]}" : 'nil'))
          ]).join("\n  ") + "} >"

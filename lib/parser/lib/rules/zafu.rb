@@ -118,7 +118,7 @@ module Zafu
       @options.delete(:html_tag_params)
       
       # end_tag
-      @end_tag = @html_tag || @options[:end_do] || "z:#{@method}"
+      @end_tag = @html_tag || @options.delete(:end_do) || "z:#{@method}"
       @end_tag_count  = 1
       
       # code indentation
@@ -140,8 +140,9 @@ module Zafu
         if @method == 'include'
           include_template
         end
-      else  
+      else
         @params = parse_params(@params)
+        
         if @method == 'include'
           include_template
         elsif mode == :tag
@@ -205,6 +206,7 @@ module Zafu
           eat $&
           if $1 != @end_tag
             # error bad closing ztag
+            debugger
             store "<span class='parser_error'>#{$&.gsub('<', '&lt;').gsub('>','&gt;')}</span>"
           end
           leave
@@ -235,7 +237,7 @@ module Zafu
     def scan_tag(opts={})
       # puts "TAG(#{@method}): [#{@text}]"
       if @text =~ /\A<z:([\w_]+)([^>]*?)(\/?)>/
-        # puts "ZTAG:[#{$&}]}" # ztag
+        # puts "ZTAG:#{$~.to_a.inspect}}" # ztag
         eat $&
         opts.merge!(:method=>$1, :params=>$2)
         opts.merge!(:text=>'') if $3 != ''

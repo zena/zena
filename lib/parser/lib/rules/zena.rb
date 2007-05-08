@@ -34,13 +34,13 @@ module Zena
       # some 'id' information can be set during rendering and should merge into tag_params
       @html_tag_params_bak = @html_tag_params
       @html_tag_params     = @html_tag_params.merge(@context[:html_tag_params] || {})
-      if @params[:store]
-        @context["stored_#{@params[:store]}".to_sym] = node
-        @params.delete(:store)
-      end
-      if @params[:anchor] && !@context[:preflight]
-        @anchor = r_anchor
-        @params.delete(:anchor)
+      unless @context[:preflight]
+        if store = @params.delete(:store)
+          @context["stored_#{store}".to_sym] = node
+        end
+        if @params.delete(:anchor)
+          @anchor = r_anchor
+        end
       end
       true
     end
@@ -337,6 +337,7 @@ module Zena
 <% end -%>
 END_TXT
         end
+        form << "<div class='hidden'>"
         form << "<input type='hidden' name='template_url' value='#{@context[:template_url]}'/>\n"
         
         if @params[:klass]
@@ -350,6 +351,7 @@ END_TXT
             break
           end
         end
+        form << "</div>"
       else
         # no ajax
         # FIXME
@@ -683,6 +685,7 @@ END_TXT
         text = ""
       end
       if @params[:href]
+        # FIXME: add 'stored'
         href = ", :href=>#{@params[:href].inspect}"
       else
         href = ''
@@ -727,9 +730,13 @@ END_TXT
         img = node
       end
       mode = @params[:mode] || 'std'
-      if @params[:href]
-        # FIXME: replace with full r_link options
-        res = "node_link(:node=>#{node}, :href=>#{@params[:href].inspect}, :text=>img_tag(#{img}, :mode=>#{mode.inspect}))"
+      if link = @params[:link]
+        if link =~ /^stored/
+          link = ":node=>#{@context[link.to_sym] || node}"
+        else
+          link = ":node=>#{node}, :href=>#{link.inspect}"
+        end
+        res  = "node_link(#{link}, :text=>img_tag(#{img}, :mode=>#{mode.inspect}))"
       else
         res = "img_tag(#{img}, :mode=>#{mode.inspect})"
       end
@@ -773,9 +780,6 @@ END_TXT
       else
         rel = @method
       end
-      if @params[:store]
-        @context["stored_#{@params[:store]}".to_sym] = node
-      end
       if Zena::Acts::Linkable::plural_method?(@method) || @params[:from]
         # plural
         # FIXME: could SQL injection be possible here ? (all params are passed to the 'find')
@@ -795,6 +799,13 @@ END_TXT
           erb_params[k] = @params[k].to_i.to_s
         end
         conditions = []
+        
+        # FIXME: stored should be clarified and managed in a single way through links and contexts.
+        # <z:link href='stored_whatever'/>
+        # <z:pages from='stored_whatever'/>
+        # <z:pages from='project' project='stored_whatever'/>
+        # <z:img link='stored_whatever'/>
+        # ...
         if value = @params[:author]
           if value == 'stored' && stored = @context[:stored_author]
             conditions << "user_id = '\#{#{stored}[:user_id]}'"
@@ -811,6 +822,18 @@ END_TXT
         
         if value = @params[:project]
           if value == 'stored' && stored = @context[:stored_project]
+            conditions << "project_id = '\#{#{stored}[:project_id]}'"
+          elsif value == 'current'
+            conditions << "project_id = '\#{#{node}[:project_id]}'"
+          elsif value =~ /\A\d+\Z/
+            conditions << "project_id = '#{value.to_i}'"
+          elsif value =~ /\A[\w\/]+\Z/
+            # not implemented yet
+          end
+        end
+        
+        if value = @params[:section]
+          if value == 'stored' && stored = @context[:stored_section]
             conditions << "section_id = '\#{#{stored}[:section_id]}'"
           elsif value == 'current'
             conditions << "section_id = '\#{#{node}[:section_id]}'"

@@ -3,7 +3,7 @@ ActionController::Routing::Routes.draw do |map|
   map.home       ':prefix',  :controller => 'nodes',    :action => 'index',  :prefix => /\w{0,2}/
   map.not_found '404.html',  :controller => 'nodes',    :action => 'not_found'
   map.user_home     'home',  :controller => 'users',    :action => 'home'
-  map.connect      'login',  :controller => 'session',  :action => 'new',    :requirements => { :method => :get  }
+  map.login        'login',  :controller => 'session',  :action => 'new',    :requirements => { :method => :get  }
   map.logout      'logout',  :controller => 'session',  :action => 'destroy'
   
   map.resource  :session   # singleton resource

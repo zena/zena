@@ -20,7 +20,7 @@ module ApplicationHelper
   # Date selection tool
 	def date_box(obj, var, opts = {})
 	  rnd_id = rand(100000000000)
-	  defaults = {  :id=>"datef#{rnd_id}", :button=>"dateb#{rnd_id}", :display=>"dated#{rnd_id}", :class=>var.to_s }
+	  defaults = {  :id=>"datef#{rnd_id}", :button=>"dateb#{rnd_id}", :display=>"dated#{rnd_id}" }
 	  opts = defaults.merge(opts)
 	  date = eval("@#{obj} ? @#{obj}.#{var} : nil") || Time.now.utc
 	  value = tformat_date(date,'datetime')
@@ -507,7 +507,7 @@ module ApplicationHelper
         content << "<tr class='body'>"
         week.step(week+6,1) do |day|
           # each day
-          content << "<td#{ calendar_class(day,date)}#{day == Date.today ? " id='#{size}_today'" : "" }><p>#{on_day.call(calendar[day.strftime("%Y-%m-%d")], day)}</p></td>"
+          content << "<td#{ calendar_class(day,date)}#{day == Date.today ? " id='#{size}_today'" : "" }>#{on_day.call(calendar[day.strftime("%Y-%m-%d")], day)}</td>"
         end
         content << '</tr>'
       end
@@ -548,7 +548,7 @@ module ApplicationHelper
       opts[:link] = (obj[:id] != @node[:id]) ? 'true' : nil
     end
     unless opts.include?(:project)
-      opts[:project] = (obj[:project_id] != @node.get_project_id && obj[:id] != @node[:id]) 
+      opts[:project] = (obj.get_project_id != @node.get_project_id && obj[:id] != @node[:id]) 
     end
     title = opts[:text] || obj.version.title
     if opts[:project]
@@ -994,17 +994,17 @@ ENDTXT
     case size
     when :tiny
       day_names = Date::ABBR_DAYNAMES
-      on_day    = Proc.new { |events, date| events ? "<b>#{date.day}</b>" : date.day }
+      on_day    = Proc.new { |events, date| events ? "<em>#{date.day}</em>" : date.day }
     when :large
       day_names = Date::DAYNAMES
       on_day    = Proc.new do |events, date|
         if events
           res = ["#{date.day}"]
           events.each do |e| #largecal_preview
-            res << "<div>" + link_to_remote(e.v_title.limit(14), 
+            res << "<p>" + link_to_remote(e.v_title.limit(14), 
                                   :update=>'largecal_preview',
                                   :url=>{:controller=>'note', :action=>'day_list', :id=>source[:id], :find=>method, 
-                                  :date=>date, :selected=>e[:zip] }) + "</div>"
+                                  :date=>date, :selected=>e[:zip] }) + "</p>"
           end
           res.join("\n")
         else

@@ -170,7 +170,7 @@ title_link_data_mode:
 show_parent_title:
   src: "<z:parent><h1 do='title'>parent title</h1></z:parent>"
   tem: "<% if var1 = @node.relation(\"parent\") -%><h1><%= show_title(:node=>var1)%></h1><% end -%>"
-  res: "<h1><span id='v_title21'><a href='/oo/projects/cleanWater.html'>zena / Clean Water project</a></span></h1>"
+  res: "<h1><span id='v_title21'><a href='/oo/projects/cleanWater.html'>Clean Water project</a></span></h1>"
 
 show_bad_attr:
   src: "my <z:show attr=':name'/>"
@@ -345,7 +345,7 @@ img_image:
 img_href:
   context:
     node: 'bird_jpg'
-  src: "<z:img href='self'/>"
+  src: "<z:img link='self'/>"
   res: "<a href='/oo/image30.html'><img src='/oo/image30_std.jpg' width='440' height='400' alt='bird' class='std'/></a>"
 
 img_src_id:
@@ -471,3 +471,17 @@ summary_or_text_no_summary:
     node: 'zena'
   src: "<z:summary or='v_text'/>"
   res: "<div id='v_text11' class='zazen'><p>This is the root of your peaceful tests.</p></div>"
+
+ztag_form_and_form:
+  src: |
+    <z:form>
+      <li class='inline_form'>
+        <form>
+          <input type='hidden' name='node[parent_id]' value='' do='void' set_value='[id]'/>
+          <z:input type='select' attr='klass' options='Page,Section,Project'/>
+          <input type='text' name='node[v_title]' value='' size='25'/>
+          <input type="submit" class="btn_validate" value='validate' do='void' tset_value='validate'/>
+        </form>
+      </li>
+    </z:form>
+  tem: ".."

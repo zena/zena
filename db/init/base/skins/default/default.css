@@ -78,7 +78,20 @@ h3 { color:#450009;}
 p, ul, ol, table, pre  { line-height:1.2; margin-bottom:1.5em; }
 ul ul, ul ol, ol ol, ol ul { margin-bottom:0; }
 
-input, textarea { border:1px inset grey; }
+
+/* inline forms */
+.inline_form { margin:2px; padding:3px; background:#9FA6AC; border:1px dotted grey; font-size:80%;}
+.inline_form input { padding:2px 4px; }
+.inline_form p { display:inline; }
+.inline_form .date_box { display:inline; }
+.inline_form .btn_x { float:right; }
+.inline_form .hidden { display:none; }
+.inline_form select { width:8em; }
+.inline_form .date_box input { width:12em; }
+.node_v_title input { font-weight:bold; }
+#notes .node_v_title input { width:20em; }
+#related .inline_form p { display:block; margin:0.3em 0; }
+#related .inline_form p.node_v_title { width:100%; font-size:1.2em; }
 
 /* navigation */
 #nav_main { background:#450009; font-size:0.85em; }
@@ -108,7 +121,9 @@ input, textarea { border:1px inset grey; }
 
 /* context, content, related */
 #context { }
-#content { }
+.header h1 { margin-bottom:0.3em; }
+.header .subtitle { font-size:0.8em; }
+.header { margin-bottom: 2em; padding-bottom:0.5em; }
 #related { border-left:1px solid grey; font-size:0.9em; }
 #related .group { font-size:1em; font-weight:normal;}
 #related ol { margin-left:1.5em; margin-bottom:0; }
@@ -122,12 +137,12 @@ input, textarea { border:1px inset grey; }
 /* notes */
 
 .note { padding:10px 3px 10px; border-left:4px solid white; border-top:1px solid #ddd;}
-.note .header { font-size:0.8em; color:#999;}
-.note .header p { float:left;}
-.note .title  { font:1em Helvetica, Arial, sans-serif; text-transform: uppercase; letter-spacing: 0.03em; font-weight:bold; color:#450009; width:316px; }
+.note .header { font-size:0.8em; color:#999; margin-bottom:0.5em; }
+.note .header p { float:left; padding-top:2px; }
 .note .header a { color:inherit;}
-.note .log_at { padding-top:2px; width:60px;}
-.note .zazen  { clear:both; }
+.note .title  { font:1em Helvetica, Arial, sans-serif; margin-top:0.3em; text-transform: uppercase; letter-spacing: 0.03em; font-weight:bold; color:#450009; width:316px; }
+.note .log_at { width:60px;}
+.note .zazen  { clear:both; font-size:0.85em; padding-left:60px; }
 
 /* tree */
 .tree    { font-size:0.9em; }
@@ -144,10 +159,10 @@ input, textarea { border:1px inset grey; }
 .tinycal table { border: 1px solid #CAD4DA; background:#F5F8F9; }
 .tinycal td { text-align:center; color:#333; }
 .tinycal a { color:inherit; }
-.tinycal b { border-bottom:2px solid orange; }
-.tinycal .head td { font-weight:bold; padding: 2px; font-size:0.9em; color:#655; }
+.tinycal em { border-bottom:2px solid orange; }
+.tinycal .head td { font-weight:bold; padding: 2px; line-height:1.5; font-size:0.9em; color:#655; padding:2px; text-align:center; }
 .tinycal .head td.button a { border:0; text-decoration:none; color:#568BB9;}
-.tinycal .body p { line-height:1.5; margin:0; padding:2px; text-align:center; cursor:pointer; }
+.tinycal .body td { height:1.8em; }
 .tinycal .body #tiny_today p { background:#CFD6DA; }
 .tinycal .body td.other, .tinycal .body td.other a { color:#ccc; }
 .tinycal .body td.sat, .tinycal .body td.sat a { color:#35950B; }
