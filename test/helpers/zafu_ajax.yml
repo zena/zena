@@ -6,5 +6,5 @@ default:
 
 show_edit:
   src: "<z:show attr='name' edit='true'/>"
-  tem: "<span id='/show/edit/list<%= @node[:zip] %>'><%= link_to_remote(@node.name, :url => edit_node_path(@node[:zip]) + \"?attribute=name&identifier=%2Fshow%2Fedit%2Flist#{@node[:zip]}\", :method => :get) %></span>"
-  res: "/span id='/show/edit/list22'>.*Ajax.Request('/nodes/22/edit?attribute=name/"
+  tem: "<span id='/show/edit/list_name<%= @node[:zip] %>'><%= link_to_remote(@node.name, :url => edit_node_path(@node[:zip]) + \"?attribute=name&identifier=%2Fshow%2Fedit%2Flist_name#{@node[:zip]}\", :method => :get) %></span>"
+  res: "/span id='/show/edit/list_name22'>.*Ajax\.Request\('/nodes/22/edit\?attribute=name/"

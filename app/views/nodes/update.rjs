@@ -5,7 +5,7 @@ else
     page.replace "#{params[:template_url]}#{@node[:zip]}", :file => fullpath_from_template_url + ".erb"
   elsif @update == 'attribute'
     attribute = params[:node].keys[0]
-    page.replace_html params[:identifier], link_to_remote(@node[attribute], :url => edit_node_path(@node[:zip]) + "?attribute=#{attribute}&identifier=#{CGI.escape(params[:identifier])}#{@node[:zip]}", :method => :get)
+    page.replace_html params[:identifier], link_to_remote(@node[attribute], :url => edit_node_path(@node[:zip]) + "?attribute=#{attribute}&identifier=#{CGI.escape(params[:identifier])}", :method => :get)
   elsif @update == 'edit'
     page.replace 'messages', :inline => flash_messages
     page << "opener.location.href = '/redirect?url=' + escape(opener.location.pathname);" # Safari bug

@@ -63,7 +63,8 @@ module Zena
         if @params[:tattr]
           "<%= trans(#{node_attribute(attribute)}) %>"
         elsif @params[:edit] == 'true' && @params[:attr]
-          name = unique_name
+          name = unique_name + '_' + attribute
+          # TODO: add can_drive? or can_write? clauses.
           "<span id='#{name}<%= #{node}[:zip] %>'><%= link_to_remote(#{node_attribute(attribute)}, :url => edit_node_path(#{node}[:zip]) + \"?attribute=#{attribute}&identifier=#{CGI.escape(name)}\#{#{node}[:zip]}\", :method => :get) %></span>"
         elsif @params[:attr]
           "<%= #{node_attribute(attribute)} %>"

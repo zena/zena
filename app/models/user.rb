@@ -124,7 +124,7 @@ class User < ActiveRecord::Base
   end
   
   def fullname
-    first_name + " " + name
+    (first_name ? (first_name + " ") : '') + name.to_s
   end
 
   def initials
