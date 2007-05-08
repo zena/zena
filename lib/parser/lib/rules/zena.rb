@@ -190,12 +190,11 @@ module Zena
       out "</div>"
     end
     
-    # TODO: test
     # TODO: replace with a more general 'zazen' or 'show' with id ?
     def r_summary
       unless @params[:or]
         text = @params[:text] ? @params[:text].inspect : node_attribute('v_summary')
-        "<div id='v_summary<%= #{node}.zip %>' class='zazen'><%= zazen(#{@params[:text].inspect}) %></div>"
+        "<div id='v_summary<%= #{node}.zip %>' class='zazen'><%= zazen(#{text}) %></div>"
       else
         first_name = 'v_summary'
         first  = node_attribute(first_name)
@@ -209,43 +208,6 @@ module Zena
         "<div id='#{second_name}<%= #{node}.zip %>' class='zazen'><%= zazen(#{second}, :limit=>#{limit}) %></div>" +
         "<% end %>"
       end
-        
-      # if opt[:as]
-      #   key = "#{opt[:as]}#{obj.v_id}"
-      #   preview_for = opt[:as]
-      #   opt.delete(:as)
-      # else
-      #   key = "#{sym}#{obj.v_id}"
-      # end
-      # if opt[:text]
-      #   text = opt[:text]
-      #   opt.delete(:text)
-      # else
-      #   text = obj.send(sym)
-      #   if (text.nil? || text == '') && sym == :v_summary
-      #     text = obj.v_text
-      #     opt[:images] = false
-      #   else
-      #     opt.delete(:limit)
-      #   end
-      # end
-      # if [:v_text, :v_summary].include?(sym)
-      #   if obj.kind_of?(TextDocument) && sym == :v_text
-      #     lang = obj.content_lang
-      #     lang = lang ? " lang='#{lang}'" : ""
-      #     text = "<code#{lang} class='full'>#{text}</code>"
-      #   end
-      #   text  = zazen(text, opt)
-      #   klass = " class='text'"
-      # else
-      #   klass = ""
-      # end
-      # if preview_for
-      #   render_to_string :partial=>'node/show_attr', :locals=>{:id=>obj[:id], :text=>text, :preview_for=>preview_for, :key=>key, :klass=>klass,
-      #                                                        :key_on=>"#{key}#{Time.now.to_i}_on", :key_off=>"#{key}#{Time.now.to_i}_off"}
-      # else
-      #   "<div id='#{key}'#{klass}>#{text}</div>"
-      # end
     end
     
     def r_show_author

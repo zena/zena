@@ -14,7 +14,7 @@
     <% unless @node.version.new_record? %>
     <div><%# FIXME = submit_to_remote('backup', transb('backup'), :url=>{:action => 'backup', :controller=>'version', :id=>@node.v_id}, :loading=>"$('loader').style.visibility = 'visible';") %></div>
     <% end -%>
-    <div><a href='#' onclick='uploader=window.open("<%# FIXME = url_for :controller=>'document', :action=>'new', :parent_id=>@node %>", "uploader", "location=1,width=400,height=300");uploader.opener = opener;return false;'><%= transb('btn_add_document')%></a></div>
+    <div><a href='#' onclick='uploader=window.open("<%= new_document_path(:parent_id=>@node[:zip])%>", "uploader", "location=1,width=400,height=300");uploader.opener = opener;return false;'><%= transb('btn_add_document')%></a></div>
   </div>
   <div class='readers'>
   <p><%= readers_for(@node) %></p></div>

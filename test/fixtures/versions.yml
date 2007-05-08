@@ -8,8 +8,8 @@ zena_en:
   user_id:        4
   comment:        no comment yet
   title:          Zena the wild CMS
-  summary:        no summary yet
-  text:           nothing written yet
+  summary:        ''
+  text:           This is the root of your peaceful tests.
   lang:           en
   number:         1
 <%= @defaults %>

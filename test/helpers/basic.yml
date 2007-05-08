@@ -448,6 +448,26 @@ tada:
     
     	<p>You are all invited to <strong>Romanel</strong> for a great party this weekend.</p></div>
 
+summary:
+  context:
+    node: 'zena'
+  src: "<z:summary/>"
+  res: "<div id='v_summary11' class='zazen'></div>"
+
+summary_exists:
+  src: "<z:summary/>"
+  res: "<div id='v_summary22' class='zazen'><p>status summary</p></div>"
+
 empty_summary:
   src: "<z:summary text=''/>"
   res: "<div id='v_summary22' class='zazen'></div>"
+
+summary_or_text_has_summary:
+  src: "<z:summary or='v_text'/>"
+  res: "<div id='v_summary22' class='zazen'><p>status summary</p></div>"
+
+summary_or_text_no_summary:
+  context:
+    node: 'zena'
+  src: "<z:summary or='v_text'/>"
+  res: "<div id='v_text11' class='zazen'><p>This is the root of your peaceful tests.</p></div>"

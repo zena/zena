@@ -289,7 +289,7 @@ module Zena
           return @version if @version
           
           if number && !new_record? && can_drive?
-            # TODO: test
+            # FIXME: IS NOT SECURE !!! does not work: test
             @version = versions.find_by_number(number)
           else
             if ! @version

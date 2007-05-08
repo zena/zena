@@ -88,7 +88,7 @@ module Zazen
     end
     
     def scan_quote
-      if @text =~ /\A"([^"]*)":([0-9]+)/m
+      if @text =~ /\A"([^"]*)":([0-9]+[^\s]*)/m
         eat $&
         # link inside the cms "":34
         store @helper.make_link(:title=>$1,:id=>$2)

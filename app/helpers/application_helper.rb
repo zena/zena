@@ -211,6 +211,7 @@ module ApplicationHelper
   # * [!14!:37] you can use an image as the source for a link
   # * [!14!:www.example.com] use an image for an outgoing link
   def zazen(text, opt={})
+    return '' unless text
     opt = {:images=>true, :pretty_code=>true}.merge(opt)
     img = opt[:images]
     if opt[:limit]
@@ -230,12 +231,20 @@ module ApplicationHelper
   
   # Creates a link to the node referenced by id
   def make_link(opts)
+    link_opts = {}
+    if opts[:id] =~ /(\d+)(_\w+|)(\.\w+|)/
+      opts[:id]     = $1
+      link_opts[:mode]   = ($2 != '') ? $2[1..-1] : nil
+      link_opts[:format] = ($3 != '') ? $3[1..-1] : nil
+    end
     node = secure(Node) { Node.find_by_zip(opts[:id]) }
     title = (opts[:title] && opts[:title] != '') ? opts[:title] : node.v_title
+    
+    link_opts[:format] = node.c_ext if link_opts[:format] == 'data'
     if opts[:id][0..0] == '0'
-      link_to title, zen_path(node), :popup=>true
+      link_to title, zen_path(node, link_opts), :popup=>true
     else
-      link_to title, zen_path(node)
+      link_to title, zen_path(node, link_opts)
     end
   rescue ActiveRecord::RecordNotFound
     "<span class='unknownLink'>#{trans('unknown link')}</span>"
@@ -298,7 +307,7 @@ module ApplicationHelper
     
     if link.nil?
       prefix + image + suffix
-    elsif link =~ /^\d+$/
+    elsif link =~ /^\d+/
       prefix + make_link(:id=>link,:title=>image) + suffix
     else
       link = "http://#{link}" unless link =~ %r{(^/|.+://.+)}

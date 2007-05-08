@@ -83,6 +83,14 @@ image_with_link:
   src: "!12.pv!:12"
   res: "<p>[make_image id:|12| images:true link:|12| size:|pv| style:||]</p>"
   
+image_with_link_mode:
+  src: "!12.pv!:20_changes"
+  res: "<p>[make_image id:|12| images:true link:|20_changes| size:|pv| style:||]</p>"
+  
+image_with_link_mode_and_format:
+  src: "!12.pv!:20_med.data"
+  res: "<p>[make_image id:|12| images:true link:|20_med.data| size:|pv| style:||]</p>"
+  
 image_with_http_link:
   src: "!12.pv!:http://www.example.org"
   res: "<p>[make_image id:|12| images:true link:|http://www.example.org| size:|pv| style:||]</p>"
@@ -94,6 +102,18 @@ image_with_ref:
 link_with_title:
   src: '"this is a title":23'
   res: '<p>[make_link id:|23| title:|this is a title|]</p>'
+
+link_with_mode:
+  src: 'I like "":20_med'
+  res: '<p>I like [make_link id:|20_med| title:||]</p>'
+
+link_with_format:
+  src: 'look "here":30.data'
+  res: '<p>look [make_link id:|30.data| title:|here|]</p>'
+    
+link_with_mode_and_format:
+  src: 'look "here":30_med.data'
+  res: '<p>look [make_link id:|30_med.data| title:|here|]</p>'
 
 link_no_title:
   src: '"":23'
