@@ -59,11 +59,7 @@ module ApplicationHelper
   def tlink_to_with_state(*args)
     title, url, options = *args
     options ||= {}
-    same = true
-    url.each do |k,v|
-      same &&= (params[k.to_s] == v.to_s)
-    end
-    if same
+    if request.path == url
       options[:class] = 'on'
     end
     tlink_to(title, url, options)

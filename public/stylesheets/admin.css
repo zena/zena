@@ -1,11 +1,11 @@
 .label { color:#560B0A;}
 
-#left ul { margin:70px 25px 0; border:1px solid #35462B; background:#eee;}
-#left li { padding:0;}
-#left li a { margin:0; border-top:1px solid #35462B; padding:10px 5px; font-size:0.9em; color:#560B0A;  display:block;}
-#left li:first-child a { border:0; }
-#left li a:hover { background:#C47330; }
-#left li a.on {background:#C28D61;}
+#context ul { margin:70px 25px 0; border:1px solid #35462B; background:#eee;}
+#context li { padding:0;}
+#context li a { margin:0; border-top:1px solid #35462B; padding:10px 5px; font-size:0.9em; color:#560B0A;  display:block;}
+#context li:first-child a { border:0; }
+#context li a:hover { background:#C47330; }
+#context li a.on {background:#C28D61;}
 
 #content h3 { margin:0 0 1em; font-size:1.6em; color:#C28D61;}
 

@@ -1,21 +1,18 @@
 <z:include template='layout.html'>
-  <z:with part='stylesheets' list='zen,comment,admin,search'/>
-  <z:with part='body/container/content'>
-    <div id="left" do='void' name='left'>
-      <h3>admin zafu</h3>
+  <z:with part='stylesheets' do='stylesheets' list='zen,comment,admin,search'/>
+  
+  <z:with part='body/container'>
+    <div id='context' do='void' name='context'>
       <ul>
         <li do='admin_links'><a href='#'>do this</a></li>
       </ul>
     </div>
-    
-    <div id="main" do='void' name='main'>
+    <z:content_for_layout>
+      <div id='content' do='void' name='content'>
+        <div id='main' do='void' name='main'></div>
 
-      <div class='content' id='content' do='content_for_layout' name='content'>
-        dummy content
+        <div id='related' do='void' name='related'></div>
       </div>
-
-      <div id="right" do='void' name='right'>
-      </div>
-    </div>
+    </z:content_for_layout>
   </z:with>
 </z:include>
