@@ -1,4 +1,3 @@
-
 =begin rdoc
 A version implements versioning and permits multiple publications (one for each language).
 
@@ -16,8 +15,13 @@ del (0):: this is like 'moved to trash'
 
 === Version attributes
 
+title:: Node title.
 comment:: The comment is a little word saying what this particular version is about or a full text on all the modifications done or to be done or anything usefull that should be communicated inside the team.
 text:: The text is the full content of a version. The text usually contains zazen formatted text (textile with additions). See Zazen for details.
+
+=== Dynamic attributes
+
+Any attribute written using version.dyn[:blah] = 'some text' is stored as a dynamic attribute. See DynAttributes for details.
 
 == Content
 If a we need to create a more sophisticated version class, all the required fields go in a 'content' class, like 

@@ -60,6 +60,12 @@ Any attribute starting with +v_+ is sent to the node's version. For example, thi
 Any method starting with +c_+ is sent directly to the node's content. For example, this is the recommended way to get an image's width :
 
  @node.c_width   # in a form: <%= text_field 'node', 'c_width' %>
+ 
+=== Dynamic attributes
+
+The Version class uses dynamic attributes. These let you add any attribute you like to the versions (see DynAttribute for details). These attributes can be accessed by using the +d_+ prefix :
+
+ @node.d_whatever  ===> @node.version.dyn[:whatever]
           
 === Attributes
 
@@ -91,7 +97,6 @@ max_status:: maximal status from all versions (see Version)
 kpath:: inheritance hierarchy. For example an Image has 'NPDI' (Node, Page, Document, Image), a Letter would have 'NNTL' (Node, Note, Task. Letter). This is used to optimize sql queries.
 fullpath:: cached full path made of ancestors' names (<gdparent name>/<parent name>/<self name>).
 basepath:: cached base path (the base path is used to build the url depending on the 'custom_base' flag).
-
 
 === Node url
 A node's url is made of it's class and +zip+. For the examples below, this is our site tree:

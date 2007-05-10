@@ -406,6 +406,8 @@ module Zena
                     return nil
                   end
                 end
+              elsif target == 'd_'
+                recipient.dyn[method] = args[0]
               else
                 begin
                   recipient.send(method,*args)
@@ -417,13 +419,17 @@ module Zena
             else
               # read
               recipient = version
-              recipient = recipient.content if target == 'c_'
-              return nil unless recipient
-              begin
-                recipient.send(method,*args)
-              rescue NoMethodError
-                # bad attribute
-                return nil
+              if target == 'd_'
+                version.dyn[method]
+              else
+                recipient = recipient.content if target == 'c_'
+                return nil unless recipient
+                begin
+                  recipient.send(method,*args)
+                rescue NoMethodError
+                  # bad attribute
+                  return nil
+                end
               end
             end
           else

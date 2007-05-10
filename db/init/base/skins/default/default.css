@@ -93,6 +93,9 @@ ul ul, ul ol, ol ol, ol ul { margin-bottom:0; }
 #related .inline_form p { display:block; margin:0.3em 0; }
 #related .inline_form p.node_v_title { width:100%; font-size:1.2em; }
 
+/* documents */
+#related a img { border:1px solid grey;}
+
 /* navigation */
 #nav_main { background:#450009; font-size:0.85em; }
 #nav_main a { color:white; }

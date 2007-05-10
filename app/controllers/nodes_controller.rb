@@ -70,6 +70,7 @@ class NodesController < ApplicationController
     respond_to do |format|
       
       format.html do
+        # FIXME: redirect if path is not correct.
         return redirect_to(zen_path(@node), :mode => params[:mode]) unless params[:path]
         render_and_cache 
       end
