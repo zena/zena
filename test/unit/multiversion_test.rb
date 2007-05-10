@@ -574,4 +574,15 @@ class MultiVersionTest < ZenaTestUnit
     trad = node.traductions
     assert_equal 1, trad.size
   end
+  
+  def test_dynamic_attributes
+    login(:lion)
+    node = secure(Node) { nodes(:status) }
+    node.d_bolo = 'spaghetti bolognese'
+    assert node.save, "Can save node"
+    
+    # reload
+    node = secure(Node) { nodes(:status) }
+    assert_equal 'spaghetti bolognese', node.d_bolo
+  end
 end

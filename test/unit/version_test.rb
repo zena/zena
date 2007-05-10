@@ -145,4 +145,33 @@ class VersionTest < ZenaTestUnit
     end
   end
   
+  def test_dynamic_attributes
+    login(:tiger)
+    node = secure(Node) { nodes(:status) }
+    version = node.send(:redaction)
+    assert_nothing_raised { version.dyn['zucchini'] = 'courgettes' }
+    assert_nothing_raised { version.d_zucchini = 'courgettes' }
+    assert_equal 'courgettes', version.d_zucchini
+    assert node.save
+    
+    node = secure(Node) { nodes(:status) }
+    version = node.version
+    assert_equal 'courgettes', version.d_zucchini
+  end
+  
+  def test_clone
+    login(:tiger)
+    node = secure(Node) { nodes(:status) }
+    assert node.update_attributes(:d_whatever => 'no idea')
+    assert_equal 'no idea', node.d_whatever
+    version1_id = node.version[:id]
+    assert node.publish
+    
+    node = secure(Node) { nodes(:status) }
+    assert node.update_attributes(:d_other => 'funny')
+    version2_id = node.version[:id]
+    assert_not_equal version1_id, version2_id
+    assert_equal 'no idea', node.d_whatever
+    assert_equal 'funny', node.d_other
+  end
 end

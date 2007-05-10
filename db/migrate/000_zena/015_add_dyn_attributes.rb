@@ -6,9 +6,13 @@ class AddDynAttributes < ActiveRecord::Migration
       t.column 'key', :string
       t.column 'value', :text
     end
+    add_index 'dyn_attributes', 'owner_id'
+    add_index 'dyn_attributes', 'owner_table'
   end
 
   def self.down
+    remove_index 'dyn_attributes', 'owner_id'
+    remove_index 'dyn_attributes', 'owner_table'
     drop_table 'dyn_attributes'
   end
 end

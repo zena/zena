@@ -1,0 +1,1 @@
+require 'dyn_attributes'

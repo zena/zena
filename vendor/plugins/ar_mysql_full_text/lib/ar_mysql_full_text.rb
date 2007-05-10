@@ -50,7 +50,9 @@ module ActiveRecord
           if current_index != row[2]
             next if row[2] == "PRIMARY" # skip the primary key
             current_index = row[2]
-            indexes << MySQLIndexDefinition.new(row[0], row[2], row[1] == "0", [], row[10])
+            index_type = row[10]
+            index_type = '' if index_type == 'BTREE'
+            indexes << MySQLIndexDefinition.new(row[0], row[2], row[1] == "0", [], index_type)
           end
 
           indexes.last.columns << row[4]

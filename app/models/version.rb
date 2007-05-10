@@ -36,7 +36,7 @@ class Version < ActiveRecord::Base
   validate              :valid_version
   validate_on_update    :can_update_content
   after_save            :save_content
-  
+  uses_dynamic_attributes
   # not tested belongs_to :comment_group, :class_name=>'Group', :foreign_key=>'cgroup_id'
   # not tested has_many :comments, :order=>'created_at'
   
@@ -118,6 +118,13 @@ class Version < ActiveRecord::Base
   # this content is stored in a delegate 'content' object found with the 'content_class' class method
   def content_class
     nil
+  end
+  
+  def clone
+    obj = super
+    # clone dynamic attributes
+    obj.dyn = self.dyn
+    obj
   end
   
   private

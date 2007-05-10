@@ -496,8 +496,11 @@ END_TXT
             @html_tag_params.merge!(id_hash)
             render_html_tag(expand_with)
           else
-            add_params(res, id_hash)
+            add_params(expand_with, id_hash)
           end
+        else
+          # error, no list
+          "<span class='parser_error'>each not in list context</span>"
         end
       end
     end

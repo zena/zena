@@ -240,7 +240,7 @@ preserve_newlines:
 
 names:
   src: "<p do='void' name='root'><p do='inspect' name='first'/><p do='inspect' name='second'/></p>"
-  res: "<p>[inspect {> :name=>'root/first'}]<p/>[/inspect][inspect {> :name=>'root/second'}]<p/>[/inspect]</p>"
+  res: "<p>[inspect {= :name=>'first'} {> :name=>'root/first'}]<p/>[/inspect][inspect {= :name=>'second'} {> :name=>'root/second'}]<p/>[/inspect]</p>"
 
 default_tag:
   src: "<z:void class='test'>blah</z:void>"

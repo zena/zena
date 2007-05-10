@@ -83,6 +83,18 @@ ActiveRecord::Schema.define(:version => 0) do
     t.column "site_id",      :integer
   end
 
+  create_table "dyn_attributes", :force => true do |t|
+    t.column "owner_id",    :integer
+    t.column "owner_table", :string
+    t.column "key",         :string
+    t.column "value",       :text
+  end
+
+  execute "ALTER TABLE dyn_attributes ENGINE = MyISAM"
+  execute "CREATE  INDEX index_dyn_attributes_on_owner_id ON dyn_attributes (owner_id)"
+  execute "ALTER TABLE dyn_attributes ENGINE = MyISAM"
+  execute "CREATE  INDEX index_dyn_attributes_on_owner_table ON dyn_attributes (owner_table)"
+
   create_table "groups", :force => true do |t|
     t.column "created_at", :datetime
     t.column "updated_at", :datetime
@@ -161,6 +173,11 @@ ActiveRecord::Schema.define(:version => 0) do
     t.column "tkpath",    :string
     t.column "klass",     :string
     t.column "mode",      :string
+  end
+
+  create_table "tmp", :id => false, :force => true do |t|
+    t.column "a", :string, :limit => 50
+    t.column "b", :string, :limit => 50
   end
 
   create_table "trans_phrases", :force => true do |t|

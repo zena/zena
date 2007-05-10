@@ -380,10 +380,10 @@ module Zena
         # Any attribute starting with 'v_' belongs to the 'version' or 'redaction'
         # Any attribute starting with 'c_' belongs to the 'version' or 'redaction' content
         def method_missing(meth, *args)
-          if meth.to_s =~ /^(v_|c_)(([\w_\?]+)(=?))$/
+          if meth.to_s =~ /^(v_|c_|d_)(([\w_\?]+)(=?))$/
             target = $1
-            method = $2.to_sym
-            value  = $3.to_sym
+            method = $2
+            value  = $3
             mode   = $4
             if mode == '='
               # set
@@ -407,7 +407,7 @@ module Zena
                   end
                 end
               elsif target == 'd_'
-                recipient.dyn[method] = args[0]
+                recipient.dyn[method[0..-2]] = args[0]
               else
                 begin
                   recipient.send(method,*args)

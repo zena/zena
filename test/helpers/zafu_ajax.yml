@@ -8,3 +8,23 @@ show_edit:
   src: "<z:show attr='name' edit='true'/>"
   tem: "<span id='/show/edit/list_name<%= @node[:zip] %>'><%= link_to_remote(@node.name, :url => edit_node_path(@node[:zip]) + \"?attribute=name&identifier=%2Fshow%2Fedit%2Flist_name#{@node[:zip]}\", :method => :get) %></span>"
   res: "/span id='/show/edit/list_name22'>.*Ajax\.Request\('/nodes/22/edit\?attribute=name/"
+
+edit_not_each:
+  src: "<li class='blah'>this is a post <z:edit>edit post</z:edit></li>"
+  tem: "/<li class='blah'>this is a post </li>/"
+
+edit_each_no_form:
+  src: "<z:children><li do='each'>blah <z:edit>do this and that</z:edit></li></z:children>"
+  tem: "/<li>blah </li>/"
+
+each_add_with_form:
+  context:
+    node: 'wiki'
+  src: "<z:children><z:each><li do='show' attr='name'>blah</li>\n</z:each><z:add><li>add new</li></z:add><z:form><li><form>this is the form</form></li></z:form></z:children>"
+  res: "/<li.*list30.*>bird.*<li.*list31.*>flower.*<li.*list_add.*list_form.*toggle.*<li .*list_form.*style.*none.*Ajax.Request.*input type='hidden' name='template_url' value='/each/add/with/form/list'/"
+
+each_edit_with_form:
+  context:
+    node: 'wiki'
+  src: "<z:children><z:each><li><z:show attr='name'>blah</z:show> <z:edit>edit</z:edit></li>\n</z:each><z:form><li><form>this is the form</form></li></z:form></z:children>"
+  res: "/<li id='/each/edit/with/form/list30'>bird <a href=\"#\" onclick=\"new Ajax.Request\('/nodes/30/edit\?template_url=%2Feach%2Fedit%2Fwith%2Fform%2Flist/"

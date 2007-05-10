@@ -8,7 +8,7 @@ class HelperTest
   Section # make sure we load Section links before trying relations
   
   def test_single
-    do_test('zafu_ajax', 'show_edit')
+    do_test('zafu_ajax', 'edit_each_no_form')
   end
   
   def test_basic_show_bad_attr

@@ -287,26 +287,6 @@ each_join:
   src: "<z:children><z:each join=', '><z:show attr='name'/></z:each></z:children>"
   res: "bird, flower"
 
-edit_not_each:
-  src: "<li class='blah'>this is a post <z:edit>edit post</z:edit></li>"
-  tem: "/<li class='blah'>this is a post </li>/"
-
-edit_each_no_form:
-  src: "<z:each><li>blah <z:edit>do this and that</z:edit></li>"
-  tem: "/<li>blah </li>"
-
-each_add_with_form:
-  context:
-    node: 'wiki'
-  src: "<z:children><z:each><li do='show' attr='name'>blah</li>\n</z:each><z:add><li>add new</li></z:add><z:form><li><form>this is the form</form></li></z:form></z:children>"
-  res: "/<li>bird.*<li>flower.*<li.*list_add.*list_form.*toggle.*<li .*list_form.*style.*none.*Ajax.Request.*input type='hidden' name='template_url' value='/each/add/with/form/list'/"
-  
-each_edit_with_form:
-  context:
-    node: 'wiki'
-  src: "<z:children><z:each><li><z:show attr='name'>blah</z:show> <z:edit>edit</z:edit></li>\n</z:each><z:form><li><form>this is the form</form></li></z:form></z:children>"
-  res: "/<li id='/each/edit/with/form/list30'>bird <a href=\"#\" onclick=\"new Ajax.Request\('/nodes/30/edit\?template_url=%2Feach%2Fedit%2Fwith%2Fform%2Flist/"
-
 set_attribute:
   src: "<div class='machin' do='void' set_class='node[id]'/><z:void set_class='s[v_status]i[id]'/>"
   res: "<div class='node22'></div><div class='s50i22'></div>"
