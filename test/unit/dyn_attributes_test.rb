@@ -139,4 +139,30 @@ class DynAttributesTest < Test::Unit::TestCase
     end
     assert_nil record2.d_lobotomize
   end
+  
+  def test_dyn_update_with
+    assert record  = DynDummy.create(:title => 'lolipop', :text=>'', :comment=>'', :summary=>'', :d_color=>'blue', :d_life=>'fun', :d_shoes=>'worn')
+    proxy = record.dyn
+    keys = proxy.instance_variable_get(:@keys)
+    
+    record.dyn = {:color => 'yellow', :lobotomize=>'me'}
+    assert record.save, "Can save modified record"
+    
+    record = DynDummy.find(record[:id]) # reload
+    proxy = record.dyn
+    new_keys = proxy.instance_variable_get(:@keys)
+    assert_equal 'yellow', record.dyn['color']
+    assert_equal 'me', record.dyn['lobotomize']
+    assert_nil record.dyn['life']
+    assert_nil record.dyn['shoes']
+  end
+  
+  def test_set_with_hash
+    assert record  = DynDummy.create(:title => 'lolipop', :text=>'', :comment=>'', :summary=>'')
+    record.dyn = {:fingers => 'hurt'}
+    assert record.save, "Can save"
+    
+    record = DynDummy.find(record[:id]) # reload
+    assert_equal 'hurt', record.d_fingers
+  end
 end

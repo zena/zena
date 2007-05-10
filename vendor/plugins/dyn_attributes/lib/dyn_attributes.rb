@@ -88,6 +88,11 @@ module Zena
       clone
     end
     
+    def update_with(new_hash)
+      hash # make sure current elements are loaded
+      @hash = Hash[*new_hash.dup.map{|k,v| [k.to_s,v]}.flatten]
+    end
+    
     private
       def valid_key?(key)
         @options[:only].nil? || @options[:only].include?(key.to_sym)
@@ -121,7 +126,7 @@ module Zena
       module VERSION #:nodoc:
         MAJOR = 0
         MINOR = 2
-        TINY  = 0
+        TINY  = 1
 
         STRING = [MAJOR, MINOR, TINY].join('.')
       end
@@ -155,7 +160,11 @@ module Zena
         end
         
         def dyn=(dyn_attributes)
-          @dyn_attributes = dyn_attributes.clone_for(self, self.class.dyn_attribute_options)
+          if dyn_attributes.kind_of?(DynAttributeProxy)
+            @dyn_attributes = dyn_attributes.clone_for(self, self.class.dyn_attribute_options)
+          else
+            dyn.update_with(dyn_attributes)
+          end
         end
         
         private
