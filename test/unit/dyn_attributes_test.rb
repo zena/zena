@@ -165,4 +165,14 @@ class DynAttributesTest < Test::Unit::TestCase
     record = DynDummy.find(record[:id]) # reload
     assert_equal 'hurt', record.d_fingers
   end
+  
+  def test_delete
+    assert record  = DynDummy.create(:title => 'lolipop', :text=>'', :comment=>'', :summary=>'', :d_life=>'fun', :d_joy=>'weird')
+    assert_equal 'weird', record.dyn.delete(:joy)
+    assert_nil record.d_joy
+    assert record.save
+    record = DynDummy.find(record[:id]) # reload
+    assert_nil record.d_joy
+    assert_equal 'fun', record.d_life
+  end
 end

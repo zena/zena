@@ -46,6 +46,10 @@ module Zena
       hash.each {|e| yield(e) }
     end
     
+    def delete(key)
+      hash.delete(key.to_s)
+    end
+    
     def save
       return unless @hash
       add = []

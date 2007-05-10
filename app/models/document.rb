@@ -111,14 +111,17 @@ class Document < Page
         # set with title
         base = version.title
       end
-      if base =~ /\./
-        self[:name] = base.split('.')[0..-2].join('.')
-        ext  = base.split('.').last
+      if base =~ /(.*)\.(\w+)$/
+        self[:name] = $1
+        ext         = $2
+      else
+        ext         = nil
       end
-      content[:name] = self[:name]
+      
+      content[:name] = self[:name].sub(/\.*$/,'') # remove trailing dots
       content.ext    = ext
     else
-      # when cannot use 'old' here as this record is not secured when spreading inheritance
+      # we cannot use 'old' here as this record is not secured when spreading inheritance
       if self[:name] != self.class.find(self[:id])[:name] && self[:name] && self[:name] != ''
         # FIXME: name is not important (just used to find file in case db crash: do not sync.)
         # update all content names :
@@ -129,7 +132,7 @@ class Document < Page
             v.node = self # preload so the relation to 'self' is kept
           end
           content = v.content
-          content.name = self[:name]
+          content.name = self[:name].sub(/\.*$/,'') # remove trailing dots
           content.save
         end
       end

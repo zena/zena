@@ -168,7 +168,6 @@ class Version < ActiveRecord::Base
         end
       end
       if content_class
-        content[:name]    = node[:name]
         content[:site_id] = self[:site_id]
       end
     end

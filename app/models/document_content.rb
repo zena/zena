@@ -79,9 +79,9 @@ class DocumentContent < ActiveRecord::Base
   # Path to store the data. The path is build with the version id so we can do the security checks when uploading data.
   def filepath(format=nil)
     raise StandardError, "version not set" unless self[:version_id]
-    name = filename(format)
-    return nil unless name # can happen if the format is not valid
-    "#{SITES_ROOT}#{site.data_path}/#{ext}/#{self[:version_id]}/#{name}"
+    fname = filename(format)
+    return nil unless fname # can happen if the format is not valid
+    "#{SITES_ROOT}#{site.data_path}/#{ext}/#{self[:version_id]}/#{fname}"
   end
   
   private

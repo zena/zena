@@ -153,4 +153,22 @@ class DocumentTest < ZenaTestUnit
       assert_equal "#{SITES_ROOT}/test.host/data/pdf/#{last_id}/water.pdf", doc.c_filepath
     end
   end 
+  
+  
+  def test_create_with_file_name_has_dots
+    without_files('/test.host/data/pdf') do
+      login(:ant)
+      doc = secure(Document) { Document.create( :parent_id=>nodes_id(:cleanWater),
+                                                :name=>'report...', 
+                                                :c_file => uploaded_pdf('water.pdf') ) }
+      assert_kind_of Document , doc
+      assert ! doc.new_record? , "Not a new record"
+      assert_equal "report...", doc.name
+      assert_equal "report...", doc.v_title
+      assert_equal 'report', doc.c_name
+      assert_equal "report.pdf", doc.c_filename
+      assert_equal 'pdf', doc.c_ext
+    end
+  end
+  
 end
