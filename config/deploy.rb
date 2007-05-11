@@ -1,17 +1,34 @@
-# Deployment 'recipe' for capistrano. Creates everything for your zena app
-# is assumed: mysql root user has the same password as ssh
-# you are using apache 2.2+ (using balance_proxy)
+=begin
 
-#================= EDIT THE FOLLOWING SETTINGS ===#
+Deployment 'recipe' for capistrano. Creates everything for your zena app.
+
+Assumed: 
+  - mysql root user has the same password as ssh
+  - you are using apache 2.2+ (using balance_proxy)
+  - server is running debian etch
+  - you have installed subversion on the server (aptitude install subversion)
+  - you have installed mysql on the server (aptitude install mysql...)
+  - you have installed the required dependencies (see main README file)
+  
+========== USAGE ==========
+
+1. Copy the file 'deploy_config_example.rb' to 'deploy_config.rb' and edit the entries in this new file.
+2. Run => cap initial_setup
+3. Run => cap mksite -s host='example.com' -s password='secret'
+
+If anything goes wrong, ask the mailing list (lists.zenadmin.org) or read the content of this file to understand what whent wrong...
+
+
+=end
+
 load File.join(File.dirname(__FILE__), 'deploy_config')
+
 #================= ADVANCED SETTINGS =============#
 
 set :deploy_to,    "/var/zena"
-set :repository,   "http://svn.zenadmin.org/zena/trunk"
-set :db_name,      "#{application.gsub(/\W/,'_')}"
-role :web,         "root@#{apache2_ip}"
-role :app,         "root@#{apache2_ip}"
-role :db,          "root@#{apache2_ip}", :primary => true
+role :web,         "root@#{server_ip}"
+role :app,         "root@#{server_ip}"
+role :db,          "root@#{server_ip}", :primary => true
 set :apache2_deflate,       true
 set :apache2_debug_deflate, false
 set :apache2_debug_rewrite, false
@@ -42,36 +59,43 @@ task :push, :roles => :app do
 end
 
 desc "after code update"
-task :after_update_current, :roles => :app do
-  db_update_config
+task :after_update_code, :roles => :app do
+  symlink
   app_update_symlinks
-  set_permissions
-  run "#{in_deploy} rake bricks:migrate RAILS_ENV=production"
+  db_update_config
+  migrate
+end
+
+desc "after current code update"
+task :after_update_current, :roles => :app do
+  after_update_code
   restart
 end
 
 desc "update symlinks"
 task :app_update_symlinks, :roles => :app do
-  set_permissions
+  run "rm -rf #{deploy_to}/current/sites"
   run "ln -sf /var/www/zena #{deploy_to}/current/sites"
+  set_permissions
 end
 
-desc "migrate database (bricks version)"
+desc "migrate database (zena version)"
 task :migrate, :roles => :db do
-  run "#{in_deploy} rake bricks:migrate RAILS_ENV=production"
+  run "#{in_deploy} rake zena:migrate RAILS_ENV=production"
 end
 
 desc "initial app setup"
 task :app_setup, :roles => :app do
-  run "test -e #{deploy_to} || mkdir #{deploy_to}"
-  setup
+  run "test -e #{deploy_to}  || mkdir #{deploy_to}"
   run "test -e /var/www/zena || mkdir /var/www/zena"
+  setup
 end
 #========================== MANAGE HOST   =========================#
 desc "create a new site"
 task :mksite, :roles => :app do
   run "#{in_deploy} rake zena:mksite HOST='#{self[:host]}' PASSWORD='#{self[:password]}' RAILS_ENV=production"
-  vhost_update
+  create_vhost
+  set_permissions
 end
 
 
@@ -98,9 +122,9 @@ end
 
 #========================== APACHE2 ===============================#
 desc "Update vhost configuration file"
-task :vhost_update, :roles => :web do
+task :create_vhost, :roles => :web do
   unless self[:host]
-    puts "HOST not set (use -s HOST=...)"
+    puts "HOST not set (use -s host=...)"
   else
     vhost = render("config/vhost.rhtml", 
                   :host        => self[:host],
@@ -157,8 +181,6 @@ desc "initial database setup"
 task :db_setup, :roles => :db do
   transaction do
     db_create
-    db_update_config
-    migrate
   end
 end
 
@@ -166,13 +188,13 @@ end
 desc "Full initial setup"
 task :initial_setup do
   app_setup
+  
+  db_setup
+  
   update_code
-  symlink
   
   mongrel_setup
 
-  db_setup
-  
   apache2_setup
   
   set_permissions
