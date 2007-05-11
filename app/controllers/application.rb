@@ -48,17 +48,21 @@ class ApplicationController < ActionController::Base
           if session[:host] == request.host
             # host hasn't changed, set visitor and site
             @visitor = User.find(session[:user])
-            @visitor.site = Site.find(:first, :conditions=>["host = ? ",request.host]) # raises RecordNotFound if site not found
+            site = Site.find(:first, :conditions=>["host = ? ",request.host]) # raises RecordNotFound if site not found
+            raise ActiveRecord::RecordNotFound unless site
+            @visitor.site = site
           else
             # changed host
             if site = Site.find(:first, :select=>"sites.*", :from=>"sites, users_sites", :conditions=>["users_sites.site_id = sites.id AND host = ? AND users_sites.user_id = ?",request.host,session[:user]])
               # current user is in the new site
               @visitor = User.find(session[:user])
               @visitor.site = site
+            else
+              raise ActiveRecord::RecordNotFound
             end
           end
         rescue ActiveRecord::RecordNotFound
-          # user was not in host or bad session id
+          # user was not in host or bad session id or bad host
           @visitor = nil
         end
       end
