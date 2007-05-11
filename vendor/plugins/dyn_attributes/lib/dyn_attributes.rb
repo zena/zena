@@ -37,9 +37,10 @@ module Zena
       hash[key.to_s]
     end
     
+    # empty values are considered as nil
     def []=(key,value)
       return unless valid_key?(key)
-      hash[key.to_s] = value
+      hash[key.to_s] = (value && value != '') ? value : nil
     end
     
     def each
@@ -99,7 +100,7 @@ module Zena
     
     private
       def valid_key?(key)
-        @options[:only].nil? || @options[:only].include?(key.to_sym)
+        key && key != '' && (@options[:only].nil? || @options[:only].include?(key.to_sym))
       end
       
       def connection
@@ -130,7 +131,7 @@ module Zena
       module VERSION #:nodoc:
         MAJOR = 0
         MINOR = 2
-        TINY  = 1
+        TINY  = 2
 
         STRING = [MAJOR, MINOR, TINY].join('.')
       end

@@ -219,6 +219,7 @@ module Zena
         end
         
         # Set +publish_from+ to the minimum publication time of all editions
+        # TODO: OPTIMIZATION: "UPDATE nodes SET publish_from = (select versions.publish_from from versions WHERE nodes.id=versions.node_id and versions.status = 50 order by versions.publish_from DESC) WHERE id = #{id}"
         def update_publish_from
           return true if self[:publish_from] == version[:publish_from] && version[:status] == Zena::Status[:pub]
           result  = versions.find(:first, :conditions=>"status = #{Zena::Status[:pub]}", :order=>"publish_from ASC")
@@ -230,6 +231,7 @@ module Zena
         end
         
         # Set +publish_from+ to the minimum publication time of all editions
+        # TODO: OPTIMIZATION: "UPDATE nodes SET max_status = (select versions.status from versions WHERE nodes.id=versions.node_id order by versions.status DESC) WHERE id = #{id}"
         def update_max_status(version = self.version)
           return true if version[:status] == max_status
           result = versions.find(:first, :order=>"status DESC")

@@ -175,4 +175,13 @@ class DynAttributesTest < Test::Unit::TestCase
     assert_nil record.d_joy
     assert_equal 'fun', record.d_life
   end
+  
+  
+  def test_empty_key_empty_value
+    assert record  = DynDummy.create(:title => 'lolipop', :text=>'', :comment=>'', :summary=>'', :d_=>'bad', :d_og=>'')
+    assert !record.new_record?
+    assert_nil record.d_
+    assert_nil record.d_og
+    assert_nil record.dyn['']
+  end
 end

@@ -16,6 +16,8 @@ The prefered syntax is through dyn[...] because it does not use 'method_missing'
 
   record.update_attributes(:name=>'john', :d_bio=>'John Lennon was a ...')
 
+Empty values ('') are considered as nil. So if you set dyn['life'] = '', you are actually doing the same as dyn.delete('life') or dyn['life'] = nil.
+
 If you want to protect the dynamic attributes allowed for a specific class, you can use
 
   class Person < ActiveRecord::Base

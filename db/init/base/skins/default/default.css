@@ -78,7 +78,8 @@ h3 { color:#450009;}
 p, ul, ol, table, pre  { line-height:1.2; margin-bottom:1.5em; }
 ul ul, ul ol, ol ol, ol ul { margin-bottom:0; }
 
-
+.zazen b, .zazen strong { font-weight:bold;  }
+.zazen i, .zazen em     { font-style:italic; }
 /* inline forms */
 .inline_form { margin:2px; padding:3px; background:#9FA6AC; border:1px dotted grey; font-size:80%; display:table;}
 .inline_form input { padding:2px 4px; }

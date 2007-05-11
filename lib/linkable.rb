@@ -374,7 +374,7 @@ on the post edit page :
               def #{method}=(objs)
                 @#{meth}_ids = objs ? objs.map{|obj| obj[:id]} : []
               end
-              def #{meth}_ids; res = #{method}; res ? res.map{|r| r[:id]} : nil; end
+              def #{meth}_ids; res = #{method}; res ? res.map{|r| r[:id]} : []; end
               
               # link can be changed if user can write in old and new
               # 1. can remove old links
