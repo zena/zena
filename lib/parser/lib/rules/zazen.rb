@@ -66,7 +66,7 @@ module Zazen
         if @context[:images]
           store @helper.make_gallery($1)
         else
-          store @helper.trans('[gallery]')
+          store @helper._('[gallery]')
         end
       elsif @text =~ /\A\!([^0-9]{0,2})\{([^\}]*)\}\!/m
         # list of documents !<.{...}!
@@ -74,7 +74,7 @@ module Zazen
         if @context[:images]
           store @helper.list_nodes(:style=>$1, :ids=>$2)
         else
-          store @helper.trans('[documents]')
+          store @helper._('[documents]')
         end
       elsif @text =~ /\A\!([^0-9]{0,2})([0-9]+)(\.([^\/\!]+)|)(\/([^\!]*)|)\!(:([^\s]+)|)/m
         # image !<.12.pv/blah blah!:12

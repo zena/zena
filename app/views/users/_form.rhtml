@@ -2,9 +2,9 @@
   <%= 
   user_id = @user[:id]
   if @user[:id]
-    tlink_to_remote 'btn_x', :url=>{:controller=>'user', :action=>'show', :id=>user_id}
+    link_to_remote _('btn_x'), :url=>{:controller=>'user', :action=>'show', :id=>user_id}
   else
-    tlink_to_function 'btn_x', "['add_user', 'add_user_form'].each(Element.toggle)"
+    link_to_function _('btn_x'), "['add_user', 'add_user_form'].each(Element.toggle)"
   end %>
 </td>
 <td class="add_ug" colspan="3">
@@ -16,23 +16,23 @@
   <% end %>
   <table cellspacing='0'>
     <% unless user_id == 1 -%>
-    <tr><td class='label'><%= trans("login")%>      </td><td><%= text_field('user', 'login',        :size=>15 ) %></td></tr>
+    <tr><td class='label'><%= _("login")%>      </td><td><%= text_field('user', 'login',        :size=>15 ) %></td></tr>
     <% if @user[:id] -%>
-    <tr id='user<%= user_id %>_pass'><td colspan='2' class='label'><%= tlink_to_function 'change password', "['user#{user_id}_pass', 'user#{user_id}_set_pass'].each(Element.toggle); $('user#{user_id}_password').focus();" %>   </td></tr>
-    <tr id='user<%= user_id %>_set_pass' style='display:none;'><td><%= tlink_to_function 'cancel', "['user#{user_id}_pass', 'user#{user_id}_set_pass'].each(Element.toggle); $('user#{user_id}_password').value='';" %></td><td><%= trans("password")%> <%= password_field('user', 'password', :size=>15, :id=>"user#{user_id}_password", :value=>"" ) %></td></tr>
+    <tr id='user<%= user_id %>_pass'><td colspan='2' class='label'><%= link_to_function _('change password'), "['user#{user_id}_pass', 'user#{user_id}_set_pass'].each(Element.toggle); $('user#{user_id}_password').focus();" %>   </td></tr>
+    <tr id='user<%= user_id %>_set_pass' style='display:none;'><td><%= link_to_function _('cancel'), "['user#{user_id}_pass', 'user#{user_id}_set_pass'].each(Element.toggle); $('user#{user_id}_password').value='';" %></td><td><%= _("password")%> <%= password_field('user', 'password', :size=>15, :id=>"user#{user_id}_password", :value=>"" ) %></td></tr>
     <% else -%>
-      <tr id='user_set_pass'><td class='label'><%= trans("password")%></td><td><%= password_field('user', 'password', :size=>15, :value=>"" ) %></td></tr>
+      <tr id='user_set_pass'><td class='label'><%= _("password")%></td><td><%= password_field('user', 'password', :size=>15, :value=>"" ) %></td></tr>
     <% end -%>
     <% end -%>
-    <tr><td class='label'><%= trans("first name")%> </td><td><%= text_field('user', 'first_name',   :size=>35 ) %></td></tr>
-    <tr><td class='label'><%= trans("name")%>       </td><td><%= text_field('user', 'name',         :size=>35 ) %></td></tr>
-    <tr><td class='label'><%= trans('language')%>   </td><td><%= select('user', 'lang', visitor.site.lang_list.map {|l| [transb(l),l]}, :value=>(@user[:lang] ? @user[:lang] : session[:lang]) ) %></td></tr>
-    <tr><td class='label'><%= trans("time zone")%>  </td><td><%= time_zone_select('user', 'time_zone', nil, :value=>(@user[:time_zone] ? @user[:time_zone] : visitor[:time_zone])) %></td></tr>
+    <tr><td class='label'><%= _("first name")%> </td><td><%= text_field('user', 'first_name',   :size=>35 ) %></td></tr>
+    <tr><td class='label'><%= _("name")%>       </td><td><%= text_field('user', 'name',         :size=>35 ) %></td></tr>
+    <tr><td class='label'><%= _('language')%>   </td><td><%= select('user', 'lang', visitor.site.lang_list.map {|l| [_(l),l]}, :value=>(@user[:lang] ? @user[:lang] : session[:lang]) ) %></td></tr>
+    <tr><td class='label'><%= _("time zone")%>  </td><td><%= time_zone_select('user', 'time_zone', nil, :value=>(@user[:time_zone] ? @user[:time_zone] : visitor[:time_zone])) %></td></tr>
     <% unless user_id == 1 -%>
-    <tr><td class='label'><%= trans("email")%>      </td><td><%= text_field('user', 'email',        :size=>35 ) %></td></tr>
+    <tr><td class='label'><%= _("email")%>      </td><td><%= text_field('user', 'email',        :size=>35 ) %></td></tr>
     <% end -%>
     <% unless user_id == 2 || user_id == 1 -%>
-    <tr><td class='label'><%= trans("groups")%>     </td><td>
+    <tr><td class='label'><%= _("groups")%>     </td><td>
     <%= @groups.inject([]) do |list, g|
           if g[:id] == 1 || g[:id] == 3
             list << "<input type='checkbox' name='groups[#{g.id}]' value='#{g.id}' class='box' checked='1' disabled='1' />#{g.name}"
@@ -42,7 +42,7 @@
           list
         end.join(" ") %></td></tr>
     <% end -%>
-    <tr><td colspan='2'><p class='btn_validate'><input type='submit' value='<%= transb('validate') %>'/></p></td></tr>
+    <tr><td colspan='2'><p class='btn_validate'><input type='submit' value='<%= _('validate') %>'/></p></td></tr>
   </table>
   </form>
 </td>

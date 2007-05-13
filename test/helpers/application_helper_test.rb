@@ -152,25 +152,10 @@ class ApplicationHelperTest < ZenaTestHelper
     assert_nothing_raised { javascript('test') }
   end
   
-  def test_tlink_to_remote
-    visitor.lang = 'fr'
-    assert_equal "<a href=\"#\" onclick=\"new Ajax.Request('/nodes/12/versions/1/publish', {asynchronous:true, evalScripts:true}); return false;\">lundi</a>", tlink_to_remote('Monday', :url=>publish_version_path(:node_id => 12, :id => 1))
-  end
-  
-  def test_tlink_to
-    visitor.lang = 'fr'
-    assert_equal "<a href=\"/nodes/12/versions/1/edit\">lundi</a>", tlink_to('Monday', edit_version_path(:node_id=>12, :id=>1))
-  end
-  
-  def test_tlink_to_function
-    visitor.lang = 'fr'
-    assert_equal "<a href=\"new Element.hide('drive')\">lundi</a>", tlink_to('Monday', "new Element.hide('drive')")
-  end
-  
-  def test_transb
+  def test__
     session[:translate] = true
-    assert_equal trans('Monday',:edit => false), transb('Monday')
-    assert_not_equal 'lundi', trans('Monday')
+    assert_equal _('Monday'),:edit => false), _('Monday')
+    assert_not_equal 'lundi', _('Monday')
   end
   
   def test_rnd
@@ -184,14 +169,14 @@ class ApplicationHelperTest < ZenaTestHelper
   end
   
   def test_trans
-    assert_equal 'yoba', trans('yoba')
-    assert_equal '%A, %B %d %Y', trans('full_date')
+    assert_equal 'yoba', _('yoba')
+    assert_equal '%A, %B %d %Y', _('full_date')
     visitor.lang = 'fr'
-    assert_equal '%A, %d %B %Y', trans('full_date')
+    assert_equal '%A, %d %B %Y', _('full_date')
     visitor.lang = 'io'
-    assert_equal '%A, %B %d %Y', trans('full_date')
+    assert_equal '%A, %B %d %Y', _('full_date')
     session[:translate] = true
-    assert_match /div.*phrase75.*Ajax.*\%A, \%B \%d \%Y/, trans('full_date')
+    assert_match /div.*phrase75.*Ajax.*\%A, \%B \%d \%Y/, _('full_date')
   end
   # ======================== tests pass to here ================
   def test_long_time

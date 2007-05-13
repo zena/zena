@@ -24,10 +24,10 @@ module ApplicationHelper
 	  opts = defaults.merge(opts)
 	  date = eval("@#{obj} ? @#{obj}.#{var} : nil") || Time.now.utc
 	  value = tformat_date(date,'datetime')
-    if opts[:size] == 0
-      fld = hidden_field obj, var, :id=>opts[:id] , :value=>value, :class=>opts[:class]
+    if opts[:size]
+      fld = "<input id='#{opts[:id]}' name='#{obj}[#{var}]' type='text' size='#{opts[:size]}' value='#{value}' />"
     else
-	    fld = text_field   obj, var, :id=>opts[:id] , :value=>value, :class=>opts[:class], :size=>opts[:size]
+      fld = "<input id='#{opts[:id]}' name='#{obj}[#{var}]' type='text' value='#{value}' />"
     end
 		<<-EOL
 <div class="date_box"><img src="/calendar/iconCalendar.gif" id="#{opts[:button]}"/>
@@ -42,38 +42,15 @@ module ApplicationHelper
 </script></div>
 		EOL
 	end
-  
-  # Translate link_to_remote
-  def tlink_to_remote(*args)
-    args[0] = trans(args[0],:edit=>false)
-    link_to_remote(*args)
-  end
-  
-  # Translate link_to_remote
-  def tlink_to(*args)
-    args[0] = trans(args[0],:edit=>false)
-    link_to(*args)
-  end
-  
+    
   # Add class='on' if the link points to the current page
-  def tlink_to_with_state(*args)
+  def link_to_with_state(*args)
     title, url, options = *args
     options ||= {}
     if request.path == url
       options[:class] = 'on'
     end
-    tlink_to(title, url, options)
-  end
-  
-  # Translate link_to_remote
-  def tlink_to_function(*args)
-    args[0] = trans(args[0],:edit=>false)
-    link_to_function(*args)
-  end
-  
-  # Translate links/button (not editable)
-  def transb(key)
-    trans(key, :edit=>false)
+    link_to(title, url, options)
   end
   
   # creates a pseudo random string to avoid browser side ajax caching
@@ -92,27 +69,27 @@ module ApplicationHelper
   end
   
   # "Translate" static text into the current lang
-  def trans(keyword, opt={})
-    opt = {:edit=>true}.merge(opt)
-    if opt[:translate] || (session[:translate] && opt[:edit])
-      key = TransPhrase.translate(keyword)
-      "<div id='phrase#{key[:id]}' class='trans'>" + 
-      link_to_remote(key.into(lang),
-          :update=>"phrase#{key[:id]}", 
-          :url => {:controller=>'trans', :action=>'edit', :id=>key[:id]},
-          :complete=>'$("trans_value").focus();$("trans_value").select()') +
-      "</div>"
-    else
-      TransPhrase[keyword][lang]
-    end
-  end
+  # def _(keyword, opt={})
+  #   opt = {:edit=>true}.merge(opt)
+  #   if opt[:translate] || (session[:translate] && opt[:edit])
+  #     key = TransPhrase.translate(keyword)
+  #     "<div id='phrase#{key[:id]}' class='trans'>" + 
+  #     link_to_remote(key.into(lang),
+  #         :update=>"phrase#{key[:id]}", 
+  #         :url => {:controller=>'_(', :action=>')edit', :id=>key[:id]},
+  #         :complete=>'$("trans_value").focus();$("trans_value").select()') +
+  #     "</div>"
+  #   else
+  #     TransPhrase[keyword][lang]
+  #   end
+  # end
   
   # Shows 'login' or 'logout' button.
   def login_link(opts={})
     if visitor.is_anon?
-      "<a href='/login'>#{transb('login')}</a>"
+      "<a href='/login'>#{_('login')}</a>"
     else  
-      "<a href='/logout'>#{transb('logout')}</a>"
+      "<a href='/logout'>#{_('logout')}</a>"
     end
   end
   
@@ -143,18 +120,18 @@ module ApplicationHelper
   
   # format a date with the given format. Translate month and day names.
   def tformat_date(thedate, fmt)
-    format_date(thedate, trans(fmt))
+    format_date(thedate, _(fmt))
   end
   
   def format_date(thedate, format)
     return "" unless thedate
     adate = visitor.tz.adjust(thedate)
       # month name
-    format = format.gsub("%b", trans(adate.strftime("%b")) )
-    format.gsub!("%B", trans(adate.strftime("%B")) )
+    format = format.gsub("%b", _(adate.strftime("%b")) )
+    format.gsub!("%B", _(adate.strftime("%B")) )
     # weekday name
-    format.gsub!("%a", trans(adate.strftime("%a")) )
-    format.gsub!("%A", trans(adate.strftime("%A")) )
+    format.gsub!("%a", _(adate.strftime("%a")) )
+    format.gsub!("%A", _(adate.strftime("%A")) )
     adate.strftime(format)
   end
   
@@ -243,7 +220,7 @@ module ApplicationHelper
       link_to title, zen_path(node, link_opts)
     end
   rescue ActiveRecord::RecordNotFound
-    "<span class='unknownLink'>#{trans('unknown link')}</span>"
+    "<span class='unknownLink'>#{_('unknown link')}</span>"
   end
   
   # TODO: test
@@ -264,7 +241,7 @@ module ApplicationHelper
     id, style, link, size, title = opts[:id], opts[:style], opts[:link], opts[:size], opts[:title]
     img = secure(Document) { Document.find_by_zip(id) }
     if !opts[:images].nil? && !opts[:images]
-      return "[#{trans('image')}: #{img.v_title}]"
+      return "[#{_('image')}: #{img.v_title}]"
     end
     title = img.v_summary if title == ""
     size = IMAGEBUILDER_FORMAT[size] ? size : nil
@@ -310,7 +287,7 @@ module ApplicationHelper
       prefix + "<a href='#{link}'>" + image + "</a>" + suffix
     end
   rescue ActiveRecord::RecordNotFound
-    "<span class='unknownLink'>#{trans('unknown document')}</span>"
+    "<span class='unknownLink'>#{_('unknown document')}</span>"
   end
   
   # Create a gallery from a list of images. See ApplicationHelper#zazen for details.
@@ -472,7 +449,7 @@ module ApplicationHelper
     return "" unless on_day && source
     Cache.with(visitor.id, visitor.group_ids, 'NN', size, method, source.id, date.ajd, lang) do
       # find start and end date
-      week_start_day = trans('week_start_day').to_i
+      week_start_day = _('week_start_day').to_i
       start_date  = Date.civil(date.year, date.mon, 1)
       start_date -= (start_date.wday + 7 - week_start_day) % 7
       end_date    = Date.civil(date.year, date.mon, -1)
@@ -490,11 +467,11 @@ module ApplicationHelper
         calendar[d.strftime("%Y-%m-%d")] << n
       end
   
-      title = "#{trans(Date::MONTHNAMES[date.mon])} #{date.year}"
+      title = "#{_(Date::MONTHNAMES[date.mon])} #{date.year}"
   
       head_day_names = []
       0.upto(6) do |i|
-        head_day_names << "<td>#{trans(day_names[(i+week_start_day) % 7])}</td>"
+        head_day_names << "<td>#{_(day_names[(i+week_start_day) % 7])}</td>"
       end
   
       content = []
@@ -503,7 +480,7 @@ module ApplicationHelper
         content << "<tr class='body'>"
         week.step(week+6,1) do |day|
           # each day
-          content << "<td#{ calendar_class(day,date)}#{day == Date.today ? " id='#{size}_today'" : "" }>#{on_day.call(calendar[day.strftime("%Y-%m-%d")], day)}</td>"
+          content << "<td#{ calendar_class(day,date)}#{day == Date.today ? " id='#{size}_today'" : "" }>#{on_day.call(calendar[day.strftime('%Y-%m-%d')], day)}</td>"
         end
         content << '</tr>'
       end
@@ -645,7 +622,7 @@ module ApplicationHelper
         title = "<li><b>#{opt[:title]}</b></li>"
       end
     else
-      title = "<li><b>#{trans(sym.to_s)}</b></li>"
+      title = "<li><b>#{_(sym.to_s)}</b></li>"
     end
     "<ul class='link_box'>#{title}<li>#{res.join('</li><li>')}</li></ul>"
   end
@@ -691,9 +668,9 @@ module ApplicationHelper
   #TODO: test
   def readers_for(obj=@node)
     readers = if obj.private? 
-      trans('img_private')
+      _('img_private')
     elsif [obj.rgroup_id,obj.pgroup_id,obj.user_id].include?(1)
-      trans('img_public')
+      _('img_public')
     else
       names = []
       names |= [obj.rgroup.name.limit(4)] if obj.rgroup
@@ -701,7 +678,7 @@ module ApplicationHelper
       names << obj.user.initials
       names.join(', ')
     end
-    custom = obj.inherit != 1 ? "<span class='custom'>#{trans('img_custom_inherit')}</span>" : ''
+    custom = obj.inherit != 1 ? "<span class='custom'>#{_('img_custom_inherit')}</span>" : ''
     "#{custom} #{readers}"
   end
   
@@ -715,27 +692,27 @@ module ApplicationHelper
     
     res  = []
     if (action == :edit or action == :all) && node.can_edit?
-      res << "<a href='#{edit_version_url(hash)}' target='_blank' title='#{transb('btn_title_edit')}' onclick=\"editor=window.open('#{edit_version_url(hash)}', '_blank', 'location=0,width=300,height=400,resizable=1');return false;\">" + 
-             (text || transb('btn_edit')) + "</a>"
+      res << "<a href='#{edit_version_url(hash)}' target='_blank' title='#{_('btn_title_edit')}' onclick=\"editor=window.open('#{edit_version_url(hash)}', '_blank', 'location=0,width=300,height=400,resizable=1');return false;\">" + 
+             (text || _('btn_edit')) + "</a>"
     end
     
     if (action == :propose or action == :all) && node.can_propose?
-      res << tlink_to((text || "btn_propose"), propose_version_path(hash), :method => :put)
+      res << link_to((text || _("btn_propose")), propose_version_path(hash), :method => :put)
     end
     
     if (action == :publish or action == :all) && node.can_publish?
-      res << tlink_to((text || "btn_publish"), publish_version_path(hash), :method => :put)
+      res << link_to((text || _("btn_publish")), publish_version_path(hash), :method => :put)
     end
     
     if (action == :refuse or action == :all) && node.can_refuse?
-      res << tlink_to((text || "btn_refuse"), refuse_version_path(hash), :method => :put)
+      res << link_to((text || _("btn_refuse")), refuse_version_path(hash), :method => :put)
     end
     
     if (action == :drive or action == :all) && node.can_drive?
-      res << "<a href='#' title='#{transb('btn_title_drive')}' onclick=\"editor=window.open('" + 
+      res << "<a href='#' title='#{_('btn_title_drive')}' onclick=\"editor=window.open('" + 
              edit_node_url(:id => node[:zip] ) + 
              "', '_blank', 'location=0,width=300,height=400,resizable=1');return false;\">" + 
-             (text || transb('btn_drive')) + "</a>"
+             (text || _('btn_drive')) + "</a>"
     end
     
     if res != []
@@ -749,9 +726,9 @@ module ApplicationHelper
   def version_form_action(action,version)
     if action == 'view'
       # FIXME
-      tlink_to_function('btn_view', "opener.Zena.version_preview(#{version.number});")
+      link_to_function(_('btn_view'), "opener.Zena.version_preview(#{version.number});")
     else
-      tlink_to_remote( "btn_#{action}", :url=>{:controller=>'versions', :action => action, :node_id => version.node[:zip], :id => version.number, :drive=>true}, :title=>transb("btn_title_#{action}"), :method => :put ) + "\n"
+      link_to_remote( _("btn_#{action}"), :url=>{:controller=>'versions', :action => action, :node_id => version.node[:zip], :id => version.number, :drive=>true}, :title=>_("btn_title_#{action}"), :method => :put ) + "\n"
     end
   end
   # TODO: test
@@ -806,15 +783,15 @@ module ApplicationHelper
     opt = {:action=>:all}.merge(opt)
     return '' unless @node.can_drive?
     if opt[:action] == :view
-      tlink_to_function('btn_view', "opener.Zena.discussion_show(#{discussion[:id]}); return false;")
+      link_to_function(_('btn_view'), "opener.Zena.discussion_show(#{discussion[:id]}); return false;")
     elsif opt[:action] == :all
       if discussion.open?
-        link_to_remote( transb("img_open"),:with=>'discussions', :url=>{:controller=>'discussion', :action => 'close' , :id => discussion[:id]}, :title=>transb("btn_title_close")) + "\n"
+        link_to_remote( _("img_open"),:with=>'discussions', :url=>{:controller=>'discussion', :action => 'close' , :id => discussion[:id]}, :title=>_("btn_title_close_discussion")) + "\n"
       else                                                                   
-        link_to_remote( transb("img_closed"),  :with=>'discussions', :url=>{:controller=>'discussion', :action => 'open', :id => discussion[:id]}, :title=>transb("btn_title_open")) + "\n"
+        link_to_remote( _("img_closed"),  :with=>'discussions', :url=>{:controller=>'discussion', :action => 'open', :id => discussion[:id]}, :title=>_("btn_title_open_open_discussion")) + "\n"
       end +
       if discussion.can_destroy?                                                 
-        link_to_remote( transb("btn_remove"), :with=>'discussions', :url=>{:controller=>'discussion', :action => 'remove', :id => discussion[:id]}, :title=>transb("btn_title_destroy")) + "\n"
+        link_to_remote( _("btn_remove"), :with=>'discussions', :url=>{:controller=>'discussion', :action => 'remove', :id => discussion[:id]}, :title=>_("btn_title_destroy_discussion")) + "\n"
       else
         ''
       end
@@ -865,7 +842,7 @@ ENDTXT
     obj = opts[:node] || @node
     trad_list = []
     (obj.traductions || []).each do |ed|
-      trad_list << "<span#{ ed.lang == lang ? " class='current'" : ''}>" + link_to( trans(ed[:lang]), zen_path(obj,:lang=>ed[:lang])) + "</span>"
+      trad_list << "<span#{ ed.lang == lang ? " class='current'" : ''}>" + link_to( _(ed[:lang]), zen_path(obj,:lang=>ed[:lang])) + "</span>"
     end
     trad_list
   end
@@ -916,24 +893,21 @@ ENDTXT
       [show_link(:home), show_link(:preferences), show_link(:comments), show_link(:users), show_link(:groups), show_link(:translation)].reject {|l| l==''}
     when :home
       return '' if visitor.is_anon?
-      tlink_to_with_state('my home', user_home_path)
+      link_to_with_state(_('my home'), user_home_path)
     when :preferences
       return '' if visitor.is_anon?
-      tlink_to_with_state('preferences', preferences_user_path(visitor[:id]))
-    when :translation
-      return '' unless visitor.group_ids.include?(visitor.site[:trans_group_id])
-      tlink_to_with_state('translate interface', :controller=>'trans', :action=>'list')
+      link_to_with_state(_('preferences'), preferences_user_path(visitor[:id]))
     when :comments
       return '' unless visitor.is_admin?
-      tlink_to_with_state('manage comments', :controller=>'comment', :action=>'list')
+      link_to_with_state(_('manage comments'), :controller=>'comment', :action=>'list')
     when :users
       return '' unless visitor.is_admin?
-      tlink_to_with_state('manage users', users_path)
+      link_to_with_state(_('manage users'), users_path)
     when :groups
       return '' unless visitor.is_admin?
-      tlink_to_with_state('manage groups', :controller=>'group', :action=>'list')
+      link_to_with_state(_('manage groups'), :controller=>'group', :action=>'list')
     when :site_tree
-      tlink_to_with_state('site tree', :controller=>'main', :action=>'site_tree', :id=>@node)
+      link_to_with_state(_('site tree'), :controller=>'main', :action=>'site_tree', :id=>@node)
     else
       ''
     end
@@ -952,8 +926,8 @@ ENDTXT
     <script src="/calendar/lang/calendar-#{l}-utf8.js" type="text/javascript"></script>
     <link href="/calendar/calendar-brown.css" media="screen" rel="Stylesheet" type="text/css" />
     #{javascript_start}
-    Calendar._TT["DEF_DATE_FORMAT"] = "#{transb('datetime')}";
-    Calendar._TT["FIRST_DAY"] = #{transb('week_start_day')};
+    Calendar._TT["DEF_DATE_FORMAT"] = "#{_('datetime')}";
+    Calendar._TT["FIRST_DAY"] = #{_('week_start_day')};
     #{javascript_end}
     EOL
   end

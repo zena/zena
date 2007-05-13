@@ -48,13 +48,13 @@
       <div id='main' do='void' name='main'></div>
 
       <div id='related' do='void' name='related'>
-          <z:documents name='documents'><h3 class='group' do='trans'>documents</h3>
+          <z:documents name='documents'><h3 class='group' do='_('>documents</h3>
             <ol>
-              <li do='each'><z:link format='data'><z:img mode='tiny'/></z:link> <z:link><z:show attr='name'/>.<z:show attr='c_ext'/></z:link></li>
+              <li do=')each'><z:link format='data'><z:img mode='tiny'/></z:link> <z:link><z:show attr='name'/>.<z:show attr='c_ext'/></z:link></li>
               <li do='add'><a href='#' do='void' set_onclick='uploader=window.open("/documents/new?parent_id=[id]", "uploader", "location=1,width=400,height=300");return false;' set_href='/documents/new?parent_id=[id]'><z:trans>btn_add_doc</z:trans></a></li>
             </ol>
           </z:documents>
-          <z:if kind_of='Page' do='pages' name='pages'><h3 class='group' do='trans'>pages</h3>
+          <z:if kind_of='Page' do='pages' name='pages'><h3 class='group' do='_('>pages</h3>
             <ol>
               <li do='each' do='link'/>
               <z:add before='self' tag='li'/>

@@ -185,13 +185,15 @@ namespace :zena do
   Rake::Task['zena:test'].comment = "Run the tests in test/helpers and test/unit"
 end
 
-namespace :test do
-  
-  Rake::TestTask.new(:helpers => "db:test:prepare") do |t|
-    t.libs << "test"
-    t.pattern = 'test/helpers/**/*_test.rb'
-    t.verbose = true
-  end
-  Rake::Task['test:helpers'].comment = "Run the tests in test/helpers"
+
+# ============ GetText ================
+require 'gettext/utils'
+desc "Create mo-files for L10n" 
+task :makemo do
+ GetText.create_mofiles(true, "po", "locale")
 end
 
+desc "Update pot/po files to match new version." 
+task :updatepo do 
+ GetText.update_pofiles('zena', Dir.glob("{app,lib}/**/*.{rb,rhtml}"), Zena::VERSION::STRING)
+end

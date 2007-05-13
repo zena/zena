@@ -1,5 +1,9 @@
 module NodesHelper
 
+  def dummy
+    _('drive') # gettext
+    _('links') # gettext
+  end
   # Find the list of tabs for the popup when 'driving' a node. To add a tab for some document class,
   # create a file named '_any_className.rhtml' in the folder 'app/views/templates/drive_tabs'.
   # If you want this tab to be used only for a certain skin, use the name '_skinName_className.rhtml'.

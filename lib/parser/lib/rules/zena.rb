@@ -61,7 +61,7 @@ module Zena
         "#{node_attribute(attribute)}"
       else
         if @params[:tattr]
-          "<%= trans(#{node_attribute(attribute)}) %>"
+          "<%= _(#{node_attribute(attribute)}) %>"
         elsif @params[:edit] == 'true' && @params[:attr]
           name = unique_name + '_' + attribute
           # TODO: add can_drive? or can_write? clauses.
@@ -73,7 +73,7 @@ module Zena
           # TODO format with @params[:format] and @params[:tformat] << translated format
           # TODO: test
           if @params[:tformat]
-            format = helper.trans(@params[:tformat])
+            format = _(@params[:tformat])
           elsif @params[:format]
             format = @params[:format]
           else
@@ -92,7 +92,7 @@ module Zena
         # TODO: what do we do here with dates ?
         "#{node_attribute(attribute)}"
       elsif @params[:tattr]
-        "<%= zazen(trans(#{node_attribute(attribute)})) %>"
+        "<%= zazen(_(#{node_attribute(attribute)})) %>"
       elsif @params[:attr]
         "<%= zazen(#{node_attribute(attribute)}) %>"
       elsif @params[:date]
@@ -129,9 +129,9 @@ module Zena
         end
       end
       if static
-        helper.trans(text)
+        _(text)
       else
-        "<%= trans(#{text}) %>"
+        "<%= _(#{text}) %>"
       end
     end
     
@@ -218,20 +218,20 @@ module Zena
     
     def r_show_author
       if @params[:size] == 'large'
-        out "#{helper.trans("posted by")} <b><%= #{node}.author.fullname %></b>"
+        out "#{_("posted by")} <b><%= #{node}.author.fullname %></b>"
         out "<% if #{node}[:user_id] != #{node}.version[:user_id] -%>"
         out "<% if #{node}[:ref_lang] != #{node}.version[:lang] -%>"
-        out "#{helper.trans("traduction by")} <b><%= #{node}.version.author.fullname %></b>"
+        out "#{_("traduction by")} <b><%= #{node}.version.author.fullname %></b>"
         out "<% else -%>"
-        out "#{helper.trans("modified by")} <b><%= #{node}.version.author.fullname %></b>"
+        out "#{_("modified by")} <b><%= #{node}.version.author.fullname %></b>"
         out "<% end"
         out "   end -%>"
-        out " #{helper.trans("on")} <%= format_date(#{node}.version.updated_at, #{helper.trans('short_date').inspect}) %>."
+        out " #{_("on")} <%= format_date(#{node}.version.updated_at, #{_('short_date').inspect}) %>."
         if @params[:traductions] == 'true'
-          out " #{helper.trans("Traductions")} : <span class='traductions'><%= helper.traductions(:node=>#{node}).join(', ') %></span>"
+          out " #{_("Traductions")} : <span class='traductions'><%= helper.traductions(:node=>#{node}).join(', ') %></span>"
         end
       else
-        out "<b><%= #{node}.version.author.initials %></b> - <%= format_date(#{node}.version.updated_at, #{helper.trans('short_date').inspect}) %>"
+        out "<b><%= #{node}.version.author.initials %></b> - <%= format_date(#{node}.version.updated_at, #{_('short_date').inspect}) %>"
         if @params[:traductions] == 'true'
           out " <span class='traductions'>(<%= helper.traductions(:node=>#{node}).join(', ') %>)</span>"
         end
@@ -293,7 +293,7 @@ module Zena
       text = get_text_for_erb
       if @context[:template_url]
         # ajax
-        "<%= link_to_remote(#{text || helper.trans('edit')}, :url => edit_node_path(#{node}[:zip]) + '?template_url=#{CGI.escape(@context[:template_url])}', :method => :get) %>"
+        "<%= link_to_remote(#{text || _('edit')}, :url => edit_node_path(#{node}[:zip]) + '?template_url=#{CGI.escape(@context[:template_url])}', :method => :get) %>"
       else
         # FIXME: we could link to some html page to edit the item.
         ""
@@ -329,17 +329,17 @@ module Zena
 
         if @context[:in_add]
           @html_tag_params.merge!(:id=>"#{template_url}_form")
-          form =  "<p class='btn_x'><a href='#' onclick='[\"#{template_url}_add\", \"#{template_url}_form\"].each(Element.toggle);return false;'>#{helper.trans('btn_x')}</a></p>\n"
+          form =  "<p class='btn_x'><a href='#' onclick='[\"#{template_url}_add\", \"#{template_url}_form\"].each(Element.toggle);return false;'>#{_('btn_x')}</a></p>\n"
           form << "<%= form_remote_tag(:url => #{node_class.to_s.downcase.pluralize}_path) %>\n"
         else
           # saved form
           @html_tag_params.merge!(:id=>"#{template_url}<%= @node.new_record? ? '_form' : @node[:zip] %>")
           form =<<-END_TXT
 <% if @node.new_record? -%>
-  <p class='btn_x'><a href='#' onclick='[\"#{template_url}_add\", \"#{template_url}_form\"].each(Element.toggle);return false;'>#{helper.trans('btn_x')}</a></p>
+  <p class='btn_x'><a href='#' onclick='[\"#{template_url}_add\", \"#{template_url}_form\"].each(Element.toggle);return false;'>#{_('btn_x')}</a></p>
   <%= form_remote_tag(:url => #{node_class.to_s.downcase.pluralize}_path) %>
 <% else -%>
-  <p class='btn_x'><%= link_to_remote(#{helper.trans('btn_x').inspect}, :url => #{node_class.to_s.downcase}_path(#{node}[:zip]) + '?template_url=#{CGI.escape(template_url)}', :method => :get) %></a></p>
+  <p class='btn_x'><%= link_to_remote(#{_('btn_x').inspect}, :url => #{node_class.to_s.downcase}_path(#{node}[:zip]) + '?template_url=#{CGI.escape(template_url)}', :method => :get) %></a></p>
   <%= form_remote_tag(:url => #{node_class.to_s.downcase}_path(#{node}[:zip]), :method => :put) %>
 <% end -%>
 END_TXT
@@ -362,7 +362,8 @@ END_TXT
       else
         # no ajax
         # FIXME
-        form = "<%= form_tag(:controller=>'zafu', :action=>'form', :id=>(#{node} ? #{node}[:id] : '')) %>\n"
+        puts @context.keys.inspect
+        form = "FORM WITHOUT AJAX TODO\n"
       end
       exp = expand_with
       
@@ -400,12 +401,12 @@ END_TXT
         text = @params[:text]
         text = "<div>#{text}</div>" unless @html_tag
       elsif @params[:trans]
-        text = helper.trans(@params[:trans])
+        text = _(@params[:trans])
         text = "<div>#{text}</div>" unless @html_tag
       elsif @blocks != []
         text = expand_with
       else
-        text = helper.trans("btn_add_page")
+        text = _("btn_add")
       end
       
       if @context[:form] && @context[:template_url]
@@ -595,7 +596,7 @@ END_TXT
     # TODO: test
     def r_show_traductions
       "<% if #{list_var} = #{node}.traductions -%>"
-      "#{helper.trans("Traductions:")} <span class='traductions'><%= #{list_var}.join(', ') %></span>"
+      "#{_("Traductions:")} <span class='traductions'><%= #{list_var}.join(', ') %></span>"
       "<%= traductions(:node=>#{node}).join(', ') %>"
     end
     
@@ -678,11 +679,11 @@ END_TXT
       else
         case @params[:type]
         when 'riding'
-          message = helper.send(:trans, "riding <a class='zena' href='http://zenadmin.org'>zena</a>")
+          message = helper.send(:_, "riding <a class='zena' href='http://zenadmin.org'>zena</a>")
         when 'peace'
-          message = helper.send(:trans, "in peace with <a class='zena' href='http://zenadmin.org'>zena</a>")
+          message = helper.send(:_, "in peace with <a class='zena' href='http://zenadmin.org'>zena</a>")
         else
-          message = helper.send(:trans, "made with <a class='zena' href='http://zenadmin.org'>zena</a>'")
+          message = helper.send(:_, "made with <a class='zena' href='http://zenadmin.org'>zena</a>")
         end
         version = @params[:version] ? " #{Zena::VERSION::MAJOR}.#{Zena::VERSION::MINOR}" : ""
         message + version
@@ -1021,6 +1022,10 @@ END_TXT
       @pass = {} # do not propagate back
     end
     
+    def _(text)
+      helper.send(:_,text)
+    end
+    
     def unique_name
       "#{@options[:included_history][0]}/#{((@context[:name] || 'list').split('/')[-1]).gsub(/[^\w\/]/,'_')}"
     end
@@ -1142,9 +1147,9 @@ END_TXT
               "\#{#{node_attribute($1)}}"
             end
             if static
-              value = ["'#{helper.trans(value)}'"]     # array so it is not escaped on render
+              value = ["'#{_(value)}'"]     # array so it is not escaped on render
             else
-              value = ["'<%= trans(\"#{value}\") %>'"] # array so it is not escaped on render
+              value = ["'<%= _(\"#{value}\") %>'"] # array so it is not escaped on render
             end  
           else
             # normal value
@@ -1167,9 +1172,9 @@ END_TXT
       if @params[:attr]
         text = "#{node_attribute(@params[:attr])}"
       elsif @params[:tattr]
-        text = "trans(#{node_attribute(@params[:tattr])})"
+        text = "_(#{node_attribute(@params[:tattr])})"
       elsif @params[:trans]
-        text = helper.trans(@params[:trans]).inspect
+        text = _(@params[:trans]).inspect
       elsif @params[:text]
         text = @params[:text].inspect
       elsif @blocks != []

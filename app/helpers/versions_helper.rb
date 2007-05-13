@@ -1,5 +1,10 @@
 module VersionsHelper
   
+  def dummy
+    _('text')  # gettext
+    _('title') # gettext
+    _('help')  # gettext
+  end
   # Find the list of tabs for the popup when editing a node. To add a tab for some document class,
   # create a file named '_any_className.rhtml' in the folder 'app/views/templates/edit_tabs'.
   # If you want this tab to be used only for a certain skin, use the name '_skinName_className.rhtml'.

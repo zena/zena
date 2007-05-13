@@ -8,12 +8,12 @@
 
 <div class='tab'>
   <div class="document">
-    <p class="btn_x"><%= link_to_function transb('btn_x'), "if (!(opener==undefined || opener.is_editor)) { opener.location.href=opener.location.href;}; self.close();" %></p>
+    <p class="btn_x"><%= link_to_function _('btn_x'), "if (!(opener==undefined || opener.is_editor)) { opener.location.href=opener.location.href;}; self.close();" %></p>
     <table cellspacing="0" borderspacing="0">
       <tr>
         <td class='preview'><p><%= img_tag(@node, :mode=>'pv') %></p><p class='size'><%= fsize(@node.c_size) %></p></td>
         <td class='description'><h3 class='title'><span class='doc_id'><%= @node[:zip] %></span> <%= @node.name %></h3><p class='summary'><%= zazen(@node.v_summary) %></p></td></tr>
     </table>
-    <p class='btn_validate'><%= link_to transb("upload more"), new_document_path(:parent_id => @node.parent_zip) %> // <%= node_actions(:actions => :edit) %> </p>
+    <p class='btn_validate'><%= link_to _("upload more"), new_document_path(:parent_id => @node.parent_zip) %> // <%= node_actions(:actions => :edit) %> </p>
   </div>
 </div>

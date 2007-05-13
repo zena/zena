@@ -1,12 +1,12 @@
 <div id='content'>
-  <h3><%= trans('manage comments') %></h3>
+  <h3><%= _('manage comments') %></h3>
 
   <ul class='comment' id='comments_list'>
     <%= render :partial=>'comments/li', :collection=>@comments %>
   </ul>
 
-  <%= tlink_to "Previous page", { :page => @comment_pages.current.previous } if @comment_pages.current.previous %>
-  <%= tlink_to "Next page", { :page => @comment_pages.current.next } if @comment_pages.current.next %>
+  <%= link_to _("Previous page"), { :page => @comment_pages.current.previous } if @comment_pages.current.previous %>
+  <%= link_to _("Next page"), { :page => @comment_pages.current.next } if @comment_pages.current.next %>
 
   <div id='bin'>
     <%= render :partial=>'comments/bin' %>

@@ -1,22 +1,22 @@
 <%= form_tag( documents_path ) %>
 <%= hidden_field 'node', 'parent_id', :value=>@node.parent_zip  %>
-<p class="btn_validate"><input type="submit" class="btn_validate" onclick="$('loader').style.visibility = 'visible';" value='<%= transb('validate') %>'/></p>
+<p class="btn_validate"><input type="submit" class="btn_validate" onclick="$('loader').style.visibility = 'visible';" value='<%= _('validate') %>'/></p>
 
 <input type='hidden' name='node[klass]' value='Template'/>
 
-<label for='node_name'><%= trans('name') %></label>
+<label for='node_name'><%= _('name') %></label>
 <input  id='node_name' type='text' name='node[name]'/><br/>
 
-<label for='node_format'><%= trans('format') %></label>
+<label for='node_format'><%= _('format') %></label>
 <input  id='node_format' type='text' name='node[c_format]' value='html'/><br/>
 
-<label for='node_c_mode'><%= trans('mode') %></label>
+<label for='node_c_mode'><%= _('mode') %></label>
 <input  id='node_c_mode' type='text' name='node[c_mode]'/><br/>
 
-<label for='node_c_klass'><%= trans('class scope') %></label>
+<label for='node_c_klass'><%= _('class scope') %></label>
 <input  id='node_c_klass' type='text' name='node[c_klass]'/><br/>
 
-<label   for='node_v_summary'><%= trans('summary') %></label>
+<label   for='node_v_summary'><%= _('summary') %></label>
 <textarea id='node_v_summary' rows='3' name='node[v_summary]'></textarea><br/>
 
 </form>

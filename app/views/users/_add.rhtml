@@ -1,5 +1,5 @@
 <tr id='add_user' class='btn_add'>
-  <td class='add'><%= link_to_function transb('btn_user_add'), "['add_user', 'add_user_form'].each(Element.toggle); $('user_login').focus();" %></td><td colspan='2' class='add_user'></td>
+  <td class='add'><%= link_to_function _('btn_user_add'), "['add_user', 'add_user_form'].each(Element.toggle); $('user_login').focus();" %></td><td colspan='2' class='add_user'></td>
 </tr>
 <tr id='add_user_form' style='display:none;'>
   <%= render :partial=>'users/form' %>

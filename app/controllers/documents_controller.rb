@@ -27,10 +27,10 @@ class DocumentsController < ApplicationController
     
     respond_to do |format|
       if @node.new_record?
-        flash[:error] = trans "Upload failed."
+        flash[:error] = _("Upload failed.")
         format.html { render :action => 'new'}
       else
-        flash[:notice] = trans "Upload succeeded."
+        flash[:notice] = _("Upload succeeded.")
         format.html { redirect_to document_url(@node[:zip]) }
       end
     end
@@ -39,7 +39,7 @@ class DocumentsController < ApplicationController
   # TODO: test
   def file_form
     respond_to do |format|
-      format.html { render :inline=>"<%= link_to_function(trans('cancel'), \"['file', 'file_form'].each(Element.toggle);$('file_form').innerHTML = '';\")%><%= file_field 'node', 'c_file', :size=>15 %>" }
+      format.html { render :inline=>"<%= link_to_function(_('cancel'), \"['file', 'file_form'].each(Element.toggle);$('file_form').innerHTML = '';\")%><%= file_field 'node', 'c_file', :size=>15 %>" }
     end
   end
   

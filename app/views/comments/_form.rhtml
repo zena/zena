@@ -5,15 +5,15 @@ else
 end %>
 <% if @edit -%>
   <div class='inline_form'>
-  <p class="btn_x"><%= link_to_remote(transb('btn_x'), :with=>'main', :url=>{:controller=>'discussions', :action=>'show', :id=>@comment[:discussion_id]} ) %></p>
+  <p class="btn_x"><%= link_to_remote(_('btn_x'), :with=>'main', :url=>{:controller=>'discussions', :action=>'show', :id=>@comment[:discussion_id]} ) %></p>
 <% elsif @comment && @comment.reply_to -%>
-  <p class="btn_x"><%= link_to_function transb('btn_x'), "Element.remove('add_comment_form#{@comment.reply_to}');" %></p>
+  <p class="btn_x"><%= link_to_function _('btn_x'), "Element.remove('add_comment_form#{@comment.reply_to}');" %></p>
 <% else -%>
-  <p class="btn_x"><%= link_to_function transb('btn_x'), "['add_comment', 'add_comment_form'].each(Element.toggle);" %></p>
+  <p class="btn_x"><%= link_to_function _('btn_x'), "['add_comment', 'add_comment_form'].each(Element.toggle);" %></p>
 <% end  -%>
 <div class='header'>
-  <label for="author_name"><%= trans("author")  %></label> <%= session[:user] ? visitor.fullname : text_field('comment', 'author_name', :size=>25) %>
-  <label for="title"><%= trans("title")  %></label> <%= text_field('comment', 'title', :size=>25) %>
+  <label for="author_name"><%= _("author")  %></label> <%= session[:user] ? visitor.fullname : text_field('comment', 'author_name', :size=>25) %>
+  <label for="title"><%= _("title")  %></label> <%= text_field('comment', 'title', :size=>25) %>
 </div>
 <div class='body'>
   <div id='comment_errors<%= @comment && @comment.reply_to ? @comment.reply_to : '' %>' class='errors'></div>
@@ -21,7 +21,7 @@ end %>
   <%= hidden_field('comment', 'id') %>
   <%= hidden_field('node', 'id', :value=>(node ? node[:id] : "")) %>
   <%= hidden_field('comment', 'reply_to') %>
-  <p class='btn_validate'><input type='submit' value='<%= transb('validate') %>'/></p>
+  <p class='btn_validate'><input type='submit' value='<%= _('validate') %>'/></p>
 </div>
 </form>
 <%= '</div>' if @edit %>

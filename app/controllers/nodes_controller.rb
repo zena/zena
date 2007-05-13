@@ -148,9 +148,9 @@ class NodesController < ApplicationController
     @node = secure_write(Node) { Node.version(params[:id]) }
     @node.backup
     if @node.errors.empty?
-      flash[:notice] = trans "Backup created."
+      flash[:notice] = _("Backup created.")
     else
-      flash[:error] = trans "Could not create backup."
+      flash[:error] = _("Could not create backup.")
     end
   end
   
@@ -183,9 +183,9 @@ class NodesController < ApplicationController
     
     @node.update_attributes(attrs)
     if @node.errors.empty?
-      flash.now[:notice] = trans('node updated')
+      flash.now[:notice] = _('node updated')
     else
-      flash.now[:error]  = trans('could not update')
+      flash.now[:error]  = _('could not update')
     end
     respond_to do |format|
       format.js   { @flash = flash }
@@ -277,7 +277,7 @@ class NodesController < ApplicationController
       render :inline=>method
     end
   rescue ActiveRecord::RecordNotFound
-    render :inline=>trans('not found')
+    render :inline=>_('node not found')
   end
   
   # TODO: test
@@ -301,9 +301,9 @@ class NodesController < ApplicationController
     
     respond_to do |format|
       if allOK
-        format.html { render :text => trans('Order updated')}
+        format.html { render :text => _('Order updated')}
       else  
-        format.html { render :text => trans('Could not update order.')}
+        format.html { render :text => _('Could not update order.')}
       end
     end
   end

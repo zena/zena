@@ -2,7 +2,7 @@
 <%= form_remote_tag(:url => node_url(@node[:zip]), :method => :put) %>
   <div id='link_errors' class='errors'></div>
   <div class='add'>
-    <%= link_to_function transb('btn_x'), "['add_link', 'add_link_form'].each(Element.toggle);" %>
+    <%= link_to_function _('btn_x'), "['add_link', 'add_link_form'].each(Element.toggle);" %>
   </div>
   <div class='role'>
     <% roles = @node.class.roles_for_form 
@@ -15,7 +15,7 @@
   <div class='link' id='link_link'><input type='hidden' name='box' value='tags'/><%= link_box 'node', 'tags', :title=>nil %>
   </div>
   <div class='action'>
-  <input type="submit" class="btn_validate" value='<%= transb('set') %>'/>
+  <input type="submit" class="btn_validate" value='<%= _('set') %>'/>
   </div>
 </form> 
 </td> 

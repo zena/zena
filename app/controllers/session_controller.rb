@@ -16,7 +16,7 @@ class SessionController < ApplicationController
     if user = User.login(params[:login], params[:password], visitor.site)
       successful_login(user)
     else
-      failed_login trans("Invalid login or password.")
+      failed_login _("Invalid login or password.")
     end
   end
   

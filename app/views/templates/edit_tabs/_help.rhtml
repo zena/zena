@@ -3,5 +3,5 @@ begin
   node = secure(Node) {Node.find_by_id(ZENA_ENV[:edit_help_id])}
   zazen(node.v_summary)
 rescue
-  trans('please set :edit_help_id in zena.rb to the id of the page to display here')
+  _('please set :edit_help_id in zena.rb to the id of the page to display here')
 end %>

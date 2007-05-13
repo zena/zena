@@ -36,9 +36,9 @@
       <div id="text">   <%= zazen @node.v_text    %></div>
       <%#= plug :comments %>
 
-      <h3><%= trans('suite:')%></h3>
+      <h3><%= _('suite:')%></h3>
       <%= render :partial=>'page/list' %>
-      <h3><%= trans('documents:')%></h3>
+      <h3><%= _('documents:')%></h3>
         <div id='documents'>
           <%= render :partial=>'document/list' %>
         </div>

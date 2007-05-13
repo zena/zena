@@ -98,9 +98,9 @@ class UsersController < ApplicationController
     if @user.errors.empty?
       @user.update_attributes(params[:user])
       if @user.errors.empty?
-        flash[:notice] = trans 'information successfully updated'
+        flash[:notice] = _('information successfully updated')
       else
-        flash[:error ] = trans 'could not update user'
+        flash[:error ] = _('could not update user')
       end
     end
     

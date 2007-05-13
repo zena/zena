@@ -48,14 +48,14 @@ class VersionsController < ApplicationController
   def edit
     if params[:drive]
       if @node.redit
-        flash[:notice] = trans "Version changed back to redaction."
+        flash[:notice] = _("Version changed back to redaction.")
       else
-        flash[:error] = trans "Could not change version back to redaction."
+        flash[:error] = _("Could not change version back to redaction.")
       end    
       render :action=>'update'
     else
       if !@node.edit!
-        flash[:error] = trans "Could not edit version."
+        flash[:error] = _("Could not edit version.")
         render_or_redir 404
       else
         # store the id used to preview when editing
@@ -82,6 +82,10 @@ class VersionsController < ApplicationController
     @preview_id = session[:preview_id]
     if @key = (params['key'] || params['amp;key'])
       @value = params[:content]
+      if @node.kind_of?(TextDocument) && @key == 'v_text'
+        l = @node.content_lang
+        @value = "<code#{l ? " lang='#{l}'" : ''} class=\'full\'>#{@value}</code>"
+      end
       # redaction
     elsif @node.kind_of?(Image)
       # view image version
@@ -116,19 +120,19 @@ class VersionsController < ApplicationController
   
   def propose
     if @node.propose
-      flash[:notice] = trans "Redaction proposed for publication."
+      flash[:notice] = _("Redaction proposed for publication.")
     else
-      flash[:error] = trans "Could not propose redaction."
+      flash[:error] = _("Could not propose redaction.")
     end
     do_rendering
   end
   
   def refuse
     if @node.refuse
-      flash[:notice] = trans "Proposition refused."
+      flash[:notice] = _("Proposition refused.")
       @redirect_url = user_home_url
     else
-      flash[:notice] = trans "Could not refuse proposition."
+      flash[:notice] = _("Could not refuse proposition.")
     end
     do_rendering
   end

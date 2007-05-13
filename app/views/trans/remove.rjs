@@ -1,6 +1,0 @@
-if @trans
-  page.replace "trans#{@phrase_id}", :partial=>'trans/li', :collection=>[@trans]
-else
-  page.visual_effect :highlight, "trans#{@phrase_id}", :duration => 0.3
-  page.visual_effect :fade, "trans#{@phrase_id}", :duration => 0.5
-end

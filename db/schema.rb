@@ -175,18 +175,6 @@ ActiveRecord::Schema.define(:version => 0) do
     t.column "mode",      :string
   end
 
-  create_table "trans_phrases", :force => true do |t|
-    t.column "phrase",  :string,  :limit => 100, :default => "", :null => false
-    t.column "site_id", :integer
-  end
-
-  create_table "trans_values", :force => true do |t|
-    t.column "phrase_id", :integer
-    t.column "lang",      :string,  :limit => 10, :default => "", :null => false
-    t.column "value",     :text,                                  :null => false
-    t.column "site_id",   :integer
-  end
-
   create_table "users", :force => true do |t|
     t.column "created_at", :datetime
     t.column "updated_at", :datetime

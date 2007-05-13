@@ -13,7 +13,7 @@ module DocumentsHelper
         tabs << [trans($1), $1]
       end
     end
-    tabs << [trans('help'), 'help'] if help_file
+    tabs << [_('help'), 'help'] if help_file
     tabs
   end
 end

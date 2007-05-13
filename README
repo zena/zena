@@ -28,4 +28,4 @@ Once config/database.yml is properly set, run the following command
 You can now login with 'admin' and the password you used to make the site.
 
 == Dependencies
-rmagick, redcloth, syntax, markaby
+rmagick, redcloth, syntax, markaby, gettext

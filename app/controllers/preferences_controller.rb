@@ -22,7 +22,7 @@ class PreferencesController < ApplicationController
     if @user.errors.empty?
       @user.password = params[:user][:password]
       if @user.save
-        flash[:notice] = trans 'password successfully updated'
+        flash[:notice] = _('password successfully updated')
       end
     end
   end
@@ -37,7 +37,7 @@ class PreferencesController < ApplicationController
     end
     
     if @user.save
-      flash[:notice] = trans 'information successfully updated'
+      flash[:notice] = _('information successfully updated')
       session[:lang] = params[:user][:lang] if params[:user][:lang]
     end
   end

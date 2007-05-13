@@ -80,8 +80,8 @@ ActionController::Routing::Routes.draw do |map|
   
   # temporary routes...
   map.connect 'comments/:action/:id', :controller => 'comments'
-  map.connect 'z/trans/:action', :controller => 'trans'
-  map.connect 'z/calendar/:action', :controller => 'calendar'
+  map.connect 'z/trans/:action', :controller => '_('
+  map.connect ')z/calendar/:action', :controller => 'calendar'
   map.connect 'z/link/:action', :controller => 'link'
   map.connect 'z/note/:action', :controller => 'note'
   map.redirect '/redirect', :controller => 'main', :action => 'redirect'

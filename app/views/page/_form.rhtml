@@ -1,8 +1,8 @@
 <% remote_form_for :node, :url => nodes_path, :html => { :rnd => rnd } do |f| -%>
 <% Tag # annonce -%>
-<p class="btn_x"><%= link_to_function transb('btn_x'), "['add_page', 'add_page_form'].each(Element.toggle);" %></p>
+<p class="btn_x"><%= link_to_function _('btn_x'), "['add_page', 'add_page_form'].each(Element.toggle);" %></p>
 <%= f.select('klass', Page.select_classes ) %>
 <%= f.text_field('name', :size => 15, :value => '' ) %>
 <%= f.hidden_field('parent_id', :value => @node.id ) %>
-<input type="submit" class="btn_validate" value='<%= transb('validate') %>'/>
+<input type="submit" class="btn_validate" value='<%= _('validate') %>'/>
 <% end -%>

@@ -1,20 +1,20 @@
-<label for="v_title"><%= trans("title")  %></label>
+<label for="v_title"><%= _("title")  %></label>
 <%= text_field 'node', 'v_title', :size=>nil %>
 
 <% if @node.kind_of?(Note) -%>
-<label for='event_at'><%= trans("event date") %></label>
+<label for='event_at'><%= _("event date") %></label>
 <%= date_box('node', 'event_at')%>
 <% end -%>
-<label><%= trans('publication date') %></label>
+<label><%= _('publication date') %></label>
 <%= date_box('node', 'v_publish_from') %>
-<label for="v_summary"><%= trans("summary")  %></label>
+<label for="v_summary"><%= _("summary")  %></label>
 <%= text_area 'node', 'v_summary', :cols=>nil, :rows=>4, :value=>@node.v_summary %>
 
-<label for='links'><%= trans("links") %></label>
+<label for='links'><%= _("links") %></label>
 <%= link_box('node', 'calendars') if @node.kind_of?(Note)%>
 <%= link_box('node', 'hot_for', :in=>[@node.section_id,1])%>
 <%= link_box('node', 'contact_for', :in=>[@node.section_id]) if @node.kind_of?(Contact)%>
 <%= link_box('node', 'hot') if @node.kind_of?(Section) %>
 
-<label for="v_comment"><%= trans("comment") %></label>
+<label for="v_comment"><%= _("comment") %></label>
 <%= text_area 'node', 'v_comment', :cols=>nil, :rows=>2 %>

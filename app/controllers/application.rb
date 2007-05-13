@@ -1,6 +1,7 @@
-# Filters added to this controller will be run for all controllers in the application.
-# Likewise, all the methods added will be available for all controllers.
+require 'gettext/rails'
+
 class ApplicationController < ActionController::Base
+  init_gettext 'zena'
   helper_method :prefix, :zen_path, :zen_url, :data_path, :node_url, :notes, :error_messages_for, :render_errors, :processing_error
   helper_method :get_template_text, :template_url_for_asset, :save_erb_to_url, :lang, :visitor, :fullpath_from_template_url
   helper 'main'
@@ -248,7 +249,7 @@ class ApplicationController < ActionController::Base
     # entire site. +authorize+ is called before any action in any controller.
     def authorize
       if (visitor.site[:authorize] || params[:prefix] == AUTHENTICATED_PREFIX) && visitor.is_anon?
-        flash[:notice] = trans "Please log in"
+        flash[:notice] = _("Please log in")
         session[:after_login_url] = request.parameters
         redirect_to login_path and return false
       end
@@ -256,6 +257,7 @@ class ApplicationController < ActionController::Base
   
     # Make sure everything is in sync, change current language, set @su warning color (tested in MainControllerTest)
     def check_env
+      # FIXME: what is this used for ?
       # Set connection charset. MySQL 4.0 doesn't support this so it
       # will throw an error, MySQL 4.1 needs this
       suppress(ActiveRecord::StatementInvalid) do
@@ -263,62 +265,40 @@ class ApplicationController < ActionController::Base
       end
     
       redirect_to not_found_path if params[:id] && params[:path] # make sure we do not mix 'pretty urls' with resources.
-    
-      new_lang = nil
+      
+      set_lang = nil
       if params[:lang]
-        if visitor.site.lang_list.include?(params[:lang])
-          new_lang = params[:lang]
-        else
-          new_lang = :bad_language
-        end
-      elsif params[:prefix] && params[:prefix] != AUTHENTICATED_PREFIX
-        if visitor.site.lang_list.include?(params[:prefix])
-          session[:lang] = params[:prefix]
-        else
-          new_lang = :bad_language
-        end
+        set_lang = params[:lang]
+      elsif params[:prefix] && params[:prefix] != '' && params[:prefix] != AUTHENTICATED_PREFIX
+        set_lang = params[:prefix]
+      else
+        set_lang = session[:lang] || request.headers['HTTP_ACCEPT_LANGUAGE'] || visitor.site[:default_lang]
       end
-    
-      if new_lang
-        if new_lang == :bad_language
-          flash[:notice] = trans "The requested language is not available."
-          session[:lang] = visitor.site[:default_lang]
+      
+      if set_lang != session[:lang]
+        if visitor.site.lang_list.include?(set_lang)
+          session[:lang] = set_lang
         else
-          session[:lang] = new_lang
+          flash[:notice] = _("The requested language is not available.")
+          session[:lang] = visitor.site.lang_list.include?(request.headers['HTTP_ACCEPT_LANGUAGE']) ? request.headers['HTTP_ACCEPT_LANGUAGE'] : visitor.site[:default_lang]
         end
         req = request.parameters
         req.delete(:lang)
         req[:prefix] = visitor.is_anon? ? session[:lang] : AUTHENTICATED_PREFIX
         redirect_to req and return false
       end
+      
       # If the current user is su, make the CSS ugly so the user does not stay logged in as su.
       if visitor.is_su?
         @su=' style="background:#060;" '
       else
         @su=''
       end
-    
-      # turn translation on/off
-      if params[:translate] 
-        if visitor.group_ids.include?(visitor.site[:trans_group_id])
-          if params[:translate] == 'on'
-            session[:translate] = true
-          else
-            session[:translate] = nil
-          end
-        end
-        req = request.parameters
-        req.delete(:translate)
-        redirect_to req and return false  
-      end
-      visitor.lang = session[:lang] ||= (visitor.lang || visitor.site[:default_lang])
+      
+      visitor.lang = session[:lang] # FIXME: this should not be needed, use global GetText.get_locale...
+      GetText.set_locale_all(session[:lang])
       
       true
-    end
-  
-    # "Translate" static text into the current lang
-    def trans(keyword, edit=true)
-      TransPhrase[keyword][lang]
     end
   
     def set_encoding
@@ -329,7 +309,7 @@ class ApplicationController < ActionController::Base
     end
   
     # Parse date : return an utc date from a string
-    def parse_date(datestr, fmt=trans('datetime'))
+    def parse_date(datestr, fmt=_('datetime'))
       elements = datestr.split(/(\.|\-|\/|\s|:)+/)
       format = fmt.split(/(\.|\-|\/|\s|:)+/)
       if elements
@@ -357,7 +337,7 @@ class ApplicationController < ActionController::Base
     
     def parse_dates(attrs=params['node'])
       # parse dates
-      fmt=trans('datetime')
+      fmt=_('datetime')
       [:v_publish_from, :log_at, :event_at].each do |sym|
         attrs[sym] = parse_date(attrs[sym], fmt) if attrs[sym]
       end

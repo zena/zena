@@ -1,5 +1,5 @@
 <li id="add_note" style="display:block;" class="btn_add">
-  <%= link_to_function transb('btn_add_note'), "['add_note', 'add_note_form'].each(Element.toggle); $('note_name').focus();" %>
+  <%= link_to_function _('btn_add_note'), "['add_note', 'add_note_form'].each(Element.toggle); $('note_name').focus();" %>
 </li>
 <li id="add_note_form" style="display:none;" class="inline_form">
   <%= render :partial=>'note/form' %>

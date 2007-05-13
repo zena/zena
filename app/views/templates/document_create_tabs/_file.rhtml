@@ -1,14 +1,14 @@
 <%= form_tag( documents_path, :multipart => true) %>
 <%= hidden_field 'node', 'parent_id', :value=>@node.parent_zip  %>
-<p class="btn_validate"><input type="submit" class="btn_validate" onclick="$('loader').style.visibility = 'visible';" value='<%= transb('validate') %>'/></p>
+<p class="btn_validate"><input type="submit" class="btn_validate" onclick="$('loader').style.visibility = 'visible';" value='<%= _('validate') %>'/></p>
 
-<label for='node_c_file'><%= trans('file') %></label>
+<label for='node_c_file'><%= _('file') %></label>
 <input id="node_c_file" name="node[c_file]" onchange="Zena.get_filename('node_c_file','node_name'); $('node_name').focus(); $('node_name').select();" class='file' type="file" />
 
-<label for='node_name'><%= trans('name') %></label>
+<label for='node_name'><%= _('name') %></label>
 <input id='node_name' type='text' name='node[name]'/><br/>
 
-<label for='node_v_summary'><%= trans('summary') %></label>
+<label for='node_v_summary'><%= _('summary') %></label>
 <textarea id='node_v_summary' rows='3' name='node[v_summary]'></textarea><br/>
 </form>
 <%#= css_edit('popup.css')%>

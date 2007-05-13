@@ -2,19 +2,19 @@
 <div id='search'><%= search_box %></div>
 
 <div class='selector'>
-  <% (partial = form_tabs).each_index do |i| %><div id='<%= partial[i][0] %>_sel' <%= i == 0 ? "class='selected'" : "" %>><%= tlink_to_function(partial[i][0], "select_tab('#{partial[i][0]}');") %></div><% end %>
+  <% (partial = form_tabs).each_index do |i| %><div id='<%= partial[i][0] %>_sel' <%= i == 0 ? "class='selected'" : "" %>><%= link_to_function(_(partial[i][0]), "select_tab('#{partial[i][0]}');") %></div><% end %>
 </div>
 
 <div class='tab'>
   <% form_remote_tag( :url=>node_path(@node[:zip]), :html => {:method => :put, :multipart => @node.kind_of?(Document), :id => 'node_form'}) do -%>
   <%= hidden_field 'node', 'v_lang', :value=>@node.v_lang %>
   <div class='validate'>
-    <div><input type="submit" onclick="$('loader').style.visibility = 'visible';" value='<%= transb('validate') %>'/></div>
-    <div><%= submit_to_remote('save', transb('save'), :url => save_text_node_path(:id => @node[:zip]), :loading=>"$('loader').style.visibility = 'visible';") %></div>
+    <div><input type="submit" onclick="$('loader').style.visibility = 'visible';" value='<%= _('validate') %>'/></div>
+    <div><%= submit_to_remote('save', _('save'), :url => save_text_node_path(:id => @node[:zip]), :loading=>"$('loader').style.visibility = 'visible';") %></div>
     <% unless @node.version.new_record? %>
-    <div><%# FIXME = submit_to_remote('backup', transb('backup'), :url=>{:action => 'backup', :controller=>'version', :id=>@node.v_id}, :loading=>"$('loader').style.visibility = 'visible';") %></div>
+    <div><%# FIXME = submit_to_remote('backup', _('backup'), :url=>{:action => 'backup', :controller=>'version', :id=>@node.v_id}, :loading=>"$('loader').style.visibility = 'visible';") %></div>
     <% end -%>
-    <div><a href='#' onclick='uploader=window.open("<%= new_document_path(:parent_id=>@node[:zip])%>", "uploader", "location=1,width=400,height=300");uploader.opener = opener;return false;'><%= transb('btn_add_document')%></a></div>
+    <div><a href='#' onclick='uploader=window.open("<%= new_document_path(:parent_id=>@node[:zip])%>", "uploader", "location=1,width=400,height=300");uploader.opener = opener;return false;'><%= _('btn_add_document')%></a></div>
   </div>
   <div class='readers'>
   <p><%= readers_for(@node) %></p></div>

@@ -65,7 +65,7 @@ class LinkController < ApplicationController
         render :inline=>"<%= hidden_field('node','box', :value=>'#{@role[:method]}') %><%= link_box 'node', '#{@role[:method]}', :title=>nil, :as_unique=>#{@role[:as_unique].inspect} %>"
       end
     else
-      render :inline=>trans('role not valid')
+      render :inline=>_('role not valid')
     end
   end
   

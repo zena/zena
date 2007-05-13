@@ -7,7 +7,7 @@ elsif li.is_admin?
   icon += '_admin'
 end %>
 <tr id='user<%= li[:id] %>'>
-  <td class="icon"><%= link_to_remote(trans("img_#{icon}"), 
+  <td class="icon"><%= link_to_remote(_("img_#{icon}"), 
           :update=>"user#{li[:id]}", 
           :url=>"/z/user/edit/#{li[:id]}") %></td>
   <td class="login"><%= 

@@ -7,7 +7,7 @@ elsif li[:id] == 3
   icon += '_site'
 end %>
 <tr id='group<%= li[:id] %>'>
-  <td class="icon"><%= if 1 == li[:id] then trans("img_#{icon}") else tlink_to_remote( "img_#{icon}", :update=>"group#{li[:id]}", :url=>{:controller=>'group', :action=>'edit', :id=>li[:id]}) end %></td>
+  <td class="icon"><%= if 1 == li[:id] then _("img_#{icon}") else link_to_remote( _("img_#{icon}"), :update=>"group#{li[:id]}", :url=>{:controller=>'group', :action=>'edit', :id=>li[:id]}) end %></td>
   <td class="name"><%= li.name %></td>
   <td class="users"><%= li.users.map {|u| u.login }.join(', ') %></td>
 </tr>
