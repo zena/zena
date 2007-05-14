@@ -4,6 +4,7 @@
 html { }
 a {text-decoration: none; color:#266F92;}
 a img {border: none;}
+img.pv { border:1px solid #333; }
 body {font: 0.9em Arial, Helvetica, Verdana, sans-serif; background:#BBC5CD; line-height: 1; color: #333;  behavior: url('stylesheets/csshover2.htc');} /* WinIE hack */
 .clear { clear:both;}
 .next { float:right; margin-right:10px; }
@@ -67,12 +68,8 @@ ul.link_box { float:left; display:block; margin:2px; padding:2px;}
 #original_caution { color:red; font-variant:small-caps; font-size:1.5em; position: absolute; top:70px;}
 
 /* new document */
-#file_tab, #text_doc_tab { padding-top:0.5em;}
-#file_tab input, #text_doc_tab input { width:200px; margin:2px;}
-#file_tab .btn_validate input, #text_doc_tab .btn_validate input { width:auto;}
-#file_tab .btn_validate, #text_doc_tab .btn_validate { float:right; padding-right:10px; }
-#file_tab textarea, #text_doc_tab textarea { width:90%;}
-#file_tab .file {font-size:0.7em;}
+#new_document .btn_validate { float:right; padding:1em; }
+#new_document .tab_content { padding-top:0; }
 
 /* created document */
 .document { padding-left:10px; padding-top:15px;}

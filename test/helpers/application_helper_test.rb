@@ -145,17 +145,11 @@ class ApplicationHelperTest < ZenaTestHelper
   
   def test_date_box
     @node = secure(Node) { nodes(:status) }
-    assert_match %r{div class="date_box".*img src="\/calendar\/iconCalendar.gif".*input id="datef.*" name="node\[updated_at\]" size="30" type="text" value="2006-04-11 01:00"}m, date_box('node', 'updated_at')
+    assert_match %r{div class="date_box".*img src="\/calendar\/iconCalendar.gif".*input id='datef.*' name='node\[updated_at\]' type='text' value='2006-04-11 01:00'}m, date_box('node', 'updated_at')
   end
   
   def test_javascript
     assert_nothing_raised { javascript('test') }
-  end
-  
-  def test__
-    session[:translate] = true
-    assert_equal _('Monday'),:edit => false), _('Monday')
-    assert_not_equal 'lundi', _('Monday')
   end
   
   def test_rnd
@@ -171,53 +165,49 @@ class ApplicationHelperTest < ZenaTestHelper
   def test_trans
     assert_equal 'yoba', _('yoba')
     assert_equal '%A, %B %d %Y', _('full_date')
-    visitor.lang = 'fr'
+    GetText.set_locale_all 'fr'
     assert_equal '%A, %d %B %Y', _('full_date')
-    visitor.lang = 'io'
-    assert_equal '%A, %B %d %Y', _('full_date')
-    session[:translate] = true
-    assert_match /div.*phrase75.*Ajax.*\%A, \%B \%d \%Y/, _('full_date')
   end
   # ======================== tests pass to here ================
   def test_long_time
     atime = visitor.tz.unadjust(Time.gm(2006,11,10,17,42,25)) # local time for visitor
     assert_equal "17:42:25", long_time(atime)
-    visitor.lang = 'fr'
-    assert_equal "17:42:25 ", long_time(atime)
+    GetText.set_locale_all 'fr'
+    assert_equal "17:42:25", long_time(atime)
   end
   
   def test_short_time
     atime = visitor.tz.unadjust(Time.gm(2006,11,10,17,33))
     assert_equal "17:33", short_time(atime)
-    visitor.lang = 'fr'
+    GetText.set_locale_all 'fr'
     assert_equal "17h33", short_time(atime)
   end
 
   def test_long_date
     atime = visitor.tz.unadjust(Time.gm(2006,11,10))
     assert_equal "2006-11-10", long_date(atime)
-    visitor.lang = 'fr'
+    GetText.set_locale_all 'fr'
     assert_equal "10.11.2006", long_date(atime)
   end
 
   def test_full_date
     atime = visitor.tz.unadjust(Time.gm(2006,11,10))
     assert_equal "Friday, November 10 2006", full_date(atime)
-    visitor.lang = 'fr'
+    GetText.set_locale_all 'fr'
     assert_equal "vendredi, 10 novembre 2006", full_date(atime)
   end
   
   def test_short_date
     atime = Time.now
     assert_equal atime.strftime('%m.%d'), short_date(atime)
-    visitor.lang = 'fr'
+    GetText.set_locale_all 'fr'
     assert_equal atime.strftime('%d.%m'), short_date(atime)
   end
   
   def test_format_date
     atime = Time.now
     assert_equal atime.strftime('%m.%d'), tformat_date(atime, 'short_date')
-    visitor.lang = 'fr'
+    GetText.set_locale_all 'fr'
     assert_equal atime.strftime('%d.%m'), tformat_date(atime, 'short_date')
   end
   
@@ -294,7 +284,7 @@ class ApplicationHelperTest < ZenaTestHelper
   # ------ these tests were in main helper ----
 
   def test_check_lang_same
-    visitor.lang = 'en'
+    GetText.set_locale_all 'en'
     obj = secure(Node) { nodes(:zena) }
     assert_equal 'en', obj.v_lang
     assert_no_match /\[en\]/, check_lang(obj)
@@ -302,6 +292,7 @@ class ApplicationHelperTest < ZenaTestHelper
   
   def test_check_other_lang
     visitor.lang = 'io'
+    GetText.set_locale_all 'io'
     obj = secure(Node) { nodes(:zena) }
     assert_match /\[en\]/, check_lang(obj)
   end
@@ -389,12 +380,6 @@ class ApplicationHelperTest < ZenaTestHelper
     login(:ant)
     @node = secure(Node) { Node.find(nodes_id(:zena))}
     assert_equal "<ul class='path'><li><a href='/#{AUTHENTICATED_PREFIX}' class='current'>zena</a></li></ul>", show_path
-  end
-  
-  def test_admin_link_translation
-    assert_equal '', show_link(:translation)
-    login(:lion)
-    assert_match %r{z/trans/list.*translate interface}, show_link(:translation)
   end
 
   def test_lang_links

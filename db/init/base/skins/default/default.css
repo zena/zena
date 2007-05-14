@@ -81,11 +81,12 @@ ul ul, ul ol, ol ol, ol ul { margin-bottom:0; }
 .zazen b, .zazen strong { font-weight:bold;  }
 .zazen i, .zazen em     { font-style:italic; }
 /* inline forms */
-.inline_form { margin:2px; padding:3px; background:#9FA6AC; border:1px dotted grey; font-size:80%; display:table;}
+.inline_form { margin:2px; padding:3px; background:#9FA6AC; border:1px dotted grey; font-size:80%;}
 .inline_form input { padding:2px 4px; }
 .inline_form p { display:inline; }
 .inline_form .date_box { display:inline; }
 .inline_form .btn_x { float:right; margin:0; }
+.inline_form .btn_x a img { border:0; }
 .inline_form .hidden { display:none; }
 .inline_form select { width:8em; }
 .inline_form .date_box input { width:12em; }

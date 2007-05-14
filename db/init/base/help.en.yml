@@ -1,0 +1,84 @@
+class: Page
+v_title: Skins (layout themes)
+v_summary: |
+  |_. markup |_. result |
+  | @the *black* cat@ | the *black* cat |
+  | @the _thin_ snake@ | the _thin_ snake |
+  | @please visit "this":http://example.org website@ | please visit "this":http://example.org website |
+  | @view our "home page":1@ | view our "home page":1 |
+  | @view: "":1@ | view: "":1 |
+  | @view: "":1.xml@ | view: "":1.xml (display in xml format) |
+  | @view: "":1_changes@ | view: "":1.xml (display with 'changes' mode) |
+  | @view: "":37_pv.data@ | view: "":37_pv.data (display data in mode 'pv') |
+  |_. start with |_. heading type |
+  | @h1. @ | level 1 heading |
+  | @h2. @ | level 2 heading |
+  | ... | ... |
+  |_. start with |_. paragraph style |
+  | @p>. @ | align right |
+  | @p=. @ | center text |
+  | @p<. @ | align left |
+  |_. markup |_. result |
+  | @!37!@ | image '37' in std format |
+  | @!37.pv!@ | image '37' in 'pv' format |
+  | @!37.pv/fig. 3!@ | image '37' in 'pv' format with 'fig. 3' as title |
+  | @!37.pv/!@ | image '37' in 'pv' format with it's summary as title |
+  | @!<.37!@ | image '37', float left (see below) |
+  | @!37!:http://example.org@ | image '37', link to 'example.org' |
+  | @!>.37!@ | float right |
+  | @!=.37!@ | center image |
+  | @!<.37!@ | float left |
+  | @![37,96]!@ | gallery with images 37 and 96 |
+  | @![]!@ | gallery with images in the node |
+  |_. markup |_. result |
+  | @!{59,86}!@ | list documents 59 and 86 |
+  | @!{}!@ | list all documents in the node |
+  
+  For advanced topics (tables, classes, styles), please look at the documentation for "textile":http://hobix.com/textile/.
+  
+v_text: |
+  h4. text and links
+  
+  |_. markup |_. result |
+  | @the *black* cat@ | the *black* cat |
+  | @the _thin_ snake@ | the _thin_ snake |
+  | @please visit "this":http://example.org website@ | please visit "this":http://example.org website |
+  | @view our "home page":1@ | view our "home page":1 |
+  | @view: "":1@ | view: "":1 |
+  | @view: "":1.xml@ | view: "":1.xml (display in xml format) |
+  | @view: "":1_changes@ | view: "":1.xml (display with 'changes' mode) |
+  | @view: "":37_pv.data@ | view: "":37_pv.data (display data in mode 'pv') |
+  
+  h4. headings and paragraphs
+  
+  |_. start with |_. heading type |
+  | @h1. @ | level 1 heading |
+  | @h2. @ | level 2 heading |
+  | ... | ... |
+  |_. start with |_. paragraph style |
+  | @p>. @ | align right |
+  | @p=. @ | center text |
+  | @p<. @ | align left |
+  
+  h4. images
+  
+  |_. markup |_. result |
+  | @!37!@ | image '37' in std format |
+  | @!37.pv!@ | image '37' in 'pv' format |
+  | @!37.pv/fig. 3!@ | image '37' in 'pv' format with 'fig. 3' as title |
+  | @!37.pv/!@ | image '37' in 'pv' format with it's summary as title |
+  | @!<.37!@ | image '37', float left (see below) |
+  | @!37!:http://example.org@ | image '37', link to 'example.org' |
+  | @!>.37!@ | float right |
+  | @!=.37!@ | center image |
+  | @!<.37!@ | float left |
+  | @![37,96]!@ | gallery with images 37 and 96 |
+  | @![]!@ | gallery with images in the node |
+  
+  h4. documents
+  
+  |_. markup |_. result |
+  | @!{59,86}!@ | list documents 59 and 86 |
+  | @!{}!@ | list all documents in the node |
+  
+  For advanced topics (tables, classes, styles), please look at the documentation for "textile":http://hobix.com/textile/.

@@ -95,27 +95,27 @@ module ApplicationHelper
   
   # display the time with the format provided by the translation of 'long_time'
   def long_time(atime)
-    tformat_date(atime, "long_time")
+    format_date(atime, _("long_time"))
   end
   
   # display the time with the format provided by the translation of 'short_time'
   def short_time(atime)
-    tformat_date(atime, "short_time")
+    format_date(atime, _("short_time"))
   end
   
   # display the time with the format provided by the translation of 'full_date'
   def full_date(adate)
-    tformat_date(adate, "full_date")
+    format_date(adate, _("full_date"))
   end
   
   # display the time with the format provided by the translation of 'long_date'
   def long_date(adate)
-    tformat_date(adate, "long_date")
+    format_date(adate, _("long_date"))
   end
   
   # display the time with the format provided by the translation of 'short_date'
   def short_date(adate)
-    tformat_date(adate, "short_date")
+    format_date(adate, _("short_date"))
   end
   
   # format a date with the given format. Translate month and day names.

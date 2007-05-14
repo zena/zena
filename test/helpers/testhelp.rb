@@ -7,8 +7,6 @@ ActionController::Routing::Routes.add_route '----/test/:action', :controller => 
 class TestController < ApplicationController
   helper_method :get_template_text, :template_url_for_asset, :save_erb_to_url
   before_filter :set_context
-  before_filter :authorize
-  before_filter :set_env
   ZazenParser = Parser.parser_with_rules(Zazen::Rules, Zazen::Tags)
   ZafuParser  = Parser.parser_with_rules(Zafu::Rules, Zena::Rules, Zafu::Tags, Zena::Tags)
   class << self
@@ -34,7 +32,7 @@ class TestController < ApplicationController
   def authorize
   end
   
-  def set_env
+  def check_env
   end
 
   def set_context

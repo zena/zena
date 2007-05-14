@@ -187,8 +187,7 @@ class CssTokenizer < Syntax::Tokenizer
       selectors.each_index do |i|
         selectors[i].gsub('.','|.').gsub('#','|#').split('|').each do |g|
           g = g.split(' ')
-          g.each_index do |gi|
-            s = g[gi]
+          g.each do |s|
             if s[0..0] == '#'
               start_group :id, s
             elsif s[0..0] == '.'
@@ -196,7 +195,7 @@ class CssTokenizer < Syntax::Tokenizer
             else
               start_group :tag, s
             end
-            start_group :normal, ' ' unless gi == g.size - 1
+            start_group :normal, ' '
           end
         end
         unless i == selectors.size - 1

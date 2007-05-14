@@ -9,7 +9,6 @@ The #Site model holds configuration information for a site:
 +public_group_id+:: Id of the 'public' group. Every user of the site (with 'anonymous user') belongs to this group.
 +admin_group_id+::  Users in this group automatically belong to all other groups. These users can change site settings and manage users.
 +site_group_id+::   Id of the 'site' group. Every user except anonymous are part of this group. This group can be seen as the 'logged in users' group.
-+trans_group_id+::  Interface translators' group. People in this group can edit the interface translations.
 +name+::            Site name (used to display grouped information for cross sites users).
 +authorize+::       If this is set to true a login is required: anonymous visitor will not be allowed to browse the site as there is no login/password for the 'anonymous user'.
 +monolingual+::     Only use the +default_lang+. This will disable the language selection menu and will remove the language prefix from all urls.
@@ -20,7 +19,7 @@ The #Site model holds configuration information for a site:
 class Site < ActiveRecord::Base
   validate :valid_host
   validates_uniqueness_of :host
-  attr_accessible :name, :authorize, :monolingual, :allow_private, :languages, :default_lang, :admin_group_id, :trans_group_id, :site_group_id
+  attr_accessible :name, :authorize, :monolingual, :allow_private, :languages, :default_lang, :admin_group_id, :site_group_id
   has_many :groups, :order=>"name"
   has_many :nodes
   has_and_belongs_to_many :users
@@ -78,7 +77,6 @@ class Site < ActiveRecord::Base
       
       site.public_group_id = pub[:id]
       site.admin_group_id  = admin[:id]
-      site.trans_group_id  = admin[:id]
       site.site_group_id   = sgroup[:id]
       site.groups << pub << sgroup << admin
       

@@ -656,7 +656,7 @@
   id:        127
   phrase_id:    61
   lang:      fr
-  value:     "%H:%M:%S "
+  value:     "%H:%M:%S"
 
 128:
   id:        128

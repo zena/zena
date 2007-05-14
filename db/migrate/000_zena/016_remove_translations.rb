@@ -2,9 +2,11 @@ class RemoveTranslations < ActiveRecord::Migration
   def self.up
     drop_table 'trans_phrases'
     drop_table 'trans_values'
+    remove_column 'sites', 'trans_group_id'
   end
 
   def self.down
+    add_column 'sites', :trans_group_id, :integer
     create_table("trans_phrases", :options => 'type=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci') do |t|
       t.column "phrase", :string, :limit => 100, :default => "", :null => false
     end

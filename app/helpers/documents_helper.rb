@@ -10,10 +10,10 @@ module DocumentsHelper
       if file == "_help.rhtml"
         help_file = file
       else
-        tabs << [trans($1), $1]
+        tabs << $1
       end
     end
-    tabs << [_('help'), 'help'] if help_file
+    tabs << 'help' if help_file
     tabs
   end
 end

@@ -190,10 +190,11 @@ end
 require 'gettext/utils'
 desc "Create mo-files for L10n" 
 task :makemo do
- GetText.create_mofiles(true, "po", "locale")
+  GetText.create_mofiles(true, "po", "locale")
 end
 
 desc "Update pot/po files to match new version." 
 task :updatepo do 
- GetText.update_pofiles('zena', Dir.glob("{app,lib}/**/*.{rb,rhtml}"), Zena::VERSION::STRING)
+  GetText::ActiveRecordParser.init(:use_classname => false, :db_mode => "development")
+  GetText.update_pofiles('zena', Dir.glob("{app,lib}/**/*.{rb,rhtml,erb,rjs}"), Zena::VERSION::STRING)
 end

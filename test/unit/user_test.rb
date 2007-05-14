@@ -111,6 +111,13 @@ class UserTest < ZenaTestUnit
     assert !user.new_record?
   end
   
+  def test_login
+    assert user = User.login('ant', 'ant', sites(:zena)), "Login  ok."
+    assert_equal user[:id], users_id(:ant)
+    assert_nil User.login('ant', 'bad', sites(:zena))
+    assert_nil User.login('ant', 'ant', sites(:ocean))
+  end
+  
   def test_anon_cannot_login
     assert_nil User.login('anon', '', sites(:zena))
   end

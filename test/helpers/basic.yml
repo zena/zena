@@ -455,3 +455,11 @@ summary_or_text_no_summary:
 ztag_in_do:
   src: "<ol do='parent'><z:children>no error</z:children></ol>"
   res: "<ol>no error</ol>"
+
+design_by:
+  src: "<li do='design'><a href='http://teti.ch'>teti.ch</a></li>"
+  res: "<li>design by <a href='http://teti.ch'>teti.ch</a></li>"
+
+design_by_options:
+  src: "<li do='design' name='teti' href='http://teti.ch'></li>"
+  res: "<li>design by <a href='http://teti.ch'>teti</a></li>"

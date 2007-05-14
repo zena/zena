@@ -40,6 +40,7 @@ class SessionController < ApplicationController
     end
     
     def failed_login(message)
+      session[:user] = nil
       flash[:error] = message
       redirect_to '/login'
     end

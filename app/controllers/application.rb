@@ -248,6 +248,8 @@ class ApplicationController < ActionController::Base
     # Verify that only logged in users access to some protected resources. This can be used to remove public access to an
     # entire site. +authorize+ is called before any action in any controller.
     def authorize
+      return true if params[:controller] == 'session' && ['create', 'new', 'destroy'].include?(params[:action])
+      
       if (visitor.site[:authorize] || params[:prefix] == AUTHENTICATED_PREFIX) && visitor.is_anon?
         flash[:notice] = _("Please log in")
         session[:after_login_url] = request.parameters
@@ -272,7 +274,7 @@ class ApplicationController < ActionController::Base
       elsif params[:prefix] && params[:prefix] != '' && params[:prefix] != AUTHENTICATED_PREFIX
         set_lang = params[:prefix]
       else
-        set_lang = session[:lang] || request.headers['HTTP_ACCEPT_LANGUAGE'] || visitor.site[:default_lang]
+        set_lang = session[:lang] ||= request.headers['HTTP_ACCEPT_LANGUAGE'] || visitor.site[:default_lang]
       end
       
       if set_lang != session[:lang]

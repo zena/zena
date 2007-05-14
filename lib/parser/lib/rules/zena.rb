@@ -463,7 +463,7 @@ END_TXT
         @pass[:each] = self
         return ""
       
-      elsif @context[:list]  
+      elsif @context[:list]
         if join = @params[:join]
           join = join.gsub(/&lt;([^%])/, '<\1').gsub(/([^%])&gt;/, '\1>')
           out "<% #{list}.each_index do |#{var}_index| -%>"
@@ -677,17 +677,27 @@ END_TXT
       if @params[:show] == 'logo'
         # FIXME
       else
+        zena = "<a class='zena' href='http://zenadmin.org' title='zena #{Zena::VERSION::STRING}'>zena</a>"
         case @params[:type]
         when 'riding'
-          message = helper.send(:_, "riding <a class='zena' href='http://zenadmin.org'>zena</a>")
+          helper.send(:_, "riding %{zena}") % {:zena => zena}
         when 'peace'
-          message = helper.send(:_, "in peace with <a class='zena' href='http://zenadmin.org'>zena</a>")
+          helper.send(:_, "in peace with %{zena}") % {:zena => zena}
+        when 'garden'
+          helper.send(:_, "a %{zen} garden") % {:zen => zena.sub('>zena<', '>zen<')}
         else
-          message = helper.send(:_, "made with <a class='zena' href='http://zenadmin.org'>zena</a>")
+          helper.send(:_, "made with %{zena}") % {:zena => zena}
         end
-        version = @params[:version] ? " #{Zena::VERSION::MAJOR}.#{Zena::VERSION::MINOR}" : ""
-        message + version
       end
+    end
+    
+    def r_design
+      if @params[:name]
+        name = "<a href='#{@params[:href]}'>#{@params[:name]}</a>"
+      else
+        name = expand_with(:trans => true)
+      end
+      helper.send(:_, "design by %{name}") % {:name => name}
     end
     
     # creates a link. Options are:
@@ -1109,15 +1119,16 @@ END_TXT
     # TODO: test
     # TODO: SECURITY is there a risk here ? We need to use the 'method' syntax instead of the [:attribute] syntax
     # because of how some custom methods implement 'initials' for example.
-    def node_attribute(attribute)
+    def node_attribute(attribute, opts={})
+      att_node = opts[:node] || node
       attribute = attribute.gsub(/(^|_)id|id$/, '\1zip') if node_kind_of?(Node)
       case attribute[0..1]
       when 'v_'
-        "#{node}.version.#{attribute[2..-1]}"
+        "#{att_node}.version.#{attribute[2..-1]}"
       when 'c_'
-        "#{node}.version.content.#{attribute[2..-1]}"
+        "#{att_node}.version.content.#{attribute[2..-1]}"
       else
-        "#{node}.#{attribute}"
+        "#{att_node}.#{attribute}"
       end
     end
     
@@ -1144,7 +1155,7 @@ END_TXT
             static = true
             value = v.gsub(/\[([^\]]+)\]/) do
               static = false
-              "\#{#{node_attribute($1)}}"
+              "\#{#{node_attribute($1, :node => (@var || node) )}}"
             end
             if static
               value = ["'#{_(value)}'"]     # array so it is not escaped on render
@@ -1152,10 +1163,9 @@ END_TXT
               value = ["'<%= _(\"#{value}\") %>'"] # array so it is not escaped on render
             end  
           else
-            # normal value
-            value = v.gsub(/\[([^\]]+)\]/) do
-              "<%= #{node_attribute($1)} %>"
-            end
+            # normal value, we use the new node context @var if it exists:
+            #  <h1 do='author' set_class='s_[status]'>name</h1> <===== author's status
+            value = v.gsub(/\[([^\]]+)\]/) { "<%= #{node_attribute($1, :node => (@var || node) )} %>" }
           end
           res_params[key.to_sym] = value
         else

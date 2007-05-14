@@ -9,7 +9,7 @@
 
   <z:stylesheets name='stylesheets' list='reset,zena,code'/>
   <link href="default.css" rel="Stylesheet" type="text/css"/>
-  
+
   <z:javascripts list='prototype,effects,zena'/>
   <z:uses_calendar/>
 </head>
@@ -48,15 +48,15 @@
       <div id='main' do='void' name='main'></div>
 
       <div id='related' do='void' name='related'>
-          <z:documents name='documents'><h3 class='group' do='_('>documents</h3>
+          <z:documents name='documents'><h3 class='group'>documents</h3>
             <ol>
-              <li do=')each'><z:link format='data'><z:img mode='tiny'/></z:link> <z:link><z:show attr='name'/>.<z:show attr='c_ext'/></z:link></li>
+              <li do='each' set_class='li_s[v_status]'><z:link format='data'><z:img mode='tiny'/></z:link> <z:link><z:show attr='name'/>.<z:show attr='c_ext'/></z:link></li>
               <li do='add'><a href='#' do='void' set_onclick='uploader=window.open("/documents/new?parent_id=[id]", "uploader", "location=1,width=400,height=300");return false;' set_href='/documents/new?parent_id=[id]'><z:trans>btn_add_doc</z:trans></a></li>
             </ol>
           </z:documents>
-          <z:if kind_of='Page' do='pages' name='pages'><h3 class='group' do='_('>pages</h3>
+          <z:if kind_of='Page' do='pages' name='pages'><h3 class='group'>pages</h3>
             <ol>
-              <li do='each' do='link'/>
+              <li do='each' set_class='li_s[v_status]' do='link'/>
               <z:add before='self' tag='li'/>
               <z:form>
                 <li class='inline_form'>
@@ -74,8 +74,8 @@
     </div>
   </z:void>
   <ul id='siteinfo' do='void' name='siteinfo'>
-    <li>design by <a href='http://teti.ch'>teti.ch</a></li>
-    <li do='zena' version='true' type='riding'/>
+    <li do='design'><a href='http://teti.ch'>teti.ch</a></li>
+    <li do='zena' version='true' type='garden'/>
   </ul>
 </body>
 </html>

@@ -2,7 +2,7 @@
 <div id='search'><%= search_box %></div>
 
 <div class='selector'>
-  <% (partial = form_tabs).each_index do |i| %><div id='<%= partial[i][0] %>_sel' <%= i == 0 ? "class='selected'" : "" %>><%= link_to_function(_(partial[i][0]), "select_tab('#{partial[i][0]}');") %></div><% end %>
+  <% (partial = form_tabs).each_index do |i| %><div id='<%= partial[i] %>_sel' <%= i == 0 ? "class='selected'" : "" %>><%= link_to_function(_(partial[i] + '_tab'), "select_tab('#{partial[i]}');") %></div><% end %>
 </div>
 
 <div class='tab'>
@@ -18,8 +18,8 @@
   </div>
   <div class='readers'>
   <p><%= readers_for(@node) %></p></div>
-<% partial.each_index do |i| %><div id='<%= partial[i][0] %>_tab' <%= i == 0 ? "" : "style='display:none;'" %> class='tab_content'>
-  <%= render :partial=>"templates/edit_tabs/#{partial[i][1]}" %>
+<% partial.each_index do |i| %><div id='<%= partial[i] %>_tab' <%= i == 0 ? "" : "style='display:none;'" %> class='tab_content'>
+  <%= render :partial=>"templates/edit_tabs/#{partial[i]}" %>
 </div><% end %>
 
 <% end -%>
@@ -27,8 +27,8 @@
 
 <%#= css_edit %>
 <%= javascript_start %>
-var current_tab = $('<%= partial[0][0] %>_tab');
-var current_sel = $('<%= partial[0][0] %>_sel');
+var current_tab = $('<%= partial[0] %>_tab');
+var current_sel = $('<%= partial[0] %>_sel');
 function select_tab(name) {
   var obj = $(name+'_tab');
   var obj_sel = $(name+'_sel');

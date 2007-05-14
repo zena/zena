@@ -47,7 +47,7 @@ class Comment < ActiveRecord::Base
       if new_record?
         self[:site_id] = discussion.node[:site_id]
         if parent && (self[:title].nil? || self[:title] == '')
-          self[:title] = TransPhrase['re:'][discussion.lang] + ' ' + parent.title
+          self[:title] = _('re: ') + parent.title
         end
         if visitor.moderated?
           self[:status] = Zena::Status[:prop]
