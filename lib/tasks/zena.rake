@@ -109,6 +109,10 @@ namespace :zena do
             end
       
             # FIXME: how do we keep favicon.ico and robots.txt in the root dir of a site ?
+            # FIXME: ln should be to 'current' release, not calendar -> /var/zena/releases/20070511195642/public/calendar
+            #        we could create a symlink in the sites dir to 'shared' -> /var/zena/current/public
+            #        and then symlink with "#{host_path}/public/#{dir}" -> "../shared/public/#{dir}"
+            #        OR we could symlink /var/zena/current/...
             ['calendar', 'images', 'javascripts', 'stylesheets'].each do |dir|
               FileUtils.ln_s("#{RAILS_ROOT}/public/#{dir}", "#{host_path}/public/#{dir}")
             end
@@ -120,10 +124,22 @@ namespace :zena do
     end
   end
   
-  task :init => :environment do
-    Dir.foreach("#{RAILS_ROOT}/db/init") do |file|
-      next unless file =~ /.+\.yml$/
-      Zena::Loader::load_file(File.join("#{RAILS_ROOT}/db/init", file))
+  desc "Remove all zafu compiled templates"
+  task :clear_zafu do
+    Dir.foreach(SITES_ROOT) do |site|
+      next if site =~ /^\./
+      FileUtils.rmtree(File.join(SITES_ROOT, site, 'zafu'))
+    end
+  end
+  
+  desc "Remove all cached data" # FIXME: cachedPages db should be cleared to
+  task :clear_cache do
+    Dir.foreach(SITES_ROOT) do |site|
+      next if site =~ /^\./ || !File.exists?(File.join(SITES_ROOT,site,'public'))
+      Dir.foreach(File.join(SITES_ROOT,site,'public')) do |elem|
+        next unless elem =~ /^\w\w(\.html|)$/
+        FileUtils.rmtree(File.join(SITES_ROOT, site, 'public', elem))
+      end
     end
   end
   
