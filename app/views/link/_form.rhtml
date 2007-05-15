@@ -10,9 +10,15 @@
       roles.delete(['tag', 'tags'])
       roles.unshift ['tag', 'tags']
     end -%>
-    <%= select('link', 'role', roles,{}, {:onchange=>"new Ajax.Updater('link_link', '/z/link/select_for/#{@node.id}?role=' + this.value, {asynchronous:true, evalScripts:true});" } ) %>
+    <select name="node[link][role]">
+    <% roles.each do |k,v| %>
+      <option value='<%= k %>'><%= v %></input>
+    <% end -%>
+    </select>
   </div>
-  <div class='link' id='link_link'><input type='hidden' name='box' value='tags'/><%= link_box 'node', 'tags', :title=>nil %>
+  <div class='link' id='link_link'>
+    <input type='hidden' class='hidden' name='drive' value='links'/>
+    <input type='text' name='node[link][other_id]' value=''/>
   </div>
   <div class='action'>
   <input type="submit" class="btn_validate" value='<%= _('set') %>'/>

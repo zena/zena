@@ -126,6 +126,7 @@ ul ul, ul ol, ol ol, ol ul { margin-bottom:0; }
 .search p { font-size:0.85em; }
 
 /* context, content, related */
+#project_icon img { border:1px solid #333; }
 #context { }
 .header h1 { margin-bottom:0.3em; }
 .header .subtitle { font-size:0.8em; }

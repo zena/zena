@@ -1,12 +1,14 @@
-<div id='parent_errors' class='errors'></div>
-<ul>
-<%= form_remote_tag(:url => node_path(@node[:zip]), :method => :put ) %>
-  <div class='hidden'><input type='hidden' name='drive' value='parent'/></div>
-  <li><label><%= _('parent') %></label><%= select_id('node', 'parent_id', :class=>@node.class.parent_class) %></li>
-  <% if @node[:parent_id] %><li><label><%= _('name') %></label><%= text_field('node', 'name', :size=>15) %></li><% end -%>
-  <% if @node.kind_of?(Page) -%>
-  <li><label><%= _('custom base url') %></label><%= check_box('node', 'custom_base') %></li>
-  <% end -%>
-  <li class='submit'><%= submit_tag _('change') %></li>
-</form>
-</ul>
+<div class='drive' id='parent'>
+  <div id='parent_errors' class='errors'></div>
+  <ul>
+  <%= form_remote_tag(:url => node_path(@node[:zip]), :method => :put ) %>
+    <div class='hidden'><input type='hidden' name='drive' value='parent'/></div>
+    <li><label><%= _('parent') %></label><%= select_id('node', 'parent_id', :class=>@node.class.parent_class) %></li>
+    <% if @node[:parent_id] %><li><label><%= _('name') %></label><%= text_field('node', 'name', :size=>15) %></li><% end -%>
+    <% if @node.kind_of?(Page) -%>
+    <li><label><%= _('custom base url') %></label><%= check_box('node', 'custom_base') %></li>
+    <% end -%>
+    <li class='submit'><%= submit_tag _('change') %></li>
+  </form>
+  </ul>
+</div>

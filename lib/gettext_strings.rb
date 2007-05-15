@@ -24,6 +24,7 @@ module Zena
     N_('img_calendar')      # link icon
     N_('img_contact')       # link icon
     N_('img_home')          # link icon
+    N_('img_icon')          # link icon
     N_('img_tag')           # link icon
     N_('img_user')          # link icon
     N_('img_collaborator')  # link icon

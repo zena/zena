@@ -11,7 +11,7 @@ else
     page << "opener.location.href = '/redirect?url=' + escape(opener.location.pathname);" # Safari bug
     page << "self.close();"
   else
-    page.replace_html @update, :partial => @update
+    page.replace @update, :partial => @update
     page.replace 'messages', :inline => flash_messages
     page.visual_effect :highlight, @update
     page.visual_effect :fade, 'notice', :duration => 3

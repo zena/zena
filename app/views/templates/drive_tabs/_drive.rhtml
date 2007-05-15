@@ -1,17 +1,11 @@
 <% if @node.ref.can_visible? || @node[:max_status] < Zena::Status[:pub] %>
-<div class='drive' id='groups'>
-  <%= render :partial=>'nodes/groups'%>
-</div>
 
-<div class='drive' id='parent'>
-  <%= render :partial=>'nodes/parent'    %>
-</div>
+<%= render :partial=>'nodes/groups'   %>
+
+<%= render :partial=>'nodes/parent'   %>
+
 <% end -%>
 
-<div class='drive' id='dates'>
-  <%= render :partial=>'nodes/dates'    %>
-</div>
+<%= render :partial=>'nodes/dates'    %>
 
-<div class='drive' id='position'>
-  <%= render :partial=>'nodes/position'    %>
-</div>
+<%= render :partial=>'nodes/position' %>

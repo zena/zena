@@ -161,7 +161,9 @@ class Node < ActiveRecord::Base
           attributes.delete('parent_id')
         end
       end
-
+      
+      puts attributes.inspect
+      
       attributes.keys.each do |key|
         if key =~ /^(\w+)_id$/ && ! ['rgroup_id', 'wgroup_id', 'pgroup_id', 'user_id'].include?(key)
           value = Node.connection.execute( "SELECT id FROM nodes WHERE site_id = #{visitor.site[:id]} AND zip = '#{attributes[key].to_i}'" ).fetch_row
@@ -169,6 +171,15 @@ class Node < ActiveRecord::Base
           attributes[key] = value[0]
         end
       end
+      
+      (attributes['link'] || {}).keys.each do |key|
+        if key =~ /^(\w+)_id$/ && ! ['rgroup_id', 'wgroup_id', 'pgroup_id', 'user_id'].include?(key)
+          value = Node.connection.execute( "SELECT id FROM nodes WHERE site_id = #{visitor.site[:id]} AND zip = '#{attributes['link'][key].to_i}'" ).fetch_row
+          raise ActiveRecord::RecordNotFound unless value
+          attributes['link'][key] = value[0]
+        end
+      end
+      
 
       attributes['parent_id'] = parent_id if parent_id
 

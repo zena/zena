@@ -174,7 +174,7 @@ class NodesController < ApplicationController
       @update = 'zafu'
     elsif params[:identifier]
       @update = 'attribute'
-    elsif params[:drive]
+    elsif ['parent', 'dates', 'groups', 'links'].include? params[:drive]
       # drive editing
       @update = params[:drive]
     else
@@ -187,7 +187,9 @@ class NodesController < ApplicationController
     else
       flash.now[:error]  = _('could not update')
     end
-    debugger
+    
+    puts @update.inspect
+    
     respond_to do |format|
       format.html { redirect_to edit_version_url(:node_id => @node[:zip], :id=>@node.v_number) }
       format.js   { @flash = flash }

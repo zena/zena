@@ -447,7 +447,7 @@ class ApplicationController < ActionController::Base
       return '' unless obj && !obj.errors.empty?
       res = ["<ul>"]
       obj.errors.each do |er,msg|
-        res << "<li><b>#{er}</b> #{trans(msg)}</li>"
+        res << "<li><b>#{er}</b> #{_(msg)}</li>"
       end
       res << '</ul>'
       res.join("\n")

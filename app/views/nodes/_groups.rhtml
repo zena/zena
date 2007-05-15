@@ -1,27 +1,29 @@
-<% if @node.can_visible?
-  inherit_modes = [[_('inherit'),1],[_('custom'),0]]
-  inherit_modes << [_('private'),-1] if visitor.site.allow_private?
-elsif @node.can_manage? && @node.max_status < Zena::Status[:pub] && visitor.site.allow_private?
-  # nothing published yet, node can be reverted to 'inherit' or set 'private' without publish rights
-  inherit_modes = [[_('inherit'),1], [_('private'),-1]]
-else
-  inherit_modes = nil
-end 
-groups_list = [0] + form_groups.map{|g| g[1]} %>
-<div id='groups_errors' class='errors'></div>
-<ul>
-<li class='readers'><%= readers_for(@node) %></li>
-<% if inherit_modes %>
-<%= form_remote_tag(:url => node_path(@node[:zip]), :html => { :method => :put, :rnd => rnd } ) %>
-  <div class='hidden'><input type='hidden' name='drive' value='groups'/></div>
-  <li><label><%= _('mode') %></label><%= select('node', 'inherit', inherit_modes, {}, {:onchange=>"Zena.update_rwp(this.value,'#{groups_list.index(@node.ref[:rgroup_id])}','#{groups_list.index(@node.ref[:wgroup_id])}','#{groups_list.index(@node.ref[:pgroup_id])}', '#{form_skins.index(@node.ref[:skin])}'); return false;"}) %></li>
-  <li><label><%= _('publishers') %></label><%= select('node', 'pgroup_id', form_groups, { :include_blank => true }, {:disabled=>(@node[:inherit] != 0)}) %></li>
-  <li><label><%= _('writers') %></label><%= select('node', 'wgroup_id',    form_groups, { :include_blank => true }, {:disabled=>(@node[:inherit] != 0)}) %></li>
-  <li><label><%= _('readers') %></label><%= select('node', 'rgroup_id',    form_groups, { :include_blank => true }, {:disabled=>(@node[:inherit] != 0)}) %></li>
-  <li><label><%= _('skin') %></label><%= select('node', 'skin',    form_skins,{}, {:disabled=>(@node[:inherit] != 0)}) %></li>
-  <li class='submit'><%= submit_tag _('change') %></li>
-</form>
-<% else %>
-<li><%= _('rights cannot be changed') %></li>
-<% end %>
-</ul>
+<div class='drive' id='groups'>
+  <% if @node.can_visible?
+    inherit_modes = [[_('inherit'),1],[_('custom'),0]]
+    inherit_modes << [_('private'),-1] if visitor.site.allow_private?
+  elsif @node.can_manage? && @node.max_status < Zena::Status[:pub] && visitor.site.allow_private?
+    # nothing published yet, node can be reverted to 'inherit' or set 'private' without publish rights
+    inherit_modes = [[_('inherit'),1], [_('private'),-1]]
+  else
+    inherit_modes = nil
+  end 
+  groups_list = [0] + form_groups.map{|g| g[1]} %>
+  <div id='groups_errors' class='errors'></div>
+  <ul>
+  <li class='readers'><%= readers_for(@node) %></li>
+  <% if inherit_modes %>
+  <%= form_remote_tag(:url => node_path(@node[:zip]), :html => { :method => :put, :rnd => rnd } ) %>
+    <div class='hidden'><input type='hidden' name='drive' value='groups'/></div>
+    <li><label><%= _('mode') %></label><%= select('node', 'inherit', inherit_modes, {}, {:onchange=>"Zena.update_rwp(this.value,'#{groups_list.index(@node.ref[:rgroup_id])}','#{groups_list.index(@node.ref[:wgroup_id])}','#{groups_list.index(@node.ref[:pgroup_id])}', '#{form_skins.index(@node.ref[:skin])}'); return false;"}) %></li>
+    <li><label><%= _('publishers') %></label><%= select('node', 'pgroup_id', form_groups, { :include_blank => true }, {:disabled=>(@node[:inherit] != 0)}) %></li>
+    <li><label><%= _('writers') %></label><%= select('node', 'wgroup_id',    form_groups, { :include_blank => true }, {:disabled=>(@node[:inherit] != 0)}) %></li>
+    <li><label><%= _('readers') %></label><%= select('node', 'rgroup_id',    form_groups, { :include_blank => true }, {:disabled=>(@node[:inherit] != 0)}) %></li>
+    <li><label><%= _('skin') %></label><%= select('node', 'skin',    form_skins,{}, {:disabled=>(@node[:inherit] != 0)}) %></li>
+    <li class='submit'><%= submit_tag _('change') %></li>
+  </form>
+  <% else %>
+  <li><%= _('rights cannot be changed') %></li>
+  <% end %>
+  </ul>
+</div>

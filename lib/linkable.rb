@@ -125,6 +125,10 @@ on the post edit page :
         return true
       end
       
+      def link=(hash)
+        add_link(hash['role'], hash['other_id'])
+      end
+      
       # remove a link
       def remove_link(link_id)
         link = Link.find(link_id)
@@ -370,6 +374,10 @@ on the post edit page :
             methods = <<-END
               def #{meth}_ids=(obj_ids)
                 @#{meth}_ids = obj_ids ? obj_ids.map{|i| i.to_i} : []
+              end
+              # add a single element
+              def #{meth}_id=(obj_id)
+                @#{meth}_ids = #{meth}_ids + [obj_id]
               end
               def #{method}=(objs)
                 @#{meth}_ids = objs ? objs.map{|obj| obj[:id]} : []
