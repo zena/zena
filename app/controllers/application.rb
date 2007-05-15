@@ -220,9 +220,9 @@ class ApplicationController < ActionController::Base
       skin_names.each do |skin_name|
         next unless skin = @skin[skin_name] ||= secure(Skin) { Skin.find_by_name(skin_name) }
         path = (skin.fullpath.split('/') + url).join('/')
-        break if document = secure(TextDocument) { TextDocument.find_by_path(path) rescue nil }
+        break if document = secure(TextDocument) { TextDocument.find_by_path(path) } rescue nil 
         path = (skin.fullpath(true).split('/') + url).join('/') # rebuild fullpath
-        break if document = secure(TextDocument) { TextDocument.find_by_path(path) rescue nil }
+        break if document = secure(TextDocument) { TextDocument.find_by_path(path) } rescue nil
       end
       document
     end
