@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 0.8.2\n"
 "POT-Creation-Date: 2007-05-14 15:17-0000\n"
-"PO-Revision-Date: 2007-05-14 17:18+0100\n"
+"PO-Revision-Date: 2007-05-15 09:23+0100\n"
 "Last-Translator: Gaspard Bucher <gaspard@teti.ch>\n"
 "Language-Team: fr <gaspard@teti.ch>\n"
 "MIME-Version: 1.0\n"
@@ -978,7 +978,7 @@ msgstr "<img src='/images/user_add.png' alt='ajouter un utilisateur'/>"
 
 #: app/views/users/_form.rhtml:19
 msgid "login"
-msgstr "s'authentifier"
+msgstr "login"
 
 #: app/views/users/_form.rhtml:21
 msgid "change password"

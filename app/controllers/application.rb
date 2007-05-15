@@ -273,11 +273,13 @@ class ApplicationController < ActionController::Base
         set_lang = params[:lang]
       elsif params[:prefix] && params[:prefix] != '' && params[:prefix] != AUTHENTICATED_PREFIX
         set_lang = params[:prefix]
+      elsif visitor.site.lang_list.include?(session[:lang])
+        # ok
       else
-        set_lang = session[:lang] ||= request.headers['HTTP_ACCEPT_LANGUAGE'] || visitor.site[:default_lang]
+        set_lang = request.headers['HTTP_ACCEPT_LANGUAGE'].split(';')[0].split(',').last.split('-').first || visitor.site[:default_lang]
       end
       
-      if set_lang != session[:lang]
+      if set_lang
         if visitor.site.lang_list.include?(set_lang)
           session[:lang] = set_lang
         else

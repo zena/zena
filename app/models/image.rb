@@ -65,7 +65,7 @@ class Image < Document
   # Be carefull as this method changes the current file. So you should make a backup version before croping the image (the popup editor displays a warning).
   def c_crop=(format)
     x, y, w, h = [format[:x].to_i, 0].max, [format[:y].to_i,0].max, [format[:w].to_i, c_width].min, [format[:h].to_i, c_height].min
-    if (x < c_width && y < c_height && w > 0 && h > 0) && !(x==0 && y==0 && w == c_width && h == c_height)
+    if format[:max_value] || format[:format] || (x < c_width && y < c_height && w > 0 && h > 0) && !(x==0 && y==0 && w == c_width && h == c_height)
       # do crop
       if file = version.content.crop(format)
         # crop can return nil, check first.

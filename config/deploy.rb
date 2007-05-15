@@ -64,7 +64,7 @@ task :clear_zafu, :roles => :app do
 end
 
 desc "clear cache" # temporary rule until cache expire is implemented with a controller
-task :clear_zafu, :roles => :app do
+task :clear_cache, :roles => :app do
   run "#{in_deploy} rake zena:clear_zafu"
 end
 

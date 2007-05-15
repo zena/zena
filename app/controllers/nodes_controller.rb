@@ -187,9 +187,10 @@ class NodesController < ApplicationController
     else
       flash.now[:error]  = _('could not update')
     end
+    debugger
     respond_to do |format|
+      format.html { redirect_to edit_version_url(:node_id => @node[:zip], :id=>@node.v_number) }
       format.js   { @flash = flash }
-      format.html { redirect_to node_url(@node[:zip]) }
     end
   end
   

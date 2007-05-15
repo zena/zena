@@ -63,9 +63,14 @@ ul.link_box { float:left; display:block; margin:2px; padding:2px;}
 #file, #file_form { height:2em;}
 #image_tab img {border:1px solid #333; margin-top:4px;}
 #image_tab, #document_tab { padding-left:3em; padding-top:3em; }
-#image_tab a, #document_tab a { width:80px; display:block; float:left;}
+#document_tab a { width:80px; display:block; float:left;}
 #image_tab .edit_info {font-size:0.8em; color:#333; margin-top:0.4em;}
 #original_caution { color:red; font-variant:small-caps; font-size:1.5em; position: absolute; top:70px;}
+
+ul.infos li { padding:0.4em 0.4em; list-style:none; display:block; }
+#crop_options li b { display:block; float:left; width:7em;}
+#crop_options { font-size:80%; position:absolute; top:95px; right:10px; border:1px solid grey; background-color:#9CA3AA; padding:5px;}
+#crop_options input { font:inherit; }
 
 /* new document */
 #new_document .btn_validate { float:right; padding:1em; }

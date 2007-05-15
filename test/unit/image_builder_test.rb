@@ -62,6 +62,25 @@ class ImageBuilderTest < ZenaTestUnit
       img.transform!('pv')
       assert_nothing_raised { data = img.read }
     end
+    
+    def test_format
+      path = "#{RAILS_ROOT}/public/images/ext/pdf.png"
+      img = ImageBuilder.new(:path=>path, :width=>30, :height=>30)
+      img.format = 'jpg'
+      new_img = img.render_img
+      assert_kind_of Magick::ImageList, new_img
+      assert_equal 'JPG', new_img.format
+    end
+    
+    def test_limit_size
+      path = "#{RAILS_ROOT}/test/fixtures/files/bird.jpg"
+      img = ImageBuilder.new(:path=>path, :width=>30, :height=>30)
+      assert_equal 56183, File.stat(path).size
+      img.max_filesize = 40000
+      new_img = img.render_img
+      assert_kind_of Magick::ImageList, new_img
+      assert new_img.filesize <= 40000 * 1.1 # approx reduction
+    end
   end
   
   def test_image_content_type

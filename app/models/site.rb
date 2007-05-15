@@ -209,6 +209,11 @@ class Site < ActiveRecord::Base
     self[:monolingual]
   end
   
+  # Return true if the site is configured to allow private nodes
+  def allow_private?
+    self[:allow_private]
+  end
+  
   # ids of the groups that cannot be removed
   def protected_group_ids
     [admin_group_id, site_group_id, public_group_id]

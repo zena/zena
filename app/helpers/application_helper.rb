@@ -636,13 +636,7 @@ module ApplicationHelper
   #TODO: test
   # Return the list of possible templates
   def form_skins
-    return @form_skins if @form_skins
-    @form_skins = secure(Skin) { Skin.find(:all, :order=>'name ASC') }.map {|r| r[:name]}
-    Dir.foreach(File.join(RAILS_ROOT, 'app', 'views', 'templates', 'fixed')) do |file|
-      next unless file =~ /^([a-zA-Z0-9_]+)$/
-      @form_skins << $1 unless @form_skins.include?($1)
-    end
-    @form_skins
+    @form_skins ||= secure(Skin) { Skin.find(:all, :order=>'name ASC') }.map {|r| r[:name]}
   end
   
   #TODO: test

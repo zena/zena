@@ -1,3 +1,4 @@
+require 'tempfile'
 begin
   # this works on the deb box
   require 'RMagick'
@@ -121,6 +122,40 @@ class ImageBuilder
     @width  = [@width ,x+w].min - x
     @height = [@height,y+h].min - y
     @actions << Proc.new {|img| img.crop!(x,y,[@img.columns, x+w].min - x,[@img.rows, y+h].min - y) }
+  end
+  
+  def format=(fmt)
+    return unless !dummy? && Magick.formats[fmt.upcase] =~ /w/
+    @actions << Proc.new {|img| img.format = fmt.upcase; img }
+  end
+  
+  def format
+    render_img.format
+  end
+  
+  def max_filesize=(size)
+    @actions << Proc.new {|img| do_limit!(size) }
+  end
+  
+  def do_limit!(size)
+    debugger
+    return if @img.filesize <= size
+    f = Tempfile.new('tmp_img')
+    @img.write(f.path)
+    return @img if File.stat(f.path).size <= size
+    if (@img.format == 'JPG' || @img.format == 'JPEG') && @img.quality > 80
+      @img.write(f.path) { self.quality = 80 }
+    else
+      @img.format = 'JPG'
+      @img.write(f.path) { self.quality = 80 }
+    end
+    ratio = File.stat(f.path).size.to_f / size
+    return @img = Magick::ImageList.new(f.path) if ratio <= 1.0
+    ratio   = 1.0 / Math.sqrt(ratio)
+    @width  *= ratio
+    @height *= ratio
+    @img.resize!(ratio)
+    @img
   end
   
   def crop_min!(w,h,gravity=Magick::CenterGravity)

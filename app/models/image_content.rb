@@ -17,16 +17,23 @@ class ImageContent < DocumentContent
   
   # Return a cropped image using the 'crop' hash with the top left corner position (:x, :y) and the width and height (:width, :heigt).
   def crop(format)
+    debugger
     return if @file # we do not want to crop on file upload in case the crop params lie around in the user's form
     x, y, w, h = format[:x].to_i, format[:y].to_i, format[:w].to_i, format[:h].to_i
-
+    new_type   = format[:format] ? EXT_TO_TYPE[format[:format].downcase][0] : nil
+    max        = format[:max_value].to_f * (format[:max_unit] == 'Mb' ? 1024 : 1) * 1024
+    
     # crop image
     img = ImageBuilder.new(:file=>file)
     img.crop!(x, y, w, h)
+    img.format       = format[:format] if new_type && new_type != content_type
+    img.max_filesize = max if format[:max_value] && max
+    
     file = Tempfile.new(filename)
     File.open(file.path, "wb") { |f| f.syswrite(img.read) }
-    fname = filename
-    ctype = content_type
+
+    ctype = EXT_TO_TYPE[img.format.downcase][0]
+    fname = "#{name}.#{TYPE_TO_EXT[ctype][0]}"
     (class << file; self; end;).class_eval do
       alias local_path path if defined?(:path)
       define_method(:original_filename) { fname }

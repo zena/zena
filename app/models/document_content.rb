@@ -35,7 +35,9 @@ class DocumentContent < ActiveRecord::Base
     else
       self[:size] = @file.stat.size
     end
-    self.ext = self[:ext] || @file.original_filename.split('.').last
+    if EXT_TO_TYPE[self.ext] != content_type
+      self.ext = @file.original_filename.split('.').last
+    end
   end
   
   def ext=(theExt)

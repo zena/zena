@@ -96,6 +96,40 @@ class ImageTest < ZenaTestUnit
     end
   end
   
+  def test_crop_image_limit
+    preserving_files('test.host/data/jpg') do
+      login(:ant)
+      img = secure(Node) { nodes(:bird_jpg) }
+      assert_equal Zena::Status[:pub], img.v_status
+      pub_version_id = img.v_id
+      pub_content_id = img.c_id
+      assert_equal 661, img.c_width
+      assert_equal 600, img.c_height
+      assert_equal 56183, img.c_size
+      assert img.update_attributes(:c_crop=>{:max_value=>'30', :max_unit=>'Kb'})
+      img = secure(Node) { nodes(:bird_jpg) }
+      assert_not_equal pub_version_id, img.v_id
+      assert_not_equal pub_content_id, img.c_id
+      assert_equal 20799,   img.c_size
+    end
+  end
+  
+  def test_crop_image_format
+    preserving_files('test.host/data/jpg') do
+      login(:ant)
+      img = secure(Node) { nodes(:bird_jpg) }
+      assert_equal Zena::Status[:pub], img.v_status
+      pub_version_id = img.v_id
+      pub_content_id = img.c_id
+      assert img.update_attributes(:c_crop=>{:format=>'png'})
+      img = secure(Node) { nodes(:bird_jpg) }
+      assert_not_equal pub_version_id, img.v_id
+      assert_not_equal pub_content_id, img.c_id
+      #assert_equal 20799,   img.c_size
+      assert_equal 'png', img.c_ext
+    end
+  end
+  
   def test_crop_image_same_size
     preserving_files('test.host/data/jpg') do
       login(:ant)
