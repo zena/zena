@@ -130,7 +130,7 @@ module Zena
         end
       end
       if static
-        _(text)
+        helper.send(:_,text)
       else
         "<%= _(#{text}) %>"
       end

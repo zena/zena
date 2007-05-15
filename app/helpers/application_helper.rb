@@ -936,7 +936,7 @@ ENDTXT
         if l == lang
           res << "<b>#{l}</b>"
         else
-          if visitor.is_anon?
+          if visitor.is_anon? && params[:prefix]
             res << link_to(l, request.parameters.merge(:prefix=>l))
           else
             res << link_to(l, request.parameters.merge(:lang=>l))

@@ -214,6 +214,11 @@ class Site < ActiveRecord::Base
     self[:allow_private]
   end
   
+  # Return true if the site is configured to force authentication
+  def authentication?
+    self[:authentication]
+  end
+  
   # ids of the groups that cannot be removed
   def protected_group_ids
     [admin_group_id, site_group_id, public_group_id]

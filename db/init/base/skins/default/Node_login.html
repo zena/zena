@@ -1,4 +1,64 @@
 <z:include template='layout.html'>
+  <z:with part='head'>
+  <title do='title_for_layout' do='trans'>login</title>
+  <meta http-equiv="Content-type" content="text/html; charset=utf-8" />
+  <meta http-equiv="Content-Language" do='void' content="fr-fr" tset_content='[v_lang]_content' />
+
+  <z:stylesheets name='stylesheets' list='reset,zena,code'/>
+
+  <z:javascripts list='prototype,effects,zena'/>
+  <z:uses_calendar/>
+<style>
+/* login, not found */
+
+#login_form, #not_found { position:absolute; top:240px; left:0; width:550px; background:#9FA6AC; border:1px dotted #450009; }
+#login_form div, #not_found div { float:right; font-size:0.85em; padding:5px;}
+#login_form input { padding:1px; margin:0.3em; border:1px solid grey; }
+#login_form table { text-align:right; margin:0;}
+
+/* nav main */
+#nav_main { height:25px; }
+#nav_main a { color:white; }
+
+#lang, #path, #login, #visitor { padding:0.4em 0.8em; }
+#lang { margin-left:250px; float:left;}
+#lang.empty { padding:0; }
+#path { float:left; }
+#path li { display:inline;}
+#login, #visitor, #search { float:right; }
+
+
+/* branding */
+#branding { position:absolute; top:0; left:20px; }
+
+/* search */
+#search { position:relative; font-size:0.9em; }
+.search { position:absolute; z-index:999; right:0; top:4px; }
+
+/* ==================== STYLES ============== */
+
+/* general settings */
+body { font:0.9em Verdana, Arial, sans-serif; line-height:1; color:#242424; }
+
+a      { color:#266F92; text-decoration:none; }
+
+/* navigation */
+#nav_main { background:#450009; font-size:0.85em; }
+#nav_main a { color:white; }
+
+#lang b { font-weight:normal; color:white;}
+#path, #lang, #lang a, #path a { color:#A27C6E;}
+#path a.current { color:white;}
+
+/* branding */
+#branding { background:white; }
+#branding img { border:1px solid #450009; }
+
+/* search */
+.search a { color:inherit; }
+.search p { font-size:0.85em; }
+</style>
+</z:with>
   <z:with part='body/navigation/menu'/>
   <z:with part='body/container'>
     <div id='login_form'><div>

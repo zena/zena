@@ -13,7 +13,7 @@ body {font: 0.9em Arial, Helvetica, Verdana, sans-serif; background:#BBC5CD; lin
 .errors ul { background:#DDC8C8; margin:0 0 5px; padding:4px 0; border-bottom:1px solid #5A3231;}
 
 /* search box */
-#search { z-index:999; z-index:999; position:absolute; top:1px; right:1px; padding-right:1px; font-size:0.8em;}
+#search { z-index:999; z-index:999; position:absolute; top:1px; right:1px; padding-right:1px; font-size:0.8em; display:table;}
 
 /* messages and ajax-loader */
 #messages { position:absolute; top:0; line-height:1.4em; width:70%; font-size:0.9em; }

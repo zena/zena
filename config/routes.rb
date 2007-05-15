@@ -9,8 +9,7 @@ ActionController::Routing::Routes.draw do |map|
   map.resource  :session   # singleton resource
   map.resources :users, :member => { :preferences => :get }
   
-  # make it work without pretty urls, fix later.
-  map.connect ':prefix/*path', :controller => 'nodes', :action => 'show', :prefix => /\w\w/ #, :requirements => { :method => :get }
+  map.connect ':prefix/*path', :controller => 'nodes', :action => 'show', :prefix => /\w\w/
   
   map.connect 'nodes/:node_id/versions/:id.:format', :controller => 'versions', :action => 'show' #, :requirements => { :method => :get }
   

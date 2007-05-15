@@ -8,7 +8,7 @@
 .results img { border:1px solid grey; float:left; margin:0 2px 0 0;}
 .results img.doc { border:0;}
 .results .btn_x img { border:0;}
-.result_name a { color:inherit;}
+#search_results .result_name a { color:#222; text-decoration:underline;}
 .result_id {color:#5C2200; font-weight:bold; display:inline;}
 .result_name { display:inline; font-weight:bold;}
 .result_path { color:#555;}

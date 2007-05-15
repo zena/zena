@@ -143,6 +143,13 @@ namespace :zena do
     end
   end
   
+  desc "Enable fulltext search in production mode"
+  task :init_fulltext => :environment do
+    ActiveRecord::Base.connection.execute "ALTER TABLE versions ENGINE = MyISAM;"
+    # add fulltext index
+    ActiveRecord::Base.connection.add_index "versions", ["title", "text", "summary"], :index_type => "FULLTEXT"   
+  end
+  
   desc "Migrate the database through scripts in db/migrate. Target specific brick and version with BRICK=x and VERSION=x"
   task :migrate => :environment do
     if ENV['BRICK']

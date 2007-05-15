@@ -4,9 +4,8 @@ class ApplicationController < ActionController::Base
   init_gettext 'zena'
   helper_method :prefix, :zen_path, :zen_url, :data_path, :node_url, :notes, :error_messages_for, :render_errors, :processing_error
   helper_method :get_template_text, :template_url_for_asset, :save_erb_to_url, :lang, :visitor, :fullpath_from_template_url
-  helper 'main'
-  before_filter :check_env
   before_filter :authorize
+  before_filter :set_lang
   after_filter  :set_encoding
   layout false
   
@@ -88,6 +87,11 @@ class ApplicationController < ActionController::Base
     end
     
     # TODO: test
+    def current_site
+      visitor.site
+    end
+    
+    # TODO: test
     def lang
       visitor.lang
     end
@@ -114,7 +118,7 @@ class ApplicationController < ActionController::Base
     def cache_page(opts={})
       return unless perform_caching && caching_allowed(:authenticated => opts.delete(:authenticated))
       opts = {:expire_after  => nil,
-              :path          => (visitor.site.public_path + page_cache_file),
+              :path          => (current_site.public_path + page_cache_file),
               :content_data  => response.body   
               }.merge(opts)
       secure(CachedPage) { CachedPage.create(opts) }
@@ -122,6 +126,7 @@ class ApplicationController < ActionController::Base
   
     # Return true if we can cache the current page
     def caching_allowed(opts = {})
+      return false if current_site.authentication?
       opts[:authenticated] || visitor.is_anon?
     end
   
@@ -160,7 +165,7 @@ class ApplicationController < ActionController::Base
       
       mode = "_#{mode}" if mode
       # FIXME use fullpath instead of 'skin_name'
-      skin_root = "#{SITES_ROOT}/#{visitor.site.host}"
+      skin_root = "#{SITES_ROOT}/#{current_site.host}"
       skin_path = "/#{template[:skin_name]}/#{template[:klass]}#{mode}.#{format}"
       main_path = "/#{visitor.lang}/main.erb"
       url = "#{skin_root}/zafu#{skin_path}#{main_path}"
@@ -191,7 +196,12 @@ class ApplicationController < ActionController::Base
     # TODO: implement
     def template_url_for_asset(opts)
       return nil unless asset = find_template_document(opts)
-      asset ? data_path(asset, :prefix=>lang) : nil
+      if asset.public? && !current_site.authentication?
+        # force the use of a cacheable path for the data, even when navigating in '/oo'
+        data_path(asset, :prefix=>lang)
+      else
+        data_path(asset, :prefix=>prefix)
+      end
     rescue ActiveRecord::RecordNotFound
       return nil
     end
@@ -244,61 +254,80 @@ class ApplicationController < ActionController::Base
       template_url = template_url[1..-1].split('/')
       path = "/#{template_url[0]}/#{template_url[1]}/#{visitor.lang}/#{template_url[2..-1].join('/')}"
 
-      "#{SITES_ROOT}/#{visitor.site.host}/zafu#{path}"
+      "#{SITES_ROOT}/#{current_site.host}/zafu#{path}"
     end
   
-    # Verify that only logged in users access to some protected resources. This can be used to remove public access to an
-    # entire site. +authorize+ is called before any action in any controller.
+    # Require a login for authenticated navigation (with '/oo' prefix) or for any content if the site's 'authorize'
+    # attribute is true.
     def authorize
       return true if params[:controller] == 'session' && ['create', 'new', 'destroy'].include?(params[:action])
       
-      if (visitor.site[:authorize] || params[:prefix] == AUTHENTICATED_PREFIX) && visitor.is_anon?
+      # Require a login if :
+      # 1. site forces authentication 
+      if (current_site.authentication? && visitor.is_anon?)
         flash[:notice] = _("Please log in")
         session[:after_login_url] = request.parameters
         redirect_to login_path and return false
       end
-    end
-  
-    # Make sure everything is in sync, change current language, set @su warning color (tested in MainControllerTest)
-    def check_env
-      # FIXME: what is this used for ?
-      # Set connection charset. MySQL 4.0 doesn't support this so it
-      # will throw an error, MySQL 4.1 needs this
-      suppress(ActiveRecord::StatementInvalid) do
-        ActiveRecord::Base.connection.execute 'SET NAMES UTF8'
-      end
-    
-      redirect_to not_found_path if params[:id] && params[:path] # make sure we do not mix 'pretty urls' with resources.
       
-      set_lang = nil
-      if params[:lang]
-        set_lang = params[:lang]
-      elsif params[:prefix] && params[:prefix] != '' && params[:prefix] != AUTHENTICATED_PREFIX
-        set_lang = params[:prefix]
-      elsif visitor.site.lang_list.include?(session[:lang])
-        # ok
-      else
-        set_lang = request.headers['HTTP_ACCEPT_LANGUAGE'].split(';')[0].split(',').last.split('-').first || visitor.site[:default_lang]
-      end
-      
-      if set_lang
-        if visitor.site.lang_list.include?(set_lang)
-          session[:lang] = set_lang
-        else
-          flash[:notice] = _("The requested language is not available.")
-          session[:lang] = visitor.site.lang_list.include?(request.headers['HTTP_ACCEPT_LANGUAGE']) ? request.headers['HTTP_ACCEPT_LANGUAGE'] : visitor.site[:default_lang]
-        end
+      # Redirect if :
+      # 1. navigating out of '/oo' but logged in and format is not data
+      if (params[:prefix] && params[:prefix] != AUTHENTICATED_PREFIX && !visitor.is_anon?)
+        format = params[:format] || (params[:path] || '').split('.').last
+        return true unless ['xml','html', nil].include?(format)
         req = request.parameters
-        req.delete(:lang)
-        req[:prefix] = visitor.is_anon? ? session[:lang] : AUTHENTICATED_PREFIX
+        session[:lang] = params[:prefix]
+        req[:prefix] = AUTHENTICATED_PREFIX
         redirect_to req and return false
       end
-      
-      # If the current user is su, make the CSS ugly so the user does not stay logged in as su.
-      if visitor.is_su?
-        @su=' style="background:#060;" '
+    end
+  
+    # Choose best language to display content.
+    # 1. 'test.host/oo?lang=en' use 'lang', redirect without lang
+    # 2. 'test.host/oo' use session[:lang], do not redirect
+    # 3. 'test.host/fr' use the request prefix, do not redirect
+    # 4. 'test.host/'   use current session lang if any
+    # 5. 'test.host/'   use HTTP_ACCEPT_LANGUAGE
+    # 6. 'test.host/'   use default language
+    def set_lang
+      new_lang = nil
+      if params[:lang]
+        new_lang = params[:lang]
+      elsif params[:prefix] == AUTHENTICATED_PREFIX
+        # ok
+      elsif current_site.lang_list.include?(params[:prefix])
+        session[:lang] = params[:prefix] # ok
+      elsif session[:lang]
+        new_lang = session[:lang]
+      elsif choices = request.headers['HTTP_ACCEPT_LANGUAGE']
+        choices = choices.split(',').sort {|a,b| (b.split(';q=')[1] || 1.0).to_f <=> (a.split(';q=')[1] || 1.0).to_f}
+        choices.each do |l|
+          l = l.split(';')[0].split('-')[0]
+          if current_site.lang_list.include?(l)
+            new_lang = l
+            break
+          end
+        end
+        new_lang ||= current_site[:default_lang]
       else
-        @su=''
+        new_lang = current_site[:default_lang]
+      end
+      
+      if new_lang
+        if current_site.lang_list.include?(new_lang)
+          session[:lang] = new_lang
+        else
+          flash[:notice] = _("The requested language is not available.")
+          session[:lang] = current_site.lang_list.include?(request.headers['HTTP_ACCEPT_LANGUAGE']) ? request.headers['HTTP_ACCEPT_LANGUAGE'] : current_site[:default_lang]
+        end
+        
+        # path is only used by nodes controller's show action
+        if (params[:controller] == 'nodes' && ['index', 'show'].include?(params[:action])) || params[:lang]
+          req = request.parameters
+          req.delete(:lang)
+          req[:prefix] = req[:prefix] ? (visitor.is_anon? ? session[:lang] : AUTHENTICATED_PREFIX) : nil
+          redirect_to req and return false
+        end
       end
       
       visitor.lang = session[:lang] # FIXME: this should not be needed, use global GetText.get_locale...
@@ -367,7 +396,7 @@ class ApplicationController < ActionController::Base
       
       params = (opts == {}) ? '' : ('?' + opts.map{ |k,v| "#{k}=#{v}"}.join('&'))
       
-      if obj[:id] == visitor.site[:root_id] && mode.nil?
+      if obj[:id] == current_site[:root_id] && mode.nil?
         "/#{pre}" # index page
       elsif obj[:custom_base]
         "/#{pre}/" +
@@ -397,7 +426,7 @@ class ApplicationController < ActionController::Base
 
     def prefix
       if visitor.is_anon?
-        if visitor.site[:monolingual]
+        if current_site[:monolingual]
           ''
         else
           lang

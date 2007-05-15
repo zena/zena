@@ -162,8 +162,6 @@ class Node < ActiveRecord::Base
         end
       end
       
-      puts attributes.inspect
-      
       attributes.keys.each do |key|
         if key =~ /^(\w+)_id$/ && ! ['rgroup_id', 'wgroup_id', 'pgroup_id', 'user_id'].include?(key)
           value = Node.connection.execute( "SELECT id FROM nodes WHERE site_id = #{visitor.site[:id]} AND zip = '#{attributes[key].to_i}'" ).fetch_row

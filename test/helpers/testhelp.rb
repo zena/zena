@@ -32,7 +32,7 @@ class TestController < ApplicationController
   def authorize
   end
   
-  def check_env
+  def set_lang
   end
 
   def set_context

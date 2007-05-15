@@ -59,8 +59,8 @@ class NodesController < ApplicationController
     end
     respond_to do |format|
       # FIXME: html should render in a full page
-      format.html { render :partial => 'results' }
-      format.js  # this one renders the partial
+      format.html { puts "HTML"; render :partial => 'results' }
+      format.js   { puts "JS" }
     end
   end
   
@@ -82,7 +82,6 @@ class NodesController < ApplicationController
       format.all  do
         # Get document data (inline if possible)
         if params[:format] != @node.c_ext
-          puts "redirect in show"
           return redirect_to(zen_path(@node), :mode => params[:mode])
         end
         
@@ -187,8 +186,6 @@ class NodesController < ApplicationController
     else
       flash.now[:error]  = _('could not update')
     end
-    
-    puts @update.inspect
     
     respond_to do |format|
       format.html { redirect_to edit_version_url(:node_id => @node[:zip], :id=>@node.v_number) }
@@ -329,7 +326,6 @@ class NodesController < ApplicationController
           end
         end
         if params[:format] == '' || (params[:format] == 'html' && ( (zip != '' && @node.custom_base) || basepath != @node.basepath(true)))
-          puts 'redirect in find_node'
           redirect_to zen_path(@node, :mode => params[:mode])
         end
       elsif params[:id]
