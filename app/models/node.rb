@@ -447,8 +447,8 @@ class Node < ActiveRecord::Base
   end
 
   # Return the full path as an array if it is cached or build it when asked for.
-  def fullpath
-    if self[:fullpath]
+  def fullpath(rebuild=false)
+    if self[:fullpath] && !rebuild
       self[:fullpath]
     else
       if parent = parent(:secure=>false)

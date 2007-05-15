@@ -32,6 +32,10 @@ class NodeTest < ZenaTestUnit
     parent.reload
     assert_equal 'projects/cleanWater', parent[:fullpath]
   end
+
+  def test_get_fullpath_rebuild
+    assert false, "TODO"
+  end
   
   def test_get_fullpath_after_private
     Node.connection.execute "UPDATE nodes SET parent_id = 3 WHERE id = 12" # put 'status' page inside private 'ant' page
