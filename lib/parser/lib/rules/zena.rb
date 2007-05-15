@@ -61,13 +61,14 @@ module Zena
         "#{node_attribute(attribute)}"
       else
         if @params[:tattr]
-          "<%= _(#{node_attribute(attribute)}) %>"
+          "<%= _(#{node_attribute(attribute, :else=>@params[:else])}) %>"
         elsif @params[:edit] == 'true' && @params[:attr]
           name = unique_name + '_' + attribute
           # TODO: add can_drive? or can_write? clauses.
-          "<span id='#{name}<%= #{node}[:zip] %>'><%= link_to_remote(#{node_attribute(attribute)}, :url => edit_node_path(#{node}[:zip]) + \"?attribute=#{attribute}&identifier=#{CGI.escape(name)}\#{#{node}[:zip]}\", :method => :get) %></span>"
+          "<span id='#{name}<%= #{node}[:zip] %>'><%= link_to_remote(#{node_attribute(attribute, :else=>@params[:else])}, :url => edit_node_path(#{node}[:zip]) + \"?attribute=#{attribute}&identifier=#{CGI.escape(name)}\#{#{node}[:zip]}\", :method => :get) %></span>"
         elsif @params[:attr]
-          "<%= #{node_attribute(attribute)} %>"
+          # TODO: test 'else'
+          "<%= #{node_attribute(attribute, :else=>@params[:else])} %>"
         elsif @params[:date]
           # date can be any attribute v_created_at or updated_at etc.
           # TODO format with @params[:format] and @params[:tformat] << translated format
@@ -1122,13 +1123,18 @@ END_TXT
     def node_attribute(attribute, opts={})
       att_node = opts[:node] || node
       attribute = attribute.gsub(/(^|_)id|id$/, '\1zip') if node_kind_of?(Node)
-      case attribute[0..1]
+      res = case attribute[0..1]
       when 'v_'
         "#{att_node}.version.#{attribute[2..-1]}"
       when 'c_'
         "#{att_node}.version.content.#{attribute[2..-1]}"
       else
         "#{att_node}.#{attribute}"
+      end
+      if opts[:else]
+        "(#{res} || #{node_attribute(opts[:else])})"
+      else
+        res
       end
     end
     
