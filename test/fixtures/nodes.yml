@@ -903,7 +903,7 @@ notes_html:
 <%= @defaults %>
 <%= @rights %>
 
-Porject_html:
+Project_html:
   id:             54
   zip:            61
   site_id:        1

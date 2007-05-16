@@ -103,19 +103,45 @@ class CachedPageTest < ZenaTestUnit
         secure(Node) { nodes(:people) }
         assert_raise(Zena::AccessViolation) do
           cache = secure(CachedPage) { CachedPage.create(
-            :path => (visitor.site.public_path + "/some/place.html"),
-            :expire_after  => nil,
+            :path         => (visitor.site.public_path + "/some/place.html"),
+            :expire_after => nil,
             :content_data => "this is the cached content",
-            :site_id => sites_id(:ocean))}
+            :site_id      => sites_id(:ocean))}
+
         end
         cache = secure(CachedPage) { CachedPage.create(
-          :path => (visitor.site.public_path + "/some/place.html"),
-          :expire_after  => nil,
+          :path         => (visitor.site.public_path + "/some/place.html"),
+          :expire_after => nil,
           :content_data => "this is the cached content") }
+
         assert !cache.new_record?, "Not a new record"
         assert_raise(Zena::AccessViolation) { cache.site_id = sites_id(:ocean) }
         assert_equal sites_id(:zena), cache[:site_id]
       end
+    end
+  end
+  
+  def test_create_for_zafu_template
+    without_files('test.host/zafu') do
+      login(:anon)
+      template_ids = [nodes_id(:Node_index_html), nodes_id(:Project_html), nodes_id(:layout_html), nodes_id(:notes_html)]
+      path = SITES_ROOT + visitor.site.zafu_path + "/default/Node_index.html/en/main.erb"
+      assert !File.exists?(path), "No cached file yet"
+      cache = secure(CachedPage) { CachedPage.create(
+        :path            => (visitor.site.zafu_path + "/default/Node_index.html/en/main.erb"),
+        :expire_after    => nil,
+        :expire_with_ids => template_ids,
+        :content_data    => "this is the cached content") }
+      assert File.exists?(path), "Cache file created"
+      data = File.open(path) {|f| f.read }
+      assert_equal "this is the cached content", data
+      assert_equal template_ids, cache.node_ids.map{|i| i.to_i}
+      # test expire
+      login(:tiger)
+      node = secure(Node) { nodes(:layout_html) }
+      assert node.update_attributes(:v_title=>'hey'), "Can save"
+      assert !File.exists?(path), "Cache file removed"
+      assert_equal [], cache.node_ids
     end
   end
 end

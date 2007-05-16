@@ -1,4 +1,6 @@
 =begin rdoc
+= Cache html pages
+
 This class is responsible for caching/expiring pages. It is called each time a web page is rendered and the visitor is anonymous.
 
 === Cache
@@ -24,10 +26,33 @@ Anonymous visits the node 'projects'. When rendering the html for this page, the
 The visited_nodes list is [11,1,12,13,39,23,82,15,43,23].
 
 Later, joe edits one of the hot topics (id=43). As +43+ is in the context for the 'projects' page, the latter is expired.
+
+
+= Cache rendered 'erb'
+
+This class is also used for caching/expiring of rendered zafu templates (erb code).
+
+=== Cached zafu
+
+When a zafu template is rendered to erb code, the ids of the sub-templates used for this rendering (through 'include' tags) are stored in the join table 'cached_pages_nodes'. Whenever any of these sub-templates (including the master template) is updated, the rendered zafu is removed. This behavior is very close to CachedPage (caching of resulting html sent to clients).
+
+=== Expire
+
+Whenever a sub-template changes, all the rendered zafu templates in which this template was included are destroyed.
+
+=== Example
+
+Rendering 'Node_index.html' to erb includes the following sub-templates :
+  Project.html ---> layout.html
+               ---> notes.html
+
+The visited_nodes list is [Node_index.html, Project.html, layout.html, notes.html].
+
+Whenever any of the nodes listed above changes, 'Node_index.html' rendered folder is destroyed.
 =end
 class CachedPage < ActiveRecord::Base
   cattr_accessor :perform_caching
-  attr_accessor  :content_data, :content_path
+  attr_accessor  :content_data, :content_path, :expire_with_ids
   has_and_belongs_to_many :nodes
   validate       :cached_page_valid
   after_save     :cached_page_after_save
@@ -55,6 +80,10 @@ class CachedPage < ActiveRecord::Base
       end
   end
   
+  #def node_ids=(ids)
+  #  @node_ids = ids
+  #end
+  
   # Cached page's creation context (list of node ids).
   def node_ids
     self.class.fetch_ids("SELECT node_id FROM cached_pages_nodes WHERE cached_page_id = '#{self[:id]}'", 'node_id')
@@ -62,7 +91,7 @@ class CachedPage < ActiveRecord::Base
   
   private
     def cached_page_valid
-      errors.add('nodes', 'visited nodes empty, cannot create cache') unless visitor && visitor.visited_node_ids != []
+      errors.add('nodes', 'visited nodes empty, cannot create cache') unless @expire_with_ids || (visitor && visitor.visited_node_ids != [])
       self[:site_id] = visitor.site[:id]
     end
   
@@ -77,7 +106,7 @@ class CachedPage < ActiveRecord::Base
       end
     
       # create join values from context for automatic expire
-      values = visitor.visited_node_ids.uniq.map {|id| "(#{self[:id]}, #{id})"}.join(',')
+      values = (@expire_with_ids || visitor.visited_node_ids).uniq.map {|id| "(#{self[:id]}, #{id})"}.join(',')
       CachedPage.connection.execute "INSERT INTO cached_pages_nodes (cached_page_id, node_id) VALUES #{values}"
     end
   

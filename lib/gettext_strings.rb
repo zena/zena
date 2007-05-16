@@ -41,6 +41,17 @@ module Zena
     N_('img_group_admin')   # edit users (admin)
     N_('img_group_site')    # edit users (admin)
     
+    N_('btn_unplublish')    # version action
+    
+    N_('status_50')         # published
+    N_('status_40')         # proposed
+    N_('status_35')         # proposed with
+    N_('status_33')         # redaction visible
+    N_('status_30')         # redaction
+    N_('status_20')         # replaced
+    N_('status_10')         # removed
+    N_('status_0')          # deleted
+    
     N_('en')
     N_('fr')
     N_('de')

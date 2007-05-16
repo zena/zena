@@ -809,9 +809,14 @@ class Node < ActiveRecord::Base
   
   # TODO: test
   def sweep_cache
+    # zafu 'erb' rendering cache expire
+    # TODO: expire only 'dev' rendering if version is a redaction
+    CachedPage.expire_with(self) if self.kind_of?(Template)
+    
+    # element caching and full result cache
     return unless Cache.perform_caching
     Cache.sweep(:visitor_id=>self[:user_id], :visitor_groups=>[rgroup_id, wgroup_id, pgroup_id], :kpath=>self.class.kpath)
-    return unless  self.public? || old.public? # is/was visible to anon user
+    return unless !visitor.site.authentication? && (self.public? || old.public?) # is/was visible to anon user
     # we want to be sure to find the project and parent, even if the visitor does not have an
     # access to these elements.
     # FIXME: use self + modified relations instead of parent/project

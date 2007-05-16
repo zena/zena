@@ -61,6 +61,13 @@ class SiteTest < ZenaTestUnit
     assert_equal "/ocean.host/data", site.data_path
   end
   
+  def test_zafu_path
+    site = sites(:zena)
+    assert_equal "/test.host/zafu", site.zafu_path
+    site = sites(:ocean)
+    assert_equal "/ocean.host/zafu", site.zafu_path
+  end
+  
   def test_anonymous
     site = sites(:zena)
     anon = site.anon

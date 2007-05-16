@@ -9,7 +9,7 @@ class MultiVersionTest < ZenaTestUnit
     }
   end
   
-  def test_find_version
+  def test_find_node_by_version
     login(:ant)
     node = secure(Node) { Node.version(versions_id(:lake_red_en)) }
     assert_equal "this is a new redaction for lake", node.v_comment
@@ -17,6 +17,20 @@ class MultiVersionTest < ZenaTestUnit
     assert_raise(ActiveRecord::RecordNotFound) { node = secure(Node) { Node.version(versions_id(:secret_en)) } }
     login(:lion)
     assert_nothing_raised { node = secure(Node) { Node.version(versions_id(:lake_red_en)) } }
+  end
+  
+  def test_find_version
+    login(:tiger) # can_drive?
+    node = secure(Node) { nodes(:lake) }
+    assert_equal versions_id(:lake_en), node.version(1)[:id]
+    node = secure(Node) { nodes(:lake) } # reload
+    assert_equal versions_id(:lake_red_en), node.version(2)[:id]
+    login(:ant)
+    visitor.lang = 'en'
+    node = secure(Node) { nodes(:lake) } # reload
+    assert_equal versions_id(:lake_red_en), node.version[:id]
+    node = secure(Node) { nodes(:lake) } # reload
+    assert_equal versions_id(:lake_en), node.version(:pub)[:id]
   end
   
   def test_accessors

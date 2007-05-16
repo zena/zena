@@ -161,6 +161,11 @@ class Site < ActiveRecord::Base
     "/#{self[:host]}/data"
   end
   
+  # Return the path for zafu rendered templates: RAILS_ROOT/sites/_host_/zafu
+  def zafu_path
+    "/#{self[:host]}/zafu"
+  end
+  
   # Return the anonymous user, the one used by anonymous visitors to visit the public part
   # of the site.
   def anon

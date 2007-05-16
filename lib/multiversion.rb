@@ -287,13 +287,15 @@ module Zena
         # * find an edition for current lang
         # * find an edition in the reference lang for this node
         # * find the first publication
-        def version(number=nil) #:doc:
+        # If 'key' is set to :pub, only find the published versions. If key is a number, find the version with this number. 
+        def version(key=nil) #:doc:
           return @version if @version
           
-          if number && !new_record? && can_drive?
+          if key && !key.kind_of?(Symbol) && !new_record? && can_drive?
             # FIXME: IS NOT SECURE !!! does not work: test
-            @version = versions.find_by_number(number)
+            @version = versions.find_by_number(key)
           else
+            min_status = (key == :pub) ? Zena::Status[:pub] : Zena::Status[:red]
             if ! @version
               if new_record?
                 @version = version_class.new
@@ -305,7 +307,7 @@ module Zena
                 @version =  Version.find(:first,
                               :select=>"*, (lang = '#{lang}') as lang_ok, (lang = '#{ref_lang}') as ref_ok",
                               :conditions=>[ "((status >= ? AND user_id = ? AND lang = ?) OR status > ?) AND node_id = ?", 
-                                              Zena::Status[:red], visitor[:id], lang, Zena::Status[:red], self[:id] ],
+                                              min_status, visitor[:id], lang, Zena::Status[:red], self[:id] ],
                               :order=>"lang_ok DESC, ref_ok DESC, status ASC ")
                 if !@version
                   @version = versions.find(:first, :order=>'id DESC')
@@ -316,7 +318,7 @@ module Zena
                 @version =  Version.find(:first,
                               :select=>"*, (lang = '#{lang}') as lang_ok, (lang = '#{ref_lang}') as ref_ok",
                               :conditions=>[ "((status >= ? AND user_id = ? AND lang = ?) OR status = ?) and node_id = ?", 
-                                              Zena::Status[:red], visitor[:id], lang, Zena::Status[:pub], self[:id] ],
+                                              min_status, visitor[:id], lang, Zena::Status[:pub], self[:id] ],
                               :order=>"lang_ok DESC, ref_ok DESC, status ASC, publish_from ASC")
 
               end

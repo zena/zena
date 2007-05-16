@@ -159,26 +159,31 @@ class ApplicationController < ActionController::Base
         :order      => "length(tkpath) DESC, skin_ok DESC"
       )}
       
-      Node.logger.info "\n\n\n\n\n\n\n"
       # FIXME use a default fixed template.
       raise ActiveRecord::RecordNotFound unless template
       
-      mode = "_#{mode}" if mode
-      # FIXME use fullpath instead of 'skin_name'
-      skin_root = "#{SITES_ROOT}/#{current_site.host}"
-      skin_path = "/#{template[:skin_name]}/#{template[:klass]}#{mode}.#{format}"
-      main_path = "/#{visitor.lang}/main.erb"
-      url = "#{skin_root}/zafu#{skin_path}#{main_path}"
+      mode      = "_#{mode}" if mode
+      lang_path = session[:dev] ? 'dev' : lang
       
-      # FIXME: use CachedPage to store the compiled template instead of this File.stat test
-      if !File.exists?(url) || (File.stat(url).mtime < template.v_updated_at)
-        # template changed, render
-        FileUtils.rmtree("#{skin_root}/zafu#{skin_path}")
+      skin_path = "/#{template[:skin_name]}/#{template[:klass]}#{mode}.#{format}"
+      fullpath  = skin_path + "/#{lang_path}/main.erb"
+      url       = SITES_ROOT + current_site.zafu_path + fullpath
+
+      if !File.exists?(url)
+        # no template ---> render
+        # TODO: test
+        
+        @expire_with_ids = []
+        
         response.template.instance_variable_set(:@session, session)
         skin_helper = response.template
         res = ZafuParser.new_with_url(skin_path, :helper => skin_helper).render
-        FileUtils::mkpath(File.dirname(url)) unless File.exists?(File.dirname(url))
-        File.open(url, "wb") { |f| f.syswrite(res) }
+        
+        secure(CachedPage) { CachedPage.create(
+          :path            => (current_site.zafu_path + fullpath),
+          :expire_after    => nil,
+          :expire_with_ids => @expire_with_ids,
+          :content_data    => res) }
       end
     
       return url
@@ -190,6 +195,10 @@ class ApplicationController < ActionController::Base
     # tested in MainControllerTest
     def get_template_text(opts)
       return nil unless doc = find_template_document(opts)
+      @expire_with_ids << doc[:id]
+      
+      # FIXME: implement a link to set/remove 'dev' mode.
+      # session[:dev] ? doc.version.text : doc.version(:pub).text
       doc.version.text
     end
 
