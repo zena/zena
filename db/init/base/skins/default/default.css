@@ -23,7 +23,7 @@
 #login, #visitor, #search { float:right; }
 
 /* menu. see below for styling */
-#nav_menu { z-index:9999; position:absolute; top:25px; left:260px;}
+#nav_menu { z-index:999; position:absolute; top:25px; left:260px;}
 #nav_menu li    { float:left; position:relative; }
 #nav_menu li ul { position:absolute; left:-1px; width:10em; }
 #nav_menu li ul li { float:none; }
@@ -49,7 +49,7 @@ but we have to use :*/
 
 /* search */
 #search { position:relative; font-size:0.9em; }
-.search { position:absolute; z-index:999; right:0; top:4px; }
+.search { position:absolute; z-index:9999; right:0; top:4px; }
 
 /* context, content, related */
 #context { position:absolute; top:125px; left:20px; width:220px; }

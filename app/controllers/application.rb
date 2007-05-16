@@ -303,7 +303,7 @@ class ApplicationController < ActionController::Base
       if params[:lang]
         new_lang = params[:lang]
       elsif params[:prefix] == AUTHENTICATED_PREFIX
-        # ok
+        session[:lang] = visitor.lang    # ok
       elsif current_site.lang_list.include?(params[:prefix])
         session[:lang] = params[:prefix] # ok
       elsif session[:lang]
