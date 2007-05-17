@@ -297,7 +297,11 @@ module Zena
             when 'Fixnum'
               res[k] = v unless current_value == v.to_i
             when 'Date', 'DateTime', 'Time'
-              res[k] = v unless current_value.strftime('%Y-%m-%d %H:%M:%S') == (v.kind_of?(String) ? DateTime.parse(v) : v).strftime('%Y-%m-%d %H:%M:%S')
+              begin
+                res[k] = v unless current_value.strftime('%Y-%m-%d %H:%M:%S') == (v.kind_of?(String) ? DateTime.parse(v) : v).strftime('%Y-%m-%d %H:%M:%S')
+              rescue
+                res[k] = v
+              end
             when 'TrueClass', 'FalseClass'
               res[k] = v unless current_value == (v.to_i != 0)
             else

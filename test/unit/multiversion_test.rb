@@ -47,6 +47,19 @@ class MultiVersionTest < ZenaTestUnit
     assert_equal Hash[:v_title=>'hey', :d_what=>'ever'], node.remove_attributes_with_same_value(current.merge(:v_title=>'hey', :d_what=>'ever'))
   end
   
+  def test_remove_attributes_with_same_value_empty_date
+    login(:ant)
+    node = secure(Node) { nodes(:status) }
+    current = { :name => "status",
+      :position => "1",
+      :v_publish_from => "2006-03-10",
+      :v_summary => "status summary",
+      :v_text => "status text",
+      :v_title => "Etat des travaux"}
+    assert_equal Hash[:v_title=>'hey', :d_what=>'ever', :v_publish_from=>nil], node.remove_attributes_with_same_value(current.merge(:v_title=>'hey', :d_what=>'ever', :v_publish_from=>nil))  
+    assert_equal Hash[:v_title=>'hey', :d_what=>'ever', :v_publish_from=>''], node.remove_attributes_with_same_value(current.merge(:v_title=>'hey', :d_what=>'ever', :v_publish_from=>''))
+  end
+  
   def test_update_same_attributes
     login(:tiger)
     visitor.lang = 'en'
