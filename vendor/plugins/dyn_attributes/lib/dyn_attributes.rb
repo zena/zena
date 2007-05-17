@@ -175,6 +175,7 @@ module Zena
         private
           def save_dynamic_attributes
             @dyn_attributes.save if @dyn_attributes
+            true # continue callbacks
           end
           
           def method_missing(sym,*args)

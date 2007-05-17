@@ -1,14 +1,15 @@
 # A skin is a master template containing all sub templates and css to render a full site or sectioon
 # of a site.
 class Skin < Section
-  before_save :need_skin_name_update
+  before_save :set_need_skin_name_update
   after_save  :update_skin_name
   
   private
   
-    def need_skin_name_update
-      return if new_record?
+    def set_need_skin_name_update
+      return nil if new_record?
       @need_skin_name_update = (self[:name] != old[:name])
+      true # save can continue
     end
     
     def update_skin_name

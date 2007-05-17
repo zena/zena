@@ -128,7 +128,7 @@ class Node < ActiveRecord::Base
   has_many           :discussions
   has_and_belongs_to_many :cached_pages
   validate           :validate_node
-  before_save        :node_before_create
+  before_create      :node_before_create
   after_save         :spread_project_and_section
   before_destroy     :node_on_destroy
   attr_protected     :site_id, :zip, :id, :section_id, :project_id, :publish_from, :max_status, :v_status
@@ -943,7 +943,7 @@ class Node < ActiveRecord::Base
   
     # Get unique zip in the current site's scope
     def node_before_create
-      self[:zip] ||= Node.next_zip(self[:site_id])
+      self[:zip] = Node.next_zip(self[:site_id])
     end
     
     # Called after an node is 'removed'

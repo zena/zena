@@ -26,7 +26,7 @@ class MultiVersionTest < ZenaTestUnit
     node = secure(Node) { nodes(:lake) } # reload
     assert_equal versions_id(:lake_red_en), node.version(2)[:id]
     node = secure(Node) { nodes(:lake) } # reload
-    assert_equal versions_id(:lake_red_en), node.version(7)[:id]
+    assert_nil node.version(7)
     login(:ant)
     visitor.lang = 'en'
     node = secure(Node) { nodes(:lake) } # reload
@@ -35,15 +35,28 @@ class MultiVersionTest < ZenaTestUnit
     assert_equal versions_id(:lake_en), node.version(:pub)[:id]
   end
   
-  def test_update_same_attributes
+  def test_remove_attributes_with_same_value
     login(:ant)
-    visitor.lang = 'en'
     node = secure(Node) { nodes(:status) }
+    current = { :name => "status",
+      :position => "1",
+      :v_publish_from => "2006-03-10",
+      :v_summary => "status summary",
+      :v_text => "status text",
+      :v_title => "Etat des travaux"}
+    assert_equal Hash[:v_title=>'hey', :d_what=>'ever'], node.remove_attributes_with_same_value(current.merge(:v_title=>'hey', :d_what=>'ever'))
+  end
+  
+  def test_update_same_attributes
+    login(:tiger)
+    visitor.lang = 'en'
+    node = secure(Node) { nodes(:people) }
     v_id = node.v_id
     v_nu = node.v_number
-    assert node.update_attributes(:v_title => node.v_title)
+    assert node.update_attributes(:v_title => node.v_title, :name => 'satori')
     assert_equal v_id, node.v_id
     assert_equal v_nu, node.v_number
+    assert_equal 'satori', node.name
   end
   
   def test_accessors

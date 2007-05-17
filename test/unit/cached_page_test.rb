@@ -27,6 +27,8 @@ class CachedPageTest < ZenaTestUnit
         # test expire
         login(:tiger)
         node = secure(Node) { nodes(:status) }
+        
+          puts node.class.read_inheritable_attribute(:after_save).inspect
         assert node.update_attributes(:v_title=>'hey'), "Can save"
         assert !File.exists?(path), "Cache file removed"
         assert_equal [], cache.node_ids

@@ -238,7 +238,8 @@ module Zena
           new_max    = self.class.connection.select_one("select #{vers_table}.status from #{vers_table} WHERE #{vers_table}.node_id='#{self[:id]}' order by #{vers_table}.status DESC LIMIT 1")['status']
           self.class.connection.execute "UPDATE #{node_table} SET max_status = '#{new_max}' WHERE #{node_table}.id = #{id}" if new_max != self[:max_status]
           self[:max_status] = new_max
-          # Callback triggered after any change to an node
+          # After_save does not necesseraly trigger after_all when a 
+          # redaction is created/updated : the node is not saved when modifications only alter the redaction.
           after_all
         end
         
@@ -251,6 +252,10 @@ module Zena
           
           attributes = new_attributes.stringify_keys
           attributes = remove_attributes_protected_from_mass_assignment(attributes)
+          attributes = remove_attributes_with_same_value(attributes)
+          
+          return true if attributes == {} # nothing to be done.
+          
           attributes.each do |k,v|
             next if k.to_s == 'id' # just ignore 'id' (cannot be set but is often around)
             if k.to_s =~ /^(v_|c_)/
@@ -263,6 +268,7 @@ module Zena
           if redaction_attr
             return false unless edit!
           end
+          
           unless node_attr
             attributes.each do |k,v|
               next if k.to_s == 'id' # just ignore 'id' (cannot be set but is often around)
@@ -273,9 +279,34 @@ module Zena
               save_version && update_max_status
             end
           else
-            super
+            super(attributes)
           end
         end
+        
+        
+        # Return only the attributes that have changed, returns all if the record is new.
+        def remove_attributes_with_same_value(new_attributes)
+          res = {}
+          new_attributes.each do |k,v|
+            current_value = self.send(k)
+            case current_value.class.to_s
+            when 'String'
+              res[k] = v unless current_value == v.to_s
+            when 'Float'
+              res[k] = v unless current_value == v.to_f
+            when 'Fixnum'
+              res[k] = v unless current_value == v.to_i
+            when 'Date', 'DateTime', 'Time'
+              res[k] = v unless current_value.strftime('%Y-%m-%d %H:%M:%S') == (v.kind_of?(String) ? DateTime.parse(v) : v).strftime('%Y-%m-%d %H:%M:%S')
+            when 'TrueClass', 'FalseClass'
+              res[k] = v unless current_value == (v.to_i != 0)
+            else
+              res[k] = v
+            end
+          end
+          res
+        end
+        
         
         # Return the current version. If @version was not set, this is a normal find or a new record. We have to find
         # a suitable edition :
@@ -362,7 +393,6 @@ module Zena
               v.user_id = visitor[:id]
               v.lang = lang || visitor.lang
               v[:content_id] = version[:content_id] || version[:id]
-              v.node = self
             end  
             v.node = self if v
             
@@ -387,35 +417,28 @@ module Zena
             value  = $3
             mode   = $4
             if mode == '='
-              # set
-              unless recipient = redaction
-                # remove trailing '='
-                redaction_error(meth.to_s[0..-2], "could not be set (no redaction)")
-                return
-              end
-              # TODO: test the value != stuff
-              if target == 'c_'
-                return nil unless recipient.content_class
-                if !new_record? && ( args[0].kind_of?(String) && recipient.content[value] == args[0] )
-                  # do not force a new redaction = ignore
-                else
-                  recipient = recipient.redaction_content
-                  begin
+              begin
+                # set
+                unless recipient = redaction
+                  # remove trailing '='
+                  redaction_error(meth.to_s[0..-2], "could not be set (no redaction)")
+                  return
+                end
+                
+                case target
+                  when 'c_'
+                    if recipient.content_class && recipient = recipient.redaction_content
+                      recipient.send(method,*args)
+                    else
+                      redaction_error(meth.to_s[0..-2], "could not be set (no content)") # remove trailing '='
+                    end
+                  when 'd_'
+                    recipient.dyn[method[0..-2]] = args[0]
+                  else
                     recipient.send(method,*args)
-                  rescue NoMethodError
-                    # bad attribute
-                    return nil
                   end
-                end
-              elsif target == 'd_'
-                recipient.dyn[method[0..-2]] = args[0]
-              else
-                begin
-                  recipient.send(method,*args)
-                rescue NoMethodError
-                  # bad attribute
-                  return nil
-                end
+              rescue NoMethodError
+                # bad attribute, just ignore
               end
             else
               # read
