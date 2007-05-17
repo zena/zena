@@ -2,7 +2,11 @@
   <h3><%= _('manage users') %></h3>
   
   <table id='user_list' class='admin_ug' cellspacing="0">
-    <%= render :partial=>'users/li',  :collection=>@users %>
+    <% @users.each do |user| -%>
+    <tr id='user<%= user[:id] %>'>
+    <%= render :partial=>'users/li',  :collection=>[user] %>
+    </tr>
+    <% end -%>
     <%= render :partial=>'users/add', :locals=>{:groups=>@groups} %>
   </table>  
   <%= link_to _("Previous page"), { :page => @user_pages.current.previous } if @user_pages.current.previous %>

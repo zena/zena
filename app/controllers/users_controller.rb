@@ -1,24 +1,13 @@
 class UsersController < ApplicationController
   before_filter :find_user
-  before_filter :check_is_admin,  :only   => [:index, :create, :edit ]
-  before_filter :restrict_access, :except => [:home,  :preferences   ]
+  #before_filter :check_is_admin,  :only => [:index, :create]
+  #before_filter :restrict_access
   layout :admin_layout
-  
-  # This view contains all the relevant information for a user's home in the CMS. From here, the
-  # user can view the versions his is currently editing, he can publish content, etc
-  # TODO: test
-  def home
-    params[:mode] = 'home'
-    respond_to do |format|
-      format.html { render_and_cache }
-      format.xml  { render :xml => @node.to_xml }
-    end
-  end
   
   def show
     respond_to do |format|
-      format.html { render_and_cache }
-      format.js   # RJS action to display a single user in a list.
+      format.html { render :file => admin_layout, :layout => false } # render, content_for_layout = nil
+      format.js   { render :partial => 'users/li', :collection => [@user] }
     end
   end
   
@@ -26,13 +15,14 @@ class UsersController < ApplicationController
   def index
     @user_pages, @users = nil, nil
     secure(User) do
+      puts User.send(:scoped_methods)[0][:find] # should be a join with users_sites --> site_id (in secure ?)
       @user_pages, @users = paginate :users, :order => 'id', :per_page => 20
       @users # leave this: used by 'secure' as return value
     end
     @groups = secure(Group) { Group.find(:all, :order=>'id') }
-    @user   = secure(User)    { User.new }
+    @user   = secure(User)  { User.new }
     respond_to do |format|
-      format.html { render :action => 'index' }
+      format.html
     end
   end
   
@@ -60,7 +50,10 @@ class UsersController < ApplicationController
     else
       @groups = Group.find(:all, :order=>'id')
     end
-    render :partial=>'user/form'
+    respond_to do |format|
+      format.html { render :partial => 'users/form' }
+      format.js   { render :partial => 'users/form', :layout => false }
+    end
   end
   
   # TODO: test
@@ -121,9 +114,9 @@ class UsersController < ApplicationController
       @node = @user.contact
     end
     
-    # Restrict access some actions to administrators (used as a before_filter)
+    # Only allow if user is admin or the current user is the visitor
+    # TODO: test
     def restrict_access
-      return true if request.method == :get
       if visitor.is_admin?
         @admin = true
       elsif @user[:id] == visitor[:id]
@@ -134,7 +127,7 @@ class UsersController < ApplicationController
           end
         end
       else
-        raise ActiveRecord::RecordNotFound if params[:user] # FIXME: replace this with a test on the html verb (should only accept get)
+        raise ActiveRecord::RecordNotFound
       end
     end
 end

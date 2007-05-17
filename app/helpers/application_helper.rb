@@ -138,7 +138,7 @@ module ApplicationHelper
   # Show visitor name if logged in
   def visitor_link(opts={})
     unless visitor.is_anon?
-      link_to( visitor.fullname, user_home_path )
+      link_to( visitor.fullname, user_path(visitor) )
     else
       ""
     end
@@ -896,21 +896,21 @@ ENDTXT
       [show_link(:home), show_link(:preferences), show_link(:comments), show_link(:users), show_link(:groups), show_link(:translation)].reject {|l| l==''}
     when :home
       return '' if visitor.is_anon?
-      link_to_with_state(_('my home'), user_home_path)
+      link_to_with_state(_('my home'), user_path(visitor))
     when :preferences
       return '' if visitor.is_anon?
       link_to_with_state(_('preferences'), preferences_user_path(visitor[:id]))
     when :comments
       return '' unless visitor.is_admin?
-      link_to_with_state(_('manage comments'), :controller=>'comment', :action=>'list')
+      link_to_with_state(_('manage comments'), :controller=>'comments', :action=>'list')
     when :users
       return '' unless visitor.is_admin?
       link_to_with_state(_('manage users'), users_path)
     when :groups
       return '' unless visitor.is_admin?
-      link_to_with_state(_('manage groups'), :controller=>'group', :action=>'list')
+      link_to_with_state(_('manage groups'), groups_path)
     when :site_tree
-      link_to_with_state(_('site tree'), :controller=>'main', :action=>'site_tree', :id=>@node)
+      link_to_with_state(_('site tree'), zen_path(visitor.site.root_node, :mode=>'tree'))
     else
       ''
     end

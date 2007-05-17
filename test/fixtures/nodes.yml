@@ -768,13 +768,13 @@ Contact_html:
 <%= @defaults %>
 <%= @rights %>
   
-Contact_home_html:
+Node_search_html:
   id:             45
   zip:            52
   site_id:        1
   type:           Template
   kpath:          NPDTT
-  name:           Contact_home
+  name:           Node_search
   project_id:     1
   section_id:     43
   parent_id:      43

@@ -2,7 +2,7 @@
   <%= 
   user_id = @user[:id]
   if @user[:id]
-    link_to_remote _('btn_x'), :url=>{:controller=>'user', :action=>'show', :id=>user_id}
+    link_to_remote _('btn_x'), :url => user_path(user_id), :update => "user#{user_id}", :method => :get
   else
     link_to_function _('btn_x'), "['add_user', 'add_user_form'].each(Element.toggle)"
   end %>
@@ -10,9 +10,9 @@
 <td class="add_ug" colspan="3">
   <div id='user_errors' class='errors'><%= error_messages_for('user') %></div>
   <% if @user[:id] %>
-  <%= form_remote_tag(:url=>{:controller=>'user', :action=>'update', :id=>@user[:id]} ) %>
+  <%= form_remote_tag(:url => user_path(@user) ) %>
   <% else %>
-  <%= form_remote_tag(:url=>{:controller=>'user', :action=>"create"} ) %>
+  <%= form_remote_tag(:url => users_path ) %>
   <% end %>
   <table cellspacing='0'>
     <% unless user_id == 1 -%>

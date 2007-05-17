@@ -1,4 +1,4 @@
-class GroupController < ApplicationController
+class GroupsController < ApplicationController
   before_filter :check_is_admin
   layout :admin_layout
   

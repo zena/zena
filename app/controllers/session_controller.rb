@@ -34,7 +34,7 @@ class SessionController < ApplicationController
       # reset session lang, will be set from user on next request
       session[:lang] = nil
       # TODO: test after_login_url
-      after_login_path = session[:after_login_url] || user_home_path
+      after_login_path = session[:after_login_url] || user_path(user)
       session[:after_login_url] = nil
       redirect_to after_login_path
     end

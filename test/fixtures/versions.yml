@@ -859,7 +859,7 @@ Contact_html:
 <% File.foreach("#{RAILS_ROOT}/db/init/base/skins/default/Contact.html") do |l| %>    <%= l %><% end %>
 <%= @defaults %>
   
-Contact_home_html:
+Node_search_html:
   type:           TemplateVersion
   id:             50
   node_id:        45
@@ -867,7 +867,7 @@ Contact_home_html:
   user_id:        4
   lang:           en
   text: |
-<% File.foreach("#{RAILS_ROOT}/db/init/base/skins/default/Contact_home.html") do |l| %>    <%= l %><% end %>
+<% File.foreach("#{RAILS_ROOT}/db/init/base/skins/default/Node_search.html") do |l| %>    <%= l %><% end %>
 <%= @defaults %>
 
 default_css:

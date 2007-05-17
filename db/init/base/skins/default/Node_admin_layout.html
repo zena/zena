@@ -9,9 +9,34 @@
     </div>
     <z:content_for_layout>
       <div id='content' do='void' name='content'>
-        <div id='main' do='void' name='main'></div>
+        <div id='main' do='void' name='main'>
+          <h2><z:trans>home of</z:trans> <z:user do='show' attr='fullname'>Panther Tigris</z:user></h2>
+        </div>
 
-        <div id='related' do='void' name='related'></div>
+        <div id='related' do='void' name='related'>
+          <ul class='actions' do='user'>
+            <li do='to_publish'><z:trans>to publish</z:trans>
+              <ul class='list'>
+                <li do='each' set_class='li_s[status]'><z:link attr='title'>title</z:show></li>
+              </ul>
+            </li>
+            <li do='comments_to_publish'><z:trans>comments to publish</z:trans>
+              <ul class='list'>
+                <li do='each'><z:show attr='title'>title</z:show></li>
+              </ul>
+            </li>
+            <li do='proposed'><z:trans>waiting for publication</z:trans>
+              <ul class='list'>
+                <li do='each'><z:show attr='title'>title</z:show></li>
+              </ul>
+            </li>
+            <li do='redactions'><z:trans>redactions</z:trans>
+              <ul class='list'>
+                <li do='each' set_class='li_s[status]'><z:link attr='title'>title</z:show></li>
+              </ul>
+            </li>
+          </ul>
+        </div>
       </div>
     </z:content_for_layout>
   </z:with>

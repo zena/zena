@@ -8,15 +8,15 @@ Contact_html:
   mode:           
   klass:          Contact
 
-Contact_home_html:
+Node_search_html:
   id:             2
   site_id:        1
   node_id:        45
   skin_name:      default
   format:         html
-  tkpath:         NRC
-  mode:           home
-  klass:          Contact
+  tkpath:         N
+  mode:           search
+  klass:          Node
   
 layout_html:
   id:             3
