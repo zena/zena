@@ -22,7 +22,7 @@
     <% end %>  
       <p class='result_id'><%= node[:id] %></p>
       <p class='result_name'><%= link_to(node.name, zen_path(node), :popup=>params[:edit]) %></p>
-      <p class='result_path'><%= node.rootpath %></p>
+      <p class='result_path'><%= node.rootpath.split('/').join(' / ') %></p>
       <div class='clear'></div>
   </li>
   <% end %>

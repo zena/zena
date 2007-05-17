@@ -59,8 +59,8 @@ class NodesController < ApplicationController
     end
     respond_to do |format|
       # FIXME: html should render in a full page
-      format.html { puts "HTML"; render :partial => 'results' }
-      format.js   { puts "JS" }
+      format.html { render :partial => 'results' }
+      format.js
     end
   end
   
@@ -188,7 +188,7 @@ class NodesController < ApplicationController
     end
     
     respond_to do |format|
-      format.html { redirect_to edit_version_url(:node_id => @node[:zip], :id=>@node.v_number) }
+      format.html { redirect_to edit_version_url(:node_id => @node[:zip], :id=>(@node.v_number || 0)) }
       format.js   { @flash = flash }
     end
   end

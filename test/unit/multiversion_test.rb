@@ -25,12 +25,25 @@ class MultiVersionTest < ZenaTestUnit
     assert_equal versions_id(:lake_en), node.version(1)[:id]
     node = secure(Node) { nodes(:lake) } # reload
     assert_equal versions_id(:lake_red_en), node.version(2)[:id]
+    node = secure(Node) { nodes(:lake) } # reload
+    assert_equal versions_id(:lake_red_en), node.version(7)[:id]
     login(:ant)
     visitor.lang = 'en'
     node = secure(Node) { nodes(:lake) } # reload
     assert_equal versions_id(:lake_red_en), node.version[:id]
     node = secure(Node) { nodes(:lake) } # reload
     assert_equal versions_id(:lake_en), node.version(:pub)[:id]
+  end
+  
+  def test_update_same_attributes
+    login(:ant)
+    visitor.lang = 'en'
+    node = secure(Node) { nodes(:status) }
+    v_id = node.v_id
+    v_nu = node.v_number
+    assert node.update_attributes(:v_title => node.v_title)
+    assert_equal v_id, node.v_id
+    assert_equal v_nu, node.v_number
   end
   
   def test_accessors

@@ -598,6 +598,10 @@ module ApplicationHelper
     node = instance_variable_get("@#{obj}".to_sym)
     method = "#{sym}_for_form".to_sym
     role = node.class.role[sym.to_s]
+    unless role
+      Node.logger.error "role #{sym} not found"
+      return ''
+    end
     setter = sym.to_s.singularize
     if role[:unique]
       # unique
@@ -606,9 +610,9 @@ module ApplicationHelper
       # many
       if opt[:in]
         ids = opt[:in].map{|i| i.to_i}
-        list = node.send(method, :conditions=>["nodes.id IN (#{ids.join(',')})"])
+        list = node.send(method, :conditions=>["nodes.id IN (#{ids.join(',')})"]) || []
       else
-        list = node.send(method)
+        list = node.send(method) || []
       end
       res = list.inject([]) do |list, l|
         list << "<input type='checkbox' name='node[#{setter}_ids][]' value='#{l.zip}' class='box' #{ l[:link_id] ? "checked='1' " : ""}/>#{l.name}"

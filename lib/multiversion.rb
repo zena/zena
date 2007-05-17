@@ -222,26 +222,23 @@ module Zena
         # TODO: OPTIMIZATION: "UPDATE nodes SET publish_from = (select versions.publish_from from versions WHERE nodes.id=versions.node_id and versions.status = 50 order by versions.publish_from DESC) WHERE id = #{id}"
         def update_publish_from
           return true if self[:publish_from] == version[:publish_from] && version[:status] == Zena::Status[:pub]
-          result  = versions.find(:first, :conditions=>"status = #{Zena::Status[:pub]}", :order=>"publish_from ASC")
-          new_pub = result ? result[:publish_from] : nil
-          if self[:publish_from] != new_pub
-            update_attribute_without_fuss(:publish_from, new_pub)
-          end
+          vers_table = version.class.table_name
+          node_table = self.class.table_name
+          new_pub    = self.class.connection.select_one("select #{vers_table}.publish_from from #{vers_table} WHERE #{vers_table}.node_id='#{self[:id]}' order by #{vers_table}.publish_from DESC LIMIT 1")['publish_from']
+          self.class.connection.execute "UPDATE #{node_table} SET publish_from = '#{new_pub}' WHERE #{node_table}.id = #{id}" if new_pub != self[:publish_from]
+          self[:publish_from] = new_pub
           true
         end
         
         # Set +publish_from+ to the minimum publication time of all editions
-        # TODO: OPTIMIZATION: "UPDATE nodes SET max_status = (select versions.status from versions WHERE nodes.id=versions.node_id order by versions.status DESC) WHERE id = #{id}"
         def update_max_status(version = self.version)
           return true if version[:status] == max_status
-          result = versions.find(:first, :order=>"status DESC")
-          # we cannot set status directly with self[:max_status] : a security measure in acts_as_secure#secure_on_update
-          # only accepts the @max_status (private attribute) style.
-          new_max = result ? result[:status] : nil
-          if self[:max_status] != new_max
-            update_attribute_without_fuss(:max_status, new_max)
-          end
-          # Callback triggered after any changed to an node
+          vers_table = version.class.table_name
+          node_table = self.class.table_name
+          new_max    = self.class.connection.select_one("select #{vers_table}.status from #{vers_table} WHERE #{vers_table}.node_id='#{self[:id]}' order by #{vers_table}.status DESC LIMIT 1")['status']
+          self.class.connection.execute "UPDATE #{node_table} SET max_status = '#{new_max}' WHERE #{node_table}.id = #{id}" if new_max != self[:max_status]
+          self[:max_status] = new_max
+          # Callback triggered after any change to an node
           after_all
         end
         
@@ -326,9 +323,9 @@ module Zena
             if @version.nil?
               raise Exception.new("#{self.class} #{self[:id]} does not have any version !!")
             end
+            @version.node = self # preload self as node in version
+            @version
           end  
-          @version.node = self # preload self as node in version
-          @version
         end
         
         private

@@ -1,3 +1,4 @@
 page << "try {"
-page.replace_html   "#{@key}#{@preview_id}", zazen(@value, :pretty_code=>true)
+@value = zazen(@value, :pretty_code=>true) if @key != 'v_title'
+page.replace_html   "#{@key}#{@preview_id}", @value
 page << "} catch(err) {}"

@@ -169,7 +169,10 @@ class VersionsController < ApplicationController
   protected
     def find_node
       @node = secure(Node) { Node.find_by_zip(params[:node_id]) }
-      @node.version(params[:id]) if params[:id].to_i != 0 # try to set current version from version number
+      if params[:id].to_i != 0
+        # try to set current version from version number
+        redirect_to :id => @node.v_number unless @node.version(params[:id])
+      end
     end
     
     def do_rendering

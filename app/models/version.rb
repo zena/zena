@@ -36,6 +36,7 @@ class Version < ActiveRecord::Base
   validate              :valid_version
   validate_on_update    :can_update_content
   after_save            :save_content
+  before_create         :set_number
   uses_dynamic_attributes
   # not tested belongs_to :comment_group, :class_name=>'Group', :foreign_key=>'cgroup_id'
   # not tested has_many :comments, :order=>'created_at'
@@ -136,6 +137,11 @@ class Version < ActiveRecord::Base
       end
     end
   
+    def set_number
+      last_record = node[:id] ? self.connection.select_one("select number from #{self.class.table_name} where node_id = '#{node[:id]}' ORDER BY number DESC LIMIT 1") : nil
+      self[:number] = (last_record || {})['number'].to_i + 1
+    end
+    
     def save_content
       if @content
         @content.save_without_validation # validations checked with 'valid_content'
@@ -157,16 +163,8 @@ class Version < ActiveRecord::Base
       self[:title]   ||= node[:name]
       self[:summary] ||= ""
       self[:comment] ||= ""
+      self[:type]    ||= self.class.to_s
       # ]
-      if new_record?
-        last = Version.find(:first, :conditions=>['node_id = ?', node[:id]], :order=>'number DESC')
-        self[:type] = self.class.to_s
-        if last
-          self[:number] = last[:number] + 1
-        else
-          self[:number] = 1
-        end
-      end
       if content_class
         content[:site_id] = self[:site_id]
       end
