@@ -1,0 +1,21 @@
+<z:include template='layout.html'>
+  <z:with part='body/container/context'/>
+
+  <z:with part='body/container/content/main'>
+    
+    <h2 do=trans>search results</h2>
+    
+    <ul id='search_results' do='search_results'>
+      <li class='result_entry' do='each'>
+        <p class='result_image'><z:img mode='pv'/></p>
+        <p class='result_name'><em><z:show attr='score' format='%.1f'/>%</em> <z:link/></p>      
+        <p class='result_path'><z:show attr='rootpath'/></p>
+        <z:summary/>
+        <div class='clear'></div>
+      </li>
+      <z:else>
+        <p do='trans'>no result found</p>
+      </z:else>
+    </ul>
+  </z:with>
+</z:include>

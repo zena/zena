@@ -41,6 +41,11 @@ module Zena
     N_('img_group_admin')   # edit users (admin)
     N_('img_group_site')    # edit users (admin)
     
+    N_('%{ext} document')   # alt attribute for img_tag 
+    N_('%{type} node')      # alt attribute for img_tag
+    
+    N_('no result found')   # search template
+    
     N_('btn_unplublish')    # version action
     
     N_('status_50')         # published

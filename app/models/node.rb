@@ -464,6 +464,10 @@ class Node < ActiveRecord::Base
     ZENA_ENV[:site_name] + (fullpath != "" ? "/#{fullpath}" : "")
   end
   
+  # Used by zafu to find the search score
+  # def score
+  #   self[:score]
+  # end
   
   def relation_methods
     ['root', 'project', 'section', 'parent', 'self', 'nodes', 'projects', 'sections', 'children', 'pages', 'documents', 'documents_only', 'images', 'notes', 'author', 'traductions', 'versions']

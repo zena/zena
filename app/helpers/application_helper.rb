@@ -334,11 +334,10 @@ module ApplicationHelper
     prefix + render_to_string( :partial=>'main/list_nodes', :locals=>{:docs=>docs}) + suffix
   end
   
-  # Display an image tag for the given node (must be a sub-class of Document). If no mode is provided, 'full' is used. Options are ':mode', ':id', ':alt' and ':class'. If no class option is passed,
+  # Display an image tag for the given node. If no mode is provided, 'full' is used. Options are ':mode', ':id', ':alt' and ':class'. If no class option is passed,
   # the format is used as the image class. Example :
   #   img_tag(@node, :mode=>'pv')  => <img src='/sites/test.host/data/jpg/20/bird_pv.jpg' height='80' width='80' alt='bird' class='pv'/>
   def img_tag(obj, options={})
-    return "" unless obj.kind_of?(Document)
     opts    = options.dup
     
     mode    = opts.delete(:mode)
@@ -346,13 +345,14 @@ module ApplicationHelper
     alt     = opts.delete(:alt)
     img_id  = opts.delete(:id)
     
-    content = obj.v_content
-    ext     = content.ext
-    opts    = opts.merge(:format => ext)
+    if obj.kind_of?(Document)
+      content = obj.v_content
+      ext     = content.ext
+      opts    = opts.merge(:format => ext)
+    end
     
     src = width = height = img_class = nil
     if obj.kind_of?(Image)
-      alt ||= obj.v_title.gsub("'", '&apos;')
       mode = content.verify_format(mode) || 'std'
       
       src       = zen_path(obj, opts.merge(:mode => (mode == 'full' ? nil : mode)))
@@ -367,26 +367,34 @@ module ApplicationHelper
         width = content.width(mode)
         height= content.height(mode)
       end
-    elsif obj.kind_of?(Document)
+    else
       mode    = IMAGEBUILDER_FORMAT[mode] ? mode : nil
-      alt   ||= "#{content.ext} document"
+      
+      if obj.kind_of?(Document)
+        icon  = ext
+        alt ||= _('%{ext} document') % {:ext => ext}
+      else
+        icon = obj.class.to_s.downcase
+        alt ||= _('%{type} node') % {:type => icon}
+      end
       
       img_class = klass || 'doc'
-      unless File.exist?("#{RAILS_ROOT}/public/images/ext/#{ext}.png")
-        ext = 'other'
+      unless File.exist?("#{RAILS_ROOT}/public/images/ext/#{icon}.png")
+        icon = 'other'
       end
+      
       unless mode
         # img_tag from extension
         width  = 32
         height = 32
-        src    = "/images/ext/#{ext}.png"
+        src    = "/images/ext/#{icon}.png"
       else
-        img = ImageBuilder.new(:path=>"#{RAILS_ROOT}/public/images/ext/#{ext}.png", :width=>32, :height=>32)
+        img = ImageBuilder.new(:path=>"#{RAILS_ROOT}/public/images/ext/#{icon}.png", :width=>32, :height=>32)
         img.transform!(mode)
         width  = img.width
         height = img.height
         
-        filename = "#{ext}_#{mode}.png"
+        filename = "#{icon}_#{mode}.png"
         path     = "#{RAILS_ROOT}/public/images/ext/"
         unless File.exist?(File.join(path,filename))
           # make new image with the mode
@@ -394,7 +402,7 @@ module ApplicationHelper
             FileUtils::mkpath(path)
           end
           if img.dummy?
-            File.cp("#{RAILS_ROOT}/public/images/ext/#{ext}.png", "#{RAILS_ROOT}/public/images/ext/#{filename}")
+            File.cp("#{RAILS_ROOT}/public/images/ext/#{icon}.png", "#{RAILS_ROOT}/public/images/ext/#{filename}")
           else
             File.open(File.join(path, filename), "wb") { |f| f.syswrite(img.read) }
           end
@@ -402,9 +410,6 @@ module ApplicationHelper
         
         src    = "/images/ext/#{filename}"
       end
-    else
-      # what do we do here ?
-      # return nothing ? nil ?
     end
     res = "<img src='#{src}'"
     [[:width, width], [:height, height], [:alt, alt], [:id, img_id], [:class, img_class]].each do |k,v|

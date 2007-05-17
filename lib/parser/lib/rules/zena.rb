@@ -67,8 +67,12 @@ module Zena
           # TODO: add can_drive? or can_write? clauses.
           "<span id='#{name}<%= #{node}[:zip] %>'><%= link_to_remote(#{node_attribute(attribute, :else=>@params[:else])}, :url => edit_node_path(#{node}[:zip]) + \"?attribute=#{attribute}&identifier=#{CGI.escape(name)}\#{#{node}[:zip]}\", :method => :get) %></span>"
         elsif @params[:attr]
-          # TODO: test 'else'
-          "<%= #{node_attribute(attribute, :else=>@params[:else])} %>"
+          # TODO: test 'else', test 'format'
+          if @params[:format]
+            "<%= sprintf(#{@params[:format].inspect}, #{node_attribute(attribute, :else=>@params[:else])}) %>"
+          else
+            "<%= #{node_attribute(attribute, :else=>@params[:else])} %>"
+          end
         elsif @params[:date]
           # date can be any attribute v_created_at or updated_at etc.
           # TODO format with @params[:format] and @params[:tformat] << translated format
@@ -102,6 +106,11 @@ module Zena
       else
         # error
       end
+    end
+    
+    # TODO: test, rename ?
+    def r_search_results
+      do_list("@nodes")
     end
     
     def r_trans

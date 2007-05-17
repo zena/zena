@@ -323,9 +323,9 @@ module Zena
         def version(key=nil) #:doc:
           return @version if @version
           
-          if key && !key.kind_of?(Symbol) && !new_record? && can_drive?
-            # FIXME: IS NOT SECURE !!! does not work: test
-            @version = versions.find_by_number(key)
+          if key && !key.kind_of?(Symbol) && !new_record?
+            min_status = can_drive? ? Zena::Status[:prop] : Zena::Status[:pub]
+            @version = secure(Version) { Version.find(:first, :conditions => ["node_id = ? AND number = ? AND (user_id = ? OR status >= ?)", self[:id], key, visitor[:id], min_status]) }
           else
             min_status = (key == :pub) ? Zena::Status[:pub] : Zena::Status[:red]
             if ! @version
@@ -358,9 +358,9 @@ module Zena
             if @version.nil?
               raise Exception.new("#{self.class} #{self[:id]} does not have any version !!")
             end
-            @version.node = self # preload self as node in version
-            @version
-          end  
+          end    
+          @version.node = self if @version # preload self as node in version
+          @version
         end
         
         private

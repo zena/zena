@@ -38,6 +38,7 @@ class NodesController < ApplicationController
   end
   
   def search
+    @node = site.root_node
     if params[:q] && params[:q] != ''
       match = Node.send(:sanitize_sql, ["MATCH (versions.title,versions.text,versions.summary) AGAINST (?)", params[:q]])
       query = {
@@ -58,8 +59,7 @@ class NodesController < ApplicationController
       @nodes # important: this is the 'secure' yield return, it is used to secure found nodes
     end
     respond_to do |format|
-      # FIXME: html should render in a full page
-      format.html { render :partial => 'results' }
+      format.html { render_and_cache :mode => 'search' }
       format.js
     end
   end

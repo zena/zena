@@ -17,8 +17,6 @@ class NavigationTest < ActionController::IntegrationTest
     reset!
     post 'http://test.host/session', :login=>'tiger', :password=>'tiger'
     assert_redirected_to 'http://test.host/home'
-    follow_redirect!
-    assert_equal 'en', session[:lang]
     
     # 2. navigating out of '/oo' but logged in and format is not data
     get 'http://test.host/fr'
@@ -60,6 +58,19 @@ class NavigationTest < ActionController::IntegrationTest
     assert_equal 'es', session[:lang]
     get 'http://test.host/nodes/29/edit'
     assert_response :success
+  end
+  
+  def test_set_lang_with_login
+    post 'http://test.host/session', :login=>'tiger', :password=>'tiger'
+    assert_redirected_to 'http://test.host/home'
+    follow_redirect!
+    assert_response :success
+    assert_equal 'en', session[:lang]
+    get 'http://test.host/oo?lang=fr'
+    assert_redirected_to 'http://test.host/home'
+    follow_redirect!
+    assert_response :success
+    assert_equal 'fr', session[:lang]
   end
   
   private

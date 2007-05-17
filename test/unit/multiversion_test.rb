@@ -25,6 +25,7 @@ class MultiVersionTest < ZenaTestUnit
     assert_equal versions_id(:lake_en), node.version(1)[:id]
     node = secure(Node) { nodes(:lake) } # reload
     assert_equal versions_id(:lake_red_en), node.version(2)[:id]
+    assert_equal users_id(:tiger), node.version(2).instance_variable_get(:@visitor)[:id]
     node = secure(Node) { nodes(:lake) } # reload
     assert_nil node.version(7)
     login(:ant)

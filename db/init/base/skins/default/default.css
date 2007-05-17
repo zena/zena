@@ -23,7 +23,7 @@
 #login, #visitor, #search { float:right; }
 
 /* menu. see below for styling */
-#nav_menu { z-index:999; position:absolute; top:25px; left:260px;}
+#nav_menu { z-index:9999; position:absolute; top:25px; left:260px;}
 #nav_menu li    { float:left; position:relative; }
 #nav_menu li ul { position:absolute; left:-1px; width:10em; }
 #nav_menu li ul li { float:none; }
@@ -49,7 +49,7 @@ but we have to use :*/
 
 /* search */
 #search { position:relative; font-size:0.9em; }
-.search { position:absolute; z-index:9999; right:0; top:4px; }
+.search { position:absolute; z-index:999; right:0; top:4px; }
 
 /* context, content, related */
 #context { position:absolute; top:125px; left:20px; width:220px; }
@@ -124,6 +124,16 @@ ul ul, ul ol, ol ol, ol ul { margin-bottom:0; }
 /* search */
 .search a { color:inherit; }
 .search p { font-size:0.85em; }
+#search_results li { border-bottom:1px solid #ccc; }
+#search_results li:first-child { border-top:1px solid #ccc; }
+.result_image { float:left; margin:0; padding:5px; }
+.result_image img { border:1px solid #333;}
+.result_image img.doc { border:0;}
+.result_name  { margin: 0.3em; 0 0; }
+.result_name  a { font-weight:bold; color:#450009; }
+.result_name em { color: #333; font-size:0.7em;}
+.result_path { color:#666; font-size:0.7em; margin:0.3em 0; }
+#search_results .zazen { font-size:0.9em; font-style:italic; margin-top:1em; }
 
 /* context, content, related */
 #project_icon img { border:1px solid #333; }

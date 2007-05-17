@@ -5,10 +5,15 @@
 .results, #result_loader { border:1px solid #444; margin:3px 0 0; padding:2px; text-align:left; background:#97A97F; }
 .results li { list-style:none; padding:5px 0; border-top:1px solid #647D35;}
 .results li:first-child { border-top-width:0;}
-.results img { border:1px solid grey; float:left; margin:0 2px 0 0;}
+.results img { float:left; margin-right:3px; }
+.results img.mini { border:1px solid grey; float:left; margin:0 2px 0 0;}
 .results img.doc { border:0;}
-.results .btn_x img { border:0;}
+.results .btn_x img { border:0; }
+.results .btn_x { text-align:right; }
+
 #search_results .result_name a { color:#222; text-decoration:underline;}
-.result_id {color:#5C2200; font-weight:bold; display:inline;}
-.result_name { display:inline; font-weight:bold;}
+.result_entry { position:relative;}
+.result_id {color:#5C2200; font-weight:bold; float:left; margin-right:3px; }
+.result_name { font-weight:bold; }
+.result_name em { color:#333; font-size:90%; font-weight:normal;}
 .result_path { color:#555;}

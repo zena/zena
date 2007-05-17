@@ -65,7 +65,6 @@ class ApplicationHelperTest < ZenaTestHelper
     assert_equal "/en/projects/cleanWater/page22.html", data_path(node)
   end
   
-  
   def test_img_tag
     login(:ant)
     img = secure(Node) { nodes(:bird_jpg) }
@@ -78,6 +77,20 @@ class ApplicationHelperTest < ZenaTestHelper
     doc = secure(Node) { nodes(:water_pdf) }
     assert_equal "<img src='/images/ext/pdf.png' width='32' height='32' alt='pdf document' class='doc'/>", img_tag(doc)
     assert_equal "<img src='/images/ext/pdf_pv.png' width='70' height='70' alt='pdf document' class='doc'/>",  img_tag(doc, :mode=>'pv')
+  end
+  
+  def test_img_tag_other_classes
+    login(:ant)
+    # contact  project       post     tag
+    [:lake,    :cleanWater, :opening, :art].each do |sym|
+      obj   = secure(Node) { nodes(sym) }
+      klass = obj.class.to_s.downcase
+      assert_equal "<img src='/images/ext/#{klass}.png' width='32' height='32' alt='#{klass} node' class='doc'/>", img_tag(obj)
+      assert_equal "<img src='/images/ext/#{klass}_pv.png' width='70' height='70' alt='#{klass} node' class='doc'/>",  img_tag(obj, :mode=>'pv')
+    end
+    
+    obj   = Node.new
+    assert_equal "<img src='/images/ext/other.png' width='32' height='32' alt='node node' class='doc'/>", img_tag(obj)
   end
   
   def test_img_tag_opts
