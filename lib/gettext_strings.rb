@@ -26,13 +26,30 @@ module Zena
     N_('img_home')          # link icon
     N_('img_icon')          # link icon
     N_('img_tag')           # link icon
-    N_('img_user')          # link icon
+    N_('img_user')          # user management
     N_('img_collaborator')  # link icon
     N_('img_favorite')      # link icon
     N_('img_project')       # link icon
     N_('img_public')        # link icon
     N_('img_private')       # link icon
     N_('img_custom_inherit') # inherit icon
+    
+    N_('icon')
+    N_('icon_for')
+    N_('tags')
+    N_('tag_for')
+    N_('collaborators')
+    N_('collaborator_for')
+    N_('favorites')
+    N_('favorite_for')
+    N_('projects')
+    N_('project_for')
+    N_('calendars')
+    N_('calendar_for')
+    
+    N_('posted by')
+    N_('original by')
+    N_('modified by')
     
     N_('img_user_admin')    # edit users (admin)
     N_('img_user_su')       # edit users (admin)

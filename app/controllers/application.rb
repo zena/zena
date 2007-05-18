@@ -162,11 +162,14 @@ class ApplicationController < ActionController::Base
       # FIXME use a default fixed template.
       raise ActiveRecord::RecordNotFound unless template
       
+      # set the places to search for the included templates
+      @skin_names = [@skin_name, template[:skin_name]].uniq
+      
       mode      = "_#{mode}" if mode
       lang_path = session[:dev] ? 'dev' : lang
       
-      skin_path = "/#{template[:skin_name]}/#{template[:klass]}#{mode}.#{format}"
-      fullpath  = skin_path + "/#{lang_path}/main.erb"
+      skin_path = "/#{@skin_name}/#{template[:klass]}#{mode}.#{format}"
+      fullpath  = skin_path + "/#{lang_path}/_main.erb"
       url       = SITES_ROOT + current_site.zafu_path + fullpath
 
       if !File.exists?(url)
@@ -177,7 +180,8 @@ class ApplicationController < ActionController::Base
         
         response.template.instance_variable_set(:@session, session)
         skin_helper = response.template
-        res = ZafuParser.new_with_url(skin_path, :helper => skin_helper).render
+        # [1..-1] = drop leading '/' so find_template_document searches in the current skin first
+        res = ZafuParser.new_with_url(skin_path[1..-1], :helper => skin_helper).render
         
         secure(CachedPage) { CachedPage.create(
           :path            => (current_site.zafu_path + fullpath),
@@ -224,19 +228,19 @@ class ApplicationController < ActionController::Base
       @skin ||= {}
       
       if src =~ /^\//
-        # /default       /fun/layout.html
-        # look in fun --> layout.html
+        # starts with '/' : look here first
         url = src[1..-1].split('/')
-        skin_names = [url.shift]
+        skin_names = [url.shift] + @skin_names
       else
-        # /default       default.css
-        # look in @skin_name, default --> default.css
+        # does not start with '/' : look in skin_names first
         url = folder + src.split('/')
-        skin_names = [@skin_name]
+        skin_names = @skin_names
         skin_names << url.shift if url.size > 1
       end
       document = nil
-      skin_names.each do |skin_name|
+      
+      skin_names.uniq.each do |skin_name|
+        
         next unless skin = @skin[skin_name] ||= secure(Skin) { Skin.find_by_name(skin_name) }
         path = (skin.fullpath.split('/') + url).join('/')
         break if document = secure(TextDocument) { TextDocument.find_by_path(path) } rescue nil 

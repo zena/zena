@@ -138,8 +138,7 @@ class ImageBuilder
   end
   
   def do_limit!(size)
-    debugger
-    return if @img.filesize <= size
+    return @img if @img.filesize <= size
     f = Tempfile.new('tmp_img')
     @img.write(f.path)
     return @img if File.stat(f.path).size <= size

@@ -285,10 +285,11 @@ module Zena
         
         
         # Return only the attributes that have changed, returns all if the record is new.
+        # FIXME: handle link=>{...} correctly
         def remove_attributes_with_same_value(new_attributes)
           res = {}
           new_attributes.each do |k,v|
-            current_value = self.send(k)
+            current_value = self.send(k) rescue nil # remove rescue when link is fixed
             case current_value.class.to_s
             when 'String'
               res[k] = v unless current_value == v.to_s
