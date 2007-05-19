@@ -46,7 +46,7 @@ class Comment < ActiveRecord::Base
       return false unless discussion
       if new_record?
         self[:site_id] = discussion.node[:site_id]
-        if parent && (self[:title].nil? || self[:title] == '')
+        if parent && self[:title].blank?
           self[:title] = _('re: ') + parent.title
         end
         if visitor.moderated?

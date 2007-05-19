@@ -570,7 +570,7 @@ module ApplicationHelper
       opt.delete(:text)
     else
       text = obj.send(sym)
-      if (text.nil? || text == '') && sym == :v_summary
+      if text.blank? && sym == :v_summary
         text = obj.v_text
         opt[:images] = false
       else

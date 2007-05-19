@@ -14,7 +14,7 @@ class ImageVersion < DocumentVersion
   
   private
   def set_image_text
-    if self[:text] == '' || !self[:text]
+    if self[:text].blank?
       self[:text] = "!#{self.node[:zip]}!"
     end
   end

@@ -138,7 +138,7 @@ class User < ActiveRecord::Base
   # Store the password, using SHA1. You should change the default value of PASSWORD_SALT (in RAILS_ROOT/config/zena.rb). This makes it harder to use 
   # rainbow tables to find clear passwords from hashed values.
   def password=(string)
-    if string.nil? || string == ''
+    if string.blank?
       self[:password] = nil
     elsif string && string.length > 4
       self[:password] = User.hash_password(string)

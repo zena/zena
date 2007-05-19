@@ -383,7 +383,7 @@ class ApplicationController < ActionController::Base
       format = opts.delete(:format) || 'html'
       pre    = opts.delete(:prefix) || prefix
       mode   = opts.delete(:mode)
-      format = 'html' if format.nil? || format == ''
+      format = 'html' if format.blank?
       
       params = (opts == {}) ? '' : ('?' + opts.map{ |k,v| "#{k}=#{v}"}.join('&'))
       
@@ -405,7 +405,7 @@ class ApplicationController < ActionController::Base
     end
   
     def zen_url(obj, opts={})
-      path = zen_path(obj,opts).split('/').reject { |p| p.nil? || p == ''}
+      path = zen_path(obj,opts).split('/').reject { |p| p.blank? }
       prefix = path.shift
 
       if path == []

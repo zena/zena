@@ -33,6 +33,8 @@ class NodesControllerTest < ZenaTestController
     assert_template 'node/not_found'
   end
   
+  # test edit_... mode only if can_edit?
+  
   def test_import
     assert false
   end
