@@ -12,7 +12,7 @@
     end -%>
     <select name="node[link][role]">
     <% roles.each do |k,v| %>
-      <option value='<%= k %>'><%= v %></input>
+      <option value='<%= k %>'><%= _(v) %></input>
     <% end -%>
     </select>
   </div>
