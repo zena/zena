@@ -1,19 +1,19 @@
-<z:include template='layout.html'>
-  <z:with part='body/navigation/menu'/>
+<r:include template='layout.html'>
+  <r:with part='body/navigation/menu'/>
   
-  <z:with part='body/container/content/main'>
+  <r:with part='body/container/content/main'>
   <div class='header'><h1 do='title' class='s30' status='true' actions='all'>this is the title</h1></div>
     <ul class='tree' do='nodes'>
-      <li class='parent' do='parent'><z:title actions='all' link='tree'/></li>
-      <li class='current'><z:show attr='name'/></li>
-      <li do='each'><z:show attr='name' edit='true'/>
+      <li class='parent' do='parent'><r:title actions='all' link='tree'/></li>
+      <li class='current'><r:show attr='name'/></li>
+      <li do='each'><r:show attr='name' edit='true'/>
         <ul do='nodes' name='tree'>
           <li do='each'>
-            <z:link mode='tree' attr='name'/>
+            <r:link mode='tree' attr='name'/>
           </li>
         </ul>
       </li>
     </ul>
-  </z:with>
+  </r:with>
 
-</z:include>
+</r:include>

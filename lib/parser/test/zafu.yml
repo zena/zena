@@ -3,11 +3,11 @@ empty:
   res: ""
 
 hello:
-  src: "<z:hello/>"
+  src: "<r:hello/>"
   res: "hello world!"
   
 double_hello:
-  src: "<z:hello/> <z:hello/>"
+  src: "<r:hello/> <r:hello/>"
   res: "hello world! hello world!"
 
 ignore_html:
@@ -15,27 +15,27 @@ ignore_html:
   res: "<div class='test'><p>some <i>funny</i> text</p></div>"
 
 hello_skip_content:
-  src: "<z:hello>I want to live forever</z:hello>"
+  src: "<r:hello>I want to live forever</r:hello>"
   res: "hello world!"
 
 tag_not_closed:
-  src: "this is <z:test super='life' is = \"fine\""
-  res: "this is <z:test super='life' is = \"fine\""
+  src: "this is <r:test super='life' is = \"fine\""
+  res: "this is <r:test super='life' is = \"fine\""
 
 hello_not_closed:
-  src: "I say <z:hello>blah blah"
+  src: "I say <r:hello>blah blah"
   res: "I say hello world!"
 
 test:
-  src: "this <z:test>is a test</z:test> <z:hello/>"
+  src: "this <r:test>is a test</r:test> <r:hello/>"
   res: "this [test]is a test[/test] hello world!"
   
 very_messy:
-  src: "this <z: blah> </z:truc> whak"
-  res: "this <z: blah> <span class='parser_error'>&lt;/z:truc&gt;</span> whak"
+  src: "this <r: blah> </r:truc> whak"
+  res: "this <r: blah> <span class='parser_error'>&lt;/z:truc&gt;</span> whak"
 
 bad_closing_tag:
-  src: "this <z:test>looks </z:truc> ok"
+  src: "this <r:test>looks </r:truc> ok"
   res: "this [test]looks <span class='parser_error'>&lt;/z:truc&gt;</span>[/test] ok"
 
 do_tag:
@@ -59,7 +59,7 @@ do_tag_at_end:
   res: "I say [test]<div>this <div>test</div> is ok</div>[/test]"
 
 do_tag_with_ztags:
-  src: "I say <div do='test'>this <z:hello/></div>"
+  src: "I say <div do='test'>this <r:hello/></div>"
   res: "I say [test]<div>this [hello/]</div>[/test]"
 
 do_keep_params:
@@ -71,66 +71,66 @@ do_class_params:
   res: "[test]<div class='one'>[test]<p class='two'>blah</p>[/test]</div>[/test]"
 
 do_and_ztags:
-  src: "Hey <z:test>this is <p do='hello'>ok</p></z:test>"
+  src: "Hey <r:test>this is <p do='hello'>ok</p></r:test>"
   res: "Hey [test]this is [hello]<p>ok</p>[/hello][/test]"
 
 do_same_tag:
   src: "Hey <p do='test'> is <p do='hello'>hello <p>cool</p></p></p>"
   res: "Hey [test]<p> is [hello]<p>hello <p>cool</p></p>[/hello]</p>[/test]"  
 expand_with:
-  src: "this <z:test>looks </z:test> ok"
+  src: "this <r:test>looks </r:test> ok"
   res: "this [test]looks [/test] ok"
   
 params:
-  src: "some <z:test good='choice' nice='work'>things</z:test> are fine"
+  src: "some <r:test good='choice' nice='work'>things</r:test> are fine"
   res: "some [test {= :good=>'choice', :nice=>'work'}]things[/test] are fine"
 
 default_menu:
-  src: "the <z:test>menu</z:test> is nice"
+  src: "the <r:test>menu</r:test> is nice"
   res: "the [test]menu[/test] is nice"
   
 include_menu:
-  src: "include_menu: <z:include template='/default/menu'/>"
+  src: "include_menu: <r:include template='/default/menu'/>"
   res: "include_menu: the [test]menu[/test] is nice"
 
 include_context:
-  src: "include_context: <z:include template='menu'/>"
+  src: "include_context: <r:include template='menu'/>"
   res: "include_context: include_menu: the [test]menu[/test] is nice"
 
 infinite_loop:
-  src: "<z:include template='/infinite/loop'/>"
+  src: "<r:include template='/infinite/loop'/>"
   res: "<span class='parser_error'>[include error: /infinite/loop --&gt; /infinite/loop ]</span>"
   
 infinite_foo:
-  src: "<z:include template='bar'/>"
+  src: "<r:include template='bar'/>"
   res: "<span class='parser_error'>[include error: /infinite/foo --&gt; /infinite/bar --&gt; /infinite/foo ]</span>"
   
 infinite_bar:
-  src: "<z:include template='foo'/>"
+  src: "<r:include template='foo'/>"
   res: "<span class='parser_error'>[include error: /infinite/bar --&gt; /infinite/foo --&gt; /infinite/bar ]</span>"
   
 default_context:
-  src: "from other: <z:include template='menu'/> and <z:include template='/include/menu'/>"
+  src: "from other: <r:include template='menu'/> and <r:include template='/include/menu'/>"
   res: "from other: the [test]menu[/test] is nice and include_menu: the [test]menu[/test] is nice"
 
 set_context:
-  src: "res:<z:test/> <z:set_context truc='machin'>src:<z:test/></z:set_context> res:<z:test/>"
+  src: "res:<r:test/> <r:set_context truc='machin'>src:<r:test/></r:set_context> res:<r:test/>"
   res: "res:[test/] src:[test {> :truc=>'machin'}/] res:[test/]"
   
 nested_set_context:
-  src: "<z:set_context var1='out' var2='foo'>1:<z:test/><z:set_context var1='in'>2:<z:test/></z:set_context>3:<z:test/></z:set_context>"
+  src: "<r:set_context var1='out' var2='foo'>1:<r:test/><r:set_context var1='in'>2:<r:test/></r:set_context>3:<r:test/></r:set_context>"
   res: "1:[test {> :var1=>'out', :var2=>'foo'}/]2:[test {> :var1=>'in', :var2=>'foo'}/]3:[test {> :var1=>'out', :var2=>'foo'}/]"
 
 complex_example:
   src: |
-    Some people say <z:hello/>
-    Some say <z:include template='/default/menu'/>
+    Some people say <r:hello/>
+    Some say <r:include template='/default/menu'/>
       <ul class='list' do='set_context' life='ok'>
         <li>truc</li>
         <li>machin</li>
         <li do='test'>sunny day</li>
       </ul>
-    <z:set_context var='complex'><z:include template='/default/menu'/></z:set_context>
+    <r:set_context var='complex'><r:include template='/default/menu'/></r:set_context>
   res: |
     Some people say hello world!
     Some say the [test]menu[/test] is nice
@@ -142,19 +142,19 @@ complex_example:
     the [test {> :var=>'complex'}]menu[/test] is nice
 
 unknown:
-  src:  "this looks bad: <z:system truc='lala'/>"
+  src:  "this looks bad: <r:system truc='lala'/>"
   res: "this looks bad: <span class='parser_unknown'>&lt;z:system truc='lala'/&gt;</span>"
   
 check_params:
-  src: "bad <z:missing/> params"
+  src: "bad <r:missing/> params"
   res: "bad [missing parameter(s) missing:good, night] params"
 
 check_params_partial:
-  src: "bad <z:missing good='ok'/> params"
+  src: "bad <r:missing good='ok'/> params"
   res: "bad [missing parameter(s) missing:night] params"
 
 check_params_ok:
-  src: "bad <z:missing good='ok' night='hey'/> params"
+  src: "bad <r:missing good='ok' night='hey'/> params"
   res: "bad nothing missing params"
 
 doctype:
@@ -169,19 +169,19 @@ doctype:
     [test]<title>node title</title>
     [/test]end
 no_tag:
-  src: "<z:set_context no_test='true'>this is a <z:test>test</z:test>dog</z:set_context>"
+  src: "<r:set_context no_test='true'>this is a <r:test>test</r:test>dog</r:set_context>"
   res: "this is a dog"
   
 html_comments:
-  src: "<z:test><z:hello/><!-- this is nothing > <z:hello/>  --></z:test>"
-  res: "[test][hello/]<!-- this is nothing > <z:hello/>  -->[/test]"
+  src: "<r:test><r:hello/><!-- this is nothing > <r:hello/>  --></r:test>"
+  res: "[test][hello/]<!-- this is nothing > <r:hello/>  -->[/test]"
 
 html_do_comment:
-  src: "<z:test><z:hello/><!--|this is not a comment <z:hello/>  --></z:test>"
+  src: "<r:test><r:hello/><!--|this is not a comment <r:hello/>  --></r:test>"
   res: "[test][hello/]this is not a comment [hello/]  [/test]"
 
 do_simple:
-  src: "<z:test do='hello'/>"
+  src: "<r:test do='hello'/>"
   res: "[test][hello/][/test]"
   
 do_zafu:
@@ -189,27 +189,27 @@ do_zafu:
   res: "[test {= :param=>'yo'}]<p>[hello {= :param=>'hey'}]some thing[/hello]</p>[/test]"
   
 do_multiple:
-  src: "<z:test param='1' do='test' param='2' do='hello' param='3'/>"
+  src: "<r:test param='1' do='test' param='2' do='hello' param='3'/>"
   res: "[test {= :param=>'1'}][test {= :param=>'2'}][hello {= :param=>'3'}/][/test][/test]"
 
 do_with_inner:
-  src: "<z:test do='hello'>a thing <z:hello/> here</z:test>"
+  src: "<r:test do='hello'>a thing <r:hello/> here</r:test>"
   res: "[test][hello]a thing [hello/] here[/hello][/test]"
 
 ztag_tag:
-  src: "<z:hello tag='p'/>"
+  src: "<r:hello tag='p'/>"
   res: "<p>hello world!</p>"
 
 name:
-  src: "super: <z:void name='super'>hey <z:void name='man' do='text' text='ho'/></z:void>"
+  src: "super: <r:void name='super'>hey <r:void name='man' do='text' text='ho'/></r:void>"
   res: "super: hey ho"
 
 include_super:
-  src: "include_super: <z:include template='/name'><p do='with' part='super' do='hello'/>"
+  src: "include_super: <r:include template='/name'><p do='with' part='super' do='hello'/>"
   res: "include_super: super: <p>hello world!</p>"
 
 include_super_man:
-  src: "include_super: <z:include template='/name'><p do='with' part='super/man' do='hello'/>"
+  src: "include_super: <r:include template='/name'><p do='with' part='super/man' do='hello'/>"
   res: "include_super: super: hey <p>hello world!</p>"
 
 name_title:
@@ -217,21 +217,21 @@ name_title:
   res: "title: <h1>dummy</h1>"
 
 ztag_same_name_as_tag:
-  src: "<z:test>this is a <test>test</test></z:test>"
+  src: "<r:test>this is a <test>test</test></r:test>"
   res: "[test]this is a <test>test</test>[/test]"
 
 include_with:
-  src: "include_with: <z:include template='/name/title'><h1 do='with' part='title' do='hello'/></z:include>"
+  src: "include_with: <r:include template='/name/title'><h1 do='with' part='title' do='hello'/></r:include>"
   res: "include_with: title: <h1>hello world!</h1>"
 
 include_empty:
-  src: "include_empty: <z:include template='/name/title'><z:with part='title'/></z:include>"
+  src: "include_empty: <r:include template='/name/title'><r:with part='title'/></r:include>"
   res: "include_empty: title: "
 
 preserve_newlines:
   src: |
-    <z:repeat><p do='test'>blah</p>
-    </z:repeat>ok
+    <r:repeat><p do='test'>blah</p>
+    </r:repeat>ok
     
   res: |
     [test]<p>blah</p>
@@ -243,9 +243,9 @@ names:
   res: "<p>[inspect {= :name=>'first'} {> :name=>'root/first'}]<p/>[/inspect][inspect {= :name=>'second'} {> :name=>'root/second'}]<p/>[/inspect]</p>"
 
 default_tag:
-  src: "<z:void class='test'>blah</z:void>"
+  src: "<r:void class='test'>blah</r:void>"
   res: "<div class='test'>blah</div>"
 
 set_tag_param:
-  src: "<z:void class='test' tag='p'>blah</z:void>"
+  src: "<r:void class='test' tag='p'>blah</r:void>"
   res: "<p class='test'>blah</p>"

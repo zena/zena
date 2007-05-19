@@ -21,10 +21,10 @@ change_img_src:
 change_script_src:
   src: |
     <script src='functions.js' type='text/javascript'>
-      <z:blah/>
+      <r:blah/>
     </script>
   res: |
     <script src='/test_script/functions.js' type='text/javascript'>
-      <z:blah/>
+      <r:blah/>
     </script>
   

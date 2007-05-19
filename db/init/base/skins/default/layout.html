@@ -6,12 +6,13 @@
   <title do='title_for_layout' do='show' attr='v_title' name='title'>node title</title>
   <meta http-equiv="Content-type" content="text/html; charset=utf-8" />
   <meta http-equiv="Content-Language" do='void' content="fr-fr" tset_content='[v_lang]_content' />
+  <r:void name='stylesheets'>
+    <r:stylesheets list='reset,zena,code'/>
+    <link href="default.css" rel="Stylesheet" type="text/css"/>
+  </r:void>
 
-  <z:stylesheets name='stylesheets' list='reset,zena,code'/>
-  <link href="default.css" rel="Stylesheet" type="text/css"/>
-
-  <z:javascripts list='prototype,effects,zena'/>
-  <z:uses_calendar/>
+  <r:javascripts list='prototype,effects,zena'/>
+  <r:uses_calendar/>
 </head>
 
 <body do='void' name='body'>
@@ -26,20 +27,20 @@
 
     <div id='nav_menu' do='node' name='menu' select='root'>
       <ul do='pages'>
-        <li do='each'><z:link attr='name'/>
+        <li do='each'><r:link attr='name'/>
           <ul do='pages'>
-            <li do='each'><z:link attr='name'/></li>
+            <li do='each'><r:link attr='name'/></li>
           </ul>
         </li>
       </ul>
     </div>
-    <div id='branding' do='link' href='root'><img src='/img/logo.png' width='220' height='100'/></div>
+    <div id='branding' do='link' name='branding' href='root'><img src='/img/logo.png' width='220' height='100'/></div>
   </div>
 
 
-  <z:flash_messages/>
+  <r:flash_messages/>
 
-  <z:void name='container'>
+  <r:void name='container'>
     <div id='context' do='void' name='context'>
     </div>
 
@@ -48,31 +49,31 @@
       <div id='main' do='void' name='main'></div>
 
       <div id='related' do='void' name='related'>
-          <z:documents name='documents'><h3 class='group'>documents</h3>
+          <r:documents name='documents'><h3 class='group'>documents</h3>
             <ol>
-              <li do='each' set_class='li_s[v_status]'><z:link format='data'><z:img mode='tiny'/></z:link> <z:link><z:show attr='name'/>.<z:show attr='c_ext'/></z:link></li>
-              <li do='add'><a href='#' do='void' set_onclick='uploader=window.open("/documents/new?parent_id=[id]", "uploader", "location=1,width=400,height=300");return false;' set_href='/documents/new?parent_id=[id]'><z:trans>btn_add_doc</z:trans></a></li>
+              <li do='each' set_class='li_s[v_status]'><r:link format='data'><r:img mode='tiny'/></r:link> <r:link><r:show attr='name'/>.<r:show attr='c_ext'/></r:link></li>
+              <li do='add'><a href='#' do='void' set_onclick='uploader=window.open("/documents/new?parent_id=[id]", "uploader", "location=1,width=400,height=300");return false;' set_href='/documents/new?parent_id=[id]'><r:trans>btn_add_doc</r:trans></a></li>
             </ol>
-          </z:documents>
-          <z:if kind_of='Page' do='pages' name='pages'><h3 class='group'>pages</h3>
+          </r:documents>
+          <r:if kind_of='Page' do='pages' name='pages'><h3 class='group'>pages</h3>
             <ol>
               <li do='each' set_class='li_s[v_status]' do='link'/>
-              <z:add before='self' tag='li'/>
-              <z:form>
+              <r:add before='self' tag='li'/>
+              <r:form>
                 <li class='inline_form'>
                   <form>
                     <p class='hidden'>      <input type='hidden' name='node[parent_id]' value='' do='void' set_value='[id]'/></p>
-                    <p class='node_klass'>  <z:input type='select' attr='klass' options='Page,Section,Skin,Project'/></p>
+                    <p class='node_klass'>  <r:input type='select' attr='klass' options='Page,Section,Skin,Project'/></p>
                     <p class='node_v_title'><input type='text' name='node[v_title]' value=''/></p>
                     <p class='btn_validate'><input type="submit" value='validate' do='void' tset_value='validate'/></p>
                   </form>
                 </li>
-              </z:form>
+              </r:form>
             </ol>
-          </z:if>
+          </r:if>
       </div>
     </div>
-  </z:void>
+  </r:void>
   <ul id='siteinfo' do='void' name='siteinfo'>
     <li do='design'><a href='http://teti.ch'>teti.ch</a></li>
     <li do='zena' version='true' type='garden'/>

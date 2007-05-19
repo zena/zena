@@ -60,6 +60,7 @@ class VersionsController < ApplicationController
       else
         # store the id used to preview when editing
         session[:preview_id] = params[:node_id]
+        @title_for_layout = @node.rootpath
         @edit = true
       end
     end

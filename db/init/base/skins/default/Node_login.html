@@ -1,13 +1,13 @@
-<z:include template='layout.html'>
-  <z:with part='head'>
+<r:include template='layout.html'>
+  <r:with part='head'>
   <title do='title_for_layout' do='trans'>login</title>
   <meta http-equiv="Content-type" content="text/html; charset=utf-8" />
   <meta http-equiv="Content-Language" do='void' content="fr-fr" tset_content='[v_lang]_content' />
 
-  <z:stylesheets name='stylesheets' list='reset,zena,code'/>
+  <r:stylesheets name='stylesheets' list='reset,zena,code'/>
 
-  <z:javascripts list='prototype,effects,zena'/>
-  <z:uses_calendar/>
+  <r:javascripts list='prototype,effects,zena'/>
+  <r:uses_calendar/>
 <style>
 /* login, not found */
 
@@ -58,9 +58,9 @@ a      { color:#266F92; text-decoration:none; }
 .search a { color:inherit; }
 .search p { font-size:0.85em; }
 </style>
-</z:with>
-  <z:with part='body/navigation/menu'/>
-  <z:with part='body/container'>
+</r:with>
+  <r:with part='body/navigation/menu'/>
+  <r:with part='body/container'>
     <div id='login_form'><div>
       <form action="/session" method="post">    <table>
           <tr>
@@ -75,6 +75,6 @@ a      { color:#266F92; text-decoration:none; }
           <tr><td></td><td><input name="commit" type="submit" value=" login " /></td></tr>
         </table>
       </form></div></div>
-  </z:with>
-  <z:with part='body/siteinfo'/>
-</z:include>
+  </r:with>
+  <r:with part='body/siteinfo'/>
+</r:include>

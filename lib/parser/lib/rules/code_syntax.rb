@@ -100,9 +100,9 @@ end
 
 class ZafuTokenizer < Syntax::Tokenizer
   def step
-    if ztag = scan(/\A<\/?z:[^>]+>/)  
-      ztag =~ /<(\/?)z:([^> ]+)([^>]*)(\/?)>/
-      start_group :tag, "<#{$1}z:"
+    if ztag = scan(/\A<\/?r:[^>]+>/)  
+      ztag =~ /<(\/?)r:([^> ]+)([^>]*)(\/?)>/
+      start_group :tag, "<#{$1}r:"
       start_group :ztag, $2
       trailing = $4
       params = parse_params($3)

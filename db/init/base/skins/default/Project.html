@@ -1,40 +1,40 @@
-<z:include template='layout.html'>
-  <z:with part='body/container/context'>
+<r:include template='layout.html'>
+  <r:with part='body/container/context'>
     <div id='small_calendar' do='calendar'/>
-    <z:hot>
+    <r:hot>
       <div class='header'>
         <h2 do='title' actions='all'>hot news</h2>
         <p class='sign' do='version' do='author' do='show' attr='initials'>GB</p>
       </div>
-      <z:summary or='v_text'/>
-    </z:hot>
-  </z:with>
-  <z:with part='body/container/content/main'>
+      <r:summary or='v_text'/>
+    </r:hot>
+  </r:with>
+  <r:with part='body/container/content/main'>
     
-    <z:home>
+    <r:home>
       <div class='header'>
         <h1 do='title' class='s30' status='true' actions='all'>this is the title</h1>
         <div class='subtitle'>
-          <z:case>
-            <z:when test='[user_id] == [v_user_id]'>
-              <z:trans>posted by</z:trans> <b do='author' do='show' attr='fullname'>Super Man</b>
-            </z:when>
-            <z:else>
-              <z:trans>original by</z:trans> <b do='show' attr='fullname'>Platon</b>
-              <z:trans>modified by</z:trans> <b do='version' do='author' do='show' attr='fullname'>Socrate</b>
-            </z:else>
-          </z:case>
+          <r:case>
+            <r:when test='[user_id] == [v_user_id]'>
+              <r:trans>posted by</r:trans> <b do='author' do='show' attr='fullname'>Super Man</b>
+            </r:when>
+            <r:else>
+              <r:trans>original by</r:trans> <b do='show' attr='fullname'>Platon</b>
+              <r:trans>modified by</r:trans> <b do='version' do='author' do='show' attr='fullname'>Socrate</b>
+            </r:else>
+          </r:case>
         </div>
       </div>
 
-      <z:summary text=''/>
-      <z:text/>
-      <z:else>
+      <r:summary text=''/>
+      <r:text/>
+      <r:else>
         <h1 do='title' class='s30' status='true' actions='all'>this is the title</h1>
-      </z:else>
-    </z:home>
+      </r:else>
+    </r:home>
     
     <div id='largecal' style='display:none;'></div>
-    <z:include template='notes.html'/>
-  </z:with>
-</z:include>
+    <r:include template='notes.html'/>
+  </r:with>
+</r:include>

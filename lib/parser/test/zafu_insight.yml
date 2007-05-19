@@ -1,15 +1,15 @@
 simple:
-  src: "<z:inspect><z:with part='a'>this is a</z:with><z:with part='b'>this is b</z:with></z:inspect>"
+  src: "<r:inspect><r:with part='a'>this is a</r:with><r:with part='b'>this is b</r:with></r:inspect>"
   res: "[inspect {< 'a'=>['this is a'], 'b'=>['this is b']}/]"
 
 with_sub_tags:
-  src: "<z:inspect><z:with part='hello'>I say <h3 do='hello'>hello</h3></z:with></z:inspect>"
+  src: "<r:inspect><r:with part='hello'>I say <h3 do='hello'>hello</h3></r:with></r:inspect>"
   res: "[inspect {< 'hello'=>['I say <h3>hello world!</h3>']}/]"
 
 menu:
-  src: "var a: <z:set_context menu='true'><z:void name='a'><z:hello/></z:void></z:set_context>"
+  src: "var a: <r:set_context menu='true'><r:void name='a'><r:hello/></r:void></r:set_context>"
   res: "var a: hello world!"
 
 include:
-  src: "<z:include template='/menu'><z:with part='a'>do <z:inspect/></z:with></z:include>"
+  src: "<r:include template='/menu'><r:with part='a'>do <r:inspect/></r:with></r:include>"
   res: "var a: do [inspect {> :menu=>'true', :name=>'a', :parts=>'ado [inspect {> :preflight=>'true'}/]'}/]"

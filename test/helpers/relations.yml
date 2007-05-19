@@ -5,198 +5,198 @@ default:
     node: 'status'
   
 tags:
-  src: "<z:project><z:show attr='name'/>: <z:tags><z:each join=', '><z:show attr='name'/></z:each></z:tags></z:project>"
+  src: "<r:project><r:show attr='name'/>: <r:tags><r:each join=', '><r:show attr='name'/></r:each></r:tags></r:project>"
   res: "cleanWater: art"
 
 tag_for:
   context:
     node: 'art'
-  src: "<z:tag_for><z:each join=', '><z:show attr='name'/></z:each></z:tag_for>"
+  src: "<r:tag_for><r:each join=', '><r:show attr='name'/></r:each></r:tag_for>"
   res: "cleanWater, opening"
 
 documents:
   context:
     node: 'nature'
-  src: "<z:documents><z:each join=', '><z:show attr='name'/></z:each></z:documents>"
+  src: "<r:documents><r:each join=', '><r:show attr='name'/></r:each></r:documents>"
   res: "forest, tree"
 
 documents_only:
   context:
     node: 'nature'
-  src: "<z:documents_only><z:each join=', '><z:show attr='name'/></z:each></z:documents_only>"
+  src: "<r:documents_only><r:each join=', '><r:show attr='name'/></r:each></r:documents_only>"
   res: "forest"
 
 images:
   context:
     node: 'nature'
-  src: "<z:images><z:each join=', '><z:show attr='name'/></z:each></z:images>"
+  src: "<r:images><r:each join=', '><r:show attr='name'/></r:each></r:images>"
   res: "tree"
 
 pages:
   context:
     node: 'cleanWater'
-  src: "<z:pages><z:each join=', '><z:show attr='name'/></z:each></z:pages>"
+  src: "<r:pages><r:each join=', '><r:show attr='name'/></r:each></r:pages>"
   res: "status, track"
 
 notes:
   context:
     node: 'cleanWater'
-  src: "<z:notes><z:each join=', '><z:show attr='name'/></z:each></z:notes>"
+  src: "<r:notes><r:each join=', '><r:show attr='name'/></r:each></r:notes>"
   res: "opening"
 
 pages_limit:
   context:
     node: 'cleanWater'
-  src: "<z:pages limit='2' order='name DESC'><z:each join=', '><z:show attr='name'/></z:each></z:pages>"
+  src: "<r:pages limit='2' order='name DESC'><r:each join=', '><r:show attr='name'/></r:each></r:pages>"
   res: "track, status"
 
 pages_random:
   context:
     node: 'cleanWater'
-  src: "<z:pages limit='3' order='random'><z:each join=', '><z:show attr='name'/></z:each></z:pages>"
+  src: "<r:pages limit='3' order='random'><r:each join=', '><r:show attr='name'/></r:each></r:pages>"
 
 nodes_from_project:
-  src: "<z:nodes from='project' limit='2'><z:each join=', '><z:show attr='name'/></z:each></z:nodes>"
+  src: "<r:nodes from='project' limit='2'><r:each join=', '><r:show attr='name'/></r:each></r:nodes>"
   res: "lake, lakeAddress"
 
 nodes_from_site:
-  src: "<z:nodes from='site' limit='3'><z:each join=', '><z:show attr='name'/></z:each></z:nodes>"
+  src: "<r:nodes from='site' limit='3'><r:each join=', '><r:show attr='name'/></r:each></r:nodes>"
   res: "anonymous, ant, art"
 
 store_context:
   context:
     node: 'projects'
-  src: "<z:children store='project' limit='1'><z:each><z:pages from='site' project='stored' limit='5'><z:each join=', '><z:show attr='name'/></z:each></z:pages></z:each></z:children>"
+  src: "<r:children store='project' limit='1'><r:each><r:pages from='site' project='stored' limit='5'><r:each join=', '><r:show attr='name'/></r:each></r:pages></r:each></r:children>"
   res: "art, cleanWater, collections, default, menu"
 
 store_node:
-  src: "<z:void store='node'><z:parent><z:show attr='name'/>: <z:node select='stored'><z:show attr='name'/></z:node> + <z:node select='main' do='show' attr='id'/></z:parent></z:void>"
+  src: "<r:void store='node'><r:parent><r:show attr='name'/>: <r:node select='stored'><r:show attr='name'/></r:node> + <r:node select='main' do='show' attr='id'/></r:parent></r:void>"
   res: "cleanWater: status + 22"
 
 store_img:
-  src: "<z:parent><z:icon store='bob'><z:show attr='name'/><z:img link='stored_bob'/></z:icon></z:parent>"
+  src: "<r:parent><r:icon store='bob'><r:show attr='name'/><r:img link='stored_bob'/></r:icon></r:parent>"
   tem: "<% if var1 = @node.relation(\"parent\") -%><% if var2 = var1.relation(\"icon\") -%><%= var2.name %><%= node_link(:node=>var1, :text=>img_tag(var2, :mode=>\"std\")) %><% end -%><% end -%>"
   
 author_visitor:
-  src: "<z:pages from='site' author='visitor' limit='5'><z:each join=', ' do='show' attr='name'/></z:pages>"
+  src: "<r:pages from='site' author='visitor' limit='5'><r:each join=', ' do='show' attr='name'/></r:pages>"
   res: "myLife, nature, status"
 
 node_id:
-  src: "I (<z:show attr='name'/>) know: <z:node select='12'><z:show attr='name'/> with <z:children><span do='each' join=', '><z:show attr='name'>child</z:show></span></z:children></z:node>"
+  src: "I (<r:show attr='name'/>) know: <r:node select='12'><r:show attr='name'/> with <r:children><span do='each' join=', '><r:show attr='name'>child</r:show></span></r:children></r:node>"
   res: "I (status) know: people with <span>anonymous</span>, <span>ant</span>, <span>lion</span>, <span>tiger</span>"
 
 node_path:
-  src: "<z:node select='/projects/wiki'><z:link/></z:node>"
+  src: "<r:node select='/projects/wiki'><r:link/></r:node>"
   res: "<a href='/oo/project29.html'>a wiki with zena</a>"
 
 node_root:
-  src: "<z:node select='root'><z:show attr='name'/></z:node>"
+  src: "<r:node select='root'><r:show attr='name'/></r:node>"
   res: "zena"
 
 parent_no_parent:
-  src: "result=<z:node select='root'><z:parent><z:show attr='name'/></z:parent></z:node>="
+  src: "result=<r:node select='root'><r:parent><r:show attr='name'/></r:parent></r:node>="
   res: "result=="
   
 node_not_found:
-  src: "result=<z:node select='99'>this is something</z:node>="
+  src: "result=<r:node select='99'>this is something</r:node>="
   res: "result=="
 
 node_not_found_else:
-  src: "result=<z:node select='99'><z:link/><z:else>not found</z:else></z:node>="
+  src: "result=<r:node select='99'><r:link/><r:else>not found</r:else></r:node>="
   res: "result=not found="
 
 children_else_block:
-  src: "<z:children>I am a parent !<z:else>I am not tired.</z:else></z:children>"
+  src: "<r:children>I am a parent !<r:else>I am not tired.</r:else></r:children>"
   res: "I am not tired."
 
 hot_else_block:
-  src: "<z:hot>I am hot<z:else>I am not</z:else> and funny</z:hot>"
+  src: "<r:hot>I am hot<r:else>I am not</r:else> and funny</r:hot>"
   res: "I am not"
 
 hot_not_else_block:
   context:
     node: 'cleanWater'
-  src: "<z:hot>I am hot<z:else>I am not</z:else> and funny</z:hot>"
+  src: "<r:hot>I am hot<r:else>I am not</r:else> and funny</r:hot>"
   res: "I am hot and funny"
   
 children_else:
-  src: "<z:children else='self'><z:each join=', '><z:show attr='name'/></z:each></z:children>"
+  src: "<r:children else='self'><r:each join=', '><r:show attr='name'/></r:each></r:children>"
   res: "status"
 
 many_else:
-  src: "<z:hot else='children,project'><z:show attr='name'/></z:hot>"
+  src: "<r:hot else='children,project'><r:show attr='name'/></r:hot>"
   res: "cleanWater"
 
 updated_today:
-  src: "<z:pages from='site' updated='today' do='each' join=', ' do='show' attr='name'/>"
+  src: "<r:pages from='site' updated='today' do='each' join=', ' do='show' attr='name'/>"
   res: "art, status"
 
 upcoming_events:
-  src: "<z:pages from='site' log='upcoming' do='each' join=', ' do='show' attr='name'/>"
+  src: "<r:pages from='site' log='upcoming' do='each' join=', ' do='show' attr='name'/>"
   res: "people"
 
 in_7_days:
-  src: "<z:pages from='site' log='+7days' do='each' join=', ' do='show' attr='name'/>"
+  src: "<r:pages from='site' log='+7days' do='each' join=', ' do='show' attr='name'/>"
   res: "cleanWater, projects"
   
 logged_7_days_ago:
-  src: "<z:pages from='site' log='-7days' do='each' join=', ' do='show' attr='name'/>"
+  src: "<r:pages from='site' log='-7days' do='each' join=', ' do='show' attr='name'/>"
   res: "cleanWater, projects"
   
 around_7_days:
-  src: "<z:pages from='site' log='7days' do='each' join=', ' do='show' attr='name'/>"
+  src: "<r:pages from='site' log='7days' do='each' join=', ' do='show' attr='name'/>"
   res: "art, cleanWater, projects, status"
 
 this_week:
-  src: "<z:pages from='site' event='week' do='each' join=', ' do='show' attr='name'/>"
+  src: "<r:pages from='site' event='week' do='each' join=', ' do='show' attr='name'/>"
   res: "art, projects"
 
 this_month:
-  src: "<z:pages from='site' event='month' do='each' join=', ' do='show' attr='name'/>"
+  src: "<r:pages from='site' event='month' do='each' join=', ' do='show' attr='name'/>"
   res: "art, projects"
 
 this_year:
-  src: "<z:pages from='site' event='year' do='each' join=', ' do='show' attr='name'/>"
+  src: "<r:pages from='site' event='year' do='each' join=', ' do='show' attr='name'/>"
   res: "art, projects"
 
 date_select:
-  src: "<z:date select='2006-04-05'><z:notes from='site' log='current' do='each' join=', ' do='show' attr='name'/>"
+  src: "<r:date select='2006-04-05'><r:notes from='site' log='current' do='each' join=', ' do='show' attr='name'/>"
   res: "proposition"
 
 empty_list:
-  src: "<ul do='hot'>blah</ul><z:hot><ul>bib</ul></z:hot>"
+  src: "<ul do='hot'>blah</ul><r:hot><ul>bib</ul></r:hot>"
   res: ""
 
 order_limit:
   context:
     node: 'zena'
-  src: "<ul do='news' from='site' limit='5' order='updated_at DESC'><li do='each'><z:link/></li></ul>"
+  src: "<ul do='news' from='site' limit='5' order='updated_at DESC'><li do='each'><r:link/></li></ul>"
   res: "<ul><li><a href='/oo/projects/cleanWater/post27.html'>parc opening</a></li></ul>"
 
 relation_not_in_current_node:
-  src: "<ul do='news' from='site' limit='5' order='updated_at DESC'><li do='each'><z:link/></li></ul>"
+  src: "<ul do='news' from='site' limit='5' order='updated_at DESC'><li do='each'><r:link/></li></ul>"
   res: "<ul><li><a href='/oo/projects/cleanWater/post27.html'>parc opening</a></li></ul>"
   
 pages_anchor:
-  src: "<z:pages from='site' limit='3' do='each' join=', '><z:show attr='name' anchor='true'/></z:pages>"
+  src: "<r:pages from='site' limit='3' do='each' join=', '><r:show attr='name' anchor='true'/></r:pages>"
   res: "<a name='node33'></a>art, <a name='node21'></a>cleanWater, <a name='node32'></a>collections"
 
 projects_from_site:
-  src: "<div class='all_projects' do='projects' from='site'><z:each join=', ' do='show' attr='name'/></div>"
+  src: "<div class='all_projects' do='projects' from='site'><r:each join=', ' do='show' attr='name'/></div>"
   res: "<div class='all_projects'>cleanWater, wiki, zena</div>"
 
 projects:
-  src: "<z:projects from='site'><z:each join=', ' do='show' attr='name'/></z:projects>"
+  src: "<r:projects from='site'><r:each join=', ' do='show' attr='name'/></r:projects>"
   res: "cleanWater, wiki, zena"
 
 nodes:
-  src: "<z:nodes from='project'><z:each join=', ' do='show' attr='name'/></z:nodes>"
+  src: "<r:nodes from='project'><r:each join=', ' do='show' attr='name'/></r:nodes>"
   res: "lake, lakeAddress, opening, status, track, water"
 
 menu_with_favorites:
-  src: "<ul><z:root do='pages' only='public' cache='true' name='menu'><li do='each'><z:link/><ul do='pages'><li do='each' do='link'/></ul></li></z:root><z:node select='visitor' do='favorites'><li class='favorites'><z:trans>favorites</z:trans><ul><li do='each' do='link'/></ul></li></ul>"
+  src: "<ul><r:root do='pages' only='public' cache='true' name='menu'><li do='each'><r:link/><ul do='pages'><li do='each' do='link'/></ul></li></r:root><r:node select='visitor' do='favorites'><li class='favorites'><r:trans>favorites</r:trans><ul><li do='each' do='link'/></ul></li></ul>"
   res: "/.*tag33.*tag35.*Clean Water.*favorites.*Nature/"
   
 visitor_favorites:
-  src: "<z:node select='visitor'><ul do='favorites'><li do='each' do='link'/></ul></z:node>"
+  src: "<r:node select='visitor'><ul do='favorites'><li do='each' do='link'/></ul></r:node>"
   res: "<ul><li><a href='/oo/page39.html'>Nature</a></li></ul>"

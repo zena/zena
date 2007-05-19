@@ -324,7 +324,7 @@ module Zena
     end
     
     # TODO: add parent_id into the form !
-    # FIXME: use <z:form href='self'> or <z:form action='...'>
+    # FIXME: use <r:form href='self'> or <r:form action='...'>
     def r_form
       @pass[:form] = self
       if @context[:preflight]
@@ -682,7 +682,7 @@ END_TXT
     
     # Shows a 'made with zena' link or logo. ;-) Thanks for using this !
     # TODO: test and add translation.
-    # <z:zena show='logo'/> or <z:zena show='text'/> == <z:zena/>
+    # <r:zena show='logo'/> or <r:zena show='text'/> == <r:zena/>
     def r_zena
       if @params[:show] == 'logo'
         # FIXME
@@ -714,8 +714,8 @@ END_TXT
     # :href (node, parent, project, root)
     # :tattr (translated attribute used as text link)
     # :attr (attribute used as text link)
-    # <z:link href='node'><z:trans attr='lang'/></z:link>
-    # <z:link href='node' tattr='lang'/>
+    # <r:link href='node'><r:trans attr='lang'/></r:link>
+    # <r:link href='node' tattr='lang'/>
     def r_link
       # text
       # @blocks = [] # do not use block content for link. FIXME
@@ -849,10 +849,10 @@ END_TXT
         conditions = []
         
         # FIXME: stored should be clarified and managed in a single way through links and contexts.
-        # <z:link href='stored_whatever'/>
-        # <z:pages from='stored_whatever'/>
-        # <z:pages from='project' project='stored_whatever'/>
-        # <z:img link='stored_whatever'/>
+        # <r:link href='stored_whatever'/>
+        # <r:pages from='stored_whatever'/>
+        # <r:pages from='project' project='stored_whatever'/>
+        # <r:img link='stored_whatever'/>
         # ...
         if value = @params[:author]
           if value == 'stored' && stored = @context[:stored_author]
@@ -915,8 +915,8 @@ END_TXT
         do_var("#{node}.relation(#{rel.inspect})")
       end
     end
-    # <z:hot else='project'/>
-    # <z:relation role='hot,project'> = get relation if empty get project
+    # <r:hot else='project'/>
+    # <r:relation role='hot,project'> = get relation if empty get project
     # relation ? get ? role ? go ?
     
     # helpers

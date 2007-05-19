@@ -639,9 +639,9 @@ wiki_layout:
       <meta http-equiv="Content-type" content="text/html; charset=utf-8" />
       <meta http-equiv="Content-Language" do='void' content="fr-fr" tset_content='[v_lang]_content' />
     
-      <z:stylesheets name='stylesheets' list='reset,zena,default,code'/>
-      <z:javascripts list='prototype,effects,zena'/>
-      <z:uses_calendar/>
+      <r:stylesheets name='stylesheets' list='reset,zena,default,code'/>
+      <r:javascripts list='prototype,effects,zena'/>
+      <r:uses_calendar/>
     </head>
     
     <body do='void' name='body'>
@@ -656,9 +656,9 @@ wiki_layout:
     
         <div id='nav_menu' do='node' select='root'>
           <ul do='pages'>
-            <li do='each'><z:link attr='name'/>
+            <li do='each'><r:link attr='name'/>
               <ul do='pages'>
-                <li do='each'><z:link attr='name'/>
+                <li do='each'><r:link attr='name'/>
                   <ul do='pages'>
                     <li do='each' do='link' attr='name'/>
                   </ul>
@@ -670,7 +670,7 @@ wiki_layout:
         <div id='branding' do='link' href='root'><img src='/img/logo.png' width='220' height='100'/></div>
       </div>
     
-      <z:flash_messages/>
+      <r:flash_messages/>
     
       <div id='context' do='void' name='context'>
       </div>
@@ -719,12 +719,12 @@ wiki_project_changes_xml_en:
   summary:        Layout for the wiki skin.
   text:           |
     <?xml version="1.0" encoding="UTF-8"?>
-    <name><z:show attr='name'/></name>
+    <name><r:show attr='name'/></name>
     <changes do='nodes' from='project' order='updated_at DESC' limit='10'>
       <node do='each'>
-        <type><z:show attr='type'/></type>
-        <name><z:show attr='name'/></name>
-        <id><z:show attr='id'/></id>
+        <type><r:show attr='type'/></type>
+        <name><r:show attr='name'/></name>
+        <id><r:show attr='id'/></id>
       </note>
     </notes>
   lang:           en
@@ -742,11 +742,11 @@ wiki_page_changes_en:
   title:          Page - changes
   summary:        Layout for the wiki skin.
   text:           |
-    <z:include template='layout.html'>
-      <z:with part='body/content/main'>
+    <r:include template='layout.html'>
+      <r:with part='body/content/main'>
         page changes
-      </z:with>
-    </z:include>
+      </r:with>
+    </r:include>
   lang:           en
   number:         1
 <%= @defaults %>
@@ -804,11 +804,11 @@ wiki_main:
   title:          main template
   summary:        master template for wiki skin.
   text:           |
-    <z:include template='layout.html'>
-      <z:with part='body/content/main'>
+    <r:include template='layout.html'>
+      <r:with part='body/content/main'>
         HELLO
-      </z:with>
-    </z:include>
+      </r:with>
+    </r:include>
   lang:           en
   number:         1
 <%= @defaults %>

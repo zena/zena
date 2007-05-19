@@ -1,43 +1,46 @@
-<z:include template='layout.html'>
-  <z:with part='head/stylesheets' do='stylesheets' list='zen,comment,admin,search'/>
+<r:include template='layout.html'>
+  <r:with part='head/stylesheets'>
+    <r:stylesheets list='zen,comment,admin,search'/>
+    <link href="default.css" rel="Stylesheet" type="text/css"/>
+  </r:with>
   
-  <z:with part='body/container'>
+  <r:with part='body/container'>
     <div id='context' do='void' name='context'>
       <ul>
         <li do='admin_links'><a href='#'>do this</a></li>
       </ul>
     </div>
-    <z:content_for_layout>
+    <r:content_for_layout>
       <div id='content' do='void' name='content'>
         <div id='main' do='void' name='main'>
-          <h2><z:trans>home of</z:trans> <z:user do='show' attr='fullname'>Panther Tigris</z:user></h2>
+          <h2><r:trans>home of</r:trans> <r:user do='show' attr='fullname'>Panther Tigris</r:user></h2>
         </div>
 
         <div id='related' do='void' name='related'>
           <ul class='actions' do='user'>
-            <li do='to_publish'><z:trans>to publish</z:trans>
+            <li do='to_publish'><r:trans>to publish</r:trans>
               <ul class='list'>
-                <li do='each' set_class='li_s[status]'><z:link attr='title'>title</z:show></li>
+                <li do='each' set_class='li_s[status]'><r:link attr='title'>title</r:show></li>
               </ul>
             </li>
-            <li do='comments_to_publish'><z:trans>comments to publish</z:trans>
+            <li do='comments_to_publish'><r:trans>comments to publish</r:trans>
               <ul class='list'>
-                <li do='each'><z:show attr='title'>title</z:show></li>
+                <li do='each'><r:show attr='title'>title</r:show></li>
               </ul>
             </li>
-            <li do='proposed'><z:trans>waiting for publication</z:trans>
+            <li do='proposed'><r:trans>waiting for publication</r:trans>
               <ul class='list'>
-                <li do='each'><z:show attr='title'>title</z:show></li>
+                <li do='each'><r:show attr='title'>title</r:show></li>
               </ul>
             </li>
-            <li do='redactions'><z:trans>redactions</z:trans>
+            <li do='redactions'><r:trans>redactions</r:trans>
               <ul class='list'>
-                <li do='each' set_class='li_s[status]'><z:link attr='title'>title</z:show></li>
+                <li do='each' set_class='li_s[status]'><r:link attr='title'>title</r:show></li>
               </ul>
             </li>
           </ul>
         </div>
       </div>
-    </z:content_for_layout>
-  </z:with>
-</z:include>
+    </r:content_for_layout>
+  </r:with>
+</r:include>
