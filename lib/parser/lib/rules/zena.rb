@@ -814,6 +814,9 @@ END_TXT
       if @method =~ /^\[(.*)\]$/
         @params[:attr] = $1
         return r_show
+      elsif @method =~ /^\{(.*)\}$/
+        @params[:attr] = $1
+        return r_zazen
       end
       return '' if @context[:preflight]
       # FIXME: use klass = node_class.class_for_relation(@method)

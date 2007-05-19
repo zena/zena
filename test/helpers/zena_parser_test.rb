@@ -8,7 +8,7 @@ class HelperTest
   Section # make sure we load Section links before trying relations
   
   def test_single
-    do_test('basic', 'show_shortcut')
+    do_test('basic', 'zazen_shortcut')
   end
   
   def test_basic_show_bad_attr

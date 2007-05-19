@@ -43,6 +43,11 @@ show_shortcut:
   tem: "<p><%= @node.version.title %></p>"
   res: "<p>status title</p>"
 
+zazen_shortcut:
+  src: "<div do='{v_title}'>hello</div>"
+  tem: "<div><%= zazen(@node.version.title) %></div>"
+  res: "<div><p>status title</p></div>"
+
 trans:
   context:
     lang: 'fr'
