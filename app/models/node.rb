@@ -165,7 +165,7 @@ class Node < ActiveRecord::Base
       attributes.keys.each do |key|
         if key =~ /^(\w+)_id$/ && ! ['rgroup_id', 'wgroup_id', 'pgroup_id', 'user_id'].include?(key)
           value = Node.connection.execute( "SELECT id FROM nodes WHERE site_id = #{visitor.site[:id]} AND zip = '#{attributes[key].to_i}'" ).fetch_row
-          raise ActiveRecord::RecordNotFound unless value
+          next unless value
           attributes[key] = value[0]
         end
       end
@@ -173,7 +173,7 @@ class Node < ActiveRecord::Base
       (attributes['link'] || {}).keys.each do |key|
         if key =~ /^(\w+)_id$/ && ! ['rgroup_id', 'wgroup_id', 'pgroup_id', 'user_id'].include?(key)
           value = Node.connection.execute( "SELECT id FROM nodes WHERE site_id = #{visitor.site[:id]} AND zip = '#{attributes['link'][key].to_i}'" ).fetch_row
-          raise ActiveRecord::RecordNotFound unless value
+          next unless value
           attributes['link'][key] = value[0]
         end
       end
