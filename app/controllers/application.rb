@@ -163,7 +163,12 @@ class ApplicationController < ActionController::Base
       raise ActiveRecord::RecordNotFound unless template
       
       # set the places to search for the included templates
-      @skin_names = [@skin_name, template[:skin_name]].uniq
+      # FIXME: there might be a better way to do this. In a hurry, fix later.
+      @skin       = {}
+      secure(Skin) { Skin.find(:all, :order=>'position ASC, name ASC') }.each do |s|
+        @skin[s.name] = s
+      end
+      @skin_names = [@skin_name, @skin.keys].flatten.uniq
       
       mode      = "_#{mode}" if mode
       lang_path = session[:dev] ? 'dev' : lang
