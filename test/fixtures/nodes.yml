@@ -702,7 +702,7 @@ wiki_node:
   site_id:        1
   type:           Template
   kpath:          NPDTT
-  name:           node.html
+  name:           Node
   project_id:     1
   section_id:     33
   parent_id:      33

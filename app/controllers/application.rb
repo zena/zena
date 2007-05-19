@@ -162,14 +162,6 @@ class ApplicationController < ActionController::Base
       # FIXME use a default fixed template.
       raise ActiveRecord::RecordNotFound unless template
       
-      # set the places to search for the included templates
-      # FIXME: there might be a better way to do this. In a hurry, fix later.
-      @skin       = {}
-      secure(Skin) { Skin.find(:all, :order=>'position ASC, name ASC') }.each do |s|
-        @skin[s.name] = s
-      end
-      @skin_names = [@skin_name, @skin.keys].flatten.uniq
-      
       mode      = "_#{mode}" if mode
       lang_path = session[:dev] ? 'dev' : lang
       
@@ -180,6 +172,14 @@ class ApplicationController < ActionController::Base
       if !File.exists?(url)
         # no template ---> render
         # TODO: test
+        
+        # set the places to search for the included templates
+        # FIXME: there might be a better way to do this. In a hurry, fix later.
+        @skin       = {}
+        secure(Skin) { Skin.find(:all, :order=>'position ASC, name ASC') }.each do |s|
+          @skin[s.name] = s
+        end
+        @skin_names = [@skin_name, @skin.keys].flatten.uniq
         
         @expire_with_ids = []
         

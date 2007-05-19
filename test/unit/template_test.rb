@@ -14,6 +14,15 @@ class TemplateTest < ZenaTestUnit
     assert_equal 'html', doc.c_ext
   end
   
+  def test_create_empty_mode
+    login(:tiger)
+    doc = secure(Document) { Document.create(:parent_id=>nodes_id(:default), :name=>'super.html', :c_mode => '')}
+    assert !doc.new_record?, "Not a new record"
+    assert_equal 'text/html', doc.c_content_type
+    assert_nil doc.c_mode
+    assert_equal 'html', doc.c_ext
+  end
+  
   def test_create_with_format
     login(:tiger)
     doc = secure(Template) { Template.create("name"=>"Node_tree", "c_format"=>"html", "c_mode"=>"tree", "c_klass"=>"Node", "v_summary"=>"", "parent_id"=>nodes_id(:default))}
