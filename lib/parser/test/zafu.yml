@@ -32,11 +32,11 @@ test:
   
 very_messy:
   src: "this <r: blah> </r:truc> whak"
-  res: "this <r: blah> <span class='parser_error'>&lt;/z:truc&gt;</span> whak"
+  res: "this <r: blah> <span class='parser_error'>&lt;/r:truc&gt;</span> whak"
 
 bad_closing_tag:
   src: "this <r:test>looks </r:truc> ok"
-  res: "this [test]looks <span class='parser_error'>&lt;/z:truc&gt;</span>[/test] ok"
+  res: "this [test]looks <span class='parser_error'>&lt;/r:truc&gt;</span>[/test] ok"
 
 do_tag:
   src: "I say <p do='hello'>blah blah</p>"
@@ -213,7 +213,7 @@ include_super_man:
   res: "include_super: super: hey <p>hello world!</p>"
 
 name_title:
-  src: "title: <h1 do='void' name='title' do='text' text='dummy'>blah</h1>"
+  src: "title: <h1 do='void' name='title' do='text' text='dummy'>blah <b do='void' name='comment'>nothing</b></h1>"
   res: "title: <h1>dummy</h1>"
 
 ztag_same_name_as_tag:
@@ -223,6 +223,26 @@ ztag_same_name_as_tag:
 include_with:
   src: "include_with: <r:include template='/name/title'><h1 do='with' part='title' do='hello'/></r:include>"
   res: "include_with: title: <h1>hello world!</h1>"
+
+include_with_keep_name:
+  src: "keep name: <r:include template='/name/title'><h1 do='with' part='title'><r:hello/> <i do='void' name='comment'>none</i></h1></r:include>"
+  res: "keep name: title: <h1>hello world! <i>none</i></h1>"
+  
+include_include:
+  src: "from ii: <r:include template='/include/with/keep/name'><r:with part='title/comment'>rabbit</r:with></r:include>"
+  res: "from ii: keep name: title: <h1>hello world! <i>rabbit</i></h1>"
+
+include_for_reverse:
+  src: "from ifr: <r:include template='/name'><r:with part='super/comment'>IFR</r:with></r:include>"
+  res: "from ifr: super: hey ho"
+
+include_replace_same:
+  src: "from IRS: <r:include template='/include/super/man'><span do='with' part='super/man'>goldorak</span></r:include>"
+  res: "from IRS: include_super: super: hey <span>goldorak</span>"
+
+include_reverse:
+  src: "from ir: <r:include template='/include/for/reverse'><h1 do='with' part='super'><i do='void' name='comment'>none</i> <r:hello/></h1></r:include>"
+  res: "from ir: from ifr: super: <h1><i>IFR</i> hello world!</h1>"
 
 include_empty:
   src: "include_empty: <r:include template='/name/title'><r:with part='title'/></r:include>"

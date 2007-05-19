@@ -18,6 +18,7 @@ Examples:
  
 =end
 class NodesController < ApplicationController
+  before_filter :clean_url, :only   => [:index, :show]
   before_filter :find_node, :except => [:index, :not_found, :search, :attribute]
   layout :popup_layout,     :only   => [:edit ]
   
@@ -189,7 +190,13 @@ class NodesController < ApplicationController
     end
     
     respond_to do |format|
-      format.html { redirect_to edit_version_url(:node_id => @node[:zip], :id=>(@node.v_number || 0)) }
+      format.html do
+        if params[:edit] == 'popup'
+          redirect_to edit_version_url(:node_id => @node[:zip], :id=>(@node.v_number || 0)) 
+        else
+          redirect_to zen_path(@node)
+        end
+      end
       format.js   { @flash = flash }
     end
   end
@@ -311,6 +318,29 @@ class NodesController < ApplicationController
   
   
   protected
+    # Make sure the url is correct. Redirect if necessary.
+    def clean_url
+      case params[:action]
+      when 'index'
+        redirect_url = "/#{prefix}" if params[:prefix] != prefix || params[:lang]
+      when 'show'
+        redirect_url = if !params[:path] || params[:prefix] != prefix || params[:lang]
+          if params[:id]
+            zen_path(secure(Node) { Node.find_by_zip(params[:id]) })
+          else
+            request.parameters.merge(:prefix => prefix).delete(:lang)
+          end
+        end 
+      end
+
+      if redirect_url
+        redirect_to redirect_url
+        return false
+      end
+    end
+
+
+    
     def find_node
       if path = params[:path]
         if path.last =~ /([a-zA-Z\-]+)([0-9]*)(_[a-z]+|)(\..+|)/
@@ -328,6 +358,8 @@ class NodesController < ApplicationController
         end
         if params[:format] == '' || (params[:format] == 'html' && ( (zip != '' && @node.custom_base) || basepath != @node.basepath(true)))
           redirect_to zen_path(@node, :mode => params[:mode])
+        elsif params[:mode] =~ /_edit/ && !@node.can_write?
+          redirect_to zen_path(@node)
         end
       elsif params[:id]
         @node = secure(Node) { Node.find_by_zip(params[:id]) }

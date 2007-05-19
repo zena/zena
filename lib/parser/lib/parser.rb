@@ -15,7 +15,7 @@ module ParserModule
       url = (folder + src.split('/')).join('_')
       
       if test = @strings[url]
-        test['src']
+        return test['src'], url.split('_').join('/')
       else
         nil
       end
@@ -70,7 +70,7 @@ class Parser
         url = "#{current_folder}/#{url}"
       end
       
-      text = helper.send(:get_template_text, :src=>url, :current_folder=>'') || "<span class='parser_error'>template '#{url}' not found</span>"
+      text, url = helper.send(:get_template_text, :src=>url, :current_folder=>'') || ["<span class='parser_error'>template '#{url}' not found</span>", url]
       url = "/#{url}" unless url[0..0] == '/' # has to be an absolute path
       return [text, url]
     end
@@ -164,7 +164,8 @@ class Parser
   def r_include
     expand_with(:preflight=>true)
     if @parts != {}
-      expand_with(:parts  => (@context[:parts] || {}).merge(@parts), :blocks => @included_blocks)
+      # first definitions in inclusion history have precedence
+      expand_with(:parts  => (@parts).merge(@context[:parts] || {}), :blocks => @included_blocks)
     else
       expand_with(:blocks => @included_blocks)
     end
@@ -197,6 +198,7 @@ class Parser
       if replacer = (@context[:parts] || {})[@context[:name]]
         return false if replacer.empty?
         replace_with(replacer)
+        @params[:name] = name # in case replaced again
       end
     end
     true

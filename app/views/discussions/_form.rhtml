@@ -11,7 +11,7 @@
     <%= radio_button('discussion', 'inside', true ) %> <%= _('inside') %>
   </div>
   <div class='lang'>
-    <%= select('discussion', 'lang', ZENA_ENV[:languages]) %>
+    <%= select('discussion', 'lang', visitor.site.lang_list) %>
   </div>
   <div class='action'>
   <input type="submit" class="btn_validate" value='<%= _('create') %>'/>

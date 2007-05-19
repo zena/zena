@@ -25,8 +25,8 @@
       <div id='search' do='search_box'><div class='search'><form><input type='text' id='search' name='search'/></form></div></div>
     </div>
 
-    <div id='nav_menu' do='node' name='menu' select='root'>
-      <ul do='pages'>
+    <div id='nav_menu' do='void' name='menu'>
+      <ul do='root' do='pages'>
         <li do='each'><r:link attr='name'/>
           <ul do='pages'>
             <li do='each'><r:link attr='name'/></li>
@@ -34,7 +34,9 @@
         </li>
       </ul>
     </div>
-    <div id='branding' do='link' name='branding' href='root'><img src='/img/logo.png' width='220' height='100'/></div>
+    <r:void name='branding'>
+      <div id='branding' do='root' do='link' href='root'><r:icon><r:img mode='full'/><r:else><img src='/img/logo.png' width='220' height='100' alt='logo'/></r:else></r:icon></div>
+    </r:void>
   </div>
 
 

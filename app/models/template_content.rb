@@ -41,6 +41,7 @@ class TemplateContent < ActiveRecord::Base
     def template_content_before_validation
       self[:skin_name] = node.section.name
       self[:mode] = nil if self[:mode] == ''
+      self[:klass] = nil if self[:klass] == ''
     end
   
     def validate_template_content

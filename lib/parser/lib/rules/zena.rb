@@ -1081,6 +1081,14 @@ END_TXT
         "#{node}.version.status == #{Zena::Status[status.to_sym]}"
       elsif lang = @params[:lang]
         "#{node}.version.lang == #{lang.inspect}"
+      elsif can  = @params[:can]
+        # TODO: test
+        case can
+        when 'write'
+          "#{node}.can_write?"
+        when 'drive'
+          "#{node}.can_drive?"
+        end
       elsif test = @params[:test]
         value1, op, value2 = test.split(/\s+/)
         allOK = value1 && op && value2

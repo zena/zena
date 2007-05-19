@@ -180,7 +180,6 @@ class ApplicationController < ActionController::Base
           @skin[s.name] = s
         end
         @skin_names = [@skin_name, @skin.keys].flatten.uniq
-        
         @expire_with_ids = []
         
         response.template.instance_variable_set(:@session, session)
@@ -203,17 +202,17 @@ class ApplicationController < ActionController::Base
     # start with a '/' we use the full url directly.
     # tested in MainControllerTest
     def get_template_text(opts)
-      return nil unless doc = find_template_document(opts)
+      return nil unless res = find_template_document(opts)
+      doc, url = *res
       @expire_with_ids << doc[:id]
-      
       # FIXME: implement a link to set/remove 'dev' mode.
       # session[:dev] ? doc.version.text : doc.version(:pub).text
-      doc.version.text
+      return doc.version.text, url
     end
 
     # TODO: implement
     def template_url_for_asset(opts)
-      return nil unless asset = find_template_document(opts)
+      return nil unless asset = (find_template_document(opts) || [])[0]
       if asset.public? && !current_site.authentication?
         # force the use of a cacheable path for the data, even when navigating in '/oo'
         data_path(asset, :prefix=>lang)
@@ -242,7 +241,7 @@ class ApplicationController < ActionController::Base
         skin_names = @skin_names
         skin_names << url.shift if url.size > 1
       end
-      document = nil
+      document = skin_name = nil
       
       skin_names.uniq.each do |skin_name|
         
@@ -252,7 +251,7 @@ class ApplicationController < ActionController::Base
         path = (skin.fullpath(true).split('/') + url).join('/') # rebuild fullpath
         break if document = secure(TextDocument) { TextDocument.find_by_path(path) } rescue nil
       end
-      document
+      return document ? [document, ([skin_name] + url).join('/')] : nil
     end
   
     # TODO: test
@@ -302,51 +301,25 @@ class ApplicationController < ActionController::Base
   
     # Choose best language to display content.
     # 1. 'test.host/oo?lang=en' use 'lang', redirect without lang
-    # 2. 'test.host/oo' use session[:lang], do not redirect
-    # 3. 'test.host/fr' use the request prefix, do not redirect
+    # 2. 'test.host/oo' use session[:lang]
+    # 3. 'test.host/fr' use the request prefix
     # 4. 'test.host/'   use current session lang if any
     # 5. 'test.host/'   use HTTP_ACCEPT_LANGUAGE
     # 6. 'test.host/'   use default language
     def set_lang
-      new_lang = nil
-      if params[:lang]
-        new_lang = params[:lang]
-      elsif params[:prefix] == AUTHENTICATED_PREFIX
-        session[:lang] ||= visitor.lang    # ok
-      elsif current_site.lang_list.include?(params[:prefix])
-        session[:lang] = params[:prefix] # ok
-      elsif session[:lang]
-        new_lang = session[:lang]
-      elsif choices = request.headers['HTTP_ACCEPT_LANGUAGE']
-        choices = choices.split(',').sort {|a,b| (b.split(';q=')[1] || 1.0).to_f <=> (a.split(';q=')[1] || 1.0).to_f}
-        choices.each do |l|
-          l = l.split(';')[0].split('-')[0]
-          if current_site.lang_list.include?(l)
-            new_lang = l
-            break
-          end
+      [
+        params[:lang], 
+        params[:prefix] == AUTHENTICATED_PREFIX ? nil : params[:prefix],
+        session[:lang],
+        (request.headers['HTTP_ACCEPT_LANGUAGE'] || '').split(',').sort {|a,b| (b.split(';q=')[1] || 1.0).to_f <=> (a.split(';q=')[1] || 1.0).to_f }.map {|l| l.split(';')[0].split('-')[0] }
+      ].compact.flatten.uniq.each do |l|
+        if current_site.lang_list.include?(l)
+          session[:lang] = l
+          break
         end
-        new_lang ||= current_site[:default_lang]
-      else
-        new_lang = current_site[:default_lang]
       end
       
-      if new_lang
-        if current_site.lang_list.include?(new_lang)
-          session[:lang] = new_lang
-        else
-          flash[:notice] = _("The requested language is not available.")
-          session[:lang] = current_site.lang_list.include?(request.headers['HTTP_ACCEPT_LANGUAGE']) ? request.headers['HTTP_ACCEPT_LANGUAGE'] : current_site[:default_lang]
-        end
-        
-        # path is only used by nodes controller's show action
-        if (params[:controller] == 'nodes' && ['index', 'show'].include?(params[:action])) || params[:lang]
-          req = request.parameters
-          req.delete(:lang)
-          req[:prefix] = req[:prefix] ? (visitor.is_anon? ? session[:lang] : AUTHENTICATED_PREFIX) : nil
-          redirect_to req and return false
-        end
-      end
+      session[:lang] ||= current_site[:default_lang]
       
       visitor.lang = session[:lang] # FIXME: this should not be needed, use global GetText.get_locale...
       GetText.set_locale_all(session[:lang])

@@ -3,7 +3,7 @@ Comments can be added on a per discussion basis. There can be replies to other c
 discussion. Comments are signed by the user commenting. Public comments
 belong to the user _anon_ (see #User) and must have the 'athor_name' field set.
 
-If ZENA_ENV[:moderate_anonymous_comments] is set, all public comments are set to 'prop' and are not directly seen on the site.
+If anonymous is moderated (User#moderated?), all public comments are set to 'prop' and are not directly seen on the site.
 =end
 class Comment < ActiveRecord::Base
   belongs_to :discussion

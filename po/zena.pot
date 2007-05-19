@@ -7,7 +7,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: 0.8.2\n"
-"POT-Creation-Date: 2007-05-18 12:26-0000\n"
+"POT-Creation-Date: 2007-05-19 18:28-0000\n"
 "PO-Revision-Date: 2007-05-13 19:08-0000\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -16,15 +16,11 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=INTEGER; plural=EXPRESSION;\n"
 
-#: app/controllers/application.rb:277
+#: app/controllers/application.rb:285
 msgid "Please log in"
 msgstr ""
 
-#: app/controllers/application.rb:329
-msgid "The requested language is not available."
-msgstr ""
-
-#: app/controllers/application.rb:356 app/controllers/application.rb:384
+#: app/controllers/application.rb:338 app/controllers/application.rb:366
 msgid "datetime"
 msgstr ""
 
@@ -40,31 +36,31 @@ msgstr ""
 msgid "role not valid"
 msgstr ""
 
-#: app/controllers/nodes_controller.rb:150
+#: app/controllers/nodes_controller.rb:152
 msgid "Backup created."
 msgstr ""
 
-#: app/controllers/nodes_controller.rb:152
+#: app/controllers/nodes_controller.rb:154
 msgid "Could not create backup."
 msgstr ""
 
-#: app/controllers/nodes_controller.rb:185
+#: app/controllers/nodes_controller.rb:187
 msgid "node updated"
 msgstr ""
 
-#: app/controllers/nodes_controller.rb:187
+#: app/controllers/nodes_controller.rb:189
 msgid "could not update"
 msgstr ""
 
-#: app/controllers/nodes_controller.rb:280
+#: app/controllers/nodes_controller.rb:288
 msgid "node not found"
 msgstr ""
 
-#: app/controllers/nodes_controller.rb:304
+#: app/controllers/nodes_controller.rb:312
 msgid "Order updated"
 msgstr ""
 
-#: app/controllers/nodes_controller.rb:306
+#: app/controllers/nodes_controller.rb:314
 msgid "Could not update order."
 msgstr ""
 
@@ -97,19 +93,19 @@ msgstr ""
 msgid "Could not edit version."
 msgstr ""
 
-#: app/controllers/versions_controller.rb:123
+#: app/controllers/versions_controller.rb:124
 msgid "Redaction proposed for publication."
 msgstr ""
 
-#: app/controllers/versions_controller.rb:125
+#: app/controllers/versions_controller.rb:126
 msgid "Could not propose redaction."
 msgstr ""
 
-#: app/controllers/versions_controller.rb:132
+#: app/controllers/versions_controller.rb:133
 msgid "Proposition refused."
 msgstr ""
 
-#: app/controllers/versions_controller.rb:135
+#: app/controllers/versions_controller.rb:136
 msgid "Could not refuse proposition."
 msgstr ""
 
@@ -669,7 +665,7 @@ msgstr ""
 #: app/views/templates/document_create_tabs/_file.rhtml:3
 #: app/views/templates/document_create_tabs/_template.rhtml:3
 #: app/views/templates/document_create_tabs/_text_doc.rhtml:3
-#: app/views/users/_form.rhtml:45 app/views/versions/edit.rhtml:12
+#: app/views/users/_form.rhtml:45 app/views/versions/edit.rhtml:15
 msgid "validate"
 msgstr ""
 
@@ -963,11 +959,11 @@ msgstr ""
 msgid "select version numbers and view differences"
 msgstr ""
 
-#: app/views/versions/edit.rhtml:13
+#: app/views/versions/edit.rhtml:16
 msgid "save"
 msgstr ""
 
-#: app/views/versions/edit.rhtml:17
+#: app/views/versions/edit.rhtml:20
 msgid "btn_add_document"
 msgstr ""
 
@@ -1155,171 +1151,175 @@ msgstr ""
 msgid "no result found"
 msgstr ""
 
-#: lib/gettext_strings.rb:66
+#: lib/gettext_strings.rb:65
+msgid "search results"
+msgstr ""
+
+#: lib/gettext_strings.rb:67
 msgid "btn_unplublish"
 msgstr ""
 
-#: lib/gettext_strings.rb:68
+#: lib/gettext_strings.rb:69
 msgid "status_50"
 msgstr ""
 
-#: lib/gettext_strings.rb:69
+#: lib/gettext_strings.rb:70
 msgid "status_40"
 msgstr ""
 
-#: lib/gettext_strings.rb:70
+#: lib/gettext_strings.rb:71
 msgid "status_35"
 msgstr ""
 
-#: lib/gettext_strings.rb:71
+#: lib/gettext_strings.rb:72
 msgid "status_33"
 msgstr ""
 
-#: lib/gettext_strings.rb:72
+#: lib/gettext_strings.rb:73
 msgid "status_30"
 msgstr ""
 
-#: lib/gettext_strings.rb:73
+#: lib/gettext_strings.rb:74
 msgid "status_20"
 msgstr ""
 
-#: lib/gettext_strings.rb:74
+#: lib/gettext_strings.rb:75
 msgid "status_10"
 msgstr ""
 
-#: lib/gettext_strings.rb:75
+#: lib/gettext_strings.rb:76
 msgid "status_0"
 msgstr ""
 
-#: lib/gettext_strings.rb:77
+#: lib/gettext_strings.rb:78
 msgid "en"
 msgstr ""
 
-#: lib/gettext_strings.rb:78
+#: lib/gettext_strings.rb:79
 msgid "fr"
 msgstr ""
 
-#: lib/gettext_strings.rb:79
+#: lib/gettext_strings.rb:80
 msgid "de"
 msgstr ""
 
-#: lib/gettext_strings.rb:80
+#: lib/gettext_strings.rb:81
 msgid "Monday"
 msgstr ""
 
-#: lib/gettext_strings.rb:81
+#: lib/gettext_strings.rb:82
 msgid "Tuesday"
 msgstr ""
 
-#: lib/gettext_strings.rb:82
+#: lib/gettext_strings.rb:83
 msgid "Wednesday"
 msgstr ""
 
-#: lib/gettext_strings.rb:83
+#: lib/gettext_strings.rb:84
 msgid "Thursday"
 msgstr ""
 
-#: lib/gettext_strings.rb:84
+#: lib/gettext_strings.rb:85
 msgid "Friday"
 msgstr ""
 
-#: lib/gettext_strings.rb:85
+#: lib/gettext_strings.rb:86
 msgid "Saturday"
 msgstr ""
 
-#: lib/gettext_strings.rb:86
+#: lib/gettext_strings.rb:87
 msgid "Sunday"
 msgstr ""
 
-#: lib/gettext_strings.rb:88
+#: lib/gettext_strings.rb:89
 msgid "mon"
 msgstr ""
 
-#: lib/gettext_strings.rb:89
+#: lib/gettext_strings.rb:90
 msgid "tue"
 msgstr ""
 
-#: lib/gettext_strings.rb:90
+#: lib/gettext_strings.rb:91
 msgid "wed"
 msgstr ""
 
-#: lib/gettext_strings.rb:91
+#: lib/gettext_strings.rb:92
 msgid "thu"
 msgstr ""
 
-#: lib/gettext_strings.rb:92
+#: lib/gettext_strings.rb:93
 msgid "fri"
 msgstr ""
 
-#: lib/gettext_strings.rb:93
+#: lib/gettext_strings.rb:94
 msgid "sat"
 msgstr ""
 
-#: lib/gettext_strings.rb:94
+#: lib/gettext_strings.rb:95
 msgid "sun"
 msgstr ""
 
-#: lib/gettext_strings.rb:96
+#: lib/gettext_strings.rb:97
 msgid "January"
 msgstr ""
 
-#: lib/gettext_strings.rb:97
+#: lib/gettext_strings.rb:98
 msgid "February"
 msgstr ""
 
-#: lib/gettext_strings.rb:98
+#: lib/gettext_strings.rb:99
 msgid "March"
 msgstr ""
 
-#: lib/gettext_strings.rb:99
+#: lib/gettext_strings.rb:100
 msgid "April"
 msgstr ""
 
-#: lib/gettext_strings.rb:100
+#: lib/gettext_strings.rb:101
 msgid "May"
 msgstr ""
 
-#: lib/gettext_strings.rb:101
+#: lib/gettext_strings.rb:102
 msgid "June"
 msgstr ""
 
-#: lib/gettext_strings.rb:102
+#: lib/gettext_strings.rb:103
 msgid "July"
 msgstr ""
 
-#: lib/gettext_strings.rb:103
+#: lib/gettext_strings.rb:104
 msgid "August"
 msgstr ""
 
-#: lib/gettext_strings.rb:104
+#: lib/gettext_strings.rb:105
 msgid "September"
 msgstr ""
 
-#: lib/gettext_strings.rb:105
+#: lib/gettext_strings.rb:106
 msgid "October"
 msgstr ""
 
-#: lib/gettext_strings.rb:106
+#: lib/gettext_strings.rb:107
 msgid "November"
 msgstr ""
 
-#: lib/gettext_strings.rb:107
+#: lib/gettext_strings.rb:108
 msgid "December"
 msgstr ""
 
-#: lib/gettext_strings.rb:109
+#: lib/gettext_strings.rb:110
 msgid "User name:"
 msgstr ""
 
-#: lib/gettext_strings.rb:110
+#: lib/gettext_strings.rb:111
 msgid "Password:"
 msgstr ""
 
-#: lib/gettext_strings.rb:113
+#: lib/gettext_strings.rb:114
 msgid "you are editing the original"
 msgstr ""
 
-#: lib/gettext_strings.rb:114
+#: lib/gettext_strings.rb:115
 msgid "redaction saved"
 msgstr ""
 

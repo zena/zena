@@ -62,6 +62,7 @@ module Zena
     N_('%{type} node')      # alt attribute for img_tag
     
     N_('no result found')   # search template
+    N_('search results')    # search template
     
     N_('btn_unplublish')    # version action
     

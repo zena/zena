@@ -461,7 +461,7 @@ class Node < ActiveRecord::Base
   
   # Same as fullpath, but the path includes the root node.
   def rootpath
-    ZENA_ENV[:site_name] + (fullpath != "" ? "/#{fullpath}" : "")
+    visitor.site.name + (fullpath != "" ? "/#{fullpath}" : "")
   end
   
   # Used by zafu to find the search score
