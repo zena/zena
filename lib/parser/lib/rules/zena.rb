@@ -811,6 +811,10 @@ END_TXT
     # use all other tags as relations
     # try to add 'conditions' without sql injection possibilities...
     def r_unknown
+      if @method =~ /^\[(.*)\]$/
+        @params[:attr] = $1
+        return r_show
+      end
       return '' if @context[:preflight]
       # FIXME: use klass = node_class.class_for_relation(@method)
       "not a node (#{@method})" unless node_kind_of?(Node)

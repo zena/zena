@@ -38,6 +38,11 @@ show_title:
   tem: "<%= @node.version.title %>"
   res: "status title"
 
+show_shortcut:
+  src: "<p do='[v_title]'>hello</p>"
+  tem: "<p><%= @node.version.title %></p>"
+  res: "<p>status title</p>"
+
 trans:
   context:
     lang: 'fr'
