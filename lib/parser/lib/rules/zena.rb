@@ -749,7 +749,7 @@ END_TXT
         fmt = ''
       end
       if mode = @params[:mode]
-        mode = ", :mode => #{node}.c_ext"
+        mode = ", :mode => #{mode.inspect}"
       else
         mode = ''
       end
