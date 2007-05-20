@@ -2,7 +2,7 @@
 # migrations feature of ActiveRecord to incrementally modify your database, and
 # then regenerate this schema definition.
 
-ActiveRecord::Schema.define(:version => 17) do
+ActiveRecord::Schema.define(:version => 0) do
 
   create_table "bricks_info", :id => false, :force => true do |t|
     t.column "version", :integer
@@ -157,6 +157,7 @@ ActiveRecord::Schema.define(:version => 17) do
     t.column "allow_private",   :boolean
     t.column "languages",       :string
     t.column "default_lang",    :string
+    t.column "http_auth",       :boolean
   end
 
   create_table "sites_users", :id => false, :force => true do |t|
@@ -206,6 +207,9 @@ ActiveRecord::Schema.define(:version => 17) do
     t.column "content_id",   :integer
     t.column "site_id",      :integer
   end
+
+  execute "ALTER TABLE versions ENGINE = MyISAM"
+  execute "CREATE FULLTEXT INDEX index_versions_on_title_and_text_and_summary ON versions (title,text,summary)"
 
   create_table "zips", :id => false, :force => true do |t|
     t.column "site_id", :integer

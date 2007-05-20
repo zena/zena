@@ -29,3 +29,18 @@ You can now login with 'admin' and the password you used to make the site.
 
 == Dependencies
 rmagick, redcloth, syntax, markaby, gettext
+
+
+== Very experimental webDAV
+add this to nodes_controller macros:
+  act_as_railsdav
+  include Zena::WebDav
+
+add this to 'config/environment.rb'
+  require File.join(File.dirname(__FILE__), '../lib/webdav_adapter')
+
+install railsdav
+  # script/plugin install http://svn.liverail.net/svn/plugins/railsdav
+
+install dependencies
+  # sudo gem install mime-types, unicode

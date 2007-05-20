@@ -87,7 +87,15 @@ module ApplicationHelper
   # Shows 'login' or 'logout' button.
   def login_link(opts={})
     if visitor.is_anon?
-      "<a href='/login'>#{_('login')}</a>"
+      if visitor.site[:http_auth] || true
+        if params[:prefix]
+          link_to _('login'), request.parameters.merge(:prefix=>AUTHENTICATED_PREFIX)
+        else
+          "<a href='/login'>#{_('login')}</a>"
+        end
+      else
+        "<a href='/login'>#{_('login')}</a>"
+      end
     else  
       "<a href='/logout'>#{_('logout')}</a>"
     end

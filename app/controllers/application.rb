@@ -282,9 +282,7 @@ class ApplicationController < ActionController::Base
       # Require a login if :
       # 1. site forces authentication 
       if (current_site.authentication? && visitor.is_anon?)
-        flash[:notice] = _("Please log in")
-        session[:after_login_url] = request.parameters
-        redirect_to login_path and return false
+        do_login
       end
       
       # Redirect if :
@@ -298,6 +296,79 @@ class ApplicationController < ActionController::Base
         redirect_to req and return false
       end
     end
+    
+    def do_login
+      if current_site[:http_auth] || true
+        basic_auth_required do |username, password| 
+          if user = User.login(username,password,current_site)
+            successful_login(user)
+          end
+        end
+        # reset render
+        return !visitor.is_anon?
+      else
+        flash[:notice] = _("Please log in")
+        session[:after_login_url] = request.parameters
+        redirect_to login_path and return false
+      end
+    end
+    
+    def successful_login(user)
+      session[:user] = user[:id]
+      @visitor = user
+      @visitor.visit(@visitor)
+      # reset session lang, will be set from user on next request/filter
+      session[:lang] = nil
+      return true
+    end
+    
+    # code adapted from Stuart Eccles from act_as_railsdav plugin
+    def basic_auth_required(realm=current_site.name) 
+      username, passwd = get_auth_data
+      # check if authorized
+      # try to get user
+      unless yield username, passwd
+        # the user does not exist or the password was wrong
+        headers["Status"] = "Unauthorized" 
+        headers["WWW-Authenticate"] = "Basic realm=\"#{realm}\""
+        # FIXME: JS redirect instead of text if not site.authentication
+        if current_site.authentication?
+          render :nothing => true, :status => 401
+        else
+          render :text => "
+          <html>
+            <head>
+            <script type='text/javascript'>
+            <!--
+            window.location = '/'
+            //-->
+            </script>
+            </head>
+            <body>redirecting to <a href='/'>#{current_site.name}</a></body>
+            </html>", :status => 401
+        end
+      end 
+    end 
+    
+    # code from Stuart Eccles from act_as_railsdav plugin
+    def get_auth_data 
+      user, pass = '', '' 
+      # extract authorisation credentials 
+      if request.env.has_key? 'X-HTTP_AUTHORIZATION' 
+        # try to get it where mod_rewrite might have put it 
+        authdata = request.env['X-HTTP_AUTHORIZATION'].to_s.split 
+      elsif request.env.has_key? 'HTTP_AUTHORIZATION' 
+        # this is the regular location 
+        authdata = request.env['HTTP_AUTHORIZATION'].to_s.split  
+      end 
+
+      # at the moment we only support basic authentication 
+      if authdata and authdata[0] == 'Basic' 
+        user, pass = Base64.decode64(authdata[1]).split(':')[0..1] 
+      end 
+      return [user, pass] 
+    end
+    
   
     # Choose best language to display content.
     # 1. 'test.host/oo?lang=en' use 'lang', redirect without lang

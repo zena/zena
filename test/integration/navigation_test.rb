@@ -58,6 +58,12 @@ class NavigationTest < ActionController::IntegrationTest
     assert_equal 'es', session[:lang]
     get 'http://test.host/nodes/29/edit'
     assert_response :success
+    get 'http://test.host/oo'
+    assert_redirected_to 'http://test.host/login'
+    get 'http://test.host/oo/nodes/13' # private entry 'ant' in bad url format
+    assert_redirected_to 'http://test.host/login'
+    get 'http://test.host/nodes/13' # private entry 'ant'
+    assert_response 404
   end
   
   def test_set_lang_with_login

@@ -70,11 +70,7 @@ class NodesController < ApplicationController
     
     respond_to do |format|
       
-      format.html do
-        # FIXME: redirect if path is not correct.
-        return redirect_to(zen_path(@node), :mode => params[:mode]) unless params[:path]
-        render_and_cache 
-      end
+      format.html { render_and_cache }
       
       format.xml  { render :xml => @node.to_xml }
       
@@ -320,6 +316,9 @@ class NodesController < ApplicationController
   protected
     # Make sure the url is correct. Redirect if necessary.
     def clean_url
+      if params[:prefix] == AUTHENTICATED_PREFIX && visitor.is_anon?
+        return false unless do_login
+      end
       case params[:action]
       when 'index'
         redirect_url = "/#{prefix}" if params[:prefix] != prefix || params[:lang]
@@ -343,7 +342,7 @@ class NodesController < ApplicationController
     
     def find_node
       if path = params[:path]
-        if path.last =~ /([a-zA-Z\-]+)([0-9]*)(_[a-z]+|)(\..+|)/
+        if path.last =~ /([a-zA-Z\-]*)([0-9]*)(_[a-z]+|)(\..+|)/
           name   = $1
           zip    = $2
           params[:mode  ] = $3 == '' ? nil : $3[1..-1]

@@ -9,7 +9,8 @@ ActionController::Routing::Routes.draw do |map|
   map.resources :users, :member => { :preferences => :get }
   map.resources :groups
   
-  map.connect ':prefix/*path', :controller => 'nodes', :action => 'show', :prefix => /\w\w/
+  map.connect ':prefix/*path',  :controller => 'nodes', :action => 'show', :prefix => /\w\w/
+  map.connect 'dav/*path_info', :controller => 'nodes', :action => 'webdav'
   
   map.connect 'nodes/:node_id/versions/:id.:format', :controller => 'versions', :action => 'show' #, :requirements => { :method => :get }
   

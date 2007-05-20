@@ -27,5 +27,6 @@ ocean:
   authentication: NO
   monolingual:    NO
   allow_private:  NO
+  http_auth:      YES
   languages:      "en,fr"
   default_lang:   "en"

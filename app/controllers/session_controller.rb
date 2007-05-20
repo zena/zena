@@ -20,24 +20,13 @@ class SessionController < ApplicationController
     end
   end
   
-  # Clears session information and redirects to login page.
+  # Clears session information and redirects to home page.
   def destroy
     reset_session
     redirect_to :controller=>'nodes', :action=>'index', :prefix=>(visitor.site.monolingual? ? '' : visitor.lang)
   end
   
   protected
-    def successful_login(user)
-      session[:user] = user[:id]
-      visitor = user
-      visitor.visit(visitor)
-      # reset session lang, will be set from user on next request
-      session[:lang] = nil
-      # TODO: test after_login_url
-      after_login_path = session[:after_login_url] || user_path(user)
-      session[:after_login_url] = nil
-      redirect_to after_login_path
-    end
     
     def failed_login(message)
       session[:user] = nil
