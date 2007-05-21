@@ -89,7 +89,7 @@ module ApplicationHelper
     if visitor.is_anon?
       if visitor.site[:http_auth] || true
         if params[:prefix]
-          link_to _('login'), request.parameters.merge(:prefix=>AUTHENTICATED_PREFIX)
+          link_to _('login'), :overwrite_params => { :prefix => AUTHENTICATED_PREFIX }
         else
           "<a href='/login'>#{_('login')}</a>"
         end
@@ -361,10 +361,10 @@ module ApplicationHelper
     
     src = width = height = img_class = nil
     if obj.kind_of?(Image)
-      alt  ||= obj.v_title
+      alt  ||= obj.v_title.gsub("'", '&apos;')
       mode   = content.verify_format(mode) || 'std'
       
-      src       = zen_path(obj, opts.merge(:mode => (mode == 'full' ? nil : mode)))
+      src    = zen_path(obj, opts.merge(:mode => (mode == 'full' ? nil : mode)))
       
       img_class = klass || mode
       if mode == 'full'
@@ -962,9 +962,9 @@ ENDTXT
           res << "<b>#{l}</b>"
         else
           if visitor.is_anon? && params[:prefix]
-            res << link_to(l, request.parameters.merge(:prefix=>l))
+            res << link_to(l, :overwrite_params => {:prefix => l})
           else
-            res << link_to(l, request.parameters.merge(:lang=>l))
+            res << link_to(l, :overwrite_params => {:lang   => l})
           end
         end
       end

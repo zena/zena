@@ -227,7 +227,7 @@ class ApplicationHelperTest < ZenaTestHelper
   def test_visitor_link
     assert_equal '', visitor_link
     login(:ant)
-    assert_match /home.*Solenopsis Invicta/, visitor_link
+    assert_match %r{users/3.*Solenopsis Invicta}, visitor_link
   end
   
   def test_flash_messages
@@ -397,33 +397,13 @@ class ApplicationHelperTest < ZenaTestHelper
 
   def test_lang_links
     login(:lion)
-    @request = ActionController::TestRequest.new
-    @request.instance_eval{ @parameters = {:controller=>'nodes', :action=>'show', :path=>'projects/cleanWater', :prefix=>AUTHENTICATED_PREFIX}}
-    class << self
-      def request
-        @request
-      end
-    end
+    @controller.set_params(:controller=>'nodes', :action=>'show', :path=>'projects/cleanWater', :prefix=>AUTHENTICATED_PREFIX)
     assert_match %r{<b>en</b>.*href=.*/oo/projects/cleanWater\?lang=.*fr.*}, lang_links
-    class << self
-      remove_method(:request)
-    end
-    remove_instance_variable :@request
   end
   
   def test_lang_links_no_login
     login(:anon)
-    @request = ActionController::TestRequest.new
-    @request.instance_eval{ @parameters = {:controller=>'nodes', :action=>'show', :path=>'projects/cleanWater', :prefix=>AUTHENTICATED_PREFIX}}
-    class << self
-      def request
-        @request
-      end
-    end
+    @controller.set_params(:controller=>'nodes', :action=>'show', :path=>'projects/cleanWater', :prefix=>'en')
     assert_match %r{<b>en</b>.*href=.*/fr/projects/cleanWater.*fr.*}, lang_links
-    class << self
-      remove_method(:request)
-    end
-    remove_instance_variable :@request
   end
 end

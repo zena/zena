@@ -290,10 +290,8 @@ class ApplicationController < ActionController::Base
       if (params[:prefix] && params[:prefix] != AUTHENTICATED_PREFIX && !visitor.is_anon?)
         format = params[:format] || (params[:path] || '').split('.').last
         return true unless ['xml','html', nil].include?(format)
-        req = request.parameters
         session[:lang] = params[:prefix]
-        req[:prefix] = AUTHENTICATED_PREFIX
-        redirect_to req and return false
+        redirect_to request.parameters.merge(:prefix=>AUTHENTICATED_PREFIX) and return false
       end
     end
     

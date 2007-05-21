@@ -9,6 +9,7 @@ module Zena
       # make sure versions is of type InnoDB
       begin
         Node.connection.remove_index "versions", ["title", "text", "summary"]
+      rescue ActiveRecord::StatementInvalid
       ensure
         Node.connection.execute "ALTER TABLE versions ENGINE = InnoDB;"
       end
@@ -267,6 +268,11 @@ module Zena
         assign_shortcuts(request, response)
         initialize_current_url
         assign_names
+      end
+      def set_params(hash)
+        @_params = hash
+        @request.instance_variable_set(:@parameters,hash)
+        @url = ActionController::UrlRewriter.new(@request, hash)
       end
       def rescue_action(e) raise e; end;
     end
