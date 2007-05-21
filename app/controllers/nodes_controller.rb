@@ -317,8 +317,9 @@ class NodesController < ApplicationController
     # Make sure the url is correct. Redirect if necessary.
     def clean_url
       if params[:prefix] == AUTHENTICATED_PREFIX && visitor.is_anon?
-        do_login and return false
+        return false unless do_login
       end
+      
       case params[:action]
       when 'index'
         redirect_url = "/#{prefix}" if params[:prefix] != prefix || params[:lang]

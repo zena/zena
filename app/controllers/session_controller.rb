@@ -23,7 +23,11 @@ class SessionController < ApplicationController
   # Clears session information and redirects to home page.
   def destroy
     reset_session
-    redirect_to :controller=>'nodes', :action=>'index', :prefix=>(visitor.site.monolingual? ? '' : visitor.lang)
+    if request.referer =~ %r{(http://#{visitor.site.host}:\d*/)#{AUTHENTICATED_PREFIX}(.*)}
+      redirect_to $1 + visitor.lang + $2
+    else
+      redirect_to :controller=>'nodes', :action=>'index', :prefix=>(visitor.site.monolingual? ? '' : visitor.lang)
+    end
   end
   
   protected
