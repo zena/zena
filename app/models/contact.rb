@@ -11,6 +11,10 @@ class Contact < Reference
     version.content.fullname
   end
   
+  def initials
+    version.content.initials
+  end
+  
   private
     # TODO: test
     def version_class
