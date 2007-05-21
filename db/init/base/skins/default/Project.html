@@ -12,11 +12,11 @@
   <r:with part='body/container/content/main'>
     
     <r:home>
-      <r:include template='title.html'/>
+      <r:include template='layout.html' part='body/container/main/title'/>
       <r:summary text=''/>
       <r:text/>
       <r:else>
-        <r:include template='title.html'/>
+        <r:include template='layout.html' part='body/container/main/title'/>
       </r:else>
     </r:home>
     

@@ -27,6 +27,32 @@ class NavigationTest < ActionController::IntegrationTest
     assert_response :success
   end
   
+  def test_authorize_http_auth
+    Site.connection.execute "UPDATE sites SET http_auth = 1 WHERE id = 1" # test.host
+    get 'http://test.host/'
+    assert_redirected_to 'http://test.host/en'
+    follow_redirect!
+    assert_response :success
+    
+    # 1. site forces authentication 
+    Site.connection.execute "UPDATE sites SET authentication = 1 WHERE id = 1" # test.host
+    get 'http://test.host/'
+    assert_response 401 # http_auth
+    assert_redirected_to 'http://test.host/login'
+    
+    reset!
+    post 'http://test.host/session', :login=>'tiger', :password=>'tiger'
+    assert_redirected_to 'http://test.host/users/4'
+    
+    # 2. navigating out of '/oo' but logged in and format is not data
+    get 'http://test.host/fr'
+    assert_redirected_to 'http://test.host/oo'
+    follow_redirect!
+    assert_response :success
+    get 'http://test.host/fr/textdocument53.css' # data
+    assert_response :success
+  end
+  
   def test_set_lang
     Site.connection.execute "UPDATE sites SET languages = 'fr,en,es' WHERE id = 1" # test.host
     get 'http://test.host/', {}, {'HTTP_ACCEPT_LANGUAGE' => 'de-DE,fr-FR;q=0.8,es;q=0.9'}

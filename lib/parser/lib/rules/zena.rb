@@ -810,7 +810,7 @@ END_TXT
     # part caching
     def r_cache
       kpath   = @params[:kpath]   || Page.kpath
-      context = @params[:context] || @context[:name] || @options[:included_history][0]
+      context = @params[:context] || @context[:name] || (@options[:included_history][0] || '').split('::')[0]
       out "<% #{cache} = Cache.with(visitor.id, visitor.group_ids, #{helper.send(:lang).inspect}, #{kpath.inspect}, #{context.inspect}) do capture do %>"
       out expand_with
       out "<% end; end %><%= #{cache} %>"
@@ -1062,7 +1062,7 @@ END_TXT
     end
     
     def unique_name
-      "#{@options[:included_history][0]}/#{((@context[:name] || 'list').split('/')[-1]).gsub(/[^\w\/]/,'_')}"
+      "#{@options[:included_history][0].split('::')[0]}/#{((@context[:name] || 'list').split('/')[-1]).gsub(/[^\w\/]/,'_')}"
     end
        
     def add_params(text, opts={})

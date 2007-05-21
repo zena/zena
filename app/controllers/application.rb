@@ -282,7 +282,7 @@ class ApplicationController < ActionController::Base
       # Require a login if :
       # 1. site forces authentication 
       if (current_site.authentication? && visitor.is_anon?)
-        do_login
+        do_login and return false
       end
       
       # Redirect if :
@@ -296,18 +296,16 @@ class ApplicationController < ActionController::Base
     end
     
     def do_login
+      session[:after_login_url]   ||= request.parameters
       if current_site[:http_auth] || true
         basic_auth_required do |username, password| 
           if user = User.login(username,password,current_site)
             successful_login(user)
           end
         end
-        # reset render
-        return !visitor.is_anon?
       else
         flash[:notice] = _("Please log in")
-        session[:after_login_url] = request.parameters
-        redirect_to login_path and return false
+        redirect_to login_path
       end
     end
     
@@ -317,7 +315,7 @@ class ApplicationController < ActionController::Base
       @visitor.visit(@visitor)
       # reset session lang, will be set from user on next request/filter
       session[:lang] = nil
-      return true
+      redirect_to session.delete(:after_login_url) || user_path(visitor)
     end
     
     # code adapted from Stuart Eccles from act_as_railsdav plugin
@@ -329,7 +327,8 @@ class ApplicationController < ActionController::Base
         # the user does not exist or the password was wrong
         headers["Status"] = "Unauthorized" 
         headers["WWW-Authenticate"] = "Basic realm=\"#{realm}\""
-        # FIXME: JS redirect instead of text if not site.authentication
+        
+        # require login
         if current_site.authentication?
           render :nothing => true, :status => 401
         else

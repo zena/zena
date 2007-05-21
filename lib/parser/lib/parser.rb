@@ -225,6 +225,7 @@ class Parser
     
     @text, absolute_url = self.class.get_template_text(@params[:template], @options[:helper], @options[:current_folder])
     
+    absolute_url += "::#{@params[:part].gsub('/','_')}" if @params[:part]
     if absolute_url
       if @options[:included_history].include?(absolute_url)
         @text = "<span class='parser_error'>[include error: #{(@options[:included_history] + [absolute_url]).join(' --&gt; ')} ]</span>"
@@ -236,11 +237,31 @@ class Parser
     
     @text = before_parse(@text)
     enter(:void) # scan fetched text
-    @included_blocks = @blocks
+    if @params[:part]
+      @included_blocks = [find_part(@params[:part])]
+    else
+      @included_blocks = @blocks
+    end
     
     @blocks = []
     @text = text
     enter(:void) # normal scan on content
+  end
+  
+  def find_part(path)
+    res    = self
+    path.split('/').reject {|e| e==''}.each do |name|
+      res.blocks.each do |b|
+        next if b.kind_of?(String)
+        if b.params[:name] == name
+          res    = b
+          name   = nil
+          break
+        end
+      end
+      return nil if name # block not found
+    end
+    res
   end
   
   def success?

@@ -317,7 +317,7 @@ class NodesController < ApplicationController
     # Make sure the url is correct. Redirect if necessary.
     def clean_url
       if params[:prefix] == AUTHENTICATED_PREFIX && visitor.is_anon?
-        return false unless do_login
+        do_login and return false
       end
       case params[:action]
       when 'index'
@@ -333,8 +333,7 @@ class NodesController < ApplicationController
       end
 
       if redirect_url
-        redirect_to redirect_url
-        return false
+        redirect_to redirect_url and return false
       end
     end
 
