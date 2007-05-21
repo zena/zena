@@ -41,9 +41,8 @@ class Version < ActiveRecord::Base
   # not tested belongs_to :comment_group, :class_name=>'Group', :foreign_key=>'cgroup_id'
   # not tested has_many :comments, :order=>'created_at'
   
-  # Author is an alias for user
   def author
-    user
+    secure(User){ user }.contact
   end
   
   def user_zip
