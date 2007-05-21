@@ -1,3 +1,30 @@
+class ActiveRecord::Base
+  @@_zafu_readable = {} # defined for each class
+  @@_zafu_readable_attributes = {} # full list with inherited attributes
+  
+  def self.zafu_readable(*list)
+    @@_zafu_readable[self] ||= []
+    @@_zafu_readable[self] = (@@_zafu_readable[self] + list.map{|l| l.to_s}).uniq
+  end
+  
+  def self.zafu_readable_attributes
+    @@_zafu_readable_attributes[self] ||= if superclass == ActiveRecord::Base
+      @@_zafu_readable[self] || []
+    else
+      (superclass.zafu_readable_attributes + (@@_zafu_readable[self] || [])).uniq.sort
+    end
+  end
+  
+  def self.zafu_readable?(sym)
+    self.zafu_readable_attributes.include?(sym.to_s)
+  end
+  
+  def zafu_read(sym)
+    return "'#{sym}' not readable" unless self.class.zafu_readable?(sym)
+    self.send(sym)
+  end
+end
+
 module Zena
   module Rules
   end
@@ -251,9 +278,7 @@ module Zena
     # TODO: remove, use relations
     def r_author
       return "" unless check_node_class(:Node, :Version, :Comment)
-      out "<% if #{var} = #{node}.author -%>"
-      out expand_with(:node=>var, :node_class=>:User)
-      out "<% end -%>"
+      do_var("#{node}.author", :node_class => :Node)
     end
     
     # TODO: test
@@ -289,9 +314,7 @@ module Zena
     # TODO: remove, use relations
     def r_version
       return "" unless check_node_class(:Node)
-      out "<% if #{var} = #{node}.version -%>"
-      out expand_with(:node=>var, :node_class=>:Version)
-      out "<% end -%>"
+      do_var("#{node}.version", :node_class => :Version)
     end
     
     def r_edit
@@ -964,10 +987,10 @@ END_TXT
       @context[:node_class] || :Node
     end
     
-    def node_kind_of?(klass)
-      klass = Module::const_get(node_class)
-      test_class = klass.kind_of?(Symbol) ? Module::const_get(klass) : klass
-      klass.ancestors.include?(test_class)
+    def node_kind_of?(ancestor)
+      node_klass = Module::const_get(node_class)
+      ancestor   = ancestor.kind_of?(Symbol) ? Module::const_get(ancestor) : ancestor
+      node_klass.ancestors.include?(ancestor)
     end
     
     def list
@@ -1144,20 +1167,35 @@ END_TXT
       list.include?(node_class)
     end
     
-    # TODO: test
-    # TODO: SECURITY is there a risk here ? We need to use the 'method' syntax instead of the [:attribute] syntax
-    # because of how some custom methods implement 'initials' for example.
     def node_attribute(attribute, opts={})
       att_node = opts[:node] || node
       attribute = attribute.gsub(/(^|_)id|id$/, '\1zip') if node_kind_of?(Node)
-      res = case attribute[0..1]
-      when 'v_'
-        "#{att_node}.version.#{attribute[2..-1]}"
-      when 'c_'
-        "#{att_node}.version.content.#{attribute[2..-1]}"
-      else
+      res = if node_kind_of?(Node)
+        case attribute[0..1]
+        when 'v_'
+          att = attribute[2..-1]
+          if Version.zafu_readable?(att)
+            "#{att_node}.version.#{att}"
+          else
+            # might be readable by sub-classes
+            "#{att_node}.version.zafu_read(#{attribute[2..-1].inspect})"
+          end
+        when 'c_'
+          "#{att_node}.version.content.zafu_read(#{attribute[2..-1].inspect})"
+        when 'd_'
+          "#{att_node}.version.dyn[#{attribute[2..-1].inspect}]"
+        else
+          if Node.zafu_readable?(attribute)
+            "#{att_node}.#{attribute}"
+          end
+        end
+      elsif node_kind_of?(Version) && Version.zafu_readable?(attribute)
         "#{att_node}.#{attribute}"
       end
+      
+      # could not find a shortcut.
+      res ||= "#{att_node}.zafu_read(#{attribute.inspect})"
+      
       if opts[:else]
         "(#{res} || #{node_attribute(opts[:else])})"
       else

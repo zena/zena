@@ -11,6 +11,9 @@ ext::             file extension
 content_type::    file content_type
 =end
 class DocumentContent < ActiveRecord::Base
+
+  zafu_readable         :size, :name, :content_type, :ext
+
   belongs_to            :version
   belongs_to            :site
   validate              :valid_file

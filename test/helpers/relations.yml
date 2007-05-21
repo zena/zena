@@ -81,6 +81,11 @@ author_visitor:
   src: "<r:pages from='site' author='visitor' limit='5'><r:each join=', ' do='show' attr='name'/></r:pages>"
   res: "myLife, nature, status"
 
+author:
+  src: "my master: <r:author do='[fullname]'/> my version master: <r:version do='author' do='[fullname]'/>"
+  res: "my master: Solenopsis Invicta my version master: Solenopsis Invicta"
+  
+
 node_id:
   src: "I (<r:show attr='name'/>) know: <r:node select='12'><r:show attr='name'/> with <r:children><span do='each' join=', '><r:show attr='name'>child</r:show></span></r:children></r:node>"
   res: "I (status) know: people with <span>anonymous</span>, <span>ant</span>, <span>lion</span>, <span>tiger</span>"

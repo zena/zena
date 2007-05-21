@@ -32,6 +32,9 @@ c_ext::   file extension
 c_content_type:: file content-type
 =end
 class Document < Page
+  
+  zafu_readable      :filename
+  
   before_validation :document_before_validation
   
   class << self

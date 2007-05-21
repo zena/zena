@@ -28,6 +28,10 @@ If a we need to create a more sophisticated version class, all the required fiel
 #DocumentContent stores document type and size for #DocumentVersion. See #Document for the details on the relation between Version and Content.
 =end
 class Version < ActiveRecord::Base
+
+  zafu_readable      :title, :text, :summary, :created_at, :updated_at, :publish_from, :status, 
+                     :wgroup_id, :pgroup_id, :zip, :lang
+  
   belongs_to            :node
   belongs_to            :user
   before_validation     :version_before_validation

@@ -15,6 +15,8 @@ ImageContent also provides a +crop+ pseudo attribute to crop an image. See crop=
 =end
 class ImageContent < DocumentContent
   
+  zafu_readable    :width, :height
+  
   # Return a cropped image using the 'crop' hash with the top left corner position (:x, :y) and the width and height (:width, :heigt).
   def crop(format)
     return if @file # we do not want to crop on file upload in case the crop params lie around in the user's form

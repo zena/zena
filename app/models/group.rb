@@ -10,6 +10,9 @@ Three groups cannot be destroyed and have a special meaning in each site (set in
 Only administrators can change groups. An administrator cannot remove him/herself from the admin group.
 =end
 class Group < ActiveRecord::Base
+  
+  zafu_readable           :name
+  
   attr_accessible         :name, :user_ids # FIXME: add user_ids ? + add users validation (are in site)
   has_and_belongs_to_many :users, :order=>'login'
   validates_presence_of   :name

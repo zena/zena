@@ -16,6 +16,11 @@ email::      email address
 birthday::   birthday (date)
 =end
 class ContactContent < ActiveRecord::Base
+  
+  zafu_readable      :created_at, :updated_at, :fullname, :initials, :first_name, :name, :address, :zip, :city,
+                     :telephone, :mobile, :email
+
+  
   belongs_to :version
   before_validation :content_before_validation
   

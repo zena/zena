@@ -8,12 +8,13 @@ class HelperTest
   Section # make sure we load Section links before trying relations
   
   def test_single
-    do_test('basic', 'tada')
+    do_test('basic', 'each_traductions')
   end
   
   def test_basic_show_bad_attr
     # FIXME: we must do something about bad attributes : use a 'rescue' when rendering ?
-    assert true
+    assert !Node.zafu_readable?('puts')
+    assert Node.zafu_readable?('name')
   end
 
   def test_basic_cache_part
@@ -27,7 +28,7 @@ class HelperTest
         :user_id => users_id(:anon),
         :node_id => nodes_id(:status),
         :prefix  => 'en',
-        :url => "/#{'cache_part'.to_s.gsub('_', '/')}",
+        :url => '/cache/part',
         :text => @response.body
       }.freeze
       

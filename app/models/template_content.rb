@@ -1,4 +1,7 @@
 class TemplateContent < ActiveRecord::Base
+  
+  zafu_readable   :tkpath, :ext, :format, :content_type, :filename, :mode, :klass, :skin_name
+  
   attr_protected :tkpath
   belongs_to :node
   belongs_to :site
