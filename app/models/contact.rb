@@ -7,7 +7,7 @@ class Contact < Reference
     secure(User) { User.find(:first, :conditions => ["contact_id = ?", self[:id]]) }
   end
   
-  private    
+  private
     # TODO: test
     def version_class
       ContactVersion
