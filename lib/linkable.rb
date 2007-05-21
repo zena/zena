@@ -387,13 +387,13 @@ on the post edit page :
                 @#{meth}_ids = objs ? objs.map{|obj| obj[:id]} : []
               end
               def #{meth}_ids; res = #{method}; res ? res.map{|r| r[:id]} : []; end
-              def #{meth}_zips; res = #{method}; res ? res.map{|r| r[:zip]} : []; end
+              def #{meth}_zips; res = #{method}; res ? res.map{|r| r[:zip]}.join(', ') : ''; end
               
               # link can be changed if user can write in old and new
               # 1. can remove old links
               # 2. can write in new targets
               def validate_#{method}
-                return unless defined? @#{meth}s
+                return unless defined? @#{meth}_ids
                 unless @#{meth}_ids.kind_of?(Array)
                   errors.add('#{role}', 'bad format') 
                   return false
@@ -433,7 +433,8 @@ on the post edit page :
               
               def save_#{method}
                 return true unless defined? @#{meth}_ids
-                if (obj_ids = @#{meth}_del_ids) != []
+                
+                if @#{meth}_del_ids && (obj_ids = @#{meth}_del_ids) != []
                   # remove all old links for this role
                   links = Link.find(:all, :conditions => ["links.role='#{role}' AND links.#{link_side} = ? AND links.#{other_side} IN (\#{obj_ids.join(',')})", self[:id] ])
                   links.each do |l|
@@ -441,7 +442,7 @@ on the post edit page :
                   end
                 end
                 
-                if (obj_ids = @#{meth}_add_ids) != []
+                if @#{meth}_add_ids && (obj_ids = @#{meth}_add_ids) != []
                   # add new links for this role
                   obj_ids.each do |obj_id|
                     #{destroy_if_as_unique}

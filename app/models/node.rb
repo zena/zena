@@ -128,7 +128,7 @@ class Node < ActiveRecord::Base
   
   zafu_readable      :name, :created_at, :updated_at, :event_at, :log_at, :kpath, :user_zip, :parent_zip, :project_zip,
                      :section_zip, :skin, :ref_lang, :fullpath, :rootpath, :publish_from, :max_status, :rgroup_id, 
-                     :wgroup_id, :pgroup_id, :basepath, :custom_base, :klass, :zip
+                     :wgroup_id, :pgroup_id, :basepath, :custom_base, :klass, :zip, :score
   
   
   has_many           :discussions
@@ -176,6 +176,16 @@ class Node < ActiveRecord::Base
         end
       end
       
+      attributes.keys.each do |key|
+        if key =~ /^(\w+)_ids$/
+          value = attributes[key].split(',').map do |v|
+            value = Node.connection.execute( "SELECT id FROM nodes WHERE site_id = #{visitor.site[:id]} AND zip = '#{v.to_i}'" ).fetch_row
+            value ? value[0] : nil
+          end.compact
+          attributes[key] = value
+        end
+      end
+      
       (attributes['link'] || {}).keys.each do |key|
         if key =~ /^(\w+)_id$/ && ! ['rgroup_id', 'wgroup_id', 'pgroup_id', 'user_id'].include?(key)
           value = Node.connection.execute( "SELECT id FROM nodes WHERE site_id = #{visitor.site[:id]} AND zip = '#{attributes['link'][key].to_i}'" ).fetch_row
@@ -188,6 +198,7 @@ class Node < ActiveRecord::Base
       attributes['parent_id'] = parent_id if parent_id
 
       attributes.delete('file') if attributes['file'] == ''
+      puts attributes.inspect
       attributes
     end
     
