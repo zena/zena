@@ -78,6 +78,12 @@ module Zafu
       (@space_before || '') + res + (@space_after || '')
     end
     
+    def r_ignore
+      super
+      @html_tag_done = true
+      ""
+    end
+    
     def r_rename_asset
       return expand_with unless @html_tag
       opts = {}

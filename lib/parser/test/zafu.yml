@@ -159,7 +159,7 @@ complex_example:
 
 unknown:
   src:  "this looks bad: <r:system truc='lala'/>"
-  res: "this looks bad: <span class='parser_unknown'>&lt;z:system truc='lala'/&gt;</span>"
+  res: "this looks bad: <span class='parser_unknown'>&lt;r:system truc='lala'/&gt;</span>"
   
 check_params:
   src: "bad <r:missing/> params"
@@ -227,7 +227,11 @@ include_super:
 include_super_man:
   src: "include_super: <r:include template='/name'><p do='with' part='super/man' do='hello'/>"
   res: "include_super: super: hey <p>hello world!</p>"
-
+  
+include_part_far_away:
+  src: "IPFA: <r:include template='/include/super/man' part='super'/> AFPI."
+  res: "IPFA: hey <p>hello world!</p> AFPI."
+    
 name_title:
   src: "title: <h1 do='void' name='title' do='text' text='dummy'>blah <b do='void' name='comment'>nothing</b></h1>"
   res: "title: <h1>dummy</h1>"
@@ -248,17 +252,9 @@ include_include:
   src: "from ii: <r:include template='/include/with/keep/name'><r:with part='title/comment'>rabbit</r:with></r:include>"
   res: "from ii: keep name: title: <h1>hello world! <i>rabbit</i></h1>"
 
-include_for_reverse:
-  src: "from ifr: <r:include template='/name'><r:with part='super/comment'>IFR</r:with></r:include>"
-  res: "from ifr: super: hey ho"
-
 include_replace_same:
   src: "from IRS: <r:include template='/include/super/man'><span do='with' part='super/man'>goldorak</span></r:include>"
   res: "from IRS: include_super: super: hey <span>goldorak</span>"
-
-include_reverse:
-  src: "from ir: <r:include template='/include/for/reverse'><h1 do='with' part='super'><i do='void' name='comment'>none</i> <r:hello/></h1></r:include>"
-  res: "from ir: from ifr: super: <h1><i>IFR</i> hello world!</h1>"
 
 include_empty:
   src: "include_empty: <r:include template='/name/title'><r:with part='title'/></r:include>"

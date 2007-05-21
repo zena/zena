@@ -140,18 +140,11 @@ class Parser
     after_render(res + @text)
   end
   
-  def r_with
-    return unless part = @params[:part]
-    if @context[:preflight]
-      @pass[:part] = {part => self}
-      ""
-    else
-      r_void
-    end
-  end
-  
   def r_void
     expand_with
+  end
+  
+  def r_ignore
   end
   
   alias to_s r_void
@@ -163,16 +156,6 @@ class Parser
     self.inspect
   end
   
-  def r_include
-    expand_with(:preflight=>true)
-    if @parts != {}
-      # first definitions in inclusion history have precedence
-      expand_with(:parts  => (@parts).merge(@context[:parts] || {}), :blocks => @included_blocks)
-    else
-      expand_with(:blocks => @included_blocks)
-    end
-  end
-  
   # basic rule to display errors
   def r_unknown
     sp = ""
@@ -180,10 +163,10 @@ class Parser
       sp += " #{k}=#{v.inspect.gsub("'","TMPQUOTE").gsub('"',"'").gsub("TMPQUOTE",'"')}"
     end
       
-    res = "<span class='parser_unknown'>&lt;z:#{@method}#{sp}"
+    res = "<span class='parser_unknown'>&lt;r:#{@method}#{sp}"
     inner = expand_with
     if inner != ''
-      res + "&gt;</span>#{inner}<span class='parser_unknown'>&lt;z:/#{@method}&gt;</span>"
+      res + "&gt;</span>#{inner}<span class='parser_unknown'>&lt;r:/#{@method}&gt;</span>"
     else
       res + "/&gt;</span>"
     end
@@ -219,8 +202,10 @@ class Parser
   end
   
   def include_template
+    @method = 'void'
+    text    = @text
+    
     # fetch text
-    text = @text
     @options[:included_history] ||= []
     
     @text, absolute_url = self.class.get_template_text(@params[:template], @options[:helper], @options[:current_folder])
@@ -238,22 +223,42 @@ class Parser
     @text = before_parse(@text)
     enter(:void) # scan fetched text
     if @params[:part]
-      @included_blocks = [find_part(@params[:part])]
+      included_blocks = [find_part(@blocks, @params[:part])]
     else
-      @included_blocks = @blocks
+      included_blocks = @blocks
     end
     
     @blocks = []
-    @text = text
+    @text   = text
     enter(:void) # normal scan on content
+    
+    # replace 'with'
+    @blocks.each do |b|
+      next if b.kind_of?(String) || b.method != 'with'
+      if target = find_part(included_blocks, b.params[:part])
+        if target.kind_of?(String)
+          # error
+        elsif b.empty?
+          target.method = 'ignore'
+        else
+          name = target.params[:name]
+          target.replace_with(b) if !target.kind_of?(String)
+          target.params[:name] = name # make sure it is kept during 'replace'
+        end
+      else
+        # part not found
+      end
+    end
+    @blocks = included_blocks
   end
   
-  def find_part(path)
+  def find_part(blocks, path)
     res    = self
     found  = []
     path.split('/').reject {|e| e==''}.each do |name|
-      if res = find_name(res.blocks, name)
+      if res = find_name(blocks, name)
         found << name
+        blocks = res.blocks
       else
         return "<span class='parser_error'>'#{(found + [name]).join('/')}' not found in template '#{@params[:template]}'</span>"
       end

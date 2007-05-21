@@ -792,11 +792,6 @@ END_TXT
       @context[:trans] ? "(#{res})" : "<%= #{res} %>"
     end
     
-    def r_ignore
-      @html_tag_done = true
-      ""
-    end
-    
     # TODO: test
     def r_calendar
       from   = 'project'.inspect
