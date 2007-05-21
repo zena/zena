@@ -8,7 +8,7 @@ class Contact < Reference
   end
   
   def fullname
-    version.contact.fullname
+    version.content.fullname
   end
   
   private
