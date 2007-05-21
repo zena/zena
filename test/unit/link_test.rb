@@ -103,7 +103,15 @@ class LinkTest < ZenaTestUnit
     assert_equal 3, tags.size
     assert_equal 'menu', tags[2].name
   end
-
+  
+  def test_zips
+    login(:tiger)
+    @node = secure(LinkDummy) { LinkDummy.find(nodes_id(:wiki)) }
+    @node.tag_ids = [nodes_id(:art),nodes_id(:news)]
+    @node.save
+    assert_equal [nodes_zip(:art), nodes_zip(:news)], @node.tag_zips
+  end
+  
   def test_remove_link_errors
     login(:tiger)
     @node = secure(LinkDummy) { LinkDummy.find(nodes_id(:wiki)) }

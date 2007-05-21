@@ -311,8 +311,7 @@ module Zena
     end
     
     # FIXME: implement all inputs correctly !
-    # replace values for 'node[parent_id]' with 'node[parent_zip]', etc
-    # change ALL inputs/textarea etc from within a z:form
+    # change ALL inputs/textarea,form etc from within a z:form ?
     def r_input
       case @params[:type]
       when 'select'
@@ -324,6 +323,7 @@ module Zena
     end
     
     # TODO: add parent_id into the form !
+    # TODO: add <div style="margin:0;padding:0"><input name="_method" type="hidden" value="put" /></div> if method == put
     # FIXME: use <r:form href='self'> or <r:form action='...'>
     def r_form
       @pass[:form] = self
