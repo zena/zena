@@ -660,13 +660,17 @@ Just doing the above will filter all result according to the logged in user.
           end
 
           scope = {:create => { :visitor => visitor }}
-          if find_scope
-            find_scope = "(#{find_scope}) AND (#{obj.table_name}.site_id = #{visitor.site[:id]})"
-          else
-            find_scope = "#{obj.table_name}.site_id = #{visitor.site[:id]}"
-          end
-          if obj.ancestors.include?(Zena::Acts::SecureNode::InstanceMethods)
-            # Restrict find access for SecuredNodes
+          if obj.ancestors.include?(User)
+            scope[:find] ||= {}
+            scope[:find][:joins] = "INNER JOIN sites_users ON #{obj.table_name}.id = sites_users.user_id AND sites_users.site_id = #{visitor.site[:id]}"
+            scope[:find][:conditions] = find_scope
+            scope[:find][:select] = "#{obj.table_name}.*"
+          elsif obj.column_names.include?('site_id')
+            if find_scope
+              find_scope = "(#{find_scope}) AND (#{obj.table_name}.site_id = #{visitor.site[:id]})"
+            else
+              find_scope = "#{obj.table_name}.site_id = #{visitor.site[:id]}"
+            end
             scope[:find] = { :conditions => find_scope }
           end
           

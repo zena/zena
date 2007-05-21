@@ -67,8 +67,8 @@ class User < ActiveRecord::Base
     
     # Creates a new user with the defaults set from the anonymous user.
     def new(*args)
-      return nil unless scope = scoped_methods[0]
-      return nil unless scope[:create]
+      raise Zena::RecordNotSecured unless scope = scoped_methods[0]
+      raise Zena::RecordNotSecured unless scope[:create]
       visitor = scoped_methods[0][:create][:visitor] # use secure scope to get visitor
       anon = visitor.site.anon
       returning(user = super) do
@@ -159,7 +159,7 @@ class User < ActiveRecord::Base
   
   # Return true if the user is in the admin group or if the user is the super user.
   def is_admin?
-    @is_admin ||= is_su? || visitor_site.is_admin?(self)
+    @is_admin ||= is_su? || group_ids.include?(visitor_site.admin_group_id)
   end
   
   # Return true if the user is the anonymous user for the current visited site
@@ -294,7 +294,7 @@ class User < ActiveRecord::Base
         # owner is the user except for anonymous and super user.
         # TODO: not sure this is a good idea...
         :user_id       => (self[:id] == visitor.site[:anon_id] || self[:id] == visitor.site[:su_id]) ? visitor[:id] : self[:id],
-        :v_title       => name ? fullname : login,
+        :v_title       => (name.blank? || first_name.blank?) ? login : fullname,
         :c_first_name  => first_name,
         :c_name        => (name || login ),
         :c_email       => email
@@ -302,10 +302,10 @@ class User < ActiveRecord::Base
       @contact[:parent_id] = visitor.site[:root_id] # FIXME: what should be the rwp groups for 'user' ?
       unless @contact.save
         # What do we do with this error ?
-        raise Zena::InvalidRecord, "Could not create contact node for user #{user[:id]}"
+        raise Zena::InvalidRecord, "Could not create contact node for user #{self[:id]} (#{@contact.errors.map{|k,v| [k,v]}.join(', ')})"
       end
       unless @contact.publish
-        raise Zena::InvalidRecord, "Could not publish contact node for user #{user[:id]}"
+        raise Zena::InvalidRecord, "Could not publish contact node for user #{self[:id]} (#{@contact.errors.map{|k,v| [k,v]}.join(', ')})"
       end
       self[:contact_id] = @contact[:id]
       User.connection.execute "UPDATE users SET contact_id = #{@contact[:id]} WHERE id = #{self[:id]}"
@@ -316,8 +316,11 @@ class User < ActiveRecord::Base
   
     # Set user defaults.
     def user_before_validation
-      if self[:status].nil? || self[:status] == ""
+      if self[:status].blank?
         self[:status] = User::Status[:user]
+      end
+      if self[:login].blank?
+        self[:login] = self[:name]
       end
     end
   
@@ -406,7 +409,8 @@ class User < ActiveRecord::Base
     # the user only belongs to groups from sites he/she is in.
     def verify_groups #:doc:
       s_ids = sites.map {|s| s[:id]}
-      g_ids = @defined_group_ids || group_ids
+      g_ids = @defined_group_ids || (new_record? ? [] : group_ids)
+      g_ids.reject! { |g| g.blank? }
       g_ids << visitor_site.public_group_id
       g_ids << visitor_site.site_group_id unless is_anon?
       g_ids.uniq!

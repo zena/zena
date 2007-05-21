@@ -6,6 +6,7 @@ elsif li.is_su?
 elsif li.is_admin?
   icon += '_admin'
 end %>
+<tr id='user<%= li[:id] %>'>
   <td class="icon"><%= link_to_remote(_("img_#{icon}"), 
           :update =>"user#{li[:id]}", 
           :url    => edit_user_path(li),
@@ -14,3 +15,4 @@ end %>
     if 1 == li[:id] then '<i>public</i>' else li.login end %></td>
   <td class="fullname" ><%= li.fullname %></td>
   <td class="groups"><%= li.groups.map {|g| g.name }.join(', ') %></td>
+</tr>

@@ -67,7 +67,6 @@ class NodesController < ApplicationController
   
   
   def show
-    debugger
     
     respond_to do |format|
       

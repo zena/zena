@@ -1,1 +1,0 @@
-page.replace "group#{@group[:id]}", :partial=>'group/li', :collection=>[@group]

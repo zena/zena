@@ -1,13 +1,13 @@
 class UsersController < ApplicationController
   before_filter :find_user
-  #before_filter :check_is_admin,  :only => [:index, :create]
-  #before_filter :restrict_access
+  before_filter :check_is_admin,  :only => [:index, :create]
+  before_filter :restrict_access
   layout :admin_layout
   
   def show
     respond_to do |format|
       format.html { render :file => admin_layout, :layout => false } # render, content_for_layout = nil
-      format.js   { render :partial => 'users/li', :collection => [@user] }
+      format.js
     end
   end
   
@@ -15,11 +15,10 @@ class UsersController < ApplicationController
   def index
     @user_pages, @users = nil, nil
     secure(User) do
-      puts User.send(:scoped_methods)[0][:find] # should be a join with users_sites --> site_id (in secure ?)
-      @user_pages, @users = paginate :users, :order => 'id', :per_page => 20
+      @user_pages, @users = paginate :users, :order => 'login', :per_page => 20
       @users # leave this: used by 'secure' as return value
     end
-    @groups = secure(Group) { Group.find(:all, :order=>'id') }
+    get_groups_list
     @user   = secure(User)  { User.new }
     respond_to do |format|
       format.html
@@ -37,19 +36,15 @@ class UsersController < ApplicationController
     if params[:groups]
       params[:user][:group_ids] = params[:groups].values
     end
-    @groups = Group.find(:all, :order=>'id')
-    @user = User.create(params[:user])
+    get_groups_list
+    @user   = secure(User)  { User.create(params[:user])     }
   end
   
   # TODO: test
   def edit
     @user = User.find(params[:id])
     @user.password = nil
-    if 1 == @user[:id]
-      @groups = Group.find(:all, :conditions=>"id <> 1", :order=>'id')
-    else
-      @groups = Group.find(:all, :order=>'id')
-    end
+    get_groups_list
     respond_to do |format|
       format.html { render :partial => 'users/form' }
       format.js   { render :partial => 'users/form', :layout => false }
@@ -62,7 +57,7 @@ class UsersController < ApplicationController
     @update = params.delete(:update)
     
     # TODO: test
-    if params[:user][:password]
+    unless params[:user][:password].blank?
       if params[:user][:password].strip.size < 6
         @user.errors.add('password', 'too short')
       end
@@ -82,11 +77,6 @@ class UsersController < ApplicationController
 
     # only accept changes on the following fields through this interface
     params[:user].delete(:lang) unless visitor.site.lang_list.include?(params[:lang])
-    
-    if params[:groups]
-      params[:user][:group_ids] = params[:groups].values.map {|v| v.to_i}
-      params[:user][:group_ids] << 1 unless params[:user][:group_ids].include?(1)
-    end
     
     if @user.errors.empty?
       @user.update_attributes(params[:user])
@@ -112,6 +102,10 @@ class UsersController < ApplicationController
         @user = visitor
       end
       @node = @user.contact
+    end
+    
+    def get_groups_list
+      @groups = secure(Group) { Group.find(:all, :order=>'name') }
     end
     
     # Only allow if user is admin or the current user is the visitor

@@ -3,7 +3,7 @@ if @user.errors.empty?
   if @update
     page.redirect_to :action=>"preferences"
   else
-    page.replace "user#{@user[:id]}", :partial=>"user/li", :collection=>[@user]
+    page.replace "user#{@user[:id]}", :partial=>"users/li", :collection=>[@user]
   end
 else
   # render form
@@ -11,6 +11,6 @@ else
     page.replace_html "user_#{@update}_errors", :inline => error_messages_for("user")
   else
     @groups = secure(Group) { Group.find(:all, :order=>"id") }
-    page.replace_html "user#{@user[:id]}", :partial=>"users/form"
+    page.replace "user#{@user[:id]}", :partial=>"users/form"
   end
 end

@@ -1,8 +1,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: 0.8.2\n"
-"POT-Creation-Date: 2007-05-19 18:28-0000\n"
-"PO-Revision-Date: 2007-05-19 20:37+0100\n"
+"POT-Creation-Date: 2007-05-21 13:01-0000\n"
+"PO-Revision-Date: 2007-05-21 15:02+0100\n"
 "Last-Translator: Gaspard Bucher <gaspard@teti.ch>\n"
 "Language-Team: fr <gaspard@teti.ch>\n"
 "MIME-Version: 1.0\n"
@@ -13,12 +13,12 @@ msgstr ""
 "X-Poedit-Bookmarks: -1,-1,-1,219,-1,-1,-1,-1,-1,-1\n"
 "X-Poedit-Basepath: /Users/gaspard/svk/zena\n"
 
-#: app/controllers/application.rb:285
+#: app/controllers/application.rb:308
 msgid "Please log in"
 msgstr "Veuillez vous authentifier."
 
-#: app/controllers/application.rb:338
-#: app/controllers/application.rb:366
+#: app/controllers/application.rb:419
+#: app/controllers/application.rb:447
 msgid "datetime"
 msgstr "%d.%m.%Y %H:%M"
 
@@ -34,31 +34,31 @@ msgstr "Téléchargement effectué."
 msgid "role not valid"
 msgstr "Role non-valable."
 
-#: app/controllers/nodes_controller.rb:152
+#: app/controllers/nodes_controller.rb:148
 msgid "Backup created."
 msgstr "Copie de sauvegarde effectuée."
 
-#: app/controllers/nodes_controller.rb:154
+#: app/controllers/nodes_controller.rb:150
 msgid "Could not create backup."
 msgstr "La sauvegarde n'a pas pu être créée."
 
-#: app/controllers/nodes_controller.rb:187
+#: app/controllers/nodes_controller.rb:183
 msgid "node updated"
 msgstr "Objet mis à jour."
 
-#: app/controllers/nodes_controller.rb:189
+#: app/controllers/nodes_controller.rb:185
 msgid "could not update"
 msgstr "L'objet n'a pas pu être mis à jour."
 
-#: app/controllers/nodes_controller.rb:288
+#: app/controllers/nodes_controller.rb:284
 msgid "node not found"
 msgstr "objet non trouvé"
 
-#: app/controllers/nodes_controller.rb:312
+#: app/controllers/nodes_controller.rb:308
 msgid "Order updated"
 msgstr "Ordre mis à jour."
 
-#: app/controllers/nodes_controller.rb:314
+#: app/controllers/nodes_controller.rb:310
 msgid "Could not update order."
 msgstr "L'ordre n'a pas pu être mis à jour."
 
@@ -67,7 +67,7 @@ msgid "password successfully updated"
 msgstr "Le mot de passe a été modifié avec succès."
 
 #: app/controllers/preferences_controller.rb:40
-#: app/controllers/users_controller.rb:94
+#: app/controllers/users_controller.rb:84
 msgid "information successfully updated"
 msgstr "Les informations ont été mises à jour."
 
@@ -75,7 +75,7 @@ msgstr "Les informations ont été mises à jour."
 msgid "Invalid login or password."
 msgstr "Mot de passe ou nom d'utilistateur invalide."
 
-#: app/controllers/users_controller.rb:96
+#: app/controllers/users_controller.rb:86
 msgid "could not update user"
 msgstr "Les données utilisateur n'ont pas pu être mises à jour."
 
@@ -107,125 +107,130 @@ msgstr "La proposition a été refusée."
 msgid "Could not refuse proposition."
 msgstr "La proposition n'a pas pu être refusée."
 
-#: app/helpers/application_helper.rb:98
+#: app/helpers/application_helper.rb:92
+#: app/views/users/_form.rhtml:17
+msgid "login"
+msgstr "login"
+
+#: app/helpers/application_helper.rb:106
 msgid "long_time"
 msgstr "%H:%M:%S"
 
-#: app/helpers/application_helper.rb:103
+#: app/helpers/application_helper.rb:111
 msgid "short_time"
 msgstr "%Hh%M"
 
-#: app/helpers/application_helper.rb:108
+#: app/helpers/application_helper.rb:116
 msgid "full_date"
 msgstr "%A, %d %B %Y"
 
-#: app/helpers/application_helper.rb:113
+#: app/helpers/application_helper.rb:121
 msgid "long_date"
 msgstr "%d.%m.%Y"
 
-#: app/helpers/application_helper.rb:118
+#: app/helpers/application_helper.rb:126
 msgid "short_date"
 msgstr "%d.%m"
 
-#: app/helpers/application_helper.rb:375
-#: lib/gettext_strings.rb:61
+#: app/helpers/application_helper.rb:384
+#: lib/gettext_strings.rb:62
 msgid "%{ext} document"
 msgstr "document %{ext}"
 
-#: app/helpers/application_helper.rb:378
-#: lib/gettext_strings.rb:62
+#: app/helpers/application_helper.rb:387
+#: lib/gettext_strings.rb:63
 msgid "%{type} node"
 msgstr "objet %{type}"
 
-#: app/helpers/application_helper.rb:457
+#: app/helpers/application_helper.rb:466
 msgid "week_start_day"
 msgstr "1"
 
-#: app/helpers/application_helper.rb:674
+#: app/helpers/application_helper.rb:683
 #: lib/gettext_strings.rb:34
 msgid "img_private"
 msgstr "<img src='/images/lock.png' alt='privé'/>"
 
-#: app/helpers/application_helper.rb:676
+#: app/helpers/application_helper.rb:685
 #: lib/gettext_strings.rb:33
 msgid "img_public"
 msgstr "<img src='/images/user_pub.png' alt='publique'/>"
 
-#: app/helpers/application_helper.rb:699
+#: app/helpers/application_helper.rb:708
 msgid "btn_edit"
 msgstr "<img src='/images/page_edit.png' alt='éditer'/>"
 
-#: app/helpers/application_helper.rb:703
+#: app/helpers/application_helper.rb:712
 msgid "btn_propose"
 msgstr "<img src='/images/picture_empty.png' alt='proposer'/>"
 
-#: app/helpers/application_helper.rb:707
+#: app/helpers/application_helper.rb:716
 #: app/views/comments/_li.rhtml:8
 msgid "btn_publish"
 msgstr "<img src='/images/wand.png' alt='publier'/>"
 
-#: app/helpers/application_helper.rb:711
+#: app/helpers/application_helper.rb:720
 msgid "btn_refuse"
 msgstr "<img src='/images/delete.png' alt='refuser'/>"
 
-#: app/helpers/application_helper.rb:718
+#: app/helpers/application_helper.rb:727
 msgid "btn_drive"
 msgstr "<img src='/images/wrench.png' alt='réglages'/>"
 
-#: app/helpers/application_helper.rb:732
-#: app/helpers/application_helper.rb:789
+#: app/helpers/application_helper.rb:741
+#: app/helpers/application_helper.rb:798
 msgid "btn_view"
 msgstr "<img src='/images/eye.png' alt='visualiser'/>\""
 
-#: app/helpers/application_helper.rb:792
+#: app/helpers/application_helper.rb:801
 msgid "img_open"
 msgstr "<img src='/images/lock_open.png' alt='ouvert'/>"
 
-#: app/helpers/application_helper.rb:792
+#: app/helpers/application_helper.rb:801
 msgid "btn_title_close_discussion"
 msgstr "Fermer la discussion."
 
-#: app/helpers/application_helper.rb:794
+#: app/helpers/application_helper.rb:803
 msgid "img_closed"
 msgstr "<img src='/images/lock.png' alt='fermé'/>"
 
-#: app/helpers/application_helper.rb:794
+#: app/helpers/application_helper.rb:803
 msgid "btn_title_open_open_discussion"
 msgstr "Ouvrir la discussion."
 
-#: app/helpers/application_helper.rb:797
+#: app/helpers/application_helper.rb:806
 #: app/views/comments/_li.rhtml:7
 msgid "btn_remove"
 msgstr "<img src='/images/delete.png' alt='supprimer'/>"
 
-#: app/helpers/application_helper.rb:797
+#: app/helpers/application_helper.rb:806
 msgid "btn_title_destroy_discussion"
 msgstr "Supprimer entièrement la discussion."
 
-#: app/helpers/application_helper.rb:899
+#: app/helpers/application_helper.rb:915
 msgid "my home"
 msgstr "suivi"
 
-#: app/helpers/application_helper.rb:902
+#: app/helpers/application_helper.rb:918
 #: app/views/users/preferences.html.erb:2
 msgid "preferences"
 msgstr "préférences"
 
-#: app/helpers/application_helper.rb:905
+#: app/helpers/application_helper.rb:921
 #: app/views/comments/list.rhtml:2
 msgid "manage comments"
 msgstr "gestion des commentaires"
 
-#: app/helpers/application_helper.rb:908
+#: app/helpers/application_helper.rb:924
 msgid "manage users"
 msgstr "gestion des utilisateurs"
 
-#: app/helpers/application_helper.rb:911
-#: app/views/group/list.rhtml:2
+#: app/helpers/application_helper.rb:927
+#: app/views/groups/index.rhtml:2
 msgid "manage groups"
 msgstr "gestion des groupes"
 
-#: app/helpers/application_helper.rb:913
+#: app/helpers/application_helper.rb:929
 msgid "site tree"
 msgstr "arbre du site"
 
@@ -615,11 +620,6 @@ msgid "Site group"
 msgstr "groupe des utilisateurs"
 
 #: app/models/site.rb:-
-#, fuzzy
-msgid "Trans group"
-msgstr "gestion des groupes"
-
-#: app/models/site.rb:-
 msgid "Authentication"
 msgstr ""
 
@@ -637,6 +637,10 @@ msgstr "langues"
 
 #: app/models/site.rb:-
 msgid "Default lang"
+msgstr ""
+
+#: app/models/site.rb:-
+msgid "Http auth"
 msgstr ""
 
 #: app/models/template_content.rb:-
@@ -705,15 +709,15 @@ msgstr "nombre"
 #: app/views/comments/_form.rhtml:12
 #: app/views/discussions/_form.rhtml:7
 #: app/views/documents/show.rhtml:11
-#: app/views/group/_form.rhtml:3
-#: app/views/group/_form.rhtml:5
+#: app/views/groups/_form.rhtml:3
+#: app/views/groups/_form.rhtml:5
 #: app/views/link/_form.rhtml:5
 #: app/views/nodes/_results.rhtml:7
 #: app/views/nodes/save.rhtml:8
 #: app/views/note/_form.rhtml:3
 #: app/views/page/_form.rhtml:3
+#: app/views/users/_form.rhtml:3
 #: app/views/users/_form.rhtml:5
-#: app/views/users/_form.rhtml:7
 msgid "btn_x"
 msgstr "<img src='/images/cross.png' alt='annuler'/>"
 
@@ -739,13 +743,13 @@ msgid "title"
 msgstr "titre"
 
 #: app/views/comments/_form.rhtml:24
-#: app/views/group/_form.rhtml:28
+#: app/views/groups/_form.rhtml:28
 #: app/views/note/_form.rhtml:8
 #: app/views/page/_form.rhtml:7
 #: app/views/templates/document_create_tabs/_file.rhtml:3
 #: app/views/templates/document_create_tabs/_template.rhtml:3
 #: app/views/templates/document_create_tabs/_text_doc.rhtml:3
-#: app/views/users/_form.rhtml:45
+#: app/views/users/_form.rhtml:44
 #: app/views/versions/edit.rhtml:15
 msgid "validate"
 msgstr " valider "
@@ -767,12 +771,12 @@ msgid "comments closed"
 msgstr "commentaires fermés"
 
 #: app/views/comments/list.rhtml:8
-#: app/views/group/list.rhtml:7
+#: app/views/groups/index.rhtml:7
 msgid "Previous page"
 msgstr "page précédente"
 
 #: app/views/comments/list.rhtml:9
-#: app/views/group/list.rhtml:8
+#: app/views/groups/index.rhtml:8
 msgid "Next page"
 msgstr "page suivante"
 
@@ -797,7 +801,7 @@ msgid "comment(s)"
 msgstr "commentaire(s)"
 
 #: app/views/documents/_crop.rhtml:1
-#: app/views/users/_form.rhtml:22
+#: app/views/users/_form.rhtml:20
 msgid "cancel"
 msgstr "annuler"
 
@@ -822,20 +826,20 @@ msgstr "L'original est #X fois cette image."
 msgid "upload more"
 msgstr "ajouter d'autres documents"
 
-#: app/views/group/_add.rhtml:2
+#: app/views/groups/_add.rhtml:2
 msgid "btn_group_add"
 msgstr "<img src='/images/group_add.png' alt='ajouter un groupe'/>"
 
-#: app/views/group/_form.rhtml:17
+#: app/views/groups/_form.rhtml:17
 #: app/views/nodes/_parent.rhtml:7
 #: app/views/templates/document_create_tabs/_file.rhtml:8
 #: app/views/templates/document_create_tabs/_template.rhtml:7
 #: app/views/templates/document_create_tabs/_text_doc.rhtml:8
-#: app/views/users/_form.rhtml:28
+#: app/views/users/_form.rhtml:26
 msgid "name"
 msgstr "nom"
 
-#: app/views/group/_form.rhtml:18
+#: app/views/groups/_form.rhtml:18
 msgid "users"
 msgstr "utilisateurs"
 
@@ -1009,35 +1013,31 @@ msgid "btn_user_add"
 msgstr "<img src='/images/user_add.png' alt='ajouter un utilisateur'/>"
 
 #: app/views/users/_form.rhtml:19
-msgid "login"
-msgstr "login"
-
-#: app/views/users/_form.rhtml:21
 msgid "change password"
 msgstr "modifier le mot de passe"
 
+#: app/views/users/_form.rhtml:20
 #: app/views/users/_form.rhtml:22
-#: app/views/users/_form.rhtml:24
 msgid "password"
 msgstr "mot de passe"
 
-#: app/views/users/_form.rhtml:27
+#: app/views/users/_form.rhtml:25
 msgid "first name"
 msgstr "prénom"
 
-#: app/views/users/_form.rhtml:29
+#: app/views/users/_form.rhtml:27
 msgid "language"
 msgstr "langue"
 
-#: app/views/users/_form.rhtml:30
+#: app/views/users/_form.rhtml:28
 msgid "time zone"
 msgstr "fuseau horaire"
 
-#: app/views/users/_form.rhtml:32
+#: app/views/users/_form.rhtml:30
 msgid "email"
 msgstr "email"
 
-#: app/views/users/_form.rhtml:35
+#: app/views/users/_form.rhtml:33
 msgid "groups"
 msgstr "groupes"
 
@@ -1226,190 +1226,194 @@ msgid "img_user_pub"
 msgstr "<img src='/images/user_pub.png' alt='utilisateur anonyme'/>"
 
 #: lib/gettext_strings.rb:57
+msgid "img_group"
+msgstr "<img src='/images/group.png' alt='groupe'/>"
+
+#: lib/gettext_strings.rb:58
 msgid "img_group_pub"
 msgstr "<img src='/images/group_pub.png' alt='groupe public'/>"
 
-#: lib/gettext_strings.rb:58
+#: lib/gettext_strings.rb:59
 msgid "img_group_admin"
 msgstr "<img src='/images/group_admin.png' alt='groupe des administrateurs'/>"
 
-#: lib/gettext_strings.rb:59
+#: lib/gettext_strings.rb:60
 msgid "img_group_site"
 msgstr "<img src='/images/group_site.png' alt='groupe des utilisateurs'/>"
 
-#: lib/gettext_strings.rb:64
+#: lib/gettext_strings.rb:65
 msgid "no result found"
 msgstr "la recherche n'a donné aucun résultat"
 
-#: lib/gettext_strings.rb:65
+#: lib/gettext_strings.rb:66
 msgid "search results"
 msgstr "résultats de la recherche"
 
-#: lib/gettext_strings.rb:67
+#: lib/gettext_strings.rb:68
 msgid "btn_unplublish"
 msgstr "<img src='/images/delete.png' alt='dépublier'/>"
 
-#: lib/gettext_strings.rb:69
+#: lib/gettext_strings.rb:70
 msgid "status_50"
 msgstr "publié"
 
-#: lib/gettext_strings.rb:70
+#: lib/gettext_strings.rb:71
 msgid "status_40"
 msgstr "proposé"
 
-#: lib/gettext_strings.rb:71
+#: lib/gettext_strings.rb:72
 msgid "status_35"
 msgstr "proposé avec"
 
-#: lib/gettext_strings.rb:72
+#: lib/gettext_strings.rb:73
 msgid "status_33"
 msgstr "rédaction visible"
 
-#: lib/gettext_strings.rb:73
+#: lib/gettext_strings.rb:74
 msgid "status_30"
 msgstr "rédaction"
 
-#: lib/gettext_strings.rb:74
+#: lib/gettext_strings.rb:75
 msgid "status_20"
 msgstr "remplacé"
 
-#: lib/gettext_strings.rb:75
+#: lib/gettext_strings.rb:76
 msgid "status_10"
 msgstr "enlevé"
 
-#: lib/gettext_strings.rb:76
+#: lib/gettext_strings.rb:77
 msgid "status_0"
 msgstr "effacé"
 
-#: lib/gettext_strings.rb:78
+#: lib/gettext_strings.rb:79
 msgid "en"
 msgstr "anglais"
 
-#: lib/gettext_strings.rb:79
+#: lib/gettext_strings.rb:80
 msgid "fr"
 msgstr "français"
 
-#: lib/gettext_strings.rb:80
+#: lib/gettext_strings.rb:81
 msgid "de"
 msgstr "allemand"
 
-#: lib/gettext_strings.rb:81
+#: lib/gettext_strings.rb:82
 msgid "Monday"
 msgstr "lundi"
 
-#: lib/gettext_strings.rb:82
+#: lib/gettext_strings.rb:83
 msgid "Tuesday"
 msgstr "mardi"
 
-#: lib/gettext_strings.rb:83
+#: lib/gettext_strings.rb:84
 msgid "Wednesday"
 msgstr "mercredi"
 
-#: lib/gettext_strings.rb:84
+#: lib/gettext_strings.rb:85
 msgid "Thursday"
 msgstr "jeudi"
 
-#: lib/gettext_strings.rb:85
+#: lib/gettext_strings.rb:86
 msgid "Friday"
 msgstr "vendredi"
 
-#: lib/gettext_strings.rb:86
+#: lib/gettext_strings.rb:87
 msgid "Saturday"
 msgstr "samedi"
 
-#: lib/gettext_strings.rb:87
+#: lib/gettext_strings.rb:88
 msgid "Sunday"
 msgstr "dimanche"
 
-#: lib/gettext_strings.rb:89
+#: lib/gettext_strings.rb:90
 msgid "mon"
 msgstr "lun"
 
-#: lib/gettext_strings.rb:90
+#: lib/gettext_strings.rb:91
 msgid "tue"
 msgstr "mar"
 
-#: lib/gettext_strings.rb:91
+#: lib/gettext_strings.rb:92
 msgid "wed"
 msgstr "mer"
 
-#: lib/gettext_strings.rb:92
+#: lib/gettext_strings.rb:93
 msgid "thu"
 msgstr "jeu"
 
-#: lib/gettext_strings.rb:93
+#: lib/gettext_strings.rb:94
 msgid "fri"
 msgstr "ven"
 
-#: lib/gettext_strings.rb:94
+#: lib/gettext_strings.rb:95
 msgid "sat"
 msgstr "sam"
 
-#: lib/gettext_strings.rb:95
+#: lib/gettext_strings.rb:96
 msgid "sun"
 msgstr "dim"
 
-#: lib/gettext_strings.rb:97
+#: lib/gettext_strings.rb:98
 msgid "January"
 msgstr "janvier"
 
-#: lib/gettext_strings.rb:98
+#: lib/gettext_strings.rb:99
 msgid "February"
 msgstr "février"
 
-#: lib/gettext_strings.rb:99
+#: lib/gettext_strings.rb:100
 msgid "March"
 msgstr "mars"
 
-#: lib/gettext_strings.rb:100
+#: lib/gettext_strings.rb:101
 msgid "April"
 msgstr "avril"
 
-#: lib/gettext_strings.rb:101
+#: lib/gettext_strings.rb:102
 msgid "May"
 msgstr "mai"
 
-#: lib/gettext_strings.rb:102
+#: lib/gettext_strings.rb:103
 msgid "June"
 msgstr "juin"
 
-#: lib/gettext_strings.rb:103
+#: lib/gettext_strings.rb:104
 msgid "July"
 msgstr "juillet"
 
-#: lib/gettext_strings.rb:104
+#: lib/gettext_strings.rb:105
 msgid "August"
 msgstr "août"
 
-#: lib/gettext_strings.rb:105
+#: lib/gettext_strings.rb:106
 msgid "September"
 msgstr "septembre"
 
-#: lib/gettext_strings.rb:106
+#: lib/gettext_strings.rb:107
 msgid "October"
 msgstr "octobre"
 
-#: lib/gettext_strings.rb:107
+#: lib/gettext_strings.rb:108
 msgid "November"
 msgstr "novembre"
 
-#: lib/gettext_strings.rb:108
+#: lib/gettext_strings.rb:109
 msgid "December"
 msgstr "décembre"
 
-#: lib/gettext_strings.rb:110
+#: lib/gettext_strings.rb:111
 msgid "User name:"
 msgstr "Nom d'utilisateur"
 
-#: lib/gettext_strings.rb:111
+#: lib/gettext_strings.rb:112
 msgid "Password:"
 msgstr "Mot de passe"
 
-#: lib/gettext_strings.rb:114
+#: lib/gettext_strings.rb:115
 msgid "you are editing the original"
 msgstr "vous éditez l'original"
 
-#: lib/gettext_strings.rb:115
+#: lib/gettext_strings.rb:116
 msgid "redaction saved"
 msgstr "Rédaction enregistrée."
 
@@ -1445,6 +1449,9 @@ msgstr "conçu avec %{zena}"
 msgid "design by %{name}"
 msgstr "conception %{name}"
 
+#, fuzzy
+#~ msgid "Trans group"
+#~ msgstr "gestion des groupes"
 #~ msgid "The requested language is not available."
 #~ msgstr "La langue demandée n'est pas disponible."
 #~ msgid "Authorize"
