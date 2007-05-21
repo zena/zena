@@ -250,18 +250,27 @@ class Parser
   
   def find_part(path)
     res    = self
+    found  = []
     path.split('/').reject {|e| e==''}.each do |name|
-      res.blocks.each do |b|
-        next if b.kind_of?(String)
-        if b.params[:name] == name
-          res    = b
-          name   = nil
-          break
-        end
+      if res = find_name(res.blocks, name)
+        found << name
+      else
+        return "<span class='parser_error'>'#{(found + [name]).join('/')}' not found in template '#{@params[:template]}'</span>"
       end
-      return nil if name # block not found
     end
     res
+  end
+  
+  def find_name(blocks, name)
+    blocks.each do |b|
+      next if b.kind_of?(String)
+      return b if b.params[:name] == name
+      next if b.params[:name] # bad name
+      if res = find_name(b.blocks,name)
+        return res
+      end
+    end
+    return nil
   end
   
   def success?

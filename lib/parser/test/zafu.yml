@@ -94,16 +94,20 @@ include_menu:
   res: "include_menu: the [test]menu[/test] is nice"
 
 named_parts:
-  src: "named_parts: <r:test name='start'>start from here to <r:hello name='sub'>sub</r:hello></r:test> ok."
-  res: "named_parts: [test {= :name=>'start'} {> :name=>'start'}]start from here to [hello {= :name=>'sub'}]sub[/hello][/test] ok."
+  src: "named_parts: <r:void><r:void name='lala'>lala</r:void> <r:test name='start'>start from here to <r:hello name='sub'>sub</r:hello></r:test></r:void> ok."
+  res: "named_parts: lala [test {= :name=>'start'} {> :name=>'start'}]start from here to [hello {= :name=>'sub'}]sub[/hello][/test] ok."
+
+include_part:
+  src: "IP: <r:include template='/named/parts' part='start/sub'/> PI."
+  res: "IP: hello world! PI."
 
 include_self:
   src: "IS: I like <r:void name='sub'>sub <r:hello/></r:void> and <r:include template='/include/self' part='sub'/>"
   res: "IS: I like sub hello world! and sub hello world!"
 
-include_part:
-  src: "IP: <r:include template='/named/parts' part='start/sub'/> PI."
-  res: "IP: hello world! PI."
+include_bad_part:
+  src: "IP: <r:include template='/named/parts' part='strat/bus'/> PI."
+  res: "IP: <span class='parser_error'>'strat' not found in template '/named/parts'</span> PI."
 
 include_context:
   src: "include_context: <r:include template='menu'/>"
