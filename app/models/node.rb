@@ -678,11 +678,7 @@ class Node < ActiveRecord::Base
   
   # ACCESSORS
   def author
-    user
-  end
-  
-  def author_id
-    user_id
+    secure(User){ user }.contact
   end
   
   def ext

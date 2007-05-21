@@ -251,7 +251,7 @@ module Zena
     # TODO: remove, use relations
     def r_author
       return "" unless check_node_class(:Node, :Version, :Comment)
-      out "<% if #{var} = (#{node}.author && #{node}.author.contact)-%>"
+      out "<% if #{var} = #{node}.author -%>"
       out expand_with(:node=>var, :node_class=>:User)
       out "<% end -%>"
     end
