@@ -180,17 +180,26 @@ class ApplicationController < ActionController::Base
           @skin[s.name] = s
         end
         @skin_names = [@skin_name, @skin.keys].flatten.uniq
-        @expire_with_ids = []
+        @expire_with_nodes = {}
+        @renamed_assets    = {}
         
         response.template.instance_variable_set(:@session, session)
         skin_helper = response.template
         # [1..-1] = drop leading '/' so find_template_document searches in the current skin first
         res = ZafuParser.new_with_url(skin_path[1..-1], :helper => skin_helper).render
         
+        if session[:dev] && mode != '_popup_layout'
+          # add template edit buttons
+          used_nodes = @expire_with_nodes.merge(@renamed_assets)
+          div = "<div id='dev'><ul>" + used_nodes.map do |k,n| "<li>#{skin_helper.send(:node_actions, :node=>n)} #{skin_helper.send(:link_to,k,zen_path(n))}</li>"
+          end.join("") + "<li><span class='actions'><a href='/users/#{visitor[:id]}/swap_dev'>#{_('turn dev off')}</a></span></li>"
+          res.sub!('</body>', "#{div}</body>")
+        end
+        
         secure(CachedPage) { CachedPage.create(
           :path            => (current_site.zafu_path + fullpath),
           :expire_after    => nil,
-          :expire_with_ids => @expire_with_ids,
+          :expire_with_ids => @expire_with_nodes.values.map{|n| n[:id]},
           :content_data    => res) }
       end
     
@@ -204,15 +213,18 @@ class ApplicationController < ActionController::Base
     def get_template_text(opts)
       return nil unless res = find_template_document(opts)
       doc, url = *res
-      @expire_with_ids << doc[:id]
-      # FIXME: implement a link to set/remove 'dev' mode.
-      # session[:dev] ? doc.version.text : doc.version(:pub).text
-      return doc.version.text, url
+      # TODO: could we use this for caching or will we loose dynamic context based loading ?
+      @expire_with_nodes[url] = doc
+      text = session[:dev] ? doc.version.text : doc.version(:pub).text
+      return text, url
     end
 
     # TODO: implement
     def template_url_for_asset(opts)
-      return nil unless asset = (find_template_document(opts) || [])[0]
+      return nil unless res = find_template_document(opts)
+      asset, url = *res
+      url = "#{url}.#{asset.c_ext}" if asset.kind_of?(Document)
+      @renamed_assets[url] = asset
       if asset.public? && !current_site.authentication?
         # force the use of a cacheable path for the data, even when navigating in '/oo'
         data_path(asset, :prefix=>lang)

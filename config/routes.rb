@@ -6,7 +6,7 @@ ActionController::Routing::Routes.draw do |map|
   map.logout      'logout',  :controller => 'session',  :action => 'destroy'
   
   map.resource  :session   # singleton resource
-  map.resources :users, :member => { :preferences => :get }
+  map.resources :users, :member => { :preferences => :get, :swap_dev => :get }
   map.resources :groups
   
   map.connect ':prefix/*path',  :controller => 'nodes', :action => 'show', :prefix => /\w\w/

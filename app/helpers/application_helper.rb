@@ -909,7 +909,7 @@ ENDTXT
   def show_link(link, opt={})
     case link
     when :admin_links
-      [show_link(:home), show_link(:preferences), show_link(:comments), show_link(:users), show_link(:groups), show_link(:translation)].reject {|l| l==''}
+      [show_link(:home), show_link(:preferences), show_link(:comments), show_link(:users), show_link(:groups), show_link(:translation), show_link(:dev)].reject {|l| l==''}
     when :home
       return '' if visitor.is_anon?
       link_to_with_state(_('my home'), user_path(visitor))
@@ -925,8 +925,13 @@ ENDTXT
     when :groups
       return '' unless visitor.is_admin?
       link_to_with_state(_('manage groups'), groups_path)
-    when :site_tree
-      link_to_with_state(_('site tree'), zen_path(visitor.site.root_node, :mode=>'tree'))
+    when :dev
+      return '' unless visitor.is_admin?
+      if @controller.session[:dev]
+        link_to(_('turn dev off'), swap_dev_user_path(visitor))
+      else
+        link_to(_('turn dev on'), swap_dev_user_path(visitor))
+      end
     else
       ''
     end

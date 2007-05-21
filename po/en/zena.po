@@ -1,8 +1,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: 0.8.2\n"
-"POT-Creation-Date: 2007-05-21 13:01-0000\n"
-"PO-Revision-Date: 2007-05-21 15:02+0100\n"
+"POT-Creation-Date: 2007-05-21 20:31-0000\n"
+"PO-Revision-Date: 2007-05-21 22:33+0100\n"
 "Last-Translator: Gaspard Bucher <gaspard@teti.ch>\n"
 "Language-Team: en <gaspard@teti.ch>\n"
 "MIME-Version: 1.0\n"
@@ -13,12 +13,12 @@ msgstr ""
 "X-Poedit-Bookmarks: -1,-1,-1,219,-1,-1,-1,-1,-1,-1\n"
 "X-Poedit-Basepath: /Users/gaspard/svk/zena\n"
 
-#: app/controllers/application.rb:308
+#: app/controllers/application.rb:320
 msgid "Please log in"
 msgstr "Please log in."
 
-#: app/controllers/application.rb:419
-#: app/controllers/application.rb:447
+#: app/controllers/application.rb:431
+#: app/controllers/application.rb:459
 msgid "datetime"
 msgstr "%Y-%m-%d %H:%M"
 
@@ -67,7 +67,7 @@ msgid "password successfully updated"
 msgstr "Le mot de passe a été modifié avec succès."
 
 #: app/controllers/preferences_controller.rb:40
-#: app/controllers/users_controller.rb:84
+#: app/controllers/users_controller.rb:94
 msgid "information successfully updated"
 msgstr "Informations successfully updated."
 
@@ -75,7 +75,7 @@ msgstr "Informations successfully updated."
 msgid "Invalid login or password."
 msgstr "Invalid login or password."
 
-#: app/controllers/users_controller.rb:86
+#: app/controllers/users_controller.rb:96
 msgid "could not update user"
 msgstr "User could not be updated."
 
@@ -223,6 +223,7 @@ msgid "manage comments"
 msgstr ""
 
 #: app/helpers/application_helper.rb:924
+#: app/views/users/index.rhtml:2
 msgid "manage users"
 msgstr ""
 
@@ -231,8 +232,12 @@ msgstr ""
 msgid "manage groups"
 msgstr ""
 
-#: app/helpers/application_helper.rb:929
-msgid "site tree"
+#: app/helpers/application_helper.rb:931
+msgid "turn dev off"
+msgstr "<img src='/images/bug.png'/> turn dev off"
+
+#: app/helpers/application_helper.rb:933
+msgid "turn dev on"
 msgstr ""
 
 #: app/models/cache.rb:-
@@ -359,7 +364,7 @@ msgstr ""
 msgid "Author name"
 msgstr ""
 
-#: app/models/comment.rb:50
+#: app/models/comment.rb:54
 msgid "re: "
 msgstr ""
 
@@ -594,6 +599,10 @@ msgid "Site group"
 msgstr ""
 
 #: app/models/site.rb:-
+msgid "Trans group"
+msgstr ""
+
+#: app/models/site.rb:-
 msgid "Authentication"
 msgstr ""
 
@@ -717,13 +726,13 @@ msgid "title"
 msgstr ""
 
 #: app/views/comments/_form.rhtml:24
-#: app/views/groups/_form.rhtml:28
+#: app/views/groups/_form.rhtml:31
 #: app/views/note/_form.rhtml:8
 #: app/views/page/_form.rhtml:7
 #: app/views/templates/document_create_tabs/_file.rhtml:3
 #: app/views/templates/document_create_tabs/_template.rhtml:3
 #: app/views/templates/document_create_tabs/_text_doc.rhtml:3
-#: app/views/users/_form.rhtml:44
+#: app/views/users/_form.rhtml:45
 #: app/views/versions/edit.rhtml:15
 msgid "validate"
 msgstr " validate "
@@ -746,11 +755,13 @@ msgstr ""
 
 #: app/views/comments/list.rhtml:8
 #: app/views/groups/index.rhtml:7
+#: app/views/users/index.rhtml:8
 msgid "Previous page"
 msgstr ""
 
 #: app/views/comments/list.rhtml:9
 #: app/views/groups/index.rhtml:8
+#: app/views/users/index.rhtml:9
 msgid "Next page"
 msgstr ""
 
@@ -1430,27 +1441,27 @@ msgstr ""
 msgid "[documents]"
 msgstr ""
 
-#: lib/parser/lib/rules/zena.rb:419
+#: lib/parser/lib/rules/zena.rb:442
 msgid "btn_add"
 msgstr "<img src='/images/add.png' alt='add'/>"
 
-#: lib/parser/lib/rules/zena.rb:693
+#: lib/parser/lib/rules/zena.rb:716
 msgid "riding %{zena}"
 msgstr ""
 
-#: lib/parser/lib/rules/zena.rb:695
+#: lib/parser/lib/rules/zena.rb:718
 msgid "in peace with %{zena}"
 msgstr ""
 
-#: lib/parser/lib/rules/zena.rb:697
+#: lib/parser/lib/rules/zena.rb:720
 msgid "a %{zen} garden"
 msgstr ""
 
-#: lib/parser/lib/rules/zena.rb:699
+#: lib/parser/lib/rules/zena.rb:722
 msgid "made with %{zena}"
 msgstr ""
 
-#: lib/parser/lib/rules/zena.rb:710
+#: lib/parser/lib/rules/zena.rb:733
 msgid "design by %{name}"
 msgstr ""
 

@@ -5,7 +5,6 @@ class GroupsController < ApplicationController
   
   # TODO: test
   def show
-    @group = Group.find(params[:id])
   end
   
   # TODO: test?

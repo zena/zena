@@ -1,6 +1,6 @@
 <r:include template='layout.html'>
   <r:with part='head/stylesheets'>
-    <r:stylesheets list='zen,comment,admin,search'/>
+    <r:stylesheets list='reset,zena,comment,admin,search'/>
     <link href="default.css" rel="Stylesheet" type="text/css"/>
   </r:with>
   
@@ -13,7 +13,7 @@
     <r:content_for_layout>
       <div id='content' do='void' name='content'>
         <div id='main' do='void' name='main'>
-          <h2><r:trans>home of</r:trans> <r:user do='show' attr='fullname'>Panther Tigris</r:user></h2>
+          <h2><r:trans>home of</r:trans> <r:show attr='fullname'>Panther Tigris</r:user></h2>
         </div>
 
         <div id='related' do='void' name='related'>

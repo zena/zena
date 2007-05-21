@@ -1,6 +1,6 @@
 class UsersController < ApplicationController
   before_filter :find_user
-  before_filter :check_is_admin,  :only => [:index, :create]
+  before_filter :check_is_admin,  :only => [:index, :create, :swap_dev]
   before_filter :restrict_access
   layout :admin_layout
   
@@ -30,6 +30,16 @@ class UsersController < ApplicationController
       format.html # preferences.html.erb
     end
   end
+  
+  def swap_dev
+    if session[:dev]
+      session[:dev] = nil
+    else
+      session[:dev] = true
+    end
+    redirect_to request.referer
+  end
+    
   
   # TODO: test
   def create
