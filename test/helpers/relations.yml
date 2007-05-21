@@ -84,7 +84,10 @@ author_visitor:
 author:
   src: "my master: <r:author do='[fullname]'/> my version master: <r:version do='author' do='[fullname]'/>"
   res: "my master: Solenopsis Invicta my version master: Solenopsis Invicta"
-  
+
+zafu_readable_link:
+  src: "tag_ids: <r:show attr='tag_ids'/>"
+  tem: "tag_ids: <%= @node.tag_zips %>"
 
 node_id:
   src: "I (<r:show attr='name'/>) know: <r:node select='12'><r:show attr='name'/> with <r:children><span do='each' join=', '><r:show attr='name'>child</r:show></span></r:children></r:node>"

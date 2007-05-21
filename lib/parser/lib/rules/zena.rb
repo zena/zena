@@ -16,6 +16,10 @@ class ActiveRecord::Base
   end
   
   def self.zafu_readable?(sym)
+    if sym.to_s =~ /(.*)_zips$/
+      # might be a role
+      return true if defined_role[$1.pluralize]
+    end
     self.zafu_readable_attributes.include?(sym.to_s)
   end
   
