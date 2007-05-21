@@ -361,7 +361,8 @@ module ApplicationHelper
     
     src = width = height = img_class = nil
     if obj.kind_of?(Image)
-      mode = content.verify_format(mode) || 'std'
+      alt  ||= obj.v_title
+      mode   = content.verify_format(mode) || 'std'
       
       src       = zen_path(obj, opts.merge(:mode => (mode == 'full' ? nil : mode)))
       
@@ -888,12 +889,19 @@ ENDTXT
     if href = options.delete(:href)
       node = node.relation(href) || node
     end  
-    text = options.delete(:text) || node.version.title
-    
-    if dash = options.delete(:dash)
-      "<a href='##{dash}'>#{text}</a>"
+    if options.delete(:url_only)
+      if dash = options.delete(:dash)
+        "##{dash}"
+      else
+        zen_path(node, options)
+      end
     else
-      "<a href='#{zen_path(node, options)}'>#{text}</a>"
+      text = options.delete(:text) || node.version.title
+      if dash = options.delete(:dash)
+        "<a href='##{dash}'>#{text}</a>"
+      else
+        "<a href='#{zen_path(node, options)}'>#{text}</a>"
+      end
     end
   end
   

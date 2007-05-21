@@ -4,11 +4,11 @@ require 'ruby-debug'
 Debugger.start
 
 class HelperTest
-  testfile :basic #:relations, :basic, :zafu_ajax
+  testfile :relations, :basic, :zafu_ajax
   Section # make sure we load Section links before trying relations
   
   def test_single
-    do_test('basic', 'title_for_layout')
+    do_test('basic', 'tada')
   end
   
   def test_basic_show_bad_attr

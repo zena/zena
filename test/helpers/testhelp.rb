@@ -38,6 +38,7 @@ class TestController < ApplicationController
   def set_context
     @visitor = User.find(params[:user_id])
     @visitor.lang = params[:prefix]
+    GetText.set_locale_all(@visitor.lang)
     @visitor.site = Site.find(:first, :select=>"sites.*", :from=>"sites, sites_users",
                               :conditions=>["sites_users.site_id = sites.id AND sites_users.user_id = ?", visitor[:id]])
     @visitor.visit(@visitor)
@@ -60,7 +61,7 @@ class TestController < ApplicationController
     url = (folder + src.split('/')).join('_')
     
     if test = @@templates[url]
-      test['src']
+      [test['src'], src]
     else
       nil
     end

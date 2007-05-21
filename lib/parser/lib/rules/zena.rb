@@ -719,11 +719,15 @@ END_TXT
     def r_link
       # text
       # @blocks = [] # do not use block content for link. FIXME
-      text = get_text_for_erb
-      if text
-        text = ", :text=>#{text}"
+      if @blocks.blank?
+        if text = get_text_for_erb
+          text_opt = ", :text=>#{text}"
+        else
+          text_opt = ''
+        end
       else
-        text = ""
+        text_opt = false
+        text = expand_with
       end
       if @params[:href]
         # FIXME: add 'stored'
@@ -760,7 +764,11 @@ END_TXT
       end
       # link
       # TODO: use a single variable 'res' and << for each parameter
-      "<%= node_link(:node=>#{lnode}#{text}#{href}#{url}#{dash}#{fmt}#{mode}) %>"
+      if text_opt
+        "<%= node_link(:node=>#{lnode}#{text_opt}#{href}#{url}#{dash}#{fmt}#{mode}) %>"
+      else
+        "<a href='<%= node_link(:url_only=>true, :node=>#{lnode}#{href}#{url}#{dash}#{fmt}#{mode}) %>'>#{text}</a>"
+      end
     end
     
     def r_img

@@ -6,6 +6,12 @@ FILE_FIXTURES_PATH = File.join(File.dirname(__FILE__), 'fixtures', 'files')
 module Zena
   module Test
     module LoadFixtures
+      # make sure versions is of type InnoDB
+      begin
+        Node.connection.remove_index "versions", ["title", "text", "summary"]
+      ensure
+        Node.connection.execute "ALTER TABLE versions ENGINE = InnoDB;"
+      end
       @@loaded_fixtures = {}
       fixture_table_names = []
       Dir.foreach(FIXTURE_PATH) do |file|

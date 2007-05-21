@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 0.8.2\n"
 "POT-Creation-Date: 2007-05-19 18:28-0000\n"
-"PO-Revision-Date: 2007-05-14 15:18+0100\n"
+"PO-Revision-Date: 2007-05-20 23:28+0100\n"
 "Last-Translator: Gaspard Bucher <gaspard@teti.ch>\n"
 "Language-Team: en <gaspard@teti.ch>\n"
 "MIME-Version: 1.0\n"
@@ -17,7 +17,8 @@ msgstr ""
 msgid "Please log in"
 msgstr "Please log in."
 
-#: app/controllers/application.rb:338 app/controllers/application.rb:366
+#: app/controllers/application.rb:338
+#: app/controllers/application.rb:366
 msgid "datetime"
 msgstr "%Y-%m-%d %H:%M"
 
@@ -126,12 +127,14 @@ msgstr "%Y-%m-%d"
 msgid "short_date"
 msgstr "%m.%d"
 
-#: app/helpers/application_helper.rb:375 lib/gettext_strings.rb:61
+#: app/helpers/application_helper.rb:375
+#: lib/gettext_strings.rb:61
 #, fuzzy
 msgid "%{ext} document"
 msgstr "text doc."
 
-#: app/helpers/application_helper.rb:378 lib/gettext_strings.rb:62
+#: app/helpers/application_helper.rb:378
+#: lib/gettext_strings.rb:62
 msgid "%{type} node"
 msgstr ""
 
@@ -139,11 +142,13 @@ msgstr ""
 msgid "week_start_day"
 msgstr "0"
 
-#: app/helpers/application_helper.rb:674 lib/gettext_strings.rb:34
+#: app/helpers/application_helper.rb:674
+#: lib/gettext_strings.rb:34
 msgid "img_private"
 msgstr "<img src='/images/lock.png' alt='private'/>"
 
-#: app/helpers/application_helper.rb:676 lib/gettext_strings.rb:33
+#: app/helpers/application_helper.rb:676
+#: lib/gettext_strings.rb:33
 msgid "img_public"
 msgstr "<img src='/images/user_pub.png' alt='public'/>"
 
@@ -155,7 +160,8 @@ msgstr "<img src='/images/page_edit.png' alt='edit'/>"
 msgid "btn_propose"
 msgstr "<img src='/images/picture_empty.png' alt='propose'/>"
 
-#: app/helpers/application_helper.rb:707 app/views/comments/_li.rhtml:8
+#: app/helpers/application_helper.rb:707
+#: app/views/comments/_li.rhtml:8
 msgid "btn_publish"
 msgstr "<img src='/images/wand.png' alt='publish'/>"
 
@@ -167,7 +173,8 @@ msgstr "<img src='/images/delete.png' alt='refuse'/>"
 msgid "btn_drive"
 msgstr "<img src='/images/wrench.png' alt='drive'/>"
 
-#: app/helpers/application_helper.rb:732 app/helpers/application_helper.rb:789
+#: app/helpers/application_helper.rb:732
+#: app/helpers/application_helper.rb:789
 msgid "btn_view"
 msgstr "<img src='/images/eye.png' alt='view'/>\""
 
@@ -187,7 +194,8 @@ msgstr "<img src='/images/lock.png' alt='closed'/>"
 msgid "btn_title_open_open_discussion"
 msgstr "Open the discussion."
 
-#: app/helpers/application_helper.rb:797 app/views/comments/_li.rhtml:7
+#: app/helpers/application_helper.rb:797
+#: app/views/comments/_li.rhtml:7
 msgid "btn_remove"
 msgstr "<img src='/images/delete.png' alt='delete'/>"
 
@@ -204,7 +212,8 @@ msgstr "management"
 msgid "preferences"
 msgstr ""
 
-#: app/helpers/application_helper.rb:905 app/views/comments/list.rhtml:2
+#: app/helpers/application_helper.rb:905
+#: app/views/comments/list.rhtml:2
 msgid "manage comments"
 msgstr ""
 
@@ -212,7 +221,8 @@ msgstr ""
 msgid "manage users"
 msgstr ""
 
-#: app/helpers/application_helper.rb:911 app/views/group/list.rhtml:2
+#: app/helpers/application_helper.rb:911
+#: app/views/group/list.rhtml:2
 msgid "manage groups"
 msgstr ""
 
@@ -228,9 +238,13 @@ msgstr ""
 msgid "cache"
 msgstr ""
 
-#: app/models/cache.rb:- app/models/comment.rb:-
-#: app/models/contact_content.rb:- app/models/discussion.rb:-
-#: app/models/group.rb:- app/models/node.rb:- app/models/user.rb:-
+#: app/models/cache.rb:-
+#: app/models/comment.rb:-
+#: app/models/contact_content.rb:-
+#: app/models/discussion.rb:-
+#: app/models/group.rb:-
+#: app/models/node.rb:-
+#: app/models/user.rb:-
 #: app/models/version.rb:-
 msgid "Updated at"
 msgstr ""
@@ -243,7 +257,8 @@ msgstr ""
 msgid "Visitor groups"
 msgstr ""
 
-#: app/models/cache.rb:- app/models/node.rb:-
+#: app/models/cache.rb:-
+#: app/models/node.rb:-
 msgid "Kpath"
 msgstr ""
 
@@ -251,14 +266,21 @@ msgstr ""
 msgid "Context"
 msgstr ""
 
-#: app/models/cache.rb:- app/models/version.rb:-
+#: app/models/cache.rb:-
+#: app/models/version.rb:-
 msgid "Content"
 msgstr ""
 
-#: app/models/cache.rb:- app/models/cached_page.rb:- app/models/comment.rb:-
-#: app/models/contact_content.rb:- app/models/discussion.rb:-
-#: app/models/document_content.rb:- app/models/group.rb:- app/models/node.rb:-
-#: app/models/template_content.rb:- app/models/version.rb:-
+#: app/models/cache.rb:-
+#: app/models/cached_page.rb:-
+#: app/models/comment.rb:-
+#: app/models/contact_content.rb:-
+#: app/models/discussion.rb:-
+#: app/models/document_content.rb:-
+#: app/models/group.rb:-
+#: app/models/node.rb:-
+#: app/models/template_content.rb:-
+#: app/models/version.rb:-
 msgid "Site"
 msgstr ""
 
@@ -274,23 +296,32 @@ msgstr ""
 msgid "Expire after"
 msgstr ""
 
-#: app/models/cached_page.rb:- app/models/comment.rb:-
-#: app/models/contact_content.rb:- app/models/discussion.rb:-
-#: app/models/group.rb:- app/models/node.rb:- app/models/user.rb:-
+#: app/models/cached_page.rb:-
+#: app/models/comment.rb:-
+#: app/models/contact_content.rb:-
+#: app/models/discussion.rb:-
+#: app/models/group.rb:-
+#: app/models/node.rb:-
+#: app/models/user.rb:-
 #: app/models/version.rb:-
 msgid "Created at"
 msgstr ""
 
-#: app/models/cached_page.rb:- app/models/discussion.rb:-
-#: app/models/template_content.rb:- app/models/version.rb:-
+#: app/models/cached_page.rb:-
+#: app/models/discussion.rb:-
+#: app/models/template_content.rb:-
+#: app/models/version.rb:-
 msgid "Node"
 msgstr ""
 
-#: app/models/comment.rb:- app/views/templates/edit_tabs/_title.rhtml:19
+#: app/models/comment.rb:-
+#: app/views/templates/edit_tabs/_title.rhtml:19
 msgid "comment"
 msgstr ""
 
-#: app/models/comment.rb:- app/models/user.rb:- app/models/version.rb:-
+#: app/models/comment.rb:-
+#: app/models/user.rb:-
+#: app/models/version.rb:-
 msgid "Status"
 msgstr ""
 
@@ -303,15 +334,19 @@ msgstr "<img src='/images/comments_add.png' alt='add a discussion'/>"
 msgid "Reply to"
 msgstr ""
 
-#: app/models/comment.rb:- app/models/node.rb:- app/models/version.rb:-
+#: app/models/comment.rb:-
+#: app/models/node.rb:-
+#: app/models/version.rb:-
 msgid "User"
 msgstr ""
 
-#: app/models/comment.rb:- app/models/version.rb:-
+#: app/models/comment.rb:-
+#: app/models/version.rb:-
 msgid "Title"
 msgstr ""
 
-#: app/models/comment.rb:- app/models/version.rb:-
+#: app/models/comment.rb:-
+#: app/models/version.rb:-
 msgid "Text"
 msgstr ""
 
@@ -327,16 +362,21 @@ msgstr ""
 msgid "contact content"
 msgstr ""
 
-#: app/models/contact_content.rb:- app/models/document_content.rb:-
+#: app/models/contact_content.rb:-
+#: app/models/document_content.rb:-
 msgid "Version"
 msgstr ""
 
-#: app/models/contact_content.rb:- app/models/user.rb:-
+#: app/models/contact_content.rb:-
+#: app/models/user.rb:-
 msgid "First name"
 msgstr ""
 
-#: app/models/contact_content.rb:- app/models/document_content.rb:-
-#: app/models/group.rb:- app/models/node.rb:- app/models/site.rb:-
+#: app/models/contact_content.rb:-
+#: app/models/document_content.rb:-
+#: app/models/group.rb:-
+#: app/models/node.rb:-
+#: app/models/site.rb:-
 #: app/models/user.rb:-
 msgid "Name"
 msgstr ""
@@ -345,7 +385,8 @@ msgstr ""
 msgid "Address"
 msgstr ""
 
-#: app/models/contact_content.rb:- app/models/node.rb:-
+#: app/models/contact_content.rb:-
+#: app/models/node.rb:-
 msgid "Zip"
 msgstr ""
 
@@ -361,7 +402,8 @@ msgstr ""
 msgid "Mobile"
 msgstr ""
 
-#: app/models/contact_content.rb:- app/models/user.rb:-
+#: app/models/contact_content.rb:-
+#: app/models/user.rb:-
 msgid "Email"
 msgstr ""
 
@@ -381,7 +423,9 @@ msgstr ""
 msgid "Open"
 msgstr ""
 
-#: app/models/discussion.rb:- app/models/user.rb:- app/models/version.rb:-
+#: app/models/discussion.rb:-
+#: app/models/user.rb:-
+#: app/models/version.rb:-
 msgid "Lang"
 msgstr ""
 
@@ -389,7 +433,8 @@ msgstr ""
 msgid "document content"
 msgstr ""
 
-#: app/models/document_content.rb:- app/models/node.rb:-
+#: app/models/document_content.rb:-
+#: app/models/node.rb:-
 #: app/models/version.rb:-
 msgid "Type"
 msgstr ""
@@ -470,7 +515,8 @@ msgstr ""
 msgid "Pgroup"
 msgstr ""
 
-#: app/models/node.rb:- app/models/version.rb:-
+#: app/models/node.rb:-
+#: app/models/version.rb:-
 msgid "Publish from"
 msgstr ""
 
@@ -626,13 +672,20 @@ msgstr ""
 msgid "Number"
 msgstr ""
 
-#: app/views/calendar/_tiny.rhtml:17 app/views/comments/_form.rhtml:8
-#: app/views/comments/_form.rhtml:10 app/views/comments/_form.rhtml:12
-#: app/views/discussions/_form.rhtml:7 app/views/documents/show.rhtml:11
-#: app/views/group/_form.rhtml:3 app/views/group/_form.rhtml:5
-#: app/views/link/_form.rhtml:5 app/views/nodes/_results.rhtml:7
-#: app/views/nodes/save.rhtml:8 app/views/note/_form.rhtml:3
-#: app/views/page/_form.rhtml:3 app/views/users/_form.rhtml:5
+#: app/views/calendar/_tiny.rhtml:17
+#: app/views/comments/_form.rhtml:8
+#: app/views/comments/_form.rhtml:10
+#: app/views/comments/_form.rhtml:12
+#: app/views/discussions/_form.rhtml:7
+#: app/views/documents/show.rhtml:11
+#: app/views/group/_form.rhtml:3
+#: app/views/group/_form.rhtml:5
+#: app/views/link/_form.rhtml:5
+#: app/views/nodes/_results.rhtml:7
+#: app/views/nodes/save.rhtml:8
+#: app/views/note/_form.rhtml:3
+#: app/views/page/_form.rhtml:3
+#: app/views/users/_form.rhtml:5
 #: app/views/users/_form.rhtml:7
 msgid "btn_x"
 msgstr "<img src='/images/cross.png' alt='cancel'/>"
@@ -646,8 +699,7 @@ msgid "btn_bomb"
 msgstr "<img src='/images/bomb.png' alt='empty bin'/>"
 
 #: app/views/comments/_bin.rhtml:4
-msgid ""
-"Are you sure you want to permanently remove the content of this rubbish bin ?"
+msgid "Are you sure you want to permanently remove the content of this rubbish bin ?"
 msgstr ""
 
 #: app/views/comments/_form.rhtml:15
@@ -659,12 +711,15 @@ msgstr ""
 msgid "title"
 msgstr ""
 
-#: app/views/comments/_form.rhtml:24 app/views/group/_form.rhtml:28
-#: app/views/note/_form.rhtml:8 app/views/page/_form.rhtml:7
+#: app/views/comments/_form.rhtml:24
+#: app/views/group/_form.rhtml:28
+#: app/views/note/_form.rhtml:8
+#: app/views/page/_form.rhtml:7
 #: app/views/templates/document_create_tabs/_file.rhtml:3
 #: app/views/templates/document_create_tabs/_template.rhtml:3
 #: app/views/templates/document_create_tabs/_text_doc.rhtml:3
-#: app/views/users/_form.rhtml:45 app/views/versions/edit.rhtml:15
+#: app/views/users/_form.rhtml:45
+#: app/views/versions/edit.rhtml:15
 msgid "validate"
 msgstr " validate "
 
@@ -684,11 +739,13 @@ msgstr ""
 msgid "comments closed"
 msgstr ""
 
-#: app/views/comments/list.rhtml:8 app/views/group/list.rhtml:7
+#: app/views/comments/list.rhtml:8
+#: app/views/group/list.rhtml:7
 msgid "Previous page"
 msgstr ""
 
-#: app/views/comments/list.rhtml:9 app/views/group/list.rhtml:8
+#: app/views/comments/list.rhtml:9
+#: app/views/group/list.rhtml:8
 msgid "Next page"
 msgstr ""
 
@@ -712,7 +769,8 @@ msgstr ""
 msgid "comment(s)"
 msgstr ""
 
-#: app/views/documents/_crop.rhtml:1 app/views/users/_form.rhtml:22
+#: app/views/documents/_crop.rhtml:1
+#: app/views/users/_form.rhtml:22
 msgid "cancel"
 msgstr ""
 
@@ -741,7 +799,8 @@ msgstr ""
 msgid "btn_group_add"
 msgstr "<img src='/images/group_add.png' alt='add a group'/>"
 
-#: app/views/group/_form.rhtml:17 app/views/nodes/_parent.rhtml:7
+#: app/views/group/_form.rhtml:17
+#: app/views/nodes/_parent.rhtml:7
 #: app/views/templates/document_create_tabs/_file.rhtml:8
 #: app/views/templates/document_create_tabs/_template.rhtml:7
 #: app/views/templates/document_create_tabs/_text_doc.rhtml:8
@@ -765,7 +824,8 @@ msgstr ""
 msgid "btn_tiny_del"
 msgstr "<img src='/images/bullet_delete.png' alt='remove'/>"
 
-#: app/views/nodes/_dates.rhtml:6 app/views/templates/edit_tabs/_title.rhtml:5
+#: app/views/nodes/_dates.rhtml:6
+#: app/views/templates/edit_tabs/_title.rhtml:5
 msgid "event date"
 msgstr ""
 
@@ -773,13 +833,15 @@ msgstr ""
 msgid "log date"
 msgstr ""
 
-#: app/views/nodes/_dates.rhtml:8 app/views/nodes/_groups.rhtml:23
+#: app/views/nodes/_dates.rhtml:8
+#: app/views/nodes/_groups.rhtml:23
 #: app/views/nodes/_parent.rhtml:11
 #: app/views/templates/edit_tabs/_image.rhtml:2
 msgid "change"
 msgstr ""
 
-#: app/views/nodes/_groups.rhtml:3 app/views/nodes/_groups.rhtml:7
+#: app/views/nodes/_groups.rhtml:3
+#: app/views/nodes/_groups.rhtml:7
 msgid "inherit"
 msgstr ""
 
@@ -787,7 +849,8 @@ msgstr ""
 msgid "custom"
 msgstr ""
 
-#: app/views/nodes/_groups.rhtml:4 app/views/nodes/_groups.rhtml:7
+#: app/views/nodes/_groups.rhtml:4
+#: app/views/nodes/_groups.rhtml:7
 msgid "private"
 msgstr ""
 
@@ -892,9 +955,7 @@ msgstr ""
 
 #: app/views/templates/edit_tabs/_help.rhtml:6
 msgid "help not found"
-msgstr ""
-"Help node not found. This node should be named 'help'. In the meantime, you "
-"can visit the official website: \"zena\":http://zenadmin.org."
+msgstr "Help node not found. This node should be named 'help'. In the meantime, you can visit the official website: \"zena\":http://zenadmin.org."
 
 #: app/views/templates/edit_tabs/_image.rhtml:8
 msgid "image"
@@ -928,7 +989,8 @@ msgstr ""
 msgid "change password"
 msgstr ""
 
-#: app/views/users/_form.rhtml:22 app/views/users/_form.rhtml:24
+#: app/views/users/_form.rhtml:22
+#: app/views/users/_form.rhtml:24
 msgid "password"
 msgstr ""
 
@@ -1225,15 +1287,15 @@ msgstr ""
 
 #: lib/gettext_strings.rb:78
 msgid "en"
-msgstr ""
+msgstr "english"
 
 #: lib/gettext_strings.rb:79
 msgid "fr"
-msgstr ""
+msgstr "french"
 
 #: lib/gettext_strings.rb:80
 msgid "de"
-msgstr ""
+msgstr "german"
 
 #: lib/gettext_strings.rb:81
 msgid "Monday"
@@ -1386,3 +1448,4 @@ msgstr ""
 #: lib/parser/lib/rules/zena.rb:710
 msgid "design by %{name}"
 msgstr ""
+

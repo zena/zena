@@ -15,7 +15,7 @@ module ParserModule
       url = (folder + src.split('/')).join('_')
       
       if test = @strings[url]
-        return test['src'], url.split('_').join('/')
+        return [test['src'], url.split('_').join('/')]
       else
         nil
       end
@@ -70,7 +70,9 @@ class Parser
         url = "#{current_folder}/#{url}"
       end
       
-      text, url = helper.send(:get_template_text, :src=>url, :current_folder=>'') || ["<span class='parser_error'>template '#{url}' not found</span>", url]
+      res = helper.send(:get_template_text, :src=>url, :current_folder=>'') || ["<span class='parser_error'>template '#{url}' not found</span>", url]
+      return nil unless res
+      text, url = *res
       url = "/#{url}" unless url[0..0] == '/' # has to be an absolute path
       return [text, url]
     end

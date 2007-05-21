@@ -59,19 +59,19 @@ trans_show:
   context:
     lang: 'fr'
   src: "<r:trans><r:show attr='ref_lang'/></r:trans>"
-  tem: "<%= trans(@node.ref_lang) %>"
+  tem: "<%= _(@node.ref_lang) %>"
   res: "anglais"
 
 trans_attr:
   context:
     lang: 'en'
   src: "<r:trans attr='ref_lang'/>"
-  tem: "<%= trans(@node.ref_lang) %>"
+  tem: "<%= _(@node.ref_lang) %>"
   res: "english"
   
 show_tattr:
   src: "<r:show tattr='ref_lang'/>"
-  tem: "<%= trans(@node.ref_lang) %>"
+  tem: "<%= _(@node.ref_lang) %>"
   res: "english"
 
 link:
@@ -90,7 +90,7 @@ link_attr:
 
 link_tattr:
   src: "<r:link tattr='ref_lang'/>"
-  tem: "<%= node_link(:node=>@node, :text=>trans(@node.ref_lang)) %>"
+  tem: "<%= node_link(:node=>@node, :text=>_(@node.ref_lang)) %>"
   res: "<a href='/oo/projects/cleanWater/page22.html'>english</a>"
 
 link_trans:
@@ -106,9 +106,9 @@ link_parent:
   res: "<a href='/oo/projects/cleanWater.html'>click here</a>"
 
 link_with_block:
-  src: "<r:link href='parent'>click here</r:link>"
-  tem: "<%= node_link(:node=>@node, :text=>\"click here\", :href=>\"parent\") %>"
-  res: "<a href='/oo/projects/cleanWater.html'>click here</a>"
+  src: "<r:link href='parent'>look at <b do='[name]'>her</b></r:link>"
+  tem: "<a href='<%= node_link(:url_only=>true, :node=>@node, :href=>\"parent\") %>'>look at <b><%= @node.name %></b></a>"
+  res: "<a href='/oo/projects/cleanWater.html'>look at <b>status</b></a>"
   
 link_project:
   context:
@@ -324,7 +324,7 @@ each_join_nasty_erb:
 img_no_image:
   src: "<r:img/>"
   tem: "<%= img_tag(@node, :mode=>\"std\") %>"
-  res: ""
+  res: "<img src='/images/ext/other_std.png' width='32' height='32' alt='page node' class='doc'/>"
 
 img_image:
   context:
@@ -416,7 +416,7 @@ tada:
     <h1 id='main_title' do='show' attr='v_title'>Super project</h1>
 
     <ul do='tags'>
-      <li do='each' do='link' attr='v_title'>art</li>
+      <li do='each' do='link' attr='v_title'></li>
       <li do='ignore'>life</li>
       <li do='ignore'>ruby</li>
     </ul>
