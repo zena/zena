@@ -8,7 +8,7 @@ class HelperTest
   Section # make sure we load Section links before trying relations
   
   def test_single
-    do_test('relations', 'zafu_readable_link')
+    do_test('relations', 'zafu_readable_link_id')
   end
   
   def test_basic_show_bad_attr

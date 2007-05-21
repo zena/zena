@@ -89,6 +89,14 @@ zafu_readable_link:
   src: "tag_ids: <r:show attr='tag_ids'/>"
   tem: "tag_ids: <%= @node.tag_zips %>"
 
+zafu_readable_link_for:
+  src: "tag_ids: <r:show attr='hot_for_ids'/>"
+  tem: "tag_ids: <%= @node.hot_for_zips %>"
+
+zafu_readable_link_id:
+  src: "tag_ids: <r:show attr='icon_id'/>"
+  tem: "tag_ids: <%= @node.icon_zip %>"
+
 node_id:
   src: "I (<r:show attr='name'/>) know: <r:node select='12'><r:show attr='name'/> with <r:children><span do='each' join=', '><r:show attr='name'>child</r:show></span></r:children></r:node>"
   res: "I (status) know: people with <span>anonymous</span>, <span>ant</span>, <span>lion</span>, <span>tiger</span>"

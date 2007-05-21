@@ -316,6 +316,10 @@ on the post edit page :
                 link ? link[:#{other_side}] : nil
               end
               
+              def #{method}_zip
+                fetch_link(#{method.inspect})[:zip]
+              end
+              
               # link can be changed if user can write in old and new
               # 1. can remove old link
               # 2. can write in new target
@@ -389,7 +393,7 @@ on the post edit page :
               # 1. can remove old links
               # 2. can write in new targets
               def validate_#{method}
-                return unless defined? @#{meth}_ids
+                return unless defined? @#{meth}s
                 unless @#{meth}_ids.kind_of?(Array)
                   errors.add('#{role}', 'bad format') 
                   return false
