@@ -40,7 +40,9 @@ class User < ActiveRecord::Base
     :moderated   => 30,
     :reader      => 20,
     :deleted     => 0,
-  }
+  }.freeze
+  Num_to_status = Hash[*Status.map{|k,v| [v,k]}.flatten].freeze
+  
   class << self
     # Returns the logged in user or nil if login and password do not match or if the user has no login access to the current site.
     def login(login, password, site)
@@ -248,40 +250,40 @@ class User < ActiveRecord::Base
   def comments_to_publish
     if id == 2
       # su can view all
-      Comment.find_all_by_status(Zena::Status[:prop])
+      secure(Comment) { Comment.find_all_by_status(Zena::Status[:prop]) }
     else
-      Comment.find(:all, :select=>'comments.*, nodes.name', :from=>'comments, nodes, discussions',
-                   :conditions=>"comments.status = #{Zena::Status[:prop]} AND discussions.node_id = nodes.id AND comments.discussion_id = discussions.id AND nodes.pgroup_id IN (#{group_ids.join(',')})")
+      secure(Comment) { Comment.find(:all, :select=>'comments.*, nodes.name', :from=>'comments, nodes, discussions',
+                   :conditions=>"comments.status = #{Zena::Status[:prop]} AND discussions.node_id = nodes.id AND comments.discussion_id = discussions.id AND nodes.pgroup_id IN (#{group_ids.join(',')})") }
     end
   end
   
   # List all versions proposed for publication that the user has the right to publish.
   def to_publish
-    if id == 2
+    if is_su?
       # su can view all
-      Version.find_all_by_status(Zena::Status[:prop])
+      secure(Version) { Version.find_all_by_status(Zena::Status[:prop]) }
     else
-      Version.find_by_sql("SELECT versions.* FROM versions LEFT JOIN nodes ON node_id=nodes.id WHERE status=#{Zena::Status[:prop]} AND nodes.pgroup_id IN (#{group_ids.join(',')})")
+      secure(Version) { Version.find_by_sql("SELECT versions.* FROM versions LEFT JOIN nodes ON node_id=nodes.id WHERE status=#{Zena::Status[:prop]} AND nodes.pgroup_id IN (#{group_ids.join(',')})") }
     end
   end
   
   # List all versions owned that are currently being written (status= +red+)
   def redactions
-    if id == 2
+    if is_su?
       # su is master of all
-      Version.find_all_by_status(Zena::Status[:red])
+      secure(Version) { Version.find_all_by_status(Zena::Status[:red]) }
     else
-      Version.find_all_by_user_id_and_status(id,Zena::Status[:red])
+      secure(Version) { Version.find_all_by_user_id_and_status(id,Zena::Status[:red]) }
     end
   end
   
   # List all versions owned that are currently being written (status= +red+)
   def proposed
-    if id == 2
+    if is_su?
       # su is master of all
-      Version.find_all_by_status(Zena::Status[:prop])
+      secure(Version) { Version.find_all_by_status(Zena::Status[:prop]) }
     else
-      Version.find_all_by_user_id_and_status(id,Zena::Status[:prop])
+      secure(Version) { Version.find_all_by_user_id_and_status(id,Zena::Status[:prop]) }
     end
   end
   

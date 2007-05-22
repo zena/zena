@@ -6,13 +6,13 @@ elsif li.is_su?
 elsif li.is_admin?
   icon += '_admin'
 end %>
-<tr id='user<%= li[:id] %>'>
+<tr id='user<%= li[:id] %>' class='u<%= li[:status] %>'>
   <td class="icon"><%= link_to_remote(_("img_#{icon}"), 
           :update =>"user#{li[:id]}", 
           :url    => edit_user_path(li),
           :method => :get) %></td>
-  <td class="login"><%= 
-    if 1 == li[:id] then '<i>public</i>' else li.login end %></td>
+  <td class="login"><%= if li.is_anon? then '<i>public</i>' else li.login end %></td>
   <td class="fullname" ><%= li.fullname %></td>
+  <td class="login"><%= li.is_admin? ? _('administrator') : _(User::Num_to_status[li.status].to_s) %></td>
   <td class="groups"><%= li.groups.map {|g| g.name }.join(', ') %></td>
 </tr>

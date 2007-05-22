@@ -10,6 +10,7 @@ module Zena
     :rem  => 10,
     :del  => 0,
   }.freeze
+  
   module Acts 
 =begin rdoc
 == Secure model

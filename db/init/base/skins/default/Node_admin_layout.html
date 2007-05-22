@@ -13,29 +13,29 @@
     <r:content_for_layout>
       <div id='content' do='void' name='content'>
         <div id='main' do='void' name='main'>
-          <h2><r:trans>home of</r:trans> <r:show attr='fullname'>Panther Tigris</r:user></h2>
+          <h2><r:trans>home of</r:trans> <r:show attr='fullname'>Panther Tigris</r:show></h2>
         </div>
 
         <div id='related' do='void' name='related'>
           <ul class='actions' do='user'>
             <li do='to_publish'><r:trans>to publish</r:trans>
               <ul class='list'>
-                <li do='each' set_class='li_s[status]'><r:link attr='title'>title</r:show></li>
+                <li do='each' set_class='li_s[status]'><r:link/></li>
               </ul>
             </li>
             <li do='comments_to_publish'><r:trans>comments to publish</r:trans>
               <ul class='list'>
-                <li do='each'><r:show attr='title'>title</r:show></li>
+                <li do='each'><r:show attr='title'/></li>
               </ul>
             </li>
             <li do='proposed'><r:trans>waiting for publication</r:trans>
               <ul class='list'>
-                <li do='each'><r:show attr='title'>title</r:show></li>
+                <li do='each'><r:link/></li>
               </ul>
             </li>
             <li do='redactions'><r:trans>redactions</r:trans>
               <ul class='list'>
-                <li do='each' set_class='li_s[status]'><r:link attr='title'>title</r:show></li>
+                <li do='each' set_class='li_s[status]'><r:link/></li>
               </ul>
             </li>
           </ul>

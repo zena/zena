@@ -3,8 +3,15 @@ module VersionsHelper
   # create a file named '_ClassName.rhtml' in the folder 'app/views/templates/edit_tabs'.
   def form_tabs
     tabs  = ['text', 'title']
-    klass = @node.class.to_s.downcase
-    tabs << klass if File.exists?(File.join(RAILS_ROOT, 'app', 'views', 'templates', 'edit_tabs', '_' + klass + '.rhtml'))
+    klass = nil
+    @node.class.ancestors.map { |a| a.to_s.downcase }.each do |k|
+      if File.exists?(File.join(RAILS_ROOT, 'app', 'views', 'templates', 'edit_tabs', '_' + k + '.rhtml'))
+        klass = k
+        break
+      end
+      break if k == 'node'
+    end
+    tabs << klass if klass
     tabs << 'help'
   end
 end

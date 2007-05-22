@@ -40,6 +40,11 @@ table.admin_ug td:first-child { border-left: 1px solid #333; }
 .btn_validate input { background:#C8D8C7; border:1px outset black;}
 .admin_ug .label {width:80px; line-height:1.9em;}
 
+/* status */
+.u40 { background:#B7CC87;}
+.u20, .u30 { background:#73A1A5;}
+.u0  { background:#994747;}
+
 /* actions */
 #right { border:0; }
 ul.actions { position:relative; }

@@ -49,6 +49,12 @@ class Version < ActiveRecord::Base
     secure(User){ user }.contact
   end
   
+  alias o_node node
+  
+  def node
+    @node ||= secure(Node) { o_node }
+  end
+  
   def user_zip
     user_id
   end

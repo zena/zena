@@ -15,7 +15,7 @@ class UsersController < ApplicationController
   def index
     @user_pages, @users = nil, nil
     secure(User) do
-      @user_pages, @users = paginate :users, :order => 'login', :per_page => 20
+      @user_pages, @users = paginate :users, :order => 'status DESC, login ASC', :per_page => 20
       @users # leave this: used by 'secure' as return value
     end
     get_groups_list
@@ -52,7 +52,6 @@ class UsersController < ApplicationController
   
   # TODO: test
   def edit
-    @user = User.find(params[:id])
     @user.password = nil
     get_groups_list
     respond_to do |format|

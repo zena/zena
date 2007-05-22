@@ -57,6 +57,6 @@ class GroupsController < ApplicationController
     end
     
     def get_users_list
-      @users = secure(User) { User.find(:all, :order=>'login') }
+      @users = secure(User) { User.find(:all, :conditions => "status >= #{User::Status[:reader]}", :order=>'login') }
     end
 end

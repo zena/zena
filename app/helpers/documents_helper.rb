@@ -4,16 +4,10 @@ module DocumentsHelper
   # 'app/views/templates/document_create_tabs' starting with an underscore will be used.
   def form_tabs
     tabs = []
-    help_file = nil
     Dir.entries(File.join(RAILS_ROOT, 'app', 'views', 'templates', 'document_create_tabs')).sort.each do |file|
       next unless file =~ /^_(.*).rhtml$/
-      if file == "_help.rhtml"
-        help_file = file
-      else
-        tabs << $1
-      end
+      tabs << $1
     end
-    tabs << 'help' if help_file
     tabs
   end
   

@@ -59,6 +59,13 @@ module Zena
     N_('img_group_admin')   # edit users (admin)
     N_('img_group_site')    # edit users (admin)
     
+    N_('administrator')     # user status
+    N_('user')              # user status
+    N_('commentator')       # user status
+    N_('moderated')         # user status
+    N_('reader')            # user status
+    N_('deleted')           # user status
+    
     N_('%{ext} document')   # alt attribute for img_tag 
     N_('%{type} node')      # alt attribute for img_tag
     

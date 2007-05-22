@@ -118,6 +118,12 @@ class UserTest < ZenaTestUnit
     assert_nil User.login('ant', 'ant', sites(:ocean))
   end
   
+  def test_cannot_login_if_deleted
+    assert User.login('ant', 'ant', sites(:zena))
+    User.connection.execute("UPDATE users SET status=#{User::Status[:deleted]} WHERE id=#{users_id(:ant)}")
+    assert !User.login('ant', 'ant', sites(:zena))
+  end
+  
   def test_anon_cannot_login
     assert_nil User.login('anon', '', sites(:zena))
   end
