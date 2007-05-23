@@ -16,10 +16,9 @@ class UsersController < ApplicationController
     @user_pages, @users = nil, nil
     secure(User) do
       @user_pages, @users = paginate :users, :order => 'status DESC, login ASC', :per_page => 20
-      @users # leave this: used by 'secure' as return value
     end
     get_groups_list
-    @user   = secure(User)  { User.new }
+    @user   = User.new
     respond_to do |format|
       format.html
     end
@@ -47,7 +46,7 @@ class UsersController < ApplicationController
       params[:user][:group_ids] = params[:groups].values
     end
     get_groups_list
-    @user   = secure(User)  { User.create(params[:user])     }
+    @user = User.create(params[:user])
   end
   
   # TODO: test

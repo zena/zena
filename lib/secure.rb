@@ -634,25 +634,6 @@ Just doing the above will filter all result according to the logged in user.
       
       # these methods are not actions that can be called from the web !!
       private
-      
-        # Return the current visitor. Raise an error if the visitor is not set.
-        # For controllers, this method must be redefined in Application
-        def visitor
-          @visitor ||= ((self.class.send(:scoped_methods)[0] || {})[:create] || {})[:visitor]
-          return @visitor if @visitor
-          raise RecordNotSecured.new("Visitor not set, record not secured.")
-        end
-        
-        def secured?
-          @visitor != nil
-        end
-      
-        # Return the current site. Raise an error if the visitor is not set.
-        def site
-          return @visitor.site if @visitor
-          raise RecordNotSecured.new("Visitor not set, record not secured.")
-        end
-      
         # secure find with scope (for read/write or publish access).
         def secure_with_scope(obj, find_scope, opts={})
           if ((obj.send(:scoped_methods)[0] || {})[:create] || {})[:visitor]
@@ -663,9 +644,11 @@ Just doing the above will filter all result according to the logged in user.
           scope = {:create => { :visitor => visitor }}
           if obj.ancestors.include?(User)
             scope[:find] ||= {}
-            scope[:find][:joins] = "INNER JOIN sites_users ON #{obj.table_name}.id = sites_users.user_id AND sites_users.site_id = #{visitor.site[:id]}"
+            ptbl = Participation.table_name
+            scope[:find][:joins] = "INNER JOIN #{ptbl} ON #{obj.table_name}.id = #{ptbl}.user_id AND #{ptbl}.site_id = #{visitor.site[:id]}"
+            scope[:find][:readonly]   = false
+            scope[:find][:select]     = "#{User.table_name}.*"
             scope[:find][:conditions] = find_scope
-            scope[:find][:select] = "#{obj.table_name}.*, sites_users.status, sites_users.contact_id"
           elsif obj.column_names.include?('site_id')
             if find_scope
               find_scope = "(#{find_scope}) AND (#{obj.table_name}.site_id = #{visitor.site[:id]})"
@@ -682,12 +665,12 @@ Just doing the above will filter all result according to the logged in user.
           return nil if result == []
           
           if result
-            if result.kind_of? Array
-              result.each {|r| visitor.visit(r) }
-            else
-              # Give the node some info on the current visitor. This lets security and lang info
-              # propagate naturally through the nodes.
-              visitor.visit(result)
+            if obj.ancestors.include?(Node)
+              if result.kind_of? Array
+                result.each {|r| visitor.visit(r) }
+              else
+                visitor.visit(result)
+              end
             end
             result
           else
@@ -766,6 +749,19 @@ Just doing the above will filter all result according to the logged in user.
   end
 end
 
+### ============== GLOBAL METHODS ACCESSIBLE TO ALL OBJECTS ============== ######
+# Return the current visitor. Raise an error if the visitor is not set.
+# For controllers, this method must be redefined in Application
+def visitor
+  Thread.current.visitor
+rescue NoMethodError
+  raise Zena::RecordNotSecured.new("Visitor not set, record not secured.")
+end
+
+# Return the current site. Raise an error if the visitor is not set.
+def current_site
+  visitor.site
+end
 
 ActiveRecord::Base.send :include, Zena::Acts::Secure     # for other classes
 ActiveRecord::Base.send :include, Zena::Acts::SecureNode # for Nodes

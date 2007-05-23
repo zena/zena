@@ -7,8 +7,8 @@ class VersionTest < ZenaTestUnit
   
   def test_author
     login(:tiger)
-    v = version(:status)
-    assert_equal v[:user_id], v.author[:id]
+    v = versions(:opening_red_fr)
+    assert_equal nodes_id(:tiger), v.author[:id]
   end
   
   def test_cannot_set_node_id
@@ -95,7 +95,7 @@ class VersionTest < ZenaTestUnit
     login(:tiger)
     node = secure(Node) { Node.new(:parent_id=>1, :name=>'bob') }
     assert node.save
-    vers = secure(Version) { Version.new }
+    vers = Version.new
     assert !vers.save
     assert_equal "node missing", vers.errors[:base]
   end

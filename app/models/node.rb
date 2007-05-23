@@ -170,7 +170,7 @@ class Node < ActiveRecord::Base
       
       attributes.keys.each do |key|
         if key =~ /^(\w+)_id$/ && ! ['rgroup_id', 'wgroup_id', 'pgroup_id', 'user_id'].include?(key)
-          value = Node.connection.execute( "SELECT id FROM nodes WHERE site_id = #{visitor.site[:id]} AND zip = '#{attributes[key].to_i}'" ).fetch_row
+          value = Node.connection.execute( "SELECT id FROM nodes WHERE site_id = #{current_site[:id]} AND zip = '#{attributes[key].to_i}'" ).fetch_row
           next unless value
           attributes[key] = value[0]
         end
@@ -179,7 +179,7 @@ class Node < ActiveRecord::Base
       attributes.keys.each do |key|
         if key =~ /^(\w+)_ids$/
           value = attributes[key].split(',').map do |v|
-            value = Node.connection.execute( "SELECT id FROM nodes WHERE site_id = #{visitor.site[:id]} AND zip = '#{v.to_i}'" ).fetch_row
+            value = Node.connection.execute( "SELECT id FROM nodes WHERE site_id = #{current_site[:id]} AND zip = '#{v.to_i}'" ).fetch_row
             value ? value[0] : nil
           end.compact
           attributes[key] = value
@@ -188,7 +188,7 @@ class Node < ActiveRecord::Base
       
       (attributes['link'] || {}).keys.each do |key|
         if key =~ /^(\w+)_id$/ && ! ['rgroup_id', 'wgroup_id', 'pgroup_id', 'user_id'].include?(key)
-          value = Node.connection.execute( "SELECT id FROM nodes WHERE site_id = #{visitor.site[:id]} AND zip = '#{attributes['link'][key].to_i}'" ).fetch_row
+          value = Node.connection.execute( "SELECT id FROM nodes WHERE site_id = #{current_site[:id]} AND zip = '#{attributes['link'][key].to_i}'" ).fetch_row
           next unless value
           attributes['link'][key] = value[0]
         end
@@ -371,17 +371,16 @@ class Node < ActiveRecord::Base
       node
     end
     
-    # Find an node by it's full path. Cache 'fullpath' if found.
+    # Find a node by it's full path. Cache 'fullpath' if found.
     def find_by_path(path)
       return nil unless scope = scoped_methods[0]
-      return nil unless scope[:create]
-      visitor = scoped_methods[0][:create][:visitor] # use secure scope to get visitor
+      return nil unless scope[:find]   # not secured find. refuse.
       node = self.find_by_fullpath(path)
       if node.nil?
         path = path.split('/')
         last = path.pop
         Node.with_exclusive_scope do
-          node = Node.find(visitor.site[:root_id])
+          node = Node.find(current_site[:root_id])
           path.each do |p|
             raise ActiveRecord::RecordNotFound unless node = Node.find_by_name_and_parent_id(p, node[:id])
           end
@@ -419,6 +418,11 @@ class Node < ActiveRecord::Base
     end
   end
   
+  def visitor
+    return @visitor if @visitor
+    raise Zena::RecordNotSecured.new("Visitor not set, record not secured.")
+  end
+  
   # Return the class name of the node (used by forms)
   def klass
     self.class.to_s
@@ -429,7 +433,7 @@ class Node < ActiveRecord::Base
   def ancestors(start=[])
     raise Zena::InvalidRecord, "Infinit loop in 'ancestors' (#{start.inspect} --> #{self[:id]})" if start.include?(self[:id]) 
     start += [self[:id]]
-    if self[:id] == visitor.site[:root_id]
+    if self[:id] == current_site[:root_id]
       []
     else
       parent = @parent || Node.find(self[:parent_id])
@@ -477,7 +481,7 @@ class Node < ActiveRecord::Base
   
   # Same as fullpath, but the path includes the root node.
   def rootpath
-    visitor.site.name + (fullpath != "" ? "/#{fullpath}" : "")
+    current_site.name + (fullpath != "" ? "/#{fullpath}" : "")
   end
   
   # Used by zafu to find the search score
@@ -583,7 +587,7 @@ class Node < ActiveRecord::Base
   
   # Get root node
   def root(opts={})
-    secure(Node) { Node.find(visitor.site[:root_id])}
+    secure(Node) { Node.find(current_site[:root_id])}
   rescue ActiveRecord::RecordNotFound
     nil
   end
@@ -746,7 +750,7 @@ class Node < ActiveRecord::Base
   # 4. delete old and set new object id to old
   # THIS IS DANGEROUS !! NEEDS TESTING
   # def change_to(klass)
-  #   return nil if self[:id] == visitor.site[:root_id]
+  #   return nil if self[:id] == current_site[:root_id]
   #   # ==> Check for class specific information (file to remove, participations, tags, etc) ... should we leave these things and
   #   # not care ?
   #   # ==> When changing into something else : update version type and data !!!
@@ -832,7 +836,7 @@ class Node < ActiveRecord::Base
     # element caching and full result cache
     return unless Cache.perform_caching
     Cache.sweep(:visitor_id=>self[:user_id], :visitor_groups=>[rgroup_id, wgroup_id, pgroup_id], :kpath=>self.class.kpath)
-    return unless !visitor.site.authentication? && (self.public? || old.public?) # is/was visible to anon user
+    return unless !current_site.authentication? && (self.public? || old.public?) # is/was visible to anon user
     # we want to be sure to find the project and parent, even if the visitor does not have an
     # access to these elements.
     # FIXME: use self + modified relations instead of parent/project
@@ -937,7 +941,7 @@ class Node < ActiveRecord::Base
     # Make sure the node is complete before creating it (check parent and project references)
     def validate_node
       # when creating root node, self[:id] and :root_id are both nil, so it works.
-      errors.add("parent_id", "invalid parent") unless (parent.kind_of?(self.class.parent_class) && self[:id] != visitor.site[:root_id]) || (self[:id] == visitor.site[:root_id] && self[:parent_id] == nil)
+      errors.add("parent_id", "invalid parent") unless (parent.kind_of?(self.class.parent_class) && self[:id] != current_site[:root_id]) || (self[:id] == current_site[:root_id] && self[:parent_id] == nil)
       
       errors.add("name", "can't be blank") unless self[:name] and self[:name] != ""
       
@@ -1074,7 +1078,7 @@ class Node < ActiveRecord::Base
   
     # return the id of the reference
     def ref_field(for_heirs=false)
-      if !for_heirs && (self[:id] == visitor.site[:root_id])
+      if !for_heirs && (self[:id] == current_site[:root_id])
         :id # root is it's own reference
       else
         :parent_id

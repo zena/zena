@@ -44,12 +44,7 @@ class ApplicationController < ActionController::Base
         session[:user] = user[:id]
       end
     end
-    
-    # TODO: test
-    def current_site
-      visitor.site
-    end
-    
+        
     # TODO: test
     def lang
       visitor.lang

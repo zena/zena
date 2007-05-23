@@ -58,6 +58,15 @@ Ideas for cached menu:
 * cleanup
 
 == Enhancements
+=== Optimizations
+* remove all secure(...) on non Node/User objects.
+class << Thread.current
+  attr_accessor :visitor
+end
+Thread.current.visitor = ...
+def visitor
+  Thread.current.visitor
+end
 === Zazen
 * code to show table of contents (with depth option)
 * how do footnotes work with textile ?

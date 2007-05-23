@@ -24,25 +24,20 @@ class UserTest < ZenaTestUnit
   end
   
   def test_cannot_destroy_su
-    su = users(:su)
-    assert_raise(Zena::RecordNotSecured){ su.destroy }
     login(:su)
-    su = secure(User) { users(:su) }
+    su = users(:su)
     assert_raise(Zena::AccessViolation){ su.destroy }
   end
   
   def test_cannot_destroy_anon
-    anon = users(:anon)
-    assert_raise(Zena::RecordNotSecured){ anon.destroy }
     login(:su)
-    anon = secure(User) { users(:anon) }
+    anon = users(:anon)
     assert_raise(Zena::AccessViolation){ anon.destroy }
   end
   
   def test_can_destroy_ant
-    assert_raise(Zena::RecordNotSecured){ users(:ant).destroy }
     login(:lion)
-    ant = secure(User) { users(:ant) }
+    ant = users(:ant)
     assert_nothing_raised( Zena::AccessViolation ) { ant.destroy }
   end
   
@@ -120,7 +115,7 @@ class UserTest < ZenaTestUnit
   
   def test_cannot_login_if_deleted
     assert User.login('ant', 'ant', 'test.host')
-    User.connection.execute("UPDATE sites_users SET status=#{User::Status[:deleted]} WHERE user_id=#{users_id(:ant)}")
+    User.connection.execute("UPDATE participations SET status=#{User::Status[:deleted]} WHERE user_id=#{users_id(:ant)}")
     assert !User.login('ant', 'ant', 'test.host')
   end
   
@@ -184,8 +179,8 @@ class UserTest < ZenaTestUnit
   def test_site_participation
     login(:tiger)
     ant = secure(User) { users(:ant) }
-    assert_equal participations_id(:ant_in_zena), ant.site_participation
-    assert_equal 0, ant.status
+    assert_equal participations_id(:ant_in_zena), ant.site_participation[:id]
+    assert_equal 50, ant.status
   end
   
   def test_is_admin
@@ -205,25 +200,26 @@ class UserTest < ZenaTestUnit
   def test_add_to_site
     login(:lion)
     user = secure(User) { User.new(:login=>'joe', :password=>'secret', :site_ids=>['1','2'])}
-    assert_raise(Zena::AccessViolation) { user.save }
+    assert !user.save
+    assert user.errors[:site]
     
     # make lion a user of ocean
-    Group.connection.execute "INSERT INTO sites_users (site_id, user_id, status) VALUES (#{sites_id(:ocean)}, #{users_id(:lion)},50)"
+    Group.connection.execute "INSERT INTO participations (site_id, user_id, status) VALUES (#{sites_id(:ocean)}, #{users_id(:lion)},50)"
     login(:lion)
     user = secure(User) { User.new(:login=>'joe', :password=>'secret', :site_ids=>[sites_id(:zena),sites_id(:ocean)])}
-    assert_raise(Zena::AccessViolation) { user.save }
+    assert !user.save
+    assert user.errors[:site]
     
     # make lion an admin in ocean
-    Group.connection.execute "UPDATE sites_users SET status = 60 WHERE site_id = #{sites_id(:ocean)} AND user_id=#{users_id(:lion)}"
+    Group.connection.execute "UPDATE participations SET status = 60 WHERE site_id = #{sites_id(:ocean)} AND user_id=#{users_id(:lion)}"
     
     login(:lion)
     user = secure(User) { User.new(:login=>'joe', :password=>'secret', :site_ids=>[sites_id(:zena),sites_id(:ocean)])}
     
     assert user.send(:visitor).is_admin?
-    user.save
-    err user
     assert user.save
-    assert user.sites.include?(sites(:zena))
-    assert user.sites.include?(sites(:ocean))
+    
+    assert user.sites.find(sites_id(:zena))
+    assert user.sites.find(sites_id(:ocean))
   end
 end

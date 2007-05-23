@@ -46,13 +46,13 @@ class Version < ActiveRecord::Base
   # not tested has_many :comments, :order=>'created_at'
   
   def author
-    secure(User){ user }.contact
+    user.contact
   end
   
   alias o_node node
   
   def node
-    @node ||= secure(Node) { o_node }
+    @node ||= secure(Node) { o_node } rescue nil
   end
   
   def user_zip
@@ -138,11 +138,6 @@ class Version < ActiveRecord::Base
   end
   
   private
-  
-    def visitor
-      @visitor ||= node.send(:visitor)
-    end
-  
     def can_update_content
       if @redaction_content && Version.find_all_by_content_id(self[:id]).size > 0
         # some versions link to this version's content directly. Cannot change content.

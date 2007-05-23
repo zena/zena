@@ -913,7 +913,7 @@ class SecureUpdateTest < ZenaTestUnit
   
   def test_cannot_view_own_stuff_in_other_host
     # make 'whale' a cross site user
-    User.connection.execute "INSERT INTO sites_users (user_id, site_id) VALUES (#{users_id(:whale)}, #{sites_id(:zena)})"
+    User.connection.execute "INSERT INTO participations (user_id, site_id, status) VALUES (#{users_id(:whale)}, #{sites_id(:zena)}, 50)"
     User.connection.execute "INSERT INTO groups_users (user_id, group_id) VALUES (#{users_id(:whale)}, #{groups_id(:site)})"
     User.connection.execute "INSERT INTO groups_users (user_id, group_id) VALUES (#{users_id(:whale)}, #{groups_id(:public)})"
     login(:whale)

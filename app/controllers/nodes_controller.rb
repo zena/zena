@@ -23,7 +23,7 @@ class NodesController < ApplicationController
   layout :popup_layout,     :only   => [:edit ]
   
   def index
-    @node = site.root_node
+    @node = current_site.root_node
     respond_to do |format|
       format.html { render_and_cache :mode => 'index' }
       format.xml  { render :xml => @node.to_xml }
@@ -31,7 +31,7 @@ class NodesController < ApplicationController
   end
   
   def not_found
-    @node = site.root_node
+    @node = current_site.root_node
     respond_to do |format|
       format.html { render_and_cache :mode => 'not_found' }
       format.all { render :nothing => true }
@@ -39,7 +39,7 @@ class NodesController < ApplicationController
   end
   
   def search
-    @node = site.root_node
+    @node = current_site.root_node
     if params[:q] && params[:q] != ''
       match = Node.send(:sanitize_sql, ["MATCH (versions.title,versions.text,versions.summary) AGAINST (?)", params[:q]])
       query = {

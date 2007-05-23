@@ -18,10 +18,9 @@ class GroupsController < ApplicationController
     @group_pages, @groups = nil, nil
     secure(Group) do
       @group_pages, @groups = paginate :groups, :order => 'name', :per_page => 20
-      @groups # leave this: used by 'secure' as return value
     end
     get_users_list
-    @group = secure(User)  { Group.new }
+    @group = Group.new
     respond_to do |format|
       format.html
     end

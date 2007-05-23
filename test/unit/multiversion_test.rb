@@ -24,10 +24,11 @@ class MultiVersionTest < ZenaTestUnit
     node = secure(Node) { nodes(:lake) }
     assert_equal versions_id(:lake_en), node.version(1)[:id]
     node = secure(Node) { nodes(:lake) } # reload
-    assert_equal versions_id(:lake_red_en), node.version(2)[:id]
-    assert_equal users_id(:tiger), node.version(2).instance_variable_get(:@visitor)[:id]
+    assert_raise(ActiveRecord::RecordNotFound) { node.version(2) } # redaction from ant
+    Node.connection.execute "UPDATE versions set status = #{Zena::Status[:prop]} where id = #{versions_id(:lake_red_en)}"
+    assert_equal versions_id(:lake_red_en), node.version(2)[:id] 
     node = secure(Node) { nodes(:lake) } # reload
-    assert_nil node.version(7)
+    assert_raise(ActiveRecord::RecordNotFound) { node.version(7) }
     login(:ant)
     visitor.lang = 'en'
     node = secure(Node) { nodes(:lake) } # reload
@@ -543,6 +544,8 @@ class MultiVersionTest < ZenaTestUnit
     assert !node.private?, "Not private"
     assert !node.can_publish?, "Cannot publish (not private)"
     assert !node.publish, "Cannot publish"
+    
+    node.errors.clear
     
     assert node.update_attributes(:inherit=>-1)
     assert node.can_drive?, "Can drive"

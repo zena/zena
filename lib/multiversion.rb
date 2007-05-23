@@ -407,7 +407,7 @@ module Zena
             if v && (v.user_id == visitor[:id]) && v.status == Zena::Status[:red]
               @redaction = @version = v
             elsif v
-              errors.add('base', "(#{v.author.login}) is editing this node")
+              errors.add('base', "(#{v.user.login}) is editing this node")
               nil
             else
               errors.add('base', 'you do not have the rights to do this')

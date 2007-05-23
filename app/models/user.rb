@@ -27,13 +27,15 @@ class User < ActiveRecord::Base
   has_many                :nodes
   has_many                :versions
   has_many                :participations, :dependent => :destroy
-  has_many                :sites, :through => 'participations'
-  after_create            :user_after_create
+  has_many                :sites, :through => :participations
   before_validation       :user_before_validation
-  before_validation       :set_sites
-  before_validation       :set_groups
+  validate                :valid_sites
+  validate                :valid_groups
   
   validate                :valid_user
+  
+  after_create            :update_participations
+  
   before_destroy          :dont_destroy_protected_users
   
   Status = {
@@ -67,19 +69,26 @@ class User < ActiveRecord::Base
         conditions = ['users.id = ?', site[:anon_id]]
       end
       
-      conditions[0] << ' AND sites_users.site_id = ?'
-      conditions    << site[:id]
-      
       user = site.users.find(:first, :conditions => conditions)
       
       if !user && opts[:id]
         return make_visitor(:site => site) # anonymous user
       end
-      return nil unless user && user.reader?
+      return nil unless user
       user.site = site
       user.visit(site)
       user.visit(user)
-      user
+      
+      if user.reader?
+        unless Thread.current.respond_to?(:visitor)
+          class << Thread.current
+            attr_accessor :visitor
+          end
+        end
+        Thread.current.visitor = user
+      else
+        nil
+      end
     end
     
     # Do not store clear passwords in the database (salted hash) :
@@ -183,15 +192,15 @@ class User < ActiveRecord::Base
 
   # TODO: test
   def site_participation
-    @site_participation ||= secure(Participation) { participations.find(:first) } # allready scoped to site_id
+    @site_participation ||= participations.find_by_site_id(current_site[:id])
   end
 
   def status
-    @set_status || site_participation.status.to_i
+    @defined_status || site_participation.status.to_i
   end
   
   def status=(v)
-    @set_status = v if v.to_i < User::Status[:su]
+    @defined_status = v if v.to_i < User::Status[:su]
   end
   
   # Return true if the user is in the admin group or if the user is the super user.
@@ -202,13 +211,13 @@ class User < ActiveRecord::Base
   # Return true if the user is the anonymous user for the current visited site
   def is_anon?
     # tested in site_test
-    visitor_site.anon_id == self[:id] && (!new_record? || self[:login].nil?) # (when creating a new site, anon_id == nil)
+    current_site.anon_id == self[:id] && (!new_record? || self[:login].nil?) # (when creating a new site, anon_id == nil)
   end
   
   # Return true if the user is the super user for the current visited site
   def is_su?
     # tested in site_test
-    visitor_site.su_id == self[:id]
+    current_site.su_id == self[:id]
   end
   
   # Return true if the user's status is high enough to start editing nodes.
@@ -242,9 +251,9 @@ class User < ActiveRecord::Base
   # Returns a list of the group ids separated by commas for the user (this is used mainly in SQL clauses).
   def group_ids
     @group_ids ||= if is_admin?
-      visitor_site.groups.map{|g| g[:id]}
+      current_site.groups.map{|g| g[:id]}
     else
-      secure(Group) { groups.find(:all, :order=>'name') }.map{|g| g[:id] }
+      groups.find(:all, :order=>'name').map{ |g| g[:id] }
     end
   end
   
@@ -255,7 +264,8 @@ class User < ActiveRecord::Base
   end
   
   def site_ids
-    @site_ids ||= sites.map {|r| r[:id]}
+    return @defined_site_ids || [] if new_record?
+    @defined_site_ids || (@site_ids ||= sites.map {|r| r[:id]})
   end
   
   # Change the sites a user has access to.
@@ -266,7 +276,7 @@ class User < ActiveRecord::Base
   #TODO: test
   # return only the ids of the groups really set (not all groups for admin or the like)
   def group_set_ids
-    @set_group_ids ||= groups.map{|g| g[:id]}
+    @group_set_ids ||= groups.map{|g| g[:id]}
   end
   
   # TODO: test
@@ -318,8 +328,10 @@ class User < ActiveRecord::Base
   
     # Set user defaults.
     def user_before_validation
-      if status.blank?
-        status = User::Status[:user]
+      if new_record?
+        @defined_status ||= current_site.anon.status
+      elsif status.blank?
+        status = current_site.anon.status
       end
       if self[:login].blank? && !is_anon?
         self[:login] = self[:name]
@@ -327,7 +339,7 @@ class User < ActiveRecord::Base
     end
   
     # Returns the current site (self = visitor) or the visitor's site
-    def visitor_site
+    def current_site
       @site || visitor.site
     end
   
@@ -346,17 +358,17 @@ class User < ActiveRecord::Base
         if new_record?
           # Refuse to add a user in a site if already a user with same login.
           # validate uniqueness of 'login'
-          if visitor_site.users.find_by_login(self[:login])
-            errors.add(:login, 'has already been taken')
-          end
+          
+          errors.add(:login, 'has already been taken') if current_site.users.find_by_login(self[:login])
+          
           errors.add(:password, "can't be blank") if self[:password].nil? || self[:password] == ""
         else
           # get old password
           old = User.find(self[:id])
           self[:password] = old[:password] if self[:password].nil? || self[:password] == ""
           # validate uniqueness of 'login' through all sites
-          sites.each do |site|
-            if site.users.find(:first, :conditions=>["login = ? AND id <> ?", self[:login], self[:id]])
+          sites.find(:all).each do |site|
+            if site.users.find(:first, :conditions=>["#{User.table_name}.login = ? AND #{User.table_name}.id <> ?", self[:login], self[:id]])
               errors.add(:login, 'has already been taken')
             end
           end
@@ -372,27 +384,31 @@ class User < ActiveRecord::Base
     # Make sure admin visitor is allowed to set the site ids 
     # for the user (he must be admin in all the sites)
     # FIXME: removing a user from a site ===> remove contact !
-    def set_sites #:doc:
-      #debugger
+    def valid_sites #:doc:
       if new_record?
         if @defined_site_ids
-          @defined_site_ids << visitor_site[:id].to_s
+          @defined_site_ids << current_site[:id].to_s
         else
-          sites << visitor_site
+          @defined_site_ids = [current_site[:id].to_s]
         end
       end
     
       if @defined_site_ids
         @defined_site_ids = @defined_site_ids.map{|i| i.to_s}.uniq
         
+        site_ids = new_record? ? [] : sites.map {|r| r[:id]}
         changes  = @added_sites   = @defined_site_ids - site_ids
         changes += @removed_sites = site_ids - @defined_site_ids
         
         changes.map{|i| i.to_s}.uniq.each do |i|
-          # TODO: replace with "SELECT FROM sites_users WHERE status >= ? AND site_id = ? AND user_id = ?"
-          if Site.find(:first, :select=>'id,host', :conditions=>['sites.id=? AND sites_users.status >= ? AND sites_users.user_id = ?', i, User::Status[:admin], visitor[:id]], :joins=>'INNER JOIN sites_users ON sites.id = sites_users.site_id')
-          else
-            raise Zena::AccessViolation.new("visitor (#{visitor[:id]}) tried to add/remove user (#{self[:id].inspect}) to site (#{i}) where he/she is not an admin")
+          begin
+            site = Site.find(i)
+          rescue ActiveRecord::RecordNotFound
+            errors.add('site', 'not found')
+          end
+          
+          unless Participation.find(:first, :conditions=>['status >= ? AND site_id = ? AND user_id = ?',User::Status[:admin], i, visitor[:id]])
+            errors.add('site', 'not found')
           end
         end
       end
@@ -401,17 +417,17 @@ class User < ActiveRecord::Base
     def update_participations
       if add = remove_instance_variable(:@added_sites)
         add.each do |site_id|
-          secure(Participation) { Participation.create(:user_id => self[:id], :site_id => site_id) }
+          participations.create(:user => self, :site_id => site_id)
         end
       end
       
       if del = remove_instance_variable(:@removed_sites)
-        secure(Participation)  { Participation.find(:all, :conditions =>['user_id = ? AND site_id IN (?)', self[:id], del]) }.each do |p|
+        participations.find(del).each do |p|
           p.destroy!
         end
       end
       
-      if sta = remove_instance_variable(:@set_status)
+      if sta = remove_instance_variable(:@defined_status)
         site_participation.status = sta
         site_participation.save
       end
@@ -420,12 +436,12 @@ class User < ActiveRecord::Base
   
     # Make sure all users are in the _public_ and _site_ groups. Make sure
     # the user only belongs to groups from sites he/she is in.
-    def set_groups #:doc:
-      s_ids = sites.map {|s| s[:id]}
+    def valid_groups #:doc:
+      s_ids = site_ids.map {|i| i.to_i}
       g_ids = @defined_group_ids || (new_record? ? [] : group_ids)
       g_ids.reject! { |g| g.blank? }
-      g_ids << visitor_site.public_group_id
-      g_ids << visitor_site.site_group_id unless is_anon?
+      g_ids << current_site.public_group_id
+      g_ids << current_site.site_group_id unless is_anon?
       g_ids.uniq!
       g_ids.compact!
       self.groups = []
@@ -441,7 +457,7 @@ class User < ActiveRecord::Base
   
     # Do not allow destruction of the site's special users.
     def dont_destroy_protected_users #:doc:
-      raise Zena::AccessViolation, "su and Anonymous users cannot be destroyed !" if visitor_site.protected_user_ids.include?(id)
+      raise Zena::AccessViolation, "su and Anonymous users cannot be destroyed !" if current_site.protected_user_ids.include?(id)
     end
   
     def old

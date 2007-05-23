@@ -22,7 +22,7 @@ class Site < ActiveRecord::Base
   has_many :groups, :order => "name"
   has_many :nodes
   has_many :participations, :dependent => :destroy
-  has_many :users, :through => 'participations'
+  has_many :users, :through => :participations
   
   class << self
     
