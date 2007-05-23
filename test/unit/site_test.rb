@@ -9,8 +9,9 @@ class SiteTest < ZenaTestUnit
     assert_equal "Anonymous User", site.anon.fullname
     assert_not_equal users(:anon), site.anon[:id]
     assert admin = User.login('admin', 'secret', site), "Admin user can login"
-    assert_equal 3, admin.group_ids.size
     @visitor = admin
+    @visitor.visit(@visitor)
+    assert_equal 3, admin.group_ids.size
     root = secure(Node) { Node.find(site[:root_id]) }
     assert_equal Zena::Status[:pub], root.v_status
     assert_equal Zena::Status[:pub], root.max_status
@@ -18,6 +19,7 @@ class SiteTest < ZenaTestUnit
     
     assert Time.now >= root.publish_from
     @visitor = site.anon
+    @visitor.visit(@visitor)
     root = secure(Node) { Node.find(site[:root_id]) }
     assert_kind_of Project, root
     assert_equal 'super', root.v_title
@@ -34,9 +36,6 @@ class SiteTest < ZenaTestUnit
     skin  = secure(Skin) { Skin.find_by_name('super')   }
     assert_kind_of Skin, skin
     assert_equal 'default', skin.skin
-    
-    node = secure(Node)  { Node.find_by_parent_id_and_name(skin[:id], 'Project') }
-    assert_kind_of Template, node
   end
   
   def test_create_site_with_opts
@@ -133,18 +132,6 @@ class SiteTest < ZenaTestUnit
     grp = site.site_group
     assert_kind_of Group, grp
     assert_equal groups_id(:aqua), grp[:id]
-  end
-  
-  def test_admin_group
-    site = sites(:zena)
-    grp = site.admin_group
-    assert_kind_of Group, grp
-    assert_equal groups_id(:admin), grp[:id]
-    
-    site = sites(:ocean)
-    grp = site.admin_group
-    assert_kind_of Group, grp
-    assert_equal groups_id(:masters), grp[:id]
   end
   
   def test_monolingual

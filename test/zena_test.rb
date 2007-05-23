@@ -187,13 +187,11 @@ module Zena
 
       # Set visitor for unit testing
       def login(name='anon')
-        @visitor = users(name)
         # set site (find first matching site)
-        @visitor.site = Site.find(:first, :select=>"sites.*", :from=>"sites, sites_users",
-                                  :conditions=>["sites_users.site_id = sites.id AND sites_users.user_id = ?", @visitor[:id]])
-        @visitor.visit(@visitor)
-        @lang = @visitor.lang
-        GetText.set_locale_all @lang
+        site = Site.find(:first, :from => "sites, sites_users",
+                         :conditions=>["sites_users.site_id = sites.id AND sites_users.user_id = ?", users_id(name)])
+        @visitor = User.make_visitor(:site => site, :id => users_id(name))
+        GetText.set_locale_all @visitor.lang
       end
 
       def err(obj)

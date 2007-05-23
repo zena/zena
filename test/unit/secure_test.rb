@@ -906,7 +906,7 @@ class SecureUpdateTest < ZenaTestUnit
   
   def test_secure_user
     login(:ant)
-    user = secure(User) { users(:whale) }
+    user = secure(User) { users(:tiger) }
     assert_kind_of User, user
     assert_equal users_id(:ant), user.send(:visitor).id
   end

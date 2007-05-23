@@ -40,50 +40,9 @@ class ApplicationController < ActionController::Base
   
     # TODO: test
     def visitor
-      return @visitor if @visitor
-    
-      if session[:user]
-        begin
-          # we already have a user, check host
-          if session[:host] == request.host
-            # host hasn't changed, set visitor and site
-            @visitor = User.find(session[:user])
-            site = Site.find(:first, :conditions=>["host = ? ",request.host]) # raises RecordNotFound if site not found
-            raise ActiveRecord::RecordNotFound unless site
-            @visitor.site = site
-          else
-            # changed host
-            if site = Site.find(:first, :select=>"sites.*", :from=>"sites, users_sites", :conditions=>["users_sites.site_id = sites.id AND host = ? AND users_sites.user_id = ?",request.host,session[:user]])
-              # current user is in the new site
-              @visitor = User.find(session[:user])
-              @visitor.site = site
-            else
-              raise ActiveRecord::RecordNotFound
-            end
-          end
-        rescue ActiveRecord::RecordNotFound
-          # user was not in host or bad session id or bad host
-          @visitor = nil
-        end
+      @visitor ||= returning(User.make_visitor(:host => request.host, :id => session[:user])) do |user|
+        session[:user] = user[:id]
       end
-    
-      unless @visitor
-        # find the anonymous visitor for the current site
-        if site = Site.find_by_host(request.host)
-          @visitor = site.anon
-          @visitor.site = site
-        else
-          # FIXME: error page 505
-          raise ActiveRecord::RecordNotFound
-          return false
-        end
-      end
-    
-      session[:host] = request.host
-      session[:user] = @visitor[:id]
-      @visitor.visit(@visitor)      # used to check 'su', 'anon', etc
-      @visitor.visit(@visitor.site) # used to secure access to 'root_node'
-      @visitor
     end
     
     # TODO: test

@@ -1,5 +1,6 @@
 tiger_says_inside:
   id:            1
+  site_id:       1
   discussion_id: 1
   created_at:    '2006-12-19 22:20'
   updated_at:    '2006-12-19 22:20'
@@ -11,6 +12,7 @@ tiger_says_inside:
   
 ant_says_inside:
   id:            2
+  site_id:       1
   discussion_id: 1
   created_at:    '2006-12-19 22:23'
   updated_at:    '2006-12-19 22:23'
@@ -22,6 +24,7 @@ ant_says_inside:
 
 lion_says_inside:
   id:            3
+  site_id:       1
   discussion_id: 1
   created_at:    '2006-12-19 22:26'
   updated_at:    '2006-12-19 22:26'
@@ -33,6 +36,7 @@ lion_says_inside:
 
 tiger_reply_inside:
   id:            4
+  site_id:       1
   discussion_id: 1
   created_at:    '2006-12-19 23:30'
   updated_at:    '2006-12-19 23:30'
@@ -44,6 +48,7 @@ tiger_reply_inside:
 
 public_spam_in_en:
   id:            5
+  site_id:       1
   discussion_id: 2
   created_at:    '2006-12-19 23:37'
   updated_at:    '2006-12-19 23:37'
@@ -56,6 +61,7 @@ public_spam_in_en:
 
 ant_says_in_fr:
   id:            6
+  site_id:       1
   discussion_id: 3
   created_at:    '2006-12-19 23:35'
   updated_at:    '2006-12-19 23:35'
@@ -67,6 +73,7 @@ ant_says_in_fr:
 
 public_says_in_en:
   id:            7
+  site_id:       1
   discussion_id: 2
   created_at:    '2006-12-20 20:22'
   updated_at:    '2006-12-20 20:22'

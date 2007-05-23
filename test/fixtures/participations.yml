@@ -1,41 +1,54 @@
 <% @defaults = "  created_at: 2006-04-11\n  updated_at: 2006-04-11" %>
 
 anon_in_zena:
+  id:         1
   user_id:    1
   site_id:    1
-  status:     10
+  status:     20
+  contact_id: 38
 
 su_in_zena:
+  id:         2
   user_id:    2
   site_id:    1
   status:     80
+  contact_id: 38
 
 ant_in_zena:
+  id:         3
   user_id:    3
   site_id:    1
-  status:     40
+  status:     50
+  contact_id: 3
 
 tiger_in_zena:
+  id:         4
   user_id:    4
   site_id:    1
-  status:     40
+  status:     50
+  contact_id: 4
 
 lion_in_zena:
+  id:         5
   user_id:    5
   site_id:    1
   status:     60
+  contact_id: 5
 
 incognito_in_other:
+  id:         6
   user_id:    6
   site_id:    2
-  status:     20
+  status:     30
 
 other_su_in_other:
+  id:         7
   user_id:    7
   site_id:    2
   status:     80
   
 whale_in_other:
+  id:         8
   user_id:    8
   site_id:    2
   status:     60

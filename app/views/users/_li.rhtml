@@ -13,6 +13,6 @@ end %>
           :method => :get) %></td>
   <td class="login"><%= if li.is_anon? then '<i>public</i>' else li.login end %></td>
   <td class="fullname" ><%= li.fullname %></td>
-  <td class="login"><%= li.is_admin? ? _('administrator') : _(User::Num_to_status[li.status].to_s) %></td>
+  <td class="login"><%= _(User::Num_to_status[li.status].to_s) %></td>
   <td class="groups"><%= li.groups.map {|g| g.name }.join(', ') %></td>
 </tr>

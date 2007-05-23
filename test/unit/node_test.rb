@@ -344,6 +344,7 @@ class NodeTest < ZenaTestUnit
     login(:tiger)
     node = secure(Node) { Node.find_by_path('projects/secret') }
     assert_kind_of Node, node
+    assert_kind_of User, node.instance_variable_get(:@visitor)
     login(:ant)
     assert_raise(ActiveRecord::RecordNotFound) { node = secure(Node) { Node.find_by_path('projects/secret') }}
   end

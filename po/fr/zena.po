@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: 0.8.2\n"
-"POT-Creation-Date: 2007-05-22 08:33-0000\n"
+"POT-Creation-Date: 2007-05-23 06:45-0000\n"
 "PO-Revision-Date: 2007-05-22 10:30+0100\n"
 "Last-Translator: Gaspard Bucher <gaspard@teti.ch>\n"
 "Language-Team: fr <gaspard@teti.ch>\n"
@@ -13,11 +13,11 @@ msgstr ""
 "X-Poedit-Bookmarks: -1,-1,-1,219,-1,-1,-1,-1,-1,-1\n"
 "X-Poedit-Basepath: /Users/gaspard/svk/zena\n"
 
-#: app/controllers/application.rb:320
+#: app/controllers/application.rb:279
 msgid "Please log in"
 msgstr "Veuillez vous authentifier."
 
-#: app/controllers/application.rb:431 app/controllers/application.rb:459
+#: app/controllers/application.rb:390 app/controllers/application.rb:418
 msgid "datetime"
 msgstr "%d.%m.%Y %H:%M"
 
@@ -130,11 +130,11 @@ msgstr "%d.%m.%Y"
 msgid "short_date"
 msgstr "%d.%m"
 
-#: app/helpers/application_helper.rb:384 lib/gettext_strings.rb:68
+#: app/helpers/application_helper.rb:384 lib/gettext_strings.rb:69
 msgid "%{ext} document"
 msgstr "document %{ext}"
 
-#: app/helpers/application_helper.rb:387 lib/gettext_strings.rb:69
+#: app/helpers/application_helper.rb:387 lib/gettext_strings.rb:70
 msgid "%{type} node"
 msgstr "objet %{type}"
 
@@ -302,7 +302,7 @@ msgstr "objet"
 msgid "comment"
 msgstr "commentaire"
 
-#: app/models/comment.rb:- app/models/user.rb:- app/models/version.rb:-
+#: app/models/comment.rb:- app/models/version.rb:-
 msgid "Status"
 msgstr ""
 
@@ -569,10 +569,6 @@ msgid "Public group"
 msgstr "groupe public"
 
 #: app/models/site.rb:-
-msgid "Admin group"
-msgstr "groupe des administrateurs"
-
-#: app/models/site.rb:-
 msgid "Site group"
 msgstr "groupe des utilisateurs"
 
@@ -629,7 +625,7 @@ msgstr "class"
 msgid "Mode"
 msgstr "mode"
 
-#: app/models/user.rb:- lib/gettext_strings.rb:62
+#: app/models/user.rb:- lib/gettext_strings.rb:63
 msgid "user"
 msgstr "utilisateur"
 
@@ -640,10 +636,6 @@ msgstr "nom d'utilisateur"
 #: app/models/user.rb:-
 msgid "Password"
 msgstr "mot de passe"
-
-#: app/models/user.rb:-
-msgid "Contact"
-msgstr "contact"
 
 #: app/models/user.rb:-
 msgid "Time zone"
@@ -998,10 +990,6 @@ msgstr "email"
 msgid "groups"
 msgstr "groupes"
 
-#: app/views/users/_li.rhtml:14
-msgid "administrator"
-msgstr ""
-
 #: app/views/versions/_list.rhtml:5
 msgid "btn_diff"
 msgstr "<img src='/images/layers.png' alt='voir les changements'/>"
@@ -1202,195 +1190,199 @@ msgstr "<img src='/images/group_admin.png' alt='groupe des administrateurs'/>"
 msgid "img_group_site"
 msgstr "<img src='/images/group_site.png' alt='groupe des utilisateurs'/>"
 
-#: lib/gettext_strings.rb:63
+#: lib/gettext_strings.rb:62
+msgid "admin"
+msgstr ""
+
+#: lib/gettext_strings.rb:64
 msgid "commentator"
 msgstr "commentaires"
 
-#: lib/gettext_strings.rb:64
+#: lib/gettext_strings.rb:65
 msgid "moderated"
 msgstr "modéré"
 
-#: lib/gettext_strings.rb:65
+#: lib/gettext_strings.rb:66
 msgid "reader"
 msgstr "lecteur"
 
-#: lib/gettext_strings.rb:66
+#: lib/gettext_strings.rb:67
 msgid "deleted"
 msgstr "supprimé"
 
-#: lib/gettext_strings.rb:71
+#: lib/gettext_strings.rb:72
 msgid "no result found"
 msgstr "la recherche n'a donné aucun résultat"
 
-#: lib/gettext_strings.rb:72
+#: lib/gettext_strings.rb:73
 msgid "search results"
 msgstr "résultats de la recherche"
 
-#: lib/gettext_strings.rb:74
+#: lib/gettext_strings.rb:75
 msgid "btn_unplublish"
 msgstr "<img src='/images/delete.png' alt='dépublier'/>"
 
-#: lib/gettext_strings.rb:76
+#: lib/gettext_strings.rb:77
 msgid "status_50"
 msgstr "publié"
 
-#: lib/gettext_strings.rb:77
+#: lib/gettext_strings.rb:78
 msgid "status_40"
 msgstr "proposé"
 
-#: lib/gettext_strings.rb:78
+#: lib/gettext_strings.rb:79
 msgid "status_35"
 msgstr "proposé avec"
 
-#: lib/gettext_strings.rb:79
+#: lib/gettext_strings.rb:80
 msgid "status_33"
 msgstr "rédaction visible"
 
-#: lib/gettext_strings.rb:80
+#: lib/gettext_strings.rb:81
 msgid "status_30"
 msgstr "rédaction"
 
-#: lib/gettext_strings.rb:81
+#: lib/gettext_strings.rb:82
 msgid "status_20"
 msgstr "remplacé"
 
-#: lib/gettext_strings.rb:82
+#: lib/gettext_strings.rb:83
 msgid "status_10"
 msgstr "enlevé"
 
-#: lib/gettext_strings.rb:83
+#: lib/gettext_strings.rb:84
 msgid "status_0"
 msgstr "effacé"
 
-#: lib/gettext_strings.rb:85
+#: lib/gettext_strings.rb:86
 msgid "en"
 msgstr "anglais"
 
-#: lib/gettext_strings.rb:86
+#: lib/gettext_strings.rb:87
 msgid "fr"
 msgstr "français"
 
-#: lib/gettext_strings.rb:87
+#: lib/gettext_strings.rb:88
 msgid "de"
 msgstr "allemand"
 
-#: lib/gettext_strings.rb:88
+#: lib/gettext_strings.rb:89
 msgid "Monday"
 msgstr "lundi"
 
-#: lib/gettext_strings.rb:89
+#: lib/gettext_strings.rb:90
 msgid "Tuesday"
 msgstr "mardi"
 
-#: lib/gettext_strings.rb:90
+#: lib/gettext_strings.rb:91
 msgid "Wednesday"
 msgstr "mercredi"
 
-#: lib/gettext_strings.rb:91
+#: lib/gettext_strings.rb:92
 msgid "Thursday"
 msgstr "jeudi"
 
-#: lib/gettext_strings.rb:92
+#: lib/gettext_strings.rb:93
 msgid "Friday"
 msgstr "vendredi"
 
-#: lib/gettext_strings.rb:93
+#: lib/gettext_strings.rb:94
 msgid "Saturday"
 msgstr "samedi"
 
-#: lib/gettext_strings.rb:94
+#: lib/gettext_strings.rb:95
 msgid "Sunday"
 msgstr "dimanche"
 
-#: lib/gettext_strings.rb:96
+#: lib/gettext_strings.rb:97
 msgid "mon"
 msgstr "lun"
 
-#: lib/gettext_strings.rb:97
+#: lib/gettext_strings.rb:98
 msgid "tue"
 msgstr "mar"
 
-#: lib/gettext_strings.rb:98
+#: lib/gettext_strings.rb:99
 msgid "wed"
 msgstr "mer"
 
-#: lib/gettext_strings.rb:99
+#: lib/gettext_strings.rb:100
 msgid "thu"
 msgstr "jeu"
 
-#: lib/gettext_strings.rb:100
+#: lib/gettext_strings.rb:101
 msgid "fri"
 msgstr "ven"
 
-#: lib/gettext_strings.rb:101
+#: lib/gettext_strings.rb:102
 msgid "sat"
 msgstr "sam"
 
-#: lib/gettext_strings.rb:102
+#: lib/gettext_strings.rb:103
 msgid "sun"
 msgstr "dim"
 
-#: lib/gettext_strings.rb:104
+#: lib/gettext_strings.rb:105
 msgid "January"
 msgstr "janvier"
 
-#: lib/gettext_strings.rb:105
+#: lib/gettext_strings.rb:106
 msgid "February"
 msgstr "février"
 
-#: lib/gettext_strings.rb:106
+#: lib/gettext_strings.rb:107
 msgid "March"
 msgstr "mars"
 
-#: lib/gettext_strings.rb:107
+#: lib/gettext_strings.rb:108
 msgid "April"
 msgstr "avril"
 
-#: lib/gettext_strings.rb:108
+#: lib/gettext_strings.rb:109
 msgid "May"
 msgstr "mai"
 
-#: lib/gettext_strings.rb:109
+#: lib/gettext_strings.rb:110
 msgid "June"
 msgstr "juin"
 
-#: lib/gettext_strings.rb:110
+#: lib/gettext_strings.rb:111
 msgid "July"
 msgstr "juillet"
 
-#: lib/gettext_strings.rb:111
+#: lib/gettext_strings.rb:112
 msgid "August"
 msgstr "août"
 
-#: lib/gettext_strings.rb:112
+#: lib/gettext_strings.rb:113
 msgid "September"
 msgstr "septembre"
 
-#: lib/gettext_strings.rb:113
+#: lib/gettext_strings.rb:114
 msgid "October"
 msgstr "octobre"
 
-#: lib/gettext_strings.rb:114
+#: lib/gettext_strings.rb:115
 msgid "November"
 msgstr "novembre"
 
-#: lib/gettext_strings.rb:115
+#: lib/gettext_strings.rb:116
 msgid "December"
 msgstr "décembre"
 
-#: lib/gettext_strings.rb:117
+#: lib/gettext_strings.rb:118
 msgid "User name:"
 msgstr "Nom d'utilisateur"
 
-#: lib/gettext_strings.rb:118
+#: lib/gettext_strings.rb:119
 msgid "Password:"
 msgstr "Mot de passe"
 
-#: lib/gettext_strings.rb:121
+#: lib/gettext_strings.rb:122
 msgid "you are editing the original"
 msgstr "vous éditez l'original"
 
-#: lib/gettext_strings.rb:122
+#: lib/gettext_strings.rb:123
 msgid "redaction saved"
 msgstr "Rédaction enregistrée."
 
@@ -1425,6 +1417,12 @@ msgstr "conçu avec %{zena}"
 #: lib/parser/lib/rules/zena.rb:740
 msgid "design by %{name}"
 msgstr "conception %{name}"
+
+#~ msgid "Admin group"
+#~ msgstr "groupe des administrateurs"
+
+#~ msgid "Contact"
+#~ msgstr "contact"
 
 #~ msgid "site tree"
 #~ msgstr "arbre du site"

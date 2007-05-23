@@ -13,7 +13,7 @@ class SessionController < ApplicationController
   end
   
   def create
-    if user = User.login(params[:login], params[:password], visitor.site)
+    if user = User.login(params[:login], params[:password], request.host)
       successful_login(user)
     else
       failed_login _("Invalid login or password.")

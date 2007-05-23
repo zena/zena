@@ -142,14 +142,21 @@ ActiveRecord::Schema.define(:version => 0) do
     t.column "position",     :float,                   :default => 1.0
   end
 
+  create_table "participations", :force => true do |t|
+    t.column "user_id",    :integer
+    t.column "site_id",    :integer
+    t.column "status",     :integer
+    t.column "contact_id", :integer
+  end
+
   create_table "sites", :force => true do |t|
     t.column "host",            :string
     t.column "root_id",         :integer
     t.column "su_id",           :integer
     t.column "anon_id",         :integer
     t.column "public_group_id", :integer
-    t.column "admin_group_id",  :integer
     t.column "site_group_id",   :integer
+    t.column "trans_group_id",  :integer
     t.column "name",            :string
     t.column "authentication",  :boolean
     t.column "monolingual",     :boolean
@@ -157,12 +164,6 @@ ActiveRecord::Schema.define(:version => 0) do
     t.column "languages",       :string
     t.column "default_lang",    :string
     t.column "http_auth",       :boolean
-  end
-
-  create_table "sites_users", :id => false, :force => true do |t|
-    t.column "user_id", :integer
-    t.column "site_id", :integer
-    t.column "status",  :integer
   end
 
   create_table "template_contents", :force => true do |t|
@@ -175,23 +176,16 @@ ActiveRecord::Schema.define(:version => 0) do
     t.column "mode",      :string
   end
 
-  create_table "tmp", :id => false, :force => true do |t|
-    t.column "a", :string, :limit => 50
-    t.column "b", :string, :limit => 50
-  end
-
   create_table "users", :force => true do |t|
     t.column "created_at", :datetime
     t.column "updated_at", :datetime
     t.column "login",      :string,   :limit => 20
     t.column "password",   :string,   :limit => 40
     t.column "lang",       :string,   :limit => 10, :default => "", :null => false
-    t.column "contact_id", :integer
     t.column "first_name", :string,   :limit => 60
     t.column "name",       :string,   :limit => 60
     t.column "email",      :string,   :limit => 60
     t.column "time_zone",  :string
-    t.column "status",     :integer
   end
 
   create_table "versions", :force => true do |t|

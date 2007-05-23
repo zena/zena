@@ -7,7 +7,6 @@ The #Site model holds configuration information for a site:
 +su_id+::           Super User id. This user has extended priviledges on the site. It should only be used in case of emergency.
 +anon_id+::         Anonymous user id. This user is the 'public' user of the site. Even if +authorize+ is set to true, this user is needed to configure the defaults for all newly created users.
 +public_group_id+:: Id of the 'public' group. Every user of the site (with 'anonymous user') belongs to this group.
-+admin_group_id+::  Users in this group automatically belong to all other groups. These users can change site settings and manage users.
 +site_group_id+::   Id of the 'site' group. Every user except anonymous are part of this group. This group can be seen as the 'logged in users' group.
 +name+::            Site name (used to display grouped information for cross sites users).
 +authorize+::       If this is set to true a login is required: anonymous visitor will not be allowed to browse the site as there is no login/password for the 'anonymous user'.
@@ -19,10 +18,11 @@ The #Site model holds configuration information for a site:
 class Site < ActiveRecord::Base
   validate :valid_host
   validates_uniqueness_of :host
-  attr_accessible :name, :authorize, :monolingual, :allow_private, :languages, :default_lang, :admin_group_id, :site_group_id
-  has_many :groups, :order=>"name"
+  attr_accessible :name, :authorize, :monolingual, :allow_private, :languages, :default_lang, :site_group_id
+  has_many :groups, :order => "name"
   has_many :nodes
-  has_and_belongs_to_many :users
+  has_many :participations, :dependent => :destroy
+  has_many :users, :through => 'participations'
   
   class << self
     
@@ -55,7 +55,7 @@ class Site < ActiveRecord::Base
       # =========== CREATE Super User ===========================
       # create su user
       su = User.new_no_defaults( :login => host, :password => su_password,
-        :first_name => "Super", :name => "User", :lang=>site.default_lang)
+        :first_name => "Super", :name => "User", :lang=>site.default_lang, :status=>User::Status[:su])
       su.site    = site
       su.visit(su)
       raise Exception.new("Could not create super user for site [#{host}] (site#{site[:id]})\n#{su.errors.map{|k,v| "[#{k}] #{v}"}.join("\n")}") unless su.save
@@ -76,7 +76,6 @@ class Site < ActiveRecord::Base
       raise Exception.new("Could not create group for site [#{host}] (site#{site[:id]})\n#{sgroup.errors.map{|k,v| "[#{k}] #{v}"}.join("\n")}") if sgroup.new_record?
       
       site.public_group_id = pub[:id]
-      site.admin_group_id  = admin[:id]
       site.site_group_id   = sgroup[:id]
       site.groups << pub << sgroup << admin
       
@@ -89,34 +88,19 @@ class Site < ActiveRecord::Base
       
       # create admin user
       admin_user = site.send(:secure,User) { User.new_no_defaults( :login => 'admin', :password => su_password,
-        :first_name => "Admin", :name => "User", :lang=>site.default_lang) }
+        :first_name => "Admin", :name => "User", :lang=>site.default_lang, :status=>User::Status[:admin]) }
       raise Exception.new("Could not create admin user for site [#{host}] (site#{site[:id]})\n#{admin_user.errors.map{|k,v| "[#{k}] #{v}"}.join("\n")}") unless admin_user.save
       
       site.anon_id         = anon[:id]
       
-      # add all users to this site
-      site.users << su
-      site.users << admin_user
-      site.users << anon
-      
-      # add anon and admin to 'public group'
-      pub.users << anon
-      pub.users << admin_user
-      raise Exception.new("Could not add anon and admin users to public group for site [#{host}] (site#{site[:id]})\n#{pub.errors.map{|k,v| "[#{k}] #{v}"}.join("\n")}") unless pub.save
-      
-      # add admin to the 'site group'
-      sgroup.users << admin_user
-      raise Exception.new("Could not add admin user to site group for site [#{host}] (site#{site[:id]})\n#{sgroup.errors.map{|k,v| "[#{k}] #{v}"}.join("\n")}") unless sgroup.save
-      
       # add admin to the 'admin group'
       admin.users << admin_user
-      raise Exception.new("Could not add admin user to admin group for site [#{host}] (site#{site[:id]})\n#{admin.errors.map{|k,v| "[#{k}] #{v}"}.join("\n")}") unless admin.save
-      
       
       # =========== CREATE ROOT NODE ============================
       # reload admin so all groups are set
       
-      admin_user = site.send(:secure, User) { User.find(admin_user[:id]) }
+      #admin_user = site.send(:secure, User) { User.find(admin_user[:id]) }
+      
       admin_user.site = site
       admin_user.visit(site) # now admin is the 'visitor' for 'site'
       root = site.send(:secure,Project) { Project.create( :name => site.name, :rgroup_id => pub[:id], :wgroup_id => sgroup[:id], :pgroup_id => admin[:id], :v_title => site.name) }
@@ -133,17 +117,19 @@ class Site < ActiveRecord::Base
       raise Exception.new("Could not save site definition for site [#{host}] (site#{site[:id]})\n#{site.errors.map{|k,v| "[#{k}] #{v}"}.join("\n")}") unless site.save
       
       # =========== CREATE CONTACT NODES FOR USERS ==============
-      [su, anon, admin_user].each { |user| user.send(:create_contact) }
-      
-      # == set skin name == #
-      Node.connection.execute "UPDATE nodes SET skin = '#{site.name}' WHERE site_id = '#{site[:id]}'"
+      [su, anon, admin_user].each { |user| user.send(:user_after_create) }
       
       # =========== LOAD INITIAL DATA (default skin) =============
       
-      nodes = site.send(:secure,Node) { Node.create_nodes_from_folder(:folder => File.join(RAILS_ROOT, 'db', 'init', 'base'), :parent_id => root[:id], :defaults => { :v_status => Zena::Status[:pub], :rgroup_id => pub[:id], :wgroup_id => sgroup[:id], :pgroup_id => admin[:id], :skin => 'default' } ) }
+      nodes = site.send(:secure,Node) { Node.create_nodes_from_folder(:folder => File.join(RAILS_ROOT, 'db', 'init', 'base'), :parent_id => root[:id], :defaults => { :v_status => Zena::Status[:pub], :rgroup_id => pub[:id], :wgroup_id => sgroup[:id], :pgroup_id => admin[:id] } ) }
       
-      site_skin = site.send(:secure,Skin) { Skin.find_by_name('site') }
+      site_skin = site.send(:secure, Skin) { Skin.find_by_name('site') }
+      
       site_skin.update_attributes( :name => site.name, :v_title => "#{site.name} skin" )
+      
+      # == set skin name for all elements in the site but the templates == #
+      Node.connection.execute "UPDATE nodes SET skin = '#{site.name}' WHERE site_id = '#{site[:id]}' AND section_id <> '#{site_skin.parent_id}'"
+      Node.connection.execute "UPDATE nodes SET skin = 'default' WHERE site_id = '#{site[:id]}' AND section_id = '#{site_skin.parent_id}'"
       
       
       # == done.
@@ -175,13 +161,13 @@ class Site < ActiveRecord::Base
   # Return the anonymous user, the one used by anonymous visitors to visit the public part
   # of the site.
   def anon
-    @anon ||= returning(User.find(self[:anon_id])) {|user| user.site = self}
+    @anon ||= secure(User) { User.find(self[:anon_id]) }
   end
   
   # Return the super user. This user has extended priviledges on the data (has access to private other's data).
   # This is an emergency user.
   def su
-    @su ||= returning(User.find(self[:su_id])) {|user| user.site = self}
+    @su ||= secure(User) { User.find(self[:su_id]) }
   end
   
   # TODO: test
@@ -207,12 +193,7 @@ class Site < ActiveRecord::Base
   # Return the ids of the administrators of the current site.
   def admin_user_ids
     # TODO: admin_user_ids could be cached in the 'site' record.
-    @admin_user_ids ||= admin_group.user_ids
-  end
-  
-  # Return the admin group: any user in this group automatically belongs in all other groups from the site.
-  def admin_group
-    @admin_group ||= Group.find(self[:admin_group_id])
+    @admin_user_ids ||= secure(User) { User.find(:all, :conditions => "status >= #{User::Status[:admin]}") }.map {|r| r[:id]}
   end
   
   # Return true if the site is configured to use a single language
@@ -232,7 +213,7 @@ class Site < ActiveRecord::Base
   
   # ids of the groups that cannot be removed
   def protected_group_ids
-    [admin_group_id, site_group_id, public_group_id]
+    [site_group_id, public_group_id]
   end
   
   # ids of the users that cannot be removed

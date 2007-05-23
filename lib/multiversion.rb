@@ -145,7 +145,10 @@ module Zena
         # if version to publish is 'rem' or 'red' or 'prop' : old publication => 'replaced'
         # if version to publish is 'rep' : old publication => 'removed'
         def publish(pub_time=nil)
-          return false unless can_publish?
+          unless can_publish?
+            errors.add('base', 'you do not have the rights to do this')
+            return false
+          end
           old_ids = version.class.fetch_ids "node_id = '#{self[:id]}' AND lang = '#{version[:lang]}' AND status = '#{Zena::Status[:pub]}'"
           case version.status
           when Zena::Status[:rep]
@@ -329,37 +332,37 @@ module Zena
             @version = secure(Version) { Version.find(:first, :conditions => ["node_id = ? AND number = ? AND (user_id = ? OR status >= ?)", self[:id], key, visitor[:id], min_status]) }
           else
             min_status = (key == :pub) ? Zena::Status[:pub] : Zena::Status[:red]
-            if ! @version
-              if new_record?
-                @version = version_class.new
-                # owner and lang set in secure_scope
-                @version.status = Zena::Status[:red]
-              elsif can_drive?
-                # sees propositions
-                lang = visitor.lang.gsub(/[^\w]/,'')
-                @version =  Version.find(:first,
-                              :select=>"*, (lang = '#{lang}') as lang_ok, (lang = '#{ref_lang}') as ref_ok",
-                              :conditions=>[ "((status >= ? AND user_id = ? AND lang = ?) OR status > ?) AND node_id = ?", 
-                                              min_status, visitor[:id], lang, Zena::Status[:red], self[:id] ],
-                              :order=>"lang_ok DESC, ref_ok DESC, status ASC ")
-                if !@version
-                  @version = versions.find(:first, :order=>'id DESC')
-                end
-              else
-                # only own redactions and published versions
-                lang = visitor.lang.gsub(/[^\w]/,'')
-                @version =  Version.find(:first,
-                              :select=>"*, (lang = '#{lang}') as lang_ok, (lang = '#{ref_lang}') as ref_ok",
-                              :conditions=>[ "((status >= ? AND user_id = ? AND lang = ?) OR status = ?) and node_id = ?", 
-                                              min_status, visitor[:id], lang, Zena::Status[:pub], self[:id] ],
-                              :order=>"lang_ok DESC, ref_ok DESC, status ASC, publish_from ASC")
-
+            
+            if new_record?
+              @version = version_class.new
+              # owner and lang set in secure_scope
+              @version.status = Zena::Status[:red]
+            elsif can_drive?
+              # sees propositions
+              lang = visitor.lang.gsub(/[^\w]/,'')
+              @version =  Version.find(:first,
+                            :select=>"*, (lang = '#{lang}') as lang_ok, (lang = '#{ref_lang}') as ref_ok",
+                            :conditions=>[ "((status >= ? AND user_id = ? AND lang = ?) OR status > ?) AND node_id = ?", 
+                                            min_status, visitor[:id], lang, Zena::Status[:red], self[:id] ],
+                            :order=>"lang_ok DESC, ref_ok DESC, status ASC ")
+              if !@version
+                @version = versions.find(:first, :order=>'id DESC')
               end
+            else
+              # only own redactions and published versions
+              lang = visitor.lang.gsub(/[^\w]/,'')
+              @version =  Version.find(:first,
+                            :select=>"*, (lang = '#{lang}') as lang_ok, (lang = '#{ref_lang}') as ref_ok",
+                            :conditions=>[ "((status >= ? AND user_id = ? AND lang = ?) OR status = ?) and node_id = ?", 
+                                            min_status, visitor[:id], lang, Zena::Status[:pub], self[:id] ],
+                            :order=>"lang_ok DESC, ref_ok DESC, status ASC, publish_from ASC")
+
             end
+            
             if @version.nil?
               raise Exception.new("#{self.class} #{self[:id]} does not have any version !!")
             end
-          end    
+          end
           @version.node = self if @version # preload self as node in version
           @version
         end
@@ -398,7 +401,7 @@ module Zena
               v.user_id = visitor[:id]
               v.lang = lang || visitor.lang
               v[:content_id] = version[:content_id] || version[:id]
-            end  
+            end
             v.node = self if v
             
             if v && (v.user_id == visitor[:id]) && v.status == Zena::Status[:red]

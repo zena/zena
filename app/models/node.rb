@@ -198,7 +198,6 @@ class Node < ActiveRecord::Base
       attributes['parent_id'] = parent_id if parent_id
 
       attributes.delete('file') if attributes['file'] == ''
-      puts attributes.inspect
       attributes
     end
     
@@ -279,7 +278,7 @@ class Node < ActiveRecord::Base
         if File.stat(path).directory?
           sub_folder = path
           # look-ahead to see if we have any related yml files before processing the folder
-        elsif filename =~ /^(.+)(\.\w\w|)(\.\d+|)\.yml$/  
+        elsif filename =~ /^(.+?)(\.\w\w|)(\.\d+|)\.yml$/  
           name, lang = $1, ($2 ? $2[1..-1] : visitor.lang)
           # yaml node
           attrs = defaults.merge(get_attributes_from_yaml(path)).merge(:_parent_id => parent_id)

@@ -67,8 +67,8 @@ class UserTest < ZenaTestUnit
     assert visitor.user?, "Whale is a user"
     
     contact = user.contact
-    assert_equal contact.v_title, "john"
-    assert_equal contact.user_id, visitor[:id] # or should it be user[:id] ?
+    assert_equal "john", contact.v_title
+    assert_equal visitor[:id], contact.user_id # or should it be user[:id] ?
   end
   
   def test_create_admin_with_groups
@@ -112,20 +112,20 @@ class UserTest < ZenaTestUnit
   end
   
   def test_login
-    assert user = User.login('ant', 'ant', sites(:zena)), "Login  ok."
+    assert user = User.login('ant', 'ant', 'test.host'), "Login  ok."
     assert_equal user[:id], users_id(:ant)
-    assert_nil User.login('ant', 'bad', sites(:zena))
-    assert_nil User.login('ant', 'ant', sites(:ocean))
+    assert_nil User.login('ant', 'bad', 'test.host')
+    assert_nil User.login('ant', 'ant', 'ocean.host')
   end
   
   def test_cannot_login_if_deleted
-    assert User.login('ant', 'ant', sites(:zena))
-    User.connection.execute("UPDATE users SET status=#{User::Status[:deleted]} WHERE id=#{users_id(:ant)}")
-    assert !User.login('ant', 'ant', sites(:zena))
+    assert User.login('ant', 'ant', 'test.host')
+    User.connection.execute("UPDATE sites_users SET status=#{User::Status[:deleted]} WHERE user_id=#{users_id(:ant)}")
+    assert !User.login('ant', 'ant', 'test.host')
   end
   
   def test_anon_cannot_login
-    assert_nil User.login('anon', '', sites(:zena))
+    assert_nil User.login('anon', '', 'test.host')
   end
   
   def test_unique_login
@@ -178,7 +178,14 @@ class UserTest < ZenaTestUnit
     # ant not in managers
     login(:ant)
     to_publish = visitor.comments_to_publish
-    assert_equal 0, to_publish.size
+    assert_nil to_publish
+  end
+  
+  def test_site_participation
+    login(:tiger)
+    ant = secure(User) { users(:ant) }
+    assert_equal participations_id(:ant_in_zena), ant.site_participation
+    assert_equal 0, ant.status
   end
   
   def test_is_admin
@@ -201,15 +208,20 @@ class UserTest < ZenaTestUnit
     assert_raise(Zena::AccessViolation) { user.save }
     
     # make lion a user of ocean
-    Group.connection.execute "INSERT INTO sites_users (site_id, user_id) VALUES (#{sites_id(:ocean)}, #{users_id(:lion)})"
+    Group.connection.execute "INSERT INTO sites_users (site_id, user_id, status) VALUES (#{sites_id(:ocean)}, #{users_id(:lion)},50)"
     login(:lion)
     user = secure(User) { User.new(:login=>'joe', :password=>'secret', :site_ids=>[sites_id(:zena),sites_id(:ocean)])}
     assert_raise(Zena::AccessViolation) { user.save }
     
     # make lion an admin in ocean
-    Group.connection.execute "INSERT INTO groups_users (group_id, user_id) VALUES (#{groups_id(:masters)}, #{users_id(:lion)})"
+    Group.connection.execute "UPDATE sites_users SET status = 60 WHERE site_id = #{sites_id(:ocean)} AND user_id=#{users_id(:lion)}"
+    
     login(:lion)
     user = secure(User) { User.new(:login=>'joe', :password=>'secret', :site_ids=>[sites_id(:zena),sites_id(:ocean)])}
+    
+    assert user.send(:visitor).is_admin?
+    user.save
+    err user
     assert user.save
     assert user.sites.include?(sites(:zena))
     assert user.sites.include?(sites(:ocean))
