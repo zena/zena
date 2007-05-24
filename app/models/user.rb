@@ -201,7 +201,7 @@ class User < ActiveRecord::Base
   
   # Return true if the user is in the admin group or if the user is the super user.
   def is_admin?
-    is_su? || status >= User::Status[:admin]
+    is_su? || status.to_i >= User::Status[:admin]
   end
   
   # Return true if the user is the anonymous user for the current visited site

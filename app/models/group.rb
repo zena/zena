@@ -84,8 +84,6 @@ class Group < ActiveRecord::Base
         visitor_added = user[:id] == visitor[:id]
       end
     end
-    # cannot remove self from admin group
-    self.users << visitor if admin_group? && !visitor_added
     return errors.empty?
   rescue ActiveRecord::RecordNotFound  
     errors.add('user', 'not found')
