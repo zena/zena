@@ -22,7 +22,7 @@
       <tr id='user_set_pass'><td class='label'><%= _("password")%></td><td><%= password_field('user', 'password', :size=>15, :value=>"" ) %></td></tr>
     <% end -%>
     <% end -%>
-      <tr><td class='label'><%= _("status")%>  </td><td><%= select('user', 'status', User::Status.map{|k,v| [_(k.to_s),v]}.sort{|a,b| b[1] <=> a[1]}) %></td></tr>
+      <tr><td class='label'><%= _("status")%>  </td><td><%= select('user', 'status', User::Status.reject {|k,v| v > User::Status[:admin]}.map{|k,v| [_(k.to_s),v]}.sort{|a,b| b[1] <=> a[1]}) %></td></tr>
       <tr><td class='label'><%= _("first name")%> </td><td><%= text_field('user', 'first_name',   :size=>35 ) %></td></tr>
       <tr><td class='label'><%= _("name")%>       </td><td><%= text_field('user', 'name',         :size=>35 ) %></td></tr>
       <tr><td class='label'><%= _('language')%>   </td><td><%= select('user', 'lang', visitor.site.lang_list.map {|l| [_(l),l]}, :value=>(@user[:lang] ? @user[:lang] : session[:lang]) ) %></td></tr>

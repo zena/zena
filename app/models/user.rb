@@ -100,14 +100,15 @@ class User < ActiveRecord::Base
     alias new_no_defaults new
     
     # Creates a new user with the defaults set from the anonymous user.
-    def new(*args)
+    def new(attrs={})
+      new_attrs = attrs.dup
       anon = visitor.site.anon
-      returning(user = super) do
-        # Set new user defaults based on the anonymous user.
-        [:lang, :time_zone, :status].each do |sym|
-          user.send("#{sym}=", anon.send(sym))
-        end
+      
+      # Set new user defaults based on the anonymous user.
+      [:lang, :time_zone, :status].each do |sym|
+        new_attrs[sym] = anon.send(sym) if attrs[sym].blank?
       end
+      super(new_attrs)
     end
     
     def class_for_relation(rel)
@@ -369,7 +370,7 @@ class User < ActiveRecord::Base
               errors.add(:login, 'has already been taken')
             end
           end
-          errors.add(:login, 'too short') unless self[:login] == old[:login] || (self[:login] && self[:login].length > 3)
+          errors.add(:login, "can't be blank") if self[:login].blank?
           errors.add(:status, 'you do not have the rights to do this') if self[:id] == visitor[:id] && old.is_admin?
         end
       end
@@ -420,7 +421,7 @@ class User < ActiveRecord::Base
     # the user only belongs to groups from sites he/she is in.
     def valid_groups #:doc:
       s_ids = site_ids.map {|i| i.to_i}
-      g_ids = @defined_group_ids || (new_record? ? [] : group_ids)
+      g_ids = @defined_group_ids || (new_record? ? [] : group_set_ids)
       g_ids.reject! { |g| g.blank? }
       g_ids << current_site.public_group_id
       g_ids << current_site.site_group_id unless is_anon?

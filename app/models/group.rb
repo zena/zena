@@ -50,6 +50,11 @@ class Group < ActiveRecord::Base
     end
   end
   
+  def active_users
+    User.find(:all, :conditions => "groups_users.group_id = #{self[:id]} AND participations.status > #{User::Status[:deleted]}",
+                    :joins => "INNER JOIN groups_users ON users.id = groups_users.user_id INNER JOIN participations ON participations.user_id = users.id")
+  end
+  
   private  
   # Public and admin groups are special. They cannot be destroyed.
   def dont_destroy_public_or_admin

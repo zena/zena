@@ -235,7 +235,10 @@ module Zena
         
         # Set +publish_from+ to the minimum publication time of all editions
         def update_max_status(version = self.version)
-          return true if version[:status] == max_status
+          if version[:status] == max_status
+            after_all
+            return true
+          end
           vers_table = version.class.table_name
           node_table = self.class.table_name
           new_max    = self.class.connection.select_one("select #{vers_table}.status from #{vers_table} WHERE #{vers_table}.node_id='#{self[:id]}' order by #{vers_table}.status DESC LIMIT 1")['status']

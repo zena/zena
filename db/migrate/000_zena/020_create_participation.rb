@@ -10,6 +10,7 @@ class CreateParticipation < ActiveRecord::Migration
       "(#{['user_id','site_id','status','contact_id'].map {|k| quote(r[k])}.join(', ')})"
     end
     execute "INSERT INTO participations (`user_id`,`site_id`,`status`,`contact_id`) VALUES #{values.join(', ')}"
+    execute "ALTER IGNORE TABLE participations ADD UNIQUE KEY(user_id,site_id)"
     drop_table :sites_users
   end
 

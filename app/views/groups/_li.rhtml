@@ -7,7 +7,7 @@ else
   icon = 'group'
 end %>
 <tr id='group<%= li[:id] %>'>
-  <td class="icon"><%= if (li.public_group? || li.site_group?) then _("img_#{icon}") else link_to_remote( _("img_#{icon}"), :update=>"group#{li[:id]}", :url=>edit_group_path(li), :method=>:get) end %></td>
+  <td class="icon"><%= link_to_remote( _("img_#{icon}"), :update=>"group#{li[:id]}", :url=>edit_group_path(li), :method=>:get) %></td>
   <td class="name"><%= li.name %></td>
-  <td class="users"><%= li.users.map {|u| (u.login || 'anon') }.join(', ') %></td>
+  <td class="users"><%= li.active_users.map {|u| (u.login || 'anon') }.join(', ') %></td>
 </tr>
