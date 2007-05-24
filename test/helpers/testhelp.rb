@@ -66,7 +66,7 @@ class TestController < ApplicationController
   
 end
 
-class HelperTest < ZenaTestController
+class ZenaHelperTest < ZenaTestController
   
   def setup
     @controller = TestController.new

@@ -18,7 +18,6 @@ Examples:
  
 =end
 class NodesController < ApplicationController
-  before_filter :clean_url, :only   => [:index, :show]
   before_filter :find_node, :except => [:index, :not_found, :search, :attribute]
   layout :popup_layout,     :only   => [:edit ]
   
@@ -314,29 +313,6 @@ class NodesController < ApplicationController
   
   
   protected
-    # Make sure the url is correct. Redirect if necessary.
-    def clean_url
-      if params[:prefix] == AUTHENTICATED_PREFIX && visitor.is_anon?
-        return false unless do_login
-      end
-      
-      case params[:action]
-      when 'index'
-        redirect_url = "/#{prefix}" if params[:prefix] != prefix || params[:lang]
-      when 'show'
-        redirect_url = if !params[:path] || params[:prefix] != prefix || params[:lang]
-          if params[:id]
-            zen_path(secure(Node) { Node.find_by_zip(params[:id]) })
-          else
-            request.parameters.merge(:prefix => prefix).delete(:lang)
-          end
-        end 
-      end
-
-      if redirect_url
-        redirect_to redirect_url and return false
-      end
-    end
 
 
     

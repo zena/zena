@@ -98,6 +98,15 @@ module Zena
       @hash = Hash[*new_hash.dup.map{|k,v| [k.to_s,v]}.flatten]
     end
     
+    
+    def inspect
+      "#<#{self.class}:#{sprintf('%x',self.object_id)}\n" +
+      "@hash =\n{ " +
+       ((hash || {}).sort.map do |k,v|
+         sprintf("%15s => %s", k, v.inspect)
+       end.join("\n  ")) + "}, @owner = #<#{@owner.class}:#{sprintf('%x',@owner.object_id)}>, @options = #{@options.inspect} >"
+    end
+    
     private
       def valid_key?(key)
         key && key != '' && (@options[:only].nil? || @options[:only].include?(key.to_sym))
@@ -113,12 +122,17 @@ module Zena
       
       def hash
         @hash ||= begin
-          sql = "SELECT `id`,`key`,`value` FROM #{table_name} WHERE owner_id = '#{@owner[:id].to_i}' AND owner_table = '#{@owner.class.table_name}'"
-          @hash = {}
-          @keys = {}
-          rows = connection.select_all(sql, "#{table_name} Load").map! do |record| 
-            @hash[record['key']] = record['value']
-            @keys[record['key']] = record['id'].to_i
+          if @owner.new_record?
+            @hash = {}
+            @keys = {}
+          else
+            sql = "SELECT `id`,`key`,`value` FROM #{table_name} WHERE owner_id = '#{@owner[:id].to_i}' AND owner_table = '#{@owner.class.table_name}'"
+            @hash = {}
+            @keys = {}
+            rows = connection.select_all(sql, "#{table_name} Load").map! do |record| 
+              @hash[record['key']] = record['value']
+              @keys[record['key']] = record['id'].to_i
+            end
           end
           @hash
         end

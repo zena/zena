@@ -1,4 +1,5 @@
 require File.dirname(__FILE__) + '/../test_helper'
+
 class DynDummy < ActiveRecord::Base
   set_table_name 'versions'
   uses_dynamic_attributes

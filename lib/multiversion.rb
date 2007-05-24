@@ -307,7 +307,7 @@ module Zena
                 res[k] = v
               end
             when 'TrueClass', 'FalseClass'
-              res[k] = v unless current_value == (v.to_i != 0)
+              res[k] = v unless current_value == v
             else
               res[k] = v
             end

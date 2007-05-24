@@ -110,7 +110,7 @@ class ImageTest < ZenaTestUnit
       img = secure(Node) { nodes(:bird_jpg) }
       assert_not_equal pub_version_id, img.v_id
       assert_not_equal pub_content_id, img.c_id
-      assert_equal 20799,   img.c_size
+      assert img.c_size < 30 * 1024 * 1.2
     end
   end
   

@@ -38,7 +38,6 @@ class NavigationTest < ActionController::IntegrationTest
     Site.connection.execute "UPDATE sites SET authentication = 1 WHERE id = 1" # test.host
     get 'http://test.host/'
     assert_response 401 # http_auth
-    assert_redirected_to 'http://test.host/login'
     
     reset!
     post 'http://test.host/session', :login=>'tiger', :password=>'tiger'
@@ -91,6 +90,21 @@ class NavigationTest < ActionController::IntegrationTest
     get 'http://test.host/nodes/13' # private entry 'ant'
     assert_response 404
   end
+
+  def test_set_lang_authenticated
+    post 'http://test.host/session', :login=>'lion', :password=>'lion'
+    get 'http://test.host/oo/page32.html?lang=fr'
+    assert_redirected_to 'http://test.host/oo/page32.html'
+    assert_equal 'fr', visitor.lang
+  end
+  
+  def test_set_lang_out_of_nodes
+    post 'http://test.host/session', :login=>'lion', :password=>'lion'
+    get 'http://test.host/users?lang=fr'
+    assert_redirected_to 'http://test.host/users'
+    assert_equal 'fr', visitor.lang
+  end
+    
   
   def test_set_lang_with_login
     post 'http://test.host/session', :login=>'tiger', :password=>'tiger'

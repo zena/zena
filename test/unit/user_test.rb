@@ -106,6 +106,29 @@ class UserTest < ZenaTestUnit
     assert !user.new_record?
   end
   
+  def test_cannot_remove_self_from_admin_status
+    login(:lion)
+    user = users(:lion)
+    assert !user.update_attributes(:status => User::Status[:user])
+    assert_equal 'you do not have the rights to do this', user.errors[:status]
+  end
+  
+  def test_can_update_pass_admin_status
+    login(:lion)
+    user = users(:ant)
+    assert user.update_attributes(:status => User::Status[:admin])
+    user.reload
+    assert_equal User::Status[:admin], user.status
+    assert user.is_admin?
+    login(:ant) # admin
+    assert visitor.is_admin?
+    user = users(:lion)
+    assert user.update_attributes(:status => User::Status[:user])
+    user.reload
+    assert_equal User::Status[:user], user.status
+    assert !user.is_admin?
+  end
+  
   def test_login
     assert user = User.login('ant', 'ant', 'test.host'), "Login  ok."
     assert_equal user[:id], users_id(:ant)

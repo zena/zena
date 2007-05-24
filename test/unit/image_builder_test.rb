@@ -79,7 +79,9 @@ class ImageBuilderTest < ZenaTestUnit
       img.max_filesize = 40000
       new_img = img.render_img
       assert_kind_of Magick::ImageList, new_img
-      assert new_img.filesize <= 40000 * 1.1 # approx reduction
+      f = Tempfile.new('test_limit')
+      img.write(f.path)
+      assert File.stat(f.path).size <= 40000 * 1.1 # approx reduction
     end
   end
   

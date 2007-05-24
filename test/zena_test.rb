@@ -169,29 +169,13 @@ module Zena
       include Zena::Test::Base
       include Zena::Acts::Secure
       
-      # redefine lang for tests (avoids using session[:lang]):
-      def lang
-        return @lang if @lang
-        if ZENA_ENV[:monolingual]
-          @lang = ZENA_ENV[:default_lang]
-        else
-          @lang ||= ZENA_ENV[:languages].include?(visitor.lang) ? visitor.lang : ZENA_ENV[:default_lang]
-        end
-      end
-
-      def visitor
-        return @visitor if @visitor
-        visitor_id = (@controller && session.is_a?(ActionController::TestSession) && session[:user]) ? session[:user] : 1
-        @visitor = User.find(visitor_id)
-      end
-
       # Set visitor for unit testing
       def login(name='anon')
         # set site (find first matching site)
         site = Site.find(:first, :select=>"sites.*", :from => "sites, participations",
                          :conditions=>["participations.site_id = sites.id AND participations.user_id = ?", users_id(name)])
-        @visitor = User.make_visitor(:site => site, :id => users_id(name))
-        GetText.set_locale_all @visitor.lang
+        visitor = User.make_visitor(:site => site, :id => users_id(name))
+        GetText.set_locale_all visitor.lang
       end
 
       def err(obj)
@@ -350,6 +334,7 @@ module Zena
 end
 class ZenaTestUnit < Test::Unit::TestCase
   include Zena::Test::Unit
+  def setup; super; User.make_visitor(:host=>'test.host', :id=>users_id(:anon)); end
   def self.use_transactional_fixtures; true; end
   def self.use_instantiated_fixtures; false; end
 end

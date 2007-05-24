@@ -635,37 +635,37 @@ Just doing the above will filter all result according to the logged in user.
       # these methods are not actions that can be called from the web !!
       private
         # secure find with scope (for read/write or publish access).
-        def secure_with_scope(obj, find_scope, opts={})
-          if ((obj.send(:scoped_methods)[0] || {})[:create] || {})[:visitor]
+        def secure_with_scope(klass, find_scope, opts={})
+          if ((klass.send(:scoped_methods)[0] || {})[:create] || {})[:visitor]
             # we are already in secure scope: this scope is the new 'exclusive' scope.
-            last_scope = obj.send(:scoped_methods).shift
+            last_scope = klass.send(:scoped_methods).shift
           end
 
           scope = {:create => { :visitor => visitor }}
-          if obj.ancestors.include?(User)
+          if klass.ancestors.include?(User)
             scope[:find] ||= {}
             ptbl = Participation.table_name
-            scope[:find][:joins] = "INNER JOIN #{ptbl} ON #{obj.table_name}.id = #{ptbl}.user_id AND #{ptbl}.site_id = #{visitor.site[:id]}"
+            scope[:find][:joins] = "INNER JOIN #{ptbl} ON #{klass.table_name}.id = #{ptbl}.user_id AND #{ptbl}.site_id = #{visitor.site[:id]}"
             scope[:find][:readonly]   = false
             scope[:find][:select]     = "#{User.table_name}.*"
             scope[:find][:conditions] = find_scope
-          elsif obj.column_names.include?('site_id')
+          elsif klass.column_names.include?('site_id')
             if find_scope
-              find_scope = "(#{find_scope}) AND (#{obj.table_name}.site_id = #{visitor.site[:id]})"
+              find_scope = "(#{find_scope}) AND (#{klass.table_name}.site_id = #{visitor.site[:id]})"
             else
-              find_scope = "#{obj.table_name}.site_id = #{visitor.site[:id]}"
+              find_scope = "#{klass.table_name}.site_id = #{visitor.site[:id]}"
             end
             scope[:find] = { :conditions => find_scope }
           end
           
-          result = obj.with_scope( scope ) { yield }
+          result = klass.with_scope( scope ) { yield }
           
-          obj.send(:scoped_methods).unshift last_scope if last_scope
+          klass.send(:scoped_methods).unshift last_scope if last_scope
           
           return nil if result == []
           
           if result
-            if obj.ancestors.include?(Node)
+            if klass.ancestors.include?(Node)
               if result.kind_of? Array
                 result.each {|r| visitor.visit(r) }
               else

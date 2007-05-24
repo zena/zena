@@ -3,7 +3,7 @@ require File.join(File.dirname(__FILE__), 'testhelp')
 require 'ruby-debug'
 Debugger.start
 
-class HelperTest
+class ZenaParserTest < ZenaHelperTest
   testfile :relations, :basic, :zafu_ajax
   Section # make sure we load Section links before trying relations
   

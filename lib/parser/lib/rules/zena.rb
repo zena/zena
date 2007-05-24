@@ -1,6 +1,6 @@
 class ActiveRecord::Base
-  @@_zafu_readable = {} # defined for each class
-  @@_zafu_readable_attributes = {} # full list with inherited attributes
+  @@_zafu_readable ||= {} # defined for each class
+  @@_zafu_readable_attributes ||= {} # full list with inherited attributes
   
   def self.zafu_readable(*list)
     @@_zafu_readable[self] ||= []

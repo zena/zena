@@ -750,7 +750,6 @@ module ApplicationHelper
     return "" unless version.kind_of?(Version)
     
     node = version.node
-    visitor.visit(node) unless node.secured?
     
     actions = []
     if opt[:action] == :view

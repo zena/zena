@@ -1,4 +1,5 @@
 require 'yaml'
+require 'fileutils'
 module Zena
   # mass yaml loader for ActiveRecord (a single file can contain different classes)
   module Loader
@@ -194,6 +195,9 @@ namespace :zena do
   Rake::Task['zena:rdoc'].comment = "Create the rdoc documentation"
   
   Rake::TestTask.new(:test => "db:test:prepare") do |t|
+    [File.join(SITES_ROOT, 'test.host', 'data'), File.join(SITES_ROOT, 'test.host', 'zafu')].each do |path|
+      FileUtils::rmtree(path) if File.exist?(path)
+    end
     t.libs << "test"
     t.pattern = ['test/helpers/**/*_test.rb','test/unit/**/*_test.rb', 'lib/parser/test/*_test.rb']
     t.verbose = true

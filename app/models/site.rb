@@ -55,12 +55,18 @@ class Site < ActiveRecord::Base
       # =========== CREATE Super User ===========================
       # create su user
       su = User.new_no_defaults( :login => host, :password => su_password,
-        :first_name => "Super", :name => "User", :lang=>site.default_lang, :status=>User::Status[:su])
-      su.site    = site
-      su.visit(su)
+        :first_name => "Super", :name => "User", :lang=>site.default_lang)
+      su.site = site
+                                
       raise Exception.new("Could not create super user for site [#{host}] (site#{site[:id]})\n#{su.errors.map{|k,v| "[#{k}] #{v}"}.join("\n")}") unless su.save
-      su.visit(site) # su is visitor
-      site.su_id           = su[:id]
+      
+      site[:su_id] = su[:id]
+      unless Thread.current.respond_to?(:visitor)
+        class << Thread.current
+          attr_accessor :visitor
+        end
+      end
+      Thread.current.visitor = su
       
       # =========== CREATE PUBLIC, ADMIN, SITE GROUPS ===========
       # create public group
@@ -83,16 +89,20 @@ class Site < ActiveRecord::Base
       # create anon user
       # FIXME: make sure user_id = admin user
       anon = site.send(:secure,User) { User.new_no_defaults( :login => nil, :password => nil,
-        :first_name => "Anonymous", :name => "User", :lang=>site.default_lang, :status=>User::Status[:moderated]) }
+        :first_name => "Anonymous", :name => "User", :lang=>site.default_lang) }
+      anon.site = site
       raise Exception.new("Could not create anonymous user for site [#{host}] (site#{site[:id]})\n#{anon.errors.map{|k,v| "[#{k}] #{v}"}.join("\n")}") unless anon.save
+      site[:anon_id] = anon[:id]
       
       # create admin user
       admin_user = site.send(:secure,User) { User.new_no_defaults( :login => 'admin', :password => su_password,
-        :first_name => "Admin", :name => "User", :lang=>site.default_lang, :status=>User::Status[:admin]) }
+        :first_name => "Admin", :name => "User", :lang=>site.default_lang) }
+      admin_user.site = site
       raise Exception.new("Could not create admin user for site [#{host}] (site#{site[:id]})\n#{admin_user.errors.map{|k,v| "[#{k}] #{v}"}.join("\n")}") unless admin_user.save
-      
-      site.anon_id         = anon[:id]
-      
+      class << admin_user
+        # until participation is created
+        def status; User::Status[:admin]; end
+      end
       # add admin to the 'admin group'
       admin.users << admin_user
       
@@ -101,8 +111,9 @@ class Site < ActiveRecord::Base
       
       #admin_user = site.send(:secure, User) { User.find(admin_user[:id]) }
       
-      admin_user.site = site
-      admin_user.visit(site) # now admin is the 'visitor' for 'site'
+      # make admin the current visitor
+      Thread.current.visitor = admin_user
+      
       root = site.send(:secure,Project) { Project.create( :name => site.name, :rgroup_id => pub[:id], :wgroup_id => sgroup[:id], :pgroup_id => admin[:id], :v_title => site.name) }
       raise Exception.new("Could not create root node for site [#{host}] (site#{site[:id]})\n#{root.errors.map{|k,v| "[#{k}] #{v}"}.join("\n")}") if root.new_record?
       
@@ -116,8 +127,10 @@ class Site < ActiveRecord::Base
       # save site definition
       raise Exception.new("Could not save site definition for site [#{host}] (site#{site[:id]})\n#{site.errors.map{|k,v| "[#{k}] #{v}"}.join("\n")}") unless site.save
       
-      # =========== CREATE CONTACT NODES FOR USERS ==============
-      [su, anon, admin_user].each { |user| user.send(:user_after_create) }
+      # =========== CREATE PARTICIPATIONS FOR USERS ==============
+      [[su, :su], [anon, :moderated], [admin_user, :admin]].each do |user,status| 
+        raise Exception.new("Could not create participation to site #{site[:id]} for user #{user[:id]} (#{status})") unless Participation.new( :user => user, :site => site, :status => User::Status[status]).save
+      end
       
       # =========== LOAD INITIAL DATA (default skin) =============
       

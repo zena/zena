@@ -265,7 +265,7 @@ class ApplicationController < ActionController::Base
       if current_site[:http_auth]
         session[:after_login_url] = request.parameters
         basic_auth_required do |username, password| 
-          if user = User.login(username,password,current_site)
+          if user = User.make_visitor(:login => username, :password => password, :site => current_site)
             successful_login(user)
           end
         end
@@ -284,9 +284,8 @@ class ApplicationController < ActionController::Base
       session[:lang] = nil
       after_login_url = session[:after_login_url]
       session[:after_login_url] = nil
-      if current_site[:http_auth]
+      if current_site[:http_auth] && params[:controller] != 'session'
         # no need to redirect
-        return true
       else
         redirect_to after_login_url || user_path(visitor)
         return false
@@ -358,7 +357,9 @@ class ApplicationController < ActionController::Base
         params[:lang], 
         params[:prefix] == AUTHENTICATED_PREFIX ? nil : params[:prefix],
         session[:lang],
-        (request.headers['HTTP_ACCEPT_LANGUAGE'] || '').split(',').sort {|a,b| (b.split(';q=')[1] || 1.0).to_f <=> (a.split(';q=')[1] || 1.0).to_f }.map {|l| l.split(';')[0].split('-')[0] }
+        (visitor.is_anon? ? nil : visitor.lang), # visitor.lang comes before http headers if logged in
+        (request.headers['HTTP_ACCEPT_LANGUAGE'] || '').split(',').sort {|a,b| (b.split(';q=')[1] || 1.0).to_f <=> (a.split(';q=')[1] || 1.0).to_f }.map {|l| l.split(';')[0].split('-')[0] },
+        (visitor.is_anon? ? visitor.lang : nil), # anonymous user's lang comes last
       ].compact.flatten.uniq.each do |l|
         if current_site.lang_list.include?(l)
           session[:lang] = l
@@ -371,6 +372,34 @@ class ApplicationController < ActionController::Base
       visitor.lang = session[:lang] # FIXME: this should not be needed, use global GetText.get_locale...
       GetText.set_locale_all(session[:lang])
       
+      if params[:controller] == 'nodes'
+        if params[:prefix] == AUTHENTICATED_PREFIX && visitor.is_anon?
+          return false unless do_login
+        end
+
+        case params[:action]
+        when 'index'
+          redirect_url = "/#{prefix}" if params[:prefix] != prefix || params[:lang]
+        when 'show'
+          redirect_url = if !params[:path] || 
+                            # fr/texdocument5.css is allowed even if AUTHENTICATED to allow caching of data
+                            (params[:prefix] != prefix && (params[:format] == 'html' || !current_site.lang_list.include?(params[:prefix]))) || params[:lang]
+            if params[:id]
+              zen_path(secure(Node) { Node.find_by_zip(params[:id]) })
+            else
+              request.parameters.merge(:prefix => prefix, :lang => nil)
+            end
+          end 
+        end
+        
+        if redirect_url
+          redirect_to redirect_url and return false
+        end
+      elsif params[:lang]
+        redirect_url = params
+        redirect_url.delete(:lang)
+        redirect_to redirect_url and return false
+      end
       true
     end
   

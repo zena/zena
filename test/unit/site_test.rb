@@ -8,9 +8,8 @@ class SiteTest < ZenaTestUnit
     site = Site.find(site[:id]) # reload
     assert_equal "Anonymous User", site.anon.fullname
     assert_not_equal users(:anon), site.anon[:id]
-    assert admin = User.login('admin', 'secret', site), "Admin user can login"
-    @visitor = admin
-    @visitor.visit(@visitor)
+    assert admin = User.login('admin', 'secret', 'super.host'), "Admin user can login"
+
     assert_equal 3, admin.group_ids.size
     root = secure(Node) { Node.find(site[:root_id]) }
     assert_equal Zena::Status[:pub], root.v_status
@@ -18,8 +17,8 @@ class SiteTest < ZenaTestUnit
     assert_equal 'super', root.skin
     
     assert Time.now >= root.publish_from
-    @visitor = site.anon
-    @visitor.visit(@visitor)
+    User.make_visitor(:host => 'super.host') # anonymous
+    
     root = secure(Node) { Node.find(site[:root_id]) }
     assert_kind_of Project, root
     assert_equal 'super', root.v_title
@@ -44,7 +43,7 @@ class SiteTest < ZenaTestUnit
     site = Site.find(site[:id]) # reload
     assert_equal ['fr'], site.lang_list
     assert_equal 'fr', site.default_lang
-    assert_equal "fr", site.anon.lang
+    assert_equal 'fr', site.anon.lang
   end
   
   def test_create_site_bad_name
@@ -84,6 +83,7 @@ class SiteTest < ZenaTestUnit
     anon.site = site
     assert anon.is_anon?
     
+    login(:incognito)
     site = sites(:ocean)
     anon = site.anon
     assert_equal 'Miss', anon.first_name
@@ -93,6 +93,7 @@ class SiteTest < ZenaTestUnit
   end
   
   def test_su
+    login(:anon)
     site = sites(:zena)
     su = site.su
     assert_kind_of User, su
@@ -101,6 +102,7 @@ class SiteTest < ZenaTestUnit
     su.site = site
     assert su.is_su?
     
+    login(:incognito)
     site = sites(:ocean)
     su = site.su
     assert_kind_of User, su

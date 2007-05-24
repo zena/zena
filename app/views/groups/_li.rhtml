@@ -1,10 +1,10 @@
-<% icon = 'group'
-if li[:id] == 1
-  icon += '_pub'
-elsif li[:id] == 2
-  icon += '_admin'
-elsif li[:id] == 3
-  icon += '_site'
+<%
+if li.public_group?
+  icon = 'group_pub'
+elsif li.site_group?
+  icon = 'group_site'
+else
+  icon = 'group'
 end %>
 <tr id='group<%= li[:id] %>'>
   <td class="icon"><%= if (li.public_group? || li.site_group?) then _("img_#{icon}") else link_to_remote( _("img_#{icon}"), :update=>"group#{li[:id]}", :url=>edit_group_path(li), :method=>:get) end %></td>

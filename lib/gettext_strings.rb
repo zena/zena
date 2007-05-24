@@ -56,7 +56,6 @@ module Zena
     N_('img_user_pub')      # edit users (admin)
     N_('img_group')         # edit groups (admin)
     N_('img_group_pub')     # edit users (admin)
-    N_('img_group_admin')   # edit users (admin)
     N_('img_group_site')    # edit users (admin)
     
     N_('admin')             # user status

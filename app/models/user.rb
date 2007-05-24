@@ -34,7 +34,7 @@ class User < ActiveRecord::Base
   
   validate                :valid_user
   
-  after_create            :update_participations
+  after_save              :update_participations
   
   before_destroy          :dont_destroy_protected_users
   
@@ -77,7 +77,6 @@ class User < ActiveRecord::Base
       return nil unless user
       user.site = site
       user.visit(site)
-      user.visit(user)
       
       if user.reader?
         unless Thread.current.respond_to?(:visitor)
@@ -102,14 +101,11 @@ class User < ActiveRecord::Base
     
     # Creates a new user with the defaults set from the anonymous user.
     def new(*args)
-      raise Zena::RecordNotSecured unless scope = scoped_methods[0]
-      raise Zena::RecordNotSecured unless scope[:create]
-      visitor = scoped_methods[0][:create][:visitor] # use secure scope to get visitor
       anon = visitor.site.anon
       returning(user = super) do
         # Set new user defaults based on the anonymous user.
         [:lang, :time_zone, :status].each do |sym|
-          user[sym] = anon[sym]
+          user.send("#{sym}=", anon.send(sym))
         end
       end
     end
@@ -145,10 +141,10 @@ class User < ActiveRecord::Base
   # called to set the visitor in the found object. This is also used to keep track of the opened nodes
   # when rendering a page for the cache so we can know when to expire the cache.
   def visit(obj, opts={})
-    if obj.kind_of? ActiveRecord::Base
-      obj.visitor = self
+    if obj.kind_of? Node
+      obj.visitor = self #explicit visit
       # keep track of the nodes connected to this visit to build the 'expire_with' list
-      visited_node_ids << obj[:id] if is_anon? && CachedPage.perform_caching && obj.kind_of?(Node)
+      visited_node_ids << obj[:id] if is_anon? && CachedPage.perform_caching
     end
   end
   
@@ -205,7 +201,7 @@ class User < ActiveRecord::Base
   
   # Return true if the user is in the admin group or if the user is the super user.
   def is_admin?
-    status >= User::Status[:admin]
+    is_su? || status >= User::Status[:admin]
   end
   
   # Return true if the user is the anonymous user for the current visited site
@@ -328,6 +324,7 @@ class User < ActiveRecord::Base
   
     # Set user defaults.
     def user_before_validation
+      return true if creating_site?
       if new_record?
         @defined_status ||= current_site.anon.status
       elsif status.blank?
@@ -346,7 +343,7 @@ class User < ActiveRecord::Base
     # Validates that anon user does not have a login, that other users have a password
     # and that the login is unique for the sites the user belongs to.
     def valid_user
-      if !visitor.is_su? && visitor[:id] != self[:id] && !visitor.is_admin?
+      unless creating_site? || visitor.is_admin? || visitor[:id] == self[:id]
         errors.add('base', 'you do not have the rights to do this')
         return false
       end
@@ -373,6 +370,7 @@ class User < ActiveRecord::Base
             end
           end
           errors.add(:login, 'too short') unless self[:login] == old[:login] || (self[:login] && self[:login].length > 3)
+          errors.add(:status, 'you do not have the rights to do this') if self[:id] == visitor[:id] && old.is_admin?
         end
       end
       if @password_too_short
@@ -385,6 +383,10 @@ class User < ActiveRecord::Base
     # for the user (he must be admin in all the sites)
     # FIXME: removing a user from a site ===> remove contact !
     def valid_sites #:doc:
+      if creating_site?
+        @added_sites = @removed_sites = nil
+        return true
+      end
       if new_record?
         if @defined_site_ids
           @defined_site_ids << current_site[:id].to_s
@@ -414,26 +416,6 @@ class User < ActiveRecord::Base
       end
     end
     
-    def update_participations
-      if add = remove_instance_variable(:@added_sites)
-        add.each do |site_id|
-          participations.create(:user => self, :site_id => site_id)
-        end
-      end
-      
-      if del = remove_instance_variable(:@removed_sites)
-        participations.find(del).each do |p|
-          p.destroy!
-        end
-      end
-      
-      if sta = remove_instance_variable(:@defined_status)
-        site_participation.status = sta
-        site_participation.save
-      end
-    end
-  
-  
     # Make sure all users are in the _public_ and _site_ groups. Make sure
     # the user only belongs to groups from sites he/she is in.
     def valid_groups #:doc:
@@ -447,12 +429,38 @@ class User < ActiveRecord::Base
       self.groups = []
       g_ids.each do |id|
         group = Group.find(id)
-        unless s_ids.include?(group[:site_id])
+        unless creating_site? || s_ids.include?(group[:site_id])
           errors.add('group', 'not found') 
           next
         end
         self.groups << group
       end
+    end
+    
+    def update_participations
+      if add = @added_sites
+        remove_instance_variable(:@added_sites)
+        add.each do |site_id|
+          participations.create(:user => self, :site_id => site_id)
+        end
+      end
+      
+      if del = @removed_sites
+        remove_instance_variable(:@removed_sites)
+        participations.find(del).each do |p|
+          p.destroy!
+        end
+      end
+      
+      if sta = @defined_status
+        remove_instance_variable(:@defined_status)
+        site_participation.status = sta
+        site_participation.save
+      end
+    end
+    
+    def creating_site?
+      new_record? && @site && @site[:root_id].nil?
     end
   
     # Do not allow destruction of the site's special users.

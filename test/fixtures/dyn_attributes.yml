@@ -1,0 +1,6 @@
+tiger_says_inside:
+  id:            1
+  owner_id:      12
+  owner_table:   'versions'
+  key:           'archive'
+  value:         'LZNB34'

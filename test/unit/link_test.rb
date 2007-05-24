@@ -15,6 +15,10 @@ class LinkDummy < ActiveRecord::Base
   link :husband, :class_name=>'LinkDummy', :unique=>true, :as=>'wife', :as_unique=>true
   def ref_field; :parent_id; end
   def version_class; DummyVersion; end
+  def secure_before_validation
+    @visitor = visitor
+    super
+  end
 end
 
 class SpecialLinkDummy < LinkDummy
@@ -48,7 +52,7 @@ class LinkTest < ZenaTestUnit
   def setup
     super
     # cleanWater, status, wiki
-    LinkDummy.connection.execute "UPDATE nodes SET type='LinkDummy' WHERE id IN (11,12,13,18,19);"
+    LinkDummy.connection.execute "UPDATE nodes SET type='LinkDummy' WHERE kpath IN ('NP', 'NPP', 'NPS')"
     # 'menu' Tag si private for tiger
     LinkDummy.connection.execute "UPDATE nodes SET inherit=0, rgroup_id=NULL, wgroup_id=NULL, pgroup_id=NULL WHERE id = '25';"
   end
@@ -83,7 +87,7 @@ class LinkTest < ZenaTestUnit
     login(:tiger)
     @node = secure(LinkDummy) { LinkDummy.find(nodes_id(:wiki)) }
     @node.tag_ids = [nodes_id(:art),nodes_id(:news)]
-    @node.save
+    assert @node.save
     assert_equal 2, @node.tags.size
     @node.add_link('tags', nodes_id(:status) )
     assert !@node.save, "Cannot save"
@@ -109,7 +113,7 @@ class LinkTest < ZenaTestUnit
     @node = secure(LinkDummy) { LinkDummy.find(nodes_id(:wiki)) }
     @node.tag_ids = [nodes_id(:art),nodes_id(:news)]
     @node.save
-    assert_equal [nodes_zip(:art), nodes_zip(:news)], @node.tag_zips
+    assert_equal "#{nodes_zip(:art)}, #{nodes_zip(:news)}", @node.tag_zips
   end
   
   def test_remove_link_errors
@@ -500,7 +504,7 @@ class LinkTest < ZenaTestUnit
   
   def test_from_option
     login(:lion)
-    @node1 = secure(LinkDummy) { LinkDummy.find(nodes_id(:lake)) }
+    @node1 = secure(LinkDummy) { LinkDummy.find(nodes_id(:projects)) }
     @icon1 = secure(LinkDummy) { LinkDummy.find(nodes_id(:bird_jpg)) }
     @node1.icon = @icon1
     @node1.save
@@ -509,9 +513,8 @@ class LinkTest < ZenaTestUnit
     @node2.icon = @icon2
     @node2.save
     # reload
-    @node1 = secure(LinkDummy) { LinkDummy.find(nodes_id(:lake)) }
+    @node1 = secure(LinkDummy) { LinkDummy.find(nodes_id(:projects)) }
     assert_equal nodes_id(:bird_jpg), @node1.icon[:id]
-    LinkDummy.logger.info "============== find icon_for =========="
     assert_equal 2, @node1.icon_for(:from=>'project').size
   end
 end

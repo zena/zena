@@ -34,7 +34,13 @@ class NodeTest < ZenaTestUnit
   end
 
   def test_get_fullpath_rebuild
-    assert false, "TODO"
+    login(:ant)
+    node = secure(Node) { nodes(:lake)  }
+    assert_equal 'projects/cleanWater/lakeAddress', node.fullpath
+    Node.connection.execute "UPDATE nodes SET parent_id = #{nodes_id(:collections)} WHERE id = #{node[:id]}"
+    node.reload
+    assert_equal 'projects/cleanWater/lakeAddress', node.fullpath
+    assert_equal 'collections/lakeAddress', node.fullpath(true)
   end
   
   def test_get_fullpath_after_private
@@ -350,9 +356,13 @@ class NodeTest < ZenaTestUnit
   end
   
   def test_author
-    node = nodes(:status)
-    assert_equal node.user, node.author
-    assert_equal 'ant', node.author.login
+    login(:ant)
+    node = secure(Node) { nodes(:status) }
+    assert_equal node.user.site_participation[:contact_id], node.author[:id]
+    assert_equal 'Solenopsis Invicta', node.author.fullname
+    login(:anon)
+    node = secure(Node) { nodes(:status) }
+    assert_nil node.author
   end
   
   def test_ext

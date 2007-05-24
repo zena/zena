@@ -26,11 +26,6 @@ class Group < ActiveRecord::Base
     self[:id] == visitor.site[:public_group_id]
   end
   
-  # Return true if the group is the admin group of the site.
-  def admin_group?
-    self[:id] == visitor.site[:admin_group_id]
-  end
-  
   # Return true if the group is the site group.
   def site_group?
     self[:id] == visitor.site[:site_group_id]
@@ -63,7 +58,6 @@ class Group < ActiveRecord::Base
   
   # Make sure only admins can create/update groups.
   def valid_group
-    return unless @visitor # we cannot perform validations if no visitor set (we will refuse to save)
     unless visitor.is_admin?
       errors.add('base', 'you do not have the rights to do this') 
       return false
