@@ -42,7 +42,8 @@ table.admin_ug td:first-child { border-left: 1px solid #333; }
 
 /* status */
 .u40 { background:#B7CC87;}
-.u20, .u30 { background:#73A1A5;}
+.u30 { background:#AFDBDF;}
+.u20 { background:#73A1A5;}
 .u0  { background:#994747;}
 
 /* actions */

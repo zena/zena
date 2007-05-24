@@ -6,7 +6,7 @@ elsif li.is_su?
 elsif li.is_admin?
   icon += '_admin'
 end %>
-<tr id='user<%= li[:id] %>' class='u<%= li[:status] %>'>
+<tr id='user<%= li[:id] %>' class='u<%= li.status %>'>
   <td class="icon"><%= link_to_remote(_("img_#{icon}"), 
           :update =>"user#{li[:id]}", 
           :url    => edit_user_path(li),
