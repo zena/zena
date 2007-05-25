@@ -138,7 +138,7 @@ ul ul, ul ol, ol ol, ol ul { margin-bottom:0; }
 #search_results .zazen { font-size:0.9em; font-style:italic; margin-top:1em; }
 
 /* context, content, related */
-#project_icon img { border:1px solid #333; }
+#project_icon img { }
 #context { }
 .header h1 { margin-bottom:0.3em; }
 .header .subtitle { font-size:0.8em; }

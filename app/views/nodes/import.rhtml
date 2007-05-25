@@ -1,0 +1,8 @@
+<table>
+<% @nodes.each do |node| -%>
+  <tr>
+    <td><%= node.instance_variable_get(:@new_record_before_save) ? 'new' : 'updated' %></td>
+    <td><%= node.rootpath %></td>
+  </tr>
+<% end -%>
+</table>

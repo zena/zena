@@ -18,6 +18,15 @@ class NodesControllerTest < ZenaTestController
     init_controller
   end
   
+  def test_import_archive
+    preserving_files('test.host/data') do
+      login(:tiger)
+      post 'import', :archive => uploaded_archive('import.tgz'), :id => nodes_zip(:status)
+      assert_response :success
+      assert_template 'import'
+    end
+  end
+  
   def test_form_tabs
     @controller = TestNodeController.new
     init_controller

@@ -131,7 +131,7 @@ class VersionsController < ApplicationController
   def refuse
     if @node.refuse
       flash[:notice] = _("Proposition refused.")
-      @redirect_url = user_home_url
+      @redirect_url = user_path(visitor)
     else
       flash[:notice] = _("Could not refuse proposition.")
     end

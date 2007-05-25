@@ -155,8 +155,6 @@ class Node < ActiveRecord::Base
       
       scope   = self.scoped_methods[0] || {}
       
-      visitor = scope[:create][:visitor]
-      
       if parent_id = attributes.delete('_parent_id')
         attributes.delete('parent_id')
       else
@@ -200,6 +198,27 @@ class Node < ActiveRecord::Base
       attributes.delete('file') if attributes['file'] == ''
       attributes
     end
+    
+    def create_or_update_node(new_attributes)
+      attributes = clean_attributes(new_attributes)
+      return nil unless attributes['name'] && attributes['parent_id']
+      node = Node.with_exclusive_scope do
+        Node.find(:first, :conditions => ['site_id = ? AND name = ? AND parent_id = ?', 
+                                          current_site[:id], attributes['name'], attributes['parent_id']])
+      end
+      if node
+        return nil unless node.can_write?(visitor, visitor.group_ids)
+        visitor.visit(node)
+        # TODO: class ignored (could be used to transform from one class to another...)
+        attributes.delete('class')
+        node.update_attributes(attributes)
+        node
+      else
+        puts new_attributes.inspect
+        create_node(new_attributes)
+      end
+    end
+    
     
     # TODO: cleanup and rename with something indicating the attrs cleanup that this method does.
     def create_node(new_attributes)
@@ -246,7 +265,7 @@ class Node < ActiveRecord::Base
       
       # create from archive
       unless folder
-        archive = File.new(opts[:archive])
+        archive = opts[:archive]
         n       = 0
         while true
           folder = File.join(RAILS_ROOT, 'tmp', sprintf('%s.%d.%d', 'import', $$, n))
@@ -258,7 +277,7 @@ class Node < ActiveRecord::Base
           # extract file in this temporary folder.
           # FIXME: is there a security risk here ?
           system "tar -C '#{folder}' -xz < '#{archive.path}'"
-          res += create_nodes_from_folder(:folder => folder, :parent_id => parent_id, :defaults => defaults)
+          res = create_nodes_from_folder(:folder => folder, :parent_id => parent_id, :defaults => defaults)
         ensure
           FileUtils::rmtree(folder)
         end
@@ -277,40 +296,44 @@ class Node < ActiveRecord::Base
 
         if File.stat(path).directory?
           sub_folder = path
+          name       = filename
           # look-ahead to see if we have any related yml files before processing the folder
-        elsif filename =~ /^(.+?)(\.\w\w|)(\.\d+|)\.yml$/  
+        elsif filename =~ /^(.+?)(\.\w\w|)(\.\d+|)\.yml$/
           name, lang = $1, ($2 ? $2[1..-1] : visitor.lang)
           # yaml node
           attrs = defaults.merge(get_attributes_from_yaml(path)).merge(:_parent_id => parent_id)
           attrs['name']   ||= name
           attrs['v_lang'] ||= lang
-          current_obj = create_node(attrs)
+          current_obj = create_or_update_node(attrs)
           res << current_obj
         else
           # document
           document   = path
+          name       = filename
           # look-ahead
         end  
         index += 1
 
         # FIXME: how to set version status and user_id ?
 
-        while entries[index] =~ /^#{filename}(\.\w\w|)(\.\d+|)\.yml$/
+        while entries[index] =~ /^#{name}(\.\w\w|)(\.\d+|)\.yml$/
           lang = $1 ? $1[1..-1] : visitor.lang
 
           # we have a yml file. Create a version with this file
           attrs = defaults.merge(clean_attributes(get_attributes_from_yaml(File.join(folder,entries[index]))))
-          attrs['name']   ||= filename.split('.').first
           attrs['v_lang'] ||= lang
           
           if current_obj
+            attrs['name'] ||= name
             # FIXME: what publication status for these things ?
-            current_obj.remove if current_obj.v_lang == attrs['v_lang']
+            current_obj.remove if current_obj.v_lang == attrs['v_lang'] && current_obj.v_status != Zena::Status[:red]
             current_obj.edit!(attrs['v_lang'])
             
+            attrs.delete('class')
             current_obj.update_attributes(attrs.merge(:parent_id => parent_id))
             current_obj.publish if attrs['v_status'].to_i == Zena::Status[:pub]
           elsif document
+            attrs['name'] ||= name.split('.')[0..-2].join('.')
             # processing a document
             ctype = EXT_TO_TYPE[document.split('.').last][0] || "application/octet-stream"
             File.open(document) do |file|
@@ -319,13 +342,13 @@ class Node < ActiveRecord::Base
                 define_method(:original_filename) { filename }
                 define_method(:content_type) { ctype }
               end
-              current_obj = create_node(attrs.merge(:c_file => file, :klass => 'Document', :_parent_id => parent_id))
+              current_obj = create_or_update_node(attrs.merge(:c_file => file, :klass => 'Document', :_parent_id => parent_id))
               res << current_obj
             end
             document = nil
           else
             # processing a folder
-            current_obj = create_node(attrs.merge(:_parent_id => parent_id))
+            current_obj = create_or_update_node(attrs.merge(:_parent_id => parent_id))
             res << current_obj
           end
           index += 1

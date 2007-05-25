@@ -158,6 +158,11 @@ module Zena
         uploaded_file(fname, 'image/png', filename)
       end
 
+      # TGZ helper
+      def uploaded_archive(fname, filename=nil)
+        uploaded_file(fname, 'application/x-gzip', filename)
+      end
+
       # we have to overwrite the 'default_test' dummy because we use sub-classes
       def default_test
         assert true

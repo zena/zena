@@ -149,6 +149,9 @@ ActiveRecord::Schema.define(:version => 0) do
     t.column "contact_id", :integer
   end
 
+  execute "ALTER TABLE participations ENGINE = MyISAM"
+  execute "CREATE  INDEX user_id ON participations (user_id,site_id)"
+
   create_table "sites", :force => true do |t|
     t.column "host",            :string
     t.column "root_id",         :integer
@@ -156,6 +159,7 @@ ActiveRecord::Schema.define(:version => 0) do
     t.column "anon_id",         :integer
     t.column "public_group_id", :integer
     t.column "site_group_id",   :integer
+    t.column "trans_group_id",  :integer
     t.column "name",            :string
     t.column "authentication",  :boolean
     t.column "monolingual",     :boolean
@@ -173,11 +177,6 @@ ActiveRecord::Schema.define(:version => 0) do
     t.column "tkpath",    :string
     t.column "klass",     :string
     t.column "mode",      :string
-  end
-
-  create_table "tmp", :id => false, :force => true do |t|
-    t.column "a", :string, :limit => 50
-    t.column "b", :string, :limit => 50
   end
 
   create_table "users", :force => true do |t|

@@ -1,0 +1,6 @@
+<%= form_tag( import_node_path(@node.parent_zip), :multipart => true) %>
+<p class="btn_validate"><input type="submit" onclick="$('loader').style.visibility = 'visible';" value='<%= _('validate') %>'/></p>
+
+<label for='node_c_file'><%= _('file') %></label>
+<input id="archive" name="archive" onchange="Zena.get_filename('node_c_file','node_name'); $('node_name').focus(); $('node_name').select();" class='file' type="file" />
+</form>

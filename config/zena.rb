@@ -163,6 +163,7 @@ EXT_TYPE = [
   [ "sv4crc"    , "application/x-sv4crc"           ],
   [ "swf"       , "application/x-shockwave-flash"  ],
   [ "t"         , "application/x-troff"            ],
+  [ "tgz"       , "application/x-gzip"             ],
   [ "tar"       , "application/x-tar"              ],
   [ "tcl"       , "application/x-tcl"              ],
   [ "tex"       , "application/x-tex"              ],

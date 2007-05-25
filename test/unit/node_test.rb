@@ -829,6 +829,24 @@ class NodeTest < ZenaTestUnit
     assert !node.new_record?, "Saved"
   end
   
+  def test_create_or_update_node_create
+    login(:ant)
+    node = secure(Node) { Node.create_or_update_node('parent_id' => nodes_zip(:myLife), 'name' => 'funy') }
+    assert_equal nodes_id(:myLife), node[:parent_id]
+    assert_equal 'funy', node[:name]
+    assert !node.new_record?, "Saved"
+  end
+  
+  def test_create_or_update_node_update
+    login(:ant)
+    node = secure(Node) { Node.create_or_update_node('parent_id' => nodes_zip(:cleanWater), 'name' => 'status', 'v_title'=>"It's all broken") }
+    assert_equal nodes_id(:cleanWater), node[:parent_id]
+    assert_equal nodes_id(:status), node[:id]
+    node = secure(Node) { nodes(:status) }
+    assert_equal 'status', node[:name]
+    assert_equal "It's all broken", node.v_title
+  end
+  
   def test_create_with_klass
     login(:tiger)
     node = secure(Node) { Node.create_node('parent_id' => nodes_zip(:projects), 'name' => 'funy', 'klass' => 'TextDocument', 'c_content_type' => 'application/x-javascript') }
@@ -912,15 +930,38 @@ done: \"I am done\""
   
   def test_create_nodes_from_archive
     login(:tiger)
-    secure(Node) { Node.create_nodes_from_folder(:archive => File.join(RAILS_ROOT, 'test', 'fixtures', 'import.tgz'), :parent_id => nodes_id(:zena)) }
+    secure(Node) { Node.create_nodes_from_folder(:archive => uploaded_archive('import.tgz'), :parent_id => nodes_id(:zena)) }
     
-    node = secure(Section) { Section.find_by_name('photos') }
-    assert_kind_of Section, node
-    node = secure(Node) { Node.find_by_parent_id_and_name(node[:id], 'bird') }
-    assert_kind_of Image, node
-    assert_equal 56183, node.c_size
+    photos = secure(Section) { Section.find_by_name('photos') }
+    assert_kind_of Section, photos
+    bird = secure(Node) { Node.find_by_parent_id_and_name(photos[:id], 'bird') }
+    assert_kind_of Image, bird
+    assert_equal 56183, bird.c_size
+    assert_equal 'Lucy in the sky', bird.v_title
+    visitor.lang = 'fr'
+    bird = secure(Node) { Node.find_by_parent_id_and_name(photos[:id], 'bird') }
+    assert_equal 'Le septième ciel', bird.v_title
   end
   
+  def test_update_nodes_from_archive
+    preserving_files('test.host/data') do
+      bird = node = nil
+      login(:tiger)
+      node = secure(Page) { Page.create(:parent_id => nodes_id(:status), :name=>'photos', :v_title => 'my photos', :v_text => '![]!') }
+      assert !node.new_record?
+      assert_nothing_raised { node = secure(Node) { Node.find_by_path( 'projects/cleanWater/status/photos') } }
+      assert_raise(ActiveRecord::RecordNotFound) { node = secure(Node) { Node.find_by_path( 'projects/cleanWater/status/photos/bird') } }
+      assert_equal 'photos', node.name
+      assert_no_match %r{I took during my last vacations}, node.v_text
+      v1_id = node.v_id
+      secure(Node) { Node.create_nodes_from_folder(:archive => uploaded_archive('import.tgz'), :parent_id => nodes_id(:status)) }
+      assert_nothing_raised { node = secure(Node) { Node.find_by_path( 'projects/cleanWater/status/photos') } }
+      assert_nothing_raised { bird = secure(Node) { Node.find_by_path( 'projects/cleanWater/status/photos/bird') } }
+      assert_match %r{I took during my last vacations}, node.v_text
+      assert_equal v1_id, node.v_id
+      assert_kind_of Image, bird
+    end
+  end
   def test_order_position
     login(:tiger)
     parent = secure(Node) { nodes(:cleanWater) }

@@ -19,7 +19,7 @@ Examples:
 =end
 class NodesController < ApplicationController
   before_filter :find_node, :except => [:index, :not_found, :search, :attribute]
-  layout :popup_layout,     :only   => [:edit ]
+  layout :popup_layout,     :only   => [:edit, :import]
   
   def index
     @node = current_site.root_node
@@ -152,12 +152,7 @@ class NodesController < ApplicationController
   
   # import sub-nodes from a file
   def import
-    unless params[:file] && params[:file].kind_of?(File)
-      # FIXME: errors
-      return
-    end
-    
-    # TODO: FINISH
+    @nodes = secure(Node) { Node.create_nodes_from_folder(:archive => params[:archive], :parent => @node) }
   end
   
   def update
