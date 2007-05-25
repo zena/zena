@@ -174,4 +174,11 @@ class VersionTest < ZenaTestUnit
     assert_equal 'no idea', node.d_whatever
     assert_equal 'funny', node.d_other
   end
+  
+  def test_bad_lang
+    login(:tiger)
+    node = secure(Page) { Page.create(:v_lang => 'io', :parent_id => nodes_id(:status), :name => 'hello', :v_title => '')}
+    assert node.new_record?
+    assert node.errors[:v_lang]
+  end
 end

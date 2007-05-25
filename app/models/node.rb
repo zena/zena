@@ -216,7 +216,7 @@ class Node < ActiveRecord::Base
         # TODO: class ignored (could be used to transform from one class to another...)
         attributes.delete('class')
         attributes.delete('klass')
-        puts attributes.inspect
+        node.edit!(attributes['v_lang'])
         node.update_attributes(attributes)
       else
         node = create_node(new_attributes)
@@ -279,119 +279,116 @@ class Node < ActiveRecord::Base
 
         begin
           FileUtils::mkpath(folder)
+          
+          if archive.kind_of?(StringIO)
+            filename = archive.original_filename
+            tempf = Tempfile.new(archive.original_filename)
+            File.open(tempf.path, 'wb') { |f| f.syswrite(archive.read) }
+            archive = tempf
+          else
+            filename = archive.path.split('/').last
+          end
+          
+          puts filename.inspect
+          
           # extract file in this temporary folder.
           # FIXME: is there a security risk here ?
-          system "tar -C '#{folder}' -xz < '#{archive.path}'"
+          if filename =~ /\.tgz$|\.tar$/
+            system "tar -C '#{folder}' -xz < '#{archive.path}'"
+          elsif filename =~ /\.zip$/
+            syste "unzip -d '#{folder}' '#{archive.path}'"
+          elsif filename =~ /\.gzip$/
+            puts "FIXME GUNZIP NOT SET"
+            # FIXME: system "gunzip -C '#{folder}' -xz < '#{archive.path}'"
+          else
+            # FIXME: send errors back
+            puts "BAD #{archive.inspect}"
+          end
           res = create_nodes_from_folder(:folder => folder, :parent_id => parent_id, :defaults => defaults)
         ensure
           FileUtils::rmtree(folder)
         end
         return res
       end
- 
-
+      
       entries = Dir.entries(folder).reject { |f| f =~ /^[^\w]/ }
 
       index  = 0
 
-      while index < entries.size
-        current_obj = document = sub_folder = nil # new object
+      while entries[index]
+        type = current_obj = sub_folder = document_path = nil
+        versions = []
         filename = entries[index]
         path     = File.join(folder, filename)
 
         if File.stat(path).directory?
+          type   = :folder
+          name   = filename
           sub_folder = path
-          # look-ahead to see if we have any related yml files before processing the folder
         elsif filename =~ /^(.+?)(\.\w\w|)(\.\d+|)\.yml$/
-          name, lang = $1, ($2 ? $2[1..-1] : visitor.lang)
-          # yaml node
-          attrs = defaults.merge(get_attributes_from_yaml(path)).merge(:_parent_id => parent_id)
-          attrs['name']   ||= name
+          type   = :node
+          name   = $1
+          lang   = $2.blank? ? visitor.lang : $2[1..-1]
+          attrs  = defaults.merge(get_attributes_from_yaml(path))
+          attrs['name']     = name
           attrs['v_lang'] ||= lang
-          current_obj = create_or_update_node(attrs)
-          res << current_obj
+          versions << attrs
         else
-          # document
-          document   = path
-          # look-ahead
-        end  
+          type   = :document
+          name   = filename
+          document_path = path
+        end
+        
         index += 1
-
-        # FIXME: how to set version status and user_id ?
-
-        while entries[index] =~ /^#{filename}(\.\w\w|)(\.\d+|)\.yml$/
-          lang = $1 ? $1[1..-1] : visitor.lang
-
-          # we have a yml file. Create a version with this file
-          attrs = defaults.merge(clean_attributes(get_attributes_from_yaml(File.join(folder,entries[index]))))
-          attrs['v_lang'] ||= lang
+        while entries[index] =~ /^#{name}(\.\w\w|)(\.\d+|)\.yml$/
+          lang   = $1.blank? ? visitor.lang : $1[1..-1]
+          path   = File.join(folder,entries[index])
           
-          if current_obj
-            if current_obj.kind_of?(Document)
-              attrs['name']  = filename.split('.')[0..-2].join('.')
-              attrs['c_ext'] = filename.split('.').last
-            else
-              attrs['name'] = filename
-            end
-            # FIXME: what publication status for these things ?
-            current_obj.remove if current_obj.v_lang == attrs['v_lang'] && current_obj.v_status != Zena::Status[:red]
-            current_obj.edit!(attrs['v_lang'])
-            
-            attrs.delete('class')
-            attrs.delete('klass')
-            current_obj.update_attributes(attrs.merge(:parent_id => parent_id))
-            current_obj.publish if attrs['v_status'].to_i == Zena::Status[:pub]
-          elsif document  
-            attrs['name']  = filename.split('.')[0..-2].join('.')
-            attrs['c_ext'] = filename.split('.').last
-            # processing a document
-            ctype = EXT_TO_TYPE[document.split('.').last][0] || "application/octet-stream"
-            File.open(document) do |file|
-              (class << file; self; end;).class_eval do
-                alias local_path path if defined?(:path)
-                define_method(:original_filename) { filename }
-                define_method(:content_type) { ctype }
-              end
-              current_obj = create_or_update_node(attrs.merge(:c_file => file, :klass => 'Document', :_parent_id => parent_id))
-              res << current_obj
-            end
-            document = nil
-          else
-            # processing a folder
-            current_obj = create_or_update_node(attrs.merge(:_parent_id => parent_id, :name => filename))
-            res << current_obj
-          end
+          # we have a yml file. Create a version with this file
+          attrs = defaults.merge(get_attributes_from_yaml(path))
+          attrs['name']     = name
+          attrs['v_lang'] ||= lang
+          versions << attrs
+          
           index += 1
         end
-
-        # finished with the current object's yaml
-        if sub_folder
-          # create minimal object to store the children
-          unless current_obj
-            current_obj = Page.with_exclusive_scope(scope) { Page.create_or_update_node( defaults.merge(:_parent_id => parent_id, :name => name) )}
-            current_obj.publish if defaults['v_status'].to_i == Zena::Status[:pub]
-            res << current_obj
-          end
-          res += create_nodes_from_folder(:folder => sub_folder, :parent_id => current_obj[:id], :defaults => defaults)
-        elsif document && !current_obj  
-          # processing a document
-          # TODO: DRY this someday...
-          ctype = EXT_TO_TYPE[document.split('.').last][0] || "application/octet-stream"
-          File.open(document) do |file|
-            (class << file; self; end;).class_eval do
-              alias local_path path if defined?(:path)
-              define_method(:original_filename) { filename }
-              define_method(:content_type) { ctype }
+        
+        if versions.empty?
+          # minimal node for a folder
+          current_obj = create_or_update_node(defaults.merge('name' => name, :_parent_id => parent_id, :klass => 'Page'))
+        else
+          versions.each do |attrs|
+            # FIXME: same lang: remove before update current_obj.remove if current_obj.v_lang == attrs['v_lang'] && current_obj.v_status != Zena::Status[:red]
+            # FIXME: current_obj.publish if attrs['v_status'].to_i == Zena::Status[:pub]
+            if type == :document
+              attrs['c_ext'] = attrs['name'].split('.').last
+              attrs['name' ] = attrs['name'].split('.')[0..-2].join('.')
+              if document_path
+                # file
+                ctype = EXT_TO_TYPE[document_path.split('.').last][0] || "application/octet-stream"
+                File.open(document_path) do |file|
+                  (class << file; self; end;).class_eval do
+                    alias local_path path if defined?(:path)
+                    define_method(:original_filename) { filename }
+                    define_method(:content_type) { ctype }
+                  end
+                  current_obj = create_or_update_node(attrs.merge(:c_file => file, :klass => 'Document', :_parent_id => parent_id))
+                end
+                document_path = nil
+              else
+                current_obj = create_or_update_node(attrs.merge(:_parent_id => parent_id, :klass => 'Document'))
+              end
+            else
+              # :folder, :node
+              current_obj = create_or_update_node(attrs.merge(:_parent_id => parent_id))
             end
-            
-            name  = name.split('.')[0..-2].join('.')
-            c_ext = name.split('.').last
-            
-            current_obj = Document.with_exclusive_scope(scope) { Document.create_or_update_node(defaults.merge(:c_file => file, :_parent_id => parent_id, :name => name, :c_ext => c_ext)) }
-            current_obj.publish if defaults['v_status'].to_i == Zena::Status[:pub]
-            res << current_obj
           end
         end
+        
+        res << current_obj
+        current_obj.publish if defaults['v_status'].to_i == Zena::Status[:pub]
+
+        res += create_nodes_from_folder(:folder => sub_folder, :parent_id => current_obj[:id], :defaults => defaults) if sub_folder && !current_obj.new_record?
       end
       res
     end

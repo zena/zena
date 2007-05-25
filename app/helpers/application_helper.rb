@@ -784,6 +784,7 @@ module ApplicationHelper
         if (version[:user_id] == visitor[:id])
           actions << version_form_action('edit',version) if node.node.can_edit_lang?(version.lang)
         end
+        acctions << version_form_action('destroy',version) if node.can_drive?
       end
     end
     actions.join(" ")

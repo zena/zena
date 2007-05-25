@@ -519,7 +519,7 @@ module Zena
           self[:user_id]  = visitor[:id]
           self[:ref_lang] = visitor.lang
           version.user_id = visitor[:id]
-          version.lang    = visitor.lang
+          version.lang    = visitor.lang if version.lang.blank?
           true
         end
         

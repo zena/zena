@@ -173,6 +173,7 @@ class Version < ActiveRecord::Base
       self[:comment] ||= ""
       self[:type]    ||= self.class.to_s
       # ]
+      self[:lang] = visitor.lang if self[:lang].blank?
       if content_class
         content[:site_id] = self[:site_id]
       end
@@ -181,6 +182,7 @@ class Version < ActiveRecord::Base
     # Make sure the version and it's related content are in a correct state.
     def valid_version
       errors.add("site_id", "can't be blank") unless self[:site_id] and self[:site_id] != ""
+      errors.add('lang', 'not valid') unless visitor.site.lang_list.include?(self[:lang])
       # validate content
       if @content && !@content.valid?
         @content.errors.each do |key,message|
@@ -200,7 +202,6 @@ class Version < ActiveRecord::Base
           self[:content_id] = nil
           @redaction_content = @content
         end
-        return false
       end
     end
 end

@@ -7,7 +7,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: 0.8.2\n"
-"POT-Creation-Date: 2007-05-23 06:45-0000\n"
+"POT-Creation-Date: 2007-05-25 13:52-0000\n"
 "PO-Revision-Date: 2007-05-13 19:08-0000\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -16,11 +16,11 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=INTEGER; plural=EXPRESSION;\n"
 
-#: app/controllers/application.rb:279
+#: app/controllers/application.rb:274
 msgid "Please log in"
 msgstr ""
 
-#: app/controllers/application.rb:390 app/controllers/application.rb:418
+#: app/controllers/application.rb:414 app/controllers/application.rb:442
 msgid "datetime"
 msgstr ""
 
@@ -36,31 +36,31 @@ msgstr ""
 msgid "role not valid"
 msgstr ""
 
-#: app/controllers/nodes_controller.rb:148
+#: app/controllers/nodes_controller.rb:147
 msgid "Backup created."
 msgstr ""
 
-#: app/controllers/nodes_controller.rb:150
+#: app/controllers/nodes_controller.rb:149
 msgid "Could not create backup."
 msgstr ""
 
-#: app/controllers/nodes_controller.rb:183
+#: app/controllers/nodes_controller.rb:177
 msgid "node updated"
 msgstr ""
 
-#: app/controllers/nodes_controller.rb:185
+#: app/controllers/nodes_controller.rb:179
 msgid "could not update"
 msgstr ""
 
-#: app/controllers/nodes_controller.rb:284
+#: app/controllers/nodes_controller.rb:278
 msgid "node not found"
 msgstr ""
 
-#: app/controllers/nodes_controller.rb:308
+#: app/controllers/nodes_controller.rb:302
 msgid "Order updated"
 msgstr ""
 
-#: app/controllers/nodes_controller.rb:310
+#: app/controllers/nodes_controller.rb:304
 msgid "Could not update order."
 msgstr ""
 
@@ -69,7 +69,7 @@ msgid "password successfully updated"
 msgstr ""
 
 #: app/controllers/preferences_controller.rb:40
-#: app/controllers/users_controller.rb:93
+#: app/controllers/users_controller.rb:92
 msgid "information successfully updated"
 msgstr ""
 
@@ -77,7 +77,7 @@ msgstr ""
 msgid "Invalid login or password."
 msgstr ""
 
-#: app/controllers/users_controller.rb:95
+#: app/controllers/users_controller.rb:94
 msgid "could not update user"
 msgstr ""
 
@@ -133,11 +133,11 @@ msgstr ""
 msgid "short_date"
 msgstr ""
 
-#: app/helpers/application_helper.rb:384 lib/gettext_strings.rb:69
+#: app/helpers/application_helper.rb:384 lib/gettext_strings.rb:68
 msgid "%{ext} document"
 msgstr ""
 
-#: app/helpers/application_helper.rb:387 lib/gettext_strings.rb:70
+#: app/helpers/application_helper.rb:387 lib/gettext_strings.rb:69
 msgid "%{type} node"
 msgstr ""
 
@@ -268,7 +268,8 @@ msgstr ""
 #: app/models/cache.rb:- app/models/cached_page.rb:- app/models/comment.rb:-
 #: app/models/contact_content.rb:- app/models/discussion.rb:-
 #: app/models/document_content.rb:- app/models/group.rb:- app/models/node.rb:-
-#: app/models/template_content.rb:- app/models/version.rb:-
+#: app/models/participation.rb:- app/models/template_content.rb:-
+#: app/models/version.rb:-
 msgid "Site"
 msgstr ""
 
@@ -300,7 +301,8 @@ msgstr ""
 msgid "comment"
 msgstr ""
 
-#: app/models/comment.rb:- app/models/version.rb:-
+#: app/models/comment.rb:- app/models/participation.rb:-
+#: app/models/version.rb:-
 msgid "Status"
 msgstr ""
 
@@ -312,7 +314,8 @@ msgstr ""
 msgid "Reply to"
 msgstr ""
 
-#: app/models/comment.rb:- app/models/node.rb:- app/models/version.rb:-
+#: app/models/comment.rb:- app/models/node.rb:- app/models/participation.rb:-
+#: app/models/version.rb:-
 msgid "User"
 msgstr ""
 
@@ -519,6 +522,14 @@ msgstr ""
 msgid "Position"
 msgstr ""
 
+#: app/models/participation.rb:-
+msgid "participation"
+msgstr ""
+
+#: app/models/participation.rb:-
+msgid "Contact"
+msgstr ""
+
 #: app/models/site.rb:-
 msgid "site"
 msgstr ""
@@ -599,7 +610,7 @@ msgstr ""
 msgid "Mode"
 msgstr ""
 
-#: app/models/user.rb:- lib/gettext_strings.rb:63
+#: app/models/user.rb:- lib/gettext_strings.rb:62
 msgid "user"
 msgstr ""
 
@@ -636,9 +647,9 @@ msgstr ""
 #: app/views/discussions/_form.rhtml:7 app/views/documents/show.rhtml:11
 #: app/views/groups/_form.rhtml:3 app/views/groups/_form.rhtml:5
 #: app/views/link/_form.rhtml:5 app/views/nodes/_results.rhtml:7
-#: app/views/nodes/save.rhtml:8 app/views/note/_form.rhtml:3
-#: app/views/page/_form.rhtml:3 app/views/users/_form.rhtml:3
-#: app/views/users/_form.rhtml:5
+#: app/views/nodes/import.rhtml:11 app/views/nodes/save.rhtml:8
+#: app/views/note/_form.rhtml:3 app/views/page/_form.rhtml:3
+#: app/views/users/_form.rhtml:3 app/views/users/_form.rhtml:5
 msgid "btn_x"
 msgstr ""
 
@@ -667,6 +678,7 @@ msgstr ""
 #: app/views/comments/_form.rhtml:24 app/views/groups/_form.rhtml:31
 #: app/views/note/_form.rhtml:8 app/views/page/_form.rhtml:7
 #: app/views/templates/document_create_tabs/_file.rhtml:3
+#: app/views/templates/document_create_tabs/_import.rhtml:2
 #: app/views/templates/document_create_tabs/_template.rhtml:3
 #: app/views/templates/document_create_tabs/_text_doc.rhtml:3
 #: app/views/users/_form.rhtml:46 app/views/versions/edit.rhtml:15
@@ -836,6 +848,10 @@ msgstr ""
 msgid "'%{search_string}' not found"
 msgstr ""
 
+#: app/views/nodes/import.rhtml:10
+msgid "import result"
+msgstr ""
+
 #: app/views/note/_add.rhtml:2
 msgid "btn_add_note"
 msgstr ""
@@ -853,6 +869,7 @@ msgid "search field"
 msgstr ""
 
 #: app/views/templates/document_create_tabs/_file.rhtml:5
+#: app/views/templates/document_create_tabs/_import.rhtml:4
 msgid "file"
 msgstr ""
 
@@ -1153,43 +1170,43 @@ msgid "img_group_pub"
 msgstr ""
 
 #: lib/gettext_strings.rb:59
-msgid "img_group_admin"
-msgstr ""
-
-#: lib/gettext_strings.rb:60
 msgid "img_group_site"
 msgstr ""
 
-#: lib/gettext_strings.rb:62
+#: lib/gettext_strings.rb:61
 msgid "admin"
 msgstr ""
 
-#: lib/gettext_strings.rb:64
+#: lib/gettext_strings.rb:63
 msgid "commentator"
 msgstr ""
 
-#: lib/gettext_strings.rb:65
+#: lib/gettext_strings.rb:64
 msgid "moderated"
 msgstr ""
 
-#: lib/gettext_strings.rb:66
+#: lib/gettext_strings.rb:65
 msgid "reader"
 msgstr ""
 
-#: lib/gettext_strings.rb:67
+#: lib/gettext_strings.rb:66
 msgid "deleted"
 msgstr ""
 
-#: lib/gettext_strings.rb:72
+#: lib/gettext_strings.rb:71
 msgid "no result found"
 msgstr ""
 
-#: lib/gettext_strings.rb:73
+#: lib/gettext_strings.rb:72
 msgid "search results"
 msgstr ""
 
-#: lib/gettext_strings.rb:75
+#: lib/gettext_strings.rb:74
 msgid "btn_unplublish"
+msgstr ""
+
+#: lib/gettext_strings.rb:75
+msgid "btn_destroy"
 msgstr ""
 
 #: lib/gettext_strings.rb:77

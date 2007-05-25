@@ -1,8 +1,23 @@
-<table>
-<% @nodes.each do |node| -%>
-  <tr>
-    <td><%= node.instance_variable_get(:@new_record_before_save) ? 'new' : 'updated' %></td>
-    <td><%= node.rootpath %></td>
-  </tr>
-<% end -%>
-</table>
+<div id='form_errors' class='errors'><%= error_messages_for "node" %></div>
+<div id='search'><%= search_box %></div>
+
+<div class='selector'>
+  
+</div>
+
+<div class='tab'>
+  <div class="import">
+    <h3><%= _('import result') %></h3>
+    <p class="btn_x"><%= link_to_function _('btn_x'), "if (!(opener==undefined || opener.is_editor)) { opener.location.href=opener.location.href;}; self.close();" %></p>
+
+    <table cellspacing="0" borderspacing="0">
+      <% @nodes.each do |node| -%>
+        <tr class='import_<%= node.errors.empty? ? (node.instance_variable_get(:@new_record_before_save) ? 'new' : 'updated') : 'error' %>'>
+          <td><%= node.rootpath %></td>
+          <td><%= node.errors.empty? ? (node.instance_variable_get(:@new_record_before_save) ? 'new' : 'updated') : 'error' %></td>
+          <td><%= !node.errors.empty? ? node.errors.map {|k,v| "[#{k}] #{v}"}.join(', ') : 'ok' %></td>
+        </tr>
+      <% end -%>
+    </table>
+  </div>
+</div>

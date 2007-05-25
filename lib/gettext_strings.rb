@@ -72,6 +72,7 @@ module Zena
     N_('search results')    # search template
     
     N_('btn_unplublish')    # version action
+    N_('btn_destroy')
     
     N_('status_50')         # published
     N_('status_40')         # proposed

@@ -1,8 +1,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: 0.8.2\n"
-"POT-Creation-Date: 2007-05-23 06:45-0000\n"
-"PO-Revision-Date: 2007-05-24 14:39+0100\n"
+"POT-Creation-Date: 2007-05-25 13:52-0000\n"
+"PO-Revision-Date: 2007-05-25 15:57+0100\n"
 "Last-Translator: Gaspard Bucher <gaspard@teti.ch>\n"
 "Language-Team: en <gaspard@teti.ch>\n"
 "MIME-Version: 1.0\n"
@@ -13,12 +13,12 @@ msgstr ""
 "X-Poedit-Bookmarks: -1,-1,-1,219,-1,-1,-1,-1,-1,-1\n"
 "X-Poedit-Basepath: /Users/gaspard/svk/zena\n"
 
-#: app/controllers/application.rb:279
+#: app/controllers/application.rb:274
 msgid "Please log in"
 msgstr "Please log in."
 
-#: app/controllers/application.rb:390
-#: app/controllers/application.rb:418
+#: app/controllers/application.rb:414
+#: app/controllers/application.rb:442
 msgid "datetime"
 msgstr "%Y-%m-%d %H:%M"
 
@@ -34,31 +34,31 @@ msgstr ""
 msgid "role not valid"
 msgstr "Invalid role."
 
-#: app/controllers/nodes_controller.rb:148
+#: app/controllers/nodes_controller.rb:147
 msgid "Backup created."
 msgstr ""
 
-#: app/controllers/nodes_controller.rb:150
+#: app/controllers/nodes_controller.rb:149
 msgid "Could not create backup."
 msgstr ""
 
-#: app/controllers/nodes_controller.rb:183
+#: app/controllers/nodes_controller.rb:177
 msgid "node updated"
 msgstr "Node successfully updated."
 
-#: app/controllers/nodes_controller.rb:185
+#: app/controllers/nodes_controller.rb:179
 msgid "could not update"
 msgstr "The node could not be updated."
 
-#: app/controllers/nodes_controller.rb:284
+#: app/controllers/nodes_controller.rb:278
 msgid "node not found"
 msgstr "Node not found."
 
-#: app/controllers/nodes_controller.rb:308
+#: app/controllers/nodes_controller.rb:302
 msgid "Order updated"
 msgstr "Order updated."
 
-#: app/controllers/nodes_controller.rb:310
+#: app/controllers/nodes_controller.rb:304
 msgid "Could not update order."
 msgstr ""
 
@@ -67,7 +67,7 @@ msgid "password successfully updated"
 msgstr "Le mot de passe a été modifié avec succès."
 
 #: app/controllers/preferences_controller.rb:40
-#: app/controllers/users_controller.rb:93
+#: app/controllers/users_controller.rb:92
 msgid "information successfully updated"
 msgstr "Informations successfully updated."
 
@@ -75,7 +75,7 @@ msgstr "Informations successfully updated."
 msgid "Invalid login or password."
 msgstr "Invalid login or password."
 
-#: app/controllers/users_controller.rb:95
+#: app/controllers/users_controller.rb:94
 msgid "could not update user"
 msgstr "User could not be updated."
 
@@ -133,13 +133,12 @@ msgid "short_date"
 msgstr "%m.%d"
 
 #: app/helpers/application_helper.rb:384
-#: lib/gettext_strings.rb:69
-#, fuzzy
+#: lib/gettext_strings.rb:68
 msgid "%{ext} document"
-msgstr "text doc."
+msgstr ""
 
 #: app/helpers/application_helper.rb:387
-#: lib/gettext_strings.rb:70
+#: lib/gettext_strings.rb:69
 msgid "%{type} node"
 msgstr ""
 
@@ -289,6 +288,7 @@ msgstr ""
 #: app/models/document_content.rb:-
 #: app/models/group.rb:-
 #: app/models/node.rb:-
+#: app/models/participation.rb:-
 #: app/models/template_content.rb:-
 #: app/models/version.rb:-
 msgid "Site"
@@ -330,6 +330,7 @@ msgid "comment"
 msgstr ""
 
 #: app/models/comment.rb:-
+#: app/models/participation.rb:-
 #: app/models/version.rb:-
 msgid "Status"
 msgstr ""
@@ -345,6 +346,7 @@ msgstr ""
 
 #: app/models/comment.rb:-
 #: app/models/node.rb:-
+#: app/models/participation.rb:-
 #: app/models/version.rb:-
 msgid "User"
 msgstr ""
@@ -565,6 +567,15 @@ msgstr ""
 msgid "Position"
 msgstr ""
 
+#: app/models/participation.rb:-
+msgid "participation"
+msgstr ""
+
+#: app/models/participation.rb:-
+#, fuzzy
+msgid "Contact"
+msgstr "<img src='/images/lock_open.png' alt='open'/>"
+
 #: app/models/site.rb:-
 msgid "site"
 msgstr ""
@@ -646,7 +657,7 @@ msgid "Mode"
 msgstr ""
 
 #: app/models/user.rb:-
-#: lib/gettext_strings.rb:63
+#: lib/gettext_strings.rb:62
 msgid "user"
 msgstr ""
 
@@ -688,6 +699,7 @@ msgstr ""
 #: app/views/groups/_form.rhtml:5
 #: app/views/link/_form.rhtml:5
 #: app/views/nodes/_results.rhtml:7
+#: app/views/nodes/import.rhtml:11
 #: app/views/nodes/save.rhtml:8
 #: app/views/note/_form.rhtml:3
 #: app/views/page/_form.rhtml:3
@@ -722,6 +734,7 @@ msgstr ""
 #: app/views/note/_form.rhtml:8
 #: app/views/page/_form.rhtml:7
 #: app/views/templates/document_create_tabs/_file.rhtml:3
+#: app/views/templates/document_create_tabs/_import.rhtml:2
 #: app/views/templates/document_create_tabs/_template.rhtml:3
 #: app/views/templates/document_create_tabs/_text_doc.rhtml:3
 #: app/views/users/_form.rhtml:46
@@ -900,13 +913,17 @@ msgstr ""
 msgid "'%{search_string}' not found"
 msgstr ""
 
+#: app/views/nodes/import.rhtml:10
+msgid "import result"
+msgstr ""
+
 #: app/views/note/_add.rhtml:2
 msgid "btn_add_note"
 msgstr "<img src='/images/add.png' alt='add a note'/>"
 
 #: app/views/page/_add.rhtml:2
 msgid "btn_add_page"
-msgstr ""
+msgstr "<img src='/images/add.png' alt='add a node'/>"
 
 #: app/views/page/_list.rhtml:1
 msgid "Pages"
@@ -917,6 +934,7 @@ msgid "search field"
 msgstr ""
 
 #: app/views/templates/document_create_tabs/_file.rhtml:5
+#: app/views/templates/document_create_tabs/_import.rhtml:4
 msgid "file"
 msgstr ""
 
@@ -1002,9 +1020,8 @@ msgid "password"
 msgstr ""
 
 #: app/views/users/_form.rhtml:25
-#, fuzzy
 msgid "status"
-msgstr "<img src='/images/tag_blue.png' alt='keyword'/>"
+msgstr "status"
 
 #: app/views/users/_form.rhtml:26
 msgid "first name"
@@ -1047,9 +1064,8 @@ msgid "help_tab"
 msgstr "help"
 
 #: lib/gettext_strings.rb:7
-#, fuzzy
 msgid "drive_tab"
-msgstr "<img src='/images/wrench.png' alt='drive'/>"
+msgstr "drive"
 
 #: lib/gettext_strings.rb:8
 msgid "links_tab"
@@ -1068,18 +1084,16 @@ msgid "textdocument_tab"
 msgstr "text doc."
 
 #: lib/gettext_strings.rb:13
-#, fuzzy
 msgid "image_tab"
-msgstr "<img src='/images/lock_open.png' alt='open'/>"
+msgstr "image"
 
 #: lib/gettext_strings.rb:14
 msgid "document_tab"
 msgstr "doc"
 
 #: lib/gettext_strings.rb:15
-#, fuzzy
 msgid "contact_tab"
-msgstr "<img src='/images/lock_open.png' alt='open'/>"
+msgstr "contact"
 
 #: lib/gettext_strings.rb:17
 msgid "file_tab"
@@ -1094,34 +1108,28 @@ msgid "text_doc_tab"
 msgstr "text doc."
 
 #: lib/gettext_strings.rb:21
-#, fuzzy
 msgid "btn_add_doc"
 msgstr "<img src='/images/picture_add.png' alt='add documents'/>"
 
 #: lib/gettext_strings.rb:23
-#, fuzzy
 msgid "img_hot"
-msgstr "<img src='/images/lock_open.png' alt='open'/>"
+msgstr "<img src='/images/lightbulb.png' alt='hot'/>"
 
 #: lib/gettext_strings.rb:24
-#, fuzzy
 msgid "img_calendar"
-msgstr "<img src='/images/lock.png' alt='closed'/>"
+msgstr "<img src='/images/date.png' alt='calendar'/>"
 
 #: lib/gettext_strings.rb:25
-#, fuzzy
 msgid "img_contact"
-msgstr "<img src='/images/lock_open.png' alt='open'/>"
+msgstr "<img src='/images/user_green.png' alt='contact'/>"
 
 #: lib/gettext_strings.rb:26
-#, fuzzy
 msgid "img_home"
-msgstr "<img src='/images/lock_open.png' alt='open'/>"
+msgstr "<img src='/images/home.png' alt='home'/>"
 
 #: lib/gettext_strings.rb:27
-#, fuzzy
 msgid "img_icon"
-msgstr "<img src='/images/lock_open.png' alt='open'/>"
+msgstr "<img src='/images/medal_gold_2.png' alt='icon'/>"
 
 #: lib/gettext_strings.rb:28
 msgid "img_tag"
@@ -1136,77 +1144,64 @@ msgid "img_collaborator"
 msgstr "<img src='/images/user.png' alt='collaborator'/>"
 
 #: lib/gettext_strings.rb:31
-#, fuzzy
 msgid "img_favorite"
-msgstr "<img src='/images/lock.png' alt='private'/>"
+msgstr "<img src='/images/heart.png' alt='favorite'/>"
 
 #: lib/gettext_strings.rb:32
-#, fuzzy
 msgid "img_project"
-msgstr "<img src='/images/lock_open.png' alt='open'/>"
+msgstr "<img src='/images/project.png' alt='project'/>"
 
 #: lib/gettext_strings.rb:35
-#, fuzzy
 msgid "img_custom_inherit"
-msgstr "<img src='/images/lock.png' alt='closed'/>"
+msgstr "<img src='/images/cog.png' alt='custom rights'/>"
 
 #: lib/gettext_strings.rb:37
-#, fuzzy
 msgid "icon"
-msgstr "<img src='/images/lock_open.png' alt='open'/>"
+msgstr "icon"
 
 #: lib/gettext_strings.rb:38
 msgid "icon_for"
-msgstr ""
+msgstr "icon for"
 
 #: lib/gettext_strings.rb:39
-#, fuzzy
 msgid "tags"
-msgstr "<img src='/images/tag_blue.png' alt='keyword'/>"
+msgstr "tags"
 
 #: lib/gettext_strings.rb:40
 msgid "tag_for"
-msgstr ""
+msgstr "tag for"
 
 #: lib/gettext_strings.rb:41
-#, fuzzy
 msgid "collaborators"
-msgstr "<img src='/images/user.png' alt='collaborator'/>"
+msgstr "collaborators"
 
 #: lib/gettext_strings.rb:42
-#, fuzzy
 msgid "collaborator_for"
-msgstr "<img src='/images/user.png' alt='collaborator'/>"
+msgstr "collaborator for"
 
 #: lib/gettext_strings.rb:43
-#, fuzzy
 msgid "favorites"
-msgstr "<img src='/images/lock.png' alt='private'/>"
+msgstr "favorites"
 
 #: lib/gettext_strings.rb:44
-#, fuzzy
 msgid "favorite_for"
-msgstr "<img src='/images/lock.png' alt='private'/>"
+msgstr "favorite for"
 
 #: lib/gettext_strings.rb:45
-#, fuzzy
 msgid "projects"
-msgstr "<img src='/images/lock_open.png' alt='open'/>"
+msgstr "projects"
 
 #: lib/gettext_strings.rb:46
-#, fuzzy
 msgid "project_for"
-msgstr "<img src='/images/lock_open.png' alt='open'/>"
+msgstr "project for"
 
 #: lib/gettext_strings.rb:47
-#, fuzzy
 msgid "calendars"
-msgstr "<img src='/images/lock.png' alt='closed'/>"
+msgstr "calendars"
 
 #: lib/gettext_strings.rb:48
-#, fuzzy
 msgid "calendar_for"
-msgstr "<img src='/images/lock.png' alt='closed'/>"
+msgstr "calendar for"
 
 #: lib/gettext_strings.rb:50
 msgid "posted by"
@@ -1241,47 +1236,47 @@ msgid "img_group_pub"
 msgstr "<img src='/images/group_pub.png' alt='public group'/>"
 
 #: lib/gettext_strings.rb:59
-msgid "img_group_admin"
-msgstr "<img src='/images/group_admin.png' alt='add a group'/>"
-
-#: lib/gettext_strings.rb:60
 msgid "img_group_site"
 msgstr "<img src='/images/group_site.png' alt='site group'/>"
 
-#: lib/gettext_strings.rb:62
+#: lib/gettext_strings.rb:61
 msgid "admin"
 msgstr ""
 
-#: lib/gettext_strings.rb:64
+#: lib/gettext_strings.rb:63
 msgid "commentator"
 msgstr ""
 
-#: lib/gettext_strings.rb:65
+#: lib/gettext_strings.rb:64
 #, fuzzy
 msgid "moderated"
 msgstr "Node successfully updated."
 
-#: lib/gettext_strings.rb:66
+#: lib/gettext_strings.rb:65
 msgid "reader"
 msgstr ""
 
-#: lib/gettext_strings.rb:67
+#: lib/gettext_strings.rb:66
 msgid "deleted"
 msgstr ""
 
-#: lib/gettext_strings.rb:72
+#: lib/gettext_strings.rb:71
 #, fuzzy
 msgid "no result found"
 msgstr "Node not found."
 
-#: lib/gettext_strings.rb:73
+#: lib/gettext_strings.rb:72
 msgid "search results"
 msgstr ""
 
-#: lib/gettext_strings.rb:75
+#: lib/gettext_strings.rb:74
 #, fuzzy
 msgid "btn_unplublish"
 msgstr "<img src='/images/wand.png' alt='publish'/>"
+
+#: lib/gettext_strings.rb:75
+msgid "btn_destroy"
+msgstr "<img src='/images/bomb.png' alt='destroy'/>"
 
 #: lib/gettext_strings.rb:77
 msgid "status_50"
@@ -1478,4 +1473,7 @@ msgstr ""
 #: lib/parser/lib/rules/zena.rb:740
 msgid "design by %{name}"
 msgstr ""
+
+#~ msgid "img_group_admin"
+#~ msgstr "<img src='/images/group_admin.png' alt='add a group'/>"
 
