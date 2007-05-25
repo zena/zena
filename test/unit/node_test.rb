@@ -930,7 +930,13 @@ done: \"I am done\""
   
   def test_create_nodes_from_archive
     login(:tiger)
-    secure(Node) { Node.create_nodes_from_folder(:archive => uploaded_archive('import.tgz'), :parent_id => nodes_id(:zena)) }
+    res = secure(Node) { Node.create_nodes_from_folder(:archive => uploaded_archive('import.tgz'), :parent_id => nodes_id(:zena)) }
+    #res.each do |rec|
+    #  puts "id:     #{rec[:id]}"
+    #  puts "name:   #{rec.name}"
+    #  puts "parent: #{rec.parent_id}"
+    #  puts "errors: #{rec.errors.map{|k,v| "\n[#{k}] #{v}"}}"
+    #end
     
     photos = secure(Section) { Section.find_by_name('photos') }
     assert_kind_of Section, photos

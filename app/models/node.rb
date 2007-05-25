@@ -201,22 +201,27 @@ class Node < ActiveRecord::Base
     
     def create_or_update_node(new_attributes)
       attributes = clean_attributes(new_attributes)
-      return nil unless attributes['name'] && attributes['parent_id']
+      unless attributes['name'] && attributes['parent_id']
+        node = Node.new
+        node.errors.add('name', "can't be blank") unless attributes['name']
+        node.errors.add('parent_id', "can't be blank") unless attributes['parent_id']
+        return node
+      end
       node = Node.with_exclusive_scope do
         Node.find(:first, :conditions => ['site_id = ? AND name = ? AND parent_id = ?', 
                                           current_site[:id], attributes['name'], attributes['parent_id']])
       end
       if node
-        return nil unless node.can_write?(visitor, visitor.group_ids)
-        visitor.visit(node)
+        visitor.visit(node) # secure
         # TODO: class ignored (could be used to transform from one class to another...)
         attributes.delete('class')
+        attributes.delete('klass')
+        puts attributes.inspect
         node.update_attributes(attributes)
-        node
       else
-        puts new_attributes.inspect
-        create_node(new_attributes)
+        node = create_node(new_attributes)
       end
+      node
     end
     
     
@@ -256,7 +261,7 @@ class Node < ActiveRecord::Base
     # Create new nodes from the data in a folder or archive.
     def create_nodes_from_folder(opts)
       # TODO: all this method needs cleaning, it's a mess.
-      return nil unless (opts[:folder] || opts[:archive]) && (opts[:parent] || opts[:parent_id])
+      return [] unless (opts[:folder] || opts[:archive]) && (opts[:parent] || opts[:parent_id])
       scope = self.scoped_methods[0] || {}
       parent_id = opts[:parent_id] || opts[:parent][:id]
       folder    = opts[:folder]
@@ -296,7 +301,6 @@ class Node < ActiveRecord::Base
 
         if File.stat(path).directory?
           sub_folder = path
-          name       = filename
           # look-ahead to see if we have any related yml files before processing the folder
         elsif filename =~ /^(.+?)(\.\w\w|)(\.\d+|)\.yml$/
           name, lang = $1, ($2 ? $2[1..-1] : visitor.lang)
@@ -309,14 +313,13 @@ class Node < ActiveRecord::Base
         else
           # document
           document   = path
-          name       = filename
           # look-ahead
         end  
         index += 1
 
         # FIXME: how to set version status and user_id ?
 
-        while entries[index] =~ /^#{name}(\.\w\w|)(\.\d+|)\.yml$/
+        while entries[index] =~ /^#{filename}(\.\w\w|)(\.\d+|)\.yml$/
           lang = $1 ? $1[1..-1] : visitor.lang
 
           # we have a yml file. Create a version with this file
@@ -324,16 +327,23 @@ class Node < ActiveRecord::Base
           attrs['v_lang'] ||= lang
           
           if current_obj
-            attrs['name'] ||= name
+            if current_obj.kind_of?(Document)
+              attrs['name']  = filename.split('.')[0..-2].join('.')
+              attrs['c_ext'] = filename.split('.').last
+            else
+              attrs['name'] = filename
+            end
             # FIXME: what publication status for these things ?
             current_obj.remove if current_obj.v_lang == attrs['v_lang'] && current_obj.v_status != Zena::Status[:red]
             current_obj.edit!(attrs['v_lang'])
             
             attrs.delete('class')
+            attrs.delete('klass')
             current_obj.update_attributes(attrs.merge(:parent_id => parent_id))
             current_obj.publish if attrs['v_status'].to_i == Zena::Status[:pub]
-          elsif document
-            attrs['name'] ||= name.split('.')[0..-2].join('.')
+          elsif document  
+            attrs['name']  = filename.split('.')[0..-2].join('.')
+            attrs['c_ext'] = filename.split('.').last
             # processing a document
             ctype = EXT_TO_TYPE[document.split('.').last][0] || "application/octet-stream"
             File.open(document) do |file|
@@ -348,7 +358,7 @@ class Node < ActiveRecord::Base
             document = nil
           else
             # processing a folder
-            current_obj = create_or_update_node(attrs.merge(:_parent_id => parent_id))
+            current_obj = create_or_update_node(attrs.merge(:_parent_id => parent_id, :name => filename))
             res << current_obj
           end
           index += 1
@@ -358,7 +368,7 @@ class Node < ActiveRecord::Base
         if sub_folder
           # create minimal object to store the children
           unless current_obj
-            current_obj = Page.with_exclusive_scope(scope) { Page.create( defaults.merge(:parent_id => parent_id, :name => filename.split('.').first) )}
+            current_obj = Page.with_exclusive_scope(scope) { Page.create_or_update_node( defaults.merge(:_parent_id => parent_id, :name => name) )}
             current_obj.publish if defaults['v_status'].to_i == Zena::Status[:pub]
             res << current_obj
           end
@@ -373,7 +383,11 @@ class Node < ActiveRecord::Base
               define_method(:original_filename) { filename }
               define_method(:content_type) { ctype }
             end
-            current_obj = Document.with_exclusive_scope(scope) { Document.create(defaults.merge(:c_file => file, :parent_id => parent_id, :name => filename)) }
+            
+            name  = name.split('.')[0..-2].join('.')
+            c_ext = name.split('.').last
+            
+            current_obj = Document.with_exclusive_scope(scope) { Document.create_or_update_node(defaults.merge(:c_file => file, :_parent_id => parent_id, :name => name, :c_ext => c_ext)) }
             current_obj.publish if defaults['v_status'].to_i == Zena::Status[:pub]
             res << current_obj
           end
