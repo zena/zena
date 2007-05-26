@@ -104,7 +104,7 @@ class Document < Page
   def document_before_validation
     content = version.content
     if new_record?
-      if self[:name] && self[:name] != ""
+      if ! self[:name].blank?
         # name set
         base = self[:name]
       elsif file = content.instance_variable_get(:@file)
@@ -118,6 +118,7 @@ class Document < Page
         self[:name] = $1
         ext         = $2
       else
+        self[:name] = base
         ext         = nil
       end
       

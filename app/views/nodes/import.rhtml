@@ -13,8 +13,10 @@
     <table cellspacing="0" borderspacing="0">
       <% @nodes.each do |node| -%>
         <tr class='import_<%= node.errors.empty? ? (node.instance_variable_get(:@new_record_before_save) ? 'new' : 'updated') : 'error' %>'>
+          <td><%= img_tag(node, :mode=>'tiny') %></td>
           <td><%= node.rootpath %></td>
           <td><%= node.errors.empty? ? (node.instance_variable_get(:@new_record_before_save) ? 'new' : 'updated') : 'error' %></td>
+          <td><%= _('%{count} versions') % {:count => node.instance_variable_get(:@versions_count)} %></td>
           <td><%= !node.errors.empty? ? node.errors.map {|k,v| "[#{k}] #{v}"}.join(', ') : 'ok' %></td>
         </tr>
       <% end -%>

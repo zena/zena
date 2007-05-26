@@ -286,17 +286,16 @@ class Node < ActiveRecord::Base
             File.open(tempf.path, 'wb') { |f| f.syswrite(archive.read) }
             archive = tempf
           else
-            filename = archive.path.split('/').last
+            filename = archive.original_filename
           end
           
-          puts filename.inspect
           
           # extract file in this temporary folder.
           # FIXME: is there a security risk here ?
           if filename =~ /\.tgz$|\.tar$/
-            system "tar -C '#{folder}' -xz < '#{archive.path}'"
+            `tar -C '#{folder}' -xz < '#{archive.path}'`
           elsif filename =~ /\.zip$/
-            syste "unzip -d '#{folder}' '#{archive.path}'"
+            `unzip -d '#{folder}' '#{archive.path}'`
           elsif filename =~ /\.gzip$/
             puts "FIXME GUNZIP NOT SET"
             # FIXME: system "gunzip -C '#{folder}' -xz < '#{archive.path}'"
@@ -319,6 +318,11 @@ class Node < ActiveRecord::Base
         type = current_obj = sub_folder = document_path = nil
         versions = []
         filename = entries[index]
+        if filename =~ /^[\._~]/
+          index += 1
+          next
+        end
+        
         path     = File.join(folder, filename)
 
         if File.stat(path).directory?
@@ -353,38 +357,54 @@ class Node < ActiveRecord::Base
           index += 1
         end
         
-        if versions.empty?
-          # minimal node for a folder
-          current_obj = create_or_update_node(defaults.merge('name' => name, :_parent_id => parent_id, :klass => 'Page'))
-        else
-          versions.each do |attrs|
-            # FIXME: same lang: remove before update current_obj.remove if current_obj.v_lang == attrs['v_lang'] && current_obj.v_status != Zena::Status[:red]
-            # FIXME: current_obj.publish if attrs['v_status'].to_i == Zena::Status[:pub]
-            if type == :document
-              attrs['c_ext'] = attrs['name'].split('.').last
-              attrs['name' ] = attrs['name'].split('.')[0..-2].join('.')
-              if document_path
-                # file
-                ctype = EXT_TO_TYPE[document_path.split('.').last][0] || "application/octet-stream"
-                File.open(document_path) do |file|
-                  (class << file; self; end;).class_eval do
-                    alias local_path path if defined?(:path)
-                    define_method(:original_filename) { filename }
-                    define_method(:content_type) { ctype }
-                  end
-                  current_obj = create_or_update_node(attrs.merge(:c_file => file, :klass => 'Document', :_parent_id => parent_id))
-                end
-                document_path = nil
-              else
-                current_obj = create_or_update_node(attrs.merge(:_parent_id => parent_id, :klass => 'Document'))
-              end
-            else
-              # :folder, :node
-              current_obj = create_or_update_node(attrs.merge(:_parent_id => parent_id))
-            end
+        if versions.empty? 
+          if type == :folder
+            # minimal node for a folder
+            attrs = defaults.dup
+            attrs['name']     = name
+            attrs['v_lang'] ||= lang
+            attrs['class']    = 'Page'
+            versions << attrs
+          elsif type == :document
+            # minimal node for a folder
+            attrs = defaults.dup
+            attrs['name']     = name
+            attrs['v_lang'] ||= lang
+            versions << attrs
           end
         end
         
+        new_object = false
+        versions.each do |attrs|
+          # FIXME: same lang: remove before update current_obj.remove if current_obj.v_lang == attrs['v_lang'] && current_obj.v_status != Zena::Status[:red]
+          # FIXME: current_obj.publish if attrs['v_status'].to_i == Zena::Status[:pub]
+          if type == :document
+            attrs['c_ext'] = attrs['name'].split('.').last
+            attrs['name' ] = attrs['name'].split('.')[0..-2].join('.')
+            if document_path
+              # file
+              ctype = EXT_TO_TYPE[document_path.split('.').last][0] || "application/octet-stream"
+              
+              File.open(document_path) do |file|
+                (class << file; self; end;).class_eval do
+                  alias local_path path if defined?(:path)
+                  define_method(:original_filename) { filename }
+                  define_method(:content_type) { ctype }
+                end
+                current_obj = create_or_update_node(attrs.merge(:c_file => file, :klass => 'Document', :_parent_id => parent_id))
+              end
+              document_path = nil
+            else
+              current_obj = create_or_update_node(attrs.merge(:_parent_id => parent_id, :klass => 'Document'))
+            end
+          else
+            # :folder, :node
+            current_obj = create_or_update_node(attrs.merge(:_parent_id => parent_id))
+          end
+          new_object = new_object || current_obj.instance_variable_get(:@new_record_before_save)
+        end
+        current_obj.instance_variable_set(:@new_record_before_save, new_object)
+        current_obj.instance_variable_set(:@versions_count, versions.size)
         res << current_obj
         current_obj.publish if defaults['v_status'].to_i == Zena::Status[:pub]
 

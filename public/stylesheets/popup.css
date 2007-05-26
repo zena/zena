@@ -89,6 +89,7 @@ ul.infos li { padding:0.4em 0.4em; list-style:none; display:block; }
 .import { padding-left:10px; padding-top:15px; }
 .import table { margin-top:10px; border:1px solid grey; border-width:1px 0 0 1px; font-size:0.9em; }
 .import td    { border:1px solid grey; border-width:0 1px 1px 0; padding:3px 5px; }
+.import td img { border:1px solid grey; }
 .import .import_new { background:#B7CC87;}
 .import .import_updated { background:#C9B372;}
 .import .import_error   { background:#C87574;}
