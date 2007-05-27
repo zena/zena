@@ -14,19 +14,21 @@ height(format)::  image height in pixel for the given format
 ImageContent also provides a +crop+ pseudo attribute to crop an image. See crop=.
 =end
 class ImageContent < DocumentContent
+  before_validation_on_create :convert_file
   
   zafu_readable    :width, :height
   
   # Return a cropped image using the 'crop' hash with the top left corner position (:x, :y) and the width and height (:width, :heigt).
   def crop(format)
     return if @file # we do not want to crop on file upload in case the crop params lie around in the user's form
+    original   = format[:original] || self.file
     x, y, w, h = format[:x].to_i, format[:y].to_i, format[:w].to_i, format[:h].to_i
     new_type   = format[:format] ? EXT_TO_TYPE[format[:format].downcase][0] : nil
     max        = format[:max_value].to_f * (format[:max_unit] == 'Mb' ? 1024 : 1) * 1024
     
     # crop image
-    img = ImageBuilder.new(:file=>file)
-    img.crop!(x, y, w, h)
+    img = ImageBuilder.new(:file=>original)
+    img.crop!(x, y, w, h) if x && y && w && h
     img.format       = format[:format] if new_type && new_type != content_type
     img.max_filesize = max if format[:max_value] && max
     
@@ -181,20 +183,29 @@ class ImageContent < DocumentContent
   end
   
   private
-  
-  def valid_file
-    return false unless super
-    if @file && !ImageBuilder.image_content_type?(@file.content_type)
-      errors.add('file', 'must be an image')
-      return false
-    else
-      return true
+    def convert_file
+      if @file && @file.content_type =~ /image\/gif/
+        # convert to png
+        file  = @file
+        @file = nil
+        @file = crop(:original => file, :format => 'png')
+        self[:ext] = 'png'
+      end
     end
-  end
+      
+    def valid_file
+      return false unless super
+      if @file && !ImageBuilder.image_content_type?(@file.content_type)
+        errors.add('file', 'must be an image')
+        return false
+      else
+        return true
+      end
+    end
   
-  def make_image(format)
-    return nil unless format && (img = image_for_format(format))
-    return nil if img.dummy?
-    make_file(filepath(format),img)
-  end
+    def make_image(format)
+      return nil unless format && (img = image_for_format(format))
+      return nil if img.dummy?
+      make_file(filepath(format),img)
+    end
 end

@@ -453,6 +453,7 @@ class ApplicationController < ActionController::Base
       zen_path(obj, {:format => format}.merge(opts))
     end
   
+    
     # Path for the node (as string). Options can be :format and :mode.
     def zen_path(obj, options={})
       return '#' unless obj

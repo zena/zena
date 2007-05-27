@@ -87,8 +87,8 @@ class Image < Document
   end
   
   private
-  # This is a callback from acts_as_multiversioned
-  def version_class
-    ImageVersion
-  end
+    # This is a callback from acts_as_multiversioned
+    def version_class
+      ImageVersion
+    end
 end
