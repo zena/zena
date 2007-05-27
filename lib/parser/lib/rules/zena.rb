@@ -427,6 +427,21 @@ END_TXT
       end
     end
     
+    # <r:checkbox role='collaborator_for' values='projects' from='site'/>"
+    def r_checkbox
+      return "<span class='parser_error'>checkbox without values</span>" unless values = @params[:values]
+      return "<span class='parser_error'>checkbox without role</span>"   unless   role = @params[:role]
+      meth = "#{role.singularize}_ids"
+      attribute = @params[:attr] || 'name'
+      list_finder = get_list_finder(values)
+      out "<% if (#{list_var} = #{list_finder}) && #{node}.class.defined_role[#{role.inspect}] -%>"
+      out "<% #{list_var}_ids = #{node}.#{meth} -%>"
+      out "<% #{list_var}.each do |#{var}| -%>"
+      out "<input type='checkbox' name='node[#{meth}][]' value='<%= #{var}[:zip] %>'<%= #{list_var}_ids.include?(#{var}[:id]) ? \" checked='checked'\" : '' %>/> <%= #{node_attribute(attribute, :node=>var)} %> "
+      out "<% end -%><% end -%>"
+      out "<input type='hidden' name='node[#{meth}]' value=''/>"
+    end
+    
     # TODO: test
     def r_add
       @pass[:add] = self
@@ -863,90 +878,94 @@ END_TXT
       end
       if Zena::Acts::Linkable::plural_method?(@method) || @params[:from]
         # plural
-        # FIXME: could SQL injection be possible here ? (all params are passed to the 'find')
-        erb_params = {}
-        if order = @params[:order]
-          if order == 'random'
-            erb_params[:order] = 'RAND()'
-          elsif order =~ /\A(\w+)( ASC| DESC|)\Z/
-            erb_params[:order] = order
-          else
-            # ignore
-          end
-        end
-        erb_params[:from] = @params[:from] if @params[:from]
-        [:limit, :offset].each do |k|
-          next unless @params[k]
-          erb_params[k] = @params[k].to_i.to_s
-        end
-        conditions = []
-        
-        # FIXME: stored should be clarified and managed in a single way through links and contexts.
-        # <r:link href='stored_whatever'/>
-        # <r:pages from='stored_whatever'/>
-        # <r:pages from='project' project='stored_whatever'/>
-        # <r:img link='stored_whatever'/>
-        # ...
-        if value = @params[:author]
-          if value == 'stored' && stored = @context[:stored_author]
-            conditions << "user_id = '\#{#{stored}[:user_id]}'"
-          elsif value == 'current'
-            conditions << "user_id = '\#{#{node}[:user_id]}'"
-          elsif value == 'visitor'
-            conditions << "user_id = '\#{visitor[:id]}'"
-          elsif value =~ /\A\d+\Z/
-            conditions << "user_id = '#{value.to_i}'"
-          elsif value =~ /\A[\w\/]+\Z/
-            # path, not implemented yet
-          end
-        end
-        
-        if value = @params[:project]
-          if value == 'stored' && stored = @context[:stored_project]
-            conditions << "project_id = '\#{#{stored}[:project_id]}'"
-          elsif value == 'current'
-            conditions << "project_id = '\#{#{node}[:project_id]}'"
-          elsif value =~ /\A\d+\Z/
-            conditions << "project_id = '#{value.to_i}'"
-          elsif value =~ /\A[\w\/]+\Z/
-            # not implemented yet
-          end
-        end
-        
-        if value = @params[:section]
-          if value == 'stored' && stored = @context[:stored_section]
-            conditions << "section_id = '\#{#{stored}[:section_id]}'"
-          elsif value == 'current'
-            conditions << "section_id = '\#{#{node}[:section_id]}'"
-          elsif value =~ /\A\d+\Z/
-            conditions << "section_id = '#{value.to_i}'"
-          elsif value =~ /\A[\w\/]+\Z/
-            # not implemented yet
-          end
-        end
-        
-        [:updated, :created, :event, :log].each do |k|
-          if value = @params[k]
-            # current, same are synonym for 'today'
-            value = 'today' if ['current', 'same'].include?(value)
-            conditions << Node.connection.date_condition(value,"#{k}_at",current_date)
-          end
-        end
-
-        params = params_to_erb(erb_params)
-        if conditions != []
-          conditions = conditions.join(' AND ')
-          if params != ''
-            params << ", :conditions=>\"#{conditions}\""
-          else
-            params = ":conditions=>\"#{conditions}\""
-          end
-        end
-        do_list("#{node}.relation(#{rel.inspect}#{params})")
+        do_list(get_list_finder(rel))
       else
         # singular
         do_var("#{node}.relation(#{rel.inspect})")
       end
+    end
+    
+    def get_list_finder(rel)
+      # FIXME: could SQL injection be possible here ? (all params are passed to the 'find')
+      erb_params = {}
+      if order = @params[:order]
+        if order == 'random'
+          erb_params[:order] = 'RAND()'
+        elsif order =~ /\A(\w+)( ASC| DESC|)\Z/
+          erb_params[:order] = order
+        else
+          # ignore
+        end
+      end
+      erb_params[:from] = @params[:from] if @params[:from]
+      [:limit, :offset].each do |k|
+        next unless @params[k]
+        erb_params[k] = @params[k].to_i.to_s
+      end
+      conditions = []
+      
+      # FIXME: stored should be clarified and managed in a single way through links and contexts.
+      # <r:link href='stored_whatever'/>
+      # <r:pages from='stored_whatever'/>
+      # <r:pages from='project' project='stored_whatever'/>
+      # <r:img link='stored_whatever'/>
+      # ...
+      if value = @params[:author]
+        if value == 'stored' && stored = @context[:stored_author]
+          conditions << "user_id = '\#{#{stored}[:user_id]}'"
+        elsif value == 'current'
+          conditions << "user_id = '\#{#{node}[:user_id]}'"
+        elsif value == 'visitor'
+          conditions << "user_id = '\#{visitor[:id]}'"
+        elsif value =~ /\A\d+\Z/
+          conditions << "user_id = '#{value.to_i}'"
+        elsif value =~ /\A[\w\/]+\Z/
+          # path, not implemented yet
+        end
+      end
+      
+      if value = @params[:project]
+        if value == 'stored' && stored = @context[:stored_project]
+          conditions << "project_id = '\#{#{stored}[:project_id]}'"
+        elsif value == 'current'
+          conditions << "project_id = '\#{#{node}[:project_id]}'"
+        elsif value =~ /\A\d+\Z/
+          conditions << "project_id = '#{value.to_i}'"
+        elsif value =~ /\A[\w\/]+\Z/
+          # not implemented yet
+        end
+      end
+      
+      if value = @params[:section]
+        if value == 'stored' && stored = @context[:stored_section]
+          conditions << "section_id = '\#{#{stored}[:section_id]}'"
+        elsif value == 'current'
+          conditions << "section_id = '\#{#{node}[:section_id]}'"
+        elsif value =~ /\A\d+\Z/
+          conditions << "section_id = '#{value.to_i}'"
+        elsif value =~ /\A[\w\/]+\Z/
+          # not implemented yet
+        end
+      end
+      
+      [:updated, :created, :event, :log].each do |k|
+        if value = @params[k]
+          # current, same are synonym for 'today'
+          value = 'today' if ['current', 'same'].include?(value)
+          conditions << Node.connection.date_condition(value,"#{k}_at",current_date)
+        end
+      end
+
+      params = params_to_erb(erb_params)
+      if conditions != []
+        conditions = conditions.join(' AND ')
+        if params != ''
+          params << ", :conditions=>\"#{conditions}\""
+        else
+          params = ":conditions=>\"#{conditions}\""
+        end
+      end
+      "#{node}.relation(#{rel.inspect}#{params})"
     end
     # <r:hot else='project'/>
     # <r:relation role='hot,project'> = get relation if empty get project

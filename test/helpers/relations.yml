@@ -216,3 +216,7 @@ menu_with_favorites:
 visitor_favorites:
   src: "<r:node select='visitor'><ul do='favorites'><li do='each' do='link'/></ul></r:node>"
   res: "<ul><li><a href='/oo/page39.html'>Nature</a></li></ul>"
+  
+checkbox:
+  src: "<r:checkbox role='hot_for' values='projects' from='site'/>"
+  res: "/<input type='checkbox' name='node\[hot_for_ids\]\[\]' value='21' checked='checked'\/> cleanWater/"
