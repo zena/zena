@@ -884,7 +884,7 @@ ENDTXT
   # TODO: could be used by all helpers: faster then routes...
   # Used by zafu
   def node_link(opts={})
-    options = {:node=>@node, :href=>'self'}.merge(opts)
+    options = {:node=>@node}.merge(opts)
     node = options.delete(:node)
     if href = options.delete(:href)
       node = node.relation(href) || node
@@ -897,6 +897,7 @@ ENDTXT
       end
     else
       text = options.delete(:text) || node.version.title
+      return text unless node
       if dash = options.delete(:dash)
         "<a href='##{dash}'>#{text}</a>"
       else

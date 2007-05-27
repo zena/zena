@@ -455,6 +455,7 @@ class ApplicationController < ActionController::Base
   
     # Path for the node (as string). Options can be :format and :mode.
     def zen_path(obj, options={})
+      return '#' unless obj
       opts   = options.dup
       format = opts.delete(:format) || 'html'
       pre    = opts.delete(:prefix) || prefix
