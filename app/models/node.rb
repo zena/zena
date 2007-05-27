@@ -176,11 +176,12 @@ class Node < ActiveRecord::Base
       
       attributes.keys.each do |key|
         if key =~ /^(\w+)_ids$/
-          value = attributes[key].split(',').map do |v|
-            value = Node.connection.execute( "SELECT id FROM nodes WHERE site_id = #{current_site[:id]} AND zip = '#{v.to_i}'" ).fetch_row
-            value ? value[0] : nil
-          end.compact
-          attributes[key] = value
+          values = attributes[key].kind_of?(Array) ? attributes[key] : attributes[key].split(',')
+          values = values.map do |v|
+            vi = Node.connection.execute( "SELECT id FROM nodes WHERE site_id = #{current_site[:id]} AND zip = '#{v.to_i}'" ).fetch_row
+            vi ? vi[0] : nil
+          end
+          attributes[key] = values.compact
         end
       end
       

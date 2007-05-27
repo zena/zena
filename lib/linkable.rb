@@ -429,6 +429,7 @@ on the post edit page :
                     errors.add('#{meth}', 'invalid target')
                   end
                 end
+                
               end
               
               def save_#{method}

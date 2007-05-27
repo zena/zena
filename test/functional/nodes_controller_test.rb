@@ -41,10 +41,31 @@ class NodesControllerTest < ZenaTestController
     get 'not_found'
     assert_template 'node/not_found'
   end
+
+  def test_tags_update_string
+    login(:lion)
+    post 'update', :id => nodes_zip(:art), :node => {'tag_for_ids' => "#{nodes_zip(:status)}, #{nodes_zip(:people)}"}
+
+    node = secure(Node) { nodes(:art) }
+    assert_equal 2, node.tag_for.size
+    stat = secure(Node) { nodes(:status) }
+    peop = secure(Node) { nodes(:people) }
+    assert_equal node[:id], stat.tags[0][:id]
+    assert_equal node[:id], peop.tags[0][:id]
+  end
+
+  def test_tags_update_array
+    login(:lion)
+    post 'update', :id => nodes_zip(:art), :node => {:tag_for_ids => [nodes_zip(:lion).to_i, nodes_zip(:cleanWater).to_s]}
+
+    node = secure(Node) { nodes(:art) }
+    assert_equal 2, node.tag_for.size
+    lion = secure(Node) { nodes(:lion) }
+    clea = secure(Node) { nodes(:cleanWater) }
+    assert_equal node[:id], lion.tags[0][:id]
+    assert_equal node[:id], clea.tags[0][:id]
+  end
   
   # test edit_... mode only if can_edit?
   
-  def test_import
-    assert false
-  end
 end

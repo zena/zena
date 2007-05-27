@@ -590,6 +590,17 @@ class NodeTest < ZenaTestUnit
     assert_equal 'art', tags[0].name
   end
   
+  def test_tag_update
+    login(:lion)
+    node = secure(Node) { nodes(:art) }
+    assert node.update_attributes('tag_for_ids' => [nodes_id(:status), nodes_id(:people)])
+    assert_equal 2, node.tag_for.size
+    stat = secure(Node) { nodes(:status) }
+    peop = secure(Node) { nodes(:people) }
+    assert_equal node[:id], stat.tags[0][:id]
+    assert_equal node[:id], peop.tags[0][:id]
+  end
+  
   def test_tags_callbacks
     assert Node.read_inheritable_attribute(:after_save).include?(:save_tags)
     assert Page.read_inheritable_attribute(:after_save).include?(:save_tags)
