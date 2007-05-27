@@ -220,3 +220,7 @@ visitor_favorites:
 checkbox:
   src: "<r:checkbox role='hot_for' values='projects' from='site'/>"
   res: "/<input type='checkbox' name='node\[hot_for_ids\]\[\]' value='21' checked='checked'\/> cleanWater/"
+
+checkbox_unique:
+  src: "<r:checkbox role='icon' values='images' from='site'/>"
+  res: "/<input type='radio' name='node\[icon_id\]' value='30'\/> bird"

@@ -431,16 +431,30 @@ END_TXT
     def r_checkbox
       return "<span class='parser_error'>checkbox without values</span>" unless values = @params[:values]
       return "<span class='parser_error'>checkbox without role</span>"   unless   role = @params[:role]
-      meth = "#{role.singularize}_ids"
+      meth = role.singularize
       attribute = @params[:attr] || 'name'
       list_finder = get_list_finder(values)
-      out "<% if (#{list_var} = #{list_finder}) && #{node}.class.defined_role[#{role.inspect}] -%>"
-      out "<% #{list_var}_ids = #{node}.#{meth} -%>"
+      out "<% if (#{list_var} = #{list_finder}) && (#{list_var}_role = #{node}.class.defined_role[#{role.inspect}]) -%>"
+      out "<% if #{list_var}_role[:unique] -%>"
+      
+      out "<% #{list_var}_id = #{node}.#{meth}_id -%>"
       out "<% #{list_var}.each do |#{var}| -%>"
-      out "<input type='checkbox' name='node[#{meth}][]' value='<%= #{var}[:zip] %>'<%= #{list_var}_ids.include?(#{var}[:id]) ? \" checked='checked'\" : '' %>/> <%= #{node_attribute(attribute, :node=>var)} %> "
+      out "<input type='radio' name='node[#{meth}_id]' value='<%= #{var}[:zip] %>'<%= #{list_var}_id == #{var}[:id] ? \" checked='checked'\" : '' %>/> <%= #{node_attribute(attribute, :node=>var)} %> "
+      out "<% end -%>"
+      out "<input type='radio' name='node[#{meth}_id]' value=''/> #{_('none')}"
+
+      out "<% else -%>"
+
+      out "<% #{list_var}_ids = #{node}.#{meth}_ids -%>"
+      out "<% #{list_var}.each do |#{var}| -%>"
+      out "<input type='checkbox' name='node[#{meth}_ids][]' value='<%= #{var}[:zip] %>'<%= #{list_var}_ids.include?(#{var}[:id]) ? \" checked='checked'\" : '' %>/> <%= #{node_attribute(attribute, :node=>var)} %> "
+      out "<% end -%>"
+      out "<input type='hidden' name='node[#{meth}_ids]' value=''/>"
+
       out "<% end -%><% end -%>"
-      out "<input type='hidden' name='node[#{meth}]' value=''/>"
     end
+    
+    alias r_radio r_checkbox
     
     # TODO: test
     def r_add
