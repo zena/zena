@@ -766,11 +766,11 @@ END_TXT
       else
         by = expand_with(:trans => true)
       end
-      unless skin = @params[:skin]
-        skin = helper.instance_variable_get(:@controller).instance_variable_get(:@skin_name)
+      unless name = @params[:skin]
+        name = helper.instance_variable_get(:@controller).instance_variable_get(:@skin_name)
       end
       url = helper.instance_variable_get(:@controller).instance_variable_get(:@skin_link)
-      skin = "<a class='skin' href='#{url}'>#{skin}</a>"
+      skin = "<a class='skin' href='#{url}'>#{name}</a>"
       helper.send(:_, "%{skin} design by %{name}") % {:name => by, :skin => skin}
     end
     
@@ -781,16 +781,11 @@ END_TXT
     # <r:link href='node'><r:trans attr='lang'/></r:link>
     # <r:link href='node' tattr='lang'/>
     def r_link
-      # text
-      # @blocks = [] # do not use block content for link. FIXME
       if @blocks.blank?
-        if text = get_text_for_erb
-          text_opt = ", :text=>#{text}"
-        else
-          text_opt = ''
-        end
-      else
-        text_opt = false
+        text_mode = :erb
+        text = get_text_for_erb
+      else  
+        text_mode = :raw
         text = expand_with
       end
       if @params[:href]
@@ -826,23 +821,21 @@ END_TXT
       else
         dash = ''
       end
-      if @html_tag_params[:class]
-        klass = ", :class=>#{@html_tag_params[:class].inspect}"
+      
+      html_tags  = {}
+      if @html_tag && @html_tag != 'a'
+        # html attributes do not belong to anchor
       else
-        klass = ''
+        html_tags[:class] = @html_tag_params[:class] if @html_tag_params[:class]
+        html_tags[:id   ] = @html_tag_params[:id   ] if @html_tag_params[:id   ]
+        @html_tag_done = true
       end
-      # link
-      # TODO: use a single variable 'res' and << for each parameter
-      @html_tag_done = true
-      if text_opt
-        "<%= node_link(:node=>#{lnode}#{text_opt}#{href}#{url}#{dash}#{fmt}#{mode}#{klass}) %>"
+        
+      if text_mode == :raw
+        "<a#{params_to_html(html_tags)} href='<%= node_link(:url_only=>true, :node=>#{lnode}#{href}#{url}#{dash}#{fmt}#{mode}) %>'>#{text}</a>"
       else
-        res = "<a href='<%= node_link(:url_only=>true, :node=>#{lnode}#{href}#{url}#{dash}#{fmt}#{mode}) %>'>#{text}</a>"
-        if @params[:class]
-          add_params(res, :class => @params[:class])
-        else
-          res
-        end
+        text = text.blank? ? '' : ", :text=>#{text}"
+        "<%= node_link(:node=>#{lnode}#{text}#{href}#{url}#{dash}#{fmt}#{mode}#{params_to_erb(html_tags)}) %>"
       end
     end
     
@@ -1146,6 +1139,7 @@ END_TXT
         tag = $2
         params = parse_params($3)
         opts.each do |k,v|
+          next unless v
           params[k] = v
         end
         "#{before}<#{tag}#{params_to_html(params)}>"

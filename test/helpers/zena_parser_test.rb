@@ -8,7 +8,7 @@ class ZenaParserTest < ZenaHelperTest
   Section # make sure we load Section links before trying relations
   
   def test_single
-    do_test('relations', 'checkbox_unique')
+    do_test('basic', 'design_by')
   end
   
   def test_basic_show_bad_attr

@@ -80,8 +80,12 @@ link:
   res: "<a href='/oo/projects/cleanWater/page22.html'>status title</a>"
 
 zafu_link:
-  src: "<li do='link'/>"
-  res: "<li><a href='/oo/projects/cleanWater/page22.html'>status title</a></li>"
+  src: "<li class='super' do='link'/>"
+  res: "<li class='super'><a href='/oo/projects/cleanWater/page22.html'>status title</a></li>"
+
+zafu_link_with_blocks:
+  src: "<div id='branding' do='link'><r:img src='30'/></div>"
+  res: "/<div id='branding'><a href.*img.*<\/div>/"
 
 link_attr:
   src: "<r:link attr='ref_lang'/>"
@@ -467,9 +471,9 @@ ztag_in_do:
   res: "<ol>no error</ol>"
 
 design_by:
-  src: "<li do='design'><a href='http://teti.ch'>teti.ch</a></li>"
-  res: "<li>design by <a href='http://teti.ch'>teti.ch</a></li>"
+  src: "<li do='design' skin='hop'><a href='http://teti.ch'>teti.ch</a></li>"
+  res: "<li><a class='skin' href=''>hop</a> design by <a href='http://teti.ch'>teti.ch</a></li>"
 
 design_by_options:
-  src: "<li do='design' name='teti' href='http://teti.ch'></li>"
-  res: "<li>design by <a href='http://teti.ch'>teti</a></li>"
+  src: "<li do='design' skin='dark' by='vador' href='http://teti.ch'></li>"
+  res: "<li><a class='skin' href=''>dark</a> design by <a href='http://teti.ch'>vador</a></li>"
