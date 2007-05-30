@@ -761,12 +761,17 @@ END_TXT
     end
     
     def r_design
-      if @params[:name]
-        name = "<a href='#{@params[:href]}'>#{@params[:name]}</a>"
+      if @params[:by]
+        by = "<a href='#{@params[:href]}'>#{@params[:by]}</a>"
       else
-        name = expand_with(:trans => true)
+        by = expand_with(:trans => true)
       end
-      helper.send(:_, "design by %{name}") % {:name => name}
+      unless skin = @params[:skin]
+        skin = helper.instance_variable_get(:@controller).instance_variable_get(:@skin_name)
+      end
+      url = helper.instance_variable_get(:@controller).instance_variable_get(:@skin_link)
+      skin = "<a class='skin' href='#{url}'>#{skin}</a>"
+      helper.send(:_, "%{skin} design by %{name}") % {:name => by, :skin => skin}
     end
     
     # creates a link. Options are:
@@ -821,12 +826,23 @@ END_TXT
       else
         dash = ''
       end
+      if @html_tag_params[:class]
+        klass = ", :class=>#{@html_tag_params[:class].inspect}"
+      else
+        klass = ''
+      end
       # link
       # TODO: use a single variable 'res' and << for each parameter
+      @html_tag_done = true
       if text_opt
-        "<%= node_link(:node=>#{lnode}#{text_opt}#{href}#{url}#{dash}#{fmt}#{mode}) %>"
+        "<%= node_link(:node=>#{lnode}#{text_opt}#{href}#{url}#{dash}#{fmt}#{mode}#{klass}) %>"
       else
-        "<a href='<%= node_link(:url_only=>true, :node=>#{lnode}#{href}#{url}#{dash}#{fmt}#{mode}) %>'>#{text}</a>"
+        res = "<a href='<%= node_link(:url_only=>true, :node=>#{lnode}#{href}#{url}#{dash}#{fmt}#{mode}) %>'>#{text}</a>"
+        if @params[:class]
+          add_params(res, :class => @params[:class])
+        else
+          res
+        end
       end
     end
     

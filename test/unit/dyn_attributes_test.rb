@@ -177,6 +177,12 @@ class DynAttributesTest < Test::Unit::TestCase
     assert_equal 'fun', record.d_life
   end
   
+  def test_destroy
+    assert record  = DynDummy.create(:title => 'lolipop', :text=>'', :comment=>'', :summary=>'', :d_life=>'fun', :d_joy=>'weird')
+    assert_equal 2, DynDummy.count_by_sql("SELECT COUNT(*) FROM dyn_attributes WHERE owner_id = #{record[:id]} AND owner_table = 'versions'")
+    assert record.destroy
+    assert_equal 0, DynDummy.count_by_sql("SELECT COUNT(*) FROM dyn_attributes WHERE owner_id = #{record[:id]} AND owner_table = 'versions'")
+  end
   
   def test_empty_key_empty_value
     assert record  = DynDummy.create(:title => 'lolipop', :text=>'', :comment=>'', :summary=>'', :d_=>'bad', :d_og=>'')

@@ -131,7 +131,7 @@ class Node < ActiveRecord::Base
                      :wgroup_id, :pgroup_id, :basepath, :custom_base, :klass, :zip, :score
   
   
-  has_many           :discussions
+  has_many           :discussions, :dependent => :destroy
   has_and_belongs_to_many :cached_pages
   validate           :validate_node
   before_create      :node_before_create
@@ -1005,7 +1005,7 @@ class Node < ActiveRecord::Base
     
     # Called before destroy. An node must be empty to be destroyed
     def node_on_destroy
-      unless all_children.size == 0
+      unless empty?
         errors.add('base', "contains subpages")
         return false
       else  

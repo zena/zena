@@ -1202,7 +1202,7 @@ msgid "search results"
 msgstr ""
 
 #: lib/gettext_strings.rb:74
-msgid "btn_unplublish"
+msgid "btn_unpublish"
 msgstr ""
 
 #: lib/gettext_strings.rb:75

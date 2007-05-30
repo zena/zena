@@ -2,7 +2,7 @@ page.replace "messages", :inline => flash_messages
 if flash[:notice]
   flash[:notice] = nil
   page.visual_effect :fade, 'notice', :duration => 5.0
-else
+elsif flash[:error]
   flash[:error] = nil
   page.visual_effect :fade, 'error', :duration => 5.0
 end

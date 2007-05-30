@@ -35,15 +35,13 @@ class Version < ActiveRecord::Base
   belongs_to            :node
   belongs_to            :user
   before_validation     :version_before_validation
-  validates_presence_of :node
   validates_presence_of :user
   validate              :valid_version
   validate_on_update    :can_update_content
   after_save            :save_content
+  after_destroy         :destroy_content
   before_create         :set_number
   uses_dynamic_attributes
-  # not tested belongs_to :comment_group, :class_name=>'Group', :foreign_key=>'cgroup_id'
-  # not tested has_many :comments, :order=>'created_at'
   
   def author
     user.contact
@@ -156,6 +154,11 @@ class Version < ActiveRecord::Base
       else
         true
       end
+    end
+    
+    def destroy_content
+      return true unless content_class || self[:content_id] # this version does not own any content
+      content.destroy if content
     end
   
     # Set version number and site_id before validation tests.

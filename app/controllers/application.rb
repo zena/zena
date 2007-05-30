@@ -134,6 +134,7 @@ class ApplicationController < ActionController::Base
           @skin[s.name] = s
         end
         @skin_names = [@skin_name, @skin.keys].flatten.uniq
+        @skin_link  = zen_path(@skin[@skin_name]) # used to link from <r:design/> zafu tag
         @expire_with_nodes = {}
         @renamed_assets    = {}
         
@@ -217,7 +218,7 @@ class ApplicationController < ActionController::Base
         path = (skin.fullpath(true).split('/') + url).join('/') # rebuild fullpath
         break if document = secure(TextDocument) { TextDocument.find_by_path(path) } rescue nil
       end
-      return document ? [document, ([skin_name] + url).join('/')] : nil
+      return document ? [document, ([skin_name] + url).join('/') + ".#{mode}"] : nil
     end
   
     # TODO: test

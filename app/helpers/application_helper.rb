@@ -776,17 +776,20 @@ module ApplicationHelper
         actions << version_form_action('edit',version) if node.can_edit_lang?(version.lang)
         actions << version_form_action('publish',version)
         actions << version_form_action('propose',version)
+        actions << version_form_action('destroy',version) if node.can_destroy_version?(version)
       when Zena::Status[:rem]
         actions << version_form_action('edit',version) if node.can_edit_lang?(version.lang)
         actions << version_form_action('publish',version)
         actions << version_form_action('propose',version)
+        actions << version_form_action('destroy',version) if node.can_destroy_version?(version)
       when Zena::Status[:del]
         if (version[:user_id] == visitor[:id])
           actions << version_form_action('edit',version) if node.node.can_edit_lang?(version.lang)
         end
-        acctions << version_form_action('destroy',version) if node.can_drive?
+        actions << version_form_action('destroy',version) if node.can_destroy_version?(version)
       end
     end
+    # [:edit, :publish, :remove, :propose, :refuse, :destroy]
     actions.join(" ")
   end
   
@@ -897,11 +900,13 @@ ENDTXT
       end
     else
       text = options.delete(:text) || node.version.title
+      attributes = ""
+      attributes += options[:class] ? " class='#{options[:class]}'" : ''
       return text unless node
       if dash = options.delete(:dash)
-        "<a href='##{dash}'>#{text}</a>"
+        "<a#{attributes} href='##{dash}'>#{text}</a>"
       else
-        "<a href='#{zen_path(node, options)}'>#{text}</a>"
+        "<a#{attributes} href='#{zen_path(node, options)}'>#{text}</a>"
       end
     end
   end

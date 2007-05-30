@@ -12,7 +12,7 @@ module Zena
           after_save        :save_version
           after_save        :after_all
           private
-          has_many :versions, :order=>"number DESC"
+          has_many :versions, :order=>"number DESC",  :dependent => :destroy
           has_many :editions, :class_name=>"Version", :conditions=>"publish_from <= now() AND status = #{Zena::Status[:pub]}", :order=>'lang'
           public
           class_eval <<-END
@@ -37,11 +37,12 @@ module Zena
         end
         
         def can_edit?
+          debugger if self.class == Letter
           can_edit_lang?
         end
         
         def can_edit_lang?(lang=nil)
-          return false if ! can_write?
+          return false unless can_write?
           if lang
             # can we create a new redaction for this lang ?
             v = versions.find(:first, :conditions=>["status >= #{Zena::Status[:red]} AND status < #{Zena::Status[:pub]} AND lang=?", lang])
@@ -81,127 +82,185 @@ module Zena
         
         # can propose for validation
         def can_propose?
-          version.status == Zena::Status[:red]
+          can_apply?(:propose)
         end
         
         # people who can publish:
         # * people who #can_visible? if +status+ >= prop or owner
         # * people who #can_manage? if node is private
         def can_publish?
-          version.status < Zena::Status[:pub] && 
-          ( ( can_visible? && (version.status > Zena::Status[:red] || version.user_id == visitor[:id]) ) ||
-            ( can_manage?  && private? )
-          )
+          can_apply?(:publish)
         end
         
         # Can refuse a publication. Same rights as can_publish? if the current version is a redaction.
         def can_refuse?
-          version.status > Zena::Status[:red] && can_publish?
+          can_apply?(:refuse)
         end
         
         # Can remove publication
         def can_unpublish?(v=version)
-          can_drive? && v.status == Zena::Status[:pub]
+          can_apply?(:unpublish, v)
         end
         
-        # can destroy node ? (only logged in user can destroy)
-        def can_destroy?
-          can_drive? && (user_id != 1) # not anonymous
+        # Can destroy current version ? (only logged in user can destroy)
+        def can_destroy_version?(v=version)
+          can_apply?(:destroy_version, v)
+        end
+        
+        # Return true if the node is not a reference for any other node
+        def empty?
+          return true if new_record?
+          0 == self.class.count_by_sql("SELECT COUNT(*) FROM #{self.class.table_name} WHERE #{ref_field} = #{self[:id]}")
+        end
+        
+        # Returns false is the current visitor does not have enough rights to perform the action.
+        def can_apply?(method, v=version)
+          case method
+          when :propose, :backup
+            v.user_id == visitor[:id] && v.status == Zena::Status[:red]
+          when :refuse
+            v.status > Zena::Status[:red] && can_apply?(:publish)
+          when :publish
+            v.status < Zena::Status[:pub] && 
+            ( ( can_visible? && (v.status > Zena::Status[:red] || v.user_id == visitor[:id]) ) ||
+              ( can_manage?  && private? )
+            )
+          when :unpublish
+            can_drive? && v.status == Zena::Status[:pub]
+          when :remove
+            can_apply?(:unpublish) || (v.status < Zena::Status[:pub] && (v.user_id == visitor[:id]))
+          when :redit
+            can_edit?
+          when :destroy_version
+            # anonymous users cannot destroy
+            can_drive? && v.status < Zena::Status[:red] && !visitor.is_anon? && (self.versions.count > 1 || empty?)
+          when :update_attributes
+            can_write? # basic check, complete check is made for each attribute during validations
+          end
+        end
+        
+        # Gateway to all modifications of the node or it's versions.
+        def apply(method, *args)
+          unless can_apply?(method)
+            errors.add('base', 'you do not have the rights to do this')
+            return false
+          end
+          res = case method
+          when :propose
+            version.status = args[0] || Zena::Status[:prop]
+            version.save && after_propose && update_max_status
+          when :backup
+            version.status = Zena::Status[:rep]
+            @redaction = nil
+            redaction.save if version.save
+          when :refuse
+            version.status = Zena::Status[:red]
+            version.save && after_refuse && update_max_status
+          when :publish
+            pub_time = args[0]
+            old_ids = version.class.fetch_ids "node_id = '#{self[:id]}' AND lang = '#{version[:lang]}' AND status = '#{Zena::Status[:pub]}'"
+            case version.status
+            when Zena::Status[:rep]
+              new_status = Zena::Status[:rem]
+            else
+              new_status = Zena::Status[:rep]
+            end
+            pub_time = args[0]
+            version.publish_from = pub_time || version.publish_from || Time.now.utc
+            version.status = Zena::Status[:pub]
+            if version.save
+              # only remove previous publications if save passed
+              self.class.connection.execute "UPDATE #{version.class.table_name} SET status = '#{new_status}' WHERE id IN (#{old_ids.join(', ')})" unless old_ids == []
+              res = after_publish(pub_time) && update_publish_from && update_max_status
+              if res
+                self.class.connection.execute "UPDATE #{self.class.table_name} SET updated_at = #{self.class.connection.quote(Time.now)} WHERE id=#{self[:id].to_i}" unless new_record?
+              end
+              res
+            else
+              merge_version_errors
+              false
+            end
+          when :unpublish
+            version.status = Zena::Status[:rem]
+            version.publish_from = nil
+            if version.save
+              update_publish_from && update_max_status && after_remove
+            else
+              false
+            end
+          when :remove
+            version.status = Zena::Status[:rem]
+            if version.save
+              update_publish_from && update_max_status && after_remove
+            else
+              false
+            end
+          when :redit
+            version.status = Zena::Status[:red]
+            if version.save
+              update_publish_from && update_max_status && after_remove
+            else
+              false
+            end
+          when :destroy_version
+            if versions.count == 1
+              debugger
+              version.destroy 
+              self.destroy
+            else
+              version.destroy
+            end
+          when :update_attributes
+            attributes = args[0].stringify_keys
+            attributes = remove_attributes_protected_from_mass_assignment(attributes)
+            attributes = remove_attributes_with_same_value(attributes)
+            return true if attributes == {} # nothing to be done.
+            do_update_attributes(attributes)  
+          end
         end
         
         # Propose for publication
         def propose(prop_status=Zena::Status[:prop])
-          if version.user_id == visitor[:id]
-            version.status = prop_status
-            version.save && after_propose && update_max_status
-          else
-            false
-          end
+          apply(:propose, prop_status)
         end
         
         # Backup a redaction (create a new version)
         # TODO: test
         def backup
-          if version.user_id == visitor[:id]
-            version.status = Zena::Status[:rep]
-            @redaction = nil
-            if version.save
-              redaction.save
-              # new redaction created
-            end
-          else
-            false
-          end
+          apply(:backup)
         end
         
         # Refuse publication
         def refuse
-          return false unless can_refuse?
-          version.status = Zena::Status[:red]
-          version.save && after_refuse && update_max_status
+          apply(:refuse)
         end
         
         # publish if version status is : redaction, proposition, replaced or removed
         # if version to publish is 'rem' or 'red' or 'prop' : old publication => 'replaced'
         # if version to publish is 'rep' : old publication => 'removed'
         def publish(pub_time=nil)
-          unless can_publish?
-            errors.add('base', 'you do not have the rights to do this')
-            return false
-          end
-          old_ids = version.class.fetch_ids "node_id = '#{self[:id]}' AND lang = '#{version[:lang]}' AND status = '#{Zena::Status[:pub]}'"
-          case version.status
-          when Zena::Status[:rep]
-            new_status = Zena::Status[:rem]
-          else
-            new_status = Zena::Status[:rep]
-          end
-          version.publish_from = pub_time || version.publish_from || Time.now.utc
-          version.status = Zena::Status[:pub]
-          if version.save
-            # only remove previous publications if save passed
-            
-            connection.execute "UPDATE #{version.class.table_name} SET status = '#{new_status}' WHERE id IN (#{old_ids.join(', ')})" unless old_ids == []
-            after_publish(pub_time) && update_publish_from && update_max_status
-          else
-            merge_version_errors
-            false
-          end
+          apply(:publish, pub_time)
         end
         
         def unpublish
-          return false unless can_unpublish?
-          version.status = Zena::Status[:red]
-          version.publish_from = nil
-          if version.save
-            update_publish_from && update_max_status && after_remove
-          else
-            false
-          end
+          apply(:unpublish)
         end
         
         # A published version can be removed by the members of the publish group
         # A redaction can be removed by it's owner
         def remove
-          unless can_unpublish? || (version.status < Zena::Status[:pub] && (version.user_id == visitor[:id]))
-            return false
-          end
-          version.status = Zena::Status[:rem]
-          if version.save
-            update_publish_from && update_max_status && after_remove
-          else
-            false
-          end
+          apply(:remove)
         end
         
+        # Edit again a previously published/removed version.
         def redit
-          return false unless can_edit?
-          version.status = Zena::Status[:red]
-          if version.save
-            update_publish_from && update_max_status && after_remove
-          else
-            false
-          end
+          apply(:redit)
+        end
+        
+        # Versions can be destroyed if they are in 'deleted' status.
+        # Destroying the last version completely removes the node (it must thus be empty)
+        def destroy_version
+          apply(:destroy_version)
         end
         
         # Call backs
@@ -253,40 +312,7 @@ module Zena
         # :v_... or :c_... keys, then only the version will be saved. If the attributes does not contain any :v_... or :c_...
         # attributes, only the node is saved, without creating a new version.
         def update_attributes(new_attributes)
-          redaction_attr = false
-          node_attr      = false
-          
-          attributes = new_attributes.stringify_keys
-          attributes = remove_attributes_protected_from_mass_assignment(attributes)
-          attributes = remove_attributes_with_same_value(attributes)
-          
-          return true if attributes == {} # nothing to be done.
-          
-          attributes.each do |k,v|
-            next if k.to_s == 'id' # just ignore 'id' (cannot be set but is often around)
-            if k.to_s =~ /^(v_|c_)/
-              redaction_attr = true
-            else
-              node_attr      = true
-            end
-            break if node_attr && redaction_attr
-          end
-          if redaction_attr
-            return false unless edit!
-          end
-          
-          unless node_attr
-            attributes.each do |k,v|
-              next if k.to_s == 'id' # just ignore 'id' (cannot be set but is often around)
-              self.send("#{k}=".to_sym, v)
-            end
-            valid_redaction
-            if errors.empty?
-              save_version && update_max_status
-            end
-          else
-            super(attributes)
-          end
+          apply(:update_attributes,new_attributes)
         end
         
         
@@ -331,8 +357,11 @@ module Zena
           return @version if @version
           
           if key && !key.kind_of?(Symbol) && !new_record?
-            min_status = can_drive? ? Zena::Status[:prop] : Zena::Status[:pub]
-            @version = secure(Version) { Version.find(:first, :conditions => ["node_id = ? AND number = ? AND (user_id = ? OR status >= ?)", self[:id], key, visitor[:id], min_status]) }
+            if can_drive?
+              @version = secure(Version) { Version.find(:first, :conditions => ["node_id = ? AND number = ? AND (user_id = ? OR status <> ?)", self[:id], key, visitor[:id], Zena::Status[:red]]) }
+            else
+              @version = secure(Version) { Version.find(:first, :conditions => ["node_id = ? AND number = ? AND (user_id = ? OR status >= ?)", self[:id], key, visitor[:id], Zena::Status[:pub]]) }
+            end
           else
             min_status = (key == :pub) ? Zena::Status[:pub] : Zena::Status[:red]
             
@@ -371,6 +400,39 @@ module Zena
         end
         
         private
+        
+        def do_update_attributes(attributes)
+          redaction_attr = false
+          node_attr      = false
+
+          attributes.each do |k,v|
+            next if k.to_s == 'id' # just ignore 'id' (cannot be set but is often around)
+            if k.to_s =~ /^(v_|c_)/
+              redaction_attr = true
+            else
+              node_attr      = true
+            end
+            break if node_attr && redaction_attr
+          end
+          if redaction_attr
+            return false unless edit!
+          end
+
+          unless node_attr
+            attributes.each do |k,v|
+              next if k.to_s == 'id' # just ignore 'id' (cannot be set but is often around)
+              self.send("#{k}=".to_sym, v)
+            end
+            valid_redaction
+            if errors.empty?
+              save_version && update_max_status
+            end
+          else
+            # super class call (original rails update_attributes)
+            self.attributes = attributes
+            save
+          end
+        end
         
         def update_attribute_without_fuss(att, value)
           self[att] = value

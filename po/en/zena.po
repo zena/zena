@@ -1270,9 +1270,8 @@ msgid "search results"
 msgstr ""
 
 #: lib/gettext_strings.rb:74
-#, fuzzy
-msgid "btn_unplublish"
-msgstr "<img src='/images/wand.png' alt='publish'/>"
+msgid "btn_unpublish"
+msgstr "<img src='/images/delete.png' alt='unpublish'/>"
 
 #: lib/gettext_strings.rb:75
 msgid "btn_destroy"

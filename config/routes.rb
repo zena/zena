@@ -26,7 +26,8 @@ ActionController::Routing::Routes.draw do |map|
                                  :refuse  => :put,
                                  :remove  => :put,
                                  :preview => :put,
-                                 :link    => :any }
+                                 :link    => :any,
+                                 :destroy => :put } # FIXME: should be a DELETE
                                  
     nodes.resources :discussions, :name_prefix => nil do |discussions|
       #discussions.resources :comments,

@@ -32,4 +32,10 @@ class TemplateVersion < Version
   def content_class
     TemplateContent
   end
+  
+  private
+    def destroy_content
+      return true unless node.versions.count == 0 # deleting the last version
+      content.destroy if content
+    end
 end

@@ -1295,7 +1295,7 @@ msgid "search results"
 msgstr "résultats de la recherche"
 
 #: lib/gettext_strings.rb:74
-msgid "btn_unplublish"
+msgid "btn_unpublish"
 msgstr "<img src='/images/delete.png' alt='dépublier'/>"
 
 #: lib/gettext_strings.rb:75

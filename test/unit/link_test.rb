@@ -517,4 +517,8 @@ class LinkTest < ZenaTestUnit
     assert_equal nodes_id(:bird_jpg), @node1.icon[:id]
     assert_equal 2, @node1.icon_for(:from=>'project').size
   end
+  
+  def test_destroy
+    assert false, "todo"
+  end
 end

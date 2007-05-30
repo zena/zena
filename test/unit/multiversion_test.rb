@@ -642,4 +642,46 @@ class MultiVersionTest < ZenaTestUnit
     node = secure(Node) { nodes(:status) }
     assert_equal 'spaghetti bolognese', node.d_bolo
   end
+  
+  def test_root_never_empty?
+    login(:lion)
+    Node.connection.execute "UPDATE nodes SET parent_id = NULL WHERE parent_id = #{nodes_id(:zena)}"
+    node = secure(Node) { nodes(:zena) }
+    assert !node.empty?
+  end
+  
+  def test_empty?
+    login(:lion)
+    Node.connection.execute "UPDATE nodes SET parent_id = NULL WHERE parent_id = #{nodes_id(:people)} AND id <> #{nodes_id(:ant)}"
+    node = secure(Node) { nodes(:people) }
+    assert_nil node.nodes
+    assert !node.empty?
+    Node.connection.execute "UPDATE nodes SET parent_id = NULL WHERE parent_id = #{nodes_id(:people)}"
+    node = secure(Node) { nodes(:people) }
+    assert node.empty?
+  end
+  
+  def test_destroy
+    login(:lion)
+    node = secure(Node) { nodes(:status) }
+    sub  = secure(Page) { Page.create(:parent_id => node[:id], :v_title => 'hello') }
+    err sub
+    assert !sub.new_record?
+    assert_equal 2, node.versions.size
+    assert_equal 1, node.send(:all_children).size
+    
+    assert !node.can_destroy_version? # versions are not in 'deleted' status
+    Node.connection.execute "UPDATE versions SET status = #{Zena::Status[:del]} WHERE node_id = #{nodes_id(:status)}"
+    node = secure(Node) { nodes(:status) }
+    assert node.can_destroy_version? # versions are now in 'deleted' status
+    assert node.destroy_version      # 1 version left
+    assert_equal 1, node.versions.size
+    assert !node.destroy
+    assert_equal 'contains subpages', node.errors[:base]
+    assert sub.remove
+    assert sub.destroy_version # destroy all
+    node = secure(Node) { nodes(:status) }
+    assert node.destroy_version # destroy all
+    assert_raise(ActiveRecord::Redaction) { nodes(:status) }
+  end
 end

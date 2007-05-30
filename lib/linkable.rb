@@ -294,6 +294,14 @@ on the post edit page :
             end
           END
           class_eval finder
+          unless method_defined?(:destroy_links) || private_method_defined?(:destroy_links)
+            after_destroy :destroy_links
+            class_eval <<-END
+              def destroy_links
+                self.class.connection.execute("DELETE FROM links WHERE source_id = \#{self[:id]} OR target_id = \#{self[:id]}")
+              end
+            END
+          end
           
           if options[:as_unique]
             destroy_if_as_unique     = <<-END

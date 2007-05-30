@@ -465,6 +465,7 @@ Just doing the above will filter all result according to the logged in user.
         end
         
         def secure_on_destroy
+          debugger
           unless old && old.can_drive?
             errors.add('base', "you do not have the rights to do this")
             return false
@@ -714,10 +715,11 @@ Just doing the above will filter all result according to the logged in user.
 
         end
       
-        # Secure scope for publish or management access.
+        # Secure scope for publish or management access. This scope is a little looser then 'secure' (read access) concerning redactions
+        # and 'not published yet' nodes. This is not a bug, such an access is needed to delete old nodes for example.
         # [publish]
         # * super user
-        # * members of +publish_group+ if +max_status+ >= prop
+        # * members of +publish_group+
         # * owner if member of +publish_group+ or private
         # 
         # [manage]
@@ -727,10 +729,9 @@ Just doing the above will filter all result according to the logged in user.
           if visitor.is_su? # super user
             secure_with_scope(obj, nil, &block)
           else
-            scope = "(user_id = '#{visitor[:id]}' AND "+
-                    "( (rgroup_id = 0 AND wgroup_id = 0 AND pgroup_id = 0) OR max_status <= #{Zena::Status[:red]} )" +
-                    ") OR "+
-                    "( pgroup_id IN (#{visitor.group_ids.join(',')}) AND max_status > #{Zena::Status[:red]} )"
+            scope = "(user_id = '#{visitor[:id]}' AND rgroup_id = 0 AND wgroup_id = 0 AND pgroup_id = 0)" +
+                    " OR "+
+                    "pgroup_id IN (#{visitor.group_ids.join(',')})"
             secure_with_scope(obj, scope, &block)
           end
         end

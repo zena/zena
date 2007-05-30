@@ -98,6 +98,9 @@ module Zena
       @hash = Hash[*new_hash.dup.map{|k,v| [k.to_s,v]}.flatten]
     end
     
+    def destroy
+      connection.execute "DELETE FROM #{table_name} WHERE owner_id = '#{@owner[:id].to_i}' AND owner_table = '#{@owner.class.table_name}'"
+    end
     
     def inspect
       "#<#{self.class}:#{sprintf('%x',self.object_id)}\n" +
@@ -161,7 +164,8 @@ module Zena
         # Look at Zena::Acts::DynAttribute for documentation.
         def uses_dynamic_attributes(opts={})
           options = {:table_name => 'dyn_attributes'}.merge(opts)
-          after_save  :save_dynamic_attributes
+          after_save    :save_dynamic_attributes
+          after_destroy :destroy_attributes
           class_eval <<-END
             include Zena::Uses::DynAttributes::InstanceMethods
             def self.dyn_attribute_options
@@ -190,6 +194,10 @@ module Zena
           def save_dynamic_attributes
             @dyn_attributes.save if @dyn_attributes
             true # continue callbacks
+          end
+          
+          def destroy_attributes
+            dyn.destroy
           end
           
           def method_missing(sym,*args)

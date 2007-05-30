@@ -24,8 +24,8 @@
 /* ========================= Zazen css ======================== */
 
 /* images */
-.img_left {float:left; display:table;}
-.img_right {float:right;display:table;}
+.img_left {float:left; display:table; margin-right:5px;}
+.img_right {float:right;display:table; margin-left:5px;}
 .img_center { text-align:center; margin:12px;}
 
 /* paragraphs */

@@ -166,6 +166,16 @@ class VersionsController < ApplicationController
     do_rendering
   end
   
+  # TODO: test
+  def destroy
+    if @node.destroy_version
+      flash[:notice] = "Version destroyed."
+    else
+      flash[:error] = "Could not destroy version."
+    end
+    do_rendering
+  end
+  
   
   protected
     def find_node
