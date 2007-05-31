@@ -83,6 +83,10 @@ zafu_link:
   src: "<li class='super' do='link'/>"
   res: "<li class='super'><a href='/oo/projects/cleanWater/page22.html'>status title</a></li>"
 
+a_link:
+  src: "<a class='bob' do='link' attr='name'>blah</a> <a id='bar' do='link'>here</a>"
+  res: "<a class='bob' href='/oo/projects/cleanWater/page22.html'>status</a> <a id='bar' href='/oo/projects/cleanWater/page22.html'>here</a>"
+
 zafu_link_with_blocks:
   src: "<div id='branding' do='link'><r:img src='30'/></div>"
   res: "/<div id='branding'><a href.*img.*<\/div>/"

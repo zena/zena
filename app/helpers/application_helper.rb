@@ -901,7 +901,8 @@ ENDTXT
     else
       text = options.delete(:text) || node.version.title
       attributes = ""
-      attributes += options[:class] ? " class='#{options[:class]}'" : ''
+      attributes += options[:class] ? " class='#{options.delete(:class)}'" : ''
+      attributes += options[:id] ? " id='#{options.delete(:id)}'" : ''
       return text unless node
       if dash = options.delete(:dash)
         "<a#{attributes} href='##{dash}'>#{text}</a>"

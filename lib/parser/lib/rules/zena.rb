@@ -781,9 +781,9 @@ END_TXT
     # <r:link href='node'><r:trans attr='lang'/></r:link>
     # <r:link href='node' tattr='lang'/>
     def r_link
-      if @blocks.blank?
-        text_mode = :erb
+      if @blocks.blank? || @params[:attr] || @params[:tattr] || @params[:trans] || @params[:text]
         text = get_text_for_erb
+        text_mode = :erb
       else  
         text_mode = :raw
         text = expand_with
@@ -825,17 +825,19 @@ END_TXT
       html_tags  = {}
       if @html_tag && @html_tag != 'a'
         # html attributes do not belong to anchor
+        pre_space = ''
       else
         html_tags[:class] = @html_tag_params[:class] if @html_tag_params[:class]
         html_tags[:id   ] = @html_tag_params[:id   ] if @html_tag_params[:id   ]
+        pre_space = @space_before || ''
         @html_tag_done = true
       end
         
       if text_mode == :raw
-        "<a#{params_to_html(html_tags)} href='<%= node_link(:url_only=>true, :node=>#{lnode}#{href}#{url}#{dash}#{fmt}#{mode}) %>'>#{text}</a>"
+        pre_space + "<a#{params_to_html(html_tags)} href='<%= node_link(:url_only=>true, :node=>#{lnode}#{href}#{url}#{dash}#{fmt}#{mode}) %>'>#{text}</a>"
       else
         text = text.blank? ? '' : ", :text=>#{text}"
-        "<%= node_link(:node=>#{lnode}#{text}#{href}#{url}#{dash}#{fmt}#{mode}#{params_to_erb(html_tags)}) %>"
+        pre_space + "<%= node_link(:node=>#{lnode}#{text}#{href}#{url}#{dash}#{fmt}#{mode}#{params_to_erb(html_tags)}) %>"
       end
     end
     
