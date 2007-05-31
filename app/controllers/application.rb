@@ -178,7 +178,6 @@ class ApplicationController < ActionController::Base
     def template_url_for_asset(opts)
       return nil unless res = find_template_document(opts)
       asset, url = *res
-      url = "#{url}.#{asset.c_ext}" if asset.kind_of?(Document)
       @renamed_assets[url] = asset
       if asset.public? && !current_site.authentication?
         # force the use of a cacheable path for the data, even when navigating in '/oo'
