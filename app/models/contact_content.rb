@@ -34,11 +34,16 @@ class ContactContent < ActiveRecord::Base
     fullname.split(" ").map {|w| w[0..0].capitalize}.join("")
   end
   
-  private
-  def content_before_validation
-    self[:site_id] = version.node[:site_id]
-    [:first_name, :name, :address, :zip, :city, :telephone, :mobile, :email].each do |sym|
-      self[sym] ||= ""
-    end
+  # Return true if this content is not used by any version.
+  def can_destroy?
+    0 == self.class.count_by_sql("SELECT COUNT(*) FROM versions WHERE id = #{self[:version_id]} OR content_id = #{self[:version_id]}")
   end
+  
+  private
+    def content_before_validation
+      self[:site_id] = version.node[:site_id]
+      [:first_name, :name, :address, :zip, :city, :telephone, :mobile, :email].each do |sym|
+        self[sym] ||= ""
+      end
+    end
 end

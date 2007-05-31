@@ -157,8 +157,7 @@ class Version < ActiveRecord::Base
     end
     
     def destroy_content
-      return true unless content_class || self[:content_id] # this version does not own any content
-      content.destroy if content
+      content.destroy if content_class && content.can_destroy?
     end
   
     # Set version number and site_id before validation tests.
@@ -177,8 +176,8 @@ class Version < ActiveRecord::Base
       self[:type]    ||= self.class.to_s
       # ]
       self[:lang] = visitor.lang if self[:lang].blank?
-      if content_class
-        content[:site_id] = self[:site_id]
+      if @content
+        @content[:site_id] = self[:site_id]
       end
     end
   

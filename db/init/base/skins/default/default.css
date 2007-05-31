@@ -86,6 +86,7 @@ ul ul, ul ol, ol ol, ol ul { margin-bottom:0; }
 .inline_form p { display:inline; }
 .inline_form .date_box { display:inline; }
 .inline_form .btn_x { float:right; margin:0; }
+#notes .inline_form .btn_x { float:left; margin:3px 4px 0 0; }
 .inline_form .btn_x a img { border:0; }
 .inline_form .hidden { display:none; }
 .inline_form select { width:8em; }
@@ -97,7 +98,9 @@ ul ul, ul ol, ol ol, ol ul { margin-bottom:0; }
 #related .inline_form p.node_v_title { width:100%; font-size:1.2em; }
 
 /* documents */
-#related a img { border:1px solid grey; }
+#related a { padding-bottom:3px;}
+#related a img { border:1px solid grey; margin-right:3px; margin-bottom:-4px;}
+#related li { margin-bottom:4px; }
 #related .btn_add img { border:0; }
 .document { float:left; margin:0 10px 0 0; }
 .document img { border:1px solid #333; background:#ccc; }

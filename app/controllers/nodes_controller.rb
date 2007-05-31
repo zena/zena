@@ -334,6 +334,7 @@ class NodesController < ApplicationController
       elsif params[:id]
         @node = secure(Node) { Node.find_by_zip(params[:id]) }
       end
+      @title_for_layout = @node.rootpath if @node
     end
 =begin
   

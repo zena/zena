@@ -171,4 +171,32 @@ class DocumentTest < ZenaTestUnit
     end
   end
   
+  def test_destroy_many_versions
+    preserving_files('/test.host/data/pdf') do
+      login(:tiger)
+      doc = secure(Node) { nodes(:water_pdf) }
+      filepath = doc.c_filepath
+      assert File.exist?(filepath)
+      first = doc.v_number
+      content_id = doc.c_id
+      assert doc.update_attributes(:v_title => 'WahWah')
+      second = doc.v_number
+      assert first != second
+      assert_equal content_id, doc.c_id # shared content
+      doc = secure(Node) { nodes(:water_pdf) }
+      doc.version(first)
+      assert doc.remove
+      assert doc.can_destroy_version?
+      assert doc.destroy_version
+      err doc
+      doc = secure(Node) { nodes(:water_pdf) }
+      assert File.exist?(filepath)
+      assert_equal content_id, doc.c_id # shared content note destroyed
+      assert doc.remove
+      assert doc.destroy_version
+      assert_nil DocumentContent.find_by_id(content_id)
+      assert ! File.exist?(filepath)
+    end
+  end
+  
 end

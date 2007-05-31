@@ -204,9 +204,7 @@ module Zena
             end
           when :destroy_version
             if versions.count == 1
-              debugger
-              version.destroy 
-              self.destroy
+              version.destroy && self.destroy
             else
               version.destroy
             end

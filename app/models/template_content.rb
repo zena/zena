@@ -40,6 +40,10 @@ class TemplateContent < ActiveRecord::Base
     node = v.node
   end
   
+  def can_destroy?
+    0 == self.class.count_by_sql("SELECT COUNT(*) FROM versions WHERE node_id = #{self[:node_id]}")
+  end
+  
   private
     def template_content_before_validation
       self[:skin_name] = node.section.name

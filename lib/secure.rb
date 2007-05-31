@@ -465,7 +465,6 @@ Just doing the above will filter all result according to the logged in user.
         end
         
         def secure_on_destroy
-          debugger
           unless old && old.can_drive?
             errors.add('base', "you do not have the rights to do this")
             return false

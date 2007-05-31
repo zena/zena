@@ -17,9 +17,9 @@ class DocumentContent < ActiveRecord::Base
   belongs_to            :version
   belongs_to            :site
   validate              :valid_file
+  validate              :valid_content
   validates_presence_of :ext
   validates_presence_of :name
-  validates_presence_of :version
   before_save           :content_before_save
   after_save            :content_after_save
   before_destroy        :destroy_file
@@ -89,48 +89,57 @@ class DocumentContent < ActiveRecord::Base
     "#{SITES_ROOT}#{site.data_path}/#{ext}/#{self[:version_id]}/#{fname}"
   end
   
+  # Return true if this content is not used by any version.
+  def can_destroy?
+    0 == self.class.count_by_sql("SELECT COUNT(*) FROM versions WHERE id = #{self[:version_id]} OR content_id = #{self[:version_id]}")
+  end
+  
   private
   
-  def valid_file
-    return true if !new_record? || @file
-    errors.add('file', "can't be blank")
-    return false
-  end
-  
-  def content_before_save
+    def valid_file
+      return true if !new_record? || @file
+      errors.add('file', "can't be blank")
+      return false
+    end
     
-    self[:type] = self.class.to_s # make sure the type is set in case no sub-classes are loaded.
-    if @file
-      # destroy old file
-      destroy_file unless new_record?
-      # save new file
-      make_file(filepath, @file)
-    elsif !new_record? && (old = DocumentContent.find(self[:id])).name != self[:name]
-      # TODO: test clear cached formated images
-      # cache cleared with 'sweep_cache'
-      # clear format images
-      old.remove_format_images if old.respond_to?(:remove_format_images)
-      FileUtils::mv(old.filepath, filepath)
+    def valid_content
+      errors.add('version', "can't be blank") if !new_record? && can_destroy?
     end
-  end
   
-  def content_after_save
-    # we are done with this file
-    @file = nil
-  end
-  
-  def make_file(path, data)
-    FileUtils::mkpath(File.dirname(path)) unless File.exist?(File.dirname(path))
-    File.open(path, "wb") { |f| f.syswrite(data.read) }
-  end
-  
-  def destroy_file
-    # TODO: clear cache
-    old_path = DocumentContent.find(self[:id]).filepath
-    folder = File.join(*old_path.split('/')[0..-2])
-    if File.exist?(folder)
-      FileUtils::rmtree(folder)
+    def content_before_save
+    
+      self[:type] = self.class.to_s # make sure the type is set in case no sub-classes are loaded.
+      if @file
+        # destroy old file
+        destroy_file unless new_record?
+        # save new file
+        make_file(filepath, @file)
+      elsif !new_record? && (old = DocumentContent.find(self[:id])).name != self[:name]
+        # TODO: test clear cached formated images
+        # cache cleared with 'sweep_cache'
+        # clear format images
+        old.remove_format_images if old.respond_to?(:remove_format_images)
+        FileUtils::mv(old.filepath, filepath)
+      end
     end
-    # TODO: set content_id of versions whose content_id was self[:version_id]
-  end
+  
+    def content_after_save
+      # we are done with this file
+      @file = nil
+    end
+  
+    def make_file(path, data)
+      FileUtils::mkpath(File.dirname(path)) unless File.exist?(File.dirname(path))
+      File.open(path, "wb") { |f| f.syswrite(data.read) }
+    end
+  
+    def destroy_file
+      # TODO: clear cache
+      old_path = DocumentContent.find(self[:id]).filepath
+      folder = File.join(*old_path.split('/')[0..-2])
+      if File.exist?(folder)
+        FileUtils::rmtree(folder)
+      end
+      # TODO: set content_id of versions whose content_id was self[:version_id]
+    end
 end
