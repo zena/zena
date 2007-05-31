@@ -910,6 +910,17 @@ done: \"I am done\""
     assert_equal bird[:id], photos.children[0][:id]
   end
   
+  def test_create_nodes_from_gzip_file
+    login(:tiger)
+    parent = secure(Project) { Project.create(:name => 'import', :parent_id => nodes_id(:zena)) }
+    assert !parent.new_record?, "Not a new record"
+    nodes = secure(Node) { Node.create_nodes_from_folder(:archive => uploaded_archive('simple.yml.gz'), :parent_id => parent[:id] )}
+    assert_equal 1, nodes.size
+    simple = nodes[0]
+    assert_kind_of Post, simple
+    assert !simple.new_record?
+  end
+  
   def test_create_nodes_from_folder_with_defaults
     login(:tiger)
     parent = secure(Project) { Project.create(:name => 'import', :parent_id => nodes_id(:zena), :rgroup_id => 4, :wgroup_id => 4) }

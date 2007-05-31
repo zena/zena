@@ -313,6 +313,7 @@ class MultiVersionTest < ZenaTestUnit
     
     # can add redactions for different languages
     visitor.lang = "de"
+    visitor.site.languages = 'fr,en,de'
     node = secure_write(Node) { nodes(:wiki)  }
     assert node.update_attributes( :v_title=> "Spieluhr") , "Edit succeeds"
     redactions = Version.find(:all, :conditions=>['node_id = ? AND status = ?', nodes_id(:wiki), Zena::Status[:red]])
@@ -361,7 +362,10 @@ class MultiVersionTest < ZenaTestUnit
     visitor.lang = 'ru'
     node = secure(Node) { nodes(:lake)  }
     attrs = { :inherit=>0, :rgroup_id => 4, :v_title => "Manager's lake"}
-    assert node.update_attributes( attrs ), "Update attributes succeeds"
+    assert !node.update_attributes( attrs ) #, "Update attributes succeeds"
+    assert_equal 'not valid', node.errors[:v_lang]
+    visitor.site.languages = 'en,fr,ru'
+    assert node.update_attributes( attrs ) #, "Update attributes succeeds"
     assert_equal 4, node.rgroup_id
     assert_equal 3, node.wgroup_id
     assert_equal 4, node.pgroup_id
@@ -530,8 +534,8 @@ class MultiVersionTest < ZenaTestUnit
     node = secure(Node) { nodes(:status)  }
     assert_equal Zena::Status[:pub], node.v_status
     assert node.unpublish # unpublish version
-    assert_equal Zena::Status[:red], node.v_status
-    assert_equal Zena::Status[:red], node.max_status
+    assert_equal Zena::Status[:rem], node.v_status
+    assert_equal Zena::Status[:rem], node.max_status
     assert !node.remove
   end
   
@@ -558,8 +562,8 @@ class MultiVersionTest < ZenaTestUnit
     login(:lion)
     node = secure(Node) { nodes(:bananas)  }
     assert node.unpublish # unpublish version
-    assert_equal Zena::Status[:red], node.v_status
-    assert_equal Zena::Status[:red], node.max_status
+    assert_equal Zena::Status[:rem], node.v_status
+    assert_equal Zena::Status[:rem], node.max_status
   end
   
   def test_can_unpublish_version
@@ -682,6 +686,6 @@ class MultiVersionTest < ZenaTestUnit
     assert sub.destroy_version # destroy all
     node = secure(Node) { nodes(:status) }
     assert node.destroy_version # destroy all
-    assert_raise(ActiveRecord::Redaction) { nodes(:status) }
+    assert_raise(ActiveRecord::RecordNotFound) { nodes(:status) }
   end
 end

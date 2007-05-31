@@ -31,7 +31,7 @@ include_erb:
 
 cache_part:
   src: "<r:cache><r:show attr='name'/></r:cache>"
-  tem: "<% cache1 = Cache.with(visitor.id, visitor.group_ids, \"en\", \"NP\", \"/cache/part\") do capture do %><%= @node.name %><% end; end %><%= cache1 %>"
+  tem: "<% cache1 = Cache.with(visitor.id, visitor.group_ids, \"NP\", \"en\", \"/cache/part\") do capture do %><%= @node.name %><% end; end %><%= cache1 %>"
 
 show_title:
   src: "<r:show attr='v_title'/>"

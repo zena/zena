@@ -728,7 +728,7 @@ Just doing the above will filter all result according to the logged in user.
           if visitor.is_su? # super user
             secure_with_scope(obj, nil, &block)
           else
-            scope = "(user_id = '#{visitor[:id]}' AND rgroup_id = 0 AND wgroup_id = 0 AND pgroup_id = 0)" +
+            scope = "(user_id = '#{visitor[:id]}' AND ((rgroup_id = 0 AND wgroup_id = 0 AND pgroup_id = 0)) OR (max_status <= #{Zena::Status[:red]}))" +
                     " OR "+
                     "pgroup_id IN (#{visitor.group_ids.join(',')})"
             secure_with_scope(obj, scope, &block)

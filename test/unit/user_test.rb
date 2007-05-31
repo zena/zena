@@ -108,7 +108,7 @@ class UserTest < ZenaTestUnit
   
   def test_cannot_remove_self_from_admin_status
     login(:lion)
-    user = users(:lion)
+    user = secure(User) { users(:lion) }
     assert !user.update_attributes(:status => User::Status[:user])
     assert_equal 'you do not have the rights to do this', user.errors[:status]
   end

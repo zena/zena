@@ -2,6 +2,7 @@ require File.dirname(__FILE__) + '/../test_helper'
 class LinkDummy < ActiveRecord::Base
   acts_as_secure_node
   acts_as_multiversioned
+  has_many :versions, :order=>"number DESC",  :dependent => :destroy, :foreign_key=>'node_id'
   set_table_name 'nodes'
   link :icon, :class_name=>'Image', :unique=>true
   link :icon_for, :class_name=>'Node', :as_unique=>true, :as=>'icon'
@@ -504,21 +505,40 @@ class LinkTest < ZenaTestUnit
   
   def test_from_option
     login(:lion)
-    @node1 = secure(LinkDummy) { LinkDummy.find(nodes_id(:projects)) }
-    @icon1 = secure(LinkDummy) { LinkDummy.find(nodes_id(:bird_jpg)) }
-    @node1.icon = @icon1
-    @node1.save
-    @node2 = secure(LinkDummy) { LinkDummy.find(nodes_id(:status)) }
-    @icon2 = secure(LinkDummy) { LinkDummy.find(nodes_id(:flower_jpg)) }
-    @node2.icon = @icon2
-    @node2.save
+    node1 = secure(LinkDummy) { LinkDummy.find(nodes_id(:projects)) }
+    icon1 = secure(LinkDummy) { LinkDummy.find(nodes_id(:bird_jpg)) }
+    node1.icon = icon1
+    node1.save
+    node2 = secure(LinkDummy) { LinkDummy.find(nodes_id(:status)) }
+    icon2 = secure(LinkDummy) { LinkDummy.find(nodes_id(:flower_jpg)) }
+    node2.icon = icon2
+    node2.save
     # reload
-    @node1 = secure(LinkDummy) { LinkDummy.find(nodes_id(:projects)) }
-    assert_equal nodes_id(:bird_jpg), @node1.icon[:id]
-    assert_equal 2, @node1.icon_for(:from=>'project').size
+    node1 = secure(LinkDummy) { LinkDummy.find(nodes_id(:projects)) }
+    assert_equal nodes_id(:bird_jpg), node1.icon[:id]
+    assert_equal 2, node1.icon_for(:from=>'project').size
   end
   
   def test_destroy
-    assert false, "todo"
+    LinkDummy.connection.execute "UPDATE versions, nodes SET versions.type='DummyVersion' WHERE versions.node_id = nodes.id AND nodes.type = 'LinkDummy'"
+    login(:tiger)
+    people  = secure(LinkDummy) { LinkDummy.find(nodes_id(:people))  }
+    collections = secure(LinkDummy) { LinkDummy.find(nodes_id(:collections)) }
+    people.letter_ids  = [nodes_id(:status), nodes_id(:opening)]
+    collections.letter_ids = [nodes_id(:status), nodes_id(:tiger)]
+    assert people.save
+    assert collections.save
+    assert_equal 2, people.letters.size
+    assert_equal 2, collections.letters.size
+    node = secure(LinkDummy) { LinkDummy.find(nodes_id(:status)) }
+    assert_equal 2, node.recipients.size
+    assert node.destroy
+    
+    people  = secure(LinkDummy) { LinkDummy.find(nodes_id(:people))  }
+    collections = secure(LinkDummy) { LinkDummy.find(nodes_id(:collections)) }
+    assert_equal 1, people.letters.size
+    assert_equal 1, collections.letters.size
+    assert_equal nodes_id(:opening), people.letters[0][:id]
+    assert_equal nodes_id(:tiger), collections.letters[0][:id]
   end
 end

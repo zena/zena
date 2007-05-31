@@ -90,10 +90,8 @@ ActiveRecord::Schema.define(:version => 0) do
     t.column "value",       :text
   end
 
-  execute "ALTER TABLE dyn_attributes ENGINE = MyISAM"
-  execute "CREATE  INDEX index_dyn_attributes_on_owner_id ON dyn_attributes (owner_id)"
-  execute "ALTER TABLE dyn_attributes ENGINE = MyISAM"
-  execute "CREATE  INDEX index_dyn_attributes_on_owner_table ON dyn_attributes (owner_table)"
+  add_index "dyn_attributes", ["owner_id"], :name => "index_dyn_attributes_on_owner_id"
+  add_index "dyn_attributes", ["owner_table"], :name => "index_dyn_attributes_on_owner_table"
 
   create_table "groups", :force => true do |t|
     t.column "created_at", :datetime
@@ -149,8 +147,7 @@ ActiveRecord::Schema.define(:version => 0) do
     t.column "contact_id", :integer
   end
 
-  execute "ALTER TABLE participations ENGINE = MyISAM"
-  execute "CREATE  INDEX user_id ON participations (user_id,site_id)"
+  add_index "participations", ["user_id", "site_id"], :name => "user_id", :unique => true
 
   create_table "sites", :force => true do |t|
     t.column "host",            :string
@@ -159,7 +156,6 @@ ActiveRecord::Schema.define(:version => 0) do
     t.column "anon_id",         :integer
     t.column "public_group_id", :integer
     t.column "site_group_id",   :integer
-    t.column "trans_group_id",  :integer
     t.column "name",            :string
     t.column "authentication",  :boolean
     t.column "monolingual",     :boolean
@@ -177,6 +173,11 @@ ActiveRecord::Schema.define(:version => 0) do
     t.column "tkpath",    :string
     t.column "klass",     :string
     t.column "mode",      :string
+  end
+
+  create_table "tmp", :id => false, :force => true do |t|
+    t.column "a", :string, :limit => 50
+    t.column "b", :string, :limit => 50
   end
 
   create_table "users", :force => true do |t|

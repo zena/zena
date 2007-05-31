@@ -290,16 +290,14 @@ class Node < ActiveRecord::Base
             filename = archive.original_filename
           end
           
-          
           # extract file in this temporary folder.
           # FIXME: is there a security risk here ?
           if filename =~ /\.tgz$|\.tar$/
             `tar -C '#{folder}' -xz < '#{archive.path}'`
           elsif filename =~ /\.zip$/
             `unzip -d '#{folder}' '#{archive.path}'`
-          elsif filename =~ /\.gzip$/
-            puts "FIXME GUNZIP NOT SET"
-            # FIXME: system "gunzip -C '#{folder}' -xz < '#{archive.path}'"
+          elsif filename =~ /(.*)(\.gz|\.z)$/
+            `gzip -d '#{archive.path}' -c > '#{folder}/#{$1.gsub("'",'')}'`
           else
             # FIXME: send errors back
             puts "BAD #{archive.inspect}"

@@ -5,7 +5,7 @@ module ActiveRecord
       def indexes(table, stream)
         indexes = @connection.indexes(table)
         indexes.each do |index|
-          if index.kind_of?(ActiveRecord::ConnectionAdapters::MySQLIndexDefinition)
+          if index.kind_of?(ActiveRecord::ConnectionAdapters::MySQLIndexDefinition) && index.index_type == 'FULLTEXT'
             stream.puts <<RUBY
   execute "ALTER TABLE #{index.table} ENGINE = MyISAM"
   execute "CREATE #{index.index_type} INDEX #{index.name} ON #{index.table} (#{index.columns.join(',')})"

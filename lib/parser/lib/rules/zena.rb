@@ -874,7 +874,7 @@ END_TXT
     def r_cache
       kpath   = @params[:kpath]   || Page.kpath
       context = @params[:context] || @context[:name] || (@options[:included_history][0] || '').split('::')[0]
-      out "<% #{cache} = Cache.with(visitor.id, visitor.group_ids, #{helper.send(:lang).inspect}, #{kpath.inspect}, #{context.inspect}) do capture do %>"
+      out "<% #{cache} = Cache.with(visitor.id, visitor.group_ids, #{kpath.inspect}, #{helper.send(:lang).inspect}, #{context.inspect}) do capture do %>"
       out expand_with
       out "<% end; end %><%= #{cache} %>"
     end

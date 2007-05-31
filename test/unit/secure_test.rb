@@ -82,7 +82,7 @@ class SecureReadTest < ZenaTestUnit
     ant = secure(User) { users(:ant) }
     assert_raise(ActiveRecord::RecordNotFound) { node = secure(Node) { nodes(:strange)  } }
     assert_raise(ActiveRecord::RecordNotFound) { node = secure_write(Node) { nodes(:strange)  } }
-    assert_raise(ActiveRecord::RecordNotFound) { node = secure_drive(Node) { nodes(:strange)  } }
+    assert node = secure_drive(Node) { nodes(:strange)  }
     
     login(:lion)
     lion_node = ""
@@ -770,7 +770,7 @@ class SecureUpdateTest < ZenaTestUnit
     }.merge(opts[:node] || {})
     
     node = secure(Note) { Note.create(attrs) }
-    ref  = secure(Node) { Node.find_by_zip(attrs[:parent_id])}
+    ref  = secure(Node) { Node.find_by_id(attrs[:parent_id])}
     
     [node, ref]
   end
