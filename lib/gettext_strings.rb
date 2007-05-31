@@ -73,6 +73,7 @@ module Zena
     
     N_('btn_unpublish')    # version action
     N_('btn_destroy')
+    N_('btn_redit')
     
     N_('status_50')         # published
     N_('status_40')         # proposed
@@ -93,6 +94,8 @@ module Zena
     N_('Friday')
     N_('Saturday')
     N_('Sunday')
+    
+    N_('news_date')         # calendar day (event list view)
     
     N_('mon')
     N_('tue')

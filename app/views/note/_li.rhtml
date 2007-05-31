@@ -1,9 +1,9 @@
-<li class='note'<%= li[:id] == @selected_note ? " id='note_selected'" : "" %>>
+<li class='note'<%= li[:zip] == @selected_note ? " id='note_selected'" : "" %>>
   <div class='header'>
     <div class='li_s<%= li.v_status %>'>
       <p class='log_at'><%= @note_date ? short_time(li.event_at) : short_date(li.log_at) %></p>
       <p class='title'><%= show_title(:node=>li, :project=>(li.project != @node.project)) %></p>
-      <p class='sign'><%= li.v_author.initials %></p>
+      <p class='sign'><%= li.v_user.initials %></p>
       <%= node_actions(:actions=>:all, :node=>li) %>
     </div>
   </div>

@@ -3,7 +3,7 @@
   <td class="box" style='cursor:pointer;' onclick="Zena.diff_select(this);"><%= tr.number %></td>
   <td class="box"><%= tr.lang %></td>
   <td class="status"><%= _("status_#{tr.status}") %></td>
-  <td class="sign"><%= tr.author.initials %></td>
+  <td class="sign"><%= tr.user.initials %></td>
   <td class="comment"><%= tr.comment %></td>
   <td class="date"><%= tr.status == Zena::Status[:pub] ? tformat_date(tr.publish_from, 'datetime') : tformat_date(tr.updated_at, 'datetime') %></td>
   <td class="actions"><%= version_actions(tr) %></td>

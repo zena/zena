@@ -1,4 +1,4 @@
-<table cellspacing="0" class="tinycal">
+<table cellspacing="0" id="tinycal">
   <tr class="head"><td class="button">
     <%= link_to_remote( '<img src="/images/control_rewind.png"/>' , :update=>'tinycal', :url=>{:controller=>'calendar', :action=>'show', :date=>(date << 1), :id=>source[:id], :size=>size, :find=>method, :rnd=>rnd } ) %>
   </td>

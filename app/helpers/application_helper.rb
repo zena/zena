@@ -773,18 +773,18 @@ module ApplicationHelper
           actions << version_form_action('remove',version)
         end
       when Zena::Status[:rep]
-        actions << version_form_action('edit',version) if node.can_edit_lang?(version.lang)
+        actions << version_form_action('redit',version) if node.can_edit_lang?(version.lang)
         actions << version_form_action('publish',version)
         actions << version_form_action('propose',version)
         actions << version_form_action('destroy',version) if node.can_destroy_version?(version)
       when Zena::Status[:rem]
-        actions << version_form_action('edit',version) if node.can_edit_lang?(version.lang)
+        actions << version_form_action('redit',version) if node.can_edit_lang?(version.lang)
         actions << version_form_action('publish',version)
         actions << version_form_action('propose',version)
         actions << version_form_action('destroy',version) if node.can_destroy_version?(version)
       when Zena::Status[:del]
         if (version[:user_id] == visitor[:id])
-          actions << version_form_action('edit',version) if node.node.can_edit_lang?(version.lang)
+          actions << version_form_action('redit',version) if node.node.can_edit_lang?(version.lang)
         end
         actions << version_form_action('destroy',version) if node.can_destroy_version?(version)
       end

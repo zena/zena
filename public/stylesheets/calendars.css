@@ -1,0 +1,46 @@
+/* small calendar */
+
+#small_calendar { height: 9em; margin-bottom:0.8em; }
+#tinycal { font-size:0.7em; margin:auto; cursor:pointer; }
+#tinycal table { border: 1px solid #CAD4DA; background:#F5F8F9; }
+#tinycal td { text-align:center; color:#333; }
+#tinycal a { color:inherit; }
+#tinycal em { border-bottom:2px solid orange; }
+#tinycal .head td { font-weight:bold; padding: 2px; line-height:1.5; font-size:0.9em; color:#655; padding:2px; text-align:center; }
+#tinycal .head td.button a { border:0; text-decoration:none; color:#568BB9;}
+#tinycal .body td { height:1.8em; }
+#tinycal .body #tiny_today p { background:#CFD6DA; }
+#tinycal .body td.other, #tinycal .body td.other a { color:#ccc; }
+#tinycal .body td.sat, #tinycal .body td.sat a { color:#35950B; }
+#tinycal .body td.satother, #tinycal .body td.satother a { color:#C8DEC1; }
+#tinycal .body td.sun, #tinycal .body td.sun a { color:#35950B; }
+#tinycal .body td.sunother, #tinycal .body td.sunother a { color:#C8DEC1; }
+
+/* LARGE CALENDAR */
+.largecal_title { text-align: center; background:white; margin-bottom:0.5em; font-size:1.3em; }
+.largecal_title a { color:#655; font-size: 1em; font-family: Georgia, Times, serif;}
+.largecal_title span { padding:0 6px; }
+table.largecal { border:1px solid #655; font-size:0.9em; margin:auto; width:80%; border-collapse:separate; }
+.largecal .head td  { border-left:1px solid #836C6C; background: #655; color: #fff; width:14%; height:0.8em; text-align:center; padding:0.4em 3px; }
+.largecal .head td:first-child {border-left-width:0;}
+.largecal .body td  { background: #ffd; width:14%; height:3.4em; padding:3px; vertical-align:top; font-style:italic; text-align:left; color:#999; 
+border:1px solid #DDDBC1; border-width:1px 0 0 1px; font-size:0.8em;}
+.largecal .body a { font-weight:normal; font-style:normal;}
+.largecal .body td:first-child {border-left-width:0;}
+
+.largecal .body td.other { background:#DDDBC1;}
+.largecal .body #large_today { font-weight:bold; color:black; background:#DCF6FF; margin:0;}
+.largecal .body td.sun, #largecal .body td.sat { background:#E6FFDC;}
+.largecal .body td.sunother, #largecal .body td.satother { background:#C8DEC1;}
+.largecal .body td.suntoday, #largecal .body td.sattoday  { font-weight:bold; color:black; background:#C7FFC3;}
+
+.largecal .body div { margin:2px; margin-left:1.2em; font-style:normal; font-weight:normal; font-size:1.1em; }
+.largecal .body div a { padding:1px;}
+.largecal .body div a:hover { text-decoration:underline; }
+.largecal .body p { margin:0 0 0 2em;}
+.largecal .body p:first-child { margin-top:-1.2em;}
+.largecal .preview img { background:none;}
+.largecal .preview .title { font-size:1.1em; }
+.largecal .preview .note_title { background:#777; padding:5px; margin:0; color:#fff; font:1em Georgia, Arial, sans-serif; font-size:1.3em; letter-spacing: 0.03em; }
+
+#note_selected { border-left-color:orange; }

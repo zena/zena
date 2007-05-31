@@ -11,8 +11,8 @@
       roles.unshift ['tag', 'tags']
     end -%>
     <select name="node[link][role]">
-    <% roles.each do |k,v| %>
-      <option value='<%= k %>'><%= _(v) %></input>
+    <% roles.each do |name,role| %>
+      <option value='<%= role %>'><%= _(name) %></input>
     <% end -%>
     </select>
   </div>

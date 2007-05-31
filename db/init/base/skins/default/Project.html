@@ -1,4 +1,8 @@
 <r:include template='layout.html'>
+  <r:with part='head/stylesheets'>
+    <r:stylesheets list='reset,zena,code,calendars'/>
+    <link href="default.css" rel="Stylesheet" type="text/css"/>
+  </r:with>
   <r:with part='body/container/context'>
     <div id='small_calendar' do='calendar'/>
     <r:hot>

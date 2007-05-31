@@ -864,10 +864,10 @@ END_TXT
     def r_calendar
       from   = 'project'.inspect
       date   = 'main_date'
-      method = (@params[:find  ] || 'notes'   ).to_sym.inspect
+      find   = (@params[:find  ] || 'news'   ).to_sym.inspect
       size   = (@params[:size  ] || 'tiny'    ).to_sym.inspect
       using  = (@params[:using ] || 'event_at').gsub(/[^a-z_]/,'').to_sym.inspect # SQL injection security
-      "<%= calendar(:node=>#{node}, :from=>#{from}, :date=>#{date}, :method=>#{method}, :size=>#{size}, :using=>#{using}) %>"
+      "<%= calendar(:node=>#{node}, :from=>#{from}, :date=>#{date}, :find=>#{find}, :size=>#{size}, :using=>#{using}) %>"
     end
     
     # part caching

@@ -156,6 +156,15 @@ class VersionsController < ApplicationController
     do_rendering
   end
   
+  def redit
+    if @node.redit
+      flash[:notice] = "Rolled back to redaction."
+    else
+      flash[:error] = "Could not rollback: #{error_messages_for('node')}"
+    end
+    do_rendering
+  end
+  
   # TODO: test
   def unpublish
     if @node.unpublish

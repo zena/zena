@@ -26,11 +26,12 @@ class Project < Page
   end
 
   # TODO: test
-  # The project's notes with the added_notes
+  # The project's notes with the notes added to the project through 'project'
   def notes_all(opts={})
     options = {:order=>'log_at DESC', :or=>['project_id = ?', self[:id]]}.merge(opts)
     notes_added(options)
   end
+  
 =begin
     conditions = options[:conditions]
     options.delete(:conditions)

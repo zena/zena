@@ -25,6 +25,7 @@ ActionController::Routing::Routes.draw do |map|
                                  :unpublish => :put,
                                  :refuse  => :put,
                                  :remove  => :put,
+                                 :redit   => :put,
                                  :preview => :put,
                                  :link    => :any,
                                  :destroy => :put } # FIXME: should be a DELETE

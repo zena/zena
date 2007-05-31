@@ -435,7 +435,7 @@ class ApplicationController < ActionController::Base
     end
 
     def clean_attributes(attrs=params['node'])
-      secure(Node) { Node.clean_attributes(attrs) }
+      att = secure(Node) { Node.clean_attributes(parse_dates(attrs)) }
     end
     
     def parse_dates(attrs=params['node'])
