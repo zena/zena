@@ -34,6 +34,14 @@ class TextDocument < Document
     end
   end
   
+  def c_size
+    version.text.size
+  end
+  
+  def c_filename
+    filename
+  end
+  
   private
     
     # Overwrite superclass (DocumentContent) behavior

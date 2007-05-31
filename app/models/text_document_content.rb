@@ -1,31 +1,19 @@
 class TextDocumentContent < DocumentContent
-  before_validation :text_doc_content_before_validation
   
   def file=(aFile)
     super
     version.text = @file.read
   end
   
-  # Return document file size (= version's text size)
+  # Return document file size (= version's text size). Implemented as 'c_size' in TextDocument.
   def size(format=nil)
-    return self[:size] if self[:size]
-    if !new_record? && File.exist?(filepath)
-      self[:size] = File.stat(filepath).size
-      self.save
-    end
-    self[:size]
+    0
   end
   
   private
   
   def valid_file
     true # overwrite superclass behaviour
-  end
-  
-  # called before_validation
-  def text_doc_content_before_validation
-    self[:name] ||= version.node.name
-    self[:size] = version.text.size
   end
   
   # called before_save
