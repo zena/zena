@@ -1,35 +1,39 @@
-class ActiveRecord::Base
-  @@_zafu_readable ||= {} # defined for each class
-  @@_zafu_readable_attributes ||= {} # full list with inherited attributes
+begin
+  class ActiveRecord::Base
+    @@_zafu_readable ||= {} # defined for each class
+    @@_zafu_readable_attributes ||= {} # full list with inherited attributes
   
-  def self.zafu_readable(*list)
-    @@_zafu_readable[self] ||= []
-    @@_zafu_readable[self] = (@@_zafu_readable[self] + list.map{|l| l.to_s}).uniq
-  end
-  
-  def self.zafu_readable_attributes
-    @@_zafu_readable_attributes[self] ||= if superclass == ActiveRecord::Base
-      @@_zafu_readable[self] || []
-    else
-      (superclass.zafu_readable_attributes + (@@_zafu_readable[self] || [])).uniq.sort
+    def self.zafu_readable(*list)
+      @@_zafu_readable[self] ||= []
+      @@_zafu_readable[self] = (@@_zafu_readable[self] + list.map{|l| l.to_s}).uniq
     end
-  end
   
-  def self.zafu_readable?(sym)
-    if sym.to_s =~ /(.*_for)_zips$/
-    return true if defined_role[$1]
-    elsif sym.to_s =~ /(.*)_zips$/  
-      return true if defined_role[$1.pluralize]
-    elsif sym.to_s =~ /(.*)_zip$/
+    def self.zafu_readable_attributes
+      @@_zafu_readable_attributes[self] ||= if superclass == ActiveRecord::Base
+        @@_zafu_readable[self] || []
+      else
+        (superclass.zafu_readable_attributes + (@@_zafu_readable[self] || [])).uniq.sort
+      end
+    end
+  
+    def self.zafu_readable?(sym)
+      if sym.to_s =~ /(.*_for)_zips$/
       return true if defined_role[$1]
+      elsif sym.to_s =~ /(.*)_zips$/  
+        return true if defined_role[$1.pluralize]
+      elsif sym.to_s =~ /(.*)_zip$/
+        return true if defined_role[$1]
+      end
+      self.zafu_readable_attributes.include?(sym.to_s)
     end
-    self.zafu_readable_attributes.include?(sym.to_s)
-  end
   
-  def zafu_read(sym)
-    return "'#{sym}' not readable" unless self.class.zafu_readable?(sym)
-    self.send(sym)
+    def zafu_read(sym)
+      return "'#{sym}' not readable" unless self.class.zafu_readable?(sym)
+      self.send(sym)
+    end
   end
+rescue NameError
+  puts "Testing out of Rails, ActiveRecord uninitialized."
 end
 
 module Zena
@@ -41,7 +45,7 @@ module Zena
         args.each do |name|
           class_eval <<-END
             def r_#{name}
-              "<%= #{name}(:node=>\#{node}) %>"
+              "<%= #{name}(:node=>\#{node}\#{params_to_erb(@params)}) %>"
             end
           END
         end

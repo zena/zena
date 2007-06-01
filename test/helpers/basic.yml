@@ -224,7 +224,7 @@ stylesheets:
 lang_links:
   src: "<div id='lang' do='lang_links'><a>en</a> | <b>fr</b></div>"
   tem: "<div id='lang'><%= lang_links(:node=>@node) %></div>"
-  res: "/<div id='lang'><b>en.*\|.*test_render.*=fr/"
+  res: "/<div id='lang'><em>en.*\|.*test_render.*=fr/"
 
 show_path:
   src: "<div id='path' do='show_path'><ul><li><a href='#'>first</a></li> / <li><a href='#'>second</a></li> / <li><a href='#' class='current'>here</a></li></ul></div>"

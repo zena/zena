@@ -43,7 +43,7 @@ end
 class ZazenTest < Test::Unit::TestCase
   testfile :zafu, :zafu_asset, :zafu_insight, :zazen
   def test_single
-    do_test('zafu', 'include_part_far_away')
+    do_test('zafu', 'ignore_do_empty')
   end
   
   def test_zazen_image_no_image

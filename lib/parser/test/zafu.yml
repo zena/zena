@@ -14,6 +14,14 @@ ignore_html:
   src: "<div class='test'><p>some <i>funny</i> text</p></div>"
   res: "<div class='test'><p>some <i>funny</i> text</p></div>"
 
+ignore_tag:
+  src: "there is <li do='ignore'>delete me</li>nothing"
+  res: "there is nothing"
+
+ignore_do_empty:
+  src: "there is <li do=''>delete me</li>nothing left"
+  res: "there is nothing left"
+
 hello_skip_content:
   src: "<r:hello>I want to live forever</r:hello>"
   res: "hello world!"

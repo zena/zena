@@ -873,14 +873,15 @@ ENDTXT
   # show current path with links to ancestors
   def show_path(opts={})
     node = opts[:node] || @node
+    tag  = opts[:tag] || 'li'
+    join = opts[:join] || ' / '
     nav = []
     node.ancestors.each do |obj|
       nav << link_to(obj.name, zen_path(obj))
     end
     
     nav << "<a href='#{url_for(zen_path(node))}' class='current'>#{node.name}</a>"
-    res = "<ul class='path'>"
-    "#{res}<li>#{nav.join(" / </li><li>")}</li></ul>"
+    res = "#{res}<#{tag}>#{nav.join("</#{tag}>#{join}<#{tag}>")}</#{tag}>"
   end
   
   # TODO: test
@@ -968,19 +969,29 @@ ENDTXT
     if visitor.site[:monolingual]
       ""
     else
+      if opts[:tag]
+        tag_in  = "<#{opts[:tag]}>"
+        tag_out = "</#{opts[:tag]}>"
+      else
+        tag_in = tag_out = ''
+      end
       res = []
       visitor.site.lang_list.sort.each do |l|
         if l == lang
-          res << "<b>#{l}</b>"
+          if opts[:tag]
+            res << "<#{opts[:tag]} class='on'>#{l}" + tag_out
+          else
+            res << "<em>#{l}</em>"
+          end
         else
           if visitor.is_anon? && params[:prefix]
-            res << link_to(l, :overwrite_params => {:prefix => l})
+            res << tag_in + link_to(l, :overwrite_params => {:prefix => l}) + tag_out
           else
-            res << link_to(l, :overwrite_params => {:lang   => l})
+            res << tag_in + link_to(l, :overwrite_params => {:lang   => l}) + tag_out
           end
         end
       end
-      res.join(' | ')
+      res.join(opts[:join] || ' | ')
     end
   end
   

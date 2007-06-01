@@ -79,10 +79,11 @@ module Zafu
     end
     
     def r_ignore
-      super
       @html_tag_done = true
-      ""
+      ''
     end
+    
+    alias r_ r_ignore
     
     def r_rename_asset
       return expand_with unless @html_tag
@@ -246,23 +247,23 @@ module Zafu
     def scan_tag(opts={})
       # puts "TAG(#{@method}): [#{@text}]"
       if @text =~ /\A<r:([\w_]+)([^>]*?)(\/?)>/
-        # puts "RTAG:#{$~.to_a.inspect}}" # ztag
+        # puts "RTAG:#{$~.to_a.inspect}" # ztag
         eat $&
         opts.merge!(:method=>$1, :params=>$2)
         opts.merge!(:text=>'') if $3 != ''
         make(:void, opts)
-      elsif @text =~ /\A<(\w+)([^>]*?)do\s*=('|")([^\3]*?[^\\])\3([^>]*?)(\/?)>/
-        # puts "DO:[#{$&}]}" # do tag
+      elsif @text =~ /\A<(\w+)([^>]*?)do\s*=('([^>]*?[^\\]|)'|"([^>]*?[^\\]|)")([^>]*?)(\/?)>/
+        # puts "DO:#{$~.to_a.inspect}" # do tag
         eat $&
-        opts.merge!(:method=>$4, :html_tag=>$1, :html_tag_params=>$2, :params=>$5)
-        opts.merge!(:text=>'') if $6 != ''
+        opts.merge!(:method=>($4||$5), :html_tag=>$1, :html_tag_params=>$2, :params=>$6)
+        opts.merge!(:text=>'') if $7 != ''
         make(:void, opts)
       elsif @end_tag && @text =~ /\A<#{@end_tag}([^>]*?)(\/?)>/
-        # puts "SAME:[#{$&}]}" # simple html tag same as end_tag
+        # puts "SAME:#{$~.to_a.inspect}" # simple html tag same as end_tag
         flush $&
         @end_tag_count += 1 unless $2 == '/'
       elsif @text =~ /\A<(link|img|script)/
-        # puts "HTML:[#{$&}]}" # html
+        # puts "HTML:[#{$&}]" # html
         make(:asset)
       elsif @text =~ /\A[^>]*?>/
         # html tag
