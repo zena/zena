@@ -293,6 +293,14 @@ case_when_evil_test:
 case_ancestor:
   src: "<r:root><r:pages><r:each join=', '><r:case><r:when node='ancestor'><b><r:show attr='name'/></b></r:when><r:else><r:show attr='name'/></r:else></r:case></r:each></r:pages></r:root>"
   res: "collections, nature, people, <b>projects</b>, skins"
+  
+on_if_ancestor_no_class:
+  src: "<r:root><r:pages><li do='each' on_if='ancestor' join=', '><r:show attr='name'/></li></r:pages></r:root>"
+  res: "<li>collections</li>, <li>nature</li>, <li>people</li>, <li class='on'>projects</li>, <li>skins</li>"
+
+on_if_ancestor:
+  src: "<r:root><r:pages><li do='each' on_if='ancestor' class='hello' join=', '><r:show attr='name'/></li></r:pages></r:root>"
+  res: "<li class='hello'>collections</li>, <li class='hello'>nature</li>, <li class='hello'>people</li>, <li class='on'>projects</li>, <li class='hello'>skins</li>"
 
 simple_each:
   src: "<r:children><r:each><r:show attr='name'/></r:each></r:children>"

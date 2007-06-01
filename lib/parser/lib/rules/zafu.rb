@@ -63,13 +63,14 @@ module Zafu
       para.sort.join('')
     end
     
-    def render_html_tag(text)
+    def render_html_tag(text,*append)
+      append ||= []
       return text if @html_tag_done
       if @html_tag
         if text.blank? && ['meta'].include?(@html_tag)
-          res = "<#{@html_tag}#{params_to_html(@html_tag_params || {})}/>"
+          res = "<#{@html_tag}#{params_to_html(@html_tag_params || {})}#{append.join('')}/>"
         else
-          res = "<#{@html_tag}#{params_to_html(@html_tag_params || {})}>#{text}</#{@html_tag}>"
+          res = "<#{@html_tag}#{params_to_html(@html_tag_params || {})}#{append.join('')}>#{text}</#{@html_tag}>"
         end
       else
         res = text

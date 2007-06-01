@@ -1259,12 +1259,41 @@ END_TXT
       end
     end
     
-    def render_html_tag(text)
+    def render_html_tag(text,*append)
+      append ||= []
       return text if @html_tag_done
       set_params  = {}
+      if_params   = {}
       @params.each do |k,v|
         if k.to_s =~ /^t?set_/
           set_params[k] = v
+        end
+      end
+      tag_class = @params[:class] || @html_tag_params[:class]
+      @params.each do |k,v|
+        if k.to_s =~ /^(.+)_if$/
+          klass = $1
+          # FIXME: DRY condition below (same as node_cond...)
+          cond = if node_kind_of?(Node)
+              case v
+              when 'self'
+                "#{node}[:id] == @node[:id]"
+              when 'parent'
+                "#{node}[:id] == @node[:parent_id]"
+              when 'project'
+                "#{node}[:id] == @node[:section_id]"
+              when 'ancestor'
+                "@node.fullpath =~ /\\A\#{#{var}.fullpath}/"
+              else
+                nil
+              end
+            else
+              nil
+            end
+          if cond
+            append << "<%= #{cond} ? \" class='#{klass}'\" : '#{tag_class ? " class='#{tag_class}'" : ''}' %>"
+            break
+          end
         end
       end
       @html_tag = 'div' if !@html_tag && set_params != {}
@@ -1272,6 +1301,7 @@ END_TXT
       @html_tag_params ||= {}
       bak = @html_tag_params.dup
       res_params = {}
+      res_params[:class] = tag_class if tag_class
       set_params.merge(@html_tag_params).each do |k,v|
         if k.to_s =~ /^(t?)set_(.+)$/
           key   = $2
@@ -1300,7 +1330,7 @@ END_TXT
         end
       end
       @html_tag_params = res_params
-      res = super(text)
+      res = super(text,*append)
       @html_tag_params = bak
       res
     end

@@ -8,7 +8,7 @@ class ZenaParserTest < ZenaHelperTest
   Section # make sure we load Section links before trying relations
   
   def test_single
-    do_test('basic', 'a_link')
+    do_test('basic', 'on_if_ancestor')
   end
   
   def test_basic_show_bad_attr
