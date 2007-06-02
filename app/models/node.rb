@@ -883,7 +883,6 @@ class Node < ActiveRecord::Base
   # TODO: test
   def sweep_cache
     return if current_site.being_created?
-    puts current_site.instance_variable_get(:@being_created).inspect
     # zafu 'erb' rendering cache expire
     # TODO: expire only 'dev' rendering if version is a redaction
     CachedPage.expire_with(self) if self.kind_of?(Template)
