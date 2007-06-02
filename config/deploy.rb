@@ -104,7 +104,7 @@ end
 #========================== MANAGE HOST   =========================#
 desc "create a new site"
 task :mksite, :roles => :app do
-  run "#{in_deploy} rake zena:mksite HOST='#{self[:host]}' PASSWORD='#{self[:pass]}' RAILS_ENV=production"
+  run "#{in_deploy} rake zena:mksite HOST='#{self[:host]}' PASSWORD='#{self[:pass]}' RAILS_ENV='production' DEFAULT_LANG='#{self[:default_lang] || 'en'}'"
   create_vhost
   set_permissions
 end

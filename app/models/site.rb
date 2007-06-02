@@ -39,7 +39,9 @@ class Site < ActiveRecord::Base
       }.merge(opts)
       langs = params[:languages].split('.')
       langs += [params[:default_lang]] unless langs.include?(params[:default_lang])
-      params[:languages] = langs.join(',')
+      params[:languages] = langs.map{|l| l[0..1]}.join(',')
+      params[:default_lang] = params[:default_lang][0..1]
+      
       
       site      = self.new(params)
       site.host = host
