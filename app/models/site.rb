@@ -44,6 +44,7 @@ class Site < ActiveRecord::Base
       site      = self.new(params)
       site.host = host
       site.save
+      site.instance_variable_set(:@being_created, true)
       
       if site.new_record?
         return site
@@ -149,6 +150,8 @@ class Site < ActiveRecord::Base
       Site.logger.info "=========================================================="
       Site.logger.info "  NEW SITE CREATED FOR [#{host}] (site#{site[:id]})"
       Site.logger.info "=========================================================="
+      
+      site.instance_variable_set(:@being_created, false)
       site
     end
   end
@@ -237,6 +240,10 @@ class Site < ActiveRecord::Base
   # Return an array with the languages for the site.
   def lang_list
     (self[:languages] || "").split(',').map(&:strip)
+  end
+  
+  def being_created?
+    @being_created
   end
   
   private

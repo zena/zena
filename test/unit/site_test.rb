@@ -46,6 +46,17 @@ class SiteTest < ZenaTestUnit
     assert_equal 'fr', site.anon.lang
   end
   
+  def test_create_site_with_opts
+    with_caching do
+      site = nil
+      assert_nothing_raised { site = Site.create_for_host('super.host', 'secret', :default_lang => 'fr') }
+      site = Site.find(site[:id]) # reload
+      assert_equal ['fr'], site.lang_list
+      assert_equal 'fr', site.default_lang
+      assert_equal 'fr', site.anon.lang
+    end
+  end
+  
   def test_create_site_bad_name
     site = Site.create_for_host('../evil.com', 'zoomzoom')
     assert site.new_record?

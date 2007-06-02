@@ -325,7 +325,7 @@ class User < ActiveRecord::Base
   
     # Set user defaults.
     def user_before_validation
-      return true if creating_site?
+      return true if current_site.being_created?
       if new_record?
         @defined_status ||= current_site.anon.status
       elsif status.blank?
@@ -344,7 +344,7 @@ class User < ActiveRecord::Base
     # Validates that anon user does not have a login, that other users have a password
     # and that the login is unique for the sites the user belongs to.
     def valid_user
-      unless creating_site? || visitor.is_admin? || visitor[:id] == self[:id]
+      unless current_site.being_created? || visitor.is_admin? || visitor[:id] == self[:id]
         errors.add('base', 'you do not have the rights to do this')
         return false
       end
@@ -384,7 +384,7 @@ class User < ActiveRecord::Base
     # for the user (he must be admin in all the sites)
     # FIXME: removing a user from a site ===> remove contact !
     def valid_sites #:doc:
-      if creating_site?
+      if current_site.being_created?
         @added_sites = @removed_sites = nil
         return true
       end
@@ -430,7 +430,7 @@ class User < ActiveRecord::Base
       self.groups = []
       g_ids.each do |id|
         group = Group.find(id)
-        unless creating_site? || s_ids.include?(group[:site_id])
+        unless current_site.being_created? || s_ids.include?(group[:site_id])
           errors.add('group', 'not found') 
           next
         end
@@ -458,10 +458,6 @@ class User < ActiveRecord::Base
         site_participation.status = sta
         site_participation.save
       end
-    end
-    
-    def creating_site?
-      new_record? && @site && @site[:root_id].nil?
     end
   
     # Do not allow destruction of the site's special users.
