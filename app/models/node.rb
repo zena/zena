@@ -549,7 +549,7 @@ class Node < ActiveRecord::Base
   # This is defined by the linkable lib, we add access to 'root', 'project', 'parent', 'children', ...
   def relation(methods, opts={})
     res = nil
-    try_list = methods.split(',')
+    try_list = methods.to_s.split(',')
     plural = Zena::Acts::Linkable::plural_method?(try_list[0])
     if !plural
       opts[:limit] = 1
@@ -737,6 +737,8 @@ class Node < ActiveRecord::Base
     klass = opts.delete(:class) || Page
     c = klass.new(opts)
     c.parent_id  = self[:id]
+    c.instance_variable_set(:@parent, self)
+    
     c.visitor    = visitor
     
     c.inherit = 1
@@ -794,7 +796,20 @@ class Node < ActiveRecord::Base
   # Id to zip mapping for user_id. Used by zafu and forms.
   def user_zip; self[:user_id]; end
   
-  # More reflection needed before implementation.
+  
+  def klass=(new_class)
+    if new_class.kind_of?(String)
+      klass = Module.const_get(new_class)
+    else
+      klass = new_class
+    end
+    raise NameError if !klass.ancestors.include?(Node) || klass.version_class != self.class.content_class
+    
+    
+    
+  rescue NameError
+    errors.add('klass', 'invalid')
+  end
   
   # transform an Node into another Object. This is a two step operation :
   # 1. create a new object with the attributes from the old one

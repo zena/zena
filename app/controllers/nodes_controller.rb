@@ -45,7 +45,8 @@ class NodesController < ApplicationController
         :select => "DISTINCT nodes.*, #{match} AS score",
         :join   => "INNER JOIN versions ON versions.node_id = nodes.id",
         :conditions => match,
-        :order  => "score DESC" }
+        :order  => "score DESC",
+        :group  => "nodes.id" }
     elsif params[:id]
       query = {
         :conditions => ["parent_id = ? AND kpath LIKE 'NP%'",params[:id]],

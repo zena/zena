@@ -71,7 +71,7 @@ module Zena
       
       # some 'id' information can be set during rendering and should merge into tag_params
       @html_tag_params_bak = @html_tag_params
-      @html_tag_params     = @html_tag_params.merge(@context[:html_tag_params] || {})
+      @html_tag_params     = @html_tag_params.merge(@context.delete(:html_tag_params) || {})
       unless @context[:preflight]
         if store = @params.delete(:store)
           @context["stored_#{store}".to_sym] = node
@@ -329,8 +329,8 @@ module Zena
     end
     
     def r_edit
-      @pass[:edit] = self
       if @context[:preflight]
+        @pass[:edit] = self
         # preprocessing
         return ""
       end
@@ -344,55 +344,89 @@ module Zena
       end
     end
     
-    # FIXME: implement all inputs correctly !
-    # change ALL inputs/textarea,form etc from within a z:form ?
     def r_input
+      return '' if @context[:preflight]
       case @params[:type]
       when 'select'
+        return "<span class='parser_error'>select without name</span>"   unless   name = @params[:name]
         klasses = @params[:options] || "Page,Note"
-        "<%= select('node', '#{@params[:attr]}', #{klasses.split(',').map(&:strip).inspect}) %>"
+        "<%= select('node', #{name.inspect}, #{klasses.split(',').map(&:strip).inspect}) %>"
       when 'date_box'
-        "<%= date_box 'node', '#{@params[:attr]}', :size=>15 %>"
+        return "<span class='parser_error'>date_box without name</span>"   unless   name = @params[:name]
+        "<%= date_box 'node', #{name.inspect}, :size=>15#{@context[:in_add] ? ", :value=>''" : ''} %>"
+      else
+        @html_tag = 'input'
+        @html_tag_params.merge!(@params)
+        if name = @html_tag_params[:name]
+          if name =~ /\Anode\[(.*?)\]/
+            name = $1
+          else
+            @html_tag_params[:name] = "node[#{name}]"
+          end
+          return '' if name == 'node[parent_id]' # set with 'r_form'
+        end
+        if @context[:in_add]
+          value = @html_tag_params[:value] ? '' : " value=''"
+        else
+          value = name ? " value='<%= #{node_attribute(name, :node=>'@node')} %>'" : ''
+        end
+        out render_html_tag(nil, value)
       end
+    end
+    
+    def r_form_tag
+      if @context[:preflight]
+        @pass[:form_tag] = self
+        # preprocessing
+        return ""
+      end
+      # replace <form> with constructed form
+      "#{@context[:form_tag]}#{expand_with(:form_tag => nil)}</form>"
     end
     
     # TODO: add parent_id into the form !
     # TODO: add <div style="margin:0;padding:0"><input name="_method" type="hidden" value="put" /></div> if method == put
     # FIXME: use <r:form href='self'> or <r:form action='...'>
     def r_form
-      @pass[:form] = self
       if @context[:preflight]
+        @pass[:form] = self
         # preprocessing
         return ""
       end
       
-      
       if template_url = @context[:template_url]
         # ajax
-        # TODO: use remote_form_for :#{node_class.to_s.downcase}, :url ... and replace all input/select/...
 
         if @context[:in_add]
-          @html_tag_params.merge!(:id=>"#{template_url}_form")
-          form =  "<p class='btn_x'><a href='#' onclick='[\"#{template_url}_add\", \"#{template_url}_form\"].each(Element.toggle);return false;'>#{_('btn_x')}</a></p>\n"
-          form << "<%= form_remote_tag(:url => #{node_class.to_s.downcase.pluralize}_path) %>\n"
+          # inline form used to create new elements: set values to '' and 'parent_id' from context
+          @html_tag_params.merge!(:id=>"#{template_url}_form", :style=>"display:none;")
+          start =  "<p class='btn_x'><a href='#' onclick='[\"#{template_url}_add\", \"#{template_url}_form\"].each(Element.toggle);return false;'>#{_('btn_x')}</a></p>\n"
+          form  =  "<%= form_remote_tag(:url => #{node_class.to_s.downcase.pluralize}_path) %>\n"
         else
-          # saved form
+          # saved form used to edit: set values and 'parent_id' from @node
           @html_tag_params.merge!(:id=>"#{template_url}<%= @node.new_record? ? '_form' : @node[:zip] %>")
-          form =<<-END_TXT
+          # new_record? = edit/create failed, rendering form with errors
+          # else        = edit
+          start =<<-END_TXT
 <% if @node.new_record? -%>
   <p class='btn_x'><a href='#' onclick='[\"#{template_url}_add\", \"#{template_url}_form\"].each(Element.toggle);return false;'>#{_('btn_x')}</a></p>
-  <%= form_remote_tag(:url => #{node_class.to_s.downcase.pluralize}_path) %>
 <% else -%>
   <p class='btn_x'><%= link_to_remote(#{_('btn_x').inspect}, :url => #{node_class.to_s.downcase}_path(#{node}[:zip]) + '?template_url=#{CGI.escape(template_url)}', :method => :get) %></a></p>
-  <%= form_remote_tag(:url => #{node_class.to_s.downcase}_path(#{node}[:zip]), :method => :put) %>
+<% end -%>
+END_TXT
+          form =<<-END_TXT
+<% if @node.new_record? -%>
+<%= form_remote_tag(:url => #{node_class.to_s.downcase.pluralize}_path) %>
+<% else -%>
+<%= form_remote_tag(:url => #{node_class.to_s.downcase}_path(#{node}[:zip]), :method => :put) %>
 <% end -%>
 END_TXT
         end
         form << "<div class='hidden'>"
         form << "<input type='hidden' name='template_url' value='#{template_url}'/>\n"
+        form << "<input type='hidden' name='node[parent_id]' value='<%= #{@context[:in_add] ? '@node[:zip]' : node + '.parent_zip'} %>'/>\n"
         
-        if @params[:klass]
-          # FIXME: add the 'klass' attribute to node_class if no input for klass
+        if @params[:klass] && @context[:in_add]
           form << "<input type='hidden' name='node[klass]' value='#{@params[:klass]}'/>\n"
         end
         [:after, :before, :top, :bottom].each do |sym|
@@ -409,26 +443,12 @@ END_TXT
         puts @context.keys.inspect
         form = "FORM WITHOUT AJAX TODO\n"
       end
-      exp = expand_with
-      
-      exp.gsub!(/<form[^>]*>/,form)
-      if @html_tag
-        out render_html_tag(exp)
-      elsif exp =~ /\A([^<]*)<(\w+)([^>]*)>(.*)<\/\2>(.*)/m
-        out $1
-        tag   = $2
-        inner = $4
-        after = $5
-        if @html_tag_params
-          start_tag  = add_params("<#{$2}#{$3}>", @html_tag_params)
-        else
-          start_tag = "<#{$2}#{$3}>"
-        end
-        out "#{start_tag}#{inner}</#{tag}>#{after}"
-        @html_tag_done = true
+      if @pass[:form_tag]
+        res = start + expand_with(:form_tag => form)
       else
-        out exp
+        res = start + form + expand_with + '</form>'
       end
+      out render_html_tag(res)
     end
     
     # <r:checkbox role='collaborator_for' values='projects' from='site'/>"
@@ -462,8 +482,8 @@ END_TXT
     
     # TODO: test
     def r_add
-      @pass[:add] = self
       if @context[:preflight]
+        @pass[:add] = self
         # preprocessing
         return ""
       end
@@ -492,7 +512,12 @@ END_TXT
           text = add_params(text, :id=>"#{prefix}_add", :class=>(@params[:class] || 'btn_add'), :onclick=>"['#{prefix}_add', '#{prefix}_form'].each(Element.toggle);return false;")
         end
         
-        form_opts = { :node=>"@#{node_class.to_s.downcase}", :html_tag_params=>{:id=>"#{prefix}_form", :style=>"display:none;"}, :no_form => false, :in_add => true }
+        
+        # FIXME: :after, :before, :top, :bottom should move to 'r_form' during preflight
+        #        :node => .. should be removed.
+        #        just leave ':in_add'
+        
+        form_opts = { :node=>"@#{node_class.to_s.downcase}", :no_form => false, :in_add => true }
         
         [:after, :before, :top, :bottom].each do |sym|
           if @params[sym]
@@ -868,12 +893,12 @@ END_TXT
     
     # TODO: test
     def r_calendar
-      from   = 'project'.inspect
+      from   = 'project'
       date   = 'main_date'
-      find   = (@params[:find  ] || 'news'   ).to_sym.inspect
-      size   = (@params[:size  ] || 'tiny'    ).to_sym.inspect
-      using  = (@params[:using ] || 'event_at').gsub(/[^a-z_]/,'').to_sym.inspect # SQL injection security
-      "<%= calendar(:node=>#{node}, :from=>#{from}, :date=>#{date}, :find=>#{find}, :size=>#{size}, :using=>#{using}) %>"
+      find   = (@params[:find  ] || 'news'   ).to_sym
+      size   = (@params[:size  ] || 'tiny'    ).to_sym
+      using  = (@params[:using ] || 'event_at').gsub(/[^a-z_]/,'').to_sym # SQL injection security
+      "<div id='#{size}cal'><%= calendar(:node=>#{node}, :from=>#{from.inspect}, :date=>#{date}, :find=>#{find.inspect}, :size=>#{size.inspect}, :using=>#{using.inspect}) %></div>"
     end
     
     # part caching
@@ -1296,9 +1321,9 @@ END_TXT
           end
         end
       end
-      @html_tag = 'div' if !@html_tag && set_params != {}
+
+      @html_tag = 'div' if !@html_tag && (set_params != {} || @html_tag_params != {})
       
-      @html_tag_params ||= {}
       bak = @html_tag_params.dup
       res_params = {}
       res_params[:class] = tag_class if tag_class

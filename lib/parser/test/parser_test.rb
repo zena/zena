@@ -35,6 +35,18 @@ module Zafu
       return unless check_params(:good, :night)
       "nothing missing"
     end
+    
+    def r_textarea
+      res   = "<#{@html_tag}#{params_to_html(@params)}"
+      @html_tag_done = true
+      inner = expand_with
+      if inner == ''
+        res + "/>"
+      else
+        res + ">#{inner}"
+      end
+    end
+    
     def r_test
       self.inspect
     end
@@ -43,7 +55,7 @@ end
 class ZazenTest < Test::Unit::TestCase
   testfile :zafu, :zafu_asset, :zafu_insight, :zazen
   def test_single
-    do_test('zafu', 'ignore_do_empty')
+    do_test('zafu', 'form')
   end
   
   def test_zazen_image_no_image

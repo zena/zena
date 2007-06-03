@@ -67,7 +67,7 @@ module Zafu
       append ||= []
       return text if @html_tag_done
       if @html_tag
-        if text.blank? && ['meta'].include?(@html_tag)
+        if text.blank? && ['meta','input'].include?(@html_tag)
           res = "<#{@html_tag}#{params_to_html(@html_tag_params || {})}#{append.join('')}/>"
         else
           res = "<#{@html_tag}#{params_to_html(@html_tag_params || {})}#{append.join('')}>#{text}</#{@html_tag}>"
@@ -117,6 +117,39 @@ module Zafu
         res + ">#{inner}"
       end
     end
+    
+    def r_form
+      res   = "<#{@html_tag}#{params_to_html(@params)}"
+      @html_tag_done = true
+      inner = expand_with
+      if inner == ''
+        res + "/>"
+      else
+        res + ">#{inner}"
+      end
+    end
+    
+    def r_input
+      res   = "<#{@html_tag}#{params_to_html(@params)}"
+      @html_tag_done = true
+      inner = expand_with
+      if inner == ''
+        res + "/>"
+      else
+        res + ">#{inner}"
+      end
+    end
+    
+    def r_textarea
+      res   = "<#{@html_tag}#{params_to_html(@params)}"
+      @html_tag_done = true
+      inner = expand_with
+      if inner == ''
+        res + "/>"
+      else
+        res + ">#{inner}"
+      end
+    end
   end
 end
 
@@ -126,16 +159,19 @@ module Zafu
       # html_tag
       @html_tag = @options[:html_tag]
       @options.delete(:html_tag)
-      @html_tag_params = parse_params(@options[:html_tag_params])
+      @html_tag_params = parse_params(@options.delete(:html_tag_params))
       @options.delete(:html_tag_params)
       
       # end_tag
-      @end_tag = @html_tag || @options.delete(:end_do) || "r:#{@method}"
+      @end_tag = @html_tag || @options.delete(:end_do) || @options.delete(:end_tag) || "r:#{@method}"
       @end_tag_count  = 1
       
       # code indentation
       @space_before = @options[:space_before]
       @options.delete(:space_before)
+      
+      # form capture (input, textarea, form)
+      @options[:form] ||= true if @method == 'form'
       
       # puts "[#{@space_before}(#{@method})#{@space_after}]"
       if @params =~ /\A([^>]*?)do\s*=('|")([^\2]*?[^\\])\2([^>]*)\Z/  
@@ -266,6 +302,13 @@ module Zafu
       elsif @text =~ /\A<(link|img|script)/
         # puts "HTML:[#{$&}]" # html
         make(:asset)
+      elsif @options[:form] && @text =~ /\A<(input|textarea|form)([^>]*?)(\/?)>/
+        eat $&
+        method = $1 == 'form' ? 'form_tag' : $1 # <form> ==> r_form_tag, <r:form> ==> r_form
+        opts.merge!(:method=>method, :params=>$2)
+        opts.merge!(:text=>'') if $3 != ''
+        opts.merge!(:end_tag=>'form') if method == 'form_tag'
+        make(:void, opts)
       elsif @text =~ /\A[^>]*?>/
         # html tag
         # puts "OTHER:[#{$&}]"

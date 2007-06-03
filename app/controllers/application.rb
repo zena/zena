@@ -233,9 +233,9 @@ class ApplicationController < ActionController::Base
       if template_url =~ /\.\.|[^\w\._\/]/
         raise Zena::AccessViolation.new("'template_url' contains illegal characters : #{template_url.inspect}")
       end
-    
+      
       template_url = template_url[1..-1].split('/')
-      path = "/#{template_url[0]}/#{template_url[1]}/#{visitor.lang}/#{template_url[2..-1].join('/')}"
+      path = "/#{template_url[0]}/#{template_url[1]}/#{session[:dev] ? 'dev' : lang}/#{template_url[2..-1].join('/')}"
 
       "#{SITES_ROOT}/#{current_site.host}/zafu#{path}"
     end

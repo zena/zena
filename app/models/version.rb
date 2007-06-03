@@ -43,6 +43,14 @@ class Version < ActiveRecord::Base
   before_create         :set_number
   uses_dynamic_attributes
   
+  class << self
+    # Some #Version sub-classes need to have more specific content than just 'text' and 'summary'.
+    # this content is stored in a delegate 'content' object found with the 'content_class' class method
+    def content_class
+      nil
+    end
+  end
+  
   def author
     user.contact
   end
@@ -122,12 +130,6 @@ class Version < ActiveRecord::Base
     @redaction_content = @content
   end
   
-  # Some #Version sub-classes need to have more specific content than just 'text' and 'summary'.
-  # this content is stored in a delegate 'content' object found with the 'content_class' class method
-  def content_class
-    nil
-  end
-  
   def clone
     obj = super
     # clone dynamic attributes
@@ -136,6 +138,10 @@ class Version < ActiveRecord::Base
   end
   
   private
+    def content_class
+      self.class.content_class
+    end
+  
     def can_update_content
       if @redaction_content && Version.find_all_by_content_id(self[:id]).size > 0
         # some versions link to this version's content directly. Cannot change content.

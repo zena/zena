@@ -8,6 +8,11 @@ class Contact < Reference
   link :favorites,   :class_name=>'Node'
   link :collaborator_for, :class_name=>'Project', :as=>'collaborator'
   
+  # TODO: test
+  def self.version_class
+    ContactVersion
+  end
+  
   def user
     secure(User) { User.find(:first, :conditions => ["contact_id = ?", self[:id]]) }
   end
@@ -20,9 +25,4 @@ class Contact < Reference
     version.content.initials
   end
   
-  private
-    # TODO: test
-    def version_class
-      ContactVersion
-    end
 end

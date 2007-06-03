@@ -5,6 +5,10 @@ class Template < TextDocument
     def accept_content_type?(content_type)
       content_type =~ /text\/(html|xml)/
     end
+    
+    def version_class
+      TemplateVersion
+    end
   end
   
   def name=(str)
@@ -42,7 +46,4 @@ class Template < TextDocument
       errors.add('parent_id', 'Invalid parent (section is not a Skin)') unless section.kind_of?(Skin)
     end
     
-    def version_class
-      TemplateVersion
-    end
 end

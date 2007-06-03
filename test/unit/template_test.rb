@@ -58,6 +58,31 @@ class TemplateTest < ZenaTestUnit
     assert_equal 'NPP', doc.c_tkpath
     assert_equal 'Project', doc.c_klass
   end
+
+  def test_set_name_with_title
+    login(:tiger)
+    doc = secure(Template) { Template.create(:parent_id=>nodes_id(:layout), :v_title=>'Project_collab.xml.html')}
+    assert_kind_of Template, doc
+    assert !doc.new_record?, "Saved"
+    assert_equal 'Project_collab.xml', doc.name
+    assert_equal 'collab', doc.c_mode
+    assert_equal 'xml', doc.c_format
+    assert_equal 'NPP', doc.c_tkpath
+    assert_equal 'Project', doc.c_klass
+  end
+  
+  def test_change_name
+    login(:tiger)
+    doc = secure(Template) { Template.create(:parent_id=>nodes_id(:layout), :name=>'Project_collab.xml.html')}
+    assert_kind_of Template, doc
+    assert !doc.new_record?, "Saved"
+    assert doc.update_attributes( :name => "Page_super")
+    assert_equal 'Page', doc.name
+    assert_equal 'super', doc.c_mode
+    assert_equal 'xml', doc.c_format
+    assert_equal 'NP', doc.c_tkpath
+    assert_equal 'Page', doc.c_klass
+  end
   
   def test_set_name_no_extension
     login(:tiger)

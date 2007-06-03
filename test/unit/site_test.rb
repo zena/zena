@@ -22,6 +22,7 @@ class SiteTest < ZenaTestUnit
     root = secure(Node) { Node.find(site[:root_id]) }
     assert_kind_of Project, root
     assert_equal 'super', root.v_title
+    assert_equal Zena::Status[:pub], root.max_status
     assert_nothing_raised { Node.next_zip(site[:id]) }
     
     admin = secure(User) { User.find(admin[:id]) }
@@ -34,6 +35,7 @@ class SiteTest < ZenaTestUnit
     assert_equal 'default', skin.skin
     skin  = secure(Skin) { Skin.find_by_name('super')   }
     assert_kind_of Skin, skin
+    assert_equal Zena::Status[:pub], skin.max_status
     assert_equal 'default', skin.skin
   end
   

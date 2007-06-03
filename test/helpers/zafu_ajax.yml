@@ -20,11 +20,21 @@ edit_each_no_form:
 each_add_with_form:
   context:
     node: 'wiki'
-  src: "<r:children><r:each><li do='show' attr='name'>blah</li>\n</r:each><r:add><li>add new</li></r:add><r:form><li><form>this is the form</form></li></r:form></r:children>"
-  res: "/<li.*list30.*>bird.*<li.*list31.*>flower.*<li.*list_add.*list_form.*toggle.*<li .*list_form.*style.*none.*Ajax.Request.*input type='hidden' name='template_url' value='/each/add/with/form/list'/"
+  src: |
+    <r:children>
+      <li do='each' do='[name]'>blah</li>
+      <li do='add'>add new</li>
+      <li do='form'><input name='v_title'/> this is the form</li>
+    </r:children>
+  res: "/<li.*list30.*>bird.*<li.*list31.*>flower.*<li.*list_add.*list_form.*toggle.*<li .*list_form.*style.*none.*Ajax.Request.*input type='hidden' name='template_url' value='/each/add/with/form/list'.*input type='hidden' name='node\[parent_id\]' value='29'/"
 
 each_edit_with_form:
   context:
     node: 'wiki'
   src: "<r:children><r:each><li><r:show attr='name'>blah</r:show> <r:edit>edit</r:edit></li>\n</r:each><r:form><li><form>this is the form</form></li></r:form></r:children>"
   res: "/<li id='/each/edit/with/form/list30'>bird <a href=\"#\" onclick=\"new Ajax.Request\('/nodes/30/edit\?template_url=%2Feach%2Fedit%2Fwith%2Fform%2Flist/"
+
+  
+form_do_form:
+  src: "<form do='form'><p><input type='text' name='v_title'/></p></form>"
+  tem: ""

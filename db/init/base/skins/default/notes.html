@@ -1,14 +1,14 @@
 <div id='notes' do='notes_all' limit='10' order='log_at DESC'>
   <ul class='note_list'>
-    <r:add after='self' tag='li'/>
-    <r:form><li class='inline_form'><form>
-        <p class='hidden'>      <input type='hidden' name='node[parent_id]' value='' do='void' set_value='[id]'/></p>
-        <p class='node_klass'>  <r:input type='select' attr='klass' options='Post,Letter'/></p>
-        <p class='node_log_at'> <r:input type='date_box' attr='log_at'/></p>
-        <p class='node_v_title'><input type='text' name='node[v_title]' do='void' set_value='[v_title]' size='25'/></p>
+    <li do='add' after='self'/>
+    <li class='inline_form' do='form'>
+      <form>
+        <p class='node_klass'>  <input type='select' name='klass' options='Post,Letter'/></p>
+        <p class='node_log_at'> <input type='date_box' name='log_at'/></p>
+        <p class='node_v_title'><input type='text' name='v_title' size='25'/></p>
         <p class='validate'>    <input type="submit" value='validate' do='void' tset_value='validate'/></p>
-      </form></li>
-    </r:form>
+      </form>
+    </li>
     <li class='note' do='each'>
       <div class='header'>
         <div do='void' class='s30' set_class='s[v_status]'>

@@ -42,6 +42,10 @@ class Document < Page
       Node
     end
     
+    def version_class
+      DocumentVersion
+    end
+    
     alias o_new new
     
     # Return a new Document or a sub-class of Document depending on the file's content type. Returns a TextDocument if there is no file.
@@ -100,51 +104,46 @@ class Document < Page
   
   private
   
-  # Set name from filename
-  def document_before_validation
-    content = version.content
-    if new_record?
-      if ! self[:name].blank?
-        # name set
-        base = self[:name]
-      elsif file = content.instance_variable_get(:@file)
-        # set with filename
-        base = file.original_filename
-      else
-        # set with title
-        base = version.title
-      end
-      if base =~ /(.*)\.(\w+)$/
-        self[:name] = $1
-        ext         = $2
-      else
-        self[:name] = base
-        ext         = nil
-      end
+    # Set name from filename
+    def document_before_validation
+      content = version.content
+      if new_record?
+        if ! self[:name].blank?
+          # name set
+          base = self[:name]
+        elsif file = content.instance_variable_get(:@file)
+          # set with filename
+          base = file.original_filename
+        else
+          # set with title
+          base = version.title
+        end
+        if base =~ /(.*)\.(\w+)$/
+          self[:name] = $1
+          ext         = $2
+        else
+          self[:name] = base
+          ext         = nil
+        end
       
-      content[:name] = self[:name].sub(/\.*$/,'') # remove trailing dots
-      content.ext    = ext
-    else
-      # we cannot use 'old' here as this record is not secured when spreading inheritance
-      if self[:name] != self.class.find(self[:id])[:name] && self[:name] && self[:name] != ''
-        # FIXME: name is not important (just used to find file in case db crash: do not sync.)
-        # update all content names :
-        versions.each do |v|
-          if v[:id] == @version[:id]
-            v = @version # make sure modifications are made to our loaded version/content
-          else
-            v.node = self # preload so the relation to 'self' is kept
+        content[:name] = self[:name].sub(/\.*$/,'') # remove trailing dots
+        content.ext    = ext
+      else
+        # we cannot use 'old' here as this record is not secured when spreading inheritance
+        if self[:name] != self.class.find(self[:id])[:name] && self[:name] && self[:name] != ''
+          # FIXME: name is not important (just used to find file in case db crash: do not sync.)
+          # update all content names :
+          versions.each do |v|
+            if v[:id] == @version[:id]
+              v = @version # make sure modifications are made to our loaded version/content
+            else
+              v.node = self # preload so the relation to 'self' is kept
+            end
+            content = v.content
+            content.name = self[:name].sub(/\.*$/,'') # remove trailing dots
+            content.save
           end
-          content = v.content
-          content.name = self[:name].sub(/\.*$/,'') # remove trailing dots
-          content.save
         end
       end
     end
-  end
-
-  # This is a callback from acts_as_multiversioned
-  def version_class
-    DocumentVersion
-  end
 end

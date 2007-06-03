@@ -115,6 +115,7 @@ namespace :zena do
             #        and then symlink with "#{host_path}/public/#{dir}" -> "../shared/public/#{dir}"
             #        OR we could symlink /var/zena/current/...
             ['calendar', 'images', 'javascripts', 'stylesheets'].each do |dir|
+              # FIXME: 'RAILS_ROOT' should be '/var/zena/current' and not '/var/zena/releases/20070632030330' !!!
               FileUtils.ln_s("#{RAILS_ROOT}/public/#{dir}", "#{host_path}/public/#{dir}")
             end
             

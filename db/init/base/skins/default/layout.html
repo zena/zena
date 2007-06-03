@@ -76,17 +76,12 @@
           <r:if kind_of='Page' do='pages' name='pages'><h3 class='group'>pages</h3>
             <ol>
               <li do='each' set_class='li_s[v_status]' do='link'/>
-              <r:add before='self' tag='li'/>
-              <r:form>
-                <li class='inline_form'>
-                  <form>
-                    <p class='hidden'>      <input type='hidden' name='node[parent_id]' value='' do='void' set_value='[id]'/></p>
-                    <p class='node_klass'>  <r:input type='select' attr='klass' options='Page,Section,Skin,Project'/></p>
-                    <p class='node_v_title'><input type='text' name='node[v_title]' value=''/></p>
-                    <p class='btn_validate'><input type="submit" value='validate' do='void' tset_value='validate'/></p>
-                  </form>
-                </li>
-              </r:form>
+              <li do='add' before='self'/>
+              <li class='inline_form' do='form'>
+                <p class='node_klass'>  <input type='select' name='klass' options='Page,Section,Skin,Project'/></p>
+                <p class='node_v_title'><input type='text' name='v_title' value=''/></p>
+                <p class='btn_validate'><input type="submit" value='validate' tset_value='validate'/></p>
+              </li>
             </ol>
           </r:if>
       </div>

@@ -38,6 +38,10 @@ show_title:
   tem: "<%= @node.version.title %>"
   res: "status title"
 
+show_title_with_opts:
+  src: "<h1 do='title' class='s30' status='true' actions='all'>this is the title</h1>"
+  tem: "hh"
+
 show_shortcut:
   src: "<p do='[v_title]'>hello</p>"
   tem: "<p><%= @node.version.title %></p>"

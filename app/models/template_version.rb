@@ -8,6 +8,12 @@ Uses TemplateContent.
 class TemplateVersion < Version
   validates_presence_of       :content
   
+  
+  # TODO: test
+  def self.content_class
+    TemplateContent
+  end
+  
   # TODO: test
   def content
     return @content if @content
@@ -28,8 +34,4 @@ class TemplateVersion < Version
     content
   end
   
-  # TODO: test
-  def content_class
-    TemplateContent
-  end
 end

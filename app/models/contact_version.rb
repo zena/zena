@@ -8,7 +8,7 @@ Uses ContactContent.
 class ContactVersion < Version
   before_validation_on_create :contact_version_before_validation_on_create
   
-  def content_class
+  def self.content_class
     ContactContent
   end
   

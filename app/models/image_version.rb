@@ -8,7 +8,7 @@ Uses ImageContent.
 class ImageVersion < DocumentVersion
   before_create :set_image_text
   
-  def content_class
+  def self.content_class
     ImageContent
   end
   

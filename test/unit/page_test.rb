@@ -11,6 +11,14 @@ class PageTest < ZenaTestUnit
     assert_equal ["Page", "Project", "Section", "Skin", "Tag", "Tracker"], Page.select_classes
   end
   
+  def test_create_just_v_title
+    login(:tiger)
+    node = secure(Page) { Page.create(:parent_id=>nodes_id(:projects), :v_title=>'lazy node')}
+    assert !node.new_record?
+    assert_equal 'lazyNode', node.name
+    assert_equal 'lazy node', node.v_title
+  end
+  
   def test_create_same_name
     login(:tiger)
     node = secure(Page) { Page.create(:parent_id=>nodes_id(:projects), :name=>'wiki')}

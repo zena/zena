@@ -565,7 +565,7 @@ module Zena
         end
         
         def version_class
-          Version
+          self.class.version_class
         end
         
         def save_version
@@ -585,6 +585,11 @@ module Zena
         public
         module ClassMethods
           # PUT YOUR CLASS METHODS HERE
+          
+          # This is a callback from acts_as_multiversioned
+          def version_class
+            Version
+          end
           
           # Find a node based on a version id
           def version(version_id)

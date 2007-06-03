@@ -8,7 +8,7 @@ class ZenaParserTest < ZenaHelperTest
   Section # make sure we load Section links before trying relations
   
   def test_single
-    do_test('basic', 'on_if_ancestor')
+    do_test('zafu_ajax', 'each_add_with_form')
   end
   
   def test_basic_show_bad_attr
@@ -28,7 +28,7 @@ class ZenaParserTest < ZenaHelperTest
         :user_id => users_id(:anon),
         :node_id => nodes_id(:status),
         :prefix  => 'en',
-        :url => '/cache/part',
+        :url  => '/cache/part',
         :text => @response.body
       }.freeze
       

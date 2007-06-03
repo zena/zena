@@ -59,6 +59,11 @@ class Image < Document
     def accept_content_type?(content_type)
       ImageBuilder.image_content_type?(content_type)
     end
+    
+    # This is a callback from acts_as_multiversioned
+    def version_class
+      ImageVersion
+    end
   end
   # Crop the image using the 'crop' hash with the top left corner position (:x, :y) and the width and height (:width, :heigt). Example:
   #   @node.crop = {:x=>10, :y=>10, :width=>30, :height=>60}
@@ -85,10 +90,4 @@ class Image < Document
   def filesize(format=nil)
     version.filesize(format)
   end
-  
-  private
-    # This is a callback from acts_as_multiversioned
-    def version_class
-      ImageVersion
-    end
 end

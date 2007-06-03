@@ -15,6 +15,10 @@ class TextDocument < Document
     def accept_content_type?(content_type)
       content_type =~ /^(text)/
     end
+    
+    def version_class
+      TextDocumentVersion
+    end
   end
   
   # Return the code language used for syntax highlighting.
@@ -55,8 +59,4 @@ class TextDocument < Document
       content[:content_type] ||= 'text/plain'
       content[:ext]  ||= 'txt'
     end  
-    # This is a callback from acts_as_multiversioned
-    def version_class
-      TextDocumentVersion
-    end
 end

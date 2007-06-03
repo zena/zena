@@ -289,3 +289,11 @@ default_tag:
 set_tag_param:
   src: "<r:void class='test' tag='p'>blah</r:void>"
   res: "<p class='test'>blah</p>"
+  
+static_form:
+  src: "<r:test><form action='hello'><p><input type='text' name='hoy' value='hili'/></p></form></r:test>"
+  res: "[test]<form action='hello'><p><input type='text' name='hoy' value='hili'/></p></form>[/test]"
+  
+form:
+  src: "<r:test><p do='form'><form action='hello'><p><input type='text' name='hoy' value='hili'/></p></form></p></r:test>"
+  res: "[test][form]<p>[form_tag {= :action=>'hello'}]<p>[input {= :name=>'hoy', :type=>'text', :value=>'hili'}/]</p>[/form_tag]</p>[/form][/test]"

@@ -7,7 +7,7 @@ Uses DocumentContent.
 =end
 class DocumentVersion < Version
   validates_presence_of       :content
-  def content_class
+  def self.content_class
     DocumentContent
   end
 end

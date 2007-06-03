@@ -6,6 +6,10 @@ at_code:
   src: "some @strange < code@"
   res: "<p>some <code>strange &lt; code</code></p>"
   
+at_code_again:
+  src: "We changed the syntax from @zafu|<z:link/>@ to @zafu|<r:link/>@ to better reflect the fact that we want to *render* a link."
+  res: "/code class='zafu'.*/"
+  
 at_code_ruby:
   src: "some @ruby|class << self@"
   res: "<p>some <code class='ruby'><span class=\"keyword\">class </span><span class=\"punct\">&lt;&lt;</span> <span class=\"constant\">self</span></code></p>"
