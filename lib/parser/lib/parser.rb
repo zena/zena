@@ -123,14 +123,14 @@ class Parser
   def render(context={})
     return '' if context["no_#{@method}".to_sym]
     @context = context
-    return '' unless before_render
     @result  = ""
+    return @result unless before_render
     @pass    = {} # used to pass information to the parent
     res = nil
     if self.respond_to?("r_#{@method}".to_sym)
-      res = self.send("r_#{@method}".to_sym)
+      res = self.do_method("r_#{@method}".to_sym)
     else
-      res = r_unknown
+      res = self.do_method(:r_unknown)
     end
     if @result != ""
       res = @result
@@ -138,6 +138,10 @@ class Parser
       res = @method
     end
     after_render(res + @text)
+  end
+  
+  def do_method(sym)
+    self.send(sym)
   end
   
   def r_void

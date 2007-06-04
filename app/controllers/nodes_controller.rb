@@ -64,7 +64,15 @@ class NodesController < ApplicationController
       format.js
     end
   end
-  
+
+  # There is a bug in prototype/rails/mongrel : accept_headers are wrong when doing an rjs 'get'.
+  # remove this method + route when fixed.
+  def zafu
+    respond_to do |format|
+      format.js { @template_file = fullpath_from_template_url(params[:template_url])
+        render :action => 'show' }
+    end
+  end
   
   def show
     

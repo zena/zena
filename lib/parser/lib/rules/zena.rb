@@ -80,8 +80,48 @@ module Zena
           @anchor = r_anchor
         end
       end
+
       true
     end
+    
+    def do_method(sym)
+      method = sym
+      if method == :r_unknown
+        if @method =~ /^\[(.*)\]$/
+          @params[:attr] = $1
+          method = :r_show
+        elsif @method =~ /^\{(.*)\}$/
+          @params[:attr] = $1
+          method = :r_zazen
+        end
+      end
+      
+      if @context[:make_form]
+        res = case method
+        when :r_title
+          make_input(:name => 'v_title')
+        when :r_link
+          make_input(:name => (@params[:attr] || 'v_title'))
+        when :r_show
+          make_input(:name => @params[:attr])
+        when :r_text
+          make_textarea(:name => 'v_text')
+        when :r_summary
+          make_textarea(:name => 'v_summary')
+        when :r_zazen
+          make_textarea(:name => @params[:attr])
+        else
+          nil
+        end
+        res =  "<#{@html_tag || 'div'} class='zazen'>#{res}</#{@html_tag || 'div'}>" if [:r_summary, :r_text].include?(sym)
+          
+        return res if res
+      end
+      
+      
+      super(method)
+    end
+    
     
     def after_render(text)
       @html_tag_params = @html_tag_params_bak
@@ -98,15 +138,6 @@ module Zena
       if @context[:trans]
         # TODO: what do we do here with dates ?
         "#{node_attribute(attribute)}"
-      elsif @context[:make_form]
-        html_tag_bak        = @html_tag
-        html_tag_params_bak = @html_tag_params
-        params_bak          = @params
-        @params             = {:name => params_bak[:attr], :type => 'text'}
-        r_input
-        @html_tag        = html_tag_bak
-        @html_tag_params = html_tag_params_bak
-        @params          = params_bak
       else
         if @params[:tattr]
           "<%= _(#{node_attribute(attribute, :else=>@params[:else])}) %>"
@@ -144,15 +175,6 @@ module Zena
       if @context[:trans]
         # TODO: what do we do here with dates ?
         "#{node_attribute(attribute)}"
-      elsif @context[:make_form]
-        html_tag_bak        = @html_tag
-        html_tag_params_bak = @html_tag_params
-        params_bak          = @params
-        @params             = {:name => params_bak[:attr]}
-        out r_textarea
-        @html_tag        = html_tag_bak
-        @html_tag_params = html_tag_params_bak
-        @params          = params_bak
       elsif @params[:tattr]
         "<%= zazen(_(#{node_attribute(attribute)})) %>"
       elsif @params[:attr]
@@ -219,6 +241,7 @@ module Zena
     end
     
     def r_title
+      
       res = "<%= show_title(:node=>#{node}"
       if @params.include?(:link)
         res << ", :link=>#{@params[:link].inspect}"
@@ -365,21 +388,8 @@ module Zena
     
     def r_textarea
       return '' if @context[:preflight]
-      @html_tag = 'textarea'
-      @html_tag_params.merge!(@params)
-      if name = @html_tag_params[:name]
-        if name =~ /\Anode\[(.*?)\]/
-          name = $1
-        else
-          @html_tag_params[:name] = "node[#{name}]"
-        end
-      end
-      if @context[:in_add]
-        value = expand_with
-      else
-        value = name ? "<%= #{node_attribute(name, :node=>'@node')} %>" : ''
-      end
-      out render_html_tag(value)
+      out make_textarea(@html_tag_params)
+      @html_tag_done = true
     end
     
     def r_input
@@ -393,22 +403,8 @@ module Zena
         return "<span class='parser_error'>date_box without name</span>"   unless   name = @params[:name]
         "<%= date_box 'node', #{name.inspect}, :size=>15#{@context[:in_add] ? ", :value=>''" : ''} %>"
       else
-        @html_tag = 'input'
-        @html_tag_params.merge!(@params)
-        if name = @html_tag_params[:name]
-          if name =~ /\Anode\[(.*?)\]/
-            name = $1
-          else
-            @html_tag_params[:name] = "node[#{name}]"
-          end
-          return '' if name == 'node[parent_id]' # set with 'r_form'
-        end
-        if @context[:in_add]
-          value = @html_tag_params[:value] ? '' : " value=''"
-        else
-          value = name ? " value='<%= #{node_attribute(name, :node=>'@node')} %>'" : ''
-        end
-        out render_html_tag(nil, value)
+        out make_input(@html_tag_params)
+        @html_tag_done = true
       end
     end
     
@@ -445,11 +441,12 @@ module Zena
           @html_tag_params.merge!(:id=>"#{template_url}<%= #{node}.new_record? ? '_form' : #{node}[:zip] %>")
           # new_record? = edit/create failed, rendering form with errors
           # else        = edit
+          # FIXME: remove '/zafu?' when nodes_controller's method 'zafu' is no longer needed.
           start =<<-END_TXT
 <% if #{node}.new_record? -%>
   <p class='btn_x'><a href='#' onclick='[\"#{template_url}_add\", \"#{template_url}_form\"].each(Element.toggle);return false;'>#{_('btn_x')}</a></p>
 <% else -%>
-  <p class='btn_x'><%= link_to_remote(#{_('btn_x').inspect}, :url => #{node_class.to_s.downcase}_path(#{node}[:zip]) + '?template_url=#{CGI.escape(template_url)}', :method => :get) %></a></p>
+  <p class='btn_x'><%= link_to_remote(#{_('btn_x').inspect}, :url => #{node_class.to_s.downcase}_path(#{node}[:zip]) + '/zafu?template_url=#{CGI.escape(template_url)}', :method => :get) %></a></p>
 <% end -%>
 END_TXT
           form =<<-END_TXT
@@ -841,17 +838,6 @@ END_TXT
     # <r:link href='node'><r:trans attr='lang'/></r:link>
     # <r:link href='node' tattr='lang'/>
     def r_link
-      if @context[:make_form]
-        html_tag_bak        = @html_tag
-        html_tag_params_bak = @html_tag_params
-        params_bak          = @params
-        @params             = {:name => (params_bak[:attr] || 'v_title'), :type => 'text'}
-        r_input
-        @html_tag        = html_tag_bak
-        @html_tag_params = html_tag_params_bak
-        @params          = params_bak
-        return
-      end
       if @blocks.blank? || @params[:attr] || @params[:tattr] || @params[:trans] || @params[:text]
         text = get_text_for_erb
         text_mode = :erb
@@ -955,13 +941,6 @@ END_TXT
     # use all other tags as relations
     # try to add 'conditions' without sql injection possibilities...
     def r_unknown
-      if @method =~ /^\[(.*)\]$/
-        @params[:attr] = $1
-        return r_show
-      elsif @method =~ /^\{(.*)\}$/
-        @params[:attr] = $1
-        return r_zazen
-      end
       return '' if @context[:preflight]
       # FIXME: use klass = node_class.class_for_relation(@method)
       "not a node (#{@method})" unless node_kind_of?(Node)
@@ -1448,6 +1427,45 @@ END_TXT
         text = nil
       end
       text
+    end
+
+    # TODO: test make_form
+    def make_input(params)
+      return "<span class='parser_error'>input without name/attribute</span>" unless name = params[:name]
+      if name =~ /\Anode\[(.*?)\]/
+        attribute = $1
+      else
+        attribute = name
+        name = "node[#{attribute}]"
+      end
+      return '' if attribute == 'parent_id' # set with 'r_form'
+      
+      if @context[:in_add]
+        value = params[:value] ? " value='#{params[:value]}'" : " value=''"
+      else
+        # TODO: (test) CAN WE REMOVE :node=>'@node' ?
+        value = attribute ? " value='<%= #{node_attribute(attribute, :node=>'@node')} %>'" : " value=''"
+      end
+      "<input type='text' name='#{name}'#{value}/>"
+    end
+    
+    def make_textarea(params)
+      return "<span class='parser_error'>textarea without name/attribute</span>" unless name = params[:name]
+      if name =~ /\Anode\[(.*?)\]/
+        attribute = $1
+      else
+        attribute = name
+        name = "node[#{attribute}]"
+      end
+      return '' if attribute == 'parent_id' # set with 'r_form'
+      
+      if @context[:in_add]
+        value = ''
+      else
+        # TODO: (test) CAN WE REMOVE :node=>'@node' ?
+        value = attribute ? "<%= #{node_attribute(attribute, :node=>'@node')} %>" : ""
+      end
+      "<textarea name='#{name}'>#{value}</textarea>"
     end
   end
 end

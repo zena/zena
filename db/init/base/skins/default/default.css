@@ -76,6 +76,7 @@ h3, h4, h5 { font-size:0.9em; font-weight:bold; font-weight:bold; }
 h3 { color:#450009;}
 
 p, ul, ol, table, pre  { line-height:1.2; margin-bottom:1.5em; }
+code, pre { font:inherit; font-family:Courier,"Courier New",monospace; line-height:1.4;}
 ul ul, ul ol, ol ol, ol ul { margin-bottom:0; }
 
 .zazen b, .zazen strong { font-weight:bold;  }

@@ -3,7 +3,6 @@
 a img {border: none;}
 
 li { list-style-type:none; }
-code, pre { font:inherit; font-family:Courier,"Courier New",monospace; line-height:1.4;}
 a .id { display: none; font-size:0.7em; color:#ccc; }
 a:hover .id { display:inline; }
 button { background:none; border:none;}
