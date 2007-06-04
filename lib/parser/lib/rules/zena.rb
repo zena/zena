@@ -429,11 +429,22 @@ END_TXT
         if @params[:klass] && @context[:in_add]
           form << "<input type='hidden' name='node[klass]' value='#{@params[:klass]}'/>\n"
         end
-        [:after, :before, :top, :bottom].each do |sym|
-          if @context[sym]
-            form << "<input type='hidden' name='position' value='#{sym}'/>\n"
-            form << "<input type='hidden' name='reference' value='#{@context[sym]}'/>\n"
-            break
+        if add_block = @context[:add]
+          params = add_block.params
+          [:after, :before, :top, :bottom].each do |sym|
+            if params[sym]
+              form << "<input type='hidden' name='position' value='#{sym}'/>\n"
+              if params[sym] == 'self'
+                if sym == :before
+                  form << "<input type='hidden' name='reference' value='#{template_url}_add'/>\n"
+                else
+                  form << "<input type='hidden' name='reference' value='#{template_url}_form'/>\n"
+                end
+              else  
+                form << "<input type='hidden' name='reference' value='#{params[sym]}'/>\n"
+              end
+              break
+            end
           end
         end
         form << "</div>"
@@ -512,30 +523,8 @@ END_TXT
           text = add_params(text, :id=>"#{prefix}_add", :class=>(@params[:class] || 'btn_add'), :onclick=>"['#{prefix}_add', '#{prefix}_form'].each(Element.toggle);return false;")
         end
         
-        
-        # FIXME: :after, :before, :top, :bottom should move to 'r_form' during preflight
-        #        :node => .. should be removed.
-        #        just leave ':in_add'
-        
-        form_opts = { :node=>"@#{node_class.to_s.downcase}", :no_form => false, :in_add => true }
-        
-        [:after, :before, :top, :bottom].each do |sym|
-          if @params[sym]
-            if @params[sym] == 'self'
-              if sym == :before
-                form_opts[sym] = "#{prefix}_add"
-              else
-                form_opts[sym] = "#{prefix}_form"
-              end
-            else
-              form_opts[sym] = @params[sym]
-            end
-            break
-          end
-        end 
-        
         out text
-        out expand_block(@context[:form], form_opts)
+        out expand_block(@context[:form], :in_add => true, :no_form => false, :add=>self)
         
         if @html_tag
           out "</#{@html_tag}>"
@@ -1110,6 +1099,7 @@ END_TXT
       expand_with(:preflight=>true)
       else_block = @pass[:else]
       if (form_block = @pass[:form]) && (each_block = @pass[:each]) && (@pass[:edit] || @pass[:add])
+        add_block = @pass[:add]
         # ajax
         if list_finder
           out "<% if (#{list_var} = #{list_finder}) || (#{node}.can_write? && #{list_var}=[]) -%>"
@@ -1118,8 +1108,7 @@ END_TXT
         # template_url  = "#{@options[:current_folder]}/#{@context[:name] || "root"}_#{node_class}"
         template_url = unique_name
         
-        # render without 'add' or 'form'
-        # FIXME: what is this :form=>form_block thing ?
+        # 'r_add' needs the form when rendering. Send with :form.
         res = expand_with(opts.merge(:list=>list_var, :form=>form_block, :no_form=>true, :template_url=>template_url))
         out render_html_tag(res)
         if list_finder
@@ -1134,7 +1123,7 @@ END_TXT
         
         # FORM ============
         form_url = "#{template_url}_form"
-        form = expand_block(form_block, :node=>template_node, :template_url=>template_url)
+        form = expand_block(form_block, :node=>template_node, :template_url=>template_url, :add => add_block)
         out helper.save_erb_to_url(form, form_url)
       else
         # no form, render, edit and add are not ajax
