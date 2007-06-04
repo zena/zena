@@ -579,10 +579,11 @@ END_TXT
         
         if @context[:template_url]
           # saved template
+          puts node.inspect
           id_hash = {:id=>"#{@context[:template_url]}<%= @node[:zip] %>"}
           if @html_tag
             @html_tag_params.merge!(id_hash)
-            render_html_tag(expand_with)
+            render_html_tag(expand_with(:node => '@node'))
           else
             add_params(expand_with, id_hash)
           end
@@ -1117,7 +1118,7 @@ END_TXT
         end
 
         # TEMPLATE ========
-        template_node = "@#{node_class.to_s.downcase}"
+        template_node = "@bob" #"@#{node_class.to_s.downcase}"
         template      = expand_block(each_block, :list=>false, :node=>template_node, :template_url=>template_url)
         out helper.save_erb_to_url(template, template_url)
         
