@@ -86,6 +86,7 @@ module Zena
     def after_render(text)
       @html_tag_params = @html_tag_params_bak
       if @anchor
+        @params[:anchor] = 'true' # set back in case of double rendering so it is computed again
         render_html_tag(@anchor + super)
       else
         render_html_tag(super)
@@ -404,18 +405,18 @@ module Zena
           form  =  "<%= form_remote_tag(:url => #{node_class.to_s.downcase.pluralize}_path) %>\n"
         else
           # saved form used to edit: set values and 'parent_id' from @node
-          @html_tag_params.merge!(:id=>"#{template_url}<%= @node.new_record? ? '_form' : @node[:zip] %>")
+          @html_tag_params.merge!(:id=>"#{template_url}<%= #{node}.new_record? ? '_form' : #{node}[:zip] %>")
           # new_record? = edit/create failed, rendering form with errors
           # else        = edit
           start =<<-END_TXT
-<% if @node.new_record? -%>
+<% if #{node}.new_record? -%>
   <p class='btn_x'><a href='#' onclick='[\"#{template_url}_add\", \"#{template_url}_form\"].each(Element.toggle);return false;'>#{_('btn_x')}</a></p>
 <% else -%>
   <p class='btn_x'><%= link_to_remote(#{_('btn_x').inspect}, :url => #{node_class.to_s.downcase}_path(#{node}[:zip]) + '?template_url=#{CGI.escape(template_url)}', :method => :get) %></a></p>
 <% end -%>
 END_TXT
           form =<<-END_TXT
-<% if @node.new_record? -%>
+<% if #{node}.new_record? -%>
 <%= form_remote_tag(:url => #{node_class.to_s.downcase.pluralize}_path) %>
 <% else -%>
 <%= form_remote_tag(:url => #{node_class.to_s.downcase}_path(#{node}[:zip]), :method => :put) %>
@@ -424,7 +425,7 @@ END_TXT
         end
         form << "<div class='hidden'>"
         form << "<input type='hidden' name='template_url' value='#{template_url}'/>\n"
-        form << "<input type='hidden' name='node[parent_id]' value='<%= #{@context[:in_add] ? '@node[:zip]' : node + '.parent_zip'} %>'/>\n"
+        form << "<input type='hidden' name='node[parent_id]' value='<%= #{node}#{@context[:in_add] ? '[:zip]' : '.parent_zip'} %>'/>\n"
         
         if @params[:klass] && @context[:in_add]
           form << "<input type='hidden' name='node[klass]' value='#{@params[:klass]}'/>\n"
@@ -574,16 +575,13 @@ END_TXT
         out render_html_tag(res)
         out "<% end -%>"
       else
-        # FIXME: why does the explicit render_html_tag work but not
-        # expand_with (render_html_tag implicit) ?
         
         if @context[:template_url]
           # saved template
-          puts node.inspect
-          id_hash = {:id=>"#{@context[:template_url]}<%= @node[:zip] %>"}
+          id_hash = {:id=>"#{@context[:template_url]}<%= #{node}[:zip] %>"}
           if @html_tag
             @html_tag_params.merge!(id_hash)
-            render_html_tag(expand_with(:node => '@node'))
+            render_html_tag(expand_with)
           else
             add_params(expand_with, id_hash)
           end
@@ -1118,7 +1116,7 @@ END_TXT
         end
 
         # TEMPLATE ========
-        template_node = "@bob" #"@#{node_class.to_s.downcase}"
+        template_node = "@#{node_class.to_s.downcase}"
         template      = expand_block(each_block, :list=>false, :node=>template_node, :template_url=>template_url)
         out helper.save_erb_to_url(template, template_url)
         
