@@ -253,7 +253,7 @@ module Zafu
           # /rtag
           eat $&
           if $1 != @end_tag
-            # error bad closing ztag
+            # error bad closing rtag
             store "<span class='parser_error'>#{$&.gsub('<', '&lt;').gsub('>','&gt;')}</span>"
           end
           leave

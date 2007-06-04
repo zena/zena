@@ -14,7 +14,7 @@ edit_not_each:
   tem: "/<li class='blah'>this is a post </li>/"
 
 edit_each_no_form:
-  src: "<r:children><li do='each'>blah <r:edit>do this and that</r:edit></li></r:children>"
+  src: "<r:children><li do='each'>I <p do='[name]'>blah</p> <r:edit>life</r:edit></li></r:children>"
   tem: "/<li>blah </li>/"
 
 each_add_with_form:
@@ -33,8 +33,3 @@ each_edit_with_form:
     node: 'wiki'
   src: "<r:children><r:each><li><r:show attr='name'>blah</r:show> <r:edit>edit</r:edit></li>\n</r:each><r:form><li><form>this is the form</form></li></r:form></r:children>"
   res: "/<li id='/each/edit/with/form/list30'>bird <a href=\"#\" onclick=\"new Ajax.Request\('/nodes/30/edit\?template_url=%2Feach%2Fedit%2Fwith%2Fform%2Flist/"
-
-  
-form_do_form:
-  src: "<form do='form'><p><input type='text' name='v_title'/></p></form>"
-  tem: ""

@@ -8,7 +8,7 @@ class ZenaParserTest < ZenaHelperTest
   Section # make sure we load Section links before trying relations
   
   def test_single
-    do_test('zafu_ajax', 'each_add_with_form')
+    do_test('zafu_ajax', 'edit_each_no_form')
   end
   
   def test_basic_show_bad_attr

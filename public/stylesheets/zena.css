@@ -1,6 +1,6 @@
 /* ========================= Zena css ========================= */
 /* version status */
-.s10,         .s20,      .s30,      .s35,      .s40   { border-bottom: 10px solid grey;}
+.s10,         .s20,      .s30,      .s35,      .s40   { border-bottom: 5px solid grey;}
 .li_s10 a, .li_s20 a, .li_s30 a, .li_s35 a, .li_s40 a { border-bottom: 2px  solid grey;}
 
 .s10, .li_s10 a, .s20, .li_s20 a { border-bottom-color:#685958;}
@@ -18,6 +18,8 @@
 /* forms & form actions */
 .btn_add a { visibility:hidden; display:block; }
 .btn_add:hover a { visibility:visible; }
+.btn_x img { border:none;}
+.btn_x { float:left; }
 
 .hidden { display:none; }
 

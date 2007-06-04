@@ -98,6 +98,15 @@ module Zena
       if @context[:trans]
         # TODO: what do we do here with dates ?
         "#{node_attribute(attribute)}"
+      elsif @context[:make_form]
+        html_tag_bak        = @html_tag
+        html_tag_params_bak = @html_tag_params
+        params_bak          = @params
+        @params             = {:name => params_bak[:attr], :type => 'text'}
+        r_input
+        @html_tag        = html_tag_bak
+        @html_tag_params = html_tag_params_bak
+        @params          = params_bak
       else
         if @params[:tattr]
           "<%= _(#{node_attribute(attribute, :else=>@params[:else])}) %>"
@@ -135,6 +144,15 @@ module Zena
       if @context[:trans]
         # TODO: what do we do here with dates ?
         "#{node_attribute(attribute)}"
+      elsif @context[:make_form]
+        html_tag_bak        = @html_tag
+        html_tag_params_bak = @html_tag_params
+        params_bak          = @params
+        @params             = {:name => params_bak[:attr]}
+        out r_textarea
+        @html_tag        = html_tag_bak
+        @html_tag_params = html_tag_params_bak
+        @params          = params_bak
       elsif @params[:tattr]
         "<%= zazen(_(#{node_attribute(attribute)})) %>"
       elsif @params[:attr]
@@ -217,7 +235,7 @@ module Zena
       end
       res << "%>"
       if @params[:status] == 'true' || (@params[:status].nil? && @params[:actions])
-        res = "<div class='s<%= #{node}.version.status %>'>#{res}</div>"
+        @html_tag_params[:class] = ["s<%= #{node}.version.status %>"]
       end
       res
     end
@@ -338,11 +356,30 @@ module Zena
       text = get_text_for_erb
       if @context[:template_url]
         # ajax
-        "<%= link_to_remote(#{text || _('edit')}, :url => edit_node_path(#{node}[:zip]) + '?template_url=#{CGI.escape(@context[:template_url])}', :method => :get) %>"
+        "<%= link_to_remote(#{text || _('edit').inspect}, :url => edit_node_path(#{node}[:zip]) + '?template_url=#{CGI.escape(@context[:template_url])}', :method => :get) %>"
       else
         # FIXME: we could link to some html page to edit the item.
         ""
       end
+    end
+    
+    def r_textarea
+      return '' if @context[:preflight]
+      @html_tag = 'textarea'
+      @html_tag_params.merge!(@params)
+      if name = @html_tag_params[:name]
+        if name =~ /\Anode\[(.*?)\]/
+          name = $1
+        else
+          @html_tag_params[:name] = "node[#{name}]"
+        end
+      end
+      if @context[:in_add]
+        value = expand_with
+      else
+        value = name ? "<%= #{node_attribute(name, :node=>'@node')} %>" : ''
+      end
+      out render_html_tag(value)
     end
     
     def r_input
@@ -452,7 +489,6 @@ END_TXT
       else
         # no ajax
         # FIXME
-        puts @context.keys.inspect
         form = "FORM WITHOUT AJAX TODO\n"
       end
       if @pass[:form_tag]
@@ -525,7 +561,12 @@ END_TXT
         end
         
         out text
-        out expand_block(@context[:form], :in_add => true, :no_form => false, :add=>self)
+        if @context[:form].method == 'form'
+          out expand_block(@context[:form], :in_add => true, :no_form => false, :add=>self)
+        else
+          # build form from 'each'
+          out expand_block(@context[:form], :in_add => true, :no_form => false, :no_edit => true, :add=>self, :make_form => true)
+        end
         
         if @html_tag
           out "</#{@html_tag}>"
@@ -551,6 +592,8 @@ END_TXT
         @pass[:each] = self
         return ""
       
+      elsif @context[:make_form]
+        r_form
       elsif @context[:list]
         if join = @params[:join]
           join = join.gsub(/&lt;([^%])/, '<\1').gsub(/([^%])&gt;/, '\1>')
@@ -798,6 +841,17 @@ END_TXT
     # <r:link href='node'><r:trans attr='lang'/></r:link>
     # <r:link href='node' tattr='lang'/>
     def r_link
+      if @context[:make_form]
+        html_tag_bak        = @html_tag
+        html_tag_params_bak = @html_tag_params
+        params_bak          = @params
+        @params             = {:name => (params_bak[:attr] || 'v_title'), :type => 'text'}
+        r_input
+        @html_tag        = html_tag_bak
+        @html_tag_params = html_tag_params_bak
+        @params          = params_bak
+        return
+      end
       if @blocks.blank? || @params[:attr] || @params[:tattr] || @params[:trans] || @params[:text]
         text = get_text_for_erb
         text_mode = :erb
@@ -1093,12 +1147,14 @@ END_TXT
     def do_list(list_finder=nil, opts={})
       
       @context.delete(:template_url) # should not propagate
+      @context.delete(:make_form) # should not propagate
       
       # preflight parse to see what we have
       expand_with(:preflight=>true)
       else_block = @pass[:else]
-      if (form_block = @pass[:form]) && (each_block = @pass[:each]) && (@pass[:edit] || @pass[:add])
-        add_block = @pass[:add]
+      if (each_block = @pass[:each]) && (@pass[:edit] || @pass[:add])
+        add_block  = @pass[:add]
+        form_block = @pass[:form] || each_block
         # ajax
         if list_finder
           out "<% if (#{list_var} = #{list_finder}) || (#{node}.can_write? && #{list_var}=[]) -%>"
@@ -1122,7 +1178,11 @@ END_TXT
         
         # FORM ============
         form_url = "#{template_url}_form"
-        form = expand_block(form_block, :node=>template_node, :template_url=>template_url, :add => add_block)
+        if each_block != form_block
+          form = expand_block(form_block, :node=>template_node, :template_url=>template_url, :add=>add_block) 
+        else
+          form = expand_block(form_block, :node=>template_node, :template_url=>template_url, :add=>add_block, :make_form=>true, :no_edit=>true)
+        end
         out helper.save_erb_to_url(form, form_url)
       else
         # no form, render, edit and add are not ajax
