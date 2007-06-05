@@ -39,6 +39,7 @@ border:1px solid #DDDBC1; border-width:1px 0 0 1px; font-size:0.8em;}
 .largecal .body div a:hover { text-decoration:underline; }
 .largecal .body p { margin:0 0 0 2em;}
 .largecal .body p:first-child { margin-top:-1.2em;}
+.largecal .preview ul { margin:0; }
 .largecal .preview img { background:none;}
 .largecal .preview .title { font-size:1.1em; }
 .largecal .preview .note_title { background:#777; padding:5px; margin:0; color:#fff; font:1em Georgia, Arial, sans-serif; font-size:1.3em; letter-spacing: 0.03em; }
