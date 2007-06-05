@@ -99,7 +99,7 @@ link_attr:
   src: "<r:link attr='ref_lang'/>"
   tem: "<%= node_link(:node=>@node, :text=>@node.ref_lang) %>"
   res: "<a href='/oo/projects/cleanWater/page22.html'>en</a>"
-
+  
 link_tattr:
   src: "<r:link tattr='ref_lang'/>"
   tem: "<%= node_link(:node=>@node, :text=>_(@node.ref_lang)) %>"
@@ -138,9 +138,21 @@ link_dash:
   src: "<r:link dash='true'/>"
   res: "<a href='#node22'>status title</a>"
 
+link_dash_name:
+  src: "<r:link dash='[name]'/>"
+  res: "<a href='#status'>status title</a>"
+
+link_dash_in:
+  src: "<r:link dash='true' in='project' mode='tree'/>"
+  res: "<a href='...._tree.html#node44'>status title</a>"
+
+link_dash_name_in:
+  src: "<r:link dash='[name]' in='parent'/>"
+  res: "<a href='...#status'>status title</a>"
+
 anchor:
-  src: "<r:anchor/>"
-  res: "<a name='node22'></a>"
+  src: "<r:anchor/> <p do='[id]' anchor='[name]'>hello</p>"
+  res: "<a name='node22'></a> <p><a name='status'></a>33</p>"
 
 show_title_anchor:
   src: "<r:title anchor='true'/>"

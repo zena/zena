@@ -91,7 +91,12 @@ module Zazen
       if @text =~ /\A"([^"]*)":([0-9]+[^\s]*)/m
         eat $&
         # link inside the cms "":34
-        store @helper.make_link(:title=>$1,:id=>$2)
+        title, id = $1, $2
+        if id =~ /(.*)#(.*)/
+          id, dash = $1, $2
+          dash = title if dash.blank?
+        end
+        store @helper.make_link(:title=>title,:id=>id,:dash=>dash)
       else
         flush @text[0..0]
       end
