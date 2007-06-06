@@ -1239,29 +1239,36 @@ END_TXT
         end
       elsif test = @params[:test]
         value1, op, value2 = test.split(/\s+/)
-        allOK = value1 && op && value2
-        toi   = ( op =~ /\&/ )
-        if ['==', '!=', '&gt;', '&gt;=', '&lt;', '&lt;='].include?(op)
-          op = op.gsub('&gt;', '>').gsub('&lt', '<')
-        else
-          allOK = false
-        end
-        if allOK
-          value1, value2 = [value1, value2].map do |e|
-            if e =~ /\[(\w+)\]/
-              v = node_attribute($1)
-              v = "#{v}.to_i" if toi
-              v
-            else
-              if toi
-                e.to_i
+        if op && value2
+          allOK = value1 && op && value2
+          toi   = ( op =~ /\&/ )
+          if ['==', '!=', '&gt;', '&gt;=', '&lt;', '&lt;='].include?(op)
+            op = op.gsub('&gt;', '>').gsub('&lt', '<')
+          else
+            allOK = false
+          end
+          if allOK
+            value1, value2 = [value1, value2].map do |e|
+              if e =~ /\[(\w+)\]/
+                v = node_attribute($1)
+                v = "#{v}.to_i" if toi
+                v
               else
-                e.inspect
+                if toi
+                  e.to_i
+                else
+                  e.inspect
+                end
               end
             end
           end
+          allOK ? "#{value1} #{op} #{value2}" : nil
+        elsif test =~ /\[(\w+)\]/
+          node_attribute($1)
+        else
+          # bad test condition.
+          'false'
         end
-        allOK ? "#{value1} #{op} #{value2}" : nil
       elsif node_cond = @params[:node]
         if node_kind_of?(Node)
           case node_cond
