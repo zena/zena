@@ -236,7 +236,7 @@ class Node < ActiveRecord::Base
       
       publish = (attributes.delete('v_status').to_i == Zena::Status[:pub])
       
-      klass   = attributes.delete('class') || attributes.delete('klass') || self.to_s
+      klass   = attributes.delete('class') || attributes.delete('klass') || 'Page'
       
       begin
         klass = Module::const_get(klass)

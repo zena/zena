@@ -400,7 +400,7 @@ module Zena
     
     def r_textarea
       return '' if @context[:preflight]
-      out make_textarea(@html_tag_params)
+      out make_textarea(@html_tag_params.merge(@params))
       @html_tag_done = true
     end
     
@@ -414,8 +414,10 @@ module Zena
       when 'date_box'
         return "<span class='parser_error'>date_box without name</span>"   unless   name = @params[:name]
         "<%= date_box 'node', #{name.inspect}, :size=>15#{@context[:in_add] ? ", :value=>''" : ''} %>"
+      when 'submit'
+        return nil # let render_html_tag do the job...
       else
-        out make_input(@html_tag_params)
+        out make_input(@html_tag_params.merge(@params))
         @html_tag_done = true
       end
     end
@@ -1249,7 +1251,7 @@ END_TXT
           end
           if allOK
             value1, value2 = [value1, value2].map do |e|
-              if e =~ /\[(^\]+)\]/
+              if e =~ /\[(\w+)\]/
                 v = node_attribute($1)
                 v = "#{v}.to_i" if toi
                 v
