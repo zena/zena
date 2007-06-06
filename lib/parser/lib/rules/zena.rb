@@ -69,16 +69,14 @@ module Zena
       
       @var = nil # reset var counter
       
-      # some 'id' information can be set during rendering and should merge into tag_params
+      # some 'html_tag' information can be set during rendering and should merge into tag_params
       @html_tag_params_bak = @html_tag_params
       @html_tag_params     = @html_tag_params.merge(@context.delete(:html_tag_params) || {})
       unless @context[:preflight]
         if store = @params.delete(:store)
           @context["stored_#{store}".to_sym] = node
         end
-        if @params.delete(:anchor)
-          @anchor = r_anchor
-        end
+        @anchor_param = @params.delete(:anchor)
       end
 
       true
@@ -124,13 +122,14 @@ module Zena
     
     
     def after_render(text)
-      @html_tag_params = @html_tag_params_bak
-      if @anchor
-        @params[:anchor] = 'true' # set back in case of double rendering so it is computed again
-        render_html_tag(@anchor + super)
+      if @anchor_param
+        @params[:anchor] = @anchor_param # set back in case of double rendering so it is computed again
+        res = render_html_tag(r_anchor + super)
       else
-        render_html_tag(super)
+        res = render_html_tag(super)
       end
+      @html_tag_params = @html_tag_params_bak # ???
+      res
     end
 
     def r_show
@@ -144,7 +143,7 @@ module Zena
         elsif @params[:edit] == 'true' && @params[:attr]
           name = unique_name + '_' + attribute
           # TODO: add can_drive? or can_write? clauses.
-          "<span id='#{name}<%= #{node}[:zip] %>'><%= link_to_remote(#{node_attribute(attribute, :else=>@params[:else])}, :url => edit_node_path(#{node}[:zip]) + \"?attribute=#{attribute}&identifier=#{CGI.escape(name)}\#{#{node}[:zip]}\", :method => :get) %></span>"
+          "<span id='#{name}<%= #{node}.zip %>'><%= link_to_remote(#{node_attribute(attribute, :else=>@params[:else])}, :url => edit_node_path(#{node}.zip) + \"?attribute=#{attribute}&identifier=#{CGI.escape(name)}\#{#{node}.zip}\", :method => :get) %></span>"
         elsif @params[:attr]
           # TODO: test 'else', test 'format'
           if @params[:format]
@@ -225,7 +224,14 @@ module Zena
     end
     
     def r_anchor(obj=node)
-      "<a name='#{node_class.to_s.downcase}<%= #{obj}.zip %>'></a>"
+      if @anchor_param =~ /\[(.+)\]/
+        anchor_value = "<%= #{node_attribute($1)} %>"
+      elsif node_kind_of?(Version)
+        anchor_value = "#{node_class.to_s.downcase}<%= #{obj}.node.zip %>.<%= #{obj}.number %>"
+      else
+        anchor_value = "#{node_class.to_s.downcase}<%= #{obj}.zip %>"
+      end
+      "<a name='#{anchor_value}'></a>"
     end
     
     def r_content_for_layout
@@ -258,9 +264,15 @@ module Zena
       end
       res << "%>"
       if @params[:status] == 'true' || (@params[:status].nil? && @params[:actions])
-        @html_tag_params[:class] = ["s<%= #{node}.version.status %>"]
+        if @html_tag_params[:class]
+         "<div class='s<%= #{node}.version.status %>'>#{res}</div>"
+        else
+          @html_tag_params[:class] = ["'s<%= #{node}.version.status %>'"]
+          res
+        end
+      else
+        res
       end
-      res
     end
     
     # TODO: test
@@ -379,7 +391,7 @@ module Zena
       text = get_text_for_erb
       if @context[:template_url]
         # ajax
-        "<%= link_to_remote(#{text || _('edit').inspect}, :url => edit_node_path(#{node}[:zip]) + '?template_url=#{CGI.escape(@context[:template_url])}', :method => :get) %>"
+        "<%= link_to_remote(#{text || _('edit').inspect}, :url => edit_node_path(#{node}.zip) + '?template_url=#{CGI.escape(@context[:template_url])}', :method => :get) %>"
       else
         # FIXME: we could link to some html page to edit the item.
         ""
@@ -438,7 +450,7 @@ module Zena
           form  =  "<%= form_remote_tag(:url => #{node_class.to_s.downcase.pluralize}_path) %>\n"
         else
           # saved form used to edit: set values and 'parent_id' from @node
-          @html_tag_params.merge!(:id=>"#{template_url}<%= #{node}.new_record? ? '_form' : #{node}[:zip] %>")
+          @html_tag_params.merge!(:id=>"#{template_url}<%= #{node}.new_record? ? '_form' : #{node}.zip %>")
           # new_record? = edit/create failed, rendering form with errors
           # else        = edit
           # FIXME: remove '/zafu?' when nodes_controller's method 'zafu' is no longer needed.
@@ -446,20 +458,20 @@ module Zena
 <% if #{node}.new_record? -%>
   <p class='btn_x'><a href='#' onclick='[\"#{template_url}_add\", \"#{template_url}_form\"].each(Element.toggle);return false;'>#{_('btn_x')}</a></p>
 <% else -%>
-  <p class='btn_x'><%= link_to_remote(#{_('btn_x').inspect}, :url => #{node_class.to_s.downcase}_path(#{node}[:zip]) + '/zafu?template_url=#{CGI.escape(template_url)}', :method => :get) %></a></p>
+  <p class='btn_x'><%= link_to_remote(#{_('btn_x').inspect}, :url => #{node_class.to_s.downcase}_path(#{node}.zip) + '/zafu?template_url=#{CGI.escape(template_url)}', :method => :get) %></a></p>
 <% end -%>
 END_TXT
           form =<<-END_TXT
 <% if #{node}.new_record? -%>
 <%= form_remote_tag(:url => #{node_class.to_s.downcase.pluralize}_path) %>
 <% else -%>
-<%= form_remote_tag(:url => #{node_class.to_s.downcase}_path(#{node}[:zip]), :method => :put) %>
+<%= form_remote_tag(:url => #{node_class.to_s.downcase}_path(#{node}.zip), :method => :put) %>
 <% end -%>
 END_TXT
         end
         form << "<div class='hidden'>"
         form << "<input type='hidden' name='template_url' value='#{template_url}'/>\n"
-        form << "<input type='hidden' name='node[parent_id]' value='<%= #{node}#{@context[:in_add] ? '[:zip]' : '.parent_zip'} %>'/>\n"
+        form << "<input type='hidden' name='node[parent_id]' value='<%= #{node}#{@context[:in_add] ? '.zip' : '.parent_zip'} %>'/>\n"
         
         if @params[:klass] && @context[:in_add]
           form << "<input type='hidden' name='node[klass]' value='#{@params[:klass]}'/>\n"
@@ -508,7 +520,7 @@ END_TXT
       
       out "<% #{list_var}_id = #{node}.#{meth}_id -%>"
       out "<% #{list_var}.each do |#{var}| -%>"
-      out "<input type='radio' name='node[#{meth}_id]' value='<%= #{var}[:zip] %>'<%= #{list_var}_id == #{var}[:id] ? \" checked='checked'\" : '' %>/> <%= #{node_attribute(attribute, :node=>var)} %> "
+      out "<input type='radio' name='node[#{meth}_id]' value='<%= #{var}.zip %>'<%= #{list_var}_id == #{var}[:id] ? \" checked='checked'\" : '' %>/> <%= #{node_attribute(attribute, :node=>var)} %> "
       out "<% end -%>"
       out "<input type='radio' name='node[#{meth}_id]' value=''/> #{_('none')}"
 
@@ -516,7 +528,7 @@ END_TXT
 
       out "<% #{list_var}_ids = #{node}.#{meth}_ids -%>"
       out "<% #{list_var}.each do |#{var}| -%>"
-      out "<input type='checkbox' name='node[#{meth}_ids][]' value='<%= #{var}[:zip] %>'<%= #{list_var}_ids.include?(#{var}[:id]) ? \" checked='checked'\" : '' %>/> <%= #{node_attribute(attribute, :node=>var)} %> "
+      out "<input type='checkbox' name='node[#{meth}_ids][]' value='<%= #{var}.zip %>'<%= #{list_var}_ids.include?(#{var}[:id]) ? \" checked='checked'\" : '' %>/> <%= #{node_attribute(attribute, :node=>var)} %> "
       out "<% end -%>"
       out "<input type='hidden' name='node[#{meth}_ids]' value=''/>"
 
@@ -564,10 +576,6 @@ END_TXT
           # build form from 'each'
           out expand_block(@context[:form], :in_add => true, :no_form => false, :no_edit => true, :add=>self, :make_form => true)
         end
-        
-        if @html_tag
-          out "</#{@html_tag}>"
-        end
       else
         # no ajax
         @html_tag_params[:class] ||= 'btn_add' if @html_tag
@@ -599,13 +607,14 @@ END_TXT
         else
           out "<% #{list}.each do |#{var}| -%>"
         end
-        out r_anchor(var) if @anchor # insert anchor inside the each loop
-        @anchor = nil
+        out r_anchor(var) if @anchor_param # insert anchor inside the each loop
+        @params[:anchor] = @anchor_param   # set back in case we double render
+        @anchor_param = nil
         res = expand_with(:node=>var)
         
         if @context[:template_url]
           # ajax, set id
-          id_hash = {:id=>"#{@context[:template_url]}<%= #{var}[:zip] %>"}
+          id_hash = {:id=>"#{@context[:template_url]}<%= #{var}.zip %>"}
           if @html_tag
             @html_tag_params.merge!(id_hash)
           else
@@ -618,7 +627,7 @@ END_TXT
         
         if @context[:template_url]
           # saved template
-          id_hash = {:id=>"#{@context[:template_url]}<%= #{node}[:zip] %>"}
+          id_hash = {:id=>"#{@context[:template_url]}<%= #{node}.zip %>"}
           if @html_tag
             @html_tag_params.merge!(id_hash)
             render_html_tag(expand_with)
@@ -873,10 +882,15 @@ END_TXT
       else
         mode = ''
       end
-      if @params[:dash] == 'true'
-        dash = ", :dash=>\"#{node_class.to_s.downcase}\#{#{node}.zip}\""
+      if dash = @params[:dash]
+        dash = ", :dash=>#{dash.inspect}"
       else
         dash = ''
+      end
+      if dash_in = @params[:in]
+        dash_in = ", :dash_in=>#{dash_in.inspect}"
+      else
+        dash_in = ''
       end
       
       html_tags  = {}
@@ -891,10 +905,10 @@ END_TXT
       end
         
       if text_mode == :raw
-        pre_space + "<a#{params_to_html(html_tags)} href='<%= node_link(:url_only=>true, :node=>#{lnode}#{href}#{url}#{dash}#{fmt}#{mode}) %>'>#{text}</a>"
+        pre_space + "<a#{params_to_html(html_tags)} href='<%= node_link(:url_only=>true, :node=>#{lnode}#{href}#{url}#{dash}#{dash_in}#{fmt}#{mode}) %>'>#{text}</a>"
       else
         text = text.blank? ? '' : ", :text=>#{text}"
-        pre_space + "<%= node_link(:node=>#{lnode}#{text}#{href}#{url}#{dash}#{fmt}#{mode}#{params_to_erb(html_tags)}) %>"
+        pre_space + "<%= node_link(:node=>#{lnode}#{text}#{href}#{url}#{dash}#{dash_in}#{fmt}#{mode}#{params_to_erb(html_tags)}) %>"
       end
     end
     
@@ -1343,17 +1357,17 @@ END_TXT
               nil
             end
           if cond
-            append << "<%= #{cond} ? \" class='#{klass}'\" : '#{tag_class ? " class='#{tag_class}'" : ''}' %>"
+            append << "<%= #{cond} ? \" class='#{klass}'\" : \"#{tag_class ? " class='#{tag_class}'" : ""}\" %>"
+            @html_tag_params.delete(:class)
             break
           end
         end
       end
-
+      
       @html_tag = 'div' if !@html_tag && (set_params != {} || @html_tag_params != {})
       
       bak = @html_tag_params.dup
       res_params = {}
-      res_params[:class] = tag_class if tag_class
       set_params.merge(@html_tag_params).each do |k,v|
         if k.to_s =~ /^(t?)set_(.+)$/
           key   = $2

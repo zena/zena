@@ -884,33 +884,40 @@ ENDTXT
     res = "#{res}<#{tag}>#{nav.join("</#{tag}>#{join}<#{tag}>")}</#{tag}>"
   end
   
-  # TODO: test
-  # TODO: could be used by all helpers: faster then routes...
+  # TODO: could be used by all helpers: faster then routes... Rename obj_link (is used to link to versions)
   # Used by zafu
   def node_link(opts={})
     options = {:node=>@node}.merge(opts)
     node = options.delete(:node)
     if href = options.delete(:href)
       node = node.relation(href) || node
-    end  
-    if options.delete(:url_only)
-      if dash = options.delete(:dash)
-        "##{dash}"
-      else
-        zen_path(node, options)
-      end
-    else
+    end    
+    return options[:text] unless node
+
+    unless url_only = options.delete(:url_only)
       text = options.delete(:text) || node.version.title
       attributes = ""
       attributes += options[:class] ? " class='#{options.delete(:class)}'" : ''
       attributes += options[:id] ? " id='#{options.delete(:id)}'" : ''
-      return text unless node
-      if dash = options.delete(:dash)
-        "<a#{attributes} href='##{dash}'>#{text}</a>"
-      else
-        "<a#{attributes} href='#{zen_path(node, options)}'>#{text}</a>"
-      end
     end
+      
+    url = if dash = options.delete(:dash)
+      if dash =~ /\[(.+)\]/
+        dash_value = node.zafu_read($1)
+      else
+        dash_value = "node#{node[:zip]}"
+      end
+      if dash_in = options.delete(:dash_in)
+        dash_node = node.relation(dash_in) || node
+        "#{zen_path(dash_node, options)}##{dash_value}"
+      else
+        "##{dash_value}"          
+      end
+    else
+      zen_path(node, options)
+    end
+    
+    url_only ? url :  "<a#{attributes} href='#{url}'>#{text}</a>"
   end
   
   # shows links for site features

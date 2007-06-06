@@ -143,7 +143,8 @@ class Node < ActiveRecord::Base
   acts_as_multiversioned
   before_validation  :node_before_validation  # run our 'before_validation' after 'secure'
   link :tags, :class_name=>'Tag'
-  link :references, :class_name=>'Reference'
+  link :references, :class_name=>'Node'
+  link :reference_for, :class_name=>'Node', :as=>'reference'
   link :icon, :class_name=>'Image', :unique=>true
   link :hot_for,  :as=>'hot' , :class_name=>'Project', :as_unique=>true
   link :home_for, :as=>'home', :class_name=>'Project', :as_unique=>true

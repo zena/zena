@@ -28,6 +28,7 @@ module Zena
     N_('img_tag')           # link icon
     N_('img_user')          # user management
     N_('img_collaborator')  # link icon
+    N_('img_reference')     # link icon
     N_('img_favorite')      # link icon
     N_('img_project')       # link icon
     N_('img_public')        # link icon
@@ -36,6 +37,8 @@ module Zena
     
     N_('icon')
     N_('icon_for')
+    N_('reference')
+    N_('reference_for')
     N_('tags')
     N_('tag_for')
     N_('collaborators')

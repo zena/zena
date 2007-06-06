@@ -40,7 +40,8 @@ show_title:
 
 show_title_with_opts:
   src: "<h1 do='title' class='s30' status='true' actions='all'>this is the title</h1>"
-  tem: "hh"
+  tem: "<h1 class='s<%= @node.version.status %>'><%= show_title(:node=>@node) + node_actions(:node=>@node, :actions=>\"all\")%></h1>"
+  res: "/<h1 class='s50'><span id=.*class='actions'>/"
 
 show_shortcut:
   src: "<p do='[v_title]'>hello</p>"
@@ -144,15 +145,15 @@ link_dash_name:
 
 link_dash_in:
   src: "<r:link dash='true' in='project' mode='tree'/>"
-  res: "<a href='...._tree.html#node44'>status title</a>"
+  res: "<a href='/oo/projects/cleanWater_tree.html#node22'>status title</a>"
 
 link_dash_name_in:
   src: "<r:link dash='[name]' in='parent'/>"
-  res: "<a href='...#status'>status title</a>"
+  res: "<a href='/oo/projects/cleanWater.html#status'>status title</a>"
 
 anchor:
   src: "<r:anchor/> <p do='[id]' anchor='[name]'>hello</p>"
-  res: "<a name='node22'></a> <p><a name='status'></a>33</p>"
+  res: "<a name='node22'></a><a name='status'></a> <p>22</p>"
 
 show_title_anchor:
   src: "<r:title anchor='true'/>"
@@ -168,11 +169,11 @@ link_version:
   src: "<r:traductions><r:each join=', '><r:link tattr='lang' /></r:each></r:traductions>"
   res: "<a href='/oo/projects/cleanWater/post27.html?lang=en'>english</a>, <a href='/oo/projects/cleanWater/post27.html?lang=fr'>french</a>"
   
-link_version_anchor_dash:
+version_anchor:
   context:
     node: 'opening'
-  src: "<r:traductions><r:each join=', '><r:link tattr='lang' dash='true' anchor='true'/></r:each></r:traductions>"
-  res: "<a name='version27.2'></a><a href='#version27.2'>english</a>, <a name='version27.1'></a><a href='#version27.1'>french</a>"
+  src: "<r:traductions><r:each join=', '><r:link tattr='lang' anchor='true'/></r:each></r:traductions>"
+  res: "<a name='version27.2'></a><a href='/oo/projects/cleanWater/post27.html?lang=en'>english</a>, <a name='version27.1'></a><a href='/oo/projects/cleanWater/post27.html?lang=fr'>french</a>"
   
 title:
   src: "<h2 do='title'>super titre</h2>"
@@ -243,9 +244,9 @@ lang_links:
   res: "/<div id='lang'><em>en.*\|.*test_render.*=fr/"
 
 show_path:
-  src: "<div id='path' do='show_path'><ul><li><a href='#'>first</a></li> / <li><a href='#'>second</a></li> / <li><a href='#' class='current'>here</a></li></ul></div>"
-  tem: "<div id='path'><%= show_path(:node=>@node) %></div>"
-  res: "/<div id='path'><ul class='path'><li>.*zena.*<li>.*oo/page18.html.*<li><.*/projects/cleanWater.*cleanWater</a>.*/oo/projects/cleanWater/page22.html.*class='current'>status</a>/"
+  src: "<ul id='path' do='show_path'><ul><li><a href='#'>first</a></li> / <li><a href='#'>second</a></li> / <li><a href='#' class='current'>here</a></li></ul></div>"
+  tem: "<ul id='path'><%= show_path(:node=>@node) %></ul>"
+  res: "/<ul id='path'><li>.*zena.*<li>.*oo/page18.html.*<li><.*/projects/cleanWater.*cleanWater</a>.*/oo/projects/cleanWater/page22.html.*class='current'>status</a>/"
 
 uses_calendar:
   src: "<r:uses_calendar/>"

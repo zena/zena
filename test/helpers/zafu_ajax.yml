@@ -6,16 +6,16 @@ default:
 
 show_edit:
   src: "<r:show attr='name' edit='true'/>"
-  tem: "<span id='/show/edit/list_name<%= @node[:zip] %>'><%= link_to_remote(@node.name, :url => edit_node_path(@node[:zip]) + \"?attribute=name&identifier=%2Fshow%2Fedit%2Flist_name#{@node[:zip]}\", :method => :get) %></span>"
+  tem: "<span id='/show/edit/list_name<%= @node.zip %>'><%= link_to_remote(@node.name, :url => edit_node_path(@node.zip) + \"?attribute=name&identifier=%2Fshow%2Fedit%2Flist_name#{@node.zip}\", :method => :get) %></span>"
   res: "/span id='/show/edit/list_name22'>.*Ajax\.Request\('/nodes/22/edit\?attribute=name/"
 
 edit_not_each:
   src: "<li class='blah'>this is a post <r:edit>edit post</r:edit></li>"
   tem: "/<li class='blah'>this is a post </li>/"
 
-edit_each_no_form:
-  src: "<r:children><li do='each'>I <p do='[name]'>blah</p> <r:edit>life</r:edit></li></r:children>"
-  tem: "/<li>blah </li>/"
+add_each_no_form:
+  src: "<ul do='children'><li do='each'>I <p do='[name]'>blah</p></li><li do='add'/></ul>"
+  res: "/<ul><li id=.*_add.*li id=.*_form.*form.*hidden.*I <p><input type='text' name='node\[name\]' value=''\/><\/p><\/form><\/li>/"
 
 each_add_with_form:
   context:
