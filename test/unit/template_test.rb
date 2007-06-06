@@ -76,8 +76,8 @@ class TemplateTest < ZenaTestUnit
     doc = secure(Template) { Template.create(:parent_id=>nodes_id(:layout), :name=>'Project_collab.xml.html')}
     assert_kind_of Template, doc
     assert !doc.new_record?, "Saved"
-    assert doc.update_attributes( :name => "Page_super")
-    assert_equal 'Page', doc.name
+    assert doc.update_attributes(:name => "Page_super")
+    assert_equal 'Page_super', doc.name
     assert_equal 'super', doc.c_mode
     assert_equal 'xml', doc.c_format
     assert_equal 'NP', doc.c_tkpath

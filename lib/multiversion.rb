@@ -500,7 +500,7 @@ module Zena
                     if recipient.content_class && recipient = recipient.redaction_content
                       recipient.send(method,*args)
                     else
-                      redaction_error(meth.to_s[0..-2], "could not be set (no content)") # remove trailing '='
+                      redaction_error(meth.to_s[0..-2], "cannot be set") # remove trailing '='
                     end
                   when 'd_'
                     recipient.dyn[method[0..-2]] = args[0]

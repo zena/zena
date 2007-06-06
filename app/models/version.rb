@@ -37,7 +37,6 @@ class Version < ActiveRecord::Base
   before_validation     :version_before_validation
   validates_presence_of :user
   validate              :valid_version
-  validate_on_update    :can_update_content
   after_save            :save_content
   after_destroy         :destroy_content
   before_create         :set_number
@@ -114,7 +113,11 @@ class Version < ActiveRecord::Base
     return unless content_class
     @content = content
     if @content && @content[:version_id] == self[:id]
-      # own content, nothing to do
+      # own content, make sure no published version links to this content
+      if !new_record? && Version.find(:first, :select=>'id', :conditions=>["content_id = ?",self[:id]])
+        errors.add('content', 'cannot be changed')
+        return nil
+      end
     elsif @content
       # content shared, make it our own
       @old_content = @content # keep the old one in case we cannot save and need to rollback
@@ -137,18 +140,11 @@ class Version < ActiveRecord::Base
     obj
   end
   
+  def content_class
+    self.class.content_class
+  end
+  
   private
-    def content_class
-      self.class.content_class
-    end
-  
-    def can_update_content
-      if @redaction_content && Version.find_all_by_content_id(self[:id]).size > 0
-        # some versions link to this version's content directly. Cannot change content.
-        errors.add('base', 'cannot change content (used by other versions)')
-      end
-    end
-  
     def set_number
       last_record = node[:id] ? self.connection.select_one("select number from #{self.class.table_name} where node_id = '#{node[:id]}' ORDER BY number DESC LIMIT 1") : nil
       self[:number] = (last_record || {})['number'].to_i + 1

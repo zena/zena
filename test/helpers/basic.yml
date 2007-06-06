@@ -304,7 +304,7 @@ case_when_test:
   res: "one"
 
 case_when_test_attribute:
-  src: "<r:case><r:when test='[v_title]'>one</r:when><r:else>two</r:when></r:case>"
+  src: "<r:case><r:when test='[v_title]'>one</r:when><r:else>two</r:else></r:case>"
   res: "one"
 
 case_when_evil_test:

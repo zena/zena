@@ -16,12 +16,12 @@ class Template < TextDocument
       # starts with a capital letter = master template
       version.content.klass  = $1
       version.content.mode   = $3
-      version.content.format = $5 || 'html'
+      version.content.format = $5 || version.content.format || 'html'
     elsif str =~ /^([A-Z][a-zA-Z]+?)(_([a-zA-Z_]+)|)(\.(\w+)|)\Z/
       # starts with a capital letter = master template
       version.content.klass  = $1
       version.content.mode   = $3
-      version.content.format = $5 || 'html'
+      version.content.format = $5 || version.content.format || 'html'
     else
       version.content.klass  = nil
       version.content.mode   = nil

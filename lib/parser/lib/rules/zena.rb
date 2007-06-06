@@ -1265,9 +1265,10 @@ END_TXT
             end
           end
           allOK ? "#{value1} #{op} #{value2}" : nil
-        elsif test =~ /\[(^\]+)\]/
+        elsif test =~ /\[([^\]]+)\]/
           node_attribute($1)
         else
+          puts test.inspect
           # bad test condition.
           'false'
         end

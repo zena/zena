@@ -383,27 +383,27 @@ class ApplicationHelperTest < ZenaTestHelper
   
   def test_show_path_root
     @node = secure(Node) { Node.find(nodes_id(:zena))}
-    assert_equal "<ul class='path'><li><a href='/en' class='current'>zena</a></li></ul>", show_path
+    assert_equal "<li><a href='/en' class='current'>zena</a></li>", show_path
     node2 = @node
     @node = secure(Node) { Node.find(nodes_id(:status))}
-    assert_match %r{ul class='path'.*zena.*projects.*cleanWater.*li.*page22\.html' class='current'>status}m, show_path(node2)
+    assert_match %r{.*zena.*projects.*cleanWater.*li.*page22\.html' class='current'>status}m, show_path(node2)
   end
   
   def test_show_path_root_with_login
     login(:ant)
     @node = secure(Node) { Node.find(nodes_id(:zena))}
-    assert_equal "<ul class='path'><li><a href='/#{AUTHENTICATED_PREFIX}' class='current'>zena</a></li></ul>", show_path
+    assert_equal "<li><a href='/#{AUTHENTICATED_PREFIX}' class='current'>zena</a></li>", show_path
   end
 
   def test_lang_links
     login(:lion)
     @controller.set_params(:controller=>'nodes', :action=>'show', :path=>'projects/cleanWater', :prefix=>AUTHENTICATED_PREFIX)
-    assert_match %r{<b>en</b>.*href=.*/oo/projects/cleanWater\?lang=.*fr.*}, lang_links
+    assert_match %r{<em>en</em>.*href=.*/oo/projects/cleanWater\?lang=.*fr.*}, lang_links
   end
   
   def test_lang_links_no_login
     login(:anon)
     @controller.set_params(:controller=>'nodes', :action=>'show', :path=>'projects/cleanWater', :prefix=>'en')
-    assert_match %r{<b>en</b>.*href=.*/fr/projects/cleanWater.*fr.*}, lang_links
+    assert_match %r{<em>en</em>.*href=.*/fr/projects/cleanWater.*fr.*}, lang_links
   end
 end

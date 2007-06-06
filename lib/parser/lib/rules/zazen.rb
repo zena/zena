@@ -45,7 +45,9 @@ module Zazen
         elsif @text[0..0] == '"'
           scan_quote
         elsif @text[0..4] == '<code'
-          scan_code
+          # FIXME: implement instead of "extract"
+          flush
+          # implement !! scan_code
         elsif @text =~ /\A([^>]*)>/m
           flush $&
         else

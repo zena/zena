@@ -127,6 +127,8 @@ class VersionTest < ZenaTestUnit
       # ant's english redaction
       assert_equal 'en', node.v_lang
       assert node.update_attributes(:v_title=>'les arbres')
+      
+      assert node.propose # only proposed/published versions block
 
       # new redaction for french
       assert_not_equal node.v_id, old_vers_id
@@ -141,7 +143,7 @@ class VersionTest < ZenaTestUnit
       assert_equal old_vers_id, node.v_id
       # try to edit content
       assert !node.update_attributes(:c_file=>uploaded_pdf('water.pdf')), "Cannot be changed"
-      assert_match "cannot change content (used by other versions)", node.errors[:base]
+      assert node.errors[:c_file]
     end
   end
   
