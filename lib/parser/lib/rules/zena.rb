@@ -1237,9 +1237,9 @@ END_TXT
         when 'drive'
           "#{node}.can_drive?"
         end
-      elsif test = @params[:test]
-        value1, op, value2 = test.split(/\s+/)
-        if op && value2
+      elsif test = @params[:test]  
+        if test =~ /\s/
+          value1, op, value2 = test.split(/\s+/)
           allOK = value1 && op && value2
           toi   = ( op =~ /\&/ )
           if ['==', '!=', '&gt;', '&gt;=', '&lt;', '&lt;='].include?(op)
@@ -1249,7 +1249,7 @@ END_TXT
           end
           if allOK
             value1, value2 = [value1, value2].map do |e|
-              if e =~ /\[(\w+)\]/
+              if e =~ /\[(^\]+)\]/
                 v = node_attribute($1)
                 v = "#{v}.to_i" if toi
                 v
@@ -1263,7 +1263,7 @@ END_TXT
             end
           end
           allOK ? "#{value1} #{op} #{value2}" : nil
-        elsif test =~ /\[(\w+)\]/
+        elsif test =~ /\[(^\]+)\]/
           node_attribute($1)
         else
           # bad test condition.
