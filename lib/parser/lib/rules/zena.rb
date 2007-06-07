@@ -1021,9 +1021,9 @@ END_TXT
       
       if value = params[:project]
         if value == 'stored' && stored = @context[:stored_project]
-          conditions << "project_id = '\#{#{stored}[:project_id]}'"
+          conditions << "project_id = '\#{#{stored}.get_project_id}'"
         elsif value == 'current'
-          conditions << "project_id = '\#{#{node}[:project_id]}'"
+          conditions << "project_id = '\#{#{node}.get_project_id}'"
         elsif value =~ /\A\d+\Z/
           conditions << "project_id = '#{value.to_i}'"
         elsif value =~ /\A[\w\/]+\Z/
@@ -1033,9 +1033,9 @@ END_TXT
       
       if value = params[:section]
         if value == 'stored' && stored = @context[:stored_section]
-          conditions << "section_id = '\#{#{stored}[:section_id]}'"
+          conditions << "section_id = '\#{#{stored}.get_section_id}'"
         elsif value == 'current'
-          conditions << "section_id = '\#{#{node}[:section_id]}'"
+          conditions << "section_id = '\#{#{node}.get_section_id}'"
         elsif value =~ /\A\d+\Z/
           conditions << "section_id = '#{value.to_i}'"
         elsif value =~ /\A[\w\/]+\Z/
@@ -1046,7 +1046,6 @@ END_TXT
       [:updated, :created, :event, :log].each do |k|
         if value = params[k]
           # current, same are synonym for 'today'
-          value = 'today' if ['current', 'same'].include?(value)
           conditions << Node.connection.date_condition(value,"#{k}_at",current_date)
         end
       end
@@ -1502,13 +1501,13 @@ module ActiveRecord
   module ConnectionAdapters
     class MysqlAdapter
       def date_condition(date_cond, field, ref_date='today')
-        if ref_date == 'today'
+        if date_cond == 'today' || ref_date == 'today'
           ref_date = 'now()'
         else
           ref_date = "'#{ref_date.gsub("'",'')}'"
         end
         case date_cond
-        when 'today'
+        when 'today', 'current', 'same'
           "DATE(#{field}) = DATE(#{ref_date})"
         when 'week'
           "date_format(#{ref_date},'%Y-%v') = date_format(#{field}, '%Y-%v')"

@@ -213,6 +213,14 @@ module ApplicationHelper
   # Creates a link to the node referenced by id
   def make_link(opts)
     link_opts = {}
+    if sharp = opts[:sharp]
+      if sharp =~ /\[(.+)\/(.*)\]/
+        sharp_in, sharp = $1, $2
+        sharp = "[#{sharp}]" if sharp != ''
+        link_opts[:sharp_in] = sharp_in
+      end
+      link_opts[:sharp]    = sharp
+    end
     if opts[:id] =~ /(\d+)(_\w+|)(\.\w+|)/
       opts[:id]     = $1
       link_opts[:mode]   = ($2 != '') ? $2[1..-1] : nil
@@ -902,24 +910,7 @@ ENDTXT
       attributes += options[:class] ? " class='#{options.delete(:class)}'" : ''
       attributes += options[:id] ? " id='#{options.delete(:id)}'" : ''
     end
-      
-    url = if sharp = options.delete(:sharp)
-      if sharp =~ /\[(.+)\]/
-        sharp_value = node.zafu_read($1)
-      else
-        sharp_value = "node#{node[:zip]}"
-      end
-      if sharp_in = options.delete(:sharp_in)
-        sharp_node = node.relation(sharp_in) || node
-        "#{zen_path(sharp_node, options)}##{sharp_value}"
-      else
-        "##{sharp_value}"          
-      end
-    else
-      zen_path(node, options)
-    end
-    
-    url_only ? url :  "<a#{attributes} href='#{url}'>#{text}</a>"
+    url_only ? zen_path(node, options) :  "<a#{attributes} href='#{zen_path(node, options)}'>#{text}</a>"
   end
   
   # shows links for site features

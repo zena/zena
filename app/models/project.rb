@@ -16,7 +16,7 @@ class Project < Page
   end
   
   def relation_methods
-    super + ['notes_all']
+    super + ['notes_all', 'posts']
   end
   
   # This project's notes
@@ -32,23 +32,11 @@ class Project < Page
     notes_added(options)
   end
   
-=begin
-    conditions = options[:conditions]
-    options.delete(:conditions)
-    options.merge!( :select     => "#{Note.table_name}.*, links.id AS link_id, links.role", 
-                    :joins      => "LEFT JOIN links ON #{Note.table_name}.id=links.source_id",
-                    :conditions => ["(section_id = ?) OR (links.role='project' AND links.target_id = ? AND links.id IS NOT NULL)", self[:id], self[:id] ]
-                    )
-    if conditions
-      Note.with_scope(:find=>{:conditions=>conditions}) do
-        secure(Note) { Note.find(:all, options ) }
-      end
-    else   
-      secure(Note) { Note.find(:all, options ) }
-    end
+  def posts(opts={})
+    options = {:order=>'log_at DESC'}.merge(opts)
+    secure(Note) { Post.find(:all, relation_options(options)) }
   end
-=end
-
+    
   # All events related to this project (new/modified pages, notes)
   def timeline
     []

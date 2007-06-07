@@ -452,15 +452,29 @@ class ApplicationController < ActionController::Base
     
     # /////// The following methods are common to controllers and views //////////// #
   
-    def data_path(obj, opts={})
-      format = obj.kind_of?(Document) ? obj.c_ext : nil
-      zen_path(obj, {:format => format}.merge(opts))
+    def data_path(node, opts={})
+      format = node.kind_of?(Document) ? node.c_ext : nil
+      zen_path(node, {:format => format}.merge(opts))
     end
   
     
     # Path for the node (as string). Options can be :format and :mode.
-    def zen_path(obj, options={})
-      return '#' unless obj
+    def zen_path(node, options={})
+      return '#' unless node
+      if sharp = options.delete(:sharp)
+        if sharp =~ /\[(.+)\]/
+          sharp_value = node.zafu_read($1)
+        else
+          sharp_value = "node#{node[:zip]}"
+        end
+        if sharp_in = options.delete(:sharp_in)
+          sharp_node = node.relation(sharp_in) || node
+          return "#{zen_path(sharp_node, options)}##{sharp_value}"
+        else
+          return "##{sharp_value}"          
+        end
+      end
+      
       opts   = options.dup
       format = opts.delete(:format) || 'html'
       pre    = opts.delete(:prefix) || prefix
@@ -469,25 +483,25 @@ class ApplicationController < ActionController::Base
       
       params = (opts == {}) ? '' : ('?' + opts.map{ |k,v| "#{k}=#{v}"}.join('&'))
       
-      if obj[:id] == current_site[:root_id] && mode.nil?
+      if node[:id] == current_site[:root_id] && mode.nil?
         "/#{pre}" # index page
-      elsif obj[:custom_base]
+      elsif node[:custom_base]
         "/#{pre}/" +
-        obj.basepath +
+        node.basepath +
         (mode         ? "_#{mode}" : '') +
         ".#{format}"
       else
         "/#{pre}/" +
-        (obj.basepath != '' ? "#{obj.basepath}/"    : '') +
-        (obj.class.to_s.downcase               ) +
-        (obj[:zip].to_s                        ) +
+        (node.basepath != '' ? "#{node.basepath}/"    : '') +
+        (node.class.to_s.downcase               ) +
+        (node[:zip].to_s                        ) +
         (mode          ? "_#{mode}" : '') +
         ".#{format}"
       end + params
     end
   
-    def zen_url(obj, opts={})
-      path = zen_path(obj,opts).split('/').reject { |p| p.blank? }
+    def zen_url(node, opts={})
+      path = zen_path(node,opts).split('/').reject { |p| p.blank? }
       prefix = path.shift
 
       if path == []

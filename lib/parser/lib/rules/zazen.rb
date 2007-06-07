@@ -94,8 +94,8 @@ module Zazen
         eat $&
         # link inside the cms "":34
         title, id = $1, $2
-        if id =~ /(.*)#(.*)/
-          id, sharp = $1, $2
+        if id =~ /(.*?)#(.*)/
+          id, sharp = *id.split('#')
           sharp = title if sharp.blank?
         end
         store @helper.make_link(:title=>title,:id=>id,:sharp=>sharp)
