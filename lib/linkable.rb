@@ -178,8 +178,9 @@ on the post edit page :
         role       = link_def[:role]
         count      = link_def[:count]
         
-        conditions = options[:conditions]
-        options.delete(:conditions)
+        conditions = options.delete(:conditions)
+        direction  = options.delete(:direction)
+        
         # :from
         side_cond = ""
         params    = []
@@ -197,10 +198,21 @@ on the post edit page :
           end
           count = :all
         else
-          side_cond = " AND links.#{link_side} = ?"
-          params = [self[:id]]
+          if direction == 'both'
+            side_cond = " AND (links.#{link_side} = ? OR links.#{other_side} = ?)"
+            params = [self[:id],self[:id]]
+          else
+            side_cond = " AND links.#{link_side} = ?"
+            params = [self[:id]]
+          end
         end
         options.delete(:from)
+        
+        if direction == 'both'
+          join_direction = "(#{klass.table_name}.id=links.#{other_side} OR #{klass.table_name}.id=links.#{link_side})"
+        else
+          join_direction = "#{klass.table_name}.id=links.#{other_side}"
+        end
         
         if options[:or]
           join = 'LEFT'
@@ -217,7 +229,7 @@ on the post edit page :
           inner_conditions = ["links.role='#{role}'#{side_cond}", *params ]
         end
         options.merge!( :select     => "#{klass.table_name}.*, links.id AS link_id, links.role", 
-                        :joins      => "#{join} JOIN links ON #{klass.table_name}.id=links.#{other_side}",
+                        :joins      => "#{join} JOIN links ON #{join_direction}",
                         :conditions => inner_conditions,
                         :group      => 'id'
                         )

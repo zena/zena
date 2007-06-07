@@ -575,7 +575,7 @@ class Node < ActiveRecord::Base
             end
           else
             # Find through Linkable
-            res = fetch_link(method, opts)
+            res = fetch_link(method, {:order=>'position ASC, name ASC'}.merge(opts))
           end
         end
       rescue ActiveRecord::RecordNotFound

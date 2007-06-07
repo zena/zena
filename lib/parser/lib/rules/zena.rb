@@ -976,10 +976,10 @@ END_TXT
       end
     end
     
-    def get_list_finder(rel)
+    def get_list_finder(rel,params=@params)
       # FIXME: could SQL injection be possible here ? (all params are passed to the 'find')
       erb_params = {}
-      if order = @params[:order]
+      if order = params[:order]
         if order == 'random'
           erb_params[:order] = 'RAND()'
         elsif order =~ /\A(\w+)( ASC| DESC|)\Z/
@@ -988,10 +988,14 @@ END_TXT
           # ignore
         end
       end
-      erb_params[:from] = @params[:from] if @params[:from]
+      erb_params[:from] = params[:from] if params[:from]
       [:limit, :offset].each do |k|
-        next unless @params[k]
-        erb_params[k] = @params[k].to_i.to_s
+        next unless params[k]
+        erb_params[k] = params[k].to_i.to_s
+      end
+      [:from, :direction].each do |k|
+        next unless params[k]
+        erb_params[k] = params[k]
       end
       conditions = []
       
@@ -1001,7 +1005,7 @@ END_TXT
       # <r:pages from='project' project='stored_whatever'/>
       # <r:img link='stored_whatever'/>
       # ...
-      if value = @params[:author]
+      if value = params[:author]
         if value == 'stored' && stored = @context[:stored_author]
           conditions << "user_id = '\#{#{stored}[:user_id]}'"
         elsif value == 'current'
@@ -1015,7 +1019,7 @@ END_TXT
         end
       end
       
-      if value = @params[:project]
+      if value = params[:project]
         if value == 'stored' && stored = @context[:stored_project]
           conditions << "project_id = '\#{#{stored}[:project_id]}'"
         elsif value == 'current'
@@ -1027,7 +1031,7 @@ END_TXT
         end
       end
       
-      if value = @params[:section]
+      if value = params[:section]
         if value == 'stored' && stored = @context[:stored_section]
           conditions << "section_id = '\#{#{stored}[:section_id]}'"
         elsif value == 'current'
@@ -1040,23 +1044,23 @@ END_TXT
       end
       
       [:updated, :created, :event, :log].each do |k|
-        if value = @params[k]
+        if value = params[k]
           # current, same are synonym for 'today'
           value = 'today' if ['current', 'same'].include?(value)
           conditions << Node.connection.date_condition(value,"#{k}_at",current_date)
         end
       end
 
-      params = params_to_erb(erb_params)
+      res_params = params_to_erb(erb_params)
       if conditions != []
         conditions = conditions.join(' AND ')
-        if params != ''
-          params << ", :conditions=>\"#{conditions}\""
+        if res_params != ''
+          res_params << ", :conditions=>\"#{conditions}\""
         else
-          params = ":conditions=>\"#{conditions}\""
+          res_params = ":conditions=>\"#{conditions}\""
         end
       end
-      "#{node}.relation(#{rel.inspect}#{params})"
+      "#{node}.relation(#{rel.inspect}#{res_params})"
     end
     # <r:hot else='project'/>
     # <r:relation role='hot,project'> = get relation if empty get project

@@ -224,3 +224,7 @@ checkbox:
 checkbox_unique:
   src: "<r:checkbox role='icon' values='images' from='site'/>"
   res: "/<input type='radio' name='node\[icon_id\]' value='30'\/> bird"
+
+direction_both:
+  src: "<r:references direction='both' do='each' join=', ' do='[name]'/>"
+  res: "art, projects, status"

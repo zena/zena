@@ -63,9 +63,12 @@ but we have to use :*/
 
 /* general settings */
 body { font:0.9em Verdana, Arial, sans-serif; line-height:1; color:#242424; behavior:url('stylesheets/csshover2.htc');} /* IE hack */
+code, pre { font-family:monotype; font-size:1.1em; }
 
 a      { color:#266F92; text-decoration:none; }
 a.wiki { color:inherit; border-bottom:1px dotted #2F73A0; }
+
+h1 a, h2 a, h3 a, h4 a { color:inherit;}
 
 h1, h2, h3, h4, h5 { margin-bottom:1em; }
 h1, h2 { font-family:Georgia, Times, serif; color:#450009; margin-top:1.5em; font-style:italic; font-weight:bold;}
@@ -76,7 +79,6 @@ h3, h4, h5 { font-size:0.9em; font-weight:bold; font-weight:bold; }
 h3 { color:#450009;}
 
 p, ul, ol, table, pre  { line-height:1.2; margin-bottom:1.5em; }
-code, pre { font:inherit; font-family:Courier,"Courier New",monospace; line-height:1.4;}
 ul ul, ul ol, ol ol, ol ul { margin-bottom:0; }
 
 .zazen b, .zazen strong { font-weight:bold;  }
@@ -110,7 +112,7 @@ ul ul, ul ol, ol ol, ol ul { margin-bottom:0; }
 #nav_main { background:#450009; font-size:0.85em; }
 #nav_main a { color:white; }
 
-#lang b { font-weight:normal; color:white;}
+#lang em { font-weight:normal; color:white;}
 #path, #lang, #lang a, #path a { color:#A27C6E;}
 #path a.current { color:white;}
 
@@ -145,9 +147,9 @@ ul ul, ul ol, ol ol, ol ul { margin-bottom:0; }
 /* context, content, related */
 #project_icon img { }
 #context { }
-.header h1 { margin-bottom:0.3em; }
-.header .subtitle { font-size:0.8em; }
-.header { margin-bottom: 2em; padding-bottom:0.5em; }
+.title h1 { margin-bottom:0.3em; }
+.title .subtitle { font-size:0.8em; }
+.title { margin-bottom: 2em; padding-bottom:0.5em; }
 #related { border-left:1px solid grey; font-size:0.9em; }
 #related .group { font-size:1em; font-weight:normal;}
 #related ol { margin-left:1.5em; margin-bottom:0; }
@@ -166,7 +168,7 @@ ul ul, ul ol, ol ol, ol ul { margin-bottom:0; }
 .note .header a { color:inherit;}
 .note .title  { font:1em Helvetica, Arial, sans-serif; margin-top:0.3em; text-transform: uppercase; letter-spacing: 0.03em; font-weight:bold; color:#450009; width:316px; }
 .note .log_at { width:60px;}
-.note .zazen  { clear:both; font-size:0.85em; padding-left:60px; }
+.note .zazen  { clear:both; padding-left:60px; }
 
 /* tree */
 .tree    { font-size:0.9em; }
@@ -179,18 +181,22 @@ ul ul, ul ol, ol ol, ol ul { margin-bottom:0; }
 
 /* -------- ZAZEN -------- */
 .zazen img { border:1px solid #333;}
+.zazen .img_left { margin-right:10px; }
 .zazen img.full { border-width:0;  }
 .zazen img.doc { border:0;}
 
-.zazen { padding-left:15px; }
+.zazen { padding-left:15px; font-size:0.95em; }
+.zazen p { line-height:1.2; margin-bottom:1.3em; }
 .zazen h1, .zazen h2, .zazen h3 { margin-left:-15px; }
 
-.zazen ul, .zazen ol, .zazen table { display:table; margin-left:2em; font-size:0.95em;}
+.zazen ul, .zazen ol { margin-left:2em;}
+.zazen li { line-height:1.2; margin-bottom:0.3em; }
+.zazen table { border-collapse:separate; }
 .zazen ul { list-style:disc;}
 .zazen li li { list-style:circle;}
 .zazen ol { list-style:decimal;}
 
-.zazen .box, .zazen pre { border:1px dashed #CEBB94; border-width:1px 0; background:#EAE9E8; padding:5px 4px 3px; display:table; }
+.zazen .box, .zazen pre { border:1px dashed #CEBB94; border-width:1px 0; background:#EAE9E8; padding:5px 4px 3px; display:table; font-size:1.1em;}
 .zazen pre, .zazen div .code, .zazen div .code_large {border:2px solid #bbb; margin:1em 80px 3em; display:block; white-space:pre;}
 pre.left  { float:left;  margin-left:2em; margin-right:2em;}
 pre.right { float:right; margin-left:2em; margin-right:2em;}
@@ -200,6 +206,8 @@ pre.full  { margin:0 0 0 -15px; }
 .zazen th { background:#C8C4BF; font-weight:normal; border-right:1px solid #CEBB94; padding:1px 4px; font-size:1.1em; font-style:italic; font-family:Times, serif;}
 .zazen td { border:1px solid #CEBB94; border-width:1px 1px 0 0; padding:0px 4px;}
 .zazen tr:first-child td { border-top-width:0;}
+
+.zazen strong { font-family:Helvetica,Arial,sans-serif; color:#222; font-size:95%; }
 
 /* gallery */
 

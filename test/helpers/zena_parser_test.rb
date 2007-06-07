@@ -8,7 +8,7 @@ class ZenaParserTest < ZenaHelperTest
   Section # make sure we load Section links before trying relations
   
   def test_single
-    do_test('basic', 'show_title_options')
+    do_test('relations', 'checkbox')
   end
   
   def test_basic_show_bad_attr
@@ -124,8 +124,20 @@ class ZenaParserTest < ZenaHelperTest
       # objs in the past
       Node.connection.execute "UPDATE nodes SET event_at = ADDDATE(curdate(), interval -2 month) WHERE id IN (23);" # status, art
       Node.connection.execute "UPDATE nodes SET event_at = ADDDATE(curdate(), interval -1 month) WHERE id IN (8);" # projects, cleanWater
-    end  
+    end
     do_test('relations', 'this_year')    
+  end
+  
+  def test_relations_direction_both
+    "art, projects, status"
+    art, projects, status = nodes_id(:art), nodes_id(:projects), nodes_id(:status)
+    values = [
+      "(#{art},#{status},'reference')",
+      "(#{status},#{status},'reference')",
+      "(#{status},#{projects},'reference')"
+      ]
+    Node.connection.execute "INSERT INTO links (`source_id`,`target_id`,`role`) VALUES #{values.join(',')}"
+    do_test('relations', 'direction_both')
   end
   
   make_tests
