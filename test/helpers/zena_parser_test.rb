@@ -133,11 +133,22 @@ class ZenaParserTest < ZenaHelperTest
     art, projects, status = nodes_id(:art), nodes_id(:projects), nodes_id(:status)
     values = [
       "(#{art},#{status},'reference')",
-      "(#{status},#{status},'reference')",
       "(#{status},#{projects},'reference')"
       ]
     Node.connection.execute "INSERT INTO links (`source_id`,`target_id`,`role`) VALUES #{values.join(',')}"
     do_test('relations', 'direction_both')
+  end
+  
+  def test_relations_direction_both_self_auto_ref
+    "art, projects, status"
+    art, projects, status = nodes_id(:art), nodes_id(:projects), nodes_id(:status)
+    values = [
+      "(#{art},#{status},'reference')",
+      "(#{status},#{status},'reference')",
+      "(#{status},#{projects},'reference')"
+      ]
+    Node.connection.execute "INSERT INTO links (`source_id`,`target_id`,`role`) VALUES #{values.join(',')}"
+    do_test('relations', 'direction_both_self_auto_ref')
   end
   
   make_tests

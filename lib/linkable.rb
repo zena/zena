@@ -199,8 +199,8 @@ on the post edit page :
           count = :all
         else
           if direction == 'both'
-            side_cond = " AND (links.#{link_side} = ? OR links.#{other_side} = ?)"
-            params = [self[:id],self[:id]]
+            side_cond = " AND (links.#{link_side} = ? OR links.#{other_side} = ?) AND (nodes.id <> ? OR links.#{other_side} = links.#{link_side})"
+            params = [self[:id]] * 3
           else
             side_cond = " AND links.#{link_side} = ?"
             params = [self[:id]]
