@@ -298,6 +298,13 @@ module Zena
       out "</div>"
     end
     
+    def r_inspect
+      ["params: #{@params.inspect}", 
+      "name:   #{@context[:name]}",
+      "node:   #{node}",
+      "list:   #{list}"].join("<br/>")
+    end
+    
     # TODO: replace with a more general 'zazen' or 'show' with id ?
     def r_summary
       unless @params[:or]

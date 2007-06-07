@@ -126,8 +126,8 @@ children_else_block:
   res: "I am not tired."
 
 hot_else_block:
-  src: "<r:hot>I am hot<r:else>I am not</r:else> and funny</r:hot>"
-  res: "I am not"
+  src: "<r:hot>I am hot<r:else>I am not (<r:show attr='name'/>)</r:else> and funny</r:hot>"
+  res: "I am not (status)"
 
 hot_not_else_block:
   context:
@@ -232,3 +232,7 @@ direction_both:
 direction_both_self_auto_ref:
   src: "<r:references direction='both' do='each' join=', ' do='[name]'/>"
   res: "art, projects, status"
+
+direction_both_else:
+  src: "<r:references direction='both' else='parent' do='each' join=', ' do='[name]'/>"
+  res: "cleanWater"
