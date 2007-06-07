@@ -55,7 +55,7 @@ end
 class ZazenTest < Test::Unit::TestCase
   testfile :zafu, :zafu_asset, :zafu_insight, :zazen
   def test_single
-    do_test('zazen', 'link_sharp_attribute')
+    do_test('zafu', 'default_tag')
   end
   
   def test_zazen_image_no_image

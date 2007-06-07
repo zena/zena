@@ -45,7 +45,7 @@ module ParserModule
 end
 
 class Parser
-  attr_accessor :text, :method, :pass, :options, :blocks, :params
+  attr_accessor :text, :method, :pass, :options, :blocks, :params, :name
     
   class << self
     def parser_with_rules(*modules)
@@ -92,6 +92,7 @@ class Parser
     @options.delete(:method)
     @options.delete(:mode)
     
+    
     if opts[:sub]
       @text = text
     else
@@ -99,6 +100,9 @@ class Parser
     end
     
     start(mode)
+    
+    # set name
+    @name = @params[:name] if @params
     
     unless opts[:sub]
       @text = after_parse(@text)
@@ -177,19 +181,6 @@ class Parser
   end
   
   def before_render
-    # name param is propagated into children (used to label parts of a large template)
-    if @params && (name = @params[:name])
-      if @context[:name]
-        @context[:name] += "/#{name}"
-      else
-        @context[:name] = name
-      end
-      if replacer = (@context[:parts] || {})[@context[:name]]
-        return false if replacer.empty?
-        replace_with(replacer)
-        @params[:name] = name # in case replaced again
-      end
-    end
     true
   end
   
@@ -206,6 +197,12 @@ class Parser
   end
   
   def include_template
+    if @options[:part] && @options[:part] == @params[:part]
+      # fetching only a part, do not open this element (same as original caller) as it is useless and will make use loop the loop.
+      @method = 'ignore'
+      enter(:void)
+      return
+    end
     @method = 'void'
     text    = @text
     
@@ -215,6 +212,7 @@ class Parser
     @text, absolute_url = self.class.get_template_text(@params[:template], @options[:helper], @options[:current_folder])
     
     absolute_url += "::#{@params[:part].gsub('/','_')}" if @params[:part]
+    absolute_url += "??#{@options[:part].gsub('/','_')}" if @options[:part]
     if absolute_url
       if @options[:included_history].include?(absolute_url)
         @text = "<span class='parser_error'>[include error: #{(@options[:included_history] + [absolute_url]).join(' --&gt; ')} ]</span>"
@@ -225,17 +223,19 @@ class Parser
     end
     
     @text = before_parse(@text)
-    enter(:void) # scan fetched text
     if @params[:part]
+      part_bak = @options[:part]
+      @options[:part] = @params[:part]
+      enter(:void) # scan fetched text
+      @options[:part] = part_bak
       included_blocks = [find_part(@blocks, @params[:part])]
     else
+      enter(:void) # scan fetched text
       included_blocks = @blocks
     end
-    
     @blocks = []
     @text   = text
     enter(:void) # normal scan on content
-    
     # replace 'with'
     @blocks.each do |b|
       next if b.kind_of?(String) || b.method != 'with'
@@ -273,8 +273,8 @@ class Parser
   def find_name(blocks, name)
     blocks.each do |b|
       next if b.kind_of?(String)
-      return b if b.params[:name] == name
-      next if b.params[:name] # bad name
+      return b if b.name == name
+      next if b.name # bad name
       if res = find_name(b.blocks,name)
         return res
       end

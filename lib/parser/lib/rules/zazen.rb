@@ -96,7 +96,7 @@ module Zazen
         title, id = $1, $2
         if id =~ /(.*?)#(.*)/
           id, sharp = *id.split('#')
-          sharp = title if sharp.blank?
+          sharp = title if sharp.nil? || sharp == ''
         end
         store @helper.make_link(:title=>title,:id=>id,:sharp=>sharp)
       else

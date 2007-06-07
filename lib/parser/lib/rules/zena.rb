@@ -299,7 +299,7 @@ module Zena
     end
     
     def r_inspect
-      ["params: #{@params.inspect}", 
+      out ["params: #{@params.inspect}", 
       "name:   #{@context[:name]}",
       "node:   #{node}",
       "list:   #{list}"].join("<br/>")

@@ -103,7 +103,7 @@ include_menu:
 
 named_parts:
   src: "named_parts: <r:void><r:void name='lala'>lala</r:void> <r:test name='start'>start from here to <r:hello name='sub'>sub</r:hello></r:test></r:void> ok."
-  res: "named_parts: lala [test {= :name=>'start'} {> :name=>'start'}]start from here to [hello {= :name=>'sub'}]sub[/hello][/test] ok."
+  res: "named_parts: lala [test {= :name=>'start'}]start from here to [hello {= :name=>'sub'}]sub[/hello][/test] ok."
 
 include_part:
   src: "IP: <r:include template='/named/parts' part='start/sub'/> PI."
@@ -112,6 +112,14 @@ include_part:
 include_self:
   src: "IS: I like <r:void name='sub'>sub <r:hello/></r:void> and <r:include template='/include/self' part='sub'/>"
   res: "IS: I like sub hello world! and sub hello world!"
+
+a_b_c:
+  src: "<r:void name='a'>A<r:void name='b'>B<r:void name='c'>C</r:void></r:void></r:void>"
+  res: "ABC"
+
+include_self_included:
+  src: "<r:include template='/a/b/c'><r:with part='a/b'>X<r:include template='/include/self/included' part='a/b/y'/> and <r:void name='y'>Y</r:void></r:with></r:include>"
+  res: "AXY and Y"
 
 include_bad_part:
   src: "IP: <r:include template='/named/parts' part='strat/bus'/> PI."
@@ -278,9 +286,6 @@ preserve_newlines:
     [/test][test]<p>blah</p>
     [/test]ok
 
-names:
-  src: "<p do='void' name='root'><p do='inspect' name='first'/><p do='inspect' name='second'/></p>"
-  res: "<p>[inspect {= :name=>'first'} {> :name=>'root/first'}]<p/>[/inspect][inspect {= :name=>'second'} {> :name=>'root/second'}]<p/>[/inspect]</p>"
 
 default_tag:
   src: "<r:void class='test'>blah</r:void>"
