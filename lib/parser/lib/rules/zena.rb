@@ -632,21 +632,18 @@ END_TXT
         end
         out render_html_tag(res)
         out "<% end -%>"
-      else
-        
-        if @context[:template_url]
-          # saved template
-          id_hash = {:id=>"#{@context[:template_url]}<%= #{node}.zip %>"}
-          if @html_tag
-            @html_tag_params.merge!(id_hash)
-            render_html_tag(expand_with)
-          else
-            add_params(expand_with, id_hash)
-          end
+      elsif @context[:template_url]
+        # saved template
+        id_hash = {:id=>"#{@context[:template_url]}<%= #{node}.zip %>"}
+        if @html_tag
+          @html_tag_params.merge!(id_hash)
+          render_html_tag(expand_with)
         else
-          # error, no list
-          "<span class='parser_error'>each not in list context</span>"
+          add_params(expand_with, id_hash)
         end
+      else
+        # TODO: make a single list ?
+        "<span class='parser_error'>each not in list context</span>"
       end
     end
    

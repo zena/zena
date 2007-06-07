@@ -125,6 +125,10 @@ children_else_block:
   src: "<r:children>I am a parent !<r:else>I am not tired.</r:else></r:children>"
   res: "I am not tired."
 
+each_not_in_list:
+  src: "<r:each><r:show attr='name'/></r:each>"
+  res: "status"
+
 hot_else_block:
   src: "<r:hot>I am hot<r:else>I am not (<r:show attr='name'/>)</r:else> and funny</r:hot>"
   res: "I am not (status)"
