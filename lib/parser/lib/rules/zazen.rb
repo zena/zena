@@ -95,10 +95,10 @@ module Zazen
         # link inside the cms "":34
         title, id = $1, $2
         if id =~ /(.*)#(.*)/
-          id, dash = $1, $2
-          dash = title if dash.blank?
+          id, sharp = $1, $2
+          sharp = title if sharp.blank?
         end
-        store @helper.make_link(:title=>title,:id=>id,:dash=>dash)
+        store @helper.make_link(:title=>title,:id=>id,:sharp=>sharp)
       else
         flush @text[0..0]
       end

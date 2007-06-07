@@ -123,13 +123,13 @@ link_no_title:
   src: '"":23'
   res: '<p>[make_link id:|23| title:||]</p>'
 
-link_dash:
+link_sharp:
   src: '"hello":23#world of fame'
-  res: "<p>[make_link dash:|world| id:|23| title:|hello|] of fame</p>"
+  res: "<p>[make_link sharp:|world| id:|23| title:|hello|] of fame</p>"
 
-link_dash_same_as_title:
+link_sharp_same_as_title:
   src: '"hello":23# I love you'
-  res: "<p>[make_link dash:|hello| id:|23| title:|hello|] I love you</p>"
+  res: "<p>[make_link sharp:|hello| id:|23| title:|hello|] I love you</p>"
 
 wiki_link:
   src: "why use ?ruby? ?"

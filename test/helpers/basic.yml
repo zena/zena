@@ -135,20 +135,20 @@ link_root:
   tem: "<%= node_link(:node=>@node, :href=>\"root\") %>"
   res: "<a href='/oo'>Zena the wild CMS</a>"
 
-link_dash:
-  src: "<r:link dash='true'/>"
+link_sharp:
+  src: "<r:link sharp='true'/>"
   res: "<a href='#node22'>status title</a>"
 
-link_dash_name:
-  src: "<r:link dash='[name]'/>"
+link_sharp_name:
+  src: "<r:link sharp='[name]'/>"
   res: "<a href='#status'>status title</a>"
 
-link_dash_in:
-  src: "<r:link dash='true' in='project' mode='tree'/>"
+link_sharp_in:
+  src: "<r:link sharp='true' in='project' mode='tree'/>"
   res: "<a href='/oo/projects/cleanWater_tree.html#node22'>status title</a>"
 
-link_dash_name_in:
-  src: "<r:link dash='[name]' in='parent'/>"
+link_sharp_name_in:
+  src: "<r:link sharp='[name]' in='parent'/>"
   res: "<a href='/oo/projects/cleanWater.html#status'>status title</a>"
 
 anchor:
@@ -222,7 +222,7 @@ show_v_text:
 show_title_options:
   src: "<h1 class='title' do='title' status='true' actions='all'>dummy</h1>"
   tem: "<h1 class='title'><div class='s<%= @node.version.status %>'><%= show_title(:node=>@node) + node_actions(:node=>@node, :actions=>\"all\")%></div></h1>"
-  res: "/<h1 class='title'><div class='s50'><span id='v_title22'>status title</span><span class='actions'><a.*/nodes/22/versions/1/edit.*/images/page_edit.png'.*/></a>.*</span></div></h1>/"
+  res: "/<h1 class='title'><div class='s50'><span id='v_title22'>status title</span><span class='actions'><a.*/nodes/22/versions/0/edit.*/images/page_edit.png'.*/></a>.*</span></div></h1>/"
 
 show_c_width:
   context:

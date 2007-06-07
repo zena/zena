@@ -37,6 +37,27 @@ class MultiVersionTest < ZenaTestUnit
     assert_equal versions_id(:lake_en), node.version(:pub)[:id]
   end
   
+  def test_find_version_latest_replaced
+    login(:tiger)
+    node = secure(Node) { nodes(:status) }
+    pub_version_id = node.v_id
+    assert_equal 2, node.versions.size
+    assert_equal Zena::Status[:pub], node.v_status
+    assert node.update_attributes(:v_title => 'great', :v_text => 'mind')
+    node = secure(Node) { nodes(:status) }
+    assert_equal Zena::Status[:red], node.v_status
+    red_version_id = node.v_id
+    assert_not_equal pub_version_id, red_version_id
+    assert node.remove
+    node = secure(Node) { nodes(:status) }
+    assert_equal pub_version_id, node.v_id
+    assert node.update_attributes(:v_title => 'slow')
+    assert_not_equal pub_version_id, node.v_id
+    assert_not_equal red_version_id, node.v_id
+    assert_not_equal 'mind', node.v_text
+    assert_equal 4, node.versions.size
+  end
+  
   def test_remove_attributes_with_same_value
     login(:ant)
     node = secure(Node) { nodes(:status) }

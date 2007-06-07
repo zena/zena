@@ -884,20 +884,20 @@ END_TXT
       else
         mode = ''
       end
-      if dash = @params[:dash]
-        dash = ", :dash=>#{dash.inspect}"
+      if sharp = @params[:sharp]
+        sharp = ", :sharp=>#{sharp.inspect}"
       else
-        dash = ''
+        sharp = ''
       end
-      if dash_in = @params[:in]
-        dash_in = ", :dash_in=>#{dash_in.inspect}"
+      if sharp_in = @params[:in]
+        sharp_in = ", :sharp_in=>#{sharp_in.inspect}"
       else
-        dash_in = ''
+        sharp_in = ''
       end
       
       html_tags  = {}
       if @html_tag && @html_tag != 'a'
-        # html attributes do not belong to anchor
+        # html attributes do not belong to sharp
         pre_space = ''
       else
         html_tags[:class] = @html_tag_params[:class] if @html_tag_params[:class]
@@ -907,10 +907,10 @@ END_TXT
       end
         
       if text_mode == :raw
-        pre_space + "<a#{params_to_html(html_tags)} href='<%= node_link(:url_only=>true, :node=>#{lnode}#{href}#{url}#{dash}#{dash_in}#{fmt}#{mode}) %>'>#{text}</a>"
+        pre_space + "<a#{params_to_html(html_tags)} href='<%= node_link(:url_only=>true, :node=>#{lnode}#{href}#{url}#{sharp}#{sharp_in}#{fmt}#{mode}) %>'>#{text}</a>"
       else
         text = text.blank? ? '' : ", :text=>#{text}"
-        pre_space + "<%= node_link(:node=>#{lnode}#{text}#{href}#{url}#{dash}#{dash_in}#{fmt}#{mode}#{params_to_erb(html_tags)}) %>"
+        pre_space + "<%= node_link(:node=>#{lnode}#{text}#{href}#{url}#{sharp}#{sharp_in}#{fmt}#{mode}#{params_to_erb(html_tags)}) %>"
       end
     end
     

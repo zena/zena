@@ -700,7 +700,9 @@ module ApplicationHelper
     opts = { :node => @node }.merge(opts)
     text = opts[:text]
     node = opts[:node]
-    hash = { :node_id => node[:zip], :id => node.v_number }
+    # hash = { :node_id => node[:zip], :id => node.v_number } = this is bad: we should not preload a specific version when doing
+                                                              # node actions
+    hash = { :node_id => node[:zip], :id => 0 }
     
     res  = []
     if (action == :edit or action == :all) && node.can_edit?
@@ -901,17 +903,17 @@ ENDTXT
       attributes += options[:id] ? " id='#{options.delete(:id)}'" : ''
     end
       
-    url = if dash = options.delete(:dash)
-      if dash =~ /\[(.+)\]/
-        dash_value = node.zafu_read($1)
+    url = if sharp = options.delete(:sharp)
+      if sharp =~ /\[(.+)\]/
+        sharp_value = node.zafu_read($1)
       else
-        dash_value = "node#{node[:zip]}"
+        sharp_value = "node#{node[:zip]}"
       end
-      if dash_in = options.delete(:dash_in)
-        dash_node = node.relation(dash_in) || node
-        "#{zen_path(dash_node, options)}##{dash_value}"
+      if sharp_in = options.delete(:sharp_in)
+        sharp_node = node.relation(sharp_in) || node
+        "#{zen_path(sharp_node, options)}##{sharp_value}"
       else
-        "##{dash_value}"          
+        "##{sharp_value}"          
       end
     else
       zen_path(node, options)

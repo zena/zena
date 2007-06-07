@@ -41,7 +41,11 @@ class ApplicationController < ActionController::Base
     # TODO: test
     def visitor
       @visitor ||= returning(User.make_visitor(:host => request.host, :id => session[:user])) do |user|
-        session[:user] = user[:id]
+        if session[:user] != user[:id]
+          # changed user (login/logout)
+          session[:user] = user[:id]
+          session[:lang] = user.lang
+        end
       end
     end
         

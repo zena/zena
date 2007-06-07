@@ -30,3 +30,4 @@ q:before,q:after {
 abbr,acronym { border:0;
 }
 input, textarea { font:inherit; }
+pre, code { font:inherit; }
