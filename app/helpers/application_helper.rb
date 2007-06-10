@@ -525,9 +525,11 @@ module ApplicationHelper
     end
   end
   
-  # Show a little [xx] next to the title if the desired language could not be found.
-  def check_lang(obj)
-    obj.v_lang != lang ? " <span class='wrong_lang'>[#{obj.v_lang}]</span> " : ""
+  # Show a little [xx] next to the title if the desired language could not be found. You can
+  # use a :text => '(lang)' option. The word 'lang' will be replaced by the real value.
+  def check_lang(obj, opts={})
+    wlang = (opts[:text] || '[#LANG]').sub('#LANG', obj.v_lang).sub('_LANG', _(obj.v_lang))
+    obj.v_lang != lang ? "<#{opts[:tag] || 'span'} class='#{opts[:class] || 'wrong_lang'}'>#{wlang}</#{opts[:tag] || 'span'}>" : ""
   end
   
   # TODO: test
@@ -569,7 +571,8 @@ module ApplicationHelper
         
       title = "<a href='#{zen_path(obj, link_opts)}'>#{title}</a>"
     end
-    "<span id='v_title#{obj.zip}'>#{title + check_lang(obj)}</span>"
+    title += check_lang(obj) unless opts[:check_lang] == 'false'
+    "<span id='v_title#{obj.zip}'>#{title}</span>"
   end
   
   # TODO: test
@@ -703,8 +706,11 @@ module ApplicationHelper
   end
   
   # Buttons are :edit, :add, :propose, :publish, :refuse, or :drive. :all = (:edit, :propose, :publish, :refuse, :drive)
+  # TODO: implement multiple actions: :actions => 'edit,propose,delete'
   def node_actions(opts={})
-    action = (opts[:actions] || :all).to_sym
+    actions = (opts[:actions] || 'all').to_s
+    actions = 'edit,propose,publish,refuse,drive' if actions == 'all'
+
     opts = { :node => @node }.merge(opts)
     text = opts[:text]
     node = opts[:node]
@@ -712,29 +718,25 @@ module ApplicationHelper
                                                               # node actions
     hash = { :node_id => node[:zip], :id => 0 }
     
-    res  = []
-    if (action == :edit or action == :all) && node.can_edit?
-      res << "<a href='#{edit_version_url(hash)}' target='_blank' title='#{_('btn_title_edit')}' onclick=\"editor=window.open('#{edit_version_url(hash)}', '_blank', 'location=0,width=300,height=400,resizable=1');return false;\">" + 
-             (text || _('btn_edit')) + "</a>"
-    end
-    
-    if (action == :propose or action == :all) && node.can_propose?
-      res << link_to((text || _("btn_propose")), propose_version_path(hash), :method => :put)
-    end
-    
-    if (action == :publish or action == :all) && node.can_publish?
-      res << link_to((text || _("btn_publish")), publish_version_path(hash), :method => :put)
-    end
-    
-    if (action == :refuse or action == :all) && node.can_refuse?
-      res << link_to((text || _("btn_refuse")), refuse_version_path(hash), :method => :put)
-    end
-    
-    if (action == :drive or action == :all) && node.can_drive?
-      res << "<a href='#' title='#{_('btn_title_drive')}' onclick=\"editor=window.open('" + 
-             edit_node_url(:id => node[:zip] ) + 
-             "', '_blank', 'location=0,width=300,height=400,resizable=1');return false;\">" + 
-             (text || _('btn_drive')) + "</a>"
+    res = []
+    actions.split(',').map {|a| a.strip.to_sym}.each do |action|
+      next unless node.can_apply?(action)
+      case action
+      when :edit
+        res << "<a href='#{edit_version_url(hash)}' target='_blank' title='#{_('btn_title_edit')}' onclick=\"editor=window.open('#{edit_version_url(hash)}', '_blank', 'location=0,width=300,height=400,resizable=1');return false;\">" + 
+               (text || _('btn_edit')) + "</a>"
+      when :propose
+        res << link_to((text || _("btn_propose")), propose_version_path(hash), :method => :put)
+      when :publish
+        res << link_to((text || _("btn_publish")), publish_version_path(hash), :method => :put)
+      when :refuse
+        res << link_to((text || _("btn_refuse")), refuse_version_path(hash), :method => :put)
+      when :drive
+        res << "<a href='#' title='#{_('btn_title_drive')}' onclick=\"editor=window.open('" + 
+               edit_node_url(:id => node[:zip] ) + 
+               "', '_blank', 'location=0,width=300,height=400,resizable=1');return false;\">" + 
+               (text || _('btn_drive')) + "</a>"
+      end
     end
     
     if res != []

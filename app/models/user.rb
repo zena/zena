@@ -49,6 +49,7 @@ class User < ActiveRecord::Base
   }.freeze
   Num_to_status = Hash[*Status.map{|k,v| [v,k]}.flatten].freeze
   
+  
   class << self
     # Returns the logged in user or nil if login and password do not match or if the user has no login access to the given host.
     def login(login, password, host)

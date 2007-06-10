@@ -6,7 +6,7 @@ login: &dev_login
   password: 
 
 development:
-  database: zena_dev
+  database: zena_speed
   encoding: utf8
   <<: *dev_login
 

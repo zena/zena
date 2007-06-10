@@ -11,6 +11,7 @@ class ApplicationController < ActionController::Base
   
   private
   
+  
     # TODO: test
     # Our own handling of exceptions
     def rescue_action_in_public(exception)

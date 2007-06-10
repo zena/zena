@@ -246,6 +246,15 @@ module Zena
       "<% end -%>"
     end
     
+    def r_check_lang
+      text = @params[:text]   || expand_with
+      klass = @params[:class] || @html_tag_params[:class]
+      text = nil if text.blank?
+      klas = nil if klass.blank?
+      @html_tag_done = true
+      "#{@space_before}<%= check_lang(#{node},:text=>#{text.inspect},:class=>#{klass.inspect},:tag=>#{@html_tag.inspect}) %>"
+    end
+    
     def r_title
       
       res = "<%= show_title(:node=>#{node}"
@@ -398,7 +407,7 @@ module Zena
       text = get_text_for_erb
       if @context[:template_url]
         # ajax
-        "<%= link_to_remote(#{text || _('edit').inspect}, :url => edit_node_path(#{node}.zip) + '?template_url=#{CGI.escape(@context[:template_url])}', :method => :get) %>"
+        "<%= #{node}.can_write? ? link_to_remote(#{text || _('edit').inspect}, :url => edit_node_path(#{node}.zip) + '?template_url=#{CGI.escape(@context[:template_url])}', :method => :get) : '' %>"
       else
         # FIXME: we could link to some html page to edit the item.
         ""

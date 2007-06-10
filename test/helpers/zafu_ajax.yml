@@ -33,3 +33,11 @@ each_edit_with_form:
     node: 'wiki'
   src: "<r:children><r:each><li><r:show attr='name'>blah</r:show> <r:edit>edit</r:edit></li>\n</r:each><r:form><li><form>this is the form</form></li></r:form></r:children>"
   res: "/<li id='/each/edit/with/form/list30'>bird <a href=\"#\" onclick=\"new Ajax.Request\('/nodes/30/edit\?template_url=%2Feach%2Fedit%2Fwith%2Fform%2Flist/"
+
+
+each_edit_cannot_write:
+  context:
+    node: 'cleanWater'
+    visitor: 'anon'
+  src: "<r:children><r:each><li><r:show attr='name'>blah</r:show> <r:edit>edit</r:edit></li>\n</r:each></r:children>"
+  res: "/<li id='/each/edit/cannot/write/list24'>lake </li>.*/"

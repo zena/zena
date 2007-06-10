@@ -116,6 +116,8 @@ module Zena
         # Returns false is the current visitor does not have enough rights to perform the action.
         def can_apply?(method, v=version)
           case method
+          when :drive
+            can_drive?
           when :propose, :backup
             v.user_id == visitor[:id] && v.status == Zena::Status[:red]
           when :refuse
@@ -129,7 +131,7 @@ module Zena
             can_drive? && v.status == Zena::Status[:pub]
           when :remove
             can_apply?(:unpublish) || (v.status < Zena::Status[:pub] && (v.user_id == visitor[:id]))
-          when :redit
+          when :redit, :edit
             can_edit?
           when :destroy_version
             # anonymous users cannot destroy
