@@ -256,11 +256,11 @@ module Zena
     end
     
     def r_title
-      
-      res = "<%= show_title(:node=>#{node}"
-      if @params.include?(:link)
-        res << ", :link=>#{@params[:link].inspect}"
+      title_params = {}
+      [:link, :check_lang].each do |sym|
+        title_params[sym] = @params[sym] if @params.include?(sym)
       end
+      res = "<%= show_title(:node=>#{node}#{params_to_erb(title_params)}"
       if @params.include?(:attr)
         res << ", :text=>#{node_attribute(@params[:attr])}"
       end
