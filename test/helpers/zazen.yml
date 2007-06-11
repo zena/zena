@@ -1,0 +1,28 @@
+default:
+  context:
+    lang: 'en'
+    visitor: 'ant'
+    node: 'status'
+  src: "simple text"
+  tem: "simple text"
+  res: "simple text"
+
+hello:
+  tem: "<%= zazen('Hello *World*') %>"
+  res: "<p>Hello <strong>World</strong></p>"
+
+link_sharp:
+  tem: "<%= zazen('see \"\":22#') %>"
+  res: "<p>see <a href=\"#node22\">status title</a></p>"
+
+link_sharp_attribute:
+  tem: "<%= zazen('see \"\":22#[name]') %>"
+  res: "<p>see <a href=\"#status\">status title</a></p>"
+
+link_sharp_in:
+  tem: "<%= zazen('see \"\":22#[parent/]') %>"
+  res: "<p>see <a href=\"/oo/projects/cleanWater.html#node22\">status title</a></p>"
+
+link_sharp_in_name:
+  tem: "<%= zazen('see \"\":22#[parent/name]') %>"
+  res: "<p>see <a href=\"/oo/projects/cleanWater.html#status\">status title</a></p>"

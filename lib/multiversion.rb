@@ -483,7 +483,7 @@ module Zena
         # Any attribute starting with 'v_' belongs to the 'version' or 'redaction'
         # Any attribute starting with 'c_' belongs to the 'version' or 'redaction' content
         def method_missing(meth, *args)
-          if meth.to_s =~ /^(v_|c_|d_)(([\w_\?]+)(=?))$/
+          if meth.to_s =~ /^(v_|c_)(([\w_\?]+)(=?))$/
             target = $1
             method = $2
             value  = $3
@@ -498,34 +498,28 @@ module Zena
                 end
                 
                 case target
-                  when 'c_'
-                    if recipient.content_class && recipient = recipient.redaction_content
-                      recipient.send(method,*args)
-                    else
-                      redaction_error(meth.to_s[0..-2], "cannot be set") # remove trailing '='
-                    end
-                  when 'd_'
-                    recipient.dyn[method[0..-2]] = args[0]
-                  else
+                when 'c_'
+                  if recipient.content_class && recipient = recipient.redaction_content
                     recipient.send(method,*args)
+                  else
+                    redaction_error(meth.to_s[0..-2], "cannot be set") # remove trailing '='
                   end
+                else
+                  recipient.send(method,*args)
+                end
               rescue NoMethodError
                 # bad attribute, just ignore
               end
             else
               # read
               recipient = version
-              if target == 'd_'
-                version.dyn[method]
-              else
-                recipient = recipient.content if target == 'c_'
-                return nil unless recipient
-                begin
-                  recipient.send(method,*args)
-                rescue NoMethodError
-                  # bad attribute
-                  return nil
-                end
+              recipient = recipient.content if target == 'c_'
+              return nil unless recipient
+              begin
+                recipient.send(method,*args)
+              rescue NoMethodError
+                # bad attribute
+                return nil
               end
             end
           else

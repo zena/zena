@@ -1,0 +1,43 @@
+note_has_calendars:
+  id:           1
+  source_kpath: 'NN'
+  target_kpath: 'NPP'
+  source_role:  'event'
+  target_role:  'calendar'
+
+node_has_tags:
+  id:           2
+  source_kpath: 'N'
+  target_kpath: 'NPT'
+  source_role:  'tagged'
+  target_role:  'tag'
+  
+node_has_references:
+  id:           3
+  source_kpath: 'N'
+  target_kpath: 'NR'
+  source_role:  'reference_for'
+  target_role:  'reference'
+  
+node_has_an_icon:
+  id:           4
+  source_kpath: 'N'
+  target_kpath: 'NPDI'
+  source_role:  'icon_for'
+  target_role:  'icon'
+  
+project_has_a_hot_element:
+  id:           5
+  source_kpath: 'NPP'
+  target_kpath: 'N'
+  target_unique: 1
+  source_role:  'hot_for'
+  target_role:  'hot'
+  
+project_has_a_home:
+  id:           6
+  source_kpath: 'NPP'
+  target_kpath: 'N'
+  target_unique: 1
+  source_role:  'home_for'
+  target_role:  'home'
