@@ -327,7 +327,7 @@ class ApplicationHelperTest < ZenaTestHelper
     @node = secure(Node) { nodes(:wiki) } 
     assert @node.can_edit?, "Node can be edited by the public"
     res = node_actions(:actions=>:all)
-    assert_match %r{/nodes/29/versions/1/edit}, res
+    assert_match %r{/nodes/29/versions/0/edit}, res
     assert_match %r{/nodes/29/edit}, res
   end
   
@@ -335,7 +335,7 @@ class ApplicationHelperTest < ZenaTestHelper
     login(:ant)
     @node = secure(Node) { Node.find(nodes_id(:cleanWater)) }
     res = node_actions(:actions=>:all)
-    assert_match    %r{/nodes/21/versions/1/edit}, res
+    assert_match    %r{/nodes/21/versions/0/edit}, res
     assert_no_match %r{/nodes/21/edit}, res
   end
   
@@ -343,28 +343,15 @@ class ApplicationHelperTest < ZenaTestHelper
     login(:tiger)
     @node = secure(Node) { Node.find(nodes_id(:cleanWater)) }
     res = node_actions(:actions=>:all)
-    assert_match %r{/nodes/21/versions/1/edit}, res
+    assert_match %r{/nodes/21/versions/0/edit}, res
     assert_match %r{/nodes/21/edit}, res
     @node.edit!
     assert @node.save
     res = node_actions(:actions=>:all)
-    assert_match %r{/nodes/21/versions/2/edit}, res
-    assert_match %r{/nodes/21/versions/2/propose}, res
-    assert_match %r{/nodes/21/versions/2/publish}, res
+    assert_match %r{/nodes/21/versions/0/edit}, res
+    assert_match %r{/nodes/21/versions/0/propose}, res
+    assert_match %r{/nodes/21/versions/0/publish}, res
     assert_match %r{/nodes/21/edit}, res
-    @node.save
-    login(:ant)
-    session[:lang] = 'fr'
-    @node = secure(Node) { Node.find(nodes_id(:cleanWater)) }
-    res = node_actions(:actions=>:all)
-    assert_match %r{/nodes/21/versions/1/edit}, res
-    assert_no_match %r{/nodes/21/edit}, res
-    session[:lang] = 'en'
-    @node = secure(Node) { Node.find(nodes_id(:cleanWater)) }
-    res = node_actions(:actions=>:all)
-    assert_no_match %r{/nodes/21/versions/2/edit}, res
-    assert_match %r{/nodes/21/versions/1/edit}, res
-    assert_no_match %r{/nodes/21/edit}, res
   end
   
   def test_traductions

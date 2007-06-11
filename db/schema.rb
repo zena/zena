@@ -140,6 +140,8 @@ ActiveRecord::Schema.define(:version => 0) do
     t.column "position",     :float,                   :default => 1.0
   end
 
+  add_index "nodes", ["zip"], :name => "zip_index"
+
   create_table "participations", :force => true do |t|
     t.column "user_id",    :integer
     t.column "site_id",    :integer

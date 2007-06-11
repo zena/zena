@@ -652,7 +652,8 @@ END_TXT
         end
       else
         # TODO: make a single list ?
-        "<span class='parser_error'>each not in list context</span>"
+        @context[:list] = "[#{node}]"
+        r_each
       end
     end
    
