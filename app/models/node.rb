@@ -142,6 +142,7 @@ class Node < ActiveRecord::Base
   acts_as_secure_node
   acts_as_multiversioned
   before_validation  :node_before_validation  # run our 'before_validation' after 'secure'
+  has_relations
   link :tags, :class_name=>'Tag'
   link :references, :class_name=>'Node'
   link :reference_for, :class_name=>'Node', :as=>'reference'
@@ -551,7 +552,7 @@ class Node < ActiveRecord::Base
   def relation(methods, opts={})
     res = nil
     try_list = methods.to_s.split(',')
-    plural = Zena::Acts::Linkable::plural_method?(try_list[0])
+    plural = Zena::Relations::plural_method?(try_list[0])
     if !plural
       opts[:limit] = 1
     end
@@ -564,7 +565,7 @@ class Node < ActiveRecord::Base
           if relation_methods.include?(method)
             if method == 'self'
               res = self
-            elsif Zena::Acts::Linkable::plural_method?(method)
+            elsif Zena::Relations::plural_method?(method)
               res = self.send(method.to_sym, opts)
             elsif opts[:from]
               if res = self.send(method.to_sym)
@@ -574,8 +575,8 @@ class Node < ActiveRecord::Base
               res = self.send(method.to_sym)
             end
           else
-            # Find through Linkable
-            res = fetch_link(method, {:order=>'position ASC, name ASC'}.merge(opts))
+            # Find through HasRelations
+            res = fetch_relation(method, {:order=>'position ASC, name ASC'}.merge(opts))
           end
         end
       rescue ActiveRecord::RecordNotFound

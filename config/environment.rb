@@ -66,6 +66,7 @@ end
 require File.join(File.dirname(__FILE__), '../lib/secure')
 require File.join(File.dirname(__FILE__), '../lib/multiversion')
 require File.join(File.dirname(__FILE__), '../lib/linkable')
+require File.join(File.dirname(__FILE__), '../lib/has_relations')
 require File.join(File.dirname(__FILE__), '../lib/image_builder')
 require File.join(File.dirname(__FILE__), '../lib/parser')
 ZazenParser = Parser.parser_with_rules(Zazen::Rules, Zazen::Tags)

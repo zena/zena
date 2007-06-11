@@ -106,9 +106,10 @@ ActiveRecord::Schema.define(:version => 0) do
   end
 
   create_table "links", :force => true do |t|
-    t.column "source_id", :integer
-    t.column "target_id", :integer
-    t.column "role",      :string,  :limit => 20
+    t.column "source_id",   :integer
+    t.column "target_id",   :integer
+    t.column "role",        :string,  :limit => 20
+    t.column "relation_id", :integer
   end
 
   create_table "nodes", :force => true do |t|
@@ -151,6 +152,15 @@ ActiveRecord::Schema.define(:version => 0) do
 
   add_index "participations", ["user_id", "site_id"], :name => "user_id", :unique => true
 
+  create_table "relations", :force => true do |t|
+    t.column "source_role",   :string,  :limit => 32
+    t.column "source_kpath",  :string,  :limit => 16
+    t.column "source_unique", :boolean
+    t.column "target_role",   :string,  :limit => 32
+    t.column "target_kpath",  :string,  :limit => 16
+    t.column "target_unique", :boolean
+  end
+
   create_table "sites", :force => true do |t|
     t.column "host",            :string
     t.column "root_id",         :integer
@@ -158,7 +168,6 @@ ActiveRecord::Schema.define(:version => 0) do
     t.column "anon_id",         :integer
     t.column "public_group_id", :integer
     t.column "site_group_id",   :integer
-    t.column "trans_group_id",  :integer
     t.column "name",            :string
     t.column "authentication",  :boolean
     t.column "monolingual",     :boolean
@@ -176,6 +185,11 @@ ActiveRecord::Schema.define(:version => 0) do
     t.column "tkpath",    :string
     t.column "klass",     :string
     t.column "mode",      :string
+  end
+
+  create_table "tmp", :id => false, :force => true do |t|
+    t.column "a", :string, :limit => 50
+    t.column "b", :string, :limit => 50
   end
 
   create_table "users", :force => true do |t|
