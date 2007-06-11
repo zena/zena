@@ -60,7 +60,7 @@ module Zena
             role, value = params
             if relation = relation_proxy(:role => role)
               relation.new_value = value
-              if relation.valid?
+              if relation.links_valid?
                 @valid_relations_to_update << relation
               else
                 errors.add(role, relation.link_errors.join(', '))
@@ -72,7 +72,7 @@ module Zena
             role, value = params
             if relation = relation_proxy(:role => role)
               relation << value
-              if relation.valid?
+              if relation.links_valid?
                 @valid_relations_to_update << relation
               else
                 errors.add(role, relation.link_errors.join(', '))
@@ -89,7 +89,7 @@ module Zena
               else
                 relation.delete(link['source_id'])
               end
-              if relation.valid?
+              if relation.links_valid?
                 @valid_relations_to_update << relation
               else
                 errors.add(role, relation.link_errors.join(', '))
@@ -127,9 +127,9 @@ module Zena
           role_name = role.singularize
           if opts[:from]
             # ignore source class
-            conditions = ["target_role = ? OR source_role = ?", role_name, role_name]
+            conditions = ["site_id = ? AND (target_role = ? OR source_role = ?)", current_site[:id], role_name, role_name]
           else
-            conditions = ["(target_role = ? AND source_kpath IN (?)) OR (source_role = ? AND target_kpath IN (?))", role_name, split_kpath, role_name, split_kpath]
+            conditions = ["site_id = ? AND ((target_role = ? AND source_kpath IN (?)) OR (source_role = ? AND target_kpath IN (?)))", current_site[:id], role_name, split_kpath, role_name, split_kpath]
           end
           relation = Relation.find(:first, :conditions => conditions)
           if relation
@@ -142,9 +142,9 @@ module Zena
         elsif link = opts[:link]
           return nil unless link
           if link.source_id == self[:id]
-            conditions = ["id = ? AND source_kpath IN (?)", link.relation_id, split_kpath]
+            conditions = ["site_id = ? AND id = ? AND source_kpath IN (?)", current_site[:id], link.relation_id, split_kpath]
           else
-            conditions = ["id = ? AND target_kpath IN (?)", link.relation_id, split_kpath]
+            conditions = ["site_id = ? AND id = ? AND target_kpath IN (?)", current_site[:id], link.relation_id, split_kpath]
           end
           relation = Relation.find(:first, :conditions => conditions)
           if relation

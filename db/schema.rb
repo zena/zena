@@ -139,9 +139,8 @@ ActiveRecord::Schema.define(:version => 0) do
     t.column "zip",          :integer
     t.column "project_id",   :integer
     t.column "position",     :float,                   :default => 1.0
+    t.column "vclass_id",    :integer
   end
-
-  add_index "nodes", ["zip"], :name => "zip_index"
 
   create_table "participations", :force => true do |t|
     t.column "user_id",    :integer
@@ -156,9 +155,12 @@ ActiveRecord::Schema.define(:version => 0) do
     t.column "source_role",   :string,  :limit => 32
     t.column "source_kpath",  :string,  :limit => 16
     t.column "source_unique", :boolean
+    t.column "source_icon",   :string,  :limit => 200
     t.column "target_role",   :string,  :limit => 32
     t.column "target_kpath",  :string,  :limit => 16
     t.column "target_unique", :boolean
+    t.column "target_icon",   :string,  :limit => 200
+    t.column "site_id",       :integer,                :null => false
   end
 
   create_table "sites", :force => true do |t|
@@ -168,6 +170,7 @@ ActiveRecord::Schema.define(:version => 0) do
     t.column "anon_id",         :integer
     t.column "public_group_id", :integer
     t.column "site_group_id",   :integer
+    t.column "trans_group_id",  :integer
     t.column "name",            :string
     t.column "authentication",  :boolean
     t.column "monolingual",     :boolean
@@ -185,11 +188,6 @@ ActiveRecord::Schema.define(:version => 0) do
     t.column "tkpath",    :string
     t.column "klass",     :string
     t.column "mode",      :string
-  end
-
-  create_table "tmp", :id => false, :force => true do |t|
-    t.column "a", :string, :limit => 50
-    t.column "b", :string, :limit => 50
   end
 
   create_table "users", :force => true do |t|
@@ -224,6 +222,15 @@ ActiveRecord::Schema.define(:version => 0) do
 
   execute "ALTER TABLE versions ENGINE = MyISAM"
   execute "CREATE FULLTEXT INDEX index_versions_on_title_and_text_and_summary ON versions (title,text,summary)"
+
+  create_table "virtual_classes", :force => true do |t|
+    t.column "name",            :string
+    t.column "kpath",           :string,  :limit => 16
+    t.column "icon",            :string,  :limit => 200
+    t.column "attributes",      :text
+    t.column "create_group_id", :integer
+    t.column "site_id",         :integer,                :null => false
+  end
 
   create_table "zips", :id => false, :force => true do |t|
     t.column "site_id", :integer

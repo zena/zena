@@ -1,5 +1,6 @@
 note_has_calendars:
   id:           1
+  site_id:      1
   source_kpath: 'NN'
   target_kpath: 'NPP'
   source_role:  'event'
@@ -7,6 +8,7 @@ note_has_calendars:
 
 node_has_tags:
   id:           2
+  site_id:      1
   source_kpath: 'N'
   target_kpath: 'NPT'
   source_role:  'tagged'
@@ -14,6 +16,7 @@ node_has_tags:
   
 node_has_references:
   id:           3
+  site_id:      1
   source_kpath: 'N'
   target_kpath: 'NR'
   source_role:  'reference_for'
@@ -21,6 +24,7 @@ node_has_references:
   
 node_has_an_icon:
   id:           4
+  site_id:      1
   source_kpath: 'N'
   target_kpath: 'NPDI'
   source_role:  'icon_for'
@@ -28,6 +32,7 @@ node_has_an_icon:
   
 project_has_a_hot_element:
   id:           5
+  site_id:      1
   source_kpath: 'NPP'
   target_kpath: 'N'
   target_unique: 1
@@ -36,6 +41,7 @@ project_has_a_hot_element:
   
 project_has_a_home:
   id:           6
+  site_id:      1
   source_kpath: 'NPP'
   target_kpath: 'N'
   target_unique: 1
