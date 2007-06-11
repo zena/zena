@@ -139,14 +139,6 @@ module Zazen
     
     
     def extract_code(text)
-      @escaped_at = []
-      block_counter = -1
-      text.gsub!( /(\A|[^\w])@(.*?)@(\Z|[^\w])/m ) do
-        @escaped_at << $2
-        block_counter += 1
-        "#{$1}\\ZAZENBLOCKAT#{block_counter}ZAZENBLOCKAT\\#{$3}"
-      end
-  
       @escaped_code = []
       block_counter = -1
       text.gsub!( /<code([^>]*)>(.*?)<\/code>/m ) do
@@ -166,6 +158,15 @@ module Zazen
         block_counter += 1
         "<pre#{divparams.join(' ')}>\\ZAZENBLOCKCODE#{block_counter}ZAZENBLOCKCODE\\</pre>"
       end
+    
+      @escaped_at = []
+      block_counter = -1
+      text.gsub!( /(\A|[^\w])@(.*?)@(\Z|[^\w])/m ) do
+        @escaped_at << $2
+        block_counter += 1
+        "#{$1}\\ZAZENBLOCKAT#{block_counter}ZAZENBLOCKAT\\#{$3}"
+      end
+
     end
     
     def render_code(text)

@@ -286,7 +286,6 @@ preserve_newlines:
     [/test][test]<p>blah</p>
     [/test]ok
 
-
 default_tag:
   src: "<r:void class='test'>blah</r:void>"
   res: "<div class='test'>blah</div>"
