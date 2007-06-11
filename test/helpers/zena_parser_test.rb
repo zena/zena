@@ -8,7 +8,7 @@ class ZenaParserTest < ZenaHelperTest
   Section # make sure we load Section links before trying relations
   
   def test_single
-    do_test('basic', 'show_title_options')
+    do_test('basic', 'show_title_check_lang')
   end
   
   def test_basic_show_bad_attr
