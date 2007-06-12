@@ -18,7 +18,7 @@ begin
   
     def self.zafu_readable?(sym)
       if sym.to_s =~ /(.*)_zips?$/  
-        return true if has_relation?($1)
+        return true if self.ancestors.include?(Node) && has_relation?($1)
       end
       self.zafu_readable_attributes.include?(sym.to_s)
     end
@@ -512,6 +512,7 @@ END_TXT
       else
         # no ajax
         # FIXME
+        start = ""
         form = "FORM WITHOUT AJAX TODO\n"
       end
       if @pass[:form_tag]

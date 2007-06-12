@@ -476,7 +476,7 @@ class Node < ActiveRecord::Base
         false
       else
         relation = find_relation(:role => rel.singularize, :ignore_source => true)
-        return false unless rel
+        return false unless relation
         relation.target_role == rel.singularize ? !relation.target_unique : !relation.source_unique
       end
     end 

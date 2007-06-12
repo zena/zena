@@ -96,8 +96,8 @@ module Zena
       
       def roles_for_form
         conditions = ["source_kpath IN (?) OR target_kpath IN (?)"]
-        roles =  (secure(Relation) { Relation.find(:all, :conditions => ["source_kpath IN (?)", split_kpath]) } || []).map {|r| r.target_role }
-        roles += (secure(Relation) { Relation.find(:all, :conditions => ["target_kpath IN (?)", split_kpath]) } || []).map {|r| r.source_role }
+        roles =  (secure(Relation) { Relation.find(:all, :conditions => ["source_kpath IN (?)", self.class.split_kpath]) } || []).map {|r| r.target_role }
+        roles += (secure(Relation) { Relation.find(:all, :conditions => ["target_kpath IN (?)", self.class.split_kpath]) } || []).map {|r| r.source_role }
         roles.sort.map {|r| [r.singularize, r]}
       end
       
@@ -180,11 +180,6 @@ module Zena
           end
           remove_instance_variable(:@valid_relations_to_update)
           remove_instance_variable(:@relations_to_update)
-        end
-      
-        # 'NPD' ==> 'N', 'NP', 'NPD'
-        def split_kpath
-          self.class.split_kpath
         end
         
         def destroy_links
