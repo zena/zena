@@ -1,9 +1,10 @@
 class Relation < ActiveRecord::Base
-  validate      :valid_relation
-  attr_accessor :source, :target, :link_errors, :new_value
-
+  validate        :valid_relation
+  attr_accessor   :source, :target, :link_errors, :new_value
+  attr_protected  :site_id
+  
   def records(options={})
-    
+    return @records if defined? @records
     conditions = options.delete(:conditions)
     direction  = options.delete(:direction)
 
@@ -48,14 +49,13 @@ class Relation < ActiveRecord::Base
         params += [start[:id]]
       end
     end
-    options.delete(:from)
 
     if direction == 'both'
       join_direction = "(nodes.id=links.#{other_side} OR nodes.id=links.#{link_side})"
     else
       join_direction = "nodes.id=links.#{other_side}"
     end
-
+    
     if options[:or]
       join = 'LEFT'
       if options[:or].kind_of?(Array)
@@ -70,21 +70,42 @@ class Relation < ActiveRecord::Base
       join = 'INNER'
       inner_conditions = ["#{side_cond}", *params ]
     end
-    options.merge!( :select     => "nodes.*, links.id AS link_id", 
+    options = Node.clean_options(options).merge( 
+                    :select     => "nodes.*, links.id AS link_id", 
                     :joins      => "#{join} JOIN links ON #{join_direction}",
                     :conditions => inner_conditions,
                     :group      => 'nodes.id'
                     )
-    
+                    
     if conditions
       Node.with_scope(:find=>{:conditions=>conditions}) do
-        secure(Node) { Node.find(count, options ) }
+        @records = secure(Node) { Node.find(count, options) }
       end
     else
-      secure(Node) { Node.find(count, options ) }
+      @records = secure(Node) { Node.find(count, options) }
     end
   end
 
+  def link
+    links ? links[0] : nil
+  end
+  
+  def other_id
+    link ? link[other_side] : nil
+  end
+  
+  def other_ids
+    (links || []).map { |l| l[other_side] }
+  end
+  
+  def other_zip
+    record ? record[:zip] : nil
+  end
+  
+  def other_zips
+    (records || []).map { |r| r[:zip] }
+  end 
+  
   def <<(obj_id)
     @new_value ||= links.map{|r| r[other_side]}
     @new_value << obj_id.to_i
@@ -163,6 +184,15 @@ class Relation < ActiveRecord::Base
     return if @add_ids == []
     list = @add_ids.map {|obj_id| "(#{self[:id]},#{start[:id]},#{obj_id})"}.join(',')
     Link.connection.execute "INSERT INTO links (`relation_id`,`#{link_side}`,`#{other_side}`) VALUES #{list}"
+    remove_instance_variable(:@links)
+  end
+  
+  def unique?
+    @source ? target_unique : source_unique
+  end
+  
+  def as_unique?
+    @source ? source_unique : target_unique
   end
   
   private
@@ -171,15 +201,9 @@ class Relation < ActiveRecord::Base
         errors.add('base', 'you do not have the rights to do this')
         return false
       end
+      self[:site_id] = current_site[:id]
     end
   
-    def unique?
-      @source ? target_unique : source_unique
-    end
-    
-    def as_unique?
-      @source ? source_unique : target_unique
-    end
     
     def link_side
       @source ? 'source_id' : 'target_id'

@@ -99,6 +99,12 @@ class NodeTest < ZenaTestUnit
     assert_equal 'zena', root[:name]
   end
   
+  def test_native_relation
+    assert Page.native_relation?('parent')
+    assert Page.native_relation?('posts')
+    assert ! Page.native_relation?('tags') # overwritten by 'tag' relation
+  end
+  
   def test_relation
     login(:ant)
     node = secure(Node) { nodes(:status) }
@@ -593,17 +599,12 @@ class NodeTest < ZenaTestUnit
   def test_tag_update
     login(:lion)
     node = secure(Node) { nodes(:art) }
-    assert node.update_attributes('tag_for_ids' => [nodes_id(:status), nodes_id(:people)])
-    assert_equal 2, node.tag_for.size
+    assert node.update_attributes('tagged_ids' => [nodes_id(:status), nodes_id(:people)])
+    assert_equal 2, node.tagged.size
     stat = secure(Node) { nodes(:status) }
     peop = secure(Node) { nodes(:people) }
     assert_equal node[:id], stat.tags[0][:id]
     assert_equal node[:id], peop.tags[0][:id]
-  end
-  
-  def test_tags_callbacks
-    assert Node.read_inheritable_attribute(:after_save).include?(:save_tags)
-    assert Page.read_inheritable_attribute(:after_save).include?(:save_tags)
   end
   
   def test_after_all_cache_sweep
@@ -758,7 +759,7 @@ class NodeTest < ZenaTestUnit
     assert_equal res, node.relation_options({}, "kpath NOT LIKE 'NPDI%'")
   end
   
-  def test_relation
+  def test_many_relation
     login(:ant)
     node = secure(Node) { nodes(:status) }
     pages = node.relation("nodes", :from=>'project', :limit=>2)
@@ -818,7 +819,7 @@ class NodeTest < ZenaTestUnit
   
   def test_create_node
     login(:ant)
-    node = secure(Node) { Node.create_node(:parent_id => nodes_zip(:secret), :name => 'funy') }
+    node = secure(Node) { Node.create_node(:parent_id => nodes_zip(:secret), :name => 'funny') }
     assert_equal nodes_id(:secret), node[:parent_id]
     assert node.new_record?, "Not saved"
     assert node.errors[:parent_id], "invalid reference"
@@ -826,7 +827,7 @@ class NodeTest < ZenaTestUnit
   
   def test_create_node_with__parent_id
     login(:ant)
-    node = secure(Node) { Node.create_node(:_parent_id => nodes_id(:secret), :name => 'funy') }
+    node = secure(Node) { Node.create_node(:_parent_id => nodes_id(:secret), :name => 'funny') }
     assert_equal nodes_id(:secret), node[:parent_id]
     assert node.new_record?, "Not saved"
     assert node.errors[:parent_id], "invalid reference"
@@ -834,17 +835,17 @@ class NodeTest < ZenaTestUnit
   
   def test_create_node_ok
     login(:ant)
-    node = secure(Node) { Node.create_node('parent_id' => nodes_zip(:myLife), 'name' => 'funy') }
+    node = secure(Node) { Node.create_node('parent_id' => nodes_zip(:myLife), 'name' => 'funny') }
     assert_equal nodes_id(:myLife), node[:parent_id]
-    assert_equal 'funy', node[:name]
+    assert_equal 'funny', node[:name]
     assert !node.new_record?, "Saved"
   end
   
   def test_create_or_update_node_create
     login(:ant)
-    node = secure(Node) { Node.create_or_update_node('parent_id' => nodes_zip(:myLife), 'name' => 'funy') }
+    node = secure(Node) { Node.create_or_update_node('parent_id' => nodes_zip(:myLife), 'name' => 'funny') }
     assert_equal nodes_id(:myLife), node[:parent_id]
-    assert_equal 'funy', node[:name]
+    assert_equal 'funny', node[:name]
     assert !node.new_record?, "Saved"
   end
   
@@ -860,10 +861,10 @@ class NodeTest < ZenaTestUnit
   
   def test_create_with_klass
     login(:tiger)
-    node = secure(Node) { Node.create_node('parent_id' => nodes_zip(:projects), 'name' => 'funy', 'klass' => 'TextDocument', 'c_content_type' => 'application/x-javascript') }
+    node = secure(Node) { Node.create_node('parent_id' => nodes_zip(:projects), 'name' => 'funny', 'klass' => 'TextDocument', 'c_content_type' => 'application/x-javascript') }
     assert_kind_of TextDocument, node
     assert_equal nodes_id(:projects), node[:parent_id]
-    assert_equal 'funy', node[:name]
+    assert_equal 'funny', node[:name]
     assert !node.new_record?, "Saved"
   end
   
@@ -990,6 +991,7 @@ done: \"I am done\""
       assert_kind_of Image, bird
     end
   end
+  
   def test_order_position
     login(:tiger)
     parent = secure(Node) { nodes(:cleanWater) }
@@ -1004,5 +1006,15 @@ done: \"I am done\""
     assert_equal 8, children.size
     assert_equal 'water', children[0].name
     assert_equal 'lakeAddress', children[1].name
+  end
+  
+  def test_plural_relation
+    assert Node.plural_relation?('pages')
+    assert Node.plural_relation?('children')
+    assert ! Node.plural_relation?('parent')
+    assert ! Node.plural_relation?('project')
+    assert Node.plural_relation?('projects')
+    assert Node.plural_relation?('tags')
+    assert Node.plural_relation?('tagged')
   end
 end

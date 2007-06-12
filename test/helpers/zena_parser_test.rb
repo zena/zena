@@ -8,7 +8,7 @@ class ZenaParserTest < ZenaHelperTest
   Section # make sure we load Section links before trying relations
   
   def test_single
-    do_test('basic', 'show_title_check_lang')
+    do_test('relations', 'node_id')
   end
   
   def test_basic_show_bad_attr
@@ -132,10 +132,10 @@ class ZenaParserTest < ZenaHelperTest
     "art, projects, status"
     art, projects, status = nodes_id(:art), nodes_id(:projects), nodes_id(:status)
     values = [
-      "(#{art},#{status},'reference')",
-      "(#{status},#{projects},'reference')"
+      "(#{art},#{status},#{relations_id(:node_has_references)})",
+      "(#{status},#{projects},#{relations_id(:node_has_references)})"
       ]
-    Node.connection.execute "INSERT INTO links (`source_id`,`target_id`,`role`) VALUES #{values.join(',')}"
+    Node.connection.execute "INSERT INTO links (`source_id`,`target_id`,`relation_id`) VALUES #{values.join(',')}"
     do_test('relations', 'direction_both')
   end
   
@@ -143,11 +143,11 @@ class ZenaParserTest < ZenaHelperTest
     "art, projects, status"
     art, projects, status = nodes_id(:art), nodes_id(:projects), nodes_id(:status)
     values = [
-      "(#{art},#{status},'reference')",
-      "(#{status},#{status},'reference')",
-      "(#{status},#{projects},'reference')"
+      "(#{art},#{status},#{relations_id(:node_has_references)})",
+      "(#{status},#{status},#{relations_id(:node_has_references)})",
+      "(#{status},#{projects},#{relations_id(:node_has_references)})"
       ]
-    Node.connection.execute "INSERT INTO links (`source_id`,`target_id`,`role`) VALUES #{values.join(',')}"
+    Node.connection.execute "INSERT INTO links (`source_id`,`target_id`,`relation_id`) VALUES #{values.join(',')}"
     do_test('relations', 'direction_both_self_auto_ref')
   end
   

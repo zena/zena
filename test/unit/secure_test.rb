@@ -934,4 +934,9 @@ class SecureUpdateTest < ZenaTestUnit
     assert_kind_of Hash, hash
     assert_equal 'a', hash[:a]
   end
+  
+  
+  def test_clean_options
+    assert_equal Hash[:conditions => ['id = ?', 3], :order => 'name ASC'], Node.clean_options(:conditions => ['id = ?', 3], :funky => 'bad', :order => 'name ASC', :from => 'users')
+  end
 end

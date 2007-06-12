@@ -15,5 +15,4 @@ Default links for Reference are:
 reference_for::  nodes for which the current item is a reference.
 =end
 class Reference < Node
-  link :reference_for, :class_name=>'Node', :as=>'reference'
 end

@@ -28,8 +28,6 @@ Bug::        (the class we most need!). subclass of Request.
 Milestone::  special event used when choosing a Request/Bug's parent.
 =end
 class Note < Node
-  link :calendars, :class_name=>'Project'
-  link :projects,  :class_name=>'Project'
   
   before_validation :prepare_note
   class << self

@@ -3,7 +3,7 @@ note_has_calendars:
   site_id:      1
   source_kpath: 'NN'
   target_kpath: 'NPP'
-  source_role:  'event'
+  source_role:  'news'
   target_role:  'calendar'
 
 node_has_tags:
@@ -29,6 +29,7 @@ node_has_an_icon:
   target_kpath: 'NPDI'
   source_role:  'icon_for'
   target_role:  'icon'
+  target_unique: 1
   
 project_has_a_hot_element:
   id:           5
@@ -47,3 +48,27 @@ project_has_a_home:
   target_unique: 1
   source_role:  'home_for'
   target_role:  'home'
+
+project_has_collaborators:
+  id:           7
+  site_id:      1
+  source_kpath: 'NPP'
+  target_kpath: 'NRC'
+  source_role:  'collaborator_for'
+  target_role:  'collaborator'
+
+post_has_blogs:
+  id:           8
+  site_id:      1
+  source_kpath: 'NNP'
+  target_kpath: 'NPP'
+  source_role:  'post'
+  target_role:  'blog'
+
+contact_has_favorites:
+  id:           9
+  site_id:      1
+  source_kpath: 'NRC'
+  target_kpath: 'N'
+  source_role:  'favorite_for'
+  target_role:  'favorite'

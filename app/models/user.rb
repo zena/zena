@@ -139,6 +139,10 @@ class User < ActiveRecord::Base
     site_participation.contact
   end
   
+  def contact_id
+    site_participation.contact_id
+  end
+  
   # Each time a node is found using secure (Zena::Acts::Secure or Zena::Acts::SecureNode), this method is
   # called to set the visitor in the found object. This is also used to keep track of the opened nodes
   # when rendering a page for the cache so we can know when to expire the cache.

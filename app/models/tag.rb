@@ -1,7 +1,6 @@
 =begin rdoc
 =end
 class Tag < Page
-  link :tag_for, :class_name=>'Node', :as=>'tag', :collector=>true
   
   # ====== all this needs refactoring ========= #
   

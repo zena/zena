@@ -483,7 +483,7 @@ module Zena
         # Any attribute starting with 'v_' belongs to the 'version' or 'redaction'
         # Any attribute starting with 'c_' belongs to the 'version' or 'redaction' content
         def method_missing(meth, *args)
-          if meth.to_s =~ /^(v_|c_)(([\w_\?]+)(=?))$/
+          if meth.to_s =~ /^(v_|c_|d_)(([\w_\?]+)(=?))$/
             target = $1
             method = $2
             value  = $3
@@ -504,6 +504,8 @@ module Zena
                   else
                     redaction_error(meth.to_s[0..-2], "cannot be set") # remove trailing '='
                   end
+                when 'd_'
+                  recipient.dyn[method[0..-2]] = args[0]
                 else
                   recipient.send(method,*args)
                 end
@@ -513,13 +515,17 @@ module Zena
             else
               # read
               recipient = version
-              recipient = recipient.content if target == 'c_'
-              return nil unless recipient
-              begin
-                recipient.send(method,*args)
-              rescue NoMethodError
-                # bad attribute
-                return nil
+              if target == 'd_'
+                version.dyn[method]
+              else
+                recipient = recipient.content if target == 'c_'
+                return nil unless recipient
+                begin
+                  recipient.send(method,*args)
+                rescue NoMethodError
+                  # bad attribute
+                  return nil
+                end
               end
             end
           else

@@ -17,12 +17,8 @@ begin
     end
   
     def self.zafu_readable?(sym)
-      if sym.to_s =~ /(.*_for)_zips$/
-      return true if defined_role[$1]
-      elsif sym.to_s =~ /(.*)_zips$/  
-        return true if defined_role[$1.pluralize]
-      elsif sym.to_s =~ /(.*)_zip$/
-        return true if defined_role[$1]
+      if sym.to_s =~ /(.*)_zips?$/  
+        return true if has_relation?($1)
       end
       self.zafu_readable_attributes.include?(sym.to_s)
     end
@@ -533,10 +529,10 @@ END_TXT
       meth = role.singularize
       attribute = @params[:attr] || 'name'
       list_finder = get_list_finder(values)
-      out "<% if (#{list_var} = #{list_finder}) && (#{list_var}_role = #{node}.class.defined_role[#{role.inspect}]) -%>"
-      out "<% if #{list_var}_role[:unique] -%>"
+      out "<% if (#{list_var} = #{list_finder}) && (#{list_var}_relation = #{node}.relation_proxy(#{role.inspect})) -%>"
+      out "<% if #{list_var}_relation.unique? -%>"
       
-      out "<% #{list_var}_id = #{node}.#{meth}_id -%>"
+      out "<% #{list_var}_id = #{list_var}_relation.other_id -%>"
       out "<% #{list_var}.each do |#{var}| -%>"
       out "<input type='radio' name='node[#{meth}_id]' value='<%= #{var}.zip %>'<%= #{list_var}_id == #{var}[:id] ? \" checked='checked'\" : '' %>/> <%= #{node_attribute(attribute, :node=>var)} %> "
       out "<% end -%>"
@@ -544,7 +540,7 @@ END_TXT
 
       out "<% else -%>"
 
-      out "<% #{list_var}_ids = #{node}.#{meth}_ids -%>"
+      out "<% #{list_var}_ids = #{list_var}_relation.other_ids -%>"
       out "<% #{list_var}.each do |#{var}| -%>"
       out "<input type='checkbox' name='node[#{meth}_ids][]' value='<%= #{var}.zip %>'<%= #{list_var}_ids.include?(#{var}[:id]) ? \" checked='checked'\" : '' %>/> <%= #{node_attribute(attribute, :node=>var)} %> "
       out "<% end -%>"
@@ -981,7 +977,7 @@ END_TXT
       else
         rel = @method
       end
-      if Zena::Acts::Linkable::plural_method?(@method) || @params[:from]
+      if @params[:from] || @params[:or] || Node.plural_relation?(@method)
         # plural
         do_list(get_list_finder(rel))
       else
@@ -1007,7 +1003,7 @@ END_TXT
         next unless params[k]
         erb_params[k] = params[k].to_i.to_s
       end
-      [:from, :direction].each do |k|
+      [:from, :direction, :or].each do |k|
         next unless params[k]
         erb_params[k] = params[k]
       end

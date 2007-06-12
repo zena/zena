@@ -226,11 +226,11 @@ show_bad_attr:
   res: "my "
 
 show_name:
-  src:  "my <r:show attr='name'/>"
+  src: "my <r:show attr='name'/>"
   res: "my status"
 
 show_v_text:
-  src:  "my <r:show attr='v_text'/>"
+  src: "my <r:show attr='v_text'/>"
   res: "my status text"
 
 show_title_options:

@@ -593,6 +593,14 @@ Just doing the above will filter all result according to the logged in user.
             end
           end
           
+          # 'from' and 'joins' are removed: this method is used when receiving calls from zafu. Changing the source table removes
+          # the secure scope.
+          def clean_options(options)
+            options.reject do |k,v|
+              ! [ :conditions, :select, :include, :offset, :limit, :order, :lock ].include?(k)
+            end
+          end
+          
           # kpath selector for the current class
           def ksel
             self.to_s[0..0]

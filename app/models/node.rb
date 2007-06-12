@@ -408,7 +408,6 @@ class Node < ActiveRecord::Base
       res
     end
 
-
     # valid parent class
     def parent_class
       Node
@@ -455,6 +454,32 @@ class Node < ActiveRecord::Base
         Node
       end
     end
+    
+    def native_relation?(rel)
+      ['root', 'parent', 'self', 'children', 'documents_only', 'all_pages'].include?(rel) || begin
+          return false if has_relation?(rel)
+          klass = Module.const_get(rel.singularize.capitalize)
+          klass.ancestors.include?(Node)
+        rescue NameError
+          false
+        end
+    end
+    
+    def relation_defined?(rel)
+      native_relation?(rel) || has_relation?(rel)
+    end
+    
+    def plural_relation?(rel)
+      if native_relation?(rel)
+        rel.pluralize == rel
+      elsif rel =~ /\A\d+\Z/
+        false
+      else
+        relation = find_relation(:role => rel.singularize, :ignore_source => true)
+        return false unless rel
+        relation.target_role == rel.singularize ? !relation.target_unique : !relation.source_unique
+      end
+    end 
     
     def get_attributes_from_yaml(filepath)
       attributes = {}
@@ -538,40 +563,42 @@ class Node < ActiveRecord::Base
   #   self[:score]
   # end
   
-  def relation_methods
-    ['root', 'project', 'section', 'parent', 'self', 'nodes', 'projects', 'sections', 'children', 'pages', 'documents', 'documents_only', 'images', 'notes', 'author', 'traductions', 'versions']
-  end
-  
   # This is defined by the linkable lib, we add access to 'root', 'project', 'parent', 'children', ...
   def relation(methods, opts={})
     res = nil
     try_list = methods.to_s.split(',')
-    plural = Zena::Relations::plural_method?(try_list[0])
+    plural = opts[:from] || opts[:or] || self.class.plural_relation?(try_list[0])
     if !plural
       opts[:limit] = 1
     end
     while (!res || res==[]) && try_list != []
       method = try_list.shift
       begin
-        if method =~ /\A\d+\Z/
+        case
+        when method =~ /\A\d+\Z/
           res = secure(Node) { Node.find(method) }
-        else
-          if relation_methods.include?(method)
-            if method == 'self'
-              res = self
-            elsif Zena::Relations::plural_method?(method)
-              res = self.send(method.to_sym, opts)
-            elsif opts[:from]
-              if res = self.send(method.to_sym)
-                res = [res]
-              end
-            else
-              res = self.send(method.to_sym)
-            end
+        when or_method = opts[:or]
+          if self.class.native_relation?(or_method) && self.class.native_relation?(method)
+            # both native methods
+            cond = "(#{condition_for(method)}) OR (#{condition_for(or_method)})"
+            
+            res = secure(Node) { Node.find(:all, Node.clean_options(defaults_for(method).merge(opts).merge(:conditions => condition_for(nil,opts.merge(:base_cond => cond))))) }
+          elsif self.class.native_relation?(or_method)
+            cond = condition_for(or_method)
+            res  = fetch_relation(method, defaults_for(or_method).merge(opts).merge(:or => cond))
+          elsif self.class.native_relation?(method)
+            cond = condition_for(method)
+            res  = fetch_relation(or_method, defaults_for(method).merge(opts).merge(:or => cond))
           else
-            # Find through HasRelations
-            res = fetch_relation(method, {:order=>'position ASC, name ASC'}.merge(opts))
+            # TODO: both are relations ?
+            # not implemented yet
+            res = nil
           end
+        when self.class.native_relation?(method)
+          res = secure(Node) { Node.find(:all, Node.clean_options(defaults_for(method).merge(opts).merge(:conditions => condition_for(method,opts)))) }
+        else
+          # Find through HasRelations
+          res = fetch_relation(method, defaults_for(method).merge(opts))
         end
       rescue ActiveRecord::RecordNotFound
         res = nil
@@ -590,7 +617,96 @@ class Node < ActiveRecord::Base
     end
   end
   
+  # 'root', 'project', 'section', 'parent', 'self', 'nodes', 'projects', 'sections', 'children', 'pages', 'documents', 'documents_only', 'images', 'notes', 'author', 'traductions', 'versions'
+  def condition_for(method, opts={})
+    base_cond = opts[:base_cond] || case method
+    when 'root'
+      "id = #{current_site.root_id}"
+    when 'project'
+      "id = #{self[:project_id]}"
+    when 'section'
+      "id = #{self[:section_id]}"
+    when 'parent'
+      self[:parent_id] ? "id = #{self[:parent_id]}" : "id IS NULL"
+    when 'self'  
+      "id = #{self[:id]}"
+    when 'author'
+      "id = #{user.contact_id}"
+    when 'traductions', 'versions'
+      return 'id IS NULL' # FIXME
+    else
+      # yes, I know, this is not very elegant, we should find some common way to access 'documents without images'
+      # and 'pages without documents'. But we DO need the 'pages' shortcut and not some <r:pages without='documents'/>
+      case method
+      when 'documents_only'
+        kpath_cond = "kpath LIKE '#{Document.kpath}%' AND kpath NOT LIKE '#{Image.kpath}%'"
+      when 'pages'
+        kpath_cond = "kpath LIKE '#{Page.kpath}%' AND kpath NOT LIKE '#{Document.kpath}%'"
+      when 'all_pages'
+        kpath_cond = "kpath LIKE '#{Page.kpath}%'"
+      when 'children', 'nodes'
+        kpath_cond = "1"
+      else
+        begin
+          klass = Module.const_get(method.singularize.capitalize)
+        rescue NameError
+          # unknown relation :
+          return "id IS NULL"
+        end
+        kpath_cond = "kpath LIKE '#{klass.kpath}%'"
+      end
+      case opts[:from]
+      when 'site'
+        start_cond = '1'
+      when 'project'
+        start_cond = "project_id = #{get_project_id}"
+      when 'section'
+        start_cond = "section_id = #{get_section_id}"
+      else
+        start_cond = "parent_id = #{self[:id]}"
+      end
+      "#{start_cond} AND #{kpath_cond}"
+    end
+    
+    if opt_cond = opts[:conditions]
+      if opt_cond.kind_of?(Array)
+        ["(#{base_cond}) AND (#{opt_cond[0]})", *opt_cond[1..-1]]
+      else
+        "(#{base_cond}) AND (#{opt_cond})"
+      end
+    else
+      base_cond
+    end
+  end
   
+  def defaults_for(method)
+    case method
+    when 'root','project','section','parent','self','author'
+      {}
+    when 'traductions', 'versions'
+      {}
+    when 'documents_only','pages','all_pages','children','nodes'  
+      {:order => 'position ASC, name ASC'}
+    else
+      if self.class.native_relation?(method)
+        begin
+          klass = Module.const_get(method.singularize.capitalize)
+          if klass.ancestors.include?(Note)
+            {:order => 'log_at DESC'}
+          else
+            {:order => 'position ASC, name ASC'}
+          end
+        rescue NameError  
+          {}
+        end
+      else
+        {:order => 'name ASC'}
+      end
+    end
+  end
+  
+  
+  # FIXME: remove this and use 'relation'
   def relation_options(opts, cond=nil)
     opts = opts.dup
     case opts[:from]
@@ -749,7 +865,13 @@ class Node < ActiveRecord::Base
   
   # ACCESSORS
   def author
-    secure(User){ user }.contact
+    user.contact
+  end
+  
+  alias o_user user
+  
+  def user
+    secure(User) { o_user }
   end
   
   def ext

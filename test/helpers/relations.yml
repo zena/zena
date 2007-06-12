@@ -8,10 +8,10 @@ tags:
   src: "<r:project><r:show attr='name'/>: <r:tags><r:each join=', '><r:show attr='name'/></r:each></r:tags></r:project>"
   res: "cleanWater: art"
 
-tag_for:
+tagged:
   context:
     node: 'art'
-  src: "<r:tag_for><r:each join=', '><r:show attr='name'/></r:each></r:tag_for>"
+  src: "<r:tagged><r:each join=', '><r:show attr='name'/></r:each></r:tagged>"
   res: "cleanWater, opening"
 
 documents:
@@ -43,6 +43,12 @@ notes:
     node: 'cleanWater'
   src: "<r:notes><r:each join=', '><r:show attr='name'/></r:each></r:notes>"
   res: "opening"
+  
+blog_with_added_posts:
+  context:
+    node: 'zena'
+  src: "<r:notes or='posts' do='each' join=', ' do='[name]'/>"
+  res: "letter, opening"
 
 pages_limit:
   context:
