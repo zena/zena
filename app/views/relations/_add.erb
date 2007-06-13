@@ -1,0 +1,6 @@
+<tr id='add_relation' class='btn_add'>
+  <td class='add'><%= link_to_function _('btn_relation_add'), "['add_relation', 'add_relation_form'].each(Element.toggle); $('relation_source_role').focus();" %></td><td colspan='6' class='add_relation'></td>
+</tr>
+<tr id='add_relation_form' style='display:none;'>
+  <%= render :partial=>'relations/form' %>
+</tr>

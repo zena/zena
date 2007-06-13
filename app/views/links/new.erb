@@ -1,0 +1,11 @@
+<h1>New link</h1>
+
+<%= error_messages_for :link %>
+
+<% form_for(:link, :url => links_path) do |f| %>
+  <p>
+    <%= submit_tag "Create" %>
+  </p>
+<% end %>
+
+<%= link_to 'Back', links_path %>

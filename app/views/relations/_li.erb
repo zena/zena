@@ -1,0 +1,12 @@
+<tr id='relation<%= li[:id] %>'>
+  <td class="icon"><%= link_to_remote(_('btn_edit'), 
+          :update =>"relation#{li[:id]}", 
+          :url    => edit_relation_path(li),
+          :method => :get) %></td>
+  <td class="source_icon" ><%= li.source_icon %></td>
+  <td class="source" ><%= li.source_role %></td>
+  <td class="source"><%= li.source_kpath %></td>
+  <td class="target_icon" ><%= li.target_icon %></td>
+  <td class="target" ><%= li.target_role %></td>
+  <td class="target"><%= li.target_kpath %></td>
+</tr>

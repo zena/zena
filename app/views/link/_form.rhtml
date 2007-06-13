@@ -5,7 +5,7 @@
     <%= link_to_function _('btn_x'), "['add_link', 'add_link_form'].each(Element.toggle);" %>
   </div>
   <div class='role'>
-    <% roles = @node.class.roles_for_form 
+    <% roles = @node.relations_for_form 
     if roles.include?(['tag', 'tags'])
       roles.delete(['tag', 'tags'])
       roles.unshift ['tag', 'tags']

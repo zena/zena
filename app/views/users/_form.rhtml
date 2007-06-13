@@ -1,11 +1,11 @@
-<td class="add">
+<td class="icon">
   <%= if user_id = @user[:id]
     link_to_remote _('btn_x'), :url => user_path(user_id), :method => :get
   else
     link_to_function _('btn_x'), "['add_user', 'add_user_form'].each(Element.toggle)"
   end %>
 </td>
-<td class="add_ug" colspan="4">
+<td class="add" colspan="4">
   <div id='user_errors' class='errors'><%= error_messages_for('user') %></div>
   <% if user_id %>
   <%= form_remote_tag(:url => user_path(@user), :method => :put ) %>

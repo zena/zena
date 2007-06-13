@@ -1,0 +1,8 @@
+if @relation.errors.empty?
+  page.insert_html :before, 'add_relation', :partial=>'relations/li', :collection=>[@relation]
+  @relation = Relation.new
+  page.replace_html 'add_relation_form', :partial=>'relations/form'
+  page << "$('relation_source_role').focus();"
+else
+  page.replace 'add_relation_form', :partial=>'relations/form'
+end

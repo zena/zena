@@ -1,0 +1,1 @@
+page.replace "relation#{@relation[:id]}", :partial=>'relations/li', :collection=>[@relation]

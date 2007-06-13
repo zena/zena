@@ -124,7 +124,7 @@ class RelationTest < ZenaTestUnit
     assert_raise (NoMethodError) { node.some_bad_method_name }
   end
   
-  def test_roles_for_form
+  def test_relations_for_form
     login(:tiger)
     {
       Note    => ["blog", "calendar", "favorite_for", "home_for", "hot_for", "icon", "reference", "tag"],
@@ -133,7 +133,7 @@ class RelationTest < ZenaTestUnit
       Contact => ["collaborator_for", "favorite", "favorite_for", "home_for", "hot_for", "icon", "reference", "reference_for", "tag"],
     }.each do |klass, roles|
       node = secure(klass) { klass.find(:first) }
-      assert_equal roles, node.roles_for_form.map{|a,b| a}
+      assert_equal roles, node.relations_for_form.map{|a,b| a}
     end
   end
   

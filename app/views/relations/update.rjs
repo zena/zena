@@ -1,0 +1,5 @@
+if @relation.errors.empty?
+  page.replace "relation#{@relation[:id]}", :partial=>"relations/li", :collection=>[@relation]
+else
+  page.replace "relation#{@relation[:id]}", :partial=>"relations/form"
+end

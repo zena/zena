@@ -1,0 +1,13 @@
+<div id='content'>
+  <h3><%= _('manage relations') %></h3>
+  
+  <table id='relation_list' class='admin' cellspacing="0">
+    <%= render :partial=>'relations/li',  :collection=>@relations %>
+    <%= render :partial=>'relations/add' %>
+  </table>  
+  <%= link_to _("Previous page"), { :page => @relation_pages.current.previous } if @relation_pages.current.previous %>
+  <%= link_to _("Next page"), { :page => @relation_pages.current.next } if @relation_pages.current.next %>
+</div>
+
+<div id='right'>
+</div>

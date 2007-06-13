@@ -2,6 +2,7 @@ class Relation < ActiveRecord::Base
   validate        :valid_relation
   attr_accessor   :source, :target, :link_errors, :new_value
   attr_protected  :site_id
+  has_many        :links, :dependent => :destroy
   
   def records(options={})
     return @records if defined? @records
@@ -86,8 +87,8 @@ class Relation < ActiveRecord::Base
     end
   end
 
-  def link
-    links ? links[0] : nil
+  def other_link
+    other_links ? links[0] : nil
   end
   
   def other_id
@@ -95,7 +96,7 @@ class Relation < ActiveRecord::Base
   end
   
   def other_ids
-    (links || []).map { |l| l[other_side] }
+    (other_links || []).map { |l| l[other_side] }
   end
   
   def other_zip
@@ -104,20 +105,28 @@ class Relation < ActiveRecord::Base
   
   def other_zips
     (records || []).map { |r| r[:zip] }
-  end 
+  end
+  
+  def other_role
+    @source ? target_role : source_role
+  end
+  
+  def other_icon
+    @source ? target_icon : source_icon
+  end
   
   def <<(obj_id)
-    @new_value ||= links.map{|r| r[other_side]}
+    @new_value ||= other_links.map{|r| r[other_side]}
     @new_value << obj_id.to_i
   end
   
   def delete(obj_id)
-    @new_value ||= links.map{|r| r[other_side]}
+    @new_value ||= other_links.map{|r| r[other_side]}
     @new_value.delete(obj_id.to_i)
   end
   
   # find the links from the current context (source or target)
-  def links
+  def other_links
     @links ||= Link.find(:all, :conditions => ["relation_id = ? AND #{link_side} = ?", self[:id], start[:id]])
   end
   
@@ -150,7 +159,7 @@ class Relation < ActiveRecord::Base
     @add_ids   = values
     @del_links = []
     # find all current links
-    links.each do |link|
+    other_links.each do |link|
       obj_id = link[other_side]
       unless @add_ids.include?(obj_id)
         @del_links << link

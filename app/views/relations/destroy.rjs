@@ -1,0 +1,6 @@
+if @relation.errors.empty?
+  page.visual_effect :highlight, "relation#{@relation[:id]}", :duration => 0.3
+  page.visual_effect :fade, "relation#{@relation[:id]}", :duration => 0.5
+else
+  page.replace "relation#{@relation[:id]}", :partial=>"relations/form"
+end

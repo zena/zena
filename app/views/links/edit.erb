@@ -1,0 +1,12 @@
+<h1>Editing link</h1>
+
+<%= error_messages_for :link %>
+
+<% form_for(:link, :url => link_path(@link), :html => { :method => :put }) do |f| %>
+  <p>
+    <%= submit_tag "Update" %>
+  </p>
+<% end %>
+
+<%= link_to 'Show', link_path(@link) %> |
+<%= link_to 'Back', links_path %>

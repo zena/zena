@@ -1,9 +1,9 @@
 <table cellspacing="0" id='links'>
-  <% @node.role_links.each do |role,links| -%>
-    <tr id='group_<%= role[:method]%>'>
-      <td class='group' colspan='4'><%= _(role[:method]) %> <%= "<span>(#{_('only last added are shown')})</span>" if role[:collector] %></td>
+  <% @node.relation_links.each do |relation,links| -%>
+    <tr id='group_<%= relation.other_role %>'>
+      <td class='group' colspan='4'><%= _(relation.other_role) %> <%= "<span>(#{_('only last added are shown')})</span>" if false %></td>
     </tr>
-    <%= render :partial=>'link/li', :collection=>links %>
+    <%= render :partial=>'link/li', :collection=>links, :locals => {:relation => relation} %>
   <% end -%>
   <%= render_to_string :partial=>'link/add' %>
 </table>

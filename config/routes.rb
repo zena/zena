@@ -35,9 +35,13 @@ ActionController::Routing::Routes.draw do |map|
       #              :name_prefix => nil,
       #              :member => { :reply_to => :post }
     end
+    
+    nodes.resources :links, :name_prefix => nil
   end
   
   map.resources :documents, :member => { :crop_form => :get, :file_form => :get }
+  
+  map.resources :relations
   # map.resources :trans_phrases do |phrases|
   #   phrases.resources :trans_values
   # end
@@ -93,6 +97,10 @@ ActionController::Routing::Routes.draw do |map|
 end
 =begin
 ActionController::Routing::Routes.draw do |map|
+  map.resources :relations
+
+  map.resources :links
+
   # Add your own custom routes here.
   # The priority is based upon order of creation: first created -> highest priority.
   

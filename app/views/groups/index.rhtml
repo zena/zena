@@ -1,6 +1,6 @@
 <div id='content'>
   <h3><%= _('manage groups') %></h3>
-  <table class="admin_ug" cellspacing="0">
+  <table class="admin" cellspacing="0">
     <%= render :partial=>'groups/li',  :collection=>@groups %>
     <%= render :partial=>'groups/add', :locals=>{:users=>@users} %>
   </table>
