@@ -37,7 +37,6 @@ module Zena
         end
         
         def can_edit?
-          debugger if self.class == Letter
           can_edit_lang?
         end
         

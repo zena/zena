@@ -1,4 +1,5 @@
 class VirtualClass < ActiveRecord::Base
+  belongs_to    :create_group, :class_name => 'Group', :foreign_key => 'create_group_id'
   validate      :valid_virtual_class
   
   def to_s
@@ -8,6 +9,14 @@ class VirtualClass < ActiveRecord::Base
   # check inheritance chain through kpath
   def kpath_match?(kpath)
     self.kpath =~ /^#{kpath}/
+  end
+  
+  def superclass
+    if new_record?
+      Node
+    else
+      Node.get_class_from_kpath(kpath[0..-2])
+    end
   end
   
   def new(*args)

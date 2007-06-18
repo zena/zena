@@ -14,10 +14,10 @@
 #bin span { position:absolute; top:2px; left:30px; }
 
 /* ADMIN USERS, GROUPS */
-table.admin, table.admin table { border-collapse:separate; border-width:1px 0 0 0; margin:auto; border-color:#333; border-style:solid; margin:5px; }
+table.admin, table.admin table { border-collapse:separate; border-width:1px 0 0 0; margin:auto; border-color:#666; border-style:solid; margin:5px; }
 table.admin { width:600px; font-size:0.8em; }
 table.admin table { width:90%; }
-table.admin td:first-child { border-left: 1px solid #333; }
+table.admin td:first-child { border-left: 1px solid #666; }
 
 #admin_users  table.admin {background:#B3CC92}  
 #admin_groups table.admin {background:#91B9AE}
@@ -25,7 +25,7 @@ table.admin td:first-child { border-left: 1px solid #333; }
 #add_group td { border: 0;}
 #add_user  td { background: white;}
 #add_group td { background: white;}
-.admin td { padding: 3px; height:18px; border-right:1px solid #333; border-bottom:1px solid #333; }
+.admin td { padding: 3px; height:18px; border-right:1px solid #666; border-bottom:1px solid #666; }
 .admin .icon, .admin .add, .admin .action { width:22px; text-align:center; vertical-align:top;}
 .admin table { width:100%;}
 .admin td { padding: 2px 6px; }
@@ -41,13 +41,14 @@ table.admin td:first-child { border-left: 1px solid #333; }
 .btn_validate input { background:#C8D8C7; border:1px outset black;}
 .admin .label {width:80px; line-height:1.9em;}
 .admin th { color:#450009; }
-.admin .source { background:#DBBFBF;}
-.admin .target { background:#C0DBC0;}
+.admin .source, .admin .source_role { background:#DBBFBF;}
+.admin .target, .admin .target_role { background:#C0DBC0;}
 .admin .source_icon { background:#DBBFBF; text-align:center;}
 .admin .target_icon { background:#C0DBC0; text-align:center;}
 .destroy input, .destroy form { display:inline; }
 .destroy { border:1px solid #300; padding:3px; background:#fdd; float:right;}
-
+.source_role, .target_role { font-weight:bold;}
+.source_role { text-align:right;}
 
 /* status */
 .u40 { background:#B7CC87;}

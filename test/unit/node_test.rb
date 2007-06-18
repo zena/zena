@@ -876,6 +876,14 @@ class NodeTest < ZenaTestUnit
     assert_equal TextDocument, Node.get_class('TextDocument')
   end
   
+  def test_get_class_from_kpath
+    assert_equal Node, Node.get_class_from_kpath('N')
+    assert_equal Page, Node.get_class_from_kpath('NP')
+    assert_equal virtual_classes(:post), Node.get_class_from_kpath('NNP')
+    assert_equal virtual_classes(:letter), Node.get_class_from_kpath('NNL')
+    assert_equal TextDocument, Node.get_class_from_kpath('NPDT')
+  end
+  
   def test_get_attributes_from_yaml
     f = Tempfile.new('any.yml')
     path = f.path

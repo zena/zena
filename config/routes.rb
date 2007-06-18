@@ -42,6 +42,7 @@ ActionController::Routing::Routes.draw do |map|
   map.resources :documents, :member => { :crop_form => :get, :file_form => :get }
   
   map.resources :relations
+  map.resources :virtual_classes
   # map.resources :trans_phrases do |phrases|
   #   phrases.resources :trans_values
   # end

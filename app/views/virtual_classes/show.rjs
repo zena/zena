@@ -1,0 +1,1 @@
+page.replace "virtual_class#{@virtual_class[:id]}", :partial=>'virtual_classes/li', :collection=>[@virtual_class]

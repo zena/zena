@@ -154,6 +154,7 @@ class Node < ActiveRecord::Base
     end
     
     def native_classes
+      [Note,Page,Project,Section,Document,Image,TextDocument,Skin,Template]
       @@native_node_classes.reject{|kpath,klass| !(kpath =~ /^#{self.kpath}/) }
     end
     
@@ -162,9 +163,14 @@ class Node < ActiveRecord::Base
       self.kpath =~ /^#{kpath}/
     end
     
-    def classes_for_form
+    # FIXME: how to make sure all sub-classes of Node are loaded before this is called ?
+    def classes_for_form(opts={})
       virtual_classes = VirtualClass.find(:all, :conditions => ["site_id = ? AND create_group_id IN (?) AND kpath LIKE '#{self.kpath}%'", current_site[:id], visitor.group_ids])
-      (virtual_classes.map{|r| [r.kpath, r.name]} + native_classes.to_a).sort{|a,b| a[0] <=> b[0]}.map{|a,b| [b.to_s, a[1..-1].gsub(/./,'  ') + b.to_s] }
+      classes = (virtual_classes.map{|r| [r.kpath, r.name]} + native_classes.to_a).sort{|a,b| a[0] <=> b[0]}
+      if opts[:without_kpath]
+        classes.reject! {|k,c| k =~ /^#{opts[:without_kpath]}/ }
+      end
+      classes.map{|a,b| [a[1..-1].gsub(/./,'  ') + b.to_s, b.to_s] } # white spaces are insecable spaces (not ' ')
     end
     
     def get_class(rel, opts={})
@@ -182,6 +188,10 @@ class Node < ActiveRecord::Base
         end
       end
       klass
+    end
+    
+    def get_class_from_kpath(kp)
+      @@native_node_classes[kp] || VirtualClass.find(:first, :conditions=>["site_id = ? AND kpath = ?",current_site[:id], kp])
     end
     
     def clean_attributes(new_attributes)
@@ -250,7 +260,7 @@ class Node < ActiveRecord::Base
         visitor.visit(node) # secure
         # TODO: class ignored (could be used to transform from one class to another...)
         attributes.delete('class')
-        attributes.delete('vclass')
+        attributes.delete('klass')
         node.edit!(attributes['v_lang'])
         node.update_attributes(attributes)
       else
@@ -269,12 +279,12 @@ class Node < ActiveRecord::Base
       
       publish = (attributes.delete('v_status').to_i == Zena::Status[:pub])
       
-      klass   = attributes.delete('class') || attributes.delete('vclass') || 'Page'
+      klass   = attributes.delete('class') || attributes.delete('klass') || 'Page'
       
       unless create_class = get_class(klass, :create => true)
         node = self.new
         node.instance_eval { @attributes = attributes }
-        node.errors.add('vclass', 'invalid')
+        node.errors.add('klass', 'invalid')
         # This is to show the klass in the form seizure
         node.instance_variable_set(:@vclass, klass.to_s)
         def node.vclass; @vclass; end
@@ -538,6 +548,10 @@ class Node < ActiveRecord::Base
   # virtual class
   def vclass
     virtual_class || self.class
+  end
+  
+  def klass
+    vclass.to_s
   end
   
   # include virtual classes to check inheritance chain

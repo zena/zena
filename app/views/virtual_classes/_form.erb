@@ -1,0 +1,28 @@
+<td class="icon">
+  <%= unless @virtual_class.new_record?
+    link_to_remote _('btn_x'), :url => virtual_class_path(@virtual_class), :method => :get
+  else
+    link_to_function _('btn_x'), "['add_virtual_class', 'add_virtual_class_form'].each(Element.toggle)"
+  end %>
+</td>
+<td class="add" colspan="5">
+  <div id='virtual_class_errors' class='errors'><%= error_messages_for('virtual_class') %></div>
+  <% unless @virtual_class.new_record? %>
+  <%= form_remote_tag(:url => virtual_class_path(@virtual_class), :method => :put ) %>
+  <% else %>
+  <%= form_remote_tag(:url => virtual_classes_path ) %>
+  <% end %>
+  <table cellspacing='0' class='edit_virtual_class'>
+    <tr><td class='label'><%= _("name")%>      </td><td><%= text_field('virtual_class', 'name',        :size=>15 ) %></td></tr>
+    <tr><td class='label'><%= _("icon")%>      </td><td><%= text_field('virtual_class', 'icon',        :size=>15 ) %></td></tr>
+    <tr><td class='label'><%= _("superclass")%></td><td><%= select('virtual_class', 'superclass',  Node.classes_for_form(:without_kpath => (@virtual_class.new_record? ? nil : @virtual_class.kpath)), :selected => @virtual_class.superclass.to_s ) %></td></tr>
+    <tr><td class='label'><%= _("attributes")%></td><td><%= text_field('virtual_class', 'allowed_attributes',  :size=>15 ) %></td></tr>
+    <tr><td colspan='2'><p class='btn_validate'><input type='submit' value='<%= _('validate') %>'/></p></td></tr>
+  </table>
+  </form>
+  <% if false && !@virtual_class.new_record? -%>
+  <%= form_remote_tag(:url => virtual_class_path(@virtual_class), :method => :delete, :confirm => _('Are you sure you want to destroy this virtual class ?') ) %>
+  <p class='destroy'><%= _('destroy virtual class') %> <input type='submit' value='<%= _('destroy') %>'></p>
+  </form>
+  <% end -%>
+</td>

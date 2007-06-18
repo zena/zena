@@ -1,0 +1,13 @@
+<div id='content'>
+  <h3><%= _('manage classes') %></h3>
+  
+  <table id='virtual_class_list' class='admin' cellspacing="0">
+    <%= render :partial=>'virtual_classes/li',  :collection=>@virtual_classes %>
+    <%= render :partial=>'virtual_classes/add' %>
+  </table>  
+  <%= link_to _("Previous page"), { :page => @virtual_class_pages.current.previous } if @virtual_class_pages.current.previous %>
+  <%= link_to _("Next page"), { :page => @virtual_class_pages.current.next } if @virtual_class_pages.current.next %>
+</div>
+
+<div id='right'>
+</div>

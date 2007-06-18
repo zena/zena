@@ -68,7 +68,7 @@ class NodesControllerTest < ZenaTestController
   
   def test_create_ok
     login(:tiger)
-    post 'create', :node=>{:vclass=>'Tracker', :parent_id=>nodes_zip(:zena), :name=>'test'}
+    post 'create', :node=>{:klass=>'Tracker', :parent_id=>nodes_zip(:zena), :name=>'test'}
     assert_response :success
     assert_kind_of Page, assigns['page']
     assert assigns['page'].vkind_of?('Tracker')

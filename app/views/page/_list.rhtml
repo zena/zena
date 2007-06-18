@@ -1,6 +1,0 @@
-<h3><%= _('Pages') %></h3>
-
-<ul class='list' id='pages_list'>
-  <%= render :partial=>'page/li', :collection=>@node.pages %>
-  <%= render :partial=>'page/add' if @node.can_write? %>
-</ul>

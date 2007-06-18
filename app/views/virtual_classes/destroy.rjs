@@ -1,0 +1,6 @@
+if @virtual_class.errors.empty?
+  page.visual_effect :highlight, "virtual_class#{@virtual_class[:id]}", :duration => 0.3
+  page.visual_effect :fade, "virtual_class#{@virtual_class[:id]}", :duration => 0.5
+else
+  page.replace "virtual_class#{@virtual_class[:id]}", :partial=>"virtual_classes/form"
+end
