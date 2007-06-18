@@ -95,7 +95,7 @@ class User < ActiveRecord::Base
     
     # Do not store clear passwords in the database (salted hash) :
     def hash_password(string)
-      Digest::SHA1.hexdigest(string + PASSWORD_SALT)
+      Digest::SHA1.hexdigest((string || '') + PASSWORD_SALT)
     end
     
     # Creates a new user without setting the defaults (used to create the first users of the site). Use

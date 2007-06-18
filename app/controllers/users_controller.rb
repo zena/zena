@@ -72,8 +72,10 @@ class UsersController < ApplicationController
       if params[:user][:password] != params[:user][:retype_password]
         @user.errors.add('retype_password', 'does not match new password')
       end
-      if !@user.password_is?(params[:user][:old_password])
-        @user.errors.add('old_password', "not correct")
+      unless visitor.is_admin?
+        if !@user.password_is?(params[:user][:old_password])
+          @user.errors.add('old_password', "not correct")
+        end
       end
       if @user.errors.empty?
         @user.password = params[:user][:password]
