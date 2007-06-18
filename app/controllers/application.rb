@@ -494,7 +494,7 @@ class ApplicationController < ActionController::Base
       else
         "/#{pre}/" +
         (node.basepath != '' ? "#{node.basepath}/"    : '') +
-        (node.class.to_s.downcase               ) +
+        (node.vclass.to_s.downcase               ) +
         (node[:zip].to_s                        ) +
         (mode          ? "_#{mode}" : '') +
         ".#{format}"
