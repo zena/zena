@@ -251,6 +251,6 @@ task :backup, :roles => :app do
   
   run "#{in_current} svn info > #{deploy_to}/current/zena_version.txt"
   run "#{in_current} rake zena:full_backup RAILS_ENV='production'"
-  run "#{in_current} tar czf #{db_name}_data.tar.gz #{db_name}.sql.tar.gz all_data.tar.gz current/zena_version.txt"
+  run "#{in_current} tar czf #{db_name}_data.tar.gz #{db_name}.sql.tar.gz all_data.tar.gz zena_version.txt"
   get_backup
 end
