@@ -1,5 +1,5 @@
 <tr id='link<%= li[:link_id] %>'>
   <td class="box"><%= relation.other_icon %></td>
   <td class="path" colspan='2'><%= link_to( li.rootpath, zen_path(li), :popup=>true ) %></td>
-  <td class="actions"> <%= link_to_remote(_('btn_tiny_del'), :url=>{:controller=>'link', :action=>'remove', :id=>li[:link_id], :node_id=>@node[:id]}, :post=>true)%> </td>
+  <td class="actions"> <%= link_to_remote(_('btn_tiny_del'), :url => remove_link_node_path(:id=>@node[:zip],:link_id => li[:link_id]), :method => :put) %> </td>
 </tr>

@@ -1,5 +1,5 @@
 <td colspan='4'>
-<%= form_remote_tag(:url => node_url(@node[:zip]), :method => :put) %>
+<%= form_remote_tag(:url => link_node_path(@node[:zip]), :method => :put) %>
   <div id='link_errors' class='errors'></div>
   <div class='add'>
     <%= link_to_function _('btn_x'), "['add_link', 'add_link_form'].each(Element.toggle);" %>
@@ -10,15 +10,14 @@
       roles.delete(['tag', 'tags'])
       roles.unshift ['tag', 'tags']
     end -%>
-    <select name="node[link][role]">
+    <select name="role">
     <% roles.each do |name,role| %>
       <option value='<%= role %>'><%= _(name) %></input>
     <% end -%>
     </select>
   </div>
   <div class='link' id='link_link'>
-    <input type='hidden' class='hidden' name='drive' value='links'/>
-    <input type='text' name='node[link][other_id]' value=''/>
+    <input type='text' name='other_id' value=''/>
   </div>
   <div class='action'>
   <input type="submit" class="btn_validate" value='<%= _('set') %>'/>

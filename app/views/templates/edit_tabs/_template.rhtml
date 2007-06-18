@@ -5,4 +5,4 @@
 <input  id='node_c_mode' type='text' name='node[c_mode]' value='<%= @node.c_mode %>'/><br/>
 
 <label for='node_c_klass'><%= _('class scope') %></label>
-<input  id='node_c_klass' type='text' name='node[c_klass]' value='<%= @node.c_klass %>'/><br/>
+<%= f.select('c_klass', Node.classes_for_form ) %><br/>

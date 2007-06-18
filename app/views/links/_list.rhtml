@@ -3,7 +3,7 @@
     <tr id='group_<%= relation.other_role %>'>
       <td class='group' colspan='4'><%= _(relation.other_role) %> <%= "<span>(#{_('only last added are shown')})</span>" if false %></td>
     </tr>
-    <%= render :partial=>'link/li', :collection=>links, :locals => {:relation => relation} %>
+    <%= render :partial=>'links/li', :collection=>links, :locals => {:relation => relation} %>
   <% end -%>
-  <%= render_to_string :partial=>'link/add' %>
+  <%= render_to_string :partial=>'links/add' %>
 </table>

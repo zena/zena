@@ -86,6 +86,8 @@ class User < ActiveRecord::Base
           end
         end
         Thread.current.visitor = user
+      elsif !user.is_anon? && opts[:id]
+        return make_visitor(:site => site)
       else
         nil
       end

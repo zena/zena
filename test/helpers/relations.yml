@@ -44,10 +44,10 @@ notes:
   src: "<r:notes><r:each join=', '><r:show attr='name'/></r:each></r:notes>"
   res: "opening"
   
-blog_with_added_posts:
+blog_with_added_notes:
   context:
     node: 'zena'
-  src: "<r:notes or='posts' do='each' join=', ' do='[name]'/>"
+  src: "<r:notes or='added_note' do='each' join=', ' do='[name]'/>"
   res: "letter, opening"
 
 pages_limit:

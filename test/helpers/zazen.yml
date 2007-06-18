@@ -26,3 +26,11 @@ link_sharp_in:
 link_sharp_in_name:
   tem: "<%= zazen('see \"\":22#[parent/name]') %>"
   res: "<p>see <a href=\"/oo/projects/cleanWater.html#status\">status title</a></p>"
+  
+complex_link:
+  tem: <%= zazen("p<. !<.31.pv!:22\n\nh4(clear). \"\":22") %>
+  res: "<p style=\"text-align:left;\"><div class='img_left'><a href=\"/oo/projects/cleanWater/page22.html\"><img src='/oo/image31_pv.jpg' width='70' height='70' alt='flower' class='pv'/></a></div></p>\n\n\n\t<h4 class=\"clear\"><a href=\"/oo/projects/cleanWater/page22.html\">status title</a></h4>"
+
+at_code:
+  tem: "<%= zazen(\"Try this: @ruby|puts 'Hello'@ or this @zafu|<r:link/>@\") %>"
+  res: "<p>Try this: <code class='ruby'><span class=\"ident\">puts</span> <span class=\"punct\">'</span><span class=\"string\">Hello</span><span class=\"punct\">'</span></code> or this <code class='zafu'><span class=\"tag\">&lt;r:</span><span class=\"ztag\">link</span><span class=\"tag\">/&gt;</span></code></p>"

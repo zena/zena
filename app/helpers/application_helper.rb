@@ -478,7 +478,7 @@ module ApplicationHelper
       end_date   += (6 + week_start_day - end_date.wday) % 7
       
       # get list of notes in this scope
-      notes = source.relation(method, :conditions=>["#{using} >= ? AND #{using} <= ?", start_date, end_date], :order=>"#{using} ASC") || []
+      notes = source.relation(method, :conditions=>["#{using} >= ? AND #{using} <= ?", start_date, end_date], :order=>"#{using} ASC", :or => options[:or]) || []
       
       # build event hash
       calendar = {}
@@ -620,6 +620,7 @@ module ApplicationHelper
   # this helper may render a checkbox list, a select menu or an input field for an id. Available choices
   # may be reduced by providing a list as :in argument : link_box('node', :calendars, :in=>[1,11]).
   def link_box(obj, sym, opt={})
+    return "" # FIXME: BUT LINKS BACK INTO EDIT !
     node = instance_variable_get("@#{obj}".to_sym)
     method = "#{sym}_for_form".to_sym
     role = node.class.role[sym.to_s]

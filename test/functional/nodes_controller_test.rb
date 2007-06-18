@@ -66,6 +66,15 @@ class NodesControllerTest < ZenaTestController
     assert_equal node[:id], clea.tags[0][:id]
   end
   
+  def test_create_ok
+    login(:tiger)
+    post 'create', :node=>{:vclass=>'Tracker', :parent_id=>nodes_zip(:zena), :name=>'test'}
+    assert_response :success
+    assert_kind_of Page, assigns['page']
+    assert assigns['page'].vkind_of?('Tracker')
+    assert !assigns['page'].new_record?, "Not a new record"
+  end
+  
   # test edit_... mode only if can_edit?
   
 end

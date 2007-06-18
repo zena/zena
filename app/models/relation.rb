@@ -4,6 +4,9 @@ class Relation < ActiveRecord::Base
   attr_protected  :site_id
   has_many        :links, :dependent => :destroy
   
+  # FIXME: validate uniqueness of source_role and target_role in scope site_id
+  # FIXME: set kpath from class
+  
   def records(options={})
     return @records if defined? @records
     conditions = options.delete(:conditions)
@@ -13,8 +16,7 @@ class Relation < ActiveRecord::Base
     side_cond = "links.relation_id = ?"
     params    = [self[:id]]
     case options[:from]
-    when 'site'  
-      count = :all
+    when 'site'
     when 'section'
       if conditions.kind_of?(Array)
         conditions[0] = "(#{conditions[0]}) AND section_id = ?"
@@ -24,7 +26,6 @@ class Relation < ActiveRecord::Base
       else
         conditions = ["section_id = ?", start[:section_id]]
       end
-      count = :all
     when 'project'
       if conditions.kind_of?(Array)
         conditions[0] = "(#{conditions[0]}) AND project_id = ?"
@@ -34,14 +35,7 @@ class Relation < ActiveRecord::Base
       else
         conditions = ["project_id = ?", start[:project_id]]
       end
-      count = :all
     else
-      count = if @source
-          target_unique ? :first : :all
-        else
-          source_unique ? :first : :all
-        end
-        
       if direction == 'both'
         side_cond << " AND (links.#{link_side} = ? OR links.#{other_side} = ?) AND (nodes.id <> ? OR links.#{other_side} = links.#{link_side})"
         params += [start[:id]] * 3
@@ -80,19 +74,19 @@ class Relation < ActiveRecord::Base
                     
     if conditions
       Node.with_scope(:find=>{:conditions=>conditions}) do
-        @records = secure(Node) { Node.find(count, options) }
+        @records = secure(Node) { Node.find(:all, options) }
       end
     else
-      @records = secure(Node) { Node.find(count, options) }
+      @records = secure(Node) { Node.find(:all, options) }
     end
   end
 
   def other_link
-    other_links ? links[0] : nil
+    other_links ? other_links[0] : nil
   end
   
   def other_id
-    link ? link[other_side] : nil
+    other_link ? other_link[other_side] : nil
   end
   
   def other_ids

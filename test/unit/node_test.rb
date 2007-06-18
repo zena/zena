@@ -113,7 +113,7 @@ class NodeTest < ZenaTestUnit
     assert_equal 'zena', node.relation('root')[:name]
     assert_equal 'art', node.relation('parent').relation('tags')[0][:name]
   end
-  
+
   def test_ancestor_in_hidden_project
     login(:ant)
     node = secure(Node) { nodes(:proposition) }
@@ -328,7 +328,7 @@ class NodeTest < ZenaTestUnit
   def test_trackers
     login(:tiger)
     node = secure(Node) { nodes(:cleanWater) }
-    trackers = node.trackers
+    trackers = node.relation('trackers')
     assert_equal 1, trackers.size
     assert_equal 'track', trackers[0][:name]
   end
@@ -861,11 +861,19 @@ class NodeTest < ZenaTestUnit
   
   def test_create_with_klass
     login(:tiger)
-    node = secure(Node) { Node.create_node('parent_id' => nodes_zip(:projects), 'name' => 'funny', 'klass' => 'TextDocument', 'c_content_type' => 'application/x-javascript') }
+    node = secure(Node) { Node.create_node('parent_id' => nodes_zip(:projects), 'name' => 'funny', 'vclass' => 'TextDocument', 'c_content_type' => 'application/x-javascript') }
     assert_kind_of TextDocument, node
     assert_equal nodes_id(:projects), node[:parent_id]
     assert_equal 'funny', node[:name]
     assert !node.new_record?, "Saved"
+  end
+  
+  def test_get_class
+    assert_equal Node, Node.get_class('node')
+    assert_equal Node, Node.get_class('nodes')
+    assert_equal Node, Node.get_class('Node')
+    assert_equal virtual_classes(:letter), Node.get_class('Letter')
+    assert_equal TextDocument, Node.get_class('TextDocument')
   end
   
   def test_get_attributes_from_yaml

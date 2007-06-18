@@ -3,6 +3,8 @@ class LinksController < ApplicationController
   
   
   # TODO: think this over
+  # or node controller:
+  # add_link, remove_link, node[other_role_ids] = ...
   # add     => add a new link                         (nodes/:node_zip/links?:relation_id=...&other_id=:other_zip)
   # update  => change current links for a relation    (nodes/:node_zip/links/:relation_id/update)
   # destroy => remove a link

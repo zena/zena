@@ -141,7 +141,8 @@ ul.infos li { padding:0.4em 0.4em; list-style:none; display:block; }
 
 #links .group { text-align:left; background:#888; font-weight:bold; font-size:0.7em; height:0.5em;}
 #links .group span { background:#888; font-weight:normal;}
-#links .role { width:80px; }
+#links .role { margin:inherit 0.5em; }
+#links .role select { width:10em; }
 #links .path { width:200px; text-align:left;}
 #links .actions { width:20px;}
 #links #link_link { margin:0px 5px; }

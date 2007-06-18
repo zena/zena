@@ -445,7 +445,7 @@ tracker:
   id:             27
   zip:            37
   site_id:        1
-  type:           Tracker
+  type:           Note
   kpath:          NPA
   name:           track
   project_id:     11
@@ -453,6 +453,7 @@ tracker:
   parent_id:      11
   user_id:        4
   inherit:        1
+  vclass_id:      3
 <%= @defaults %>
 <%= @rights %>
 
@@ -546,8 +547,9 @@ letter:
   id:             32
   zip:            42
   site_id:        1
-  type:           Letter
+  type:           Note
   kpath:          NNL
+  vclass_id:      1
   name:           letter
   project_id:     1
   section_id:     1

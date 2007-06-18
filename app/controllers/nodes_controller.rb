@@ -163,6 +163,45 @@ class NodesController < ApplicationController
     @nodes = secure(Node) { Node.create_nodes_from_folder(:archive => params[:archive], :parent => @node) }
   end
   
+  # add/update links to another node
+  def link
+    if !@node.can_drive?
+      @node.errors.add('base', 'you do not have the rights to do this')
+    elsif params['link']
+      # update relation
+      attrs = clean_attributes(params['link'])
+      @node.update_attributes(attrs)
+    elsif relation = @node.relation_proxy(params['role'])  
+      attrs = clean_attributes(params)
+      if relation.unique?
+        # replace link
+        @node.update_attributes("#{attrs['role']}_id" => attrs['other_id'])
+      else
+        @node.add_link(attrs['role'], attrs['other_id'])
+        @node.save
+      end
+    else
+      @errors
+    end
+    respond_to do |format|
+      format.js
+    end
+  end
+  
+  # remove a link
+  def remove_link
+    unless @node.can_drive?
+      @node.errors.add('base', 'you do not have the rights to do this')
+    else
+      @link_id = params[:link_id]
+      @node.remove_link(@link_id)
+      @node.save
+    end
+    respond_to do |format|
+      format.js
+    end
+  end
+  
   def update
     attrs = clean_attributes
     attrs.delete(:klass)
@@ -198,61 +237,6 @@ class NodesController < ApplicationController
       format.js   { @flash = flash }
     end
   end
-  
-  
-  # create a link given the node id 'link[node_id]', the role 'link[role]' and the target id 'link[other_id]'. The target id
-  # can also be a name
-  # TODO: test multiple/single values
-  def link
-    attrs = zips_to_ids(params[:node])
-    
-    if params[:method] = :put
-      # create/update links
-      raise ActiveRecord::RecordNotFound unless @node.can_drive?
-      
-      box = params[:box]
-      
-      if attrs.keys.size == 0
-        # empty => cleared
-        if @node.respond_to?("#{box}_id=".to_sym)
-          # unique
-          @node.send("#{box}_id=".to_sym, nil)
-        else
-          # multiple
-          @node.send("#{box.singularize}_ids=".to_sym, nil)
-        end
-        @node.save
-      else
-        @method = attrs.keys[0]
-        unless @method =~ /^(.+)_id(s|)$/
-          # bad method...
-          processing_error 'unknown link role'
-        else
-          @node.send("#{@method}=".to_sym, attrs[@method])
-          @node.save
-        end
-      end
-    else
-      # # add a link
-      # @method = params[:link][:role]
-      # other_zip = nil
-      # if params[:link][:other_id] =~ /^\d+$/
-      #   other_zip = params[:link][:other_id].to_i
-      # else
-      #   begin
-      #     if other = secure(Node) { Node.find_by_name(params[:link][:other_id]) }
-      #       other_zip = other[:zip]
-      #     end
-      #   end
-      # end
-      # if other_zip && @node.add_link(@method, other_zip) && @node.save
-      #   Node.find_by_(other_zip).send(:after_all)
-      # end
-    end
-  rescue ActiveRecord::RecordNotFound
-    processing_error 'node not found'
-  end
-  
   
   # AJAX HELPER
   # TODO: test

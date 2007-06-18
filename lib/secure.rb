@@ -636,6 +636,7 @@ Just doing the above will filter all result according to the logged in user.
          end + [
             sprintf("%15s => %s", 'id', self[:id].inspect),
             sprintf("%15s => %s", '@new_record', new_record?.to_s),
+            sprintf("%15s => %s", '@errors', (errors.map{|k,v| "#{k}:#{v}"}.join(', '))),
             sprintf("%15s => %s", '@visitor', (@visitor ? "User#{@visitor[:id]}" : 'nil'))
          ]).join("\n  ") + "} >"
       end

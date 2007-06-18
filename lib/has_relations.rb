@@ -108,7 +108,7 @@ module Zena
       end
 
       def relations_for_form
-        find_all_relations.map {|r| [r.other_role.singularize, r.id]}
+        find_all_relations.map {|r| [r.other_role.singularize, r.other_role]}
       end
       
       # List the links, grouped by role

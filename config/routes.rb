@@ -16,7 +16,8 @@ ActionController::Routing::Routes.draw do |map|
   
   map.resources :nodes,                                           # FIXME: should be :put but it does not work
     :collection => { :search => :get,  :attribute => :get },      #   |
-    :member =>     { :import => :post, :save_text => :put, :order => :any, :zafu => :get } do |nodes|
+    :member =>     { :import => :post, :save_text => :put, :order => :any, :zafu => :get,
+                     :link => :put, :remove_link => :put } do |nodes|
     nodes.resources :versions, 
                     :name_prefix => nil,
                     :member => { :edit    => :get,
@@ -36,7 +37,6 @@ ActionController::Routing::Routes.draw do |map|
       #              :member => { :reply_to => :post }
     end
     
-    nodes.resources :links, :name_prefix => nil
   end
   
   map.resources :documents, :member => { :crop_form => :get, :file_form => :get }

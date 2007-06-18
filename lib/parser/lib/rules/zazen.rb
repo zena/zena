@@ -45,13 +45,13 @@ module Zazen
         elsif @text[0..0] == '"'
           scan_quote
         elsif @text[0..4] == '<code'
-          # FIXME: implement instead of "extract"
+          # FIXME: implement <code..> and @@ instead of "extract"
           flush
           # implement !! scan_code
-        elsif @text =~ /\A([^>]*)>/m
-          flush $&
+        elsif @text[0..0] == '<'
+          flush '<'
         else
-          # error never closed tag
+          # error
           flush
         end
       else
@@ -64,6 +64,7 @@ module Zazen
       #puts "EXCL:[#{@text}]"
       if @text =~ /\A\!\[([^\]]*)\]\!/m
         # create a gallery ![...]!
+        #puts "GALLERY:[#{$&}]"
         eat $&
         if @context[:images]
           store @helper.make_gallery($1)
@@ -72,6 +73,7 @@ module Zazen
         end
       elsif @text =~ /\A\!([^0-9]{0,2})\{([^\}]*)\}\!/m
         # list of documents !<.{...}!
+        #puts "DOCS:[#{$&}]"
         eat $&
         if @context[:images]
           store @helper.list_nodes(:style=>$1, :ids=>$2)
@@ -84,6 +86,7 @@ module Zazen
         eat $&
         store @helper.make_image(:style=>$1, :id=>$2, :size=>$4, :title=>$6, :link=>$8, :images=>@context[:images])
       else
+        #puts "EAT:[#{$&}]"
         # eat marker and continue scan
         flush @text[0..0]
       end
@@ -91,6 +94,7 @@ module Zazen
     
     def scan_quote
       if @text =~ /\A"([^"]*)":([0-9]+[^\s]*)/m
+        #puts "LINK:[#{$&}]"
         eat $&
         # link inside the cms "":34
         title, id = $1, $2
@@ -100,6 +104,7 @@ module Zazen
         end
         store @helper.make_link(:title=>title,:id=>id,:sharp=>sharp)
       else
+        #puts "NOT_LINK"
         flush @text[0..0]
       end
     end
@@ -117,6 +122,7 @@ module Zazen
     
     def scan_wiki_link
       if @text =~ /\A\?(\w[^\?]+?\w)\?([^\w:]|:([^\s<]+))/m
+        #puts "WIKI:[#{$&}]"
         eat $&
         title = $1
         url   = $3

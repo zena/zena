@@ -128,11 +128,12 @@ class Node < ActiveRecord::Base
   
   zafu_readable      :name, :created_at, :updated_at, :event_at, :log_at, :kpath, :user_zip, :parent_zip, :project_zip,
                      :section_zip, :skin, :ref_lang, :fullpath, :rootpath, :publish_from, :max_status, :rgroup_id, 
-                     :wgroup_id, :pgroup_id, :basepath, :custom_base, :klass, :zip, :score
+                     :wgroup_id, :pgroup_id, :basepath, :custom_base, :vclass, :zip, :score
   
   
   has_many           :discussions, :dependent => :destroy
   has_and_belongs_to_many :cached_pages
+  belongs_to         :virtual_class, :foreign_key => 'vclass_id'
   validate           :validate_node
   before_create      :node_before_create
   after_save         :spread_project_and_section
@@ -144,7 +145,44 @@ class Node < ActiveRecord::Base
   has_relations
   before_validation  :node_before_validation  # run our 'before_validation' after 'secure'
   
+  @@native_node_classes = {'N' => self}
   class << self
+    
+    def inherited(child)
+      super
+      @@native_node_classes[child.kpath] = child
+    end
+    
+    def native_classes
+      @@native_node_classes.reject{|kpath,klass| !(kpath =~ /^#{self.kpath}/) }
+    end
+    
+    # check inheritance chain through kpath
+    def kpath_match?(kpath)
+      self.kpath =~ /^#{kpath}/
+    end
+    
+    def classes_for_form
+      virtual_classes = VirtualClass.find(:all, :conditions => ["site_id = ? AND create_group_id IN (?) AND kpath LIKE '#{self.kpath}%'", current_site[:id], visitor.group_ids])
+      (virtual_classes.map{|r| [r.kpath, r.name]} + native_classes.to_a).sort{|a,b| a[0] <=> b[0]}.map{|a,b| [b.to_s, a[1..-1].gsub(/./,'  ') + b.to_s] }
+    end
+    
+    def get_class(rel, opts={})
+      class_name = rel.singularize
+      class_name = class_name[0..0].upcase + class_name[1..-1]
+      begin
+        klass = Module.const_get(class_name)
+        raise NameError unless klass.ancestors.include?(Node)
+      rescue NameError
+        # find the virtual class
+        if opts[:create]
+          klass = VirtualClass.find(:first, :conditions=>["site_id = ? AND create_group_id IN (?) AND name = ?",current_site[:id], visitor.group_ids, class_name])
+        else
+          klass = VirtualClass.find(:first, :conditions=>["site_id = ? AND name = ?",current_site[:id], class_name])
+        end
+      end
+      klass
+    end
     
     def clean_attributes(new_attributes)
       attributes = new_attributes.stringify_keys
@@ -212,7 +250,7 @@ class Node < ActiveRecord::Base
         visitor.visit(node) # secure
         # TODO: class ignored (could be used to transform from one class to another...)
         attributes.delete('class')
-        attributes.delete('klass')
+        attributes.delete('vclass')
         node.edit!(attributes['v_lang'])
         node.update_attributes(attributes)
       else
@@ -231,23 +269,20 @@ class Node < ActiveRecord::Base
       
       publish = (attributes.delete('v_status').to_i == Zena::Status[:pub])
       
-      klass   = attributes.delete('class') || attributes.delete('klass') || 'Page'
+      klass   = attributes.delete('class') || attributes.delete('vclass') || 'Page'
       
-      begin
-        klass = Module::const_get(klass)
-        raise NameError unless klass.ancestors.include?(Node)
-      rescue NameError => err
+      unless create_class = get_class(klass, :create => true)
         node = self.new
         node.instance_eval { @attributes = attributes }
-        node.errors.add('klass', 'invalid')
+        node.errors.add('vclass', 'invalid')
         # This is to show the klass in the form seizure
-        node.instance_variable_set(:@klass, klass.to_s)
-        def node.klass; @klass; end
+        node.instance_variable_set(:@vclass, klass.to_s)
+        def node.vclass; @vclass; end
         return node
       end
       
-      node = if klass != self
-        klass.with_exclusive_scope(scope) { klass.create(attributes) }
+      node = if create_class != self
+        create_class.with_exclusive_scope(scope) { create_class.create(attributes) }
       else
         self.create(attributes)
       end
@@ -386,11 +421,11 @@ class Node < ActiveRecord::Base
                   define_method(:original_filename) { filename }
                   define_method(:content_type) { ctype }
                 end
-                current_obj = create_or_update_node(attrs.merge(:c_file => file, :klass => 'Document', :_parent_id => parent_id))
+                current_obj = create_or_update_node(attrs.merge(:c_file => file, :vclass => 'Document', :_parent_id => parent_id))
               end
               document_path = nil
             else
-              current_obj = create_or_update_node(attrs.merge(:_parent_id => parent_id, :klass => 'Document'))
+              current_obj = create_or_update_node(attrs.merge(:_parent_id => parent_id, :vclass => 'Document'))
             end
           else
             # :folder, :node
@@ -407,7 +442,7 @@ class Node < ActiveRecord::Base
       end
       res
     end
-
+    
     # valid parent class
     def parent_class
       Node
@@ -458,11 +493,9 @@ class Node < ActiveRecord::Base
     def native_relation?(rel)
       ['root', 'parent', 'self', 'children', 'documents_only', 'all_pages'].include?(rel) || begin
           return false if has_relation?(rel)
-          klass = Module.const_get(rel.singularize.capitalize)
-          klass.ancestors.include?(Node)
-        rescue NameError
-          false
-        end
+          # find class
+          Node.get_class(rel) != nil
+      end
     end
     
     def relation_defined?(rel)
@@ -497,9 +530,23 @@ class Node < ActiveRecord::Base
     raise Zena::RecordNotSecured.new("Visitor not set, record not secured.")
   end
   
-  # Return the class name of the node (used by forms)
-  def klass
-    self.class.to_s
+  # check inheritance chain through kpath
+  def kpath_match?(kpath)
+    vclass.kpath =~ /^#{kpath}/
+  end
+  
+  # virtual class
+  def vclass
+    virtual_class || self.class
+  end
+  
+  # include virtual classes to check inheritance chain
+  def vkind_of?(klass)
+    if self.class.native_classes.map{|k,v| v.to_s}.include?(klass)
+      true
+    elsif virt = VirtualClass.find(:first, :conditions=>["site_id = ? AND name = ?",current_site[:id], klass])
+      kpath_match?(virt.kpath)
+    end
   end
   
   # Return the list of ancestors (without self): [root, obj, obj]
@@ -647,9 +694,7 @@ class Node < ActiveRecord::Base
       when 'children', 'nodes'
         kpath_cond = "1"
       else
-        begin
-          klass = Module.const_get(method.singularize.capitalize)
-        rescue NameError
+        unless klass = Node.get_class(method)
           # unknown relation :
           return "id IS NULL"
         end
@@ -689,15 +734,11 @@ class Node < ActiveRecord::Base
       {:order => 'position ASC, name ASC'}
     else
       if self.class.native_relation?(method)
-        begin
-          klass = Module.const_get(method.singularize.capitalize)
-          if klass.ancestors.include?(Note)
-            {:order => 'log_at DESC'}
-          else
-            {:order => 'position ASC, name ASC'}
-          end
-        rescue NameError  
-          {}
+        klass = Node.get_class(method)
+        if klass.kpath_match?(Note.kpath)
+          {:order => 'log_at DESC'}
+        else
+          {:order => 'position ASC, name ASC'}
         end
       else
         {:order => 'name ASC'}
@@ -838,12 +879,7 @@ class Node < ActiveRecord::Base
   def notes(opts={})
     secure(Note) { Note.find(:all, relation_options(opts) ) }
   end
- 
-  # Find all trackers
-  def trackers(opts={})
-    secure(Tracker) { Tracker.find(:all, relation_options(opts) ) }
-  end
-  
+   
   # Create a child and let him inherit from rwp groups and section_id
   def new_child(opts={})
     klass = opts.delete(:class) || Page
@@ -914,20 +950,20 @@ class Node < ActiveRecord::Base
   # Id to zip mapping for user_id. Used by zafu and forms.
   def user_zip; self[:user_id]; end
   
-  
-  def klass=(new_class)
-    if new_class.kind_of?(String)
-      klass = Module.const_get(new_class)
-    else
-      klass = new_class
-    end
-    raise NameError if !klass.ancestors.include?(Node) || klass.version_class != self.class.content_class
-    
-    
-    
-  rescue NameError
-    errors.add('klass', 'invalid')
-  end
+  # transform to another class
+  # def vclass=(new_class)
+  #   if new_class.kind_of?(String)
+  #     klass = Module.const_get(new_class)
+  #   else
+  #     klass = new_class
+  #   end
+  #   raise NameError if !klass.ancestors.include?(Node) || klass.version_class != self.class.content_class
+  #   
+  #   
+  #   
+  # rescue NameError
+  #   errors.add('klass', 'invalid')
+  # end
   
   # transform an Node into another Object. This is a two step operation :
   # 1. create a new object with the attributes from the old one
@@ -1114,7 +1150,7 @@ class Node < ActiveRecord::Base
       self.name = version[:title] unless self[:name]
       
       if !new_record? && self[:parent_id]
-        # update and this is not the root node
+        # node updated and it is not the root node
         if !kind_of?(Section) && self[:section_id] != old[:section_id]
           @spread_section_id = self[:section_id]
         end

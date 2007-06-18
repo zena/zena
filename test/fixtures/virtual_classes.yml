@@ -1,0 +1,29 @@
+letter:
+  id:               1
+  name:             Letter
+  kpath:            NNL
+  real_class:       Note
+  icon:             ""
+  attributes:       
+  create_group_id:  1
+  site_id:          1
+
+post:
+  id:               2
+  name:             Post
+  kpath:            NNP
+  real_class:       Note
+  icon:             ""
+  attributes:       
+  create_group_id:  1
+  site_id:          1
+
+tracker:
+  id:               3
+  name:             Tracker
+  kpath:            NPA
+  real_class:       Page
+  icon:             ""
+  attributes:       
+  create_group_id:  2
+  site_id:          1

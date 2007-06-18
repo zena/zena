@@ -2,7 +2,7 @@
 <%= hidden_field 'node', 'parent_id', :value=>@node.parent_zip  %>
 <p class="btn_validate"><input type="submit" onclick="$('loader').style.visibility = 'visible';" value='<%= _('validate') %>'/></p>
 
-<input type='hidden' name='node[klass]' value='Template'/>
+<input type='hidden' name='node[vclass]' value='Template'/>
 
 <label for='node_name'><%= _('name') %></label>
 <input  id='node_name' type='text' name='node[name]'/><br/>
@@ -14,7 +14,7 @@
 <input  id='node_c_mode' type='text' name='node[c_mode]'/><br/>
 
 <label for='node_c_klass'><%= _('class scope') %></label>
-<input  id='node_c_klass' type='text' name='node[c_klass]'/><br/>
+<%= f.select('c_klass', Node.classes_for_form ) %><br/>
 
 <label   for='node_v_summary'><%= _('summary') %></label>
 <textarea id='node_v_summary' rows='3' name='node[v_summary]'></textarea><br/>
