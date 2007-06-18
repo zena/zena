@@ -146,6 +146,30 @@ namespace :zena do
     end
   end
   
+  desc "Create a backup of all data for a site"
+  task :backup_site do
+    unless host = ENV['HOST']
+      puts "Please set HOST to the hostname for the site to backup. Aborting."
+    else
+      path = File.join(SITES_ROOT,ENV['HOST'])
+      unless File.exists?(path)
+        puts "Site does not exist in '#{SITES_ROOT}'"
+      else
+        folders = ['data'].map {|f| File.join(SITES_ROOT,f) }
+        cmd = "tar czf #{path}_data.tar.gz #{folders.join(' ')}"
+        puts cmd
+        puts `#{cmd}`
+      end
+    end
+  end
+  
+  task :full_backup => :environment do
+    data_folders = Site.find(:all).map { |s| File.join(SITES_ROOT, s.data_path) }.reject { |p| !File.exists?(p) }
+    cmd = "tar czf #{SITES_ROOT}/all_data.tar.gz #{data_folders.join(' ')}"
+    puts cmd
+    puts `#{cmd}`
+  end
+  
   desc "Migrate the database through scripts in db/migrate. Target specific brick and version with BRICK=x and VERSION=x"
   task :migrate => :environment do
     if ENV['VERSION'] || ENV['BRICK']
@@ -194,10 +218,16 @@ namespace :zena do
   end
   Rake::Task['zena:rdoc'].comment = "Create the rdoc documentation"
   
-  Rake::TestTask.new(:test => "db:test:prepare") do |t|
-    [File.join(SITES_ROOT, 'test.host', 'data'), File.join(SITES_ROOT, 'test.host', 'zafu')].each do |path|
-      FileUtils::rmtree(path) if File.exist?(path)
+  namespace :test do
+    desc 'Cleanup before testing'
+    task :prepare => "db:test:prepare" do
+      [File.join(SITES_ROOT, 'test.host', 'data'), File.join(SITES_ROOT, 'test.host', 'zafu')].each do |path|
+        FileUtils::rmtree(path) if File.exist?(path)
+      end
     end
+  end
+  
+  Rake::TestTask.new(:test => "zena:test:prepare") do |t|
     t.libs << "test"
     t.pattern = ['test/helpers/**/*_test.rb','test/unit/**/*_test.rb', 'lib/parser/test/*_test.rb']
     t.verbose = true

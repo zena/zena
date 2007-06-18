@@ -9,7 +9,7 @@ class RelationsController < ApplicationController
     
     @relation_pages, @relations = nil, nil
     secure(Relation) do
-      @relation_pages, @relations = paginate :relations, :per_page => 20
+      @relation_pages, @relations = paginate :relations, :per_page => 20, :order => 'source_role'
     end
     respond_to do |format|
       format.html # index.erb

@@ -478,6 +478,7 @@ module ApplicationHelper
       end_date   += (6 + week_start_day - end_date.wday) % 7
       
       # get list of notes in this scope
+      Node.logger.info "\n\n\n\n\n\n\n\n"
       notes = source.relation(method, :conditions=>["#{using} >= ? AND #{using} <= ?", start_date, end_date], :order=>"#{using} ASC", :or => options[:or]) || []
       
       # build event hash

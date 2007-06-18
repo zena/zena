@@ -14,9 +14,10 @@
 #bin span { position:absolute; top:2px; left:30px; }
 
 /* ADMIN USERS, GROUPS */
-table.admin, table.admin table { border-collapse:separate; border-width:1px 0 0 0; margin:auto; border-color:#666; border-style:solid; margin:5px; }
+table.admin, table.admin table { border-collapse:separate; border-width:0; margin:auto; border-color:#666; border-style:solid; margin:4em 5px 5px; }
 table.admin { width:600px; font-size:0.8em; }
 table.admin table { width:90%; }
+table.admin table td { text-align:left; }
 table.admin td:first-child { border-left: 1px solid #666; }
 
 #admin_users  table.admin {background:#B3CC92}  
@@ -26,6 +27,7 @@ table.admin td:first-child { border-left: 1px solid #666; }
 #add_user  td { background: white;}
 #add_group td { background: white;}
 .admin td { padding: 3px; height:18px; border-right:1px solid #666; border-bottom:1px solid #666; }
+.admin th { border-bottom:1px solid #666; padding:4px;}
 .admin .icon, .admin .add, .admin .action { width:22px; text-align:center; vertical-align:top;}
 .admin table { width:100%;}
 .admin td { padding: 2px 6px; }
@@ -49,6 +51,9 @@ table.admin td:first-child { border-left: 1px solid #666; }
 .destroy { border:1px solid #300; padding:3px; background:#fdd; float:right;}
 .source_role, .target_role { font-weight:bold;}
 .source_role { text-align:right;}
+.nav td { border:0;}
+.prev_page, .next_page { margin:0; }
+.next_page { float:right; }
 
 /* status */
 .u40 { background:#B7CC87;}
@@ -72,18 +77,3 @@ ul.actions select { font-size:10px; width:186px; margin:2px;}
 #preferences .errors ul { margin:0 -5px 5px;}
 .actions .errors ul { background:#DDC8C8; margin:0 0 5px; padding:4px 0; border-bottom:1px solid #5A3231;}
 .actions .errors li { margin-left:0.4em; background:inherit; line-height:1.2em;}
-
-/* translations */
-.border { border:1px solid grey; border-spacing:0; font-size:0.8em;}
-.border td {padding:1px; border-top:1px solid grey;}
-.border tr:first-child td { border:0;}
-.border td.header {background:grey; color:white; border-top-color:#979797;}
-.border td.title { background:#E68200; text-align:center; padding:3px; }
-.border .title div { position:relative; }
-.border .title a { color:#2B3E52;}
-.border .title #previous_page { position:absolute; left:10px; top:5px; }
-.border .title #next_page { position:absolute; right:10px; top:5px; }
-.border .title #lang { color:white; font-weight:normal; display:inline; margin:0 15px; font-size:1.8em; color:#965A13;}
-.border .title #lang a { color:#965A13;}
-.border td.phrase {padding:1px 4px; border-right:1px solid grey;}
-.border .hint {width:100px; font-size:80%; color:#333;}

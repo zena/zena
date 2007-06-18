@@ -1,3 +1,0 @@
-class Post < Note
-end
-

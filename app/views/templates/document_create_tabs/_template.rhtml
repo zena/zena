@@ -14,7 +14,7 @@
 <input  id='node_c_mode' type='text' name='node[c_mode]'/><br/>
 
 <label for='node_c_klass'><%= _('class scope') %></label>
-<%= f.select('c_klass', Node.classes_for_form ) %><br/>
+<%= select('node', 'c_klass', Node.classes_for_form ) %><br/>
 
 <label   for='node_v_summary'><%= _('summary') %></label>
 <textarea id='node_v_summary' rows='3' name='node[v_summary]'></textarea><br/>

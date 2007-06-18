@@ -56,11 +56,9 @@ class TemplateContent < ActiveRecord::Base
       
       if self[:klass]
         # this is a master template (found when choosing the template for rendering)
-        begin
-          klass = Module::const_get(self[:klass].to_sym)
-          raise NameError unless klass.ancestors.include?(Node)
+        if klass = Node.get_class(self[:klass])
           self[:tkpath] = klass.kpath
-        rescue NameError
+        else
           errors.add('klass', 'invalid')
         end
       else

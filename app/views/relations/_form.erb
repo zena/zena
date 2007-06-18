@@ -5,7 +5,7 @@
     link_to_function _('btn_x'), "['add_relation', 'add_relation_form'].each(Element.toggle)"
   end %>
 </td>
-<td class="add" colspan="6">
+<td class="add" colspan="8">
   <div id='relation_errors' class='errors'><%= error_messages_for('relation') %></div>
   <% unless @relation.new_record? %>
   <%= form_remote_tag(:url => relation_path(@relation), :method => :put ) %>
@@ -22,9 +22,15 @@
       <td class="source" ><%= text_field('relation', 'source_role', :size=>18 ) %></td>
       <td class="target" ><%= text_field('relation', 'target_role', :size=>18 ) %></td>
     </tr>
+    <tr><td class="label" ><%= _('type') %></td>   
+      <td class="source" ><%= radio_button("relation", "source_unique", true) %> <%= _('relation_img') %>
+                          <%= radio_button("relation", "source_unique", false) %> <%= _('relations_img') %></td> 
+      <td class="target" ><%= radio_button("relation", "target_unique", true) %> <%= _('relation_img') %>
+                          <%= radio_button("relation", "target_unique", false) %> <%= _('relations_img') %></td>
+    </tr>
     <tr><td class="label"><%= _('kpath') %></td>   
-      <td class="source"><%= text_field('relation', 'source_kpath', :size=>18 ) %></td>
-      <td class="target"><%= text_field('relation', 'target_kpath', :size=>18 ) %></td>
+      <td class="source"><%= select('relation', 'source_kpath', Node.kpaths_for_form ) %></td>
+      <td class="target"><%= select('relation', 'target_kpath', Node.kpaths_for_form ) %></td>
     </tr>
     <tr><td colspan='3'><p class='btn_validate'><input type='submit' value='<%= _('validate') %>'/></p></td></tr>
   </table>

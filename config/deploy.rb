@@ -215,15 +215,15 @@ end
 
 desc "Database dump"
 task :db_dump, :roles => :db do
-  run "cd #{deploy_to} && mysqldump #{db_name} -u root -p > #{db_name}.sql" do |channel, stream, data|
+  run "mysqldump #{db_name} -u root -p > #{deploy_to}/#{db_name}.sql" do |channel, stream, data|
     if data =~ /^Enter password:\s*/m
       logger.info "#{channel[:host]} asked for password"
       channel.send_data "#{password}\n"
     end
     puts data
   end
-  run "cd #{deploy_to} && tar czf #{db_name}.sql.tar.gz #{db_name}.sql"
-  run "cd #{deploy_to} && rm #{db_name}.sql"
+  run "tar czf #{deploy_to}/#{db_name}.sql.tar.gz #{deploy_to}/#{db_name}.sql"
+  run "rm #{deploy_to}/#{db_name}.sql"
 end
 
 # taken from : http://source.mihelac.org/articles/2007/01/11/capistrano-get-method-download-files-from-server
@@ -249,7 +249,8 @@ task :backup, :roles => :app do
   db_dump
   # key track of the current svn revision for app
   
-  run "#{in_deploy} svn info > zena_version.txt"
-  run "cd #{deploy_to} && tar czf #{db_name}_data.tar.gz #{db_name}.sql.tar.gz data current/zena_version.txt"
+  run "#{in_deploy} svn info > #{deploy_to}/current/zena_version.txt"
+  run "#{in_deploy} rake zena:full_backup RAILS_ENV='production'"
+  run "cd #{deploy_to} && tar czf #{db_name}_data.tar.gz #{db_name}.sql.tar.gz all_data.tar.gz current/zena_version.txt"
   get_backup
 end

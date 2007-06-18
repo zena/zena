@@ -421,13 +421,22 @@ module Zena
       case @params[:type]
       when 'select'
         return "<span class='parser_error'>select without name</span>"   unless   name = @params[:name]
-        klasses = @params[:options] || "Page,Note"
-        "<%= select('node', #{name.inspect}, #{klasses.split(',').map(&:strip).inspect}) %>"
+        if klass = @params[:root_class]
+          opts = {}
+          opts[:selected] = @params[:selected] if @params[:selected]
+          opts[:without]  = @params[:without]  if @params[:without]
+          "<%= select('node', #{name.inspect}, Node.classes_for_form(:class => #{klass.inspect}#{params_to_erb(opts)})) %>"
+        else
+          klasses = @params[:options] || "Page,Note"
+          "<%= select('node', #{name.inspect}, #{klasses.split(',').map(&:strip).inspect}) %>"
+        end
       when 'date_box'
         return "<span class='parser_error'>date_box without name</span>"   unless   name = @params[:name]
         "<%= date_box 'node', #{name.inspect}, :size=>15#{@context[:in_add] ? ", :value=>''" : ''} %>"
       when 'submit'
-        return nil # let render_html_tag do the job...
+        @html_tag = 'input'
+        @html_tag_params[:type] = 'submit'
+        render_html_tag(nil)
       else
         out make_input(@html_tag_params.merge(@params))
         @html_tag_done = true
@@ -950,10 +959,11 @@ END_TXT
     def r_calendar
       from   = 'project'
       date   = 'main_date'
-      find   = (@params[:find  ] || 'news'   ).to_sym
-      size   = (@params[:size  ] || 'tiny'    ).to_sym
-      using  = (@params[:using ] || 'event_at').gsub(/[^a-z_]/,'').to_sym # SQL injection security
-      "<div id='#{size}cal'><%= calendar(:node=>#{node}, :from=>#{from.inspect}, :date=>#{date}, :find=>#{find.inspect}, :size=>#{size.inspect}, :using=>#{using.inspect}) %></div>"
+      opts   = @params
+      opts[:find]   = (@params[:find  ] || 'news'   ).to_sym
+      opts[:size]   = (@params[:size  ] || 'tiny'    ).to_sym
+      opts[:using]  = (@params[:using ] || 'event_at').gsub(/[^a-z_]/,'').to_sym # SQL injection security
+      "<div id='#{opts[:size]}cal'><%= calendar(:node=>#{node}, :from=>#{from.inspect}, :date=>#{date}#{params_to_erb(opts)}) %></div>"
     end
     
     # part caching
@@ -1217,7 +1227,7 @@ END_TXT
     end
     
     def unique_name
-      "#{@options[:included_history][0].split('::')[0]}/#{((@context[:name] || 'list').split('/')[-1]).gsub(/[^\w\/]/,'_')}"
+      "#{@options[:included_history][0].split('::')[0]}/#{((@context[:path] || ['list'])[-1]).gsub(/[^\w\/]/,'_')}"
     end
        
     def add_params(text, opts={})

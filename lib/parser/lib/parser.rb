@@ -126,7 +126,12 @@ class Parser
   
   def render(context={})
     return '' if context["no_#{@method}".to_sym]
-    @context = context
+    if @name
+      path = (context[:path] || []) + [@name]
+      @context = context.merge(:path => path)
+    else
+      @context = context
+    end
     @result  = ""
     return @result unless before_render
     @pass    = {} # used to pass information to the parent

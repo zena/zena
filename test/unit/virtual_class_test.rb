@@ -21,11 +21,71 @@ class VirtualClassTest < ZenaTestUnit
     [Project, Skin, Tag, Note, Image, Template, Contact]
     
     classes_for_form = Note.classes_for_form
-    assert !classes_for_form.include?(["Node", "Node"])
-    assert !classes_for_form.include?(["  Page", "Page"])
-    assert classes_for_form.include?(["  Note", "Note"])
-    assert !classes_for_form.include?(["  Reference", "Reference"])
-    assert classes_for_form.include?(["    Letter", "Letter"])
+    puts classes_for_form.inspect
+    assert classes_for_form.include?(["Note", "Note"])
+    assert classes_for_form.include?(["  Letter", "Letter"])
+    assert classes_for_form.include?(["  Post", "Post"])
+    classes_for_form.map!{|k,c| c}
+    assert !classes_for_form.include?("Node")
+    assert !classes_for_form.include?("Page")
+    assert !classes_for_form.include?("Reference")
+  end
+  
+  def test_post_classes_for_form
+    # add a sub class
+    login(:lion)
+    vclass = VirtualClass.create(:superclass => 'Post', :name => 'Super', :create_group_id =>  groups_id(:public))
+    assert !vclass.new_record?
+    
+    login(:anon)
+    
+    classes_for_form = Node.get_class('Post').classes_for_form
+    assert classes_for_form.include?(["Post", "Post"])
+    assert classes_for_form.include?(["  Super", "Super"])
+    classes_for_form.map!{|k,c| c}
+    assert !classes_for_form.include?("Node")
+    assert !classes_for_form.include?("Note")
+    assert !classes_for_form.include?("Letter")
+    assert !classes_for_form.include?("Page")
+    assert !classes_for_form.include?("Reference")
+  end
+  
+  def test_post_classes_for_form_opt
+    # add a sub class
+    login(:lion)
+    vclass = VirtualClass.create(:superclass => 'Post', :name => 'Super', :create_group_id =>  groups_id(:public))
+    assert !vclass.new_record?
+    
+    login(:anon)
+    
+    classes_for_form = Node.classes_for_form(:class => 'Post')
+    assert classes_for_form.include?(["Post", "Post"])
+    assert classes_for_form.include?(["  Super", "Super"])
+    classes_for_form.map!{|k,c| c}
+    assert !classes_for_form.include?("Node")
+    assert !classes_for_form.include?("Note")
+    assert !classes_for_form.include?("Letter")
+    assert !classes_for_form.include?("Page")
+    assert !classes_for_form.include?("Reference")
+  end
+  
+  def test_post_classes_for_form_opt
+    # add a sub class
+    login(:lion)
+    vclass = VirtualClass.create(:superclass => 'Post', :name => 'Super', :create_group_id =>  groups_id(:public))
+    assert !vclass.new_record?
+    
+    login(:anon)
+    
+    classes_for_form = Node.classes_for_form(:class => 'Post', :without=>'Super')
+    assert classes_for_form.include?(["Post", "Post"])
+    classes_for_form.map!{|k,c| c}
+    assert !classes_for_form.include?("Node")
+    assert !classes_for_form.include?("Note")
+    assert !classes_for_form.include?("Letter")
+    assert !classes_for_form.include?("Page")
+    assert !classes_for_form.include?("Reference")
+    assert !classes_for_form.include?("Super")
   end
   
   def test_node_classes_for_form_except
@@ -33,12 +93,21 @@ class VirtualClassTest < ZenaTestUnit
     # preload models
     [Project, Skin, Tag, Note, Image, Template, Contact]
     
-    classes_for_form = Node.classes_for_form(:without_kpath => 'NNL')
+    classes_for_form = Node.classes_for_form(:without => 'Letter')
     assert classes_for_form.include?(["Node", "Node"])
     assert classes_for_form.include?(["  Page", "Page"])
     assert classes_for_form.include?(["  Note", "Note"])
     assert classes_for_form.include?(["  Reference", "Reference"])
-    assert !classes_for_form.include?(["    Letter", "Letter"])
+    classes_for_form.map!{|k,c| c}
+    assert !classes_for_form.include?("Letter")
+    
+    classes_for_form = Node.classes_for_form(:without => 'Letter,Reference,Truc')
+    assert classes_for_form.include?(["Node", "Node"])
+    assert classes_for_form.include?(["  Page", "Page"])
+    assert classes_for_form.include?(["  Note", "Note"])
+    classes_for_form.map!{|k,c| c}
+    assert !classes_for_form.include?("Letter")
+    assert !classes_for_form.include?("Reference")
   end
   
   def test_node_classes_read_group
@@ -81,5 +150,9 @@ class VirtualClassTest < ZenaTestUnit
     assert_equal Note, virtual_classes(:post).superclass
     assert_equal Note, virtual_classes(:letter).superclass
     assert_equal Page, virtual_classes(:tracker).superclass
+  end
+  
+  def test_build_kpath
+    assert false, 'TODO'
   end
 end

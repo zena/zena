@@ -1,10 +1,10 @@
-<div id='notes' do='notes_all' limit='10' order='log_at DESC'>
+<div id='notes' do='notes' or='added_notes' limit='10' order='log_at DESC'>
   <ul class='note_list'>
     <li do='add' after='self'/>
     <li class='inline_form' do='form'>
       <form>
         <p class='node_v_title'><input type='text' name='v_title' size='25'/></p>
-        <p class='node_klass'>  <input type='select' name='klass' options='Post,Letter'/></p>
+        <p class='node_klass'>  <input type='select' name='klass' root_class='Note' selected='Post'/></p>
         <p class='node_log_at'> <input type='date_box' name='log_at'/></p>
         <p class='validate'>    <input type="submit" value='validate' do='void' tset_value='validate'/></p>
       </form>

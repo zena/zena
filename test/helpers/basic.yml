@@ -266,6 +266,10 @@ uses_calendar:
   src: "<r:uses_calendar/>"
   tem: "/<script.*calendar.js.*calendar-setup.js.*calendar-en-utf8.js.*calendar-brown.css.*CDATA.*DEF_DATE_FORMAT.*%Y-%m-%d %H:%M.*FIRST_DAY.*0/"
 
+calendar:
+  src: "<div id='small_calendar' do='calendar' find='notes' or='added_notes'/>"
+  res: "/<div id='small_calendar'><div id='tinycal'><table/"
+
 flash_messages_both:
   src: "<r:flash_messages/>"
   tem: "/id.*messages.*notice.*flash.*notice.*error.*flash.*error/"
@@ -524,3 +528,7 @@ design_by:
 design_by_options:
   src: "<li do='design' skin='dark' by='vador' href='http://teti.ch'></li>"
   res: "<li><a class='skin' href=''>dark</a> design by <a href='http://teti.ch'>vador</a></li>"
+  
+select_class:
+  src: "<input type='select_class' name='klass' root_class='Note'/>"
+  res: ".."

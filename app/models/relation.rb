@@ -198,6 +198,14 @@ class Relation < ActiveRecord::Base
     @source ? source_unique : target_unique
   end
   
+  def source_unique
+    self[:source_unique] ? true : false
+  end
+  
+  def target_unique
+    self[:target_unique] ? true : false
+  end
+  
   private
     def valid_relation
       unless visitor.is_admin?

@@ -69,8 +69,10 @@ class UsersController < ApplicationController
       if params[:user][:password].strip.size < 6
         @user.errors.add('password', 'too short')
       end
-      if params[:user][:password] != params[:user][:retype_password]
-        @user.errors.add('retype_password', 'does not match new password')
+      if !visitor.is_admin? || params[:user][:retype_password]
+        if params[:user][:password] != params[:user][:retype_password]
+          @user.errors.add('retype_password', 'does not match new password')
+        end
       end
       unless visitor.is_admin?
         if !@user.password_is?(params[:user][:old_password])

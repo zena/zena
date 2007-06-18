@@ -103,7 +103,7 @@ include_menu:
 
 named_parts:
   src: "named_parts: <r:void><r:void name='lala'>lala</r:void> <r:test name='start'>start from here to <r:hello name='sub'>sub</r:hello></r:test></r:void> ok."
-  res: "named_parts: lala [test {= :name=>'start'}]start from here to [hello {= :name=>'sub'}]sub[/hello][/test] ok."
+  res: "named_parts: lala [test {= :name=>'start'} {> :path=>'start'}]start from here to [hello {= :name=>'sub'}]sub[/hello][/test] ok."
 
 include_part:
   src: "IP: <r:include template='/named/parts' part='start/sub'/> PI."

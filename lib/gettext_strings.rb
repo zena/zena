@@ -22,6 +22,7 @@ module Zena
     
     # admin icons
     N_('relation_img')
+    N_('relations_img')
     N_('btn_relation_add')
     N_('virtual_class_img')
     N_('btn_virtual_class_add')
@@ -33,12 +34,16 @@ module Zena
     N_('img_public')         # icon
     N_('img_private')        # icon
     N_('img_custom_inherit') # icon
+    N_('img_user')          # edit users (admin)
     N_('img_user_admin')    # edit users (admin)
     N_('img_user_su')       # edit users (admin)
     N_('img_user_pub')      # edit users (admin)
     N_('img_group')         # edit groups (admin)
     N_('img_group_pub')     # edit users (admin)
     N_('img_group_site')    # edit users (admin)
+    
+    N_('img_prev_page')     # admin lists
+    N_('img_next_page')     # admin lists
     
     N_('admin')             # user status
     N_('user')              # user status

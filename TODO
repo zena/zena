@@ -16,6 +16,8 @@ Tag  ==> VirtualClass ?
 Tracker => VirtualClass
 
 * replace 'link_to_remote, :method => post/put' by 'button_to_remote'
+* make application_helper 'img_tag' use virtual_classes's icon. or superclass's icon....
+* open calendar : use stored zafu and pass template_url as argument instead of all find,date,(_tiny.rhtml)
 * if mksite fails (password too short, etc): rollback !
 * What if a Note/Contact contains pages and one of these pages has 'custom_base' set ?
 * Replace Trans... with Gettext

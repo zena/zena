@@ -148,6 +148,12 @@ class Node < ActiveRecord::Base
   @@native_node_classes = {'N' => self}
   class << self
     
+    # needed for compatibility with virtual classes
+    alias create_instance create
+    alias new_instance new
+    # ==
+    
+    
     def inherited(child)
       super
       @@native_node_classes[child.kpath] = child
@@ -165,12 +171,30 @@ class Node < ActiveRecord::Base
     
     # FIXME: how to make sure all sub-classes of Node are loaded before this is called ?
     def classes_for_form(opts={})
+      if klass = opts.delete(:class)
+        if klass = get_class(klass)
+          klass.classes_for_form(opts)
+        else
+          return ['', ''] # bad class
+        end
+      else
+        all_classes(opts).map{|a,b| [a[0..-1].sub(/^#{self.kpath}/,'').gsub(/./,'  ') + b.to_s, b.to_s] } # white spaces are insecable spaces (not ' ')
+      end
+    end
+    
+    # FIXME: how to make sure all sub-classes of Node are loaded before this is called ?
+    def kpaths_for_form(opts={})
+      all_classes(opts).map{|a,b| [a[1..-1].gsub(/./,'  ') + b.to_s, a.to_s] } # white spaces are insecable spaces (not ' ')
+    end
+    
+    def all_classes(opts={})
       virtual_classes = VirtualClass.find(:all, :conditions => ["site_id = ? AND create_group_id IN (?) AND kpath LIKE '#{self.kpath}%'", current_site[:id], visitor.group_ids])
       classes = (virtual_classes.map{|r| [r.kpath, r.name]} + native_classes.to_a).sort{|a,b| a[0] <=> b[0]}
-      if opts[:without_kpath]
-        classes.reject! {|k,c| k =~ /^#{opts[:without_kpath]}/ }
+      if opts[:without]
+        reject_kpath =  opts[:without].split(',').map(&:strip).map {|name| Node.get_class(name) }.compact.map { |kla| kla.kpath }.join('|')
+        classes.reject! {|k,c| k =~ /^#{reject_kpath}/ }
       end
-      classes.map{|a,b| [a[1..-1].gsub(/./,'  ') + b.to_s, b.to_s] } # white spaces are insecable spaces (not ' ')
+      classes
     end
     
     def get_class(rel, opts={})
@@ -191,7 +215,7 @@ class Node < ActiveRecord::Base
     end
     
     def get_class_from_kpath(kp)
-      @@native_node_classes[kp] || VirtualClass.find(:first, :conditions=>["site_id = ? AND kpath = ?",current_site[:id], kp])
+      native_classes[kp] || VirtualClass.find(:first, :conditions=>["site_id = ? AND kpath = ?",current_site[:id], kp])
     end
     
     def clean_attributes(new_attributes)
@@ -292,9 +316,9 @@ class Node < ActiveRecord::Base
       end
       
       node = if create_class != self
-        create_class.with_exclusive_scope(scope) { create_class.create(attributes) }
+        create_class.with_exclusive_scope(scope) { create_class.create_instance(attributes) }
       else
-        self.create(attributes)
+        self.create_instance(attributes)
       end
       node.publish if publish
       node

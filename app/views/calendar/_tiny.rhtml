@@ -1,10 +1,10 @@
 <table cellspacing="0" class='tinycal'>
   <tr class="head"><td class="button">
-    <%= link_to_remote( '<img src="/images/control_rewind.png"/>' , :update=>'tinycal', :url=>{:controller=>'calendar', :action=>'show', :date=>(date << 1), :id=>source[:id], :size=>size, :find=>method, :rnd=>rnd } ) %>
+    <%= link_to_remote( _('img_prev_page') , :update=>'tinycal', :url=>{:controller=>'calendar', :action=>'show', :date=>(date << 1), :id=>source[:id], :size=>size, :find=>method, :rnd=>rnd } ) %>
   </td>
   <td class="title"><%= link_to_remote(title, :update=>'tinycal', :url=>{:controller=>'calendar', :action=>'show', :id=>source[:id], :size=>size, :find=>method, :rnd=>rnd }) %></td>
   <td class="button">
-    <%= link_to_remote( '<img src="/images/control_fastforward.png"/>' , :update=>'tinycal', :url=>{:controller=>'calendar', :action=>'show', :date=>(date >> 1), :id=>source[:id], :size=>size, :find=>method, :rnd=>rnd  } ) %>
+    <%= link_to_remote( _('img_next_page') , :update=>'tinycal', :url=>{:controller=>'calendar', :action=>'show', :date=>(date >> 1), :id=>source[:id], :size=>size, :find=>method, :rnd=>rnd  } ) %>
   </td>
   </tr>
   <tr><td colspan='3'>

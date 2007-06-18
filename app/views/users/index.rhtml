@@ -2,11 +2,12 @@
   <h3><%= _('manage users') %></h3>
   
   <table id='user_list' class='admin' cellspacing="0">
+    <tr><th class='nav' colspan='5'>
+    <p class='next_page'><%= link_to _('img_next_page'), { :page => @user_pages.current.next } if @user_pages.current.next %></p>
+    <p class='prev_page'><%= link_to _('img_prev_page'), { :page => @user_pages.current.previous } if @user_pages.current.previous %></p></th></tr>
     <%= render :partial=>'users/li',  :collection=>@users %>
     <%= render :partial=>'users/add', :locals=>{:groups=>@groups} %>
   </table>  
-  <%= link_to _("Previous page"), { :page => @user_pages.current.previous } if @user_pages.current.previous %>
-  <%= link_to _("Next page"), { :page => @user_pages.current.next } if @user_pages.current.next %>
 </div>
 
 <div id='right'>

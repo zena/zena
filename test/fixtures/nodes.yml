@@ -154,7 +154,7 @@ proposition:
   id:             10
   zip:            20
   site_id:        1
-  type:           Post
+  type:           Note
   kpath:          NNP
   name:           proposition
   parent_id:      9
@@ -268,7 +268,7 @@ opening:
   id:             17
   zip:            27
   site_id:        1
-  type:           Post
+  type:           Note
   kpath:          NNP
   name:           opening
   project_id:     11

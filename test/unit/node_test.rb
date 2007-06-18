@@ -879,6 +879,7 @@ class NodeTest < ZenaTestUnit
   def test_get_class_from_kpath
     assert_equal Node, Node.get_class_from_kpath('N')
     assert_equal Page, Node.get_class_from_kpath('NP')
+    assert_equal Image, Node.get_class_from_kpath('NPDI')
     assert_equal virtual_classes(:post), Node.get_class_from_kpath('NNP')
     assert_equal virtual_classes(:letter), Node.get_class_from_kpath('NNL')
     assert_equal TextDocument, Node.get_class_from_kpath('NPDT')

@@ -32,6 +32,13 @@ images:
   src: "<r:images><r:each join=', '><r:show attr='name'/></r:each></r:images>"
   res: "tree"
 
+icon:
+  context:
+    node: 'cleanWater'
+  src: "<r:icon do='[name]'/>"
+  tem: ""
+  res: "lake"
+  
 pages:
   context:
     node: 'cleanWater'

@@ -1,8 +1,8 @@
 
 <h3 class='largecal_title'>
-  <span><%= link_to_remote( '<img src="/images/control_rewind.png"/>' ,      :update=>'largecal', :url=>{:controller=>'calendar', :action=>'show', :date=>(date << 1), :id=>source[:id], :size=>size, :find=>method, :rnd=>rnd } ) %></span>
+  <span><%= link_to_remote( _('img_prev_page') ,      :update=>'largecal', :url=>{:controller=>'calendar', :action=>'show', :date=>(date << 1), :id=>source[:id], :size=>size, :find=>method, :rnd=>rnd } ) %></span>
   <span><%= link_to_remote(title, :update=>'largecal', :url=>{:controller=>'calendar', :action=>'show', :id=>source[:id], :size=>size, :find=>method, :rnd=>rnd} ) %></span>
-  <span><%= link_to_remote( '<img src="/images/control_fastforward.png"/>' , :update=>'largecal', :url=>{:controller=>'calendar', :action=>'show', :date=>(date >> 1), :id=>source[:id], :size=>size, :find=>method, :rnd=>rnd } ) %></span>
+  <span><%= link_to_remote( _('img_next_page') , :update=>'largecal', :url=>{:controller=>'calendar', :action=>'show', :date=>(date >> 1), :id=>source[:id], :size=>size, :find=>method, :rnd=>rnd } ) %></span>
 </h3>
 <table cellspacing="0" class="largecal">
   <tr class="preview"><td colspan='7' id='largecal_preview'></td></tr>
