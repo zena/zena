@@ -39,7 +39,7 @@ set :apache2_static,        []
 
 
 # helper
-set :in_deploy, "cd #{deploy_to}/current &&"
+set :in_current, "cd #{deploy_to}/current &&"
 
 #========================== SOURCE CODE   =========================#
 desc "set permissions to www-data"
@@ -60,12 +60,12 @@ end
 
 desc "clear all zafu compiled templates"
 task :clear_zafu, :roles => :app do
-  run "#{in_deploy} rake zena:clear_zafu"
+  run "#{in_current} rake zena:clear_zafu"
 end
 
 desc "clear cache" # temporary rule until cache expire is implemented with a controller
 task :clear_cache, :roles => :app do
-  run "#{in_deploy} rake zena:clear_zafu"
+  run "#{in_current} rake zena:clear_zafu"
 end
 
 desc "after code update"
@@ -92,7 +92,7 @@ end
 
 desc "migrate database (zena version)"
 task :migrate, :roles => :db do
-  run "#{in_deploy} rake zena:migrate RAILS_ENV=production"
+  run "#{in_current} rake zena:migrate RAILS_ENV=production"
 end
 
 desc "initial app setup"
@@ -104,7 +104,7 @@ end
 #========================== MANAGE HOST   =========================#
 desc "create a new site"
 task :mksite, :roles => :app do
-  run "#{in_deploy} rake zena:mksite HOST='#{self[:host]}' PASSWORD='#{self[:pass]}' RAILS_ENV='production' DEFAULT_LANG='#{self[:default_lang] || 'en'}'"
+  run "#{in_current} rake zena:mksite HOST='#{self[:host]}' PASSWORD='#{self[:pass]}' RAILS_ENV='production' DEFAULT_LANG='#{self[:default_lang] || 'en'}'"
   create_vhost
   set_permissions
 end
@@ -113,22 +113,22 @@ end
 #========================== MONGREL ===============================#
 desc "configure mongrel"
 task :mongrel_setup, :roles => :app do
-  run "#{in_deploy} mongrel_rails cluster::configure -e production -p #{mongrel_port} -N #{mongrel_count} -c #{deploy_to}/current -a 127.0.0.1 --user www-data --group www-data"
+  run "#{in_current} mongrel_rails cluster::configure -e production -p #{mongrel_port} -N #{mongrel_count} -c #{deploy_to}/current -a 127.0.0.1 --user www-data --group www-data"
 end
 
 desc "Start mongrel"
 task :start, :roles => :app do
-  run "#{in_deploy} mongrel_rails cluster::start"
+  run "#{in_current} mongrel_rails cluster::start"
 end
 
 desc "Restart mongrel"
 task :restart, :roles => :app do
-  run "#{in_deploy} mongrel_rails cluster::restart"
+  run "#{in_current} mongrel_rails cluster::restart"
 end
 
 desc "Stop mongrel"
 task :stop, :roles => :app do
-  run "#{in_deploy} mongrel_rails cluster::stop"
+  run "#{in_current} mongrel_rails cluster::stop"
 end
 
 #========================== APACHE2 ===============================#
@@ -215,15 +215,15 @@ end
 
 desc "Database dump"
 task :db_dump, :roles => :db do
-  run "mysqldump #{db_name} -u root -p > #{deploy_to}/#{db_name}.sql" do |channel, stream, data|
+  run "mysqldump #{db_name} -u root -p > #{deploy_to}/current/#{db_name}.sql" do |channel, stream, data|
     if data =~ /^Enter password:\s*/m
       logger.info "#{channel[:host]} asked for password"
       channel.send_data "#{password}\n"
     end
     puts data
   end
-  run "#{in_deploy} tar czf #{db_name}.sql.tar.gz #{db_name}.sql"
-  run "#{in_deploy} rm #{db_name}.sql"
+  run "#{in_current} tar czf #{db_name}.sql.tar.gz #{db_name}.sql"
+  run "#{in_current} rm #{db_name}.sql"
 end
 
 # taken from : http://source.mihelac.org/articles/2007/01/11/capistrano-get-method-download-files-from-server
@@ -249,8 +249,8 @@ task :backup, :roles => :app do
   db_dump
   # key track of the current svn revision for app
   
-  run "#{in_deploy} svn info > #{deploy_to}/current/zena_version.txt"
-  run "#{in_deploy} rake zena:full_backup RAILS_ENV='production'"
-  run "#{in_deploy} tar czf #{db_name}_data.tar.gz #{db_name}.sql.tar.gz all_data.tar.gz current/zena_version.txt"
+  run "#{in_current} svn info > #{deploy_to}/current/zena_version.txt"
+  run "#{in_current} rake zena:full_backup RAILS_ENV='production'"
+  run "#{in_current} tar czf #{db_name}_data.tar.gz #{db_name}.sql.tar.gz all_data.tar.gz current/zena_version.txt"
   get_backup
 end
