@@ -165,7 +165,7 @@ namespace :zena do
   
   task :full_backup => :environment do
     data_folders = Site.find(:all).map { |s| File.join(SITES_ROOT, s.data_path) }.reject { |p| !File.exists?(p) }
-    cmd = "tar czf #{SITES_ROOT}/all_data.tar.gz #{data_folders.join(' ')}"
+    cmd = "tar czf #{RAILS_ROOT}/all_data.tar.gz #{data_folders.join(' ')}"
     puts cmd
     puts `#{cmd}`
   end

@@ -222,8 +222,8 @@ task :db_dump, :roles => :db do
     end
     puts data
   end
-  run "tar czf #{deploy_to}/#{db_name}.sql.tar.gz #{deploy_to}/#{db_name}.sql"
-  run "rm #{deploy_to}/#{db_name}.sql"
+  run "#{in_deploy} tar czf #{db_name}.sql.tar.gz #{db_name}.sql"
+  run "#{in_deploy} rm #{db_name}.sql"
 end
 
 # taken from : http://source.mihelac.org/articles/2007/01/11/capistrano-get-method-download-files-from-server
@@ -251,6 +251,6 @@ task :backup, :roles => :app do
   
   run "#{in_deploy} svn info > #{deploy_to}/current/zena_version.txt"
   run "#{in_deploy} rake zena:full_backup RAILS_ENV='production'"
-  run "cd #{deploy_to} && tar czf #{db_name}_data.tar.gz #{db_name}.sql.tar.gz all_data.tar.gz current/zena_version.txt"
+  run "#{in_deploy} tar czf #{db_name}_data.tar.gz #{db_name}.sql.tar.gz all_data.tar.gz current/zena_version.txt"
   get_backup
 end
