@@ -156,7 +156,7 @@ namespace :zena do
         puts "Site does not exist in '#{SITES_ROOT}'"
       else
         folders = ['data'].map {|f| File.join(SITES_ROOT,f) }
-        cmd = "tar czf #{path}_data.tar.gz #{folders.join(' ')}"
+        cmd = "tar czf #{path}_data.tgz #{folders.join(' ')}"
         puts cmd
         puts `#{cmd}`
       end
@@ -165,7 +165,7 @@ namespace :zena do
   
   task :full_backup => :environment do
     data_folders = Site.find(:all).map { |s| File.join(SITES_ROOT, s.data_path) }.reject { |p| !File.exists?(p) }
-    cmd = "tar czf #{RAILS_ROOT}/all_data.tar.gz #{data_folders.join(' ')}"
+    cmd = "tar czf #{RAILS_ROOT}/sites_data.tgz #{data_folders.join(' ')}"
     puts cmd
     puts `#{cmd}`
   end

@@ -222,7 +222,7 @@ task :db_dump, :roles => :db do
     end
     puts data
   end
-  run "#{in_current} tar czf #{db_name}.sql.tar.gz #{db_name}.sql"
+  run "#{in_current} tar czf #{db_name}.sql.tgz #{db_name}.sql"
   run "#{in_current} rm #{db_name}.sql"
 end
 
@@ -240,7 +240,7 @@ end
 
 desc "Get backup file back"
 task :get_backup, :roles => :app do
-  get "#{deploy_to}/#{db_name}_data.tar.gz", "./#{db_name}_#{Time.now.strftime '%Y-%m-%d-%H'}.tar.gz"
+  get "#{deploy_to}/current/#{db_name}_data.tgz", "./#{db_name}_#{Time.now.strftime '%Y-%m-%d-%H'}.tgz"
 end
 
 # FIXME: backup not loading data for every site...
@@ -251,6 +251,6 @@ task :backup, :roles => :app do
   
   run "#{in_current} svn info > #{deploy_to}/current/zena_version.txt"
   run "#{in_current} rake zena:full_backup RAILS_ENV='production'"
-  run "#{in_current} tar czf #{db_name}_data.tar.gz #{db_name}.sql.tar.gz all_data.tar.gz zena_version.txt"
+  run "#{in_current} tar czf #{db_name}_data.tgz #{db_name}.sql.tgz sites_data.tgz zena_version.txt"
   get_backup
 end
