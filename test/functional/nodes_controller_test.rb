@@ -75,6 +75,20 @@ class NodesControllerTest < ZenaTestController
     assert !assigns['page'].new_record?, "Not a new record"
   end
   
+  def test_bad_skin_name
+    login(:anon)
+    without_files('zafu') do
+      Node.connection.execute "UPDATE nodes SET skin = 'bad' WHERE id = #{nodes_id(:status)}"
+      assert_nothing_raised do
+        get 'show', "prefix"=>"en",
+         "action"=>"show",
+         "controller"=>"nodes",
+         "path"=>["projects", "cleanWater", "page22.html"]
+      end
+    end
+    assert_response :success
+  end
+  
   # test edit_... mode only if can_edit?
   
 end
