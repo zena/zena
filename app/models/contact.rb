@@ -7,9 +7,10 @@ class Contact < Reference
     ContactVersion
   end
   
-  def user
-    secure(User) { User.find(:first, :conditions => ["contact_id = ?", self[:id]]) }
-  end
+  # FIXME: conflict with author !
+  #def user
+  #  secure(User) { User.find(:first, :conditions => ["contact_id = ?", self[:id]]) }
+  #end
   
   def fullname
     version.content.fullname

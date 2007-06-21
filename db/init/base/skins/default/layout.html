@@ -65,23 +65,34 @@
       </div>
 
       <div id='related'>
-          <r:documents name='documents'><h3 class='group'>documents</h3>
-            <ol>
-              <li do='each' set_class='li_s[v_status]'><r:link format='data'><r:img mode='tiny'/></r:link> <r:link><r:show attr='name'/>.<r:show attr='c_ext'/></r:link></li>
-              <li do='add'><a href='#' do='void' set_onclick='uploader=window.open("/documents/new?parent_id=[id]", "uploader", "location=1,width=400,height=300");return false;' set_href='/documents/new?parent_id=[id]'><r:trans>btn_add_doc</r:trans></a></li>
-            </ol>
-          </r:documents>
-          <r:if kind_of='Page' do='pages' name='pages'><h3 class='group'>pages</h3>
-            <ol>
-              <li do='each' set_class='li_s[v_status]' do='link'/>
-              <li do='add' before='self'/>
-              <li class='inline_form' do='form'>
-                <p class='node_klass'>  <input type='select' name='klass' root_class='Page' without='Document'/></p>
-                <p class='node_v_title'><input type='text' name='v_title' value=''/></p>
-                <p class='btn_validate'><input type="submit" value='validate' tset_value='validate'/></p>
-              </li>
-            </ol>
-          </r:if>
+        <r:documents name='documents'><h3 class='group'>documents</h3>
+          <ol>
+            <li do='each' set_class='li_s[v_status]'><r:link format='data'><r:img mode='tiny'/></r:link> <r:link><r:show attr='name'/>.<r:show attr='c_ext'/></r:link></li>
+            <li do='add'><a href='#' do='void' set_onclick='uploader=window.open("/documents/new?parent_id=[id]", "uploader", "location=1,width=400,height=300");return false;' set_href='/documents/new?parent_id=[id]'><r:trans>btn_add_doc</r:trans></a></li>
+          </ol>
+        </r:documents>
+        <r:if kind_of='Page' do='pages' name='pages'><h3 class='group'>pages</h3>
+          <ol>
+            <li do='each' set_class='li_s[v_status]' do='link'/>
+            <li do='add' before='self'/>
+            <li class='inline_form' do='form'>
+              <p class='node_klass'>  <input type='select' name='klass' root_class='Page' without='Document'/></p>
+              <p class='node_v_title'><input type='text' name='v_title' value=''/></p>
+              <p class='btn_validate'><input type="submit" value='validate' tset_value='validate'/></p>
+            </li>
+          </ol>
+        </r:if>
+        <r:if kind_of='Section' do='contacts' name='contacts'><h3 class='group'>contacts</h3>
+          <ol>
+            <li do='each' set_class='li_s[v_status]' do='link'/>
+            <li do='add' before='self'/>
+            <li class='inline_form' do='form'>
+              <p class='node_klass'>  <input type='select' name='klass' root_class='Contact'/></p>
+              <p class='node_v_title'><input type='text' name='v_title' value=''/></p>
+              <p class='btn_validate'><input type="submit" value='validate' tset_value='validate'/></p>
+            </li>
+          </ol>
+        </r:if>
       </div>
     </div>
   </r:void>
