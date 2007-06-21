@@ -959,7 +959,7 @@ END_TXT
     def r_calendar
       from   = 'project'
       date   = 'main_date'
-      opts   = @params
+      opts   = @params.dup
       opts[:find]   = (@params[:find  ] || 'news'   ).to_sym
       opts[:size]   = (@params[:size  ] || 'tiny'    ).to_sym
       opts[:using]  = (@params[:using ] || 'event_at').gsub(/[^a-z_]/,'').to_sym # SQL injection security

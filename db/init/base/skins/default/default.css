@@ -149,9 +149,9 @@ i, em     { font-style:italic; }
 /* context, content, related */
 #project_icon img { }
 #context { }
-.title h1 { margin-bottom:0.3em; }
-.title .subtitle { font-size:0.8em; }
-.title { margin-bottom: 2em; padding-bottom:0.5em; }
+#title h1 { margin-bottom:0.3em; }
+#title .subtitle { font-size:0.8em; }
+#title { margin-bottom: 2em; padding-bottom:0.5em; }
 #related { border-left:1px solid grey; font-size:0.9em; }
 #related .group { font-size:1em; font-weight:normal;}
 #related ol { margin-left:1.5em; margin-bottom:0; }

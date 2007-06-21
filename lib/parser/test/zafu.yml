@@ -228,6 +228,10 @@ html_do_comment:
   src: "<r:test><r:hello/><!--|this is not a comment <r:hello/>  --></r:test>"
   res: "[test][hello/]this is not a comment [hello/]  [/test]"
 
+simple_tag:
+  src: "<div class='clear'></div>"
+  res: "<div class='clear'></div>"
+
 do_simple:
   src: "<r:test do='hello'/>"
   res: "[test][hello/][/test]"
