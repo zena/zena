@@ -648,6 +648,10 @@ class Node < ActiveRecord::Base
   #   self[:score]
   # end
   
+  def find_all_relations
+    @all_relations ||= self.vclass.find_all_relations(self)
+  end
+  
   # This is defined by the linkable lib, we add access to 'root', 'project', 'parent', 'children', ...
   def relation(methods, opts={})
     res = nil

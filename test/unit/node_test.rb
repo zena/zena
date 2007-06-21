@@ -1034,4 +1034,9 @@ done: \"I am done\""
     assert Node.plural_relation?('tags')
     assert Node.plural_relation?('tagged')
   end
+  
+  def test_find_all_relations
+    # test with vclass
+    assert false, 'TODO'
+  end
 end

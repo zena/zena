@@ -19,7 +19,23 @@ class VirtualClass < ActiveRecord::Base
     end
     classes
   end
- 
+  
+  def find_all_relations(start=nil)
+    rel_as_source = Relation.find(:all, :conditions => ["site_id = ? AND source_kpath IN (?)", current_site[:id], split_kpath])
+    rel_as_target = Relation.find(:all, :conditions => ["site_id = ? AND target_kpath IN (?)", current_site[:id], split_kpath])
+    rel_as_source.each {|rel| rel.source = start } if start
+    rel_as_target.each {|rel| rel.target = start } if start
+    (rel_as_source + rel_as_target).sort {|a,b| a.other_role <=> b.other_role}
+  end
+  
+  def split_kpath
+    @split_kpath ||= begin
+      klasses   = []
+      kpath.split(//).each_index { |i| klasses << kpath[0..i] } 
+      klasses
+    end
+  end
+  
   # check inheritance chain through kpath
   def kpath_match?(kpath)
     self.kpath =~ /^#{kpath}/
