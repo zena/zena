@@ -128,7 +128,7 @@ class Node < ActiveRecord::Base
   
   zafu_readable      :name, :created_at, :updated_at, :event_at, :log_at, :kpath, :user_zip, :parent_zip, :project_zip,
                      :section_zip, :skin, :ref_lang, :fullpath, :rootpath, :publish_from, :max_status, :rgroup_id, 
-                     :wgroup_id, :pgroup_id, :basepath, :custom_base, :vclass, :zip, :score
+                     :wgroup_id, :pgroup_id, :basepath, :custom_base, :klass, :zip, :score
   
   
   has_many           :discussions, :dependent => :destroy
@@ -310,8 +310,8 @@ class Node < ActiveRecord::Base
         node.instance_eval { @attributes = attributes }
         node.errors.add('klass', 'invalid')
         # This is to show the klass in the form seizure
-        node.instance_variable_set(:@vclass, klass.to_s)
-        def node.vclass; @vclass; end
+        node.instance_variable_set(:@klass, klass.to_s)
+        def node.klass; @klass; end
         return node
       end
       
@@ -455,11 +455,11 @@ class Node < ActiveRecord::Base
                   define_method(:original_filename) { filename }
                   define_method(:content_type) { ctype }
                 end
-                current_obj = create_or_update_node(attrs.merge(:c_file => file, :vclass => 'Document', :_parent_id => parent_id))
+                current_obj = create_or_update_node(attrs.merge(:c_file => file, :klass => 'Document', :_parent_id => parent_id))
               end
               document_path = nil
             else
-              current_obj = create_or_update_node(attrs.merge(:_parent_id => parent_id, :vclass => 'Document'))
+              current_obj = create_or_update_node(attrs.merge(:_parent_id => parent_id, :klass => 'Document'))
             end
           else
             # :folder, :node
