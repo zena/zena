@@ -1,46 +1,58 @@
 <r:include template='layout.html'>
-  <r:with part='head/stylesheets'>
+  <r:with part='stylesheets'>
     <r:stylesheets list='reset,zena,comment,admin,search'/>
     <link href="default.css" rel="Stylesheet" type="text/css"/>
+<style>
+ul.admin_links { margin:70px 25px 0; border:1px solid #35462B; background:#eee;}
+.admin_links li { padding:0;}
+.admin_links li a { margin:0; border-top:1px solid #35462B; padding:10px 5px; font-size:0.9em; color:#560B0A;  display:block;}
+.admin_links li:first-child a { border:0; }
+.admin_links li a:hover { background:#C47330; }
+.admin_links li a.on {background:#C28D61;}
+</style>
   </r:with>
   
-  <r:with part='body/container'>
-    <div id='context' do='void' name='context'>
-      <ul>
-        <li do='admin_links'><a href='#'>do this</a></li>
-      </ul>
+  <r:with part='context'>
+    <ul class='admin_links'>
+      <li do='admin_links'><a href='#'>do this</a></li>
+    </ul>
+  </r:with>
+  
+  <r:with part='content' do='content_for_layout'>
+    <div id='main'>
+      <h2><r:trans>home of</r:trans> <r:show attr='fullname'>Panther Tigris</r:show></h2>
     </div>
-    <r:content_for_layout>
-      <div id='content' do='void' name='content'>
-        <div id='main' do='void' name='main'>
-          <h2><r:trans>home of</r:trans> <r:show attr='fullname'>Panther Tigris</r:show></h2>
-        </div>
 
-        <div id='related' do='void' name='related'>
-          <ul class='actions' do='user'>
-            <li do='to_publish'><r:trans>to publish</r:trans>
-              <ul class='list'>
-                <li do='each' set_class='li_s[status]'><r:link/></li>
-              </ul>
-            </li>
-            <li do='comments_to_publish'><r:trans>comments to publish</r:trans>
-              <ul class='list'>
-                <li do='each'><r:show attr='title'/></li>
-              </ul>
-            </li>
-            <li do='proposed'><r:trans>waiting for publication</r:trans>
-              <ul class='list'>
-                <li do='each'><r:link/></li>
-              </ul>
-            </li>
-            <li do='redactions'><r:trans>redactions</r:trans>
-              <ul class='list'>
-                <li do='each' set_class='li_s[status]'><r:link/></li>
-              </ul>
-            </li>
-          </ul>
-        </div>
-      </div>
-    </r:content_for_layout>
+    <div id='related'>
+      <r:user>
+        <r:to_publish>
+          <h3 class='group' do='trans'>to publish</h3>
+          <ol>
+            <li do='each' set_class='li_s[status]'><r:link/></li>
+          </ol>
+        </r:to_publish>
+
+        <r:comments_to_publish>
+          <h3 class='group' do='trans'>comments to publish</h3>
+          <ol>
+            <li do='each'><r:show attr='title'/></li>
+          </ol>
+        </r:comments_to_publish>
+
+        <r:proposed>
+          <h3 class='group' do='trans'>waiting for publication</h3>
+          <ol>
+            <li do='each' set_class='li_s[status]'><r:link/></li>
+          </ol>
+        </r:proposed>
+
+        <r:redactions>
+          <h3 class='group' do='trans'>redactions</h3>
+          <ol>
+            <li do='each' set_class='li_s[status]'><r:link/></li>
+          </ol>
+        </r:redactions>
+      </r:user>
+    </div>
   </r:with>
 </r:include>

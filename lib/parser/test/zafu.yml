@@ -72,7 +72,7 @@ do_tag_with_ztags:
 
 do_keep_params:
   src: "I love <div class='truc' id='machin' do='test' depth='3'>my wife</div>"
-  res: "I love [test {= :depth=>'3'}]<div class='truc' id='machin'>my wife</div>[/test]"
+  res: "I love [test {= :depth=>'3', :id=>'machin'}]<div class='truc' id='machin'>my wife</div>[/test]"
 
 do_class_params:
   src: "<div class='one' do='test' do='test' tag='p' class='two'>blah</div>"
@@ -102,28 +102,44 @@ include_menu:
   res: "include_menu: the [test]menu[/test] is nice"
 
 named_parts:
-  src: "named_parts: <r:void><r:void name='lala'>lala</r:void> <r:test name='start'>start from here to <r:hello name='sub'>sub</r:hello></r:test></r:void> ok."
-  res: "named_parts: lala [test {= :name=>'start'} {> :path=>'start'}]start from here to [hello {= :name=>'sub'}]sub[/hello][/test] ok."
+  src: "named_parts: <r:test><div id='lala'>lala</div> <r:void id='start'>start from here to <r:hello id='sub'>sub</r:hello></r:void></r:test> ok."
+  res: "named_parts: [test][void {= :id=>'lala'}]<div id='lala'>lala</div>[/void][void {= :id=>'start'}]start from here to [hello {= :id=>'sub'}]sub[/hello][/void][/test] ok."
+
+named_with_name:
+  src: "named_with_name: <head do='void' name='head'>...</head>"
+  res: "named_with_name: <head>...</head>"
+
+replace_named:
+  src: "replace_named: <r:include template='/named/with/name'><r:with part='head'>lalala</r:with>"
+  res: "replace_named: named_with_name: <head>lalala</head>"
+
+named_with_do:
+  src: "named_with_do: <p id='branding' do='void'>...</p>"
+  res: "named_with_do: <p id='branding'>...</p>"
+
+replace_with_do:
+  src: "replace_with_do: <r:include template='/named/with/do'><r:with part='branding'>lalala</r:with>"
+  res: "replace_with_do: named_with_do: <p id='branding'>lalala</p>"
 
 include_part:
-  src: "IP: <r:include template='/named/parts' part='start/sub'/> PI."
+  src: "IP: <r:include template='/named/parts' part='sub'/> PI."
   res: "IP: hello world! PI."
 
 include_self:
-  src: "IS: I like <r:void name='sub'>sub <r:hello/></r:void> and <r:include template='/include/self' part='sub'/>"
+  src: "IS: I like <r:void id='sub'>sub <r:hello/></r:void> and <r:include template='/include/self' part='sub'/>"
   res: "IS: I like sub hello world! and sub hello world!"
 
 a_b_c:
-  src: "<r:void name='a'>A<r:void name='b'>B<r:void name='c'>C</r:void></r:void></r:void>"
+  src: "<r:void id='a'>A<r:void id='b'>B<r:void id='c'>C</r:void></r:void></r:void>"
   res: "ABC"
 
 include_self_included:
-  src: "<r:include template='/a/b/c'><r:with part='a/b'>X<r:include template='/include/self/included' part='a/b/y'/> and <r:void name='y'>Y</r:void></r:with></r:include>"
+  src: "<r:include template='/a/b/c'><r:with part='b'>X<r:include template='/include/self/included' part='y'/> and <r:void id='y'>Y</r:void></r:with></r:include>"
   res: "AXY and Y"
 
 include_bad_part:
-  src: "IP: <r:include template='/named/parts' part='strat/bus'/> PI."
-  res: "IP: <span class='parser_error'>'strat' not found in template '/named/parts'</span> PI."
+  src: "IP: <r:include template='/named/parts' part='bus'/> PI."
+  res: "IP: <span class='parser_error'>'bus' not found in template '/named/parts'</span> PI."
 
 include_context:
   src: "include_context: <r:include template='menu'/>"
@@ -233,7 +249,7 @@ ztag_tag:
   res: "<p>hello world!</p>"
 
 name:
-  src: "super: <r:void name='super'>hey <r:void name='man' do='text' text='ho'/></r:void>"
+  src: "super: <r:void id='super'>hey <r:void id='man' do='text' text='ho'/></r:void>"
   res: "super: hey ho"
 
 include_super:
@@ -241,7 +257,7 @@ include_super:
   res: "include_super: super: <p>hello world!</p>"
 
 include_super_man:
-  src: "include_super: <r:include template='/name'><p do='with' part='super/man' do='hello'/>"
+  src: "include_super: <r:include template='/name'><p do='with' part='man' do='hello'/>"
   res: "include_super: super: hey <p>hello world!</p>"
   
 include_part_far_away:
@@ -249,7 +265,7 @@ include_part_far_away:
   res: "IPFA: hey <p>hello world!</p> AFPI."
     
 name_title:
-  src: "title: <h1 do='void' name='title' do='text' text='dummy'>blah <b do='void' name='comment'>nothing</b></h1>"
+  src: "title: <h1 do='void' id='title' do='text' text='dummy'>blah <b do='void' id='comment'>nothing</b></h1>"
   res: "title: <h1>dummy</h1>"
 
 ztag_same_name_as_tag:
@@ -261,15 +277,15 @@ include_with:
   res: "include_with: title: <h1>hello world!</h1>"
 
 include_with_keep_name:
-  src: "keep name: <r:include template='/name/title'><h1 do='with' part='title'><r:hello/> <i do='void' name='comment'>none</i></h1></r:include>"
-  res: "keep name: title: <h1>hello world! <i>none</i></h1>"
+  src: "keep name: <r:include template='/name/title'><h1 do='with' part='title'><r:hello/> <i  id='comment'>none</i></h1></r:include>"
+  res: "keep name: title: <h1>hello world! <i id='comment'>none</i></h1>"
   
 include_include:
-  src: "from ii: <r:include template='/include/with/keep/name'><r:with part='title/comment'>rabbit</r:with></r:include>"
-  res: "from ii: keep name: title: <h1>hello world! <i>rabbit</i></h1>"
+  src: "from ii: <r:include template='/include/with/keep/name'><r:with part='comment'>rabbit</r:with></r:include>"
+  res: "from ii: keep name: title: <h1>hello world! <i id='comment'>rabbit</i></h1>"
 
 include_replace_same:
-  src: "from IRS: <r:include template='/include/super/man'><span do='with' part='super/man'>goldorak</span></r:include>"
+  src: "from IRS: <r:include template='/include/super/man'><span do='with' part='man'>goldorak</span></r:include>"
   res: "from IRS: include_super: super: hey <span>goldorak</span>"
 
 include_empty:
@@ -285,10 +301,6 @@ preserve_newlines:
     [test]<p>blah</p>
     [/test][test]<p>blah</p>
     [/test]ok
-
-default_tag:
-  src: "<r:void class='test'>blah</r:void>"
-  res: "<div class='test'>blah</div>"
 
 set_tag_param:
   src: "<r:void class='test' tag='p'>blah</r:void>"

@@ -1,6 +1,6 @@
 require File.join(File.dirname(__FILE__) , 'testhelp.rb')
-#require 'ruby-debug'
-#Debugger.start
+require 'ruby-debug'
+Debugger.start
 unless Module.const_defined?(:ActiveRecord)
   # blank definition from active_support/core_ext/blank.rb
   class String #:nodoc:
@@ -55,7 +55,7 @@ end
 class ZazenTest < Test::Unit::TestCase
   testfile :zafu, :zafu_asset, :zafu_insight, :zazen
   def test_single
-    do_test('zafu', 'default_tag')
+    do_test('zafu', 'include_include')
   end
   
   def test_zazen_image_no_image

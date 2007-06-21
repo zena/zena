@@ -1,13 +1,5 @@
 .label { color:#560B0A;}
 
-#context ul { margin:70px 25px 0; border:1px solid #35462B; background:#eee;}
-#context li { padding:0;}
-#context li a { margin:0; border-top:1px solid #35462B; padding:10px 5px; font-size:0.9em; color:#560B0A;  display:block;}
-#context li:first-child a { border:0; }
-#context li a:hover { background:#C47330; }
-#context li a.on {background:#C28D61;}
-
-#content h3 { margin:0 0 1em; font-size:1.6em; color:#C28D61;}
 
 /* rubish bin */
 #bin { margin-top:5px; float:left; padding:3px; position:relative; }
@@ -64,14 +56,14 @@ table.admin td:first-child { border-left: 1px solid #666; }
 /* actions */
 #right { border:0; }
 ul.actions { position:relative; }
-ul.actions li { margin:0; border:1px dashed #9E9E9E; background: #D3D3D3; padding:5px 5px; font-size:0.9em; color:#560B0A;  display:block; margin-bottom:10px;}
+ul.actions li { margin:0; border:1px dashed #9E9E9E; background: #D3D3D3; display:block; margin-bottom:10px;}
 ul.actions form {margin:8px 0 0;}
 ul.actions ul { margin:0 0 0 1.6em; padding:0; }
 #preferences ul li, ul.actions ul li { padding:4px 0; border:0; margin:0;}
 #preferences .errors li {padding:0px; margin-left:5px;}
-ul.actions .align { line-height:1.5em; position:relative;}
+ul.actions .align { position:relative;}
 ul.actions .align span { position:absolute; right:2px; }
-ul.actions select { font-size:10px; width:186px; margin:2px;} 
+ul.actions select { width:186px; } 
 #preferences li { width:60%; margin-bottom:30px;}
 #preferences li li { width:100%;}
 #preferences .errors ul { margin:0 -5px 5px;}

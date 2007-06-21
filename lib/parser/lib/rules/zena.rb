@@ -969,7 +969,7 @@ END_TXT
     # part caching
     def r_cache
       kpath   = @params[:kpath]   || Page.kpath
-      context = @params[:context] || @context[:name] || (@options[:included_history][0] || '').split('::')[0]
+      context = unique_name
       out "<% #{cache} = Cache.with(visitor.id, visitor.group_ids, #{kpath.inspect}, #{helper.send(:lang).inspect}, #{context.inspect}) do capture do %>"
       out expand_with
       out "<% end; end %><%= #{cache} %>"
@@ -1181,7 +1181,7 @@ END_TXT
         
         # template_url  = "#{@options[:current_folder]}/#{@context[:name] || "root"}_#{node_class}"
         template_url = unique_name
-        
+        puts unique_name.inspect
         # 'r_add' needs the form when rendering. Send with :form.
         res = expand_with(opts.merge(:list=>list_var, :form=>form_block, :no_form=>true, :template_url=>template_url))
         out render_html_tag(res)
@@ -1227,7 +1227,7 @@ END_TXT
     end
     
     def unique_name
-      "#{@options[:included_history][0].split('::')[0]}/#{((@context[:path] || ['list'])[-1]).gsub(/[^\w\/]/,'_')}"
+      "#{@options[:included_history][0].split('::')[0]}/#{(@context[:name] || 'list').gsub(/[^\w\/]/,'_')}"
     end
        
     def add_params(text, opts={})

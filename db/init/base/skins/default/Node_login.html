@@ -59,8 +59,8 @@ a      { color:#266F92; text-decoration:none; }
 .search p { font-size:0.85em; }
 </style>
 </r:with>
-  <r:with part='body/navigation/menu'/>
-  <r:with part='body/container'>
+  <r:with part='menu'/>
+  <r:with part='container'>
     <div id='login_form'><div>
       <form action="/session" method="post">    <table>
           <tr>
@@ -76,5 +76,5 @@ a      { color:#266F92; text-decoration:none; }
         </table>
       </form></div></div>
   </r:with>
-  <r:with part='body/siteinfo'/>
+  <r:with part='siteinfo'/>
 </r:include>

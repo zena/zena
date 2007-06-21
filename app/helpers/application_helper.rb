@@ -888,14 +888,14 @@ ENDTXT
   def show_path(opts={})
     node = opts[:node] || @node
     tag  = opts[:tag] || 'li'
-    join = opts[:join] || ' / '
+    join = opts[:join] || ''
     nav = []
     node.ancestors.each do |obj|
       nav << link_to(obj.name, zen_path(obj))
     end
     
     nav << "<a href='#{url_for(zen_path(node))}' class='current'>#{node.name}</a>"
-    res = "#{res}<#{tag}>#{nav.join("</#{tag}>#{join}<#{tag}>")}</#{tag}>"
+    res = "#{res}<#{tag}>#{nav.join("</#{tag}><#{tag}>#{join}")}</#{tag}>"
   end
   
   # TODO: could be used by all helpers: faster then routes... Rename obj_link (is used to link to versions)

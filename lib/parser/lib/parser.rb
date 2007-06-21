@@ -45,7 +45,7 @@ module ParserModule
 end
 
 class Parser
-  attr_accessor :text, :method, :pass, :options, :blocks, :params, :name
+  attr_accessor :text, :method, :pass, :options, :blocks, :params, :ids, :defined_ids
     
   class << self
     def parser_with_rules(*modules)
@@ -87,6 +87,9 @@ class Parser
     @options = {:mode=>:void, :method=>'void'}.merge(opts)
     @params  = @options[:params]
     @method  = @options[:method]
+    @ids     = @options[:ids] ||= {}
+    original_ids = @ids.dup
+    @defined_ids = {} # ids defined in this node or this node's sub blocks
     mode     = @options[:mode]
     @options.delete(:params)
     @options.delete(:method)
@@ -100,12 +103,18 @@ class Parser
     end
     
     start(mode)
-    
     # set name
-    @name = @params[:name] if @params
+    if @params && @name = (@params[:id] || @params[:name])
+      @options[:ids][@name] = self
+    end
     
     unless opts[:sub]
       @text = after_parse(@text)
+    end
+    @ids.keys.each do |k|
+      if original_ids[k] != @ids[k]
+        @defined_ids[k] = @ids[k]
+      end
     end
     @ok
   end
@@ -118,6 +127,7 @@ class Parser
     @method   = 'void' # (replacer's method is always 'with')
     @blocks   = obj.blocks.empty? ? @blocks : obj.blocks
     @params   = obj.params.empty? ? @params : obj.params
+    @params[:id] = @name
   end
   
   def empty?
@@ -127,8 +137,7 @@ class Parser
   def render(context={})
     return '' if context["no_#{@method}".to_sym]
     if @name
-      path = (context[:path] || []) + [@name]
-      @context = context.merge(:path => path)
+      @context = context.merge(:name => @name)
     else
       @context = context
     end
@@ -203,88 +212,62 @@ class Parser
   
   def include_template
     if @options[:part] && @options[:part] == @params[:part]
-      # fetching only a part, do not open this element (same as original caller) as it is useless and will make use loop the loop.
+      # fetching only a part, do not open this element (same as original caller) as it is useless and will make us loop the loop.
       @method = 'ignore'
       enter(:void)
       return
     end
     @method = 'void'
-    text    = @text
     
     # fetch text
     @options[:included_history] ||= []
     
-    @text, absolute_url = self.class.get_template_text(@params[:template], @options[:helper], @options[:current_folder])
+    included_text, absolute_url = self.class.get_template_text(@params[:template], @options[:helper], @options[:current_folder])
     
-    absolute_url += "::#{@params[:part].gsub('/','_')}" if @params[:part]
+    absolute_url += "::#{@params[:part].gsub('/','_')}"  if @params[:part]
     absolute_url += "??#{@options[:part].gsub('/','_')}" if @options[:part]
     if absolute_url
       if @options[:included_history].include?(absolute_url)
-        @text = "<span class='parser_error'>[include error: #{(@options[:included_history] + [absolute_url]).join(' --&gt; ')} ]</span>"
+        included_text = "<span class='parser_error'>[include error: #{(@options[:included_history] + [absolute_url]).join(' --&gt; ')} ]</span>"
       else
-        @options[:included_history] += [absolute_url]
-        @options[:current_folder]    = absolute_url.split('/')[1..-2].join('/')
+        included_history  = @options[:included_history] + [absolute_url]
+        current_folder    = absolute_url.split('/')[1..-2].join('/')
       end
     end
+    res = self.class.new(included_text, :helper=>@options[:helper], :current_folder=>current_folder, :included_history=>included_history, :part => @params[:part]) # we set :part to avoid loop failure when doing self inclusion
     
-    @text = before_parse(@text)
     if @params[:part]
-      part_bak = @options[:part]
-      @options[:part] = @params[:part]
-      enter(:void) # scan fetched text
-      @options[:part] = part_bak
-      included_blocks = [find_part(@blocks, @params[:part])]
+      if iblock = res.ids[@params[:part]]
+        included_blocks = [iblock]
+        # get all ids from inside the included part:
+        @ids.merge! iblock.defined_ids
+      else
+        included_blocks = ["<span class='parser_error'>'#{@params[:part]}' not found in template '#{@params[:template]}'</span>"]
+      end
     else
-      enter(:void) # scan fetched text
-      included_blocks = @blocks
+      included_blocks = res.blocks
+      @ids.merge! res.ids
     end
-    @blocks = []
-    @text   = text
+    
     enter(:void) # normal scan on content
     # replace 'with'
+    not_found = []
     @blocks.each do |b|
       next if b.kind_of?(String) || b.method != 'with'
-      if target = find_part(included_blocks, b.params[:part])
+      if target = res.ids[b.params[:part]]
         if target.kind_of?(String)
           # error
         elsif b.empty?
           target.method = 'ignore'
         else
-          name = target.params[:name]
-          target.replace_with(b) if !target.kind_of?(String)
-          target.params[:name] = name # make sure it is kept during 'replace'
+          target.replace_with(b)
         end
       else
         # part not found
+        not_found << "<span class='parser_error'>'#{b.params[:part]}' not found in template '#{@params[:template]}'</span>"
       end
     end
-    @blocks = included_blocks
-  end
-  
-  def find_part(blocks, path)
-    res    = self
-    found  = []
-    path.split('/').reject {|e| e==''}.each do |name|
-      if res = find_name(blocks, name)
-        found << name
-        blocks = res.blocks
-      else
-        return "<span class='parser_error'>'#{(found + [name]).join('/')}' not found in template '#{@params[:template]}'</span>"
-      end
-    end
-    res
-  end
-  
-  def find_name(blocks, name)
-    blocks.each do |b|
-      next if b.kind_of?(String)
-      return b if b.name == name
-      next if b.name # bad name
-      if res = find_name(b.blocks,name)
-        return res
-      end
-    end
-    return nil
+    @blocks = included_blocks + not_found
   end
   
   def success?
@@ -348,6 +331,7 @@ class Parser
     end
     text = custom_text || @text
     opts = @options.merge(opts).merge(:sub=>true, :mode=>mode)
+    
     new_obj = self.class.new(text,opts)
     if new_obj.success?
       @text = new_obj.text unless custom_text
@@ -380,6 +364,7 @@ class Parser
   
   def parse_params(text)
     return {} unless text
+    return text if text.kind_of?(Hash)
     params = {}
     rest = text.strip
     while (rest != '')

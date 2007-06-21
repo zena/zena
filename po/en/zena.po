@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 0.8.2\n"
 "POT-Creation-Date: 2007-06-21 08:07-0000\n"
-"PO-Revision-Date: 2007-06-21 10:13+0100\n"
+"PO-Revision-Date: 2007-06-21 12:49+0100\n"
 "Last-Translator: Gaspard Bucher <gaspard@teti.ch>\n"
 "Language-Team: en <gaspard@teti.ch>\n"
 "MIME-Version: 1.0\n"
@@ -1470,7 +1470,7 @@ msgstr ""
 
 #: lib/gettext_strings.rb:116
 msgid "rebuild"
-msgstr "<img src='/images/arrow_refresh.png' alt='recompiler'/> recompiler zafu"
+msgstr "<img src='/images/arrow_refresh.png' alt='rebuild'/> rebuild zafu"
 
 #: lib/parser/lib/rules/zazen.rb:72
 msgid "[gallery]"

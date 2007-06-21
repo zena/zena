@@ -16,16 +16,16 @@
 </head>
 
 <body do='void' name='body'>
-  <div id='navigation' do='void' name='navigation'>
-    <div id='nav_main' do='void' name='main'>
+  <div id='navigation'>
+    <div id='nav_main'>
       <div id='lang' do='lang_links'><a>en</a> | <b>fr</b></div>
-      <div id='path' do='show_path'><ul><li><a href='#'>first</a></li> / <li><a href='#'>second</a></li> / <li><a href='#' class='current'>here</a></li></ul></div>
+      <div id='path' do='show_path' join=' / '><ul><li><a href='#'>first</a></li> / <li><a href='#'>second</a></li> / <li><a href='#' class='current'>here</a></li></ul></div>
       <div id='login' do='login_link'><a href='#'>login</a></div>
       <div id='visitor' do='visitor_link'><a href='#'>visitor name</a></div>
-      <div id='search' do='search_box'><div class='search'><form><input type='text' id='search' name='search'/></form></div></div>
+      <div id='search' do='search_box'><div class='search'><form><input type='text' name='search'/></form></div></div>
     </div>
 
-    <div id='nav_menu' do='void' name='menu'>
+    <div id='menu'>
       <ul do='root' do='pages'>
         <li do='each'><r:link attr='name'/>
           <ul do='pages'>
@@ -34,22 +34,20 @@
         </li>
       </ul>
     </div>
-    <r:void name='branding'>
-      <div id='branding' do='root' do='link' href='root'><r:icon><r:img mode='full'/><r:else><img src='/img/logo.png' width='220' height='100' alt='logo'/></r:else></r:icon></div>
-    </r:void>
+    <div id='branding' do='root' do='link' href='root'><r:icon><r:img mode='full'/><r:else><img src='/img/logo.png' width='220' height='100' alt='logo'/></r:else></r:icon></div>
   </div>
 
 
   <r:flash_messages/>
 
   <r:void name='container'>
-    <div id='context' do='void' name='context'>
+    <div id='context'>
     </div>
 
 
-    <div id='content' do='content_for_layout' name='content'>
-      <div id='main' do='void' name='main'>
-        <div class='title' do='void' name='title'>
+    <div id='content' do='content_for_layout'>
+      <div id='main'>
+        <div id='title'>
           <r:if kind_of='Document'><p class="document"><r:link format="data"><r:img mode='pv'/></r:link></p></r:if>
           <h1 do='title' class='s30' status='true' actions='all'>this is the title</h1>
           <div class='subtitle'>
@@ -66,7 +64,7 @@
         </div>
       </div>
 
-      <div id='related' do='void' name='related'>
+      <div id='related'>
           <r:documents name='documents'><h3 class='group'>documents</h3>
             <ol>
               <li do='each' set_class='li_s[v_status]'><r:link format='data'><r:img mode='tiny'/></r:link> <r:link><r:show attr='name'/>.<r:show attr='c_ext'/></r:link></li>
@@ -87,7 +85,7 @@
       </div>
     </div>
   </r:void>
-  <ul id='siteinfo' do='void' name='siteinfo'>
+  <ul id='siteinfo'>
     <li do='design' skin='default' by='teti.ch' href='http://teti.ch'/>
     <li do='zena' version='true' type='garden'/>
   </ul>

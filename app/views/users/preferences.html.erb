@@ -1,45 +1,40 @@
-<div id='content'>
 <h3><%= @user.fullname %> : <%= _('preferences') %> </h3>
 
-  <ul class='actions' id='preferences'>
-    
-    <li>
-      <div id='user_info'><%= link_to_function _('change personal information'), "['user_info', 'user_set_info'].each(Element.toggle); $('user_login').focus();" %></div>
-      <div id='user_set_info' style='display:none;'><%= link_to_function _('cancel'), "['user_info', 'user_set_info'].each(Element.toggle);" %>
-        <div id='user_info_errors' class='errors'></div>
-        <%= form_remote_tag(:url => user_path(@user[:id]), :method => :put) %>
-        <div class='hidden'><input type='hidden' name='update' value='info'/></div>
-        <ul>
-          <li id='user_info_errors'></li>
-          <li class='align'><%= _('login')%>      <span><%= text_field('user', 'login',        :size=>25 ) %></span></li>
-          <li class='align'><%= _('first name')%> <span><%= text_field('user', 'first_name',   :size=>25 ) %></span></li>
-          <li class='align'><%= _('name')%>       <span><%= text_field('user', 'name',         :size=>25 ) %></span></li>
-          <li class='align'><%= _('language')%>   <span><%= select('user', 'lang', ZENA_ENV[:languages].map{|l| [_(l),l]} ) %></span></li>
-          <li class='align'><%= _('time zone')%>  <span><%= time_zone_select('user', 'time_zone') %></span></li>
-          <li class='align'><%= _('email')%>      <span><%= text_field('user', 'email',        :size=>25 ) %></span></li>
-          <li><p class='btn_validate'><input type='submit' value='<%= _('validate') %>'/></p></li>
-        </ul>
-        </form>
-      </div>
-    </li>
-    
-    <li>
-      <div id='user_pass'><%= link_to_function _('change password'), "['user_pass', 'user_set_pass'].each(Element.toggle); $('user_old_password').focus();" %></div>
-      <div id='user_set_pass' style='display:none;'><%= link_to_function _('cancel'), "['user_pass', 'user_set_pass'].each(Element.toggle); $('user_password').value='';" %>
-        <div id='user_pass_errors' class='errors'></div>
-        <%= form_remote_tag(:url => user_path(@user[:id]), :method => :put) %>
-        <div class='hidden'><input type='hidden' name='update' value='pass'/></div>
-        <ul>
-          <li class='align'><%= _("old password")%> <span><%= password_field('user', 'old_password',       :size=>20, :value=>'' ) %></span></li>
-          <li class='align'><%= _("new password")%> <span><%= password_field('user', 'password',           :size=>20, :value=>'' ) %></span></li>
-          <li class='align'><%= _("retype new password")%> <span><%= password_field('user', 'retype_password', :size=>20, :value=>'' ) %></span></li>
-          <li><p class='btn_validate'><input type='submit' value='<%= _('validate') %>'/></p></li>
-        </ul>
-        </form>
-      </div>
-    </li>
-  </ul>
-</div>
-
-<div id='related'>
-</div>
+<ul class='actions' id='preferences'>
+  
+  <li>
+    <div id='user_info'><%= link_to_function _('change personal information'), "['user_info', 'user_set_info'].each(Element.toggle); $('user_login').focus();" %></div>
+    <div id='user_set_info' style='display:none;'><%= link_to_function _('cancel'), "['user_info', 'user_set_info'].each(Element.toggle);" %>
+      <div id='user_info_errors' class='errors'></div>
+      <%= form_remote_tag(:url => user_path(@user[:id]), :method => :put) %>
+      <div class='hidden'><input type='hidden' name='update' value='info'/></div>
+      <ul>
+        <li id='user_info_errors'></li>
+        <li class='align'><%= _('login')%>      <span><%= text_field('user', 'login',        :size=>25 ) %></span></li>
+        <li class='align'><%= _('first name')%> <span><%= text_field('user', 'first_name',   :size=>25 ) %></span></li>
+        <li class='align'><%= _('name')%>       <span><%= text_field('user', 'name',         :size=>25 ) %></span></li>
+        <li class='align'><%= _('language')%>   <span><%= select('user', 'lang', ZENA_ENV[:languages].map{|l| [_(l),l]} ) %></span></li>
+        <li class='align'><%= _('time zone')%>  <span><%= time_zone_select('user', 'time_zone') %></span></li>
+        <li class='align'><%= _('email')%>      <span><%= text_field('user', 'email',        :size=>25 ) %></span></li>
+        <li><p class='btn_validate'><input type='submit' value='<%= _('validate') %>'/></p></li>
+      </ul>
+      </form>
+    </div>
+  </li>
+  
+  <li>
+    <div id='user_pass'><%= link_to_function _('change password'), "['user_pass', 'user_set_pass'].each(Element.toggle); $('user_old_password').focus();" %></div>
+    <div id='user_set_pass' style='display:none;'><%= link_to_function _('cancel'), "['user_pass', 'user_set_pass'].each(Element.toggle); $('user_password').value='';" %>
+      <div id='user_pass_errors' class='errors'></div>
+      <%= form_remote_tag(:url => user_path(@user[:id]), :method => :put) %>
+      <div class='hidden'><input type='hidden' name='update' value='pass'/></div>
+      <ul>
+        <li class='align'><%= _("old password")%> <span><%= password_field('user', 'old_password',       :size=>20, :value=>'' ) %></span></li>
+        <li class='align'><%= _("new password")%> <span><%= password_field('user', 'password',           :size=>20, :value=>'' ) %></span></li>
+        <li class='align'><%= _("retype new password")%> <span><%= password_field('user', 'retype_password', :size=>20, :value=>'' ) %></span></li>
+        <li><p class='btn_validate'><input type='submit' value='<%= _('validate') %>'/></p></li>
+      </ul>
+      </form>
+    </div>
+  </li>
+</ul>

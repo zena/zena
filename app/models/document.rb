@@ -102,6 +102,10 @@ class Document < Page
     "#{name}.#{version.content.ext}"
   end
   
+  def rootpath
+    super + ".#{version.content.ext}"
+  end
+  
   private
   
     # Set name from filename

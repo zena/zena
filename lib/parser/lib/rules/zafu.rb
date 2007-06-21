@@ -19,12 +19,11 @@ module Zafu
       @html_tag_done = false
       unless @html_tag
         if @params[:id] || @params[:class]
-          @html_tag = @params[:tag] || 'div'
+          @html_tag = @params[:tag]
           @params.delete(:tag)
           @html_tag_params = {}
           [:id, :class].each do |k|
             @html_tag_params[k] = @params[k] if @params[k]
-            @params.delete(k)
           end
         end
       end
@@ -209,6 +208,8 @@ module Zafu
           @params.delete(k)
         end
       end
+      # inclusion id
+      @params[:id] ||= @html_tag_params[:id] if @html_tag_params[:id]
     end
     
     def before_parse(text)
@@ -290,18 +291,11 @@ module Zafu
         opts.merge!(:text=>'') if $3 != ''
         make(:void, opts)
       elsif @text =~ /\A<(\w+)([^>]*?)do\s*=('([^>]*?[^\\]|)'|"([^>]*?[^\\]|)")([^>]*?)(\/?)>/
-        # puts "DO:#{$~.to_a.inspect}" # do tag
+        #puts "DO:#{$~.to_a.inspect}" # do tag
         eat $&
         opts.merge!(:method=>($4||$5), :html_tag=>$1, :html_tag_params=>$2, :params=>$6)
         opts.merge!(:text=>'') if $7 != ''
         make(:void, opts)
-      elsif @end_tag && @text =~ /\A<#{@end_tag}([^>]*?)(\/?)>/
-        # puts "SAME:#{$~.to_a.inspect}" # simple html tag same as end_tag
-        flush $&
-        @end_tag_count += 1 unless $2 == '/'
-      elsif @text =~ /\A<(link|img|script)/
-        # puts "HTML:[#{$&}]" # html
-        make(:asset)
       elsif @options[:form] && @text =~ /\A<(input|textarea|form)([^>]*?)(\/?)>/
         eat $&
         method = $1 == 'form' ? 'form_tag' : $1 # <form> ==> r_form_tag, <r:form> ==> r_form
@@ -309,9 +303,22 @@ module Zafu
         opts.merge!(:text=>'') if $3 != ''
         opts.merge!(:end_tag=>'form') if method == 'form_tag'
         make(:void, opts)
+      elsif @text =~ /\A<(\w+)([^>]*?)id\s*=('[^>]*?[^\\]'|"[^>]*?[^\\]")([^>]*?)(\/?)>/
+        #puts "ID:#{$~.to_a.inspect}" # id tag
+        eat $&
+        opts.merge!(:method=>'void', :html_tag=>$1, :params=>{:id => $3[1..-2]}, :html_tag_params=>"#{$2}id=#{$3}#{$4}")
+        opts.merge!(:text=>'') if $5 != ''
+        make(:void, opts)
+      elsif @end_tag && @text =~ /\A<#{@end_tag}([^>]*?)(\/?)>/
+        #puts "SAME:#{$~.to_a.inspect}" # simple html tag same as end_tag
+        flush $&
+        @end_tag_count += 1 unless $2 == '/'
+      elsif @text =~ /\A<(link|img|script)/
+        #puts "HTML:[#{$&}]" # html
+        make(:asset)
       elsif @text =~ /\A[^>]*?>/
         # html tag
-        # puts "OTHER:[#{$&}]"
+        #puts "OTHER:[#{$&}]"
         store opts[:space_before]
         flush $&
       else

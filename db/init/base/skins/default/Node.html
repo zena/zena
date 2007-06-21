@@ -1,5 +1,5 @@
 <r:include template='layout.html'>
-  <r:with part='body/container/context'>
+  <r:with part='context'>
     <r:project>
       <h2 do='show' attr='name'>zena</h2>
       <r:icon store='project'>
@@ -13,8 +13,8 @@
       </r:icon>
     </r:project>
   </r:with>
-  <r:with part='body/container/content/main'>
-    <r:include template='layout.html' part='body/container/content/main/title'/>
+  <r:with part='main'>
+    <r:include template='layout.html' part='title'/>
     
     <r:summary text=''/>
     <r:text/>
