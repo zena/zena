@@ -7,7 +7,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: 0.8.2\n"
-"POT-Creation-Date: 2007-06-18 09:26-0000\n"
+"POT-Creation-Date: 2007-06-21 08:07-0000\n"
 "PO-Revision-Date: 2007-05-13 19:08-0000\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -16,11 +16,11 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=INTEGER; plural=EXPRESSION;\n"
 
-#: app/controllers/application.rb:279
+#: app/controllers/application.rb:281
 msgid "Please log in"
 msgstr ""
 
-#: app/controllers/application.rb:419 app/controllers/application.rb:447
+#: app/controllers/application.rb:421 app/controllers/application.rb:449
 msgid "datetime"
 msgstr ""
 
@@ -145,96 +145,96 @@ msgstr ""
 msgid "week_start_day"
 msgstr ""
 
-#: app/helpers/application_helper.rb:695 lib/gettext_strings.rb:35
+#: app/helpers/application_helper.rb:696 lib/gettext_strings.rb:35
 msgid "img_private"
 msgstr ""
 
-#: app/helpers/application_helper.rb:697 lib/gettext_strings.rb:34
+#: app/helpers/application_helper.rb:698 lib/gettext_strings.rb:34
 msgid "img_public"
 msgstr ""
 
-#: app/helpers/application_helper.rb:728
+#: app/helpers/application_helper.rb:729
 msgid "btn_edit"
 msgstr ""
 
-#: app/helpers/application_helper.rb:730
+#: app/helpers/application_helper.rb:731
 msgid "btn_propose"
 msgstr ""
 
-#: app/helpers/application_helper.rb:732 app/views/comments/_li.rhtml:8
+#: app/helpers/application_helper.rb:733 app/views/comments/_li.rhtml:8
 msgid "btn_publish"
 msgstr ""
 
-#: app/helpers/application_helper.rb:734
+#: app/helpers/application_helper.rb:735
 msgid "btn_refuse"
 msgstr ""
 
-#: app/helpers/application_helper.rb:739
+#: app/helpers/application_helper.rb:740
 msgid "btn_drive"
 msgstr ""
 
-#: app/helpers/application_helper.rb:754 app/helpers/application_helper.rb:814
+#: app/helpers/application_helper.rb:755 app/helpers/application_helper.rb:815
 msgid "btn_view"
 msgstr ""
 
-#: app/helpers/application_helper.rb:817
+#: app/helpers/application_helper.rb:818
 msgid "img_open"
 msgstr ""
 
-#: app/helpers/application_helper.rb:817
+#: app/helpers/application_helper.rb:818
 msgid "btn_title_close_discussion"
 msgstr ""
 
-#: app/helpers/application_helper.rb:819
+#: app/helpers/application_helper.rb:820
 msgid "img_closed"
 msgstr ""
 
-#: app/helpers/application_helper.rb:819
+#: app/helpers/application_helper.rb:820
 msgid "btn_title_open_open_discussion"
 msgstr ""
 
-#: app/helpers/application_helper.rb:822 app/views/comments/_li.rhtml:7
+#: app/helpers/application_helper.rb:823 app/views/comments/_li.rhtml:7
 msgid "btn_remove"
 msgstr ""
 
-#: app/helpers/application_helper.rb:822
+#: app/helpers/application_helper.rb:823
 msgid "btn_title_destroy_discussion"
 msgstr ""
 
-#: app/helpers/application_helper.rb:926
+#: app/helpers/application_helper.rb:927
 msgid "my home"
 msgstr ""
 
-#: app/helpers/application_helper.rb:929
+#: app/helpers/application_helper.rb:930
 #: app/views/users/preferences.html.erb:2
 msgid "preferences"
 msgstr ""
 
-#: app/helpers/application_helper.rb:932 app/views/comments/list.rhtml:2
+#: app/helpers/application_helper.rb:933 app/views/comments/list.rhtml:2
 msgid "manage comments"
 msgstr ""
 
-#: app/helpers/application_helper.rb:935 app/views/users/index.rhtml:2
+#: app/helpers/application_helper.rb:936 app/views/users/index.rhtml:2
 msgid "manage users"
 msgstr ""
 
-#: app/helpers/application_helper.rb:938 app/views/groups/index.rhtml:2
+#: app/helpers/application_helper.rb:939 app/views/groups/index.rhtml:2
 msgid "manage groups"
 msgstr ""
 
-#: app/helpers/application_helper.rb:941
+#: app/helpers/application_helper.rb:942
 msgid "manage relations"
 msgstr ""
 
-#: app/helpers/application_helper.rb:944
+#: app/helpers/application_helper.rb:945
 msgid "manage classes"
 msgstr ""
 
-#: app/helpers/application_helper.rb:948
+#: app/helpers/application_helper.rb:949
 msgid "turn dev off"
 msgstr ""
 
-#: app/helpers/application_helper.rb:950
+#: app/helpers/application_helper.rb:951
 msgid "turn dev on"
 msgstr ""
 
@@ -696,11 +696,15 @@ msgid "virtual class"
 msgstr ""
 
 #: app/models/virtual_class.rb:-
+msgid "Real class"
+msgstr ""
+
+#: app/models/virtual_class.rb:-
 msgid "Icon"
 msgstr ""
 
 #: app/models/virtual_class.rb:-
-msgid "Attributes"
+msgid "Allowed attributes"
 msgstr ""
 
 #: app/models/virtual_class.rb:-
@@ -1065,6 +1069,14 @@ msgstr ""
 msgid "btn_add_document"
 msgstr ""
 
+#: app/views/relations/_form.erb:26 lib/gettext_strings.rb:24
+msgid "relation_img"
+msgstr ""
+
+#: app/views/relations/_form.erb:27 lib/gettext_strings.rb:25
+msgid "relations_img"
+msgstr ""
+
 #: lib/gettext_strings.rb:5
 msgid "help_tab"
 msgstr ""
@@ -1115,14 +1127,6 @@ msgstr ""
 
 #: lib/gettext_strings.rb:21
 msgid "btn_add_doc"
-msgstr ""
-
-#: lib/gettext_strings.rb:24
-msgid "relation_img"
-msgstr ""
-
-#: lib/gettext_strings.rb:25
-msgid "relations_img"
 msgstr ""
 
 #: lib/gettext_strings.rb:26
@@ -1389,6 +1393,10 @@ msgstr ""
 msgid "redaction saved"
 msgstr ""
 
+#: lib/gettext_strings.rb:116
+msgid "rebuild"
+msgstr ""
+
 #: lib/parser/lib/rules/zazen.rb:72
 msgid "[gallery]"
 msgstr ""
@@ -1397,26 +1405,26 @@ msgstr ""
 msgid "[documents]"
 msgstr ""
 
-#: lib/parser/lib/rules/zena.rb:574
+#: lib/parser/lib/rules/zena.rb:583
 msgid "btn_add"
 msgstr ""
 
-#: lib/parser/lib/rules/zena.rb:831
+#: lib/parser/lib/rules/zena.rb:840
 msgid "riding %{zena}"
 msgstr ""
 
-#: lib/parser/lib/rules/zena.rb:833
+#: lib/parser/lib/rules/zena.rb:842
 msgid "in peace with %{zena}"
 msgstr ""
 
-#: lib/parser/lib/rules/zena.rb:835
+#: lib/parser/lib/rules/zena.rb:844
 msgid "a %{zen} garden"
 msgstr ""
 
-#: lib/parser/lib/rules/zena.rb:837
+#: lib/parser/lib/rules/zena.rb:846
 msgid "made with %{zena}"
 msgstr ""
 
-#: lib/parser/lib/rules/zena.rb:853
+#: lib/parser/lib/rules/zena.rb:862
 msgid "%{skin} design by %{name}"
 msgstr ""

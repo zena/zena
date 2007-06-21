@@ -1,14 +1,11 @@
 /* small calendar */
 
-#tinycal { height: 9em; margin-bottom:0.8em; }
-.tinycal { font-size:0.7em; margin:auto; cursor:pointer; }
+.tinycal { margin:auto; cursor:pointer; }
 .tinycal table { border: 1px solid #CAD4DA; background:#F5F8F9; }
 .tinycal td { text-align:center; color:#333; }
 .tinycal a { color:inherit; }
 .tinycal em { border-bottom:2px solid orange; }
-.tinycal .head td { font-weight:bold; padding: 2px; line-height:1.5; font-size:0.9em; color:#655; padding:2px; text-align:center; }
-.tinycal .head td.button a { border:0; text-decoration:none; color:#568BB9;}
-.tinycal .body td { height:1.8em; }
+.tinycal table .head td { font-weight:bold; padding: 2px; color:#655; text-align:center; }
 .tinycal .body #tiny_today p { background:#CFD6DA; }
 .tinycal .body td.other, #tinycal .body td.other a { color:#ccc; }
 .tinycal .body td.sat, #tinycal .body td.sat a { color:#35950B; }

@@ -111,5 +111,8 @@ module Zena
     # temporary (seems like the updatepo script does not parse 'templates' directory)
     N_('you are editing the original')
     N_('redaction saved')
+    
+    # failed to find
+    N_('rebuild') # application
   end
 end

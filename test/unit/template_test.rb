@@ -22,6 +22,17 @@ class TemplateTest < ZenaTestUnit
     assert_nil doc.c_mode
     assert_equal 'html', doc.c_ext
   end
+
+  def test_create_empty_name
+    login(:tiger)
+    doc = secure(Template) { Template.create(:parent_id=>nodes_id(:default), :c_klass=>'Section') }
+    assert !doc.new_record?, "Not a new record"
+    assert_equal 'text/html', doc.c_content_type
+    assert_nil doc.c_mode
+    assert_equal 'html', doc.c_ext
+    assert_equal 'Section', doc.c_klass
+    assert_equal 'Section', doc.name
+  end
   
   def test_create_with_format
     login(:tiger)

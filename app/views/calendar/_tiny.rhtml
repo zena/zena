@@ -7,7 +7,7 @@
     <%= link_to_remote( _('img_next_page') , :update=>'tinycal', :url=>{:controller=>'calendar', :action=>'show', :date=>(date >> 1), :id=>source[:id], :size=>size, :find=>method, :rnd=>rnd  } ) %>
   </td>
   </tr>
-  <tr><td colspan='3'>
+  <tr><td colspan='3' class='days'>
       <table cellspacing='0' onclick="Zena.open_cal(event, '<%= url_for(:controller=>'calendar', :action=>'open', :size=>'large', :find=>method, :id=>source[:id], :date=>date, :rnd=>rnd) %>')">
         <tr class="head"> <%= day_names %> </tr>
         <%= content %>

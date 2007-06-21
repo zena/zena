@@ -22,10 +22,6 @@ class Template < TextDocument
       version.content.klass  = $1
       version.content.mode   = $3
       version.content.format = $5 || version.content.format || 'html'
-    else
-      version.content.klass  = nil
-      version.content.mode   = nil
-      version.content.format = nil
     end
     if str =~ /(.+)\.(.*)/
       super($1)
@@ -40,6 +36,9 @@ class Template < TextDocument
     def document_before_validation
       content = version.content
       content[:format] ||= 'html'
+      if self[:name].blank?
+        self[:name] = content[:klass]
+      end
     end
     
     def valid_section

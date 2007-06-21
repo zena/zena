@@ -128,7 +128,7 @@ class ApplicationController < ActionController::Base
       fullpath  = skin_path + "/#{lang_path}/_main.erb"
       url       = SITES_ROOT + current_site.zafu_path + fullpath
 
-      if !File.exists?(url)
+      if !File.exists?(url) || params[:rebuild]
         # no template ---> render
         # TODO: test
         
@@ -146,13 +146,16 @@ class ApplicationController < ActionController::Base
         response.template.instance_variable_set(:@session, session)
         skin_helper = response.template
         # [1..-1] = drop leading '/' so find_template_document searches in the current skin first
+        puts "RENDER: #{skin_path.inspect}"
         res = ZafuParser.new_with_url(skin_path[1..-1], :helper => skin_helper).render
         
         if session[:dev] && mode != '_popup_layout'
           # add template edit buttons
           used_nodes = @expire_with_nodes.merge(@renamed_assets)
           div = "<div id='dev'><ul>" + used_nodes.map do |k,n| "<li>#{skin_helper.send(:node_actions, :node=>n)} #{skin_helper.send(:link_to,k,zen_path(n))}</li>"
-          end.join("") + "<li><span class='actions'><a href='/users/#{visitor[:id]}/swap_dev'>#{_('turn dev off')}</a></span></li>"
+          end.join("") +
+          "<li><span class='actions'>#{skin_helper.send(:link_to,_('rebuild'),zen_path(@node, :rebuild => true))}" +
+          "<li><span class='actions'><a href='/users/#{visitor[:id]}/swap_dev'>#{_('turn dev off')}</a></span></li>"
           res.sub!('</body>', "#{div}</body>")
         end
         

@@ -1,8 +1,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: 0.8.2\n"
-"POT-Creation-Date: 2007-06-18 09:26-0000\n"
-"PO-Revision-Date: 2007-06-18 11:53+0100\n"
+"POT-Creation-Date: 2007-06-21 08:07-0000\n"
+"PO-Revision-Date: 2007-06-21 10:13+0100\n"
 "Last-Translator: Gaspard Bucher <gaspard@teti.ch>\n"
 "Language-Team: fr <gaspard@teti.ch>\n"
 "MIME-Version: 1.0\n"
@@ -13,12 +13,12 @@ msgstr ""
 "X-Poedit-Bookmarks: -1,-1,-1,219,-1,-1,-1,-1,-1,-1\n"
 "X-Poedit-Basepath: /Users/gaspard/svk/zena\n"
 
-#: app/controllers/application.rb:279
+#: app/controllers/application.rb:281
 msgid "Please log in"
 msgstr "Veuillez vous authentifier."
 
-#: app/controllers/application.rb:419
-#: app/controllers/application.rb:447
+#: app/controllers/application.rb:421
+#: app/controllers/application.rb:449
 msgid "datetime"
 msgstr "%d.%m.%Y %H:%M"
 
@@ -146,104 +146,104 @@ msgstr "objet %{type}"
 msgid "week_start_day"
 msgstr "1"
 
-#: app/helpers/application_helper.rb:695
+#: app/helpers/application_helper.rb:696
 #: lib/gettext_strings.rb:35
 msgid "img_private"
 msgstr "<img src='/images/lock.png' alt='privé'/>"
 
-#: app/helpers/application_helper.rb:697
+#: app/helpers/application_helper.rb:698
 #: lib/gettext_strings.rb:34
 msgid "img_public"
 msgstr "<img src='/images/user_pub.png' alt='publique'/>"
 
-#: app/helpers/application_helper.rb:728
+#: app/helpers/application_helper.rb:729
 msgid "btn_edit"
 msgstr "<img src='/images/page_edit.png' alt='éditer'/>"
 
-#: app/helpers/application_helper.rb:730
+#: app/helpers/application_helper.rb:731
 msgid "btn_propose"
 msgstr "<img src='/images/picture_empty.png' alt='proposer'/>"
 
-#: app/helpers/application_helper.rb:732
+#: app/helpers/application_helper.rb:733
 #: app/views/comments/_li.rhtml:8
 msgid "btn_publish"
 msgstr "<img src='/images/wand.png' alt='publier'/>"
 
-#: app/helpers/application_helper.rb:734
+#: app/helpers/application_helper.rb:735
 msgid "btn_refuse"
 msgstr "<img src='/images/delete.png' alt='refuser'/>"
 
-#: app/helpers/application_helper.rb:739
+#: app/helpers/application_helper.rb:740
 msgid "btn_drive"
 msgstr "<img src='/images/wrench.png' alt='réglages'/>"
 
-#: app/helpers/application_helper.rb:754
-#: app/helpers/application_helper.rb:814
+#: app/helpers/application_helper.rb:755
+#: app/helpers/application_helper.rb:815
 msgid "btn_view"
 msgstr "<img src='/images/eye.png' alt='visualiser'/>\""
 
-#: app/helpers/application_helper.rb:817
+#: app/helpers/application_helper.rb:818
 msgid "img_open"
 msgstr "<img src='/images/lock_open.png' alt='ouvert'/>"
 
-#: app/helpers/application_helper.rb:817
+#: app/helpers/application_helper.rb:818
 msgid "btn_title_close_discussion"
 msgstr "Fermer la discussion."
 
-#: app/helpers/application_helper.rb:819
+#: app/helpers/application_helper.rb:820
 msgid "img_closed"
 msgstr "<img src='/images/lock.png' alt='fermé'/>"
 
-#: app/helpers/application_helper.rb:819
+#: app/helpers/application_helper.rb:820
 msgid "btn_title_open_open_discussion"
 msgstr "Ouvrir la discussion."
 
-#: app/helpers/application_helper.rb:822
+#: app/helpers/application_helper.rb:823
 #: app/views/comments/_li.rhtml:7
 msgid "btn_remove"
 msgstr "<img src='/images/delete.png' alt='supprimer'/>"
 
-#: app/helpers/application_helper.rb:822
+#: app/helpers/application_helper.rb:823
 msgid "btn_title_destroy_discussion"
 msgstr "Supprimer entièrement la discussion."
 
-#: app/helpers/application_helper.rb:926
+#: app/helpers/application_helper.rb:927
 msgid "my home"
 msgstr "suivi"
 
-#: app/helpers/application_helper.rb:929
+#: app/helpers/application_helper.rb:930
 #: app/views/users/preferences.html.erb:2
 msgid "preferences"
 msgstr "préférences"
 
-#: app/helpers/application_helper.rb:932
+#: app/helpers/application_helper.rb:933
 #: app/views/comments/list.rhtml:2
 msgid "manage comments"
 msgstr "gestion des commentaires"
 
-#: app/helpers/application_helper.rb:935
+#: app/helpers/application_helper.rb:936
 #: app/views/users/index.rhtml:2
 msgid "manage users"
 msgstr "gestion des utilisateurs"
 
-#: app/helpers/application_helper.rb:938
+#: app/helpers/application_helper.rb:939
 #: app/views/groups/index.rhtml:2
 msgid "manage groups"
 msgstr "gestion des groupes"
 
-#: app/helpers/application_helper.rb:941
+#: app/helpers/application_helper.rb:942
 msgid "manage relations"
 msgstr "gestion des rôles"
 
-#: app/helpers/application_helper.rb:944
+#: app/helpers/application_helper.rb:945
 msgid "manage classes"
 msgstr "gestion des classes"
 
-#: app/helpers/application_helper.rb:948
+#: app/helpers/application_helper.rb:949
 msgid "turn dev off"
 msgstr "<img src='/images/bug.png'/> quitter le mode 'dev'"
 
-#: app/helpers/application_helper.rb:950
+#: app/helpers/application_helper.rb:951
 msgid "turn dev on"
 msgstr "passer en mode 'dev'"
 
@@ -780,12 +780,17 @@ msgstr ""
 
 #: app/models/virtual_class.rb:-
 #, fuzzy
+msgid "Real class"
+msgstr "class"
+
+#: app/models/virtual_class.rb:-
+#, fuzzy
 msgid "Icon"
 msgstr "icône"
 
 #: app/models/virtual_class.rb:-
 #, fuzzy
-msgid "Attributes"
+msgid "Allowed attributes"
 msgstr "autoriser éléments privés"
 
 #: app/models/virtual_class.rb:-
@@ -1171,6 +1176,16 @@ msgstr " enregistrer "
 msgid "btn_add_document"
 msgstr "<img src='/images/picture_add.png' alt='ajouter des documents'/>"
 
+#: app/views/relations/_form.erb:26
+#: lib/gettext_strings.rb:24
+msgid "relation_img"
+msgstr "<img src='/images/target.png' alt='rôle'/>"
+
+#: app/views/relations/_form.erb:27
+#: lib/gettext_strings.rb:25
+msgid "relations_img"
+msgstr "<img src='/images/collection.png' alt='collection'/>"
+
 #: lib/gettext_strings.rb:5
 msgid "help_tab"
 msgstr "aide"
@@ -1222,14 +1237,6 @@ msgstr "doc. texte"
 #: lib/gettext_strings.rb:21
 msgid "btn_add_doc"
 msgstr "<img src='/images/picture_add.png' alt='ajouter des documents'/>"
-
-#: lib/gettext_strings.rb:24
-msgid "relation_img"
-msgstr "<img src='/images/target.png' alt='rôle'/>"
-
-#: lib/gettext_strings.rb:25
-msgid "relations_img"
-msgstr "<img src='/images/collection.png' alt='collection'/>"
 
 #: lib/gettext_strings.rb:26
 msgid "btn_relation_add"
@@ -1495,6 +1502,10 @@ msgstr "vous éditez l'original"
 msgid "redaction saved"
 msgstr "Rédaction enregistrée."
 
+#: lib/gettext_strings.rb:116
+msgid "rebuild"
+msgstr "<img src='/images/arrow_refresh.png' alt='rebuild'/> rebuild zafu"
+
 #: lib/parser/lib/rules/zazen.rb:72
 msgid "[gallery]"
 msgstr "[galerie]"
@@ -1503,27 +1514,27 @@ msgstr "[galerie]"
 msgid "[documents]"
 msgstr "[documents]"
 
-#: lib/parser/lib/rules/zena.rb:574
+#: lib/parser/lib/rules/zena.rb:583
 msgid "btn_add"
 msgstr "<img src='/images/add.png' alt='ajouter'/>"
 
-#: lib/parser/lib/rules/zena.rb:831
+#: lib/parser/lib/rules/zena.rb:840
 msgid "riding %{zena}"
 msgstr "en balade avec %{zena}"
 
-#: lib/parser/lib/rules/zena.rb:833
+#: lib/parser/lib/rules/zena.rb:842
 msgid "in peace with %{zena}"
 msgstr "en paix avec %{zena}"
 
-#: lib/parser/lib/rules/zena.rb:835
+#: lib/parser/lib/rules/zena.rb:844
 msgid "a %{zen} garden"
 msgstr "un jardin %{zen}"
 
-#: lib/parser/lib/rules/zena.rb:837
+#: lib/parser/lib/rules/zena.rb:846
 msgid "made with %{zena}"
 msgstr "conçu avec %{zena}"
 
-#: lib/parser/lib/rules/zena.rb:853
+#: lib/parser/lib/rules/zena.rb:862
 msgid "%{skin} design by %{name}"
 msgstr "%{skin} conception %{name}"
 
@@ -1534,10 +1545,6 @@ msgstr "%{skin} conception %{name}"
 #, fuzzy
 #~ msgid "Password salt"
 #~ msgstr "mot de passe"
-
-#, fuzzy
-#~ msgid "Real class"
-#~ msgstr "class"
 #~ msgid "btn_add_page"
 #~ msgstr "<img src='/images/add.png' alt='ajouter une page'/>"
 #~ msgid "Pages"
