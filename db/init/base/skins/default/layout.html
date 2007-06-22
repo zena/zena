@@ -71,7 +71,7 @@
             <li do='add'><a href='#' do='void' set_onclick='uploader=window.open("/documents/new?parent_id=[id]", "uploader", "location=1,width=400,height=300");return false;' set_href='/documents/new?parent_id=[id]'><r:trans>btn_add_doc</r:trans></a></li>
           </ol>
         </r:documents>
-        <r:if kind_of='Page' do='pages' name='pages'><h3 class='group'>pages</h3>
+        <r:pages name='pages'><h3 class='group'>pages</h3>
           <ol>
             <li do='each' set_class='li_s[v_status]' do='link'/>
             <li do='add' before='self'/>
@@ -81,8 +81,8 @@
               <p class='btn_validate'><input type="submit" value='validate' tset_value='validate'/></p>
             </li>
           </ol>
-        </r:if>
-        <r:if kind_of='Section' do='contacts' name='contacts'><h3 class='group'>contacts</h3>
+        </r:pages>
+        <r:refs direction='both' name='references'><h3 class='group'>references</h3>
           <ol>
             <li do='each' set_class='li_s[v_status]' do='link'/>
             <li do='add' before='self'/>
@@ -92,7 +92,7 @@
               <p class='btn_validate'><input type="submit" value='validate' tset_value='validate'/></p>
             </li>
           </ol>
-        </r:if>
+        </r:refs>
       </div>
     </div>
   </r:void>

@@ -20,7 +20,7 @@ node_has_references:
   id:           3
   site_id:      1
   source_kpath: 'N'
-  target_kpath: 'NR'
+  target_kpath: 'N'
   source_role:  'reference_for'
   target_role:  'reference'
   

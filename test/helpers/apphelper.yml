@@ -1,0 +1,12 @@
+default:
+  context:
+    lang: 'en'
+    visitor: 'lion'
+    node: 'zena'
+  src: "simple text"
+  tem: "simple text"
+  res: "simple text"
+  
+calendar_from_project:
+  tem: "<%= calendar(:node=>@node, :date=>Date.civil(2007,06,22), :or=>'added_notes', :size=>:large, :using=>:log_at, :find=>:notes, :from=>'project', :id=>'small_calendar') %>"
+  res: "/hello/"
