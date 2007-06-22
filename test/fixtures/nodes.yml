@@ -156,6 +156,7 @@ proposition:
   site_id:        1
   type:           Note
   kpath:          NNP
+  vclass_id:      2
   name:           proposition
   parent_id:      9
   project_id:     9

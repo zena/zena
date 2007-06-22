@@ -124,8 +124,8 @@ class NodeTest < ZenaTestUnit
     assert_equal nodes_id(:cleanWater), info[:project_id]
     node  = secure(Node) { nodes(:cleanWater) }
     assert_equal 2, node.relation("notes", :or=>"added_notes", :limit=>"10", :from=>"project", :order=>"log_at DESC").size
-    assert_equal 1, group.relation("notes", :or=>"added_notes", :limit=>"10", :from=>"project", :order=>"log_at DESC").size
-    assert_equal 2, group.relation("notes", :or=>"added_notes", :limit=>"10", :order=>"log_at DESC").size
+    assert_equal 2, group.relation("notes", :or=>"added_notes", :limit=>"10", :from=>"project", :order=>"log_at DESC").size
+    assert_equal 1, group.relation("notes", :or=>"added_notes", :limit=>"10", :order=>"log_at DESC").size
   end
   
   def test_ancestor_in_hidden_project
@@ -219,9 +219,7 @@ class NodeTest < ZenaTestUnit
     login(:tiger)
     node = secure(Node) { nodes(:status)  }
     node[:parent_id] = nodes_id(:proposition)
-    assert ! node.save , "Save fails"
-    assert node.errors[:parent_id] , "Errors on parent_id"
-    assert_equal "invalid parent", node.errors[:parent_id] # parent cannot be 'Note' if self not Document
+    assert node.save , "Save ok"
     
     node = secure(Node) { nodes(:status)  }
     node[:parent_id] = nodes_id(:myDreams) # cannot write here
@@ -640,7 +638,7 @@ class NodeTest < ZenaTestUnit
     
       # do something on a note
       node = secure(Node) { nodes(:proposition) }
-      assert_equal 'NNP', node.class.kpath
+      assert_equal 'NNP', node.vclass.kpath
       assert node.update_attributes(:name => 'popo' ), "Can change attributes"
       # sweep only kpath NPD
       i = 4
@@ -947,7 +945,8 @@ done: \"I am done\""
     nodes = secure(Node) { Node.create_nodes_from_folder(:archive => uploaded_archive('simple.yml.gz'), :parent_id => parent[:id] )}
     assert_equal 1, nodes.size
     simple = nodes[0]
-    assert_kind_of Post, simple
+    assert_kind_of Note, simple
+    assert_equal virtual_classes(:post), simple.vclass
     assert !simple.new_record?
   end
   

@@ -11,7 +11,6 @@ class Relation < ActiveRecord::Base
     return @records if defined? @records
     conditions = options.delete(:conditions)
     direction  = options.delete(:direction)
-
     # :from
     side_cond = "links.relation_id = ?"
     params    = [self[:id]]
@@ -71,7 +70,6 @@ class Relation < ActiveRecord::Base
                     :conditions => inner_conditions,
                     :group      => 'nodes.id'
                     )
-                    
     if conditions
       Node.with_scope(:find=>{:conditions=>conditions}) do
         @records = secure(Node) { Node.find(:all, options) }

@@ -84,7 +84,7 @@ module Zena
     module InstanceMethods
 
       def fetch_relation(role, opts={})
-        return nil unless relation = relation_proxy(:role => role, :from => opts[:from])
+        return nil unless relation = relation_proxy(:role => role, :from => opts[:from], :or => opts[:or])
         relation.records(opts)
       end
       
@@ -129,7 +129,7 @@ module Zena
         rel_opts = {}
         if role = opts[:role]
           rel_opts[:role] = role
-          rel_opts[:ignore_source] = true if opts[:from]
+          rel_opts[:ignore_source] = true if opts[:from] || opts[:or]
           rel_opts[:start] = self
         elsif link = opts[:link]
           return nil unless link

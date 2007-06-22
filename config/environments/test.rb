@@ -20,4 +20,6 @@ config.action_mailer.delivery_method = :test
 
 
 require 'ruby-debug'
+Debugger.settings[:autolist] = true
+Debugger.settings[:autoeval] = true
 Debugger.start
