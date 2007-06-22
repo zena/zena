@@ -136,13 +136,16 @@ namespace :zena do
   end
   
   desc "Remove all cached data" # FIXME: cachedPages db should be cleared to
-  task :clear_cache do
+  task :clear_cache => :environment do
     Dir.foreach(SITES_ROOT) do |site|
       next if site =~ /^\./ || !File.exists?(File.join(SITES_ROOT,site,'public'))
       Dir.foreach(File.join(SITES_ROOT,site,'public')) do |elem|
         next unless elem =~ /^(.+\.html|\w\w)$/
         FileUtils.rmtree(File.join(SITES_ROOT, site, 'public', elem))
       end
+    end
+    ['caches', 'cached_pages', 'cached_pages_nodes'].each do |tbl|
+      Site.connection.execute "DELETE FROM #{tbl}"
     end
   end
   

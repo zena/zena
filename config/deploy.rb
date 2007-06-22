@@ -63,6 +63,11 @@ task :clear_zafu, :roles => :app do
   run "#{in_current} rake zena:clear_zafu"
 end
 
+desc "clear all zafu compiled templates"
+task :clear_cache, :roles => :app do
+  run "#{in_current} rake zena:clear_cache"
+end
+
 desc "clear cache" # temporary rule until cache expire is implemented with a controller
 task :clear_cache, :roles => :app do
   run "#{in_current} rake zena:clear_zafu"
@@ -73,6 +78,7 @@ task :after_update_code, :roles => :app do
   symlink
   app_update_symlinks
   clear_zafu
+  clear_cache
   db_update_config
   migrate
 end
