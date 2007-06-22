@@ -747,7 +747,12 @@ class Node < ActiveRecord::Base
       else
         start_cond = "parent_id = #{self[:id]}"
       end
-      "#{start_cond} AND #{kpath_cond}"
+      if opts[:or] && opts[:from]
+        # the start condition is added later
+        kpath_cond
+      else
+        "#{start_cond} AND #{kpath_cond}"
+      end
     end
     
     if opt_cond = opts[:conditions]

@@ -963,7 +963,8 @@ END_TXT
       opts[:find]   = (@params[:find  ] || 'news'   ).to_sym
       opts[:size]   = (@params[:size  ] || 'tiny'    ).to_sym
       opts[:using]  = (@params[:using ] || 'event_at').gsub(/[^a-z_]/,'').to_sym # SQL injection security
-      "<div id='#{opts[:size]}cal'><%= calendar(:node=>#{node}, :from=>#{from.inspect}, :date=>#{date}#{params_to_erb(opts)}) %></div>"
+      opts[:from]  ||= 'project'
+      "<div id='#{opts[:size]}cal'><%= calendar(:node=>#{node}, :date=>#{date}#{params_to_erb(opts)}) %></div>"
     end
     
     # part caching

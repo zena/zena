@@ -135,12 +135,21 @@ class NodeTest < ZenaTestUnit
       node.relation('notes', :conditions=>["log_at >= ? AND log_at <= ?", Time.now, Time.now], :order=>"log_at ASC", :or => 'added_notes')
       # result SQL:
       #         SELECT nodes.*, links.id AS link_id FROM nodes LEFT JOIN links ON nodes.id=links.source_id WHERE 
-      # conditions :
+      # conditions:
       #         (( log_at >= '2007-06-22 08:03:36' AND log_at <= '2007-06-22 08:03:36' ) AND 
-      # secure :
+      # secure:
       #         ( (nodes.user_id = '5' OR (rgroup_id IN (2,4,1,3) AND nodes.publish_from <= now() ) OR (pgroup_id IN (2,4,1,3) AND max_status > 30)) AND (nodes.site_id = 1) )) AND
       # relations:
       #         ((parent_id = 1 AND kpath LIKE 'NN%') OR (links.relation_id = 8 AND links.target_id = 1)) GROUP BY nodes.id ORDER BY log_at ASC
+      node.relation('notes', :conditions=>["log_at >= ? AND log_at <= ?", Time.now, Time.now], :from => 'project', :order=>"log_at ASC", :or => 'added_notes')
+      # result SQL:
+      #          SELECT nodes.*, links.id AS link_id FROM nodes LEFT JOIN links ON nodes.id=links.source_id WHERE 
+      # conditions:
+      #          (( (log_at >= '2007-06-22 08:23:03' AND log_at <= '2007-06-22 08:23:03') AND project_id = 1 ) AND 
+      # secure:
+      #          ( (nodes.user_id = '5' OR (rgroup_id IN (2,4,1,3) AND nodes.publish_from <= now() ) OR (pgroup_id IN (2,4,1,3) AND max_status > 30)) AND (nodes.site_id = 1) )) AND 
+      # relation:  
+      #          ((kpath LIKE 'NN%') OR (links.relation_id = 8)) GROUP BY nodes.id ORDER BY log_at ASC
     end
   end
   
