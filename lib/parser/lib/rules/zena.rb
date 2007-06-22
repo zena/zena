@@ -960,11 +960,15 @@ END_TXT
       from   = 'project'
       date   = 'main_date'
       opts   = @params.dup
-      opts[:find]   = (@params[:find  ] || 'news'   ).to_sym
-      opts[:size]   = (@params[:size  ] || 'tiny'    ).to_sym
-      opts[:using]  = (@params[:using ] || 'event_at').gsub(/[^a-z_]/,'').to_sym # SQL injection security
+      opts[:find]   = (@params[:find  ] || 'news'   )
+      opts[:size]   = (@params[:size  ] || 'tiny'    )
+      opts[:using]  = (@params[:using ] || 'event_at').gsub(/[^a-z_]/,'') # SQL injection security
       opts[:from]  ||= 'project'
-      "<div id='#{opts[:size]}cal'><%= calendar(:node=>#{node}, :date=>#{date}#{params_to_erb(opts)}) %></div>"
+      
+      template_url = unique_name
+      out helper.save_erb_to_url(opts.inspect, template_url)
+      
+      "<div id='#{opts[:size]}cal'><%= calendar(:node=>#{node}, :date=>#{date}, :template_url => #{template_url.inspect}) %></div>"
     end
     
     # part caching
@@ -1182,7 +1186,7 @@ END_TXT
         
         # template_url  = "#{@options[:current_folder]}/#{@context[:name] || "root"}_#{node_class}"
         template_url = unique_name
-        puts unique_name.inspect
+        
         # 'r_add' needs the form when rendering. Send with :form.
         res = expand_with(opts.merge(:list=>list_var, :form=>form_block, :no_form=>true, :template_url=>template_url))
         out render_html_tag(res)

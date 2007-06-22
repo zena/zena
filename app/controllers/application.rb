@@ -3,7 +3,7 @@ require 'gettext/rails'
 class ApplicationController < ActionController::Base
   init_gettext 'zena'
   helper_method :prefix, :zen_path, :zen_url, :data_path, :node_url, :notes, :error_messages_for, :render_errors, :processing_error
-  helper_method :get_template_text, :template_url_for_asset, :save_erb_to_url, :lang, :visitor, :fullpath_from_template_url
+  helper_method :get_template_text, :template_url_for_asset, :save_erb_to_url, :lang, :visitor, :fullpath_from_template_url, :eval_parameters_from_template_url
   before_filter :authorize
   before_filter :set_lang
   after_filter  :set_encoding
@@ -250,7 +250,15 @@ class ApplicationController < ActionController::Base
 
       "#{SITES_ROOT}/#{current_site.host}/zafu#{path}"
     end
-  
+    
+    def eval_parameters_from_template_url(template_url=params[:template_url])
+      path = fullpath_from_template_url(template_url) + '.erb'
+      if File.exists?(path)
+        eval File.read(path)
+      else
+        nil
+      end
+    end
     # Require a login for authenticated navigation (with '/oo' prefix) or for any content if the site's 'authorize'
     # attribute is true.
     def authorize
@@ -422,7 +430,7 @@ class ApplicationController < ActionController::Base
     end
   
     # Parse date : return an utc date from a string
-    def parse_date(datestr, fmt=_('datetime'))
+    def parse_date(datestr, fmt=_('datetime'), is_date=false)
       elements = datestr.split(/(\.|\-|\/|\s|:)+/)
       format = fmt.split(/(\.|\-|\/|\s|:)+/)
       if elements
@@ -453,6 +461,9 @@ class ApplicationController < ActionController::Base
       fmt=_('datetime')
       [:v_publish_from, :log_at, :event_at].each do |sym|
         attrs[sym] = parse_date(attrs[sym], fmt) if attrs[sym]
+      end
+      [:date].each do |sym|
+        attrs[sym] = parse_date(attrs[sym], fmt).to_date if attrs[sym]
       end
       attrs
     end
@@ -534,36 +545,6 @@ class ApplicationController < ActionController::Base
     def check_is_admin
       render_404(ActiveRecord::RecordNotFound) unless visitor.is_admin?
       @admin = true
-    end
-  
-    # Notes finder options are
-    # [from] node providing the notes. If omitted, <code>@project</code> or <code>@node.project</code> is used.
-    # [find] method called on the source. Default is 'notes'. For example, <code>:from=>@node.project, :find=>:notes</code> finds all notes from the project of the current node.
-    # [date] only find notes for the given date
-    # [using] specify the field used to sort and filter by date. By default, 'log_at' is used
-    # [order] sort order. By default "#{using} ASC" is used.
-    # []
-    def notes(options={})
-      source = options[:from] || (@project ||= (@node ? @node.project : nil))
-      return [] unless source
-    
-      options.delete(:from)
-      
-      method = options[:find] || :notes
-      options.delete(:find)
-    
-      field = options[:using] || :log_at
-      options.delete(:using)
-    
-      options[:order] ||= "#{field} ASC"
-      options.delete(:using)
-    
-      if date = options[:date]
-        options.delete(:date)
-        options.merge!(:conditions=>["date(#{field}) = ?", date])
-      end
-    
-      source.send(method, options)
     end
   
     #TODO: test

@@ -1,47 +1,58 @@
 class CalendarController < ApplicationController
-  
+  before_filter :get_options
   # This action is used to change the calendar date with ajax
   def show
-    get_options
-    render :inline=>"<%= calendar(:from=>@node, :find=>@method, :size=>@size, :date=>@date) %>"
-  rescue ActiveRecord::RecordNotFound
-    render :nothing=>true
+    render :inline=>"<%= calendar(:node => @node, :date => @date, :options => @options, :template_url => params[:template_url]) %>"
   end
   
   # This action opens the calendar, doing lots of RJS to hide tiny calendar and update with a notes list when necessary
   def open
-    get_options
+  end
+  
+  def notes
+    find_notes
+    render :partial=>'note/day_list'
   rescue ActiveRecord::RecordNotFound
-    render :nothing=>true
+    page_not_found
   end
   
   private
   
-  def get_options
-    @node   = secure(Node) { Node.find(params[:id]) }
-    @method = params[:find] ? params[:find].to_sym : nil
-    @date   = params[:date] ? Date.parse(params[:date]) : nil
-    @size   = params[:size].to_sym
-    if params[:day] && params[:row]
-      row = params[:row].to_i
-      day = params[:day].to_i
-      if row == 1 && day > 20
-        if date.mon == 1
-          @note_date = Date.civil(@date.year-1, 12, day)
+    def get_options
+      @node    = secure(Node) { Node.find_by_zip(params[:id]) }
+      @options = eval_parameters_from_template_url
+      @date    = Date.parse(params[:date])
+      @options[:using] ||= 'log_at'
+      @options[:size ]   = params[:size] || @options[:size]
+    
+      if params[:day] && params[:row]
+        row = params[:row].to_i
+        day = params[:day].to_i
+        if row == 1 && day > 20
+          if @date.mon == 1
+            @date = Date.civil(@date.year-1, 12, day)
+          else
+            @date = Date.civil(@date.year, @date.mon - 1, day)
+          end
+        elsif row > 3 && day < 15
+          if @date.mon == 12
+            @date = Date.civil(@date.year+1, 1, day)
+          else
+            @date = Date.civil(@date.year, @date.mon + 1, day)
+          end
         else
-          @note_date = Date.civil(@date.year, @date.mon - 1, day)
+          @date = Date.civil(@date.year, @date.mon, day)
         end
-      elsif row > 3 && day < 15
-        if @date.mon == 12
-          @note_date = Date.civil(@date.year+1, 1, day)
-        else
-          @note_date = Date.civil(@date.year, @date.mon + 1, day)
-        end
-      else
-        @note_date = Date.civil(@date.year, @date.mon, day)
+      
       end
-      @notes = notes(:from=>@node, :find=>@method, :using=>:event_at, :date=>@note_date, :order=>'event_at ASC')
+      # FIXME: convert date to utc...
+      find_notes
     end
-  end
+    
+    def find_notes
+      @notes = @node.relation(@options[:find], @options.merge(
+          :conditions => ["date(#{@options[:using]}) = ?", @date],
+          :order => "#{@options[:using]} ASC")) || []
+    end
     
 end

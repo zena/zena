@@ -461,13 +461,14 @@ module ApplicationHelper
     render_to_string(:partial=>'comments/list', :locals=>{:node=>node})
   end
   
-  def calendar(options={})
-    source = options[:node  ] || (@project ||= (@node ? @node.project : nil))
-    date   = options[:date  ] || Date.today
-    method = options[:find  ] || :notes
-    size   = options[:size  ] || :tiny
-    using  = options[:using ] || :event_at
-    day_names, on_day = calendar_get_options(size, source, method)
+  def calendar(opts={})
+    options = opts[:options] || eval_parameters_from_template_url(opts[:template_url])
+    source = opts[:node  ] || (@project ||= (@node ? @node.project : nil))
+    date   = opts[:date  ] || Date.today
+    method = options[:find  ] || 'notes'
+    size   = options[:size  ] || 'tiny'
+    using  = options[:using ] || 'event_at'
+    day_names, on_day = calendar_get_options(size, source, opts[:template_url])
     return "" unless on_day && source
     Cache.with(visitor.id, visitor.group_ids, 'NN', size, method, source.id, date.ajd, lang) do
       # find start and end date
@@ -511,11 +512,8 @@ module ApplicationHelper
                                                              :day_names=>head_day_names.join(""),
                                                              :title=>title, 
                                                              :date=>date,
-                                                             :source=>source,
-                                                             :method=>method,
-                                                             :or_opt=>options[:or],
-                                                             :from=>options[:from],
-                                                             :size=>size })
+                                                             :source_zip=>source[:zip],
+                                                             :template_url=>opts[:template_url]})
     end
   end
   
@@ -1013,12 +1011,12 @@ ENDTXT
   
   private
   
-  def calendar_get_options(size, source, method)
+  def calendar_get_options(size, source, template_url)
     case size
-    when :tiny
+    when 'tiny'
       day_names = Date::ABBR_DAYNAMES
       on_day    = Proc.new { |events, date| events ? "<em>#{date.day}</em>" : date.day }
-    when :large
+    when 'large'
       day_names = Date::DAYNAMES
       on_day    = Proc.new do |events, date|
         if events
@@ -1026,7 +1024,7 @@ ENDTXT
           events.each do |e| #largecal_preview
             res << "<p>" + link_to_remote(e.v_title.limit(14), 
                                   :update=>'largecal_preview',
-                                  :url=>{:controller=>'note', :action=>'day_list', :id=>source[:id], :find=>method, 
+                                  :url=>{:controller=>'calendar', :action=>'notes', :id=>source[:zip], :template_url=>template_url, 
                                   :date=>date, :selected=>e[:zip] }) + "</p>"
           end
           res.join("\n")
