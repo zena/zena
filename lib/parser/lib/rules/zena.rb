@@ -1337,7 +1337,7 @@ END_TXT
             "#{att_node}.version.zafu_read(#{attribute[2..-1].inspect})"
           end
         when 'c_'
-          "#{att_node}.version.content.zafu_read(#{attribute[2..-1].inspect})"
+          "#{att_node}.c_zafu_read(#{attribute[2..-1].inspect})"
         when 'd_'
           "#{att_node}.version.dyn[#{attribute[2..-1].inspect}]"
         else

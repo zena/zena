@@ -113,7 +113,21 @@ class NodeTest < ZenaTestUnit
     assert_equal 'zena', node.relation('root')[:name]
     assert_equal 'art', node.relation('parent').relation('tags')[0][:name]
   end
-
+  
+  def test_relation_with_or
+    login(:lion)
+    group = secure(Page) { Page.create(:name=>'group', :parent_id=>nodes_id(:cleanWater))}
+    assert !group.new_record?
+    assert_equal nodes_id(:cleanWater), group[:project_id]
+    info  = secure(Note) { Note.create(:name=>'hello', :parent_id=>group[:id])}
+    assert !info.new_record?
+    assert_equal nodes_id(:cleanWater), info[:project_id]
+    node  = secure(Node) { nodes(:cleanWater) }
+    assert_equal 2, node.relation("notes", :or=>"added_notes", :limit=>"10", :from=>"project", :order=>"log_at DESC").size
+    assert_equal 1, group.relation("notes", :or=>"added_notes", :limit=>"10", :from=>"project", :order=>"log_at DESC").size
+    assert_equal 2, group.relation("notes", :or=>"added_notes", :limit=>"10", :order=>"log_at DESC").size
+  end
+  
   def test_ancestor_in_hidden_project
     login(:ant)
     node = secure(Node) { nodes(:proposition) }
@@ -142,9 +156,7 @@ class NodeTest < ZenaTestUnit
     attrs = NEW_DEFAULT.dup
     attrs[:parent_id] = nodes_id(:proposition)
     node = secure(Page) { Page.new(attrs) }
-    assert ! node.save , "Save fails"
-    assert node.errors[:parent_id] , "Errors on parent_id"
-    assert_equal "invalid parent", node.errors[:parent_id] # parent cannot be 'Note' if self not Document
+    assert node.save , "Save ok"
 
     attrs[:parent_id] = nodes_id(:myDreams) # cannot write here
     node = secure(Page) { Page.new(attrs) }
@@ -152,7 +164,7 @@ class NodeTest < ZenaTestUnit
     assert node.errors[:parent_id] , "Errors on parent_id"
     assert_equal "invalid reference", node.errors[:parent_id]
 
-    attrs[:parent_id] = nodes_id(:cleanWater) # parent ok
+    attrs[:parent_id] = nodes_id(:cleanWater) # other parent ok
     node = secure(Page) { Page.new(attrs) }
     assert node.save , "Save succeeds"
   end
@@ -861,7 +873,7 @@ class NodeTest < ZenaTestUnit
   
   def test_create_with_klass
     login(:tiger)
-    node = secure(Node) { Node.create_node('parent_id' => nodes_zip(:projects), 'name' => 'funny', 'vclass' => 'TextDocument', 'c_content_type' => 'application/x-javascript') }
+    node = secure(Node) { Node.create_node('parent_id' => nodes_zip(:projects), 'name' => 'funny', 'klass' => 'TextDocument', 'c_content_type' => 'application/x-javascript') }
     assert_kind_of TextDocument, node
     assert_equal nodes_id(:projects), node[:parent_id]
     assert_equal 'funny', node[:name]

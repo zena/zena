@@ -135,10 +135,12 @@ class ApplicationController < ActionController::Base
         # set the places to search for the included templates
         # FIXME: there might be a better way to do this. In a hurry, fix later.
         @skin       = {}
+        @skin_names = [@skin_name]
         secure(Skin) { Skin.find(:all, :order=>'position ASC, name ASC') }.each do |s|
           @skin[s.name] = s
+          @skin_names << s.name
         end
-        @skin_names = [@skin_name, @skin.keys].flatten.uniq
+        @skin_names.uniq!
         @skin_link  = zen_path(@skin[@skin_name]) # used to link from <r:design/> zafu tag
         @expire_with_nodes = {}
         @renamed_assets    = {}
@@ -155,7 +157,8 @@ class ApplicationController < ActionController::Base
           div = "<div id='dev'><ul>" + used_nodes.map do |k,n| "<li>#{skin_helper.send(:node_actions, :node=>n)} #{skin_helper.send(:link_to,k,zen_path(n))}</li>"
           end.join("") +
           "<li><span class='actions'>#{skin_helper.send(:link_to,_('rebuild'),zen_path(@node, :rebuild => true))}" +
-          "<li><span class='actions'><a href='/users/#{visitor[:id]}/swap_dev'>#{_('turn dev off')}</a></span></li>"
+          "<li><span class='actions'><a href='/users/#{visitor[:id]}/swap_dev'>#{_('turn dev off')}</a></span></li>" +
+          "<li>(#{@skin_names.join(', ')})</li>"
           res.sub!('</body>', "#{div}</body>")
         end
         
@@ -212,7 +215,7 @@ class ApplicationController < ActionController::Base
       else
         # does not start with '/' : look in skin_names first
         url = folder + src.split('/')
-        skin_names = @skin_names
+        skin_names = @skin_names.dup
         skin_names << url.shift if url.size > 1
       end
       document = skin_name = nil

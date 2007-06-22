@@ -11,9 +11,6 @@ Skin::      subclass of Template. Contains other templates. The skin name must b
 =end
 class Page < Node
   class << self
-    def parent_class
-      Page
-    end
   
     def select_classes
       list = subclasses.inject([]) do |list, k|

@@ -445,7 +445,7 @@ tracker:
   id:             27
   zip:            37
   site_id:        1
-  type:           Note
+  type:           Page
   kpath:          NPA
   name:           track
   project_id:     11

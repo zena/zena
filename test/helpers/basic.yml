@@ -532,3 +532,11 @@ design_by_options:
 select_class:
   src: "<input type='select_class' name='klass' root_class='Note'/>"
   res: ".."
+
+read_no_content:
+  src: "this is <b do='[c_bad]'/>"
+  res: "this is <b></b>"
+
+read_bad_attribute:
+  src: "this is <b do='[bad]'/>"
+  res: "this is <b>'bad' not readable</b>"

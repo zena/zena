@@ -31,9 +31,6 @@ class Note < Node
   
   before_validation :prepare_note
   class << self
-    def parent_class
-      Project
-    end
     
     def select_classes
       list = subclasses.inject([]) do |list, k|

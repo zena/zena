@@ -38,9 +38,6 @@ class Document < Page
   before_validation :document_before_validation
   
   class << self
-    def parent_class
-      Node
-    end
     
     def version_class
       DocumentVersion

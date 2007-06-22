@@ -477,11 +477,6 @@ class Node < ActiveRecord::Base
       res
     end
     
-    # valid parent class
-    def parent_class
-      Node
-    end
-    
     def find_by_zip(zip)
       node = find(:first, :conditions=>"zip = #{zip.to_i}")
       raise ActiveRecord::RecordNotFound unless node
@@ -673,10 +668,10 @@ class Node < ActiveRecord::Base
             
             res = secure(Node) { Node.find(:all, Node.clean_options(defaults_for(method).merge(opts).merge(:conditions => condition_for(nil,opts.merge(:base_cond => cond))))) }
           elsif self.class.native_relation?(or_method)
-            cond = condition_for(or_method)
+            cond = condition_for(or_method,opts)
             res  = fetch_relation(method, defaults_for(or_method).merge(opts).merge(:or => cond))
           elsif self.class.native_relation?(method)
-            cond = condition_for(method)
+            cond = condition_for(method,opts)
             res  = fetch_relation(or_method, defaults_for(method).merge(opts).merge(:or => cond))
           else
             # TODO: both are relations ?
@@ -955,6 +950,14 @@ class Node < ActiveRecord::Base
   def ext
     (name && name != '' && name =~ /\./ ) ? name.split('.').last : ''
   end
+  
+  def c_zafu_read(sym)
+    if c = version.content
+      c.zafu_read(sym)
+    else
+      ''
+    end
+  end
     
   # set name: remove all accents and camelize
   def name=(str)
@@ -1206,7 +1209,7 @@ class Node < ActiveRecord::Base
     # Make sure the node is complete before creating it (check parent and project references)
     def validate_node
       # when creating root node, self[:id] and :root_id are both nil, so it works.
-      errors.add("parent_id", "invalid parent") unless (parent.kind_of?(self.class.parent_class) && self[:id] != current_site[:root_id]) || (self[:id] == current_site[:root_id] && self[:parent_id] == nil)
+      errors.add("parent_id", "invalid parent") unless (parent.kind_of?(Node) && self[:id] != current_site[:root_id]) || (self[:id] == current_site[:root_id] && self[:parent_id] == nil)
       
       errors.add("name", "can't be blank") unless self[:name] and self[:name] != ""
       

@@ -20,20 +20,20 @@ class Relation < ActiveRecord::Base
     when 'section'
       if conditions.kind_of?(Array)
         conditions[0] = "(#{conditions[0]}) AND section_id = ?"
-        conditions << start[:section_id]
+        conditions << start.get_section_id
       elsif conditions
-        conditions = ["(#{conditions}) AND section_id = ?", start[:section_id]]
+        conditions = ["(#{conditions}) AND section_id = ?", start.get_section_id]
       else
-        conditions = ["section_id = ?", start[:section_id]]
+        conditions = ["section_id = ?", start.get_section_id]
       end
     when 'project'
       if conditions.kind_of?(Array)
         conditions[0] = "(#{conditions[0]}) AND project_id = ?"
-        conditions << start[:project_id]
+        conditions << start.get_project_id
       elsif conditions
-        conditions = ["(#{conditions}) AND project_id = ?", start[:project_id]]
+        conditions = ["(#{conditions}) AND project_id = ?", start.get_project_id]
       else
-        conditions = ["project_id = ?", start[:project_id]]
+        conditions = ["project_id = ?", start.get_project_id]
       end
     else
       if direction == 'both'
