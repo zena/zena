@@ -1,14 +1,14 @@
 <table cellspacing="0" class='tinycal'>
   <tr class="head"><td class="button">
-    <%= link_to_remote( _('img_prev_page') , :update=>'tinycal', :url=>{:controller=>'calendar', :action=>'show', :date=>(date << 1), :id=>source[:id], :size=>size, :find=>method, :rnd=>rnd } ) %>
+    <%= link_to_remote( _('img_prev_page') , :update=>'tinycal', :url=>{:controller=>'calendar', :action=>'show', :date=>(date << 1), :id=>source[:id], :size=>size, :find=>method, :or=>or_opt, :from=>from, :rnd=>rnd } ) %>
   </td>
-  <td class="title"><%= link_to_remote(title, :update=>'tinycal', :url=>{:controller=>'calendar', :action=>'show', :id=>source[:id], :size=>size, :find=>method, :rnd=>rnd }) %></td>
+  <td class="title"><%= link_to_remote(title, :update=>'tinycal', :url=>{:controller=>'calendar', :action=>'show', :id=>source[:id], :size=>size, :find=>method, :or=>or_opt, :from=>from, :rnd=>rnd }) %></td>
   <td class="button">
-    <%= link_to_remote( _('img_next_page') , :update=>'tinycal', :url=>{:controller=>'calendar', :action=>'show', :date=>(date >> 1), :id=>source[:id], :size=>size, :find=>method, :rnd=>rnd  } ) %>
+    <%= link_to_remote( _('img_next_page') , :update=>'tinycal', :url=>{:controller=>'calendar', :action=>'show', :date=>(date >> 1), :id=>source[:id], :size=>size, :find=>method, :or=>or_opt, :from=>from, :rnd=>rnd  } ) %>
   </td>
   </tr>
   <tr><td colspan='3' class='days'>
-      <table cellspacing='0' onclick="Zena.open_cal(event, '<%= url_for(:controller=>'calendar', :action=>'open', :size=>'large', :find=>method, :id=>source[:id], :date=>date, :rnd=>rnd) %>')">
+      <table cellspacing='0' onclick="Zena.open_cal(event, '<%= url_for(:controller=>'calendar', :action=>'open', :size=>'large', :find=>method, :id=>source[:id], :date=>date, :or=>or_opt, :from=>from, :rnd=>rnd) %>')">
         <tr class="head"> <%= day_names %> </tr>
         <%= content %>
       </table>

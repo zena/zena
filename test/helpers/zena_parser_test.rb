@@ -4,11 +4,11 @@ require 'ruby-debug'
 Debugger.start
 
 class ZenaParserTest < ZenaHelperTest
-  testfile :relations, :basic, :zafu_ajax, :zazen
+  testfile :relations, :basic, :zafu_ajax, :zazen, :apphelper
   Section # make sure we load Section links before trying relations
   
   def test_single
-    do_test('basic', 'read_no_content')
+    do_test('apphelper', 'calendar_from_project')
   end
   
   def test_basic_show_bad_attr
@@ -149,6 +149,15 @@ class ZenaParserTest < ZenaHelperTest
       ]
     Node.connection.execute "INSERT INTO links (`source_id`,`target_id`,`relation_id`) VALUES #{values.join(',')}"
     do_test('relations', 'direction_both_self_auto_ref')
+  end
+  
+  def test_apphelper_calendar_from_project
+    login(:lion)
+    @controller.instance_variable_set(:@visitor, Thread.current.visitor)
+    info  = secure(Note) { Note.create(:name=>'hello', :parent_id=>nodes_id(:collections), :log_at=>'2007-06-22')}
+    assert !info.new_record?
+    assert_equal nodes_id(:zena), info[:project_id]
+    do_test('apphelper', 'calendar_from_project')
   end
   
   make_tests
