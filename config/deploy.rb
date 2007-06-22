@@ -65,7 +65,7 @@ end
 
 desc "clear all cache compiled templates"
 task :clear_cache, :roles => :app do
-  run "#{in_current} rake zena:clear_cache"
+  run "#{in_current} rake zena:clear_cache RAILS_ENV=production"
 end
 
 desc "after code update"
