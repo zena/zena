@@ -54,7 +54,7 @@ class Relation < ActiveRecord::Base
       join = 'LEFT'
       if options[:or].kind_of?(Array)
         or_clause = options[:or].shift
-        params.unshift(options[:or])
+        params = options[:or] + params
       else
         or_clause = options[:or]
       end  

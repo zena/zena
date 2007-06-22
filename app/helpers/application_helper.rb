@@ -479,7 +479,7 @@ module ApplicationHelper
       
       # get list of notes in this scope
       Node.logger.info "\n\n\n\n\n\n\n\n"
-      notes = source.relation(method, :conditions=>["#{using} >= ? AND #{using} <= ?", start_date, end_date], :order=>"#{using} ASC", :or => options[:or]) || []
+      notes = source.relation(method, :conditions=>["#{using} >= ? AND #{using} <= ?", start_date, end_date], :order=>"#{using} ASC", :or => options[:or]) #, :from => options[:from]) || []
       
       # build event hash
       calendar = {}

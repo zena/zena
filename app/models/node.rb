@@ -668,10 +668,10 @@ class Node < ActiveRecord::Base
             
             res = secure(Node) { Node.find(:all, Node.clean_options(defaults_for(method).merge(opts).merge(:conditions => condition_for(nil,opts.merge(:base_cond => cond))))) }
           elsif self.class.native_relation?(or_method)
-            cond = condition_for(or_method,opts)
+            cond = condition_for(or_method,opts.merge(:conditions => nil))
             res  = fetch_relation(method, defaults_for(or_method).merge(opts).merge(:or => cond))
           elsif self.class.native_relation?(method)
-            cond = condition_for(method,opts)
+            cond = condition_for(method,opts.merge(:conditions => nil))
             res  = fetch_relation(or_method, defaults_for(method).merge(opts).merge(:or => cond))
           else
             # TODO: both are relations ?
