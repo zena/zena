@@ -11,36 +11,30 @@ class Relation < ActiveRecord::Base
     return @records if defined? @records
     conditions = options.delete(:conditions)
     direction  = options.delete(:direction)
+    
+    
     # :from
-    side_cond = "links.relation_id = ?"
-    params    = [self[:id]]
-    case options[:from]
-    when 'site'
-    when 'section'
-      if conditions.kind_of?(Array)
-        conditions[0] = "(#{conditions[0]}) AND section_id = ?"
-        conditions << start.get_section_id
-      elsif conditions
-        conditions = ["(#{conditions}) AND section_id = ?", start.get_section_id]
-      else
-        conditions = ["section_id = ?", start.get_section_id]
-      end
-    when 'project'
-      if conditions.kind_of?(Array)
-        conditions[0] = "(#{conditions[0]}) AND project_id = ?"
-        conditions << start.get_project_id
-      elsif conditions
-        conditions = ["(#{conditions}) AND project_id = ?", start.get_project_id]
-      else
-        conditions = ["project_id = ?", start.get_project_id]
+    filter = ["links.relation_id = ?", self[:id]]
+    
+    if !options[:or] && ['site','section','project'].include?(options[:from])
+      # do not use the wide scope if there is an or clause until we find a good fix to make
+      # clauses intuitive.
+      case options[:from]
+      when 'site'
+      when 'section'  
+        filter[0] << " AND section_id = ?"
+        filter    << start.get_section_id
+      when 'project'  
+        filter[0] << " AND project_id = ?"
+        filter    << start.get_project_id
       end
     else
       if direction == 'both'
-        side_cond << " AND (links.#{link_side} = ? OR links.#{other_side} = ?) AND (nodes.id <> ? OR links.#{other_side} = links.#{link_side})"
-        params += [start[:id]] * 3
+        filter[0] << " AND (links.#{link_side} = ? OR links.#{other_side} = ?) AND (nodes.id <> ? OR links.#{other_side} = links.#{link_side})"
+        filter += [start[:id]] * 3
       else
-        side_cond << " AND links.#{link_side} = ?"
-        params += [start[:id]]
+        filter[0] << " AND links.#{link_side} = ?"
+        filter += [start[:id]]
       end
     end
 
@@ -50,24 +44,25 @@ class Relation < ActiveRecord::Base
       join_direction = "nodes.id=links.#{other_side}"
     end
     
+    # BUILD QUERY
+    # conditions AND (filter OR or_clause)
     if options[:or]
       join = 'LEFT'
       if options[:or].kind_of?(Array)
         or_clause = options[:or].shift
-        params = options[:or] + params
-      else
-        or_clause = options[:or]
-      end  
-      inner_conditions = ["(#{or_clause}) OR (#{side_cond})", *params ]
+        filter    = filter + options[:or]
+        filter[0] = "(#{filter[0]}) OR (#{or_clause})"
+      else  
+        filter[0] = "(#{filter[0]}) OR (#{options[:or]})"
+      end
       options.delete(:or)
     else
       join = 'INNER'
-      inner_conditions = ["#{side_cond}", *params ]
     end
     options = Node.clean_options(options).merge( 
                     :select     => "nodes.*, links.id AS link_id", 
                     :joins      => "#{join} JOIN links ON #{join_direction}",
-                    :conditions => inner_conditions,
+                    :conditions => filter,
                     :group      => 'nodes.id'
                     )
     if conditions
