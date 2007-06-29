@@ -1232,6 +1232,8 @@ END_TXT
     end
     
     def unique_name
+      # FIXME: make sure the unique name is using the current skin 
+      # /gbuma/Node_index.html/dev/small_calendar instead of /default/Node_index.html/small_calendar
       "#{@options[:included_history][0].split('::')[0]}/#{(@context[:name] || 'list').gsub(/[^\w\/]/,'_')}"
     end
        
