@@ -1,6 +1,6 @@
 <div class="search">
-  <% if @edit -%>
-  <%= form_remote_tag( :url => search_nodes_path, :method => :get, :loading => "$('search_results').innerHTML='';Element.show('result_loader');" ) %>
+  <% if ajax -%>
+  <%= form_remote_tag( :url => asearch_nodes_path, :method => :get, :loading => "$('search_results').innerHTML='';Element.show('result_loader');" ) %>
   <% else -%>
   <%= form_tag( search_nodes_path, :method => :get ) %>
   <% end -%>

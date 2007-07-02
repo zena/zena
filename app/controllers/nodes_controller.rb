@@ -38,29 +38,19 @@ class NodesController < ApplicationController
   end
   
   def search
-    @node = current_site.root_node
-    if params[:q] && params[:q] != ''
-      match = Node.send(:sanitize_sql, ["MATCH (versions.title,versions.text,versions.summary) AGAINST (?)", params[:q]])
-      query = {
-        :select => "DISTINCT nodes.*, #{match} AS score",
-        :join   => "INNER JOIN versions ON versions.node_id = nodes.id",
-        :conditions => match,
-        :order  => "score DESC"}
-    elsif params[:id]
-      query = {
-        :conditions => ["parent_id = ? AND kpath LIKE 'NP%'",params[:id]],
-        :order  => 'name ASC' }
-    else
-      # error
-      raise Exception.new('bad arguments for search ("query" field missing)')
-    end
-    secure(Node) do
-      @node_pages, @nodes = paginate :nodes, query.merge(:per_page => 10)
-      @nodes # important: this is the 'secure' yield return, it is used to secure found nodes
-    end
+    do_search
     respond_to do |format|
       format.html { render_and_cache :mode => 'search' }
       format.js
+    end
+  end
+  
+  # this should not be needed.... but format.js never gets called otherwize.
+  def asearch
+    do_search
+    respond_to do |format|
+      #format.html { render_and_cache :mode => 'search' }
+      format.js { render :action => 'search'}
     end
   end
 
@@ -328,6 +318,30 @@ class NodesController < ApplicationController
       end
       @title_for_layout = @node.rootpath if @node
     end
+    
+    def do_search
+      @node = current_site.root_node
+      if params[:q] && params[:q] != ''
+        match = Node.send(:sanitize_sql, ["MATCH (versions.title,versions.text,versions.summary) AGAINST (?) OR nodes.name LIKE ?", params[:q], "#{params[:q]}%"])
+        query = {
+          :select => "DISTINCT nodes.*, #{match} AS score",
+          :join   => "INNER JOIN versions ON versions.node_id = nodes.id",
+          :conditions => match,
+          :order  => "score DESC"}
+      elsif params[:id]
+        query = {
+          :conditions => ["parent_id = ? AND kpath LIKE 'NP%'",params[:id]],
+          :order  => 'name ASC' }
+      else
+        # error
+        raise Exception.new('bad arguments for search ("query" field missing)')
+      end
+      secure(Node) do
+        @node_pages, @nodes = paginate :nodes, query.merge(:per_page => 10)
+        @nodes # important: this is the 'secure' yield return, it is used to secure found nodes
+      end
+    end
+
 =begin
   
   # test to here
