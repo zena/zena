@@ -253,3 +253,7 @@ direction_both_self_auto_ref:
 direction_both_else:
   src: "<r:references direction='both' else='parent' do='each' join=', ' do='[name]'/>"
   res: "cleanWater"
+
+visitor:
+  src: "<r:visitor><b do='[v_title]'/></r:visitor>"
+  res: "<b>Solenopsis Invicta</b>"

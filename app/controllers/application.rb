@@ -148,7 +148,6 @@ class ApplicationController < ActionController::Base
         response.template.instance_variable_set(:@session, session)
         skin_helper = response.template
         # [1..-1] = drop leading '/' so find_template_document searches in the current skin first
-        puts "RENDER: #{skin_path.inspect}"
         res = ZafuParser.new_with_url(skin_path[1..-1], :helper => skin_helper).render
         
         if session[:dev] && mode != '_popup_layout'
@@ -252,6 +251,7 @@ class ApplicationController < ActionController::Base
     end
     
     def eval_parameters_from_template_url(template_url=params[:template_url])
+      return {} unless template_url
       path = fullpath_from_template_url(template_url) + '.erb'
       if File.exists?(path)
         eval File.read(path)

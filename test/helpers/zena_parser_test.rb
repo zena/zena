@@ -8,7 +8,7 @@ class ZenaParserTest < ZenaHelperTest
   Section # make sure we load Section links before trying relations
   
   def test_single
-    do_test('apphelper', 'calendar_from_project')
+    do_test('relations', 'visitor')
   end
   
   def test_basic_show_bad_attr

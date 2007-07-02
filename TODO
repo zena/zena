@@ -10,36 +10,19 @@
   * template
 
 ****** FIXME: visitor.lang should never be empty or bad. set 'lang' in participation ?
-Post ====> VirtualClass
-Letter ==> VirtualClass
-Tag  ==> VirtualClass ?
-Tracker => VirtualClass
 
-* add zafu part by object id. <h1 id='title'>...</h1>   <r:with id='part'>...</r:with>
-
+* BUG: png resizing is not working...
 * replace 'link_to_remote, :method => post/put' by 'button_to_remote'
 * make application_helper 'img_tag' use virtual_classes's icon. or superclass's icon....
 * open calendar : use stored zafu and pass template_url as argument instead of all find,date,(_tiny.rhtml)
 * if mksite fails (password too short, etc): rollback !
 * What if a Note/Contact contains pages and one of these pages has 'custom_base' set ?
-* Replace Trans... with Gettext
 * BUG: flash not working in UsersController when updating preferences.
 * (BUG): a user in many sites: where is this user's "contact" node ? One for each site ? Alias ? Alias seems a good choice.
 * BUG: when move, update inherited rights from new parent.
-* update 'deploy.rb' for multisite and update mksite for 'cap' context
-* create site = transaction (or do a rollback)
 * move all input tags into <p> w3c xhtml !
 * try Zena without javascript
-* force 1 user = 1 contact :
-  # either create new contact or use existing contact
-  # store new contacts into (select parent when create) with admin/admin/admin rights, owner = user.
-  # comment users ?
 * expire old pages when changing 'custom_base'
-* move 'admin' layout into 'templates' (use root skin ?, user skin ?)
-* !! DO NOT PUT 'PATH TO FILES' IN ZENA.rb
-* !! TRY TO KEEP ONLY ONE CONFIGURATION FILE, LOADED BY environment/...
-* !! BUG WITH DISCUSSION REMOVE: not working
-* deletion of node
 * popup 'drive' should show vertical scroll bar...
 * traduire le texte de base pour l'aide en anglais
 * APPLICATION_TEST : should use same testing as application_helper...
