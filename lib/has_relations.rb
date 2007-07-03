@@ -44,9 +44,9 @@ module Zena
         role_name = (opts[:role] || '').singularize
         if opts[:id]
           if opts[:source]
-            conditions = ["site_id = ? AND id = ? AND source_kpath IN (?)", current_site[:id], opts[:id], opts[:split_kpath]]
+            conditions = ["site_id = ? AND id = ? AND source_kpath IN (?)", current_site[:id], opts[:id], split_kpath]
           else
-            conditions = ["site_id = ? AND id = ? AND target_kpath IN (?)", current_site[:id], opts[:id], opts[:split_kpath]]
+            conditions = ["site_id = ? AND id = ? AND target_kpath IN (?)", current_site[:id], opts[:id], split_kpath]
           end
         else
           if opts[:ignore_source]
@@ -127,7 +127,6 @@ module Zena
       def relation_proxy(opts={})
         opts = {:role => opts} unless opts.kind_of?(Hash)
         rel_opts = {}
-        rel_opts[:split_kpath] = vclass.split_kpath
         if role = opts[:role]
           rel_opts[:role] = role
           rel_opts[:ignore_source] = true if opts[:from] || opts[:or]
@@ -141,7 +140,7 @@ module Zena
             rel_opts[:target] = self
           end
         end
-        self.class.find_relation(rel_opts)
+        self.vclass.find_relation(rel_opts)
       end
       
       private

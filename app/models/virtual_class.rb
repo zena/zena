@@ -92,6 +92,38 @@ class VirtualClass < ActiveRecord::Base
     end
   end
   
+  # TODO: avoid duplicating this method from 'has_relation' here.
+  def find_relation(opts)
+    role_name = (opts[:role] || '').singularize
+    if opts[:id]
+      if opts[:source]
+        conditions = ["site_id = ? AND id = ? AND source_kpath IN (?)", current_site[:id], opts[:id], split_kpath]
+      else
+        conditions = ["site_id = ? AND id = ? AND target_kpath IN (?)", current_site[:id], opts[:id], split_kpath]
+      end
+    else
+      if opts[:ignore_source]
+        conditions = ["site_id = ? AND (target_role = ? OR source_role = ?)", current_site[:id], role_name, role_name]
+      else
+        conditions = ["site_id = ? AND ((target_role = ? AND source_kpath IN (?)) OR (source_role = ? AND target_kpath IN (?)))", current_site[:id], role_name, split_kpath, role_name, split_kpath]
+      end
+    end
+    relation = Relation.find(:first, :conditions => conditions)
+    return nil unless relation
+    if opts[:start]
+      if relation.target_role == role_name
+        relation.source = opts[:start]
+      else
+        relation.target = opts[:start]
+      end
+    elsif opts[:source]
+      relation.source = opts[:source]
+    else
+      relation.target = opts[:target]
+    end
+    relation
+  end
+  
   private
     def valid_virtual_class
       if self[:name].blank?
