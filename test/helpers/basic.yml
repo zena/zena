@@ -533,9 +533,11 @@ select_class:
   src: "<input type='select_class' name='klass' root_class='Note'/>"
   res: ".."
 
-input_type_checkbox:
-  src: "<input type='checkbox' name='blog_ids' value='[id]'/>"
-  res: "..."
+checkbox:
+  context:
+    node: 'opening'
+  src: "<r:checkbox role='blog' values='11'/>"
+  res: "/input type='checkbox' name='node\[blog_ids\]\[\]' value='11' checked='checked'.*zena.*hidden.*node\[blog_ids\]' value=''/"
 
 read_no_content:
   src: "this is <b do='[c_bad]'/>"

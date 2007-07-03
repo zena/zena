@@ -542,10 +542,18 @@ END_TXT
       return "<span class='parser_error'>checkbox without role</span>"   unless   role = @params[:role]
       meth = role.singularize
       attribute = @params[:attr] || 'name'
-      list_finder = get_list_finder(values)
+      if values =~ /^\d*\s*($|,)/
+        # ids
+        # TODO
+        values = values.split(',').map{|v| v.to_i}
+        list_finder = "(secure(Node) { Node.find(:all, :conditions => ['zip = ?', #{values.inspect}]) } rescue nil)"
+      else
+        # relation
+        list_finder = get_list_finder(values)
+      end
       out "<% if (#{list_var} = #{list_finder}) && (#{list_var}_relation = #{node}.relation_proxy(#{role.inspect})) -%>"
       out "<% if #{list_var}_relation.unique? -%>"
-      
+    
       out "<% #{list_var}_id = #{list_var}_relation.other_id -%>"
       out "<% #{list_var}.each do |#{var}| -%>"
       out "<input type='radio' name='node[#{meth}_id]' value='<%= #{var}.zip %>'<%= #{list_var}_id == #{var}[:id] ? \" checked='checked'\" : '' %>/> <%= #{node_attribute(attribute, :node=>var)} %> "

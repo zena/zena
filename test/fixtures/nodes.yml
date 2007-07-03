@@ -271,6 +271,7 @@ opening:
   site_id:        1
   type:           Note
   kpath:          NNP
+  vclass_id:      2
   name:           opening
   project_id:     11
   section_id:     11
