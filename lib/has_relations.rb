@@ -129,7 +129,7 @@ module Zena
         rel_opts = {}
         if role = opts[:role]
           rel_opts[:role] = role
-          rel_opts[:ignore_source] = true if opts[:from] || opts[:or]
+          rel_opts[:ignore_source] = true if opts[:ignore_source] || opts[:from] || opts[:or]
           rel_opts[:start] = self
         elsif link = opts[:link]
           return nil unless link

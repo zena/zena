@@ -498,7 +498,7 @@ END_TXT
         end
         form << "<div class='hidden'>"
         form << "<input type='hidden' name='template_url' value='#{template_url}'/>\n"
-        form << "<input type='hidden' name='node[parent_id]' value='<%= #{@context[:parent_node]}#{@context[:in_add] ? '.zip' : '.parent_zip'} %>'/>\n"
+        form << "<input type='hidden' name='node[parent_id]' value='<%= #{@context[:in_add] ? "#{@context[:parent_node]}.zip" : "#{node}.parent_zip"} %>'/>\n"
         
         if @params[:klass] && @context[:in_add]
           form << "<input type='hidden' name='node[klass]' value='#{@params[:klass]}'/>\n"
@@ -551,7 +551,7 @@ END_TXT
         # relation
         list_finder = get_list_finder(values)
       end
-      out "<% if (#{list_var} = #{list_finder}) && (#{list_var}_relation = #{node}.relation_proxy(#{role.inspect}, :ignore_source=>true)) -%>"
+      out "<% if (#{list_var} = #{list_finder}) && (#{list_var}_relation = #{node}.relation_proxy(:role=>#{role.inspect}, :ignore_source=>true)) -%>"
       out "<% if #{list_var}_relation.unique? -%>"
     
       out "<% #{list_var}_id = #{list_var}_relation.other_id -%>"
@@ -606,7 +606,9 @@ END_TXT
         end
         
         out text
-        klass = @context[:form].params[:klass] || 'Node'
+        # FIXME: BUG if we set <r:form klass='Post'/> the user cannot select class with menu...
+        klass = @context[:form].params[:klass] || 'Node'        
+        klass = 'Node'
         out "<% #{var}_new = Node.get_class(#{klass.inspect}).new -%>"
         if @context[:form].method == 'form'
           out expand_block(@context[:form], :in_add => true, :no_form => false, :add=>self, :node => "#{var}_new", :parent_node => node)

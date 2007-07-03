@@ -314,7 +314,6 @@ class Node < ActiveRecord::Base
         def node.klass; @klass; end
         return node
       end
-      
       node = if create_class != self
         create_class.with_exclusive_scope(scope) { create_class.create_instance(attributes) }
       else
