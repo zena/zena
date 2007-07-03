@@ -533,6 +533,10 @@ select_class:
   src: "<input type='select_class' name='klass' root_class='Note'/>"
   res: ".."
 
+input_type_checkbox:
+  src: "<input type='checkbox' name='blog_ids' value='[id]'/>"
+  res: "..."
+
 read_no_content:
   src: "this is <b do='[c_bad]'/>"
   res: "this is <b></b>"

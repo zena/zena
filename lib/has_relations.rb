@@ -223,6 +223,7 @@ module Zena
             if relation = relation_proxy(:role => role)
               if mode == '='
                 super if type[0..-2] == 'zip'
+                # add_link
                 set_relation(role,args[0])
               else
                 # get ids / zips

@@ -439,7 +439,7 @@ module Zena
         "<%= date_box 'node', #{name.inspect}, :size=>15#{@context[:in_add] ? ", :value=>''" : ''} %>"
       when 'submit'
         @html_tag = 'input'
-        @html_tag_params[:type] = 'submit'
+        @html_tag_params[:type] = @params[:type]
         render_html_tag(nil)
       else
         out make_input(@html_tag_params.merge(@params))
@@ -1505,7 +1505,7 @@ END_TXT
         # TODO: (test) CAN WE REMOVE :node=>'@node' ?
         value = attribute ? " value='<%= #{node_attribute(attribute, :node=>'@node')} %>'" : " value=''"
       end
-      "<input type='text' name='#{name}'#{value}/>"
+      "<input type='#{params[:type] || 'text'}' name='#{name}'#{value}/>"
     end
     
     def make_textarea(params)
