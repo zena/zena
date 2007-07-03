@@ -429,7 +429,7 @@ module Zena
           opts = {}
           opts[:selected] = @params[:selected] if @params[:selected]
           opts[:without]  = @params[:without]  if @params[:without]
-          "<%= select('node', #{name.inspect}, Node.classes_for_form(:class => #{klass.inspect}#{params_to_erb(opts)})) %>"
+          "<%= select('node', #{name.inspect}, Node.classes_for_form(:class => #{klass.inspect})#{params_to_erb(opts)}) %>"
         else
           klasses = @params[:options] || "Page,Note"
           "<%= select('node', #{name.inspect}, #{klasses.split(',').map(&:strip).inspect}) %>"
@@ -498,7 +498,7 @@ END_TXT
         end
         form << "<div class='hidden'>"
         form << "<input type='hidden' name='template_url' value='#{template_url}'/>\n"
-        form << "<input type='hidden' name='node[parent_id]' value='<%= #{node}#{@context[:in_add] ? '.zip' : '.parent_zip'} %>'/>\n"
+        form << "<input type='hidden' name='node[parent_id]' value='<%= #{@context[:parent_node]}#{@context[:in_add] ? '.zip' : '.parent_zip'} %>'/>\n"
         
         if @params[:klass] && @context[:in_add]
           form << "<input type='hidden' name='node[klass]' value='#{@params[:klass]}'/>\n"
@@ -551,7 +551,7 @@ END_TXT
         # relation
         list_finder = get_list_finder(values)
       end
-      out "<% if (#{list_var} = #{list_finder}) && (#{list_var}_relation = #{node}.relation_proxy(#{role.inspect})) -%>"
+      out "<% if (#{list_var} = #{list_finder}) && (#{list_var}_relation = #{node}.relation_proxy(#{role.inspect}, :ignore_source=>true)) -%>"
       out "<% if #{list_var}_relation.unique? -%>"
     
       out "<% #{list_var}_id = #{list_var}_relation.other_id -%>"
@@ -606,11 +606,13 @@ END_TXT
         end
         
         out text
+        klass = @context[:form].params[:klass] || 'Node'
+        out "<% #{var}_new = Node.get_class(#{klass.inspect}).new -%>"
         if @context[:form].method == 'form'
-          out expand_block(@context[:form], :in_add => true, :no_form => false, :add=>self)
+          out expand_block(@context[:form], :in_add => true, :no_form => false, :add=>self, :node => "#{var}_new", :parent_node => node)
         else
           # build form from 'each'
-          out expand_block(@context[:form], :in_add => true, :no_form => false, :no_edit => true, :add=>self, :make_form => true)
+          out expand_block(@context[:form], :in_add => true, :no_form => false, :no_edit => true, :add=>self, :make_form => true, :node => "#{var}_new", :parent_node => node)
         end
       else
         # no ajax
@@ -1510,8 +1512,7 @@ END_TXT
       if @context[:in_add]
         value = params[:value] ? " value='#{params[:value]}'" : " value=''"
       else
-        # TODO: (test) CAN WE REMOVE :node=>'@node' ?
-        value = attribute ? " value='<%= #{node_attribute(attribute, :node=>'@node')} %>'" : " value=''"
+        value = attribute ? " value='<%= #{node_attribute(attribute)} %>'" : " value=''"
       end
       "<input type='#{params[:type] || 'text'}' name='#{name}'#{value}/>"
     end
@@ -1529,8 +1530,7 @@ END_TXT
       if @context[:in_add]
         value = ''
       else
-        # TODO: (test) CAN WE REMOVE :node=>'@node' ?
-        value = attribute ? "<%= #{node_attribute(attribute, :node=>'@node')} %>" : ""
+        value = attribute ? "<%= #{node_attribute(attribute)} %>" : ""
       end
       "<textarea name='#{name}'>#{value}</textarea>"
     end

@@ -211,7 +211,7 @@ class Node < ActiveRecord::Base
           klass = VirtualClass.find(:first, :conditions=>["site_id = ? AND name = ?",current_site[:id], class_name])
         end
       end
-      klass
+      klass || self
     end
     
     def get_class_from_kpath(kp)

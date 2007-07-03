@@ -10,6 +10,7 @@
   * template
 
 ****** FIXME: visitor.lang should never be empty or bad. set 'lang' in participation ?
+****** FIXME: zafu: 'r_add' should not use '@node' for defaults but a new object... do #{list_var} = Node.get_class('...').new
 
 * BUG: png resizing is not working...
 * replace 'link_to_remote, :method => post/put' by 'button_to_remote'
