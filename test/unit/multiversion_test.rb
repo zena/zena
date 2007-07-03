@@ -643,6 +643,24 @@ class MultiVersionTest < ZenaTestUnit
     assert_equal Zena::Status[:rem], node.v_status
   end
   
+  def test_not_owner_can_remove
+    login(:lion)
+    node = secure(Node) { nodes(:status) }
+    assert_equal users_id(:ant), node.user_id
+    assert node.can_apply?(:unpublish)
+    assert node.unpublish
+    assert node.can_apply?(:destroy_version)
+    assert node.destroy_version
+    # second version
+    node = secure(Node) { nodes(:status) }
+    assert_equal users_id(:ant), node.user_id
+    assert node.can_apply?(:unpublish)
+    assert node.unpublish
+    assert node.can_apply?(:destroy_version)
+    assert node.destroy_version
+    assert_raise(ActiveRecord::RecordNotFound) { nodes(:status) }
+  end
+  
   def test_traductions
     login(:lion) # lang = 'en'
     node = secure(Node) { nodes(:status) }

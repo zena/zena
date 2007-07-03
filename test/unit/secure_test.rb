@@ -75,6 +75,7 @@ class SecureReadTest < ZenaTestUnit
     assert ! node.can_read? , "Cannot read"
     assert node.can_write? , "Can write"
   end
+  
   # pgroup can only publish
   def test_publish_group_can_rwp
     login(:ant)
@@ -103,6 +104,13 @@ class SecureReadTest < ZenaTestUnit
     assert node.can_read? , "Can read as node is 'proposed'"
     assert ! node.can_write? , "Cannot write"
     assert ! node.can_manage? , "Cannot manage"
+  end
+  
+  def test_not_owner_can_vis
+    login(:lion)
+    node = secure(Node) { nodes(:status) }
+    assert_equal users_id(:ant), node.user_id
+    assert node.can_visible?
   end
   
   def test_public_not_in_rgroup_cannot_rwp

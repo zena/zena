@@ -129,7 +129,7 @@ module Zena
           when :unpublish
             can_drive? && v.status == Zena::Status[:pub]
           when :remove
-            can_apply?(:unpublish) || (v.status < Zena::Status[:pub] && (v.user_id == visitor[:id]))
+            can_drive? && v.status != Zena::Status[:pub]
           when :redit, :edit
             can_edit?
           when :destroy_version
