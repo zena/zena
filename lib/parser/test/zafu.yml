@@ -260,6 +260,10 @@ include_super:
   src: "include_super: <r:include template='/name'><p do='with' part='super' do='hello'/>"
   res: "include_super: super: <p>hello world!</p>"
 
+include_replace_same_with:
+  src: "IRSW: <r:include template='/include/super'><r:with part='super'/></r:include>nothing"
+  res: "IRSW: include_super: super: nothing"
+
 include_super_man:
   src: "include_super: <r:include template='/name'><p do='with' part='man' do='hello'/>"
   res: "include_super: super: hey <p>hello world!</p>"

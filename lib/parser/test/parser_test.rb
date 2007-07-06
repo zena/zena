@@ -55,7 +55,7 @@ end
 class ZazenTest < Test::Unit::TestCase
   testfile :zafu, :zafu_asset, :zafu_insight, :zazen
   def test_single
-    do_test('zafu', 'simple_tag')
+    do_test('zafu', 'include_replace_same_with')
   end
   
   def test_zazen_image_no_image
