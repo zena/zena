@@ -609,7 +609,7 @@ END_TXT
         # FIXME: BUG if we set <r:form klass='Post'/> the user cannot select class with menu...
         klass = @context[:form].params[:klass] || 'Node'        
         klass = 'Node'
-        out "<% #{var}_new = Node.get_class(#{klass.inspect}).new -%>"
+        out "<% #{var}_new = secure(Node) { Node.get_class(#{klass.inspect}).new } -%>"
         if @context[:form].method == 'form'
           out expand_block(@context[:form], :in_add => true, :no_form => false, :add=>self, :node => "#{var}_new", :parent_node => node)
         else
