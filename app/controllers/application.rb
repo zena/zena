@@ -280,12 +280,14 @@ class ApplicationController < ActionController::Base
       end
     end
     
+    # FIXME: login asked twice... second time always passes..?
     def do_login
       if current_site[:http_auth]
         session[:after_login_url] = request.parameters
         basic_auth_required do |username, password| 
           if user = User.make_visitor(:login => username, :password => password, :site => current_site)
             successful_login(user)
+            return true
           end
         end
       else
@@ -395,7 +397,7 @@ class ApplicationController < ActionController::Base
         if params[:prefix] == AUTHENTICATED_PREFIX && visitor.is_anon?
           return false unless do_login
         end
-
+        
         case params[:action]
         when 'index'
           redirect_url = "/#{prefix}" if params[:prefix] != prefix || params[:lang]
