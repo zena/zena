@@ -23,6 +23,11 @@ module Zena
     # admin icons
     N_('relation_img')
     N_('relations_img')
+    N_('site_img')
+    N_('btn_site_add')
+    N_('options')
+    N_('public group')
+    N_('site group')
     N_('btn_relation_add')
     N_('virtual_class_img')
     N_('btn_virtual_class_add')

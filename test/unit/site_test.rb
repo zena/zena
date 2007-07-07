@@ -73,7 +73,22 @@ class SiteTest < ZenaTestUnit
     assert site.new_record?
     assert site.errors[:host]
   end
-
+  
+  def test_valid_site
+    login(:lion)
+    site = sites(:zena)
+    assert ! site.update_attributes(:languages => "french, en")
+    assert_equal "invalid languages", site.errors[:languages]
+    site = sites(:zena)
+    assert ! site.update_attributes(:languages => "fr,en", :default_lang=>'')
+    assert_equal "invalid default language", site.errors[:default_lang]
+    site = sites(:zena)
+    assert ! site.update_attributes(:languages => "fr,en", :default_lang=>'french')
+    assert_equal "invalid default language", site.errors[:default_lang]
+    site = sites(:zena)
+    assert site.update_attributes(:languages => "fr ,en, ru ", :default_lang=>'ru')
+  end
+  
   def test_public_path
     site = sites(:zena)
     assert_equal "/test.host/public", site.public_path

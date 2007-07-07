@@ -1,0 +1,8 @@
+<h3><%= _('manage sites') %></h3>
+
+<table id='site_list' class='admin' cellspacing="0">
+  <tr><th class='nav' colspan='9'>
+  <p class='next_page'><%= link_to _('img_next_page'), { :page => @site_pages.current.next } if @site_pages.current.next %></p>
+  <p class='prev_page'><%= link_to _('img_prev_page'), { :page => @site_pages.current.previous } if @site_pages.current.previous %></p></th></tr>
+  <%= render :partial=>'sites/li',  :collection=>@sites %>
+</table>

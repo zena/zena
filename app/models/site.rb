@@ -16,9 +16,9 @@ The #Site model holds configuration information for a site:
 +default_lang+::    The default language of the site (or the unique language if +monolingual+ is true).
 =end
 class Site < ActiveRecord::Base
-  validate :valid_host
+  validate :valid_site
   validates_uniqueness_of :host
-  attr_accessible :name, :authorize, :monolingual, :allow_private, :languages, :default_lang, :site_group_id
+  attr_accessible :name, :languages, :default_lang, :authentication, :monolingual, :allow_private, :http_auth
   has_many :groups, :order => "name"
   has_many :nodes
   has_many :participations, :dependent => :destroy
@@ -248,8 +248,14 @@ class Site < ActiveRecord::Base
     @being_created
   end
   
+  def languages=(s)
+    self[:languages] = s.split(',').map(&:strip).join(',')
+  end
+  
   private
-    def valid_host
+    def valid_site
       errors.add(:host, "invalid host name #{self[:host].inspect}") if self[:host].nil? || (self[:host] =~ /^\./) || (self[:host] =~ /[^\w\.\-]/)
+      errors.add(:languages, "invalid languages") unless self[:languages].split(',').inject(true){|i,l| (i && l =~ /^\w\w$/)}
+      errors.add(:default_lang, "invalid default language") unless self[:languages].split(',').include?(self[:default_lang])
     end
 end

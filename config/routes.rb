@@ -43,9 +43,7 @@ ActionController::Routing::Routes.draw do |map|
   
   map.resources :relations
   map.resources :virtual_classes
-  # map.resources :trans_phrases do |phrases|
-  #   phrases.resources :trans_values
-  # end
+  map.resources :sites
 
   # FIXME monolingual
   

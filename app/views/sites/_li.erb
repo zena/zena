@@ -1,0 +1,12 @@
+<tr id='site<%= li[:id] %>'>
+  <td class='icon'><%= link_to_remote(_('site_img'), 
+          :update =>"site#{li[:id]}", 
+          :url    => edit_site_path(li),
+          :method => :get) %></td>
+  <% [:host, :name, :languages, :default_lang].each do |sym| -%>
+  <td class="<%= sym %>"><%= li[sym] %></td>
+  <% end -%>
+  <td class='public_group'><%= li.public_group.name %></td>  
+  <td class='site_group' ><%= li.site_group.name %></td>
+  <td class='options'><%= [:authentication, :monolingual, :allow_private, :http_auth].reject{|sym| !li[sym]}.map{|sym| _(sym.to_s)}.join(', ') %></td>
+</tr>

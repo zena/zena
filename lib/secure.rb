@@ -665,6 +665,14 @@ Just doing the above will filter all result according to the logged in user.
               find_scope = "#{klass.table_name}.site_id = #{visitor.site[:id]}"
             end
             scope[:find] = { :conditions => find_scope }
+          elsif klass.ancestors.include?(Site)
+            # TODO: write tests
+            scope[:find] ||= {}
+            ptbl = Participation.table_name
+            scope[:find][:joins] = "INNER JOIN #{ptbl} ON #{klass.table_name}.id = #{ptbl}.site_id AND #{ptbl}.user_id = #{visitor[:id]} AND #{ptbl}.status = #{User::Status[:admin]}"
+            scope[:find][:readonly]   = false
+            scope[:find][:select]     = "#{Site.table_name}.*"
+            scope[:find][:conditions] = find_scope
           end
           
           result = klass.with_scope( scope ) { yield }
