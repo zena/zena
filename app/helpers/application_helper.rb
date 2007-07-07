@@ -1003,7 +1003,7 @@ ENDTXT
           end
         end
       end
-      res.join(opts[:join] || ' | ')
+      res.join(opts[:join] || '')
     end
   end
   
