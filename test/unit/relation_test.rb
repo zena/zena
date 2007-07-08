@@ -138,6 +138,14 @@ class RelationTest < ZenaTestUnit
   end
   
   def test_destroy_links
-    
+    assert false, "TODO"
+  end
+  
+  def test_relation_new_record
+    login(:tiger)
+    node = secure(Node) { Node.new }
+    assert_equal nil, node.relation('tags')
+    node = secure(Node) { Node.get_class('Tag').new }
+    assert_equal nil, node.relation('tag_for')
   end
 end

@@ -648,6 +648,7 @@ class Node < ActiveRecord::Base
   
   # This is defined by the linkable lib, we add access to 'root', 'project', 'parent', 'children', ...
   def relation(methods, opts={})
+    return nil if new_record?
     res = nil
     try_list = methods.to_s.split(',')
     plural = opts[:from] || opts[:or] || self.class.plural_relation?(try_list[0])
