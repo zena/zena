@@ -257,3 +257,7 @@ direction_both_else:
 visitor:
   src: "<r:visitor><b do='[v_title]'/></r:visitor>"
   res: "<b>Solenopsis Invicta</b>"
+
+relation_from_site:
+  src: "<r:tagged from='site' limit='10' do='each' join=',' do='[name]'/>"
+  res: "cleanWater,opening"

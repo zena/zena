@@ -518,9 +518,9 @@ class Node < ActiveRecord::Base
       end
     end
     
-    def native_relation?(rel)
+    def native_relation?(rel, opts={})
       ['root', 'parent', 'self', 'children', 'documents_only', 'all_pages'].include?(rel) || begin
-          return false if has_relation?(rel)
+          return false if has_relation?(rel, opts)
           # find class
           Node.get_class(rel) != nil
       end
@@ -680,7 +680,7 @@ class Node < ActiveRecord::Base
             # not implemented yet
             res = nil
           end
-        when self.class.native_relation?(method)
+        when self.class.native_relation?(method, opts)
           res = secure(Node) { Node.find(:all, Node.clean_options(defaults_for(method).merge(opts).merge(:conditions => condition_for(method,opts)))) }
         else
           # Find through HasRelations
@@ -747,7 +747,7 @@ class Node < ActiveRecord::Base
       when 'section'
         start_cond = "section_id = #{get_section_id}"
       else
-        start_cond = "parent_id = #{self[:id]}"
+        start_cond = self[:id] ? "parent_id = #{self[:id]}" : "id IS NULL"
       end
       "#{start_cond} AND #{kpath_cond}"
     end

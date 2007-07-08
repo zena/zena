@@ -36,8 +36,9 @@ module Zena
         end
       end
       
-      def has_relation?(rel)
-        find_relation(:role => rel)
+      def has_relation?(rel, opts={})
+        opts[:role] = rel
+        find_relation(opts)
       end
 
       def find_relation(opts)
@@ -49,7 +50,7 @@ module Zena
             conditions = ["site_id = ? AND id = ? AND target_kpath IN (?)", current_site[:id], opts[:id], split_kpath]
           end
         else
-          if opts[:ignore_source]
+          if opts[:from] || opts[:ignore_source]
             conditions = ["site_id = ? AND (target_role = ? OR source_role = ?)", current_site[:id], role_name, role_name]
           else
             conditions = ["site_id = ? AND ((target_role = ? AND source_kpath IN (?)) OR (source_role = ? AND target_kpath IN (?)))", current_site[:id], role_name, split_kpath, role_name, split_kpath]
