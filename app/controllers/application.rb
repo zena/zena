@@ -45,7 +45,6 @@ class ApplicationController < ActionController::Base
         if session[:user] != user[:id]
           # changed user (login/logout)
           session[:user] = user[:id]
-          session[:lang] = user.lang
         end
       end
     end
@@ -280,7 +279,6 @@ class ApplicationController < ActionController::Base
       end
     end
     
-    # FIXME: login asked twice... second time always passes..?
     def do_login
       if current_site[:http_auth]
         session[:after_login_url] = request.parameters
@@ -301,8 +299,6 @@ class ApplicationController < ActionController::Base
       session[:user] = user[:id]
       @visitor = user
       @visitor.visit(@visitor)
-      # reset session lang, will be set from user on next request/filter
-      session[:lang] = nil
       after_login_url = session[:after_login_url]
       session[:after_login_url] = nil
       if current_site[:http_auth] && params[:controller] != 'session'
@@ -368,11 +364,12 @@ class ApplicationController < ActionController::Base
   
     # Choose best language to display content.
     # 1. 'test.host/oo?lang=en' use 'lang', redirect without lang
-    # 2. 'test.host/oo' use session[:lang]
-    # 3. 'test.host/fr' use the request prefix
-    # 4. 'test.host/'   use current session lang if any
-    # 5. 'test.host/'   use HTTP_ACCEPT_LANGUAGE
-    # 6. 'test.host/'   use default language
+    # 2. 'test.host/fr' use the request prefix
+    # 3. 'test.host/oo' use session[:lang]
+    # 4. 'test.host/'   use session[:lang]
+    # 5. 'test.host/oo' use visitor lang
+    # 6. 'test.host/'   use HTTP_ACCEPT_LANGUAGE
+    # 7. 'test.host/'   use default language
     def set_lang
       [
         params[:lang], 
