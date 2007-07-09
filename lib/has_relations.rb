@@ -118,7 +118,7 @@ module Zena
       # List the links, grouped by role
       def relation_links
         res = []
-        self.class.find_all_relations(self).each do |relation|
+        find_all_relations.each do |relation|
           #if relation.record_count > 5
           #  # FIXME: show message ?
           #end
