@@ -105,7 +105,10 @@ module Zena
       end
       
       def find_all_relations
-        @all_relations ||= self.class.find_all_relations(self)
+        # FIXME: leakage... virtual classes mixed into relations...
+        
+        # @all_relations ||= self.class.find_all_relations(self)
+        @all_relations ||= self.vclass.find_all_relations(self)
       end
 
       def relations_for_form
