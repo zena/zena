@@ -211,7 +211,7 @@ class Node < ActiveRecord::Base
           klass = VirtualClass.find(:first, :conditions=>["site_id = ? AND name = ?",current_site[:id], class_name])
         end
       end
-      klass || self
+      klass
     end
     
     def get_class_from_kpath(kp)
@@ -519,11 +519,7 @@ class Node < ActiveRecord::Base
     end
     
     def native_relation?(rel, opts={})
-      ['root', 'parent', 'self', 'children', 'documents_only', 'all_pages'].include?(rel) || begin
-          return false if has_relation?(rel, opts)
-          # find class
-          Node.get_class(rel) != nil
-      end
+      ['root', 'parent', 'self', 'children', 'documents_only', 'all_pages'].include?(rel) || Node.get_class(rel)
     end
     
     def relation_defined?(rel)
@@ -662,19 +658,32 @@ class Node < ActiveRecord::Base
         when method =~ /\A\d+\Z/
           res = secure(Node) { Node.find(method) }
         when or_method = opts[:or]
-          if self.class.native_relation?(or_method) && self.class.native_relation?(method)
+          native_or  = self.class.native_relation?(or_method)
+          native_std = self.class.native_relation?(method)
+          
+          if native_or && native_std
             # both native methods
             cond = "(#{condition_for(method)}) OR (#{condition_for(or_method)})"
             
             res = secure(Node) { Node.find(:all, Node.clean_options(defaults_for(method).merge(opts).merge(:conditions => condition_for(nil,opts.merge(:base_cond => cond))))) }
-          elsif self.class.native_relation?(or_method)
-            # relation or native
-            cond = condition_for(or_method,opts.merge(:conditions => nil))
-            res  = fetch_relation(method, defaults_for(or_method).merge(opts).merge(:or => cond))
-          elsif self.class.native_relation?(method)
-            # native or relation
-            cond = condition_for(method,opts.merge(:conditions => nil))
-            res  = fetch_relation(or_method, defaults_for(method).merge(opts).merge(:or => cond))
+          elsif native_or
+            if proxy = relation_proxy(:role => method, :ignore_source => true)
+              # relation or native
+              cond = condition_for(or_method,opts.merge(:conditions => nil))
+              res  = proxy.records(defaults_for(or_method).merge(opts).merge(:or => cond))
+            else
+              # single native
+              res = secure(Node) { Node.find(:all, Node.clean_options(defaults_for(method).merge(opts).merge(:conditions => condition_for(or_method,opts)))) }
+            end
+          elsif native_std
+            if proxy = relation_proxy(:role => or_method, :ignore_source => true)
+              # native or relation
+              cond = condition_for(method,opts.merge(:conditions => nil))
+              res  = proxy.records(defaults_for(method).merge(opts).merge(:or => cond))
+            else
+              # single native
+              res = secure(Node) { Node.find(:all, Node.clean_options(defaults_for(method).merge(opts).merge(:conditions => condition_for(method,opts)))) }
+            end
           else
             # TODO: both are relations ?
             # not implemented yet

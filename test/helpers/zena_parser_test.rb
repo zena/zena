@@ -8,7 +8,7 @@ class ZenaParserTest < ZenaHelperTest
   Section # make sure we load Section links before trying relations
   
   def test_single
-    do_test('relations', 'relation_from_site')
+    do_test('relations', 'blog_with_bad_relation')
   end
   
   def test_basic_show_bad_attr
@@ -159,6 +159,6 @@ class ZenaParserTest < ZenaHelperTest
     assert_equal nodes_id(:zena), info[:project_id]
     do_test('apphelper', 'calendar_from_project')
   end
-  
+    
   make_tests
 end

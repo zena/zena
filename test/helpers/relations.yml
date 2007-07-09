@@ -56,6 +56,12 @@ blog_with_added_notes:
     node: 'zena'
   src: "<r:notes or='added_note' do='each' join=', ' do='[name]'/>"
   res: "letter, opening"
+  
+blog_with_bad_relation:
+  context:
+    node: 'zena'
+  src: "<r:notes or='whatever' do='each' join=', ' do='[name]'/>"
+  res: "letter"
 
 pages_limit:
   context:
@@ -261,3 +267,4 @@ visitor:
 relation_from_site:
   src: "<r:tagged from='site' limit='10' do='each' join=',' do='[name]'/>"
   res: "cleanWater,opening"
+
