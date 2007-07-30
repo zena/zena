@@ -29,4 +29,22 @@ class DiscussionTest < ZenaTestUnit
     assert !disc.new_record?, "Not a new record"
     assert_equal sites_id(:zena), disc.site_id
   end
+  
+  def test_discussion_in_sync_with_version_lang
+    # should be found even if nav in fr
+    login(:anon)
+    visitor.lang = 'fr'
+    node = secure(Node) { nodes(:status) }
+    assert_equal 'fr', node.v_lang
+    assert discussion = node.discussion
+    assert discussion.new_record?
+    
+    # unpublish version
+    Node.connection.execute "UPDATE versions SET status = #{Zena::Status[:red]} WHERE id = #{node.v_id}"
+    node = secure(Node) { nodes(:status) }
+    assert_equal 'en', node.v_lang
+    assert discussion = node.discussion
+    assert_equal 'en', discussion.lang
+    assert_equal discussions_id(:outside_discussion_on_status_en), discussion.id
+  end
 end
