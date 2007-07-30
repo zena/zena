@@ -713,84 +713,37 @@ class Node < ActiveRecord::Base
   end
   
   # 'root', 'project', 'section', 'parent', 'self', 'nodes', 'projects', 'sections', 'children', 'pages', 'documents', 'documents_only', 'images', 'notes', 'author', 'traductions', 'versions'
-  def condition_for(method, opts={})
-    base_cond = opts[:base_cond] || case method
+  def base_condition(method)
+    case method
     when 'root'
-      "id = #{current_site.root_id}"
+      "nodes.id = #{current_site.root_id}"
     when 'project'
-      "id = #{self[:project_id]}"
+      "nodes.id = #{self[:project_id]}"
     when 'section'
-      "id = #{self[:section_id]}"
+      "nodes.id = #{self[:section_id]}"
     when 'parent'
       self[:parent_id] ? "id = #{self[:parent_id]}" : "id IS NULL"
     when 'self'  
-      "id = #{self[:id]}"
+      "nodes.id = #{self[:id]}"
     when 'author'
-      "id = #{user.contact_id}"
+      "nodes.id = #{user.contact_id}"
+    when 'visitor'
+      "nodes.id = #{visitor.contact_id}"
     when 'traductions', 'versions'
-      return 'id IS NULL' # FIXME
-    else
+      'id IS NULL' # FIXME
+      
       # yes, I know, this is not very elegant, we should find some common way to access 'documents without images'
       # and 'pages without documents'. But we DO need the 'pages' shortcut and not some <r:pages without='documents'/>
-      case method
-      when 'documents_only'
-        kpath_cond = "kpath LIKE '#{Document.kpath}%' AND kpath NOT LIKE '#{Image.kpath}%'"
-      when 'pages'
-        kpath_cond = "kpath LIKE '#{Page.kpath}%' AND kpath NOT LIKE '#{Document.kpath}%'"
-      when 'all_pages'
-        kpath_cond = "kpath LIKE '#{Page.kpath}%'"
-      when 'children', 'nodes'
-        kpath_cond = "1"
-      else
-        unless klass = Node.get_class(method)
-          # unknown relation :
-          return "id IS NULL"
-        end
-        kpath_cond = "kpath LIKE '#{klass.kpath}%'"
-      end
-      case opts[:from]
-      when 'site'
-        start_cond = '1'
-      when 'project'
-        start_cond = "project_id = #{get_project_id}"
-      when 'section'
-        start_cond = "section_id = #{get_section_id}"
-      else
-        start_cond = self[:id] ? "parent_id = #{self[:id]}" : "id IS NULL"
-      end
-      "#{start_cond} AND #{kpath_cond}"
-    end
-    
-    if opt_cond = opts[:conditions]
-      if opt_cond.kind_of?(Array)
-        ["(#{base_cond}) AND (#{opt_cond[0]})", *opt_cond[1..-1]]
-      else
-        "(#{base_cond}) AND (#{opt_cond})"
-      end
+    when 'documents_only'
+      "nodes.kpath LIKE '#{Document.kpath}%' AND kpath NOT LIKE '#{Image.kpath}%'"
+    when 'pages'
+      "nodes.kpath LIKE '#{Page.kpath}%' AND kpath NOT LIKE '#{Document.kpath}%'"
+    when 'all_pages'
+      "nodes.kpath LIKE '#{Page.kpath}%'"
+    when 'children', 'nodes'
+      "1" # no filter
     else
-      base_cond
-    end
-  end
-  
-  def defaults_for(method)
-    case method
-    when 'root','project','section','parent','self','author'
-      {}
-    when 'traductions', 'versions'
-      {}
-    when 'documents_only','pages','all_pages','children','nodes'  
-      {:order => 'position ASC, name ASC'}
-    else
-      if self.class.native_relation?(method)
-        klass = Node.get_class(method)
-        if klass.kpath_match?(Note.kpath)
-          {:order => 'log_at DESC'}
-        else
-          {:order => 'position ASC, name ASC'}
-        end
-      else
-        {:order => 'name ASC'}
-      end
+      nil
     end
   end
   

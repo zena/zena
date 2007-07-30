@@ -84,9 +84,121 @@ module Zena
 
     module InstanceMethods
 
-      def fetch_relation(role, opts={})
-        return nil unless relation = relation_proxy(:role => role, :from => opts[:from], :or => opts[:or])
-        relation.records(opts)
+      # Build a finder for a list of relations. Valid relation syntax is 'RELATION [from|to] [site|section|project]'. For
+      # example: 'pages from project', 'images from site', 'tags', 'icon_for from project'
+      def build_condition(*finders)
+        parts = []
+        
+        # Finders will be joined together with an 'OR'
+        finders.each do |rule|
+          opts = {}
+          from = nil
+          rules = rule.split(/\s+/)
+          
+          if rules.size > 1 && rules.size % 2 == 1
+            # 'pages from project' => finder = 'page' and opts = {:from => 'project'}
+            finder = rules.shift
+            opts = Hash[*rules]
+            opts.keys.each {|key| opts[key.to_sym] = opts[key]; opts.delete(key) }
+          else
+            # no arguments or bad argument count (ignore arguments)
+            finder = rules[0]
+          end
+          
+          from_clause = case opts[:from]
+          when 'site'
+            ""
+          when 'section'
+            " AND nodes.section_id = #{get_section_id}"
+          when 'project'
+            " AND nodes.project_id = #{get_project_id}"
+          else
+            " AND nodes.parent_id = #{self[:id].to_i}"
+          end
+          
+          to_clause = case opts[:to]
+          when 'site'
+            ""
+          when 'section'
+            " AND source_nodes.section_id = #{get_section_id}"
+          when 'project'
+            " AND source_nodes.project_id = #{get_project_id}"
+          else
+            nil
+          end
+          
+          if finder =~ /\A\d+\Z/
+            parts << "(nodes.zip = #{finder})"
+          elsif base_condition = self.base_condition(finder)
+            # parent, project, section, children, pages, ...
+            parts << "(#{base_condition}#{from_clause})"
+          elsif klass = Node.get_class(finder)
+            # images, documents, ... or virtual class: posts, letters, ...
+            parts << "(nodes.kpath LIKE '#{klass.kpath}%'#{from_clause})"
+          elsif rel   = Relation.find_by_role(finder)
+            # icon, icon_for, added_notes, ...
+            if to_clause
+              # FIXME: finish this part (add JOIN nodes AS source_nodes ON ... from clause ... )
+              # parts << "(links.relation_id = #{rel[:id]} AND links.#{rel.other_side} = nodes.id AND links.#{rel.link_side} = source_nodes.id#{source_clause})"
+            else
+              parts << "(links.relation_id = #{rel[:id]} AND links.#{rel.link_side} = nodes.id AND links.#{rel.other_side} = #{self[:id]})"
+            end
+          else
+            # bad finder. Ignore.
+          end
+        end
+        if parts == []
+          'nodes.id IS NULL'
+        else
+          parts.join(' OR ')
+        end
+      end
+      
+      # node.find(:all, :relations=>['notes', 'added_notes'], :order=>'', :limit=>3, :order=>'', :conditions=>'')
+      def find(count, options)
+        return nil if new_record?
+        if options.kind_of?(String)
+          opts = {:relations=>options}
+        else
+          opts = options.dup
+        end
+        
+        plural = (count == :all)
+        if !plural
+          opts[:limit] = 1
+        end
+        
+        relations = opts.delete(:relations)
+        relations = [relations] unless relations.kind_of?(Array)
+        base_conditions = build_condition(*relations)
+        if cond = opts[:conditions]
+          if cond.kind_of?(Array)
+            opts[:conditions] = ["(#{cond[0]}) AND (#{base_conditions})"] + cond[1..-1]
+          else
+            opts[:conditions] = "(#{cond}) AND (#{base_conditions})"
+          end
+        else
+          opts[:conditions]   = base_conditions
+        end
+        
+        opts[:order] ||= 'position ASC, name ASC'
+        
+        if base_conditions =~ /links\./
+          opts = Node.clean_options(opts).merge( 
+                          :select     => "nodes.*, links.id AS link_id", 
+                          :joins      => "INNER JOIN links",
+                          :group      => 'nodes.id'
+                          )
+        else
+          opts = Node.clean_options(opts).merge(
+                          :group      => 'nodes.id'
+                          )
+        end
+        
+        secure(Node) { Node.find(count, opts) }
+        
+      rescue ActiveRecord::RecordNotFound
+        nil
       end
       
       def set_relation(role, value)
@@ -105,9 +217,6 @@ module Zena
       end
       
       def find_all_relations
-        # FIXME: leakage... virtual classes mixed into relations...
-        
-        # @all_relations ||= self.class.find_all_relations(self)
         @all_relations ||= self.vclass.find_all_relations(self)
       end
 
@@ -127,6 +236,9 @@ module Zena
         end
         res
       end
+      
+      
+      # REWRITE TO HERE
       
       def relation_proxy(opts={})
         opts = {:role => opts} unless opts.kind_of?(Hash)

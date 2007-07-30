@@ -1,77 +1,46 @@
 class Relation < ActiveRecord::Base
   validate        :valid_relation
-  attr_accessor   :source, :target, :link_errors, :new_value
+  attr_accessor   :side, :link_errors, :start, :new_value
   attr_protected  :site_id
   has_many        :links, :dependent => :destroy
   
   # FIXME: validate uniqueness of source_role and target_role in scope site_id
   # FIXME: set kpath from class
   
-  def records(options={})
-    return @records if defined? @records
-    conditions = options.delete(:conditions)
-    direction  = options.delete(:direction)
-    
-    
-    # :from
-    filter = ["links.relation_id = ?", self[:id]]
-    
-    if !options[:or] && ['site','section','project'].include?(options[:from])
-      # do not use the wide scope if there is an or clause until we find a good fix to make
-      # clauses intuitive.
-      case options[:from]
-      when 'site'
-      when 'section'  
-        filter[0] << " AND section_id = ?"
-        filter    << start.get_section_id
-      when 'project'  
-        filter[0] << " AND project_id = ?"
-        filter    << start.get_project_id
-      end
-    else
-      if direction == 'both'
-        filter[0] << " AND (links.#{link_side} = ? OR links.#{other_side} = ?) AND (nodes.id <> ? OR links.#{other_side} = links.#{link_side})"
-        filter += [start[:id]] * 3
+  class << self
+    def find_by_role(role)
+      rel = find(:first, :conditions => ["source_role = ? OR target_role = ?", role, role])
+      return nil unless rel
+      if rel.source_role == role
+        rel.side = :source
       else
-        filter[0] << " AND links.#{link_side} = ?"
-        filter += [start[:id]]
+        rel.side = :target
       end
+      rel
     end
-
-    if direction == 'both'
-      join_direction = "(nodes.id=links.#{other_side} OR nodes.id=links.#{link_side})"
-    else
-      join_direction = "nodes.id=links.#{other_side}"
+  end   
+  
+  def records(opts={})
+    return @records if defined? @records
+    
+    base_condition = "links.relation_id = #{self[:id]} AND links.#{link_side} = #{@start[:id]}"
+    
+    if cond = opts[:conditions]
+      if cond.kind_of?(Array)
+        opts[:conditions] = ["(#{cond[0]}) AND (#{base_condition})"] + cond[1..-1]
+      else
+        opts[:conditions] = "(#{cond}) AND (#{base_condition})"
+      end
     end
     
-    # BUILD QUERY
-    # conditions AND (filter OR or_clause)
-    if options[:or]
-      join = 'LEFT'
-      if options[:or].kind_of?(Array)
-        or_clause = options[:or].shift
-        filter    = filter + options[:or]
-        filter[0] = "(#{filter[0]}) OR (#{or_clause})"
-      else  
-        filter[0] = "(#{filter[0]}) OR (#{options[:or]})"
-      end
-      options.delete(:or)
-    else
-      join = 'INNER'
-    end
-    options = Node.clean_options(options).merge( 
+    options = Node.clean_options(opts).merge( 
                     :select     => "nodes.*, links.id AS link_id", 
-                    :joins      => "#{join} JOIN links ON #{join_direction}",
-                    :conditions => filter,
+                    :joins      => "INNER JOIN links ON nodes.id=links.#{other_side}",
                     :group      => 'nodes.id'
                     )
-    if conditions
-      Node.with_scope(:find=>{:conditions=>conditions}) do
-        @records = secure(Node) { Node.find(:all, options) }
-      end
-    else
-      @records = secure(Node) { Node.find(:all, options) }
-    end
+    @records = secure(Node) { Node.find(:all, options) }
+  rescue ActiveRecord::RecordNotFound
+    @records = nil
   end
 
   def other_link
@@ -114,7 +83,7 @@ class Relation < ActiveRecord::Base
   
   # find the links from the current context (source or target)
   def other_links
-    @links ||= Link.find(:all, :conditions => ["relation_id = ? AND #{link_side} = ?", self[:id], start[:id]])
+    @links ||= Link.find(:all, :conditions => ["relation_id = ? AND #{link_side} = ?", self[:id], @start[:id]])
   end
   
   # link can be changed if user can write in old and new
@@ -178,17 +147,17 @@ class Relation < ActiveRecord::Base
     return unless @del_links && @add_ids
     @del_links.each { |l| l.destroy }
     return if @add_ids == []
-    list = @add_ids.map {|obj_id| "(#{self[:id]},#{start[:id]},#{obj_id})"}.join(',')
+    list = @add_ids.map {|obj_id| "(#{self[:id]},#{@start[:id]},#{obj_id})"}.join(',')
     Link.connection.execute "INSERT INTO links (`relation_id`,`#{link_side}`,`#{other_side}`) VALUES #{list}"
     remove_instance_variable(:@links)
   end
   
   def unique?
-    @source ? target_unique : source_unique
+    @side == :source ? target_unique : source_unique
   end
   
   def as_unique?
-    @source ? source_unique : target_unique
+    @side == :source ? source_unique : target_unique
   end
   
   def source_unique
@@ -199,6 +168,14 @@ class Relation < ActiveRecord::Base
     self[:target_unique] ? true : false
   end
   
+  def link_side
+    @side == :source ? 'source_id' : 'target_id'
+  end
+  
+  def other_side
+    @side == :source ? 'target_id' : 'source_id'
+  end
+  
   private
     def valid_relation
       unless visitor.is_admin?
@@ -207,22 +184,9 @@ class Relation < ActiveRecord::Base
       end
       self[:site_id] = current_site[:id]
     end
-  
-    
-    def link_side
-      @source ? 'source_id' : 'target_id'
-    end
-    
-    def other_side
-      @source ? 'target_id' : 'source_id'
-    end
-    
-    def start
-      @source || @target
-    end
     
     def relation_class
-      start.relation_base_class
+      @start.relation_base_class
     end
     
     def find_target(obj_id)

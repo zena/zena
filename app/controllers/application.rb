@@ -294,6 +294,7 @@ class ApplicationController < ActionController::Base
     
     def successful_login(user)
       session[:user] = user[:id]
+      session[:lang] = @visitor.lang
       @visitor = user
       @visitor.visit(@visitor)
       after_login_url = session[:after_login_url]
@@ -372,7 +373,7 @@ class ApplicationController < ActionController::Base
         params[:lang], 
         params[:prefix] == AUTHENTICATED_PREFIX ? nil : params[:prefix],
         session[:lang],
-        (visitor.is_anon? ? nil : visitor.lang), # visitor.lang comes before http headers if logged in
+        (visitor.is_anon? ? nil : visitor.lang),
         (request.headers['HTTP_ACCEPT_LANGUAGE'] || '').split(',').sort {|a,b| (b.split(';q=')[1] || 1.0).to_f <=> (a.split(';q=')[1] || 1.0).to_f }.map {|l| l.split(';')[0].split('-')[0] },
         (visitor.is_anon? ? visitor.lang : nil), # anonymous user's lang comes last
       ].compact.flatten.uniq.each do |l|
@@ -384,7 +385,9 @@ class ApplicationController < ActionController::Base
       
       session[:lang] ||= current_site[:default_lang]
       
-      visitor.lang = session[:lang] # FIXME: this should not be needed, use global GetText.get_locale...
+      if visitor.lang != session[:lang] && !visitor.is_anon?
+        visitor.update_attribute_with_validation_skipping('lang', session[:lang])
+      end
       GetText.set_locale_all(session[:lang])
       
       if params[:controller] == 'nodes'

@@ -43,15 +43,30 @@ class RelationTest < ZenaTestUnit
     assert_equal 'NP', relation.target_kpath
   end
   
-  def test_get_relation
+  def test_find_relation
     node = secure(Node) { nodes(:opening) }
-    assert calendars = node.relation('calendars')
+    assert calendars = node.find(:all, 'calendars')
+    assert_equal 2, calendars.size
+    calendars.each do |obj|
+      assert_kind_of Project, obj
+    end
+    assert calendars = node.find(:all, :relations=>['calendars'])
     assert_equal 2, calendars.size
     calendars.each do |obj|
       assert_kind_of Project, obj
     end
   end
   
+  def test_find_relation_with_alternative
+    node = secure(Node) { nodes(:wiki) }
+    assert projects_and_images = node.find(:all, :relations=>['projects from site', 'images'])
+    assert_equal [20, 11, 21, 19, 1], projects_and_images.map{|r| r[:id]}
+    projects_and_images.each do |r|
+      assert((r.kind_of?(Image) && r.parent_id == node[:id]) || r.kind_of?(Project))
+    end
+  end
+  
+  # TEST TO HERE
   def test_set_relation
     login(:tiger)
     node = secure(Node) { nodes(:status) }
@@ -147,5 +162,18 @@ class RelationTest < ZenaTestUnit
     assert_equal nil, node.relation('tags')
     node = secure(Node) { Node.get_class('Tag').new }
     assert_equal nil, node.relation('tag_for')
+  end
+  
+  def test_build_condition
+    node = secure(Node) { nodes(:cleanWater) }
+    assert_equal "(nodes.kpath LIKE 'NN%' AND nodes.parent_id = 11) OR (links.relation_id = 8 AND links.source_id = nodes.id AND links.target_id = 11)", node.build_condition(:finders=>['notes', 'added_notes'])
+    
+    assert_equal "(nodes.kpath LIKE 'NN%' AND nodes.project_id = 11) OR (links.relation_id = 8 AND links.source_id = nodes.id AND links.target_id = 11)", node.build_condition(:finders=>['notes from project', 'added_notes'])
+    
+    assert_equal "(nodes.kpath LIKE 'NN%' AND nodes.project_id = 11) OR (links.relation_id = 8 AND links.source_id = nodes.id AND links.target_id = 11)", node.build_condition(:finders=>['notes', 'icon_for from project'])
+    
+    assert_equal "(nodes.kpath LIKE 'NN%' AND nodes.section_id = 1) OR (links.relation_id = 8 AND links.source_id = nodes.id AND links.target_id = 11)", node.build_condition(:finders=>['notes from section', 'added_notes'])
+    
+    assert_equal "", node.build_condition(:finders=>['notes', 'added_notes'], :from=>'project', :filter=>"log_at > #{Time.gm(2006,10,1).strftime('%Y-%m-%d %H:%M:%S')}")
   end
 end

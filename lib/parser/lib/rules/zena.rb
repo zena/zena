@@ -362,11 +362,7 @@ module Zena
     def r_user
       do_var("#{node}.user", :node_class => :User)
     end
-    
-    def r_visitor
-      do_var("visitor.contact", :node_class => :Node)
-    end
-    
+        
     # TODO: remove, use relations
     def r_to_publish
       do_list("#{node}.to_publish", :node_class => :Version)
