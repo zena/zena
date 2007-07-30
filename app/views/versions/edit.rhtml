@@ -8,7 +8,6 @@
 <div class='tab'>
   <% form_tag( node_path(@node[:zip]), :method => :put, :multipart => @node.kind_of?(Document), :id => 'node_form') do -%>
   <div class='hidden'>
-    <%= hidden_field 'node', 'v_lang', :value=>@node.v_lang %>
     <input type='hidden' name='edit' value='popup'/>
   </div>
   <div class='validate'>

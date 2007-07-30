@@ -94,4 +94,15 @@ class CommentTest < ZenaTestUnit
     assert_equal 2, replies_with_prop.size
     assert_equal prop_reply[:id], replies_with_prop[1][:id]
   end
+  
+  def test_can_edit
+    login(:anon)
+    visitor.ip = '10.0.0.44'
+    comment = comments(:public_spam_in_en)
+    assert_not_equal visitor.ip, comment.ip
+    assert !comment.can_edit?
+    visitor.ip = '10.0.0.3'
+    assert_equal comment.ip, visitor.ip
+    assert comment.can_edit?
+  end
 end

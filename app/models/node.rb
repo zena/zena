@@ -128,7 +128,7 @@ class Node < ActiveRecord::Base
   
   zafu_readable      :name, :created_at, :updated_at, :event_at, :log_at, :kpath, :user_zip, :parent_zip, :project_zip,
                      :section_zip, :skin, :ref_lang, :fullpath, :rootpath, :publish_from, :max_status, :rgroup_id, 
-                     :wgroup_id, :pgroup_id, :basepath, :custom_base, :klass, :zip, :score
+                     :wgroup_id, :pgroup_id, :basepath, :custom_base, :klass, :zip, :score, :comments_count
   
   
   has_many           :discussions, :dependent => :destroy
@@ -851,7 +851,7 @@ class Node < ActiveRecord::Base
     secure(Node) { Node.find(:all, relation_options(opts)) }
   end
   
-  # Find notes (overwritten in Project)
+  # TODO: remove ? Find notes (overwritten in Project)
   def notes
     nil
   end
@@ -1090,6 +1090,15 @@ class Node < ActiveRecord::Base
     end
   end
   
+  # TODO: remove, replace by relation proxy: proxy.count...
+  def comments_count
+    if discussion
+      discussion.comments_count(:with_prop=>can_drive?)
+    else
+      0
+    end
+  end
+  
   # Return true if it is allowed to add comments to the node in the current context
   # TODO: update test with 'commentator?'
   def can_comment?
@@ -1100,7 +1109,7 @@ class Node < ActiveRecord::Base
   def add_comment(opt)
     return nil unless can_comment?
     discussion.save if discussion.new_record?
-    author = opt[:author_name] = nil unless visitor[:id] == 1 # anonymous user
+    author = opt[:author_name] = nil unless visitor.is_anon? # anonymous user
     opt.merge!( :discussion_id=>discussion[:id], :user_id=>visitor[:id] )
     secure(Comment) { Comment.create(opt) }
   end

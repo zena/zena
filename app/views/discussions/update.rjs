@@ -1,2 +1,2 @@
-page.replace_html "discussions", :partial=>'discussion/list'
+page.replace "discussions", :partial=>'discussions/list'
 page.visual_effect :highlight, "discussion#{@discussion[:id]}", :duration => 0.3

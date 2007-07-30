@@ -22,13 +22,22 @@ class Discussion < ActiveRecord::Base
     all_comments.size == 0
   end
   
-  def comments(opt={})
-    if opt[:with_prop]
+  def comments(opts={})
+    if opts[:with_prop]
       conditions = ["discussion_id = ? AND reply_to IS NULL AND status > #{Zena::Status[:rem]}", self[:id]]
     else
       conditions = ["discussion_id = ? AND reply_to IS NULL AND status = #{Zena::Status[:pub]}", self[:id]]
     end
     Comment.find(:all, :conditions=>conditions, :order=>'created_at ASC')
+  end
+  
+  def comments_count(opts={})
+    if opts[:with_prop]
+      conditions = ["discussion_id = ? AND status > #{Zena::Status[:rem]}", self[:id]]
+    else
+      conditions = ["discussion_id = ? AND status = #{Zena::Status[:pub]}", self[:id]]
+    end
+    Comment.count(:all, :conditions=>conditions)
   end
   
   # TODO: test

@@ -46,6 +46,9 @@ class ApplicationController < ActionController::Base
           # changed user (login/logout)
           session[:user] = user[:id]
         end
+        if user.is_anon?
+          user.ip = request.headers['REMOTE_ADDR']
+        end
       end
     end
         
@@ -183,17 +186,11 @@ class ApplicationController < ActionController::Base
       return text, url
     end
 
-    # TODO: implement
     def template_url_for_asset(opts)
       return nil unless res = find_template_document(opts)
       asset, url = *res
       @renamed_assets[url] = asset
-      if asset.public? && !current_site.authentication?
-        # force the use of a cacheable path for the data, even when navigating in '/oo'
-        data_path(asset, :prefix=>lang)
-      else
-        data_path(asset, :prefix=>prefix)
-      end
+      data_path(asset)
     rescue ActiveRecord::RecordNotFound
       return nil
     end
@@ -471,7 +468,13 @@ class ApplicationController < ActionController::Base
   
     def data_path(node, opts={})
       format = node.kind_of?(Document) ? node.c_ext : nil
-      zen_path(node, {:format => format}.merge(opts))
+      if node.public? && !current_site.authentication?
+        # force the use of a cacheable path for the data, even when navigating in '/oo'
+        # FIXME: data_path should manage all this alone.
+        zen_path(node, opts.merge(:format => format, :prefix=>lang))
+      else  
+        zen_path(node, opts.merge(:format => format))
+      end
     end
   
     
@@ -481,8 +484,10 @@ class ApplicationController < ActionController::Base
       if sharp = options.delete(:sharp)
         if sharp =~ /\[(.+)\]/
           sharp_value = node.zafu_read($1)
-        else
+        elsif sharp == 'true'
           sharp_value = "node#{node[:zip]}"
+        else
+          sharp_value = sharp
         end
         if sharp_in = options.delete(:sharp_in)
           sharp_node = node.relation(sharp_in) || node
@@ -558,11 +563,11 @@ class ApplicationController < ActionController::Base
       res.join("\n")
     end
   
-    # TODO: test
+    # TODO: test (where is this used ? discussions, ?)
     def processing_error(msg)
       # (this method used to be called add_error, but it messed up with 'test/unit/testcase.rb' when testing helpers)
       @errors ||= []
-      @errors << trans(msg)
+      @errors << _(msg)
     end
   
     # TODO: test

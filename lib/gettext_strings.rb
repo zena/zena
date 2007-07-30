@@ -46,6 +46,12 @@ module Zena
     N_('img_group')         # edit groups (admin)
     N_('img_group_pub')     # edit users (admin)
     N_('img_group_site')    # edit users (admin)
+    N_('img_comments')          # comments
+    N_('img_comments_inside')   # comments
+    N_('inside')                # comments
+    N_('outside')               # comments
+    N_('open')                  # comments
+    N_('closed')                # comments
     
     N_('img_prev_page')     # admin lists
     N_('img_next_page')     # admin lists

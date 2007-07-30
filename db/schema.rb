@@ -43,6 +43,7 @@ ActiveRecord::Schema.define(:version => 0) do
     t.column "text",          :text,                                    :null => false
     t.column "author_name",   :string,   :limit => 300
     t.column "site_id",       :integer
+    t.column "ip",            :string,   :limit => 200
   end
 
   create_table "contact_contents", :force => true do |t|
@@ -78,6 +79,7 @@ ActiveRecord::Schema.define(:version => 0) do
     t.column "content_type", :string,  :limit => 20
     t.column "ext",          :string,  :limit => 20
     t.column "size",         :integer
+    t.column "format",       :string,  :limit => 20
     t.column "width",        :integer
     t.column "height",       :integer
     t.column "site_id",      :integer
@@ -92,6 +94,19 @@ ActiveRecord::Schema.define(:version => 0) do
 
   add_index "dyn_attributes", ["owner_id"], :name => "index_dyn_attributes_on_owner_id"
   add_index "dyn_attributes", ["owner_table"], :name => "index_dyn_attributes_on_owner_table"
+
+  create_table "form_lines", :force => true do |t|
+    t.column "seizure_id", :integer
+    t.column "key",        :string
+    t.column "value",      :string
+  end
+
+  create_table "form_seizures", :force => true do |t|
+    t.column "user_id",    :integer,  :default => 0, :null => false
+    t.column "created_at", :datetime
+    t.column "updated_at", :datetime
+    t.column "form_id",    :integer
+  end
 
   create_table "groups", :force => true do |t|
     t.column "created_at", :datetime
@@ -133,6 +148,7 @@ ActiveRecord::Schema.define(:version => 0) do
     t.column "ref_lang",     :string,   :limit => 10,  :default => "",    :null => false
     t.column "alias",        :string,   :limit => 400
     t.column "fullpath",     :text
+    t.column "dgroup_id",    :integer
     t.column "custom_base",  :boolean,                 :default => false
     t.column "basepath",     :text
     t.column "site_id",      :integer
@@ -189,21 +205,17 @@ ActiveRecord::Schema.define(:version => 0) do
     t.column "mode",      :string
   end
 
-  create_table "tmp", :id => false, :force => true do |t|
-    t.column "a", :string, :limit => 50
-    t.column "b", :string, :limit => 50
-  end
-
   create_table "users", :force => true do |t|
-    t.column "created_at", :datetime
-    t.column "updated_at", :datetime
-    t.column "login",      :string,   :limit => 20
-    t.column "password",   :string,   :limit => 40
-    t.column "lang",       :string,   :limit => 10, :default => "", :null => false
-    t.column "first_name", :string,   :limit => 60
-    t.column "name",       :string,   :limit => 60
-    t.column "email",      :string,   :limit => 60
-    t.column "time_zone",  :string
+    t.column "created_at",    :datetime
+    t.column "updated_at",    :datetime
+    t.column "login",         :string,   :limit => 20
+    t.column "password",      :string,   :limit => 40
+    t.column "lang",          :string,   :limit => 10, :default => "", :null => false
+    t.column "password_salt", :string,   :limit => 40
+    t.column "first_name",    :string,   :limit => 60
+    t.column "name",          :string,   :limit => 60
+    t.column "email",         :string,   :limit => 60
+    t.column "time_zone",     :string
   end
 
   create_table "versions", :force => true do |t|
@@ -218,8 +230,8 @@ ActiveRecord::Schema.define(:version => 0) do
     t.column "title",        :string,   :limit => 200, :default => "", :null => false
     t.column "summary",      :text,                                    :null => false
     t.column "text",         :text,                                    :null => false
-    t.column "status",       :integer,                 :default => 30
-    t.column "number",       :integer,                 :default => 1
+    t.column "status",       :integer,                 :default => 30, :null => false
+    t.column "number",       :integer,                 :default => 1,  :null => false
     t.column "content_id",   :integer
     t.column "site_id",      :integer
   end

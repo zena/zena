@@ -202,7 +202,7 @@ module ApplicationHelper
         text = paragraphs[0..opt[:limit]].join("\r\n\r\n") + " &#8230;"
       end
     end
-    ZazenParser.new(text,:helper=>self).render(opt)
+    ZazenParser.new(text,:helper=>self, :node=>(opt[:node] || @node)).render(opt)
   end
   
   # TODO: test
@@ -307,9 +307,9 @@ module ApplicationHelper
   end
   
   # Create a gallery from a list of images. See ApplicationHelper#zazen for details.
-  def make_gallery(ids="")
+  def make_gallery(ids="", opts={})
     if ids == ""
-      images = @node.images
+      images = (opts[:node] || @node).images
     else
       ids = ids.split(',').map{|i| i.to_i} # sql injection security
       images = secure(Document) { Document.find(:all, :conditions=>"zip IN (#{ids.join(',')})") }
@@ -364,7 +364,6 @@ module ApplicationHelper
     if obj.kind_of?(Document)
       content = obj.v_content
       ext     = content.ext
-      opts    = opts.merge(:format => ext)
     end
     
     src = width = height = img_class = nil
@@ -372,7 +371,7 @@ module ApplicationHelper
       alt  ||= obj.v_title.gsub("'", '&apos;')
       mode   = content.verify_format(mode) || 'std'
       
-      src    = zen_path(obj, opts.merge(:mode => (mode == 'full' ? nil : mode)))
+      src    = data_path(obj, opts.merge(:mode => (mode == 'full' ? nil : mode)))
       
       img_class = klass || mode
       if mode == 'full'
@@ -814,12 +813,12 @@ module ApplicationHelper
       link_to_function(_('btn_view'), "opener.Zena.discussion_show(#{discussion[:id]}); return false;")
     elsif opt[:action] == :all
       if discussion.open?
-        link_to_remote( _("img_open"),:with=>'discussions', :url=>{:controller=>'discussion', :action => 'close' , :id => discussion[:id]}, :title=>_("btn_title_close_discussion")) + "\n"
+        link_to_remote( _("img_open"), :url=>{:controller=>'discussions', :action => 'close' , :id => discussion[:id]}, :title=>_("btn_title_close_discussion")) + "\n"
       else                                                                   
-        link_to_remote( _("img_closed"),  :with=>'discussions', :url=>{:controller=>'discussion', :action => 'open', :id => discussion[:id]}, :title=>_("btn_title_open_open_discussion")) + "\n"
+        link_to_remote( _("img_closed"), :url=>{:controller=>'discussions', :action => 'open', :id => discussion[:id]}, :title=>_("btn_title_open_open_discussion")) + "\n"
       end +
       if discussion.can_destroy?                                                 
-        link_to_remote( _("btn_remove"), :with=>'discussions', :url=>{:controller=>'discussion', :action => 'remove', :id => discussion[:id]}, :title=>_("btn_title_destroy_discussion")) + "\n"
+        link_to_remote( _("btn_remove"), :url=>{:controller=>'discussions', :action => 'remove', :id => discussion[:id]}, :title=>_("btn_title_destroy_discussion")) + "\n"
       else
         ''
       end

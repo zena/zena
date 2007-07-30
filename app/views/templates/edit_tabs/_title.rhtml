@@ -1,6 +1,9 @@
 <label for="v_title"><%= _("title")  %></label>
 <%= text_field 'node', 'v_title', :size=>nil %>
 
+<label for='v_lang'><%= _("language") %></label>
+<%= select 'node', 'v_lang', current_site.lang_list %>
+
 <% if @node.kind_of?(Note) -%>
 <label for='event_at'><%= _("event date") %></label>
 <%= date_box('node', 'event_at')%>

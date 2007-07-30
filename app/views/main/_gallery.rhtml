@@ -1,3 +1,4 @@
+<% if gallery -%>
 <% @gallery_counter ||= 0; @gallery_counter += 1 %>
 <table class="gallery">
   <tr><td>
@@ -12,3 +13,4 @@
   <div id='<%= "gallery#{@gallery_counter}" %>' style='display:none;' class="gallery_view"></div>
   </td></tr>
 </table>
+<% end -%>

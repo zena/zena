@@ -171,9 +171,9 @@ module Zena
         # TODO: what do we do here with dates ?
         "#{node_attribute(attribute)}"
       elsif @params[:tattr]
-        "<%= zazen(_(#{node_attribute(attribute)})) %>"
+        "<%= zazen(_(#{node_attribute(attribute)}), :node=>#{node}) %>"
       elsif @params[:attr]
-        "<%= zazen(#{node_attribute(attribute)}) %>"
+        "<%= zazen(#{node_attribute(attribute)}, :node=>#{node}) %>"
       elsif @params[:date]
         # date can be any attribute v_created_at or updated_at etc.
         # TODO format with @params[:format] and @params[:tformat] << translated format
@@ -297,7 +297,7 @@ module Zena
         out "<% if #{node}.kind_of?(TextDocument); l = #{node}.content_lang -%>"
         out "<%= zazen(\"<code\#{l ? \" lang='\#{l}'\" : ''} class=\\'full\\'>\#{#{text}}</code>\") %></div>"
         out "<% else -%>"
-        out "<%= zazen(#{text}) %>"
+        out "<%= zazen(#{text}, :node=>#{node}) %>"
         out "<% end -%>"
       end
       out "</div>"
@@ -314,7 +314,7 @@ module Zena
     def r_summary
       unless @params[:or]
         text = @params[:text] ? @params[:text].inspect : node_attribute('v_summary')
-        "<div id='v_summary<%= #{node}.zip %>' class='zazen'><%= zazen(#{text}) %></div>"
+        "<div id='v_summary<%= #{node}.zip %>' class='zazen'><%= zazen(#{text}, :node=>#{node}) %></div>"
       else
         first_name = 'v_summary'
         first  = node_attribute(first_name)
@@ -323,9 +323,9 @@ module Zena
         second = node_attribute(second_name)
         limit     = @params[:limit] ? ", :limit=>#{@params[:limit].to_i}" : ""
         "<div id='#{first_name}<%= #{node}.zip %>' class='zazen'><% if #{first} != '' %>" +
-        "<%= zazen(#{first}) %>" +
+        "<%= zazen(#{first}, :node=>#{node}) %>" +
         "<% else %>" +
-        "<%= zazen(#{second}#{limit}) %>" +
+        "<%= zazen(#{second}#{limit}, :node=>#{node}) %>" +
         "<% end %></div>"
       end
     end
@@ -385,6 +385,11 @@ module Zena
     # TODO: remove, use relations
     def r_proposed
       do_list("#{node}.proposed", :node_class => :Version)
+    end
+
+    # TODO: remove, use relations
+    def r_comments
+      "<%= render :partial=>'comments/list', :locals=>{:node=>#{node}} %>"
     end
     
     # TODO: remove, use relations

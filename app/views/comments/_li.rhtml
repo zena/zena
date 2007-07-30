@@ -1,7 +1,9 @@
 <li id='comment<%= li[:id] %>' <%= "class='c40' " if li[:status] < Zena::Status[:pub] %>><div class='header'>
-    <span class='reply'>
-    <%= link_to_remote(_('reply'), :url=>{:controller=>'comments', :action=>'reply_to', :id=>li[:id] }) if @node && @node.can_comment? && li[:user_id] != visitor.id %>
-    <%= link_to_remote(_('edit'),  :url=>{:controller=>'comments', :action=>'edit', :id=>li[:id] }) if @node && @node.can_comment? && li[:user_id] == visitor.id %>
+    <span class='reply'><% if li.can_edit? -%>
+    <%= link_to_remote(_('edit'),  :url=>{:controller=>'comments', :action=>'edit', :id=>li[:id] })  %>
+    <% elsif @node && @node.can_comment? -%>
+    <%= link_to_remote(_('reply'), :url=>{:controller=>'comments', :action=>'reply_to', :id=>li[:id] }) %>
+    <% end -%>
     </span>
     <span class='actions'>
     <%= link_to_remote(_('btn_remove'), :url=>{:controller=>'comments', :action=>'remove', :id=>li[:id], :bin=>@admin }) if @admin || (@node.can_drive? && li[:status] < Zena::Status[:pub]) %>

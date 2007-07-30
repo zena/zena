@@ -1,4 +1,4 @@
-class DiscussionController < ApplicationController
+class DiscussionsController < ApplicationController
 
   # TODO: test
   def show
@@ -38,7 +38,7 @@ class DiscussionController < ApplicationController
   
   def get_discussion
     @discussion = Discussion.find(params[:id])
-    @node = secure_drive(Node) { Node.find(@discussion[:node_id]) }
+    @node = secure(Node) { Node.find(@discussion[:node_id]) }
   rescue ActiveRecord::RecordNotFound
     processing_error'node not found'
   end

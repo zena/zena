@@ -1,4 +1,8 @@
 <r:include template='layout.html'>
+  <r:with part='stylesheets'>
+    <r:stylesheets list='reset,zena,code,comment'/>
+    <link href="default.css" rel="Stylesheet" type="text/css"/>
+  </r:with>
   <r:with part='context'>
     <r:project>
       <h2 do='show' attr='name'>zena</h2>
@@ -18,6 +22,7 @@
     
     <r:summary text=''/>
     <r:text/>
-    <!-- FIXME: comments -->
+    <r:show attr='comments_count'/> comment(s)
+    <r:comments/>
   </r:with>
 </r:include>

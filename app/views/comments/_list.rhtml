@@ -1,7 +1,6 @@
 <% node ||= @node
-if node.discussion || @comments %>
+if @comments || node.discussion %>
 <div class='comments' id='comments'>
-  <h3><%= _('comments') %></h3>
   <ul><%= render :partial=>'comments/li', :collection => @comments || node.comments %>
     <% if node.can_comment? -%>
       <%= render :partial=>'comments/add', :locals=>{:node=>node} %>

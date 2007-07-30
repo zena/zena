@@ -44,6 +44,11 @@ class Comment < ActiveRecord::Base
     Comment.find(:all, :conditions=>conditions, :order=>'created_at ASC')
   end
   
+  # TODO: test
+  def can_edit?
+    visitor.is_anon? ? visitor.ip == self[:ip] : visitor[:id] == user_id
+  end
+  
   private
   
     def comment_before_validation
@@ -61,6 +66,7 @@ class Comment < ActiveRecord::Base
         
         self[:user_id] = visitor[:id]
         self[:author_name] = nil unless visitor.is_anon?
+        self[:ip] = visitor.ip if visitor.is_anon?
       end
     end
     
@@ -68,6 +74,7 @@ class Comment < ActiveRecord::Base
       errors.add('text', "can't be blank") unless self[:text] && self[:text] != ''
       errors.add('title', "can't be blank") unless self[:title] && self[:title] != ''
       errors.add('discussion', 'invalid') unless discussion
+      errors.add('ip', "can't be blank") unless self[:ip] || !visitor.is_anon?
       if author.is_anon?
         errors.add('author_name', "can't be blank") unless self[:author_name] && self[:author_name] != ""
       end

@@ -385,7 +385,13 @@ img_image:
   context:
     node: 'bird_jpg'
   src: "<r:img/><r:img mode='med'/>"
-  res: "<img src='/oo/image30_std.jpg' width='440' height='400' alt='bird' class='std'/><img src='/oo/image30_med.jpg' width='205' height='186' alt='bird' class='med'/>"
+  res: "<img src='/en/image30_std.jpg' width='440' height='400' alt='bird' class='std'/><img src='/en/image30_med.jpg' width='205' height='186' alt='bird' class='med'/>"
+  
+img_private_image:
+  context:
+    node: 'tree_jpg'
+  src: "<r:img/><r:img mode='med'/>"
+  res: "<img src='/oo/image40_std.jpg' width='600' height='399' alt='Autumn Tree' class='std'/><img src='/oo/image40_med.jpg' width='280' height='186' alt='Autumn Tree' class='med'/>"
 
 img_href:
   context:

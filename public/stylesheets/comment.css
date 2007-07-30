@@ -1,7 +1,6 @@
-#comments { border-top:1px solid grey; clear:both; padding-top:5px;margin-top:80px;}
-.comments h3 { font-family: Georgia, Times, serif ; color: grey; font-size:1.2em; margin:0; padding:5px 0 10px;}
+#comments { border-top:1px solid grey; clear:both; padding-top:5px;margin-top:13px;}
 .comments ul { margin-left:25px;}
-.comments { width:95%; font-size:0.9em;  font-family: Arial, Helvetica, sans-serif;}
+.comments { width:95%; }
 .comments li { margin-top:12px; }
 .comments li:first-child { margin-top:0;}
 .comments .body      { background:#EEF6F9; border:1px solid #888; border-top-width:0;}
@@ -15,12 +14,12 @@
 .comments .zazen p:first-child { margin-top:0;}
 .comments .sub  { padding:4px 0 0 10px; clear:both; }
 
-.comments .header         { position:relative; background:#DCE4E7; border:1px solid #888; border-left:1px solid grey; padding:3px; font-size:0.9em;}
+.comments .header         { position:relative; background:#DCE4E7; border:1px solid #888; border-left:1px solid grey; padding:3px; font-size:93%;}
 .comments .c40 .header    { background:#73A1A5;}
 .comments .header .sign   { font-weight:bold;}
 .comments .header .date, .comments .header .reply { border-left:1px dotted #888; padding-left:3px; color:#555;}
 .comments .header .title  { position:absolute; left:200px; font-style:italic; color:#555;}
-.comments .header .date   { float:right; width:105px; text-align:center; padding-top:1px; font-size:100%; }
+.comments .header .date   { float:right; width:10em; text-align:center; padding-top:1px; font-size:100%; }
 .comments .header .reply  { float:right; width:70px; text-align:center; }
 .comments .header .reply a { color:#3E4B22; }
 .comments .header .reply a:hover { color:#0080D4; }

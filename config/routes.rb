@@ -31,11 +31,11 @@ ActionController::Routing::Routes.draw do |map|
                                  :link    => :any,
                                  :destroy => :put } # FIXME: should be a DELETE
                                  
-    nodes.resources :discussions, :name_prefix => nil do |discussions|
-      #discussions.resources :comments,
-      #              :name_prefix => nil,
-      #              :member => { :reply_to => :post }
-    end
+    #nodes.resources :discussions, :name_prefix => nil do |discussions|
+    #  #discussions.resources :comments,
+    #  #              :name_prefix => nil,
+    #  #              :member => { :reply_to => :post }
+    #end
     
   end
   
@@ -85,6 +85,7 @@ ActionController::Routing::Routes.draw do |map|
   
   # temporary routes...
   map.connect 'comments/:action/:id', :controller => 'comments'
+  map.connect 'discussions/:action/:id', :controller => 'discussions'
   map.connect 'z/link/:action/:id', :controller => 'link'
   map.connect 'z/calendar/:action', :controller => 'calendar'
   map.connect 'z/link/:action', :controller => 'link'

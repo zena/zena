@@ -159,6 +159,19 @@ class ZenaParserTest < ZenaHelperTest
     assert_equal nodes_id(:zena), info[:project_id]
     do_test('apphelper', 'calendar_from_project')
   end
+  
+  def test_basic_img_private_image
+    login(:ant)
+    @controller.instance_variable_set(:@visitor, Thread.current.visitor)
+    node = secure(Node) { nodes(:tree_jpg) }
+    node.inherit = -1
+    assert node.save
+    do_test('basic', 'img_private_image')
+  end
+  
+  def test_basic_img_image
+    do_test('basic', 'img_image')
+  end
     
   make_tests
 end

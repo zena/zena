@@ -22,7 +22,7 @@ TODO: when a user is 'destroyed', pass everything he owns to another user or jus
 class User < ActiveRecord::Base
   attr_accessible         :login, :password, :lang, :first_name, :name, :email, :time_zone, :status, :group_ids, :site_ids
   attr_accessor           :visited_node_ids
-  attr_accessor           :site
+  attr_accessor           :site, :ip
   has_and_belongs_to_many :groups
   has_many                :nodes
   has_many                :versions

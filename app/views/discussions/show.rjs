@@ -1,1 +1,1 @@
-page.replace_html 'comments', :partial=>'comment/list'
+page.replace 'comments', :partial=>'comments/list'

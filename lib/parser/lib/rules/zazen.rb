@@ -67,7 +67,7 @@ module Zazen
         #puts "GALLERY:[#{$&}]"
         eat $&
         if @context[:images]
-          store @helper.make_gallery($1)
+          store @helper.make_gallery($1, :node=>@context[:node])
         else
           store @helper._('[gallery]')
         end
@@ -76,7 +76,7 @@ module Zazen
         #puts "DOCS:[#{$&}]"
         eat $&
         if @context[:images]
-          store @helper.list_nodes(:style=>$1, :ids=>$2)
+          store @helper.list_nodes(:style=>$1, :ids=>$2, :node=>@context[:node])
         else
           store @helper._('[documents]')
         end

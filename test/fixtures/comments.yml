@@ -58,6 +58,7 @@ public_spam_in_en:
   status:        40
   title:         'Nice site'
   text:          "Buy casino dildo, enlarge get rich money hell"
+  ip:            "10.0.0.3"
 
 ant_says_in_fr:
   id:            6
