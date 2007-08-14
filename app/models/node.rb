@@ -505,6 +505,8 @@ class Node < ActiveRecord::Base
       node
     end
     
+    
+    # FIXME: Where is this used ?
     def class_for_relation(rel)
       case rel
       when 'author'
@@ -518,21 +520,25 @@ class Node < ActiveRecord::Base
       end
     end
     
+    
+    # FIXME: I think we could remove this now
     def native_relation?(rel, opts={})
       ['root', 'parent', 'self', 'children', 'documents_only', 'all_pages'].include?(rel) || Node.get_class(rel)
     end
     
+    # FIXME: I think we could remove this now
     def relation_defined?(rel)
       native_relation?(rel) || has_relation?(rel)
     end
     
     def plural_relation?(rel)
+      rel = rel.split(/\s/).first
       if native_relation?(rel)
         rel.pluralize == rel
       elsif rel =~ /\A\d+\Z/
         false
       else
-        relation = find_relation(:role => rel.singularize, :ignore_source => true)
+        relation = Relation.find_by_role(rel.singularize)
         return false unless relation
         relation.target_role == rel.singularize ? !relation.target_unique : !relation.source_unique
       end
@@ -664,6 +670,35 @@ class Node < ActiveRecord::Base
     @all_relations ||= self.vclass.find_all_relations(self)
   end
   
+  # Find parent
+  def parent(opts={})
+    # make sure the cache is in sync with 'parent_id' (used during validation)
+    return @parent if @parent && @parent[:id] == self[:parent_id]
+    @parent = secure(Node, opts) { Node.find(self[:parent_id]) }
+  rescue ActiveRecord::RecordNotFound
+    nil
+  end
+  
+  # Find section
+  def section(opts={})
+    return self if self[:parent_id].nil?
+    # we cannot use Section to find because the root node behaves like a Section but is a Project.
+    secure(Node, opts) { Node.find(self[:section_id]) }
+  rescue ActiveRecord::RecordNotFound
+    nil
+  end
+  
+  # Find project
+  def project(opts={})
+    return self if self[:parent_id].nil?
+    secure(Project, opts) { Project.find(self[:project_id]) }
+  rescue ActiveRecord::RecordNotFound
+    nil
+  end
+  
+=begin
+I think we can remove this stuff now that relations are rewritten
+  
   # This is defined by the linkable lib, we add access to 'root', 'project', 'parent', 'children', ...
   def relation(methods, opts={})
     return nil if new_record?
@@ -732,9 +767,8 @@ class Node < ActiveRecord::Base
     else
       nil
     end
-  end  
+  end
   
-  # FIXME: remove this and use 'relation'
   def relation_options(opts, cond=nil)
     opts = opts.dup
     case opts[:from]
@@ -777,48 +811,22 @@ class Node < ActiveRecord::Base
     opts.delete(:conditions)
     {:order=>'position ASC, name ASC', :conditions=>conditions}.merge(opts)
   end
-  
+
   # Get root node
   def root(opts={})
     secure(Node) { Node.find(current_site[:root_id])}
   rescue ActiveRecord::RecordNotFound
     nil
   end
-  
-  # Find all children
-  def children(opts={})
-    secure(Node) { Node.find(:all, relation_options(opts)) }
-  end
-  
+
   # TODO: remove ? Find notes (overwritten in Project)
   def notes
     nil
   end
   
-  # Find parent
-  def parent(opts={})
-    # make sure the cache is in sync with 'parent_id' (used during validation)
-    return @parent if @parent && @parent[:id] == self[:parent_id]
-    @parent = secure(Node, opts) { Node.find(self[:parent_id]) }
-  rescue ActiveRecord::RecordNotFound
-    nil
-  end
-  
-  # Find section
-  def section(opts={})
-    return self if self[:parent_id].nil?
-    # we cannot use Section to find because the root node behaves like a Section but is a Project.
-    secure(Node, opts) { Node.find(self[:section_id]) }
-  rescue ActiveRecord::RecordNotFound
-    nil
-  end
-  
-  # Find project
-  def project(opts={})
-    return self if self[:parent_id].nil?
-    secure(Project, opts) { Project.find(self[:project_id]) }
-  rescue ActiveRecord::RecordNotFound
-    nil
+  # Find all children
+  def children(opts={})
+    secure(Node) { Node.find(:all, relation_options(opts)) }
   end
   
   # Find sections (sections from='site')
@@ -866,7 +874,8 @@ class Node < ActiveRecord::Base
   def notes(opts={})
     secure(Note) { Note.find(:all, relation_options(opts) ) }
   end
-   
+=end
+
   # Create a child and let him inherit from rwp groups and section_id
   def new_child(opts={})
     klass = opts.delete(:class) || Page

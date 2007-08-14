@@ -1082,4 +1082,14 @@ done: \"I am done\""
     assert_equal 'bob.version.dyn["super"]', Node.zafu_attribute('bob', 'd_super')
     assert_equal 'bob.c_zafu_read("truc")', Node.zafu_attribute('bob', 'c_truc')
   end
+  
+  def test_plural_relation
+    assert Node.plural_relation?('pages')
+    assert Node.plural_relation?('children')
+    assert Node.plural_relation?('icon_for')
+    assert !Node.plural_relation?('icon')
+    assert !Node.plural_relation?('icons')
+    assert !Node.plural_relation?('project')
+    assert Node.plural_relation?('projects')
+  end
 end

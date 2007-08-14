@@ -352,48 +352,56 @@ module Zena
       end
     end
     
-    # TODO: remove, use relations
     def r_author
-      return "" unless check_node_class(:Node, :Version, :Comment)
       do_var("#{node}.author", :node_class => :Node)
+    end
+
+    # FIXME: maybe we should remove most of the simple finders below so they are handled by 'unknown' through 'do_var/do_list'
+    def r_parent
+      do_var("#{node}.parent", :node_class => :Node)
+    end
+    
+    def r_project
+      do_var("#{node}.project", :node_class => :Node)
+    end
+    
+    def r_section
+      do_var("#{node}.section", :node_class => :Node)
+    end
+    
+    def r_root
+      do_var("#{node}.root", :node_class => :Node)
     end
     
     # TODO: test
     def r_user
       do_var("#{node}.user", :node_class => :User)
     end
-        
-    # TODO: remove, use relations
+    
     def r_to_publish
       do_list("#{node}.to_publish", :node_class => :Version)
     end
     
-    # TODO: remove, use relations
     def r_contact
       do_var("#{node}.contact", :node_class => :Node)
     end
     
-    # TODO: remove, use relations
     def r_redactions
       do_list("#{node}.redactions", :node_class => :Version)
     end
     
-    # TODO: remove, use relations
     def r_proposed
       do_list("#{node}.proposed", :node_class => :Version)
     end
-
-    # TODO: remove, use relations
+    
     def r_comments
       "<%= render :partial=>'comments/list', :locals=>{:node=>#{node}} %>"
     end
     
-    # TODO: remove, use relations
     def r_comments_to_publish
       do_list("#{node}.comments_to_publish", :node_class => :Comment)
     end
     
-    # TODO: remove, use relations
     def r_version
       return "" unless check_node_class(:Node)
       do_var("#{node}.version", :node_class => :Version)
@@ -999,28 +1007,23 @@ END_TXT
     
     # use all other tags as relations
     # try to add 'conditions' without sql injection possibilities...
+    # FIXME: 'else' clause has been removed, find a solution to put it back.
     def r_unknown
       return '' if @context[:preflight]
-      # FIXME: use klass = node_class.class_for_relation(@method)
+      
       "not a node (#{@method})" unless node_kind_of?(Node)
       rel = @method
-      if @params[:else]
-        rel = [@method] + @params[:else].split(',').map{|e| e.strip}
-        rel = rel.join(',')
-      else
-        rel = @method
-      end
-      if @params[:from] || @params[:or] || Node.plural_relation?(@method)
+      if @params[:from] || rel =~ /\sfrom\s/ || Node.plural_relation?(@method)
         # plural
-        do_list(get_list_finder(rel))
+        do_list( build_finder_for(:all,   rel, @params) )
       else
         # singular
-        do_var("#{node}.relation(#{rel.inspect})")
+        do_var(  build_finder_for(:first, rel, @params) )
       end
     end
     
     # Create an sql query to open a new context (passes its arguments to HasRelations#build_find)
-    def get_list_finder(rel,params=@params)
+    def build_finder_for(count, rel, params=@params)
       # FIXME: could SQL injection be possible here ? (all params are passed to the 'find')
       relations    = [rel]
       conditions   = []
@@ -1110,9 +1113,9 @@ END_TXT
       query_params[:relations ] = relations
       query_params[:node_name ] = node
       
-      sql_query = Node.build_find(node, query_params)
+      sql_query = Node.build_find(count, query_params)
       
-      "#{node}.do_find(\"#{sql_query}\")"
+      "#{node}.do_find(#{count.inspect}, \"#{sql_query}\")"
     end
     
     # helpers

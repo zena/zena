@@ -9,7 +9,7 @@ class Relation < ActiveRecord::Base
   
   class << self
     def find_by_role(role)
-      rel = find(:first, :conditions => ["source_role = ? OR target_role = ?", role, role])
+      rel = find(:first, :conditions => ["(source_role = ? OR target_role = ?) AND site_id = ?", role, role, current_site[:id]])
       return nil unless rel
       if rel.source_role == role
         rel.side = :source
@@ -17,6 +17,20 @@ class Relation < ActiveRecord::Base
         rel.side = :target
       end
       rel
+    end
+    
+    def find_by_role_and_kpath(role, kpath)
+      rel = find_by_role(role)
+      if kpath =~ /\A#{rel.this_kpath}/
+        rel
+      else
+        # invalid relation for the given class path
+        nil
+      end
+    end
+    
+    def find_by_id(id)
+      find(:first, :conditions => ["id = ? AND site_id = ?", id, current_site[:id]])
     end
   end   
   
@@ -64,11 +78,19 @@ class Relation < ActiveRecord::Base
   end
   
   def other_role
-    @source ? target_role : source_role
+    @side == :source ? target_role : source_role
   end
   
   def other_icon
-    @source ? target_icon : source_icon
+    @side == :source ? target_icon : source_icon
+  end
+  
+  def this_kpath
+    @side == :source ? source_kpath : target_kpath
+  end
+  
+  def other_kpath
+    @side == :source ? target_kpath : source_kpath
   end
   
   def <<(obj_id)

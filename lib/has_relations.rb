@@ -99,8 +99,8 @@ module Zena
       #
       # :limit, :conditions, :order
       def build_find(count, opts)
-        plural = (count == :all)
-        if !plural
+        
+        if count != :all
           opts[:limit] = 1
         end
 
@@ -280,9 +280,6 @@ module Zena
           elsif base_condition = base_condition(obj, finder)
             # parent, project, section, children, pages, ...
             parts << "#{base_condition}#{from_clause}#{where_clause}"
-          elsif klass = Node.get_class(finder)
-            # images, documents, ... or virtual class: posts, letters, ...
-            parts << "nodes.kpath LIKE '#{klass.kpath}%'#{from_clause}#{where_clause}"
           elsif rel   = Relation.find_by_role(finder)
             # icon, icon_for, added_notes, ...
             if to_clause
@@ -293,6 +290,9 @@ module Zena
               parts << "lk#{link_counter}.relation_id = #{rel[:id]} AND lk#{link_counter}.#{rel.other_side} = \#{#{obj}[:id]}#{where_clause}"
               joins << "LEFT JOIN links AS lk#{link_counter} ON lk#{link_counter}.#{rel.link_side} = nodes.id"
             end
+          elsif klass = Node.get_class(finder)
+            # images, documents, ... or virtual class: posts, letters, ...
+            parts << "nodes.kpath LIKE '#{klass.kpath}%'#{from_clause}#{where_clause}"
           else
             # bad finder. Ignore.
           end
@@ -423,27 +423,28 @@ module Zena
       # Proxy to access user defined relations. The proxy is used to create/update links using the relation.
       #
       # Usage: node.relation_proxy(:role => 'news')
-      
-      # REWRITE TO HERE
-      
       def relation_proxy(opts={})
         opts = {:role => opts} unless opts.kind_of?(Hash)
-        rel_opts = {}
         if role = opts[:role]
-          rel_opts[:role] = role
-          rel_opts[:ignore_source] = true if opts[:ignore_source] || opts[:from] || opts[:or]
-          rel_opts[:start] = self
+          rel = Relation.find_by_role_and_kpath(role, self.vclass.kpath)
+          rel.start = self if rel
         elsif link = opts[:link]
           return nil unless link
-          rel_opts[:id] = link.relation_id
-          if link.source_id == self[:id]
-            rel_opts[:source] = self
-          else
-            rel_opts[:target] = self
+          rel = Relation.find_by_id(link.relation_id)
+          if rel
+            rel.start = self
+            if link.source_id == self[:id]
+              rel.side = :source
+            else
+              rel.side = :target
+            end
           end
         end
-        self.vclass.find_relation(rel_opts)
+        rel
       end
+      
+      
+      # REWRITE TO HERE
       
       private
       

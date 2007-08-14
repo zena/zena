@@ -93,7 +93,7 @@ class VirtualClass < ActiveRecord::Base
   end
   
   # TODO: avoid duplicating this method from 'has_relation' here.
-  def find_relation(opts)
+  def find_relation(role)
     role_name = (opts[:role] || '').singularize
     if opts[:id]
       if opts[:source]
