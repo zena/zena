@@ -362,6 +362,8 @@ class Parser
     @stack = []
   end
   
+  # Parse parameters into a hash. This parsing supports multiple values for one key by creating additional keys:
+  # <tag do='hello' or='goodbye' or='gotohell'> creates the hash {:do=>'hello', :or=>'goodbye', :or1=>'gotohell'}
   def parse_params(text)
     return {} unless text
     return text if text.kind_of?(Hash)
@@ -373,6 +375,12 @@ class Parser
         rest = rest[$&.length..-1].strip
         if rest =~ /('|")([^\1]*?[^\\]|)\1/
           rest = rest[$&.length..-1].strip
+          key_counter = 1
+          while params[key]
+            key = "#{key}#{key_counter}".to_sym
+            key_counter += 1
+          end
+            
           if $1 == "'"
             params[key] = $2.gsub("\\'", "'")
           else

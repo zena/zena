@@ -248,6 +248,10 @@ do_with_inner:
   src: "<r:test do='hello'>a thing <r:hello/> here</r:test>"
   res: "[test][hello]a thing [hello/] here[/hello][/test]"
 
+multiple_param:
+  src: "<r:test do='hello' param='1' param='2'>a thing <r:hello/> here</r:test>"
+  res: "[test][hello {= :param1=>'2', :param=>'1'}]a thing [hello/] here[/hello][/test]"
+
 ztag_tag:
   src: "<r:hello tag='p'/>"
   res: "<p>hello world!</p>"

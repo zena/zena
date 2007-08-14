@@ -1019,28 +1019,44 @@ END_TXT
       end
     end
     
+    # <r:pages from='site' project='stored' limit='5'>
+    # is the same as
+    # <div do='pages from site' project='stored' limit='5'>
+    # <div do='references' or='references_for'>
     def get_list_finder(rel,params=@params)
       # FIXME: could SQL injection be possible here ? (all params are passed to the 'find')
-      erb_params = {}
+      relations    = [rel]
+      conditions   = []
+      query_params = {}
+      
+      if params[:from]
+        relations[0] << " from #{params[:from]}"
+      end
+      
+      if params[:or]
+        relations << params[:or]
+        key_counter = 1
+        while or_value = params["or#{key_counter}".to_sym]
+          key_counter += 1
+          finders << or_value
+        end
+      end
+      
       if order = params[:order]
         if order == 'random'
-          erb_params[:order] = 'RAND()'
+          query_params[:order] = 'RAND()'
         elsif order =~ /\A(\w+)( ASC| DESC|)\Z/
-          erb_params[:order] = order
+          query_params[:order] = order
         else
           # ignore
         end
       end
-      erb_params[:from] = params[:from] if params[:from]
+      
       [:limit, :offset].each do |k|
         next unless params[k]
-        erb_params[k] = params[k].to_i.to_s
+        query_params[k] = params[k].to_i.to_s
       end
-      [:from, :direction, :or].each do |k|
-        next unless params[k]
-        erb_params[k] = params[k]
-      end
-      conditions = []
+      
       
       # FIXME: stored should be clarified and managed in a single way through links and contexts.
       # <r:link href='stored_whatever'/>
@@ -1093,17 +1109,15 @@ END_TXT
         end
       end
 
-      res_params = params_to_erb(erb_params)
-      if conditions != []
-        conditions = conditions.join(' AND ')
-        if res_params != ''
-          res_params << ", :conditions=>\"#{conditions}\""
-        else
-          res_params = ":conditions=>\"#{conditions}\""
-        end
-      end
-      "#{node}.relation(#{rel.inspect}#{res_params})"
+      query_params[:conditions] = conditions.join(' AND ') if conditions != []
+      query_params[:relations ] = relations
+      query_params[:node_name ] = node
+      
+      sql_query = Node.build_find(node, query_params)
+      
+      "#{node}.do_find(\"#{sql_query}\")"
     end
+    
     # <r:hot else='project'/>
     # <r:relation role='hot,project'> = get relation if empty get project
     # relation ? get ? role ? go ?
