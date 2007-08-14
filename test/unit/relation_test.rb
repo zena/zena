@@ -163,17 +163,75 @@ class RelationTest < ZenaTestUnit
     node = secure(Node) { Node.get_class('Tag').new }
     assert_equal nil, node.relation('tag_for')
   end
+
+  def test_build_find_class
+    assert_equal "SELECT nodes.* FROM nodes WHERE (nodes.kpath LIKE 'NN%' AND nodes.parent_id = \#{var8[:id]} AND (nodes.user_id = '\#{visitor[:id]}' OR (rgroup_id IN (\#{visitor.group_ids.join(',')}) AND nodes.publish_from <= now() ) OR (pgroup_id IN (\#{visitor.group_ids.join(',')}) AND max_status > 30)) AND nodes.site_id = \#{visitor.site[:id]})  GROUP BY nodes.id  ORDER BY position ASC, name ASC",
+      str = Node.build_find(:all, :relations=>['notes'], :node=>'var8')
+    
+    var8 = secure(Node) { nodes(:cleanWater) }
+    res  = var8.do_find(:all, eval("\"#{str}\""))
+    assert_equal [nodes_id(:opening)], res.map{|r| r[:id]}
+  end
   
-  def test_build_condition
-    node = secure(Node) { nodes(:cleanWater) }
-    assert_equal "(nodes.kpath LIKE 'NN%' AND nodes.parent_id = 11) OR (links.relation_id = 8 AND links.source_id = nodes.id AND links.target_id = 11)", node.build_condition(:finders=>['notes', 'added_notes'])
+  def test_build_find_class_from_site
+    login(:lion)
+    assert_equal "SELECT nodes.* FROM nodes WHERE (nodes.kpath LIKE 'NN%' AND (nodes.user_id = '\#{visitor[:id]}' OR (rgroup_id IN (\#{visitor.group_ids.join(',')}) AND nodes.publish_from <= now() ) OR (pgroup_id IN (\#{visitor.group_ids.join(',')}) AND max_status > 30)) AND nodes.site_id = \#{visitor.site[:id]})  GROUP BY nodes.id  ORDER BY position ASC, name ASC", 
+      str = Node.build_find(:all, :relations=>['notes from site'], :node=>'var8')
     
-    assert_equal "(nodes.kpath LIKE 'NN%' AND nodes.project_id = 11) OR (links.relation_id = 8 AND links.source_id = nodes.id AND links.target_id = 11)", node.build_condition(:finders=>['notes from project', 'added_notes'])
+    var8 = secure(Node) { nodes(:cleanWater) }
+    res  = var8.do_find(:all, eval("\"#{str}\""))
+    assert_equal [nodes_id(:letter), nodes_id(:opening), nodes_id(:proposition)], res.map{|r| r[:id]}
+  end
+  
+  def test_build_find_vclass_from_project
+    login(:lion)
+    assert_equal "SELECT nodes.* FROM nodes WHERE (nodes.kpath LIKE 'NNP%' AND nodes.project_id = \#{var8.get_project_id} AND (nodes.user_id = '\#{visitor[:id]}' OR (rgroup_id IN (\#{visitor.group_ids.join(',')}) AND nodes.publish_from <= now() ) OR (pgroup_id IN (\#{visitor.group_ids.join(',')}) AND max_status > 30)) AND nodes.site_id = \#{visitor.site[:id]})  GROUP BY nodes.id  ORDER BY position ASC, name ASC", 
+      str = Node.build_find(:all, :relations=>['posts from project'], :node=>'var8')
     
-    assert_equal "(nodes.kpath LIKE 'NN%' AND nodes.project_id = 11) OR (links.relation_id = 8 AND links.source_id = nodes.id AND links.target_id = 11)", node.build_condition(:finders=>['notes', 'icon_for from project'])
+    var8 = secure(Node) { nodes(:cleanWater) }
+    res  = var8.do_find(:all, eval("\"#{str}\""))
+    assert_equal [nodes_id(:opening)], res.map{|r| r[:id]}
+  end
+  
+  def test_build_find_vclass_from_project_or_class
+    login(:lion)
+    assert_equal "SELECT nodes.* FROM nodes WHERE (((nodes.kpath LIKE 'NNP%' AND nodes.project_id = \#{var8.get_project_id}) OR (nodes.kpath LIKE 'NP%' AND kpath NOT LIKE 'NPD%' AND nodes.parent_id = \#{var8[:id]})) AND (nodes.user_id = '\#{visitor[:id]}' OR (rgroup_id IN (\#{visitor.group_ids.join(',')}) AND nodes.publish_from <= now() ) OR (pgroup_id IN (\#{visitor.group_ids.join(',')}) AND max_status > 30)) AND nodes.site_id = \#{visitor.site[:id]})  GROUP BY nodes.id  ORDER BY position ASC, name ASC",
+      str = Node.build_find(:all, :relations=>['posts from project','pages'], :node=>'var8')
+
+    var8 = secure(Node) { nodes(:cleanWater) }
+    res  = var8.do_find(:all, eval("\"#{str}\""))
+    assert_equal [:bananas, :opening, :status, :tracker].map{|s| nodes_id(s)}, res.map{|r| r[:id]}
+  end
+  
+  def test_build_find_bad_vclass_from_project
+    assert_equal "SELECT nodes.* FROM nodes WHERE (nodes.id IS NULL AND (nodes.user_id = '\#{visitor[:id]}' OR (rgroup_id IN (\#{visitor.group_ids.join(',')}) AND nodes.publish_from <= now() ) OR (pgroup_id IN (\#{visitor.group_ids.join(',')}) AND max_status > 30)) AND nodes.site_id = \#{visitor.site[:id]})  GROUP BY nodes.id  ORDER BY position ASC, name ASC",
+      str = Node.build_find(:all, :relations=>['badclass from project'], :node=>'var8')
+
+    var8 = secure(Node) { nodes(:cleanWater) }
+    assert_nil var8.do_find(:all, eval("\"#{str}\""))
+  end
+  
+  def test_build_find_relation
+    assert_equal "SELECT nodes.* FROM nodes  LEFT JOIN links AS lk1 ON lk1.target_id = nodes.id WHERE (lk1.relation_id = 9 AND lk1.source_id = \#{var8[:id]} AND (nodes.user_id = '\#{visitor[:id]}' OR (rgroup_id IN (\#{visitor.group_ids.join(',')}) AND nodes.publish_from <= now() ) OR (pgroup_id IN (\#{visitor.group_ids.join(',')}) AND max_status > 30)) AND nodes.site_id = \#{visitor.site[:id]})  GROUP BY nodes.id  ORDER BY position ASC, name ASC",
+      str = Node.build_find(:all, :relations=>['favorites'], :node=>'var8')
     
-    assert_equal "(nodes.kpath LIKE 'NN%' AND nodes.section_id = 1) OR (links.relation_id = 8 AND links.source_id = nodes.id AND links.target_id = 11)", node.build_condition(:finders=>['notes from section', 'added_notes'])
-    
-    assert_equal "", node.build_condition(:finders=>['notes', 'added_notes'], :from=>'project', :filter=>"log_at > #{Time.gm(2006,10,1).strftime('%Y-%m-%d %H:%M:%S')}")
+    login(:ant)
+    var8 = secure(Node) { nodes(:ant) }
+    res  = var8.do_find(:all, eval("\"#{str}\""))
+    assert_equal [:nature].map{|s| nodes_id(s)}, res.map{|r| r[:id]}
+  end
+
+  def test_build_find_relation_with_class
+    assert_equal "SELECT nodes.* FROM nodes  LEFT JOIN links AS lk1 ON lk1.source_id = nodes.id WHERE (((nodes.kpath LIKE 'NPDI%' AND nodes.parent_id = \#{var8[:id]}) OR (lk1.relation_id = 1 AND lk1.target_id = \#{var8[:id]})) AND (nodes.user_id = '\#{visitor[:id]}' OR (rgroup_id IN (\#{visitor.group_ids.join(',')}) AND nodes.publish_from <= now() ) OR (pgroup_id IN (\#{visitor.group_ids.join(',')}) AND max_status > 30)) AND nodes.site_id = \#{visitor.site[:id]})  GROUP BY nodes.id  ORDER BY position ASC, name ASC",
+      str = Node.build_find(:all, :relations=>['images','news'], :node=>'var8')
+    login(:ant)
+    var8 = secure(Node) { nodes(:wiki) }
+    res  = var8.do_find(:all, eval("\"#{str}\""))
+    assert_equal [:bird_jpg, :flower_jpg, :opening].map{|s| nodes_id(s)}, res.map{|r| r[:id]}    
+  end
+
+  def test_build_find_with_dyn_attribute_clause
+   assert_equal "SELECT nodes.* FROM nodes WHERE (nodes.id IS NULL AND (nodes.user_id = '\#{visitor[:id]}' OR (rgroup_id IN (\#{visitor.group_ids.join(',')}) AND nodes.publish_from <= now() ) OR (pgroup_id IN (\#{visitor.group_ids.join(',')}) AND max_status > 30)) AND nodes.site_id = \#{visitor.site[:id]})  GROUP BY nodes.id  ORDER BY position ASC, name ASC", 
+                Node.build_find(:all, :relations=>['images from project where d_foo = "bar"'], :node=>'var8')
   end
 end

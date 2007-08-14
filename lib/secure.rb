@@ -695,6 +695,7 @@ Just doing the above will filter all result according to the logged in user.
           end
         end
       
+        
         # Secure for read/create.
         # [read]
         # * super user
@@ -702,16 +703,17 @@ Just doing the above will filter all result according to the logged in user.
         # * members of +read_group+ if the node is published and the current date is greater or equal to the publication date
         # * members of +publish_group+ if +max_status+ >= prop
         # The options hash is used internally by zena when maintaining parent to children inheritance and should not be used for other purpose if you do not want to break secure access.
-        def secure(obj, opts={}, &block)
+        def secure(klass, opts={}, &block)
           if opts[:secure] == false
             yield
-          elsif obj.ancestors.include?(Zena::Acts::SecureNode::InstanceMethods) && !visitor.is_su? # not super user
-            scope = "#{obj.table_name}.user_id = '#{visitor[:id]}' OR "+
-                    "(rgroup_id IN (#{visitor.group_ids.join(',')}) AND #{obj.table_name}.publish_from <= now() ) OR " +
+          elsif klass.ancestors.include?(Zena::Acts::SecureNode::InstanceMethods) && !visitor.is_su? # not super user
+            # ANY CHANGE HERE SHOULD BE REFLECTED IN has_relation secure_scope_string
+            scope = "#{klass.table_name}.user_id = '#{visitor[:id]}' OR "+
+                    "(rgroup_id IN (#{visitor.group_ids.join(',')}) AND #{klass.table_name}.publish_from <= now() ) OR " +
                     "(pgroup_id IN (#{visitor.group_ids.join(',')}) AND max_status > #{Zena::Status[:red]})"
-            secure_with_scope(obj, scope, &block)
+            secure_with_scope(klass, scope, &block)
           else
-            secure_with_scope(obj, nil, &block)
+            secure_with_scope(klass, nil, &block)
           end
         end
 

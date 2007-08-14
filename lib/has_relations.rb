@@ -79,6 +79,171 @@ module Zena
         rel_as_target.each {|rel| rel.target = start } if start
         (rel_as_source + rel_as_target).sort {|a,b| a.other_role <=> b.other_role}
       end
+      
+      # Return an sql query string that will be used by 'do_relation_query':
+      # build_find(:all, :relations=>['children']) => "SELECT * FROM nodes WHERE nodes.parent_id = #{@node[:id]} AND ..."
+      # @node.do_find(:all, "SELECT * FROM nodes WHERE nodes.parent_id = #{@node[:id]} AND ...")
+      # Options are 
+      # :node=>'@node': contextual variable name
+      # :relations=>['notes from site', 'added_notes']: what to find
+      # :limit, :conditions, :order
+      def build_find(count, opts)
+        plural = (count == :all)
+        if !plural
+          opts[:limit] = 1
+        end
+
+        relations = opts.delete(:relations)
+        base_conditions, joins = build_condition(opts[:node], *relations)
+        
+        
+        if opts[:conditions]
+          opts[:conditions] = "#{base_conditions} AND #{opts[:conditions]} AND #{Node.secure_scope_string}"
+        else
+          opts[:conditions] = "#{base_conditions} AND #{secure_scope_string}"
+        end
+
+        opts[:order] ||= 'position ASC, name ASC'
+
+        if joins =~ /links\./
+          opts = clean_options(opts).merge( 
+                          :select     => "nodes.*, links.id AS link_id", 
+                          :joins      => joins,
+                          :group      => 'nodes.id'
+                          )
+        else
+          opts = clean_options(opts).merge(
+                          :select     => "nodes.*",
+                          :group      => 'nodes.id',
+                          :joins      => joins
+                          )
+        end
+        
+        construct_finder_sql(opts)
+      end
+      
+      # Build query for compiled sql (used by has_relations and zafu)
+      def secure_scope_string
+        # ANY CHANGE HERE SHOULD BE REFLECTED IN secure
+        "(#{Node.table_name}.user_id = '\#{visitor[:id]}' OR "+
+        "(rgroup_id IN (\#{visitor.group_ids.join(',')}) AND #{Node.table_name}.publish_from <= now() ) OR " +
+        "(pgroup_id IN (\#{visitor.group_ids.join(',')}) AND max_status > #{Zena::Status[:red]})) AND #{Node.table_name}.site_id = \#{visitor.site[:id]}"
+      end
+      
+      
+      # Build a finder for a list of relations. Valid relation syntax is 'RELATION [from|to] [site|section|project]'. For
+      # example: 'pages from project', 'images from site', 'tags', 'icon_for from project'
+      def build_condition(obj, *finders)
+        parts = []
+        link_counter = 0
+        dyn_counter  = 0
+        joins = nil
+        
+        # Finders will be joined together with an 'OR'
+        finders.each do |rule|
+          opts = {}
+          from = nil
+          rules = rule.split(/\s+/)
+          
+          if rules.size > 1 && rules.size % 2 == 1
+            # 'pages from project' => finder = 'page' and opts = {:from => 'project'}
+            finder = rules.shift.singularize
+            opts = Hash[*rules]
+            opts.keys.each {|key| opts[key.to_sym] = opts[key]; opts.delete(key) }
+          else
+            # no arguments or bad argument count (ignore arguments)
+            finder = rules[0].singularize
+          end
+          
+          from_clause = case opts[:from]
+          when 'site'
+            ""
+          when 'section'
+            " AND nodes.section_id = \#{#{obj}.get_section_id}"
+          when 'project'
+            " AND nodes.project_id = \#{#{obj}.get_project_id}"
+          else
+            " AND nodes.parent_id = \#{#{obj}[:id]}"
+          end
+          
+          to_clause = case opts[:to]
+          when 'site'
+            ""
+          when 'section'
+            " AND source_nodes.section_id = \#{#{obj}.get_section_id}"
+          when 'project'
+            " AND source_nodes.project_id = \#{#{obj}.get_project_id}"
+          else
+            nil
+          end
+          
+          if finder =~ /\A\d+\Z/
+            parts << "(nodes.zip = #{finder})"
+          elsif base_condition = base_condition(obj, finder)
+            # parent, project, section, children, pages, ...
+            parts << "#{base_condition}#{from_clause}"
+          elsif klass = Node.get_class(finder)
+            # images, documents, ... or virtual class: posts, letters, ...
+            parts << "nodes.kpath LIKE '#{klass.kpath}%'#{from_clause}"
+          elsif rel   = Relation.find_by_role(finder)
+            # icon, icon_for, added_notes, ...
+            if to_clause
+              # FIXME: finish this part (add JOIN nodes AS source_nodes ON ... from clause ... )
+              # parts << "(links.relation_id = #{rel[:id]} AND links.#{rel.other_side} = nodes.id AND links.#{rel.link_side} = source_nodes.id#{source_clause})"
+            else
+              link_counter += 1
+              parts << "lk#{link_counter}.relation_id = #{rel[:id]} AND lk#{link_counter}.#{rel.other_side} = \#{#{obj}[:id]}"
+              joins = "LEFT JOIN links AS lk#{link_counter} ON lk#{link_counter}.#{rel.link_side} = nodes.id"
+            end
+          else
+            # bad finder. Ignore.
+          end
+        end
+        if parts == []
+          ['nodes.id IS NULL', joins]
+        elsif parts.size == 1
+          [parts.first, joins]
+        else
+          ['((' + parts.join(') OR (') + '))', joins]
+        end
+      end
+      
+      # 'root', 'project', 'section', 'parent', 'self', 'nodes', 'projects', 'sections', 'children', 'pages', 'documents', 'documents_only', 'images', 'notes', 'author', 'traductions', 'versions'
+      def base_condition(obj, method)
+        case method
+        when 'root'
+          "nodes.id = #{current_site.root_id}"
+        when 'project'
+          "nodes.id = #{self[:project_id]}"
+        when 'section'
+          "nodes.id = #{self[:section_id]}"
+        when 'parent'
+          self[:parent_id] ? "id = #{self[:parent_id]}" : "id IS NULL"
+        when 'self'  
+          "nodes.id = #{self[:id]}"
+        when 'author'
+          "nodes.id = #{user.contact_id}"
+        when 'visitor'
+          "nodes.id = #{visitor.contact_id}"
+        when 'traductions', 'versions'
+          'id IS NULL' # FIXME
+
+          # yes, I know, this is not very elegant, we should find some common way to access 'documents without images'
+          # and 'pages without documents'. But we DO need the 'pages' shortcut and not some <r:pages without='documents'/>
+        when 'documents_only'
+          "nodes.kpath LIKE '#{Document.kpath}%' AND kpath NOT LIKE '#{Image.kpath}%'"
+        when 'page'
+          "nodes.kpath LIKE '#{Page.kpath}%' AND kpath NOT LIKE '#{Document.kpath}%'"
+        when 'all_page'
+          "nodes.kpath LIKE '#{Page.kpath}%'"
+        when 'children', 'node'
+          "1" # no filter
+        else
+          nil
+        end
+      end
+      
+
     end
     
 
@@ -154,7 +319,23 @@ module Zena
         end
       end
       
+      
+      def do_find(count, query)
+        return nil if new_record?
+        res = Node.find_by_sql(query)
+        if count == :all
+          res == [] ? nil : res
+        elsif
+          res.first
+        end
+      end
+      
+      # <notes or='added_notes' limit='3'>...</notes>
       # node.find(:all, :relations=>['notes', 'added_notes'], :order=>'', :limit=>3, :order=>'', :conditions=>'')
+      
+      # <houses from='site' d_type='villa'>...</houses>
+      # node.find(:all, :relations=>{:role=>'house', :from=>'site', :d_type=>'villa'}'houses from site where d_type = "villa"'],...)
+      
       def find(count, options)
         return nil if new_record?
         if options.kind_of?(String)

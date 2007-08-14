@@ -710,43 +710,7 @@ class Node < ActiveRecord::Base
     else
       nil
     end
-  end
-  
-  # 'root', 'project', 'section', 'parent', 'self', 'nodes', 'projects', 'sections', 'children', 'pages', 'documents', 'documents_only', 'images', 'notes', 'author', 'traductions', 'versions'
-  def base_condition(method)
-    case method
-    when 'root'
-      "nodes.id = #{current_site.root_id}"
-    when 'project'
-      "nodes.id = #{self[:project_id]}"
-    when 'section'
-      "nodes.id = #{self[:section_id]}"
-    when 'parent'
-      self[:parent_id] ? "id = #{self[:parent_id]}" : "id IS NULL"
-    when 'self'  
-      "nodes.id = #{self[:id]}"
-    when 'author'
-      "nodes.id = #{user.contact_id}"
-    when 'visitor'
-      "nodes.id = #{visitor.contact_id}"
-    when 'traductions', 'versions'
-      'id IS NULL' # FIXME
-      
-      # yes, I know, this is not very elegant, we should find some common way to access 'documents without images'
-      # and 'pages without documents'. But we DO need the 'pages' shortcut and not some <r:pages without='documents'/>
-    when 'documents_only'
-      "nodes.kpath LIKE '#{Document.kpath}%' AND kpath NOT LIKE '#{Image.kpath}%'"
-    when 'pages'
-      "nodes.kpath LIKE '#{Page.kpath}%' AND kpath NOT LIKE '#{Document.kpath}%'"
-    when 'all_pages'
-      "nodes.kpath LIKE '#{Page.kpath}%'"
-    when 'children', 'nodes'
-      "1" # no filter
-    else
-      nil
-    end
-  end
-  
+  end  
   
   # FIXME: remove this and use 'relation'
   def relation_options(opts, cond=nil)
