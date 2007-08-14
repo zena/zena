@@ -80,12 +80,23 @@ module Zena
         (rel_as_source + rel_as_target).sort {|a,b| a.other_role <=> b.other_role}
       end
       
-      # Return an sql query string that will be used by 'do_relation_query':
+      # Return an sql query string that will be used by 'do_find':
       # build_find(:all, :relations=>['children']) => "SELECT * FROM nodes WHERE nodes.parent_id = #{@node[:id]} AND ..."
-      # @node.do_find(:all, "SELECT * FROM nodes WHERE nodes.parent_id = #{@node[:id]} AND ...")
       # Options are 
       # :node=>'@node': contextual variable name
-      # :relations=>['notes from site', 'added_notes']: what to find
+      # :relations=>['notes from site', 'added_notes']: what to find in pseudo sql. Pseudo sql syntax:
+      #
+      # '[CLASS|VCLASS|RELATION] [from [site|section|project]|] [where CLAUSE|]'
+      #
+      # with :
+      #   * CLASS:  a native class ('images', 'documents', 'pages', 'projects', ...)
+      #   * VCLASS: a virtual class created by the user ('posts', 'houses', ...)
+      #   * RELATION: a relation defined by the user ('icon_for', 'news', 'calendar', ...)
+      #   * CLAUSE: field = value ('log_at:year = 2005'). You can use parameters, visitor data in clause: 'log_at:year = [param:year]', 'd_assigned = [visitor:name]'. You can only use 'and' in clauses. 'or' is not supported. You can use version and/or dynamic attributes : 'v_comment = super', 'd_priority = low'.
+      #
+      # Examples: 'todos from section where d_priority = high and d_assigned = [visitor:name]'
+      #
+      #
       # :limit, :conditions, :order
       def build_find(count, opts)
         plural = (count == :all)
@@ -94,7 +105,7 @@ module Zena
         end
 
         relations = opts.delete(:relations)
-        base_conditions, joins = build_condition(opts[:node], *relations)
+        base_conditions, joins = build_condition(opts[:node_name], *relations)
         
         
         if opts[:conditions]
@@ -348,138 +359,28 @@ module Zena
     
 
     module InstanceMethods
-
-      # Build a finder for a list of relations. Valid relation syntax is 'RELATION [from|to] [site|section|project]'. For
-      # example: 'pages from project', 'images from site', 'tags', 'icon_for from project'
-      def build_condition(*finders)
-        parts = []
-        
-        # Finders will be joined together with an 'OR'
-        finders.each do |rule|
-          opts = {}
-          from = nil
-          rules = rule.split(/\s+/)
-          
-          if rules.size > 1 && rules.size % 2 == 1
-            # 'pages from project' => finder = 'page' and opts = {:from => 'project'}
-            finder = rules.shift
-            opts = Hash[*rules]
-            opts.keys.each {|key| opts[key.to_sym] = opts[key]; opts.delete(key) }
-          else
-            # no arguments or bad argument count (ignore arguments)
-            finder = rules[0]
-          end
-          
-          from_clause = case opts[:from]
-          when 'site'
-            ""
-          when 'section'
-            " AND nodes.section_id = #{get_section_id}"
-          when 'project'
-            " AND nodes.project_id = #{get_project_id}"
-          else
-            " AND nodes.parent_id = #{self[:id].to_i}"
-          end
-          
-          to_clause = case opts[:to]
-          when 'site'
-            ""
-          when 'section'
-            " AND source_nodes.section_id = #{get_section_id}"
-          when 'project'
-            " AND source_nodes.project_id = #{get_project_id}"
-          else
-            nil
-          end
-          
-          if finder =~ /\A\d+\Z/
-            parts << "(nodes.zip = #{finder})"
-          elsif base_condition = self.base_condition(finder)
-            # parent, project, section, children, pages, ...
-            parts << "(#{base_condition}#{from_clause})"
-          elsif klass = Node.get_class(finder)
-            # images, documents, ... or virtual class: posts, letters, ...
-            parts << "(nodes.kpath LIKE '#{klass.kpath}%'#{from_clause})"
-          elsif rel   = Relation.find_by_role(finder)
-            # icon, icon_for, added_notes, ...
-            if to_clause
-              # FIXME: finish this part (add JOIN nodes AS source_nodes ON ... from clause ... )
-              # parts << "(links.relation_id = #{rel[:id]} AND links.#{rel.other_side} = nodes.id AND links.#{rel.link_side} = source_nodes.id#{source_clause})"
-            else
-              parts << "(links.relation_id = #{rel[:id]} AND links.#{rel.link_side} = nodes.id AND links.#{rel.other_side} = #{self[:id]})"
-            end
-          else
-            # bad finder. Ignore.
-          end
-        end
-        if parts == []
-          'nodes.id IS NULL'
-        else
-          parts.join(' OR ')
-        end
-      end
-      
-      
       def do_find(count, query)
         return nil if new_record?
         res = Node.find_by_sql(query)
         if count == :all
-          res == [] ? nil : res
-        elsif
-          res.first
+          if res == []
+            nil
+          else
+            res.each{|r| visitor.visit(r)}
+            res
+          end
+        elsif res = res.first
+          visitor.visit(res)
+          res
+        else
+          nil
         end
       end
       
-      # <notes or='added_notes' limit='3'>...</notes>
-      # node.find(:all, :relations=>['notes', 'added_notes'], :order=>'', :limit=>3, :order=>'', :conditions=>'')
-      
-      # <houses from='site' d_type='villa'>...</houses>
-      # node.find(:all, :relations=>{:role=>'house', :from=>'site', :d_type=>'villa'}'houses from site where d_type = "villa"'],...)
-      
+      # Find related nodes.
+      # See Node#build_find for details on the options available.
       def find(count, options)
-        return nil if new_record?
-        if options.kind_of?(String)
-          opts = {:relations=>options}
-        else
-          opts = options.dup
-        end
-        
-        plural = (count == :all)
-        if !plural
-          opts[:limit] = 1
-        end
-        
-        relations = opts.delete(:relations)
-        relations = [relations] unless relations.kind_of?(Array)
-        base_conditions = build_condition(*relations)
-        if cond = opts[:conditions]
-          if cond.kind_of?(Array)
-            opts[:conditions] = ["(#{cond[0]}) AND (#{base_conditions})"] + cond[1..-1]
-          else
-            opts[:conditions] = "(#{cond}) AND (#{base_conditions})"
-          end
-        else
-          opts[:conditions]   = base_conditions
-        end
-        
-        opts[:order] ||= 'position ASC, name ASC'
-        
-        if base_conditions =~ /links\./
-          opts = Node.clean_options(opts).merge( 
-                          :select     => "nodes.*, links.id AS link_id", 
-                          :joins      => "INNER JOIN links",
-                          :group      => 'nodes.id'
-                          )
-        else
-          opts = Node.clean_options(opts).merge(
-                          :group      => 'nodes.id'
-                          )
-        end
-        
-        secure(Node) { Node.find(count, opts) }
-        
-      rescue ActiveRecord::RecordNotFound
-        nil
+        do_find(count, eval("\"#{Node.build_find(count, options.merge(:node => 'self'))}\""))
       end
       
       def set_relation(role, value)
@@ -518,6 +419,10 @@ module Zena
         res
       end
       
+      
+      # Proxy to access user defined relations. The proxy is used to create/update links using the relation.
+      #
+      # Usage: node.relation_proxy(:role => 'news')
       
       # REWRITE TO HERE
       

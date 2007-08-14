@@ -1019,10 +1019,7 @@ END_TXT
       end
     end
     
-    # <r:pages from='site' project='stored' limit='5'>
-    # is the same as
-    # <div do='pages from site' project='stored' limit='5'>
-    # <div do='references' or='references_for'>
+    # Create an sql query to open a new context (passes its arguments to HasRelations#build_find)
     def get_list_finder(rel,params=@params)
       # FIXME: could SQL injection be possible here ? (all params are passed to the 'find')
       relations    = [rel]
@@ -1117,10 +1114,6 @@ END_TXT
       
       "#{node}.do_find(\"#{sql_query}\")"
     end
-    
-    # <r:hot else='project'/>
-    # <r:relation role='hot,project'> = get relation if empty get project
-    # relation ? get ? role ? go ?
     
     # helpers
     # find the current node name in the context

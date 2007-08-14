@@ -165,8 +165,8 @@ class RelationTest < ZenaTestUnit
   end
 
   def test_build_find_class
-    assert_equal "SELECT nodes.* FROM nodes WHERE (nodes.kpath LIKE 'NN%' AND nodes.parent_id = \#{var8[:id]} AND (nodes.user_id = '\#{visitor[:id]}' OR (rgroup_id IN (\#{visitor.group_ids.join(',')}) AND nodes.publish_from <= now() ) OR (pgroup_id IN (\#{visitor.group_ids.join(',')}) AND max_status > 30)) AND nodes.site_id = \#{visitor.site[:id]})  GROUP BY nodes.id  ORDER BY position ASC, name ASC",
-      str = Node.build_find(:all, :relations=>['notes'], :node=>'var8')
+    assert_equal "SELECT nodes.* FROM nodes   WHERE (nodes.kpath LIKE 'NN%' AND nodes.parent_id = \#{var8[:id]} AND (nodes.user_id = '\#{visitor[:id]}' OR (rgroup_id IN (\#{visitor.group_ids.join(',')}) AND nodes.publish_from <= now() ) OR (pgroup_id IN (\#{visitor.group_ids.join(',')}) AND max_status > 30)) AND nodes.site_id = \#{visitor.site[:id]})  GROUP BY nodes.id  ORDER BY position ASC, name ASC",
+      str = Node.build_find(:all, :relations=>['notes'], :node_name=>'var8')
     
     var8 = secure(Node) { nodes(:cleanWater) }
     res  = var8.do_find(:all, eval("\"#{str}\""))
@@ -175,8 +175,8 @@ class RelationTest < ZenaTestUnit
   
   def test_build_find_class_from_site
     login(:lion)
-    assert_equal "SELECT nodes.* FROM nodes WHERE (nodes.kpath LIKE 'NN%' AND (nodes.user_id = '\#{visitor[:id]}' OR (rgroup_id IN (\#{visitor.group_ids.join(',')}) AND nodes.publish_from <= now() ) OR (pgroup_id IN (\#{visitor.group_ids.join(',')}) AND max_status > 30)) AND nodes.site_id = \#{visitor.site[:id]})  GROUP BY nodes.id  ORDER BY position ASC, name ASC", 
-      str = Node.build_find(:all, :relations=>['notes from site'], :node=>'var8')
+    assert_equal "SELECT nodes.* FROM nodes   WHERE (nodes.kpath LIKE 'NN%' AND (nodes.user_id = '\#{visitor[:id]}' OR (rgroup_id IN (\#{visitor.group_ids.join(',')}) AND nodes.publish_from <= now() ) OR (pgroup_id IN (\#{visitor.group_ids.join(',')}) AND max_status > 30)) AND nodes.site_id = \#{visitor.site[:id]})  GROUP BY nodes.id  ORDER BY position ASC, name ASC", 
+      str = Node.build_find(:all, :relations=>['notes from site'], :node_name=>'var8')
     
     var8 = secure(Node) { nodes(:cleanWater) }
     res  = var8.do_find(:all, eval("\"#{str}\""))
@@ -185,8 +185,8 @@ class RelationTest < ZenaTestUnit
   
   def test_build_find_vclass_from_project
     login(:lion)
-    assert_equal "SELECT nodes.* FROM nodes WHERE (nodes.kpath LIKE 'NNP%' AND nodes.project_id = \#{var8.get_project_id} AND (nodes.user_id = '\#{visitor[:id]}' OR (rgroup_id IN (\#{visitor.group_ids.join(',')}) AND nodes.publish_from <= now() ) OR (pgroup_id IN (\#{visitor.group_ids.join(',')}) AND max_status > 30)) AND nodes.site_id = \#{visitor.site[:id]})  GROUP BY nodes.id  ORDER BY position ASC, name ASC", 
-      str = Node.build_find(:all, :relations=>['posts from project'], :node=>'var8')
+    assert_equal "SELECT nodes.* FROM nodes   WHERE (nodes.kpath LIKE 'NNP%' AND nodes.project_id = \#{var8.get_project_id} AND (nodes.user_id = '\#{visitor[:id]}' OR (rgroup_id IN (\#{visitor.group_ids.join(',')}) AND nodes.publish_from <= now() ) OR (pgroup_id IN (\#{visitor.group_ids.join(',')}) AND max_status > 30)) AND nodes.site_id = \#{visitor.site[:id]})  GROUP BY nodes.id  ORDER BY position ASC, name ASC", 
+      str = Node.build_find(:all, :relations=>['posts from project'], :node_name=>'var8')
     
     var8 = secure(Node) { nodes(:cleanWater) }
     res  = var8.do_find(:all, eval("\"#{str}\""))
@@ -195,8 +195,8 @@ class RelationTest < ZenaTestUnit
   
   def test_build_find_vclass_from_project_or_class
     login(:lion)
-    assert_equal "SELECT nodes.* FROM nodes WHERE (((nodes.kpath LIKE 'NNP%' AND nodes.project_id = \#{var8.get_project_id}) OR (nodes.kpath LIKE 'NP%' AND kpath NOT LIKE 'NPD%' AND nodes.parent_id = \#{var8[:id]})) AND (nodes.user_id = '\#{visitor[:id]}' OR (rgroup_id IN (\#{visitor.group_ids.join(',')}) AND nodes.publish_from <= now() ) OR (pgroup_id IN (\#{visitor.group_ids.join(',')}) AND max_status > 30)) AND nodes.site_id = \#{visitor.site[:id]})  GROUP BY nodes.id  ORDER BY position ASC, name ASC",
-      str = Node.build_find(:all, :relations=>['posts from project','pages'], :node=>'var8')
+    assert_equal "SELECT nodes.* FROM nodes   WHERE (((nodes.kpath LIKE 'NNP%' AND nodes.project_id = \#{var8.get_project_id}) OR (nodes.kpath LIKE 'NP%' AND kpath NOT LIKE 'NPD%' AND nodes.parent_id = \#{var8[:id]})) AND (nodes.user_id = '\#{visitor[:id]}' OR (rgroup_id IN (\#{visitor.group_ids.join(',')}) AND nodes.publish_from <= now() ) OR (pgroup_id IN (\#{visitor.group_ids.join(',')}) AND max_status > 30)) AND nodes.site_id = \#{visitor.site[:id]})  GROUP BY nodes.id  ORDER BY position ASC, name ASC",
+      str = Node.build_find(:all, :relations=>['posts from project','pages'], :node_name=>'var8')
 
     var8 = secure(Node) { nodes(:cleanWater) }
     res  = var8.do_find(:all, eval("\"#{str}\""))
@@ -204,8 +204,8 @@ class RelationTest < ZenaTestUnit
   end
   
   def test_build_find_bad_vclass_from_project
-    assert_equal "SELECT nodes.* FROM nodes WHERE (nodes.id IS NULL AND (nodes.user_id = '\#{visitor[:id]}' OR (rgroup_id IN (\#{visitor.group_ids.join(',')}) AND nodes.publish_from <= now() ) OR (pgroup_id IN (\#{visitor.group_ids.join(',')}) AND max_status > 30)) AND nodes.site_id = \#{visitor.site[:id]})  GROUP BY nodes.id  ORDER BY position ASC, name ASC",
-      str = Node.build_find(:all, :relations=>['badclass from project'], :node=>'var8')
+    assert_equal "SELECT nodes.* FROM nodes   WHERE (nodes.id IS NULL AND (nodes.user_id = '\#{visitor[:id]}' OR (rgroup_id IN (\#{visitor.group_ids.join(',')}) AND nodes.publish_from <= now() ) OR (pgroup_id IN (\#{visitor.group_ids.join(',')}) AND max_status > 30)) AND nodes.site_id = \#{visitor.site[:id]})  GROUP BY nodes.id  ORDER BY position ASC, name ASC",
+      str = Node.build_find(:all, :relations=>['badclass from project'], :node_name=>'var8')
 
     var8 = secure(Node) { nodes(:cleanWater) }
     assert_nil var8.do_find(:all, eval("\"#{str}\""))
@@ -213,7 +213,7 @@ class RelationTest < ZenaTestUnit
   
   def test_build_find_relation
     assert_equal "SELECT nodes.* FROM nodes  LEFT JOIN links AS lk1 ON lk1.target_id = nodes.id WHERE (lk1.relation_id = 9 AND lk1.source_id = \#{var8[:id]} AND (nodes.user_id = '\#{visitor[:id]}' OR (rgroup_id IN (\#{visitor.group_ids.join(',')}) AND nodes.publish_from <= now() ) OR (pgroup_id IN (\#{visitor.group_ids.join(',')}) AND max_status > 30)) AND nodes.site_id = \#{visitor.site[:id]})  GROUP BY nodes.id  ORDER BY position ASC, name ASC",
-      str = Node.build_find(:all, :relations=>['favorites'], :node=>'var8')
+      str = Node.build_find(:all, :relations=>['favorites'], :node_name=>'var8')
     
     login(:ant)
     var8 = secure(Node) { nodes(:ant) }
@@ -223,7 +223,7 @@ class RelationTest < ZenaTestUnit
 
   def test_build_find_relation_with_class
     assert_equal "SELECT nodes.* FROM nodes  LEFT JOIN links AS lk1 ON lk1.source_id = nodes.id WHERE (((nodes.kpath LIKE 'NPDI%' AND nodes.parent_id = \#{var8[:id]}) OR (lk1.relation_id = 1 AND lk1.target_id = \#{var8[:id]})) AND (nodes.user_id = '\#{visitor[:id]}' OR (rgroup_id IN (\#{visitor.group_ids.join(',')}) AND nodes.publish_from <= now() ) OR (pgroup_id IN (\#{visitor.group_ids.join(',')}) AND max_status > 30)) AND nodes.site_id = \#{visitor.site[:id]})  GROUP BY nodes.id  ORDER BY position ASC, name ASC",
-      str = Node.build_find(:all, :relations=>['images','news'], :node=>'var8')
+      str = Node.build_find(:all, :relations=>['images','news'], :node_name=>'var8')
     login(:ant)
     var8 = secure(Node) { nodes(:wiki) }
     res  = var8.do_find(:all, eval("\"#{str}\""))
@@ -232,7 +232,7 @@ class RelationTest < ZenaTestUnit
 
   def test_build_find_with_dyn_attribute_clause
     assert_equal "SELECT nodes.* FROM nodes  INNER JOIN versions AS vs ON vs.node_id = nodes.id AND ((vs.status >= 30 AND vs.user_id = \#{visitor[:id]} AND vs.lang = '\#{visitor.lang}') OR vs.status > 30) INNER JOIN dyn_attributes AS da1 ON da1.owner_id = vs.id AND da1.owner_table = 'versions' WHERE (nodes.kpath LIKE 'NP%' AND kpath NOT LIKE 'NPD%' AND nodes.section_id = \#{var8.get_section_id} AND da1.key = 'assigned' AND da1.value = 'gaspard' AND (nodes.user_id = '\#{visitor[:id]}' OR (rgroup_id IN (\#{visitor.group_ids.join(',')}) AND nodes.publish_from <= now() ) OR (pgroup_id IN (\#{visitor.group_ids.join(',')}) AND max_status > 30)) AND nodes.site_id = \#{visitor.site[:id]})  GROUP BY nodes.id  ORDER BY position ASC, name ASC",
-      str = Node.build_find(:all, :relations=>['pages from section where d_assigned = "gaspard"'], :node=>'var8')
+      str = Node.build_find(:all, :relations=>['pages from section where d_assigned = "gaspard"'], :node_name=>'var8')
     login(:ant)
     var8 = secure(Node) { nodes(:zena) }
     res  = var8.do_find(:all, eval("\"#{str}\""))
@@ -241,20 +241,29 @@ class RelationTest < ZenaTestUnit
   
   def test_build_find_with_version_clause
     assert_equal "SELECT nodes.* FROM nodes  INNER JOIN versions AS vs ON vs.node_id = nodes.id AND ((vs.status >= 30 AND vs.user_id = \#{visitor[:id]} AND vs.lang = '\#{visitor.lang}') OR vs.status > 30) WHERE (nodes.kpath LIKE 'NP%' AND kpath NOT LIKE 'NPD%' AND nodes.project_id = \#{var8.get_project_id} AND vs.comment = 'no comment yet' AND (nodes.user_id = '\#{visitor[:id]}' OR (rgroup_id IN (\#{visitor.group_ids.join(',')}) AND nodes.publish_from <= now() ) OR (pgroup_id IN (\#{visitor.group_ids.join(',')}) AND max_status > 30)) AND nodes.site_id = \#{visitor.site[:id]})  GROUP BY nodes.id  ORDER BY position ASC, name ASC",
-      str = Node.build_find(:all, :relations=>['pages from project where v_comment = "no comment yet"'], :node=>'var8')
+      str = Node.build_find(:all, :relations=>['pages from project where v_comment = "no comment yet"'], :node_name=>'var8')
     login(:lion)
     var8 = secure(Node) { nodes(:cleanWater) }
     res  = var8.do_find(:all, eval("\"#{str}\""))
     assert_equal [:bananas, :strange].map{|s| nodes_id(s)}, res.map{|r| r[:id]}
   end
   
-  
   def test_build_find_with_version_clause_year
     assert_equal "SELECT nodes.* FROM nodes  INNER JOIN versions AS vs ON vs.node_id = nodes.id AND ((vs.status >= 30 AND vs.user_id = \#{visitor[:id]} AND vs.lang = '\#{visitor.lang}') OR vs.status > 30) WHERE (1 AND nodes.project_id = \#{var8.get_project_id} AND year(vs.updated_at) = '2007' AND (nodes.user_id = '\#{visitor[:id]}' OR (rgroup_id IN (\#{visitor.group_ids.join(',')}) AND nodes.publish_from <= now() ) OR (pgroup_id IN (\#{visitor.group_ids.join(',')}) AND max_status > 30)) AND nodes.site_id = \#{visitor.site[:id]})  GROUP BY nodes.id  ORDER BY position ASC, name ASC",
-      str = Node.build_find(:all, :relations=>['nodes from project where v_updated_at:year = 2007'], :node=>'var8')
+      str = Node.build_find(:all, :relations=>['nodes from project where v_updated_at:year = 2007'], :node_name=>'var8')
     login(:lion)
     var8 = secure(Node) { nodes(:cleanWater) }
     res  = var8.do_find(:all, eval("\"#{str}\""))
     assert_equal [:bananas].map{|s| nodes_id(s)}, res.map{|r| r[:id]}
+  end
+  
+  def test_build_find_class_from_site_with_conditions
+    login(:tiger)
+    assert_equal "SELECT nodes.* FROM nodes   WHERE (nodes.kpath LIKE 'NN%' AND user_id = \#{visitor[:id]} AND (nodes.user_id = '\#{visitor[:id]}' OR (rgroup_id IN (\#{visitor.group_ids.join(',')}) AND nodes.publish_from <= now() ) OR (pgroup_id IN (\#{visitor.group_ids.join(',')}) AND max_status > 30)) AND nodes.site_id = \#{visitor.site[:id]})  GROUP BY nodes.id  ORDER BY position ASC, name ASC", 
+      str = Node.build_find(:all, :relations=>['notes from site'], :node=>'var8', :conditions=>"user_id = \#{visitor[:id]}")
+    
+    var8 = secure(Node) { nodes(:cleanWater) }
+    res  = var8.do_find(:all, eval("\"#{str}\""))
+    assert_equal [nodes_id(:letter), nodes_id(:opening)], res.map{|r| r[:id]}
   end
 end
