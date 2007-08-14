@@ -314,7 +314,10 @@ bananas_en:
   text:           nothing written yet
   lang:           en
   number:         1
-<%= @defaults %>
+  created_at:     2007-03-10
+  updated_at:     2007-04-11
+  publish_from:   2007-03-10
+  status:         50
 
   
 wiki_en:

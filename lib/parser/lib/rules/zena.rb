@@ -1351,24 +1351,7 @@ END_TXT
       att_node = opts[:node] || node
       attribute = attribute.gsub(/(^|_)id|id$/, '\1zip') if node_kind_of?(Node)
       res = if node_kind_of?(Node)
-        case attribute[0..1]
-        when 'v_'
-          att = attribute[2..-1]
-          if Version.zafu_readable?(att)
-            "#{att_node}.version.#{att}"
-          else
-            # might be readable by sub-classes
-            "#{att_node}.version.zafu_read(#{attribute[2..-1].inspect})"
-          end
-        when 'c_'
-          "#{att_node}.c_zafu_read(#{attribute[2..-1].inspect})"
-        when 'd_'
-          "#{att_node}.version.dyn[#{attribute[2..-1].inspect}]"
-        else
-          if Node.zafu_readable?(attribute)
-            "#{att_node}.#{attribute}"
-          end
-        end
+        Node.zafu_attribute(attribute, att_node)
       elsif node_kind_of?(Version) && Version.zafu_readable?(attribute)
         "#{att_node}.#{attribute}"
       end

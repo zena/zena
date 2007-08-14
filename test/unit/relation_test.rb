@@ -231,7 +231,30 @@ class RelationTest < ZenaTestUnit
   end
 
   def test_build_find_with_dyn_attribute_clause
-   assert_equal "SELECT nodes.* FROM nodes WHERE (nodes.id IS NULL AND (nodes.user_id = '\#{visitor[:id]}' OR (rgroup_id IN (\#{visitor.group_ids.join(',')}) AND nodes.publish_from <= now() ) OR (pgroup_id IN (\#{visitor.group_ids.join(',')}) AND max_status > 30)) AND nodes.site_id = \#{visitor.site[:id]})  GROUP BY nodes.id  ORDER BY position ASC, name ASC", 
-                Node.build_find(:all, :relations=>['images from project where d_foo = "bar"'], :node=>'var8')
+    assert_equal "SELECT nodes.* FROM nodes  INNER JOIN versions AS vs ON vs.node_id = nodes.id AND ((vs.status >= 30 AND vs.user_id = \#{visitor[:id]} AND vs.lang = '\#{visitor.lang}') OR vs.status > 30) INNER JOIN dyn_attributes AS da1 ON da1.owner_id = vs.id AND da1.owner_table = 'versions' WHERE (nodes.kpath LIKE 'NP%' AND kpath NOT LIKE 'NPD%' AND nodes.section_id = \#{var8.get_section_id} AND da1.key = 'assigned' AND da1.value = 'gaspard' AND (nodes.user_id = '\#{visitor[:id]}' OR (rgroup_id IN (\#{visitor.group_ids.join(',')}) AND nodes.publish_from <= now() ) OR (pgroup_id IN (\#{visitor.group_ids.join(',')}) AND max_status > 30)) AND nodes.site_id = \#{visitor.site[:id]})  GROUP BY nodes.id  ORDER BY position ASC, name ASC",
+      str = Node.build_find(:all, :relations=>['pages from section where d_assigned = "gaspard"'], :node=>'var8')
+    login(:ant)
+    var8 = secure(Node) { nodes(:zena) }
+    res  = var8.do_find(:all, eval("\"#{str}\""))
+    assert_equal [:cleanWater, :people].map{|s| nodes_id(s)}, res.map{|r| r[:id]}
+  end
+  
+  def test_build_find_with_version_clause
+    assert_equal "SELECT nodes.* FROM nodes  INNER JOIN versions AS vs ON vs.node_id = nodes.id AND ((vs.status >= 30 AND vs.user_id = \#{visitor[:id]} AND vs.lang = '\#{visitor.lang}') OR vs.status > 30) WHERE (nodes.kpath LIKE 'NP%' AND kpath NOT LIKE 'NPD%' AND nodes.project_id = \#{var8.get_project_id} AND vs.comment = 'no comment yet' AND (nodes.user_id = '\#{visitor[:id]}' OR (rgroup_id IN (\#{visitor.group_ids.join(',')}) AND nodes.publish_from <= now() ) OR (pgroup_id IN (\#{visitor.group_ids.join(',')}) AND max_status > 30)) AND nodes.site_id = \#{visitor.site[:id]})  GROUP BY nodes.id  ORDER BY position ASC, name ASC",
+      str = Node.build_find(:all, :relations=>['pages from project where v_comment = "no comment yet"'], :node=>'var8')
+    login(:lion)
+    var8 = secure(Node) { nodes(:cleanWater) }
+    res  = var8.do_find(:all, eval("\"#{str}\""))
+    assert_equal [:bananas, :strange].map{|s| nodes_id(s)}, res.map{|r| r[:id]}
+  end
+  
+  
+  def test_build_find_with_version_clause_year
+    assert_equal "SELECT nodes.* FROM nodes  INNER JOIN versions AS vs ON vs.node_id = nodes.id AND ((vs.status >= 30 AND vs.user_id = \#{visitor[:id]} AND vs.lang = '\#{visitor.lang}') OR vs.status > 30) WHERE (1 AND nodes.project_id = \#{var8.get_project_id} AND year(vs.updated_at) = '2007' AND (nodes.user_id = '\#{visitor[:id]}' OR (rgroup_id IN (\#{visitor.group_ids.join(',')}) AND nodes.publish_from <= now() ) OR (pgroup_id IN (\#{visitor.group_ids.join(',')}) AND max_status > 30)) AND nodes.site_id = \#{visitor.site[:id]})  GROUP BY nodes.id  ORDER BY position ASC, name ASC",
+      str = Node.build_find(:all, :relations=>['nodes from project where v_updated_at:year = 2007'], :node=>'var8')
+    login(:lion)
+    var8 = secure(Node) { nodes(:cleanWater) }
+    res  = var8.do_find(:all, eval("\"#{str}\""))
+    assert_equal [:bananas].map{|s| nodes_id(s)}, res.map{|r| r[:id]}
   end
 end

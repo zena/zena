@@ -132,18 +132,26 @@ module Zena
       
       
       # Build a finder for a list of relations. Valid relation syntax is 'RELATION [from|to] [site|section|project]'. For
-      # example: 'pages from project', 'images from site', 'tags', 'icon_for from project'
+      # example: 'pages from project', 'images from site', 'tags', 'icon_for from project', 'houses where d_town = Lausanne'
       def build_condition(obj, *finders)
         parts = []
         link_counter = 0
         dyn_counter  = 0
-        joins = nil
+        has_version_join = false
+        version_join = "INNER JOIN versions AS vs ON vs.node_id = nodes.id AND ((vs.status >= #{Zena::Status[:red]} AND vs.user_id = \#{visitor[:id]} AND vs.lang = '\#{visitor.lang}') OR vs.status > #{Zena::Status[:red]})"
+        joins = []
         
         # Finders will be joined together with an 'OR'
         finders.each do |rule|
           opts = {}
           from = nil
-          rules = rule.split(/\s+/)
+          
+          # extract 'where'
+          rules = rule.split(/\s+where\s+/)
+          where = rules[1]
+          
+          # extract 'role' and 'from'
+          rules = rules[0].split(/\s+/)
           
           if rules.size > 1 && rules.size % 2 == 1
             # 'pages from project' => finder = 'page' and opts = {:from => 'project'}
@@ -154,6 +162,85 @@ module Zena
             # no arguments or bad argument count (ignore arguments)
             finder = rules[0].singularize
           end
+          
+          if where
+            dyn_counter_this_finder = 0
+            # someday, someone will ask for an 'or'. When this happens, we need to use () around all the clauses ((...) OR (...)).
+            where_clause = where.split(/\s+and\s+/).map do |clause|
+              # [field] [=|>]
+              if clause =~ /([\w:]+)\s*(<|<=|=|>=|>|<>)\s*"?([^"]*)"?/
+                field = $1
+                op    = $2
+                value = $3
+                if value =~ /\[(visitor|param):(\w+)\]/
+                  case $1
+                  when 'visitor'
+                    value = "\#{Node.connection.quote(#{Node.zafu_attribute('visitor.contact', $2)})}"
+                  when 'param'
+                    value = "\#{Node.connection.quote(params[:#{$2}])}"
+                  end
+                else
+                  value = Node.connection.quote(value)
+                end
+                case field[0..1]
+                when 'd_'
+                  # DYNAMIC ATTRIBUTE
+                  field = field[2..-1]
+                  dyn_counter_this_finder += 1
+                  if dyn_counter_this_finder > dyn_counter
+                    dyn_counter += 1
+                    unless has_version_join
+                      joins << version_join
+                      has_version_join = true
+                    end
+                    joins << "INNER JOIN dyn_attributes AS da#{dyn_counter} ON da#{dyn_counter}.owner_id = vs.id AND da#{dyn_counter}.owner_table = 'versions'"
+                  end
+                  "da#{dyn_counter_this_finder}.key = '#{field}' AND da#{dyn_counter_this_finder}.value #{op} #{value}"
+                when 'c_'
+                  # CONTENT TABLE
+                  field = field[2..-1]
+                  # FIXME: implement #41
+                  nil
+                when 'v_'
+                  # VERSION
+                  field = field[2..-1]
+                  field, function = parse_sql_function_in_field(field)
+                  if Version.zafu_readable?(field) && Version.column_names.include?(field)
+                    unless has_version_join
+                      joins << version_join
+                      has_version_join = true
+                    end
+                    if function
+                      "#{function}(vs.#{field}) #{op} #{value}"
+                    else
+                      "vs.#{field} #{op} #{value}"
+                    end
+                  else
+                    nil
+                  end
+                else
+                  # NODE
+                  field, function = parse_sql_function_in_field(field)
+                  if Node.zafu_readable?(field) && Node.column_names.include?(field)
+                    if function
+                      "#{function}(#{field}) #{op} #{value}"
+                    else
+                      "#{field} #{op} #{value}"
+                    end
+                  else
+                    nil
+                  end
+                end
+              else
+                # invalid clause format
+                # FIXME: display the error in the rendered zafu #42
+              end
+            end.compact.join(' AND ')
+            where_clause = " AND #{where_clause}"
+          else
+            where_clause = ''
+          end
+            
           
           from_clause = case opts[:from]
           when 'site'
@@ -181,10 +268,10 @@ module Zena
             parts << "(nodes.zip = #{finder})"
           elsif base_condition = base_condition(obj, finder)
             # parent, project, section, children, pages, ...
-            parts << "#{base_condition}#{from_clause}"
+            parts << "#{base_condition}#{from_clause}#{where_clause}"
           elsif klass = Node.get_class(finder)
             # images, documents, ... or virtual class: posts, letters, ...
-            parts << "nodes.kpath LIKE '#{klass.kpath}%'#{from_clause}"
+            parts << "nodes.kpath LIKE '#{klass.kpath}%'#{from_clause}#{where_clause}"
           elsif rel   = Relation.find_by_role(finder)
             # icon, icon_for, added_notes, ...
             if to_clause
@@ -192,19 +279,32 @@ module Zena
               # parts << "(links.relation_id = #{rel[:id]} AND links.#{rel.other_side} = nodes.id AND links.#{rel.link_side} = source_nodes.id#{source_clause})"
             else
               link_counter += 1
-              parts << "lk#{link_counter}.relation_id = #{rel[:id]} AND lk#{link_counter}.#{rel.other_side} = \#{#{obj}[:id]}"
-              joins = "LEFT JOIN links AS lk#{link_counter} ON lk#{link_counter}.#{rel.link_side} = nodes.id"
+              parts << "lk#{link_counter}.relation_id = #{rel[:id]} AND lk#{link_counter}.#{rel.other_side} = \#{#{obj}[:id]}#{where_clause}"
+              joins << "LEFT JOIN links AS lk#{link_counter} ON lk#{link_counter}.#{rel.link_side} = nodes.id"
             end
           else
             # bad finder. Ignore.
           end
         end
         if parts == []
-          ['nodes.id IS NULL', joins]
+          ['nodes.id IS NULL', joins.join(' ')]
         elsif parts.size == 1
-          [parts.first, joins]
+          [parts.first, joins.join(' ')]
         else
-          ['((' + parts.join(') OR (') + '))', joins]
+          ['((' + parts.join(') OR (') + '))', joins.join(' ')]
+        end
+      end
+      
+      # When a field is defined as log_at:year, return [log_at, year].
+      def parse_sql_function_in_field(field)
+        if field =~ /\A(\w+):(\w+)\Z/
+          if ['year'].include?($2)
+            [$1,$2]
+          else
+            [$1]
+          end
+        else
+          [field]
         end
       end
       

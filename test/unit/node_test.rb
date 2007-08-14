@@ -1075,4 +1075,11 @@ done: \"I am done\""
     # test with vclass
     assert false, 'TODO'
   end
+  
+  def test_zafu_attribute
+    assert_equal "bob.name", Node.zafu_attribute('bob', 'name')
+    assert_equal "bob.version.text", Node.zafu_attribute('bob', 'v_text')
+    assert_equal 'bob.version.dyn["super"]', Node.zafu_attribute('bob', 'd_super')
+    assert_equal 'bob.c_zafu_read("truc")', Node.zafu_attribute('bob', 'c_truc')
+  end
 end

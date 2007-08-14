@@ -547,6 +547,28 @@ class Node < ActiveRecord::Base
       end
       attributes
     end
+    
+    # Return a safe string to access node attributes in compiled templates and compiled sql.
+    def zafu_attribute(node, attribute)
+      case attribute[0..1]
+      when 'v_'
+        att = attribute[2..-1]
+        if Version.zafu_readable?(att)
+          "#{node}.version.#{att}"
+        else
+          # might be readable by sub-classes
+          "#{node}.version.zafu_read(#{attribute[2..-1].inspect})"
+        end
+      when 'c_'
+        "#{node}.c_zafu_read(#{attribute[2..-1].inspect})"
+      when 'd_'
+        "#{node}.version.dyn[#{attribute[2..-1].inspect}]"
+      else
+        if Node.zafu_readable?(attribute)
+          "#{node}.#{attribute}"
+        end
+      end
+    end
   end
   
   def visitor

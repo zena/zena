@@ -7,7 +7,7 @@ You need to set collation and charset to utf8 when creating the database. Exampl
 
 == Migrating the database (setup)
 Once config/database.yml is properly set, run the following command
-# rake bricks:migrate RAILS_ENV=production
+# rake zena:migrate RAILS_ENV=production
 
 == Create a new site
 # rake zena:mksite HOST=example.com PASSWORD=secret RAILS_ENV=production
