@@ -31,7 +31,7 @@ include_erb:
 
 cache_part:
   src: "<r:cache><r:show attr='name'/></r:cache>"
-  tem: "<% cache1 = Cache.with(visitor.id, visitor.group_ids, \"NP\", \"en\", \"/cache/part\") do capture do %><%= @node.name %><% end; end %><%= cache1 %>"
+  tem: "<% cache1 = Cache.with(visitor.id, visitor.group_ids, \"NP\", \"en\", \"/cache/part/list\") do capture do %><%= @node.name %><% end; end %><%= cache1 %>"
 
 show_title:
   src: "<r:show attr='v_title'/>"
@@ -397,11 +397,11 @@ img_href:
   context:
     node: 'bird_jpg'
   src: "<r:img link='self'/>"
-  res: "<a href='/oo/image30.html'><img src='/oo/image30_std.jpg' width='440' height='400' alt='bird' class='std'/></a>"
+  res: "<a href='/oo/image30.html'><img src='/en/image30_std.jpg' width='440' height='400' alt='bird' class='std'/></a>"
 
 img_src_id:
-  src: "<r:img src='20'/>"
-  res: "<img src='/oo/image30_std.jpg' width='440' height='400' alt='bird' class='std'/>"
+  src: "<r:img src='30'/>"
+  res: "<img src='/en/image30_std.jpg' width='440' height='400' alt='bird' class='std'/>"
   
 test_children_plural:
   tem: "<%= 'children'.pluralize %>"
@@ -452,7 +452,7 @@ name_title:
   res: "title: <h1 id='main'>status</h1>"
 
 include_with:
-  src: "include_with: <r:include template='/name/title'><h1 do='with' part='title' do='show' attr='id'/>"
+  src: "include_with: <r:include template='/name/title'><h1 do='with' part='main' do='show' attr='id'/>"
   res: "include_with: title: <h1 id='main'>22</h1>"
   
 comments:
@@ -542,8 +542,8 @@ select_class:
 checkbox:
   context:
     node: 'opening'
-  src: "<r:checkbox role='blog' values='11'/>"
-  res: "/input type='checkbox' name='node\[blog_ids\]\[\]' value='11' checked='checked'.*zena.*hidden.*node\[blog_ids\]' value=''/"
+  src: "<r:checkbox role='calendar' values='11'/>"
+  res: "/input type='checkbox' name='node\[calendar_ids\]\[\]' value='11' checked='checked'.*zena.*hidden.*node\[calendar_ids\]' value=''/"
 
 read_no_content:
   src: "this is <b do='[c_bad]'/>"

@@ -3,10 +3,10 @@ default:
     lang: 'en'
     visitor: 'lion'
     node: 'zena'
-  src: "simple text"
-  tem: "simple text"
-  res: "simple text"
+  src: 'simple text'
+  tem: 'simple text'
+  res: 'simple text'
   
 calendar_from_project:
-  tem: "<%= calendar(:node=>@node, :date=>Date.civil(2007,06,22), :or=>'added_notes', :size=>:large, :using=>:log_at, :find=>:notes, :from=>'project', :id=>'small_calendar') %>"
-  res: "/hello/"
+  tem: "<%= calendar(:node=>@node, :date=>Date.civil(2006,10,03), :size=>'tiny', :using=>'log_at', :relations=>['notes', 'news']) %>"
+  res: "/October 2006.*<td><em>3<\/em><\/td>/"

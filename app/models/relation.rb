@@ -8,10 +8,12 @@ class Relation < ActiveRecord::Base
   # FIXME: set kpath from class
   
   class << self
+    
+    # Open a relation to a role. start => 'role'
     def find_by_role(role)
       rel = find(:first, :conditions => ["(source_role = ? OR target_role = ?) AND site_id = ?", role, role, current_site[:id]])
       return nil unless rel
-      if rel.source_role == role
+      if rel.target_role == role
         rel.side = :source
       else
         rel.side = :target
@@ -19,9 +21,12 @@ class Relation < ActiveRecord::Base
       rel
     end
     
+    # Find a relation by it's role, making sure the class path is compatible with the one given as parameter. If you define
+    # a relation with a source role of 'news' which can only be linked to 'NPP%' class paths, doing 
+    # find_by_role_and_kpath('news', 'NPP') will succeed but find_by_role_and_kpath('news', 'NNP') will fail returning nil.
     def find_by_role_and_kpath(role, kpath)
       rel = find_by_role(role)
-      if kpath =~ /\A#{rel.this_kpath}/
+      if rel && kpath =~ /\A#{rel.this_kpath}/
         rel
       else
         # invalid relation for the given class path

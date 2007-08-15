@@ -368,11 +368,7 @@ module Zena
     def r_section
       do_var("#{node}.section", :node_class => :Node)
     end
-    
-    def r_root
-      do_var("#{node}.root", :node_class => :Node)
-    end
-    
+        
     # TODO: test
     def r_user
       do_var("#{node}.user", :node_class => :User)
@@ -962,7 +958,7 @@ END_TXT
     def r_img
       return unless check_node_class(:Node)
       if @params[:src]
-        img = "#{node}.relation(#{@params[:src].inspect})"
+        img = build_finder_for(:first, @params[:src])
       else
         img = node
       end
@@ -982,18 +978,15 @@ END_TXT
     
     # TODO: test
     def r_calendar
-      from   = 'project'
-      date   = 'main_date'
-      opts   = @params.dup
-      opts[:find]   = (@params[:find  ] || 'news'   )
+      opts   = query_parameters(@params[:find  ] || 'news from project')
+      opts.delete(:node_name)
       opts[:size]   = (@params[:size  ] || 'tiny'    )
       opts[:using]  = (@params[:using ] || 'event_at').gsub(/[^a-z_]/,'') # SQL injection security
-      opts[:from]  ||= 'project'
       
       template_url = unique_name
       out helper.save_erb_to_url(opts.inspect, template_url)
       
-      "<div id='#{opts[:size]}cal'><%= calendar(:node=>#{node}, :date=>#{date}, :template_url => #{template_url.inspect}) %></div>"
+      "<div id='#{opts[:size]}cal'><%= calendar(:node=>#{node}, :date=>main_date, :template_url => #{template_url.inspect}) %></div>"
     end
     
     # part caching
@@ -1024,6 +1017,12 @@ END_TXT
     
     # Create an sql query to open a new context (passes its arguments to HasRelations#build_find)
     def build_finder_for(count, rel, params=@params)
+      sql_query = Node.build_find(count, query_parameters(rel, params))
+      
+      "#{node}.do_find(#{count.inspect}, \"#{sql_query}\")"
+    end
+    
+    def query_parameters(rel, params=@params)
       # FIXME: could SQL injection be possible here ? (all params are passed to the 'find')
       relations    = [rel]
       conditions   = []
@@ -1112,12 +1111,8 @@ END_TXT
       query_params[:conditions] = conditions.join(' AND ') if conditions != []
       query_params[:relations ] = relations
       query_params[:node_name ] = node
-      
-      sql_query = Node.build_find(count, query_params)
-      
-      "#{node}.do_find(#{count.inspect}, \"#{sql_query}\")"
-    end
-    
+      query_params
+    end    
     # helpers
     # find the current node name in the context
     def node
@@ -1361,7 +1356,7 @@ END_TXT
       att_node = opts[:node] || node
       attribute = attribute.gsub(/(^|_)id|id$/, '\1zip') if node_kind_of?(Node)
       res = if node_kind_of?(Node)
-        Node.zafu_attribute(attribute, att_node)
+        Node.zafu_attribute(att_node, attribute)
       elsif node_kind_of?(Version) && Version.zafu_readable?(attribute)
         "#{att_node}.#{attribute}"
       end

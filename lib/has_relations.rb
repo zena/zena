@@ -84,7 +84,12 @@ module Zena
       # build_find(:all, :relations=>['children']) => "SELECT * FROM nodes WHERE nodes.parent_id = #{@node[:id]} AND ..."
       # Options are 
       # :node=>'@node': contextual variable name
-      # :relations=>['notes from site', 'added_notes']: what to find in pseudo sql. Pseudo sql syntax:
+      # :relations=>['PSEUDO_SQL', 'PSEUDO_SQL']: what to find in pseudo sql.
+      # :limit
+      # :conditions
+      # :order
+      #
+      # Pseudo sql syntax:
       #
       # '[CLASS|VCLASS|RELATION] [from [site|section|project]|] [where CLAUSE|]'
       #
@@ -96,8 +101,7 @@ module Zena
       #
       # Examples: 'todos from section where d_priority = high and d_assigned = [visitor:name]'
       #
-      #
-      # :limit, :conditions, :order
+      # Remarque: 'from' has no meaning for direct elements like 'parent', 'root': 'parent from project' is the same as 'parent'.
       def build_find(count, opts)
         
         if count != :all
@@ -109,7 +113,11 @@ module Zena
         
         
         if opts[:conditions]
-          opts[:conditions] = "#{base_conditions} AND #{opts[:conditions]} AND #{Node.secure_scope_string}"
+          if opts[:conditions].kind_of?(Array)
+            opts[:conditions][0] = "#{base_conditions} AND #{opts[:conditions][0]} AND #{Node.secure_scope_string}"
+          else
+            opts[:conditions] = "#{base_conditions} AND #{opts[:conditions]} AND #{Node.secure_scope_string}"
+          end
         else
           opts[:conditions] = "#{base_conditions} AND #{secure_scope_string}"
         end
@@ -276,10 +284,16 @@ module Zena
           end
           
           if finder =~ /\A\d+\Z/
-            parts << "(nodes.zip = #{finder})"
+            parts << "nodes.zip = #{finder}"
           elsif base_condition = base_condition(obj, finder)
+            # FIXME: no 'from_clause' when parent/project/section/root
             # parent, project, section, children, pages, ...
-            parts << "#{base_condition}#{from_clause}#{where_clause}"
+            if ['root', 'parent', 'project', 'section', 'self', 'author', 'visitor'].include?(finder)
+              # 'from' has no meaning for these elements. Ignored.
+              parts << "#{base_condition}#{where_clause}"
+            else
+              parts << "#{base_condition}#{from_clause}#{where_clause}"
+            end
           elsif rel   = Relation.find_by_role(finder)
             # icon, icon_for, added_notes, ...
             if to_clause
@@ -325,17 +339,17 @@ module Zena
         when 'root'
           "nodes.id = #{current_site.root_id}"
         when 'project'
-          "nodes.id = #{self[:project_id]}"
+          "nodes.id = \#{#{obj}[:project_id]}"
         when 'section'
-          "nodes.id = #{self[:section_id]}"
+          "nodes.id = \#{#{obj}[:section_id]}"
         when 'parent'
-          self[:parent_id] ? "id = #{self[:parent_id]}" : "id IS NULL"
-        when 'self'  
-          "nodes.id = #{self[:id]}"
+          "nodes.id = \#{#{obj}[:parent_id].to_i}" # to_i is needed for root node where parent_id is nil
+        when 'self'
+          "nodes.id = \#{#{obj}[:id]}"
         when 'author'
-          "nodes.id = #{user.contact_id}"
+          "nodes.id = \#{#{obj}.user.contact_id}"
         when 'visitor'
-          "nodes.id = #{visitor.contact_id}"
+          "nodes.id = \#{visitor.contact_id}"
         when 'traductions', 'versions'
           'id IS NULL' # FIXME
 
@@ -380,7 +394,7 @@ module Zena
       # Find related nodes.
       # See Node#build_find for details on the options available.
       def find(count, options)
-        do_find(count, eval("\"#{Node.build_find(count, options.merge(:node => 'self'))}\""))
+        do_find(count, eval("\"#{Node.build_find(count, options.merge(:node_name => 'self'))}\""))
       end
       
       def set_relation(role, value)
@@ -426,7 +440,7 @@ module Zena
       def relation_proxy(opts={})
         opts = {:role => opts} unless opts.kind_of?(Hash)
         if role = opts[:role]
-          rel = Relation.find_by_role_and_kpath(role, self.vclass.kpath)
+          rel = Relation.find_by_role_and_kpath(role.singularize, self.vclass.kpath)
           rel.start = self if rel
         elsif link = opts[:link]
           return nil unless link

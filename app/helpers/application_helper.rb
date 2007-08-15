@@ -354,6 +354,7 @@ module ApplicationHelper
   # the format is used as the image class. Example :
   #   img_tag(@node, :mode=>'pv')  => <img src='/sites/test.host/data/jpg/20/bird_pv.jpg' height='80' width='80' alt='bird' class='pv'/>
   def img_tag(obj, options={})
+    Node.logger.info obj.inspect
     opts    = options.dup
     
     mode    = opts.delete(:mode)
@@ -461,15 +462,20 @@ module ApplicationHelper
   end
   
   def calendar(opts={})
-    options = opts[:options] || eval_parameters_from_template_url(opts[:template_url])
-    source = opts[:node  ] || (@project ||= (@node ? @node.project : nil))
-    date   = opts[:date  ] || Date.today
-    method = options[:find  ] || 'notes'
-    size   = options[:size  ] || 'tiny'
-    using  = options[:using ] || 'event_at'
+    source    = opts[:node  ] || (@project ||= (@node ? @node.project : nil))
+    date      = opts[:date  ] || Date.today
+    
+    if opts[:template_url]
+      opts = eval_parameters_from_template_url(opts[:template_url])
+    end
+    
+    relations = opts[:relations] || 'notes'
+    size      = opts[:size  ] || 'tiny'
+    using     = opts[:using ] || 'event_at'
     day_names, on_day = calendar_get_options(size, source, opts[:template_url])
     return "" unless on_day && source
-    Cache.with(visitor.id, visitor.group_ids, 'NN', size, method, source.id, date.ajd, lang) do
+    
+    Cache.with(visitor.id, visitor.group_ids, 'NN', size, relations, source.id, date.ajd, lang) do
       # find start and end date
       week_start_day = _('week_start_day').to_i
       start_date  = Date.civil(date.year, date.mon, 1)
@@ -478,7 +484,7 @@ module ApplicationHelper
       end_date   += (6 + week_start_day - end_date.wday) % 7
       
       # get list of notes in this scope
-      notes = source.relation(method, :conditions=>["#{using} >= ? AND #{using} <= ?", start_date, end_date], :order=>"#{using} ASC", :or => options[:or], :from => options[:from]) || []
+      notes = source.find(:all, :relations => relations, :conditions=>["#{using} >= ? AND #{using} <= ?", start_date, end_date], :order=>"#{using} ASC") || []
       
       # build event hash
       calendar = {}
@@ -902,7 +908,7 @@ ENDTXT
     options = {:node=>@node}.merge(opts)
     node = options.delete(:node)
     if href = options.delete(:href)
-      node = node.relation(href) || node
+      node = node.find(:first, :relations=>[href]) || node unless href == 'self'
     end    
     return options[:text] unless node
 

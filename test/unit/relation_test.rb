@@ -2,6 +2,20 @@ require File.dirname(__FILE__) + '/../test_helper'
 
 class RelationTest < ZenaTestUnit
   
+  def test_find_by_role
+    assert_equal relations_id(:note_has_calendars), Relation.find_by_role('news')[:id]
+    assert_equal relations_id(:note_has_calendars), Relation.find_by_role('calendar')[:id]
+    assert_nil Relation.find_by_role('badrole')
+  end
+  
+  def test_find_by_role_and_kpath
+    assert_equal relations_id(:note_has_calendars), Relation.find_by_role_and_kpath('news', 'NPP')[:id]
+    assert_equal relations_id(:note_has_calendars), Relation.find_by_role_and_kpath('calendar', 'NN')[:id]
+    assert_nil Relation.find_by_role_and_kpath('badrole', 'N')
+    assert_nil Relation.find_by_role_and_kpath('news', 'NNP')
+    assert_nil Relation.find_by_role_and_kpath('calendar', 'NP')
+  end
+  
   def test_cannot_create
     login(:ant) # not an admin
     relation = Relation.create(:source_role => 'wife', :target_role => 'husband', :source_kpath => 'NRC', :target_kpath => 'NRC', :source_icon => "<img src='/img/user_pink.png'/>", :target_icon => "<img src='/img/user_blue.png'/>")
@@ -120,6 +134,11 @@ class RelationTest < ZenaTestUnit
     node = secure(Node) { nodes(:status) }
     assert relation = node.relation_proxy('hot_for')
     assert relation = node.relation_proxy('tags')
+    assert_nil node.relation_proxy('hot')
+    node = secure(Node) { nodes(:cleanWater) }
+    assert relation = node.relation_proxy('hot_for')
+    assert relation = node.relation_proxy('hot')
+    assert relation = node.relation_proxy(:role=>'news', :ignore_source=>true)
     assert_kind_of Relation, relation
   end
   
@@ -260,10 +279,30 @@ class RelationTest < ZenaTestUnit
   def test_build_find_class_from_site_with_conditions
     login(:tiger)
     assert_equal "SELECT nodes.* FROM nodes   WHERE (nodes.kpath LIKE 'NN%' AND user_id = \#{visitor[:id]} AND (nodes.user_id = '\#{visitor[:id]}' OR (rgroup_id IN (\#{visitor.group_ids.join(',')}) AND nodes.publish_from <= now() ) OR (pgroup_id IN (\#{visitor.group_ids.join(',')}) AND max_status > 30)) AND nodes.site_id = \#{visitor.site[:id]})  GROUP BY nodes.id  ORDER BY position ASC, name ASC", 
-      str = Node.build_find(:all, :relations=>['notes from site'], :node=>'var8', :conditions=>"user_id = \#{visitor[:id]}")
+      str = Node.build_find(:all, :relations=>['notes from site'], :node_name=>'var8', :conditions=>"user_id = \#{visitor[:id]}")
     
     var8 = secure(Node) { nodes(:cleanWater) }
     res  = var8.do_find(:all, eval("\"#{str}\""))
     assert_equal [nodes_id(:letter), nodes_id(:opening)], res.map{|r| r[:id]}
+  end
+  
+  def test_build_find_tags
+    login(:tiger)
+    assert_equal "SELECT nodes.* FROM nodes  LEFT JOIN links AS lk1 ON lk1.target_id = nodes.id WHERE (lk1.relation_id = 2 AND lk1.source_id = \#{var8[:id]} AND (nodes.user_id = '\#{visitor[:id]}' OR (rgroup_id IN (\#{visitor.group_ids.join(',')}) AND nodes.publish_from <= now() ) OR (pgroup_id IN (\#{visitor.group_ids.join(',')}) AND max_status > 30)) AND nodes.site_id = \#{visitor.site[:id]})  GROUP BY nodes.id  ORDER BY position ASC, name ASC", 
+      str = Node.build_find(:all, :relations=>['tags'], :node_name=>'var8')
+    
+    var8 = secure(Node) { nodes(:cleanWater) }
+    res  = var8.do_find(:first, eval("\"#{str}\""))
+    assert_equal [:art].map{|s| nodes_id(s)}, res.map{|r| r[:id]}
+  end
+  
+  def test_build_find_root
+    login(:tiger)
+    assert_equal "SELECT nodes.* FROM nodes   WHERE (nodes.id = 1 AND (nodes.user_id = '\#{visitor[:id]}' OR (rgroup_id IN (\#{visitor.group_ids.join(',')}) AND nodes.publish_from <= now() ) OR (pgroup_id IN (\#{visitor.group_ids.join(',')}) AND max_status > 30)) AND nodes.site_id = \#{visitor.site[:id]})  GROUP BY nodes.id  ORDER BY position ASC, name ASC LIMIT 1", 
+      str = Node.build_find(:first, :relations=>['root'], :node_name=>'var8')
+    
+    var8 = secure(Node) { nodes(:cleanWater) }
+    res  = var8.do_find(:first, eval("\"#{str}\""))
+    assert_equal nodes_id(:zena), res[:id]
   end
 end

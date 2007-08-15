@@ -45,6 +45,10 @@ pages:
   src: "<r:pages><r:each join=', '><r:show attr='name'/></r:each></r:pages>"
   res: "status, track"
 
+root:
+  src: "<r:root do='[v_title]'/>"
+  res: 'Zena the wild CMS'
+  
 notes:
   context:
     node: 'cleanWater'
