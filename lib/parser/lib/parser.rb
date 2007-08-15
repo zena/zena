@@ -87,6 +87,7 @@ class Parser
     @options = {:mode=>:void, :method=>'void'}.merge(opts)
     @params  = @options[:params]
     @method  = @options[:method]
+    @name    = @options[:name] || (@params ? @params[:id] : nil)
     @ids     = @options[:ids] ||= {}
     original_ids = @ids.dup
     @defined_ids = {} # ids defined in this node or this node's sub blocks
@@ -102,11 +103,10 @@ class Parser
       @text = before_parse(text)
     end
     
-    start(mode)
     # set name
-    if @params && @name = (@params[:id] || @params[:name])
-      @options[:ids][@name] = self
-    end
+    @options[:ids][@name] = self if @name
+    
+    start(mode)
     
     unless opts[:sub]
       @text = after_parse(@text)

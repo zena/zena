@@ -473,7 +473,7 @@ class ApplicationController < ActionController::Base
       format = node.kind_of?(Document) ? node.c_ext : nil
       if node.public? && !current_site.authentication?
         # force the use of a cacheable path for the data, even when navigating in '/oo'
-        # FIXME: data_path should manage all this alone.
+        # FIXME: we could use 'node.version.lang' if most of the time the version is loaded.
         zen_path(node, opts.merge(:format => format, :prefix=>lang))
       else  
         zen_path(node, opts.merge(:format => format))
@@ -493,7 +493,7 @@ class ApplicationController < ActionController::Base
           sharp_value = sharp
         end
         if sharp_in = options.delete(:sharp_in)
-          sharp_node = node.relation(sharp_in) || node
+          sharp_node = node.find(:first, :relations=>[sharp_in]) || node
           return "#{zen_path(sharp_node, options)}##{sharp_value}"
         else
           return "##{sharp_value}"          

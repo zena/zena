@@ -218,7 +218,7 @@ title_link_data_mode:
 
 show_parent_title:
   src: "<r:parent><h1 do='title'>parent title</h1></r:parent>"
-  tem: "<% if var1 = @node.relation(\"parent\") -%><h1><%= show_title(:node=>var1)%></h1><% end -%>"
+  tem: "<% if var1 = @node.parent -%><h1><%= show_title(:node=>var1)%></h1><% end -%>"
   res: "<h1><span id='v_title21'><a href='/oo/projects/cleanWater.html'>Clean Water project</a></span></h1>"
 
 show_bad_attr:
@@ -255,7 +255,11 @@ stylesheets:
 lang_links:
   src: "<div id='lang' do='lang_links'><a>en</a> | <b>fr</b></div>"
   tem: "<div id='lang'><%= lang_links(:node=>@node) %></div>"
-  res: "/<div id='lang'><em>en.*\|.*test_render.*=fr/"
+  res: "/<div id='lang'><em>en.*test_render.*=fr/"
+
+lang_links_options:
+  src: "<div id='lang' do='lang_links' join=' | ' tag='p'><a>en</a> | <b>fr</b></div>"
+  res: "/<div id='lang'><p class='on'>en.*\|.*test_render.*=fr/"
 
 show_path:
   src: "<ul id='path' do='show_path'><ul><li><a href='#'>first</a></li> / <li><a href='#'>second</a></li> / <li><a href='#' class='current'>here</a></li></ul></div>"
@@ -521,7 +525,7 @@ summary_or_text_no_summary:
   context:
     node: 'zena'
   src: "<r:summary or='v_text'/>"
-  res: "<div id='v_text11' class='zazen'><p>This is the root of your peaceful tests.</p></div>"
+  res: "<div id='v_summary11' class='zazen'><p>This is the root of your peaceful tests.</p></div>"
 
 ztag_in_do:
   src: "<ol do='parent'><r:children>no error</r:children></ol>"

@@ -19,12 +19,12 @@ module Zafu
       @html_tag_done = false
       unless @html_tag
         if @params[:id] || @params[:class]
-          @html_tag = @params[:tag]
-          @params.delete(:tag)
+          @html_tag = @params.delete(:tag)
           @html_tag_params = {}
           [:id, :class].each do |k|
-            @html_tag_params[k] = @params[k] if @params[k]
+            @html_tag_params[k] = @params.delete(k)
           end
+          @html_tag_params.compact!
         end
       end
       true
@@ -154,12 +154,12 @@ end
 
 module Zafu
   module Rules
+    
+    # This callback is run just after the block is initialized (Parser#initialize).
     def start(mode)
       # html_tag
-      @html_tag = @options[:html_tag]
-      @options.delete(:html_tag)
+      @html_tag = @options.delete(:html_tag)
       @html_tag_params = parse_params(@options.delete(:html_tag_params))
-      @options.delete(:html_tag_params)
       
       # end_tag
       @end_tag = @html_tag || @options.delete(:end_do) || @options.delete(:end_tag) || "r:#{@method}"
@@ -198,18 +198,14 @@ module Zafu
           enter(mode)
         end
       end
-      if !@html_tag && (@html_tag = @params[:tag])
-        @params.delete(:tag)
+      if !@html_tag && (@html_tag = @params.delete(:tag))
         # get html tag parameters from @params
         @html_tag_params = {}
         [:class, :id].each do |k|
-          next unless @params[k]
-          @html_tag_params[k] = @params[k]
-          @params.delete(k)
+          @html_tag_params[k] = @params.delete(k)
         end
+        @html_tag_params.compact!
       end
-      # inclusion id
-      @params[:id] ||= @html_tag_params[:id] if @html_tag_params[:id]
     end
     
     def before_parse(text)

@@ -301,8 +301,8 @@ module Zena
               # parts << "(links.relation_id = #{rel[:id]} AND links.#{rel.other_side} = nodes.id AND links.#{rel.link_side} = source_nodes.id#{source_clause})"
             else
               link_counter += 1
-              parts << "lk#{link_counter}.relation_id = #{rel[:id]} AND lk#{link_counter}.#{rel.other_side} = \#{#{obj}[:id]}#{where_clause}"
-              joins << "LEFT JOIN links AS lk#{link_counter} ON lk#{link_counter}.#{rel.link_side} = nodes.id"
+              parts << "lk#{link_counter}.relation_id = #{rel[:id]} AND lk#{link_counter}.#{rel.link_side} = \#{#{obj}[:id]}#{where_clause}"
+              joins << "LEFT JOIN links AS lk#{link_counter} ON lk#{link_counter}.#{rel.other_side} = nodes.id"
             end
           elsif klass = Node.get_class(finder)
             # images, documents, ... or virtual class: posts, letters, ...

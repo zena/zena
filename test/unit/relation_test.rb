@@ -231,7 +231,7 @@ class RelationTest < ZenaTestUnit
   end
   
   def test_build_find_relation
-    assert_equal "SELECT nodes.* FROM nodes  LEFT JOIN links AS lk1 ON lk1.target_id = nodes.id WHERE (lk1.relation_id = 9 AND lk1.source_id = \#{var8[:id]} AND (nodes.user_id = '\#{visitor[:id]}' OR (rgroup_id IN (\#{visitor.group_ids.join(',')}) AND nodes.publish_from <= now() ) OR (pgroup_id IN (\#{visitor.group_ids.join(',')}) AND max_status > 30)) AND nodes.site_id = \#{visitor.site[:id]})  GROUP BY nodes.id  ORDER BY position ASC, name ASC",
+    assert_equal "SELECT nodes.* FROM nodes  LEFT JOIN links AS lk1 ON lk1.source_id = nodes.id WHERE (lk1.relation_id = 9 AND lk1.target_id = \#{var8[:id]} AND (nodes.user_id = '\#{visitor[:id]}' OR (rgroup_id IN (\#{visitor.group_ids.join(',')}) AND nodes.publish_from <= now() ) OR (pgroup_id IN (\#{visitor.group_ids.join(',')}) AND max_status > 30)) AND nodes.site_id = \#{visitor.site[:id]})  GROUP BY nodes.id  ORDER BY position ASC, name ASC",
       str = Node.build_find(:all, :relations=>['favorites'], :node_name=>'var8')
     
     login(:ant)
@@ -241,7 +241,7 @@ class RelationTest < ZenaTestUnit
   end
 
   def test_build_find_relation_with_class
-    assert_equal "SELECT nodes.* FROM nodes  LEFT JOIN links AS lk1 ON lk1.source_id = nodes.id WHERE (((nodes.kpath LIKE 'NPDI%' AND nodes.parent_id = \#{var8[:id]}) OR (lk1.relation_id = 1 AND lk1.target_id = \#{var8[:id]})) AND (nodes.user_id = '\#{visitor[:id]}' OR (rgroup_id IN (\#{visitor.group_ids.join(',')}) AND nodes.publish_from <= now() ) OR (pgroup_id IN (\#{visitor.group_ids.join(',')}) AND max_status > 30)) AND nodes.site_id = \#{visitor.site[:id]})  GROUP BY nodes.id  ORDER BY position ASC, name ASC",
+    assert_equal "SELECT nodes.* FROM nodes  LEFT JOIN links AS lk1 ON lk1.target_id = nodes.id WHERE (((nodes.kpath LIKE 'NPDI%' AND nodes.parent_id = \#{var8[:id]}) OR (lk1.relation_id = 1 AND lk1.source_id = \#{var8[:id]})) AND (nodes.user_id = '\#{visitor[:id]}' OR (rgroup_id IN (\#{visitor.group_ids.join(',')}) AND nodes.publish_from <= now() ) OR (pgroup_id IN (\#{visitor.group_ids.join(',')}) AND max_status > 30)) AND nodes.site_id = \#{visitor.site[:id]})  GROUP BY nodes.id  ORDER BY position ASC, name ASC",
       str = Node.build_find(:all, :relations=>['images','news'], :node_name=>'var8')
     login(:ant)
     var8 = secure(Node) { nodes(:wiki) }
@@ -288,7 +288,7 @@ class RelationTest < ZenaTestUnit
   
   def test_build_find_tags
     login(:tiger)
-    assert_equal "SELECT nodes.* FROM nodes  LEFT JOIN links AS lk1 ON lk1.target_id = nodes.id WHERE (lk1.relation_id = 2 AND lk1.source_id = \#{var8[:id]} AND (nodes.user_id = '\#{visitor[:id]}' OR (rgroup_id IN (\#{visitor.group_ids.join(',')}) AND nodes.publish_from <= now() ) OR (pgroup_id IN (\#{visitor.group_ids.join(',')}) AND max_status > 30)) AND nodes.site_id = \#{visitor.site[:id]})  GROUP BY nodes.id  ORDER BY position ASC, name ASC", 
+    assert_equal "SELECT nodes.* FROM nodes  LEFT JOIN links AS lk1 ON lk1.source_id = nodes.id WHERE (lk1.relation_id = 2 AND lk1.target_id = \#{var8[:id]} AND (nodes.user_id = '\#{visitor[:id]}' OR (rgroup_id IN (\#{visitor.group_ids.join(',')}) AND nodes.publish_from <= now() ) OR (pgroup_id IN (\#{visitor.group_ids.join(',')}) AND max_status > 30)) AND nodes.site_id = \#{visitor.site[:id]})  GROUP BY nodes.id  ORDER BY position ASC, name ASC", 
       str = Node.build_find(:all, :relations=>['tags'], :node_name=>'var8')
     
     var8 = secure(Node) { nodes(:cleanWater) }
