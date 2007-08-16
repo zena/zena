@@ -5,11 +5,21 @@ require File.join(File.dirname(__FILE__) , 'code_syntax')
 
 module Zazen
   module Tags
+    
+    # This is not exactly how compile/render is meant to work with Parser, but there is no real need for a two step
+    # rendering, so we compile here (enter(:void)) instead of doing this whith 'start'. This also lets us have the
+    # context during compilation which is easier to manage the callbacks to the helper.
     def r_void
       @context = {:images => true, :pretty_code=>true}.merge(@context)
       @blocks = "" # same reason as why we rewrite 'store'
       extract_code(@text)
+      
+      # set whether the first paragraphe is spaced preserved.
+      @in_space_pre = (@text[0..0] == ' ')
       enter(:void)
+      store '</p>' if @in_space_pre
+
+      puts @blocks.inspect
       @text = RedCloth.new(@blocks).to_html
       @blocks = ""
       enter(:wiki)
@@ -37,9 +47,10 @@ module Zazen
     end
     
     def scan
-      #puts "SCAN:[#{@text}]"
-      if @text =~ /\A([^!"<]*)/m
+      puts "SCAN:[#{@text.inspect}]"
+      if @text =~ /\A([^!"<\n]*)/m
         flush $&
+        puts @text[0..3].inspect
         if @text[0..0] == '!'
           scan_exclam
         elsif @text[0..0] == '"'
@@ -50,6 +61,27 @@ module Zazen
           # implement !! scan_code
         elsif @text[0..0] == '<'
           flush '<'
+        elsif !@in_space_pre && @text[0..2] == "\n\n "
+          # space preserving paragraphe
+          @in_space_pre = true
+          store "\n\n<p style='white-space:pre'>"
+          eat 3
+        elsif @in_space_pre && @text[0..1] == "\n\n"
+          store "</p>"
+          flush "\n\n"
+          @in_space_pre = false
+        elsif @text[0..1] == "\n "
+          if @in_space_pre
+            store "\n"
+            eat 2
+          else
+            # forced line break
+            store "\n<br/>"
+            eat 2
+          end
+        elsif @text[0..0] == "\n"
+          puts "HOHO"
+          flush "\n"
         else
           # error
           flush
