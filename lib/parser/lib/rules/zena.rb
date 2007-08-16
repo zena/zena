@@ -554,7 +554,7 @@ END_TXT
         list_finder = "(secure(Node) { Node.find(:all, :conditions => ['zip = ?', #{values.inspect}]) } rescue nil)"
       else
         # relation
-        list_finder = get_list_finder(values)
+        list_finder = build_finder_for(:all, values)
       end
       out "<% if (#{list_var} = #{list_finder}) && (#{list_var}_relation = #{node}.relation_proxy(:role=>#{role.inspect}, :ignore_source=>true)) -%>"
       out "<% if #{list_var}_relation.unique? -%>"
@@ -1018,8 +1018,13 @@ END_TXT
     # Create an sql query to open a new context (passes its arguments to HasRelations#build_find)
     def build_finder_for(count, rel, params=@params)
       sql_query = Node.build_find(count, query_parameters(rel, params))
-      
-      "#{node}.do_find(#{count.inspect}, \"#{sql_query}\")"
+      res = "#{node}.do_find(#{count.inspect}, \"#{sql_query}\")"
+      if params[:else]
+        sql_query = Node.build_find(count, query_parameters(params[:else], params))
+        "(#{res} || #{node}.do_find(#{count.inspect}, \"#{sql_query}\"))"
+      else
+        res 
+      end
     end
     
     def query_parameters(rel, params=@params)

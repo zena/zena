@@ -37,10 +37,10 @@ module Zena
       end
       
       def has_relation?(rel, opts={})
-        opts[:role] = rel
-        find_relation(opts)
+        Relation.find_by_role_and_kpath(rel,kpath)
       end
 
+=begin
       def find_relation(opts)
         role_name = (opts[:role] || '').singularize
         if opts[:id]
@@ -71,6 +71,7 @@ module Zena
         end
         relation
       end
+=end
       
       def find_all_relations(start=nil)
         rel_as_source = Relation.find(:all, :conditions => ["site_id = ? AND source_kpath IN (?)", current_site[:id], split_kpath])
@@ -174,12 +175,12 @@ module Zena
           
           if rules.size > 1 && rules.size % 2 == 1
             # 'pages from project' => finder = 'page' and opts = {:from => 'project'}
-            finder = rules.shift.singularize
+            finder = rules.shift
             opts = Hash[*rules]
             opts.keys.each {|key| opts[key.to_sym] = opts[key]; opts.delete(key) }
           else
             # no arguments or bad argument count (ignore arguments)
-            finder = rules[0].singularize
+            finder = rules[0]
           end
           
           if where
@@ -272,16 +273,19 @@ module Zena
             " AND nodes.parent_id = \#{#{obj}[:id]}"
           end
           
-          to_clause = case opts[:to]
-          when 'site'
-            ""
-          when 'section'
-            " AND source_nodes.section_id = \#{#{obj}.get_section_id}"
-          when 'project'
-            " AND source_nodes.project_id = \#{#{obj}.get_project_id}"
-          else
-            nil
-          end
+          # FIXME: another join is needed for this feature. 
+          # (find all nodes in the projects tagged with 'art')
+          # disabled until implementation is complete.
+          # to_clause = case opts[:to]
+          # when 'site'
+          #   ""
+          # when 'section'
+          #   " AND source_nodes.section_id = \#{#{obj}.get_section_id}"
+          # when 'project'
+          #   " AND source_nodes.project_id = \#{#{obj}.get_project_id}"
+          # else
+          #   nil
+          # end
           
           if finder =~ /\A\d+\Z/
             parts << "nodes.zip = #{finder}"
@@ -294,17 +298,24 @@ module Zena
             else
               parts << "#{base_condition}#{from_clause}#{where_clause}"
             end
-          elsif rel   = Relation.find_by_role(finder)
+          elsif rel   = Relation.find_by_role(finder.singularize)
             # icon, icon_for, added_notes, ...
-            if to_clause
+            if false #to_clause
               # FIXME: finish this part (add JOIN nodes AS source_nodes ON ... from clause ... )
               # parts << "(links.relation_id = #{rel[:id]} AND links.#{rel.other_side} = nodes.id AND links.#{rel.link_side} = source_nodes.id#{source_clause})"
             else
               link_counter += 1
-              parts << "lk#{link_counter}.relation_id = #{rel[:id]} AND lk#{link_counter}.#{rel.link_side} = \#{#{obj}[:id]}#{where_clause}"
+              parts << "lk#{link_counter}.relation_id = #{rel[:id]}#{where_clause}"
+              case opts[:from]
+              when 'site', 'section', 'project'
+                parts[-1] << from_clause
+              else
+                # only linked to current node
+                parts[-1] << " AND lk#{link_counter}.#{rel.link_side} = \#{#{obj}[:id]}"
+              end
               joins << "LEFT JOIN links AS lk#{link_counter} ON lk#{link_counter}.#{rel.other_side} = nodes.id"
             end
-          elsif klass = Node.get_class(finder)
+          elsif klass = Node.get_class(finder.singularize)
             # images, documents, ... or virtual class: posts, letters, ...
             parts << "nodes.kpath LIKE '#{klass.kpath}%'#{from_clause}#{where_clause}"
           else
@@ -357,9 +368,9 @@ module Zena
           # and 'pages without documents'. But we DO need the 'pages' shortcut and not some <r:pages without='documents'/>
         when 'documents_only'
           "nodes.kpath LIKE '#{Document.kpath}%' AND kpath NOT LIKE '#{Image.kpath}%'"
-        when 'page'
+        when 'pages'
           "nodes.kpath LIKE '#{Page.kpath}%' AND kpath NOT LIKE '#{Document.kpath}%'"
-        when 'all_page'
+        when 'all_pages'
           "nodes.kpath LIKE '#{Page.kpath}%'"
         when 'children', 'node'
           "1" # no filter

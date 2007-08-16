@@ -18,6 +18,8 @@ v_summary: |
   | @p>. @ | align right |
   | @p=. @ | center text |
   | @p<. @ | align left |
+  | <i>space</i> | space preserved paragraphe |
+  |\2. a line starting with a space = line break |
   |_. markup |_. result |
   | @!37!@ | image '37' in std format |
   | @!37.pv!@ | image '37' in 'pv' format |
@@ -59,6 +61,8 @@ v_text: |
   | @p>. @ | align right |
   | @p=. @ | center text |
   | @p<. @ | align left |
+  | <i>space</i> | space preserved paragraphe |
+  |\2. a line starting with a space = line break |
   
   h4. images
   

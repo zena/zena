@@ -22,9 +22,9 @@ module Zafu
           @html_tag = @params.delete(:tag)
           @html_tag_params = {}
           [:id, :class].each do |k|
+            next unless @params[k]
             @html_tag_params[k] = @params.delete(k)
           end
-          @html_tag_params.compact!
         end
       end
       true
@@ -161,6 +161,9 @@ module Zafu
       @html_tag = @options.delete(:html_tag)
       @html_tag_params = parse_params(@options.delete(:html_tag_params))
       
+      # set name used for include/replace from html_tag if not allready set from param
+      @options[:ids][@html_tag_params[:id]] ||= self if @html_tag_params[:id]
+
       # end_tag
       @end_tag = @html_tag || @options.delete(:end_do) || @options.delete(:end_tag) || "r:#{@method}"
       @end_tag_count  = 1
@@ -202,9 +205,9 @@ module Zafu
         # get html tag parameters from @params
         @html_tag_params = {}
         [:class, :id].each do |k|
+          next unless @params[k]
           @html_tag_params[k] = @params.delete(k)
         end
-        @html_tag_params.compact!
       end
     end
     

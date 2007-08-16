@@ -19,7 +19,6 @@ module Zazen
       enter(:void)
       store '</p>' if @in_space_pre
 
-      puts @blocks.inspect
       @text = RedCloth.new(@blocks).to_html
       @blocks = ""
       enter(:wiki)
@@ -47,10 +46,9 @@ module Zazen
     end
     
     def scan
-      puts "SCAN:[#{@text.inspect}]"
+      #puts "SCAN:[#{@text}]"
       if @text =~ /\A([^!"<\n]*)/m
         flush $&
-        puts @text[0..3].inspect
         if @text[0..0] == '!'
           scan_exclam
         elsif @text[0..0] == '"'
@@ -80,7 +78,6 @@ module Zazen
             eat 2
           end
         elsif @text[0..0] == "\n"
-          puts "HOHO"
           flush "\n"
         else
           # error
@@ -131,8 +128,8 @@ module Zazen
         # link inside the cms "":34
         title, id = $1, $2
         if id =~ /(.*?)#(.*)/
-          id, sharp = *id.split('#')
-          sharp = title if sharp.nil? || sharp == ''
+          id, sharp = $1, $2
+          sharp = 'true' if sharp == ''
         end
         store @helper.make_link(:title=>title,:id=>id,:sharp=>sharp)
       else

@@ -214,9 +214,9 @@ module ApplicationHelper
   def make_link(opts)
     link_opts = {}
     if sharp = opts[:sharp]
-      if sharp =~ /\[(.+)\/(.*)\]/
+      if sharp =~ /\[(.+?)\/(.*)\]/
         sharp_in, sharp = $1, $2
-        sharp = "[#{sharp}]" if sharp != ''
+        sharp = sharp == '' ? 'true' : "[#{sharp}]"
         link_opts[:sharp_in] = sharp_in
       end
       link_opts[:sharp]    = sharp
@@ -354,7 +354,6 @@ module ApplicationHelper
   # the format is used as the image class. Example :
   #   img_tag(@node, :mode=>'pv')  => <img src='/sites/test.host/data/jpg/20/bird_pv.jpg' height='80' width='80' alt='bird' class='pv'/>
   def img_tag(obj, options={})
-    Node.logger.info obj.inspect
     opts    = options.dup
     
     mode    = opts.delete(:mode)

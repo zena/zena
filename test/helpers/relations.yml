@@ -36,7 +36,6 @@ icon:
   context:
     node: 'cleanWater'
   src: "<r:icon do='[name]'/>"
-  tem: ""
   res: "lake"
   
 pages:
@@ -86,20 +85,14 @@ nodes_from_site:
   src: "<r:nodes from='site' limit='3'><r:each join=', '><r:show attr='name'/></r:each></r:nodes>"
   res: "anonymous, ant, art"
 
-store_context:
-  context:
-    node: 'projects'
-  src: "<r:children store='project' limit='1'><r:each><r:pages from='site' project='stored' limit='5'><r:each join=', '><r:show attr='name'/></r:each></r:pages></r:each></r:children>"
-  res: "art, cleanWater, collections, default, menu"
-
 store_node:
   src: "<r:void store='node'><r:parent><r:show attr='name'/>: <r:node select='stored'><r:show attr='name'/></r:node> + <r:node select='main' do='show' attr='id'/></r:parent></r:void>"
   res: "cleanWater: status + 22"
 
 store_img:
   src: "<r:parent><r:icon store='bob'><r:show attr='name'/><r:img link='stored_bob'/></r:icon></r:parent>"
-  tem: "<% if var1 = @node.relation(\"parent\") -%><% if var2 = var1.relation(\"icon\") -%><%= var2.name %><%= node_link(:node=>var1, :text=>img_tag(var2, :mode=>\"std\")) %><% end -%><% end -%>"
-  
+  tem: "/<% if var1 = @node.parent -%><% if var2 = var1.do_find\(:first, .*\) -%><%= var2.name %><%= node_link\(:node=>var1, :text=>img_tag\(var2, :mode=>\"std\"\)\) %><% end -%><% end -%>"
+    
 author_visitor:
   src: "<r:pages from='site' author='visitor' limit='5'><r:each join=', ' do='show' attr='name'/></r:pages>"
   res: "myLife, nature, status"
@@ -167,7 +160,7 @@ children_else:
   res: "status"
 
 many_else:
-  src: "<r:hot else='children,project'><r:show attr='name'/></r:hot>"
+  src: "<r:hot else='project'><r:show attr='name'/></r:hot>"
   res: "cleanWater"
 
 updated_today:
@@ -253,11 +246,11 @@ checkbox_unique:
   res: "/<input type='radio' name='node\[icon_id\]' value='30'\/> bird"
 
 direction_both:
-  src: "<r:references direction='both' do='each' join=', ' do='[name]'/>"
+  src: "<r:references or='reference_for' do='each' join=', ' do='[name]'/>"
   res: "art, projects"
 
 direction_both_self_auto_ref:
-  src: "<r:references direction='both' do='each' join=', ' do='[name]'/>"
+  src: "<r:references or='reference_for' do='each' join=', ' do='[name]'/>"
   res: "art, projects, status"
 
 direction_both_else:
