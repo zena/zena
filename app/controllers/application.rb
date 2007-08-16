@@ -95,7 +95,8 @@ class ApplicationController < ActionController::Base
     def page_cache_file
       path = url_for(:only_path => true, :skip_relative_url_root => true)
       path = ((path.empty? || path == "/") ? "/index" : URI.unescape(path))
-      path << ".#{params[:format] || 'html'}" unless path =~ /\.#{params[:format]}$/
+      ext = params[:format] || 'html'
+      path << ".#{ext}" unless path =~ /\.#{ext}$/
       path
     end
   

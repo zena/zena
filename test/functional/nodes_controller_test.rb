@@ -88,7 +88,25 @@ class NodesControllerTest < ZenaTestController
     end
     assert_response :success
   end
-  
+
+  def test_cached_file
+    without_files('test.host/public') do
+      with_caching do
+        login(:anon)
+        page_path = visitor.site.public_path + '/en/section12.html'
+        file_path = "#{SITES_ROOT}#{page_path}"
+        
+        assert !File.exists?(file_path), "No cached file yet"
+        assert !CachedPage.find_by_path_and_site_id(page_path, sites_id(:zena)), "No cache info yet"
+        
+        get 'show', 'prefix' => 'en', 'path' => ['section12.html']
+        assert_response :success
+        
+        assert File.exists?(file_path), "Cache file created"
+        assert CachedPage.find_by_path_and_site_id(page_path, sites_id(:zena))        
+      end
+    end
+  end
   # test edit_... mode only if can_edit?
   
 end
