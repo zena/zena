@@ -21,6 +21,7 @@ class CalendarController < ApplicationController
     def get_options
       @node    = secure(Node) { Node.find_by_zip(params[:id]) }
       @options = eval_parameters_from_template_url
+      
       @date    = Date.parse(params[:date])
       @options[:using] ||= 'log_at'
       @options[:size ]   = params[:size] || @options[:size]
@@ -50,7 +51,7 @@ class CalendarController < ApplicationController
     end
     
     def find_notes
-      @notes = @node.relation(@options[:find], @options.merge(
+      @notes = @node.find(:all, @options.merge(
           :conditions => ["date(#{@options[:using]}) = ?", @date],
           :order => "#{@options[:using]} ASC")) || []
     end

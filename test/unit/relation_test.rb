@@ -87,36 +87,92 @@ class RelationTest < ZenaTestUnit
     assert node.set_relation('tag',['23'])
     assert node.save
     node = secure(Node) { nodes(:status) } # reload
-    assert_equal 23, node.relation('tags')[0][:id]
+    assert_equal 23, node.find(:all,'tags')[0][:id]
   end
 
   def test_remove_link
     login(:tiger)
     node = secure(Node) { nodes(:opening) }
-    assert calendars = node.relation('calendars')
+    assert calendars = node.find(:all,'calendars')
     assert_equal 2, calendars.size
     node.remove_link(links_id(:opening_in_zena))
     assert node.save
     node = secure(Node) { nodes(:opening) } # reload
-    assert calendars = node.relation('calendars')
+    assert calendars = node.find(:all,'calendars')
     assert_equal 1, calendars.size
   end
   
   def test_add_link
     login(:tiger)
     node = secure(Node) { nodes(:status) }
-    assert_nil node.relation('tags')
+    assert_nil node.find(:all,'tags')
     node.add_link('tag', nodes_id(:art))
     assert node.save
     node = secure(Node) { nodes(:status) } # reload
-    assert tags = node.relation('tags')
+    assert tags = node.find(:all,'tags')
     assert_equal 1, tags.size
+    assert_equal nodes_id(:art), tags[0][:id]
+  end
+  
+  def test_add_link_virtual_class
+    login(:tiger)
+    node = secure(Node) { nodes(:proposition) } # Post virtual class
+    assert_kind_of Relation, node.relation_proxy('blog')
+    assert_nil node.find(:all,'blogs')
+    node.add_link('blog', nodes_id(:cleanWater))
+    assert node.save
+    node = secure(Node) { nodes(:proposition) } # reload
+    assert blogs = node.find(:all,'blogs')
+    assert_equal 1, blogs.size
+    assert_equal nodes_id(:cleanWater), blogs[0][:id]
+  end
+  
+  def test_add_link_virtual_class_bad_target
+    login(:tiger)
+    node = secure(Node) { nodes(:proposition) } # Post virtual class
+    assert_kind_of Relation, node.relation_proxy('blog')
+    assert_nil node.find(:all,'blogs')
+    node.add_link('blog', nodes_id(:art))
+    assert !node.save
+    node.show_errors
+    assert_equal 'invalid target', node.errors[:blog]
+  end
+  
+  def test_relation_links
+    login(:tiger)
+    node = secure(Node) { nodes(:opening) }
+    assert_equal [[relations_id(:post_has_blogs),     [nodes_id(:zena)]], 
+                  [relations_id(:note_has_calendars), [nodes_id(:wiki), nodes_id(:zena)]], 
+                  [relations_id(:node_has_tags),      [nodes_id(:art),  nodes_id(:news)]]], 
+                  
+                  node.relation_links.map{|r,l| [r.id, l.map{|r| r.id}]}
   end
   
   def test_ant_favorites
     login(:ant)
     ant = secure(User) { users(:ant) }
-    assert_equal 1, ant.contact.relation('favorites').size
+    assert_equal 1, ant.contact.find(:all,'favorites').size
+  end
+  
+  def test_other_links
+    login(:tiger)
+    node = secure(Node) { nodes(:opening) }
+    rel  = node.relation_proxy('tag')
+    assert_equal [:opening_in_news,:opening_in_art].map{|s| links_id(s)}, rel.other_links.map{|r| r[:id]}
+  end
+  
+  def test_other_ids
+    login(:tiger)
+    node = secure(Node) { nodes(:opening) }
+    rel  = node.relation_proxy('tag')
+    assert_equal [:news,:art].map{|s| nodes_id(s)}, rel.other_ids
+  end
+  
+  def test_records
+    login(:tiger)
+    node = secure(Node) { nodes(:opening) }
+    rel  = node.relation_proxy('tag')
+    assert_equal [:art,:news].map{|s| nodes_id(s)}, rel.records.map{|r| r[:id]}
   end
   
   def test_set_relation_method_missing
@@ -125,7 +181,7 @@ class RelationTest < ZenaTestUnit
     assert node.update_attributes( 'tag_ids' => ['23'] )
     assert_equal [23], node.tag_ids
     node = secure(Node) { nodes(:status) } # reload
-    assert_equal 23, node.relation('tags')[0][:id]
+    assert_equal 23, node.find(:all,'tags')[0][:id]
     assert_equal [23], node.tag_ids
     assert_equal [33], node.tag_zips
   end
@@ -161,9 +217,9 @@ class RelationTest < ZenaTestUnit
   def test_relations_for_form
     login(:tiger)
     {
-      Note    => ["blog", "calendar", "favorite_for", "home_for", "hot_for", "icon", "reference", "tag"],
-      Image   => ["favorite_for", "home_for", "hot_for", "icon", "icon_for", "reference", "tag"],
-      Project => ["collaborator", "favorite_for", "home", "home_for", "hot", "hot_for", "icon", "news", "post", "reference", "tag"],
+      Note    => ["blog", "calendar", "favorite_for", "home_for", "hot_for", "icon", "reference", "reference_for", "tag"],
+      Image   => ["favorite_for", "home_for", "hot_for", "icon", "icon_for", "reference", "reference_for", "tag"],
+      Project => ["added_note", "collaborator", "favorite_for", "home", "home_for", "hot", "hot_for", "icon", "news", "reference", "reference_for", "tag"],
       Contact => ["collaborator_for", "favorite", "favorite_for", "home_for", "hot_for", "icon", "reference", "reference_for", "tag"],
     }.each do |klass, roles|
       node = secure(klass) { klass.find(:first) }
@@ -178,9 +234,9 @@ class RelationTest < ZenaTestUnit
   def test_relation_new_record
     login(:tiger)
     node = secure(Node) { Node.new }
-    assert_equal nil, node.relation('tags')
+    assert_equal nil, node.find(:all,'tags')
     node = secure(Node) { Node.get_class('Tag').new }
-    assert_equal nil, node.relation('tag_for')
+    assert_equal nil, node.find(:all,'tag_for')
   end
 
   def test_build_find_class

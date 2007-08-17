@@ -37,7 +37,7 @@ module Zena
       end
       
       def has_relation?(rel, opts={})
-        Relation.find_by_role_and_kpath(rel,kpath)
+        Relation.find_by_role_and_kpath(rel.singularize,kpath)
       end
 
 =begin
@@ -372,7 +372,7 @@ module Zena
           "nodes.kpath LIKE '#{Page.kpath}%' AND kpath NOT LIKE '#{Document.kpath}%'"
         when 'all_pages'
           "nodes.kpath LIKE '#{Page.kpath}%'"
-        when 'children', 'node'
+        when 'children', 'nodes'
           "1" # no filter
         else
           nil
@@ -405,6 +405,9 @@ module Zena
       # Find related nodes.
       # See Node#build_find for details on the options available.
       def find(count, options)
+        if options.kind_of?(String)
+          options = {:relations => [options]}
+        end
         do_find(count, eval("\"#{Node.build_find(count, options.merge(:node_name => 'self'))}\""))
       end
       
@@ -438,7 +441,7 @@ module Zena
           #if relation.record_count > 5
           #  # FIXME: show message ?
           #end
-          links = relation.records(:limit => 5, :select => "nodes.*, links.id AS link_id", :order => "link_id DESC") rescue nil
+          links = relation.records(:limit => 5, :order => "link_id DESC")
           res << [relation, links] if links
         end
         res
@@ -544,18 +547,18 @@ module Zena
           super
         rescue NoMethodError => err
           if meth.to_s =~ /^([\w_]+)_(ids?|zips?)(=?)$/
-            role = $1
-            type = $2
+            role  = $1
+            field = $2
             plural = ($2[-1..-1] == 's')
             mode = $3
             if relation = relation_proxy(:role => role)
               if mode == '='
-                super if type[0..-2] == 'zip'
+                super if field[0..-2] == 'zip'
                 # add_link
                 set_relation(role,args[0])
               else
                 # get ids / zips
-                relation.send("other_#{type}")
+                relation.send("other_#{field}")
               end
             else
               raise err # unknown relation

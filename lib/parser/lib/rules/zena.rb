@@ -248,7 +248,7 @@ module Zena
       text = nil if text.blank?
       klas = nil if klass.blank?
       @html_tag_done = true
-      "#{@space_before}<%= check_lang(#{node},:text=>#{text.inspect},:class=>#{klass.inspect},:tag=>#{@html_tag.inspect}) %>"
+      "#{@space_before}<%= check_lang(#{node},:text=>#{text.inspect},:class=>#{klass.inspect},:wrap=>#{@html_tag.inspect}) %>"
     end
     
     def r_title

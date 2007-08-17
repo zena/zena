@@ -460,18 +460,19 @@ module ApplicationHelper
     render_to_string(:partial=>'comments/list', :locals=>{:node=>node})
   end
   
-  def calendar(opts={})
-    source    = opts[:node  ] || (@project ||= (@node ? @node.project : nil))
-    date      = opts[:date  ] || Date.today
-    
-    if opts[:template_url]
-      opts = eval_parameters_from_template_url(opts[:template_url])
+  def calendar(options={})
+    if template_url = options[:template_url]
+      opts = eval_parameters_from_template_url(template_url).merge(options)
+    else
+      opts = options
     end
     
     relations = opts[:relations] || 'notes'
     size      = opts[:size  ] || 'tiny'
     using     = opts[:using ] || 'event_at'
-    day_names, on_day = calendar_get_options(size, source, opts[:template_url])
+    source    = opts[:node  ] || (@project ||= (@node ? @node.project : nil))
+    date      = opts[:date  ] || Date.today
+    day_names, on_day = calendar_get_options(size, source, template_url)
     return "" unless on_day && source
     
     Cache.with(visitor.id, visitor.group_ids, 'NN', size, relations, source.id, date.ajd, lang) do
@@ -517,7 +518,7 @@ module ApplicationHelper
                                                              :title=>title, 
                                                              :date=>date,
                                                              :source_zip=>source[:zip],
-                                                             :template_url=>opts[:template_url]})
+                                                             :template_url=>template_url})
     end
   end
   
@@ -533,7 +534,7 @@ module ApplicationHelper
   # use a :text => '(lang)' option. The word 'lang' will be replaced by the real value.
   def check_lang(obj, opts={})
     wlang = (opts[:text] || '[#LANG]').sub('#LANG', obj.v_lang).sub('_LANG', _(obj.v_lang))
-    obj.v_lang != lang ? "<#{opts[:tag] || 'span'} class='#{opts[:class] || 'wrong_lang'}'>#{wlang}</#{opts[:tag] || 'span'}>" : ""
+    obj.v_lang != lang ? "<#{opts[:wrap] || 'span'} class='#{opts[:class] || 'wrong_lang'}'>#{wlang}</#{opts[:wrap] || 'span'}>" : ""
   end
   
   # TODO: test
@@ -545,16 +546,24 @@ module ApplicationHelper
   # if no options are provided show the current object title
   def show_title(opts={})
     obj = opts[:node] || @node
+    
     unless opts.include?(:link)
-      opts[:link] = (obj[:id] != @node[:id]) ? 'true' : nil
+      # we show the link if the object is not the current node or when it is being created by zafu ajax.
+      opts[:link] = (obj[:id] != @node[:id] || params[:template_url]) ? 'true' : nil
     end
+    
     unless opts.include?(:project)
       opts[:project] = (obj.get_project_id != @node.get_project_id && obj[:id] != @node[:id]) 
     end
+    
     title = opts[:text] || obj.version.title
     if opts[:project]
       title = "#{obj.project.name} / #{title}"
     end
+    
+    title += check_lang(obj) unless opts[:check_lang] == 'false'
+    title  = "<span id='v_title#{obj.zip}'>#{title}</span>"
+    
     if opts[:link] && opts[:link] != 'false'
       link_opts = {}
       if opts[:link] == 'true'
@@ -572,11 +581,10 @@ module ApplicationHelper
       else
         link_opts[:mode]   = opts[:link]
       end
-        
-      title = "<a href='#{zen_path(obj, link_opts)}'>#{title}</a>"
+      "<a href='#{zen_path(obj, link_opts)}'>#{title}</a>"
+    else
+      title
     end
-    title += check_lang(obj) unless opts[:check_lang] == 'false'
-    "<span id='v_title#{obj.zip}'>#{title}</span>"
   end
   
   # TODO: test
@@ -890,7 +898,7 @@ ENDTXT
   # show current path with links to ancestors
   def show_path(opts={})
     node = opts[:node] || @node
-    tag  = opts[:tag] || 'li'
+    tag  = opts[:wrap] || 'li'
     join = opts[:join] || ''
     nav = []
     node.ancestors.each do |obj|
@@ -985,17 +993,17 @@ ENDTXT
     if visitor.site[:monolingual]
       ""
     else
-      if opts[:tag]
-        tag_in  = "<#{opts[:tag]}>"
-        tag_out = "</#{opts[:tag]}>"
+      if opts[:wrap]
+        tag_in  = "<#{opts[:wrap]}>"
+        tag_out = "</#{opts[:wrap]}>"
       else
         tag_in = tag_out = ''
       end
       res = []
       visitor.site.lang_list.sort.each do |l|
         if l == lang
-          if opts[:tag]
-            res << "<#{opts[:tag]} class='on'>#{l}" + tag_out
+          if opts[:wrap]
+            res << "<#{opts[:wrap]} class='on'>#{l}" + tag_out
           else
             res << "<em>#{l}</em>"
           end

@@ -1,3 +1,7 @@
+# ALL THE CONTENT OF THIS FILE IS NOW OBSOLETE SINCE RElATION REWRITE.
+
+# This file will be removed when the tests have been migrated to relation_test. 
+
 require File.dirname(__FILE__) + '/../test_helper'
 class LinkDummy < ActiveRecord::Base
   acts_as_secure_node

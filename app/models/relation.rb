@@ -39,29 +39,34 @@ class Relation < ActiveRecord::Base
     end
   end   
   
-  def records(opts={})
+  def records(options={})
     return @records if defined? @records
+    opts = { :select     => "nodes.*, links.id AS link_id", 
+             :joins      => "INNER JOIN links ON nodes.id=links.#{other_side} AND links.relation_id = #{self[:id]} AND links.#{link_side} = #{@start[:id]}",
+             :group      => 'nodes.id'}
     
-    base_condition = "links.relation_id = #{self[:id]} AND links.#{link_side} = #{@start[:id]}"
-    
-    if cond = opts[:conditions]
-      if cond.kind_of?(Array)
-        opts[:conditions] = ["(#{cond[0]}) AND (#{base_condition})"] + cond[1..-1]
-      else
-        opts[:conditions] = "(#{cond}) AND (#{base_condition})"
-      end
+    # limit overwritten options to 'order', 'limit' in case this method is used with unsafe parameters from the web.
+    [:order, :limit].each do |sym|
+      opts[sym] = options[sym] if options[sym]
     end
-    
-    options = Node.clean_options(opts).merge( 
-                    :select     => "nodes.*, links.id AS link_id", 
-                    :joins      => "INNER JOIN links ON nodes.id=links.#{other_side}",
-                    :group      => 'nodes.id'
-                    )
-    @records = secure(Node) { Node.find(:all, options) }
+      
+    @records = secure(Node) { Node.find(:all, opts) }
   rescue ActiveRecord::RecordNotFound
     @records = nil
   end
-
+  
+  # Define the caller's side. Changes the relation into a proxy so we can add/remove links. This sets the caller on the source side of the relation.
+  def source=(start)
+    @start = start
+    @side  = :source
+  end
+  
+  # Define the caller's side. Changes the relation into a proxy so we can add/remove links. This sets the caller on the target side of the relation.
+  def target=(start)
+    @start = start
+    @side  = :target
+  end
+  
   def other_link
     other_links ? other_links[0] : nil
   end
@@ -218,9 +223,9 @@ class Relation < ActiveRecord::Base
     
     def find_target(obj_id)
       if as_unique?
-        secure_drive(relation_class) { relation_class.find(obj_id) }
+        secure_drive(relation_class) { relation_class.find(:first, :conditions=>['id = ? AND kpath LIKE ?', obj_id, "#{other_kpath}%"]) }
       else
-        secure_write(relation_class) { relation_class.find(obj_id) }
+        secure_write(relation_class) { relation_class.find(:first, :conditions=>['id = ? AND kpath LIKE ?', obj_id, "#{other_kpath}%"]) }
       end
     end
 

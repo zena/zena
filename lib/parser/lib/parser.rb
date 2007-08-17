@@ -85,9 +85,8 @@ class Parser
     @blocks  = []
     
     @options = {:mode=>:void, :method=>'void'}.merge(opts)
-    @params  = @options[:params]
+    @params  = @options[:params] || {}
     @method  = @options[:method]
-    @name    = @options[:name] || (@params ? @params[:id] : nil)
     @ids     = @options[:ids] ||= {}
     original_ids = @ids.dup
     @defined_ids = {} # ids defined in this node or this node's sub blocks
@@ -103,10 +102,12 @@ class Parser
       @text = before_parse(text)
     end
     
-    # set name
-    @options[:ids][@name] = self if @name
     
     start(mode)
+    
+    # set name
+    @name    ||= @options[:name] || @params[:id]
+    @options[:ids][@name] = self if @name
     
     unless opts[:sub]
       @text = after_parse(@text)
@@ -251,6 +252,7 @@ class Parser
     
     enter(:void) # normal scan on content
     # replace 'with'
+    
     not_found = []
     @blocks.each do |b|
       next if b.kind_of?(String) || b.method != 'with'

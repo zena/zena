@@ -258,13 +258,17 @@ lang_links:
   res: "/<div id='lang'><em>en.*test_render.*=fr/"
 
 lang_links_options:
-  src: "<div id='lang' do='lang_links' join=' | ' tag='p'><a>en</a> | <b>fr</b></div>"
+  src: "<div id='lang' do='lang_links' join=' | ' wrap='p'><a>en</a> | <b>fr</b></div>"
   res: "/<div id='lang'><p class='on'>en.*\|.*test_render.*=fr/"
 
 show_path:
   src: "<ul id='path' do='show_path'><ul><li><a href='#'>first</a></li> / <li><a href='#'>second</a></li> / <li><a href='#' class='current'>here</a></li></ul></div>"
   tem: "<ul id='path'><%= show_path(:node=>@node) %></ul>"
   res: "/<ul id='path'><li>.*zena.*<li>.*oo/page18.html.*<li><.*/projects/cleanWater.*cleanWater</a>.*/oo/projects/cleanWater/page22.html.*class='current'>status</a>/"
+
+show_path_options:
+  src: "<ul id='path' do='show_path' wrap='p'/>"
+  res: "/<ul id='path'><p>.*zena.*<p>.*oo/page18.html.*<p><.*/projects/cleanWater.*cleanWater</a>.*/oo/projects/cleanWater/page22.html.*class='current'>status</a>/"
 
 uses_calendar:
   src: "<r:uses_calendar/>"
@@ -452,13 +456,21 @@ do_ignore:
   res: ""
 
 name_title:
-  src: "title: <h1 id='main' do='show' name='title' attr='name'>blah</h1>"
-  res: "title: <h1 id='main'>status</h1>"
+  src: "title: <h1 id='lala' do='show' name='title' attr='name'>blah</h1>"
+  res: "title: <h1 id='lala'>status</h1>"
 
 include_with:
-  src: "include_with: <r:include template='/name/title'><h1 do='with' part='main' do='show' attr='id'/>"
-  res: "include_with: title: <h1 id='main'>22</h1>"
-  
+  src: "include_with: <r:include template='/name/title'><h1 do='with' part='title' do='show' attr='id'/>"
+  res: "include_with: title: <h1 id='lala'>22</h1>"
+
+id_name:
+  src: "name_with_name: My name is <b do='void' name='bob'>Bob</b>.<r:void id='comment'> I am happy.</r:void>"
+  res: "name_with_name: My name is <b>Bob</b>. I am happy."
+
+include_named:
+  src: "include_named: <r:include template='/id/name'><r:with part='bob'>John</r:with></r:include>"
+  res: "include_named: name_with_name: My name is <b>John</b>. I am happy."
+
 comments:
   src: "<r:show_comments/>"
   tem: "<%= show_comments(:node=>@node) %>"

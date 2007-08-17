@@ -20,6 +20,7 @@ class VirtualClass < ActiveRecord::Base
     classes
   end
   
+  # TODO avoid duplicating has_relations here...
   def find_all_relations(start=nil)
     rel_as_source = Relation.find(:all, :conditions => ["site_id = ? AND source_kpath IN (?)", current_site[:id], split_kpath])
     rel_as_target = Relation.find(:all, :conditions => ["site_id = ? AND target_kpath IN (?)", current_site[:id], split_kpath])
@@ -90,38 +91,6 @@ class VirtualClass < ActiveRecord::Base
       obj.save
       obj
     end
-  end
-  
-  # TODO: avoid duplicating this method from 'has_relation' here.
-  def find_relation(role)
-    role_name = (opts[:role] || '').singularize
-    if opts[:id]
-      if opts[:source]
-        conditions = ["site_id = ? AND id = ? AND source_kpath IN (?)", current_site[:id], opts[:id], split_kpath]
-      else
-        conditions = ["site_id = ? AND id = ? AND target_kpath IN (?)", current_site[:id], opts[:id], split_kpath]
-      end
-    else
-      if opts[:ignore_source]
-        conditions = ["site_id = ? AND (target_role = ? OR source_role = ?)", current_site[:id], role_name, role_name]
-      else
-        conditions = ["site_id = ? AND ((target_role = ? AND source_kpath IN (?)) OR (source_role = ? AND target_kpath IN (?)))", current_site[:id], role_name, split_kpath, role_name, split_kpath]
-      end
-    end
-    relation = Relation.find(:first, :conditions => conditions)
-    return nil unless relation
-    if opts[:start]
-      if relation.target_role == role_name
-        relation.source = opts[:start]
-      else
-        relation.target = opts[:start]
-      end
-    elsif opts[:source]
-      relation.source = opts[:source]
-    else
-      relation.target = opts[:target]
-    end
-    relation
   end
   
   private

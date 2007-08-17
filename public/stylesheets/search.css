@@ -13,7 +13,7 @@
 
 #search_results .result_name a { color:#222; text-decoration:underline;}
 .result_entry { position:relative;}
-.result_id {color:#5C2200; font-weight:bold; float:left; margin-right:3px; }
+.result_id {color:#5C2200; font-weight:bold; float:left; padding-right:3px; }
 .result_name { font-weight:bold; }
 .result_name em { color:#333; font-size:90%; font-weight:normal;}
 .result_path { color:#555;}

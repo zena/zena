@@ -41,13 +41,27 @@ class NodesControllerTest < ZenaTestController
     get 'not_found'
     assert_template 'node/not_found'
   end
+  
+  
+  def test_add_link
+    login(:tiger)
+    node = secure(Node) { nodes(:proposition) } # Post virtual class
+    assert_nil node.find(:all,'blogs')
+    assert_kind_of Relation, node.relation_proxy('blog')
+    post 'link', 'role'=>'blog', 'id'=>nodes_zip(:proposition), 'controller'=>'nodes', 'other_id'=>nodes_zip(:cleanWater)
+    assert_response :success
+    node = secure(Node) { nodes(:proposition) } # reload
+    assert blogs = node.find(:all,'blogs')
+    assert_equal 1, blogs.size
+    assert_equal nodes_id(:cleanWater), blogs[0][:id]
+  end
 
   def test_tags_update_string
     login(:lion)
-    post 'update', :id => nodes_zip(:art), :node => {'tag_for_ids' => "#{nodes_zip(:status)}, #{nodes_zip(:people)}"}
+    post 'update', :id => nodes_zip(:art), :node => {'tagged_ids' => "#{nodes_zip(:status)}, #{nodes_zip(:people)}"}
 
     node = secure(Node) { nodes(:art) }
-    assert_equal 2, node.tag_for.size
+    assert_equal 2, node.tagged.size
     stat = secure(Node) { nodes(:status) }
     peop = secure(Node) { nodes(:people) }
     assert_equal node[:id], stat.tags[0][:id]
@@ -56,10 +70,10 @@ class NodesControllerTest < ZenaTestController
 
   def test_tags_update_array
     login(:lion)
-    post 'update', :id => nodes_zip(:art), :node => {:tag_for_ids => [nodes_zip(:lion).to_i, nodes_zip(:cleanWater).to_s]}
+    post 'update', :id => nodes_zip(:art), :node => {:tagged_ids => [nodes_zip(:lion).to_i, nodes_zip(:cleanWater).to_s]}
 
     node = secure(Node) { nodes(:art) }
-    assert_equal 2, node.tag_for.size
+    assert_equal 2, node.tagged.size
     lion = secure(Node) { nodes(:lion) }
     clea = secure(Node) { nodes(:cleanWater) }
     assert_equal node[:id], lion.tags[0][:id]

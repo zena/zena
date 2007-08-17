@@ -161,7 +161,7 @@ class NodesController < ApplicationController
       # update relation
       attrs = clean_attributes(params['link'])
       @node.update_attributes(attrs)
-    elsif relation = @node.relation_proxy(params['role'])  
+    elsif relation = @node.relation_proxy(params['role'])
       attrs = clean_attributes(params)
       if relation.unique?
         # replace link
