@@ -452,6 +452,7 @@ class ApplicationController < ActionController::Base
       end
     end
 
+    # Replace ids by zips and parse text for zazen shortcuts.
     def clean_attributes(attrs=params['node'])
       att = secure(Node) { Node.clean_attributes(parse_dates(attrs)) }
     end

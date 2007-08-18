@@ -52,7 +52,7 @@ myLife_en:
   node_id:        6
   user_id:        3
   comment:        no comment yet
-  title:          no title yet
+  title:          My Life
   summary:        no summary yet
   text:           nothing written yet
   lang:           en
@@ -67,7 +67,7 @@ tiger_en:
   node_id:        4
   user_id:        4
   comment:        no comment yet
-  title:          no title yet
+  title:          Tiger
   summary:        "\"panthera tigris on wikipedia\":http://en.wikipedia.org/wiki/Image:Panthera_tigris_sumatran_subspecies.jpg"
   text:           nothing written yet
   lang:           en
@@ -82,7 +82,7 @@ lion_en:
   node_id:        5
   user_id:        5
   comment:        no comment yet
-  title:          no title yet
+  title:          Lion
   summary:        no summary yet
   text:           nothing written yet
   lang:           en
@@ -97,7 +97,7 @@ myDreams_en:
   node_id:        7
   user_id:        5
   comment:        no comment yet
-  title:          no title yet
+  title:          My Dreams
   summary:        no summary yet
   text:           nothing written yet
   lang:           en
@@ -176,7 +176,7 @@ secret_en:
   node_id:        9
   user_id:        4
   comment:        no comment yet
-  title:          no title yet
+  title:          Secret
   summary:        no summary yet
   text:           nothing written yet
   lang:           en
@@ -191,7 +191,7 @@ proposition_en:
   node_id:        10
   user_id:        4
   comment:        no comment yet
-  title:          no title yet
+  title:          Proposition
   summary:        no summary yet
   text:           nothing written yet
   lang:           en
@@ -309,7 +309,7 @@ bananas_en:
   node_id:        18
   user_id:        5
   comment:        no comment yet
-  title:          no title yet
+  title:          Nice Bananas
   summary:        no summary yet
   text:           nothing written yet
   lang:           en
@@ -371,7 +371,7 @@ collections_en:
   node_id:        22
   user_id:        4
   comment:        no comment yet
-  title:          no title yet
+  title:          Collections
   summary:        no summary yet
   text:           nothing written yet
   lang:           en

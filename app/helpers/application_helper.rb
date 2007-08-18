@@ -210,6 +210,13 @@ module ApplicationHelper
     HTMLDiff::diff(zazen(text1), zazen(text2))
   end
   
+  # Find a node's zip based on a query shortcut. Used by zazen to create a link for ""::art for example.
+  def find_node_by_shortcut(string,offset=0)
+    secure(Node) { Node.find_node_by_shortcut(string,offset) }
+  rescue ActiveRecord::RecordNotFound
+    nil
+  end
+
   # Creates a link to the node referenced by id
   def make_link(opts)
     link_opts = {}
@@ -226,7 +233,7 @@ module ApplicationHelper
       link_opts[:mode]   = ($2 != '') ? $2[1..-1] : nil
       link_opts[:format] = ($3 != '') ? $3[1..-1] : nil
     end
-    node = secure(Node) { Node.find_by_zip(opts[:id]) }
+    node  = opts[:node] || secure(Node) { Node.find_by_zip(opts[:id]) }
     title = (opts[:title] && opts[:title] != '') ? opts[:title] : node.v_title
     
     link_opts[:format] = node.c_ext if link_opts[:format] == 'data'
@@ -255,7 +262,7 @@ module ApplicationHelper
   # Create an img tag for the given image. See ApplicationHelper#zazen for details.
   def make_image(opts)
     id, style, link, size, title = opts[:id], opts[:style], opts[:link], opts[:size], opts[:title]
-    img = secure(Document) { Document.find_by_zip(id) }
+    img = opts[:node] || secure(Document) { Document.find_by_zip(id) }
     if !opts[:images].nil? && !opts[:images]
       return "[#{_('image')}: #{img.v_title}]"
     end
@@ -312,7 +319,7 @@ module ApplicationHelper
       images = (opts[:node] || @node).images
     else
       ids = ids.split(',').map{|i| i.to_i} # sql injection security
-      images = secure(Document) { Document.find(:all, :conditions=>"zip IN (#{ids.join(',')})") }
+      images = secure(Document) { Document.find(:all, :conditions=>"zip IN (#{ids.join(',')})") } || []
       # order like ids :
       images.sort! {|a,b| ids.index(a[:zip].to_i) <=> ids.index(b[:zip].to_i) }
     end

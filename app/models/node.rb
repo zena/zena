@@ -217,7 +217,8 @@ class Node < ActiveRecord::Base
     def get_class_from_kpath(kp)
       native_classes[kp] || VirtualClass.find(:first, :conditions=>["site_id = ? AND kpath = ?",current_site[:id], kp])
     end
-    
+
+    # Replace 'zips' by real ids and zazen shortcuts.
     def clean_attributes(new_attributes)
       attributes = new_attributes.stringify_keys
       
@@ -265,6 +266,15 @@ class Node < ActiveRecord::Base
       attributes['parent_id'] = parent_id if parent_id
 
       attributes.delete('file') if attributes['file'] == ''
+      
+      attributes.keys.each do |key|
+        next if key =~ /^(\w+)(_ids|_id)$/
+        value = attributes[key]
+        if value.kind_of?(String)
+          attributes[key] = ZazenParser.new(value,:helper=>self, :node=>self).render(:parse_shortcuts=>true)
+        end
+      end
+      
       attributes
     end
     
@@ -504,7 +514,40 @@ class Node < ActiveRecord::Base
       end
       node
     end
-    
+
+    # Find a node's zip based on a query shortcut. Used by zazen to create a link for ""::art for example.
+    def find_node_by_shortcut(string,offset=0)
+      Node.with_exclusive_scope(self.scoped_methods[0] || {}) do
+        Node.find(:first, Node.match_query(string.gsub('-',' '), :offset => offset))
+      end
+    rescue ActiveRecord::RecordNotFound
+      nil
+    end
+
+    # Return a hash to do a fulltext query.
+    def match_query(query, opts={})
+      node = opts.delete(:node)
+      if query == '.' && node
+        return opts.merge(
+          :conditions => ["parent_id = ?",node[:id]],
+          :order  => 'name ASC' )
+      elsif query != ''
+        if RAILS_ENV == 'test'
+          match = sanitize_sql(["vs.title LIKE ? OR nodes.name LIKE ?", "%#{query}%", "#{query}%"])
+        else
+          match = sanitize_sql(["MATCH (vs.title,vs.text,vs.summary) AGAINST (?) OR nodes.name LIKE ?", query, "#{query}%"])
+        end
+        return opts.merge(
+          :select => "DISTINCT nodes.*, #{match} AS score",
+          # version join should be the same as in HasRelations#build_condition
+          :joins  => "INNER JOIN versions AS vs ON vs.node_id = nodes.id AND ((vs.status >= #{Zena::Status[:red]} AND vs.user_id = #{visitor[:id]} AND vs.lang = '#{visitor.lang}') OR vs.status > #{Zena::Status[:red]})",
+          :conditions => match,
+          :order  => "score DESC")
+      else
+        # error
+        raise Exception.new('bad arguments for search ("query" field missing)')
+      end
+    end
     
     # FIXME: Where is this used ?
     def class_for_relation(rel)

@@ -158,6 +158,7 @@ module Zena
         link_counter = 0
         dyn_counter  = 0
         has_version_join = false
+        # version_join should be the same as in Node#match_query
         version_join = "INNER JOIN versions AS vs ON vs.node_id = nodes.id AND ((vs.status >= #{Zena::Status[:red]} AND vs.user_id = \#{visitor[:id]} AND vs.lang = '\#{visitor.lang}') OR vs.status > #{Zena::Status[:red]})"
         joins = []
         

@@ -20,6 +20,27 @@ class NodeTest < ZenaTestUnit
     assert_equal 'projects/wiki', node[:fullpath]
   end
   
+  def test_match_query
+    query = Node.match_query('smala')
+    assert_equal "versions.title LIKE '%smala%' OR nodes.name LIKE 'smala%'", query[:conditions]
+    query = Node.match_query('.', :node => nodes(:wiki))
+    assert_equal ["parent_id = ?", 19], query[:conditions]
+  end
+  
+  def test_clean_attributes_zazen_shortcut
+    login(:tiger)
+    secure(Node) do
+      [
+        ["Hi, this is just a simple \"test\"::ar or \"\"::ar+_life.rss. OK ?\n\n!:lake+.pv!",
+         "Hi, this is just a simple \"test\":#{nodes_zip(:opening)} or \"\":#{nodes_zip(:art)}_life.rss. OK ?\n\n!24.pv!"],
+        ["Hi, this is normal "":1/ just a\n\n* asf\n* asdf ![23,33]!",
+         "Hi, this is normal "":1/ just a\n\n* asf\n* asdf ![23,33]!"]
+        ].each do |src,res|
+        assert_equal res, Node.clean_attributes( 'v_text' => src )['v_text']
+      end
+    end
+  end
+  
   def test_get_fullpath
     login(:ant)
     node = secure(Node) { nodes(:lake)  }

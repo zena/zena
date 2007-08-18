@@ -11,17 +11,21 @@ module Zazen
     # context during compilation which is easier to manage the callbacks to the helper.
     def r_void
       @context = {:images => true, :pretty_code=>true}.merge(@context)
+      @parse_shortcuts = @context[:parse_shortcuts]
+      
       @blocks = "" # same reason as why we rewrite 'store'
       extract_code(@text)
       
       # set whether the first paragraphe is spaced preserved.
       @in_space_pre = (@text[0..0] == ' ')
       enter(:void)
-      store '</p>' if @in_space_pre
-
-      @text = RedCloth.new(@blocks).to_html
-      @blocks = ""
-      enter(:wiki)
+      
+      unless @parse_shortcuts
+        store '</p>' if @in_space_pre
+        @text = RedCloth.new(@blocks).to_html
+        @blocks = ""
+        enter(:wiki)
+      end
       render_code(@blocks)
       @blocks
     end
@@ -59,16 +63,16 @@ module Zazen
           # implement !! scan_code
         elsif @text[0..0] == '<'
           flush '<'
-        elsif !@in_space_pre && @text[0..2] == "\n\n "
+        elsif !@in_space_pre && @text[0..2] == "\n\n " && !@parse_shortcuts
           # space preserving paragraphe
           @in_space_pre = true
           store "\n\n<p style='white-space:pre'>"
           eat 3
-        elsif @in_space_pre && @text[0..1] == "\n\n"
+        elsif @in_space_pre && @text[0..1] == "\n\n" && !@parse_shortcuts
           store "</p>"
           flush "\n\n"
           @in_space_pre = false
-        elsif @text[0..1] == "\n "
+        elsif @text[0..1] == "\n " && !@parse_shortcuts
           if @in_space_pre
             store "\n"
             eat 2
@@ -94,26 +98,63 @@ module Zazen
       if @text =~ /\A\!\[([^\]]*)\]\!/m
         # create a gallery ![...]!
         #puts "GALLERY:[#{$&}]"
-        eat $&
-        if @context[:images]
-          store @helper.make_gallery($1, :node=>@context[:node])
+        if @parse_shortcuts
+          flush $&
         else
-          store @helper._('[gallery]')
+          eat $&
+          if @context[:images]
+            store @helper.make_gallery($1, :node=>@context[:node])
+          else
+            store @helper._('[gallery]')
+          end
         end
       elsif @text =~ /\A\!([^0-9]{0,2})\{([^\}]*)\}\!/m
         # list of documents !<.{...}!
         #puts "DOCS:[#{$&}]"
-        eat $&
-        if @context[:images]
-          store @helper.list_nodes(:style=>$1, :ids=>$2, :node=>@context[:node])
+        if @parse_shortcuts
+          flush $&
         else
-          store @helper._('[documents]')
+          eat $&
+          if @context[:images]
+            store @helper.list_nodes(:style=>$1, :ids=>$2, :node=>@context[:node])
+          else
+            store @helper._('[documents]')
+          end
+        end
+      elsif @text =~ /\A\!([^0-9]{0,2}):([a-zA-Z-]+)(\+*)(\.([^\/\!]+)|)(\/([^\!]*)|)\!(:([^\s]+)|)/m
+        # image !<.:art++.pv/blah blah!:12
+        #puts "SHORCUT IMAGE:[#{$&}]"
+        eat $&
+        style, id, offset, other_opts, size, title, link = $1, $2, $3, $4, $5, $7, $9
+        if node = @helper.find_node_by_shortcut(id,offset.size)
+          if @parse_shortcuts
+            if node.kind_of?(Document)
+              # replace shortcut
+              store "!#{style}#{node.zip}#{other_opts}!"
+            else
+              store $&
+            end
+          else
+            if node.kind_of?(Document)
+              store @helper.make_image(:style=>style, :id=>node[:zip].to_s, :node=>node, :size=>size, :title=>title, :link=>link, :images=>@context[:images])
+            else
+              store "[#{node.fullpath} is not a document]"
+            end
+          end
+        elsif @parse_shortcuts
+          store $&
+        else
+          store "[#{id}#{offset != '' ? offset.size+1 : ''} not found]"
         end
       elsif @text =~ /\A\!([^0-9]{0,2})([0-9]+)(\.([^\/\!]+)|)(\/([^\!]*)|)\!(:([^\s]+)|)/m
         # image !<.12.pv/blah blah!:12
         #puts "IMAGE:[#{$&}]"
-        eat $&
-        store @helper.make_image(:style=>$1, :id=>$2, :size=>$4, :title=>$6, :link=>$8, :images=>@context[:images])
+        if @parse_shortcuts
+          flush $&
+        else
+          eat $&
+          store @helper.make_image(:style=>$1, :id=>$2, :size=>$4, :title=>$6, :link=>$8, :images=>@context[:images])
+        end
       else
         #puts "EAT:[#{$&}]"
         # eat marker and continue scan
@@ -124,16 +165,42 @@ module Zazen
     def scan_quote
       if @text =~ /\A"([^"]*)":([0-9]+[^\s]*)/m
         #puts "LINK:[#{$&}]"
-        eat $&
-        # link inside the cms "":34
-        title, id = $1, $2
-        if id =~ /(.*?)#(.*)/
-          id, sharp = $1, $2
-          sharp = 'true' if sharp == ''
+        if @parse_shortcuts
+          flush $&
+        else
+          eat $&
+          # link inside the cms "":34
+          title, id = $1, $2
+          if id =~ /(.*?)#(.*)/
+            id, sharp = $1, $2
+            sharp = 'true' if sharp == ''
+          end
+          store @helper.make_link(:title=>title,:id=>id,:sharp=>sharp)
         end
-        store @helper.make_link(:title=>title,:id=>id,:sharp=>sharp)
+      elsif @text =~ /\A"([^"]*)"::([a-zA-Z-]+)(\+*)([^\s]*)/m
+        #puts "SHORTCUT_LINK:[#{$&}]"
+        eat $&
+        title, id, offset, mode = $1, $2, $3, $4
+        if node = @helper.find_node_by_shortcut(id,offset.size)
+          id = "#{node.zip}#{mode}"
+          if @parse_shortcuts
+            # replace shortcut
+            store "\"#{title}\":#{id}"
+          else
+            title = node.fullpath
+            if id =~ /(.*?)#(.*)/
+              id, sharp = $1, $2
+              sharp = 'true' if sharp == ''
+            end
+            store @helper.make_link(:title=>title,:id=>id,:sharp=>sharp,:node=>node)
+          end
+        elsif @parse_shortcuts
+          store $&
+        else
+          store "[#{id}#{offset != '' ? offset.size+1 : ''} not found]"
+        end
       else
-        #puts "NOT_LINK"
+        #puts "NOT A ZAZEN LINK"
         flush @text[0..0]
       end
     end
@@ -177,21 +244,27 @@ module Zazen
       @escaped_code = []
       block_counter = -1
       text.gsub!( /<code([^>]*)>(.*?)<\/code>/m ) do
-        params, text = $1, $2
-        divparams = []
-        if params =~ /\A(.*)lang\s*=\s*("|')([^"']+)\2(.*)\Z/m
-          pre, lang, post = $1.strip, $3, $4.strip
-          divparams << pre if pre && pre != ""
-          divparams << post if post && post != ""
+        if @parse_shortcuts
+          @escaped_code << $&
+          block_counter += 1
+          "\\ZAZENBLOCKCODE#{block_counter}ZAZENBLOCKCODE\\"
         else
-          divparams << params.strip if params != ''
-          lang = ''
+          params, text = $1, $2
+          divparams = []
+          if params =~ /\A(.*)lang\s*=\s*("|')([^"']+)\2(.*)\Z/m
+            pre, lang, post = $1.strip, $3, $4.strip
+            divparams << pre if pre && pre != ""
+            divparams << post if post && post != ""
+          else
+            divparams << params.strip if params != ''
+            lang = ''
+          end
+          #divparams << "class='code'" unless params =~ /class\s*=/
+          divparams.unshift('') if divparams != []
+          @escaped_code << [lang, text]
+          block_counter += 1
+          "<pre#{divparams.join(' ')}>\\ZAZENBLOCKCODE#{block_counter}ZAZENBLOCKCODE\\</pre>"
         end
-        #divparams << "class='code'" unless params =~ /class\s*=/
-        divparams.unshift('') if divparams != []
-        @escaped_code << [lang, text]
-        block_counter += 1
-        "<pre#{divparams.join(' ')}>\\ZAZENBLOCKCODE#{block_counter}ZAZENBLOCKCODE\\</pre>"
       end
     
       @escaped_at = []
@@ -206,35 +279,43 @@ module Zazen
     
     def render_code(text)
       text.gsub!( /\\ZAZENBLOCKCODE(\d+)ZAZENBLOCKCODE\\/ ) do
-        lang, text = *(@escaped_code[$1.to_i])
-        if lang != ''
-          code_tag = "<code class='#{lang}'>"
+        if @parse_shortcuts
+          @escaped_code[$1.to_i]
         else
-          code_tag = '<code>'
-        end
-        if Syntax::SYNTAX[lang] && @context[:pretty_code]
-          convertor = Syntax::Convertors::HTML.for_syntax(lang)
-          "#{code_tag}#{convertor.convert( text, false ).gsub(/\n( *)/m) { "<br/>\n" + ('&nbsp;' * $1.length) }}</code>"
-        else
-          RedCloth.new("#{code_tag}#{text}</code>").to_html
+          lang, text = *(@escaped_code[$1.to_i])
+          if lang != ''
+            code_tag = "<code class='#{lang}'>"
+          else
+            code_tag = '<code>'
+          end
+          if Syntax::SYNTAX[lang] && @context[:pretty_code]
+            convertor = Syntax::Convertors::HTML.for_syntax(lang)
+            "#{code_tag}#{convertor.convert( text, false ).gsub(/\n( *)/m) { "<br/>\n" + ('&nbsp;' * $1.length) }}</code>"
+          else
+            RedCloth.new("#{code_tag}#{text}</code>").to_html
+          end
         end
       end
       
       text.gsub!( /\\ZAZENBLOCKAT(\d+)ZAZENBLOCKAT\\/ ) do
         text = @escaped_at[$1.to_i]
-        if text =~ /^(\w+)\|/ && Syntax::SYNTAX[$1]
-          lang = $1
-          if @context[:pretty_code]
-            convertor = Syntax::Convertors::HTML.for_syntax(lang)
-            res = convertor.convert( text[(lang.length+1)..-1], false )
-          else
-            res = text[(lang.length+1)..-1]
-          end
-          res = "<code class='#{lang}'>#{res}</code>"
+        if @parse_shortcuts
+          text
         else
-          res = RedCloth.new("<code>#{text}</code>").to_html
+          if text =~ /^(\w+)\|/ && Syntax::SYNTAX[$1]
+            lang = $1
+            if @context[:pretty_code]
+              convertor = Syntax::Convertors::HTML.for_syntax(lang)
+              res = convertor.convert( text[(lang.length+1)..-1], false )
+            else
+              res = text[(lang.length+1)..-1]
+            end
+            res = "<code class='#{lang}'>#{res}</code>"
+          else
+            res = RedCloth.new("<code>#{text}</code>").to_html
+          end
+          res
         end
-        res
       end
     end
   end
