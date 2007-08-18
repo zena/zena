@@ -197,29 +197,29 @@ title:
 title_link:
   src: "<h2 do='title' link='details'>super titre</h2>"
   tem: "<h2><%= show_title(:node=>@node, :link=>\"details\")%></h2>"
-  res: "<h2><span id='v_title22'><a href='/oo/projects/cleanWater/page22_details.html'>status title</a></span></h2>"
+  res: "<h2><a href='/oo/projects/cleanWater/page22_details.html'><span id='v_title22'>status title</span></a></h2>"
 
 title_link_format:
   src: "<h2 do='title' link='details.xml'>super titre</h2>"
   tem: "<h2><%= show_title(:node=>@node, :link=>\"details.xml\")%></h2>"
-  res: "<h2><span id='v_title22'><a href='/oo/projects/cleanWater/page22_details.xml'>status title</a></span></h2>"
+  res: "<h2><a href='/oo/projects/cleanWater/page22_details.xml'><span id='v_title22'>status title</span></a></h2>"
 
 title_link_data:
   context:
     node: 'bird_jpg'
   src: "<h2 do='title' link='data'>super titre</h2>"
-  res: "<h2><span id='v_title30'><a href='/oo/image30.jpg'>bird</a></span></h2>"
+  res: "<h2><a href='/oo/image30.jpg'><span id='v_title30'>bird</span></a></h2>"
 
 title_link_data_mode:
   context:
     node: 'bird_jpg'
   src: "<h2 do='title' link='pv.data'>super titre</h2>"
-  res: "<h2><span id='v_title30'><a href='/oo/image30_pv.jpg'>bird</a></span></h2>"
+  res: "<h2><a href='/oo/image30_pv.jpg'><span id='v_title30'>bird</span></a></h2>"
 
 show_parent_title:
   src: "<r:parent><h1 do='title'>parent title</h1></r:parent>"
   tem: "<% if var1 = @node.parent -%><h1><%= show_title(:node=>var1)%></h1><% end -%>"
-  res: "<h1><span id='v_title21'><a href='/oo/projects/cleanWater.html'>Clean Water project</a></span></h1>"
+  res: "<h1><a href='/oo/projects/cleanWater.html'><span id='v_title21'>Clean Water project</span></a></h1>"
 
 show_bad_attr:
   src: "my <r:show attr=':name'/>"

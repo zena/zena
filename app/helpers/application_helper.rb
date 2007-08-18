@@ -314,21 +314,20 @@ module ApplicationHelper
   end
   
   # Create a gallery from a list of images. See ApplicationHelper#zazen for details.
-  def make_gallery(ids="", opts={})
-    if ids == ""
+  def make_gallery(ids=[], opts={})
+    if ids == []
       images = (opts[:node] || @node).images
     else
-      ids = ids.split(',').map{|i| i.to_i} # sql injection security
-      images = secure(Document) { Document.find(:all, :conditions=>"zip IN (#{ids.join(',')})") } || []
+      ids = ids.map{|i| i.to_i}
+      images = ids == [] ? nil : secure(Document) { Document.find(:all, :conditions=>"zip IN (#{ids.join(',')})") }
       # order like ids :
-      images.sort! {|a,b| ids.index(a[:zip].to_i) <=> ids.index(b[:zip].to_i) }
+      images.sort! {|a,b| ids.index(a[:zip].to_i) <=> ids.index(b[:zip].to_i) } if images
     end
     
     render_to_string( :partial=>'main/gallery', :locals=>{:gallery=>images} )
   end
 
-  def list_nodes(opt={})
-    ids = opt[:ids]
+  def list_nodes(ids=[], opt={})
     style = opt[:style] || ''
     case style.sub('.', '')
     when ">"
@@ -343,15 +342,17 @@ module ApplicationHelper
     else
       prefix = suffix = ""
     end
-    if ids == ""
+    if ids == []
       docs = @node.documents
-    elsif ids == "d"
+    elsif ids[0] == "d"
       docs = @node.documents_only
-    elsif ids == "i"
+    elsif ids[0] == "i"
       docs = @node.images
     else
-      ids = ids.split(',').map{|i| i.to_i}.join(',') # sql injection security
-      docs = secure(Document) { Document.find(:all, :order=>'name ASC', :conditions=>"zip IN (#{ids})") }
+      ids = ids.map{|i| i.to_i}
+      docs = ids == [] ? nil : secure(Document) { Document.find(:all, :order=>'name ASC', :conditions=>"zip IN (#{ids.join(',')})") }
+      # order like ids :
+      docs.sort! {|a,b| ids.index(a[:zip].to_i) <=> ids.index(b[:zip].to_i) } if docs
     end
     return '' unless docs
     prefix + render_to_string( :partial=>'main/list_nodes', :locals=>{:docs=>docs}) + suffix

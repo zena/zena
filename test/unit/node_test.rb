@@ -33,8 +33,12 @@ class NodeTest < ZenaTestUnit
       [
         ["Hi, this is just a simple \"test\"::ar or \"\"::ar+_life.rss. OK ?\n\n!:lake+.pv!",
          "Hi, this is just a simple \"test\":#{nodes_zip(:opening)} or \"\":#{nodes_zip(:art)}_life.rss. OK ?\n\n!24.pv!"],
+        ["Hi ![30,:lake+]! ![]!",
+         "Hi ![30,24]! ![]!"],
+        ["Hi !{:bird,:lake+}! !{}!",
+         "Hi !{30,24}! !{}!"],
         ["Hi, this is normal "":1/ just a\n\n* asf\n* asdf ![23,33]!",
-         "Hi, this is normal "":1/ just a\n\n* asf\n* asdf ![23,33]!"]
+         "Hi, this is normal "":1/ just a\n\n* asf\n* asdf ![23,33]!"],
         ].each do |src,res|
         assert_equal res, Node.clean_attributes( 'v_text' => src )['v_text']
       end

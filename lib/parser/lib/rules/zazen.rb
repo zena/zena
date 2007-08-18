@@ -98,28 +98,31 @@ module Zazen
       if @text =~ /\A\!\[([^\]]*)\]\!/m
         # create a gallery ![...]!
         #puts "GALLERY:[#{$&}]"
-        if @parse_shortcuts
-          flush $&
-        else
-          eat $&
-          if @context[:images]
-            store @helper.make_gallery($1, :node=>@context[:node])
+        eat $&
+        if @context[:images]
+          ids = parse_document_ids($1)
+          if @parse_shortcuts
+            store "![#{ids.join(',')}]!"
           else
-            store @helper._('[gallery]')
+            store @helper.make_gallery(ids, :node=>@context[:node])
           end
+        else
+          store @helper._('[gallery]')
         end
       elsif @text =~ /\A\!([^0-9]{0,2})\{([^\}]*)\}\!/m
         # list of documents !<.{...}!
         #puts "DOCS:[#{$&}]"
-        if @parse_shortcuts
-          flush $&
-        else
-          eat $&
-          if @context[:images]
-            store @helper.list_nodes(:style=>$1, :ids=>$2, :node=>@context[:node])
+        eat $&
+        style, ids = $1, $2
+        if @context[:images]
+          ids = parse_document_ids(ids)
+          if @parse_shortcuts
+            store "!#{style}{#{ids.join(',')}}!"
           else
-            store @helper._('[documents]')
+            store @helper.list_nodes(ids, :style=>style, :node=>@context[:node])
           end
+        else
+          store @helper._('[documents]')
         end
       elsif @text =~ /\A\!([^0-9]{0,2}):([a-zA-Z-]+)(\+*)(\.([^\/\!]+)|)(\/([^\!]*)|)\!(:([^\s]+)|)/m
         # image !<.:art++.pv/blah blah!:12
@@ -317,6 +320,30 @@ module Zazen
           res
         end
       end
+    end
+    
+    def parse_document_ids(str)
+      str.split(',').map do |id|
+        if id =~ /\A:([a-zA-Z-]+)(\+*)/
+          id, offset = $1, $2
+          if node = @helper.find_node_by_shortcut(id.strip,offset.size)
+            if node.kind_of?(Document)
+              # replace shortcut
+              node.zip
+            elsif @parse_shortcuts
+              id  # not a document but do not remove
+            else
+              nil # not a document
+            end
+          elsif @parse_shortcuts
+            ":#{id}#{offset}"
+          else
+            nil # document not found
+          end
+        else
+          id
+        end
+      end.compact
     end
   end
 end

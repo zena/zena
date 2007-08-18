@@ -54,3 +54,11 @@ zip_shortcut_image:
 zip_shortcut_image_with_options:
   tem: "<%= zazen('Look !<.:lake.med! or !=.:lake+.pv!') %>"
   res: "/<p>Look \[projects/cleanWater/lakeAddress is not a document\] or .*center.*<img src=.*image24_pv.jpg/"
+
+zip_shortcut_gallery:
+  tem: "<%= zazen('Look ![30,:lake+]!') %>"
+  res: "/gallery.*image30_pv.*image24_pv.*/"
+
+zip_shortcut_list:
+  tem: "<%= zazen('Look !{30,:lake+}!') %>"
+  res: "/docs.*image30_mini.*image24_mini.*/"
