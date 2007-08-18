@@ -388,6 +388,8 @@ class ApplicationController < ActionController::Base
       
       if visitor.lang != session[:lang] && !visitor.is_anon?
         visitor.update_attribute_with_validation_skipping('lang', session[:lang])
+      else
+        visitor.lang = session[:lang]
       end
       GetText.set_locale_all(session[:lang])
       
