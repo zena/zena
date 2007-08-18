@@ -316,7 +316,7 @@ module ApplicationHelper
   # Create a gallery from a list of images. See ApplicationHelper#zazen for details.
   def make_gallery(ids=[], opts={})
     if ids == []
-      images = (opts[:node] || @node).images
+      images = (opts[:node] || @node).find(:all, 'images')
     else
       ids = ids.map{|i| i.to_i}
       images = ids == [] ? nil : secure(Document) { Document.find(:all, :conditions=>"zip IN (#{ids.join(',')})") }
@@ -343,11 +343,11 @@ module ApplicationHelper
       prefix = suffix = ""
     end
     if ids == []
-      docs = @node.documents
+      docs = @node.find(:all, 'documents')
     elsif ids[0] == "d"
-      docs = @node.documents_only
+      docs = @node.find(:all, 'documents_only')
     elsif ids[0] == "i"
-      docs = @node.images
+      docs = @node.find(:all, 'images')
     else
       ids = ids.map{|i| i.to_i}
       docs = ids == [] ? nil : secure(Document) { Document.find(:all, :order=>'name ASC', :conditions=>"zip IN (#{ids.join(',')})") }
