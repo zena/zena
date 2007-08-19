@@ -18,7 +18,7 @@ begin
   
     def self.zafu_readable?(sym)
       if sym.to_s =~ /(.*)_zips?$/  
-        return true if self.ancestors.include?(Node) && has_relation?($1)
+        return true if self.ancestors.include?(Node) && Relation.find_by_role_and_kpath($1.singularize,self.kpath)
       end
       self.zafu_readable_attributes.include?(sym.to_s)
     end

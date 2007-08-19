@@ -19,6 +19,7 @@ Examples:
 =end
 class NodesController < ApplicationController
   before_filter :find_node, :except => [:index, :not_found, :search, :attribute]
+  before_filter :check_can_drive, :only => [:add_link, :update_link, :remove_link]
   layout :popup_layout,     :only   => [:edit, :import]
   
   def index
@@ -154,27 +155,30 @@ class NodesController < ApplicationController
   end
   
   # add/update links to another node
-  def link
-    if !@node.can_drive?
-      @node.errors.add('base', 'you do not have the rights to do this')
-    elsif params['link']
-      # update relation
+  def update_link
+    # update relation
+    attrs = clean_attributes(params['link'])
+    @node.update_attributes(attrs)
+    respond_to do |format|
+      format.js { render :action => 'link'}
+    end
+  end
+  
+  def add_link
+    if relation = @node.relation_proxy(params['link']['role'])
       attrs = clean_attributes(params['link'])
-      @node.update_attributes(attrs)
-    elsif relation = @node.relation_proxy(params['role'])
-      attrs = clean_attributes(params)
       if relation.unique?
         # replace link
         @node.update_attributes("#{attrs['role']}_id" => attrs['other_id'])
       else
-        @node.add_link(attrs['role'], attrs['other_id'])
-        @node.save
+        puts @node.add_link(attrs['role'], attrs['other_id'])
+        puts @node.save
       end
     else
-      @errors
+      @node.errors.add('base', 'invalid role')
     end
     respond_to do |format|
-      format.js
+      format.js { render :action => 'link'}
     end
   end
   
@@ -233,12 +237,12 @@ class NodesController < ApplicationController
   def attribute
     method = params[:attr].to_sym
     if [:v_text, :v_summary, :name, :path, :short_path].include?(method)
-      if params[:node] =~ /^\d+$/
-        @node = secure(Node) { Node.find_by_zip(params[:node]) }
-      else
-        @node = secure(Node) { Node.find_by_name(params[:node]) }
-        raise ActiveRecord::RecordNotFound unless @node
-      end
+      # '+' are not escaped as they should in ajax query
+      params[:node].sub!(/ +$/) {|spaces| '+' * spaces.length} if params[:node]
+      node_id = secure(Node) { Node.translate_pseudo_id(params[:node])}
+      @node = secure(Node) { Node.find(node_id) }
+      raise ActiveRecord::RecordNotFound unless @node
+      
       if method == :path || method == :short_path
         path = @node.rootpath
         if method == :short_path && path.size > 2
@@ -290,8 +294,6 @@ class NodesController < ApplicationController
   
   
   protected
-
-
     
     def find_node
       if path = params[:path]
@@ -317,6 +319,12 @@ class NodesController < ApplicationController
         @node = secure(Node) { Node.find_by_zip(params[:id]) }
       end
       @title_for_layout = @node.rootpath if @node
+    end
+
+    def check_can_drive
+      if !@node.can_drive?
+        @node.errors.add('base', 'you do not have the rights to do this')
+      end
     end
     
     def do_search

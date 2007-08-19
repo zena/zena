@@ -222,43 +222,42 @@ class Node < ActiveRecord::Base
     def clean_attributes(new_attributes)
       attributes = new_attributes.stringify_keys
       
-      scope   = self.scoped_methods[0] || {}
-      
       if parent_id = attributes.delete('_parent_id')
         attributes.delete('parent_id')
-      else
-        p = attributes['parent_id']
-        if p && p.to_i.to_s != p.to_s.strip
-          # find by name
-          parent_id = Node.with_exclusive_scope(scope) { Node.find_by_name(p) }[:id]
-          attributes.delete('parent_id')
-        end
+      elsif p = attributes.delete('parent_id')
+        parent_id = translate_pseudo_id(p) || p
       end
       
       attributes.keys.each do |key|
-        if key =~ /^(\w+)_id$/ && ! ['rgroup_id', 'wgroup_id', 'pgroup_id', 'user_id'].include?(key)
-          value = Node.connection.execute( "SELECT id FROM nodes WHERE site_id = #{current_site[:id]} AND zip = '#{attributes[key].to_i}'" ).fetch_row
-          next unless value
-          attributes[key] = value[0]
-        end
-      end
-      
-      attributes.keys.each do |key|
-        if key =~ /^(\w+)_ids$/
+        if ['rgroup_id', 'wgroup_id', 'pgroup_id', 'user_id'].include?(key)
+          # ignore
+        elsif key =~ /^(\w+)_id$/
+          if key[0..1] == 'd_'
+            attributes[key] = translate_pseudo_id(attributes[key],:zip) || attributes[key]
+          else
+            attributes[key] = translate_pseudo_id(attributes[key]) || attributes[key]
+          end
+        elsif key =~ /^(\w+)_ids$/
+          # Id list. Bad ids are removed.
           values = attributes[key].kind_of?(Array) ? attributes[key] : attributes[key].split(',')
-          values = values.map do |v|
-            vi = Node.connection.execute( "SELECT id FROM nodes WHERE site_id = #{current_site[:id]} AND zip = '#{v.to_i}'" ).fetch_row
-            vi ? vi[0] : nil
+          if key[0..1] == 'd_'
+            values.map! {|v| translate_pseudo_id(v,:zip) }
+          else
+            values.map! {|v| translate_pseudo_id(v,:id ) }
           end
           attributes[key] = values.compact
-        end
-      end
-      
-      (attributes['link'] || {}).keys.each do |key|
-        if key =~ /^(\w+)_id$/ && ! ['rgroup_id', 'wgroup_id', 'pgroup_id', 'user_id'].include?(key)
-          value = Node.connection.execute( "SELECT id FROM nodes WHERE site_id = #{current_site[:id]} AND zip = '#{attributes['link'][key].to_i}'" ).fetch_row
-          next unless value
-          attributes['link'][key] = value[0]
+        elsif key == 'link'
+          link_attr = attributes['link']
+          link_attr.keys.each do |key|
+            next unless key =~ /^(\w+)_id$/
+            link_attr[key] = translate_pseudo_id(link_attr[key])
+          end
+        else
+          # translate zazen
+          value = attributes[key]
+          if value.kind_of?(String)
+            attributes[key] = ZazenParser.new(value,:helper=>self, :node=>self).render(:parse_shortcuts=>true)
+          end
         end
       end
       
@@ -267,15 +266,20 @@ class Node < ActiveRecord::Base
 
       attributes.delete('file') if attributes['file'] == ''
       
-      attributes.keys.each do |key|
-        next if key =~ /^(\w+)(_ids|_id)$/
-        value = attributes[key]
-        if value.kind_of?(String)
-          attributes[key] = ZazenParser.new(value,:helper=>self, :node=>self).render(:parse_shortcuts=>true)
-        end
-      end
-      
       attributes
+    end
+    
+    def translate_pseudo_id(str,sym=:id)
+      if str =~ /\A\d+\Z/
+        # zip
+        res = Node.connection.execute( "SELECT #{sym} FROM nodes WHERE site_id = #{current_site[:id]} AND zip = '#{str}'" ).fetch_row
+        res ? res[0].to_i : nil
+      elsif str =~ /\A([a-zA-Z ]+)(\+*)\Z/
+        node = find_node_by_shortcut($1,$2.size)
+        node ? node[sym] : nil
+      else
+        nil
+      end
     end
     
     def create_or_update_node(new_attributes)
@@ -534,11 +538,13 @@ class Node < ActiveRecord::Base
       elsif query != ''
         if RAILS_ENV == 'test'
           match = sanitize_sql(["vs.title LIKE ? OR nodes.name LIKE ?", "%#{query}%", "#{query}%"])
+          select = "DISTINCT nodes.*, #{match} AS score"
         else
-          match = sanitize_sql(["MATCH (vs.title,vs.text,vs.summary) AGAINST (?) OR nodes.name LIKE ?", query, "#{query}%"])
+          match  = sanitize_sql(["MATCH (vs.title,vs.text,vs.summary) AGAINST (?) OR nodes.name LIKE ?", query, "#{query}%"])
+          select = sanitize_sql(["DISTINCT nodes.*, MATCH (vs.title,vs.text,vs.summary) AGAINST (?) + (5 * (nodes.name LIKE ?)) AS score", query, "#{query}%"])
         end
         return opts.merge(
-          :select => "DISTINCT nodes.*, #{match} AS score",
+          :select => select,
           # version join should be the same as in HasRelations#build_condition
           :joins  => "INNER JOIN versions AS vs ON vs.node_id = nodes.id AND ((vs.status >= #{Zena::Status[:red]} AND vs.user_id = #{visitor[:id]} AND vs.lang = '#{visitor.lang}') OR vs.status > #{Zena::Status[:red]})",
           :conditions => match,
@@ -563,20 +569,9 @@ class Node < ActiveRecord::Base
       end
     end
     
-    
-    # FIXME: I think we could remove this now
-    def native_relation?(rel, opts={})
-      ['root', 'parent', 'self', 'children', 'documents_only', 'all_pages'].include?(rel) || Node.get_class(rel)
-    end
-    
-    # FIXME: I think we could remove this now
-    def relation_defined?(rel)
-      native_relation?(rel) || has_relation?(rel)
-    end
-    
     def plural_relation?(rel)
       rel = rel.split(/\s/).first
-      if native_relation?(rel)
+      if ['root', 'parent', 'self', 'children', 'documents_only', 'all_pages'].include?(rel) || Node.get_class(rel)
         rel.pluralize == rel
       elsif rel =~ /\A\d+\Z/
         false

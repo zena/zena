@@ -71,6 +71,15 @@ class RelationTest < ZenaTestUnit
     end
   end
   
+  def test_find
+    login(:ant)
+    node = secure(Node) { nodes(:status) }
+    assert_equal 'cleanWater', node.find(:first,'parent')[:name]
+    assert_equal 'projects', node.find(:first,'parent').find(:first,'parent')[:name]
+    assert_equal 'zena', node.find(:first,'root')[:name]
+    assert_equal 'art', node.find(:first,'parent').find(:all,'tags')[0][:name]
+  end
+  
   def test_find_relation_with_alternative
     node = secure(Node) { nodes(:wiki) }
     assert projects_and_images = node.find(:all, :relations=>['projects from site', 'images'])
@@ -196,15 +205,6 @@ class RelationTest < ZenaTestUnit
     assert relation = node.relation_proxy('hot')
     assert relation = node.relation_proxy(:role=>'news', :ignore_source=>true)
     assert_kind_of Relation, relation
-  end
-  
-  def test_has_relation
-    assert Page.has_relation?('hot_for')
-    assert Page.has_relation?('tags')
-    assert ! Page.has_relation?('super')
-    assert ! Page.has_relation?('nodes')
-    assert ! Page.has_relation?('favorites')
-    assert Contact.has_relation?('favorites')
   end
   
   def test_bad_attribute_raises
@@ -352,6 +352,15 @@ class RelationTest < ZenaTestUnit
     assert_equal [:art].map{|s| nodes_id(s)}, res.map{|r| r[:id]}
   end
   
+  def test_build_find_tags_conditions
+    login(:tiger)
+    str = Node.build_find(:all, :relations=>['images from site'], :node_name=>'var8', :conditions=>["name like ?", "bi%"])
+    
+    var8 = secure(Node) { nodes(:cleanWater) }
+    res  = var8.do_find(:all, eval("\"#{str}\""))
+    assert_equal [:bird_jpg].map{|s| nodes_id(s)}, res.map{|r| r[:id]}
+  end
+  
   def test_build_find_root
     login(:tiger)
     assert_equal "SELECT nodes.* FROM nodes   WHERE (nodes.id = 1 AND (nodes.user_id = '\#{visitor[:id]}' OR (rgroup_id IN (\#{visitor.group_ids.join(',')}) AND nodes.publish_from <= now() ) OR (pgroup_id IN (\#{visitor.group_ids.join(',')}) AND max_status > 30)) AND nodes.site_id = \#{visitor.site[:id]})  GROUP BY nodes.id  ORDER BY position ASC, name ASC LIMIT 1", 
@@ -361,4 +370,5 @@ class RelationTest < ZenaTestUnit
     res  = var8.do_find(:first, eval("\"#{str}\""))
     assert_equal nodes_id(:zena), res[:id]
   end
+  
 end

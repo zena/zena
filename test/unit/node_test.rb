@@ -27,20 +27,44 @@ class NodeTest < ZenaTestUnit
     assert_equal ["parent_id = ?", 19], query[:conditions]
   end
   
-  def test_clean_attributes_zazen_shortcut
+  def test_clean_attributes_zazen_shortcut_v_text
     login(:tiger)
     secure(Node) do
       [
         ["Hi, this is just a simple \"test\"::ar or \"\"::ar+_life.rss. OK ?\n\n!:lake+.pv!",
          "Hi, this is just a simple \"test\":#{nodes_zip(:opening)} or \"\":#{nodes_zip(:art)}_life.rss. OK ?\n\n!24.pv!"],
+         
         ["Hi ![30,:lake+]! ![]!",
          "Hi ![30,24]! ![]!"],
+         
         ["Hi !{:bird,:lake+}! !{}!",
          "Hi !{30,24}! !{}!"],
+         
         ["Hi, this is normal "":1/ just a\n\n* asf\n* asdf ![23,33]!",
          "Hi, this is normal "":1/ just a\n\n* asf\n* asdf ![23,33]!"],
-        ].each do |src,res|
+      ].each do |src,res|
         assert_equal res, Node.clean_attributes( 'v_text' => src )['v_text']
+      end
+    end
+  end
+  
+  def test_clean_attributes_zazen_shortcut_ids
+    login(:tiger)
+    secure(Node) do
+      [
+        [{'parent_id' => 'lake+'}, 
+         {'parent_id' => nodes_id(:lake_jpg)}],
+         
+        [{'d_super_id' => 'lake',           'd_other_id' => '11'},
+         {'d_super_id' => nodes_zip(:lake), 'd_other_id' => 11}],
+
+        [{'tag_ids' => "#{nodes_zip(:art)},news"},
+         {'tag_ids' => [nodes_id(:art), nodes_id(:news)]}],
+         
+        [{'parent_id' => '83730', 'tag_ids' => "8398749,#{nodes_zip(:news)},art"},
+         {'parent_id' => '83730', 'tag_ids' => [nodes_id(:news),nodes_id(:art)]}],
+      ].each do |src,res|
+        assert_equal res, Node.clean_attributes( src )
       end
     end
   end
@@ -122,60 +146,6 @@ class NodeTest < ZenaTestUnit
     node = secure(Node) { nodes(:status) }
     root = node.root
     assert_equal 'zena', root[:name]
-  end
-  
-  def test_native_relation
-    assert Page.native_relation?('parent')
-    assert Page.native_relation?('posts')
-    assert ! Page.native_relation?('tags') # overwritten by 'tag' relation
-  end
-  
-  def test_relation
-    login(:ant)
-    node = secure(Node) { nodes(:status) }
-    assert_equal 'cleanWater', node.relation('parent')[:name]
-    assert_equal 'projects', node.relation('parent').relation('parent')[:name]
-    assert_equal 'zena', node.relation('root')[:name]
-    assert_equal 'art', node.relation('parent').relation('tags')[0][:name]
-  end
-  
-  def test_relation_with_or
-    login(:lion)
-    group = secure(Page) { Page.create(:name=>'group', :parent_id=>nodes_id(:cleanWater))}
-    assert !group.new_record?
-    assert_equal nodes_id(:cleanWater), group[:project_id]
-    info  = secure(Note) { Note.create(:name=>'hello', :parent_id=>group[:id])}
-    assert !info.new_record?
-    assert_equal nodes_id(:cleanWater), info[:project_id]
-    node  = secure(Node) { nodes(:cleanWater) }
-    assert_equal 2, node.relation("notes", :or=>"added_notes", :limit=>"10", :from=>"project", :order=>"log_at DESC").size
-    assert_equal 2, group.relation("notes", :or=>"added_notes", :limit=>"10", :from=>"project", :order=>"log_at DESC").size
-    assert_equal 1, group.relation("notes", :or=>"added_notes", :limit=>"10", :order=>"log_at DESC").size
-  end
-  
-  def test_relation_with_condition_and_or
-    login(:lion)
-    node = secure(Node) { nodes(:zena) }
-    assert_nothing_raised do
-      node.relation('notes', :conditions=>["log_at >= ? AND log_at <= ?", Time.now, Time.now], :order=>"log_at ASC", :or => 'added_notes')
-      # result SQL:
-      #         SELECT nodes.*, links.id AS link_id FROM nodes LEFT JOIN links ON nodes.id=links.source_id WHERE 
-      # conditions:
-      #         (( log_at >= '2007-06-22 08:03:36' AND log_at <= '2007-06-22 08:03:36' ) AND 
-      # secure:
-      #         ( (nodes.user_id = '5' OR (rgroup_id IN (2,4,1,3) AND nodes.publish_from <= now() ) OR (pgroup_id IN (2,4,1,3) AND max_status > 30)) AND (nodes.site_id = 1) )) AND
-      # relations:
-      #         ((parent_id = 1 AND kpath LIKE 'NN%') OR (links.relation_id = 8 AND links.target_id = 1)) GROUP BY nodes.id ORDER BY log_at ASC
-      node.relation('notes', :conditions=>["log_at >= ? AND log_at <= ?", Time.now, Time.now], :from => 'project', :order=>"log_at ASC", :or => 'added_notes')
-      # result SQL:
-      #          SELECT nodes.*, links.id AS link_id FROM nodes LEFT JOIN links ON nodes.id=links.source_id WHERE 
-      # conditions:
-      #          (( (log_at >= '2007-06-22 08:23:03' AND log_at <= '2007-06-22 08:23:03') AND project_id = 1 ) AND 
-      # secure:
-      #          ( (nodes.user_id = '5' OR (rgroup_id IN (2,4,1,3) AND nodes.publish_from <= now() ) OR (pgroup_id IN (2,4,1,3) AND max_status > 30)) AND (nodes.site_id = 1) )) AND 
-      # relation:  
-      #          ((kpath LIKE 'NN%') OR (links.relation_id = 8)) GROUP BY nodes.id ORDER BY log_at ASC
-    end
   end
   
   def test_ancestor_in_hidden_project
@@ -388,7 +358,7 @@ class NodeTest < ZenaTestUnit
   def test_trackers
     login(:tiger)
     node = secure(Node) { nodes(:cleanWater) }
-    trackers = node.relation('trackers')
+    trackers = node.find(:all,'trackers')
     assert_equal 1, trackers.size
     assert_equal 'track', trackers[0][:name]
   end
@@ -806,27 +776,6 @@ class NodeTest < ZenaTestUnit
     assert_equal 1, comments[0].replies.size
   end
   
-  def test_relation_options
-    login(:ant)
-    node = secure(Node) { nodes(:status) }
-    res = {:conditions=>["(project_id = ?) AND (kpath NOT LIKE 'NPDI%')", 11], :order=>"position ASC, name ASC"}
-    assert_equal res, node.relation_options({:from=>'project'}, "kpath NOT LIKE 'NPDI%'")
-    
-    res = {:conditions=>["(section_id = ?) AND (kpath NOT LIKE 'NPDI%')", 11], :order=>"position ASC, name ASC"}
-    assert_equal res, node.relation_options({:from=>'section'}, "kpath NOT LIKE 'NPDI%'")
-    
-    res = {:conditions=>["(parent_id = ?) AND (kpath NOT LIKE 'NPDI%')", 12], :order=>"position ASC, name ASC"}
-    assert_equal res, node.relation_options({}, "kpath NOT LIKE 'NPDI%'")
-  end
-  
-  def test_many_relation
-    login(:ant)
-    node = secure(Node) { nodes(:status) }
-    pages = node.relation("nodes", :from=>'project', :limit=>2)
-    assert_equal 2, pages.size
-    assert_equal 'lake', pages[0][:name]
-  end
-  
   def test_site_id
     login(:tiger)
     node = secure(Node) { Node.create(NEW_DEFAULT) }
@@ -1092,13 +1041,10 @@ done: \"I am done\""
     assert ! Node.plural_relation?('parent')
     assert ! Node.plural_relation?('project')
     assert Node.plural_relation?('projects')
+    assert Node.plural_relation?('posts')
+    assert ! Node.plural_relation?('post')
     assert Node.plural_relation?('tags')
     assert Node.plural_relation?('tagged')
-  end
-  
-  def test_find_all_relations
-    # test with vclass
-    assert false, 'TODO'
   end
   
   def test_zafu_attribute
@@ -1108,13 +1054,4 @@ done: \"I am done\""
     assert_equal 'bob.c_zafu_read("truc")', Node.zafu_attribute('bob', 'c_truc')
   end
   
-  def test_plural_relation
-    assert Node.plural_relation?('pages')
-    assert Node.plural_relation?('children')
-    assert Node.plural_relation?('icon_for')
-    assert !Node.plural_relation?('icon')
-    assert !Node.plural_relation?('icons')
-    assert !Node.plural_relation?('project')
-    assert Node.plural_relation?('projects')
-  end
 end
