@@ -244,10 +244,7 @@ class NodesController < ApplicationController
       raise ActiveRecord::RecordNotFound unless @node
       
       if method == :path || method == :short_path
-        path = @node.rootpath
-        if method == :short_path && path.size > 2
-          path = ['..'] + path[-2..-1]
-        end
+        path = @node.send(method)
         render :inline=> path.join('/')
       else
         @text = @node.send(method)

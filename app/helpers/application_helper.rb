@@ -1095,7 +1095,7 @@ ENDTXT
       current_obj = nil
     end
     name_ref = "#{obj}_#{sym}_name"
-    attribute = opt[:show] || 'name'
+    attribute = opt[:show] || 'short_path'
     if current_obj
       zip = current_obj[:zip]
       current = current_obj.send(attribute.to_sym)

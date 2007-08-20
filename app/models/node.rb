@@ -701,6 +701,18 @@ class Node < ActiveRecord::Base
     current_site.name + (fullpath != "" ? "/#{fullpath}" : "")
   end
   
+  alias path rootpath
+  
+  # Return an array with the node name and the last two parents' names.
+  def short_path
+    path = self.rootpath.split('/')
+    if path.size > 2
+      ['..'] + path[-2..-1]
+    else
+      path
+    end
+  end
+  
   # Used by zafu to find the search score
   # def score
   #   self[:score]
