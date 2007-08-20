@@ -143,7 +143,6 @@ class RelationTest < ZenaTestUnit
     assert_nil node.find(:all,'blogs')
     node.add_link('blog', nodes_id(:art))
     assert !node.save
-    node.show_errors
     assert_equal 'invalid target', node.errors[:blog]
   end
   
@@ -228,7 +227,12 @@ class RelationTest < ZenaTestUnit
   end
   
   def test_destroy_links
-    assert false, "TODO"
+    login(:tiger)
+    node = secure(Node) { nodes(:cleanWater) }
+    assert_equal nodes_id(:art), node.find(:first, 'tags')[:id]
+    assert node.remove_link(links_id(:cleanWater_in_art))
+    assert node.save
+    assert_nil node.find(:first, 'tags')
   end
   
   def test_relation_new_record
@@ -369,6 +373,36 @@ class RelationTest < ZenaTestUnit
     var8 = secure(Node) { nodes(:cleanWater) }
     res  = var8.do_find(:first, eval("\"#{str}\""))
     assert_equal nodes_id(:zena), res[:id]
+  end
+  
+  def test_pages
+    login(:ant)
+    page = secure(Node) { nodes(:cleanWater) }
+    pages = page.find(:all, 'pages')
+    assert_equal 2, pages.size
+    assert_equal nodes_id(:status), pages[0][:id]
+  end
+  
+  def test_documents
+    login(:ant)
+    page = secure(Node) { nodes(:cleanWater) }
+    documents = page.find(:all, 'documents')
+    assert_equal 2, documents.size
+    assert_equal nodes_id(:lake_jpg), documents[0][:id]
+  end
+  
+  def test_documents_images_only
+    login(:tiger)
+    bird = secure(Node) { nodes(:bird_jpg) }
+    bird[:parent_id] = nodes_id(:cleanWater)
+    assert bird.save
+    page = secure(Node) { nodes(:cleanWater) }
+    doconly   = page.find(:all, 'documents_only')
+    images    = page.find(:all, 'images')
+    assert_equal 1, doconly.size
+    assert_equal nodes(:water_pdf)[:id], doconly[0][:id]
+    assert_equal 2, images.size
+    assert_equal nodes(:bird_jpg)[:id], images[0][:id]
   end
   
 end

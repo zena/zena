@@ -22,7 +22,7 @@ class NodeTest < ZenaTestUnit
   
   def test_match_query
     query = Node.match_query('smala')
-    assert_equal "versions.title LIKE '%smala%' OR nodes.name LIKE 'smala%'", query[:conditions]
+    assert_equal "vs.title LIKE '%smala%' OR nodes.name LIKE 'smala%'", query[:conditions]
     query = Node.match_query('.', :node => nodes(:wiki))
     assert_equal ["parent_id = ?", 19], query[:conditions]
   end
@@ -39,6 +39,9 @@ class NodeTest < ZenaTestUnit
          
         ["Hi !{:bird,:lake+}! !{}!",
          "Hi !{30,24}! !{}!"],
+
+        ["Hi !30!::clean !:bird!::clean !:bird/nice bird!:21 !30.pv/hello ladies!:21",
+         "Hi !30!:21 !30!:21 !30/nice bird!:21 !30.pv/hello ladies!:21"],
          
         ["Hi, this is normal "":1/ just a\n\n* asf\n* asdf ![23,33]!",
          "Hi, this is normal "":1/ just a\n\n* asf\n* asdf ![23,33]!"],
@@ -139,13 +142,6 @@ class NodeTest < ZenaTestUnit
     login(:ant)
     node = secure(Node) { nodes(:lake_jpg) }
     assert_raise(Zena::InvalidRecord) { node.ancestors }
-  end
-  
-  def test_root
-    login(:ant)
-    node = secure(Node) { nodes(:status) }
-    root = node.root
-    assert_equal 'zena', root[:name]
   end
   
   def test_ancestor_in_hidden_project
@@ -288,23 +284,9 @@ class NodeTest < ZenaTestUnit
   def test_cannot_destroy_has_private
     login(:tiger)
     node = secure(Node) { nodes(:lion)  }
-    assert_nil node.pages, "No subpages"
+    assert_nil node.find(:all, 'pages'), "No subpages"
     assert !node.destroy, "Cannot destroy"
     assert_equal node.errors[:base], 'contains subpages'
-  end
-  
-  def test_list_children
-    login(:ant)
-    
-    page = secure(Node) { nodes(:projects)  }
-    children = page.children
-    assert_equal 2, children.size
-    
-    login(:tiger)
-    page = secure(Node) { nodes(:projects)  }
-    children = page.children
-    assert_equal 3, children.size
-    assert_equal 3, page.children.size
   end
   
   def test_parent
@@ -315,52 +297,6 @@ class NodeTest < ZenaTestUnit
   def test_project
     login(:anon)
     assert_equal nodes_id(:zena), secure(Node) { nodes(:people) }.project[:id]
-  end
-  
-  def test_pages
-    login(:ant)
-    page = secure(Node) { nodes(:cleanWater) }
-    pages = page.pages
-    assert_equal 2, pages.size
-    assert_equal nodes_id(:status), pages[0][:id]
-  end
-  
-  def test_documents
-    login(:ant)
-    page = secure(Node) { nodes(:cleanWater) }
-    documents = page.documents
-    assert_equal 2, documents.size
-    assert_equal nodes_id(:lake_jpg), documents[0][:id]
-  end
-  
-  def test_documents_images_only
-    login(:tiger)
-    bird = secure(Node) { nodes(:bird_jpg) }
-    bird[:parent_id] = nodes_id(:cleanWater)
-    assert bird.save
-    page = secure(Node) { nodes(:cleanWater) }
-    doconly   = page.documents_only
-    images    = page.images
-    assert_equal 1, doconly.size
-    assert_equal nodes(:water_pdf)[:id], doconly[0][:id]
-    assert_equal 2, images.size
-    assert_equal nodes(:bird_jpg)[:id], images[0][:id]
-  end
-  
-  def test_notes
-    login(:tiger)
-    node = secure(Node) { nodes(:cleanWater) }
-    notes = node.notes
-    assert_equal 1, notes.size
-    assert_equal 'opening', notes[0][:name]
-  end
-  
-  def test_trackers
-    login(:tiger)
-    node = secure(Node) { nodes(:cleanWater) }
-    trackers = node.find(:all,'trackers')
-    assert_equal 1, trackers.size
-    assert_equal 'track', trackers[0][:name]
   end
   
   def test_new_child
@@ -508,7 +444,7 @@ class NodeTest < ZenaTestUnit
     assert_equal nodes_id(:people), nodes(:myLife)[:section_id]
   end
   
-  def test_after_remove
+  def test_after_unpublish
     Version.connection.execute "UPDATE versions SET user_id=4 WHERE node_id IN (19,20,21)"
     Node.connection.execute    "UPDATE nodes    SET user_id=4 WHERE      id IN (19,20,21)"
     login(:tiger)
@@ -518,7 +454,7 @@ class NodeTest < ZenaTestUnit
     assert_equal Zena::Status[:pub], wiki.v_status
     assert_equal Zena::Status[:pub], bird.v_status
     assert_equal Zena::Status[:pub], flower.v_status
-    assert wiki.remove, 'Can remove publication'
+    assert wiki.unpublish, 'Can unpublish publication'
     assert_equal 10, wiki.v_status
     assert_equal 10, wiki.max_status
     bird = secure(Node) { nodes(:bird_jpg) }
@@ -597,8 +533,8 @@ class NodeTest < ZenaTestUnit
     nodes  = secure(Node) { nodes(:people).send(:all_children) }
     people = secure(Node) { nodes(:people) }
     assert_equal 4, nodes.size
-    assert_equal 3, people.children.size
-    assert_raise(NoMethodError) { people.all_children }
+    assert_equal 3, people.find(:all, 'children').size
+    assert_raise(NoMethodError) { people.all_children } # private method
   end
   
   def test_camelize
@@ -734,7 +670,8 @@ class NodeTest < ZenaTestUnit
     visitor.lang = 'en'
     node = secure(Node) { nodes(:status) }
     assert_equal 1, node.comments.size
-    assert comment = node.add_comment( :author_name=>'parrot', :title=>'hello', :text=>'world' )
+    comment = node.add_comment( :author_name=>'parrot', :title=>'hello', :text=>'world' )
+    assert ! comment.new_record?
     node = secure(Node) { nodes(:status) }
     comments = node.comments
     assert_equal 2, node.comments.size
@@ -743,6 +680,10 @@ class NodeTest < ZenaTestUnit
   end
   
   def test_anon_add_comment
+    login(:lion)
+    node = secure(Node) { nodes(:status) }
+    assert_equal 2, node.comments.size
+    
     login(:anon)
     node = secure(Node) { nodes(:status) }
     assert_equal 1, node.comments.size
@@ -751,17 +692,23 @@ class NodeTest < ZenaTestUnit
     visitor.status = User::Status[:moderated]
     
     assert node.can_comment?, "Anonymous can comment."
-    assert comment = node.add_comment( :author_name=>'fierce', :title=>'and', :text=>'ugly spam' )
+    comment = node.add_comment( :author_name=>'fierce', :title=>'and', :text=>'ugly spam' )
+    assert ! comment.new_record?
     assert_equal Zena::Status[:prop], comment.status
     visitor.status = User::Status[:commentator]
     assert node.can_comment?, "Anonymous can comment."
-    assert comment = node.add_comment( :author_name=>'parrot', :title=>'hello', :text=>'world of happiness' )
+    comment = node.add_comment( :author_name=>'parrot', :title=>'hello', :text=>'world of happiness' )
+    assert ! comment.new_record?
     assert_equal Zena::Status[:pub], comment.status
     node = secure(Node) { nodes(:status) }
     comments = node.comments
-    assert_equal 2, node.comments.size
-    assert_equal 'hello', comments[1][:title]
+    assert_equal 2, comments.size
     assert_equal 'parrot', comments[1][:author_name]
+    
+    login(:lion)
+    node = secure(Node) { nodes(:status) }
+    comments = node.comments
+    assert_equal 4, comments.size
   end
   
   def test_add_reply
@@ -769,7 +716,8 @@ class NodeTest < ZenaTestUnit
     visitor.lang = 'en'
     node = secure(Node) { nodes(:status) }
     assert_equal 1, node.comments.size
-    assert comment = node.add_comment( :author_name=>'parrot', :title=>'hello', :text=>'world', :reply_to=>comments_id(:public_says_in_en) )
+    comment = node.add_comment( :author_name=>'parrot', :title=>'hello', :text=>'world', :reply_to=>comments_id(:public_says_in_en) )
+    assert ! comment.new_record?
     node = secure(Node) { nodes(:status) }
     comments = node.comments
     assert_equal 1, comments.size
@@ -915,7 +863,7 @@ done: \"I am done\""
     parent = secure(Project) { Project.create(:name => 'import', :parent_id => nodes_id(:zena)) }
     assert !parent.new_record?, "Not a new record"
     nodes = secure(Node) { Node.create_nodes_from_folder(:folder => File.join(RAILS_ROOT, 'test', 'fixtures', 'import'), :parent_id => parent[:id] )}
-    children = parent.children
+    children = parent.find(:all, 'children')
     assert_equal 2, children.size
     assert_equal 3, nodes.size
     bird   = nodes[1]
@@ -934,7 +882,7 @@ done: \"I am done\""
     assert_equal 'Le septième ciel', versions[0].title
     assert_equal 'Photos !', photos.v_title
     assert_match %r{Here are some photos.*!\[\]!}m, photos.v_text
-    assert_equal bird[:id], photos.children[0][:id]
+    assert_equal bird[:id], photos.find(:all, 'children')[0][:id]
   end
   
   def test_create_nodes_from_gzip_file
@@ -954,7 +902,7 @@ done: \"I am done\""
     parent = secure(Project) { Project.create(:name => 'import', :parent_id => nodes_id(:zena), :rgroup_id => 4, :wgroup_id => 4) }
     assert !parent.new_record?, "Not a new record"
     result = secure(Node) { Node.create_nodes_from_folder(:folder => File.join(RAILS_ROOT, 'test', 'fixtures', 'import'), :parent_id => parent[:id] )}
-    children = parent.children
+    children = parent.find(:all, 'children')
     assert_equal 2, children.size
     assert_equal 'bird', result[1].name
     assert_equal 4, children[1].rgroup_id
@@ -963,7 +911,7 @@ done: \"I am done\""
     
     result = secure(Node) { Node.create_nodes_from_folder(:folder => File.join(RAILS_ROOT, 'test', 'fixtures', 'import'), :parent_id => result[1][:id], :defaults => { :rgroup_id => 1 } )}
     
-    children = children[0].children
+    children = children[0].find(:all, 'children')
     assert_equal 3, result.size
     assert_equal 1, children.size # cannot create a Note inside an Image
     assert_equal 1, children[0].rgroup_id
@@ -1022,14 +970,14 @@ done: \"I am done\""
   def test_order_position
     login(:tiger)
     parent = secure(Node) { nodes(:cleanWater) }
-    children = parent.children
+    children = parent.find(:all, 'children')
     assert_equal 8, children.size
     assert_equal 'bananas', children[0].name
     assert_equal 'crocodiles', children[1].name
     
     Node.connection.execute "UPDATE nodes SET position = 0.0 WHERE id = #{nodes_id(:water_pdf)}"
     Node.connection.execute "UPDATE nodes SET position = 0.1 WHERE id = #{nodes_id(:lake)}"
-    children = parent.children
+    children = parent.find(:all, 'children')
     assert_equal 8, children.size
     assert_equal 'water', children[0].name
     assert_equal 'lakeAddress', children[1].name

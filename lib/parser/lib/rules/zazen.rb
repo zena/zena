@@ -128,12 +128,20 @@ module Zazen
         # image !<.:art++.pv/blah blah!:12
         #puts "SHORCUT IMAGE:[#{$&}]"
         eat $&
-        style, id, offset, other_opts, size, title, link = $1, $2, $3, $4, $5, $7, $9
+        style, id, offset, other_opts, size, title_opts, title, link = $1, $2, $3, $4, $5, $6, $7, $9
         if node = @helper.find_node_by_shortcut(id,offset.size)
+          
+          if link && link =~ /^:([a-zA-Z-]+)(\+*)(.*)$/
+            rest = $3
+            if link_node = @helper.find_node_by_shortcut($1,$2.size)
+              link = link_node[:zip].to_s + rest
+            end
+          end
+          
           if @parse_shortcuts
             if node.kind_of?(Document)
               # replace shortcut
-              store "!#{style}#{node.zip}#{other_opts}!"
+              store "!#{style}#{node.zip}#{other_opts}#{title_opts}!#{link ? ':' + link : ''}"
             else
               store $&
             end
@@ -152,11 +160,18 @@ module Zazen
       elsif @text =~ /\A\!([^0-9]{0,2})([0-9]+)(\.([^\/\!]+)|)(\/([^\!]*)|)\!(:([^\s]+)|)/m
         # image !<.12.pv/blah blah!:12
         #puts "IMAGE:[#{$&}]"
+        eat $&
+        style, id, other_opts, size, title_opts, title, link = $1, $2, $3, $4, $5, $6, $8
+        if link && link =~ /^:([a-zA-Z-]+)(\+*)(.*)/
+          rest = $3
+          if link_node = @helper.find_node_by_shortcut($1,$2.size)
+            link = link_node[:zip].to_s + rest
+          end
+        end
         if @parse_shortcuts
-          flush $&
+          store "!#{style}#{id}#{other_opts}#{title_opts}!#{link ? ':' + link : ''}"
         else
-          eat $&
-          store @helper.make_image(:style=>$1, :id=>$2, :size=>$4, :title=>$6, :link=>$8, :images=>@context[:images])
+          store @helper.make_image(:style=>style, :id=>id, :size=>size, :title=>title, :link=>link, :images=>@context[:images])
         end
       else
         #puts "EAT:[#{$&}]"

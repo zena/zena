@@ -269,7 +269,8 @@ class Node < ActiveRecord::Base
       attributes
     end
     
-    def translate_pseudo_id(str,sym=:id)
+    def translate_pseudo_id(id,sym=:id)
+      str = id.to_s
       if str =~ /\A\d+\Z/
         # zip
         res = Node.connection.execute( "SELECT #{sym} FROM nodes WHERE site_id = #{current_site[:id]} AND zip = '#{str}'" ).fetch_row
@@ -311,6 +312,7 @@ class Node < ActiveRecord::Base
     # TODO: cleanup and rename with something indicating the attrs cleanup that this method does.
     def create_node(new_attributes)
       attributes = clean_attributes(new_attributes)
+      
       # TODO: replace this hack with a proper class method 'secure' behaving like the
       # instance method. It would get the visitor and scope from the same hack below.
       scope   = self.scoped_methods[0] || {}
@@ -1091,7 +1093,7 @@ I think we can remove this stuff now that relations are rewritten
     visitor.commentator? && discussion && discussion.open?
   end
   
-  # Add a comment to an node. If reply_to is set, the comment is added to the proper message
+  # Add a comment to a node. If reply_to is set, the comment is added to the proper message
   def add_comment(opt)
     return nil unless can_comment?
     discussion.save if discussion.new_record?
@@ -1240,29 +1242,40 @@ I think we can remove this stuff now that relations are rewritten
       self[:zip] = Node.next_zip(self[:site_id])
     end
     
-    # Called after an node is 'removed'
-    def after_remove
+    # Called after a node is 'unpublished'
+    def after_unpublish
       if (self[:max_status] < Zena::Status[:pub]) && !@new_record_before_save
-        # not published any more. 'remove' documents
-        sync_documents(:remove)
+        # not published any more. 'unpublish' documents
+        sync_documents(:unpublish)
       else
         true
       end
     end
+
+    def after_redit
+      return true if @new_record_before_save
+      sync_documents(:redit)
+    end
+      
+    # Called after a node is 'removed'
+    def after_remove
+      return true if @new_record_before_save
+      sync_documents(:remove)
+    end
   
-    # Called after an node is 'proposed'
+    # Called after a node is 'proposed'
     def after_propose
       return true if @new_record_before_save
       sync_documents(:propose)
     end
   
-    # Called after an node is 'refused'
+    # Called after a node is 'refused'
     def after_refuse
       return true if @new_record_before_save
       sync_documents(:refuse)
     end
   
-    # Called after an node is published
+    # Called after a node is published
     def after_publish(pub_time=nil)
       return true if @new_record_before_save
       sync_documents(:publish, pub_time)
@@ -1279,26 +1292,20 @@ I think we can remove this stuff now that relations are rewritten
             allOK = doc.propose(Zena::Status[:prop_with]) && allOK
           end
         end
-      when :refuse
+      when :unpublish
+        # FIXME: use a 'before_unpublish' callback to make sure all sub-nodes can be unpublished...
         documents.each do |doc|
-          if doc.can_refuse?
-            allOK = doc.refuse && allOK
-          end
-        end
-      when :publish
-        documents.each do |doc|
-          if doc.can_publish?
-            allOK = doc.publish(pub_time) && allOK
-          end
-        end
-      when :remove
-        # FIXME: use a 'before_remove' callback to make sure all sub-nodes can be removed...
-        documents.each do |doc|
-          unless doc.remove
+          unless doc.unpublish
             doc.errors.each do |err|
               errors.add('document', err.to_s)
             end
             allOK = false
+          end
+        end
+      else
+        documents.each do |doc|
+          if doc.can_apply?(action)
+            allOK = doc.apply(action) && allOK
           end
         end
       end

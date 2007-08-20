@@ -570,7 +570,7 @@ class ApplicationController < ActionController::Base
       res.join("\n")
     end
   
-    # TODO: test (where is this used ? discussions, links, what else ?)
+    # TODO: test (where is this used ? discussions, ?)
     def processing_error(msg)
       # (this method used to be called add_error, but it messed up with 'test/unit/testcase.rb' when testing helpers)
       @errors ||= []

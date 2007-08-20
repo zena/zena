@@ -180,6 +180,7 @@ module Zena
         site = Site.find(:first, :select=>"sites.*", :from => "sites, participations",
                          :conditions=>["participations.site_id = sites.id AND participations.user_id = ?", users_id(name)])
         visitor = User.make_visitor(:site => site, :id => users_id(name))
+        visitor.ip = '10.0.0.127'
         GetText.set_locale_all visitor.lang
       end
 

@@ -18,7 +18,7 @@ begin
   
     def self.zafu_readable?(sym)
       if sym.to_s =~ /(.*)_zips?$/  
-        return true if self.ancestors.include?(Node) && Relation.find_by_role_and_kpath($1.singularize,self.kpath)
+        return true if self.ancestors.include?(Node) && Relation.find_by_role($1.singularize)
       end
       self.zafu_readable_attributes.include?(sym.to_s)
     end
@@ -389,7 +389,7 @@ module Zena
     def r_proposed
       do_list("#{node}.proposed", :node_class => :Version)
     end
-    
+
     def r_comments
       "<%= render :partial=>'comments/list', :locals=>{:node=>#{node}} %>"
     end
@@ -1036,13 +1036,17 @@ END_TXT
       if params[:from]
         relations[0] << " from #{params[:from]}"
       end
+
+      if params[:where]
+        relations[0] << " where #{params[:where]}"
+      end
       
       if params[:or]
         relations << params[:or]
         key_counter = 1
         while or_value = params["or#{key_counter}".to_sym]
           key_counter += 1
-          finders << or_value
+          relations << or_value
         end
       end
       
@@ -1326,7 +1330,6 @@ END_TXT
         elsif test =~ /\[([^\]]+)\]/
           node_attribute($1)
         else
-          puts test.inspect
           # bad test condition.
           'false'
         end

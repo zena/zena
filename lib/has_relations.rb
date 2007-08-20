@@ -35,10 +35,6 @@ module Zena
           klasses
         end
       end
-      
-      def has_relation?(rel, opts={})
-        Relation.find_by_role_and_kpath(rel.singularize,kpath)
-      end
 
 =begin
       def find_relation(opts)
@@ -189,7 +185,7 @@ module Zena
             # someday, someone will ask for an 'or'. When this happens, we need to use () around all the clauses ((...) OR (...)).
             where_clause = where.split(/\s+and\s+/).map do |clause|
               # [field] [=|>]
-              if clause =~ /([\w:]+)\s*(<|<=|=|>=|>|<>)\s*"?([^"]*)"?/
+              if clause =~ /([\w:]+)\s*(<|<=|=|like|>=|>|<>)\s*"?([^"]*)"?/
                 field = $1
                 op    = $2
                 value = $3
@@ -261,7 +257,6 @@ module Zena
           else
             where_clause = ''
           end
-            
           
           from_clause = case opts[:from]
           when 'site'

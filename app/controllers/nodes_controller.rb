@@ -171,8 +171,8 @@ class NodesController < ApplicationController
         # replace link
         @node.update_attributes("#{attrs['role']}_id" => attrs['other_id'])
       else
-        puts @node.add_link(attrs['role'], attrs['other_id'])
-        puts @node.save
+        @node.add_link(attrs['role'], attrs['other_id'])
+        @node.save
       end
     else
       @node.errors.add('base', 'invalid role')

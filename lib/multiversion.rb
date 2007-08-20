@@ -184,7 +184,7 @@ module Zena
           when :unpublish
             version.status = Zena::Status[:rem]
             if version.save
-              update_publish_from && update_max_status && after_remove
+              update_publish_from && update_max_status && after_unpublish
             else
               false
             end
@@ -198,7 +198,7 @@ module Zena
           when :redit
             version.status = Zena::Status[:red]
             if version.save
-              update_publish_from && update_max_status && after_remove
+              update_publish_from && update_max_status && after_redit
             else
               false
             end
@@ -269,6 +269,12 @@ module Zena
           true
         end
         def after_publish
+          true
+        end
+        def after_unpublish
+          true
+        end
+        def after_redit
           true
         end
         def after_remove

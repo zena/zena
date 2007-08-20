@@ -102,16 +102,16 @@ author:
   res: "my master: Solenopsis Invicta my version master: Solenopsis Invicta"
 
 zafu_readable_link:
-  src: "tag_ids: <r:show attr='tag_ids'/>"
-  tem: "tag_ids: <%= @node.tag_zips %>"
+  src: "<r:show attr='tag_ids'/>"
+  tem: "<%= @node.tag_zips %>"
 
 zafu_readable_link_for:
-  src: "tag_ids: <r:show attr='hot_for_ids'/>"
-  tem: "tag_ids: <%= @node.hot_for_zips %>"
+  src: "<r:show attr='hot_for_ids'/>"
+  tem: "<%= @node.hot_for_zips %>"
 
 zafu_readable_link_id:
-  src: "tag_ids: <r:show attr='icon_id'/>"
-  tem: "tag_ids: <%= @node.icon_zip %>"
+  src: "<r:show attr='icon_id'/>"
+  tem: "<%= @node.icon_zip %>"
 
 node_id:
   src: "I (<r:show attr='name'/>) know: <r:node select='12'><r:show attr='name'/> with <r:children><span do='each' join=', '><r:show attr='name'>child</r:show></span></r:children></r:node>"
@@ -265,3 +265,14 @@ relation_from_site:
   src: "<r:tagged from='site' limit='10' do='each' join=',' do='[name]'/>"
   res: "cleanWater,opening"
 
+where:
+  src: "<r:tagged from='site' where='name=opening' do='each' join=',' do='[name]'/>"
+  res: "opening"
+
+where_like:
+  src: "<r:images from='site' where='name like %ke' do='each' join=',' do='[name]'/>"
+  res: "lake"
+
+many_or:
+  src: "<r:tagged from='site' or='images from site' or='tags from site' do='each' join=',' do='[name]'/>"
+  res: "art,bird,cleanWater,flower,lake,news,opening,tree"
