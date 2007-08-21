@@ -434,7 +434,7 @@ module Zena
           opts = {}
           opts[:selected] = @params[:selected] if @params[:selected]
           opts[:without]  = @params[:without]  if @params[:without]
-          "<%= select('node', #{name.inspect}, Node.classes_for_form(:class => #{klass.inspect})#{params_to_erb(opts)}) %>"
+          "<%= select('node', #{name.inspect}, Node.classes_for_form(:class => #{klass.inspect}#{params_to_erb(opts)})) %>"
         else
           klasses = @params[:options] || "Page,Note"
           "<%= select('node', #{name.inspect}, #{klasses.split(',').map(&:strip).inspect}) %>"

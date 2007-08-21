@@ -1002,4 +1002,10 @@ done: \"I am done\""
     assert_equal 'bob.c_zafu_read("truc")', Node.zafu_attribute('bob', 'c_truc')
   end
   
+  def test_classes_for_form
+    assert_equal [["Page", "Page"],
+     ["  Project", "Project"],
+     ["  Section", "Section"],
+     ["    Skin", "Skin"]], Node.classes_for_form(:class=>'Page', :without=>'Document')
+  end
 end

@@ -21,7 +21,7 @@ module Zazen
       enter(:void)
       
       unless @parse_shortcuts
-        store '</p>' if @in_space_pre
+        store '</pre>' if @in_space_pre
         @text = RedCloth.new(@blocks).to_html
         @blocks = ""
         enter(:wiki)
@@ -66,13 +66,13 @@ module Zazen
         elsif !@in_space_pre && @text[0..2] == "\n\n " && !@parse_shortcuts
           # space preserving paragraphe
           @in_space_pre = true
-          store "\n\n<p style='white-space:pre'>"
+          store "\n\n<pre>"
           eat 3
         elsif @in_space_pre && @text[0..1] == "\n\n" && !@parse_shortcuts
-          store "</p>"
+          store "</pre>"
           flush "\n\n"
           @in_space_pre = false
-        elsif @text[0..1] == "\n " && !@parse_shortcuts
+        elsif @text[0..1] == "\n" && !@parse_shortcuts
           if @in_space_pre
             store "\n"
             eat 2
