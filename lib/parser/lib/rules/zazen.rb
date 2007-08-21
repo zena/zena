@@ -72,14 +72,18 @@ module Zazen
           store "</pre>"
           flush "\n\n"
           @in_space_pre = false
-        elsif @text[0..1] == "\n" && !@parse_shortcuts
-          if @in_space_pre
-            store "\n"
-            eat 2
+        elsif @text[0..1] == "\n\n"
+          flush "\n\n"
+        elsif @text[0..1] == "\n " && @in_space_pre && !@parse_shortcuts
+          store "\n"
+          eat 2
+        elsif @text[0..0] == "\n" && !@parse_shortcuts
+          if @in_space_pre || @text == "\n"
+            flush "\n"
           else
             # forced line break
             store "\n<br/>"
-            eat 2
+            eat 1
           end
         elsif @text[0..0] == "\n"
           flush "\n"

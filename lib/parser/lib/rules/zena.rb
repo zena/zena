@@ -431,10 +431,11 @@ module Zena
       when 'select'
         return "<span class='parser_error'>select without name</span>"   unless   name = @params[:name]
         if klass = @params[:root_class]
-          opts = {}
-          opts[:selected] = @params[:selected] if @params[:selected]
-          opts[:without]  = @params[:without]  if @params[:without]
-          "<%= select('node', #{name.inspect}, Node.classes_for_form(:class => #{klass.inspect}#{params_to_erb(opts)})) %>"
+          select_opts = {}
+          class_opts = {}
+          select_opts[:selected] = @params[:selected] if @params[:selected]
+          class_opts[:without]  = @params[:without]  if @params[:without]
+          "<%= select('node', #{name.inspect}, Node.classes_for_form(:class => #{klass.inspect}#{params_to_erb(class_opts)})#{params_to_erb(select_opts)}) %>"
         else
           klasses = @params[:options] || "Page,Note"
           "<%= select('node', #{name.inspect}, #{klasses.split(',').map(&:strip).inspect}) %>"
