@@ -550,9 +550,9 @@ END_TXT
       attribute = @params[:attr] || 'name'
       if values =~ /^\d+\s*($|,)/
         # ids
-        # TODO
+        # TODO generate the full query instead of using secure.
         values = values.split(',').map{|v| v.to_i}
-        list_finder = "(secure(Node) { Node.find(:all, :conditions => ['zip = ?', #{values.inspect}]) } rescue nil)"
+        list_finder = "(secure(Node) { Node.find(:all, :conditions => 'zip IN (#{values.join(',')})') } rescue nil)"
       else
         # relation
         list_finder = build_finder_for(:all, values)
