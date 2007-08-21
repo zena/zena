@@ -450,7 +450,11 @@ module Zena
       def relation_proxy(opts={})
         opts = {:role => opts} unless opts.kind_of?(Hash)
         if role = opts[:role]
-          rel = Relation.find_by_role_and_kpath(role.singularize, self.vclass.kpath)
+          if opts[:ignore_source]
+            rel = Relation.find_by_role(role.singularize)
+          else
+            rel = Relation.find_by_role_and_kpath(role.singularize, self.vclass.kpath)
+          end
           rel.start = self if rel
         elsif link = opts[:link]
           return nil unless link

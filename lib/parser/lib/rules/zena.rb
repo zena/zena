@@ -548,7 +548,7 @@ END_TXT
       return "<span class='parser_error'>checkbox without role</span>"   unless   role = @params[:role]
       meth = role.singularize
       attribute = @params[:attr] || 'name'
-      if values =~ /^\d*\s*($|,)/
+      if values =~ /^\d+\s*($|,)/
         # ids
         # TODO
         values = values.split(',').map{|v| v.to_i}

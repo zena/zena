@@ -206,6 +206,12 @@ class RelationTest < ZenaTestUnit
     assert_kind_of Relation, relation
   end
   
+  def test_relation_proxy_new_node
+    node = secure(Node) { Node.new }
+    assert relation = node.relation_proxy(:role=>'blog', :ignore_source=>true)
+    assert_equal relations_id(:post_has_blogs), relation[:id]
+  end
+  
   def test_bad_attribute_raises
     login(:tiger)
     node = secure(Node) { nodes(:status) }
@@ -404,5 +410,6 @@ class RelationTest < ZenaTestUnit
     assert_equal 2, images.size
     assert_equal nodes(:bird_jpg)[:id], images[0][:id]
   end
+  
   
 end
