@@ -540,16 +540,17 @@ class Node < ActiveRecord::Base
       elsif query != ''
         if RAILS_ENV == 'test'
           match = sanitize_sql(["vs.title LIKE ? OR nodes.name LIKE ?", "%#{query}%", "#{query}%"])
-          select = "DISTINCT nodes.*, #{match} AS score"
+          select = "nodes.*, #{match} AS score"
         else
           match  = sanitize_sql(["MATCH (vs.title,vs.text,vs.summary) AGAINST (?) OR nodes.name LIKE ?", query, "#{query}%"])
-          select = sanitize_sql(["DISTINCT nodes.*, MATCH (vs.title,vs.text,vs.summary) AGAINST (?) + (5 * (nodes.name LIKE ?)) AS score", query, "#{query}%"])
+          select = sanitize_sql(["nodes.*, MATCH (vs.title,vs.text,vs.summary) AGAINST (?) + (5 * (nodes.name LIKE ?)) AS score", query, "#{query}%"])
         end
         return opts.merge(
           :select => select,
           # version join should be the same as in HasRelations#build_condition
           :joins  => "INNER JOIN versions AS vs ON vs.node_id = nodes.id AND ((vs.status >= #{Zena::Status[:red]} AND vs.user_id = #{visitor[:id]} AND vs.lang = '#{visitor.lang}') OR vs.status > #{Zena::Status[:red]})",
           :conditions => match,
+          :group      => "nodes.id",
           :order  => "score DESC")
       else
         # error

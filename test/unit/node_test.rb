@@ -1008,4 +1008,11 @@ done: \"I am done\""
      ["  Section", "Section"],
      ["    Skin", "Skin"]], Node.classes_for_form(:class=>'Page', :without=>'Document')
   end
+  
+  def test_match_one_node_only
+    login(:tiger)
+    match = secure(Node) { Node.find(:all, Node.match_query('opening')) }
+    assert_equal 1, match.size
+    assert_equal nodes_id(:opening), match[0][:id]
+  end
 end
