@@ -523,13 +523,44 @@ class Node < ActiveRecord::Base
 
     # Find a node's zip based on a query shortcut. Used by zazen to create a link for ""::art for example.
     def find_node_by_shortcut(string,offset=0)
-      Node.with_exclusive_scope(self.scoped_methods[0] || {}) do
-        Node.find(:first, Node.match_query(string.gsub('-',' '), :offset => offset))
+      with_exclusive_scope(self.scoped_methods[0] || {}) do
+        find(:first, Node.match_query(string.gsub('-',' '), :offset => offset))
       end
     rescue ActiveRecord::RecordNotFound
       nil
     end
-
+    
+    # Paginate found results. Returns [previous_page, collection, next_page]. You can specify page and items per page in the query hash :
+    #  :page => 1, :per_page => 20. This should be wrapped into a secure scope.
+    def find_with_pagination(count, opts)
+      previous_page, collection, next_page, count_all = nil, [], nil, nil
+      per_page = (opts.delete(:per_page) || 20).to_i
+      page     = opts.delete(:page) || 1
+      page     = page > 0 ? page.to_i : 1
+      offset   = (page - 1) * per_page
+      
+      if opts[:group]
+        count_select  = "DISTINCT #{opts[:group]}"
+      else
+        count_select  = opts.delete(:count) || 'nodes.id'
+      end
+      
+      with_exclusive_scope(self.scoped_methods[0] || {}) do
+        count_all = count(opts.merge( :select  => count_select, :order => nil, :group => nil ))
+        if count_all > offset
+          collection = find(count, opts.merge(:offset => offset, :limit => per_page))
+          if count_all > (offset + per_page)
+            next_page = page + 1
+          end
+          previous_page = page > 1 ? (page - 1) : nil
+        else
+          # offset too big, previous page = last page
+          previous_page = page > 1 ? ((count_all + per_page - 1) / per_page) : nil
+        end
+      end
+      [previous_page, collection, next_page, count_all]
+    end
+    
     # Return a hash to do a fulltext query.
     def match_query(query, opts={})
       node = opts.delete(:node)

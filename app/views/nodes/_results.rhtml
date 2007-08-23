@@ -1,14 +1,14 @@
 <div class='results'>
   <div class='previous'><%= link_to_remote('previous', :update=>'search_results', 
-      :url=>{:controller=>'search', :action=>'find', :search=>params[:search], :id=>params[:id], :edit=>params[:edit], :page => @node_pages.current.previous}, 
+      :url=>{:controller=>'search', :action=>'find', :search=>params[:search], :id=>params[:id], :edit=>params[:edit], :page => @nodes_previouw_page}, 
       :loading => "$('search_results').innerHTML='';Element.show('result_loader');",
-      :complete => "Element.hide('result_loader')") if @node_pages.current.previous %>
+      :complete => "Element.hide('result_loader')") if @nodes_previouw_page %>
   </div>
   <div class='btn_x'><%= link_to_function(_('btn_x'), "$('search_results').innerHTML = '';") %></div>
   <div class='next'><%= link_to_remote('next', :update=>'search_results', 
-      :url=>search_nodes_path(:q=>params[:q], :page => @node_pages.current.next), 
+      :url=>search_nodes_path(:q=>params[:q], :page => @nodes_next_page), 
       :loading => "$('search_results').innerHTML='';Element.show('result_loader');",
-      :complete => "Element.hide('result_loader')") if @node_pages.current.next %>
+      :complete => "Element.hide('result_loader')") if @nodes_next_page %>
   </div>
   <div class='clear'></div>
 <% if @nodes.empty? %>

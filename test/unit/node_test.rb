@@ -1004,15 +1004,70 @@ done: \"I am done\""
   
   def test_classes_for_form
     assert_equal [["Page", "Page"],
-     ["  Project", "Project"],
-     ["  Section", "Section"],
-     ["    Skin", "Skin"]], Node.classes_for_form(:class=>'Page', :without=>'Document')
+     ["  Project", "Project"],
+     ["  Section", "Section"],
+     ["    Skin", "Skin"]], Node.classes_for_form(:class=>'Page', :without=>'Document')
   end
   
   def test_match_one_node_only
     login(:tiger)
     match = secure(Node) { Node.find(:all, Node.match_query('opening')) }
     assert_equal 1, match.size
+    assert_equal nodes_id(:opening), match[0][:id]
+  end
+  
+  def find_nodes_with_pagination_in_cleanWaterProject(page, per_page = 3, opts=nil)
+    previous_page, collection, next_page = nil, nil, nil
+    opts ||= {:conditions => ['project_id = ?', nodes_id(:cleanWater)], :order=>'id ASC'}
+    collection = secure(Node) do
+      previous_page, collection, next_page = Node.find_with_pagination(:all, opts.merge(:page=>page, :per_page=>per_page))
+      collection
+    end
+    [previous_page, collection, next_page]
+  end
+  
+  def test_find_with_pagination_page_1
+    login(:tiger)
+    previous_page, collection, next_page = find_nodes_with_pagination_in_cleanWaterProject(1,3)
+    assert_nil previous_page
+    assert_equal 2, next_page
+    assert_equal 3, collection.size
+    assert_equal [:status, :lake, :lake_jpg].map{|s| nodes_id(s)}, collection.map{|r| r[:id]}
+  end
+  
+  def test_find_with_pagination_page_2
+    login(:tiger)
+    previous_page, collection, next_page = find_nodes_with_pagination_in_cleanWaterProject(2,3)
+    assert_equal 1, previous_page
+    assert_equal 3, next_page
+    assert_equal 3, collection.size
+    assert_equal [:water_pdf, :crocodiles, :opening].map{|s| nodes_id(s)}, collection.map{|r| r[:id]}
+  end
+
+  def test_find_with_pagination_page_3
+    login(:tiger)
+    previous_page, collection, next_page = find_nodes_with_pagination_in_cleanWaterProject(3,3)
+    assert_equal 2, previous_page
+    assert_nil next_page
+    assert_equal 2, collection.size
+    assert_equal [:bananas, :tracker].map{|s| nodes_id(s)}, collection.map{|r| r[:id]}
+  end
+  
+  def test_find_with_pagination_page_4
+    login(:tiger)
+    previous_page, collection, next_page = find_nodes_with_pagination_in_cleanWaterProject(4,3)
+    assert_equal 3, previous_page
+    assert_nil next_page
+    assert_nil collection
+  end
+  
+  def test_find_match_with_pagination
+    login(:tiger)
+    previous_page, match, next_page, count_all = secure(Node) { Node.find_with_pagination(:all, Node.match_query('opening').merge(:page => 1, :per_page => 3)) }
+    assert_equal 1, match.size
+    assert_equal 1, count_all
+    assert_nil previous_page
+    assert_nil next_page
     assert_equal nodes_id(:opening), match[0][:id]
   end
 end

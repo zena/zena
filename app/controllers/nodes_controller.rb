@@ -327,10 +327,9 @@ class NodesController < ApplicationController
     def do_search
       @node = current_site.root_node
       query = Node.match_query(params[:q], :node => @node)
-      # Paginator does not accept 'group' but it is needed to find unique nodes. See ticket #61.
-      query.delete(:group)
-      secure(Node) do
-        @node_pages, @nodes = paginate :nodes, query.merge(:per_page => 10)
+      
+      @nodes = secure(Node) do
+        @nodes_previous_page, @nodes, @nodes_next_page = Node.find_with_pagination(:all,query.merge(:per_page => 10, :page => params[:page]))
         @nodes # important: this is the 'secure' yield return, it is used to secure found nodes
       end
     end
