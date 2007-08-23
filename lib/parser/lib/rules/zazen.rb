@@ -78,7 +78,7 @@ module Zazen
           store "\n"
           eat 2
         elsif @text[0..0] == "\n" && !@parse_shortcuts
-          if @in_space_pre || @text == "\n"
+          if @in_space_pre || @text == "\n" || @text[1..1] == '*' || @text[1..1] == '#'
             flush "\n"
           else
             # forced line break

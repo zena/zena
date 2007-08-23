@@ -39,6 +39,11 @@ spaces_on_first_lines:
   tem: "<%= zazen(\"This is a normal paragraphe. There are many phrases in this paragraphe and a forced line break\nhere. End of first paragraphe.\n\n This second paragraphe\n is space preserving\n la la           la la.\") %>"
   res: "<p>This is a normal paragraphe. There are many phrases in this paragraphe and a forced line break\n<br/>here. End of first paragraphe.</p>\n\n\n<pre>This second paragraphe\nis space preserving\nla la           la la.</pre>"
 
+
+line_break_list:
+  tem: "<%= zazen(\"first.\n\n* one\n* two\n\nsecond\") %>"
+  res: "/<p>first.<\/p>.*<ul>.*<li>one.*<li>two.*<p>second/"
+
 zip_shortcut_link:
   tem: "<%= zazen('Look \"here\"::lake or \"\"::lake+') %>"
   res: "/<p>Look <a href.*contact23.html.*projects/cleanWater/lakeAddress.*href=.*image24.html.*projects/cleanWater/lake/"
