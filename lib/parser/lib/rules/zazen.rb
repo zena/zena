@@ -12,7 +12,7 @@ module Zazen
     def r_void
       @context = {:images => true, :pretty_code=>true}.merge(@context)
       @parse_shortcuts = @context[:parse_shortcuts]
-      
+      @text.gsub!("\r\n","\n")
       @blocks = "" # same reason as why we rewrite 'store'
       extract_code(@text)
       
