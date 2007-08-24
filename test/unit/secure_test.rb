@@ -11,12 +11,13 @@ class SecureReadTest < ZenaTestUnit
   def test_fixture_by_id
     assert_equal 1, nodes_id(:zena)
   end
+  
   def test_kpath
-    assert_equal Node.kpath, 'N'
-    assert_equal Page.kpath, 'NP'
-    assert_equal PagerDummy.ksel, 'U'
-    assert_equal PagerDummy.kpath, 'NU'
-    assert_equal SubPagerDummy.kpath, 'NUS'
+    assert_equal 'N', Node.kpath
+    assert_equal 'NP', Page.kpath
+    assert_equal 'U', PagerDummy.ksel
+    assert_equal 'NU', PagerDummy.kpath
+    assert_equal 'NUS', SubPagerDummy.kpath
   end
   
   # SECURE FIND TESTS  ===== TODO CORRECT THESE TEST FROM CHANGES TO RULES ========
@@ -233,17 +234,7 @@ class SecureCreateTest < ZenaTestUnit
     assert z.errors[:parent_id] , "Errors on parent_id"
     assert_equal "invalid reference", z.errors[:parent_id]
   end
-  def test_invalid_reference_not_correct_class
-    login(:ant)
-    attrs = node_defaults
-    
-    # lake is not a Project (Notes use Projects as references)
-    attrs[:parent_id] = nodes_id(:lake)
-    z = secure(Note) { Note.create(attrs) }
-    assert z.new_record? , "New record"
-    assert z.errors[:parent_id] , "Errors on parent_id"
-    assert_equal "invalid parent", z.errors[:parent_id]
-  end
+  
   def test_no_reference
     # root nodes do not have a parent_id !!
     # reference = self
@@ -351,13 +342,16 @@ class SecureCreateTest < ZenaTestUnit
     p = secure(Node) { Node.find(attrs[:parent_id])}
     assert p.can_visible? , "Can publish"
     
-    # bad rgroup
-    attrs[:rgroup_id] = 99999
-    z = secure(Note) { Note.create(attrs) }
-    assert z.new_record? , "New record"
-    assert z.errors[:rgroup_id] , "Error on rgroup_id"
-    assert_equal "unknown group", z.errors[:rgroup_id]
+    # bad rgroup or tiger not in admin
+    [99999, groups_id(:admin)].each do |grp|
+      attrs[:rgroup_id] = grp
+      z = secure(Note) { Note.create(attrs) }
+      assert z.new_record? , "New record"
+      assert z.errors[:rgroup_id] , "Error on rgroup_id"
+      assert_equal "unknown group", z.errors[:rgroup_id]
+    end
   end
+  
   def test_can_vis_bad_rgroup_visitor_not_in_group
     login(:tiger)
     attrs = node_defaults
@@ -614,6 +608,23 @@ class SecureUpdateTest < ZenaTestUnit
     assert_equal 4, nodes(:bananas).rgroup_id, "Not inherited child: rgroup not changed"
   end
   
+  def test_reference_changed_rights_inherited
+    login(:lion)
+    node = secure(Node) { nodes(:zena) }
+    assert node.update_attributes(:rgroup_id => groups_id(:site), :wgroup_id => groups_id(:site), :pgroup_id => groups_id(:site), :skin => "wiki")
+    node = secure(Node) { nodes(:cleanWater) }
+    assert node.update_attributes(:inherit => 0, :rgroup_id => groups_id(:admin), :wgroup_id => groups_id(:admin), :pgroup_id => groups_id(:admin), :skin => "default")
+    node = secure(Node) { nodes(:status) }
+    assert_equal groups_id(:admin), node.rgroup_id
+    assert_equal groups_id(:admin), node.wgroup_id
+    assert_equal groups_id(:admin), node.pgroup_id
+    assert_equal "default", node.skin
+    assert node.update_attributes(:parent_id => nodes_id(:people) )
+    assert_equal groups_id(:site), node.rgroup_id
+    assert_equal groups_id(:site), node.wgroup_id
+    assert_equal groups_id(:site), node.pgroup_id
+    assert_equal "wiki", node.skin
+  end
   
   def test_skin_changed_children_too
     login(:tiger)
@@ -723,13 +734,17 @@ class SecureUpdateTest < ZenaTestUnit
     assert p.can_visible? , "Can visible in reference" # can visible in reference
     assert node.can_visible? , "Can visible"
     
-    # bad rgroup
-    node[:inherit  ] = 0
-    node[:rgroup_id] = 99999
-    assert ! node.save , "Save fails"
-    assert node.errors[:rgroup_id] , "Error on rgroup_id"
-    assert_equal "unknown group", node.errors[:rgroup_id]
+    # bad rgroup or tiger not in admin
+    [99999, groups_id(:admin)].each do |grp|
+      # bad rgroup
+      node[:inherit  ] = 0
+      node[:rgroup_id] = grp
+      assert ! node.save , "Save fails"
+      assert node.errors[:rgroup_id] , "Error on rgroup_id"
+      assert_equal "unknown group", node.errors[:rgroup_id]
+    end
   end
+
   def test_update_rw_groups_for_publisher_not_in_new_rgroup
     login(:tiger)
     node = secure(Node) { nodes(:lake) }

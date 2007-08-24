@@ -404,14 +404,14 @@ Just doing the above will filter all result according to the logged in user.
           case inherit
           when 1
             # inherit
-            unless inherit == old.inherit
-              if old.can_visible? || ( old.can_manage? && (old.max_status_with_heirs < Zena::Status[:pub]) )
-                [:rgroup_id, :wgroup_id, :pgroup_id, :skin].each do |sym|
-                  self[sym] = ref[sym]
-                end
-              else
-                errors.add('inherit', "you cannot change this")
-              end
+            if inherit != old.inherit && !(old.can_visible? || ( old.can_manage? && (old.max_status_with_heirs < Zena::Status[:pub]) ))
+              errors.add('inherit', 'you cannot change this')
+              return false
+            end
+            
+            # make sure rights are inherited. 
+            [:rgroup_id, :wgroup_id, :pgroup_id, :skin].each do |sym|
+              self[sym] = ref[sym]  
             end
           when -1
             # make private, only if owner
@@ -431,14 +431,10 @@ Just doing the above will filter all result according to the logged in user.
                 if private?
                   # ok (all groups are 0)
                 else
-                  if rgroup_id != 0 && rgroup_id != old[:rgroup_id] && !visitor.group_ids.include?(rgroup_id)
-                    errors.add('rgroup_id', "unknown group")
-                  end
-                  if wgroup_id != 0 && wgroup_id != old[:wgroup_id] && !visitor.group_ids.include?(wgroup_id)
-                    errors.add('wgroup_id', "unknown group") 
-                  end
-                  if pgroup_id != 0 && pgroup_id != old[:pgroup_id] && !visitor.group_ids.include?(pgroup_id)
-                    errors.add('pgroup_id', "unknown group")
+                  [:rgroup_id, :wgroup_id, :pgroup_id].each do |sym|
+                    if self[sym] != 0 && self[sym] != old[:rgroup_id] && !visitor.group_ids.include?(self[sym])
+                      errors.add(sym.to_s, "unknown group")
+                    end
                   end
                 end
               else
@@ -584,10 +580,14 @@ Just doing the above will filter all result according to the logged in user.
           #                       NPD      NPF      NPP
           # So now, to get all Pages, your sql becomes : WHERE kpath LIKE 'NP%'
           # to get all Documents : WHERE kpath LIKE 'NPD%'
-          # all pages withou Documents : WHERE kpath LIKE 'NP%' AND NOT LIKE 'NPD%'
+          # all pages without Documents : WHERE kpath LIKE 'NP%' AND NOT LIKE 'NPD%'
           def kpath
+            puts "#{self} : #{ksel}"
+            if self.to_s == 'PagerDummy' && ksel == 'P'
+              raise Exception.new("fuck")
+            end
             @@kpath[self] ||= if superclass == ActiveRecord::Base
-              self.to_s[0..0]
+              ksel
             else
               superclass.kpath + ksel
             end

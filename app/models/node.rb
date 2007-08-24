@@ -151,11 +151,10 @@ class Node < ActiveRecord::Base
     # needed for compatibility with virtual classes
     alias create_instance create
     alias new_instance new
-    # ==
-    
     
     def inherited(child)
       super
+      # FIXME: #62 This is bad... child.kpath is called before child is entirely defined, this child.kpath will be wrong...
       @@native_node_classes[child.kpath] = child
     end
     
