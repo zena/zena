@@ -126,6 +126,27 @@ class NavigationTest < ActionController::IntegrationTest
     assert_response :success
   end
   
+  def test_change_session_lang_on_login
+    get 'http://test.host/'
+    assert_redirected_to 'http://test.host/en'
+    assert_equal 'en', session[:lang]
+    get 'http://test.host/oo'
+    assert_redirected_to 'http://test.host/login'
+    post 'http://test.host/session', :login=>'ant', :password=>'ant'
+    assert_redirected_to 'http://test.host/oo'
+    assert_equal 'fr', session[:lang]
+    
+    # update visitor lang (as if changed through preferences)
+    User.connection.execute "UPDATE users SET lang = 'en' WHERE users.id = 3"
+    get 'http://test.host/oo'
+    assert_equal 'en', session[:lang]
+    
+    get 'http://test.host/fr'
+    assert_redirected_to 'http://test.host/oo'
+    assert_equal 'fr', session[:lang]
+    assert_equal 'fr', User.find(3).lang
+  end
+  
   private
   
   module CustomAssertions

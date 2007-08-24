@@ -19,6 +19,7 @@ Examples:
 =end
 class NodesController < ApplicationController
   before_filter :find_node, :except => [:index, :not_found, :search, :attribute]
+  before_filter :check_path, :only  => [:index, :show]
   before_filter :check_can_drive, :only => [:add_link, :update_link, :remove_link]
   layout :popup_layout,     :only   => [:edit, :import]
   
@@ -300,17 +301,11 @@ class NodesController < ApplicationController
           params[:mode  ] = $3 == '' ? nil : $3[1..-1]
           params[:format] = $4 == '' ? ''  : $4[1..-1]
           if zip != ""
-            basepath = path[0..-2].join('/')
             @node = secure(Node) { Node.find_by_zip(zip) }
           else
             basepath = (path[0..-2] + [name]).join('/')
             @node = secure(Node) { Node.find_by_path(basepath) }
           end
-        end
-        if params[:format] == '' || (params[:format] == 'html' && ( (zip != '' && @node.custom_base) || basepath != @node.basepath(true)))
-          redirect_to zen_path(@node, :mode => params[:mode])
-        elsif params[:mode] =~ /_edit/ && !@node.can_write?
-          redirect_to zen_path(@node)
         end
       elsif params[:id]
         @node = secure(Node) { Node.find_by_zip(params[:id]) }
@@ -318,6 +313,26 @@ class NodesController < ApplicationController
       @title_for_layout = @node.rootpath if @node
     end
 
+    def check_path    
+      case params[:action]
+      when 'index'
+        # bad prefix '/so', '/rx' or '/en?lang=fr'
+        redirect_url = "/#{prefix}" if params[:prefix] != prefix || params[:lang]
+      when 'show'
+        # show must have a 'path' parameter
+        if params[:lang] || (params[:prefix] != prefix && format_changes_lang) || params[:path] != zen_path(@node, :format=>params[:format], :mode=>params[:mode]).split('/')[2..-1]
+          redirect_url = zen_path(@node, :mode => params[:mode])
+        elsif params[:mode] =~ /_edit/ && !@node.can_write?
+          redirect_url = zen_path(@node, :mode => nil)
+        end 
+      end
+      
+      if redirect_url
+        redirect_to redirect_url and return false
+      end
+      true
+    end
+    
     def check_can_drive
       if !@node.can_drive?
         @node.errors.add('base', 'you do not have the rights to do this')

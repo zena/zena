@@ -86,9 +86,6 @@ class UsersController < ApplicationController
         params[:user].delete(:old_passowrd)
       end
     end
-
-    # only accept changes on the following fields through this interface
-    params[:user].delete(:lang) unless visitor.site.lang_list.include?(params[:lang])
     
     if @user.errors.empty?
       @user.update_attributes(params[:user])
@@ -128,7 +125,7 @@ class UsersController < ApplicationController
       elsif @user[:id] == visitor[:id]
         if params[:user]
           # visitor changing his/her own info : restrict fields
-          params[:user].each_keys do |k|
+          params[:user].keys.each do |k|
             params[:user].delete(k) unless [:login, :first_name, :name, :time_zone, :lang, :email, :password].include?(k.to_sym)
           end
         end

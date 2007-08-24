@@ -4,8 +4,9 @@ class ApplicationController < ActionController::Base
   init_gettext 'zena'
   helper_method :prefix, :zen_path, :zen_url, :data_path, :node_url, :notes, :error_messages_for, :render_errors, :processing_error
   helper_method :get_template_text, :template_url_for_asset, :save_erb_to_url, :lang, :visitor, :fullpath_from_template_url, :eval_parameters_from_template_url
-  before_filter :authorize
   before_filter :set_lang
+  before_filter :authorize
+  before_filter :check_lang
   after_filter  :set_encoding
   layout false
   
@@ -262,19 +263,24 @@ class ApplicationController < ActionController::Base
       return true if params[:controller] == 'session' && ['create', 'new', 'destroy'].include?(params[:action])
       
       # Require a login if :
-      # 1. site forces authentication 
-      if (current_site.authentication? && visitor.is_anon?)
+      # 1. site forces authentication or navigation in '/oo'
+      if (current_site.authentication? || params[:prefix] == AUTHENTICATED_PREFIX) && visitor.is_anon?
         return false unless do_login
       end
       
       # Redirect if :
       # 1. navigating out of '/oo' but logged in and format is not data
       if (params[:prefix] && params[:prefix] != AUTHENTICATED_PREFIX && !visitor.is_anon?)
-        format = params[:format] || (params[:path] || '').split('.').last
-        return true unless ['xml','html', nil].include?(format)
-        session[:lang] = params[:prefix]
+        return true unless format_changes_lang
         redirect_to request.parameters.merge(:prefix=>AUTHENTICATED_PREFIX) and return false
       end
+    end
+    
+    # Return true if the current request can change the current language. Document data do not
+    # change lang.
+    def format_changes_lang
+      format = params[:format] || (params[:path] || [''])[-1].split('.').last
+      ['xml','html', nil].include?(format)
     end
     
     def do_login
@@ -295,7 +301,8 @@ class ApplicationController < ActionController::Base
     
     def successful_login(user)
       session[:user] = user[:id]
-      session[:lang] = @visitor.lang
+      session[:lang] = user.lang
+      
       @visitor = user
       @visitor.visit(@visitor)
       after_login_url = session[:after_login_url]
@@ -363,18 +370,17 @@ class ApplicationController < ActionController::Base
   
     # Choose best language to display content.
     # 1. 'test.host/oo?lang=en' use 'lang', redirect without lang
-    # 2. 'test.host/fr' use the request prefix
-    # 3. 'test.host/oo' use session[:lang]
+    # 2. 'test.host/fr' this rule is called once we are sure the request is not for document data (lang in this case can be different from what the visitor is visiting due to caching optimization)
+    # 3. 'test.host/oo' use visitor[:lang]
     # 4. 'test.host/'   use session[:lang]
     # 5. 'test.host/oo' use visitor lang
     # 6. 'test.host/'   use HTTP_ACCEPT_LANGUAGE
     # 7. 'test.host/'   use default language
     def set_lang
       [
-        params[:lang], 
-        params[:prefix] == AUTHENTICATED_PREFIX ? nil : params[:prefix],
-        session[:lang],
-        (visitor.is_anon? ? nil : visitor.lang),
+        params[:lang],
+        format_changes_lang ? params[:prefix] : nil, # only if index (/fr, /en) or ending with 'html'
+        visitor.is_anon? ? session[:lang] : visitor.lang,
         (request.headers['HTTP_ACCEPT_LANGUAGE'] || '').split(',').sort {|a,b| (b.split(';q=')[1] || 1.0).to_f <=> (a.split(';q=')[1] || 1.0).to_f }.map {|l| l.split(';')[0].split('-')[0] },
         (visitor.is_anon? ? visitor.lang : nil), # anonymous user's lang comes last
       ].compact.flatten.uniq.each do |l|
@@ -392,34 +398,20 @@ class ApplicationController < ActionController::Base
         visitor.lang = session[:lang]
       end
       GetText.set_locale_all(session[:lang])
-      
-      if params[:controller] == 'nodes'
-        if params[:prefix] == AUTHENTICATED_PREFIX && visitor.is_anon?
-          return false unless do_login
-        end
-        
-        case params[:action]
-        when 'index'
-          redirect_url = "/#{prefix}" if params[:prefix] != prefix || params[:lang]
-        when 'show'
-          redirect_url = if !params[:path] || 
-                            # fr/texdocument5.css is allowed even if AUTHENTICATED to allow caching of data
-                            (params[:prefix] != prefix && (params[:format] == 'html' || !current_site.lang_list.include?(params[:prefix]))) || params[:lang]
-            if params[:id]
-              zen_path(secure(Node) { Node.find_by_zip(params[:id]) })
-            else
-              request.parameters.merge(:prefix => prefix, :lang => nil)
-            end
-          end 
-        end
-        
-        if redirect_url
-          redirect_to redirect_url and return false
-        end
-      elsif params[:lang]
+      true
+    end
+    
+    # Redirect on lang chang
+    def check_lang
+      if params[:lang]
+        # redirects other controllers (users controller, etc)
         redirect_url = params
         redirect_url.delete(:lang)
-        redirect_to redirect_url and return false
+        if params[:controller] == 'nodes'
+          redirect_to redirect_url.merge(:prefix => prefix) and return false
+        else
+          redirect_to redirect_url and return false
+        end
       end
       true
     end
@@ -478,7 +470,7 @@ class ApplicationController < ActionController::Base
       if node.public? && !current_site.authentication?
         # force the use of a cacheable path for the data, even when navigating in '/oo'
         # FIXME: we could use 'node.version.lang' if most of the time the version is loaded.
-        zen_path(node, opts.merge(:format => format, :prefix=>lang))
+        zen_path(node, opts.merge(:format => format, :prefix=>node.v_lang))
       else  
         zen_path(node, opts.merge(:format => format))
       end
