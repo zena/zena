@@ -582,7 +582,6 @@ Just doing the above will filter all result according to the logged in user.
           # to get all Documents : WHERE kpath LIKE 'NPD%'
           # all pages without Documents : WHERE kpath LIKE 'NP%' AND NOT LIKE 'NPD%'
           def kpath
-            puts "#{self} : #{ksel}"
             if self.to_s == 'PagerDummy' && ksel == 'P'
               raise Exception.new("fuck")
             end

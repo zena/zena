@@ -2,7 +2,7 @@ class CalendarController < ApplicationController
   before_filter :get_options
   # This action is used to change the calendar date with ajax
   def show
-    render :inline=>"<%= calendar(:node => @node, :date => @date, :options => @options, :template_url => params[:template_url]) %>"
+    render :inline=>"<%= calendar(@options) %>"
   end
   
   # This action opens the calendar, doing lots of RJS to hide tiny calendar and update with a notes list when necessary
@@ -21,7 +21,7 @@ class CalendarController < ApplicationController
     def get_options
       @node    = secure(Node) { Node.find_by_zip(params[:id]) }
       @options = eval_parameters_from_template_url
-      
+      @options[:template_url] = params[:template_url]
       @date    = Date.parse(params[:date])
       @options[:using] ||= 'log_at'
       @options[:size ]   = params[:size] || @options[:size]
@@ -44,8 +44,10 @@ class CalendarController < ApplicationController
         else
           @date = Date.civil(@date.year, @date.mon, day)
         end
-      
       end
+      
+      @options[:date] = @date
+      @options[:node] = @node
       # FIXME: convert date to utc...
       find_notes
     end
