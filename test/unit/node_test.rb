@@ -541,7 +541,7 @@ class NodeTest < ZenaTestUnit
     node = nodes(:wiki)
     assert_equal "salutJEcrisAujourdHui", node.send(:camelize,"salut j'écris: Aujourd'hui ")
     assert_equal "aBabMol", node.send(:camelize," à,--/ bab mol")
-    assert_equal "07.11.2006Mardi", node.send(:camelize,"07.11.2006-mardi")
+    assert_equal "07.11.2006MardiProchain", node.send(:camelize,"07.11.2006-mardi_prochain")
   end
   
   def test_tags

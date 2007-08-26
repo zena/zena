@@ -1384,7 +1384,7 @@ I think we can remove this stuff now that relations are rewritten
           str.gsub!(s, rep)
         end
       end
-      str.gsub!(/[^a-zA-Z0-9_\. ]/," ")
+      str.gsub!(/[^a-zA-Z0-9\. ]/," ")
       str = str.split.join(" ")
       str.gsub!(/ (.)/) { $1.upcase }
       str
