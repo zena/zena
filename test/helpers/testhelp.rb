@@ -152,7 +152,9 @@ class ZenaHelperTest < ZenaTestController
       params[:text] = template
       post 'test_render', params
       result = @response.body
-      if res[0..0] == '/'
+      if res[0..1] == '!/'
+        assert_no_match %r{#{res[2..-2]}}m, result
+      elsif res[0..0] == '/'
         assert_match %r{#{res[1..-2]}}m, result
       else
         assert_equal res, result

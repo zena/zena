@@ -70,10 +70,14 @@ module Zazen
           eat 3
         elsif @in_space_pre && @text[0..1] == "\n\n" && !@parse_shortcuts
           store "</pre>"
-          flush "\n\n"
+          while @text[0..0] == "\n"
+            flush "\n"
+          end
           @in_space_pre = false
         elsif @text[0..1] == "\n\n"
-          flush "\n\n"
+          while @text[0..0] == "\n"
+            flush "\n"
+          end
         elsif @text[0..1] == "\n " && @in_space_pre && !@parse_shortcuts
           store "\n"
           eat 2
