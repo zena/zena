@@ -28,31 +28,5 @@ class ProjectTest < ZenaTestUnit
     node.reload
     assert_equal nodes_id(:cleanWater), node.get_project_id
     assert_equal nodes_id(:zena), node[:project_id]
-  end
-  
-  def test_notes
-    login(:tiger)
-    project = secure(Project) { Project.find(nodes_id(:cleanWater)) }
-    notes = nil
-    assert_nothing_raised { notes = project.notes }
-    assert_equal 1, notes.size
-    assert_equal 'opening', notes[0].name
-    note = secure(Note) { Note.create(:parent_id=>nodes_id(:cleanWater), :v_title=>'hello')}
-    assert !note.new_record?, "Not a new record"
-    notes = project.notes
-    assert_equal 2, notes.size
-  end
-  
-  def test_notes_with_find
-    login(:tiger)
-    project = secure(Project) { Project.find(nodes_id(:cleanWater)) }
-    note = secure(Note) { Note.create(:parent_id=>nodes_id(:cleanWater), :v_title=>'hello')}
-    assert !note.new_record?, "Not a new record"
-    notes = project.notes
-    assert_equal 2, notes.size
-    notes = project.notes(:conditions=>"name LIKE 'hell%'")
-    assert_equal 1, notes.size
-    assert_equal 'hello', notes[0].name
-  end
-    
+  end  
 end
