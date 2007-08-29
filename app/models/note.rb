@@ -42,10 +42,6 @@ class Note < Node
     end
   end
   
-  def klass
-    self.class.to_s
-  end
-  
   private
   
   def prepare_note

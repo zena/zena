@@ -1389,7 +1389,14 @@ I think we can remove this stuff now that relations are rewritten
       str.gsub!(/ (.)/) { $1.upcase }
       str
     end
-  
+    
+    # Set owner and lang before validations on create (overwritten by multiversion)
+    def set_on_create
+      super
+      # set kpath 
+      self[:kpath] = self.vclass.kpath
+    end
+    
     # Base class
     def base_class
       Node

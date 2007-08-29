@@ -132,9 +132,11 @@ class VirtualClassTest < ZenaTestUnit
     assert node = secure(Node) { Node.create_node(:v_title => 'my letter', :class => 'Letter', :parent_id => nodes_zip(:cleanWater)) }
     assert_kind_of Note, node
     assert !node.new_record?
-    assert_equal 'Letter', node.klass
-    assert  node.vkind_of?('Letter')
+    assert node.virtual_class
     assert_equal virtual_classes_id(:letter), node.vclass_id
+    assert_equal 'Letter', node.klass
+    assert node.vkind_of?('Letter')
+    assert_equal "NNL", node[:kpath]
   end
   
   def test_relation

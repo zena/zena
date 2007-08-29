@@ -23,10 +23,6 @@ class Page < Node
     end
   end
   
-  def klass
-    self.class.to_s
-  end
-  
   # url base path. cached. If rebuild is set to true, the cache is updated.
   def basepath(rebuild=false)
     if self[:custom_base]
