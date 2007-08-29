@@ -138,6 +138,7 @@ class Parser
   def render(context={})
     return '' if context["no_#{@method}".to_sym]
     if @name
+      # we pass the name as 'context' in the children tags
       @context = context.merge(:name => @name)
     else
       @context = context

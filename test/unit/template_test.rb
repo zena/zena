@@ -63,7 +63,7 @@ class TemplateTest < ZenaTestUnit
     doc = secure(Template) { Template.create(:parent_id=>nodes_id(:layout), :name=>'Project_collab.xml.html')}
     assert_kind_of Template, doc
     assert !doc.new_record?, "Saved"
-    assert_equal 'Project_collab.xml', doc.name
+    assert_equal 'ProjectCollab.xml', doc.name
     assert_equal 'collab', doc.c_mode
     assert_equal 'xml', doc.c_format
     assert_equal 'NPP', doc.c_tkpath
@@ -75,7 +75,7 @@ class TemplateTest < ZenaTestUnit
     doc = secure(Template) { Template.create(:parent_id=>nodes_id(:layout), :v_title=>'Project_collab.xml.html')}
     assert_kind_of Template, doc
     assert !doc.new_record?, "Saved"
-    assert_equal 'Project_collab.xml', doc.name
+    assert_equal 'ProjectCollab.xml', doc.name
     assert_equal 'collab', doc.c_mode
     assert_equal 'xml', doc.c_format
     assert_equal 'NPP', doc.c_tkpath
@@ -88,7 +88,7 @@ class TemplateTest < ZenaTestUnit
     assert_kind_of Template, doc
     assert !doc.new_record?, "Saved"
     assert doc.update_attributes(:name => "Page_super")
-    assert_equal 'Page_super', doc.name
+    assert_equal 'PageSuper', doc.name
     assert_equal 'super', doc.c_mode
     assert_equal 'xml', doc.c_format
     assert_equal 'NP', doc.c_tkpath
@@ -101,7 +101,7 @@ class TemplateTest < ZenaTestUnit
     assert_kind_of Template, doc
     err doc
     assert !doc.new_record?, "Saved"
-    assert_equal 'Project_collab', doc.name
+    assert_equal 'ProjectCollab', doc.name
     assert_equal 'collab', doc.c_mode
     assert_equal 'html', doc.c_format
     assert_equal 'NPP', doc.c_tkpath
@@ -113,7 +113,7 @@ class TemplateTest < ZenaTestUnit
     doc = secure(Template) { Template.create(:parent_id=>nodes_id(:layout), :name=>'Project_collab_any.xml.html')}
     assert_kind_of Template, doc
     assert !doc.new_record?, "Saved"
-    assert_equal 'Project_collab_any.xml', doc.name
+    assert_equal 'ProjectCollabAny.xml', doc.name
     assert_equal 'collab_any', doc.c_mode
     assert_equal 'xml', doc.c_format
     assert_equal 'NPP', doc.c_tkpath

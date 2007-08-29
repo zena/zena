@@ -27,3 +27,13 @@ tracker:
   allowed_attributes:       
   create_group_id:  2
   site_id:          1
+
+tag:
+  id:               4
+  name:             Tag
+  kpath:            NPT
+  real_class:       Page
+  icon:             ""
+  allowed_attributes:       
+  create_group_id:  2
+  site_id:          1

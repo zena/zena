@@ -72,7 +72,7 @@ do_tag_with_ztags:
 
 do_keep_params:
   src: "I love <div class='truc' id='machin' do='test' depth='3'>my wife</div>"
-  res: "I love [test {= :depth=>'3', :id=>'machin'}]<div class='truc' id='machin'>my wife</div>[/test]"
+  res: "I love [test {= :depth=>'3'} {> :name=>'machin'}]<div class='truc' id='machin'>my wife</div>[/test]"
 
 do_class_params:
   src: "<div class='one' do='test' do='test' tag='p' class='two'>blah</div>"

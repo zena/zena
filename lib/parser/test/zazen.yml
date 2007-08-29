@@ -29,19 +29,18 @@ code_params:
   
 gallery:
   src: "this ![12,13]! gallery"
-  res: "<p>this [make_gallery |12,13|] gallery</p>"
+  res: "<p>this [make_gallery [|12|, |13|] ] gallery</p>"
 
 gallery_and_images:
   src: |
-    
     !23!
     
     ![12]!
-  res: "<p>[make_image id:|23| images:true style:||]</p>\n\n\n\t<p>[make_gallery |12|]</p>"
+  res: "<p>[make_image id:|23| images:true style:||]</p>\n\n\n\t<p>[make_gallery [|12|] ]</p>"
 
 gallery_children:
   src: "this ![]! gallery"
-  res: "<p>this [make_gallery ||] gallery</p>"
+  res: "<p>this [make_gallery [] ] gallery</p>"
   
 docs:
   src: "these !{11,12}! docs"
@@ -49,7 +48,7 @@ docs:
   
 docs_no_ids:
   src: "these !{}! docs"
-  res: "<p>these [list_nodes ids:|| style:||] docs</p>"
+  res: "<p>these [list_nodes [] style:||] docs</p>"
 
 docs_align:
   src: "these !<.{11,12}! left"
@@ -129,8 +128,7 @@ link_sharp:
 
 link_sharp_same_as_title:
   src: '"hello":23# I love you'
-  res: "<p>[make_link id:|23| sharp:|hello| title:|hello|] I love you</p>"
-
+  res: "<p>[make_link id:|23| sharp:|true| title:|hello|] I love you</p>"
 wiki_link:
   src: "why use ?ruby? ?"
   res: "<p>why use [make_wiki_link title:|ruby|] ?</p>"

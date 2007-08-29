@@ -382,7 +382,8 @@ art:
   id:             23
   zip:            33
   site_id:        1
-  type:           Tag
+  type:           Page
+  vclass_id:      4
   kpath:          NPT
   name:           art
   project_id:     1
@@ -397,7 +398,8 @@ news:
   id:             24
   zip:            34
   site_id:        1
-  type:           Tag
+  type:           Page
+  vclass_id:      4
   kpath:          NPT
   name:           news
   project_id:     1
@@ -412,7 +414,8 @@ menu:
   id:             25
   zip:            35
   site_id:        1
-  type:           Tag
+  type:           Page
+  vclass_id:      4
   kpath:          NPT
   name:           menu
   project_id:     1

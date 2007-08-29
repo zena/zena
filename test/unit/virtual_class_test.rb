@@ -2,6 +2,14 @@ require File.dirname(__FILE__) + '/../test_helper'
 
 class VirtualClassTest < ZenaTestUnit
   
+  def test_virtual_subclasse
+    # add a sub class
+    login(:lion)
+    vclass = VirtualClass.create(:superclass => 'Post', :name => 'Super', :create_group_id =>  groups_id(:public))
+    assert !vclass.new_record?
+    assert_equal "NNPS", vclass.kpath
+  end
+  
   def test_node_classes_for_form
     login(:anon)
     # preload models
@@ -21,7 +29,6 @@ class VirtualClassTest < ZenaTestUnit
     [Project, Skin, Tag, Note, Image, Template, Contact]
     
     classes_for_form = Note.classes_for_form
-    puts classes_for_form.inspect
     assert classes_for_form.include?(["Note", "Note"])
     assert classes_for_form.include?(["  Letter", "Letter"])
     assert classes_for_form.include?(["  Post", "Post"])
@@ -142,7 +149,7 @@ class VirtualClassTest < ZenaTestUnit
   def test_relation
     login(:ant)
     node = secure(Node) { nodes(:zena) }
-    assert letters = node.relation('letters')
+    assert letters = node.find(:all,'letters')
     assert_equal 1, letters.size
     assert letters[0].vkind_of?('Letter')
     assert_kind_of Note, letters[0]
@@ -152,9 +159,5 @@ class VirtualClassTest < ZenaTestUnit
     assert_equal Note, virtual_classes(:post).superclass
     assert_equal Note, virtual_classes(:letter).superclass
     assert_equal Page, virtual_classes(:tracker).superclass
-  end
-  
-  def test_build_kpath
-    assert false, 'TODO'
   end
 end
