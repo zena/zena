@@ -1,6 +1,6 @@
-<li id='add_comment' style='display:block;' class='btn_add'>
-  <%= link_to_function _('btn_add_comment'), "['add_comment', 'add_comment_form'].each(Element.toggle); $('comment_text').focus();" %>
+<li id='add_comment<%= node.zip %>' style='display:block;' class='btn_add'>
+  <%= link_to_function _('btn_add_comment'), "['add_comment#{node.zip}', 'add_comment_form#{node.zip}'].each(Element.toggle); $('comment_text').focus();" %>
 </li>
-<li id='add_comment_form' style='display:none;' class='inline_form'>
+<li id='add_comment_form<%= node.zip %>' style='display:none;' class='inline_form'>
   <%= render :partial=>'comments/form', :locals=>{:node=>node} %>
 </li>

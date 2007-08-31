@@ -4,7 +4,7 @@
 .tinycal table { border: 1px solid #CAD4DA; background:#F5F8F9; }
 .tinycal td { text-align:center; color:#333; }
 .tinycal a { color:inherit; }
-.tinycal em { border-bottom:2px solid orange; }
+.tinycal em { border-bottom:2px solid orange; font-style:normal; }
 .tinycal table .head td { font-weight:bold; padding: 2px; color:#655; text-align:center; }
 .tinycal .body #tiny_today p { background:#CFD6DA; }
 .tinycal .body td.other, #tinycal .body td.other a { color:#ccc; }
