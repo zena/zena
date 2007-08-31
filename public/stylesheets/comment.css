@@ -3,6 +3,8 @@
 .comments { width:95%; }
 .comments li { margin-top:12px; }
 .comments li:first-child { margin-top:0;}
+.comments li li { margin-top:0;}
+.comments li ul { margin-bottom:0;}
 .comments .body      { background:#EEF6F9; border:1px solid #888; border-top-width:0;}
 .comments .sub .body { border:0; border-left: 1px dashed #888; }
 .comments .sub form .body { border:0; border-left: 1px solid #888; }

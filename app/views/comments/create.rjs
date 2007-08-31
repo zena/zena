@@ -8,8 +8,8 @@ else
     page.remove "add_comment_form#{@comment.reply_to}"
     page.insert_html :bottom, "replies_to#{@comment.reply_to}", :partial=>'comments/li', :collection=>[@comment]
   else
-    page.insert_html :before, 'add_comment', :partial=>'comments/li', :collection=>[@comment]
-    page.toggle 'add_comment', 'add_comment_form'
+    page.insert_html :before, "add_comment#{@node.zip}", :partial=>'comments/li', :collection=>[@comment]
+    page.toggle "add_comment#{@node.zip}", "add_comment_form#{@node.zip}"
   end
   page.visual_effect :highlight, "comment#{@comment[:id]}", :duration => 0.3
 end

@@ -326,7 +326,7 @@ module Zazen
       text.gsub!( /\\ZAZENBLOCKAT(\d+)ZAZENBLOCKAT\\/ ) do
         text = @escaped_at[$1.to_i]
         if @parse_shortcuts
-          text
+          '@'+text+'@'
         else
           if text =~ /^(\w+)\|/ && Syntax::SYNTAX[$1]
             lang = $1
