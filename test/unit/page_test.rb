@@ -2,15 +2,6 @@ require File.dirname(__FILE__) + '/../test_helper'
 
 class PageTest < ZenaTestUnit
   
-  def test_select_classes
-    # preload models
-    Project
-    Skin
-    Tag
-    Tracker
-    assert_equal ["Page", "Project", "Section", "Skin", "Tag", "Tracker"], Page.select_classes
-  end
-  
   def test_create_just_v_title
     login(:tiger)
     node = secure(Page) { Page.create(:parent_id=>nodes_id(:projects), :v_title=>'lazy node')}

@@ -549,6 +549,8 @@ class MultiVersionTest < ZenaTestUnit
     login(:tiger)
     visitor.lang = 'en'
     node = secure(Node) { nodes(:status)  }
+    node.remove
+    err node
     assert node.remove # remove version
     assert_equal Zena::Status[:rem], node.v_status
     assert_equal Zena::Status[:pub], node.max_status

@@ -59,7 +59,7 @@ class VirtualClass < ActiveRecord::Base
   end
   
   # new instances, not virtual classes
-  def new_instance(hash)
+  def new_instance(hash={})
     obj = real_class.new(:vclass_id => self[:id])
     obj.attributes = hash
     obj

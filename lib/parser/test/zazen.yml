@@ -44,7 +44,7 @@ gallery_children:
   
 docs:
   src: "these !{11,12}! docs"
-  res: "<p>these [list_nodes ids:|11,12| style:||] docs</p>"
+  res: "<p>these [list_nodes [|11|, |12|] style:||] docs</p>"
   
 docs_no_ids:
   src: "these !{}! docs"
@@ -52,7 +52,7 @@ docs_no_ids:
 
 docs_align:
   src: "these !<.{11,12}! left"
-  res: "<p>these [list_nodes ids:|11,12| style:|&lt;.|] left</p>"
+  res: "<p>these [list_nodes [|11|, |12|] style:|&lt;.|] left</p>"
   
 image:
   src: "look here !12!"

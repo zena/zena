@@ -245,7 +245,7 @@ class RelationTest < ZenaTestUnit
     login(:tiger)
     node = secure(Node) { Node.new }
     assert_equal nil, node.find(:all,'tags')
-    node = secure(Node) { Node.get_class('Tag').new }
+    node = secure(Node) { Node.get_class('Tag').new_instance }
     assert_equal nil, node.find(:all,'tag_for')
   end
 

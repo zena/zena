@@ -61,24 +61,5 @@ class NoteTest < ZenaTestUnit
     assert note2.save
   end
   
-  def test_create_bad_parent
-    login(:tiger)
-    note = secure(Note) { Note.create(:parent_id=>nodes_id(:status), :v_title=>'hello')}
-    assert note.new_record?, "Is a new record"
-    assert_equal "invalid parent", note.errors[:parent_id]
-  end
-  
-  def test_update_bad_parent
-    login(:tiger)
-    note = secure(Note) { Note.create(:parent_id=>nodes_id(:cleanWater), :v_title=>'hello')}
-    assert !note.new_record?, "Not a new record"
-    note[:parent_id] = nodes_id(:status)
-    assert !note.save, "Cannot save"
-    
-    assert_equal "invalid parent", note.errors[:parent_id]
-  end
-  
-  # test a page cannot use a note as parent
-  # test a document can use a note as parent
   # test fullpath
 end

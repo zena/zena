@@ -10,18 +10,6 @@ Template::  subclass of TextDocument. Contains the zafu code to make the look an
 Skin::      subclass of Template. Contains other templates. The skin name must be unique throughout the site as it is used to identify the 'theme' of the site or parts of the site.
 =end
 class Page < Node
-  class << self
-  
-    def select_classes
-      list = subclasses.inject([]) do |list, k|
-        unless Document == k || k.ancestors.include?(Document)
-          list << k.to_s
-        end
-        list
-      end.sort
-      list.unshift 'Page'
-    end
-  end
   
   # url base path. cached. If rebuild is set to true, the cache is updated.
   def basepath(rebuild=false)
