@@ -1,4 +1,4 @@
-<r:include template='layout.html'>
+<r:include template='layout'>
   <r:with part='stylesheets'>
     <r:stylesheets list='reset,zena,comment,admin,search'/>
     <link href="default.css" rel="Stylesheet" type="text/css"/>

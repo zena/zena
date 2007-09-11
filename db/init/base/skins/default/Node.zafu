@@ -1,4 +1,4 @@
-<r:include template='layout.html'>
+<r:include template='layout'>
   <r:with part='stylesheets'>
     <r:stylesheets list='reset,zena,code,comment'/>
     <link href="default.css" rel="Stylesheet" type="text/css"/>
@@ -18,7 +18,7 @@
     </r:project>
   </r:with>
   <r:with part='main'>
-    <r:include template='layout.html' part='title'/>
+    <r:include template='layout' part='title'/>
     
     <r:summary text=''/>
     <r:text/>

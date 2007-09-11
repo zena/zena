@@ -1,4 +1,4 @@
-<r:include template='layout.html'>
+<r:include template='layout'>
   <r:with part='head'>
   <title do='title_for_layout' do='trans'>login</title>
   <meta http-equiv="Content-type" content="text/html; charset=utf-8" />

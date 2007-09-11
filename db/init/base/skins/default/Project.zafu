@@ -1,4 +1,4 @@
-<r:include template='layout.html'>
+<r:include template='layout'>
   <r:with part='stylesheets'>
     <r:stylesheets list='reset,zena,code,calendars'/>
     <link href="default.css" rel="Stylesheet" type="text/css"/>
@@ -16,15 +16,15 @@
   <r:with part='main'>
     
     <r:home>
-      <r:include template='layout.html' part='title'/>
+      <r:include template='layout' part='title'/>
       <r:summary text=''/>
       <r:text/>
       <r:else>
-        <r:include template='layout.html' part='title'/>
+        <r:include template='layout' part='title'/>
       </r:else>
     </r:home>
     
     <div id='largecal' style='display:none;'></div>
-    <r:include template='notes.html'/>
+    <r:include template='notes'/>
   </r:with>
 </r:include>

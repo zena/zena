@@ -1,4 +1,4 @@
-<r:include template='layout.html'>
+<r:include template='layout'>
   <r:with part='context'/>
 
   <r:with part='main'>
