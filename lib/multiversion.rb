@@ -290,13 +290,13 @@ module Zena
           return true if version[:status] == Zena::Status[:pub] && self[:publish_from] == version[:publish_from]
           vers_table = version.class.table_name
           node_table = self.class.table_name
-          new_pub    = self.class.connection.select_one("select #{vers_table}.publish_from from #{vers_table} WHERE #{vers_table}.node_id='#{self[:id]}' order by #{vers_table}.publish_from DESC LIMIT 1")['publish_from']
-          self.class.connection.execute "UPDATE #{node_table} SET publish_from = '#{new_pub}' WHERE #{node_table}.id = #{id}" if new_pub != self[:publish_from]
+          new_pub    = self.class.connection.select_one("select #{vers_table}.publish_from from #{vers_table} WHERE #{vers_table}.node_id='#{self[:id]}' and #{vers_table}.status = #{Zena::Status[:pub]} order by #{vers_table}.publish_from DESC LIMIT 1")
+          self.class.connection.execute "UPDATE #{node_table} SET publish_from = #{new_pub ? new_pub['publish_from'] : 'NULL'} WHERE #{node_table}.id = #{id}" if new_pub != self[:publish_from]
           self[:publish_from] = new_pub
           true
         end
         
-        # Set +publish_from+ to the minimum publication time of all editions
+        # Set +max_status+ to the maximum status of all versions
         def update_max_status(version = self.version)
           if version[:status] == max_status
             after_all
