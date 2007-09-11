@@ -18,7 +18,7 @@ class ApplicationControllerTest < ZenaTestController
     assert_nothing_raised { node = @controller.send(:secure,Node) { Node.find(ZENA_ENV[:root_id])}}
   end
   
-  # render_and_cache and authorize tested in MainControllerTest
+  # render_and_cache and authorize tested in navigation_test.rb (integration test)
   
   # visitor tested in multiple_hosts integration test
   

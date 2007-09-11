@@ -1,9 +1,24 @@
+=begin rdoc
+Definitions:
+
+* master template: used to render a node. It is used depending on it's 'klass' filter.
+* helper template: included into another template.
+
+Render ---> Master template --include--> helper template --include--> ...
+
+For master templates, the name is build from the different filters (klass, mode, format):
+
+Klass-mode-format. Examples: Node-index, Node--xml, Project-info. Note how the format is omitted when it is 'html'.
+
+Other templates have a name built from the given name, just like any other node.
+
+=end
 class Template < TextDocument
   validate :valid_section
   
   class << self
     def accept_content_type?(content_type)
-      content_type =~ /text\/(html|xml)/
+      content_type =~ /text\/(html|xml|x-zafu-script)/ 
     end
     
     def version_class
@@ -12,22 +27,7 @@ class Template < TextDocument
   end
   
   def name=(str)
-    if str =~ /^([A-Z][a-zA-Z]+?)(_([a-zA-Z_]+)|)(\.(\w+)|)\.html\Z/
-      # starts with a capital letter = master template
-      version.content.klass  = $1
-      version.content.mode   = $3
-      version.content.format = $5 || version.content.format || 'html'
-    elsif str =~ /^([A-Z][a-zA-Z]+?)(_([a-zA-Z_]+)|)(\.(\w+)|)\Z/
-      # starts with a capital letter = master template
-      version.content.klass  = $1
-      version.content.mode   = $3
-      version.content.format = $5 || version.content.format || 'html'
-    end
-    if str =~ /(.+)\.(.*)/
-      super($1)
-    else
-      super
-    end
+    @new_name = str
   end
   
   private
@@ -35,9 +35,27 @@ class Template < TextDocument
     # Overwrite document behaviour.
     def document_before_validation
       content = version.content
-      content[:format] ||= 'html'
-      if self[:name].blank?
-        self[:name] = content[:klass]
+      content[:ext] = 'zafu'
+      content[:content_type] = "x-zafu-script"
+      if @new_name && @new_name =~ /^([A-Z][a-zA-Z\*]+?)(-([a-zA-Z_\*]*(-([a-zA-Z_]+)|))|)\Z/
+        # starts with a capital letter = master template
+        content.klass  = $1
+        content.mode   = $3 
+        content.format = $5 || 'html'
+      elsif @new_name
+        self[:name] = @new_name.nameForUrl
+        content.klass  = nil
+        content.mode   = nil
+        content.format = nil
+      end
+      
+      content.mode = content.mode.nameForUrl if content.mode
+      
+      if content.klass
+        # update name
+        format = content.format == 'html' ? '' : "-#{content.format}"
+        mode   = (content.mode || format != '') ? "-#{content.mode}" : '' 
+        self[:name] = "#{content.klass}#{mode}#{format}"
       end
     end
     

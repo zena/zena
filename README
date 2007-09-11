@@ -6,7 +6,11 @@ You need to set collation and charset to utf8 when creating the database. Exampl
 # create database zena DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
 
 == Migrating the database (setup)
-Once config/database.yml is properly set, run the following command
+1. create log directory
+# mkdir log
+2. update config/database.yml
+(change user, password if needed)
+3. migrate the database
 # rake zena:migrate RAILS_ENV=production
 
 == Create a new site

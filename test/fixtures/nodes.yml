@@ -623,7 +623,7 @@ wiki_project_changes_xml:
   site_id:        1
   type:           Template
   kpath:          NPDTT
-  name:           project_changes.xml
+  name:           project-changes-xml
   project_id:     1
   section_id:     33
   parent_id:      33
@@ -638,7 +638,7 @@ wiki_page_changes:
   site_id:        1
   type:           Template
   kpath:          NPDTT
-  name:           page_changes.html
+  name:           page-changes
   project_id:     1
   section_id:     33
   parent_id:      33
@@ -781,7 +781,7 @@ Node_search_html:
   site_id:        1
   type:           Template
   kpath:          NPDTT
-  name:           Node_search
+  name:           Node-search
   project_id:     1
   section_id:     43
   parent_id:      43
@@ -841,7 +841,7 @@ Node_admin_layout_html:
   site_id:        1
   type:           Template
   kpath:          NPDTT
-  name:           Node_admin_layout
+  name:           Node-*adminLayout
   project_id:     1
   section_id:     43
   parent_id:      43
@@ -856,7 +856,7 @@ Node_index_html:
   site_id:        1
   type:           Template
   kpath:          NPDTT
-  name:           Node_index
+  name:           Node-*index
   project_id:     1
   section_id:     43
   parent_id:      43
@@ -871,7 +871,7 @@ Node_not_found_html:
   site_id:        1
   type:           Template
   kpath:          NPDTT
-  name:           Node_not_found
+  name:           Node-*notFound
   project_id:     1
   section_id:     43
   parent_id:      43
@@ -886,7 +886,7 @@ Node_popup_layout_html:
   site_id:        1
   type:           Template
   kpath:          NPDTT
-  name:           Node_popup_layout
+  name:           Node-*popupLayout
   project_id:     1
   section_id:     43
   parent_id:      43
@@ -931,7 +931,7 @@ Node_login:
   site_id:        1
   type:           Template
   kpath:          NPDTT
-  name:           Node_login
+  name:           Node-*login
   project_id:     1
   section_id:     43
   parent_id:      43

@@ -15,7 +15,7 @@ Node_search_html:
   skin_name:      default
   format:         html
   tkpath:         N
-  mode:           search
+  mode:           "*search"
   klass:          Node
   
 layout_html:
@@ -45,7 +45,7 @@ Node_admin_layout_html:
   skin_name:      default
   format:         html
   tkpath:         N
-  mode:           admin_layout
+  mode:           "*adminLayout"
   klass:          Node
   
 Node_index_html:
@@ -55,7 +55,7 @@ Node_index_html:
   skin_name:      default
   format:         html
   tkpath:         N
-  mode:           index
+  mode:           "*index"
   klass:          Node
   
 Node_not_found_html:
@@ -65,7 +65,7 @@ Node_not_found_html:
   skin_name:      default
   format:         html
   tkpath:         N
-  mode:           not_found
+  mode:           "*notFound"
   klass:          Node
   
 Node_popup_layout_html:
@@ -75,7 +75,7 @@ Node_popup_layout_html:
   skin_name:      default
   format:         html
   tkpath:         N
-  mode:           popup_layout
+  mode:           "*popupLayout"
   klass:          Node
   
 notes_html:
@@ -135,5 +135,5 @@ Node_login:
   skin_name:      default
   format:         html
   tkpath:         N
-  mode:           login
+  mode:           "*login"
   klass:          Node

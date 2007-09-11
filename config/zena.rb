@@ -28,6 +28,7 @@ if ENV["RAILS_ENV"] != "test"
   ZENA_ENV.freeze
 end
 # additions to class String
+# FIXME: this should belong in a 'string_ext.rb' file
 class String
   def limit(num)
     if length > num && num > 10
@@ -37,6 +38,32 @@ class String
     else
       self
     end
+  end
+  
+  # could not name this extension 'camelize'. 'camelize' is a Rails core extension to String.
+  def nameForUrl
+    dup.nameForUrl!
+  end
+  
+  def nameForUrl!
+    accents = { 
+      ['á',    'à','À','â','Â','ä','Ä','ã','Ã'] => 'a',
+      ['é','É','è','È','ê','Ê','ë','Ë',       ] => 'e',
+      ['í',    'ì','Ì','î','Î','ï','Ï'        ] => 'i',
+      ['ó',    'ò','Ò','ô','Ô','ö','Ö','õ','Õ'] => 'o',
+      ['ú',    'ù','Ù','û','Û','ü','Ü'        ] => 'u',
+      ['œ'] => 'oe',
+      ['ß'] => 'ss',
+      }
+    accents.each do |ac,rep|
+      ac.each do |s|
+        gsub!(s, rep)
+      end
+    end
+    gsub!(/[^a-zA-Z0-9\.\-\* ]/," ")
+    replace(split.join(" "))
+    gsub!(/ (.)/) { $1.upcase }
+    self
   end
 end
 
@@ -202,6 +229,7 @@ EXT_TYPE = [
   [ "xpm"       , "image/x-xpixmap"                ],
   [ "xwd"       , "image/x-xwindowdump"            ],
   [ "xyz"       , "chemical/x-pdb"                 ],
+  [ "zafu"      , "text/x-zafu-script"             ],
   [ "zip"       , "application/zip"                ],
 ]
 

@@ -106,8 +106,10 @@ class CachedPage < ActiveRecord::Base
       end
     
       # create join values from context for automatic expire
-      values = (@expire_with_ids || visitor.visited_node_ids).uniq.map {|id| "(#{self[:id]}, #{id})"}.join(',')
-      CachedPage.connection.execute "INSERT INTO cached_pages_nodes (cached_page_id, node_id) VALUES #{values}"
+      if (ids = @expire_with_ids || visitor.visited_node_ids) != []
+        values = ids.uniq.map {|id| "(#{self[:id]}, #{id})"}.join(',')
+        CachedPage.connection.execute "INSERT INTO cached_pages_nodes (cached_page_id, node_id) VALUES #{values}"
+      end
     end
   
     # When destroying a cache record, remove the related cached file.

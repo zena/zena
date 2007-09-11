@@ -537,11 +537,11 @@ class NodeTest < ZenaTestUnit
     assert_raise(NoMethodError) { people.all_children } # private method
   end
   
-  def test_camelize
-    node = nodes(:wiki)
-    assert_equal "salutJEcrisAujourdHui", node.send(:camelize,"salut j'écris: Aujourd'hui ")
-    assert_equal "aBabMol", node.send(:camelize," à,--/ bab mol")
-    assert_equal "07.11.2006MardiProchain", node.send(:camelize,"07.11.2006-mardi_prochain")
+  def test_nameForUrl
+    assert_equal "salutJEcrisAujourdHui", "salut j'écris: Aujourd'hui ".nameForUrl!
+    assert_equal "a--Bab*Mol", " à,--/ bab* mol".nameForUrl!
+    assert_equal "07.11.2006-mardiProchain", "07.11.2006-mardi_prochain".nameForUrl!
+    assert_equal "Node-*login", "Node-*login".nameForUrl!
   end
   
   def test_tags

@@ -147,6 +147,21 @@ class NavigationTest < ActionController::IntegrationTest
     assert_equal 'fr', User.find(3).lang
   end
   
+  def test_show_with_mode
+    get 'http://test.host/en/section12_changes.html'
+    assert_response :success
+    get 'http://test.host/en/section12_index.html'
+    assert_response 404
+    get 'http://test.host/en/section12_*index.html'
+    assert_redirected_to 'http://test.host/en/section12.html'
+    Node.connection.execute "UPDATE nodes SET name = '*people', basepath = NULL, custom_base = 1 WHERE name = 'people'"
+    get 'http://test.host/en/*people'
+    assert_response :success
+  end
+  
+  def test_show_with_internal_mode
+  end
+  
   private
   
   module CustomAssertions

@@ -572,7 +572,7 @@ class Node < ActiveRecord::Base
           match = sanitize_sql(["vs.title LIKE ? OR nodes.name LIKE ?", "%#{query}%", "#{query}%"])
           select = "nodes.*, #{match} AS score"
         else
-          match  = sanitize_sql(["MATCH (vs.title,vs.text,vs.summary) AGAINST (?) OR nodes.name LIKE ?", query, "#{query}%"])
+          match  = sanitize_sql(["MATCH (vs.title,vs.text,vs.summary) AGAINST (?) OR nodes.name LIKE ?", query, "#{opts[:name_query] || query.nameForUrl}%"])
           select = sanitize_sql(["nodes.*, MATCH (vs.title,vs.text,vs.summary) AGAINST (?) + (5 * (nodes.name LIKE ?)) AS score", query, "#{query}%"])
         end
         return opts.merge(
@@ -1004,7 +1004,7 @@ I think we can remove this stuff now that relations are rewritten
   # set name: remove all accents and camelize
   def name=(str)
     return unless str && str != ""
-    self[:name] = camelize(str)
+    self[:name] = str.nameForUrl
   end
   
   # Return self[:id] if the node is a kind of Section. Return section_id otherwise.
@@ -1368,28 +1368,6 @@ I think we can remove this stuff now that relations are rewritten
       end
     end
   
-    def camelize(str)
-      str = str.dup
-      accents = { 
-        ['á',    'à','À','â','Â','ä','Ä','ã','Ã'] => 'a',
-        ['é','É','è','È','ê','Ê','ë','Ë',       ] => 'e',
-        ['í',    'ì','Ì','î','Î','ï','Ï'        ] => 'i',
-        ['ó',    'ò','Ò','ô','Ô','ö','Ö','õ','Õ'] => 'o',
-        ['ú',    'ù','Ù','û','Û','ü','Ü'        ] => 'u',
-        ['œ'] => 'oe',
-        ['ß'] => 'ss',
-        }
-      accents.each do |ac,rep|
-        ac.each do |s|
-          str.gsub!(s, rep)
-        end
-      end
-      str.gsub!(/[^a-zA-Z0-9\. ]/," ")
-      str = str.split.join(" ")
-      str.gsub!(/ (.)/) { $1.upcase }
-      str
-    end
-    
     # Set owner and lang before validations on create (overwritten by multiversion)
     def set_on_create
       super

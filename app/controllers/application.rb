@@ -128,7 +128,7 @@ class ApplicationController < ActionController::Base
       mode      = "_#{mode}" if mode
       lang_path = session[:dev] ? 'dev' : lang
       
-      skin_path = "/#{@skin_name}/#{template[:klass]}#{mode}.#{format}"
+      skin_path = "/#{@skin_name}/#{template[:name]}"  #"/#{@skin_name}/#{template[:klass]}#{mode}.#{format}"
       fullpath  = skin_path + "/#{lang_path}/_main.erb"
       url       = SITES_ROOT + current_site.zafu_path + fullpath
 
@@ -199,6 +199,7 @@ class ApplicationController < ActionController::Base
     
     # opts should contain :current_template and :src
     def find_template_document(opts)
+      puts opts.inspect
       src    = opts[:src].split('.')
       mode   = src.pop
       src    = src.join('.')

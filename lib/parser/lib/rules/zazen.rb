@@ -12,7 +12,7 @@ module Zazen
     def r_void
       @context = {:images => true, :pretty_code=>true}.merge(@context)
       @parse_shortcuts = @context[:parse_shortcuts]
-      @text.gsub!("\r\n","\n")
+      @text = @text.gsub("\r\n","\n") # this also creates our own 'working' copy of the text
       @blocks = "" # same reason as why we rewrite 'store'
       extract_code(@text)
       
@@ -292,7 +292,7 @@ module Zazen
           "<pre#{divparams.join(' ')}>\\ZAZENBLOCKCODE#{block_counter}ZAZENBLOCKCODE\\</pre>"
         end
       end
-    
+      
       @escaped_at = []
       block_counter = -1
       text.gsub!( /(\A|[^\w])@(.*?)@(\Z|[^\w])/m ) do
@@ -300,7 +300,6 @@ module Zazen
         block_counter += 1
         "#{$1}\\ZAZENBLOCKAT#{block_counter}ZAZENBLOCKAT\\#{$3}"
       end
-
     end
     
     def render_code(text)
@@ -308,7 +307,7 @@ module Zazen
         if @parse_shortcuts
           @escaped_code[$1.to_i]
         else
-          lang, text = *(@escaped_code[$1.to_i])
+          lang, code = *(@escaped_code[$1.to_i])
           if lang != ''
             code_tag = "<code class='#{lang}'>"
           else
@@ -316,29 +315,29 @@ module Zazen
           end
           if Syntax::SYNTAX[lang] && @context[:pretty_code]
             convertor = Syntax::Convertors::HTML.for_syntax(lang)
-            "#{code_tag}#{convertor.convert( text, false ).gsub(/\n( *)/m) { "<br/>\n" + ('&nbsp;' * $1.length) }}</code>"
+            "#{code_tag}#{convertor.convert( code, false ).gsub(/\n( *)/m) { "<br/>\n" + ('&nbsp;' * $1.length) }}</code>"
           else
-            RedCloth.new("#{code_tag}#{text}</code>").to_html
+            RedCloth.new("#{code_tag}#{code}</code>").to_html
           end
         end
       end
       
       text.gsub!( /\\ZAZENBLOCKAT(\d+)ZAZENBLOCKAT\\/ ) do
-        text = @escaped_at[$1.to_i]
+        code = @escaped_at[$1.to_i]
         if @parse_shortcuts
-          '@'+text+'@'
+          '@'+code+'@'
         else
-          if text =~ /^(\w+)\|/ && Syntax::SYNTAX[$1]
+          if code =~ /^(\w+)\|/ && Syntax::SYNTAX[$1]
             lang = $1
             if @context[:pretty_code]
               convertor = Syntax::Convertors::HTML.for_syntax(lang)
-              res = convertor.convert( text[(lang.length+1)..-1], false )
+              res = convertor.convert( code[(lang.length+1)..-1], false )
             else
-              res = text[(lang.length+1)..-1]
+              res = code[(lang.length+1)..-1]
             end
             res = "<code class='#{lang}'>#{res}</code>"
           else
-            res = RedCloth.new("<code>#{text}</code>").to_html
+            res = RedCloth.new("<code>#{code}</code>").to_html
           end
           res
         end

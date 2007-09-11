@@ -95,14 +95,35 @@ class NodesControllerTest < ZenaTestController
       Node.connection.execute "UPDATE nodes SET skin = 'bad' WHERE id = #{nodes_id(:status)}"
       assert_nothing_raised do
         get 'show', "prefix"=>"en",
-         "action"=>"show",
-         "controller"=>"nodes",
          "path"=>["projects", "cleanWater", "page22.html"]
       end
     end
     assert_response :success
   end
-
+  
+  def test_find_node
+    Node.connection.execute "UPDATE nodes SET name = '2006' where id = #{nodes_id(:projects)}"
+    Node.connection.execute "UPDATE nodes SET name = '25-10-2006' where id = #{nodes_id(:wiki)}"
+    Node.connection.execute "UPDATE nodes SET name = 'archive-1' where id = #{nodes_id(:bird_jpg)}"
+    [ ['section12.html',:success],
+      ['section12_tree.xml',:success],
+      ['2006','page18.html'],
+      ['2006.xml','page18.xml'],
+      ['p12','page12.html'],
+      ['25-10-2006','project29.html'],
+      ['archive-1','image30.html'],
+      ['archive', 404],
+    ].each do |name, result|  
+      puts name
+      get 'show', 'prefix' => 'en', 'path' => [name]
+      if result.kind_of?(String)
+        assert_redirected_to 'path' => [result]
+      else
+        assert_response result
+      end
+    end
+  end
+  
   def test_cached_file
     without_files('test.host/public') do
       with_caching do

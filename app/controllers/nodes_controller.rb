@@ -71,33 +71,40 @@ class NodesController < ApplicationController
       
       format.html { render_and_cache }
       
-      format.xml  { render :xml => @node.to_xml }
-      
       format.js   { @template_file = fullpath_from_template_url(params[:template_url]) } # zafu ajax
       
       format.all  do
+        if @node.kind_of?(Document) && params[:format] == @node.c_ext
         # Get document data (inline if possible)
-        if params[:format] != @node.c_ext
-          return redirect_to(zen_path(@node), :mode => params[:mode])
-        end
         
-        if @node.kind_of?(Image) && !ImageBuilder.dummy?
-          data = @node.c_file(params[:mode])
-          content_path = @node.c_filepath(params[:mode])
+          if @node.kind_of?(Image) && !ImageBuilder.dummy?
+            data = @node.c_file(params[:mode])
+            content_path = @node.c_filepath(params[:mode])
           
-        elsif @node.kind_of?(TextDocument)
-          data = StringIO.new(@node.v_text)
-          content_path = nil
+          elsif @node.kind_of?(TextDocument)
+            data = StringIO.new(@node.v_text)
+            content_path = nil
           
+          else
+            data         = @node.c_file
+            content_path = @node.c_filepath
+          end
+          raise ActiveRecord::RecordNotFound unless data
+        
+          send_data( data.read , :filename=>@node.c_filename, :type => @node.c_content_type, :disposition=>'inline')
+          data.close
+          cache_page(:content_path => content_path, :authenticated => @node.public?) # content_path is used to cache by creating a symlink
         else
-          data         = @node.c_file
-          content_path = @node.c_filepath
+          render_and_cache
+          # FIXME: redirect to document format should occur in render_and_cache
+          #if has skin for format
+          #  render_and_cache
+          #elsif params[:format] == 'xml'
+          #  render :xml => @node.to_xml }
+          #else
+          #  return redirect_to(zen_path(@node), :mode => params[:mode])
+          #end
         end
-        raise ActiveRecord::RecordNotFound unless data
-        
-        send_data( data.read , :filename=>@node.c_filename, :type => @node.c_content_type, :disposition=>'inline')
-        data.close
-        cache_page(:content_path => content_path, :authenticated => @node.public?) # content_path is used to cache by creating a symlink
       end
     end
   end
@@ -293,19 +300,32 @@ class NodesController < ApplicationController
   
   protected
     
+    # Find a node based on the path or id. When there is a path, the node is found using the zip included in the path
+    # or by fullpath:
+    #  name              find by
+    #  page23.html  ---> zip (23)
+    #  2006         ---> fullpath
+    #  2006.xml     ---> fullpath
+    #  p34          ---> zip (34)
+    #  10-25-2006   ---> fullpath
+    #  archive-1    ---> fullpath
+    #  archive      ---> fullpath
     def find_node
       if path = params[:path]
-        if path.last =~ /([a-zA-Z\-]*)([0-9]*)(_[a-z]+|)(\..+|)/
-          name   = $1
-          zip    = $2
-          params[:mode  ] = $3 == '' ? nil : $3[1..-1]
-          params[:format] = $4 == '' ? ''  : $4[1..-1]
-          if zip != ""
-            @node = secure(Node) { Node.find_by_zip(zip) }
-          else
+        if path.last =~ /\A(([a-zA-Z]+)([0-9]+)|([a-zA-Z0-9\-\*]+))(_[a-z]+|)(\..+|)\Z/
+          zip    = $3
+          name   = $4
+          params[:mode  ] = $5 == '' ? nil : $5[1..-1]
+          params[:format] = $6 == '' ? ''  : $6[1..-1]
+          if name
             basepath = (path[0..-2] + [name]).join('/')
             @node = secure(Node) { Node.find_by_path(basepath) }
+          else
+            @node = secure(Node) { Node.find_by_zip(zip) }
           end
+        else
+          # bad url
+          raise ActiveRecord::RecordNotFound
         end
       elsif params[:id]
         @node = secure(Node) { Node.find_by_zip(params[:id]) }

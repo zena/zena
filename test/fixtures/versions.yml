@@ -859,7 +859,7 @@ Contact_html:
   user_id:        4
   lang:           en
   text: |
-<% File.foreach("#{RAILS_ROOT}/db/init/base/skins/default/Contact.html") do |l| %>    <%= l %><% end %>
+<% File.foreach("#{RAILS_ROOT}/db/init/base/skins/default/Contact.zafu") do |l| %>    <%= l %><% end %>
 <%= @defaults %>
   
 Node_search_html:
@@ -870,7 +870,7 @@ Node_search_html:
   user_id:        4
   lang:           en
   text: |
-<% File.foreach("#{RAILS_ROOT}/db/init/base/skins/default/Node_search.html") do |l| %>    <%= l %><% end %>
+<% File.foreach("#{RAILS_ROOT}/db/init/base/skins/default/Node-*search.zafu") do |l| %>    <%= l %><% end %>
 <%= @defaults %>
 
 default_css:
@@ -892,7 +892,7 @@ layout_html:
   user_id:        4
   lang:           en
   text: |
-<% File.foreach("#{RAILS_ROOT}/db/init/base/skins/default/layout.html") do |l| %>    <%= l %><% end %>
+<% File.foreach("#{RAILS_ROOT}/db/init/base/skins/default/layout.zafu") do |l| %>    <%= l %><% end %>
 <%= @defaults %>
 
 Node_html:
@@ -903,7 +903,7 @@ Node_html:
   user_id:        4
   lang:           en
   text: |
-<% File.foreach("#{RAILS_ROOT}/db/init/base/skins/default/Node.html") do |l| %>    <%= l %><% end %>
+<% File.foreach("#{RAILS_ROOT}/db/init/base/skins/default/Node.zafu") do |l| %>    <%= l %><% end %>
 <%= @defaults %>
 
 Node_admin_layout_html:
@@ -914,7 +914,7 @@ Node_admin_layout_html:
   user_id:        4
   lang:           en
   text: |
-<% File.foreach("#{RAILS_ROOT}/db/init/base/skins/default/Node_admin_layout.html") do |l| %>    <%= l %><% end %>
+<% File.foreach("#{RAILS_ROOT}/db/init/base/skins/default/Node-*adminLayout.zafu") do |l| %>    <%= l %><% end %>
 <%= @defaults %>
 
 Node_index_html:
@@ -925,7 +925,7 @@ Node_index_html:
   user_id:        4
   lang:           en
   text: |
-<% File.foreach("#{RAILS_ROOT}/db/init/base/skins/default/Node_index.html") do |l| %>    <%= l %><% end %>
+<% File.foreach("#{RAILS_ROOT}/db/init/base/skins/default/Node-*index.zafu") do |l| %>    <%= l %><% end %>
 <%= @defaults %>
 
 Node_not_found_html:
@@ -936,7 +936,7 @@ Node_not_found_html:
   user_id:        4
   lang:           en
   text: |
-<% File.foreach("#{RAILS_ROOT}/db/init/base/skins/default/Node_not_found.html") do |l| %>    <%= l %><% end %>
+<% File.foreach("#{RAILS_ROOT}/db/init/base/skins/default/Node-*notFound.zafu") do |l| %>    <%= l %><% end %>
 <%= @defaults %>
 
 Node_popup_layout_html:
@@ -947,7 +947,7 @@ Node_popup_layout_html:
   user_id:        4
   lang:           en
   text: |
-<% File.foreach("#{RAILS_ROOT}/db/init/base/skins/default/Node_popup_layout.html") do |l| %>    <%= l %><% end %>
+<% File.foreach("#{RAILS_ROOT}/db/init/base/skins/default/Node-*popupLayout.zafu") do |l| %>    <%= l %><% end %>
 <%= @defaults %>
 
 notes_html:
@@ -958,7 +958,7 @@ notes_html:
   user_id:        4
   lang:           en
   text: |
-<% File.foreach("#{RAILS_ROOT}/db/init/base/skins/default/notes.html") do |l| %>    <%= l %><% end %>
+<% File.foreach("#{RAILS_ROOT}/db/init/base/skins/default/notes.zafu") do |l| %>    <%= l %><% end %>
 <%= @defaults %>
 
 Project_html:
@@ -969,7 +969,7 @@ Project_html:
   user_id:        4
   lang:           en
   text: |
-<% File.foreach("#{RAILS_ROOT}/db/init/base/skins/default/Project.html") do |l| %>    <%= l %><% end %>
+<% File.foreach("#{RAILS_ROOT}/db/init/base/skins/default/Project.zafu") do |l| %>    <%= l %><% end %>
 <%= @defaults %>
 
 Node_login:
@@ -980,5 +980,5 @@ Node_login:
   user_id:        4
   lang:           en
   text: |
-<% File.foreach("#{RAILS_ROOT}/db/init/base/skins/default/Node_login.html") do |l| %>    <%= l %><% end %>
+<% File.foreach("#{RAILS_ROOT}/db/init/base/skins/default/Node-*login.zafu") do |l| %>    <%= l %><% end %>
 <%= @defaults %>

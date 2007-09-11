@@ -4,7 +4,7 @@ class TemplateTest < ZenaTestUnit
   
   def test_create_simplest
     login(:tiger)
-    doc = secure(Document) { Document.create(:parent_id=>nodes_id(:cleanWater), :name=>'super.html')}
+    doc = secure(Document) { Document.create(:parent_id=>nodes_id(:cleanWater), :name=>'super.zafu')}
     assert_kind_of Template, doc
     assert doc.new_record?, "New record"
     assert doc.errors[:parent_id], "Invalid parent (section is not a skin)"
@@ -119,4 +119,19 @@ class TemplateTest < ZenaTestUnit
     assert_equal 'NPP', doc.c_tkpath
     assert_equal 'Project', doc.c_klass
   end
+  
+  def test_set_klass
+    login(:tiger)
+    doc = secure(Template) { Template.create(:parent_id=>nodes_id(:layout), :name=>'Spider_man.xml',
+                                             :klass => 'Page',
+                                             :format => 'ical')}
+    assert_kind_of Template, doc
+    assert !doc.new_record?, "Saved"
+    assert_equal 'Page_man.ical', doc.name
+    assert_equal 'man', doc.c_mode
+    assert_equal 'ical', doc.c_format
+    assert_equal 'NPP', doc.c_tkpath
+    assert_equal 'Page', doc.c_klass
+  end
+    
 end
