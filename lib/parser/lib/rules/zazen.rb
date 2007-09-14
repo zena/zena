@@ -81,6 +81,8 @@ module Zazen
         elsif @text[0..1] == "\n " && @in_space_pre && !@parse_shortcuts
           store "\n"
           eat 2
+        elsif @text[0..1] == "\n|"
+          flush "\n|"
         elsif @text[0..0] == "\n" && !@parse_shortcuts
           if @in_space_pre || @text == "\n" || @text[1..1] == '*' || @text[1..1] == '#'
             flush "\n"

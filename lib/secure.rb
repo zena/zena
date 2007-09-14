@@ -582,11 +582,7 @@ Just doing the above will filter all result according to the logged in user.
           # to get all Documents : WHERE kpath LIKE 'NPD%'
           # all pages without Documents : WHERE kpath LIKE 'NP%' AND NOT LIKE 'NPD%'
           def kpath
-            @@kpath[self] ||= if superclass == ActiveRecord::Base
-              ksel
-            else
-              superclass.kpath + ksel
-            end
+            @@kpath[self] ||= superclass == ActiveRecord::Base ? ksel : (superclass.kpath + ksel)
           end
           
           # 'from' and 'joins' are removed: this method is used when receiving calls from zafu. Changing the source table removes

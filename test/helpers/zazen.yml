@@ -70,6 +70,10 @@ zip_shortcut_list:
 line_break_between_paragraphs:
   tem: "<%= zazen(\"h3. photos en vrac\n\n\ntwo\") %>"
   res: "!/<br\/>/"
+
+line_break_in_tables:
+  tem: "<%= zazen(\"h3. photos en vrac\n\n\n|_. a |_. b|\n| 1 | 2 |\") %>"
+  res: "!/<br\/>/"
   
 line_break_gallery:
   tem: "<%= zazen(\"h3. photos en vrac\n\n\n![30,24]!\") %>"
