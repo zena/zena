@@ -565,8 +565,8 @@ module ApplicationHelper
     end
     
     title = opts[:text] || obj.version.title
-    if opts[:project]
-      title = "#{obj.project.name} / #{title}"
+    if opts[:project] && project = obj.project
+      title = "#{project.name} / #{title}"
     end
     
     title += check_lang(obj) unless opts[:check_lang] == 'false'
