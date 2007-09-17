@@ -146,6 +146,7 @@ class Node < ActiveRecord::Base
   before_validation  :node_before_validation  # run our 'before_validation' after 'secure'
   
   @@native_node_classes = {'N' => self}
+  @@unhandled_children  = []
   class << self
     
     # needed for compatibility with virtual classes
@@ -154,12 +155,16 @@ class Node < ActiveRecord::Base
     
     def inherited(child)
       super
-      # FIXME: #62 This is bad... child.kpath is called before child is entirely defined, this child.kpath will be wrong...
-      @@native_node_classes[child.kpath] = child
+      @@unhandled_children << child
     end
     
+    # Return the list of (kpath,subclasses) for the current class.
     def native_classes
+      # this is to make sure subclasses are loaded before the first call
       [Note,Page,Project,Section,Document,Image,TextDocument,Skin,Template]
+      while child = @@unhandled_children.pop
+        @@native_node_classes[child.kpath] = child
+      end
       @@native_node_classes.reject{|kpath,klass| !(kpath =~ /^#{self.kpath}/) }
     end
     
@@ -217,57 +222,6 @@ class Node < ActiveRecord::Base
       native_classes[kp] || VirtualClass.find(:first, :conditions=>["site_id = ? AND kpath = ?",current_site[:id], kp])
     end
 
-    # Replace 'zips' by real ids and zazen shortcuts.
-    def clean_attributes(new_attributes)
-      attributes = new_attributes.stringify_keys
-      
-      if parent_id = attributes.delete('_parent_id')
-        attributes.delete('parent_id')
-      elsif p = attributes.delete('parent_id')
-        parent_id = translate_pseudo_id(p) || p
-      end
-      
-      attributes.keys.each do |key|
-        if ['rgroup_id', 'wgroup_id', 'pgroup_id', 'user_id'].include?(key)
-          # ignore
-        elsif key =~ /^(\w+)_id$/
-          if key[0..1] == 'd_'
-            attributes[key] = translate_pseudo_id(attributes[key],:zip) || attributes[key]
-          else
-            attributes[key] = translate_pseudo_id(attributes[key]) || attributes[key]
-          end
-        elsif key =~ /^(\w+)_ids$/
-          # Id list. Bad ids are removed.
-          values = attributes[key].kind_of?(Array) ? attributes[key] : attributes[key].split(',')
-          if key[0..1] == 'd_'
-            values.map! {|v| translate_pseudo_id(v,:zip) }
-          else
-            values.map! {|v| translate_pseudo_id(v,:id ) }
-          end
-          attributes[key] = values.compact
-        elsif key == 'link'
-          link_attr = attributes['link']
-          link_attr.keys.each do |key|
-            next unless key =~ /^(\w+)_id$/
-            link_attr[key] = translate_pseudo_id(link_attr[key])
-          end
-        else
-          # translate zazen
-          value = attributes[key]
-          if value.kind_of?(String)
-            attributes[key] = ZazenParser.new(value,:helper=>self, :node=>self).render(:parse_shortcuts=>true)
-          end
-        end
-      end
-      
-
-      attributes['parent_id'] = parent_id if parent_id
-
-      attributes.delete('file') if attributes['file'] == ''
-      
-      attributes
-    end
-    
     def translate_pseudo_id(id,sym=:id)
       str = id.to_s
       if str =~ /\A\d+\Z/
@@ -283,7 +237,7 @@ class Node < ActiveRecord::Base
     end
     
     def create_or_update_node(new_attributes)
-      attributes = clean_attributes(new_attributes)
+      attributes = transform_attributes(new_attributes)
       unless attributes['name'] && attributes['parent_id']
         node = Node.new
         node.errors.add('name', "can't be blank") unless attributes['name']
@@ -307,10 +261,9 @@ class Node < ActiveRecord::Base
       node
     end
     
-    
     # TODO: cleanup and rename with something indicating the attrs cleanup that this method does.
     def create_node(new_attributes)
-      attributes = clean_attributes(new_attributes)
+      attributes = transform_attributes(new_attributes)
       
       # TODO: replace this hack with a proper class method 'secure' behaving like the
       # instance method. It would get the visitor and scope from the same hack below.
@@ -318,19 +271,19 @@ class Node < ActiveRecord::Base
       
       publish = (attributes.delete('v_status').to_i == Zena::Status[:pub])
       
-      klass   = attributes.delete('class') || attributes.delete('klass') || 'Page'
+      klass_name   = attributes.delete('class') || attributes.delete('klass') || 'Page'
       
-      unless create_class = get_class(klass, :create => true)
+      unless klass = get_class(klass_name, :create => true)
         node = self.new
         node.instance_eval { @attributes = attributes }
         node.errors.add('klass', 'invalid')
         # This is to show the klass in the form seizure
-        node.instance_variable_set(:@klass, klass.to_s)
+        node.instance_variable_set(:@klass, klass_name.to_s)
         def node.klass; @klass; end
         return node
       end
-      node = if create_class != self
-        create_class.with_exclusive_scope(scope) { create_class.create_instance(attributes) }
+      node = if klass != self
+        klass.with_exclusive_scope(scope) { klass.create_instance(attributes) }
       else
         self.create_instance(attributes)
       end
@@ -572,7 +525,7 @@ class Node < ActiveRecord::Base
           match = sanitize_sql(["vs.title LIKE ? OR nodes.name LIKE ?", "%#{query}%", "#{query}%"])
           select = "nodes.*, #{match} AS score"
         else
-          match  = sanitize_sql(["MATCH (vs.title,vs.text,vs.summary) AGAINST (?) OR nodes.name LIKE ?", query, "#{opts[:name_query] || query.nameForUrl}%"])
+          match  = sanitize_sql(["MATCH (vs.title,vs.text,vs.summary) AGAINST (?) OR nodes.name LIKE ?", query, "#{opts[:name_query] || query.url_name}%"])
           select = sanitize_sql(["nodes.*, MATCH (vs.title,vs.text,vs.summary) AGAINST (?) + (5 * (nodes.name LIKE ?)) AS score", query, "#{query}%"])
         end
         return opts.merge(
@@ -615,6 +568,57 @@ class Node < ActiveRecord::Base
       end
     end 
     
+    # Translate attributes from the visitor's reference to the application.
+    # This method translates dates, zazen shortcuts and zips and returns a stringified hash.
+    def transform_attributes(new_attributes)
+      parent_id  = new_attributes[:_parent_id] # real id set inside zena.
+      attributes = new_attributes.stringify_keys
+      attributes.delete('_parent_id')
+
+      if parent_id
+        attributes.delete('parent_id')
+      elsif p = attributes.delete('parent_id')
+        parent_id = Node.translate_pseudo_id(p) || p
+      end
+
+      attributes.keys.each do |key|
+        if ['rgroup_id', 'wgroup_id', 'pgroup_id', 'user_id'].include?(key)
+          # ignore
+        elsif ['v_publish_from', 'log_at', 'event_at'].include?(key)
+          # parse date
+          attributes[key] = attributes[key].to_utc(_('datetime'), visitor.tz)
+        elsif key =~ /^(\w+)_id$/
+          if key[0..1] == 'd_'
+            attributes[key] = Node.translate_pseudo_id(attributes[key],:zip) || attributes[key]
+          else
+            attributes[key] = Node.translate_pseudo_id(attributes[key]) || attributes[key]
+          end
+        elsif key =~ /^(\w+)_ids$/
+          # Id list. Bad ids are removed.
+          values = attributes[key].kind_of?(Array) ? attributes[key] : attributes[key].split(',')
+          if key[0..1] == 'd_'
+            values.map! {|v| Node.translate_pseudo_id(v,:zip) }
+          else
+            values.map! {|v| Node.translate_pseudo_id(v,:id ) }
+          end
+          attributes[key] = values.compact
+        else
+          # translate zazen
+          value = attributes[key]
+          if value.kind_of?(String)
+            attributes[key] = ZazenParser.new(value,:helper=>self, :node=>self).render(:parse_shortcuts=>true)
+          end
+        end
+      end
+
+
+      attributes['parent_id'] = parent_id if parent_id
+
+      attributes.delete('file') if attributes['file'] == ''
+
+      attributes
+    end
+
     def get_attributes_from_yaml(filepath)
       attributes = {}
       YAML::load_documents( File.open( filepath ) ) do |entries|
@@ -673,6 +677,20 @@ class Node < ActiveRecord::Base
       true
     elsif virt = VirtualClass.find(:first, :conditions=>["site_id = ? AND name = ?",current_site[:id], klass])
       kpath_match?(virt.kpath)
+    end
+  end
+  
+  # Update a node's attributes, transforming the attributes first from the visitor's context to Node context.
+  def update_attributes_with_transformation(new_attributes)
+    update_attributes(Node.transform_attributes(new_attributes))
+  end
+  
+  # Set name from version title if no name set yet.
+  def attributes=(new_attributes)
+    if !self[:name] && !attributes['name'] && attributes['v_title']
+      super(attributes.merge('name' => attributes['v_title']))
+    else
+      super
     end
   end
   
@@ -1004,7 +1022,7 @@ I think we can remove this stuff now that relations are rewritten
   # set name: remove all accents and camelize
   def name=(str)
     return unless str && str != ""
-    self[:name] = str.nameForUrl
+    self[:name] = str.url_name
   end
   
   # Return self[:id] if the node is a kind of Section. Return section_id otherwise.
@@ -1242,7 +1260,7 @@ I think we can remove this stuff now that relations are rewritten
         # bad parent will be caught later.
       end
 
-      # set name from title if name not set yet
+      # set name from version title if name not set yet
       self.name = version[:title] unless self[:name]
       
       if !new_record? && self[:parent_id]

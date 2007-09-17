@@ -413,7 +413,7 @@ class MultiVersionTest < ZenaTestUnit
   def test_create_with_attributes_ok
     login(:tiger)
     attrs = {
-    :name => 'new_with_attributes',
+    :name => 'new-with-attributes',
     :rgroup_id => 3,
     :wgroup_id => 3,
     :pgroup_id => 4,
@@ -426,7 +426,7 @@ class MultiVersionTest < ZenaTestUnit
     assert ! node.v_new_record? , "Not a new redaction"
     assert_equal Zena::Status[:red], node.v_status
     assert_equal "A New Node With A Redaction", node.v_title
-    assert_equal "new_with_attributes", node.name
+    assert_equal "new-with-attributes", node.name
     assert_equal 3, node.rgroup_id
   end
   
@@ -531,35 +531,18 @@ class MultiVersionTest < ZenaTestUnit
     assert_equal Time.gm(2007,1,3), node.v_publish_from
   end
   
-  def test_remove_all
+  def test_unpublish_all
     login(:tiger)
-    visitor.lang = 'en'
+    visitor.lang = 'fr'
     node = secure(Node) { nodes(:status)  }
-    assert node.remove # remove version
+    assert node.unpublish # remove publication
     assert_equal Zena::Status[:rem], node.v_status
     assert_equal Zena::Status[:pub], node.max_status
     node = secure(Node) { nodes(:status)  }
     assert_equal Zena::Status[:pub], node.v_status
-    assert node.remove # remove version
+    assert node.unpublish # remove publication
     assert_equal Zena::Status[:rem], node.v_status
     assert_equal Zena::Status[:rem], node.max_status
-  end
-  
-  def test_cannot_remove_red
-    login(:tiger)
-    visitor.lang = 'en'
-    node = secure(Node) { nodes(:status)  }
-    node.remove
-    err node
-    assert node.remove # remove version
-    assert_equal Zena::Status[:rem], node.v_status
-    assert_equal Zena::Status[:pub], node.max_status
-    node = secure(Node) { nodes(:status)  }
-    assert_equal Zena::Status[:pub], node.v_status
-    assert node.unpublish # unpublish version
-    assert_equal Zena::Status[:rem], node.v_status
-    assert_equal Zena::Status[:rem], node.max_status
-    assert !node.remove
   end
   
   def test_can_man_cannot_publish
@@ -635,10 +618,11 @@ class MultiVersionTest < ZenaTestUnit
     assert_equal versions_id(:lake_red_en), node.v_id
   end
   
-  def test_remove_redaction
+  def test_remove_own_redaction
     login(:ant)
     visitor.lang = 'en'
     node = secure(Node) { nodes(:lake) }
+    assert !node.can_drive?
     assert_equal Zena::Status[:red], node.v_status
     assert_equal versions_id(:lake_red_en), node.v_id
     assert node.remove, "Can remove"
@@ -699,7 +683,7 @@ class MultiVersionTest < ZenaTestUnit
     login(:lion)
     Node.connection.execute "UPDATE nodes SET parent_id = NULL WHERE parent_id = #{nodes_id(:people)} AND id <> #{nodes_id(:ant)}"
     node = secure(Node) { nodes(:people) }
-    assert_nil node.nodes
+    assert_nil node.find(:all, 'nodes')
     assert !node.empty?
     Node.connection.execute "UPDATE nodes SET parent_id = NULL WHERE parent_id = #{nodes_id(:people)}"
     node = secure(Node) { nodes(:people) }

@@ -20,6 +20,11 @@ class SecureReadTest < ZenaTestUnit
     assert_equal 'NUS', SubPagerDummy.kpath
   end
   
+  def test_native_classes
+    assert_equal ["N",  "NN",  "NP",  "NPD",  "NPDI",  "NPDT",  "NPDTT",  "NPP",  "NPS",  "NPSS",  "NU",  "NUS"], Node.native_classes.keys.sort
+    assert_equal [], Document.native_classes.keys.sort
+  end
+  
   # SECURE FIND TESTS  ===== TODO CORRECT THESE TEST FROM CHANGES TO RULES ========
   # [user]          Node owner. Can *read*, *write* and (*manage*: if node not published yet or node is private).
   def test_can_rwm_own_private_node

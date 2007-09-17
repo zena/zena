@@ -7,7 +7,7 @@ class SessionController < ApplicationController
     respond_to do |format|
       format.html do
         @node = visitor.site.root_node
-        render_and_cache :mode => 'login'
+        render_and_cache :mode => '*login'
       end
     end
   end

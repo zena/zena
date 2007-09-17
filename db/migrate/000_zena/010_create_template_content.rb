@@ -1,4 +1,4 @@
-class TemplateContent < ActiveRecord::Migration
+class CreateTemplateContent < ActiveRecord::Migration
   def self.up
       create_table(:template_contents, :options => 'type=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci') do |t|
         t.column :site_id, :integer

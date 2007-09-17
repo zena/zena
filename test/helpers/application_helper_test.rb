@@ -51,10 +51,10 @@ class ApplicationHelperTest < ZenaTestHelper
     assert_equal "http://test.host/en/project11_test.html", zen_url(node, :mode=>'test')
   end
   
-  def test_data_path
+  def test_data_path_for_public_documents
     login(:ant)
     node = secure(Node) { nodes(:water_pdf) }
-    assert_equal "/oo/projects/cleanWater/document25.pdf", data_path(node)
+    assert_equal "/en/projects/cleanWater/document25.pdf", data_path(node)
     node = secure(Node) { nodes(:status) }
     assert_equal "/oo/projects/cleanWater/page22.html", data_path(node)
     
@@ -65,11 +65,24 @@ class ApplicationHelperTest < ZenaTestHelper
     assert_equal "/en/projects/cleanWater/page22.html", data_path(node)
   end
   
+  def test_data_path_for_non_public_documents
+    login(:tiger)
+    node = secure(Node) { nodes(:water_pdf) }
+    assert node.update_attributes( :rgroup_id => groups_id(:site), :inherit => 0 )
+    assert !node.public?
+    assert_equal "/oo/projects/cleanWater/document25.pdf", data_path(node)
+    node = secure(Node) { nodes(:status) }
+    assert_equal "/oo/projects/cleanWater/page22.html", data_path(node)
+    
+    login(:anon)
+    assert_raise(ActiveRecord::RecordNotFound) { secure(Node) { nodes(:water_pdf) } }
+  end
+  
   def test_img_tag
     login(:ant)
     img = secure(Node) { nodes(:bird_jpg) }
-    assert_equal "<img src='/oo/image30.jpg' width='661' height='600' alt='bird' class='full'/>", img_tag(img)
-    assert_equal "<img src='/oo/image30_pv.jpg' width='70' height='70' alt='bird' class='pv'/>", img_tag(img, :mode=>'pv')
+    assert_equal "<img src='/en/image30.jpg' width='661' height='600' alt='bird' class='full'/>", img_tag(img)
+    assert_equal "<img src='/en/image30_pv.jpg' width='70' height='70' alt='bird' class='pv'/>", img_tag(img, :mode=>'pv')
   end
   
   def test_img_tag_document
@@ -84,7 +97,7 @@ class ApplicationHelperTest < ZenaTestHelper
     # contact  project       post     tag
     [:lake,    :cleanWater, :opening, :art].each do |sym|
       obj   = secure(Node) { nodes(sym) }
-      klass = obj.class.to_s.downcase
+      klass = obj.klass.downcase
       assert_equal "<img src='/images/ext/#{klass}.png' width='32' height='32' alt='#{klass} node' class='doc'/>", img_tag(obj)
       assert_equal "<img src='/images/ext/#{klass}_pv.png' width='70' height='70' alt='#{klass} node' class='doc'/>",  img_tag(obj, :mode=>'pv')
     end
@@ -108,8 +121,6 @@ class ApplicationHelperTest < ZenaTestHelper
     login(:tiger)
     doc = secure(Node) { nodes(:water_pdf) }
     doc.c_ext = 'bin'
-    assert_equal 'pdf', doc.c_ext
-    doc.version.content[:ext] = 'bin'
     assert_equal 'bin', doc.c_ext
     assert_equal "<img src='/images/ext/other.png' width='32' height='32' alt='bin document' class='doc'/>", img_tag(doc)
     assert_equal "<img src='/images/ext/other_pv.png' width='70' height='70' alt='bin document' class='doc'/>", img_tag(doc, :mode=>'pv')
@@ -260,18 +271,18 @@ class ApplicationHelperTest < ZenaTestHelper
   def test_calendar_has_note
     op_at = nodes(:opening).event_at
     zena = secure(Node) { nodes(:zena) }
-    cal = calendar(:node=>zena, :find=>:news, :date=>Date.civil(op_at.year, op_at.month, 5), :size=>:tiny)
+    cal = calendar(:node=>zena, :relations=>['news'], :date=>Date.civil(op_at.year, op_at.month, 5), :size=>'tiny')
     assert_match %r{class='sun'>12}, cal
     assert_match %r{<em>18</em>}, cal
-    cal = calendar(:node=>zena, :find=>:news, :date=>Date.civil(op_at.year, op_at.month, 5), :size=>:large)
-    assert_match %r{18.*onclick=.*Updater.*largecal_preview.*/z/note/day_list.*(selected=27.*|2006-03-18.*)(selected=27.*|2006-03-18.*)</p></td>}m, cal
+    cal = calendar(:node=>zena, :relations=>['news'], :date=>Date.civil(op_at.year, op_at.month, 5), :size=>'large')
+    assert_match %r{18.*onclick=.*Updater.*largecal_preview.*/z/calendar/notes.*(selected=27.*|2006-03-18.*)(selected=27.*|2006-03-18.*)</p></td>}m, cal
   end
   
   def test_calendar_today
     zena = secure(Node) { nodes(:zena) }
-    cal = calendar(:node=>zena, :find=>:news, :size=>:large)
+    cal = calendar(:node=>zena, :relations=>['news'], :size=>'large')
     assert_match %r{<td[^>]*id='large_today'>#{Date.today.day}</td>}, cal
-    cal = calendar(:node=>zena, :find=>:news, :size=>:tiny)
+    cal = calendar(:node=>zena, :relations=>['news'], :size=>'tiny')
     assert_match %r{<td[^>]*id='tiny_today'>#{Date.today.day}</td>}, cal
   end
   
@@ -279,7 +290,7 @@ class ApplicationHelperTest < ZenaTestHelper
     login(:tiger)
     proj = secure(Node) { nodes(:cleanWater) }
     note = secure(Note) { Note.create(:parent_id=>nodes_id(:cleanWater), :v_title=>'hello') }
-    list = notes(:from=>proj, :find=>:news)
+    list = notes(:from=>proj, :relations=>['news'])
     assert_equal 1, list.size
     assert_equal 'opening', list[0].name
   end

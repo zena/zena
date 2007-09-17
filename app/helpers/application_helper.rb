@@ -398,7 +398,7 @@ module ApplicationHelper
         icon  = ext
         alt ||= _('%{ext} document') % {:ext => ext}
       else
-        icon = obj.class.to_s.downcase
+        icon = obj.klass.downcase
         alt ||= _('%{type} node') % {:type => icon}
       end
       

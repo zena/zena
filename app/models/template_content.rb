@@ -9,25 +9,19 @@ class TemplateContent < ActiveRecord::Base
   validate   :validate_template_content
   
   def ext
-    self[:format]
+    'zafu'
   end
   
-  def format
-    self[:format]
+  def ext=(s)
+    # ignore (needed for compatibility with DocumentContent)
   end
   
   def content_type
-    "text/#{format}"
+    "text/x-zafu-script"
   end
   
-  def filename
-    "#{node.name}.#{format}"
-  end
-  
-  def content_type=(ctype)
-    if ctype =~ /text\/(html|xml)/
-      self[:format] = $2
-    end
+  def content_type=(s)
+    # ignore
   end
   
   def file=(file)
@@ -47,23 +41,25 @@ class TemplateContent < ActiveRecord::Base
   private
     def template_content_before_validation
       self[:skin_name] = node.section.name
-      self[:mode] = nil if self[:mode] == ''
-      self[:klass] = nil if self[:klass] == ''
+      self[:mode]  = nil if self[:mode ].blank?
+      self[:klass] = nil if self[:klass].blank?
+      unless self[:klass]
+        # this template is not meant to be accessed directly (partial used for inclusion)
+        self[:tkpath] = nil
+        self[:mode]   = nil
+        self[:format] = nil
+      end
     end
   
     def validate_template_content
-      errors.add('format', "can't be blank") unless format
-      
-      if self[:klass]
+      if klass
+        errors.add('format', "can't be blank") unless format
         # this is a master template (found when choosing the template for rendering)
         if klass = Node.get_class(self[:klass])
           self[:tkpath] = klass.kpath
         else
           errors.add('klass', 'invalid')
         end
-      else
-        # this template is not meant to be accessed directly (partial used for inclusion)
-        self[:tkpath] = nil
       end
     end
 end

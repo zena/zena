@@ -268,11 +268,11 @@ module Zafu
     end
 
     def scan_html_comment(opts={})
-      if @text =~ /<!--\|(.*?)-->/m
+      if @text =~ /\A<!--\|(.*?)-->/m
         # zafu html escaped
         eat $&
         @text = opts[:space_before] + $1 + @text
-      elsif @text =~ /<!--.*?-->/m
+      elsif @text =~ /\A<!--.*?-->/m
         # html comment
         flush $&
       else

@@ -20,6 +20,7 @@ class DocumentContent < ActiveRecord::Base
   validate              :valid_content
   validates_presence_of :ext
   validates_presence_of :name
+  before_validation     :content_before_validation
   before_save           :content_before_save
   after_save            :content_after_save
   before_destroy        :destroy_file
@@ -32,30 +33,6 @@ class DocumentContent < ActiveRecord::Base
   def file=(aFile)
     @file = aFile
     return unless valid_file
-    self[:content_type] = @file.content_type.chomp
-    if @file.kind_of?(StringIO)
-      self[:size] = @file.size
-    else
-      self[:size] = @file.stat.size
-    end
-    if EXT_TO_TYPE[self.ext] != content_type
-      self.ext = @file.original_filename.split('.').last
-    end
-  end
-  
-  def ext=(theExt)
-    if theExt && theExt != ''
-      e = theExt
-    else
-      e = self[:ext]
-    end
-    # is this extension valid ?
-    extensions = TYPE_TO_EXT[content_type]
-    if extensions
-      self[:ext] = extensions.include?(e) ? e : extensions[0]
-    else
-      self[:ext] = e
-    end
   end
   
   def file(format=nil)
@@ -102,13 +79,36 @@ class DocumentContent < ActiveRecord::Base
       return false
     end
     
+    def content_before_validation
+      if @file
+        self.content_type = @file.content_type.chomp
+        if @file.kind_of?(StringIO)
+          self[:size] = @file.size
+        else
+          self[:size] = @file.stat.size
+        end
+        if EXT_TO_TYPE[self.ext] != self.content_type
+          self.ext = @file.original_filename.split('.').last
+        end
+      end
+      
+      # is this extension valid ?
+      extensions = TYPE_TO_EXT[content_type]
+      if extensions
+        self[:ext] = extensions.include?(self.ext) ? self.ext : extensions[0]
+      else
+        # unknown content_type, just keep the extension we have
+        self[:ext] ||= 'bin'
+      end      
+    end
+
     def valid_content
       errors.add('version', "can't be blank") if !new_record? && can_destroy?
     end
   
     def content_before_save
-    
       self[:type] = self.class.to_s # make sure the type is set in case no sub-classes are loaded.
+      
       if @file
         # destroy old file
         destroy_file unless new_record?

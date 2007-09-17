@@ -104,7 +104,7 @@ class DocumentTest < ZenaTestUnit
     assert_equal 'lake.jpg', doc.filename
     doc.name = 'test'
     assert_equal 'test.jpg', doc.filename
-    doc.c_ext = 'pdf'
+    doc.update_attributes('c_ext' => 'pdf')
     assert_equal 'test.jpg', doc.filename
   end
   
@@ -185,7 +185,7 @@ class DocumentTest < ZenaTestUnit
       assert_equal content_id, doc.c_id # shared content
       doc = secure(Node) { nodes(:water_pdf) }
       doc.version(first)
-      assert doc.remove
+      assert doc.unpublish
       assert doc.can_destroy_version?
       assert doc.destroy_version
       err doc

@@ -27,48 +27,44 @@ class NodeTest < ZenaTestUnit
     assert_equal ["parent_id = ?", 19], query[:conditions]
   end
   
-  def test_clean_attributes_zazen_shortcut_v_text
+  def test_transform_attributes_zazen_shortcut_v_text
     login(:tiger)
-    secure(Node) do
-      [
-        ["Hi, this is just a simple \"test\"::ar or \"\"::ar+_life.rss. OK ?\n\n!:lake+.pv!",
-         "Hi, this is just a simple \"test\":#{nodes_zip(:opening)} or \"\":#{nodes_zip(:art)}_life.rss. OK ?\n\n!24.pv!"],
-         
-        ["Hi ![30,:lake+]! ![]!",
-         "Hi ![30,24]! ![]!"],
-         
-        ["Hi !{:bird,:lake+}! !{}!",
-         "Hi !{30,24}! !{}!"],
+    [
+      ["Hi, this is just a simple \"test\"::ar or \"\"::ar+_life.rss. OK ?\n\n!:lake+.pv!",
+       "Hi, this is just a simple \"test\":#{nodes_zip(:opening)} or \"\":#{nodes_zip(:art)}_life.rss. OK ?\n\n!24.pv!"],
+       
+      ["Hi ![30,:lake+]! ![]!",
+       "Hi ![30,24]! ![]!"],
+       
+      ["Hi !{:bird,:lake+}! !{}!",
+       "Hi !{30,24}! !{}!"],
 
-        ["Hi !30!::clean !:bird!::clean !:bird/nice bird!:21 !30.pv/hello ladies!:21",
-         "Hi !30!:21 !30!:21 !30/nice bird!:21 !30.pv/hello ladies!:21"],
-         
-        ["Hi, this is normal "":1/ just a\n\n* asf\n* asdf ![23,33]!",
-         "Hi, this is normal "":1/ just a\n\n* asf\n* asdf ![23,33]!"],
-      ].each do |src,res|
-        assert_equal res, Node.clean_attributes( 'v_text' => src )['v_text']
-      end
+      ["Hi !30!::clean !:bird!::clean !:bird/nice bird!:21 !30.pv/hello ladies!:21",
+       "Hi !30!:21 !30!:21 !30/nice bird!:21 !30.pv/hello ladies!:21"],
+       
+      ["Hi, this is normal "":1/ just a\n\n* asf\n* asdf ![23,33]!",
+       "Hi, this is normal "":1/ just a\n\n* asf\n* asdf ![23,33]!"],
+    ].each do |src,res|
+      assert_equal res, Node.transform_attributes( 'v_text' => src )['v_text']
     end
   end
   
-  def test_clean_attributes_zazen_shortcut_ids
+  def test_transform_attributes_zazen_shortcut_ids
     login(:tiger)
-    secure(Node) do
-      [
-        [{'parent_id' => 'lake+'}, 
-         {'parent_id' => nodes_id(:lake_jpg)}],
-         
-        [{'d_super_id' => 'lake',           'd_other_id' => '11'},
-         {'d_super_id' => nodes_zip(:lake), 'd_other_id' => 11}],
+    [
+      [{'parent_id' => 'lake+'}, 
+       {'parent_id' => nodes_id(:lake_jpg)}],
+       
+      [{'d_super_id' => 'lake',           'd_other_id' => '11'},
+       {'d_super_id' => nodes_zip(:lake), 'd_other_id' => 11}],
 
-        [{'tag_ids' => "#{nodes_zip(:art)},news"},
-         {'tag_ids' => [nodes_id(:art), nodes_id(:news)]}],
-         
-        [{'parent_id' => '83730', 'tag_ids' => "8398749,#{nodes_zip(:news)},art"},
-         {'parent_id' => '83730', 'tag_ids' => [nodes_id(:news),nodes_id(:art)]}],
-      ].each do |src,res|
-        assert_equal res, Node.clean_attributes( src )
-      end
+      [{'tag_ids' => "#{nodes_zip(:art)},news"},
+       {'tag_ids' => [nodes_id(:art), nodes_id(:news)]}],
+       
+      [{'parent_id' => '83730', 'tag_ids' => "8398749,#{nodes_zip(:news)},art"},
+       {'parent_id' => '83730', 'tag_ids' => [nodes_id(:news),nodes_id(:art)]}],
+    ].each do |src,res|
+      assert_equal res, Node.transform_attributes( src )
     end
   end
   
@@ -537,11 +533,11 @@ class NodeTest < ZenaTestUnit
     assert_raise(NoMethodError) { people.all_children } # private method
   end
   
-  def test_nameForUrl
-    assert_equal "salutJEcrisAujourdHui", "salut j'écris: Aujourd'hui ".nameForUrl!
-    assert_equal "a--Bab*Mol", " à,--/ bab* mol".nameForUrl!
-    assert_equal "07.11.2006-mardiProchain", "07.11.2006-mardi_prochain".nameForUrl!
-    assert_equal "Node-*login", "Node-*login".nameForUrl!
+  def test_url_name
+    assert_equal "salutJEcrisAujourdHui", "salut j'écris: Aujourd'hui ".url_name!
+    assert_equal "a--Bab*Mol", " à,--/ bab* mol".url_name!
+    assert_equal "07.11.2006-mardiProchain", "07.11.2006-mardi_prochain".url_name!
+    assert_equal "Node-*login", "Node-*login".url_name!
   end
   
   def test_tags

@@ -125,10 +125,9 @@ class ApplicationController < ActionController::Base
       # FIXME use a default fixed template.
       raise ActiveRecord::RecordNotFound unless template
       
-      mode      = "_#{mode}" if mode
       lang_path = session[:dev] ? 'dev' : lang
       
-      skin_path = "/#{@skin_name}/#{template[:name]}"  #"/#{@skin_name}/#{template[:klass]}#{mode}.#{format}"
+      skin_path = "/#{template[:skin_name]}/#{template[:name]}"  
       fullpath  = skin_path + "/#{lang_path}/_main.erb"
       url       = SITES_ROOT + current_site.zafu_path + fullpath
 
@@ -154,7 +153,7 @@ class ApplicationController < ActionController::Base
         # [1..-1] = drop leading '/' so find_template_document searches in the current skin first
         res = ZafuParser.new_with_url(skin_path[1..-1], :helper => skin_helper).render
         
-        if session[:dev] && mode != '_popup_layout'
+        if session[:dev] && mode != '*popupLayout'
           # add template edit buttons
           used_nodes = @expire_with_nodes.merge(@renamed_assets)
           div = "<div id='dev'><ul>" + used_nodes.map do |k,n| "<li>#{skin_helper.send(:node_actions, :node=>n)} #{skin_helper.send(:link_to,k,zen_path(n))}</li>"
@@ -197,12 +196,14 @@ class ApplicationController < ActionController::Base
       return nil
     end
     
-    # opts should contain :current_template and :src
+    # opts should contain :current_template and :src. The source is a path like 'default/Node-*index'
+    # ('skin/template/path'). If the path starts with a slash, the skin_name in the path is searched first. Otherwise,
+    # the current skin is searched first.
     def find_template_document(opts)
-      puts opts.inspect
-      src    = opts[:src].split('.')
-      mode   = src.pop
-      src    = src.join('.')
+      src    = opts[:src]
+      if src =~ /\A(.*)\.(\w+)\Z/
+        src, format = $1, $2
+      end
       folder = (opts[:current_folder] && opts[:current_folder] != '') ? opts[:current_folder].split('/') : []
       @skin ||= {}
       
@@ -217,16 +218,17 @@ class ApplicationController < ActionController::Base
         skin_names << url.shift if url.size > 1
       end
       document = skin_name = nil
-      
-      skin_names.uniq.each do |skin_name|
-        
-        next unless skin = @skin[skin_name] ||= (secure(Skin) { Skin.find_by_name(skin_name) } rescue nil)
-        path = (skin.fullpath.split('/') + url).join('/')
-        break if document = secure(TextDocument) { TextDocument.find_by_path(path) } rescue nil 
-        path = (skin.fullpath(true).split('/') + url).join('/') # rebuild fullpath
-        break if document = secure(TextDocument) { TextDocument.find_by_path(path) } rescue nil
+      skin_names.uniq!
+      [false, true].each do |rebuild_path|
+        # try to find using cached fullpath first.
+        skin_names.each do |skin_name|
+          next unless skin = @skin[skin_name] ||= (secure(Skin) { Skin.find_by_name(skin_name) } rescue nil)
+          path = (skin.fullpath(rebuild_path).split('/') + url).join('/')
+          break if document = secure(TextDocument) { TextDocument.find_by_path(path) } rescue nil
+        end
+        break if document
       end
-      return document ? [document, ([skin_name] + url).join('/') + ".#{mode}"] : nil
+      return document ? [document, (([skin_name] + url).join('/') + (format ? ".#{format}" : ''))] : nil
     end
   
     # TODO: test
@@ -239,7 +241,7 @@ class ApplicationController < ActionController::Base
   
     # TODO: test
     def fullpath_from_template_url(template_url=params[:template_url])
-      if template_url =~ /\.\.|[^\w\._\/]/
+      if template_url =~ /\A\.|[^\w\*\._\-\/]/
         raise Zena::AccessViolation.new("'template_url' contains illegal characters : #{template_url.inspect}")
       end
       
@@ -423,57 +425,17 @@ class ApplicationController < ActionController::Base
         headers['Content-Type'] += '; charset=utf-8'
       end
     end
-  
-    # Parse date : return an utc date from a string
-    def parse_date(datestr, fmt=_('datetime'), is_date=false)
-      elements = datestr.split(/(\.|\-|\/|\s|:)+/)
-      format = fmt.split(/(\.|\-|\/|\s|:)+/)
-      if elements
-        hash = {}
-        elements.each_index do |i|
-          hash[format[i]] = elements[i]
-        end
-        hash['%Y'] ||= hash['%y'] ? (hash['%y'].to_i + 2000) : Time.now.year
-        hash['%H'] ||= 0
-        hash['%M'] ||= 0
-        hash['%S'] ||= 0
-        if hash['%Y'] && hash['%m'] && hash['%d']
-          visitor.tz.unadjust(Time.gm(hash['%Y'], hash['%m'], hash['%d'], hash['%H'], hash['%M'], hash['%S']))
-        else
-          nil
-        end
-      else
-        nil
-      end
-    end
-
-    # Replace ids by zips and parse text for zazen shortcuts.
-    def clean_attributes(attrs=params['node'])
-      att = secure(Node) { Node.clean_attributes(parse_dates(attrs)) }
-    end
-    
-    def parse_dates(attrs=params['node'])
-      # parse dates
-      fmt=_('datetime')
-      [:v_publish_from, :log_at, :event_at].each do |sym|
-        attrs[sym] = parse_date(attrs[sym], fmt) if attrs[sym]
-      end
-      [:date].each do |sym|
-        attrs[sym] = parse_date(attrs[sym], fmt).to_date if attrs[sym]
-      end
-      attrs
-    end
     
     # /////// The following methods are common to controllers and views //////////// #
   
     def data_path(node, opts={})
-      format = node.kind_of?(Document) ? node.c_ext : nil
+      return zen_path(node,opts) unless node.kind_of?(Document)
       if node.public? && !current_site.authentication?
         # force the use of a cacheable path for the data, even when navigating in '/oo'
         # FIXME: we could use 'node.version.lang' if most of the time the version is loaded.
-        zen_path(node, opts.merge(:format => format, :prefix=>node.v_lang))
+        zen_path(node, opts.merge(:format => node.c_ext, :prefix=>node.v_lang))
       else  
-        zen_path(node, opts.merge(:format => format))
+        zen_path(node, opts.merge(:format => node.c_ext))
       end
     end
   
@@ -583,11 +545,11 @@ class ApplicationController < ActionController::Base
     # and then into default. This action is also responsible for setting a default @title_for_layout.
     def admin_layout
       @title_for_layout ||= "#{params[:controller]}/#{params[:action]}"
-      template_url(:mode=>'admin_layout')
+      template_url(:mode=>'*adminLayout')
     end
   
     # TODO: test
     def popup_layout
-      template_url(:mode=>'popup_layout')
+      template_url(:mode=>'*popupLayout')
     end
 end

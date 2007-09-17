@@ -129,7 +129,7 @@ module Zena
           when :unpublish
             can_drive? && v.status == Zena::Status[:pub]
           when :remove
-            can_drive? && v.status != Zena::Status[:pub]
+            (can_drive? || v.user_id == visitor[:id] ) && v.status != Zena::Status[:pub]
           when :redit, :edit
             can_edit?
           when :destroy_version
@@ -288,11 +288,12 @@ module Zena
         # TODO: OPTIMIZATION: "UPDATE nodes SET publish_from = (select versions.publish_from from versions WHERE nodes.id=versions.node_id and versions.status = 50 order by versions.publish_from DESC) WHERE id = #{id}"
         def update_publish_from
           return true if version[:status] == Zena::Status[:pub] && self[:publish_from] == version[:publish_from]
-          vers_table = version.class.table_name
-          node_table = self.class.table_name
-          new_pub    = self.class.connection.select_one("select #{vers_table}.publish_from from #{vers_table} WHERE #{vers_table}.node_id='#{self[:id]}' and #{vers_table}.status = #{Zena::Status[:pub]} order by #{vers_table}.publish_from DESC LIMIT 1")
-          self.class.connection.execute "UPDATE #{node_table} SET publish_from = #{new_pub ? new_pub['publish_from'] : 'NULL'} WHERE #{node_table}.id = #{id}" if new_pub != self[:publish_from]
-          self[:publish_from] = new_pub
+          pub_string  = (self.class.connection.select_one("select publish_from from #{version.class.table_name} WHERE node_id='#{self[:id]}' and status = #{Zena::Status[:pub]} order by publish_from DESC LIMIT 1") || {})['publish_from']
+          pub_date    = ActiveRecord::ConnectionAdapters::Column.string_to_time(pub_string)
+          if self[:publish_from] != pub_date
+            self.class.connection.execute "UPDATE #{self.class.table_name} SET publish_from = #{pub_string ? "'#{pub_string}'" : 'NULL'} WHERE id = #{id}"
+            self[:publish_from] = pub_date
+          end
           true
         end
         

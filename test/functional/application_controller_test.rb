@@ -23,8 +23,17 @@ class ApplicationControllerTest < ZenaTestController
   # visitor tested in multiple_hosts integration test
   
   def test_find_template_document
-    res = @controller.instance_variable_set(:@skin_name, 'wiki')
-    assert false, "finish test"
+    @controller.instance_eval do
+      @skin_name  = 'wiki'
+      @skin_names = ['wiki', 'default']
+    end
+    
+    notes_template, url = @controller.send(:find_template_document, :current_folder=>"", :src=>"default/notes")
+    assert_kind_of Template, notes_template
+    assert_equal 'default/notes', url
+    default_css, url    = @controller.send(:find_template_document, :current_folder=>"default", :src=>"default.css", :type=>:stylesheet)
+    assert_kind_of TextDocument, default_css
+    assert_equal 'default/default.css', url
   end
 
   def test_template_url_project

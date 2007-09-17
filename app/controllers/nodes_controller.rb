@@ -26,7 +26,7 @@ class NodesController < ApplicationController
   def index
     @node = current_site.root_node
     respond_to do |format|
-      format.html { render_and_cache :mode => 'index' }
+      format.html { render_and_cache :mode => '*index' }
       format.xml  { render :xml => @node.to_xml }
     end
   end
@@ -34,7 +34,7 @@ class NodesController < ApplicationController
   def not_found
     @node = current_site.root_node
     respond_to do |format|
-      format.html { render_and_cache :mode => 'not_found' }
+      format.html { render_and_cache :mode => '*not_found' }
       format.all { render :nothing => true }
     end
   end
@@ -42,7 +42,7 @@ class NodesController < ApplicationController
   def search
     do_search
     respond_to do |format|
-      format.html { render_and_cache :mode => 'search' }
+      format.html { render_and_cache :mode => '*search' }
       format.js
     end
   end
@@ -165,8 +165,8 @@ class NodesController < ApplicationController
   # add/update links to another node
   def update_link
     # update relation
-    attrs = clean_attributes(params['link'])
-    @node.update_attributes(attrs)
+    # update_attributes_with_transformation ?
+    @node.update_attributes(params['link'])
     respond_to do |format|
       format.js { render :action => 'link'}
     end
@@ -174,12 +174,12 @@ class NodesController < ApplicationController
   
   def add_link
     if relation = @node.relation_proxy(params['link']['role'])
-      attrs = clean_attributes(params['link'])
       if relation.unique?
         # replace link
-        @node.update_attributes("#{attrs['role']}_id" => attrs['other_id'])
+        @node.update_attributes_with_transformation("#{params['link']['role']}_id" => params['link']['other_id'])
       else
-        @node.add_link(attrs['role'], attrs['other_id'])
+        other_id = Node.translate_pseudo_id(params['link']['other_id'])
+        @node.add_link(params['link']['role'], other_id)
         @node.save
       end
     else
@@ -205,9 +205,14 @@ class NodesController < ApplicationController
   end
   
   def update
-    attrs = clean_attributes
-    attrs.delete(:klass)
-    attrs.delete(:c_file) if attrs[:c_file] == ""
+    
+    @node.update_attributes_with_transformation(params['node'])
+    
+    if @node.errors.empty?
+      flash.now[:notice] = _('node updated')
+    else
+      flash.now[:error]  = _('could not update')
+    end
     
     if params[:template_url]
       # edit from inline form in zafu
@@ -219,13 +224,6 @@ class NodesController < ApplicationController
       @update = params[:drive]
     else
       @update = 'edit'
-    end
-    
-    @node.update_attributes(attrs)
-    if @node.errors.empty?
-      flash.now[:notice] = _('node updated')
-    else
-      flash.now[:error]  = _('could not update')
     end
     
     respond_to do |format|

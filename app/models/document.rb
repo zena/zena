@@ -69,9 +69,11 @@ class Document < Page
         end
       elsif self == Document
         # no content_type means no file. Only TextDocuments can be created without files
-        hash['c_content_type'] = 'text/plain'
+        content_type = 'text/plain'
         klass = TextDocument
       end
+      
+      hash['c_content_type'] = content_type
       
       if klass != self
         klass.with_scope(scope) { klass.o_new(hash) }
@@ -81,13 +83,39 @@ class Document < Page
     end
   end
   
-  ## Set content file
-  #def c_file=(file)
-  #  # make sure changes are saved in a redaction
-  #  edit_content!
-  #  
-  #  content.file = @file
-  #end
+  def name=(str)
+    super
+    if self[:name]
+      version.content[:name] = self[:name].sub(/\.*$/,'') # remove trailing dots
+    end
+  end
+
+  def attributes=(new_attributes)
+    attributes = new_attributes.stringify_keys
+
+    if attributes['name']
+      # set through name
+      base = attributes['name']
+    elsif file = attributes['c_file']
+      # set with filename
+      base = file.original_filename
+    end
+    if base
+      if base =~ /(.*)\.(\w+)$/
+        attributes['name']    = $1
+        attributes['c_ext'] ||= $2
+      else
+        attributes['name']    = base
+      end
+    end
+    
+    if content_type = attributes.delete('c_content_type')
+      # make sure 'content_type' is set before the rest
+      version.content.content_type = content_type
+    end
+    
+    super(attributes)
+  end
   
   # Return true if the document is an image.
   def image?
@@ -108,28 +136,7 @@ class Document < Page
     # Set name from filename
     def document_before_validation
       content = version.content
-      if new_record?
-        if ! self[:name].blank?
-          # name set
-          base = self[:name]
-        elsif file = content.instance_variable_get(:@file)
-          # set with filename
-          base = file.original_filename
-        else
-          # set with title
-          base = version.title
-        end
-        if base =~ /(.*)\.(\w+)$/
-          self[:name] = $1
-          ext         = $2
-        else
-          self[:name] = base
-          ext         = nil
-        end
-      
-        content[:name] = self[:name].sub(/\.*$/,'') # remove trailing dots
-        content.ext    = ext
-      else
+      unless new_record?
         # we cannot use 'old' here as this record is not secured when spreading inheritance
         if self[:name] != self.class.find(self[:id])[:name] && self[:name] && self[:name] != ''
           # FIXME: name is not important (just used to find file in case db crash: do not sync.)

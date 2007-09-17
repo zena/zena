@@ -26,8 +26,19 @@ class Template < TextDocument
     end
   end
   
-  def name=(str)
-    @new_name = str
+  def attributes=(new_attributes)
+    attributes = new_attributes.stringify_keys
+    content    = version.content
+    new_name   = attributes['name'] || (new_record? ? attributes['v_title'] : nil) # only set name from version title on creation
+    if new_name =~ /^([A-Z][a-zA-Z\*]+?)(-(([a-zA-Z_\*]*)(-([a-zA-Z_]+)|))|)(\.|\Z)/
+      attributes['c_klass']  ||= $1
+      attributes['c_mode']   ||= $4
+      attributes['c_format'] ||= $6 || 'html'
+    elsif new_name && !attributes['c_klass']
+      # name set but it is not a master template name
+      attributes['c_klass']  = nil
+    end
+    super(attributes)
   end
   
   private
@@ -35,24 +46,12 @@ class Template < TextDocument
     # Overwrite document behaviour.
     def document_before_validation
       content = version.content
-      content[:ext] = 'zafu'
-      content[:content_type] = "x-zafu-script"
-      if @new_name && @new_name =~ /^([A-Z][a-zA-Z\*]+?)(-([a-zA-Z_\*]*(-([a-zA-Z_]+)|))|)\Z/
-        # starts with a capital letter = master template
-        content.klass  = $1
-        content.mode   = $3 
-        content.format = $5 || 'html'
-      elsif @new_name
-        self[:name] = @new_name.nameForUrl
-        content.klass  = nil
-        content.mode   = nil
-        content.format = nil
-      end
       
-      content.mode = content.mode.nameForUrl if content.mode
+      content.mode = content.mode.url_name if content.mode
       
       if content.klass
         # update name
+        content.format ||= 'html'
         format = content.format == 'html' ? '' : "-#{content.format}"
         mode   = (content.mode || format != '') ? "-#{content.mode}" : '' 
         self[:name] = "#{content.klass}#{mode}#{format}"
