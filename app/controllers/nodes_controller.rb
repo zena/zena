@@ -110,7 +110,7 @@ class NodesController < ApplicationController
   end
   
   def create
-    attrs = parse_dates
+    attrs = params['node']
     @node = secure(Node) { Node.create_node(attrs) }
     
     respond_to do |format|
