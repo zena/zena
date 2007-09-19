@@ -98,6 +98,18 @@ class TemplateTest < ZenaTestUnit
     assert_equal 'Project-collab-xml', doc.name
   end
   
+  def test_set_blank_name
+    login(:tiger)
+    doc = secure(Template) { Template.create(:parent_id=>nodes_id(:layout), 'c_mode' => 'collab', 'c_klass' => 'Page', 'name' => '', 'c_format' => '')}
+    assert_kind_of Template, doc
+    assert !doc.new_record?, "Saved"
+    assert_equal 'collab', doc.c_mode
+    assert_equal 'html', doc.c_format
+    assert_equal 'NP', doc.c_tkpath
+    assert_equal 'Page', doc.c_klass
+    assert_equal 'Page-collab', doc.name
+  end
+  
   def test_change_name
     login(:tiger)
     doc = secure(Template) { Template.create(:parent_id=>nodes_id(:layout), :name=>'Project-collab-xml.zafu')}

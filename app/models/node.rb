@@ -687,7 +687,7 @@ class Node < ActiveRecord::Base
   
   # Set name from version title if no name set yet.
   def attributes=(new_attributes)
-    if !self[:name] && !attributes['name'] && attributes['v_title']
+    if self[:name].blank? && attributes['name'].blank? && attributes['v_title']
       super(attributes.merge('name' => attributes['v_title']))
     else
       super

@@ -21,7 +21,7 @@ class DocumentsController < ApplicationController
   
   # create a document (upload)
   def create
-    attrs = parse_dates
+    attrs = params['node']
     attrs[:klass] ||= 'Document'
     @node = secure(Document) { Document.create_node(attrs) }
     

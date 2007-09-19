@@ -20,9 +20,10 @@ class DocumentsControllerTest < ZenaTestController
   
   def test_create_template
     login(:tiger)
-    post 'create', "node"=>{"klass"=>"Template", "name"=>"Node_tree", "c_format"=>"html", "c_mode"=>"tree", "c_klass"=>"Node", "v_summary"=>"", "parent_id"=>nodes_zip(:default)}
+    post 'create', "node"=>{"klass"=>"Template", "name"=>"", "c_format"=>"", "c_mode"=>"tree", "c_klass"=>"Node", "v_summary"=>"", "parent_id"=>nodes_zip(:default)}
     assert_redirected_to :action => 'show'
     assert_kind_of Template, assigns(:node)
+    assert_equal 'Node-tree', assigns(:node).name
   end
   
   #def test_new

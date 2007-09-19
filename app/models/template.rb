@@ -31,9 +31,9 @@ class Template < TextDocument
     content    = version.content
     new_name   = attributes['name'] || (new_record? ? attributes['v_title'] : nil) # only set name from version title on creation
     if new_name =~ /^([A-Z][a-zA-Z\*]+?)(-(([a-zA-Z_\*]*)(-([a-zA-Z_]+)|))|)(\.|\Z)/
-      attributes['c_klass']  ||= $1
-      attributes['c_mode']   ||= $4
-      attributes['c_format'] ||= $6 || 'html'
+      attributes['c_klass' ] = $1             if attributes['c_klass' ].blank?
+      attributes['c_mode'  ] = $4             if attributes['c_mode'  ].blank?
+      attributes['c_format'] = ($6 || 'html') if attributes['c_format'].blank?
     elsif new_name && !attributes['c_klass']
       # name set but it is not a master template name
       attributes['c_klass']  = nil
@@ -51,7 +51,7 @@ class Template < TextDocument
       
       if content.klass
         # update name
-        content.format ||= 'html'
+        content.format = 'html' if content.format.blank?
         format = content.format == 'html' ? '' : "-#{content.format}"
         mode   = (content.mode || format != '') ? "-#{content.mode}" : '' 
         self[:name] = "#{content.klass}#{mode}#{format}"

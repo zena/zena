@@ -16,7 +16,7 @@ Assumed:
 2. Run => cap initial_setup
 3. Run => cap mksite -s host='example.com' -s pass='secret'
 
-If anything goes wrong, ask the mailing list (lists.zenadmin.org) or read the content of this file to understand what whent wrong...
+If anything goes wrong, ask the mailing list (lists.zenadmin.org) or read the content of this file to understand what went wrong...
 
 
 =end

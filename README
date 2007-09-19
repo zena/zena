@@ -5,25 +5,46 @@ CMS based on Ruby on Rails, (c) Gaspard Bucher, teti.ch 2007, licenced under MIT
 You need to set collation and charset to utf8 when creating the database. Example :
 # create database zena DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
 
-== Migrating the database (setup)
-1. create log directory
-# mkdir log
-2. update config/database.yml
-(change user, password if needed)
-3. migrate the database
-# rake zena:migrate RAILS_ENV=production
+== Development/testing
+1. Create the database using a mysql client
+   create database zena_dev DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
+
+2. create log directory
+   mkdir log
+
+3. Migrate the database and add initialize db (from within zena directory)
+   rake zena:migrate
+
+4. Create a first site or load fixtures
+   rake zena:mksite HOST=localhost PASSWORD=secret LANG=en
+
+5. Connect to site 'http://localhost:3000'
+
+6. Login with 'admin' and 'secret'
+
+== Production
+You should use capistrano to ease deployment. See 'config/delploy.rb'.
+
+Manual deployment is done with the following commands:
+1. Create the database with (using a mysql client)
+   create database zena DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
+   
+2. create log directory
+   mkdir log
+   
+3. update config/database.yml
+   (change user, password if needed)
+   
+4. migrate the database
+   rake zena:migrate RAILS_ENV=production
+
+4. Create a site
+   rake zena:mksite HOST=example.com PASSWORD=secret LANG=en RAILS_ENV=production
+   
+5. Login user is 'admin', password is the one set on the line above.
 
 == Create a new site
 # rake zena:mksite HOST=example.com PASSWORD=secret RAILS_ENV=production
-
-== For development/testing
-1. Create the database with (using a mysql client)
-  create database zena_dev DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
-2. Migrate the database and add initialize db (from within zena directory)
-# rake zena:migrate
-# rake zena:init
-3. Create a first site  (from within zena directory)
-# rake zena:mksite HOST=localhost PASSWORD=secret
 
 == Start
 # script/server
@@ -36,6 +57,8 @@ rmagick, redcloth, syntax, markaby, gettext
 
 
 == Very experimental webDAV
+Should not be used for production.
+
 add this to nodes_controller macros:
   act_as_railsdav
   include Zena::WebDav

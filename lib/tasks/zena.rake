@@ -90,14 +90,14 @@ namespace :zena do
       unless pass = ENV['PASSWORD']
         puts "Please set PASSWORD to the admin password for the new site. Aborting."
       else  
-        ENV['DEFAULT_LANG'] ||= 'en'
+        ENV['LANG'] ||= 'en'
         host_path = "#{SITES_ROOT}/#{host}"
         if Site.find_by_host(host)
           puts "Host allready exists in the database. Aborting."
         elsif File.exist?(host_path)
           puts "Path for host files exists (#{host_path}). Aborting."
         else
-          site = Site.create_for_host(host, pass, :default_lang => ENV['DEFAULT_LANG'])
+          site = Site.create_for_host(host, pass, :default_lang => ENV['LANG'])
           if site.new_record?
             puts "Could not create site ! Errors:"
             site.errors.each do |k,v|

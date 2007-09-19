@@ -344,6 +344,14 @@ class NodeTest < ZenaTestUnit
     node[:name] = nil
     assert_equal '', node.ext
   end
+
+  def test_set_name_with_title
+    login(:tiger)
+    node = Node.create(NEW_DEFAULT.stringify_keys.merge('name' => '', 'v_title' => 'small bed'))
+    assert_kind_of Node, node
+    assert !node.new_record?
+    assert_equal 'smallBed', node.name
+  end
   
   def test_set_name
     node = nodes(:wiki)
