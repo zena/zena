@@ -281,7 +281,8 @@ module Zena
     
     # TODO: test
     def r_actions
-      "<%= node_actions(:node=>#{node}#{params_to_erb(:actions=>@params[:select])}) %>"
+      out expand_with
+      out "<%= node_actions(:node=>#{node}#{params_to_erb(:actions=>@params[:select])}) %>"
     end
     
     # TODO: test
@@ -642,12 +643,13 @@ END_TXT
       template_url = unique_name
       @html_tag_params ||= {}
       @html_tag_params[:id] = @html_tag_params[:id] ? CGI.escape(@html_tag_params[:id]) : template_url
+      @html_tag_params[:class] ||= 'drop'
       
       action << "&template_url=#{CGI.escape(template_url)}"
       action << "&dom_id=#{@html_tag_params[:id]}"
       out expand_with
       out "</div>"
-      # out "<%= drop_receiving_element(\"#{template_url}\#{#{node}.zip}\", :url => drop_node_path(#{node}.zip) + #{action.inspect}, :method => :put) %>"
+      # out "<%= drop_receiving_element('#{@html_tag_params[:id]}', :url => drop_node_path(#{node}.zip) + #{action.inspect}, :method => :put, :revert=>true) %>"
       # BUG WITH &amp. USING RAW JS BELOW. 
       out "<script type='text/javascript'>
       //<![CDATA[
@@ -730,9 +732,9 @@ END_TXT
         id_hash = {:id=>"#{@context[:template_url]}<%= #{node}.zip %>"}
         if @html_tag
           @html_tag_params.merge!(id_hash)
-          render_html_tag(expand_with)
+          out render_html_tag(expand_with)
         else
-          add_params(expand_with, id_hash)
+          out add_params(expand_with, id_hash)
         end
         if @params[:draggable] == 'true'
           out "<%= \"<script type='text/javascript'>\n//<![CDATA[\nZena.draggable('#{@context[:template_url]}<%= #{node}.zip %>')\n//]]>\n</script>\" %>"
@@ -997,8 +999,8 @@ END_TXT
         # html attributes do not belong to sharp
         pre_space = ''
       else
-        html_tags[:class] = @html_tag_params[:class] if @html_tag_params[:class]
-        html_tags[:id   ] = @html_tag_params[:id   ] if @html_tag_params[:id   ]
+        if dom_class = @html_tag_params[:class] || @params[:class] then html_tags[:class] = dom_class end
+        if dom_id    = @html_tag_params[:id   ] || @params[:id   ] then html_tags[:id   ] = dom_id    end
         pre_space = @space_before || ''
         @html_tag_done = true
       end

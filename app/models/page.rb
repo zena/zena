@@ -28,9 +28,9 @@ class Page < Node
       test_same_name = nil
       Node.with_exclusive_scope do
         if new_record? 
-          cond = ["name = ? AND parent_id = ?",              self[:name], self[:parent_id]]
+          cond = ["name = ? AND parent_id = ? AND kpath LIKE 'NP%'",              self[:name], self[:parent_id]]
         else
-          cond = ["name = ? AND parent_id = ? AND id != ? ", self[:name], self[:parent_id], self[:id]]
+          cond = ["name = ? AND parent_id = ? AND kpath LIKE 'NP%' AND id != ? ", self[:name], self[:parent_id], self[:id]]
         end
         test_same_name = Node.find(:all, :conditions=>cond)
       end

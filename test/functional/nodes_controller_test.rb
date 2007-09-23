@@ -142,6 +142,7 @@ class NodesControllerTest < ZenaTestController
       end
     end
   end
+  
   # test edit_... mode only if can_edit?
   
 end
