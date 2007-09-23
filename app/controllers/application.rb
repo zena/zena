@@ -158,7 +158,7 @@ class ApplicationController < ActionController::Base
           used_nodes = @expire_with_nodes.merge(@renamed_assets)
           div = "<div id='dev'><ul>" + used_nodes.map do |k,n| "<li>#{skin_helper.send(:node_actions, :node=>n)} #{skin_helper.send(:link_to,k,zen_path(n))}</li>"
           end.join("") +
-          "<li><span class='actions'>#{skin_helper.send(:link_to,_('rebuild'),zen_path(@node, :rebuild => true))}" +
+          "<li><span class='actions'><a href='?rebuild=true'>#{_('rebuild')}</a></li>" +
           "<li><span class='actions'><a href='/users/#{visitor[:id]}/swap_dev'>#{_('turn dev off')}</a></span></li>" +
           "<li>(#{@skin_names.join(', ')})</li>"
           res.sub!('</body>', "#{div}</body>")
@@ -536,8 +536,15 @@ class ApplicationController < ActionController::Base
     def render_errors(errs=@errors)
       if !errs || errs.empty?
         ""
+      elsif errs.kind_of?(ActiveRecord::Errors)
+        res = "<ul class='errors'>"
+        errs.each do |k,v|
+          res << "<li><b>#{k}</b> #{v}</li>\n"
+        end
+        res << "</ul>"
+        res
       else
-        "<ul><li>#{errs.join("</li>\n<li>")}</li></ul>"
+        "<ul class='errors'><li>#{errs.join("</li>\n<li>")}</li></ul>"
       end
     end
   

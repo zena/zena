@@ -65,6 +65,8 @@ class VirtualClass < ActiveRecord::Base
     obj
   end
   
+  alias new new_instance
+  
   def real_class
     klass = Module::const_get(self[:real_class])
     raise NameError unless klass.ancestors.include?(Node)

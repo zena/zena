@@ -362,6 +362,7 @@ module ApplicationHelper
   # the format is used as the image class. Example :
   #   img_tag(@node, :mode=>'pv')  => <img src='/sites/test.host/data/jpg/20/bird_pv.jpg' height='80' width='80' alt='bird' class='pv'/>
   def img_tag(obj, options={})
+    return '' unless obj
     opts    = options.dup
     
     mode    = opts.delete(:mode)
@@ -638,9 +639,9 @@ module ApplicationHelper
   
   # Display a selection 'box' for a given role (provided by the sym argument). Depending on the role type
   # this helper may render a checkbox list, a select menu or an input field for an id. Available choices
-  # may be reduced by providing a list as :in argument : link_box('node', :calendars, :in=>[1,11]).
+  # may be reduced by providing a list with the :in argument : link_box('node', :calendars, :in=>[1,11]).
   def link_box(obj, sym, opt={})
-    return "" # FIXME: BUT LINKS BACK INTO EDIT !
+    return "LINK_BOX NEEDS A REWRITE" # FIXME: PUT LINKS BACK INTO EDIT !
     node = instance_variable_get("@#{obj}".to_sym)
     method = "#{sym}_for_form".to_sym
     role = node.class.role[sym.to_s]

@@ -146,6 +146,10 @@ class VirtualClassTest < ZenaTestUnit
     assert_equal "NNL", node[:kpath]
   end
   
+  def test_new
+    assert false, "TODO"
+  end
+  
   def test_relation
     login(:ant)
     node = secure(Node) { nodes(:zena) }

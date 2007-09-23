@@ -98,5 +98,15 @@ class ParserTest < Test::Unit::TestCase
     assert_equal ['test'], block.descendant('each').descendants.keys.sort
   end
   
+  def test_root
+    block = @@test_parsers['zafu'].new(
+    "<r:pages><r:each><b do='test'/></r:each><r:add><p><i do='add_link'/><b do='title'/></p></r:add><b do='title'/></r:pages>", 
+    :helper=>ParserModule::DummyHelper.new(@@test_strings['basic']))
+    sub_block = block.descendant('add_link')
+    assert_equal 'add_link', sub_block.method
+    assert_equal 'add', sub_block.parent.method
+    assert_equal block, sub_block.root
+  end
+  
   make_tests
 end

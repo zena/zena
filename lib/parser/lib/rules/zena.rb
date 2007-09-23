@@ -69,12 +69,10 @@ module Zena
       # some 'html_tag' information can be set during rendering and should merge into tag_params
       @html_tag_params_bak = @html_tag_params
       @html_tag_params     = @html_tag_params.merge(@context.delete(:html_tag_params) || {})
-      unless @context[:preflight]
-        if store = @params.delete(:store)
-          @context["stored_#{store}".to_sym] = node
-        end
-        @anchor_param = @params.delete(:anchor)
+      if store = @params.delete(:store)
+        @context["stored_#{store}".to_sym] = node
       end
+      @anchor_param = @params.delete(:anchor)
 
       true
     end
@@ -633,26 +631,80 @@ END_TXT
     #    inspect
     #  end
     #end
+    def r_drop
+      if action = @params[:set] || @params[:add]
+        action = "set=#{CGI.escape(action)}"
+      else
+        return "<span class='parser_error'>drop without 'set' or 'add'</span>"
+      end
+      
+      @html_tag ||= 'div'
+      template_url = unique_name
+      @html_tag_params ||= {}
+      @html_tag_params[:id] = @html_tag_params[:id] ? CGI.escape(@html_tag_params[:id]) : template_url
+      
+      action << "&template_url=#{CGI.escape(template_url)}"
+      action << "&dom_id=#{@html_tag_params[:id]}"
+      out expand_with
+      out "</div>"
+      # out "<%= drop_receiving_element(\"#{template_url}\#{#{node}.zip}\", :url => drop_node_path(#{node}.zip) + #{action.inspect}, :method => :put) %>"
+      # BUG WITH &amp. USING RAW JS BELOW. 
+      out "<script type='text/javascript'>
+      //<![CDATA[
+      Droppables.add('#{@html_tag_params[:id]}', {onDrop:function(element){new Ajax.Request('/nodes/<%= #{node}.zip %>/drop?#{action}', {asynchronous:true, evalScripts:true, method:'put', parameters:'drop=' + encodeURIComponent(element.id)})}})
+      //]]>
+      </script>"
+      
+      # TEMPLATE ========
+      template_node = "@#{node_class.to_s.downcase}"
+      template      = expand_with(:node=>template_node, :template_url=>template_url)
+      out helper.save_erb_to_url(template, template_url)
+    end
+    
+    def r_draggable
+      @html_tag ||= 'div'
+      @html_tag_params ||= {}
+      dom_id = unique_name
+      @html_tag_params[:id] = "#{dom_id}.<%= #{node}.zip %>"
+      out expand_with
+      out "</div>"
+      out "<script type='text/javascript'>
+      //<![CDATA[
+      Zena.draggable('#{@html_tag_params[:id]}')
+      //]]>
+      </script>"
+    end
  
     def r_each
       if @context[:make_form]
         r_form
       elsif @context[:list]
+        if @params[:draggable] == 'true'
+          out "<% #{var}_dom_ids = [] %>"
+        end
+        
         if join = @params[:join]
           join = join.gsub(/&lt;([^%])/, '<\1').gsub(/([^%])&gt;/, '\1>')
-          out "<% #{list}.each_index do |#{var}_index| -%>"
+          out "<% #{list}.each_index do |#{var}_index| %>"
           out "<%= #{var}=#{list}[#{var}_index]; #{var}_index > 0 ? #{join.inspect} : '' %>"
         else
-          out "<% #{list}.each do |#{var}| -%>"
+          out "<% #{list}.each do |#{var}| %>"
         end
+        
+        dom_id = @context[:template_url] || unique_name
+        
+        if @params[:draggable] == 'true'
+          out "<% #{var}_dom_ids << \"#{dom_id}.\#{#{var}.zip}\" %>"
+        end
+        
         out r_anchor(var) if @anchor_param # insert anchor inside the each loop
         @params[:anchor] = @anchor_param   # set back in case we double render
         @anchor_param = nil
         res = expand_with(:node=>var)
         
-        if @context[:template_url]
+        if @context[:template_url] || @params[:draggable] == 'true'
           # ajax, set id
-          id_hash = {:id=>"#{@context[:template_url]}<%= #{var}.zip %>"}
+          id_hash = {:id=>"#{dom_id}.<%= #{var}.zip %>"}
           if @html_tag
             @html_tag_params.merge!(id_hash)
           else
@@ -661,6 +713,10 @@ END_TXT
         end
         out render_html_tag(res)
         out "<% end -%>"
+        
+        if @params[:draggable] == 'true'
+          out "<%= \"<script type='text/javascript'>\n//<![CDATA[\n\#{#{var}_dom_ids.inspect}.each(Zena.draggable)\n//]]>\n</script>\" %>"
+        end
       elsif @context[:template_url]
         # saved template
         id_hash = {:id=>"#{@context[:template_url]}<%= #{node}.zip %>"}
@@ -669,6 +725,9 @@ END_TXT
           render_html_tag(expand_with)
         else
           add_params(expand_with, id_hash)
+        end
+        if @params[:draggable] == 'true'
+          out "<%= \"<script type='text/javascript'>\n//<![CDATA[\nZena.draggable('#{@context[:template_url]}<%= #{node}.zip %>')\n//]]>\n</script>\" %>"
         end
       else
         # TODO: make a single list ?
@@ -992,8 +1051,6 @@ END_TXT
     # try to add 'conditions' without sql injection possibilities...
     # FIXME: 'else' clause has been removed, find a solution to put it back.
     def r_unknown
-      return '' if @context[:preflight]
-      
       "not a node (#{@method})" unless node_kind_of?(Node)
       rel = @method
       if @params[:from] || rel =~ /\sfrom\s/ || Node.plural_relation?(@method)
@@ -1177,7 +1234,6 @@ END_TXT
     end
     
     def do_var(var_finder=nil, opts={})
-      expand_with(:preflight=>true)
       else_block = descendant('else')
       out "<% if #{var} = #{var_finder} -%>" if var_finder
       res = expand_with(opts.merge(:node=>var))
@@ -1194,8 +1250,6 @@ END_TXT
       @context.delete(:template_url) # should not propagate
       @context.delete(:make_form) # should not propagate
       
-      # preflight parse to see what we have
-      expand_with(:preflight=>true)
       else_block = descendant('else')
       if (each_block = descendant('each')) && (descendant('edit') || descendant('add'))
         add_block  = descendant('add')
@@ -1251,10 +1305,21 @@ END_TXT
       helper.send(:_,text)
     end
     
+    def next_name_index(key)
+      @next_name_index ||= {}
+      if @next_name_index[key]
+        @next_name_index[key] += 1
+        key + @next_name_index[key].to_s
+      else
+        @next_name_index[key] = 0
+        key
+      end
+    end
+    
     def unique_name
       # FIXME: make sure the unique name is using the current skin 
       # /gbuma/Node_index.html/dev/small_calendar instead of /default/Node_index.html/small_calendar
-      "#{@options[:included_history][0].split('::')[0]}/#{(@context[:name] || 'list').gsub(/[^\w\/]/,'_')}"
+      "#{@options[:included_history][0].split('::')[0]}/#{root.next_name_index(@context[:name] || 'list').gsub(/[^\d\w\/]/,'_')}"
     end
        
     def add_params(text, opts={})

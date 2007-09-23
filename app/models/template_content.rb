@@ -1,5 +1,4 @@
 class TemplateContent < ActiveRecord::Base
-  
   zafu_readable   :tkpath, :ext, :format, :content_type, :filename, :mode, :klass, :skin_name
   
   attr_protected :tkpath
@@ -10,6 +9,11 @@ class TemplateContent < ActiveRecord::Base
   
   def ext
     'zafu'
+  end
+  
+  # We need this because 'format' is a Kernel method and we do not want it to be called instead of getting the attribute.
+  def format
+    self[:format]
   end
   
   def ext=(s)

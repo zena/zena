@@ -775,7 +775,11 @@ class Node < ActiveRecord::Base
   def parent(opts={})
     # make sure the cache is in sync with 'parent_id' (used during validation)
     return @parent if @parent && @parent[:id] == self[:parent_id]
-    @parent = secure(Node, opts) { Node.find(self[:parent_id]) }
+    if opts[:secure] != false
+      @parent = secure(Node, opts) { Node.find(self[:parent_id]) }
+    else
+      secure(Node, opts) { Node.find(self[:parent_id]) }
+    end
   rescue ActiveRecord::RecordNotFound
     nil
   end

@@ -45,7 +45,7 @@ module ParserModule
 end
 
 class Parser
-  attr_accessor :text, :method, :pass, :options, :blocks, :params, :ids, :defined_ids
+  attr_accessor :text, :method, :pass, :options, :blocks, :params, :ids, :defined_ids, :parent
     
   class << self
     def parser_with_rules(*modules)
@@ -86,16 +86,13 @@ class Parser
     @blocks  = []
     
     @options = {:mode=>:void, :method=>'void'}.merge(opts)
-    @params  = @options[:params] || {}
-    @method  = @options[:method]
+    @params  = @options.delete(:params) || {}
+    @method  = @options.delete(:method)
     @ids     = @options[:ids] ||= {}
     original_ids = @ids.dup
     @defined_ids = {} # ids defined in this node or this node's sub blocks
-    mode     = @options[:mode]
-    @options.delete(:params)
-    @options.delete(:method)
-    @options.delete(:mode)
-    
+    mode     = @options.delete(:mode)
+    @parent  = @options.delete(:parent)
     
     if opts[:sub]
       @text = text
@@ -298,6 +295,11 @@ class Parser
     (descendants[key] || []).last
   end
   
+  # Return the root block (the one opened first).
+  def root
+    @root ||= parent ? parent.root : self
+  end
+  
   def success?
     return @ok
   end
@@ -354,11 +356,10 @@ class Parser
   
   def make(mode, opts={})
     if opts[:text]
-      custom_text = opts[:text]
-      opts.delete(:text)
+      custom_text = opts.delete(:text)
     end
     text = custom_text || @text
-    opts = @options.merge(opts).merge(:sub=>true, :mode=>mode)
+    opts = @options.merge(opts).merge(:sub=>true, :mode=>mode, :parent => self)
     
     new_obj = self.class.new(text,opts)
     if new_obj.success?

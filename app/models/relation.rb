@@ -126,8 +126,8 @@ class Relation < ActiveRecord::Base
     if unique?
       if @new_value.kind_of?(Array)
         if @new_value.size > 1
-          @link_errors << 'should be a unique value'
-          return false
+          # force unique value (keep last value)
+          values = [@new_value.last]
         else
           values = @new_value
         end
@@ -136,10 +136,11 @@ class Relation < ActiveRecord::Base
       end
     else
       unless @new_value.kind_of?(Array)
-        @link_errors << 'should be an array of ids'
-        return false
+        # force array
+        values = [@new_value]
+      else
+        values = @new_value
       end
-      values = @new_value
     end
     values.map!{|i| i.to_i }
     

@@ -190,11 +190,6 @@ ActiveRecord::Schema.define(:version => 0) do
     t.column "mode",      :string
   end
 
-  create_table "tmp", :id => false, :force => true do |t|
-    t.column "a", :string, :limit => 50
-    t.column "b", :string, :limit => 50
-  end
-
   create_table "users", :force => true do |t|
     t.column "created_at", :datetime
     t.column "updated_at", :datetime
@@ -219,8 +214,8 @@ ActiveRecord::Schema.define(:version => 0) do
     t.column "title",        :string,   :limit => 200, :default => "", :null => false
     t.column "summary",      :text,                                    :null => false
     t.column "text",         :text,                                    :null => false
-    t.column "status",       :integer,                 :default => 30
-    t.column "number",       :integer,                 :default => 1
+    t.column "status",       :integer,                 :default => 30, :null => false
+    t.column "number",       :integer,                 :default => 1,  :null => false
     t.column "content_id",   :integer
     t.column "site_id",      :integer
   end

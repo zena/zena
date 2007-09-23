@@ -16,9 +16,10 @@ class TextDocumentContent < DocumentContent
     true # overwrite superclass behaviour
   end
   
-  # called before_save
+  # called before_save. Replace behaviour of TextDocuments.
   def content_before_save
-    super
+    self[:type] = self.class.to_s # make sure the type is set in case no sub-classes are loaded.
+    
     if @file
       # nothing to do
     elsif !new_record? && (old = DocumentContent.find(self[:id])).name != self[:name]

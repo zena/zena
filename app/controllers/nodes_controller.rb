@@ -65,6 +65,28 @@ class NodesController < ApplicationController
     end
   end
   
+  # This method is called when an element is dropped on a node.
+  def drop
+    role      = params[:set]
+    other_zip = params[:drop].split('.').last
+    case role
+    when 'child'
+      other = secure(Node) { Node.find_by_zip(other_zip)}
+      unless other.update_attributes(:parent_id => @node[:id])
+        @errors = other.errors
+      end
+    else
+      other_id = Node.translate_pseudo_id(other_zip)
+      @node.add_link(role, other_id)
+      unless @node.save
+        @errors = @node.errors
+      end
+    end
+    respond_to do |format|
+      format.js { @template_file = fullpath_from_template_url(params[:template_url]) }
+    end
+  end
+  
   def show
     
     respond_to do |format|
@@ -173,18 +195,18 @@ class NodesController < ApplicationController
   end
   
   def add_link
-    if relation = @node.relation_proxy(params['link']['role'])
-      if relation.unique?
-        # replace link
-        @node.update_attributes_with_transformation("#{params['link']['role']}_id" => params['link']['other_id'])
-      else
+    #if relation = @node.relation_proxy(params['link']['role'])
+    #  if relation.unique?
+    #    # replace link
+    #    @node.update_attributes_with_transformation("#{params['link']['role']}_id" => params['link']['other_id'])
+    #  else
         other_id = Node.translate_pseudo_id(params['link']['other_id'])
         @node.add_link(params['link']['role'], other_id)
         @node.save
-      end
-    else
-      @node.errors.add('base', 'invalid role')
-    end
+    #  end
+    #else
+    #  @node.errors.add('base', 'invalid role')
+    #end
     respond_to do |format|
       format.js { render :action => 'link'}
     end

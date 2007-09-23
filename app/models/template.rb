@@ -28,12 +28,15 @@ class Template < TextDocument
   
   def attributes=(new_attributes)
     attributes = new_attributes.stringify_keys
+    ['c_klass','c_mode','c_format'].each do |sym|
+      attributes.delete(sym) if attributes[sym] == ''
+    end
     content    = version.content
     new_name   = attributes['name'] || (new_record? ? attributes['v_title'] : nil) # only set name from version title on creation
     if new_name =~ /^([A-Z][a-zA-Z\*]+?)(-(([a-zA-Z_\*]*)(-([a-zA-Z_]+)|))|)(\.|\Z)/
-      attributes['c_klass' ] = $1             if attributes['c_klass' ].blank?
-      attributes['c_mode'  ] = $4             if attributes['c_mode'  ].blank?
-      attributes['c_format'] = ($6 || 'html') if attributes['c_format'].blank?
+      attributes['c_klass' ] ||= $1
+      attributes['c_mode'  ] ||= $4
+      attributes['c_format'] ||= ($6 || 'html')
     elsif new_name && !attributes['c_klass']
       # name set but it is not a master template name
       attributes['c_klass']  = nil
