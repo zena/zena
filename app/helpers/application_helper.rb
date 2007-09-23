@@ -1101,7 +1101,7 @@ ENDTXT
       zip = current_obj[:zip]
       current = current_obj.send(attribute.to_sym)
       if current.kind_of?(Array)
-        current = current.join('/')
+        current = current.join('/ ')
       end
     else
       zip = ''

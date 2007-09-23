@@ -17,7 +17,7 @@ ActionController::Routing::Routes.draw do |map|
   map.resources :nodes,                                           # FIXME: should be :put but it does not work
     :collection => { :asearch => :get, :search => :get,  :attribute => :get },      #   |
     :member =>     { :import => :post, :save_text => :put, :order => :any, :zafu => :get,
-                     :add_link => :put, :update_link => :put, :remove_link => :put,
+                     :add_link => :put, :remove_link => :put,
                      :drop => :put } do |nodes|
     nodes.resources :versions, 
                     :name_prefix => nil,

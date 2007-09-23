@@ -19,7 +19,7 @@ body {font: 0.9em Arial, Helvetica, Verdana, sans-serif; background:#BBC5CD; lin
 #messages { position:absolute; top:0; line-height:1.4em; width:70%; font-size:0.9em; }
 #form_errors ul { position:absolute; border:2px solid #B57B7C; top:50px; left:10px; width:400px; line-height:1.4em; width:70%; font-size:0.9em; padding:3px 5px;}
 #form_errors li { padding-left:1em; line-height:1em; list-style:none;}
-#loader { visibility:hidden;}
+#loader { visibility:hidden; position:absolute;}
 #loader img {float:left;}
 #notice, #error {padding:2px 8px;}
 #error  { background:#DDC8C8;border: 1px dotted #B57B7C;}

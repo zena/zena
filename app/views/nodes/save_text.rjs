@@ -3,6 +3,7 @@ if @errors || !@node.errors.empty?
   page.replace_html "form_errors", :inline => @errors ? render_errors : error_messages_for('node')
 else
   page.replace_html 'messages', :inline=>"<div id='notice'>#{_('redaction saved')}</div>"
+  page.show 'notice'
   page.visual_effect :fade, 'notice', :duration => 5.0
   if params[:node][:crop]
     page.replace_html 'crop_form', :partial=>'document/crop'

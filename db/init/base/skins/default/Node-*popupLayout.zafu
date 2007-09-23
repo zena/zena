@@ -19,8 +19,8 @@
 </head>
 
 <body onLoad='popup_loaded();'>
+  <div id='loader'><img src='/images/ajax-loader.gif'/> <r:trans text='uploading'/></div>
   <div id='messages'>
-    <div id='loader'><img src='/images/ajax-loader.gif'/> <r:trans text='uploading'/></div>
   </div>
   
 <r:content_for_layout/>

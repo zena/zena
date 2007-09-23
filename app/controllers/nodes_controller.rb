@@ -184,35 +184,17 @@ class NodesController < ApplicationController
     @nodes = secure(Node) { Node.create_nodes_from_folder(:archive => params[:archive], :parent => @node) }
   end
   
-  # add/update links to another node
-  def update_link
-    # update relation
-    # update_attributes_with_transformation ?
-    @node.update_attributes(params['link'])
-    respond_to do |format|
-      format.js { render :action => 'link'}
-    end
-  end
-  
+  # Create a link between two nodes. This method is called from the drive popup.
   def add_link
-    #if relation = @node.relation_proxy(params['link']['role'])
-    #  if relation.unique?
-    #    # replace link
-    #    @node.update_attributes_with_transformation("#{params['link']['role']}_id" => params['link']['other_id'])
-    #  else
-        other_id = Node.translate_pseudo_id(params['link']['other_id'])
-        @node.add_link(params['link']['role'], other_id)
-        @node.save
-    #  end
-    #else
-    #  @node.errors.add('base', 'invalid role')
-    #end
+    other_id = Node.translate_pseudo_id(params['link']['other_id'])
+    @node.add_link(params['link']['role'], other_id)
+    @node.save
     respond_to do |format|
       format.js { render :action => 'link'}
     end
   end
   
-  # remove a link
+  # Remove a link (drive popup).
   def remove_link
     unless @node.can_drive?
       @node.errors.add('base', 'you do not have the rights to do this')
@@ -273,7 +255,7 @@ class NodesController < ApplicationController
       
       if method == :path || method == :short_path
         path = @node.send(method)
-        render :inline=> path.join('/')
+        render :inline=> path.join('/ ')
       else
         @text = @node.send(method)
         if [:v_text, :v_summary].include?(method)
