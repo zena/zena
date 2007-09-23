@@ -666,11 +666,19 @@ END_TXT
       @html_tag_params ||= {}
       dom_id = unique_name
       @html_tag_params[:id] = "#{dom_id}.<%= #{node}.zip %>"
+      case @params[:revert]
+      when 'move'
+        revert_effect = 'Element.move'
+      when 'remove'
+        revert_effect = 'Element.remove'
+      else
+        revert_effect = 'Element.move'
+      end
       out expand_with
       out "</div>"
       out "<script type='text/javascript'>
       //<![CDATA[
-      Zena.draggable('#{@html_tag_params[:id]}')
+      Zena.draggable('#{@html_tag_params[:id]}',true,true,#{revert_effect})
       //]]>
       </script>"
     end

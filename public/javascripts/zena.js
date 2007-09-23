@@ -434,6 +434,10 @@ Zena.Div_editor.prototype = {
   }
 }
 
-Zena.draggable = function(dom_id) {
-  new Draggable(dom_id, {ghosting:true, revert:true, reverteffect:Element.remove});
+Zena.draggable = function(dom_id, g, r, rE) {
+  var g  = (g  == null) ? true : g;
+  var r  = (r  == null) ? true : r;
+  var rE = (rE == null) ? Element.remove : rE;
+  
+  new Draggable(dom_id, {ghosting:g, revert:r, reverteffect:rE});
 }
