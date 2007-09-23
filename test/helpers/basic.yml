@@ -560,6 +560,13 @@ checkbox:
     node: 'opening'
   src: "<r:checkbox role='calendar' values='11'/>"
   res: "/input type='checkbox' name='node\[calendar_ids\]\[\]' value='11' checked='checked'.*zena.*hidden.*node\[calendar_ids\]' value=''/"
+  
+add_link:
+  src: "<table do='pages' from='site' limit='1'>
+  <tr do='each'><td do='[name]'/></tr>
+  <tr do='add'><td><b><r:add_link/></b></td></tr>
+  </table>"
+  res: "/<tr id='/add/link/list_add' class='btn_add'><td><b><a href='#'asdfasdf /"
 
 read_no_content:
   src: "this is <b do='[c_bad]'/>"
@@ -568,3 +575,7 @@ read_no_content:
 read_bad_attribute:
   src: "this is <b do='[bad]'/>"
   res: "this is <b>'bad' not readable</b>"
+
+translate_id_to_zip:
+  src: "<b do='[d_empid]'/><i do='[parent_id]'/>"
+  tem: "<b><%= @node.version.dyn[\"empid\"] %></b><i><%= @node.parent_zip %></i>"

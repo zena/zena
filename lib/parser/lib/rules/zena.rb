@@ -35,6 +35,7 @@ end
 module Zena
   module Rules
   end
+  
   module Tags
     class << self
       def inline_methods(*args)
@@ -404,11 +405,6 @@ module Zena
     end
     
     def r_edit
-      if @context[:preflight]
-        @pass[:edit] = self
-        # preprocessing
-        return ""
-      end
       text = get_text_for_erb
       if @context[:template_url]
         # ajax
@@ -420,13 +416,11 @@ module Zena
     end
     
     def r_textarea
-      return '' if @context[:preflight]
       out make_textarea(@html_tag_params.merge(@params))
       @html_tag_done = true
     end
     
     def r_input
-      return '' if @context[:preflight]
       case @params[:type]
       when 'select'
         return "<span class='parser_error'>select without name</span>"   unless   name = @params[:name]
@@ -454,11 +448,6 @@ module Zena
     end
     
     def r_form_tag
-      if @context[:preflight]
-        @pass[:form_tag] = self
-        # preprocessing
-        return ""
-      end
       # replace <form> with constructed form
       "#{@context[:form_tag]}#{expand_with(:form_tag => nil)}</form>"
     end
@@ -467,12 +456,6 @@ module Zena
     # TODO: add <div style="margin:0;padding:0"><input name="_method" type="hidden" value="put" /></div> if method == put
     # FIXME: use <r:form href='self'> or <r:form action='...'>
     def r_form
-      if @context[:preflight]
-        @pass[:form] = self
-        # preprocessing
-        return ""
-      end
-      
       if template_url = @context[:template_url]
         # ajax
 
@@ -506,8 +489,8 @@ END_TXT
         form << "<input type='hidden' name='template_url' value='#{template_url}'/>\n"
         form << "<input type='hidden' name='node[parent_id]' value='<%= #{@context[:in_add] ? "#{@context[:parent_node]}.zip" : "#{node}.parent_zip"} %>'/>\n"
         
-        if @params[:klass] && @context[:in_add]
-          form << "<input type='hidden' name='node[klass]' value='#{@params[:klass]}'/>\n"
+        if @params[:klass] || @context[:in_add]
+          form << "<input type='hidden' name='node[klass]' value='#{@params[:klass] || @context[:klass] || 'Node'}'/>\n"
         end
         if add_block = @context[:add]
           params = add_block.params
@@ -531,21 +514,35 @@ END_TXT
       else
         # no ajax
         # FIXME
-        start = ""
-        form = "FORM WITHOUT AJAX TODO\n"
+        start = "" # link to normal node ?
+        form = "<form method='post' do='void' action='/nodes/<%= #{node}.zip %>'><div style='margin:0;padding:0'><input name='_method' type='hidden' value='put' /></div>"
       end
-      if @pass[:form_tag]
-        res = start + expand_with(:form_tag => form)
+      
+      unless descendant('form_link')
+        # add a descendant before blocks.
+        blocks = @blocks.dup
+        form_link = make(:void, :method=>'form_link', :text=>start)
+        @blocks = [form_link] + blocks
+        remove_instance_variable(:@descendants)
+      end
+      
+      if descendant('form_tag')
+        res = expand_with(:form_tag => form, :form_link => start)
       else
-        res = start + form + expand_with + '</form>'
+        #res = "&lt;form&gt; missing"
+        res = form + expand_with(:form_link => start) + '</form>'
       end
       out render_html_tag(res)
+    end
+    
+    def r_form_link
+      @context[:form_link] || ''
     end
     
     # <r:checkbox role='collaborator_for' values='projects' from='site'/>"
     def r_checkbox
       return "<span class='parser_error'>checkbox without values</span>" unless values = @params[:values]
-      return "<span class='parser_error'>checkbox without role</span>"   unless   role = @params[:role]
+      return "<span class='parser_error'>checkbox without role</span>"   unless   role = (@params[:role] || @params[:name])
       meth = role.singularize
       attribute = @params[:attr] || 'name'
       if values =~ /^\d+\s*($|,)/
@@ -581,14 +578,41 @@ END_TXT
     
     # TODO: test
     def r_add
-      if @context[:preflight]
-        @pass[:add] = self
-        # preprocessing
-        return ""
-      end
-      
       out "<% if #{node}.can_write? -%>"
       
+      unless descendant('add_link')
+        # add a descendant between self and blocks.
+        blocks = @blocks.dup
+        add_link = make(:void, :method=>'add_link', :params=>@params.dup, :text=>'')
+        add_link.blocks = blocks
+        remove_instance_variable(:@descendants)
+      end
+      
+      if @context[:form] && @context[:template_url]
+        # ajax add
+        prefix  = @context[:template_url]
+        out "<#{@html_tag || 'div'} id='#{prefix}_add' class='#{@params[:class] || 'btn_add'}'>#{expand_with(:onclick=>"[\"#{prefix}_add\", \"#{prefix}_form\"].each(Element.toggle);return false;")}</#{@html_tag || 'div'}>"
+        
+        # FIXME: BUG if we set <r:form klass='Post'/> the user cannot select class with menu...
+        klass = @params[:klass] || @context[:form].params[:klass] || 'Node'
+        # FIXME: inspect '@context[:form]' to see if it contains v_klass ?
+        out "<% #{var}_new = secure(Node) { Node.get_class(#{klass.inspect}).new } -%>"
+        if @context[:form].method == 'form'
+          out expand_block(@context[:form], :in_add => true, :no_form => false, :add=>self, :node => "#{var}_new", :parent_node => node)
+        else
+          # build form from 'each'
+          out expand_block(@context[:form], :in_add => true, :no_form => false, :no_edit => true, :add=>self, :make_form => true, :node => "#{var}_new", :parent_node => node, :klass => klass)
+        end
+      else
+        # no ajax
+        @html_tag_params[:class] ||= 'btn_add' if @html_tag
+        out render_html_tag(text)
+      end
+      out "<% end -%>"
+      @html_tag_done = true
+    end
+    
+    def r_add_link
       if @params[:text]
         text = @params[:text]
         text = "<div>#{text}</div>" unless @html_tag
@@ -601,34 +625,7 @@ END_TXT
         text = _("btn_add")
       end
       
-      if @context[:form] && @context[:template_url]
-        # ajax add
-        prefix  = @context[:template_url]
-        if @html_tag
-          text = "<#{@html_tag} id='#{prefix}_add' class='#{@params[:class] || 'btn_add'}'><a href='#' onclick='[\"#{prefix}_add\", \"#{prefix}_form\"].each(Element.toggle);return false;'>#{text}</a></#{@html_tag}>"
-        else
-          # FIXME: replace onclick on 'html' param by '<a>...</a>'
-          text = add_params(text, :id=>"#{prefix}_add", :class=>(@params[:class] || 'btn_add'), :onclick=>"['#{prefix}_add', '#{prefix}_form'].each(Element.toggle);return false;")
-        end
-        
-        out text
-        # FIXME: BUG if we set <r:form klass='Post'/> the user cannot select class with menu...
-        klass = @context[:form].params[:klass] || 'Node'        
-        klass = 'Node'
-        out "<% #{var}_new = secure(Node) { Node.get_class(#{klass.inspect}).new } -%>"
-        if @context[:form].method == 'form'
-          out expand_block(@context[:form], :in_add => true, :no_form => false, :add=>self, :node => "#{var}_new", :parent_node => node)
-        else
-          # build form from 'each'
-          out expand_block(@context[:form], :in_add => true, :no_form => false, :no_edit => true, :add=>self, :make_form => true, :node => "#{var}_new", :parent_node => node)
-        end
-      else
-        # no ajax
-        @html_tag_params[:class] ||= 'btn_add' if @html_tag
-        out render_html_tag(text)
-      end
-      out "<% end -%>"
-      @html_tag_done = true
+      out "<a href='#' onclick='#{@context[:onclick]}'>#{text}</a>"
     end
     
     #if RAILS_ENV == 'test'
@@ -638,12 +635,7 @@ END_TXT
     #end
  
     def r_each
-      if @context[:preflight]
-        expand_with(:preflight=>true)
-        @pass[:each] = self
-        return ""
-      
-      elsif @context[:make_form]
+      if @context[:make_form]
         r_form
       elsif @context[:list]
         if join = @params[:join]
@@ -715,10 +707,6 @@ END_TXT
     end
     
     def r_else
-      if @context[:preflight]
-        @pass[:else] = self
-        return
-      end
       if @context[:case]
         out "<% elsif true -%>"
         out expand_with(:case=>false)
@@ -971,6 +959,7 @@ END_TXT
           link = ":node=>#{node}, :href=>#{link.inspect}"
         end
         res  = "node_link(#{link}, :text=>img_tag(#{img}, :mode=>#{mode.inspect}))"
+        res  += ", :class=>#{@params[:class]}" if @params[:class]
       else
         res = "img_tag(#{img}, :mode=>#{mode.inspect})"
       end
@@ -1189,7 +1178,7 @@ END_TXT
     
     def do_var(var_finder=nil, opts={})
       expand_with(:preflight=>true)
-      else_block = @pass[:else]
+      else_block = descendant('else')
       out "<% if #{var} = #{var_finder} -%>" if var_finder
       res = expand_with(opts.merge(:node=>var))
       out render_html_tag(res)
@@ -1207,10 +1196,10 @@ END_TXT
       
       # preflight parse to see what we have
       expand_with(:preflight=>true)
-      else_block = @pass[:else]
-      if (each_block = @pass[:each]) && (@pass[:edit] || @pass[:add])
-        add_block  = @pass[:add]
-        form_block = @pass[:form] || each_block
+      else_block = descendant('else')
+      if (each_block = descendant('each')) && (descendant('edit') || descendant('add'))
+        add_block  = descendant('add')
+        form_block = descendant('form') || each_block
         # ajax
         if list_finder
           out "<% if (#{list_var} = #{list_finder}) || (#{node}.can_write? && #{list_var}=[]) -%>"
@@ -1243,7 +1232,7 @@ END_TXT
       else
         # no form, render, edit and add are not ajax
         if list_finder
-          if @pass[:add]
+          if descendant('add')
             out "<% if (#{list_var} = #{list_finder}) || (#{node}.can_write? && #{list_var}=[]) -%>"
           else
             out "<% if #{list_var} = #{list_finder} -%>"
@@ -1256,7 +1245,6 @@ END_TXT
           out "<% end -%>"
         end
       end
-      @pass = {} # do not propagate back
     end
     
     def _(text)
@@ -1356,6 +1344,15 @@ END_TXT
       end
     end
     
+    # Block visibility of descendance with 'do_list'.
+    def public_descendants
+      if ['do_list'].include?(@method)
+        {}
+      else
+        super
+      end
+    end
+    
     # TODO: test, replace symbols by real classes
     def check_node_class(*list)
       list.include?(node_class)
@@ -1363,7 +1360,9 @@ END_TXT
     
     def node_attribute(attribute, opts={})
       att_node = opts[:node] || node
-      attribute = attribute.gsub(/(^|_)id|id$/, '\1zip') if node_kind_of?(Node)
+      unless (attribute =~ /\Ad_/ || !node_kind_of?(Node))
+        attribute = attribute.gsub(/\A(|\w+_)id\Z/, '\1zip')
+      end
       res = if node_kind_of?(Node)
         Node.zafu_attribute(att_node, attribute)
       elsif node_kind_of?(Version) && Version.zafu_readable?(attribute)
@@ -1394,17 +1393,18 @@ END_TXT
       @params.each do |k,v|
         if k.to_s =~ /^(.+)_if$/
           klass = $1
+          current_node = @method == 'each' ? var : node
           # FIXME: DRY condition below (same as node_cond...)
           cond = if node_kind_of?(Node)
               case v
               when 'self'
-                "#{node}[:id] == @node[:id]"
+                "#{current_node}[:id] == @node[:id]"
               when 'parent'
-                "#{node}[:id] == @node[:parent_id]"
+                "#{current_node}[:id] == @node[:parent_id]"
               when 'project'
-                "#{node}[:id] == @node[:section_id]"
+                "#{current_node}[:id] == @node[:section_id]"
               when 'ancestor'
-                "@node.fullpath =~ /\\A\#{#{var}.fullpath}/"
+                "@node.fullpath =~ /\\A\#{#{current_node}.fullpath}/"
               else
                 nil
               end

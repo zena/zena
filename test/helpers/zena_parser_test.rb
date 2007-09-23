@@ -4,11 +4,11 @@ require 'ruby-debug'
 Debugger.start
 
 class ZenaParserTest < ZenaHelperTest
-  testfile :relations, :basic, :zafu_ajax, :zazen, :apphelper
+  testfile :relations, :basic, :zafu_ajax, :zazen, :apphelper, :errors
   Section # make sure we load Section links before trying relations
   
   def test_single
-    do_test('relations', 'tags')
+    do_test('basic', 'add_link')
   end
   
   def test_basic_show_bad_attr

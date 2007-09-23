@@ -1,6 +1,6 @@
 require File.dirname(__FILE__) + '/../test_helper'
 
-class ApplicationHelperTest < ZenaTestHelper
+class ZazenHelperTest < ZenaTestHelper
   include ApplicationHelper
 
   def setup
@@ -136,7 +136,7 @@ class ApplicationHelperTest < ZenaTestHelper
   
   def test_empty_image_ref
     assert_equal '<p>!!</p>', zazen('!!')
-    assert_equal "<p>!\n!</p>", zazen("!\n!")
+    assert_equal "<p>!\n<br/>!</p>", zazen("!\n!")
     assert_equal "<p>!!!</p>", zazen('!!!')
   end
   

@@ -55,6 +55,7 @@ class Parser
       end
       parser
     end
+
     def new_with_url(url, opts={})
       helper = opts[:helper] || ParserModule::DummyHelper.new
       text, absolute_url = self.get_template_text(url,helper)
@@ -273,6 +274,30 @@ class Parser
     @blocks = included_blocks + not_found
   end
   
+  # Return a has of all descendants. Find a specific descendant with descendant['form'] for example.
+  def descendants
+    @descendants ||= begin
+      d = {}
+      @blocks.each do |b|
+        next if b.kind_of?(String)
+        d[b.method] ||= []
+        d[b.method] << b
+        b.public_descendants.each do |k,v|
+          d[k] ||= []
+          d[k]  += v
+        end
+      end
+      d
+    end
+  end
+  
+  alias public_descendants descendants
+  
+  # Return the last defined descendant for the given key.
+  def descendant(key)
+    (descendants[key] || []).last
+  end
+  
   def success?
     return @ok
   end
@@ -445,6 +470,9 @@ class Parser
   def expand_with(acontext={})
     blocks = acontext.delete(:blocks) || @blocks
     res = ""
+    
+    # FIXME: I think we can delete @pass and @parts stuff now (test first).
+    
     @pass  = {} # current object sees some information from it's direct descendants
     @parts = {}
     
