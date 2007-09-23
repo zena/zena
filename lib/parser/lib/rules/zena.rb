@@ -685,6 +685,16 @@ END_TXT
       </script>"
     end
  
+    def r_unlink
+      text = expand_with
+      if text.blank?
+        text = _('btn_tiny_del')
+      end
+      dom_id = "#{CGI.escape(@context[:dom_id])}.\#{#{node}.zip}"
+      # amp bug, we have to build the path ourselves.
+      out "<% if #{node}[:link_id] -%><%= link_to_remote(#{text.inspect}, :url => \"/nodes/\#{#{node}[:zip]}/remove_link?link_id=\#{#{node}[:link_id]}&remove=#{dom_id}\", :method => :put) %><% end -%>"
+    end
+    
     def r_each
       if @context[:make_form]
         r_form
@@ -710,16 +720,18 @@ END_TXT
         out r_anchor(var) if @anchor_param # insert anchor inside the each loop
         @params[:anchor] = @anchor_param   # set back in case we double render
         @anchor_param = nil
-        res = expand_with(:node=>var)
         
-        if @context[:template_url] || @params[:draggable] == 'true'
+        if @context[:template_url] || @params[:draggable] == 'true' || descendant('unlink')
           # ajax, set id
           id_hash = {:id=>"#{dom_id}.<%= #{var}.zip %>"}
           if @html_tag
             @html_tag_params.merge!(id_hash)
+            res = expand_with(:node=>var, :dom_id=>dom_id) # dom_id is needed by 'unlink'
           else
-            res = add_params(res, id_hash)
+            res = add_params(expand_with(:node=>var, :dom_id=>dom_id), id_hash)
           end
+        else
+          res = expand_with(:node=>var)
         end
         out render_html_tag(res)
         out "<% end -%>"

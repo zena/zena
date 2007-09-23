@@ -411,5 +411,13 @@ class RelationTest < ZenaTestUnit
     assert_equal nodes(:bird_jpg)[:id], images[0][:id]
   end
   
+  def test_link_id
+    login(:tiger)
+    page = secure(Node) { nodes(:cleanWater) }
+    pages = page.find(:all, 'pages')
+    assert_nil pages[0][:link_id]
+    tags  = page.find(:all, 'tags')
+    assert_equal [links_id(:cleanWater_in_art).to_s], tags.map{|r| r[:link_id]}
+  end
   
 end

@@ -1,0 +1,12 @@
+default:
+  context:
+    lang: 'en'
+    visitor: 'ant'
+    node: 'cleanWater'
+  src: "simple text"
+  tem: "simple text"
+  res: "simple text"
+
+add_in_each:
+  src: "<r:pages><li do='each'><r:add/></li>"
+  res: "ADD should not be called from within EACH"

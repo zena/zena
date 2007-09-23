@@ -276,3 +276,7 @@ where_like:
 many_or:
   src: "<r:tagged from='site' or='images from site' or='tags from site' do='each' join=',' do='[name]'/>"
   res: "art,bird,cleanWater,flower,lake,news,opening,tree"
+
+unlink:
+  src: "<r:tagged from='site' do='each' join=',' do='unlink'/>"
+  res: "."

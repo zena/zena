@@ -121,9 +121,10 @@ module Zena
 
         opts[:order] ||= 'position ASC, name ASC'
 
-        if joins =~ /links\./
+        if joins =~ /JOIN links/
+          # WE ONLY GET THE FIRST link_id, it might be good to have them all..
           opts = clean_options(opts).merge( 
-                          :select     => "nodes.*, links.id AS link_id", 
+                          :select     => "nodes.*, lk1.id AS link_id", 
                           :joins      => joins,
                           :group      => 'nodes.id'
                           )
