@@ -277,12 +277,13 @@ class Parser
       d = {}
       @blocks.each do |b|
         next if b.kind_of?(String)
-        d[b.method] ||= []
-        d[b.method] << b
         b.public_descendants.each do |k,v|
           d[k] ||= []
           d[k]  += v
         end
+        # latest is used first: use direct children before grandchildren.
+        d[b.method] ||= []
+        d[b.method] << b
       end
       d
     end

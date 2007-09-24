@@ -582,6 +582,7 @@ END_TXT
       unless descendant('add_link')
         # add a descendant between self and blocks.
         blocks = @blocks.dup
+        @blocks = []
         add_link = make(:void, :method=>'add_link', :params=>@params.dup, :text=>'')
         add_link.blocks = blocks
         remove_instance_variable(:@descendants)
@@ -605,7 +606,7 @@ END_TXT
       else
         # no ajax
         @html_tag_params[:class] ||= 'btn_add' if @html_tag
-        out render_html_tag(text)
+        out render_html_tag(expand_with)
       end
       out "<% end -%>"
       @html_tag_done = true
@@ -647,8 +648,7 @@ END_TXT
       
       action << "&template_url=#{CGI.escape(template_url)}"
       action << "&dom_id=#{@html_tag_params[:id]}"
-      out expand_with
-      out "</div>"
+      out render_html_tag(expand_with)
       # out "<%= drop_receiving_element('#{@html_tag_params[:id]}', :url => drop_node_path(#{node}.zip) + #{action.inspect}, :method => :put, :revert=>true) %>"
       # BUG WITH &amp. USING RAW JS BELOW. 
       out "<script type='text/javascript'>
@@ -692,7 +692,7 @@ END_TXT
       end
       dom_id = "#{CGI.escape(@context[:dom_id])}.\#{#{node}.zip}"
       # amp bug, we have to build the path ourselves.
-      out "<% if #{node}[:link_id] -%><%= link_to_remote(#{text.inspect}, :url => \"/nodes/\#{#{node}[:zip]}/remove_link?link_id=\#{#{node}[:link_id]}&remove=#{dom_id}\", :method => :put) %><% end -%>"
+      out "<% if #{node}[:link_id] -%><%= link_to_remote(#{text.inspect}, {:url => \"/nodes/\#{#{node}[:zip]}/remove_link?link_id=\#{#{node}[:link_id]}&remove=#{dom_id}\", :method => :put}, :class=>#{(@params[:class] || 'unlink').inspect}) %><% end -%>"
     end
     
     def r_each
@@ -1372,7 +1372,7 @@ END_TXT
       elsif can  = @params[:can]
         # TODO: test
         case can
-        when 'write'
+        when 'write', 'edit'
           "#{node}.can_write?"
         when 'drive'
           "#{node}.can_drive?"
