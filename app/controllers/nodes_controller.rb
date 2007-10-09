@@ -42,7 +42,7 @@ class NodesController < ApplicationController
   def search
     do_search
     respond_to do |format|
-      format.html { render_and_cache :mode => '*search' }
+      format.html { render_and_cache :mode => '*search', :cache => false }
       format.js
     end
   end
