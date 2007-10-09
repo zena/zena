@@ -174,5 +174,24 @@ class TemplateTest < ZenaTestUnit
     assert_equal 'NP', doc.c_tkpath
     assert_equal 'Page', doc.c_klass
   end
-    
+  
+  def test_set_blank_name_not_unique
+    login(:tiger)
+    doc = secure(Template) { Template.create(:parent_id=>nodes_id(:layout), 'c_mode' => '', 'c_klass' => 'Contact', 'name' => '', 'c_format' => '')}
+    assert_kind_of Template, doc
+    assert !doc.new_record?, "Saved"
+    assert_nil doc.c_mode
+    assert_equal 'html', doc.c_format
+    assert_equal 'NRC', doc.c_tkpath
+    assert_equal 'Contact', doc.c_klass
+    assert_equal 'Contact', doc.name
+    doc = secure(Template) { Template.create(:parent_id=>nodes_id(:layout), 'c_mode' => '', 'c_klass' => 'Contact', 'name' => '', 'c_format' => 'vcard')}
+    assert_kind_of Template, doc
+    assert !doc.new_record?, "Saved"
+    assert_nil doc.c_mode
+    assert_equal 'vcard', doc.c_format
+    assert_equal 'NRC', doc.c_tkpath
+    assert_equal 'Contact', doc.c_klass
+    assert_equal 'Contact--vcard', doc.name
+  end
 end
