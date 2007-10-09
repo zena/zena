@@ -279,4 +279,4 @@ many_or:
 
 unlink:
   src: "<r:tagged from='site' do='each' join=',' do='unlink'/>"
-  res: "/<a class=\"unlink\".*onclick=.*Ajax.Request\('/nodes/21/remove_link?link_id=2.*bullet_delete.png.*link_id=1/"
+  res: "/<a class=\"unlink\".*onclick=.*Ajax.Request\('/nodes/21/remove_link\?link_id=2.*bullet_delete.png.*link_id=1/"

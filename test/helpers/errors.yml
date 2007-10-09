@@ -9,4 +9,4 @@ default:
 
 add_in_each:
   src: "<r:pages><li do='each'><r:add/></li>"
-  res: "ADD should not be called from within EACH"
+  res: "/ADD should not be called from within EACH/"

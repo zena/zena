@@ -1,4 +1,5 @@
 begin
+  # FIXME: zafu_readable should belong to core_ext.
   class ActiveRecord::Base
     @@_zafu_readable ||= {} # defined for each class
     @@_zafu_readable_attributes ||= {} # full list with inherited attributes
@@ -17,7 +18,7 @@ begin
     end
   
     def self.zafu_readable?(sym)
-      if sym.to_s =~ /(.*)_zips?$/  
+      if sym.to_s =~ /(.*)_zips?$/
         return true if self.ancestors.include?(Node) && Relation.find_by_role($1.singularize)
       end
       self.zafu_readable_attributes.include?(sym.to_s)
@@ -130,21 +131,17 @@ module Zena
     def r_show
       attribute = @params[:attr] || @params[:tattr]
       if @context[:trans]
-        # TODO: what do we do here with dates ?
-        "#{node_attribute(attribute)}"
+        # TODO: what do we do here with dates / filters ?
+        return "#{node_attribute(attribute)}"
       else
         if @params[:tattr]
-          "<%= _(#{node_attribute(attribute, :else=>@params[:else])}) %>"
-        elsif @params[:edit] == 'true' && @params[:attr]
-          name = unique_name + '_' + attribute
-          # TODO: add can_drive? or can_write? clauses.
-          "<span id='#{name}<%= #{node}.zip %>'><%= link_to_remote(#{node_attribute(attribute, :else=>@params[:else])}, :url => edit_node_path(#{node}.zip) + \"?attribute=#{attribute}&identifier=#{CGI.escape(name)}\#{#{node}.zip}\", :method => :get) %></span>"
+          attribute_method = "_(#{node_attribute(attribute, :else=>@params[:else])})"
         elsif @params[:attr]
           # TODO: test 'else', test 'format'
           if @params[:format]
-            "<%= sprintf(#{@params[:format].inspect}, #{node_attribute(attribute, :else=>@params[:else])}) %>"
+            attribute_method = "sprintf(#{@params[:format].inspect}, #{node_attribute(attribute, :else=>@params[:else])})"
           else
-            "<%= #{node_attribute(attribute, :else=>@params[:else])} %>"
+            attribute_method = "#{node_attribute(attribute, :else=>@params[:else])}"
           end
         elsif @params[:date]
           # date can be any attribute v_created_at or updated_at etc.
@@ -157,10 +154,28 @@ module Zena
           else
             format = "%Y-%m-%d"
           end
-          "<%= format_date(#{node_attribute(@params[:date])}, #{format.inspect}) %>"
+          attribute_method = "format_date(#{node_attribute(@params[:date])}, #{format.inspect})"
         else
           # error
+          return "<span class='parser_error'>no attribute for 'show'</span>"
         end
+      end
+      
+      if filter = @params[:filter]
+        if ['quoted_printable'].include?(filter)
+          attribute_method = "#{filter}(#{attribute_method})"
+        else
+          # error
+          return "<span class='parser_error'>invalid filter #{filter.inspect} in 'show'</span>"
+        end
+      end
+      
+      if @params[:edit] == 'true'
+        name = unique_name + '_' + attribute
+        # TODO: add can_drive? or can_write? clauses.
+        "<span id='#{name}<%= #{node}.zip %>'><%= link_to_remote(#{attribute_method}, :url => edit_node_path(#{node}.zip) + \"?attribute=#{attribute}&identifier=#{CGI.escape(name)}\#{#{node}.zip}\", :method => :get) %></span>"
+      else
+        "<%= #{attribute_method} %>"
       end
     end
     
@@ -577,6 +592,7 @@ END_TXT
     
     # TODO: test
     def r_add
+      return "ADD should not be called from within EACH" if parent.method == 'each'
       out "<% if #{node}.can_write? -%>"
       
       unless descendant('add_link')
@@ -700,21 +716,21 @@ END_TXT
         r_form
       elsif @context[:list]
         if @params[:draggable] == 'true'
-          out "<% #{var}_dom_ids = [] %>"
+          out "<% #{var}_dom_ids = [] -%>"
         end
         
         if join = @params[:join]
           join = join.gsub(/&lt;([^%])/, '<\1').gsub(/([^%])&gt;/, '\1>')
-          out "<% #{list}.each_index do |#{var}_index| %>"
+          out "<% #{list}.each_index do |#{var}_index| -%>"
           out "<%= #{var}=#{list}[#{var}_index]; #{var}_index > 0 ? #{join.inspect} : '' %>"
         else
-          out "<% #{list}.each do |#{var}| %>"
+          out "<% #{list}.each do |#{var}| -%>"
         end
         
         dom_id = @context[:template_url] || unique_name
         
         if @params[:draggable] == 'true'
-          out "<% #{var}_dom_ids << \"#{dom_id}.\#{#{var}.zip}\" %>"
+          out "<% #{var}_dom_ids << \"#{dom_id}.\#{#{var}.zip}\" -%>"
         end
         
         out r_anchor(var) if @anchor_param # insert anchor inside the each loop
@@ -1447,10 +1463,10 @@ END_TXT
     
     def node_attribute(attribute, opts={})
       att_node = opts[:node] || node
-      unless (attribute =~ /\Ad_/ || !node_kind_of?(Node))
-        attribute = attribute.gsub(/\A(|\w+_)id\Z/, '\1zip')
-      end
       res = if node_kind_of?(Node)
+        unless attribute =~ /\Ad_/
+          attribute = attribute.gsub(/\A(|[\w_]+)id(s?)\Z/, '\1zip\2')
+        end
         Node.zafu_attribute(att_node, attribute)
       elsif node_kind_of?(Version) && Version.zafu_readable?(attribute)
         "#{att_node}.#{attribute}"

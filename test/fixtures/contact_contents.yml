@@ -22,7 +22,7 @@ tiger:
 <%= @defaults %>
   first_name: Panther
   name:       Tigris Sumatran
-  address:    Small Island
+  address:    "Small Island\nIn the Wild"
   zip:        1998
   city:       Sumatra
   telephone:  +34 567 89 01 23
