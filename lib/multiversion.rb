@@ -404,9 +404,14 @@ module Zena
           @version
         end
         
+        def attributes=(attributes)
+          super @attributes_filtering_done ? attributes : filter_attributes(attributes)
+        end
+        
         private
         
-        def do_update_attributes(attributes)
+        def do_update_attributes(new_attributes)
+          attributes = filter_attributes(new_attributes)
           redaction_attr = false
           node_attr      = false
 
@@ -423,7 +428,13 @@ module Zena
             return false unless edit!
           end
 
-          unless node_attr
+          if node_attr
+            # super class call (original rails update_attributes)
+            @attributes_filtering_done = true  # if anyone knows a better way to avoid filtering twice...
+            self.attributes = attributes
+            @attributes_filtering_done = false
+            save
+          else
             attributes.each do |k,v|
               next if k.to_s == 'id' # just ignore 'id' (cannot be set but is often around)
               self.send("#{k}=".to_sym, v)
@@ -432,10 +443,6 @@ module Zena
             if errors.empty?
               save_version && update_max_status
             end
-          else
-            # super class call (original rails update_attributes)
-            self.attributes = attributes
-            save
           end
         end
         

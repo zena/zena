@@ -162,8 +162,17 @@ module Zena
       end
       
       if filter = @params[:filter]
-        if ['quoted_printable'].include?(filter)
-          attribute_method = "#{filter}(#{attribute_method})"
+        if filter =~ /\A\/(.+)\/(.+)\/\Z/
+          value = $2
+          key   = $1.gsub(/\#([\{\$\@])/,'# \1') # FIXME: SECURITY.
+                                                 # Please note that .gsub(/#([\{\$\@])/,'\#\1') won't work, since '\#{blah}' will become '\\#{blah}' and 'blah' will be evaluated.
+          begin
+            re = /#{key}/
+          rescue => err
+            # invalid regexp
+            return "<span class='parser_error'>invalid filter #{filter.inspect} in 'show'</span>"
+          end
+          attribute_method = "#{attribute_method}.to_s.gsub(/#{key}/,#{value.inspect})"
         else
           # error
           return "<span class='parser_error'>invalid filter #{filter.inspect} in 'show'</span>"
@@ -503,8 +512,15 @@ END_TXT
         form << "<input type='hidden' name='template_url' value='#{template_url}'/>\n"
         form << "<input type='hidden' name='node[parent_id]' value='<%= #{@context[:in_add] ? "#{@context[:parent_node]}.zip" : "#{node}.parent_zip"} %>'/>\n"
         
-        if @params[:klass] || @context[:in_add]
-          form << "<input type='hidden' name='node[klass]' value='#{@params[:klass] || @context[:klass] || 'Node'}'/>\n"
+        if (@params[:klass] || @context[:in_add])
+          klass_set = false
+          (descendants['input'] || []).each do |tag|
+            if tag.params[:name] == 'klass'
+              klass_set = true
+              break
+            end
+          end
+          form << "<input type='hidden' name='node[klass]' value='#{@params[:klass] || @context[:klass] || 'Node'}'/>\n" unless klass_set
         end
         if add_block = @context[:add]
           params = add_block.params
@@ -1027,8 +1043,11 @@ END_TXT
         # html attributes do not belong to sharp
         pre_space = ''
       else
-        if dom_class = @html_tag_params[:class] || @params[:class] then html_tags[:class] = dom_class end
-        if dom_id    = @html_tag_params[:id   ] || @params[:id   ] then html_tags[:id   ] = dom_id    end
+        [:class, :id, :style].each do |sym|
+          if value = @html_tag_params[sym] || @params[sym]
+            html_tags[sym] = value
+          end
+        end
         pre_space = @space_before || ''
         @html_tag_done = true
       end

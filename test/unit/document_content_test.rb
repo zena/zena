@@ -42,13 +42,6 @@ class DocumentContentTest < ZenaTestUnit
     end
   end
   
-  def test_set_file
-    doc = DocumentContent.new
-    assert_nothing_raised { doc.file = uploaded_pdf('water.pdf') }
-    assert_equal 'application/pdf', doc.content_type
-    assert_equal 29279, doc.size
-  end
-  
   def test_file
     doc = DocumentContent.new( :file=>uploaded_pdf('water.pdf') )
     data = nil

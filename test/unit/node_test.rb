@@ -347,7 +347,7 @@ class NodeTest < ZenaTestUnit
 
   def test_set_name_with_title
     login(:tiger)
-    node = Node.create(NEW_DEFAULT.stringify_keys.merge('name' => '', 'v_title' => 'small bed'))
+    node = secure(Node) { Node.create(NEW_DEFAULT.stringify_keys.merge('name' => '', 'v_title' => 'small bed')) }
     assert_kind_of Node, node
     assert !node.new_record?
     assert_equal 'smallBed', node.name

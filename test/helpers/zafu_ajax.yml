@@ -28,6 +28,18 @@ each_add_with_form:
     </r:children>
   res: "/<li.*list\.30.*>bird.*<li.*list\.31.*>flower.*<li.*list_add.*list_form.*toggle.*<li .*list_form.*style.*none.*Ajax.Request.*input type='hidden' name='template_url' value='/each/add/with/form/list'.*input type='hidden' name='node\[parent_id\]' value='29'/"
 
+each_add_with_form_klass_set:
+  context:
+    node: 'wiki'
+  src: |
+    <r:children>
+      <li do='each' do='[name]'>blah</li>
+      <li do='add'>add new</li>
+      <li do='form'><input name='v_title'/> <input type='select' name='klass' root_class='Note' selected='Post'/> this is the form</li>
+    </r:children>
+  res: "!/hidden.*node\[klass\].*Node.*select.*node\[klass\]/"
+
+
 each_edit_with_form:
   context:
     node: 'wiki'

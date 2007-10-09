@@ -26,8 +26,7 @@ class Template < TextDocument
     end
   end
   
-  def attributes=(new_attributes)
-    attributes = new_attributes.stringify_keys
+  def filter_attributes(attributes)
     ['c_klass','c_mode','c_format'].each do |sym|
       attributes.delete(sym) if attributes[sym] == ''
     end
@@ -40,6 +39,9 @@ class Template < TextDocument
     elsif new_name && !attributes['c_klass']
       # name set but it is not a master template name
       attributes['c_klass']  = nil
+    elsif !new_name
+      # force node update with new name
+      attributes['name'] = name_from_content(:format => attributes['c_format'], :mode => attributes['c_mode'], :klass => attributes['c_klass']) if content[:klass] && !new_record?
     end
     super(attributes)
   end
@@ -55,14 +57,21 @@ class Template < TextDocument
       if content.klass
         # update name
         content.format = 'html' if content.format.blank?
-        format = content.format == 'html' ? '' : "-#{content.format}"
-        mode   = (content.mode || format != '') ? "-#{content.mode}" : '' 
-        self[:name] = "#{content.klass}#{mode}#{format}"
+        self[:name] = name_from_content(:format => content.format, :mode => content.mode, :klass => content.klass)
       end
     end
     
     def valid_section
       errors.add('parent_id', 'Invalid parent (section is not a Skin)') unless section.kind_of?(Skin)
+    end
+    
+    def name_from_content(opts={})
+      opts[:format]  ||= version.content.format
+      opts[:mode  ]  ||= version.content.mode
+      opts[:klass ]  ||= version.content.klass
+      format = opts[:format] == 'html' ? '' : "-#{opts[:format]}"
+      mode   = (opts[:mode] || format != '') ? "-#{opts[:mode]}" : '' 
+      "#{opts[:klass]}#{mode}#{format}"
     end
     
 end

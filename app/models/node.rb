@@ -685,12 +685,13 @@ class Node < ActiveRecord::Base
     update_attributes(Node.transform_attributes(new_attributes))
   end
   
+  # Filter attributes before assignement.
   # Set name from version title if no name set yet.
-  def attributes=(new_attributes)
+  def filter_attributes(attributes)
     if self[:name].blank? && attributes['name'].blank? && attributes['v_title']
-      super(attributes.merge('name' => attributes['v_title']))
+      attributes.merge('name' => attributes['v_title'])
     else
-      super
+      attributes
     end
   end
   

@@ -1,6 +1,5 @@
 require 'test/unit'
 require File.join(File.dirname(__FILE__), '../../lib/core_ext/string')
-require File.join(File.dirname(__FILE__), '../../lib/core_ext/hash')
 
 class StringExtTest < Test::Unit::TestCase  
   def test_iso_format

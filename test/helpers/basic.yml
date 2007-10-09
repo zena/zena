@@ -93,11 +93,25 @@ show_tattr:
   tem: "<%= _(@node.ref_lang) %>"
   res: "english"
   
-show_quoted_printable:
+show_filter:
   context:
     node: 'tiger'
-  src: "<r:show attr='c_address' filter='quoted_printable'/>"
-  res: "Small Island=0D=0A=\nIn the Wild"
+  src: "<r:show attr='c_address' filter='/\\n/;/'/>"
+  tem: "<%= @node.c_zafu_read(\"address\").to_s.gsub(/\\n/,\";\") %>"
+  res: "Small Island;In the Wild"
+  
+show_filter_newline:
+  context:
+    node: 'tiger'
+  src: "<r:show attr='c_address' filter='/\\n/\\\\n/'/>"
+  res: 'Small Island\nIn the Wild'
+  
+show_mean_filter:
+  context:
+    node: 'tiger'
+  src: "<r:show attr='c_address' filter=\"/#{puts 'I AM MEAN'}/;/\"/>"
+  tem: "<%= @node.c_zafu_read(\"address\").to_s.gsub(/# {puts 'I AM MEAN'}/,\";\") %>"
+  res: "Small Island\nIn the Wild"
 
 link:
   src: "<r:link/>"

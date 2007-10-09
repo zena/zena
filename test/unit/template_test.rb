@@ -194,4 +194,21 @@ class TemplateTest < ZenaTestUnit
     assert_equal 'Contact', doc.c_klass
     assert_equal 'Contact--vcard', doc.name
   end
+  
+  def test_update_format_updates_name
+    doc = secure(Template) { Template.create(:parent_id=>nodes_id(:layout), 'c_mode' => '', 'c_klass' => 'Contact', 'name' => '', 'c_format' => 'vcard')}
+    assert_kind_of Template, doc
+    assert !doc.new_record?, "Saved"
+    assert_nil doc.c_mode
+    assert_equal 'vcard', doc.c_format
+    assert_equal 'NRC', doc.c_tkpath
+    assert_equal 'Contact', doc.c_klass
+    assert_equal 'Contact--vcard', doc.name
+    assert doc.update_attributes(:c_format => 'vcf')
+    assert_equal 'vcf', doc.c_format
+    assert_equal 'NRC', doc.c_tkpath
+    assert_equal 'Contact', doc.c_klass
+    assert_equal 'Contact--vcf', doc.name
+    
+  end
 end

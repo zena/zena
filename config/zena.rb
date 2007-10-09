@@ -174,6 +174,8 @@ EXT_TYPE = [
   [ "unv"       , "application/i-deas"             ],
   [ "ustar"     , "application/x-ustar"            ],
   [ "vcd"       , "application/x-cdlink"           ],
+  [ "vcf"       , "text/x-vCard"                   ],
+  [ "vcard"     , "text/x-vCard"                   ],
   [ "vda"       , "application/vda"                ],
   [ "viv"       , "video/vnd.vivo"                 ],
   [ "vivo"      , "video/vnd.vivo"                 ],

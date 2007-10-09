@@ -286,25 +286,6 @@ class ApplicationHelperTest < ZenaTestHelper
     assert_match %r{<td[^>]*id='tiny_today'>#{Date.today.day}</td>}, cal
   end
   
-  def test_notes_list_tiny_calendar_list
-    login(:tiger)
-    proj = secure(Node) { nodes(:cleanWater) }
-    note = secure(Note) { Note.create(:parent_id=>nodes_id(:cleanWater), :v_title=>'hello') }
-    list = notes(:from=>proj, :relations=>['news'])
-    assert_equal 1, list.size
-    assert_equal 'opening', list[0].name
-  end
-  
-  def test_notes_list_from_project
-    login(:tiger)
-    proj = secure(Node) { nodes(:cleanWater) }
-    note = secure(Note) { Note.create(:parent_id=>nodes_id(:cleanWater), :v_title=>'hello') }
-    list = notes(:from=>proj, :find=>:notes)
-    assert_equal 2, list.size
-    assert_equal 'opening', list[0].name
-    assert_equal 'hello', list[1].name
-  end
-  
   # ------ these tests were in main helper ----
 
   def test_check_lang_same

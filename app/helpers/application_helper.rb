@@ -1112,13 +1112,6 @@ ENDTXT
     "<div class='select_id'><input type='text' size='8' id='#{obj}_#{sym}' name='#{obj}[#{sym}]' value='#{zip}' onChange=\"#{update}\" onKeyup=\"#{update}\"/>"+
     "<span class='select_id_name' id='#{name_ref}'>#{current}</span></div>"
   end
-  
-  # ============== zafu filters =============
-  
-  # this filter is used when creating vcards
-  def quoted_printable(txt)
-    txt.gsub("\n", "=0D=0A=\n")
-  end
 end
 =begin
 

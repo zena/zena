@@ -62,7 +62,7 @@ class ApplicationController < ActionController::Base
     
       opts = {:skin=>@node[:skin], :cache=>true}.merge(options)
       opts[:mode  ] ||= params[:mode]
-      opts[:format] ||= params[:format]
+      opts[:format] ||= params[:format] || 'html'
       
       # cleanup before rendering
       params.delete(:mode)
@@ -71,9 +71,17 @@ class ApplicationController < ActionController::Base
       @section = @node.section
       # init default date used for calendars, etc
       @date  ||= params[:date] ? parse_date(params[:date]) : Date.today
-      render :file => template_url(opts), :layout=>false
+      
+      if opts[:format] != 'html'
+        content_type = (EXT_TO_TYPE[opts[:format]] || ['application/octet-stream'])[0]
+        data = render_to_string(:file => template_url(opts), :layout=>false)
+        send_data( data , :filename=>@node.v_title, :type => content_type, :disposition=>'inline')
+        cache_page(:content_data => data) if opts[:cache]
+      else
+        render :file => template_url(opts), :layout=>false
+        cache_page if opts[:cache]
+      end
     
-      cache_page if opts[:cache]
     end
   
     # Cache page content into a static file in the current sites directory : SITES_ROOT/test.host/public

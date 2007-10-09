@@ -90,9 +90,9 @@ class Document < Page
     end
   end
 
-  def attributes=(new_attributes)
-    attributes = new_attributes.stringify_keys
-
+  # Filter attributes before assignement.
+  # Set name and content extension based on file.
+  def filter_attributes(attributes)
     if attributes['name']
       # set through name
       base = attributes['name']
@@ -109,8 +109,13 @@ class Document < Page
       end
     end
     
+    attributes
+  end
+  
+  # FIXME: why do we need this ?
+  def attributes=(attributes)
     if content_type = attributes.delete('c_content_type')
-      # make sure 'content_type' is set before the rest
+      # make sure 'content_type' is set before the rest.
       version.content.content_type = content_type
     end
     
