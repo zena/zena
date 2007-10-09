@@ -72,16 +72,19 @@ class ApplicationController < ActionController::Base
       # init default date used for calendars, etc
       @date  ||= params[:date] ? parse_date(params[:date]) : Date.today
       
-      if opts[:format] != 'html'
-        content_type = (EXT_TO_TYPE[opts[:format]] || ['application/octet-stream'])[0]
-        data = render_to_string(:file => template_url(opts), :layout=>false)
-        send_data( data , :filename=>@node.v_title, :type => content_type, :disposition=>'inline')
-        cache_page(:content_data => data) if opts[:cache]
-      else
-        render :file => template_url(opts), :layout=>false
-        cache_page if opts[:cache]
+      begin
+        if opts[:format] != 'html'
+          content_type = (EXT_TO_TYPE[opts[:format]] || ['application/octet-stream'])[0]
+          data = render_to_string(:file => template_url(opts), :layout=>false)
+          send_data( data , :filename=>@node.v_title, :type => content_type, :disposition=>'inline')
+          cache_page(:content_data => data) if opts[:cache]
+        else
+          render :file => template_url(opts), :layout=>false
+          cache_page if opts[:cache]
+        end
+      rescue ActiveRecord::RecordNotFound
+        redirect_to zen_path(@node)
       end
-    
     end
   
     # Cache page content into a static file in the current sites directory : SITES_ROOT/test.host/public
@@ -133,7 +136,7 @@ class ApplicationController < ActionController::Base
       # FIXME use a default fixed template.
       raise ActiveRecord::RecordNotFound unless template
       
-      lang_path = session[:dev] ? 'dev' : lang
+      lang_path = session[:dev] ? "dev_#{lang}" : lang
       
       skin_path = "/#{template[:skin_name]}/#{template[:name]}"  
       fullpath  = skin_path + "/#{lang_path}/_main.erb"
@@ -254,7 +257,7 @@ class ApplicationController < ActionController::Base
       end
       
       template_url = template_url[1..-1].split('/')
-      path = "/#{template_url[0]}/#{template_url[1]}/#{session[:dev] ? 'dev' : lang}/#{template_url[2..-1].join('/')}"
+      path = "/#{template_url[0]}/#{template_url[1]}/#{session[:dev] ? "dev_#{lang}" : lang}/#{template_url[2..-1].join('/')}"
 
       "#{SITES_ROOT}/#{current_site.host}/zafu#{path}"
     end

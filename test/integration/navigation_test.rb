@@ -159,7 +159,14 @@ class NavigationTest < ActionController::IntegrationTest
     assert_response :success
   end
   
+  def test_show_bad_mode
+    get 'http://test.host/en/section12_std.html'
+    assert_redirected_to 'http://test.host/en/section12.html'
+  end
+  
   def test_show_with_internal_mode
+    get 'http://test.host/en/section12_*index.html'
+    assert_response 404
   end
   
   private
