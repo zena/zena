@@ -18,7 +18,7 @@ birthday::   birthday (date)
 class ContactContent < ActiveRecord::Base
   
   zafu_readable      :created_at, :updated_at, :fullname, :initials, :first_name, :name, :address, :zip, :city,
-                     :telephone, :mobile, :email
+                     :telephone, :mobile, :email, :country
 
   
   belongs_to :version
