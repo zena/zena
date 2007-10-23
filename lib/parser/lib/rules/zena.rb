@@ -957,7 +957,7 @@ END_TXT
       if @params[:show] == 'logo'
         # FIXME
       else
-        zena = "<a class='zena' href='http://zenadmin.org' title='zena #{Zena::VERSION::STRING}'>zena</a>"
+        zena = "<a class='zena' href='http://zenadmin.org' title='zena #{Zena::VERSION::STRING}#{Zena::VERSION::REV}'>zena</a>"
         case @params[:type]
         when 'riding'
           helper.send(:_, "riding %{zena}") % {:zena => zena}
