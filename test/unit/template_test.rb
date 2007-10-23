@@ -211,4 +211,12 @@ class TemplateTest < ZenaTestUnit
     assert_equal 'Contact--vcf', doc.name
     
   end
+  
+  def test_update_text
+    doc = secure(Template) { Template.create(:parent_id=>nodes_id(:layout), 'v_text'=>"hey", 'c_mode' => '', 'c_klass' => 'Contact', 'name' => '')}
+    assert_kind_of Template, doc
+    assert !doc.new_record?, "Saved"
+    assert_nil doc.c_mode
+    assert doc.update_attributes('v_text'=>"ho", 'c_format'=>'html', 'c_klass'=>'Node', 'c_mode' => '')
+  end
 end

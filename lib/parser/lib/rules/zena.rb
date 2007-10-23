@@ -1519,7 +1519,7 @@ END_TXT
           # FIXME: DRY condition below (same as node_cond...)
           cond = if node_kind_of?(Node)
               case v
-              when 'self'
+              when 'self', 'current'
                 "#{current_node}[:id] == @node[:id]"
               when 'parent'
                 "#{current_node}[:id] == @node[:parent_id]"

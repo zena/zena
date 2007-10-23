@@ -1,28 +1,13 @@
 <r:include template='layout'>
-  <r:with part='stylesheets'>
-    <r:stylesheets list='reset,zena,code,comment'/>
-    <link href="default.css" rel="Stylesheet" type="text/css"/>
-  </r:with>
   <r:with part='context'>
-    <r:project>
-      <h2 do='show' attr='name'>zena</h2>
-      <r:icon store='project'>
-        <r:img id='project_icon' mode='side' link='stored_project'/>
-        <r:else>
-          <div class='header'>
-            <p class='sign' do='version' do='author' do='show' attr='initials'>GB</p>
-          </div>
-          <r:summary or='v_text'/>
-        </r:else>
-      </r:icon>
-    </r:project>
+    <r:parent>
+    <ul do='pages' or='documents'><li do='each' on_if='current' do='link'/></ul>
+    </r:parent>
   </r:with>
   <r:with part='main'>
     <r:include template='layout' part='title'/>
     
     <r:summary text=''/>
     <r:text/>
-    <r:show attr='comments_count'/> comment(s)
-    <r:comments/>
   </r:with>
 </r:include>
