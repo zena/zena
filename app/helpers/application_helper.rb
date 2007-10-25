@@ -398,42 +398,54 @@ module ApplicationHelper
       if obj.kind_of?(Document)
         icon  = ext
         alt ||= _('%{ext} document') % {:ext => ext}
+      elsif obj.vclass.kind_of?(VirtualClass)
+        icon = obj.vclass.icon
+        src  = icon
+        alt ||= _('%{type} node') % {:type => obj.vclass.name}
       else
         icon = obj.klass.downcase
         alt ||= _('%{type} node') % {:type => icon}
       end
       
-      img_class = klass || 'doc'
-      unless File.exist?("#{RAILS_ROOT}/public/images/ext/#{icon}.png")
+      src ||= "/images/ext/#{icon}.png"
+      
+      unless File.exist?("#{RAILS_ROOT}/public#{src}")
         icon = 'other'
+        src  = '/images/ext/other.png'
       end
       
-      unless mode
-        # img_tag from extension
+      img_class = 'doc'
+      
+      if mode.nil?
+        # extension size
         width  = 32
         height = 32
-        src    = "/images/ext/#{icon}.png"
-      else
-        img = ImageBuilder.new(:path=>"#{RAILS_ROOT}/public/images/ext/#{icon}.png", :width=>32, :height=>32)
-        img.transform!(mode)
-        width  = img.width
-        height = img.height
+        src    ||= "/images/ext/#{icon}.png"
+      elsif !src
+        # do not scale if src defined by virtual_class's icon
         
-        filename = "#{icon}_#{mode}.png"
-        path     = "#{RAILS_ROOT}/public/images/ext/"
-        unless File.exist?(File.join(path,filename))
-          # make new image with the mode
-          unless File.exist?(path)
-            FileUtils::mkpath(path)
-          end
-          if img.dummy?
-            File.cp("#{RAILS_ROOT}/public/images/ext/#{icon}.png", "#{RAILS_ROOT}/public/images/ext/#{filename}")
-          else
-            File.open(File.join(path, filename), "wb") { |f| f.syswrite(img.read) }
-          end
-        end
-        
-        src    = "/images/ext/#{filename}"
+        # do not scale icons.
+        #img = ImageBuilder.new(:path=>"#{RAILS_ROOT}/public/images/ext/#{icon}.png", :width=>32, :height=>32)
+        #img.transform!(mode)
+        #width  = img.width
+        #height = img.height
+        #
+        #filename = "#{icon}_#{mode}.png"
+        #path     = "#{RAILS_ROOT}/public/images/ext/"
+        #unless File.exist?(File.join(path,filename))
+        #  # make new image with the mode
+        #  unless File.exist?(path)
+        #    FileUtils::mkpath(path)
+        #  end
+        #  if img.dummy?
+        #    File.cp("#{RAILS_ROOT}/public/images/ext/#{icon}.png", "#{RAILS_ROOT}/public/images/ext/#{filename}")
+        #  else
+        #    File.open(File.join(path, filename), "wb") { |f| f.syswrite(img.read) }
+        #  end
+        #end
+        #
+        #src    = "/images/ext/#{filename}"
+        src = "/images/ext/#{icon}.png"
       end
     end
     res = "<img src='#{src}'"

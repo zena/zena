@@ -107,6 +107,7 @@ i, em     { font-style:italic; }
 /* documents */
 #related a { padding-bottom:3px;}
 #related a img { border:1px solid grey; margin-right:3px; margin-bottom:-4px;}
+#related a img.doc { border:none; }
 #related li { margin-bottom:4px; }
 #related .btn_add img { border:0; }
 .document { float:left; margin:0 10px 0 0; }

@@ -190,16 +190,19 @@ module Zena
                 field = $1
                 op    = $2
                 value = $3
-                if value =~ /\[(visitor|param):(\w+)\]/
-                  case $1
+                if value =~ /(.*?)\[(visitor|param):(\w+)\](.*)/
+                  val_start = $1 == '' ? '' : "#{$1.inspect} +"
+                  val_end   = $4 == '' ? '' : "+ #{$4.inspect}"
+                  case $2
                   when 'visitor'
-                    value = "\#{Node.connection.quote(#{Node.zafu_attribute('visitor.contact', $2)})}"
+                    value = "\#{Node.connection.quote(\#{#{val_start}Node.zafu_attribute(visitor.contact, #{$3.inspect})#{val_end}})}"
                   when 'param'
-                    value = "\#{Node.connection.quote(params[:#{$2}])}"
+                    value = "\#{Node.connection.quote(#{val_start}params[:#{$3}].to_s#{val_end})}"
                   end
                 else
                   value = Node.connection.quote(value)
                 end
+                
                 case field[0..1]
                 when 'd_'
                   # DYNAMIC ATTRIBUTE
@@ -241,9 +244,9 @@ module Zena
                   field, function = parse_sql_function_in_field(field)
                   if Node.zafu_readable?(field) && Node.column_names.include?(field)
                     if function
-                      "#{function}(#{field}) #{op} #{value}"
+                      "#{function}(nodes.#{field}) #{op} #{value}"
                     else
-                      "#{field} #{op} #{value}"
+                      "nodes.#{field} #{op} #{value}"
                     end
                   else
                     nil

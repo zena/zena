@@ -2,7 +2,7 @@
 #search_box input { border:1px inset #444; width:146px; padding:1px; margin:0; font-size:10px;}
 #search_results { width:100%; }
 #search_results p { margin:0;}
-.results, #result_loader { border:1px solid #444; margin:3px 0 0; padding:2px; text-align:left; background:#97A97F; }
+.results, #search_loader { border:1px solid #444; margin:3px 0 0; padding:2px; text-align:left; background:#97A97F; }
 .results li { list-style:none; padding:5px 0; border-top:1px solid #647D35;}
 .results li:first-child { border-top-width:0;}
 .results img { float:left; margin-right:3px; }

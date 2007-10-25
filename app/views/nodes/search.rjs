@@ -1,3 +1,3 @@
 page.replace_html 'search_results', :partial => 'results'
-page.hide('result_loader')
+page.hide('search_loader')
 page.show('search_results')

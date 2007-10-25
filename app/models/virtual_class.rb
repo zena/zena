@@ -6,6 +6,10 @@ class VirtualClass < ActiveRecord::Base
     name
   end
   
+  def icon=(txt)
+    self[:icon] = txt.gsub('..', '.') # SECURITY
+  end
+  
   # FIXME: how to make sure all sub-classes of Node are loaded before this is called ?
   def classes_for_form(opts={})
     all_classes(opts).map{|a,b| [a[0..-1].sub(/^#{self.kpath}/,'').gsub(/./,'  ') + b.to_s, b.to_s] } # white spaces are insecable spaces (not ' ')

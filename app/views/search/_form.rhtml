@@ -1,11 +1,13 @@
 <div class="search">
   <% if ajax -%>
-  <%= form_remote_tag( :url => asearch_nodes_path, :method => :get, :loading => "$('search_results').innerHTML='';Element.show('result_loader');" ) %>
+  <%= form_remote_tag( :url => asearch_nodes_path, :method => :get, :loading => "$('search_results').innerHTML='';Element.show('search_loader');" ) %>
   <% else -%>
   <%= form_tag( search_nodes_path, :method => :get ) %>
   <% end -%>
   <div class='wrapper'><input type='text' accesskey='s' id='search_field' style="color:#aaa;" name='q' onfocus='this.style.color="black";this.value="";' value='<%= params[:q] || _('search field') %>'/></div>
   </form>
-  <div id='result_loader' style='display:none;'><img alt='spinner' src='/images/ajax-loader.gif'/></div>
+  <% if ajax -%>
+  <div id='search_loader' style='display:none;'><img alt='spinner' src='/images/ajax-loader.gif'/></div>
   <div id='search_results'></div>
+  <% end -%>
 </div>

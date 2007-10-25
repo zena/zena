@@ -4,7 +4,7 @@
           :url    => edit_virtual_class_path(li),
           :method => :get) %></td>
   <td><%= li.name %></td>
-  <td class="icon" ><%= li.icon %></td>
+  <td class="icon" ><%= li.icon ? "<img src='#{li.icon}'/>" : "" %></td>
   <td class="attributes" ><%= li.allowed_attributes %></td>
   <td class="create_group"><%= li.create_group.name %></td>
   <td class="superclass" ><%= li.superclass %></td>

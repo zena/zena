@@ -237,9 +237,7 @@ class Node < ActiveRecord::Base
     end
     
     def create_or_update_node(new_attributes)
-      puts "CREA OR UP "
       attributes = transform_attributes(new_attributes)
-      puts attributes['v_status'].inspect
       unless attributes['name'] && attributes['parent_id']
         node = Node.new
         node.errors.add('name', "can't be blank") unless attributes['name']
@@ -251,7 +249,6 @@ class Node < ActiveRecord::Base
                                           current_site[:id], attributes['name'].url_name, attributes['parent_id']])
       end
       if node
-        puts "UPDATE"
         visitor.visit(node) # secure
         # TODO: class ignored (could be used to transform from one class to another...)
         attributes.delete('class')
@@ -259,7 +256,6 @@ class Node < ActiveRecord::Base
         node.edit!(attributes['v_lang'])
         node.update_attributes(attributes)
       else
-        puts "CREATE"
         node = create_node(new_attributes)
       end
       node

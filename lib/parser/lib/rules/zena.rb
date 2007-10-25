@@ -210,6 +210,35 @@ module Zena
       do_list("@nodes")
     end
     
+    # TODO: write a test (please)
+    # Define a group of elements to be used by ajax calls (edit/filter)
+    def r_group
+      template_url = unique_name + '_' + (@params[:name] || 'group')
+      
+      @html_tag_params.merge!(:id=>"#{template_url}")
+      @html_tag ||= 'div'
+      
+      # STORE TEMPLATE ========
+      template_node = "@#{node_class.to_s.downcase}"
+      res           = expand_with(:list=>false, :node=>template_node, :template_url=>template_url, :form=>false)
+      @html_tag_done = false
+      template      = render_html_tag(res)
+      out helper.save_erb_to_url(template, template_url)
+      
+      if descendant('edit')
+        # MAKE A FORM ========
+        # TODO: ...
+      end
+      
+      @html_tag_done = false
+      out expand_with(:template_url => template_url)
+    end
+    
+    # TODO: test
+    def r_filter
+      "<%= form_remote_tag(:url => zafu_node_path(#{node}.zip), :method => :get) %><div class='hidden'><input type='hidden' name='template_url' value='#{@context[:template_url]}'/><input type='hidden' name='filter' value='true'/></div><div class='wrapper'><input type='text' name='q' value='<%= params[:q] %>'/></div></form>"
+    end
+    
     def r_trans
       static = true
       if @params[:text]
@@ -339,18 +368,18 @@ module Zena
     
     # TODO: replace with a more general 'zazen' or 'show' with id ?
     def r_summary
+      limit  = @params[:limit] ? ", :limit=>#{@params[:limit].to_i}" : ""
       unless @params[:or]
         text = @params[:text] ? @params[:text].inspect : node_attribute('v_summary')
-        "<div id='v_summary<%= #{node}.zip %>' class='zazen'><%= zazen(#{text}, :node=>#{node}) %></div>"
+        "<div id='v_summary<%= #{node}.zip %>' class='zazen'><%= zazen(#{text}#{limit}, :node=>#{node}) %></div>"
       else
         first_name = 'v_summary'
         first  = node_attribute(first_name)
         
         second_name = @params[:or].gsub(/[^a-z_]/,'') # ERB injection
         second = node_attribute(second_name)
-        limit     = @params[:limit] ? ", :limit=>#{@params[:limit].to_i}" : ""
         "<div id='#{first_name}<%= #{node}.zip %>' class='zazen'><% if #{first} != '' %>" +
-        "<%= zazen(#{first}, :node=>#{node}) %>" +
+        "<%= zazen(#{first}#{limit}, :node=>#{node}) %>" +
         "<% else %>" +
         "<%= zazen(#{second}#{limit}, :node=>#{node}) %>" +
         "<% end %></div>"
