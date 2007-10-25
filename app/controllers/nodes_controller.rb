@@ -158,6 +158,7 @@ class NodesController < ApplicationController
         @title_for_layout = @node.rootpath
       end
       format.js do
+        # zafu edit
         render :template => 'nodes/edit.rjs' # FIXME: this should not be needed. Rails bug ?
       end
     end

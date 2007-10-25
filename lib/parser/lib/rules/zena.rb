@@ -182,7 +182,7 @@ module Zena
       if @params[:edit] == 'true'
         name = unique_name + '_' + attribute
         # TODO: add can_drive? or can_write? clauses.
-        "<span id='#{name}<%= #{node}.zip %>'><%= link_to_remote(#{attribute_method}, :url => edit_node_path(#{node}.zip) + \"?attribute=#{attribute}&identifier=#{CGI.escape(name)}\#{#{node}.zip}\", :method => :get) %></span>"
+        "<span id='#{name}.<%= #{node}.zip %>'><%= link_to_remote(#{attribute_method}, :url => edit_node_path(#{node}.zip) + \"?attribute=#{attribute}&identifier=#{CGI.escape(name)}.\#{#{node}.zip}\", :method => :get) %></span>"
       else
         "<%= #{attribute_method} %>"
       end
@@ -489,7 +489,7 @@ module Zena
           form  =  "<%= form_remote_tag(:url => #{node_class.to_s.downcase.pluralize}_path) %>\n"
         else
           # saved form used to edit: set values and 'parent_id' from @node
-          @html_tag_params.merge!(:id=>"#{template_url}<%= #{node}.new_record? ? '_form' : #{node}.zip %>")
+          @html_tag_params.merge!(:id=>"#{template_url}.<%= #{node}.new_record? ? '_form' : #{node}.zip %>")
           # new_record? = edit/create failed, rendering form with errors
           # else        = edit
           # FIXME: remove '/zafu?' when nodes_controller's method 'zafu' is no longer needed.
@@ -773,7 +773,7 @@ END_TXT
         end
       elsif @context[:template_url]
         # saved template
-        id_hash = {:id=>"#{@context[:template_url]}<%= #{node}.zip %>"}
+        id_hash = {:id=>"#{@context[:template_url]}.<%= #{node}.zip %>"}
         if @html_tag
           @html_tag_params.merge!(id_hash)
           out render_html_tag(expand_with)
@@ -781,7 +781,7 @@ END_TXT
           out add_params(expand_with, id_hash)
         end
         if @params[:draggable] == 'true'
-          out "<%= \"<script type='text/javascript'>\n//<![CDATA[\nZena.draggable('#{@context[:template_url]}<%= #{node}.zip %>')\n//]]>\n</script>\" %>"
+          out "<%= \"<script type='text/javascript'>\n//<![CDATA[\nZena.draggable('#{@context[:template_url]}.<%= #{node}.zip %>')\n//]]>\n</script>\" %>"
         end
       else
         # TODO: make a single list ?

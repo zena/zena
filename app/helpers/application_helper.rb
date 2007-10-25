@@ -906,16 +906,23 @@ ENDTXT
   
   # show current path with links to ancestors
   def show_path(opts={})
-    node = opts[:node] || @node
-    tag  = opts[:wrap] || 'li'
-    join = opts[:join] || ''
+    node = opts.delete(:node) || @node
+    tag  = opts.delete(:wrap) || 'li'
+    join = opts.delete(:join) || ''
+    if tag != ''
+      open_tag  = "<#{tag}>"
+      close_tag = "</#{tag}>"
+    else
+      open_tag  = ""
+      close_tag = ""
+    end
     nav = []
     node.ancestors.each do |obj|
-      nav << link_to(obj.name, zen_path(obj))
+      nav << link_to(obj.name, zen_path(obj, opts))
     end
     
     nav << "<a href='#{url_for(zen_path(node))}' class='current'>#{node.name}</a>"
-    res = "#{res}<#{tag}>#{nav.join("</#{tag}><#{tag}>#{join}")}</#{tag}>"
+    res = "#{res}#{open_tag}#{nav.join("#{close_tag}#{open_tag}#{join}")}#{close_tag}"
   end
   
   # TODO: could be used by all helpers: faster then routes... Rename obj_link (is used to link to versions)
