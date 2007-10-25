@@ -1,4 +1,4 @@
-<% @defaults = "  created_at: 2006-04-11\n  updated_at: 2006-04-11\n  country: Nature" %>
+<% @defaults = "  created_at: 2006-04-11\n  updated_at: 2006-04-11" %>
 
 ant:
   id:         3
