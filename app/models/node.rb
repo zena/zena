@@ -128,7 +128,7 @@ class Node < ActiveRecord::Base
   
   zafu_readable      :name, :created_at, :updated_at, :event_at, :log_at, :kpath, :user_zip, :parent_zip, :project_zip,
                      :section_zip, :skin, :ref_lang, :fullpath, :rootpath, :publish_from, :max_status, :rgroup_id, 
-                     :wgroup_id, :pgroup_id, :basepath, :custom_base, :klass, :zip, :score, :comments_count
+                     :wgroup_id, :pgroup_id, :basepath, :custom_base, :klass, :zip, :score, :comments_count, :position
   
   
   has_many           :discussions, :dependent => :destroy
@@ -138,7 +138,7 @@ class Node < ActiveRecord::Base
   before_create      :node_before_create
   after_save         :spread_project_and_section
   before_destroy     :node_on_destroy
-  attr_protected     :site_id, :zip, :id, :section_id, :project_id, :publish_from, :max_status, :v_status
+  attr_protected     :site_id, :zip, :id, :section_id, :project_id, :publish_from, :max_status
   attr_protected     :c_version_id, :c_node_id # TODO: test
   acts_as_secure_node
   acts_as_multiversioned
@@ -237,7 +237,9 @@ class Node < ActiveRecord::Base
     end
     
     def create_or_update_node(new_attributes)
+      puts "CREA OR UP "
       attributes = transform_attributes(new_attributes)
+      puts attributes['v_status'].inspect
       unless attributes['name'] && attributes['parent_id']
         node = Node.new
         node.errors.add('name', "can't be blank") unless attributes['name']
@@ -246,9 +248,10 @@ class Node < ActiveRecord::Base
       end
       node = Node.with_exclusive_scope do
         Node.find(:first, :conditions => ['site_id = ? AND name = ? AND parent_id = ?', 
-                                          current_site[:id], attributes['name'], attributes['parent_id']])
+                                          current_site[:id], attributes['name'].url_name, attributes['parent_id']])
       end
       if node
+        puts "UPDATE"
         visitor.visit(node) # secure
         # TODO: class ignored (could be used to transform from one class to another...)
         attributes.delete('class')
@@ -256,6 +259,7 @@ class Node < ActiveRecord::Base
         node.edit!(attributes['v_lang'])
         node.update_attributes(attributes)
       else
+        puts "CREATE"
         node = create_node(new_attributes)
       end
       node
@@ -269,7 +273,6 @@ class Node < ActiveRecord::Base
       # instance method. It would get the visitor and scope from the same hack below.
       scope   = self.scoped_methods[0] || {}
       
-      publish = (attributes.delete('v_status').to_i == Zena::Status[:pub])
       
       klass_name   = attributes.delete('class') || attributes.delete('klass') || 'Page'
       
@@ -287,7 +290,7 @@ class Node < ActiveRecord::Base
       else
         self.create_instance(attributes)
       end
-      node.publish if publish
+      
       node
     end
     
@@ -1187,7 +1190,8 @@ I think we can remove this stuff now that relations are rewritten
     end
   end
   
-  protected  
+  protected
+  
     # after node is saved, make sure it's children have the correct section set
     def spread_project_and_section
       if @spread_section_id || @spread_project_id

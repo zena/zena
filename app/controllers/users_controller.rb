@@ -36,7 +36,11 @@ class UsersController < ApplicationController
     else
       session[:dev] = true
     end
-    redirect_to request.referer
+    if request.referer
+      redirect_to request.referer
+    else
+      redirect_to :action => 'show'
+    end
   end
     
   

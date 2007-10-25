@@ -74,6 +74,7 @@ module Zafu
         res = text
       end
       @html_tag_done = true
+      return res if @context && @context[:only] && !@context[:only].include?(:string)
       (@space_before || '') + res + (@space_after || '')
     end
     

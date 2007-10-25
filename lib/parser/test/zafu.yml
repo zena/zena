@@ -37,7 +37,15 @@ hello_not_closed:
 test:
   src: "this <r:test>is a test</r:test> <r:hello/>"
   res: "this [test]is a test[/test] hello world!"
-  
+
+only_hello:
+   src: "<r:only_hello>Some things <r:test/> <r:hello/></r:only_hello>"
+   res: "hello world!"
+
+only_string:
+  src: "<r:only_string>Some things <r:test/>. <r:hello/>.</r:only_string>"
+  res: "Some things . ."
+
 very_messy:
   src: "this <r: blah> </r:truc> whak"
   res: "this <r: blah> <span class='parser_error'>&lt;/r:truc&gt;</span> whak"

@@ -16,6 +16,14 @@ module Zafu
       'hello world!'
     end
     
+    def r_only_hello
+      expand_with(:only=>['hello'])
+    end
+    
+    def r_only_string
+      out expand_with(:only=>[:string])
+    end
+    
     def r_text
       @params[:text]
     end
@@ -56,7 +64,7 @@ end
 class ParserTest < Test::Unit::TestCase
   testfile :zafu, :zafu_asset, :zafu_insight, :zazen
   def test_single
-    do_test('zafu', 'multiple_param')
+    do_test('zafu', 'only_hello')
   end
   
   def test_zazen_image_no_image

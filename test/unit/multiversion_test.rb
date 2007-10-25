@@ -713,4 +713,17 @@ class MultiVersionTest < ZenaTestUnit
     assert node.destroy_version # destroy all
     assert_raise(ActiveRecord::RecordNotFound) { nodes(:status) }
   end
+  
+  def test_auto_publish
+    # set v_status = 50 ===> publish
+    login(:lion)
+    node = secure(Node) { nodes(:status) }
+    assert_equal Zena::Status[:pub], node.v_status
+    assert_equal 'status title', node.v_title
+    assert_equal 1, node.v_number
+    node.update_attributes(:v_title => "Statues are better", 'v_status' => Zena::Status[:pub])
+    assert_equal Zena::Status[:pub], node.v_status
+    assert_equal 3, node.v_number
+    assert_equal 'Statues are better', node.v_title
+  end
 end

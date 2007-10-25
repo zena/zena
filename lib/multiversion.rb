@@ -326,6 +326,11 @@ module Zena
         def remove_attributes_with_same_value(new_attributes)
           res = {}
           new_attributes.each do |k,v|
+            if k == 'v_status'
+              # makes no sense to remove this (it's used to auto publish changes)
+              res[k] = v
+              next
+            end
             current_value = self.send(k) rescue nil # remove rescue when link is fixed
             case current_value.class.to_s
             when 'String'
@@ -412,6 +417,8 @@ module Zena
         
         def do_update_attributes(new_attributes)
           attributes = filter_attributes(new_attributes)
+          
+          publish_after_save = (attributes.delete('v_status').to_i == Zena::Status[:pub])
           redaction_attr = false
           node_attr      = false
 
@@ -433,7 +440,7 @@ module Zena
             @attributes_filtering_done = true  # if anyone knows a better way to avoid filtering twice...
             self.attributes = attributes
             @attributes_filtering_done = false
-            save
+            ok = save
           else
             attributes.each do |k,v|
               next if k.to_s == 'id' # just ignore 'id' (cannot be set but is often around)
@@ -441,9 +448,13 @@ module Zena
             end
             valid_redaction
             if errors.empty?
-              save_version && update_max_status
+              ok = save_version && update_max_status
             end
           end
+          if ok && publish_after_save && errors.empty?
+            ok = publish
+          end
+          ok
         end
         
         def update_attribute_without_fuss(att, value)

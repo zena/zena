@@ -150,6 +150,7 @@ class Parser
     else
       res = self.do_method(:r_unknown)
     end
+    
     if @result != ""
       res = @result
     elsif !res.kind_of?(String)
@@ -477,12 +478,14 @@ class Parser
     
     @pass  = {} # current object sees some information from it's direct descendants
     @parts = {}
-    
+    only   = acontext[:only]
     new_context = @context.merge(acontext)
     blocks.each do |b|
       if b.kind_of?(String)
-        res << b
-      else
+        if !only || only.include?(:string)
+          res << b
+        end
+      elsif !only || only.include?(b.method)
         res << b.render(new_context.dup)
         if pass = b.pass
           if pass[:part]

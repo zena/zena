@@ -282,7 +282,10 @@ module Zena
       res = "<%= show_title(:node=>#{node}#{params_to_erb(title_params)}"
       if @params.include?(:attr)
         res << ", :text=>#{node_attribute(@params[:attr])}"
+      elsif (text = expand_with(:only => [:string])) != ''
+        res << ", :text=>#{text.inspect}"
       end
+      
       if @params.include?(:project)
         res << ", :project=>#{@params[:project] == 'true'}"
       end
