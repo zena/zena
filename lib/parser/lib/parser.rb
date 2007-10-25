@@ -403,7 +403,7 @@ class Parser
       if rest =~ /(.+?)=/
         key = $1.strip.to_sym
         rest = rest[$&.length..-1].strip
-        if rest =~ /('|")([^\1]*?[^\\]|)\1/
+        if rest =~ /('|")(|[^\1]*?[^\\])\1/
           rest = rest[$&.length..-1].strip
           key_counter = 1
           while params[key]

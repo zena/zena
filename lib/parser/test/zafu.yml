@@ -93,6 +93,11 @@ params:
   src: "some <r:test good='choice' nice='work'>things</r:test> are fine"
   res: "some [test {= :good=>'choice', :nice=>'work'}]things[/test] are fine"
 
+empty_param:
+  src: "some <r:test good='' nice='work'>things</r:test> are fine"
+  res: "some [test {= :good=>'', :nice=>'work'}]things[/test] are fine"
+
+
 default_menu:
   src: "the <r:test>menu</r:test> is nice"
   res: "the [test]menu[/test] is nice"
