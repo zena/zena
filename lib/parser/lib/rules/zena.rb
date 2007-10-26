@@ -213,7 +213,7 @@ module Zena
     # TODO: write a test (please)
     # Define a group of elements to be used by ajax calls (edit/filter)
     def r_group
-      template_url = unique_name + '_' + (@params[:name] || 'group')
+      template_url = @params[:name] || (unique_name + '_group')
       form_url     = template_url + '_form'
       
       @html_tag_params.merge!(:id=>"#{template_url}.<%= #{node}.zip %>")
@@ -250,7 +250,11 @@ module Zena
     
     # TODO: test
     def r_filter
-      "<%= form_remote_tag(:url => zafu_node_path(#{node}.zip), :method => :get) %><div class='hidden'><input type='hidden' name='template_url' value='#{@context[:template_url]}'/></div><div class='wrapper'><input type='text' name='q' value='<%= params[:q] %>'/></div></form>"
+      dom_id = unique_name(false) + '_group'  # FIXME: this will break if the filter is not in the same context as the group. Try to use @param[:name] ==> group.name
+      out "<%= form_remote_tag(:url => zafu_node_path(#{node}.zip), :method => :get, :html => {:id => \"#{dom_id}_q\"}) %><div class='hidden'><input type='hidden' name='template_url' value='#{dom_id}'/></div><div class='wrapper'><input type='text' name='#{@param[:key] || 'f'}' value='<%= params[:q] %>'/></div></form>"
+      if @params[:live]
+        out "<%= observe_form( \"#{dom_id}_q\" , :method => :get, :frequency  =>  0.5, :submit =>\"#{dom_id}_q\", :url => zafu_node_path(#{node}.zip)) %>"
+      end
     end
     
     def r_trans
@@ -572,7 +576,7 @@ END_TXT
               break
             end
           end
-          form << "<input type='hidden' name='node[klass]' value='#{@params[:klass] || @context[:klass] || 'Node'}'/>\n" unless klass_set
+          form << "<input type='hidden' name='node[klass]' value='#{@params[:klass] || @context[:klass] || 'Page'}'/>\n" unless klass_set
         end
         if add_block = @context[:add]
           params = add_block.params
@@ -662,7 +666,6 @@ END_TXT
     def r_add
       return "ADD should not be called from within EACH" if parent.method == 'each'
       out "<% if #{node}.can_write? -%>"
-      
       unless descendant('add_link')
         # add a descendant between self and blocks.
         blocks = @blocks.dup
@@ -781,8 +784,10 @@ END_TXT
     
     def r_each
       if @context[:make_form]
+        # use the elements inside 'each' loop to produce the edit form
         r_form
       elsif @context[:list]
+        # normal rendering: inserted into the layout
         if @params[:draggable] == 'true'
           out "<% #{var}_dom_ids = [] -%>"
         end
@@ -824,7 +829,7 @@ END_TXT
           out "<%= \"<script type='text/javascript'>\n//<![CDATA[\n\#{#{var}_dom_ids.inspect}.each(Zena.draggable)\n//]]>\n</script>\" %>"
         end
       elsif @context[:template_url]
-        # saved template
+        # render to produce a saved template
         id_hash = {:id=>"#{@context[:template_url]}.<%= #{node}.zip %>"}
         if @html_tag
           @html_tag_params.merge!(id_hash)
@@ -1414,21 +1419,21 @@ END_TXT
       helper.send(:_,text)
     end
     
-    def next_name_index(key)
+    def next_name_index(key, increment_counter = true)
       @next_name_index ||= {}
-      if @next_name_index[key]
-        @next_name_index[key] += 1
+      if @next_name_index[key]     && increment_counter
+        @next_name_index[key] += 1 if increment_counter
         key + @next_name_index[key].to_s
       else
-        @next_name_index[key] = 0
+        @next_name_index[key] = 0  if increment_counter
         key
       end
     end
     
-    def unique_name
+    def unique_name(increment_counter = true)
       # FIXME: make sure the unique name is using the current skin 
       # /gbuma/Node_index.html/dev/small_calendar instead of /default/Node_index.html/small_calendar
-      "#{@options[:included_history][0].split('::')[0]}/#{root.next_name_index(@context[:name] || 'list').gsub(/[^\d\w\/]/,'_')}"
+      "#{@options[:included_history][0].split('::')[0]}/#{root.next_name_index((@context[:name] || 'list'), increment_counter).gsub(/[^\d\w\/]/,'_')}"
     end
        
     def add_params(text, opts={})

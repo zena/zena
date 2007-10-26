@@ -202,8 +202,7 @@ class Node < ActiveRecord::Base
     end
     
     def get_class(rel, opts={})
-      class_name = rel.singularize
-      class_name = class_name[0..0].upcase + class_name[1..-1]
+      class_name = rel.singularize.split('_').map{|e| e.capitalize}.join('') # mushroom_types ==> MushroomType
       begin
         klass = Module.const_get(class_name)
         raise NameError unless klass.ancestors.include?(Node)
