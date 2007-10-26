@@ -251,7 +251,7 @@ module Zena
     # TODO: test
     def r_filter
       dom_id = unique_name(false) + '_group'  # FIXME: this will break if the filter is not in the same context as the group. Try to use @param[:name] ==> group.name
-      out "<%= form_remote_tag(:url => zafu_node_path(#{node}.zip), :method => :get, :html => {:id => \"#{dom_id}_q\"}) %><div class='hidden'><input type='hidden' name='template_url' value='#{dom_id}'/></div><div class='wrapper'><input type='text' name='#{@param[:key] || 'f'}' value='<%= params[:q] %>'/></div></form>"
+      out "<%= form_remote_tag(:url => zafu_node_path(#{node}.zip), :method => :get, :html => {:id => \"#{dom_id}_q\"}) %><div class='hidden'><input type='hidden' name='template_url' value='#{dom_id}'/></div><div class='wrapper'><input type='text' name='#{@params[:key] || 'f'}' value='<%= params[:q] %>'/></div></form>"
       if @params[:live]
         out "<%= observe_form( \"#{dom_id}_q\" , :method => :get, :frequency  =>  0.5, :submit =>\"#{dom_id}_q\", :url => zafu_node_path(#{node}.zip)) %>"
       end
