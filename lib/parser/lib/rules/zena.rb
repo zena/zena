@@ -214,20 +214,34 @@ module Zena
     # Define a group of elements to be used by ajax calls (edit/filter)
     def r_group
       template_url = unique_name + '_' + (@params[:name] || 'group')
+      form_url     = template_url + '_form'
       
-      @html_tag_params.merge!(:id=>"#{template_url}")
+      @html_tag_params.merge!(:id=>"#{template_url}.<%= #{node}.zip %>")
       @html_tag ||= 'div'
       
       # STORE TEMPLATE ========
       template_node = "@#{node_class.to_s.downcase}"
-      res           = expand_with(:list=>false, :node=>template_node, :template_url=>template_url, :form=>false)
+      res           = expand_with(:list=>false, :node=>template_node, :template_url=>template_url, :form=>false, :no_form => true)
       @html_tag_done = false
       template      = render_html_tag(res)
       out helper.save_erb_to_url(template, template_url)
       
       if descendant('edit')
-        # MAKE A FORM ========
-        # TODO: ...
+        if form = descendant('form')
+          # USE GROUP FORM ========
+        else
+          # MAKE A FORM FROM GROUP ========
+          context_bak = @context.dup
+          result_bak = @result
+          @html_tag_done = false
+            @context.merge!(:make_form => true, :list => false, :node => template_node, :template_url=>template_url)
+            @result = ''
+            r_form
+            form     = @result
+          @result  = result_bak
+          @context = context_bak
+        end
+        out helper.save_erb_to_url(form, form_url)
       end
       
       @html_tag_done = false
@@ -236,7 +250,7 @@ module Zena
     
     # TODO: test
     def r_filter
-      "<%= form_remote_tag(:url => zafu_node_path(#{node}.zip), :method => :get) %><div class='hidden'><input type='hidden' name='template_url' value='#{@context[:template_url]}'/><input type='hidden' name='filter' value='true'/></div><div class='wrapper'><input type='text' name='q' value='<%= params[:q] %>'/></div></form>"
+      "<%= form_remote_tag(:url => zafu_node_path(#{node}.zip), :method => :get) %><div class='hidden'><input type='hidden' name='template_url' value='#{@context[:template_url]}'/></div><div class='wrapper'><input type='text' name='q' value='<%= params[:q] %>'/></div></form>"
     end
     
     def r_trans
@@ -461,9 +475,15 @@ module Zena
     
     def r_edit
       text = get_text_for_erb
-      if @context[:template_url]
+      if template_url = @context[:template_url]
         # ajax
-        "<%= #{node}.can_write? ? link_to_remote(#{text || _('edit').inspect}, :url => edit_node_path(#{node}.zip) + '?template_url=#{CGI.escape(@context[:template_url])}', :method => :get) : '' %>"
+        if @context[:in_form]
+          # cancel button
+          "<%= link_to_remote(#{_('cancel').inspect}, {:url => node_path(#{node}.zip) + '/zafu?template_url=#{CGI.escape(template_url)}', :method => :get}#{params_to_erb(@params)}) %>"
+        else
+          # edit button
+          "<%= #{node}.can_write? ? link_to_remote(#{text || _('edit').inspect}, {:url => edit_node_path(#{node}.zip) + '?template_url=#{CGI.escape(template_url)}', :method => :get}#{params_to_erb(@params)}) : '' %>"
+        end
       else
         # FIXME: we could link to some html page to edit the item.
         ""
@@ -520,12 +540,12 @@ module Zena
           start =  "<p class='btn_x'><a href='#' onclick='[\"#{template_url}_add\", \"#{template_url}_form\"].each(Element.toggle);return false;'>#{_('btn_x')}</a></p>\n"
           form  =  "<%= form_remote_tag(:url => #{node_class.to_s.downcase.pluralize}_path) %>\n"
         else
-          # saved form used to edit: set values and 'parent_id' from @node
-          @html_tag_params.merge!(:id=>"#{template_url}.<%= #{node}.new_record? ? '_form' : #{node}.zip %>")
+          # saved form used to edit/create: set values and 'parent_id' from @node
+          @html_tag_params.merge!(:id=>"#{template_url}<%= #{node}.new_record? ? '_form' : \".\#{#{node}.zip}\" %>") unless @method == 'group' # called from r_group
           # new_record? = edit/create failed, rendering form with errors
           # else        = edit
           # FIXME: remove '/zafu?' when nodes_controller's method 'zafu' is no longer needed.
-          start =<<-END_TXT
+          start = <<-END_TXT
 <% if #{node}.new_record? -%>
   <p class='btn_x'><a href='#' onclick='[\"#{template_url}_add\", \"#{template_url}_form\"].each(Element.toggle);return false;'>#{_('btn_x')}</a></p>
 <% else -%>
@@ -577,7 +597,7 @@ END_TXT
         # no ajax
         # FIXME
         start = "" # link to normal node ?
-        form = "<form method='post' do='void' action='/nodes/<%= #{node}.zip %>'><div style='margin:0;padding:0'><input name='_method' type='hidden' value='put' /></div>"
+        form = "<form method='post' action='/nodes/<%= #{node}.zip %>'><div style='margin:0;padding:0'><input name='_method' type='hidden' value='put' /></div>"
       end
       
       unless descendant('form_link')
@@ -589,10 +609,10 @@ END_TXT
       end
       
       if descendant('form_tag')
-        res = expand_with(:form_tag => form, :form_link => start)
+        res = expand_with(:form_tag => form, :in_form => true, :form_link => start)
       else
         #res = "&lt;form&gt; missing"
-        res = form + expand_with(:form_link => start) + '</form>'
+        res = form + expand_with(:in_form => true, :form_link => start) + '</form>'
       end
       out render_html_tag(res)
     end
@@ -1337,7 +1357,7 @@ END_TXT
     def do_list(list_finder=nil, opts={})
       
       @context.delete(:template_url) # should not propagate
-      @context.delete(:make_form) # should not propagate
+      @context.delete(:make_form)    # should not propagate
       
       else_block = descendant('else')
       if (each_block = descendant('each')) && (descendant('edit') || descendant('add'))

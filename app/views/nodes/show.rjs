@@ -1,7 +1,2 @@
-if params[:filter]
-  # search filter
-  page.replace "#{params[:template_url]}", :file => fullpath_from_template_url + ".erb"
-else
-  # inline edit
-  page.replace "#{params[:template_url]}.#{@node[:zip]}", :file => fullpath_from_template_url + ".erb"
-end
+page.replace "#{params[:template_url]}.#{@node[:zip]}", :file => fullpath_from_template_url + ".erb"
+puts "RENDER: #{fullpath_from_template_url}.erb"

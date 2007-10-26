@@ -6,11 +6,15 @@ class Contact < Reference
   def self.version_class
     ContactVersion
   end
-  
-  # FIXME: conflict with author !
-  #def user
-  #  secure(User) { User.find(:first, :conditions => ["contact_id = ?", self[:id]]) }
-  #end
+
+  def filter_attributes(new_attributes)
+    attributes = super
+    if self[:name].blank? && attributes['name'].blank? && (attributes['c_name'] || attributes['c_first_name'])
+      attributes.merge('name'    => (attributes['c_name'].to_s + ' ' + attributes['c_first_name'].to_s))
+    else
+      attributes
+    end
+  end
   
   def fullname
     version.content.fullname
