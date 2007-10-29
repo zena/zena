@@ -211,51 +211,79 @@ module Zena
     end
     
     # TODO: write a test (please)
+    # FIXME: we should use a single way to change a whole context into a template (applies to 'each', 'form', 'group'). Then 'swap' could use the 'each' block.
     # Define a group of elements to be used by ajax calls (edit/filter)
     def r_group
-      template_url = @params[:name] || (unique_name + '_group')
-      form_url     = template_url + '_form'
+      if @context[:group] == self
+        # called from self (storing template)
+        @html_tag_done = false
+        @html_tag_params.merge!(:id=>"#{@context[:template_url]}.<%= #{node}.zip %>")
+        out expand_with
+      else
+        template_url = dom_id()
+        form_url     = template_url + '_form'
       
-      @html_tag_params.merge!(:id=>"#{template_url}.<%= #{node}.zip %>")
-      @html_tag ||= 'div'
+        @html_tag ||= 'div'
       
-      # STORE TEMPLATE ========
-      template_node = "@#{node_class.to_s.downcase}"
-      res           = expand_with(:list=>false, :node=>template_node, :template_url=>template_url, :form=>false, :no_form => true)
-      @html_tag_done = false
-      template      = render_html_tag(res)
-      out helper.save_erb_to_url(template, template_url)
-      
-      if descendant('edit')
-        if form = descendant('form')
-          # USE GROUP FORM ========
-        else
-          # MAKE A FORM FROM GROUP ========
-          context_bak = @context.dup
-          result_bak = @result
-          @html_tag_done = false
-            @context.merge!(:make_form => true, :list => false, :node => template_node, :template_url=>template_url)
-            @result = ''
-            r_form
-            form     = @result
-          @result  = result_bak
+        unless @context[:make_form]
+          # STORE TEMPLATE ========
+          template_node = "@#{node_class.to_s.downcase}"
+          context_bak = @context.dup # avoid side effects when rendering the same block
+            template      = expand_block(self, :group=>self, :list=>false, :node=>template_node, :template_url=>template_url, :form=>false, :no_form => true)
           @context = context_bak
-        end
-        out helper.save_erb_to_url(form, form_url)
-      end
+          @result  = ''
+          out helper.save_erb_to_url(template, template_url)
       
-      @html_tag_done = false
-      out expand_with(:template_url => template_url)
+          if descendant('edit')
+            if form = descendant('form')
+              # USE GROUP FORM ========
+            else
+              # MAKE A FORM FROM GROUP ========
+              context_bak = @context.dup
+              result_bak = @result
+              @html_tag_done = false
+                @context.merge!(:make_form => true, :list => false, :node => template_node, :template_url=>template_url)
+                @result = ''
+                r_form
+                form     = @result
+              @result  = result_bak
+              @context = context_bak
+            end
+            out helper.save_erb_to_url(form, form_url)
+          end
+        end
+        
+        @html_tag_done = false
+        @html_tag_params.merge!(:id=>"#{template_url}.<%= #{node}.zip %>")
+        out expand_with(:template_url => template_url)
+      end
     end
     
     # TODO: test
     def r_filter
-      dom_id = unique_name(false) + '_group'  # FIXME: this will break if the filter is not in the same context as the group. Try to use @param[:name] ==> group.name
+      return "span class='parser_error'>invalid 'filter', no 'group' in same parent</span>" unless parent && group = parent.descendant('group')
+      dom_id = group.dom_id(@context)
       out "<%= form_remote_tag(:url => zafu_node_path(#{node}.zip), :method => :get, :html => {:id => \"#{dom_id}_q\"}) %><div class='hidden'><input type='hidden' name='template_url' value='#{dom_id}'/></div><div class='wrapper'><input type='text' name='#{@params[:key] || 'f'}' value='<%= params[:q] %>'/></div></form>"
       if @params[:live]
         out "<%= observe_form( \"#{dom_id}_q\" , :method => :get, :frequency  =>  0.5, :submit =>\"#{dom_id}_q\", :url => zafu_node_path(#{node}.zip)) %>"
       end
     end
+    
+    # swap an attribute
+    # TODO: test
+    def r_swap
+      if parent && (parent.method == 'group' || parent.method == 'each')
+        group = parent
+      elsif parent && group = parent.descendant('group')
+        # ok
+      else
+        return "span class='parser_error'>invalid 'swap', no 'group' in same parent</span>"
+      end
+      dom_id = group.dom_id(@context)
+      states = (@params[:states] || 'todo, done').split(',').map{|e| e.strip}
+      out "<%= #{node}.can_write? ? link_to_remote('blah', {:url => node_path(#{node}.zip) + \"?template_url=#{CGI.escape(dom_id)}&node[#{@params[:attr]}]=\#{#{states.inspect}[ ((#{states.inspect}.index(#{node_attribute(@params[:attr])}) || 0)+1) % #{states.size}]}\", :method => :put}) : '' %>"
+    end
+    
     
     def r_trans
       static = true
@@ -782,6 +810,7 @@ END_TXT
       out "<% if #{node}[:link_id] -%><%= link_to_remote(#{text.inspect}, {:url => \"/nodes/\#{#{node}[:zip]}/remove_link?link_id=\#{#{node}[:link_id]}&remove=#{dom_id}\", :method => :put}, :class=>#{(@params[:class] || 'unlink').inspect}) %><% end -%>"
     end
     
+
     def r_each
       if @context[:make_form]
         # use the elements inside 'each' loop to produce the edit form
@@ -800,7 +829,7 @@ END_TXT
           out "<% #{list}.each do |#{var}| -%>"
         end
         
-        dom_id = @context[:template_url] || unique_name
+        #dom_id = @context[:template_url] || self.dom_id()
         
         if @params[:draggable] == 'true'
           out "<% #{var}_dom_ids << \"#{dom_id}.\#{#{var}.zip}\" -%>"
@@ -1365,16 +1394,15 @@ END_TXT
       @context.delete(:make_form)    # should not propagate
       
       else_block = descendant('else')
-      if (each_block = descendant('each')) && (descendant('edit') || descendant('add'))
+      if (each_block = descendant('each')) && (descendant('edit') || descendant('add') || (descendant('swap') && !descendant('swap').parent.method == 'group'))
+        # ajax, build template. We could merge the following code with 'r_group'.
         add_block  = descendant('add')
         form_block = descendant('form') || each_block
-        # ajax
         if list_finder
           out "<% if (#{list_var} = #{list_finder}) || (#{node}.can_write? && #{list_var}=[]) -%>"
         end
         
-        # template_url  = "#{@options[:current_folder]}/#{@context[:name] || "root"}_#{node_class}"
-        template_url = unique_name
+        template_url = each_block.dom_id(@context)
         
         # 'r_add' needs the form when rendering. Send with :form.
         res = expand_with(opts.merge(:list=>list_var, :form=>form_block, :no_form=>true, :template_url=>template_url))
@@ -1419,21 +1447,26 @@ END_TXT
       helper.send(:_,text)
     end
     
-    def next_name_index(key, increment_counter = true)
+    def dom_id(context = @context)
+      @dom_id ||= unique_name(context)
+    end
+    
+    
+    def next_name_index(key)
       @next_name_index ||= {}
-      if @next_name_index[key]     && increment_counter
-        @next_name_index[key] += 1 if increment_counter
+      if @next_name_index[key]
+        @next_name_index[key] += 1
         key + @next_name_index[key].to_s
       else
-        @next_name_index[key] = 0  if increment_counter
+        @next_name_index[key] = 0
         key
       end
     end
     
-    def unique_name(increment_counter = true)
+    def unique_name(context = @context)
       # FIXME: make sure the unique name is using the current skin 
       # /gbuma/Node_index.html/dev/small_calendar instead of /default/Node_index.html/small_calendar
-      "#{@options[:included_history][0].split('::')[0]}/#{root.next_name_index((@context[:name] || 'list'), increment_counter).gsub(/[^\d\w\/]/,'_')}"
+      "#{@options[:included_history][0].split('::')[0]}/#{root.next_name_index((context[:name] || 'list')).gsub(/[^\d\w\/]/,'_')}"
     end
        
     def add_params(text, opts={})
@@ -1450,18 +1483,18 @@ END_TXT
       end
     end
     
-    def get_test_condition
-      if klass = @params[:kind_of]
+    def get_test_condition(node = self.node, params = @params)
+      if klass = params[:kind_of]
         begin Module::const_get(klass) rescue "NilClass" end
         "#{node}.kind_of?(#{klass})"
-      elsif klass = @params[:klass]
+      elsif klass = params[:klass]
         begin Module::const_get(klass) rescue "NilClass" end
         "#{node}.class == #{klass}"
-      elsif status = @params[:status]
+      elsif status = params[:status]
         "#{node}.version.status == #{Zena::Status[status.to_sym]}"
-      elsif lang = @params[:lang]
+      elsif lang = params[:lang]
         "#{node}.version.lang == #{lang.inspect}"
-      elsif can  = @params[:can]
+      elsif can  = params[:can]
         # TODO: test
         case can
         when 'write', 'edit'
@@ -1469,7 +1502,7 @@ END_TXT
         when 'drive'
           "#{node}.can_drive?"
         end
-      elsif test = @params[:test]  
+      elsif test = params[:test]  
         if test =~ /\s/
           value1, op, value2 = test.split(/\s+/)
           allOK = value1 && op && value2
@@ -1501,7 +1534,7 @@ END_TXT
           # bad test condition.
           'false'
         end
-      elsif node_cond = @params[:node]
+      elsif node_cond = params[:node]
         if node_kind_of?(Node)
           case node_cond
           when 'self'
@@ -1572,20 +1605,11 @@ END_TXT
       @params.each do |k,v|
         if k.to_s =~ /^(.+)_if$/
           klass = $1
-          current_node = @method == 'each' ? var : node
-          # FIXME: DRY condition below (same as node_cond...)
           cond = if node_kind_of?(Node)
-              case v
-              when 'self', 'current'
-                "#{current_node}[:id] == @node[:id]"
-              when 'parent'
-                "#{current_node}[:id] == @node[:parent_id]"
-              when 'project'
-                "#{current_node}[:id] == @node[:section_id]"
-              when 'ancestor'
-                "@node.fullpath =~ /\\A\#{#{current_node}.fullpath}/"
+              if v =~ /\s/
+                get_test_condition((@method == 'each' ? var : node), :test => v)
               else
-                nil
+                get_test_condition((@method == 'each' ? var : node), :node => v)
               end
             else
               nil
@@ -1593,7 +1617,6 @@ END_TXT
           if cond
             append << "<%= #{cond} ? \" class='#{klass}'\" : \"#{tag_class ? " class='#{tag_class}'" : ""}\" %>"
             @html_tag_params.delete(:class)
-            break
           end
         end
       end

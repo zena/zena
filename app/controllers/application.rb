@@ -144,7 +144,8 @@ class ApplicationController < ActionController::Base
 
       if !File.exists?(url) || params[:rebuild]
         # no template ---> render
-        # TODO: test
+        # clear :
+        FileUtils::rmtree(File.dirname(url))
         
         # set the places to search for the included templates
         # FIXME: there might be a better way to do this. In a hurry, fix later.
