@@ -275,10 +275,10 @@ module Zena
     # swap an attribute
     # TODO: test
     def r_swap
-      if parent && (parent.method == 'group' || parent.method == 'each')
-        group = parent
+      if group = ancestor('group') || ancestor('each')
+        # ancestor: ok
       elsif parent && group = parent.descendant('group')
-        # ok
+        # sibling: ok
       else
         return "span class='parser_error'>invalid 'swap', no 'group' in same parent</span>"
       end

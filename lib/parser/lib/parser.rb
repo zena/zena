@@ -290,7 +290,29 @@ class Parser
     end
   end
   
+  def ancestors
+    @ancestors ||= begin
+      if parent
+        parent.ancestors + [parent]
+      else
+        []
+      end
+    end
+  end
+  
   alias public_descendants descendants
+  
+  # Return the last defined parent for the given key.
+  def ancestor(key)
+    res = nil
+    ancestors.reverse_each do |a|
+      if key == a.method
+        res = a
+        break
+      end
+    end
+    res
+  end
   
   # Return the last defined descendant for the given key.
   def descendant(key)
