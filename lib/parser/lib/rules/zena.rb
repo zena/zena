@@ -130,35 +130,38 @@ module Zena
 
     def r_show
       attribute = @params[:attr] || @params[:tattr]
-      if @context[:trans]
-        # TODO: what do we do here with dates / filters ?
-        return "#{node_attribute(attribute)}"
-      else
-        if @params[:tattr]
-          attribute_method = "_(#{node_attribute(attribute, :else=>@params[:else])})"
-        elsif @params[:attr]
-          # TODO: test 'else', test 'format'
-          if @params[:format]
-            attribute_method = "sprintf(#{@params[:format].inspect}, #{node_attribute(attribute, :else=>@params[:else])})"
-          else
-            attribute_method = "#{node_attribute(attribute, :else=>@params[:else])}"
-          end
-        elsif @params[:date]
-          # date can be any attribute v_created_at or updated_at etc.
-          # TODO format with @params[:format] and @params[:tformat] << translated format
-          # TODO: test
-          if @params[:tformat]
-            format = _(@params[:tformat])
-          elsif @params[:format]
-            format = @params[:format]
-          else
-            format = "%Y-%m-%d"
-          end
-          attribute_method = "format_date(#{node_attribute(@params[:date])}, #{format.inspect})"
+
+      if @params[:tattr]
+        attribute_method = "_(#{node_attribute(attribute, :else=>@params[:else])})"
+      elsif @params[:attr]
+        # TODO: test 'else', test 'format'
+        if @params[:format]
+          attribute_method = "sprintf(#{@params[:format].inspect}, #{node_attribute(attribute, :else=>@params[:else])})"
         else
-          # error
-          return "<span class='parser_error'>no attribute for 'show'</span>"
+          attribute_method = "#{node_attribute(attribute, :else=>@params[:else])}"
         end
+      elsif @params[:date]
+        # date can be any attribute v_created_at or updated_at etc.
+        # TODO format with @params[:format] and @params[:tformat] << translated format
+        # TODO: test
+        if @params[:tformat]
+          format = _(@params[:tformat])
+        elsif @params[:format]
+          format = @params[:format]
+        else
+          format = "%Y-%m-%d"
+        end
+        attribute_method = "format_date(#{node_attribute(@params[:date])}, #{format.inspect})"
+      elsif @context[:trans]
+        # error
+        return "no attribute for 'show'".inspect
+      else  
+        return "<span class='parser_error'>no attribute for 'show'</span>"
+      end
+      
+      if @context[:trans]
+        # TODO: what do we do here with filters ?
+        return attribute_method
       end
       
       if filter = @params[:filter]
@@ -281,7 +284,13 @@ module Zena
       end
       dom_id = group.dom_id(@context)
       states = (@params[:states] || 'todo, done').split(',').map{|e| e.strip}
-      out "<%= #{node}.can_write? ? link_to_remote('blah', {:url => node_path(#{node}.zip) + \"?template_url=#{CGI.escape(dom_id)}&node[#{@params[:attr]}]=\#{#{states.inspect}[ ((#{states.inspect}.index(#{node_attribute(@params[:attr])}) || 0)+1) % #{states.size}]}\", :method => :put}) : '' %>"
+      if states.include?("")
+        text = get_text_for_erb(@params.merge(:attr=>nil))
+      else
+        text = get_text_for_erb
+      end
+      
+      out "<%= #{node}.can_write? ? link_to_remote(#{text}, {:url => node_path(#{node}.zip) + \"?template_url=#{CGI.escape(dom_id)}&node[#{@params[:attr]}]=\#{#{states.inspect}[ ((#{states.inspect}.index(#{node_attribute(@params[:attr])}) || 0)+1) % #{states.size}]}\", :method => :put}) : '' %>"
     end
     
     
@@ -1658,15 +1667,15 @@ END_TXT
       res
     end
     
-    def get_text_for_erb
-      if @params[:attr]
-        text = "#{node_attribute(@params[:attr])}"
-      elsif @params[:tattr]
-        text = "_(#{node_attribute(@params[:tattr])})"
-      elsif @params[:trans]
-        text = _(@params[:trans]).inspect
-      elsif @params[:text]
-        text = @params[:text].inspect
+    def get_text_for_erb(params = @params)
+      if params[:attr]
+        text = "#{node_attribute(params[:attr])}"
+      elsif params[:tattr]
+        text = "_(#{node_attribute(params[:tattr])})"
+      elsif params[:trans]
+        text = _(params[:trans]).inspect
+      elsif params[:text]
+        text = params[:text].inspect
       elsif @blocks != []
         res  = []
         text = ""
