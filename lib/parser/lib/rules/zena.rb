@@ -290,7 +290,9 @@ module Zena
         text = get_text_for_erb
       end
       
-      out "<%= #{node}.can_write? ? link_to_remote(#{text}, {:url => node_path(#{node}.zip) + \"?template_url=#{CGI.escape(dom_id)}&node[#{@params[:attr]}]=\#{#{states.inspect}[ ((#{states.inspect}.index(#{node_attribute(@params[:attr])}) || 0)+1) % #{states.size}]}\", :method => :put}) : '' %>"
+      auto_publish = @params[:publish] ? "&node[v_status]=#{Zena::Status[:pub]}" : ''
+            
+      out "<%= #{node}.can_write? ? link_to_remote(#{text}, {:url => node_path(#{node}.zip) + \"?template_url=#{CGI.escape(dom_id)}#{auto_publish}&node[#{@params[:attr]}]=\#{#{states.inspect}[ ((#{states.inspect}.index(#{node_attribute(@params[:attr])}) || 0)+1) % #{states.size}]}\", :method => :put}) : '' %>"
     end
     
     
@@ -1403,7 +1405,7 @@ END_TXT
       @context.delete(:make_form)    # should not propagate
       
       else_block = descendant('else')
-      if (each_block = descendant('each')) && (descendant('edit') || descendant('add') || (descendant('swap') && !descendant('swap').parent.method == 'group'))
+      if (each_block = descendant('each')) && (descendant('edit') || descendant('add') || (descendant('swap') && descendant('swap').parent.method != 'group'))
         # ajax, build template. We could merge the following code with 'r_group'.
         add_block  = descendant('add')
         form_block = descendant('form') || each_block
