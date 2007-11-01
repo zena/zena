@@ -254,12 +254,12 @@ module Zazen
         if url
           if url =~ /[^\w0-9]$/
             # keep trailing punctuation
-            store @helper.make_wiki_link(:title=>title, :url=>url[0..-2]) + $&
+            store @helper.make_wiki_link(:title=>title, :url=>url[0..-2], :node=>@context[:node]) + $&
           else
-            store @helper.make_wiki_link(:title=>title, :url=>url)
+            store @helper.make_wiki_link(:title=>title, :url=>url, :node=>@context[:node])
           end
         else
-          store @helper.make_wiki_link(:title=>title) + $2
+          store @helper.make_wiki_link(:title=>title, :node=>@context[:node]) + $2
         end
       else
         # false alert

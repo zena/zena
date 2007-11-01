@@ -248,14 +248,15 @@ module ApplicationHelper
   
   # TODO: test
   def make_wiki_link(opts)
+    l = opts[:node] ? opts[:node].version.lang : lang
     if opts[:url]
       if opts[:url][0..3] == 'http'
         "<a href='#{opts[:url]}' class='wiki'>#{opts[:title]}</a>"
       else
-        "<a href='http://#{lang}.wikipedia.org/wiki/#{opts[:url]}' class='wiki'>#{opts[:title]}</a>"
+        "<a href='http://#{l}.wikipedia.org/wiki/#{opts[:url]}' class='wiki'>#{opts[:title]}</a>"
       end
     else
-      "<a href='http://#{lang}.wikipedia.org/wiki/Special:Search?search=#{CGI::escape(opts[:title])}' class='wiki'>#{opts[:title]}</a>"
+      "<a href='http://#{l}.wikipedia.org/wiki/Special:Search?search=#{CGI::escape(opts[:title])}' class='wiki'>#{opts[:title]}</a>"
     end
   end
   
