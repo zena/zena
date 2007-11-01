@@ -93,11 +93,11 @@ class DocumentContent < ActiveRecord::Base
       end
       
       # is this extension valid ?
-      extensions = TYPE_TO_EXT[content_type]
-      if extensions
+      extensions = TYPE_TO_EXT[content_type] 
+      if extensions && content_type != 'application/octet-stream' # use 'bin' extension only if we do not have any other ext. 
         self[:ext] = extensions.include?(self.ext) ? self.ext : extensions[0]
       else
-        # unknown content_type, just keep the extension we have
+        # unknown content_type or 'application/octet-stream' , just keep the extension we have
         self[:ext] ||= 'bin'
       end      
     end

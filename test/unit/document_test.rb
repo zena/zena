@@ -150,7 +150,7 @@ class DocumentTest < ZenaTestUnit
       assert_equal 'forest gump', doc.v_title
       assert_equal 'pdf', doc.c_ext
       assert_equal 29279, doc.c_size
-      assert_equal "#{SITES_ROOT}/test.host/data/pdf/#{last_id}/forest.pdf", doc.c_filepath
+      assert_equal "#{SITES_ROOT}/test.host/data/pdf/#{last_id}/water.pdf", doc.c_filepath
     end
   end 
   
@@ -168,6 +168,22 @@ class DocumentTest < ZenaTestUnit
       assert_equal 'report', doc.c_name
       assert_equal "report.pdf", doc.c_filename
       assert_equal 'pdf', doc.c_ext
+    end
+  end
+  
+  def test_create_with_file_name_unknown_ext
+    without_files('/test.host/data/zz') do
+      login(:ant)
+      doc = secure(Document) { Document.create( :parent_id=>nodes_id(:cleanWater),
+                                                :c_file  => uploaded_file("some.txt", 'application/octet-stream', "super.zz") ) }
+      assert_kind_of Document , doc
+      assert ! doc.new_record? , "Not a new record"
+      assert_equal "super", doc.name
+      assert_equal "super", doc.v_title
+      assert_equal 'super', doc.c_name
+      assert_equal "super.zz", doc.c_filename
+      assert_equal 'zz', doc.c_ext
+      assert_equal 'application/octet-stream', doc.c_content_type
     end
   end
   
