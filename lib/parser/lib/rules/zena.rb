@@ -436,7 +436,7 @@ module Zena
         second_name = @params[:or].gsub(/[^a-z_]/,'') # ERB injection
         second = node_attribute(second_name)
         "<div id='#{first_name}<%= #{node}.zip %>' class='zazen'><% if #{first} != '' %>" +
-        "<%= zazen(#{first}#{limit}, :node=>#{node}) %>" +
+        "<%= zazen(#{first}, :node=>#{node}) %>" +
         "<% else %>" +
         "<%= zazen(#{second}#{limit}, :node=>#{node}) %>" +
         "<% end %></div>"
