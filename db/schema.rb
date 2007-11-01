@@ -50,16 +50,17 @@ ActiveRecord::Schema.define(:version => 0) do
     t.column "created_at", :datetime
     t.column "updated_at", :datetime
     t.column "version_id", :integer
-    t.column "first_name", :string,   :limit => 60, :default => "", :null => false
-    t.column "name",       :string,   :limit => 60, :default => "", :null => false
-    t.column "address",    :text,                                   :null => false
-    t.column "zip",        :string,   :limit => 20, :default => "", :null => false
-    t.column "city",       :string,   :limit => 60, :default => "", :null => false
-    t.column "telephone",  :string,   :limit => 60, :default => "", :null => false
-    t.column "mobile",     :string,   :limit => 60, :default => "", :null => false
-    t.column "email",      :string,   :limit => 60, :default => "", :null => false
+    t.column "first_name", :string,   :limit => 60,  :default => "", :null => false
+    t.column "name",       :string,   :limit => 60,  :default => "", :null => false
+    t.column "address",    :text,                                    :null => false
+    t.column "zip",        :string,   :limit => 20,  :default => "", :null => false
+    t.column "city",       :string,   :limit => 60,  :default => "", :null => false
+    t.column "telephone",  :string,   :limit => 60,  :default => "", :null => false
+    t.column "mobile",     :string,   :limit => 60,  :default => "", :null => false
+    t.column "email",      :string,   :limit => 60,  :default => "", :null => false
     t.column "birthday",   :date
     t.column "site_id",    :integer
+    t.column "country",    :string,   :limit => 100
   end
 
   create_table "discussions", :force => true do |t|
@@ -76,7 +77,7 @@ ActiveRecord::Schema.define(:version => 0) do
     t.column "type",         :string,  :limit => 32
     t.column "version_id",   :integer
     t.column "name",         :string,  :limit => 200, :default => "", :null => false
-    t.column "content_type", :string,  :limit => 20
+    t.column "content_type", :string,  :limit => 40
     t.column "ext",          :string,  :limit => 20
     t.column "size",         :integer
     t.column "width",        :integer
@@ -114,15 +115,17 @@ ActiveRecord::Schema.define(:version => 0) do
   end
 
   create_table "nodes", :force => true do |t|
+    t.column "name",         :string,   :limit => 200
     t.column "type",         :string,   :limit => 32
-    t.column "event_at",     :datetime
+    t.column "vclass_id",    :integer
     t.column "kpath",        :string,   :limit => 16
+    t.column "event_at",     :datetime
     t.column "created_at",   :datetime
     t.column "updated_at",   :datetime
     t.column "user_id",      :integer
-    t.column "section_id",   :integer
     t.column "parent_id",    :integer
-    t.column "name",         :string,   :limit => 200
+    t.column "project_id",   :integer
+    t.column "section_id",   :integer
     t.column "skin",         :string
     t.column "inherit",      :integer
     t.column "rgroup_id",    :integer
@@ -138,9 +141,7 @@ ActiveRecord::Schema.define(:version => 0) do
     t.column "basepath",     :text
     t.column "site_id",      :integer
     t.column "zip",          :integer
-    t.column "project_id",   :integer
     t.column "position",     :float,                   :default => 1.0
-    t.column "vclass_id",    :integer
   end
 
   create_table "participations", :force => true do |t|
@@ -190,11 +191,6 @@ ActiveRecord::Schema.define(:version => 0) do
     t.column "mode",      :string
   end
 
-  create_table "tmp", :id => false, :force => true do |t|
-    t.column "a", :string, :limit => 50
-    t.column "b", :string, :limit => 50
-  end
-
   create_table "users", :force => true do |t|
     t.column "created_at", :datetime
     t.column "updated_at", :datetime
@@ -219,8 +215,8 @@ ActiveRecord::Schema.define(:version => 0) do
     t.column "title",        :string,   :limit => 200, :default => "", :null => false
     t.column "summary",      :text,                                    :null => false
     t.column "text",         :text,                                    :null => false
-    t.column "status",       :integer,                 :default => 30
-    t.column "number",       :integer,                 :default => 1
+    t.column "status",       :integer,                 :default => 30, :null => false
+    t.column "number",       :integer,                 :default => 1,  :null => false
     t.column "content_id",   :integer
     t.column "site_id",      :integer
   end
