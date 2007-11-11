@@ -40,7 +40,7 @@ show_title:
 
 show_title_with_opts:
   src: "<h1 do='title' class='s30' status='true' actions='all'>this is the title</h1>"
-  tem: "<h1 class='s<%= @node.version.status %>'><%= show_title(:node=>@node) + node_actions(:node=>@node, :actions=>\"all\")%></h1>"
+  tem: "<h1 class='s<%= @node.version.status %>'><%= show_title(:node=>@node, :text=>\"this is the title\") + node_actions(:node=>@node, :actions=>\"all\")%></h1>"
   res: "/<h1 class='s50'><span id=.*class='actions'>/"
 
 show_title_check_lang:
@@ -214,17 +214,17 @@ version_anchor:
   res: "<a name='version27.2'></a><a href='/oo/projects/cleanWater/post27.html?lang=en'>english</a>, <a name='version27.1'></a><a href='/oo/projects/cleanWater/post27.html?lang=fr'>french</a>"
   
 title:
-  src: "<h2 do='title'>super titre</h2>"
+  src: "<h2 do='title'/>"
   tem: "<h2><%= show_title(:node=>@node)%></h2>"
   res: "<h2><span id='v_title22'>status title</span></h2>"
 
 title_link:
-  src: "<h2 do='title' link='details'>super titre</h2>"
+  src: "<h2 do='title' link='details'/>"
   tem: "<h2><%= show_title(:node=>@node, :link=>\"details\")%></h2>"
   res: "<h2><a href='/oo/projects/cleanWater/page22_details.html'><span id='v_title22'>status title</span></a></h2>"
 
 title_link_format:
-  src: "<h2 do='title' link='details.xml'>super titre</h2>"
+  src: "<h2 do='title' link='details.xml'/>"
   tem: "<h2><%= show_title(:node=>@node, :link=>\"details.xml\")%></h2>"
   res: "<h2><a href='/oo/projects/cleanWater/page22_details.xml'><span id='v_title22'>status title</span></a></h2>"
 
@@ -241,7 +241,7 @@ title_link_data_mode:
   res: "<h2><a href='/oo/image30_pv.jpg'><span id='v_title30'>bird</span></a></h2>"
 
 show_parent_title:
-  src: "<r:parent><h1 do='title'>parent title</h1></r:parent>"
+  src: "<r:parent><h1 do='title' attr='v_title'>parent title</h1></r:parent>"
   tem: "<% if var1 = @node.parent -%><h1><%= show_title(:node=>var1)%></h1><% end -%>"
   res: "<h1><a href='/oo/projects/cleanWater.html'><span id='v_title21'>Clean Water project</span></a></h1>"
 
@@ -258,7 +258,7 @@ show_v_text:
   res: "my status text"
 
 show_title_options:
-  src: "<h1 class='title' do='title' status='true' actions='edit,publish'>dummy</h1>"
+  src: "<h1 class='title' do='title' status='true' actions='edit,publish'/>"
   tem: "<h1 class='title'><div class='s<%= @node.version.status %>'><%= show_title(:node=>@node) + node_actions(:node=>@node, :actions=>\"edit,publish\")%></div></h1>"
   res: "/<h1 class='title'><div class='s50'><span id='v_title22'>status title</span><span class='actions'><a.*/nodes/22/versions/0/edit.*/images/page_edit.png'.*/></a>.*</span></div></h1>/"
 

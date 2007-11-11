@@ -268,7 +268,7 @@ module Zena
       dom_id = group.dom_id(@context)
       out "<%= form_remote_tag(:url => zafu_node_path(#{node}.zip), :method => :get, :html => {:id => \"#{dom_id}_q\"}) %><div class='hidden'><input type='hidden' name='template_url' value='#{dom_id}'/></div><div class='wrapper'><input type='text' name='#{@params[:key] || 'f'}' value='<%= params[:q] %>'/></div></form>"
       if @params[:live]
-        out "<%= observe_form( \"#{dom_id}_q\" , :method => :get, :frequency  =>  0.5, :submit =>\"#{dom_id}_q\", :url => zafu_node_path(#{node}.zip)) %>"
+        out "<%= observe_form( \"#{dom_id}_q\" , :method => :get, :frequency  =>  1, :submit =>\"#{dom_id}_q\", :url => zafu_node_path(#{node}.zip)) %>"
       end
     end
     

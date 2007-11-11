@@ -440,6 +440,7 @@ class ApplicationController < ActionController::Base
     
     # /////// The following methods are common to controllers and views //////////// #
   
+    # Return the path to a document's data
     def data_path(node, opts={})
       return zen_path(node,opts) unless node.kind_of?(Document)
       if node.public? && !current_site.authentication?

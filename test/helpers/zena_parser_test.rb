@@ -172,6 +172,10 @@ class ZenaParserTest < ZenaHelperTest
   def test_basic_img_image
     do_test('basic', 'img_image')
   end
-    
+  
+  def test_zazen_swf_button_player
+    DocumentContent.connection.execute "UPDATE document_contents SET ext = 'mp3' WHERE id = #{document_contents_id(:water_pdf)}"
+    do_test('zazen', 'swf_button_player')
+  end
   make_tests
 end

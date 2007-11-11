@@ -78,3 +78,7 @@ line_break_in_tables:
 line_break_gallery:
   tem: "<%= zazen(\"h3. photos en vrac\n\n\n![30,24]!\") %>"
   res: "!/<pre>/"
+  
+swf_button_player:
+  tem: "<%= zazen(\"!25!\") %>"
+  res: "/<object.*application\/x-shockwave-flash.*data=.*musicplayer.swf.*song_url=.*document25.mp3/"

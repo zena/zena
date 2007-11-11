@@ -302,7 +302,7 @@ module ApplicationHelper
       suffix = "<div class='img_title'>#{ZazenParser.new(title,:helper=>self).render(:images=>false)}</div></div>#{suffix}"
     end
     
-    if link.nil?
+    if link.nil? || image[0..3] == '[:::' # do not link on placeholders
       prefix + image + suffix
     elsif link =~ /^\d+/
       prefix + make_link(:id=>link,:title=>image) + suffix
@@ -359,6 +359,21 @@ module ApplicationHelper
     prefix + render_to_string( :partial=>'main/list_nodes', :locals=>{:docs=>docs}) + suffix
   end
   
+  def add_place_holder(str)
+    @placeholders ||= {}
+    key = "[:::#{self.object_id}.#{@placeholders.keys.size}:::]"
+    @placeholders[key] = str
+    key
+  end
+  
+  # Replace placeholders by their real values
+  def replace_placeholders(str)
+    (@placeholders || {}).each do |k,v|
+      str.gsub!(k,v)
+    end
+    str
+  end
+  
   # Display an image tag for the given node. If no mode is provided, 'full' is used. Options are ':mode', ':id', ':alt' and ':class'. If no class option is passed,
   # the format is used as the image class. Example :
   #   img_tag(@node, :mode=>'pv')  => <img src='/sites/test.host/data/jpg/20/bird_pv.jpg' height='80' width='80' alt='bird' class='pv'/>
@@ -392,6 +407,19 @@ module ApplicationHelper
         # compute image size
         width = content.width(mode)
         height= content.height(mode)
+      end
+    elsif obj.kind_of?(Document) && ext == 'mp3'
+      if mode.nil? || mode == 'button'
+        # rough wrap to use the 'button'
+        # we differ '<object...>' by using a placeholder to avoid the RedCloth escaping.
+        return add_place_holder( %{ <object type="application/x-shockwave-flash"
+        data="/images/swf/xspf/musicplayer.swf?&song_url=#{CGI.escape(data_path(obj, opts.merge(:mode=>nil)))}" 
+        width="17" height="17">
+        <param name="movie" 
+        value="/images/swf/xspf/musicplayer.swf?&song_url=#{CGI.escape(data_path(obj, opts.merge(:mode=>nil)))}" />
+        <img src="/images/sound_mute.png" 
+        width="16" height="16" alt="" />
+        </object> } )
       end
     else
       mode    = IMAGEBUILDER_FORMAT[mode] ? mode : nil

@@ -18,11 +18,14 @@ module Zazen
       
       # set whether the first paragraphe is spaced preserved.
       @in_space_pre = (@text[0..0] == ' ')
-      enter(:void)
+      
+      enter(:void) # <== parse here
       
       unless @parse_shortcuts
         store '</pre>' if @in_space_pre
         @text = RedCloth.new(@blocks).to_html
+        # Replace placeholders by their real values
+        @helper.replace_placeholders(@text) if @helper.respond_to?('replace_placeholders')
         @blocks = ""
         enter(:wiki)
       end
