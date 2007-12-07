@@ -49,7 +49,7 @@
       <div id='main'>
         <div id='title'>
           <r:if kind_of='Document'><p class="document"><r:link format="data"><r:img mode='pv'/></r:link></p></r:if>
-          <h1 do='title' class='s30' status='true' actions='all'>this is the title</h1>
+          <h1 do='title' class='s30' status='true' actions='all' attr='v_title'>this is the title</h1>
           <div class='subtitle'>
             <r:case>
               <r:when test='[user_id] == [v_user_id]'>
@@ -62,6 +62,7 @@
             </r:case>
           </div>
         </div>
+        <r:text/>
       </div>
 
       <div id='related'>

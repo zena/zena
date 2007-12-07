@@ -7,23 +7,20 @@ You need to set collation and charset to utf8 when creating the database. Exampl
 
 == Development/testing
 1. Create the database using a mysql client
-   create database zena_dev DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
+   create database zee_dev DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
 
-2. create log directory
-   mkdir log
-
-3. Migrate the database and add initialize db (from within zena directory)
+2. Migrate the database and add initialize db (from within zena directory)
    rake zena:migrate
 
-4. Create a first site or load fixtures
+3. Create a first site or load fixtures
    rake zena:mksite HOST=localhost PASSWORD=secret LANG=en
 
-5. Start server
+4. Start server
    script/server
 
-6. Connect to site 'http://localhost:3000'
+5. Connect to site 'http://localhost:3000'
 
-7. Login with 'admin' and 'secret'
+6. Login with 'admin' and 'secret'
 
 == Production
 You should use capistrano to ease deployment. See 'config/delploy.rb'.

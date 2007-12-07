@@ -21,6 +21,8 @@
       <r:text/>
       <r:else>
         <r:include template='layout' part='title'/>
+	      <r:summary text=''/>
+	      <r:text/>
       </r:else>
     </r:home>
     

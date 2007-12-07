@@ -446,7 +446,7 @@ class ApplicationController < ActionController::Base
       if node.public? && !current_site.authentication?
         # force the use of a cacheable path for the data, even when navigating in '/oo'
         # FIXME: we could use 'node.version.lang' if most of the time the version is loaded.
-        zen_path(node, opts.merge(:format => node.c_ext, :prefix=>node.v_lang))
+        zen_path(node, opts.merge(:format => node.c_ext, :prefix=>(current_site[:monolingual] ? '' : node.v_lang)))
       else  
         zen_path(node, opts.merge(:format => node.c_ext))
       end

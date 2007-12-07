@@ -264,6 +264,8 @@ class Node < ActiveRecord::Base
     def create_node(new_attributes)
       attributes = transform_attributes(new_attributes)
       
+      publish_after_save = (attributes.delete('v_status').to_i == Zena::Status[:pub])  # the way this works here and in do_update_attributes is not good
+      
       # TODO: replace this hack with a proper class method 'secure' behaving like the
       # instance method. It would get the visitor and scope from the same hack below.
       scope   = self.scoped_methods[0] || {}
@@ -286,6 +288,7 @@ class Node < ActiveRecord::Base
         self.create_instance(attributes)
       end
       
+      node.publish if publish_after_save
       node
     end
     
@@ -435,7 +438,6 @@ class Node < ActiveRecord::Base
         current_obj.instance_variable_set(:@new_record_before_save, new_object)
         current_obj.instance_variable_set(:@versions_count, versions.size)
         res << current_obj
-        current_obj.publish if defaults['v_status'].to_i == Zena::Status[:pub]
 
         res += create_nodes_from_folder(:folder => sub_folder, :parent_id => current_obj[:id], :defaults => defaults) if sub_folder && !current_obj.new_record?
       end
