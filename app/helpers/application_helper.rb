@@ -422,6 +422,8 @@ module ApplicationHelper
         </object> } )
       end
     else
+      # FIXME: try to use icon for img_tag !
+      
       mode    = IMAGEBUILDER_FORMAT[mode] ? mode : nil
       
       if obj.kind_of?(Document)

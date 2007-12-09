@@ -140,7 +140,7 @@ namespace :zena do
     Dir.foreach(SITES_ROOT) do |site|
       next if site =~ /^\./ || !File.exists?(File.join(SITES_ROOT,site,'public'))
       Dir.foreach(File.join(SITES_ROOT,site,'public')) do |elem|
-        next unless elem =~ /^(.+\.html|\w\w)$/
+        next unless elem =~ /^(\w\w\.html|\w\w)$/
         FileUtils.rmtree(File.join(SITES_ROOT, site, 'public', elem))
       end
     end
