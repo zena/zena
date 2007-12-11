@@ -1750,6 +1750,7 @@ END_TXT
   end
 end
 
+# FIXME: this should be in a separate file "adapters_ext"
 module ActiveRecord
   module ConnectionAdapters
     class MysqlAdapter

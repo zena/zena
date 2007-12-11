@@ -73,3 +73,30 @@ ZazenParser = Parser.parser_with_rules(Zazen::Rules, Zazen::Tags)
 ZafuParser  = Parser.parser_with_rules(Zafu::Rules, Zena::Rules, Zafu::Tags, Zena::Tags)
 require File.join(File.dirname(__FILE__), '../lib/base_additions')
 require 'diff'
+
+
+# FIXME: this should go into "adapters_ext"
+# Fixes #98
+module ActiveRecord
+  module ConnectionAdapters
+    class MysqlAdapter
+      def connect
+        encoding = @config[:encoding]
+        if encoding
+          @connection.options(Mysql::SET_CHARSET_NAME, encoding) rescue nil
+        end
+        @connection.ssl_set(@config[:sslkey], @config[:sslcert], @config[:sslca], @config[:sslcapath], @config[:sslcipher]) if @config[:sslkey]
+        @connection.real_connect(*@connection_options)
+        execute("SET NAMES '#{encoding}'") if encoding
+
+        # By default, MySQL 'where id is null' selects the last inserted id.
+        # Turn this off. http://dev.rubyonrails.org/ticket/6778
+        if (Base.default_timezone == :utc) 
+         	execute("SET time_zone = '+0:0'") 
+        end
+         	
+        execute("SET SQL_AUTO_IS_NULL=0")
+      end
+    end
+  end
+end
