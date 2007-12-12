@@ -57,7 +57,7 @@ but we have to use :*/
 #related { position:absolute; top:125px; right:5px; width:215px; padding-left:5px; }
 #context li.on a { color:black; }
 #context li { margin-left:12px; }
-
+#context .admin_links li { margin:0; }
 /* site info */
 #siteinfo { clear:both; }
 

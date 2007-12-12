@@ -92,7 +92,7 @@ module ActiveRecord
         # By default, MySQL 'where id is null' selects the last inserted id.
         # Turn this off. http://dev.rubyonrails.org/ticket/6778
         if (Base.default_timezone == :utc) 
-         	execute("SET time_zone = '+0:0'") 
+          execute("SET time_zone = '+0:0'") 
         end
          	
         execute("SET SQL_AUTO_IS_NULL=0")

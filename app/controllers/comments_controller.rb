@@ -1,6 +1,6 @@
 # FIXME: rewrite !
 class CommentsController < ApplicationController
-  before_filter :check_is_admin, :only=>[:list, :empty_bin]
+  before_filter :check_is_admin, :only=>[:index, :empty_bin]
   helper_method :bin_content
   
   # TODO: test
@@ -81,10 +81,11 @@ class CommentsController < ApplicationController
   ### === admin only
   
   # TODO:test
-  def list
+  def index
+    @node = visitor.contact
     @comment_pages, @comments =
           paginate :comments, :order => 'status ASC, created_at DESC', :conditions=>"status > #{Zena::Status[:rem]}", :per_page => 20
-    render :layout=>'admin'
+    render :layout=>admin_layout
   end
   
   # TODO: test

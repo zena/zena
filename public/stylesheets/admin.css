@@ -6,6 +6,14 @@
 #bin span { position:absolute; top:2px; left:30px; }
 
 /* ADMIN USERS, GROUPS */
+ul.admin_links { margin:70px 25px 0; border:1px solid #35462B; background:#eee;}
+.admin_links li { padding:0;}
+.admin_links li a { margin:0; border-top:1px solid #35462B; padding:10px 5px; font-size:0.9em; color:#560B0A;  display:block;}
+.admin_links li:first-child a { border:0; }
+.admin_links li a:hover { background:#C47330; }
+.admin_links li a.on {background:#C28D61;}
+
+
 table.admin, table.admin table { border-collapse:separate; border-width:0; margin:auto; border-color:#666; border-style:solid; margin:4em 5px 5px; }
 table.admin { width:600px; font-size:0.8em; }
 table.admin table { width:90%; }

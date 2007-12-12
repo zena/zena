@@ -1000,7 +1000,7 @@ ENDTXT
       link_to_with_state(_('preferences'), preferences_user_path(visitor[:id]))
     when :comments
       return '' unless visitor.is_admin?
-      link_to_with_state(_('manage comments'), :controller=>'comments', :action=>'list')
+      link_to_with_state(_('manage comments'), comments_path)
     when :users
       return '' unless visitor.is_admin?
       link_to_with_state(_('manage users'), users_path)

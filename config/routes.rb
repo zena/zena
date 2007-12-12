@@ -45,6 +45,7 @@ ActionController::Routing::Routes.draw do |map|
   map.resources :relations
   map.resources :virtual_classes
   map.resources :sites
+  map.resources :comments
 
   # FIXME monolingual
   
