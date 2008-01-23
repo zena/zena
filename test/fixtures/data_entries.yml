@@ -1,0 +1,7 @@
+comment:
+  id: 1
+  node_a_id: 12
+  node_b_id: 9
+  user_id: 3
+  text: "node_a is 'status', node_b is 'secret'"
+  value: 10.3141521

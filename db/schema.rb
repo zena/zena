@@ -63,6 +63,20 @@ ActiveRecord::Schema.define(:version => 0) do
     t.column "country",    :string,   :limit => 100
   end
 
+  create_table "data_entries", :force => true do |t|
+    t.column "site_id",    :integer
+    t.column "created_at", :datetime
+    t.column "updated_at", :datetime
+    t.column "user_id",    :integer
+    t.column "date",       :datetime
+    t.column "text",       :text
+    t.column "value",      :decimal,  :precision => 24, :scale => 8
+    t.column "node_a_id",  :integer
+    t.column "node_b_id",  :integer
+    t.column "node_c_id",  :integer
+    t.column "node_d_id",  :integer
+  end
+
   create_table "discussions", :force => true do |t|
     t.column "created_at", :datetime
     t.column "updated_at", :datetime
@@ -115,17 +129,15 @@ ActiveRecord::Schema.define(:version => 0) do
   end
 
   create_table "nodes", :force => true do |t|
-    t.column "name",         :string,   :limit => 200
     t.column "type",         :string,   :limit => 32
-    t.column "vclass_id",    :integer
-    t.column "kpath",        :string,   :limit => 16
     t.column "event_at",     :datetime
+    t.column "kpath",        :string,   :limit => 16
     t.column "created_at",   :datetime
     t.column "updated_at",   :datetime
     t.column "user_id",      :integer
-    t.column "parent_id",    :integer
-    t.column "project_id",   :integer
     t.column "section_id",   :integer
+    t.column "parent_id",    :integer
+    t.column "name",         :string,   :limit => 200
     t.column "skin",         :string
     t.column "inherit",      :integer
     t.column "rgroup_id",    :integer
@@ -141,7 +153,9 @@ ActiveRecord::Schema.define(:version => 0) do
     t.column "basepath",     :text
     t.column "site_id",      :integer
     t.column "zip",          :integer
+    t.column "project_id",   :integer
     t.column "position",     :float,                   :default => 1.0
+    t.column "vclass_id",    :integer
   end
 
   create_table "participations", :force => true do |t|

@@ -738,7 +738,6 @@ class NodeTest < ZenaTestUnit
   def test_other_site_id
     login(:whale)
     node = secure(Node) { Node.create(:parent_id=>nodes_id(:ocean), :rgroup_id=>groups_id(:aqua), :wgroup_id=>groups_id(:masters), :pgroup_id=>groups_id(:masters), :name=>"fish") }
-    err node
     assert !node.new_record?, "Not a new record"
     assert_equal sites_id(:ocean), node[:site_id]
   end
