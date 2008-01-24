@@ -138,6 +138,8 @@ class Site < ActiveRecord::Base
       # =========== LOAD INITIAL DATA (default skin) =============
       
       nodes = site.send(:secure,Node) { Node.create_nodes_from_folder(:folder => File.join(RAILS_ROOT, 'db', 'init', 'base'), :parent_id => root[:id], :defaults => { :v_status => Zena::Status[:pub], :rgroup_id => pub[:id], :wgroup_id => sgroup[:id], :pgroup_id => admin[:id] } ) }
+      puts nodes.map { |n| [n.name,n.v_status,n.max_status]}.inspect # FIXME: MAX_STATUS NOT UPDATED !!!
+      
       
       site_skin = site.send(:secure, Skin) { Skin.find_by_name('site') }
       
