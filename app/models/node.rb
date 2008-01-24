@@ -439,6 +439,7 @@ class Node < ActiveRecord::Base
         current_obj.instance_variable_set(:@versions_count, versions.size)
         res << current_obj
         puts "#{defaults['v_status']} <==> #{current_obj.v_status}"
+        puts "#{defaults['v_status']} <==> #{current_obj.v_status}"
 
         res += create_nodes_from_folder(:folder => sub_folder, :parent_id => current_obj[:id], :defaults => defaults) if sub_folder && !current_obj.new_record?
       end
