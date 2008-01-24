@@ -137,3 +137,13 @@ Node_login:
   tkpath:         N
   mode:           "*login"
   klass:          Node
+	
+Node_stat:
+  id:             15
+  site_id:        1
+  node_id:        56
+  skin_name:      default
+  format:         html
+  tkpath:         N
+  mode:           "stat"
+  klass:          Node

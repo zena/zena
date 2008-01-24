@@ -1,0 +1,14 @@
+default:
+  context:
+    lang: 'en'
+    visitor: 'ant'
+    node: 'cleanWater'
+  
+list_values:
+  src: "<r:data><r:each join=', ' do='[value]'/></r:data>"
+  res: "27.0, 33.0, 13.0, 56.0, 21.0"
+
+list_with_sign:
+  src: "<ul do='data'><li do='each'><r:show attr='value'/> <r:user do='[initials]'/></li></ul>"
+  res: "<ul><li>27.0 AU</li><li>33.0 PTS</li><li>13.0 AU</li><li>56.0 SI</li><li>21.0 SI</li></ul>"
+	

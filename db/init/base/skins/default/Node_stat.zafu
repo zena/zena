@@ -1,0 +1,19 @@
+<r:include template='layout'>
+  <r:with part='context'>
+    <r:parent>
+    <ul do='pages' or='documents'><li do='each' on_if='current' do='link'/></ul>
+    </r:parent>
+  </r:with>
+  <r:with part='main'>
+    <r:include template='layout' part='title'/>
+    
+    <r:summary text=''/>
+    <r:text/>
+    <div class='zazen'>
+      <ul do='data'>
+        <li do='each'><span do='show' date='date'/><span do='[text]'/><span do='[value]'/><span><r:node_a do='[name]'/></span><span><r:edit/></span></li>
+        <li do='add'/>
+      </ul>
+    </div>
+  </r:with>
+</r:include>

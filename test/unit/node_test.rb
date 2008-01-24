@@ -1073,4 +1073,20 @@ done: \"I am done\""
     assert_nil next_page
     assert_equal nodes_id(:opening), match[0][:id]
   end
+  
+  def test_data_entries
+    login(:ant)
+    node = secure(Node) { nodes(:cleanWater) }
+    entries = node.data_entries
+    assert_equal 5, entries.size
+    assert_equal BigDecimal.new("13.0"), entries[2].value
+  end
+  
+  def test_data_entries_d
+    login(:ant)
+    node = secure(Node) { nodes(:cleanWater) }
+    entries = node.data_entries_d
+    assert_equal 2, entries.size
+    assert_equal BigDecimal.new("21"), entries[1].value
+  end
 end

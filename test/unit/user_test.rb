@@ -245,4 +245,14 @@ class UserTest < ZenaTestUnit
     assert user.sites.find(sites_id(:zena))
     assert user.sites.find(sites_id(:ocean))
   end
+  
+  def test_status_name
+    login(:lion)
+    user = secure(User) { users(:lion) }
+    assert_equal "admin", user.status_name
+    user = secure(User) { users(:ant) }
+    assert_equal "user", user.status_name
+    user = secure(User) { users(:anon) }
+    assert_equal "reader", user.status_name
+  end
 end

@@ -939,3 +939,18 @@ Node_login:
   inherit:        1
 <%= @defaults %>
 <%= @rights %>
+
+Node_stat:
+  id:             56
+  zip:            63
+  site_id:        1
+  type:           Template
+  kpath:          NPDTT
+  name:           Node-stat
+  project_id:     1
+  section_id:     43
+  parent_id:      43
+  user_id:        4
+  inherit:        1
+<%= @defaults %>
+<%= @rights %>

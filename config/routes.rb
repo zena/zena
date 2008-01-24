@@ -46,6 +46,7 @@ ActionController::Routing::Routes.draw do |map|
   map.resources :virtual_classes
   map.resources :sites
   map.resources :comments
+  map.resources :data_entries, :member => { :zafu => :get }
 
   # FIXME monolingual
   

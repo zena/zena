@@ -1,5 +1,4 @@
 class Contact < Reference
-  
   zafu_readable      :fullname, :initials
   
   # TODO: test

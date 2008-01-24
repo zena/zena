@@ -1,10 +1,10 @@
-if @node.new_record?
+if @data_entry.new_record?
   page.replace "#{params[:template_url]}_form", :file => fullpath_from_template_url + "_form.erb"
 else
   pos = params[:position] || :before
   ref = params[:reference] || "#{params[:template_url]}_add"
   page.insert_html pos.to_sym, ref, :file => fullpath_from_template_url + ".erb"
-  @node = @node.parent.new_child(:class => @node.class)
+  @data_entry = @data_entry.clone
   page.replace "#{params[:template_url]}_form", :file => fullpath_from_template_url + "_form.erb"
   page.toggle "#{params[:template_url]}_form", "#{params[:template_url]}_add"
 end

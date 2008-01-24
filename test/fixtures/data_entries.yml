@@ -1,7 +1,47 @@
 comment:
   id: 1
-  node_a_id: 12
-  node_b_id: 9
+  site_id: 1
+  node_a_id: 9
+  node_b_id: 12
   user_id: 3
   text: "node_a is 'status', node_b is 'secret'"
   value: 10.3141521
+
+visitors1:
+  id: 2
+  site_id: 1
+  node_a_id: 11
+  user_id: 1
+  value: 27
+
+visitors2:
+  id: 3
+  site_id: 1
+  node_a_id: 12
+  node_b_id: 11
+  user_id: 4
+  value: 33
+
+visitors3:
+  id: 4
+  site_id: 1
+  node_a_id: 12
+  node_c_id: 11
+  user_id: 1
+  value: 13
+
+visitors4:
+  id: 5
+  site_id: 1
+  node_a_id: 12
+  node_d_id: 11
+  user_id: 3
+  value: 56
+
+visitors5:
+  id: 6
+  site_id: 1
+  node_a_id: 12
+  node_d_id: 11
+  user_id: 3
+  value: 21

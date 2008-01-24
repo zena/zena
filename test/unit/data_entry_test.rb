@@ -32,15 +32,15 @@ class DataEntryTest < ZenaTestUnit
   def test_node_a
     login(:tiger)
     ent = data_entries(:comment)
-    assert_equal nodes_id(:status), ent.node_a[:id]
+    assert_equal nodes_id(:secret), ent.node_a[:id]
   end
   
   def test_cannot_change_old_link
     login(:ant)
     ent = data_entries(:comment)
-    assert !ent.update_attributes(:node_a_id => nodes_id(:ant), :node_b_id => nodes_id(:zena))
-    assert ent.errors[:node_b_id]
-    assert_equal "cannot remove old relation", ent.errors[:node_b_id]
+    assert !ent.update_attributes(:node_a_id => nodes_id(:ant), :node_a_id => nodes_id(:zena))
+    assert ent.errors[:node_a_id]
+    assert_equal "cannot remove old relation", ent.errors[:node_a_id]
   end
   
   def test_cannot_set_bad_link
@@ -56,5 +56,27 @@ class DataEntryTest < ZenaTestUnit
     ent = DataEntry.create(:node_a_id => nodes_id(:status), :value => 3.1415926535897932384)
     ent = DataEntry.find(ent[:id])
     assert_equal 3.14159265, ent.value.to_f  # crop to 8 digit precision
+  end
+  
+  def test_clone
+    login(:ant)
+    ent = data_entries(:comment)
+    clone = ent.clone
+    assert_equal 9, clone[:node_a_id]
+    assert_equal 12, clone[:node_b_id]
+    assert_nil clone[:node_c_id]
+    assert_nil clone[:node_d_id]
+    assert_nil clone[:text]
+    assert_nil clone[:date]
+    assert_nil clone[:value]
+  end
+  
+  def test_can_write
+    login(:anon)
+    ent = data_entries(:comment)
+    assert !ent.can_write?
+    login(:tiger)
+    ent = data_entries(:comment)
+    assert ent.can_write?
   end
 end

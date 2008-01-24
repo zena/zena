@@ -1137,14 +1137,18 @@ ENDTXT
       klass = opt[:class].kind_of?(Class) ? opt[:class] : Module::const_get(opt[:class].to_sym)
       return select(obj,sym,  secure_write(klass) { klass.find(:all, :select=>'zip,name', :order=>'name ASC') }.map{|r| [r[:name], r[:zip]]}, { :include_blank => opt[:include_blank] })
     end
-    node = instance_variable_get("@#{obj}".to_sym)
-    if node
-      id = node.send(sym.to_sym)
-      current_obj = secure(Node) { Node.find(id) } if id
-    else
-      id = ''
-      current_obj = nil
+    
+    unless id = opt[:id]
+      node = instance_variable_get("@#{obj}".to_sym)
+      if node
+        id = node.send(sym.to_sym)
+      else
+        id = nil
+      end
     end
+    
+    current_obj = secure(Node) { Node.find(id) } if id
+    
     name_ref = "#{obj}_#{sym}_name"
     attribute = opt[:show] || 'short_path'
     if current_obj

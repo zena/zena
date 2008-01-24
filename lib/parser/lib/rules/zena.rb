@@ -2,11 +2,18 @@ begin
   # FIXME: zafu_readable should belong to core_ext.
   class ActiveRecord::Base
     @@_zafu_readable ||= {} # defined for each class
+    @@_zafu_context  ||= {} # defined for each class (list of methods to change contexts)
     @@_zafu_readable_attributes ||= {} # full list with inherited attributes
+    @@_zafu_known_contexts      ||= {} # full list with inherited attributes
   
     def self.zafu_readable(*list)
       @@_zafu_readable[self] ||= []
       @@_zafu_readable[self] = (@@_zafu_readable[self] + list.map{|l| l.to_s}).uniq
+    end
+    
+    def self.zafu_context(hash)
+      @@_zafu_context[self] ||= {}
+      @@_zafu_context[self].merge!(hash.stringify_keys)
     end
   
     def self.zafu_readable_attributes
@@ -14,6 +21,24 @@ begin
         @@_zafu_readable[self] || []
       else
         (superclass.zafu_readable_attributes + (@@_zafu_readable[self] || [])).uniq.sort
+      end
+    end
+    
+    def self.zafu_known_contexts
+      @@_zafu_known_contexts[self] ||= begin
+        res = {}
+        if superclass == ActiveRecord::Base
+          @@_zafu_context[self] || {}
+        else
+          superclass.zafu_known_contexts.merge(@@_zafu_context[self] || {})
+        end.each do |k,v|
+          if v.kind_of?(Array)
+            res[k] = [Module::const_get(v[0])]
+          else
+            res[k] = Module::const_get(v)
+          end
+        end
+        res
       end
     end
   
@@ -37,6 +62,7 @@ module Zena
   module Rules
   end
   
+  # Zafu tags used to display / edit nodes and versions
   module Tags
     class << self
       def inline_methods(*args)
@@ -97,7 +123,11 @@ module Zena
         when :r_link
           make_input(:name => (@params[:attr] || 'v_title'))
         when :r_show
-          make_input(:name => @params[:attr])
+          if (@params[:date])
+            "<%= date_box('#{node_class.to_s.underscore}', #{@params[:date].inspect}) %>"
+          else
+            make_input(:name => @params[:attr])
+          end
         when :r_text
           make_textarea(:name => 'v_text')
         when :r_summary
@@ -105,7 +135,12 @@ module Zena
         when :r_zazen
           make_textarea(:name => @params[:attr])
         else
-          nil
+          if node_kind_of?(DataEntry) && @method.to_s =~ /node_/
+            # select node_id
+            "<%= select_id('#{node_class.to_s.underscore}', '#{@method}_id') %>"
+          else
+            return super(method) # use normal rendering
+          end
         end
         res =  "<#{@html_tag || 'div'} class='zazen'>#{res}</#{@html_tag || 'div'}>" if [:r_summary, :r_text].include?(sym)
           
@@ -230,7 +265,7 @@ module Zena
       
         unless @context[:make_form]
           # STORE TEMPLATE ========
-          template_node = "@#{node_class.to_s.downcase}"
+          template_node = "@#{node_class.to_s.underscore}"
           context_bak = @context.dup # avoid side effects when rendering the same block
             template      = expand_block(self, :group=>self, :list=>false, :node=>template_node, :template_url=>template_url, :form=>false, :no_form => true)
           @context = context_bak
@@ -332,9 +367,9 @@ module Zena
       if @anchor_param =~ /\[(.+)\]/
         anchor_value = "<%= #{node_attribute($1)} %>"
       elsif node_kind_of?(Version)
-        anchor_value = "#{node_class.to_s.downcase}<%= #{obj}.node.zip %>.<%= #{obj}.number %>"
+        anchor_value = "#{node_class.to_s.underscore}<%= #{obj}.node.zip %>.<%= #{obj}.number %>"
       else
-        anchor_value = "#{node_class.to_s.downcase}<%= #{obj}.zip %>"
+        anchor_value = "#{node_class.to_s.underscore}<%= #{obj}.zip %>"
       end
       "<a name='#{anchor_value}'></a>"
     end
@@ -465,55 +500,9 @@ module Zena
       end
     end
     
-    def r_author
-      do_var("#{node}.author", :node_class => :Node)
-    end
-
-    # FIXME: maybe we should remove most of the simple finders below so they are handled by 'unknown' through 'do_var/do_list'
-    def r_parent
-      do_var("#{node}.parent", :node_class => :Node)
-    end
-    
-    def r_project
-      do_var("#{node}.project", :node_class => :Node)
-    end
-    
-    def r_section
-      do_var("#{node}.section", :node_class => :Node)
-    end
-        
-    # TODO: test
-    def r_user
-      do_var("#{node}.user", :node_class => :User)
-    end
-    
-    def r_to_publish
-      do_list("#{node}.to_publish", :node_class => :Version)
-    end
-    
-    def r_contact
-      do_var("#{node}.contact", :node_class => :Node)
-    end
-    
-    def r_redactions
-      do_list("#{node}.redactions", :node_class => :Version)
-    end
-    
-    def r_proposed
-      do_list("#{node}.proposed", :node_class => :Version)
-    end
-
+    # FIXME: replace by zafu_known_contexts, each, etc
     def r_comments
       "<%= render :partial=>'comments/list', :locals=>{:node=>#{node}} %>"
-    end
-    
-    def r_comments_to_publish
-      do_list("#{node}.comments_to_publish", :node_class => :Comment)
-    end
-    
-    def r_version
-      return "" unless check_node_class(:Node)
-      do_var("#{node}.version", :node_class => :Version)
     end
     
     def r_edit
@@ -525,7 +514,7 @@ module Zena
           "<%= link_to_remote(#{_('cancel').inspect}, {:url => node_path(#{node}.zip) + '/zafu?template_url=#{CGI.escape(template_url)}', :method => :get}#{params_to_erb(@params)}) %>"
         else
           # edit button
-          "<%= #{node}.can_write? ? link_to_remote(#{text || _('edit').inspect}, {:url => edit_node_path(#{node}.zip) + '?template_url=#{CGI.escape(template_url)}', :method => :get}#{params_to_erb(@params)}) : '' %>"
+          "<%= #{node}.can_write? ? link_to_remote(#{text || _('edit').inspect}, {:url => edit_#{node_class.to_s.underscore}_path(#{node}.zip) + '?template_url=#{CGI.escape(template_url)}', :method => :get}#{params_to_erb(@params)}) : '' %>"
         end
       else
         # FIXME: we could link to some html page to edit the item.
@@ -581,7 +570,7 @@ module Zena
           # inline form used to create new elements: set values to '' and 'parent_id' from context
           @html_tag_params.merge!(:id=>"#{template_url}_form", :style=>"display:none;")
           start =  "<p class='btn_x'><a href='#' onclick='[\"#{template_url}_add\", \"#{template_url}_form\"].each(Element.toggle);return false;'>#{_('btn_x')}</a></p>\n"
-          form  =  "<%= form_remote_tag(:url => #{node_class.to_s.downcase.pluralize}_path) %>\n"
+          form  =  "<%= form_remote_tag(:url => #{node_class.to_s.underscore.pluralize}_path) %>\n"
         else
           # saved form used to edit/create: set values and 'parent_id' from @node
           @html_tag_params.merge!(:id=>"#{template_url}<%= #{node}.new_record? ? '_form' : \".\#{#{node}.zip}\" %>") unless @method == 'group' # called from r_group
@@ -592,31 +581,36 @@ module Zena
 <% if #{node}.new_record? -%>
   <p class='btn_x'><a href='#' onclick='[\"#{template_url}_add\", \"#{template_url}_form\"].each(Element.toggle);return false;'>#{_('btn_x')}</a></p>
 <% else -%>
-  <p class='btn_x'><%= link_to_remote(#{_('btn_x').inspect}, :url => #{node_class.to_s.downcase}_path(#{node}.zip) + '/zafu?template_url=#{CGI.escape(template_url)}', :method => :get) %></a></p>
+  <p class='btn_x'><%= link_to_remote(#{_('btn_x').inspect}, :url => #{node_class.to_s.underscore}_path(#{node}.zip) + '/zafu?template_url=#{CGI.escape(template_url)}', :method => :get) %></a></p>
 <% end -%>
 END_TXT
           form =<<-END_TXT
 <% if #{node}.new_record? -%>
-<%= form_remote_tag(:url => #{node_class.to_s.downcase.pluralize}_path) %>
+<%= form_remote_tag(:url => #{node_class.to_s.underscore.pluralize}_path) %>
 <% else -%>
-<%= form_remote_tag(:url => #{node_class.to_s.downcase}_path(#{node}.zip), :method => :put) %>
+<%= form_remote_tag(:url => #{node_class.to_s.underscore}_path(#{node}.zip), :method => :put) %>
 <% end -%>
 END_TXT
         end
+        
         form << "<div class='hidden'>"
         form << "<input type='hidden' name='template_url' value='#{template_url}'/>\n"
-        form << "<input type='hidden' name='node[parent_id]' value='<%= #{@context[:in_add] ? "#{@context[:parent_node]}.zip" : "#{node}.parent_zip"} %>'/>\n"
         
-        if (@params[:klass] || @context[:in_add])
-          klass_set = false
-          (descendants['input'] || []).each do |tag|
-            if tag.params[:name] == 'klass'
-              klass_set = true
-              break
+        if node_kind_of?(Node)
+          form << "<input type='hidden' name='node[parent_id]' value='<%= #{@context[:in_add] ? "#{@context[:parent_node]}.zip" : "#{node}.parent_zip"} %>'/>\n"
+        
+          if (@params[:klass] || @context[:in_add])
+            klass_set = false
+            (descendants['input'] || []).each do |tag|
+              if tag.params[:name] == 'klass'
+                klass_set = true
+                break
+              end
             end
+            form << "<input type='hidden' name='node[klass]' value='#{@params[:klass] || @context[:klass] || 'Page'}'/>\n" unless klass_set
           end
-          form << "<input type='hidden' name='node[klass]' value='#{@params[:klass] || @context[:klass] || 'Page'}'/>\n" unless klass_set
         end
+        
         if add_block = @context[:add]
           params = add_block.params
           [:after, :before, :top, :bottom].each do |sym|
@@ -719,10 +713,14 @@ END_TXT
         prefix  = @context[:template_url]
         out "<#{@html_tag || 'div'} id='#{prefix}_add' class='#{@params[:class] || 'btn_add'}'>#{expand_with(:onclick=>"[\"#{prefix}_add\", \"#{prefix}_form\"].each(Element.toggle);return false;")}</#{@html_tag || 'div'}>"
         
-        # FIXME: BUG if we set <r:form klass='Post'/> the user cannot select class with menu...
-        klass = @params[:klass] || @context[:form].params[:klass] || 'Node'
-        # FIXME: inspect '@context[:form]' to see if it contains v_klass ?
-        out "<% #{var}_new = secure(Node) { Node.get_class(#{klass.inspect}).new } -%>"
+        if node_kind_of?(Node)
+          # FIXME: BUG if we set <r:form klass='Post'/> the user cannot select class with menu...
+          klass = @params[:klass] || @context[:form].params[:klass] || 'Node'
+          # FIXME: inspect '@context[:form]' to see if it contains v_klass ?
+          out "<% #{var}_new = secure(Node) { Node.get_class(#{klass.inspect}).new } -%>"
+        else
+          out "<% #{var}_new = #{node_class}.new -%>"
+        end
         if @context[:form].method == 'form'
           out expand_block(@context[:form], :in_add => true, :no_form => false, :add=>self, :node => "#{var}_new", :parent_node => node)
         else
@@ -784,7 +782,7 @@ END_TXT
       </script>"
       
       # TEMPLATE ========
-      template_node = "@#{node_class.to_s.downcase}"
+      template_node = "@#{node_class.to_s.underscore}"
       template      = expand_with(:node=>template_node, :template_url=>template_url)
       out helper.save_erb_to_url(template, template_url)
     end
@@ -966,7 +964,7 @@ END_TXT
         opts = ""
       end
       out "<% if #{list_var} = #{node}.traductions#{opts} -%>"
-      out expand_with(:list=>list_var, :node_class=>:Version)
+      out expand_with(:list=>list_var, :node_class => Version)
       out "<% end -%>"
     end
     
@@ -1103,7 +1101,7 @@ END_TXT
         href = ''
       end
       # obj
-      if node_class == :Version
+      if node_class == Version
         lnode = "#{node}.node"
         url = ", :lang=>#{node}.lang"
       else
@@ -1158,7 +1156,7 @@ END_TXT
     end
     
     def r_img
-      return unless check_node_class(:Node)
+      return unless check_node_class(Node)
       if @params[:src]
         img = build_finder_for(:first, @params[:src])
       else
@@ -1205,16 +1203,33 @@ END_TXT
     # try to add 'conditions' without sql injection possibilities...
     # FIXME: 'else' clause has been removed, find a solution to put it back.
     def r_unknown
-      "not a node (#{@method})" unless node_kind_of?(Node)
-      rel = @method
-      if @params[:from] || rel =~ /\sfrom\s/ || Node.plural_relation?(@method)
-        # plural
-        do_list( build_finder_for(:all,   rel, @params) )
+      if context = node_class.zafu_known_contexts[@method]
+        if context.kind_of?(Array)
+          # plural
+          do_list( "#{node}.#{@method}", :node_class => context[0] )
+        else
+          # singular
+          do_var(  "#{node}.#{@method}", :node_class => context )
+        end
+      elsif node_kind_of?(Node)
+        if @params[:from] || @method =~ /\sfrom\s/ || Node.plural_relation?(@method)
+          # plural
+          do_list( build_finder_for(:all,   @method, @params) )
+        else
+          # singular
+          do_var(  build_finder_for(:first, @method, @params) )
+        end
       else
-        # singular
-        do_var(  build_finder_for(:first, rel, @params) )
+        "unknown relation (#{@method}) #{node_class}: #{node_class.zafu_known_contexts.keys.inspect}"
       end
     end
+    
+    # Zafu tags used to display / edit data entries
+    def r_data
+      do_list("#{node}.data_entries", :node_class => DataEntry)
+    end
+    
+    # ================== HELPER METHODS ================
     
     # Create an sql query to open a new context (passes its arguments to HasRelations#build_find)
     def build_finder_for(count, rel, params=@params)
@@ -1362,13 +1377,11 @@ END_TXT
     
     # TODO: replace symbols by real classes
     def node_class
-      @context[:node_class] || :Node
+      @context[:node_class] || Node
     end
     
     def node_kind_of?(ancestor)
-      node_klass = Module::const_get(node_class)
-      ancestor   = ancestor.kind_of?(Symbol) ? Module::const_get(ancestor) : ancestor
-      node_klass.ancestors.include?(ancestor)
+      node_class.ancestors.include?(ancestor)
     end
     
     def list
@@ -1404,6 +1417,8 @@ END_TXT
       @context.delete(:template_url) # should not propagate
       @context.delete(:make_form)    # should not propagate
       
+      klass = opts[:node_class] || node_class
+      
       else_block = descendant('else')
       if (each_block = descendant('each')) && (descendant('edit') || descendant('add') || (descendant('swap') && descendant('swap').parent.method != 'group'))
         # ajax, build template. We could merge the following code with 'r_group'.
@@ -1424,16 +1439,16 @@ END_TXT
         end
 
         # TEMPLATE ========
-        template_node = "@#{node_class.to_s.downcase}"
-        template      = expand_block(each_block, :list=>false, :node=>template_node, :template_url=>template_url)
+        template_node = "@#{klass.to_s.underscore}"
+        template      = expand_block(each_block, :list=>false, :node=>template_node, :node_class => klass, :template_url=>template_url)
         out helper.save_erb_to_url(template, template_url)
         
         # FORM ============
         form_url = "#{template_url}_form"
         if each_block != form_block
-          form = expand_block(form_block, :node=>template_node, :template_url=>template_url, :add=>add_block) 
+          form = expand_block(form_block, :node=>template_node, :node_class => klass, :template_url=>template_url, :add=>add_block) 
         else
-          form = expand_block(form_block, :node=>template_node, :template_url=>template_url, :add=>add_block, :make_form=>true, :no_edit=>true)
+          form = expand_block(form_block, :node=>template_node, :node_class => klass, :template_url=>template_url, :add=>add_block, :make_form=>true, :no_edit=>true)
         end
         out helper.save_erb_to_url(form, form_url)
       else
@@ -1576,7 +1591,6 @@ END_TXT
       end
     end
     
-    # TODO: test, replace symbols by real classes
     def check_node_class(*list)
       list.include?(node_class)
     end
@@ -1584,16 +1598,16 @@ END_TXT
     def node_attribute(attribute, opts={})
       att_node = opts[:node] || node
       res = if node_kind_of?(Node)
-        unless attribute =~ /\Ad_/
-          attribute = attribute.gsub(/\A(|[\w_]+)id(s?)\Z/, '\1zip\2')
-        end
+        attribute = attribute.gsub(/\A(|[\w_]+)id(s?)\Z/, '\1zip\2') unless attribute =~ /\Ad_/
         Node.zafu_attribute(att_node, attribute)
       elsif node_kind_of?(Version) && Version.zafu_readable?(attribute)
         "#{att_node}.#{attribute}"
+      elsif node_kind_of?(DataEntry) && DataEntry.zafu_readable?(attribute)
+        "#{att_node}.#{attribute}"
+      else
+        # could not find a shortcut.
+        "#{att_node}.zafu_read(#{attribute.inspect})"
       end
-      
-      # could not find a shortcut.
-      res ||= "#{att_node}.zafu_read(#{attribute.inspect})"
       
       if opts[:else]
         "(#{res} || #{node_attribute(opts[:else])})"
@@ -1714,11 +1728,11 @@ END_TXT
     # TODO: test make_form
     def make_input(params)
       return "<span class='parser_error'>input without name/attribute</span>" unless name = params[:name]
-      if name =~ /\Anode\[(.*?)\]/
-        attribute = $1
+      if name =~ /\A([\w_]+)\[(.*?)\]/
+        attribute = $2
       else
         attribute = name
-        name = "node[#{attribute}]"
+        name = "#{node_class.to_s.underscore}[#{attribute}]"
       end
       return '' if attribute == 'parent_id' # set with 'r_form'
       
@@ -1732,11 +1746,11 @@ END_TXT
     
     def make_textarea(params)
       return "<span class='parser_error'>textarea without name/attribute</span>" unless name = params[:name]
-      if name =~ /\Anode\[(.*?)\]/
-        attribute = $1
+      if name =~ /\A([\w_]+)\[(.*?)\]/
+        attribute = $2
       else
         attribute = name
-        name = "node[#{attribute}]"
+        name = "#{node_class.to_s.underscore}[#{attribute}]"
       end
       return '' if attribute == 'parent_id' # set with 'r_form'
       

@@ -1,0 +1,1 @@
+page.replace "#{params[:template_url]}.#{@data_entry.zip}", :file => fullpath_from_template_url + "_form.erb"

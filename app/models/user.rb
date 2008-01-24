@@ -20,6 +20,9 @@ things they can/cannot do :
 TODO: when a user is 'destroyed', pass everything he owns to another user or just mark the user as 'deleted'...
 =end
 class User < ActiveRecord::Base
+  zafu_readable           :login, :initials, :fullname, :status, :status_name
+  zafu_context            :contact => "Contact", :to_publish => ["Version"], :redactions => ["Version"],
+                          :proposed => ["Version"], :comments_to_publish => ["Comment"]
   attr_accessible         :login, :password, :lang, :first_name, :name, :email, :time_zone, :status, :group_ids, :site_ids
   attr_accessor           :visited_node_ids
   attr_accessor           :site, :ip
@@ -113,28 +116,6 @@ class User < ActiveRecord::Base
       end
       super(new_attrs)
     end
-    
-    def class_for_relation(rel)
-      case rel
-      when 'contact'
-        Contact
-      when 'to_publish'
-        Version
-      when 'redactions'
-        Version
-      when 'proposed'
-        Version
-      when 'comments_to_publish'
-        Comment
-      else
-        nil
-      end
-    end
-  end
-  
-  def relation(method, opts={})
-    return nil unless User.class_for_relation(method) != nil
-    self.send(method.to_sym)
   end
   
   def contact
@@ -201,6 +182,10 @@ class User < ActiveRecord::Base
 
   def status
     @defined_status || site_participation.status.to_i
+  end
+  
+  def status_name
+    Num_to_status[status].to_s
   end
   
   def status=(v)

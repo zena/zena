@@ -9,12 +9,17 @@ The choice of four links is related to simple seizure situations that require up
 DataEntries are signed with 'creation date', 'modification date' and 'user_id'.
 
 A visitor needs write access in all nodes the data should link to. A visitor also needs write access to the old node to remove a link to that node.
+
+A visitor can edit a data entry if he/she has write access to the reference node (node_a).
 =end
 class DataEntry < ActiveRecord::Base
-  zafu_readable      :created_at, :updated_at, :date, :text, :node_a, :node_b, :node_c, :node_d, :nodes
-  NodeLinkSymbols = [:node_a, :node_b, :node_c, :node_d]
+  zafu_readable :created_at, :updated_at, :date, :text, :value
+  zafu_context  :node_a => "Node", :node_b => "Node", :node_c => "Node", :node_d => "Node", :nodes => ["Node"]
+  NodeLinkSymbols   = [:node_a,    :node_b,    :node_c,    :node_d]
+  NodeLinkSymbolsId = [:node_a_id, :node_b_id, :node_c_id, :node_d_id]
   validate    :valid_data_entry
   before_save :sign_data
+  belongs_to  :user
   
   
   # modify attributes so ext sees 'zip' values but we store 'ids'
@@ -50,13 +55,37 @@ class DataEntry < ActiveRecord::Base
   end
   
   def nodes
-    ids = NodeLinkSymbols.map { |s| self["#{s}_id"] }.compact.uniq
+    ids = NodeLinkSymbolsId.map { |s| self[s] }.compact.uniq
     secure(Node) { Node.find_all_by_id(ids) }
+  end
+  
+  def ref_node
+    @ref_node ||= node_a
   end
   
   # Update a data entry's attributes, transforming the attributes first from the visitor's context to internal context.
   def update_attributes_with_transformation(new_attributes)
-    update_attributes(DataEntrie.transform_attributes(new_attributes))
+    update_attributes(DataEntry.transform_attributes(new_attributes))
+  end
+  
+  def clone
+    new_ent = DataEntry.new
+    NodeLinkSymbols.each do |sym|
+      sym_id = "#{sym}_id"
+      new_ent[sym_id] = self[sym_id] # copy relation information
+    end
+    new_ent
+  end
+  
+  # needed by zafu for ajaxy stuff
+  def zip
+    self[:id]
+  end
+  
+  def can_write?
+    ref_node.can_write?
+  rescue
+    nil
   end
   
   private
