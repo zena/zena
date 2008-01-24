@@ -7,7 +7,7 @@ You need to set collation and charset to utf8 when creating the database. Exampl
 
 == Development/testing
 1. Create the database using a mysql client
-   create database zena_dev DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
+   create database zee_dev DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
 
 2. Migrate the database and add initialize db (from within zena directory)
    rake zena:migrate
