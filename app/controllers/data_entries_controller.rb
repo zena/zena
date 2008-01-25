@@ -3,6 +3,28 @@ class DataEntriesController < ApplicationController
   before_filter :check_can_edit
   layout :admin_layout
 
+  def new
+    # TODO
+  end
+
+  def create
+    attrs = params['data_entry']
+    @data_entry = secure(Node) { DataEntry.create_data_entry(attrs) }
+    
+    respond_to do |format|
+      if @data_entry.errors.empty?
+        flash[:notice] = _('Data entry was successfully created.')
+        format.html { redirect_to data_entry_url(@node) }
+        format.js
+        format.xml  { head :created, :location => data_entry_url(@node) }
+      else
+        format.html { render :action => "new" }
+        format.js
+        format.xml  { render :xml => @data_entry.errors.to_xml }
+      end
+    end
+  end
+
   def zafu
     respond_to do |format|
       format.js { @template_file = fullpath_from_template_url(params[:template_url])

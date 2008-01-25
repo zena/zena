@@ -10,10 +10,27 @@
     <r:summary text=''/>
     <r:text/>
     <div class='zazen'>
-      <ul do='data'>
-        <li do='each'><span do='show' date='date'/><span do='[text]'/><span do='[value]'/><span><r:node_a do='[name]'/></span><span><r:edit/></span></li>
-        <li do='add'/>
-      </ul>
+      <table do='data'>
+        <tr do='each'><td do='show' date='date'/><td do='[text]'/><td do='[value]'/><td>from: <r:node_a do='[name]'/> to: <r:node_b do='[name]'/></td><td><r:edit/></td></tr>
+        <tr do='form'><td colspan='5'>
+            <label for='data_entry_date'>date</label>
+            <p><input type='date' name='date'/></p>
+            
+            <label for='data_entry_text'>text</label>
+            <p><input name='text'/></p>
+            
+            <label for='data_entry_value'>value</label>
+            <p><input name='value'/></p>
+            
+            <label for='data_entry_node_b_id'>node_a</label>
+            <input type='hidden' name='node_a' set_value=''>
+            <p><input type='id' name='node_b'/></p>
+            
+            <p><input type='submit'/> 
+            
+            <r:cancel/></p></td></tr>
+        <tr do='add'><td colspan='5' do='add_btn'/></tr>
+      </table>
     </div>
   </r:with>
 </r:include>

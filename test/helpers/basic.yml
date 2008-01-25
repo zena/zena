@@ -189,6 +189,10 @@ link_sharp_name_in:
   src: "<r:link sharp='[name]' in='parent'/>"
   res: "<a href='/oo/projects/cleanWater.html#status'>status title</a>"
 
+link_stored:
+  src: "<r:void store='foo'><r:parent><r:link href='foo' do='[name]'/></r:parent></r:void>"
+  res: "<a href='/oo/projects/cleanWater/page22.html'>cleanWater</a>"
+
 anchor:
   src: "<r:anchor/> <p do='[id]' anchor='[name]'>hello</p>"
   res: "<a name='node22'></a><a name='status'></a> <p>22</p>"
@@ -395,6 +399,14 @@ set_attribute_with_inner:
 set_in_ztag:
   src: "<r:show attr='name' set_id='node[id]'/>"
   res: "<div id='node22'>status</div>"
+
+set_attribute_stored_node:
+  src: "<r:void store='foo'><r:parent><p do='[name]' set_id='test_[foo.id]'>hey</p></r:parent></r:void>"
+  res: "<p id='test22'>cleanWater</p>"
+
+set_attribute_main_node:
+  src: "<r:parent><p do='[name]' set_id='test_[main.name]'>hey</p></r:parent>"
+  res: "<p id='test_status'>cleanWater</p>"
 
 each_join_html:
   context:

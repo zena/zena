@@ -974,7 +974,11 @@ ENDTXT
     options = {:node=>@node}.merge(opts)
     node = options.delete(:node)
     if href = options.delete(:href)
-      node = node.find(:first, :relations=>[href]) || node unless href == 'self'
+      if href.kind_of?(String)
+        node = node.find(:first, :relations=>[href]) || node unless href == 'self'
+      else
+        node = href
+      end
     end    
     return options[:text] unless node
 

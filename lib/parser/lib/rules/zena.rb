@@ -97,7 +97,7 @@ module Zena
       @html_tag_params_bak = @html_tag_params
       @html_tag_params     = @html_tag_params.merge(@context.delete(:html_tag_params) || {})
       if store = @params.delete(:store)
-        @context["stored_#{store}".to_sym] = node
+        @context["stored_#{store}"] = node
       end
       @anchor_param = @params.delete(:anchor)
 
@@ -123,11 +123,7 @@ module Zena
         when :r_link
           make_input(:name => (@params[:attr] || 'v_title'))
         when :r_show
-          if (@params[:date])
-            "<%= date_box('#{node_class.to_s.underscore}', #{@params[:date].inspect}) %>"
-          else
-            make_input(:name => @params[:attr])
-          end
+          make_input()
         when :r_text
           make_textarea(:name => 'v_text')
         when :r_summary
@@ -511,7 +507,8 @@ module Zena
         # ajax
         if @context[:in_form]
           # cancel button
-          "<%= link_to_remote(#{_('cancel').inspect}, {:url => node_path(#{node}.zip) + '/zafu?template_url=#{CGI.escape(template_url)}', :method => :get}#{params_to_erb(@params)}) %>"
+          @context[:form_cancel] || ''
+          # "<%= link_to_remote(#{_('cancel').inspect}, {:url => node_path(#{node}.zip) + '/zafu?template_url=#{CGI.escape(template_url)}', :method => :get}#{params_to_erb(@params)}) %>"
         else
           # edit button
           "<%= #{node}.can_write? ? link_to_remote(#{text || _('edit').inspect}, {:url => edit_#{node_class.to_s.underscore}_path(#{node}.zip) + '?template_url=#{CGI.escape(template_url)}', :method => :get}#{params_to_erb(@params)}) : '' %>"
@@ -521,6 +518,8 @@ module Zena
         ""
       end
     end
+    
+    alias r_cancel r_edit
     
     def r_textarea
       out make_textarea(@html_tag_params.merge(@params))
@@ -536,14 +535,19 @@ module Zena
           class_opts = {}
           select_opts[:selected] = @params[:selected] if @params[:selected]
           class_opts[:without]  = @params[:without]  if @params[:without]
-          "<%= select('node', #{name.inspect}, Node.classes_for_form(:class => #{klass.inspect}#{params_to_erb(class_opts)})#{params_to_erb(select_opts)}) %>"
+          "<%= select('#{node_class.to_s.underscore}', #{name.inspect}, Node.classes_for_form(:class => #{klass.inspect}#{params_to_erb(class_opts)})#{params_to_erb(select_opts)}) %>"
         else
           klasses = @params[:options] || "Page,Note"
-          "<%= select('node', #{name.inspect}, #{klasses.split(',').map(&:strip).inspect}) %>"
+          "<%= select('#{node_class.to_s.underscore}', #{name.inspect}, #{klasses.split(',').map(&:strip).inspect}) %>"
         end
-      when 'date_box'
+      when 'date_box', 'date'
         return "<span class='parser_error'>date_box without name</span>"   unless   name = @params[:name]
-        "<%= date_box 'node', #{name.inspect}, :size=>15#{@context[:in_add] ? ", :value=>''" : ''} %>"
+        "<%= date_box '#{node_class.to_s.underscore}', #{name.inspect}, :size=>15#{@context[:in_add] ? ", :value=>''" : ''} %>"
+      when 'id'
+        return "<span class='parser_error'>date_box without name</span>" unless name = @params[:name]
+        name = "#{name}_id" unless name[-3..-1] == '_id'
+        "<%= select_id('#{node_class.to_s.underscore}', #{name.inspect}) %>"
+        
       when 'submit'
         @html_tag = 'input'
         @html_tag_params[:type] = @params[:type]
@@ -569,7 +573,7 @@ module Zena
         if @context[:in_add]
           # inline form used to create new elements: set values to '' and 'parent_id' from context
           @html_tag_params.merge!(:id=>"#{template_url}_form", :style=>"display:none;")
-          start =  "<p class='btn_x'><a href='#' onclick='[\"#{template_url}_add\", \"#{template_url}_form\"].each(Element.toggle);return false;'>#{_('btn_x')}</a></p>\n"
+          cancel =  "<p class='btn_x'><a href='#' onclick='[\"#{template_url}_add\", \"#{template_url}_form\"].each(Element.toggle);return false;'>#{_('btn_x')}</a></p>\n"
           form  =  "<%= form_remote_tag(:url => #{node_class.to_s.underscore.pluralize}_path) %>\n"
         else
           # saved form used to edit/create: set values and 'parent_id' from @node
@@ -577,7 +581,7 @@ module Zena
           # new_record? = edit/create failed, rendering form with errors
           # else        = edit
           # FIXME: remove '/zafu?' when nodes_controller's method 'zafu' is no longer needed.
-          start = <<-END_TXT
+          cancel = <<-END_TXT
 <% if #{node}.new_record? -%>
   <p class='btn_x'><a href='#' onclick='[\"#{template_url}_add\", \"#{template_url}_form\"].each(Element.toggle);return false;'>#{_('btn_x')}</a></p>
 <% else -%>
@@ -633,29 +637,25 @@ END_TXT
       else
         # no ajax
         # FIXME
-        start = "" # link to normal node ?
+        cancel = "" # link to normal node ?
         form = "<form method='post' action='/nodes/<%= #{node}.zip %>'><div style='margin:0;padding:0'><input name='_method' type='hidden' value='put' /></div>"
       end
       
-      unless descendant('form_link')
+      unless descendant('cancel') || descendant('edit')
         # add a descendant before blocks.
         blocks = @blocks.dup
-        form_link = make(:void, :method=>'form_link', :text=>start)
-        @blocks = [form_link] + blocks
+        form_cancel = make(:void, :method=>'form_cancel', :text=>cancel)
+        @blocks = [form_cancel] + blocks
         remove_instance_variable(:@descendants)
       end
       
       if descendant('form_tag')
-        res = expand_with(:form_tag => form, :in_form => true, :form_link => start)
+        res = expand_with(:form_tag => form, :in_form => true, :form_cancel => cancel)
       else
         #res = "&lt;form&gt; missing"
-        res = form + expand_with(:in_form => true, :form_link => start) + '</form>'
+        res = form + expand_with(:in_form => true, :form_cancel => cancel) + '</form>'
       end
       out render_html_tag(res)
-    end
-    
-    def r_form_link
-      @context[:form_link] || ''
     end
     
     # <r:checkbox role='collaborator_for' values='projects' from='site'/>"
@@ -699,19 +699,21 @@ END_TXT
     def r_add
       return "ADD should not be called from within EACH" if parent.method == 'each'
       out "<% if #{node}.can_write? -%>"
-      unless descendant('add_link')
+      unless descendant('add_btn')
         # add a descendant between self and blocks.
         blocks = @blocks.dup
         @blocks = []
-        add_link = make(:void, :method=>'add_link', :params=>@params.dup, :text=>'')
-        add_link.blocks = blocks
+        add_btn = make(:void, :method=>'add_btn', :params=>@params.dup, :text=>'')
+        add_btn.blocks = blocks
         remove_instance_variable(:@descendants)
       end
       
       if @context[:form] && @context[:template_url]
         # ajax add
         prefix  = @context[:template_url]
-        out "<#{@html_tag || 'div'} id='#{prefix}_add' class='#{@params[:class] || 'btn_add'}'>#{expand_with(:onclick=>"[\"#{prefix}_add\", \"#{prefix}_form\"].each(Element.toggle);return false;")}</#{@html_tag || 'div'}>"
+        @html_tag_params.merge!(:id => "#{prefix}_add")
+        @html_tag_params[:class] ||= 'btn_add'
+        out render_html_tag("#{expand_with(:onclick=>"[\"#{prefix}_add\", \"#{prefix}_form\"].each(Element.toggle);return false;")}")
         
         if node_kind_of?(Node)
           # FIXME: BUG if we set <r:form klass='Post'/> the user cannot select class with menu...
@@ -736,7 +738,7 @@ END_TXT
       @html_tag_done = true
     end
     
-    def r_add_link
+    def r_add_btn
       if @params[:text]
         text = @params[:text]
         text = "<div>#{text}</div>" unless @html_tag
@@ -976,25 +978,7 @@ END_TXT
     end
     
     def r_node
-      select = @params[:select] || 'self'
-      if select == 'main'
-        do_var("@node")
-      elsif select == 'root'
-        do_var("secure(Node) { Node.find(#{ZENA_ENV[:root_id]})} rescue nil")
-      elsif select == 'stored'
-        if stored = @context[:stored_node]
-          do_var(stored)
-        else
-          "<span class='parser_error'>No stored nodes in the current context</span>"
-        end
-      elsif select == 'visitor'
-        do_var("visitor.contact")
-      elsif select =~ /^\d+$/
-        do_var("secure(Node) { Node.find_by_zip(#{select.inspect})} rescue nil")
-      else
-        select = select[1..-1] if select[0..0] == '/'
-        do_var("secure(Node) { Node.find_by_path(#{select.inspect})} rescue nil")
-      end
+      do_var(build_finder_for(:first, @params[:select]))
     end
     
     def r_date
@@ -1004,17 +988,14 @@ END_TXT
         expand_with(:date=>'#{main_date.strftime("%Y-%m-%d")}')
       when 'now'
         expand_with(:date=>'#{Time.now.strftime("%Y-%m-%d")}')
-      when 'stored'
-        if stored = @context[:stored_date]
-          expand_with(:date=>stored)
-        else
-          "<span class='parser_error'>No stored date in the current context</span>"
-        end
       else
         if select =~ /^\d{4}-\d{1,2}-\d{1,2}$/
           expand_with(:date=>select)
+        elsif date = @context["date_#{select}"]
+          # FIXME: implement 'store_date'...
+          expand_with(:date=>date)
         else
-          "<span class='parser_error'>Bad parameter for 'date' should be (main,now,stored)</span>"
+          "<span class='parser_error'>Bad parameter (#{select}) for 'date'</span>"
         end
       end
     end
@@ -1095,17 +1076,18 @@ END_TXT
         text = expand_with
       end
       if @params[:href]
-        # FIXME: add 'stored'
-        href = ", :href=>#{@params[:href].inspect}"
+        unless lnode = @context["stored_#{@params[:href]}"]
+          href = ", :href=>#{@params[:href].inspect}"
+        end
       else
         href = ''
       end
       # obj
       if node_class == Version
-        lnode = "#{node}.node"
+        lnode ||= "#{node}.node"
         url = ", :lang=>#{node}.lang"
       else
-        lnode = node
+        lnode ||= node
         url = ''
       end
       if fmt = @params[:format]
@@ -1163,13 +1145,9 @@ END_TXT
         img = node
       end
       mode = @params[:mode] || 'std'
-      if link = @params[:link]
-        if link =~ /^stored/
-          link = ":node=>#{@context[link.to_sym] || node}"
-        else
-          link = ":node=>#{node}, :href=>#{link.inspect}"
-        end
-        res  = "node_link(#{link}, :text=>img_tag(#{img}, :mode=>#{mode.inspect}))"
+      if @params[:link]
+        link = build_finder_for(:first, @params[:link])
+        res  = "node_link(:href=>#{link.inspect}, :text=>img_tag(#{img}, :mode=>#{mode.inspect}))"
         res  += ", :class=>#{@params[:class]}" if @params[:class]
       else
         res = "img_tag(#{img}, :mode=>#{mode.inspect})"
@@ -1223,16 +1201,29 @@ END_TXT
         "unknown relation (#{@method}) #{node_class}: #{node_class.zafu_known_contexts.keys.inspect}"
       end
     end
-    
-    # Zafu tags used to display / edit data entries
-    def r_data
-      do_list("#{node}.data_entries", :node_class => DataEntry)
-    end
-    
+        
     # ================== HELPER METHODS ================
     
     # Create an sql query to open a new context (passes its arguments to HasRelations#build_find)
     def build_finder_for(count, rel, params=@params)
+      rel ||= 'self'
+      if (count == :first)
+        if rel == 'main'
+          return "@node"
+        elsif rel == 'root'
+          return "(secure(Node) { Node.find(#{ZENA_ENV[:root_id]})} rescue nil)"
+        elsif rel == 'visitor'
+          return "visitor.contact"
+        elsif rel =~ /^\d+$/
+          return "(secure(Node) { Node.find_by_zip(#{rel.inspect})} rescue nil)"
+        elsif node_name == @context[rel]
+          return node_name
+        elsif rel[0..0] == '/'
+          rel = rel[1..-1]
+          return "(secure(Node) { Node.find_by_path(#{rel.inspect})} rescue nil)"
+        end
+      end
+      
       sql_query = Node.build_find(count, query_parameters(rel, params))
       res = "#{node}.do_find(#{count.inspect}, \"#{sql_query}\")"
       if params[:else]
@@ -1283,14 +1274,15 @@ END_TXT
       
       
       # FIXME: stored should be clarified and managed in a single way through links and contexts.
-      # <r:link href='stored_whatever'/>
-      # <r:pages from='stored_whatever'/>
-      # <r:pages from='project' project='stored_whatever'/>
-      # <r:img link='stored_whatever'/>
+      # <r:void store='foo'>...
+      # <r:link href='foo'/>
+      # <r:pages from='foo'/>
+      # <r:pages from='project' project='foo'/>
+      # <r:img link='foo'/>
       # ...
       if value = params[:author]
-        if value == 'stored' && stored = @context[:stored_author]
-          conditions << "user_id = '\#{#{stored}[:user_id]}'"
+        if stored == @context["stored_#{value}"]
+          conditions << "user_id = '\#{#{stored}.id}'"
         elsif value == 'current'
           conditions << "user_id = '\#{#{node}[:user_id]}'"
         elsif value == 'visitor'
@@ -1298,24 +1290,26 @@ END_TXT
         elsif value =~ /\A\d+\Z/
           conditions << "user_id = '#{value.to_i}'"
         elsif value =~ /\A[\w\/]+\Z/
-          # path, not implemented yet
+          # TODO: path, not implemented yet
         end
       end
       
       if value = params[:project]
-        if value == 'stored' && stored = @context[:stored_project]
+        puts "has project (#{value})"
+        if stored = @context["stored_#{value}"]
+          puts "stored found = #{stored}"
           conditions << "project_id = '\#{#{stored}.get_project_id}'"
         elsif value == 'current'
           conditions << "project_id = '\#{#{node}.get_project_id}'"
         elsif value =~ /\A\d+\Z/
           conditions << "project_id = '#{value.to_i}'"
         elsif value =~ /\A[\w\/]+\Z/
-          # not implemented yet
+          # TODO: path, not implemented yet
         end
       end
       
       if value = params[:section]
-        if value == 'stored' && stored = @context[:stored_section]
+        if stored = @context["stored_#{value}"]
           conditions << "section_id = '\#{#{stored}.get_section_id}'"
         elsif value == 'current'
           conditions << "section_id = '\#{#{node}.get_section_id}'"
@@ -1626,7 +1620,7 @@ END_TXT
           set_params[k] = v
         end
       end
-      tag_class = @params[:class] || @html_tag_params[:class]
+      tag_class = @html_tag_params[:class] || @params[:class]
       @params.each do |k,v|
         if k.to_s =~ /^(.+)_if$/
           klass = $1
@@ -1660,7 +1654,23 @@ END_TXT
             static = true
             value = v.gsub(/\[([^\]]+)\]/) do
               static = false
-              "\#{#{node_attribute($1, :node => (@var || node) )}}"
+              node_attr = $1
+              use_node  = @var || node
+              if node_attr =~ /([^\.]+)\.(.+)/
+                node_name = $1
+                node_attr = $2
+                if use_node = @context[node_name]
+                elsif node_name = 'main'
+                  use_node = '@node'
+                else
+                  use_node = nil # bad node name
+                end
+              end
+              if use_node
+                "\#{#{node_attribute(node_attr, :node => use_node )}}"
+              else
+                "bad node_name #{use_node.inspect}"
+              end
             end
             if static
               value = ["'#{_(value)}'"]     # array so it is not escaped on render
@@ -1726,8 +1736,16 @@ END_TXT
     end
 
     # TODO: test make_form
+    # transform a 'show' tag into an input field.
     def make_input(params)
-      return "<span class='parser_error'>input without name/attribute</span>" unless name = params[:name]
+      unless name = params[:name]
+        if @params[:date]
+          return "<%= date_box('#{node_class.to_s.underscore}', #{@params[:date].inspect}) %>"
+        elsif name = @params[:attr]
+        else
+          return "<span class='parser_error'>input without name/attribute</span>"
+        end
+      end
       if name =~ /\A([\w_]+)\[(.*?)\]/
         attribute = $2
       else
@@ -1744,6 +1762,7 @@ END_TXT
       "<input type='#{params[:type] || 'text'}' name='#{name}'#{value}/>"
     end
     
+    # transform a 'zazen' tag into a textarea input field.
     def make_textarea(params)
       return "<span class='parser_error'>textarea without name/attribute</span>" unless name = params[:name]
       if name =~ /\A([\w_]+)\[(.*?)\]/

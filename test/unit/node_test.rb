@@ -1074,18 +1074,18 @@ done: \"I am done\""
     assert_equal nodes_id(:opening), match[0][:id]
   end
   
-  def test_data_entries
+  def test_data
     login(:ant)
     node = secure(Node) { nodes(:cleanWater) }
-    entries = node.data_entries
+    entries = node.data
     assert_equal 5, entries.size
     assert_equal BigDecimal.new("13.0"), entries[2].value
   end
   
-  def test_data_entries_d
+  def test_data_d
     login(:ant)
     node = secure(Node) { nodes(:cleanWater) }
-    entries = node.data_entries_d
+    entries = node.data_d
     assert_equal 2, entries.size
     assert_equal BigDecimal.new("21"), entries[1].value
   end

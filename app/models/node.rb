@@ -130,7 +130,8 @@ class Node < ActiveRecord::Base
                      :section_zip, :skin, :ref_lang, :fullpath, :rootpath, :publish_from, :max_status, :rgroup_id, 
                      :wgroup_id, :pgroup_id, :basepath, :custom_base, :klass, :zip, :score, :comments_count, :position
   zafu_context       :author => "Contact", :parent => "Node", :project => "Project", :section => "Section", :user => "User",
-                     :version => "Version", :comments => ["Comment"]
+                     :version => "Version", :comments => ["Comment"], :data => ["DataEntry"], :data_a => ["DataEntry"],
+                     :data_b => ["DataEntry"], :data_c => ["DataEntry"], :data_d => ["DataEntry"]
                      
   
   has_many           :discussions, :dependent => :destroy
@@ -1015,13 +1016,13 @@ I think we can remove this stuff now that relations are rewritten
   end
   
   # Find all data entries linked to the current node
-  def data_entries
+  def data
     DataEntry.find(:all, :conditions => "node_a_id = #{id} OR node_b_id = #{id} OR node_c_id = #{id} OR node_d_id = #{id}")
   end
   
   # Find data entries through a specific slot (node_a, node_b). "data_entries_a" finds all data entries link through 'node_a_id'.
   DataEntry::NodeLinkSymbols.each do |sym|
-    class_eval "def #{sym.to_s.gsub('node', 'data_entries')}
+    class_eval "def #{sym.to_s.gsub('node', 'data')}
       return [] if new_record?
       DataEntry.find_all_by_#{sym}_id(self[:id])
     end"

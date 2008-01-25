@@ -14,13 +14,17 @@ A visitor can edit a data entry if he/she has write access to the reference node
 =end
 class DataEntry < ActiveRecord::Base
   zafu_readable :created_at, :updated_at, :date, :text, :value
-  zafu_context  :node_a => "Node", :node_b => "Node", :node_c => "Node", :node_d => "Node", :nodes => ["Node"]
+  zafu_context  :node_a => "Node", :node_b => "Node", :node_c => "Node", :node_d => "Node", :nodes => ["Node"], :author => "Contact", :user => "User"
   NodeLinkSymbols   = [:node_a,    :node_b,    :node_c,    :node_d]
   NodeLinkSymbolsId = [:node_a_id, :node_b_id, :node_c_id, :node_d_id]
   validate    :valid_data_entry
   before_save :sign_data
   belongs_to  :user
   
+  # Create a new DataEntry from attributes given by the mean wild web.
+  def self.create_data_entry(attributes)
+    return create(transform_attributes(attributes))
+  end
   
   # modify attributes so ext sees 'zip' values but we store 'ids'
   def self.transform_attributes(new_attributes)
@@ -52,6 +56,10 @@ class DataEntry < ActiveRecord::Base
       return nil unless self[:#{sym}_id]
       secure(Node) { Node.find_by_id(self[:#{sym}_id]) }
     end"
+  end
+  
+  def author
+    user.contact
   end
   
   def nodes
