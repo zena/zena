@@ -1,3 +1,4 @@
+
 default:
   context:
     lang: 'en'
@@ -392,6 +393,11 @@ set_attribute:
   src: "<div class='machin' do='void' set_class='node[id]'/><r:void set_class='s[v_status]i[id]'/>"
   res: "<div class='node22'></div><div class='s50i22'></div>"
 
+set_value_input:
+  src: "<p do='void' set_class='[main.id]'/>"
+  tem: ".."
+  res: ".."
+
 set_attribute_with_inner:
   src: "<p set_id='node[id]' do='show' attr='name' set_class='s[v_status]'>some blah blah</p>"
   res: "<p class='s50' id='node22'>status</p>"
@@ -615,4 +621,10 @@ read_bad_attribute:
 translate_id_to_zip:
   src: "<b do='[d_empid]'/><i do='[parent_id]'/>"
   tem: "<b><%= @node.version.dyn[\"empid\"] %></b><i><%= @node.parent_zip %></i>"
-  
+
+date:
+  context:
+    node: 'letter'
+    lang: 'fr'
+  src: "<r:date select='[event_at]'>nouvelles de <r:trans do='current_date' format='%B'/> <r:current_date format='%Y'/>: <r:notes from='site' event='month' do='each' join=', ' do='[name]'/></r:date>"
+  res: "nouvelles de janvier 2008: letter, proposition"

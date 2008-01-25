@@ -23,7 +23,7 @@
             <p><input name='value'/></p>
             
             <label for='data_entry_node_b_id'>node_a</label>
-            <input type='hidden' name='node_a' set_value=''>
+            <input type='hidden' name='node_a' set_value='[main.id]'/>
             <p><input type='id' name='node_b'/></p>
             
             <p><input type='submit'/> 

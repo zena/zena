@@ -167,6 +167,7 @@ proposition:
   rgroup_id:      4
   wgroup_id:      4
   pgroup_id:      4
+  event_at:       2008-01-25
   log_at:         2006-04-05
 
 cleanWater:
@@ -561,6 +562,7 @@ letter:
   parent_id:      1
   user_id:        4
   inherit:        1
+  event_at:       2008-01-10
   log_at:         2006-10-03
 <%= @defaults %>
 <%= @rights %>

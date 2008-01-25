@@ -96,8 +96,12 @@ module Zena
       # some 'html_tag' information can be set during rendering and should merge into tag_params
       @html_tag_params_bak = @html_tag_params
       @html_tag_params     = @html_tag_params.merge(@context.delete(:html_tag_params) || {})
-      if store = @params.delete(:store)
-        @context["stored_#{store}"] = node
+      if key = @params.delete(:store)
+        set_stored(Node, key, node)
+      end
+      
+      if key = @params.delete(:store_date)
+        set_stored(Date, key, current_date)
       end
       @anchor_param = @params.delete(:anchor)
 
@@ -341,7 +345,7 @@ module Zena
           if b.kind_of?(String)
             res  << b.inspect
             text << b
-          elsif ['show'].include?(b.method)
+          elsif ['show', 'current_date'].include?(b.method)
             res << expand_block(b, :trans=>true)
             static = false
           else
@@ -985,19 +989,41 @@ END_TXT
       select = @params[:select]
       case select
       when 'main'
-        expand_with(:date=>'#{main_date.strftime("%Y-%m-%d")}')
+        expand_with(:date=>"main_date")
       when 'now'
-        expand_with(:date=>'#{Time.now.strftime("%Y-%m-%d")}')
+        expand_with(:date=>"Time.now.utc")
       else
         if select =~ /^\d{4}-\d{1,2}-\d{1,2}$/
           expand_with(:date=>select)
-        elsif date = @context["date_#{select}"]
-          # FIXME: implement 'store_date'...
-          expand_with(:date=>date)
+        elsif date = find_stored(Date, select)
+          begin
+            d = Date.parse(select)
+            expand_with(:date=>select)
+          rescue
+            "<span class='parser_error'>Invalid date (#{select}) should be 'YYYY-MM-DD'</span>"
+          end
+        elsif select =~ /^\[(.*)\]$/
+          expand_with(:date=>"(#{node_attribute($1)} || main_date)")
         else
           "<span class='parser_error'>Bad parameter (#{select}) for 'date'</span>"
         end
       end
+    end
+    
+    def r_current_date
+      if @params[:tformat]
+        format = _(@params[:tformat])
+      elsif @params[:format]
+        format = @params[:format]
+      else
+        format = _('long_date')
+      end
+      
+      if @context[:trans]
+        return "format_date(#{current_date}, #{format.inspect})"
+      end
+      
+      out "<%= format_date(#{current_date}, #{format.inspect}) %>"
     end
     
     def r_javascripts
@@ -1076,7 +1102,7 @@ END_TXT
         text = expand_with
       end
       if @params[:href]
-        unless lnode = @context["stored_#{@params[:href]}"]
+        unless lnode = find_stored(Node, @params[:href])
           href = ", :href=>#{@params[:href].inspect}"
         end
       else
@@ -1216,7 +1242,7 @@ END_TXT
           return "visitor.contact"
         elsif rel =~ /^\d+$/
           return "(secure(Node) { Node.find_by_zip(#{rel.inspect})} rescue nil)"
-        elsif node_name == @context[rel]
+        elsif node_name = find_stored(Node, rel)
           return node_name
         elsif rel[0..0] == '/'
           rel = rel[1..-1]
@@ -1241,7 +1267,13 @@ END_TXT
       query_params = {}
       
       if params[:from]
-        relations[0] << " from #{params[:from]}"
+        if params[params[:from].to_sym]
+          # <r:pages from='project' project='...'/>  is the same as <r:pages from='site' project='...'/>
+          # <r:pages from='section' section='...'/>  is the same as <r:pages from='site' section='...'/>
+          relations[0] << " from site"
+        else
+          relations[0] << " from #{params[:from]}"
+        end
       end
 
       if params[:where]
@@ -1277,11 +1309,11 @@ END_TXT
       # <r:void store='foo'>...
       # <r:link href='foo'/>
       # <r:pages from='foo'/>
-      # <r:pages from='project' project='foo'/>
+      # <r:pages from='site' project='foo'/>
       # <r:img link='foo'/>
       # ...
       if value = params[:author]
-        if stored == @context["stored_#{value}"]
+        if stored == find_stored(User, value)
           conditions << "user_id = '\#{#{stored}.id}'"
         elsif value == 'current'
           conditions << "user_id = '\#{#{node}[:user_id]}'"
@@ -1295,9 +1327,7 @@ END_TXT
       end
       
       if value = params[:project]
-        puts "has project (#{value})"
-        if stored = @context["stored_#{value}"]
-          puts "stored found = #{stored}"
+        if stored = find_stored(Node, value)
           conditions << "project_id = '\#{#{stored}.get_project_id}'"
         elsif value == 'current'
           conditions << "project_id = '\#{#{node}.get_project_id}'"
@@ -1309,7 +1339,7 @@ END_TXT
       end
       
       if value = params[:section]
-        if stored = @context["stored_#{value}"]
+        if stored = find_stored(Node, value)
           conditions << "section_id = '\#{#{stored}.get_section_id}'"
         elsif value == 'current'
           conditions << "section_id = '\#{#{node}.get_section_id}'"
@@ -1339,7 +1369,7 @@ END_TXT
     end
     
     def current_date
-      @context[:date] || '#{main_date.strftime("%Y-%m-%d")}'
+      @context[:date] || 'main_date'
     end
     
     def var
@@ -1659,7 +1689,7 @@ END_TXT
               if node_attr =~ /([^\.]+)\.(.+)/
                 node_name = $1
                 node_attr = $2
-                if use_node = @context[node_name]
+                if use_node = find_stored(Node, node_name)
                 elsif node_name = 'main'
                   use_node = '@node'
                 else
@@ -1734,6 +1764,14 @@ END_TXT
       end
       text
     end
+    
+    def find_stored(klass, key)
+      @context["#{klass}_#{key}"]
+    end
+    
+    def set_stored(klass, key, obj)
+      @context["#{klass}_#{key}"] = obj
+    end
 
     # TODO: test make_form
     # transform a 'show' tag into an input field.
@@ -1755,7 +1793,7 @@ END_TXT
       return '' if attribute == 'parent_id' # set with 'r_form'
       
       if @context[:in_add]
-        value = params[:value] ? " value='#{params[:value]}'" : " value=''"
+        value = (params[:value] || params[:set_value]) ? " value='#{params[:value]}'" : " value=''"
       else
         value = attribute ? " value='<%= #{node_attribute(attribute)} %>'" : " value=''"
       end
@@ -1787,11 +1825,15 @@ end
 module ActiveRecord
   module ConnectionAdapters
     class MysqlAdapter
+      
+      # ref_date can be a string ('2005-05-03') or ruby ('Time.now.utc'). It should not come uncleaned from evil web.
       def date_condition(date_cond, field, ref_date='today')
         if date_cond == 'today' || ref_date == 'today'
           ref_date = 'now()'
+        elsif ref_date =~ /^\d{4}-\d{1,2}-\d{1,2}$/
+          ref_date = "'#{ref_date}'"
         else
-          ref_date = "'#{ref_date.gsub("'",'')}'"
+          ref_date = "'\#{#{ref_date}.strftime('%Y-%m-%d')}'"
         end
         case date_cond
         when 'today', 'current', 'same'
