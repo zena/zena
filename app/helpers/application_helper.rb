@@ -431,47 +431,43 @@ module ApplicationHelper
         # icon through alt_src relation
         return img_tag(icon, options.merge(:alt_src => nil))
       end
-    elsif obj.vclass.kind_of?(VirtualClass) && !obj.icon.blank?
-      src = obj.vclass.icon
     end
     
-    if !src
-      # no icon defined use defaults
-      mode    = IMAGEBUILDER_FORMAT[mode] ? mode : nil
-      
-      if obj.kind_of?(Document)
-        icon  = ext
-        alt ||= _('%{ext} document') % {:ext => ext}
-      elsif obj.vclass.kind_of?(VirtualClass)
-        icon = obj.vclass.icon
-        src  = icon
+    if src.blank?
+      if obj.vclass.kind_of?(VirtualClass)
+        # FIXME: we could use a 'zip' to an image (but we would need some caching to avoid multiple loading during doc listing)
+        src = obj.vclass.icon
         alt ||= _('%{type} node') % {:type => obj.vclass.name}
       else
-        icon = obj.klass.downcase
-        alt ||= _('%{type} node') % {:type => icon}
-      end
-      
-      unless File.exist?("#{RAILS_ROOT}/public#{src}")
-        icon = 'other'
-        src  = '/images/ext/other.png'
+        # use default
+        mode    = IMAGEBUILDER_FORMAT[mode] ? mode : nil
+        width  = 32
+        height = 32
+        if obj.kind_of?(Document)
+          name = ext
+          alt ||= _('%{ext} document') % {:ext => ext}
+        else
+          name = obj.klass.underscore
+          alt ||= _('%{type} node') % {:type => obj.klass}
+        end
+        
+        if !File.exist?("#{RAILS_ROOT}/public/images/ext/#{name}.png")
+          name = 'other'
+        end
       end
       
       img_class = 'doc'
       
-      if mode.nil?
-        # extension size
-        width  = 32
-        height = 32
-        src    ||= "/images/ext/#{icon}.png"
-      elsif !src
-        # do not scale if src defined by virtual_class's icon
-        
-        img = ImageBuilder.new(:path=>"#{RAILS_ROOT}/public/images/ext/#{icon}.png", :width=>32, :height=>32)
+      if !mode
+        src = "/images/ext/#{name}.png"
+      else
+        # scale
+        img = ImageBuilder.new(:path=>"#{RAILS_ROOT}/public/images/ext/#{name}.png", :width=>32, :height=>32)
         img.transform!(mode)
         width  = img.width
         height = img.height
         
-        filename = "#{icon}_#{mode}.png"
+        filename = "#{name}_#{mode}.png"
         path     = "#{RAILS_ROOT}/public/images/ext/"
         unless File.exist?(File.join(path,filename))
           # make new image with the mode

@@ -29,7 +29,7 @@
             <p><input type='submit'/> 
             
             <r:cancel/></p></form></td></tr>
-        <tr do='add'><td colspan='6' do='add_btn'/></tr>
+        <tr do='add' done='$("data_entry_text").focus()'><td colspan='6' do='add_btn'/></tr>
       </table>
     </div>
   </r:with>

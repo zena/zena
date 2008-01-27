@@ -649,6 +649,8 @@ END_TXT
               break
             end
           end
+          
+          form << "<input type='hidden' name='done' value='#{params[:done]}'/>\n" if params[:done]
         end
         form << "</div>"
       else
@@ -1786,9 +1788,11 @@ END_TXT
       
       if res[:name] =~ /\A([\w_]+)\[(.*?)\]/
         attribute = $2
+        res[:id]   = "#{$1}_#{$2}"
       else
         attribute = res[:name]
         res[:name] = "#{node_class.to_s.underscore}[#{attribute}]"
+        res[:id]   = "#{node_class.to_s.underscore}_#{attribute}"
       end
       
       if @context[:in_add]

@@ -45,9 +45,9 @@ class ZazenHelperTest < ZenaTestHelper
     preserving_files('test.host/data/jpg/14') do
       login(:tiger)
       # * [!24!] inline image 24. (default format is 'pv' defined in #ImageBuilder). Options are :
-      assert_equal "<p><img src='/oo/projects/cleanWater/image24_std.jpg' width='545' height='400' alt='it&apos;s a lake' class='std'/></p>", zazen('!24!')
+      assert_equal "<p><img src='/en/projects/cleanWater/image24_std.jpg' width='545' height='400' alt='it&apos;s a lake' class='std'/></p>", zazen('!24!')
       # ** [!024!] inline image, default format, link to full image.
-      assert_equal "<p><a href='/oo/projects/cleanWater/image24.jpg'><img src='/oo/projects/cleanWater/image24_std.jpg' width='545' height='400' alt='it&apos;s a lake' class='std'/></a></p>", zazen('!024!')
+      assert_equal "<p><a href='/oo/projects/cleanWater/image24.jpg'><img src='/en/projects/cleanWater/image24_std.jpg' width='545' height='400' alt='it&apos;s a lake' class='std'/></a></p>", zazen('!024!')
     end
   end
 

@@ -6,5 +6,11 @@ else
   page.insert_html pos.to_sym, ref, :file => fullpath_from_template_url + ".erb"
   @data_entry = @data_entry.clone
   page.replace "#{params[:template_url]}_form", :file => fullpath_from_template_url + "_form.erb"
-  page.toggle "#{params[:template_url]}_form", "#{params[:template_url]}_add"
+  if params[:done]
+    x = "#{params[:done]}".gsub('TEMPLATE', params[:template_url])
+    puts x.inspect
+    page << x
+  else
+    page.toggle "#{params[:template_url]}_form", "#{params[:template_url]}_add"
+  end
 end

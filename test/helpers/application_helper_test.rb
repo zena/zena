@@ -95,7 +95,7 @@ class ApplicationHelperTest < ZenaTestHelper
   def test_img_tag_other_classes
     login(:ant)
     # contact  project       post     tag
-    [:lake,    :cleanWater, :opening, :art].each do |sym|
+    [:lake, :cleanWater, :opening, :art].each do |sym|
       obj   = secure(Node) { nodes(sym) }
       klass = obj.klass.downcase
       assert_equal "<img src='/images/ext/#{klass}.png' width='32' height='32' alt='#{klass} node' class='doc'/>", img_tag(obj)
