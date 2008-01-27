@@ -374,9 +374,9 @@ module ApplicationHelper
     str
   end
   
-  # Display an image tag for the given node. If no mode is provided, 'full' is used. Options are ':mode', ':id', ':alt' and ':class'. If no class option is passed,
-  # the format is used as the image class. Example :
-  #   img_tag(@node, :mode=>'pv')  => <img src='/sites/test.host/data/jpg/20/bird_pv.jpg' height='80' width='80' alt='bird' class='pv'/>
+  # Display an image tag for the given node. If no mode is provided, 'full' is used. Options are ':mode', ':id', ':alt',
+  # ':alt_src' and ':class'. If no class option is passed, the format is used as the image class. Example :
+  # img_tag(@node, :mode=>'pv')  => <img src='/sites/test.host/data/jpg/20/bird_pv.jpg' height='80' width='80' alt='bird' class='pv'/>
   def img_tag(obj, options={})
     return '' unless obj
     opts    = options.dup
@@ -384,6 +384,7 @@ module ApplicationHelper
     mode    = opts.delete(:mode)
     klass   = opts.delete(:class)
     alt     = opts.delete(:alt)
+    alt_src = opts.delete(:alt_src)
     img_id  = opts.delete(:id)
     
     if obj.kind_of?(Document)
@@ -421,9 +422,21 @@ module ApplicationHelper
         width="16" height="16" alt="" />
         </object> } )
       end
-    else
-      # FIXME: try to use icon for img_tag !
-      
+    elsif alt_src
+      if alt_src == 'icon'
+        if icon = obj.icon
+          return img_tag(icon, options.merge(:alt_src => nil))
+        end
+      elsif icon = node.find(:first, :relations=>alt_src.split(','))
+        # icon through alt_src relation
+        return img_tag(icon, options.merge(:alt_src => nil))
+      end
+    elsif obj.vclass.kind_of?(VirtualClass) && !obj.icon.blank?
+      src = obj.vclass.icon
+    end
+    
+    if !src
+      # no icon defined use defaults
       mode    = IMAGEBUILDER_FORMAT[mode] ? mode : nil
       
       if obj.kind_of?(Document)
@@ -437,8 +450,6 @@ module ApplicationHelper
         icon = obj.klass.downcase
         alt ||= _('%{type} node') % {:type => icon}
       end
-      
-      src ||= "/images/ext/#{icon}.png"
       
       unless File.exist?("#{RAILS_ROOT}/public#{src}")
         icon = 'other'
@@ -455,28 +466,26 @@ module ApplicationHelper
       elsif !src
         # do not scale if src defined by virtual_class's icon
         
-        # do not scale icons.
-        #img = ImageBuilder.new(:path=>"#{RAILS_ROOT}/public/images/ext/#{icon}.png", :width=>32, :height=>32)
-        #img.transform!(mode)
-        #width  = img.width
-        #height = img.height
-        #
-        #filename = "#{icon}_#{mode}.png"
-        #path     = "#{RAILS_ROOT}/public/images/ext/"
-        #unless File.exist?(File.join(path,filename))
-        #  # make new image with the mode
-        #  unless File.exist?(path)
-        #    FileUtils::mkpath(path)
-        #  end
-        #  if img.dummy?
-        #    File.cp("#{RAILS_ROOT}/public/images/ext/#{icon}.png", "#{RAILS_ROOT}/public/images/ext/#{filename}")
-        #  else
-        #    File.open(File.join(path, filename), "wb") { |f| f.syswrite(img.read) }
-        #  end
-        #end
-        #
-        #src    = "/images/ext/#{filename}"
-        src = "/images/ext/#{icon}.png"
+        img = ImageBuilder.new(:path=>"#{RAILS_ROOT}/public/images/ext/#{icon}.png", :width=>32, :height=>32)
+        img.transform!(mode)
+        width  = img.width
+        height = img.height
+        
+        filename = "#{icon}_#{mode}.png"
+        path     = "#{RAILS_ROOT}/public/images/ext/"
+        unless File.exist?(File.join(path,filename))
+          # make new image with the mode
+          unless File.exist?(path)
+            FileUtils::mkpath(path)
+          end
+          if img.dummy?
+            File.cp("#{RAILS_ROOT}/public/images/ext/#{icon}.png", "#{RAILS_ROOT}/public/images/ext/#{filename}")
+          else
+            File.open(File.join(path, filename), "wb") { |f| f.syswrite(img.read) }
+          end
+        end
+        
+        src = "/images/ext/#{filename}"
       end
     end
     res = "<img src='#{src}'"

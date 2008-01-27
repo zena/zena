@@ -1089,4 +1089,21 @@ done: \"I am done\""
     assert_equal 2, entries.size
     assert_equal BigDecimal.new("21"), entries[1].value
   end
+  
+  def test_icon_by_relation
+    login(:ant)
+    node = secure(Node) { nodes(:cleanWater) } # has an 'icon' relation
+    icon = node.icon
+    assert_kind_of Image, icon
+    assert_equal nodes_id(:lake_jpg), icon[:id]
+  end
+  
+  def test_icon_by_first_child
+    login(:ant)
+    node = secure(Node) { nodes(:wiki) } # has an 'icon' relation
+    icon = node.icon
+    assert_kind_of Image, icon
+    assert_equal nodes_id(:bird_jpg), icon[:id]
+  end
+  
 end

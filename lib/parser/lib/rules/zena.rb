@@ -33,9 +33,17 @@ begin
           superclass.zafu_known_contexts.merge(@@_zafu_context[self] || {})
         end.each do |k,v|
           if v.kind_of?(Array)
-            res[k] = [Module::const_get(v[0])]
+            if v[0].kind_of?(String)
+              res[k] = [Module::const_get(v[0])]
+            else
+              res[k] = v
+            end
           else
-            res[k] = Module::const_get(v)
+            if v.kind_of?(String)
+              res[k] = Module::const_get(v)
+            else
+              res[k] = v
+            end
           end
         end
         res
@@ -127,7 +135,7 @@ module Zena
         when :r_link
           make_input(:name => (@params[:attr] || 'v_title'))
         when :r_show
-          make_input()
+          make_input(:name => (@params[:attr] || @params[:tattr]))
         when :r_text
           make_textarea(:name => 'v_text')
         when :r_summary
@@ -169,7 +177,6 @@ module Zena
       if @params[:tattr]
         attribute_method = "_(#{node_attribute(attribute, :else=>@params[:else])})"
       elsif @params[:attr]
-        # TODO: test 'else', test 'format'
         if @params[:format]
           attribute_method = "sprintf(#{@params[:format].inspect}, #{node_attribute(attribute, :else=>@params[:else])})"
         else
@@ -531,34 +538,40 @@ module Zena
     end
     
     def r_input
+      input, attribute = get_input_params()
+      
       case @params[:type]
       when 'select'
-        return "<span class='parser_error'>select without name</span>"   unless   name = @params[:name]
+        return "<span class='parser_error'>select without name</span>" unless attribute
         if klass = @params[:root_class]
           select_opts = {}
           class_opts = {}
           select_opts[:selected] = @params[:selected] if @params[:selected]
           class_opts[:without]  = @params[:without]  if @params[:without]
-          "<%= select('#{node_class.to_s.underscore}', #{name.inspect}, Node.classes_for_form(:class => #{klass.inspect}#{params_to_erb(class_opts)})#{params_to_erb(select_opts)}) %>"
+          "<%= select('#{node_class.to_s.underscore}', #{attribute.inspect}, Node.classes_for_form(:class => #{klass.inspect}#{params_to_erb(class_opts)})#{params_to_erb(select_opts)}) %>"
         else
           klasses = @params[:options] || "Page,Note"
-          "<%= select('#{node_class.to_s.underscore}', #{name.inspect}, #{klasses.split(',').map(&:strip).inspect}) %>"
+          "<%= select('#{node_class.to_s.underscore}', #{attribute.inspect}, #{klasses.split(',').map(&:strip).inspect}) %>"
         end
       when 'date_box', 'date'
-        return "<span class='parser_error'>date_box without name</span>"   unless   name = @params[:name]
-        "<%= date_box '#{node_class.to_s.underscore}', #{name.inspect}, :size=>15#{@context[:in_add] ? ", :value=>''" : ''} %>"
+        return "<span class='parser_error'>date_box without name</span>" unless attribute
+        "<%= date_box '#{node_class.to_s.underscore}', #{attribute.inspect}, :size=>15#{@context[:in_add] ? ", :value=>''" : ''} %>"
       when 'id'
-        return "<span class='parser_error'>date_box without name</span>" unless name = @params[:name]
-        name = "#{name}_id" unless name[-3..-1] == '_id'
-        "<%= select_id('#{node_class.to_s.underscore}', #{name.inspect}) %>"
+        return "<span class='parser_error'>date_box without name</span>" unless attribute
+        name = "#{attribute}_id" unless attribute[-3..-1] == '_id'
+        "<%= select_id('#{node_class.to_s.underscore}', #{attribute.inspect}) %>"
         
       when 'submit'
         @html_tag = 'input'
         @html_tag_params[:type] = @params[:type]
+        @html_tag_params.merge!(input)
         render_html_tag(nil)
       else
-        out make_input(@html_tag_params.merge(@params))
-        @html_tag_done = true
+        # 'text', 'hidden', ...
+        @html_tag = 'input'
+        @html_tag_params[:type] = @params[:type]
+        @html_tag_params.merge!(input)
+        render_html_tag(nil)
       end
     end
     
@@ -1164,21 +1177,23 @@ END_TXT
     end
     
     def r_img
-      return unless check_node_class(Node)
+      return unless node_kind_of?(Node)
       if @params[:src]
         img = build_finder_for(:first, @params[:src])
       else
         img = node
       end
       mode = @params[:mode] || 'std'
+      res = "img_tag(#{img}, :mode=>#{mode.inspect}"
+      [:class, :alt_src].each do |k|
+        res  += ", :#{k}=>#{@params[k].inspect}" if @params[k]
+      end
+      res += ")"
       if @params[:link]
         link = build_finder_for(:first, @params[:link])
-        res  = "node_link(:href=>#{link.inspect}, :text=>img_tag(#{img}, :mode=>#{mode.inspect}))"
-        res  += ", :class=>#{@params[:class]}" if @params[:class]
-      else
-        res = "img_tag(#{img}, :mode=>#{mode.inspect})"
+        res  = "node_link(:node=>#{link}, :text=>#{res})"
       end
-      @context[:trans] ? "(#{res})" : "<%= #{res} %>"
+      "<%= #{res} %>"
     end
     
     # TODO: test
@@ -1224,7 +1239,7 @@ END_TXT
           do_var(  build_finder_for(:first, @method, @params) )
         end
       else
-        "unknown relation (#{@method}) #{node_class}: #{node_class.zafu_known_contexts.keys.inspect}"
+        "unknown relation (#{@method}) for #{node_class} class"
       end
     end
         
@@ -1313,7 +1328,7 @@ END_TXT
       # <r:img link='foo'/>
       # ...
       if value = params[:author]
-        if stored == find_stored(User, value)
+        if stored = find_stored(User, value)
           conditions << "user_id = '\#{#{stored}.id}'"
         elsif value == 'current'
           conditions << "user_id = '\#{#{node}[:user_id]}'"
@@ -1615,10 +1630,6 @@ END_TXT
       end
     end
     
-    def check_node_class(*list)
-      list.include?(node_class)
-    end
-    
     def node_attribute(attribute, opts={})
       att_node = opts[:node] || node
       res = if node_kind_of?(Node)
@@ -1629,7 +1640,7 @@ END_TXT
       elsif node_kind_of?(DataEntry) && DataEntry.zafu_readable?(attribute)
         "#{att_node}.#{attribute}"
       else
-        # could not find a shortcut.
+        # unknown class, resolve at runtime
         "#{att_node}.zafu_read(#{attribute.inspect})"
       end
       
@@ -1677,40 +1688,41 @@ END_TXT
       set_params.merge(@html_tag_params).each do |k,v|
         if k.to_s =~ /^(t?)set_(.+)$/
           key   = $2
-          trans = $1
-          if $1 == 't'
-            # TODO: test
-            # translated param
-            static = true
-            value = v.gsub(/\[([^\]]+)\]/) do
-              static = false
-              node_attr = $1
-              use_node  = @var || node
-              if node_attr =~ /([^\.]+)\.(.+)/
-                node_name = $1
-                node_attr = $2
-                if use_node = find_stored(Node, node_name)
-                elsif node_name = 'main'
-                  use_node = '@node'
-                else
-                  use_node = nil # bad node name
-                end
-              end
-              if use_node
-                "\#{#{node_attribute(node_attr, :node => use_node )}}"
+          trans = $1 == 't'
+          static = true
+          value = v.gsub(/\[([^\]]+)\]/) do
+            static = false
+            node_attr = $1
+            
+            use_node  = @var || node
+            if node_attr =~ /([^\.]+)\.(.+)/
+              node_name = $1
+              node_attr = $2
+              if use_node = find_stored(Node, node_name)
+              elsif node_name = 'main'
+                use_node = '@node'
               else
-                "bad node_name #{use_node.inspect}"
+                use_node = nil # bad node name
               end
             end
+            if use_node
+              res = node_attribute(node_attr, :node => use_node )
+            else
+              res = "bad node_name #{use_node.inspect}"
+            end
+            if trans
+              "\#{#{res}}"
+            else
+              "<%= #{res} %>"
+            end
+          end
+          
+          if trans
             if static
               value = ["'#{_(value)}'"]     # array so it is not escaped on render
             else
               value = ["'<%= _(\"#{value}\") %>'"] # array so it is not escaped on render
-            end  
-          else
-            # normal value, we use the new node context @var if it exists:
-            #  <h1 do='author' set_class='s_[status]'>name</h1> <===== author's status
-            value = v.gsub(/\[([^\]]+)\]/) { "<%= #{node_attribute($1, :node => (@var || node) )} %>" }
+            end
           end
           res_params[key.to_sym] = value
         else
@@ -1765,6 +1777,27 @@ END_TXT
       text
     end
     
+    def get_input_params(params = @params)
+      res = {}
+      unless res[:name] = params[:name]
+        return [{}, nil]
+      end
+      
+      if res[:name] =~ /\A([\w_]+)\[(.*?)\]/
+        attribute = $2
+      else
+        attribute = res[:name]
+        res[:name] = "#{node_class.to_s.underscore}[#{attribute}]"
+      end
+      
+      if @context[:in_add]
+        res[:value] = (params[:value] || params[:set_value]) ? params[:value] : ""
+      else
+        res[:value] = attribute ? ["<%= #{node_attribute(attribute)} %>"] : ""
+      end
+      return [res, attribute]
+    end
+    
     def find_stored(klass, key)
       @context["#{klass}_#{key}"]
     end
@@ -1773,31 +1806,15 @@ END_TXT
       @context["#{klass}_#{key}"] = obj
     end
 
-    # TODO: test make_form
     # transform a 'show' tag into an input field.
-    def make_input(params)
-      unless name = params[:name]
-        if @params[:date]
-          return "<%= date_box('#{node_class.to_s.underscore}', #{@params[:date].inspect}) %>"
-        elsif name = @params[:attr]
-        else
-          return "<span class='parser_error'>input without name/attribute</span>"
-        end
+    def make_input(params = @params)
+      if params[:date]
+        return "<%= date_box('#{node_class.to_s.underscore}', #{params[:date].inspect}) %>"
       end
-      if name =~ /\A([\w_]+)\[(.*?)\]/
-        attribute = $2
-      else
-        attribute = name
-        name = "#{node_class.to_s.underscore}[#{attribute}]"
-      end
+      input, attribute = get_input_params(params)
+      return "<span class='parser_error'>input without name/attribute</span>" unless attribute
       return '' if attribute == 'parent_id' # set with 'r_form'
-      
-      if @context[:in_add]
-        value = (params[:value] || params[:set_value]) ? " value='#{params[:value]}'" : " value=''"
-      else
-        value = attribute ? " value='<%= #{node_attribute(attribute)} %>'" : " value=''"
-      end
-      "<input type='#{params[:type] || 'text'}' name='#{name}'#{value}/>"
+      "<input type='#{params[:type] || 'text'}' name='#{input[:name]}' value='#{input[:value]}'/>"
     end
     
     # transform a 'zazen' tag into a textarea input field.

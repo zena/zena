@@ -131,7 +131,7 @@ class Node < ActiveRecord::Base
                      :wgroup_id, :pgroup_id, :basepath, :custom_base, :klass, :zip, :score, :comments_count, :position
   zafu_context       :author => "Contact", :parent => "Node", :project => "Project", :section => "Section", :user => "User",
                      :version => "Version", :comments => ["Comment"], :data => ["DataEntry"], :data_a => ["DataEntry"],
-                     :data_b => ["DataEntry"], :data_c => ["DataEntry"], :data_d => ["DataEntry"]
+                     :data_b => ["DataEntry"], :data_c => ["DataEntry"], :data_d => ["DataEntry"], :icon => "Image"
                      
   
   has_many           :discussions, :dependent => :destroy
@@ -650,6 +650,9 @@ class Node < ActiveRecord::Base
       else
         if Node.zafu_readable?(attribute)
           "#{node}.#{attribute}"
+        else
+          # unknown attribute for Node, resolve at runtime with real class
+          "#{node}.zafu_read(#{attribute.inspect})"
         end
       end
     end
@@ -1007,6 +1010,16 @@ I think we can remove this stuff now that relations are rewritten
   # ACCESSORS
   def author
     user.contact
+  end
+  
+  # Find icon through a relation named 'icon' or use first image child
+  def icon
+    return nil if new_record?
+    return @icon if defined? @icon
+    @icon = find(:first, :relations=>['icon']) ||
+            secure(Image) { Image.find(:first, :order=>'position ASC, name ASC', :conditions => "parent_id = #{self[:id]}") }
+  rescue ActiveRecord::RecordNotFound
+    @icon = nil
   end
   
   alias o_user user

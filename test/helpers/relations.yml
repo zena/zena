@@ -83,8 +83,7 @@ nodes_from_project:
   
 nodes_from_project_stored:
   src: "<r:void store='foo'><r:node select='29'>from <r:show attr='name'/>, look at <r:node select='foo' do='[name]'/>: <r:pages from='site' project='foo' do='each' join=', ' do='[name]'/></r:node></r:void>"
-  tem: ""
-  res: "wiki: status, track"
+  res: "from wiki, look at status: status, track"
   
 nodes_from_site:
   src: "<r:nodes from='site' limit='3'><r:each join=', '><r:show attr='name'/></r:each></r:nodes>"
@@ -95,12 +94,12 @@ store_node:
   res: "cleanWater: status + 22"
 
 store_node_as_relation:
-  src: "<r:void store='baz'><r:parent><r:show attr='name'/>: <r:baz do='[name]'> + <r:node select='main' do='show' attr='id'/></r:parent></r:void>"
+  src: "<r:void store='baz'><r:parent><r:show attr='name'/>: <r:baz do='[name]'/> + <r:node select='main' do='show' attr='id'/></r:parent></r:void>"
   res: "cleanWater: status + 22"
 
 store_img:
-  src: "<r:parent><r:icon store='bob'><r:show attr='name'/><r:img link='stored_bob'/></r:icon></r:parent>"
-  tem: "/<% if var1 = @node.parent -%><% if var2 = var1.do_find\(:first, .*\) -%><%= var2.name %><%= node_link\(:node=>var1, :text=>img_tag\(var2, :mode=>\"std\"\)\) %><% end -%><% end -%>"
+  src: "<r:parent><r:icon store='bob'><r:show attr='name'/><r:img link='bob'/></r:icon></r:parent>"
+  tem: "/<% if var1 = @node.parent -%><% if var2 = var1.icon -%><%= var2.name %><%= node_link\(:node=>var1, :text=>img_tag\(var2, :mode=>\"std\"\)\) %><% end -%><% end -%>"
     
 author_visitor:
   src: "<r:pages from='site' author='visitor' limit='5'><r:each join=', ' do='show' attr='name'/></r:pages>"

@@ -236,18 +236,18 @@ title_link_format:
 title_link_data:
   context:
     node: 'bird_jpg'
-  src: "<h2 do='title' link='data'>super titre</h2>"
+  src: "<h2 do='title' link='data' attr='v_title'>super titre</h2>"
   res: "<h2><a href='/oo/image30.jpg'><span id='v_title30'>bird</span></a></h2>"
 
 title_link_data_mode:
   context:
     node: 'bird_jpg'
-  src: "<h2 do='title' link='pv.data'>super titre</h2>"
-  res: "<h2><a href='/oo/image30_pv.jpg'><span id='v_title30'>bird</span></a></h2>"
+  src: "<h2 do='title' link='pv.data'>super title</h2>"
+  res: "<h2><a href='/oo/image30_pv.jpg'><span id='v_title30'>super title</span></a></h2>"
 
 show_parent_title:
   src: "<r:parent><h1 do='title' attr='v_title'>parent title</h1></r:parent>"
-  tem: "<% if var1 = @node.parent -%><h1><%= show_title(:node=>var1)%></h1><% end -%>"
+  tem: "<% if var1 = @node.parent -%><h1><%= show_title(:node=>var1, :text=>var1.version.title)%></h1><% end -%>"
   res: "<h1><a href='/oo/projects/cleanWater.html'><span id='v_title21'>Clean Water project</span></a></h1>"
 
 show_bad_attr:
@@ -393,10 +393,10 @@ set_attribute:
   src: "<div class='machin' do='void' set_class='node[id]'/><r:void set_class='s[v_status]i[id]'/>"
   res: "<div class='node22'></div><div class='s50i22'></div>"
 
-set_value_input:
-  src: "<p do='void' set_class='[main.id]'/>"
-  tem: ".."
-  res: ".."
+set_node_param:
+  src: "<p do='void' set_class='class_[main.id]'/><p do='void' set_class='[main.name]'/>"
+  tem: "<p class='class_<%= @node.zip %>'></p><p class='<%= @node.name %>'></p>"
+  res: "<p class='class_22'></p><p class='status'></p>"
 
 set_attribute_with_inner:
   src: "<p set_id='node[id]' do='show' attr='name' set_class='s[v_status]'>some blah blah</p>"
@@ -408,7 +408,7 @@ set_in_ztag:
 
 set_attribute_stored_node:
   src: "<r:void store='foo'><r:parent><p do='[name]' set_id='test_[foo.id]'>hey</p></r:parent></r:void>"
-  res: "<p id='test22'>cleanWater</p>"
+  res: "<p id='test_22'>cleanWater</p>"
 
 set_attribute_main_node:
   src: "<r:parent><p do='[name]' set_id='test_[main.name]'>hey</p></r:parent>"
@@ -429,7 +429,13 @@ each_join_nasty_erb:
 img_no_image:
   src: "<r:img/>"
   tem: "<%= img_tag(@node, :mode=>\"std\") %>"
-  res: "<img src='/images/ext/other_std.png' width='32' height='32' alt='page node' class='doc'/>"
+  res: "<img src='/images/ext/page_std.png' width='32' height='32' alt='page node' class='doc'/>"
+
+img_tag_icon:
+  context:
+    node: 'cleanWater'
+  src: "<r:img alt_src='icon'/>"
+  res: "<img src='/en/projects/cleanWater/image24_std.jpg' width='545' height='400' alt='it&apos;s a lake' class='std'/>"
 
 img_image:
   context:
@@ -602,13 +608,18 @@ checkbox:
     node: 'opening'
   src: "<r:checkbox role='calendar' values='11'/>"
   res: "/input type='checkbox' name='node\[calendar_ids\]\[\]' value='11' checked='checked'.*zena.*hidden.*node\[calendar_ids\]' value=''/"
+
+input_set_value:
+  src: "<r:input type='hidden' name='icon_id' set_value='[main.id]'/>"
+  tem: "<input name='node[icon_id]' type='hidden' value='<%= @node.zip %>'/>"
+  res: "<input name='node[icon_id]' type='hidden' value='22'/>"
   
-add_link:
+add_btn:
   src: "<table do='pages' from='site' limit='1'>
   <tr do='each'><td do='[name]'/></tr>
-  <tr do='add'><td><b><r:add_link/></b></td></tr>
+  <tr do='add'><td><b><r:add_btn/></b></td></tr>
   </table>"
-  res: "/<tr id='/add/link/list_add' class='btn_add'><td><b><a href='#' onclick/"
+  res: "/<tr class='btn_add' id='/add/btn/list_add'><td><b><a href='#' onclick/"
 
 read_no_content:
   src: "this is <b do='[c_bad]'/>"
