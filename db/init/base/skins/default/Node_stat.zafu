@@ -11,8 +11,8 @@
     <r:text/>
     <div class='zazen'>
       <table do='data'>
-        <tr do='each'><td do='show' date='date'/><td do='[text]'/><td do='[value]'/><td>from: <r:node_a do='[name]'/> to: <r:node_b do='[name]'/></td><td><r:edit/></td></tr>
-        <tr do='form'><td colspan='5'>
+        <tr do='each'><td do='show' date='date'/><td do='[text]'/><td do='[value]'/><td><r:node_a do='[name]'/></td><td><r:node_b do='[name]'/></td><td><r:edit/></td></tr>
+        <tr do='form'><td colspan='6'><form>
             <label for='data_entry_date'>date</label>
             <p><input type='date' name='date'/></p>
             
@@ -23,13 +23,13 @@
             <p><input name='value'/></p>
             
             <label for='data_entry_node_b_id'>node_a</label>
-            <input type='hidden' name='node_a' set_value='[main.id]'/>
-            <p><input type='id' name='node_b'/></p>
+            <input type='hidden' name='node_a_id' set_value='[main.id]'/>
+            <p><input type='id' name='node_b_id'/></p>
             
             <p><input type='submit'/> 
             
-            <r:cancel/></p></td></tr>
-        <tr do='add'><td colspan='5' do='add_btn'/></tr>
+            <r:cancel/></p></form></td></tr>
+        <tr do='add'><td colspan='6' do='add_btn'/></tr>
       </table>
     </div>
   </r:with>

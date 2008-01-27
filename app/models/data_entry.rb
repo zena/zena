@@ -35,7 +35,7 @@ class DataEntry < ActiveRecord::Base
         attributes[key] = attributes[key].to_utc(_('datetime'), visitor.tz)
       elsif key =~ /^(\w+)_id$/
         if key[0..4] == 'node_'
-          attributes[key] = Node.translate_pseudo_id(attributes[key],:zip) || attributes[key]
+          attributes[key] = Node.translate_pseudo_id(attributes[key]) || attributes[key]
         else
           attributes[key] = Node.translate_pseudo_id(attributes[key]) || attributes[key]
         end

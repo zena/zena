@@ -39,38 +39,38 @@ class Relation < ActiveRecord::Base
     end
   end   
   
-  #def records(options={})
-  #  return @records if defined? @records
-  #  opts = { :select     => "nodes.*, links.id AS link_id", 
-  #           :joins      => "INNER JOIN links ON nodes.id=links.#{other_side} AND links.relation_id = #{self[:id]} AND links.#{link_side} = #{@start[:id]}",
-  #           :group      => 'nodes.id'}
-  #  
-  #  # limit overwritten options to 'order', 'limit' in case this method is used with unsafe parameters from the web.
-  #  [:order, :limit].each do |sym|
-  #    opts[sym] = options[sym] if options[sym]
-  #  end
-  #    
-  #  @records = secure(Node) { Node.find(:all, opts) }
-  #rescue ActiveRecord::RecordNotFound
-  #  @records = nil
-  #end
-  #
-  ## I do not think this method is used anymore (all is done by @node.find(...)).
-  #def record(options={})
-  #  return @record if defined? @record
-  #  opts = { :select     => "nodes.*, links.id AS link_id", 
-  #           :joins      => "INNER JOIN links ON nodes.id=links.#{other_side} AND links.relation_id = #{self[:id]} AND links.#{link_side} = #{@start[:id]}",
-  #           :group      => 'nodes.id'}
-  #  
-  #  # limit overwritten options to 'order', 'limit' in case this method is used with unsafe parameters from the web.
-  #  [:order].each do |sym|
-  #    opts[sym] = options[sym] if options[sym]
-  #  end
-  #    
-  #  @record = secure(Node) { Node.find(:first, opts) }
-  #rescue ActiveRecord::RecordNotFound
-  #  @record = nil
-  #end
+  def records(options={})
+    return @records if defined? @records
+    opts = { :select     => "nodes.*, links.id AS link_id", 
+             :joins      => "INNER JOIN links ON nodes.id=links.#{other_side} AND links.relation_id = #{self[:id]} AND links.#{link_side} = #{@start[:id]}",
+             :group      => 'nodes.id'}
+    
+    # limit overwritten options to 'order', 'limit' in case this method is used with unsafe parameters from the web.
+    [:order, :limit].each do |sym|
+      opts[sym] = options[sym] if options[sym]
+    end
+      
+    @records = secure(Node) { Node.find(:all, opts) }
+  rescue ActiveRecord::RecordNotFound
+    @records = nil
+  end
+  
+  # I do not think this method is used anymore (all is done by @node.find(...)).
+  def record(options={})
+    return @record if defined? @record
+    opts = { :select     => "nodes.*, links.id AS link_id", 
+             :joins      => "INNER JOIN links ON nodes.id=links.#{other_side} AND links.relation_id = #{self[:id]} AND links.#{link_side} = #{@start[:id]}",
+             :group      => 'nodes.id'}
+    
+    # limit overwritten options to 'order', 'limit' in case this method is used with unsafe parameters from the web.
+    [:order].each do |sym|
+      opts[sym] = options[sym] if options[sym]
+    end
+      
+    @record = secure(Node) { Node.find(:first, opts) }
+  rescue ActiveRecord::RecordNotFound
+    @record = nil
+  end
   
   # Define the caller's side. Changes the relation into a proxy so we can add/remove links. This sets the caller on the source side of the relation.
   def source=(start)
@@ -96,13 +96,13 @@ class Relation < ActiveRecord::Base
     (other_links || []).map { |l| l[other_side] }
   end
   
-  #def other_zip
-  #  record ? record[:zip] : nil
-  #end
-  #
-  #def other_zips
-  #  (records || []).map { |r| r[:zip] }
-  #end
+  def other_zip
+    record ? record[:zip] : nil
+  end
+  
+  def other_zips
+    (records || []).map { |r| r[:zip] }
+  end
   
   def other_role
     @side == :source ? target_role : source_role

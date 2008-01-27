@@ -398,6 +398,10 @@ set_node_param:
   tem: "<p class='class_<%= @node.zip %>'></p><p class='<%= @node.name %>'></p>"
   res: "<p class='class_22'></p><p class='status'></p>"
 
+set_node_param_main_other_class:
+  src: "<r:data><p do='void' set_class='class_[main.id]'/></r:data>"
+  res: "<p class='class_22'></p>"
+
 set_attribute_with_inner:
   src: "<p set_id='node[id]' do='show' attr='name' set_class='s[v_status]'>some blah blah</p>"
   res: "<p class='s50' id='node22'>status</p>"

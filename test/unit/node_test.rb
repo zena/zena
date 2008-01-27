@@ -551,17 +551,17 @@ class NodeTest < ZenaTestUnit
   def test_tags
     login(:lion)
     @node = secure(Node) { nodes(:status)  }
-    assert_nothing_raised { @node.tags }
-    assert_nil @node.tags
+    assert_nothing_raised { @node.find(:all, 'tags') }
+    assert_nil @node.find(:all, 'tags')
     @node.tag_ids = [nodes_id(:art),nodes_id(:news)]
     assert @node.save
-    tags = @node.tags
+    tags = @node.find(:all, 'tags')
     assert_equal 2, tags.size
     assert_equal 'art', tags[0].name
     assert_equal 'news', tags[1].name
     @node.tag_ids = [nodes_id(:art)]
     @node.save
-    tags = @node.tags
+    tags = @node.find(:all, 'tags')
     assert_equal 1, tags.size
     assert_equal 'art', tags[0].name
   end
@@ -570,11 +570,11 @@ class NodeTest < ZenaTestUnit
     login(:lion)
     node = secure(Node) { nodes(:art) }
     assert node.update_attributes('tagged_ids' => [nodes_id(:status), nodes_id(:people)])
-    assert_equal 2, node.tagged.size
+    assert_equal 2, node.find(:all, 'tagged').size
     stat = secure(Node) { nodes(:status) }
     peop = secure(Node) { nodes(:people) }
-    assert_equal node[:id], stat.tags[0][:id]
-    assert_equal node[:id], peop.tags[0][:id]
+    assert_equal node[:id], stat.find(:first, 'tags')[:id]
+    assert_equal node[:id], peop.find(:first, 'tags')[:id]
   end
   
   def test_after_all_cache_sweep

@@ -52,7 +52,7 @@ class DataEntriesController < ApplicationController
   end
   
   def create
-    @data_entry = DataEntry.create(params[:data_entry])
+    @data_entry = DataEntry.create_data_entry(params[:data_entry])
   end
 
   def update
@@ -66,8 +66,8 @@ class DataEntriesController < ApplicationController
   
   private
     def find_data_entry
-      @data_entry = DataEntry.find_by_id_and_site_id(params[:id], visitor.site[:id])    
-      return true
+      return false unless @data_entry = DataEntry.find_by_id_and_site_id(params[:id], visitor.site[:id])
+      @node = @data_entry.node_a
     end
     
     def check_can_edit
@@ -75,7 +75,7 @@ class DataEntriesController < ApplicationController
         @data_entry.can_write?
       else
         begin
-          secure_write(Node) { Node.find_by_zip(params[:node_a_id]) }
+          @node = secure_write(Node) { Node.find_by_zip(params['data_entry']['node_a_id']) }
         rescue
           return false
         end

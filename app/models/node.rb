@@ -205,7 +205,7 @@ class Node < ActiveRecord::Base
     end
     
     def get_class(rel, opts={})
-      class_name = rel.singularize.split('_').map{|e| e.capitalize}.join('') # mushroom_types ==> MushroomType
+      class_name = rel.singularize.camelize # mushroom_types ==> MushroomType
       begin
         klass = Module.const_get(class_name)
         raise NameError unless klass.ancestors.include?(Node)
@@ -275,7 +275,6 @@ class Node < ActiveRecord::Base
       
       
       klass_name   = attributes.delete('class') || attributes.delete('klass') || 'Page'
-      
       unless klass = get_class(klass_name, :create => true)
         node = self.new
         node.instance_eval { @attributes = attributes }

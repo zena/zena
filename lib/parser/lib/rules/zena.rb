@@ -569,7 +569,7 @@ module Zena
       else
         # 'text', 'hidden', ...
         @html_tag = 'input'
-        @html_tag_params[:type] = @params[:type]
+        @html_tag_params[:type] = @params[:type] || 'text'
         @html_tag_params.merge!(input)
         render_html_tag(nil)
       end
@@ -1631,13 +1631,14 @@ END_TXT
     end
     
     def node_attribute(attribute, opts={})
-      att_node = opts[:node] || node
-      res = if node_kind_of?(Node)
+      att_node = opts[:node]       || node
+      klass    = opts[:node_class] || node_class
+      res = if klass.ancestors.include?(Node)
         attribute = attribute.gsub(/\A(|[\w_]+)id(s?)\Z/, '\1zip\2') unless attribute =~ /\Ad_/
         Node.zafu_attribute(att_node, attribute)
-      elsif node_kind_of?(Version) && Version.zafu_readable?(attribute)
+      elsif klass.ancestors.include?(Version) && Version.zafu_readable?(attribute)
         "#{att_node}.#{attribute}"
-      elsif node_kind_of?(DataEntry) && DataEntry.zafu_readable?(attribute)
+      elsif klass.ancestors.include?(DataEntry) && DataEntry.zafu_readable?(attribute)
         "#{att_node}.#{attribute}"
       else
         # unknown class, resolve at runtime
@@ -1699,17 +1700,17 @@ END_TXT
               node_name = $1
               node_attr = $2
               if use_node = find_stored(Node, node_name)
+                res = node_attribute(node_attr, :node => use_node )
               elsif node_name = 'main'
-                use_node = '@node'
+                res = node_attribute(node_attr, :node => '@node', :node_class => Node )
               else
-                use_node = nil # bad node name
+                res = "bad node_name #{use_node.inspect}"
               end
-            end
-            if use_node
-              res = node_attribute(node_attr, :node => use_node )
             else
-              res = "bad node_name #{use_node.inspect}"
+              # normal node_attribute
+              res = node_attribute(node_attr, :node => use_node )
             end
+            
             if trans
               "\#{#{res}}"
             else
@@ -1793,7 +1794,7 @@ END_TXT
       if @context[:in_add]
         res[:value] = (params[:value] || params[:set_value]) ? params[:value] : ""
       else
-        res[:value] = attribute ? ["<%= #{node_attribute(attribute)} %>"] : ""
+        res[:value] = attribute ? ["'<%= #{node_attribute(attribute)} %>'"] : ""
       end
       return [res, attribute]
     end

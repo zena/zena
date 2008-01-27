@@ -427,7 +427,7 @@ module ApplicationHelper
         if icon = obj.icon
           return img_tag(icon, options.merge(:alt_src => nil))
         end
-      elsif icon = node.find(:first, :relations=>alt_src.split(','))
+      elsif icon = obj.find(:first, alt_src.split(','))
         # icon through alt_src relation
         return img_tag(icon, options.merge(:alt_src => nil))
       end
@@ -984,7 +984,7 @@ ENDTXT
     node = options.delete(:node)
     if href = options.delete(:href)
       if href.kind_of?(String)
-        node = node.find(:first, :relations=>[href]) || node unless href == 'self'
+        node = node.find(:first, href) || node unless href == 'self'
       else
         node = href
       end
@@ -1160,9 +1160,12 @@ ENDTXT
       end
     end
     
-    current_obj = secure(Node) { Node.find(id) } if id
+    if !id.blank?
+      current_obj = secure(Node) { Node.find(id) } rescue nil
+    end
     
-    name_ref = "#{obj}_#{sym}_name"
+    
+    name_ref = unique_id
     attribute = opt[:show] || 'short_path'
     if current_obj
       zip = current_obj[:zip]
@@ -1178,6 +1181,11 @@ ENDTXT
     update = "new Ajax.Updater('#{name_ref}', '/nodes/attribute?node=' + this.value + '&attr=#{attribute}', {method:'get', asynchronous:true, evalScripts:true});"
     "<div class='select_id'><input type='text' size='8' id='#{obj}_#{sym}' name='#{obj}[#{sym}]' value='#{zip}' onChange=\"#{update}\" onKeyup=\"#{update}\"/>"+
     "<span class='select_id_name' id='#{name_ref}'>#{current}</span></div>"
+  end
+  
+  def unique_id
+    @counter ||= 0
+    "#{Time.now.to_i}_#{@counter += 1}"
   end
 end
 =begin

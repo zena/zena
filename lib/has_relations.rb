@@ -407,6 +407,8 @@ module Zena
       def find(count, options)
         if options.kind_of?(String)
           options = {:relations => [options]}
+        elsif options.kind_of?(Array)
+          options = {:relations => options}
         end
         do_find(count, eval("\"#{Node.build_find(count, options.merge(:node_name => 'self'))}\""))
       end
@@ -567,10 +569,11 @@ module Zena
             else
               raise err # unknown relation
             end
-          elsif meth.to_s[-1..-1] != '=' && relation = relation_proxy(:role => meth.to_s)
-            relation.unique? ? relation.record : relation.records
+          # we do not need this finder, zafu generates proper "do_find" methods.
+          # elsif meth.to_s[-1..-1] != '=' && relation = relation_proxy(:role => meth.to_s)
+          #   relation.unique? ? relation.record : relation.records
           else
-            raise err # no _zip / _id
+            raise err # unknown relation
           end
         end
     end
