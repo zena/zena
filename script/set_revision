@@ -2,15 +2,15 @@
 
 root     = File.join(File.dirname(__FILE__), '..')
 svn_info = `svn info #{root.inspect} 2>&1 || svk info #{root.inspect} 2>&1`
-if svn_info =~ %r{URL: svn://svn.zenadmin.org.*Revision: (\d+)}m
+if svn_info =~ %r{Repository Root: [^\n]*zenadmin.org.*Revision: (\d+)}m
   rev = $1
 else
   svk_info = `svk info #{root.inspect} 2>&1`
-  if svk_info =~ %r{zenadmin.org/zena, Rev. (\d+)}m
+  if svk_info =~ %r{zenadmin.org/zena, Rev. (\d+)}
     rev = $1
   elsif svk_info =~ %r{(Merged|Copied) From: (.*?), Rev}
     svk_info = `svk info /#{$2} 2>&1`
-    if svk_info =~ %r{zenadmin.org/zena, Rev. (\d+)}m
+    if svk_info =~ %r{zenadmin.org/zena, Rev. (\d+)}
       rev = $1
     else
       puts "revision number could not be found using svn or svk"
@@ -24,4 +24,6 @@ if rev
     f.print  version_file.sub(/(REV *)=.*$/, "\\1= #{rev}")
   end
   puts "revision number updated to #{rev}"
+else
+  puts "could not find revision number through svn info"
 end
