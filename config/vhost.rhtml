@@ -43,7 +43,7 @@
   </DirectoryMatch>
   
   RewriteEngine On
-  <% if options[:debug_rewrite] %>
+  <% if debug_rewrite %>
   # rewrite debugging
   RewriteLog /var/www/zena/<%= host %>/log/rewrite.log
   RewriteLogLevel 9 
@@ -65,7 +65,7 @@
   RewriteCond %{DOCUMENT_ROOT}/%{REQUEST_FILENAME} !-f
   RewriteRule ^/(.*)$ balancer://<%= balancer %>%{REQUEST_URI} [P,QSA,L]
   
-  <% if options[:deflate] %>
+  <% if deflate %>
   # Deflate (compress data before sending to browser)
   AddOutputFilterByType DEFLATE text/html text/plain text/xml application/xml application/xhtml+xml text/javascript text/css
   BrowserMatch ^Mozilla/4 gzip-only-text/html
@@ -73,7 +73,7 @@
   BrowserMatch \bMSIE !no-gzip !gzip-only-text/html
   <% end %>
   
-  <% if options[:debug_deflate] && option[:deflate] %>
+  <% if debug_deflate && deflate %>
   # Deflate debugging
   DeflateFilterNote Input input_info
   DeflateFilterNote Output output_info

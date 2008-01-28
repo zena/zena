@@ -20,7 +20,7 @@ If anything goes wrong, ask the mailing list (lists.zenadmin.org) or read the co
 
 
 =end
-
+require 'erb'
 load File.join(File.dirname(__FILE__), 'deploy_config')
 
 #================= ADVANCED SETTINGS =============#
@@ -40,22 +40,38 @@ set :apache2_static,        []
 
 # helper
 set :in_current, "cd #{deploy_to}/current &&"
+class RenderClass
+  def initialize(path)
+    @text = File.read(path)
+  end
+  
+  def render(hash)
+    @values = hash
+    ERB.new(@text).result(binding)
+  end
+  
+  def method_missing(sym)
+    return @values[sym] if @values.has_key?(sym)
+    super
+  end
+end
+
+def render(file, hash)
+  RenderClass.new(file).render(hash)
+end
 
 #========================== SOURCE CODE   =========================#
+
+
 desc "set permissions to www-data"
 task :set_permissions, :roles => :app do
   run "chown -R www-data:www-data #{deploy_to}"
   run "chown -R www-data:www-data /var/www/zena"
 end
 
-desc "push local changes by doing an svk checkin and updating code"
-task :push, :roles => :app do
-  system "svk st && svk ci"
-  if $? == 0
-    update_current
-  else
-    puts "  - abort"
-  end
+"Update the currently released version of the software directly via an SCM update operation" 
+task :update_current do 
+  source.sync(revision, self[:release_path]) 
 end
 
 desc "clear all zafu compiled templates"
@@ -69,24 +85,17 @@ task :clear_cache, :roles => :app do
 end
 
 desc "after code update"
-task :after_update_code, :roles => :app do
-  symlink
+task :after_update, :roles => :app do
   app_update_symlinks
+  db_update_config
   clear_zafu
   clear_cache
-  db_update_config
   migrate
 end
 
-desc "after current code update"
-task :after_update_current, :roles => :app do
-  after_update_code
-  restart
-end
-
-desc "update symlinks"
+desc "update symlink to 'sites' directory"
 task :app_update_symlinks, :roles => :app do
-  run "rm -rf #{deploy_to}/current/sites"
+  run "rm #{deploy_to}/current/sites || true"
   run "ln -sf /var/www/zena #{deploy_to}/current/sites"
   set_permissions
 end
@@ -102,6 +111,7 @@ task :app_setup, :roles => :app do
   run "test -e /var/www/zena || mkdir /var/www/zena"
   setup
 end
+
 #========================== MANAGE HOST   =========================#
 desc "create a new site"
 task :mksite, :roles => :app do
@@ -110,6 +120,15 @@ task :mksite, :roles => :app do
   set_permissions
 end
 
+desc "update code in the current version"
+task :up, :roles => :app do
+  run "cd #{deploy_to}/current && svn up"
+  db_update_config
+  clear_zafu
+  clear_cache
+  migrate
+  restart
+end
 
 #========================== MONGREL ===============================#
 desc "configure mongrel"
@@ -225,18 +244,6 @@ task :db_dump, :roles => :db do
   end
   run "#{in_current} tar czf #{db_name}.sql.tgz #{db_name}.sql"
   run "#{in_current} rm #{db_name}.sql"
-end
-
-# taken from : http://source.mihelac.org/articles/2007/01/11/capistrano-get-method-download-files-from-server
-# Get file remote_path from FIRST server targetted by
-# the current task and transfer it to local machine as path, SFTP required
-def actor.get(remote_path, path, options = {})
-  execute_on_servers(options) do |servers|
-    self.sessions[servers.first].sftp.connect do |tsftp|
-      logger.info "Get #{remote_path} to #{path}" 
-      tsftp.get_file remote_path, path
-    end
-  end
 end
 
 desc "Get backup file back"
