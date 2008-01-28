@@ -21,7 +21,7 @@ end
 if rev
   version_file = File.read(File.join(root, 'config', 'version.rb'))
   File.open(File.join(root, 'config', 'version.rb'), 'wb') do |f|
-    f.print  version_file.sub(/(REV *)=.*$/, "\\1= '#{rev}'")
+    f.print  version_file.sub(/(REV *)=.*$/, "\\1= #{rev}")
   end
-  puts "revision number updated to '#{rev}'"
+  puts "revision number updated to #{rev}"
 end
