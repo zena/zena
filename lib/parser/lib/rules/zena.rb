@@ -202,12 +202,12 @@ module Zena
       end
       
       if @context[:trans]
-        # TODO: what do we do here with filters ?
+        # TODO: what do we do here with gsubs ?
         return attribute_method
       end
       
-      if filter = @params[:filter]
-        if filter =~ /\A\/(.+)\/(.+)\/\Z/
+      if gsub = @params[:gsub]
+        if gsub =~ /\A\/(.+)\/(.+)\/\Z/
           value = $2
           key   = $1.gsub(/\#([\{\$\@])/,'# \1') # FIXME: SECURITY.
                                                  # Please note that .gsub(/#([\{\$\@])/,'\#\1') won't work, since '\#{blah}' will become '\\#{blah}' and 'blah' will be evaluated.
@@ -215,12 +215,12 @@ module Zena
             re = /#{key}/
           rescue => err
             # invalid regexp
-            return "<span class='parser_error'>invalid filter #{filter.inspect} in 'show'</span>"
+            return "<span class='parser_error'>invalid gsub #{gsub.inspect} in 'show'</span>"
           end
           attribute_method = "#{attribute_method}.to_s.gsub(/#{key}/,#{value.inspect})"
         else
           # error
-          return "<span class='parser_error'>invalid filter #{filter.inspect} in 'show'</span>"
+          return "<span class='parser_error'>invalid gsub #{gsub.inspect} in 'show'</span>"
         end
       end
       
