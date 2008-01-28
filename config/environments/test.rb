@@ -18,11 +18,9 @@ config.action_controller.perform_caching             = false
 # ActionMailer::Base.deliveries array.
 config.action_mailer.delivery_method = :test
 
-begin
+if false
   require 'ruby-debug'
   Debugger.settings[:autolist] = true
   Debugger.settings[:autoeval] = true
   Debugger.start
-rescue
-  # in case no debugger is available, ignore
 end
