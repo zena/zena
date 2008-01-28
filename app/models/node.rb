@@ -135,7 +135,6 @@ class Node < ActiveRecord::Base
                      :version => "Version", :comments => ["Comment"], :data => ["DataEntry"], :data_a => ["DataEntry"],
                      :data_b => ["DataEntry"], :data_c => ["DataEntry"], :data_d => ["DataEntry"], :icon => "Image"
                      
-  
   has_many           :discussions, :dependent => :destroy
   has_and_belongs_to_many :cached_pages
   belongs_to         :virtual_class, :foreign_key => 'vclass_id'
