@@ -182,7 +182,7 @@ class NodesController < ApplicationController
   
   # import sub-nodes from a file
   def import
-    @nodes = secure(Node) { Node.create_nodes_from_folder(:archive => params[:archive], :parent => @node) }
+    @nodes = secure(Node) { Node.create_nodes_from_folder(:archive => params[:archive], :parent => @node) }.values
   end
   
   # Create a link between two nodes. This method is called from the drive popup.

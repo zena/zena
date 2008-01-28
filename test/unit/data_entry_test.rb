@@ -55,7 +55,7 @@ class DataEntryTest < ZenaTestUnit
     login(:ant)
     ent = DataEntry.create(:node_a_id => nodes_id(:status), :value => 3.1415926535897932384)
     ent = DataEntry.find(ent[:id])
-    assert_equal 3.14159265, ent.value.to_f  # crop to 8 digit precision
+    assert_equal BigDecimal("3.14159265"), ent.value  # crop to 8 digit precision
   end
   
   def test_clone

@@ -865,7 +865,7 @@ done: \"I am done\""
     login(:tiger)
     parent = secure(Project) { Project.create(:name => 'import', :parent_id => nodes_id(:zena)) }
     assert !parent.new_record?, "Not a new record"
-    nodes = secure(Node) { Node.create_nodes_from_folder(:folder => File.join(RAILS_ROOT, 'test', 'fixtures', 'import'), :parent_id => parent[:id] )}
+    nodes = secure(Node) { Node.create_nodes_from_folder(:folder => File.join(RAILS_ROOT, 'test', 'fixtures', 'import'), :parent_id => parent[:id] )}.values
     children = parent.find(:all, 'children')
     assert_equal 2, children.size
     assert_equal 3, nodes.size
@@ -892,7 +892,7 @@ done: \"I am done\""
     login(:tiger)
     parent = secure(Project) { Project.create(:name => 'import', :parent_id => nodes_id(:zena)) }
     assert !parent.new_record?, "Not a new record"
-    nodes = secure(Node) { Node.create_nodes_from_folder(:archive => uploaded_archive('simple.yml.gz'), :parent_id => parent[:id] )}
+    nodes = secure(Node) { Node.create_nodes_from_folder(:archive => uploaded_archive('simple.yml.gz'), :parent_id => parent[:id] )}.values
     assert_equal 1, nodes.size
     simple = nodes[0]
     assert_kind_of Note, simple
@@ -904,7 +904,7 @@ done: \"I am done\""
     login(:tiger)
     parent = secure(Project) { Project.create(:name => 'import', :parent_id => nodes_id(:zena), :rgroup_id => 4, :wgroup_id => 4) }
     assert !parent.new_record?, "Not a new record"
-    result = secure(Node) { Node.create_nodes_from_folder(:folder => File.join(RAILS_ROOT, 'test', 'fixtures', 'import'), :parent_id => parent[:id] )}
+    result = secure(Node) { Node.create_nodes_from_folder(:folder => File.join(RAILS_ROOT, 'test', 'fixtures', 'import'), :parent_id => parent[:id] )}.values
     assert_equal 3, result.size
     
     children = parent.find(:all, :relations => 'children', :order => "name ASC")
@@ -914,26 +914,30 @@ done: \"I am done\""
     assert_equal 'simple', children[1].name
     assert_equal 4, children[1].rgroup_id
     
-    result = secure(Node) { Node.create_nodes_from_folder(:folder => File.join(RAILS_ROOT, 'test', 'fixtures', 'import'), :parent_id => result[1][:id], :defaults => { :rgroup_id => 1 } )}
-    
-    children = children[0].find(:all, 'children')
+    # we use children[1] as parent just to use any empty node
+    result = secure(Node) { Node.create_nodes_from_folder(:folder => File.join(RAILS_ROOT, 'test', 'fixtures', 'import'), :parent_id => children[1][:id], :defaults => { :rgroup_id => 1 } )}.values
     assert_equal 3, result.size
-    assert_equal 1, children.size # cannot create a Note inside an Image
+    
+    children = children[1].find(:all, :relations => 'children', :order => "name ASC")
+    assert_equal 2, children.size
+    assert_equal 'photos', children[0].name
     assert_equal 1, children[0].rgroup_id
+    assert_equal 'simple', children[1].name
+    assert_equal 1, children[1].rgroup_id
   end
   
   def test_create_nodes_from_folder_with_publish
     login(:tiger)
-    nodes = secure(Node) { Node.create_nodes_from_folder(:folder => File.join(RAILS_ROOT, 'test', 'fixtures', 'import'), :parent_id => nodes_id(:zena) )}
+    nodes = secure(Node) { Node.create_nodes_from_folder(:folder => File.join(RAILS_ROOT, 'test', 'fixtures', 'import'), :parent_id => nodes_id(:zena) )}.values
     assert_equal Zena::Status[:red], nodes[0].v_status
     
-    nodes = secure(Node) { Node.create_nodes_from_folder(:folder => File.join(RAILS_ROOT, 'test', 'fixtures', 'import'), :parent_id => nodes_id(:cleanWater), :defaults => { :v_status => Zena::Status[:pub] }) }
+    nodes = secure(Node) { Node.create_nodes_from_folder(:folder => File.join(RAILS_ROOT, 'test', 'fixtures', 'import'), :parent_id => nodes_id(:cleanWater), :defaults => { :v_status => Zena::Status[:pub] }) }.values
     assert_equal Zena::Status[:pub], nodes[0].v_status
   end
   
   def test_create_nodes_from_archive
     login(:tiger)
-    res = secure(Node) { Node.create_nodes_from_folder(:archive => uploaded_archive('import.tgz'), :parent_id => nodes_id(:zena)) }
+    res = secure(Node) { Node.create_nodes_from_folder(:archive => uploaded_archive('import.tgz'), :parent_id => nodes_id(:zena)) }.values
     #res.each do |rec|
     #  puts "id:     #{rec[:id]}"
     #  puts "name:   #{rec.name}"
@@ -963,7 +967,7 @@ done: \"I am done\""
       assert_equal 'photos', node.name
       assert_no_match %r{I took during my last vacations}, node.v_text
       v1_id = node.v_id
-      secure(Node) { Node.create_nodes_from_folder(:archive => uploaded_archive('import.tgz'), :parent_id => nodes_id(:status)) }
+      secure(Node) { Node.create_nodes_from_folder(:archive => uploaded_archive('import.tgz'), :parent_id => nodes_id(:status)) }.values
       assert_nothing_raised { node = secure(Node) { Node.find_by_path( 'projects/cleanWater/status/photos') } }
       assert_nothing_raised { bird = secure(Node) { Node.find_by_path( 'projects/cleanWater/status/photos/bird') } }
       assert_match %r{I took during my last vacations}, node.v_text

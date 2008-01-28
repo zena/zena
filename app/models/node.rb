@@ -304,7 +304,7 @@ class Node < ActiveRecord::Base
       parent_id = opts[:parent_id] || opts[:parent][:id]
       folder    = opts[:folder]
       defaults  = (opts[:defaults] || {}).stringify_keys
-      res       = []
+      res       = {}
       
       # create from archive
       unless folder
@@ -441,9 +441,9 @@ class Node < ActiveRecord::Base
         end
         current_obj.instance_variable_set(:@new_record_before_save, new_object)
         current_obj.instance_variable_set(:@versions_count, versions.size)
-        res << current_obj
+        res[current_obj[:id].to_i] = current_obj
 
-        res += create_nodes_from_folder(:folder => sub_folder, :parent_id => current_obj[:id], :defaults => defaults) if sub_folder && !current_obj.new_record?
+        res.merge!(create_nodes_from_folder(:folder => sub_folder, :parent_id => current_obj[:id], :defaults => defaults)) if sub_folder && !current_obj.new_record?
       end
       res
     end
