@@ -21,8 +21,8 @@ class SecureReadTest < ZenaTestUnit
   end
   
   def test_native_classes
-    assert_equal ["N",  "NN",  "NP",  "NPD",  "NPDI",  "NPDT",  "NPDTT",  "NPP",  "NPS",  "NPSS",  "NU",  "NUS"], Node.native_classes.keys.sort
-    assert_equal [], Document.native_classes.keys.sort
+    assert_equal ["N",  "NN",  "NP",  "NPD",  "NPDI",  "NPDT",  "NPDTT",  "NPP",  "NPS",  "NPSS",  "NR", "NRC", "NU",  "NUS"], Node.native_classes.keys.sort
+    assert_equal ["NPD", "NPDI", "NPDT", "NPDTT"], Document.native_classes.keys.sort
   end
   
   # SECURE FIND TESTS  ===== TODO CORRECT THESE TEST FROM CHANGES TO RULES ========

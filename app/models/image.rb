@@ -68,7 +68,7 @@ class Image < Document
   #   @node.crop = {:x=>10, :y=>10, :width=>30, :height=>60}
   # Be carefull as this method changes the current file. So you should make a backup version before croping the image (the popup editor displays a warning).
   def c_crop=(format)
-    x, y, w, h = [format[:x].to_i, 0].max, [format[:y].to_i,0].max, [format[:w].to_i, c_width].min, [format[:h].to_i, c_height].min
+    x, y, w, h = [format[:x].to_f, 0].max, [format[:y].to_f,0].max, [format[:w].to_f, c_width].min, [format[:h].to_f, c_height].min
     if format[:max_value] || format[:format] || (x < c_width && y < c_height && w > 0 && h > 0) && !(x==0 && y==0 && w == c_width && h == c_height)
       # do crop
       if file = version.content.crop(format)
@@ -78,6 +78,13 @@ class Image < Document
     else
       # nothing to do: ignore this operation.
     end
+  end
+  
+  # filter attributes so there is no 'crop' with a new file
+  def attributes=(attributes)
+    attributes.delete('c_crop') if attributes['c_file'] && attributes['c_crop']
+    
+    super(attributes)
   end
   
   # Return the image file for the given format (see Image for information on format)

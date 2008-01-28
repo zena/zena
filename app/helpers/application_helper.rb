@@ -434,7 +434,7 @@ module ApplicationHelper
     end
     
     if src.blank?
-      if obj.vclass.kind_of?(VirtualClass)
+      if obj.vclass.kind_of?(VirtualClass) && !obj.vclass.icon.blank?
         # FIXME: we could use a 'zip' to an image (but we would need some caching to avoid multiple loading during doc listing)
         src = obj.vclass.icon
         alt ||= _('%{type} node') % {:type => obj.vclass.name}
@@ -683,47 +683,6 @@ module ApplicationHelper
     else
       "<div id='#{key}'#{klass}>#{text}</div>"
     end
-  end
-  
-  # Display a selection 'box' for a given role (provided by the sym argument). Depending on the role type
-  # this helper may render a checkbox list, a select menu or an input field for an id. Available choices
-  # may be reduced by providing a list with the :in argument : link_box('node', :calendars, :in=>[1,11]).
-  def link_box(obj, sym, opt={})
-    return "LINK_BOX NEEDS A REWRITE" # FIXME: PUT LINKS BACK INTO EDIT !
-    node = instance_variable_get("@#{obj}".to_sym)
-    method = "#{sym}_for_form".to_sym
-    role = node.class.role[sym.to_s]
-    unless role
-      Node.logger.error "role #{sym} not found"
-      return ''
-    end
-    setter = sym.to_s.singularize
-    if role[:unique]
-      # unique
-      res = [select_id(obj,"#{setter}_id", :class=>role[:klass], :include_blank=>true)]
-    else
-      # many
-      if opt[:in]
-        ids = opt[:in].map{|i| i.to_i}
-        list = node.send(method, :conditions=>["nodes.id IN (#{ids.join(',')})"]) || []
-      else
-        list = node.send(method) || []
-      end
-      res = list.inject([]) do |list, l|
-        list << "<input type='checkbox' name='node[#{setter}_ids][]' value='#{l.zip}' class='box' #{ l[:link_id] ? "checked='1' " : ""}/>#{l.name}"
-        list
-      end
-    end
-    if opt.include?(:title)
-      if opt[:title].nil?
-        title = ''
-      else
-        title = "<li><b>#{opt[:title]}</b></li>"
-      end
-    else
-      title = "<li><b>#{_(sym.to_s)}</b></li>"
-    end
-    "<ul class='link_box'>#{title}<li>#{res.join('</li><li>')}</li></ul>"
   end
   
   #TODO: test

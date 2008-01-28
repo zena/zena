@@ -20,9 +20,8 @@ class ImageContent < DocumentContent
   
   # Return a cropped image using the 'crop' hash with the top left corner position (:x, :y) and the width and height (:width, :heigt).
   def crop(format)
-    return if @file # we do not want to crop on file upload in case the crop params lie around in the user's form
     original   = format[:original] || self.file
-    x, y, w, h = format[:x].to_i, format[:y].to_i, format[:w].to_i, format[:h].to_i
+    x, y, w, h = format[:x].to_f, format[:y].to_f, format[:w].to_f, format[:h].to_f
     new_type   = format[:format] ? EXT_TO_TYPE[format[:format].downcase][0] : nil
     max        = format[:max_value].to_f * (format[:max_unit] == 'Mb' ? 1024 : 1) * 1024
     

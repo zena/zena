@@ -83,15 +83,16 @@ class Document < Page
     end
   end
   
-  def name=(str)
-    super
-    if self[:name]
-      version.content[:name] = self[:name].sub(/\.*$/,'') # remove trailing dots
-    end
-  end
+  # This looks really silly and is very anoying.
+  #def name=(str)
+  #  super
+  #  if self[:name]
+  #    version.content[:name] = self[:name].sub(/\.*$/,'') # remove trailing dots
+  #  end
+  #end
 
   # Filter attributes before assignement.
-  # Set name and content extension based on file.
+  # Set name of new record and content extension based on file.
   def filter_attributes(attributes)
     if attributes['name']
       # set through name
@@ -100,12 +101,13 @@ class Document < Page
       # set with filename
       base = file.original_filename
     end
+    
     if base
       if base =~ /(.*)\.(\w+)$/
-        attributes['name']    = $1
+        attributes['name']    = $1 if new_record?
         attributes['c_ext'] ||= $2
       else
-        attributes['name']    = base
+        attributes['name']    = base if new_record?
       end
     end
     
@@ -127,7 +129,7 @@ class Document < Page
     kind_of?(Image)
   end
   
-  # Return the document's filename using the name and the file extension.
+  # Return the document's public filename using the name and the file extension.
   def filename
     "#{name}.#{version.content.ext}"
   end

@@ -1,6 +1,8 @@
 =begin rdoc
-A Node is the root class of all elements in the zena application. Actual class inheritance diagram:
+A Node is the root class of all elements in the zena application. Class inheritance diagram:
 
+
+FIXME: some parts are not correct (Partial, Task, Request, Milestone). Either correct this tree or add these classes.
 Node (manages access and publication cycle)
   |
   +-- Page (web pages)
@@ -164,7 +166,7 @@ class Node < ActiveRecord::Base
     # Return the list of (kpath,subclasses) for the current class.
     def native_classes
       # this is to make sure subclasses are loaded before the first call
-      [Note,Page,Project,Section,Document,Image,TextDocument,Skin,Template]
+      [Note,Page,Project,Section,Reference,Contact,Document,Image,TextDocument,Skin,Template]
       while child = @@unhandled_children.pop
         @@native_node_classes[child.kpath] = child
       end

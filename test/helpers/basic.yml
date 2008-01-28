@@ -271,7 +271,7 @@ show_c_width:
   context:
     node: "bird_jpg"
   src:  "width = <r:show attr='c_width'/>"
-  res: "width = 661"
+  res: "width = 660"
 
 javascripts:
   src: "<r:javascripts list='prototype,effects,zena'/>"
@@ -433,7 +433,7 @@ each_join_nasty_erb:
 img_no_image:
   src: "<r:img/>"
   tem: "<%= img_tag(@node, :mode=>\"std\") %>"
-  res: "<img src='/images/ext/page_std.png' width='32' height='32' alt='page node' class='doc'/>"
+  res: "<img src='/images/ext/page_std.png' width='32' height='32' alt='Page node' class='doc'/>"
 
 img_tag_icon:
   context:
@@ -445,7 +445,7 @@ img_image:
   context:
     node: 'bird_jpg'
   src: "<r:img/><r:img mode='med'/>"
-  res: "<img src='/en/image30_std.jpg' width='440' height='400' alt='bird' class='std'/><img src='/en/image30_med.jpg' width='205' height='186' alt='bird' class='med'/>"
+  res: "<img src='/en/image30_std.jpg' width='440' height='400' alt='bird' class='std'/><img src='/en/image30_med.jpg' width='205' height='187' alt='bird' class='med'/>"
   
 img_private_image:
   context:

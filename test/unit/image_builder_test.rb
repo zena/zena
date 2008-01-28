@@ -75,7 +75,7 @@ class ImageBuilderTest < ZenaTestUnit
     def test_limit_size
       path = "#{RAILS_ROOT}/test/fixtures/files/bird.jpg"
       img = ImageBuilder.new(:path=>path, :width=>30, :height=>30)
-      assert_equal 56183, File.stat(path).size
+      assert_equal 56243, File.stat(path).size
       img.max_filesize = 40000
       new_img = img.render_img
       assert_kind_of Magick::ImageList, new_img

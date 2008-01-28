@@ -678,6 +678,7 @@ END_TXT
     end
     
     # <r:checkbox role='collaborator_for' values='projects' from='site'/>"
+    # TODO: implement menu 'select' in the same spirit
     def r_checkbox
       return "<span class='parser_error'>checkbox without values</span>" unless values = @params[:values]
       return "<span class='parser_error'>checkbox without role</span>"   unless   role = (@params[:role] || @params[:name])

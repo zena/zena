@@ -99,7 +99,10 @@ class DocumentContent < ActiveRecord::Base
       else
         # unknown content_type or 'application/octet-stream' , just keep the extension we have
         self[:ext] ||= 'bin'
-      end      
+      end
+      
+      # set name from node
+      self[:name] = version.node[:name].gsub('.','') if self[:name].blank?
     end
 
     def valid_content

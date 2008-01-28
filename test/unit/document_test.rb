@@ -144,7 +144,8 @@ class DocumentTest < ZenaTestUnit
       assert_equal 63569, doc.c_size
       last_id = Version.find(:first, :order=>"id DESC").id
       assert_not_equal 15, last_id
-      assert_equal "#{SITES_ROOT}/test.host/data/pdf/#{last_id}/forest.pdf", doc.c_filepath
+      # filepath is set from node name
+      assert_equal "#{SITES_ROOT}/test.host/data/pdf/#{last_id}/water.pdf", doc.c_filepath
       assert doc.update_attributes(:c_file=>uploaded_pdf('water.pdf')), "Can change file"
       doc = secure(Node) { nodes(:water_pdf) }
       assert_equal 'forest gump', doc.v_title

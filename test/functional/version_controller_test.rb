@@ -220,7 +220,7 @@ class VersionControllerTest < ZenaTestController
       version = Version.find(version_id)
       assert_equal 'Bird nest', version[:title]
       
-      assert_equal 661, img.c_width
+      assert_equal 660, img.c_width
       assert_equal 600, img.c_height
       assert_equal 56183, img.c_size
     end

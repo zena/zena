@@ -113,7 +113,7 @@ class NodesController < ApplicationController
           end
           raise ActiveRecord::RecordNotFound unless data
         
-          send_data( data.read , :filename=>@node.c_filename, :type => @node.c_content_type, :disposition=>'inline')
+          send_data( data.read , :filename=>@node.filename, :type => @node.c_content_type, :disposition=>'inline')
           data.close
           cache_page(:content_path => content_path, :authenticated => @node.public?) # content_path is used to cache by creating a symlink
         else

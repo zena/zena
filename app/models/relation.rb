@@ -45,8 +45,7 @@ class Relation < ActiveRecord::Base
              :joins      => "INNER JOIN links ON nodes.id=links.#{other_side} AND links.relation_id = #{self[:id]} AND links.#{link_side} = #{@start[:id]}",
              :group      => 'nodes.id'}
     
-    # limit overwritten options to 'order', 'limit' in case this method is used with unsafe parameters from the web.
-    [:order, :limit].each do |sym|
+    [:order, :limit, :conditions].each do |sym|
       opts[sym] = options[sym] if options[sym]
     end
       

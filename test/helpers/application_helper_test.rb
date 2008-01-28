@@ -81,7 +81,7 @@ class ApplicationHelperTest < ZenaTestHelper
   def test_img_tag
     login(:ant)
     img = secure(Node) { nodes(:bird_jpg) }
-    assert_equal "<img src='/en/image30.jpg' width='661' height='600' alt='bird' class='full'/>", img_tag(img)
+    assert_equal "<img src='/en/image30.jpg' width='660' height='600' alt='bird' class='full'/>", img_tag(img)
     assert_equal "<img src='/en/image30_pv.jpg' width='70' height='70' alt='bird' class='pv'/>", img_tag(img, :mode=>'pv')
   end
   
@@ -97,23 +97,23 @@ class ApplicationHelperTest < ZenaTestHelper
     # contact  project       post     tag
     [:lake, :cleanWater, :opening, :art].each do |sym|
       obj   = secure(Node) { nodes(sym) }
-      klass = obj.klass.downcase
-      assert_equal "<img src='/images/ext/#{klass}.png' width='32' height='32' alt='#{klass} node' class='doc'/>", img_tag(obj)
-      assert_equal "<img src='/images/ext/#{klass}_pv.png' width='70' height='70' alt='#{klass} node' class='doc'/>",  img_tag(obj, :mode=>'pv')
+      klass = obj.klass
+      assert_equal "<img src='/images/ext/#{klass.underscore}.png' width='32' height='32' alt='#{klass} node' class='doc'/>", img_tag(obj)
+      assert_equal "<img src='/images/ext/#{klass.underscore}_pv.png' width='70' height='70' alt='#{klass} node' class='doc'/>",  img_tag(obj, :mode=>'pv')
     end
     
     obj   = Node.new
-    assert_equal "<img src='/images/ext/other.png' width='32' height='32' alt='node node' class='doc'/>", img_tag(obj)
+    assert_equal "<img src='/images/ext/other.png' width='32' height='32' alt='Node node' class='doc'/>", img_tag(obj)
   end
   
   def test_img_tag_opts
     login(:anon)
     img = secure(Node) { nodes(:bird_jpg) }
-    assert_equal "<img src='/en/image30.jpg' width='661' height='600' alt='bird' id='yo' class='full'/>",
+    assert_equal "<img src='/en/image30.jpg' width='660' height='600' alt='bird' id='yo' class='full'/>",
                   img_tag(img, :mode=>nil, :id=>'yo')
     assert_equal "<img src='/en/image30_pv.jpg' width='70' height='70' alt='bird' id='yo' class='super'/>",
                   img_tag(img, :mode=>'pv', :id=>'yo', :class=>'super')
-    assert_equal "<img src='/en/image30_med.jpg' width='205' height='186' alt='super man' class='med'/>",
+    assert_equal "<img src='/en/image30_med.jpg' width='205' height='187' alt='super man' class='med'/>",
                   img_tag(img, :mode=>'med', :alt=>'super man')
   end
   
@@ -144,18 +144,6 @@ class ApplicationHelperTest < ZenaTestHelper
     assert_match %r{/calendar/lang/calendar-en-utf8.js}, res
   end
   
-  def test_link_box
-    @node = secure(Node) { nodes(:letter) }
-    assert_equal "<ul class='link_box'><li><b>calendars</b></li><li><input type='checkbox' name='node[calendar_ids][]' value='29' class='box' />wiki</li></ul>", link_box('node', :calendars)
-    login(:tiger)
-    @node = secure(Node) { nodes(:letter) }
-    assert_match %r{ul class='link_box'.*node\[calendar_ids\]\[\].*11.*19.*21.*29}, link_box('node', :calendars)
-    assert_match %r{node\[hot_for_ids\]\[\].*21.*29}, link_box('node', :hot_for, :in=>[11,19,13])
-    assert_no_match %r{23}, link_box('node', :hot_for, :in=>[11,19,13])
-    @node = secure(Node) { nodes(:cleanWater) }
-    assert_match %r{node\[hot_id\].*22}, link_box('node', :hot)
-  end 
-  
   def test_select_id
     @node = secure(Node) { nodes(:status) }
     select = select_id('node', :parent_id, :class=>'Project')
@@ -164,7 +152,7 @@ class ApplicationHelperTest < ZenaTestHelper
     login(:tiger)
     @node = secure(Node) { nodes(:status) }
     assert_match %r{select.*node\[parent_id\].*21.*19.*29.*11}m, select_id('node', :parent_id, :class=>'Project')
-    assert_match %r{input type='text'.*node\[icon_id\].*node_icon_id_name}m, select_id('node', :icon_id)
+    assert_match %r{input type='text'.*node_icon_id.*name.*node\[icon_id\]}m, select_id('node', :icon_id)
   end
   
   def test_date_box
@@ -363,9 +351,8 @@ class ApplicationHelperTest < ZenaTestHelper
   def test_show_path_root
     @node = secure(Node) { Node.find(nodes_id(:zena))}
     assert_equal "<li><a href='/en' class='current'>zena</a></li>", show_path
-    node2 = @node
     @node = secure(Node) { Node.find(nodes_id(:status))}
-    assert_match %r{.*zena.*projects.*cleanWater.*li.*page22\.html' class='current'>status}m, show_path(node2)
+    assert_match %r{.*zena.*projects.*cleanWater.*li.*page22\.html' class='current'>status}m, show_path
   end
   
   def test_show_path_root_with_login

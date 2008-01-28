@@ -457,9 +457,9 @@ module Zena
         opts = {:role => opts} unless opts.kind_of?(Hash)
         if role = opts[:role]
           if opts[:ignore_source]
-            rel = Relation.find_by_role(role.singularize)
+            rel = Relation.find_by_role(role.singularize.underscore)
           else
-            rel = Relation.find_by_role_and_kpath(role.singularize, self.vclass.kpath)
+            rel = Relation.find_by_role_and_kpath(role.singularize.underscore, self.vclass.kpath)
           end
           rel.start = self if rel
         elsif link = opts[:link]

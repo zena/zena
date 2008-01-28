@@ -18,7 +18,7 @@ class ImageContentTest < ZenaTestUnit
         img = ImageContent.new(:name=>'bird', :version_id => versions_id(:bird_jpg_en))
         img[:site_id] = sites_id(:zena)
         img.file = uploaded_jpg('bird.jpg')
-        assert_equal 661, img.width
+        assert_equal 660, img.width
         assert_equal 600, img.height
         assert img.save, "Can save"
       end
@@ -30,10 +30,10 @@ class ImageContentTest < ZenaTestUnit
       img = get_content(:bird_jpg)
       assert File.exist?("#{SITES_ROOT}/test.host/data/jpg/20/bird.jpg"), "File exists"
       assert !File.exist?("#{SITES_ROOT}/test.host/data/jpg/20/bird_pv.jpg"), "File does not exist"
-      assert_equal 661, img.width
+      assert_equal 660, img.width
       assert_equal 70,  img.width('pv')
       assert !File.exist?("#{SITES_ROOT}/test.host/data/jpg/20/bird_pv.jpg"), "File does not exist"
-      assert_equal 2249, img.size('pv')
+      assert_equal 2246, img.size('pv')
       assert File.exist?("#{SITES_ROOT}/test.host/data/jpg/20/bird_pv.jpg"), "File exist"
     end
   end

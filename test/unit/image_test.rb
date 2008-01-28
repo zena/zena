@@ -16,7 +16,7 @@ class ImageTest < ZenaTestUnit
       assert_nil img.v_content_id , "content_id is nil"
       assert_kind_of ImageVersion , img.version
       assert_equal 'jpg', img.c_ext
-      assert_equal "661x600", "#{img.c_width}x#{img.c_height}"
+      assert_equal "660x600", "#{img.c_width}x#{img.c_height}"
       assert_equal "#{SITES_ROOT}/test.host/data/jpg/#{img.v_id}/birdy.jpg", img.c_filepath
       assert File.exist?(img.c_filepath)
       assert_equal File.stat(img.c_filepath).size, img.c_size
@@ -49,9 +49,9 @@ class ImageTest < ZenaTestUnit
       login(:ant)
       img = secure(Node) { nodes(:bird_jpg) }
       flo = secure(Node) { nodes(:flower_jpg)}
-      assert_equal 661, img.c_width
+      assert_equal 660, img.c_width
       assert_equal 600, img.c_height
-      assert_equal 56183, img.c_size
+      assert_equal 56243, img.c_size
       assert_equal 800, flo.c_width
       assert_equal 600, flo.c_height
       assert_equal 96648,  flo.c_size
@@ -67,11 +67,11 @@ class ImageTest < ZenaTestUnit
       login(:ant)
       img = secure(Node) { nodes(:bird_jpg) }
       flo = secure(Node) { nodes(:flower_jpg)}
-      assert_equal 56183, img.c_size
+      assert_equal 56243, img.c_size
       assert_equal 'image/jpeg', img.c_content_type
       assert !img.update_attributes(:c_file=>uploaded_text('some.txt'))
       img = secure(Node) { nodes(:bird_jpg) } # reload
-      assert_equal 56183, img.c_size
+      assert_equal 56243, img.c_size
       assert_equal 'image/jpeg', img.c_content_type
     end
   end
@@ -83,15 +83,15 @@ class ImageTest < ZenaTestUnit
       assert_equal Zena::Status[:pub], img.v_status
       pub_version_id = img.v_id
       pub_content_id = img.c_id
-      assert_equal 661, img.c_width
+      assert_equal 660, img.c_width
       assert_equal 600, img.c_height
-      assert_equal 56183, img.c_size
+      assert_equal 56243, img.c_size
       assert img.update_attributes(:c_crop=>{:x=>'500',:y=>30,:w=>'200',:h=>80})
       img = secure(Node) { nodes(:bird_jpg) }
       assert_not_equal pub_version_id, img.v_id
       assert_not_equal pub_content_id, img.c_id
-      assert_equal 2032,   img.c_size
-      assert_equal 161,  img.c_width
+      assert_equal 2010,   img.c_size
+      assert_equal 160,  img.c_width
       assert_equal 80, img.c_height
     end
   end
@@ -103,9 +103,9 @@ class ImageTest < ZenaTestUnit
       assert_equal Zena::Status[:pub], img.v_status
       pub_version_id = img.v_id
       pub_content_id = img.c_id
-      assert_equal 661, img.c_width
+      assert_equal 660, img.c_width
       assert_equal 600, img.c_height
-      assert_equal 56183, img.c_size
+      assert_equal 56243, img.c_size
       assert img.update_attributes(:c_crop=>{:max_value=>'30', :max_unit=>'Kb'})
       img = secure(Node) { nodes(:bird_jpg) }
       assert_not_equal pub_version_id, img.v_id
@@ -137,15 +137,15 @@ class ImageTest < ZenaTestUnit
       assert_equal Zena::Status[:pub], img.v_status
       pub_version_id = img.v_id
       pub_content_id = img.c_id
-      assert_equal 661, img.c_width
+      assert_equal 660, img.c_width
       assert_equal 600, img.c_height
       # crop keeping same size = do nothing
-      assert img.update_attributes(:v_text=>"hey", :c_crop=>{:x=>'0',:y=>0,:w=>'661',:h=>600})
+      assert img.update_attributes(:v_text=>"hey", :c_crop=>{:x=>'0',:y=>0,:w=>'660',:h=>600})
       img = secure(Node) { nodes(:bird_jpg) }
       assert_not_equal pub_version_id, img.v_id
       assert_equal pub_version_id, img.version.content_id
       assert_equal pub_content_id, img.version.content.id
-      assert_equal 661, img.c_width
+      assert_equal 660, img.c_width
       assert_equal 600, img.c_height
     end
   end
@@ -157,10 +157,10 @@ class ImageTest < ZenaTestUnit
       assert_equal Zena::Status[:pub], img.v_status
       pub_version_id = img.v_id
       pub_content_id = img.c_id
-      assert_equal 661, img.c_width
+      assert_equal 660, img.c_width
       assert_equal 600, img.c_height
-      assert_equal 56183, img.c_size
-      assert img.update_attributes(:c_file=>uploaded_jpg('flower.jpg'), :c_crop=>{:x=>'500',:y=>30,:w=>'200',:h=>80})
+      assert_equal 56243, img.c_size
+      assert img.update_attributes(:name => 'lila.jpg', :c_file=>uploaded_jpg('flower.jpg'), :c_crop=>{:x=>'500',:y=>30,:w=>'200',:h=>80})
       img = secure(Node) { nodes(:bird_jpg) }
       assert_equal 800, img.c_width
       assert_equal 600, img.c_height
@@ -199,6 +199,8 @@ class ImageTest < ZenaTestUnit
                                           :inherit => 1,
                                           :name=>'birdy', 
                                           :c_file => uploaded_jpg('bird.jpg')) }
+
+                                          err img
       assert !img.new_record?
       
       img = secure(Image) { Image.find(img[:id]) }
