@@ -905,12 +905,14 @@ done: \"I am done\""
     parent = secure(Project) { Project.create(:name => 'import', :parent_id => nodes_id(:zena), :rgroup_id => 4, :wgroup_id => 4) }
     assert !parent.new_record?, "Not a new record"
     result = secure(Node) { Node.create_nodes_from_folder(:folder => File.join(RAILS_ROOT, 'test', 'fixtures', 'import'), :parent_id => parent[:id] )}
-    children = parent.find(:all, 'children')
+    assert_equal 3, result.size
+    
+    children = parent.find(:all, :relations => 'children', :order => "name ASC")
     assert_equal 2, children.size
-    assert_equal 'bird', result[1].name
-    assert_equal 4, children[1].rgroup_id
-    assert_equal 'photos', result[0].name
+    assert_equal 'photos', children[0].name
     assert_equal 1, children[0].rgroup_id
+    assert_equal 'simple', children[1].name
+    assert_equal 4, children[1].rgroup_id
     
     result = secure(Node) { Node.create_nodes_from_folder(:folder => File.join(RAILS_ROOT, 'test', 'fixtures', 'import'), :parent_id => result[1][:id], :defaults => { :rgroup_id => 1 } )}
     

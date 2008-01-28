@@ -162,7 +162,6 @@ class VersionTest < ZenaTestUnit
   end
   
   def test_clone
-    assert false
     login(:tiger)
     node = secure(Node) { nodes(:status) }
     assert node.update_attributes(:d_whatever => 'no idea')
