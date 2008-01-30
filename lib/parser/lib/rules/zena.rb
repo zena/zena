@@ -652,7 +652,9 @@ END_TXT
           
           form << "<input type='hidden' name='done' value='#{params[:done]}'/>\n" if params[:done]
         end
+        
         form << "</div>"
+        form << "<%= error_messages_for(#{node}) %>"
       else
         # no ajax
         # FIXME
@@ -660,12 +662,11 @@ END_TXT
         form = "<form method='post' action='/nodes/<%= #{node}.zip %>'><div style='margin:0;padding:0'><input name='_method' type='hidden' value='put' /></div>"
       end
       
-      unless descendant('cancel') || descendant('edit')
+      unless @form_cancel || descendant('cancel') || descendant('edit')
         # add a descendant before blocks.
         blocks = @blocks.dup
-        form_cancel = make(:void, :method=>'form_cancel', :text=>cancel)
-        @blocks = [form_cancel] + blocks
-        remove_instance_variable(:@descendants)
+        @form_cancel = make(:void, :method=>'void', :text=>cancel)
+        @blocks = [@form_cancel] + blocks
       end
       
       if descendant('form_tag')

@@ -1,5 +1,5 @@
 if !@errors && @node && @node.errors.empty?
   page.replace 'links', :partial=>'links/list'
 else
-  page.replace_html 'link_errors', :inline => @errors ? render_errors : error_messages_for('node')
+  page.replace_html 'link_errors', :inline => @errors ? render_errors : error_messages_for(@node)
 end

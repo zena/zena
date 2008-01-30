@@ -56,9 +56,9 @@ module Zena
           true
         end
         
-        # try to set the node's version to a redaction
-        def edit!(lang = nil)
-          redaction(lang)
+        # Try to set the node's version to a redaction. If lang is specified
+        def edit!(lang = nil, publish_after_save = false)
+          redaction(lang, publish_after_save)
         end
         
         def edit_content!
@@ -432,7 +432,7 @@ module Zena
             break if node_attr && redaction_attr
           end
           if redaction_attr
-            return false unless edit!
+            return false unless edit!(nil, publish_after_save)
           end
 
           if node_attr
@@ -468,27 +468,37 @@ module Zena
           end
           self.class.connection.execute "UPDATE #{self.class.table_name} SET #{att}=#{value} WHERE id=#{self[:id]}"
         end
-        
-        def redaction(lang = nil)
+
+        # Find/create a redaction. If lang is specified, use it instead of the visitor's current language. If
+        # publish_after_save is true and the current published version is not older then the site's redit_time and
+        # the visitor is the author of the publication, update the publication instead of creating a new version.
+        def redaction(lang = nil, publish_after_save = false)
           return @redaction if @redaction && (lang.nil? || lang == @redaction.lang)
           if new_record?
             @redaction = version
           else
+            lang ||= visitor.lang
             begin
               # is there a current redaction ?
-              v = versions.find(:first, :conditions=>["status >= #{Zena::Status[:red]} AND status < #{Zena::Status[:pub]} AND lang=?", (lang || visitor.lang)])
+              v = versions.find(:first, :conditions=>["status >= #{Zena::Status[:red]} AND status < #{Zena::Status[:pub]} AND lang=?", lang])
             rescue ActiveRecord::RecordNotFound
               v = nil
             end
             if v == nil && can_write?
-              # create new redaction
-              v = version.clone
-              v.status = Zena::Status[:red]
-              v.publish_from = v.created_at = nil
-              v.comment = v.number = ''
-              v.user_id = visitor[:id]
-              v.lang = lang || visitor.lang
-              v[:content_id] = version[:content_id] || version[:id]
+              # create new redaction or redit current publication
+              #if publish_after_save && version[:status] == Zena::Status[:pub] && version[:user_id] == visitor[:id] && version[:lang] == lang && (version[:updated_at] + current_site[:redit_time].sec)
+              #  
+              #end
+              if v == nil
+                # could not convert a publication into a redaction, new version
+                v = version.clone
+                v.status = Zena::Status[:red]
+                v.publish_from = v.created_at = nil
+                v.comment = v.number = ''
+                v.user_id = visitor[:id]
+                v.lang = lang
+                v[:content_id] = version[:content_id] || version[:id]
+              end
             end
             v.node = self if v
             

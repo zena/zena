@@ -527,10 +527,9 @@ class ApplicationController < ActionController::Base
     end
   
     #TODO: test
-    def error_messages_for(obj_name)
-      obj = instance_variable_get("@#{obj_name}")
-      return '' unless obj && !obj.errors.empty?
-      res = ["<ul>"]
+    def error_messages_for(obj, opts={})
+      return '' if obj.errors.empty?
+      res = ["<ul class='#{opts[:class] || 'errors'}'>"]
       obj.errors.each do |er,msg|
         res << "<li><b>#{er}</b> #{_(msg)}</li>"
       end

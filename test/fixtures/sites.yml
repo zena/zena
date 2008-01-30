@@ -11,7 +11,7 @@ zena:
   monolingual:    NO
   allow_private:  YES
   auto_publish:   NO
-  redit_time:     0-0-0 0:0
+  redit_time:     0
   languages:      "en,fr"
   default_lang:   "en"
 
@@ -28,7 +28,7 @@ ocean:
   monolingual:    NO
   allow_private:  NO
   auto_publish:   NO
-  redit_time:     0-0-0 0:0
+  redit_time:     7200
   http_auth:      YES
   languages:      "en,fr"
   default_lang:   "en"

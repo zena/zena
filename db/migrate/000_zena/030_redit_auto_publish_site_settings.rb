@@ -1,13 +1,13 @@
 class ReditAutoPublishSiteSettings < ActiveRecord::Migration
   def self.up
     add_column :sites, :auto_publish, :boolean
-    add_column :sites, :redit_time, :datetime
+    add_column :sites, :redit_time, :integer
     execute "UPDATE sites SET auto_publish=0"
-    execute "UPDATE sites SET redit_time='0-0-0 0:0:30'"
+    execute "UPDATE sites SET redit_time='7200'" # 2 hours
   end
 
   def self.down
-    drop_column :sites, :auto_publish
-    drop_column :sites, :redit_time
+    remove_column :sites, :auto_publish
+    remove_column :sites, :redit_time
   end
 end

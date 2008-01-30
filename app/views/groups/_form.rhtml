@@ -6,7 +6,7 @@
   end %>
 </td>
 <td class='add' colspan='2'>
-  <div class='errors'><%= error_messages_for('group') %></div>
+  <div class='errors'><%= error_messages_for(@group) %></div>
   <% if @group[:id] %>
   <%= form_remote_tag(:url=> group_path(@group), :method => :put ) %>
   <%= hidden_field('group', 'id') %>

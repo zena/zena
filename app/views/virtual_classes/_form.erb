@@ -6,7 +6,7 @@
   end %>
 </td>
 <td class="add" colspan="5">
-  <div id='virtual_class_errors' class='errors'><%= error_messages_for('virtual_class') %></div>
+  <div id='virtual_class_errors'><%= error_messages_for(@virtual_class) %></div>
   <% unless @virtual_class.new_record? %>
   <%= form_remote_tag(:url => virtual_class_path(@virtual_class), :method => :put ) %>
   <% else %>

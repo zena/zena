@@ -142,7 +142,7 @@ class VersionsController < ApplicationController
     if @node.publish
       flash[:notice] = "Redaction published."
     else
-      flash[:error] = "Could not publish: #{error_messages_for('node')}"
+      flash[:error] = "Could not publish: #{error_messages_for(@node)}"
     end
     do_rendering
   end
@@ -160,7 +160,7 @@ class VersionsController < ApplicationController
     if @node.redit
       flash[:notice] = "Rolled back to redaction."
     else
-      flash[:error] = "Could not rollback: #{error_messages_for('node')}"
+      flash[:error] = "Could not rollback: #{error_messages_for(@node)}"
     end
     do_rendering
   end

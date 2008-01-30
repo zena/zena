@@ -1,5 +1,5 @@
 <%# FIXME: = javascript "if (!(opener==undefined || opener.is_editor)) { opener.Zena.update( 'documents', '#{ url_for(:controller=>"document", :action=>"list", :parent_id=>@node.parent_id, :rnd=>rnd) }'); }" %>
-<div id='form_errors' class='errors'><%= error_messages_for "node" %></div>
+<div id='form_errors' class='errors'><%= error_messages_for @node %></div>
 <div id='search'><%= search_box %></div>
 
 <div class='selector'>

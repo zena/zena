@@ -7,7 +7,7 @@ if params[:remove]
   end
 else
   if @errors || !@node.errors.empty?
-    page.replace_html 'link_errors', :inline=> @errors ? render_errors : error_messages_for('node')
+    page.replace_html 'link_errors', :inline=> @errors ? render_errors : error_messages_for(@node)
   else  
     page.replace_html 'link_errors', :inline=>''
     page.visual_effect :highlight, "link#{@link_id}", :duration => 0.3

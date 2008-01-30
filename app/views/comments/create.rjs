@@ -2,7 +2,7 @@ if @errors
   page.replace_html 'comment_errors', :inline => render_errors
 elsif @comment.new_record?
   page.replace_html "add_comment_form#{@comment.reply_to || ''}", :partial=>'comments/form'
-  page.replace_html "comment_errors#{@comment.reply_to || ''}", :inline=>error_messages_for('comment')
+  page.replace_html "comment_errors#{@comment.reply_to || ''}", :inline=>error_messages_for(@comment)
 else
   if @comment.reply_to
     page.remove "add_comment_form#{@comment.reply_to}"

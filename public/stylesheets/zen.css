@@ -20,8 +20,8 @@ input, textarea { font:inherit; padding:2px;}
 .errorExplanation { font-size:0.9em; background: #C18284; border: 1px dotted #920C0C; margin:5px 5px 5px 0; padding:4px; line-height:1.2em; }
 .errorExplanation ul { margin-left:15px; }
 .fieldWithErrors { padding: 2px; background-color: #C18284; display: table;}
-.errors ul { background:#DDC8C8; margin:0 0 5px; padding:4px 0; border-bottom:1px solid #5A3231;}
-.errors li { margin-left:0.4em; background:inherit; line-height:1.2em;}
+ul.errors { background:#DDC8C8; margin:0 0 5px; padding:4px 0; border-bottom:1px solid #5A3231;}
+ul.errors li { margin-left:0.4em; background:inherit; line-height:1.2em;}
 
 .flash { padding: 8px; position:absolute; top:55px; left:260px; border: 1px dotted #7B8B57; width: 400px; }
 #notice { background:#D8E0C7; }

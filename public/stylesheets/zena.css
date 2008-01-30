@@ -23,6 +23,10 @@
 
 .hidden { display:none; }
 
+/* errors */
+ul.errors { background:#DDC8C8; margin:0 0 5px; padding:4px 0; border-bottom:1px solid #5A3231;}
+ul.errors li { margin-left:0.4em; background:inherit; line-height:1.2em;}
+
 /* ========================= Zazen css ======================== */
 
 /* images */
