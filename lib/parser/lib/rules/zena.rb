@@ -1159,7 +1159,7 @@ END_TXT
         sharp = ''
       end
       if sharp_in = @params[:in]
-        sharp_in = ", :sharp_in=>#{sharp_in.inspect}"
+        sharp_in = ", :sharp_in=>#{build_finder_for(:first, sharp_in)}"
       else
         sharp_in = ''
       end
@@ -1676,8 +1676,10 @@ END_TXT
         if k.to_s =~ /^(.+)_if$/
           klass = $1
           cond = if node_kind_of?(Node)
-              if v =~ /\s/
+              if v =~ /=|\[/
                 get_test_condition((@method == 'each' ? var : node), :test => v)
+              elsif v =~ /^(.+)\s(.*)$/
+                get_test_condition((@method == 'each' ? var : node), $1.to_sym => $2)
               else
                 get_test_condition((@method == 'each' ? var : node), :node => v)
               end

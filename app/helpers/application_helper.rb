@@ -217,7 +217,7 @@ module ApplicationHelper
     nil
   end
 
-  # Creates a link to the node referenced by id
+  # Creates a link to the node referenced by zip (used by zazen)
   def make_link(opts)
     link_opts = {}
     if sharp = opts[:sharp]

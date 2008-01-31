@@ -384,6 +384,12 @@ on_if_ancestor:
   src: "<r:root><r:pages><li do='each' on_if='ancestor' class='hello' join=', '><r:show attr='name'/></li></r:pages></r:root>"
   res: "<li class='hello'>collections</li>, <li class='hello'>nature</li>, <li class='hello'>people</li>, <li class='on'>projects</li>, <li class='hello'>skins</li>"
 
+on_if_kind_of:
+  context:
+    node: 'proposition'
+  src: "<b do='[v_title]' doc_if='kind_of Document' popo_if='kind_of Post'/>"
+  res: "<b class='popo'>Proposition</b>"
+
 simple_each:
   src: "<r:children><r:each><r:show attr='name'/></r:each></r:children>"
   tem: "/.*if list1.*each.*var1.name/"
