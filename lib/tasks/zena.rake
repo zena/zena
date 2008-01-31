@@ -129,23 +129,27 @@ namespace :zena do
   
   desc "Remove all zafu compiled templates"
   task :clear_zafu do
-    Dir.foreach(SITES_ROOT) do |site|
-      next if site =~ /^\./
-      FileUtils.rmtree(File.join(SITES_ROOT, site, 'zafu'))
+    if File.exist?(SITES_ROOT)
+      Dir.foreach(SITES_ROOT) do |site|
+        next if site =~ /^\./
+        FileUtils.rmtree(File.join(SITES_ROOT, site, 'zafu'))
+      end
     end
   end
   
   desc "Remove all cached data" # FIXME: cachedPages db should be cleared to
   task :clear_cache => :environment do
-    Dir.foreach(SITES_ROOT) do |site|
-      next if site =~ /^\./ || !File.exists?(File.join(SITES_ROOT,site,'public'))
-      Dir.foreach(File.join(SITES_ROOT,site,'public')) do |elem|
-        next unless elem =~ /^(\w\w\.html|\w\w)$/
-        FileUtils.rmtree(File.join(SITES_ROOT, site, 'public', elem))
+    if File.exist?(SITES_ROOT)
+      Dir.foreach(SITES_ROOT) do |site|
+        next if site =~ /^\./ || !File.exists?(File.join(SITES_ROOT,site,'public'))
+        Dir.foreach(File.join(SITES_ROOT,site,'public')) do |elem|
+          next unless elem =~ /^(\w\w\.html|\w\w)$/
+          FileUtils.rmtree(File.join(SITES_ROOT, site, 'public', elem))
+        end
       end
-    end
-    ['caches', 'cached_pages', 'cached_pages_nodes'].each do |tbl|
-      Site.connection.execute "DELETE FROM #{tbl}"
+      ['caches', 'cached_pages', 'cached_pages_nodes'].each do |tbl|
+        Site.connection.execute "DELETE FROM #{tbl}"
+      end
     end
   end
   
