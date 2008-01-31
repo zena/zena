@@ -205,4 +205,16 @@ class SiteTest < ZenaTestUnit
     site.languages = "en,fr, ru , es"
     assert_equal ['en', 'fr', 'ru', 'es'], site.lang_list
   end
+  
+  def test_redit_time
+    site = sites(:ocean)
+    assert_equal '2 hours', site.redit_time
+    site.redit_time = '0'
+    assert_equal '0', site.redit_time
+    assert site.save
+    site = sites(:ocean)
+    assert_equal '0', site.redit_time
+    assert site.update_attributes(:redit_time => '5h 1d 34 seconds')
+    assert_equal '1 day 5 hours 34 seconds', site.redit_time
+  end
 end

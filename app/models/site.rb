@@ -18,7 +18,7 @@ The #Site model holds configuration information for a site:
 class Site < ActiveRecord::Base
   validate :valid_site
   validates_uniqueness_of :host
-  attr_accessible :name, :languages, :default_lang, :authentication, :monolingual, :allow_private, :http_auth
+  attr_accessible :name, :languages, :default_lang, :authentication, :monolingual, :allow_private, :http_auth, :auto_publish, :redit_time
   has_many :groups, :order => "name"
   has_many :nodes
   has_many :participations, :dependent => :destroy
@@ -227,6 +227,26 @@ class Site < ActiveRecord::Base
   # Return true if the site is configured to force authentication
   def authentication?
     self[:authentication]
+  end
+  
+  # Return true if the site is configured to automatically publish redactions
+  def auto_publish?
+    self[:auto_publish]
+  end
+  
+  # Set redit time from a string of the form "1d 4h 5s" or "4 days"
+  def redit_time=(val)
+    if val.kind_of?(String)
+      self[:redit_time] = val.to_duration
+    else
+      self[:redit_time] = val
+    end
+  end
+  
+  # Return the time between version updates below which no new version is created. This returns a string of
+  # the form "3 hours 45 minutes"
+  def redit_time
+    (self[:redit_time] || 0).as_duration
   end
   
   # ids of the groups that cannot be removed

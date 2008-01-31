@@ -714,7 +714,7 @@ class MultiVersionTest < ZenaTestUnit
     assert_raise(ActiveRecord::RecordNotFound) { nodes(:status) }
   end
   
-  def test_auto_publish
+  def test_auto_publish_by_status
     # set v_status = 50 ===> publish
     login(:lion)
     node = secure(Node) { nodes(:status) }
@@ -725,5 +725,51 @@ class MultiVersionTest < ZenaTestUnit
     assert_equal Zena::Status[:pub], node.v_status
     assert_equal 3, node.v_number
     assert_equal 'Statues are better', node.v_title
+  end
+  
+  def test_auto_publish
+    # set site.auto_publish ===> publish
+    Site.connection.execute "UPDATE sites set auto_publish = 1, redit_time = 0 WHERE id = 1"
+    login(:lion)
+    node = secure(Node) { nodes(:status) }
+    assert_equal Zena::Status[:pub], node.v_status
+    assert_equal 'status title', node.v_title
+    assert_equal 1, node.v_number
+    node.update_attributes(:v_title => "Statues are better")
+    assert_equal Zena::Status[:pub], node.v_status
+    assert_equal 3, node.v_number
+    assert_equal 'Statues are better', node.v_title
+  end
+  
+  def test_auto_publish_in_redit_time
+    # set site.auto_publish      ===> publish
+    # now < updated + redit_time ===> update current publication
+    Site.connection.execute "UPDATE sites set auto_publish = 1, redit_time = 7200 WHERE id = 1"
+    Version.connection.execute "UPDATE versions set updated_at = '#{Time.now.strftime('%Y-%m-%d %H:%M:%S')}' WHERE id = #{versions_id(:status_en)}"
+    login(:ant)
+    visitor.lang = 'en'
+    node = secure(Node) { nodes(:status) }
+    assert_equal Zena::Status[:pub], node.v_status
+    assert_equal 'status title', node.v_title
+    assert_equal 1, node.v_number
+    assert_equal users_id(:ant), node.v_user_id
+    assert node.v_updated_at < Time.now + 600
+    assert node.v_updated_at > Time.now - 600
+    node.update_attributes(:v_title => "Statues are better")
+    assert_equal Zena::Status[:pub], node.v_status
+    assert_equal 1, node.v_number
+    assert_equal versions_id(:status_en), node.v_id
+    assert_equal 'Statues are better', node.v_title
+  end
+  
+  def test_create_auto_publish
+    Site.connection.execute "UPDATE sites set auto_publish = 1, redit_time = 7200 WHERE id = 1"
+    login(:tiger)
+    node = secure(Node) { Node.create( :parent_id => 1, :v_title => "This one should auto publish" ) }
+    assert ! node.new_record? , "Not a new record"
+    assert ! node.v_new_record? , "Not a new redaction"
+    assert_equal Zena::Status[:pub], node.v_status, "published version"
+    assert_equal Zena::Status[:pub], node.max_status, "published node"
+    assert_equal "This one should auto publish", node.v_title
   end
 end

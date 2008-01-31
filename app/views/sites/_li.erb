@@ -7,6 +7,7 @@
   <td class="<%= sym %>"><%= li[sym] %></td>
   <% end -%>
   <td class='public_group'><%= li.public_group.name %></td>  
-  <td class='site_group' ><%= li.site_group.name %></td>
-  <td class='options'><%= [:authentication, :monolingual, :allow_private, :http_auth].reject{|sym| !li[sym]}.map{|sym| _(sym.to_s)}.join(', ') %></td>
+  <td class='site_group'  ><%= li.site_group.name   %></td>
+  <td class='redit_time'  ><%= li.redit_time %></td>
+  <td class='options'><%= [:authentication, :monolingual, :allow_private, :http_auth, :auto_publish].reject{|sym| !li[sym]}.map{|sym| _(sym.to_s)}.join(', ') %></td>
 </tr>

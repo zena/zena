@@ -187,6 +187,7 @@ module Zena
             where_clause = where.split(/\s+and\s+/).map do |clause|
               # [field] [=|>]
               if clause =~ /([\w:]+)\s*(<|<=|=|like|>=|>|<>)\s*"?([^"]*)"?/
+                # TODO: add 'match' parameter (#105)
                 field = $1
                 op    = $2
                 value = $3

@@ -1008,7 +1008,7 @@ END_TXT
       when 'main'
         expand_with(:date=>"main_date")
       when 'now'
-        expand_with(:date=>"Time.now.utc")
+        expand_with(:date=>"Time.now")
       else
         if select =~ /^\d{4}-\d{1,2}-\d{1,2}$/
           expand_with(:date=>select)
@@ -1850,7 +1850,7 @@ module ActiveRecord
   module ConnectionAdapters
     class MysqlAdapter
       
-      # ref_date can be a string ('2005-05-03') or ruby ('Time.now.utc'). It should not come uncleaned from evil web.
+      # ref_date can be a string ('2005-05-03') or ruby ('Time.now'). It should not come uncleaned from evil web.
       def date_condition(date_cond, field, ref_date='today')
         if date_cond == 'today' || ref_date == 'today'
           ref_date = 'now()'

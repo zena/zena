@@ -58,5 +58,45 @@ class String
     gsub!(/ (.)/) { $1.upcase }
     self
   end
+  
+  # Convert a string of the form '1 month 4 days' to the duration in seconds.
+  # Valid formats are:
+  # y : Y      : year : years
+  # M : month  : months
+  # d : day    : days
+  # h : hour   : hours
+  # m : minute : minutes
+  # s : second : seconds  
+  def to_duration
+    res = 0
+    val = 0
+    split(/\s+/).map {|e| e =~ /^(\d+)([a-zA-Z]+)$/ ? [$1,$2] : e }.flatten.map do |e|
+      if e =~ /[0-9]/
+        val = e.to_i
+      else
+        if e[0..1] == 'mo'
+          e = 'M'
+        end
+        res += val * case e[0..0]
+        when 'y','Y'
+          31536000
+        when 'M'
+          2592000
+        when 'd'
+          86400
+        when 'h'
+          3600
+        when 'm'
+          60
+        when 's'
+          1
+        else
+          0
+        end
+        val = 0
+      end
+    end
+    res
+  end
 
 end

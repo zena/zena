@@ -177,7 +177,7 @@ Just doing the above will filter all result according to the logged in user.
         def can_read?(vis = visitor, ugps=visitor.group_ids)
           ( vis.is_su? ) || # super user
           ( vis[:id] == user_id ) ||
-          ( ugps.include?(rgroup_id) && publish_from && Time.now.utc >= publish_from ) ||
+          ( ugps.include?(rgroup_id) && publish_from && Time.now >= publish_from ) ||
           ( ugps.include?(pgroup_id) && max_status > Zena::Status[:red] )
         end
   
@@ -188,7 +188,7 @@ Just doing the above will filter all result according to the logged in user.
         def can_write?(vis=visitor, ugps=visitor.group_ids)
           ( vis.is_su? ) || # super user
           ( vis[:id] == user_id ) ||
-          ( ugps.include?(wgroup_id) && publish_from && Time.now.utc >= publish_from )
+          ( ugps.include?(wgroup_id) && publish_from && Time.now >= publish_from )
         end
         
         # people who can make visible changes
@@ -297,9 +297,9 @@ Just doing the above will filter all result according to the logged in user.
           end
 
           # publish_from can only be set by the object itself by setting @publish_from
-          self[:publish_from] = @publish_from || nil
+          self[:publish_from] = version.publish_from
           # same for proposed
-          self[:max_status] = @max_status || Zena::Status[:red]
+          self[:max_status] = version.status
           return errors.empty?
         end
 

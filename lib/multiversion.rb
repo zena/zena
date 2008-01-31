@@ -167,7 +167,7 @@ module Zena
               new_status = Zena::Status[:rep]
             end
             pub_time = args[0]
-            version.publish_from = pub_time || version.publish_from || Time.now.utc
+            version.publish_from = pub_time || version.publish_from || Time.now
             version.status = Zena::Status[:pub]
             if version.save
               # only remove previous publications if save passed
@@ -418,7 +418,7 @@ module Zena
         def do_update_attributes(new_attributes)
           attributes = filter_attributes(new_attributes)
           
-          publish_after_save = (attributes.delete('v_status').to_i == Zena::Status[:pub])
+          publish_after_save = (attributes.delete('v_status').to_i == Zena::Status[:pub]) || current_site[:auto_publish]
           redaction_attr = false
           node_attr      = false
 
@@ -451,7 +451,7 @@ module Zena
               ok = save_version && update_max_status
             end
           end
-          if ok && publish_after_save && errors.empty?
+          if ok && publish_after_save && version.status != Zena::Status[:pub]
             ok = publish
           end
           ok
@@ -474,6 +474,7 @@ module Zena
         # the visitor is the author of the publication, update the publication instead of creating a new version.
         def redaction(lang = nil, publish_after_save = false)
           return @redaction if @redaction && (lang.nil? || lang == @redaction.lang)
+          redit = false
           if new_record?
             @redaction = version
           else
@@ -486,9 +487,12 @@ module Zena
             end
             if v == nil && can_write?
               # create new redaction or redit current publication
-              #if publish_after_save && version[:status] == Zena::Status[:pub] && version[:user_id] == visitor[:id] && version[:lang] == lang && (version[:updated_at] + current_site[:redit_time].sec)
-              #  
-              #end
+              if publish_after_save && version[:status] == Zena::Status[:pub] && version[:user_id] == visitor[:id] && version[:lang] == lang && (Time.now < version[:updated_at] + current_site[:redit_time])
+                # re-edit publication
+                redit = true
+                v = version
+              end
+              
               if v == nil
                 # could not convert a publication into a redaction, new version
                 v = version.clone
@@ -502,7 +506,7 @@ module Zena
             end
             v.node = self if v
             
-            if v && (v.user_id == visitor[:id]) && v.status == Zena::Status[:red]
+            if v && (v.user_id == visitor[:id]) && (v.status == Zena::Status[:red] || redit)
               @redaction = @version = v
             elsif v
               errors.add('base', "(#{v.user.login}) is editing this node")
@@ -615,6 +619,7 @@ module Zena
           self[:ref_lang] = visitor.lang
           version.user_id = visitor[:id]
           version.lang    = visitor.lang if version.lang.blank?
+          version[:status]= Zena::Status[:pub] if current_site[:auto_publish]
           true
         end
         
