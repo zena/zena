@@ -1256,7 +1256,7 @@ END_TXT
         if rel == 'main'
           return "@node"
         elsif rel == 'root'
-          return "(secure(Node) { Node.find(#{ZENA_ENV[:root_id]})} rescue nil)"
+          return "(secure(Node) { Node.find(#{current_site[:root_id]})} rescue nil)"
         elsif rel == 'visitor'
           return "visitor.contact"
         elsif rel =~ /^\d+$/

@@ -98,7 +98,7 @@ i, em     { font-style:italic; }
 .inline_form .hidden { display:none; }
 .inline_form select { width:8em; }
 .inline_form .date_box input { width:12em; }
-.node_v_title input { font-weight:bold; }
+.node_v_title input { font-weight:bold; width:90%;}
 #notes { margin-top:2em; }
 #notes .node_v_title input { width:20em; }
 #related .inline_form p { display:block; margin:0.3em 0; }
