@@ -1805,7 +1805,7 @@ END_TXT
       if @context[:in_add]
         res[:value] = (params[:value] || params[:set_value]) ? params[:value] : ""
       else
-        res[:value] = attribute ? ["'<%= #{node_attribute(attribute)} %>'"] : ""
+        res[:value] = attribute ? ["<%= #{node_attribute(attribute)} %>"] : ""
       end
       return [res, attribute]
     end
