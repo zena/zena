@@ -20,7 +20,7 @@ class SecureReadTest < ZenaTestUnit
     assert_equal 'NUS', SubPagerDummy.kpath
   end
   
-  def test_native_classes
+  def test_native_class_keys
     assert_equal ["N",  "NN",  "NP",  "NPD",  "NPDI",  "NPDT",  "NPDTT",  "NPP",  "NPS",  "NPSS",  "NR", "NRC", "NU",  "NUS"], Node.native_classes.keys.sort
     assert_equal ["NPD", "NPDI", "NPDT", "NPDTT"], Document.native_classes.keys.sort
   end

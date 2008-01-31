@@ -114,6 +114,12 @@ show_mean_gsub:
   tem: "<%= @node.c_zafu_read(\"address\").to_s.gsub(/# {puts 'I AM MEAN'}/,\";\") %>"
   res: "Small Island\nIn the Wild"
 
+show_attr_actions:
+  context:
+    visitor: 'lion'
+  src: "<h2 do='[v_title]' actions='all'/>"
+  res: "/<h2><span class='actions'>.*edit.*drive.*status title<\/h2>/"
+
 link:
   src: "<r:link/>"
   tem: "<%= node_link(:node=>@node) %>"
@@ -347,7 +353,7 @@ each_traductions_only_list:
 
 case_when:
   src: "<r:case><r:when kind_of='Document'>this is a document</r:when><r:when klass='Page'>Page</r:when><r:when status='pub'>Pub</r:when>"
-  tem: "<% if false -%><% elsif @node.kind_of?(Document) -%>this is a document<% elsif @node.class == Page -%>Page<% elsif @node.version.status == 50 -%>Pub<% end -%>"
+  tem: "<% if false -%><% elsif @node.vkind_of?(\"Document\") -%>this is a document<% elsif @node.klass == \"Page\" -%>Page<% elsif @node.version.status == 50 -%>Pub<% end -%>"
   res: "Page"
 
 case_when_else:

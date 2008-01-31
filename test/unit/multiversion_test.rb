@@ -761,6 +761,27 @@ class MultiVersionTest < ZenaTestUnit
     assert_equal versions_id(:status_en), node.v_id
     assert_equal 'Statues are better', node.v_title
   end
+
+  def test_publish_after_save_in_redit_time
+    # set site.auto_publish      ===> publish
+    # now < updated + redit_time ===> update current publication
+    Site.connection.execute "UPDATE sites set auto_publish = 0, redit_time = 7200 WHERE id = 1"
+    Version.connection.execute "UPDATE versions set updated_at = '#{Time.now.strftime('%Y-%m-%d %H:%M:%S')}' WHERE id = #{versions_id(:status_en)}"
+    login(:ant)
+    visitor.lang = 'en'
+    node = secure(Node) { nodes(:status) }
+    assert_equal Zena::Status[:pub], node.v_status
+    assert_equal 'status title', node.v_title
+    assert_equal 1, node.v_number
+    assert_equal users_id(:ant), node.v_user_id
+    assert node.v_updated_at < Time.now + 600
+    assert node.v_updated_at > Time.now - 600
+    node.update_attributes(:v_title => "Statues are better", :v_status => Zena::Status[:pub])
+    assert_equal Zena::Status[:pub], node.v_status
+    assert_equal 1, node.v_number
+    assert_equal versions_id(:status_en), node.v_id
+    assert_equal 'Statues are better', node.v_title
+  end
   
   def test_create_auto_publish
     Site.connection.execute "UPDATE sites set auto_publish = 1, redit_time = 7200 WHERE id = 1"

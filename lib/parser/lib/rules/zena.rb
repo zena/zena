@@ -224,12 +224,18 @@ module Zena
         end
       end
       
+      if @params[:actions]
+        actions = "<%= node_actions(:node=>#{node}#{params_to_erb(:actions=>@params[:actions])}) %>"
+      else
+        actions = ''
+      end
+      
       if @params[:edit] == 'true'
         name = unique_name + '_' + attribute
         # TODO: add can_drive? or can_write? clauses.
-        "<span id='#{name}.<%= #{node}.zip %>'><%= link_to_remote(#{attribute_method}, :url => edit_node_path(#{node}.zip) + \"?attribute=#{attribute}&identifier=#{CGI.escape(name)}.\#{#{node}.zip}\", :method => :get) %></span>"
+        "<span id='#{name}.<%= #{node}.zip %>'>#{actions}<%= link_to_remote(#{attribute_method}, :url => edit_node_path(#{node}.zip) + \"?attribute=#{attribute}&identifier=#{CGI.escape(name)}.\#{#{node}.zip}\", :method => :get) %></span>"
       else
-        "<%= #{attribute_method} %>"
+        "#{actions}<%= #{attribute_method} %>"
       end
     end
     
@@ -1554,11 +1560,10 @@ END_TXT
     
     def get_test_condition(node = self.node, params = @params)
       if klass = params[:kind_of]
-        begin Module::const_get(klass) rescue "NilClass" end
-        "#{node}.kind_of?(#{klass})"
+        "#{node}.vkind_of?(#{klass.inspect})"
       elsif klass = params[:klass]
         begin Module::const_get(klass) rescue "NilClass" end
-        "#{node}.class == #{klass}"
+        "#{node}.klass == #{klass.inspect}"
       elsif status = params[:status]
         "#{node}.version.status == #{Zena::Status[status.to_sym]}"
       elsif lang = params[:lang]

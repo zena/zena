@@ -679,7 +679,7 @@ class Node < ActiveRecord::Base
   
   # include virtual classes to check inheritance chain
   def vkind_of?(klass)
-    if self.class.native_classes.map{|k,v| v.to_s}.include?(klass)
+    if self.class.ancestors.map{|k| k.to_s}.include?(klass)
       true
     elsif virt = VirtualClass.find(:first, :conditions=>["site_id = ? AND name = ?",current_site[:id], klass])
       kpath_match?(virt.kpath)

@@ -1112,4 +1112,18 @@ done: \"I am done\""
     assert_equal nodes_id(:bird_jpg), icon[:id]
   end
   
+  def test_vkind_of
+    login(:ant)
+    node = secure(Node) { nodes(:status) }
+    assert node.vkind_of?("Page")
+    node = secure(Node) { nodes(:proposition) }
+    assert node.vkind_of?("Post")
+    node = secure(Node) { nodes(:status) }
+    assert !node.vkind_of?("Document")
+  end
+  
+  def test_native_class_values
+    assert Page.native_classes.values.include?(Document)
+    assert !Document.native_classes.values.include?(Page)
+  end
 end
