@@ -63,7 +63,7 @@ class UserTest < ZenaTestUnit
     
     contact = user.contact
     assert_equal "john", contact.v_title
-    assert_equal visitor[:id], contact.user_id # or should it be user[:id] ?
+    assert_equal user[:id], contact.user_id
   end
   
   def test_only_admin_can_create

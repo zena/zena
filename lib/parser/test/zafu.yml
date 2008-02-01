@@ -152,7 +152,7 @@ include_self_included:
 
 include_bad_part:
   src: "IP: <r:include template='/named/parts' part='bus'/> PI."
-  res: "IP: <span class='parser_error'>'bus' not found in template '/named/parts'</span> PI."
+  res: "IP: <span class='parser_error'>[include] 'bus' not found in template '/named/parts'</span> PI."
 
 include_context:
   src: "include_context: <r:include template='menu'/>"
@@ -160,15 +160,15 @@ include_context:
 
 infinite_loop:
   src: "<r:include template='/infinite/loop'/>"
-  res: "<span class='parser_error'>[include error: /infinite/loop --&gt; /infinite/loop ]</span>"
+  res: "<span class='parser_error'>[include] infinity loop: /infinite/loop --&gt; /infinite/loop</span>"
   
 infinite_foo:
   src: "<r:include template='bar'/>"
-  res: "<span class='parser_error'>[include error: /infinite/foo --&gt; /infinite/bar --&gt; /infinite/foo ]</span>"
+  res: "<span class='parser_error'>[include] infinity loop: /infinite/foo --&gt; /infinite/bar --&gt; /infinite/foo</span>"
   
 infinite_bar:
   src: "<r:include template='foo'/>"
-  res: "<span class='parser_error'>[include error: /infinite/bar --&gt; /infinite/foo --&gt; /infinite/bar ]</span>"
+  res: "<span class='parser_error'>[include] infinity loop: /infinite/bar --&gt; /infinite/foo --&gt; /infinite/bar</span>"
   
 default_context:
   src: "from other: <r:include template='menu'/> and <r:include template='/include/menu'/>"

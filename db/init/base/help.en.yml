@@ -10,7 +10,7 @@ v_summary: |
   | @view: ""::help@ | link to element like 'help' |
   | @view: ""::help+@ | link to second element like 'help' |
   | @view: "":1.xml@ | view: "":1.xml (display in xml format) |
-  | @view: "":1_changes@ | view: "":1.xml (display with 'changes' mode) |
+  | @view: "":1_print@ | view: "":1_print (display with 'print' mode) |
   | @view: "":37_pv.data@ | view: "":37_pv.data (display data in mode 'pv') |
   |_. start with |_. heading type |
   | @h1. @ | level 1 heading |
@@ -52,7 +52,7 @@ v_text: |
   | @view: ""::help@ | link to element like 'help' |
   | @view: ""::help+@ | link to second element like 'help' |
   | @view: "":1.xml@ | view: "":1.xml (display in xml format) |
-  | @view: "":1_changes@ | view: "":1.xml (display with 'changes' mode) |
+  | @view: "":1_print@ | view: "":1_print (display with 'print' mode) |
   | @view: "":37_pv.data@ | view: "":37_pv.data (display data in mode 'pv') |
   | @view: "":37#data@ | link to anchor 'data' on node 37 |
   | @view: "":37#[parent/name]@ | link to anchor with name of element on node 37's parent |

@@ -1,0 +1,88 @@
+class: Page
+v_title: Aide
+v_summary: |
+  |_. code |_. résultat |
+  | @le chat *noir*@ | le chat *noir* |
+  | @le _petit_ serpent@ | le _petit_ serpent |
+  | @merci de visiter "ce site":http://example.org@ | merci de visiter "ce site":http://example.org |
+  | @voir page "accueil":1@ | voir page "accueil":1 |
+  | @voir: "":1@ | voir: "":1 |
+  | @voir: "":1.xml@ | voir: "":1.xml (affichage au format xml) |
+  | @voir: "":1_print@ | voir: "":1_print (affichage en mode 'print') |
+  | @voir: "":37_pv.data@ | voir: "":37_pv.data (affichage données en mode 'pv') |
+  |_. start with |_. heading type |
+  | @h1. @ | level 1 heading |
+  | @h2. @ | level 2 heading |
+  | ... | ... |
+  |_. start with |_. paragraph style |
+  | @p>. @ | align right |
+  | @p=. @ | center text |
+  | @p<. @ | align left |
+  | <i>space</i> | space preserved paragraphe |
+  |\2. a line starting with a space = line break |
+  |_. markup |_. result |
+  | @!37!@ | image '37' in std format |
+  | @!37.pv!@ | image '37' in 'pv' format |
+  | @!37.pv/fig. 3!@ | image '37' in 'pv' format with 'fig. 3' as title |
+  | @!37.pv/!@ | image '37' in 'pv' format with it's summary as title |
+  | @!<.37!@ | image '37', float left (see below) |
+  | @!37!:http://example.org@ | image '37', link to 'example.org' |
+  | @!>.37!@ | float right |
+  | @!=.37!@ | center image |
+  | @!<.37!@ | float left |
+  | @![37,96]!@ | gallery with images 37 and 96 |
+  | @![]!@ | gallery with images in the node |
+  |_. markup |_. result |
+  | @!{59,86}!@ | list documents 59 and 86 |
+  | @!{}!@ | list all documents in the node |
+  
+  For advanced topics (tables, classes, styles), please look at the documentation for "textile":http://hobix.com/textile/.
+  
+v_text: |
+  h4. texte et liens
+
+  |_. code |_. résultat |
+  | @le chat *noir*@ | le chat *noir* |
+  | @le _petit_ serpent@ | le _petit_ serpent |
+  | @merci de visiter "ce site":http://example.org@ | merci de visiter "ce site":http://example.org |
+  | @voir page "accueil":1@ | voir page "accueil":1 |
+  | @voir: "":1@ | voir: "":1 |
+  | @voir: "":1.xml@ | voir: "":1.xml (affichage au format xml) |
+  | @voir: "":1_print@ | voir: "":1_print (affichage en mode 'print') |
+  | @voir: "":37_pv.data@ | voir: "":37_pv.data (affichage données en mode 'pv') |
+
+  h4. headings and paragraphs
+
+  |_. start with |_. heading type |
+  | @h1. @ | level 1 heading |
+  | @h2. @ | level 2 heading |
+  | ... | ... |
+  |_. start with |_. paragraph style |
+  | @p>. @ | align right |
+  | @p=. @ | center text |
+  | @p<. @ | align left |
+  | <i>space</i> | space preserved paragraphe |
+  |\2. a line starting with a space = line break |
+
+  h4. images
+
+  |_. markup |_. result |
+  | @!37!@ | image '37' in std format |
+  | @!37.pv!@ | image '37' in 'pv' format |
+  | @!37.pv/fig. 3!@ | image '37' in 'pv' format with 'fig. 3' as title |
+  | @!37.pv/!@ | image '37' in 'pv' format with it's summary as title |
+  | @!<.37!@ | image '37', float left (see below) |
+  | @!37!:http://example.org@ | image '37', link to 'example.org' |
+  | @!>.37!@ | float right |
+  | @!=.37!@ | center image |
+  | @!<.37!@ | float left |
+  | @![37,96]!@ | gallery with images 37 and 96 |
+  | @![]!@ | gallery with images in the node |
+
+  h4. documents
+
+  |_. markup |_. result |
+  | @!{59,86}!@ | list documents 59 and 86 |
+  | @!{}!@ | list all documents in the node |
+
+  For advanced topics (tables, classes, styles), please look at the documentation for "textile":http://hobix.com/textile/.
