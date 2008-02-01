@@ -26,7 +26,8 @@
 .input_radio span, .input_checkbox span { display:table; float:left; margin:3px;}
 
 /* errors */
-.parser_error, ul.errors { background:#DDC8C8; margin:0 0 5px; padding:4px 0; border-bottom:1px solid #5A3231;}
+ul.errors { background:#DDC8C8; margin:0 0 5px; padding:4px 0; border-bottom:1px solid #5A3231;}
+.parser_error { background:#CD5962; margin:3px; padding:3px; border:1px solid #5A3231; }
 ul.errors li { margin-left:0.4em; background:inherit; line-height:1.2em;}
 
 /* ========================= Zazen css ======================== */

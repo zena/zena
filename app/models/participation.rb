@@ -47,10 +47,8 @@ class Participation < ActiveRecord::Base
         raise Zena::InvalidRecord, "Could not publish contact node for user #{user_id} in site #{site_id} (#{@contact.errors.map{|k,v| [k,v]}.join(', ')})"
       end
       self[:contact_id] = @contact[:id]
-    end
-    
-    def set_contact_owner
+      
       # User is the owner of his/her own contact page.
-      User.connection.execute "UPDATE nodes SET user_id = #{self[:id]} WHERE id = #{@contact[:id]}"
+      Node.connection.execute "UPDATE nodes SET user_id = #{self[:user_id]} WHERE id = #{@contact[:id]}"
     end
 end
