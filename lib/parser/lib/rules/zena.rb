@@ -1012,7 +1012,8 @@ END_TXT
     end
     
     def r_node
-      do_var(build_finder_for(:first, @params[:select]))
+      @method = @params[:select] || 'node' # 'node' is for version.node
+      r_unknown
     end
     
     def r_date
