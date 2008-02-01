@@ -198,7 +198,7 @@ module Zena
         # error
         return "no attribute for 'show'".inspect
       else  
-        return "<span class='parser_error'>no attribute for 'show'</span>"
+        return "<span class='parser_error'>[show] missing attribute</span>"
       end
       
       if @context[:trans]
@@ -215,12 +215,12 @@ module Zena
             re = /#{key}/
           rescue => err
             # invalid regexp
-            return "<span class='parser_error'>invalid gsub #{gsub.inspect} in 'show'</span>"
+            return "<span class='parser_error'>[show] invalid gsub #{gsub.inspect}</span>"
           end
           attribute_method = "#{attribute_method}.to_s.gsub(/#{key}/,#{value.inspect})"
         else
           # error
-          return "<span class='parser_error'>invalid gsub #{gsub.inspect} in 'show'</span>"
+          return "<span class='parser_error'>[show] invalid gsub #{gsub.inspect}</span>"
         end
       end
       
@@ -241,13 +241,14 @@ module Zena
     
     def r_zazen
       attribute = @params[:attr] || @params[:tattr]
+      limit  = @params[:limit] ? ", :limit=>#{@params[:limit].to_i}" : ""
       if @context[:trans]
         # TODO: what do we do here with dates ?
         "#{node_attribute(attribute)}"
       elsif @params[:tattr]
-        "<%= zazen(_(#{node_attribute(attribute)}), :node=>#{node}) %>"
+        "<%= zazen(_(#{node_attribute(attribute)})#{limit}, :node=>#{node}) %>"
       elsif @params[:attr]
-        "<%= zazen(#{node_attribute(attribute)}, :node=>#{node}) %>"
+        "<%= zazen(#{node_attribute(attribute)}#{limit}, :node=>#{node}) %>"
       elsif @params[:date]
         # date can be any attribute v_created_at or updated_at etc.
         # TODO format with @params[:format] and @params[:tformat] << translated format
@@ -312,7 +313,7 @@ module Zena
     
     # TODO: test
     def r_filter
-      return "span class='parser_error'>invalid 'filter', no 'group' in same parent</span>" unless parent && group = parent.descendant('group')
+      return "span class='parser_error'>[filter] missing 'group' in same parent</span>" unless parent && group = parent.descendant('group')
       dom_id = group.dom_id(@context)
       out "<%= form_remote_tag(:url => zafu_node_path(#{node}.zip), :method => :get, :html => {:id => \"#{dom_id}_q\"}) %><div class='hidden'><input type='hidden' name='template_url' value='#{dom_id}'/></div><div class='wrapper'><input type='text' name='#{@params[:key] || 'f'}' value='<%= params[:q] %>'/></div></form>"
       if @params[:live]
@@ -328,7 +329,7 @@ module Zena
       elsif parent && group = parent.descendant('group')
         # sibling: ok
       else
-        return "span class='parser_error'>invalid 'swap', no 'group' in same parent</span>"
+        return "span class='parser_error'>[swap] missing 'group' in same parent</span>"
       end
       dom_id = group.dom_id(@context)
       states = (@params[:states] || 'todo, done').split(',').map{|e| e.strip}
@@ -453,12 +454,13 @@ module Zena
     
     def r_text
       text = @params[:text] ? @params[:text].inspect : "#{node_attribute('v_text')}"
+      limit  = @params[:limit] ? ", :limit=>#{@params[:limit].to_i}" : ""
       out "<div id='v_text<%= #{node}.zip %>' class='zazen'>"
       unless @params[:empty] == 'true'
         out "<% if #{node}.kind_of?(TextDocument); l = #{node}.content_lang -%>"
         out "<%= zazen(\"<code\#{l ? \" lang='\#{l}'\" : ''} class=\\'full\\'>\#{#{text}}</code>\") %></div>"
         out "<% else -%>"
-        out "<%= zazen(#{text}, :node=>#{node}) %>"
+        out "<%= zazen(#{text}#{limit}, :node=>#{node}) %>"
         out "<% end -%>"
       end
       out "</div>"
@@ -481,7 +483,7 @@ module Zena
         first_name = 'v_summary'
         first  = node_attribute(first_name)
         
-        second_name = @params[:or].gsub(/[^a-z_]/,'') # ERB injection
+        second_name = @params[:or].gsub(/[^a-z_]/,'') # FIXME: ist this still needed ? (ERB injection)
         second = node_attribute(second_name)
         "<div id='#{first_name}<%= #{node}.zip %>' class='zazen'><% if #{first} != '' %>" +
         "<%= zazen(#{first}, :node=>#{node}) %>" +
@@ -548,7 +550,7 @@ module Zena
       
       case @params[:type]
       when 'select'
-        return "<span class='parser_error'>select without name</span>" unless attribute
+        return "<span class='parser_error'>[input] select without name</span>" unless attribute
         if klass = @params[:root_class]
           select_opts = {}
           class_opts = {}
@@ -560,10 +562,10 @@ module Zena
           "<%= select('#{node_class.to_s.underscore}', #{attribute.inspect}, #{klasses.split(',').map(&:strip).inspect}) %>"
         end
       when 'date_box', 'date'
-        return "<span class='parser_error'>date_box without name</span>" unless attribute
+        return "<span class='parser_error'>[input] date_box without name</span>" unless attribute
         "<%= date_box '#{node_class.to_s.underscore}', #{attribute.inspect}, :size=>15#{@context[:in_add] ? ", :value=>''" : ''} %>"
       when 'id'
-        return "<span class='parser_error'>date_box without name</span>" unless attribute
+        return "<span class='parser_error'>[input] date_box without name</span>" unless attribute
         name = "#{attribute}_id" unless attribute[-3..-1] == '_id'
         "<%= select_id('#{node_class.to_s.underscore}', #{attribute.inspect}) %>"
         
@@ -687,8 +689,8 @@ END_TXT
     # <r:checkbox role='collaborator_for' values='projects' from='site'/>"
     # TODO: implement menu 'select' in the same spirit
     def r_checkbox
-      return "<span class='parser_error'>checkbox without values</span>" unless values = @params[:values]
-      return "<span class='parser_error'>checkbox without role</span>"   unless   role = (@params[:role] || @params[:name])
+      return "<span class='parser_error'>[checkbox] missing 'values'</span>" unless values = @params[:values]
+      return "<span class='parser_error'>[checkbox] missing 'role'</span>"   unless   role = (@params[:role] || @params[:name])
       meth = role.singularize
       attribute = @params[:attr] || 'name'
       if values =~ /^\d+\s*($|,)/
@@ -790,7 +792,7 @@ END_TXT
       if action = @params[:set] || @params[:add]
         action = "set=#{CGI.escape(action)}"
       else
-        return "<span class='parser_error'>drop without 'set' or 'add'</span>"
+        return "<span class='parser_error'>[drop] missing 'set' or 'add'</span>"
       end
       
       @html_tag ||= 'div'
@@ -929,7 +931,7 @@ END_TXT
     # TODO: test
     def r_if
       cond = get_test_condition
-      return "<span class='parser_error'>condition error for if clause</span>" unless cond
+      return "<span class='parser_error'>[if] condition error</span>" unless cond
       
       out "<% if #{cond} -%>"
       out expand_with(:case=>false)
@@ -955,9 +957,9 @@ END_TXT
     end
     
     def r_elsif
-      return "<span class='parser_error'>bad context for when/else/elsif clause</span>" unless @context[:case]
+      return "<span class='parser_error'>[elsif] out of 'if/case'</span>" unless @context[:case]
       cond = get_test_condition
-      return "<span class='parser_error'>condition error for when clause</span>" unless cond
+      return "<span class='parser_error'>[elsif] condition error</span>" unless cond
       out "<% elsif #{cond} -%>"
       out expand_with(:case=>false)
     end
@@ -1023,12 +1025,12 @@ END_TXT
             d = Date.parse(select)
             expand_with(:date=>select)
           rescue
-            "<span class='parser_error'>Invalid date (#{select}) should be 'YYYY-MM-DD'</span>"
+            "<span class='parser_error'>[date] invalid date (#{select}) should be 'YYYY-MM-DD'</span>"
           end
         elsif select =~ /^\[(.*)\]$/
           expand_with(:date=>"(#{node_attribute($1)} || main_date)")
         else
-          "<span class='parser_error'>Bad parameter (#{select}) for 'date'</span>"
+          "<span class='parser_error'>[date] bad parameter (#{select})</span>"
         end
       end
     end
@@ -1056,6 +1058,7 @@ END_TXT
     
     def r_stylesheets
       list = @params[:list].split(',').map{|e| e.strip}
+      list << {:media => @params[:media]} if @params[:media]
       helper.stylesheet_link_tag(*list)
     end
     
@@ -1826,14 +1829,14 @@ END_TXT
         return "<%= date_box('#{node_class.to_s.underscore}', #{params[:date].inspect}) %>"
       end
       input, attribute = get_input_params(params)
-      return "<span class='parser_error'>input without name/attribute</span>" unless attribute
+      return "<span class='parser_error'>[input] missing 'name'</span>" unless attribute
       return '' if attribute == 'parent_id' # set with 'r_form'
       "<input type='#{params[:type] || 'text'}' name='#{input[:name]}' value=#{input[:value]}/>"
     end
     
     # transform a 'zazen' tag into a textarea input field.
     def make_textarea(params)
-      return "<span class='parser_error'>textarea without name/attribute</span>" unless name = params[:name]
+      return "<span class='parser_error'>[textarea] missing 'name'</span>" unless name = params[:name]
       if name =~ /\A([\w_]+)\[(.*?)\]/
         attribute = $2
       else

@@ -71,7 +71,7 @@ class Parser
         url = "#{current_folder}/#{url}"
       end
       
-      res = helper.send(:get_template_text, :src=>url, :current_folder=>'') || ["<span class='parser_error'>template '#{url}' not found</span>", url]
+      res = helper.send(:get_template_text, :src=>url, :current_folder=>'') || ["<span class='parser_error'>[include] template '#{url}' not found</span>", url]
       return nil unless res
       text, url = *res
       url = "/#{url}" unless url[0..0] == '/' # has to be an absolute path
@@ -212,6 +212,7 @@ class Parser
   end
   
   def include_template
+    return "<span class='parser_error'>[include] missing 'template' attribute</span>" unless @params[:template]
     if @options[:part] && @options[:part] == @params[:part]
       # fetching only a part, do not open this element (same as original caller) as it is useless and will make us loop the loop.
       @method = 'ignore'
@@ -229,7 +230,7 @@ class Parser
     absolute_url += "??#{@options[:part].gsub('/','_')}" if @options[:part]
     if absolute_url
       if @options[:included_history].include?(absolute_url)
-        included_text = "<span class='parser_error'>[include error: #{(@options[:included_history] + [absolute_url]).join(' --&gt; ')} ]</span>"
+        included_text = "<span class='parser_error'>[include] infinity loop: #{(@options[:included_history] + [absolute_url]).join(' --&gt; ')}</span>"
       else
         included_history  = @options[:included_history] + [absolute_url]
         current_folder    = absolute_url.split('/')[1..-2].join('/')
@@ -243,7 +244,7 @@ class Parser
         # get all ids from inside the included part:
         @ids.merge! iblock.defined_ids
       else
-        included_blocks = ["<span class='parser_error'>'#{@params[:part]}' not found in template '#{@params[:template]}'</span>"]
+        included_blocks = ["<span class='parser_error'>[include] '#{@params[:part]}' not found in template '#{@params[:template]}'</span>"]
       end
     else
       included_blocks = res.blocks
@@ -266,7 +267,7 @@ class Parser
         end
       else
         # part not found
-        not_found << "<span class='parser_error'>'#{b.params[:part]}' not found in template '#{@params[:template]}'</span>"
+        not_found << "<span class='parser_error'>[with] '#{b.params[:part]}' not found in template '#{@params[:template]}'</span>"
       end
     end
     @blocks = included_blocks + not_found
