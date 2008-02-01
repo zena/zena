@@ -5,7 +5,6 @@ class Participation < ActiveRecord::Base
   validates_presence_of :user_id
   validates_presence_of :site_id
   before_create         :create_contact
-  after_create          :set_contact_owner
   
   alias o_contact contact
   

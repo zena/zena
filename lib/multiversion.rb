@@ -448,11 +448,13 @@ module Zena
             end
             valid_redaction
             if errors.empty?
-              ok = save_version && update_max_status
+              ok = save_version
             end
           end
           if ok && publish_after_save && version.status != Zena::Status[:pub]
             ok = publish
+          elsif ok
+            ok = update_max_status && update_publish_from
           end
           ok
         end
@@ -620,6 +622,7 @@ module Zena
           version.user_id = visitor[:id]
           version.lang    = visitor.lang if version.lang.blank?
           version[:status]= Zena::Status[:pub] if current_site[:auto_publish]
+          version[:publish_from] ||= Time.now if version[:status] == Zena::Status[:pub]
           true
         end
         

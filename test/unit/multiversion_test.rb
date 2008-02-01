@@ -790,6 +790,10 @@ class MultiVersionTest < ZenaTestUnit
     assert ! node.new_record? , "Not a new record"
     assert ! node.v_new_record? , "Not a new redaction"
     assert_equal Zena::Status[:pub], node.v_status, "published version"
+    assert node.publish_from > Time.now - 10
+    assert node.publish_from < Time.now + 10
+    assert node.v_publish_from > Time.now - 10
+    assert node.v_publish_from < Time.now + 10
     assert_equal Zena::Status[:pub], node.max_status, "published node"
     assert_equal "This one should auto publish", node.v_title
   end
