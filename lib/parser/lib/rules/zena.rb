@@ -410,6 +410,11 @@ module Zena
     end
     
     def r_title
+      if node_kind_of?(Version)
+        node = "#{self.node}.node"
+      else
+        node = self.node
+      end
       title_params = {}
       [:link, :check_lang].each do |sym|
         title_params[sym] = @params[sym] if @params.include?(sym)

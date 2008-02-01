@@ -51,6 +51,10 @@ show_title_check_lang:
   src: "<r:title/> AND NOW <r:title check_lang='false'/>"
   res: "<span id='v_title21'>Clean Water project<span class='wrong_lang'>[en]</span></span> AND NOW <span id='v_title21'>Clean Water project</span>"
 
+title_in_version_context:
+  src: "<r:version><r:title actions='all'/></r:version>"
+  res: "/s50.*v_title22.*status title.*edit/"
+
 check_lang:
   context:
     lang: 'fr'

@@ -47,7 +47,7 @@ class Participation < ActiveRecord::Base
       end
       self[:contact_id] = @contact[:id]
       
-      # FIXME: do we want this ?
-      # User.connection.execute "UPDATE nodes SET user_id = #{self[:id]} WHERE id = #{@contact[:id]}"
+      # User is the owner of his/her own contact page.
+      User.connection.execute "UPDATE nodes SET user_id = #{self[:id]} WHERE id = #{@contact[:id]}"
     end
 end
