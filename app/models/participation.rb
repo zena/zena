@@ -5,6 +5,7 @@ class Participation < ActiveRecord::Base
   validates_presence_of :user_id
   validates_presence_of :site_id
   before_create         :create_contact
+  after_create          :set_contact_owner
   
   alias o_contact contact
   
@@ -46,7 +47,9 @@ class Participation < ActiveRecord::Base
         raise Zena::InvalidRecord, "Could not publish contact node for user #{user_id} in site #{site_id} (#{@contact.errors.map{|k,v| [k,v]}.join(', ')})"
       end
       self[:contact_id] = @contact[:id]
-      
+    end
+    
+    def set_contact_owner
       # User is the owner of his/her own contact page.
       User.connection.execute "UPDATE nodes SET user_id = #{self[:id]} WHERE id = #{@contact[:id]}"
     end
