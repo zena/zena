@@ -22,6 +22,8 @@
 .btn_x { float:left; }
 
 .hidden { display:none; }
+.input_radio, .input_checkbox { display:table; }
+.input_radio span, .input_checkbox span { display:table; float:left; margin:3px;}
 
 /* errors */
 ul.errors { background:#DDC8C8; margin:0 0 5px; padding:4px 0; border-bottom:1px solid #5A3231;}

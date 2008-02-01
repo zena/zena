@@ -420,4 +420,11 @@ class RelationTest < ZenaTestUnit
     assert_equal [links_id(:cleanWater_in_art).to_s], tags.map{|r| r[:link_id]}
   end
   
+  def test_do_find_in_new_node
+    login(:tiger)
+    assert var1_new = secure(Node) { Node.get_class("Post").new }
+    assert list = var1_new.do_find(:all, "SELECT nodes.* FROM nodes WHERE (nodes.kpath LIKE 'NNP%' AND (nodes.user_id = '#{visitor[:id]}' OR (rgroup_id IN (#{visitor.group_ids.join(',')}) AND nodes.publish_from <= now() ) OR (pgroup_id IN (#{visitor.group_ids.join(',')}) AND max_status > 30)) AND nodes.site_id = #{visitor.site[:id]})  GROUP BY nodes.id  ORDER BY position ASC, name ASC", true)
+    assert_equal 2, list.size
+    assert_equal [nodes_id(:proposition), nodes_id(:opening)], list.map{|r| r[:id]}.sort
+  end
 end

@@ -704,17 +704,17 @@ END_TXT
       out "<% if #{list_var}_relation.unique? -%>"
     
       out "<% #{list_var}_id = #{list_var}_relation.other_id -%>"
-      out "<% #{list_var}.each do |#{var}| -%>"
-      out "<input type='radio' name='node[#{meth}_id]' value='<%= #{var}.zip %>'<%= #{list_var}_id == #{var}[:id] ? \" checked='checked'\" : '' %>/> <%= #{node_attribute(attribute, :node=>var)} %> "
-      out "<% end -%>"
+      out "<div class='input_radio'><% #{list_var}.each do |#{var}| -%>"
+      out "<span><input type='radio' name='node[#{meth}_id]' value='<%= #{var}.zip %>'<%= #{list_var}_id == #{var}[:id] ? \" checked='checked'\" : '' %>/> <%= #{node_attribute(attribute, :node=>var)} %></span> "
+      out "<% end -%></div>"
       out "<input type='radio' name='node[#{meth}_id]' value=''/> #{_('none')}"
 
       out "<% else -%>"
 
       out "<% #{list_var}_ids = #{list_var}_relation.other_ids -%>"
-      out "<% #{list_var}.each do |#{var}| -%>"
-      out "<input type='checkbox' name='node[#{meth}_ids][]' value='<%= #{var}.zip %>'<%= #{list_var}_ids.include?(#{var}[:id]) ? \" checked='checked'\" : '' %>/> <%= #{node_attribute(attribute, :node=>var)} %> "
-      out "<% end -%>"
+      out "<div class='input_checkbox'><% #{list_var}.each do |#{var}| -%>"
+      out "<span><input type='checkbox' name='node[#{meth}_ids][]' value='<%= #{var}.zip %>'<%= #{list_var}_ids.include?(#{var}[:id]) ? \" checked='checked'\" : '' %>/> <%= #{node_attribute(attribute, :node=>var)} %></span> "
+      out "<% end -%></div>"
       out "<input type='hidden' name='node[#{meth}_ids]' value=''/>"
 
       out "<% end -%><% end -%>"
@@ -1276,7 +1276,7 @@ END_TXT
       end
       
       sql_query = Node.build_find(count, query_parameters(rel, params))
-      res = "#{node}.do_find(#{count.inspect}, \"#{sql_query}\")"
+      res = "#{node}.do_find(#{count.inspect}, \"#{sql_query}\"#{sql_query =~ /#{node}/ ? '' : ', true'})" # regexp to see if node is used. If not, we can ignore the source (use query even if #{node} is a new record).
       if params[:else]
         sql_query = Node.build_find(count, query_parameters(params[:else], params))
         "(#{res} || #{node}.do_find(#{count.inspect}, \"#{sql_query}\"))"
@@ -1805,9 +1805,9 @@ END_TXT
       end
       
       if @context[:in_add]
-        res[:value] = (params[:value] || params[:set_value]) ? params[:value] : ""
+        res[:value] = (params[:value] || params[:set_value]) ? "'#{params[:value]}'" : "''"
       else
-        res[:value] = attribute ? ["<%= #{node_attribute(attribute)} %>"] : ""
+        res[:value] = attribute ? ["'<%= #{node_attribute(attribute)} %>'"] : "''"
       end
       return [res, attribute]
     end
@@ -1828,7 +1828,7 @@ END_TXT
       input, attribute = get_input_params(params)
       return "<span class='parser_error'>input without name/attribute</span>" unless attribute
       return '' if attribute == 'parent_id' # set with 'r_form'
-      "<input type='#{params[:type] || 'text'}' name='#{input[:name]}' value='#{input[:value]}'/>"
+      "<input type='#{params[:type] || 'text'}' name='#{input[:name]}' value=#{input[:value]}/>"
     end
     
     # transform a 'zazen' tag into a textarea input field.

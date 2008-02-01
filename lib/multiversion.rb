@@ -495,7 +495,7 @@ module Zena
               
               if v == nil
                 # could not convert a publication into a redaction, new version
-                v = version.clon
+                v = version.clone
                 v.status = Zena::Status[:red]
                 v.publish_from = v.created_at = nil
                 v.comment = v.number = ''

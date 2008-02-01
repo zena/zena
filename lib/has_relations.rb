@@ -385,8 +385,8 @@ module Zena
     
 
     module InstanceMethods
-      def do_find(count, query)
-        return nil if new_record?
+      def do_find(count, query, ignore_source = false)
+        return nil if new_record? && !ignore_source
         res = Node.find_by_sql(query)
         if count == :all
           if res == []
