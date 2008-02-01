@@ -6,16 +6,16 @@
 #bin span { position:absolute; top:2px; left:30px; }
 
 /* ADMIN USERS, GROUPS */
-ul.admin_links { margin:70px 25px 0; border:1px solid #35462B; background:#eee;}
+ul.admin_links { margin:18px; width:13em; border:1px solid #35462B; background:#C2C095;}
 .admin_links li { padding:0;}
-.admin_links li a { margin:0; border-top:1px solid #35462B; padding:10px 5px; font-size:0.9em; color:#560B0A;  display:block;}
+.admin_links li a { margin:0; border-top:1px solid #35462B; padding:3px; font-size:90%; color:black;  display:block;}
 .admin_links li:first-child a { border:0; }
 .admin_links li a:hover { background:#C47330; }
-.admin_links li a.on {background:#C28D61;}
+.admin_links li a.on {background:#eee;}
 
 
-table.admin, table.admin table { border-collapse:separate; border-width:0; margin:auto; border-color:#666; border-style:solid; margin:4em 5px 5px; }
-table.admin { width:600px; font-size:0.8em; }
+table.admin, table.admin table { border-collapse:separate; border-width:0; margin:auto; border-color:#666; border-style:solid; }
+table.admin { width:600px; }
 table.admin table { width:90%; }
 table.admin table td { text-align:left; }
 table.admin td:first-child { border-left: 1px solid #666; }
@@ -28,7 +28,8 @@ table.admin td:first-child { border-left: 1px solid #666; }
 #add_group td { background: white;}
 .admin td { padding: 3px; height:18px; border-right:1px solid #666; border-bottom:1px solid #666; }
 .admin th { border-bottom:1px solid #666; padding:4px;}
-.admin .icon, .admin .add, .admin .action { width:22px; text-align:center; vertical-align:top;}
+.admin .adm_icon, .admin .adm_add, .admin .action { width:22px; text-align:center; vertical-align:top; margin:0;}
+.admin .adm_icon img { border:0;}
 .admin table { width:100%;}
 .admin td { padding: 2px 6px; }
 .admin td.login { width: 8em; }
@@ -36,9 +37,9 @@ table.admin td:first-child { border-left: 1px solid #666; }
 .admin td.fullname { width: 15em;}
 .admin td.users, .admin td.groups { width: auto;}
 .admin .login i {color:#A0A0A0; font-style:normal;}
-.admin .add { padding:0; }
-.admin .add table { border: 0; margin:10px;}
-.admin .add table td { border: 0; font-size:inherit; padding: 2px; }
+.admin .adm_add { padding:0; }
+.admin .adm_add table { border: 0; margin:10px;}
+.admin .adm_add table td { border: 0; font-size:inherit; padding: 2px; }
 .admin .btn_validate { float:right; margin-right:30px; }
 .btn_validate input { background:#C8D8C7; border:1px outset black;}
 .admin .label {width:80px; line-height:1.9em;}

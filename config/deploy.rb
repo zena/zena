@@ -95,7 +95,7 @@ end
 
 desc "update symlink to 'sites' directory"
 task :app_update_symlinks, :roles => :app do
-  run "rm #{deploy_to}/current/sites || true"
+  run "test ! -e #{deploy_to}/current/sites || rm #{deploy_to}/current/sites"
   run "ln -sf /var/www/zena #{deploy_to}/current/sites"
   set_permissions
 end

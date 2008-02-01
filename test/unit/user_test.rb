@@ -66,6 +66,28 @@ class UserTest < ZenaTestUnit
     assert_equal visitor[:id], contact.user_id # or should it be user[:id] ?
   end
   
+  def test_only_admin_can_create
+    login(:tiger)
+    user = secure(User) { User.create("name"=>"Shakespeare", "status"=>"50", "group_ids"=>[""], "lang"=>"fr", "time_zone"=>"Bern", "first_name"=>"William", "login"=>"bob", "password"=>"jsahjks894", "email"=>"") }
+    assert user.new_record?, "Not saved"
+    assert user.errors[:site], "Not found"
+    assert user.errors[:base]
+    login(:lion)
+    user = secure(User) { User.create("name"=>"Shakespeare", "status"=>"50", "group_ids"=>[""], "lang"=>"fr", "time_zone"=>"Bern", "first_name"=>"William", "login"=>"bob", "password"=>"jsahjks894", "email"=>"") }
+    assert !user.new_record?, "Saved"
+    assert !user.contact.new_record?, "Contact saved"
+    assert_equal sites_id(:zena), user.contact.site_id
+  end
+  
+  def test_create_with_auto_publish
+    Site.connection.execute "UPDATE sites SET auto_publish = 1 WHERE id = #{sites_id(:zena)}"
+    login(:lion)
+    user = secure(User) { User.create("name"=>"Shakespeare", "status"=>"50", "group_ids"=>[""], "lang"=>"fr", "time_zone"=>"Bern", "first_name"=>"William", "login"=>"bob", "password"=>"jsahjks894", "email"=>"") }
+    assert !user.new_record?, "Saved"
+    assert !user.contact.new_record?, "Contact saved"
+    assert_equal sites_id(:zena), user.contact.site_id
+  end
+  
   def test_create_admin_with_groups
     login(:lion)
     user = secure(User) { User.new("login"=>"john", "password"=>"isjjna78a9h", "group_ids"=>[groups_id(:admin)]) }

@@ -34,14 +34,15 @@ class Participation < ActiveRecord::Base
         :v_title       => (user.name.blank? || user.first_name.blank?) ? user.login : user.fullname,
         :c_first_name  => user.first_name,
         :c_name        => (user.name || user.login ),
-        :c_email       => user.email
+        :c_email       => user.email,
+        :v_status      => Zena::Status[:pub]
       )}
       @contact[:parent_id] = current_site[:root_id]
       unless @contact.save
         # What do we do with this error ?
         raise Zena::InvalidRecord, "Could not create contact node for user #{user_id} in site #{site_id} (#{@contact.errors.map{|k,v| [k,v]}.join(', ')})"
       end
-      unless @contact.publish
+      unless @contact.max_status == Zena::Status[:pub]
         raise Zena::InvalidRecord, "Could not publish contact node for user #{user_id} in site #{site_id} (#{@contact.errors.map{|k,v| [k,v]}.join(', ')})"
       end
       self[:contact_id] = @contact[:id]

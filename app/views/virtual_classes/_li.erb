@@ -1,10 +1,10 @@
 <tr id='virtual_class<%= li[:id] %>'>
-  <td class="icon"><%= link_to_remote( _('virtual_class_img'), 
+  <td class="adm_icon"><%= link_to_remote( _('virtual_class_img'), 
           :update =>"virtual_class#{li[:id]}", 
           :url    => edit_virtual_class_path(li),
           :method => :get) %></td>
   <td><%= li.name %></td>
-  <td class="icon" ><%= li.icon ? "<img src='#{li.icon}'/>" : "" %></td>
+  <td class="adm_icon" ><%= li.icon ? "<img src='#{li.icon}'/>" : "" %></td>
   <td class="attributes" ><%= li.allowed_attributes %></td>
   <td class="create_group"><%= li.create_group.name %></td>
   <td class="superclass" ><%= li.superclass %></td>

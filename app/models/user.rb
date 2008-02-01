@@ -389,13 +389,13 @@ class User < ActiveRecord::Base
       end
     
       if @defined_site_ids
-        @defined_site_ids = @defined_site_ids.map{|i| i.to_s}.uniq
+        @defined_site_ids = @defined_site_ids.map{|i| i.to_i}.uniq
         
-        site_ids = new_record? ? [] : sites.map {|r| r[:id]}
+        site_ids = new_record? ? [] : sites.map {|s| s[:id]}
         changes  = @added_sites   = @defined_site_ids - site_ids
         changes += @removed_sites = site_ids - @defined_site_ids
         
-        changes.map{|i| i.to_s}.uniq.each do |i|
+        changes.uniq.each do |i|
           begin
             site = Site.find(i)
           rescue ActiveRecord::RecordNotFound
