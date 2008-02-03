@@ -3,7 +3,7 @@ module Zena #:nodoc:
     MAJOR = 0
     MINOR = 8
     TINY  = 3
-    REV   = 830
+    REV   = 845
     STRING = [MAJOR, MINOR, TINY].join('.')
   end
 end

@@ -109,13 +109,13 @@ desc "initial app setup"
 task :app_setup, :roles => :app do
   run "test -e #{deploy_to}  || mkdir #{deploy_to}"
   run "test -e /var/www/zena || mkdir /var/www/zena"
-  setup
+  deploy:setup
 end
 
 #========================== MANAGE HOST   =========================#
 desc "create a new site"
 task :mksite, :roles => :app do
-  run "#{in_current} rake zena:mksite HOST='#{self[:host]}' PASSWORD='#{self[:pass]}' RAILS_ENV='production' DEFAULT_LANG='#{self[:default_lang] || 'en'}'"
+  run "#{in_current} rake zena:mksite HOST='#{self[:host]}' PASSWORD='#{self[:pass]}' RAILS_ENV='production' LANG='#{self[:default_lang] || 'en'}'"
   create_vhost
   set_permissions
 end
