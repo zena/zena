@@ -141,7 +141,7 @@ namespace :zena do
   task :clear_cache => :environment do
     if (File.exist(SITES_ROOT))
       Dir.foreach(SITES_ROOT) do |site|
-        next if site =~ /^\./ || !File.exists?(File.join(SITES_ROOT,site,'public'))
+        next if site =~ /^\./ || !File.exist?(File.join(SITES_ROOT,site,'public'))
         Dir.foreach(File.join(SITES_ROOT,site,'public')) do |elem|
           next unless elem =~ /^(\w\w\.html|\w\w)$/
           FileUtils.rmtree(File.join(SITES_ROOT, site, 'public', elem))
@@ -159,7 +159,7 @@ namespace :zena do
       puts "Please set HOST to the hostname for the site to backup. Aborting."
     else
       path = File.join(SITES_ROOT,ENV['HOST'])
-      unless File.exists?(path)
+      unless File.exist?(path)
         puts "Site does not exist in '#{SITES_ROOT}'"
       else
         folders = ['data'].map {|f| File.join(SITES_ROOT,f) }
@@ -171,7 +171,7 @@ namespace :zena do
   end
   
   task :full_backup => :environment do
-    data_folders = Site.find(:all).map { |s| File.join(SITES_ROOT, s.data_path) }.reject { |p| !File.exists?(p) }
+    data_folders = Site.find(:all).map { |s| File.join(SITES_ROOT, s.data_path) }.reject { |p| !File.exist?(p) }
     cmd = "tar czf #{RAILS_ROOT}/sites_data.tgz #{data_folders.join(' ')}"
     puts cmd
     puts `#{cmd}`
