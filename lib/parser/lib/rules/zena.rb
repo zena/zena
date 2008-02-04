@@ -630,10 +630,11 @@ END_TXT
         form << "<div class='hidden'>"
         form << "<input type='hidden' name='template_url' value='#{template_url}'/>\n"
         
+        puts [node_class.to_s, @params[:klass], @context[:klass]].inspect
         if node_kind_of?(Node)
           form << "<input type='hidden' name='node[parent_id]' value='<%= #{@context[:in_add] ? "#{@context[:parent_node]}.zip" : "#{node}.parent_zip"} %>'/>\n"
-        
-          if (@params[:klass] || @context[:in_add])
+          
+          if (@params[:klass] || @context[:in_add] || @context[:klass])
             klass_set = false
             (descendants['input'] || []).each do |tag|
               if tag.params[:name] == 'klass'
@@ -755,14 +756,14 @@ END_TXT
         
         if node_kind_of?(Node)
           # FIXME: BUG if we set <r:form klass='Post'/> the user cannot select class with menu...
-          klass = @params[:klass] || @context[:form].params[:klass] || 'Node'
+          klass = @context[:klass] || 'Node'
           # FIXME: inspect '@context[:form]' to see if it contains v_klass ?
           out "<% #{var}_new = secure(Node) { Node.get_class(#{klass.inspect}).new } -%>"
         else
           out "<% #{var}_new = #{node_class}.new -%>"
         end
         if @context[:form].method == 'form'
-          out expand_block(@context[:form], :in_add => true, :no_form => false, :add=>self, :node => "#{var}_new", :parent_node => node)
+          out expand_block(@context[:form], :in_add => true, :no_form => false, :add=>self, :node => "#{var}_new", :parent_node => node, :klass => klass)
         else
           # build form from 'each'
           out expand_block(@context[:form], :in_add => true, :no_form => false, :no_edit => true, :add=>self, :make_form => true, :node => "#{var}_new", :parent_node => node, :klass => klass)
@@ -1479,7 +1480,8 @@ END_TXT
       @context.delete(:template_url) # should not propagate
       @context.delete(:make_form)    # should not propagate
       
-      klass = opts[:node_class] || node_class
+      # real class (Node, Version, ...)
+      node_class = opts[:node_class] || self.node_class
       
       else_block = descendant('else')
       if (each_block = descendant('each')) && (descendant('edit') || descendant('add') || (descendant('swap') && descendant('swap').parent.method != 'group'))
@@ -1492,8 +1494,13 @@ END_TXT
         
         template_url = each_block.dom_id(@context)
         
+        
+        # class name for erb form
+        klass       = add_block  ? add_block.params[:klass]  : nil
+        klass     ||= form_block ? form_block.params[:klass] : nil
+        
         # 'r_add' needs the form when rendering. Send with :form.
-        res = expand_with(opts.merge(:list=>list_var, :form=>form_block, :no_form=>true, :template_url=>template_url))
+        res = expand_with(opts.merge(:list=>list_var, :form=>form_block, :no_form=>true, :template_url=>template_url, :klass => klass))
         out render_html_tag(res)
         if list_finder
           out "<% else -%>" + expand_block(else_block, :do=>true) if else_block
@@ -1501,16 +1508,16 @@ END_TXT
         end
 
         # TEMPLATE ========
-        template_node = "@#{klass.to_s.underscore}"
-        template      = expand_block(each_block, :list=>false, :node=>template_node, :node_class => klass, :template_url=>template_url)
+        template_node = "@#{node_class.to_s.underscore}"
+        template      = expand_block(each_block, :list=>false, :node=>template_node, :node_class => node_class, :klass => klass, :template_url=>template_url)
         out helper.save_erb_to_url(template, template_url)
         
         # FORM ============
         form_url = "#{template_url}_form"
         if each_block != form_block
-          form = expand_block(form_block, :node=>template_node, :node_class => klass, :template_url=>template_url, :add=>add_block) 
+          form = expand_block(form_block, :node=>template_node, :node_class => node_class, :klass => klass, :template_url=>template_url, :add=>add_block) 
         else
-          form = expand_block(form_block, :node=>template_node, :node_class => klass, :template_url=>template_url, :add=>add_block, :make_form=>true, :no_edit=>true)
+          form = expand_block(form_block, :node=>template_node, :node_class => node_class, :klass => klass, :template_url=>template_url, :add=>add_block, :make_form=>true, :no_edit=>true)
         end
         out helper.save_erb_to_url(form, form_url)
       else
