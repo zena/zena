@@ -33,7 +33,7 @@ class ImageContentTest < ZenaTestUnit
       assert_equal 660, img.width
       assert_equal 70,  img.width('pv')
       assert !File.exist?("#{SITES_ROOT}/test.host/data/jpg/20/bird_pv.jpg"), "File does not exist"
-      assert_equal 2246, img.size('pv')
+      assert 2244 <= img.size('pv') && img.size('pv') <= 2246
       assert File.exist?("#{SITES_ROOT}/test.host/data/jpg/20/bird_pv.jpg"), "File exist"
     end
   end

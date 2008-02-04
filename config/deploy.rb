@@ -109,7 +109,7 @@ desc "initial app setup"
 task :app_setup, :roles => :app do
   run "test -e #{deploy_to}  || mkdir #{deploy_to}"
   run "test -e /var/www/zena || mkdir /var/www/zena"
-  deploy:setup
+  deploy::setup
 end
 
 #========================== MANAGE HOST   =========================#
@@ -133,7 +133,7 @@ end
 #========================== MONGREL ===============================#
 desc "configure mongrel"
 task :mongrel_setup, :roles => :app do
-  run "#{in_current} mongrel_rails cluster::configure -e production -p #{mongrel_port} -N #{mongrel_count} -c #{deploy_to}/current -a 127.0.0.1 --user www-data --group www-data"
+  run "#{in_current} mongrel_rails cluster::configure -e production -p #{mongrel_port} -N #{mongrel_count} -c #{deploy_to}/current -P log/mongrel.pid -l log/mongrel.log -a 127.0.0.1 --user www-data --group www-data"
 end
 
 desc "Start mongrel"
@@ -199,6 +199,16 @@ end
 
 desc "create database"
 task :db_create, :roles => :db do
+  on_rollback do
+    run "mysql -u root -p -e \"DROP DATABASE #{db_name};\"" do |channel, stream, data|
+      if data =~ /^Enter password:\s*/m
+        logger.info "#{channel[:host]} asked for password"
+        channel.send_data "#{password}\n"
+      end
+      puts data
+    end
+  end
+  
   run "mysql -u root -p -e \"CREATE DATABASE #{db_name} DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci; GRANT ALL ON #{db_name}.* TO '#{db_user}'@'localhost' IDENTIFIED BY '#{db_password}';\"" do |channel, stream, data|
     if data =~ /^Enter password:\s*/m
       logger.info "#{channel[:host]} asked for password"
@@ -218,19 +228,21 @@ end
 
 desc "Full initial setup"
 task :initial_setup do
-  app_setup
-  
-  db_setup
-  
-  update_code
-  
-  mongrel_setup
+  transaction do
+    app_setup
+    
+    db_setup
+    
+    deploy::update_code
+    
+    mongrel_setup
 
-  apache2_setup
+    apache2_setup
   
-  set_permissions
+    set_permissions
 
-  start
+    start
+  end
 end
 
 desc "Database dump"

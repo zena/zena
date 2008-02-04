@@ -2,6 +2,12 @@
 module ApplicationHelper
   include Zena::Acts::Secure
   
+  # translation of static text using gettext
+  # FIXME: I do not know why this is needed in order to have <%= _('blah') %> find the translations on some servers
+  def _(str)
+    NodesController.send(:_,str)
+  end
+  
   # helpers to include clean javascript
   def javascript( string )
     javascript_start +

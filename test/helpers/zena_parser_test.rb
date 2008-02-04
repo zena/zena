@@ -1,7 +1,9 @@
 require File.join(File.dirname(__FILE__), 'testhelp')
 
-require 'ruby-debug'
-Debugger.start
+if false
+  require 'ruby-debug'
+  Debugger.start
+end
 
 class ZenaParserTest < ZenaHelperTest
   testfile :relations, :basic, :zafu_ajax, :zazen, :apphelper, :errors, :data

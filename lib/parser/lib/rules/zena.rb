@@ -962,7 +962,7 @@ END_TXT
     end
     
     def r_elsif
-      return "<span class='parser_error'>[elsif] out of 'if/case'</span>" unless @context[:case]
+      return '' unless @context[:case]
       cond = get_test_condition
       return "<span class='parser_error'>[elsif] condition error</span>" unless cond
       out "<% elsif #{cond} -%>"

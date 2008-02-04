@@ -210,14 +210,14 @@ class ApplicationHelperTest < ZenaTestHelper
   end
   
   def test_short_date
-    atime = Time.now
+    atime = Time.now.utc
     assert_equal atime.strftime('%m.%d'), short_date(atime)
     GetText.set_locale_all 'fr'
     assert_equal atime.strftime('%d.%m'), short_date(atime)
   end
   
   def test_format_date
-    atime = Time.now
+    atime = Time.now.utc
     assert_equal atime.strftime('%m.%d'), tformat_date(atime, 'short_date')
     GetText.set_locale_all 'fr'
     assert_equal atime.strftime('%d.%m'), tformat_date(atime, 'short_date')

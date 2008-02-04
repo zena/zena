@@ -53,7 +53,34 @@ Manual deployment is done with the following commands:
 You can now login with 'admin' and the password you used to make the site.
 
 == Dependencies
-rmagick, redcloth, syntax, markaby, gettext
+
+=== 1. Original in debian etch
+build-essential apache2 mysql-server libmagick9-dev gs-gpl libssl-dev gettext libgettext-ruby libreadline5 libreadline5-dev zlib1g-dev libncurses5 libncurses5-dev temcap-compat
+
+=== 2. To be installed by hand
+ruby1.8.6
+    # wget ftp://ftp.ruby-lang.org/pub/ruby/1.8/ruby-1.8.6.tar.gz
+    # tar xzf ruby-1.8.6.tar.gz
+    # cd ruby-1.8.6
+    # ./configure --with-openssl
+    # make && make install
+rubygems
+    # wget http://rubyforge.org/frs/download.php/29548/rubygems-1.0.1.tgz
+    # tar xzf rubygems-1.0.1.tgz
+    # cd rubygems-1.0.1
+    # ruby setup.rb (if ruby is not found, log out and log back in)
+ImageMagick
+    # wget ftp://ftp.imagemagick.org/pub/ImageMagick/ImageMagick.tar.gz
+    # tar xzf ImageMagick.tar.gz
+    # cd ImageMagick
+    # ./configure
+    # make && make install
+
+=== 3. Gems
+rake, mongrel, mongrel_cluster, rmagick, redcloth, syntax, gettext
+
+=== Advised tools
+monit (debian package to monitor your mongrel processes)
 
 
 == Very experimental webDAV
