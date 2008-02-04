@@ -129,7 +129,7 @@ namespace :zena do
   
   desc "Remove all zafu compiled templates"
   task :clear_zafu do
-    if (File.exist(SITES_ROOT))
+    if File.exist?(SITES_ROOT)
       Dir.foreach(SITES_ROOT) do |site|
         next if site =~ /^\./
         FileUtils.rmtree(File.join(SITES_ROOT, site, 'zafu'))
@@ -139,7 +139,7 @@ namespace :zena do
   
   desc "Remove all cached data" # FIXME: cachedPages db should be cleared to
   task :clear_cache => :environment do
-    if (File.exist(SITES_ROOT))
+    if File.exist?(SITES_ROOT)
       Dir.foreach(SITES_ROOT) do |site|
         next if site =~ /^\./ || !File.exist?(File.join(SITES_ROOT,site,'public'))
         Dir.foreach(File.join(SITES_ROOT,site,'public')) do |elem|
