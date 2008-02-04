@@ -315,7 +315,7 @@ module Zena
     def r_filter
       return "span class='parser_error'>[filter] missing 'group' in same parent</span>" unless parent && group = parent.descendant('group')
       dom_id = group.dom_id(@context)
-      out "<%= form_remote_tag(:url => zafu_node_path(#{node}.zip), :method => :get, :html => {:id => \"#{dom_id}_q\"}) %><div class='hidden'><input type='hidden' name='template_url' value='#{dom_id}'/></div><div class='wrapper'><input type='text' name='#{@params[:key] || 'f'}' value='<%= params[:q] %>'/></div></form>"
+      out "<%= form_remote_tag(:url => zafu_node_path(#{node}.zip), :method => :get, :html => {:id => \"#{dom_id}_q\"}) %><div class='hidden'><input type='hidden' name='template_url' value='#{dom_id}'/></div><div class='wrapper'><input type='text' name='#{@params[:key] || 'f'}' value='<%= params[#{(@params[:key] || 'f').to_sym.inspect}] %>'/></div></form>"
       if @params[:live]
         out "<%= observe_form( \"#{dom_id}_q\" , :method => :get, :frequency  =>  1, :submit =>\"#{dom_id}_q\", :url => zafu_node_path(#{node}.zip)) %>"
       end
@@ -675,11 +675,13 @@ END_TXT
         form = "<form method='post' action='/nodes/<%= #{node}.zip %>'><div style='margin:0;padding:0'><input name='_method' type='hidden' value='put' /></div>"
       end
       
-      unless @form_cancel || descendant('cancel') || descendant('edit')
+      unless descendant('cancel') || descendant('edit')
         # add a descendant before blocks.
-        blocks = @blocks.dup
-        @form_cancel = make(:void, :method=>'void', :text=>cancel)
-        @blocks = [@form_cancel] + blocks
+        blocks_bak = @blocks.dup # I do not understand why we need 'dup' (but we sure do...)
+        form_cancel = make(:void, :method=>'void', :text=>cancel)
+        @blocks = [form_cancel] + blocks_bak
+      else
+        blocks_bak = @blocks
       end
       
       if descendant('form_tag')
@@ -688,6 +690,7 @@ END_TXT
         #res = "&lt;form&gt; missing"
         res = form + expand_with(:in_form => true, :form_cancel => cancel) + '</form>'
       end
+      @blocks = blocks_bak
       out render_html_tag(res)
     end
     
@@ -731,7 +734,8 @@ END_TXT
     
     # TODO: test
     def r_add
-      return "ADD should not be called from within EACH" if parent.method == 'each'
+      return "<span class='parser_error'>[add] should not be called from within 'each'</span>" if parent.method == 'each'
+      return '' if @context[:make_form]
       out "<% if #{node}.can_write? -%>"
       unless descendant('add_btn')
         # add a descendant between self and blocks.

@@ -292,3 +292,7 @@ unlink:
 node_in_version:
   src: "<r:version><r:node do='[name]'/></r:version>"
   res: "status"
+
+where_with_param:
+  src: "<r:nodes from='site' where='v_title like \"%[param:t]%\"'/>"
+  tem: "/vs.title like \#\{Node.connection.quote\(\"%\" \+params\[:t\].to_s\+ \"%\"\)\}/"
