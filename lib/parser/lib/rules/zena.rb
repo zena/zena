@@ -568,11 +568,13 @@ module Zena
         end
       when 'date_box', 'date'
         return "<span class='parser_error'>[input] date_box without name</span>" unless attribute
-        "<%= date_box '#{node_class.to_s.underscore}', #{attribute.inspect}, :size=>15#{@context[:in_add] ? ", :value=>''" : ''} %>"
+        input_id = @context[:template_url] ? ", :id=>#{(@context[:template_url].split('/').last.to_s + '_' + attribute.to_s).inspect}" : ''
+        "<%= date_box '#{node_class.to_s.underscore}', #{attribute.inspect}, :size=>15#{@context[:in_add] ? ", :value=>''" : ''}#{input_id} %>"
       when 'id'
         return "<span class='parser_error'>[input] date_box without name</span>" unless attribute
         name = "#{attribute}_id" unless attribute[-3..-1] == '_id'
-        "<%= select_id('#{node_class.to_s.underscore}', #{attribute.inspect}) %>"
+        input_id = params[:input_id] ? ", :input_id => #{(@context[:template_url].split('/').last.to_s + '_' + attribute.to_s).inspect}" : ''
+        "<%= select_id('#{node_class.to_s.underscore}', #{attribute.inspect}#{input_id}) %>"
         
       when 'submit'
         @html_tag = 'input'
@@ -630,7 +632,6 @@ END_TXT
         form << "<div class='hidden'>"
         form << "<input type='hidden' name='template_url' value='#{template_url}'/>\n"
         
-        puts [node_class.to_s, @params[:klass], @context[:klass]].inspect
         if node_kind_of?(Node)
           form << "<input type='hidden' name='node[parent_id]' value='<%= #{@context[:in_add] ? "#{@context[:parent_node]}.zip" : "#{node}.parent_zip"} %>'/>\n"
           
@@ -663,8 +664,11 @@ END_TXT
               break
             end
           end
-          
-          form << "<input type='hidden' name='done' value='#{params[:done]}'/>\n" if params[:done]
+          if params[:done] == 'focus'
+            form << "<input type='hidden' name='done' value=\"$('#{@context[:template_url].split('/').last}_#{add_block.params[:focus] || 'v_title'}').focus();\"/>\n"
+          elsif params[:done]
+            form << "<input type='hidden' name='done' value=#{params[:done].inspect}/>\n"
+          end
         end
         
         form << "</div>"
@@ -752,7 +756,9 @@ END_TXT
         prefix  = @context[:template_url]
         @html_tag_params.merge!(:id => "#{prefix}_add")
         @html_tag_params[:class] ||= 'btn_add'
-        out render_html_tag("#{expand_with(:onclick=>"[\"#{prefix}_add\", \"#{prefix}_form\"].each(Element.toggle);return false;")}")
+        focus = "$(\"#{@context[:template_url].split('/').last}_#{@params[:focus] || 'v_title'}\").focus();"
+        
+        out render_html_tag("#{expand_with(:onclick=>"[\"#{prefix}_add\", \"#{prefix}_form\"].each(Element.toggle);#{focus}return false;")}")
         
         if node_kind_of?(Node)
           # FIXME: BUG if we set <r:form klass='Post'/> the user cannot select class with menu...
@@ -1558,6 +1564,7 @@ END_TXT
       end
     end
     
+    # FIXME: remove 'included_history' part to only keep next_name_index(...)
     def unique_name(context = @context)
       # FIXME: make sure the unique name is using the current skin 
       # /gbuma/Node_index.html/dev/small_calendar instead of /default/Node_index.html/small_calendar
@@ -1821,7 +1828,7 @@ END_TXT
       else
         attribute = res[:name]
         res[:name] = "#{node_class.to_s.underscore}[#{attribute}]"
-        res[:id]   = "#{node_class.to_s.underscore}_#{attribute}"
+        res[:id]   = "#{@context[:template_url].split('/').last}_#{attribute}" if @context[:template_url]
       end
       
       if @context[:in_add]
@@ -1848,7 +1855,8 @@ END_TXT
       input, attribute = get_input_params(params)
       return "<span class='parser_error'>[input] missing 'name'</span>" unless attribute
       return '' if attribute == 'parent_id' # set with 'r_form'
-      "<input type='#{params[:type] || 'text'}' name='#{input[:name]}' value=#{input[:value]}/>"
+      input_id = @context[:template_url] ? " id='#{@context[:template_url].split('/').last}_#{attribute}'" : ''
+      "<input type='#{params[:type] || 'text'}'#{input_id} name='#{input[:name]}' value=#{input[:value]}/>"
     end
     
     # transform a 'zazen' tag into a textarea input field.

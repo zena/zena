@@ -1138,9 +1138,10 @@ ENDTXT
       zip = ''
       current = ''
     end
+    input_id = opt[:input_id] ? " id='#{params[:input_id]}'" : ''
     # we use both 'onChange' and 'onKeyup' for old javascript compatibility
     update = "new Ajax.Updater('#{name_ref}', '/nodes/attribute?node=' + this.value + '&attr=#{attribute}', {method:'get', asynchronous:true, evalScripts:true});"
-    "<div class='select_id'><input type='text' size='8' id='#{obj}_#{sym}' name='#{obj}[#{sym}]' value='#{zip}' onChange=\"#{update}\" onKeyup=\"#{update}\"/>"+
+    "<div class='select_id'><input type='text' size='8'#{input_id} name='#{obj}[#{sym}]' value='#{zip}' onChange=\"#{update}\" onKeyup=\"#{update}\"/>"+
     "<span class='select_id_name' id='#{name_ref}'>#{current}</span></div>"
   end
   

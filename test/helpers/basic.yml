@@ -631,8 +631,8 @@ checkbox:
 
 input_set_value:
   src: "<r:input type='hidden' name='icon_id' set_value='[main.id]'/>"
-  tem: "<input id='node_icon_id' name='node[icon_id]' type='hidden' value='<%= @node.zip %>'/>"
-  res: "<input id='node_icon_id' name='node[icon_id]' type='hidden' value='22'/>"
+  tem: "<input name='node[icon_id]' type='hidden' value='<%= @node.zip %>'/>"
+  res: "<input name='node[icon_id]' type='hidden' value='22'/>"
   
 add_btn:
   src: "<table do='pages' from='site' limit='1'>
