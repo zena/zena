@@ -19,7 +19,7 @@
 .btn_add a { visibility:hidden; display:block; }
 .btn_add:hover a { visibility:visible; }
 .btn_x img { border:none;}
-.btn_x { float:left; }
+.btn_x, .date_box { float:left; }
 
 .hidden { display:none; }
 .input_radio, .input_checkbox { display:table; }

@@ -135,7 +135,7 @@ module Zena
         when :r_link
           make_input(:name => (@params[:attr] || 'v_title'))
         when :r_show
-          make_input(:name => (@params[:attr] || @params[:tattr]))
+          make_input(:name => (@params[:attr] || @params[:tattr]), :date => @params[:date])
         when :r_text
           make_textarea(:name => 'v_text')
         when :r_summary
@@ -1818,7 +1818,7 @@ END_TXT
     
     def get_input_params(params = @params)
       res = {}
-      unless res[:name] = params[:name]
+      unless res[:name] = (params[:name] || params[:date])
         return [{}, nil]
       end
       
@@ -1849,12 +1849,13 @@ END_TXT
 
     # transform a 'show' tag into an input field.
     def make_input(params = @params)
-      if params[:date]
-        return "<%= date_box('#{node_class.to_s.underscore}', #{params[:date].inspect}) %>"
-      end
       input, attribute = get_input_params(params)
       return "<span class='parser_error'>[input] missing 'name'</span>" unless attribute
       return '' if attribute == 'parent_id' # set with 'r_form'
+      if params[:date]
+      input_id = @context[:template_url] ? ", :id=>#{(@context[:template_url].split('/').last.to_s + '_' + attribute.to_s).inspect}" : ''
+        return "<%= date_box('#{node_class.to_s.underscore}', #{params[:date].inspect}#{input_id}) %>"
+      end
       input_id = @context[:template_url] ? " id='#{@context[:template_url].split('/').last}_#{attribute}'" : ''
       "<input type='#{params[:type] || 'text'}'#{input_id} name='#{input[:name]}' value=#{input[:value]}/>"
     end

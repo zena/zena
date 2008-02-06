@@ -17,6 +17,10 @@ add_each_no_form:
   src: "<ul do='children' id='things'><li do='each'>I <p do='[name]'>blah</p></li><li do='add'/></ul>"
   res: "/<ul><li.*id=.*_add.*li id=.*_form.*form.*hidden.*I <p><input type='text' id='things_name' name='node\[name\]' value=''\/><\/p><\/form><\/li>/"
 
+add_each_no_form_date:
+  src: "<ul do='children' id='things'><li do='each'>I <p do='show' date='event_at' tformat='short_date'>blah</p></li><li do='add'/></ul>"
+  res: "/<ul><li.*id=.*_add.*li id=.*_form.*form.*hidden.*I <p><input type='text' id='things_event_at' name='node\[name\]' value.*/"
+
 add_each_no_form_focus:
   src: "<ul do='children' id='test'><li do='each'>I <p do='[v_title]'>blah</p></li><li do='add' focus='v_title'/></ul>"
   res: "/<ul><li.*id=.*_add.*onclick.*toggle.*test_v_title.*focus.*li id=.*_form.*form.*hidden.*I <p><input type='text' id='test_v_title' name='node\[v_title\]' value=''\/><\/p><\/form><\/li>/"
