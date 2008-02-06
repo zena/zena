@@ -1,1 +1,1 @@
-page.replace "#{params[:template_url]}.#{@data_entry.zip}", :file => fullpath_from_template_url + ".erb"
+page.replace "#{dom_id_from_template_url}.#{@data_entry.zip}", :file => fullpath_from_template_url + ".erb"

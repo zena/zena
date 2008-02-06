@@ -620,6 +620,8 @@ design_by_options:
   res: "<li><a class='skin' href=''>dark</a> design by <a href='http://teti.ch'>vador</a></li>"
   
 select_class:
+  context:
+    node: 'opening'
   src: "<r:form><input type='select' name='klass' root_class='Note' selected='Post'/></r:form>"
   res: "/<select id=\"node_klass\" name=\"node\[klass\]\"><option value=\"Note\">Note<\/option>\n<option value=\"Letter\">  Letter<\/option>\n<option value=\"Post\" selected=\"selected\">  Post<\/option><\/select>/"
 
@@ -639,7 +641,7 @@ add_btn:
   <tr do='each'><td do='[name]'/></tr>
   <tr do='add'><td><b><r:add_btn/></b></td></tr>
   </table>"
-  res: "/<tr class='btn_add' id='/add/btn/list_add'><td><b><a href='#' onclick/"
+  res: "/<tr class='btn_add' id='list_add'><td><b><a href='#' onclick/"
 
 read_no_content:
   src: "this is <b do='[c_bad]'/>"

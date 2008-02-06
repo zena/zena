@@ -1,14 +1,14 @@
 if @node.new_record?
-  page.replace "#{params[:template_url]}_form", :file => fullpath_from_template_url + "_form.erb"
+  page.replace "#{dom_id_from_template_url}_form", :file => fullpath_from_template_url + "_form.erb"
 else
   pos = params[:position] || :before
-  ref = params[:reference] || "#{params[:template_url]}_add"
+  ref = params[:reference] || "#{dom_id_from_template_url}_add"
   page.insert_html pos.to_sym, ref, :file => fullpath_from_template_url + ".erb"
   @node = @node.parent.new_child(:class => @node.class)
-  page.replace "#{params[:template_url]}_form", :file => fullpath_from_template_url + "_form.erb"
+  page.replace "#{dom_id_from_template_url}_form", :file => fullpath_from_template_url + "_form.erb"
   if params[:done]
     page << params[:done]
   else
-    page.toggle "#{params[:template_url]}_form", "#{params[:template_url]}_add"
+    page.toggle "#{dom_id_from_template_url}_form", "#{dom_id_from_template_url}_add"
   end
 end

@@ -269,10 +269,10 @@ module Zena
       if @context[:group] == self
         # called from self (storing template)
         @html_tag_done = false
-        @html_tag_params.merge!(:id=>"#{@context[:template_url]}.<%= #{node}.zip %>")
+        @html_tag_params.merge!(:id=>"#{dom_id_from_template_url(@context[:template_url])}.<%= #{node}.zip %>")
         out expand_with
       else
-        template_url = dom_id()
+        template_url = new_template_url
         form_url     = template_url + '_form'
       
         @html_tag ||= 'div'
@@ -306,7 +306,7 @@ module Zena
         end
         
         @html_tag_done = false
-        @html_tag_params.merge!(:id=>"#{template_url}.<%= #{node}.zip %>")
+        @html_tag_params.merge!(:id=>"#{dom_id_from_template_url(template_url)}.<%= #{node}.zip %>")
         out expand_with(:template_url => template_url)
       end
     end
@@ -561,19 +561,20 @@ module Zena
           class_opts = {}
           select_opts[:selected] = @params[:selected] if @params[:selected]
           class_opts[:without]  = @params[:without]  if @params[:without]
-          "<%= select('#{node_class.to_s.underscore}', #{attribute.inspect}, Node.classes_for_form(:class => #{klass.inspect}#{params_to_erb(class_opts)})#{params_to_erb(select_opts)}) %>"
+          # do not use 'selected' if the node is not new
+          "<% if #{node}.new_record? -%><%= select('#{node_class.to_s.underscore}', #{attribute.inspect}, Node.classes_for_form(:class => #{klass.inspect}#{params_to_erb(class_opts)})#{params_to_erb(select_opts)}) %><% else -%><%= select('#{node_class.to_s.underscore}', #{attribute.inspect}, Node.classes_for_form(:class => #{klass.inspect}#{params_to_erb(class_opts)})) %><% end -%>"
         else
           klasses = @params[:options] || "Page,Note"
           "<%= select('#{node_class.to_s.underscore}', #{attribute.inspect}, #{klasses.split(',').map(&:strip).inspect}) %>"
         end
       when 'date_box', 'date'
         return "<span class='parser_error'>[input] date_box without name</span>" unless attribute
-        input_id = @context[:template_url] ? ", :id=>#{(@context[:template_url].split('/').last.to_s + '_' + attribute.to_s).inspect}" : ''
+        input_id = @context[:template_url] ? ", :id=>#{(dom_id_from_template_url + '_' + attribute.to_s).inspect} + #{node}.zip.to_s" : ''
         "<%= date_box '#{node_class.to_s.underscore}', #{attribute.inspect}, :size=>15#{@context[:in_add] ? ", :value=>''" : ''}#{input_id} %>"
       when 'id'
         return "<span class='parser_error'>[input] date_box without name</span>" unless attribute
         name = "#{attribute}_id" unless attribute[-3..-1] == '_id'
-        input_id = params[:input_id] ? ", :input_id => #{(@context[:template_url].split('/').last.to_s + '_' + attribute.to_s).inspect}" : ''
+        input_id = params[:input_id] ? ", :input_id => #{(dom_id_from_template_url + '_' + attribute.to_s).inspect}" : ''
         "<%= select_id('#{node_class.to_s.underscore}', #{attribute.inspect}#{input_id}) %>"
         
       when 'submit'
@@ -604,18 +605,18 @@ module Zena
 
         if @context[:in_add]
           # inline form used to create new elements: set values to '' and 'parent_id' from context
-          @html_tag_params.merge!(:id=>"#{template_url}_form", :style=>"display:none;")
-          cancel =  "<p class='btn_x'><a href='#' onclick='[\"#{template_url}_add\", \"#{template_url}_form\"].each(Element.toggle);return false;'>#{_('btn_x')}</a></p>\n"
+          @html_tag_params.merge!(:id=>"#{dom_id_from_template_url}_form", :style=>"display:none;")
+          cancel =  "<p class='btn_x'><a href='#' onclick='[\"#{dom_id_from_template_url}_add\", \"#{dom_id_from_template_url}_form\"].each(Element.toggle);return false;'>#{_('btn_x')}</a></p>\n"
           form  =  "<%= form_remote_tag(:url => #{node_class.to_s.underscore.pluralize}_path) %>\n"
         else
           # saved form used to edit/create: set values and 'parent_id' from @node
-          @html_tag_params.merge!(:id=>"#{template_url}<%= #{node}.new_record? ? '_form' : \".\#{#{node}.zip}\" %>") unless @method == 'group' # called from r_group
+          @html_tag_params.merge!(:id=>"#{dom_id_from_template_url}<%= #{node}.new_record? ? '_form' : \".\#{#{node}.zip}\" %>") unless @method == 'group' # called from r_group
           # new_record? = edit/create failed, rendering form with errors
           # else        = edit
           # FIXME: remove '/zafu?' when nodes_controller's method 'zafu' is no longer needed.
           cancel = <<-END_TXT
 <% if #{node}.new_record? -%>
-  <p class='btn_x'><a href='#' onclick='[\"#{template_url}_add\", \"#{template_url}_form\"].each(Element.toggle);return false;'>#{_('btn_x')}</a></p>
+  <p class='btn_x'><a href='#' onclick='[\"#{dom_id_from_template_url}_add\", \"#{dom_id_from_template_url}_form\"].each(Element.toggle);return false;'>#{_('btn_x')}</a></p>
 <% else -%>
   <p class='btn_x'><%= link_to_remote(#{_('btn_x').inspect}, :url => #{node_class.to_s.underscore}_path(#{node}.zip) + '/zafu?template_url=#{CGI.escape(template_url)}', :method => :get) %></a></p>
 <% end -%>
@@ -654,9 +655,9 @@ END_TXT
               form << "<input type='hidden' name='position' value='#{sym}'/>\n"
               if params[sym] == 'self'
                 if sym == :before
-                  form << "<input type='hidden' name='reference' value='#{template_url}_add'/>\n"
+                  form << "<input type='hidden' name='reference' value='#{dom_id_from_template_url}_add'/>\n"
                 else
-                  form << "<input type='hidden' name='reference' value='#{template_url}_form'/>\n"
+                  form << "<input type='hidden' name='reference' value='#{dom_id_from_template_url}_form'/>\n"
                 end
               else  
                 form << "<input type='hidden' name='reference' value='#{params[sym]}'/>\n"
@@ -665,7 +666,7 @@ END_TXT
             end
           end
           if params[:done] == 'focus'
-            form << "<input type='hidden' name='done' value=\"$('#{@context[:template_url].split('/').last}_#{add_block.params[:focus] || 'v_title'}').focus();\"/>\n"
+            form << "<input type='hidden' name='done' value=\"$('#{dom_id_from_template_url}_#{add_block.params[:focus] || 'v_title'}').focus();\"/>\n"
           elsif params[:done]
             form << "<input type='hidden' name='done' value=#{params[:done].inspect}/>\n"
           end
@@ -753,10 +754,10 @@ END_TXT
       
       if @context[:form] && @context[:template_url]
         # ajax add
-        prefix  = @context[:template_url]
+        prefix  = dom_id_from_template_url
         @html_tag_params.merge!(:id => "#{prefix}_add")
         @html_tag_params[:class] ||= 'btn_add'
-        focus = "$(\"#{@context[:template_url].split('/').last}_#{@params[:focus] || 'v_title'}\").focus();"
+        focus = "$(\"#{prefix}_#{@params[:focus] || 'v_title'}\").focus();"
         
         out render_html_tag("#{expand_with(:onclick=>"[\"#{prefix}_add\", \"#{prefix}_form\"].each(Element.toggle);#{focus}return false;")}")
         
@@ -812,7 +813,7 @@ END_TXT
       end
       
       @html_tag ||= 'div'
-      template_url = unique_name
+      template_url = new_template_url
       @html_tag_params ||= {}
       @html_tag_params[:id] = @html_tag_params[:id] ? CGI.escape(@html_tag_params[:id]) : template_url
       @html_tag_params[:class] ||= 'drop'
@@ -915,7 +916,7 @@ END_TXT
         end
       elsif @context[:template_url]
         # render to produce a saved template
-        id_hash = {:id=>"#{@context[:template_url]}.<%= #{node}.zip %>"}
+        id_hash = {:id=>"#{dom_id_from_template_url}.<%= #{node}.zip %>"}
         if @html_tag
           @html_tag_params.merge!(id_hash)
           out render_html_tag(expand_with)
@@ -923,7 +924,7 @@ END_TXT
           out add_params(expand_with, id_hash)
         end
         if @params[:draggable] == 'true'
-          out "<%= \"<script type='text/javascript'>\n//<![CDATA[\nZena.draggable('#{@context[:template_url]}.<%= #{node}.zip %>')\n//]]>\n</script>\" %>"
+          out "<%= \"<script type='text/javascript'>\n//<![CDATA[\nZena.draggable('#{dom_id_from_template_url}.<%= #{node}.zip %>')\n//]]>\n</script>\" %>"
         end
       else
         # TODO: make a single list ?
@@ -1233,7 +1234,7 @@ END_TXT
       opts[:size]   = (@params[:size  ] || 'tiny'    )
       opts[:using]  = (@params[:using ] || 'event_at').gsub(/[^a-z_]/,'') # SQL injection security
       
-      template_url = unique_name
+      template_url = new_template_url
       out helper.save_erb_to_url(opts.inspect, template_url)
       
       "<div id='#{opts[:size]}cal'><%= calendar(:node=>#{node}, :date=>main_date, :template_url => #{template_url.inspect}) %></div>"
@@ -1242,7 +1243,7 @@ END_TXT
     # part caching
     def r_cache
       kpath   = @params[:kpath]   || Page.kpath
-      context = unique_name
+      context = new_template_url
       out "<% #{cache} = Cache.with(visitor.id, visitor.group_ids, #{kpath.inspect}, #{helper.send(:lang).inspect}, #{context.inspect}) do capture do %>"
       out expand_with
       out "<% end; end %><%= #{cache} %>"
@@ -1498,7 +1499,7 @@ END_TXT
           out "<% if (#{list_var} = #{list_finder}) || (#{node}.can_write? && #{list_var}=[]) -%>"
         end
         
-        template_url = each_block.dom_id(@context)
+        template_url = each_block.new_template_url(@context)
         
         
         # class name for erb form
@@ -1548,10 +1549,25 @@ END_TXT
       helper.send(:_,text)
     end
     
+    # Unique DOM identifier for this tag
     def dom_id(context = @context)
       @dom_id ||= unique_name(context)
     end
+
+    # Unique template_url, ending with dom_id
+    def new_template_url(context = @context)
+      "#{@options[:included_history][0].split('::')[0]}/#{dom_id(context)}"
+    end
     
+    # Return the DOM identifier from the template url
+    def dom_id_from_template_url(url = @context[:template_url])
+      url.split('/').last
+    end
+
+    # Return a different name on each call
+    def unique_name(context = @context)
+      root.next_name_index((context[:name] || 'list')).gsub(/[^\d\w\/]/,'_')
+    end
     
     def next_name_index(key)
       @next_name_index ||= {}
@@ -1562,13 +1578,6 @@ END_TXT
         @next_name_index[key] = 0
         key
       end
-    end
-    
-    # FIXME: remove 'included_history' part to only keep next_name_index(...)
-    def unique_name(context = @context)
-      # FIXME: make sure the unique name is using the current skin 
-      # /gbuma/Node_index.html/dev/small_calendar instead of /default/Node_index.html/small_calendar
-      "#{@options[:included_history][0].split('::')[0]}/#{root.next_name_index((context[:name] || 'list')).gsub(/[^\d\w\/]/,'_')}"
     end
        
     def add_params(text, opts={})
@@ -1853,7 +1862,7 @@ END_TXT
       return "<span class='parser_error'>[input] missing 'name'</span>" unless attribute
       return '' if attribute == 'parent_id' # set with 'r_form'
       if params[:date]
-      input_id = @context[:template_url] ? ", :id=>#{(@context[:template_url].split('/').last.to_s + '_' + attribute.to_s).inspect}" : ''
+      input_id = @context[:template_url] ? ", :id=>#{(@context[:template_url].split('/').last.to_s + '_' + attribute.to_s).inspect} + #{node}.zip.to_s" : ''
         return "<%= date_box('#{node_class.to_s.underscore}', #{params[:date].inspect}#{input_id}) %>"
       end
       input_id = @context[:template_url] ? " id='#{@context[:template_url].split('/').last}_#{attribute}'" : ''

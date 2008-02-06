@@ -3,7 +3,7 @@ require 'gettext/rails'
 class ApplicationController < ActionController::Base
   init_gettext 'zena'
   helper_method :prefix, :zen_path, :zen_url, :data_path, :node_url, :notes, :error_messages_for, :render_errors, :processing_error
-  helper_method :get_template_text, :template_url_for_asset, :save_erb_to_url, :lang, :visitor, :fullpath_from_template_url, :eval_parameters_from_template_url
+  helper_method :get_template_text, :template_url_for_asset, :save_erb_to_url, :lang, :visitor, :fullpath_from_template_url, :eval_parameters_from_template_url, :dom_id_from_template_url
   before_filter :set_lang
   before_filter :authorize
   before_filter :check_lang
@@ -261,6 +261,10 @@ class ApplicationController < ActionController::Base
       path = "/#{template_url[0]}/#{template_url[1]}/#{session[:dev] ? "dev_#{lang}" : lang}/#{template_url[2..-1].join('/')}"
 
       "#{SITES_ROOT}/#{current_site.host}/zafu#{path}"
+    end
+    
+    def dom_id_from_template_url(template_url = params[:template_url])
+      template_url.split('/').last
     end
     
     def eval_parameters_from_template_url(template_url=params[:template_url])

@@ -558,17 +558,23 @@ module Zena
             field = $2
             plural = ($2[-1..-1] == 's')
             mode = $3
-            if relation = relation_proxy(:role => role)
-              if mode == '='
-                super if field[0..-2] == 'zip'
-                # add_link
-                set_relation(role,args[0])
-              else
-                # get ids / zips
-                relation.send("other_#{field}")
+            if rel = relation_proxy(:role => role, :ignore_source => true)
+              if self.vclass.kpath =~ /\A#{rel.this_kpath}/
+                if mode == '='
+                  super if field[0..-2] == 'zip'
+                  # add_link
+                  set_relation(role,args[0])
+                else
+                  # get ids / zips
+                  rel.send("other_#{field}")
+                end
+              elsif !args[0].empty?
+                # bad relation for this class of object
+                errors.add(role, "invalid for this class")
               end
             else
-              raise err # unknown relation
+              # unknown relation
+              errors.add(role, "unknown relation")
             end
           # we do not need this finder, zafu generates proper "do_find" methods.
           # elsif meth.to_s[-1..-1] != '=' && relation = relation_proxy(:role => meth.to_s)

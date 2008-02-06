@@ -2,7 +2,7 @@ if @errors || !@node.errors.empty?
   page.replace_html "#{@update}_errors", :inline => @errors ? render_errors : error_messages_for(@node)
 else  
   if @update == 'zafu'
-    page.replace "#{params[:template_url]}.#{@node[:zip]}", :file => fullpath_from_template_url + ".erb"
+    page.replace "#{dom_id_from_template_url}.#{@node[:zip]}", :file => fullpath_from_template_url + ".erb"
   elsif @update == 'attribute'
     attribute = params[:node].keys[0]
     page.replace_html params[:identifier], link_to_remote(params[:node][attribute], :url => edit_node_path(@node[:zip]) + "?attribute=#{attribute}&identifier=#{CGI.escape(params[:identifier])}", :method => :get)

@@ -677,6 +677,10 @@ class Node < ActiveRecord::Base
     vclass.to_s
   end
   
+  def klass=(str)
+    # TODO: set @new_klass... and transform
+  end
+  
   # include virtual classes to check inheritance chain
   def vkind_of?(klass)
     if self.class.ancestors.map{|k| k.to_s}.include?(klass)
