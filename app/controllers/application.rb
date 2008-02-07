@@ -458,6 +458,7 @@ class ApplicationController < ActionController::Base
   
     
     # Path for the node (as string). Options can be :format and :mode.
+    # ex '/en/document34_print.html'
     def zen_path(node, options={})
       return '#' unless node
       if sharp = options.delete(:sharp)
@@ -501,6 +502,8 @@ class ApplicationController < ActionController::Base
       end + params
     end
   
+    # Url for a node. Options are 'mode' and 'format'
+    # ex 'http://test.host/en/document34_print.html'
     def zen_url(node, opts={})
       path = zen_path(node,opts).split('/').reject { |p| p.blank? }
       prefix = path.shift

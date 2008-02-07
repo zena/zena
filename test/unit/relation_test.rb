@@ -215,7 +215,9 @@ class RelationTest < ZenaTestUnit
   def test_bad_attribute_raises
     login(:tiger)
     node = secure(Node) { nodes(:status) }
-    assert_raise (NoMethodError) { node.update_attributes( 'tralala_ids' => ['33'])}
+    assert_nothing_raised (NoMethodError) { node.update_attributes( 'tralala_ids' => ['33'])}
+    assert node.errors['tralala']
+    assert_raise (NoMethodError) { node.update_attributes( 'some_bad_method_name' => ['33'])}
     assert_raise (NoMethodError) { node.some_bad_method_name }
   end
   

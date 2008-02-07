@@ -332,22 +332,22 @@ module Zena
               next
             end
             current_value = self.send(k) rescue nil # remove rescue when link is fixed
-            case current_value.class
-            when NilClass
-              res[k] = v unless v.empty?
-            when String
+            case current_value.class.to_s
+            when 'NilClass'
+              res[k] = v unless v == nil || v == ''
+            when 'String'
               res[k] = v unless current_value == v.to_s
-            when Float
+            when 'Float'
               res[k] = v unless current_value == v.to_f
-            when Fixnum
+            when 'Fixnum'
               res[k] = v unless current_value == v.to_i
-            when Date, DateTime, Time
+            when 'Date', 'DateTime', 'Time'
               begin
                 res[k] = v unless current_value.strftime('%Y-%m-%d %H:%M:%S') == (v.kind_of?(String) ? DateTime.parse(v) : v).strftime('%Y-%m-%d %H:%M:%S')
               rescue
                 res[k] = v
               end
-            when TrueClass, FalseClass
+            when 'TrueClass', 'FalseClass'
               res[k] = v unless current_value == v
             else
               res[k] = v

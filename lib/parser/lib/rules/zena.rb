@@ -173,7 +173,6 @@ module Zena
 
     def r_show
       attribute = @params[:attr] || @params[:tattr]
-
       if @params[:tattr]
         attribute_method = "_(#{node_attribute(attribute, :else=>@params[:else])})"
       elsif @params[:attr]
@@ -202,7 +201,7 @@ module Zena
       end
       
       if @context[:trans]
-        # TODO: what do we do here with gsubs ?
+        # TODO: what do we do here with gsubs, url ?
         return attribute_method
       end
       
@@ -230,7 +229,7 @@ module Zena
         actions = ''
       end
       
-      if @params[:edit] == 'true'
+      if @params[:edit] == 'true' && !['url','path'].include?(attribute)
         name = unique_name + '_' + attribute
         # TODO: add can_drive? or can_write? clauses.
         "<span id='#{name}.<%= #{node}.zip %>'>#{actions}<%= link_to_remote(#{attribute_method}, :url => edit_node_path(#{node}.zip) + \"?attribute=#{attribute}&identifier=#{CGI.escape(name)}.\#{#{node}.zip}\", :method => :get) %></span>"
@@ -1680,7 +1679,15 @@ END_TXT
       klass    = opts[:node_class] || node_class
       res = if klass.ancestors.include?(Node)
         attribute = attribute.gsub(/\A(|[\w_]+)id(s?)\Z/, '\1zip\2') unless attribute =~ /\Ad_/
-        Node.zafu_attribute(att_node, attribute)
+        if ['url','path'].include?(attribute)
+          # pseudo attribute 'url'
+          params = {}
+          params[:mode]   = @params[:mode]   if @params[:mode]
+          params[:format] = @params[:format] if @params[:format]
+          "zen_#{attribute}(#{node}#{params_to_erb(params)})"
+        else
+          Node.zafu_attribute(att_node, attribute)
+        end
       elsif klass.ancestors.include?(Version) && Version.zafu_readable?(attribute)
         "#{att_node}.#{attribute}"
       elsif klass.ancestors.include?(DataEntry) && DataEntry.zafu_readable?(attribute)
@@ -1861,6 +1868,7 @@ END_TXT
       input, attribute = get_input_params(params)
       return "<span class='parser_error'>[input] missing 'name'</span>" unless attribute
       return '' if attribute == 'parent_id' # set with 'r_form'
+      return '' if ['url','path'].include?(attribute) # cannot be set with a form
       if params[:date]
       input_id = @context[:template_url] ? ", :id=>#{(@context[:template_url].split('/').last.to_s + '_' + attribute.to_s).inspect} + #{node}.zip.to_s" : ''
         return "<%= date_box('#{node_class.to_s.underscore}', #{params[:date].inspect}#{input_id}) %>"

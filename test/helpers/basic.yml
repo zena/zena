@@ -72,6 +72,14 @@ zazen_shortcut:
   tem: "<div><%= zazen(@node.version.title, :node=>@node) %></div>"
   res: "<div><p>status title</p></div>"
 
+show_url:
+  src: "<a do='void' set_href='[url]'>blah</a>"
+  res: "<a href='http://test.host/oo/projects/cleanWater/page22.html'>blah</a>"
+  
+show_path:
+  src: "<a do='void' set_href='[path]'>blah</a>"
+  res: "<a href='/oo/projects/cleanWater/page22.html'>blah</a>"
+
 trans:
   context:
     lang: 'fr'

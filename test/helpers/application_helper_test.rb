@@ -152,7 +152,7 @@ class ApplicationHelperTest < ZenaTestHelper
     login(:tiger)
     @node = secure(Node) { nodes(:status) }
     assert_match %r{select.*node\[parent_id\].*21.*19.*29.*11}m, select_id('node', :parent_id, :class=>'Project')
-    assert_match %r{input type='text'.*node_icon_id.*name.*node\[icon_id\]}m, select_id('node', :icon_id)
+    assert_match %r{input type='text'.*name.*node\[icon_id\]}m, select_id('node', :icon_id)
   end
   
   def test_date_box
