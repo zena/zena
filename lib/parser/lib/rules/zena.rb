@@ -554,7 +554,7 @@ module Zena
       input, attribute = get_input_params()
       
       case @params[:type]
-      when 'select'
+      when 'select' # FIXME: why is this only for classes ?
         return "<span class='parser_error'>[input] select without name</span>" unless attribute
         if klass = @params[:root_class]
           select_opts = {}
@@ -572,7 +572,7 @@ module Zena
         input_id = @context[:template_url] ? ", :id=>#{(dom_id_from_template_url + '_' + attribute.to_s).inspect} + #{node}.zip.to_s" : ''
         "<%= date_box '#{node_class.to_s.underscore}', #{attribute.inspect}, :size=>15#{@context[:in_add] ? ", :value=>''" : ''}#{input_id} %>"
       when 'id'
-        return "<span class='parser_error'>[input] date_box without name</span>" unless attribute
+        return "<span class='parser_error'>[input] select id without name</span>" unless attribute
         name = "#{attribute}_id" unless attribute[-3..-1] == '_id'
         input_id = params[:input_id] ? ", :input_id => #{(dom_id_from_template_url + '_' + attribute.to_s).inspect}" : ''
         "<%= select_id('#{node_class.to_s.underscore}', #{attribute.inspect}#{input_id}) %>"

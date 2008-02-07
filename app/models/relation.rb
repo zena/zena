@@ -159,6 +159,7 @@ class Relation < ActiveRecord::Base
       end
     end
     values.map!{|i| i.to_i }
+    values.reject!{|i| i == 0}
     
     # what changed ?
     @add_ids   = values

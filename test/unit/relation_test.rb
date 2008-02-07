@@ -427,4 +427,10 @@ class RelationTest < ZenaTestUnit
     assert_equal 2, list.size
     assert_equal [nodes_id(:proposition), nodes_id(:opening)], list.map{|r| r[:id]}.sort
   end
+  
+  def test_update_attributes_empty_value
+    login(:lion)
+    node = secure(Node) { nodes(:proposition) }
+    assert node.update_attributes_with_transformation("klass"=>"Post", "icon_id"=>"", "v_title"=>"blah", "log_at"=>"2008-02-05 17:33", "parent_id"=>"11")
+  end
 end
