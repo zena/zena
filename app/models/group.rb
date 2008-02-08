@@ -80,8 +80,8 @@ class Group < ActiveRecord::Base
       self.users    = []
       visitor_added = false
       @defined_user_ids.each do |id|
-        user = secure!(User) { User.find(id) }
-        unless user.site_ids.include?(self[:site_id])
+        user = secure(User) { User.find(:first, :conditions => ["users.id = ?", id]) }
+        unless user && user.site_ids.include?(self[:site_id])
           errors.add('user', 'not found') 
           next
         end
@@ -90,9 +90,6 @@ class Group < ActiveRecord::Base
       end
     end
     return errors.empty?
-  rescue ActiveRecord::RecordNotFound  
-    errors.add('user', 'not found')
-    false
   end
   
   def before_save

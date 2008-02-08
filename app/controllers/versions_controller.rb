@@ -64,8 +64,6 @@ class VersionsController < ApplicationController
         @edit = true
       end
     end
-  rescue ActiveRecord::RecordNotFound
-    page_not_found
   end
   
   # TODO: test/improve or remove (experiments)

@@ -218,9 +218,7 @@ module ApplicationHelper
   
   # Find a node's zip based on a query shortcut. Used by zazen to create a link for ""::art for example.
   def find_node_by_shortcut(string,offset=0)
-    secure!(Node) { Node.find_node_by_shortcut(string,offset) }
-  rescue ActiveRecord::RecordNotFound
-    nil
+    secure(Node) { Node.find_node_by_shortcut(string,offset) }
   end
 
   # Creates a link to the node referenced by zip (used by zazen)
@@ -239,7 +237,10 @@ module ApplicationHelper
       link_opts[:mode]   = ($2 != '') ? $2[1..-1] : nil
       link_opts[:format] = ($3 != '') ? $3[1..-1] : nil
     end
-    node  = opts[:node] || secure!(Node) { Node.find_by_zip(opts[:id]) }
+    node  = opts[:node] || secure(Node) { Node.find_by_zip(opts[:id]) }
+    
+    return "<span class='unknownLink'>#{_('unknown link')}</span>" unless node
+    
     title = (opts[:title] && opts[:title] != '') ? opts[:title] : node.v_title
     
     link_opts[:format] = node.c_ext if link_opts[:format] == 'data'
@@ -248,8 +249,6 @@ module ApplicationHelper
     else
       link_to title, zen_path(node, link_opts)
     end
-  rescue ActiveRecord::RecordNotFound
-    "<span class='unknownLink'>#{_('unknown link')}</span>"
   end
   
   # TODO: test
@@ -269,7 +268,10 @@ module ApplicationHelper
   # Create an img tag for the given image. See ApplicationHelper#zazen for details.
   def make_image(opts)
     id, style, link, size, title = opts[:id], opts[:style], opts[:link], opts[:size], opts[:title]
-    img = opts[:node] || secure!(Document) { Document.find_by_zip(id) }
+    img = opts[:node] || secure(Document) { Document.find_by_zip(id) }
+    
+    return "<span class='unknownLink'>#{_('unknown document')}</span>" unless img
+    
     if !opts[:images].nil? && !opts[:images]
       return "[#{_('image')}: #{img.v_title}]"
     end
@@ -316,8 +318,6 @@ module ApplicationHelper
       link = "http://#{link}" unless link =~ %r{(^/|.+://.+)}
       prefix + "<a href='#{link}'>" + image + "</a>" + suffix
     end
-  rescue ActiveRecord::RecordNotFound
-    "<span class='unknownLink'>#{_('unknown document')}</span>"
   end
   
   # Create a gallery from a list of images. See ApplicationHelper#zazen for details.

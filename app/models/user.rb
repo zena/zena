@@ -276,9 +276,9 @@ class User < ActiveRecord::Base
   def comments_to_publish
     if id == 2
       # su can view all
-      secure!(Comment) { Comment.find_all_by_status(Zena::Status[:prop]) }
+      secure(Comment) { Comment.find_all_by_status(Zena::Status[:prop]) }
     else
-      secure!(Comment) { Comment.find(:all, :select=>'comments.*, nodes.name', :from=>'comments, nodes, discussions',
+      secure(Comment) { Comment.find(:all, :select=>'comments.*, nodes.name', :from=>'comments, nodes, discussions',
                    :conditions=>"comments.status = #{Zena::Status[:prop]} AND discussions.node_id = nodes.id AND comments.discussion_id = discussions.id AND nodes.pgroup_id IN (#{group_ids.join(',')})") }
     end
   end
@@ -396,9 +396,7 @@ class User < ActiveRecord::Base
         changes += @removed_sites = site_ids - @defined_site_ids
         
         changes.uniq.each do |i|
-          begin
-            site = Site.find(i)
-          rescue ActiveRecord::RecordNotFound
+          unless site = Site.find(:first, :conditions => ["id = ?",i])
             errors.add('site', 'not found')
           end
           

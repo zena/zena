@@ -483,12 +483,8 @@ module Zena
             @redaction = version
           else
             lang ||= visitor.lang
-            begin
-              # is there a current redaction ?
-              v = versions.find(:first, :conditions=>["status >= #{Zena::Status[:red]} AND status < #{Zena::Status[:pub]} AND lang=?", lang])
-            rescue ActiveRecord::RecordNotFound
-              v = nil
-            end
+            # is there a current redaction ?
+            v = versions.find(:first, :conditions=>["status >= #{Zena::Status[:red]} AND status < #{Zena::Status[:pub]} AND lang=?", lang])
             if v == nil && can_write?
               # create new redaction or redit current publication
               if publish_after_save && version[:status] == Zena::Status[:pub] && version[:user_id] == visitor[:id] && version[:lang] == lang && (Time.now < version[:updated_at] + current_site[:redit_time])

@@ -12,8 +12,6 @@ class CalendarController < ApplicationController
   def notes
     find_notes
     render :partial=>'note/day_list'
-  rescue ActiveRecord::RecordNotFound
-    page_not_found
   end
   
   private

@@ -282,7 +282,7 @@ class MultiVersionTest < ZenaTestUnit
   
   def test_do_edit
     login(:ant)
-    node = secure_write!(Node) { nodes(:wiki)  }
+    node = secure_write(Node) { nodes(:wiki)  }
     node.edit!
     assert_equal Zena::Status[:red], node.v_status
     assert node.v_new_record?
@@ -308,14 +308,14 @@ class MultiVersionTest < ZenaTestUnit
   
   def test_update_new_red
     login(:ant)
-    node = secure_write!(Node) { nodes(:wiki)  }
+    node = secure_write(Node) { nodes(:wiki)  }
     assert node.edit! , "Edit succeeds"
     attrs = { :v_comment=>"hey I'm new !", :v_title=>"super new" }
     assert node.update_attributes( attrs ) , "Edit succeeds"
     assert ! node.v_new_record? , "Not a new redaction"
     assert_equal "super new", node.v_title
     # find it
-    node = secure_write!(Node) { nodes(:wiki)  }
+    node = secure_write(Node) { nodes(:wiki)  }
     assert node.edit! , "Edit succeeds"
     assert_equal "hey I'm new !", node.v_comment
     assert_equal "super new", node.v_title
@@ -328,14 +328,14 @@ class MultiVersionTest < ZenaTestUnit
     # no two redactions for the same language
     login(:tiger)
     visitor.lang = "fr"
-    node = secure_write!(Node) { nodes(:wiki)  }
+    node = secure_write(Node) { nodes(:wiki)  }
     assert ! node.edit! , "Edit fails"
     assert ! node.update_attributes( :v_title=>"Mon amour") , "Edit fails"
     
     # can add redactions for different languages
     visitor.lang = "de"
     visitor.site.languages = 'fr,en,de'
-    node = secure_write!(Node) { nodes(:wiki)  }
+    node = secure_write(Node) { nodes(:wiki)  }
     assert node.update_attributes( :v_title=> "Spieluhr") , "Edit succeeds"
     redactions = Version.find(:all, :conditions=>['node_id = ? AND status = ?', nodes_id(:wiki), Zena::Status[:red]])
     assert_equal 2, redactions.size
@@ -344,14 +344,14 @@ class MultiVersionTest < ZenaTestUnit
   def test_update_attributes
     login(:ant)
     visitor.lang = 'en'
-    node = secure_write!(Node) { nodes(:lake)  }
+    node = secure_write(Node) { nodes(:lake)  }
     assert node.edit! , "Edit succeeds"
     assert_equal "The lake we love", node.v_title
     assert_equal Zena::Status[:red], node.v_status
     attrs = { :v_comment=>"hey I'm new !", :v_title=>"super new" }
     assert node.update_attributes( attrs ) , "Edit succeeds"
     
-    node = secure_write!(Node) { nodes(:lake)  }
+    node = secure_write(Node) { nodes(:lake)  }
     assert node.edit! , "Edit succeeds"
     assert_equal "hey I'm new !", node.v_comment
     assert_equal "super new", node.v_title
@@ -360,7 +360,7 @@ class MultiVersionTest < ZenaTestUnit
   
   def test_update_attributes_bad_user
     login(:tiger)
-    node = secure_write!(Node) { nodes(:lake)  }
+    node = secure_write(Node) { nodes(:lake)  }
     assert ! node.edit! , "Edit fails"
     assert_equal Zena::Status[:pub], node.v_status
     attrs = { :v_comment=>"hey I'm new !", :v_title=>"super new" }

@@ -47,7 +47,8 @@ class SecureReadTest < ZenaTestUnit
   
   def test_secure_or_nil
     login(:lion)
-    assert_nothing_raised { node = secure_or_nil(Node) { nodes(:myLife)  }}
+    node = false
+    assert_nothing_raised { node = secure(Node) { nodes(:myLife)  }}
     assert_nil node
   end
   
@@ -98,7 +99,7 @@ class SecureReadTest < ZenaTestUnit
     ant = secure!(User) { users(:ant) }
     assert_raise(ActiveRecord::RecordNotFound) { node = secure!(Node) { nodes(:strange)  } }
     assert_raise(ActiveRecord::RecordNotFound) { node = secure_write!(Node) { nodes(:strange)  } }
-    assert node = secure_drive!(Node) { nodes(:strange)  }
+    assert node = secure_drive(Node) { nodes(:strange)  }
     
     login(:lion)
     lion_node = ""
@@ -110,7 +111,7 @@ class SecureReadTest < ZenaTestUnit
     # now node is 'prop', pgroup can see it
     assert_nothing_raised { node = secure!(Node) { nodes(:strange)  } }
     assert_raise(ActiveRecord::RecordNotFound) { node = secure_write!(Node) { nodes(:strange)  } }
-    assert_nothing_raised { node = secure_drive!(Node) { nodes(:strange)  } }
+    assert node = secure_drive(Node) { nodes(:strange)  }
     assert ! ant.group_ids.include?(node.rgroup_id) , "Visitor is not in rgroup"
     assert ! ant.group_ids.include?(node.wgroup_id) , "Visitor is not in wgroup"
     assert ! (ant.id == node.user_id) , "Visitor is not the owner"
@@ -130,9 +131,9 @@ class SecureReadTest < ZenaTestUnit
   
   def test_public_not_in_rgroup_cannot_rwp
     login(:anon)
-    assert_raise(ActiveRecord::RecordNotFound) { node = secure!(Node) { nodes(:secret)  } }
-    assert_raise(ActiveRecord::RecordNotFound) { node = secure_write!(Node) { nodes(:secret)  } }
-    assert_raise(ActiveRecord::RecordNotFound) { node = secure_drive!(Node) { nodes(:secret)  } }
+    assert_nil node = secure(Node)       { nodes(:secret)  }
+    assert_nil node = secure_write(Node) { nodes(:secret)  }
+    assert_nil node = secure_drive(Node) { nodes(:secret)  }
     node = nodes(:secret)
     assert_raise(Zena::RecordNotSecured) { node.can_read? }
     visitor.visit(node)
@@ -925,7 +926,7 @@ class SecureUpdateTest < ZenaTestUnit
     node = secure!(Node) { nodes(:strange)  }
     assert node.propose
     login(:ant)
-    node = secure_drive!(Node) { nodes(:strange)  } # only in pgroup
+    node = secure_drive(Node) { nodes(:strange)  } # only in pgroup
     node.name = "kali"
     assert node.save
   end

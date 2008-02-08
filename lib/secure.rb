@@ -326,9 +326,7 @@ Just doing the above will filter all result according to the logged in user.
           if user_id != old.user_id
             if visitor.group_ids.include?(2) # admin group
               # only admin can change owners
-              begin
-                User.find(user_id)
-              rescue ActiveRecord::RecordNotFound
+              unless User.find(:first, :conditions => ["id = ?",user_id])
                 errors.add('user_id', "unknown user")
               end
             else
@@ -343,28 +341,23 @@ Just doing the above will filter all result according to the logged in user.
           end
           if self[ref_field] != old[ref_field]
             # reference changed
-            begin
-              if old.private? || old.publish_from == nil
-                # node was not visible to others
-                if self[ref_field] == self[:id] ||
-                    ! secure_write!(ref_class) { ref_class.find(self[ref_field])} || 
-                    ! secure_write!(ref_class) { ref_class.find(old[ref_field])}
-                  errors.add(ref_field, "invalid reference") 
-                  return false
-                end
-              else
-                # node was visible, moves must be made with publish rights in both
-                # source and destination
-                if self[ref_field] == self[:id] ||
-                    ! secure_drive!(ref_class) { ref_class.find(self[ref_field])} || 
-                    ! secure_drive!(ref_class) { ref_class.find(old[ref_field])}
-                  errors.add(ref_field, "invalid reference") 
-                  return false
-                end
+            if old.private? || old.publish_from == nil
+              # node was not visible to others
+              if self[ref_field] == self[:id] ||
+                  ! secure_write(ref_class) { ref_class.find(self[ref_field])} || 
+                  ! secure_write(ref_class) { ref_class.find(old[ref_field])}
+                errors.add(ref_field, "invalid reference") 
+                return false
               end
-            rescue ActiveRecord::RecordNotFound
-              errors.add(ref_field, "invalid reference")
-              return false
+            else
+              # node was visible, moves must be made with publish rights in both
+              # source and destination
+              if self[ref_field] == self[:id] ||
+                  ! secure_drive(ref_class) { ref_class.find(self[ref_field]) } || 
+                  ! secure_drive(ref_class) { ref_class.find(old[ref_field])  }
+                errors.add(ref_field, "invalid reference") 
+                return false
+              end
             end
             # check circular references
             ref_ids  = [self[:id]]
@@ -461,15 +454,12 @@ Just doing the above will filter all result according to the logged in user.
         end
         
         def secure_on_destroy
-          unless old && old.can_drive?
+          if old && old.can_drive?
+            return true
+          else
             errors.add('base', "you do not have the rights to do this")
             return false
-          else
-            return true
-          end
-        rescue ActiveRecord::RecordNotFound
-          errors.add('base', "you do not have the rights to do this")
-          return false          
+          end         
         end
 
         # Reference to validate access rights
@@ -477,16 +467,14 @@ Just doing the above will filter all result according to the logged in user.
           return self if ref_field == :id && new_record? # new record and self as reference (creating root node)
           if !@ref || (@ref.id != self[ref_field])
             # no ref or ref changed
-            @ref = secure!(ref_class) { ref_class.find(self[ref_field]) }
+            @ref = secure(ref_class) { ref_class.find(:first, :conditions => ["id = ?", self[ref_field]]) }
           end
-          if self.new_record? || (:id == ref_field) || (self[:id] != @ref[:id] )
+          if @ref && (self.new_record? || (:id == ref_field) || (self[:id] != @ref[:id] ))
             # reference is accepted only if it is not the same as self or self is root (ref_field==:id set by Node)
             @ref.freeze
           else
             nil
           end
-        rescue ActiveRecord::RecordNotFound
-          nil
         end
         
         protected
@@ -531,11 +519,7 @@ Just doing the above will filter all result according to the logged in user.
           if new_record?
             nil
           else
-            begin
-              @old ||= secure_drive!(self.class) { self.class.find(self[:id]) }
-            rescue ActiveRecord::RecordNotFound
-              nil
-            end
+            @old ||= secure_drive(self.class) { self.class.find(self[:id]) }
           end
         end
         
@@ -671,9 +655,11 @@ Just doing the above will filter all result according to the logged in user.
           
           klass.send(:scoped_methods).unshift last_scope if last_scope
           
-          return nil if result == []
-          
-          if result
+          secure_result(klass,result)
+        end
+      
+        def secure_result(klass,result)
+          if result && result != []
             if klass.ancestors.include?(Node)
               if result.kind_of? Array
                 result.each {|r| visitor.visit(r) }
@@ -686,7 +672,6 @@ Just doing the above will filter all result according to the logged in user.
             nil
           end
         end
-      
         
         # Secure for read/create.
         # [read]
@@ -707,6 +692,10 @@ Just doing the above will filter all result according to the logged in user.
           else
             secure_with_scope(klass, nil, &block)
           end
+        rescue ActiveRecord::RecordNotFound
+          # Rails generated exceptions
+          # TODO: monitor how often this happens and replace the finders concerned
+          nil
         end
         
         def secure!(klass, opts={}, &block)
@@ -722,15 +711,23 @@ Just doing the above will filter all result according to the logged in user.
         # * super user
         # * owner
         # * members of +write_group+ if node is published and the current date is greater or equal to the publication date
-        def secure_write!(obj, &block)
-          res = if visitor.is_su? # super user
+        def secure_write(obj, &block)
+          if visitor.is_su? # super user
             secure_with_scope(obj, nil, &block)
           else
             scope = "user_id = '#{visitor[:id]}' OR "+
             "(wgroup_id IN (#{visitor.group_ids.join(',')}) AND publish_from <= now())"
             secure_with_scope(obj, scope, &block)
           end
-          unless res
+        rescue ActiveRecord::RecordNotFound
+          # Rails generated exceptions
+          # TODO: monitor how often this happens and replace the finders concerned
+          nil
+        end
+        
+        # Find a node with write access. Raises an exception on failure.
+        def secure_write!(obj, &block)
+          unless res = secure_write(obj, &block)
             raise ActiveRecord::RecordNotFound
           end
           res
@@ -746,8 +743,8 @@ Just doing the above will filter all result according to the logged in user.
         # [manage]
         # * owner if +max_status+ <= red
         # * owner if private
-        def secure_drive!(obj, &block)
-          res = if visitor.is_su? # super user
+        def secure_drive(obj, &block)
+          if visitor.is_su? # super user
             secure_with_scope(obj, nil, &block)
           else
             scope = "(user_id = '#{visitor[:id]}' AND ((rgroup_id = 0 AND wgroup_id = 0 AND pgroup_id = 0)) OR (max_status <= #{Zena::Status[:red]}))" +
@@ -755,10 +752,19 @@ Just doing the above will filter all result according to the logged in user.
                     "pgroup_id IN (#{visitor.group_ids.join(',')})"
             secure_with_scope(obj, scope, &block)
           end
-          unless res
+        rescue ActiveRecord::RecordNotFound
+          # Rails generated exceptions
+          # TODO: monitor how often this happens and replace the finders concerned
+          nil
+        end
+        
+        # Find nodes with 'drive' authorization. Raises an exception on failure.
+        def secure_drive!(obj, &block)
+          if res = secure_drive(obj, &block)
+            res
+          else
             raise ActiveRecord::RecordNotFound
           end
-          res
         end
     end
   end

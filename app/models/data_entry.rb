@@ -121,16 +121,12 @@ class DataEntry < ActiveRecord::Base
       else
         # id changed
         # make sure we can write in old (need write access to remove a relation)
-        begin
-          secure_write!(Node) { Node.find_by_id(old[sym]) } unless old[sym].nil?
-        rescue ActiveRecord::RecordNotFound
+        if !old[sym].nil? && !secure_write(Node) { Node.find_by_id(old[sym]) }
           errors.add(sym, "cannot remove old relation")
         end
       end
       # check new link
-      begin
-        secure_write!(Node) { Node.find_by_id(self[sym]) } unless self[sym].nil?
-      rescue ActiveRecord::RecordNotFound
+      if !self[sym].nil? && !secure_write(Node) { Node.find_by_id(self[sym]) }
         errors.add(sym, "invalid node")
       end
     end

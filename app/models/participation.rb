@@ -9,9 +9,7 @@ class Participation < ActiveRecord::Base
   alias o_contact contact
   
   def contact
-    @contact ||= secure!(Contact) { o_contact }
-  rescue ActiveRecord::RecordNotFound
-    nil
+    @contact ||= secure(Contact) { o_contact }
   end
   
   # Secure raises an AccessViolation when 'site_id=' is called. It is allowed here !

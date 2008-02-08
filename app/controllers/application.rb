@@ -82,8 +82,8 @@ class ApplicationController < ActionController::Base
           render :file => template_url(opts), :layout=>false
           cache_page if opts[:cache]
         end
-      rescue ActiveRecord::RecordNotFound
-        redirect_to zen_path(@node)
+      #rescue ActiveRecord::RecordNotFound
+      #  redirect_to zen_path(@node)
       end
     end
   
@@ -126,7 +126,7 @@ class ApplicationController < ActionController::Base
       klasses = []
       klass.kpath.split(//).each_index { |i| klasses << klass.kpath[0..i] }
       
-      template = secure!(Template) { Template.find(:first, 
+      template = secure(Template) { Template.find(:first, 
         :conditions => ["tkpath IN (?) AND format = ? AND mode #{mode ? '=' : 'IS'} ? AND template_contents.node_id = nodes.id", klasses, format, mode],
         :from       => "nodes, template_contents",
         :select     => "nodes.*, template_contents.skin_name, template_contents.klass, (template_contents.skin_name = #{@skin_name.inspect}) AS skin_ok",
@@ -204,8 +204,6 @@ class ApplicationController < ActionController::Base
       asset, url = *res
       @renamed_assets[url] = asset
       data_path(asset)
-    rescue ActiveRecord::RecordNotFound
-      return nil
     end
     
     # opts should contain :current_template and :src. The source is a path like 'default/Node-*index'
@@ -234,9 +232,9 @@ class ApplicationController < ActionController::Base
       [false, true].each do |rebuild_path|
         # try to find using cached fullpath first.
         skin_names.each do |skin_name|
-          next unless skin = @skin[skin_name] ||= (secure!(Skin) { Skin.find_by_name(skin_name) } rescue nil)
+          next unless skin = @skin[skin_name] ||= secure(Skin) { Skin.find_by_name(skin_name) }
           path = (skin.fullpath(rebuild_path).split('/') + url).join('/')
-          break if document = secure!(Document) { Document.find_by_path(path) } rescue nil
+          break if document = secure(Document) { Document.find_by_path(path) }
         end
         break if document
       end

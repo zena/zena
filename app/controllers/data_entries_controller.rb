@@ -74,9 +74,7 @@ class DataEntriesController < ApplicationController
       if @data_entry
         @data_entry.can_write?
       else
-        begin
-          @node = secure_write!(Node) { Node.find_by_zip(params['data_entry']['node_a_id']) }
-        rescue
+        unless @node = secure_write(Node) { Node.find_by_zip(params['data_entry']['node_a_id']) }
           return false
         end
       end

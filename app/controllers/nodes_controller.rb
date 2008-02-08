@@ -252,7 +252,6 @@ class NodesController < ApplicationController
       params[:node].sub!(/ +$/) {|spaces| '+' * spaces.length} if params[:node]
       node_id = secure!(Node) { Node.translate_pseudo_id(params[:node])}
       @node = secure!(Node) { Node.find(node_id) }
-      raise ActiveRecord::RecordNotFound unless @node
       
       if method == :path || method == :short_path
         path = @node.send(method)

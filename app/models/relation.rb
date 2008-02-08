@@ -49,9 +49,7 @@ class Relation < ActiveRecord::Base
       opts[sym] = options[sym] if options[sym]
     end
       
-    @records = secure!(Node) { Node.find(:all, opts) }
-  rescue ActiveRecord::RecordNotFound
-    @records = nil
+    @records = secure(Node) { Node.find(:all, opts) }
   end
   
   # I do not think this method is used anymore (all is done by @node.find(...)).
@@ -66,9 +64,7 @@ class Relation < ActiveRecord::Base
       opts[sym] = options[sym] if options[sym]
     end
       
-    @record = secure!(Node) { Node.find(:first, opts) }
-  rescue ActiveRecord::RecordNotFound
-    @record = nil
+    @record = secure(Node) { Node.find(:first, opts) }
   end
   
   # Define the caller's side. Changes the relation into a proxy so we can add/remove links. This sets the caller on the source side of the relation.
@@ -175,18 +171,14 @@ class Relation < ActiveRecord::Base
     
     # 1. can remove old link ?
     @del_links.each do |link|
-      begin
-        find_target(link[other_side])
-      rescue ActiveRecord::RecordNotFound
+      unless find_target(link[other_side])
         @link_errors << 'cannot remove link'
       end
     end
     
     # 2. can write in new target ?
     @add_ids.each do |obj_id|
-      begin
-        find_target(obj_id)
-      rescue ActiveRecord::RecordNotFound
+      unless find_target(obj_id)
         @link_errors << 'invalid target'
       end
     end
@@ -241,9 +233,9 @@ class Relation < ActiveRecord::Base
     
     def find_target(obj_id)
       if as_unique?
-        secure_drive!(relation_class) { relation_class.find(:first, :conditions=>['id = ? AND kpath LIKE ?', obj_id, "#{other_kpath}%"]) }
+        secure_drive(relation_class) { relation_class.find(:first, :conditions=>['id = ? AND kpath LIKE ?', obj_id, "#{other_kpath}%"]) }
       else
-        secure_write!(relation_class) { relation_class.find(:first, :conditions=>['id = ? AND kpath LIKE ?', obj_id, "#{other_kpath}%"]) }
+        secure_write(relation_class) { relation_class.find(:first, :conditions=>['id = ? AND kpath LIKE ?', obj_id, "#{other_kpath}%"]) }
       end
     end
 

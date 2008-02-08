@@ -491,8 +491,6 @@ class Node < ActiveRecord::Base
       with_exclusive_scope(self.scoped_methods[0] || {}) do
         find(:first, Node.match_query(string.gsub('-',' '), :offset => offset))
       end
-    rescue ActiveRecord::RecordNotFound
-      nil
     end
     
     # Paginate found results. Returns [previous_page, collection, next_page]. You can specify page and items per page in the query hash :
@@ -722,6 +720,8 @@ class Node < ActiveRecord::Base
     start += [self[:id]]
     if self[:id] == current_site[:root_id]
       []
+    elsif self[:parent_id].nil?
+      []
     else
       parent = @parent || Node.find(self[:parent_id])
       parent.visitor = visitor
@@ -731,8 +731,6 @@ class Node < ActiveRecord::Base
         parent.ancestors(start)
       end
     end
-  rescue ActiveRecord::RecordNotFound
-    []
   end
   
   # url base path. cached. If rebuild is set to true, the cache is updated.
@@ -796,211 +794,27 @@ class Node < ActiveRecord::Base
   def parent(opts={})
     # make sure the cache is in sync with 'parent_id' (used during validation)
     return @parent if @parent && @parent[:id] == self[:parent_id]
-    if opts[:secure] != false
-      @parent = secure!(Node, opts) { Node.find(self[:parent_id]) }
+    if self[:parent_id].nil?
+      nil
+    elsif opts[:secure] != false
+      @parent = secure(Node, opts) { Node.find(self[:parent_id]) }
     else
-      secure!(Node, opts) { Node.find(self[:parent_id]) }
+      secure(Node, opts) { Node.find(self[:parent_id]) }
     end
-  rescue ActiveRecord::RecordNotFound
-    nil
   end
   
   # Find section
   def section(opts={})
     return self if self[:parent_id].nil?
     # we cannot use Section to find because the root node behaves like a Section but is a Project.
-    secure!(Node, opts) { Node.find(self[:section_id]) }
-  rescue ActiveRecord::RecordNotFound
-    nil
+    secure(Node, opts) { Node.find(self[:section_id]) }
   end
   
   # Find project
   def project(opts={})
     return self if self[:parent_id].nil?
-    secure!(Project, opts) { Project.find(self[:project_id]) }
-  rescue ActiveRecord::RecordNotFound
-    nil
+    secure(Project, opts) { Project.find(self[:project_id]) }
   end
-  
-=begin
-I think we can remove this stuff now that relations are rewritten
-  
-  # This is defined by the linkable lib, we add access to 'root', 'project', 'parent', 'children', ...
-  def relation(methods, opts={})
-    return nil if new_record?
-    res = nil
-    try_list = methods.to_s.split(',')
-    plural = opts[:from] || opts[:or] || self.class.plural_relation?(try_list[0])
-    if !plural
-      opts[:limit] = 1
-    end
-    while (!res || res==[]) && try_list != []
-      method = try_list.shift
-      begin
-        case
-        when method =~ /\A\d+\Z/
-          res = secure!(Node) { Node.find(method) }
-        when or_method = opts[:or]
-          native_or  = self.class.native_relation?(or_method)
-          native_std = self.class.native_relation?(method)
-          
-          if native_or && native_std
-            # both native methods
-            cond = "(#{condition_for(method)}) OR (#{condition_for(or_method)})"
-            
-            res = secure!(Node) { Node.find(:all, Node.clean_options(defaults_for(method).merge(opts).merge(:conditions => condition_for(nil,opts.merge(:base_cond => cond))))) }
-          elsif native_or
-            if proxy = relation_proxy(:role => method, :ignore_source => true)
-              # relation or native
-              cond = condition_for(or_method,opts.merge(:conditions => nil))
-              res  = proxy.records(defaults_for(or_method).merge(opts).merge(:or => cond))
-            else
-              # single native
-              res = secure!(Node) { Node.find(:all, Node.clean_options(defaults_for(method).merge(opts).merge(:conditions => condition_for(or_method,opts)))) }
-            end
-          elsif native_std
-            if proxy = relation_proxy(:role => or_method, :ignore_source => true)
-              # native or relation
-              cond = condition_for(method,opts.merge(:conditions => nil))
-              res  = proxy.records(defaults_for(method).merge(opts).merge(:or => cond))
-            else
-              # single native
-              res = secure!(Node) { Node.find(:all, Node.clean_options(defaults_for(method).merge(opts).merge(:conditions => condition_for(method,opts)))) }
-            end
-          else
-            # TODO: both are relations ?
-            # not implemented yet
-            res = nil
-          end
-        when self.class.native_relation?(method, opts)
-          res = secure!(Node) { Node.find(:all, Node.clean_options(defaults_for(method).merge(opts).merge(:conditions => condition_for(method,opts)))) }
-        else
-          # Find through HasRelations
-          res = fetch_relation(method, defaults_for(method).merge(opts))
-        end
-      rescue ActiveRecord::RecordNotFound
-        res = nil
-      end
-    end
-    if res
-      if plural && !res.kind_of?(Array)
-        [res]
-      elsif !plural && res.kind_of?(Array)
-        res[0]
-      else
-        res
-      end
-    else
-      nil
-    end
-  end
-  
-  def relation_options(opts, cond=nil)
-    opts = opts.dup
-    case opts[:from]
-    when 'site'
-      conditions = "1"
-    when 'project'
-      conditions = ["project_id = ?", get_project_id]
-    when 'section'
-      conditions = ["section_id = ?", get_section_id]
-    else
-      # self or nothing
-      conditions = ["parent_id = ?", self[:id]]
-    end
-    opts.delete(:from)
-    if cond
-      # merge option and condition
-      if conditions.kind_of?(Array)
-        conditions[0] = "(#{conditions[0]}) AND (#{cond})"
-      else  
-        conditions = "(#{conditions}) AND (#{cond})"
-      end
-    end
-    if opt_cond = opts[:conditions]
-      if opt_cond.kind_of?(Array)
-        # merge option and condition
-        if conditions.kind_of?(Array)
-          conditions = ["(#{conditions[0]}) AND (#{opt_cond[0]})"] + conditions[1..-1] + opt_cond[1..-1]
-        else
-          conditions = ["(#{conditions}) AND (#{opt_cond[0]})", *opt_cond[1..-1]]
-        end
-      else
-        # merge option and condition
-        if conditions.kind_of?(Array)
-          conditions[0] = "(#{conditions[0]}) AND (#{opt_cond})"
-        else
-          conditions = "(#{conditions}) AND (#{opt_cond})"
-        end
-      end
-    end
-    opts.delete(:conditions)
-    {:order=>'position ASC, name ASC', :conditions=>conditions}.merge(opts)
-  end
-
-  # Get root node
-  def root(opts={})
-    secure!(Node) { Node.find(current_site[:root_id])}
-  rescue ActiveRecord::RecordNotFound
-    nil
-  end
-
-  # TODO: remove ? Find notes (overwritten in Project)
-  def notes
-    nil
-  end
-  
-  # Find all children
-  def children(opts={})
-    secure!(Node) { Node.find(:all, relation_options(opts)) }
-  end
-  
-  # Find sections (sections from='site')
-  def sections(opts={})
-    opts[:from] ||= 'project'
-    secure!(Section) { Section.find(:all, relation_options(opts)) }
-  rescue ActiveRecord::RecordNotFound
-    nil
-  end
-  
-  # Find projects (projects from='site')
-  def projects(opts={})
-    opts[:from] ||= 'project'
-    secure!(Project) { Project.find(:all, relation_options(opts)) }
-  rescue ActiveRecord::RecordNotFound
-    nil
-  end
-  
-  # Find all sub-nodes (all children / all nodes in a section)
-  def nodes(opts={})
-    secure!(Node) { Node.find(:all, relation_options(opts)) }
-  end
-  
-  # Find all sub-pages (All but documents)
-  def pages(opts={})
-    secure!(Page) { Page.find(:all, relation_options(opts,"kpath NOT LIKE 'NPD%'")) }
-  end
-  
-  # Find documents
-  def documents(opts={})
-    secure!(Document) { Document.find(:all, relation_options(opts)) }
-  end
-
-  # Find documents without images
-  def documents_only(opts={})
-    secure!(Document) { Document.find(:all, relation_options(opts, "kpath NOT LIKE 'NPDI%'") ) }
-  end
-  
-  # Find only images
-  def images(opts={})
-    secure!(Image) { Image.find(:all, relation_options(opts) ) }
-  end
-  
-  # Find only notes
-  def notes(opts={})
-    secure!(Note) { Note.find(:all, relation_options(opts) ) }
-  end
-=end
 
   # Create a child and let him inherit from rwp groups and section_id
   def new_child(opts={})
@@ -1031,9 +845,7 @@ I think we can remove this stuff now that relations are rewritten
     return nil if new_record?
     return @icon if defined? @icon
     @icon = find(:first, :relations=>['icon']) ||
-            secure!(Image) { Image.find(:first, :order=>'position ASC, name ASC', :conditions => "parent_id = #{self[:id]}") }
-  rescue ActiveRecord::RecordNotFound
-    @icon = nil
+            secure(Image) { Image.find(:first, :order=>'position ASC, name ASC', :conditions => "parent_id = #{self[:id]}") }
   end
   
   alias o_user user
@@ -1394,7 +1206,7 @@ I think we can remove this stuff now that relations are rewritten
     # Publish, refuse, propose the Documents of a redaction
     def sync_documents(action, pub_time=nil)
       allOK = true
-      documents = secure_drive!(Document) { Document.find(:all, :conditions=>"parent_id = #{self[:id]}") } || []
+      documents = secure_drive(Document) { Document.find(:all, :conditions=>"parent_id = #{self[:id]}") } || []
       case action
       when :propose
         documents.each do |doc|

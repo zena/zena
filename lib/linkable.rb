@@ -235,13 +235,11 @@ on the post edit page :
                         )
         if conditions
           klass.with_scope(:find=>{:conditions=>conditions}) do
-            secure!(klass) { klass.find(count, options ) }
+            secure(klass) { klass.find(count, options ) }
           end
         else 
-          secure!(klass) { klass.find(count, options ) }
+          secure(klass) { klass.find(count, options ) }
         end
-      rescue ActiveRecord::RecordNotFound
-        nil
       end
       
       module AddActsAsMethod
@@ -349,9 +347,7 @@ on the post edit page :
                 # 1. can remove old link ?
                 if link = Link.find_by_role_and_#{link_side}('#{role}', self[:id])
                   obj_id = link.#{other_side}
-                  begin
-                    #{find_target}(#{class_name}) { #{class_name}.find(obj_id) }
-                  rescue
+                  unless #{find_target}(#{class_name}) { #{class_name}.find(obj_id) }
                     errors.add('#{role}', 'cannot remove old link')
                   end
                 end
@@ -360,9 +356,7 @@ on the post edit page :
                 obj_id = @#{method}_id
                 if obj_id && obj_id != ''
                   # set
-                  begin
-                    #{find_target}(#{class_name}) { #{class_name}.find(obj_id) } # make sure we can write in the object
-                  rescue
+                  unless #{find_target}(#{class_name}) { #{class_name}.find(obj_id) } # make sure we can write in the object
                     errors.add('#{role}', 'invalid')
                   end
                 end
@@ -434,18 +428,14 @@ on the post edit page :
                 
                 # 1. can remove old link ?
                 @#{meth}_del_ids.each do |obj_id|
-                  begin
-                    #{find_target}(#{class_name}) { #{class_name}.find(obj_id) }
-                  rescue
+                  unless #{find_target}(#{class_name}) { #{class_name}.find(obj_id) }
                     errors.add('#{role}', 'cannot remove link')
                   end
                 end
                 
                 # 2. can write in new target ?
                 @#{meth}_add_ids.each do |obj_id|
-                  begin
-                    #{find_target}(#{class_name}) { #{class_name}.find(obj_id) }
-                  rescue
+                  unless #{find_target}(#{class_name}) { #{class_name}.find(obj_id) }
                     errors.add('#{meth}', 'invalid target')
                   end
                 end

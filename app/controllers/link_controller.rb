@@ -71,10 +71,11 @@ class LinkController < ApplicationController
   
   # remove a link given the link id 'id' and the node id 'node_id'
   def remove
-    @node = secure_drive!(Node) { Node.find(params[:node_id]) }
+    @node = secure_drive(Node) { Node.find(params[:node_id]) }
+    
+    return processing_error'node not found' unless @node
+    
     @link_id = params[:id]
     @node.remove_link(@link_id) && @node.save
-  rescue ActiveRecord::RecordNotFound
-    processing_error'node not found'
   end
 end

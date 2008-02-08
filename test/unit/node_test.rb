@@ -1028,7 +1028,7 @@ done: \"I am done\""
   def find_nodes_with_pagination_in_cleanWaterProject(page, per_page = 3, opts=nil)
     previous_page, collection, next_page = nil, nil, nil
     opts ||= {:conditions => ['project_id = ?', nodes_id(:cleanWater)], :order=>'id ASC'}
-    collection = secure!(Node) do
+    collection = secure(Node) do
       previous_page, collection, next_page = Node.find_with_pagination(:all, opts.merge(:page=>page, :per_page=>per_page))
       collection
     end
