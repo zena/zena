@@ -218,7 +218,7 @@ module ApplicationHelper
   
   # Find a node's zip based on a query shortcut. Used by zazen to create a link for ""::art for example.
   def find_node_by_shortcut(string,offset=0)
-    secure(Node) { Node.find_node_by_shortcut(string,offset) }
+    secure!(Node) { Node.find_node_by_shortcut(string,offset) }
   rescue ActiveRecord::RecordNotFound
     nil
   end
@@ -239,7 +239,7 @@ module ApplicationHelper
       link_opts[:mode]   = ($2 != '') ? $2[1..-1] : nil
       link_opts[:format] = ($3 != '') ? $3[1..-1] : nil
     end
-    node  = opts[:node] || secure(Node) { Node.find_by_zip(opts[:id]) }
+    node  = opts[:node] || secure!(Node) { Node.find_by_zip(opts[:id]) }
     title = (opts[:title] && opts[:title] != '') ? opts[:title] : node.v_title
     
     link_opts[:format] = node.c_ext if link_opts[:format] == 'data'
@@ -269,7 +269,7 @@ module ApplicationHelper
   # Create an img tag for the given image. See ApplicationHelper#zazen for details.
   def make_image(opts)
     id, style, link, size, title = opts[:id], opts[:style], opts[:link], opts[:size], opts[:title]
-    img = opts[:node] || secure(Document) { Document.find_by_zip(id) }
+    img = opts[:node] || secure!(Document) { Document.find_by_zip(id) }
     if !opts[:images].nil? && !opts[:images]
       return "[#{_('image')}: #{img.v_title}]"
     end
@@ -326,7 +326,7 @@ module ApplicationHelper
       images = (opts[:node] || @node).find(:all, 'images')
     else
       ids = ids.map{|i| i.to_i}
-      images = ids == [] ? nil : secure(Document) { Document.find(:all, :conditions=>"zip IN (#{ids.join(',')})") }
+      images = ids == [] ? nil : secure!(Document) { Document.find(:all, :conditions=>"zip IN (#{ids.join(',')})") }
       # order like ids :
       images.sort! {|a,b| ids.index(a[:zip].to_i) <=> ids.index(b[:zip].to_i) } if images
     end
@@ -357,7 +357,7 @@ module ApplicationHelper
       docs = @node.find(:all, 'images')
     else
       ids = ids.map{|i| i.to_i}
-      docs = ids == [] ? nil : secure(Document) { Document.find(:all, :order=>'name ASC', :conditions=>"zip IN (#{ids.join(',')})") }
+      docs = ids == [] ? nil : secure!(Document) { Document.find(:all, :order=>'name ASC', :conditions=>"zip IN (#{ids.join(',')})") }
       # order like ids :
       docs.sort! {|a,b| ids.index(a[:zip].to_i) <=> ids.index(b[:zip].to_i) } if docs
     end
@@ -700,13 +700,13 @@ module ApplicationHelper
   #TODO: test
   # Return the list of possible templates
   def form_skins
-    @form_skins ||= secure(Skin) { Skin.find(:all, :order=>'name ASC') }.map {|r| r[:name]}
+    @form_skins ||= secure!(Skin) { Skin.find(:all, :order=>'name ASC') }.map {|r| r[:name]}
   end
   
   #TODO: test
   def site_tree(obj=nil)
     skip  = obj ? obj[:id] : nil
-    base  = secure(Node) { Node.find(visitor.site[:root_id]) }
+    base  = secure!(Node) { Node.find(visitor.site[:root_id]) }
     level = 0
     if obj.nil?
       klass = Node
@@ -1109,7 +1109,7 @@ ENDTXT
   def select_id(obj, sym, opt={})
     if ['Project', 'Tag', 'Contact'].include?(opt[:class].to_s)
       klass = opt[:class].kind_of?(Class) ? opt[:class] : Module::const_get(opt[:class].to_sym)
-      return select(obj,sym,  secure_write(klass) { klass.find(:all, :select=>'zip,name', :order=>'name ASC') }.map{|r| [r[:name], r[:zip]]}, { :include_blank => opt[:include_blank] })
+      return select(obj,sym,  secure_write!(klass) { klass.find(:all, :select=>'zip,name', :order=>'name ASC') }.map{|r| [r[:name], r[:zip]]}, { :include_blank => opt[:include_blank] })
     end
     
     unless id = opt[:id]
@@ -1122,7 +1122,7 @@ ENDTXT
     end
     
     if !id.blank?
-      current_obj = secure(Node) { Node.find(id) } rescue nil
+      current_obj = secure!(Node) { Node.find(id) } rescue nil
     end
     
     

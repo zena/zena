@@ -39,7 +39,7 @@ class TestController < ApplicationController
     @visitor = User.make_visitor(:id => params[:user_id], :host => request.host)
     @visitor.lang = params[:prefix]
     GetText.set_locale_all(@visitor.lang)
-    @node = secure(Node) { Node.find(params[:node_id])}
+    @node = secure!(Node) { Node.find(params[:node_id])}
     @text = params[:text]
     @test_url  = params[:url]
     params.delete(:user_id)

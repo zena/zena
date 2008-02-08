@@ -71,7 +71,7 @@ class NodesController < ApplicationController
     other_zip = params[:drop].split('.').last
     case role
     when 'child'
-      other = secure(Node) { Node.find_by_zip(other_zip)}
+      other = secure!(Node) { Node.find_by_zip(other_zip)}
       unless other.update_attributes(:parent_id => @node[:id])
         @errors = other.errors
       end
@@ -133,7 +133,7 @@ class NodesController < ApplicationController
   
   def create
     attrs = params['node']
-    @node = secure(Node) { Node.create_node(attrs) }
+    @node = secure!(Node) { Node.create_node(attrs) }
     
     respond_to do |format|
       if @node.errors.empty?
@@ -171,7 +171,7 @@ class NodesController < ApplicationController
   
   # Create a backup copy of the current redaction.
   def backup
-    @node = secure_write(Node) { Node.version(params[:id]) }
+    @node = secure_write!(Node) { Node.version(params[:id]) }
     @node.backup
     if @node.errors.empty?
       flash[:notice] = _("Backup created.")
@@ -182,7 +182,7 @@ class NodesController < ApplicationController
   
   # import sub-nodes from a file
   def import
-    @nodes = secure(Node) { Node.create_nodes_from_folder(:archive => params[:archive], :parent => @node) }.values
+    @nodes = secure!(Node) { Node.create_nodes_from_folder(:archive => params[:archive], :parent => @node) }.values
   end
   
   # Create a link between two nodes. This method is called from the drive popup.
@@ -250,8 +250,8 @@ class NodesController < ApplicationController
     if [:v_text, :v_summary, :name, :path, :short_path].include?(method)
       # '+' are not escaped as they should in ajax query
       params[:node].sub!(/ +$/) {|spaces| '+' * spaces.length} if params[:node]
-      node_id = secure(Node) { Node.translate_pseudo_id(params[:node])}
-      @node = secure(Node) { Node.find(node_id) }
+      node_id = secure!(Node) { Node.translate_pseudo_id(params[:node])}
+      @node = secure!(Node) { Node.find(node_id) }
       raise ActiveRecord::RecordNotFound unless @node
       
       if method == :path || method == :short_path
@@ -286,7 +286,7 @@ class NodesController < ApplicationController
     end
     
     positions.each_with_index do |zip,idx|
-      child = secure(Node) { Node.find_by_zip(zip) }
+      child = secure!(Node) { Node.find_by_zip(zip) }
       child.position = idx
       allOk = child.save && allOK
     end
@@ -322,16 +322,16 @@ class NodesController < ApplicationController
           params[:format] = $6 == '' ? ''  : $6[1..-1]
           if name
             basepath = (path[0..-2] + [name]).join('/')
-            @node = secure(Node) { Node.find_by_path(basepath) }
+            @node = secure!(Node) { Node.find_by_path(basepath) }
           else
-            @node = secure(Node) { Node.find_by_zip(zip) }
+            @node = secure!(Node) { Node.find_by_zip(zip) }
           end
         else
           # bad url
           raise ActiveRecord::RecordNotFound
         end
       elsif params[:id]
-        @node = secure(Node) { Node.find_by_zip(params[:id]) }
+        @node = secure!(Node) { Node.find_by_zip(params[:id]) }
       end
       @title_for_layout = @node.rootpath if @node
     end
@@ -366,7 +366,7 @@ class NodesController < ApplicationController
       @node = current_site.root_node
       query = Node.match_query(params[:q], :node => @node)
       
-      @nodes = secure(Node) do
+      @nodes = secure!(Node) do
         @nodes_previous_page, @nodes, @nodes_next_page = Node.find_with_pagination(:all,query.merge(:per_page => 10, :page => params[:page]))
         @nodes # important: this is the 'secure' yield return, it is used to secure found nodes
       end
@@ -377,9 +377,9 @@ class NodesController < ApplicationController
   # test to here
   def test
     if request.get?
-      @node = secure(Page) { Page.find(params[:id]) }
+      @node = secure!(Page) { Page.find(params[:id]) }
     else
-      @node = secure(Page) { Page.find(params[:id]) }
+      @node = secure!(Page) { Page.find(params[:id]) }
       params[:node][:tag_ids] = [] unless params[:node][:tag_ids]
       @node.update_attributes(params[:node])
     end

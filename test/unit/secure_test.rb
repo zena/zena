@@ -29,7 +29,7 @@ class SecureReadTest < ZenaTestUnit
   # [user]          Node owner. Can *read*, *write* and (*manage*: if node not published yet or node is private).
   def test_can_rwm_own_private_node
     login(:ant)
-    node = secure(Node) { nodes(:myLife)  }
+    node = secure!(Node) { nodes(:myLife)  }
     assert_kind_of Node, node
     assert_equal 'myLife', node.name
     assert node.can_read?, "Can read"
@@ -39,18 +39,27 @@ class SecureReadTest < ZenaTestUnit
     assert node.can_drive? , "Can manage"
     assert !node.can_visible? , "Cannot make visible changes"
   end
+  
   def test_cannot_view_others_private_nodes
     login(:lion)
-    assert_raise(ActiveRecord::RecordNotFound) { node = secure(Node) { nodes(:myLife)  }}
+    assert_raise(ActiveRecord::RecordNotFound) { node = secure!(Node) { nodes(:myLife)  }}
   end
+  
+  def test_secure_or_nil
+    login(:lion)
+    assert_nothing_raised { node = secure_or_nil(Node) { nodes(:myLife)  }}
+    assert_nil node
+  end
+  
   def test_owner_but_not_in_rgroup
     login(:ant)
-    node = secure(Node) { nodes(:proposition)  }
+    node = secure!(Node) { nodes(:proposition)  }
     assert_kind_of Node, node
     assert node.can_read? , "Can read"
     assert node.can_write? , "Can write"
     assert ! node.can_publish? , "Can publish"
   end
+  
   def test_cannot_rwpm_if_not_owner_and_not_in_any_group
     login(:ant)
     # not in any group and not owner
@@ -60,24 +69,24 @@ class SecureReadTest < ZenaTestUnit
     assert ! node.can_write? , "Can write"
     assert ! node.can_publish? , "Can publish"
     assert ! node.can_manage? , "Can manage"
-    assert_raise(ActiveRecord::RecordNotFound) { node = secure(Node) { Node.find(node.id) }}
+    assert_raise(ActiveRecord::RecordNotFound) { node = secure!(Node) { Node.find(node.id) }}
   end
   
   def test_rgroup_can_read_if_published
     # visitor = public
     login(:anon)
     # not published, cannot read
-    assert_raise(ActiveRecord::RecordNotFound) { node = secure(Node) { nodes(:crocodiles)  }}
+    assert_raise(ActiveRecord::RecordNotFound) { node = secure!(Node) { nodes(:crocodiles)  }}
     # published: can read
-    node = secure(Node) { nodes(:lake)  }
+    node = secure!(Node) { nodes(:lake)  }
     assert_kind_of Node, node
   end
   # write group can only write
   def test_write_group_can_w
     login(:tiger)
     node = ""
-    assert_raise(ActiveRecord::RecordNotFound) { node = secure(Node) { nodes(:strange)  } }
-    assert_nothing_raised { node = secure_write(Node) { nodes(:strange)  } }
+    assert_raise(ActiveRecord::RecordNotFound) { node = secure!(Node) { nodes(:strange)  } }
+    assert_nothing_raised { node = secure_write!(Node) { nodes(:strange)  } }
     assert ! node.can_read? , "Cannot read"
     assert node.can_write? , "Can write"
   end
@@ -86,22 +95,22 @@ class SecureReadTest < ZenaTestUnit
   def test_publish_group_can_rwp
     login(:ant)
     node = ""
-    ant = secure(User) { users(:ant) }
-    assert_raise(ActiveRecord::RecordNotFound) { node = secure(Node) { nodes(:strange)  } }
-    assert_raise(ActiveRecord::RecordNotFound) { node = secure_write(Node) { nodes(:strange)  } }
-    assert node = secure_drive(Node) { nodes(:strange)  }
+    ant = secure!(User) { users(:ant) }
+    assert_raise(ActiveRecord::RecordNotFound) { node = secure!(Node) { nodes(:strange)  } }
+    assert_raise(ActiveRecord::RecordNotFound) { node = secure_write!(Node) { nodes(:strange)  } }
+    assert node = secure_drive!(Node) { nodes(:strange)  }
     
     login(:lion)
     lion_node = ""
-    assert_nothing_raised { lion_node = secure(Node) { nodes(:strange)  } }
+    assert_nothing_raised { lion_node = secure!(Node) { nodes(:strange)  } }
     assert lion_node.can_read? , "Owner can read"
     assert lion_node.propose , "Can propose"
     
     login(:ant)
     # now node is 'prop', pgroup can see it
-    assert_nothing_raised { node = secure(Node) { nodes(:strange)  } }
-    assert_raise(ActiveRecord::RecordNotFound) { node = secure_write(Node) { nodes(:strange)  } }
-    assert_nothing_raised { node = secure_drive(Node) { nodes(:strange)  } }
+    assert_nothing_raised { node = secure!(Node) { nodes(:strange)  } }
+    assert_raise(ActiveRecord::RecordNotFound) { node = secure_write!(Node) { nodes(:strange)  } }
+    assert_nothing_raised { node = secure_drive!(Node) { nodes(:strange)  } }
     assert ! ant.group_ids.include?(node.rgroup_id) , "Visitor is not in rgroup"
     assert ! ant.group_ids.include?(node.wgroup_id) , "Visitor is not in wgroup"
     assert ! (ant.id == node.user_id) , "Visitor is not the owner"
@@ -114,16 +123,16 @@ class SecureReadTest < ZenaTestUnit
   
   def test_not_owner_can_vis
     login(:lion)
-    node = secure(Node) { nodes(:status) }
+    node = secure!(Node) { nodes(:status) }
     assert_equal users_id(:ant), node.user_id
     assert node.can_visible?
   end
   
   def test_public_not_in_rgroup_cannot_rwp
     login(:anon)
-    assert_raise(ActiveRecord::RecordNotFound) { node = secure(Node) { nodes(:secret)  } }
-    assert_raise(ActiveRecord::RecordNotFound) { node = secure_write(Node) { nodes(:secret)  } }
-    assert_raise(ActiveRecord::RecordNotFound) { node = secure_drive(Node) { nodes(:secret)  } }
+    assert_raise(ActiveRecord::RecordNotFound) { node = secure!(Node) { nodes(:secret)  } }
+    assert_raise(ActiveRecord::RecordNotFound) { node = secure_write!(Node) { nodes(:secret)  } }
+    assert_raise(ActiveRecord::RecordNotFound) { node = secure_drive!(Node) { nodes(:secret)  } }
     node = nodes(:secret)
     assert_raise(Zena::RecordNotSecured) { node.can_read? }
     visitor.visit(node)
@@ -135,8 +144,8 @@ class SecureReadTest < ZenaTestUnit
   def test_pgroup_can_read_unplished_nodes
     # create an unpublished node
     login(:lion)
-    node = secure(Node) { nodes(:strange)  }
-    node = secure(Node) { node.clone }
+    node = secure!(Node) { nodes(:strange)  }
+    node = secure!(Node) { node.clone }
     node[:publish_from] = nil
     node[:name] = "new_rec"
     assert node.new_record?
@@ -144,14 +153,14 @@ class SecureReadTest < ZenaTestUnit
     
     login(:ant)
     # node is 'red', cannot see it
-    assert_raise(ActiveRecord::RecordNotFound) { node = secure(Page) { Page.find_by_name("new_rec") } }
+    assert_raise(ActiveRecord::RecordNotFound) { node = secure!(Page) { Page.find_by_name("new_rec") } }
     
     login(:lion)
     assert node.propose , "Can propose node for publication."
     
     login(:ant)
     # node can now be seen
-    assert_nothing_raised { node = secure(Page) { Page.find_by_name("new_rec") } }
+    assert_nothing_raised { node = secure!(Page) { Page.find_by_name("new_rec") } }
     assert_nil node[:publish_from] , "Not published yet"
   end
 end
@@ -175,7 +184,7 @@ class SecureCreateTest < ZenaTestUnit
   end
   def test_secure_new_succeeds
     login(:ant)
-    test_page = secure(Node) { Node.new(:name=>"yoba", :parent_id=>nodes_id(:zena)) }
+    test_page = secure!(Node) { Node.new(:name=>"yoba", :parent_id=>nodes_id(:zena)) }
     assert test_page.save , "Save succeeds"
   end
   def test_unsecure_create_fails
@@ -186,7 +195,7 @@ class SecureCreateTest < ZenaTestUnit
   end
   def test_secure_create_succeeds
     login(:ant)
-    p = secure(Node) { Node.create(node_defaults) }
+    p = secure!(Node) { Node.create(node_defaults) }
     assert ! p.new_record? , "Not a new record"
     assert p.id , "Has an id"
   end
@@ -194,7 +203,7 @@ class SecureCreateTest < ZenaTestUnit
   # 0. set node.user_id = visitor_id
   def test_owner_is_visitor_on_new
     login(:ant)
-    test_page = secure(Node) { Node.new(node_defaults) }
+    test_page = secure!(Node) { Node.new(node_defaults) }
     test_page[:user_id] = 99 # try to fool
     assert test_page.save , "Save succeeds"
     assert_equal users_id(:ant), test_page.user_id
@@ -203,12 +212,12 @@ class SecureCreateTest < ZenaTestUnit
     login(:ant)
     attrs = node_defaults
     attrs[:user_id] = 99
-    page = secure(Node) { Node.create(attrs) }
+    page = secure!(Node) { Node.create(attrs) }
     assert_equal users_id(:ant), page.user_id
   end
   def test_status
     login(:tiger)
-    node = secure(Node) { Node.new(node_defaults) }
+    node = secure!(Node) { Node.new(node_defaults) }
     assert_equal Zena::Status[:red], node.max_status, "New node max_status is 'red'"
     assert_equal Zena::Status[:red], node.v_status, "Version status is 'red'"
     
@@ -220,7 +229,7 @@ class SecureCreateTest < ZenaTestUnit
     assert_equal Zena::Status[:pub], node.max_status, "node max_status in now 'pub'"
     id = node.id
     login(:ant)
-    assert_nothing_raised { node = secure(Node) { Node.find(id) } }
+    assert_nothing_raised { node = secure!(Node) { Node.find(id) } }
     assert node.update_attributes(:v_summary=>'hello my friends'), "Can create a new edition"
     assert_equal Zena::Status[:pub], node.max_status, "Node max_status did not change"
     assert node.propose, "Can propose edition"
@@ -234,7 +243,7 @@ class SecureCreateTest < ZenaTestUnit
     
     # ant cannot write into secret
     attrs[:parent_id] = nodes_id(:secret)
-    z = secure(Note) { Note.create(attrs) }
+    z = secure!(Note) { Note.create(attrs) }
     assert z.new_record? , "New record"
     assert z.errors[:parent_id] , "Errors on parent_id"
     assert_equal "invalid reference", z.errors[:parent_id]
@@ -244,7 +253,7 @@ class SecureCreateTest < ZenaTestUnit
     # root nodes do not have a parent_id !!
     # reference = self
     login(:lion)
-    z = secure(Node) { nodes(:zena)  }
+    z = secure!(Node) { nodes(:zena)  }
     assert_nil z[:parent_id]
     z[:pgroup_id] = 1
     assert z.save, "Can change root group"
@@ -252,7 +261,7 @@ class SecureCreateTest < ZenaTestUnit
   
   def test_circular_reference
     login(:tiger)
-    node = secure(Node) { nodes(:projects)  }
+    node = secure!(Node) { nodes(:projects)  }
     node[:parent_id] = nodes_id(:status)
     assert ! node.save, 'Save fails'
     assert_equal node.errors[:parent_id], 'circular reference'
@@ -261,7 +270,7 @@ class SecureCreateTest < ZenaTestUnit
   def test_existing_circular_reference
     login(:tiger)
     Node.connection.execute "UPDATE nodes SET parent_id = #{nodes_id(:cleanWater)} WHERE id=#{nodes_id(:projects)}"
-    node = secure(Node) { nodes(:status)  }
+    node = secure!(Node) { nodes(:status)  }
     node[:parent_id] = nodes_id(:projects)
     assert ! node.save, 'Save fails'
     assert_equal node.errors[:parent_id], 'circular reference'
@@ -269,14 +278,14 @@ class SecureCreateTest < ZenaTestUnit
   
   def test_valid_without_circular
     login(:tiger)
-    node = secure(Node) { nodes(:status)  }
+    node = secure!(Node) { nodes(:status)  }
     node[:parent_id] = nodes_id(:zena)
     assert node.save, 'Save succeeds'
   end
   
   def test_set_reference_for_root
     login(:tiger)
-    node = secure(Node) { nodes(:zena)  }
+    node = secure!(Node) { nodes(:zena)  }
     node.name = 'bob'
     assert node.save
     node[:parent_id] = nodes_id(:status)
@@ -290,7 +299,7 @@ class SecureCreateTest < ZenaTestUnit
     
     # ok
     attrs[:parent_id] = nodes_id(:cleanWater)
-    z = secure(Note) { Note.create(attrs) }
+    z = secure!(Note) { Note.create(attrs) }
     assert ! z.new_record? , "Not a new record"
     assert z.errors.empty? , "No errors"
   end
@@ -303,11 +312,11 @@ class SecureCreateTest < ZenaTestUnit
     # can create node in cleanWater
     cw = nodes(:cleanWater)
     attrs[:parent_id] = cw[:id]
-    z = secure(Note) { Note.create(attrs) }
+    z = secure!(Note) { Note.create(attrs) }
     assert z.errors.empty? , "No errors"
     # cannot publish in ref 'cleanWater'
     attrs[:pgroup_id] = 1
-    z = secure(Note) { Note.create(attrs) }
+    z = secure!(Note) { Note.create(attrs) }
     assert z.errors[:pgroup_id] , "Errors on pgroup_id"
     assert_equal "you cannot change this", z.errors[:pgroup_id]
   end
@@ -318,7 +327,7 @@ class SecureCreateTest < ZenaTestUnit
     # can publish in ref 'wiki', but is not in group managers
     attrs[:parent_id] = nodes_id(:wiki)
     attrs[:pgroup_id] = groups_id(:managers)
-    z = secure(Note) { Note.create(attrs) }
+    z = secure!(Note) { Note.create(attrs) }
     assert z.new_record? , "New record"
     assert z.errors[:pgroup_id] , "Errors on pgroup_id"
     assert_equal "unknown group", z.errors[:pgroup_id]
@@ -330,7 +339,7 @@ class SecureCreateTest < ZenaTestUnit
     attrs[:parent_id] = wiki[:id]
     # ant is in the 'site' group, all should be ok
     attrs[:pgroup_id] = groups_id(:site)
-    z = secure(Note) { Note.create(attrs) }
+    z = secure!(Note) { Note.create(attrs) }
     assert ! z.new_record? , "Not a new record"
     assert z.errors.empty? , "No errors"
     assert_equal wiki[:rgroup_id], z[:rgroup_id] , "Same rgroup as parent"
@@ -344,13 +353,13 @@ class SecureCreateTest < ZenaTestUnit
     login(:tiger)
     attrs = node_defaults
 
-    p = secure(Node) { Node.find(attrs[:parent_id])}
+    p = secure!(Node) { Node.find(attrs[:parent_id])}
     assert p.can_visible? , "Can publish"
     
     # bad rgroup or tiger not in admin
     [99999, groups_id(:admin)].each do |grp|
       attrs[:rgroup_id] = grp
-      z = secure(Note) { Note.create(attrs) }
+      z = secure!(Note) { Note.create(attrs) }
       assert z.new_record? , "New record"
       assert z.errors[:rgroup_id] , "Error on rgroup_id"
       assert_equal "unknown group", z.errors[:rgroup_id]
@@ -361,7 +370,7 @@ class SecureCreateTest < ZenaTestUnit
     login(:tiger)
     attrs = node_defaults
     attrs[:rgroup_id] = groups_id(:admin) # tiger is not in admin
-    z = secure(Note) { Note.create(attrs) }
+    z = secure!(Note) { Note.create(attrs) }
     assert z.new_record? , "New record"
     assert z.errors[:rgroup_id], "Error on rgroup_id"
     assert_equal "unknown group", z.errors[:rgroup_id]
@@ -371,7 +380,7 @@ class SecureCreateTest < ZenaTestUnit
     attrs = node_defaults
     # bad wgroup
     attrs[:wgroup_id] = 99999
-    z = secure(Note) { Note.create(attrs) }
+    z = secure!(Note) { Note.create(attrs) }
     assert z.new_record? , "New record"
     assert z.errors[:wgroup_id] , "Error on wgroup_id"
     assert_equal "unknown group", z.errors[:wgroup_id]
@@ -381,7 +390,7 @@ class SecureCreateTest < ZenaTestUnit
     attrs = node_defaults
     
     attrs[:wgroup_id] = groups_id(:admin) # tiger is not in admin
-    z = secure(Note) { Note.create(attrs) }
+    z = secure!(Note) { Note.create(attrs) }
     assert z.new_record? , "New record"
     assert z.errors[:wgroup_id] , "Error on wgroup_id"
     assert_equal "unknown group", z.errors[:wgroup_id]
@@ -393,7 +402,7 @@ class SecureCreateTest < ZenaTestUnit
     attrs[:parent_id] = zena[:id]
     # all ok
     attrs[:wgroup_id] = 4
-    z = secure(Note) { Note.create(attrs) }
+    z = secure!(Note) { Note.create(attrs) }
     err z
     assert ! z.new_record?, "Not a new record"
     assert z.errors.empty? , "Errors empty"
@@ -408,14 +417,14 @@ class SecureCreateTest < ZenaTestUnit
     attrs = node_defaults
 
     attrs[:parent_id] = nodes_id(:zena) # ant can write but not publish here
-    p = secure(Project) { Project.find(attrs[:parent_id])}
+    p = secure!(Project) { Project.find(attrs[:parent_id])}
     assert ! p.can_publish? , "Cannot publish in reference"
     assert p.can_write? , "Can write in reference"
     
     # cannot change pgroup
     attrs[:pgroup_id] = 1
     assert (attrs[:pgroup_id] != p.pgroup_id) , "Publish group is different from reference"
-    z = secure(Note) { Note.create(attrs) }
+    z = secure!(Note) { Note.create(attrs) }
     assert z.new_record? , "New record"
     assert z.errors[:pgroup_id] , "Errors on pgroup_id"
     assert_equal "you cannot change this", z.errors[:pgroup_id]
@@ -425,13 +434,13 @@ class SecureCreateTest < ZenaTestUnit
     attrs = node_defaults
 
     attrs[:parent_id] = nodes_id(:zena) # ant can write but not publish here
-    p = secure(Project) { Project.find(attrs[:parent_id])}
+    p = secure!(Project) { Project.find(attrs[:parent_id])}
     
     # change groups
     attrs[:rgroup_id] = 98984984 # anything
     attrs[:wgroup_id] = 98984984 # anything
     attrs[:pgroup_id] = p.pgroup_id # same as reference
-    z = secure(Note) { Note.create(attrs) }
+    z = secure!(Note) { Note.create(attrs) }
     assert z.new_record? , "New record"
     assert z.errors[:rgroup_id] , "Errors on rgroup_id"
     assert z.errors[:wgroup_id] , "Errors on wgroup_id"
@@ -443,14 +452,14 @@ class SecureCreateTest < ZenaTestUnit
     attrs = node_defaults
 
     attrs[:parent_id] = nodes_id(:zena) # ant can write but not publish here
-    p = secure(Project) { Project.find(attrs[:parent_id])}
+    p = secure!(Project) { Project.find(attrs[:parent_id])}
     
     # make private
     attrs[:inherit  ] = -1 # make private
     attrs[:rgroup_id] = 98984984 # anything
     attrs[:wgroup_id] = 98984984 # anything
     attrs[:pgroup_id] = 98984984 # anything
-    z = secure(Note) { Note.create(attrs) }
+    z = secure!(Note) { Note.create(attrs) }
     assert ! z.new_record? , "Not a new record"
     assert_equal 0, z.rgroup_id , "Read group is 0"
     assert_equal 0, z.wgroup_id , "Write group is 0"
@@ -463,13 +472,13 @@ class SecureCreateTest < ZenaTestUnit
     attrs = node_defaults
 
     attrs[:parent_id] = nodes_id(:zena) # ant can write but not publish here
-    p = secure(Project) { Project.find(attrs[:parent_id])}
+    p = secure!(Project) { Project.find(attrs[:parent_id])}
     # inherit
     attrs[:inherit  ] = 1
     attrs[:rgroup_id] = 98449484 # anything
     attrs[:wgroup_id] = nil # anything
     attrs[:pgroup_id] = 98984984 # anything
-    z = secure(Note) { Note.create(attrs) }
+    z = secure!(Note) { Note.create(attrs) }
     assert ! z.new_record? , "Not a new record"
     assert_equal p.rgroup_id, z.rgroup_id ,    "Read group is same as reference"
     assert_equal p.wgroup_id, z.wgroup_id ,   "Write group is same as reference"
@@ -486,7 +495,7 @@ class SecureUpdateTest < ZenaTestUnit
   def test_pgroup_changed_cannot_visible
     # cannot visible
     login(:ant)
-    node = secure(Node) { nodes(:lake) }
+    node = secure!(Node) { nodes(:lake) }
     assert_kind_of Node, node
     assert ! node.can_visible? , "Cannot make visible changes"
     node.pgroup_id = 1
@@ -498,7 +507,7 @@ class SecureUpdateTest < ZenaTestUnit
     # cannot visible
     login(:ant)
     parent = nodes(:cleanWater)
-    node = secure(Page) { Page.create(:parent_id=>parent[:id], :name=>'thing')}
+    node = secure!(Page) { Page.create(:parent_id=>parent[:id], :name=>'thing')}
     assert_kind_of Node, node
     assert ! node.new_record?  , "Not a new record"
     assert ! node.can_visible? , "Cannot make visible changes"
@@ -512,7 +521,7 @@ class SecureUpdateTest < ZenaTestUnit
   def test_pgroup_changed_bad_pgroup_visitor_not_in_group
     # bad pgroup
     login(:tiger)
-    node = secure(Node) { nodes(:lake) }
+    node = secure!(Node) { nodes(:lake) }
     assert_kind_of Node, node
     assert node.can_visible? , "Can visible"
     node[:inherit  ] = 0
@@ -524,7 +533,7 @@ class SecureUpdateTest < ZenaTestUnit
   def test_pgroup_changed_ok
     # ok
     login(:tiger)
-    node = secure(Node) { nodes(:lake) }
+    node = secure!(Node) { nodes(:lake) }
     assert_kind_of Contact, node
     assert node.can_visible? , "Can visible"
     assert_equal 1, node.inherit , "Inherit mode is 1"
@@ -536,7 +545,7 @@ class SecureUpdateTest < ZenaTestUnit
   def test_pgroup_cannot_nil_unless_owner
     # ok
     login(:tiger)
-    node = secure(Node) { nodes(:lake) }
+    node = secure!(Node) { nodes(:lake) }
     assert_equal users_id(:ant), node[:user_id]
     assert node.can_visible? , "Can visible"
     assert_equal 1, node.inherit , "Inherit mode is 1"
@@ -549,7 +558,7 @@ class SecureUpdateTest < ZenaTestUnit
   def test_pgroup_can_nil_if_owner
     # ok
     login(:tiger)
-    node = secure(Node) { nodes(:people) }
+    node = secure!(Node) { nodes(:people) }
     assert_equal users_id(:tiger), node[:user_id]
     assert node.can_visible? , "Can visible"
     assert_equal 1, node.inherit , "Inherit mode is 1"
@@ -562,7 +571,7 @@ class SecureUpdateTest < ZenaTestUnit
   def test_rgroup_change_rgroup_with_nil_ok
     # ok
     login(:tiger)
-    node = secure(Node) { nodes(:lake) }
+    node = secure!(Node) { nodes(:lake) }
     assert node.can_visible? , "Can visible"
     assert_equal 1, node.inherit , "Inherit mode is 1"
     assert_equal 1, node.rgroup_id
@@ -576,7 +585,7 @@ class SecureUpdateTest < ZenaTestUnit
   def test_rgroup_change_rgroup_with_0_ok
     # ok
     login(:tiger)
-    node = secure(Node) { nodes(:lake) }
+    node = secure!(Node) { nodes(:lake) }
     assert node.can_visible? , "Can visible"
     assert_equal 1, node.inherit , "Inherit mode is 1"
     assert_equal 1, node.rgroup_id
@@ -589,7 +598,7 @@ class SecureUpdateTest < ZenaTestUnit
   def test_rgroup_change_to_private_with_empty_ok
     # ok
     login(:tiger)
-    node = secure(Node) { nodes(:lake) }
+    node = secure!(Node) { nodes(:lake) }
     assert_kind_of Node, node
     assert node.can_visible? , "Can visible"
     assert_equal 1, node.inherit , "Inherit mode is 1"
@@ -602,7 +611,7 @@ class SecureUpdateTest < ZenaTestUnit
   end
   def test_group_changed_children_too
     login(:tiger)
-    node = secure(Node) { nodes(:cleanWater)  }
+    node = secure!(Node) { nodes(:cleanWater)  }
     node[:inherit  ] = 0
     node[:rgroup_id] = 3
     assert node.save , "Save succeeds"
@@ -615,11 +624,11 @@ class SecureUpdateTest < ZenaTestUnit
   
   def test_reference_changed_rights_inherited
     login(:lion)
-    node = secure(Node) { nodes(:zena) }
+    node = secure!(Node) { nodes(:zena) }
     assert node.update_attributes(:rgroup_id => groups_id(:site), :wgroup_id => groups_id(:site), :pgroup_id => groups_id(:site), :skin => "wiki")
-    node = secure(Node) { nodes(:cleanWater) }
+    node = secure!(Node) { nodes(:cleanWater) }
     assert node.update_attributes(:inherit => 0, :rgroup_id => groups_id(:admin), :wgroup_id => groups_id(:admin), :pgroup_id => groups_id(:admin), :skin => "default")
-    node = secure(Node) { nodes(:status) }
+    node = secure!(Node) { nodes(:status) }
     assert_equal groups_id(:admin), node.rgroup_id
     assert_equal groups_id(:admin), node.wgroup_id
     assert_equal groups_id(:admin), node.pgroup_id
@@ -633,7 +642,7 @@ class SecureUpdateTest < ZenaTestUnit
   
   def test_skin_changed_children_too
     login(:tiger)
-    node = secure(Node) { nodes(:cleanWater)  }
+    node = secure!(Node) { nodes(:cleanWater)  }
     node[:inherit  ] = 0
     node[:skin] = 'wiki'
     assert node.save , "Save succeeds"
@@ -646,7 +655,7 @@ class SecureUpdateTest < ZenaTestUnit
   
   def test_skin_change_root_node
     login(:tiger)
-    node = secure(Node) { nodes(:zena)  }
+    node = secure!(Node) { nodes(:zena)  }
     Node.connection.execute "UPDATE nodes SET inherit = 0 WHERE id = '#{nodes_id(:cleanWater)}'"
     node[:skin] = 'wiki'
     assert node.save , "Save succeeds"
@@ -661,7 +670,7 @@ class SecureUpdateTest < ZenaTestUnit
   def test_owner_changed_visitor_not_admin
     # not in 'admin' group
     login(:tiger)
-    node = secure(Node) { nodes(:bananas) }
+    node = secure!(Node) { nodes(:bananas) }
     assert_kind_of Node, node
     assert_equal users_id(:lion), node.user_id
     node.user_id = users_id(:tiger)
@@ -672,7 +681,7 @@ class SecureUpdateTest < ZenaTestUnit
   def test_owner_changed_bad_user
     # cannot write in new contact
     login(:lion)
-    node = secure(Node) { nodes(:bananas) }
+    node = secure!(Node) { nodes(:bananas) }
     assert_kind_of Node, node
     assert_equal users_id(:lion), node.user_id
     node.user_id = 99
@@ -682,7 +691,7 @@ class SecureUpdateTest < ZenaTestUnit
   end
   def test_owner_changed_ok
     login(:lion)
-    node = secure(Node) { nodes(:bananas) }
+    node = secure!(Node) { nodes(:bananas) }
     node.user_id = users_id(:tiger)
     assert node.save , "Save succeeds"
     node.reload
@@ -692,7 +701,7 @@ class SecureUpdateTest < ZenaTestUnit
   # 3. error if user cannot visible nor manage
   def test_cannot_visible_nor_manage
     login(:ant)
-    node = secure(Node) { nodes(:collections) }
+    node = secure!(Node) { nodes(:collections) }
     assert ! node.can_visible? , "Cannot visible"
     assert ! node.can_manage? , "Cannot manage"
     assert ! node.save , "Save fails"
@@ -704,7 +713,7 @@ class SecureUpdateTest < ZenaTestUnit
   def test_reference_changed_cannot_pub_in_new
     login(:ant)
     # cannot visible in new ref
-    node = secure(Node) { nodes(:bird_jpg) } # can visible in reference
+    node = secure!(Node) { nodes(:bird_jpg) } # can visible in reference
     node[:parent_id] = nodes_id(:cleanWater) # cannot visible here
     assert ! node.save , "Save fails"
     assert node.errors[:parent_id] , "Errors on parent_id"
@@ -713,7 +722,7 @@ class SecureUpdateTest < ZenaTestUnit
   def test_reference_changed_cannot_pub_in_old
     login(:ant)
     # cannot visible in old ref
-    node = secure(Node) { nodes(:talk)  } # cannot visible in parent 'secret'
+    node = secure!(Node) { nodes(:talk)  } # cannot visible in parent 'secret'
     node[:parent_id] = nodes_id(:wiki) # can visible here
     assert ! node.save , "Save fails"
     assert node.errors[:parent_id] , "Errors on parent_id"
@@ -722,7 +731,7 @@ class SecureUpdateTest < ZenaTestUnit
   
   def test_reference_changed_ok
     login(:tiger)
-    node = secure(Node) { nodes(:lake) } # can visible here
+    node = secure!(Node) { nodes(:lake) } # can visible here
     node[:parent_id] = nodes_id(:wiki) # can visible here
     assert node.save , "Save succeeds"
     assert_equal node[:project_id], nodes(:wiki)[:id], "Same project as parent"
@@ -734,8 +743,8 @@ class SecureUpdateTest < ZenaTestUnit
   #     c. can change to 'custom'  if can_visible?
   def test_update_rw_groups_for_publisher_bad_rgroup
     login(:tiger)
-    node = secure(Node) { nodes(:lake) }
-    p = secure(Page) { Page.find(node[:parent_id])}
+    node = secure!(Node) { nodes(:lake) }
+    p = secure!(Page) { Page.find(node[:parent_id])}
     assert p.can_visible? , "Can visible in reference" # can visible in reference
     assert node.can_visible? , "Can visible"
     
@@ -752,7 +761,7 @@ class SecureUpdateTest < ZenaTestUnit
 
   def test_update_rw_groups_for_publisher_not_in_new_rgroup
     login(:tiger)
-    node = secure(Node) { nodes(:lake) }
+    node = secure!(Node) { nodes(:lake) }
     node[:inherit  ] = 0
     node[:rgroup_id] = groups_id(:admin) # tiger is not in admin
     assert ! node.save , "Save fails"
@@ -761,7 +770,7 @@ class SecureUpdateTest < ZenaTestUnit
   end
   def test_update_rw_groups_for_publisher_bad_wgroup
     login(:tiger)
-    node = secure(Node) { nodes(:lake) }
+    node = secure!(Node) { nodes(:lake) }
     # bad wgroup
     node[:inherit  ] = 0
     node[:wgroup_id] = 99999
@@ -771,7 +780,7 @@ class SecureUpdateTest < ZenaTestUnit
   end
   def test_update_rw_groups_for_publisher_not_in_new_wgroup
     login(:tiger)
-    node = secure(Node) { nodes(:lake) }
+    node = secure!(Node) { nodes(:lake) }
     node[:inherit  ] = 0
     node[:wgroup_id] = groups_id(:admin) # tiger is not in admin
     assert ! node.save , "Save fails"
@@ -780,7 +789,7 @@ class SecureUpdateTest < ZenaTestUnit
   end
   def test_update_rw_groups_for_publisher_ok
     login(:tiger)
-    node = secure(Node) { nodes(:lake) }
+    node = secure!(Node) { nodes(:lake) }
     # all ok
     node[:inherit  ] = 0
     node[:rgroup_id] = 1
@@ -797,8 +806,8 @@ class SecureUpdateTest < ZenaTestUnit
       :parent_id   => nodes_id(:cleanWater),
     }.merge(opts[:node] || {})
     
-    node = secure(Note) { Note.create(attrs) }
-    ref  = secure(Node) { Node.find_by_id(attrs[:parent_id])}
+    node = secure!(Note) { Note.create(attrs) }
+    ref  = secure!(Node) { Node.find_by_id(attrs[:parent_id])}
     
     [node, ref]
   end
@@ -899,7 +908,7 @@ class SecureUpdateTest < ZenaTestUnit
   
   def test_cannot_set_publish_from
     login(:tiger)
-    node = secure(Node) { nodes(:lake)  }
+    node = secure!(Node) { nodes(:lake)  }
     now = Time.now
     old = node.publish_from
     node.publish_from = now
@@ -913,28 +922,28 @@ class SecureUpdateTest < ZenaTestUnit
   
   def test_update_name_publish_group
     login(:lion) # owns 'strange'
-    node = secure(Node) { nodes(:strange)  }
+    node = secure!(Node) { nodes(:strange)  }
     assert node.propose
     login(:ant)
-    node = secure_drive(Node) { nodes(:strange)  } # only in pgroup
+    node = secure_drive!(Node) { nodes(:strange)  } # only in pgroup
     node.name = "kali"
     assert node.save
   end
   #     3. removing the node and/or sub-nodes
   def test_destroy
     login(:ant)
-    node = secure(Node) { nodes(:status)  }
+    node = secure!(Node) { nodes(:status)  }
     assert !node.destroy, "Cannot destroy"
     assert_equal node.errors[:base], 'you do not have the rights to do this'
   
     login(:tiger)
-    node = secure(Node) { nodes(:status)  }
+    node = secure!(Node) { nodes(:status)  }
     assert node.destroy, "Can destroy"
   end
   
   def test_secure_user
     login(:ant)
-    user = secure(User) { users(:tiger) }
+    user = secure!(User) { users(:tiger) }
     assert_kind_of User, user
     assert_equal users_id(:ant), user.send(:visitor).id
   end
@@ -947,18 +956,18 @@ class SecureUpdateTest < ZenaTestUnit
     login(:whale)
     visitor.site = sites(:ocean)
     node = nil
-    assert_nothing_raised{ node = secure(Node) { nodes(:ocean) }}
+    assert_nothing_raised{ node = secure!(Node) { nodes(:ocean) }}
     assert_kind_of Node, node
     visitor.site = sites(:zena)
     # whale is now visiting 'zena'
-    assert_raise(ActiveRecord::RecordNotFound) { secure(Node) { nodes(:ocean) }}
+    assert_raise(ActiveRecord::RecordNotFound) { secure!(Node) { nodes(:ocean) }}
   end
   
   def test_secure_whatever
     login(:ant)
     # test to if a 'secure scope' can return anything
     hash = nil
-    assert_nothing_raised(ActiveRecord::RecordNotFound) { hash = secure(Node) { Hash[:a, 'a', :b, 'b'] } }
+    assert_nothing_raised(ActiveRecord::RecordNotFound) { hash = secure!(Node) { Hash[:a, 'a', :b, 'b'] } }
     assert_kind_of Hash, hash
     assert_equal 'a', hash[:a]
   end

@@ -21,9 +21,9 @@ class MainController < ApplicationController
     if path.last =~ /[a-zA-Z\-_]+([0-9]+)(\.|$)/
       path.pop
       basepath = path.join('/')
-      @node = secure(Node) { Node.find_by_zip($1.to_i) }
+      @node = secure!(Node) { Node.find_by_zip($1.to_i) }
     else
-      @node = secure(Node) { Node.find_by_path(path.join('/')) }
+      @node = secure!(Node) { Node.find_by_path(path.join('/')) }
       basepath = path.join('/')
     end
     if basepath == @node.basepath(true)
@@ -42,7 +42,7 @@ class MainController < ApplicationController
   
   # TODO: test
   def site_tree
-    @node = secure(Node) { Node.find(params[:id]) }
+    @node = secure!(Node) { Node.find(params[:id]) }
     render
     if !session[:user]
       cache_page

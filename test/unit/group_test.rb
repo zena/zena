@@ -50,7 +50,7 @@ class GroupTest < ZenaTestUnit
   
   def test_site_id
     login(:lion)
-    grp = secure(Group) { Group.create(:name=>'test') }
+    grp = secure!(Group) { Group.create(:name=>'test') }
     assert !grp.new_record?, "Not a new record"
     assert_equal sites_id(:zena), grp[:site_id]
     assert grp.destroy, "Can destroy group"
@@ -64,13 +64,13 @@ class GroupTest < ZenaTestUnit
   
   def test_add_to_site
     login(:tiger)
-    group = secure(Group) { Group.new(:name=>'bidule') }
+    group = secure!(Group) { Group.new(:name=>'bidule') }
     assert !group.save
     group = groups(:site)
     assert !group.update_attributes(:name=>'stressedWorkers')
     
     login(:lion)
-    group = secure(Group) { Group.new(:name=>'bidule') }
+    group = secure!(Group) { Group.new(:name=>'bidule') }
     assert group.save
     assert_equal sites_id(:zena), group.site_id
     group = groups(:site)
@@ -79,7 +79,7 @@ class GroupTest < ZenaTestUnit
   
   def test_add_user
     login(:lion)
-    group = secure(Group) { Group.new(:name=>'bidule') }
+    group = secure!(Group) { Group.new(:name=>'bidule') }
     assert group.save
     group = Group.find(group[:id])
     assert group.update_attributes(:name=>'stressedWorkers', :user_ids=>[users_id(:ant)])

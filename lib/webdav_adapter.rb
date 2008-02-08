@@ -15,8 +15,8 @@ module Zena
         else
           # create
           parent_path = path.split('/')[0..-2]
-          parent = secure(Node) { Node.find_by_path(parent_path.join('/')) }
-          node   = secure(Page) { Page.create(:parent_id => parent[:id], :name => path.split('/').last, :v_text => content ) }
+          parent = secure!(Node) { Node.find_by_path(parent_path.join('/')) }
+          node   = secure!(Page) { Page.create(:parent_id => parent[:id], :name => path.split('/').last, :v_text => content ) }
         end
       end
       
@@ -37,9 +37,9 @@ module Zena
         puts "FIND: #{path.inspect}"
         return visitor.site.root_node if path.blank? or path.eql?("/")
         if path =~ /(.*)\./
-          node = secure(Node) { Node.find_by_path($1) }
+          node = secure!(Node) { Node.find_by_path($1) }
         else
-          node = secure(Node) { Node.find_by_path(path) }
+          node = secure!(Node) { Node.find_by_path(path) }
         end  
         raise WebDavErrors::NotFoundError if node.nil?
         node
@@ -82,7 +82,7 @@ class ZenaNodeResource
 
   def move! (dest_path, depth)
     parent_path = dest_path.split('/')[0..-2]
-    parent = secure(Node) { Node.find_by_path(parent_path.join('/')) }
+    parent = secure!(Node) { Node.find_by_path(parent_path.join('/')) }
     raise WebDavErrors::ConflictError unless @node.update_attributes(:parent_id => parent[:id])
   rescue ActiveRecord::RecordNotFound
     raise WebDavErrors::ForbiddenError

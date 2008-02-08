@@ -12,7 +12,7 @@ class DocumentContentTest < ZenaTestUnit
   def test_site_id
     without_files('/test.host/data/pdf') do
       login(:ant)
-      doc = secure(Document) { Document.create( :parent_id=>nodes_id(:cleanWater),
+      doc = secure!(Document) { Document.create( :parent_id=>nodes_id(:cleanWater),
                                                 :name=>'report', 
                                                 :c_file => uploaded_pdf('water.pdf') ) }
       assert_kind_of Document , doc
@@ -27,7 +27,7 @@ class DocumentContentTest < ZenaTestUnit
   def test_cannot_set_site_id
     without_files('/test.host/data/pdf') do
       login(:ant)
-      doc = secure(Document) { Document.create( :parent_id=>nodes_id(:cleanWater),
+      doc = secure!(Document) { Document.create( :parent_id=>nodes_id(:cleanWater),
                                                 :name=>'report', 
                                                 :c_file => uploaded_pdf('water.pdf') ) }
       
@@ -98,7 +98,7 @@ class DocumentContentTest < ZenaTestUnit
   def test_wrong_file_type
     preserving_files("/test.host/data/jpg/20") do
       login(:tiger)
-      node = secure(Node) { nodes(:bird_jpg) }
+      node = secure!(Node) { nodes(:bird_jpg) }
       assert !node.update_attributes(:c_file=>uploaded_pdf('water.pdf'))
       assert_equal 'must be an image', node.errors[:c_file]
     end

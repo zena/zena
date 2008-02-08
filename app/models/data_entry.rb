@@ -54,7 +54,7 @@ class DataEntry < ActiveRecord::Base
   NodeLinkSymbols.each do |sym|
     class_eval "def #{sym}
       return nil unless self[:#{sym}_id]
-      secure(Node) { Node.find_by_id(self[:#{sym}_id]) }
+      secure!(Node) { Node.find_by_id(self[:#{sym}_id]) }
     end"
   end
   
@@ -64,7 +64,7 @@ class DataEntry < ActiveRecord::Base
   
   def nodes
     ids = NodeLinkSymbolsId.map { |s| self[s] }.compact.uniq
-    secure(Node) { Node.find_all_by_id(ids) }
+    secure!(Node) { Node.find_all_by_id(ids) }
   end
   
   def ref_node
@@ -122,14 +122,14 @@ class DataEntry < ActiveRecord::Base
         # id changed
         # make sure we can write in old (need write access to remove a relation)
         begin
-          secure_write(Node) { Node.find_by_id(old[sym]) } unless old[sym].nil?
+          secure_write!(Node) { Node.find_by_id(old[sym]) } unless old[sym].nil?
         rescue ActiveRecord::RecordNotFound
           errors.add(sym, "cannot remove old relation")
         end
       end
       # check new link
       begin
-        secure_write(Node) { Node.find_by_id(self[sym]) } unless self[sym].nil?
+        secure_write!(Node) { Node.find_by_id(self[sym]) } unless self[sym].nil?
       rescue ActiveRecord::RecordNotFound
         errors.add(sym, "invalid node")
       end

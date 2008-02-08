@@ -4,11 +4,11 @@ class TemplateTest < ZenaTestUnit
   
   def test_create_simplest
     login(:tiger)
-    doc = secure(Document) { Document.create(:parent_id=>nodes_id(:cleanWater), :name=>'super.zafu')}
+    doc = secure!(Document) { Document.create(:parent_id=>nodes_id(:cleanWater), :name=>'super.zafu')}
     assert_kind_of Template, doc
     assert doc.new_record?, "New record"
     assert doc.errors[:parent_id], "Invalid parent (section is not a skin)"
-    doc = secure(Document) { Document.create(:parent_id=>nodes_id(:layout), :name=>'super.zafu')}
+    doc = secure!(Document) { Document.create(:parent_id=>nodes_id(:layout), :name=>'super.zafu')}
     assert !doc.new_record?, "Not a new record"
     assert_equal 'text/x-zafu-script', doc.c_content_type
     assert_equal 'zafu', doc.c_ext
@@ -16,7 +16,7 @@ class TemplateTest < ZenaTestUnit
   
   def test_create_empty_mode
     login(:tiger)
-    doc = secure(Document) { Document.create(:parent_id=>nodes_id(:default), :name=>'super.zafu', :c_mode => '')}
+    doc = secure!(Document) { Document.create(:parent_id=>nodes_id(:default), :name=>'super.zafu', :c_mode => '')}
     assert !doc.new_record?, "Not a new record"
     assert_equal 'text/x-zafu-script', doc.c_content_type
     assert_nil doc.c_mode
@@ -25,7 +25,7 @@ class TemplateTest < ZenaTestUnit
 
   def test_create_empty_name
     login(:tiger)
-    doc = secure(Template) { Template.create(:parent_id=>nodes_id(:default), :c_klass=>'Section') }
+    doc = secure!(Template) { Template.create(:parent_id=>nodes_id(:default), :c_klass=>'Section') }
     assert !doc.new_record?, "Not a new record"
     assert_equal 'text/x-zafu-script', doc.c_content_type
     assert_nil doc.c_mode
@@ -38,7 +38,7 @@ class TemplateTest < ZenaTestUnit
   
   def test_create_with_format
     login(:tiger)
-    doc = secure(Template) { Template.create("name"=>"Node-tree", "c_format"=>"xml", "v_summary"=>"", "parent_id"=>nodes_id(:default))}
+    doc = secure!(Template) { Template.create("name"=>"Node-tree", "c_format"=>"xml", "v_summary"=>"", "parent_id"=>nodes_id(:default))}
     assert_kind_of Template, doc
     assert !doc.new_record?, "Not a new record"
     assert_equal 'Node-tree-xml', doc.name
@@ -51,20 +51,20 @@ class TemplateTest < ZenaTestUnit
   
   def test_create_with_file
     login(:tiger)
-    doc = secure(Document) { Document.create(:parent_id=>nodes_id(:layout), :name=>'skiny', 
+    doc = secure!(Document) { Document.create(:parent_id=>nodes_id(:layout), :name=>'skiny', 
       :c_file=>uploaded_file('some.txt', content_type="text/x-zafu-script", 'smoke'))}
     assert_kind_of Template, doc
     assert !doc.new_record?, "Not a new record"
     assert_equal 'skiny.zafu', doc.c_filename
     
-    sub = secure(Document) { Document.create(:parent_id=>doc[:id], :name=>'sub.html')}
+    sub = secure!(Document) { Document.create(:parent_id=>doc[:id], :name=>'sub.html')}
     assert_kind_of Template, sub
     assert !sub.new_record?, "Not a new record"
   end
   
   def test_set_by_name
     login(:tiger)
-    doc = secure(Document) { Document.create(:parent_id=>nodes_id(:layout), :name=>'Project-collab-xml.zafu')}
+    doc = secure!(Document) { Document.create(:parent_id=>nodes_id(:layout), :name=>'Project-collab-xml.zafu')}
     assert_kind_of Template, doc
     assert !doc.new_record?, "Saved"
     assert_equal 'collab', doc.c_mode
@@ -76,7 +76,7 @@ class TemplateTest < ZenaTestUnit
   
   def test_set_by_name_without_mode
     login(:tiger)
-    doc = secure(Document) { Document.create(:parent_id=>nodes_id(:layout), :name=>'Project--xml.zafu')}
+    doc = secure!(Document) { Document.create(:parent_id=>nodes_id(:layout), :name=>'Project--xml.zafu')}
     assert_kind_of Template, doc
     assert !doc.new_record?, "Saved"
     assert_nil doc.c_mode
@@ -88,7 +88,7 @@ class TemplateTest < ZenaTestUnit
   
   def test_set_name_with_title
     login(:tiger)
-    doc = secure(Template) { Template.create(:parent_id=>nodes_id(:layout), :v_title=>'Project-collab-xml.zafu')}
+    doc = secure!(Template) { Template.create(:parent_id=>nodes_id(:layout), :v_title=>'Project-collab-xml.zafu')}
     assert_kind_of Template, doc
     assert !doc.new_record?, "Saved"
     assert_equal 'collab', doc.c_mode
@@ -100,7 +100,7 @@ class TemplateTest < ZenaTestUnit
   
   def test_set_blank_name
     login(:tiger)
-    doc = secure(Template) { Template.create(:parent_id=>nodes_id(:layout), 'c_mode' => 'collab', 'c_klass' => 'Page', 'name' => '', 'c_format' => '')}
+    doc = secure!(Template) { Template.create(:parent_id=>nodes_id(:layout), 'c_mode' => 'collab', 'c_klass' => 'Page', 'name' => '', 'c_format' => '')}
     assert_kind_of Template, doc
     assert !doc.new_record?, "Saved"
     assert_equal 'collab', doc.c_mode
@@ -112,7 +112,7 @@ class TemplateTest < ZenaTestUnit
   
   def test_change_name
     login(:tiger)
-    doc = secure(Template) { Template.create(:parent_id=>nodes_id(:layout), :name=>'Project-collab-xml.zafu')}
+    doc = secure!(Template) { Template.create(:parent_id=>nodes_id(:layout), :name=>'Project-collab-xml.zafu')}
     assert_kind_of Template, doc
     assert !doc.new_record?, "Saved"
     assert doc.update_attributes(:name => "Page-super")
@@ -125,7 +125,7 @@ class TemplateTest < ZenaTestUnit
 
   def test_change_name_not_master
     login(:tiger)
-    doc = secure(Template) { Template.create(:parent_id=>nodes_id(:layout), :name=>'Project-collab-xml.zafu')}
+    doc = secure!(Template) { Template.create(:parent_id=>nodes_id(:layout), :name=>'Project-collab-xml.zafu')}
     assert_kind_of Template, doc
     assert !doc.new_record?, "Saved"
     assert doc.update_attributes(:name => "simple-thing")
@@ -138,7 +138,7 @@ class TemplateTest < ZenaTestUnit
   
   def test_set_name_no_extension
     login(:tiger)
-    doc = secure(Template) { Template.create(:parent_id=>nodes_id(:layout), :name=>'Project-collab')}
+    doc = secure!(Template) { Template.create(:parent_id=>nodes_id(:layout), :name=>'Project-collab')}
     assert_kind_of Template, doc
     err doc
     assert !doc.new_record?, "Saved"
@@ -151,7 +151,7 @@ class TemplateTest < ZenaTestUnit
   
   def test_set_name2
     login(:tiger)
-    doc = secure(Template) { Template.create(:parent_id=>nodes_id(:layout), :name=>'Project-collab-any-xml.zafu')}
+    doc = secure!(Template) { Template.create(:parent_id=>nodes_id(:layout), :name=>'Project-collab-any-xml.zafu')}
     assert_kind_of Template, doc
     assert !doc.new_record?, "Saved"
     assert_nil doc.c_mode
@@ -163,7 +163,7 @@ class TemplateTest < ZenaTestUnit
   
   def test_set_klass
     login(:tiger)
-    doc = secure(Template) { Template.create(:parent_id=>nodes_id(:layout), :name=>'Spider-man-xml',
+    doc = secure!(Template) { Template.create(:parent_id=>nodes_id(:layout), :name=>'Spider-man-xml',
                                              :c_klass => 'Page',
                                              :c_format => 'ical')}
     assert_kind_of Template, doc
@@ -177,7 +177,7 @@ class TemplateTest < ZenaTestUnit
   
   def test_set_blank_name_not_unique
     login(:tiger)
-    doc = secure(Template) { Template.create(:parent_id=>nodes_id(:layout), 'c_mode' => '', 'c_klass' => 'Contact', 'name' => '', 'c_format' => '')}
+    doc = secure!(Template) { Template.create(:parent_id=>nodes_id(:layout), 'c_mode' => '', 'c_klass' => 'Contact', 'name' => '', 'c_format' => '')}
     assert_kind_of Template, doc
     assert !doc.new_record?, "Saved"
     assert_nil doc.c_mode
@@ -185,7 +185,7 @@ class TemplateTest < ZenaTestUnit
     assert_equal 'NRC', doc.c_tkpath
     assert_equal 'Contact', doc.c_klass
     assert_equal 'Contact', doc.name
-    doc = secure(Template) { Template.create(:parent_id=>nodes_id(:layout), 'c_mode' => '', 'c_klass' => 'Contact', 'name' => '', 'c_format' => 'vcard')}
+    doc = secure!(Template) { Template.create(:parent_id=>nodes_id(:layout), 'c_mode' => '', 'c_klass' => 'Contact', 'name' => '', 'c_format' => 'vcard')}
     assert_kind_of Template, doc
     assert !doc.new_record?, "Saved"
     assert_nil doc.c_mode
@@ -196,7 +196,7 @@ class TemplateTest < ZenaTestUnit
   end
   
   def test_update_format_updates_name
-    doc = secure(Template) { Template.create(:parent_id=>nodes_id(:layout), 'c_mode' => '', 'c_klass' => 'Contact', 'name' => '', 'c_format' => 'vcard')}
+    doc = secure!(Template) { Template.create(:parent_id=>nodes_id(:layout), 'c_mode' => '', 'c_klass' => 'Contact', 'name' => '', 'c_format' => 'vcard')}
     assert_kind_of Template, doc
     assert !doc.new_record?, "Saved"
     assert_nil doc.c_mode
@@ -213,7 +213,7 @@ class TemplateTest < ZenaTestUnit
   end
   
   def test_update_text
-    doc = secure(Template) { Template.create(:parent_id=>nodes_id(:layout), 'v_text'=>"hey", 'c_mode' => '', 'c_klass' => 'Contact', 'name' => '')}
+    doc = secure!(Template) { Template.create(:parent_id=>nodes_id(:layout), 'v_text'=>"hey", 'c_mode' => '', 'c_klass' => 'Contact', 'name' => '')}
     assert_kind_of Template, doc
     assert !doc.new_record?, "Saved"
     assert_nil doc.c_mode

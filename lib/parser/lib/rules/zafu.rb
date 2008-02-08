@@ -87,24 +87,34 @@ module Zafu
     
     def r_rename_asset
       return expand_with unless @html_tag
-      opts = {}
       case @html_tag
       when 'link'
         key = :href
         if @params[:rel].downcase == 'stylesheet'
-          opts[:type] = :stylesheet
+          type = :stylesheet
         else
-          opts[:type] = :link
+          type = :link
+        end
+      when 'style'
+        text = expand_with
+        @html_tag_done = true
+        return text.gsub!(/url\(('|")(.*?)\1\)/) do
+          if $2[0..6] == 'http://'
+            $&
+          else
+            quote   = $1
+            new_src = @options[:helper].send(:template_url_for_asset, :current_folder=>@options[:current_folder], :src => $2)
+            "url(#{quote}#{new_src}#{quote})"
+          end
         end
       else
         key = :src
-        opts[:type] = @html_tag.to_sym
+        type = @html_tag.to_sym
       end
       
-      opts[:src] = @params[key]
-      if opts[:src] && opts[:src][0..0] != '/'
-        opts[:current_folder] = @options[:current_folder]
-        @params[key] = @options[:helper].send(:template_url_for_asset, opts)
+      src = @params[key]
+      if src && src[0..0] != '/' && src[0..6] != 'http://'
+        @params[key] = @options[:helper].send(:template_url_for_asset, :src => src, :current_folder => @options[:current_folder], :type => type)
       end
       
       res   = "<#{@html_tag}#{params_to_html(@params)}"
@@ -316,6 +326,9 @@ module Zafu
       elsif @text =~ /\A<(link|img|script)/
         #puts "HTML:[#{$&}]" # html
         make(:asset)
+      elsif @text =~ /\A<style>/
+        flush $&
+        make(:style)
       elsif @text =~ /\A[^>]*?>/
         # html tag
         #puts "OTHER:[#{$&}]"
@@ -330,7 +343,6 @@ module Zafu
     def scan_asset
       # puts "ASSET(#{object_id}) [#{@text}]"
       if @text =~ /\A<(\w*)([^>]*?)(\/?)>/
-        matched = $&
         eat $&
         @method = 'rename_asset'
         @html_tag = @end_tag = $1
@@ -356,6 +368,19 @@ module Zafu
         # never ending asset
         flush
       end
+    end
+    
+    def scan_style
+      if @text =~ /\A(.*?)<\/style>/m
+        flush $&
+        @method = 'rename_asset'
+        @html_tag = 'style'
+        leave(:style)
+      else
+        # error
+        @method = 'void'
+        flush
+      end      
     end
   end
 end

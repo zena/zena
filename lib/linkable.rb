@@ -95,7 +95,7 @@ on the post edit page :
           else
             limit = nil
           end
-          links = secure(Node) { Node.find(:all,
+          links = secure!(Node) { Node.find(:all,
                           :select     => "#{Node.table_name}.*, links.id AS link_id, links.role", 
                           :joins      => "INNER JOIN links ON #{Node.table_name}.id=links.#{role[:other_side]}",
                           :conditions => ["links.#{role[:link_side]} = ? AND links.role = ?", self[:id], role[:role] ],
@@ -235,10 +235,10 @@ on the post edit page :
                         )
         if conditions
           klass.with_scope(:find=>{:conditions=>conditions}) do
-            secure(klass) { klass.find(count, options ) }
+            secure!(klass) { klass.find(count, options ) }
           end
         else 
-          secure(klass) { klass.find(count, options ) }
+          secure!(klass) { klass.find(count, options ) }
         end
       rescue ActiveRecord::RecordNotFound
         nil
@@ -277,8 +277,8 @@ on the post edit page :
           method = method.to_s
           unless method_defined?(:secure) || private_method_defined?(:secure)
             # define dummy 'secure' and 'secure_write' to work out of Zena
-            class_eval "def secure(*args); yield; end"
-            class_eval "def secure_write(*args); yield; end"
+            class_eval "def secure!(*args); yield; end"
+            class_eval "def secure_write!(*args); yield; end"
           end
           @@roles_for_class[self] ||= {}
           class_name = options[:class_name] || method.singularize.capitalize

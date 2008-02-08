@@ -49,7 +49,7 @@ class Relation < ActiveRecord::Base
       opts[sym] = options[sym] if options[sym]
     end
       
-    @records = secure(Node) { Node.find(:all, opts) }
+    @records = secure!(Node) { Node.find(:all, opts) }
   rescue ActiveRecord::RecordNotFound
     @records = nil
   end
@@ -66,7 +66,7 @@ class Relation < ActiveRecord::Base
       opts[sym] = options[sym] if options[sym]
     end
       
-    @record = secure(Node) { Node.find(:first, opts) }
+    @record = secure!(Node) { Node.find(:first, opts) }
   rescue ActiveRecord::RecordNotFound
     @record = nil
   end
@@ -241,9 +241,9 @@ class Relation < ActiveRecord::Base
     
     def find_target(obj_id)
       if as_unique?
-        secure_drive(relation_class) { relation_class.find(:first, :conditions=>['id = ? AND kpath LIKE ?', obj_id, "#{other_kpath}%"]) }
+        secure_drive!(relation_class) { relation_class.find(:first, :conditions=>['id = ? AND kpath LIKE ?', obj_id, "#{other_kpath}%"]) }
       else
-        secure_write(relation_class) { relation_class.find(:first, :conditions=>['id = ? AND kpath LIKE ?', obj_id, "#{other_kpath}%"]) }
+        secure_write!(relation_class) { relation_class.find(:first, :conditions=>['id = ? AND kpath LIKE ?', obj_id, "#{other_kpath}%"]) }
       end
     end
 

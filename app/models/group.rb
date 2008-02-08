@@ -80,7 +80,7 @@ class Group < ActiveRecord::Base
       self.users    = []
       visitor_added = false
       @defined_user_ids.each do |id|
-        user = secure(User) { User.find(id) }
+        user = secure!(User) { User.find(id) }
         unless user.site_ids.include?(self[:site_id])
           errors.add('user', 'not found') 
           next

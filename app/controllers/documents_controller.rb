@@ -23,7 +23,7 @@ class DocumentsController < ApplicationController
   def create
     attrs = params['node']
     attrs[:klass] ||= 'Document'
-    @node = secure(Document) { Document.create_node(attrs) }
+    @node = secure!(Document) { Document.create_node(attrs) }
     
     respond_to do |format|
       if @node.new_record?
@@ -55,9 +55,9 @@ class DocumentsController < ApplicationController
     def find_node
       
       if params[:id]
-        @node = secure(Document) { Document.find_by_zip(params[:id]) }
+        @node = secure!(Document) { Document.find_by_zip(params[:id]) }
       elsif parent_zip = (params[:node] || params)[:parent_id]
-        @parent = secure(Node) { Node.find_by_zip(parent_zip)}
+        @parent = secure!(Node) { Node.find_by_zip(parent_zip)}
       else
         # TODO: a better error message
         raise ActiveRecord::RecordNotFound

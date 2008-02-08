@@ -12,7 +12,7 @@ class NoteControllerTest < ZenaTestController
   end
 
   def test_day_list
-    opening = secure(Node) { nodes(:opening) }
+    opening = secure!(Node) { nodes(:opening) }
     get 'day_list', :id=>opening.project_id, :find=>'news', :using=>'log_at', :date=>opening.log_at.strftime('%Y-%m-%d'), :selected=>opening[:id].to_s
     assert_response :success
     assert_tag :li, :attributes=>{:class=>'note'}, :descendant=>{:tag=>'span', :attributes=>{:id=>"v_title#{opening.v_id}"}, :content=>'parc opening'}

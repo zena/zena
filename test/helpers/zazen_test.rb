@@ -96,7 +96,7 @@ class ZazenHelperTest < ZenaTestHelper
     preserving_files('test.host/data/jpg') do
       # ** [![2,3,5]!] gallery : inline preview with javascript inline viewer
       assert_match %r{table.*gallery.*Zena.transfer.*image24_pv.jpg.*image24_std.jpg.*image30_pv.jpg.*image30_std.jpg}m, zazen('![24,30]!')
-      @node = secure(Node) { Node.find(nodes_id(:wiki)) }
+      @node = secure!(Node) { Node.find(nodes_id(:wiki)) }
       # ** [![]!] gallery with all images contained in the current node
       assert_match %r{table.*gallery.*Zena.transfer.*image30_pv.jpg.*image30_std.jpg.*image31_pv.jpg.*image31_std.jpg}m, zazen('![]!')
     end
@@ -108,12 +108,12 @@ class ZazenHelperTest < ZenaTestHelper
       # * [!{7,9}!] documents listing for documents 7 and 9
       assert_match %r{table.*tr.*bird.*tr.*water}m, zazen('!{30,25}!') # water, forest
       # * [!{}!] list all documents (with images) for the current node
-      @node = secure(Node) { Node.find(nodes_id(:cleanWater))}
+      @node = secure!(Node) { Node.find(nodes_id(:cleanWater))}
       assert_match %r{table.*tr.*water}m, zazen('!{}!')
       # * [!{i}!] list all images for the current node
       assert_no_match %r{water}m, (i=zazen('!{i}!'))
       # * [!{d}!] list all documents (without images) for the current node
-      @node = secure(Node) { Node.find(nodes_id(:wiki)) }
+      @node = secure!(Node) { Node.find(nodes_id(:wiki)) }
       assert_no_match %r{flower}m, (d=zazen('!{d}!'))
     end
   end

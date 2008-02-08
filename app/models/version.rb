@@ -59,7 +59,7 @@ class Version < ActiveRecord::Base
   alias o_node node
   
   def node
-    @node ||= secure(Node) { o_node } rescue nil
+    @node ||= secure!(Node) { o_node } rescue nil
   end
   
   def user_zip
@@ -152,7 +152,7 @@ class Version < ActiveRecord::Base
     @visitor = User.make_visitor(:host=>'test.host', :id=>1)
     @visitor.lang = 'en'
     (10..40).each do |i|
-      node = secure(Node) { Node.find_by_zip(22) }
+      node = secure!(Node) { Node.find_by_zip(22) }
     end
   end
   

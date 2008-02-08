@@ -5,7 +5,7 @@ class ImageVersionTest < ZenaTestUnit
   def test_set_image_text
     without_files('data/test/jpg') do
       login(:ant)
-      img = secure(Image) { Image.create( :parent_id=>nodes_id(:cleanWater),
+      img = secure!(Image) { Image.create( :parent_id=>nodes_id(:cleanWater),
                                           :inherit => 1,
                                           :name=>'birdy', 
                                           :c_file => uploaded_jpg('bird.jpg')) }

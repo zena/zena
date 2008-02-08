@@ -14,7 +14,7 @@ class UsersController < ApplicationController
   # Show the list of users. Rendered in the admin layout.
   def index
     @user_pages, @users = nil, nil
-    secure(User) do
+    secure!(User) do
       @user_pages, @users = paginate :users, :order => 'status DESC, login ASC', :per_page => 20
     end
     get_groups_list
@@ -110,7 +110,7 @@ class UsersController < ApplicationController
     # Find the user or use the current visitor
     def find_user
       if params[:id]
-        @user = secure(User) { User.find(params[:id]) }
+        @user = secure!(User) { User.find(params[:id]) }
       else
         @user = visitor
       end
@@ -118,7 +118,7 @@ class UsersController < ApplicationController
     end
     
     def get_groups_list
-      @groups = secure(Group) { Group.find(:all, :order=>'name') }
+      @groups = secure!(Group) { Group.find(:all, :order=>'name') }
     end
     
     # Only allow if user is admin or the current user is the visitor

@@ -179,18 +179,18 @@ class Site < ActiveRecord::Base
   # Return the anonymous user, the one used by anonymous visitors to visit the public part
   # of the site.
   def anon
-    @anon ||= secure(User) { User.find(self[:anon_id]) }
+    @anon ||= secure!(User) { User.find(self[:anon_id]) }
   end
   
   # Return the super user. This user has extended priviledges on the data (has access to private other's data).
   # This is an emergency user.
   def su
-    @su ||= secure(User) { User.find(self[:su_id]) }
+    @su ||= secure!(User) { User.find(self[:su_id]) }
   end
   
   # TODO: test
   def root_node
-    secure(Node) { Node.find(self[:root_id]) }
+    secure!(Node) { Node.find(self[:root_id]) }
   end
   
   # Return the public group: the one in which every visitor belongs.
@@ -211,7 +211,7 @@ class Site < ActiveRecord::Base
   # Return the ids of the administrators of the current site.
   def admin_user_ids
     # TODO: admin_user_ids could be cached in the 'site' record.
-    @admin_user_ids ||= secure(User) { User.find(:all, :conditions => "status >= #{User::Status[:admin]}") }.map {|r| r[:id]}
+    @admin_user_ids ||= secure!(User) { User.find(:all, :conditions => "status >= #{User::Status[:admin]}") }.map {|r| r[:id]}
   end
   
   # Return true if the site is configured to use a single language

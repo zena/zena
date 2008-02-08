@@ -127,7 +127,7 @@ class VirtualClassTest < ZenaTestUnit
   end
   
   def test_vkind_of
-    letter = secure(Node) { nodes(:letter) }
+    letter = secure!(Node) { nodes(:letter) }
     assert letter.vkind_of?('Letter')
     assert letter.vkind_of?('Note')
     assert letter.kpath_match?('NN')
@@ -136,7 +136,7 @@ class VirtualClassTest < ZenaTestUnit
   
   def test_create_letter
     login(:ant)
-    assert node = secure(Node) { Node.create_node(:v_title => 'my letter', :class => 'Letter', :parent_id => nodes_zip(:cleanWater)) }
+    assert node = secure!(Node) { Node.create_node(:v_title => 'my letter', :class => 'Letter', :parent_id => nodes_zip(:cleanWater)) }
     assert_kind_of Note, node
     assert !node.new_record?
     assert node.virtual_class
@@ -149,7 +149,7 @@ class VirtualClassTest < ZenaTestUnit
   def test_new
     login(:ant)
     klass = virtual_classes(:letter)
-    assert node = secure(Node) { klass.new(:v_title => 'my letter', :parent_id => nodes_zip(:cleanWater)) }
+    assert node = secure!(Node) { klass.new(:v_title => 'my letter', :parent_id => nodes_zip(:cleanWater)) }
     assert node.save
     assert_kind_of Note, node
     assert !node.new_record?
@@ -162,7 +162,7 @@ class VirtualClassTest < ZenaTestUnit
   
   def test_relation
     login(:ant)
-    node = secure(Node) { nodes(:zena) }
+    node = secure!(Node) { nodes(:zena) }
     assert letters = node.find(:all,'letters')
     assert_equal 1, letters.size
     assert letters[0].vkind_of?('Letter')

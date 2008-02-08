@@ -73,7 +73,7 @@ class ImageContentTest < ZenaTestUnit
       img.file('med') # create image with 'med' format
       med_path  = img.filepath('med')
       assert File.exist?(  med_path          ), "File exist"
-      node = secure(Node) { nodes(:bird_jpg) }
+      node = secure!(Node) { nodes(:bird_jpg) }
       node.name = 'new'
       img = node.version.content
       assert node.save, "Can save"
@@ -117,7 +117,7 @@ class ImageContentTest < ZenaTestUnit
   private
     def get_content(sym)
       login(:ant) unless @visitor
-      doc = secure(Document) { Document.find(nodes_id(sym)) }
+      doc = secure!(Document) { Document.find(nodes_id(sym)) }
       doc.version.content
     end
 end

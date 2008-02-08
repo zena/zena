@@ -8,7 +8,7 @@ class RelationsController < ApplicationController
     @relation  = Relation.new
     
     @relation_pages, @relations = nil, nil
-    secure(Relation) do
+    secure!(Relation) do
       @relation_pages, @relations = paginate :relations, :per_page => 20, :order => 'source_role'
     end
     respond_to do |format|
@@ -92,6 +92,6 @@ class RelationsController < ApplicationController
     end
     
     def find_relation
-      @relation = secure(Relation) { Relation.find(params[:id])}
+      @relation = secure!(Relation) { Relation.find(params[:id])}
     end
 end

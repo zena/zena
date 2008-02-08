@@ -9,7 +9,7 @@ class DataEntriesController < ApplicationController
 
   def create
     attrs = params['data_entry']
-    @data_entry = secure(Node) { DataEntry.create_data_entry(attrs) }
+    @data_entry = secure!(Node) { DataEntry.create_data_entry(attrs) }
     
     respond_to do |format|
       if @data_entry.errors.empty?
@@ -75,7 +75,7 @@ class DataEntriesController < ApplicationController
         @data_entry.can_write?
       else
         begin
-          @node = secure_write(Node) { Node.find_by_zip(params['data_entry']['node_a_id']) }
+          @node = secure_write!(Node) { Node.find_by_zip(params['data_entry']['node_a_id']) }
         rescue
           return false
         end

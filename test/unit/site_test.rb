@@ -11,7 +11,7 @@ class SiteTest < ZenaTestUnit
     assert admin = User.login('admin', 'secret', 'super.host'), "Admin user can login"
 
     assert_equal 3, admin.group_ids.size
-    root = secure(Node) { Node.find(site[:root_id]) }
+    root = secure!(Node) { Node.find(site[:root_id]) }
     assert_equal Zena::Status[:pub], root.v_status
     assert_equal Zena::Status[:pub], root.max_status
     assert_equal 'super', root.skin
@@ -19,21 +19,21 @@ class SiteTest < ZenaTestUnit
     assert Time.now >= root.publish_from
     User.make_visitor(:host => 'super.host') # anonymous
     
-    root = secure(Node) { Node.find(site[:root_id]) }
+    root = secure!(Node) { Node.find(site[:root_id]) }
     assert_kind_of Project, root
     assert_equal 'super', root.v_title
     assert_equal Zena::Status[:pub], root.max_status
     assert_nothing_raised { Node.next_zip(site[:id]) }
     
-    admin = secure(User) { User.find(admin[:id]) }
+    admin = secure!(User) { User.find(admin[:id]) }
     assert_kind_of Contact, admin.contact
-    anon  = secure(User) { User.find(site.anon[:id]) }
+    anon  = secure!(User) { User.find(site.anon[:id]) }
     assert_kind_of Contact, anon.contact
     
-    skin  = secure(Skin) { Skin.find_by_name('default') }
+    skin  = secure!(Skin) { Skin.find_by_name('default') }
     assert_kind_of Skin, skin
     assert_equal 'default', skin.skin
-    skin  = secure(Skin) { Skin.find_by_name('super')   }
+    skin  = secure!(Skin) { Skin.find_by_name('super')   }
     assert_kind_of Skin, skin
     assert_equal Zena::Status[:pub], skin.max_status
     assert_equal 'default', skin.skin

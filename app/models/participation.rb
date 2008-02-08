@@ -9,7 +9,7 @@ class Participation < ActiveRecord::Base
   alias o_contact contact
   
   def contact
-    @contact ||= secure(Contact) { o_contact }
+    @contact ||= secure!(Contact) { o_contact }
   rescue ActiveRecord::RecordNotFound
     nil
   end
@@ -27,7 +27,7 @@ class Participation < ActiveRecord::Base
     def create_contact
       return unless visitor.site[:root_id] # do not try to create a contact if the root node is not created yet
       
-      @contact = secure(Contact) { Contact.new( 
+      @contact = secure!(Contact) { Contact.new( 
         # owner is the user except for anonymous and super user.
         # TODO: not sure this is a good idea...
         :user_id       => (self[:id] == current_site[:anon_id] || self[:id] == current_site[:su_id]) ? visitor[:id] : self[:id],

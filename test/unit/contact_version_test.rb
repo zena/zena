@@ -4,7 +4,7 @@ class ContactVersionTest < ZenaTestUnit
 
   def test_set_name
     login(:tiger)
-    node = secure(Node) { nodes(:tiger) }
+    node = secure!(Node) { nodes(:tiger) }
     node.c_first_name = 'King'
     node.v_title = ''
     assert node.save

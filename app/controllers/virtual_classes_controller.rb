@@ -8,7 +8,7 @@ class VirtualClassesController < ApplicationController
     @virtual_class  = VirtualClass.new
     
     @virtual_class_pages, @virtual_classes = nil, nil
-    secure(VirtualClass) do
+    secure!(VirtualClass) do
       @virtual_class_pages, @virtual_classes = paginate :virtual_classes, :order => 'name ASC', :per_page => 20
     end
     respond_to do |format|
@@ -92,6 +92,6 @@ class VirtualClassesController < ApplicationController
     end
     
     def find_virtual_class
-      @virtual_class = secure(VirtualClass) { VirtualClass.find(params[:id])}
+      @virtual_class = secure!(VirtualClass) { VirtualClass.find(params[:id])}
     end
 end

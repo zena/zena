@@ -22,7 +22,7 @@ class DiscussionsController < ApplicationController
   
   # TODO: test
   def create
-    @node = secure(Node) { Node.find(params[:discussion][:node_id])}
+    @node = secure!(Node) { Node.find(params[:discussion][:node_id])}
     @discussion = Discussion.create(params[:discussion])
   rescue ActiveRecord::RecordNotFound
     processing_error 'node not found'
@@ -38,7 +38,7 @@ class DiscussionsController < ApplicationController
   
   def get_discussion
     @discussion = Discussion.find(params[:id])
-    @node = secure(Node) { Node.find(@discussion[:node_id]) }
+    @node = secure!(Node) { Node.find(@discussion[:node_id]) }
   rescue ActiveRecord::RecordNotFound
     processing_error'node not found'
   end

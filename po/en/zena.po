@@ -1027,7 +1027,7 @@ msgstr "<img src='/images/add.png' alt='add a note'/>"
 
 #: app/views/search/_form.rhtml:7
 msgid "search field"
-msgstr ""
+msgstr "search"
 
 #: app/views/templates/document_create_tabs/_file.rhtml:5
 #: app/views/templates/document_create_tabs/_import.rhtml:4

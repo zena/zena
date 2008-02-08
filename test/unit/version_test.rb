@@ -2,7 +2,7 @@ require File.dirname(__FILE__) + '/../test_helper'
 class VersionTest < ZenaTestUnit
   
   def version(sym)
-    secure(Node) { nodes(sym) }.version
+    secure!(Node) { nodes(sym) }.version
   end
   
   def test_author
@@ -13,25 +13,25 @@ class VersionTest < ZenaTestUnit
   
   def test_cannot_set_node_id
     login(:tiger)
-    node = secure(Node) { nodes(:status) }
+    node = secure!(Node) { nodes(:status) }
     assert_raise(Zena::AccessViolation) { node.v_node_id = nodes_id(:lake) }
   end
   
   def test_cannot_set_site_id
     login(:tiger)
-    node = secure(Node) { nodes(:status) }
+    node = secure!(Node) { nodes(:status) }
     assert_raise(Zena::AccessViolation) { node.v_site_id = sites_id(:ocean) }
   end
   
   def test_cannot_set_node_id_by_attribute
     login(:tiger)
-    node = secure(Node) { nodes(:status) }
+    node = secure!(Node) { nodes(:status) }
     assert_raise(Zena::AccessViolation) { node.update_attributes(:v_node_id=>nodes_id(:lake)) }
   end
   
   def test_cannot_set_site_id_by_attribute
     login(:tiger)
-    node = secure(Node) { nodes(:status) }
+    node = secure!(Node) { nodes(:status) }
     assert_raise(Zena::AccessViolation) { node.update_attributes(:v_site_id=>sites_id(:ocean)) }
   end
   
@@ -41,13 +41,13 @@ class VersionTest < ZenaTestUnit
   
   def test_cannot_set_content_id
     login(:tiger)
-    node = secure(Node) { nodes(:status) }
+    node = secure!(Node) { nodes(:status) }
     assert_raise(Zena::AccessViolation) { node.v_content_id = nodes_id(:lake) }
   end
   
   def test_cannot_set_content_id_by_attribute
     login(:tiger)
-    node = secure(Node) { nodes(:status) }
+    node = secure!(Node) { nodes(:status) }
     assert_raise(Zena::AccessViolation) { node.update_attributes(:v_content_id=>nodes_id(:lake)) }
   end
   
@@ -57,14 +57,14 @@ class VersionTest < ZenaTestUnit
   
   def test_new_site_id_set
     login(:ant)
-    node = secure(Node) { Node.create(:v_title=>'super', :parent_id=>nodes_id(:wiki)) }
+    node = secure!(Node) { Node.create(:v_title=>'super', :parent_id=>nodes_id(:wiki)) }
     assert !node.new_record?, "Not a new record"
     assert_equal sites_id(:zena), node.version.site_id
   end
   
   def test_version_number_edit_by_attribute
     login(:ant)
-    node = secure(Node) { nodes(:ant) }
+    node = secure!(Node) { nodes(:ant) }
     version = node.version
     assert_equal 1, version.number
     # edit
@@ -80,7 +80,7 @@ class VersionTest < ZenaTestUnit
     
   def test_version_number_edit
     login(:ant)
-    node = secure(Node) { nodes(:ant) }
+    node = secure!(Node) { nodes(:ant) }
     version = node.version
     assert_equal 1, version.number
     # can edit
@@ -93,7 +93,7 @@ class VersionTest < ZenaTestUnit
   
   def test_presence_of_node
     login(:tiger)
-    node = secure(Node) { Node.new(:parent_id=>1, :name=>'bob') }
+    node = secure!(Node) { Node.new(:parent_id=>1, :name=>'bob') }
     assert node.save
     vers = Version.new
     assert !vers.save
@@ -104,7 +104,7 @@ class VersionTest < ZenaTestUnit
     preserving_files("/data/test/pdf/36") do
       login(:ant)
       visitor.lang = 'en'
-      node = secure(Node) { nodes(:forest_pdf) }
+      node = secure!(Node) { nodes(:forest_pdf) }
       assert_equal Zena::Status[:red], node.v_status
       assert_equal versions_id(:forest_red_en), node.c_version_id
       assert_equal 63569, node.c_size
@@ -122,7 +122,7 @@ class VersionTest < ZenaTestUnit
     preserving_files("/data/test/pdf") do
       login(:ant)
       visitor.lang = 'fr'
-      node = secure(Node) { nodes(:forest_pdf) }
+      node = secure!(Node) { nodes(:forest_pdf) }
       old_vers_id = node.v_id
       # ant's english redaction
       assert_equal 'en', node.v_lang
@@ -138,7 +138,7 @@ class VersionTest < ZenaTestUnit
       
       login(:ant)
       visitor.lang = 'en'
-      node = secure(Node) { nodes(:forest_pdf) }
+      node = secure!(Node) { nodes(:forest_pdf) }
       # get ant's english redaction
       assert_equal old_vers_id, node.v_id
       # try to edit content
@@ -149,27 +149,27 @@ class VersionTest < ZenaTestUnit
   
   def test_dynamic_attributes
     login(:tiger)
-    node = secure(Node) { nodes(:status) }
+    node = secure!(Node) { nodes(:status) }
     version = node.send(:redaction)
     assert_nothing_raised { version.dyn['zucchini'] = 'courgettes' }
     assert_nothing_raised { version.d_zucchini = 'courgettes' }
     assert_equal 'courgettes', version.d_zucchini
     assert node.save
     
-    node = secure(Node) { nodes(:status) }
+    node = secure!(Node) { nodes(:status) }
     version = node.version
     assert_equal 'courgettes', version.d_zucchini
   end
   
   def test_clone
     login(:tiger)
-    node = secure(Node) { nodes(:status) }
+    node = secure!(Node) { nodes(:status) }
     assert node.update_attributes(:d_whatever => 'no idea')
     assert_equal 'no idea', node.d_whatever
     version1_id = node.version[:id]
     assert node.publish
     
-    node = secure(Node) { nodes(:status) }
+    node = secure!(Node) { nodes(:status) }
     assert node.update_attributes(:d_other => 'funny')
     version2_id = node.version[:id]
     assert_not_equal version1_id, version2_id
@@ -179,7 +179,7 @@ class VersionTest < ZenaTestUnit
   
   def test_bad_lang
     login(:tiger)
-    node = secure(Page) { Page.create(:v_lang => 'io', :parent_id => nodes_id(:status), :name => 'hello', :v_title => '')}
+    node = secure!(Page) { Page.create(:v_lang => 'io', :parent_id => nodes_id(:status), :name => 'hello', :v_title => '')}
     assert node.new_record?
     assert node.errors[:v_lang]
   end

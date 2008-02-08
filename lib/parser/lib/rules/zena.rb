@@ -271,7 +271,7 @@ module Zena
         @html_tag_params.merge!(:id=>"#{dom_id_from_template_url(@context[:template_url])}.<%= #{node}.zip %>")
         out expand_with
       else
-        template_url = new_template_url
+        template_url = get_template_url
         form_url     = template_url + '_form'
       
         @html_tag ||= 'div'
@@ -313,8 +313,9 @@ module Zena
     # TODO: test
     def r_filter
       return "span class='parser_error'>[filter] missing 'group' in same parent</span>" unless parent && group = parent.descendant('group')
-      dom_id = group.dom_id(@context)
-      out "<%= form_remote_tag(:url => zafu_node_path(#{node}.zip), :method => :get, :html => {:id => \"#{dom_id}_q\"}) %><div class='hidden'><input type='hidden' name='template_url' value='#{dom_id}'/></div><div class='wrapper'><input type='text' name='#{@params[:key] || 'f'}' value='<%= params[#{(@params[:key] || 'f').to_sym.inspect}] %>'/></div></form>"
+      dom_id       = group.dom_id(@context)
+      template_url = group.get_template_url(@context)
+      out "<%= form_remote_tag(:url => zafu_node_path(#{node}.zip), :method => :get, :html => {:id => \"#{dom_id}_q\"}) %><div class='hidden'><input type='hidden' name='template_url' value='#{template_url}'/></div><div class='wrapper'><input type='text' name='#{@params[:key] || 'f'}' value='<%= params[#{(@params[:key] || 'f').to_sym.inspect}] %>'/></div></form>"
       if @params[:live]
         out "<%= observe_form( \"#{dom_id}_q\" , :method => :get, :frequency  =>  1, :submit =>\"#{dom_id}_q\", :url => zafu_node_path(#{node}.zip)) %>"
       end
@@ -710,7 +711,7 @@ END_TXT
         # ids
         # TODO generate the full query instead of using secure.
         values = values.split(',').map{|v| v.to_i}
-        list_finder = "(secure(Node) { Node.find(:all, :conditions => 'zip IN (#{values.join(',')})') } rescue nil)"
+        list_finder = "(secure(Node) { Node.find(:all, :conditions => 'zip IN (#{values.join(',')})') })"
       else
         # relation
         list_finder = build_finder_for(:all, values)
@@ -764,9 +765,9 @@ END_TXT
           # FIXME: BUG if we set <r:form klass='Post'/> the user cannot select class with menu...
           klass = @context[:klass] || 'Node'
           # FIXME: inspect '@context[:form]' to see if it contains v_klass ?
-          out "<% #{var}_new = secure(Node) { Node.get_class(#{klass.inspect}).new } -%>"
+          out "<% if #{var}_new = secure(Node) { Node.new_from_class(#{klass.inspect}) } -%>"
         else
-          out "<% #{var}_new = #{node_class}.new -%>"
+          out "<% if #{var}_new = #{node_class}.new -%>"
         end
         if @context[:form].method == 'form'
           out expand_block(@context[:form], :in_add => true, :no_form => false, :add=>self, :node => "#{var}_new", :parent_node => node, :klass => klass)
@@ -774,6 +775,7 @@ END_TXT
           # build form from 'each'
           out expand_block(@context[:form], :in_add => true, :no_form => false, :no_edit => true, :add=>self, :make_form => true, :node => "#{var}_new", :parent_node => node, :klass => klass)
         end
+        out "<% end -%>"
       else
         # no ajax
         @html_tag_params[:class] ||= 'btn_add' if @html_tag
@@ -812,7 +814,7 @@ END_TXT
       end
       
       @html_tag ||= 'div'
-      template_url = new_template_url
+      template_url = get_template_url
       @html_tag_params ||= {}
       @html_tag_params[:id] = @html_tag_params[:id] ? CGI.escape(@html_tag_params[:id]) : template_url
       @html_tag_params[:class] ||= 'drop'
@@ -911,7 +913,7 @@ END_TXT
         out "<% end -%>"
         
         if @params[:draggable] == 'true'
-          out "<%= \"<script type='text/javascript'>\n//<![CDATA[\n\#{#{var}_dom_ids.inspect}.each(Zena.draggable)\n//]]>\n</script>\" %>"
+          out "<script type='text/javascript'>\n//<![CDATA[\n\#{#{var}_dom_ids.inspect}.each(Zena.draggable)\n//]]>\n</script>"
         end
       elsif @context[:template_url]
         # render to produce a saved template
@@ -1233,7 +1235,7 @@ END_TXT
       opts[:size]   = (@params[:size  ] || 'tiny'    )
       opts[:using]  = (@params[:using ] || 'event_at').gsub(/[^a-z_]/,'') # SQL injection security
       
-      template_url = new_template_url
+      template_url = get_template_url
       out helper.save_erb_to_url(opts.inspect, template_url)
       
       "<div id='#{opts[:size]}cal'><%= calendar(:node=>#{node}, :date=>main_date, :template_url => #{template_url.inspect}) %></div>"
@@ -1242,7 +1244,7 @@ END_TXT
     # part caching
     def r_cache
       kpath   = @params[:kpath]   || Page.kpath
-      context = new_template_url
+      context = get_template_url
       out "<% #{cache} = Cache.with(visitor.id, visitor.group_ids, #{kpath.inspect}, #{helper.send(:lang).inspect}, #{context.inspect}) do capture do %>"
       out expand_with
       out "<% end; end %><%= #{cache} %>"
@@ -1282,16 +1284,16 @@ END_TXT
         if rel == 'main'
           return "@node"
         elsif rel == 'root'
-          return "(secure(Node) { Node.find(#{current_site[:root_id]})} rescue nil)"
+          return "(secure(Node) { Node.find(#{current_site[:root_id]})})"
         elsif rel == 'visitor'
           return "visitor.contact"
         elsif rel =~ /^\d+$/
-          return "(secure(Node) { Node.find_by_zip(#{rel.inspect})} rescue nil)"
+          return "(secure(Node) { Node.find_by_zip(#{rel.inspect})})"
         elsif node_name = find_stored(Node, rel)
           return node_name
         elsif rel[0..0] == '/'
           rel = rel[1..-1]
-          return "(secure(Node) { Node.find_by_path(#{rel.inspect})} rescue nil)"
+          return "(secure(Node) { Node.find_by_path(#{rel.inspect})})"
         end
       end
       
@@ -1498,7 +1500,7 @@ END_TXT
           out "<% if (#{list_var} = #{list_finder}) || (#{node}.can_write? && #{list_var}=[]) -%>"
         end
         
-        template_url = each_block.new_template_url(@context)
+        template_url = each_block.get_template_url(@context)
         
         
         # class name for erb form
@@ -1554,7 +1556,7 @@ END_TXT
     end
 
     # Unique template_url, ending with dom_id
-    def new_template_url(context = @context)
+    def get_template_url(context = @context)
       "#{@options[:included_history][0].split('::')[0]}/#{dom_id(context)}"
     end
     

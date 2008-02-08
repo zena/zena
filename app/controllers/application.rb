@@ -94,7 +94,7 @@ class ApplicationController < ActionController::Base
               :path          => (current_site.public_path + page_cache_file),
               :content_data  => response.body   
               }.merge(opts)
-      secure(CachedPage) { CachedPage.create(opts) }
+      secure!(CachedPage) { CachedPage.create(opts) }
     end
   
     # Return true if we can cache the current page
@@ -126,7 +126,7 @@ class ApplicationController < ActionController::Base
       klasses = []
       klass.kpath.split(//).each_index { |i| klasses << klass.kpath[0..i] }
       
-      template = secure(Template) { Template.find(:first, 
+      template = secure!(Template) { Template.find(:first, 
         :conditions => ["tkpath IN (?) AND format = ? AND mode #{mode ? '=' : 'IS'} ? AND template_contents.node_id = nodes.id", klasses, format, mode],
         :from       => "nodes, template_contents",
         :select     => "nodes.*, template_contents.skin_name, template_contents.klass, (template_contents.skin_name = #{@skin_name.inspect}) AS skin_ok",
@@ -151,7 +151,7 @@ class ApplicationController < ActionController::Base
         # FIXME: there might be a better way to do this. In a hurry, fix later.
         @skin       = {}
         @skin_names = [@skin_name]
-        secure(Skin) { Skin.find(:all, :order=>'position ASC, name ASC') }.each do |s|
+        secure!(Skin) { Skin.find(:all, :order=>'position ASC, name ASC') }.each do |s|
           @skin[s.name] = s
           @skin_names << s.name
         end
@@ -176,7 +176,7 @@ class ApplicationController < ActionController::Base
           res.sub!('</body>', "#{div}</body>")
         end
         
-        secure(CachedPage) { CachedPage.create(
+        secure!(CachedPage) { CachedPage.create(
           :path            => (current_site.zafu_path + fullpath),
           :expire_after    => nil,
           :expire_with_ids => @expire_with_nodes.values.map{|n| n[:id]},
@@ -234,9 +234,9 @@ class ApplicationController < ActionController::Base
       [false, true].each do |rebuild_path|
         # try to find using cached fullpath first.
         skin_names.each do |skin_name|
-          next unless skin = @skin[skin_name] ||= (secure(Skin) { Skin.find_by_name(skin_name) } rescue nil)
+          next unless skin = @skin[skin_name] ||= (secure!(Skin) { Skin.find_by_name(skin_name) } rescue nil)
           path = (skin.fullpath(rebuild_path).split('/') + url).join('/')
-          break if document = secure(TextDocument) { TextDocument.find_by_path(path) } rescue nil
+          break if document = secure!(Document) { Document.find_by_path(path) } rescue nil
         end
         break if document
       end

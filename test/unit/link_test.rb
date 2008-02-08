@@ -65,11 +65,11 @@ class LinkTest < ZenaTestUnit
   
   def test_role_links
     login(:tiger)
-    @node = secure(LinkDummy) { LinkDummy.find(nodes_id(:wiki)) }
+    @node = secure!(LinkDummy) { LinkDummy.find(nodes_id(:wiki)) }
     @node.tag_ids = [nodes_id(:art),nodes_id(:news)]
     @node.icon_id = 20
     assert @node.save, "Can save node"
-    @node = secure(LinkDummy) { LinkDummy.find(nodes_id(:wiki)) }
+    @node = secure!(LinkDummy) { LinkDummy.find(nodes_id(:wiki)) }
     groups = @node.role_links
     assert_equal 2, groups.size
     assert_equal 'icon', groups[0][0][:role]
@@ -91,7 +91,7 @@ class LinkTest < ZenaTestUnit
   
   def test_add_link_errors
     login(:tiger)
-    @node = secure(LinkDummy) { LinkDummy.find(nodes_id(:wiki)) }
+    @node = secure!(LinkDummy) { LinkDummy.find(nodes_id(:wiki)) }
     @node.tag_ids = [nodes_id(:art),nodes_id(:news)]
     assert @node.save
     assert_equal 2, @node.tags.size
@@ -102,13 +102,13 @@ class LinkTest < ZenaTestUnit
   
   def test_add_link_ok
     login(:tiger)
-    @node = secure(LinkDummy) { LinkDummy.find(nodes_id(:wiki)) }
+    @node = secure!(LinkDummy) { LinkDummy.find(nodes_id(:wiki)) }
     @node.tag_ids = [nodes_id(:art),nodes_id(:news)]
     @node.save
     assert_equal 2, @node.tags.size
     @node.add_link('tags', nodes_id(:menu) )
     assert @node.save, "Can save"
-    @node = secure(LinkDummy) { LinkDummy.find(nodes_id(:wiki)) }
+    @node = secure!(LinkDummy) { LinkDummy.find(nodes_id(:wiki)) }
     tags = @node.tags
     assert_equal 3, tags.size
     assert_equal 'menu', tags[2].name
@@ -116,7 +116,7 @@ class LinkTest < ZenaTestUnit
   
   def test_zips
     login(:tiger)
-    @node = secure(LinkDummy) { LinkDummy.find(nodes_id(:wiki)) }
+    @node = secure!(LinkDummy) { LinkDummy.find(nodes_id(:wiki)) }
     @node.tag_ids = [nodes_id(:art),nodes_id(:news)]
     @node.save
     assert_equal "#{nodes_zip(:art)}, #{nodes_zip(:news)}", @node.tag_zips
@@ -124,21 +124,21 @@ class LinkTest < ZenaTestUnit
   
   def test_remove_link_errors
     login(:tiger)
-    @node = secure(LinkDummy) { LinkDummy.find(nodes_id(:wiki)) }
+    @node = secure!(LinkDummy) { LinkDummy.find(nodes_id(:wiki)) }
     @node.tag_ids = [nodes_id(:menu),nodes_id(:art)]
     assert @node.save, "Can save"
     tags = @node.tags
     assert_equal 2, @node.tags.size
     assert_equal 'art', tags[0][:name]
     link_id = tags[0][:link_id]
-    @node = secure(LinkDummy) { LinkDummy.find(nodes_id(:cleanWater)) }
+    @node = secure!(LinkDummy) { LinkDummy.find(nodes_id(:cleanWater)) }
     assert_raise (ActiveRecord::RecordNotFound){ @node.remove_link( link_id ) }
   end
   
 
   def test_remove_link_ok
     login(:tiger)
-    @node = secure(LinkDummy) { LinkDummy.find(nodes_id(:wiki)) }
+    @node = secure!(LinkDummy) { LinkDummy.find(nodes_id(:wiki)) }
     @node.tag_ids = [nodes_id(:art),nodes_id(:news)]
     @node.save
     assert_equal 2, @node.tags.size
@@ -146,7 +146,7 @@ class LinkTest < ZenaTestUnit
     assert_raise (ActiveRecord::RecordNotFound) { @node.remove_link(1) }
     @node.remove_link( tags[0][:link_id] )
     assert @node.save, "Can save"
-    @node = secure(LinkDummy) { LinkDummy.find(nodes_id(:wiki)) }
+    @node = secure!(LinkDummy) { LinkDummy.find(nodes_id(:wiki)) }
     tags = @node.tags
     assert_equal 1, tags.size
     assert_equal 'art', tags[0].name
@@ -154,7 +154,7 @@ class LinkTest < ZenaTestUnit
   
   def test_link_icon
     login(:lion)
-    @node = secure(LinkDummy) { LinkDummy.find(nodes_id(:wiki)) }
+    @node = secure!(LinkDummy) { LinkDummy.find(nodes_id(:wiki)) }
     assert_nil @node.icon
     @node.icon_id = 20
     assert @node.save
@@ -166,14 +166,14 @@ class LinkTest < ZenaTestUnit
   
   def test_link_on_create
     login(:lion)
-    @node = secure(LinkDummy) { LinkDummy.create(:parent_id=>1, :name=>'lalatest', :tag_ids=>[nodes_id(:art).to_s,nodes_id(:news).to_s])}
+    @node = secure!(LinkDummy) { LinkDummy.create(:parent_id=>1, :name=>'lalatest', :tag_ids=>[nodes_id(:art).to_s,nodes_id(:news).to_s])}
     assert ! @node.new_record?, "Not a new record"
     assert_equal nodes_id(:art), @node.tags[0][:id]
   end
   
   def test_bad_icon
     login(:lion)
-    @node = secure(LinkDummy) { LinkDummy.find(nodes_id(:wiki)) }
+    @node = secure!(LinkDummy) { LinkDummy.find(nodes_id(:wiki)) }
     assert_nil @node.icon
     @node.icon_id = 'hello'
     assert_nil @node.icon
@@ -187,7 +187,7 @@ class LinkTest < ZenaTestUnit
   
   def test_unique_icon
     login(:lion)
-    @node = secure(LinkDummy) { LinkDummy.find(nodes_id(:wiki)) }
+    @node = secure!(LinkDummy) { LinkDummy.find(nodes_id(:wiki)) }
     assert_nil @node.icon
     @node.icon_id = 20
     @node.save
@@ -200,7 +200,7 @@ class LinkTest < ZenaTestUnit
   
   def test_remove_icon
     login(:lion)
-    @node = secure(LinkDummy) { LinkDummy.find(nodes_id(:wiki)) }
+    @node = secure!(LinkDummy) { LinkDummy.find(nodes_id(:wiki)) }
     assert_nothing_raised { @node.icon_id = nil }
     @node.icon_id = 20
     @node.save
@@ -218,7 +218,7 @@ class LinkTest < ZenaTestUnit
   
   def test_many_tags
     login(:lion)
-    @node = secure(LinkDummy) { LinkDummy.find(nodes_id(:wiki)) }
+    @node = secure!(LinkDummy) { LinkDummy.find(nodes_id(:wiki)) }
     assert_nothing_raised { @node.tags }
     assert_nil @node.tags
     @node.tag_ids = [nodes_id(:art),nodes_id(:news)]
@@ -239,7 +239,7 @@ class LinkTest < ZenaTestUnit
   
   def test_many_tags_with_direct_set
     login(:lion)
-    @node = secure(LinkDummy) { LinkDummy.find(nodes_id(:wiki)) }
+    @node = secure!(LinkDummy) { LinkDummy.find(nodes_id(:wiki)) }
     assert_nothing_raised { @node.tags }
     assert_nil @node.tags
     @node.tags = [nodes(:art),nodes(:news)]
@@ -257,7 +257,7 @@ class LinkTest < ZenaTestUnit
   
   def test_can_remove_tag
     login(:lion)
-    @node = secure(LinkDummy) { LinkDummy.find(nodes_id(:wiki)) }
+    @node = secure!(LinkDummy) { LinkDummy.find(nodes_id(:wiki)) }
     @node.tag_ids = [nodes_id(:art),nodes_id(:news)]
     @node.save
     assert_equal 2, @node.tags.size
@@ -270,7 +270,7 @@ class LinkTest < ZenaTestUnit
 
   def test_can_add_tag
     login(:lion)
-    @node = secure(LinkDummy) { LinkDummy.find(nodes_id(:wiki)) }
+    @node = secure!(LinkDummy) { LinkDummy.find(nodes_id(:wiki)) }
     @node.add_tag(nodes_id(:news))
     @node.save
     tags = @node.tags
@@ -280,11 +280,11 @@ class LinkTest < ZenaTestUnit
   
   def test_can_set_empty_array
     login(:lion)
-    @node = secure(LinkDummy) { LinkDummy.find(nodes_id(:wiki)) }
+    @node = secure!(LinkDummy) { LinkDummy.find(nodes_id(:wiki)) }
     @node.tag_ids = [nodes_id(:news), nodes_id(:art)]
     @node.save
     assert_equal 2, @node.tags.size
-    @node = secure(LinkDummy) { LinkDummy.find(nodes_id(:wiki)) }
+    @node = secure!(LinkDummy) { LinkDummy.find(nodes_id(:wiki)) }
     @node.tag_ids = []
     @node.save
     assert_nil @node.tags
@@ -292,8 +292,8 @@ class LinkTest < ZenaTestUnit
 
   def test_hot_for
     login(:lion)
-    @source = secure(LinkDummy) { LinkDummy.find(nodes_id(:wiki)) }
-    @target = secure(LinkDummy) { LinkDummy.find(nodes_id(:cleanWater)) }
+    @source = secure!(LinkDummy) { LinkDummy.find(nodes_id(:wiki)) }
+    @target = secure!(LinkDummy) { LinkDummy.find(nodes_id(:cleanWater)) }
     @source.hot_id = @target[:id]
     @source.save
     assert_equal @target[:name], @source.hot[:name]
@@ -302,8 +302,8 @@ class LinkTest < ZenaTestUnit
   
   def test_set_hot_for
     login(:lion)
-    @source = secure(LinkDummy) { LinkDummy.find(nodes_id(:cleanWater)) }
-    @target = secure(LinkDummy) { LinkDummy.find(nodes_id(:status)) }
+    @source = secure!(LinkDummy) { LinkDummy.find(nodes_id(:cleanWater)) }
+    @target = secure!(LinkDummy) { LinkDummy.find(nodes_id(:status)) }
     @target.hot_for = [@source]
     @target.save
     assert_equal @target[:name], @source.hot[:name]
@@ -312,10 +312,10 @@ class LinkTest < ZenaTestUnit
   
   def test_hot_for_as_unique
     login(:lion)
-    @source1 = secure(LinkDummy) { LinkDummy.find(nodes_id(:cleanWater)) }
-    @source2 = secure(LinkDummy) { LinkDummy.find(nodes_id(:wiki)) }
-    @target1 = secure(LinkDummy) { LinkDummy.find(nodes_id(:status)) }
-    @target2 = secure(LinkDummy) { LinkDummy.find(nodes_id(:bananas)) }
+    @source1 = secure!(LinkDummy) { LinkDummy.find(nodes_id(:cleanWater)) }
+    @source2 = secure!(LinkDummy) { LinkDummy.find(nodes_id(:wiki)) }
+    @target1 = secure!(LinkDummy) { LinkDummy.find(nodes_id(:status)) }
+    @target2 = secure!(LinkDummy) { LinkDummy.find(nodes_id(:bananas)) }
     @source1.hot = @target1
     @source1.save
     assert_equal @target1[:name], @source1.hot[:name]
@@ -336,9 +336,9 @@ class LinkTest < ZenaTestUnit
   
   def test_recipients_and_letters
     login(:lion)
-    @source  = secure(LinkDummy) { LinkDummy.find(nodes_id(:wiki))  }
-    @target1 = secure(LinkDummy) { LinkDummy.find(nodes_id(:cleanWater)) }
-    @target2 = secure(LinkDummy) { LinkDummy.find(nodes_id(:status)) }
+    @source  = secure!(LinkDummy) { LinkDummy.find(nodes_id(:wiki))  }
+    @target1 = secure!(LinkDummy) { LinkDummy.find(nodes_id(:cleanWater)) }
+    @target2 = secure!(LinkDummy) { LinkDummy.find(nodes_id(:status)) }
     @source.recipient_ids = [11,12]
     @source.save
     assert_equal 2, @source.recipients.size
@@ -353,14 +353,14 @@ class LinkTest < ZenaTestUnit
   
   def test_cannot_remove_hidden_with_set_ids
     login(:tiger)
-    @node = secure(LinkDummy) { LinkDummy.find(nodes_id(:status)) }
+    @node = secure!(LinkDummy) { LinkDummy.find(nodes_id(:status)) }
     @node.tag_ids = [nodes_id(:art),nodes_id(:news),nodes_id(:menu)]
     assert @node.save
     tags = @node.tag_ids
     assert_equal 3, tags.size
     assert tags.include?(nodes_id(:menu)), "Contains the private tag 'menu'"
     login(:lion)
-    @node = secure(LinkDummy) { LinkDummy.find(nodes_id(:status)) }
+    @node = secure!(LinkDummy) { LinkDummy.find(nodes_id(:status)) }
     tags = @node.tag_ids
     assert_equal 2, tags.size
     assert !tags.include?(nodes_id(:menu)), "Does not contain the private tag 'menu'"
@@ -368,7 +368,7 @@ class LinkTest < ZenaTestUnit
     assert @node.save
     assert_equal 1, @node.tags.size
     login(:tiger)
-    @node = secure(LinkDummy) { LinkDummy.find(nodes_id(:status)) }
+    @node = secure!(LinkDummy) { LinkDummy.find(nodes_id(:status)) }
     tags = @node.tag_ids
     assert_equal 2, tags.size
     assert tags.include?(nodes_id(:menu)), "Contains the private tag 'menu'"
@@ -376,14 +376,14 @@ class LinkTest < ZenaTestUnit
   
   def test_cannot_remove_hidden_with_remove
     login(:tiger)
-    @node = secure(LinkDummy) { LinkDummy.find(nodes_id(:status)) }
+    @node = secure!(LinkDummy) { LinkDummy.find(nodes_id(:status)) }
     @node.tag_ids = [nodes_id(:art),nodes_id(:news),nodes_id(:menu)]
     assert @node.save
     tags = @node.tag_ids
     assert_equal 3, tags.size
     assert tags.include?(nodes_id(:menu)), "Contains the private tag 'menu'"
     login(:lion)
-    @node = secure(LinkDummy) { LinkDummy.find(nodes_id(:status)) }
+    @node = secure!(LinkDummy) { LinkDummy.find(nodes_id(:status)) }
     tags = @node.tag_ids
     assert_equal 2, tags.size
     assert !tags.include?(nodes_id(:menu)), "Does not contain the private tag 'menu'"
@@ -392,7 +392,7 @@ class LinkTest < ZenaTestUnit
     assert @node.save
     assert_equal 1, @node.tags.size
     login(:tiger)
-    @node = secure(LinkDummy) { LinkDummy.find(nodes_id(:status)) }
+    @node = secure!(LinkDummy) { LinkDummy.find(nodes_id(:status)) }
     tags = @node.tag_ids
     assert_equal 2, tags.size
     assert tags.include?(nodes_id(:menu)), "Contains the private tag 'menu'"
@@ -400,9 +400,9 @@ class LinkTest < ZenaTestUnit
   
   def test_husband_and_wife
     login(:tiger)
-    @husband  = secure(LinkDummy) { LinkDummy.find(nodes_id(:cleanWater)) }
-    @wife     = secure(LinkDummy) { LinkDummy.find(nodes_id(:wiki))  }
-    @husband2 = secure(LinkDummy) { LinkDummy.find(nodes_id(:status))  }
+    @husband  = secure!(LinkDummy) { LinkDummy.find(nodes_id(:cleanWater)) }
+    @wife     = secure!(LinkDummy) { LinkDummy.find(nodes_id(:wiki))  }
+    @husband2 = secure!(LinkDummy) { LinkDummy.find(nodes_id(:status))  }
     
     @husband.wife_id = @wife.id
     assert @husband.save
@@ -417,9 +417,9 @@ class LinkTest < ZenaTestUnit
   
   def test_husband_and_wife_with_direct_set
     login(:tiger)
-    @husband  = secure(LinkDummy) { LinkDummy.find(nodes_id(:cleanWater)) }
-    @wife     = secure(LinkDummy) { LinkDummy.find(nodes_id(:wiki))  }
-    @husband2 = secure(LinkDummy) { LinkDummy.find(nodes_id(:status))  }
+    @husband  = secure!(LinkDummy) { LinkDummy.find(nodes_id(:cleanWater)) }
+    @wife     = secure!(LinkDummy) { LinkDummy.find(nodes_id(:wiki))  }
+    @husband2 = secure!(LinkDummy) { LinkDummy.find(nodes_id(:status))  }
 
     @husband.wife = @wife
     assert @husband.save
@@ -434,7 +434,7 @@ class LinkTest < ZenaTestUnit
   
   def test_tags_for_form
     login(:tiger)
-    @node = secure(LinkDummy) { LinkDummy.find(nodes_id(:status)) }
+    @node = secure!(LinkDummy) { LinkDummy.find(nodes_id(:status)) }
     @node.tag_ids = [nodes_id(:art)]
     assert @node.save
     assert_equal 1, @node.tags.size
@@ -448,7 +448,7 @@ class LinkTest < ZenaTestUnit
   
   def test_tags_for_form_with_filter
     login(:tiger)
-    @node = secure(LinkDummy) { LinkDummy.find(nodes_id(:status)) }
+    @node = secure!(LinkDummy) { LinkDummy.find(nodes_id(:status)) }
     @node.tag_ids = [nodes_id(:art)]
     assert @node.save
     assert_equal 1, @node.tags.size
@@ -470,7 +470,7 @@ class LinkTest < ZenaTestUnit
   
   def test_other_options_for_find
     login(:lion)
-    @node = secure(LinkDummy) { LinkDummy.find(nodes_id(:wiki)) }
+    @node = secure!(LinkDummy) { LinkDummy.find(nodes_id(:wiki)) }
     assert_nothing_raised { @node.tags }
     assert_nil @node.tags
     @node.tag_ids = [nodes_id(:art),nodes_id(:news)]
@@ -483,10 +483,10 @@ class LinkTest < ZenaTestUnit
   def test_or_option_for_find
     LinkDummy.connection.execute "UPDATE nodes SET type='Tag', kpath='NPT' WHERE id IN (12);" # status
     login(:lion)
-    @node = secure(LinkDummy) { LinkDummy.find(nodes_id(:cleanWater)) }
+    @node = secure!(LinkDummy) { LinkDummy.find(nodes_id(:cleanWater)) }
     @node.tag_ids = [nodes_id(:art),nodes_id(:news)]
     @node.save
-    @pages = secure(LinkDummy) { LinkDummy.find(:all, :conditions=>["kpath LIKE 'NPT%' AND parent_id = ?", @node[:id]]) }
+    @pages = secure!(LinkDummy) { LinkDummy.find(:all, :conditions=>["kpath LIKE 'NPT%' AND parent_id = ?", @node[:id]]) }
     assert_equal 2, @node.tags.size
     assert_equal 1, @pages.size
     @pages_and_tags = @node.tags(:or=>["parent_id = ?", @node[:id]])
@@ -498,10 +498,10 @@ class LinkTest < ZenaTestUnit
   def test_or_option_for_find_no_doubles
     LinkDummy.connection.execute "UPDATE nodes SET type='Tag', kpath='NPT' WHERE id IN (12);" # status
     login(:lion)
-    @node = secure(LinkDummy) { LinkDummy.find(nodes_id(:cleanWater)) }
+    @node = secure!(LinkDummy) { LinkDummy.find(nodes_id(:cleanWater)) }
     @node.tag_ids = [nodes_id(:art),nodes_id(:status)]
     @node.save
-    @pages = secure(LinkDummy) { LinkDummy.find(:all, :conditions=>["kpath LIKE 'NPT%' AND parent_id = ?", @node[:id]]) }
+    @pages = secure!(LinkDummy) { LinkDummy.find(:all, :conditions=>["kpath LIKE 'NPT%' AND parent_id = ?", @node[:id]]) }
     assert_equal 2, @node.tags.size
     assert_equal 1, @pages.size
     @pages_and_tags = @node.tags(:or=>["parent_id = ?", @node[:id]])
@@ -510,16 +510,16 @@ class LinkTest < ZenaTestUnit
   
   def test_from_option
     login(:lion)
-    node1 = secure(LinkDummy) { LinkDummy.find(nodes_id(:projects)) }
-    icon1 = secure(LinkDummy) { LinkDummy.find(nodes_id(:bird_jpg)) }
+    node1 = secure!(LinkDummy) { LinkDummy.find(nodes_id(:projects)) }
+    icon1 = secure!(LinkDummy) { LinkDummy.find(nodes_id(:bird_jpg)) }
     node1.icon = icon1
     node1.save
-    node2 = secure(LinkDummy) { LinkDummy.find(nodes_id(:status)) }
-    icon2 = secure(LinkDummy) { LinkDummy.find(nodes_id(:flower_jpg)) }
+    node2 = secure!(LinkDummy) { LinkDummy.find(nodes_id(:status)) }
+    icon2 = secure!(LinkDummy) { LinkDummy.find(nodes_id(:flower_jpg)) }
     node2.icon = icon2
     node2.save
     # reload
-    node1 = secure(LinkDummy) { LinkDummy.find(nodes_id(:projects)) }
+    node1 = secure!(LinkDummy) { LinkDummy.find(nodes_id(:projects)) }
     assert_equal nodes_id(:bird_jpg), node1.icon[:id]
     assert_equal 2, node1.icon_for(:from=>'project').size
   end
@@ -527,20 +527,20 @@ class LinkTest < ZenaTestUnit
   def test_destroy
     LinkDummy.connection.execute "UPDATE versions, nodes SET versions.type='DummyVersion' WHERE versions.node_id = nodes.id AND nodes.type = 'LinkDummy'"
     login(:tiger)
-    people  = secure(LinkDummy) { LinkDummy.find(nodes_id(:people))  }
-    collections = secure(LinkDummy) { LinkDummy.find(nodes_id(:collections)) }
+    people  = secure!(LinkDummy) { LinkDummy.find(nodes_id(:people))  }
+    collections = secure!(LinkDummy) { LinkDummy.find(nodes_id(:collections)) }
     people.letter_ids  = [nodes_id(:status), nodes_id(:opening)]
     collections.letter_ids = [nodes_id(:status), nodes_id(:tiger)]
     assert people.save
     assert collections.save
     assert_equal 2, people.letters.size
     assert_equal 2, collections.letters.size
-    node = secure(LinkDummy) { LinkDummy.find(nodes_id(:status)) }
+    node = secure!(LinkDummy) { LinkDummy.find(nodes_id(:status)) }
     assert_equal 2, node.recipients.size
     assert node.destroy
     
-    people  = secure(LinkDummy) { LinkDummy.find(nodes_id(:people))  }
-    collections = secure(LinkDummy) { LinkDummy.find(nodes_id(:collections)) }
+    people  = secure!(LinkDummy) { LinkDummy.find(nodes_id(:people))  }
+    collections = secure!(LinkDummy) { LinkDummy.find(nodes_id(:collections)) }
     assert_equal 1, people.letters.size
     assert_equal 1, collections.letters.size
     assert_equal nodes_id(:opening), people.letters[0][:id]

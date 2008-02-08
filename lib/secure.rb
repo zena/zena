@@ -347,8 +347,8 @@ Just doing the above will filter all result according to the logged in user.
               if old.private? || old.publish_from == nil
                 # node was not visible to others
                 if self[ref_field] == self[:id] ||
-                    ! secure_write(ref_class) { ref_class.find(self[ref_field])} || 
-                    ! secure_write(ref_class) { ref_class.find(old[ref_field])}
+                    ! secure_write!(ref_class) { ref_class.find(self[ref_field])} || 
+                    ! secure_write!(ref_class) { ref_class.find(old[ref_field])}
                   errors.add(ref_field, "invalid reference") 
                   return false
                 end
@@ -356,8 +356,8 @@ Just doing the above will filter all result according to the logged in user.
                 # node was visible, moves must be made with publish rights in both
                 # source and destination
                 if self[ref_field] == self[:id] ||
-                    ! secure_drive(ref_class) { ref_class.find(self[ref_field])} || 
-                    ! secure_drive(ref_class) { ref_class.find(old[ref_field])}
+                    ! secure_drive!(ref_class) { ref_class.find(self[ref_field])} || 
+                    ! secure_drive!(ref_class) { ref_class.find(old[ref_field])}
                   errors.add(ref_field, "invalid reference") 
                   return false
                 end
@@ -477,7 +477,7 @@ Just doing the above will filter all result according to the logged in user.
           return self if ref_field == :id && new_record? # new record and self as reference (creating root node)
           if !@ref || (@ref.id != self[ref_field])
             # no ref or ref changed
-            @ref = secure(ref_class) { ref_class.find(self[ref_field]) }
+            @ref = secure!(ref_class) { ref_class.find(self[ref_field]) }
           end
           if self.new_record? || (:id == ref_field) || (self[:id] != @ref[:id] )
             # reference is accepted only if it is not the same as self or self is root (ref_field==:id set by Node)
@@ -532,7 +532,7 @@ Just doing the above will filter all result according to the logged in user.
             nil
           else
             begin
-              @old ||= secure_drive(self.class) { self.class.find(self[:id]) }
+              @old ||= secure_drive!(self.class) { self.class.find(self[:id]) }
             rescue ActiveRecord::RecordNotFound
               nil
             end
@@ -683,7 +683,7 @@ Just doing the above will filter all result according to the logged in user.
             end
             result
           else
-            raise ActiveRecord::RecordNotFound
+            nil
           end
         end
       
@@ -708,21 +708,32 @@ Just doing the above will filter all result according to the logged in user.
             secure_with_scope(klass, nil, &block)
           end
         end
+        
+        def secure!(klass, opts={}, &block)
+          unless res = secure(klass, opts={}, &block)
+            raise ActiveRecord::RecordNotFound
+          end
+          res
+        end
+        
 
         # Secure scope for write access.
         # [write]
         # * super user
         # * owner
         # * members of +write_group+ if node is published and the current date is greater or equal to the publication date
-        def secure_write(obj, &block)
-          if visitor.is_su? # super user
+        def secure_write!(obj, &block)
+          res = if visitor.is_su? # super user
             secure_with_scope(obj, nil, &block)
           else
             scope = "user_id = '#{visitor[:id]}' OR "+
             "(wgroup_id IN (#{visitor.group_ids.join(',')}) AND publish_from <= now())"
             secure_with_scope(obj, scope, &block)
           end
-
+          unless res
+            raise ActiveRecord::RecordNotFound
+          end
+          res
         end
       
         # Secure scope for publish or management access. This scope is a little looser then 'secure' (read access) concerning redactions
@@ -735,8 +746,8 @@ Just doing the above will filter all result according to the logged in user.
         # [manage]
         # * owner if +max_status+ <= red
         # * owner if private
-        def secure_drive(obj, &block)
-          if visitor.is_su? # super user
+        def secure_drive!(obj, &block)
+          res = if visitor.is_su? # super user
             secure_with_scope(obj, nil, &block)
           else
             scope = "(user_id = '#{visitor[:id]}' AND ((rgroup_id = 0 AND wgroup_id = 0 AND pgroup_id = 0)) OR (max_status <= #{Zena::Status[:red]}))" +
@@ -744,6 +755,10 @@ Just doing the above will filter all result according to the logged in user.
                     "pgroup_id IN (#{visitor.group_ids.join(',')})"
             secure_with_scope(obj, scope, &block)
           end
+          unless res
+            raise ActiveRecord::RecordNotFound
+          end
+          res
         end
     end
   end

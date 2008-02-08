@@ -126,7 +126,7 @@ class VirtualClass < ActiveRecord::Base
       self[:site_id]    = current_site[:id]
       self[:real_class] = get_real_class(@superclass)
 
-      unless (secure(Group) { Group.find(self[:create_group_id]) } rescue nil)
+      unless (secure!(Group) { Group.find(self[:create_group_id]) } rescue nil)
         errors.add('create_group_id', 'invalid group')
       end
       unless self[:real_class]

@@ -291,7 +291,7 @@ class MainControllerTest < ZenaTestController
   
   def get_node(node_sym=:status)
     login unless session[:user]
-    @node = secure(Node) { nodes(node_sym) }
+    @node = secure!(Node) { nodes(node_sym) }
     if @node[:id] == ZENA_ENV[:root_id]
       path = []
     else

@@ -204,7 +204,8 @@ class Node < ActiveRecord::Base
       end
       classes
     end
-    
+
+    # Return class or virtual class from name.
     def get_class(rel, opts={})
       class_name = rel.singularize.camelize # mushroom_types ==> MushroomType
       begin
@@ -219,6 +220,15 @@ class Node < ActiveRecord::Base
         end
       end
       klass
+    end
+    
+    # Return a new object of the class name or nil if the class name does not exist.
+    def new_from_class(rel)
+      if k = get_class(rel, :create => true)
+        k.new
+      else
+        nil
+      end
     end
     
     def get_class_from_kpath(kp)
@@ -787,9 +797,9 @@ class Node < ActiveRecord::Base
     # make sure the cache is in sync with 'parent_id' (used during validation)
     return @parent if @parent && @parent[:id] == self[:parent_id]
     if opts[:secure] != false
-      @parent = secure(Node, opts) { Node.find(self[:parent_id]) }
+      @parent = secure!(Node, opts) { Node.find(self[:parent_id]) }
     else
-      secure(Node, opts) { Node.find(self[:parent_id]) }
+      secure!(Node, opts) { Node.find(self[:parent_id]) }
     end
   rescue ActiveRecord::RecordNotFound
     nil
@@ -799,7 +809,7 @@ class Node < ActiveRecord::Base
   def section(opts={})
     return self if self[:parent_id].nil?
     # we cannot use Section to find because the root node behaves like a Section but is a Project.
-    secure(Node, opts) { Node.find(self[:section_id]) }
+    secure!(Node, opts) { Node.find(self[:section_id]) }
   rescue ActiveRecord::RecordNotFound
     nil
   end
@@ -807,7 +817,7 @@ class Node < ActiveRecord::Base
   # Find project
   def project(opts={})
     return self if self[:parent_id].nil?
-    secure(Project, opts) { Project.find(self[:project_id]) }
+    secure!(Project, opts) { Project.find(self[:project_id]) }
   rescue ActiveRecord::RecordNotFound
     nil
   end
@@ -829,7 +839,7 @@ I think we can remove this stuff now that relations are rewritten
       begin
         case
         when method =~ /\A\d+\Z/
-          res = secure(Node) { Node.find(method) }
+          res = secure!(Node) { Node.find(method) }
         when or_method = opts[:or]
           native_or  = self.class.native_relation?(or_method)
           native_std = self.class.native_relation?(method)
@@ -838,7 +848,7 @@ I think we can remove this stuff now that relations are rewritten
             # both native methods
             cond = "(#{condition_for(method)}) OR (#{condition_for(or_method)})"
             
-            res = secure(Node) { Node.find(:all, Node.clean_options(defaults_for(method).merge(opts).merge(:conditions => condition_for(nil,opts.merge(:base_cond => cond))))) }
+            res = secure!(Node) { Node.find(:all, Node.clean_options(defaults_for(method).merge(opts).merge(:conditions => condition_for(nil,opts.merge(:base_cond => cond))))) }
           elsif native_or
             if proxy = relation_proxy(:role => method, :ignore_source => true)
               # relation or native
@@ -846,7 +856,7 @@ I think we can remove this stuff now that relations are rewritten
               res  = proxy.records(defaults_for(or_method).merge(opts).merge(:or => cond))
             else
               # single native
-              res = secure(Node) { Node.find(:all, Node.clean_options(defaults_for(method).merge(opts).merge(:conditions => condition_for(or_method,opts)))) }
+              res = secure!(Node) { Node.find(:all, Node.clean_options(defaults_for(method).merge(opts).merge(:conditions => condition_for(or_method,opts)))) }
             end
           elsif native_std
             if proxy = relation_proxy(:role => or_method, :ignore_source => true)
@@ -855,7 +865,7 @@ I think we can remove this stuff now that relations are rewritten
               res  = proxy.records(defaults_for(method).merge(opts).merge(:or => cond))
             else
               # single native
-              res = secure(Node) { Node.find(:all, Node.clean_options(defaults_for(method).merge(opts).merge(:conditions => condition_for(method,opts)))) }
+              res = secure!(Node) { Node.find(:all, Node.clean_options(defaults_for(method).merge(opts).merge(:conditions => condition_for(method,opts)))) }
             end
           else
             # TODO: both are relations ?
@@ -863,7 +873,7 @@ I think we can remove this stuff now that relations are rewritten
             res = nil
           end
         when self.class.native_relation?(method, opts)
-          res = secure(Node) { Node.find(:all, Node.clean_options(defaults_for(method).merge(opts).merge(:conditions => condition_for(method,opts)))) }
+          res = secure!(Node) { Node.find(:all, Node.clean_options(defaults_for(method).merge(opts).merge(:conditions => condition_for(method,opts)))) }
         else
           # Find through HasRelations
           res = fetch_relation(method, defaults_for(method).merge(opts))
@@ -930,7 +940,7 @@ I think we can remove this stuff now that relations are rewritten
 
   # Get root node
   def root(opts={})
-    secure(Node) { Node.find(current_site[:root_id])}
+    secure!(Node) { Node.find(current_site[:root_id])}
   rescue ActiveRecord::RecordNotFound
     nil
   end
@@ -942,13 +952,13 @@ I think we can remove this stuff now that relations are rewritten
   
   # Find all children
   def children(opts={})
-    secure(Node) { Node.find(:all, relation_options(opts)) }
+    secure!(Node) { Node.find(:all, relation_options(opts)) }
   end
   
   # Find sections (sections from='site')
   def sections(opts={})
     opts[:from] ||= 'project'
-    secure(Section) { Section.find(:all, relation_options(opts)) }
+    secure!(Section) { Section.find(:all, relation_options(opts)) }
   rescue ActiveRecord::RecordNotFound
     nil
   end
@@ -956,39 +966,39 @@ I think we can remove this stuff now that relations are rewritten
   # Find projects (projects from='site')
   def projects(opts={})
     opts[:from] ||= 'project'
-    secure(Project) { Project.find(:all, relation_options(opts)) }
+    secure!(Project) { Project.find(:all, relation_options(opts)) }
   rescue ActiveRecord::RecordNotFound
     nil
   end
   
   # Find all sub-nodes (all children / all nodes in a section)
   def nodes(opts={})
-    secure(Node) { Node.find(:all, relation_options(opts)) }
+    secure!(Node) { Node.find(:all, relation_options(opts)) }
   end
   
   # Find all sub-pages (All but documents)
   def pages(opts={})
-    secure(Page) { Page.find(:all, relation_options(opts,"kpath NOT LIKE 'NPD%'")) }
+    secure!(Page) { Page.find(:all, relation_options(opts,"kpath NOT LIKE 'NPD%'")) }
   end
   
   # Find documents
   def documents(opts={})
-    secure(Document) { Document.find(:all, relation_options(opts)) }
+    secure!(Document) { Document.find(:all, relation_options(opts)) }
   end
 
   # Find documents without images
   def documents_only(opts={})
-    secure(Document) { Document.find(:all, relation_options(opts, "kpath NOT LIKE 'NPDI%'") ) }
+    secure!(Document) { Document.find(:all, relation_options(opts, "kpath NOT LIKE 'NPDI%'") ) }
   end
   
   # Find only images
   def images(opts={})
-    secure(Image) { Image.find(:all, relation_options(opts) ) }
+    secure!(Image) { Image.find(:all, relation_options(opts) ) }
   end
   
   # Find only notes
   def notes(opts={})
-    secure(Note) { Note.find(:all, relation_options(opts) ) }
+    secure!(Note) { Note.find(:all, relation_options(opts) ) }
   end
 =end
 
@@ -1021,7 +1031,7 @@ I think we can remove this stuff now that relations are rewritten
     return nil if new_record?
     return @icon if defined? @icon
     @icon = find(:first, :relations=>['icon']) ||
-            secure(Image) { Image.find(:first, :order=>'position ASC, name ASC', :conditions => "parent_id = #{self[:id]}") }
+            secure!(Image) { Image.find(:first, :order=>'position ASC, name ASC', :conditions => "parent_id = #{self[:id]}") }
   rescue ActiveRecord::RecordNotFound
     @icon = nil
   end
@@ -1029,7 +1039,7 @@ I think we can remove this stuff now that relations are rewritten
   alias o_user user
   
   def user
-    secure(User) { o_user }
+    secure!(User) { o_user }
   end
   
   # Find all data entries linked to the current node
@@ -1124,7 +1134,7 @@ I think we can remove this stuff now that relations are rewritten
   #   my_project = self[:section_id].to_i
   #   connection = self.class.connection
   #   # 1. create a new object with the attributes from the old one
-  #   new_obj = secure(klass) { klass.new(self.attributes) }
+  #   new_obj = secure!(klass) { klass.new(self.attributes) }
   #   # 2. move old object out of the way (setting parent_id and section_id to -1)
   #   self.class.connection.execute "UPDATE #{self.class.table_name} SET parent_id='0', section_id='0' WHERE id=#{my_id}"
   #   # 3. try to save new object
@@ -1198,7 +1208,7 @@ I think we can remove this stuff now that relations are rewritten
     discussion.save if discussion.new_record?
     author = opt[:author_name] = nil unless visitor.is_anon? # anonymous user
     opt.merge!( :discussion_id=>discussion[:id], :user_id=>visitor[:id] )
-    secure(Comment) { Comment.create(opt) }
+    secure!(Comment) { Comment.create(opt) }
   end
   
   # TODO: test
@@ -1384,7 +1394,7 @@ I think we can remove this stuff now that relations are rewritten
     # Publish, refuse, propose the Documents of a redaction
     def sync_documents(action, pub_time=nil)
       allOK = true
-      documents = secure_drive(Document) { Document.find(:all, :conditions=>"parent_id = #{self[:id]}") } || []
+      documents = secure_drive!(Document) { Document.find(:all, :conditions=>"parent_id = #{self[:id]}") } || []
       case action
       when :propose
         documents.each do |doc|

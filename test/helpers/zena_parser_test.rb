@@ -156,7 +156,7 @@ class ZenaParserTest < ZenaHelperTest
   def test_apphelper_calendar_from_project
     login(:lion)
     @controller.instance_variable_set(:@visitor, Thread.current.visitor)
-    info  = secure(Note) { Note.create(:name=>'hello', :parent_id=>nodes_id(:collections), :log_at=>'2007-06-22')}
+    info  = secure!(Note) { Note.create(:name=>'hello', :parent_id=>nodes_id(:collections), :log_at=>'2007-06-22')}
     assert !info.new_record?
     assert_equal nodes_id(:zena), info[:project_id]
     do_test('apphelper', 'calendar_from_project')
@@ -165,7 +165,7 @@ class ZenaParserTest < ZenaHelperTest
   def test_basic_img_private_image
     login(:ant)
     @controller.instance_variable_set(:@visitor, Thread.current.visitor)
-    node = secure(Node) { nodes(:tree_jpg) }
+    node = secure!(Node) { nodes(:tree_jpg) }
     node.inherit = -1
     assert node.save
     do_test('basic', 'img_private_image')

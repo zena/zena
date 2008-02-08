@@ -15,11 +15,11 @@ class Comment < ActiveRecord::Base
   before_validation :comment_before_validation
   
   def author
-    @author ||= secure(User) { User.find(self[:user_id]) }
+    @author ||= secure!(User) { User.find(self[:user_id]) }
   end
   
   def parent
-    @parent ||= secure(Comment) { Comment.find(self[:reply_to]) }
+    @parent ||= secure!(Comment) { Comment.find(self[:reply_to]) }
   rescue ActiveRecord::RecordNotFound
     nil
   end

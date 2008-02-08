@@ -52,7 +52,7 @@ class DocumentsControllerTest < ZenaTestController
   #    post 'create', :document=>{:parent_id=>nodes_id(:zena), :c_file=>uploaded_pdf('water.pdf')}
   #    assert_response :redirect
   #    assert_redirected_to :action=>'show', :id=>assigns(:document)[:id]
-  #    zena = secure(Node) { nodes(:zena) }
+  #    zena = secure!(Node) { nodes(:zena) }
   #    docs = zena.documents
   #    assert_equal 'water', docs[0][:name]
   #  end
@@ -148,7 +148,7 @@ class DocumentsControllerTest < ZenaTestController
   #  post 'create', :document=>{:parent_id=>nodes_id(:zena), :c_file=>uploaded_jpg('bird.jpg')}
   #  assert_response :success
   #  assert_template 'document/create'
-  #  zena = secure(Node) { nodes(:zena) }
+  #  zena = secure!(Node) { nodes(:zena) }
   #  docs = zena.documents
   #  assert_equal 'bird', docs[0][:name]
   #end

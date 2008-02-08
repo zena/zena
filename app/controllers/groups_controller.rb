@@ -16,7 +16,7 @@ class GroupsController < ApplicationController
   # TODO: test
   def index
     @group_pages, @groups = nil, nil
-    secure(Group) do
+    secure!(Group) do
       @group_pages, @groups = paginate :groups, :order => 'name', :per_page => 20
     end
     get_users_list
@@ -50,12 +50,12 @@ class GroupsController < ApplicationController
     def find_group
       if params[:id]
         raise ActiveRecord::RecordNotFound if params[:id] == visitor.site.public_group_id
-        @group = secure(Group) { Group.find(params[:id]) }
+        @group = secure!(Group) { Group.find(params[:id]) }
       end
       @node = visitor.contact
     end
     
     def get_users_list
-      @users = secure(User) { User.find(:all, :conditions => "status >= #{User::Status[:reader]}", :order=>'login') }
+      @users = secure!(User) { User.find(:all, :conditions => "status >= #{User::Status[:reader]}", :order=>'login') }
     end
 end

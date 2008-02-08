@@ -17,6 +17,10 @@ bad_link:
 change_img_src:
   src: "this <img src='images/logo.png'/> image"
   res: "this <img src='/test_img/images/logo.png'/> image"
+  
+do_not_change_img_src:
+  src: "this <img src='http://example.com/logo.png'/> image"
+  res: "this <img src='http://example.com/logo.png'/> image"
 
 change_script_src:
   src: |
@@ -27,4 +31,14 @@ change_script_src:
     <script src='/test_script/functions.js' type='text/javascript'>
       <r:blah/>
     </script>
+
+change_style_url:
+  src: |
+    <style>
+    #super { background:url('images/logo.png');}
+    </style>
+  res: |
+    <style>
+    #super { background:url('/test_/images/logo.png');}
+    </style>
   

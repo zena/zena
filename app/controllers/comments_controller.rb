@@ -7,7 +7,7 @@ class CommentsController < ApplicationController
   def reply_to
     @reply_to   = Comment.find(params[:id])
     @discussion = @reply_to.discussion
-    @node = secure(Node) { Node.find(@discussion[:node_id]) }
+    @node = secure!(Node) { Node.find(@discussion[:node_id]) }
     if @node.can_comment?
       @comment = Comment.new(:reply_to=>@reply_to[:id], :discussion_id=>@discussion[:id])
     else
@@ -19,7 +19,7 @@ class CommentsController < ApplicationController
   
   # TODO: test
   def create
-    @node = secure(Node) { Node.find(params[:node][:id]) }
+    @node = secure!(Node) { Node.find(params[:node][:id]) }
     unless @comment = @node.add_comment(params[:comment])
       processing_error 'cannot comment'
     end
@@ -31,7 +31,7 @@ class CommentsController < ApplicationController
   def edit
     @comment    = Comment.find(params[:id])
     @discussion = @comment.discussion
-    @node = secure(Node) { Node.find(@discussion[:node_id]) }
+    @node = secure!(Node) { Node.find(@discussion[:node_id]) }
     @edit = true
     unless @node.can_comment? && @comment[:user_id] == visitor.id
       render :nothing=>true
@@ -44,7 +44,7 @@ class CommentsController < ApplicationController
   def update
     @comment    = Comment.find(params[:comment][:id])
     @discussion = @comment.discussion
-    @node = secure(Node) { Node.find(@discussion[:node_id]) }
+    @node = secure!(Node) { Node.find(@discussion[:node_id]) }
     if @node.can_comment? && @comment[:user_id] == visitor.id || visitor.id == 2
       [:user_id, :discussion_id, :reply_to].each { |sym| params[:comment].delete(sym) }
       @comment.update_attributes(params[:comment] )
@@ -59,7 +59,7 @@ class CommentsController < ApplicationController
   def remove
     @comment    = Comment.find(params[:id])
     @discussion = @comment.discussion
-    @node = secure(Node) { Node.find(@discussion[:node_id]) }
+    @node = secure!(Node) { Node.find(@discussion[:node_id]) }
     if visitor.is_admin? || @node.can_drive?
       @comment.remove
     else
@@ -73,7 +73,7 @@ class CommentsController < ApplicationController
   def publish
     @comment    = Comment.find(params[:id])
     @discussion = @comment.discussion
-    @node = secure_drive(Node) { Node.find(@discussion[:node_id]) }
+    @node = secure_drive!(Node) { Node.find(@discussion[:node_id]) }
     @comment.publish
   rescue ActiveRecord::RecordNotFound
     render :nothing=>true

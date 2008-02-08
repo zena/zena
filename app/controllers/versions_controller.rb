@@ -72,7 +72,7 @@ class VersionsController < ApplicationController
   def diff
     @preview_id = session[:preview_id]
     # drive view
-    @node = secure(Node) { Node.find(params[:id]) }
+    @node = secure!(Node) { Node.find(params[:id]) }
     @from = @node.version(params[:from])
     @to   = @node.version(params[:to])
     
@@ -188,7 +188,7 @@ class VersionsController < ApplicationController
   
   protected
     def find_node
-      @node = secure(Node) { Node.find_by_zip(params[:node_id]) }
+      @node = secure!(Node) { Node.find_by_zip(params[:node_id]) }
       if params[:id].to_i != 0
         # try to set current version from version number
         redirect_to :id => @node.v_number unless @node.version(params[:id])

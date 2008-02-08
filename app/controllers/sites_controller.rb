@@ -7,7 +7,7 @@ class SitesController < ApplicationController
   def index
     
     @site_pages, @sites = nil, nil
-    secure(Site) do
+    secure!(Site) do
       @site_pages, @sites = paginate :sites, :per_page => 20, :order => 'name'
     end
     respond_to do |format|
@@ -69,6 +69,6 @@ class SitesController < ApplicationController
     end
     
     def find_site
-      @site = secure(Site) { Site.find(params[:id])}
+      @site = secure!(Site) { Site.find(params[:id])}
     end
 end

@@ -4,7 +4,7 @@ class LinkController < ApplicationController
   # can also be a name
   # TODO: test multiple/single values
   def create
-    @node = secure_drive(Node) { Node.find(params[:link][:node_id]) }
+    @node = secure_drive!(Node) { Node.find(params[:link][:node_id]) }
     if params[:node]
       # update node links with list
       box = params[:node][:box]
@@ -37,7 +37,7 @@ class LinkController < ApplicationController
         other_id = params[:link][:other_id].to_i
       else
         begin
-          if other = secure(Node) { Node.find_by_name(params[:link][:other_id]) }
+          if other = secure!(Node) { Node.find_by_name(params[:link][:other_id]) }
             other_id = other[:id]
           end
         end
@@ -51,7 +51,7 @@ class LinkController < ApplicationController
   end
   
   def select_for
-    @node = secure(Node) { Node.find(params[:id]) }
+    @node = secure!(Node) { Node.find(params[:id]) }
     @node.class.roles.each do |r|
       if r[:method].to_s == params[:role]
         @role = r
@@ -71,7 +71,7 @@ class LinkController < ApplicationController
   
   # remove a link given the link id 'id' and the node id 'node_id'
   def remove
-    @node = secure_drive(Node) { Node.find(params[:node_id]) }
+    @node = secure_drive!(Node) { Node.find(params[:node_id]) }
     @link_id = params[:id]
     @node.remove_link(@link_id) && @node.save
   rescue ActiveRecord::RecordNotFound

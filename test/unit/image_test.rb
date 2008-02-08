@@ -5,7 +5,7 @@ class ImageTest < ZenaTestUnit
   def test_create_with_file
     without_files('test.host/data/jpg') do
       login(:ant)
-      img = secure(Image) { Image.create( :parent_id=>nodes_id(:cleanWater),
+      img = secure!(Image) { Image.create( :parent_id=>nodes_id(:cleanWater),
                                           :inherit => 1,
                                           :name=>'birdy', 
                                           :c_file => uploaded_jpg('bird.jpg')) }
@@ -26,7 +26,7 @@ class ImageTest < ZenaTestUnit
   def test_resize_image
     without_files('test.host/data/jpg') do
       login(:ant)
-      img = secure(Image) { Image.create( :parent_id=>nodes_id(:cleanWater), 
+      img = secure!(Image) { Image.create( :parent_id=>nodes_id(:cleanWater), 
                                           :inherit => 1,
                                           :name=>'birdy', :c_file => uploaded_jpg('bird.jpg')) }
       assert !img.new_record?, "Not a new record"
@@ -47,8 +47,8 @@ class ImageTest < ZenaTestUnit
   def test_change_image
     preserving_files('test.host/data/jpg') do
       login(:ant)
-      img = secure(Node) { nodes(:bird_jpg) }
-      flo = secure(Node) { nodes(:flower_jpg)}
+      img = secure!(Node) { nodes(:bird_jpg) }
+      flo = secure!(Node) { nodes(:flower_jpg)}
       assert_equal 660, img.c_width
       assert_equal 600, img.c_height
       assert_equal 56243, img.c_size
@@ -65,12 +65,12 @@ class ImageTest < ZenaTestUnit
   def test_change_image_bad_file
     preserving_files('test.host/data') do
       login(:ant)
-      img = secure(Node) { nodes(:bird_jpg) }
-      flo = secure(Node) { nodes(:flower_jpg)}
+      img = secure!(Node) { nodes(:bird_jpg) }
+      flo = secure!(Node) { nodes(:flower_jpg)}
       assert_equal 56243, img.c_size
       assert_equal 'image/jpeg', img.c_content_type
       assert !img.update_attributes(:c_file=>uploaded_text('some.txt'))
-      img = secure(Node) { nodes(:bird_jpg) } # reload
+      img = secure!(Node) { nodes(:bird_jpg) } # reload
       assert_equal 56243, img.c_size
       assert_equal 'image/jpeg', img.c_content_type
     end
@@ -79,7 +79,7 @@ class ImageTest < ZenaTestUnit
   def test_crop_image
     preserving_files('test.host/data/jpg') do
       login(:ant)
-      img = secure(Node) { nodes(:bird_jpg) }
+      img = secure!(Node) { nodes(:bird_jpg) }
       assert_equal Zena::Status[:pub], img.v_status
       pub_version_id = img.v_id
       pub_content_id = img.c_id
@@ -87,7 +87,7 @@ class ImageTest < ZenaTestUnit
       assert_equal 600, img.c_height
       assert_equal 56243, img.c_size
       assert img.update_attributes(:c_crop=>{:x=>'500',:y=>30,:w=>'200',:h=>80})
-      img = secure(Node) { nodes(:bird_jpg) }
+      img = secure!(Node) { nodes(:bird_jpg) }
       assert_not_equal pub_version_id, img.v_id
       assert_not_equal pub_content_id, img.c_id
       assert_equal 2010,   img.c_size
@@ -99,7 +99,7 @@ class ImageTest < ZenaTestUnit
   def test_crop_image_limit
     preserving_files('test.host/data/jpg') do
       login(:ant)
-      img = secure(Node) { nodes(:bird_jpg) }
+      img = secure!(Node) { nodes(:bird_jpg) }
       assert_equal Zena::Status[:pub], img.v_status
       pub_version_id = img.v_id
       pub_content_id = img.c_id
@@ -107,7 +107,7 @@ class ImageTest < ZenaTestUnit
       assert_equal 600, img.c_height
       assert_equal 56243, img.c_size
       assert img.update_attributes(:c_crop=>{:max_value=>'30', :max_unit=>'Kb'})
-      img = secure(Node) { nodes(:bird_jpg) }
+      img = secure!(Node) { nodes(:bird_jpg) }
       assert_not_equal pub_version_id, img.v_id
       assert_not_equal pub_content_id, img.c_id
       assert img.c_size < 30 * 1024 * 1.2
@@ -117,12 +117,12 @@ class ImageTest < ZenaTestUnit
   def test_crop_image_format
     preserving_files('test.host/data/jpg') do
       login(:ant)
-      img = secure(Node) { nodes(:bird_jpg) }
+      img = secure!(Node) { nodes(:bird_jpg) }
       assert_equal Zena::Status[:pub], img.v_status
       pub_version_id = img.v_id
       pub_content_id = img.c_id
       assert img.update_attributes(:c_crop=>{:format=>'png'})
-      img = secure(Node) { nodes(:bird_jpg) }
+      img = secure!(Node) { nodes(:bird_jpg) }
       assert_not_equal pub_version_id, img.v_id
       assert_not_equal pub_content_id, img.c_id
       #assert_equal 20799,   img.c_size
@@ -133,7 +133,7 @@ class ImageTest < ZenaTestUnit
   def test_crop_image_same_size
     preserving_files('test.host/data/jpg') do
       login(:ant)
-      img = secure(Node) { nodes(:bird_jpg) }
+      img = secure!(Node) { nodes(:bird_jpg) }
       assert_equal Zena::Status[:pub], img.v_status
       pub_version_id = img.v_id
       pub_content_id = img.c_id
@@ -141,7 +141,7 @@ class ImageTest < ZenaTestUnit
       assert_equal 600, img.c_height
       # crop keeping same size = do nothing
       assert img.update_attributes(:v_text=>"hey", :c_crop=>{:x=>'0',:y=>0,:w=>'660',:h=>600})
-      img = secure(Node) { nodes(:bird_jpg) }
+      img = secure!(Node) { nodes(:bird_jpg) }
       assert_not_equal pub_version_id, img.v_id
       assert_equal pub_version_id, img.version.content_id
       assert_equal pub_content_id, img.version.content.id
@@ -153,7 +153,7 @@ class ImageTest < ZenaTestUnit
   def test_crop_image_with_new_file
     preserving_files('test.host/data/jpg') do
       login(:ant)
-      img = secure(Node) { nodes(:bird_jpg) }
+      img = secure!(Node) { nodes(:bird_jpg) }
       assert_equal Zena::Status[:pub], img.v_status
       pub_version_id = img.v_id
       pub_content_id = img.c_id
@@ -161,7 +161,7 @@ class ImageTest < ZenaTestUnit
       assert_equal 600, img.c_height
       assert_equal 56243, img.c_size
       assert img.update_attributes(:name => 'lila.jpg', :c_file=>uploaded_jpg('flower.jpg'), :c_crop=>{:x=>'500',:y=>30,:w=>'200',:h=>80})
-      img = secure(Node) { nodes(:bird_jpg) }
+      img = secure!(Node) { nodes(:bird_jpg) }
       assert_equal 800, img.c_width
       assert_equal 600, img.c_height
       assert_equal 96648,  img.c_size
@@ -171,12 +171,12 @@ class ImageTest < ZenaTestUnit
   def test_change_name
     preserving_files('test.host/data/jpg') do
       login(:ant)
-      img = secure(Image) { Image.create( :parent_id=>nodes_id(:cleanWater),
+      img = secure!(Image) { Image.create( :parent_id=>nodes_id(:cleanWater),
                                           :inherit => 1,
                                           :name=>'birdy', 
                                           :c_file => uploaded_jpg('bird.jpg')) }
       assert !img.new_record?
-      img = secure(Image) { Image.find(img[:id]) }
+      img = secure!(Image) { Image.find(img[:id]) }
       old_path1 = img.c_filepath
       old_path2 = img.c_filepath('pv')
       img.c_file('pv') # creates 'pv' file
@@ -195,7 +195,7 @@ class ImageTest < ZenaTestUnit
   def test_change_name_many_versions
     preserving_files('test.host/data/jpg') do
       login(:lion)
-      img = secure(Image) { Image.create( :parent_id=>nodes_id(:cleanWater),
+      img = secure!(Image) { Image.create( :parent_id=>nodes_id(:cleanWater),
                                           :inherit => 1,
                                           :name=>'birdy', 
                                           :c_file => uploaded_jpg('bird.jpg')) }
@@ -203,7 +203,7 @@ class ImageTest < ZenaTestUnit
                                           err img
       assert !img.new_record?
       
-      img = secure(Image) { Image.find(img[:id]) }
+      img = secure!(Image) { Image.find(img[:id]) }
       assert img.publish
       img_id  = img[:id]
       v1      = img.v_id
@@ -212,7 +212,7 @@ class ImageTest < ZenaTestUnit
       
       img.c_file('pv') # creates 'pv' file
       
-      img = secure(Image) { Image.find(img_id) }
+      img = secure!(Image) { Image.find(img_id) }
       # create a new redaction with a new file
       assert img.update_attributes(:c_file=> uploaded_jpg('flower.jpg'))
       
@@ -245,7 +245,7 @@ class ImageTest < ZenaTestUnit
   def test_create_with_small_file
     preserving_files('/sites/test.host/data/png') do
       login(:ant)
-      img = secure(Image) { Image.create( :parent_id=>nodes_id(:cleanWater),
+      img = secure!(Image) { Image.create( :parent_id=>nodes_id(:cleanWater),
         :name => 'bomb.png',
         :c_file => uploaded_png('bomb.png') )}
       assert_kind_of Image, img
