@@ -402,6 +402,12 @@ on_if_kind_of:
   src: "<b do='[v_title]' doc_if='kind_of Document' popo_if='kind_of Post'/>"
   res: "<b class='popo'>Proposition</b>"
 
+on_if_attribute:
+  context:
+    node: 'cleanWater'
+  src: "<r:pages><div do='each' on_if='[d_assigned]' do='[name]'/></r:pages>"
+  tem: "/list1.each.*var1.*<div.*var1.version.dyn\[\"assigned\"\]/"
+
 simple_each:
   src: "<r:children><r:each><r:show attr='name'/></r:each></r:children>"
   tem: "/.*if list1.*each.*var1.name/"
@@ -589,7 +595,7 @@ tada:
     <div id='text'><p>We are glad to announce the opening of our new project !</p>
     
     
-    	<p>You are all invited to <strong>Romanel</strong> for a great party this weekend.</p></div>
+                                        <p>You are all invited to <strong>Romanel</strong> for a great party this weekend.</p></div>
 
 summary:
   context:

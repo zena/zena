@@ -1646,7 +1646,7 @@ END_TXT
           end
           allOK ? "#{value1} #{op} #{value2}" : nil
         elsif test =~ /\[([^\]]+)\]/
-          node_attribute($1)
+          node_attribute($1, :node => node)
         else
           # bad test condition.
           'false'
