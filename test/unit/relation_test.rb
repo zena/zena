@@ -292,9 +292,6 @@ class RelationTest < ZenaTestUnit
   
   def test_build_find_bad_vclass_from_project
     assert_nil str = Node.build_find(:all, :relations=>['badclass from project'], :node_name=>'var8')
-
-    var8 = secure!(Node) { nodes(:cleanWater) }
-    assert_nil var8.do_find(:all, eval("\"#{str}\""))
   end
   
   def test_build_find_relation

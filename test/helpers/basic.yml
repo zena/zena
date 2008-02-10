@@ -282,7 +282,7 @@ show_v_text:
 
 show_title_options:
   src: "<h1 class='title' do='title' status='true' actions='edit,publish'/>"
-  tem: "<h1 class='title'><div class='s<%= @node.version.status %>'><%= show_title(:node=>@node) + node_actions(:node=>@node, :actions=>\"edit,publish\", :publish_after_save=>false)%></div></h1>"
+  tem: "<h1 class='title'><div class='s<%= @node.version.status %>'><%= show_title(:node=>@node) + node_actions(:node=>@node, :publish_after_save=>false, :actions=>\"edit,publish\")%></div></h1>"
   res: "/<h1 class='title'><div class='s50'><span id='v_title22'>status title</span><span class='actions'><a.*/nodes/22/versions/0/edit.*/images/page_edit.png'.*/></a>.*</span></div></h1>/"
 
 show_c_width:
