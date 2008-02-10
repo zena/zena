@@ -96,9 +96,8 @@ module Zafu
           type = :link
         end
       when 'style'
-        text = expand_with
         @html_tag_done = true
-        return text.gsub!(/url\(('|")(.*?)\1\)/) do
+        return expand_with.gsub(/url\(('|")(.*?)\1\)/) do
           if $2[0..6] == 'http://'
             $&
           else
