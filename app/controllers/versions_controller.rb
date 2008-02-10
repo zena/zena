@@ -58,8 +58,6 @@ class VersionsController < ApplicationController
         flash[:error] = _("Could not edit version.")
         render_or_redir 404
       else
-        # store the id used to preview when editing
-        session[:preview_id] = params[:node_id]
         @title_for_layout = @node.rootpath
         @edit = true
       end
@@ -68,7 +66,6 @@ class VersionsController < ApplicationController
   
   # TODO: test/improve or remove (experiments)
   def diff
-    @preview_id = session[:preview_id]
     # drive view
     @node = secure!(Node) { Node.find(params[:id]) }
     @from = @node.version(params[:from])
@@ -78,7 +75,6 @@ class VersionsController < ApplicationController
   
   # preview when editing node
   def preview
-    @preview_id = session[:preview_id]
     if @key = (params['key'] || params['amp;key'])
       @value = params[:content]
       if @node.kind_of?(TextDocument) && @key == 'v_text'

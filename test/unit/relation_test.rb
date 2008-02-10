@@ -291,8 +291,7 @@ class RelationTest < ZenaTestUnit
   end
   
   def test_build_find_bad_vclass_from_project
-    assert_equal "SELECT nodes.* FROM nodes   WHERE (nodes.id IS NULL AND (nodes.user_id = '\#{visitor[:id]}' OR (rgroup_id IN (\#{visitor.group_ids.join(',')}) AND nodes.publish_from <= now() ) OR (pgroup_id IN (\#{visitor.group_ids.join(',')}) AND max_status > 30)) AND nodes.site_id = \#{visitor.site[:id]})  GROUP BY nodes.id  ORDER BY position ASC, name ASC",
-      str = Node.build_find(:all, :relations=>['badclass from project'], :node_name=>'var8')
+    assert_nil str = Node.build_find(:all, :relations=>['badclass from project'], :node_name=>'var8')
 
     var8 = secure!(Node) { nodes(:cleanWater) }
     assert_nil var8.do_find(:all, eval("\"#{str}\""))
@@ -318,7 +317,7 @@ class RelationTest < ZenaTestUnit
   end
 
   def test_build_find_with_dyn_attribute_clause
-    assert_equal "SELECT nodes.* FROM nodes  INNER JOIN versions AS vs ON vs.node_id = nodes.id AND ((vs.status >= 30 AND vs.user_id = \#{visitor[:id]} AND vs.lang = '\#{visitor.lang}') OR vs.status > 30) INNER JOIN dyn_attributes AS da1 ON da1.owner_id = vs.id AND da1.owner_table = 'versions' WHERE (nodes.kpath LIKE 'NP%' AND kpath NOT LIKE 'NPD%' AND nodes.section_id = \#{var8.get_section_id} AND da1.key = 'assigned' AND da1.value = 'gaspard' AND (nodes.user_id = '\#{visitor[:id]}' OR (rgroup_id IN (\#{visitor.group_ids.join(',')}) AND nodes.publish_from <= now() ) OR (pgroup_id IN (\#{visitor.group_ids.join(',')}) AND max_status > 30)) AND nodes.site_id = \#{visitor.site[:id]})  GROUP BY nodes.id  ORDER BY position ASC, name ASC",
+    assert_equal "SELECT nodes.* FROM nodes  INNER JOIN versions AS vs ON vs.node_id = nodes.id AND ((vs.status >= 30 AND vs.user_id = \#{visitor[:id]} AND vs.lang = '\#{visitor.lang}') OR vs.status > 30) LEFT JOIN dyn_attributes AS da1 ON da1.owner_id = vs.id AND da1.key = 'assigned' WHERE (nodes.kpath LIKE 'NP%' AND kpath NOT LIKE 'NPD%' AND nodes.section_id = \#{var8.get_section_id} AND da1.value = 'gaspard' AND (nodes.user_id = '\#{visitor[:id]}' OR (rgroup_id IN (\#{visitor.group_ids.join(',')}) AND nodes.publish_from <= now() ) OR (pgroup_id IN (\#{visitor.group_ids.join(',')}) AND max_status > 30)) AND nodes.site_id = \#{visitor.site[:id]})  GROUP BY nodes.id  ORDER BY position ASC, name ASC",
       str = Node.build_find(:all, :relations=>['pages from section where d_assigned = "gaspard"'], :node_name=>'var8')
     login(:ant)
     var8 = secure!(Node) { nodes(:zena) }

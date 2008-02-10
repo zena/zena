@@ -317,5 +317,5 @@ where_with_param:
 
 bad_relation:
   src: "<div do='categories from site' do='each' join=', ' do='[name]'/>"
-  tem: "/<% if list[1-9]* = nil -%>/"
+  tem: "/<% if nil -%>/"
   res: ""

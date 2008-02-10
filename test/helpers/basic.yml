@@ -41,7 +41,7 @@ show_title:
 
 show_title_with_opts:
   src: "<h1 do='title' class='s30' status='true' actions='all'>this is the title</h1>"
-  tem: "<h1 class='s<%= @node.version.status %>'><%= show_title(:node=>@node, :text=>\"this is the title\") + node_actions(:node=>@node, :actions=>\"all\")%></h1>"
+  tem: "<h1 class='s<%= @node.version.status %>'><%= show_title(:node=>@node, :text=>\"this is the title\") + node_actions(:node=>@node, :actions=>\"all\", :publish_after_save=>false)%></h1>"
   res: "/<h1 class='s50'><span id=.*class='actions'>/"
 
 show_title_check_lang:
@@ -282,7 +282,7 @@ show_v_text:
 
 show_title_options:
   src: "<h1 class='title' do='title' status='true' actions='edit,publish'/>"
-  tem: "<h1 class='title'><div class='s<%= @node.version.status %>'><%= show_title(:node=>@node) + node_actions(:node=>@node, :actions=>\"edit,publish\")%></div></h1>"
+  tem: "<h1 class='title'><div class='s<%= @node.version.status %>'><%= show_title(:node=>@node) + node_actions(:node=>@node, :actions=>\"edit,publish\", :publish_after_save=>false)%></div></h1>"
   res: "/<h1 class='title'><div class='s50'><span id='v_title22'>status title</span><span class='actions'><a.*/nodes/22/versions/0/edit.*/images/page_edit.png'.*/></a>.*</span></div></h1>/"
 
 show_c_width:
@@ -595,7 +595,7 @@ tada:
     <div id='text'><p>We are glad to announce the opening of our new project !</p>
     
     
-                                        <p>You are all invited to <strong>Romanel</strong> for a great party this weekend.</p></div>
+    	<p>You are all invited to <strong>Romanel</strong> for a great party this weekend.</p></div>
 
 summary:
   context:

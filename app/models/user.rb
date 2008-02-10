@@ -287,9 +287,9 @@ class User < ActiveRecord::Base
   def to_publish
     if is_su?
       # su can view all
-      secure!(Version) { Version.find_all_by_status(Zena::Status[:prop]) }
+      secure(Version) { Version.find_all_by_status(Zena::Status[:prop]) }
     else
-      secure!(Version) { Version.find_by_sql("SELECT versions.* FROM versions LEFT JOIN nodes ON node_id=nodes.id WHERE status=#{Zena::Status[:prop]} AND nodes.pgroup_id IN (#{group_ids.join(',')})") }
+      secure(Version) { Version.find_by_sql("SELECT versions.* FROM versions LEFT JOIN nodes ON node_id=nodes.id WHERE status=#{Zena::Status[:prop]} AND nodes.pgroup_id IN (#{group_ids.join(',')})") }
     end
   end
   
@@ -297,9 +297,9 @@ class User < ActiveRecord::Base
   def redactions
     if is_su?
       # su is master of all
-      secure!(Version) { Version.find_all_by_status(Zena::Status[:red]) }
+      secure(Version) { Version.find_all_by_status(Zena::Status[:red]) }
     else
-      secure!(Version) { Version.find_all_by_user_id_and_status(id,Zena::Status[:red]) }
+      secure(Version) { Version.find_all_by_user_id_and_status(id,Zena::Status[:red]) }
     end
   end
   
@@ -307,9 +307,9 @@ class User < ActiveRecord::Base
   def proposed
     if is_su?
       # su is master of all
-      secure!(Version) { Version.find_all_by_status(Zena::Status[:prop]) }
+      secure(Version) { Version.find_all_by_status(Zena::Status[:prop]) }
     else
-      secure!(Version) { Version.find_all_by_user_id_and_status(id,Zena::Status[:prop]) }
+      secure(Version) { Version.find_all_by_user_id_and_status(id,Zena::Status[:prop]) }
     end
   end
   

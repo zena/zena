@@ -224,7 +224,7 @@ module Zena
       end
       
       if @params[:actions]
-        actions = "<%= node_actions(:node=>#{node}#{params_to_erb(:actions=>@params[:actions])}) %>"
+        actions = "<%= node_actions(:node=>#{node}#{params_to_erb(:actions=>@params[:actions], :publish_after_save=>(@params[:publish] == 'true'))}) %>"
       else
         actions = ''
       end
@@ -431,7 +431,7 @@ module Zena
       end
       res << ")"
       if @params[:actions]
-        res << " + node_actions(:node=>#{node}#{params_to_erb(:actions=>@params[:actions])})"
+        res << " + node_actions(:node=>#{node}#{params_to_erb(:actions=>@params[:actions], :publish_after_save=>(@params[:publish] == 'true'))})"
       end
       res << "%>"
       if @params[:status] == 'true' || (@params[:status].nil? && @params[:actions])
@@ -449,7 +449,7 @@ module Zena
     # TODO: test
     def r_actions
       out expand_with
-      out "<%= node_actions(:node=>#{node}#{params_to_erb(:actions=>@params[:select])}) %>"
+      out "<%= node_actions(:node=>#{node}#{params_to_erb(:actions=>@params[:select], :publish_after_save=>(@params[:publish] == 'true'))}) %>"
     end
     
     # TODO: test
@@ -632,6 +632,7 @@ END_TXT
         
         form << "<div class='hidden'>"
         form << "<input type='hidden' name='template_url' value='#{template_url}'/>\n"
+        form << "<input type='hidden' name='node[v_status]' value='#{Zena::Status[:pub]}'/>\n" if @context[:publish_after_save] || (@params[:publish] == 'true')
         
         if node_kind_of?(Node)
           form << "<input type='hidden' name='node[parent_id]' value='<%= #{@context[:in_add] ? "#{@context[:parent_node]}.zip" : "#{node}.parent_zip"} %>'/>\n"
@@ -770,10 +771,10 @@ END_TXT
           out "<% if #{var}_new = #{node_class}.new -%>"
         end
         if @context[:form].method == 'form'
-          out expand_block(@context[:form], :in_add => true, :no_form => false, :add=>self, :node => "#{var}_new", :parent_node => node, :klass => klass)
+          out expand_block(@context[:form], :in_add => true, :no_form => false, :add=>self, :node => "#{var}_new", :parent_node => node, :klass => klass, :publish_after_save => (@params[:publish] == 'true'))
         else
           # build form from 'each'
-          out expand_block(@context[:form], :in_add => true, :no_form => false, :no_edit => true, :add=>self, :make_form => true, :node => "#{var}_new", :parent_node => node, :klass => klass)
+          out expand_block(@context[:form], :in_add => true, :no_form => false, :no_edit => true, :add=>self, :make_form => true, :node => "#{var}_new", :parent_node => node, :klass => klass, :publish_after_save => (@params[:publish] == 'true'))
         end
         out "<% end -%>"
       else
@@ -1479,7 +1480,11 @@ END_TXT
     
     def do_var(var_finder=nil, opts={})
       else_block = descendant('else')
-      out "<% if #{var} = #{var_finder} -%>" if var_finder
+      if var_finder == 'nil'
+        out "<% if nil -%>"
+      elsif var_finder
+        out "<% if #{var} = #{var_finder} -%>"
+      end
       res = expand_with(opts.merge(:node=>var))
       out render_html_tag(res)
       if else_block
@@ -1508,13 +1513,16 @@ END_TXT
         
         template_url = each_block.get_template_url(@context)
         
+        # should we publish ?
+        publish_after_save ||= form_block ? form_block.params[:publish] : nil
+        publish_after_save ||= descendant('edit') ? descendant('edit').params[:publish] : nil
         
         # class name for erb form
         klass       = add_block  ? add_block.params[:klass]  : nil
         klass     ||= form_block ? form_block.params[:klass] : nil
         
         # 'r_add' needs the form when rendering. Send with :form.
-        res = expand_with(opts.merge(:list=>list_var, :form=>form_block, :no_form=>true, :template_url=>template_url, :klass => klass))
+        res = expand_with(opts.merge(:list=>list_var, :form=>form_block, :publish_after_save => publish_after_save, :no_form=>true, :template_url=>template_url, :klass => klass))
         out render_html_tag(res)
         if list_finder
           out "<% else -%>" + expand_block(else_block, :do=>true) if else_block
@@ -1529,9 +1537,9 @@ END_TXT
         # FORM ============
         form_url = "#{template_url}_form"
         if each_block != form_block
-          form = expand_block(form_block, :node=>template_node, :node_class => node_class, :klass => klass, :template_url=>template_url, :add=>add_block) 
+          form = expand_block(form_block, :node=>template_node, :node_class => node_class, :klass => klass, :template_url=>template_url, :add=>add_block, :publish_after_save => publish_after_save) 
         else
-          form = expand_block(form_block, :node=>template_node, :node_class => node_class, :klass => klass, :template_url=>template_url, :add=>add_block, :make_form=>true, :no_edit=>true)
+          form = expand_block(form_block, :node=>template_node, :node_class => node_class, :klass => klass, :template_url=>template_url, :add=>add_block, :make_form=>true, :no_edit=>true, :publish_after_save => publish_after_save)
         end
         out helper.save_erb_to_url(form, form_url)
       else
@@ -1539,8 +1547,10 @@ END_TXT
         if list_finder
           if descendant('add')
             out "<% if (#{list_var} = #{list_finder}) || (#{node}.can_write? && #{list_var}=[]) -%>"
-          else
+          elsif list_finder != 'nil'
             out "<% if #{list_var} = #{list_finder} -%>"
+          else
+            out "<% if nil -%>"
           end
         end
         res = expand_with(opts.merge(:list=>list_var))

@@ -61,3 +61,7 @@ each_edit_cannot_write:
     visitor: 'anon'
   src: "<r:children><r:each><li><r:show attr='name'>blah</r:show> <r:edit>edit</r:edit></li>\n</r:each></r:children>"
   res: "/<li id='list\.24'>lake </li>.*/"
+
+add_each_publish:
+  src: "<ul do='children' id='things'><li do='each'>I <p do='[name]'>blah</p></li><li do='add' publish='true'/></ul>"
+  res: "/<ul><li.*id='things_add'.*li id='things_form'.*form.*hidden.*name='node\[v_status\]' value='50'/"

@@ -1,5 +1,5 @@
 [:v_title, :v_text, :v_summary].each do |sym|
   page << "try {"
-  page.replace_html   "#{sym}#{@preview_id}", zazen(@node.send(sym), :pretty_code=>true)
+  page.replace_html   "#{sym}#{@node[:zip]}", zazen(@node.send(sym), :pretty_code=>true)
   page << "} catch(err) {}"
 end

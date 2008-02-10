@@ -758,7 +758,7 @@ module ApplicationHelper
       next unless node.can_apply?(action)
       case action
       when :edit
-        res << "<a href='#{edit_version_url(hash)}' target='_blank' title='#{_('btn_title_edit')}' onclick=\"editor=window.open('#{edit_version_url(hash)}', '_blank', 'location=0,width=300,height=400,resizable=1');return false;\">" + 
+        res << "<a href='#{edit_version_url(hash)}#{opts[:publish_after_save] ? '?pub=true' : ''}' target='_blank' title='#{_('btn_title_edit')}' onclick=\"editor=window.open('#{edit_version_url(hash)}#{opts[:publish_after_save] ? '?pub=true' : ''}', '_blank', 'location=0,width=300,height=400,resizable=1');return false;\">" + 
                (text || _('btn_edit')) + "</a>"
       when :propose
         res << link_to((text || _("btn_propose")), propose_version_path(hash), :method => :put)

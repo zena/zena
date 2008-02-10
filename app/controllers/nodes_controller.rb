@@ -153,8 +153,6 @@ class NodesController < ApplicationController
   def edit
     respond_to do |format|
       format.html do
-        # store the id used to preview versions
-        session[:preview_id] = params[:preview_id] if params[:preview_id]
         @title_for_layout = @node.rootpath
       end
       format.js do
