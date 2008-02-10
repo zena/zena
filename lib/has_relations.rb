@@ -151,6 +151,7 @@ module Zena
       # Build a finder for a list of relations. Valid relation syntax is 'RELATION [from|to] [site|section|project]'. For
       # example: 'pages from project', 'images from site', 'tags', 'icon_for from project', 'houses where d_town = Lausanne'
       def build_condition(obj, *finders)
+        puts finders.inspect
         parts = []
         link_counter = 0
         dyn_counter  = 0
@@ -186,7 +187,8 @@ module Zena
             # someday, someone will ask for an 'or'. When this happens, we need to use () around all the clauses ((...) OR (...)).
             where_clause = where.split(/\s+and\s+/).map do |clause|
               # [field] [=|>]
-              if clause =~ /([\w:]+)\s*(<|<=|=|like|>=|>|<>)\s*"?([^"]*)"?/
+              if clause =~ /([\w:]+)\s*(like|>=|<=|<>|<|=|>)\s*"?([^"]*)"?/
+                puts $~.to_a.inspect
                 # TODO: add 'match' parameter (#105)
                 field = $1
                 op    = $2
@@ -256,6 +258,7 @@ module Zena
               else
                 # invalid clause format
                 # FIXME: display the error in the rendered zafu #42
+                "1"
               end
             end.compact.join(' AND ')
             where_clause = " AND #{where_clause}"

@@ -1405,7 +1405,7 @@ END_TXT
       end
 
       query_params[:conditions] = conditions.join(' AND ') if conditions != []
-      query_params[:relations ] = relations
+      query_params[:relations ] = relations.map { |r| r.gsub('&gt;', '>').gsub('&lt;', '<')}
       query_params[:node_name ] = node
       query_params
     end    
@@ -1619,7 +1619,7 @@ END_TXT
           allOK = value1 && op && value2
           toi   = ( op =~ /\&/ )
           if ['==', '!=', '&gt;', '&gt;=', '&lt;', '&lt;='].include?(op)
-            op = op.gsub('&gt;', '>').gsub('&lt', '<')
+            op = op.gsub('&gt;', '>').gsub('&lt;', '<')
           else
             allOK = false
           end

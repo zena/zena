@@ -281,6 +281,12 @@ where_like:
   src: "<r:images from='site' where='name like %ke' do='each' join=',' do='[name]'/>"
   res: "lake"
 
+where_not:
+  context:
+    node: 'cleanWater'
+  src: "<r:nodes where='name &lt;&gt; \"status\"' do='each' join=',' do='[name]'/>"
+  res: "lake,lakeAddress,opening,track,water"
+
 many_or:
   src: "<r:tagged from='site' or='images from site' or='tags from site' do='each' join=',' do='[name]'/>"
   res: "art,bird,cleanWater,flower,lake,news,opening,tree"
@@ -296,3 +302,8 @@ node_in_version:
 where_with_param:
   src: "<r:nodes from='site' where='v_title like \"%[param:t]%\"'/>"
   tem: "/vs.title like \#\{Node.connection.quote\(\"%\" \+params\[:t\].to_s\+ \"%\"\)\}/"
+
+bad_relation:
+  src: "<div do='categories from site' do='each' join=', ' do='[name]'/>"
+  tem: "..."
+  res: ""
