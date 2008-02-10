@@ -106,7 +106,10 @@ module Zena
         end
 
         relations = opts.delete(:relations)
-        base_conditions, joins = build_condition(opts[:node_name], *relations)
+        base_conditions, joins, opts[:order] = build_condition(opts[:node_name], relations, opts[:order])
+        unless base_conditions
+          return nil
+        end
         
         
         if opts[:conditions]
@@ -118,7 +121,7 @@ module Zena
         else
           opts[:conditions] = "#{base_conditions} AND #{secure_scope_string}"
         end
-
+            
         opts[:order] ||= 'position ASC, name ASC'
 
         if joins =~ /JOIN links/
@@ -150,11 +153,12 @@ module Zena
       
       # Build a finder for a list of relations. Valid relation syntax is 'RELATION [from|to] [site|section|project]'. For
       # example: 'pages from project', 'images from site', 'tags', 'icon_for from project', 'houses where d_town = Lausanne'
-      def build_condition(obj, *finders)
-        puts finders.inspect
+      def build_condition(obj, finders, order=nil)
+        finders = [finders] unless finders.kind_of?(Array)
         parts = []
         link_counter = 0
         dyn_counter  = 0
+        dyn_keys     = {}
         has_version_join = false
         # version_join should be the same as in Node#match_query
         version_join = "INNER JOIN versions AS vs ON vs.node_id = nodes.id AND ((vs.status >= #{Zena::Status[:red]} AND vs.user_id = \#{visitor[:id]} AND vs.lang = '\#{visitor.lang}') OR vs.status > #{Zena::Status[:red]})"
@@ -183,12 +187,10 @@ module Zena
           end
           
           if where
-            dyn_counter_this_finder = 0
             # someday, someone will ask for an 'or'. When this happens, we need to use () around all the clauses ((...) OR (...)).
             where_clause = where.split(/\s+and\s+/).map do |clause|
               # [field] [=|>]
-              if clause =~ /([\w:]+)\s*(like|>=|<=|<>|<|=|>)\s*"?([^"]*)"?/
-                puts $~.to_a.inspect
+              if clause =~ /([\w:]+)\s*(like|is not|is|>=|<=|<>|<|=|>)\s*"?([^"]*)"?/
                 # TODO: add 'match' parameter (#105)
                 field = $1
                 op    = $2
@@ -209,17 +211,20 @@ module Zena
                 case field[0..1]
                 when 'd_'
                   # DYNAMIC ATTRIBUTE
-                  field = field[2..-1]
-                  dyn_counter_this_finder += 1
-                  if dyn_counter_this_finder > dyn_counter
+                  key = field[2..-1]
+                  key, function = parse_sql_function_in_field(key)
+                  
+                  unless dyn_keys[key]
                     dyn_counter += 1
                     unless has_version_join
                       joins << version_join
                       has_version_join = true
                     end
-                    joins << "INNER JOIN dyn_attributes AS da#{dyn_counter} ON da#{dyn_counter}.owner_id = vs.id AND da#{dyn_counter}.owner_table = 'versions'"
+                    joins << "LEFT JOIN dyn_attributes AS da#{dyn_counter} ON da#{dyn_counter}.owner_id = vs.id AND da#{dyn_counter}.key = '#{key}'"
+                    dyn_keys[key] = "da#{dyn_counter}.value"
                   end
-                  "da#{dyn_counter_this_finder}.key = '#{field}' AND da#{dyn_counter_this_finder}.value #{op} #{value}"
+                  key = function ? "#{function}(#{dyn_keys[key]})" : dyn_keys[key]
+                  op[0..2] == 'is' ? "#{key} #{op} NULL" : "#{key} #{op} #{value}"
                 when 'c_'
                   # CONTENT TABLE
                   field = field[2..-1]
@@ -227,31 +232,27 @@ module Zena
                   nil
                 when 'v_'
                   # VERSION
-                  field = field[2..-1]
-                  field, function = parse_sql_function_in_field(field)
-                  if Version.zafu_readable?(field) && Version.column_names.include?(field)
+                  key = field[2..-1]
+                  key, function = parse_sql_function_in_field(key)
+                  if Version.zafu_readable?(key) && Version.column_names.include?(key)
                     unless has_version_join
                       joins << version_join
                       has_version_join = true
                     end
-                    if function
-                      "#{function}(vs.#{field}) #{op} #{value}"
-                    else
-                      "vs.#{field} #{op} #{value}"
-                    end
+                    
+                    key = function ? "#{function}(vs.#{key})" : "vs.#{key}"
+                    op[0..2] == 'is' ? "#{key} #{op} NULL" : "#{key} #{op} #{value}"
                   else
                     nil
                   end
                 else
                   # NODE
-                  field, function = parse_sql_function_in_field(field)
-                  if Node.zafu_readable?(field) && Node.column_names.include?(field)
-                    if function
-                      "#{function}(nodes.#{field}) #{op} #{value}"
-                    else
-                      "nodes.#{field} #{op} #{value}"
-                    end
+                  key, function = parse_sql_function_in_field(field)
+                  if Node.zafu_readable?(key) && Node.column_names.include?(key)
+                    key = function ? "#{function}(#{key})" : key
+                    op[0..2] == 'is' ? "#{key} #{op} NULL" : "#{key} #{op} #{value}"
                   else
+                    # bad attribute
                     nil
                   end
                 end
@@ -326,12 +327,67 @@ module Zena
             # bad finder. Ignore.
           end
         end
+        
+        order_res = nil
+        if order
+          order_res = []
+          order.split(',').each do |field|
+            if field =~ /\A\s*([a-zA-Z\-_]+)\s+(ASC|DESC)/
+              fld      = $1
+              asc_desc = $2
+              if fld[0..1] == 'd_'
+                # DYN_ATTRIBUTE
+                key = fld[2..-1]
+                
+                # TODO: DRY (this is the same as in where parse)
+                key, function = parse_sql_function_in_field(key)
+                
+                unless dyn_keys[key]
+                  dyn_counter += 1
+                  unless has_version_join
+                    joins << version_join
+                    has_version_join = true
+                  end
+                  joins << "LEFT JOIN dyn_attributes AS da#{dyn_counter} ON da#{dyn_counter}.owner_id = vs.id AND da#{dyn_counter}.key = '#{key}'"
+                  dyn_keys[key] = "da#{dyn_counter}.value"
+                end
+                order_res << (function ? "#{function}(#{dyn_keys[key]}) #{asc_desc}" : "#{dyn_keys[key]} #{asc_desc}")
+              elsif fld[0..1] == 'v_'
+                # VERSION
+                key = fld[2..-1]
+                key, function = parse_sql_function_in_field(key)
+                # duplication with finders.... could DRY
+                if Version.zafu_readable?(key) && Version.column_names.include?(key)
+                  unless has_version_join
+                    joins << version_join
+                    has_version_join = true
+                  end
+                  order_res << (function ? "#{function}(vs.#{field}) #{asc_desc}" : "vs.#{field} #{asc_desc}")
+                else
+                  nil
+                end
+              else
+                key, function = parse_sql_function_in_field(fld)
+                if Node.zafu_readable?(key) && Node.column_names.include?(key)
+                  # normal field
+                  order_res << (function ? "#{function}(#{key}) #{asc_desc}" : "#{key} #{asc_desc}")
+                end
+              end
+            else
+              # bad field: ignore
+            end
+          end
+          
+          order_res = order_res == [] ? nil : order_res.join(', ')
+        end
+        
+        
         if parts == []
-          ['nodes.id IS NULL', joins.join(' ')]
+          [nil, joins.join(' '), order_res]
         elsif parts.size == 1
-          [parts.first, joins.join(' ')]
+          [parts.first, joins.join(' '), order_res]
         else
-          ['((' + parts.join(') OR (') + '))', joins.join(' ')]
+          ['((' + parts.join(') OR (') + '))', joins.join(' '), order_res]
         end
       end
       

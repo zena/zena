@@ -1298,10 +1298,16 @@ END_TXT
       end
       
       sql_query = Node.build_find(count, query_parameters(rel, params))
+      unless sql_query
+        return "nil"
+      end
+      
       res = "#{node}.do_find(#{count.inspect}, \"#{sql_query}\"#{sql_query =~ /#{node}/ ? '' : ', true'})" # regexp to see if node is used. If not, we can ignore the source (use query even if #{node} is a new record).
       if params[:else]
         sql_query = Node.build_find(count, query_parameters(params[:else], params))
-        "(#{res} || #{node}.do_find(#{count.inspect}, \"#{sql_query}\"))"
+        if sql_query
+          "(#{res} || #{node}.do_find(#{count.inspect}, \"#{sql_query}\"))"
+        end
       else
         res 
       end

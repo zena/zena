@@ -287,6 +287,18 @@ where_not:
   src: "<r:nodes where='name &lt;&gt; \"status\"' do='each' join=',' do='[name]'/>"
   res: "lake,lakeAddress,opening,track,water"
 
+where_order_dyn_attr:
+  context:
+    node: 'cleanWater'
+  src: "<r:nodes order='d_assigned DESC' do='each'><span do='[name]' assigned_if='[d_assigned]'/></r:nodes>"
+  res: "<span class='assigned'>status</span><span>lakeAddress</span><span>lake</span><span>water</span><span>opening</span><span>track</span>"
+
+where_dyn_attr_is_null:
+  context:
+    node: 'cleanWater'
+  src: "<r:nodes where='d_assigned is NULL' do='each' join=', ' do='[name]'/>"
+  res: "lake, lakeAddress, opening, track, water"
+
 many_or:
   src: "<r:tagged from='site' or='images from site' or='tags from site' do='each' join=',' do='[name]'/>"
   res: "art,bird,cleanWater,flower,lake,news,opening,tree"
@@ -305,5 +317,5 @@ where_with_param:
 
 bad_relation:
   src: "<div do='categories from site' do='each' join=', ' do='[name]'/>"
-  tem: "..."
+  tem: "/<% if list[1-9]* = nil -%>/"
   res: ""

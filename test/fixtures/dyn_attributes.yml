@@ -25,3 +25,9 @@ cleanWater_assigned_to:
   owner_table:   'versions'
   key:           'assigned'
   value:         'gaspard'
+
+status_fr_assigned_to:
+  id:            5
+  owner_id:      30
+  key:           'assigned'
+  value:         'gaspard'
