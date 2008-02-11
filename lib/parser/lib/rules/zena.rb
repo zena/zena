@@ -682,13 +682,18 @@ END_TXT
         form = "<form method='post' action='/nodes/<%= #{node}.zip %>'><div style='margin:0;padding:0'><input name='_method' type='hidden' value='put' /></div>"
       end
       
-      unless descendant('cancel') || descendant('edit')
+      unless descendant('cancel') || descendant('edit') || descendant('form_tag')
         # add a descendant before blocks.
         blocks_bak = @blocks.dup # I do not understand why we need 'dup' (but we sure do...)
         form_cancel = make(:void, :method=>'void', :text=>cancel)
         @blocks = [form_cancel] + blocks_bak
       else
         blocks_bak = @blocks
+      end
+      
+      if descendant('form_tag') && !(descendant('cancel') || descendant('edit'))
+        form = cancel + form
+        cancel = ''
       end
       
       if descendant('form_tag')
