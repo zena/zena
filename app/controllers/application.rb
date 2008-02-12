@@ -23,19 +23,58 @@ class ApplicationController < ActionController::Base
         render_500(exception)
       end
     end
+    
+    def rescue_action(exception)
+      case exception
+      when ActiveRecord::RecordNotFound, ActionController::UnknownAction
+        render_404(exception)
+      else
+        super
+      end
+    end
+      
   
     # TODO: test
     def render_404(exception)
-      respond_to do |format|
-        format.html { redirect_to not_found_url } # FIXME: can we keep some info on the '404' status ?
-        format.all  { render :nothing => true, :status => "404 Not Found" }
+      if Thread.current.respond_to?(:visitor) && Thread.current.visitor
+        # page not found
+        @node = current_site.root_node
+        respond_to do |format|
+          format.html do
+            if File.exists?("#{SITES_ROOT}/#{current_site.host}/public/#{prefix}/404.html")
+              render :file => "#{SITES_ROOT}/#{current_site.host}/public/#{prefix}/404.html", :status => '404 Not Found'
+            else
+              render_and_cache :mode => '*notFound', :format => 'html', :cache_url => "/#{prefix}/404.html", :status => '404 Not Found'
+            end
+          end
+          format.all  { render :nothing => true, :status => "404 Not Found" }
+        end
+      else
+        # site not found
+        respond_to do |format|
+          format.html { render :file    => "#{RAILS_ROOT}/app/views/main/404.html", :status => '404 Not Found' }
+          format.all  { render :nothing => true, :status => "404 Not Found" }
+        end
       end
+    rescue ActiveRecord::RecordNotFound => err
+      # this is bad
+      render_500(err)
     end
   
     # TODO: test
     def render_500(exception)
+      # TODO: send an email with the exception ?
+=begin
+      msg =<<-END_MSG
+Something bad happened to your zena installation:
+--------------------------
+#{exception.message} 
+--------------------------
+#{exception.backtrace.join("\n")}
+END_MSG
+=end
       respond_to do |format|
-        format.html { render :file    => "#{RAILS_ROOT}/public/500.html", :status => '500 Error' }
+        format.html { render :file    => "#{RAILS_ROOT}/app/views/main/500.html", :status => '500 Error' }
         format.all  { render :nothing => true, :status => "500 Error" }
       end
     end
@@ -79,11 +118,9 @@ class ApplicationController < ActionController::Base
           send_data( data , :filename=>@node.v_title, :type => content_type, :disposition=>'inline')
           cache_page(:content_data => data) if opts[:cache]
         else
-          render :file => template_url(opts), :layout=>false
-          cache_page if opts[:cache]
+          render :file => template_url(opts), :layout=>false, :status => opts[:status]
+          cache_page(:url => opts[:cache_url]) if opts[:cache]
         end
-      #rescue ActiveRecord::RecordNotFound
-      #  redirect_to zen_path(@node)
       end
     end
   
@@ -91,7 +128,7 @@ class ApplicationController < ActionController::Base
     def cache_page(opts={})
       return unless perform_caching && caching_allowed(:authenticated => opts.delete(:authenticated))
       opts = {:expire_after  => nil,
-              :path          => (current_site.public_path + page_cache_file),
+              :path          => (current_site.public_path + page_cache_file(opts.delete(:url))),
               :content_data  => response.body   
               }.merge(opts)
       secure!(CachedPage) { CachedPage.create(opts) }
@@ -104,8 +141,8 @@ class ApplicationController < ActionController::Base
     end
   
     # Cache file path that reflects the called url
-    def page_cache_file
-      path = url_for(:only_path => true, :skip_relative_url_root => true)
+    def page_cache_file(url = nil)
+      path = url || url_for(:only_path => true, :skip_relative_url_root => true)
       path = ((path.empty? || path == "/") ? "/index" : URI.unescape(path))
       ext = params[:format] || 'html'
       path << ".#{ext}" unless path =~ /\.#{ext}$/
@@ -394,6 +431,13 @@ class ApplicationController < ActionController::Base
     # 6. 'test.host/'   use HTTP_ACCEPT_LANGUAGE
     # 7. 'test.host/'   use default language
     def set_lang
+      if params[:prefix] =~ /^\d+$/
+        # this has nothing to do with set_lang...
+        # 'test.host/34' --> /en/node34.html
+        redirect_to "/#{prefix}/#{params[:prefix]}"
+        return false
+      end
+      
       [
         params[:lang],
         format_changes_lang ? params[:prefix] : nil, # only if index (/fr, /en) or ending with 'html'

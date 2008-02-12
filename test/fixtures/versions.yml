@@ -993,3 +993,13 @@ Node_stat:
   text: |
 <% File.foreach("#{RAILS_ROOT}/db/init/base/skins/default/Node_stat.zafu") do |l| %>    <%= l %><% end %>
 <%= @defaults %>
+
+Ocean_node:
+  type:           TemplateVersion
+  id:             62
+  node_id:        58
+  site_id:        2
+  user_id:        8
+  lang:           en
+  text: "<html><body><h1 do='[v_title]'/></body></html>"
+<%= @defaults %>

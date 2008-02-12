@@ -733,35 +733,35 @@ class Node < ActiveRecord::Base
     end
   end
   
-  # url base path. cached. If rebuild is set to true, the cache is updated.
+  
+  # Return the same basepath as the parent. Is overwriten by 'Page' class.
   def basepath(rebuild=false)
-    if !rebuild && self[:basepath]
-      self[:basepath]
-    else
+    if !self[:basepath] || rebuild
       if self[:parent_id]
-        parent = @parent || Node.with_exclusive_scope { Node.find_by_id(self[:parent_id]) }
-        path = parent ? parent.basepath : ''
+        parent = parent(false)
+        path = parent ? parent.basepath(rebuild) : ''
       else
         path = ''
       end
-      self.connection.execute "UPDATE #{self.class.table_name} SET basepath='#{path.gsub("'",'')}' WHERE id='#{self[:id]}'"
-      path
+      self.connection.execute "UPDATE #{self.class.table_name} SET basepath='#{path}' WHERE id='#{self[:id]}'" if path != self[:basepath]
+      self[:basepath] = path
     end
+    self[:basepath]
   end
 
   # Return the full path as an array if it is cached or build it when asked for.
   def fullpath(rebuild=false)
-    if self[:fullpath] && !rebuild
-      self[:fullpath]
-    else
-      if parent = parent(:secure=>false)
-        path = parent.fullpath(rebuild).split('/') + [name]
+    if !self[:fullpath] || rebuild
+      if parent = parent(false)
+        path = parent.fullpath(rebuild).split('/') + [name.gsub("'",'')]
       else
         path = []
       end
-      self.connection.execute "UPDATE #{self.class.table_name} SET fullpath='#{path.join('/').gsub("'",'')}' WHERE id='#{self[:id]}'"
-      path.join('/')
-    end
+      path = path.join('/')
+      self.connection.execute "UPDATE #{self.class.table_name} SET fullpath='#{path}' WHERE id='#{self[:id]}'" if path != self[:fullpath]
+      self[:fullpath] = path
+    end  
+    self[:fullpath]
   end
   
   # Same as fullpath, but the path includes the root node.
@@ -791,29 +791,40 @@ class Node < ActiveRecord::Base
   end
   
   # Find parent
-  def parent(opts={})
+  def parent(is_secure = true)
     # make sure the cache is in sync with 'parent_id' (used during validation)
-    return @parent if @parent && @parent[:id] == self[:parent_id]
     if self[:parent_id].nil?
       nil
-    elsif opts[:secure] != false
-      @parent = secure(Node, opts) { Node.find(self[:parent_id]) }
+    elsif is_secure
+      # cache parent result (done through secure query)
+      return @parent if @parent && @parent[:id] == self[:parent_id]
+      @parent = secure(Node) { Node.find(self[:parent_id]) }
     else
-      secure(Node, opts) { Node.find(self[:parent_id]) }
+      # not secured (inside an exclusive scope)
+      return @parent_insecure if @parent_insecure && @parent_insecure[:id] == self[:parent_id]
+      @parent_insecure = secure(Node, :secure => false) { Node.find(self[:parent_id]) }
     end
   end
   
   # Find section
-  def section(opts={})
+  def section(is_secure = true)
     return self if self[:parent_id].nil?
     # we cannot use Section to find because the root node behaves like a Section but is a Project.
-    secure(Node, opts) { Node.find(self[:section_id]) }
+    if is_secure
+      secure(Node) { Node.find(self[:section_id]) }
+    else
+      secure(Node, :secure => false) { Node.find(self[:section_id]) }
+    end
   end
   
   # Find project
-  def project(opts={})
+  def project(is_secure = true)
     return self if self[:parent_id].nil?
-    secure(Project, opts) { Project.find(self[:project_id]) }
+    if is_secure
+      secure(Project) { Project.find(self[:project_id]) }
+    else
+      secure(Node, :secure => false) { Project.find(self[:project_id]) }
+    end
   end
 
   # Create a child and let him inherit from rwp groups and section_id
@@ -1037,7 +1048,7 @@ class Node < ActiveRecord::Base
     # we want to be sure to find the project and parent, even if the visitor does not have an
     # access to these elements.
     # FIXME: use self + modified relations instead of parent/project
-    [self, self.section(:secure=>false), self.parent(:secure=>false)].compact.uniq.each do |obj|
+    [self, self.project(false), self.section(false), self.parent(false)].compact.uniq.each do |obj|
       CachedPage.expire_with(obj)
     end
   end

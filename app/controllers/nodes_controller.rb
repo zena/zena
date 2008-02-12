@@ -18,7 +18,7 @@ Examples:
  
 =end
 class NodesController < ApplicationController
-  before_filter :find_node, :except => [:index, :not_found, :search, :attribute]
+  before_filter :find_node, :except => [:index, :not_found, :catch_all, :search, :attribute]
   before_filter :check_path, :only  => [:index, :show]
   before_filter :check_can_drive, :only => [:add_link, :update_link, :remove_link]
   layout :popup_layout,     :only   => [:edit, :import]
@@ -31,12 +31,14 @@ class NodesController < ApplicationController
     end
   end
   
+  # Render badly formed urls
+  def catch_all
+    redirect_to "/" + ([prefix]+params[:path]).flatten.join('/')
+  end
+  
+  # This method is used to test the 404 page when editing zafu templates. It is mapped from '/en/404.html'.
   def not_found
-    @node = current_site.root_node
-    respond_to do |format|
-      format.html { render_and_cache :mode => '*not_found' }
-      format.all { render :nothing => true }
-    end
+    raise ActiveRecord::RecordNotFound
   end
   
   def search
@@ -317,7 +319,9 @@ class NodesController < ApplicationController
           name   = $4
           params[:mode  ] = $5 == '' ? nil : $5[1..-1]
           params[:format] = $6 == '' ? ''  : $6[1..-1]
-          if name
+          if name =~ /^\d+$/
+            @node = secure!(Node) { Node.find_by_zip(name) }
+          elsif name
             basepath = (path[0..-2] + [name]).join('/')
             @node = secure!(Node) { Node.find_by_path(basepath) }
           else
@@ -333,7 +337,7 @@ class NodesController < ApplicationController
       @title_for_layout = @node.rootpath if @node
     end
 
-    def check_path    
+    def check_path
       case params[:action]
       when 'index'
         # bad prefix '/so', '/rx' or '/en?lang=fr'
@@ -368,35 +372,5 @@ class NodesController < ApplicationController
         @nodes # important: this is the 'secure' yield return, it is used to secure found nodes
       end
     end
-
-=begin
-  
-  # test to here
-  def test
-    if request.get?
-      @node = secure!(Page) { Page.find(params[:id]) }
-    else
-      @node = secure!(Page) { Page.find(params[:id]) }
-      params[:node][:tag_ids] = [] unless params[:node][:tag_ids]
-      @node.update_attributes(params[:node])
-    end
-  end
-  
-
-  
-  def not_found
-    # render 'node/not_found' with popup layout
-  end
-  
-  private
-  
-  def popup_page_not_found
-    redirect_to :controller => 'node', :action=>'not_found'
-  end
-  # TODO: change to ?
-  #if @node.type != params[:node][:type]
-  #  @node = @node.change_to(eval "#{params[:node][:type]}")
-  #end
-=end
 end
 

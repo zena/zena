@@ -147,3 +147,13 @@ Node_stat:
   tkpath:         N
   mode:           "stat"
   klass:          Node
+  
+Ocean_node:
+  id:             16
+  site_id:        2
+  node_id:        58
+  skin_name:      default
+  format:         html
+  tkpath:         N
+  mode:           
+  klass:          Node

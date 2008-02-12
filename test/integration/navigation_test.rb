@@ -88,7 +88,7 @@ class NavigationTest < ActionController::IntegrationTest
     get 'http://test.host/oo/nodes/13' # private entry 'ant' in bad url format
     assert_redirected_to 'http://test.host/login'
     get 'http://test.host/nodes/13' # private entry 'ant'
-    assert_response 404
+    assert_response :missing
   end
 
   def test_set_lang_authenticated
@@ -126,6 +126,43 @@ class NavigationTest < ActionController::IntegrationTest
     assert_response :success
   end
   
+  def test_url_without_lang_redirect
+    get 'http://test.host/project29.html'
+    assert_redirected_to 'http://test.host/en/project29.html'
+    follow_redirect!
+    assert_response :success
+  end
+  
+  def test_url_by_zip_without_lang_redirect
+    get 'http://test.host/29'
+    assert_redirected_to 'http://test.host/en/29'
+    follow_redirect!
+    assert_redirected_to 'http://test.host/en/project29.html'
+    follow_redirect!
+    assert_response :success
+  end
+  
+  def test_url_by_path_without_lang_redirect
+    get 'http://test.host/projects/wiki'
+    assert_redirected_to 'http://test.host/en/projects/wiki'
+    follow_redirect!
+    assert_redirected_to 'http://test.host/en/project29.html'
+    follow_redirect!
+    assert_response :success
+  end
+  
+  def test_bad_url
+    get 'http://test.host/en/node9382903.html'
+    assert_response :missing
+  end
+  
+  def test_bad_zip
+    get 'http://test.host/9382903'
+    assert_redirected_to 'http://test.host/en/9382903'
+    follow_redirect!
+    assert_response :missing
+  end
+  
   def test_change_session_lang_on_login
     get 'http://test.host/'
     assert_redirected_to 'http://test.host/en'
@@ -151,63 +188,65 @@ class NavigationTest < ActionController::IntegrationTest
     get 'http://test.host/en/section12_changes.html'
     assert_response :success
     get 'http://test.host/en/section12_index.html'
-    assert_response 404
+    assert_response :missing
     get 'http://test.host/en/section12_*index.html'
-    assert_redirected_to 'http://test.host/en/section12.html'
+    assert_response :missing
     Node.connection.execute "UPDATE nodes SET name = '*people', basepath = NULL, custom_base = 1 WHERE name = 'people'"
     get 'http://test.host/en/*people'
+    assert_redirected_to 'http://test.host/en/*people.html'
+    follow_redirect!
     assert_response :success
   end
   
   def test_show_bad_mode
     get 'http://test.host/en/section12_std.html'
-    assert_redirected_to 'http://test.host/en/section12.html'
+    assert_response :missing
   end
   
   def test_show_with_internal_mode
     get 'http://test.host/en/section12_*index.html'
-    assert_response 404
+    assert_response :missing
   end
   
   private
   
-  module CustomAssertions
-    include Zena::Test::Integration
+    module CustomAssertions
+      include Zena::Test::Integration
     
-    def get_node(node_sym=:status, opts={})
-      @node = nodes(node_sym)
-      host = opts[:host] || 'test.host'
-      opts.delete(:host)
+      def get_node(node_sym=:status, opts={})
+        @node = nodes(node_sym)
+        host = opts[:host] || 'test.host'
+        opts.delete(:host)
       
-      @site = Site.find_by_host(host)
-      if @node[:id] == @site.root_id
-        path = []
-      else
-        path = @node.basepath.split('/')
-        unless @node[:custom_base]
-          path += ["#{@node.class.to_s.downcase}#{@node[:id]}.html"]
+        @site = Site.find_by_host(host)
+        if @node[:id] == @site.root_id
+          path = []
+        else
+          path = @node.basepath.split('/')
+          unless @node[:custom_base]
+            path += ["#{@node.class.to_s.downcase}#{@node[:id]}.html"]
+          end
+        end
+        prefix = (!request || session[:user] == @site.anon_id) ? 'en' : AUTHENTICATED_PREFIX
+        url = "http://#{host}/#{prefix}/#{path.join('/')}"
+        puts "get #{url}"
+        get url
+      end
+    end
+
+    def login(user = nil)
+      open_session do |sess|
+        sess.extend(CustomAssertions)
+        if user
+          sess.post 'http://test.host/session', :login=>user.to_s, :password=>user.to_s
+          sess.follow_redirect!
         end
       end
-      prefix = (!request || session[:user] == @site.anon_id) ? 'en' : AUTHENTICATED_PREFIX
-      url = "http://#{host}/#{prefix}/#{path.join('/')}"
-      puts "get #{url}"
-      get url
     end
-  end
-
-  def login(user = nil)
-    open_session do |sess|
-      sess.extend(CustomAssertions)
-      if user
-        sess.post 'http://test.host/session', :login=>user.to_s, :password=>user.to_s
-        sess.follow_redirect!
+  
+    def anon
+      @anon ||= open_session do |sess|
+        sess.extend(CustomAssertions)
       end
     end
-  end
-  
-  def anon
-    @anon ||= open_session do |sess|
-      sess.extend(CustomAssertions)
-    end
-  end
 end

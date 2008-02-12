@@ -956,3 +956,45 @@ Node_stat:
   inherit:        1
 <%= @defaults %>
 <%= @rights %>
+
+Ocean_skin:
+  id:             57
+  zip:            4
+  site_id:        2
+  type:           Skin
+  kpath:          NPSS
+  name:           default
+  project_id:     35
+  section_id:     35
+  parent_id:      35
+  user_id:        8
+  inherit:        1
+  ref_lang:       en
+  max_status:     50
+  skin:           default
+  site_id:        2
+  rgroup_id:      7
+  wgroup_id:      6
+  pgroup_id:      6
+<%= @dates  %>
+
+Node_ocean:
+  id:             58
+  zip:            5
+  site_id:        2
+  type:           Template
+  kpath:          NPDTT
+  name:           Node
+  project_id:     35
+  section_id:     57
+  parent_id:      57
+  user_id:        8
+  inherit:        1
+  ref_lang:       en
+  max_status:     50
+  skin:           default
+  site_id:        2
+  rgroup_id:      7
+  wgroup_id:      6
+  pgroup_id:      6
+<%= @dates  %>

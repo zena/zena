@@ -107,7 +107,7 @@ class CachedPage < ActiveRecord::Base
     
       # create join values from context for automatic expire
       if (ids = @expire_with_ids || visitor.visited_node_ids) != []
-        values = ids.uniq.map {|id| "(#{self[:id]}, #{id})"}.join(',')
+        values = ids.compact.uniq.map {|id| "(#{self[:id]}, #{id})"}.join(',')
         CachedPage.connection.execute "INSERT INTO cached_pages_nodes (cached_page_id, node_id) VALUES #{values}"
       end
     end

@@ -5,11 +5,16 @@ class MultipleHostsTest < ActionController::IntegrationTest
   fixtures :nodes, :versions, :users, :groups_users
   
   def test_visitor_host
-    anon.get_node(:status)
+    anon.get_node(:wiki)
     assert_equal 200, anon.status
     assert_equal 'test.host', anon.assigns(:visitor).site.host
-    anon.get 'http://ocean.host/en'
+    anon.get_node(:ocean, :host => 'ocean.host')
     assert_equal 'ocean.host', anon.assigns(:visitor).site.host
+    Node.connection.execute "UPDATE nodes set zip = 14 where id = 40" # whale
+    anon.get "http://ocean.host/en/contact14.html" # zip 14 ==> whale
+    assert_equal nodes(:whale)[:id], anon.assigns(:node)[:id]
+    anon.get "http://test.host/en/contact14.html"  # zip 14 ==> tiger
+    assert_equal nodes(:tiger)[:id], anon.assigns(:node)[:id]
   end
   
   def test_visitor_anon
@@ -21,20 +26,21 @@ class MultipleHostsTest < ActionController::IntegrationTest
   end
   
   def test_cache
-    without_files("sites") do
+    without_files('/test.host/public') do
       with_caching do
-        path = "/en/projects/cleanWater/page11.html"
+        path = "/en/projects/cleanWater/page22.html"
         filepath = "#{RAILS_ROOT}/sites/test.host/public#{path}"
         assert !File.exist?(filepath)
         anon.get "http://test.host#{path}"
         assert_equal 200, anon.status
         assert File.exist?(filepath), "Cache file created"
         node = nodes(:status)
-        assert_equal 1, CachedPage.count
-        assert_not_equal 0, CachedPage.connection.execute("SELECT COUNT(*) as count_all FROM cached_pages_nodes").fetch_row[0].to_i
+        assert_equal 1, CachedPage.count(:conditions => "path like '%page22%'")
+        assert_not_equal 0, CachedPage.connection.execute("SELECT COUNT(*) as count_all FROM cached_pages_nodes WHERE node_id = #{node[:id]}").fetch_row[0].to_i
+        node.visitor = Thread.current.visitor
         node.sweep_cache
-        assert_equal 0, CachedPage.count
-        assert_equal 0, CachedPage.connection.execute("SELECT COUNT(*) as count_all FROM cached_pages_nodes").fetch_row[0].to_i
+        assert_equal 0, CachedPage.count(:conditions => "path like '%page22%'")
+        assert_equal 0, CachedPage.connection.execute("SELECT COUNT(*) as count_all FROM cached_pages_nodes WHERE node_id = #{node[:id]}").fetch_row[0].to_i
         assert !File.exist?(filepath)
       end
     end
@@ -59,16 +65,12 @@ class MultipleHostsTest < ActionController::IntegrationTest
       
       @site = Site.find_by_host(host)
       if @node[:id] == @site.root_id
-        path = []
+        name = []
       else
-        path = @node.basepath.split('/')
-        unless @node[:custom_base]
-          path += ["#{@node.class.to_s.downcase}#{@node[:id]}.html"]
-        end
+        name = "#{@node.class.to_s.downcase}#{@node[:zip]}.html"
       end
       prefix = (!request || session[:user] == @site.anon_id) ? 'en' : AUTHENTICATED_PREFIX
-      url = "http://#{host}/#{prefix}/#{path.join('/')}"
-      puts "get #{url}"
+      url = "http://#{host}/#{prefix}/#{name}"
       get url
     end
   end

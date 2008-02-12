@@ -11,13 +11,20 @@ Skin::      subclass of Template. Contains other templates. The skin name must b
 =end
 class Page < Node
   
-  # url base path. cached. If rebuild is set to true, the cache is updated.
+  # url base path. If a node is in 'projects' and projects has custom_base set, the
+  # node's basepath becomes 'projects', so the url will be 'projects/node34.html'.
+  # The basepath is cached. If rebuild is set to true, the cache is updated.
   def basepath(rebuild=false)
-    if self[:custom_base]
-      fullpath
-    else
-      super
+    if !self[:basepath] || rebuild
+      if self[:custom_base]
+        path = fullpath(rebuild)
+        self.connection.execute "UPDATE #{self.class.table_name} SET basepath='#{path}' WHERE id='#{self[:id]}'" if path != self[:basepath]
+        self[:basepath] = path
+      else
+        super
+      end
     end
+    self[:basepath]
   end
   
   private
