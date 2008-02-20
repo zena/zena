@@ -40,7 +40,7 @@ module Zafu
     end
     
     def r_missing
-      return unless check_params(:good, :night)
+      return '' unless check_params(:good, :night)
       "nothing missing"
     end
     

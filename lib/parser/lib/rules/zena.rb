@@ -958,9 +958,10 @@ END_TXT
         if (descendants['else'] || descendants['elsif'])
           out "<% if false -%>"
         else
-          return nil
+          @html_tag_done = true
+          return ''
         end
-      else  
+      else
         out "<% if #{cond} -%>"
         out expand_with(:case=>false)
       end
