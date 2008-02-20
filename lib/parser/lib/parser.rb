@@ -151,6 +151,8 @@ class Parser
       res = self.do_method(:r_unknown)
     end
     
+    return @text if res.nil? # abort rendering
+    
     if @result != ""
       res = @result
     elsif !res.kind_of?(String)

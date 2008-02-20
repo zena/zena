@@ -65,3 +65,7 @@ each_edit_cannot_write:
 add_each_publish:
   src: "<ul do='children' id='things'><li do='each'>I <p do='[name]'>blah</p></li><li do='add' publish='true'/></ul>"
   res: "/<ul><li.*id='things_add'.*li id='things_form'.*form.*hidden.*name='node\[v_status\]' value='50'/"
+
+group_edit_form:
+  src: "<r:group><p do='[name]'/> <r:edit/> <r:form>please enter name: <input name='name'/> <r:input type='submit'/></r:form></r:group>"
+  res: "/<p>status<\/p>.*edit/"

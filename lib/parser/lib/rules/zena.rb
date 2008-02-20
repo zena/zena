@@ -288,19 +288,14 @@ module Zena
           if descendant('edit')
             if form = descendant('form')
               # USE GROUP FORM ========
+              form_text = form.render
             else
               # MAKE A FORM FROM GROUP ========
-              context_bak = @context.dup
-              result_bak = @result
-              @html_tag_done = false
-                @context.merge!(:make_form => true, :list => false, :node => template_node, :template_url=>template_url)
-                @result = ''
-                r_form
-                form     = @result
-              @result  = result_bak
-              @context = context_bak
+              form = self.dup
+              form.method = 'form'
+              form_text = expand_block(form, @context.merge(:make_form => true, :list => false, :node => template_node, :template_url=>template_url))
             end
-            out helper.save_erb_to_url(form, form_url)
+            out helper.save_erb_to_url(form_text, form_url)
           end
         end
         
@@ -957,8 +952,19 @@ END_TXT
       cond = get_test_condition
       return "<span class='parser_error'>[if] condition error</span>" unless cond
       
-      out "<% if #{cond} -%>"
-      out expand_with(:case=>false)
+      if cond == 'true'
+        return expand_with(:case => false) # do not render 'else', 'elsif' methods
+      elsif cond == 'false'
+        if (descendants['else'] || descendants['elsif'])
+          out "<% if false -%>"
+        else
+          return nil
+        end
+      else  
+        out "<% if #{cond} -%>"
+        out expand_with(:case=>false)
+      end
+        
       @blocks.each do |block|
         if block.kind_of?(self.class) && ['elsif', 'else'].include?(block.method)
           out block.render(@context.merge(:case=>true))
@@ -1682,6 +1688,12 @@ END_TXT
           end
         else
           nil
+        end  
+      elsif in_tag = params[:in]
+        if @context["in_#{in_tag}".to_sym] || ancestors.include?(in_tag)
+          'true'
+        else
+          'false'
         end
       else
         nil
