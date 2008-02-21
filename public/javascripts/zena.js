@@ -104,7 +104,7 @@ Zena.transfer = function(src,trgt) {
 Zena.get_filename = function(source, target) {
 	if ($(target).value == '') {
 		var path = $(source).value;
-	  elements = path.split('/');
+	  elements = path.split(new RegExp("[\\/]+", "g"));
 		$(target).value = elements[elements.length - 1];
 	}
 }

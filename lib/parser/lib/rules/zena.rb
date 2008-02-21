@@ -575,6 +575,7 @@ module Zena
       when 'submit'
         @html_tag = 'input'
         @html_tag_params[:type] = @params[:type]
+        @html_tag_params[:text] = @params[:text]
         @html_tag_params.merge!(input)
         render_html_tag(nil)
       else
@@ -914,7 +915,7 @@ END_TXT
         out "<% end -%>"
         
         if @params[:draggable] == 'true'
-          out "<script type='text/javascript'>\n//<![CDATA[\n\#{#{var}_dom_ids.inspect}.each(Zena.draggable)\n//]]>\n</script>"
+          out "<script type='text/javascript'>\n//<![CDATA[\n<%= #{var}_dom_ids.inspect %>.each(Zena.draggable)\n//]]>\n</script>"
         end
       elsif @context[:template_url]
         # render to produce a saved template
@@ -926,7 +927,7 @@ END_TXT
           out add_params(expand_with, id_hash)
         end
         if @params[:draggable] == 'true'
-          out "<%= \"<script type='text/javascript'>\n//<![CDATA[\nZena.draggable('#{dom_id_from_template_url}.<%= #{node}.zip %>')\n//]]>\n</script>\" %>"
+          out "<script type='text/javascript'>\n//<![CDATA[\nZena.draggable('#{dom_id_from_template_url}.<%= #{node}.zip %>')\n//]]>\n</script>"
         end
       else
         # TODO: make a single list ?
@@ -937,13 +938,7 @@ END_TXT
    
     def r_case
       out "<% if false -%>"
-      @blocks.each do |block|
-        if block.kind_of?(self.class) && ['when', 'else'].include?(block.method)
-          out block.render(@context.merge(:case=>true))
-        else
-          # drop
-        end
-      end
+      out expand_with(:in_if=>true, :only=>['when', 'else', 'elsif'])
       out "<% end -%>"
     end
     
@@ -953,46 +948,37 @@ END_TXT
       return "<span class='parser_error'>[if] condition error</span>" unless cond
       
       if cond == 'true'
-        return expand_with(:case => false) # do not render 'else', 'elsif' methods
+        return expand_with(:in_if => false)
       elsif cond == 'false'
         if (descendants['else'] || descendants['elsif'])
-          out "<% if false -%>"
+          return expand_with(:in_if=>true, :only=>['else', 'elsif'])
         else
           @html_tag_done = true
           return ''
         end
-      else
-        out "<% if #{cond} -%>"
-        out expand_with(:case=>false)
       end
-        
-      @blocks.each do |block|
-        if block.kind_of?(self.class) && ['elsif', 'else'].include?(block.method)
-          out block.render(@context.merge(:case=>true))
-        else
-          # rendered before
-        end
-      end
+      
+      out "<% if #{cond} -%>"
+      out expand_with(:in_if=>false)
+      out expand_with(:in_if=>true, :only=>['else', 'elsif'])
       out "<% end -%>"
     end
     
     def r_else
-      if @context[:case]
+      if @context[:in_if]
         out "<% elsif true -%>"
-        out expand_with(:case=>false)
-      elsif @context[:do]
-        out expand_with(:do=>false)
+        out expand_with(:in_if=>false)
       else
         ""
       end
     end
     
     def r_elsif
-      return '' unless @context[:case]
+      return '' unless @context[:in_if]
       cond = get_test_condition
       return "<span class='parser_error'>[elsif] condition error</span>" unless cond
       out "<% elsif #{cond} -%>"
-      out expand_with(:case=>false)
+      out expand_with(:in_if=>false)
     end
     
     def r_when
@@ -1491,18 +1477,18 @@ END_TXT
     end
     
     def do_var(var_finder=nil, opts={})
-      else_block = descendant('else')
       if var_finder == 'nil'
         out "<% if nil -%>"
       elsif var_finder
         out "<% if #{var} = #{var_finder} -%>"
       end
-      res = expand_with(opts.merge(:node=>var))
-      out render_html_tag(res)
-      if else_block
-        out "<% else -%>"
-        out expand_block(else_block, :do=>true)
+      
+      res = expand_with(opts.merge(:node=>var, :in_if => false))
+      
+      if var_finder
+        res += expand_with(opts.merge(:in_if => true, :only => ['else', 'elsif']))
       end
+      out render_html_tag(res)
       out "<% end -%>" if var_finder
     end
     
@@ -1514,7 +1500,6 @@ END_TXT
       # real class (Node, Version, ...)
       node_class = opts[:node_class] || self.node_class
       
-      else_block = descendant('else')
       if (each_block = descendant('each')) && (descendant('edit') || descendant('add') || (descendant('swap') && descendant('swap').parent.method != 'group'))
         # ajax, build template. We could merge the following code with 'r_group'.
         add_block  = descendant('add')
@@ -1534,12 +1519,9 @@ END_TXT
         klass     ||= form_block ? form_block.params[:klass] : nil
         
         # 'r_add' needs the form when rendering. Send with :form.
-        res = expand_with(opts.merge(:list=>list_var, :form=>form_block, :publish_after_save => publish_after_save, :no_form=>true, :template_url=>template_url, :klass => klass))
+        res = expand_with(opts.merge(:list=>list_var, :form=>form_block, :publish_after_save => publish_after_save, :no_form=>true, :template_url=>template_url, :klass => klass, :in_if => (list_finder ? true : false) ))
         out render_html_tag(res)
-        if list_finder
-          out "<% else -%>" + expand_block(else_block, :do=>true) if else_block
-          out "<% end -%>"
-        end
+        out "<% end -%>" if list_finder
 
         # TEMPLATE ========
         template_node = "@#{node_class.to_s.underscore}"
@@ -1565,12 +1547,9 @@ END_TXT
             out "<% if nil -%>"
           end
         end
-        res = expand_with(opts.merge(:list=>list_var))
+        res = expand_with(opts.merge(:list=>list_var, :in_if => (list_finder ? true : false)))
         out render_html_tag(res)
-        if list_finder
-          out "<% else -%>" + expand_block(else_block, :do=>true) if else_block
-          out "<% end -%>"
-        end
+        out "<% end -%>" if list_finder
       end
     end
     
@@ -1638,7 +1617,7 @@ END_TXT
         case can
         when 'write', 'edit'
           "#{node}.can_write?"
-        when 'drive'
+        when 'drive', 'publish'
           "#{node}.can_drive?"
         end
       elsif test = params[:test]  

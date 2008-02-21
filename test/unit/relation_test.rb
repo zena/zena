@@ -431,4 +431,10 @@ class RelationTest < ZenaTestUnit
     node = secure!(Node) { nodes(:proposition) }
     assert node.update_attributes_with_transformation("klass"=>"Post", "icon_id"=>"", "v_title"=>"blah", "log_at"=>"2008-02-05 17:33", "parent_id"=>"11")
   end
+  
+  def test_do_find_bad_relation
+    login(:lion)
+    node = secure!(Node) { nodes(:status) }
+    assert_nil node.find(:first, :relations=>['blah'])
+  end
 end

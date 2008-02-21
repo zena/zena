@@ -59,7 +59,7 @@ class Version < ActiveRecord::Base
   alias o_node node
   
   def node
-    @node ||= secure(Node) { o_node } rescue nil
+    @node ||= secure(Node) { o_node }
   end
   
   def user_zip
@@ -75,7 +75,7 @@ class Version < ActiveRecord::Base
     if self[:title] && self[:title] != ""
       self[:title]
     else
-      node.name
+      node[:name]
     end
   end
   

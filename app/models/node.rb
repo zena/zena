@@ -287,7 +287,7 @@ class Node < ActiveRecord::Base
       
       klass_name   = attributes.delete('class') || attributes.delete('klass') || 'Page'
       unless klass = get_class(klass_name, :create => true)
-        node = self.new
+        node = Node.new
         node.instance_eval { @attributes = attributes }
         node.errors.add('klass', 'invalid')
         # This is to show the klass in the form seizure
