@@ -4,13 +4,16 @@ require File.join(File.dirname(__FILE__) , '..', 'lib', 'parser')
 
 class Test::Unit::TestCase
   class << self
-    def testfile(*files)
+    def testfile(files)
       @@test_strings = {}
       @@test_methods = {}
       @@test_parsers = {}
+      @@test_options = {}
       @@test_files = []
-      files.each do |file|
+      files.each do |file, opts|
         file = file.to_s
+        mod_name = opts.delete(:module) || file
+        mod_name = mod_name.to_s.split("_").first.capitalize
         strings = {}
         test_methods = []
         YAML::load_documents( File.open( File.join(File.dirname(__FILE__), "#{file}.yml") ) ) do |doc|
@@ -25,9 +28,9 @@ class Test::Unit::TestCase
           end
         END
         @@test_strings[file] = strings.freeze
-        mod_name = file.split("_").first.capitalize
         @@test_parsers[file] = Parser.parser_with_rules(eval("#{mod_name}::Rules"), eval("#{mod_name}::Tags"))
         @@test_methods[file] = test_methods
+        @@test_options[file] = opts
         @@test_files << file
       end
     end
@@ -51,7 +54,7 @@ class Test::Unit::TestCase
   end
   
   def do_test(file, test)
-    res = @@test_parsers[file].new_with_url("/#{test.gsub('_', '/')}", :helper=>ParserModule::DummyHelper.new(@@test_strings[file])).render
+    res = @@test_parsers[file].new_with_url("/#{test.gsub('_', '/')}", :helper=>ParserModule::DummyHelper.new(@@test_strings[file])).render(@@test_options[file])
     if @@test_strings[file][test]['res']
       if @@test_strings[file][test]['res'][0..0] == "/"
         assert_match %r{#{@@test_strings[file][test]['res'][1..-2]}}m, res

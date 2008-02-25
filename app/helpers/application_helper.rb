@@ -1,3 +1,6 @@
+require 'digest/sha1'
+require 'tempfile'
+
 # Methods added to this helper will be available to all templates in the application.
 module ApplicationHelper
   include Zena::Acts::Secure
@@ -199,7 +202,7 @@ module ApplicationHelper
   # * [!14!:www.example.com] use an image for an outgoing link
   def zazen(text, opt={})
     return '' unless text
-    opt = {:images=>true, :pretty_code=>true}.merge(opt)
+    opt = {:images=>true, :pretty_code=>true, :output=>'html'}.merge(opt)
     img = opt[:images]
     if opt[:limit]
       opt[:limit] -= 1 unless opt[:limit] <= 0
@@ -221,6 +224,96 @@ module ApplicationHelper
     secure(Node) { Node.find_node_by_shortcut(string,offset) }
   end
 
+  # Parse the text in the given context (used by zazen)
+  def make_asset(opts)
+    asset_type = opts[:asset_type]
+    content    = opts[:content]
+    node       = opts[:node]
+    case asset_type
+    when 'math'
+      if !(content =~ /^\s*\\begin\{(align|equation|itemize|equation)/)
+        pre = '\['
+        post = '\]'
+      else
+        pre = post = ''
+      end
+      
+      # FIXME: SECURITY LateX filtering: is this enough ?
+      if content =~ /\\input/
+        return "<span class='math_preview'>#{content.gsub(/(\\input\w*)/, "<span style=\'color:red;\'>#{$1}</span> (not supported)")}</span>"
+      end
+      
+      if opts[:output] == 'latex'
+        "#{pre}#{content}#{post}"
+      elsif ENABLE_MATH
+        # Create PNG image
+        # 1. get image path
+        math_id  = Digest::SHA1.hexdigest(content)[0..4]
+        filename = math_id + '.png'
+        filepath = node.asset_path(filename)
+        unless File.exist?(filepath)
+          if opts[:preview]
+            # do not render image during preview
+            tag = content =~ /\n/ ? 'pre' : 'span'
+            return "<#{tag} class='math_preview'>#{content}</#{tag}>"
+          else
+            # create image
+            FileUtils::mkpath(File.dirname(filepath)) unless File.exist?(File.dirname(filepath))
+            begin
+              tempf = Tempfile.new(filename) # TODO: do we need to close this file ?
+              base = tempf.path
+latex_template = %q{
+\documentclass[10pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amssymb}
+
+\usepackage{amsmath}
+\usepackage{amsfonts}
+
+
+% shortcuts
+\DeclareMathOperator*{\argmin}{arg\,min}
+\newcommand{\ve}[1]{\boldsymbol{#1}}
+\newcommand{\ma}[1]{\boldsymbol{#1}}
+\newenvironment{m}{\begin{bmatrix}}{\end{bmatrix}}
+
+\pagestyle{empty}
+\begin{document}
+
+}
+
+              File.open("#{base}.tex", 'wb') do |f|
+                f.syswrite(latex_template)
+                f.syswrite(pre)
+                f.syswrite(content)
+                f.syswrite(post)
+                f.syswrite("\n\\end{document}\n")
+              end
+              
+              system("cd #{File.dirname(tempf.path)}; latex -interaction=batchmode #{"#{base}.tex".inspect} &> /dev/null");
+              if !File.exists?("#{base}.tex")
+                system("cp '#{RAILS_ROOT}/public/latex_error.png' #{filepath.inspect}")
+              else
+                system("dvips #{tempf.path}.dvi -E -o #{base}.ps &> /dev/null")
+                system("convert -units PixelsPerInch -density 150 -matte -fuzz '10%' -transparent '#ffffff' #{base}.ps #{filepath.inspect} &> /dev/null")
+              end
+            ensure
+              system("rm -rf #{tempf.path.inspect} #{(tempf.path + '.*').inspect}")
+            end
+          end
+        end
+        "<span class='math'><img src='#{zen_path(node, :asset => math_id, :format => 'png')}'/></span>"
+      else
+        # Math not supported
+        "[#{context}]#{content}[/#{context}]"
+      end
+    else
+      # Unknown tag. Ignore
+      "[#{context}]#{content}[/#{context}]"
+    end
+  end
+      
+  
   # Creates a link to the node referenced by zip (used by zazen)
   def make_link(opts)
     link_opts = {}
@@ -401,7 +494,7 @@ module ApplicationHelper
     src = width = height = img_class = nil
     if obj.kind_of?(Image)
       alt  ||= obj.v_title.gsub("'", '&apos;')
-      mode   = content.verify_format(mode) || 'std'
+      mode   = content.verify_mode(mode) || 'std'
       
       src    = data_path(obj, opts.merge(:mode => (mode == 'full' ? nil : mode)))
       

@@ -98,7 +98,16 @@ class NodesController < ApplicationController
       format.js   { @template_file = fullpath_from_template_url(params[:template_url]) } # zafu ajax
       
       format.all  do
-        if @node.kind_of?(Document) && params[:format] == @node.c_ext
+        if asset = params[:asset]
+          filename     = "#{asset}.#{params[:format]}"
+          content_path = @node.asset_path(filename)
+          raise ActiveRecord::RecordNotFound unless File.exist?(content_path)
+          data = File.new(content_path)
+          content_type = (EXT_TO_TYPE[params[:format]] || ['application/octet-stream'])[0]
+          send_data( data.read , :filename=>filename, :type => content_type, :disposition=>'inline')
+          data.close
+          cache_page(:content_path => content_path, :authenticated => @node.public?) # content_path is used to cache by creating a symlink
+        elsif @node.kind_of?(Document) && params[:format] == @node.c_ext
         # Get document data (inline if possible)
         
           if @node.kind_of?(Image) && !ImageBuilder.dummy?
@@ -318,7 +327,13 @@ class NodesController < ApplicationController
           zip    = $3
           name   = $4
           params[:mode  ] = $5 == '' ? nil : $5[1..-1]
-          params[:format] = $6 == '' ? ''  : $6[1..-1]
+          asset_and_format = $6 == '' ? '' : $6[1..-1]
+          if asset_and_format =~ /(\w+)\.(\w+)/
+            params[:asset ] = $1
+            params[:format] = $2
+          else
+            params[:format] = asset_and_format
+          end
           if name =~ /^\d+$/
             @node = secure!(Node) { Node.find_by_zip(name) }
           elsif name
@@ -344,10 +359,11 @@ class NodesController < ApplicationController
         redirect_url = "/#{prefix}" if params[:prefix] != prefix || params[:lang]
       when 'show'
         # show must have a 'path' parameter
-        if params[:lang] || (params[:prefix] != prefix && format_changes_lang) || params[:path] != zen_path(@node, :format=>params[:format], :mode=>params[:mode]).split('/')[2..-1]
+        if params[:lang] || (params[:prefix] != prefix && format_changes_lang) || params[:path] != zen_path(@node, :format=>params[:format], :mode=>params[:mode], :asset=>params[:asset]).split('/')[2..-1]
+          puts "===========\n#{params[:path].inspect}\n#{zen_path(@node, :format=>params[:format], :mode=>params[:mode], :asset=>params[:asset]).split('/')[2..-1].inspect}\n==========="
           redirect_url = zen_path(@node, :mode => params[:mode])
         elsif params[:mode] =~ /_edit/ && !@node.can_write?
-          redirect_url = zen_path(@node, :mode => nil)
+          redirect_url = zen_path(@node, :format => params[:format], :asset => params[:asset])
         end 
       end
       

@@ -107,7 +107,7 @@ class ImageContentTest < ZenaTestUnit
     end
   end
   
-  def test_verify_format
+  def test_verify_mode
     preserving_files('/test.host/data/jpg/20') do
       img  = get_content(:bird_jpg)
       assert_nil img.filepath('../../')

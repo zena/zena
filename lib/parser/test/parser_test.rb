@@ -62,7 +62,7 @@ module Zafu
 end
 
 class ParserTest < Test::Unit::TestCase
-  testfile :zafu, :zafu_asset, :zafu_insight, :zazen
+  testfile :zafu => {}, :zafu_asset => {}, :zafu_insight => {}, :zazen => {}, :latex => {:module => :zazen, :output => 'latex'}
   def test_single
     do_test('zafu', 'only_hello')
   end

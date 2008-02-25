@@ -57,6 +57,16 @@ You can now login with 'admin' and the password you used to make the site.
 === 1. Original in debian etch
 build-essential apache2 mysql-server libmagick9-dev gs-gpl libssl-dev gettext libgettext-ruby libreadline5 libreadline5-dev zlib1g-dev libncurses5 libncurses5-dev temcap-compat
 
+If you want to enable LateX (PDF generation)
+pdflatex
+
+For math mode (inline formulas), you will need
+latex dvips ghostscript imagemagick
+
+For xsl-fo pdf generation
+libxslt fop
+
+# ocaml-base-nox can be replaced by 'ocaml'
 === 2. To be installed by hand
 ruby1.8.6
     # wget ftp://ftp.ruby-lang.org/pub/ruby/1.8/ruby-1.8.6.tar.gz

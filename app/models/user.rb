@@ -133,7 +133,7 @@ class User < ActiveRecord::Base
     if obj.kind_of? Node
       obj.visitor = self #explicit visit
       # keep track of the nodes connected to this visit to build the 'expire_with' list
-      visited_node_ids << obj[:id] if is_anon? && CachedPage.perform_caching
+      visited_node_ids << obj[:id]
     end
   end
   

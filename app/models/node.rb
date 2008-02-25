@@ -138,6 +138,7 @@ class Node < ActiveRecord::Base
   has_many           :discussions, :dependent => :destroy
   has_and_belongs_to_many :cached_pages
   belongs_to         :virtual_class, :foreign_key => 'vclass_id'
+  belongs_to         :site
   validate           :validate_node
   before_create      :node_before_create
   after_save         :spread_project_and_section
@@ -781,6 +782,12 @@ class Node < ActiveRecord::Base
     end
   end
   
+  
+  # Return save path for an asset (element produced by text like a png file from LateX)
+  def asset_path(asset_filename)
+    filepath = "#{SITES_ROOT}#{site.data_path}/asset/#{self[:id]}/#{asset_filename}"
+  end
+  
   # Used by zafu to find the search score
   # def score
   #   self[:score]
@@ -1052,14 +1059,17 @@ class Node < ActiveRecord::Base
     CachedPage.expire_with(self) if self.kind_of?(Template)
     
     # element caching and full result cache
-    return unless Cache.perform_caching
+    #return unless Cache.perform_caching
     Cache.sweep(:visitor_id=>self[:user_id], :visitor_groups=>[rgroup_id, wgroup_id, pgroup_id], :kpath=>self.vclass.kpath)
     return unless !current_site.authentication? && (self.public? || old.public?) # is/was visible to anon user
     # we want to be sure to find the project and parent, even if the visitor does not have an
     # access to these elements.
     # FIXME: use self + modified relations instead of parent/project
     [self, self.project(false), self.section(false), self.parent(false)].compact.uniq.each do |obj|
+      # destroy all pages from project, parent and section !
       CachedPage.expire_with(obj)
+      # this is destroys less cache but might miss things like 'changes in project' that are displayed on every page.
+      # CachedPage.expire_with(self, [self[:project_id], self[:section_id], self[:parent_id]].compact.uniq)
     end
   end
   

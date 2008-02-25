@@ -35,17 +35,17 @@ class DocumentContent < ActiveRecord::Base
     return unless valid_file
   end
   
-  def file(format=nil)
+  def file(mode=nil)
     if @file
       @file
-    elsif File.exist?(filepath)
-      File.new(filepath)
+    elsif File.exist?(filepath(mode))
+      File.new(filepath(mode))
     else
       raise IOError, "File not found"
     end
   end
   
-  def size(format=nil)
+  def size(mode=nil)
     return self[:size] if self[:size]
     if !new_record? && File.exist?(filepath)
       self[:size] = File.stat(filepath).size
@@ -54,15 +54,15 @@ class DocumentContent < ActiveRecord::Base
     self[:size]
   end
   
-  def filename(format=nil)
+  def filename(mode=nil)
     "#{name}.#{ext}"
   end
   
   # Path to store the data. The path is build with the version id so we can do the security checks when uploading data.
-  def filepath(format=nil)
+  def filepath(mode=nil)
     raise StandardError, "version not set" unless self[:version_id]
-    fname = filename(format)
-    return nil unless fname # can happen if the format is not valid
+    fname = filename(mode)
+    return nil unless fname # can happen if the mode is not valid
     "#{SITES_ROOT}#{site.data_path}/#{ext}/#{self[:version_id]}/#{fname}"
   end
   
@@ -120,8 +120,8 @@ class DocumentContent < ActiveRecord::Base
       elsif !new_record? && (old = DocumentContent.find(self[:id])).name != self[:name]
         # TODO: test clear cached formated images
         # cache cleared with 'sweep_cache'
-        # clear format images
-        old.remove_format_images if old.respond_to?(:remove_format_images)
+        # clear mode images
+        old.remove_mode_images if old.respond_to?(:remove_mode_images)
         FileUtils::mv(old.filepath, filepath)
       end
     end

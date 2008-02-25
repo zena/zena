@@ -375,12 +375,7 @@ module Zena
         "<%= _(#{text}) %>"
       end
     end
-    
-    def r_latex
-      # all content inside this will be informed to render for Latex output
-      expand_with(:output_format => 'latex')
-    end
-    
+        
     def r_anchor(obj=node)
       if @anchor_param =~ /\[(.+)\]/
         anchor_value = "<%= #{node_attribute($1)} %>"
@@ -1299,7 +1294,28 @@ END_TXT
         "unknown relation (#{@method}) for #{node_class} class"
       end
     end
-        
+    
+    # Prepare stylesheet and xml content for xsl-fo post-processor
+    def r_fop
+      return "<span class='parser_error'>[fop] missing 'stylesheet' argument</span>" unless @params[:stylesheet]
+      # 1. get stylesheet text
+      xsl_content, absolute_url, doc = self.class.get_template_text(@params[:stylesheet], @options[:helper], @options[:current_folder])
+      return "<span class='parser_error'>[fop] stylesheet #{@params[:stylesheet].inspect} not found</span>" unless xsl_content
+      
+      template_url = (get_template_url.split('/')[0..-2] + ['_main.xsl']).join('/')
+      helper.save_erb_to_url(xsl_content, template_url)
+      out "<?xml version='1.0' encoding='utf-8'?>\n"
+      out "<!-- xsl_id:#{doc[:id] } -->\n" if doc
+      out expand_with
+    end
+    
+    # Prepare content for LateX post-processor
+    def r_latex
+      out "% latex\n"
+      # all content inside this will be informed to render for Latex output
+      out expand_with(:output_format => 'latex')
+    end
+    
     # ================== HELPER METHODS ================
     
     # Create an sql query to open a new context (passes its arguments to HasRelations#build_find)
@@ -1705,7 +1721,7 @@ END_TXT
           end
           allOK ? "#{value1} #{op} #{value2}" : nil
         elsif test =~ /\[([^\]]+)\]/
-          node_attribute($1, :node => node) + '.blank?'
+          '!' + node_attribute($1, :node => node) + '.blank?'
         else
           # bad test condition.
           'false'

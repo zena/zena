@@ -53,8 +53,8 @@ Whenever any of the nodes listed above changes, 'Node_index.html' rendered folde
 class CachedPage < ActiveRecord::Base
   cattr_accessor :perform_caching
   attr_accessor  :content_data, :content_path, :expire_with_ids
-  has_and_belongs_to_many :nodes
   validate       :cached_page_valid
+  before_create  :clear_same_path
   after_save     :cached_page_after_save
   before_destroy :cached_page_on_destroy
   
@@ -66,8 +66,13 @@ class CachedPage < ActiveRecord::Base
     end
     
     # Remove cached pages related to the given node.
-    def expire_with(node)
-      expire(node.cached_pages)
+    def expire_with(node, node_ids = nil)
+      if node_ids && node_ids != []
+        direct_pages = CachedPage.find(:all, :conditions => "node_id IN (#{node_ids.join(',')})")
+      else
+        direct_pages = []
+      end
+      expire(node.cached_pages + [])
     end
     
     private
@@ -80,16 +85,18 @@ class CachedPage < ActiveRecord::Base
       end
   end
   
-  #def node_ids=(ids)
-  #  @node_ids = ids
-  #end
-  
   # Cached page's creation context (list of node ids).
   def node_ids
     self.class.fetch_ids("SELECT node_id FROM cached_pages_nodes WHERE cached_page_id = '#{self[:id]}'", 'node_id')
   end
   
   private
+    def clear_same_path
+      # in case the file was removed by hand, clear
+      CachedPage.connection.execute "DELETE cached_pages_nodes FROM cached_pages_nodes, cached_pages WHERE cached_pages_nodes.cached_page_id = cached_pages.id AND cached_pages.path = #{CachedPage.connection.quote(self[:path])} AND cached_pages.site_id = #{visitor.site[:id]}"
+      CachedPage.connection.execute "DELETE FROM cached_pages WHERE cached_pages.path = #{CachedPage.connection.quote(self[:path])} AND cached_pages.site_id = #{visitor.site[:id]}"
+    end
+    
     def cached_page_valid
       errors.add('nodes', 'visited nodes empty, cannot create cache') unless @expire_with_ids || (visitor && visitor.visited_node_ids != [])
       self[:site_id] = visitor.site[:id]
@@ -119,5 +126,6 @@ class CachedPage < ActiveRecord::Base
       CachedPage.logger.info "remove #{filepath}"
       FileUtils::rm(filepath) if File.exist?(filepath)
       CachedPage.connection.execute "DELETE FROM cached_pages_nodes WHERE cached_page_id = '#{id}'"
+      CachedPage.logger.info "done... #{filepath}"
     end
 end

@@ -50,9 +50,8 @@ class Document < Page
       scope = self.scoped_methods[0] || {}
       klass = self
       hash  = hash.stringify_keys
-      
-      if hash['c_file']
-        content_type = hash['c_file'].content_type
+      if file = hash['c_file'] && file.respond_to?(:content_type)
+        content_type = file.content_type
       elsif hash['c_content_type']
         content_type = hash['c_content_type']
       elsif hash['name'] =~ /^.*\.(\w+)$/ && types = EXT_TO_TYPE[$1]

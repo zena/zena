@@ -36,6 +36,9 @@ ul.errors li { margin-left:0.4em; background:inherit; line-height:1.2em;}
 .img_left {float:left; display:table; margin-right:5px;}
 .img_right {float:right;display:table; margin-left:5px;}
 .img_center { text-align:center; margin:12px;}
+.zazen .math img { border:none; vertical-align:middle; margin-bottom:0.35em;}
+.zazen pre.math  { border:1px solid #333;}
+.zazen .math_preview { background:#B6C6D2; padding:3px; white-space:pre;}
 
 /* paragraphs */
 .clear { clear:both;}

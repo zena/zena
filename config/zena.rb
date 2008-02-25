@@ -1,9 +1,18 @@
 require 'date'
+require "#{RAILS_ROOT}/config/version"
 AUTHENTICATED_PREFIX = "oo"
 SITES_ROOT = "#{RAILS_ROOT}/sites"
 PASSWORD_SALT = "jf93jfnvnas09093nas0923" # type anything here (but change this line !)
 ZENA_CALENDAR_LANGS = ["en", "fr"] # FIXME: build this dynamically from existing files
-# Remove ZENA_ENV, not needed anymore
+ENABLE_LATEX = true && !(`which pdflatex` =~ /^no pdflatex/) # enable LateX post-rendering
+ENABLE_FOP   = true && !(`which fop` =~ /^no fop/ || `which xsltproc` =~ /^no xsltproc/) # enable xsl-fo post-rendering
+ENABLE_MATH  = true && !(`which latex` =~ /^no latex/ || `which dvips` =~ /^no dvips/ || `which convert` =~ /^no convert/ || `which gs` =~ /^no gs/)
+puts "** zena #{Zena::VERSION::STRING} r#{Zena::VERSION::REV} starting"
+puts " * LateX #{ENABLE_LATEX ? 'enabled' : 'disabled'}"
+puts " * fop   #{ENABLE_FOP ? 'enabled' : 'disabled'}"
+puts " * math  #{ENABLE_MATH ? 'enabled' : 'disabled'}"
+
+# FIXME: Remove ZENA_ENV, not needed anymore
 ZENA_ENV = {
   :site_name => 'zena',
   :root_id => 1,
@@ -191,6 +200,7 @@ EXT_TYPE = [
   [ "xls"       , "application/vnd.ms-excel"       ],
   [ "xlw"       , "application/vnd.ms-excel"       ],
   [ "xml"       , "text/xml"                       ],
+  [ "xslt"      , "text/xml"                       ],
   [ "xpm"       , "image/x-xpixmap"                ],
   [ "xwd"       , "image/x-xwindowdump"            ],
   [ "xyz"       , "chemical/x-pdb"                 ],

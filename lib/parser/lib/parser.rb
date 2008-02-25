@@ -73,9 +73,9 @@ class Parser
       
       res = helper.send(:get_template_text, :src=>url, :current_folder=>'') || ["<span class='parser_error'>[include] template '#{url}' not found</span>", url]
       return nil unless res
-      text, url = *res
+      text, url, node = *res
       url = "/#{url}" unless url[0..0] == '/' # has to be an absolute path
-      return [text, url]
+      return [text, url, node]
     end
     
   end

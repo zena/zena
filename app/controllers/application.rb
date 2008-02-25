@@ -1,4 +1,5 @@
 require 'gettext/rails'
+require 'tempfile'
 
 class ApplicationController < ActionController::Base
   init_gettext 'zena'
@@ -98,7 +99,6 @@ END_MSG
     end
     
     def render_and_cache(options={})
-    
       opts = {:skin=>@node[:skin], :cache=>true}.merge(options)
       opts[:mode  ] ||= params[:mode]
       opts[:format] ||= params[:format] || 'html'
@@ -111,17 +111,120 @@ END_MSG
       # init default date used for calendars, etc
       @date  ||= params[:date] ? parse_date(params[:date]) : Date.today
       
-      begin
-        if opts[:format] != 'html'
-          content_type = (EXT_TO_TYPE[opts[:format]] || ['application/octet-stream'])[0]
-          data = render_to_string(:file => template_url(opts), :layout=>false)
-          send_data( data , :filename=>@node.v_title, :type => content_type, :disposition=>'inline')
-          cache_page(:content_data => data) if opts[:cache]
+      if opts[:format] != 'html'
+        content_type  = (EXT_TO_TYPE[opts[:format]] || ['application/octet-stream'])[0]
+        template_path = template_url(opts)
+        data = render_to_string(:file => template_path, :layout=>false)
+        # TODO: use plugins...
+        if opts[:format] == 'pdf' && ((ENABLE_LATEX && data =~ /\A% (latex)\n/) || (ENABLE_FOP && data =~ /\A<\?(xml)/))
+          rendering_egine = $1 == 'xml' ? 'fop' : $1
+          # 1. find cached PDF. If found, send data.
+          if @node[:user_id] == visitor[:id]
+            # owner
+            filename = "u#{@node[:user_id]}.pdf"
+          else
+            # group
+            filename = "g#{@node[:rgroup_id]}.pdf"
+          end
+          filepath = @node.asset_path(filename)
+          if File.exist?(filepath)
+            # ok send data
+            data = File.read(filepath)
+            send_data( data , :filename=>@node.v_title, :type => content_type, :disposition=>'inline')
+          else
+            # generate pdf
+            FileUtils::mkpath(File.dirname(filepath)) unless File.exist?(File.dirname(filepath))
+            
+            tempf = Tempfile.new("#{@node[:id]}_#{@node.version.lang}")
+            pdf_path = "#{tempf.path}.pdf"
+            failure  = nil
+            case rendering_egine
+            when 'latex'
+              # Parse data to produce LateX
+              data = data.gsub(/\\input/,'input not supported')
+              data = data.gsub(/\\includegraphics(\*|)(\[[^\{]*\]|)\{([^\}]*?)(\.(\w+)|)\}/) do
+                cmd_name = "includegraphics#{$1}"
+                img_opts = $2
+                img_id   = $3
+                img_mode = $5
+                if id = Node.translate_pseudo_id(img_id)
+                  img = secure(Image) { Image.find_by_id(id) }
+                  if img
+                    if img_mode
+                      img_path = img.c_filepath(img_mode)
+                      if !File.exists?(img_path)
+                        img_file = img.c_file(img_mode) # force rendering of image
+                        img_file.close
+                      end
+                    else
+                      img_path = img.c_filepath(nil)
+                    end
+                  end
+                  "\\includegraphics#{img_opts}{#{img_path}}"
+                else
+                  "(image '#{img_id}' not found)"
+                end 
+              end
+          
+              tempf = Tempfile.new("#{@node[:id]}_#{@node.version.lang}")
+              tex_path = "#{tempf.path}.tex"
+              pdf_path = "#{tempf.path}.pdf"
+              File.open(tex_path, 'wb') { |f| f.syswrite(data) }
+              if !system("pdflatex -halt-on-error -output-directory '#{File.dirname(tex_path)}' '#{tex_path}' &> '#{tempf.path}'")
+                failure = tempf.read
+              end
+            when 'fop'
+              # FOP rendering
+              xml_path  = "#{tempf.path}.xml"
+              fo_path   = "#{tempf.path}.fo"
+              
+              # write xml to file
+              File.open(xml_path, 'wb') { |f| f.syswrite(data) }
+              
+              # find stylesheet path is in the zafu folder
+              xsl_path = template_path.sub(/\.erb\Z/,'.xsl')
+              raise Excpetion.new("xsl content not found #{xsl_path.inspect} while rendering #{template_path.inspect} (node #{@node[:id]})") unless File.exist?(xsl_path)
+              
+              # run xsl with 'xml' content and stylesheet ==> 'xsl-fo' file
+              if !system("xsltproc -o '#{fo_path}' '#{xsl_path}' '#{xml_path}' &> '#{tempf.path}'")
+                failure = tempf.read
+              else
+                # run fop ==> PDF
+                if !system("fop '#{fo_path}' '#{pdf_path}' &> '#{tempf.path}'")
+                  failure = tempf.read
+                end
+              end
+            end
+            
+            if !failure
+              if data =~ /<!-- xsl_id:(\d+)/
+                # make sure changes in xsl stylesheet expires cached PDF
+                expire_with_ids = visitor.visited_node_ids + [$1.to_i]
+              else
+                expire_with_ids = visitor.visited_node_ids
+              end
+              
+              data = File.read(pdf_path)
+              # cache pdf data
+              filepath = filepath[(SITES_ROOT.size)..-1]
+              secure!(CachedPage) { CachedPage.create(:expire_after => nil, :path => filepath, :content_data => data, :node_id => @node[:id], :expire_with_ids => expire_with_ids) }
+              send_data( data , :filename=>@node.v_title, :type => content_type, :disposition=>'inline')
+            else
+              # failure: send log
+              send_data( failure , :filename=>"#{@node.v_title} - error", :type => 'text/plain', :disposition=>'inline')
+            end
+            #system("rm -rf #{tempf.path.inspect} #{(tempf.path + '.*').inspect}")
+          end
         else
-          render :file => template_url(opts), :layout=>false, :status => opts[:status]
-          cache_page(:url => opts[:cache_url]) if opts[:cache]
+          # no post-rendering
+          send_data( data , :filename=>@node.v_title, :type => content_type, :disposition=>'inline')
         end
+        cache_page(:content_data => (failure || data), :content_path => filepath) if opts[:cache]
+      else
+        render :file => template_url(opts), :layout=>false, :status => opts[:status]
+        cache_page(:url => opts[:cache_url]) if opts[:cache]
       end
+
     end
   
     # Cache page content into a static file in the current sites directory : SITES_ROOT/test.host/public
@@ -129,7 +232,8 @@ END_MSG
       return unless perform_caching && caching_allowed(:authenticated => opts.delete(:authenticated))
       opts = {:expire_after  => nil,
               :path          => (current_site.public_path + page_cache_file(opts.delete(:url))),
-              :content_data  => response.body   
+              :content_data  => response.body,
+              :node_id       => @node[:id]
               }.merge(opts)
       secure!(CachedPage) { CachedPage.create(opts) }
     end
@@ -217,6 +321,7 @@ END_MSG
           :path            => (current_site.zafu_path + fullpath),
           :expire_after    => nil,
           :expire_with_ids => @expire_with_nodes.values.map{|n| n[:id]},
+          :node_id         => template[:id],
           :content_data    => res) }
       end
     
@@ -233,7 +338,7 @@ END_MSG
       # TODO: could we use this for caching or will we loose dynamic context based loading ?
       @expire_with_nodes[url] = doc
       text = session[:dev] ? doc.version.text : doc.version(:pub).text
-      return text, url
+      return text, url, doc
     end
 
     def template_url_for_asset(opts)
@@ -280,7 +385,8 @@ END_MSG
   
     # TODO: test
     def save_erb_to_url(template, template_url)
-      path = fullpath_from_template_url(template_url) + ".erb"
+      path = fullpath_from_template_url(template_url)
+      path += ".erb" unless path =~ /\.\w+\Z/
       FileUtils.mkpath(File.dirname(path)) unless File.exists?(File.dirname(path))
       File.open(path, "wb") { |f| f.syswrite(template) }
       ""
@@ -523,23 +629,28 @@ END_MSG
       format = opts.delete(:format) || 'html'
       pre    = opts.delete(:prefix) || prefix
       mode   = opts.delete(:mode)
+      if asset = opts.delete(:asset)
+        mode   = nil
+      end
       format = 'html' if format.blank?
       
       params = (opts == {}) ? '' : ('?' + opts.map{ |k,v| "#{k}=#{v}"}.join('&'))
       
-      if node[:id] == current_site[:root_id] && mode.nil?
+      if !asset && node[:id] == current_site[:root_id] && mode.nil?
         "/#{pre}" # index page
       elsif node[:custom_base]
         "/#{pre}/" +
         node.basepath +
-        (mode         ? "_#{mode}" : '') +
+        (mode  ? "_#{mode}"  : '') +
+        (asset ? ".#{asset}" : '') +
         ".#{format}"
       else
         "/#{pre}/" +
         (node.basepath != '' ? "#{node.basepath}/"    : '') +
-        (node.vclass.to_s.downcase               ) +
-        (node[:zip].to_s                        ) +
-        (mode          ? "_#{mode}" : '') +
+        (node.klass.downcase   ) +
+        (node[:zip].to_s       ) +
+        (mode  ? "_#{mode}"  : '') +
+        (asset ? ".#{asset}" : '') +
         ".#{format}"
       end + params
     end

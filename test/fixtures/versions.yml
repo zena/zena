@@ -115,7 +115,7 @@ projects_en:
   title:          projects list
   summary:        no summary yet
   text:           |
-    Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Mauris facilisis felis in lacus. In sollicitudin turpis nec tellus. Nam ut nibh nec nulla aliquam vehicula. Integer diam tortor, bibendum non, eleifend a, auctor nec, dolor. Fusce consequat elit et purus. Vivamus ornare lectus vel ligula. Quisque blandit. Nam ut odio. Sed scelerisque vulputate ipsum. Nam in eros. Sed neque mauris, aliquet sed, convallis ultrices, imperdiet rutrum, odio. Donec eros. In sagittis. Quisque rutrum facilisis mauris. Suspendisse potenti. Suspendisse congue.
+    Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Mauris facilisis felis in lacus. In sollicitudin turpis nec tellus. Nam ut nibh nec nulla aliquam vehicula. Integer diam tortor, *bibendum non*, eleifend a, auctor nec, dolor. Fusce consequat elit et purus. Vivamus ornare lectus vel ligula. Quisque blandit. Nam ut odio. Sed scelerisque vulputate ipsum. Nam in eros. Sed neque mauris, aliquet sed, convallis ultrices, imperdiet rutrum, odio. Donec eros. In sagittis. Quisque rutrum facilisis mauris. Suspendisse potenti. Suspendisse congue.
     
     h1. h1 title
     

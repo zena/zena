@@ -1,0 +1,14 @@
+paragraph:
+  src: |
+    I live
+    
+    Here
+  res: "I"
+
+bold:
+  src: "some *black* cat"
+  res: "some \\em{black} cat"
+
+italic:
+  src: "some *black* cat"
+  res: "some \\em{black} cat"

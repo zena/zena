@@ -5,11 +5,11 @@ Used by Image to store image data. See the documentation on this class for more 
 
 Provides the following attributes/methods to Image :
 
-size(format)::    file size for the image at the given format
+size(mode)::    file size for the image at the given mode
 ext::             file extension
 content_type::    file content_type                
-width(format)::   image width in pixel for the given format
-height(format)::  image height in pixel for the given format
+width(mode)::   image width in pixel for the given mode
+height(mode)::  image height in pixel for the given mode
 
 ImageContent also provides a +crop+ pseudo attribute to crop an image. See crop=.
 =end
@@ -48,20 +48,20 @@ class ImageContent < DocumentContent
   def file=(aFile)
     super
     return unless ImageBuilder.image_content_type?(aFile.content_type)
-    remove_format_images if !new_record?
-    img = image_for_format(nil)
+    remove_mode_images if !new_record?
+    img = image_for_mode(nil)
     self[:width ] = img.width
     self[:height] = img.height
   end
   
-  # Return the size for an image at the given format. If no format is provided, 'full' is used.
-  def size(format=nil)
-    format = verify_format(format)
-    if format == 'full'
+  # Return the size for an image at the given mode. If no mode is provided, 'full' is used.
+  def size(mode=nil)
+    mode = verify_mode(mode)
+    if mode == 'full'
       super
-    elsif format
-      if File.exist?(filepath(format)) || make_image(format)
-        File.stat(filepath(format)).size
+    elsif mode
+      if File.exist?(filepath(mode)) || make_image(mode)
+        File.stat(filepath(mode)).size
       else
         nil
       end
@@ -70,13 +70,13 @@ class ImageContent < DocumentContent
     end
   end
   
-  # Return the width in pixels for an image at the given format. If no format is provided, 'full' is used.
-  def width(format=nil)
-    format = verify_format(format)
-    if format == 'full'
+  # Return the width in pixels for an image at the given mode. If no mode is provided, 'full' is used.
+  def width(mode=nil)
+    mode = verify_mode(mode)
+    if mode == 'full'
       self[:width]
-    elsif format
-      if img = image_for_format(format)
+    elsif mode
+      if img = image_for_mode(mode)
         img.width
       else
         nil
@@ -86,13 +86,13 @@ class ImageContent < DocumentContent
     end
   end
   
-  # Return the height in pixels for an image at the given format. If no format is provided, 'full' is used.
-  def height(format=nil)
-    format = verify_format(format)
-    if format == 'full'
+  # Return the height in pixels for an image at the given mode. If no mode is provided, 'full' is used.
+  def height(mode=nil)
+    mode = verify_mode(mode)
+    if mode == 'full'
       self[:height]
-    elsif format
-      if img = image_for_format(format)
+    elsif mode
+      if img = image_for_mode(mode)
         img.height
       else
         nil
@@ -102,23 +102,23 @@ class ImageContent < DocumentContent
     end
   end
   
-  # Image filename for the given format. For example, 'bird_pv.jpg' is the name for 'pv' format. The name without a format or 'full' format would be 'bird.jpg'
-  def filename(format=nil)
-    format = verify_format(format)
-    if format == 'full'
+  # Image filename for the given mode. For example, 'bird_pv.jpg' is the name for 'pv' mode. The name without a mode or 'full' mode would be 'bird.jpg'
+  def filename(mode=nil)
+    mode = verify_mode(mode)
+    if mode == 'full'
       super
-    elsif format
-      "#{name}_#{format}.#{ext}"
+    elsif mode
+      "#{name}_#{mode}.#{ext}"
     else
       nil
     end
   end
   
-  # Return a file with the data for the given format. It is the receiver's responsability to close the file.
-  def file(format=nil)
-    return nil if format == 'full' # We only send full data when asked with format is nil.
-    format = verify_format(format)
-    if format == 'full'
+  # Return a file with the data for the given mode. It is the receiver's responsability to close the file.
+  def file(mode=nil)
+    return nil if mode == 'full' # We only send full data when asked with mode is nil.
+    mode = verify_mode(mode)
+    if mode == 'full'
       if @file
         @file
       elsif File.exist?(filepath)
@@ -126,9 +126,9 @@ class ImageContent < DocumentContent
       else
         nil
       end
-    elsif format
-      if File.exist?(filepath(format)) || make_image(format)
-        File.new(filepath(format))
+    elsif mode
+      if File.exist?(filepath(mode)) || make_image(mode)
+        File.new(filepath(mode))
       else
         nil
       end
@@ -138,13 +138,13 @@ class ImageContent < DocumentContent
   end
   
   # Used to remove formatted images when these images are cached in the public directory
-  def remove_image(format)
-    return false unless (format = verify_format(format)) && (format != 'full')
-    FileUtils::rm(filepath(format)) if File.exist?(filepath(format))
+  def remove_image(mode)
+    return false unless (mode = verify_mode(mode)) && (mode != 'full')
+    FileUtils::rm(filepath(mode)) if File.exist?(filepath(mode))
   end
   
   # Removes all images created by ImageBuilder for this image_content. This is used when the file changes or when the name changes.
-  def remove_format_images
+  def remove_mode_images
     dir = File.dirname(filepath)
     if File.exist?(dir)
       Dir.foreach(dir) do |file|
@@ -158,24 +158,24 @@ class ImageContent < DocumentContent
     # FileUtils::rmtree(File.dirname(cachepath))
   end
   
-  def verify_format(format)
-    if format.nil?
-      format = 'full'
+  def verify_mode(mode)
+    if mode.nil?
+      mode = 'full'
     end
-    if IMAGEBUILDER_FORMAT[format]
-      format
+    if IMAGEBUILDER_FORMAT[mode]
+      mode
     else
       nil
     end
   end
   
-  def image_for_format(format=nil)
+  def image_for_mode(mode=nil)
     if @file
-      ImageBuilder.new(:file=>@file).transform!(format)
+      ImageBuilder.new(:file=>@file).transform!(mode)
     elsif !new_record?
-      @formats ||= {}
-      @formats[format] ||= ImageBuilder.new(:path=>filepath, 
-              :width=>self[:width], :height=>self[:height]).transform!(format)
+      @modes ||= {}
+      @modes[mode] ||= ImageBuilder.new(:path=>filepath, 
+              :width=>self[:width], :height=>self[:height]).transform!(mode)
     else
       raise StandardError, "No image to work on"
     end
@@ -202,9 +202,9 @@ class ImageContent < DocumentContent
       end
     end
   
-    def make_image(format)
-      return nil unless format && (img = image_for_format(format))
+    def make_image(mode)
+      return nil unless mode && (img = image_for_mode(mode))
       return nil if img.dummy?
-      make_file(filepath(format),img)
+      make_file(filepath(mode),img)
     end
 end

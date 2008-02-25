@@ -44,6 +44,25 @@ class ApplicationHelperTest < ZenaTestHelper
     assert_equal "/en/projects/cleanWater/page22_test.html", zen_path(node, :mode=>'test')
   end
   
+  def test_zen_path_asset
+    login(:ant)
+    node = secure!(Node) { nodes(:zena) }
+    assert_equal "/oo/project11.abcd.html", zen_path(node, :asset=>'abcd')
+    node = secure!(Node) { nodes(:people) }
+    assert_equal "/oo/section12.m1234.png", zen_path(node, :asset=>'m1234', :format=>'png')
+    
+    login(:anon)
+    node = secure!(Node) { nodes(:zena) }
+    assert_equal "/en/project11.abcd.png", zen_path(node, :asset=>'abcd', :format=>'png')
+    node = secure!(Node) { nodes(:people) }
+    assert_equal "/en/section12.kls.html", zen_path(node, :asset=>'kls')
+    assert_equal "/tt/section12.foo.jpg", zen_path(node, :mode=>'test', :prefix=>'tt', :format=>'jpg', :asset => 'foo')
+    node = secure!(Node) { nodes(:cleanWater) }
+    assert_equal "/en/projects/cleanWater.kls.html", zen_path(node, :asset => 'kls')
+    node = secure!(Node) { nodes(:status) }
+    assert_equal "/en/projects/cleanWater/page22.abcd.png", zen_path(node, :asset => 'abcd', :format => 'png')
+  end
+  
   def test_zen_url
     params[:format] = 'html'
     node = secure!(Node) { nodes(:zena) }

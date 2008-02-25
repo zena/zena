@@ -6,7 +6,7 @@ if false
 end
 
 class ZenaParserTest < ZenaHelperTest
-  testfile :relations, :basic, :zafu_ajax, :zazen, :apphelper, :errors, :data
+  testfile :relations, :basic, :zafu_ajax, :zazen, :apphelper, :errors, :data, :latex
   Section # make sure we load Section links before trying relations
   
   def test_single

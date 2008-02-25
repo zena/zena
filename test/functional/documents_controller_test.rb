@@ -73,7 +73,7 @@ class DocumentsControllerTest < ZenaTestController
   #  assert_equal 'application/pdf', @response.headers['Content-Type']
   #end
   #
-  #def test_remove_format_images # test cached data is removed
+  #def test_remove_mode_images # test cached data is removed
   #  # make 'flower' owned by :ant and used by managers
   #  Node.connection.execute "UPDATE nodes SET rgroup_id = 4, wgroup_id = 4, pgroup_id = 4, user_id=3 WHERE id = '#{nodes_id(:flower_jpg)}'"
   #  @perform_caching_bak = ApplicationController.perform_caching
