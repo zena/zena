@@ -213,7 +213,7 @@ module Zena
             attributes = remove_attributes_protected_from_mass_assignment(attributes)
             attributes = remove_attributes_with_same_value(attributes)
             return true if attributes == {} # nothing to be done.
-            do_update_attributes(attributes)  
+            do_update_attributes(attributes)
           end
         end
         
@@ -426,7 +426,7 @@ module Zena
 
           attributes.each do |k,v|
             next if k.to_s == 'id' # just ignore 'id' (cannot be set but is often around)
-            if k.to_s =~ /^(v_|c_)/
+            if k.to_s =~ /^(v_|c_|d_)/
               redaction_attr = true
             else
               node_attr      = true
