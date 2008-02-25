@@ -4,9 +4,14 @@ AUTHENTICATED_PREFIX = "oo"
 SITES_ROOT = "#{RAILS_ROOT}/sites"
 PASSWORD_SALT = "jf93jfnvnas09093nas0923" # type anything here (but change this line !)
 ZENA_CALENDAR_LANGS = ["en", "fr"] # FIXME: build this dynamically from existing files
-ENABLE_LATEX = true && !(`which pdflatex` =~ /^no pdflatex/) # enable LateX post-rendering
-ENABLE_FOP   = true && !(`which fop` =~ /^no fop/ || `which xsltproc` =~ /^no xsltproc/) # enable xsl-fo post-rendering
-ENABLE_MATH  = true && !(`which latex` =~ /^no latex/ || `which dvips` =~ /^no dvips/ || `which convert` =~ /^no convert/ || `which gs` =~ /^no gs/)
+def has_executable(*list)
+  list.inject(true) do |s,e|
+    s && !(`which #{e} || echo 'no #{e}'` =~ /^no #{e}/)
+  end
+end
+ENABLE_LATEX = true && has_executable('pdflatex') # enable LateX post-rendering
+ENABLE_FOP   = true && has_executable('fop', 'xsltproc') # enable xsl-fo post-rendering
+ENABLE_MATH  = true && has_executable('latex', 'dvips', 'convert', 'gs')
 puts "** zena #{Zena::VERSION::STRING} r#{Zena::VERSION::REV} starting"
 puts " * LateX #{ENABLE_LATEX ? 'enabled' : 'disabled'}"
 puts " * fop   #{ENABLE_FOP ? 'enabled' : 'disabled'}"
