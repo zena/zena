@@ -247,7 +247,11 @@ module Zena
       elsif @params[:tattr]
         "<%= zazen(_(#{node_attribute(attribute)})#{limit}, :node=>#{node}) %>"
       elsif @params[:attr]
-        "<%= zazen(#{node_attribute(attribute)}#{limit}, :node=>#{node}) %>"
+        if output_format == 'html'
+          "<%= zazen(#{node_attribute(attribute)}#{limit}, :node=>#{node}) %>"
+        else
+          "<%= zazen(#{node_attribute(attribute)}#{limit}, :node=>#{node}, :output=>#{output_format.inspect}) %>"
+        end
       elsif @params[:date]
         # date can be any attribute v_created_at or updated_at etc.
         # TODO format with @params[:format] and @params[:tformat] << translated format
@@ -372,6 +376,11 @@ module Zena
       end
     end
     
+    def r_latex
+      # all content inside this will be informed to render for Latex output
+      expand_with(:output_format => 'latex')
+    end
+    
     def r_anchor(obj=node)
       if @anchor_param =~ /\[(.+)\]/
         anchor_value = "<%= #{node_attribute($1)} %>"
@@ -480,6 +489,7 @@ module Zena
         text = @params[:text] ? @params[:text].inspect : node_attribute('v_summary')
         "<div id='v_summary<%= #{node}.zip %>' class='zazen'><%= zazen(#{text}#{limit}, :node=>#{node}) %></div>"
       else
+        limit ||= ', :limit => 2'
         first_name = 'v_summary'
         first  = node_attribute(first_name)
         
@@ -1294,6 +1304,20 @@ END_TXT
     
     # Create an sql query to open a new context (passes its arguments to HasRelations#build_find)
     def build_finder_for(count, rel, params=@params)
+      if context = node_class.zafu_known_contexts[rel]
+        klass = context.kind_of?(Array) ? context[0] : context
+        
+        if klass.ancestors.include?(Node)
+          # ok
+          if (count == :all && context.kind_of?(Array)) || (count == :first && !context.kind_of?(Array))
+            return "#{node}.#{rel}"
+          else
+            # fail
+            return 'nil'
+          end
+        end
+      end
+      
       rel ||= 'self'
       if (count == :first)
         if rel == 'main'
@@ -1429,8 +1453,14 @@ END_TXT
       query_params[:relations ] = relations.map { |r| r.gsub('&gt;', '>').gsub('&lt;', '<')}
       query_params[:node_name ] = node
       query_params
-    end    
+    end
+    
     # helpers
+    # get current output format
+    def output_format
+      @context[:output_format] || 'html'
+    end
+    
     # find the current node name in the context
     def node
       @context[:node] || '@node'
