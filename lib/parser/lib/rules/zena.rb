@@ -330,7 +330,7 @@ module Zena
       else
         return "span class='parser_error'>[swap] missing 'group' in same parent</span>"
       end
-      dom_id = group.dom_id(@context)
+      template_url = group.get_template_url(@context)
       states = (@params[:states] || 'todo, done').split(',').map{|e| e.strip}
       if states.include?("")
         text = get_text_for_erb(@params.merge(:attr=>nil))
@@ -340,7 +340,7 @@ module Zena
       
       auto_publish = @params[:publish] ? "&node[v_status]=#{Zena::Status[:pub]}" : ''
             
-      out "<%= #{node}.can_write? ? link_to_remote(#{text}, {:url => node_path(#{node}.zip) + \"?template_url=#{CGI.escape(dom_id)}#{auto_publish}&node[#{@params[:attr]}]=\#{#{states.inspect}[ ((#{states.inspect}.index(#{node_attribute(@params[:attr])}) || 0)+1) % #{states.size}]}\", :method => :put}) : '' %>"
+      out "<%= #{node}.can_write? ? link_to_remote(#{text}, {:url => node_path(#{node}.zip) + \"?template_url=#{CGI.escape(template_url)}#{auto_publish}&node[#{@params[:attr]}]=\#{#{states.inspect}[ ((#{states.inspect}.index(#{node_attribute(@params[:attr])}) || 0)+1) % #{states.size}]}\", :method => :put}) : '' %>"
     end
     
     
