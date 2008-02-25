@@ -9,10 +9,10 @@
   <% form_tag( node_path(@node[:zip]), :method => :put, :multipart => @node.kind_of?(Document), :id => 'node_form') do -%>
   <div class='hidden'>
     <input type='hidden' name='edit' value='popup'/>
-    <% if params[:pub] -%><input type='hidden' name='node[v_status]' value='50'/><% end -%>
   </div>
   <div class='validate'>
-    <div><input type="submit" onclick="$('loader').style.visibility = 'visible';" value='<%= _('validate') %>'/></div>
+    <% if @node.can_publish? %><small><%= _('publish') %> <input type='checkbox' name='node[v_status]' value='50'<%= params[:pub] ? " checked='checked'" : '' %>/></small><% end -%>
+    <div><input type='submit' onclick="$('loader').style.visibility = 'visible';" value='<%= _('validate') %>'/></div>
     <div><%= submit_to_remote('save', _('save'), :url => save_text_node_path(:id => @node[:zip]), :loading=>"$('loader').style.visibility = 'visible';") %></div>
     <% unless @node.version.new_record? %>
     <div><%# FIXME = submit_to_remote('backup', _('backup'), :url=>{:action => 'backup', :controller=>'version', :id=>@node.v_id}, :loading=>"$('loader').style.visibility = 'visible';") %></div>
