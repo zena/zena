@@ -1320,7 +1320,9 @@ END_TXT
       
       rel ||= 'self'
       if (count == :first)
-        if rel == 'main'
+        if rel == 'self'
+          return node
+        elsif rel == 'main'
           return "@node"
         elsif rel == 'root'
           return "(secure(Node) { Node.find(#{current_site[:root_id]})})"
@@ -1703,7 +1705,7 @@ END_TXT
           end
           allOK ? "#{value1} #{op} #{value2}" : nil
         elsif test =~ /\[([^\]]+)\]/
-          node_attribute($1, :node => node) + '.empty?'
+          node_attribute($1, :node => node) + '.blank?'
         else
           # bad test condition.
           'false'
