@@ -145,7 +145,7 @@ module Zena
         else
           if node_kind_of?(DataEntry) && @method.to_s =~ /node_/
             # select node_id
-            "<%= select_id('#{node_class.to_s.underscore}', '#{@method}_id') %>"
+            "<%= select_id('#{base_class.to_s.underscore}', '#{@method}_id') %>"
           else
             return super(method) # use normal rendering
           end
@@ -278,7 +278,7 @@ module Zena
       
         unless @context[:make_form]
           # STORE TEMPLATE ========
-          template_node = "@#{node_class.to_s.underscore}"
+          template_node = "@#{base_class.to_s.underscore}"
           context_bak = @context.dup # avoid side effects when rendering the same block
             template      = expand_block(self, :group=>self, :list=>false, :node=>template_node, :template_url=>template_url, :form=>false, :no_form => true)
           @context = context_bak
@@ -376,9 +376,9 @@ module Zena
       if @anchor_param =~ /\[(.+)\]/
         anchor_value = "<%= #{node_attribute($1)} %>"
       elsif node_kind_of?(Version)
-        anchor_value = "#{node_class.to_s.underscore}<%= #{obj}.node.zip %>.<%= #{obj}.number %>"
+        anchor_value = "#{base_class.to_s.underscore}<%= #{obj}.node.zip %>.<%= #{obj}.number %>"
       else
-        anchor_value = "#{node_class.to_s.underscore}<%= #{obj}.zip %>"
+        anchor_value = "#{base_class.to_s.underscore}<%= #{obj}.zip %>"
       end
       "<a name='#{anchor_value}'></a>"
     end
@@ -530,7 +530,7 @@ module Zena
           # "<%= link_to_remote(#{_('cancel').inspect}, {:url => node_path(#{node}.zip) + '/zafu?template_url=#{CGI.escape(template_url)}', :method => :get}#{params_to_erb(@params)}) %>"
         else
           # edit button
-          "<%= #{node}.can_write? ? link_to_remote(#{text || _('edit').inspect}, {:url => edit_#{node_class.to_s.underscore}_path(#{node}.zip) + '?template_url=#{CGI.escape(template_url)}', :method => :get}#{params_to_erb(@params)}) : '' %>"
+          "<%= #{node}.can_write? ? link_to_remote(#{text || _('edit').inspect}, {:url => edit_#{base_class.to_s.underscore}_path(#{node}.zip) + '?template_url=#{CGI.escape(template_url)}', :method => :get}#{params_to_erb(@params)}) : '' %>"
         end
       else
         # FIXME: we could link to some html page to edit the item.
@@ -557,20 +557,20 @@ module Zena
           select_opts[:selected] = @params[:selected] if @params[:selected]
           class_opts[:without]  = @params[:without]  if @params[:without]
           # do not use 'selected' if the node is not new
-          "<% if #{node}.new_record? -%><%= select('#{node_class.to_s.underscore}', #{attribute.inspect}, Node.classes_for_form(:class => #{klass.inspect}#{params_to_erb(class_opts)})#{params_to_erb(select_opts)}) %><% else -%><%= select('#{node_class.to_s.underscore}', #{attribute.inspect}, Node.classes_for_form(:class => #{klass.inspect}#{params_to_erb(class_opts)})) %><% end -%>"
+          "<% if #{node}.new_record? -%><%= select('#{base_class.to_s.underscore}', #{attribute.inspect}, Node.classes_for_form(:class => #{klass.inspect}#{params_to_erb(class_opts)})#{params_to_erb(select_opts)}) %><% else -%><%= select('#{base_class.to_s.underscore}', #{attribute.inspect}, Node.classes_for_form(:class => #{klass.inspect}#{params_to_erb(class_opts)})) %><% end -%>"
         else
           klasses = @params[:options] || "Page,Note"
-          "<%= select('#{node_class.to_s.underscore}', #{attribute.inspect}, #{klasses.split(',').map(&:strip).inspect}) %>"
+          "<%= select('#{base_class.to_s.underscore}', #{attribute.inspect}, #{klasses.split(',').map(&:strip).inspect}) %>"
         end
       when 'date_box', 'date'
         return "<span class='parser_error'>[input] date_box without name</span>" unless attribute
         input_id = @context[:template_url] ? ", :id=>#{(dom_id_from_template_url + '_' + attribute.to_s).inspect} + #{node}.zip.to_s" : ''
-        "<%= date_box '#{node_class.to_s.underscore}', #{attribute.inspect}, :size=>15#{@context[:in_add] ? ", :value=>''" : ''}#{input_id} %>"
+        "<%= date_box '#{base_class.to_s.underscore}', #{attribute.inspect}, :size=>15#{@context[:in_add] ? ", :value=>''" : ''}#{input_id} %>"
       when 'id'
         return "<span class='parser_error'>[input] select id without name</span>" unless attribute
         name = "#{attribute}_id" unless attribute[-3..-1] == '_id'
         input_id = params[:input_id] ? ", :input_id => #{(dom_id_from_template_url + '_' + attribute.to_s).inspect}" : ''
-        "<%= select_id('#{node_class.to_s.underscore}', #{attribute.inspect}#{input_id}) %>"
+        "<%= select_id('#{base_class.to_s.underscore}', #{attribute.inspect}#{input_id}) %>"
         
       when 'submit'
         @html_tag = 'input'
@@ -598,12 +598,12 @@ module Zena
     def r_form
       if template_url = @context[:template_url]
         # ajax
-
+        
         if @context[:in_add]
           # inline form used to create new elements: set values to '' and 'parent_id' from context
           @html_tag_params.merge!(:id=>"#{dom_id_from_template_url}_form", :style=>"display:none;")
           cancel =  "<p class='btn_x'><a href='#' onclick='[\"#{dom_id_from_template_url}_add\", \"#{dom_id_from_template_url}_form\"].each(Element.toggle);return false;'>#{_('btn_x')}</a></p>\n"
-          form  =  "<%= form_remote_tag(:url => #{node_class.to_s.underscore.pluralize}_path) %>\n"
+          form  =  "<%= form_remote_tag(:url => #{base_class.to_s.underscore.pluralize}_path) %>\n"
         else
           # saved form used to edit/create: set values and 'parent_id' from @node
           @html_tag_params.merge!(:id=>"#{dom_id_from_template_url}<%= #{node}.new_record? ? '_form' : \".\#{#{node}.zip}\" %>") unless @method == 'group' # called from r_group
@@ -614,14 +614,14 @@ module Zena
 <% if #{node}.new_record? -%>
   <p class='btn_x'><a href='#' onclick='[\"#{dom_id_from_template_url}_add\", \"#{dom_id_from_template_url}_form\"].each(Element.toggle);return false;'>#{_('btn_x')}</a></p>
 <% else -%>
-  <p class='btn_x'><%= link_to_remote(#{_('btn_x').inspect}, :url => #{node_class.to_s.underscore}_path(#{node}.zip) + '/zafu?template_url=#{CGI.escape(template_url)}', :method => :get) %></a></p>
+  <p class='btn_x'><%= link_to_remote(#{_('btn_x').inspect}, :url => #{base_class.to_s.underscore}_path(#{node}.zip) + '/zafu?template_url=#{CGI.escape(template_url)}', :method => :get) %></a></p>
 <% end -%>
 END_TXT
           form =<<-END_TXT
 <% if #{node}.new_record? -%>
-<%= form_remote_tag(:url => #{node_class.to_s.underscore.pluralize}_path) %>
+<%= form_remote_tag(:url => #{base_class.to_s.underscore.pluralize}_path) %>
 <% else -%>
-<%= form_remote_tag(:url => #{node_class.to_s.underscore}_path(#{node}.zip), :method => :put) %>
+<%= form_remote_tag(:url => #{base_class.to_s.underscore}_path(#{node}.zip), :method => :put) %>
 <% end -%>
 END_TXT
         end
@@ -833,7 +833,7 @@ END_TXT
       </script>"
       
       # TEMPLATE ========
-      template_node = "@#{node_class.to_s.underscore}"
+      template_node = "@#{base_class.to_s.underscore}"
       template      = expand_with(:node=>template_node, :template_url=>template_url)
       out helper.save_erb_to_url(template, template_url)
     end
@@ -1026,6 +1026,22 @@ END_TXT
     def r_node
       @method = @params[:select] || 'node' # 'node' is for version.node
       r_unknown
+    end
+    
+    def r_project
+      do_var("#{node}.get_project", :node_class => Project)
+    end
+
+    def r_real_project
+      do_var("#{node}.project", :node_class => Project)
+    end
+    
+    def r_section
+      do_var("#{node}.get_section", :node_class => Section)
+    end
+
+    def r_real_section
+      do_var("#{node}.section", :node_class => Section)
     end
     
     def r_date
@@ -1456,6 +1472,16 @@ END_TXT
       @context[:node_class] || Node
     end
     
+    def base_class
+      if node_kind_of?(Node)
+        Node
+      elsif node_kind_of?(Version)
+        Version
+      else
+        node_class
+      end
+    end
+    
     def node_kind_of?(ancestor)
       node_class.ancestors.include?(ancestor)
     end
@@ -1524,7 +1550,7 @@ END_TXT
         out "<% end -%>" if list_finder
 
         # TEMPLATE ========
-        template_node = "@#{node_class.to_s.underscore}"
+        template_node = "@#{base_class.to_s.underscore}"
         template      = expand_block(each_block, :list=>false, :node=>template_node, :node_class => node_class, :klass => klass, :template_url=>template_url)
         out helper.save_erb_to_url(template, template_url)
         
@@ -1647,7 +1673,7 @@ END_TXT
           end
           allOK ? "#{value1} #{op} #{value2}" : nil
         elsif test =~ /\[([^\]]+)\]/
-          node_attribute($1, :node => node)
+          node_attribute($1, :node => node) + '.empty?'
         else
           # bad test condition.
           'false'
@@ -1858,7 +1884,7 @@ END_TXT
         res[:id]   = "#{$1}_#{$2}"
       else
         attribute = res[:name]
-        res[:name] = "#{node_class.to_s.underscore}[#{attribute}]"
+        res[:name] = "#{base_class.to_s.underscore}[#{attribute}]"
         res[:id]   = "#{@context[:template_url].split('/').last}_#{attribute}" if @context[:template_url]
       end
       
@@ -1886,7 +1912,7 @@ END_TXT
       return '' if ['url','path'].include?(attribute) # cannot be set with a form
       if params[:date]
       input_id = @context[:template_url] ? ", :id=>#{(@context[:template_url].split('/').last.to_s + '_' + attribute.to_s).inspect} + #{node}.zip.to_s" : ''
-        return "<%= date_box('#{node_class.to_s.underscore}', #{params[:date].inspect}#{input_id}) %>"
+        return "<%= date_box('#{base_class.to_s.underscore}', #{params[:date].inspect}#{input_id}) %>"
       end
       input_id = @context[:template_url] ? " id='#{@context[:template_url].split('/').last}_#{attribute}'" : ''
       "<input type='#{params[:type] || 'text'}'#{input_id} name='#{input[:name]}' value=#{input[:value]}/>"
@@ -1899,7 +1925,7 @@ END_TXT
         attribute = $2
       else
         attribute = name
-        name = "#{node_class.to_s.underscore}[#{attribute}]"
+        name = "#{base_class.to_s.underscore}[#{attribute}]"
       end
       return '' if attribute == 'parent_id' # set with 'r_form'
       

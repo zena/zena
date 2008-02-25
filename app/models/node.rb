@@ -131,7 +131,7 @@ class Node < ActiveRecord::Base
   zafu_readable      :name, :created_at, :updated_at, :event_at, :log_at, :kpath, :user_zip, :parent_zip, :project_zip,
                      :section_zip, :skin, :ref_lang, :fullpath, :rootpath, :publish_from, :max_status, :rgroup_id, 
                      :wgroup_id, :pgroup_id, :basepath, :custom_base, :klass, :zip, :score, :comments_count, :position
-  zafu_context       :author => "Contact", :parent => "Node", :project => "Project", :section => "Section", :user => "User",
+  zafu_context       :author => "Contact", :parent => "Node", :user => "User",
                      :version => "Version", :comments => ["Comment"], :data => ["DataEntry"], :data_a => ["DataEntry"],
                      :data_b => ["DataEntry"], :data_c => ["DataEntry"], :data_d => ["DataEntry"], :icon => "Image"
                      
@@ -806,7 +806,12 @@ class Node < ActiveRecord::Base
     end
   end
   
-  # Find section
+  # Return self if the current node is a section else find section.
+  def get_section
+    self.kind_of?(Section) ? self : section
+  end
+  
+  # Find real section
   def section(is_secure = true)
     return self if self[:parent_id].nil?
     # we cannot use Section to find because the root node behaves like a Section but is a Project.
@@ -817,7 +822,12 @@ class Node < ActiveRecord::Base
     end
   end
   
-  # Find project
+  # Return self if the current node is a project else find project.
+  def get_project
+    self.kind_of?(Project) ? self : project
+  end
+  
+  # Find real project
   def project(is_secure = true)
     return self if self[:parent_id].nil?
     if is_secure

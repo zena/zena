@@ -1126,4 +1126,24 @@ done: \"I am done\""
     assert Page.native_classes.values.include?(Document)
     assert !Document.native_classes.values.include?(Page)
   end
+  
+  def test_get_project
+    login(:ant)
+    node = secure!(Node) { nodes(:status) }
+    assert_equal nodes_id(:cleanWater), node.get_project[:id]
+    node = secure!(Node) { nodes(:cleanWater) }
+    assert_equal nodes_id(:cleanWater), node.get_project[:id]
+    assert_equal nodes_id(:zena), node.project[:id]
+    assert_equal nodes_id(:zena), node.project.project[:id]
+  end
+  
+  def test_get_section
+    login(:ant)
+    node = secure!(Node) { nodes(:ant) }
+    assert_equal nodes_id(:people), node.get_section[:id]
+    node = secure!(Node) { nodes(:people) }
+    assert_equal nodes_id(:people), node.get_section[:id]
+    assert_equal nodes_id(:zena), node.section[:id]
+    assert_equal nodes_id(:zena), node.section.section[:id]
+  end
 end

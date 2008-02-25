@@ -53,6 +53,18 @@ class CachedPageTest < ZenaTestUnit
         node = secure!(Node) { nodes(:bird_jpg) }
         assert node.update_attributes(:v_title=>'hey'), "Can save"
         assert !File.exists?(path), "Cache file removed"
+        login(:anon)
+        node = secure!(Node) { nodes(:bird_jpg) }
+        cache = secure!(CachedPage) { CachedPage.create(
+          :path => (visitor.site.public_path + "/some/place/image12.jpg"),
+          :expire_after  => nil,
+          :content_path  => node.c_filepath) }
+        assert File.exists?(path), "Cache file created"
+        login(:tiger)
+        # edit node only
+        node = secure!(Node) { nodes(:bird_jpg) }
+        assert node.update_attributes(:name=>'hey'), "Can save"
+        assert !File.exists?(path), "Cache file removed"
       end
     end
   end

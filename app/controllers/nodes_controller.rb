@@ -367,7 +367,7 @@ class NodesController < ApplicationController
       @node = current_site.root_node
       query = Node.match_query(params[:q], :node => @node)
       
-      @nodes = secure!(Node) do
+      @nodes = secure(Node) do
         @nodes_previous_page, @nodes, @nodes_next_page = Node.find_with_pagination(:all,query.merge(:per_page => 10, :page => params[:page]))
         @nodes # important: this is the 'secure' yield return, it is used to secure found nodes
       end

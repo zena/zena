@@ -10,7 +10,7 @@
 
 /* actions */
 .actions   { margin-left:5px; }
-.actions a { padding:2px;     }
+.actions img {border:none; vertical-align:middle;}
 .s50       .actions, .li_s50       .actions { visibility:hidden;  }
 .s50:hover .actions, .li_s50:hover .actions { visibility:visible; }
 .actions a:hover { background:#F9E1AD; }
