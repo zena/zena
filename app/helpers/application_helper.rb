@@ -292,13 +292,15 @@ latex_template = %q{
                 f.syswrite("\n\\end{document}\n")
               end
               
-              system("cd #{File.dirname(tempf.path)}; latex -interaction=batchmode #{"#{base}.tex".inspect} &> /dev/null");
-              if !File.exists?("#{base}.tex")
-                system("cp '#{RAILS_ROOT}/public/latex_error.png' #{filepath.inspect}")
+              system("cd #{File.dirname(tempf.path)}; latex -interaction=batchmode #{"#{base}.tex".inspect} &> '#{base}.err'")
+              if !File.exists?("#{base}.dvi")
+                Node.logger.error(File.read("#{base}.err"))
+                system("cp '#{RAILS_ROOT}/public/world.png' #{filepath.inspect}")
               else
-                system("dvips #{tempf.path}.dvi -E -o #{base}.ps &> /dev/null")
-                system("convert -units PixelsPerInch -density 150 -matte -fuzz '10%' -transparent '#ffffff' #{base}.ps #{filepath.inspect} &> /dev/null")
+                system("dvips #{tempf.path}.dvi -E -o #{base}.ps &> '#{base}.err'") #||  Node.logger.error(File.read("#{base}.err"))
+                system("convert -units PixelsPerInch -density 150 -matte -fuzz '10%' -transparent '#ffffff' #{base}.ps #{filepath.inspect} &> '#{base}.err'") #|| Node.logger.error(File.read("#{base}.err"))
               end
+
             ensure
               system("rm -rf #{tempf.path.inspect} #{(tempf.path + '.*').inspect}")
             end

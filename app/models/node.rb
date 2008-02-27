@@ -785,7 +785,7 @@ class Node < ActiveRecord::Base
   
   # Return save path for an asset (element produced by text like a png file from LateX)
   def asset_path(asset_filename)
-    filepath = "#{SITES_ROOT}#{site.data_path}/asset/#{self[:id]}/#{asset_filename}"
+    "#{SITES_ROOT}#{site.data_path}/asset/#{self[:id]}/#{asset_filename}"
   end
   
   # Used by zafu to find the search score
@@ -1072,6 +1072,9 @@ class Node < ActiveRecord::Base
       # this destroys less cache but might miss things like 'changes in project' that are displayed on every page.
       # CachedPage.expire_with(self, [self[:project_id], self[:section_id], self[:parent_id]].compact.uniq)
     end
+    
+    # clear assets
+    FileUtils::rmtree(asset_path(''))
   end
   
   protected

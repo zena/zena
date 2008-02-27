@@ -1146,4 +1146,11 @@ done: \"I am done\""
     assert_equal nodes_id(:zena), node.section[:id]
     assert_equal nodes_id(:zena), node.section.section[:id]
   end
+  
+  # FIXME: write test
+  def test_assets
+    assert true
+    # sweep_cache (save) => remove asset folder
+    # render math ?
+  end
 end
