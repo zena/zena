@@ -360,7 +360,6 @@ class NodesController < ApplicationController
       when 'show'
         # show must have a 'path' parameter
         if params[:lang] || (params[:prefix] != prefix && format_changes_lang) || params[:path] != zen_path(@node, :format=>params[:format], :mode=>params[:mode], :asset=>params[:asset]).split('/')[2..-1]
-          puts "===========\n#{params[:path].inspect}\n#{zen_path(@node, :format=>params[:format], :mode=>params[:mode], :asset=>params[:asset]).split('/')[2..-1].inspect}\n==========="
           redirect_url = zen_path(@node, :mode => params[:mode])
         elsif params[:mode] =~ /_edit/ && !@node.can_write?
           redirect_url = zen_path(@node, :format => params[:format], :asset => params[:asset])

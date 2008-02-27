@@ -3,12 +3,12 @@ paragraph:
     I live
     
     Here
-  res: "I"
+  res: "I live\n\n\n\tHere"
 
 bold:
   src: "some *black* cat"
-  res: "some \\em{black} cat"
+  res: "some \\bf{black} cat"
 
 italic:
-  src: "some *black* cat"
+  src: "some _black_ cat"
   res: "some \\em{black} cat"

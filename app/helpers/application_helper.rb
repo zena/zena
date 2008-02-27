@@ -269,6 +269,8 @@ latex_template = %q{
 
 \usepackage{amsmath}
 \usepackage{amsfonts}
+\usepackage{ulem}     % strikethrough (\sout{...})
+\usepackage{hyperref} % links
 
 
 % shortcuts
@@ -316,6 +318,7 @@ latex_template = %q{
   
   # Creates a link to the node referenced by zip (used by zazen)
   def make_link(opts)
+    # for latex refs, see http://www.tug.org/applications/hyperref/manual.html
     link_opts = {}
     if sharp = opts[:sharp]
       if sharp =~ /\[(.+?)\/(.*)\]/

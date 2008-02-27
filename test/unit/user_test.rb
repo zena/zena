@@ -6,16 +6,16 @@ class UserTest < ZenaTestUnit
     login(:tiger)
     secure!(Node) { nodes(:status) }
     secure!(Node) { nodes(:bird_jpg) }
-    assert_equal [], visitor.visited_node_ids
+    assert_equal [nodes_id(:status), nodes_id(:bird_jpg)], visitor.visited_node_ids
     login(:anon)
     secure!(Node) { nodes(:status) }
     secure!(Node) { nodes(:bird_jpg) }
-    assert_equal [], visitor.visited_node_ids
+    assert_equal [nodes_id(:status), nodes_id(:bird_jpg)], visitor.visited_node_ids
     with_caching do
       login(:tiger)
       secure!(Node) { nodes(:status) }
       secure!(Node) { nodes(:bird_jpg) }
-      assert_equal [], visitor.visited_node_ids
+      assert_equal [nodes_id(:status), nodes_id(:bird_jpg)], visitor.visited_node_ids
       login(:anon)
       secure!(Node) { nodes(:status) }
       secure!(Node) { nodes(:bird_jpg) }

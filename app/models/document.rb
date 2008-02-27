@@ -50,7 +50,8 @@ class Document < Page
       scope = self.scoped_methods[0] || {}
       klass = self
       hash  = hash.stringify_keys
-      if file = hash['c_file'] && file.respond_to?(:content_type)
+      file  = hash['c_file']
+      if file && file.respond_to?(:content_type)
         content_type = file.content_type
       elsif hash['c_content_type']
         content_type = hash['c_content_type']

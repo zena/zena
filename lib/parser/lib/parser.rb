@@ -13,7 +13,6 @@ module ParserModule
       folder = (opts[:current_folder] && opts[:current_folder] != '') ? opts[:current_folder][1..-1].split('/') : []
       src = src[1..-1] if src[0..0] == '/' # just ignore the 'relative' or 'absolute' tricks.
       url = (folder + src.split('/')).join('_')
-      
       if test = @strings[url]
         return [test['src'], url.split('_').join('/')]
       else

@@ -1058,17 +1058,18 @@ class Node < ActiveRecord::Base
     # TODO: expire only 'dev' rendering if version is a redaction
     CachedPage.expire_with(self) if self.kind_of?(Template)
     
-    # element caching and full result cache
-    #return unless Cache.perform_caching
+    # Clear element cache
     Cache.sweep(:visitor_id=>self[:user_id], :visitor_groups=>[rgroup_id, wgroup_id, pgroup_id], :kpath=>self.vclass.kpath)
-    return unless !current_site.authentication? && (self.public? || old.public?) # is/was visible to anon user
+    
+    # Clear full result cache
+    
     # we want to be sure to find the project and parent, even if the visitor does not have an
     # access to these elements.
     # FIXME: use self + modified relations instead of parent/project
     [self, self.project(false), self.section(false), self.parent(false)].compact.uniq.each do |obj|
       # destroy all pages from project, parent and section !
       CachedPage.expire_with(obj)
-      # this is destroys less cache but might miss things like 'changes in project' that are displayed on every page.
+      # this destroys less cache but might miss things like 'changes in project' that are displayed on every page.
       # CachedPage.expire_with(self, [self[:project_id], self[:section_id], self[:parent_id]].compact.uniq)
     end
   end

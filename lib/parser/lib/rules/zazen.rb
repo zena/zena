@@ -30,9 +30,7 @@ module Zazen
           @text = RedCloth.new(@blocks).to_html
         when 'latex'
           # replace RedCloth markup by latex equivalent
-          @text.gsub!(/<p>(.*?)<\/p>/, '\1')
-          @text.gsub!(/<strong>(.*?)<\/strong>/, '\em{\1}')
-          @text.gsub!(/<strong>(.*?)<\/strong>/, '\em{\1}')
+          @text = RedCloth.new(@blocks).to_latex
         end
         
         # Replace placeholders by their real values

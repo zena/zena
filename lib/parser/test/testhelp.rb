@@ -40,7 +40,6 @@ class Test::Unit::TestCase
       @@test_files.each do |tf|
         @@test_methods[tf].each do |test|
           unless tests.include?("test_#{tf}_#{test}")
-            puts "ERROR: already defined test #{tf}.yml #{test}}" if tests.include?("test_#{tf}_#{test}")
             tests << "test_#{tf}_#{test}"
             class_eval <<-END
               def test_#{tf}_#{test}
