@@ -54,7 +54,7 @@ class CachedPage < ActiveRecord::Base
   cattr_accessor :perform_caching
   attr_accessor  :content_data, :content_path, :expire_with_ids
   validate       :cached_page_valid
-  #before_create  :clear_same_path # should not be necessary
+  before_create  :clear_same_path
   after_save     :cached_page_after_save
   before_destroy :cached_page_on_destroy
   
@@ -92,7 +92,7 @@ class CachedPage < ActiveRecord::Base
   
   private
     def clear_same_path
-      # in case the file was removed by hand, clear
+      # in case the file was removed by hand or someting weird happened (see #166), clear
       CachedPage.connection.execute "DELETE cached_pages_nodes FROM cached_pages_nodes, cached_pages WHERE cached_pages_nodes.cached_page_id = cached_pages.id AND cached_pages.path = #{CachedPage.connection.quote(self[:path])} AND cached_pages.site_id = #{visitor.site[:id]}"
       CachedPage.connection.execute "DELETE FROM cached_pages WHERE cached_pages.path = #{CachedPage.connection.quote(self[:path])} AND cached_pages.site_id = #{visitor.site[:id]}"
     end
