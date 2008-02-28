@@ -54,7 +54,7 @@ class CachedPage < ActiveRecord::Base
   cattr_accessor :perform_caching
   attr_accessor  :content_data, :content_path, :expire_with_ids
   validate       :cached_page_valid
-  before_create  :clear_same_path
+  #before_create  :clear_same_path # should not be necessary
   after_save     :cached_page_after_save
   before_destroy :cached_page_on_destroy
   
@@ -126,6 +126,5 @@ class CachedPage < ActiveRecord::Base
       CachedPage.logger.info "remove #{filepath}"
       FileUtils::rm(filepath) if File.exist?(filepath)
       CachedPage.connection.execute "DELETE FROM cached_pages_nodes WHERE cached_page_id = '#{id}'"
-      CachedPage.logger.info "done... #{filepath}"
     end
 end
