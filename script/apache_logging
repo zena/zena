@@ -1,0 +1,25 @@
+#!/usr/bin/env ruby
+
+require File.join(File.dirname(__FILE__), '../lib/log_recorder/lib/log_recorder')
+
+# start with :
+# apache_logging 'vhost.com' 'config/database.yml'
+vhost_name  = ARGV[0] || 'test.host'
+config_path = ARGV[1] || File.open(File.dirname(__FILE__) + '/../config/database.yml')
+
+config = {}
+
+YAML::load_documents( config_path ) do |doc|
+  doc.each do |elem|
+    next unless elem[0] == 'development'
+    config = elem[1]
+  end
+end
+
+rec = LogRecorder.new(vhost_name, config)
+
+rec.test
+
+#$stdin.each do |l|
+#  rec.insert_combined_record()
+#end
