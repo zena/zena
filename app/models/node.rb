@@ -736,7 +736,7 @@ class Node < ActiveRecord::Base
   
   
   # Return the same basepath as the parent. Is overwriten by 'Page' class.
-  def basepath(rebuild=false)
+  def basepath(rebuild=false, update= true)
     if !self[:basepath] || rebuild
       if self[:parent_id]
         parent = parent(false)
@@ -744,14 +744,14 @@ class Node < ActiveRecord::Base
       else
         path = ''
       end
-      self.connection.execute "UPDATE #{self.class.table_name} SET basepath='#{path}' WHERE id='#{self[:id]}'" if path != self[:basepath]
+      self.connection.execute "UPDATE #{self.class.table_name} SET basepath='#{path}' WHERE id='#{self[:id]}'" if path != self[:basepath] && update
       self[:basepath] = path
     end
     self[:basepath]
   end
 
   # Return the full path as an array if it is cached or build it when asked for.
-  def fullpath(rebuild=false)
+  def fullpath(rebuild=false, update = true)
     if !self[:fullpath] || rebuild
       if parent = parent(false)
         path = parent.fullpath(rebuild).split('/') + [name.gsub("'",'')]
@@ -759,7 +759,7 @@ class Node < ActiveRecord::Base
         path = []
       end
       path = path.join('/')
-      self.connection.execute "UPDATE #{self.class.table_name} SET fullpath='#{path}' WHERE id='#{self[:id]}'" if path != self[:fullpath]
+      self.connection.execute "UPDATE #{self.class.table_name} SET fullpath='#{path}' WHERE id='#{self[:id]}'" if path != self[:fullpath] && update
       self[:fullpath] = path
     end  
     self[:fullpath]
@@ -1141,8 +1141,13 @@ class Node < ActiveRecord::Base
   
   private
     def node_before_validation
+      
       # remove cached fullpath
-      self[:fullpath] = nil
+      if new_record? || self[:name] != old[:name] || self[:parent_id] != old[:parent_id]
+        self[:fullpath] = self.fullpath(true,false)
+      elsif !new_record? && self[:custom_base] != old[:custom_base]
+        self[:basepath] = self.basepath(true,false)
+      end
 
       # make sure section is the same as the parent
       if self[:parent_id].nil?

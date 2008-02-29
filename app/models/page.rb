@@ -14,11 +14,11 @@ class Page < Node
   # url base path. If a node is in 'projects' and projects has custom_base set, the
   # node's basepath becomes 'projects', so the url will be 'projects/node34.html'.
   # The basepath is cached. If rebuild is set to true, the cache is updated.
-  def basepath(rebuild=false)
+  def basepath(rebuild=false, update = true)
     if !self[:basepath] || rebuild
       if self[:custom_base]
-        path = fullpath(rebuild)
-        self.connection.execute "UPDATE #{self.class.table_name} SET basepath='#{path}' WHERE id='#{self[:id]}'" if path != self[:basepath]
+        path = fullpath(rebuild, update)
+        self.connection.execute "UPDATE #{self.class.table_name} SET basepath='#{path}' WHERE id='#{self[:id]}'" if path != self[:basepath] && update
         self[:basepath] = path
       else
         super
