@@ -276,7 +276,7 @@ class User < ActiveRecord::Base
   def comments_to_publish
     if id == 2
       # su can view all
-      secure(Comment) { Comment.find_all_by_status(Zena::Status[:prop]) }
+      secure(Comment) { Comment.find(:all, :conditions => "status = '#{Zena::Status[:prop]}'") }
     else
       secure(Comment) { Comment.find(:all, :select=>'comments.*, nodes.name', :from=>'comments, nodes, discussions',
                    :conditions=>"comments.status = #{Zena::Status[:prop]} AND discussions.node_id = nodes.id AND comments.discussion_id = discussions.id AND nodes.pgroup_id IN (#{group_ids.join(',')})") }
@@ -287,7 +287,7 @@ class User < ActiveRecord::Base
   def to_publish
     if is_su?
       # su can view all
-      secure(Version) { Version.find_all_by_status(Zena::Status[:prop]) }
+      secure(Version) { Version.find(:all, :conditions => "status = '#{Zena::Status[:prop]}'") }
     else
       secure(Version) { Version.find_by_sql("SELECT versions.* FROM versions LEFT JOIN nodes ON node_id=nodes.id WHERE status=#{Zena::Status[:prop]} AND nodes.pgroup_id IN (#{group_ids.join(',')})") }
     end
@@ -297,9 +297,9 @@ class User < ActiveRecord::Base
   def redactions
     if is_su?
       # su is master of all
-      secure(Version) { Version.find_all_by_status(Zena::Status[:red]) }
+      secure(Version) { Version.find(:all, :conditions => "status = '#{Zena::Status[:red]}'") }
     else
-      secure(Version) { Version.find_all_by_user_id_and_status(id,Zena::Status[:red]) }
+      secure(Version) { Version.find(:all, :conditions => "status = '#{Zena::Status[:red]}' AND user_id = '#{id}'") }
     end
   end
   
@@ -307,9 +307,9 @@ class User < ActiveRecord::Base
   def proposed
     if is_su?
       # su is master of all
-      secure(Version) { Version.find_all_by_status(Zena::Status[:prop]) }
+      secure(Version) { Version.find(:all, :conditions => "status = '#{Zena::Status[:prop]}'") }
     else
-      secure(Version) { Version.find_all_by_user_id_and_status(id,Zena::Status[:prop]) }
+      secure(Version) { Version.find(:all, :conditions => "status = '#{Zena::Status[:prop]}' AND user_id = '#{id}'") }
     end
   end
   

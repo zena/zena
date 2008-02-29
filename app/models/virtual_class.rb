@@ -25,7 +25,7 @@ class VirtualClass < ActiveRecord::Base
   end
   
   # TODO avoid duplicating has_relations here...
-  def find_all_relations(start=nil)
+  def all_relations(start=nil)
     rel_as_source = Relation.find(:all, :conditions => ["site_id = ? AND source_kpath IN (?)", current_site[:id], split_kpath])
     rel_as_target = Relation.find(:all, :conditions => ["site_id = ? AND target_kpath IN (?)", current_site[:id], split_kpath])
     rel_as_source.each {|rel| rel.source = start } if start

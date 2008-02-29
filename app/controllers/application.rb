@@ -301,6 +301,7 @@ END_MSG
         @expire_with_nodes = {}
         @renamed_assets    = {}
         
+        # where is the session stored in rails 2.0 ?
         response.template.instance_variable_set(:@session, session)
         skin_helper = response.template
         # [1..-1] = drop leading '/' so find_template_document searches in the current skin first

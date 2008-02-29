@@ -64,7 +64,7 @@ class DataEntry < ActiveRecord::Base
   
   def nodes
     ids = NodeLinkSymbolsId.map { |s| self[s] }.compact.uniq
-    secure!(Node) { Node.find_all_by_id(ids) }
+    secure!(Node) { Node.find(:all, :conditions => "id IN ('#{ids.join("','")}')") }
   end
   
   def ref_node

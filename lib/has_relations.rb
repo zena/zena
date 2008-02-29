@@ -69,7 +69,7 @@ module Zena
       end
 =end
       
-      def find_all_relations(start=nil)
+      def all_relations(start=nil)
         rel_as_source = Relation.find(:all, :conditions => ["site_id = ? AND source_kpath IN (?)", current_site[:id], split_kpath])
         rel_as_target = Relation.find(:all, :conditions => ["site_id = ? AND target_kpath IN (?)", current_site[:id], split_kpath])
         rel_as_source.each {|rel| rel.source = start } if start
@@ -489,18 +489,18 @@ module Zena
         @relations_to_update << [:add, [role, value]]
       end
       
-      def find_all_relations
-        @all_relations ||= self.vclass.find_all_relations(self)
+      def all_relations
+        @all_relations ||= self.vclass.all_relations(self)
       end
 
       def relations_for_form
-        find_all_relations.map {|r| [r.other_role.singularize, r.other_role]}
+        all_relations.map {|r| [r.other_role.singularize, r.other_role]}
       end
       
       # List the links, grouped by role
       def relation_links
         res = []
-        find_all_relations.each do |relation|
+        all_relations.each do |relation|
           #if relation.record_count > 5
           #  # FIXME: show message ?
           #end

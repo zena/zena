@@ -793,8 +793,8 @@ class Node < ActiveRecord::Base
   #   self[:score]
   # end
   
-  def find_all_relations
-    @all_relations ||= self.vclass.find_all_relations(self)
+  def all_relations
+    @all_relations ||= self.vclass.all_relations(self)
   end
   
   # Find parent
@@ -891,7 +891,7 @@ class Node < ActiveRecord::Base
   DataEntry::NodeLinkSymbols.each do |sym|
     class_eval "def #{sym.to_s.gsub('node', 'data')}
       return [] if new_record?
-      DataEntry.find_all_by_#{sym}_id(self[:id])
+      DataEntry.find(:all, :conditions=>\"#{sym}_id = '\#{self[:id]}'\")
     end"
   end
   
@@ -1142,11 +1142,16 @@ class Node < ActiveRecord::Base
   private
     def node_before_validation
       
-      # remove cached fullpath
-      if new_record? || self[:name] != old[:name] || self[:parent_id] != old[:parent_id]
-        self[:fullpath] = self.fullpath(true,false)
-      elsif !new_record? && self[:custom_base] != old[:custom_base]
-        self[:basepath] = self.basepath(true,false)
+      # set name from version title if name not set yet
+      self.name = version[:title] unless self[:name]
+      
+      if self[:name]
+        # update cached fullpath
+        if new_record? || self[:name] != old[:name] || self[:parent_id] != old[:parent_id]
+          self[:fullpath] = self.fullpath(true,false)
+        elsif !new_record? && self[:custom_base] != old[:custom_base]
+          self[:basepath] = self.basepath(true,false)
+        end
       end
 
       # make sure section is the same as the parent
@@ -1161,8 +1166,6 @@ class Node < ActiveRecord::Base
         # bad parent will be caught later.
       end
 
-      # set name from version title if name not set yet
-      self.name = version[:title] unless self[:name]
       
       if !new_record? && self[:parent_id]
         # node updated and it is not the root node
