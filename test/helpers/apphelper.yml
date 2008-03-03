@@ -10,3 +10,9 @@ default:
 calendar_from_project:
   tem: "<%= calendar(:node=>@node, :date=>Date.civil(2006,10,03), :size=>'tiny', :using=>'log_at', :relations=>['notes', 'news']) %>"
   res: "/October 2006.*<td><em>3<\/em><\/td>/"
+
+img_tag_use_icon:
+  context:
+    node: 'wiki'
+  tem: "<%= img_tag(@node, :alt_src => 'icon') %>"
+  res: "<img src='/en/image30.jpg' width='660' height='600' alt='bird' class='full'/>"
