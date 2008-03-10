@@ -1863,7 +1863,7 @@ END_TXT
           
           if trans
             if static
-              value = ["'#{_(value)}'"]     # array so it is not escaped on render
+              value = ["'#{_(value)}'"]            # array so it is not escaped on render
             else
               value = ["'<%= _(\"#{value}\") %>'"] # array so it is not escaped on render
             end
@@ -1937,7 +1937,7 @@ END_TXT
       end
       
       if @context[:in_add]
-        res[:value] = (params[:value] || params[:set_value]) ? "'#{params[:value]}'" : "''"
+        res[:value] = (params[:value] || params[:set_value]) ? ["'#{params[:value]}'"] : ["''"]
       else
         res[:value] = attribute ? ["'<%= #{node_attribute(attribute)} %>'"] : ["''"]
       end
