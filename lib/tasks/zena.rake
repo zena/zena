@@ -214,8 +214,8 @@ namespace :zena do
   end
   
   Rake::RDocTask.new do |rdoc|
-       files = ['README', 'doc/README_FOR_APP', 'CREDITS', 'TODO', 'LICENSE', 'app/**/*.rb', 
-                'lib/**/*.rdoc']
+       files = ['README', 'doc/README_FOR_APP', 'CREDITS', 'MIT-LICENSE', 'app/**/*.rb', 
+                'lib/**/*.rb']
        rdoc.rdoc_files.add(files)
        rdoc.main = "doc/README_FOR_APP" # page to start on
        rdoc.title = "Zena Documentation"
@@ -245,14 +245,15 @@ end
 
 
 # ============ GetText ================
-require 'gettext/utils'
 desc "Create mo-files for L10n" 
 task :makemo do
+  require 'gettext/utils'
   GetText.create_mofiles(true, "po", "locale")
 end
 
 desc "Update pot/po files to match new version." 
 task :updatepo do 
+  require 'gettext/utils'
   GetText::ActiveRecordParser.init(:use_classname => false, :db_mode => "development")
   GetText.update_pofiles('zena', Dir.glob("{app,lib}/**/*.{rb,rhtml,erb,rjs}"), Zena::VERSION::STRING)
 end
