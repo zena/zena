@@ -653,6 +653,13 @@ input_set_value:
   src: "<r:input type='hidden' name='icon_id' set_value='[main.id]'/>"
   tem: "<input name='node[icon_id]' type='hidden' value='<%= @node.zip %>'/>"
   res: "<input name='node[icon_id]' type='hidden' value='22'/>"
+
+input:
+  context:
+    node: 'ant'
+  src: "<r:input name='c_first_name'/>"
+  tem: "<input name='node[c_first_name]' type='text' value='<%= @node.c_zafu_read(\"first_name\") %>'/>"
+  res: "<input name='node[c_first_name]' type='text' value='Solenopsis'/>"
   
 add_btn:
   src: "<table do='pages' from='site' limit='1'>

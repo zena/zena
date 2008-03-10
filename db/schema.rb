@@ -4,6 +4,24 @@
 
 ActiveRecord::Schema.define(:version => 0) do
 
+  create_table "access_hits", :force => true do |t|
+    t.column "site_id",          :integer
+    t.column "node_id",          :integer
+    t.column "remote_host",      :string,   :limit => 50
+    t.column "request_time",     :datetime
+    t.column "request_duration", :integer
+    t.column "status",           :integer
+    t.column "bytes_sent",       :integer
+    t.column "request_method",   :string,   :limit => 6
+    t.column "request_uri",      :string
+    t.column "referer",          :string
+    t.column "agent",            :string
+    t.column "request_line",     :string
+    t.column "mode",             :string,   :limit => 30
+    t.column "format",           :string,   :limit => 10
+    t.column "lang",             :string,   :limit => 6
+  end
+
   create_table "bricks_info", :id => false, :force => true do |t|
     t.column "version", :integer
     t.column "brick",   :string
@@ -129,17 +147,15 @@ ActiveRecord::Schema.define(:version => 0) do
   end
 
   create_table "nodes", :force => true do |t|
-    t.column "name",         :string,   :limit => 200
     t.column "type",         :string,   :limit => 32
-    t.column "vclass_id",    :integer
-    t.column "kpath",        :string,   :limit => 16
     t.column "event_at",     :datetime
+    t.column "kpath",        :string,   :limit => 16
     t.column "created_at",   :datetime
     t.column "updated_at",   :datetime
     t.column "user_id",      :integer
-    t.column "parent_id",    :integer
-    t.column "project_id",   :integer
     t.column "section_id",   :integer
+    t.column "parent_id",    :integer
+    t.column "name",         :string,   :limit => 200
     t.column "skin",         :string
     t.column "inherit",      :integer
     t.column "rgroup_id",    :integer
@@ -155,7 +171,9 @@ ActiveRecord::Schema.define(:version => 0) do
     t.column "basepath",     :text
     t.column "site_id",      :integer
     t.column "zip",          :integer
+    t.column "project_id",   :integer
     t.column "position",     :float,                   :default => 1.0
+    t.column "vclass_id",    :integer
   end
 
   create_table "participations", :force => true do |t|
