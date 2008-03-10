@@ -219,4 +219,25 @@ class TemplateTest < ZenaTestUnit
     assert_nil doc.c_mode
     assert doc.update_attributes('v_text'=>"ho", 'c_format'=>'html', 'c_klass'=>'Node', 'c_mode' => '')
   end
+  
+  def test_default_text
+    doc = secure!(Template) { Template.create(:parent_id=>nodes_id(:layout), 'c_klass' => 'Contact', 'name' => '')}
+    assert_kind_of Template, doc
+    assert !doc.new_record?, "Saved"
+    assert_match %r{include.*Node}, doc.version.text
+  end
+  
+  def test_default_text_Node
+    doc = secure!(Template) { Template.create(:parent_id=>nodes_id(:layout), 'c_klass' => 'Node', 'name' => '')}
+    assert_kind_of Template, doc
+    assert !doc.new_record?, "Saved"
+    assert_match %r{xmlns.*www\.w3\.org.*body}m, doc.version.text
+  end
+  
+  def test_default_text_other_format
+    doc = secure!(Template) { Template.create(:parent_id=>nodes_id(:layout), 'c_format' => 'vcard', 'c_klass' => 'Node', 'name' => '')}
+    assert_kind_of Template, doc
+    assert !doc.new_record?, "Saved"
+    assert doc.version.text.blank?
+  end
 end
