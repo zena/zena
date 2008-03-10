@@ -623,7 +623,7 @@ latex_template = %q{
   
   def calendar(options={})
     if template_url = options[:template_url]
-      opts = eval_parameters_from_template_url(template_url).merge(options)
+      opts = (eval_parameters_from_template_url(template_url) || {}).merge(options)
     else
       opts = options
     end

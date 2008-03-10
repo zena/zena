@@ -14,7 +14,7 @@ Assumed:
 
 1. Copy the file 'deploy_config_example.rb' to 'deploy_config.rb' and edit the entries in this new file.
 2. Run => cap initial_setup
-3. Run => cap mksite -s host='example.com' -s pass='secret'
+3. Run => cap mksite -s host='example.com' -s pass='secret' -s lang='en'
 
 If anything goes wrong, ask the mailing list (lists.zenadmin.org) or read the content of this file to understand what went wrong...
 
@@ -115,7 +115,7 @@ end
 #========================== MANAGE HOST   =========================#
 desc "create a new site"
 task :mksite, :roles => :app do
-  run "#{in_current} rake zena:mksite HOST='#{self[:host]}' PASSWORD='#{self[:pass]}' RAILS_ENV='production' LANG='#{self[:default_lang] || 'en'}'"
+  run "#{in_current} rake zena:mksite HOST='#{self[:host]}' PASSWORD='#{self[:pass]}' RAILS_ENV='production' LANG='#{self[:lang] || 'en'}'"
   create_vhost
   set_permissions
 end

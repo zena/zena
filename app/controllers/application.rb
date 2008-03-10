@@ -286,6 +286,7 @@ END_MSG
       if !File.exists?(url) || params[:rebuild]
         # no template ---> render
         # clear :
+        # TODO: we should remove info in cached_page for _main
         FileUtils::rmtree(File.dirname(url))
         
         # set the places to search for the included templates
@@ -309,13 +310,41 @@ END_MSG
         
         if session[:dev] && mode != '*popupLayout'
           # add template edit buttons
-          used_nodes = @expire_with_nodes.merge(@renamed_assets)
-          div = "<div id='dev'><ul>" + used_nodes.map do |k,n| "<li>#{skin_helper.send(:node_actions, :node=>n)} #{skin_helper.send(:link_to,k,zen_path(n))}</li>"
-          end.join("") +
-          "<li><span class='actions'><a href='?rebuild=true'>#{_('rebuild')}</a></li>" +
-          "<li><span class='actions'><a href='/users/#{visitor[:id]}/swap_dev'>#{_('turn dev off')}</a></span></li>" +
-          "<li>(#{@skin_names.join(', ')})</li>"
-          res.sub!('</body>', "#{div}</body>")
+          used_nodes  = []
+          zafu_nodes  = []
+          image_nodes = []
+          asset_nodes = []
+          @expire_with_nodes.merge(@renamed_assets).each do |k, n|
+            if n.kind_of?(Image)
+              image_nodes << [k,n]
+            elsif n.kind_of?(Template)
+              zafu_nodes  << [k,n]
+            else
+              asset_nodes << [k,n]
+            end
+          end
+          used_nodes << ['zafu',    zafu_nodes] unless zafu_nodes.empty?
+          used_nodes << ['images', image_nodes] unless image_nodes.empty?
+          used_nodes << ['assets', asset_nodes] unless asset_nodes.empty?
+          
+          dev_box = "<div id='dev'><ul>\n"
+          used_nodes.each do |name, nodes|
+            dev_box << "  <li><a class='group' onclick='$(\"_dev_#{name}\").toggle();' href='#'>#{name}</a>\n"
+            dev_box << "  <table id='_dev_#{name}'#{name == 'images' ? " style='display:none;'" : ''}>\n"
+            nodes.each do |k,n|
+              dev_box << "    <tr><td class='actions'>#{skin_helper.send(:node_actions, :node=>n)}</td><td>#{skin_helper.send(:link_to,k,zen_path(n))}</td></tr>\n"
+            end
+            dev_box << "  </table>\n"
+            dev_box << "  </li>\n"
+          end
+          
+          dev_box << "  <li><a class='group' onclick='$(\"_dev_tools\").toggle();' href='#'>tools</a>\n"
+          dev_box << "    <ul id='_dev_tools'>\n"
+          dev_box << "      <li><a href='?rebuild=true'>#{_('rebuild')}</a></li>\n"
+          dev_box << "      <li><a href='/users/#{visitor[:id]}/swap_dev'>#{_('turn dev off')}</a></li>\n"
+          dev_box << "      <li>skins used: #{@skin_names.join(', ')}</li>\n"
+          dev_box << "    <ul>\n  </li>\n</ul></div>"
+          res.sub!('</body>', "#{dev_box}</body>")
         end
         
         secure!(CachedPage) { CachedPage.create(

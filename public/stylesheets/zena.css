@@ -45,6 +45,10 @@ ul.errors li { margin-left:0.4em; background:inherit; line-height:1.2em;}
 
 /* dev */
 #dev { background:#CABFA6; font-size:10px; position:fixed; bottom:5px; right:5px; 
-padding:5px; border:1px solid #714D3D; }
+padding:5px; border:1px solid #714D3D; text-align:left; color:#444;}
 #dev a { color:inherit; }
-#dev ul { margin:0; }
+#dev ul, #dev li { margin:0; padding:0; list-style:none; background:none; list-style-image:none;}
+#dev a.group { font-weight:bold; color:#222; display:block;}
+#dev td.actions {width:40px;}
+#dev li img { border:0; }
+#dev li li { clear:both;}
