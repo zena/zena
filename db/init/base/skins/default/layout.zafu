@@ -69,7 +69,7 @@
         <r:documents name='documents'><h3 class='group'>documents</h3>
           <ol>
             <li do='each' set_class='li_s[v_status]'><r:link format='data'><r:img mode='tiny'/></r:link> <r:link><r:show attr='name'/>.<r:show attr='c_ext'/></r:link></li>
-            <li do='add'><a href='#' do='void' set_onclick='uploader=window.open("/documents/new?parent_id=[id]", "uploader", "location=1,width=400,height=300");return false;' set_href='/documents/new?parent_id=[id]'><r:trans>btn_add_doc</r:trans></a></li>
+            <li do='add_document'></li>
           </ol>
         </r:documents>
         <r:pages name='pages'><h3 class='group'>pages</h3>

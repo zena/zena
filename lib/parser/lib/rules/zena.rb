@@ -808,6 +808,13 @@ END_TXT
       out "<a href='#' onclick='#{@context[:onclick]}'>#{text}</a>"
     end
     
+    # Show html to add open a popup window to add a document.
+    # TODO: inline ajax for upload ?
+    def r_add_document
+      return "<span class='parser_error'>[add_document] only works with nodes (not with #{node_class})</span>" unless node_kind_of?(Node)
+      "<% if #{node}.can_write? -%><a href='/documents/new?parent_id=<%= #{node}.zip %>' onclick='uploader=window.open(\"/documents/new?parent_id=<%= #{node}.zip %>\", \"upload\", \"width=400,height=300\");return false;'>#{_('btn_add_doc')}</a><% end -%>"
+    end
+    
     #if RAILS_ENV == 'test'
     #  def r_test
     #    inspect
