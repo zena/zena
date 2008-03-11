@@ -345,8 +345,6 @@ module Zazen
           else
             code_tag = '<code>'
           end
-          puts lang.inspect
-          puts Syntax::SYNTAX[lang].inspect
           if Syntax::SYNTAX[lang] != Syntax::Default && @context[:pretty_code]
             convertor = Syntax::Convertors::HTML.for_syntax(lang)
             "#{code_tag}#{convertor.convert( code, false ).gsub(/\n( *)/m) { "<br/>\n" + ('&nbsp;' * $1.length) }}</code>"

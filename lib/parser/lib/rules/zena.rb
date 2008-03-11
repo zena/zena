@@ -1581,7 +1581,7 @@ END_TXT
       # real class (Node, Version, ...)
       node_class = opts[:node_class] || self.node_class
       
-      if (each_block = descendant('each')) && (descendant('edit') || descendant('add') || (descendant('swap') && descendant('swap').parent.method != 'group'))
+      if (each_block = descendant('each')) && (descendant('edit') || descendant('add') || descendant('add_document') || (descendant('swap') && descendant('swap').parent.method != 'group'))
         # ajax, build template. We could merge the following code with 'r_group'.
         add_block  = descendant('add')
         form_block = descendant('form') || each_block
@@ -1620,7 +1620,7 @@ END_TXT
       else
         # no form, render, edit and add are not ajax
         if list_finder
-          if descendant('add')
+          if descendant('add') || descendant('add_document')
             out "<% if (#{list_var} = #{list_finder}) || (#{node}.can_write? && #{list_var}=[]) -%>"
           elsif list_finder != 'nil'
             out "<% if #{list_var} = #{list_finder} -%>"
