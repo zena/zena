@@ -319,3 +319,7 @@ bad_relation:
   src: "<div do='categories from site' do='each' join=', ' do='[name]'/>"
   tem: "/<% if nil -%>/"
   res: ""
+
+#icons_from_nodes_from_project:
+#  src: "<r:icons from='nodes' from='project' do='each' join=', ' do='[name]'/>"
+#  res: ""

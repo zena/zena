@@ -1,3 +1,4 @@
+=begin
 require File.dirname(__FILE__) + '/../test_helper'
 require 'documents_controller'
 
@@ -167,3 +168,4 @@ class DocumentsControllerTest < ZenaTestController
   #  assert_equal [["file", "file"], ["text_doc", "text_doc"]], @controller.send(:form_tabs)
   #end
 end
+=end

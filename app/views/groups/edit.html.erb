@@ -1,0 +1,5 @@
+<h3><%= _('group') %></h3>
+<table class="admin" cellspacing="0">
+  <tr><th class='nav' colspan='3'>&nbsp;</th></tr>
+  <tr id='group<%= @group[:id] %>'><%= render :partial=>'groups/form',  :group=>@group %></tr>
+</table>

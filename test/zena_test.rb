@@ -163,10 +163,6 @@ module Zena
         uploaded_file(fname, 'application/x-gzip', filename)
       end
 
-      # we have to overwrite the 'default_test' dummy because we use sub-classes
-      def default_test
-        assert true
-      end
     end
     
     module Unit
@@ -338,6 +334,12 @@ module Zena
     end
   end
 end
+
+class Test::Unit::TestCase
+  # we have to overwrite the 'default_test' dummy because we use sub-classes
+  undef default_test
+end
+
 class ZenaTestUnit < Test::Unit::TestCase
   include Zena::Test::Unit
   def setup; super; User.make_visitor(:host=>'test.host', :id=>users_id(:anon)); end

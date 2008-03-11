@@ -1,3 +1,4 @@
+=begin
 require File.dirname(__FILE__) + '/../test_helper'
 require 'comment_controller'
 
@@ -21,3 +22,4 @@ class CommentControllerTest < ZenaTestController
     assert true
   end
 end
+=end

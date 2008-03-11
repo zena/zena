@@ -1,3 +1,4 @@
+=begin
 require File.dirname(__FILE__) + '/../test_helper'
 require 'relations_controller'
 
@@ -55,3 +56,4 @@ class RelationsControllerTest < Test::Unit::TestCase
     assert_redirected_to relations_path
   end
 end
+=end

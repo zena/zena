@@ -1,3 +1,4 @@
+=begin
 require File.dirname(__FILE__) + '/../test_helper'
 require 'nodes_controller'
 
@@ -146,3 +147,4 @@ class NodesControllerTest < ZenaTestController
   # test edit_... mode only if can_edit?
   
 end
+=end

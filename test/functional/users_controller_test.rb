@@ -1,3 +1,4 @@
+=begin
 require File.dirname(__FILE__) + '/../test_helper'
 require 'users_controller'
 
@@ -57,3 +58,4 @@ class UsersControllerTest < ZenaTestController
     #end
   end
 end
+=end

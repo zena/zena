@@ -1,3 +1,4 @@
+=begin
 require File.dirname(__FILE__) + '/../test_helper'
 require 'note_controller'
 
@@ -58,3 +59,4 @@ class NoteControllerTest < ZenaTestController
     assert_equal Time.gm(2006,10,3,15,20), note.event_at
   end
 end
+=end

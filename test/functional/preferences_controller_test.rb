@@ -1,3 +1,4 @@
+=begin
 require File.dirname(__FILE__) + '/../test_helper'
 require 'preferences_controller'
 
@@ -17,3 +18,4 @@ class PreferencesControllerTest < ZenaTestController
     assert true
   end
 end
+=end

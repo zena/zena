@@ -1,3 +1,4 @@
+=begin
 require File.dirname(__FILE__) + '/../test_helper'
 require 'calendar_controller'
 
@@ -31,3 +32,4 @@ class CalendarControllerTest < ZenaTestController
   def test_date_selection
   end
 end
+=end

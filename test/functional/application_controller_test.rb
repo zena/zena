@@ -1,3 +1,4 @@
+=begin
 require File.dirname(__FILE__) + '/../test_helper'
 require 'application'
 
@@ -157,3 +158,4 @@ class ApplicationControllerTest < ZenaTestController
   # authorize tested in 'MainController' tests
   
 end
+=end

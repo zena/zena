@@ -1,3 +1,4 @@
+=begin
 require File.dirname(__FILE__) + '/../test_helper'
 require 'version_controller'
 
@@ -271,3 +272,4 @@ class VersionControllerTest < ZenaTestController
   # end
   
 end
+=end

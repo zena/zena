@@ -62,6 +62,12 @@ module ApplicationHelper
     link_to(title, url, options)
   end
   
+  # unobtrusive link_to_remote
+  def link_to_remote(name, options = {}, html_options = {})
+    html_options.merge!({:href => url_for(options[:url])}) unless options[:url].blank?
+    super(name, options, html_options)
+  end
+  
   # creates a pseudo random string to avoid browser side ajax caching
   def rnd
     Time.now.to_i

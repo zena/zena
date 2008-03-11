@@ -1,3 +1,4 @@
+=begin
 require File.dirname(__FILE__) + '/../test_helper'
 require 'search_controller'
 
@@ -47,3 +48,4 @@ class SearchControllerTest < ZenaTestController
     assert_equal [], assigns['results']
   end
 end
+=end

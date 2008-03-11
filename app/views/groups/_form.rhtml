@@ -8,8 +8,9 @@
 <td class='add' colspan='2'>
   <div class='errors'><%= error_messages_for(@group) %></div>
   <% if @group[:id] %>
-  <%= form_remote_tag(:url=> group_path(@group), :method => :put ) %>
+  <%= form_remote_tag(:url=> group_path(@group)) %>
   <%= hidden_field('group', 'id') %>
+  <input type='hidden' name='_method' value ='put'/>
   <% else %>
   <%= form_remote_tag(:url=> groups_path) %>
   <% end %>

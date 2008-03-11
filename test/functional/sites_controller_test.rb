@@ -1,3 +1,4 @@
+=begin
 require File.dirname(__FILE__) + '/../test_helper'
 require 'sites_controller'
 
@@ -16,3 +17,4 @@ class SitesControllerTest < Test::Unit::TestCase
     assert true
   end
 end
+=end
