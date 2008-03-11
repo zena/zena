@@ -1,7 +1,9 @@
 class GroupsController < ApplicationController
-  before_filter :find_group
   before_filter :check_is_admin
-  before_filter :get_users_list, :except => [:show, :update]
+  before_filter :find_group, :except => [:index, :new, :create]
+  before_filter :find_node
+  before_filter :get_users,  :except => [:show, :update]
+  before_filter :get_groups, :except => [:show, :update, :index]
   before_filter :filter_users_ids, :only => [:create, :update]
   layout :admin_layout
   
@@ -9,6 +11,10 @@ class GroupsController < ApplicationController
   end
   
   def edit
+    respond_to do |format|
+      format.html
+      format.js { render :partial => 'form' }
+    end
   end
   
   def index
@@ -32,27 +38,57 @@ class GroupsController < ApplicationController
     respond_to do |format|
       format.html do 
         if @group.errors.empty?
-          redirect_to(:action => 'show')
+          redirect_to :action => 'show'
         else
-          get_users_list
-          render(:action => 'edit')
+          get_users
+          get_groups
+          render :action => 'edit'
         end
       end
-      format.js   { render      :action => 'show' }
+      format.js { render :action => 'show' }
+    end
+  end
+  
+  def destroy
+    @group.destroy
+
+    respond_to do |format|
+      format.html do
+        if @group.errors.empty?
+          redirect_to :action => 'index' 
+        else
+          get_users
+          get_groups
+          render :action => 'edit'
+        end
+      end
+      format.js   do
+        render(:partial => 'form') unless @group.errors.empty?
+      end
+      format.xml  { head :ok }
     end
   end
   
   protected
     def find_group
       if params[:id]
-        raise ActiveRecord::RecordNotFound if params[:id] == visitor.site.public_group_id
+        if params[:id].to_i == visitor.site.public_group_id
+          params[:group].delete(:user_ids) if params[:group]
+        end
         @group = secure!(Group) { Group.find(params[:id]) }
       end
+    end
+    
+    def find_node
       @node = visitor.contact
     end
     
-    def get_users_list
-      @users = secure!(User) { User.find(:all, :conditions => "status >= #{User::Status[:reader]}", :order=>'login') }
+    def get_users
+      @users  = secure!(User)  { User.find(:all, :conditions => "status >= #{User::Status[:reader]}", :order=>'login') }
+    end
+    
+    def get_groups
+      @groups = secure!(Group) { Group.find(:all, :order=>'name') }
     end
     
     def filter_users_ids

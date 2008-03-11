@@ -29,7 +29,16 @@
         end.join(' ') %>
         <input type='hidden' name='group[user_ids][]' value=''/>
         </td></tr>
+      <% if !@group.new_record? -%>
+      <tr><td class='label'><%= _('replace by') %></td><td><%= select('group', 'replace_by', @groups.map{|g| [g[:name], g[:id]]} , {:include_blank => true}) %></td></tr>
+      <% end -%>
       <tr><td colspan='2'><input type='submit' class='btn_validate' value='<%= _('validate') %>'/></td></tr>
     </table>
   </form>
+  <% if !@group.new_record? && @group.can_destroy? -%>
+  <%= form_remote_tag(:url => group_path(@group), :confirm => _('Are you sure you want to destroy this group ?') ) %>
+  <input type='hidden' name='_method' value ='delete'/>
+  <p class='destroy'><%= _('destroy group') %> <input type='submit' value='<%= _('destroy') %>'></p>
+  </form>
+  <% end -%>
 </td>

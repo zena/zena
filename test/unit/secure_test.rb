@@ -339,13 +339,13 @@ class SecureCreateTest < ZenaTestUnit
     wiki = nodes(:wiki)
     attrs[:parent_id] = wiki[:id]
     # ant is in the 'site' group, all should be ok
-    attrs[:pgroup_id] = groups_id(:site)
+    attrs[:pgroup_id] = groups_id(:workers)
     z = secure!(Note) { Note.create(attrs) }
     assert ! z.new_record? , "Not a new record"
     assert z.errors.empty? , "No errors"
     assert_equal wiki[:rgroup_id], z[:rgroup_id] , "Same rgroup as parent"
     assert_equal wiki[:wgroup_id], z[:wgroup_id] , "Same wgroup as parent"
-    assert_equal groups_id(:site), z[:pgroup_id] , "New pgroup set"
+    assert_equal groups_id(:workers), z[:pgroup_id] , "New pgroup set"
   end
   
   # 4. validate +rw groups+ :
@@ -626,7 +626,7 @@ class SecureUpdateTest < ZenaTestUnit
   def test_reference_changed_rights_inherited
     login(:lion)
     node = secure!(Node) { nodes(:zena) }
-    assert node.update_attributes(:rgroup_id => groups_id(:site), :wgroup_id => groups_id(:site), :pgroup_id => groups_id(:site), :skin => "wiki")
+    assert node.update_attributes(:rgroup_id => groups_id(:workers), :wgroup_id => groups_id(:workers), :pgroup_id => groups_id(:workers), :skin => "wiki")
     node = secure!(Node) { nodes(:cleanWater) }
     assert node.update_attributes(:inherit => 0, :rgroup_id => groups_id(:admin), :wgroup_id => groups_id(:admin), :pgroup_id => groups_id(:admin), :skin => "default")
     node = secure!(Node) { nodes(:status) }
@@ -635,9 +635,9 @@ class SecureUpdateTest < ZenaTestUnit
     assert_equal groups_id(:admin), node.pgroup_id
     assert_equal "default", node.skin
     assert node.update_attributes(:parent_id => nodes_id(:people) )
-    assert_equal groups_id(:site), node.rgroup_id
-    assert_equal groups_id(:site), node.wgroup_id
-    assert_equal groups_id(:site), node.pgroup_id
+    assert_equal groups_id(:workers), node.rgroup_id
+    assert_equal groups_id(:workers), node.wgroup_id
+    assert_equal groups_id(:workers), node.pgroup_id
     assert_equal "wiki", node.skin
   end
   
@@ -952,7 +952,7 @@ class SecureUpdateTest < ZenaTestUnit
   def test_cannot_view_own_stuff_in_other_host
     # make 'whale' a cross site user
     User.connection.execute "INSERT INTO participations (user_id, site_id, status) VALUES (#{users_id(:whale)}, #{sites_id(:zena)}, 50)"
-    User.connection.execute "INSERT INTO groups_users (user_id, group_id) VALUES (#{users_id(:whale)}, #{groups_id(:site)})"
+    User.connection.execute "INSERT INTO groups_users (user_id, group_id) VALUES (#{users_id(:whale)}, #{groups_id(:workers)})"
     User.connection.execute "INSERT INTO groups_users (user_id, group_id) VALUES (#{users_id(:whale)}, #{groups_id(:public)})"
     login(:whale)
     visitor.site = sites(:ocean)

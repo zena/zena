@@ -165,7 +165,7 @@ class SiteTest < ZenaTestUnit
     site = sites(:zena)
     grp = site.site_group
     assert_kind_of Group, grp
-    assert_equal groups_id(:site), grp[:id]
+    assert_equal groups_id(:workers), grp[:id]
     
     site = sites(:ocean)
     grp = site.site_group

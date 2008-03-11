@@ -237,9 +237,9 @@ class UserTest < ZenaTestUnit
   def test_group_ids
     login(:ant)
     user = secure!(User) { users(:tiger) }
-    assert_equal [groups_id(:managers), groups_id(:public), groups_id(:site)], user.group_ids
+    assert_equal [groups_id(:managers), groups_id(:public), groups_id(:workers)], user.group_ids
     user = secure!(User) { users(:lion) }
-    assert_equal [groups_id(:admin), groups_id(:managers), groups_id(:public), groups_id(:site)], user.group_ids
+    assert_equal [groups_id(:admin), groups_id(:managers), groups_id(:public), groups_id(:workers)], user.group_ids
   end
   
   def test_add_to_site

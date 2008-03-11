@@ -69,6 +69,15 @@ class GroupsControllerTest < ZenaTestController
     assert_equal 'wowo', group.name
   end
   
+  def test_cannot_update_users_in_public_group
+    login(:lion)
+    put 'update', :id => groups_id(:public), :group=>{:user_ids=>[users_id(:ant)]}
+    assert_redirected_to :action => 'show'
+    group = assigns['group']
+    assert group.errors.empty?
+    assert_equal [users_id(:ant), users_id(:anon), users_id(:tiger), users_id(:lion)].sort, group.users.map{|u| u[:id]}.sort
+  end
+  
   def test_edit
     login(:lion)
     get 'edit', :id => groups_id(:public)
@@ -92,5 +101,19 @@ class GroupsControllerTest < ZenaTestController
   def test_show_not_admin
     get 'show', :id => groups_id(:workers)
     assert_response 404
+  end
+  
+  def test_destroy
+    login(:lion)
+    delete 'destroy', :id => groups_id(:managers)
+    assert_template 'edit'
+    group = assigns['group']
+    assert group.errors['base']
+    
+    post 'create', :group=>{:name=>'stupid', :user_ids=>[users_id(:ant), users_id(:tiger)]}
+    group = assigns['group']
+    delete 'destroy', :id => group[:id]
+    assert_redirected_to :action => 'index'
+    assert_nil Group.find(:first, :conditions => "id = #{group[:id]}")
   end
 end

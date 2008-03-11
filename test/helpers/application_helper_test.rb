@@ -87,7 +87,7 @@ class ApplicationHelperTest < ZenaTestHelper
   def test_data_path_for_non_public_documents
     login(:tiger)
     node = secure!(Node) { nodes(:water_pdf) }
-    assert node.update_attributes( :rgroup_id => groups_id(:site), :inherit => 0 )
+    assert node.update_attributes( :rgroup_id => groups_id(:workers), :inherit => 0 )
     assert !node.public?
     assert_equal "/oo/projects/cleanWater/document25.pdf", data_path(node)
     node = secure!(Node) { nodes(:status) }
