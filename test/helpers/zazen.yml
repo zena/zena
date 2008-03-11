@@ -38,6 +38,14 @@ at_code:
 spaces_on_first_lines:
   tem: "<%= zazen(\"This is a normal paragraphe. There are many phrases in this paragraphe and a forced line break\nhere. End of first paragraphe.\n\n This second paragraphe\n is space preserving\n la la           la la.\") %>"
   res: "<p>This is a normal paragraphe. There are many phrases in this paragraphe and a forced line break\n<br/>here. End of first paragraphe.</p>\n\n\n<pre>This second paragraphe\nis space preserving\nla la           la la.</pre>"
+  
+line_break_code:
+  tem: "<%= zazen(\"<code lang='ruby'>puts 'a'\nputs 'b'</code>\") %>"
+  res: "/puts[^\n]*a[^\n]*<br/>\n/"
+
+line_break_code_unknown_lang:
+  tem: "<%= zazen(\"<code lang='foobar'>puts 'a'\nputs 'b'</code>\") %>"
+  res: "!/puts[^\n]*a[^\n]*<br/>\n/"
 
 line_break_list:
   tem: "<%= zazen(\"first.\n\n* one\n* two\n\nsecond\") %>"
