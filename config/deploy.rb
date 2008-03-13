@@ -134,22 +134,42 @@ end
 desc "configure mongrel"
 task :mongrel_setup, :roles => :app do
   run "#{in_current} mongrel_rails cluster::configure -e production -p #{mongrel_port} -N #{mongrel_count} -c #{deploy_to}/current -P log/mongrel.pid -l log/mongrel.log -a 127.0.0.1 --user www-data --group www-data"
-  run "#{in_current} echo 'config_script: config/mongrel_upload_progress.conf\n' >> config/mongrel_cluster.yml"
+  run "#{in_current} echo 'config_script: config/mongrel_upload_progress.conf' >> config/mongrel_cluster.yml"
+end
+
+desc "Stop the drb upload_progress server"
+task :stop_upload_progress , :roles => :app do
+  run "#{in_current} ruby lib/upload_progress_server.rb stop"
+end
+
+desc "Start the drb upload_progress server"
+task :start_upload_progress , :roles => :app do
+  run "#{in_current} lib/upload_progress_server.rb start"
+end
+
+desc "Restart the upload_progress server"
+task :restart_upload_progress, :roles => :app do
+  stop_upload_progress
+  start_upload_progress
 end
 
 desc "Start mongrel"
 task :start, :roles => :app do
+  restart_upload_progress
   run "#{in_current} mongrel_rails cluster::start"
-end
-
-desc "Restart mongrel"
-task :restart, :roles => :app do
-  run "#{in_current} mongrel_rails cluster::restart"
 end
 
 desc "Stop mongrel"
 task :stop, :roles => :app do
+  stop_upload_progress
   run "#{in_current} mongrel_rails cluster::stop"
+end
+
+desc "Restart mongrel"
+task :restart, :roles => :app do
+  stop
+  restart_upload_progress
+  start
 end
 
 #========================== APACHE2 ===============================#

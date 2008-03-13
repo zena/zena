@@ -22,6 +22,8 @@ body {font: 0.9em Arial, Helvetica, Verdana, sans-serif; background:#BBC5CD; lin
 
 #ProgressBarContainer { position:absolute; margin:3px;}
 #ProgressBarContainer div { margin:0; }
+#loader { visibility:hidden; position:absolute;} 
+#loader img {float:left;}
 #notice, #error {padding:2px 8px;}
 #error  { background:#DDC8C8;border: 1px dotted #B57B7C;}
 #notice { background:#D8E0C7;border: 1px dotted #A8BA6E;}
@@ -142,7 +144,7 @@ ul.infos li { padding:0.4em 0.4em; list-style:none; display:block; }
 
 #links .group { text-align:left; background:#888; font-weight:bold; font-size:0.7em; height:0.5em;}
 #links .group span { background:#888; font-weight:normal;}
-#links .role { margin:inherit 0.5em; }
+#links .role { margin-left:0.5em; margin-right:0.5em; }
 #links .role select { width:10em; }
 #links .path { width:200px; text-align:left;}
 #links .actions { width:20px;}

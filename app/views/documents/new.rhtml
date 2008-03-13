@@ -15,15 +15,4 @@
 <%= javascript_start %>
 var current_tab = $('<%= partial[0] %>_tab');
 var current_sel = $('<%= partial[0] %>_sel');
-function select_tab(name) {
-  var obj = $(name+'_tab');
-  var obj_sel = $(name+'_sel');
-  current_tab.style.display = 'none';
-  current_sel.className = '';
-  current_tab = obj;
-  current_sel = obj_sel;
-  current_tab.style.display = '';
-  current_sel.className = 'selected';
-}
-new Form.Observer('node_form', 3, function(element,value){ opener.Zena.editor_preview(element,value)});
 <%= javascript_end %>

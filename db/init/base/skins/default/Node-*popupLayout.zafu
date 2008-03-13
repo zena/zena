@@ -13,12 +13,16 @@
 // <![CDATA[
   // for popup windows (do not reload page)
   var is_editor = true;
+  function popup_loaded() {
+    ; // dummy
+  }
 // ]]>
 </script>
   <r:uses_calendar/>
 </head>
 
-<body>
+<body onload='popup_loaded();'>
+  <div id='loader'><img src='/images/ajax-loader.gif'/> <r:trans text='uploading'/></div> 
   <div id="ProgressBarContainer">
   	<div id="ProgressBarShell" style="display:none;">
   		<div id="ProgressBar">

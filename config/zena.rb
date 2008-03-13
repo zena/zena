@@ -14,10 +14,15 @@ end
 ENABLE_LATEX = true && has_executable('pdflatex') # enable LateX post-rendering
 ENABLE_FOP   = true && has_executable('fop', 'xsltproc') # enable xsl-fo post-rendering
 ENABLE_MATH  = true && has_executable('latex', 'dvips', 'convert', 'gs')
-puts "** zena #{Zena::VERSION::STRING} r#{Zena::VERSION::REV} starting"
-puts " * LateX #{ENABLE_LATEX ? 'enabled' : 'disabled'}"
-puts " * fop   #{ENABLE_FOP ? 'enabled' : 'disabled'}"
-puts " * math  #{ENABLE_MATH ? 'enabled' : 'disabled'}"
+tools_enabled = {:Latex => ENABLE_LATEX, :fop => ENABLE_FOP, :math => ENABLE_MATH}.map{|k,v| v ? k : nil}.compact
+puts "** zena #{Zena::VERSION::STRING} r#{Zena::VERSION::REV} #{tools_enabled == [] ? '' : '('+tools_enabled.join(', ')+') '}starting"
+
+# test if DRB started 
+unless File.exist?(File.join(File.dirname(__FILE__), '..', 'log', 'upload_progress_drb.pid'))
+  puts "\n** WARNING: drb server not running. Upload progress will not work."
+  puts " * WARNING: you should start the drb server with 'lib/upload_progress_server.rb start'\n\n"
+end
+
 
 # FIXME: Remove ZENA_ENV, not needed anymore
 ZENA_ENV = {

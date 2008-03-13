@@ -441,6 +441,15 @@ Zena.draggable = function(dom_id, index, g, r, rE) {
     new Draggable(dom_id, {ghosting:g, revert:r});
   } else {
     new Draggable(dom_id, {ghosting:g, revert:r, reverteffect:rE});
-  }
-  
+  } 
+}
+
+
+Zena.select_tab = function(name) {
+  current_sel.className = '';
+  current_tab.style.display = 'none';
+  current_sel = $(name+'_sel');
+  current_tab = $(name+'_tab');
+  current_sel.className = 'selected';
+  current_tab.style.display = '';
 }
