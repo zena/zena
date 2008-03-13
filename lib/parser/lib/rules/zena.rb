@@ -394,7 +394,7 @@ module Zena
     end
     
     def r_title_for_layout
-      "<% if @title_for_layout -%><%= @title_for_layout %><% else -%>" +
+      "<% if @title_for_layout -%><%= @title_for_layout %><% elsif @node && !@node.new_record? -%><%= @node.rootpath %><% elsif @node.parent -%><%= @node.parent.rootpath %><% else -%>" +
       expand_with +
       "<% end -%>"
     end

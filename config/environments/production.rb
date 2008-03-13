@@ -10,6 +10,8 @@ config.cache_classes = true
 # Full error reports are disabled and caching is turned on
 config.action_controller.consider_all_requests_local = false
 config.action_controller.perform_caching             = true
+# FIXME: we could use 'undef' when rebuilding the template so that it's reloaded instead
+# of using cache_template_loading = false.
 config.action_view.cache_template_loading            = false # or zafu will not work !
 Cache.perform_caching                                = true
 CachedPage.perform_caching                           = true

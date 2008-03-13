@@ -134,6 +134,7 @@ end
 desc "configure mongrel"
 task :mongrel_setup, :roles => :app do
   run "#{in_current} mongrel_rails cluster::configure -e production -p #{mongrel_port} -N #{mongrel_count} -c #{deploy_to}/current -P log/mongrel.pid -l log/mongrel.log -a 127.0.0.1 --user www-data --group www-data"
+  run "#{in_current} echo 'config_script: config/mongrel_upload_progress.conf\n' >> config/mongrel_cluster.yml"
 end
 
 desc "Start mongrel"

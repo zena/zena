@@ -1,5 +1,12 @@
 class DocumentsController < ApplicationController
-  before_filter :find_node, :except => [ :file_form ]
+  session :off, :only => :upload_progress
+  before_filter :find_node, :except => [ :file_form, :upload_progress ]
+  
+  skip_before_filter :set_lang,      :only => :upload_progress
+  skip_before_filter :authorize,     :only => :upload_progress
+  skip_before_filter :check_lang,    :only => :upload_progress
+  skip_after_filter  :set_encoding,  :only => :upload_progress
+  
   layout :popup_layout
   
   
@@ -19,19 +26,9 @@ class DocumentsController < ApplicationController
     end
   end
   
-  # create a document (upload)
+  # create a document (direct upload). Used when javascript is disabled.
   def create
-    attrs = params['node']
-    attrs[:klass] ||= 'Document'
-    if attrs['c_file'].kind_of?(String)
-      attrs['c_file'] = StringIO.new(attrs['c_file'])
-      # StringIO
-      (class << attrs['c_file']; self; end;).class_eval do
-        define_method(:content_type) { '' }
-        define_method(:original_filename) { attrs['name'] || 'file.txt' }
-      end
-    end
-    @node = secure!(Document) { Document.create_node(attrs) }
+    create_document
     
     respond_to do |format|
       if @node.new_record?
@@ -44,7 +41,29 @@ class DocumentsController < ApplicationController
     end
   end
   
+  # Create a document with upload progression (upload in mongrel)
+  def upload
+    create_document
+    
+    responds_to_parent do # execute the redirect in the main window
+      render :update do |page|
+        page.call "UploadProgress.setAsFinished"
+        page.delay(1) do # allow the progress bar fade to complete
+          page.redirect_to document_url(@node[:zip])
+        end
+      end  
+    end
+  end
+  
+  def upload_progress
+    render :update do |page|
+      @status = Mongrel::Uploads.check(params[:upload_id])
+      page.upload_progress.update(@status[:size], @status[:received]) if @status
+    end
+  end
+  
   # TODO: test
+  # display an upload field.
   def file_form
     render :inline=>"<%= link_to_function(_('cancel'), \"['file', 'file_form'].each(Element.toggle);$('file_form').innerHTML = '';\")%><%= file_field 'node', 'c_file', :size=>15 %>"
     #respond_to do |format|
@@ -53,6 +72,7 @@ class DocumentsController < ApplicationController
   end
   
   # TODO: test
+  # display the image editor
   def crop_form
     respond_to do |format|
       format.js
@@ -70,6 +90,21 @@ class DocumentsController < ApplicationController
         # TODO: a better error message
         raise ActiveRecord::RecordNotFound
       end
+    end
+    
+    def create_document
+      attrs = params['node']
+      attrs['c_file'] = params['data'] if params['data'] # upload-progress needs 'data' as name
+      attrs[:klass] ||= 'Document'
+      if attrs['c_file'].kind_of?(String)
+        attrs['c_file'] = StringIO.new(attrs['c_file'])
+        # StringIO
+        (class << attrs['c_file']; self; end;).class_eval do
+          define_method(:content_type) { '' }
+          define_method(:original_filename) { attrs['name'] || 'file.txt' }
+        end
+      end
+      @node = secure!(Document) { Document.create_node(attrs) }
     end
 
 end

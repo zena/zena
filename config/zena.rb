@@ -1,4 +1,6 @@
+require 'rubygems'
 require 'date'
+require 'uuidtools'
 require "#{RAILS_ROOT}/config/version"
 AUTHENTICATED_PREFIX = "oo"
 SITES_ROOT = "#{RAILS_ROOT}/sites"

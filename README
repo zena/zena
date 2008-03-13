@@ -47,7 +47,13 @@ Manual deployment is done with the following commands:
 # rake zena:mksite HOST=example.com PASSWORD=secret RAILS_ENV=production
 
 == Start
-# script/server
+# ruby lib/upload_progress_server.rb start
+# script/server -S conf/mongrel_upload_progress.conf
+
+== Stop
+# ^C  (interrupt)
+# ruby lib/upload_progress_server.rb stop
+
 
 == Login
 You can now login with 'admin' and the password you used to make the site.
@@ -88,7 +94,7 @@ ImageMagick
     # make && make install
 
 === 3. Gems
-rake, mongrel, mongrel_cluster, rmagick, redcloth, syntax, gettext
+rake, mongrel, mongrel_cluster, rmagick, redcloth, syntax, gettext, mongrel_upload_progress, uuidtools, daemons
 
 === Advised tools
 monit (debian package to monitor your mongrel processes)

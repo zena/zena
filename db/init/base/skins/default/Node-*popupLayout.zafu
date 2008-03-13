@@ -7,8 +7,8 @@
   <meta http-equiv="Content-type" content="text/html; charset=utf-8" />
   <meta http-equiv="Content-Language" content="fr-fr" />
   
-  <r:stylesheets list='popup,zena,search'/>
-  <r:javascripts list='prototype,effects,dragdrop,zena'/>
+  <r:stylesheets list='popup,zena,search,upload-progress'/>
+  <r:javascripts list='prototype,effects,dragdrop,zena,upload-progress'/>
 <script type="text/javascript" charset="utf-8">
 // <![CDATA[
   // for popup windows (do not reload page)
@@ -18,12 +18,20 @@
   <r:uses_calendar/>
 </head>
 
-<body onLoad='popup_loaded();'>
-  <div id='loader'><img src='/images/ajax-loader.gif'/> <r:trans text='uploading'/></div>
+<body>
+  <div id="ProgressBarContainer">
+  	<div id="ProgressBarShell" style="display:none;">
+  		<div id="ProgressBar">
+  			<span id="ProgressBarText">...</span>
+  		</div>
+  	</div>
+  </div>
+  
   <div id='messages'>
   </div>
   
 <r:content_for_layout/>
 
+<iframe id="UploadIFrame" name="UploadIFrame" src="about:blank"></iframe>
 </body>
 </html>

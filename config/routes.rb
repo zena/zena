@@ -40,7 +40,8 @@ ActionController::Routing::Routes.draw do |map|
     
   end
   
-  map.resources :documents, :member => { :crop_form => :get, :file_form => :get }
+  map.resources :documents, :collection => { :upload    => :post, :upload_progress => :post }, 
+                            :member     => { :crop_form => :get,  :file_form       => :get  }
   
   map.resources :relations
   map.resources :virtual_classes
