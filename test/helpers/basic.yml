@@ -569,8 +569,7 @@ content_for_layout:
 
 title_for_layout:
   src: "<r:title_for_layout>blah blih</r:title_for_layout>"
-  tem: "<% if @title_for_layout -%><%= @title_for_layout %><% else -%>blah blih<% end -%>"
-  res: "blah blih"
+  res: "zena/projects/cleanWater/status"
 
 tada:
   context:
