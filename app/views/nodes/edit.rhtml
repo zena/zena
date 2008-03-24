@@ -1,7 +1,7 @@
 <div id='search'><%= search_box(:ajax => true) %></div>
 
 <div class='selector'>
-  <% (partial = form_tabs).each_index do |i| %><div id='<%= partial[i] %>_sel' <%= i == 0 ? "class='selected'" : "" %>><%= link_to_function(_(partial[i] + '_tab'), "select_tab('#{partial[i]}');") %></div><% end %>
+  <% (partial = form_tabs).each_index do |i| %><div id='<%= partial[i] %>_sel' <%= i == 0 ? "class='selected'" : "" %>><%= link_to_function(_(partial[i] + '_tab'), "Zena.select_tab('#{partial[i]}');") %></div><% end %>
 </div>
 
 <div class='tab'>
@@ -14,15 +14,5 @@
 <%= javascript_start %>
 var current_tab = $('<%= partial[0] %>_tab');
 var current_sel = $('<%= partial[0] %>_sel');
-function select_tab(name) {
-  var obj_tab = $(name+'_tab');
-  var obj_sel = $(name+'_sel');
-  current_tab.style.display = 'none';
-  current_sel.className = '';
-  current_tab = obj_tab;
-  current_sel = obj_sel;
-  current_tab.style.display = '';
-  current_sel.className = 'selected';
-}
 new Form.Observer('node_form', 3, function(element,value){ opener.Zena.editor_preview(element,value)});
 <%= javascript_end %>
