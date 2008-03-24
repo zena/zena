@@ -128,6 +128,15 @@ module Zena
         end
       end
       
+      # do we need recursion ?
+      inc = descendant('include')
+      if inc && inc.params[:part] == @name
+        @context["#{@name}_method".to_sym] = method_name = get_template_url[1..-1].gsub('/','_')
+        pre = "<% def #{method_name}(depth, node); return '' if depth > #{inc.params[:depth] ? [inc.params[:depth].to_i,30].min : 5}; _erbout = '' -%>"
+        post = "<% _erbout; end -%><%= #{method_name}(0,#{node}) %>"
+        @context[:node] = 'node'
+      end
+      
       if @context[:make_form]
         res = case method
         when :r_title
@@ -146,17 +155,17 @@ module Zena
           if node_kind_of?(DataEntry) && @method.to_s =~ /node_/
             # select node_id
             "<%= select_id('#{base_class.to_s.underscore}', '#{@method}_id') %>"
-          else
-            return super(method) # use normal rendering
           end
         end
         res =  "<#{@html_tag || 'div'} class='zazen'>#{res}</#{@html_tag || 'div'}>" if [:r_summary, :r_text].include?(sym)
-          
-        return res if res
       end
       
+      res = res || super(method)
       
-      super(method)
+      if pre
+        res = "#{pre}#{res}#{post}"
+      end
+      return res
     end
     
     
@@ -1275,6 +1284,15 @@ END_TXT
       out "<% #{cache} = Cache.with(visitor.id, visitor.group_ids, #{kpath.inspect}, #{helper.send(:lang).inspect}, #{context.inspect}) do capture do %>"
       out expand_with
       out "<% end; end %><%= #{cache} %>"
+    end
+    
+    # recursion
+    def r_include
+      return super if params[:template] || !params[:part]
+      part = params[:part].gsub(/[^a-zA-Z_]/,'')
+      method_name = @context["#{part}_method".to_sym]
+      return "<span class='parser_error'>[include] no parent named '#{part}'</span>" unless method_name
+      "<%= #{method_name}(depth+1,#{node}) %>"
     end
     
     # use all other tags as relations

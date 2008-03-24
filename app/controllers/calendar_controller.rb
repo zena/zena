@@ -18,7 +18,7 @@ class CalendarController < ApplicationController
   
     def get_options
       @node    = secure!(Node) { Node.find_by_zip(params[:id]) }
-      @options = eval_parameters_from_template_url
+      @options = eval_parameters_from_template_url || {}
       @options[:template_url] = params[:template_url]
       @date    = Date.parse(params[:date])
       @options[:using] ||= 'log_at'

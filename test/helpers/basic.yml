@@ -701,3 +701,7 @@ cannot_add_document:
     visitor: 'anon'
   src: "__<r:add_document/>__"
   res: "____"
+
+recursion:
+  src: "<r:void name='grp'><r:show attr='name'/><r:parent> -- <r:include part='grp'/></r:parent></r:void>"
+  res: "status -- cleanWater -- projects -- zena"

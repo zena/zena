@@ -2,7 +2,7 @@ require File.join(File.dirname(__FILE__) , 'zena')
 
 module Zafu
   module Tags
-    attr_accessor :html_tag, :html_tag_params
+    attr_accessor :html_tag, :html_tag_params, :name
     
     def replace_with(obj)
       super
