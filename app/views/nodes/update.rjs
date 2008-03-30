@@ -11,7 +11,7 @@ else
   elsif @update == 'attribute'
     attribute = params[:node].keys[0]
     if params[:zazen] == 'true'
-      page.replace_html params[:identifier], link_to_remote(_('edit'), {:url => edit_node_path(@node[:zip]) + "?attribute=#{attribute}&identifier=#{CGI.escape(params[:identifier])}&zazen=true", :method => :get}, {:class=>'ajax_edit'}) + zazen(params[:node][attribute])
+      page.replace_html params[:identifier], "<span class='zazen_edit'>" + link_to_remote(_('edit'), :url => edit_node_path(@node[:zip]) + "?attribute=#{attribute}&identifier=#{CGI.escape(params[:identifier])}&zazen=true", :method => :get) + "</span>" + zazen(params[:node][attribute])
     else
       page.replace_html params[:identifier], link_to_remote(params[:node][attribute], :url => edit_node_path(@node[:zip]) + "?attribute=#{attribute}&identifier=#{CGI.escape(params[:identifier])}", :method => :get)
     end

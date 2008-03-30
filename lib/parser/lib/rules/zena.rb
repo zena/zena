@@ -240,7 +240,7 @@ module Zena
       
       if @params[:edit] == 'true' && !['url','path'].include?(attribute)
         name = unique_name + '_' + attribute
-        "<% if #{node}.can_write? -%><span class='ajax_edit' id='#{name}.<%= #{node}.zip %>'>#{actions}<%= link_to_remote(#{attribute_method}, :url => edit_node_path(#{node}.zip) + \"?attribute=#{attribute}&identifier=#{CGI.escape(name)}.\#{#{node}.zip}\", :method => :get) %></span><% else -%>#{actions}<%= #{attribute_method} %><% end -%>"
+        "<% if #{node}.can_write? -%><span class='show_edit' id='#{name}.<%= #{node}.zip %>'>#{actions}<%= link_to_remote(#{attribute_method}, :url => edit_node_path(#{node}.zip) + \"?attribute=#{attribute}&identifier=#{CGI.escape(name)}.\#{#{node}.zip}\", :method => :get) %></span><% else -%>#{actions}<%= #{attribute_method} %><% end -%>"
       else
         "#{actions}<%= #{attribute_method} %>"
       end
@@ -271,7 +271,7 @@ module Zena
         name = unique_name + '_' + attribute
         edit_text = _('edit')
         @html_tag_params[:id] = ["'#{name}.<%= #{node}.zip %>'"]
-        res = "<%= #{node}.can_write? ? link_to_remote(#{edit_text.inspect}, {:url => edit_node_path(#{node}.zip) + \"?attribute=#{attribute}&identifier=#{CGI.escape(name)}.\#{#{node}.zip}&zazen=true\", :method => :get}, {:class=>'ajax_edit'}) : '' %>#{res}"
+        res = "<% if #{node}.can_write? -%><span class='zazen_edit'><%= link_to_remote(#{edit_text.inspect}, :url => edit_node_path(#{node}.zip) + \"?attribute=#{attribute}&identifier=#{CGI.escape(name)}.\#{#{node}.zip}&zazen=true\", :method => :get) %></span><% end -%>#{res}"
       else
         res
       end

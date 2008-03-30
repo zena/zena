@@ -18,6 +18,9 @@
 /* forms & form actions */
 .btn_add a { visibility:hidden; display:block; }
 .btn_add:hover a { visibility:visible; }
+.zazen_edit a { visibility:hidden; display:block; }
+.zazen_edit:hover a { visibility:visible; }
+textarea.ajax_edit { height:5em; width:15em;}
 .btn_x img { border:none;}
 .btn_x, .date_box { float:left; }
 
