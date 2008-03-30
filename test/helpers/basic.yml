@@ -423,7 +423,7 @@ if_or:
 
 if_or_same:
   src: "<r:if test='[d_foo]' test='[d_bar]'>hello</r:if>"
-  tem: "<% if !@node.version.dyn[\"foo\"].blank? || !@node.version.dyn[\"bar\"].blank? -%>hello<% end -%>"
+  tem: "/<% if !@node.version.dyn[\"foo\"].blank? || !@node.version.dyn[\"bar\"].blank? -%>hello<% end -%>|<% if !@node.version.dyn[\"bar\"].blank? || !@node.version.dyn[\"foo\"].blank? -%>hello<% end -%>/"
   res: ""
   
 simple_each:
