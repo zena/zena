@@ -240,8 +240,7 @@ module Zena
       
       if @params[:edit] == 'true' && !['url','path'].include?(attribute)
         name = unique_name + '_' + attribute
-        # TODO: add can_drive? or can_write? clauses.
-        "<span id='#{name}.<%= #{node}.zip %>'>#{actions}<%= link_to_remote(#{attribute_method}, :url => edit_node_path(#{node}.zip) + \"?attribute=#{attribute}&identifier=#{CGI.escape(name)}.\#{#{node}.zip}\", :method => :get) %></span>"
+        "<% if #{node}.can_write? -%><span class='ajax_edit' id='#{name}.<%= #{node}.zip %>'>#{actions}<%= link_to_remote(#{attribute_method}, :url => edit_node_path(#{node}.zip) + \"?attribute=#{attribute}&identifier=#{CGI.escape(name)}.\#{#{node}.zip}\", :method => :get) %></span><% else -%>#{actions}<%= #{attribute_method} %><% end -%>"
       else
         "#{actions}<%= #{attribute_method} %>"
       end
@@ -252,20 +251,29 @@ module Zena
       limit  = @params[:limit] ? ", :limit=>#{@params[:limit].to_i}" : ""
       if @context[:trans]
         # TODO: what do we do here with dates ?
-        "#{node_attribute(attribute)}"
+        return "#{node_attribute(attribute)}"
       elsif @params[:tattr]
-        "<%= zazen(_(#{node_attribute(attribute)})#{limit}, :node=>#{node}) %>"
+        return "<%= zazen(_(#{node_attribute(attribute)})#{limit}, :node=>#{node}) %>"
       elsif @params[:attr]
         if output_format == 'html'
-          "<%= zazen(#{node_attribute(attribute)}#{limit}, :node=>#{node}) %>"
+          res = "<%= zazen(#{node_attribute(attribute)}#{limit}, :node=>#{node}) %>"
         else
-          "<%= zazen(#{node_attribute(attribute)}#{limit}, :node=>#{node}, :output=>#{output_format.inspect}) %>"
+          return "<%= zazen(#{node_attribute(attribute)}#{limit}, :node=>#{node}, :output=>#{output_format.inspect}) %>"
         end
       elsif @params[:date]
         # date can be any attribute v_created_at or updated_at etc.
         # TODO format with @params[:format] and @params[:tformat] << translated format
       else
         # error
+      end
+      
+      if @params[:edit] == 'true' && !['url','path'].include?(attribute)
+        name = unique_name + '_' + attribute
+        edit_text = _('edit')
+        @html_tag_params[:id] = ["'#{name}.<%= #{node}.zip %>'"]
+        res = "<%= #{node}.can_write? ? link_to_remote(#{edit_text.inspect}, {:url => edit_node_path(#{node}.zip) + \"?attribute=#{attribute}&identifier=#{CGI.escape(name)}.\#{#{node}.zip}&zazen=true\", :method => :get}, {:class=>'ajax_edit'}) : '' %>#{res}"
+      else
+        res
       end
     end
     

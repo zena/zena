@@ -6,8 +6,13 @@ default:
 
 show_edit:
   src: "<r:show attr='name' edit='true'/>"
-  tem: "<span id='list_name.<%= @node.zip %>'><%= link_to_remote(@node.name, :url => edit_node_path(@node.zip) + \"?attribute=name&identifier=list_name.#{@node.zip}\", :method => :get) %></span>"
-  res: "/span id='list_name.22'>.*Ajax\.Request\('/nodes/22/edit\?attribute=name/"
+  tem: "<% if @node.can_write? -%><span class='ajax_edit' id='list_name.<%= @node.zip %>'><%= link_to_remote(@node.name, :url => edit_node_path(@node.zip) + \"?attribute=name&identifier=list_name.#{@node.zip}\", :method => :get) %></span><% else -%><%= @node.name %><% end -%>"
+  res: "/span class='ajax_edit' id='list_name.22'>.*Ajax\.Request\('/nodes/22/edit\?attribute=name/"
+
+zazen_edit:
+  src: "<r:zazen attr='name' edit='true'/>"
+  tem: "<div id='list_name.<%= @node.zip %>'><%= @node.can_write? ? link_to_remote(\"edit\", {:url => edit_node_path(@node.zip) + \"?attribute=name&identifier=list_name.#{@node.zip}&zazen=true\", :method => :get}, {:class=>'ajax_edit'}) : '' %><%= zazen(@node.name, :node=>@node) %></div>"
+  res: "/div id='list_name.22'>.*Ajax\.Request\('/nodes/22/edit\?attribute=name/"
 
 edit_not_each:
   src: "<li class='blah'>this is a post <r:edit>edit post</r:edit></li>"

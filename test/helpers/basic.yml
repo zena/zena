@@ -80,6 +80,11 @@ show_path:
   src: "<a do='void' set_href='[path]'>blah</a>"
   res: "<a href='/oo/projects/cleanWater/page22.html'>blah</a>"
 
+show_dyn_attribute:
+  src: "<r:show attr='d_assigned'/>"
+  tem: "<%= @node.version.dyn[\"assigned\"] %>"
+  res: "gaspard"
+
 trans:
   context:
     lang: 'fr'

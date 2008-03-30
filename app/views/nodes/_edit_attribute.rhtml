@@ -1,4 +1,13 @@
-<% remote_form_for(:node, @node, :url => node_path(@node[:zip]), :method => :put) do |f| -%>
-  <input type='hidden' class='hidden' name='identifier' value='<%= params[:identifier] %>'/>
-  <%= f.text_field(params[:attribute]) %>
+<% if params[:zazen] == 'true' -%>
+  <% remote_form_for(:node, @node, :url => node_path(@node[:zip]), :method => :put) do |f| -%>
+    <input type='hidden' class='hidden' name='identifier' value='<%= params[:identifier] %>'/>
+    <input type='hidden' class='hidden' name='zazen' value='true'/>
+    <%= f.text_area(params[:attribute]) %>
+    <input type='submit' text='<%= _('validate') %>'/>
+  <% end -%>
+<% else -%>
+  <% remote_form_for(:node, @node, :url => node_path(@node[:zip]), :method => :put) do |f| -%>
+    <input type='hidden' class='hidden' name='identifier' value='<%= params[:identifier] %>'/>
+    <%= f.text_field(params[:attribute]) %>
+  <% end -%>
 <% end -%>

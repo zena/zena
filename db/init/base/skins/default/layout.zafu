@@ -56,7 +56,7 @@
                 <r:trans>posted by</r:trans> <b do='author' do='show' attr='fullname'>Super Man</b>
               </r:when>
               <r:else>
-                <r:trans>original by</r:trans> <b do='author' do='show' attr='fullname'>Platon</b>
+                <r:trans>original by</r:trans> <b do='author'><r:show attr='fullname'>Platon</r:show></b>
                 <r:trans>modified by</r:trans> <b do='version' do='author' do='show' attr='fullname'>Socrate</b>
               </r:else>
             </r:case>
