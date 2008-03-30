@@ -1142,16 +1142,11 @@ class Node < ActiveRecord::Base
   private
     def node_before_validation
       
-      # set name from version title if name not set yet
-      self.name = version[:title] unless self[:name]
-      
-      if self[:name]
-        # update cached fullpath
-        if new_record? || self[:name] != old[:name] || self[:parent_id] != old[:parent_id]
-          self[:fullpath] = self.fullpath(true,false)
-        elsif !new_record? && self[:custom_base] != old[:custom_base]
-          self[:basepath] = self.basepath(true,false)
-        end
+      # remove cached fullpath
+      if new_record? || self[:name] != old[:name] || self[:parent_id] != old[:parent_id]
+        self[:fullpath] = self.fullpath(true,false)
+      elsif !new_record? && self[:custom_base] != old[:custom_base]
+        self[:basepath] = self.basepath(true,false)
       end
 
       # make sure section is the same as the parent
