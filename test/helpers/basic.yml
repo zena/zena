@@ -383,6 +383,10 @@ case_when_test_attribute:
 case_when_evil_test:
   src: "<r:case><r:when test='1 == == [id]'>one</r:when><r:when test='system == \"date\"'>two</r:when><r:else>three</r:else></r:case>"
   res: "three"
+
+if_test_equal:
+  src: "<r:if test='[id] == 22'>one</r:if>"
+  res: "one"
   
 case_ancestor:
   src: "<r:root><r:pages><r:each join=', '><r:case><r:when node='ancestor'><b><r:show attr='name'/></b></r:when><r:else><r:show attr='name'/></r:else></r:case></r:each></r:pages></r:root>"
@@ -412,6 +416,16 @@ if_in_tag:
   src: "<r:form><p do='if' in='form' do='[name]'/></r:form><i do='if' in='form' do='[name]'/>done."
   res: "/<p>status<\/p><\/form>done./"
 
+if_or:
+  src: "<r:if can='write' or_test='[d_foo]'>hello</r:if>"
+  tem: "/<% if @node.can_write? || !@node.version.dyn[\"foo\"].blank? -%>hello<% end -%>|<% if !@node.version.dyn[\"foo\"].blank? || @node.can_write? -%>hello<% end -%>/"
+  res: "hello"
+
+if_or_same:
+  src: "<r:if test='[d_foo]' test='[d_bar]'>hello</r:if>"
+  tem: "<% if !@node.version.dyn[\"foo\"].blank? || !@node.version.dyn[\"bar\"].blank? -%>hello<% end -%>"
+  res: ""
+  
 simple_each:
   src: "<r:children><r:each><r:show attr='name'/></r:each></r:children>"
   tem: "/.*if list1.*each.*var1.name/"

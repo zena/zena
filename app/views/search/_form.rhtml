@@ -4,7 +4,7 @@
   <% else -%>
   <%= form_tag( search_nodes_path, :method => :get ) %>
   <% end -%>
-  <div class='wrapper'><input type='text' accesskey='s' id='search_field' style="color:#aaa;" name='q' onfocus='this.style.color="black";this.value="";' value='<%= params[:q] || _('search field') %>'/></div>
+  <div class='wrapper'><input type='<%= type || 'text' %>' accesskey='s' id='search_field' style="color:#aaa;" name='q' onfocus='this.style.color="black";this.value="";' value='<%= params[:q] || _('search field') %>'/></div>
   </form>
   <% if ajax -%>
   <div id='search_loader' style='display:none;'><img alt='spinner' src='/images/ajax-loader.gif'/></div>

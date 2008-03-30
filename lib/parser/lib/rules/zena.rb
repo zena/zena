@@ -821,7 +821,9 @@ END_TXT
     # TODO: inline ajax for upload ?
     def r_add_document
       return "<span class='parser_error'>[add_document] only works with nodes (not with #{node_class})</span>" unless node_kind_of?(Node)
-      "<% if #{node}.can_write? -%><a href='/documents/new?parent_id=<%= #{node}.zip %>' onclick='uploader=window.open(\"/documents/new?parent_id=<%= #{node}.zip %>\", \"upload\", \"width=400,height=300\");return false;'>#{_('btn_add_doc')}</a><% end -%>"
+      @html_tag_params[:class] ||= 'btn_add'
+      res = "<a href='/documents/new?parent_id=<%= #{node}.zip %>' onclick='uploader=window.open(\"/documents/new?parent_id=<%= #{node}.zip %>\", \"upload\", \"width=400,height=300\");return false;'>#{_('btn_add_doc')}</a>"
+      "<% if #{node}.can_write? -%>#{render_html_tag(res)}<% end -%>"
     end
     
     #if RAILS_ENV == 'test'
@@ -1702,28 +1704,45 @@ END_TXT
     end
     
     def get_test_condition(node = self.node, params = @params)
-      if klass = params[:kind_of]
-        "#{node}.vkind_of?(#{klass.inspect})"
-      elsif klass = params[:klass]
-        begin Module::const_get(klass) rescue "NilClass" end
-        "#{node}.klass == #{klass.inspect}"
-      elsif status = params[:status]
-        "#{node}.version.status == #{Zena::Status[status.to_sym]}"
-      elsif lang = params[:lang]
-        "#{node}.version.lang == #{lang.inspect}"
-      elsif can  = params[:can]
-        # TODO: test
-        case can
-        when 'write', 'edit'
-          "#{node}.can_write?"
-        when 'drive', 'publish'
-          "#{node}.can_drive?"
+      tests = []
+      params.each do |k,v|
+        if k.to_s =~ /^(or_|)([a-zA-Z_]+)(\d*)$/
+          k = $2.to_sym
         end
-      elsif test = params[:test]  
-        if test =~ /\s/
-          value1, op, value2 = test.split(/\s+/)
+        if [:kind_of, :klass, :status, :lang, :can, :node, :in].include?(k)
+          tests << [k, v]
+        elsif k == :test
+          if v =~ /\s/
+            tests << [:test, v]
+          elsif v =~ /\[([^\]]+)\]/
+            tests << [:attribute, $1]
+          end
+        end
+      end
+      
+      tests.map! do |type,value|
+        case type
+        when :kind_of
+        "#{node}.vkind_of?(#{value.inspect})"
+        when :klass
+          klass = begin Module::const_get(value) rescue "NilClass" end
+          "#{node}.klass == #{value.inspect}"
+        when :status
+          "#{node}.version.status == #{Zena::Status[value.to_sym]}"
+        when :lang
+          "#{node}.version.lang == #{value.inspect}"
+        when :can
+          # TODO: test
+          case value
+          when 'write', 'edit'
+            "#{node}.can_write?"
+          when 'drive', 'publish'
+            "#{node}.can_drive?"
+          end
+        when :test
+          value1, op, value2 = value.split(/\s+/)
           allOK = value1 && op && value2
-          toi   = ( op =~ /\&/ )
+          toi   = ( op =~ /\&/ || (value1 =~ /^\d+$/ || value2 =~ /^\d+$/) )
           if ['==', '!=', '&gt;', '&gt;=', '&lt;', '&lt;='].include?(op)
             op = op.gsub('&gt;', '>').gsub('&lt;', '<')
           else
@@ -1745,38 +1764,36 @@ END_TXT
             end
           end
           allOK ? "#{value1} #{op} #{value2}" : nil
-        elsif test =~ /\[([^\]]+)\]/
-          '!' + node_attribute($1, :node => node) + '.blank?'
-        else
-          # bad test condition.
-          'false'
-        end
-      elsif node_cond = params[:node]
-        if node_kind_of?(Node)
-          case node_cond
-          when 'self'
-            "#{node}[:id] == @node[:id]"
-          when 'parent'
-            "#{node}[:id] == @node[:parent_id]"
-          when 'project'
-            "#{node}[:id] == @node[:section_id]"
-          when 'ancestor'
-            "@node.fullpath =~ /\\A\#{#{node}.fullpath}/"
+        when :attribute
+          '!' + node_attribute(value, :node => node) + '.blank?'
+        when :node
+          if node_kind_of?(Node)
+            case value
+            when 'self'
+              "#{node}[:id] == @node[:id]"
+            when 'parent'
+              "#{node}[:id] == @node[:parent_id]"
+            when 'project'
+              "#{node}[:id] == @node[:section_id]"
+            when 'ancestor'
+              "@node.fullpath =~ /\\A\#{#{node}.fullpath}/"
+            else
+              nil
+            end
           else
             nil
+          end  
+        when :in
+          if @context["in_#{value}".to_sym] || ancestors.include?(value)
+            'true'
+          else
+            'false'
           end
         else
           nil
-        end  
-      elsif in_tag = params[:in]
-        if @context["in_#{in_tag}".to_sym] || ancestors.include?(in_tag)
-          'true'
-        else
-          'false'
         end
-      else
-        nil
-      end
+      end.compact!
+      tests == [] ? nil : tests.join(' || ')
     end
     
     # Block visibility of descendance with 'do_list'.

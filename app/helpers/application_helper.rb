@@ -1158,7 +1158,7 @@ ENDTXT
   
   # TODO: test
   def search_box(opts={})
-    render_to_string(:partial=>'search/form', :locals => {:ajax => opts[:ajax]})
+    render_to_string(:partial=>'search/form', :locals => {:ajax => opts[:ajax], :type => opts[:type]})
   end
   
   private

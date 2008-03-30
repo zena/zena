@@ -10,3 +10,7 @@ default:
 add_in_each:
   src: "<r:pages><li do='each'><r:add/></li>"
   res: "/\[add\] should not be called from within 'each'/"
+
+if_bad_test:
+  src: "<r:if foo='bar'>lala</r:if>"
+  tem: "<span class='parser_error'>[if] condition error</span>"
