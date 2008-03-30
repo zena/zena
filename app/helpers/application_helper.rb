@@ -1137,7 +1137,7 @@ ENDTXT
         tag_in = tag_out = ''
       end
       res = []
-      visitor.site.lang_list.sort.each do |l|
+      visitor.site.lang_list.each do |l|
         if l == lang
           if opts[:wrap]
             res << "<#{opts[:wrap]} class='on'>#{l}" + tag_out
