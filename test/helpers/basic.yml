@@ -288,7 +288,7 @@ show_v_text:
 show_title_options:
   src: "<h1 class='title' do='title' status='true' actions='edit,publish'/>"
   tem: "/node_actions\(:node=>@node, .*:actions=>\"edit,publish\"/"
-  res: "/<h1 class='title'><div class='s50'><span id='v_title22'>status title</span><span class='actions'><a.*/nodes/22/versions/0/edit.*/images/page_edit.png'.*/></a>.*</span></div></h1>/"
+  res: "/<h1 class='title'><span class='s50'><span id='v_title22'>status title</span><span class='actions'><a.*/nodes/22/versions/0/edit.*/images/page_edit.png'.*/></a>.*</span></span></h1>/"
 
 show_c_width:
   context:
