@@ -26,7 +26,7 @@ class ContactContent < ActiveRecord::Base
   
   # Full contact name to show in views.
   def fullname
-    (!first_name.blank? && !name.blank?) ? (first_name + " " + name) : (first_name || name)
+    (!first_name.blank? && !name.blank?) ? (first_name + " " + name) : (first_name.blank? name : first_name)
   end
   
   # First letters of the first_name and the name in capitals (ex. GB).
