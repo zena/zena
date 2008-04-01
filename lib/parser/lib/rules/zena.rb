@@ -1761,7 +1761,7 @@ END_TXT
           if allOK
             value1, value2 = [value1, value2].map do |e|
               if e =~ /\[(\w+)\]/
-                v = node_attribute($1)
+                v = node_attribute($1, :node => node)
                 v = "#{v}.to_i" if toi
                 v
               elsif e == 'NOW'

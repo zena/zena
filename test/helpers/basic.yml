@@ -440,6 +440,13 @@ on_if_now:
   src: "<p do='[name]' on_if='[log_at] &gt; NOW'/>"
   tem: "<p<%= @node.log_at.to_i > Time.now.to_i ? \" class='on'\" : \"\" %>><%= @node.name %></p>"
   res: "<p>status</p>"
+
+test_in_each:
+  context:
+    node: 'cleanWater'
+  src: "<ul do='pages'><li do='each' on_if='[name] == track' do='[name]'/></ul>"
+  tem: "/var1.name == \"track\"/"
+  res: "<ul><li>status</li><li class='on'>track</li></ul>"
   
 simple_each:
   src: "<r:children><r:each><r:show attr='name'/></r:each></r:children>"
