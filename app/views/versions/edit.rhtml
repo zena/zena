@@ -17,7 +17,7 @@
     <div><%# FIXME = submit_to_remote('backup', _('backup'), :url=>{:action => 'backup', :controller=>'version', :id=>@node.v_id}, :loading=>"$('loader').style.visibility = 'visible';") %></div>
     <% end -%>
     <div><a href='#' onclick='uploader=window.open("<%= new_document_path(:parent_id=>@node[:zip])%>", "uploader", "location=1,width=400,height=300");uploader.opener = opener;return false;'><%= _('btn_add_document')%></a></div>
-    <% if @node.can_publish? %><div><small><%= _('publish') %> <input type='checkbox' name='node[v_status]' value='50'<%= params[:pub] ? " checked='checked'" : '' %>/></small></div><% end -%>
+    <% if @node.can_publish? && !visitor.site.auto_publish? %><div><small><%= _('publish') %> <input type='checkbox' name='node[v_status]' value='50'<%= params[:pub] ? " checked='checked'" : '' %>/></small></div><% end -%>
   </div>
   <div class='readers'>
   <p><%= readers_for(@node) %></p></div>
