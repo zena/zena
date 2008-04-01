@@ -39,7 +39,7 @@ var UploadProgress = {
     this.watcher = new PeriodicalExecuter(function() {
       if (!UploadProgress.uploading) { return ; }
       new Ajax.Request('/' + controller + '/upload_progress?upload_id=' + uuid) ;
-    }, 3) ;
+    }, 2) ;
   },
 
   update: function(total, current) {
