@@ -212,6 +212,7 @@ EXT_TYPE = [
   [ "xls"       , "application/vnd.ms-excel"       ],
   [ "xlw"       , "application/vnd.ms-excel"       ],
   [ "xml"       , "text/xml"                       ],
+  [ "xsl"       , "text/xml"                       ],
   [ "xslt"      , "text/xml"                       ],
   [ "xpm"       , "image/x-xpixmap"                ],
   [ "xwd"       , "image/x-xwindowdump"            ],

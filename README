@@ -48,7 +48,7 @@ Manual deployment is done with the following commands:
 
 == Start
 # ruby lib/upload_progress_server.rb start
-# script/server -S conf/mongrel_upload_progress.conf
+# script/server -S config/mongrel_upload_progress.conf
 
 == Stop
 # ^C  (interrupt)

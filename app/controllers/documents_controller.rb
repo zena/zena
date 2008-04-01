@@ -99,8 +99,13 @@ class DocumentsController < ApplicationController
       if attrs['c_file'].kind_of?(String)
         attrs['c_file'] = StringIO.new(attrs['c_file'])
         # StringIO
+        if attrs['name'] =~ /^.*\.(\w+)$/ && types = EXT_TO_TYPE[$1]
+          content_type = types[0]
+        else
+          content_type = ''
+        end
         (class << attrs['c_file']; self; end;).class_eval do
-          define_method(:content_type) { '' }
+          define_method(:content_type) { content_type }
           define_method(:original_filename) { attrs['name'] || 'file.txt' }
         end
       end

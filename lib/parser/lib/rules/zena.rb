@@ -1333,7 +1333,7 @@ END_TXT
     # Prepare stylesheet and xml content for xsl-fo post-processor
     def r_fop
       return "<span class='parser_error'>[fop] missing 'stylesheet' argument</span>" unless @params[:stylesheet]
-      # 1. get stylesheet text
+      # get stylesheet text
       xsl_content, absolute_url, doc = self.class.get_template_text(@params[:stylesheet], @options[:helper], @options[:current_folder])
       return "<span class='parser_error'>[fop] stylesheet #{@params[:stylesheet].inspect} not found</span>" unless xsl_content
       
