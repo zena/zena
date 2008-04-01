@@ -1398,9 +1398,8 @@ END_TXT
       
       res = "#{node}.do_find(#{count.inspect}, \"#{sql_query}\"#{sql_query =~ /#{node}/ ? '' : ', true'})" # regexp to see if node is used. If not, we can ignore the source (use query even if #{node} is a new record).
       if params[:else]
-        sql_query = Node.build_find(count, query_parameters(params[:else], params))
-        if sql_query
-          "(#{res} || #{node}.do_find(#{count.inspect}, \"#{sql_query}\"))"
+        if else_query = build_finder_for(count, params[:else], params.dup.merge(:else=>nil))
+          "(#{res} || #{else_query})"
         end
       else
         res 
