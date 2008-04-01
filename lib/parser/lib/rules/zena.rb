@@ -1764,6 +1764,8 @@ END_TXT
                 v = node_attribute($1)
                 v = "#{v}.to_i" if toi
                 v
+              elsif e == 'NOW'
+                e = "Time.now.to_i"
               else
                 if toi
                   e.to_i

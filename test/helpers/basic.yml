@@ -430,6 +430,16 @@ if_or_same:
   src: "<r:if test='[d_foo]' test='[d_bar]'>hello</r:if>"
   tem: "/<% if !@node.version.dyn[\"foo\"].blank? || !@node.version.dyn[\"bar\"].blank? -%>hello<% end -%>|<% if !@node.version.dyn[\"bar\"].blank? || !@node.version.dyn[\"foo\"].blank? -%>hello<% end -%>/"
   res: ""
+
+if_now:
+  src: "<r:if test='[log_at] &gt; NOW'>future<r:else>past</r:else></r:if>"
+  tem: "<% if @node.log_at.to_i > Time.now.to_i -%>future<% elsif true -%>past<% end -%>"
+  res: "past"
+
+on_if_now:
+  src: "<p do='[name]' on_if='[log_at] &gt; NOW'/>"
+  tem: "<p<%= @node.log_at.to_i > Time.now.to_i ? \" class='on'\" : \"\" %>><%= @node.name %></p>"
+  res: "<p>status</p>"
   
 simple_each:
   src: "<r:children><r:each><r:show attr='name'/></r:each></r:children>"
