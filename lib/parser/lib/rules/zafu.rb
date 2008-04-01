@@ -14,7 +14,7 @@ module Zafu
     # Pass the caller's 'html_tag' and 'html_tag_params' to the included part.
     def include_part(obj)
       obj.html_tag = @html_tag || obj.html_tag
-      obj.html_tag_params = @html_tag_params || obj.html_tag_params
+      obj.html_tag_params = !@html_tag_params.empty? ? @html_tag_params : obj.html_tag_params
       @html_tag = nil
       @html_tag_params = {}
       super(obj)

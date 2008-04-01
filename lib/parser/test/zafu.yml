@@ -286,12 +286,12 @@ include_replace_same_with:
   res: "IRSW: include_super: super: nothing"
 
 include_super_man:
-  src: "include_super: <r:include template='/name'><p do='with' part='man' do='hello'/>"
-  res: "include_super: super: hey <p>hello world!</p>"
+  src: "include_super: <r:include template='/name'><p class='foo' do='with' part='man' do='hello'/>"
+  res: "include_super: super: hey <p class='foo'>hello world!</p>"
   
 include_part_far_away:
   src: "IPFA: <r:include template='/include/super/man' part='super'/> AFPI."
-  res: "IPFA: hey <p>hello world!</p> AFPI."
+  res: "IPFA: hey <p class='foo'>hello world!</p> AFPI."
     
 name_title:
   src: "title: <h1 do='void' id='title' do='text' text='dummy'>blah <b do='void' id='comment'>nothing</b></h1>"
@@ -315,7 +315,15 @@ include_include:
 
 include_replace_same:
   src: "from IRS: <r:include template='/include/super/man'><span do='with' part='man'>goldorak</span></r:include>"
-  res: "from IRS: include_super: super: hey <span>goldorak</span>"
+  res: "from IRS: include_super: super: hey <span class='foo'>goldorak</span>"
+
+part_tag_options:
+  src: "from PTO: <p class='foo' id='main' do='void'>hello</p>"
+  res: "from PTO: <p class='foo' id='main'>hello</p>"
+
+include_part_tag_options:
+  src: "from IPTO: <span do='include' template='/part/tag/options' part='main'/>"
+  res: "from IPTO: <span class='foo' id='main'>hello</span>"
 
 include_empty:
   src: "include_empty: <r:include template='/name/title'><r:with part='title'/></r:include>"
