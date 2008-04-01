@@ -121,11 +121,17 @@ class Parser
     enter(mode)
   end
   
+  # Hook called when replacing part of an included template with '<r:with part='main'>...</r:with>'
   def replace_with(obj)
     @method   = 'void' # (replacer's method is always 'with')
     @blocks   = obj.blocks.empty? ? @blocks : obj.blocks
     @params   = obj.params.empty? ? @params : obj.params
     @params[:id] = @name
+  end
+  
+  # Hook called when including a part "<r:include template='layout' part='title'/>"
+  def include_part(obj)
+    [obj]
   end
   
   def empty?
@@ -239,7 +245,7 @@ class Parser
     
     if @params[:part]
       if iblock = res.ids[@params[:part]]
-        included_blocks = [iblock]
+        included_blocks = include_part(iblock)
         # get all ids from inside the included part:
         @ids.merge! iblock.defined_ids
       else

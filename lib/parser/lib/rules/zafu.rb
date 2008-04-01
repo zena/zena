@@ -4,10 +4,20 @@ module Zafu
   module Tags
     attr_accessor :html_tag, :html_tag_params, :name
     
-    def replace_with(obj)
+    # Replace the 'original' element in the included template with our new version.
+    def replace_with(new_obj)
       super
-      @html_tag          = obj.html_tag        || @html_tag
-      @html_tag_params   = (obj.html_tag_params.empty? && !@html_tag_params.empty?) ? @html_tag_params : obj.html_tag_params
+      @html_tag          = new_obj.html_tag || @html_tag
+      @html_tag_params   = !new_obj.html_tag_params.empty? ? new_obj.html_tag_params : @html_tag_params
+    end
+    
+    # Pass the caller's 'html_tag' and 'html_tag_params' to the included part.
+    def include_part(obj)
+      obj.html_tag = @html_tag || obj.html_tag
+      obj.html_tag_params = @html_tag_params || obj.html_tag_params
+      @html_tag = nil
+      @html_tag_params = {}
+      super(obj)
     end
     
     def empty?
@@ -36,13 +46,12 @@ module Zafu
     def inspect
       @html_tag_done = false
       res = super
-      if @html_tag && !@html_tag_done
-        if res =~ /\A\[(\w+)(.*)\/\]\Z/
+      if @html_tag
+        if res =~ /\A\[(\w+)(.*)\/\]\Z/m
           res = "[#{$1}#{$2}]<#{@html_tag}/>[/#{$1}]"
-        elsif res =~ /\A\[([^\]]+)\](.*)\[\/(\w+)\]\Z/
+        elsif res =~ /\A\[([^\]]+)\](.*)\[\/(\w+)\]\Z/m
           res = "[#{$1}]#{render_html_tag($2)}[/#{$3}]"
         end
-        @html_tag_done = true
       end
       res
     end
@@ -193,19 +202,8 @@ module Zafu
         sub = make(:void, opts)
         @space_after = sub.instance_variable_get(:@space_after)
         sub.instance_variable_set(:@space_after,"")
-        if @method == 'include'
-          include_template
-        end
       else
         @params = parse_params(@params)
-        
-        if @method == 'include'
-          include_template
-        elsif mode == :tag
-          scan_tag
-        else
-          enter(mode)
-        end
       end
       
       # set name used for include/replace from html_tag if not allready set by superclass
@@ -218,6 +216,14 @@ module Zafu
           next unless @params[k]
           @html_tag_params[k] = @params.delete(k)
         end
+      end
+      
+      if @method == 'include'
+        include_template
+      elsif mode == :tag && !sub
+        scan_tag
+      elsif !sub
+        enter(mode)
       end
     end
     

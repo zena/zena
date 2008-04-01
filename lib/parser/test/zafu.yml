@@ -138,6 +138,10 @@ include_part:
   src: "IP: <r:include template='/named/parts' part='sub'/> PI."
   res: "IP: hello world! PI."
 
+include_part_replace_tag:
+  src: "IP: <footer do='include' template='/named/parts' part='sub'/> PI."
+  res: "IP: <footer>hello world!</footer> PI."
+
 include_self:
   src: "IS: I like <r:void id='sub'>sub <r:hello/></r:void> and <r:include template='/include/self' part='sub'/>"
   res: "IS: I like sub hello world! and sub hello world!"
