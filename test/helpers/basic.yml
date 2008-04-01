@@ -649,11 +649,11 @@ ztag_in_do:
 
 design_by:
   src: "<li do='design' skin='hop'><a href='http://teti.ch'>teti.ch</a></li>"
-  res: "<li><a class='skin' href=''>hop</a> design by <a href='http://teti.ch'>teti.ch</a></li>"
+  res: "<li><i>hop</i> design by <a href='http://teti.ch'>teti.ch</a></li>"
 
 design_by_options:
   src: "<li do='design' skin='dark' by='vador' href='http://teti.ch'></li>"
-  res: "<li><a class='skin' href=''>dark</a> design by <a href='http://teti.ch'>vador</a></li>"
+  res: "<li><i>dark</i> design by <a href='http://teti.ch'>vador</a></li>"
   
 select_class:
   context:

@@ -569,7 +569,6 @@ module Zena
     
     def r_input
       input, attribute = get_input_params()
-      
       case @params[:type]
       when 'select' # FIXME: why is this only for classes ?
         return "<span class='parser_error'>[input] select without name</span>" unless attribute
@@ -1147,8 +1146,12 @@ END_TXT
     # TODO: test and add translation.
     # <r:zena show='logo'/> or <r:zena show='text'/> == <r:zena/>
     def r_zena
-      if @params[:show] == 'logo'
+      if logo = @params[:logo]
         # FIXME
+        case logo
+        when 'tiny'
+        else
+        end
       else
         zena = "<a class='zena' href='http://zenadmin.org' title='zena #{Zena::VERSION::STRING} r#{Zena::VERSION::REV}'>zena</a>"
         case @params[:type]
@@ -1170,11 +1173,10 @@ END_TXT
       else
         by = expand_with(:trans => true)
       end
-      unless name = @params[:skin]
-        name = helper.instance_variable_get(:@controller).instance_variable_get(:@skin_name)
+      unless skin = @params[:skin]
+        skin = helper.instance_variable_get(:@controller).instance_variable_get(:@skin_name)
       end
-      url = helper.instance_variable_get(:@controller).instance_variable_get(:@skin_link)
-      skin = "<a class='skin' href='#{url}'>#{name}</a>"
+      skin = "<i>#{skin}</i>" unless skin.blank?
       helper.send(:_, "%{skin} design by %{name}") % {:name => by, :skin => skin}
     end
     
@@ -1986,6 +1988,10 @@ END_TXT
         attribute = res[:name]
         res[:name] = "#{base_class.to_s.underscore}[#{attribute}]"
         res[:id]   = "#{@context[:template_url].split('/').last}_#{attribute}" if @context[:template_url]
+      end
+      
+      [:size, :style, :class].each do |k|
+        res[k] = params[k] if params[k]
       end
       
       if @context[:in_add]
