@@ -969,8 +969,8 @@ END_TXT
    
     def r_case
       out "<% if false -%>"
-      out expand_with(:in_if=>true, :only=>['when', 'else', 'elsif'])
-      out "<% end -%>"
+      res = expand_with(:in_if=>true, :only=>['when', 'else', 'elsif'])
+      out "#{render_html_tag(res)}<% end -%>"
     end
     
     # TODO: test
@@ -990,9 +990,9 @@ END_TXT
       end
       
       out "<% if #{cond} -%>"
-      out expand_with(:in_if=>false)
-      out expand_with(:in_if=>true, :only=>['else', 'elsif'])
-      out "<% end -%>"
+      res =  expand_with(:in_if=>false)
+      res += expand_with(:in_if=>true, :only=>['else', 'elsif'])
+      out "#{render_html_tag(res)}<% end -%>"
     end
     
     def r_else
@@ -1889,7 +1889,9 @@ END_TXT
             node_attr = $1
             
             use_node  = @var || node
-            if node_attr =~ /([^\.]+)\.(.+)/
+            if node_attr =~ /^param:(\w+)$/
+              res = "params[:#{$1}].to_s"
+            elsif node_attr =~ /([^\.]+)\.(.+)/
               node_name = $1
               node_attr = $2
               if use_node = find_stored(Node, node_name)
