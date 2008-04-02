@@ -741,3 +741,11 @@ cannot_add_document:
 recursion:
   src: "<r:void name='grp'><r:show attr='name'/><r:parent> -- <r:include part='grp'/></r:parent></r:void>"
   res: "status -- cleanWater -- projects -- zena"
+
+date_tformat:
+  context:
+    node: 'people'
+    lang: 'fr'
+  src: "<r:show date='created_at' tformat='%d %B %Y'/>"
+  tem: "<%= format_date(@node.created_at, \"%d %B %Y\") %>"
+  res: "10 mars 2006"

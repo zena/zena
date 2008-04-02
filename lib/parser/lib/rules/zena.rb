@@ -1364,6 +1364,8 @@ END_TXT
           # ok
           if (count == :all && context.kind_of?(Array)) || (count == :first && !context.kind_of?(Array))
             return "#{node}.#{rel}"
+          elsif count == :all  
+            return "[#{node}.#{rel}]"
           else
             # fail
             return 'nil'
@@ -1780,7 +1782,7 @@ END_TXT
         when :node
           if node_kind_of?(Node)
             case value
-            when 'self'
+            when 'main'
               "#{node}[:id] == @node[:id]"
             when 'parent'
               "#{node}[:id] == @node[:parent_id]"

@@ -594,7 +594,7 @@ END_MSG
       else
         visitor.lang = session[:lang]
       end
-      if File.exist?("#{RAILS_ROOT}/locale/LC_MESSAGES/zena.mo")
+      if File.exist?("#{RAILS_ROOT}/locale/#{session[:lang]}LC_MESSAGES/zena.mo")
         GetText.set_locale_all(session[:lang])
       else
         GetText.set_locale_all('en')
