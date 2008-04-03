@@ -132,8 +132,13 @@ class Node < ActiveRecord::Base
                      :section_zip, :skin, :ref_lang, :fullpath, :rootpath, :publish_from, :max_status, :rgroup_id, 
                      :wgroup_id, :pgroup_id, :basepath, :custom_base, :klass, :zip, :score, :comments_count, :position
   zafu_context       :author => "Contact", :parent => "Node", :user => "User",
-                     :version => "Version", :comments => ["Comment"], :data => ["DataEntry"], :data_a => ["DataEntry"],
-                     :data_b => ["DataEntry"], :data_c => ["DataEntry"], :data_d => ["DataEntry"], :icon => "Image"
+                     :version => "Version", :comments => ["Comment"],
+                     :data   => {:node_class => ["DataEntry"], :data_root => 'node_a'},
+                     :data_a => {:node_class => ["DataEntry"], :data_root => 'node_a'},
+                     :data_b => {:node_class => ["DataEntry"], :data_root => 'node_b'},
+                     :data_c => {:node_class => ["DataEntry"], :data_root => 'node_c'},
+                     :data_d => {:node_class => ["DataEntry"], :data_root => 'node_d'},
+                     :icon => "Image"
                      
   has_many           :discussions, :dependent => :destroy
   has_and_belongs_to_many :cached_pages

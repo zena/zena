@@ -1,0 +1,7 @@
+empty:
+  src: ""
+  res: "SELECT objects.* FROM objects"
+
+direct_filter:
+  src: "objects from parent"
+  res: "SELECT objects.* FROM objects WHERE ob1.parent_id = ID"

@@ -52,9 +52,14 @@ class DataEntry < ActiveRecord::Base
   end
   
   NodeLinkSymbols.each do |sym|
+    puts "def #{sym}
+      return nil unless self[:#{sym}_id]
+      secure(Node) { Node.find_by_id(self[:#{sym}_id]) }
+    end"
+    
     class_eval "def #{sym}
       return nil unless self[:#{sym}_id]
-      secure!(Node) { Node.find_by_id(self[:#{sym}_id]) }
+      secure(Node) { Node.find_by_id(self[:#{sym}_id]) }
     end"
   end
   

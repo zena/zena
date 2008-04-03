@@ -32,21 +32,29 @@ begin
         else
           superclass.zafu_known_contexts.merge(@@_zafu_context[self] || {})
         end.each do |k,v|
-          if v.kind_of?(Array)
-            if v[0].kind_of?(String)
-              res[k] = [Module::const_get(v[0])]
-            else
-              res[k] = v
-            end
+          if v.kind_of?(Hash)
+            res[k] = v.merge(:node_class => parse_class(v[:node_class]))
           else
-            if v.kind_of?(String)
-              res[k] = Module::const_get(v)
-            else
-              res[k] = v
-            end
+            res[k] = {:node_class => parse_class(v)}
           end
         end
         res
+      end
+    end
+    
+    def self.parse_class(node_class)
+      if node_class.kind_of?(Array)
+        if node_class[0].kind_of?(String)
+          [Module::const_get(node_class[0])]
+        else
+          node_class
+        end
+      else
+        if node_class.kind_of?(String)
+          Module::const_get(node_class)
+        else
+          node_class
+        end
       end
     end
   
@@ -664,6 +672,8 @@ END_TXT
             end
             form << "<input type='hidden' name='node[klass]' value='#{@params[:klass] || @context[:klass] || 'Page'}'/>\n" unless klass_set
           end
+        elsif node_kind_of?(DataEntry)
+          form << "<input type='hidden' name='#{base_class.to_s.underscore}[#{@context[:data_root]}_id]' value='<%= #{@context[:in_add] ? "#{@context[:parent_node]}.zip" : "#{node}.#{@context[:data_root]}.zip"} %>'/>\n"
         end
         
         if add_block = @context[:add]
@@ -1312,12 +1322,14 @@ END_TXT
     # FIXME: 'else' clause has been removed, find a solution to put it back.
     def r_unknown
       if context = node_class.zafu_known_contexts[@method]
-        if context.kind_of?(Array)
+        node_class = context[:node_class]
+        
+        if node_class.kind_of?(Array)
           # plural
-          do_list( "#{node}.#{@method}", :node_class => context[0] )
+          do_list( "#{node}.#{@method}", context.merge(:node_class => node_class[0]) )
         else
           # singular
-          do_var(  "#{node}.#{@method}", :node_class => context )
+          do_var(  "#{node}.#{@method}", context )
         end
       elsif node_kind_of?(Node)
         if @params[:from] || @method =~ /\sfrom\s/ || Node.plural_relation?(@method)
@@ -1331,7 +1343,7 @@ END_TXT
         "unknown relation (#{@method}) for #{node_class} class"
       end
     end
-    
+        
     # Prepare stylesheet and xml content for xsl-fo post-processor
     def r_fop
       return "<span class='parser_error'>[fop] missing 'stylesheet' argument</span>" unless @params[:stylesheet]
@@ -1358,18 +1370,15 @@ END_TXT
     # Create an sql query to open a new context (passes its arguments to HasRelations#build_find)
     def build_finder_for(count, rel, params=@params)
       if context = node_class.zafu_known_contexts[rel]
-        klass = context.kind_of?(Array) ? context[0] : context
+        node_class = context[:node_class]
         
-        if klass.ancestors.include?(Node)
-          # ok
-          if (count == :all && context.kind_of?(Array)) || (count == :first && !context.kind_of?(Array))
-            return "#{node}.#{rel}"
-          elsif count == :all  
-            return "[#{node}.#{rel}]"
-          else
-            # fail
-            return 'nil'
-          end
+        if node_class.kind_of?(Array) && count == :all && node_class[0].ancestors.include?(Node)
+          return "#{node}.#{rel}"
+        elsif node_class.ancestors.include?(Node)
+          return count == :all ? "[#{node}.#{rel}]" : "#{node}.#{rel}"
+        else
+          # not a Node
+          'nil'
         end
       end
       
@@ -1605,12 +1614,10 @@ END_TXT
     end
     
     def do_list(list_finder=nil, opts={})
-      
       @context.delete(:template_url) # should not propagate
       @context.delete(:make_form)    # should not propagate
       
-      # real class (Node, Version, ...)
-      node_class = opts[:node_class] || self.node_class
+      @context.merge!(opts)          # pass options from 'zafu_known_contexts' to @context
       
       if (each_block = descendant('each')) && (descendant('edit') || descendant('add') || descendant('add_document') || (descendant('swap') && descendant('swap').parent.method != 'group'))
         # ajax, build template. We could merge the following code with 'r_group'.
@@ -1637,15 +1644,15 @@ END_TXT
 
         # TEMPLATE ========
         template_node = "@#{base_class.to_s.underscore}"
-        template      = expand_block(each_block, :list=>false, :node=>template_node, :node_class => node_class, :klass => klass, :template_url=>template_url)
+        template      = expand_block(each_block, :list=>false, :node=>template_node, :klass => klass, :template_url=>template_url)
         out helper.save_erb_to_url(template, template_url)
         
         # FORM ============
         form_url = "#{template_url}_form"
         if each_block != form_block
-          form = expand_block(form_block, :node=>template_node, :node_class => node_class, :klass => klass, :template_url=>template_url, :add=>add_block, :publish_after_save => publish_after_save) 
+          form = expand_block(form_block, :node=>template_node, :klass => klass, :template_url=>template_url, :add=>add_block, :publish_after_save => publish_after_save) 
         else
-          form = expand_block(form_block, :node=>template_node, :node_class => node_class, :klass => klass, :template_url=>template_url, :add=>add_block, :make_form=>true, :no_edit=>true, :publish_after_save => publish_after_save)
+          form = expand_block(form_block, :node=>template_node, :klass => klass, :template_url=>template_url, :add=>add_block, :make_form=>true, :no_edit=>true, :publish_after_save => publish_after_save)
         end
         out helper.save_erb_to_url(form, form_url)
       else

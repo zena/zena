@@ -567,6 +567,8 @@ END_MSG
     # 6. 'test.host/'   use HTTP_ACCEPT_LANGUAGE
     # 7. 'test.host/'   use default language
     def set_lang
+      # TODO: how to include zena rules in file reload (in a better way then this hack) ?
+      # load "#{RAILS_ROOT}/lib/parser/lib/rules/zena.rb" if RAILS_ENV == 'development'
       if params[:prefix] =~ /^\d+$/
         # this has nothing to do with set_lang...
         # 'test.host/34' --> /en/node34.html
