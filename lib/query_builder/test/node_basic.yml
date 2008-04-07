@@ -1,3 +1,0 @@
-empty:
-  src: ""
-  res: "SELECT no1.* FROM nodes AS no1 WHERE #{secure_scope('no1')}"

@@ -31,6 +31,7 @@ c_size::  file size
 c_ext::   file extension 
 c_content_type:: file content-type
 =end
+# should be a sub-class of Node, not Page (#184). Write a migration, fix fixtures and test.
 class Document < Page
   
   zafu_readable      :filename

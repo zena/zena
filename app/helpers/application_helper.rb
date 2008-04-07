@@ -1253,6 +1253,69 @@ ENDTXT
     @counter ||= 0
     "#{Time.now.to_i}_#{@counter += 1}"
   end
+  
+  # Group an array of records by key.
+  def group_array(list)
+    groups = []
+    h = {}
+    list.each do |e|
+      key = yield(e)
+      unless group_id = h[key]
+        h[key] = group_id = groups.size
+        groups << []
+      end
+      groups[group_id] << e
+    end
+    groups
+  end
+  
+  def sort_array(list)
+    list.sort do |a,b|
+      va = yield([a].flatten[0])
+      vb = yield([a].flatten[0])
+      if va && vb
+        va <=> vb
+      elsif va
+        1
+      elsif vb
+        -1
+      else
+        0
+      end
+    end
+  end
+  
+  def min_array(list)
+    list.flatten.min do |a,b|
+      va = yield(a)
+      vb = yield(b)
+      if va && vb
+        va <=> vb
+      elsif va
+        1
+      elsif vb
+        -1
+      else
+        0
+      end
+    end
+  end
+  
+  def max_array(list)
+    list.flatten.min do |a,b|
+      va = yield(a)
+      vb = yield(b)
+      if va && vb
+        vb <=> va
+      elsif vb
+        1
+      elsif va
+        -1
+      else
+        0
+      end
+    end
+  end
 end
 =begin
 

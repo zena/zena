@@ -1,0 +1,18 @@
+default:
+  context:
+    node_name: '@node'
+    visitor: 'ant'
+  src: ""
+  res: "SELECT nodes.* FROM nodes WHERE nodes.parent_id = #{@node.id} AND #{secure_scope('nodes')}"
+
+nodes:
+  src: "nodes"
+  res: "SELECT nodes.* FROM nodes WHERE nodes.parent_id = #{@node.id} AND #{secure_scope('nodes')}"
+
+pages:
+  src: "pages"
+  res: "SELECT nodes.* FROM nodes WHERE nodes.parent_id = #{@node.id} AND nodes.kpath LIKE 'NP%' AND #{secure_scope('nodes')}"
+
+letters:
+  src: "letters"
+  res: "SELECT nodes.* FROM nodes WHERE nodes.parent_id = #{@node.id} AND nodes.kpath LIKE 'NNL%' AND #{secure_scope('nodes')}"

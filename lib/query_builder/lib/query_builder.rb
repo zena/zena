@@ -10,7 +10,7 @@ class QueryBuilder
   
   class << self
     def set_main_table(table_name)
-      @@main_table = table_name
+      @@main_table = table_name.to_s
     end
   end
   
@@ -21,7 +21,11 @@ class QueryBuilder
     @filters = []
     @main_table ||= 
     add_table(main_table)
-    elements = @query.split(' from ')
+    if @query == nil || @query == ''
+      elements = [main_table]
+    else
+      elements = @query.split(' from ')
+    end
     elements.each_index do |i|
       parse_element(elements[i], i == elements.size - 1)
     end
@@ -43,9 +47,8 @@ class QueryBuilder
       
       @filters << default_filter(clause) if is_last
       
-      if filter = direct_relation(clause) || filter = direct_filter(clause) || filter = relation(clause)
-        @filters << filter
-      end
+      @filters << relation(clause)
+      
       parse_filters(filters) if filters
     end
     
@@ -60,12 +63,13 @@ class QueryBuilder
     end
     
     def add_table(table_name)
-      if table_counter(table_name) == 0
+      if !@table_counter[table_name]
         @tables << table_name
+        @table_counter[table_name] = 0
       else
         @tables << "#{table_name} AS #{table(table_name)}"
+        @table_counter[table_name] += 1
       end
-      @table_counter[table_name] = table_counter(table_name) + 1
     end
     
     def table_counter(table_name)
@@ -79,7 +83,7 @@ class QueryBuilder
       index == 0 ? table_name : "#{table_name[0..1]}#{index}"
     end
     
-    def table(table_name, index=0)
+    def table(table_name=main_table, index=0)
       table_at(table_name, table_counter(table_name) + index)
     end
     

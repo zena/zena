@@ -1,6 +1,5 @@
 require 'test/unit'
 require 'yaml'
-require File.join(File.dirname(__FILE__) , '..', 'lib', 'query_builder')
 
 module YamlTest
   module Helper
@@ -10,13 +9,13 @@ module YamlTest
   end
   
   module ClassMethods
+    def file_dir(file_directory)
+      class_eval %Q{
+        @@file_directory = #{file_directory.inspect}
+      }
+    end
+    
     def yaml_test(*files)
-      if files[0].kind_of?(Hash)
-        files = files[0]
-      else
-        files = Hash[*(files.map {|f| [f,{}]}.flatten)]
-      end
-      
       # We need to do a class_eval so that the class variables 'test_strings, test_methods, ...' are scoped
       # in the final class and are not global to all tests using the YamlTest helper.
       class_eval %Q{
@@ -24,13 +23,11 @@ module YamlTest
         @@test_methods = {}
         @@test_options = {}
         @@test_files = []
-        #{files.inspect}.each do |file, opts|
+        #{files.inspect}.each do |file|
           file = file.to_s
-          mod_name = opts.delete(:module) || file
-          mod_name = mod_name.to_s.split("_").first.capitalize
           strings = {}
           test_methods = []
-          YAML::load_documents( File.open( File.join(File.dirname(__FILE__), "\#{file}.yml") ) ) do |doc|
+          YAML::load_documents( File.open( File.join(@@file_directory, "\#{file}.yml") ) ) do |doc|
             doc.each do |elem|
               test_methods << elem[0]
               strings[elem[0]] = elem[1]
@@ -43,7 +40,6 @@ module YamlTest
           "
           @@test_strings[file] = strings.freeze
           @@test_methods[file] = test_methods
-          @@test_options[file] = opts
           @@test_files << file
         
         
@@ -53,7 +49,10 @@ module YamlTest
           end
 
           def do_test(file, test)
-            res = parse(@@test_strings[file][test]['src'])
+            context = @@test_strings[file][test]['context'] || {}
+            default_context = (@@test_strings[file]['default'] || {})['context'] || {}
+            context = Hash[*default_context.merge(context).map{|k,v| [k.to_sym,v]}.flatten]
+            res = parse(@@test_strings[file][test]['src'], context)
             if @@test_strings[file][test]['res']
               if @@test_strings[file][test]['res'][0..0] == "/"
                 assert_match %r{\#{@@test_strings[file][test]['res'][1..-2]}}m, res

@@ -274,20 +274,20 @@ relation_from_site:
   res: "cleanWater,opening"
 
 where:
-  src: "<r:tagged from='site' where='name=opening' do='each' join=',' do='[name]'/>"
+  src: "<r:tagged where=\"name='opening'\" from='site' do='each' join=',' do='[name]'/>"
   res: "opening"
 
 where_like:
-  src: "<r:images from='site' where='name like %ke' do='each' join=',' do='[name]'/>"
+  src: "<r:images where='name like \"%ke\"' from='site' do='each' join=',' do='[name]'/>"
   res: "lake"
 
 where_not:
   context:
     node: 'cleanWater'
-  src: "<r:nodes where='name &lt;&gt; \"status\"' do='each' join=',' do='[name]'/>"
+  src: "<r:nodes where='name ne \"status\"' do='each' join=',' do='[name]'/>"
   res: "lake,lakeAddress,opening,track,water"
 
-where_order_dyn_attr:
+order_dyn_attr:
   context:
     node: 'cleanWater'
   src: "<r:nodes order='d_assigned DESC' do='each'><span do='[name]' assigned_if='[d_assigned]'/></r:nodes>"
@@ -299,6 +299,11 @@ where_dyn_attr_is_null:
   src: "<r:nodes where='d_assigned is NULL' do='each' join=', ' do='[name]'/>"
   res: "lake, lakeAddress, opening, track, water"
 
+where_two_attributes:
+  src: "<r:nodes where='log_at ne event_at' from='site' do='each' join=', ' do='[name]'/>"
+  tem: ".."
+  res: "letter, proposition"
+  
 many_or:
   src: "<r:tagged from='site' or='images from site' or='tags from site' do='each' join=',' do='[name]'/>"
   res: "art,bird,cleanWater,flower,lake,news,opening,tree"
@@ -312,7 +317,7 @@ node_in_version:
   res: "status"
 
 where_with_param:
-  src: "<r:nodes from='site' where='v_title like \"%[param:t]%\"'/>"
+  src: "<r:nodes where='v_title like \"%[param:t]%\"' from='site'/>"
   tem: "/vs.title like \#\{Node.connection.quote\(\"%\" \+params\[:t\].to_s\+ \"%\"\)\}/"
 
 bad_relation:
@@ -320,6 +325,18 @@ bad_relation:
   tem: "/<% if nil -%>/"
   res: ""
 
+group_by_project:
+  src: "<r:notes from='site' order='name ASC' do='group' by='project'><b do='project' do='[name]'/>: <r:each join=',' do='[name]'/></r:notes>"
+  tem: ""
+  res: "<b>cleanWater</b>: opening<b>zena</b>: letter,opening,proposition"
+
+group_by_project_sort_id:
+  src: "<r:images from='site' order='name ASC' do='group' by='project' sort='id'><b do='project' do='[name]'/>: <r:each join=',' do='[name]'/></r:images>"
+  res: "."
+
+group_by_parent_sort:
+  src: "<r:notes from='site' order='name ASC' do='group' by='project'><b do='project' do='[name]'/>: <r:each join=',' do='[name]'/></r:notes>"
+  res: "."
 #icons_from_nodes_from_project:
 #  src: "<r:icons from='nodes' from='project' do='each' join=', ' do='[name]'/>"
 #  res: ""

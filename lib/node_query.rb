@@ -1,7 +1,15 @@
-require File.join(File.dirname(__FILE__) , '..', '..', 'yaml_test.rb')
-require File.join(File.dirname(__FILE__) , '..', 'lib', 'query_builder')
+require File.join(File.dirname(__FILE__) , 'query_builder', 'lib', 'query_builder')
 
-class TestQuery < QueryBuilder
+class NodeQuery < QueryBuilder
+  attr_reader :context
+  set_main_table :nodes
+  
+  def initialize(query, context = {})
+    @table_name = 'nodes'
+    @context    = context
+    @node_name  = context[:node_name]
+    super(query)
+  end
   
   # Build joins and filters from a relation.
   def relation(txt)
@@ -19,27 +27,38 @@ class TestQuery < QueryBuilder
     end
   end
   
+  def after_parse
+    @filters << "\#{secure_scope('#{table_at(main_table,0)}')}"
+  end
+  
   private
     
     # Relations that can be resolved without a join
     def direct_relation(txt)
       case txt
       when 'parent'
-        "#{table}.parent_id = ID"
+        "#{table}.parent_id = \#{#{@node_name}.id}"
       when 'project'
-        "#{table}.project_id = PROJECT_ID"
+        "#{table}.project_id = \#{#{@node_name}.get_project_id}"
       else
         nil
       end
     end
 
     # Direct filter
-    def direct_filter(txt)
-      case txt
-      when 'letters'
-        "#{table}.kpath LIKE 'NPL%'"
-      else
+    def direct_filter(rel)
+      case rel
+      when main_table
         nil
+      ######## special cases #######
+      else  
+        if klass = Node.get_class(rel)
+          ######## class filters #######
+          "#{table}.kpath LIKE '#{klass.kpath}%'"
+        else
+          # unknown class
+          nil
+        end
       end
     end
 
@@ -54,14 +73,4 @@ class TestQuery < QueryBuilder
         nil
       end
     end
-end
-
-class QueryTest < Test::Unit::TestCase
-  yaml_test :basic, :filters, :joins
-  
-  def parse(value, opts)
-    TestQuery.new(value).to_sql
-  end
-  
-  make_tests
 end

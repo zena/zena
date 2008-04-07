@@ -11,4 +11,23 @@ list_values:
 list_with_sign:
   src: "<ul do='data'><li do='each'><r:show attr='value'/> <r:user do='[initials]'/></li></ul>"
   res: "<ul><li>27.0 AU</li><li>33.0 PTS</li><li>13.0 AU</li><li>56.0 SI</li><li>21.0 SI</li></ul>"
-	
+
+stat_sum:
+  src: "<r:data do='stat' find='sum'/>"
+  res: "150.0"
+
+stat_min:
+  src: "<r:data do='stat' find='min'/>"
+  res: "13.0"
+
+stat_max:
+  src: "<r:data do='stat' find='max'/>"
+  res: "56.0"
+  
+group_stat_sum:
+  src: "<r:data><r:group by='node_b'><r:each_group><r:node_b do='[name]'/>:<r:stat find='sum'/> </r:each_group></r:group></r:data>"
+  res: ":117.0 cleanWater:33.0 "
+  
+group_join_stat_sum:
+  src: "<r:data><r:group by='node_b' join=', '><r:node_b><r:show attr='name'/><r:else text='undef'/></r:node_b>:<r:stat find='sum'/></r:group></r:data>"
+  res: "undef:117.0, cleanWater:33.0"

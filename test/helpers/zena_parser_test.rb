@@ -5,10 +5,59 @@ if false
   Debugger.start
 end
 
-class ZenaParserTest < ZenaHelperTest
-  testfile :relations, :basic, :zafu_ajax, :zazen, :apphelper, :errors, :data
+class ZenaParserTest < ZenaTestController
+  file_dir  File.dirname(__FILE__)
+  yaml_test :relations, :basic, :zafu_ajax, :zazen, :apphelper, :errors, :data
   Section # make sure we load Section links before trying relations
   
+  def setup
+    @controller = TestController.new
+    @request    = ActionController::TestRequest.new
+    @response   = ActionController::TestResponse.new
+    super
+  end
+  
+  def do_test(file, test)
+    src = @@test_strings[file][test]['src']
+    tem = @@test_strings[file][test]['tem']
+    res = @@test_strings[file][test]['res']
+    context = @@test_strings[file][test]['context'] || {}
+    default_context = @@test_strings[file]['default']['context'] || {'node'=>'status', 'visitor'=>'ant', 'lang'=>'en'}
+    context = default_context.merge(context)
+    # set context
+    params = {}
+    params[:user_id] = users_id(context['visitor'].to_sym)
+    params[:node_id] = nodes_id(context['node'].to_sym)
+    params[:prefix]  = context['lang']
+    params[:url] = "/#{test.to_s.gsub('_', '/')}"
+    TestController.templates = @@test_strings[file]
+    if src
+      post 'test_compile', params
+      template = @response.body
+      if tem
+        if tem[0..0] == '/'
+          assert_match %r{#{tem[1..-2]}}m, template
+        else
+          assert_equal tem, template
+        end
+      end
+    else
+      template = tem
+    end
+    if res
+      params[:text] = template
+      post 'test_render', params
+      result = @response.body
+      if res[0..1] == '!/'
+        assert_no_match %r{#{res[2..-2]}}m, result
+      elsif res[0..0] == '/'
+        assert_match %r{#{res[1..-2]}}m, result
+      else
+        assert_equal res, result
+      end
+    end
+  end
+
   def test_single
     do_test('data', 'list_values')
   end

@@ -168,8 +168,8 @@ module Zena
         finders.each do |rule|
           opts = {}
           from = nil
-          
           # extract 'where'
+          rules = rule.split(/\s+from\s+/)
           rules = rule.split(/\s+where\s+/)
           where = rules[1]
           
@@ -190,71 +190,91 @@ module Zena
             # someday, someone will ask for an 'or'. When this happens, we need to use () around all the clauses ((...) OR (...)).
             where_clause = where.split(/\s+and\s+/).map do |clause|
               # [field] [=|>]
-              if clause =~ /([\w:]+)\s*(like|is not|is|>=|<=|<>|<|=|>)\s*"?([^"]*)"?/
+              if clause =~ /("[^"]*"|'[^']*'|\w+)\s*(like|is not|is|>=|<=|<>|<|=|>|lt|le|eq|ne|ge|gt)\s*("[^"]*"|'[^']*'|\w+)/
                 # TODO: add 'match' parameter (#105)
-                field = $1
-                op    = $2
-                value = $3
-                if value =~ /(.*?)\[(visitor|param):(\w+)\](.*)/
-                  val_start = $1 == '' ? '' : "#{$1.inspect} +"
-                  val_end   = $4 == '' ? '' : "+ #{$4.inspect}"
-                  case $2
-                  when 'visitor'
-                    value = "\#{Node.connection.quote(\#{#{val_start}Node.zafu_attribute(visitor.contact, #{$3.inspect})#{val_end}})}"
-                  when 'param'
-                    value = "\#{Node.connection.quote(#{val_start}params[:#{$3}].to_s#{val_end})}"
-                  end
-                else
-                  value = Node.connection.quote(value)
-                end
-                
-                case field[0..1]
-                when 'd_'
-                  # DYNAMIC ATTRIBUTE
-                  key = field[2..-1]
-                  key, function = parse_sql_function_in_field(key)
+                parts = [$1,$3]
+                op = {'lt' => '<','le' => '<=','eq' => '=','ne' => '<>','ge' => '>=','gt' => '>'}[$2] || $2
+                parts.map! do |part|
+                  if ['"',"'"].include?(part[0..0])
+                    # ******** LITERAL *******
+                    value = part[1..-2]
+                    if value =~ /(.*?)\[(visitor|param):(\w+)\](.*)/
+                      val_start = $1 == '' ? '' : "#{$1.inspect} +"
+                      val_end   = $4 == '' ? '' : "+ #{$4.inspect}"
+                      case $2
+                      when 'visitor'
+                        value = "\#{Node.connection.quote(\#{#{val_start}Node.zafu_attribute(visitor.contact, #{$3.inspect})#{val_end}})}"
+                      when 'param'
+                        value = "\#{Node.connection.quote(#{val_start}params[:#{$3}].to_s#{val_end})}"
+                      end
+                    else
+                      value = Node.connection.quote(value)
+                    end
+                  elsif part == 'null'
+                    # NULL
+                    "NULL"
+                  else
+                    field = part
+                    # ******** FIELD *******
+                    case field[0..1]
+                    when 'd_'
+                      # DYNAMIC ATTRIBUTE
+                      key = field[2..-1]
+                      key, function = parse_sql_function_in_field(key)
                   
-                  unless dyn_keys[key]
-                    dyn_counter += 1
-                    unless has_version_join
-                      joins << version_join
-                      has_version_join = true
-                    end
-                    joins << "LEFT JOIN dyn_attributes AS da#{dyn_counter} ON da#{dyn_counter}.owner_id = vs.id AND da#{dyn_counter}.key = '#{key}'"
-                    dyn_keys[key] = "da#{dyn_counter}.value"
-                  end
-                  key = function ? "#{function}(#{dyn_keys[key]})" : dyn_keys[key]
-                  op[0..2] == 'is' ? "#{key} #{op} NULL" : "#{key} #{op} #{value}"
-                when 'c_'
-                  # CONTENT TABLE
-                  field = field[2..-1]
-                  # FIXME: implement #41
-                  nil
-                when 'v_'
-                  # VERSION
-                  key = field[2..-1]
-                  key, function = parse_sql_function_in_field(key)
-                  if Version.zafu_readable?(key) && Version.column_names.include?(key)
-                    unless has_version_join
-                      joins << version_join
-                      has_version_join = true
-                    end
+                      unless dyn_keys[key]
+                        dyn_counter += 1
+                        unless has_version_join
+                          joins << version_join
+                          has_version_join = true
+                        end
+                        joins << "LEFT JOIN dyn_attributes AS da#{dyn_counter} ON da#{dyn_counter}.owner_id = vs.id AND da#{dyn_counter}.key = '#{key}'"
+                        dyn_keys[key] = "da#{dyn_counter}.value"
+                      end
+                      key = function ? "#{function}(#{dyn_keys[key]})" : dyn_keys[key]
+                    when 'c_'
+                      # CONTENT TABLE
+                      field = field[2..-1]
+                      # FIXME: implement #41
+                      nil
+                    when 'v_'
+                      # VERSION
+                      key = field[2..-1]
+                      key, function = parse_sql_function_in_field(key)
+                      if Version.zafu_readable?(key) && Version.column_names.include?(key)
+                        unless has_version_join
+                          joins << version_join
+                          has_version_join = true
+                        end
                     
-                    key = function ? "#{function}(vs.#{key})" : "vs.#{key}"
-                    op[0..2] == 'is' ? "#{key} #{op} NULL" : "#{key} #{op} #{value}"
-                  else
+                        key = function ? "#{function}(vs.#{key})" : "vs.#{key}"
+                      else
+                        # bad version attribute
+                        nil
+                      end
+                    else
+                      # NODE
+                      key, function = parse_sql_function_in_field(field)
+                      if Node.zafu_readable?(key) && Node.column_names.include?(key)
+                        function ? "#{function}(#{key})" : key
+                      else
+                        # bad attribute
+                        nil
+                      end
+                    end
+                  end
+                end.compact!
+                
+                if parts.size == 2 && parts[0] != 'NULL'
+                  # ok, no value/field error
+                  if op[0..2] == 'is' && parts[1] != 'NULL'
+                    # error
                     nil
+                  else
+                    parts.join(" #{op} ")
                   end
                 else
-                  # NODE
-                  key, function = parse_sql_function_in_field(field)
-                  if Node.zafu_readable?(key) && Node.column_names.include?(key)
-                    key = function ? "#{function}(#{key})" : key
-                    op[0..2] == 'is' ? "#{key} #{op} NULL" : "#{key} #{op} #{value}"
-                  else
-                    # bad attribute
-                    nil
-                  end
+                  nil
                 end
               else
                 # invalid clause format

@@ -1,5 +1,6 @@
-require File.expand_path(File.dirname(__FILE__) + "/../test_helper")
-require 'yaml'
+require File.join(File.dirname(__FILE__), '..','test_helper')
+require File.join(File.dirname(__FILE__), '..','..','lib','yaml_test')
+
 module TestHelper
 end
 ActionController::Routing::Routes.add_route '----/test/:action', :controller => 'test'
@@ -64,101 +65,4 @@ class TestController < ApplicationController
     end
   end
   
-end
-
-class ZenaHelperTest < ZenaTestController
-  
-  def setup
-    @controller = TestController.new
-    @request    = ActionController::TestRequest.new
-    @response   = ActionController::TestResponse.new
-    super
-  end
-  
-  class << self
-    def testfile(*files)
-      @@test_strings = {}
-      @@test_methods = {}
-      @@test_parsers = {}
-      @@test_files = []
-      files.each do |file|
-        file = file.to_s
-        strings = {}
-        test_methods = []
-        YAML::load_documents( File.open( File.join(File.dirname(__FILE__), "#{file}.yml") ) ) do |doc|
-          doc.each do |elem|
-            test_methods << elem[0]
-            strings[elem[0]] = elem[1]
-          end
-        end
-        class_eval <<-END
-          def #{file}
-            @@test_strings['#{file}']
-          end
-        END
-        @@test_strings[file] = strings.freeze
-        mod_name = file.split("_").first.capitalize
-        @@test_methods[file] = test_methods
-        @@test_files << file
-      end
-    end
-    def make_tests
-      return unless @@test_methods
-      tests = self.instance_methods.reject! {|m| !( m =~ /^test_/ )}
-      @@test_files.each do |tf|
-        @@test_methods[tf].each do |test|
-          unless tests.include?("test_#{tf}_#{test}")
-            puts "ERROR: already defined test #{tf}.yml #{test}}" if tests.include?("test_#{tf}_#{test}")
-            tests << "test_#{tf}_#{test}"
-            class_eval <<-END
-              def test_#{tf}_#{test}
-                do_test(#{tf.inspect},#{test.inspect})
-              end
-            END
-          end
-        end
-      end
-    end
-  end
-  
-  def do_test(file, test)
-    src = @@test_strings[file][test]['src']
-    tem = @@test_strings[file][test]['tem']
-    res = @@test_strings[file][test]['res']
-    context = @@test_strings[file][test]['context'] || {}
-    default_context = @@test_strings[file]['default']['context'] || {'node'=>'status', 'visitor'=>'ant', 'lang'=>'en'}
-    context = default_context.merge(context)
-    # set context
-    params = {}
-    params[:user_id] = users_id(context['visitor'].to_sym)
-    params[:node_id] = nodes_id(context['node'].to_sym)
-    params[:prefix]  = context['lang']
-    params[:url] = "/#{test.to_s.gsub('_', '/')}"
-    TestController.templates = @@test_strings[file]
-    if src
-      post 'test_compile', params
-      template = @response.body
-      if tem
-        if tem[0..0] == '/'
-          assert_match %r{#{tem[1..-2]}}m, template
-        else
-          assert_equal tem, template
-        end
-      end
-    else
-      template = tem
-    end
-    if res
-      params[:text] = template
-      post 'test_render', params
-      result = @response.body
-      if res[0..1] == '!/'
-        assert_no_match %r{#{res[2..-2]}}m, result
-      elsif res[0..0] == '/'
-        assert_match %r{#{res[1..-2]}}m, result
-      else
-        assert_equal res, result
-      end
-    end
-  end
 end
