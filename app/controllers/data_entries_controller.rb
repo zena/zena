@@ -42,15 +42,6 @@ class DataEntriesController < ApplicationController
     end
   end
   
-  def edit
-    respond_to do |format|
-      format.js do
-        # zafu edit
-        render :template => 'data_entries/edit.rjs' # FIXME: this should not be needed. Rails bug ?
-      end
-    end
-  end
-  
   def create
     @data_entry = DataEntry.create_data_entry(params[:data_entry])
   end
@@ -61,6 +52,16 @@ class DataEntriesController < ApplicationController
     respond_to do |format|
       format.html # TODO
       format.js { render :action=>'show' }
+    end
+  end
+  
+  def destroy
+    @data_entry.destroy
+
+    respond_to do |format|
+      format.html { redirect_to zen_path(@node) }
+      format.js
+      format.xml  { head :ok }
     end
   end
   

@@ -14,8 +14,8 @@ ActionController::Routing::Routes.draw do |map|
   
   map.connect 'nodes/:node_id/versions/:id.:format', :controller => 'versions', :action => 'show' #, :requirements => { :method => :get }
   
-  map.resources :nodes,                                           # FIXME: should be :put but it does not work
-    :collection => { :asearch => :get, :search => :get,  :attribute => :get },      #   |
+  map.resources :nodes,
+    :collection => { :asearch => :get, :search => :get,  :attribute => :get },
     :member =>     { :import => :post, :save_text => :put, :order => :any, :zafu => :get,
                      :add_link => :put, :remove_link => :put,
                      :drop => :put } do |nodes|
@@ -40,6 +40,7 @@ ActionController::Routing::Routes.draw do |map|
     
   end
   
+  # FIXME: merge 'documents' controller into 'nodes' (keep module for clarity)
   map.resources :documents, :collection => { :upload    => :post, :upload_progress => :post }, 
                             :member     => { :crop_form => :get,  :file_form       => :get  }
   

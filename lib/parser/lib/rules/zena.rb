@@ -291,10 +291,10 @@ module Zena
     end
     
     # TODO: write a test (please)
-    # FIXME: we should use a single way to change a whole context into a template (applies to 'each', 'form', 'group'). Then 'swap' could use the 'each' block.
-    # Define a group of elements to be used by ajax calls (edit/filter)
-    def r_group
-      if @context[:group] == self
+    # FIXME: we should use a single way to change a whole context into a template (applies to 'each', 'form', 'block'). Then 'swap' could use the 'each' block.
+    # Define a block of elements to be used by ajax calls (edit/filter)
+    def r_block
+      if @context[:block] == self
         # called from self (storing template)
         @html_tag_done = false
         @html_tag_params.merge!(:id=>"#{dom_id_from_template_url(@context[:template_url])}.<%= #{node}.zip %>")
@@ -309,7 +309,7 @@ module Zena
           # STORE TEMPLATE ========
           template_node = "@#{base_class.to_s.underscore}"
           context_bak = @context.dup # avoid side effects when rendering the same block
-            template      = expand_block(self, :group=>self, :list=>false, :node=>template_node, :template_url=>template_url, :form=>false, :no_form => true)
+            template      = expand_block(self, :block=>self, :list=>false, :node=>template_node, :template_url=>template_url, :form=>false, :no_form => true)
           @context = context_bak
           @result  = ''
           out helper.save_erb_to_url(template, template_url)
@@ -336,9 +336,9 @@ module Zena
     
     # TODO: test
     def r_filter
-      return "span class='parser_error'>[filter] missing 'group' in same parent</span>" unless parent && group = parent.descendant('group')
-      dom_id       = group.dom_id(@context)
-      template_url = group.get_template_url(@context)
+      return "span class='parser_error'>[filter] missing 'block' in same parent</span>" unless parent && block = parent.descendant('block')
+      dom_id       = block.dom_id(@context)
+      template_url = block.get_template_url(@context)
       out "<%= form_remote_tag(:url => zafu_node_path(#{node}.zip), :method => :get, :html => {:id => \"#{dom_id}_q\"}) %><div class='hidden'><input type='hidden' name='template_url' value='#{template_url}'/></div><div class='wrapper'><input type='text' name='#{@params[:key] || 'f'}' value='<%= params[#{(@params[:key] || 'f').to_sym.inspect}] %>'/></div></form>"
       if @params[:live]
         out "<%= observe_form( \"#{dom_id}_q\" , :method => :get, :frequency  =>  1, :submit =>\"#{dom_id}_q\", :url => zafu_node_path(#{node}.zip)) %>"
@@ -348,14 +348,14 @@ module Zena
     # swap an attribute
     # TODO: test
     def r_swap
-      if group = ancestor('group') || ancestor('each')
+      if block = ancestor('block') || ancestor('each')
         # ancestor: ok
-      elsif parent && group = parent.descendant('group')
+      elsif parent && block = parent.descendant('block')
         # sibling: ok
       else
-        return "span class='parser_error'>[swap] missing 'group' in same parent</span>"
+        return "span class='parser_error'>[swap] missing 'block' in same parent</span>"
       end
-      template_url = group.get_template_url(@context)
+      template_url = block.get_template_url(@context)
       states = (@params[:states] || 'todo, done').split(',').map{|e| e.strip}
       if states.include?("")
         text = get_text_for_erb(@params.merge(:attr=>nil))
@@ -635,7 +635,7 @@ module Zena
           form  =  "<%= form_remote_tag(:url => #{base_class.to_s.underscore.pluralize}_path) %>\n"
         else
           # saved form used to edit/create: set values and 'parent_id' from @node
-          @html_tag_params.merge!(:id=>"#{dom_id_from_template_url}<%= #{node}.new_record? ? '_form' : \".\#{#{node}.zip}\" %>") unless @method == 'group' # called from r_group
+          @html_tag_params.merge!(:id=>"#{dom_id_from_template_url}<%= #{node}.new_record? ? '_form' : \".\#{#{node}.zip}\" %>") unless @method == 'block' # called from r_block
           # new_record? = edit/create failed, rendering form with errors
           # else        = edit
           # FIXME: remove '/zafu?' when nodes_controller's method 'zafu' is no longer needed.
@@ -906,11 +906,90 @@ END_TXT
         text = _('btn_tiny_del')
       end
       dom_id = "#{CGI.escape(@context[:dom_id])}.\#{#{node}.zip}"
-      # amp bug, we have to build the path ourselves.
-      out "<% if #{node}[:link_id] -%><%= link_to_remote(#{text.inspect}, {:url => \"/nodes/\#{#{node}[:zip]}/remove_link?link_id=\#{#{node}[:link_id]}&remove=#{dom_id}\", :method => :put}, :class=>#{(@params[:class] || 'unlink').inspect}) %><% end -%>"
+      if node_kind_of?(Node)
+        # amp bug, we have to build the path ourselves.
+        out "<% if #{node}[:link_id] -%><%= link_to_remote(#{text.inspect}, {:url => \"/nodes/\#{#{node}[:zip]}/remove_link?link_id=\#{#{node}[:link_id]}&remove=#{dom_id}\", :method => :put}, :class=>#{(@params[:class] || 'unlink').inspect}) %><% end -%>"
+      elsif node_kind_of?(DataEntry)  
+        out "<%= link_to_remote(#{text.inspect}, {:url => \"/data_entries/\#{#{node}[:id]}?remove=#{dom_id}\", :method => :delete}, :class=>#{(@params[:class] || 'unlink').inspect}) %>"
+      end
     end
     
+    # Group elements in a list. Use :order to specify order.
+    def r_group
+      return "<span class='parser_error'>[group] cannot be used outside of a list</span>" unless list_var = @context[:list]
+      return "<span class='parser_error'>[group] missing 'by' clause</span>" unless key = @params[:by]
 
+      sort_key = @params[:sort] || 'name'
+      
+      if node_kind_of?(DataEntry) && DataEntry::NodeLinkSymbols.include?(key.to_sym)
+        key = "#{key}_id"
+        sort_block = "{|e| (e.#{key} || {})[#{sort_key.to_sym.inspect}]}"
+      elsif node_kind_of?(Node)
+        if ['project', 'parent', 'section'].include?(key)
+          key = 'project_id'
+          sort_block  = "{|e| (e.get_#{key} || {})[#{sort_key.to_sym.inspect}]}"
+          group_array = "group_array(#{list_var}) {|e| e.#{key}_id}"
+        end
+      end
+      
+      group_array ||= "group_array(#{list_var}) {|e| #{node_attribute(key, :node => 'e')}}"
+      
+      if sort_block
+        out "<% grp_#{list_var} = sort_array(#{group_array}) #{sort_block} -%>"
+      else
+        out "<% grp_#{list_var} = #{group_array} -%>"
+      end
+      
+      if descendant('each_group')
+        out expand_with(:group => "grp_#{list_var}")
+      else
+        @context[:group] = "grp_#{list_var}"
+        r_each_group
+      end
+    end
+
+    
+    # Compute statistics on elements in the current list context.
+    def r_stat
+      return "<span class='parser_error'>[stat] must be used inside a list context</span>" unless list
+      find = @params[:find] || @params[:date] || 'count'
+      key  = @params[:of]   || @params[:from] || 'value'
+      case find
+      when 'sum'
+        value = "#{list}.flatten.inject(0) {|#{var}_sum,#{var}| #{var}_sum + #{node_attribute(key, :node => var)}.to_f}"
+      when 'min'
+        value = "#{node_attribute(key, :node => "min_array(#{list}) {|e| #{node_attribute(key, :node => 'e')}}")}"
+      when 'max'
+        value = "#{node_attribute(key, :node => "max_array(#{list}) {|e| #{node_attribute(key, :node => 'e')}}")}"
+      end
+      if @params[:date]
+        # FIXME: DRY (r_show)
+        if @params[:tformat]
+          format = _(@params[:tformat])
+        elsif @params[:format]
+          format = @params[:format]
+        else
+          format = "%Y-%m-%d"
+        end
+        "<%= format_date(#{value}, #{format.inspect}) %>"
+      else
+        "<%= #{value} %>"
+      end
+    end
+
+    def r_each_group
+      return "<span class='parser_error'>[each_group] must be used inside a group context</span>" unless group = @context[:group]
+      if join = @params[:join]
+        join = join.gsub(/&lt;([^%])/, '<\1').gsub(/([^%])&gt;/, '\1>')
+        out "<% #{group}.each_index do |#{list_var}_index| -%>"
+        out "<%= #{list_var}=#{group}[#{list_var}_index]; #{var} = #{list_var}[0]; #{list_var}_index > 0 ? #{join.inspect} : '' %>"
+      else
+        out "<% #{group}.each do |#{list_var}|; #{var} = #{list_var}[0]; -%>"
+      end
+      out expand_with(:group => nil, :list => list_var, :node => var)
+      out "<% end -%>"
+    end
+    
     def r_each
       if @context[:make_form]
         # use the elements inside 'each' loop to produce the edit form
@@ -962,7 +1041,7 @@ END_TXT
         id_hash = {:id=>"#{dom_id_from_template_url}.<%= #{node}.zip %>"}
         if @html_tag
           @html_tag_params.merge!(id_hash)
-          out render_html_tag(expand_with)
+          out render_html_tag(expand_with(:dom_id => dom_id)) # dom_id is needed by 'unlink'
         else
           out add_params(expand_with, id_hash)
         end
@@ -1007,7 +1086,11 @@ END_TXT
     def r_else
       if @context[:in_if]
         out "<% elsif true -%>"
-        out expand_with(:in_if=>false)
+        if @params[:text]
+          out @params[:text]
+        else
+          out expand_with(:in_if=>false)
+        end
       else
         ""
       end
@@ -1321,7 +1404,8 @@ END_TXT
     # try to add 'conditions' without sql injection possibilities...
     # FIXME: 'else' clause has been removed, find a solution to put it back.
     def r_unknown
-      if context = node_class.zafu_known_contexts[@method]
+      # DRY ! (build_finder_for)
+      if (context = node_class.zafu_known_contexts[@method]) && !@params[:where] && !@params[:from]
         node_class = context[:node_class]
         
         if node_class.kind_of?(Array)
@@ -1369,7 +1453,7 @@ END_TXT
     
     # Create an sql query to open a new context (passes its arguments to HasRelations#build_find)
     def build_finder_for(count, rel, params=@params)
-      if context = node_class.zafu_known_contexts[rel]
+      if context = node_class.zafu_known_contexts[rel] && !params[:from] && !params[:where]
         node_class = context[:node_class]
         
         if node_class.kind_of?(Array) && count == :all && node_class[0].ancestors.include?(Node)
@@ -1423,6 +1507,10 @@ END_TXT
       conditions   = []
       query_params = {}
       
+      if params[:where]
+        relations[0] << " where #{params[:where]}"
+      end
+      
       if params[:from]
         if params[params[:from].to_sym]
           # <r:pages from='project' project='...'/>  is the same as <r:pages from='site' project='...'/>
@@ -1431,10 +1519,6 @@ END_TXT
         else
           relations[0] << " from #{params[:from]}"
         end
-      end
-
-      if params[:where]
-        relations[0] << " where #{params[:where]}"
       end
       
       if params[:or]
@@ -1619,8 +1703,8 @@ END_TXT
       
       @context.merge!(opts)          # pass options from 'zafu_known_contexts' to @context
       
-      if (each_block = descendant('each')) && (descendant('edit') || descendant('add') || descendant('add_document') || (descendant('swap') && descendant('swap').parent.method != 'group'))
-        # ajax, build template. We could merge the following code with 'r_group'.
+      if (each_block = descendant('each')) && (descendant('edit') || descendant('add') || descendant('add_document') || (descendant('swap') && descendant('swap').parent.method != 'block'))
+        # ajax, build template. We could merge the following code with 'r_block'.
         add_block  = descendant('add')
         form_block = descendant('form') || each_block
         if list_finder
