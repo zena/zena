@@ -1,0 +1,34 @@
+default:
+  context:
+    node_name: '@node'
+    visitor: 'ant'
+  src: ""
+  res: "SELECT nodes.* FROM nodes WHERE nodes.parent_id = #{@node.id} AND #{secure_scope('nodes')}"
+
+nodes:
+  src: "nodes"
+  res: "SELECT nodes.* FROM nodes WHERE nodes.parent_id = #{@node.id} AND #{secure_scope('nodes')}"
+
+pages:
+  src: "pages"
+  res: "SELECT nodes.* FROM nodes WHERE nodes.kpath LIKE 'NP%' AND nodes.parent_id = #{@node.id} AND #{secure_scope('nodes')}"
+
+letters:
+  src: "letters"
+  res: "SELECT nodes.* FROM nodes WHERE nodes.kpath LIKE 'NNL%' AND nodes.parent_id = #{@node.id} AND #{secure_scope('nodes')}"
+
+nodes_from_site:
+  src: "nodes from site"
+  res: "SELECT nodes.* FROM nodes WHERE #{secure_scope('nodes')}"
+
+pages_from_project:
+  src: "pages from project"
+  res: "SELECT nodes.* FROM nodes WHERE nodes.kpath LIKE 'NP%' AND nodes.project_id = #{@node.get_project_id} AND #{secure_scope('nodes')}"
+
+nodes_from_section:
+  src: "nodes from section"
+  res: "SELECT nodes.* FROM nodes WHERE nodes.section_id = #{@node.get_section_id} AND #{secure_scope('nodes')}"
+
+nodes_from_parent:
+  src: "nodes from parent"
+  res: "SELECT nodes.* FROM nodes WHERE nodes.parent_id = #{@node.id} AND #{secure_scope('nodes')}"

@@ -12,7 +12,7 @@ class TestQuery < QueryBuilder
   
   # default relation filter is to search in the current node's children
   def default_filter(clause)
-    if !direct_relation(clause)
+    if !direct_relation(clause) && clause != 'site'
       direct_relation('parent')
     else
       nil
@@ -57,6 +57,7 @@ class TestQuery < QueryBuilder
 end
 
 class QueryTest < Test::Unit::TestCase
+  yaml_dir File.dirname(__FILE__)
   yaml_test :basic, :filters, :joins
   
   def parse(value, opts)

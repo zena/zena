@@ -1,0 +1,3 @@
+simple:
+  src: "nodes from recipients"
+  res: "SELECT objects.* FROM objects,links,objects AS ob1 WHERE links.relation_id = 4 AND links.source_id = objects.id AND links.target_id = ob1.id AND ob1.parent_id = ID"

@@ -6,7 +6,7 @@ if false
 end
 
 class ZenaParserTest < ZenaTestController
-  file_dir  File.dirname(__FILE__)
+  yaml_dir  File.join(File.dirname(__FILE__), 'zena_parser')
   yaml_test :relations, :basic, :zafu_ajax, :zazen, :apphelper, :errors, :data
   Section # make sure we load Section links before trying relations
   

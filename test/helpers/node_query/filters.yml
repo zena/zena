@@ -1,0 +1,6 @@
+default:
+  context:
+    node_name: '@node'
+    visitor: 'ant'
+  src: "nodes where log_at = event_at from site"
+  res: "SELECT nodes.* FROM nodes WHERE nodes.log_at = nodes.event_at AND #{secure_scope('nodes')}"

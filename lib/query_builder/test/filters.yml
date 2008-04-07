@@ -1,0 +1,3 @@
+simple:
+  src: "objects where name = 'foo' from site"
+  res: "SELECT objects.* FROM objects WHERE objects.name = \"foo\""

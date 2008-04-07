@@ -27,7 +27,7 @@ class QueryBuilder
       elements = @query.split(' from ')
     end
     elements.each_index do |i|
-      parse_element(elements[i], i == elements.size - 1)
+      parse_element(elements[i], i > 0 || i == elements.size - 1)
     end
     after_parse
     @filters.compact!
@@ -42,22 +42,45 @@ class QueryBuilder
       @@main_table
     end
   
-    def parse_element(txt, is_last)
+    def parse_element(txt, use_default)
       clause, filters = txt.split(/\s+where\s+/)
       
-      @filters << default_filter(clause) if is_last
-      
       @filters << relation(clause)
+      
+      @filters << default_filter(clause) if use_default
       
       parse_filters(filters) if filters
     end
     
     def parse_filters(txt)
-      txt.split(/\s+and\s+/).each do |p|
-        if p =~ /(\w+)\s*(=)\s*(\S+)/
-          @filters << "#{table(main_table)}.#{$1}#{$2}#{$3}"
+      txt.split(/\s+and\s+/).each do |clause|
+        # [field] [=|>]
+        if clause =~ /("[^"]*"|'[^']*'|\w+)\s*(like|is not|is|>=|<=|<>|<|=|>|lt|le|eq|ne|ge|gt)\s*("[^"]*"|'[^']*'|\w+)/
+          # TODO: add 'match' parameter (#105)
+          parts = [$1,$3]
+          op = {'lt' => '<','le' => '<=','eq' => '=','ne' => '<>','ge' => '>=','gt' => '>'}[$2] || $2
+          parts.map! do |part|
+            if ['"',"'"].include?(part[0..0])
+              map_literal(part[1..-2])
+            elsif part == 'null'
+              "NULL"
+            else
+              map_field(part)
+            end
+          end.compact!
+          
+          if parts.size == 2 && parts[0] != 'NULL'
+            # ok, no value/field error
+            if op[0..2] == 'is' && parts[1] != 'NULL'
+              # error
+            else
+              @filters << parts.join(" #{op} ")
+            end
+          else
+            # value/field error
+          end
         else
-          raise Exception.new('syntax error')
+          # invalid clause format
         end
       end
     end
@@ -66,9 +89,9 @@ class QueryBuilder
       if !@table_counter[table_name]
         @tables << table_name
         @table_counter[table_name] = 0
-      else
-        @tables << "#{table_name} AS #{table(table_name)}"
+      else  
         @table_counter[table_name] += 1
+        @tables << "#{table_name} AS #{table(table_name)}"
       end
     end
     
@@ -103,5 +126,13 @@ class QueryBuilder
 
     def relation(txt)
       return nil
+    end
+    
+    def map_literal(value)
+      value.inspect
+    end
+    
+    def map_field(fld)
+      "#{table}.#{fld.gsub(/[^a-z_]/,'')}"
     end
 end

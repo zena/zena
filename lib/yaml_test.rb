@@ -9,7 +9,7 @@ module YamlTest
   end
   
   module ClassMethods
-    def file_dir(file_directory)
+    def yaml_dir(file_directory)
       class_eval %Q{
         @@file_directory = #{file_directory.inspect}
       }
