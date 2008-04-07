@@ -11,9 +11,11 @@ class TestQuery < QueryBuilder
   end
   
   # default relation filter is to search in the current node's children
-  def default_filter(clause)
-    if !direct_relation(clause) && clause != 'site'
-      direct_relation('parent')
+  def default(clause)
+    if clause == main_table || direct_filter(clause)
+      'parent'
+    elsif join_relation(clause)
+      main_table
     else
       nil
     end
@@ -21,13 +23,15 @@ class TestQuery < QueryBuilder
   
   private
     
-    # Relations that can be resolved without a join
+    # Root filters (relations that can be solved without a join).
     def direct_relation(txt)
       case txt
       when 'parent'
-        "#{table}.parent_id = ID"
+        "#{map_field('parent_id')} = #{map_field('id', table(main_table,-1), 'id')}"
       when 'project'
-        "#{table}.project_id = PROJECT_ID"
+        "#{map_field('project_id')} = #{map_field('id', table(main_table,-1), 'project_id')}"
+      when 'site', main_table
+        nil
       else
         nil
       end
@@ -37,7 +41,7 @@ class TestQuery < QueryBuilder
     def direct_filter(txt)
       case txt
       when 'letters'
-        "#{table}.kpath LIKE 'NPL%'"
+        "#{table}.kpath LIKE 'NNL%'"
       else
         nil
       end
@@ -49,7 +53,7 @@ class TestQuery < QueryBuilder
       when 'recipients'
         add_table('links')
         add_table(main_table)
-        "#{table('links')}.relation_id = 4 AND #{table('links')}.source_id = #{table(main_table,-1)}.id AND #{table('links')}.target_id = #{table}.id"
+        "#{table('links')}.relation_id = 4 AND #{table('links')}.source_id = #{table(main_table,-1)}.id AND #{table('links')}.target_id = #{table}.id"# #{map_field('id', table(main_table,-1), 'project_id')}
       else
         nil
       end

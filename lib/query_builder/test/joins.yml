@@ -1,3 +1,8 @@
-simple:
-  src: "nodes from recipients"
-  res: "SELECT objects.* FROM objects,links,objects AS ob1 WHERE links.relation_id = 4 AND links.source_id = objects.id AND links.target_id = ob1.id AND ob1.parent_id = ID"
+recipients:
+  res: "SELECT objects.* FROM objects,links WHERE links.relation_id = 4 AND links.source_id = objects.id AND links.target_id = ID"
+
+letters_from_project:
+  res: "SELECT objects.* FROM objects WHERE objects.project_id = PROJECT_ID AND objects.kpath LIKE 'NNL%'"
+  
+nodes_from_recipients:
+  res: "SELECT objects.* FROM objects,links,objects AS ob1 WHERE links.relation_id = 4 AND links.source_id = objects.id AND links.target_id = ID AND ob1.parent_id = objects.id"

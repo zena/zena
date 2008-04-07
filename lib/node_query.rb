@@ -19,9 +19,9 @@ class NodeQuery < QueryBuilder
   end
   
   # default relation filter is to search in the current node's children
-  def default_filter(clause)
-    if !direct_relation(clause) && clause != 'site'
-      direct_relation('parent')
+  def default(clause)
+    if direct_filter(clause)
+      'parent'
     else
       nil
     end

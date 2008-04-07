@@ -3,7 +3,9 @@ icons from nodes from project
 
 SELECT nd1.id, nd1.project_id, nd1.name, nd1.kpath FROM nodes as nd1, links AS lk1, nodes as nd2 WHERE (lk1.relation_id = 4 AND lk1.target_id = nd1.id AND lk1.source_id = nd2.id) AND (nd2.project_id = 11)
 =end
-
+require 'rubygems'
+require 'ruby-debug'
+Debugger.start
 class QueryBuilder
   attr_reader :tables, :filters
   @@main_table = 'objects'
@@ -19,35 +21,48 @@ class QueryBuilder
     @tables  = []
     @table_counter = {}
     @filters = []
-    @main_table ||= 
-    add_table(main_table)
+    @main_table ||= 'objects'
     if @query == nil || @query == ''
       elements = [main_table]
     else
-      elements = @query.split(' from ')
+      elements = @query.split(' from ').reverse
     end
-    elements.each_index do |i|
-      parse_element(elements[i], i > 0 || i == elements.size - 1)
+    #debugger
+    
+    elements << default(elements.first)
+    elements.compact.each do |e|
+      parse_element(e)
     end
     after_parse
     @filters.compact!
   end
   
   def to_sql
-    "SELECT #{table_at(main_table,0)}.* FROM #{@tables.join(',')}" + (@filters == [] ? '' : " WHERE #{@filters.join(' AND ')}")
+    "SELECT #{table_at(main_table, 0)}.* FROM #{@tables.join(',')}" + (@filters == [] ? '' : " WHERE #{@filters.join(' AND ')}")
   end
   
   protected
+    def get_field(fld, table = main_table, index = 0)
+      if table_name = table(main_table, index)
+        if valid_field?(table_name,fld)
+          "#{table_name}.#{fld}"
+        else
+          # FIXME
+          # error, invalid field (raise error)
+        end
+      else
+        query_parameter(table_name,fld)
+      end
+    end
+    
     def main_table
       @@main_table
     end
   
-    def parse_element(txt, use_default)
+    def parse_element(txt)
       clause, filters = txt.split(/\s+where\s+/)
       
       @filters << relation(clause)
-      
-      @filters << default_filter(clause) if use_default
       
       parse_filters(filters) if filters
     end
@@ -96,12 +111,14 @@ class QueryBuilder
     end
     
     def table_counter(table_name)
-      @table_counter[table_name] ||= 0
+      @table_counter[table_name] || 0
     end
     
     def table_at(table_name, index)
-      if index < 0 || index > table_counter(table_name)
-        raise Exception.new("Query error")
+      if index < 0
+        return nil # no table at this address
+      elsif index == 0 && !@table_counter[table_name]
+        add_table(table_name)
       end
       index == 0 ? table_name : "#{table_name[0..1]}#{index}"
     end
@@ -111,6 +128,9 @@ class QueryBuilder
     end
     
     # ******** Overwrite these **********
+    def default(clause)
+      nil
+    end
     
     def after_parse
       # do nothing
@@ -128,11 +148,29 @@ class QueryBuilder
       return nil
     end
     
+    # Map a litteral value to be used inside a query
     def map_literal(value)
       value.inspect
     end
     
-    def map_field(fld)
-      "#{table}.#{fld.gsub(/[^a-z_]/,'')}"
+    # Map a field to be used inside a query
+    def map_field(fld, table_name = main_table, parameter = nil)
+      if table_name
+        if valid_field?(fld, table_name)
+          "#{table_name}.#{fld}"
+        else
+          # FIXME: field error
+        end
+      else
+        map_parameter(parameter || fld)
+      end
+    end
+    
+    def valid_field?(fld, table_name = main_table)
+      true
+    end
+    
+    def map_parameter(fld)
+      fld.to_s.upcase
     end
 end
