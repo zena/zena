@@ -192,6 +192,21 @@ task :create_vhost, :roles => :web do
   end
 end
 
+desc "Rename a webhost"
+task :rename_host, :roles => :web do
+  unless self[:host] && self[:old_host]
+    puts "host or old_host not set (use -s host=... -s old_host=...)"
+  else
+    run "#{in_current} rake zena:rename_host OLD_HOST='#{self[:old_host]}' HOST='#{self[:host]}' RAILS_ENV='production'"
+    create_vhost
+    set_permissions
+    old_vhost_path = "/etc/apache2/sites-available/#{self[:old_host]}"
+    run "test -ne #{old_vhost_path} || rm #{old_vhost_path}"
+    run "a2dissite #{self[:old_host]}"
+    run "/etc/init.d/apache2 reload"
+  end
+end
+
 desc "Apache2 initial setup"
 task :apache2_setup, :roles => :web do
   ports = (mongrel_port.to_i...(mongrel_port.to_i + mongrel_count.to_i)).to_a

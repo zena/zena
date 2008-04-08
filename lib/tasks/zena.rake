@@ -93,7 +93,7 @@ namespace :zena do
         ENV['LANG'] ||= 'en'
         host_path = "#{SITES_ROOT}/#{host}"
         if Site.find_by_host(host)
-          puts "Host allready exists in the database. Aborting."
+          puts "Host already exists in the database. Aborting."
         elsif File.exist?(host_path)
           puts "Path for host files exists (#{host_path}). Aborting."
         else
@@ -121,6 +121,36 @@ namespace :zena do
             end
             
             puts "Site [#{host}] created."
+          end
+        end
+      end
+    end
+  end
+  
+  desc "Rename a host"
+  task :rename_host => :environment do
+    # 0. set host name
+    unless host = ENV['HOST']
+      puts "Please set HOST to the hostname for the new site name. Aborting."
+    else
+      unless old_host = ENV['OLD_HOST']
+        puts "Please set OLD_HOST to the hostname of the old site name. Aborting."
+      else
+        host_path = "#{SITES_ROOT}/#{old_host}"
+        if !site = Site.find_by_host(old_host)
+          puts "Old host does not exist in the database. Aborting."
+        elsif Site.find_by_host(host)
+          puts "New host already exist in the database. Aborting."
+        elsif !File.exist?(host_path)
+          puts "Path for host files does not exist (#{host_path}). Aborting."
+        else
+          site.host = host
+          if !site.save
+            puts "Could not change site name: #{site.errors.inspect}"
+          else
+            # move files
+            FileUtils.mv(host_path, "#{SITES_ROOT}/#{host}")
+            puts "Site '#{old_host}' renamed to '#{host}'."
           end
         end
       end
