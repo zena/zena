@@ -1,8 +1,12 @@
-recipients:
-  res: "SELECT objects.* FROM objects,links WHERE links.relation_id = 4 AND links.source_id = objects.id AND links.target_id = ID"
 
-letters_from_project:
-  res: "SELECT objects.* FROM objects WHERE objects.project_id = PROJECT_ID AND objects.kpath LIKE 'NNL%'"
-  
-nodes_from_recipients:
-  res: "SELECT objects.* FROM objects,links,objects AS ob1 WHERE links.relation_id = 4 AND links.source_id = objects.id AND links.target_id = ID AND ob1.parent_id = objects.id"
+icons_from_recipients:
+  res: "SELECT ob1.* FROM objects,links,objects AS ob1,links AS li1 WHERE ob1.id = li1.source_id AND li1.relation_id = 5 AND li1.target_id = objects.id AND objects.id = links.target_id AND links.relation_id = 4 AND links.source_id = ID"
+
+letters_from_recipients:
+  res: "SELECT ob1.* FROM objects,links,objects AS ob1 WHERE ob1.kpath LIKE 'NNL%' AND ob1.parent_id = objects.id AND objects.id = links.target_id AND links.relation_id = 4 AND links.source_id = ID"
+
+objects_from_recipients:
+  res: "SELECT ob1.* FROM objects,links,objects AS ob1 WHERE ob1.parent_id = objects.id AND objects.id = links.target_id AND links.relation_id = 4 AND links.source_id = ID"
+
+parent_from_parent:
+  res: "SELECT ob1.* FROM objects,objects AS ob1 WHERE ob1.id = objects.parent_id AND objects.id = PARENT_ID"

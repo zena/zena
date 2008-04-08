@@ -3,4 +3,4 @@ default:
     node_name: '@node'
     visitor: 'ant'
   src: "nodes from nodes from section"
-  res: "SELECT nodes.* FROM nodes, nodes AS no1 WHERE no1.section_id = #{@node.get_section_id} AND nodes.parent_id = no1.id AND #{secure_scope('nodes')}"
+  res: "SELECT no1.* FROM nodes,nodes AS no1 WHERE no1.parent_id = nodes.id AND nodes.section_id = #{@node.get_section_id} AND #{secure_scope('no1')}"

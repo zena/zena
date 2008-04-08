@@ -7,3 +7,12 @@ objects:
 
 objects_from_project:
   res: "SELECT objects.* FROM objects WHERE objects.project_id = PROJECT_ID"
+
+recipients:
+  res: "SELECT objects.* FROM objects,links WHERE objects.id = links.target_id AND links.relation_id = 4 AND links.source_id = ID"
+
+letters_from_project:
+  res: "SELECT objects.* FROM objects WHERE objects.kpath LIKE 'NNL%' AND objects.project_id = PROJECT_ID"
+
+parent:
+  res: "SELECT objects.* FROM objects WHERE objects.id = PARENT_ID"

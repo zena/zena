@@ -13,56 +13,65 @@ class NodeQuery < QueryBuilder
   
   # Build joins and filters from a relation.
   def relation(txt)
-    direct_relation(txt) ||
-    direct_filter(txt)   ||
+    context_filter(txt) ||
+    direct_filter(txt)  ||
     join_relation(txt)
   end
   
   # default relation filter is to search in the current node's children
   def default(clause)
-    if direct_filter(clause)
-      'parent'
+    if clause == main_table || direct_filter(clause)
+      'self'
     else
       nil
     end
   end
   
   def after_parse
-    @filters << "\#{secure_scope('#{table_at(main_table,0)}')}"
+    @filters.unshift "\#{secure_scope('#{table}')}"
   end
   
   private
+    def context_clause?(clause)
+      ['self', 'children', 'parent', 'project', 'section', 'site', main_table].include?(clause)
+    end
     
     # Relations that can be resolved without a join
-    def direct_relation(txt)
+    def context_filter_fields(txt)
       case txt
-      when 'site'
-        nil
-      when 'section'
-        "#{table}.section_id = \#{#{@node_name}.get_section_id}"
-      when 'project'
-        "#{table}.project_id = \#{#{@node_name}.get_project_id}"
+      when 'self', 'children'
+        ['parent_id', 'id']
       when 'parent'
-        "#{table}.parent_id = \#{#{@node_name}.id}"
+        ['parent_id', 'parent_id']
+      when 'project'
+        ['project_id', 'project_id']
+      when 'section'
+        ['section_id', 'section_id']
+      when 'site', main_table
+        nil
       else
         nil
       end
     end
-
+    
+    #def context_filter(clause)
+    #  if fields = context_filter_fields(clause)
+    #    "#{field_or_param(fields[0])} = #{field_or_param(fields[1], table(main_table,-1))}"
+    #  else
+    #    nil
+    #  end
+    #end
+    
     # Direct filter
     def direct_filter(rel)
-      case rel
-      when main_table
+      if rel == main_table
         nil
-      ######## special cases #######
-      else  
-        if klass = Node.get_class(rel)
-          ######## class filters #######
-          "#{table}.kpath LIKE '#{klass.kpath}%'"
-        else
-          # unknown class
-          nil
-        end
+      elsif klass = Node.get_class(rel)
+        ######## class filters #######
+        "#{table}.kpath LIKE '#{klass.kpath}%'"
+      else
+        # unknown class
+        nil
       end
     end
 
@@ -71,7 +80,6 @@ class NodeQuery < QueryBuilder
       case txt
       when 'recipients'
         add_table('links')
-        add_table(main_table)
         "#{table('links')}.relation_id = 4 AND #{table('links')}.source_id = #{table(main_table,-1)}.id AND #{table('links')}.target_id = #{table}.id"
       else
         nil
@@ -93,13 +101,13 @@ class NodeQuery < QueryBuilder
       end
     end
     
-    def map_field(field)
+    def map_field(field, table_name = table)
       case field[0..1]
       when 'd_'
         # DYNAMIC ATTRIBUTE
         key = field[2..-1]
         key, function = parse_sql_function_in_field(key)
-    
+  
         unless dyn_keys[key]
           dyn_counter += 1
           unless has_version_join
@@ -124,7 +132,7 @@ class NodeQuery < QueryBuilder
             joins << version_join
             has_version_join = true
           end
-      
+    
           key = function ? "#{function}(vs.#{key})" : "vs.#{key}"
         else
           # bad version attribute
@@ -133,12 +141,42 @@ class NodeQuery < QueryBuilder
       else
         # NODE
         key, function = parse_sql_function_in_field(field)
-        if Node.zafu_readable?(key) && Node.column_names.include?(key)
-          function ? "#{function}(#{key})" : key
+        if ['id','parent_id','project_id','section_id'].include?(key) || (Node.zafu_readable?(key) && Node.column_names.include?(key))
+          function ? "#{function}(#{table_name}.#{key})" : "#{table_name}.#{key}"
         else
           # bad attribute
           nil
         end
+      end
+    end
+    
+    def valid_field?(table_name, fld)
+      true
+    end
+    
+    def map_parameter(fld)
+      case fld
+      when 'project_id', 'section_id'
+        "\#{#{@node_name}.get_#{fld}}"
+      when 'id', 'parent_id'
+        "\#{#{@node_name}.#{fld}}"
+      else
+        # Node.zafu_readable?(fld)
+        # bad parameter
+      end
+    end
+    
+    
+    # When a field is defined as log_at:year, return [log_at, year].
+    def parse_sql_function_in_field(field)
+      if field =~ /\A(\w+):(\w+)\Z/
+        if ['year'].include?($2)
+          [$1,$2]
+        else
+          [$1]
+        end
+      else
+        [field]
       end
     end
 end

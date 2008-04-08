@@ -6,6 +6,7 @@ SELECT nd1.id, nd1.project_id, nd1.name, nd1.kpath FROM nodes as nd1, links AS l
 require 'rubygems'
 require 'ruby-debug'
 Debugger.start
+
 class QueryBuilder
   attr_reader :tables, :filters
   @@main_table = 'objects'
@@ -25,46 +26,62 @@ class QueryBuilder
     if @query == nil || @query == ''
       elements = [main_table]
     else
-      elements = @query.split(' from ').reverse
+      elements = @query.split(' from ')
     end
-    #debugger
     
-    elements << default(elements.first)
-    elements.compact.each do |e|
-      parse_element(e)
+    parts = []
+    last_was_context = true
+    
+    elements.each_index do |i|
+      e = elements[i]
+      used_as_context = false
+      if context_clause?(e) && !last_was_context
+        # merge contextual clause into last part
+        parts[-1] << e
+        used_as_context = true
+      else
+      
+        #if (i != elements.size - 1) || !used_as_context
+        clause, filters = e.split(/\s+where\s+/)
+        parts << [clause, filters]
+      end
+      last_was_context = used_as_context
     end
+    
+    puts [@query, parts].inspect
+    
+    # In order to know the table names of the dependencies, we need to parse it backwards.
+    # We first find the closest elements, then the final ones. For example, "pages from project" we need
+    # project information before getting 'pages'. 
+    parts.reverse!
+    
+    parts.each do |e|
+      e << default(e[0]) unless e.size > 2
+      
+      add_table(main_table)
+      parse_part(e)
+    end
+    
     after_parse
     @filters.compact!
   end
   
   def to_sql
-    "SELECT #{table_at(main_table, 0)}.* FROM #{@tables.join(',')}" + (@filters == [] ? '' : " WHERE #{@filters.join(' AND ')}")
+    "SELECT #{table}.* FROM #{@tables.join(',')}" + (@filters == [] ? '' : " WHERE #{@filters.reverse.join(' AND ')}")
   end
   
   protected
-    def get_field(fld, table = main_table, index = 0)
-      if table_name = table(main_table, index)
-        if valid_field?(table_name,fld)
-          "#{table_name}.#{fld}"
-        else
-          # FIXME
-          # error, invalid field (raise error)
-        end
-      else
-        query_parameter(table_name,fld)
-      end
-    end
     
     def main_table
       @@main_table
     end
   
-    def parse_element(txt)
-      clause, filters = txt.split(/\s+where\s+/)
-      
-      @filters << relation(clause)
+    def parse_part(part)
+      clause, filters, context_filter = *part
       
       parse_filters(filters) if filters
+      @filters << context_filter(context_filter) if context_filter
+      @filters << relation(clause)
     end
     
     def parse_filters(txt)
@@ -80,7 +97,7 @@ class QueryBuilder
             elsif part == 'null'
               "NULL"
             else
-              map_field(part)
+              field_or_param(part)
             end
           end.compact!
           
@@ -89,7 +106,7 @@ class QueryBuilder
             if op[0..2] == 'is' && parts[1] != 'NULL'
               # error
             else
-              @filters << parts.join(" #{op} ")
+              @filters << parts.join(" #{op.upcase} ")
             end
           else
             # value/field error
@@ -117,8 +134,6 @@ class QueryBuilder
     def table_at(table_name, index)
       if index < 0
         return nil # no table at this address
-      elsif index == 0 && !@table_counter[table_name]
-        add_table(table_name)
       end
       index == 0 ? table_name : "#{table_name[0..1]}#{index}"
     end
@@ -135,17 +150,25 @@ class QueryBuilder
     def after_parse
       # do nothing
     end
-
-    def direct_relation(txt)
+    
+    def relation(clause)
       return nil
     end
-
-    def direct_filter(txt)
-      return nil
+    
+    def context_clause?(clause)
+      false
     end
-
-    def relation(txt)
-      return nil
+    
+    def context_filter_fields(clause)
+      nil
+    end
+    
+    def context_filter(clause)
+      if fields = context_filter_fields(clause)
+        "#{field_or_param(fields[0])} = #{field_or_param(fields[1], table(main_table,-1))}"
+      else
+        nil
+      end
     end
     
     # Map a litteral value to be used inside a query
@@ -154,20 +177,21 @@ class QueryBuilder
     end
     
     # Map a field to be used inside a query
-    def map_field(fld, table_name = main_table, parameter = nil)
+    def field_or_param(fld, table_name = table)
       if table_name
-        if valid_field?(fld, table_name)
-          "#{table_name}.#{fld}"
-        else
-          # FIXME: field error
-        end
+        map_field(fld, table_name)
       else
-        map_parameter(parameter || fld)
+        map_parameter(fld)
       end
     end
     
-    def valid_field?(fld, table_name = main_table)
-      true
+    # Overwrite this and take car to check for valid fields.
+    def map_field(fld, table_name)
+      if fld == 'id'
+        "#{table_name}.#{fld}"
+      else
+        # error, raise
+      end
     end
     
     def map_parameter(fld)
