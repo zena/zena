@@ -847,6 +847,7 @@ latex_template = %q{
   # Buttons are :edit, :add, :propose, :publish, :refuse, or :drive. :all = (:edit, :propose, :publish, :refuse, :drive)
   # TODO: implement multiple actions: :actions => 'edit,propose,delete'
   def node_actions(opts={})
+    return "" if new_record?
     actions = (opts[:actions] || 'all').to_s
     actions = 'edit,propose,publish,refuse,drive' if actions == 'all'
 
