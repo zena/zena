@@ -6,7 +6,8 @@ require 'yaml'
 require 'date'
 
 # Use this custom format (we do not record the logname or user):
-# %v %h %{%Y-%m-%d %H:%M:%S %z}t %T %>s %b %m \"%U\" \"%{Referer}i\" \"%{User-agent}i\" \"%r\"
+# LogFormat "%v %h %{%Y-%m-%d %H:%M:%S %z}t %T %>s %b %m \"%U\" \"%{Referer}i\" \"%{User-agent}i\" \"%r\"" zenaLog
+# 
 class LogRecorder
   class FormatError < Exception; end
   

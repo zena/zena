@@ -4,8 +4,11 @@ icons from nodes from project
 SELECT nd1.id, nd1.project_id, nd1.name, nd1.kpath FROM nodes as nd1, links AS lk1, nodes as nd2 WHERE (lk1.relation_id = 4 AND lk1.target_id = nd1.id AND lk1.source_id = nd2.id) AND (nd2.project_id = 11)
 =end
 require 'rubygems'
-require 'ruby-debug'
-Debugger.start
+
+if false
+  require 'ruby-debug'
+  Debugger.start
+end
 
 class QueryBuilder
   attr_reader :tables, :filters
@@ -27,6 +30,7 @@ class QueryBuilder
       elements = [main_table]
     else
       elements = @query.split(' from ')
+      elements[-1], order = elements[-1].split(' order by ')
     end
     
     parts = []
@@ -48,8 +52,6 @@ class QueryBuilder
       last_was_context = used_as_context
     end
     
-    puts [@query, parts].inspect
-    
     # In order to know the table names of the dependencies, we need to parse it backwards.
     # We first find the closest elements, then the final ones. For example, "pages from project" we need
     # project information before getting 'pages'. 
@@ -62,12 +64,14 @@ class QueryBuilder
       parse_part(e)
     end
     
+    @order = parse_order_clause(order)
+    
     after_parse
     @filters.compact!
   end
   
   def to_sql
-    "SELECT #{table}.* FROM #{@tables.join(',')}" + (@filters == [] ? '' : " WHERE #{@filters.reverse.join(' AND ')}")
+    "SELECT #{table}.* FROM #{@tables.join(',')}" + (@filters == [] ? '' : " WHERE #{@filters.reverse.join(' AND ')}#{@order}#{@limit}")
   end
   
   protected
@@ -109,12 +113,35 @@ class QueryBuilder
               @filters << parts.join(" #{op.upcase} ")
             end
           else
-            # value/field error
+            # TODO: value/field error
           end
         else
           # invalid clause format
         end
       end
+    end
+    
+    def parse_order_clause(order)
+      return '' unless order
+      res = []
+      
+      order.split(',').each do |clause|
+        if clause =~ /^(\w+) (ASC|asc|DESC|desc)$/
+          fld_name, direction = $1, $2
+          if fld = map_field(fld_name, table)
+            res << "#{@tables.size == 1 ? fld_name : fld} #{direction.upcase}"
+          else
+            # TODO: raise error ?
+            puts "BAD field #{fld_name}"
+          end
+        elsif clause == 'random'
+          res << "RAND()"
+        else
+          # TODO: raise error ?
+          puts "bad order clause #{clause}"
+        end
+      end
+      res == [] ? '' : " ORDER BY #{res.join(', ')}"
     end
     
     def add_table(table_name)
@@ -190,7 +217,7 @@ class QueryBuilder
       if fld == 'id'
         "#{table_name}.#{fld}"
       else
-        # error, raise
+        # TODO: error, raise / ignore ?
       end
     end
     

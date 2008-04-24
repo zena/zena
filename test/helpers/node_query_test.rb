@@ -6,7 +6,6 @@ class NodeQueryTest < ZenaTestUnit
 
   def parse(value, opts)
     login opts[:visitor].to_sym
-    debugger
     NodeQuery.new(value, opts).to_sql
   end
 

@@ -847,13 +847,14 @@ latex_template = %q{
   # Buttons are :edit, :add, :propose, :publish, :refuse, or :drive. :all = (:edit, :propose, :publish, :refuse, :drive)
   # TODO: implement multiple actions: :actions => 'edit,propose,delete'
   def node_actions(opts={})
-    return "" if new_record?
     actions = (opts[:actions] || 'all').to_s
     actions = 'edit,propose,publish,refuse,drive' if actions == 'all'
 
     opts = { :node => @node }.merge(opts)
     text = opts[:text]
     node = opts[:node]
+    return "" if node.new_record?
+    
     # hash = { :node_id => node[:zip], :id => node.v_number } = this is bad: we should not preload a specific version when doing
                                                               # node actions
     hash = { :node_id => node[:zip], :id => 0 }

@@ -16,3 +16,12 @@ letters_from_project:
 
 parent:
   res: "SELECT objects.* FROM objects WHERE objects.id = PARENT_ID"
+
+order_single_table:
+  src: "objects from project order by name ASC"
+  res: "SELECT objects.* FROM objects WHERE objects.project_id = PROJECT_ID ORDER BY name ASC"
+
+
+order_many_tables:
+  src: "recipients order by name ASC"
+  res: "SELECT objects.* FROM objects,links WHERE objects.id = links.target_id AND links.relation_id = 4 AND links.source_id = ID ORDER BY objects.name ASC"
