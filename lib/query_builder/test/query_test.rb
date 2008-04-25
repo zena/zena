@@ -1,5 +1,7 @@
 require File.join(File.dirname(__FILE__) , '..', '..', 'yaml_test.rb')
 require File.join(File.dirname(__FILE__) , '..', 'lib', 'query_builder')
+require 'ruby-debug'
+Debugger.start
 
 class TestQuery < QueryBuilder
   
@@ -10,9 +12,10 @@ class TestQuery < QueryBuilder
     join_relation(clause)
   end
   
-  # default relation filter is to search in the current node's children
-  def default(clause)
-    if clause == main_table || direct_filter(clause)
+  # default context filter is to search in the current node's children (in self)
+  def default_context_filter(clause)
+    if direct_filter?(clause)
+      # we add the default scope if the relation can be resolved with a 'where' clause.
       'self'
     else
       nil
@@ -20,11 +23,7 @@ class TestQuery < QueryBuilder
   end
   
   private
-    def context_clause?(clause)
-      ['self', 'parent', 'project', 'site', main_table].include?(clause)
-    end
-    
-    # Root filters (relations that can be solved without a join).
+    # Root filters (relations that can be solved without a join). Think 'in clause' (in self, in parent).
     def context_filter_fields(clause)
       case clause
       when 'self'
@@ -62,8 +61,8 @@ class TestQuery < QueryBuilder
     end
 
     # Direct filter
-    def direct_filter(txt)
-      case txt
+    def direct_filter(rel)
+      case rel
       when 'letters'
         "#{table}.kpath LIKE 'NNL%'"
       when 'clients'
@@ -72,10 +71,17 @@ class TestQuery < QueryBuilder
         nil
       end
     end
+    
+    # Return true if the clause is a direct filter (relation without a join).
+    def direct_filter?(rel)
+      rel == main_table ||
+      rel == 'children' ||
+      direct_filter(rel) != nil
+    end
 
     # Filters that need a join
-    def join_relation(txt)
-      join = case txt
+    def join_relation(rel)
+      join = case rel
       when 'recipients'
         ['source_id', 4, 'target_id']
       when 'icons'

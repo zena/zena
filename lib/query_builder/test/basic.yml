@@ -5,23 +5,34 @@ empty:
 objects:
   res: "SELECT objects.* FROM objects WHERE objects.parent_id = ID"
 
-objects_from_project:
+objects_in_project:
   res: "SELECT objects.* FROM objects WHERE objects.project_id = PROJECT_ID"
 
 recipients:
   res: "SELECT objects.* FROM objects,links WHERE objects.id = links.target_id AND links.relation_id = 4 AND links.source_id = ID"
 
-letters_from_project:
+letters_in_project:
   res: "SELECT objects.* FROM objects WHERE objects.kpath LIKE 'NNL%' AND objects.project_id = PROJECT_ID"
 
 parent:
   res: "SELECT objects.* FROM objects WHERE objects.id = PARENT_ID"
 
 order_single_table:
-  src: "objects from project order by name ASC"
+  src: "objects in project order by name ASC"
   res: "SELECT objects.* FROM objects WHERE objects.project_id = PROJECT_ID ORDER BY name ASC"
-
 
 order_many_tables:
   src: "recipients order by name ASC"
   res: "SELECT objects.* FROM objects,links WHERE objects.id = links.target_id AND links.relation_id = 4 AND links.source_id = ID ORDER BY objects.name ASC"
+
+limit:
+  src: "objects in project limit 2"
+  res: "SELECT objects.* FROM objects WHERE objects.project_id = PROJECT_ID LIMIT 2"
+  
+offset_in_limit:
+  src: "objects in project limit 3,2"
+  res: "SELECT objects.* FROM objects WHERE objects.project_id = PROJECT_ID LIMIT 2 OFFSET 3"
+
+offset:
+  src: "objects in project limit 2 offset 3"
+  res: "SELECT objects.* FROM objects WHERE objects.project_id = PROJECT_ID LIMIT 2 OFFSET 3"

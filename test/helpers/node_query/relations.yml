@@ -1,9 +1,10 @@
 default:
   context:
     node_name: '@node'
+    node: 'cleanWater'
     visitor: 'ant'
   src: ""
-  res: "SELECT nodes.* FROM nodes WHERE nodes.parent_id = \#{@node.id} AND \#{secure_scope('nodes')}"
+  sql: "SELECT nodes.* FROM nodes WHERE nodes.parent_id = #{@node.id} AND (#{@node.secure_scope('nodes')}) ORDER BY position ASC, name ASC"
   
-nodes_from_nodes_from_section:
-  res: "SELECT no1.* FROM nodes,nodes AS no1 WHERE no1.parent_id = nodes.id AND nodes.section_id = #{@node.get_section_id} AND #{secure_scope('no1')}"
+nodes_from_nodes_in_section:
+  sql: "SELECT no1.* FROM nodes,nodes AS no1 WHERE no1.parent_id = nodes.id AND nodes.section_id = #{@node.get_section_id} AND (#{@node.secure_scope('no1')}) ORDER BY no1.position ASC, no1.name ASC"

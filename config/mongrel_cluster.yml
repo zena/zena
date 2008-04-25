@@ -1,8 +1,10 @@
 --- 
-cwd: /var/www/zenadmin.org/current
-port: "8000"
+user: "gaspard"
+cwd: /Users/gaspard/svk/zena
+log_file: log/mongrel.log
+port: "3000"
 environment: production
+group: staff
 address: 127.0.0.1
 pid_file: log/mongrel.pid
-servers: 2
-config_script: config/mongrel_upload_progress.conf
+servers: 1

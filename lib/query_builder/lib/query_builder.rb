@@ -30,26 +30,16 @@ class QueryBuilder
       elements = [main_table]
     else
       elements = @query.split(' from ')
-      elements[-1], order = elements[-1].split(' order by ')
+      last_element = elements.last
+      last_element, offset = last_element.split(' offset ')
+      last_element, limit  = last_element.split(' limit ')
+      elements[-1], order  = last_element.split(' order by ')
     end
     
-    parts = []
-    last_was_context = true
-    
-    elements.each_index do |i|
-      e = elements[i]
-      used_as_context = false
-      if context_clause?(e) && !last_was_context
-        # merge contextual clause into last part
-        parts[-1] << e
-        used_as_context = true
-      else
-      
-        #if (i != elements.size - 1) || !used_as_context
-        clause, filters = e.split(/\s+where\s+/)
-        parts << [clause, filters]
-      end
-      last_was_context = used_as_context
+    parts = elements.map do |e|
+      e, context_filter = e.split(' in ')
+      clause, filters = e.split(/\s+where\s+/)
+      [clause, context_filter, filters]
     end
     
     # In order to know the table names of the dependencies, we need to parse it backwards.
@@ -58,20 +48,22 @@ class QueryBuilder
     parts.reverse!
     
     parts.each do |e|
-      e << default(e[0]) unless e.size > 2
+      e[1] ||= default_context_filter(e[0])
       
       add_table(main_table)
       parse_part(e)
     end
     
-    @order = parse_order_clause(order)
+    @order  = parse_order_clause(order) || parse_order_clause(default_order_clause)
+    @limit  = parse_limit_clause(limit)
+    @offset ||= parse_offset_clause(offset)
     
     after_parse
     @filters.compact!
   end
   
   def to_sql
-    "SELECT #{table}.* FROM #{@tables.join(',')}" + (@filters == [] ? '' : " WHERE #{@filters.reverse.join(' AND ')}#{@order}#{@limit}")
+    "SELECT #{table}.* FROM #{@tables.join(',')}" + (@filters == [] ? '' : " WHERE #{@filters.reverse.join(' AND ')}#{@order}#{@limit}#{@offset}")
   end
   
   protected
@@ -81,7 +73,7 @@ class QueryBuilder
     end
   
     def parse_part(part)
-      clause, filters, context_filter = *part
+      clause, context_filter, filters = *part
       
       parse_filters(filters) if filters
       @filters << context_filter(context_filter) if context_filter
@@ -122,11 +114,11 @@ class QueryBuilder
     end
     
     def parse_order_clause(order)
-      return '' unless order
+      return nil unless order
       res = []
       
       order.split(',').each do |clause|
-        if clause =~ /^(\w+) (ASC|asc|DESC|desc)$/
+        if clause =~ /^\s*(\w+) (ASC|asc|DESC|desc)/
           fld_name, direction = $1, $2
           if fld = map_field(fld_name, table)
             res << "#{@tables.size == 1 ? fld_name : fld} #{direction.upcase}"
@@ -141,7 +133,32 @@ class QueryBuilder
           puts "bad order clause #{clause}"
         end
       end
-      res == [] ? '' : " ORDER BY #{res.join(', ')}"
+      res == [] ? nil : " ORDER BY #{res.join(', ')}"
+    end
+    
+    def parse_limit_clause(limit)
+      return nil unless limit
+      if limit.strip =~ /^\d+$/
+        " LIMIT #{limit}"
+      elsif limit =~ /^\s*(\d+)\s*,\s*(\d+)/
+        @offset = " OFFSET #{$1}"
+        " LIMIT #{$2}"
+      else
+        # TODO: raise error ?
+        nil
+      end
+    end
+    
+    def parse_offset_clause(offset)
+      return nil unless offset
+      if !@limit
+        # TODO: raise error ?
+      elsif offset.strip =~ /^\d+$/
+        " OFFSET #{offset}"
+      else
+        # TODO: raise error ?
+        nil
+      end
     end
     
     def add_table(table_name)
@@ -170,7 +187,12 @@ class QueryBuilder
     end
     
     # ******** Overwrite these **********
-    def default(clause)
+    def default_context_filter(clause)
+      nil
+    end
+    
+    # Default sort order
+    def default_order_clause
       nil
     end
     
@@ -180,10 +202,6 @@ class QueryBuilder
     
     def relation(clause)
       return nil
-    end
-    
-    def context_clause?(clause)
-      false
     end
     
     def context_filter_fields(clause)

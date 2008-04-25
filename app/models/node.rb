@@ -129,7 +129,7 @@ Setting 'custom_base' on a node should be done with caution as the node's zip is
 class Node < ActiveRecord::Base
   
   zafu_readable      :name, :created_at, :updated_at, :event_at, :log_at, :kpath, :user_zip, :parent_zip, :project_zip,
-                     :section_zip, :skin, :ref_lang, :fullpath, :rootpath, :publish_from, :max_status, :rgroup_id, 
+                     :section_zip, :skin, :ref_lang, :fullpath, :rootpath, :position, :publish_from, :max_status, :rgroup_id, 
                      :wgroup_id, :pgroup_id, :basepath, :custom_base, :klass, :zip, :score, :comments_count, :position
   zafu_context       :author => "Contact", :parent => "Node", :user => "User",
                      :version => "Version", :comments => ["Comment"],

@@ -101,6 +101,9 @@ module Zena
       # Remarque: 'from' has no meaning for direct elements like 'parent', 'root': 'parent from project' is the same as 'parent'.
       def build_find(count, opts)
         
+        
+        
+        # FIXME: mer
         if count != :all
           opts[:limit] = 1
         end

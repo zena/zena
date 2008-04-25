@@ -1,6 +1,7 @@
 default:
   context:
     node_name: '@node'
+    node: 'cleanWater'
     visitor: 'ant'
-  src: "nodes where log_at = event_at from site"
-  res: "SELECT nodes.* FROM nodes WHERE nodes.log_at = nodes.event_at AND #{secure_scope('nodes')}"
+  src: "nodes where log_at = event_at in site"
+  sql: "SELECT nodes.* FROM nodes WHERE nodes.log_at = nodes.event_at AND (#{@node.secure_scope('nodes')}) ORDER BY position ASC, name ASC"

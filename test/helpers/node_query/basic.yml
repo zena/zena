@@ -1,42 +1,39 @@
 default:
   context:
     node_name: '@node'
+    node: 'cleanWater'
     visitor: 'ant'
   src: ""
-  res: "SELECT nodes.* FROM nodes WHERE nodes.parent_id = #{@node.id} AND #{secure_scope('nodes')}"
+  sql: "SELECT nodes.* FROM nodes WHERE nodes.parent_id = #{@node.id} AND (#{@node.secure_scope('nodes')}) ORDER BY position ASC, name ASC"
+  res: "lake, lakeAddress, opening, status, track, water"
 
 nodes:
   src: "nodes"
-  res: "SELECT nodes.* FROM nodes WHERE nodes.parent_id = #{@node.id} AND #{secure_scope('nodes')}"
+  sql: "SELECT nodes.* FROM nodes WHERE nodes.parent_id = #{@node.id} AND (#{@node.secure_scope('nodes')}) ORDER BY position ASC, name ASC"
 
 pages:
   src: "pages"
-  res: "SELECT nodes.* FROM nodes WHERE nodes.kpath LIKE 'NP%' AND nodes.parent_id = #{@node.id} AND #{secure_scope('nodes')}"
+  sql: "SELECT nodes.* FROM nodes WHERE nodes.kpath LIKE 'NP%' AND nodes.parent_id = #{@node.id} AND (#{@node.secure_scope('nodes')}) ORDER BY position ASC, name ASC"
 
 letters:
   src: "letters"
-  res: "SELECT nodes.* FROM nodes WHERE nodes.kpath LIKE 'NNL%' AND nodes.parent_id = #{@node.id} AND #{secure_scope('nodes')}"
+  sql: "SELECT nodes.* FROM nodes WHERE nodes.kpath LIKE 'NNL%' AND nodes.parent_id = #{@node.id} AND (#{@node.secure_scope('nodes')}) ORDER BY position ASC, name ASC"
 
-nodes_from_site:
-  src: "nodes from site"
-  res: "SELECT nodes.* FROM nodes WHERE #{secure_scope('nodes')}"
+nodes_in_site:
+  sql: "SELECT nodes.* FROM nodes WHERE (#{@node.secure_scope('nodes')}) ORDER BY position ASC, name ASC"
 
-pages_from_project:
-  src: "pages from project"
-  res: "SELECT nodes.* FROM nodes WHERE nodes.kpath LIKE 'NP%' AND nodes.project_id = #{@node.get_project_id} AND #{secure_scope('nodes')}"
+pages_in_project:
+  sql: "SELECT nodes.* FROM nodes WHERE nodes.kpath LIKE 'NP%' AND nodes.project_id = #{@node.get_project_id} AND (#{@node.secure_scope('nodes')}) ORDER BY position ASC, name ASC"
 
-nodes_from_section:
-  src: "nodes from section"
-  res: "SELECT nodes.* FROM nodes WHERE nodes.section_id = #{@node.get_section_id} AND #{secure_scope('nodes')}"
+nodes_in_section:
+  sql: "SELECT nodes.* FROM nodes WHERE nodes.section_id = #{@node.get_section_id} AND (#{@node.secure_scope('nodes')}) ORDER BY position ASC, name ASC"
 
-nodes_from_self:
-  src: "nodes from self"
-  res: "SELECT nodes.* FROM nodes WHERE nodes.parent_id = #{@node.id} AND #{secure_scope('nodes')}"
+nodes_in_self:
+  sql: "SELECT nodes.* FROM nodes WHERE nodes.parent_id = #{@node.id} AND (#{@node.secure_scope('nodes')}) ORDER BY position ASC, name ASC"
 
-nodes_from_parent:
-  src: "nodes from parent"
-  res: "SELECT nodes.* FROM nodes WHERE nodes.parent_id = #{@node.parent_id} AND #{secure_scope('nodes')}"
+nodes_in_parent:
+  sql: "SELECT nodes.* FROM nodes WHERE nodes.parent_id = #{@node.parent_id} AND (#{@node.secure_scope('nodes')}) ORDER BY position ASC, name ASC"
 
 children:
   src: "children"
-  res: "SELECT nodes.* FROM nodes WHERE nodes.parent_id = #{@node.id} AND #{secure_scope('nodes')}"
+  sql: "SELECT nodes.* FROM nodes WHERE nodes.parent_id = #{@node.id} AND (#{@node.secure_scope('nodes')}) ORDER BY position ASC, name ASC"

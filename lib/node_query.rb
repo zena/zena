@@ -12,34 +12,35 @@ class NodeQuery < QueryBuilder
   end
   
   # Build joins and filters from a relation.
-  def relation(txt)
-    context_filter(txt) ||
-    direct_filter(txt)  ||
-    join_relation(txt)
+  def relation(rel)
+    context_filter(rel) ||
+    direct_filter(rel)  ||
+    join_relation(rel)
   end
   
-  # default relation filter is to search in the current node's children
-  def default(clause)
-    if clause == main_table || direct_filter(clause)
+  # Default context filter is to search in the current node's direct children.
+  def default_context_filter(clause)
+    if direct_filter?(clause)
       'self'
     else
       nil
     end
   end
   
+  # Default sort order
+  def default_order_clause
+    "position ASC, name ASC"
+  end
+  
   def after_parse
-    @filters.unshift "\#{secure_scope('#{table}')}"
+    @filters.unshift "(\#{#{@node_name}.secure_scope('#{table}')})"
   end
   
   private
-    def context_clause?(clause)
-      ['self', 'children', 'parent', 'project', 'section', 'site', main_table].include?(clause)
-    end
-    
     # Relations that can be resolved without a join
-    def context_filter_fields(txt)
-      case txt
-      when 'self', 'children'
+    def context_filter_fields(rel)
+      case rel
+      when 'self'
         ['parent_id', 'id']
       when 'parent'
         ['parent_id', 'parent_id']
@@ -75,9 +76,16 @@ class NodeQuery < QueryBuilder
       end
     end
 
+    # Return true if the clause is a direct filter (relation without a join).
+    def direct_filter?(rel)
+      rel == main_table ||
+      rel == 'children' ||
+      direct_filter(rel) != nil
+    end
+
     # Filters that need a join
-    def join_relation(txt)
-      case txt
+    def join_relation(rel)
+      case rel
       when 'recipients'
         add_table('links')
         "#{table('links')}.relation_id = 4 AND #{table('links')}.source_id = #{table(main_table,-1)}.id AND #{table('links')}.target_id = #{table}.id"

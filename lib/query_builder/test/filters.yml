@@ -1,5 +1,5 @@
 simple:
-  src: "objects where name = 'foo' from site"
+  src: "objects where name = 'foo' in site"
   res: "SELECT objects.* FROM objects WHERE objects.name = \"foo\""
 
 recipients_that_are_clients:

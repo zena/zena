@@ -618,7 +618,7 @@ Just doing the above will filter all result according to the logged in user.
       end
       
       # these methods are not actions that can be called from the web !!
-      private
+      protected
         # secure find with scope (for read/write or publish access).
         def secure_with_scope(klass, find_scope, opts={})
           if ((klass.send(:scoped_methods)[0] || {})[:create] || {})[:visitor]
@@ -684,11 +684,7 @@ Just doing the above will filter all result according to the logged in user.
           if opts[:secure] == false
             yield
           elsif klass.ancestors.include?(Zena::Acts::SecureNode::InstanceMethods) && !visitor.is_su? # not super user
-            # ANY CHANGE HERE SHOULD BE REFLECTED IN has_relation secure_scope_string
-            scope = "#{klass.table_name}.user_id = '#{visitor[:id]}' OR "+
-                    "(rgroup_id IN (#{visitor.group_ids.join(',')}) AND #{klass.table_name}.publish_from <= now() ) OR " +
-                    "(pgroup_id IN (#{visitor.group_ids.join(',')}) AND max_status > #{Zena::Status[:red]})"
-            secure_with_scope(klass, scope, &block)
+            secure_with_scope(klass, secure_scope(klass.table_name), &block)
           else
             secure_with_scope(klass, nil, &block)
           end
@@ -703,6 +699,13 @@ Just doing the above will filter all result according to the logged in user.
             raise ActiveRecord::RecordNotFound
           end
           res
+        end
+        
+        # Secure scope for read/create
+        def secure_scope(table_name)
+          "#{table_name}.user_id = '#{visitor[:id]}' OR "+
+          "(#{table_name}.rgroup_id IN (#{visitor.group_ids.join(',')}) AND #{table_name}.publish_from <= now() ) OR " +
+          "(#{table_name}.pgroup_id IN (#{visitor.group_ids.join(',')}) AND #{table_name}.max_status > #{Zena::Status[:red]})"
         end
         
 
