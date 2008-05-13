@@ -99,8 +99,11 @@ class ImageContent < DocumentContent
   def filename(format=nil)
     if format.nil? || format.size == :keep
       super
-    else
+    elsif name =~ /^[a-zA-Z]+$/ && format[:name] =~ /^[a-zA-Z]+$/ && ext =~ /^[a-zA-Z]+$/
+      # Is this too paranoid ?
       "#{name}_#{format[:name]}.#{ext}"
+    else
+      raise Zena::AccessViolation, "Error in image filename (name = #{name.inspect}, ext = #{ext.inspect}, format[:name] = #{format[:name].inspect})\nvisitor = #{visitor.inspect}"
     end
   end
   

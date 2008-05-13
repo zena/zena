@@ -296,9 +296,9 @@ END_MSG
         @skin_names = [@skin_name]
         secure!(Skin) { Skin.find(:all, :order=>'position ASC, name ASC') }.each do |s|
           @skin[s.name] = s
+          next if s.name = @skin_name # do not add it twice
           @skin_names << s.name
         end
-        @skin_names.uniq!
         @skin_link  = zen_path(@skin[@skin_name]) # used to link from <r:design/> zafu tag
         @expire_with_nodes = {}
         @renamed_assets    = {}

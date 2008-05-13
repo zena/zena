@@ -12,7 +12,20 @@ class ImageFormat < ActiveRecord::Base
       Thread.current.visitor.site.image_formats[fmt]
     end
     
-    def formats_for_site(site_id)
+    def list
+      res = []
+      Thread.current.visitor.site.image_formats.each do |k,v|
+        next if k == :updated_at || k.nil?
+        if v.kind_of?(ImageFormat)
+          res << v
+        else
+          res << ImageFormat.new_from_default(v[:name])
+        end
+      end
+      res.sort {|a,b| a[:name] <=> b[:name]}
+    end
+    
+    def formats_for_site(site_id, as_hash = true)
       formats = ImageBuilder::DEFAULT_FORMATS.dup
         
       site_formats = {}
@@ -20,7 +33,11 @@ class ImageFormat < ActiveRecord::Base
 
       self.find(:all, :conditions=>["site_id = ?", site_id]).each do |f|
         last_update  = f.updated_at if !last_update || f.updated_at > last_update
-        site_formats[f.name] = f.as_hash
+        if as_hash
+          site_formats[f.name] = f.as_hash
+        else
+          site_formats[f.name] = f
+        end
       end
       
       formats.merge!(site_formats)
@@ -40,7 +57,7 @@ class ImageFormat < ActiveRecord::Base
   
   # :size=>:force, :width=>280, :height=>120, :gravity=>Magick::NorthGravity  
   def as_hash
-    {:name => self[:name], :size => size.to_sym, :width => width, :height => height, :gravity=>eval("Magick::#{gravity}")}
+    {:id => self[:id], :name => self[:name], :size => size.to_sym, :width => width, :height => height, :gravity=>eval("Magick::#{gravity}")}
   end
   
   def size

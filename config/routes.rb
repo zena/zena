@@ -8,6 +8,7 @@ ActionController::Routing::Routes.draw do |map|
   map.resource  :session   # singleton resource
   map.resources :users, :member => { :preferences => :get, :swap_dev => :get }
   map.resources :groups
+  map.resources :image_formats
   
   map.connect ':prefix/*path',  :controller => 'nodes', :action => 'show', :prefix => /\w\w/
   map.connect 'dav/*path_info', :controller => 'nodes', :action => 'webdav'

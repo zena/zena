@@ -42,3 +42,11 @@ zen_url_root:
     node: zena
   tem: "<%= zen_url(@node) %>"
   res: "http://test.host/oo"
+
+sort_array:
+  tem: "<%= sort_array([{:a => 5, :name => 'five'}, {:a => 1, :name => 'one'}, {:a => 3, :name => 'three'}]) {|e| e[:a]}.map {|e| e[:name]}.inspect %>"
+  res: "[\"one\", \"three\", \"five\"]"
+
+group_array:
+  tem: "<%= group_array([{:a => 2, :name => 'dos'}, {:a => 1, :name => 'one'}, {:a => 2, :name => 'two'}]) {|e| e[:a]}.map {|e| e.map{|f| f[:name]}}.inspect %>"
+  res: "[[\"dos\", \"two\"], [\"one\"]]"

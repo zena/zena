@@ -7,10 +7,8 @@ class NodeQuery < QueryBuilder
   def initialize(query, opts = {})
     @table_name = 'nodes'
     @node_name  = opts[:node_name]
-    # list of tables that need to be added for filter clauses (should be added only once per part)
-    @needed_tables = {}
     # list of dyna_attributes keys allready in the filter
-    @dyn_keys      = {}
+    @dyn_keys   = {}
     
     super(query, opts)
     # Raw filters are statements prepared that should not be further processed except for table_name replacement.
@@ -18,26 +16,11 @@ class NodeQuery < QueryBuilder
   end
   
   # Build joins and filters from a relation.
-  def relation(rel)
-    return nil if rel == main_table || rel == 'children' # dummy clauses
-    # join_relation second so we cannot overwrite 'class' finders (images) with a relation.
-    join_relation(rel) ||
-    context_relation(rel) ||
-    :bad_relation
-  end
-  
-  # Default context filter is to search in the current node's direct children.
-  def default_context_filter(rel)
-    if rel == main_table || rel == 'children' || context_relation_without_id(rel)
-      'self'
-    else
-      nil
+  def parse_relation(rel, context)
+    # join_relation first so we can overwrite 'class' finders (images) with a relation.
+    unless join_relation(rel, context) || context_relation(rel, context)
+      @errors << "Unknown relation '#{rel}'."
     end
-  end
-  
-  def context_relation_without_id(rel)
-    cont = context_relation(rel)
-    cont && !(cont.to_s =~ /\.id/)
   end
   
   # Default sort order
@@ -47,6 +30,9 @@ class NodeQuery < QueryBuilder
   
   def after_parse
     @filters.unshift "(\#{#{@node_name}.secure_scope('#{table}')})"
+    
+    # we add link_id in attributes only if the links are made with both sides (not 'tagged in project' but 'tagged'). See join_relation.
+    @select << "#{table('links')}.id AS link_id" if @table_counter['links'] && !@distinct
     @distinct = " DISTINCT" if @table_counter['versions']
   end
   
@@ -70,7 +56,7 @@ class NodeQuery < QueryBuilder
     end
     
     # Relations that can be resolved without a join
-    def context_relation(rel)
+    def context_relation(rel, context)
       case rel
       when 'self'
         fields = ['id', 'id']
@@ -81,31 +67,48 @@ class NodeQuery < QueryBuilder
       when 'section'
         fields = ['id', 'section_id']
       when 'root'
-        return "#{table}.id = #{current_site.root_id}"
+        @filters << "#{table}.id = #{current_site.root_id}"
+        return true
       when 'author', 'traductions', 'versions'
         # TODO: not implemented yet...
         return nil
       when 'visitor'
-        return "#{table}.id = \#{visitor.contact_id}"
+        @filters << "#{table}.id = \#{visitor.contact_id}"
+        return true
       else
         if klass = Node.get_class(rel)
-          ######## class filters #######
-          return "#{table}.kpath LIKE '#{klass.kpath}%'"
+          parse_context('self') unless context
+          @filters << "#{table}.kpath LIKE '#{klass.kpath}%'"
+          return true
         else
           # unknown class
           return nil
         end
       end
       
-      "#{field_or_param(fields[0])} = #{field_or_param(fields[1], table(main_table,-1))}"
+      @filters << "#{field_or_param(fields[0])} = #{field_or_param(fields[1], table(main_table,-1))}"
+      true
     end
     
     # Filters that need a join
-    def join_relation(rel)
+    def join_relation(rel, context)
+      if rel == main_table || rel == 'children'
+        # dummy clauses
+        parse_context('self') unless context
+        return :void
+      end
+      
       if rel = Relation.find_by_role(rel.singularize)
         add_table('links')
         # (= other_side = result) target <-- source (= link_side = caller)
-        "#{field_or_param('id')} = #{table('links')}.#{rel.other_side} AND #{table('links')}.relation_id = #{rel[:id]} AND #{table('links')}.#{rel.link_side} = #{field_or_param('id', table(main_table,-1))}"
+        if context && context != 'self'
+          # tagged in project (not equal to 'tagged from nodes in project')
+          # remove caller join
+          @distinct = " DISTINCT"
+          @filters << "#{field_or_param('id')} = #{table('links')}.#{rel.other_side} AND #{table('links')}.relation_id = #{rel[:id]}"
+        else
+          @filters << "#{field_or_param('id')} = #{table('links')}.#{rel.other_side} AND #{table('links')}.relation_id = #{rel[:id]} AND #{table('links')}.#{rel.link_side} = #{field_or_param('id', table(main_table,-1))}"
+        end
       else
         nil
       end
@@ -126,14 +129,13 @@ class NodeQuery < QueryBuilder
       end
     end
     
-    def map_field(field, table_name = table)
+    def map_field(field, table_name = table, is_null = false)
       case field[0..1]
       when 'd_'
         # DYNAMIC ATTRIBUTE
         key = field[2..-1]
         key, function = parse_sql_function_in_field(key)
-        
-        key = function ? "#{function}(#{dyn_value('versions', key)})" : dyn_value('versions', key)
+        key = function ? "#{function}(#{dyn_value('versions', key)})" : dyn_value('versions', key, is_null)
       when 'c_'
         # CONTENT TABLE
         field = field[2..-1]
@@ -144,7 +146,7 @@ class NodeQuery < QueryBuilder
         key = field[2..-1]
         key, function = parse_sql_function_in_field(key)
         if Version.zafu_readable?(key) && Version.column_names.include?(key)
-          vtable_name = needs_table('versions', "#{table}.id = TABLE_NAME.node_id")
+          vtable_name = needs_table('nodes', 'versions', "TABLE1.id = TABLE2.node_id")
           key = function ? "#{function}(#{vtable_name}.#{key})" : "#{vtable_name}.#{key}"
         else
           # bad version attribute
@@ -199,23 +201,17 @@ class NodeQuery < QueryBuilder
       end
     end
     
-    def needs_table(table_name, filter)
-      @needed_tables[table_name] ||= {}
-      @needed_tables[table_name][table] ||= begin
-        add_table(table_name)
-        @filters << filter.gsub('TABLE_NAME', table(table_name))
-        table(table_name)
-      end
-    end
-    
-    def dyn_value(table_name, key)
+    def dyn_value(table_name, key, is_null)
       @dyn_keys[table_name] ||= {}
       @dyn_keys[table_name][key] ||= begin
-        vs = needs_table('versions', "#{table}.id = TABLE_NAME.node_id")
-        add_table('dyn_attributes')
-        @filters << "#{vs}.id = #{table('dyn_attributes')}.owner_id"
-        @filters << "#{table('dyn_attributes')}.key = '#{key.gsub(/[^a-z_A-Z]/,'')}'"
-        "#{table('dyn_attributes')}.value"
+        needs_table('nodes', 'versions', "TABLE1.id = TABLE2.node_id")
+        if true || is_null # always use a LEFT join with the key, works better for sort clauses.
+          dtable = needs_join_table('versions', 'LEFT', 'dyn_attributes', "TABLE1.id = TABLE2.owner_id AND TABLE2.key = '#{key.gsub(/[^a-z_A-Z]/,'')}'", "versions=dyn_attributes=#{key}")
+        else
+          dtable = needs_join_table('versions', 'LEFT', 'dyn_attributes', 'TABLE1.id = TABLE2.owner_id')
+          @filters << "#{dtable}.key = '#{key.gsub(/[^a-z_A-Z]/,'')}'"
+        end
+        "#{dtable}.value"
       end
     end
 end
@@ -258,7 +254,8 @@ module Zena
         if count != :all
           limit = 1
         end
-        NodeQuery.new(pseudo_sql, :node_name => node_name, :limit => limit, :raw_filters => raw_filters).to_sql
+        query = NodeQuery.new(pseudo_sql, :node_name => node_name, :limit => limit, :raw_filters => raw_filters)
+        [query.to_sql, query.errors]
       end
     end
     

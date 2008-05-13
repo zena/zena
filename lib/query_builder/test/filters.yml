@@ -9,3 +9,7 @@ recipients_that_are_clients:
 pages_in_site_name_like:
   src: "letters where name like 'a%' in site"
   res: "SELECT objects.* FROM objects WHERE objects.kpath LIKE 'NNL%' AND objects.name LIKE \"a%\""
+
+pages_in_site_name_not_like:
+  src: "letters where name not like 'a%' in site"
+  res: "SELECT objects.* FROM objects WHERE objects.kpath LIKE 'NNL%' AND objects.name NOT LIKE \"a%\""

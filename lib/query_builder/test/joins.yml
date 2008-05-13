@@ -13,3 +13,6 @@ parent_from_parent:
 
 children_from_objects_in_project:
   res: "SELECT ob1.* FROM objects,objects AS ob1 WHERE ob1.parent_id = objects.id AND objects.project_id = PROJECT_ID"
+  
+tags:
+  res: "SELECT objects.* FROM objects INNER JOIN tags ON objects.id = tags.node_id"

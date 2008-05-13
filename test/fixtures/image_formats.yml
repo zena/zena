@@ -1,7 +1,7 @@
 # SIZES   = ['keep', 'limit', 'force']
 # GRAVITY = ['CenterGravity', 'NorthWestGravity', 'NorthGravity', 'NorthEastGravity', 'WestGravity', 'EastGravity', 'SouthWestGravity', 'SouthGravity', 'SouthEastGravity']
 # med = :size=>:limit, :width=>280, :height=>186
-redifined_med:
+med:
   id: 1
   name: med
   site_id: 1

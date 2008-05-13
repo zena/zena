@@ -1282,7 +1282,7 @@ ENDTXT
   def sort_array(list)
     list.sort do |a,b|
       va = yield([a].flatten[0])
-      vb = yield([a].flatten[0])
+      vb = yield([b].flatten[0])
       if va && vb
         va <=> vb
       elsif va

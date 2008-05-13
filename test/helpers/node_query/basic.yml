@@ -55,12 +55,12 @@ many_alternatives:
     - 'tagged in site'
     - 'images in site'
     - 'tags in site'
-  sql: "SELECT DISTINCT nodes.* FROM nodes,links WHERE ((nodes.id = links.source_id AND links.relation_id = 2 AND links.target_id = #{@node.id}) OR (nodes.kpath LIKE 'NDI%') OR (nodes.kpath LIKE 'NPT%')) AND (#{@node.secure_scope('nodes')}) ORDER BY nodes.position ASC, nodes.name ASC"
-  res: 'art, bird, flower, lake, menu, news, tree'
+  sql: "SELECT DISTINCT nodes.* FROM nodes,links WHERE ((nodes.id = links.source_id AND links.relation_id = 2) OR (nodes.kpath LIKE 'NDI%') OR (nodes.kpath LIKE 'NPT%')) AND (#{@node.secure_scope('nodes')}) ORDER BY nodes.position ASC, nodes.name ASC"
+  res: 'art, bird, cleanWater, flower, lake, menu, news, opening, tree'
 
 same_name_as_class:
   context:
     node: 'opening'
   src: "set_tags"
-  sql: "SELECT nodes.* FROM nodes,links WHERE nodes.id = links.target_id AND links.relation_id = 2 AND links.source_id = #{@node.id} AND (#{@node.secure_scope('nodes')}) ORDER BY nodes.position ASC, nodes.name ASC"
+  sql: "SELECT nodes.*, links.id AS link_id FROM nodes,links WHERE nodes.id = links.target_id AND links.relation_id = 2 AND links.source_id = #{@node.id} AND (#{@node.secure_scope('nodes')}) ORDER BY nodes.position ASC, nodes.name ASC"
   res: "art, news"

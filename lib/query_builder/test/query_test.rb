@@ -6,22 +6,15 @@ Debugger.start
 class TestQuery < QueryBuilder
   
   # Build joins and filters from a relation.
-  def relation(rel)
-    return nil if rel == main_table || rel == 'children' # dummy clauses
-    context_relation(rel) ||
-    direct_filter(rel)   ||
-    join_relation(rel)   ||
-    :bad_relation
+  def parse_relation(rel, context)
+    unless context_relation(rel, context) || direct_filter(rel, context) || join_relation(rel, context)
+      @errors << "Unknown relation '#{rel}'."
+    end
   end
   
   # default context filter is to search in the current node's children (in self)
-  def default_context_filter(clause)
-    if direct_filter?(clause)
-      # we add the default scope if the relation can be resolved with a 'where' clause.
-      'self'
-    else
-      nil
-    end
+  def default_context_filter
+    'self'
   end
   
   private
@@ -41,62 +34,56 @@ class TestQuery < QueryBuilder
       end
     end
     
-    def context_relation(clause)
-      fields = case clause
+    def context_relation(clause, context)
+      case clause
       when 'self'
-        ['id', 'id']
+        fields = ['id', 'id']
       when 'parent'
-        ['id', 'parent_id']
+        fields = ['id', 'parent_id']
       when 'project'
-        ['id', 'project_id']
+        fields = ['id', 'project_id']
+      when main_table, 'children'
+        parse_context(default_context_filter) unless context
+        return true # dummy clause: does nothing
       else
-        nil
+        return false
       end
       
-      if fields
-        "#{field_or_param(fields[0])} = #{field_or_param(fields[1], table(main_table,-1))}"
-      else
-        nil
-      end
+      @filters << "#{field_or_param(fields[0])} = #{field_or_param(fields[1], table(main_table,-1))}"
     end
 
     # Direct filter
-    def direct_filter(rel)
+    def direct_filter(rel, context)
       case rel
       when 'letters'
-        "#{table}.kpath LIKE 'NNL%'"
+        parse_context(default_context_filter) unless context
+        @filters << "#{table}.kpath LIKE 'NNL%'"
       when 'clients'
-        "#{table}.kpath LIKE 'NRCC%'"
+        parse_context(default_context_filter) unless context
+        @filters << "#{table}.kpath LIKE 'NRCC%'"
       else
-        nil
+        return false
       end
-    end
-    
-    # Return true if the clause is a direct filter (relation without a join).
-    def direct_filter?(rel)
-      rel == main_table ||
-      rel == 'children' ||
-      direct_filter(rel) != nil
     end
 
     # Filters that need a join
-    def join_relation(rel)
-      join = case rel
+    def join_relation(rel, context)
+      case rel
       when 'recipients'
-        ['source_id', 4, 'target_id']
+        fields = ['source_id', 4, 'target_id']
       when 'icons'
-        ['target_id', 5, 'source_id']
+        fields = ['target_id', 5, 'source_id']
+      when 'tags'
+        # just to test joins
+        needs_join_table('objects', 'INNER', 'tags', 'TABLE1.id = TABLE2.node_id')
+        return true
       else
-        nil
+        return false
       end
       
-      if join
-        add_table('links')
-        # source --> target
-        "#{field_or_param('id')} = #{table('links')}.#{join[2]} AND #{table('links')}.relation_id = #{join[1]} AND #{table('links')}.#{join[0]} = #{field_or_param('id', table(main_table,-1))}"
-      else
-        nil
-      end
+      add_table('links')
+      # source --> target
+      @filters << "#{field_or_param('id')} = #{table('links')}.#{fields[2]} AND #{table('links')}.relation_id = #{fields[1]} AND #{table('links')}.#{fields[0]} = #{field_or_param('id', table(main_table,-1))}"
     end
     
     # Overwrite this and take car to check for valid fields.
@@ -114,7 +101,12 @@ class QueryTest < Test::Unit::TestCase
   yaml_test :basic, :joins, :filters
   
   def parse(value, opts)
-    TestQuery.new(value).to_sql
+    query = TestQuery.new(value)
+    if res = query.to_sql
+      return res
+    else
+      return query.errors.join(", ")
+    end
   end
   
   make_tests

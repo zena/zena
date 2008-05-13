@@ -55,7 +55,11 @@ class DocumentContent < ActiveRecord::Base
   end
   
   def filename(format=nil)
-    "#{name}.#{ext}"
+    if name =~ /^[a-zA-Z]+$/ && ext =~ /^[a-zA-Z]+$/
+      "#{name}.#{ext}"
+    else
+      raise Zena::AccessViolation, "Error in document filename (name = #{name.inspect}, ext = #{ext.inspect})\nvisitor = #{visitor.inspect}"
+    end
   end
   
   # Path to store the data. The path is build with the version id so we can do the security checks when uploading data.

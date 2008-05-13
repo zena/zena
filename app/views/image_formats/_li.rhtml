@@ -1,6 +1,6 @@
-<tr id='image_format<%= li[:id] %>'>
+<tr id='image_format<%= li.pseudo_id %>'>
   <td class="adm_icon"><%= link_to_remote( _('image_format_img'), 
-          :update =>"image_format#{li[:id]}", 
+          :update =>"image_format#{li.pseudo_id}", 
           :url    => edit_image_format_path(li.pseudo_id),
           :method => :get) %></td>
   <td><%= li.name %></td>

@@ -4,8 +4,8 @@ default:
     visitor: 'ant'
     node: 'status'
   
-tags:
-  src: "<r:project><r:show attr='name'/>: <r:tags><r:each join=', '><r:show attr='name'/></r:each></r:tags></r:project>"
+set_tags:
+  src: "<r:project><r:show attr='name'/>: <r:set_tags><r:each join=', '><r:show attr='name'/></r:each></r:set_tags></r:project>"
   res: "cleanWater: art"
 
 tagged:
@@ -23,7 +23,7 @@ documents:
 documents_only:
   context:
     node: 'nature'
-  src: "<r:documents_only><r:each join=', '><r:show attr='name'/></r:each></r:documents_only>"
+  src: "<r:documents where='kpath not like \"NDI%\"'><r:each join=', '><r:show attr='name'/></r:each></r:documents>"
   res: "forest"
 
 images:
@@ -99,7 +99,7 @@ store_node_as_relation:
 
 store_img:
   src: "<r:parent><r:icon store='bob'><r:show attr='name'/><r:img link='bob'/></r:icon></r:parent>"
-  tem: "/<% if var1 = @node.parent -%><% if var2 = var1.icon -%><%= var2.name %><%= node_link\(:node=>var1, :text=>img_tag\(var2, :mode=>\"std\"\)\) %><% end -%><% end -%>"
+  tem: "/if var1 = @node.parent.*var2 = var1.do_find.*relation_id = 4.*LIKE 'NDI%'.*var2.name.*var1, :text=>img_tag\(var2/"
     
 author_visitor:
   src: "<r:pages in='site' author='visitor' limit='5'><r:each join=', ' do='show' attr='name'/></r:pages>"
@@ -204,8 +204,8 @@ this_year:
   res: "art, projects"
 
 date_select:
-  src: "<r:date select='2006-04-05'><r:notes in='site' log='current' do='each' join=', ' do='show' attr='name'/>"
-  res: "proposition"
+  src: "<r:date select='2006-04-05'><r:nodes in='site' log='current' do='each' join=', ' do='show' attr='name'/>"
+  res: "letter, proposition"
 
 empty_list:
   src: "<ul do='hot'>blah</ul><r:hot><ul>bib</ul></r:hot>"
@@ -297,7 +297,7 @@ order_dyn_attr:
 where_dyn_attr_is_null:
   context:
     node: 'cleanWater'
-  src: "<r:nodes where='d_assigned is NULL' do='each' join=', ' do='[name]'/>"
+  src: "<r:nodes where='d_assigned is null' do='each' join=', ' do='[name]'/>"
   res: "lake, lakeAddress, opening, track, water"
 
 where_two_attributes:
@@ -307,12 +307,13 @@ where_two_attributes:
   
 many_or:
   src: "<r:tagged in='site' or='images in site' or='tags in site' do='each' join=',' do='[name]'/>"
-  tem: '..'
-  res: "art,bird,cleanWater,flower,lake,news,opening,tree"
+  res: "art,bird,cleanWater,flower,lake,menu,news,opening,tree"
 
 unlink:
-  src: "<r:tagged in='site' do='each' join=',' do='unlink'/>"
-  res: "/<a class=\"unlink\".*onclick=.*Ajax.Request\('/nodes/21/remove_link\?link_id=2.*bullet_delete.png.*link_id=1/"
+  context:
+    node: 'art'
+  src: "<r:tagged do='each' join=',' do='unlink'/>"
+  res: "/<a class=\"unlink\".*onclick=.*Ajax.Request\('/nodes/21/remove_link\?link_id=2.*bullet_delete.png.*link_id=3/"
   
 node_in_version:
   src: "<r:version><r:node do='[name]'/></r:version>"
@@ -322,23 +323,23 @@ where_with_param:
   src: "<r:nodes where='v_title like \"%[param:t]%\"' in='site'/>"
   tem: "/versions.title LIKE \#\{Node.connection.quote\(\"%\" \+params\[:t\].to_s\+ \"%\"\)\}/"
 
-bad_relation:
-  src: "<div do='categories in site' do='each' join=', ' do='[name]'/>"
-  tem: "/<% if nil -%>/"
-  res: ""
+group_by_secret_project:
+  src: "<r:notes in='site' order='name ASC' do='group' by='project'><b do='project' do='[name]'/>: <r:each join=',' do='[name]'/></r:notes>"
+  res: ": proposition<b>cleanWater</b>: opening<b>zena</b>: letter"
 
 group_by_project:
+  context:
+    visitor: lion
   src: "<r:notes in='site' order='name ASC' do='group' by='project'><b do='project' do='[name]'/>: <r:each join=',' do='[name]'/></r:notes>"
-  tem: ""
-  res: "<b>cleanWater</b>: opening<b>zena</b>: letter,opening,proposition"
+  res: "<b>cleanWater</b>: opening<b>secret</b>: proposition<b>zena</b>: letter"
 
 group_by_project_sort_id:
   src: "<r:images in='site' order='name ASC' do='group' by='project' sort='id'><b do='project' do='[name]'/>: <r:each join=',' do='[name]'/></r:images>"
-  res: "."
+  res: "<b>zena</b>: tree<b>cleanWater</b>: lake<b>wiki</b>: bird,flower"
 
 group_by_parent_sort:
-  src: "<r:notes in='site' order='name ASC' do='group' by='project'><b do='project' do='[name]'/>: <r:each join=',' do='[name]'/></r:notes>"
-  res: "."
+  src: "<r:images in='site' order='name ASC' do='group' by='parent'><b do='parent' do='[name]'/>: <r:each join=',' do='[name]'/></r:images>"
+  res: "<b>cleanWater</b>: lake<b>nature</b>: tree<b>wiki</b>: bird,flower"
 #icons_from_nodes_from_project:
 #  src: "<r:icons from='nodes' from='project' do='each' join=', ' do='[name]'/>"
 #  res: ""

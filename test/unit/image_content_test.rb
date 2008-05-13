@@ -25,15 +25,21 @@ class ImageContentTest < ZenaTestUnit
     end
   end
   
+  def setup
+    super
+    @med = ImageFormat['med']
+    @pv  = ImageFormat['pv']
+  end
+  
   def test_formats
     preserving_files('/test.host/data/jpg/20') do
       img = get_content(:bird_jpg)
       assert File.exist?("#{SITES_ROOT}/test.host/data/jpg/20/bird.jpg"), "File exists"
       assert !File.exist?("#{SITES_ROOT}/test.host/data/jpg/20/bird_pv.jpg"), "File does not exist"
       assert_equal 660, img.width
-      assert_equal 70,  img.width('pv')
+      assert_equal 70,  img.width(@pv)
       assert !File.exist?("#{SITES_ROOT}/test.host/data/jpg/20/bird_pv.jpg"), "File does not exist"
-      assert 2244 <= img.size('pv') && img.size('pv') <= 2246
+      assert 2244 <= img.size(@pv) && img.size(@pv) <= 2246
       assert File.exist?("#{SITES_ROOT}/test.host/data/jpg/20/bird_pv.jpg"), "File exist"
     end
   end
@@ -45,8 +51,8 @@ class ImageContentTest < ZenaTestUnit
       assert !File.exist?("#{SITES_ROOT}/test.host/data/jpg/20/bird_pv.jpg" ), "File does not exist"
       assert !File.exist?("#{SITES_ROOT}/test.host/data/jpg/20/bird_med.jpg"), "File does not exist"
       assert img.file
-      assert img.file('pv')
-      assert img.file('med')
+      assert img.file(@pv)
+      assert img.file(@med)
       assert File.exist?("#{SITES_ROOT}/test.host/data/jpg/20/bird_pv.jpg"  ), "File exist"
       assert File.exist?("#{SITES_ROOT}/test.host/data/jpg/20/bird_med.jpg" ), "File exist"
     end
@@ -55,65 +61,50 @@ class ImageContentTest < ZenaTestUnit
   def test_remove_formatted_on_file_change
     preserving_files('/test.host/data/jpg/20') do
       img  = get_content(:bird_jpg)
-      assert img.file('pv')  # create image with 'pv'  format
-      assert img.file('med') # create image with 'med' format
+      assert img.file(@pv)  # create image with 'pv'  format
+      assert img.file(@med) # create image with 'med' format
       # we have 3 files now
       assert File.exist?(img.filepath       ), "File exist"
-      assert File.exist?(img.filepath('pv') ), "File exist"
-      assert File.exist?(img.filepath('med')), "File exist"
+      assert File.exist?(img.filepath(@pv) ), "File exist"
+      assert File.exist?(img.filepath(@med)), "File exist"
       # change file
       img.file = uploaded_jpg('flower.jpg')
       assert img.save, "Can save"
       assert File.exist?(img.filepath       ), "File exist"
-      assert !File.exist?(img.filepath('pv') ), "File does not exist"
-      assert !File.exist?(img.filepath('med')), "File does not exist"
+      assert !File.exist?(img.filepath(@pv) ), "File does not exist"
+      assert !File.exist?(img.filepath(@med)), "File does not exist"
       
-      # change name
+      # change name no longer changes file names
       old_path = img.filepath
-      img.file('med') # create image with 'med' format
-      med_path  = img.filepath('med')
+      img.file(@med) # create image with 'med' format
+      med_path  = img.filepath(@med)
       assert File.exist?(  med_path          ), "File exist"
       node = secure!(Node) { nodes(:bird_jpg) }
       node.name = 'new'
       img = node.version.content
       assert node.save, "Can save"
-      assert !File.exist?(  old_path         ), "File does not exist"
-      assert !File.exist?(  med_path         ), "File does not exist"
-      assert File.exist?(   img.filepath     ), "File exist"
+      assert File.exist?(  old_path         ), "File exist"
+      assert File.exist?(  med_path         ), "File exist"
     end
   end
   
-  def test_remove_image
+  def test_remove_mode_image
     preserving_files('/test.host/data/jpg/20') do
       img  = get_content(:bird_jpg)
-      assert img.file('pv')  # create image with 'pv'  format
-      assert img.file('med') # create image with 'med' format
+      assert img.file(@pv)  # create image with 'pv'  format
+      assert img.file(@med) # create image with 'med' format
       # we have 3 files now
       assert File.exist?(img.filepath       ), "File exist"
-      assert File.exist?(img.filepath('pv') ), "File exist"
-      assert File.exist?(img.filepath('med')), "File exist"
+      assert File.exist?(img.filepath(@pv) ), "File exist"
+      assert File.exist?(img.filepath(@med)), "File exist"
       # remove file
-      assert img.remove_image('pv')
+      img.remove_mode_images
       assert File.exist?(img.filepath       ), "File exist"
-      assert !File.exist?(img.filepath('pv') ), "File does not exist"
-      assert File.exist?(img.filepath('med')), "File exist"
-      
-      assert img.remove_image('med')
-      assert File.exist?(img.filepath       ), "File exist"
-      assert !File.exist?(img.filepath('med') ), "File does not exist"
-      
-      assert !img.remove_image(  nil ), "Cannot remove original file"
-      assert !img.remove_image('full'), "Cannot remove original file"
+      assert !File.exist?(img.filepath(@pv) ), "File does not exist"
+      assert !File.exist?(img.filepath(@med)), "File does not exist"
     end
   end
   
-  def test_verify_mode
-    preserving_files('/test.host/data/jpg/20') do
-      img  = get_content(:bird_jpg)
-      assert_nil img.filepath('../../')
-      assert_nil img.file('../../')
-    end
-  end
   private
     def get_content(sym)
       login(:ant) unless @visitor

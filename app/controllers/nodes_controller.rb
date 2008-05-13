@@ -99,6 +99,7 @@ class NodesController < ApplicationController
       
       format.all  do
         if asset = params[:asset]
+          # math rendered as png, ...
           filename     = "#{asset}.#{params[:format]}"
           content_path = @node.asset_path(filename)
           raise ActiveRecord::RecordNotFound unless File.exist?(content_path)
@@ -108,21 +109,21 @@ class NodesController < ApplicationController
           data.close
           cache_page(:content_path => content_path, :authenticated => @node.public?) # content_path is used to cache by creating a symlink
         elsif @node.kind_of?(Document) && params[:format] == @node.c_ext
-        # Get document data (inline if possible)
+          # Get document data (inline if possible)
         
           if @node.kind_of?(Image) && !ImageBuilder.dummy?
-            img_format = ImageFormat[params[:mode]]
-            data = @node.c_file(img_format)
-            content_path = @node.c_filepath(img_format)
-          
+            if img_format = ImageFormat[params[:mode]]
+              data = @node.c_file(img_format)
+              content_path = @node.c_filepath(img_format)
+            end
           elsif @node.kind_of?(TextDocument)
             data = StringIO.new(@node.v_text)
             content_path = nil
-          
           else
             data         = @node.c_file
             content_path = @node.c_filepath
           end
+          
           raise ActiveRecord::RecordNotFound unless data
         
           send_data( data.read , :filename=>@node.filename, :type => @node.c_content_type, :disposition=>'inline')

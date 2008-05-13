@@ -14,3 +14,17 @@ add_in_each:
 if_bad_test:
   src: "<r:if foo='bar'>lala</r:if>"
   tem: "<span class='parser_error'>[if] condition error</span>"
+
+bad_query:
+  src: "<r:images where='foo bar baz'>ok</r:images>"
+  tem: "<span class='parser_error'>\"images where foo bar baz\": Invalid clause 'foo bar baz'.</span><% if nil -%>ok<% end -%>"
+  res: "<span class='parser_error'>\"images where foo bar baz\": Invalid clause 'foo bar baz'.</span>"
+
+bad_field_in_query:
+  src: "<r:images where='name = baz'>ok</r:images>"
+  res: "<span class='parser_error'>\"images where name = baz\": Invalid field or value 'baz'.</span>"
+
+bad_relation:
+  src: "<div do='categories in site' do='each' join=', ' do='[name]'/>"
+  tem: "/<% if nil -%>/"
+  res: "<span class='parser_error'>\"categories in site\": Unknown relation 'categories'.</span>"

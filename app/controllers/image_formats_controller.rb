@@ -16,10 +16,8 @@ class ImageFormatsController < ApplicationController
 
   def index
     @image_format_pages, @image_formats = nil, nil
-    secure!(ImageFormat) do
-      @image_format_pages, @image_formats = paginate :image_formats, :order => 'name', :per_page => 20
-    end
-    @image_format = ImageFormat.new
+    @image_formats = ImageFormat.list
+    @image_format  = ImageFormat.new
     respond_to do |format|
       format.html
     end
@@ -77,6 +75,4 @@ class ImageFormatsController < ApplicationController
     def find_node
       @node = visitor.contact
     end
-end
-
 end

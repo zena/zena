@@ -12,26 +12,34 @@ class NodeQueryTest < ZenaTestUnit
     
     login context[:visitor].to_sym
     
-    sql = Node.build_find(:all,@@test_strings[file][test]['src'] || test.gsub('_',' '), context[:node_name])
-    
-    if test_sql = @@test_strings[file][test]['sql']
+    sql, errors = Node.build_find(:all,@@test_strings[file][test]['src'] || test.gsub('_',' '), context[:node_name])
+    if test_errors = @@test_strings[file][test]['err']
       if test_sql[0..0] == "/"
-        assert_match %r{#{test_sql[1..-2]}}m, sql
+        assert_match %r{#{test_errors[1..-2]}}m, errors.join(", ")
       else
-        assert_equal test_sql, sql
+        assert_equal test_errors, errors.join(", ")
       end
-    end
+    else
+      sql ||= errors.join(", ")
+      if test_sql = @@test_strings[file][test]['sql']
+        if test_sql[0..0] == "/"
+          assert_match %r{#{test_sql[1..-2]}}m, sql
+        else
+          assert_equal test_sql, sql
+        end
+      end
     
-    if test_res = @@test_strings[file][test]['res']
-      @node = secure(Node) { nodes(context[:node].to_sym) }
-      sql = eval "\"#{sql}\""
+      if errors == [] && test_res = @@test_strings[file][test]['res']
+        @node = secure(Node) { nodes(context[:node].to_sym) }
+        sql = eval "\"#{sql}\""
       
-      res = @node.do_find(:all, sql)
-      res = res ? res.map {|r| r[:name]}.join(', ') : ''
-      if test_res && test_res[0..0] == "/"
-        assert_match %r{#{test_res[1..-2]}}m, res
-      else
-        assert_equal test_res, res
+        res = @node.do_find(:all, sql)
+        res = res ? res.map {|r| r[:name]}.join(', ') : ''
+        if test_res && test_res[0..0] == "/"
+          assert_match %r{#{test_res[1..-2]}}m, res
+        else
+          assert_equal test_res, res
+        end
       end
     end
     

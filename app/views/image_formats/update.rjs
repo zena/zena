@@ -1,5 +1,5 @@
 if @image_format.errors.empty?
-  page.replace "image_format#{@image_format[:id]}", :partial=>"image_formats/li", :collection=>[@image_format]
+  page.replace "image_format#{params[:id]}", :partial=>"image_formats/li", :collection=>[@image_format]
 else
-  page.replace "image_format#{@image_format[:id]}", :partial=>"image_formats/form"
+  page.replace "image_format#{params[:id]}", :partial=>"image_formats/form"
 end

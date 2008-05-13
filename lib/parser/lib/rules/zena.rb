@@ -584,7 +584,7 @@ module Zena
           select_opts = {}
           class_opts = {}
           select_opts[:selected] = @params[:selected] if @params[:selected]
-          class_opts[:without]  = @params[:without]  if @params[:without]
+          class_opts[:without]   = @params[:without]  if @params[:without]
           # do not use 'selected' if the node is not new
           "<% if #{node}.new_record? -%><%= select('#{base_class.to_s.underscore}', #{attribute.inspect}, Node.classes_for_form(:class => #{klass.inspect}#{params_to_erb(class_opts)})#{params_to_erb(select_opts)}) %><% else -%><%= select('#{base_class.to_s.underscore}', #{attribute.inspect}, Node.classes_for_form(:class => #{klass.inspect}#{params_to_erb(class_opts)})) %><% end -%>"
         else
@@ -926,8 +926,7 @@ END_TXT
         group_array = "group_array(#{list_var}) {|e| e.#{key}}"
       elsif node_kind_of?(Node)
         if ['project', 'parent', 'section'].include?(key)
-          key = 'project_id'
-          sort_block  = "{|e| (e.get_#{key} || {})[#{sort_key.to_sym.inspect}]}"
+          sort_block  = "{|e| (e.#{key} || {})[#{sort_key.to_sym.inspect}]}"
           group_array = "group_array(#{list_var}) {|e| e.#{key}_id}"
         end
       end
@@ -1491,9 +1490,10 @@ END_TXT
       # <r:pages from='site' project='foo'/>
       # <r:img link='foo'/>
       # ...
-      
-      sql_query = Node.build_find(count, pseudo_sql, node, raw_filters)
+      sql_query, query_errors = Node.build_find(count, pseudo_sql, node, raw_filters)
       unless sql_query
+        # is 'out' here a good idea ?
+        out "<span class='parser_error'>#{pseudo_sql.join(', ').inspect}: #{query_errors.join(' ')}</span>"
         return "nil"
       end
       

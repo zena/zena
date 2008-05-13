@@ -13,5 +13,11 @@ version_filter:
 
 dynattr_filter:
   src: "nodes where d_assigned = 'gaspard' in site"
-  sql: "SELECT DISTINCT nodes.* FROM nodes,versions,dyn_attributes WHERE dyn_attributes.value = 'gaspard' AND dyn_attributes.key = 'assigned' AND versions.id = dyn_attributes.owner_id AND nodes.id = versions.node_id AND (#{@node.secure_scope('nodes')}) ORDER BY nodes.position ASC, nodes.name ASC"
+  sql: "SELECT DISTINCT nodes.* FROM nodes,versions LEFT JOIN dyn_attributes ON versions.id = dyn_attributes.owner_id WHERE dyn_attributes.value = 'gaspard' AND dyn_attributes.key = 'assigned' AND nodes.id = versions.node_id AND (#{@node.secure_scope('nodes')}) ORDER BY nodes.position ASC, nodes.name ASC"
   res: "cleanWater, people, status"
+
+# Results can be wrong if a node has many 'versions', some of which have d_assigned set and others not. See #190.
+dynattr_filter_is_null:
+  src: "projects where d_assigned is null in site"
+  sql: "SELECT DISTINCT nodes.* FROM nodes,versions LEFT JOIN dyn_attributes ON versions.id = dyn_attributes.owner_id AND dyn_attributes.key = 'assigned' WHERE nodes.kpath LIKE 'NPP%' AND dyn_attributes.value IS NULL AND nodes.id = versions.node_id AND (#{@node.secure_scope('nodes')}) ORDER BY nodes.position ASC, nodes.name ASC"
+  res: "wiki, zena"

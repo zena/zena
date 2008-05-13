@@ -31,6 +31,14 @@ class ImageFormatTest < ZenaTestUnit
     assert_equal ({:name => 'header', :gravity=>Magick::NorthGravity, :width=>688, :size=>:force, :height=>178}), ImageFormat['header']
   end
   
+  def test_list
+    login(:lion)
+    assert_equal ["edit","full","low","med","mini","pv","side","square","std","tiny","top"], ImageFormat.list.map{|h| h[:name]}
+    
+    login(:whale)
+    assert_equal ["edit","full","header", "low","med","mini","pv","side","square","std","tiny","top"], ImageFormat.list.map{|h| h[:name]}
+  end
+  
   def test_mem_cached
     login(:whale)
     assert_equal 688, ImageFormat['header'][:width]
@@ -49,7 +57,7 @@ class ImageFormatTest < ZenaTestUnit
     assert_equal fmt1.object_id, ImageFormat['med'].object_id, "In cache"
     
     # Update format
-    assert ImageFormat.update(image_formats_id(:redifined_med), :width => 350)
+    assert ImageFormat.update(image_formats_id(:med), :width => 350)
     now = Time.now.utc.strftime('%Y-%m-%d')
     
     
@@ -77,7 +85,7 @@ class ImageFormatTest < ZenaTestUnit
     assert_equal fmt1.object_id, ImageFormat['med'].object_id, "In cache"
     
     # Destroy format
-    assert ImageFormat.destroy(image_formats_id(:redifined_med))
+    assert ImageFormat.destroy(image_formats_id(:med))
     now = Time.now.utc.strftime('%Y-%m-%d')
     
     
@@ -98,7 +106,7 @@ class ImageFormatTest < ZenaTestUnit
   
   def test_create_first
     login(:lion)
-    assert ImageFormat.destroy(image_formats_id(:redifined_med))
+    assert ImageFormat.destroy(image_formats_id(:med))
     fmt = ImageFormat['med']
     assert_nil $image_formats[sites_id(:zena)][:updated_at], "Cache date set to nil"
     imf = ImageFormat.create(:name => 'foo', :width => 50, :height=> 50, :size=> 'limit')
