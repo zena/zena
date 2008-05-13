@@ -275,22 +275,52 @@ namespace :zena do
   namespace :fix do
     desc "Update all stored zafu to reflect change from 'news from project' syntax to 'news in project'. BACKUP BEFORE. DO NOT RUN."
     task :zafu_pseudo_sql => :environment do
-      { 
-        "from='site'"    => "in='site'",
-        'from="site"'    => 'in="site"',
-        "from='section'" => "in='section'",
-        'from="section"' => 'in="section"',
-        "from='project'" => "in='project'",
-        'from="project"' => 'in="project"',
-        
-        "from site'"    => "in site'",
-        'from site"'    => 'in site"',
-        "from section'" => "in section'",
-        'from section"' => 'in section"',
-        "from project'" => "in project'",
-        'from project"' => 'in project"',
+      unless ENV['CODE'] == 'yes do it'
+        puts "set CODE='yes do it' if you really want to run this (DO NOT RUN if unsure)."
+      else
+        {
+          # 1. replace all finders like 'xyz from project' by 'xyz in project'
+          ' from project' => ' in project',
+          ' from section' => ' in section',
+          ' from site' => ' in site',
+          ' from  project' => ' in project',
+          ' from  section' => ' in section',
+          ' from  site' => ' in site',
+          ' from   project' => ' in project',
+          ' from   section' => ' in section',
+          ' from   site' => ' in site',
+          # 2. replace all finders like <:xyz from='project'... by <:xyz in='project'
+          # 2.1 single quote
+          " from='project'" => " in='project'",
+          " from='section'" => " in='section'",
+          " from='site'" => " in='site'",
+          " from ='project'" => " in='project'",
+          " from ='section'" => " in='section'",
+          " from ='site'" => " in='site'",
+          " from = 'project'" => " in='project'",
+          " from = 'section'" => " in='section'",
+          " from = 'site'" => " in='site'",
+          " from= 'project'" => " in='project'",
+          " from= 'section'" => " in='section'",
+          " from= 'site'" => " in='site'",
+          # 2.1 double quote
+          ' from="project"' => ' in="project"',
+          ' from="section"' => ' in="section"',
+          ' from="site"' => ' in="site"',
+          ' from ="project"' => ' in="project"',
+          ' from ="section"' => ' in="section"',
+          ' from ="site"' => ' in="site"',
+          ' from = "project"' => ' in="project"',
+          ' from = "section"' => ' in="section"',
+          ' from = "site"' => ' in="site"',
+          ' from= "project"' => ' in="project"',
+          ' from= "section"' => ' in="section"',
+          ' from= "site"' => ' in="site"',
+          # kpath
+          'NPD' => 'ND',
         }.each do |k,v|
-        Version.connection.execute "UPDATE nodes,versions SET versions.text = REPLACE(versions.text, '#{k}', '#{v}') WHERE nodes.id = versions.node_id AND nodes.kpath LIKE 'NDTT'"
+          Version.connection.execute "UPDATE versions, nodes SET versions.text = REPLACE(text, #{Version.connection.quote(k)}, #{Version.connection.quote(v)}) WHERE versions.node_id = nodes.id AND nodes.kpath = 'NDTT'" # Template
+        end
       end
     end
   end 
