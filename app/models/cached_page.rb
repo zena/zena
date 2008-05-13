@@ -105,7 +105,6 @@ class CachedPage < ActiveRecord::Base
     def cached_page_after_save
       # create cache file
       filepath = "#{SITES_ROOT}#{path}"
-        puts "cached_page_after_save #{filepath}"
       FileUtils.mkpath(File.dirname(filepath))
       if content_path
         FileUtils::rm(filepath) if File.exist?(filepath)
