@@ -1,5 +1,5 @@
 =begin rdoc
-An Image is a Document with a file that we can view inline. An image can be displayed in various formats (modes). These modes are defined for each Site through ImageMode (not implemented yet: use fixed modes for now). Until the ImageMode class is implemented, you can use the following modes :
+An Image is a Document with a file that we can view inline. An image can be displayed in various formats (defined through modes). These modes are defined for each Site through ImageFormat. Default modes:
 
   'tiny' => { :size=>:force, :width=>15,  :height=>15,  :scale=>1.7   },
   'mini' => { :size=>:force, :width=>32,  :ratio=>1.0,  :scale=>1.3   },

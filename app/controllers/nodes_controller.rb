@@ -111,8 +111,9 @@ class NodesController < ApplicationController
         # Get document data (inline if possible)
         
           if @node.kind_of?(Image) && !ImageBuilder.dummy?
-            data = @node.c_file(params[:mode])
-            content_path = @node.c_filepath(params[:mode])
+            img_format = ImageFormat[params[:mode]]
+            data = @node.c_file(img_format)
+            content_path = @node.c_filepath(img_format)
           
           elsif @node.kind_of?(TextDocument)
             data = StringIO.new(@node.v_text)

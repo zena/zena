@@ -1,12 +1,13 @@
 # SIZES   = ['keep', 'limit', 'force']
 # GRAVITY = ['CenterGravity', 'NorthWestGravity', 'NorthGravity', 'NorthEastGravity', 'WestGravity', 'EastGravity', 'SouthWestGravity', 'SouthGravity', 'SouthEastGravity']
-redifined_std:
+# med = :size=>:limit, :width=>280, :height=>186
+redifined_med:
   id: 1
-  name: std
+  name: med
   site_id: 1
   size: 1
-  width: 650
-  height: 420
+  width: 300
+  height: 200
   updated_at: 2008-05-01
 
 header:

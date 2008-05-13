@@ -14,6 +14,7 @@ class ImageFormat < ActiveRecord::Base
     
     def formats_for_site(site_id)
       formats = ImageBuilder::DEFAULT_FORMATS.dup
+        
       site_formats = {}
       last_update = nil
 
@@ -39,7 +40,7 @@ class ImageFormat < ActiveRecord::Base
   
   # :size=>:force, :width=>280, :height=>120, :gravity=>Magick::NorthGravity  
   def as_hash
-    {:size => size.to_sym, :width => width, :height => height, :gravity=>eval("Magick::#{gravity}")}
+    {:name => self[:name], :size => size.to_sym, :width => width, :height => height, :gravity=>eval("Magick::#{gravity}")}
   end
   
   def size
@@ -56,7 +57,11 @@ class ImageFormat < ActiveRecord::Base
   
   def gravity=(str)
     self[:gravity] = GRAVITY.index(str)
-  end 
+  end
+  
+  def pseudo_id
+    new_record? ? name : id
+  end
   
   protected
     def image_format_valid

@@ -24,6 +24,7 @@ class ImageTest < ZenaTestUnit
   end
   
   def test_resize_image
+    pv_format = ImageFormat['pv']
     without_files('test.host/data/jpg') do
       login(:ant)
       img = secure!(Image) { Image.create( :parent_id=>nodes_id(:cleanWater), 
@@ -31,11 +32,11 @@ class ImageTest < ZenaTestUnit
                                           :name=>'birdy', :c_file => uploaded_jpg('bird.jpg')) }
       assert !img.new_record?, "Not a new record"
       assert  File.exist?( img.c_filepath       ), "File exist"
-      assert_equal "70x70", "#{img.c_width('pv')}x#{img.c_height('pv')}"
-      assert !File.exist?( img.c_filepath('pv') ), "File does not exist"
-      assert  img.c_file('pv'), "Can make 'pv' image"
-      assert  File.exist?( img.c_filepath('pv') ), "File exist"
-      assert_equal "#{SITES_ROOT}/test.host/data/jpg/#{img.v_id}/birdy_pv.jpg", img.c_filepath('pv')
+      assert_equal "70x70", "#{img.c_width(pv_format)}x#{img.c_height(pv_format)}"
+      assert !File.exist?( img.c_filepath(pv_format) ), "File does not exist"
+      assert  img.c_file(pv_format), "Can make 'pv' image"
+      assert  File.exist?( img.c_filepath(pv_format) ), "File exist"
+      assert_equal "#{SITES_ROOT}/test.host/data/jpg/#{img.v_id}/birdy_pv.jpg", img.c_filepath(pv_format)
     end
   end
   
@@ -178,17 +179,18 @@ class ImageTest < ZenaTestUnit
       assert !img.new_record?
       img = secure!(Image) { Image.find(img[:id]) }
       old_path1 = img.c_filepath
-      old_path2 = img.c_filepath('pv')
-      img.c_file('pv') # creates 'pv' file
+      pv_format = ImageFormat['pv']
+      old_path2 = img.c_filepath(pv_format)
+      img.c_file(pv_format) # creates 'pv' file
       assert_equal "#{SITES_ROOT}/test.host/data/jpg/#{img.v_id}/birdy.jpg", old_path1
       assert_equal "#{SITES_ROOT}/test.host/data/jpg/#{img.v_id}/birdy_pv.jpg", old_path2
       assert File.exists?(old_path1), "Old file exist."
       assert File.exists?(old_path2), "Old file with 'pv' format exist."
       assert img.update_attributes(:name=>'moineau')
-      assert_equal "#{SITES_ROOT}/test.host/data/jpg/#{img.v_id}/moineau.jpg", img.c_filepath
-      assert File.exist?(img.c_filepath), "New file exists."
-      assert !File.exists?(old_path1), "Old file does not exist."
-      assert !File.exists?(old_path2), "Old file with 'pv' format does not exist."
+      # image content name should not change
+      assert_equal old_path1, img.c_filepath
+      assert File.exists?(old_path1), "Old file exist."
+      assert File.exists?(old_path2), "Old file with 'pv' format exist."
     end
   end
   
@@ -208,9 +210,9 @@ class ImageTest < ZenaTestUnit
       img_id  = img[:id]
       v1      = img.v_id
       old1    = img.c_filepath
-      old1_pv = img.c_filepath('pv')
-      
-      img.c_file('pv') # creates 'pv' file
+      pv_format = ImageFormat['pv']
+      old1_pv = img.c_filepath(pv_format)
+      img.c_file(pv_format) # creates 'pv' file
       
       img = secure!(Image) { Image.find(img_id) }
       # create a new redaction with a new file
@@ -221,18 +223,22 @@ class ImageTest < ZenaTestUnit
       
       v2      = img.v_id
       old2    = img.c_filepath
-      old2_pv = img.c_filepath('pv')
+      old2_pv = img.c_filepath(pv_format)
       
-      img.c_file('pv') # creates 'pv' file
+      img.c_file(pv_format) # creates 'pv' file
+      
       [old1,old1_pv,old2,old2_pv].each do |path|
-        assert File.exists?(path)
+        assert File.exists?(path), "Path #{path.inspect} should exist"
       end
       
+      # We do not propagate 'name' change to document_content 'name' because this is only used to find document content and
+      # retrieve data in case the whole database goes havoc.
       assert img.update_attributes(:name=>'moineau')
       
       [old1,old1_pv,old2,old2_pv].each do |path|
-        assert !File.exists?(path)
+        assert File.exists?(path), "Path #{path.inspect} did not change"
       end
+      
       version1 = Version.find(v1)
       version2 = Version.find(v2)
       new1 = version1.content.filepath
@@ -251,7 +257,7 @@ class ImageTest < ZenaTestUnit
       assert_kind_of Image, img
       assert ! img.new_record?, "Not a new record"
       assert_equal 793, img.c_size
-      assert img.c_file('pv')
+      assert img.c_file(ImageFormat['pv'])
     end
   end
 end

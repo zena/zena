@@ -117,12 +117,12 @@ class ApplicationHelperTest < ZenaTestHelper
     [:lake, :cleanWater, :opening, :art].each do |sym|
       obj   = secure!(Node) { nodes(sym) }
       klass = obj.klass
-      assert_equal "<img src='/images/ext/#{klass.underscore}.png' width='32' height='32' alt='#{klass} node' class='doc'/>", img_tag(obj)
-      assert_equal "<img src='/images/ext/#{klass.underscore}_pv.png' width='70' height='70' alt='#{klass} node' class='doc'/>",  img_tag(obj, :mode=>'pv')
+      assert_equal "<img src='/images/ext/#{klass.underscore}.png' width='32' height='32' alt='#{klass} node' class='node'/>", img_tag(obj)
+      assert_equal "<img src='/images/ext/#{klass.underscore}_pv.png' width='70' height='70' alt='#{klass} node' class='node'/>",  img_tag(obj, :mode=>'pv')
     end
     
     obj   = Node.new
-    assert_equal "<img src='/images/ext/other.png' width='32' height='32' alt='Node node' class='doc'/>", img_tag(obj)
+    assert_equal "<img src='/images/ext/other.png' width='32' height='32' alt='Node node' class='node'/>", img_tag(obj)
   end
   
   def test_img_tag_opts
@@ -132,7 +132,7 @@ class ApplicationHelperTest < ZenaTestHelper
                   img_tag(img, :mode=>nil, :id=>'yo')
     assert_equal "<img src='/en/image30_pv.jpg' width='70' height='70' alt='bird' id='yo' class='super'/>",
                   img_tag(img, :mode=>'pv', :id=>'yo', :class=>'super')
-    assert_equal "<img src='/en/image30_med.jpg' width='205' height='187' alt='super man' class='med'/>",
+    assert_equal "<img src='/en/image30_med.jpg' width='205' height='186' alt='super man' class='med'/>",
                   img_tag(img, :mode=>'med', :alt=>'super man')
   end
   
@@ -279,19 +279,21 @@ class ApplicationHelperTest < ZenaTestHelper
   
   def test_calendar_has_note
     op_at = nodes(:opening).event_at
-    zena = secure!(Node) { nodes(:zena) }
-    cal = calendar(:node=>zena, :relations=>['news'], :date=>Date.civil(op_at.year, op_at.month, 5), :size=>'tiny')
+    @node = secure!(Node) { nodes(:zena) }
+    sql = "\"#{Node.build_find(:all, "news", '@node', ["TABLE_NAME.event_at >= '\#{start_date.strftime('%Y-%m-%d')}' AND TABLE_NAME.event_at <= '\#{end_date.strftime('%Y-%m-%d')}'"])}\""
+    cal = calendar(:node=>@node, :date=>Date.civil(op_at.year, op_at.month, 5), :size=>'tiny', :sql => sql)
     assert_match %r{class='sun'>12}, cal
     assert_match %r{<em>18</em>}, cal
-    cal = calendar(:node=>zena, :relations=>['news'], :date=>Date.civil(op_at.year, op_at.month, 5), :size=>'large')
+    cal = calendar(:node=>@node, :date=>Date.civil(op_at.year, op_at.month, 5), :size=>'large', :sql => sql)
     assert_match %r{18.*onclick=.*Updater.*largecal_preview.*/z/calendar/notes.*(selected=27.*|2006-03-18.*)(selected=27.*|2006-03-18.*)</p></td>}m, cal
   end
   
   def test_calendar_today
-    zena = secure!(Node) { nodes(:zena) }
-    cal = calendar(:node=>zena, :relations=>['news'], :size=>'large')
+    @node = secure!(Node) { nodes(:zena) }
+    sql = "\"#{Node.build_find(:all, "news", '@node', ["TABLE_NAME.event_at >= '\#{start_date.strftime('%Y-%m-%d')}' AND TABLE_NAME.event_at <= '\#{end_date.strftime('%Y-%m-%d')}'"])}\""
+    cal = calendar(:node=>@node, :sql => sql, :size=>'large')
     assert_match %r{<td[^>]*id='large_today'>#{Date.today.day}</td>}, cal
-    cal = calendar(:node=>zena, :relations=>['news'], :size=>'tiny')
+    cal = calendar(:node=>@node, :sql => sql, :size=>'tiny')
     assert_match %r{<td[^>]*id='tiny_today'>#{Date.today.day}</td>}, cal
   end
   

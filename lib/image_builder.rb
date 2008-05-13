@@ -30,17 +30,18 @@ end
 
 class ImageBuilder
   DEFAULT_FORMATS = {
-    'tiny' =>   { :size=>:force, :width=>15,  :height=>15 , :gravity=>Magick::CenterGravity   }.freeze,
-    'mini' =>   { :size=>:force, :width=>32,  :height=>32 , :gravity=>Magick::CenterGravity   }.freeze,
-    'square' => { :size=>:limit, :width=>180, :height=>180, :gravity=>Magick::CenterGravity   }.freeze,
-    'med'  =>   { :size=>:limit, :width=>280, :height=>186, :gravity=>Magick::CenterGravity   }.freeze,
-    'top'  =>   { :size=>:force, :width=>280, :height=>186, :gravity => Magick::NorthGravity  }.freeze,
-    'low'  =>   { :size=>:force, :width=>280, :height=>186, :gravity => Magick::SouthGravity  }.freeze,
-    'side' =>   { :size=>:force, :width=>220, :height=>500, :gravity=>Magick::CenterGravity   }.freeze,
-    'std'  =>   { :size=>:limit, :width=>600, :height=>400, :gravity=>Magick::CenterGravity   }.freeze,
-    'pv'   =>   { :size=>:force, :width=>70,  :height=>79 , :gravity=>Magick::CenterGravity   }.freeze,
-    'edit' =>   { :size=>:limit, :width=>400, :height=>400, :gravity=>Magick::CenterGravity   }.freeze,
-    'full' =>   { :size=>:keep                            , :gravity=>Magick::CenterGravity   }.freeze,
+    'tiny' =>   { :name=>'tiny', :size=>:force, :width=>15,  :height=>15 , :gravity=>Magick::CenterGravity   }.freeze,
+    'mini' =>   { :name=>'mini', :size=>:force, :width=>32,  :height=>32 , :gravity=>Magick::CenterGravity   }.freeze,
+    'square' => { :name=>'square', :size=>:limit, :width=>180, :height=>180, :gravity=>Magick::CenterGravity   }.freeze,
+    'med'  =>   { :name=>'med',  :size=>:limit, :width=>280, :height=>186, :gravity=>Magick::CenterGravity   }.freeze,
+    'top'  =>   { :name=>'top',  :size=>:force, :width=>280, :height=>186, :gravity => Magick::NorthGravity  }.freeze,
+    'low'  =>   { :name=>'low',  :size=>:force, :width=>280, :height=>186, :gravity => Magick::SouthGravity  }.freeze,
+    'side' =>   { :name=>'side', :size=>:force, :width=>220, :height=>500, :gravity=>Magick::CenterGravity   }.freeze,
+    'std'  =>   { :name=>'std',  :size=>:limit, :width=>600, :height=>400, :gravity=>Magick::CenterGravity   }.freeze,
+    'pv'   =>   { :name=>'pv',   :size=>:force, :width=>70,  :height=>70 , :gravity=>Magick::CenterGravity   }.freeze,
+    'edit' =>   { :name=>'edit', :size=>:limit, :width=>400, :height=>400, :gravity=>Magick::CenterGravity   }.freeze,
+    'full' =>   { :name=>'full', :size=>:keep                            , :gravity=>Magick::CenterGravity   }.freeze,
+    nil    =>   { :name=>'full', :size=>:keep                            , :gravity=>Magick::CenterGravity   }.freeze,
   }.freeze
 
   # 'sepia'=>   { :size=>:limit, :width=>280, :ratio=>2/3.0, :post=>Proc.new {|img| img.sepiatone(Magick::MaxRGB * 0.8)}},

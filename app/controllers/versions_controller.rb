@@ -20,8 +20,9 @@ class VersionsController < ApplicationController
         end
         
         if @node.kind_of?(Image) && !ImageBuilder.dummy?
-          data = @node.c_file(params[:mode])
-          content_path = @node.c_filepath(params[:mode])
+          img_format = ImageFormat[params[:mode]]
+          data = @node.c_file(img_format)
+          content_path = @node.c_filepath(img_format)
           disposition  = 'inline'
           
         elsif @node.kind_of?(TextDocument)
@@ -36,7 +37,7 @@ class VersionsController < ApplicationController
         end
         raise ActiveRecord::RecordNotFound unless data
           
-        send_data( data.read , :filename=>@node.c_filename, :type=>@node.c_content_type, :disposition=>disposition)
+        send_data( data.read , :filename=>@node.filename, :type=>@node.c_content_type, :disposition=>disposition)
         data.close
         
         # should we cache the page ?

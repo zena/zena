@@ -54,16 +54,15 @@ class DocumentContent < ActiveRecord::Base
     self[:size]
   end
   
-  def filename(mode=nil)
+  def filename(format=nil)
     "#{name}.#{ext}"
   end
   
   # Path to store the data. The path is build with the version id so we can do the security checks when uploading data.
-  def filepath(mode=nil)
+  def filepath(format=nil)
     raise StandardError, "version not set" unless self[:version_id]
-    fname = filename(mode)
-    return nil unless fname # can happen if the mode is not valid
-    "#{SITES_ROOT}#{site.data_path}/#{ext}/#{self[:version_id]}/#{fname}"
+    fname = filename(format)
+    "#{SITES_ROOT}#{site.data_path}/#{ext}/#{self[:version_id]}/#{fname}" # TODO: could we replace site by current_site ?
   end
   
   # Return true if this content is not used by any version.

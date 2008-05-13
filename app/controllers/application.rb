@@ -151,9 +151,10 @@ END_MSG
                   img = secure(Image) { Image.find_by_id(id) }
                   if img
                     if img_mode
-                      img_path = img.c_filepath(img_mode)
+                      format = ImageFormat[img_mode]
+                      img_path = img.c_filepath(format)
                       if !File.exists?(img_path)
-                        img_file = img.c_file(img_mode) # force rendering of image
+                        img_file = img.c_file(format) # force rendering of image
                         img_file.close
                       end
                     else

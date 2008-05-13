@@ -152,7 +152,7 @@ module Zazen
         # image !<.:art++.pv/blah blah!:12
         #puts "SHORCUT IMAGE:[#{$&}]"
         eat $&
-        style, id, offset, other_opts, size, title_opts, title, link = $1, $2, $3, $4, $5, $6, $7, $9
+        style, id, offset, other_opts, mode, title_opts, title, link = $1, $2, $3, $4, $5, $6, $7, $9
         if node = @helper.find_node_by_shortcut(id,offset.size)
           
           if link && link =~ /^:([a-zA-Z-]+)(\+*)(.*)$/
@@ -171,7 +171,7 @@ module Zazen
             end
           else
             if node.kind_of?(Document)
-              store @helper.make_image(:style=>style, :id=>node[:zip].to_s, :node=>node, :size=>size, :title=>title, :link=>link, :images=>@context[:images])
+              store @helper.make_image(:style=>style, :id=>node[:zip].to_s, :node=>node, :mode=>mode, :title=>title, :link=>link, :images=>@context[:images])
             else
               store "[#{node.fullpath} is not a document]"
             end
@@ -185,7 +185,7 @@ module Zazen
         # image !<.12.pv/blah blah!:12
         #puts "IMAGE:[#{$&}]"
         eat $&
-        style, id, other_opts, size, title_opts, title, link = $1, $2, $3, $4, $5, $6, $8
+        style, id, other_opts, mode, title_opts, title, link = $1, $2, $3, $4, $5, $6, $8
         if link && link =~ /^:([a-zA-Z-]+)(\+*)(.*)/
           rest = $3
           if link_node = @helper.find_node_by_shortcut($1,$2.size)
@@ -195,7 +195,7 @@ module Zazen
         if @parse_shortcuts
           store "!#{style}#{id}#{other_opts}#{title_opts}!#{link ? ':' + link : ''}"
         else
-          store @helper.make_image(:style=>style, :id=>id, :size=>size, :title=>title, :link=>link, :images=>@context[:images])
+          store @helper.make_image(:style=>style, :id=>id, :mode=>mode, :title=>title, :link=>link, :images=>@context[:images])
         end
       else
         #puts "EAT:[#{$&}]"

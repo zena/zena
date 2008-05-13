@@ -371,7 +371,8 @@ latex_template = %q{
   
   # Create an img tag for the given image. See ApplicationHelper#zazen for details.
   def make_image(opts)
-    id, style, link, size, title = opts[:id], opts[:style], opts[:link], opts[:size], opts[:title]
+    id, style, link, mode, title = opts[:id], opts[:style], opts[:link], opts[:mode], opts[:title]
+    mode ||= 'std' # default mode
     img = opts[:node] || secure(Document) { Document.find_by_zip(id) }
     
     return "<span class='unknownLink'>#{_('unknown document')}</span>" unless img
@@ -380,12 +381,8 @@ latex_template = %q{
       return "[#{_('image')}: #{img.v_title}]"
     end
     title = img.v_summary if title == ""
-    size = IMAGEBUILDER_FORMAT[size] ? size : nil
-    if !size && img.kind_of?(Image)
-      size = 'std'
-    end
     
-    image = img_tag(img, :mode=>size)
+    image = img_tag(img, :mode=>mode)
     
     unless link
       if id[0..0] == "0" || !img.kind_of?(Image)
@@ -487,120 +484,128 @@ latex_template = %q{
   # Display an image tag for the given node. If no mode is provided, 'full' is used. Options are ':mode', ':id', ':alt',
   # ':alt_src' and ':class'. If no class option is passed, the format is used as the image class. Example :
   # img_tag(@node, :mode=>'pv')  => <img src='/sites/test.host/data/jpg/20/bird_pv.jpg' height='80' width='80' alt='bird' class='pv'/>
-  def img_tag(obj, options={})
+  def img_tag(obj, opts={})
     return '' unless obj
-    opts    = options.dup
+    # try:
+    # 1. tag on element data (Image, mp3 document)
+    res = asset_img_tag(obj, opts)
     
-    mode    = opts.delete(:mode)
-    klass   = opts.delete(:class)
-    alt     = opts.delete(:alt)
-    alt_src = opts.delete(:alt_src)
-    img_id  = opts.delete(:id)
-    
-    if obj.kind_of?(Document)
-      content = obj.v_content
-      ext     = content.ext
-    end
-    
-    src = width = height = img_class = nil
-    if obj.kind_of?(Image)
-      alt  ||= obj.v_title.gsub("'", '&apos;')
-      mode   = content.verify_mode(mode) || 'std'
-      
-      src    = data_path(obj, opts.merge(:mode => (mode == 'full' ? nil : mode)))
-      
-      img_class = klass || mode
-      if mode == 'full'
-        # full size (format = nil)
-        width = content.width
-        height= content.height
-      elsif content[:width] && content[:height]
-        # compute image size
-        width = content.width(mode)
-        height= content.height(mode)
-      end
-    elsif obj.kind_of?(Document) && ext == 'mp3'
-      if mode.nil? || mode == 'button'
-        # rough wrap to use the 'button'
-        # we differ '<object...>' by using a placeholder to avoid the RedCloth escaping.
-        return add_place_holder( %{ <object type="application/x-shockwave-flash"
-        data="/images/swf/xspf/musicplayer.swf?&song_url=#{CGI.escape(data_path(obj, opts.merge(:mode=>nil)))}" 
-        width="17" height="17">
-        <param name="movie" 
-        value="/images/swf/xspf/musicplayer.swf?&song_url=#{CGI.escape(data_path(obj, opts.merge(:mode=>nil)))}" />
-        <img src="/images/sound_mute.png" 
-        width="16" height="16" alt="" />
-        </object> } )
-      end
-    elsif alt_src
+    # 2. tag using alt_src data
+    if !res && alt_src = opts[:alt_src]
       if alt_src == 'icon'
         if icon = obj.icon
-          return img_tag(icon, options.merge(:alt_src => nil))
+          return img_tag(icon, opts.merge(:alt_src => nil))
         end
       elsif icon = obj.find(:first, alt_src.split(','))
         # icon through alt_src relation
-        return img_tag(icon, options.merge(:alt_src => nil))
+        return img_tag(icon, opts.merge(:alt_src => nil))
       end
     end
     
-    if src.blank?
-      if obj.vclass.kind_of?(VirtualClass) && !obj.vclass.icon.blank?
-        # FIXME: we could use a 'zip' to an image (but we would need some caching to avoid multiple loading during doc listing)
-        src = obj.vclass.icon
-        alt ||= _('%{type} node') % {:type => obj.vclass.name}
-      else
-        # use default
-        mode    = IMAGEBUILDER_FORMAT[mode] ? mode : nil
-        width  = 32
-        height = 32
-        if obj.kind_of?(Document)
-          name = ext
-          alt ||= _('%{ext} document') % {:ext => ext}
-        else
-          name = obj.klass.underscore
-          alt ||= _('%{type} node') % {:type => obj.klass}
-        end
-        
-        if !File.exist?("#{RAILS_ROOT}/public/images/ext/#{name}.png")
-          name = 'other'
-        end
+    # 3. generic icon
+    res ||= generic_img_tag(obj, opts)
+    
+    if res.kind_of?(Hash)
+      out = "<img"
+      [:src, :width, :height, :alt, :id, :class].each do |k|
+        next unless v = res[k]
+        out << " #{k}='#{v}'"
       end
-      
-      img_class = 'doc'
-      
-      if !mode
-        src = "/images/ext/#{name}.png"
-      else
-        # scale
-        img = ImageBuilder.new(:path=>"#{RAILS_ROOT}/public/images/ext/#{name}.png", :width=>32, :height=>32)
-        img.transform!(mode)
-        width  = img.width
-        height = img.height
-        
-        filename = "#{name}_#{mode}.png"
-        path     = "#{RAILS_ROOT}/public/images/ext/"
-        unless File.exist?(File.join(path,filename))
-          # make new image with the mode
-          unless File.exist?(path)
-            FileUtils::mkpath(path)
-          end
-          if img.dummy?
-            File.cp("#{RAILS_ROOT}/public/images/ext/#{icon}.png", "#{RAILS_ROOT}/public/images/ext/#{filename}")
-          else
-            File.open(File.join(path, filename), "wb") { |f| f.syswrite(img.read) }
-          end
-        end
-        
-        src = "/images/ext/#{filename}"
-      end
+      out + "/>"
+    else
+      res
     end
-    res = "<img src='#{src}'"
-    [[:width, width], [:height, height], [:alt, alt], [:id, img_id], [:class, img_class]].each do |k,v|
-      next unless v
-      res << " #{k}='#{v}'"
-    end
-    res << "/>"
   end
+  
+  # <img> tag definition to show an Image / mp3 document
+  def asset_img_tag(obj, opts)
+    if obj.kind_of?(Image)
+      res     = {}
+      content = obj.version.content
+      format  = ImageFormat[opts[:mode]] || ImageFormat['std']
+      
+      res[:id]    = opts[:id]
+      res[:alt]   = opts[:alt] || obj.v_title.gsub("'", '&apos;')
+      res[:src]   = data_path(obj, :mode => (format[:size] == :keep ? nil : format[:name]))
+      res[:class] = opts[:class] || format[:name]
+      
+      # compute image size
+      res[:width]  = content.width(format)
+      res[:height] = content.height(format)
+      res
+    elsif obj.kind_of?(Document) && obj.version.content.ext == 'mp3' && (opts[:mode].nil? || opts[:mode] == 'std' || opts[:mode] == 'button')
+      # rough wrap to use the 'button'
+      # we differ '<object...>' by using a placeholder to avoid the RedCloth escaping.
+      add_place_holder( %{ <object type="application/x-shockwave-flash"
+        data="/images/swf/xspf/musicplayer.swf?&song_url=#{CGI.escape(data_path(obj))}" 
+        width="17" height="17">
+        <param name="movie" 
+        value="/images/swf/xspf/musicplayer.swf?&song_url=#{CGI.escape(data_path(obj))}" />
+        <img src="/images/sound_mute.png" 
+        width="16" height="16" alt="" />
+      </object> } )
+    end
+  end
+    
+  # <img> tag definition for the generic icon (image showing class of element).
+  def generic_img_tag(obj, opts)
+    res = {}
+    res[:class] = opts[:class]
+    res[:id]    = opts[:id]
+    
+    if obj.vclass.kind_of?(VirtualClass) && !obj.vclass.icon.blank?
+      # FIXME: we could use a 'zip' to an image as 'icon' (but we would need some caching to avoid multiple loading during doc listing)
+      res[:src]     = obj.vclass.icon
+      res[:alt]     = opts[:alt] || (_('%{type} node') % {:type => obj.vclass.name})
+      res[:class] ||= obj.klass
+      # no width, height available
+      return res
+    end
+    
+    # default generic icon from /images/ext folder
+    res[:width]  = 32
+    res[:height] = 32
+    
+    if obj.kind_of?(Document)
+      name = obj.version.content.ext
+      res[:alt] = opts[:alt] || (_('%{ext} document') % {:ext => name})
+      res[:class] ||= 'doc'
+    else
+      name = obj.klass.underscore
+      res[:alt] = opts[:alt] || (_('%{ext} node') % {:ext => obj.klass})
+      res[:class] ||= 'node'
+    end
+    
+    if !File.exist?("#{RAILS_ROOT}/public/images/ext/#{name}.png")
+      name = 'other'
+    end
+    
+    res[:src] = "/images/ext/#{name}.png"
+
+    if opts[:mode] && (format = ImageFormat[opts[:mode]]) && format[:size] != :keep
+      # resize image
+      img = ImageBuilder.new(:path=>"#{RAILS_ROOT}/public#{res[:src]}", :width=>32, :height=>32)
+      img.transform!(format)
+      res[:width]  = img.width
+      res[:height] = img.height
+      
+      new_file = "#{name}_#{format[:name]}.png"
+      path     = "#{RAILS_ROOT}/public/images/ext/#{new_file}"
+      unless File.exist?(path)
+        # make new image with the mode
+        if img.dummy?
+          File.cp("#{RAILS_ROOT}/public/images/ext/#{name}.png", path)
+        else
+          File.open(path, "wb") { |f| f.syswrite(img.read) }
+        end
+      end
+      
+      res[:src] = "/images/ext/#{new_file}"
+    end
+    
+    res
+  end
+  
   
   # return a readable text version of a file size
   def fsize(size)
@@ -627,9 +632,9 @@ latex_template = %q{
     render_to_string(:partial=>'comments/list', :locals=>{:node=>node})
   end
   
-  def calendar(options={})
-    if template_url = options[:template_url]
-      opts = (eval_parameters_from_template_url(template_url) || {}).merge(options)
+  def calendar(opts={})
+    if template_url = opts[:template_url]
+      opts = (eval_parameters_from_template_url(template_url) || {}).merge(opts)
     elsif opts[:sql]
       # ok
     else

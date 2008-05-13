@@ -1367,7 +1367,7 @@ END_TXT
       fld = (@params[:using ] || 'event_at').gsub(/[^a-z_]/,'') # SQL injection security
       fld = 'event_at' unless ['log_at', 'created_at', 'updated_at', 'event_at'].include?(fld)
       
-      raw_filters << "TABLE_NAME.#{fld} >= \#{start_date.strftime('%Y-%m-%d')} AND TABLE_NAME.#{fld} <= \#{end_date.strftime('%Y-%m-%d')}"
+      raw_filters << "TABLE_NAME.#{fld} >= '\#{start_date.strftime('%Y-%m-%d')}' AND TABLE_NAME.#{fld} <= '\#{end_date.strftime('%Y-%m-%d')}'"
       
       opts[:size] = @params[:size] || 'tiny'
       opts[:sql] = "\"#{Node.build_find(:all, pseudo_sql, '@node', raw_filters)}\""
@@ -1541,7 +1541,7 @@ END_TXT
       
       finders = [parts.join(' from ')]
       if params[:or]
-        or_clause = [params[:or]]
+        finders << params[:or]
         
         key_counter = 1
         while sub_or = params["or#{key_counter}".to_sym]

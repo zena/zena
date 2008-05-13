@@ -110,8 +110,8 @@ author:
   res: "my master: Solenopsis Invicta my version master: Solenopsis Invicta"
 
 zafu_readable_link:
-  src: "<r:show attr='tag_ids'/>"
-  tem: "<%= @node.tag_zips %>"
+  src: "<r:show attr='set_tag_ids'/>"
+  tem: "<%= @node.set_tag_zips %>"
 
 zafu_readable_link_for:
   src: "<r:show attr='hot_for_ids'/>"
@@ -293,6 +293,7 @@ order_dyn_attr:
   src: "<r:nodes order='d_assigned DESC' do='each'><span do='[name]' assigned_if='[d_assigned]'/></r:nodes>"
   res: "<span class='assigned'>status</span><span>lakeAddress</span><span>lake</span><span>water</span><span>opening</span><span>track</span>"
 
+# Bug #190 (hard to fix...)
 where_dyn_attr_is_null:
   context:
     node: 'cleanWater'

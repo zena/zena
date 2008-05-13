@@ -84,14 +84,6 @@ class Document < Node
     end
   end
   
-  # This looks really silly and is very anoying.
-  #def name=(str)
-  #  super
-  #  if self[:name]
-  #    version.content[:name] = self[:name].sub(/\.*$/,'') # remove trailing dots
-  #  end
-  #end
-
   # Filter attributes before assignement.
   # Set name of new record and content extension based on file.
   def filter_attributes(attributes)

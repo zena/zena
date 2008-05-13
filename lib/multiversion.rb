@@ -520,6 +520,7 @@ module Zena
         
         # Any attribute starting with 'v_' belongs to the 'version' or 'redaction'
         # Any attribute starting with 'c_' belongs to the 'version' or 'redaction' content
+        # FIXME: performance: create methods on the fly so that next calls will not pass through 'method_missing'. #189.
         def method_missing(meth, *args)
           if meth.to_s =~ /^(v_|c_|d_)(([\w_\?]+)(=?))$/
             target = $1
