@@ -1,0 +1,6 @@
+if @image_format.errors.empty?
+  page.visual_effect :highlight, "image_format#{@image_format[:id]}", :duration => 0.3
+  page.visual_effect :fade, "image_format#{@image_format[:id]}", :duration => 0.5
+else
+  page.replace "image_format#{@image_format[:id]}", :partial=>"image_formats/form"
+end

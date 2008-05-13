@@ -1,0 +1,6 @@
+<tr id='add_image_format' class='btn_add'>
+  <td class='add'><%= link_to_function _('btn_image_format_add'), "['add_image_format', 'add_image_format_form'].each(Element.toggle); $('image_format_name').focus();" %></td><td colspan='6' class='add_image_format'></td>
+</tr>
+<tr id='add_image_format_form' style='display:none;'>
+  <%= render :partial=>'image_formats/form' %>
+</tr>

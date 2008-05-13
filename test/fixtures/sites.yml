@@ -14,6 +14,7 @@ zena:
   redit_time:     0
   languages:      "en,fr"
   default_lang:   "en"
+  formats_updated_at: 2008-05-01
 
 ocean:
   id:             2
@@ -32,3 +33,4 @@ ocean:
   http_auth:      YES
   languages:      "en,fr"
   default_lang:   "en"
+  formats_updated_at: 2008-05-02

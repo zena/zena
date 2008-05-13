@@ -1,0 +1,8 @@
+if @image_format.errors.empty?
+  page.insert_html :before, 'add_image_format', :partial=>'image_formats/li', :collection=>[@image_format]
+  @image_format = ImageFormat.new
+  page.replace_html 'add_image_format_form', :partial=>'image_formats/form'
+  page << "$('image_format_name').focus();"
+else
+  page.replace 'add_image_format_form', :partial=>'image_formats/form'
+end

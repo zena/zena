@@ -1,0 +1,29 @@
+<td class="adm_icon">
+  <%= unless @image_format.new_record?
+    link_to_remote _('btn_x'), :url => image_format_path(@image_format), :method => :get
+  else
+    link_to_function _('btn_x'), "['add_image_format', 'add_image_format_form'].each(Element.toggle)"
+  end %>
+</td>
+<td class="add" colspan="5">
+  <div id='image_format_errors'><%= error_messages_for(@image_format) %></div>
+  <% unless @image_format.new_record? %>
+  <%= form_remote_tag(:url => image_format_path(@image_format), :method => :put ) %>
+  <% else %>
+  <%= form_remote_tag(:url => image_formats_path ) %>
+  <% end %>
+  <table cellspacing='0' class='edit_image_format'>
+    <tr><td class='label'><%= _("name")%>      </td><td><%= text_field('image_format', 'name',        :size=>15 ) %></td></tr>
+    <tr><td class='label'><%= _("type")%>      </td><td><%= select('image_format', 'size',  ImageFormat::SIZES, :selected => @image_format.size ) %></td></tr>
+    <tr><td class='label'><%= _("width")%></td><td><%= text_field('image_format', 'width',        :size=>15 ) %></td></tr>
+    <tr><td class='label'><%= _("height")%></td><td><%= text_field('image_format', 'height',        :size=>15 ) %></td></tr>
+    <tr><td class='label'><%= _("gravity")%></td><td><%= select('image_format', 'gravity',  ImageFormat::GRAVITY, :selected => @image_format.gravity ) %></td></tr>
+    <tr><td colspan='2'><p class='btn_validate'><input type='submit' value='<%= _('validate') %>'/></p></td></tr>
+  </table>
+  </form>
+  <% if !@image_format.new_record? -%>
+  <%= form_remote_tag(:url => image_format_path(@image_format), :method => :delete, :confirm => _('Are you sure you want to destroy this image format ?') ) %>
+  <p class='destroy'><%= _('destroy image format') %> <input type='submit' value='<%= _('destroy') %>'></p>
+  </form>
+  <% end -%>
+</td>

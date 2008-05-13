@@ -45,7 +45,7 @@ ActiveRecord::Schema.define(:version => 0) do
     t.column "visitor_id",     :integer
     t.column "visitor_groups", :string,   :limit => 200
     t.column "kpath",          :string,   :limit => 200
-    t.column "context",        :integer
+    t.column "context",        :string,   :limit => 200
     t.column "content",        :text
     t.column "site_id",        :integer
   end
@@ -139,6 +139,17 @@ ActiveRecord::Schema.define(:version => 0) do
     t.column "user_id",  :integer
   end
 
+  create_table "image_formats", :force => true do |t|
+    t.column "name",       :string,   :limit => 40
+    t.column "site_id",    :integer
+    t.column "created_at", :datetime
+    t.column "updated_at", :datetime
+    t.column "size",       :integer
+    t.column "gravity",    :integer
+    t.column "width",      :integer
+    t.column "height",     :integer
+  end
+
   create_table "links", :force => true do |t|
     t.column "source_id",   :integer
     t.column "target_id",   :integer
@@ -198,21 +209,22 @@ ActiveRecord::Schema.define(:version => 0) do
   end
 
   create_table "sites", :force => true do |t|
-    t.column "host",            :string
-    t.column "root_id",         :integer
-    t.column "su_id",           :integer
-    t.column "anon_id",         :integer
-    t.column "public_group_id", :integer
-    t.column "site_group_id",   :integer
-    t.column "name",            :string
-    t.column "authentication",  :boolean
-    t.column "monolingual",     :boolean
-    t.column "allow_private",   :boolean
-    t.column "languages",       :string
-    t.column "default_lang",    :string
-    t.column "http_auth",       :boolean
-    t.column "auto_publish",    :boolean
-    t.column "redit_time",      :integer
+    t.column "host",               :string
+    t.column "root_id",            :integer
+    t.column "su_id",              :integer
+    t.column "anon_id",            :integer
+    t.column "public_group_id",    :integer
+    t.column "site_group_id",      :integer
+    t.column "name",               :string
+    t.column "authentication",     :boolean
+    t.column "monolingual",        :boolean
+    t.column "allow_private",      :boolean
+    t.column "languages",          :string
+    t.column "default_lang",       :string
+    t.column "http_auth",          :boolean
+    t.column "auto_publish",       :boolean
+    t.column "redit_time",         :integer
+    t.column "formats_updated_at", :datetime
   end
 
   create_table "template_contents", :force => true do |t|

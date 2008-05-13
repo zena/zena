@@ -1,0 +1,11 @@
+<tr id='image_format<%= li[:id] %>'>
+  <td class="adm_icon"><%= link_to_remote( _('image_format_img'), 
+          :update =>"image_format#{li[:id]}", 
+          :url    => edit_image_format_path(li),
+          :method => :get) %></td>
+  <td><%= li.name %></td>
+  <td><%= li.size %></td>
+  <td><%= li.width %></td>
+  <td><%= li.height %></td>
+  <td><%= li.gravity %></td>
+</tr>

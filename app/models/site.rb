@@ -272,6 +272,17 @@ class Site < ActiveRecord::Base
     self[:languages] = s.split(',').map(&:strip).join(',')
   end
   
+  def image_formats
+   @image_formats ||= begin
+     $image_formats ||= {} # mem cache
+     site_formats = $image_formats[self[:id]]
+     if !site_formats || self[:formats_updated_at] != site_formats[:updated_at]
+       site_formats = $image_formats[self[:id]] = ImageFormat.formats_for_site(self[:id]) # reload
+     end
+     site_formats
+    end
+  end
+  
   private
     def valid_site
       errors.add(:host, "invalid host name #{self[:host].inspect}") if self[:host].nil? || (self[:host] =~ /^\./) || (self[:host] =~ /[^\w\.\-]/)

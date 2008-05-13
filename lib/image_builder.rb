@@ -29,6 +29,21 @@ rescue LoadError
 end
 
 class ImageBuilder
+  DEFAULT_FORMATS = {
+    'tiny' =>   { :size=>:force, :width=>15,  :height=>15 , :gravity=>Magick::CenterGravity   }.freeze,
+    'mini' =>   { :size=>:force, :width=>32,  :height=>32 , :gravity=>Magick::CenterGravity   }.freeze,
+    'square' => { :size=>:limit, :width=>180, :height=>180, :gravity=>Magick::CenterGravity   }.freeze,
+    'med'  =>   { :size=>:limit, :width=>280, :height=>186, :gravity=>Magick::CenterGravity   }.freeze,
+    'top'  =>   { :size=>:force, :width=>280, :height=>186, :gravity => Magick::NorthGravity  }.freeze,
+    'low'  =>   { :size=>:force, :width=>280, :height=>186, :gravity => Magick::SouthGravity  }.freeze,
+    'side' =>   { :size=>:force, :width=>220, :height=>500, :gravity=>Magick::CenterGravity   }.freeze,
+    'std'  =>   { :size=>:limit, :width=>600, :height=>400, :gravity=>Magick::CenterGravity   }.freeze,
+    'pv'   =>   { :size=>:force, :width=>70,  :height=>79 , :gravity=>Magick::CenterGravity   }.freeze,
+    'edit' =>   { :size=>:limit, :width=>400, :height=>400, :gravity=>Magick::CenterGravity   }.freeze,
+    'full' =>   { :size=>:keep                            , :gravity=>Magick::CenterGravity   }.freeze,
+  }.freeze
+
+  # 'sepia'=>   { :size=>:limit, :width=>280, :ratio=>2/3.0, :post=>Proc.new {|img| img.sepiatone(Magick::MaxRGB * 0.8)}},
   
   class << self
     def image_content_type?(content_type)
@@ -180,10 +195,6 @@ class ImageBuilder
   def transform!(tformat=nil)
     return self unless tformat
     @img = nil
-    if tformat.kind_of?(String)
-      tformat = IMAGEBUILDER_FORMAT[tformat]
-      return nil unless tformat
-    end
     format = { :size=>:limit, :gravity=>Magick::CenterGravity }.merge(tformat)
     @pre, @post = format[:pre], format[:post]
 
@@ -277,18 +288,3 @@ class ImageBuilder
     @img
   end
 end
-IMAGEBUILDER_FORMAT = {
-  'tiny' => { :size=>:force, :width=>15,  :height=>15,                },
-  'mini' => { :size=>:force, :width=>32,  :ratio=>1.0,                },
-  'pv'   => { :size=>:force, :width=>70,  :ratio=>1.0                 },
-  'square' =>{:size=>:limit, :width=>180, :ratio=>1.0                 },
-  'med'  => { :size=>:limit, :width=>280, :ratio=>2/3.0               },
-  'top'  => { :size=>:force, :width=>280, :ratio=>2.0/3.0, :gravity=>Magick::NorthGravity  },
-  'mid'  => { :size=>:force, :width=>280, :ratio=>2.0/3.0, :gravity=>Magick::CenterGravity },
-  'low'  => { :size=>:force, :width=>280, :ratio=>2.0/3.0, :gravity=>Magick::SouthGravity  },
-  'edit' => { :size=>:limit, :width=>400, :height=>400                },
-  'side' => { :size=>:force, :width=>220, :height=>500,               },
-  'std'  => { :size=>:limit, :width=>600, :ratio=>2/3.0               },
-  'full' => { :size=>:keep                                            },
-  'sepia'=> { :size=>:limit, :width=>280, :ratio=>2/3.0, :post=>Proc.new {|img| img.sepiatone(Magick::MaxRGB * 0.8) }},
-}

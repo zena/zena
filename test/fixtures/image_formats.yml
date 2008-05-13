@@ -1,0 +1,20 @@
+# SIZES   = ['keep', 'limit', 'force']
+# GRAVITY = ['CenterGravity', 'NorthWestGravity', 'NorthGravity', 'NorthEastGravity', 'WestGravity', 'EastGravity', 'SouthWestGravity', 'SouthGravity', 'SouthEastGravity']
+redifined_std:
+  id: 1
+  name: std
+  site_id: 1
+  size: 1
+  width: 650
+  height: 420
+  updated_at: 2008-05-01
+
+header:
+  id: 2
+  name: header
+  site_id: 2
+  size: 2
+  gravity: 2
+  width: 688
+  height: 178
+  updated_at: 2008-05-02
