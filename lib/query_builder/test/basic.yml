@@ -41,5 +41,14 @@ recipients_or_objects:
   src:
     - "recipients"
     - "objects"
-  res: "SELECT objects.* FROM objects,links WHERE ((objects.id = links.target_id AND links.relation_id = 4 AND links.source_id = ID) OR (objects.parent_id = ID))"
+  res: "SELECT DISTINCT objects.* FROM objects,links WHERE ((objects.id = links.target_id AND links.relation_id = 4 AND links.source_id = ID) OR (objects.parent_id = ID))"
   
+bad_relation:
+  src: "bolobolo"
+  res: 
+
+bad_relation_in_alternate_query:
+  src: 
+    - "bolobolo"
+    - "letters in project"
+  res: "SELECT objects.* FROM objects WHERE objects.kpath LIKE 'NNL%' AND objects.project_id = PROJECT_ID"

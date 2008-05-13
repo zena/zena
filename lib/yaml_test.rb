@@ -54,7 +54,7 @@ module YamlTest
             context = Hash[*default_context.merge(context).map{|k,v| [k.to_sym,v]}.flatten]
             res = parse(@@test_strings[file][test]['src'] || test.gsub('_',' '), context)
             if test_res = @@test_strings[file][test]['res']
-              if test_res[0..0] == "/"
+              if test_res && test_res[0..0] == "/"
                 assert_match %r{\#{test_res[1..-2]}}m, res
               else
                 assert_equal test_res, res

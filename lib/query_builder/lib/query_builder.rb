@@ -75,6 +75,7 @@ class QueryBuilder
   end
   
   def to_sql
+    return nil if @filters.include?(:bad_relation)
     "SELECT#{@distinct} #{table}.* FROM #{@tables.join(',')}" + (@filters == [] ? '' : " WHERE #{@filters.reverse.join(' AND ')}#{@group}#{@order}#{@limit}#{@offset}")
   end
   
@@ -85,10 +86,10 @@ class QueryBuilder
     end
   
     def parse_part(part)
-      clause, context_filter, filters = *part
+      clause, context, filters = *part
       
       parse_filters(filters) if filters
-      @filters << context_filter(context_filter) if context_filter
+      @filters << context_filter(context) if context # .. in project
       @filters << relation(clause)
     end
     
@@ -152,11 +153,11 @@ class QueryBuilder
       return nil unless limit
       if limit.kind_of?(Fixnum)
         " LIMIT #{limit}"
-      elsif limit =~ /(\d)$/
-        " LIMIT #{$1}"
       elsif limit =~ /^\s*(\d+)\s*,\s*(\d+)/
         @offset = " OFFSET #{$1}"
         " LIMIT #{$2}"
+      elsif limit =~ /(\d)$/
+        " LIMIT #{$1}"
       else
         # TODO: raise error ?
         nil
@@ -201,6 +202,14 @@ class QueryBuilder
     end
     
     def merge_alternate_queries(alt_queries)
+      if @filters.include?(:bad_relation)
+        counter = 0
+        @filters = []
+        @tables  = []
+      else
+        counter = 1
+      end
+      
       if @filters.compact == []
         filters = []
       else
@@ -208,13 +217,20 @@ class QueryBuilder
       end
       
       alt_queries.each do |query|
+        next if query.filters.include?(:bad_relation)
         query.filters.compact!
         next if query.filters.empty?
+        counter += 1
         @tables += query.tables
         filters << query.filters.reverse.join(' AND ')
       end
-      @filters  = ["((#{filters.join(') OR (')}))"]
-      @distinct = " DISTINCT"
+      if counter > 1
+        @filters  = ["((#{filters.join(') OR (')}))"]
+        @distinct = " DISTINCT"
+      else
+        @filters  = [filters]
+        @distinct = ""
+      end
       @tables.uniq!
     end
     

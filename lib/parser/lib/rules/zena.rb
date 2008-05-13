@@ -920,10 +920,10 @@ END_TXT
       return "<span class='parser_error'>[group] missing 'by' clause</span>" unless key = @params[:by]
 
       sort_key = @params[:sort] || 'name'
-      
       if node_kind_of?(DataEntry) && DataEntry::NodeLinkSymbols.include?(key.to_sym)
         key = "#{key}_id"
         sort_block = "{|e| (e.#{key} || {})[#{sort_key.to_sym.inspect}]}"
+        group_array = "group_array(#{list_var}) {|e| e.#{key}}"
       elsif node_kind_of?(Node)
         if ['project', 'parent', 'section'].include?(key)
           key = 'project_id'

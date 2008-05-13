@@ -26,8 +26,9 @@ class NodeQueryTest < ZenaTestUnit
       @node = secure(Node) { nodes(context[:node].to_sym) }
       sql = eval "\"#{sql}\""
       
-      res = @node.do_find(:all, sql).map {|r| r[:name]}.join(', ')
-      if test_res[0..0] == "/"
+      res = @node.do_find(:all, sql)
+      res = res ? res.map {|r| r[:name]}.join(', ') : ''
+      if test_res && test_res[0..0] == "/"
         assert_match %r{#{test_res[1..-2]}}m, res
       else
         assert_equal test_res, res

@@ -19,9 +19,11 @@ class NodeQuery < QueryBuilder
   
   # Build joins and filters from a relation.
   def relation(rel)
+    return nil if rel == main_table || rel == 'children' # dummy clauses
     # join_relation second so we cannot overwrite 'class' finders (images) with a relation.
     join_relation(rel) ||
-    context_relation(rel)
+    context_relation(rel) ||
+    :bad_relation
   end
   
   # Default context filter is to search in the current node's direct children.
@@ -85,8 +87,6 @@ class NodeQuery < QueryBuilder
         return nil
       when 'visitor'
         return "#{table}.id = \#{visitor.contact_id}"
-      when main_table
-        return nil
       else
         if klass = Node.get_class(rel)
           ######## class filters #######

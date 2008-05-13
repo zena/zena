@@ -7,9 +7,11 @@ class TestQuery < QueryBuilder
   
   # Build joins and filters from a relation.
   def relation(rel)
+    return nil if rel == main_table || rel == 'children' # dummy clauses
     context_relation(rel) ||
     direct_filter(rel)   ||
-    join_relation(rel)
+    join_relation(rel)   ||
+    :bad_relation
   end
   
   # default context filter is to search in the current node's children (in self)
@@ -47,8 +49,6 @@ class TestQuery < QueryBuilder
         ['id', 'parent_id']
       when 'project'
         ['id', 'project_id']
-      when 'site', main_table
-        nil
       else
         nil
       end
