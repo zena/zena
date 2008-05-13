@@ -27,8 +27,8 @@ class ImageContentTest < ZenaTestUnit
   
   def setup
     super
-    @med = ImageFormat['med']
-    @pv  = ImageFormat['pv']
+    @med = Iformat['med']
+    @pv  = Iformat['pv']
   end
   
   def test_formats

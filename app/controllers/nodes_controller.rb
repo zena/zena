@@ -112,7 +112,7 @@ class NodesController < ApplicationController
           # Get document data (inline if possible)
         
           if @node.kind_of?(Image) && !ImageBuilder.dummy?
-            if img_format = ImageFormat[params[:mode]]
+            if img_format = Iformat[params[:mode]]
               data = @node.c_file(img_format)
               content_path = @node.c_filepath(img_format)
             end

@@ -45,7 +45,7 @@ ActiveRecord::Schema.define(:version => 0) do
     t.column "visitor_id",     :integer
     t.column "visitor_groups", :string,   :limit => 200
     t.column "kpath",          :string,   :limit => 200
-    t.column "context",        :string,   :limit => 200
+    t.column "context",        :integer
     t.column "content",        :text
     t.column "site_id",        :integer
   end
@@ -139,7 +139,7 @@ ActiveRecord::Schema.define(:version => 0) do
     t.column "user_id",  :integer
   end
 
-  create_table "image_formats", :force => true do |t|
+  create_table "iformats", :force => true do |t|
     t.column "name",       :string,   :limit => 40
     t.column "site_id",    :integer
     t.column "created_at", :datetime

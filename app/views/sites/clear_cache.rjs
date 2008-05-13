@@ -1,0 +1,2 @@
+page.replace_html "clear_site#{@site[:id]}", :inline => "<b>#{@clear_cache_message}</b>"
+page.visual_effect :highlight, "clear_site#{@site[:id]}", :duration => 0.3

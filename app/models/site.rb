@@ -272,12 +272,12 @@ class Site < ActiveRecord::Base
     self[:languages] = s.split(',').map(&:strip).join(',')
   end
   
-  def image_formats
-   @image_formats ||= begin
-     $image_formats ||= {} # mem cache
-     site_formats = $image_formats[self[:id]]
+  def iformats
+   @iformats ||= begin
+     $iformats ||= {} # mem cache
+     site_formats = $iformats[self[:id]]
      if !site_formats || self[:formats_updated_at] != site_formats[:updated_at]
-       site_formats = $image_formats[self[:id]] = ImageFormat.formats_for_site(self[:id]) # reload
+       site_formats = $iformats[self[:id]] = Iformat.formats_for_site(self[:id]) # reload
      end
      site_formats
     end

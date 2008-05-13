@@ -1,63 +1,63 @@
 require File.dirname(__FILE__) + '/../test_helper'
 
-class ImageFormatTest < ZenaTestUnit
+class IformatTest < ZenaTestUnit
   
   def setup
     super
-    $image_formats = nil # also works without this, but the tests are more reliable with it
+    $iformats = nil # also works without this, but the tests are more reliable with it
   end
   
   def test_default_format
     login(:lion)
-    assert_equal ({:width=>70, :height=>70, :size=>:force, :gravity => Magick::CenterGravity, :name=>'pv'}), ImageFormat['pv']
+    assert_equal ({:width=>70, :height=>70, :size=>:force, :gravity => Magick::CenterGravity, :name=>'pv'}), Iformat['pv']
   end
   
   def test_redefined_format
     login(:lion)
-    fmt = ImageFormat['med']
+    fmt = Iformat['med']
     assert_not_equal ImageBuilder::DEFAULT_FORMATS['med'], fmt
     assert_equal ({:name => 'med', :width=>300, :height=>200, :gravity=>Magick::CenterGravity, :size=>:limit}), fmt
   end
   
   def test_other_site
     login(:whale)
-    assert_equal ImageBuilder::DEFAULT_FORMATS['med'], ImageFormat['med']
+    assert_equal ImageBuilder::DEFAULT_FORMATS['med'], Iformat['med']
   end
   
   def test_defined_format
     login(:lion)
-    assert_nil ImageFormat['header']
+    assert_nil Iformat['header']
     login(:whale)
-    assert_equal ({:name => 'header', :gravity=>Magick::NorthGravity, :width=>688, :size=>:force, :height=>178}), ImageFormat['header']
+    assert_equal ({:name => 'header', :gravity=>Magick::NorthGravity, :width=>688, :size=>:force, :height=>178}), Iformat['header']
   end
   
   def test_list
     login(:lion)
-    assert_equal ["edit","full","low","med","mini","pv","side","square","std","tiny","top"], ImageFormat.list.map{|h| h[:name]}
+    assert_equal ["edit","full","low","med","mini","pv","side","square","std","tiny","top"], Iformat.list.map{|h| h[:name]}
     
     login(:whale)
-    assert_equal ["edit","full","header", "low","med","mini","pv","side","square","std","tiny","top"], ImageFormat.list.map{|h| h[:name]}
+    assert_equal ["edit","full","header", "low","med","mini","pv","side","square","std","tiny","top"], Iformat.list.map{|h| h[:name]}
   end
   
   def test_mem_cached
     login(:whale)
-    assert_equal 688, ImageFormat['header'][:width]
-    ImageFormat.connection.execute "UPDATE image_formats SET width = 500 WHERE id = #{image_formats_id(:header)}"
-    assert_equal 688, ImageFormat['header'][:width]
-    $image_formats = nil
-    assert_equal 688, ImageFormat['header'][:width]
+    assert_equal 688, Iformat['header'][:width]
+    Iformat.connection.execute "UPDATE iformats SET width = 500 WHERE id = #{iformats_id(:header)}"
+    assert_equal 688, Iformat['header'][:width]
+    $iformats = nil
+    assert_equal 688, Iformat['header'][:width]
   end
   
   def test_update_expire_mem_cache
     login(:lion)
-    assert_equal 300, ImageFormat['med'][:width]
-    assert_equal '2008-05-01', $image_formats[sites_id(:zena)][:updated_at].strftime('%Y-%m-%d')
+    assert_equal 300, Iformat['med'][:width]
+    assert_equal '2008-05-01', $iformats[sites_id(:zena)][:updated_at].strftime('%Y-%m-%d')
     assert_equal '2008-05-01', visitor.site[:formats_updated_at].strftime('%Y-%m-%d')
-    fmt1 = ImageFormat['med']
-    assert_equal fmt1.object_id, ImageFormat['med'].object_id, "In cache"
+    fmt1 = Iformat['med']
+    assert_equal fmt1.object_id, Iformat['med'].object_id, "In cache"
     
     # Update format
-    assert ImageFormat.update(image_formats_id(:med), :width => 350)
+    assert Iformat.update(iformats_id(:med), :width => 350)
     now = Time.now.utc.strftime('%Y-%m-%d')
     
     
@@ -65,27 +65,27 @@ class ImageFormatTest < ZenaTestUnit
     assert_equal now, visitor.site[:formats_updated_at].strftime('%Y-%m-%d'), "Site's formats update date changed"
     
     # format hasn't change in memory yet
-    assert_equal 300, $image_formats[sites_id(:zena)]['med'][:width], "Mem cached version not changed"
+    assert_equal 300, $iformats[sites_id(:zena)]['med'][:width], "Mem cached version not changed"
     
-    fmt2 = ImageFormat['med'] # updates cache
+    fmt2 = Iformat['med'] # updates cache
     
     assert_equal 350, fmt2[:width], "Updated value"
-    assert_equal now, $image_formats[sites_id(:zena)][:updated_at].strftime('%Y-%m-%d'), "Cache date set"
+    assert_equal now, $iformats[sites_id(:zena)][:updated_at].strftime('%Y-%m-%d'), "Cache date set"
     assert_not_equal fmt1.object_id, fmt2.object_id, "Cache changed"
     
-    assert_equal fmt2.object_id, ImageFormat['med'].object_id, "In cache"
+    assert_equal fmt2.object_id, Iformat['med'].object_id, "In cache"
   end
   
   def test_destroy_expire_mem_cache
     login(:lion)
-    assert_equal 300, ImageFormat['med'][:width]
-    assert_equal '2008-05-01', $image_formats[sites_id(:zena)][:updated_at].strftime('%Y-%m-%d')
+    assert_equal 300, Iformat['med'][:width]
+    assert_equal '2008-05-01', $iformats[sites_id(:zena)][:updated_at].strftime('%Y-%m-%d')
     assert_equal '2008-05-01', visitor.site[:formats_updated_at].strftime('%Y-%m-%d')
-    fmt1 = ImageFormat['med']
-    assert_equal fmt1.object_id, ImageFormat['med'].object_id, "In cache"
+    fmt1 = Iformat['med']
+    assert_equal fmt1.object_id, Iformat['med'].object_id, "In cache"
     
     # Destroy format
-    assert ImageFormat.destroy(image_formats_id(:med))
+    assert Iformat.destroy(iformats_id(:med))
     now = Time.now.utc.strftime('%Y-%m-%d')
     
     
@@ -93,60 +93,60 @@ class ImageFormatTest < ZenaTestUnit
     assert_nil visitor.site[:formats_updated_at], "Site's formats update date is NULL"
     
     # format hasn't change in memory yet
-    assert_equal 300, $image_formats[sites_id(:zena)]['med'][:width], "Mem cached version not changed"
+    assert_equal 300, $iformats[sites_id(:zena)]['med'][:width], "Mem cached version not changed"
     
-    fmt2 = ImageFormat['med'] # updates cache
+    fmt2 = Iformat['med'] # updates cache
     
     assert_equal 280, fmt2[:width], "Default value"
-    assert_nil $image_formats[sites_id(:zena)][:updated_at], "Cache date set to nil"
+    assert_nil $iformats[sites_id(:zena)][:updated_at], "Cache date set to nil"
     assert_not_equal fmt1.object_id, fmt2.object_id, "Cache changed"
     
-    assert_equal fmt2.object_id, ImageFormat['med'].object_id, "In cache"
+    assert_equal fmt2.object_id, Iformat['med'].object_id, "In cache"
   end
   
   def test_create_first
     login(:lion)
-    assert ImageFormat.destroy(image_formats_id(:med))
-    fmt = ImageFormat['med']
-    assert_nil $image_formats[sites_id(:zena)][:updated_at], "Cache date set to nil"
-    imf = ImageFormat.create(:name => 'foo', :width => 50, :height=> 50, :size=> 'limit')
+    assert Iformat.destroy(iformats_id(:med))
+    fmt = Iformat['med']
+    assert_nil $iformats[sites_id(:zena)][:updated_at], "Cache date set to nil"
+    imf = Iformat.create(:name => 'foo', :width => 50, :height=> 50, :size=> 'limit')
     login(:lion) # flush 'visitor'
     assert !imf.new_record?, "Not a new record"
-    fmt = ImageFormat['med']
-    assert_equal Time.now.utc.strftime('%Y-%m-%d'), $image_formats[sites_id(:zena)][:updated_at].strftime('%Y-%m-%d'), "Cache date set to now"
+    fmt = Iformat['med']
+    assert_equal Time.now.utc.strftime('%Y-%m-%d'), $iformats[sites_id(:zena)][:updated_at].strftime('%Y-%m-%d'), "Cache date set to now"
   end
   
   def test_create_bad_attribute
     login(:lion)
-    imf = ImageFormat.create(:name => 'foo', :height=>'34', :size => 'limit')
+    imf = Iformat.create(:name => 'foo', :height=>'34', :size => 'limit')
     assert imf.new_record?, "New record"
     assert "must be greater then 0", imf.errors['width']
     
-    imf = ImageFormat.create(:name => 'foo', :height=>'-34', :width => '34', :size => 'limit')
+    imf = Iformat.create(:name => 'foo', :height=>'-34', :width => '34', :size => 'limit')
     assert imf.new_record?, "New record"
     assert "must be greater then 0", imf.errors['height']
   end
   
   def test_create_same_name
     login(:lion)
-    imf = ImageFormat.create(:name => 'header', :height=>'34', :width => '500', :size => 'force')
+    imf = Iformat.create(:name => 'header', :height=>'34', :width => '500', :size => 'force')
     assert !imf.new_record?, "Not a new record"
     login(:whale)
-    imf = ImageFormat.create(:name => 'header', :height=>'34', :width => '500', :size => 'force')
+    imf = Iformat.create(:name => 'header', :height=>'34', :width => '500', :size => 'force')
     assert imf.new_record?, "New record"
     assert_equal "%{fn} has already been taken", imf.errors['name']
   end
   
   def test_create_update_not_admin
     login(:ant)
-    imf = ImageFormat.create(:name => 'header', :height=>'34', :width => '500', :size => 'force')
+    imf = Iformat.create(:name => 'header', :height=>'34', :width => '500', :size => 'force')
     assert imf.new_record?, "New record"
     assert_equal "you do not have the rights to do this", imf.errors['base']
   end
   
   def test_new_from_default
     login(:lion)
-    imf = ImageFormat.new_from_default('pv')
+    imf = Iformat.new_from_default('pv')
     assert_equal ImageBuilder::DEFAULT_FORMATS['pv'], imf.as_hash
     assert_equal 70, imf[:height]
     assert_equal 70, imf[:width]

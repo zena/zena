@@ -24,7 +24,7 @@ class ImageTest < ZenaTestUnit
   end
   
   def test_resize_image
-    pv_format = ImageFormat['pv']
+    pv_format = Iformat['pv']
     without_files('test.host/data/jpg') do
       login(:ant)
       img = secure!(Image) { Image.create( :parent_id=>nodes_id(:cleanWater), 
@@ -115,7 +115,7 @@ class ImageTest < ZenaTestUnit
     end
   end
   
-  def test_crop_image_format
+  def test_crop_iformat
     preserving_files('test.host/data/jpg') do
       login(:ant)
       img = secure!(Node) { nodes(:bird_jpg) }
@@ -179,7 +179,7 @@ class ImageTest < ZenaTestUnit
       assert !img.new_record?
       img = secure!(Image) { Image.find(img[:id]) }
       old_path1 = img.c_filepath
-      pv_format = ImageFormat['pv']
+      pv_format = Iformat['pv']
       old_path2 = img.c_filepath(pv_format)
       img.c_file(pv_format) # creates 'pv' file
       assert_equal "#{SITES_ROOT}/test.host/data/jpg/#{img.v_id}/birdy.jpg", old_path1
@@ -210,7 +210,7 @@ class ImageTest < ZenaTestUnit
       img_id  = img[:id]
       v1      = img.v_id
       old1    = img.c_filepath
-      pv_format = ImageFormat['pv']
+      pv_format = Iformat['pv']
       old1_pv = img.c_filepath(pv_format)
       img.c_file(pv_format) # creates 'pv' file
       
@@ -257,7 +257,7 @@ class ImageTest < ZenaTestUnit
       assert_kind_of Image, img
       assert ! img.new_record?, "Not a new record"
       assert_equal 793, img.c_size
-      assert img.c_file(ImageFormat['pv'])
+      assert img.c_file(Iformat['pv'])
     end
   end
 end

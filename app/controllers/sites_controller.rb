@@ -5,7 +5,6 @@ class SitesController < ApplicationController
   layout :admin_layout
   
   def index
-    
     @site_pages, @sites = nil, nil
     secure!(Site) do
       @site_pages, @sites = paginate :sites, :per_page => 20, :order => 'name'
@@ -58,6 +57,29 @@ class SitesController < ApplicationController
     end
   end
 
+  def clear_cache
+    public_path = "#{SITES_ROOT}#{@site.public_path}"
+    puts public_path.inspect
+    if File.exist?(public_path)
+      Dir.foreach(public_path) do |elem|
+        next unless elem =~ /^(\w\w\.html|\w\w)$/
+        FileUtils.rmtree(File.join(public_path, elem))
+      end
+      
+      Site.connection.execute "DELETE FROM caches WHERE site_id = #{@site.id}"
+      Site.connection.execute "DELETE FROM cached_pages_nodes WHERE cached_pages_nodes.node_id IN (SELECT nodes.id FROM nodes WHERE nodes.site_id = #{@site.id})"
+      Site.connection.execute "DELETE FROM cached_pages WHERE site_id = #{@site.id}"
+      
+    end
+    
+    zafu_path = "#{SITES_ROOT}#{@site.zafu_path}"
+    if File.exist?(zafu_path)
+      FileUtils.rmtree(zafu_path)
+    end
+    
+    @clear_cache_message = _("Cache cleared.")
+  end
+  
   def destroy
     # This is not possible through the web interface
     raise ActiveRecord::RecordNotFound

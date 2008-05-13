@@ -25,6 +25,11 @@
     <input type='hidden' name='site[<%= sym %>]' value=''/><input type='checkbox' name='site[<%= sym %>]' value='1'<%= @site[sym] ? " checked='checked'" : '' %>/> <%= _(sym.to_s) %>
     <% end -%>
     </td></tr>
+    <% if !@site.new_record? %>
+    <tr><td class='label'><%= _('clear cache') %></td><td id='clear_site<%= @site[:id] %>'>
+        <%= link_to_remote _('clear cache'), :url => clear_cache_site_path(@site), :confirm => _('Are you sure you want destroy all cache (site may be slow during first reloads) ?') %>
+    </td></tr>    
+    <% end %>
     <tr><td colspan='2'><p class='btn_validate'><input type='submit' value='<%= _('validate') %>'/></p></td></tr>
   </table>
   </form>

@@ -1,0 +1,7 @@
+<h3><%= _('manage classes') %></h3>
+
+<table id='iformat_list' class='admin' cellspacing="0">
+  <tr><th class='nav' colspan='6'>&nbsp;</th></tr>
+  <%= render :partial=>'iformats/li',  :collection=>@iformats %>
+  <%= render :partial=>'iformats/add' %>
+</table>

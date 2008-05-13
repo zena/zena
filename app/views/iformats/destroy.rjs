@@ -1,0 +1,11 @@
+if @iformat.errors.empty?
+  if Iformat[@iformat.name]
+    page.visual_effect :highlight, "iformat#{@iformat.name}", :duration => 0.3
+    page.replace "iformat#{@iformat.name}", :partial=>"iformats/li", :collection => [Iformat.new_from_default(@iformat.name)]
+  else
+    page.visual_effect :highlight, "iformat#{@iformat.name}", :duration => 0.3
+    page.visual_effect :fade, "iformat#{@iformat.name}", :duration => 0.5
+  end
+else
+  page.replace "iformat#{@iformat.name}", :partial=>"iformats/form"
+end

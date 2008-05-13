@@ -1,6 +1,6 @@
-class ImageFormat < ActiveRecord::Base
-  before_validation :image_format_before_validation
-  validate          :image_format_valid
+class Iformat < ActiveRecord::Base
+  before_validation :iformat_before_validation
+  validate          :iformat_valid
   validates_uniqueness_of :name, :scope => :site_id
   after_save        :set_site_formats_date
   after_destroy     :set_site_formats_date
@@ -9,17 +9,17 @@ class ImageFormat < ActiveRecord::Base
   
   class << self
     def [](fmt)
-      Thread.current.visitor.site.image_formats[fmt]
+      Thread.current.visitor.site.iformats[fmt]
     end
     
     def list
       res = []
-      Thread.current.visitor.site.image_formats.merge(formats_for_site(visitor.site.id, false)).each do |k,v|
+      Thread.current.visitor.site.iformats.merge(formats_for_site(visitor.site.id, false)).each do |k,v|
         next if k == :updated_at || k.nil?
-        if v.kind_of?(ImageFormat)
+        if v.kind_of?(Iformat)
           res << v
         else
-          res << ImageFormat.new_from_default(k)
+          res << Iformat.new_from_default(k)
         end
       end
       res.sort {|a,b| a[:name] <=> b[:name]}
@@ -81,7 +81,7 @@ class ImageFormat < ActiveRecord::Base
   end
   
   protected
-    def image_format_valid
+    def iformat_valid
       if !visitor.is_admin?
         errors.add('base', 'you do not have the rights to do this')
         return false
@@ -94,7 +94,7 @@ class ImageFormat < ActiveRecord::Base
       end
     end
     
-    def image_format_before_validation
+    def iformat_before_validation
       self[:site_id] = visitor.site[:id]
       if self.size == 'keep'
         self[:width] = nil 
@@ -103,6 +103,6 @@ class ImageFormat < ActiveRecord::Base
     end
     
     def set_site_formats_date
-      Site.connection.execute "UPDATE sites SET formats_updated_at = (SELECT updated_at FROM image_formats WHERE site_id = #{self[:site_id]} ORDER BY image_formats.updated_at DESC LIMIT 1) WHERE id = #{self[:site_id]}"
+      Site.connection.execute "UPDATE sites SET formats_updated_at = (SELECT updated_at FROM iformats WHERE site_id = #{self[:site_id]} ORDER BY iformats.updated_at DESC LIMIT 1) WHERE id = #{self[:site_id]}"
     end
 end

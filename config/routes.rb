@@ -8,7 +8,7 @@ ActionController::Routing::Routes.draw do |map|
   map.resource  :session   # singleton resource
   map.resources :users, :member => { :preferences => :get, :swap_dev => :get }
   map.resources :groups
-  map.resources :image_formats
+  map.resources :iformats
   
   map.connect ':prefix/*path',  :controller => 'nodes', :action => 'show', :prefix => /\w\w/
   map.connect 'dav/*path_info', :controller => 'nodes', :action => 'webdav'
@@ -47,7 +47,8 @@ ActionController::Routing::Routes.draw do |map|
   
   map.resources :relations
   map.resources :virtual_classes
-  map.resources :sites
+  map.resources :sites,
+    :member => { :clear_cache => :post}
   map.resources :comments
   map.resources :data_entries, :member => { :zafu => :get }
 

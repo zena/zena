@@ -1,1 +1,0 @@
-page.replace "image_format#{@image_format[:id]}", :partial=>'image_formats/li', :collection=>[@image_format]

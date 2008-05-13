@@ -1,0 +1,1 @@
+page.replace "iformat#{@iformat.name}", :partial=>'iformats/li', :collection=>[@iformat]

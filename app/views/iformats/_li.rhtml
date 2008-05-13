@@ -1,0 +1,11 @@
+<tr id='iformat<%= li.name %>'>
+  <td class="adm_icon"><%= link_to_remote( li.new_record? ? _('default_iformat_img') : _('iformat_img'), 
+          :update =>"iformat#{li.name}", 
+          :url    => edit_iformat_path(li.pseudo_id),
+          :method => :get) %></td>
+  <td><%= li.name %></td>
+  <td><%= li.size %></td>
+  <td><%= li.width %></td>
+  <td><%= li.height %></td>
+  <td><%= li.gravity %></td>
+</tr>

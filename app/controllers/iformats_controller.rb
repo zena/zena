@@ -1,6 +1,6 @@
-class ImageFormatsController < ApplicationController
+class IformatsController < ApplicationController
   before_filter :check_is_admin
-  before_filter :find_image_format, :except => [:index, :new, :create]
+  before_filter :find_iformat, :except => [:index, :new, :create]
   before_filter :find_node
   layout :admin_layout
 
@@ -15,24 +15,24 @@ class ImageFormatsController < ApplicationController
   end
 
   def index
-    @image_format_pages, @image_formats = nil, nil
-    @image_formats = ImageFormat.list
-    @image_format  = ImageFormat.new
+    @iformat_pages, @iformats = nil, nil
+    @iformats = Iformat.list
+    @iformat  = Iformat.new
     respond_to do |format|
       format.html
     end
   end
 
   def create
-    @image_format = ImageFormat.create(params[:image_format])
+    @iformat = Iformat.create(params[:iformat])
   end
 
   def update
-    @image_format.update_attributes(params[:image_format])
+    @iformat.update_attributes(params[:iformat])
 
     respond_to do |format|
       format.html do 
-        if @image_format.errors.empty?
+        if @iformat.errors.empty?
           redirect_to :action => 'show'
         else
           render :action => 'edit'
@@ -43,31 +43,31 @@ class ImageFormatsController < ApplicationController
   end
 
   def destroy
-    @image_format.destroy
+    @iformat.destroy
 
     respond_to do |format|
       format.html do
-        if @image_format.errors.empty?
+        if @iformat.errors.empty?
           redirect_to :action => 'index' 
         else
           render :action => 'edit'
         end
       end
       format.js   do
-        render(:partial => 'form') unless @image_format.errors.empty?
+        render(:partial => 'form') unless @iformat.errors.empty?
       end
       format.xml  { head :ok }
     end
   end
 
   protected
-    def find_image_format
+    def find_iformat
       if imf_id = params[:id]
         if imf_id =~ /[a-zA-Z]/
           # default format
-          @image_format = ImageFormat.new_from_default(imf_id)
+          @iformat = Iformat.new_from_default(imf_id)
         else
-          @image_format = secure!(ImageFormat) { ImageFormat.find(params[:id]) }
+          @iformat = secure!(Iformat) { Iformat.find(params[:id]) }
         end
       end
     end

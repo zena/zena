@@ -1,0 +1,29 @@
+<td class="adm_icon">
+  <%= unless @iformat.name.blank?
+    link_to_remote _('btn_x'), :url => iformat_path(@iformat.pseudo_id), :method => :get
+  else
+    link_to_function _('btn_x'), "['add_iformat', 'add_iformat_form'].each(Element.toggle)"
+  end %>
+</td>
+<td class="add" colspan="5">
+  <div id='iformat_errors'><%= error_messages_for(@iformat) %></div>
+  <% unless @iformat.name.blank? %>
+  <%= form_remote_tag(:url => iformat_path(@iformat.pseudo_id), :method => :put ) %>
+  <% else %>
+  <%= form_remote_tag(:url => iformats_path ) %>
+  <% end %>
+  <table cellspacing='0' class='edit_iformat'>
+    <tr><td class='label'><%= _("name")%>      </td><td><%= text_field('iformat', 'name',        :size=>15 ) %></td></tr>
+    <tr><td class='label'><%= _("type")%>      </td><td><%= select('iformat', 'size',  Iformat::SIZES, :selected => @iformat.size ) %></td></tr>
+    <tr><td class='label'><%= _("width")%></td><td><%= text_field('iformat', 'width',        :size=>15 ) %></td></tr>
+    <tr><td class='label'><%= _("height")%></td><td><%= text_field('iformat', 'height',        :size=>15 ) %></td></tr>
+    <tr><td class='label'><%= _("gravity")%></td><td><%= select('iformat', 'gravity',  Iformat::GRAVITY, :selected => @iformat.gravity ) %></td></tr>
+    <tr><td colspan='2'><p class='btn_validate'><input type='submit' value='<%= _('validate') %>'/></p></td></tr>
+  </table>
+  </form>
+  <% if !@iformat.new_record? -%>
+  <%= form_remote_tag(:url => iformat_path(@iformat.pseudo_id), :method => :delete, :confirm => _('Are you sure you want to destroy this image format ?') ) %>
+  <p class='destroy'><%= _('destroy image format') %> <input type='submit' value='<%= _('destroy') %>'></p>
+  </form>
+  <% end -%>
+</td>

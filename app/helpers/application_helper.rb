@@ -522,7 +522,7 @@ latex_template = %q{
     if obj.kind_of?(Image)
       res     = {}
       content = obj.version.content
-      format  = ImageFormat[opts[:mode]] || ImageFormat['std']
+      format  = Iformat[opts[:mode]] || Iformat['std']
       
       res[:id]    = opts[:id]
       res[:alt]   = opts[:alt] || obj.v_title.gsub("'", '&apos;')
@@ -582,7 +582,7 @@ latex_template = %q{
     
     res[:src] = "/images/ext/#{name}.png"
 
-    if opts[:mode] && (format = ImageFormat[opts[:mode]]) && format[:size] != :keep
+    if opts[:mode] && (format = Iformat[opts[:mode]]) && format[:size] != :keep
       # resize image
       img = ImageBuilder.new(:path=>"#{RAILS_ROOT}/public#{res[:src]}", :width=>32, :height=>32)
       img.transform!(format)
@@ -1081,7 +1081,7 @@ ENDTXT
   def show_link(link, opt={})
     case link
     when :admin_links
-      [show_link(:home), show_link(:preferences), show_link(:comments), show_link(:users), show_link(:groups), show_link(:relations), show_link(:virtual_classes), show_link(:image_formats), show_link(:sites), show_link(:dev)].reject {|l| l==''}
+      [show_link(:home), show_link(:preferences), show_link(:comments), show_link(:users), show_link(:groups), show_link(:relations), show_link(:virtual_classes), show_link(:iformats), show_link(:sites), show_link(:dev)].reject {|l| l==''}
     when :home
       return '' if visitor.is_anon?
       link_to_with_state(_('my home'), user_path(visitor))
@@ -1103,9 +1103,9 @@ ENDTXT
     when :virtual_classes
       return '' unless visitor.is_admin?
       link_to_with_state(_('manage classes'), virtual_classes_path)
-    when :image_formats
+    when :iformats
       return '' unless visitor.is_admin?
-      link_to_with_state(_('image formats'), image_formats_path)
+      link_to_with_state(_('image formats'), iformats_path)
     when :sites
       return '' unless visitor.is_admin?
       link_to_with_state(_('manage sites'), sites_path)

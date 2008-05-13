@@ -20,7 +20,7 @@ class VersionsController < ApplicationController
         end
         
         if @node.kind_of?(Image) && !ImageBuilder.dummy?
-          img_format = ImageFormat[params[:mode]]
+          img_format = Iformat[params[:mode]]
           data = @node.c_file(img_format)
           content_path = @node.c_filepath(img_format)
           disposition  = 'inline'
