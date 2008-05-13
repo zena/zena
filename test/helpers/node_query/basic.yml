@@ -35,5 +35,17 @@ nodes_in_parent:
   sql: "SELECT nodes.* FROM nodes WHERE nodes.parent_id = #{@node.parent_id} AND (#{@node.secure_scope('nodes')}) ORDER BY position ASC, name ASC"
 
 children:
-  src: "children"
   sql: "SELECT nodes.* FROM nodes WHERE nodes.parent_id = #{@node.id} AND (#{@node.secure_scope('nodes')}) ORDER BY position ASC, name ASC"
+
+pages_or_letters:
+  context:
+    node: zena
+  src:
+    - 'pages'
+    - 'letters'
+  sql: "SELECT nodes.* FROM nodes WHERE ((nodes.kpath LIKE 'NP%' AND nodes.parent_id = #{@node.id}) OR (nodes.kpath LIKE 'NNL%' AND nodes.parent_id = #{@node.id})) AND (#{@node.secure_scope('nodes')}) ORDER BY position ASC, name ASC"
+  res: "collections, letter, nature, people, projects, skins"
+
+project:
+  sql: "SELECT nodes.* FROM nodes WHERE nodes.id = #{@node.get_project_id} AND (#{@node.secure_scope('nodes')}) ORDER BY position ASC, name ASC"
+  res: 'cleanWater'

@@ -1167,6 +1167,11 @@ END_TXT
       do_var("#{node}.section", :node_class => Section)
     end
     
+    # icon or first image (defined using build_finder_for instead of zafu_known_context for performance reasons).
+    def r_icon
+      do_var(build_finder_for(:first, 'icon', :or => 'image'), :node_class => Image)
+    end
+    
     def r_date
       select = @params[:select]
       case select
@@ -1289,7 +1294,7 @@ END_TXT
       end
       if @params[:href]
         unless lnode = find_stored(Node, @params[:href])
-          href = ", :href=>#{@params[:href].inspect}"
+          href = ", :href=>#{build_finder_for(:first, @params[:href])}"
         end
       else
         href = ''
@@ -1371,10 +1376,17 @@ END_TXT
     
     # TODO: test
     def r_calendar
-      opts   = query_parameters(@params[:find  ] || 'news from project')
-      opts.delete(:node_name)
-      opts[:size]   = (@params[:size  ] || 'tiny'    )
-      opts[:using]  = (@params[:using ] || 'event_at').gsub(/[^a-z_]/,'') # SQL injection security
+      opts = {}
+      pseudo_sql, raw_filters = make_pseudo_sql(@params[:find  ] || 'news in project')
+      
+      raw_filters ||= []
+      fld  = (@params[:using ] || 'event_at').gsub(/[^a-z_]/,'') # SQL injection security
+      fld = 'event_at' unless ['log_at', 'created_at', 'updated_at', 'event_at'].include?(fld)
+      
+      raw_filters << "TABLE_NAME.#{fld} >= \#{start_date.strftime('%Y-%m-%d')} AND TABLE_NAME.#{fld} <= \#{end_date.strftime('%Y-%m-%d')}"
+      
+      opts[:size] = @params[:size] || 'tiny'
+      opts[:sql] = "\"#{Node.build_find(:all, pseudo_sql, '@node', raw_filters)}\""
       
       template_url = get_template_url
       out helper.save_erb_to_url(opts.inspect, template_url)
@@ -1453,7 +1465,7 @@ END_TXT
     
     # Create an sql query to open a new context (passes its arguments to HasRelations#build_find)
     def build_finder_for(count, rel, params=@params)
-      if context = node_class.zafu_known_contexts[rel] && !params[:from] && !params[:where]
+      if context = node_class.zafu_known_contexts[rel] && !params[:in] && !params[:where] && !params[:from]
         node_class = context[:node_class]
         
         if node_class.kind_of?(Array) && count == :all && node_class[0].ancestors.include?(Node)
@@ -1486,7 +1498,17 @@ END_TXT
         end
       end
       
-      sql_query = Node.build_find(count, query_parameters(rel, params))
+      pseudo_sql, raw_filters = make_pseudo_sql(rel, params)
+      
+      # FIXME: stored should be clarified and managed in a single way through links and contexts.
+      # <r:void store='foo'>...
+      # <r:link href='foo'/>
+      # <r:pages from='foo'/> <-- this is just a matter of changing node parameter
+      # <r:pages from='site' project='foo'/>
+      # <r:img link='foo'/>
+      # ...
+      
+      sql_query = Node.build_find(count, pseudo_sql, node, raw_filters)
       unless sql_query
         return "nil"
       end
@@ -1501,67 +1523,67 @@ END_TXT
       end
     end
     
-    def query_parameters(rel, params=@params)
-      # FIXME: could SQL injection be possible here ? (all params are passed to the 'find')
-      relations    = [rel]
-      conditions   = []
-      query_params = {}
-      
-      if params[:where]
-        relations[0] << " where #{params[:where]}"
-      end
+    # Build pseudo sql from the parameters
+    def make_pseudo_sql(rel, params=@params)
+      parts   = [rel]
+      filters = []
       
       if params[:from]
-        if params[params[:from].to_sym]
-          # <r:pages from='project' project='...'/>  is the same as <r:pages from='site' project='...'/>
-          # <r:pages from='section' section='...'/>  is the same as <r:pages from='site' section='...'/>
-          relations[0] << " from site"
-        else
-          relations[0] << " from #{params[:from]}"
+        parts << params[:from]
+        
+        key_counter = 1
+        while sub_part = params["from#{key_counter}".to_sym]
+          key_counter += 1
+          parts << sub_part
         end
       end
       
-      if params[:or]
-        relations << params[:or]
-        key_counter = 1
-        while or_value = params["or#{key_counter}".to_sym]
-          key_counter += 1
-          relations << or_value
-        end
+      if params[:where]
+        parts[0] << " where #{params[:where]}"
+      end
+      
+      if params[:in]
+        parts[0] << " in #{params[:in]}"
       end
       
       if order = params[:order]
-        if order == 'random'
-          query_params[:order] = 'RAND()'
-        elsif order =~ /\A(\w+)( ASC| DESC|)\Z/
-          query_params[:order] = order
-        else
-          # ignore
-        end
+        parts[0] << " order by #{order}" unless parts[0] =~ /order by/
       end
       
       [:limit, :offset].each do |k|
         next unless params[k]
-        query_params[k] = params[k].to_i.to_s
+        parts[0] << " #{k} #{params[k]}" unless parts[0] =~ / #{k} /
       end
       
+      finders = [parts.join(' from ')]
+      if params[:or]
+        or_clause = [params[:or]]
+        
+        key_counter = 1
+        while sub_or = params["or#{key_counter}".to_sym]
+          key_counter += 1
+          finders << sub_or
+        end
+      else
+        or_clause = nil
+      end
       
-      # FIXME: stored should be clarified and managed in a single way through links and contexts.
-      # <r:void store='foo'>...
-      # <r:link href='foo'/>
-      # <r:pages from='foo'/>
-      # <r:pages from='site' project='foo'/>
-      # <r:img link='foo'/>
-      # ...
+      return [finders, parse_raw_filters(params)]
+    end
+    
+    # Parse special filters
+    def parse_raw_filters(params)
+      filters = []
+      
       if value = params[:author]
         if stored = find_stored(User, value)
-          conditions << "user_id = '\#{#{stored}.id}'"
+          filters << "TABLE_NAME.user_id = '\#{#{stored}.id}'"
         elsif value == 'current'
-          conditions << "user_id = '\#{#{node}[:user_id]}'"
+          filters << "TABLE_NAME.user_id = '\#{#{node}[:user_id]}'"
         elsif value == 'visitor'
-          conditions << "user_id = '\#{visitor[:id]}'"
+          filters << "TABLE_NAME.user_id = '\#{visitor[:id]}'"
         elsif value =~ /\A\d+\Z/
-          conditions << "user_id = '#{value.to_i}'"
+          filters << "TABLE_NAME.user_id = '#{value.to_i}'"
         elsif value =~ /\A[\w\/]+\Z/
           # TODO: path, not implemented yet
         end
@@ -1569,11 +1591,11 @@ END_TXT
       
       if value = params[:project]
         if stored = find_stored(Node, value)
-          conditions << "project_id = '\#{#{stored}.get_project_id}'"
+          filters << "TABLE_NAME.project_id = '\#{#{stored}.get_project_id}'"
         elsif value == 'current'
-          conditions << "project_id = '\#{#{node}.get_project_id}'"
+          filters << "TABLE_NAME.project_id = '\#{#{node}.get_project_id}'"
         elsif value =~ /\A\d+\Z/
-          conditions << "project_id = '#{value.to_i}'"
+          filters << "TABLE_NAME.project_id = '#{value.to_i}'"
         elsif value =~ /\A[\w\/]+\Z/
           # TODO: path, not implemented yet
         end
@@ -1581,11 +1603,11 @@ END_TXT
       
       if value = params[:section]
         if stored = find_stored(Node, value)
-          conditions << "section_id = '\#{#{stored}.get_section_id}'"
+          filters << "TABLE_NAME.section_id = '\#{#{stored}.get_section_id}'"
         elsif value == 'current'
-          conditions << "section_id = '\#{#{node}.get_section_id}'"
+          filters << "TABLE_NAME.section_id = '\#{#{node}.get_section_id}'"
         elsif value =~ /\A\d+\Z/
-          conditions << "section_id = '#{value.to_i}'"
+          filters << "TABLE_NAME.section_id = '#{value.to_i}'"
         elsif value =~ /\A[\w\/]+\Z/
           # not implemented yet
         end
@@ -1594,14 +1616,11 @@ END_TXT
       [:updated, :created, :event, :log].each do |k|
         if value = params[k]
           # current, same are synonym for 'today'
-          conditions << Node.connection.date_condition(value,"#{k}_at",current_date)
+          filters << Node.connection.date_condition(value,"TABLE_NAME.#{k}_at",current_date)
         end
       end
 
-      query_params[:conditions] = conditions.join(' AND ') if conditions != []
-      query_params[:relations ] = relations.map { |r| r.gsub('&gt;', '>').gsub('&lt;', '<')}
-      query_params[:node_name ] = node
-      query_params
+      filters == [] ? nil : filters
     end
     
     # helpers

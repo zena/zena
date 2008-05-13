@@ -36,3 +36,10 @@ offset_in_limit:
 offset:
   src: "objects in project limit 2 offset 3"
   res: "SELECT objects.* FROM objects WHERE objects.project_id = PROJECT_ID LIMIT 2 OFFSET 3"
+
+recipients_or_objects:
+  src:
+    - "recipients"
+    - "objects"
+  res: "SELECT objects.* FROM objects,links WHERE ((objects.id = links.target_id AND links.relation_id = 4 AND links.source_id = ID) OR (objects.parent_id = ID))"
+  

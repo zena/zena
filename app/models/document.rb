@@ -32,7 +32,7 @@ c_ext::   file extension
 c_content_type:: file content-type
 =end
 # should be a sub-class of Node, not Page (#184). Write a migration, fix fixtures and test.
-class Document < Page
+class Document < Node
   
   zafu_readable      :filename
   
@@ -141,23 +141,21 @@ class Document < Page
   
   private
   
-    # Set name from filename
+    # Make sure name is unique
     def document_before_validation
-      content = version.content
-      unless new_record?
-        # we cannot use 'old' here as this record is not secured when spreading inheritance
-        if self[:name] != self.class.find(self[:id])[:name] && self[:name] && self[:name] != ''
-          # FIXME: name is not important (just used to find file in case db crash: do not sync.)
-          # update all content names :
-          versions.each do |v|
-            if v[:id] == @version[:id]
-              v = @version # make sure modifications are made to our loaded version/content
-            else
-              v.node = self # preload so the relation to 'self' is kept
-            end
-            content = v.content
-            content.name = self[:name].sub(/\.*$/,'') # remove trailing dots
-            content.save
+      # we are in a scope, we cannot just use the normal validates_... 
+      Node.with_exclusive_scope do
+        if new_record? 
+          cond = ["name = ? AND parent_id = ? AND kpath LIKE 'ND%'",              self[:name], self[:parent_id]]
+        else
+          cond = ["name = ? AND parent_id = ? AND kpath LIKE 'ND%' AND id != ? ", self[:name], self[:parent_id], self[:id]]
+        end
+        taken_name = Node.find(:all, :conditions=>cond, :order=>"LENGTH(name) DESC", :limit => 1)
+        if taken_name = taken_name[0]
+          if taken_name =~ /^#{self[:name]}-(\d)/
+            self[:name] = "#{self[:name]}-#{$1.to_i + 1}"
+          else
+            self[:name] = "#{self[:name]}-1"
           end
         end
       end

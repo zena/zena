@@ -650,8 +650,10 @@ latex_template = %q{
       end_date    = Date.civil(date.year, date.mon, -1)
       end_date   += (6 + week_start_day - end_date.wday) % 7
       
+      sql = eval opts[:sql]
+      
       # get list of notes in this scope
-      notes = source.find(:all, :relations => relations, :conditions=>["#{using} >= ? AND #{using} <= ?", start_date, end_date], :order=>"#{using} ASC") || []
+      notes = source.do_find(:all, sql) || []
       
       # build event hash
       calendar = {}
@@ -1050,11 +1052,7 @@ ENDTXT
     options = {:node=>@node}.merge(opts)
     node = options.delete(:node)
     if href = options.delete(:href)
-      if href.kind_of?(String)
-        node = node.find(:first, href) || node unless href == 'self'
-      else
-        node = href
-      end
+      node = href
     end    
     return options[:text] unless node
 

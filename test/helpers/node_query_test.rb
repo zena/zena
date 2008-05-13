@@ -12,7 +12,7 @@ class NodeQueryTest < ZenaTestUnit
     
     login context[:visitor].to_sym
     
-    sql = NodeQuery.new(@@test_strings[file][test]['src'] || test.gsub('_',' '), context).to_sql
+    sql = Node.build_find(:all,@@test_strings[file][test]['src'] || test.gsub('_',' '), context[:node_name])
     
     if test_sql = @@test_strings[file][test]['sql']
       if test_sql[0..0] == "/"
@@ -26,7 +26,7 @@ class NodeQueryTest < ZenaTestUnit
       @node = secure(Node) { nodes(context[:node].to_sym) }
       sql = eval "\"#{sql}\""
       
-      res = Node.find_by_sql(sql).map {|r| r[:name]}.join(', ')
+      res = @node.do_find(:all, sql).map {|r| r[:name]}.join(', ')
       if test_res[0..0] == "/"
         assert_match %r{#{test_res[1..-2]}}m, res
       else

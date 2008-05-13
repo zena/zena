@@ -6,10 +6,10 @@ Debugger.start
 class TestQuery < QueryBuilder
   
   # Build joins and filters from a relation.
-  def relation(clause)
-    context_relation(clause) ||
-    direct_filter(clause)   ||
-    join_relation(clause)
+  def relation(rel)
+    context_relation(rel) ||
+    direct_filter(rel)   ||
+    join_relation(rel)
   end
   
   # default context filter is to search in the current node's children (in self)

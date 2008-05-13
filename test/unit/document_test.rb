@@ -62,10 +62,9 @@ class DocumentTest < ZenaTestUnit
         :v_title => 'bird.jpg',
         :c_file => uploaded_pdf('bird.jpg') ) }
         assert_kind_of Document , doc
-        assert_equal 'bird', doc.name
-        assert doc.new_record? , "Not saved"
-        assert_equal "bird", doc.name
-        assert_equal "has already been taken", doc.errors[:name]
+        assert_equal 'bird-1', doc.name
+        assert !doc.new_record? , "Saved"
+        assert_equal "bird-1", doc.name
       end
   end
   

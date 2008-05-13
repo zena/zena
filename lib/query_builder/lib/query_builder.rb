@@ -10,6 +10,9 @@ if false
   Debugger.start
 end
 
+=begin rdoc
+Syntax of a query is "CLASS [where ...|] [in ...|from SUB_QUERY|]"
+=end
 class QueryBuilder
   attr_reader :tables, :filters
   @@main_table = 'objects'
@@ -20,12 +23,19 @@ class QueryBuilder
     end
   end
   
-  def initialize(query)
-    @query   = query
+  def initialize(query, opts = {})
+    if query.kind_of?(Array)
+      @query = query.shift
+      alt_queries = query == [] ? nil : query.map {|q| self.class.new(q, opts.merge(:skip_after_parse => true))}
+    else
+      @query = query
+    end
+    
     @tables  = []
     @table_counter = {}
     @filters = []
     @main_table ||= 'objects'
+    
     if @query == nil || @query == ''
       elements = [main_table]
     else
@@ -55,15 +65,17 @@ class QueryBuilder
     end
     
     @order  = parse_order_clause(order) || parse_order_clause(default_order_clause)
-    @limit  = parse_limit_clause(limit)
+    @limit  = parse_limit_clause(opts[:limit] || limit)
     @offset ||= parse_offset_clause(offset)
     
-    after_parse
+    merge_alternate_queries(alt_queries) if alt_queries
+    
+    after_parse unless opts[:skip_after_parse]
     @filters.compact!
   end
   
   def to_sql
-    "SELECT #{table}.* FROM #{@tables.join(',')}" + (@filters == [] ? '' : " WHERE #{@filters.reverse.join(' AND ')}#{@order}#{@limit}#{@offset}")
+    "SELECT #{table}.* FROM #{@tables.join(',')}" + (@filters == [] ? '' : " WHERE #{@filters.reverse.join(' AND ')}#{@group}#{@order}#{@limit}#{@offset}")
   end
   
   protected
@@ -138,8 +150,10 @@ class QueryBuilder
     
     def parse_limit_clause(limit)
       return nil unless limit
-      if limit.strip =~ /^\d+$/
+      if limit.kind_of?(Fixnum)
         " LIMIT #{limit}"
+      elsif limit =~ /(\d)$/
+        " LIMIT #{$1}"
       elsif limit =~ /^\s*(\d+)\s*,\s*(\d+)/
         @offset = " OFFSET #{$1}"
         " LIMIT #{$2}"
@@ -184,6 +198,17 @@ class QueryBuilder
     
     def table(table_name=main_table, index=0)
       table_at(table_name, table_counter(table_name) + index)
+    end
+    
+    def merge_alternate_queries(alt_queries)
+      filters = [@filters.reverse.join(' AND ')]
+      alt_queries.each do |query|
+        next if query.filters.empty?
+        @tables += query.tables
+        filters << query.filters.reverse.join(' AND ')
+      end
+      @filters = ["((#{filters.join(') OR (')}))"]
+      @tables.uniq!
     end
     
     # ******** Overwrite these **********

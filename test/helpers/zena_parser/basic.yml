@@ -707,7 +707,7 @@ input_new:
   res: "!/value=''''/"
   
 add_btn:
-  src: "<table do='pages' from='site' limit='1'>
+  src: "<table do='pages' in='site' limit='1'>
   <tr do='each'><td do='[name]'/></tr>
   <tr do='add'><td><b><r:add_btn/></b></td></tr>
   </table>"
@@ -729,7 +729,7 @@ date:
   context:
     node: 'letter'
     lang: 'fr'
-  src: "<r:date select='[event_at]'>nouvelles de <r:trans do='current_date' format='%B'/> <r:current_date format='%Y'/>: <r:notes from='site' event='month' do='each' join=', ' do='[name]'/></r:date>"
+  src: "<r:date select='[event_at]'>nouvelles de <r:trans do='current_date' format='%B'/> <r:current_date format='%Y'/>: <r:notes in='site' event='month' do='each' join=', ' do='[name]'/></r:date>"
   res: "nouvelles de janvier 2008: letter, proposition"
 
 add_document:

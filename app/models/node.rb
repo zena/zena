@@ -7,21 +7,21 @@ Node (manages access and publication cycle)
   |
   +-- Page (web pages)
   |     |
-  |     +--- Document
-  |     |      |
-  |     |      +--- Image
-  |     |      |
-  |     |      +--- TextDocument       (for css, scripts)
-  |     |             |
-  |     |             +--- Partial     (uses the zafu templating language)
-  |     |                    |
-  |     |                    +--- Template  (entry for rendering)
-  |     |
   |     +--- Project (has it's own project_id. Can contain notes, collaborators, etc)
   |     |
   |     +--- Section (has it's own section_id = group of pages)
   |            |
   |            +--- Skin (theme: contains css, templates, etc)
+  |
+  +--- Document
+  |      |
+  |      +--- Image
+  |      |
+  |      +--- TextDocument       (for css, scripts)
+  |             |
+  |             +--- Partial     (uses the zafu templating language)
+  |                    |
+  |                    +--- Template  (entry for rendering)
   |
   +-- Note (date related information, event)
   |     |
@@ -137,8 +137,7 @@ class Node < ActiveRecord::Base
                      :data_a => {:node_class => ["DataEntry"], :data_root => 'node_a'},
                      :data_b => {:node_class => ["DataEntry"], :data_root => 'node_b'},
                      :data_c => {:node_class => ["DataEntry"], :data_root => 'node_c'},
-                     :data_d => {:node_class => ["DataEntry"], :data_root => 'node_d'},
-                     :icon => "Image"
+                     :data_d => {:node_class => ["DataEntry"], :data_root => 'node_d'}
                      
   has_many           :discussions, :dependent => :destroy
   has_and_belongs_to_many :cached_pages
@@ -152,6 +151,7 @@ class Node < ActiveRecord::Base
   attr_protected     :c_version_id, :c_node_id # TODO: test
   acts_as_secure_node
   acts_as_multiversioned
+  use_node_query
   has_relations
   before_validation  :node_before_validation  # run our 'before_validation' after 'secure'
   
@@ -877,8 +877,7 @@ class Node < ActiveRecord::Base
   def icon
     return nil if new_record?
     return @icon if defined? @icon
-    @icon = find(:first, :relations=>['icon']) ||
-            secure(Image) { Image.find(:first, :order=>'position ASC, name ASC', :conditions => "parent_id = #{self[:id]}") }
+    @icon = do_find(:first, Node.build_find(:first, ['icon', 'image'], 'self'))
   end
   
   alias o_user user
