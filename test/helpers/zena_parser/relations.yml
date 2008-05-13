@@ -306,6 +306,7 @@ where_two_attributes:
   
 many_or:
   src: "<r:tagged in='site' or='images in site' or='tags in site' do='each' join=',' do='[name]'/>"
+  tem: '..'
   res: "art,bird,cleanWater,flower,lake,news,opening,tree"
 
 unlink:

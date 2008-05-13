@@ -75,7 +75,7 @@ class QueryBuilder
   end
   
   def to_sql
-    "SELECT #{table}.* FROM #{@tables.join(',')}" + (@filters == [] ? '' : " WHERE #{@filters.reverse.join(' AND ')}#{@group}#{@order}#{@limit}#{@offset}")
+    "SELECT#{@distinct} #{table}.* FROM #{@tables.join(',')}" + (@filters == [] ? '' : " WHERE #{@filters.reverse.join(' AND ')}#{@group}#{@order}#{@limit}#{@offset}")
   end
   
   protected
@@ -201,13 +201,20 @@ class QueryBuilder
     end
     
     def merge_alternate_queries(alt_queries)
-      filters = [@filters.reverse.join(' AND ')]
+      if @filters.compact == []
+        filters = []
+      else
+        filters = [@filters.compact.reverse.join(' AND ')]
+      end
+      
       alt_queries.each do |query|
+        query.filters.compact!
         next if query.filters.empty?
         @tables += query.tables
         filters << query.filters.reverse.join(' AND ')
       end
-      @filters = ["((#{filters.join(') OR (')}))"]
+      @filters  = ["((#{filters.join(') OR (')}))"]
+      @distinct = " DISTINCT"
       @tables.uniq!
     end
     

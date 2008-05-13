@@ -177,24 +177,24 @@ link_trans:
 
 link_parent:
   src: "<r:link href='parent' text='click here'/>"
-  tem: "<%= node_link(:node=>@node, :text=>\"click here\", :href=>\"parent\") %>"
+  tem: "<%= node_link(:node=>@node, :text=>\"click here\", :href=>@node.parent) %>"
   res: "<a href='/oo/projects/cleanWater.html'>click here</a>"
 
 link_with_block:
   src: "<r:link href='parent'>look at <b do='[name]'>her</b></r:link>"
-  tem: "<a href='<%= node_link(:url_only=>true, :node=>@node, :href=>\"parent\") %>'>look at <b><%= @node.name %></b></a>"
+  tem: "<a href='<%= node_link(:url_only=>true, :node=>@node, :href=>@node.parent) %>'>look at <b><%= @node.name %></b></a>"
   res: "<a href='/oo/projects/cleanWater.html'>look at <b>status</b></a>"
   
 link_project:
   context:
     node: 'bird_jpg'
   src: "<r:link href='project'/>"
-  tem: "<%= node_link(:node=>@node, :href=>\"project\") %>"
+  tem: "<%= node_link(:node=>@node, :href=>@node.project) %>"
   res: "<a href='/oo/project29.html'>a wiki with zena</a>"
 
 link_root:
   src: "<r:link href='root'/>"
-  tem: "<%= node_link(:node=>@node, :href=>\"root\") %>"
+  tem: "<%= node_link(:node=>@node, :href=>(secure(Node) { Node.find(1)})) %>"
   res: "<a href='/oo'>Zena the wild CMS</a>"
 
 link_sharp:
@@ -617,7 +617,7 @@ tada:
   src: |
     <h1 id='main_title' do='show' attr='v_title'>Super project</h1>
 
-    <ul do='tags'>
+    <ul do='set_tags'>
       <li do='each' do='link' attr='v_title'></li>
       <li do='ignore'>life</li>
       <li do='ignore'>ruby</li>
@@ -729,8 +729,8 @@ date:
   context:
     node: 'letter'
     lang: 'fr'
-  src: "<r:date select='[event_at]'>nouvelles de <r:trans do='current_date' format='%B'/> <r:current_date format='%Y'/>: <r:notes in='site' event='month' do='each' join=', ' do='[name]'/></r:date>"
-  res: "nouvelles de janvier 2008: letter, proposition"
+  src: "<r:date select='[log_at]'>nouvelles de <r:trans do='current_date' format='%B'/> <r:current_date format='%Y'/>: <r:notes in='site' log='month' do='each' join=', ' do='[name]'/></r:date>"
+  res: "nouvelles de avril 2006: letter, proposition"
 
 add_document:
   src: "<r:add_document/>"

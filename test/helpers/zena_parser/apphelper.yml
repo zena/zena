@@ -6,10 +6,6 @@ default:
   src: 'simple text'
   tem: 'simple text'
   res: 'simple text'
-  
-calendar_from_project:
-  tem: "<%= calendar(:node=>@node, :date=>Date.civil(2006,10,03), :size=>'tiny', :using=>'log_at', :relations=>['notes', 'news']) %>"
-  res: "/October 2006.*<td><em>3<\/em><\/td>/"
 
 img_tag_use_icon:
   context:
@@ -28,3 +24,21 @@ set_bad_lang_xz:
     lang: 'xz'
   tem: "<%= _('Next page') %>"
   res: "Next page"
+
+zen_url:
+  context:
+    node: status
+  tem: "<%= zen_url(@node, :mode=>'rss', :format=>'xml') %>"
+  res: "http://test.host/oo/projects/cleanWater/page22_rss.xml"
+
+zen_url_root_mode_format:
+  context:
+    node: zena
+  tem: "<%= zen_url(@node, :mode=>'rss', :format=>'xml') %>"
+  res: "http://test.host/oo/project11_rss.xml"
+
+zen_url_root:
+  context:
+    node: zena
+  tem: "<%= zen_url(@node) %>"
+  res: "http://test.host/oo"

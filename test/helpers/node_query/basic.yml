@@ -43,9 +43,24 @@ pages_or_letters:
   src:
     - 'pages'
     - 'letters'
-  sql: "SELECT nodes.* FROM nodes WHERE ((nodes.kpath LIKE 'NP%' AND nodes.parent_id = #{@node.id}) OR (nodes.kpath LIKE 'NNL%' AND nodes.parent_id = #{@node.id})) AND (#{@node.secure_scope('nodes')}) ORDER BY position ASC, name ASC"
+  sql: "SELECT DISTINCT nodes.* FROM nodes WHERE ((nodes.kpath LIKE 'NP%' AND nodes.parent_id = #{@node.id}) OR (nodes.kpath LIKE 'NNL%' AND nodes.parent_id = #{@node.id})) AND (#{@node.secure_scope('nodes')}) ORDER BY position ASC, name ASC"
   res: "collections, letter, nature, people, projects, skins"
 
 project:
   sql: "SELECT nodes.* FROM nodes WHERE nodes.id = #{@node.get_project_id} AND (#{@node.secure_scope('nodes')}) ORDER BY position ASC, name ASC"
   res: 'cleanWater'
+  
+many_alternatives:
+  src:
+    - 'tagged in site'
+    - 'images in site'
+    - 'tags in site'
+  sql: "SELECT DISTINCT nodes.* FROM nodes,links WHERE ((nodes.id = links.source_id AND links.relation_id = 2 AND links.target_id = #{@node.id}) OR (nodes.kpath LIKE 'NDI%') OR (nodes.kpath LIKE 'NPT%')) AND (#{@node.secure_scope('nodes')}) ORDER BY nodes.position ASC, nodes.name ASC"
+  res: 'art, bird, flower, lake, menu, news, tree'
+
+same_name_as_class:
+  context:
+    node: 'opening'
+  src: "set_tags"
+  sql: "SELECT nodes.* FROM nodes,links WHERE nodes.id = links.target_id AND links.relation_id = 2 AND links.source_id = #{@node.id} AND (#{@node.secure_scope('nodes')}) ORDER BY nodes.position ASC, nodes.name ASC"
+  res: "art,news"

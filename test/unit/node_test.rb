@@ -293,6 +293,35 @@ class NodeTest < ZenaTestUnit
   def test_project
     login(:anon)
     assert_equal nodes_id(:zena), secure!(Node) { nodes(:people) }.project[:id]
+    assert_equal nodes_id(:cleanWater), secure!(Node) { nodes(:cleanWater) }.project[:id]
+    assert_equal nodes_id(:zena), secure!(Node) { nodes(:cleanWater) }.real_project[:id]
+  end
+  
+  def test_section
+    login(:anon)
+    assert_equal nodes_id(:people), secure!(Node) { nodes(:ant) }.section[:id]
+    assert_equal nodes_id(:cleanWater), secure!(Node) { nodes(:cleanWater) }.project[:id]
+    assert_equal nodes_id(:zena), secure!(Node) { nodes(:cleanWater) }.real_project[:id]
+  end
+  
+  def test_real_project
+    login(:ant)
+    node = secure!(Node) { nodes(:status) }
+    assert_equal nodes_id(:cleanWater), node.project[:id]
+    node = secure!(Node) { nodes(:cleanWater) }
+    assert_equal nodes_id(:cleanWater), node.project[:id]
+    assert_equal nodes_id(:zena), node.real_project[:id]
+    assert_equal nodes_id(:zena), node.real_project.real_project[:id]
+  end
+  
+  def test_real_section
+    login(:ant)
+    node = secure!(Node) { nodes(:ant) }
+    assert_equal nodes_id(:people), node.section[:id]
+    node = secure!(Node) { nodes(:people) }
+    assert_equal nodes_id(:people), node.section[:id]
+    assert_equal nodes_id(:zena), node.section[:id]
+    assert_equal nodes_id(:zena), node.real_section.real_section[:id]
   end
   
   def test_new_child
@@ -1125,26 +1154,6 @@ done: \"I am done\""
   def test_native_class_values
     assert Page.native_classes.values.include?(Document)
     assert !Document.native_classes.values.include?(Page)
-  end
-  
-  def test_get_project
-    login(:ant)
-    node = secure!(Node) { nodes(:status) }
-    assert_equal nodes_id(:cleanWater), node.get_project[:id]
-    node = secure!(Node) { nodes(:cleanWater) }
-    assert_equal nodes_id(:cleanWater), node.get_project[:id]
-    assert_equal nodes_id(:zena), node.project[:id]
-    assert_equal nodes_id(:zena), node.project.project[:id]
-  end
-  
-  def test_get_section
-    login(:ant)
-    node = secure!(Node) { nodes(:ant) }
-    assert_equal nodes_id(:people), node.get_section[:id]
-    node = secure!(Node) { nodes(:people) }
-    assert_equal nodes_id(:people), node.get_section[:id]
-    assert_equal nodes_id(:zena), node.section[:id]
-    assert_equal nodes_id(:zena), node.section.section[:id]
   end
   
   # FIXME: write test

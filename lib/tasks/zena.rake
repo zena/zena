@@ -271,6 +271,29 @@ namespace :zena do
     t.verbose = true
   end
   Rake::Task['zena:test'].comment = "Run the tests in test/helpers and test/unit"
+  
+  namespace :fix do
+    desc "Update all stored zafu to reflect change from 'news from project' syntax to 'news in project'. BACKUP BEFORE. DO NOT RUN."
+    task :zafu_pseudo_sql => :environment do
+      { 
+        "from='site'"    => "in='site'",
+        'from="site"'    => 'in="site"',
+        "from='section'" => "in='section'",
+        'from="section"' => 'in="section"',
+        "from='project'" => "in='project'",
+        'from="project"' => 'in="project"',
+        
+        "from site'"    => "in site'",
+        'from site"'    => 'in site"',
+        "from section'" => "in section'",
+        'from section"' => 'in section"',
+        "from project'" => "in project'",
+        'from project"' => 'in project"',
+        }.each do |k,v|
+        Version.connection.execute "UPDATE nodes,versions SET versions.text = REPLACE(versions.text, '#{k}', '#{v}') WHERE nodes.id = versions.node_id AND nodes.kpath LIKE 'NDTT'"
+      end
+    end
+  end 
 end
 
 

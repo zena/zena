@@ -563,7 +563,7 @@ letter:
   user_id:        4
   inherit:        1
   event_at:       2008-01-10
-  log_at:         2006-10-03
+  log_at:         2006-04-05
 <%= @defaults %>
 <%= @rights %>
 

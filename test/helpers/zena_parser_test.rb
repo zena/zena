@@ -91,7 +91,6 @@ class ZenaParserTest < ZenaTestController
       assert_equal "first", cache.content
       Node.connection.execute "UPDATE nodes SET name = 'second' WHERE id = 12;" # status
       
-      Node.logger.info cont.inspect
       post 'test_render', cont
       assert_equal 'first', @response.body
       
@@ -202,14 +201,14 @@ class ZenaParserTest < ZenaTestController
     do_test('relations', 'direction_both_self_auto_ref')
   end
   
-  def test_apphelper_calendar_from_project
-    login(:lion)
-    @controller.instance_variable_set(:@visitor, Thread.current.visitor)
-    info  = secure!(Note) { Note.create(:name=>'hello', :parent_id=>nodes_id(:collections), :log_at=>'2007-06-22')}
-    assert !info.new_record?
-    assert_equal nodes_id(:zena), info[:project_id]
-    do_test('apphelper', 'calendar_from_project')
-  end
+  #def test_apphelper_calendar_from_project
+  #  login(:lion)
+  #  @controller.instance_variable_set(:@visitor, Thread.current.visitor)
+  #  info  = secure!(Note) { Note.create(:name=>'hello', :parent_id=>nodes_id(:collections), :log_at=>'2007-06-22')}
+  #  assert !info.new_record?
+  #  assert_equal nodes_id(:zena), info[:project_id]
+  #  do_test('apphelper', 'calendar_from_project')
+  #end
   
   def test_basic_img_private_image
     login(:ant)

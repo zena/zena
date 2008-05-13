@@ -1,16 +1,17 @@
 class Cache < ActiveRecord::Base
   cattr_accessor :perform_caching
+  before_save    :set_site_id
   
   class << self
     
     def with(visitor_id, visitor_groups, kpath, *context)
       return yield unless perform_caching
-      if cached = self.find_by_visitor_id_and_context(visitor_id,context.join('.'))
-        cached.content
+      if cached = self.find(:first, :conditions => ["visitor_id = ? AND site_id = ? AND context = ?", visitor_id, visitor.site.id, context.join('.').hash.abs])
+        cached[:content]
       else
         content = yield
         self.create(:visitor_id=>visitor_id, :visitor_groups=>".#{visitor_groups.join('.')}.", :kpath=>kpath,
-                    :context=>context.join('.'), :content=>content )
+                    :context=>context.join('.').hash.abs, :content=>content )
         content
       end
     end
@@ -41,4 +42,9 @@ class Cache < ActiveRecord::Base
       end
     end
   end
+
+  private
+    def set_site_id
+      self[:site_id] = visitor.site[:id]
+    end
 end

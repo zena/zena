@@ -19,17 +19,23 @@ class NodeQuery < QueryBuilder
   
   # Build joins and filters from a relation.
   def relation(rel)
-    context_relation(rel) ||
-    join_relation(rel)
+    # join_relation second so we cannot overwrite 'class' finders (images) with a relation.
+    join_relation(rel) ||
+    context_relation(rel)
   end
   
   # Default context filter is to search in the current node's direct children.
   def default_context_filter(rel)
-    if rel == main_table || rel == 'children' || !(context_relation(rel).to_s =~ /\.id/)
+    if rel == main_table || rel == 'children' || context_relation_without_id(rel)
       'self'
     else
       nil
     end
+  end
+  
+  def context_relation_without_id(rel)
+    cont = context_relation(rel)
+    cont && !(cont.to_s =~ /\.id/)
   end
   
   # Default sort order
@@ -39,7 +45,7 @@ class NodeQuery < QueryBuilder
   
   def after_parse
     @filters.unshift "(\#{#{@node_name}.secure_scope('#{table}')})"
-    @group = " GROUP BY #{table}.id" if @table_counter['versions']
+    @distinct = " DISTINCT" if @table_counter['versions']
   end
   
   private

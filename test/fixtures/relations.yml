@@ -13,7 +13,7 @@ node_has_tags:
   source_kpath: 'N'
   target_kpath: 'NPT'
   source_role:  'tagged'
-  target_role:  'tag'
+  target_role:  'set_tag'
   target_icon:  "<img src='/images/tag_blue.png' alt='tag'/>"
   
 node_has_references:

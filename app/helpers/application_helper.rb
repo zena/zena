@@ -630,11 +630,13 @@ latex_template = %q{
   def calendar(options={})
     if template_url = options[:template_url]
       opts = (eval_parameters_from_template_url(template_url) || {}).merge(options)
+    elsif opts[:sql]
+      # ok
     else
-      opts = options
+      "invalid options: sql/template_url not set."
     end
     
-    relations = opts[:relations] || 'notes'
+    sql       = opts[:sql]
     size      = opts[:size  ] || 'tiny'
     using     = opts[:using ] || 'event_at'
     source    = opts[:node  ] || (@project ||= (@node ? @node.project : nil))
@@ -642,7 +644,7 @@ latex_template = %q{
     day_names, on_day = calendar_get_options(size, source, template_url)
     return "" unless on_day && source
     
-    Cache.with(visitor.id, visitor.group_ids, 'NN', size, relations, source.id, date.ajd, lang) do
+    Cache.with(visitor.id, visitor.group_ids, 'NN', size, sql, source.id, date.ajd, lang) do
       # find start and end date
       week_start_day = _('week_start_day').to_i
       start_date  = Date.civil(date.year, date.mon, 1)
@@ -650,7 +652,7 @@ latex_template = %q{
       end_date    = Date.civil(date.year, date.mon, -1)
       end_date   += (6 + week_start_day - end_date.wday) % 7
       
-      sql = eval opts[:sql]
+      sql = eval sql # resolve visitor / context inside sql.
       
       # get list of notes in this scope
       notes = source.do_find(:all, sql) || []

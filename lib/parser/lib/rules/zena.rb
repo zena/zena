@@ -1151,22 +1151,6 @@ END_TXT
       r_unknown
     end
     
-    def r_project
-      do_var("#{node}.get_project", :node_class => Project)
-    end
-
-    def r_real_project
-      do_var("#{node}.project", :node_class => Project)
-    end
-    
-    def r_section
-      do_var("#{node}.get_section", :node_class => Section)
-    end
-
-    def r_real_section
-      do_var("#{node}.section", :node_class => Section)
-    end
-    
     # icon or first image (defined using build_finder_for instead of zafu_known_context for performance reasons).
     def r_icon
       do_var(build_finder_for(:first, 'icon', :or => 'image'), :node_class => Image)
@@ -1327,7 +1311,7 @@ END_TXT
         sharp = ''
       end
       if sharp_in = @params[:in]
-        sharp_in = ", :sharp_in=>#{build_finder_for(:first, sharp_in)}"
+        sharp_in = ", :sharp_in=>#{build_finder_for(:first, sharp_in, {})}"
       else
         sharp_in = ''
       end
@@ -1380,7 +1364,7 @@ END_TXT
       pseudo_sql, raw_filters = make_pseudo_sql(@params[:find  ] || 'news in project')
       
       raw_filters ||= []
-      fld  = (@params[:using ] || 'event_at').gsub(/[^a-z_]/,'') # SQL injection security
+      fld = (@params[:using ] || 'event_at').gsub(/[^a-z_]/,'') # SQL injection security
       fld = 'event_at' unless ['log_at', 'created_at', 'updated_at', 'event_at'].include?(fld)
       
       raw_filters << "TABLE_NAME.#{fld} >= \#{start_date.strftime('%Y-%m-%d')} AND TABLE_NAME.#{fld} <= \#{end_date.strftime('%Y-%m-%d')}"
@@ -1417,7 +1401,7 @@ END_TXT
     # FIXME: 'else' clause has been removed, find a solution to put it back.
     def r_unknown
       # DRY ! (build_finder_for)
-      if (context = node_class.zafu_known_contexts[@method]) && !@params[:where] && !@params[:from]
+      if (context = node_class.zafu_known_contexts[@method]) && !@params[:in] && !@params[:where] && !@params[:from]
         node_class = context[:node_class]
         
         if node_class.kind_of?(Array)
@@ -1465,7 +1449,7 @@ END_TXT
     
     # Create an sql query to open a new context (passes its arguments to HasRelations#build_find)
     def build_finder_for(count, rel, params=@params)
-      if context = node_class.zafu_known_contexts[rel] && !params[:in] && !params[:where] && !params[:from]
+      if (context = node_class.zafu_known_contexts[rel]) && !params[:in] && !params[:where] && !params[:from]
         node_class = context[:node_class]
         
         if node_class.kind_of?(Array) && count == :all && node_class[0].ancestors.include?(Node)

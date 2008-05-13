@@ -131,7 +131,10 @@ class Node < ActiveRecord::Base
   zafu_readable      :name, :created_at, :updated_at, :event_at, :log_at, :kpath, :user_zip, :parent_zip, :project_zip,
                      :section_zip, :skin, :ref_lang, :fullpath, :rootpath, :position, :publish_from, :max_status, :rgroup_id, 
                      :wgroup_id, :pgroup_id, :basepath, :custom_base, :klass, :zip, :score, :comments_count, :position
-  zafu_context       :author => "Contact", :parent => "Node", :user => "User",
+  zafu_context       :author => "Contact", :parent => "Node", 
+                     :project => "Project", :section => "Section", 
+                     :real_project => "Project", :real_section => "Section",
+                     :user => "User",
                      :version => "Version", :comments => ["Comment"],
                      :data   => {:node_class => ["DataEntry"], :data_root => 'node_a'},
                      :data_a => {:node_class => ["DataEntry"], :data_root => 'node_a'},
@@ -819,12 +822,12 @@ class Node < ActiveRecord::Base
   end
   
   # Return self if the current node is a section else find section.
-  def get_section
-    self.kind_of?(Section) ? self : section
+  def section
+    self.kind_of?(Section) ? self : real_section
   end
   
   # Find real section
-  def section(is_secure = true)
+  def real_section(is_secure = true)
     return self if self[:parent_id].nil?
     # we cannot use Section to find because the root node behaves like a Section but is a Project.
     if is_secure
@@ -835,12 +838,12 @@ class Node < ActiveRecord::Base
   end
   
   # Return self if the current node is a project else find project.
-  def get_project
-    self.kind_of?(Project) ? self : project
+  def project
+    self.kind_of?(Project) ? self : real_project
   end
   
-  # Find real project
-  def project(is_secure = true)
+  # Find real project (Project's project if node is a Project)
+  def real_project(is_secure = true)
     return self if self[:parent_id].nil?
     if is_secure
       secure(Project) { Project.find(self[:project_id]) }
@@ -877,7 +880,7 @@ class Node < ActiveRecord::Base
   def icon
     return nil if new_record?
     return @icon if defined? @icon
-    @icon = do_find(:first, Node.build_find(:first, ['icon', 'image'], 'self'))
+    @icon = do_find(:first, eval("\"#{Node.build_find(:first, ['icon', 'image'], 'self')}\""))
   end
   
   alias o_user user
@@ -1070,7 +1073,7 @@ class Node < ActiveRecord::Base
     # we want to be sure to find the project and parent, even if the visitor does not have an
     # access to these elements.
     # FIXME: use self + modified relations instead of parent/project
-    [self, self.project(false), self.section(false), self.parent(false)].compact.uniq.each do |obj|
+    [self, self.real_project(false), self.real_section(false), self.parent(false)].compact.uniq.each do |obj|
       # destroy all pages from project, parent and section !
       CachedPage.expire_with(obj)
       # this destroys less cache but might miss things like 'changes in project' that are displayed on every page.

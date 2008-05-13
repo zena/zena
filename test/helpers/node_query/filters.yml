@@ -8,10 +8,10 @@ default:
   
 version_filter:
   src: "nodes where v_title like 'P%' in site"
-  sql: "SELECT nodes.* FROM nodes,versions WHERE versions.title LIKE 'P%' AND nodes.id = versions.node_id AND (#{@node.secure_scope('nodes')}) GROUP BY nodes.id ORDER BY nodes.position ASC, nodes.name ASC"
+  sql: "SELECT DISTINCT nodes.* FROM nodes,versions WHERE versions.title LIKE 'P%' AND nodes.id = versions.node_id AND (#{@node.secure_scope('nodes')}) ORDER BY nodes.position ASC, nodes.name ASC"
   res: "opening, Page-changes, people, Project-changes-xml, projects, proposition"
 
 dynattr_filter:
   src: "nodes where d_assigned = 'gaspard' in site"
-  sql: "SELECT nodes.* FROM nodes,versions,dyn_attributes WHERE dyn_attributes.value = 'gaspard' AND dyn_attributes.key = 'assigned' AND versions.id = dyn_attributes.owner_id AND nodes.id = versions.node_id AND (#{@node.secure_scope('nodes')}) GROUP BY nodes.id ORDER BY nodes.position ASC, nodes.name ASC"
+  sql: "SELECT DISTINCT nodes.* FROM nodes,versions,dyn_attributes WHERE dyn_attributes.value = 'gaspard' AND dyn_attributes.key = 'assigned' AND versions.id = dyn_attributes.owner_id AND nodes.id = versions.node_id AND (#{@node.secure_scope('nodes')}) ORDER BY nodes.position ASC, nodes.name ASC"
   res: "cleanWater, people, status"

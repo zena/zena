@@ -694,14 +694,7 @@ END_MSG
     # Url for a node. Options are 'mode' and 'format'
     # ex 'http://test.host/en/document34_print.html'
     def zen_url(node, opts={})
-      path = zen_path(node,opts).split('/').reject { |p| p.blank? }
-      prefix = path.shift
-
-      if path == []
-        url_for(:prefix=>prefix,              :controller=>'nodes', :action=>'index')
-      else
-        url_for(:prefix=>prefix, :path=>path, :controller=>'nodes', :action=>'show' )
-      end
+      "http://#{current_site[:host]}#{zen_path(node,opts)}"
     end
 
     def prefix

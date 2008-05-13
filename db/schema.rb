@@ -45,7 +45,7 @@ ActiveRecord::Schema.define(:version => 0) do
     t.column "visitor_id",     :integer
     t.column "visitor_groups", :string,   :limit => 200
     t.column "kpath",          :string,   :limit => 200
-    t.column "context",        :string,   :limit => 200
+    t.column "context",        :integer
     t.column "content",        :text
     t.column "site_id",        :integer
   end
