@@ -365,7 +365,6 @@ class Node < ActiveRecord::Base
       end
       
       entries = Dir.entries(folder).reject { |f| f =~ /^[^\w]/ }.sort
-
       index  = 0
 
       while entries[index]
@@ -828,7 +827,7 @@ class Node < ActiveRecord::Base
   
   # Find real section
   def real_section(is_secure = true)
-    return self if self[:parent_id].nil?
+    return self if self[:parent_id].nil? # root
     # we cannot use Section to find because the root node behaves like a Section but is a Project.
     if is_secure
       secure(Node) { Node.find(self[:section_id]) }

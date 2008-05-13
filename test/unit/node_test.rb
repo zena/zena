@@ -298,7 +298,7 @@ class NodeTest < ZenaTestUnit
   end
   
   def test_section
-    login(:anon)
+    login(:ant)
     assert_equal nodes_id(:people), secure!(Node) { nodes(:ant) }.section[:id]
     assert_equal nodes_id(:cleanWater), secure!(Node) { nodes(:cleanWater) }.project[:id]
     assert_equal nodes_id(:zena), secure!(Node) { nodes(:cleanWater) }.real_project[:id]
@@ -320,14 +320,14 @@ class NodeTest < ZenaTestUnit
     assert_equal nodes_id(:people), node.section[:id]
     node = secure!(Node) { nodes(:people) }
     assert_equal nodes_id(:people), node.section[:id]
-    assert_equal nodes_id(:zena), node.section[:id]
+    assert_equal nodes_id(:zena), node.real_section[:id]
     assert_equal nodes_id(:zena), node.real_section.real_section[:id]
   end
   
   def test_new_child
     login(:ant)
     node = secure!(Node) { nodes(:cleanWater)  }
-    child = node.new_child( :name => 'lake', :class => Page )
+    child = node.new_child( :name => 'status', :class => Page )
     assert ! child.save , "Save fails"
     assert child.errors[:name] , "Errors on name"
   
@@ -580,17 +580,17 @@ class NodeTest < ZenaTestUnit
   def test_tags
     login(:lion)
     @node = secure!(Node) { nodes(:status)  }
-    assert_nothing_raised { @node.find(:all, 'tags') }
-    assert_nil @node.find(:all, 'tags')
-    @node.tag_ids = [nodes_id(:art),nodes_id(:news)]
+    assert_nothing_raised { @node.find(:all, 'set_tags') }
+    assert_nil @node.find(:all, 'set_tags')
+    @node.set_tag_ids = [nodes_id(:art),nodes_id(:news)]
     assert @node.save
-    tags = @node.find(:all, 'tags')
+    tags = @node.find(:all, 'set_tags')
     assert_equal 2, tags.size
     assert_equal 'art', tags[0].name
     assert_equal 'news', tags[1].name
-    @node.tag_ids = [nodes_id(:art)]
+    @node.set_tag_ids = [nodes_id(:art)]
     @node.save
-    tags = @node.find(:all, 'tags')
+    tags = @node.find(:all, 'set_tags')
     assert_equal 1, tags.size
     assert_equal 'art', tags[0].name
   end
@@ -602,8 +602,8 @@ class NodeTest < ZenaTestUnit
     assert_equal 2, node.find(:all, 'tagged').size
     stat = secure!(Node) { nodes(:status) }
     peop = secure!(Node) { nodes(:people) }
-    assert_equal node[:id], stat.find(:first, 'tags')[:id]
-    assert_equal node[:id], peop.find(:first, 'tags')[:id]
+    assert_equal node[:id], stat.find(:first, 'set_tags')[:id]
+    assert_equal node[:id], peop.find(:first, 'set_tags')[:id]
   end
   
   def test_after_all_cache_sweep
@@ -616,11 +616,11 @@ class NodeTest < ZenaTestUnit
       assert_equal "content 1", Cache.with(visitor.id, visitor.group_ids, 'NP', 'pages')  { "content #{i}" }
       assert_equal "content 1", Cache.with(visitor.id, visitor.group_ids, 'NN', 'notes')  { "content #{i}" }
     
-      # do something on a document
-      node = secure!(Node) { nodes(:water_pdf) }
-      assert_equal 'NPD', node.class.kpath
+      # do something on a project
+      node = secure!(Node) { nodes(:wiki) }
+      assert_equal 'NPP', node.class.kpath
       assert node.update_attributes(:v_title=>'new title'), "Can change attributes"
-      # sweep only kpath NPD
+      # sweep only kpath NPP
       i = 3
       assert_equal "content 3", Cache.with(visitor.id, visitor.group_ids, 'NP', 'pages')  { "content #{i}" }
       assert_equal "content 1", Cache.with(visitor.id, visitor.group_ids, 'NN', 'notes')  { "content #{i}" }
@@ -629,7 +629,7 @@ class NodeTest < ZenaTestUnit
       node = secure!(Node) { nodes(:proposition) }
       assert_equal 'NNP', node.vclass.kpath
       assert node.update_attributes(:name => 'popo' ), "Can change attributes"
-      # sweep only kpath NPD
+      # sweep only kpath NN
       i = 4
       assert_equal "content 3", Cache.with(visitor.id, visitor.group_ids, 'NP', 'pages')  { "content #{i}" }
       assert_equal "content 4", Cache.with(visitor.id, visitor.group_ids, 'NN', 'notes')  { "content #{i}" }
@@ -868,10 +868,10 @@ class NodeTest < ZenaTestUnit
   def test_get_class_from_kpath
     assert_equal Node, Node.get_class_from_kpath('N')
     assert_equal Page, Node.get_class_from_kpath('NP')
-    assert_equal Image, Node.get_class_from_kpath('NPDI')
+    assert_equal Image, Node.get_class_from_kpath('NDI')
     assert_equal virtual_classes(:post), Node.get_class_from_kpath('NNP')
     assert_equal virtual_classes(:letter), Node.get_class_from_kpath('NNL')
-    assert_equal TextDocument, Node.get_class_from_kpath('NPDT')
+    assert_equal TextDocument, Node.get_class_from_kpath('NDT')
   end
   
   def test_get_attributes_from_yaml
@@ -898,7 +898,8 @@ done: \"I am done\""
     children = parent.find(:all, 'children')
     assert_equal 2, children.size
     assert_equal 3, nodes.size
-    bird   = nodes[1]
+    bird   = nil
+    nodes.each {|n| bird = n if n[:name] == 'bird'}
     simple = secure!(Node)  { Node.find_by_name_and_parent_id('simple', parent[:id]) }
     photos = secure!(Node) { Node.find_by_name_and_parent_id('photos', parent[:id]) }
     
@@ -936,7 +937,7 @@ done: \"I am done\""
     result = secure!(Node) { Node.create_nodes_from_folder(:folder => File.join(RAILS_ROOT, 'test', 'fixtures', 'import'), :parent_id => parent[:id] )}.values
     assert_equal 3, result.size
     
-    children = parent.find(:all, :relations => 'children', :order => "name ASC")
+    children = parent.find(:all, 'children order by name ASC')
     assert_equal 2, children.size
     assert_equal 'photos', children[0].name
     assert_equal 1, children[0].rgroup_id
@@ -947,7 +948,7 @@ done: \"I am done\""
     result = secure!(Node) { Node.create_nodes_from_folder(:folder => File.join(RAILS_ROOT, 'test', 'fixtures', 'import'), :parent_id => children[1][:id], :defaults => { :rgroup_id => 1 } )}.values
     assert_equal 3, result.size
     
-    children = children[1].find(:all, :relations => 'children', :order => "name ASC")
+    children = children[1].find(:all, 'children order by name ASC')
     assert_equal 2, children.size
     assert_equal 'photos', children[0].name
     assert_equal 1, children[0].rgroup_id
@@ -1152,8 +1153,8 @@ done: \"I am done\""
   end
   
   def test_native_class_values
-    assert Page.native_classes.values.include?(Document)
-    assert !Document.native_classes.values.include?(Page)
+    assert Page.native_classes.values.include?(Project)
+    assert !Project.native_classes.values.include?(Page)
   end
   
   # FIXME: write test

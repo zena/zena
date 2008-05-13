@@ -96,7 +96,7 @@ on the post edit page :
             limit = nil
           end
           links = secure!(Node) { Node.find(:all,
-                          :select     => "#{Node.table_name}.*, links.id AS link_id, links.role", 
+                          :select     => "#{Node.table_name}.*,links.id AS link_id, links.role", 
                           :joins      => "INNER JOIN links ON #{Node.table_name}.id=links.#{role[:other_side]}",
                           :conditions => ["links.#{role[:link_side]} = ? AND links.role = ?", self[:id], role[:role] ],
                           :order => "link_id DESC",
@@ -228,7 +228,7 @@ on the post edit page :
           join = 'INNER'
           inner_conditions = ["links.role='#{role}'#{side_cond}", *params ]
         end
-        options.merge!( :select     => "#{klass.table_name}.*, links.id AS link_id, links.role", 
+        options.merge!( :select     => "#{klass.table_name}.*,links.id AS link_id, links.role", 
                         :joins      => "#{join} JOIN links ON #{join_direction}",
                         :conditions => inner_conditions,
                         :group      => 'id'
@@ -478,7 +478,7 @@ on the post edit page :
               end
               
               def #{method}_for_form(options={})
-                options.merge!( :select     => "\#{#{class_name}.table_name}.*, links.id AS link_id, links.role", 
+                options.merge!( :select     => "\#{#{class_name}.table_name}.*,links.id AS link_id, links.role", 
                                 :joins      => "LEFT OUTER JOIN links ON \#{#{class_name}.table_name}.id=links.#{other_side} AND links.role='#{role}' AND links.#{link_side} = \#{self[:id].to_i}"
                                 )
                 #{find_target}(#{class_name}) { #{class_name}.find(:all, options) }

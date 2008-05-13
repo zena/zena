@@ -47,7 +47,7 @@ class DocumentContentTest < ZenaTestUnit
     data = nil
     assert_nothing_raised { data = doc.file }
     assert_equal data.read, uploaded_pdf('water.pdf').read
-    doc = DocumentContent.new( :version_id=>7 )
+    doc = DocumentContent.new( :version_id=>7, :name => 'hoho', :ext => 'txt' )
     doc[:site_id] = sites_id(:zena)
     assert_raise(IOError) { doc.file }
   end

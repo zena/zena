@@ -28,7 +28,7 @@ node_has_an_icon:
   id:           4
   site_id:      1
   source_kpath: 'N'
-  target_kpath: 'NPDI'
+  target_kpath: 'NDI'
   source_role:  'icon_for'
   target_role:  'icon'
   target_unique: 1

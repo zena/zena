@@ -13,7 +13,7 @@ version_filter:
 
 dynattr_filter:
   src: "nodes where d_assigned = 'gaspard' in site"
-  sql: "SELECT DISTINCT nodes.* FROM nodes,versions LEFT JOIN dyn_attributes ON versions.id = dyn_attributes.owner_id WHERE dyn_attributes.value = 'gaspard' AND dyn_attributes.key = 'assigned' AND nodes.id = versions.node_id AND (#{@node.secure_scope('nodes')}) ORDER BY nodes.position ASC, nodes.name ASC"
+  sql: "SELECT DISTINCT nodes.* FROM nodes,versions LEFT JOIN dyn_attributes ON versions.id = dyn_attributes.owner_id AND dyn_attributes.key = 'assigned' WHERE dyn_attributes.value = 'gaspard' AND nodes.id = versions.node_id AND (#{@node.secure_scope('nodes')}) ORDER BY nodes.position ASC, nodes.name ASC"
   res: "cleanWater, people, status"
 
 # Results can be wrong if a node has many 'versions', some of which have d_assigned set and others not. See #190.
@@ -21,3 +21,21 @@ dynattr_filter_is_null:
   src: "projects where d_assigned is null in site"
   sql: "SELECT DISTINCT nodes.* FROM nodes,versions LEFT JOIN dyn_attributes ON versions.id = dyn_attributes.owner_id AND dyn_attributes.key = 'assigned' WHERE nodes.kpath LIKE 'NPP%' AND dyn_attributes.value IS NULL AND nodes.id = versions.node_id AND (#{@node.secure_scope('nodes')}) ORDER BY nodes.position ASC, nodes.name ASC"
   res: "wiki, zena"
+  
+dynattr_filter_in_relation:
+  src: "favorites where d_priority = 'important'"
+  sql: "SELECT DISTINCT nodes.*,links.id AS link_id FROM nodes,versions LEFT JOIN dyn_attributes ON versions.id = dyn_attributes.owner_id AND dyn_attributes.key = 'priority',links WHERE nodes.id = links.target_id AND links.relation_id = 9 AND links.source_id = #{@node.id} AND dyn_attributes.value = 'important' AND nodes.id = versions.node_id AND (#{@node.secure_scope('nodes')}) ORDER BY nodes.position ASC, nodes.name ASC"
+
+version_filter:
+  context:
+    visitor: 'lion'
+  src: pages where v_comment = "no comment yet" in project
+  sql: "SELECT DISTINCT nodes.* FROM nodes,versions WHERE nodes.kpath LIKE 'NP%' AND nodes.project_id = #{@node.get_project_id} AND versions.comment = 'no comment yet' AND nodes.id = versions.node_id AND (#{@node.secure_scope('nodes')}) ORDER BY nodes.position ASC, nodes.name ASC"
+  res: "bananas, strange"
+
+year_function:
+  context:
+    visitor: 'lion'
+  src: "nodes where v_updated_at:year = 2007 in project"
+  sql: "SELECT DISTINCT nodes.* FROM nodes,versions WHERE nodes.project_id = #{@node.get_project_id} AND year(versions.updated_at) = '2007' AND nodes.id = versions.node_id AND (#{@node.secure_scope('nodes')}) ORDER BY nodes.position ASC, nodes.name ASC"
+  res: "bananas"

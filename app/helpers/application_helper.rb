@@ -424,7 +424,7 @@ latex_template = %q{
   # Create a gallery from a list of images. See ApplicationHelper#zazen for details.
   def make_gallery(ids=[], opts={})
     if ids == []
-      images = (opts[:node] || @node).find(:all, 'images')
+      images = secure!(Image) { Image.find(:all, :conditions => ["parent_id = ?", (opts[:node] || @node)[:id]])}
     else
       ids = ids.map{|i| i.to_i}
       images = ids == [] ? nil : secure!(Document) { Document.find(:all, :conditions=>"zip IN (#{ids.join(',')})") }
@@ -586,21 +586,26 @@ latex_template = %q{
       # resize image
       img = ImageBuilder.new(:path=>"#{RAILS_ROOT}/public#{res[:src]}", :width=>32, :height=>32)
       img.transform!(format)
-      res[:width]  = img.width
-      res[:height] = img.height
+      if (img.width == res[:width] && img.height == res[:height])
+        # ignore mode
+        res[:mode] = nil
+      else
+        res[:width]  = img.width
+        res[:height] = img.height
       
-      new_file = "#{name}_#{format[:name]}.png"
-      path     = "#{RAILS_ROOT}/public/images/ext/#{new_file}"
-      unless File.exist?(path)
-        # make new image with the mode
-        if img.dummy?
-          File.cp("#{RAILS_ROOT}/public/images/ext/#{name}.png", path)
-        else
-          File.open(path, "wb") { |f| f.syswrite(img.read) }
+        new_file = "#{name}_#{format[:name]}.png"
+        path     = "#{RAILS_ROOT}/public/images/ext/#{new_file}"
+        unless File.exist?(path)
+          # make new image with the mode
+          if img.dummy?
+            File.cp("#{RAILS_ROOT}/public/images/ext/#{name}.png", path)
+          else
+            File.open(path, "wb") { |f| f.syswrite(img.read) }
+          end
         end
-      end
       
-      res[:src] = "/images/ext/#{new_file}"
+        res[:src] = "/images/ext/#{new_file}"
+      end
     end
     
     res

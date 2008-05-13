@@ -14,12 +14,12 @@ class ImageFormat < ActiveRecord::Base
     
     def list
       res = []
-      Thread.current.visitor.site.image_formats.each do |k,v|
+      Thread.current.visitor.site.image_formats.merge(formats_for_site(visitor.site.id, false)).each do |k,v|
         next if k == :updated_at || k.nil?
         if v.kind_of?(ImageFormat)
           res << v
         else
-          res << ImageFormat.new_from_default(v[:name])
+          res << ImageFormat.new_from_default(k)
         end
       end
       res.sort {|a,b| a[:name] <=> b[:name]}
@@ -57,7 +57,7 @@ class ImageFormat < ActiveRecord::Base
   
   # :size=>:force, :width=>280, :height=>120, :gravity=>Magick::NorthGravity  
   def as_hash
-    {:id => self[:id], :name => self[:name], :size => size.to_sym, :width => width, :height => height, :gravity=>eval("Magick::#{gravity}")}
+    {:name => self[:name], :size => size.to_sym, :width => width, :height => height, :gravity=>eval("Magick::#{gravity}")}
   end
   
   def size

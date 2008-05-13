@@ -132,7 +132,7 @@ class ApplicationHelperTest < ZenaTestHelper
                   img_tag(img, :mode=>nil, :id=>'yo')
     assert_equal "<img src='/en/image30_pv.jpg' width='70' height='70' alt='bird' id='yo' class='super'/>",
                   img_tag(img, :mode=>'pv', :id=>'yo', :class=>'super')
-    assert_equal "<img src='/en/image30_med.jpg' width='205' height='186' alt='super man' class='med'/>",
+    assert_equal "<img src='/en/image30_med.jpg' width='220' height='200' alt='super man' class='med'/>",
                   img_tag(img, :mode=>'med', :alt=>'super man')
   end
   
@@ -143,7 +143,7 @@ class ApplicationHelperTest < ZenaTestHelper
     assert_equal 'bin', doc.c_ext
     assert_equal "<img src='/images/ext/other.png' width='32' height='32' alt='bin document' class='doc'/>", img_tag(doc)
     assert_equal "<img src='/images/ext/other_pv.png' width='70' height='70' alt='bin document' class='doc'/>", img_tag(doc, :mode=>'pv')
-    assert_equal "<img src='/images/ext/other_std.png' width='32' height='32' alt='bin document' class='doc'/>", img_tag(doc, :mode=>'std')
+    assert_equal "<img src='/images/ext/other.png' width='32' height='32' alt='bin document' class='doc'/>", img_tag(doc, :mode=>'std')
   end
   
   def test_alt_with_apos

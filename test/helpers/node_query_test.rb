@@ -13,11 +13,11 @@ class NodeQueryTest < ZenaTestUnit
     login context[:visitor].to_sym
     
     sql, errors = Node.build_find(:all,@@test_strings[file][test]['src'] || test.gsub('_',' '), context[:node_name])
-    if test_errors = @@test_strings[file][test]['err']
-      if test_sql[0..0] == "/"
-        assert_match %r{#{test_errors[1..-2]}}m, errors.join(", ")
+    if test_err = @@test_strings[file][test]['err']
+      if test_err[0..0] == "/"
+        assert_match %r{#{test_err[1..-2]}}m, errors.join(", ")
       else
-        assert_equal test_errors, errors.join(", ")
+        assert_equal test_err, errors.join(", ")
       end
     else
       sql ||= errors.join(", ")

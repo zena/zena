@@ -16,4 +16,4 @@ bad_relation:
 
 overriden_relation:
   src: 'references'
-  sql: "SELECT nodes.*, links.id AS link_id FROM nodes,links WHERE nodes.id = links.target_id AND links.relation_id = 3 AND links.source_id = #{@node.id} AND (#{@node.secure_scope('nodes')}) ORDER BY nodes.position ASC, nodes.name ASC"
+  sql: "SELECT nodes.*,links.id AS link_id FROM nodes,links WHERE nodes.id = links.target_id AND links.relation_id = 3 AND links.source_id = #{@node.id} AND (#{@node.secure_scope('nodes')}) ORDER BY nodes.position ASC, nodes.name ASC"

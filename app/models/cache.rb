@@ -34,7 +34,7 @@ class Cache < ActiveRecord::Base
         end
       end
       if hash[:context]
-        context = [hash[:context]].flatten.join('.')
+        context = [hash[:context]].flatten.join('.').hash.abs
         self.connection.execute "DELETE FROM #{self.table_name} WHERE context = '#{context}'" + kpath_selector
       end
       if hash[:older_than]

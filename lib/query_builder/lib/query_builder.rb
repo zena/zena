@@ -88,7 +88,7 @@ class QueryBuilder
   
   def to_sql
     return nil if !valid?
-    "SELECT#{@distinct} #{@select.join(', ')} FROM #{@tables.join(',')}" + (@filters == [] ? '' : " WHERE #{@filters.reverse.join(' AND ')}#{@group}#{@order}#{@limit}#{@offset}")
+    "SELECT#{@distinct} #{@select.join(',')} FROM #{@tables.join(',')}" + (@filters == [] ? '' : " WHERE #{@filters.reverse.join(' AND ')}#{@group}#{@order}#{@limit}#{@offset}")
   end
   
   def valid?
@@ -112,20 +112,22 @@ class QueryBuilder
     def parse_filters(txt)
       txt.split(/\s+and\s+/).each do |clause|
         # [field] [=|>]
-        if clause =~ /("[^"]*"|'[^']*'|\w+)\s*(like|not like|is not|is|>=|<=|<>|<|=|>|lt|le|eq|ne|ge|gt)\s*("[^"]*"|'[^']*'|\w+)/
+        if clause =~ /("[^"]*"|'[^']*'|[\w:]+)\s*(like|not like|is not|is|>=|<=|<>|<|=|>|lt|le|eq|ne|ge|gt)\s*("[^"]*"|'[^']*'|[\w:]+)/
           # TODO: add 'match' parameter (#105)
           parts = [$1,$3]
           op = {'lt' => '<','le' => '<=','eq' => '=','ne' => '<>','ge' => '>=','gt' => '>'}[$2] || $2
           parts.map! do |part|
             if ['"',"'"].include?(part[0..0])
               map_literal(part[1..-2])
+            elsif part =~ /^\d+$/
+              map_literal(part)
             elsif part == 'null'
               "NULL"
             else
               if fld = field_or_param(part, table, op[0..2] == 'is') # we need to inform if we are looking for 'null' related field/param
                 fld
               else
-                @errors << "Invalid field or value '#{part}'."
+                @errors << "invalid field or value '#{part}'"
               end
             end
           end.compact!
@@ -134,14 +136,14 @@ class QueryBuilder
             # ok, no value/field error
             if op[0..2] == 'is' && parts[1] != 'NULL'
               # error
-              @errors << "Invalid clause '#{clause}' ('is' only valid with 'null')."
+              @errors << "invalid clause '#{clause}' ('is' only valid with 'null')"
             else
               @filters << parts.join(" #{op.upcase} ")
             end
           end
         else
           # invalid clause format
-          @errors << "Invalid clause '#{clause}'."
+          @errors << "invalid clause '#{clause}'"
         end
       end
     end
@@ -156,12 +158,12 @@ class QueryBuilder
           if fld = map_field(fld_name, table)
             res << "#{@tables.size == 1 ? fld_name : fld} #{direction.upcase}"
           else
-            @errors << "Invalid field '#{fld_name}'"
+            @errors << "invalid field '#{fld_name}'"
           end
         elsif clause == 'random'
           res << "RAND()"
         else
-          @errors << "Invalid order clause '#{clause}'."
+          @errors << "invalid order clause '#{clause}'"
         end
       end
       res == [] ? nil : " ORDER BY #{res.join(', ')}"
@@ -177,7 +179,7 @@ class QueryBuilder
       elsif limit =~ /(\d+)/
         " LIMIT #{$1}"
       else
-        @errors << "Invalid limit clause '#{limit}'."
+        @errors << "invalid limit clause '#{limit}'"
         nil
       end
     end
@@ -186,12 +188,12 @@ class QueryBuilder
       return nil unless offset
       if !@limit
         # TODO: raise error ?
-        @errors << "Invalid offset clause '#{offset}' (used without limit)."
+        @errors << "invalid offset clause '#{offset}' (used without limit)"
         nil
       elsif offset.strip =~ /^\d+$/
         " OFFSET #{offset}"
       else
-        @errors << "Invalid offset clause '#{offset}'."
+        @errors << "invalid offset clause '#{offset}'"
         nil
       end
     end
@@ -255,14 +257,7 @@ class QueryBuilder
     end
     
     def merge_alternate_queries(alt_queries)
-      if valid?
-        counter = 1
-      else
-        counter = 0
-        @filters = []
-        @tables  = []
-        @errors  = []
-      end
+      counter = 1
       
       if @filters.compact == []
         filters = []
@@ -271,6 +266,7 @@ class QueryBuilder
       end
       
       alt_queries.each do |query|
+        @errors += query.errors
         next unless query.valid?
         query.filters.compact!
         next if query.filters.empty?
@@ -312,7 +308,9 @@ class QueryBuilder
     
     def parse_context(clause)
       if fields = context_filter_fields(clause)
-        @filters << "#{field_or_param(fields[0])} = #{field_or_param(fields[1], table(main_table,-1))}"
+        @filters << "#{field_or_param(fields[0])} = #{field_or_param(fields[1], table(main_table,-1))}" if fields != :void
+      else
+        @errors << "invalid context '#{clause}'"
       end
     end
     

@@ -48,8 +48,8 @@ class CacheTest < ZenaTestUnit
     i = 2                                                        
     assert_equal "content 2", Cache.with(1,[2,3,4], 'NN', 'notes')  { "content #{i}" }
     
-    # Sweep called on document (NPD) change, must remove 'NP' cache only
-    Cache.sweep(:visitor_id=>1, :kpath=>'NPD')
+    # Sweep called on project (NPP) change, must remove 'NP' cache only
+    Cache.sweep(:visitor_id=>1, :kpath=>'NPP')
     i = 3
     assert_equal "content 3", Cache.with(1,[2,3,4], 'NP', 'pages')  { "content #{i}" }
     assert_equal "content 2", Cache.with(1,[2,3,4], 'NN', 'notes')  { "content #{i}" }

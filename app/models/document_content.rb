@@ -55,7 +55,7 @@ class DocumentContent < ActiveRecord::Base
   end
   
   def filename(format=nil)
-    if name =~ /^[a-zA-Z]+$/ && ext =~ /^[a-zA-Z]+$/
+    if name =~ /^[a-zA-Z\-_0-9]+$/ && ext =~ /^[a-zA-Z0-9]+$/
       "#{name}.#{ext}"
     else
       raise Zena::AccessViolation, "Error in document filename (name = #{name.inspect}, ext = #{ext.inspect})\nvisitor = #{visitor.inspect}"

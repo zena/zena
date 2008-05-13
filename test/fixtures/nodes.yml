@@ -259,7 +259,7 @@ crocodiles:
   parent_id:      11
   user_id:        4
   created_at:     2006-04-11
-  updated_at:     2006-04-11
+  updated_at:     2007-04-11
   publish_from:   
   max_status:     30
   inherit:        1

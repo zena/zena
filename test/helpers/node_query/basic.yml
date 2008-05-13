@@ -14,6 +14,7 @@ nodes:
 pages:
   src: "pages"
   sql: "SELECT nodes.* FROM nodes WHERE nodes.kpath LIKE 'NP%' AND nodes.parent_id = #{@node.id} AND (#{@node.secure_scope('nodes')}) ORDER BY position ASC, name ASC"
+  res: "status, track"
 
 letters:
   src: "letters"
@@ -62,5 +63,41 @@ same_name_as_class:
   context:
     node: 'opening'
   src: "set_tags"
-  sql: "SELECT nodes.*, links.id AS link_id FROM nodes,links WHERE nodes.id = links.target_id AND links.relation_id = 2 AND links.source_id = #{@node.id} AND (#{@node.secure_scope('nodes')}) ORDER BY nodes.position ASC, nodes.name ASC"
+  sql: "SELECT nodes.*,links.id AS link_id FROM nodes,links WHERE nodes.id = links.target_id AND links.relation_id = 2 AND links.source_id = #{@node.id} AND (#{@node.secure_scope('nodes')}) ORDER BY nodes.position ASC, nodes.name ASC"
   res: "art, news"
+
+  
+notes_in_project:
+  res: "opening"
+  
+vclass_in_project:
+  src: "posts in project"
+  res: "opening"
+
+vlcass_or_pages:
+  src:
+    - "posts in project"
+    - "pages"
+  res: "opening, status, track"
+
+find_relation:
+  context:
+    node: 'ant'
+  src: "favorites"
+  res: "nature"
+
+root:
+  res: "zena"
+
+site:
+  err: "unknown relation 'site'"
+
+pages_from_site_or_images:
+  src:
+    - 'project from site'
+    - 'images'
+  err: "unknown relation 'site'"
+
+children_with_order_clause:
+  src: "children order by name ASC"
+  sql: "SELECT nodes.* FROM nodes WHERE nodes.parent_id = #{@node.id} AND (#{@node.secure_scope('nodes')}) ORDER BY name ASC"

@@ -655,7 +655,7 @@ END_MSG
           sharp_value = sharp
         end
         if sharp_in = options.delete(:sharp_in)
-          sharp_node = sharp_in.kind_of?(Node) ? sharp_in : (node.find(:first, :relations=>[sharp_in]) || node)
+          sharp_node = sharp_in.kind_of?(Node) ? sharp_in : (node.find(:first, [sharp_in]) || node)
           return "#{zen_path(sharp_node, options)}##{sharp_value}"
         else
           return "##{sharp_value}"          

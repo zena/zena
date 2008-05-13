@@ -68,7 +68,7 @@ image_align:
   
 image_with_format:
   src: "!21.mini!"
-  res: "<p>[make_image id:|21| images:true size:|mini| style:||]</p>"
+  res: "<p>[make_image id:|21| images:true mode:|mini| style:||]</p>"
   
 image_title:
   src: "!12/!"
@@ -84,19 +84,19 @@ image_custom_title_with_markup:
   
 image_with_link:
   src: "!12.pv!:12"
-  res: "<p>[make_image id:|12| images:true link:|12| size:|pv| style:||]</p>"
+  res: "<p>[make_image id:|12| images:true link:|12| mode:|pv| style:||]</p>"
   
 image_with_link_mode:
   src: "!12.pv!:20_changes"
-  res: "<p>[make_image id:|12| images:true link:|20_changes| size:|pv| style:||]</p>"
+  res: "<p>[make_image id:|12| images:true link:|20_changes| mode:|pv| style:||]</p>"
   
 image_with_link_mode_and_format:
   src: "!12.pv!:20_med.data"
-  res: "<p>[make_image id:|12| images:true link:|20_med.data| size:|pv| style:||]</p>"
+  res: "<p>[make_image id:|12| images:true link:|20_med.data| mode:|pv| style:||]</p>"
   
 image_with_http_link:
   src: "!12.pv!:http://www.example.org"
-  res: "<p>[make_image id:|12| images:true link:|http://www.example.org| size:|pv| style:||]</p>"
+  res: "<p>[make_image id:|12| images:true link:|http://www.example.org| mode:|pv| style:||]</p>"
 
 image_with_ref:
   src: "!http://www.example.org/images/test.jpg!"

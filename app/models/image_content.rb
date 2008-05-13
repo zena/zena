@@ -70,7 +70,6 @@ class ImageContent < DocumentContent
   # Return the width in pixels for an image at the given format.
   def width(format=nil)
     if format.nil? || format.size == :keep
-      super
       self[:width]
     else
       if img = image_with_format(format)
@@ -84,7 +83,6 @@ class ImageContent < DocumentContent
   # Return the height in pixels for an image at the given format.
   def height(format=nil)
     if format.nil? || format.size == :keep
-      super
       self[:height]
     else
       if img = image_with_format(format)
@@ -99,7 +97,7 @@ class ImageContent < DocumentContent
   def filename(format=nil)
     if format.nil? || format.size == :keep
       super
-    elsif name =~ /^[a-zA-Z]+$/ && format[:name] =~ /^[a-zA-Z]+$/ && ext =~ /^[a-zA-Z]+$/
+    elsif name =~ /^[a-zA-Z\-_0-9]+$/ && format[:name] =~ /^[a-zA-Z]+$/ && ext =~ /^[a-zA-Z0-9]+$/
       # Is this too paranoid ?
       "#{name}_#{format[:name]}.#{ext}"
     else

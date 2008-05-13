@@ -19,7 +19,7 @@ class NodeQuery < QueryBuilder
   def parse_relation(rel, context)
     # join_relation first so we can overwrite 'class' finders (images) with a relation.
     unless join_relation(rel, context) || context_relation(rel, context)
-      @errors << "Unknown relation '#{rel}'."
+      @errors << "unknown relation '#{rel}'"
     end
   end
   
@@ -49,7 +49,7 @@ class NodeQuery < QueryBuilder
       when 'section'
         ['section_id', 'section_id']
       when 'site', main_table
-        nil
+        :void
       else
         nil
       end
@@ -282,21 +282,18 @@ module Zena
       
       # Find related nodes.
       # See Node#build_find for details on the options available.
-      def find(count, options)
-        if options.kind_of?(String)
-          rel = [options]
-          options = {:relations => rel}
-        elsif options.kind_of?(Array)
-          rel = options
-          options = {:relations => rel}
-        else
-          rel = options[:relations]
-        end
+      def find(count, rel)
+        rel = [rel] if rel.kind_of?(String)
+        
         if rel.size == 1 && self.class.zafu_known_contexts[rel.first]
           self.send(rel.first)
         else
-          raise Exception.new("REMOVE BUILD FIND")
-          do_find(count, eval("\"#{Node.build_find(count, options.merge(:node_name => 'self'))}\""))
+          sql, errors = Node.build_find(count, rel, 'self')
+          if sql
+            do_find(count, eval("\"#{sql}\""))
+          else
+            nil
+          end
         end
       end
     end
