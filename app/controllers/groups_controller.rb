@@ -58,7 +58,7 @@ class GroupsController < ApplicationController
           redirect_to :action => 'index' 
         else
           get_users
-          get_groups
+          get_groups # all groups are used by 'replace_by'
           render :action => 'edit'
         end
       end
