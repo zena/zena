@@ -1073,7 +1073,7 @@ class Node < ActiveRecord::Base
     # access to these elements.
     # FIXME: use self + modified relations instead of parent/project
     [self, self.real_project(false), self.real_section(false), self.parent(false)].compact.uniq.each do |obj|
-      # destroy all pages from project, parent and section !
+      # destroy all pages in project, parent and section !
       CachedPage.expire_with(obj)
       # this destroys less cache but might miss things like 'changes in project' that are displayed on every page.
       # CachedPage.expire_with(self, [self[:project_id], self[:section_id], self[:parent_id]].compact.uniq)

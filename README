@@ -67,7 +67,7 @@ If you want to enable LateX (PDF generation)
 tetex-bin tetex-extra latex-ucs
 
 For math mode (inline formulas), you will need
-latex dviutils gs-gpl imagemagick   # use 'dvips' if dviutils is not found.
+latex dviutils gs-gpl imagemagick   # use 'dvips' if dviutils is not found. Use 'tetex' if 'latex' not found.
 
 For xsl-fo pdf generation
 xsltproc fop # (contrib sources needed on debian for 'fop')

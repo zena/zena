@@ -1,8 +1,3 @@
-=begin
-icons from nodes from project
-
-SELECT nd1.id, nd1.project_id, nd1.name, nd1.kpath FROM nodes as nd1, links AS lk1, nodes as nd2 WHERE (lk1.relation_id = 4 AND lk1.target_id = nd1.id AND lk1.source_id = nd2.id) AND (nd2.project_id = 11)
-=end
 require 'rubygems'
 
 if false

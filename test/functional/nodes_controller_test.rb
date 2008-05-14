@@ -1,23 +1,37 @@
-=begin
 require File.dirname(__FILE__) + '/../test_helper'
 require 'nodes_controller'
 
 # Re-raise errors caught by the controller.
-class NodesController
-  def rescue_action(e); raise e; end
-end
-
-class TestNodeController < NodesController
-  include NodesHelper
-end
+class NodesController; def rescue_action(e) raise e end; end
 
 class NodesControllerTest < ZenaTestController
-
+  
   def setup
     super
     @controller = NodesController.new
     init_controller
   end
+  
+  def test_cache_xml_format
+   without_files('/test.host/public') do
+      name = "section#{nodes_zip(:people)}.xml"
+      with_caching do
+        assert !File.exist?("#{SITES_ROOT}/test.host/public/fr/#{name}")
+        login(:lion)
+        doc = secure!(Template) { Template.create("name"=>"Node", "c_format"=>"xml", "v_summary"=>"", 'v_text' => '<?xml version="1.0" encoding="utf-8"?><node><name do="[name]"/></node>', "parent_id"=>nodes_id(:default))}
+        assert !doc.new_record?, "Not a new record"
+        assert doc.publish
+        login(:anon)
+        get 'show', :prefix => 'fr', :path => [name]
+        assert_response :success
+        assert_equal "<?xml version=\"1.0\" encoding=\"utf-8\"?><node><name>people</name></node>", @response.body
+        assert File.exist?("#{SITES_ROOT}/test.host/public/fr/#{name}")
+      end
+    end
+  end
+end
+
+=begin
   
   def test_import_archive
     preserving_files('test.host/data') do

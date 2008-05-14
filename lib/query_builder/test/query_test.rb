@@ -28,7 +28,7 @@ class TestQuery < QueryBuilder
       when 'project'
         ['project_id', 'project_id']
       when 'site', main_table
-        nil
+        :void
       else
         nil
       end
@@ -87,7 +87,7 @@ class TestQuery < QueryBuilder
     end
     
     # Overwrite this and take car to check for valid fields.
-    def map_field(fld, table_name)
+    def map_field(fld, table_name, is_null = false)
       if ['id', 'parent_id', 'project_id', 'section_id', 'kpath', 'name'].include?(fld)
         "#{table_name}.#{fld}"
       else
@@ -98,7 +98,7 @@ end
 
 class QueryTest < Test::Unit::TestCase
   yaml_dir File.dirname(__FILE__)
-  yaml_test :basic, :joins, :filters
+  yaml_test :basic, :joins, :filters, :errors
   
   def parse(value, opts)
     query = TestQuery.new(value)

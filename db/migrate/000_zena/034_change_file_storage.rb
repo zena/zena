@@ -28,6 +28,8 @@ class ChangeFileStorage < ActiveRecord::Migration
     puts "if the change file storage went like a breeze,
 you should run the following command:
 rm -rf #{directories_to_remove.map{|s| s.inspect}.join(' ')}"
+    puts "WARNING: you should fix the permissions on the new data folders with a command like:
+chown -R www-data:www-data #{SITES_ROOT.inspect}"
   end
 
   def self.down

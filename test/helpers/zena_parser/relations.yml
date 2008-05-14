@@ -341,5 +341,5 @@ group_by_parent_sort:
   src: "<r:images in='site' order='name ASC' do='group' by='parent'><b do='parent' do='[name]'/>: <r:each join=',' do='[name]'/></r:images>"
   res: "<b>cleanWater</b>: lake<b>nature</b>: tree<b>wiki</b>: bird,flower"
 #icons_from_nodes_from_project:
-#  src: "<r:icons from='nodes' from='project' do='each' join=', ' do='[name]'/>"
+#  src: "<r:icons from='nodes' in='project' do='each' join=', ' do='[name]'/>"
 #  res: ""

@@ -315,11 +315,11 @@ latex_template = %q{
         "<span class='math'><img src='#{zen_path(node, :asset => math_id, :format => 'png')}'/></span>"
       else
         # Math not supported
-        "[#{context}]#{content}[/#{context}]"
+        "[#{asset_type}]#{content}[/#{asset_type}]"
       end
     else
       # Unknown tag. Ignore
-      "[#{context}]#{content}[/#{context}]"
+      "[#{asset_type}]#{content}[/#{asset_type}]"
     end
   end
       

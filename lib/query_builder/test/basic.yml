@@ -51,4 +51,4 @@ bad_relation_in_alternate_query:
   src: 
     - "bolobolo"
     - "letters in project"
-  res: "SELECT objects.* FROM objects WHERE objects.kpath LIKE 'NNL%' AND objects.project_id = PROJECT_ID"
+  res: "Unknown relation 'bolobolo'."

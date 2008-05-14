@@ -105,7 +105,7 @@ END_MSG
       
       # cleanup before rendering
       params.delete(:mode)
-      params.delete(:format)
+      #params.delete(:format) why was this here ?
       
       @section = @node.section
       # init default date used for calendars, etc
@@ -218,6 +218,7 @@ END_MSG
           end
         else
           # no post-rendering
+          filepath = nil
           send_data( data , :filename=>@node.v_title, :type => content_type, :disposition=>'inline')
         end
         cache_page(:content_data => (failure || data), :content_path => filepath) if opts[:cache]

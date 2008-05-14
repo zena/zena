@@ -1,4 +1,4 @@
-<div id='notes' do='notes' or='added_notes' from='project' limit='10' order='log_at DESC'>
+<div id='notes' do='notes' or='added_notes' in='project' limit='10' order='log_at DESC'>
   <ul class='note_list'>
     <li do='add' after='self'/>
     <li class='inline_form' do='form'>

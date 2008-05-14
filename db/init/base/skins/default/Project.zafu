@@ -4,7 +4,7 @@
     <link href="default.css" rel="Stylesheet" type="text/css"/>
   </r:with>
   <r:with part='context'>
-    <div id='small_calendar' do='calendar' find='notes' from='project' or='news'/>
+    <div id='small_calendar' do='calendar' find='notes' in='project' or='news'/>
     <r:hot>
       <div class='header'>
         <h2 do='title' actions='all'>hot news</h2>

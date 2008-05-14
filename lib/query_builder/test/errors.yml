@@ -1,7 +1,7 @@
 order:
-  src: "objects from project order bad ASC"
-  res: ".."
+  src: "objects in project order by bad ASC"
+  res: "invalid field 'bad'"
 
 offset_without_limit:
-  src: "objects from project offset 3"
-  res: ".."
+  src: "objects in project offset 3"
+  res: "invalid offset clause '3' (used without limit)"

@@ -723,7 +723,7 @@ wiki_project_changes_xml_en:
   text:           |
     <?xml version="1.0" encoding="UTF-8"?>
     <name><r:show attr='name'/></name>
-    <changes do='nodes' from='project' order='updated_at DESC' limit='10'>
+    <changes do='nodes' in='project' order='updated_at DESC' limit='10'>
       <node do='each'>
         <type><r:show attr='type'/></type>
         <name><r:show attr='name'/></name>
