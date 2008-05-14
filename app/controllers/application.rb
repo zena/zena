@@ -296,7 +296,7 @@ END_MSG
         @skin_names = [@skin_name]
         secure!(Skin) { Skin.find(:all, :order=>'position ASC, name ASC') }.each do |s|
           @skin[s.name] = s
-          next if s.name = @skin_name # do not add it twice
+          next if s.name == @skin_name # do not add it twice
           @skin_names << s.name
         end
         @skin_link  = zen_path(@skin[@skin_name]) # used to link from <r:design/> zafu tag
@@ -389,19 +389,21 @@ END_MSG
       end
       folder = (opts[:current_folder] && opts[:current_folder] != '') ? opts[:current_folder].split('/') : []
       @skin ||= {}
-      
       if src =~ /^\//
         # starts with '/' : look here first
         url = src[1..-1].split('/')
-        skin_names = [url.shift] + @skin_names
+        name = url.shift
+        skin_names = [name] + (@skin_names - [name])
       else
         # does not start with '/' : look in skin_names first
         url = folder + src.split('/')
         skin_names = @skin_names.dup
-        skin_names << url.shift if url.size > 1
+        if url.size > 1
+          name = url.shift
+          skin_names << name unless skin_names.include?(name)
+        end
       end
       document = skin_name = nil
-      skin_names.uniq!
       [false, true].each do |rebuild_path|
         # try to find using cached fullpath first.
         skin_names.each do |skin_name|
