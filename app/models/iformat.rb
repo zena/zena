@@ -2,8 +2,8 @@ class Iformat < ActiveRecord::Base
   before_validation :iformat_before_validation
   validate          :iformat_valid
   validates_uniqueness_of :name, :scope => :site_id
-  after_save        :set_site_formats_date
-  after_destroy     :set_site_formats_date
+  after_save        :set_site_formats_date_and_expire_cache
+  after_destroy     :set_site_formats_date_and_expire_cache
   SIZES   = ['keep', 'limit', 'force']
   GRAVITY = ['CenterGravity', 'NorthWestGravity', 'NorthGravity', 'NorthEastGravity', 'WestGravity', 'EastGravity', 'SouthWestGravity', 'SouthGravity', 'SouthEastGravity']
   
@@ -87,6 +87,11 @@ class Iformat < ActiveRecord::Base
         return false
       end
       
+      if self[:name] == 'full'
+        errors.add('name', "Cannot change 'full' format.")
+        return false
+      end
+      
       errors.add('name', "invalid") if name.blank? || name =~ /[^a-zAZ]/
       if self.size != 'keep'
         errors.add('width', "must be greater then 0") if width.to_i <= 0
@@ -102,7 +107,13 @@ class Iformat < ActiveRecord::Base
       end
     end
     
-    def set_site_formats_date
+    def set_site_formats_date_and_expire_cache
       Site.connection.execute "UPDATE sites SET formats_updated_at = (SELECT updated_at FROM iformats WHERE site_id = #{self[:site_id]} ORDER BY iformats.updated_at DESC LIMIT 1) WHERE id = #{self[:site_id]}"
+      if self[:name] == 'full'
+        # DO NOT CLEAR !
+      else
+        FileUtils.rmtree(File.join(SITES_ROOT, visitor.site.data_path, self[:name]))
+        visitor.site.clear_cache(false)
+      end
     end
 end

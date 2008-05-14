@@ -6,6 +6,6 @@ class DocumentVersionTest < ZenaTestUnit
     v = versions(:water_pdf_en)
     assert_equal DocumentContent, v.content_class
     assert_kind_of DocumentContent, v.content
-    assert_equal 'water.pdf', v.content.filename
+    assert_equal 'water', v.content.name
   end
 end

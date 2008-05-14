@@ -6,6 +6,14 @@ FILE_FIXTURES_PATH = File.join(File.dirname(__FILE__), 'fixtures', 'files')
 module Zena
   module Test
     module LoadFixtures
+      
+      # Could DRY with file_path defined in Base
+      def self.file_path(filename, content_id)
+        digest = Digest::SHA1.hexdigest(content_id.to_s)
+        fname = filename.split('.').first
+        "#{SITES_ROOT}/test.host/data/full/#{digest[0..0]}/#{digest[1..1]}/#{digest[2..2]}/#{fname}"
+      end
+      
       # make sure versions is of type InnoDB
       begin
         Node.connection.remove_index "versions", ["title", "text", "summary"]
@@ -57,12 +65,11 @@ module Zena
 
       unless File.exist?("#{SITES_ROOT}/test.host/data")
         @@loaded_fixtures['document_contents'].each do |name,fixture|
-          path = fixture.instance_eval { [@fixture['ext'],@fixture['version_id'].to_s,@fixture['name']+"."+@fixture['ext']] }
-          name = path.pop
-          FileUtils::mkpath(File.join(RAILS_ROOT,'sites', 'test.host', 'data', *path))
-          path << name
-          if File.exist?(File.join(FILE_FIXTURES_PATH,name))
-            FileUtils::cp(File.join(FILE_FIXTURES_PATH,name),File.join(RAILS_ROOT,'sites', 'test.host', 'data', *path))
+          fname, content_id = fixture.instance_eval { [@fixture['name']+"."+@fixture['ext'], @fixture['id'].to_s] }
+          path = file_path(fname, content_id)
+          FileUtils::mkpath(File.dirname(path))
+          if File.exist?(File.join(FILE_FIXTURES_PATH,fname))
+            FileUtils::cp(File.join(FILE_FIXTURES_PATH,fname),path)
           end
         end
       end
@@ -161,6 +168,21 @@ module Zena
       # TGZ helper
       def uploaded_archive(fname, filename=nil)
         uploaded_file(fname, 'application/x-gzip', filename)
+      end
+      
+      def file_path(filename, mode = 'full', content_id = nil)
+        if content_id
+          fname = filename.split('.').first
+        else
+          if content_id = document_contents_id(filename.to_sym)
+            fname = filename.to_s.split('_').first
+          else
+            puts "#{filename.inspect} fixture not found in document_contents"
+            return nil
+          end
+        end
+        digest = Digest::SHA1.hexdigest(content_id.to_s)
+        "#{SITES_ROOT}/test.host/data/#{mode}/#{digest[0..0]}/#{digest[1..1]}/#{digest[2..2]}/#{fname}"
       end
 
     end

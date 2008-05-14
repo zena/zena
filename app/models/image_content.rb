@@ -31,7 +31,7 @@ class ImageContent < DocumentContent
     img.format       = format[:format] if new_type && new_type != content_type
     img.max_filesize = max if format[:max_value] && max
     
-    file = Tempfile.new(filename)
+    file = Tempfile.new(name)
     File.open(file.path, "wb") { |f| f.syswrite(img.read) }
 
     ctype = EXT_TO_TYPE[img.format.downcase][0]
@@ -48,7 +48,6 @@ class ImageContent < DocumentContent
   def file=(aFile)
     super
     return unless ImageBuilder.image_content_type?(aFile.content_type)
-    remove_mode_images if !new_record?
     img = image_with_format(nil)
     self[:width ] = img.width
     self[:height] = img.height
@@ -93,18 +92,6 @@ class ImageContent < DocumentContent
     end
   end
   
-  # Image filename for the given format. For example, 'bird_pv.jpg' is the name for 'pv' format. The name for formats that keep the image as is (keep) would be 'bird.jpg'
-  def filename(format=nil)
-    if format.nil? || format.size == :keep
-      super
-    elsif name =~ /^[a-zA-Z\-_0-9]+$/ && format[:name] =~ /^[a-zA-Z]+$/ && ext =~ /^[a-zA-Z0-9]+$/
-      # Is this too paranoid ?
-      "#{name}_#{format[:name]}.#{ext}"
-    else
-      raise Zena::AccessViolation, "Error in image filename (name = #{name.inspect}, ext = #{ext.inspect}, format[:name] = #{format[:name].inspect})\nvisitor = #{visitor.inspect}"
-    end
-  end
-  
   # Return a file with the data for the given format. It is the receiver's responsability to close the file.
   def file(format=nil)
     if format.nil? || format.size == :keep
@@ -117,22 +104,7 @@ class ImageContent < DocumentContent
       end
     end
   end
-  
-  # Removes all images created by ImageBuilder for this image_content. This is used when the file changes or when the name changes.
-  def remove_mode_images
-    dir = File.dirname(filepath)
-    if File.exist?(dir)
-      Dir.foreach(dir) do |file|
-        next if file =~ /^\./
-        next if file == filename
-        FileUtils::rm(File.join(dir,file))
-      end
-    end
-    # FIXME: Remove cached images from the public directory.
-    # TODO: test
-    # FileUtils::rmtree(File.dirname(cachepath))
-  end
-  
+
   def image_with_format(format=nil)
     if @file
       ImageBuilder.new(:file=>@file).transform!(format)

@@ -3,14 +3,14 @@ require File.dirname(__FILE__) + '/../test_helper'
 class DocumentContentTest < ZenaTestUnit
   
   def test_site_id
-    without_files('/test.host/data/pdf/15') do
+    without_files('/test.host/data/full') do
       doc = DocumentContent.create( :version_id=>versions_id(:water_pdf_en), :ext=>'tic', :name=>'abc', :file => uploaded_pdf('forest.pdf') )
       assert_equal sites_id(:zena), doc.site_id
     end
   end
   
   def test_site_id
-    without_files('/test.host/data/pdf') do
+    without_files('/test.host/data/full') do
       login(:ant)
       doc = secure!(Document) { Document.create( :parent_id=>nodes_id(:cleanWater),
                                                 :name=>'report', 
@@ -25,7 +25,7 @@ class DocumentContentTest < ZenaTestUnit
   end
   
   def test_cannot_set_site_id
-    without_files('/test.host/data/pdf') do
+    without_files('/test.host/data/full') do
       login(:ant)
       doc = secure!(Document) { Document.create( :parent_id=>nodes_id(:cleanWater),
                                                 :name=>'report', 
@@ -49,7 +49,7 @@ class DocumentContentTest < ZenaTestUnit
     assert_equal data.read, uploaded_pdf('water.pdf').read
     doc = DocumentContent.new( :version_id=>7, :name => 'hoho', :ext => 'txt' )
     doc[:site_id] = sites_id(:zena)
-    assert_raise(IOError) { doc.file }
+    assert_raise(StandardError) { doc.file } # filepath not set
   end
   
   def test_set_size
@@ -57,24 +57,17 @@ class DocumentContentTest < ZenaTestUnit
     assert_raise(StandardError) { imf.size = 34 }
   end
   
-  def test_filename
-    doc = DocumentContent.new( :name=>'bob', :version_id=>versions_id(:water_pdf_en), :ext=>'tot' )
-    assert_equal 'bob.tot', doc.filename
-  end
-  
-      
   def test_filepath_without_version
     doc = DocumentContent.new( :file=>uploaded_pdf('water.pdf') )
     assert_raise(StandardError) { doc.filepath }
   end
   
   def test_save_file
-    without_files("/test.host/data/pdf/15") do
+    without_files("/test.host/data/full") do
       doc = DocumentContent.new( :name=>'water', :version_id=>15, :file=>uploaded_pdf('water.pdf') )
       doc[:site_id] = sites_id(:zena)
-      assert !File.exist?("#{SITES_ROOT}/test.host/data/pdf/15/water.pdf")
       assert doc.save, "Can save"
-      assert File.exist?("#{SITES_ROOT}/test.host/data/pdf/15/water.pdf")
+      assert File.exist?(file_path('water.pdf','full',doc[:id]))
       assert_equal 29279, doc.size
       doc = DocumentContent.find(doc.id)
       assert doc.save, "Can save again"
@@ -85,13 +78,16 @@ class DocumentContentTest < ZenaTestUnit
   end
   
   def test_destroy
-    preserving_files('/test.host/data/pdf/15') do
+    preserving_files('/test.host/data/full') do
       doc = DocumentContent.find(document_contents_id(:water_pdf))
       assert_equal DocumentContent, doc.class
       assert File.exist?(doc.filepath), "File exist"
       assert doc.destroy, "Can destroy"
       assert !File.exist?(doc.filepath), "File does not exist"
-      assert !File.exist?("#{SITES_ROOT}/test.host/data/pdf/15"), "Directory does not exist"
+      directory = File.dirname(file_path(:water_pdf))
+      parent_di = File.dirname(directory)
+      assert !File.exist?(directory), "Directory does not exist"
+      assert !File.exist?(parent_di), "Parent directory does not exist"
     end
   end
   

@@ -17,7 +17,7 @@ class ImageTest < ZenaTestUnit
       assert_kind_of ImageVersion , img.version
       assert_equal 'jpg', img.c_ext
       assert_equal "660x600", "#{img.c_width}x#{img.c_height}"
-      assert_equal "#{SITES_ROOT}/test.host/data/jpg/#{img.v_id}/birdy.jpg", img.c_filepath
+      assert_equal file_path("birdy.jpg", 'full', img.c_id), img.c_filepath
       assert File.exist?(img.c_filepath)
       assert_equal File.stat(img.c_filepath).size, img.c_size
     end
@@ -36,7 +36,7 @@ class ImageTest < ZenaTestUnit
       assert !File.exist?( img.c_filepath(pv_format) ), "File does not exist"
       assert  img.c_file(pv_format), "Can make 'pv' image"
       assert  File.exist?( img.c_filepath(pv_format) ), "File exist"
-      assert_equal "#{SITES_ROOT}/test.host/data/jpg/#{img.v_id}/birdy_pv.jpg", img.c_filepath(pv_format)
+      assert_equal file_path('birdy.jpg', 'pv', img.c_id), img.c_filepath(pv_format)
     end
   end
   
@@ -46,7 +46,7 @@ class ImageTest < ZenaTestUnit
   end
   
   def test_change_image
-    preserving_files('test.host/data/jpg') do
+    preserving_files('test.host/data') do
       login(:ant)
       img = secure!(Node) { nodes(:bird_jpg) }
       flo = secure!(Node) { nodes(:flower_jpg)}
@@ -78,7 +78,7 @@ class ImageTest < ZenaTestUnit
   end
   
   def test_crop_image
-    preserving_files('test.host/data/jpg') do
+    preserving_files('test.host/data') do
       login(:ant)
       img = secure!(Node) { nodes(:bird_jpg) }
       assert_equal Zena::Status[:pub], img.v_status
@@ -98,7 +98,7 @@ class ImageTest < ZenaTestUnit
   end
   
   def test_crop_image_limit
-    preserving_files('test.host/data/jpg') do
+    preserving_files('test.host/data') do
       login(:ant)
       img = secure!(Node) { nodes(:bird_jpg) }
       assert_equal Zena::Status[:pub], img.v_status
@@ -116,7 +116,7 @@ class ImageTest < ZenaTestUnit
   end
   
   def test_crop_iformat
-    preserving_files('test.host/data/jpg') do
+    preserving_files('test.host/data') do
       login(:ant)
       img = secure!(Node) { nodes(:bird_jpg) }
       assert_equal Zena::Status[:pub], img.v_status
@@ -132,7 +132,7 @@ class ImageTest < ZenaTestUnit
   end
   
   def test_crop_image_same_size
-    preserving_files('test.host/data/jpg') do
+    preserving_files('test.host/data') do
       login(:ant)
       img = secure!(Node) { nodes(:bird_jpg) }
       assert_equal Zena::Status[:pub], img.v_status
@@ -152,7 +152,7 @@ class ImageTest < ZenaTestUnit
   end
   
   def test_crop_image_with_new_file
-    preserving_files('test.host/data/jpg') do
+    preserving_files('test.host/data') do
       login(:ant)
       img = secure!(Node) { nodes(:bird_jpg) }
       assert_equal Zena::Status[:pub], img.v_status
@@ -170,7 +170,7 @@ class ImageTest < ZenaTestUnit
   end
   
   def test_change_name
-    preserving_files('test.host/data/jpg') do
+    preserving_files('test.host/data') do
       login(:ant)
       img = secure!(Image) { Image.create( :parent_id=>nodes_id(:cleanWater),
                                           :inherit => 1,
@@ -182,8 +182,8 @@ class ImageTest < ZenaTestUnit
       pv_format = Iformat['pv']
       old_path2 = img.c_filepath(pv_format)
       img.c_file(pv_format) # creates 'pv' file
-      assert_equal "#{SITES_ROOT}/test.host/data/jpg/#{img.v_id}/birdy.jpg", old_path1
-      assert_equal "#{SITES_ROOT}/test.host/data/jpg/#{img.v_id}/birdy_pv.jpg", old_path2
+      assert_equal file_path("birdy.jpg", 'full', img.c_id), old_path1
+      assert_equal file_path("birdy.jpg", 'pv', img.c_id), old_path2
       assert File.exists?(old_path1), "Old file exist."
       assert File.exists?(old_path2), "Old file with 'pv' format exist."
       assert img.update_attributes(:name=>'moineau')
@@ -195,7 +195,7 @@ class ImageTest < ZenaTestUnit
   end
   
   def test_change_name_many_versions
-    preserving_files('test.host/data/jpg') do
+    preserving_files('test.host/data') do
       login(:lion)
       img = secure!(Image) { Image.create( :parent_id=>nodes_id(:cleanWater),
                                           :inherit => 1,
@@ -249,7 +249,7 @@ class ImageTest < ZenaTestUnit
   end
   
   def test_create_with_small_file
-    preserving_files('/sites/test.host/data/png') do
+    preserving_files('/sites/test.host/data') do
       login(:ant)
       img = secure!(Image) { Image.create( :parent_id=>nodes_id(:cleanWater),
         :name => 'bomb.png',

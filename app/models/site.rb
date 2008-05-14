@@ -283,6 +283,30 @@ class Site < ActiveRecord::Base
     end
   end
   
+  def clear_cache(clear_zafu = true)
+    path = "#{SITES_ROOT}#{self.public_path}"
+    Site.logger.error("\n-----------------\nCLEAR CACHE FOR SITE #{host}\n-----------------\n")
+    
+    if File.exist?(path)
+      Dir.foreach(path) do |elem|
+        next unless elem =~ /^(\w\w\.html|\w\w)$/
+        FileUtils.rmtree(File.join(path, elem))
+      end
+      
+      Site.connection.execute "DELETE FROM caches WHERE site_id = #{self[:id]}"
+      Site.connection.execute "DELETE FROM cached_pages_nodes WHERE cached_pages_nodes.node_id IN (SELECT nodes.id FROM nodes WHERE nodes.site_id = #{self[:id]})"
+      Site.connection.execute "DELETE FROM cached_pages WHERE site_id = #{self[:id]}"
+      
+    end
+    
+    if clear_zafu
+      path = "#{SITES_ROOT}#{self.zafu_path}"
+      if File.exist?(path)
+        FileUtils.rmtree(path)
+      end
+    end
+  end
+  
   private
     def valid_site
       errors.add(:host, "invalid host name #{self[:host].inspect}") if self[:host].nil? || (self[:host] =~ /^\./) || (self[:host] =~ /[^\w\.\-]/)

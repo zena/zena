@@ -54,19 +54,15 @@ class DocumentContent < ActiveRecord::Base
     self[:size]
   end
   
-  def filename(format=nil)
-    if name =~ /^[a-zA-Z\-_0-9]+$/ && ext =~ /^[a-zA-Z0-9]+$/
-      "#{name}.#{ext}"
-    else
-      raise Zena::AccessViolation, "Error in document filename (name = #{name.inspect}, ext = #{ext.inspect})\nvisitor = #{visitor.inspect}"
-    end
-  end
-  
   # Path to store the data. The path is build with the version id so we can do the security checks when uploading data.
   def filepath(format=nil)
-    raise StandardError, "version not set" unless self[:version_id]
-    fname = filename(format)
-    "#{SITES_ROOT}#{site.data_path}/#{ext}/#{self[:version_id]}/#{fname}" # TODO: could we replace site by current_site ?
+    raise StandardError, "Cannot build filepath for unsaved document_content." if new_record?
+    mode   = format ? (format[:size] == :keep ? 'full' : format[:name]) : 'full'
+    digest = Digest::SHA1.hexdigest(self[:id].to_s)
+    # make sure name is not corrupted
+    fname = name.gsub(/[^a-zA-Z\-_0-9]/,'')
+    # TODO: could we replace site by current_site ?
+    "#{SITES_ROOT}#{site.data_path}/#{mode}/#{digest[0..0]}/#{digest[1..1]}/#{digest[2..2]}/#{fname}"
   end
   
   # Return true if this content is not used by any version.
@@ -104,7 +100,7 @@ class DocumentContent < ActiveRecord::Base
         self[:ext] ||= 'bin'
       end
       
-      # set name from node
+      # set initial name from node
       self[:name] = version.node[:name].gsub('.','') if self[:name].blank?
     end
 
@@ -114,22 +110,17 @@ class DocumentContent < ActiveRecord::Base
   
     def content_before_save
       self[:type] = self.class.to_s # make sure the type is set in case no sub-classes are loaded.
-      
-      if @file
-        # destroy old file
-        destroy_file unless new_record?
-        # save new file
-        make_file(filepath, @file)
-      elsif !new_record? && (old = DocumentContent.find(self[:id])).name != self[:name]
-        # TODO: test clear cached formated images
-        # cache cleared with 'sweep_cache'
-        # clear mode images
-        old.remove_mode_images if old.respond_to?(:remove_mode_images)
-        FileUtils::mv(old.filepath, filepath)
-      end
     end
   
     def content_after_save
+      
+      if @file
+        # destroy old file
+        destroy_file unless @new_record_before_save
+        
+        # save new file
+        make_file(filepath, @file)
+      end
       # we are done with this file
       @file = nil
     end
@@ -140,12 +131,22 @@ class DocumentContent < ActiveRecord::Base
     end
   
     def destroy_file
-      # TODO: clear cache
-      old_path = DocumentContent.find(self[:id]).filepath
-      folder = File.join(*old_path.split('/')[0..-2])
-      if File.exist?(folder)
-        FileUtils::rmtree(folder)
+      visitor.site.iformats.each do |k,v|
+        next if k == :updated_at
+        fpath = filepath(v)
+        if File.exist?(fpath)
+          FileUtils.rm(fpath)
+          folder = File.dirname(fpath)
+          if Dir.empty?(folder)
+            # rm parent folder
+            FileUtils::rmtree(folder)
+            folder = File.dirname(folder)
+            if Dir.empty?(folder)
+              # rm parent / parent folder
+              FileUtils::rmtree(folder)
+            end
+          end
+        end
       end
-      # TODO: set content_id of versions whose content_id was self[:version_id]
     end
 end

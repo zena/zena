@@ -770,8 +770,8 @@ END_MSG
       start_date -= (start_date.wday + 7 - week_start_day) % 7
       end_date    = Date.civil(date.year, date.mon, -1)
       end_date   += (6 + week_start_day - end_date.wday) % 7
-      
-      sql = eval sql # resolve visitor / context inside sql.
+      eval_node = source
+      sql = eval sql.gsub('@node','eval_node') # resolve visitor / context inside sql.
       
       # get list of notes in this scope
       notes = source.do_find(:all, sql) || []

@@ -6,8 +6,8 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: 0.8.3\n"
-"POT-Creation-Date: 2008-05-13 13:28-0000\n"
+"Project-Id-Version: 0.9.0\n"
+"POT-Creation-Date: 2008-05-14 12:38-0000\n"
 "PO-Revision-Date: 2007-05-13 19:08-0000\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -16,8 +16,12 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=INTEGER; plural=EXPRESSION;\n"
 
-#: app/controllers/application.rb:488
+#: app/controllers/application.rb:490
 msgid "Please log in"
+msgstr ""
+
+#: app/controllers/application.rb:768 app/helpers/application_helper.rb:659
+msgid "week_start_day"
 msgstr ""
 
 #: app/controllers/data_entries_controller.rb:16
@@ -75,6 +79,10 @@ msgstr ""
 
 #: app/controllers/session_controller.rb:19
 msgid "Invalid login or password."
+msgstr ""
+
+#: app/controllers/sites_controller.rb:63
+msgid "Cache cleared."
 msgstr ""
 
 #: app/controllers/users_controller.rb:99
@@ -146,109 +154,105 @@ msgstr ""
 msgid "%{ext} node"
 msgstr ""
 
-#: app/helpers/application_helper.rb:659
-msgid "week_start_day"
-msgstr ""
-
-#: app/helpers/application_helper.rb:847 lib/gettext_strings.rb:40
+#: app/helpers/application_helper.rb:839 lib/gettext_strings.rb:40
 msgid "img_private"
 msgstr ""
 
-#: app/helpers/application_helper.rb:849 lib/gettext_strings.rb:39
+#: app/helpers/application_helper.rb:841 lib/gettext_strings.rb:39
 msgid "img_public"
 msgstr ""
 
-#: app/helpers/application_helper.rb:882
+#: app/helpers/application_helper.rb:874
 msgid "btn_edit"
 msgstr ""
 
-#: app/helpers/application_helper.rb:884
+#: app/helpers/application_helper.rb:876
 msgid "btn_propose"
 msgstr ""
 
-#: app/helpers/application_helper.rb:886 app/views/comments/_li.rhtml:10
+#: app/helpers/application_helper.rb:878 app/views/comments/_li.rhtml:10
 msgid "btn_publish"
 msgstr ""
 
-#: app/helpers/application_helper.rb:888
+#: app/helpers/application_helper.rb:880
 msgid "btn_refuse"
 msgstr ""
 
-#: app/helpers/application_helper.rb:893
+#: app/helpers/application_helper.rb:885
 msgid "btn_drive"
 msgstr ""
 
-#: app/helpers/application_helper.rb:908 app/helpers/application_helper.rb:968
+#: app/helpers/application_helper.rb:900 app/helpers/application_helper.rb:960
 msgid "btn_view"
 msgstr ""
 
-#: app/helpers/application_helper.rb:971
+#: app/helpers/application_helper.rb:963
 msgid "img_open"
 msgstr ""
 
-#: app/helpers/application_helper.rb:971
+#: app/helpers/application_helper.rb:963
 msgid "btn_title_close_discussion"
 msgstr ""
 
-#: app/helpers/application_helper.rb:973
+#: app/helpers/application_helper.rb:965
 msgid "img_closed"
 msgstr ""
 
-#: app/helpers/application_helper.rb:973
+#: app/helpers/application_helper.rb:965
 msgid "btn_title_open_open_discussion"
 msgstr ""
 
-#: app/helpers/application_helper.rb:976 app/views/comments/_li.rhtml:9
+#: app/helpers/application_helper.rb:968 app/views/comments/_li.rhtml:9
 msgid "btn_remove"
 msgstr ""
 
-#: app/helpers/application_helper.rb:976
+#: app/helpers/application_helper.rb:968
 msgid "btn_title_destroy_discussion"
 msgstr ""
 
-#: app/helpers/application_helper.rb:1087
+#: app/helpers/application_helper.rb:1079
 msgid "my home"
 msgstr ""
 
-#: app/helpers/application_helper.rb:1090
+#: app/helpers/application_helper.rb:1082
 #: app/views/users/preferences.html.erb:1
 msgid "preferences"
 msgstr ""
 
-#: app/helpers/application_helper.rb:1093 app/views/comments/index.rhtml:1
+#: app/helpers/application_helper.rb:1085 app/views/comments/index.rhtml:1
 msgid "manage comments"
 msgstr ""
 
-#: app/helpers/application_helper.rb:1096 app/views/users/index.rhtml:1
+#: app/helpers/application_helper.rb:1088 app/views/users/index.rhtml:1
 msgid "manage users"
 msgstr ""
 
-#: app/helpers/application_helper.rb:1099 app/views/groups/index.rhtml:1
+#: app/helpers/application_helper.rb:1091 app/views/groups/index.rhtml:1
 msgid "manage groups"
 msgstr ""
 
-#: app/helpers/application_helper.rb:1102 app/views/relations/index.erb:1
+#: app/helpers/application_helper.rb:1094 app/views/relations/index.erb:1
 msgid "manage relations"
 msgstr ""
 
-#: app/helpers/application_helper.rb:1105 app/views/iformats/index.rhtml:1
+#: app/helpers/application_helper.rb:1097 app/views/iformats/index.rhtml:1
 #: app/views/virtual_classes/index.erb:1
 msgid "manage classes"
 msgstr ""
 
-#: app/helpers/application_helper.rb:1108
+#: app/helpers/application_helper.rb:1100
 msgid "image formats"
 msgstr ""
 
-#: app/helpers/application_helper.rb:1111 app/views/sites/index.erb:1
+#: app/helpers/application_helper.rb:1103 app/views/sites/index.erb:1
 msgid "manage sites"
 msgstr ""
 
-#: app/helpers/application_helper.rb:1115
+#: app/helpers/application_helper.rb:1107
 msgid "turn dev off"
 msgstr ""
 
-#: app/helpers/application_helper.rb:1117
+#: app/helpers/application_helper.rb:1109
 msgid "turn dev on"
 msgstr ""
 
@@ -894,7 +898,7 @@ msgstr ""
 #: app/views/templates/document_create_tabs/_template.rhtml:3
 #: app/views/templates/document_create_tabs/_text_doc.rhtml:3
 #: app/views/users/_form.rhtml:46 app/views/versions/edit.rhtml:14
-#: app/views/relations/_form.erb:35 app/views/sites/_form.erb:28
+#: app/views/relations/_form.erb:35 app/views/sites/_form.erb:33
 #: app/views/users/preferences.html.erb:19
 #: app/views/users/preferences.html.erb:35
 #: app/views/virtual_classes/_form.erb:21
@@ -1032,11 +1036,15 @@ msgstr ""
 msgid "destroy image format"
 msgstr ""
 
-#: app/views/iformats/_li.rhtml:2
+#: app/views/iformats/_li.rhtml:3
+msgid "full_iformat_img"
+msgstr ""
+
+#: app/views/iformats/_li.rhtml:6
 msgid "default_iformat_img"
 msgstr ""
 
-#: app/views/iformats/_li.rhtml:2
+#: app/views/iformats/_li.rhtml:6
 msgid "iformat_img"
 msgstr ""
 
@@ -1324,6 +1332,16 @@ msgstr ""
 
 #: app/views/sites/_form.erb:23 lib/gettext_strings.rb:28
 msgid "options"
+msgstr ""
+
+#: app/views/sites/_form.erb:29 app/views/sites/_form.erb:30
+msgid "clear cache"
+msgstr ""
+
+#: app/views/sites/_form.erb:30
+msgid ""
+"Are you sure you want destroy all cache (site may be slow during first "
+"reloads) ?"
 msgstr ""
 
 #: app/views/sites/_li.erb:2 lib/gettext_strings.rb:26

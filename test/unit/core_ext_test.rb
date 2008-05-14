@@ -1,6 +1,8 @@
 require 'test/unit'
+require 'fileutils'
 require File.join(File.dirname(__FILE__), '../../lib/core_ext/string')
 require File.join(File.dirname(__FILE__), '../../lib/core_ext/fixnum')
+require File.join(File.dirname(__FILE__), '../../lib/core_ext/dir')
 
 class StringExtTest < Test::Unit::TestCase  
   def test_iso_format
@@ -81,6 +83,16 @@ class StringExtTest < Test::Unit::TestCase
       assert_equal i, s.to_duration, s
     end
   end
-  
-  
+end
+
+class DirExtTest < Test::Unit::TestCase
+  def test_empty?
+    name = 'asldkf9032oi09sdflk'
+    FileUtils.rmtree(name)
+    FileUtils.mkpath(name)
+    assert File.exist?(name) && Dir.empty?(name)
+    File.open(File.join(name,'hello.txt'), 'wb') {|f| f.puts "hello" }
+    assert !Dir.empty?(name)
+    FileUtils.rmtree(name)
+  end
 end

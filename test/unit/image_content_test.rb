@@ -4,7 +4,7 @@ class ImageContentTest < ZenaTestUnit
   
   if Magick.const_defined?(:ZenaDummy)
     def test_set_file
-      preserving_files('/test.host/data/jpg/20') do
+      preserving_files('/test.host/data') do
         img = ImageContent.new(:version_id => versions_id(:bird_jpg_en))
         img.file = uploaded_jpg('bird.jpg')
         assert_nil img.width
@@ -14,7 +14,7 @@ class ImageContentTest < ZenaTestUnit
     end
   else
     def test_set_file
-      preserving_files('/test.host/data/jpg/20') do
+      preserving_files('/test.host/data') do
         img = ImageContent.new(:name=>'bird', :version_id => versions_id(:bird_jpg_en))
         img[:site_id] = sites_id(:zena)
         img.file = uploaded_jpg('bird.jpg')
@@ -32,34 +32,34 @@ class ImageContentTest < ZenaTestUnit
   end
   
   def test_formats
-    preserving_files('/test.host/data/jpg/20') do
+    preserving_files('/test.host/data') do
       img = get_content(:bird_jpg)
-      assert File.exist?("#{SITES_ROOT}/test.host/data/jpg/20/bird.jpg"), "File exists"
-      assert !File.exist?("#{SITES_ROOT}/test.host/data/jpg/20/bird_pv.jpg"), "File does not exist"
+      assert File.exist?(file_path(:bird_jpg)), "File exists"
+      assert !File.exist?(file_path(:bird_jpg, 'pv')), "File does not exist"
       assert_equal 660, img.width
       assert_equal 70,  img.width(@pv)
-      assert !File.exist?("#{SITES_ROOT}/test.host/data/jpg/20/bird_pv.jpg"), "File does not exist"
+      assert !File.exist?(file_path(:bird_jpg, 'pv')), "File does not exist"
       assert 2244 <= img.size(@pv) && img.size(@pv) <= 2246
-      assert File.exist?("#{SITES_ROOT}/test.host/data/jpg/20/bird_pv.jpg"), "File exist"
+      assert File.exist?(file_path(:bird_jpg, 'pv')), "File exist"
     end
   end
   
   def test_file_formats
-    preserving_files('/test.host/data/jpg/20') do
+    preserving_files('/test.host/data') do
       img = get_content(:bird_jpg)
-      assert File.exist?("#{SITES_ROOT}/test.host/data/jpg/20/bird.jpg"     ), "File exists"
-      assert !File.exist?("#{SITES_ROOT}/test.host/data/jpg/20/bird_pv.jpg" ), "File does not exist"
-      assert !File.exist?("#{SITES_ROOT}/test.host/data/jpg/20/bird_med.jpg"), "File does not exist"
+      assert File.exist?(file_path(:bird_jpg)), "File exists"
+      assert !File.exist?(file_path(:bird_jpg, 'pv') ), "File does not exist"
+      assert !File.exist?(file_path(:bird_jpg, 'med')), "File does not exist"
       assert img.file
       assert img.file(@pv)
       assert img.file(@med)
-      assert File.exist?("#{SITES_ROOT}/test.host/data/jpg/20/bird_pv.jpg"  ), "File exist"
-      assert File.exist?("#{SITES_ROOT}/test.host/data/jpg/20/bird_med.jpg" ), "File exist"
+      assert File.exist?(file_path(:bird_jpg, 'pv')  ), "File exist"
+      assert File.exist?(file_path(:bird_jpg, 'med')), "File exist"
     end
   end
   
   def test_remove_formatted_on_file_change
-    preserving_files('/test.host/data/jpg/20') do
+    preserving_files('/test.host/data') do
       img  = get_content(:bird_jpg)
       assert img.file(@pv)  # create image with 'pv'  format
       assert img.file(@med) # create image with 'med' format
@@ -89,7 +89,7 @@ class ImageContentTest < ZenaTestUnit
   end
   
   def test_remove_mode_image
-    preserving_files('/test.host/data/jpg/20') do
+    preserving_files('/test.host/data') do
       img  = get_content(:bird_jpg)
       assert img.file(@pv)  # create image with 'pv'  format
       assert img.file(@med) # create image with 'med' format
@@ -98,7 +98,8 @@ class ImageContentTest < ZenaTestUnit
       assert File.exist?(img.filepath(@pv) ), "File exist"
       assert File.exist?(img.filepath(@med)), "File exist"
       # remove file
-      img.remove_mode_images
+      img.file = uploaded_jpg('flower.jpg')
+      assert img.save
       assert File.exist?(img.filepath       ), "File exist"
       assert !File.exist?(img.filepath(@pv) ), "File does not exist"
       assert !File.exist?(img.filepath(@med)), "File does not exist"

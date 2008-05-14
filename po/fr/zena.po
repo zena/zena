@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
-"Project-Id-Version: 0.8.3\n"
-"POT-Creation-Date: 2008-05-13 13:28-0000\n"
+"Project-Id-Version: 0.9.0\n"
+"POT-Creation-Date: 2008-05-14 12:38-0000\n"
 "PO-Revision-Date: 2007-07-07 14:13+0100\n"
 "Last-Translator: Gaspard Bucher <gaspard@teti.ch>\n"
 "Language-Team: fr <gaspard@teti.ch>\n"
@@ -13,9 +13,13 @@ msgstr ""
 "X-Poedit-Bookmarks: -1,-1,-1,219,-1,-1,-1,-1,-1,-1\n"
 "X-Poedit-Basepath: /Users/gaspard/svk/zena\n"
 
-#: app/controllers/application.rb:488
+#: app/controllers/application.rb:490
 msgid "Please log in"
 msgstr "Veuillez vous authentifier."
+
+#: app/controllers/application.rb:768 app/helpers/application_helper.rb:659
+msgid "week_start_day"
+msgstr "1"
 
 #: app/controllers/data_entries_controller.rb:16
 #, fuzzy
@@ -74,6 +78,11 @@ msgstr "Les informations ont été mises à jour."
 #: app/controllers/session_controller.rb:19
 msgid "Invalid login or password."
 msgstr "Mot de passe ou nom d'utilistateur invalide."
+
+#: app/controllers/sites_controller.rb:63
+#, fuzzy
+msgid "Cache cleared."
+msgstr "Copie de sauvegarde effectuée."
 
 #: app/controllers/users_controller.rb:99
 msgid "could not update user"
@@ -145,111 +154,105 @@ msgstr "document %{ext}"
 msgid "%{ext} node"
 msgstr "objet %{type}"
 
-#: app/helpers/application_helper.rb:659
-msgid "week_start_day"
-msgstr "1"
-
-#: app/helpers/application_helper.rb:847 lib/gettext_strings.rb:40
+#: app/helpers/application_helper.rb:839 lib/gettext_strings.rb:40
 msgid "img_private"
 msgstr "<img src='/images/lock.png' alt='privé'/>"
 
-#: app/helpers/application_helper.rb:849 lib/gettext_strings.rb:39
+#: app/helpers/application_helper.rb:841 lib/gettext_strings.rb:39
 msgid "img_public"
 msgstr "<img src='/images/user_pub.png' alt='publique'/>"
 
-#: app/helpers/application_helper.rb:882
+#: app/helpers/application_helper.rb:874
 msgid "btn_edit"
 msgstr "<img src='/images/page_edit.png' alt='éditer'/>"
 
-#: app/helpers/application_helper.rb:884
+#: app/helpers/application_helper.rb:876
 msgid "btn_propose"
 msgstr "<img src='/images/picture_empty.png' alt='proposer'/>"
 
-#: app/helpers/application_helper.rb:886 app/views/comments/_li.rhtml:10
+#: app/helpers/application_helper.rb:878 app/views/comments/_li.rhtml:10
 msgid "btn_publish"
 msgstr "<img src='/images/wand.png' alt='publier'/>"
 
-#: app/helpers/application_helper.rb:888
+#: app/helpers/application_helper.rb:880
 msgid "btn_refuse"
 msgstr "<img src='/images/delete.png' alt='refuser'/>"
 
-#: app/helpers/application_helper.rb:893
+#: app/helpers/application_helper.rb:885
 msgid "btn_drive"
 msgstr "<img src='/images/wrench.png' alt='réglages'/>"
 
-#: app/helpers/application_helper.rb:908 app/helpers/application_helper.rb:968
+#: app/helpers/application_helper.rb:900 app/helpers/application_helper.rb:960
 msgid "btn_view"
 msgstr "<img src='/images/eye.png' alt='visualiser'/>\""
 
-#: app/helpers/application_helper.rb:971
+#: app/helpers/application_helper.rb:963
 msgid "img_open"
 msgstr "<img src='/images/lock_open.png' alt='ouvert'/>"
 
-#: app/helpers/application_helper.rb:971
+#: app/helpers/application_helper.rb:963
 msgid "btn_title_close_discussion"
 msgstr "Fermer la discussion."
 
-#: app/helpers/application_helper.rb:973
+#: app/helpers/application_helper.rb:965
 msgid "img_closed"
 msgstr "<img src='/images/lock.png' alt='fermé'/>"
 
-#: app/helpers/application_helper.rb:973
+#: app/helpers/application_helper.rb:965
 msgid "btn_title_open_open_discussion"
 msgstr "Ouvrir la discussion."
 
-#: app/helpers/application_helper.rb:976 app/views/comments/_li.rhtml:9
+#: app/helpers/application_helper.rb:968 app/views/comments/_li.rhtml:9
 msgid "btn_remove"
 msgstr "<img src='/images/delete.png' alt='supprimer'/>"
 
-#: app/helpers/application_helper.rb:976
+#: app/helpers/application_helper.rb:968
 msgid "btn_title_destroy_discussion"
 msgstr "Supprimer entièrement la discussion."
 
-#: app/helpers/application_helper.rb:1087
+#: app/helpers/application_helper.rb:1079
 msgid "my home"
 msgstr "suivi"
 
-#: app/helpers/application_helper.rb:1090
+#: app/helpers/application_helper.rb:1082
 #: app/views/users/preferences.html.erb:1
 msgid "preferences"
 msgstr "préférences"
 
-#: app/helpers/application_helper.rb:1093 app/views/comments/index.rhtml:1
+#: app/helpers/application_helper.rb:1085 app/views/comments/index.rhtml:1
 msgid "manage comments"
 msgstr "gestion des commentaires"
 
-#: app/helpers/application_helper.rb:1096 app/views/users/index.rhtml:1
+#: app/helpers/application_helper.rb:1088 app/views/users/index.rhtml:1
 msgid "manage users"
 msgstr "gestion des utilisateurs"
 
-#: app/helpers/application_helper.rb:1099 app/views/groups/index.rhtml:1
+#: app/helpers/application_helper.rb:1091 app/views/groups/index.rhtml:1
 msgid "manage groups"
 msgstr "gestion des groupes"
 
-#: app/helpers/application_helper.rb:1102 app/views/relations/index.erb:1
+#: app/helpers/application_helper.rb:1094 app/views/relations/index.erb:1
 msgid "manage relations"
 msgstr "gestion des rôles"
 
-#: app/helpers/application_helper.rb:1105 app/views/iformats/index.rhtml:1
+#: app/helpers/application_helper.rb:1097 app/views/iformats/index.rhtml:1
 #: app/views/virtual_classes/index.erb:1
 msgid "manage classes"
 msgstr "gestion des classes"
 
-#: app/helpers/application_helper.rb:1108
-#, fuzzy
+#: app/helpers/application_helper.rb:1100
 msgid "image formats"
-msgstr "gestion des commentaires"
+msgstr "formats d'image"
 
-#: app/helpers/application_helper.rb:1111 app/views/sites/index.erb:1
-#, fuzzy
-msgid "manage sites"
+#: app/helpers/application_helper.rb:1103 app/views/sites/index.erb:1
+msgid "gestion des sites"
 msgstr "gestion des utilisateurs"
 
-#: app/helpers/application_helper.rb:1115
+#: app/helpers/application_helper.rb:1107
 msgid "turn dev off"
 msgstr "<img src='/images/bug.png'/> quitter le mode 'dev'"
 
-#: app/helpers/application_helper.rb:1117
+#: app/helpers/application_helper.rb:1109
 msgid "turn dev on"
 msgstr "passer en mode 'dev'"
 
@@ -949,7 +952,7 @@ msgstr "titre"
 #: app/views/templates/document_create_tabs/_template.rhtml:3
 #: app/views/templates/document_create_tabs/_text_doc.rhtml:3
 #: app/views/users/_form.rhtml:46 app/views/versions/edit.rhtml:14
-#: app/views/relations/_form.erb:35 app/views/sites/_form.erb:28
+#: app/views/relations/_form.erb:35 app/views/sites/_form.erb:33
 #: app/views/users/preferences.html.erb:19
 #: app/views/users/preferences.html.erb:35
 #: app/views/virtual_classes/_form.erb:21
@@ -1066,7 +1069,8 @@ msgstr "<img src='/images/bomb.png' alt='supprimer'/>"
 
 #: app/views/iformats/_add.rhtml:2
 msgid "btn_iformat_add"
-msgstr "<img src='/images/photo_add.png' alt='ajouter un format d&apos;image'/>"
+msgstr ""
+"<img src='/images/photo_add.png' alt='ajouter un format d&apos;image'/>"
 
 #: app/views/iformats/_form.rhtml:17 app/views/relations/_form.erb:25
 msgid "type"
@@ -1095,11 +1099,15 @@ msgstr ""
 msgid "destroy image format"
 msgstr ""
 
-#: app/views/iformats/_li.rhtml:2
+#: app/views/iformats/_li.rhtml:3
+msgid "full_iformat_img"
+msgstr "<img src='/images/photo_blue.png' alt='plein format'/>"
+
+#: app/views/iformats/_li.rhtml:6
 msgid "default_iformat_img"
 msgstr "<img src='/images/photo_grey.png' alt='format d&apos;image'/>"
 
-#: app/views/iformats/_li.rhtml:2
+#: app/views/iformats/_li.rhtml:6
 msgid "iformat_img"
 msgstr "<img src='/images/photo.png' alt='format d&apos;image'/>"
 
@@ -1399,6 +1407,18 @@ msgstr "groupe de site"
 #: app/views/sites/_form.erb:23 lib/gettext_strings.rb:28
 msgid "options"
 msgstr "options"
+
+#: app/views/sites/_form.erb:29 app/views/sites/_form.erb:30
+msgid "clear cache"
+msgstr ""
+
+#: app/views/sites/_form.erb:30
+#, fuzzy
+msgid ""
+"Are you sure you want destroy all cache (site may be slow during first "
+"reloads) ?"
+msgstr ""
+"Voulez-vous vraiment supprimer définitivement le contenu de cette corbeille ?"
 
 #: app/views/sites/_li.erb:2 lib/gettext_strings.rb:26
 msgid "site_img"
