@@ -229,11 +229,11 @@ module Zena
                                                  # Please note that .gsub(/#([\{\$\@])/,'\#\1') won't work, since '\#{blah}' will become '\\#{blah}' and 'blah' will be evaluated.
           begin
             re = /#{key}/
-          rescue => err
+            attribute_method = "#{attribute_method}.to_s.gsub(/#{key}/,#{value.inspect})"
+          rescue RegexpError => e
             # invalid regexp
             return "<span class='parser_error'>[show] invalid gsub #{gsub.inspect}</span>"
           end
-          attribute_method = "#{attribute_method}.to_s.gsub(/#{key}/,#{value.inspect})"
         else
           # error
           return "<span class='parser_error'>[show] invalid gsub #{gsub.inspect}</span>"

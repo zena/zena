@@ -1,5 +1,3 @@
-puts 'update'
-
 if @iformat.errors.empty?
   page.replace "iformat#{@iformat.name}", :partial=>"iformats/li", :collection=>[@iformat]
 else

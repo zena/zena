@@ -1,5 +1,3 @@
-puts 'create'
-
 if @iformat.errors.empty?
   page.insert_html :before, 'add_iformat', :partial=>'iformats/li', :collection=>[@iformat]
   @iformat = Iformat.new

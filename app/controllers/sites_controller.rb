@@ -59,7 +59,7 @@ class SitesController < ApplicationController
 
   def clear_cache
     public_path = "#{SITES_ROOT}#{@site.public_path}"
-    puts public_path.inspect
+    
     if File.exist?(public_path)
       Dir.foreach(public_path) do |elem|
         next unless elem =~ /^(\w\w\.html|\w\w)$/
