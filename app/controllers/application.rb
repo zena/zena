@@ -4,7 +4,7 @@ require 'tempfile'
 class ApplicationController < ActionController::Base
   init_gettext 'zena'
   helper_method :prefix, :zen_path, :zen_url, :data_path, :node_url, :notes, :error_messages_for, :render_errors, :processing_error
-  helper_method :get_template_text, :template_url_for_asset, :save_erb_to_url, :lang, :visitor, :fullpath_from_template_url, :eval_parameters_from_template_url, :dom_id_from_template_url
+  helper_method :get_template_text, :template_url_for_asset, :save_erb_to_url, :lang, :visitor, :fullpath_from_template_url, :eval_parameters_from_template_url, :dom_id_from_template_url, :find_notes
   before_filter :set_lang
   before_filter :authorize
   before_filter :check_lang
@@ -760,5 +760,19 @@ END_MSG
     # TODO: test
     def popup_layout
       template_url(:mode=>'*popupLayout')
+    end
+    
+    def find_notes(source, sql, date)
+      week_start_day = _('week_start_day').to_i
+      start_date  = Date.civil(date.year, date.mon, 1)
+      start_date -= (start_date.wday + 7 - week_start_day) % 7
+      end_date    = Date.civil(date.year, date.mon, -1)
+      end_date   += (6 + week_start_day - end_date.wday) % 7
+      
+      sql = eval sql # resolve visitor / context inside sql.
+      
+      # get list of notes in this scope
+      notes = source.do_find(:all, sql) || []
+      [notes, start_date, end_date]
     end
 end

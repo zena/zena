@@ -657,15 +657,7 @@ latex_template = %q{
     Cache.with(visitor.id, visitor.group_ids, 'NN', size, sql, source.id, date.ajd, lang) do
       # find start and end date
       week_start_day = _('week_start_day').to_i
-      start_date  = Date.civil(date.year, date.mon, 1)
-      start_date -= (start_date.wday + 7 - week_start_day) % 7
-      end_date    = Date.civil(date.year, date.mon, -1)
-      end_date   += (6 + week_start_day - end_date.wday) % 7
-      
-      sql = eval sql # resolve visitor / context inside sql.
-      
-      # get list of notes in this scope
-      notes = source.do_find(:all, sql) || []
+      notes, start_date, end_date = find_notes(source, sql, date)
       
       # build event hash
       calendar = {}

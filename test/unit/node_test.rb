@@ -1163,4 +1163,19 @@ done: \"I am done\""
     # sweep_cache (save) => remove asset folder
     # render math ?
   end
+  
+  def test_bad_regexp
+    assert_equal "", validate_regexp("# {puts 'I AM MEAN'}")
+  end
+  
+  private
+    def validate_regexp(str)
+      begin
+       re = /#{str}/
+       "dd".gsub(re,'.')
+      rescue => e
+       # invalid regexp
+       "<span class='parser_error'>invalid regexp #{str.inspect}: #{e.message}</span>"
+      end
+    end
 end

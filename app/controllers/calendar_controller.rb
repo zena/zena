@@ -10,7 +10,6 @@ class CalendarController < ApplicationController
   end
   
   def notes
-    find_notes
     render :partial=>'note/day_list'
   end
   
@@ -47,13 +46,7 @@ class CalendarController < ApplicationController
       @options[:date] = @date
       @options[:node] = @node
       # FIXME: convert date to utc...
-      find_notes
-    end
-    
-    def find_notes
-      @notes = @node.find(:all, @options.merge(
-          :conditions => ["date(#{@options[:using]}) = ?", @date],
-          :order => "#{@options[:using]} ASC")) || []
+      @notes, start_date, end_date = find_notes(@node, @options[:sql], @date)
     end
     
 end
