@@ -21,7 +21,6 @@ class ChangeFileStorage < ActiveRecord::Migration
         end
       end
       
-      
       site.clear_cache(false)
     end
     
