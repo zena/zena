@@ -107,7 +107,8 @@ END_MSG
       params.delete(:mode)
       #params.delete(:format) why was this here ?
       
-      @section = @node.section
+      #@section = @node.section why is this here ?
+      
       # init default date used for calendars, etc
       @date  ||= params[:date] ? parse_date(params[:date]) : Date.today
       
@@ -281,7 +282,7 @@ END_MSG
       
       lang_path = session[:dev] ? "dev_#{lang}" : lang
       
-      skin_path = "/#{template[:skin_name]}/#{template[:name]}"  
+      skin_path = "/#{@skin_name}/#{template[:name]}"  
       fullpath  = skin_path + "/#{lang_path}/_main.erb"
       url       = SITES_ROOT + current_site.zafu_path + fullpath
 
@@ -766,6 +767,7 @@ END_MSG
     end
     
     def find_notes(source, sql, date)
+      return [] unless sql # this can occur if template_url points to nothing (just after clear cache)
       week_start_day = _('week_start_day').to_i
       start_date  = Date.civil(date.year, date.mon, 1)
       start_date -= (start_date.wday + 7 - week_start_day) % 7

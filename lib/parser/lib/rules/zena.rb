@@ -1881,6 +1881,8 @@ END_TXT
             when 'parent'
               "#{node}[:id] == @node[:parent_id]"
             when 'project'
+              "#{node}[:id] == @node[:project_id]"
+            when 'section'
               "#{node}[:id] == @node[:section_id]"
             when 'ancestor'
               "@node.fullpath =~ /\\A\#{#{node}.fullpath}/"
