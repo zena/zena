@@ -123,7 +123,7 @@ module Zena
             v.status > Zena::Status[:red] && can_apply?(:publish)
           when :publish
             v.status < Zena::Status[:pub] && 
-            ( ( can_visible? && (v.status > Zena::Status[:red] || v.user_id == visitor[:id]) ) ||
+            ( ( can_visible? && (v.status > Zena::Status[:red] || v.status == Zena::Status[:rep] || v.user_id == visitor[:id]) ) ||
               ( can_manage?  && private? )
             )
           when :unpublish

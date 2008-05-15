@@ -518,6 +518,25 @@ class MultiVersionTest < ZenaTestUnit
     assert_equal ["en", "fr"], node.traductions.map{|t| t[:lang]}.sort
   end
   
+  def test_publish_replaced_from_other_author
+    login(:tiger)
+    node = secure!(Page) { Page.create(:name => 'foo', :v_title=> 'Bar', :v_text => 'baz', :parent_id => nodes_id(:status))}
+    assert !node.new_record?
+    assert node.publish
+    vers_number = node.v_number
+    login(:lion)
+    node = secure!(Page) { Page.find(node[:id])}
+    assert node.update_attributes(:v_text => 'lion', :v_status => Zena::Status[:pub])
+    assert_equal Zena::Status[:pub], node.v_status
+    assert_equal 2, node.v_number
+    
+    # rollback
+    login(:lion)
+    node = secure!(Page) { Page.find(node[:id])}
+    assert node.version(vers_number) # load with initial version
+    assert node.publish # lion publishes 'replaced' version by 'tiger'    
+  end
+  
   def test_publish_with_custom_date
     login(:tiger)
     node = secure!(Node) { nodes(:wiki)  }
