@@ -61,7 +61,10 @@ class TestController < ApplicationController
     if test = @@templates[url]
       [test['src'], src]
     else
-      nil
+      # 'normal' include
+      @expire_with_nodes = {}
+      @skin_names = ['default']
+      super
     end
   end
   

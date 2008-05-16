@@ -1003,3 +1003,25 @@ Ocean_node:
   lang:           en
   text: "<html><body><h1 do='[v_title]'/></body></html>"
 <%= @defaults %>
+
+translations_de:
+  type:           TextDocumentVersion
+  id:             63
+  node_id:        59
+  site_id:        1
+  user_id:        4
+  lang:           de
+  text: |
+<% File.foreach("#{RAILS_ROOT}/test/fixtures/files/translations_de.yml") do |l| %>    <%= l %><% end %>
+<%= @defaults %>
+
+translations_fr:
+  type:           TextDocumentVersion
+  id:             64
+  node_id:        59
+  site_id:        1
+  user_id:        4
+  lang:           fr
+  text: |
+<% File.foreach("#{RAILS_ROOT}/test/fixtures/files/translations_fr.yml") do |l| %>    <%= l %><% end %>
+<%= @defaults %>
