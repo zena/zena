@@ -1,26 +1,38 @@
-<td colspan='4'>
-<%= form_remote_tag(:url => add_link_node_path(@node[:zip]), :method => :put) %>
+<td colspan='5'>
+  <% if @link %>
+  <%= form_remote_tag(:url=> node_link_path(:node_id => @link['node_zip'], :id => @link[:id])) %>
+  <%= hidden_field('link', 'id') %>
+  <input type='hidden' name='_method' value ='put'/>
+  <% else %>
+  <%= form_remote_tag(:url=> node_links_path(:node_id => @node[:zip])) %>
+  <% end %>
+  
   <div id='link_errors' class='errors'></div>
   <div class='add'>
-    <%= link_to_function _('btn_x'), "['add_link', 'add_link_form'].each(Element.toggle);" %>
+    <%=  if @link
+      link_to_remote _('btn_x'), :url => node_link_path(:node_id => @link['node_zip'], :id => @link[:id]), :method => :get
+    else
+      link_to_function _('btn_x'), "['add_link', 'add_link_form'].each(Element.toggle);"
+    end %>
   </div>
-  <div class='role'>
+  <ul>
     <% roles = @node.relations_for_form 
     if roles.include?(['tag', 'tags'])
       roles.delete(['tag', 'tags'])
       roles.unshift ['tag', 'tags']
     end -%>
-    <select name="link[role]">
-    <% roles.each do |name,role| %>
-      <option value='<%= role %>'><%= _(name) %></input>
-    <% end -%>
-    </select>
-  </div>
-  <div class='link' id='add_link'>
-    <%= select_id('link', 'other_id') %>
-  </div>
-  <div class='action'>
-  <input type="submit" class="btn_validate" value='<%= _('set') %>'/>
-  </div>
+    <li>
+      <% if !@link || @link.new_record? -%>
+      <%= select('link', 'role',  roles, :selected => @link ? @link['role'] : '') %>
+      <% else -%>
+      <input type='hidden' name='link[role]' value='<%= @link['role'] %>'/>
+      <b><%= @link['role'] %></b>
+      <% end -%>
+      <%= select_id('link', 'other_zip', :id       => @link ? @link['other_zip'] : '') %>
+    </li>
+    <li><label for='link_comment'><%= _('status')%></label><%= text_field('link', 'status', :size=>15 ) %></li>
+    <li><label for='link_comment'><%= _('comment')%></label><%= text_field('link', 'comment', :size=>15 ) %></li>
+    <li><input type="submit" class="btn_validate" value='<%= _('set') %>'/></li>
+  </ul>
 </form> 
 </td> 

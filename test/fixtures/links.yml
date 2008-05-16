@@ -3,35 +3,34 @@ opening_in_news:
   relation_id:    2
   source_id:      17
   target_id:      24
-  role: 'news'
+  comment: 'hot'
   
 cleanWater_in_art:
   id:             2
   relation_id:    2
   source_id:      11
   target_id:      23
-  role: 'tag'
+  status: 10
   
 opening_in_art:
   id:             3
   relation_id:    2
   source_id:      17
   target_id:      23
-  role: 'tag'
+  status: 5
+  comment: 'cold'
   
 opening_in_zena:
   id:             4
   relation_id:    1
   source_id:      17
   target_id:      1
-  role: 'news'
   
 opening_in_wiki:
   id:             5
   relation_id:    1
   source_id:      17
   target_id:      19
-  role: 'news'
   
 opening_in_zena_as_post:
   id:             6

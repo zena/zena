@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: 0.9.0\n"
-"POT-Creation-Date: 2008-05-14 12:38-0000\n"
+"POT-Creation-Date: 2008-05-16 07:03-0000\n"
 "PO-Revision-Date: 2007-07-07 14:13+0100\n"
 "Last-Translator: Gaspard Bucher <gaspard@teti.ch>\n"
 "Language-Team: en <gaspard@teti.ch>\n"
@@ -13,11 +13,11 @@ msgstr ""
 "X-Poedit-Bookmarks: -1,-1,-1,219,-1,-1,-1,-1,-1,-1\n"
 "X-Poedit-Basepath: /Users/gaspard/svk/zena\n"
 
-#: app/controllers/application.rb:490
+#: app/controllers/application.rb:492
 msgid "Please log in"
 msgstr "Please log in."
 
-#: app/controllers/application.rb:768 app/helpers/application_helper.rb:659
+#: app/controllers/application.rb:771 app/helpers/application_helper.rb:659
 msgid "week_start_day"
 msgstr "0"
 
@@ -132,7 +132,7 @@ msgstr "%H:%M"
 msgid "full_date"
 msgstr "%A, %B %d %Y"
 
-#: app/helpers/application_helper.rb:136 lib/parser/lib/rules/zena.rb:1189
+#: app/helpers/application_helper.rb:136 lib/parser/lib/rules/zena.rb:1212
 msgid "long_date"
 msgstr "%Y-%m-%d"
 
@@ -291,7 +291,7 @@ msgstr ""
 msgid "Request duration"
 msgstr ""
 
-#: app/models/access_hits.rb:- app/models/comment.rb:-
+#: app/models/access_hits.rb:- app/models/comment.rb:- app/models/link.rb:-
 #: app/models/participation.rb:- app/models/version.rb:-
 msgid "Status"
 msgstr ""
@@ -387,7 +387,8 @@ msgstr ""
 msgid "Created at"
 msgstr ""
 
-#: app/models/comment.rb:- app/views/templates/edit_tabs/_title.rhtml:16
+#: app/models/comment.rb:- app/views/links/_form.rhtml:21
+#: app/views/templates/edit_tabs/_title.rhtml:16
 msgid "comment"
 msgstr ""
 
@@ -575,11 +576,11 @@ msgid "Target"
 msgstr ""
 
 #: app/models/link.rb:-
-msgid "Role"
+msgid "Relation"
 msgstr ""
 
-#: app/models/link.rb:-
-msgid "Relation"
+#: app/models/link.rb:- app/models/version.rb:-
+msgid "Comment"
 msgstr ""
 
 #: app/models/node.rb:-
@@ -811,10 +812,6 @@ msgid "version"
 msgstr ""
 
 #: app/models/version.rb:-
-msgid "Comment"
-msgstr ""
-
-#: app/models/version.rb:-
 msgid "Summary"
 msgstr ""
 
@@ -914,7 +911,7 @@ msgid "validate"
 msgstr " validate "
 
 #: app/views/comments/_li.rhtml:3 app/views/nodes/update.rjs:14
-#: lib/parser/lib/rules/zena.rb:280
+#: lib/parser/lib/rules/zena.rb:281
 msgid "edit"
 msgstr ""
 
@@ -1051,11 +1048,11 @@ msgstr ""
 msgid "full_iformat_img"
 msgstr "<img src='/images/photo_blue.png' alt='full image format'/>"
 
-#: app/views/iformats/_li.rhtml:6
+#: app/views/iformats/_li.rhtml:5
 msgid "default_iformat_img"
 msgstr "<img src='/images/photo_grey.png' alt='image format'/>"
 
-#: app/views/iformats/_li.rhtml:6
+#: app/views/iformats/_li.rhtml:5
 msgid "iformat_img"
 msgstr "<img src='/images/photo.png' alt='image format'/>"
 
@@ -1063,11 +1060,19 @@ msgstr "<img src='/images/photo.png' alt='image format'/>"
 msgid "btn_add_link"
 msgstr "<img src='/images/tag_blue_add.png' alt='add a link'/>"
 
-#: app/views/links/_form.rhtml:23
+#: app/views/links/_form.rhtml:20 app/views/users/_form.rhtml:25
+msgid "status"
+msgstr "status"
+
+#: app/views/links/_form.rhtml:22
 msgid "set"
 msgstr ""
 
-#: app/views/links/_li.rhtml:4 lib/parser/lib/rules/zena.rb:906
+#: app/views/links/_li.rhtml:2
+msgid "img_link"
+msgstr "<img src='/images/tag_blue.png' alt='link'/>"
+
+#: app/views/links/_li.rhtml:6 lib/parser/lib/rules/zena.rb:929
 msgid "btn_tiny_del"
 msgstr "<img src='/images/bullet_delete.png' alt='remove'/>"
 
@@ -1242,10 +1247,6 @@ msgstr ""
 #: app/views/users/_form.rhtml:20 app/views/users/_form.rhtml:22
 msgid "password"
 msgstr ""
-
-#: app/views/users/_form.rhtml:25
-msgid "status"
-msgstr "status"
 
 #: app/views/users/_form.rhtml:26 app/views/users/preferences.html.erb:14
 msgid "first name"
@@ -1753,27 +1754,27 @@ msgstr ""
 msgid "[documents]"
 msgstr ""
 
-#: lib/parser/lib/rules/zena.rb:831
+#: lib/parser/lib/rules/zena.rb:854
 msgid "btn_add"
 msgstr "<img src='/images/add.png' alt='add'/>"
 
-#: lib/parser/lib/rules/zena.rb:1240
+#: lib/parser/lib/rules/zena.rb:1263
 msgid "riding %{zena}"
 msgstr ""
 
-#: lib/parser/lib/rules/zena.rb:1242
+#: lib/parser/lib/rules/zena.rb:1265
 msgid "in peace with %{zena}"
 msgstr ""
 
-#: lib/parser/lib/rules/zena.rb:1244
+#: lib/parser/lib/rules/zena.rb:1267
 msgid "a %{zen} garden"
 msgstr ""
 
-#: lib/parser/lib/rules/zena.rb:1246
+#: lib/parser/lib/rules/zena.rb:1269
 msgid "made with %{zena}"
 msgstr ""
 
-#: lib/parser/lib/rules/zena.rb:1261
+#: lib/parser/lib/rules/zena.rb:1284
 msgid "%{skin} design by %{name}"
 msgstr ""
 
@@ -1792,9 +1793,6 @@ msgstr ""
 
 #~ msgid "img_home"
 #~ msgstr "<img src='/images/home.png' alt='home'/>"
-
-#~ msgid "img_icon"
-#~ msgstr "<img src='/images/medal_gold_2.png' alt='icon'/>"
 
 #~ msgid "img_collaborator"
 #~ msgstr "<img src='/images/user.png' alt='collaborator'/>"

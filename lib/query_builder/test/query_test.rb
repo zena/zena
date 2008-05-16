@@ -8,7 +8,7 @@ class TestQuery < QueryBuilder
   # Build joins and filters from a relation.
   def parse_relation(rel, context)
     unless context_relation(rel, context) || direct_filter(rel, context) || join_relation(rel, context)
-      @errors << "Unknown relation '#{rel}'."
+      @errors << "unknown relation '#{rel}'"
     end
   end
   
@@ -101,7 +101,7 @@ class QueryTest < Test::Unit::TestCase
   yaml_test :basic, :joins, :filters, :errors
   
   def parse(value, opts)
-    query = TestQuery.new(value)
+    query = TestQuery.new(value, opts)
     if res = query.to_sql
       return res
     else

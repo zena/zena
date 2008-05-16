@@ -1,16 +1,17 @@
 if params[:remove]
+  # zafu remove dom_id
   if @errors || !@node.errors.empty?
     # FIXME
   else
     page.visual_effect :highlight, params[:remove], :duration => 0.3
     page.visual_effect :fade, params[:remove], :duration => 0.5
   end
-else
+else  
   if @errors || !@node.errors.empty?
     page.replace_html 'link_errors', :inline=> @errors ? render_errors : error_messages_for(@node)
   else  
     page.replace_html 'link_errors', :inline=>''
-    page.visual_effect :highlight, "link#{@link_id}", :duration => 0.3
-    page.visual_effect :fade, "link#{@link_id}", :duration => 0.5
+    page.visual_effect :highlight, "link#{@link[:id]}", :duration => 0.3
+    page.visual_effect :fade, "link#{@link[:id]}", :duration => 0.5
   end
 end

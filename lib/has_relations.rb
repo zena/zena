@@ -76,12 +76,32 @@ module Zena
       end
     end
     
-
+    
     module InstanceMethods
+      
+      # set can be a list:
+      # * [12,23,45]
+      # or elements, one by one
+      # * :status => 4
+      # * :comment => 'tada'
+      # * :id => 34
       def set_relation(role, value)
-        @relations_to_update ||= []
-        @relations_to_update << [:set, [role, value]]
+        if value.kind_of?(Array)
+          @relations_to_update ||= []
+          @relations_to_update << [:set, [role, value]]
+        else
+          @set_relations ||= {}
+          if @set_relations[role]
+            @set_relations[role].merge!(value)
+          else
+            @set_relations[role] = value.dup
+            @relations_to_update ||= []
+            @relations_to_update << [:set, [role, @set_relations[role]]]
+          end
+        end
       end
+      
+      alias update_link set_relation
       
       def remove_link(link_id)
         @relations_to_update ||= []
@@ -131,6 +151,7 @@ module Zena
           return nil unless link
           rel = Relation.find_by_id(link.relation_id)
           if rel
+            rel.link = link
             rel.start = self
             if link.source_id == self[:id]
               rel.side = :source
@@ -142,15 +163,22 @@ module Zena
         rel
       end
       
+      # status defined through loading link
+      def l_status
+        self[:l_status]
+      end
       
-      # REWRITE TO HERE
+      # comment defined through loading link
+      def l_comment
+        self[:l_comment]
+      end
       
       private
       
         def valid_links
           return true unless @relations_to_update
           @valid_relations_to_update = []
-          @relations_to_update.map do |action, params|
+          @relations_to_update.each do |action, params|
             case action
             when :set
               role, value = params
@@ -217,20 +245,31 @@ module Zena
         def method_missing(meth, *args)
           super
         rescue NoMethodError => err
-          if meth.to_s =~ /^([\w_]+)_(ids?|zips?)(=?)$/
+          if meth.to_s =~ /^([\w_]+)_(id|zip|status|comment)(s?)(=?)$/
             role  = $1
             field = $2
-            plural = ($2[-1..-1] == 's')
-            mode = $3
+            plural = $3
+            mode  = $4
             if rel = relation_proxy(:role => role, :ignore_source => true)
               if self.vclass.kpath =~ /\A#{rel.this_kpath}/
                 if mode == '='
-                  super if field[0..-2] == 'zip'
+                  super if field == 'zip'
                   # add_link
-                  set_relation(role,args[0])
+                  value = args[0]
+                  if value.kind_of?(Array)
+                    if field != 'id'
+                      # ignore, cannot set multiple link status,comment through this interface.
+                      # tag_comments = ['lala', 'loulou', 'lili'] does not make sense.
+                      return
+                    end
+                    # many
+                    set_relation(role,value)
+                  else
+                    set_relation(role,field.to_sym => value)
+                  end
                 else
                   # get ids / zips
-                  rel.send("other_#{field}")
+                  rel.send("other_#{field}#{plural}")
                 end
               elsif !args[0].empty?
                 # bad relation for this class of object
@@ -240,9 +279,6 @@ module Zena
               # unknown relation
               errors.add(role, "unknown relation")
             end
-          # we do not need this finder, zafu generates proper "do_find" methods.
-          # elsif meth.to_s[-1..-1] != '=' && relation = relation_proxy(:role => meth.to_s)
-          #   relation.unique? ? relation.record : relation.records
           else
             raise err # unknown relation
           end

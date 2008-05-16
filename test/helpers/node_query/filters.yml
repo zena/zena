@@ -8,34 +8,46 @@ default:
   
 version_filter:
   src: "nodes where v_title like 'P%' in site"
-  sql: "SELECT DISTINCT nodes.* FROM nodes,versions WHERE versions.title LIKE 'P%' AND nodes.id = versions.node_id AND (#{@node.secure_scope('nodes')}) ORDER BY nodes.position ASC, nodes.name ASC"
+  sql: "SELECT nodes.* FROM nodes,versions WHERE versions.title LIKE 'P%' AND nodes.id = versions.node_id AND (#{@node.secure_scope('nodes')}) GROUP BY nodes.id ORDER BY nodes.position ASC, nodes.name ASC"
   res: "opening, Page-changes, people, Project-changes-xml, projects, proposition"
 
 dynattr_filter:
   src: "nodes where d_assigned = 'gaspard' in site"
-  sql: "SELECT DISTINCT nodes.* FROM nodes,versions LEFT JOIN dyn_attributes ON versions.id = dyn_attributes.owner_id AND dyn_attributes.key = 'assigned' WHERE dyn_attributes.value = 'gaspard' AND nodes.id = versions.node_id AND (#{@node.secure_scope('nodes')}) ORDER BY nodes.position ASC, nodes.name ASC"
+  sql: "SELECT nodes.* FROM nodes,versions LEFT JOIN dyn_attributes ON versions.id = dyn_attributes.owner_id AND dyn_attributes.key = 'assigned' WHERE dyn_attributes.value = 'gaspard' AND nodes.id = versions.node_id AND (#{@node.secure_scope('nodes')}) GROUP BY nodes.id ORDER BY nodes.position ASC, nodes.name ASC"
   res: "cleanWater, people, status"
 
 # Results can be wrong if a node has many 'versions', some of which have d_assigned set and others not. See #190.
 dynattr_filter_is_null:
   src: "projects where d_assigned is null in site"
-  sql: "SELECT DISTINCT nodes.* FROM nodes,versions LEFT JOIN dyn_attributes ON versions.id = dyn_attributes.owner_id AND dyn_attributes.key = 'assigned' WHERE nodes.kpath LIKE 'NPP%' AND dyn_attributes.value IS NULL AND nodes.id = versions.node_id AND (#{@node.secure_scope('nodes')}) ORDER BY nodes.position ASC, nodes.name ASC"
+  sql: "SELECT nodes.* FROM nodes,versions LEFT JOIN dyn_attributes ON versions.id = dyn_attributes.owner_id AND dyn_attributes.key = 'assigned' WHERE nodes.kpath LIKE 'NPP%' AND dyn_attributes.value IS NULL AND nodes.id = versions.node_id AND (#{@node.secure_scope('nodes')}) GROUP BY nodes.id ORDER BY nodes.position ASC, nodes.name ASC"
   res: "wiki, zena"
   
 dynattr_filter_in_relation:
   src: "favorites where d_priority = 'important'"
-  sql: "SELECT DISTINCT nodes.*,links.id AS link_id FROM nodes,versions LEFT JOIN dyn_attributes ON versions.id = dyn_attributes.owner_id AND dyn_attributes.key = 'priority',links WHERE nodes.id = links.target_id AND links.relation_id = 9 AND links.source_id = #{@node.id} AND dyn_attributes.value = 'important' AND nodes.id = versions.node_id AND (#{@node.secure_scope('nodes')}) ORDER BY nodes.position ASC, nodes.name ASC"
+  sql: "SELECT nodes.*,links.id AS link_id, links.status AS l_status, links.comment AS l_comment FROM nodes,versions LEFT JOIN dyn_attributes ON versions.id = dyn_attributes.owner_id AND dyn_attributes.key = 'priority',links WHERE nodes.id = links.target_id AND links.relation_id = 9 AND links.source_id = #{@node.id} AND dyn_attributes.value = 'important' AND nodes.id = versions.node_id AND (#{@node.secure_scope('nodes')}) GROUP BY nodes.id ORDER BY nodes.position ASC, nodes.name ASC"
+  res: ""
 
 version_filter:
   context:
     visitor: 'lion'
   src: pages where v_comment = "no comment yet" in project
-  sql: "SELECT DISTINCT nodes.* FROM nodes,versions WHERE nodes.kpath LIKE 'NP%' AND nodes.project_id = #{@node.get_project_id} AND versions.comment = 'no comment yet' AND nodes.id = versions.node_id AND (#{@node.secure_scope('nodes')}) ORDER BY nodes.position ASC, nodes.name ASC"
+  sql: "SELECT nodes.* FROM nodes,versions WHERE nodes.kpath LIKE 'NP%' AND nodes.project_id = #{@node.get_project_id} AND versions.comment = 'no comment yet' AND nodes.id = versions.node_id AND (#{@node.secure_scope('nodes')}) GROUP BY nodes.id ORDER BY nodes.position ASC, nodes.name ASC"
   res: "bananas, strange"
 
 year_function:
   context:
     visitor: 'lion'
   src: "nodes where v_updated_at:year = 2007 in project"
-  sql: "SELECT DISTINCT nodes.* FROM nodes,versions WHERE nodes.project_id = #{@node.get_project_id} AND year(versions.updated_at) = '2007' AND nodes.id = versions.node_id AND (#{@node.secure_scope('nodes')}) ORDER BY nodes.position ASC, nodes.name ASC"
+  sql: "SELECT nodes.* FROM nodes,versions WHERE nodes.project_id = #{@node.get_project_id} AND year(versions.updated_at) = '2007' AND nodes.id = versions.node_id AND (#{@node.secure_scope('nodes')}) GROUP BY nodes.id ORDER BY nodes.position ASC, nodes.name ASC"
   res: "bananas"
+
+two_fields:
+  src: "notes where event_at = log_at in site"
+  sql: "SELECT nodes.* FROM nodes WHERE nodes.kpath LIKE 'NN%' AND nodes.event_at = nodes.log_at AND (#{@node.secure_scope('nodes')}) ORDER BY position ASC, name ASC"
+
+filter_l_status:
+  context:
+    node: art
+  src: "tagged where l_status > 10"
+  sql: "SELECT nodes.*,links.id AS link_id, links.status AS l_status, links.comment AS l_comment FROM nodes,links WHERE nodes.id = links.source_id AND links.relation_id = 2 AND links.target_id = #{@node.id} AND (#{@node.secure_scope('nodes')}) ORDER BY l_status ASC, nodes.name ASC"
+  res: "opening, cleanWater"

@@ -9,7 +9,7 @@ end
 Syntax of a query is "CLASS [where ...|] [in ...|from SUB_QUERY|]"
 =end
 class QueryBuilder
-  attr_reader :tables, :filters, :errors
+  attr_reader :tables, :filters, :errors, :join_tables, :distinct
   @@main_table = 'objects'
   
   class << self
@@ -29,6 +29,7 @@ class QueryBuilder
     end
     
     @tables  = []
+    @join_tables = {}
     @table_counter = {}
     @filters = []
     # list of tables that need to be added for filter clauses (should be added only once per part)
@@ -41,6 +42,8 @@ class QueryBuilder
     @main_table ||= 'objects'
     
     @select  = []
+    
+    @ignore_warnings = opts[:ignore_warnings]
     
     if @query == nil || @query == ''
       elements = [main_table]
@@ -71,11 +74,12 @@ class QueryBuilder
     end
     
     @select << "#{table}.*"
-    @order  = parse_order_clause(order) || parse_order_clause(default_order_clause)
-    @limit  = parse_limit_clause(opts[:limit] || limit)
+    @limit         = parse_limit_clause(opts[:limit] || limit)
     @offset ||= parse_offset_clause(offset)
     
     merge_alternate_queries(alt_queries) if alt_queries
+    
+    @order = parse_order_clause(order || default_order_clause)
     
     after_parse unless opts[:skip_after_parse]
     @filters.compact!
@@ -83,7 +87,22 @@ class QueryBuilder
   
   def to_sql
     return nil if !valid?
-    "SELECT#{@distinct} #{@select.join(',')} FROM #{@tables.join(',')}" + (@filters == [] ? '' : " WHERE #{@filters.reverse.join(' AND ')}#{@group}#{@order}#{@limit}#{@offset}")
+    return "SELECT #{@main_table}.* FROM #{@main_table} WHERE 0" if @tables.empty? # all alternate queries invalid and 'ignore_warnings' set.
+    
+    table_list = []
+    @tables.each do |t|
+      if joins = @join_tables[t]
+        table_list << "#{t} #{joins.join(' ')}"
+      else
+        table_list << t
+      end
+    end
+    
+    if @distinct
+      @group ||= @tables.size > 1 ? " GROUP BY #{table}.id" : " GROUP BY id"
+    end
+    
+    "SELECT #{@select.join(',')} FROM #{table_list.flatten.join(',')}" + (@filters == [] ? '' : " WHERE #{@filters.reverse.join(' AND ')}#{@group}#{@order}#{@limit}#{@offset}")
   end
   
   def valid?
@@ -121,8 +140,11 @@ class QueryBuilder
             else
               if fld = field_or_param(part, table, op[0..2] == 'is') # we need to inform if we are looking for 'null' related field/param
                 fld
-              else
+              elsif fld.nil?
                 @errors << "invalid field or value '#{part}'"
+                nil
+              else
+                nil
               end
             end
           end.compact!
@@ -152,7 +174,7 @@ class QueryBuilder
           fld_name, direction = $1, $2
           if fld = map_field(fld_name, table)
             res << "#{@tables.size == 1 ? fld_name : fld} #{direction.upcase}"
-          else
+          elsif fld.nil?
             @errors << "invalid field '#{fld_name}'"
           end
         elsif clause == 'random'
@@ -219,9 +241,9 @@ class QueryBuilder
       @needed_join_tables[join_name] ||= {}
       @needed_join_tables[join_name][table] ||= begin
         # define join for this part ('table' = unique for each part)
-      
+        
         first_table = table(table1)
-      
+        
         if !@table_counter[table2]
           @table_counter[table2] = 0
           second_table  = table2
@@ -229,9 +251,8 @@ class QueryBuilder
           @table_counter[table2] += 1
           second_table  = "#{table2} AS #{table(table2)}"
         end
-      
-        @tables.delete(first_table)
-        @tables << "#{first_table} #{type} JOIN #{second_table} ON #{clause.gsub('TABLE1',table(table1)).gsub('TABLE2',table(table2))}"
+        @join_tables[first_table] ||= []
+        @join_tables[first_table] << "#{type} JOIN #{second_table} ON #{clause.gsub('TABLE1',table(table1)).gsub('TABLE2',table(table2))}"
         table(table2)
       end
     end
@@ -253,6 +274,19 @@ class QueryBuilder
     
     def merge_alternate_queries(alt_queries)
       counter = 1
+      if valid?
+        counter = 1
+      else
+        if @ignore_warnings
+          # reset current query
+          @tables   = []
+          @join_tables = {}
+          @filters  = []
+          @errors   = []
+          @distinct = nil
+        end
+        counter = 0
+      end
       
       if @filters.compact == []
         filters = []
@@ -261,22 +295,34 @@ class QueryBuilder
       end
       
       alt_queries.each do |query|
-        @errors += query.errors
+        @errors += query.errors unless @ignore_warnings
         next unless query.valid?
         query.filters.compact!
         next if query.filters.empty?
         counter += 1
-        @tables += query.tables
+        merge_tables(query)
+        @distinct ||= query.distinct
         filters << query.filters.reverse.join(' AND ')
       end
-      if counter > 1
-        @filters  = ["((#{filters.join(') OR (')}))"]
-        @distinct = " DISTINCT"
-      else
-        @filters  = [filters]
-        @distinct = ""
-      end
+      
+      @alt_filters = filters
+      
       @tables.uniq!
+      
+      if counter > 1
+        @distinct = @tables.size > 1
+        @filters  = ["((#{filters.join(') OR (')}))"]
+      else
+        @filters  = filters
+      end
+    end
+    
+    def merge_tables(sub_query)
+      @tables += sub_query.tables
+      sub_query.join_tables.each do |k,v|
+        @join_tables[k] ||= []
+        @join_tables[k] << v
+      end
     end
     
     # ******** Overwrite these **********

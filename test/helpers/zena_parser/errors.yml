@@ -28,3 +28,7 @@ bad_relation:
   src: "<div do='categories in site' do='each' join=', ' do='[name]'/>"
   tem: "/<% if nil -%>/"
   res: "<span class='parser_error'>\"categories in site\": unknown relation 'categories'</span>"
+
+bad_order_clause:
+  src: "<r:images order='l_status ASC' do='each' join=',' do='[name]'/>"
+  res: "<span class='parser_error'>\"images order by l_status ASC\": cannot use link field 'l_status' in this query</span>"

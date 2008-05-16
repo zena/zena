@@ -1,3 +1,4 @@
+require 'yaml'
 begin
   # FIXME: zafu_readable should belong to core_ext.
   class ActiveRecord::Base
@@ -368,6 +369,24 @@ module Zena
       out "<%= #{node}.can_write? ? link_to_remote(#{text}, {:url => node_path(#{node}.zip) + \"?template_url=#{CGI.escape(template_url)}#{auto_publish}&node[#{@params[:attr]}]=\#{#{states.inspect}[ ((#{states.inspect}.index(#{node_attribute(@params[:attr])}) || 0)+1) % #{states.size}]}\", :method => :put}) : '' %>"
     end
     
+    def r_load
+      if dict = @params[:dictionary]
+        dict_content, absolute_url, doc = self.class.get_template_text(dict, @options[:helper], @options[:current_folder])
+        return "<span class='parser_error'>[load] dictionary #{dict.inspect} not found</span>" unless doc
+        @context[:dict] ||= {}
+        begin
+          definitions = YAML::load(dict_content)
+          definitions['translations'].each do |elem|
+            @context[:dict][elem[0]] = elem[1]
+          end
+        rescue
+          puts "<span class='parser_error'>[load dictionary] invalid file content #{dict.inspect}.</span>"
+        end
+      else
+        return "<span class='parser_error'>[load] missing 'dictionary'.</span>"
+      end
+      expand_with
+    end
     
     def r_trans
       static = true
@@ -395,7 +414,11 @@ module Zena
         end
       end
       if static
-        helper.send(:_,text)
+        if @context[:dict]
+          @context[:dict][text] || helper.send(:_,text)
+        else
+          helper.send(:_,text)
+        end
       else
         "<%= _(#{text}) %>"
       end
@@ -907,8 +930,7 @@ END_TXT
       end
       dom_id = "#{CGI.escape(@context[:dom_id])}.\#{#{node}.zip}"
       if node_kind_of?(Node)
-        # amp bug, we have to build the path ourselves.
-        out "<% if #{node}[:link_id] -%><%= link_to_remote(#{text.inspect}, {:url => \"/nodes/\#{#{node}[:zip]}/remove_link?link_id=\#{#{node}[:link_id]}&remove=#{dom_id}\", :method => :put}, :class=>#{(@params[:class] || 'unlink').inspect}) %><% end -%>"
+        out "<% if #{node}[:link_id] -%><%= link_to_remote(#{text.inspect}, {:url =>  \"/nodes/\#{#{node}[:zip]}/links/\#{#{node}[:link_id]}?remove=#{dom_id}\", :method => :delete}, :class=>#{(@params[:class] || 'unlink').inspect}) %><% end -%>"
       elsif node_kind_of?(DataEntry)  
         out "<%= link_to_remote(#{text.inspect}, {:url => \"/data_entries/\#{#{node}[:id]}?remove=#{dom_id}\", :method => :delete}, :class=>#{(@params[:class] || 'unlink').inspect}) %>"
       end
@@ -1360,7 +1382,7 @@ END_TXT
     # TODO: test
     def r_calendar
       opts = {}
-      pseudo_sql, raw_filters = make_pseudo_sql(@params[:find  ] || 'news in project')
+      pseudo_sql, raw_filters = make_pseudo_sql(@params[:find  ] || 'notes in project')
       
       raw_filters ||= []
       fld = (@params[:using ] || 'event_at').gsub(/[^a-z_]/,'') # SQL injection security
@@ -1369,12 +1391,15 @@ END_TXT
       raw_filters << "TABLE_NAME.#{fld} >= '\#{start_date.strftime('%Y-%m-%d')}' AND TABLE_NAME.#{fld} <= '\#{end_date.strftime('%Y-%m-%d')}'"
       
       opts[:size] = @params[:size] || 'tiny'
-      opts[:sql] = "\"#{Node.build_find(:all, pseudo_sql, '@node', raw_filters)}\""
-      
-      template_url = get_template_url
-      out helper.save_erb_to_url(opts.inspect, template_url)
-      
-      "<div id='#{opts[:size]}cal'><%= calendar(:node=>#{node}, :date=>main_date, :template_url => #{template_url.inspect}) %></div>"
+      opts[:sql], errors = "\"#{Node.build_find(:all, pseudo_sql, '@node', raw_filters)}\""
+      if opts[:sql]
+        template_url = get_template_url
+        out helper.save_erb_to_url(opts.inspect, template_url)
+
+        "<div id='#{opts[:size]}cal'><%= calendar(:node=>#{node}, :date=>main_date, :template_url => #{template_url.inspect}) %></div>"
+      else
+        out "<span class='parser_error'>[calendar] error in finder #{pseudo_sql.inspect} (#{errors.join(', ')})</span>"
+      end
     end
     
     # part caching
@@ -1428,7 +1453,7 @@ END_TXT
       return "<span class='parser_error'>[fop] missing 'stylesheet' argument</span>" unless @params[:stylesheet]
       # get stylesheet text
       xsl_content, absolute_url, doc = self.class.get_template_text(@params[:stylesheet], @options[:helper], @options[:current_folder])
-      return "<span class='parser_error'>[fop] stylesheet #{@params[:stylesheet].inspect} not found</span>" unless xsl_content
+      return "<span class='parser_error'>[fop] stylesheet #{@params[:stylesheet].inspect} not found</span>" unless doc
       
       template_url = (get_template_url.split('/')[0..-2] + ['_main.xsl']).join('/')
       helper.save_erb_to_url(xsl_content, template_url)
@@ -2158,6 +2183,11 @@ module ActiveRecord
         else
           ref_date = "'\#{#{ref_date}.strftime('%Y-%m-%d')}'"
         end
+        if date_cond =~ /^upcoming(\-?\d+)$/
+          little_past = $1
+        else
+          little_past = 0
+        end
         case date_cond
         when 'today', 'current', 'same'
           "DATE(#{field}) = DATE(#{ref_date})"
@@ -2168,7 +2198,7 @@ module ActiveRecord
         when 'year'
           "date_format(#{ref_date},'%Y') = date_format(#{field}, '%Y')"
         when 'upcoming'
-          "DATEDIFF(#{field},#{ref_date}) > 0"
+          "DATEDIFF(#{field},#{ref_date}) >= #{little_past}"
         else
           if date_cond =~ /^(\+|-|)(\d+)day/
             count = $2.to_i
@@ -2177,7 +2207,7 @@ module ActiveRecord
               "ABS(DATEDIFF(#{field},#{ref_date})) <= #{count}"
             elsif $1 == '+'
               # x upcoming days
-              "DATEDIFF(#{field},#{ref_date}) > 0 AND DATEDIFF(#{field},#{ref_date}) <= #{count}"
+              "DATEDIFF(#{field},#{ref_date}) >= 0 AND DATEDIFF(#{field},#{ref_date}) <= #{count}"
             else
               # x days in the past
               "DATEDIFF(#{field},#{ref_date}) < 0 AND DATEDIFF(#{field},#{ref_date}) >= -#{count}"

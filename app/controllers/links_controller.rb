@@ -1,62 +1,91 @@
 class LinksController < ApplicationController
   before_filter :find_node
+  before_filter :check_can_drive
+  before_filter :find_link, :except => [:index, :create]
   
+  def show
+  end
   
-  # TODO: think this over
-  # or node controller:
-  # add_link, remove_link, node[other_role_ids] = ...
-  # add     => add a new link                         (nodes/:node_zip/links?:relation_id=...&other_id=:other_zip)
-  # update  => change current links for a relation    (nodes/:node_zip/links/:relation_id/update)
-  # destroy => remove a link
+  # Edit a link. Called from drive popup.
+  def edit
+    #puts "EDIT: #{@link['other_zip']}, #{@link['role']}, #{@link['status']}, #{@link['comment']}"
+    respond_to do |format|
+      format.html
+      format.js { render :partial => 'form' }
+    end
+  end
   
-  # POST /links
-  # POST /links.xml
-  def create
-    relation = @node.relation_proxy(:id => params[:link][:relation_id])
+  def update
+    @link.update_attributes_with_transformations(params['link'])
     
     respond_to do |format|
-      if @link.save
-        flash[:notice] = 'Link was successfully created.'
-        format.html { redirect_to link_url(@link) }
-        format.xml  { render :xml => @link, :status => :created, :location => link_url(@link) }
-      else
-        format.html { render :action => "new" }
-        format.xml  { render :xml => @link.errors }
+      format.html do 
+        if @node.errors.empty?
+          redirect_to :action => 'show'
+        else
+          render :action => 'edit'
+        end
       end
+      format.js { render :action => 'show' }
     end
   end
-
-  # PUT /links/1
-  # PUT /links/1.xml
-  def update
-    @link = Link.find(params[:id])
-
+  
+  def create
+    attrs = filter_attributes(params['link'])
+    @node.add_link(attrs.delete(:role), attrs)
+    @node.save
+    
     respond_to do |format|
-      if @link.update_attributes(params[:link])
-        flash[:notice] = 'Link was successfully updated.'
-        format.html { redirect_to link_url(@link) }
-        format.xml  { head :ok }
-      else
-        format.html { render :action => "edit" }
-        format.xml  { render :xml => @link.errors }
-      end
+      format.js
     end
   end
-
-  # DELETE /links/1
-  # DELETE /links/1.xml
+  
+  
+  # Remove a link (drive popup).
+  def remove_link
+    unless @node.can_drive?
+      @node.errors.add('base', 'you do not have the rights to do this')
+    else
+      @link_id = params[:link_id]
+      @node.remove_link(@link_id)
+      @node.save
+    end
+    respond_to do |format|
+      format.js
+    end
+  end
+  
   def destroy
-    @link = Link.find(params[:id])
-    @link.destroy
-
+    @node.remove_link(@link[:id])
+    @node.save
+    
     respond_to do |format|
-      format.html { redirect_to links_url }
-      format.xml  { head :ok }
+      format.js
     end
   end
   
   protected
     def find_node
       @node = secure_drive!(Node) { Node.find_by_zip(params[:node_id]) }
+    end
+    
+    def check_can_drive
+      unless @node.can_drive?
+        @node.errors.add('base', 'you do not have the rights to do this')
+        return false
+      end
+    end
+    
+    def find_link
+      @link = Link.find_through(@node, params[:id])
+    end
+    
+    def filter_attributes(attributes)
+      attrs = {}
+      ['status', 'comment', 'role'].each do |k|
+        attrs[k.to_sym] = attributes[k].blank? ? nil : attributes[k]
+      end
+      attrs[:id] = Node.translate_pseudo_id(attributes['other_zip'])
+      attrs
     end
 end

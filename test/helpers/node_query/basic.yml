@@ -44,7 +44,7 @@ pages_or_letters:
   src:
     - 'pages'
     - 'letters'
-  sql: "SELECT DISTINCT nodes.* FROM nodes WHERE ((nodes.kpath LIKE 'NP%' AND nodes.parent_id = #{@node.id}) OR (nodes.kpath LIKE 'NNL%' AND nodes.parent_id = #{@node.id})) AND (#{@node.secure_scope('nodes')}) ORDER BY position ASC, name ASC"
+  sql: "SELECT nodes.* FROM nodes WHERE ((nodes.kpath LIKE 'NP%' AND nodes.parent_id = #{@node.id}) OR (nodes.kpath LIKE 'NNL%' AND nodes.parent_id = #{@node.id})) AND (#{@node.secure_scope('nodes')}) ORDER BY position ASC, name ASC"
   res: "collections, letter, nature, people, projects, skins"
 
 project:
@@ -56,14 +56,21 @@ many_alternatives:
     - 'tagged in site'
     - 'images in site'
     - 'tags in site'
-  sql: "SELECT DISTINCT nodes.* FROM nodes,links WHERE ((nodes.id = links.source_id AND links.relation_id = 2) OR (nodes.kpath LIKE 'NDI%') OR (nodes.kpath LIKE 'NPT%')) AND (#{@node.secure_scope('nodes')}) ORDER BY nodes.position ASC, nodes.name ASC"
+  sql: "SELECT nodes.* FROM nodes,links WHERE ((nodes.id = links.source_id AND links.relation_id = 2) OR (nodes.kpath LIKE 'NDI%') OR (nodes.kpath LIKE 'NPT%')) AND (#{@node.secure_scope('nodes')}) GROUP BY nodes.id ORDER BY nodes.position ASC, nodes.name ASC"
   res: 'art, bird, cleanWater, flower, lake, menu, news, opening, tree'
 
+alternatives_same_join:
+  src:
+    - 'tagged in site'
+    - 'icons'
+  sql: "SELECT nodes.*,links.id AS link_id, links.status AS l_status, links.comment AS l_comment FROM nodes,links WHERE ((nodes.id = links.source_id AND links.relation_id = 2) OR (nodes.id = links.target_id AND links.relation_id = 4 AND links.source_id = #{@node.id})) AND (#{@node.secure_scope('nodes')}) GROUP BY nodes.id ORDER BY nodes.position ASC, nodes.name ASC"
+  res: "cleanWater, lake, opening"
+  
 same_name_as_class:
   context:
     node: 'opening'
   src: "set_tags"
-  sql: "SELECT nodes.*,links.id AS link_id FROM nodes,links WHERE nodes.id = links.target_id AND links.relation_id = 2 AND links.source_id = #{@node.id} AND (#{@node.secure_scope('nodes')}) ORDER BY nodes.position ASC, nodes.name ASC"
+  sql: "SELECT nodes.*,links.id AS link_id, links.status AS l_status, links.comment AS l_comment FROM nodes,links WHERE nodes.id = links.target_id AND links.relation_id = 2 AND links.source_id = #{@node.id} AND (#{@node.secure_scope('nodes')}) ORDER BY nodes.position ASC, nodes.name ASC"
   res: "art, news"
 
   
@@ -101,3 +108,27 @@ pages_from_site_or_images:
 children_with_order_clause:
   src: "children order by name ASC"
   sql: "SELECT nodes.* FROM nodes WHERE nodes.parent_id = #{@node.id} AND (#{@node.secure_scope('nodes')}) ORDER BY name ASC"
+
+notes_or_news:
+  src:
+    - notes
+    - news
+  sql: "SELECT nodes.* FROM nodes,links WHERE ((nodes.kpath LIKE 'NN%' AND nodes.parent_id = #{@node.id}) OR (nodes.id = links.source_id AND links.relation_id = 1 AND links.target_id = #{@node.id})) AND (#{@node.secure_scope('nodes')}) GROUP BY nodes.id ORDER BY nodes.position ASC, nodes.name ASC"
+
+news_or_notes:
+  src:
+    - news
+    - notes
+  sql: "SELECT nodes.* FROM nodes,links WHERE ((nodes.id = links.source_id AND links.relation_id = 1 AND links.target_id = #{@node.id}) OR (nodes.kpath LIKE 'NN%' AND nodes.parent_id = #{@node.id})) AND (#{@node.secure_scope('nodes')}) GROUP BY nodes.id ORDER BY nodes.position ASC, nodes.name ASC"
+
+order_dynattr:
+  src: "nodes order by d_assigned ASC, name ASC"
+  sql: "SELECT nodes.* FROM nodes,versions LEFT JOIN dyn_attributes ON versions.id = dyn_attributes.owner_id AND dyn_attributes.key = 'assigned' WHERE nodes.id = versions.node_id AND nodes.parent_id = #{@node.id} AND (#{@node.secure_scope('nodes')}) GROUP BY nodes.id ORDER BY dyn_attributes.value ASC, nodes.name ASC"
+  res: "lake, lakeAddress, opening, track, water, status"
+
+order_l_status:
+  context:
+    node: art
+  src: "tagged order by l_status ASC, name ASC"
+  sql: "SELECT nodes.*,links.id AS link_id, links.status AS l_status, links.comment AS l_comment FROM nodes,links WHERE nodes.id = links.source_id AND links.relation_id = 2 AND links.target_id = #{@node.id} AND (#{@node.secure_scope('nodes')}) ORDER BY l_status ASC, nodes.name ASC"
+  res: "opening, cleanWater"

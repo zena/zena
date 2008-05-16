@@ -30,13 +30,22 @@ class NodeQuery < QueryBuilder
   
   def after_parse
     @filters.unshift "(\#{#{@node_name}.secure_scope('#{table}')})"
-    
-    # we add link_id in attributes only if the links are made with both sides (not 'tagged in project' but 'tagged'). See join_relation.
-    @select << "#{table('links')}.id AS link_id" if @table_counter['links'] && !@distinct
-    @distinct = " DISTINCT" if @table_counter['versions']
+    if @tables.include?('links')
+      @select << "#{table('links')}.id AS link_id, links.status AS l_status, links.comment AS l_comment" if safe_links_attributes?
+    end
+    @distinct = true if @tables.include?('versions')
   end
   
   private
+    def safe_links_attributes?
+      (@alt_filters || []).each do |f|
+        unless f =~ /links\./
+          return false
+        end
+      end
+      true
+    end
+    
     # Used to resolve 'in' clauses ('in project', 'in parent', etc)
     def context_filter_fields(rel)
       case rel
@@ -99,12 +108,13 @@ class NodeQuery < QueryBuilder
       end
       
       if rel = Relation.find_by_role(rel.singularize)
+        # We cannot use a LEFT JOIN here because it will totally mess up if we merge alternate queries
         add_table('links')
         # (= other_side = result) target <-- source (= link_side = caller)
         if context && context != 'self'
           # tagged in project (not equal to 'tagged from nodes in project')
           # remove caller join
-          @distinct = " DISTINCT"
+          @distinct = true
           @filters << "#{field_or_param('id')} = #{table('links')}.#{rel.other_side} AND #{table('links')}.relation_id = #{rel[:id]}"
         else
           @filters << "#{field_or_param('id')} = #{table('links')}.#{rel.other_side} AND #{table('links')}.relation_id = #{rel[:id]} AND #{table('links')}.#{rel.link_side} = #{field_or_param('id', table(main_table,-1))}"
@@ -150,6 +160,19 @@ class NodeQuery < QueryBuilder
           key = function ? "#{function}(#{vtable_name}.#{key})" : "#{vtable_name}.#{key}"
         else
           # bad version attribute
+          nil
+        end
+      when 'l_'
+        if field == 'l_status' || field == 'l_comment'
+          if @tables.include?('links') && safe_links_attributes?
+            # ok
+            field
+          else
+            @errors << "cannot use link field '#{field}' in this query"
+            :error # return :error to avoid duplicate @error message.
+          end
+        else
+          # bad attribute
           nil
         end
       else
@@ -250,11 +273,11 @@ module Zena
       #   * CLAUSE: field = value ('log_at:year = 2005'). You can use parameters, visitor data in clause: 'log_at:year = [param:year]', 'd_assigned = [visitor:name]'. You can only use 'and' in clauses. 'or' is not supported. You can use version and/or dynamic attributes : 'v_comment = super', 'd_priority = low'.
       #
       # Examples: 'todos in section where d_priority = high and d_assigned = [visitor:name]'
-      def build_find(count, pseudo_sql, node_name, raw_filters = nil)
+      def build_find(count, pseudo_sql, node_name, raw_filters = nil, ignore_warnings = false)
         if count != :all
           limit = 1
         end
-        query = NodeQuery.new(pseudo_sql, :node_name => node_name, :limit => limit, :raw_filters => raw_filters)
+        query = NodeQuery.new(pseudo_sql, :node_name => node_name, :limit => limit, :raw_filters => raw_filters, :ignore_warnings => ignore_warnings)
         [query.to_sql, query.errors]
       end
     end

@@ -18,7 +18,6 @@ ActionController::Routing::Routes.draw do |map|
   map.resources :nodes,
     :collection => { :asearch => :get, :search => :get,  :attribute => :get },
     :member =>     { :import => :post, :save_text => :put, :order => :any, :zafu => :get,
-                     :add_link => :put, :remove_link => :put,
                      :drop => :put } do |nodes|
     nodes.resources :versions, 
                     :name_prefix => nil,
@@ -32,7 +31,9 @@ ActionController::Routing::Routes.draw do |map|
                                  :preview => :put,
                                  :link    => :any,
                                  :destroy => :put } # FIXME: should be a DELETE
-                                 
+    
+    nodes.resources :links
+    
     #nodes.resources :discussions, :name_prefix => nil do |discussions|
     #  #discussions.resources :comments,
     #  #              :name_prefix => nil,

@@ -1,3 +1,13 @@
+bad_relation:
+  src: "bolobolo"
+  res: 
+
+bad_relation_in_alternate_query:
+  src: 
+    - "bolobolo"
+    - "letters in project"
+  res: "unknown relation 'bolobolo'"
+
 order:
   src: "objects in project order by bad ASC"
   res: "invalid field 'bad'"
@@ -5,3 +15,27 @@ order:
 offset_without_limit:
   src: "objects in project offset 3"
   res: "invalid offset clause '3' (used without limit)"
+
+ignore_warnings:
+  context:
+    ignore_warnings: yes
+  src:
+    - 'letters'
+    - 'foo'
+  res: "SELECT objects.* FROM objects WHERE objects.kpath LIKE 'NNL%' AND objects.parent_id = ID"
+
+ignore_warnings_all_bad:
+  context:
+    ignore_warnings: yes
+  src:
+    - 'baz'
+    - 'foo'
+  res: "SELECT objects.* FROM objects WHERE 0"
+
+do_not_ignore_warnings:
+  context:
+    ignore_warnings: no
+  src:
+    - 'letters'
+    - 'foo'
+  res: "unknown relation 'foo'"

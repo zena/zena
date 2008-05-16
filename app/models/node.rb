@@ -130,7 +130,7 @@ class Node < ActiveRecord::Base
   
   zafu_readable      :name, :created_at, :updated_at, :event_at, :log_at, :kpath, :user_zip, :parent_zip, :project_zip,
                      :section_zip, :skin, :ref_lang, :fullpath, :rootpath, :position, :publish_from, :max_status, :rgroup_id, 
-                     :wgroup_id, :pgroup_id, :basepath, :custom_base, :klass, :zip, :score, :comments_count, :position
+                     :wgroup_id, :pgroup_id, :basepath, :custom_base, :klass, :zip, :score, :comments_count, :position, :l_status, :l_comment
   zafu_context       :author => "Contact", :parent => "Node", 
                      :project => "Project", :section => "Section", 
                      :real_project => "Project", :real_section => "Section",
@@ -879,7 +879,7 @@ class Node < ActiveRecord::Base
   def icon
     return nil if new_record?
     return @icon if defined? @icon
-    @icon = do_find(:first, eval("\"#{Node.build_find(:first, ['icon', 'image'], 'self')}\""))
+    @icon = do_find(:first, eval("\"#{Node.build_find(:first, ['icon', 'image'], 'self', nil, true)}\""))
   end
   
   alias o_user user

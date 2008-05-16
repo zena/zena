@@ -290,8 +290,8 @@ where_not:
 order_dyn_attr:
   context:
     node: 'cleanWater'
-  src: "<r:nodes order='d_assigned DESC' do='each'><span do='[name]' assigned_if='[d_assigned]'/></r:nodes>"
-  res: "<span class='assigned'>status</span><span>lakeAddress</span><span>lake</span><span>water</span><span>opening</span><span>track</span>"
+  src: "<r:nodes order='d_assigned DESC, name ASC' do='each'><span do='[name]' assigned_if='[d_assigned]'/></r:nodes>"
+  res: "<span class='assigned'>status</span><span>lake</span><span>lakeAddress</span><span>opening</span><span>track</span><span>water</span>"
 
 # Bug #190 (hard to fix...)
 where_dyn_attr_is_null:
@@ -313,7 +313,7 @@ unlink:
   context:
     node: 'art'
   src: "<r:tagged do='each' join=',' do='unlink'/>"
-  res: "/<a class=\"unlink\".*onclick=.*Ajax.Request\('/nodes/21/remove_link\?link_id=2.*bullet_delete.png.*link_id=3/"
+  res: "/<a class=\"unlink\".*onclick=.*Ajax.Request\('/nodes/21/links/2\?remove=list.21..*bullet_delete.png.*links/3/"
   
 node_in_version:
   src: "<r:version><r:node do='[name]'/></r:version>"

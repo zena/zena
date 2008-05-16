@@ -18,9 +18,8 @@ Examples:
  
 =end
 class NodesController < ApplicationController
-  before_filter :find_node, :except => [:index, :not_found, :catch_all, :search, :attribute]
+  before_filter :find_node, :except => [:index, :create, :not_found, :catch_all, :search, :attribute]
   before_filter :check_path, :only  => [:index, :show]
-  before_filter :check_can_drive, :only => [:add_link, :update_link, :remove_link]
   layout :popup_layout,     :only   => [:edit, :import]
   
   def index
@@ -194,30 +193,6 @@ class NodesController < ApplicationController
   # import sub-nodes from a file
   def import
     @nodes = secure!(Node) { Node.create_nodes_from_folder(:archive => params[:archive], :parent => @node) }.values
-  end
-  
-  # Create a link between two nodes. This method is called from the drive popup.
-  def add_link
-    other_id = Node.translate_pseudo_id(params['link']['other_id'])
-    @node.add_link(params['link']['role'], other_id)
-    @node.save
-    respond_to do |format|
-      format.js { render :action => 'link'}
-    end
-  end
-  
-  # Remove a link (drive popup).
-  def remove_link
-    unless @node.can_drive?
-      @node.errors.add('base', 'you do not have the rights to do this')
-    else
-      @link_id = params[:link_id]
-      @node.remove_link(@link_id)
-      @node.save
-    end
-    respond_to do |format|
-      format.js
-    end
   end
   
   def update

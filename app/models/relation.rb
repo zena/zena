@@ -1,6 +1,6 @@
 class Relation < ActiveRecord::Base
   validate        :valid_relation
-  attr_accessor   :side, :link_errors, :start, :new_value
+  attr_accessor   :side, :link_errors, :start, :link
   attr_protected  :site_id
   has_many        :links, :dependent => :destroy
   
@@ -39,9 +39,10 @@ class Relation < ActiveRecord::Base
     end
   end   
   
+  # Used by relation_links
   def records(options={})
     return @records if defined? @records
-    opts = { :select     => "nodes.*,links.id AS link_id", 
+    opts = { :select     => "nodes.*,links.id AS link_id, links.status AS l_status, links.comment AS l_comment", 
              :joins      => "INNER JOIN links ON nodes.id=links.#{other_side} AND links.relation_id = #{self[:id]} AND links.#{link_side} = #{@start[:id]}",
              :group      => 'nodes.id'}
     
@@ -55,7 +56,7 @@ class Relation < ActiveRecord::Base
   # I do not think this method is used anymore (all is done by @node.find(...)).
   def record(options={})
     return @record if defined? @record
-    opts = { :select     => "nodes.*,links.id AS link_id", 
+    opts = { :select     => "nodes.*,links.id AS link_id, links.status AS l_status, links.comment AS l_comment", 
              :joins      => "INNER JOIN links ON nodes.id=links.#{other_side} AND links.relation_id = #{self[:id]} AND links.#{link_side} = #{@start[:id]}",
              :group      => 'nodes.id'}
     
@@ -115,14 +116,33 @@ class Relation < ActiveRecord::Base
     @side == :source ? target_kpath : source_kpath
   end
   
-  def <<(obj_id)
-    @new_value ||= other_links.map{|r| r[other_side]}
-    @new_value << obj_id.to_i
+  def new_value=(values)
+    if values.kind_of?(Array)
+      if values[0].kind_of?(Hash)
+        @new_value = values
+      else
+        @new_value = values.map {|v| {:id => v}}
+      end
+    elsif values.kind_of?(Hash)
+      @new_value = [values]
+    else
+      @new_value = {:id => values}
+    end
+  end
+  
+  def new_value
+    @new_value
+  end
+  
+  def <<(rel_def)
+    @new_value ||= other_links.map{|r| {:id => r[other_side], :status => r[:status], :comment => r[:comment]}}
+    rel_def = {:id => rel_def} unless rel_def.kind_of?(Hash)
+    @new_value << rel_def
   end
   
   def delete(obj_id)
-    @new_value ||= other_links.map{|r| r[other_side]}
-    @new_value.delete(obj_id.to_i)
+    @new_value ||= other_links.map{|r| {:id => r[other_side], :status => r[:status], :comment => r[:comment]}}
+    @new_value.reject!{|r| r[:id] == obj_id.to_i}
   end
   
   # find the links from the current context (source or target)
@@ -135,38 +155,36 @@ class Relation < ActiveRecord::Base
   # 2. can write in new target
   def links_valid?
     @link_errors = []
-    if unique?
-      if @new_value.kind_of?(Array)
-        if @new_value.size > 1
-          # force unique value (keep last value)
-          values = [@new_value.last]
-        else
-          values = @new_value
-        end
-      else
-        values = [@new_value]
-      end
+    @link_values = {}
+    if unique? && @new_value.size > 1
+      # force unique value (keep last value)
+      [@new_value.last]
     else
-      unless @new_value.kind_of?(Array)
-        # force array
-        values = [@new_value]
-      else
-        values = @new_value
-      end
+      @new_value
+    end.each do |v|
+      next if v[:id].blank?
+      @link_values[v[:id].to_i] = v
     end
-    values.map!{|i| i.to_i }
-    values.reject!{|i| i == 0}
     
     # what changed ?
-    @add_ids   = values
-    @del_links = []
+    @add_links    = @link_values.keys
+    @del_links    = []
+    @update_links = []
     # find all current links
     other_links.each do |link|
       obj_id = link[other_side]
-      unless @add_ids.include?(obj_id)
+      if value = @link_values[obj_id]
+        @add_links.delete(obj_id) # ignore existing links
+        
+        if @link_values[obj_id] && @link_values[obj_id].size > 1
+          link[:status]  = @link_values[obj_id][:status]
+          link[:comment] = @link_values[obj_id][:comment]
+          @update_links << link
+        end
+      else
         @del_links << link
       end
-      @add_ids.delete(obj_id) # ignore existing links
+      
     end
     
     # 1. can remove old link ?
@@ -177,7 +195,7 @@ class Relation < ActiveRecord::Base
     end
     
     # 2. can write in new target ?
-    @add_ids.each do |obj_id|
+    @add_links.each do |obj_id|
       unless find_target(obj_id)
         @link_errors << 'invalid target'
       end
@@ -186,11 +204,17 @@ class Relation < ActiveRecord::Base
   end
 
   def update_links!
-    return unless @del_links && @add_ids
+    return unless @del_links && @add_links
     @del_links.each { |l| l.destroy }
-    return if @add_ids == []
-    list = @add_ids.map {|obj_id| "(#{self[:id]},#{@start[:id]},#{obj_id})"}.join(',')
-    Link.connection.execute "INSERT INTO links (`relation_id`,`#{link_side}`,`#{other_side}`) VALUES #{list}"
+    @update_links.each { |l| l.save }
+    
+    return if @add_links == []
+    list = []
+    @add_links.each do |obj_id| 
+      v = @link_values[obj_id]
+      list << "(#{self[:id]},#{@start[:id]},#{obj_id},#{Link.connection.quote(v[:status])},#{Link.connection.quote(v[:comment])})"
+    end
+    Link.connection.execute "INSERT INTO links (`relation_id`,`#{link_side}`,`#{other_side}`,`status`,`comment`) VALUES #{list.join(',')}"
     remove_instance_variable(:@links)
   end
   

@@ -80,7 +80,6 @@ class RelationTest < ZenaTestUnit
     assert_equal 'art', node.find(:first,'parent').find(:all,'set_tags')[0][:name]
   end
   
-  # TEST TO HERE
   def test_set_relation
     login(:tiger)
     node = secure!(Node) { nodes(:status) }
@@ -106,12 +105,13 @@ class RelationTest < ZenaTestUnit
     login(:tiger)
     node = secure!(Node) { nodes(:status) }
     assert_nil node.find(:all,'set_tags')
-    node.add_link('set_tag', nodes_id(:art))
+    node.add_link('set_tag', :id => nodes_id(:art), :comment => "hello")
     assert node.save
     node = secure!(Node) { nodes(:status) } # reload
     assert tags = node.find(:all,'set_tags')
     assert_equal 1, tags.size
     assert_equal nodes_id(:art), tags[0][:id]
+    assert_equal "hello", tags[0][:l_comment]
   end
   
   def test_add_link_virtual_class
@@ -269,5 +269,42 @@ class RelationTest < ZenaTestUnit
     login(:lion)
     node = secure!(Node) { nodes(:status) }
     assert_nil node.find(:first, 'blah')
+  end
+  
+  def test_l_status
+    login(:lion)
+    node = secure!(Node) { nodes(:art) }
+    tagged = node.find(:all, 'tagged')
+    # cleanWater, opening
+    assert_equal ["10", "5"], tagged.map{|t| t.l_status}
+  end
+  
+  def test_l_comment
+    login(:lion)
+    node = secure!(Node) { nodes(:opening) }
+    tagged = node.find(:all, 'set_tags')
+    # art, news
+    assert_equal ["cold", "hot"], tagged.map{|t| t.l_comment}
+  end
+  
+  def test_l_comment_empty
+    login(:lion)
+    node = secure!(Node) { nodes(:art) }
+    tagged = node.find(:all, 'tagged')
+    # cleanWater, opening
+    assert_equal [nil, "cold"], tagged.map{|t| t.l_comment}
+  end
+  
+  def test_update_link
+    login(:lion) # status_hot_for_cleanWater
+    node = secure!(Node) { nodes(:cleanWater) }
+    hot  = node.find(:first, 'hot')
+    assert_equal nodes_id(:status), hot[:id] 
+    assert_nil hot.l_status
+    node.update_link('hot', :id => nodes_id(:status), :comment => 'very hot')
+    assert node.save
+    # reload
+    node = secure!(Node) { nodes(:cleanWater) }
+    assert_equal 'very hot', node.find(:first, 'hot').l_comment
   end
 end
