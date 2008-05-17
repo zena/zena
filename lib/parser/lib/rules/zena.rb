@@ -992,9 +992,9 @@ END_TXT
         else
           format = "%Y-%m-%d"
         end
-        "<%= format_date(#{value}, #{format.inspect}) %>"
+        "<%= #{list}==[] ? '' : format_date(#{value}, #{format.inspect}) %>"
       else
-        "<%= #{value} %>"
+        "<%= #{list}==[] ? '' : #{value} %>"
       end
     end
 
