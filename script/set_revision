@@ -10,8 +10,8 @@ else
     rev = $1
   elsif svk_info =~ %r{(Merged|Copied) From: (.*?), Rev}
     svk_info = `svk info /#{$2} 2>&1`
-    if svk_info =~ %r{zenadmin.org/zena, Rev. (\d+)}
-      rev = $1
+    if svk_info =~ %r{zenadmin.org/zena(/trunk|), Rev. (\d+)}
+      rev = $2
     else
       puts "revision number could not be found using svn or svk"
     end
