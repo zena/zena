@@ -661,7 +661,7 @@ latex_template = %q{
       
       # build event hash
       calendar = {}
-      notes.each do |n|
+      (notes || []).each do |n|
         d = n.send(using)
         next unless d
         calendar[d.strftime("%Y-%m-%d")] ||= []
