@@ -1391,8 +1391,9 @@ END_TXT
       raw_filters << "TABLE_NAME.#{fld} >= '\#{start_date.strftime('%Y-%m-%d')}' AND TABLE_NAME.#{fld} <= '\#{end_date.strftime('%Y-%m-%d')}'"
       
       opts[:size] = @params[:size] || 'tiny'
-      opts[:sql], errors = "\"#{Node.build_find(:all, pseudo_sql, '@node', raw_filters)}\""
+      opts[:sql], errors = Node.build_find(:all, pseudo_sql, '@node', raw_filters)
       if opts[:sql]
+        opts[:sql] = "\"#{opts[:sql]}\""
         template_url = get_template_url
         out helper.save_erb_to_url(opts.inspect, template_url)
 
