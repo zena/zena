@@ -774,10 +774,14 @@ END_MSG
       end_date    = Date.civil(date.year, date.mon, -1)
       end_date   += (6 + week_start_day - end_date.wday) % 7
       eval_node = source
-      sql = eval sql.gsub('@node','eval_node') # resolve visitor / context inside sql.
+      sql, errors = eval sql.gsub('@node','eval_node') # resolve visitor / context inside sql.
       
       # get list of notes in this scope
-      notes = source.do_find(:all, sql) || []
+      if sql
+        notes = source.do_find(:all, sql) || []
+      else
+        notes = []
+      end
       [notes, start_date, end_date]
     end
 end
