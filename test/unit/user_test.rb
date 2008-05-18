@@ -133,6 +133,8 @@ class UserTest < ZenaTestUnit
     user = secure!(User) { users(:lion) }
     assert !user.update_attributes(:status => User::Status[:user])
     assert_equal 'you do not have the rights to do this', user.errors[:status]
+    user = secure!(User) { users(:lion) }
+    assert user.update_attributes('status' => User::Status[:admin].to_s, 'time_zone' => 'Europe/Berlin')
   end
   
   def test_can_update_pass_admin_status

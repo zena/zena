@@ -372,7 +372,7 @@ class User < ActiveRecord::Base
             end
           end
           errors.add(:login, "can't be blank") if self[:login].blank?
-          errors.add(:status, 'you do not have the rights to do this') if self[:id] == visitor[:id] && old.is_admin? && self.status != old.status
+          errors.add(:status, 'you do not have the rights to do this') if self[:id] == visitor[:id] && old.is_admin? && self.status.to_i != old.status
         end
       end
       

@@ -768,7 +768,7 @@ END_TXT
       out render_html_tag(res)
     end
     
-    # <r:checkbox role='collaborator_for' values='projects' from='site'/>"
+    # <r:checkbox role='collaborator_for' values='projects' in='site'/>"
     # TODO: implement menu 'select' in the same spirit
     def r_checkbox
       return "<span class='parser_error'>[checkbox] missing 'values'</span>" unless values = @params[:values]
