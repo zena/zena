@@ -43,10 +43,10 @@ class UserTest < ZenaTestUnit
   
   def test_create
     login(:whale)
-    User.connection.execute "UPDATE users SET lang='ru', time_zone='Hawaii' WHERE id=#{users_id(:incognito)}"
+    User.connection.execute "UPDATE users SET lang='ru', time_zone='US/Hawaii' WHERE id=#{users_id(:incognito)}"
     
     user = secure!(User) { User.create("login"=>"john", "password"=>"isjjna78a9h") }
-    err user
+    
     assert !user.new_record?, "Not a new record"
     assert !user.contact.new_record?, "Users's contact node is not a new record"
     
@@ -57,7 +57,7 @@ class UserTest < ZenaTestUnit
     assert user.groups.include?(groups(:aqua)), "Is in the 'site' group"
     assert_equal User::Status[:moderated], user.status
     assert_equal 'ru', user.lang
-    assert_equal 'Hawaii', user[:time_zone]
+    assert_equal 'US/Hawaii', user[:time_zone]
     assert !user.user?, "Not a real user yet"
     assert visitor.user?, "Whale is a user"
     
@@ -82,7 +82,7 @@ class UserTest < ZenaTestUnit
   def test_create_with_auto_publish
     Site.connection.execute "UPDATE sites SET auto_publish = 1 WHERE id = #{sites_id(:zena)}"
     login(:lion)
-    user = secure!(User) { User.create("name"=>"Shakespeare", "status"=>"50", "group_ids"=>[""], "lang"=>"fr", "time_zone"=>"Bern", "first_name"=>"William", "login"=>"bob", "password"=>"jsahjks894", "email"=>"") }
+    user = secure!(User) { User.create("name"=>"Shakespeare", "status"=>"50", "group_ids"=>[""], "lang"=>"fr", "time_zone"=>"Europe/Zurich", "first_name"=>"William", "login"=>"bob", "password"=>"jsahjks894", "email"=>"") }
     assert !user.new_record?, "Saved"
     assert !user.contact.new_record?, "Contact saved"
     assert_equal sites_id(:zena), user.contact.site_id
@@ -276,5 +276,37 @@ class UserTest < ZenaTestUnit
     assert_equal "user", user.status_name
     user = secure!(User) { users(:anon) }
     assert_equal "reader", user.status_name
+  end
+  
+  def test_invalid_time_zone
+    login(:lion)
+    user = secure!(User) { User.create("login"=>"john", "password"=>"isjjna78a9h", 'time_zone' => 'Zurich') }
+    assert user.new_record?
+    assert user.errors['time_zone'], 'invalid'
+    
+    user = secure!(User) { User.create("login"=>"john", "password"=>"isjjna78a9h", 'time_zone' => 'Mexico/General') }
+    assert !user.new_record?
+    
+    user = secure!(User) { User.create("login"=>"jim", "password"=>"isjjna78a9h", 'time_zone' => '') }
+    assert !user.new_record?
+    assert_nil user[:time_zone]
+  end
+  
+  def test_new_defaults
+    login(:lion)
+    User.connection.execute "UPDATE users SET time_zone = 'Europe/Berlin', lang='fr' WHERE id = #{users_id(:anon)}"
+    
+    user = secure!(User) { User.create("login"=>"john", "password"=>"isjjna78a9h") }
+    assert !user.new_record?
+    assert_equal 'fr', user[:lang]
+    assert_equal 'Europe/Berlin', user[:time_zone]
+    assert_equal User::Status[:reader], user.status
+  end
+  
+  def test_tz
+    login(:ant)
+    assert_equal TZInfo::Timezone.get('Europe/Zurich'), visitor.tz
+    login(:lion)
+    assert_equal TZInfo::Timezone.get('UTC'), visitor.tz
   end
 end

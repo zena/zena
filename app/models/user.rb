@@ -113,7 +113,7 @@ class User < ActiveRecord::Base
       
       # Set new user defaults based on the anonymous user.
       [:lang, :time_zone, :status].each do |sym|
-        new_attrs[sym] = anon.send(sym) if attrs[sym].blank?
+        new_attrs[sym] = anon.send(sym) if attrs[sym].blank? && attrs[sym.to_s].blank?
       end
       super(new_attrs)
     end
@@ -263,6 +263,10 @@ class User < ActiveRecord::Base
     @defined_site_ids = list
   end
   
+  def time_zone=(tz)
+    self[:time_zone] = tz.blank? ? nil : tz
+  end  
+  
   #TODO: test
   # return only the ids of the groups really set (not all groups for admin or the like)
   def group_set_ids
@@ -339,13 +343,15 @@ class User < ActiveRecord::Base
     # Validates that anon user does not have a login, that other users have a password
     # and that the login is unique for the sites the user belongs to.
     def valid_user
+      
       unless current_site.being_created? || visitor.is_admin? || visitor[:id] == self[:id]
         errors.add('base', 'you do not have the rights to do this')
         return false
       end
+      
       if is_anon?
         # Anonymous user *must* have an empty login
-        self[:login] = nil
+        self[:login]    = nil
         self[:password] = nil
       else
         if new_record?
@@ -369,6 +375,15 @@ class User < ActiveRecord::Base
           errors.add(:status, 'you do not have the rights to do this') if self[:id] == visitor[:id] && old.is_admin? && self.status != old.status
         end
       end
+      
+      if self[:time_zone]
+        begin
+          TZInfo::Timezone.get(self[:time_zone])
+        rescue
+          errors.add(:time_zone, 'invalid')
+        end
+      end
+      
       if @password_too_short
         errors.add(:password, 'too short')
         remove_instance_variable :@password_too_short

@@ -633,7 +633,9 @@ module Zena
         name = "#{attribute}_id" unless attribute[-3..-1] == '_id'
         input_id = params[:input_id] ? ", :input_id => #{(dom_id_from_template_url + '_' + attribute.to_s).inspect}" : ''
         "<%= select_id('#{base_class.to_s.underscore}', #{attribute.inspect}#{input_id}) %>"
-        
+      when 'time_zone'
+        return "<span class='parser_error'>[input] select time_zone without name</span>" unless attribute
+        "<%= select('#{base_class.to_s.underscore}', #{attribute.inspect}, TZInfo::Timezone.all_identifiers) %>"
       when 'submit'
         @html_tag = 'input'
         @html_tag_params[:type] = @params[:type]
