@@ -30,8 +30,10 @@ class NodeQuery < QueryBuilder
   
   def after_parse
     @filters.unshift "(\#{#{@node_name}.secure_scope('#{table}')})"
-    if @tables.include?('links')
-      @select << "#{table('links')}.id AS link_id, links.status AS l_status, links.comment AS l_comment" if safe_links_attributes?
+    if @tables.include?('links') && safe_links_attributes?
+      @select << "#{table('links')}.id AS link_id, links.status AS l_status, links.comment AS l_comment"
+    elsif @errors_unless_safe_links
+      @errors += @errors_unless_safe_links
     end
     @distinct = true if @tables.include?('versions')
   end
@@ -164,13 +166,10 @@ class NodeQuery < QueryBuilder
         end
       when 'l_'
         if field == 'l_status' || field == 'l_comment'
-          if @tables.include?('links') && safe_links_attributes?
-            # ok
-            field
-          else
-            @errors << "cannot use link field '#{field}' in this query"
-            :error # return :error to avoid duplicate @error message.
-          end
+          @errors_unless_safe_links ||= []
+          @errors_unless_safe_links << "cannot use link field '#{field}' in this query"
+          # ok
+          "#{table('links')}.#{field[2..-1]}"
         else
           # bad attribute
           nil

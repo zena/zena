@@ -94,7 +94,7 @@ ImageMagick
     # make && make install
 
 === 3. Gems
-rake mongrel mongrel_cluster rmagick RedCloth syntax gettext mongrel_upload_progress uuidtools daemons ruby-debug
+rake mongrel mongrel_cluster rmagick tzinfo RedCloth syntax gettext mongrel_upload_progress uuidtools daemons ruby-debug
 
 === Advised tools
 monit (debian package to monitor your mongrel processes)

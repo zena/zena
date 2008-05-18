@@ -1,3 +1,4 @@
 translations:
   I love: "j'aime"
   words: les mots
+  date_format: '[%d.%m]'

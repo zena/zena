@@ -754,6 +754,14 @@ date_tformat:
   tem: "<%= format_date(@node.created_at, \"%d %B %Y\") %>"
   res: "10 mars 2006"
 
+date_tz:
+  context:
+    visitor: 'ant'
+    node: 'people'
+    lang: 'en'
+  src: "<r:show date='created_at' format='%H:%M'/> / <r:show date='created_at' format='%H:%M' time_zone='Asia/Jakarta'/>"
+  res: "01:00 / 07:00"
+
 dictionary_fr:
   context:
     lang: 'fr'
@@ -767,3 +775,7 @@ dictionary_de:
   src: "<r:load dictionary='translations'><r:trans>foo</r:trans>: <r:trans>I love</r:trans> <r:trans>words</r:trans></r:load>"
   tem: "foo: Ich liebe Wörter"
   res: "foo: Ich liebe Wörter"
+
+dictionary_tformat:
+  src: "<r:load dictionary='translations'><r:show date='created_at' tformat='date_format'/></r:load>"
+  res: "[10.03]"

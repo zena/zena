@@ -146,18 +146,6 @@ module ApplicationHelper
     format_date(thedate, _(fmt))
   end
   
-  def format_date(thedate, format)
-    return "" unless thedate
-    adate = visitor.tz.adjust(thedate)
-      # month name
-    format = format.gsub("%b", _(adate.strftime("%b")) )
-    format.gsub!("%B", _(adate.strftime("%B")) )
-    # weekday name
-    format.gsub!("%a", _(adate.strftime("%a")) )
-    format.gsub!("%A", _(adate.strftime("%A")) )
-    adate.strftime(format)
-  end
-  
   # Show visitor name if logged in
   def visitor_link(opts={})
     unless visitor.is_anon?

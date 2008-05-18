@@ -272,7 +272,7 @@ class NodeTest < ZenaTestUnit
     login(:tiger)
     node = secure!(Node) { nodes(:projects)  }
     assert !node.destroy, "Cannot destroy"
-    assert_equal node.errors[:base], 'contains subpages'
+    assert_equal node.errors[:base], 'contains subpages or data'
     node = secure!(Node) { nodes(:status)  }
     assert node.destroy, "Can destroy"
   end
@@ -282,7 +282,7 @@ class NodeTest < ZenaTestUnit
     node = secure!(Node) { nodes(:lion)  }
     assert_nil node.find(:all, 'pages'), "No subpages"
     assert !node.destroy, "Cannot destroy"
-    assert_equal node.errors[:base], 'contains subpages'
+    assert_equal node.errors[:base], 'contains subpages or data'
   end
   
   def test_parent

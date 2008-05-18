@@ -149,7 +149,6 @@ class Node < ActiveRecord::Base
   validate           :validate_node
   before_create      :node_before_create
   after_save         :spread_project_and_section
-  before_destroy     :node_on_destroy
   attr_protected     :site_id, :zip, :id, :section_id, :project_id, :publish_from, :max_status
   attr_protected     :c_version_id, :c_node_id # TODO: test
   acts_as_secure_node
@@ -1083,6 +1082,12 @@ class Node < ActiveRecord::Base
     FileUtils::rmtree(asset_path(''))
   end
   
+  # Include data entry verification in multiversion's empty? method.
+  def empty?
+    return true if new_record?
+    super && 0 == self.class.count_by_sql("SELECT COUNT(*) FROM #{DataEntry.table_name} WHERE node_a_id = #{id} OR node_b_id = #{id} OR node_c_id = #{id} OR node_d_id = #{id}")
+  end
+  
   protected
   
     # after node is saved, make sure it's children have the correct section set
@@ -1144,7 +1149,7 @@ class Node < ActiveRecord::Base
         end
       end
     end
-  
+    
   private
     def node_before_validation
       
@@ -1196,9 +1201,10 @@ class Node < ActiveRecord::Base
     end
     
     # Called before destroy. An node must be empty to be destroyed
-    def node_on_destroy
+    def secure_on_destroy
+      return false unless super
       unless empty?
-        errors.add('base', "contains subpages")
+        errors.add('base', "contains subpages or data")
         return false
       else  
         # expire cache

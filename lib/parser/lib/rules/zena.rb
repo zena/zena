@@ -210,7 +210,21 @@ module Zena
         else
           format = "%Y-%m-%d"
         end
-        attribute_method = "format_date(#{node_attribute(@params[:date])}, #{format.inspect})"
+        
+        tz = ''
+        if tz_name = @params[:time_zone]
+          if tz_name =~ /^\[(\w+)\]$/
+            tz = ", #{node_attribute($1)}"
+          else
+            begin
+              TZInfo::Timezone.get(tz_name)
+            rescue TZInfo::InvalidTimezoneIdentifier
+              return "<span class='parser_error'>invalid timezone #{tz_name.inspect}</span>"
+            end
+            tz = ", #{tz_name.inspect}"
+          end
+        end
+        attribute_method = "format_date(#{node_attribute(@params[:date])}, #{format.inspect}#{tz})"
       elsif @context[:trans]
         # error
         return "no attribute for 'show'".inspect
@@ -414,11 +428,7 @@ module Zena
         end
       end
       if static
-        if @context[:dict]
-          @context[:dict][text] || helper.send(:_,text)
-        else
-          helper.send(:_,text)
-        end
+        _(text)
       else
         "<%= _(#{text}) %>"
       end
@@ -1259,13 +1269,13 @@ END_TXT
         zena = "<a class='zena' href='http://zenadmin.org' title='zena #{Zena::VERSION::STRING} r#{Zena::VERSION::REV}'>zena</a>"
         case @params[:type]
         when 'riding'
-          helper.send(:_, "riding %{zena}") % {:zena => zena}
+          _("riding %{zena}") % {:zena => zena}
         when 'peace'
-          helper.send(:_, "in peace with %{zena}") % {:zena => zena}
+          _("in peace with %{zena}") % {:zena => zena}
         when 'garden'
-          helper.send(:_, "a %{zen} garden") % {:zen => zena.sub('>zena<', '>zen<')}
+          _("a %{zen} garden") % {:zen => zena.sub('>zena<', '>zen<')}
         else
-          helper.send(:_, "made with %{zena}") % {:zena => zena}
+          _("made with %{zena}") % {:zena => zena}
         end
       end
     end
@@ -1280,7 +1290,7 @@ END_TXT
         skin = helper.instance_variable_get(:@controller).instance_variable_get(:@skin_name)
       end
       skin = "<i>#{skin}</i>" unless skin.blank?
-      helper.send(:_, "%{skin} design by %{name}") % {:name => by, :skin => skin}
+      _("%{skin} design by %{name}") % {:name => by, :skin => skin}
     end
     
     # creates a link. Options are:
@@ -1786,7 +1796,11 @@ END_TXT
     end
     
     def _(text)
-      helper.send(:_,text)
+      if @context[:dict]
+        @context[:dict][text] || helper.send(:_,text)
+      else
+        helper.send(:_,text)
+      end  
     end
     
     # Unique DOM identifier for this tag
@@ -2179,16 +2193,12 @@ module ActiveRecord
       def date_condition(date_cond, field, ref_date='today')
         if date_cond == 'today' || ref_date == 'today'
           ref_date = 'now()'
-        elsif ref_date =~ /^\d{4}-\d{1,2}-\d{1,2}$/
+        elsif ref_date =~ /^\d{4}-\d{1,2}-\d{1,2}( \d{1,2}:\d{1,2}(:\d{1,2})?)?$/
           ref_date = "'#{ref_date}'"
         else
-          ref_date = "'\#{#{ref_date}.strftime('%Y-%m-%d')}'"
+          ref_date = "'\#{#{ref_date}.strftime('%Y-%m-%d %H:%M:%S')}'"
         end
-        if date_cond =~ /^upcoming(\-?\d+)$/
-          little_past = $1
-        else
-          little_past = 0
-        end
+        
         case date_cond
         when 'today', 'current', 'same'
           "DATE(#{field}) = DATE(#{ref_date})"
@@ -2199,19 +2209,20 @@ module ActiveRecord
         when 'year'
           "date_format(#{ref_date},'%Y') = date_format(#{field}, '%Y')"
         when 'upcoming'
-          "DATEDIFF(#{field},#{ref_date}) >= #{little_past}"
+          "#{field} >= #{ref_date}"
         else
-          if date_cond =~ /^(\+|-|)(\d+)day/
+          # date_add('2008-01-31 23:50',INTERVAL 1 hour)
+          if date_cond =~ /^(\+|-|)\s*(\d+)\s*(second|minute|hour|day|week|month|year)/
             count = $2.to_i
             if $1 == ''
-              # +/- x days
-              "ABS(DATEDIFF(#{field},#{ref_date})) <= #{count}"
+              # +/-
+              "#{field} > #{ref_date} - INTERVAL #{count} #{$3.upcase} AND #{field} < #{ref_date} + INTERVAL #{count} #{$3.upcase}"
             elsif $1 == '+'
               # x upcoming days
-              "DATEDIFF(#{field},#{ref_date}) >= 0 AND DATEDIFF(#{field},#{ref_date}) <= #{count}"
+              "#{field} > #{ref_date} AND #{field} < #{ref_date} + INTERVAL #{count} #{$3.upcase}"
             else
               # x days in the past
-              "DATEDIFF(#{field},#{ref_date}) < 0 AND DATEDIFF(#{field},#{ref_date}) >= -#{count}"
+              "#{field} < #{ref_date} AND #{field} > #{ref_date} - INTERVAL #{count} #{$3.upcase}"
             end
           end
         end

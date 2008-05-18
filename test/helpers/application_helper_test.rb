@@ -176,7 +176,7 @@ class ApplicationHelperTest < ZenaTestHelper
   
   def test_date_box
     @node = secure!(Node) { nodes(:status) }
-    assert_match %r{div class="date_box".*img src="\/calendar\/iconCalendar.gif".*input id='datef.*' name='node\[updated_at\]' type='text' value='2006-04-11 01:00'}m, date_box('node', 'updated_at')
+    assert_match %r{div class="date_box".*img src="\/calendar\/iconCalendar.gif".*input id='datef.*' name='node\[updated_at\]' type='text' value='2006-04-11 00:00'}m, date_box('node', 'updated_at')
   end
   
   def test_javascript
@@ -201,28 +201,36 @@ class ApplicationHelperTest < ZenaTestHelper
   end
   # ======================== tests pass to here ================
   def test_long_time
-    atime = visitor.tz.unadjust(Time.gm(2006,11,10,17,42,25)) # local time for visitor
+    atime = visitor.tz.local_to_utc(Time.utc(2006,11,10,17,42,25)) # local time for visitor
     assert_equal "17:42:25", long_time(atime)
     GetText.set_locale_all 'fr'
     assert_equal "17:42:25", long_time(atime)
   end
   
   def test_short_time
-    atime = visitor.tz.unadjust(Time.gm(2006,11,10,17,33))
+    atime = visitor.tz.local_to_utc(Time.utc(2006,11,10,17,33))
     assert_equal "17:33", short_time(atime)
     GetText.set_locale_all 'fr'
     assert_equal "17h33", short_time(atime)
   end
+  
+  def test_short_time_visitor_time_zone
+    login(:ant) # Europe/Zurich UTC+1, DST+1
+    atime = Time.utc(2008,05,18,17,33)
+    assert_equal "19:33", short_time(atime)
+    GetText.set_locale_all 'fr'
+    assert_equal "19h33", short_time(atime)
+  end
 
   def test_long_date
-    atime = visitor.tz.unadjust(Time.gm(2006,11,10))
+    atime = visitor.tz.utc_to_local(Time.gm(2006,11,10))
     assert_equal "2006-11-10", long_date(atime)
     GetText.set_locale_all 'fr'
     assert_equal "10.11.2006", long_date(atime)
   end
 
   def test_full_date
-    atime = visitor.tz.unadjust(Time.gm(2006,11,10))
+    atime = visitor.tz.utc_to_local(Time.gm(2006,11,10))
     assert_equal "Friday, November 10 2006", full_date(atime)
     GetText.set_locale_all 'fr'
     assert_equal "vendredi, 10 novembre 2006", full_date(atime)
@@ -395,4 +403,40 @@ class ApplicationHelperTest < ZenaTestHelper
     @controller.set_params(:controller=>'nodes', :action=>'show', :path=>'projects/cleanWater', :prefix=>'en')
     assert_match %r{<em>en</em>.*href=.*/fr/projects/cleanWater.*fr.*}, lang_links
   end
+  
+  def test_timezones
+    login(:ant)
+    visitor[:time_zone] = "Europe/Zurich"
+    
+    # UTC+1, no Daylight time savings
+    assert_equal Time.utc(2008,1,3,12,03,10), "2008-01-03 13:03:10".to_utc('%Y-%m-%d %H:%M:%S', visitor.tz)
+    # UTC+1, Daylight time savings
+    assert_equal Time.utc(2008,5,17,11,03,10), "2008-05-17 13:03:10".to_utc('%Y-%m-%d %H:%M:%S', visitor.tz)
+    
+    # convert back and forth
+    [
+      ["2008-05-17 13:03:10", '%Y-%m-%d %H:%M:%S'],
+      ["03.01.2008 13:03:10", '%d.%m.%Y %H:%M:%S'],
+    ].each do |date_str, format|
+      assert_equal date_str, format_date(date_str.to_utc(format, visitor.tz), format)
+    end
+    
+    login(:ant) # Europe/Paris
+    visitor[:time_zone] = "Asia/Jakarta"
+    
+    # UTC+7, no Daylight time savings
+    assert_equal Time.utc(2008,1,3,12,03,10), "2008-01-03 19:03:10".to_utc('%Y-%m-%d %H:%M:%S', visitor.tz)
+    # UTC+7, no Daylight time savings
+    assert_equal Time.utc(2008,5,17,12,03,10), "2008-05-17 19:03:10".to_utc('%Y-%m-%d %H:%M:%S', visitor.tz)
+    
+    
+    # convert back and forth
+    [
+      ["2008-05-17 13:03:10", '%Y-%m-%d %H:%M:%S'],
+      ["03.01.2008 13:03:10", '%d.%m.%Y %H:%M:%S'],
+    ].each do |date_str, format|
+      assert_equal date_str, format_date(date_str.to_utc(format, visitor.tz), format)
+    end
+  end
+  
 end

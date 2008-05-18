@@ -1,4 +1,4 @@
-=begin
+=begin rdoc
 A DataEntry stores unversioned information across 4 nodes. The main purpose of this data is to
 store simple statistical values, registrations or other kinds of lists with nodes.
 

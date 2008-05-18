@@ -130,5 +130,5 @@ order_l_status:
   context:
     node: art
   src: "tagged order by l_status ASC, name ASC"
-  sql: "SELECT nodes.*,links.id AS link_id, links.status AS l_status, links.comment AS l_comment FROM nodes,links WHERE nodes.id = links.source_id AND links.relation_id = 2 AND links.target_id = #{@node.id} AND (#{@node.secure_scope('nodes')}) ORDER BY l_status ASC, nodes.name ASC"
+  sql: "SELECT nodes.*,links.id AS link_id, links.status AS l_status, links.comment AS l_comment FROM nodes,links WHERE nodes.id = links.source_id AND links.relation_id = 2 AND links.target_id = #{@node.id} AND (#{@node.secure_scope('nodes')}) ORDER BY links.status ASC, nodes.name ASC"
   res: "opening, cleanWater"

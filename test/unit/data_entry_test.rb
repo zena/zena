@@ -4,7 +4,7 @@ class DataEntryTest < ZenaTestUnit
   
   def test_site_id
     login(:tiger)
-    ent = DataEntry.create(:node_a_id => nodes_id(:status), :text => "simple test")
+    ent = DataEntry.create(:node_a_id => nodes_id(:wiki), :text => "simple test")
     assert !ent.new_record?, "Not a new record"
     assert_equal sites_id(:zena), ent[:site_id]
   end
@@ -24,9 +24,9 @@ class DataEntryTest < ZenaTestUnit
   def test_nodes
     login(:tiger)
     ent = data_entries(:comment)
-    assert_equal [nodes_id(:secret),nodes_id(:status)], ent.nodes.map {|n| n.id}.sort
+    assert_equal [nodes_id(:secret),nodes_id(:wiki)], ent.nodes.map {|n| n.id}.sort
     login(:ant)
-    assert_equal [nodes_id(:status)], ent.nodes.map {|n| n.id}.sort
+    assert_equal [nodes_id(:wiki)], ent.nodes.map {|n| n.id}.sort
   end
   
   def test_node_a
@@ -53,7 +53,7 @@ class DataEntryTest < ZenaTestUnit
   
   def test_data_precision
     login(:ant)
-    ent = DataEntry.create(:node_a_id => nodes_id(:status), :value => 3.1415926535897932384)
+    ent = DataEntry.create(:node_a_id => nodes_id(:wiki), :value => 3.1415926535897932384)
     ent = DataEntry.find(ent[:id])
     assert_equal BigDecimal("3.14159265"), ent.value  # crop to 8 digit precision
   end
@@ -62,8 +62,8 @@ class DataEntryTest < ZenaTestUnit
     login(:ant)
     ent = data_entries(:comment)
     clone = ent.clone
-    assert_equal 9, clone[:node_a_id]
-    assert_equal 12, clone[:node_b_id]
+    assert_equal nodes_id(:secret), clone[:node_a_id]
+    assert_equal nodes_id(:wiki), clone[:node_b_id]
     assert_nil clone[:node_c_id]
     assert_nil clone[:node_d_id]
     assert_nil clone[:text]

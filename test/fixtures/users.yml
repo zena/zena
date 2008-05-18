@@ -23,6 +23,7 @@ ant:
   login:      ant
   password:   <%= User.hash_password('ant') %>
   lang:       fr
+  time_zone:  Europe/Zurich
 
 tiger:
   id:         4

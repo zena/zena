@@ -4,7 +4,7 @@ require 'tempfile'
 class ApplicationController < ActionController::Base
   init_gettext 'zena'
   helper_method :prefix, :zen_path, :zen_url, :data_path, :node_url, :notes, :error_messages_for, :render_errors, :processing_error
-  helper_method :get_template_text, :template_url_for_asset, :save_erb_to_url, :lang, :visitor, :fullpath_from_template_url, :eval_parameters_from_template_url, :dom_id_from_template_url, :find_notes
+  helper_method :get_template_text, :template_url_for_asset, :save_erb_to_url, :lang, :visitor, :fullpath_from_template_url, :eval_parameters_from_template_url, :dom_id_from_template_url, :find_notes, :format_date
   before_filter :set_lang
   before_filter :authorize
   before_filter :check_lang
@@ -780,4 +780,29 @@ END_MSG
       notes = source.do_find(:all, sql) || []
       [notes, start_date, end_date]
     end
+    
+    def format_date(thedate, format, tz_name=nil)
+      return "" unless thedate
+      if tz_name
+        # display time local to event's timezone
+        begin
+          tz = TZInfo::Timezone.get(tz_name)
+        rescue TZInfo::InvalidTimezoneIdentifier
+          return "<span class='parser_error'>invalid timezone #{tz_name.inspect}</span>"
+        end
+      else
+        tz = visitor.tz
+      end
+      adate = tz.utc_to_local(thedate)
+      
+      # month name
+      format = format.gsub("%b", _(adate.strftime("%b")) )
+      format.gsub!("%B", _(adate.strftime("%B")) )
+      
+      # weekday name
+      format.gsub!("%a", _(adate.strftime("%a")) )
+      format.gsub!("%A", _(adate.strftime("%A")) )
+      adate.strftime(format)
+    end
+
 end

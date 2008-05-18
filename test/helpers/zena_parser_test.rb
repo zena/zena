@@ -112,25 +112,32 @@ class ZenaParserTest < ZenaTestController
   end
   
   def test_relations_in_7_days
-    Node.connection.execute "UPDATE nodes SET log_at = #{Node.connection.quote(Time.now.utc)} WHERE id IN (12, 23);" # status, art
-    Node.connection.execute "UPDATE nodes SET log_at = ADDDATE(curdate(), interval 6 day) WHERE id IN (8, 11);" # projects, cleanWater
-    Node.connection.execute "UPDATE nodes SET log_at = ADDDATE(curdate(), interval 10 day) WHERE id IN (2);" # people
+    Node.connection.execute "UPDATE nodes SET log_at = curdate() WHERE id IN (12, 23);" # status, art
+    Node.connection.execute "UPDATE nodes SET log_at = curdate() + interval 6 day WHERE id IN (8, 11);" # projects, cleanWater
+    Node.connection.execute "UPDATE nodes SET log_at = curdate() + interval 10 day WHERE id IN (2);" # people
     do_test('relations', 'in_7_days')
   end
   
   def test_relations_logged_7_days_ago
     Node.connection.execute "UPDATE nodes SET log_at = now() WHERE id IN (12, 23);" # status, art
-    Node.connection.execute "UPDATE nodes SET log_at = ADDDATE(curdate(), interval -6 day) WHERE id IN (8, 11);" # projects, cleanWater
-    Node.connection.execute "UPDATE nodes SET log_at = ADDDATE(curdate(), interval -10 day) WHERE id IN (2);" # people
+    Node.connection.execute "UPDATE nodes SET log_at = curdate() - interval 6 day WHERE id IN (8, 11);" # projects, cleanWater
+    Node.connection.execute "UPDATE nodes SET log_at = curdate() - interval 10 day WHERE id IN (2);" # people
     do_test('relations', 'logged_7_days_ago')
   end
   
   def test_relations_around_7_days
     Node.connection.execute "UPDATE nodes SET log_at = now() WHERE id IN (12);" # status
-    Node.connection.execute "UPDATE nodes SET log_at = ADDDATE(curdate(), interval 5 day) WHERE id IN (23);" # art
-    Node.connection.execute "UPDATE nodes SET log_at = ADDDATE(curdate(), interval -6 day) WHERE id IN (8, 11);" # projects, cleanWater
-    Node.connection.execute "UPDATE nodes SET log_at = ADDDATE(curdate(), interval -10 day) WHERE id IN (2);" # people
+    Node.connection.execute "UPDATE nodes SET log_at = curdate() + interval 5 day WHERE id IN (23);" # art
+    Node.connection.execute "UPDATE nodes SET log_at = curdate() - interval 6 day WHERE id IN (8, 11);" # projects, cleanWater
+    Node.connection.execute "UPDATE nodes SET log_at = curdate() - interval 10 day WHERE id IN (2);" # people
     do_test('relations', 'around_7_days')
+  end
+  
+  def test_relations_in_37_hours
+    Node.connection.execute "UPDATE nodes SET log_at = #{Node.connection.quote(Time.now.utc)} WHERE id IN (23);" # art
+    Node.connection.execute "UPDATE nodes SET log_at = curdate() + interval 36 hour WHERE id IN (11);" # cleanWater
+    Node.connection.execute "UPDATE nodes SET log_at = curdate() + interval 38 hour WHERE id IN (8, 2);" # projects, people
+    do_test('relations', 'in_37_hours')
   end
   
   def test_relations_this_week

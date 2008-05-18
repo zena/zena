@@ -1,3 +1,5 @@
+require 'rubygems'
+require 'tzinfo'
 require 'test/unit'
 require 'fileutils'
 require File.join(File.dirname(__FILE__), '../../lib/core_ext/string')
@@ -15,6 +17,17 @@ class StringExtTest < Test::Unit::TestCase
   
   def test_date_only
     assert_equal Time.utc(1975,10,16), "10/16/1975".to_utc('%m/%d/%Y')
+  end
+  
+  def test_to_utc_with_timezone
+    # UTC+1, no Daylight time savings
+    assert_equal Time.utc(2008,1,3,12,03,10), "2008-01-03 13:03:10".to_utc('%Y-%m-%d %H:%M:%S', TZInfo::Timezone.get("Europe/Paris"))
+    # UTC+1, +1h Daylight time savings
+    assert_equal Time.utc(2008,5,17,11,03,10), "2008-05-17 13:03:10".to_utc('%Y-%m-%d %H:%M:%S', TZInfo::Timezone.get("Europe/Paris"))
+  end
+  
+  def test_bad_to_utc
+    assert_nil "2008-05-17".to_utc('%d.%m.%Y')
   end
   
   def test_as_duration

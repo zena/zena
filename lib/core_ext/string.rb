@@ -13,14 +13,16 @@ class String
       hash['%M'] ||= 0
       hash['%S'] ||= 0
       if hash['%Y'] && hash['%m'] && hash['%d']
-        res = Time.gm(hash['%Y'], hash['%m'], hash['%d'], hash['%H'], hash['%M'], hash['%S'])
-        timezone ? timezone.unadjust(res) : res
+        res = Time.utc(hash['%Y'], hash['%m'], hash['%d'], hash['%H'], hash['%M'], hash['%S'])
+        timezone ? timezone.local_to_utc(res) : res
       else
         nil
       end
     else
       nil
     end
+  rescue ArgumentError
+    nil
   end
 
   def limit(num)

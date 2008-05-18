@@ -1,4 +1,5 @@
 require 'digest/sha1'
+require 'tzinfo'
 =begin rdoc
 There are two special users in each site :
 [anon] Anonymous user. Used to set defaults for newly created users.
@@ -270,7 +271,9 @@ class User < ActiveRecord::Base
   
   # TODO: test
   def tz
-    @tz ||= TimeZone.new(self[:time_zone] || '') || TimeZone.new("Bern")
+    @tz ||= TZInfo::Timezone.get(self[:time_zone] || "UTC")
+  rescue TZInfo::InvalidTimezoneIdentifier
+    @tz = TZInfo::Timezone.get("UTC")
   end
   
   def comments_to_publish

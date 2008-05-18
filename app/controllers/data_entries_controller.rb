@@ -3,20 +3,22 @@ class DataEntriesController < ApplicationController
   before_filter :check_can_edit
   layout :admin_layout
 
+  def show
+  end
+  
   def new
     # TODO
   end
 
   def create
-    attrs = params['data_entry']
-    @data_entry = secure!(Node) { DataEntry.create_data_entry(attrs) }
+    @data_entry = secure!(Node) { DataEntry.create_data_entry(params['data_entry']) }
     
     respond_to do |format|
       if @data_entry.errors.empty?
         flash[:notice] = _('Data entry was successfully created.')
-        format.html { redirect_to data_entry_url(@node) }
+        format.html { redirect_to data_entry_url(@data_entry) }
         format.js
-        format.xml  { head :created, :location => data_entry_url(@node) }
+        format.xml  { head :created, :location => data_entry_url(@data_entry) }
       else
         format.html { render :action => "new" }
         format.js
@@ -41,10 +43,6 @@ class DataEntriesController < ApplicationController
       end
     end
   end
-  
-  def create
-    @data_entry = DataEntry.create_data_entry(params[:data_entry])
-  end
 
   def update
     @data_entry.update_attributes_with_transformation(params[:data_entry])
@@ -67,7 +65,7 @@ class DataEntriesController < ApplicationController
   
   private
     def find_data_entry
-      return false unless @data_entry = DataEntry.find_by_id_and_site_id(params[:id], visitor.site[:id])
+      return false unless @data_entry = secure(DataEntry) { DataEntry.find_by_id(params[:id]) }
       @node = @data_entry.node_a
     end
     
