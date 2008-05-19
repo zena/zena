@@ -185,7 +185,9 @@ class NavigationTest < ActionController::IntegrationTest
   end
   
   def test_show_with_mode
-    get 'http://test.host/en/section12_changes.html'
+    get "http://test.host/en/section12_changes.html"
+    assert_response :missing # people is not rendered with 'wiki' mode where 'changes' is defined.
+    get "http://test.host/en/project29_changes.html"
     assert_response :success
     get 'http://test.host/en/section12_index.html'
     assert_response :missing

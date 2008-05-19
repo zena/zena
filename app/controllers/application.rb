@@ -270,12 +270,22 @@ END_MSG
       klasses = []
       klass.kpath.split(//).each_index { |i| klasses << klass.kpath[0..i] }
       
-      template = secure(Template) { Template.find(:first, 
-        :conditions => ["tkpath IN (?) AND format = ? AND mode #{mode ? '=' : 'IS'} ? AND template_contents.node_id = nodes.id", klasses, format, mode],
-        :from       => "nodes, template_contents",
-        :select     => "nodes.*, template_contents.skin_name, template_contents.klass, (template_contents.skin_name = #{@skin_name.inspect}) AS skin_ok",
-        :order      => "length(tkpath) DESC, skin_ok DESC"
-      )}
+      # FIXME: is searching in all skins a good idea ? I think not. Only searching for special modes '*popupLayout', '*login', etc.
+      if mode && mode[0..0] == '*'
+        template = secure(Template) { Template.find(:first, 
+          :conditions => ["tkpath IN (?) AND format = ? AND mode #{mode ? '=' : 'IS'} ? AND template_contents.node_id = nodes.id", klasses, format, mode],
+          :from       => "nodes, template_contents",
+          :select     => "nodes.*, template_contents.skin_name, template_contents.klass, (template_contents.skin_name = #{@skin_name.inspect}) AS skin_ok",
+          :order      => "length(tkpath) DESC, skin_ok DESC"
+        )}
+      else
+        template = secure(Template) { Template.find(:first, 
+          :conditions => ["tkpath IN (?) AND format = ? AND mode #{mode ? '=' : 'IS'} ? AND template_contents.node_id = nodes.id AND template_contents.skin_name = ?", klasses, format, mode, @skin_name],
+          :from       => "nodes, template_contents",
+          :select     => "nodes.*, template_contents.skin_name, template_contents.klass",
+          :order      => "length(tkpath) DESC"
+        )}
+      end
       
       # FIXME use a default fixed template.
       raise ActiveRecord::RecordNotFound unless template
@@ -396,7 +406,7 @@ END_MSG
         name = url.shift
         skin_names = [name] + (@skin_names - [name])
       else
-        # does not start with '/' : look in skin_names first
+        # does not start with '/' : look in current skin first
         url = folder + src.split('/')
         skin_names = @skin_names.dup
         if url.size > 1
