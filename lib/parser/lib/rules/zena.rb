@@ -1461,7 +1461,7 @@ END_TXT
           do_var(  "#{node}.#{@method}", context )
         end
       elsif node_kind_of?(Node)
-        if @params[:from] || @method =~ /\sfrom\s/ || Node.plural_relation?(@method)
+        if @params[:in] || @method =~ /\sin\s/ || Node.plural_relation?(@method)
           # plural
           do_list( build_finder_for(:all,   @method, @params) )
         else
@@ -1929,18 +1929,25 @@ END_TXT
           '!' + node_attribute(value, :node => node) + '.blank?'
         when :node
           if node_kind_of?(Node)
-            case value
-            when 'main'
-              "#{node}[:id] == @node[:id]"
-            when 'parent'
-              "#{node}[:id] == @node[:parent_id]"
-            when 'project'
-              "#{node}[:id] == @node[:project_id]"
-            when 'section'
-              "#{node}[:id] == @node[:section_id]"
-            when 'ancestor'
-              "@node.fullpath =~ /\\A\#{#{node}.fullpath}/"
+            value, node_name = get_node_and_attribute(value)
+            node_name ||= node
+            if value
+              case value
+              when 'main'
+                "#{node_name}[:id] == @node[:id]"
+              when 'parent'
+                "#{node_name}[:id] == @node[:parent_id]"
+              when 'project'
+                "#{node_name}[:id] == @node[:project_id]"
+              when 'section'
+                "#{node_name}[:id] == @node[:section_id]"
+              when 'ancestor'
+                "@node.fullpath =~ /\\A\#{#{node_name}.fullpath}/"
+              else
+                nil
+              end
             else
+              # bad node_name
               nil
             end
           else
@@ -1968,23 +1975,26 @@ END_TXT
       end
     end
     
-    def node_attribute(str, opts={})
+    def get_node_and_attribute(str)
       if str =~ /([^\.]+)\.(.+)/
         node_name = $1
         node_attr = $2
         if att_node = find_stored(Node, node_name)
-          attribute = node_attr
-        elsif node_name == 'main'  
-          att_node = '@node'
-          attribute = node_attr
-          klass = Node
+          return [node_attr, att_node, Node]
+        elsif node_name == 'main'
+          return [node_attr, '@node', Node]
         else
           out "<span class='parser_error'>invalid node name #{node_name.inspect} in attribute #{str.inspect}</span>"
-          return 'nil'
+          return [nil]
         end
+      else
+        return [str]
       end
-      
-      attribute ||= str
+    end
+    
+    def node_attribute(str, opts={})
+      attribute, att_node, klass = get_node_and_attribute(str)
+      return 'nil' unless attribute
       att_node  ||= opts[:node]       || node
       klass     ||= opts[:node_class] || node_class
       

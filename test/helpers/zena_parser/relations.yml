@@ -284,7 +284,12 @@ where:
 where_like:
   src: "<r:images where='name like \"%ke\"' in='site' do='each' join=',' do='[name]'/>"
   res: "lake"
-
+  
+where_like_param:
+  src: "<r:tagged where='name like \"%[param:tag]%\" and \"[param:tag]\" ne \"\"' in='site' or='self' do='each' join=',' do='[name]'/>"
+  tem: "/Node.connection.quote\(params\[:tag\].to_s\)\} <> ''"
+  res: "status"
+  
 where_not:
   context:
     node: 'cleanWater'

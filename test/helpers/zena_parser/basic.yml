@@ -409,6 +409,10 @@ on_if_ancestor:
   src: "<r:root><r:pages><li do='each' on_if='ancestor' class='hello' join=', '><r:show attr='name'/></li></r:pages></r:root>"
   res: "<li class='hello'>collections</li>, <li class='hello'>nature</li>, <li class='hello'>people</li>, <li class='on'>projects</li>, <li class='hello'>skins</li>"
 
+test_ancestor_with_stored:
+  src: "<r:parent do='parent' store='papa'><div do='void' super_if='papa.ancestor'>hoho</div></r:parent>"
+  tem: "/@node.fullpath.*var1.fullpath/"
+
 on_if_kind_of:
   context:
     node: 'proposition'

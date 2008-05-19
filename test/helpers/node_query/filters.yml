@@ -51,3 +51,18 @@ filter_l_status:
   src: "tagged where l_status > 5"
   sql: "SELECT nodes.*,links.id AS link_id, links.status AS l_status, links.comment AS l_comment FROM nodes,links WHERE nodes.id = links.source_id AND links.relation_id = 2 AND links.target_id = #{@node.id} AND links.status > '5' AND (#{@node.secure_scope('nodes')}) ORDER BY nodes.position ASC, nodes.name ASC"
   res: "cleanWater"
+
+param_filter:
+  src:
+    - "tagged where name like \"%[param:tag]%\" and \"[param:tag]\" ne \"\" in site"
+    - "tagged where l_status > 5"
+  res: "cleanWater"
+
+param_filter_tag:
+  context:
+    params:
+      tag: 'op'
+  src:
+    - "tagged where name like \"%[param:tag]%\" and \"[param:tag]\" ne \"\" in site"
+    - "tagged where l_status > 5"
+  res: "opening"

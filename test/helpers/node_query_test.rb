@@ -9,6 +9,10 @@ class NodeQueryTest < ZenaTestUnit
     default_context = (@@test_strings[file]['default'] || {})['context'] || {}
     context = Hash[*default_context.merge(context).map{|k,v| [k.to_sym,v]}.flatten]
     
+    params = {}
+    (context[:params] || {}).each do |k,v|
+      params[k.to_sym] = v
+    end
     
     login context[:visitor].to_sym
     
