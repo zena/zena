@@ -128,8 +128,8 @@ show_mean_gsub:
   context:
     node: 'tiger'
   src: "<r:show attr='c_address' gsub=\"/#{puts 'I AM MEAN'}/;/\"/>"
-  tem: "<%= @node.c_zafu_read(\"address\").to_s.gsub(/# {puts 'I AM MEAN'}/,\";\") %>"
-  res: "Small Island\nIn the Wild"
+  tem: "<span class='parser_error'>[show] invalid gsub \"/\#{puts 'I AM MEAN'}/;/\"</span>"
+  res: "<span class='parser_error'>[show] invalid gsub \"/\#{puts 'I AM MEAN'}/;/\"</span>"
 
 show_attr_actions:
   context:
@@ -466,6 +466,10 @@ each_join:
 set_attribute:
   src: "<div class='machin' do='void' set_class='node[id]'/><r:void set_class='s[v_status]i[id]'/>"
   res: "<div class='node22'></div><div class='s50i22'></div>"
+
+set_attribute_with_stored:
+  src: "<r:parent store='child'><div do='void' set_class='[name].[child.name]'>hoho</div></r:parent>"
+  res: "<div class='cleanWater.status'>hoho</div>"
 
 set_node_param:
   src: "<p do='void' set_class='class_[main.id]'/><p do='void' set_class='[main.name]'/>"

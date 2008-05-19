@@ -242,10 +242,21 @@ module Zena
           value = $2
           key   = $1.gsub(/\#([\{\$\@])/,'# \1') # FIXME: SECURITY.
                                                  # Please note that .gsub(/#([\{\$\@])/,'\#\1') won't work, since '\#{blah}' will become '\\#{blah}' and 'blah' will be evaluated.
-          begin
+          regexp_ok = begin
+            output = StringIO.open('','w')
+            $stderr = output
             re = /#{key}/
+            output.string !~ /warning:/
+          rescue
+            false
+          ensure
+            $stderr = STDERR
+            false
+          end
+          
+          if regexp_ok
             attribute_method = "#{attribute_method}.to_s.gsub(/#{key}/,#{value.inspect})"
-          rescue RegexpError => e
+          else
             # invalid regexp
             return "<span class='parser_error'>[show] invalid gsub #{gsub.inspect}</span>"
           end
@@ -1957,9 +1968,26 @@ END_TXT
       end
     end
     
-    def node_attribute(attribute, opts={})
-      att_node = opts[:node]       || node
-      klass    = opts[:node_class] || node_class
+    def node_attribute(str, opts={})
+      if str =~ /([^\.]+)\.(.+)/
+        node_name = $1
+        node_attr = $2
+        if att_node = find_stored(Node, node_name)
+          attribute = node_attr
+        elsif node_name == 'main'  
+          att_node = '@node'
+          attribute = node_attr
+          klass = Node
+        else
+          out "<span class='parser_error'>invalid node name #{node_name.inspect} in attribute #{str.inspect}</span>"
+          return 'nil'
+        end
+      end
+      
+      attribute ||= str
+      att_node  ||= opts[:node]       || node
+      klass     ||= opts[:node_class] || node_class
+      
       res = if klass.ancestors.include?(Node)
         attribute = attribute.gsub(/\A(|[\w_]+)id(s?)\Z/, '\1zip\2') unless attribute =~ /\Ad_/
         if ['url','path'].include?(attribute)
@@ -2035,16 +2063,6 @@ END_TXT
             use_node  = @var || node
             if node_attr =~ /^param:(\w+)$/
               res = "params[:#{$1}].to_s"
-            elsif node_attr =~ /([^\.]+)\.(.+)/
-              node_name = $1
-              node_attr = $2
-              if use_node = find_stored(Node, node_name)
-                res = node_attribute(node_attr, :node => use_node )
-              elsif node_name = 'main'
-                res = node_attribute(node_attr, :node => '@node', :node_class => Node )
-              else
-                res = "bad node_name #{use_node.inspect}"
-              end
             else
               # normal node_attribute
               res = node_attribute(node_attr, :node => use_node )
