@@ -164,7 +164,7 @@ hot_not_else_block:
   res: "I am hot and funny"
   
 children_else:
-  src: "<r:children else='self'><r:each join=', '><r:show attr='name'/></r:each></r:children>"
+  src: "<r:children where='name like \"%asdfg\"' else='self'><r:each join=', '><r:show attr='name'/></r:each></r:children>"
   res: "status"
 
 hot_else:

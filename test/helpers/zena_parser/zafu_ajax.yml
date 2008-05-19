@@ -75,6 +75,10 @@ block_edit_form:
   src: "<r:block><p do='[name]'/> <r:edit/> <r:form>please enter name: <input name='name'/> <r:input type='submit'/></r:form></r:block>"
   res: "/<p>status<\/p>.*edit/"
 
+query_in_block:
+  src: "<r:block><r:tagged where='name like \"%[param:tag]%\"' in='site'/></r:block>"
+  tem: "!/parser_error/"
+
 saved_each_block:
   src: "<ol do='pages'><li do='each' on_if='ancestor' do='link'/><li do='add'/></ol>"
   'saved/each/en/block/list.erb': "!/var1/"

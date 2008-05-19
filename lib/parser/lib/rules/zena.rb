@@ -1541,6 +1541,7 @@ END_TXT
       # <r:img link='foo'/>
       # ...
       sql_query, query_errors = Node.build_find(count, pseudo_sql, node, raw_filters)
+      
       unless sql_query
         # is 'out' here a good idea ?
         out "<span class='parser_error'>#{pseudo_sql.join(', ').inspect}: #{query_errors.join(' ')}</span>"
@@ -1549,7 +1550,7 @@ END_TXT
       
       res = "#{node}.do_find(#{count.inspect}, \"#{sql_query}\"#{sql_query =~ /#{node}/ ? '' : ', true'})" # regexp to see if node is used. If not, we can ignore the source (use query even if #{node} is a new record).
       if params[:else]
-        if else_query = build_finder_for(count, params[:else], params.dup.merge(:else=>nil))
+        if else_query = build_finder_for(count, params[:else], {})
           "(#{res} || #{else_query})"
         end
       else
@@ -1559,7 +1560,7 @@ END_TXT
     
     # Build pseudo sql from the parameters
     def make_pseudo_sql(rel, params=@params)
-      parts   = [rel]
+      parts   = [rel.dup]
       filters = []
       
       if params[:from]
