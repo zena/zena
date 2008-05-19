@@ -382,19 +382,19 @@ case_when_else_text:
   res: "Not a document"
   
 case_when_test:
-  src: "<r:case><r:when test='[id] &gt; 10'>one</r:when><r:when test='[v_updated_at] &gt; [updated_at]'>two</r:when></r:case>"
+  src: "<r:case><r:when test='id gt 10'>one</r:when><r:when test='v_updated_at gt updated_at'>two</r:when></r:case>"
   res: "one"
 
 case_when_test_attribute:
-  src: "<r:case><r:when test='[v_title]'>one</r:when><r:else>two</r:else></r:case>"
+  src: "<r:case><r:when test='v_title'>one</r:when><r:else>two</r:else></r:case>"
   res: "one"
 
 case_when_evil_test:
-  src: "<r:case><r:when test='1 == == [id]'>one</r:when><r:when test='system == \"date\"'>two</r:when><r:else>three</r:else></r:case>"
+  src: "<r:case><r:when test='1 = = id'>one</r:when><r:when test='system = \"date\"'>two</r:when><r:else>three</r:else></r:case>"
   res: "three"
 
 if_test_equal:
-  src: "<r:if test='[id] == 22'>one</r:if>"
+  src: "<r:if test='id = 22'>one</r:if>"
   res: "one"
   
 case_ancestor:
@@ -402,27 +402,27 @@ case_ancestor:
   res: "collections, nature, people, <b>projects</b>, skins"
   
 on_if_ancestor_no_class:
-  src: "<r:root><r:pages><li do='each' on_if='ancestor' join=', '><r:show attr='name'/></li></r:pages></r:root>"
+  src: "<r:root><r:pages><li do='each' on_if_node='ancestor' join=', '><r:show attr='name'/></li></r:pages></r:root>"
   res: "<li>collections</li>, <li>nature</li>, <li>people</li>, <li class='on'>projects</li>, <li>skins</li>"
 
 on_if_ancestor:
-  src: "<r:root><r:pages><li do='each' on_if='ancestor' class='hello' join=', '><r:show attr='name'/></li></r:pages></r:root>"
+  src: "<r:root><r:pages><li do='each' on_if_node='ancestor' class='hello' join=', '><r:show attr='name'/></li></r:pages></r:root>"
   res: "<li class='hello'>collections</li>, <li class='hello'>nature</li>, <li class='hello'>people</li>, <li class='on'>projects</li>, <li class='hello'>skins</li>"
 
 test_ancestor_with_stored:
-  src: "<r:parent do='parent' store='papa'><div do='void' super_if='papa.ancestor'>hoho</div></r:parent>"
+  src: "<r:parent do='parent' store='papa'><div do='void' super_if_node='papa.ancestor'>hoho</div></r:parent>"
   tem: "/@node.fullpath.*var1.fullpath/"
 
 on_if_kind_of:
   context:
     node: 'proposition'
-  src: "<b do='[v_title]' doc_if='kind_of Document' popo_if='kind_of Post'/>"
+  src: "<b do='[v_title]' doc_if_kind_of='Document' popo_if_kind_of='Post'/>"
   res: "<b class='popo'>Proposition</b>"
 
 on_if_attribute:
   context:
     node: 'cleanWater'
-  src: "<r:pages><div do='each' on_if='[d_assigned]' do='[name]'/></r:pages>"
+  src: "<r:pages><div do='each' on_if='d_assigned' do='[name]'/></r:pages>"
   tem: "/list1.each.*var1.*<div.*var1.version.dyn\[\"assigned\"\]/"
 
 if_in_tag:
@@ -435,24 +435,24 @@ if_or:
   res: "hello"
 
 if_or_same:
-  src: "<r:if test='[d_foo]' test='[d_bar]'>hello</r:if>"
+  src: "<r:if test='d_foo' test='d_bar'>hello</r:if>"
   tem: "/<% if !@node.version.dyn[\"foo\"].blank? || !@node.version.dyn[\"bar\"].blank? -%>hello<% end -%>|<% if !@node.version.dyn[\"bar\"].blank? || !@node.version.dyn[\"foo\"].blank? -%>hello<% end -%>/"
   res: ""
 
 if_now:
-  src: "<r:if test='[log_at] &gt; NOW'>future<r:else>past</r:else></r:if>"
+  src: "<r:if test='log_at gt NOW'>future<r:else>past</r:else></r:if>"
   tem: "<% if @node.log_at.to_i > Time.now.to_i -%>future<% elsif true -%>past<% end -%>"
   res: "past"
 
 on_if_now:
-  src: "<p do='[name]' on_if='[log_at] &gt; NOW'/>"
+  src: "<p do='[name]' on_if='log_at gt NOW'/>"
   tem: "<p<%= @node.log_at.to_i > Time.now.to_i ? \" class='on'\" : \"\" %>><%= @node.name %></p>"
   res: "<p>status</p>"
 
 test_in_each:
   context:
     node: 'cleanWater'
-  src: "<ul do='pages'><li do='each' on_if='[name] == track' do='[name]'/></ul>"
+  src: "<ul do='pages'><li do='each' on_if='name = \"track\"' do='[name]'/></ul>"
   tem: "/var1.name == \"track\"/"
   res: "<ul><li>status</li><li class='on'>track</li></ul>"
   

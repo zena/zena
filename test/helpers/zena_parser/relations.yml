@@ -299,7 +299,7 @@ where_not:
 order_dyn_attr:
   context:
     node: 'cleanWater'
-  src: "<r:nodes order='d_assigned DESC, name ASC' do='each'><span do='[name]' assigned_if='[d_assigned]'/></r:nodes>"
+  src: "<r:nodes order='d_assigned DESC, name ASC' do='each'><span do='[name]' assigned_if='d_assigned'/></r:nodes>"
   res: "<span class='assigned'>status</span><span>lake</span><span>lakeAddress</span><span>opening</span><span>track</span><span>water</span>"
 
 # Bug #190 (hard to fix...)

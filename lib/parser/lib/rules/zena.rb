@@ -1874,11 +1874,12 @@ END_TXT
         elsif k == :test
           if v =~ /\s/
             tests << [:test, v]
-          elsif v =~ /\[([^\]]+)\]/
-            tests << [:attribute, $1]
+          else
+            tests << [:attribute, v]
           end
         end
       end
+      
       
       tests.map! do |type,value|
         case type
@@ -1900,32 +1901,30 @@ END_TXT
             "#{node}.can_drive?"
           end
         when :test
-          value1, op, value2 = value.split(/\s+/)
-          allOK = value1 && op && value2
-          toi   = ( op =~ /\&/ || (value1 =~ /^\d+$/ || value2 =~ /^\d+$/) )
-          if ['==', '!=', '&gt;', '&gt;=', '&lt;', '&lt;='].include?(op)
-            op = op.gsub('&gt;', '>').gsub('&lt;', '<')
-          else
-            allOK = false
-          end
-          if allOK
-            value1, value2 = [value1, value2].map do |e|
-              if e =~ /\[(\w+)\]/
-                v = node_attribute($1, :node => node)
-                v = "#{v}.to_i" if toi
-                v
-              elsif e == 'NOW'
-                e = "Time.now.to_i"
+          if value =~ /("[^"]*"|'[^']*'|[\w:]+)\s*(>=|<=|<>|<|=|>|lt|le|eq|ne|ge|gt)\s*("[^"]*"|'[^']*'|[\w:]+)/
+            parts = [$1,$3]
+            op = {'lt' => '<','le' => '<=','eq' => '==', '=' => '==','ne' => '<>','ge' => '>=','gt' => '>'}[$2] || $2
+            toi   = ( op =~ /(>|<)/ || (parts[0] =~ /^\d+$/ || parts[1] =~ /^\d+$/) )
+            parts.map! do |part|
+              if ['"',"'"].include?(part[0..0])
+                toi ? part[1..-2].to_i : part[1..-2].inspect
+              elsif part == 'NOW'
+                "Time.now.to_i"
+              elsif part =~ /^\d+$/
+                part
               else
-                if toi
-                  e.to_i
+                if node_attr = node_attribute(part, :node => node)
+                  toi ? "#{node_attr}.to_i" : node_attr
                 else
-                  e.inspect
+                  nil
                 end
               end
             end
+            
+            parts.include?(nil) ? nil :  "#{parts[0]} #{op} #{parts[1]}"
+          else
+            nil
           end
-          allOK ? "#{value1} #{op} #{value2}" : nil
         when :attribute
           '!' + node_attribute(value, :node => node) + '.blank?'
         when :node
@@ -2037,20 +2036,16 @@ END_TXT
         end
       end
       tag_class = @html_tag_params[:class] || @params[:class]
-      @params.each do |k,v|
-        if k.to_s =~ /^(.+)_if$/
-          klass = $1
-          cond = if node_kind_of?(Node)
-              if v =~ /=|\[/
-                get_test_condition((@method == 'each' && !@context[:template_url] ? var : node), :test => v)
-              elsif v =~ /^(.+)\s(.*)$/
-                get_test_condition((@method == 'each' && !@context[:template_url] ? var : node), $1.to_sym => $2)
-              else
-                get_test_condition((@method == 'each' && !@context[:template_url] ? var : node), :node => v)
-              end
-            else
-              nil
-            end
+      if node_kind_of?(Node)
+        node_name = (@method == 'each' && !@context[:template_url] ? var : node)
+        @params.each do |k,v|
+          if k.to_s =~ /^(.+)_if$/
+            klass = $1
+            cond  = get_test_condition(node_name, :test => v)
+          elsif k.to_s =~ /^(.+)_if_(test|node|kind_of|klass|status|lang|can|node|in)$/
+            klass = $1
+            cond  = get_test_condition(node_name, $2.to_sym => v)
+          end
           if cond
             append << "<%= #{cond} ? \" class='#{klass}'\" : \"#{tag_class ? " class='#{tag_class}'" : ""}\" %>"
             @html_tag_params.delete(:class)
