@@ -53,6 +53,8 @@ filter_l_status:
   res: "cleanWater"
 
 param_filter:
+  context:
+    node: art
   src:
     - "tagged where name like \"%[param:tag]%\" and \"[param:tag]\" ne \"\" in site"
     - "tagged where l_status > 5"
@@ -60,9 +62,10 @@ param_filter:
 
 param_filter_tag:
   context:
+    node: art
     params:
       tag: 'op'
   src:
     - "tagged where name like \"%[param:tag]%\" and \"[param:tag]\" ne \"\" in site"
     - "tagged where l_status > 5"
-  res: "opening"
+  res: "cleanWater, opening"
