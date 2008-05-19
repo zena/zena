@@ -1944,7 +1944,11 @@ END_TXT
               when 'ancestor'
                 "@node.fullpath =~ /\\A\#{#{node_name}.fullpath}/"
               else
-                nil
+                if stored = find_stored(Node, value)
+                  "#{node_name}[:id] == #{stored}[:id]"
+                else
+                  nil
+                end
               end
             else
               # bad node_name
