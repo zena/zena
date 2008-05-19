@@ -113,14 +113,14 @@ module Zena
       # some 'html_tag' information can be set during rendering and should merge into tag_params
       @html_tag_params_bak = @html_tag_params
       @html_tag_params     = @html_tag_params.merge(@context.delete(:html_tag_params) || {})
-      if key = @params.delete(:store)
+      if key = @params[:store]
         set_stored(Node, key, node)
       end
       
-      if key = @params.delete(:store_date)
+      if key = @params[:store_date]
         set_stored(Date, key, current_date)
       end
-      @anchor_param = @params.delete(:anchor)
+      @anchor_param = @params[:anchor]
 
       true
     end
@@ -322,10 +322,13 @@ module Zena
     def r_block
       if @context[:block] == self
         # called from self (storing template)
+        @context.reject! do |k,v|
+          k.kind_of?(String) && k =~ /\w_\w/
+        end
         @html_tag_done = false
         @html_tag_params.merge!(:id=>"#{dom_id_from_template_url(@context[:template_url])}.<%= #{node}.zip %>")
         out expand_with
-      else
+      else  
         template_url = get_template_url
         form_url     = template_url + '_form'
       
@@ -335,7 +338,7 @@ module Zena
           # STORE TEMPLATE ========
           template_node = "@#{base_class.to_s.underscore}"
           context_bak = @context.dup # avoid side effects when rendering the same block
-            template      = expand_block(self, :block=>self, :list=>false, :node=>template_node, :template_url=>template_url, :form=>false, :no_form => true)
+          template    = expand_block(self, :block=>self, :list=>false, :node=>template_node, :template_url=>template_url, :form=>false, :no_form => true)
           @context = context_bak
           @result  = ''
           out helper.save_erb_to_url(template, template_url)
@@ -1461,12 +1464,14 @@ END_TXT
           do_var(  "#{node}.#{@method}", context )
         end
       elsif node_kind_of?(Node)
-        if @params[:in] || @method =~ /\sin\s/ || Node.plural_relation?(@method)
+        count   = ['first','all'].include?(@params[:find]) ? @params[:find].to_sym : nil
+        count ||= Node.plural_relation?(@method) ? :all : :first
+        if count == :all
           # plural
-          do_list( build_finder_for(:all,   @method, @params) )
+          do_list( build_finder_for(count, @method, @params) )
         else
           # singular
-          do_var(  build_finder_for(:first, @method, @params) )
+          do_var(  build_finder_for(count, @method, @params) )
         end
       else
         "unknown relation (#{@method}) for #{node_class} class"
@@ -1901,9 +1906,9 @@ END_TXT
             "#{node}.can_drive?"
           end
         when :test
-          if value =~ /("[^"]*"|'[^']*'|[\w:]+)\s*(>=|<=|<>|<|=|>|lt|le|eq|ne|ge|gt)\s*("[^"]*"|'[^']*'|[\w:]+)/
+          if value =~ /("[^"]*"|'[^']*'|[\w\.]+)\s*(>=|<=|<>|<|=|>|lt|le|eq|ne|ge|gt)\s*("[^"]*"|'[^']*'|[\w\.]+)/
             parts = [$1,$3]
-            op = {'lt' => '<','le' => '<=','eq' => '==', '=' => '==','ne' => '<>','ge' => '>=','gt' => '>'}[$2] || $2
+            op = {'lt' => '<','le' => '<=','eq' => '==', '=' => '==','ne' => '!=','ge' => '>=','gt' => '>'}[$2] || $2
             toi   = ( op =~ /(>|<)/ || (parts[0] =~ /^\d+$/ || parts[1] =~ /^\d+$/) )
             parts.map! do |part|
               if ['"',"'"].include?(part[0..0])
@@ -1929,23 +1934,23 @@ END_TXT
           '!' + node_attribute(value, :node => node) + '.blank?'
         when :node
           if node_kind_of?(Node)
-            value, node_name = get_node_and_attribute(value)
-            node_name ||= node
+            value, node_name = get_attribute_and_node(value)
+            node_name ||= '@node'
             if value
               case value
               when 'main'
-                "#{node_name}[:id] == @node[:id]"
+                "#{node}[:id] == #{node_name}[:id]"
               when 'parent'
-                "#{node_name}[:id] == @node[:parent_id]"
+                "#{node}[:id] == #{node_name}[:parent_id]"
               when 'project'
-                "#{node_name}[:id] == @node[:project_id]"
+                "#{node}[:id] == #{node_name}[:project_id]"
               when 'section'
-                "#{node_name}[:id] == @node[:section_id]"
+                "#{node}[:id] == #{node_name}[:section_id]"
               when 'ancestor'
-                "@node.fullpath =~ /\\A\#{#{node_name}.fullpath}/"
+                "#{node_name}.fullpath =~ /\\A\#{#{node}.fullpath}/"
               else
                 if stored = find_stored(Node, value)
-                  "#{node_name}[:id] == #{stored}[:id]"
+                  "#{node}[:id] == #{stored}[:id]"
                 else
                   nil
                 end
@@ -1979,7 +1984,7 @@ END_TXT
       end
     end
     
-    def get_node_and_attribute(str)
+    def get_attribute_and_node(str)
       if str =~ /([^\.]+)\.(.+)/
         node_name = $1
         node_attr = $2
@@ -1997,7 +2002,7 @@ END_TXT
     end
     
     def node_attribute(str, opts={})
-      attribute, att_node, klass = get_node_and_attribute(str)
+      attribute, att_node, klass = get_attribute_and_node(str)
       return 'nil' unless attribute
       att_node  ||= opts[:node]       || node
       klass     ||= opts[:node_class] || node_class

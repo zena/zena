@@ -409,9 +409,11 @@ on_if_ancestor:
   src: "<r:root><r:pages><li do='each' on_if_node='ancestor' class='hello' join=', '><r:show attr='name'/></li></r:pages></r:root>"
   res: "<li class='hello'>collections</li>, <li class='hello'>nature</li>, <li class='hello'>people</li>, <li class='on'>projects</li>, <li class='hello'>skins</li>"
 
+# var1 = stored 'papa'
 test_ancestor_with_stored:
-  src: "<r:parent do='parent' store='papa'><div do='void' super_if_node='papa.ancestor'>hoho</div></r:parent>"
-  tem: "/@node.fullpath.*var1.fullpath/"
+  src: "<r:parent do='parent' store='papa' do='pages'><div do='each' super_if_node='papa.ancestor' do='[name]'/></r:parent>"
+  tem: "/var1.fullpath.*var3.fullpath/"
+  res: "<div class='super'>cleanWater</div><div>wiki</div>"
 
 on_if_kind_of:
   context:
@@ -425,6 +427,10 @@ on_if_attribute:
   src: "<r:pages><div do='each' on_if='d_assigned' do='[name]'/></r:pages>"
   tem: "/list1.each.*var1.*<div.*var1.version.dyn\[\"assigned\"\]/"
 
+on_if_node_main:
+  src: "<r:parent><r:pages><div do='each' on_if_node='main' do='[name]'>hello</div></r:pages></r:parent>"
+  res: "<div class='on'>status</div><div>track</div>"
+  
 if_in_tag:
   src: "<r:form><p do='if' in='form' do='[name]'/></r:form><i do='if' in='form' do='[name]'/>done."
   res: "/<p>status<\/p><\/form>done./"

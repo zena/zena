@@ -130,6 +130,12 @@ task :up, :roles => :app do
   restart
 end
 
+desc "light update code (no migration, no clear)"
+task :lightup, :roles => :app do
+  run "cd #{deploy_to}/current && svn up"
+  restart
+end
+
 #========================== MONGREL ===============================#
 desc "configure mongrel"
 task :mongrel_setup, :roles => :app do

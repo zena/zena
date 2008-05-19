@@ -93,6 +93,15 @@ store_node:
   src: "<r:void store='baz'><r:parent><r:show attr='name'/>: <r:node select='baz'><r:show attr='name'/></r:node> + <r:node select='main' do='show' attr='id'/></r:parent></r:void>"
   res: "cleanWater: status + 22"
 
+store_in_block:
+  src: "<r:block><r:node select='18' store='found' do='pages'><r:show attr='name'/>: <r:node select='found' do='[name]'/></r:node></r:block>"
+  res: "<div id='list.22'>projects: status</div>"
+
+store_outside_block:
+  src: "<r:node select='18' store='found' do='pages'><r:block><r:show attr='name'/>: <r:node select='found' do='[name]'/></r:block></r:node>"
+  res: "<div id='list.18'>projects: status</div>"
+  'store/outside/en/block/list.erb': "/unknown relation 'found'/"
+
 store_node_as_relation:
   src: "<r:void store='baz'><r:parent><r:show attr='name'/>: <r:baz do='[name]'/> + <r:node select='main' do='show' attr='id'/></r:parent></r:void>"
   res: "cleanWater: status + 22"
@@ -276,6 +285,10 @@ visitor:
 relation_in_site:
   src: "<r:tagged in='site' limit='10' do='each' join=',' do='[name]'/>"
   res: "cleanWater,opening"
+
+relation_in_site_find_first:
+  src: "<r:tagged find='first' in='site' limit='10' do='each' join=',' do='[name]'/>"
+  res: "cleanWater"
 
 where:
   src: "<r:tagged where=\"name='opening'\" in='site' do='each' join=',' do='[name]'/>"
