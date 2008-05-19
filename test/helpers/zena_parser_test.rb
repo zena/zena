@@ -21,6 +21,11 @@ class ZenaParserTest < ZenaTestController
     src = @@test_strings[file][test]['src']
     tem = @@test_strings[file][test]['tem']
     res = @@test_strings[file][test]['res']
+    compiled_files = {}
+    @@test_strings[file][test].each do |k,v|
+      next if ['src','tem','res','context'].include?(k)
+      compiled_files[k] = v
+    end
     context = @@test_strings[file][test]['context'] || {}
     default_context = @@test_strings[file]['default']['context'] || {'node'=>'status', 'visitor'=>'ant', 'lang'=>'en'}
     context = default_context.merge(context)
@@ -35,26 +40,23 @@ class ZenaParserTest < ZenaTestController
       post 'test_compile', params
       template = @response.body
       if tem
-        if tem[0..0] == '/'
-          assert_match %r{#{tem[1..-2]}}m, template
-        else
-          assert_equal tem, template
-        end
+        assert_yaml_test tem, template
       end
     else
       template = tem
     end
+    
+    compiled_files.each do |path,value|
+      fullpath = File.join(SITES_ROOT,'test.host','zafu',path)
+      assert File.exist?(fullpath), "Saved template #{path} should exist."
+      assert_yaml_test value, File.read(fullpath)
+    end
+    
     if res
       params[:text] = template
       post 'test_render', params
       result = @response.body
-      if res[0..1] == '!/'
-        assert_no_match %r{#{res[2..-2]}}m, result
-      elsif res[0..0] == '/'
-        assert_match %r{#{res[1..-2]}}m, result
-      else
-        assert_equal res, result
-      end
+      assert_yaml_test res, result
     end
   end
 

@@ -30,7 +30,7 @@ textarea.ajax_edit { height:5em; width:15em;}
 
 /* errors */
 ul.errors { background:#DDC8C8; margin:0 0 5px; padding:4px 0; border-bottom:1px solid #5A3231;}
-.parser_error { background:#CD5962; margin:3px; padding:3px; border:1px solid #5A3231; }
+.parser_error { padding:0px; border-bottom:2px solid #f88; }
 ul.errors li { margin-left:0.4em; background:inherit; line-height:1.2em;}
 
 /* ========================= Zazen css ======================== */

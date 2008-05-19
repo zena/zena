@@ -2002,11 +2002,11 @@ END_TXT
           klass = $1
           cond = if node_kind_of?(Node)
               if v =~ /=|\[/
-                get_test_condition((@method == 'each' ? var : node), :test => v)
+                get_test_condition((@method == 'each' && !@context[:template_url] ? var : node), :test => v)
               elsif v =~ /^(.+)\s(.*)$/
-                get_test_condition((@method == 'each' ? var : node), $1.to_sym => $2)
+                get_test_condition((@method == 'each' && !@context[:template_url] ? var : node), $1.to_sym => $2)
               else
-                get_test_condition((@method == 'each' ? var : node), :node => v)
+                get_test_condition((@method == 'each' && !@context[:template_url] ? var : node), :node => v)
               end
             else
               nil
