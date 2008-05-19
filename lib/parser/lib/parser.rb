@@ -59,7 +59,7 @@ class Parser
       helper = opts[:helper] || ParserModule::DummyHelper.new
       text, absolute_url = self.get_template_text(url,helper)
       current_folder     = absolute_url ? absolute_url.split('/')[1..-2].join('/') : nil
-      self.new(text, :helper=>helper, :current_folder=>current_folder, :included_history=>[absolute_url])
+      self.new(text, :helper=>helper, :current_folder=>current_folder, :included_history=>[absolute_url], :root => url)
     end
     
     # Retrieve the template text in the current folder or as an absolute path.
@@ -241,7 +241,7 @@ class Parser
         current_folder    = absolute_url.split('/')[1..-2].join('/')
       end
     end
-    res = self.class.new(included_text, :helper=>@options[:helper], :current_folder=>current_folder, :included_history=>included_history, :part => @params[:part]) # we set :part to avoid loop failure when doing self inclusion
+    res = self.class.new(included_text, :helper=>@options[:helper], :current_folder=>current_folder, :included_history=>included_history, :part => @params[:part], :root=>@options[:root]) # we set :part to avoid loop failure when doing self inclusion
     
     if @params[:part]
       if iblock = res.ids[@params[:part]]
@@ -390,7 +390,6 @@ class Parser
     end
     text = custom_text || @text
     opts = @options.merge(opts).merge(:sub=>true, :mode=>mode, :parent => self)
-    
     new_obj = self.class.new(text,opts)
     if new_obj.success?
       @text = new_obj.text unless custom_text

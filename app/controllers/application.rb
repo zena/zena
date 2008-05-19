@@ -308,8 +308,7 @@ END_MSG
         # where is the session stored in rails 2.0 ?
         response.template.instance_variable_set(:@session, session)
         skin_helper = response.template
-        # [1..-1] = drop leading '/' so find_template_document searches in the current skin first
-        res = ZafuParser.new_with_url(skin_path[1..-1], :helper => skin_helper).render
+        res = ZafuParser.new_with_url(skin_path, :helper => skin_helper).render
         
         if session[:dev] && mode != '*popupLayout'
           # add template edit buttons

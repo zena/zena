@@ -1426,8 +1426,9 @@ END_TXT
     
     # recursion
     def r_include
-      return super if params[:template] || !params[:part]
-      part = params[:part].gsub(/[^a-zA-Z_]/,'')
+      return '' if @context[:template_url]
+      return super if @params[:template] || !@params[:part]
+      part = @params[:part].gsub(/[^a-zA-Z_]/,'')
       method_name = @context["#{part}_method".to_sym]
       return "<span class='parser_error'>[include] no parent named '#{part}'</span>" unless method_name
       "<%= #{method_name}(depth+1,#{node}) %>"
@@ -1812,7 +1813,7 @@ END_TXT
 
     # Unique template_url, ending with dom_id
     def get_template_url(context = @context)
-      "#{@options[:included_history][0].split('::')[0]}/#{dom_id(context)}"
+      "#{@options[:root]}/#{dom_id(context)}"
     end
     
     # Return the DOM identifier from the template url
