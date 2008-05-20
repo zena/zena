@@ -1,10 +1,9 @@
-.ruby .normal {}
-.ruby .comment { color: #005; font-style: italic; }
+.ruby .c { color: #005; font-style: italic; }
 .ruby .keyword { color: #622; font-weight: bold; }
 .ruby .method { color: #944; }
 .ruby .class { color: #074; }
 .ruby .module { color: #050; }
-.ruby .punct { color: #447; font-weight: bold; }
+.ruby .p { color: #447; font-weight: bold; }
 .ruby .symbol { color: #099; }
 .ruby .string { color: #361; }
 .ruby .char { color: #F07; }
@@ -16,28 +15,33 @@
 .ruby .global { color: #3B7; }
 .ruby .expr { color: #227; }
 
-.zafu .tag {color: #171;}
-.zafu .punct {color: #622;}
-.zafu .ztag {color: #622; font-weight: bold; }
-.zafu .param { color:#a33;}
-.zafu .value { color:#449;}
+.zafu .t {color: #171;}
+.zafu .p {color: #622;}
+.zafu .z {color: #622; font-weight: bold; }
+.zafu .pa { color:#a33;}
+.zafu .va { color:#449;}
 
-.erb .tag {color: #171;}
-.erb .punct {color: #622; background:#DDDBD2; padding:2px 0;}
-.erb .ruby .punct { color: #447; }
+.xml .tag {color: #171;}
+.xml .punct {color: #622;}
+.xml .attribute { color:#a33;}
+.xml .string { color:#449;}
+
+.erb .t {color: #171;}
+.erb .p {color: #622; background:#DDDBD2; padding:2px 0;}
+.erb .ruby .p { color: #447; }
 .erb .expr { color:#227; background:#DDDBD2; padding:2px 0;}
 .erb pre { display:inline; }
 
-.sh .punct { color:#686;}
+.sh .p { color:#686;}
 .sh .root  { color:#966;}
 .sh .variable { color:#33a;}
 .sh .method { color: #944; }
 
 .css .comment { color: #005; font-style: italic; }
-.css .punct { color:#686;}
+.css .p { color:#686;}
 .css .variable { color:#33a;}
 .css .method { color: #944; }
-.css .tag   { color: #171;}
+.css .t   { color: #171;}
 .css .id    { color:#73302F; font-weight:bold;}
 .css .class { color:orange;}
 

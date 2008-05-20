@@ -1,5 +1,7 @@
 require 'rubygems'
 require 'syntax/convertors/html'
+require 'syntax/lang/xml'
+require 'syntax/lang/ruby'
 require 'syntax'
 
 module Syntax
@@ -102,8 +104,8 @@ class ZafuTokenizer < Syntax::Tokenizer
   def step
     if ztag = scan(/\A<\/?r:[^>]+>/)  
       ztag =~ /<(\/?)r:([\w_]+)([^>]*?)(\/?)>/
-      start_group :tag, "<#{$1}r:"
-      start_group :ztag, $2
+      start_group :t, "<#{$1}r:"
+      start_group :z, $2
       trailing = $4
       params = parse_params($3)
       params.each do |k,v|
@@ -113,16 +115,16 @@ class ZafuTokenizer < Syntax::Tokenizer
         else
           v = "'#{v}'"
         end
-        start_group :param, k.to_s
+        start_group :pa, k.to_s
         append '='
-        start_group :value, v
+        start_group :va, v
       end
-      start_group :tag, "#{trailing}>"
+      start_group :t, "#{trailing}>"
     elsif dotag = scan(/<([^>]+)do\s*=([^>]+)>/)
         if dotag =~ /\A<(\w+)([^>]*?)do\s*=('|")([^\3]*?[^\\])\3([^>]*?)(\/?)>/
-          start_group :tag, "<#{$1}#{$2}"
-          start_group :tag, "do="
-          start_group :ztag, "'#{$4}'"
+          start_group :t, "<#{$1}#{$2}"
+          start_group :t, "do="
+          start_group :z, "'#{$4}'"
           trailing = $6
           params = parse_params($5)
           params.each do |k,v|
@@ -133,22 +135,22 @@ class ZafuTokenizer < Syntax::Tokenizer
               v = "'#{v}'"
             end
             if k == :do
-              start_group :tag, k.to_s
+              start_group :t, k.to_s
               append '='
-              start_group :ztag, v
+              start_group :z, v
             else
-              start_group :param, k.to_s
+              start_group :pa, k.to_s
               append '='
-              start_group :value, v
+              start_group :va, v
             end
           end
-          start_group :tag, "#{trailing}>"
+          start_group :t, "#{trailing}>"
         else
           start_group :normal, dotag
         end
     elsif html = scan(/\A<\/?[^>]+>/)
       html =~/<\/?([^>]+)>/
-      start_group :tag, html
+      start_group :t, html
     else
       start_group :normal, scan(/./m)
     end
@@ -160,13 +162,13 @@ class ErbTokenizer < Syntax::Tokenizer
   def step
     if methods = scan(/<%[^>]+%>/m)  
       methods =~ /<%(=?)([^>]+?)(-?)%>/m
-      start_group :punct, "<%#{$1}"
+      start_group :p, "<%#{$1}"
       trailing = $3
       sub_lang :expr, "<code class='ruby'>#{Syntax::Convertors::HTML.for_syntax('ruby').convert($2, false)}</code>"
-      start_group :punct, "#{trailing}%>"
+      start_group :p, "#{trailing}%>"
     elsif html = scan(/<\/?[^>]+>/)
       html =~/<\/?([^>]+)>/
-      start_group :tag, html
+      start_group :t, html
     else
       start_group :normal, scan(/./m)
     end
@@ -177,7 +179,7 @@ Syntax::SYNTAX['erb'] = ErbTokenizer
 class CssTokenizer < Syntax::Tokenizer
   def step
     if comments = scan(/\s*\/\*.*?\*\/\s*/m)
-      start_group :comment, comments
+      start_group :c, comments
     elsif variables = scan(/[^\{]*?\{[^\}]*?\}/m)
       variables =~ /(\s*)([^\{]*?)\{([^\}]*?)\}/m
       start_group :normal, $1
@@ -192,26 +194,26 @@ class CssTokenizer < Syntax::Tokenizer
             elsif s[0..0] == '.'
               start_group :class, s
             else
-              start_group :tag, s
+              start_group :t, s
             end
             start_group :normal, ' '
           end
         end
         unless i == selectors.size - 1
-          start_group :punct, ', '
+          start_group :p, ', '
         end
       end
-      start_group :punct, '{ '
+      start_group :p, '{ '
       
       rest = vars
       while rest != '' && rest =~ /([\w-]+)\s*:\s*(.*?)\s*;(.*)/m
         start_group :variable, $1
-        start_group :punct, ':'
+        start_group :p, ':'
         start_group :normal, $2
-        start_group :punct, '; '
+        start_group :p, '; '
         rest = $3
       end
-      start_group :punct, "#{rest}}"
+      start_group :p, "#{rest}}"
     else
       start_group :normal, scan(/./m)
     end
@@ -224,7 +226,7 @@ class ShTokenizer < Syntax::Tokenizer
     if variables = scan(/\$\w+/)
       start_group :variable, variables
     elsif start = scan(/# \S+/)
-      start_group :punct, '# '
+      start_group :p, '# '
       start_group :method, start[2..-1]
     elsif start = scan(/\$ \S+/)
       start_group :root, '$ '
