@@ -156,7 +156,6 @@ class ZafuTokenizer < Syntax::Tokenizer
 end
 Syntax::SYNTAX['zafu'] = ZafuTokenizer
 
-
 class ErbTokenizer < Syntax::Tokenizer
   def step
     if methods = scan(/<%[^>]+%>/m)  
@@ -219,7 +218,6 @@ class CssTokenizer < Syntax::Tokenizer
   end
 end
 Syntax::SYNTAX['css'] = CssTokenizer
-
 
 class ShTokenizer < Syntax::Tokenizer
   def step
