@@ -1,7 +1,6 @@
-<r:include template='/default/layout'>
+<r:include template='Node'>
   <r:with part='stylesheets'>
     <r:stylesheets list='reset,zena,comment,admin,search'/>
-    <link href="default.css" rel="Stylesheet" type="text/css"/>
   </r:with>
   
   <r:with part='context'>
@@ -11,10 +10,7 @@
   </r:with>
   
   <r:with part='content' do='content_for_layout'>
-    <div id='main'>
-      <h2><r:trans>home of</r:trans> <r:show attr='fullname'>Panther Tigris</r:show></h2>
-    </div>
-
+    <r:include template='Node' part='main'/>
     <div id='related'>
       <r:user>
         <r:to_publish>

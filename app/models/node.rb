@@ -555,7 +555,7 @@ class Node < ActiveRecord::Base
           :order  => "score DESC")
       else
         # error
-        raise Exception.new('bad arguments for search ("query" field missing)')
+        return opts.merge(:conditions => '0')
       end
     end
     

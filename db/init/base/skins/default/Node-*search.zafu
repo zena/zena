@@ -1,5 +1,6 @@
-<r:include template='layout'>
+<r:include template='Node'>
   <r:with part='context'/>
+  <r:with part='related'/>
 
   <r:with part='main'>
     

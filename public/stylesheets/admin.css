@@ -15,7 +15,7 @@ ul.admin_links { margin:18px; width:13em; border:1px solid #35462B; background:#
 
 
 table.admin, table.admin table { border-collapse:separate; border-width:0; margin:auto; border-color:#666; border-style:solid; }
-table.admin { width:600px; }
+table.admin { width:500px; }
 table.admin table { width:90%; }
 table.admin table td { text-align:left; }
 table.admin td:first-child { border-left: 1px solid #666; }
@@ -32,10 +32,6 @@ table.admin td:first-child { border-left: 1px solid #666; }
 .admin .adm_icon img { border:0;}
 .admin table { width:100%;}
 .admin td { padding: 2px 6px; }
-.admin td.login { width: 8em; }
-.admin td.name { width: 8em;}
-.admin td.fullname { width: 15em;}
-.admin td.users, .admin td.groups { width: auto;}
 .admin .login i {color:#A0A0A0; font-style:normal;}
 .admin .adm_add { padding:0; }
 .admin .adm_add table { border: 0; margin:10px;}
