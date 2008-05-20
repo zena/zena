@@ -347,11 +347,11 @@ module Zazen
           end
           if Syntax::SYNTAX[lang] != Syntax::Default && @context[:pretty_code]
             convertor = Syntax::Convertors::HTML.for_syntax(lang)
-            code = convertor.convert( code, false )
+            "#{code_tag}#{convertor.convert( code, false )}</code>"
           else
-            code = code.gsub('>', '&gt;').gsub('<','&lt;')
+            RedCloth.new("#{code_tag}#{code}</code>").to_html
           end
-          code_tag + code.gsub(/\n( *)/m) { "<br/>\n" + ('&nbsp;' * $1.length) } + '</code>'
+          #code_tag + code.gsub(/\n( *)/m) { "<br/>\n" + ('&nbsp;' * $1.length) } + '</code>'
         end
       end
       
