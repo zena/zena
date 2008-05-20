@@ -52,7 +52,8 @@ class QueryBuilder
       last_element = elements.last
       last_element, offset = last_element.split(' offset ')
       last_element, limit  = last_element.split(' limit ')
-      elements[-1], order  = last_element.split(' order by ')
+      last_element, order  = last_element.split(' order by ')
+      elements[-1], group  = last_element.split(' group by ')
     end
     
     parts = elements.map do |e|
@@ -79,6 +80,8 @@ class QueryBuilder
     
     merge_alternate_queries(alt_queries) if alt_queries
     
+    
+    @group = parse_group_clause(group) if group
     @order = parse_order_clause(order || default_order_clause)
     
     after_parse unless opts[:skip_after_parse]
@@ -170,10 +173,10 @@ class QueryBuilder
       res = []
       
       order.split(',').each do |clause|
-        if clause =~ /^\s*(\w+) (ASC|asc|DESC|desc)/
+        if clause =~ /^\s*([^\s]+) (ASC|asc|DESC|desc)/
           fld_name, direction = $1, $2
           if fld = map_field(fld_name, table)
-            res << "#{@tables.size == 1 ? fld_name : fld} #{direction.upcase}"
+            res << "#{fld} #{direction.upcase}"
           elsif fld.nil?
             @errors << "invalid field '#{fld_name}'"
           end
@@ -184,6 +187,16 @@ class QueryBuilder
         end
       end
       res == [] ? nil : " ORDER BY #{res.join(', ')}"
+    end
+    
+    def parse_group_clause(field)
+      return nil unless field
+      if fld = map_field(field, table)
+        " GROUP BY #{fld}"
+      else
+        @errors << "invalid field '#{field}'"
+        nil
+      end
     end
     
     def parse_limit_clause(limit)

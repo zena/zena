@@ -25,11 +25,11 @@ do_not_change_img_src:
 change_script_src:
   src: |
     <script src='functions.js' type='text/javascript'>
-      <r:blah/>
+      var = '<r:hello/>'
     </script>
   res: |
     <script src='/test_script/functions.js' type='text/javascript'>
-      <r:blah/>
+      var = 'hello world!'
     </script>
 
 change_style_url:

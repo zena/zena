@@ -15,11 +15,16 @@
 .ruby .global { color: #3B7; }
 .ruby .expr { color: #227; }
 
-.zafu .t {color: #171;}
-.zafu .p {color: #622;}
-.zafu .z {color: #622; font-weight: bold; }
-.zafu .pa { color:#a33;}
-.zafu .va { color:#449;}
+.xml .tag {color: #171;}
+.xml .punct {color: #622;}
+.xml .attribute { color:#a33;}
+.xml .string { color:#449;}
+
+.zafu .tag {color: #171;}
+.zafu .punct {color: #622;}
+.zafu .ztag {color: #622; font-weight: bold; }
+.zafu .param { color:#a33;}
+.zafu .value { color:#449;}
 
 .xml .tag {color: #171;}
 .xml .punct {color: #622;}

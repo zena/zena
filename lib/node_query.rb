@@ -147,7 +147,7 @@ class NodeQuery < QueryBuilder
         # DYNAMIC ATTRIBUTE
         key = field[2..-1]
         key, function = parse_sql_function_in_field(key)
-        key = function ? "#{function}(#{dyn_value('versions', key)})" : dyn_value('versions', key, is_null)
+        key = function ? "#{function}(#{dyn_value('versions', key, is_null)})" : dyn_value('versions', key, is_null)
       when 'c_'
         # CONTENT TABLE
         field = field[2..-1]
@@ -164,12 +164,13 @@ class NodeQuery < QueryBuilder
           # bad version attribute
           nil
         end
-      when 'l_'
-        if field == 'l_status' || field == 'l_comment'
+      when 'l_'  
+        key, function = parse_sql_function_in_field(field)
+        if key == 'l_status' || key == 'l_comment'
           @errors_unless_safe_links ||= []
-          @errors_unless_safe_links << "cannot use link field '#{field}' in this query"
+          @errors_unless_safe_links << "cannot use link field '#{key}' in this query"
           # ok
-          "#{table('links')}.#{field[2..-1]}"
+          function ? "#{function}(#{table('links')}.#{key[2..-1]})" : "#{table('links')}.#{key[2..-1]}"
         else
           # bad attribute
           nil

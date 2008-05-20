@@ -19,7 +19,7 @@ parent:
 
 order_single_table:
   src: "objects in project order by name ASC"
-  res: "SELECT objects.* FROM objects WHERE objects.project_id = PROJECT_ID ORDER BY name ASC"
+  res: "SELECT objects.* FROM objects WHERE objects.project_id = PROJECT_ID ORDER BY objects.name ASC"
 
 order_many_tables:
   src: "recipients order by name ASC"

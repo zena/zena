@@ -365,3 +365,7 @@ group_by_parent_sort:
 #icons_from_nodes_from_project:
 #  src: "<r:icons from='nodes' in='project' do='each' join=', ' do='[name]'/>"
 #  res: ""
+
+nodes_in_site_group_by_year:
+  src: "<r:nodes in='site' group='log_at:year' order='log_at:year asc' do='each' join=', '><r:show attr='name'/>: <r:show date='log_at' format='%Y'/></r:nodes>"
+  res: "zena: , proposition: 2006, menu: 2007"

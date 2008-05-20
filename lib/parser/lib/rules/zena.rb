@@ -1586,6 +1586,10 @@ END_TXT
         parts[0] << " in #{params[:in]}"
       end
       
+      if group = params[:group]
+        parts[0] << " group by #{group}" unless parts[0] =~ /group by/
+      end
+      
       if order = params[:order]
         parts[0] << " order by #{order}" unless parts[0] =~ /order by/
       end

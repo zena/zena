@@ -4,39 +4,39 @@ default:
     node: 'cleanWater'
     visitor: 'ant'
   src: ""
-  sql: "SELECT nodes.* FROM nodes WHERE nodes.parent_id = #{@node.id} AND (#{@node.secure_scope('nodes')}) ORDER BY position ASC, name ASC"
+  sql: "SELECT nodes.* FROM nodes WHERE nodes.parent_id = #{@node.id} AND (#{@node.secure_scope('nodes')}) ORDER BY nodes.position ASC, nodes.name ASC"
   res: "lake, lakeAddress, opening, status, track, water"
 
 nodes:
   src: "nodes"
-  sql: "SELECT nodes.* FROM nodes WHERE nodes.parent_id = #{@node.id} AND (#{@node.secure_scope('nodes')}) ORDER BY position ASC, name ASC"
+  sql: "SELECT nodes.* FROM nodes WHERE nodes.parent_id = #{@node.id} AND (#{@node.secure_scope('nodes')}) ORDER BY nodes.position ASC, nodes.name ASC"
 
 pages:
   src: "pages"
-  sql: "SELECT nodes.* FROM nodes WHERE nodes.kpath LIKE 'NP%' AND nodes.parent_id = #{@node.id} AND (#{@node.secure_scope('nodes')}) ORDER BY position ASC, name ASC"
+  sql: "SELECT nodes.* FROM nodes WHERE nodes.kpath LIKE 'NP%' AND nodes.parent_id = #{@node.id} AND (#{@node.secure_scope('nodes')}) ORDER BY nodes.position ASC, nodes.name ASC"
   res: "status, track"
 
 letters:
   src: "letters"
-  sql: "SELECT nodes.* FROM nodes WHERE nodes.kpath LIKE 'NNL%' AND nodes.parent_id = #{@node.id} AND (#{@node.secure_scope('nodes')}) ORDER BY position ASC, name ASC"
+  sql: "SELECT nodes.* FROM nodes WHERE nodes.kpath LIKE 'NNL%' AND nodes.parent_id = #{@node.id} AND (#{@node.secure_scope('nodes')}) ORDER BY nodes.position ASC, nodes.name ASC"
 
 nodes_in_site:
-  sql: "SELECT nodes.* FROM nodes WHERE (#{@node.secure_scope('nodes')}) ORDER BY position ASC, name ASC"
+  sql: "SELECT nodes.* FROM nodes WHERE (#{@node.secure_scope('nodes')}) ORDER BY nodes.position ASC, nodes.name ASC"
 
 pages_in_project:
-  sql: "SELECT nodes.* FROM nodes WHERE nodes.kpath LIKE 'NP%' AND nodes.project_id = #{@node.get_project_id} AND (#{@node.secure_scope('nodes')}) ORDER BY position ASC, name ASC"
+  sql: "SELECT nodes.* FROM nodes WHERE nodes.kpath LIKE 'NP%' AND nodes.project_id = #{@node.get_project_id} AND (#{@node.secure_scope('nodes')}) ORDER BY nodes.position ASC, nodes.name ASC"
 
 nodes_in_section:
-  sql: "SELECT nodes.* FROM nodes WHERE nodes.section_id = #{@node.get_section_id} AND (#{@node.secure_scope('nodes')}) ORDER BY position ASC, name ASC"
+  sql: "SELECT nodes.* FROM nodes WHERE nodes.section_id = #{@node.get_section_id} AND (#{@node.secure_scope('nodes')}) ORDER BY nodes.position ASC, nodes.name ASC"
 
 nodes_in_self:
-  sql: "SELECT nodes.* FROM nodes WHERE nodes.parent_id = #{@node.id} AND (#{@node.secure_scope('nodes')}) ORDER BY position ASC, name ASC"
+  sql: "SELECT nodes.* FROM nodes WHERE nodes.parent_id = #{@node.id} AND (#{@node.secure_scope('nodes')}) ORDER BY nodes.position ASC, nodes.name ASC"
 
 nodes_in_parent:
-  sql: "SELECT nodes.* FROM nodes WHERE nodes.parent_id = #{@node.parent_id} AND (#{@node.secure_scope('nodes')}) ORDER BY position ASC, name ASC"
+  sql: "SELECT nodes.* FROM nodes WHERE nodes.parent_id = #{@node.parent_id} AND (#{@node.secure_scope('nodes')}) ORDER BY nodes.position ASC, nodes.name ASC"
 
 children:
-  sql: "SELECT nodes.* FROM nodes WHERE nodes.parent_id = #{@node.id} AND (#{@node.secure_scope('nodes')}) ORDER BY position ASC, name ASC"
+  sql: "SELECT nodes.* FROM nodes WHERE nodes.parent_id = #{@node.id} AND (#{@node.secure_scope('nodes')}) ORDER BY nodes.position ASC, nodes.name ASC"
 
 pages_or_letters:
   context:
@@ -44,11 +44,11 @@ pages_or_letters:
   src:
     - 'pages'
     - 'letters'
-  sql: "SELECT nodes.* FROM nodes WHERE ((nodes.kpath LIKE 'NP%' AND nodes.parent_id = #{@node.id}) OR (nodes.kpath LIKE 'NNL%' AND nodes.parent_id = #{@node.id})) AND (#{@node.secure_scope('nodes')}) ORDER BY position ASC, name ASC"
+  sql: "SELECT nodes.* FROM nodes WHERE ((nodes.kpath LIKE 'NP%' AND nodes.parent_id = #{@node.id}) OR (nodes.kpath LIKE 'NNL%' AND nodes.parent_id = #{@node.id})) AND (#{@node.secure_scope('nodes')}) ORDER BY nodes.position ASC, nodes.name ASC"
   res: "collections, letter, nature, people, projects, skins"
 
 project:
-  sql: "SELECT nodes.* FROM nodes WHERE nodes.id = #{@node.get_project_id} AND (#{@node.secure_scope('nodes')}) ORDER BY position ASC, name ASC"
+  sql: "SELECT nodes.* FROM nodes WHERE nodes.id = #{@node.get_project_id} AND (#{@node.secure_scope('nodes')}) ORDER BY nodes.position ASC, nodes.name ASC"
   res: 'cleanWater'
   
 many_alternatives:
@@ -107,7 +107,7 @@ pages_from_site_or_images:
 
 children_with_order_clause:
   src: "children order by name ASC"
-  sql: "SELECT nodes.* FROM nodes WHERE nodes.parent_id = #{@node.id} AND (#{@node.secure_scope('nodes')}) ORDER BY name ASC"
+  sql: "SELECT nodes.* FROM nodes WHERE nodes.parent_id = #{@node.id} AND (#{@node.secure_scope('nodes')}) ORDER BY nodes.name ASC"
 
 notes_or_news:
   src:

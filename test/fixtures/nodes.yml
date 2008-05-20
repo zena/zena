@@ -426,6 +426,7 @@ menu:
   inherit:        1
 <%= @defaults %>
 <%= @rights %>
+  log_at:         2007-05-20
 
 strange:
   id:             26
