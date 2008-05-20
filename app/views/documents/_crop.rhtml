@@ -6,5 +6,5 @@
     <%= ['Kb', 'Mb'].inject('') {|r,e| r + "<input type='radio' name='node[c_crop][max_unit]' value='#{e}'#{fs =~ /#{e}/ ? " checked='checked'" : ''}/> #{e} " }%>
   </li>
 </ul>
-<p class='edit_info'><%= _('original') %> <%= @node.c_width %>x<%= @node.c_height %>, <%= _('original is #X this view').sub('#X', "<b>#{sprintf('%.1f', @node.c_width.to_f / @node.c_width('edit'))}x</b>")%></p>
+<p class='edit_info'><%= _('original') %> <%= @node.c_width %>x<%= @node.c_height %>, <%= _('original is #X this view').sub('#X', "<b>#{sprintf('%.1f', @node.c_width.to_f / @node.c_width(Iformat['edit']))}x</b>")%></p>
 <%= img_tag(@node, :mode=>'edit', :id=>'edit_img') %>
