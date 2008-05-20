@@ -349,7 +349,7 @@ module Zazen
             convertor = Syntax::Convertors::HTML.for_syntax(lang)
             code = convertor.convert( code, false )
           else
-            code.gsub!('>', '&gt;').gsub!('<','&lt;')
+            code = code.gsub('>', '&gt;').gsub('<','&lt;')
           end
           code_tag + code.gsub(/\n( *)/m) { "<br/>\n" + ('&nbsp;' * $1.length) } + '</code>'
         end
