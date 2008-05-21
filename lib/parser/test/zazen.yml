@@ -130,6 +130,14 @@ link_sharp_same_as_title:
   src: '"hello":23# I love you'
   res: "<p>[make_link id:|23| sharp:|true| title:|hello|] I love you</p>"
 
+link_with_ending_punct:
+  src: "I love \"\":20."
+  res: "<p>I love [make_link id:|20| title:||].</p>"
+
+complex_link_with_commas:
+  src: "download: \"small\":30_std.data, \"full\":30.data."
+  res: "<p>download: [make_link id:|30_std.data| title:|small|], [make_link id:|30.data| title:|full|].</p>"
+
 wiki_link:
   src: "why use ?ruby? ?"
   res: "<p>why use [make_wiki_link title:|ruby|] ?</p>"

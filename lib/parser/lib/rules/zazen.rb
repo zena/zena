@@ -205,7 +205,7 @@ module Zazen
     end
     
     def scan_quote
-      if @text =~ /\A"([^"]*)":([0-9]+[^\s]*)/m
+      if @text =~ /\A"([^"]*)":([0-9]+(_[a-z]+|)(\.[a-z]+|)(#[a-z_\/\[\]]*|))/m
         #puts "LINK:[#{$&}]"
         if @parse_shortcuts
           flush $&
@@ -219,7 +219,7 @@ module Zazen
           end
           store @helper.make_link(:title=>title,:id=>id,:sharp=>sharp)
         end
-      elsif @text =~ /\A"([^"]*)"::([a-zA-Z-]+)(\+*)([^\s]*)/m
+      elsif @text =~ /\A"([^"]*)"::([a-zA-Z-]+)(\+*)((_[a-z]+|)(\.[a-z]+|)(#[a-z_\/\[\]]*|))/m
         #puts "SHORTCUT_LINK:[#{$&}]"
         eat $&
         title, id, offset, mode = $1, $2, $3, $4

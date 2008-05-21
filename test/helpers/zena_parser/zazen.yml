@@ -48,8 +48,8 @@ zip_shortcut_link:
   res: "/<p>Look <a href.*contact23.html.*projects/cleanWater/lakeAddress.*href=.*image24.html.*projects/cleanWater/lake/"
 
 zip_shortcut_link_with_mode_format:
-  tem: "<%= zazen('Look \"here\"::lake_life.rss or \"\"::lake+_life.data') %>"
-  res: "/<p>Look <a href.*contact23_life.rss.*projects/cleanWater/lakeAddress.*href=.*image24_life.jpg.*projects/cleanWater/lake/"
+  tem: "<%= zazen('Look \"here\"::lake_life.rss, \"\"::lake+_life.data.') %>"
+  res: "/<p>Look <a href.*contact23_life.rss.*projects/cleanWater/lakeAddress</a>, <a href=.*image24_life.jpg.*projects/cleanWater/lake</a>./"
 
 zip_shortcut_image:
   tem: "<%= zazen('Look !:lake! or !:lake+!') %>"
