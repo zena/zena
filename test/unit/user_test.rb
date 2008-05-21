@@ -277,7 +277,7 @@ class UserTest < ZenaTestUnit
     user = secure!(User) { users(:ant) }
     assert_equal "user", user.status_name
     user = secure!(User) { users(:anon) }
-    assert_equal "reader", user.status_name
+    assert_equal "moderated", user.status_name
   end
   
   def test_invalid_time_zone
@@ -302,7 +302,7 @@ class UserTest < ZenaTestUnit
     assert !user.new_record?
     assert_equal 'fr', user[:lang]
     assert_equal 'Europe/Berlin', user[:time_zone]
-    assert_equal User::Status[:reader], user.status
+    assert_equal User::Status[:moderated], user.status
   end
   
   def test_tz

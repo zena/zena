@@ -455,7 +455,7 @@ module Zena
       if @anchor_param =~ /\[(.+)\]/
         anchor_value = "<%= #{node_attribute($1)} %>"
       else
-        anchor_value = "#{base_class.to_s.underscore}#{node_id(obj)}"
+        anchor_value = "#{base_class.to_s.underscore}#{erb_node_id(obj)}"
       end
       "<a name='#{anchor_value}'></a>"
     end

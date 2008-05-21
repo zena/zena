@@ -44,11 +44,11 @@ class User < ActiveRecord::Base
   
   Status = {
     :su          => 80,
-    :admin       => 60,
-    :user        => 50,
-    :commentator => 40,
-    :moderated   => 30,
-    :reader      => 20,
+    :admin       => 60,  # can create other users, manage site, etc
+    :user        => 50,  # can write articles + publish (depends on access rights)
+    :commentator => 40,  # can write comments
+    :moderated   => 30,  # can write comments (moderated)
+    :reader      => 20,  # can read
     :deleted     => 0,
   }.freeze
   Num_to_status = Hash[*Status.map{|k,v| [v,k]}.flatten].freeze

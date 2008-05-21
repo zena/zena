@@ -9,7 +9,7 @@ class Comment < ActiveRecord::Base
   
   zafu_readable      :title, :text, :author_name, :created_at, :updated_at, :status
   zafu_context       :replies => ["Comment"]
-  attr_accessible    :title, :text, :author_name
+  attr_accessible    :title, :text, :author_name, :discussion_id, :reply_to, :status
   
   belongs_to :discussion
   validate   :valid_comment
@@ -50,10 +50,14 @@ class Comment < ActiveRecord::Base
   
   # TODO: test
   def can_write?
-    visitor.is_anon? ? visitor.ip == self[:ip] : visitor[:id] == user_id
+    is_author? && discussion.open?
   end
   
   private
+    
+    def is_author?
+      visitor.is_anon? ? visitor.ip == self[:ip] : visitor[:id] == user_id
+    end
   
     def comment_before_validation
       return false unless discussion
@@ -78,8 +82,11 @@ class Comment < ActiveRecord::Base
       if new_record?
         errors.add('base', 'you cannot comment here') unless visitor.commentator? && discussion && discussion.open?
       else
-        errors.add('base', 'you do not have the rights to do this') if !can_write?
-        errors.add('base', 'discussion closed, comment cannot be updated') if can_write? && !discussion.open?
+        if !is_author?
+          errors.add('base', 'you do not have the rights to do this')
+        else
+          errors.add('base', 'discussion closed, comment cannot be updated') if !can_write?
+        end
       end
       errors.add('text', "can't be blank") unless self[:text] && self[:text] != ''
       errors.add('title', "can't be blank") unless self[:title] && self[:title] != ''

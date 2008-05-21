@@ -85,3 +85,16 @@ public_says_in_en:
   title:         'What about rivers ?'
   text:          'Rivers are flooding'
 
+first_reply_in_en:
+  id:            8
+  site_id:       1
+  discussion_id: 2
+  created_at:    '2008-05-21 18:44'
+  updated_at:    '2008-05-21 18:44'
+  reply_to:      7
+  user_id:       1
+  author_name:   'simpson'
+  status:        50
+  title:         're: What about rivers ?'
+  text:          'Not here...'
+
