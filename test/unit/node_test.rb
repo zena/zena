@@ -698,65 +698,6 @@ class NodeTest < ZenaTestUnit
     assert_equal [], node.comments
   end
   
-  def test_add_comment
-    login(:ant)
-    visitor.lang = 'en'
-    node = secure!(Node) { nodes(:status) }
-    assert_equal 1, node.comments.size
-    comment = node.add_comment( :author_name=>'parrot', :title=>'hello', :text=>'world' )
-    assert ! comment.new_record?
-    node = secure!(Node) { nodes(:status) }
-    comments = node.comments
-    assert_equal 2, node.comments.size
-    assert_equal 'hello', comments[1][:title]
-    assert_equal nil, comments[1][:author_name]
-  end
-  
-  def test_anon_add_comment
-    login(:lion)
-    node = secure!(Node) { nodes(:status) }
-    assert_equal 2, node.comments.size
-    
-    login(:anon)
-    node = secure!(Node) { nodes(:status) }
-    assert_equal 1, node.comments.size
-    visitor.status = User::Status[:reader]
-    assert !node.can_comment?, "Anonymous cannot comment."
-    visitor.status = User::Status[:moderated]
-    
-    assert node.can_comment?, "Anonymous can comment."
-    comment = node.add_comment( :author_name=>'fierce', :title=>'and', :text=>'ugly spam' )
-    assert ! comment.new_record?
-    assert_equal Zena::Status[:prop], comment.status
-    visitor.status = User::Status[:commentator]
-    assert node.can_comment?, "Anonymous can comment."
-    comment = node.add_comment( :author_name=>'parrot', :title=>'hello', :text=>'world of happiness' )
-    assert ! comment.new_record?
-    assert_equal Zena::Status[:pub], comment.status
-    node = secure!(Node) { nodes(:status) }
-    comments = node.comments
-    assert_equal 2, comments.size
-    assert_equal 'parrot', comments[1][:author_name]
-    
-    login(:lion)
-    node = secure!(Node) { nodes(:status) }
-    comments = node.comments
-    assert_equal 4, comments.size
-  end
-  
-  def test_add_reply
-    login(:ant)
-    visitor.lang = 'en'
-    node = secure!(Node) { nodes(:status) }
-    assert_equal 1, node.comments.size
-    comment = node.add_comment( :author_name=>'parrot', :title=>'hello', :text=>'world', :reply_to=>comments_id(:public_says_in_en) )
-    assert ! comment.new_record?
-    node = secure!(Node) { nodes(:status) }
-    comments = node.comments
-    assert_equal 1, comments.size
-    assert_equal 1, comments[0].replies.size
-  end
-  
   def test_site_id
     login(:tiger)
     node = secure!(Node) { Node.create(NEW_DEFAULT) }

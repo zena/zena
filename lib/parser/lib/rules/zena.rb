@@ -102,7 +102,7 @@ module Zena
         end
       end
     end
-    inline_methods :login_link, :visitor_link, :search_box, :show_menu, :show_comments, :show_path, :lang_links
+    inline_methods :login_link, :visitor_link, :search_box, :show_menu, :show_path, :lang_links
     direct_methods :uses_calendar
 
     def before_render
@@ -830,7 +830,17 @@ END_TXT
     def r_add
       return parser_error("should not be called from within 'each'") if parent.method == 'each'
       return '' if @context[:make_form]
-      out "<% if #{node}.can_write? -%>"
+      
+      # why is node = @node (which we need) but we are supposed to have Comments ?
+      # FIXME: during rewrite, replace 'node' by 'node(klass = node_class)' so the ugly lines below would be
+      # if node_kind_of?(Comment)
+      #   out "<% if #{node(Node)}.can_comment? -%>"
+      # Refs #198.
+      if node_kind_of?(Comment)
+        out "<% if #{node}.can_comment? -%>"
+      else
+        out "<% if #{node}.can_write? -%>"
+      end
       unless descendant('add_btn')
         # add a descendant between self and blocks.
         blocks = @blocks.dup

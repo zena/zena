@@ -64,7 +64,7 @@ blog_with_bad_relation:
   context:
     node: 'zena'
   src: "<r:notes or='whatever' do='each' join=', ' do='[name]'/>"
-  res: "<span class='parser_error'>\"notes, whatever\": unknown relation 'whatever'</span>"
+  res: "<span class='parser_error'>[notes, whatever] unknown relation 'whatever'</span>"
 
 pages_limit:
   context:

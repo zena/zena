@@ -619,12 +619,6 @@ latex_template = %q{
     @date ||= Date.today
   end
   
-  # Display the list of comments for the current node
-  def show_comments(opts={})
-    node = opts[:node] || @node
-    render_to_string(:partial=>'comments/list', :locals=>{:node=>node})
-  end
-  
   def calendar(opts={})
     if template_url = opts[:template_url]
       opts = (eval_parameters_from_template_url(template_url) || {}).merge(opts)

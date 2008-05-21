@@ -1042,19 +1042,8 @@ class Node < ActiveRecord::Base
   end
   
   # Return true if it is allowed to add comments to the node in the current context
-  # TODO: update test with 'commentator?'
   def can_comment?
     visitor.commentator? && discussion && discussion.open?
-  end
-  
-  # Add a comment to a node. If reply_to is set, the comment is added to the proper message
-  # TODO: can we remove this ?
-  def add_comment(opt)
-    return nil unless can_comment?
-    discussion.save if discussion.new_record?
-    author = opt[:author_name] = nil unless visitor.is_anon? # anonymous user
-    opt.merge!( :discussion_id=>discussion[:id], :user_id=>visitor[:id] )
-    secure!(Comment) { Comment.create(opt) }
   end
   
   # TODO: test
