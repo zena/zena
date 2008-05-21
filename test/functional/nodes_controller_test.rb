@@ -158,7 +158,7 @@ end
     end
   end
   
-  # test edit_... mode only if can_edit?
+  # test edit_... mode only if can_write?
   
 end
 =end

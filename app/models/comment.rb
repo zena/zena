@@ -9,6 +9,7 @@ class Comment < ActiveRecord::Base
   
   zafu_readable      :title, :text, :author_name, :created_at, :updated_at, :status
   zafu_context       :replies => ["Comment"]
+  attr_accessible    :title, :text, :author_name
   
   belongs_to :discussion
   validate   :valid_comment
@@ -42,8 +43,13 @@ class Comment < ActiveRecord::Base
     secure(Comment) { Comment.find(:all, :conditions=>conditions, :order=>'created_at ASC') }
   end
   
+  # needed by zafu for ajaxy stuff
+  def zip
+    self[:id]
+  end
+  
   # TODO: test
-  def can_edit?
+  def can_write?
     visitor.is_anon? ? visitor.ip == self[:ip] : visitor[:id] == user_id
   end
   
@@ -69,7 +75,12 @@ class Comment < ActiveRecord::Base
     end
     
     def valid_comment
-      errors.add('base', 'you cannot comment here') unless visitor.commentator? && discussion && discussion.open?
+      if new_record?
+        errors.add('base', 'you cannot comment here') unless visitor.commentator? && discussion && discussion.open?
+      else
+        errors.add('base', 'you do not have the rights to do this') if !can_write?
+        errors.add('base', 'discussion closed, comment cannot be updated') if can_write? && !discussion.open?
+      end
       errors.add('text', "can't be blank") unless self[:text] && self[:text] != ''
       errors.add('title', "can't be blank") unless self[:title] && self[:title] != ''
       errors.add('discussion', 'invalid') unless discussion

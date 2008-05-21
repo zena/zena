@@ -1,1 +1,1 @@
-page.replace_html "comment#{@comment[:id]}", :partial=>'comments/form'
+page.replace "#{dom_id_from_template_url}.#{@comment.zip}", :file => fullpath_from_template_url + "_form.erb"

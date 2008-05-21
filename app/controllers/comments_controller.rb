@@ -26,9 +26,9 @@ class CommentsController < ApplicationController
     respond_to do |format|
       if @comment.errors.empty?
         flash[:notice] = _('Comment was successfully created.')
-        format.html { redirect_to zen_path(@node) }
+        format.html { redirect_to zen_path(@node) } # TODO: add ':sharp => ...'
         format.js
-        format.xml  { head :created, :location => zen_path(@node) } # TODO: add ':sharp => ...'
+        format.xml  { head :created, :location => comment_path(@node) } 
       else
         format.html { render :action => "new" }
         format.js
@@ -48,19 +48,17 @@ class CommentsController < ApplicationController
     end
   end
   
-  # TODO: test
+
   def update
-    @comment    = Comment.find(params[:comment][:id])
-    @discussion = @comment.discussion
-    @node = secure(Node) { Node.find(@discussion[:node_id]) }
-    if @node && @node.can_comment? && @comment[:user_id] == visitor.id || visitor.id == 2
-      [:user_id, :discussion_id, :reply_to].each { |sym| params[:comment].delete(sym) }
-      @comment.update_attributes(params[:comment] )
-    else
-      render :nothing=>true
+    @comment.update_attributes(params[:comment])
+  
+    respond_to do |format|
+      format.html { redirect_to zen_path(@node) }
+      format.js
+      format.xml  { head :updated, :location => comment_path(@node) }
     end
   end
-  
+
   # TODO: test
   def remove
     @comment    = Comment.find(params[:id])

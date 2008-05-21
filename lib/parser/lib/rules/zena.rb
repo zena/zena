@@ -725,6 +725,7 @@ END_TXT
             form << "<input type='hidden' name='node[klass]' value='#{@params[:klass] || @context[:klass] || 'Page'}'/>\n" unless klass_set
           end
         elsif node_kind_of?(Comment)
+          # FIXME: the "... || '@node'" is a hack and I don't understand why it's needed...
           form << "<input type='hidden' name='node_id' value='<%= #{@context[:parent_node] || '@node'}.zip %>'/>\n"
         elsif node_kind_of?(DataEntry)
           form << "<input type='hidden' name='data_entry[#{@context[:data_root]}_id]' value='<%= #{@context[:in_add] ? @context[:parent_node] : "#{node}.#{@context[:data_root]}"}.zip %>'/>\n"
@@ -1692,14 +1693,7 @@ END_TXT
     end
     
     def node_id(obj = node)
-      if node_kind_of?(Node)
-        "#{obj}.zip"
-      elsif node_kind_of?(Version)
-        # not possible, bug in zena...
-        raise Exception.new("Do not use node_id on a Version.")
-      else
-        "#{obj}.id"
-      end
+      "#{obj}.zip"
     end
     
     def current_date

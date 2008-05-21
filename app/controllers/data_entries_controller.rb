@@ -49,7 +49,7 @@ class DataEntriesController < ApplicationController
   
     respond_to do |format|
       format.html # TODO
-      format.js { render :action=>'show' }
+      format.js
     end
   end
   
