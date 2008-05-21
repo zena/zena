@@ -1,5 +1,7 @@
 # FIXME: rewrite !
 class CommentsController < ApplicationController
+  before_filter :find_comment, :except => [:create]
+  before_filter :find_node_and_discussion
   before_filter :check_is_admin, :only=>[:index, :empty_bin]
   helper_method :bin_content
   
@@ -15,11 +17,23 @@ class CommentsController < ApplicationController
     end
   end
   
-  # TODO: test
+  
   def create
-    @node = secure(Node) { Node.find(params[:node][:id]) }
-    unless @node && @comment = @node.add_comment(params[:comment])
-      processing_error 'cannot comment'
+    @discussion.save if @discussion.new_record? && @node.can_comment?
+    
+    @comment = secure!(Comment) { Comment.create(filter_attributes(params[:comment])) }
+    
+    respond_to do |format|
+      if @comment.errors.empty?
+        flash[:notice] = _('Comment was successfully created.')
+        format.html { redirect_to zen_path(@node) }
+        format.js
+        format.xml  { head :created, :location => zen_path(@node) } # TODO: add ':sharp => ...'
+      else
+        format.html { render :action => "new" }
+        format.js
+        format.xml  { render :xml => @comment.errors.to_xml }
+      end
     end
   end
   
@@ -90,7 +104,26 @@ class CommentsController < ApplicationController
   end
   
   private
+    def find_comment
+      @comment = secure!(Comment) { Comment.find(params[:id]) }
+      @discussion = @comment.discussion
+      @node = @discussion.node
+    end
+    
+    def find_node_and_discussion
+      @node ||= secure!(Node) { Node.find_by_zip(params[:node_id]) }
+      @discussion ||= @node.discussion
+    end
+    
     def bin_content
       @bin_content ||= Comment.find(:all, :conditions=>['status <= ?', Zena::Status[:rem]])
+    end
+    
+    def filter_attributes(attributes)
+      attrs = attributes.dup
+      attrs['author_name']   = nil unless visitor.is_anon? # only anonymous user should set 'author_name'
+      attrs['discussion_id'] = @discussion[:id]
+      attrs['user_id']       = visitor[:id]
+      attrs
     end
 end

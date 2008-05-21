@@ -1048,6 +1048,7 @@ class Node < ActiveRecord::Base
   end
   
   # Add a comment to a node. If reply_to is set, the comment is added to the proper message
+  # TODO: can we remove this ?
   def add_comment(opt)
     return nil unless can_comment?
     discussion.save if discussion.new_record?

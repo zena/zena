@@ -141,9 +141,10 @@ module Zena
       inc = descendant('include')
       if inc && inc.params[:part] == @name
         @context["#{@name}_method".to_sym] = method_name = get_template_url[1..-1].gsub('/','_')
-        pre = "<% def #{method_name}(depth, node); return '' if depth > #{inc.params[:depth] ? [inc.params[:depth].to_i,30].min : 5}; _erbout = '' -%>"
-        post = "<% _erbout; end -%><%= #{method_name}(0,#{node}) %>"
+        pre = "<% def #{method_name}(depth, node, list); return '' if depth > #{inc.params[:depth] ? [inc.params[:depth].to_i,30].min : 5}; _erbout = '' -%>"
+        post = "<% _erbout; end -%><%= #{method_name}(0,#{node},#{list || "[#{node}]"}) %>"
         @context[:node] = 'node'
+        @context[:list] = 'list'
       end
       
       if @context[:make_form]
@@ -169,21 +170,23 @@ module Zena
         res =  "<#{@html_tag || 'div'} class='zazen'>#{res}</#{@html_tag || 'div'}>" if [:r_summary, :r_text].include?(sym)
       end
       
-      res = res || super(method)
+      
+      res ||= super(method)
       
       if pre
-        res = "#{pre}#{res}#{post}"
+        "#{pre}#{res}#{post}"
+      else
+        res
       end
-      return res
     end
     
     
     def after_render(text)
       if @anchor_param
         @params[:anchor] = @anchor_param # set back in case of double rendering so it is computed again
-        res = render_html_tag(r_anchor + super)
+        res = r_anchor + super
       else
-        res = render_html_tag(super)
+        res = super
       end
       @html_tag_params = @html_tag_params_bak # ???
       res
@@ -219,7 +222,7 @@ module Zena
             begin
               TZInfo::Timezone.get(tz_name)
             rescue TZInfo::InvalidTimezoneIdentifier
-              return "<span class='parser_error'>invalid timezone #{tz_name.inspect}</span>"
+              return parser_error("invalid timezone #{tz_name.inspect}")
             end
             tz = ", #{tz_name.inspect}"
           end
@@ -229,7 +232,7 @@ module Zena
         # error
         return "no attribute for 'show'".inspect
       else  
-        return "<span class='parser_error'>[show] missing attribute</span>"
+        return parser_error("missing attribute")
       end
       
       if @context[:trans]
@@ -258,11 +261,11 @@ module Zena
             attribute_method = "#{attribute_method}.to_s.gsub(/#{key}/,#{value.inspect})"
           else
             # invalid regexp
-            return "<span class='parser_error'>[show] invalid gsub #{gsub.inspect}</span>"
+            return parser_error("invalid gsub #{gsub.inspect}")
           end
         else
           # error
-          return "<span class='parser_error'>[show] invalid gsub #{gsub.inspect}</span>"
+          return parser_error("invalid gsub #{gsub.inspect}")
         end
       end
       
@@ -274,7 +277,7 @@ module Zena
       
       if @params[:edit] == 'true' && !['url','path'].include?(attribute)
         name = unique_name + '_' + attribute
-        "<% if #{node}.can_write? -%><span class='show_edit' id='#{name}.<%= #{node}.zip %>'>#{actions}<%= link_to_remote(#{attribute_method}, :url => edit_node_path(#{node}.zip) + \"?attribute=#{attribute}&identifier=#{CGI.escape(name)}.\#{#{node}.zip}\", :method => :get) %></span><% else -%>#{actions}<%= #{attribute_method} %><% end -%>"
+        "<% if #{node}.can_write? -%><span class='show_edit' id='#{name}.#{erb_node_id}'>#{actions}<%= link_to_remote(#{attribute_method}, :url => edit_node_path(#{node_id}) + \"?attribute=#{attribute}&identifier=#{CGI.escape(name)}.\#{#{node_id}}\", :method => :get) %></span><% else -%>#{actions}<%= #{attribute_method} %><% end -%>"
       else
         "#{actions}<%= #{attribute_method} %>"
       end
@@ -304,8 +307,8 @@ module Zena
       if @params[:edit] == 'true' && !['url','path'].include?(attribute)
         name = unique_name + '_' + attribute
         edit_text = _('edit')
-        @html_tag_params[:id] = ["'#{name}.<%= #{node}.zip %>'"]
-        res = "<% if #{node}.can_write? -%><span class='zazen_edit'><%= link_to_remote(#{edit_text.inspect}, :url => edit_node_path(#{node}.zip) + \"?attribute=#{attribute}&identifier=#{CGI.escape(name)}.\#{#{node}.zip}&zazen=true\", :method => :get) %></span><% end -%>#{res}"
+        @html_tag_params[:id] = ["'#{name}.#{erb_node_id}'"]
+        res = "<% if #{node}.can_write? -%><span class='zazen_edit'><%= link_to_remote(#{edit_text.inspect}, :url => edit_node_path(#{node_id}) + \"?attribute=#{attribute}&identifier=#{CGI.escape(name)}.\#{#{node_id}}&zazen=true\", :method => :get) %></span><% end -%>#{res}"
       else
         res
       end
@@ -326,7 +329,7 @@ module Zena
           k.kind_of?(String) && k =~ /\w_\w/
         end
         @html_tag_done = false
-        @html_tag_params.merge!(:id=>"#{dom_id_from_template_url(@context[:template_url])}.<%= #{node}.zip %>")
+        @html_tag_params.merge!(:id=>"#{dom_id_from_template_url(@context[:template_url])}.#{erb_node_id}")
         out expand_with
       else  
         template_url = get_template_url
@@ -358,19 +361,19 @@ module Zena
         end
         
         @html_tag_done = false
-        @html_tag_params.merge!(:id=>"#{dom_id_from_template_url(template_url)}.<%= #{node}.zip %>")
+        @html_tag_params.merge!(:id=>"#{dom_id_from_template_url(template_url)}.#{erb_node_id}")
         out expand_with(:template_url => template_url)
       end
     end
     
     # TODO: test
     def r_filter
-      return "span class='parser_error'>[filter] missing 'block' in same parent</span>" unless parent && block = parent.descendant('block')
+      return parser_error("missing 'block' in same parent") unless parent && block = parent.descendant('block')
       dom_id       = block.dom_id(@context)
       template_url = block.get_template_url(@context)
-      out "<%= form_remote_tag(:url => zafu_node_path(#{node}.zip), :method => :get, :html => {:id => \"#{dom_id}_q\"}) %><div class='hidden'><input type='hidden' name='template_url' value='#{template_url}'/></div><div class='wrapper'><input type='text' name='#{@params[:key] || 'f'}' value='<%= params[#{(@params[:key] || 'f').to_sym.inspect}] %>'/></div></form>"
+      out "<%= form_remote_tag(:url => zafu_node_path(#{node_id}), :method => :get, :html => {:id => \"#{dom_id}_q\"}) %><div class='hidden'><input type='hidden' name='template_url' value='#{template_url}'/></div><div class='wrapper'><input type='text' name='#{@params[:key] || 'f'}' value='<%= params[#{(@params[:key] || 'f').to_sym.inspect}] %>'/></div></form>"
       if @params[:live]
-        out "<%= observe_form( \"#{dom_id}_q\" , :method => :get, :frequency  =>  1, :submit =>\"#{dom_id}_q\", :url => zafu_node_path(#{node}.zip)) %>"
+        out "<%= observe_form( \"#{dom_id}_q\" , :method => :get, :frequency  =>  1, :submit =>\"#{dom_id}_q\", :url => zafu_node_path(#{node_id})) %>"
       end
     end
     
@@ -382,7 +385,7 @@ module Zena
       elsif parent && block = parent.descendant('block')
         # sibling: ok
       else
-        return "span class='parser_error'>[swap] missing 'block' in same parent</span>"
+        return parser_error("missing 'block' in same parent")
       end
       template_url = block.get_template_url(@context)
       states = (@params[:states] || 'todo, done').split(',').map{|e| e.strip}
@@ -394,13 +397,13 @@ module Zena
       
       auto_publish = @params[:publish] ? "&node[v_status]=#{Zena::Status[:pub]}" : ''
             
-      out "<%= #{node}.can_write? ? link_to_remote(#{text}, {:url => node_path(#{node}.zip) + \"?template_url=#{CGI.escape(template_url)}#{auto_publish}&node[#{@params[:attr]}]=\#{#{states.inspect}[ ((#{states.inspect}.index(#{node_attribute(@params[:attr])}) || 0)+1) % #{states.size}]}\", :method => :put}) : '' %>"
+      out "<%= #{node}.can_write? ? link_to_remote(#{text}, {:url => node_path(#{node_id}) + \"?template_url=#{CGI.escape(template_url)}#{auto_publish}&node[#{@params[:attr]}]=\#{#{states.inspect}[ ((#{states.inspect}.index(#{node_attribute(@params[:attr])}) || 0)+1) % #{states.size}]}\", :method => :put}) : '' %>"
     end
     
     def r_load
       if dict = @params[:dictionary]
         dict_content, absolute_url, doc = self.class.get_template_text(dict, @options[:helper], @options[:current_folder])
-        return "<span class='parser_error'>[load] dictionary #{dict.inspect} not found</span>" unless doc
+        return parser_error("dictionary #{dict.inspect} not found") unless doc
         @context[:dict] ||= {}
         begin
           definitions = YAML::load(dict_content)
@@ -408,10 +411,10 @@ module Zena
             @context[:dict][elem[0]] = elem[1]
           end
         rescue
-          puts "<span class='parser_error'>[load dictionary] invalid file content #{dict.inspect}.</span>"
+          return parser_error("invalid dictionary content #{dict.inspect}")
         end
       else
-        return "<span class='parser_error'>[load] missing 'dictionary'.</span>"
+        return parser_error("missing 'dictionary'")
       end
       expand_with
     end
@@ -451,10 +454,8 @@ module Zena
     def r_anchor(obj=node)
       if @anchor_param =~ /\[(.+)\]/
         anchor_value = "<%= #{node_attribute($1)} %>"
-      elsif node_kind_of?(Version)
-        anchor_value = "#{base_class.to_s.underscore}<%= #{obj}.node.zip %>.<%= #{obj}.number %>"
       else
-        anchor_value = "#{base_class.to_s.underscore}<%= #{obj}.zip %>"
+        anchor_value = "#{base_class.to_s.underscore}#{node_id(obj)}"
       end
       "<a name='#{anchor_value}'></a>"
     end
@@ -483,8 +484,10 @@ module Zena
     def r_title
       if node_kind_of?(Version)
         node = "#{self.node}.node"
-      else
+      elsif node_kind_of?(Node)
         node = self.node
+      else
+        return parser_error('title','only works with nodes')
       end
       title_params = {}
       [:link, :check_lang].each do |sym|
@@ -531,7 +534,7 @@ module Zena
     def r_text
       text = @params[:text] ? @params[:text].inspect : "#{node_attribute('v_text')}"
       limit  = @params[:limit] ? ", :limit=>#{@params[:limit].to_i}" : ""
-      out "<div id='v_text<%= #{node}.zip %>' class='zazen'>"
+      out "<div id='v_text#{erb_node_id}' class='zazen'>"
       unless @params[:empty] == 'true'
         out "<% if #{node}.kind_of?(TextDocument); l = #{node}.content_lang -%>"
         out "<%= zazen(\"<code\#{l ? \" lang='\#{l}'\" : ''} class=\\'full\\'>\#{#{text}}</code>\") %></div>"
@@ -554,7 +557,7 @@ module Zena
       limit  = @params[:limit] ? ", :limit=>#{@params[:limit].to_i}" : ""
       unless @params[:or]
         text = @params[:text] ? @params[:text].inspect : node_attribute('v_summary')
-        "<div id='v_summary<%= #{node}.zip %>' class='zazen'><%= zazen(#{text}#{limit}, :node=>#{node}) %></div>"
+        "<div id='v_summary#{erb_node_id}' class='zazen'><%= zazen(#{text}#{limit}, :node=>#{node}) %></div>"
       else
         limit ||= ', :limit => 2'
         first_name = 'v_summary'
@@ -562,7 +565,7 @@ module Zena
         
         second_name = @params[:or].gsub(/[^a-z_]/,'') # FIXME: ist this still needed ? (ERB injection)
         second = node_attribute(second_name)
-        "<div id='#{first_name}<%= #{node}.zip %>' class='zazen'><% if #{first} != '' %>" +
+        "<div id='#{first_name}#{erb_node_id}' class='zazen'><% if #{first} != '' %>" +
         "<%= zazen(#{first}, :node=>#{node}) %>" +
         "<% else %>" +
         "<%= zazen(#{second}#{limit}, :node=>#{node}) %>" +
@@ -593,9 +596,9 @@ module Zena
     end
     
     # FIXME: replace by zafu_known_contexts, each, etc
-    def r_comments
-      "<%= render :partial=>'comments/list', :locals=>{:node=>#{node}} %>"
-    end
+    #def r_comments
+    #  "<%= render :partial=>'comments/list', :locals=>{:node=>#{node}} %>"
+    #end
     
     def r_edit
       text = get_text_for_erb
@@ -607,7 +610,7 @@ module Zena
           # "<%= link_to_remote(#{_('cancel').inspect}, {:url => node_path(#{node}.zip) + '/zafu?template_url=#{CGI.escape(template_url)}', :method => :get}#{params_to_erb(@params)}) %>"
         else
           # edit button
-          "<%= #{node}.can_write? ? link_to_remote(#{text || _('edit').inspect}, {:url => edit_#{base_class.to_s.underscore}_path(#{node}.zip) + '?template_url=#{CGI.escape(template_url)}', :method => :get}#{params_to_erb(@params)}) : '' %>"
+          "<%= #{node}.can_write? ? link_to_remote(#{text || _('edit').inspect}, {:url => edit_#{base_class.to_s.underscore}_path(#{node_id}) + '?template_url=#{CGI.escape(template_url)}', :method => :get}#{params_to_erb(@params)}) : '' %>"
         end
       else
         # FIXME: we could link to some html page to edit the item.
@@ -626,7 +629,7 @@ module Zena
       input, attribute = get_input_params()
       case @params[:type]
       when 'select' # FIXME: why is this only for classes ?
-        return "<span class='parser_error'>[input] select without name</span>" unless attribute
+        return parser_error("select without name") unless attribute
         if klass = @params[:root_class]
           select_opts = {}
           class_opts = {}
@@ -639,16 +642,16 @@ module Zena
           "<%= select('#{base_class.to_s.underscore}', #{attribute.inspect}, #{klasses.split(',').map(&:strip).inspect}) %>"
         end
       when 'date_box', 'date'
-        return "<span class='parser_error'>[input] date_box without name</span>" unless attribute
-        input_id = @context[:template_url] ? ", :id=>#{(dom_id_from_template_url + '_' + attribute.to_s).inspect} + #{node}.zip.to_s" : ''
+        return parser_error("date_box without name") unless attribute
+        input_id = @context[:template_url] ? ", :id=>#{(dom_id_from_template_url + '_' + attribute.to_s).inspect} + #{node_id}.to_s" : ''
         "<%= date_box '#{base_class.to_s.underscore}', #{attribute.inspect}, :size=>15#{@context[:in_add] ? ", :value=>''" : ''}#{input_id} %>"
       when 'id'
-        return "<span class='parser_error'>[input] select id without name</span>" unless attribute
+        return parser_error("select id without name") unless attribute
         name = "#{attribute}_id" unless attribute[-3..-1] == '_id'
         input_id = params[:input_id] ? ", :input_id => #{(dom_id_from_template_url + '_' + attribute.to_s).inspect}" : ''
         "<%= select_id('#{base_class.to_s.underscore}', #{attribute.inspect}#{input_id}) %>"
       when 'time_zone'
-        return "<span class='parser_error'>[input] select time_zone without name</span>" unless attribute
+        return parser_error("select time_zone without name") unless attribute
         "<%= select('#{base_class.to_s.underscore}', #{attribute.inspect}, TZInfo::Timezone.all_identifiers) %>"
       when 'submit'
         @html_tag = 'input'
@@ -684,7 +687,7 @@ module Zena
           form  =  "<%= form_remote_tag(:url => #{base_class.to_s.underscore.pluralize}_path) %>\n"
         else
           # saved form used to edit/create: set values and 'parent_id' from @node
-          @html_tag_params.merge!(:id=>"#{dom_id_from_template_url}<%= #{node}.new_record? ? '_form' : \".\#{#{node}.zip}\" %>") unless @method == 'block' # called from r_block
+          @html_tag_params.merge!(:id=>"#{dom_id_from_template_url}<%= #{node}.new_record? ? '_form' : \".\#{#{node_id}}\" %>") unless @method == 'block' # called from r_block
           # new_record? = edit/create failed, rendering form with errors
           # else        = edit
           # FIXME: remove '/zafu?' when nodes_controller's method 'zafu' is no longer needed.
@@ -692,14 +695,14 @@ module Zena
 <% if #{node}.new_record? -%>
   <p class='btn_x'><a href='#' onclick='[\"#{dom_id_from_template_url}_add\", \"#{dom_id_from_template_url}_form\"].each(Element.toggle);return false;'>#{_('btn_x')}</a></p>
 <% else -%>
-  <p class='btn_x'><%= link_to_remote(#{_('btn_x').inspect}, :url => #{base_class.to_s.underscore}_path(#{node}.zip) + '/zafu?template_url=#{CGI.escape(template_url)}', :method => :get) %></a></p>
+  <p class='btn_x'><%= link_to_remote(#{_('btn_x').inspect}, :url => #{base_class.to_s.underscore}_path(#{node_id}) + '/zafu?template_url=#{CGI.escape(template_url)}', :method => :get) %></a></p>
 <% end -%>
 END_TXT
           form =<<-END_TXT
 <% if #{node}.new_record? -%>
 <%= form_remote_tag(:url => #{base_class.to_s.underscore.pluralize}_path) %>
 <% else -%>
-<%= form_remote_tag(:url => #{base_class.to_s.underscore}_path(#{node}.zip), :method => :put) %>
+<%= form_remote_tag(:url => #{base_class.to_s.underscore}_path(#{node_id}), :method => :put) %>
 <% end -%>
 END_TXT
         end
@@ -721,8 +724,10 @@ END_TXT
             end
             form << "<input type='hidden' name='node[klass]' value='#{@params[:klass] || @context[:klass] || 'Page'}'/>\n" unless klass_set
           end
+        elsif node_kind_of?(Comment)
+          form << "<input type='hidden' name='node_id' value='<%= #{@context[:parent_node] || '@node'}.zip %>'/>\n"
         elsif node_kind_of?(DataEntry)
-          form << "<input type='hidden' name='#{base_class.to_s.underscore}[#{@context[:data_root]}_id]' value='<%= #{@context[:in_add] ? "#{@context[:parent_node]}.zip" : "#{node}.#{@context[:data_root]}.zip"} %>'/>\n"
+          form << "<input type='hidden' name='data_entry[#{@context[:data_root]}_id]' value='<%= #{@context[:in_add] ? @context[:parent_node] : "#{node}.#{@context[:data_root]}"}.zip %>'/>\n"
         end
         
         if add_block = @context[:add]
@@ -755,7 +760,7 @@ END_TXT
         # no ajax
         # FIXME
         cancel = "" # link to normal node ?
-        form = "<form method='post' action='/nodes/<%= #{node}.zip %>'><div style='margin:0;padding:0'><input name='_method' type='hidden' value='put' /></div>"
+        form = "<form method='post' action='/nodes/#{erb_node_id}'><div style='margin:0;padding:0'><input name='_method' type='hidden' value='put' /></div>"
       end
       
       unless descendant('cancel') || descendant('edit') || descendant('form_tag')
@@ -785,8 +790,8 @@ END_TXT
     # <r:checkbox role='collaborator_for' values='projects' in='site'/>"
     # TODO: implement menu 'select' in the same spirit
     def r_checkbox
-      return "<span class='parser_error'>[checkbox] missing 'values'</span>" unless values = @params[:values]
-      return "<span class='parser_error'>[checkbox] missing 'role'</span>"   unless   role = (@params[:role] || @params[:name])
+      return parser_error("missing 'values'") unless values = @params[:values]
+      return parser_error("missing 'role'")   unless   role = (@params[:role] || @params[:name])
       meth = role.singularize
       attribute = @params[:attr] || 'name'
       if values =~ /^\d+\s*($|,)/
@@ -803,7 +808,7 @@ END_TXT
     
       out "<% #{list_var}_id = #{list_var}_relation.other_id -%>"
       out "<div class='input_radio'><% #{list_var}.each do |#{var}| -%>"
-      out "<span><input type='radio' name='node[#{meth}_id]' value='<%= #{var}.zip %>'<%= #{list_var}_id == #{var}[:id] ? \" checked='checked'\" : '' %>/> <%= #{node_attribute(attribute, :node=>var)} %></span> "
+      out "<span><input type='radio' name='node[#{meth}_id]' value='#{erb_node_id(var)}'<%= #{list_var}_id == #{var}[:id] ? \" checked='checked'\" : '' %>/> <%= #{node_attribute(attribute, :node=>var)} %></span> "
       out "<% end -%></div>"
       out "<input type='radio' name='node[#{meth}_id]' value=''/> #{_('none')}"
 
@@ -811,7 +816,7 @@ END_TXT
 
       out "<% #{list_var}_ids = #{list_var}_relation.other_ids -%>"
       out "<div class='input_checkbox'><% #{list_var}.each do |#{var}| -%>"
-      out "<span><input type='checkbox' name='node[#{meth}_ids][]' value='<%= #{var}.zip %>'<%= #{list_var}_ids.include?(#{var}[:id]) ? \" checked='checked'\" : '' %>/> <%= #{node_attribute(attribute, :node=>var)} %></span> "
+      out "<span><input type='checkbox' name='node[#{meth}_ids][]' value='#{erb_node_id(var)}'<%= #{list_var}_ids.include?(#{var}[:id]) ? \" checked='checked'\" : '' %>/> <%= #{node_attribute(attribute, :node=>var)} %></span> "
       out "<% end -%></div>"
       out "<input type='hidden' name='node[#{meth}_ids]' value=''/>"
 
@@ -822,7 +827,7 @@ END_TXT
     
     # TODO: test
     def r_add
-      return "<span class='parser_error'>[add] should not be called from within 'each'</span>" if parent.method == 'each'
+      return parser_error("should not be called from within 'each'") if parent.method == 'each'
       return '' if @context[:make_form]
       out "<% if #{node}.can_write? -%>"
       unless descendant('add_btn')
@@ -886,9 +891,9 @@ END_TXT
     # Show html to add open a popup window to add a document.
     # TODO: inline ajax for upload ?
     def r_add_document
-      return "<span class='parser_error'>[add_document] only works with nodes (not with #{node_class})</span>" unless node_kind_of?(Node)
+      return parser_error("only works with nodes (not with #{node_class})") unless node_kind_of?(Node)
       @html_tag_params[:class] ||= 'btn_add'
-      res = "<a href='/documents/new?parent_id=<%= #{node}.zip %>' onclick='uploader=window.open(\"/documents/new?parent_id=<%= #{node}.zip %>\", \"upload\", \"width=400,height=300\");return false;'>#{_('btn_add_doc')}</a>"
+      res = "<a href='/documents/new?parent_id=#{erb_node_id}' onclick='uploader=window.open(\"/documents/new?parent_id=#{erb_node_id}\", \"upload\", \"width=400,height=300\");return false;'>#{_('btn_add_doc')}</a>"
       "<% if #{node}.can_write? -%>#{render_html_tag(res)}<% end -%>"
     end
     
@@ -901,7 +906,7 @@ END_TXT
       if action = @params[:set] || @params[:add]
         action = "set=#{CGI.escape(action)}"
       else
-        return "<span class='parser_error'>[drop] missing 'set' or 'add'</span>"
+        return parser_error("missing 'set' or 'add'")
       end
       
       @html_tag ||= 'div'
@@ -917,7 +922,7 @@ END_TXT
       # BUG WITH &amp. USING RAW JS BELOW. 
       out "<script type='text/javascript'>
       //<![CDATA[
-      Droppables.add('#{@html_tag_params[:id]}', {onDrop:function(element){new Ajax.Request('/nodes/<%= #{node}.zip %>/drop?#{action}', {asynchronous:true, evalScripts:true, method:'put', parameters:'drop=' + encodeURIComponent(element.id)})}})
+      Droppables.add('#{@html_tag_params[:id]}', {onDrop:function(element){new Ajax.Request('/nodes/#{erb_node_id}/drop?#{action}', {asynchronous:true, evalScripts:true, method:'put', parameters:'drop=' + encodeURIComponent(element.id)})}})
       //]]>
       </script>"
       
@@ -931,7 +936,7 @@ END_TXT
       @html_tag ||= 'div'
       @html_tag_params ||= {}
       dom_id = unique_name
-      @html_tag_params[:id] = "#{dom_id}.<%= #{node}.zip %>"
+      @html_tag_params[:id] = "#{dom_id}.#{erb_node_id}"
       case @params[:revert]
       when 'move'
         revert_effect = 'Element.move'
@@ -954,7 +959,7 @@ END_TXT
       if text.blank?
         text = _('btn_tiny_del')
       end
-      dom_id = "#{CGI.escape(@context[:dom_id])}.\#{#{node}.zip}"
+      dom_id = "#{CGI.escape(@context[:dom_id])}.\#{#{node_id}}"
       if node_kind_of?(Node)
         out "<% if #{node}[:link_id] -%><%= link_to_remote(#{text.inspect}, {:url =>  \"/nodes/\#{#{node}[:zip]}/links/\#{#{node}[:link_id]}?remove=#{dom_id}\", :method => :delete}, :class=>#{(@params[:class] || 'unlink').inspect}) %><% end -%>"
       elsif node_kind_of?(DataEntry)  
@@ -964,8 +969,8 @@ END_TXT
     
     # Group elements in a list. Use :order to specify order.
     def r_group
-      return "<span class='parser_error'>[group] cannot be used outside of a list</span>" unless list_var = @context[:list]
-      return "<span class='parser_error'>[group] missing 'by' clause</span>" unless key = @params[:by]
+      return parser_error("cannot be used outside of a list") unless list_var = @context[:list]
+      return parser_error("missing 'by' clause") unless key = @params[:by]
 
       sort_key = @params[:sort] || 'name'
       if node_kind_of?(DataEntry) && DataEntry::NodeLinkSymbols.include?(key.to_sym)
@@ -998,7 +1003,7 @@ END_TXT
     
     # Compute statistics on elements in the current list context.
     def r_stat
-      return "<span class='parser_error'>[stat] must be used inside a list context</span>" unless list
+      return parser_error("must be used inside a list context") unless list
       find = @params[:find] || @params[:date] || 'count'
       key  = @params[:of]   || @params[:from] || 'value'
       case find
@@ -1025,7 +1030,7 @@ END_TXT
     end
 
     def r_each_group
-      return "<span class='parser_error'>[each_group] must be used inside a group context</span>" unless group = @context[:group]
+      return parser_error("must be used inside a group context") unless group = @context[:group]
       if join = @params[:join]
         join = join.gsub(/&lt;([^%])/, '<\1').gsub(/([^%])&gt;/, '\1>')
         out "<% #{group}.each_index do |#{list_var}_index| -%>"
@@ -1058,7 +1063,7 @@ END_TXT
         #dom_id = @context[:template_url] || self.dom_id()
         
         if @params[:draggable] == 'true'
-          out "<% #{var}_dom_ids << \"#{dom_id}.\#{#{var}.zip}\" -%>"
+          out "<% #{var}_dom_ids << \"#{dom_id}.\#{#{node_id(var)}}\" -%>"
         end
         
         out r_anchor(var) if @anchor_param # insert anchor inside the each loop
@@ -1067,7 +1072,7 @@ END_TXT
         
         if @context[:template_url] || @params[:draggable] == 'true' || descendant('unlink')
           # ajax, set id
-          id_hash = {:id=>"#{dom_id}.<%= #{var}.zip %>"}
+          id_hash = {:id=>"#{dom_id}.#{erb_node_id(var)}"}
           if @html_tag
             @html_tag_params.merge!(id_hash)
             res = expand_with(:node=>var, :dom_id=>dom_id) # dom_id is needed by 'unlink'
@@ -1085,7 +1090,7 @@ END_TXT
         end
       elsif @context[:template_url]
         # render to produce a saved template
-        id_hash = {:id=>"#{dom_id_from_template_url}.<%= #{node}.zip %>"}
+        id_hash = {:id=>"#{dom_id_from_template_url}.#{erb_node_id}"}
         if @html_tag
           @html_tag_params.merge!(id_hash)
           out render_html_tag(expand_with(:dom_id => dom_id)) # dom_id is needed by 'unlink'
@@ -1093,7 +1098,7 @@ END_TXT
           out add_params(expand_with, id_hash)
         end
         if @params[:draggable] == 'true'
-          out "<script type='text/javascript'>\n//<![CDATA[\nZena.draggable('#{dom_id_from_template_url}.<%= #{node}.zip %>')\n//]]>\n</script>"
+          out "<script type='text/javascript'>\n//<![CDATA[\nZena.draggable('#{dom_id_from_template_url}.#{erb_node_id}')\n//]]>\n</script>"
         end
       else
         # TODO: make a single list ?
@@ -1111,7 +1116,7 @@ END_TXT
     # TODO: test
     def r_if
       cond = get_test_condition
-      return "<span class='parser_error'>[if] condition error</span>" unless cond
+      return parser_error("condition error") unless cond
       
       if cond == 'true'
         return expand_with(:in_if => false)
@@ -1146,7 +1151,7 @@ END_TXT
     def r_elsif
       return '' unless @context[:in_if]
       cond = get_test_condition
-      return "<span class='parser_error'>[elsif] condition error</span>" unless cond
+      return parser_error("condition error") unless cond
       out "<% elsif #{cond} -%>"
       out expand_with(:in_if=>false)
     end
@@ -1218,12 +1223,12 @@ END_TXT
             d = Date.parse(select)
             expand_with(:date=>select)
           rescue
-            "<span class='parser_error'>[date] invalid date (#{select}) should be 'YYYY-MM-DD'</span>"
+            parser_error("invalid date '#{select}' should be 'YYYY-MM-DD'")
           end
         elsif select =~ /^\[(.*)\]$/
           expand_with(:date=>"(#{node_attribute($1)} || main_date)")
         else
-          "<span class='parser_error'>[date] bad parameter (#{select})</span>"
+          parser_error("bad parameter '#{select}'")
         end
       end
     end
@@ -1425,7 +1430,7 @@ END_TXT
 
         "<div id='#{opts[:size]}cal'><%= calendar(:node=>#{node}, :date=>main_date, :template_url => #{template_url.inspect}) %></div>"
       else
-        out "<span class='parser_error'>[calendar] error in finder #{pseudo_sql.inspect} (#{errors.join(', ')})</span>"
+        out parser_error("error in finder #{pseudo_sql.inspect} (#{errors.join(', ')})")
       end
     end
     
@@ -1444,8 +1449,8 @@ END_TXT
       return super if @params[:template] || !@params[:part]
       part = @params[:part].gsub(/[^a-zA-Z_]/,'')
       method_name = @context["#{part}_method".to_sym]
-      return "<span class='parser_error'>[include] no parent named '#{part}'</span>" unless method_name
-      "<%= #{method_name}(depth+1,#{node}) %>"
+      return parser_error("no parent named '#{part}'") unless method_name
+      "<%= #{method_name}(depth+1,#{node},#{list}) %>"
     end
     
     # use all other tags as relations
@@ -1480,10 +1485,10 @@ END_TXT
         
     # Prepare stylesheet and xml content for xsl-fo post-processor
     def r_fop
-      return "<span class='parser_error'>[fop] missing 'stylesheet' argument</span>" unless @params[:stylesheet]
+      return parser_error("missing 'stylesheet' argument") unless @params[:stylesheet]
       # get stylesheet text
       xsl_content, absolute_url, doc = self.class.get_template_text(@params[:stylesheet], @options[:helper], @options[:current_folder])
-      return "<span class='parser_error'>[fop] stylesheet #{@params[:stylesheet].inspect} not found</span>" unless doc
+      return parser_error("stylesheet #{@params[:stylesheet].inspect} not found") unless doc
       
       template_url = (get_template_url.split('/')[0..-2] + ['_main.xsl']).join('/')
       helper.save_erb_to_url(xsl_content, template_url)
@@ -1549,7 +1554,7 @@ END_TXT
       
       unless sql_query
         # is 'out' here a good idea ?
-        out "<span class='parser_error'>#{pseudo_sql.join(', ').inspect}: #{query_errors.join(' ')}</span>"
+        out parser_error(query_errors.join(' '), pseudo_sql.join(', '))
         return "nil"
       end
       
@@ -1676,6 +1681,25 @@ END_TXT
     # find the current node name in the context
     def node
       @context[:node] || '@node'
+    end
+
+    def erb_node_id(obj = node)
+      if node_kind_of?(Version)
+        "<%= #{obj}.node.zip %>.<%= #{obj}.number %>"
+      else
+        "<%= #{node_id(obj)} %>"
+      end
+    end
+    
+    def node_id(obj = node)
+      if node_kind_of?(Node)
+        "#{obj}.zip"
+      elsif node_kind_of?(Version)
+        # not possible, bug in zena...
+        raise Exception.new("Do not use node_id on a Version.")
+      else
+        "#{obj}.id"
+      end
     end
     
     def current_date
@@ -1997,7 +2021,7 @@ END_TXT
         elsif node_name == 'main'
           return [node_attr, '@node', Node]
         else
-          out "<span class='parser_error'>invalid node name #{node_name.inspect} in attribute #{str.inspect}</span>"
+          out parser_error("invalid node name #{node_name.inspect} in attribute #{str.inspect}")
           return [nil]
         end
       else
@@ -2192,11 +2216,11 @@ END_TXT
     # transform a 'show' tag into an input field.
     def make_input(params = @params)
       input, attribute = get_input_params(params)
-      return "<span class='parser_error'>[input] missing 'name'</span>" unless attribute
+      return parser_error("missing 'name'") unless attribute
       return '' if attribute == 'parent_id' # set with 'r_form'
       return '' if ['url','path'].include?(attribute) # cannot be set with a form
       if params[:date]
-      input_id = @context[:template_url] ? ", :id=>#{(@context[:template_url].split('/').last.to_s + '_' + attribute.to_s).inspect} + #{node}.zip.to_s" : ''
+      input_id = @context[:template_url] ? ", :id=>#{(@context[:template_url].split('/').last.to_s + '_' + attribute.to_s).inspect} + #{node_id}.to_s" : ''
         return "<%= date_box('#{base_class.to_s.underscore}', #{params[:date].inspect}#{input_id}) %>"
       end
       input_id = @context[:template_url] ? " id='#{@context[:template_url].split('/').last}_#{attribute}'" : ''
@@ -2205,7 +2229,7 @@ END_TXT
     
     # transform a 'zazen' tag into a textarea input field.
     def make_textarea(params)
-      return "<span class='parser_error'>[textarea] missing 'name'</span>" unless name = params[:name]
+      return parser_error("missing 'name'") unless name = params[:name]
       if name =~ /\A([\w_]+)\[(.*?)\]/
         attribute = $2
       else
@@ -2220,6 +2244,10 @@ END_TXT
         value = attribute ? "<%= #{node_attribute(attribute)} %>" : ""
       end
       "<textarea name='#{name}'>#{value}</textarea>"
+    end
+    
+    def parser_error(message, tag=@method)
+      "<span class='parser_error'>[#{tag}] #{message}</span>"
     end
   end
 end

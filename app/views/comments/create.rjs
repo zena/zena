@@ -1,15 +1,30 @@
-if @errors
-  page.replace_html 'comment_errors', :inline => render_errors
-elsif @comment.new_record?
-  page.replace_html "add_comment_form#{@comment.reply_to || ''}", :partial=>'comments/form'
-  page.replace_html "comment_errors#{@comment.reply_to || ''}", :inline=>error_messages_for(@comment)
+#if @errors
+#  page.replace_html 'comment_errors', :inline => render_errors
+#elsif @comment.new_record?
+#  page.replace_html "add_comment_form#{@comment.reply_to || ''}", :partial=>'comments/form'
+#  page.replace_html "comment_errors#{@comment.reply_to || ''}", :inline=>error_messages_for(@comment)
+#else
+#  if @comment.reply_to
+#    page.remove "add_comment_form#{@comment.reply_to}"
+#    page.insert_html :bottom, "replies_to#{@comment.reply_to}", :partial=>'comments/li', :collection=>[@comment]
+#  else
+#    page.insert_html :before, "add_comment#{@node.zip}", :partial=>'comments/li', :collection=>[@comment]
+#    page.toggle "add_comment#{@node.zip}", "add_comment_form#{@node.zip}"
+#  end
+#  page.visual_effect :highlight, "comment#{@comment[:id]}", :duration => 0.3
+#end
+
+if @comment.new_record?
+  page.replace "#{dom_id_from_template_url}_form", :file => fullpath_from_template_url + "_form.erb"
 else
-  if @comment.reply_to
-    page.remove "add_comment_form#{@comment.reply_to}"
-    page.insert_html :bottom, "replies_to#{@comment.reply_to}", :partial=>'comments/li', :collection=>[@comment]
+  pos = params[:position] || :before
+  ref = params[:reference] || "#{dom_id_from_template_url}_add"
+  page.insert_html pos.to_sym, ref, :file => fullpath_from_template_url + ".erb"
+  @comment = Comment.new
+  page.replace "#{dom_id_from_template_url}_form", :file => fullpath_from_template_url + "_form.erb"
+  if params[:done]
+    page << params[:done]
   else
-    page.insert_html :before, "add_comment#{@node.zip}", :partial=>'comments/li', :collection=>[@comment]
-    page.toggle "add_comment#{@node.zip}", "add_comment_form#{@node.zip}"
+    page.toggle "#{dom_id_from_template_url}_form", "#{dom_id_from_template_url}_add"
   end
-  page.visual_effect :highlight, "comment#{@comment[:id]}", :duration => 0.3
 end

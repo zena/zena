@@ -32,3 +32,7 @@ bad_relation:
 bad_order_clause:
   src: "<r:images order='l_status ASC' do='each' join=',' do='[name]'/>"
   res: "<span class='parser_error'>\"images order by l_status ASC\": cannot use link field 'l_status' in this query</span>"
+
+mean_error:
+  src: "<r:date select='<% puts \"mean\" %>'/>"
+  res: "<span class='parser_error'>[date] bad parameter '&lt;% puts \"mean\" %&gt;'</span>"

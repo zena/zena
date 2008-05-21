@@ -8,7 +8,7 @@ If anonymous is moderated (User#moderated?), all public comments are set to 'pro
 class Comment < ActiveRecord::Base
   
   zafu_readable      :title, :text, :author_name, :created_at, :updated_at, :status
-
+  zafu_context       :replies => ["Comment"]
   
   belongs_to :discussion
   validate   :valid_comment
@@ -39,7 +39,7 @@ class Comment < ActiveRecord::Base
     else
       conditions = ["reply_to = ? AND status = #{Zena::Status[:pub]}", self[:id]]
     end
-    Comment.find(:all, :conditions=>conditions, :order=>'created_at ASC')
+    secure(Comment) { Comment.find(:all, :conditions=>conditions, :order=>'created_at ASC') }
   end
   
   # TODO: test
@@ -69,6 +69,7 @@ class Comment < ActiveRecord::Base
     end
     
     def valid_comment
+      errors.add('base', 'you cannot comment here') unless visitor.commentator? && discussion && discussion.open?
       errors.add('text', "can't be blank") unless self[:text] && self[:text] != ''
       errors.add('title', "can't be blank") unless self[:title] && self[:title] != ''
       errors.add('discussion', 'invalid') unless discussion

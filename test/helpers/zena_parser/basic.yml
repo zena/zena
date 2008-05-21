@@ -770,6 +770,14 @@ recursion:
   src: "<r:void name='grp'><r:show attr='name'/><r:parent> -- <r:include part='grp'/></r:parent></r:void>"
   res: "status -- cleanWater -- projects -- zena"
 
+recursion_in_each:
+  src: "<ul do='comments'>
+    <li do='each' name='com'><b do='[title]'/>
+      <ul do='replies' do='include' part='com'/>
+    </li>
+  </ul>"
+  res: "<ul> <li><b>I agree</b> </li> <li><b>I think this is bad</b> <ul> <li><b>Why ?</b> </li></ul> </li> <li><b>OK for me</b> </li> </ul>"
+  
 date_tformat:
   context:
     node: 'people'

@@ -228,8 +228,10 @@ class ZenaParserTest < ZenaTestController
     do_test('basic', 'img_private_image')
   end
   
-  def test_basic_img_image
-    do_test('basic', 'img_image')
+  def test_basic_recursion_in_each
+    Node.connection.execute "UPDATE nodes SET max_status = 40 WHERE id = #{nodes_id(:status)}"
+    Node.connection.execute "UPDATE versions SET status = 40 WHERE node_id = #{nodes_id(:status)}"
+    do_test('basic', 'recursion_in_each')
   end
   
   def test_zazen_swf_button_player

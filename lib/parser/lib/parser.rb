@@ -156,16 +156,18 @@ class Parser
       res = self.do_method(:r_unknown)
     end
     
-    if @result != ""
-      res = @result
-    elsif !res.kind_of?(String)
-      res = @method
-    end
     after_render(res + @text)
   end
   
   def do_method(sym)
-    self.send(sym)
+    res = self.send(sym)
+    if @result != ""
+      @result
+    elsif !res.kind_of?(String)
+      @method
+    else
+      res
+    end
   end
   
   def r_void
