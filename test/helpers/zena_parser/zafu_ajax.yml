@@ -59,6 +59,11 @@ each_edit_with_form:
   src: "<r:children><r:each><li><r:show attr='name'>blah</r:show> <r:edit>edit</r:edit></li>\n</r:each><r:form><li><form>this is the form</form></li></r:form></r:children>"
   res: "/<li id='list\.30'>bird <a href=\"/nodes/30/edit\?template_url=.*\" onclick=\"new Ajax.Request\('/nodes/30/edit\?template_url=%2Feach%2Fedit%2Fwith%2Fform%2Flist/"
 
+make_form:
+  src: "<ul do='children'><li do='each' do='[name]'/><li do='add'/></ul>"
+  tem: "/<li id='list_form' style='display:none;'><%= form_remote_tag\(:url => nodes_path\) %>/"
+  'make/form/en/list.erb': "<li id='list.<%= @node.zip %>'><%= @node.name %></li>"
+  'make/form/en/list_form.erb': "/<li id='list<%= @node.new_record\? \? '_form' : \".#\{@node.zip\}\" %>'>/"
 
 each_edit_cannot_write:
   context:

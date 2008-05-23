@@ -1039,6 +1039,8 @@ END_TXT
           format = "%Y-%m-%d"
         end
         "<%= #{list}==[] ? '' : format_date(#{value}, #{format.inspect}) %>"
+      elsif format = @params[:format]
+        "<%= #{list}==[] ? '' : sprintf(#{@params[:format].inspect}, #{value}) %>"
       else
         "<%= #{list}==[] ? '' : #{value} %>"
       end
@@ -1302,17 +1304,17 @@ END_TXT
         else
         end
       else
-        zena = "<a class='zena' href='http://zenadmin.org' title='zena #{Zena::VERSION::STRING} r#{Zena::VERSION::REV}'>zena</a>"
-        case @params[:type]
+        text = case @params[:type]
         when 'riding'
-          _("riding %{zena}") % {:zena => zena}
+          _("riding zena")
         when 'peace'
-          _("in peace with %{zena}") % {:zena => zena}
+          _("in peace with zena")
         when 'garden'
-          _("a %{zen} garden") % {:zen => zena.sub('>zena<', '>zen<')}
+          _("a zen garden")
         else
-          _("made with %{zena}") % {:zena => zena}
+          _("made with zena")
         end
+        "<a class='zena' href='http://zenadmin.org' title='zena #{Zena::VERSION::STRING} r#{Zena::VERSION::REV}'>#{text}</a>"
       end
     end
     
@@ -2083,7 +2085,7 @@ END_TXT
       end
       tag_class = @html_tag_params[:class] || @params[:class]
       if node_kind_of?(Node)
-        node_name = (@method == 'each' && @context[:list]) ? var : node
+        node_name = (@method == 'each' && @context[:list] && !@context[:make_form]) ? var : node
         @params.each do |k,v|
           if k.to_s =~ /^(.+)_if$/
             klass = $1
