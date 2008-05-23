@@ -797,6 +797,12 @@ date_tz:
   src: "<r:show date='created_at' format='%H:%M'/> / <r:show date='created_at' format='%H:%M' time_zone='Asia/Jakarta'/>"
   res: "01:00 / 07:00"
 
+date_tz_field:
+  context:
+    node: 'projects'
+  src: "<r:pages do='each' join=', '><r:show attr='name'/>: <r:show date='created_at' format='%H:%M' time_zone='[d_tz]' time_zone='Europe/Zurich'/> | <r:show date='created_at' format='%H:%M' time_zone='UTC'/></r:pages>"
+  res: "cleanWater: 07:00 | 00:00, wiki: 01:00 | 00:00"
+
 dictionary_fr:
   context:
     lang: 'fr'

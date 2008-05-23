@@ -29,5 +29,13 @@ cleanWater_assigned_to:
 status_fr_assigned_to:
   id:            5
   owner_id:      30
+  owner_table:   'versions'
   key:           'assigned'
   value:         'gaspard'
+
+cleanWater_en_d_tz:
+  id:             6
+  owner_id:       11
+  owner_table:   'versions'
+  key:            'tz'
+  value:          'Asia/Jakarta'

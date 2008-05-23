@@ -138,6 +138,10 @@ complex_link_with_commas:
   src: "download: \"small\":30_std.data, \"full\":30.data."
   res: "<p>download: [make_link id:|30_std.data| title:|small|], [make_link id:|30.data| title:|full|].</p>"
 
+textile_link:
+  src: "See \"trac\":http://dev.zenadmin.org/report/3."
+  res: "<"
+
 wiki_link:
   src: "why use ?ruby? ?"
   res: "<p>why use [make_wiki_link title:|ruby|] ?</p>"

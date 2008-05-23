@@ -216,16 +216,19 @@ module Zena
         
         tz = ''
         if tz_name = @params[:time_zone]
-          if tz_name =~ /^\[(\w+)\]$/
-            tz = ", #{node_attribute($1)}"
-          else
-            begin
-              TZInfo::Timezone.get(tz_name)
-            rescue TZInfo::InvalidTimezoneIdentifier
-              return parser_error("invalid timezone #{tz_name.inspect}")
+          tz_list = @params.reject {|k,v| !(k.to_s =~ /^time_zone\d*$/)}.to_a.sort {|a,b| a[0].to_s <=> b[0].to_s }.map do |k,tz_name|
+            if tz_name =~ /^\[(\w+)\]$/
+              node_attribute($1)
+            else
+              begin
+                TZInfo::Timezone.get(tz_name)
+              rescue TZInfo::InvalidTimezoneIdentifier
+                return parser_error("invalid timezone #{tz_name.inspect}")
+              end
+              tz_name.inspect
             end
-            tz = ", #{tz_name.inspect}"
           end
+          tz = ", #{tz_list.join(' || ')}"
         end
         attribute_method = "format_date(#{node_attribute(@params[:date])}, #{format.inspect}#{tz})"
       elsif @context[:trans]
