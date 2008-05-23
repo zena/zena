@@ -641,6 +641,20 @@ module Zena
           class_opts[:without]   = @params[:without]  if @params[:without]
           # do not use 'selected' if the node is not new
           "<% if #{node}.new_record? -%><%= select('#{base_class.to_s.underscore}', #{attribute.inspect}, Node.classes_for_form(:class => #{klass.inspect}#{params_to_erb(class_opts)})#{params_to_erb(select_opts)}) %><% else -%><%= select('#{base_class.to_s.underscore}', #{attribute.inspect}, Node.classes_for_form(:class => #{klass.inspect}#{params_to_erb(class_opts)})) %><% end -%>"
+        elsif values = @params[:values]
+          # TODO: dry with r_checkbox
+          if values =~ /^\d+\s*($|,)/
+            # ids
+            # TODO generate the full query instead of using secure.
+            values = values.split(',').map{|v| v.to_i}
+            list_finder = "(secure(Node) { Node.find(:all, :conditions => 'zip IN (#{values.join(',')})') })"
+          else
+            # relation
+            list_finder = build_finder_for(:all, values)
+          end  
+          set_attr  = @params[:attr] || 'id'
+          show_attr = @params[:show] || 'name'
+          "<%= select('#{base_class.to_s.underscore}', #{attribute.inspect}, (#{list_finder} || []).map{|r| [#{node_attribute(show_attr, :node => 'r')}, #{node_attribute(set_attr, :node => 'r')}]}) %>"
         else
           klasses = @params[:options] || "Page,Note"
           "<%= select('#{base_class.to_s.underscore}', #{attribute.inspect}, #{klasses.split(',').map(&:strip).inspect}) %>"
