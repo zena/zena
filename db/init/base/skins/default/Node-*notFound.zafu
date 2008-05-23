@@ -1,12 +1,14 @@
-<r:include template='layout'>
+<r:include template='Node'>
   <r:with part='menu'/>
+  <r:with part='visitor'/>
+  <r:with part='search'/>
   <r:with part='container'>
-    <div id="not_found"><div>
+    <div id="not_found">
       <p><b><r:trans>Sorry, the requested page could not be found.</r:trans></b></p>
       <p><r:trans>Please go </r:trans><a do='link' href='root' do='trans'>home</a>,
          <a onclick="history.go(-2)" href="#"><r:trans>back</r:trans></a>
          <r:trans>or</r:trans> <a href="/login" do='trans'>login</a>
       </p>
-    </div></div>
+    </div>
   </r:with>
 </r:include>

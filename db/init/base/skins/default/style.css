@@ -60,3 +60,8 @@ h2 { font-size:21px; line-height:42px;}
 .node_v_title input { font-weight:bold; width:90%;}
 #notes .node_v_title input { font-weight:bold; width:120px;}
 .inline_form input { display:inline; }
+
+/* tables */
+
+.zazen table td, .zazen table th { border:1px solid #555; padding:0 6px;}
+.zazen table th { background: #555; color:white; text-align:center;}

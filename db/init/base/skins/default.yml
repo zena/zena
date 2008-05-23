@@ -1,7 +1,7 @@
 class: Skin
-v_title: Default skin
+v_title: default skin
 v_summary: official default skin
-v_comment: version 0.8
+v_comment: version 0.9
 v_text: |
   This is the default skin for zena. You should be *very careful* if you change this skin: it is used to display/edit itself.
   

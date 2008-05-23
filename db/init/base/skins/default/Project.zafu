@@ -1,7 +1,7 @@
 <r:include template='Node'>
   <r:with part='content'>
-    <div id='main' do='text'/>
     <r:include template='Node' part='related'/>
+    <div id='main' do='text'/>
     <r:include template='notes'/>
   </r:with>
 </r:include>

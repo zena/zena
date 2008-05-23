@@ -1,5 +1,5 @@
 class: Page
-v_title: Help
+v_title: help
 v_summary: |
   |_. markup |_. result |
   | @the *black* cat@ | the *black* cat |

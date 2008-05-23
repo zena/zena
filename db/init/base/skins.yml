@@ -1,5 +1,3 @@
 class: Section
-v_title: Skins (layout themes)
-v_summary: List of skins used by this website
-v_text: |
-  This page contains the skins used by this website.
+v_title: skins
+v_summary: List of skins used by the website
