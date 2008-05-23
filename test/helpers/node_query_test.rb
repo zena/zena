@@ -1,7 +1,6 @@
 require File.join(File.dirname(__FILE__), "testhelp")
 
 class NodeQueryTest < ZenaTestUnit
-  yaml_dir  File.join(File.dirname(__FILE__), 'node_query')
   yaml_test :basic, :filters, :relations
 
   def do_test(file, test)

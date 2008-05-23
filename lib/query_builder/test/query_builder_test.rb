@@ -97,7 +97,6 @@ class TestQuery < QueryBuilder
 end
 
 class QueryTest < Test::Unit::TestCase
-  yaml_dir File.dirname(__FILE__)
   yaml_test :basic, :joins, :filters, :errors
   
   def parse(value, opts)

@@ -20,6 +20,10 @@ stat_sum_format:
   src: "<r:data do='stat' find='sum' format='%.3f'/>"
   res: "150.000"
 
+stat_count:
+  src: "<r:data do='stat' find='count'/>"
+  res: "5"
+  
 stat_min:
   src: "<r:data do='stat' find='min'/>"
   res: "13.0"

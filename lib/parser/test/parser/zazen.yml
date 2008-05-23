@@ -140,7 +140,7 @@ complex_link_with_commas:
 
 textile_link:
   src: "See \"trac\":http://dev.zenadmin.org/report/3."
-  res: "<"
+  res: "<p>See <a href=\"http://dev.zenadmin.org/report/3\">trac</a>.</p>"
 
 wiki_link:
   src: "why use ?ruby? ?"

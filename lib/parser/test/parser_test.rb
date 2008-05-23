@@ -1,4 +1,7 @@
-require File.join(File.dirname(__FILE__) , 'testhelp.rb')
+require 'test/unit'
+require 'yaml'
+require File.join(File.dirname(__FILE__) , '..', 'lib', 'parser')
+require File.join(File.dirname(__FILE__), '..','..','yaml_test')
 require 'ruby-debug'
 Debugger.start
 unless Module.const_defined?(:ActiveRecord)
@@ -62,7 +65,25 @@ module Zafu
 end
 
 class ParserTest < Test::Unit::TestCase
-  testfile :zafu => {}, :zafu_asset => {}, :zafu_insight => {}, :zazen => {} #, :latex => {:module => :zazen, :output => 'latex'}
+  yaml_test :zafu => {}, :zafu_asset => {}, :zafu_insight => {}, :zazen => {} #, :latex => {:module => :zazen, :output => 'latex'}
+  @@test_parsers = {}
+  @@test_options = {}
+  
+  @@file_list.each do |file, opts|
+    file = file.to_s
+    mod_name = opts.delete(:module) || file
+    mod_name = mod_name.to_s.split("_").first.capitalize
+    @@test_parsers[file] = Parser.parser_with_rules(eval("#{mod_name}::Rules"), eval("#{mod_name}::Tags"))
+    @@test_options[file] = opts
+  end
+  
+  def do_test(file, test)
+    res = @@test_parsers[file].new_with_url("/#{test.gsub('_', '/')}", :helper=>ParserModule::DummyHelper.new(@@test_strings[file])).render(@@test_options[file])
+    if @@test_strings[file][test]['res']
+      assert_yaml_test @@test_strings[file][test]['res'], res
+    end
+  end
+  
   def test_single
     do_test('zafu', 'only_hello')
   end

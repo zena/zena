@@ -18,12 +18,28 @@ module YamlTest
     def yaml_test(*files)
       # We need to do a class_eval so that the class variables 'test_strings, test_methods, ...' are scoped
       # in the final class and are not global to all tests using the YamlTest helper.
+      if files[0].kind_of?(Hash)
+        file_list = files[0]
+      else
+        file_list = Hash[*(files.map{|f| [f,{}]}.flatten)]
+      end
+      
       class_eval %Q{
         @@test_strings = {}
         @@test_methods = {}
         @@test_options = {}
         @@test_files = []
-        #{files.inspect}.each do |file|
+        @@file_list  = #{file_list.inspect}
+        @@file_directory ||= begin
+          if #{caller[0].inspect}.split('/').last =~ /^(.*)_test.rb/
+            File.join(File.dirname(#{caller[0].inspect}), $1)
+          else
+            puts "Bad file name for yaml_tests '#{caller[0]}'. Should be '..._test.rb'. Trying main directory."
+            File.dirname(#{caller[0].inspect})
+          end
+        end
+        
+        @@file_list.each do |file, opts|
           file = file.to_s
           strings = {}
           test_methods = []
@@ -41,34 +57,33 @@ module YamlTest
           @@test_strings[file] = strings.freeze
           @@test_methods[file] = test_methods
           @@test_files << file
-        
-        
-          # Override this in your test class
-          def parse(value)
-            value
-          end
-
-          def do_test(file, test)
-            context = @@test_strings[file][test]['context'] || {}
-            default_context = (@@test_strings[file]['default'] || {})['context'] || {}
-            context = Hash[*default_context.merge(context).map{|k,v| [k.to_sym,v]}.flatten]
-            res = parse(@@test_strings[file][test]['src'] || test.gsub('_',' '), context)
-            if test_res = @@test_strings[file][test]['res']
-              assert_yaml_test test_res, res
-            end
-          end
-          
-          protected
-            def assert_yaml_test(test_res, res)
-              if test_res[0..1] == '!/'
-                assert_no_match %r{\#{test_res[2..-2]}}m, res
-              elsif test_res[0..0] == '/'
-                assert_match %r{\#{test_res[1..-2]}}m, res
-              else
-                assert_equal test_res, res
-              end
-            end
         end
+        
+        # Override this in your test class
+        def parse(value)
+          value
+        end
+        
+        def do_test(file, test)
+          context = @@test_strings[file][test]['context'] || {}
+          default_context = (@@test_strings[file]['default'] || {})['context'] || {}
+          context = Hash[*default_context.merge(context).map{|k,v| [k.to_sym,v]}.flatten]
+          res = parse(@@test_strings[file][test]['src'] || test.gsub('_',' '), context)
+          if test_res = @@test_strings[file][test]['res']
+            assert_yaml_test test_res, res
+          end
+        end
+        
+        protected
+          def assert_yaml_test(test_res, res)
+            if test_res[0..1] == '!/'
+              assert_no_match %r{\#{test_res[2..-2]}}m, res
+            elsif test_res[0..0] == '/'
+              assert_match %r{\#{test_res[1..-2]}}m, res
+            else
+              assert_equal test_res, res
+            end
+          end
       }
     end
     
