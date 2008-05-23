@@ -19,6 +19,10 @@ class Comment < ActiveRecord::Base
     @author ||= secure(User) { User.find(self[:user_id]) }
   end
   
+  def author_name
+    self[:author_name] || author.fullname
+  end
+  
   def parent
     @parent ||= self[:reply_to] ? secure(Comment) { Comment.find(self[:reply_to]) } : nil
   end
