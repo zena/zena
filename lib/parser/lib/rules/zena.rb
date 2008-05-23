@@ -1813,6 +1813,7 @@ END_TXT
         klass       = add_block  ? add_block.params[:klass]  : nil
         klass     ||= form_block ? form_block.params[:klass] : nil
         
+        # INLINE ==========
         # 'r_add' needs the form when rendering. Send with :form.
         res = expand_with(opts.merge(:list=>list_var, :form=>form_block, :publish_after_save => publish_after_save, :no_form=>true, :template_url=>template_url, :klass => klass, :in_if => (list_finder ? true : false) ))
         out render_html_tag(res)
@@ -2079,7 +2080,7 @@ END_TXT
       end
       tag_class = @html_tag_params[:class] || @params[:class]
       if node_kind_of?(Node)
-        node_name = (@method == 'each' && !@context[:template_url] ? var : node)
+        node_name = (@method == 'each' && @context[:list]) ? var : node
         @params.each do |k,v|
           if k.to_s =~ /^(.+)_if$/
             klass = $1
