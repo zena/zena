@@ -175,4 +175,22 @@ class VirtualClassTest < ZenaTestUnit
     assert_equal Note, virtual_classes(:letter).superclass
     assert_equal Page, virtual_classes(:tracker).superclass
   end
+  
+  def test_new_conflict_virtual_kpath
+    # add a sub class
+    login(:lion)
+    vclass = VirtualClass.create(:superclass => 'Note', :name => 'Pop', :create_group_id =>  groups_id(:public))
+    assert !vclass.new_record?
+    assert_not_equal Node.get_class('Post').kpath, vclass.kpath
+    assert_equal 'NNO', vclass.kpath
+  end
+  
+  def test_new_conflict_kpath
+    # add a sub class
+    login(:lion)
+    vclass = VirtualClass.create(:superclass => 'Page', :name => 'Super', :create_group_id =>  groups_id(:public))
+    assert !vclass.new_record?
+    assert_not_equal Section.kpath, vclass.kpath
+    assert_equal 'NPU', vclass.kpath
+  end
 end

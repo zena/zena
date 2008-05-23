@@ -110,12 +110,7 @@ class VirtualClass < ActiveRecord::Base
       kpath = nil
       while index < self[:name].length
         try_kpath = @superclass.kpath + self[:name][index..index].upcase
-        conditions = ["site_id = ? AND kpath = ?", current_site[:id], try_kpath]
-        unless new_record?
-          conditions[0] += " AND id <> ?"
-          conditions << self[:id]
-        end
-        unless VirtualClass.find(:first, :conditions=>conditions)
+        unless Node.get_class_from_kpath(try_kpath)
           kpath = try_kpath
           break
         end
