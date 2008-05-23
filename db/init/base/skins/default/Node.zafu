@@ -1,13 +1,81 @@
-<r:include template='layout'>
-  <r:with part='context'>
-    <r:parent>
-    <ul do='pages' or='documents'><li do='each' on_if='current' do='link'/></ul>
-    </r:parent>
-  </r:with>
-  <r:with part='main'>
-    <r:include template='layout' part='title'/>
-    
-    <r:summary text=''/>
-    <r:text/>
-  </r:with>
-</r:include>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" do='void' lang="en" set_lang='[v_lang]' xml:lang='en'>
+<head do='void' name='head'>
+  <title do='title_for_layout' do='show' attr='v_title' name='page_title'>page title</title>
+  <meta http-equiv="Content-type" content="text/html; charset=utf-8" />
+  <r:void name='stylesheets'>
+    <r:stylesheets list='reset,zena,code'/>
+  </r:void>
+  <link href="style.css" rel="Stylesheet" type="text/css"/>
+
+  <r:javascripts list='prototype,effects,zena'/>
+</head>
+
+<body>
+  <div id='header'>
+    <div id='login' do='login_link'/>
+    <div id='visitor' do='visitor_link'/>
+    <div id='search' do='search_box'/>
+    <ol id='menu' do='root' do='pages'>
+      <li do='each' on_if_node='ancestor' do='link'/>
+    </ol>
+  </div>
+  <div id='container'>
+    <div id='title'>
+      <h1 do='title' actions='all'/>
+      <div class='summary' do='summary'/>
+    </div>
+    <div id='context'>
+      <r:parent>
+        <h3 do='link'/>
+        <ol do='pages'>
+          <li do='each' do='link'/>
+          <li do='add'/>
+          <li class='inline_form' do='form'>
+            <ol>
+              <li><input type='select' name='klass' root_class='Page'/></li>
+              <li><input type='text' name='v_title' value=''/></li>
+              <li class='validate'><input type="submit" value='validate' tset_value='validate'/></li>
+            </ol>
+          </li>
+        </ol>
+      </r:parent>
+    </div>
+    <div id='content'>
+      <div id='related'>
+        <r:documents name='documents'><h3 do='trans'>documents</h3>
+          <ol>
+            <li do='each' do='if' can='write'>
+              <r:link><r:img mode='tiny'/> <r:show attr='v_title'/>.<r:show attr='c_ext'/></r:link>
+              <r:else>
+                <r:link format='data'><r:img mode='tiny'/> <r:show attr='v_title'/>.<r:show attr='c_ext'/></r:link>
+              </r:else>
+            </li>
+            <li do='add_document'></li>
+          </ol>
+        </r:documents>
+        <r:pages name='pages'><h3 do='trans'>pages</h3>
+          <ol>
+            <li do='each' set_class='li_s[v_status]' do='link'/>
+            <li do='add' before='self'/>
+            <li class='inline_form' do='form'>
+              <p class='node_klass'>  <input type='select' name='klass' root_class='Page' without='Document'/></p>
+              <p class='node_v_title'><input type='text' name='v_title' value=''/></p>
+              <p class='btn_validate'><input type="submit" value='validate' tset_value='validate'/></p>
+            </li>
+          </ol>
+        </r:pages>
+        
+      </div>
+      <div id='main'>
+        <r:text/>
+      </div> <!-- main -->
+      <div class='clear'>&nbsp;</div>
+    </div> <!-- content -->
+    <div class='clear'>&nbsp;</div>
+  </div> <!-- container -->
+  <div id='footer'><r:zena type='garden'/></div>
+</body>
+
+</html>

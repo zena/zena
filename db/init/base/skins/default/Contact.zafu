@@ -1,5 +1,0 @@
-<r:include template='layout'>
-  <r:with part='main'>
-    <h1 do='title' attr='c_fullname' actions='all'>Gaspard Bucher</h1>
-  </r:with>
-</r:include>

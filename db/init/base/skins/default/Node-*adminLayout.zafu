@@ -4,13 +4,12 @@
   </r:with>
   
   <r:with part='context'>
-    <ul class='admin_links'>
+    <ol class='admin_links'>
       <li do='admin_links'><a href='#'>do this</a></li>
-    </ul>
+    </ol>
   </r:with>
-  
+  <r:with part='title'/>
   <r:with part='content' do='content_for_layout'>
-    <r:include template='Node' part='main'/>
     <div id='related'>
       <r:user>
         <r:to_publish>
@@ -42,5 +41,6 @@
         </r:redactions>
       </r:user>
     </div>
+    <r:include template='Node' part='main'/>
   </r:with>
 </r:include>

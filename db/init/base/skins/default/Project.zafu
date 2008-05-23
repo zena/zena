@@ -1,32 +1,5 @@
-<r:include template='layout'>
-  <r:with part='stylesheets'>
-    <r:stylesheets list='reset,zena,code,calendars'/>
-    <link href="default.css" rel="Stylesheet" type="text/css"/>
-  </r:with>
-  <r:with part='context'>
-    <div id='small_calendar' do='calendar' find='notes' in='project' or='news'/>
-    <r:hot>
-      <div class='header'>
-        <h2 do='title' actions='all'>hot news</h2>
-        <p class='sign' do='version' do='author' do='show' attr='initials'>GB</p>
-      </div>
-      <r:summary or='v_text'/>
-    </r:hot>
-  </r:with>
-  <r:with part='main'>
-    
-    <r:home>
-      <r:include template='layout' part='title'/>
-      <r:summary text=''/>
-      <r:text/>
-      <r:else>
-        <r:include template='layout' part='title'/>
-	      <r:summary text=''/>
-	      <r:text/>
-      </r:else>
-    </r:home>
-    
-    <div id='largecal' style='display:none;'></div>
+<r:include template='Node'>
+  <r:with part='content'>
     <r:include template='notes'/>
   </r:with>
 </r:include>

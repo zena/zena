@@ -1,15 +1,13 @@
 <r:include template='Node'>
-  <r:with part='context'/>
-  <r:with part='related'/>
+  <r:with part='title'/>
+  <r:with part='container'>
 
-  <r:with part='main'>
-    
     <h2 do=trans>search results</h2>
-    
+
     <ul id='search_results' do='search_results'>
       <li class='result_entry' do='each'>
-        <p class='result_image'><r:img mode='pv'/></p>
-        <p class='result_name'><em><r:show attr='score' format='%.1f'/>%</em> <r:link/></p>      
+        <p class='result_image'><r:img alt_src='icon' mode='pv' link='self'/></p>
+        <p class='result_name'><r:link/></p>      
         <p class='result_path'><r:show attr='rootpath'/></p>
         <r:summary/>
         <div class='clear'></div>
