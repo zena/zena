@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>name</key>
+	<string>Zena</string>
+	<key>ordering</key>
+	<array>
+		<string>1AF06162-B9B6-46E8-8058-AF8CA4EDC178</string>
+		<string>0A94D7BE-E897-4B1B-8C2B-AEFB2B4BDD9F</string>
+	</array>
+	<key>uuid</key>
+	<string>89153BC7-73D5-4EA9-B226-86D267D49922</string>
+</dict>
+</plist>

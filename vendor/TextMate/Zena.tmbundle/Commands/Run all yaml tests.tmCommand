@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>beforeRunningCommand</key>
+	<string>saveActiveFile</string>
+	<key>command</key>
+	<string># Assumes the current file is a yaml test file
+# Runs with the currently-focused method as the test name
+
+args=$(${TM_RUBY:=ruby} &lt;&lt;"EOF"
+group      = ENV['TM_FILEPATH'].split('/').last.split('.').first
+test_file = "#{File.dirname(ENV['TM_FILEPATH'])}_test.rb"
+puts test_file
+EOF)
+
+if [[ -z "$args" ]]; then
+echo -e "This doesn't appear to be a yaml test file."
+exit_show_tool_tip
+fi
+
+export RUBYLIB="$TM_BUNDLE_SUPPORT/RubyMate${RUBYLIB:+:$RUBYLIB}"
+"${TM_RUBY:-ruby}" -- "$TM_BUNDLE_SUPPORT/RubyMate/run_script.rb" $args</string>
+	<key>input</key>
+	<string>document</string>
+	<key>keyEquivalent</key>
+	<string>@r</string>
+	<key>name</key>
+	<string>Run all yaml tests</string>
+	<key>output</key>
+	<string>showAsHTML</string>
+	<key>scope</key>
+	<string>source.yaml</string>
+	<key>uuid</key>
+	<string>1AF06162-B9B6-46E8-8058-AF8CA4EDC178</string>
+</dict>
+</plist>
