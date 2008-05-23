@@ -654,7 +654,7 @@ module Zena
           end  
           set_attr  = @params[:attr] || 'id'
           show_attr = @params[:show] || 'name'
-          "<%= select('#{base_class.to_s.underscore}', #{attribute.inspect}, (#{list_finder} || []).map{|r| [#{node_attribute(show_attr, :node => 'r')}, #{node_attribute(set_attr, :node => 'r')}]}) %>"
+          "<%= select('#{base_class.to_s.underscore}', #{attribute.inspect}, (#{list_finder} || []).map{|r| [#{node_attribute(show_attr, :node => 'r', :node_class => Node)}, #{node_attribute(set_attr, :node => 'r', :node_class => Node)}]}) %>"
         else
           klasses = @params[:options] || "Page,Note"
           "<%= select('#{base_class.to_s.underscore}', #{attribute.inspect}, #{klasses.split(',').map(&:strip).inspect}) %>"
@@ -1494,12 +1494,14 @@ END_TXT
       if (context = node_class.zafu_known_contexts[@method]) && !@params[:in] && !@params[:where] && !@params[:from]
         node_class = context[:node_class]
         
+        # hack to store last 'Node' context until we fix node(Node) stuff:
+        previous_node = node_kind_of?(Node) ? node : @context[:previous_node]
         if node_class.kind_of?(Array)
           # plural
-          do_list( "#{node}.#{@method}", context.merge(:node_class => node_class[0]) )
+          do_list( "#{node}.#{@method}", context.merge(:node_class => node_class[0], :previous_node => previous_node) )
         else
           # singular
-          do_var(  "#{node}.#{@method}", context )
+          do_var(  "#{node}.#{@method}", context.merge(:previous_node => previous_node) )
         end
       elsif node_kind_of?(Node)
         count   = ['first','all'].include?(@params[:find]) ? @params[:find].to_sym : nil
@@ -1591,7 +1593,14 @@ END_TXT
         return "nil"
       end
       
-      res = "#{node}.do_find(#{count.inspect}, \"#{sql_query}\"#{sql_query =~ /#{node}/ ? '' : ', true'})" # regexp to see if node is used. If not, we can ignore the source (use query even if #{node} is a new record).
+      if node_kind_of?(Node)
+        node_name = node
+      else
+        node_name = @context[:previous_node]
+      end
+      
+      
+      res = "#{node_name}.do_find(#{count.inspect}, \"#{sql_query}\"#{sql_query =~ /#{node}/ ? '' : ', true'})" # regexp to see if node is used. If not, we can ignore the source (use query even if #{node} is a new record).
       if params[:else]
         if else_query = build_finder_for(count, params[:else], {})
           "(#{res} || #{else_query})"

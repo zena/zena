@@ -713,6 +713,10 @@ select_values_show_attr:
   src: "<r:form><input type='select' values='images in site' name='d_ref' attr='c_ext' show='v_title'/></r:form>"
   res: "/name=\"node\[d_ref\]\">.*<option value=\"jpg\">flower</option>\n<option value=\"jpg\">it's a lake</option>/"
 
+select_values_data_list:
+  src: "<r:data><r:form><input type='select' values='images in site' name='node_b_id'/></r:form></r:data>"
+  res: "/name=\"data_entry\[node_b_id\]\"><option value=\"30\">bird</option>\n<option value=\"31\">flower</option>/"
+
 select_time_zone:
   src: "<r:form><input type='time_zone' name='d_tz'/></r:form>"
   res: "/Asia/Jakarta.*Europe/Zurich.*US/Hawai"
