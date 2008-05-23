@@ -762,23 +762,8 @@ default:
   inherit:        1
 <%= @defaults %>
 <%= @rights %>
-
-Contact_html:
-  id:             44
-  zip:            51
-  site_id:        1
-  type:           Template
-  kpath:          NDTT
-  name:           Contact
-  project_id:     1
-  section_id:     43
-  parent_id:      43
-  user_id:        4
-  inherit:        1
-<%= @defaults %>
-<%= @rights %>
   
-Node_search_html:
+Node_search_zafu:
   id:             45
   zip:            52
   site_id:        1
@@ -793,13 +778,13 @@ Node_search_html:
 <%= @defaults %>
 <%= @rights %>
 
-default_css:
+style_css:
   id:             46
   zip:            53
   site_id:        1
   type:           TextDocument
   kpath:          NDT
-  name:           default
+  name:           style
   project_id:     1
   section_id:     43
   parent_id:      43
@@ -808,22 +793,7 @@ default_css:
 <%= @defaults %>
 <%= @rights %>
 
-layout_html:
-  id:             47
-  zip:            54
-  site_id:        1
-  type:           Template
-  kpath:          NDTT
-  name:           layout
-  project_id:     1
-  section_id:     43
-  parent_id:      43
-  user_id:        4
-  inherit:        1
-<%= @defaults %>
-<%= @rights %>
-
-Node_html:
+Node_zafu:
   id:             48
   zip:            55
   site_id:        1
@@ -838,7 +808,7 @@ Node_html:
 <%= @defaults %>
 <%= @rights %>
 
-Node_admin_layout_html:
+Node_admin_layout_zafu:
   id:             49
   zip:            56
   site_id:        1
@@ -853,7 +823,7 @@ Node_admin_layout_html:
 <%= @defaults %>
 <%= @rights %>
 
-Node_index_html:
+Node_index_zafu:
   id:             50
   zip:            57
   site_id:        1
@@ -868,7 +838,7 @@ Node_index_html:
 <%= @defaults %>
 <%= @rights %>
 
-Node_not_found_html:
+Node_not_found_zafu:
   id:             51
   zip:            58
   site_id:        1
@@ -883,7 +853,7 @@ Node_not_found_html:
 <%= @defaults %>
 <%= @rights %>
 
-Node_popup_layout_html:
+Node_popup_layout_zafu:
   id:             52
   zip:            59
   site_id:        1
@@ -898,7 +868,7 @@ Node_popup_layout_html:
 <%= @defaults %>
 <%= @rights %>
 
-notes_html:
+notes_zafu:
   id:             53
   zip:            60
   site_id:        1
@@ -913,7 +883,7 @@ notes_html:
 <%= @defaults %>
 <%= @rights %>
 
-Project_html:
+Project_zafu:
   id:             54
   zip:            61
   site_id:        1

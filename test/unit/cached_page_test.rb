@@ -141,7 +141,7 @@ class CachedPageTest < ZenaTestUnit
     without_files('test.host/zafu') do
       preserving_files('/test.host/data') do
         login(:anon)
-        template_ids = [nodes_id(:Node_index_html), nodes_id(:Project_html), nodes_id(:layout_html), nodes_id(:notes_html)]
+        template_ids = [nodes_id(:Node_index_zafu), nodes_id(:Project_zafu), nodes_id(:Node_zafu), nodes_id(:notes_zafu)]
         path = SITES_ROOT + visitor.site.zafu_path + "/default/Node_index.html/en/main.erb"
         assert !File.exists?(path), "No cached file yet"
         cache = secure!(CachedPage) { CachedPage.create(
@@ -155,7 +155,7 @@ class CachedPageTest < ZenaTestUnit
         assert_equal template_ids, cache.node_ids.map{|i| i.to_i}
         # test expire
         login(:tiger)
-        node = secure!(Node) { nodes(:layout_html) }
+        node = secure!(Node) { nodes(:Node_zafu) }
         assert node.update_attributes(:v_title=>'hey'), "Can save"
         assert !File.exists?(path), "Cache file removed"
         assert_equal [], cache.node_ids

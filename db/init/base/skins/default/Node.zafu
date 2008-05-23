@@ -13,6 +13,7 @@
 </head>
 
 <body>
+  <div id='top' do='root' do='link'/>
   <div id='header'>
     <div id='login' do='login_link'/>
     <div id='visitor' do='visitor_link'/>

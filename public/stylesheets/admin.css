@@ -6,7 +6,7 @@
 #bin span { position:absolute; top:2px; left:30px; }
 
 /* ADMIN USERS, GROUPS */
-ul.admin_links { margin:18px; border:1px solid #35462B; background:#C2C095;}
+.admin_links { margin:18px; border:1px solid #35462B; background:#C2C095; padding:0;}
 .admin_links li { padding:0;}
 .admin_links li a { margin:0; border-top:1px solid #35462B; padding:3px; font-size:90%; color:black;  display:block;}
 .admin_links li:first-child a { border:0; }

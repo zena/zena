@@ -1,14 +1,4 @@
-Contact_html:
-  id:             1
-  site_id:        1
-  node_id:        44
-  skin_name:      default
-  format:         html
-  tkpath:         NRC
-  mode:           
-  klass:          Contact
-
-Node_search_html:
+Node_search_zafu:
   id:             2
   site_id:        1
   node_id:        45
@@ -18,17 +8,7 @@ Node_search_html:
   mode:           "*search"
   klass:          Node
   
-layout_html:
-  id:             3
-  site_id:        1
-  node_id:        47
-  skin_name:      default
-  format:         html
-  tkpath:         
-  mode:           
-  klass:          
-  
-Node_html:
+Node_zafu:
   id:             4
   site_id:        1
   node_id:        48
@@ -38,7 +18,7 @@ Node_html:
   mode:           
   klass:          Node
   
-Node_admin_layout_html:
+Node_admin_layout_zafu:
   id:             5
   site_id:        1
   node_id:        49
@@ -48,7 +28,7 @@ Node_admin_layout_html:
   mode:           "*adminLayout"
   klass:          Node
   
-Node_index_html:
+Node_index_zafu:
   id:             6
   site_id:        1
   node_id:        50
@@ -58,7 +38,7 @@ Node_index_html:
   mode:           "*index"
   klass:          Node
   
-Node_not_found_html:
+Node_not_found_zafu:
   id:             7
   site_id:        1
   node_id:        51
@@ -68,7 +48,7 @@ Node_not_found_html:
   mode:           "*notFound"
   klass:          Node
   
-Node_popup_layout_html:
+Node_popup_layout_zafu:
   id:             8
   site_id:        1
   node_id:        52
@@ -78,7 +58,7 @@ Node_popup_layout_html:
   mode:           "*popupLayout"
   klass:          Node
   
-notes_html:
+notes_zafu:
   id:             9
   site_id:        1
   node_id:        53
@@ -88,7 +68,7 @@ notes_html:
   mode:           
   klass:          
   
-Project_html:
+Project_zafu:
   id:             10
   site_id:        1
   node_id:        54

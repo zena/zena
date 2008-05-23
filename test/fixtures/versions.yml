@@ -851,18 +851,7 @@ default_en:
   number:         1
 <%= @defaults %>
 
-Contact_html:
-  type:           TemplateVersion
-  id:             49
-  node_id:        44
-  site_id:        1
-  user_id:        4
-  lang:           en
-  text: |
-<% File.foreach("#{RAILS_ROOT}/db/init/base/skins/default/Contact.zafu") do |l| %>    <%= l %><% end %>
-<%= @defaults %>
-  
-Node_search_html:
+Node_search_zafu:
   type:           TemplateVersion
   id:             50
   node_id:        45
@@ -873,7 +862,7 @@ Node_search_html:
 <% File.foreach("#{RAILS_ROOT}/db/init/base/skins/default/Node-*search.zafu") do |l| %>    <%= l %><% end %>
 <%= @defaults %>
 
-default_css:
+style_css:
   type:           TextDocumentVersion
   id:             51
   node_id:        46
@@ -881,21 +870,10 @@ default_css:
   user_id:        4
   lang:           en
   text: |
-<% File.foreach("#{RAILS_ROOT}/db/init/base/skins/default/default.css") do |l| %>    <%= l %><% end %>
+<% File.foreach("#{RAILS_ROOT}/db/init/base/skins/default/style.css") do |l| %>    <%= l %><% end %>
 <%= @defaults %>
 
-layout_html:
-  type:           TemplateVersion
-  id:             52
-  node_id:        47
-  site_id:        1
-  user_id:        4
-  lang:           en
-  text: |
-<% File.foreach("#{RAILS_ROOT}/db/init/base/skins/default/layout.zafu") do |l| %>    <%= l %><% end %>
-<%= @defaults %>
-
-Node_html:
+Node_zafu:
   type:           TemplateVersion
   id:             53
   node_id:        48
@@ -906,7 +884,7 @@ Node_html:
 <% File.foreach("#{RAILS_ROOT}/db/init/base/skins/default/Node.zafu") do |l| %>    <%= l %><% end %>
 <%= @defaults %>
 
-Node_admin_layout_html:
+Node_admin_layout_zafu:
   type:           TemplateVersion
   id:             54
   node_id:        49
@@ -917,7 +895,7 @@ Node_admin_layout_html:
 <% File.foreach("#{RAILS_ROOT}/db/init/base/skins/default/Node-*adminLayout.zafu") do |l| %>    <%= l %><% end %>
 <%= @defaults %>
 
-Node_index_html:
+Node_index_zafu:
   type:           TemplateVersion
   id:             55
   node_id:        50
@@ -928,7 +906,7 @@ Node_index_html:
 <% File.foreach("#{RAILS_ROOT}/db/init/base/skins/default/Node-*index.zafu") do |l| %>    <%= l %><% end %>
 <%= @defaults %>
 
-Node_not_found_html:
+Node_not_found_zafu:
   type:           TemplateVersion
   id:             56
   node_id:        51
@@ -939,7 +917,7 @@ Node_not_found_html:
 <% File.foreach("#{RAILS_ROOT}/db/init/base/skins/default/Node-*notFound.zafu") do |l| %>    <%= l %><% end %>
 <%= @defaults %>
 
-Node_popup_layout_html:
+Node_popup_layout_zafu:
   type:           TemplateVersion
   id:             57
   node_id:        52
@@ -950,7 +928,7 @@ Node_popup_layout_html:
 <% File.foreach("#{RAILS_ROOT}/db/init/base/skins/default/Node-*popupLayout.zafu") do |l| %>    <%= l %><% end %>
 <%= @defaults %>
 
-notes_html:
+notes_zafu:
   type:           TemplateVersion
   id:             58
   node_id:        53
@@ -961,7 +939,7 @@ notes_html:
 <% File.foreach("#{RAILS_ROOT}/db/init/base/skins/default/notes.zafu") do |l| %>    <%= l %><% end %>
 <%= @defaults %>
 
-Project_html:
+Project_zafu:
   type:           TemplateVersion
   id:             59
   node_id:        54

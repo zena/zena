@@ -1028,6 +1028,8 @@ END_TXT
         value = "#{node_attribute(key, :node => "min_array(#{list}) {|e| #{node_attribute(key, :node => 'e')}}")}"
       when 'max'
         value = "#{node_attribute(key, :node => "max_array(#{list}) {|e| #{node_attribute(key, :node => 'e')}}")}"
+      when 'count'
+        return "<%= #{list}.size %>"
       end
       if @params[:date]
         # FIXME: DRY (r_show)

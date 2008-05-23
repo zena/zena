@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: 0.9.0\n"
-"POT-Creation-Date: 2008-05-16 07:03-0000\n"
+"POT-Creation-Date: 2008-05-22 15:18-0000\n"
 "PO-Revision-Date: 2007-07-07 14:13+0100\n"
 "Last-Translator: Gaspard Bucher <gaspard@teti.ch>\n"
 "Language-Team: en <gaspard@teti.ch>\n"
@@ -13,15 +13,20 @@ msgstr ""
 "X-Poedit-Bookmarks: -1,-1,-1,219,-1,-1,-1,-1,-1,-1\n"
 "X-Poedit-Basepath: /Users/gaspard/svk/zena\n"
 
-#: app/controllers/application.rb:492
+#: app/controllers/application.rb:501
 msgid "Please log in"
 msgstr "Please log in."
 
-#: app/controllers/application.rb:771 app/helpers/application_helper.rb:659
+#: app/controllers/application.rb:780 app/helpers/application_helper.rb:641
 msgid "week_start_day"
 msgstr "0"
 
-#: app/controllers/data_entries_controller.rb:16
+#: app/controllers/comments_controller.rb:28
+#, fuzzy
+msgid "Comment was successfully created."
+msgstr "Informations successfully updated."
+
+#: app/controllers/data_entries_controller.rb:18
 #, fuzzy
 msgid "Data entry was successfully created."
 msgstr "Informations successfully updated."
@@ -34,35 +39,31 @@ msgstr ""
 msgid "Upload succeeded."
 msgstr ""
 
-#: app/controllers/link_controller.rb:68
-msgid "role not valid"
-msgstr "Invalid role."
-
-#: app/controllers/nodes_controller.rb:188
+#: app/controllers/nodes_controller.rb:187
 msgid "Backup created."
 msgstr ""
 
-#: app/controllers/nodes_controller.rb:190
+#: app/controllers/nodes_controller.rb:189
 msgid "Could not create backup."
 msgstr ""
 
-#: app/controllers/nodes_controller.rb:228
+#: app/controllers/nodes_controller.rb:203
 msgid "node updated"
 msgstr "Node successfully updated."
 
-#: app/controllers/nodes_controller.rb:230
+#: app/controllers/nodes_controller.rb:205
 msgid "could not update"
 msgstr "The node could not be updated."
 
-#: app/controllers/nodes_controller.rb:282
+#: app/controllers/nodes_controller.rb:257
 msgid "node not found"
 msgstr "Node not found."
 
-#: app/controllers/nodes_controller.rb:306
+#: app/controllers/nodes_controller.rb:281
 msgid "Order updated"
 msgstr "Order updated."
 
-#: app/controllers/nodes_controller.rb:308
+#: app/controllers/nodes_controller.rb:283
 msgid "Could not update order."
 msgstr ""
 
@@ -132,7 +133,7 @@ msgstr "%H:%M"
 msgid "full_date"
 msgstr "%A, %B %d %Y"
 
-#: app/helpers/application_helper.rb:136 lib/parser/lib/rules/zena.rb:1212
+#: app/helpers/application_helper.rb:136 lib/parser/lib/rules/zena.rb:1257
 msgid "long_date"
 msgstr "%Y-%m-%d"
 
@@ -140,117 +141,117 @@ msgstr "%Y-%m-%d"
 msgid "short_date"
 msgstr "%m.%d"
 
-#: app/helpers/application_helper.rb:559 lib/gettext_strings.rb:67
+#: app/helpers/application_helper.rb:547 lib/gettext_strings.rb:67
 msgid "%{type} node"
 msgstr ""
 
-#: app/helpers/application_helper.rb:571 lib/gettext_strings.rb:66
+#: app/helpers/application_helper.rb:559 lib/gettext_strings.rb:66
 msgid "%{ext} document"
 msgstr ""
 
-#: app/helpers/application_helper.rb:575
+#: app/helpers/application_helper.rb:563
 msgid "%{ext} node"
 msgstr ""
 
-#: app/helpers/application_helper.rb:839 lib/gettext_strings.rb:40
+#: app/helpers/application_helper.rb:821 lib/gettext_strings.rb:40
 msgid "img_private"
 msgstr "<img src='/images/lock.png' alt='private'/>"
 
-#: app/helpers/application_helper.rb:841 lib/gettext_strings.rb:39
+#: app/helpers/application_helper.rb:823 lib/gettext_strings.rb:39
 msgid "img_public"
 msgstr "<img src='/images/user_pub.png' alt='public'/>"
 
-#: app/helpers/application_helper.rb:874
+#: app/helpers/application_helper.rb:856
 msgid "btn_edit"
 msgstr "<img src='/images/page_edit.png' alt='edit'/>"
 
-#: app/helpers/application_helper.rb:876
+#: app/helpers/application_helper.rb:858
 msgid "btn_propose"
 msgstr "<img src='/images/picture_empty.png' alt='propose'/>"
 
-#: app/helpers/application_helper.rb:878 app/views/comments/_li.rhtml:10
+#: app/helpers/application_helper.rb:860 app/views/comments/_li.rhtml:10
 msgid "btn_publish"
 msgstr "<img src='/images/wand.png' alt='publish'/>"
 
-#: app/helpers/application_helper.rb:880
+#: app/helpers/application_helper.rb:862
 msgid "btn_refuse"
 msgstr "<img src='/images/delete.png' alt='refuse'/>"
 
-#: app/helpers/application_helper.rb:885
+#: app/helpers/application_helper.rb:867
 msgid "btn_drive"
 msgstr "<img src='/images/wrench.png' alt='drive'/>"
 
-#: app/helpers/application_helper.rb:900 app/helpers/application_helper.rb:960
+#: app/helpers/application_helper.rb:882 app/helpers/application_helper.rb:942
 msgid "btn_view"
 msgstr "<img src='/images/eye.png' alt='view'/>\""
 
-#: app/helpers/application_helper.rb:963
+#: app/helpers/application_helper.rb:945
 msgid "img_open"
 msgstr "<img src='/images/lock_open.png' alt='open'/>"
 
-#: app/helpers/application_helper.rb:963
+#: app/helpers/application_helper.rb:945
 msgid "btn_title_close_discussion"
 msgstr "Close the discussion."
 
-#: app/helpers/application_helper.rb:965
+#: app/helpers/application_helper.rb:947
 msgid "img_closed"
 msgstr "<img src='/images/lock.png' alt='closed'/>"
 
-#: app/helpers/application_helper.rb:965
+#: app/helpers/application_helper.rb:947
 msgid "btn_title_open_open_discussion"
 msgstr "Open the discussion."
 
-#: app/helpers/application_helper.rb:968 app/views/comments/_li.rhtml:9
+#: app/helpers/application_helper.rb:950 app/views/comments/_li.rhtml:9
 msgid "btn_remove"
 msgstr "<img src='/images/delete.png' alt='delete'/>"
 
-#: app/helpers/application_helper.rb:968
+#: app/helpers/application_helper.rb:950
 msgid "btn_title_destroy_discussion"
 msgstr "Delete all the discussion."
 
-#: app/helpers/application_helper.rb:1079
+#: app/helpers/application_helper.rb:1061
 msgid "my home"
 msgstr "management"
 
-#: app/helpers/application_helper.rb:1082
+#: app/helpers/application_helper.rb:1064
 #: app/views/users/preferences.html.erb:1
 msgid "preferences"
 msgstr ""
 
-#: app/helpers/application_helper.rb:1085 app/views/comments/index.rhtml:1
+#: app/helpers/application_helper.rb:1067 app/views/comments/index.rhtml:1
 msgid "manage comments"
 msgstr ""
 
-#: app/helpers/application_helper.rb:1088 app/views/users/index.rhtml:1
+#: app/helpers/application_helper.rb:1070 app/views/users/index.rhtml:1
 msgid "manage users"
 msgstr ""
 
-#: app/helpers/application_helper.rb:1091 app/views/groups/index.rhtml:1
+#: app/helpers/application_helper.rb:1073 app/views/groups/index.rhtml:1
 msgid "manage groups"
 msgstr ""
 
-#: app/helpers/application_helper.rb:1094 app/views/relations/index.erb:1
+#: app/helpers/application_helper.rb:1076 app/views/relations/index.erb:1
 msgid "manage relations"
 msgstr ""
 
-#: app/helpers/application_helper.rb:1097 app/views/iformats/index.rhtml:1
+#: app/helpers/application_helper.rb:1079 app/views/iformats/index.rhtml:1
 #: app/views/virtual_classes/index.erb:1
 msgid "manage classes"
 msgstr ""
 
-#: app/helpers/application_helper.rb:1100
+#: app/helpers/application_helper.rb:1082
 msgid "image formats"
 msgstr ""
 
-#: app/helpers/application_helper.rb:1103 app/views/sites/index.erb:1
+#: app/helpers/application_helper.rb:1085 app/views/sites/index.erb:1
 msgid "manage sites"
 msgstr ""
 
-#: app/helpers/application_helper.rb:1107
+#: app/helpers/application_helper.rb:1089
 msgid "turn dev off"
 msgstr "<img src='/images/bug.png'/> turn dev off"
 
-#: app/helpers/application_helper.rb:1109
+#: app/helpers/application_helper.rb:1091
 msgid "turn dev on"
 msgstr ""
 
@@ -387,7 +388,7 @@ msgstr ""
 msgid "Created at"
 msgstr ""
 
-#: app/models/comment.rb:- app/views/links/_form.rhtml:21
+#: app/models/comment.rb:- app/views/links/_form.rhtml:34
 #: app/views/templates/edit_tabs/_title.rhtml:16
 msgid "comment"
 msgstr ""
@@ -422,7 +423,7 @@ msgstr ""
 msgid "Ip"
 msgstr ""
 
-#: app/models/comment.rb:57
+#: app/models/comment.rb:71
 msgid "re: "
 msgstr ""
 
@@ -504,7 +505,8 @@ msgstr ""
 msgid "Node d"
 msgstr ""
 
-#: app/models/data_entry.rb:35 app/models/node.rb:608
+#: app/models/data_entry.rb:35 app/models/node.rb:607
+#: app/views/data_entries/_li.html.erb:2
 msgid "datetime"
 msgstr "%Y-%m-%d %H:%M"
 
@@ -863,13 +865,13 @@ msgstr ""
 #: app/views/discussions/_form.rhtml:8 app/views/documents/show.rhtml:11
 #: app/views/groups/_form.rhtml:3 app/views/groups/_form.rhtml:5
 #: app/views/iformats/_form.rhtml:3 app/views/iformats/_form.rhtml:5
-#: app/views/links/_form.rhtml:5 app/views/nodes/_results.rhtml:7
-#: app/views/nodes/import.rhtml:11 app/views/nodes/save.rhtml:8
-#: app/views/note/_form.rhtml:4 app/views/users/_form.rhtml:3
-#: app/views/users/_form.rhtml:5 app/views/relations/_form.erb:3
-#: app/views/relations/_form.erb:5 app/views/sites/_form.erb:3
-#: app/views/sites/_form.erb:5 app/views/virtual_classes/_form.erb:3
-#: app/views/virtual_classes/_form.erb:5
+#: app/views/links/_form.rhtml:13 app/views/links/_form.rhtml:15
+#: app/views/nodes/_results.rhtml:7 app/views/nodes/import.rhtml:11
+#: app/views/nodes/save.rhtml:8 app/views/note/_form.rhtml:4
+#: app/views/users/_form.rhtml:3 app/views/users/_form.rhtml:5
+#: app/views/relations/_form.erb:3 app/views/relations/_form.erb:5
+#: app/views/sites/_form.erb:3 app/views/sites/_form.erb:5
+#: app/views/virtual_classes/_form.erb:3 app/views/virtual_classes/_form.erb:5
 msgid "btn_x"
 msgstr "<img src='/images/cross.png' alt='cancel'/>"
 
@@ -911,7 +913,7 @@ msgid "validate"
 msgstr " validate "
 
 #: app/views/comments/_li.rhtml:3 app/views/nodes/update.rjs:14
-#: lib/parser/lib/rules/zena.rb:281
+#: lib/parser/lib/rules/zena.rb:312
 msgid "edit"
 msgstr ""
 
@@ -1060,11 +1062,11 @@ msgstr "<img src='/images/photo.png' alt='image format'/>"
 msgid "btn_add_link"
 msgstr "<img src='/images/tag_blue_add.png' alt='add a link'/>"
 
-#: app/views/links/_form.rhtml:20 app/views/users/_form.rhtml:25
+#: app/views/links/_form.rhtml:33 app/views/users/_form.rhtml:25
 msgid "status"
 msgstr "status"
 
-#: app/views/links/_form.rhtml:22
+#: app/views/links/_form.rhtml:35
 msgid "set"
 msgstr ""
 
@@ -1072,7 +1074,7 @@ msgstr ""
 msgid "img_link"
 msgstr "<img src='/images/tag_blue.png' alt='link'/>"
 
-#: app/views/links/_li.rhtml:6 lib/parser/lib/rules/zena.rb:929
+#: app/views/links/_li.rhtml:6 lib/parser/lib/rules/zena.rb:975
 msgid "btn_tiny_del"
 msgstr "<img src='/images/bullet_delete.png' alt='remove'/>"
 
@@ -1284,6 +1286,12 @@ msgstr "<img src='/images/picture_add.png' alt='add documents'/>"
 #, fuzzy
 msgid "publish"
 msgstr "<img src='/images/wand.png' alt='publish'/>"
+
+#: app/views/data_entries/index.html.erb:1
+#: app/views/data_entries/show.html.erb:1
+#, fuzzy
+msgid "data entries"
+msgstr "%Y-%m-%d %H:%M"
 
 #: app/views/relations/_add.erb:2 lib/gettext_strings.rb:31
 msgid "btn_relation_add"
@@ -1754,29 +1762,32 @@ msgstr ""
 msgid "[documents]"
 msgstr ""
 
-#: lib/parser/lib/rules/zena.rb:854
+#: lib/parser/lib/rules/zena.rb:900
 msgid "btn_add"
 msgstr "<img src='/images/add.png' alt='add'/>"
 
-#: lib/parser/lib/rules/zena.rb:1263
-msgid "riding %{zena}"
+#: lib/parser/lib/rules/zena.rb:1307
+msgid "riding zena"
 msgstr ""
 
-#: lib/parser/lib/rules/zena.rb:1265
-msgid "in peace with %{zena}"
+#: lib/parser/lib/rules/zena.rb:1309
+msgid "in peace with zena"
 msgstr ""
 
-#: lib/parser/lib/rules/zena.rb:1267
-msgid "a %{zen} garden"
+#: lib/parser/lib/rules/zena.rb:1311
+msgid "a zen garden"
 msgstr ""
 
-#: lib/parser/lib/rules/zena.rb:1269
-msgid "made with %{zena}"
+#: lib/parser/lib/rules/zena.rb:1313
+msgid "made with zena"
 msgstr ""
 
-#: lib/parser/lib/rules/zena.rb:1284
+#: lib/parser/lib/rules/zena.rb:1329
 msgid "%{skin} design by %{name}"
 msgstr ""
+
+#~ msgid "role not valid"
+#~ msgstr "Invalid role."
 
 #, fuzzy
 #~ msgid "Dgroup"

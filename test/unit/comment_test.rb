@@ -79,7 +79,8 @@ class CommentTest < ZenaTestUnit
     login(:tiger)
     comment = secure!(Comment) { Comment.create( :title=>'boo', :text=>'blah', :discussion_id => discussions_id(:outside_discussion_on_status_en) ) }
     assert ! comment.new_record?, "Not a new record"
-    assert_nil comment.author_name, "Author name is nil"
+    assert_nil comment[:author_name], "Author name is nil"
+    assert_equal 'Panther Tigris Sumatran', comment.author_name
   end
   
 

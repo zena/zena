@@ -193,11 +193,6 @@ class NavigationTest < ActionController::IntegrationTest
     assert_response :missing
     get 'http://test.host/en/section12_*index.html'
     assert_response :missing
-    Node.connection.execute "UPDATE nodes SET name = '*people', basepath = NULL, custom_base = 1 WHERE name = 'people'"
-    get 'http://test.host/en/*people'
-    assert_redirected_to 'http://test.host/en/*people.html'
-    follow_redirect!
-    assert_response :success
   end
   
   def test_show_bad_mode

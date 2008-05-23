@@ -7,7 +7,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: 0.9.0\n"
-"POT-Creation-Date: 2008-05-16 07:03-0000\n"
+"POT-Creation-Date: 2008-05-22 15:18-0000\n"
 "PO-Revision-Date: 2007-05-13 19:08-0000\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -16,15 +16,19 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=INTEGER; plural=EXPRESSION;\n"
 
-#: app/controllers/application.rb:492
+#: app/controllers/application.rb:501
 msgid "Please log in"
 msgstr ""
 
-#: app/controllers/application.rb:771 app/helpers/application_helper.rb:659
+#: app/controllers/application.rb:780 app/helpers/application_helper.rb:641
 msgid "week_start_day"
 msgstr ""
 
-#: app/controllers/data_entries_controller.rb:16
+#: app/controllers/comments_controller.rb:28
+msgid "Comment was successfully created."
+msgstr ""
+
+#: app/controllers/data_entries_controller.rb:18
 msgid "Data entry was successfully created."
 msgstr ""
 
@@ -36,35 +40,31 @@ msgstr ""
 msgid "Upload succeeded."
 msgstr ""
 
-#: app/controllers/link_controller.rb:68
-msgid "role not valid"
-msgstr ""
-
-#: app/controllers/nodes_controller.rb:188
+#: app/controllers/nodes_controller.rb:187
 msgid "Backup created."
 msgstr ""
 
-#: app/controllers/nodes_controller.rb:190
+#: app/controllers/nodes_controller.rb:189
 msgid "Could not create backup."
 msgstr ""
 
-#: app/controllers/nodes_controller.rb:228
+#: app/controllers/nodes_controller.rb:203
 msgid "node updated"
 msgstr ""
 
-#: app/controllers/nodes_controller.rb:230
+#: app/controllers/nodes_controller.rb:205
 msgid "could not update"
 msgstr ""
 
-#: app/controllers/nodes_controller.rb:282
+#: app/controllers/nodes_controller.rb:257
 msgid "node not found"
 msgstr ""
 
-#: app/controllers/nodes_controller.rb:306
+#: app/controllers/nodes_controller.rb:281
 msgid "Order updated"
 msgstr ""
 
-#: app/controllers/nodes_controller.rb:308
+#: app/controllers/nodes_controller.rb:283
 msgid "Could not update order."
 msgstr ""
 
@@ -134,7 +134,7 @@ msgstr ""
 msgid "full_date"
 msgstr ""
 
-#: app/helpers/application_helper.rb:136 lib/parser/lib/rules/zena.rb:1212
+#: app/helpers/application_helper.rb:136 lib/parser/lib/rules/zena.rb:1257
 msgid "long_date"
 msgstr ""
 
@@ -142,117 +142,117 @@ msgstr ""
 msgid "short_date"
 msgstr ""
 
-#: app/helpers/application_helper.rb:559 lib/gettext_strings.rb:67
+#: app/helpers/application_helper.rb:547 lib/gettext_strings.rb:67
 msgid "%{type} node"
 msgstr ""
 
-#: app/helpers/application_helper.rb:571 lib/gettext_strings.rb:66
+#: app/helpers/application_helper.rb:559 lib/gettext_strings.rb:66
 msgid "%{ext} document"
 msgstr ""
 
-#: app/helpers/application_helper.rb:575
+#: app/helpers/application_helper.rb:563
 msgid "%{ext} node"
 msgstr ""
 
-#: app/helpers/application_helper.rb:839 lib/gettext_strings.rb:40
+#: app/helpers/application_helper.rb:821 lib/gettext_strings.rb:40
 msgid "img_private"
 msgstr ""
 
-#: app/helpers/application_helper.rb:841 lib/gettext_strings.rb:39
+#: app/helpers/application_helper.rb:823 lib/gettext_strings.rb:39
 msgid "img_public"
 msgstr ""
 
-#: app/helpers/application_helper.rb:874
+#: app/helpers/application_helper.rb:856
 msgid "btn_edit"
 msgstr ""
 
-#: app/helpers/application_helper.rb:876
+#: app/helpers/application_helper.rb:858
 msgid "btn_propose"
 msgstr ""
 
-#: app/helpers/application_helper.rb:878 app/views/comments/_li.rhtml:10
+#: app/helpers/application_helper.rb:860 app/views/comments/_li.rhtml:10
 msgid "btn_publish"
 msgstr ""
 
-#: app/helpers/application_helper.rb:880
+#: app/helpers/application_helper.rb:862
 msgid "btn_refuse"
 msgstr ""
 
-#: app/helpers/application_helper.rb:885
+#: app/helpers/application_helper.rb:867
 msgid "btn_drive"
 msgstr ""
 
-#: app/helpers/application_helper.rb:900 app/helpers/application_helper.rb:960
+#: app/helpers/application_helper.rb:882 app/helpers/application_helper.rb:942
 msgid "btn_view"
 msgstr ""
 
-#: app/helpers/application_helper.rb:963
+#: app/helpers/application_helper.rb:945
 msgid "img_open"
 msgstr ""
 
-#: app/helpers/application_helper.rb:963
+#: app/helpers/application_helper.rb:945
 msgid "btn_title_close_discussion"
 msgstr ""
 
-#: app/helpers/application_helper.rb:965
+#: app/helpers/application_helper.rb:947
 msgid "img_closed"
 msgstr ""
 
-#: app/helpers/application_helper.rb:965
+#: app/helpers/application_helper.rb:947
 msgid "btn_title_open_open_discussion"
 msgstr ""
 
-#: app/helpers/application_helper.rb:968 app/views/comments/_li.rhtml:9
+#: app/helpers/application_helper.rb:950 app/views/comments/_li.rhtml:9
 msgid "btn_remove"
 msgstr ""
 
-#: app/helpers/application_helper.rb:968
+#: app/helpers/application_helper.rb:950
 msgid "btn_title_destroy_discussion"
 msgstr ""
 
-#: app/helpers/application_helper.rb:1079
+#: app/helpers/application_helper.rb:1061
 msgid "my home"
 msgstr ""
 
-#: app/helpers/application_helper.rb:1082
+#: app/helpers/application_helper.rb:1064
 #: app/views/users/preferences.html.erb:1
 msgid "preferences"
 msgstr ""
 
-#: app/helpers/application_helper.rb:1085 app/views/comments/index.rhtml:1
+#: app/helpers/application_helper.rb:1067 app/views/comments/index.rhtml:1
 msgid "manage comments"
 msgstr ""
 
-#: app/helpers/application_helper.rb:1088 app/views/users/index.rhtml:1
+#: app/helpers/application_helper.rb:1070 app/views/users/index.rhtml:1
 msgid "manage users"
 msgstr ""
 
-#: app/helpers/application_helper.rb:1091 app/views/groups/index.rhtml:1
+#: app/helpers/application_helper.rb:1073 app/views/groups/index.rhtml:1
 msgid "manage groups"
 msgstr ""
 
-#: app/helpers/application_helper.rb:1094 app/views/relations/index.erb:1
+#: app/helpers/application_helper.rb:1076 app/views/relations/index.erb:1
 msgid "manage relations"
 msgstr ""
 
-#: app/helpers/application_helper.rb:1097 app/views/iformats/index.rhtml:1
+#: app/helpers/application_helper.rb:1079 app/views/iformats/index.rhtml:1
 #: app/views/virtual_classes/index.erb:1
 msgid "manage classes"
 msgstr ""
 
-#: app/helpers/application_helper.rb:1100
+#: app/helpers/application_helper.rb:1082
 msgid "image formats"
 msgstr ""
 
-#: app/helpers/application_helper.rb:1103 app/views/sites/index.erb:1
+#: app/helpers/application_helper.rb:1085 app/views/sites/index.erb:1
 msgid "manage sites"
 msgstr ""
 
-#: app/helpers/application_helper.rb:1107
+#: app/helpers/application_helper.rb:1089
 msgid "turn dev off"
 msgstr ""
 
-#: app/helpers/application_helper.rb:1109
+#: app/helpers/application_helper.rb:1091
 msgid "turn dev on"
 msgstr ""
 
@@ -389,7 +389,7 @@ msgstr ""
 msgid "Created at"
 msgstr ""
 
-#: app/models/comment.rb:- app/views/links/_form.rhtml:21
+#: app/models/comment.rb:- app/views/links/_form.rhtml:34
 #: app/views/templates/edit_tabs/_title.rhtml:16
 msgid "comment"
 msgstr ""
@@ -423,7 +423,7 @@ msgstr ""
 msgid "Ip"
 msgstr ""
 
-#: app/models/comment.rb:57
+#: app/models/comment.rb:71
 msgid "re: "
 msgstr ""
 
@@ -505,7 +505,8 @@ msgstr ""
 msgid "Node d"
 msgstr ""
 
-#: app/models/data_entry.rb:35 app/models/node.rb:608
+#: app/models/data_entry.rb:35 app/models/node.rb:607
+#: app/views/data_entries/_li.html.erb:2
 msgid "datetime"
 msgstr ""
 
@@ -855,13 +856,13 @@ msgstr ""
 #: app/views/discussions/_form.rhtml:8 app/views/documents/show.rhtml:11
 #: app/views/groups/_form.rhtml:3 app/views/groups/_form.rhtml:5
 #: app/views/iformats/_form.rhtml:3 app/views/iformats/_form.rhtml:5
-#: app/views/links/_form.rhtml:5 app/views/nodes/_results.rhtml:7
-#: app/views/nodes/import.rhtml:11 app/views/nodes/save.rhtml:8
-#: app/views/note/_form.rhtml:4 app/views/users/_form.rhtml:3
-#: app/views/users/_form.rhtml:5 app/views/relations/_form.erb:3
-#: app/views/relations/_form.erb:5 app/views/sites/_form.erb:3
-#: app/views/sites/_form.erb:5 app/views/virtual_classes/_form.erb:3
-#: app/views/virtual_classes/_form.erb:5
+#: app/views/links/_form.rhtml:13 app/views/links/_form.rhtml:15
+#: app/views/nodes/_results.rhtml:7 app/views/nodes/import.rhtml:11
+#: app/views/nodes/save.rhtml:8 app/views/note/_form.rhtml:4
+#: app/views/users/_form.rhtml:3 app/views/users/_form.rhtml:5
+#: app/views/relations/_form.erb:3 app/views/relations/_form.erb:5
+#: app/views/sites/_form.erb:3 app/views/sites/_form.erb:5
+#: app/views/virtual_classes/_form.erb:3 app/views/virtual_classes/_form.erb:5
 msgid "btn_x"
 msgstr ""
 
@@ -903,7 +904,7 @@ msgid "validate"
 msgstr ""
 
 #: app/views/comments/_li.rhtml:3 app/views/nodes/update.rjs:14
-#: lib/parser/lib/rules/zena.rb:281
+#: lib/parser/lib/rules/zena.rb:312
 msgid "edit"
 msgstr ""
 
@@ -1049,11 +1050,11 @@ msgstr ""
 msgid "btn_add_link"
 msgstr ""
 
-#: app/views/links/_form.rhtml:20 app/views/users/_form.rhtml:25
+#: app/views/links/_form.rhtml:33 app/views/users/_form.rhtml:25
 msgid "status"
 msgstr ""
 
-#: app/views/links/_form.rhtml:22
+#: app/views/links/_form.rhtml:35
 msgid "set"
 msgstr ""
 
@@ -1061,7 +1062,7 @@ msgstr ""
 msgid "img_link"
 msgstr "<img src='/images/tag_blue.png' alt='link'/>"
 
-#: app/views/links/_li.rhtml:6 lib/parser/lib/rules/zena.rb:929
+#: app/views/links/_li.rhtml:6 lib/parser/lib/rules/zena.rb:975
 msgid "btn_tiny_del"
 msgstr ""
 
@@ -1269,6 +1270,11 @@ msgstr ""
 
 #: app/views/versions/edit.rhtml:20
 msgid "publish"
+msgstr ""
+
+#: app/views/data_entries/index.html.erb:1
+#: app/views/data_entries/show.html.erb:1
+msgid "data entries"
 msgstr ""
 
 #: app/views/relations/_add.erb:2 lib/gettext_strings.rb:31
@@ -1729,26 +1735,26 @@ msgstr ""
 msgid "[documents]"
 msgstr ""
 
-#: lib/parser/lib/rules/zena.rb:854
+#: lib/parser/lib/rules/zena.rb:900
 msgid "btn_add"
 msgstr ""
 
-#: lib/parser/lib/rules/zena.rb:1263
-msgid "riding %{zena}"
+#: lib/parser/lib/rules/zena.rb:1307
+msgid "riding zena"
 msgstr ""
 
-#: lib/parser/lib/rules/zena.rb:1265
-msgid "in peace with %{zena}"
+#: lib/parser/lib/rules/zena.rb:1309
+msgid "in peace with zena"
 msgstr ""
 
-#: lib/parser/lib/rules/zena.rb:1267
-msgid "a %{zen} garden"
+#: lib/parser/lib/rules/zena.rb:1311
+msgid "a zen garden"
 msgstr ""
 
-#: lib/parser/lib/rules/zena.rb:1269
-msgid "made with %{zena}"
+#: lib/parser/lib/rules/zena.rb:1313
+msgid "made with zena"
 msgstr ""
 
-#: lib/parser/lib/rules/zena.rb:1284
+#: lib/parser/lib/rules/zena.rb:1329
 msgid "%{skin} design by %{name}"
 msgstr ""

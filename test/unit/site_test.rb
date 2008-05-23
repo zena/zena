@@ -14,7 +14,7 @@ class SiteTest < ZenaTestUnit
     root = secure!(Node) { Node.find(site[:root_id]) }
     assert_equal Zena::Status[:pub], root.v_status
     assert_equal Zena::Status[:pub], root.max_status
-    assert_equal 'super', root.skin
+    assert_equal 'default', root.skin
     
     assert Time.now >= root.publish_from
     User.make_visitor(:host => 'super.host') # anonymous
@@ -32,10 +32,6 @@ class SiteTest < ZenaTestUnit
     
     skin  = secure!(Skin) { Skin.find_by_name('default') }
     assert_kind_of Skin, skin
-    assert_equal 'default', skin.skin
-    skin  = secure!(Skin) { Skin.find_by_name('super')   }
-    assert_kind_of Skin, skin
-    assert_equal Zena::Status[:pub], skin.max_status
     assert_equal 'default', skin.skin
   end
   

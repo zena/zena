@@ -59,7 +59,6 @@ class Template < TextDocument
         content.format = 'html' if content.format.blank?
         self[:name] = name_from_content(:format => content.format, :mode => content.mode, :klass => content.klass)
         
-        
         if version.text.blank? && content.format == 'html'
           # set a default text
         
@@ -73,7 +72,7 @@ class Template < TextDocument
   <meta http-equiv="Content-type" content="text/html; charset=utf-8" />
   <r:void name='stylesheets'>
     <r:stylesheets list='reset,zena,code'/>
-    <link href="default.css" rel="Stylesheet" type="text/css"/>
+    <link href="style.css" rel="Stylesheet" type="text/css"/>
   </r:void>
 
   <r:javascripts list='prototype,effects,zena'/>

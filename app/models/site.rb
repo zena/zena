@@ -139,13 +139,8 @@ class Site < ActiveRecord::Base
       
       nodes = site.send(:secure,Node) { Node.create_nodes_from_folder(:folder => File.join(RAILS_ROOT, 'db', 'init', 'base'), :parent_id => root[:id], :defaults => { :v_status => Zena::Status[:pub], :rgroup_id => pub[:id], :wgroup_id => sgroup[:id], :pgroup_id => admin[:id] } ) }.values
       
-      site_skin = site.send(:secure, Skin) { Skin.find_by_name('site') }
-      
-      site_skin.update_attributes( :name => site.name, :v_title => "#{site.name} skin" )
-      
-      # == set skin name for all elements in the site but the templates == #
-      Node.connection.execute "UPDATE nodes SET skin = '#{site.name}' WHERE site_id = '#{site[:id]}' AND section_id <> '#{site_skin.parent_id}'"
-      Node.connection.execute "UPDATE nodes SET skin = 'default' WHERE site_id = '#{site[:id]}' AND section_id = '#{site_skin.parent_id}'"
+      # == set skin name to 'default' for all elements in the site == #
+      Node.connection.execute "UPDATE nodes SET skin = 'default' WHERE site_id = '#{site[:id]}'"
       
       
       # == done.
