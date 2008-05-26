@@ -13,7 +13,14 @@ at_code_again:
 at_code_ruby:
   src: "some @ruby|class << self@"
   res: "<p>some <code class='ruby'><span class=\"keyword\">class </span><span class=\"punct\">&lt;&lt;</span> <span class=\"constant\">self</span></code></p>"
-  
+
+at_code_and_zazen:
+  src: |
+    This @do='[v_title]'@ and "":332.
+    
+    <code>blah</code>
+  res: "/\[make_link id:\|332\| title:\|\|\]/"
+
 code_ruby:
   src: |
     some text

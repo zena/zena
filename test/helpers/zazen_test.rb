@@ -93,6 +93,7 @@ class ZazenHelperTest < ZenaTestHelper
   end
 
   def test_make_gallery
+    login(:anon)
     preserving_files('test.host/data/jpg') do
       # ** [![2,3,5]!] gallery : inline preview with javascript inline viewer
       assert_match %r{table.*gallery.*Zena.transfer.*image24_pv.jpg.*image24_std.jpg.*image30_pv.jpg.*image30_std.jpg}m, zazen('![24,30]!')

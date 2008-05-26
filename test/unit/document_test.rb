@@ -192,7 +192,7 @@ class DocumentTest < ZenaTestUnit
       login(:tiger)
       doc = secure!(Node) { nodes(:water_pdf) }
       filepath = doc.c_filepath
-      assert File.exist?(filepath)
+      assert File.exist?(filepath), "File path #{filepath.inspect} exists"
       first = doc.v_number
       content_id = doc.c_id
       assert doc.update_attributes(:v_title => 'WahWah')

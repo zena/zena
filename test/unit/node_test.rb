@@ -4,10 +4,10 @@ class NodeTest < ZenaTestUnit
 
   NEW_DEFAULT = {
     :name       => 'hello',
-    :rgroup_id  => 1,
-    :wgroup_id  => 3,
-    :pgroup_id  => 4,
-    :parent_id => 21
+    :rgroup_id  => ZenaTest::id('zena', 'public'),
+    :wgroup_id  => ZenaTest::id('zena', 'workers'),
+    :pgroup_id  => ZenaTest::id('zena', 'managers'),
+    :parent_id  => ZenaTest::id('zena', 'cleanWater'),
   }.freeze
   
   def test_find_by_path
@@ -24,14 +24,14 @@ class NodeTest < ZenaTestUnit
     query = Node.match_query('smala')
     assert_equal "vs.title LIKE '%smala%' OR nodes.name LIKE 'smala%'", query[:conditions]
     query = Node.match_query('.', :node => nodes(:wiki))
-    assert_equal ["parent_id = ?", 19], query[:conditions]
+    assert_equal ["parent_id = ?", nodes_id(:wiki)], query[:conditions]
   end
   
   def test_transform_attributes_zazen_shortcut_v_text
     login(:tiger)
     [
       ["Hi, this is just a simple \"test\"::ar or \"\"::ar+_life.rss. OK ?\n\n!:lake+.pv!",
-       "Hi, this is just a simple \"test\":#{nodes_zip(:opening)} or \"\":#{nodes_zip(:art)}_life.rss. OK ?\n\n!24.pv!"],
+       "Hi, this is just a simple \"test\":27 or \"\":33_life.rss. OK ?\n\n!24.pv!"],
        
       ["Hi ![30,:lake+]! ![]!",
        "Hi ![30,24]! ![]!"],
@@ -58,11 +58,11 @@ class NodeTest < ZenaTestUnit
       [{'d_super_id' => 'lake',           'd_other_id' => '11'},
        {'d_super_id' => nodes_zip(:lake), 'd_other_id' => 11}],
 
-      [{'tag_ids' => "#{nodes_zip(:art)},news"},
+      [{'tag_ids' => "33,news"},
        {'tag_ids' => [nodes_id(:art), nodes_id(:news)]}],
        
-      [{'parent_id' => '83730', 'tag_ids' => "8398749,#{nodes_zip(:news)},art"},
-       {'parent_id' => '83730', 'tag_ids' => [nodes_id(:news),nodes_id(:art)]}],
+      [{'parent_id' => '999', 'tag_ids' => "999,34,art"},
+       {'parent_id' => '999', 'tag_ids' => [nodes_id(:news),nodes_id(:art)]}],
     ].each do |src,res|
       assert_equal res, Node.transform_attributes( src )
     end
@@ -92,7 +92,7 @@ class NodeTest < ZenaTestUnit
   end
   
   def test_get_fullpath_after_private
-    Node.connection.execute "UPDATE nodes SET parent_id = 3 WHERE id = 12" # put 'status' page inside private 'ant' page
+    Node.connection.execute "UPDATE nodes SET parent_id = #{nodes_id(:ant)} WHERE id = #{nodes_id(:status)}" # put 'status' page inside private 'ant' page
     node = nil
     login(:tiger)
     assert_nothing_raised { node = secure!(Node) { nodes(:status) } }
@@ -198,16 +198,16 @@ class NodeTest < ZenaTestUnit
   
   def test_page_new_without_name
     login(:tiger)
-    node = secure!(Node) { Node.new(:parent_id=>11) }
+    node = secure!(Node) { Node.new(:parent_id=>nodes_id(:cleanWater)) }
     assert ! node.save, 'Save fails'
     assert_equal "can't be blank", node.errors[:name]
   end
   
   def test_new_set_section_id
     login(:tiger)
-    node = secure!(Page) { Page.create(:parent_id=>nodes_id(:status), :name=>'SuperPage')}
+    node = secure!(Page) { Page.create(:parent_id=>nodes_id(:people), :name=>'SuperPage')}
     assert ! node.new_record?, 'Not a new record'
-    assert_equal nodes_id(:cleanWater), node[:section_id]
+    assert_equal nodes_id(:people), node[:section_id]
   end
   
   def toto_test_update_no_or_bad_parent
@@ -259,8 +259,8 @@ class NodeTest < ZenaTestUnit
   
   def test_update_set_section_id
     login(:tiger)
-    node = secure!(Page) { Page.find(nodes_id(:status))}
-    assert_equal nodes_id(:cleanWater), node[:section_id]
+    node = secure!(Node) { Node.find(nodes_id(:lion))}
+    assert_equal nodes_id(:people), node[:section_id]
     node[:parent_id]  = nodes_id(:zena)
     node[:section_id] = nodes_id(:status)
     assert node.save, 'Can save node'
@@ -273,7 +273,7 @@ class NodeTest < ZenaTestUnit
     node = secure!(Node) { nodes(:projects)  }
     assert !node.destroy, "Cannot destroy"
     assert_equal node.errors[:base], 'contains subpages or data'
-    node = secure!(Node) { nodes(:status)  }
+    node = secure!(Node) { nodes(:bananas)  }
     assert node.destroy, "Can destroy"
   end
   
@@ -478,8 +478,8 @@ class NodeTest < ZenaTestUnit
   end
   
   def test_after_unpublish
-    Version.connection.execute "UPDATE versions SET user_id=4 WHERE node_id IN (19,20,21)"
-    Node.connection.execute    "UPDATE nodes    SET user_id=4 WHERE      id IN (19,20,21)"
+    Version.connection.execute "UPDATE versions SET user_id=#{users_id(:tiger)} WHERE node_id IN (#{[:wiki,:bird_jpg,:flower_jpg].map{|k| nodes_id(k)}.join(',')})"
+    Node.connection.execute "UPDATE nodes SET user_id=#{users_id(:tiger)} WHERE id IN (#{[:wiki,:bird_jpg,:flower_jpg].map{|k| nodes_id(k)}.join(',')})"
     login(:tiger)
     wiki   = secure!(Node) { nodes(:wiki)       }
     bird   = secure!(Node) { nodes(:bird_jpg)   }
@@ -503,8 +503,8 @@ class NodeTest < ZenaTestUnit
   end
   
   def test_after_propose
-    Version.connection.execute "UPDATE versions SET status = #{Zena::Status[:red]}, user_id=4 WHERE node_id IN (19,20,21)"
-    Node.connection.execute "UPDATE nodes SET max_status = #{Zena::Status[:red]}, user_id=4 WHERE id IN (19,20,21)"
+    Version.connection.execute "UPDATE versions SET status = #{Zena::Status[:red]}, user_id=#{users_id(:tiger)} WHERE node_id IN (#{[:wiki,:bird_jpg,:flower_jpg].map{|k| nodes_id(k)}.join(',')})"
+    Node.connection.execute "UPDATE nodes SET max_status = #{Zena::Status[:red]}, user_id=#{users_id(:tiger)} WHERE id IN (#{[:wiki,:bird_jpg,:flower_jpg].map{|k| nodes_id(k)}.join(',')})"
     login(:tiger)
     wiki = secure!(Node) { nodes(:wiki) }
     bird = secure!(Node) { nodes(:bird_jpg) }
@@ -527,8 +527,8 @@ class NodeTest < ZenaTestUnit
   end
   
   def test_after_refuse
-    Version.connection.execute "UPDATE versions SET status = #{Zena::Status[:red]}, user_id=4 WHERE node_id IN (19,20,21)"
-    Node.connection.execute "UPDATE nodes SET max_status = #{Zena::Status[:red]}, user_id=4 WHERE id IN (19,20,21)"
+    Version.connection.execute "UPDATE versions SET status = #{Zena::Status[:red]}, user_id=#{users_id(:tiger)} WHERE node_id IN (#{[:wiki,:bird_jpg,:flower_jpg].map{|k| nodes_id(k)}.join(',')})"
+    Node.connection.execute "UPDATE nodes SET max_status = #{Zena::Status[:red]}, user_id=#{users_id(:tiger)} WHERE id IN (#{[:wiki,:bird_jpg,:flower_jpg].map{|k| nodes_id(k)}.join(',')})"
     login(:tiger)
     wiki = secure!(Node) { nodes(:wiki) }
     assert wiki.propose, 'Can propose for publication'
@@ -547,8 +547,8 @@ class NodeTest < ZenaTestUnit
   end
   
   def test_after_publish
-    Version.connection.execute "UPDATE versions SET status = #{Zena::Status[:red]}, user_id=4 WHERE node_id IN (19,20,21)"
-    Node.connection.execute "UPDATE nodes SET max_status = #{Zena::Status[:red]}, user_id=4 WHERE id IN (19,20,21)"
+    Version.connection.execute "UPDATE versions SET status = #{Zena::Status[:red]}, user_id=#{users_id(:tiger)} WHERE node_id IN (#{[:wiki,:bird_jpg,:flower_jpg].map{|k| nodes_id(k)}.join(',')})"
+    Node.connection.execute "UPDATE nodes SET max_status = #{Zena::Status[:red]}, user_id=#{users_id(:tiger)} WHERE id IN (#{[:wiki,:bird_jpg,:flower_jpg].map{|k| nodes_id(k)}.join(',')})"
     login(:tiger)
     wiki = secure!(Node) { nodes(:wiki) }
     assert wiki.publish, 'Can publish'
@@ -701,6 +701,7 @@ class NodeTest < ZenaTestUnit
   def test_site_id
     login(:tiger)
     node = secure!(Node) { Node.create(NEW_DEFAULT) }
+    err node
     assert !node.new_record?, "Not a new record"
     assert_equal sites_id(:zena), node[:site_id]
   end
@@ -726,7 +727,7 @@ class NodeTest < ZenaTestUnit
   end
   
   def test_zip
-    next_zip = Node.connection.execute("SELECT zip FROM zips WHERE site_id = 1").fetch_row[0].to_i
+    next_zip = Node.connection.execute("SELECT zip FROM zips WHERE site_id = #{sites_id(:zena)}").fetch_row[0].to_i
     login(:tiger)
     node = secure!(Node) { Node.create(:parent_id=>nodes_id(:zena), :name=>"fly")}
     assert !node.new_record?, "Not a new record"
@@ -736,7 +737,7 @@ class NodeTest < ZenaTestUnit
   def test_find_by_zip
     login(:tiger)
     assert_raise(ActiveRecord::RecordNotFound) { node = secure!(Node) { Node.find_by_zip(99) } }
-    assert_kind_of Node, secure!(Node) { Node.find_by_zip(21) }
+    assert_kind_of Node, secure!(Node) { Node.find_by_zip(nodes_zip(:cleanWater)) }
   end
   
   def test_parent_zip
@@ -802,7 +803,7 @@ class NodeTest < ZenaTestUnit
     assert_equal Node, Node.get_class('node')
     assert_equal Node, Node.get_class('nodes')
     assert_equal Node, Node.get_class('Node')
-    assert_equal virtual_classes(:letter), Node.get_class('Letter')
+    assert_equal virtual_classes(:Letter), Node.get_class('Letter')
     assert_equal TextDocument, Node.get_class('TextDocument')
   end
   
@@ -810,8 +811,8 @@ class NodeTest < ZenaTestUnit
     assert_equal Node, Node.get_class_from_kpath('N')
     assert_equal Page, Node.get_class_from_kpath('NP')
     assert_equal Image, Node.get_class_from_kpath('NDI')
-    assert_equal virtual_classes(:post), Node.get_class_from_kpath('NNP')
-    assert_equal virtual_classes(:letter), Node.get_class_from_kpath('NNL')
+    assert_equal virtual_classes(:Post), Node.get_class_from_kpath('NNP')
+    assert_equal virtual_classes(:Letter), Node.get_class_from_kpath('NNL')
     assert_equal TextDocument, Node.get_class_from_kpath('NDT')
   end
   
@@ -867,13 +868,13 @@ done: \"I am done\""
     assert_equal 1, nodes.size
     simple = nodes[0]
     assert_kind_of Note, simple
-    assert_equal virtual_classes(:post), simple.vclass
+    assert_equal virtual_classes(:Post), simple.vclass
     assert !simple.new_record?
   end
   
   def test_create_nodes_from_folder_with_defaults
     login(:tiger)
-    parent = secure!(Project) { Project.create(:name => 'import', :parent_id => nodes_id(:zena), :rgroup_id => 4, :wgroup_id => 4) }
+    parent = secure!(Project) { Project.create(:name => 'import', :parent_id => nodes_id(:zena), :rgroup_id => groups_id(:managers), :wgroup_id => groups_id(:managers)) }
     assert !parent.new_record?, "Not a new record"
     result = secure!(Node) { Node.create_nodes_from_folder(:folder => File.join(RAILS_ROOT, 'test', 'fixtures', 'import'), :parent_id => parent[:id] )}.values
     assert_equal 3, result.size
@@ -881,20 +882,18 @@ done: \"I am done\""
     children = parent.find(:all, 'children order by name ASC')
     assert_equal 2, children.size
     assert_equal 'photos', children[0].name
-    assert_equal 1, children[0].rgroup_id
+    assert_equal groups_id(:managers), children[0].rgroup_id
     assert_equal 'simple', children[1].name
-    assert_equal 4, children[1].rgroup_id
+    assert_equal groups_id(:managers), children[1].rgroup_id
     
     # we use children[1] as parent just to use any empty node
-    result = secure!(Node) { Node.create_nodes_from_folder(:folder => File.join(RAILS_ROOT, 'test', 'fixtures', 'import'), :parent_id => children[1][:id], :defaults => { :rgroup_id => 1 } )}.values
+    result = secure!(Node) { Node.create_nodes_from_folder(:folder => File.join(RAILS_ROOT, 'test', 'fixtures', 'import'), :parent_id => children[1][:id], :defaults => { :rgroup_id => groups_id(:public) } )}.values
     assert_equal 3, result.size
     
     children = children[1].find(:all, 'children order by name ASC')
     assert_equal 2, children.size
     assert_equal 'photos', children[0].name
-    assert_equal 1, children[0].rgroup_id
-    assert_equal 'simple', children[1].name
-    assert_equal 1, children[1].rgroup_id
+    assert_equal groups_id(:public), children[0].rgroup_id
   end
   
   def test_create_nodes_from_folder_with_publish
@@ -911,6 +910,10 @@ done: \"I am done\""
     res = secure!(Node) { Node.create_nodes_from_folder(:archive => uploaded_archive('import.tgz'), :parent_id => nodes_id(:zena)) }.values
     #res.each do |rec|
     #  puts "id:     #{rec[:id]}"
+    #  puts "inherit: #{rec[:inherit]}"
+    #  puts "rgroup_id: #{rec[:rgroup_id]}"
+    #  puts "wgroup_id: #{rec[:wgroup_id]}"
+    #  puts "pgroup_id: #{rec[:pgroup_id]}"
     #  puts "name:   #{rec.name}"
     #  puts "parent: #{rec.parent_id}"
     #  puts "errors: #{rec.errors.map{|k,v| "\n[#{k}] #{v}"}}"
@@ -925,6 +928,16 @@ done: \"I am done\""
     visitor.lang = 'fr'
     bird = secure!(Node) { Node.find_by_parent_id_and_name(photos[:id], 'bird') }
     assert_equal 'Le septième ciel', bird.v_title
+    assert_equal 1, bird[:inherit]
+    assert_equal groups_id(:public), bird[:rgroup_id]
+    assert_equal groups_id(:workers), bird[:wgroup_id]
+    assert_equal groups_id(:managers), bird[:pgroup_id]
+    
+    simple = secure!(Node) { Node.find_by_parent_id_and_name(nodes_id(:zena), 'simple') }
+    assert_equal 0, simple[:inherit]
+    assert_equal groups_id(:managers), simple[:rgroup_id]
+    assert_equal groups_id(:managers), simple[:wgroup_id]
+    assert_equal groups_id(:managers), simple[:pgroup_id]
   end
   
   def test_update_nodes_from_archive
@@ -998,7 +1011,7 @@ done: \"I am done\""
   
   def find_nodes_with_pagination_in_cleanWaterProject(page, per_page = 3, opts=nil)
     previous_page, collection, next_page = nil, nil, nil
-    opts ||= {:conditions => ['project_id = ?', nodes_id(:cleanWater)], :order=>'id ASC'}
+    opts ||= {:conditions => ['project_id = ?', nodes_id(:cleanWater)], :order=>'name ASC'}
     collection = secure(Node) do
       previous_page, collection, next_page = Node.find_with_pagination(:all, opts.merge(:page=>page, :per_page=>per_page))
       collection
@@ -1012,7 +1025,7 @@ done: \"I am done\""
     assert_nil previous_page
     assert_equal 2, next_page
     assert_equal 3, collection.size
-    assert_equal [:status, :lake, :lake_jpg].map{|s| nodes_id(s)}, collection.map{|r| r[:id]}
+    assert_equal [:bananas, :crocodiles, :lake_jpg].map{|s| nodes_id(s)}, collection.map{|r| r[:id]}
   end
   
   def test_find_with_pagination_page_2
@@ -1021,7 +1034,7 @@ done: \"I am done\""
     assert_equal 1, previous_page
     assert_equal 3, next_page
     assert_equal 3, collection.size
-    assert_equal [:water_pdf, :crocodiles, :opening].map{|s| nodes_id(s)}, collection.map{|r| r[:id]}
+    assert_equal [:lake, :opening, :status].map{|s| nodes_id(s)}, collection.map{|r| r[:id]}
   end
 
   def test_find_with_pagination_page_3
@@ -1030,7 +1043,7 @@ done: \"I am done\""
     assert_equal 2, previous_page
     assert_nil next_page
     assert_equal 2, collection.size
-    assert_equal [:bananas, :tracker].map{|s| nodes_id(s)}, collection.map{|r| r[:id]}
+    assert_equal [:track, :water_pdf].map{|s| nodes_id(s)}, collection.map{|r| r[:id]}
   end
   
   def test_find_with_pagination_page_4
@@ -1055,7 +1068,7 @@ done: \"I am done\""
     login(:ant)
     node = secure!(Node) { nodes(:cleanWater) }
     entries = node.data
-    assert_equal 5, entries.size
+    assert_equal 4, entries.size
     assert_equal BigDecimal.new("13.0"), entries[2].value
   end
   
@@ -1063,8 +1076,8 @@ done: \"I am done\""
     login(:ant)
     node = secure!(Node) { nodes(:cleanWater) }
     entries = node.data_d
-    assert_equal 2, entries.size
-    assert_equal BigDecimal.new("21"), entries[1].value
+    assert_equal 1, entries.size
+    assert_equal BigDecimal.new("56"), entries[0].value
   end
   
   def test_icon_by_relation

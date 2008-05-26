@@ -53,7 +53,7 @@ class UserTest < ZenaTestUnit
     user = secure!(User) { User.find(user[:id]) } # reload
     assert user.sites.include?(sites(:ocean))
     assert_equal 2, user.groups.size
-    assert user.groups.include?(groups(:pub_ocean)), "Is in the public group"
+    assert user.groups.include?(groups(:public)), "Is in the public group"
     assert user.groups.include?(groups(:aqua)), "Is in the 'site' group"
     assert_equal User::Status[:moderated], user.status
     assert_equal 'ru', user.lang

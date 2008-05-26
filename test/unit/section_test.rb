@@ -5,7 +5,7 @@ class SectionTest < ZenaTestUnit
   
   def test_section_id_on_create
     login(:tiger)
-    node = secure!(Section) { Section.create(:parent_id=>nodes_zip(:status), :name=>'SuperSection') }
+    node = secure!(Section) { Section.create(:parent_id=>nodes_id(:status), :name=>'SuperSection') }
     assert ! node.new_record?, 'Not a new record'
     assert_equal node[:id], node.get_section_id
     assert_equal nodes_id(:zena), node[:section_id]

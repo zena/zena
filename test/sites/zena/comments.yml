@@ -1,0 +1,75 @@
+DEFAULTS:
+  status:          pub
+  
+
+tiger_says_inside:
+  discussion:      inside_discussion_on_status
+  created_at:      2006-12-19 22:20
+  updated_at:      2006-12-19 22:20
+  user:            tiger
+  title:           I agree
+  text:            We could not do better then this. I *really* mean that. Look at the \\:20.
+  
+ant_says_inside:
+  discussion:      inside_discussion_on_status
+  created_at:      2006-12-19 22:23
+  updated_at:      2006-12-19 22:23
+  user:            ant
+  title:           I think this is bad
+  text:            I really dont like the way we work.
+
+lion_says_inside:
+  discussion:      inside_discussion_on_status
+  created_at:      2006-12-19 22:26
+  updated_at:      2006-12-19 22:26
+  user:            lion
+  title:           OK for me
+  text:            It seems perfect to me.
+
+tiger_reply_inside:
+  discussion:      inside_discussion_on_status
+  created_at:      2006-12-19 23:30
+  updated_at:      2006-12-19 23:30
+  reply_to:        ant_says_inside
+  user:            tiger
+  title:           Why ?
+  text:            We havent had any complaint in months... What do you mean ?
+
+public_spam_in_en:
+  discussion:      outside_discussion_on_status_en
+  created_at:      2006-12-19 23:37
+  updated_at:      2006-12-19 23:37
+  user:            anon
+  author_name:     Super casinos
+  status:          prop
+  title:           Nice site
+  text:            Buy casino dildo, enlarge get rich money hell
+  ip:              10.0.0.3
+
+ant_says_in_fr:
+  discussion:      inside_discussion_on_lake_fr
+  created_at:      2006-12-19 23:35
+  updated_at:      2006-12-19 23:35
+  user:            ant
+  title:           Travailleurs, unissez-vous !
+  text:            Travailleurs de tous les horizons, unissez-vouspour lutter contre loppression capitaliste. Rejoignez notre groupe !
+
+public_says_in_en:
+  discussion:      outside_discussion_on_status_en
+  created_at:      2006-12-20 20:22
+  updated_at:      2006-12-20 20:22
+  user:            anon
+  author_name:     yellow peace
+  title:           What about rivers ?
+  text:            Rivers are flooding
+
+first_reply_in_en:
+  discussion:      outside_discussion_on_status_en
+  created_at:      2008-05-21 18:44
+  updated_at:      2008-05-21 18:44
+  reply_to:        public_says_in_en
+  user:            anon
+  author_name:     simpson
+  title:           "re: What about rivers ?"
+  text:            Not here...
+

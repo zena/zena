@@ -15,6 +15,7 @@ Other templates have a name built from the given name, just like any other node.
 =end
 class Template < TextDocument
   validate :valid_section
+  after_save :update_content
   
   class << self
     def accept_content_type?(content_type)
@@ -89,6 +90,7 @@ END_TXT
     end
     
     def valid_section
+      @need_skin_name_update = !new_record? && old.section_id != section[:id]
       errors.add('parent_id', 'Invalid parent (section is not a Skin)') unless section.kind_of?(Skin)
     end
     
@@ -99,6 +101,13 @@ END_TXT
       format = opts[:format] == 'html' ? '' : "-#{opts[:format]}"
       mode   = (opts[:mode] || format != '') ? "-#{opts[:mode]}" : '' 
       "#{opts[:klass]}#{mode}#{format}"
+    end
+    
+    def update_content
+      if @need_skin_name_update
+        Template.connection.execute "UPDATE template_contents SET skin_name = #{Template.connection.quote(section[:name])} WHERE node_id = #{Template.connection.quote(self[:id])}"
+        @need_skin_name_update = nil
+      end
     end
     
 end

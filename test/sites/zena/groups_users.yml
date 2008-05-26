@@ -1,0 +1,36 @@
+anon_in_public:
+  user:            anon
+  group:           public
+  
+ant_in_public:
+  user:            ant
+  group:           public
+
+tiger_in_public:
+  user:            tiger
+  group:           public
+
+lion_in_public:
+  user:            lion
+  group:           public
+
+ant_in_workers:
+  user:            ant
+  group:           workers
+
+tiger_in_workers:
+  user:            tiger
+  group:           workers
+
+lion_in_workers:
+  user:            lion
+  group:           workers
+
+tiger_in_managers:
+  user:            tiger
+  group:           managers
+
+lion_in_admin:
+  user:            lion
+  group:           admin
+

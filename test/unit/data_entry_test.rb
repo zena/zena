@@ -24,7 +24,7 @@ class DataEntryTest < ZenaTestUnit
   def test_nodes
     login(:tiger)
     ent = data_entries(:comment)
-    assert_equal [nodes_id(:secret),nodes_id(:wiki)], ent.nodes.map {|n| n.id}.sort
+    assert_equal [nodes_id(:secret),nodes_id(:wiki)].sort, ent.nodes.map {|n| n.id}.sort
     login(:ant)
     assert_equal [nodes_id(:wiki)], ent.nodes.map {|n| n.id}.sort
   end

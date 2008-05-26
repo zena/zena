@@ -22,6 +22,21 @@ class Group < ActiveRecord::Base
   before_destroy          :check_can_destroy
   belongs_to              :site
   
+  # FIXME: test translate_pseudo_id for groups
+  def self.translate_pseudo_id(id,sym=:id)
+    str = id.to_s
+    if str =~ /\A\d+\Z/
+      # id
+      res = self.connection.execute( "SELECT #{sym} FROM groups WHERE site_id = #{current_site[:id]} AND id = '#{str}'" ).fetch_row
+      res ? res[0].to_i : nil
+    elsif str =~ /\A([a-zA-Z ]+)(\+*)\Z/
+      res = self.connection.execute( "SELECT groups.#{sym} FROM groups WHERE site_id = #{current_site[:id]} AND name LIKE #{self.connection.quote("#{$1}%")} LIMIT #{$2.size}, 1" ).fetch_row
+      res ? res[0].to_i : nil
+    else
+      nil
+    end
+  end
+  
   # Return true if the group is the public group of the site.
   def public_group?
     self[:id] == visitor.site[:public_group_id]

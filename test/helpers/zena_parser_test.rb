@@ -6,14 +6,14 @@ if false
 end
 
 class ZenaParserTest < ZenaTestController
-  yaml_dir  File.join(File.dirname(__FILE__), 'zena_parser')
-  yaml_test :relations, :basic, :zafu_ajax, :zazen, :apphelper, :errors, :data
+  yaml_test
   Section # make sure we load Section links before trying relations
   
   def setup
     @controller = TestController.new
     @request    = ActionController::TestRequest.new
     @response   = ActionController::TestResponse.new
+    $_test_site = 'zena'
     super
   end
   
@@ -31,6 +31,7 @@ class ZenaParserTest < ZenaTestController
     context = default_context.merge(context)
     # set context
     params = {}
+    $_test_site = params[:site] || 'zena'
     params[:user_id] = users_id(context['visitor'].to_sym)
     params[:node_id] = nodes_id(context['node'].to_sym)
     params[:prefix]  = context['lang']
@@ -59,9 +60,14 @@ class ZenaParserTest < ZenaTestController
       assert_yaml_test res, result
     end
   end
-
-  def test_single
-    do_test('data', 'list_values')
+  
+  alias o_assert_yaml_test assert_yaml_test
+  
+  def assert_yaml_test(test_val, result)
+    test_val.gsub!(/_ID\(([^\)]+)\)/) do
+        ZenaTest::id($_test_site, $1)
+    end
+    o_assert_yaml_test test_val, result
   end
   
   def test_basic_show_bad_attr
@@ -72,7 +78,7 @@ class ZenaParserTest < ZenaTestController
 
   def test_basic_cache_part
     with_caching do
-      Node.connection.execute "UPDATE nodes SET name = 'first' WHERE id = 12;" # status
+      Node.connection.execute "UPDATE nodes SET name = 'first' WHERE id = #{nodes_id(:status)}"
       caches = Cache.find(:all)
       assert_equal [], caches
       do_test('basic', 'cache_part')
@@ -91,7 +97,7 @@ class ZenaParserTest < ZenaTestController
       cache  = Cache.find(:first)
       assert_kind_of Cache, cache
       assert_equal "first", cache.content
-      Node.connection.execute "UPDATE nodes SET name = 'second' WHERE id = 12;" # status
+      Node.connection.execute "UPDATE nodes SET name = 'second' WHERE id = #{nodes_id(:status)}"
       
       post 'test_render', cont
       assert_equal 'first', @response.body
@@ -104,85 +110,85 @@ class ZenaParserTest < ZenaTestController
   end
   
   def test_relations_updated_today
-    Node.connection.execute "UPDATE nodes SET updated_at = now() WHERE id IN (12, 23);" # status, art
+    Node.connection.execute "UPDATE nodes SET updated_at = now() WHERE id IN (#{nodes_id(:status)}, #{nodes_id(:art)});"
     do_test('relations', 'updated_today')
   end
   
   def test_relations_upcoming_events
-    Node.connection.execute "UPDATE nodes SET log_at = ADDDATE(curdate(), interval 1 week) WHERE id IN (2);" # people
+    Node.connection.execute "UPDATE nodes SET log_at = ADDDATE(curdate(), interval 1 week) WHERE id IN (#{nodes_id(:people)})"
     do_test('relations', 'upcoming_events')
   end
   
   def test_relations_in_7_days
-    Node.connection.execute "UPDATE nodes SET log_at = curdate() WHERE id IN (12, 23);" # status, art
-    Node.connection.execute "UPDATE nodes SET log_at = curdate() + interval 6 day WHERE id IN (8, 11);" # projects, cleanWater
-    Node.connection.execute "UPDATE nodes SET log_at = curdate() + interval 10 day WHERE id IN (2);" # people
+    Node.connection.execute "UPDATE nodes SET log_at = curdate() WHERE id IN (#{nodes_id(:status)}, #{nodes_id(:art)})"
+    Node.connection.execute "UPDATE nodes SET log_at = curdate() + interval 6 day WHERE id IN (#{nodes_id(:projects)}, #{nodes_id(:cleanWater)})"
+    Node.connection.execute "UPDATE nodes SET log_at = curdate() + interval 10 day WHERE id IN (#{nodes_id(:people)})"
     do_test('relations', 'in_7_days')
   end
   
   def test_relations_logged_7_days_ago
-    Node.connection.execute "UPDATE nodes SET log_at = now() WHERE id IN (12, 23);" # status, art
-    Node.connection.execute "UPDATE nodes SET log_at = curdate() - interval 6 day WHERE id IN (8, 11);" # projects, cleanWater
-    Node.connection.execute "UPDATE nodes SET log_at = curdate() - interval 10 day WHERE id IN (2);" # people
+    Node.connection.execute "UPDATE nodes SET log_at = now() WHERE id IN (#{nodes_id(:status)}, #{nodes_id(:art)})"
+    Node.connection.execute "UPDATE nodes SET log_at = curdate() - interval 6 day WHERE id IN (#{nodes_id(:projects)}, #{nodes_id(:cleanWater)})"
+    Node.connection.execute "UPDATE nodes SET log_at = curdate() - interval 10 day WHERE id IN (#{nodes_id(:people)});"
     do_test('relations', 'logged_7_days_ago')
   end
   
   def test_relations_around_7_days
-    Node.connection.execute "UPDATE nodes SET log_at = now() WHERE id IN (12);" # status
-    Node.connection.execute "UPDATE nodes SET log_at = curdate() + interval 5 day WHERE id IN (23);" # art
-    Node.connection.execute "UPDATE nodes SET log_at = curdate() - interval 6 day WHERE id IN (8, 11);" # projects, cleanWater
-    Node.connection.execute "UPDATE nodes SET log_at = curdate() - interval 10 day WHERE id IN (2);" # people
+    Node.connection.execute "UPDATE nodes SET log_at = now() WHERE id IN (#{nodes_id(:status)});"
+    Node.connection.execute "UPDATE nodes SET log_at = curdate() + interval 5 day WHERE id IN (#{nodes_id(:art)});"
+    Node.connection.execute "UPDATE nodes SET log_at = curdate() - interval 6 day WHERE id IN (#{nodes_id(:projects)}, #{nodes_id(:cleanWater)});"
+    Node.connection.execute "UPDATE nodes SET log_at = curdate() - interval 10 day WHERE id IN (#{nodes_id(:people)});"
     do_test('relations', 'around_7_days')
   end
   
   def test_relations_in_37_hours
-    Node.connection.execute "UPDATE nodes SET log_at = #{Node.connection.quote(Time.now.utc)} WHERE id IN (23);" # art
-    Node.connection.execute "UPDATE nodes SET log_at = curdate() + interval 36 hour WHERE id IN (11);" # cleanWater
-    Node.connection.execute "UPDATE nodes SET log_at = curdate() + interval 38 hour WHERE id IN (8, 2);" # projects, people
+    Node.connection.execute "UPDATE nodes SET log_at = #{Node.connection.quote(Time.now.utc)} WHERE id IN (#{nodes_id(:art)});" # art
+    Node.connection.execute "UPDATE nodes SET log_at = curdate() + interval 36 hour WHERE id IN (#{nodes_id(:cleanWater)})"
+    Node.connection.execute "UPDATE nodes SET log_at = curdate() + interval 38 hour WHERE id IN (#{nodes_id(:projects)}, 2);" # projects, people
     do_test('relations', 'in_37_hours')
   end
   
   def test_relations_this_week
     if Time.now.strftime('%u').to_i < 3
-      Node.connection.execute "UPDATE nodes SET event_at = ADDDATE(curdate(), interval -5 day) WHERE id IN (2);" # people
+      Node.connection.execute "UPDATE nodes SET event_at = ADDDATE(curdate(), interval -5 day) WHERE id IN (#{nodes_id(:people)});" # people
       # objs in the future
-      Node.connection.execute "UPDATE nodes SET event_at = ADDDATE(curdate(), interval 2 day) WHERE id IN (23);" # status, art
-      Node.connection.execute "UPDATE nodes SET event_at = ADDDATE(curdate(), interval 1 day) WHERE id IN (8);" # projects, cleanWater
+      Node.connection.execute "UPDATE nodes SET event_at = ADDDATE(curdate(), interval 2 day) WHERE id IN (#{nodes_id(:art)});" # status, art
+      Node.connection.execute "UPDATE nodes SET event_at = ADDDATE(curdate(), interval 1 day) WHERE id IN (#{nodes_id(:projects)});" # projects, cleanWater
     else
-      Node.connection.execute "UPDATE nodes SET event_at = ADDDATE(curdate(), interval 5 day) WHERE id IN (2);" # people
+      Node.connection.execute "UPDATE nodes SET event_at = ADDDATE(curdate(), interval 5 day) WHERE id IN (#{nodes_id(:people)});" # people
       # objs in the past
-      Node.connection.execute "UPDATE nodes SET event_at = ADDDATE(curdate(), interval -2 day) WHERE id IN (23);" # status, art
-      Node.connection.execute "UPDATE nodes SET event_at = ADDDATE(curdate(), interval -1 day) WHERE id IN (8);" # projects, cleanWater
+      Node.connection.execute "UPDATE nodes SET event_at = ADDDATE(curdate(), interval -2 day) WHERE id IN (#{nodes_id(:art)});" # status, art
+      Node.connection.execute "UPDATE nodes SET event_at = ADDDATE(curdate(), interval -1 day) WHERE id IN (#{nodes_id(:projects)});" # projects, cleanWater
     end  
     do_test('relations', 'this_week')    
   end
   
   def test_relations_this_month
     if Time.now.strftime('%d').to_i < 15
-      Node.connection.execute "UPDATE nodes SET event_at = ADDDATE(curdate(), interval -20 day) WHERE id IN (2);" # people
+      Node.connection.execute "UPDATE nodes SET event_at = ADDDATE(curdate(), interval -20 day) WHERE id IN (#{nodes_id(:people)});" # people
       # objs in the future
-      Node.connection.execute "UPDATE nodes SET event_at = ADDDATE(curdate(), interval 12 day) WHERE id IN (23);" # status, art
-      Node.connection.execute "UPDATE nodes SET event_at = ADDDATE(curdate(), interval 5 day) WHERE id IN (8);" # projects, cleanWater
+      Node.connection.execute "UPDATE nodes SET event_at = ADDDATE(curdate(), interval 12 day) WHERE id IN (#{nodes_id(:art)});" # status, art
+      Node.connection.execute "UPDATE nodes SET event_at = ADDDATE(curdate(), interval 5 day) WHERE id IN (#{nodes_id(:projects)});" # projects, cleanWater
     else
-      Node.connection.execute "UPDATE nodes SET event_at = ADDDATE(curdate(), interval 20 day) WHERE id IN (2);" # people
+      Node.connection.execute "UPDATE nodes SET event_at = ADDDATE(curdate(), interval 20 day) WHERE id IN (#{nodes_id(:people)});" # people
       # objs in the past
-      Node.connection.execute "UPDATE nodes SET event_at = ADDDATE(curdate(), interval -12 day) WHERE id IN (23);" # status, art
-      Node.connection.execute "UPDATE nodes SET event_at = ADDDATE(curdate(), interval -5 day) WHERE id IN (8);" # projects, cleanWater
+      Node.connection.execute "UPDATE nodes SET event_at = ADDDATE(curdate(), interval -12 day) WHERE id IN (#{nodes_id(:art)});" # status, art
+      Node.connection.execute "UPDATE nodes SET event_at = ADDDATE(curdate(), interval -5 day) WHERE id IN (#{nodes_id(:projects)});" # projects, cleanWater
     end  
     do_test('relations', 'this_month')    
   end
   
   def test_relations_this_year
     if Time.now.strftime('%m').to_i < 6
-      Node.connection.execute "UPDATE nodes SET event_at = ADDDATE(curdate(), interval -8 month) WHERE id IN (2);" # people
+      Node.connection.execute "UPDATE nodes SET event_at = ADDDATE(curdate(), interval -8 month) WHERE id IN (#{nodes_id(:people)});" # people
       # objs in the future
-      Node.connection.execute "UPDATE nodes SET event_at = ADDDATE(curdate(), interval 2 month) WHERE id IN (23);" # status, art
-      Node.connection.execute "UPDATE nodes SET event_at = ADDDATE(curdate(), interval 1 month) WHERE id IN (8);" # projects, cleanWater
+      Node.connection.execute "UPDATE nodes SET event_at = ADDDATE(curdate(), interval 2 month) WHERE id IN (#{nodes_id(:art)});" # status, art
+      Node.connection.execute "UPDATE nodes SET event_at = ADDDATE(curdate(), interval 1 month) WHERE id IN (#{nodes_id(:projects)});" # projects, cleanWater
     else
-      Node.connection.execute "UPDATE nodes SET event_at = ADDDATE(curdate(), interval 8 month) WHERE id IN (2);" # people
+      Node.connection.execute "UPDATE nodes SET event_at = ADDDATE(curdate(), interval 8 month) WHERE id IN (#{nodes_id(:people)});" # people
       # objs in the past
-      Node.connection.execute "UPDATE nodes SET event_at = ADDDATE(curdate(), interval -2 month) WHERE id IN (23);" # status, art
-      Node.connection.execute "UPDATE nodes SET event_at = ADDDATE(curdate(), interval -1 month) WHERE id IN (8);" # projects, cleanWater
+      Node.connection.execute "UPDATE nodes SET event_at = ADDDATE(curdate(), interval -2 month) WHERE id IN (#{nodes_id(:art)});" # status, art
+      Node.connection.execute "UPDATE nodes SET event_at = ADDDATE(curdate(), interval -1 month) WHERE id IN (#{nodes_id(:projects)});" # projects, cleanWater
     end
     do_test('relations', 'this_year')    
   end

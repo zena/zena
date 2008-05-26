@@ -141,13 +141,13 @@ class NodeQuery < QueryBuilder
       end
     end
     
-    def map_field(field, table_name = table, is_null = false)
+    def map_field(field, table_name = table, context = nil)
       case field[0..1]
       when 'd_'
         # DYNAMIC ATTRIBUTE
         key = field[2..-1]
         key, function = parse_sql_function_in_field(key)
-        key = function ? "#{function}(#{dyn_value('versions', key, is_null)})" : dyn_value('versions', key, is_null)
+        key = function ? "#{function}(#{dyn_value('versions', key, context)})" : dyn_value('versions', key, context)
       when 'c_'
         # CONTENT TABLE
         field = field[2..-1]
@@ -224,16 +224,11 @@ class NodeQuery < QueryBuilder
       end
     end
     
-    def dyn_value(table_name, key, is_null)
+    def dyn_value(table_name, key, context)
       @dyn_keys[table_name] ||= {}
       @dyn_keys[table_name][key] ||= begin
         needs_table('nodes', 'versions', "TABLE1.id = TABLE2.node_id")
-        if true || is_null # always use a LEFT join with the key, works better for sort clauses.
-          dtable = needs_join_table('versions', 'LEFT', 'dyn_attributes', "TABLE1.id = TABLE2.owner_id AND TABLE2.key = '#{key.gsub(/[^a-z_A-Z]/,'')}'", "versions=dyn_attributes=#{key}")
-        else
-          dtable = needs_join_table('versions', 'LEFT', 'dyn_attributes', 'TABLE1.id = TABLE2.owner_id')
-          @filters << "#{dtable}.key = '#{key.gsub(/[^a-z_A-Z]/,'')}'"
-        end
+        dtable = needs_join_table('versions', 'LEFT', 'dyn_attributes', "TABLE1.id = TABLE2.owner_id AND TABLE2.key = '#{key.gsub(/[^a-z_A-Z]/,'')}'", "versions=dyn_attributes=#{key}")
         "#{dtable}.value"
       end
     end

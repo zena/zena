@@ -3,7 +3,7 @@ require File.dirname(__FILE__) + '/../test_helper'
 class DiscussionTest < ZenaTestUnit
 
   def test_comments
-    discussion = Discussion.find(1)
+    discussion = Discussion.find(discussions_id(:inside_discussion_on_status))
     assert_kind_of Discussion, discussion
     comments = discussion.comments
     assert_equal 3, comments.size   # only find 'root' comments

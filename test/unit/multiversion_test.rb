@@ -382,14 +382,14 @@ class MultiVersionTest < ZenaTestUnit
     login(:lion)
     visitor.lang = 'ru'
     node = secure!(Node) { nodes(:lake)  }
-    attrs = { :inherit=>0, :rgroup_id => 4, :v_title => "Manager's lake"}
+    attrs = { :inherit=>0, :rgroup_id => groups_id(:managers), :v_title => "Manager's lake"}
     assert !node.update_attributes( attrs ) #, "Update attributes succeeds"
     assert_equal 'not valid', node.errors[:v_lang]
     visitor.site.languages = 'en,fr,ru'
     assert node.update_attributes( attrs ) #, "Update attributes succeeds"
-    assert_equal 4, node.rgroup_id
-    assert_equal 3, node.wgroup_id
-    assert_equal 4, node.pgroup_id
+    assert_equal groups_id(:managers), node.rgroup_id
+    assert_equal groups_id(:workers), node.wgroup_id
+    assert_equal groups_id(:managers), node.pgroup_id
     assert_equal 0, node.inherit
     assert_equal "Manager's lake", node.v_title
   end
@@ -398,9 +398,9 @@ class MultiVersionTest < ZenaTestUnit
     login(:ant)
     attrs = {
     :name => 'new_with_attributes',
-    :rgroup_id => 3,
-    :wgroup_id => 3,
-    :pgroup_id => 4,
+    :rgroup_id => groups_id(:workers),
+    :wgroup_id => groups_id(:workers),
+    :pgroup_id => groups_id(:managers),
     :parent_id => nodes_id(:secret),
     :v_title => "A New Node With A Redaction",
     :v_summary => "new summary"
@@ -414,10 +414,10 @@ class MultiVersionTest < ZenaTestUnit
     login(:tiger)
     attrs = {
     :name => 'new-with-attributes',
-    :rgroup_id => 3,
-    :wgroup_id => 3,
-    :pgroup_id => 4,
-    :parent_id => 1,
+    :rgroup_id => groups_id(:workers),
+    :wgroup_id => groups_id(:workers),
+    :pgroup_id => groups_id(:managers),
+    :parent_id => nodes_id(:zena),
     :v_title => "A New Node With A Redaction",
     :v_summary => "new summary"
     }
@@ -427,7 +427,7 @@ class MultiVersionTest < ZenaTestUnit
     assert_equal Zena::Status[:red], node.v_status
     assert_equal "A New Node With A Redaction", node.v_title
     assert_equal "new-with-attributes", node.name
-    assert_equal 3, node.rgroup_id
+    assert_equal groups_id(:workers), node.rgroup_id
   end
   
   def test_save_redaction
@@ -649,6 +649,7 @@ class MultiVersionTest < ZenaTestUnit
   end
   
   def test_not_owner_can_remove
+    Node.connection.execute "DELETE FROM data_entries"
     login(:lion)
     node = secure!(Node) { nodes(:status) }
     assert_equal users_id(:ant), node.user_id
@@ -699,7 +700,8 @@ class MultiVersionTest < ZenaTestUnit
   end
   
   def test_empty?
-    login(:lion)
+    login(:lion) # cannot see 'ant'
+    Node.connection.execute "DELETE FROM data_entries"
     Node.connection.execute "UPDATE nodes SET parent_id = NULL WHERE parent_id = #{nodes_id(:people)} AND id <> #{nodes_id(:ant)}"
     node = secure!(Node) { nodes(:people) }
     assert_nil node.find(:all, 'nodes')
@@ -711,15 +713,19 @@ class MultiVersionTest < ZenaTestUnit
   
   def test_destroy
     login(:lion)
-    node = secure!(Node) { nodes(:status) }
-    sub  = secure!(Page) { Page.create(:parent_id => nodes_id(:status), :v_title => 'hello') }
+    node = secure!(Node) { nodes(:talk) }
+    sub  = secure!(Page) { Page.create(:parent_id => nodes_id(:talk), :v_title => 'hello') }
+    assert node.update_attributes(:v_title => 'new title')
+    assert node.publish
+    
+    node = secure!(Node) { nodes(:talk) }
     assert !sub.new_record?
     assert_equal 2, node.versions.size
     assert_equal 1, node.send(:all_children).size
     
     assert !node.can_destroy_version? # versions are not in 'deleted' status
-    Node.connection.execute "UPDATE versions SET status = #{Zena::Status[:del]} WHERE node_id = #{nodes_id(:status)}"
-    node = secure!(Node) { nodes(:status) } # reload
+    Node.connection.execute "UPDATE versions SET status = #{Zena::Status[:del]} WHERE node_id = #{nodes_id(:talk)}"
+    node = secure!(Node) { nodes(:talk) } # reload
     assert node.can_destroy_version? # versions are now in 'deleted' status
     assert node.destroy_version      # 1 version left
     assert_equal 1, node.versions.size
@@ -728,18 +734,18 @@ class MultiVersionTest < ZenaTestUnit
     
     assert_equal 'contains subpages or data', node.errors[:base]
     
-    node = secure!(Node) { nodes(:status) } # reload
+    node = secure!(Node) { nodes(:talk) } # reload
     assert_equal 1, node.versions.size
     
     assert sub.remove
     assert_equal 1, node.versions.size
     
     assert sub.destroy_version # destroy all
-    node = secure!(Node) { nodes(:status) } # reload
+    node = secure!(Node) { nodes(:talk) } # reload
     
     assert node.can_destroy_version?
     assert node.destroy_version # destroy all
-    assert_raise(ActiveRecord::RecordNotFound) { nodes(:status) }
+    assert_raise(ActiveRecord::RecordNotFound) { nodes(:talk) }
   end
   
   def test_auto_publish_by_status
@@ -757,7 +763,7 @@ class MultiVersionTest < ZenaTestUnit
   
   def test_auto_publish
     # set site.auto_publish ===> publish
-    Site.connection.execute "UPDATE sites set auto_publish = 1, redit_time = 0 WHERE id = 1"
+    Site.connection.execute "UPDATE sites set auto_publish = 1, redit_time = 0 WHERE id = #{sites_id(:zena)}"
     login(:lion)
     node = secure!(Node) { nodes(:status) }
     assert_equal Zena::Status[:pub], node.v_status
@@ -772,7 +778,7 @@ class MultiVersionTest < ZenaTestUnit
   def test_auto_publish_in_redit_time
     # set site.auto_publish      ===> publish
     # now < updated + redit_time ===> update current publication
-    Site.connection.execute "UPDATE sites set auto_publish = 1, redit_time = 7200 WHERE id = 1"
+    Site.connection.execute "UPDATE sites set auto_publish = 1, redit_time = 7200 WHERE id = #{sites_id(:zena)}"
     Version.connection.execute "UPDATE versions set updated_at = '#{Time.now.strftime('%Y-%m-%d %H:%M:%S')}' WHERE id = #{versions_id(:status_en)}"
     login(:ant)
     visitor.lang = 'en'
@@ -793,7 +799,7 @@ class MultiVersionTest < ZenaTestUnit
   def test_publish_after_save_in_redit_time
     # set site.auto_publish      ===> publish
     # now < updated + redit_time ===> update current publication
-    Site.connection.execute "UPDATE sites set auto_publish = 0, redit_time = 7200 WHERE id = 1"
+    Site.connection.execute "UPDATE sites set auto_publish = 0, redit_time = 7200 WHERE id = #{sites_id(:zena)}"
     Version.connection.execute "UPDATE versions set updated_at = '#{Time.now.strftime('%Y-%m-%d %H:%M:%S')}' WHERE id = #{versions_id(:status_en)}"
     login(:ant)
     visitor.lang = 'en'
@@ -812,9 +818,9 @@ class MultiVersionTest < ZenaTestUnit
   end
   
   def test_create_auto_publish
-    Site.connection.execute "UPDATE sites set auto_publish = 1, redit_time = 7200 WHERE id = 1"
+    Site.connection.execute "UPDATE sites set auto_publish = 1, redit_time = 7200 WHERE id = #{sites_id(:zena)}"
     login(:tiger)
-    node = secure!(Node) { Node.create( :parent_id => 1, :v_title => "This one should auto publish" ) }
+    node = secure!(Node) { Node.create( :parent_id => nodes_id(:zena), :v_title => "This one should auto publish" ) }
     assert ! node.new_record? , "Not a new record"
     assert ! node.v_new_record? , "Not a new redaction"
     assert_equal Zena::Status[:pub], node.v_status, "published version"

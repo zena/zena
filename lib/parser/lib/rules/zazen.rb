@@ -14,6 +14,7 @@ module Zazen
       @parse_shortcuts = @context[:parse_shortcuts]
       @text = @text.gsub("\r\n","\n") # this also creates our own 'working' copy of the text
       @blocks = "" # same reason as why we rewrite 'store'
+      
       extract_code(@text)
       
       # set whether the first paragraphe is spaced preserved.
@@ -298,10 +299,10 @@ module Zazen
     end
     
     
-    def extract_code(text)
+    def extract_code(fulltext)
       @escaped_code = []
       block_counter = -1
-      text.gsub!( /<code([^>]*)>(.*?)<\/code>/m ) do
+      fulltext.gsub!( /<code([^>]*)>(.*?)<\/code>/m ) do
         if @parse_shortcuts
           @escaped_code << $&
           block_counter += 1
@@ -327,7 +328,7 @@ module Zazen
       
       @escaped_at = []
       block_counter = -1
-      text.gsub!( /(\A|[^\w])@(.*?)@(\Z|[^\w])/m ) do
+      fulltext.gsub!( /(\A|[^\w])@(.*?)@(\Z|[^\w])/m ) do
         @escaped_at << $2
         block_counter += 1
         "#{$1}\\ZAZENBLOCKAT#{block_counter}ZAZENBLOCKAT\\#{$3}"

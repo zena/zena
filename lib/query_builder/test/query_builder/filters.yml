@@ -4,7 +4,7 @@ simple:
 
 recipients_that_are_clients:
   src: "recipients where kpath like 'NRCC%'"
-  res: "SELECT objects.* FROM objects,links WHERE objects.id = links.target_id AND links.relation_id = 4 AND links.source_id = ID AND objects.kpath LIKE \"NRCC%\""
+  res: "SELECT objects.* FROM objects,links WHERE objects.id = links.target_id AND links.relation_id = _ID(node_has_an_icon) AND links.source_id = ID AND objects.kpath LIKE \"NRCC%\""
 
 pages_in_site_name_like:
   src: "letters where name like 'a%' in site"
@@ -18,4 +18,4 @@ letters_group_by_name:
   res: "SELECT objects.* FROM objects WHERE objects.kpath LIKE 'NNL%' AND objects.parent_id = ID GROUP BY objects.name"
 
 recipients_group_by_name:
-  res: "SELECT objects.* FROM objects,links WHERE objects.id = links.target_id AND links.relation_id = 4 AND links.source_id = ID GROUP BY objects.name"
+  res: "SELECT objects.* FROM objects,links WHERE objects.id = links.target_id AND links.relation_id = _ID(node_has_an_icon) AND links.source_id = ID GROUP BY objects.name"

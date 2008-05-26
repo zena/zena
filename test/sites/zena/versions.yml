@@ -1,0 +1,542 @@
+DEFAULTS:
+  type:            Version
+  number:          1
+  created_at:      2006-03-10
+  updated_at:      2006-04-11
+  publish_from:    2006-03-10
+  status:          pub
+  lang:            en
+  comment:         no comment yet
+  summary:         no summary yet
+  text:            nothing written yet
+
+zena_en:
+  type:            Version
+  node:            zena
+  user:            tiger
+  title:           Zena the wild CMS
+  summary:         ''
+  text:            This is the root of your peaceful tests.
+
+people_en:
+  type:            Version
+  node:            people
+  user:            tiger
+  title:           people
+
+
+ant_en:
+  type:            ContactVersion
+  node:            ant
+  user:            ant
+  title:           Solenopsis Invicta
+  summary:         I am an ant
+  text:            Ants work hard
+
+
+myLife_en:
+  type:            Version
+  node:            myLife
+  user:            ant
+  title:           My Life
+
+
+tiger_en:
+  type:            ContactVersion
+  node:            tiger
+  user:            tiger
+  title:           Tiger
+  summary:         "\"panthera tigris on wikipedia\":http://en.wikipedia.org/wiki/Image:Panthera_tigris_sumatran_subspecies.jpg"
+
+
+lion_en:
+  type:            ContactVersion
+  node:            lion
+  user:            lion
+  title:           Lion
+
+
+myDreams_en:
+  type:            Version
+  node:            myDreams
+  user:            lion
+  title:           My Dreams
+
+  
+projects_en:
+  type:            Version
+  node:            projects
+  user:            tiger
+  title:           projects list
+  text:            |
+    Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Mauris facilisis felis in lacus. In sollicitudin turpis nec tellus. Nam ut nibh nec nulla aliquam vehicula. Integer diam tortor, *bibendum non*, eleifend a, auctor nec, dolor. Fusce consequat elit et purus. Vivamus ornare lectus vel ligula. Quisque blandit. Nam ut odio. Sed scelerisque vulputate ipsum. Nam in eros. Sed neque mauris, aliquet sed, convallis ultrices, imperdiet rutrum, odio. Donec eros. In sagittis. Quisque rutrum facilisis mauris. Suspendisse potenti. Suspendisse congue.
+    
+    h1. h1 title
+    
+    Maecenas at est. Morbi sem enim, posuere in, commodo vel, imperdiet non, augue. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Phasellus consequat pharetra elit. Pellentesque purus ante, ornare ac, tristique vitae, congue sit amet, pede. Curabitur eu nibh at lorem luctus lacinia. Proin lobortis. Nullam leo. Fusce fermentum facilisis erat. Nam dolor.
+    
+    Fusce erat erat, nonummy non, facilisis ut, tristique quis, risus. Vestibulum libero sem, aliquet id, varius at, pellentesque in, diam. Fusce in diam. Quisque congue eros pellentesque leo. Phasellus tortor odio, cursus sed, ullamcorper sed, luctus et, velit. Etiam consectetuer. In luctus, quam eget dictum euismod, mi dui sollicitudin ante, nec nonummy erat dui nec tellus. Quisque quam. Curabitur in orci. Vivamus eu turpis.
+    
+    !<.31.med!
+    
+    Maecenas at est. Morbi sem enim, posuere in, commodo vel, imperdiet non, augue. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Phasellus consequat pharetra elit. Pellentesque purus ante, ornare ac, tristique vitae, congue sit amet, pede. Curabitur eu nibh at lorem luctus lacinia. Proin lobortis. Nullam leo. Fusce fermentum facilisis erat. Nam dolor.
+    
+    p(clear). Fusce erat erat, nonummy non, facilisis ut, tristique quis, risus. Vestibulum libero sem, aliquet id, varius at, pellentesque in, diam. Fusce in diam. Quisque congue eros pellentesque leo. Phasellus tortor odio, cursus sed, ullamcorper sed, luctus et, velit. Etiam consectetuer. In luctus, quam eget dictum euismod, mi dui sollicitudin ante, nec nonummy erat dui nec tellus. Quisque quam. Curabitur in orci. Vivamus eu turpis.
+    
+    h2. h2 title
+    
+    Sed aliquam accumsan sapien. Cras adipiscing euismod orci. Aliquam magna risus, vestibulum eget, interdum ac, hendrerit sit amet, leo. Proin mi diam, rutrum ac, rhoncus adipiscing, sollicitudin rhoncus, elit. Vivamus metus nunc, mollis congue, ullamcorper ac, euismod varius, nunc. Morbi quis velit dapibus sem mattis pharetra. Mauris at augue quis dolor dignissim nonummy. Nam rutrum ante suscipit urna dignissim aliquet. Curabitur ut tortor ac dui nonummy blandit. Nam malesuada enim in nulla. Nunc cursus, orci eu venenatis tincidunt, nunc elit accumsan magna, in cursus erat augue eu erat. Etiam ac neque. Proin tellus nunc, semper ac, consectetuer at, dictum in, nulla.
+    
+    h3. h3 title
+    
+    Nam cursus orci vitae leo fermentum sodales. Morbi eu justo id erat vulputate mattis. Quisque sed leo eu elit faucibus convallis. Quisque laoreet dignissim nisl. Quisque dictum felis a ligula. Nullam consequat. Quisque vulputate sapien quis leo. Mauris ornare massa et ligula. Nulla malesuada. Sed erat. Fusce sit amet urna a enim adipiscing dapibus. Aliquam semper. Proin ac nisi. Mauris in elit non nisi gravida dapibus. Quisque felis metus, eleifend et, pharetra eu, vestibulum ac, urna. Ut pharetra convallis augue. Maecenas augue. Quisque cursus, nunc sed lacinia tincidunt, eros elit luctus ante, eu elementum metus magna dapibus felis. Cras sed elit. Vestibulum aliquam quam sit amet augue.
+    
+    h4. h4 title
+    
+    Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Mauris facilisis felis in lacus. In sollicitudin turpis nec tellus. Nam ut nibh nec nulla aliquam vehicula. Integer diam tortor, bibendum non, eleifend a, auctor nec, dolor. Fusce consequat elit et purus. Vivamus ornare lectus vel ligula. Quisque blandit. Nam ut odio. Sed scelerisque vulputate ipsum. Nam in eros. Sed neque mauris, aliquet sed, convallis ultrices, imperdiet rutrum, odio. Donec eros. In sagittis. Quisque rutrum facilisis mauris. Suspendisse potenti. Suspendisse congue.
+    
+    * this is
+    * a simple
+    ** list with
+    ** sub items
+    * like this
+    
+    # this is
+    # a simple
+    ## list with
+    ## sub items
+    # like this
+    
+    Maecenas at est. Morbi sem enim, posuere in, commodo vel, imperdiet non, augue. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Phasellus consequat pharetra elit. Pellentesque purus ante, ornare ac, tristique vitae, congue sit amet, pede. Curabitur eu nibh at lorem luctus lacinia. Proin lobortis. Nullam leo. Fusce fermentum facilisis erat. Nam dolor.
+    
+    |_. name |_. color |
+    | gaspard | blue |
+    | zacharie | yellow |
+    
+    Fusce erat erat, nonummy non, facilisis ut, tristique quis, risus. Vestibulum libero sem, aliquet id, varius at, pellentesque in, diam. Fusce in diam. Quisque congue eros pellentesque leo. Phasellus tortor odio, cursus sed, ullamcorper sed, luctus et, velit. Etiam consectetuer. In luctus, quam eget dictum euismod, mi dui sollicitudin ante, nec nonummy erat dui nec tellus. Quisque quam. Curabitur in orci. Vivamus eu turpis.
+    
+    Sed aliquam accumsan sapien. Cras adipiscing euismod orci. Aliquam magna risus, vestibulum eget, interdum ac, hendrerit sit amet, leo. Proin mi diam, rutrum ac, rhoncus adipiscing, sollicitudin rhoncus, elit. Vivamus metus nunc, mollis congue, ullamcorper ac, euismod varius, nunc. Morbi quis velit dapibus sem mattis pharetra. Mauris at augue quis dolor dignissim nonummy. Nam rutrum ante suscipit urna dignissim aliquet. Curabitur ut tortor ac dui nonummy blandit. Nam malesuada enim in nulla. Nunc cursus, orci eu venenatis tincidunt, nunc elit accumsan magna, in cursus erat augue eu erat. Etiam ac neque. Proin tellus nunc, semper ac, consectetuer at, dictum in, nulla.
+    
+    Nam cursus orci vitae leo fermentum sodales. Morbi eu justo id erat vulputate mattis. Quisque sed leo eu elit faucibus convallis. Quisque laoreet dignissim nisl. Quisque dictum felis a ligula. Nullam consequat. Quisque vulputate sapien quis leo. Mauris ornare massa et ligula. Nulla malesuada. Sed erat. Fusce sit amet urna a enim adipiscing dapibus. Aliquam semper. Proin ac nisi. Mauris in elit non nisi gravida dapibus. Quisque felis metus, eleifend et, pharetra eu, vestibulum ac, urna. Ut pharetra convallis augue. Maecenas augue. Quisque cursus, nunc sed lacinia tincidunt, eros elit luctus ante, eu elementum metus magna dapibus felis. Cras sed elit. Vestibulum aliquam quam sit amet augue.  
+
+
+secret_en:
+  type:            Version
+  node:            secret
+  user:            tiger
+  title:           Secret
+
+  
+proposition_en:
+  type:            Version
+  node:            proposition
+  user:            tiger
+  title:           Proposition
+
+
+cleanWater_en:
+  type:            Version
+  node:            cleanWater
+  user:            tiger
+  title:           Clean Water project
+
+
+status_en:
+  type:            Version
+  node:            status
+  user:            ant
+  comment:         status comment
+  title:           status title
+  summary:         status summary
+  text:            status text
+
+
+lake_en:
+  type:            ContactVersion
+  node:            lake
+  user:            ant
+  title:           Tanganyika
+  summary:         "More information on \"wikipedia\":http://en.wikipedia.org/wiki/Lake_Tanganyika."
+  text:            "!014!"
+
+lake_jpg_en:
+  type:            ImageVersion
+  node:            lake_jpg
+  user:            ant
+  comment:         ""
+  title:           it's a lake
+  summary:         "Photo taken from \"wildchimpanzees.org\":http://www.wildchimpanzees.org/press/photo02.php."
+  text:            ""
+
+water_pdf_en:
+  type:            DocumentVersion
+  node:            water_pdf
+  user:            tiger
+  title:           ""
+  summary:         just a stupid pdf
+  text:            ""
+
+crocodiles_en:
+  type:            Version
+  node:            crocodiles
+  user:            ant
+  publish_from:
+  status:          red
+
+opening_fr:
+  type:            Version
+  node:            opening
+  user:            ant
+  comment:         french opening
+  title:           ouverture du parc
+  lang:            fr
+
+bananas_en:
+  type:            Version
+  node:            bananas
+  user:            lion
+  title:           Nice Bananas
+  created_at:      2007-03-10
+  updated_at:      2007-04-11
+  publish_from:    2007-03-10
+
+wiki_en:
+  type:            Version
+  node:            wiki
+  user:            lion
+  title:           a wiki with zena
+
+bird_jpg_en:
+  type:            ImageVersion
+  node:            bird_jpg
+  user:            anon
+  comment:         a pretty little bird
+  title:           ""
+  summary:         "Photo taken from \"wikimedia\":http://commons.wikimedia.org/wiki/Image:Blue_Tit_aka.jpg."
+  text:            ""
+
+flower_jpg_en:
+  type:            ImageVersion
+  node:            flower_jpg
+  user:            anon
+  comment:         "Photo taken from \"wikimedia\":http://commons.wikimedia.org/wiki/Image:Flor_GDFL_660eue.jpg."
+  title:           ""
+  summary:         a pretty little flower
+  text:            ""
+
+collections_en:
+  type:            Version
+  node:            collections
+  user:            tiger
+  title:           Collections
+
+art_en:
+  type:            Version
+  node:            art
+  user:            tiger
+  title:           Art
+
+news_en:
+  type:            Version
+  node:            news
+  user:            tiger
+  title:           News list
+
+menu_en:
+  type:            Version
+  node:            menu
+  user:            tiger
+  title:           Top menu
+
+lake_red_en:
+  type:            ContactVersion
+  node:            lake
+  user:            ant
+  comment:         this is a new redaction for lake
+  title:           The lake we love
+  publish_from:
+  status:          red
+  content:         lake_en
+  number:          2
+
+opening_en:
+  type:            Version
+  node:            opening
+  user:            tiger
+  comment:         english opening
+  title:           parc opening
+  text:            |
+    We are glad to announce the opening of our new project !
+    
+    You are all invited to *Romanel* for a great party this weekend.
+  number:          2
+
+opening_red_fr:
+  type:            Version
+  node:            opening
+  user:            tiger
+  comment:         new redaction for opening
+  title:           some opening
+  publish_from:
+  lang:            fr
+  status:          red
+  number:          3
+
+status_fr:
+  type:            Version
+  node:            status
+  user:            ant
+  comment:         status comment
+  title:           Etat des travaux
+  summary:         status summary
+  text:            status text
+  lang:            fr
+  number:          2
+
+track_en:
+  type:            Version
+  node:            track
+  user:            tiger
+  comment:         small presentation
+  title:           Keeping things clean !
+  summary:         This page is a *Tracker*. It stores open Bugs, tasks and actions.
+
+strange_en_red:
+  type:            Version
+  node:            strange
+  user:            lion
+  comment:         strange configuration. Proposed
+  title:           Stranger in the night
+  summary:         ""
+  text:            ""
+  status:          red
+  number:          2
+
+talk_en:
+  type:            Version
+  node:            talk
+  user:            tiger
+  comment:         Please read all this.
+  title:           Talk
+  summary:         Talks for 'workers' in the secret project.
+  text:            You can talk here.
+
+nature_red_en:
+  type:            Version
+  node:            nature
+  user:            ant
+  comment:         Beauty of nature
+  title:           Nature
+  summary:         "Ant's redaction on Nature"
+  text:            "![]!"
+  publish_from:
+  status:          red
+  number:          1
+
+tree_jpg_en:
+  type:            ImageVersion
+  node:            tree_jpg
+  user:            ant
+  comment:         a tree
+  title:           Autumn Tree
+  summary:         "photography © André Karwath 2004"
+  text:            ""
+  publish_from:
+  status:          red
+  number:          1
+  
+forest_pdf_en:
+  type:            DocumentVersion
+  node:            forest_pdf
+  user:            ant
+  comment:         a forest
+  title:           Forest
+  summary:         ""
+  text:            ""
+  publish_from:
+  status:          red
+  number:          1
+
+letter_en:
+  type:            Version
+  node:            letter
+  user:            tiger
+  comment:         letter for testing
+  title:           zena enhancements
+  summary:         This page is a *Letter*.
+  text:            letter content
+
+wiki_skin_en:
+  type:            Version
+  node:            wiki_skin
+  user:            tiger
+  comment:         very simple skin for wiki
+  title:           wiki skin
+  summary:         Very simple skin.
+  text:            lorem ipsum blah dolor.
+
+
+wiki_project_changes_xml_en:
+  type:            TemplateVersion
+  node:            wiki_Project_changes_xml
+  user:            tiger
+  comment:         layout for wiki
+  title:           Project - changes (xml)
+  summary:         Layout for the wiki skin.
+  text:            |
+    <?xml version="1.0" encoding="UTF-8"?>
+    <name><r:show attr='name'/></name>
+    <changes do='nodes' in='project' order='updated_at DESC' limit='10'>
+      <node do='each'>
+        <type><r:show attr='type'/></type>
+        <name><r:show attr='name'/></name>
+        <id><r:show attr='id'/></id>
+      </note>
+    </notes>
+
+
+wiki_page_changes_en:
+  type:            TemplateVersion
+  node:            wiki_Page_changes
+  user:            tiger
+  comment:         layout for wiki
+  title:           Page - changes
+  summary:         Layout for the wiki skin.
+  text:            |
+    <r:include template='layout.html'>
+      <r:with part='body/content/main'>
+        page changes
+      </r:with>
+    </r:include>
+
+anonymous_en:
+  type:            ContactVersion
+  node:            anonymous
+  user:            tiger
+  comment:         The Invisible Man
+  title:           Mr nobody
+  summary:         ""
+  text:            ""
+
+wiki_node_en:
+  type:            TemplateVersion
+  node:            wiki_Node
+  user:            tiger
+  comment:         master template for wiki
+  title:           main template
+  summary:         master template for wiki skin.
+  text:            |
+    <r:include template='/default/Node'>
+      <r:with part='main'>
+        WIKI
+      </r:with>
+    </r:include>
+
+skins_en:
+  type:            Version
+  node:            skins
+  user:            tiger
+  comment:         ""
+  title:           Skins (layout themes)
+  summary:         List of skins used by this website
+  text:            This page contains the skins used by this website.
+
+default_en:
+  type:            Version
+  node:            default
+  user:            tiger
+  comment:         "version 0.8"
+  title:           Default skin
+  summary:         official default skin
+  text:            |
+    This is the default skin for zena. You should be *very careful* if you change this skin:  it is used to display/edit itself.
+    
+    When creating your own skins, you should *always avoid* to display your skins with themselves. This is tempting but will put you in trouble if you need to edit a broken template.
+    
+    By the way, have a look at the designer documentation for "zafu":http://zenadmin.org/en/documentation/page44.html for ideas on how to create a new skin with very few lines of zafu (using clever include tricks).
+
+Node_search_zafu_en:
+  type:            TemplateVersion
+  node:            Node_search_zafu
+  user:            tiger
+  text:  |
+<% File.foreach("#{RAILS_ROOT}/db/init/base/skins/default/Node-*search.zafu") do |l| %>    <%= l %><% end %>
+
+style_css_en:
+  type:            TextDocumentVersion
+  node:            style_css
+  user:            tiger
+  text:  |
+<% File.foreach("#{RAILS_ROOT}/db/init/base/skins/default/style.css") do |l| %>    <%= l %><% end %>
+
+Node_zafu_en:
+  type:            TemplateVersion
+  node:            Node_zafu
+  user:            tiger
+  text:  |
+<% File.foreach("#{RAILS_ROOT}/db/init/base/skins/default/Node.zafu") do |l| %>    <%= l %><% end %>
+
+Node_admin_layout_zafu_en:
+  type:            TemplateVersion
+  node:            Node_admin_layout_zafu
+  user:            tiger
+  text:  |
+<% File.foreach("#{RAILS_ROOT}/db/init/base/skins/default/Node-*adminLayout.zafu") do |l| %>    <%= l %><% end %>
+
+Node_index_zafu_en:
+  type:            TemplateVersion
+  node:            Node_index_zafu
+  user:            tiger
+  text:  |
+<% File.foreach("#{RAILS_ROOT}/db/init/base/skins/default/Node-*index.zafu") do |l| %>    <%= l %><% end %>
+
+Node_not_found_zafu_en:
+  type:            TemplateVersion
+  node:            Node_not_found_zafu
+  user:            tiger
+  text:  |
+<% File.foreach("#{RAILS_ROOT}/db/init/base/skins/default/Node-*notFound.zafu") do |l| %>    <%= l %><% end %>
+
+Node_popup_layout_zafu_en:
+  type:            TemplateVersion
+  node:            Node_popup_layout_zafu
+  user:            tiger
+  text:  |
+<% File.foreach("#{RAILS_ROOT}/db/init/base/skins/default/Node-*popupLayout.zafu") do |l| %>    <%= l %><% end %>
+
+notes_zafu_en:
+  type:            TemplateVersion
+  node:            notes_zafu
+  user:            tiger
+  text:  |
+<% File.foreach("#{RAILS_ROOT}/db/init/base/skins/default/notes.zafu") do |l| %>    <%= l %><% end %>
+
+Project_zafu_en:
+  type:            TemplateVersion
+  node:            Project_zafu
+  user:            tiger
+  text:  |
+<% File.foreach("#{RAILS_ROOT}/db/init/base/skins/default/Project.zafu") do |l| %>    <%= l %><% end %>
+
+Node_login:
+  type:            TemplateVersion
+  node:            Node_login
+  user:            tiger
+  text:  |
+<% File.foreach("#{RAILS_ROOT}/db/init/base/skins/default/Node-*login.zafu") do |l| %>    <%= l %><% end %>
+
+translations_de:
+  type:            TextDocumentVersion
+  node:            translations
+  user:            tiger
+  lang:            de
+  text:  |
+<% File.foreach("#{RAILS_ROOT}/test/fixtures/files/translations_de.yml") do |l| %>    <%= l %><% end %>
+
+translations_fr:
+  type:            TextDocumentVersion
+  node:            translations
+  user:            tiger
+  lang:            fr
+  text:  |
+<% File.foreach("#{RAILS_ROOT}/test/fixtures/files/translations_fr.yml") do |l| %>    <%= l %><% end %>

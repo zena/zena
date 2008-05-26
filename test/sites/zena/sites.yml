@@ -1,0 +1,15 @@
+zena:
+  host:            test.host
+  root:            zena
+  su:              su
+  anon:            anon
+  public_group:    public
+  site_group:      workers
+  authentication:  no
+  monolingual:     no
+  allow_private:   yes
+  auto_publish:    no
+  redit_time:      0
+  languages:       en,fr
+  default_lang:    en
+  formats_updated_at: 2008-05-01

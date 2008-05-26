@@ -152,9 +152,10 @@ class SiteTest < ZenaTestUnit
     assert_equal groups_id(:public), grp[:id]
     
     site = sites(:ocean)
+    $_test_site = 'ocean'
     grp = site.public_group
     assert_kind_of Group, grp
-    assert_equal groups_id(:pub_ocean), grp[:id]
+    assert_equal groups_id(:public), grp[:id]
   end
   
   def test_site_group
@@ -162,7 +163,7 @@ class SiteTest < ZenaTestUnit
     grp = site.site_group
     assert_kind_of Group, grp
     assert_equal groups_id(:workers), grp[:id]
-    
+    $_test_site = 'ocean'
     site = sites(:ocean)
     grp = site.site_group
     assert_kind_of Group, grp

@@ -272,9 +272,9 @@ Just doing the above will filter all result according to the logged in user.
           when -1
             # private
             if visitor.site[:allow_private]
-              self[:rgroup_id] = 0
-              self[:wgroup_id] = 0
-              self[:pgroup_id] = 0
+              self[:rgroup_id] = 0  # FIXME: why not just use nil ? (NULL in db)
+              self[:wgroup_id] = 0  # FIXME: why not just use nil ? (NULL in db)
+              self[:pgroup_id] = 0  # FIXME: why not just use nil ? (NULL in db)
             else
               errors.add('inherit', "you cannot change this")
             end
@@ -324,7 +324,7 @@ Just doing the above will filter all result according to the logged in user.
             return false
           end
           if user_id != old.user_id
-            if visitor.group_ids.include?(2) # admin group
+            if visitor.is_admin?
               # only admin can change owners
               unless User.find(:first, :conditions => ["id = ?",user_id])
                 errors.add('user_id', "unknown user")

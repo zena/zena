@@ -1,0 +1,32 @@
+DEFAULTS:
+  owner_table:     versions
+
+status_en_archive:
+  owner:           status_en
+  key:             archive
+  value:           LZNB34
+
+status_assigned_to:
+  owner:           status_en
+  key:             assigned
+  value:           gaspard
+
+people_assigned_to:
+  owner:           people_en
+  key:             assigned
+  value:           gaspard
+  
+cleanWater_en_assigned_to:
+  owner:           cleanWater_en
+  key:             assigned
+  value:           gaspard
+
+status_fr_assigned_to:
+  owner:           status_fr
+  key:             assigned
+  value:           gaspard
+
+cleanWater_en_d_tz:
+  owner:           cleanWater_en
+  key:             tz
+  value:           Asia/Jakarta

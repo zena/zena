@@ -60,6 +60,21 @@ class User < ActiveRecord::Base
       make_visitor :login => login, :password => password, :host => host
     end
     
+    # Needs proper testing
+    # def translate_pseudo_id(id,sym=:id)
+    #   str = id.to_s
+    #   if str =~ /\A\d+\Z/
+    #     # id
+    #     res = self.connection.execute( "SELECT users.#{sym} FROM users INNER JOIN participations ON users.id = participations.user_id AND participations.site_id = #{current_site[:id]} WHERE id = '#{str}'" ).fetch_row
+    #     res ? res[0].to_i : nil
+    #   elsif str =~ /\A([a-zA-Z ]+)(\+*)\Z/
+    #     self.connection.execute( "SELECT users.#{sym} FROM users INNER JOIN participations ON users.id = participations.user_id AND participations.site_id = #{current_site[:id]} WHERE login LIKE #{self.connection.quote("#{$1}%")} LIMIT #{$2.size}, 1" ).fetch_row
+    #     res ? res[0].to_i : nil
+    #   else
+    #     nil
+    #   end
+    # end
+    
     # Return the logged in visitor from the session[:user] or the anonymous user if id is nil or does not match
     def make_visitor(opts)
       raise ActiveRecord::RecordNotFound.new("host not found #{opts[:host]}") unless 

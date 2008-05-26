@@ -49,6 +49,26 @@ if ENV["RAILS_ENV"] != "test"
   ZENA_ENV.freeze
 end
 
+# TODO: where should this go ? (it has to be loaded by 'rake' and tests...)
+module ZenaTest
+  def self.id(site, key)
+    return nil if key.blank?
+    if key == 0 # special rgroup, wgroup, pgroup values...
+      key
+    else
+      "#{site}_#{key}".hash.abs
+    end
+  end
+
+  def self.multi_site_id(key)
+    return nil if key.blank?
+    key.to_s.hash.abs
+  end
+
+  def self.multi_site_tables
+    ['users', 'sites']
+  end
+end
 # this list is taken from http://www.duke.edu/websrv/file-extensions.html
 EXT_TYPE = [
   [ "ai"        , "application/postscript"         ],

@@ -1,0 +1,66 @@
+note_has_calendars:
+  source_kpath:    NN
+  target_kpath:    NPP
+  source_role:     news
+  target_role:     calendar
+  target_icon:     "<img src='/images/date.png' alt='calendar'/>"
+
+node_has_tags:
+  source_kpath:    N
+  target_kpath:    NPT
+  source_role:     tagged
+  target_role:     set_tag
+  target_icon:     "<img src='/images/tag_blue.png' alt='tag'/>"
+  
+node_has_references:
+  source_kpath:    N
+  target_kpath:    N
+  source_role:     reference_for
+  target_role:     reference
+  
+node_has_an_icon:
+  source_kpath:    N
+  target_kpath:    NDI
+  source_role:     icon_for
+  target_role:     icon
+  target_unique:   yes
+  target_icon:     "<img src='/images/medal_gold_2.png' alt='icon'/>"
+  
+project_has_a_hot_element:
+  source_role:     hot_for
+  source_icon:     "<img src='/images/project.png' alt='projet'/>"
+  source_kpath:    NPP
+  target_role:     hot
+  target_kpath:    N
+  target_unique:   yes
+  target_icon:     "<img src='/images/lightbulb.png' alt='hot'/>"
+  
+project_has_a_home:
+  source_kpath:    NPP
+  source_icon:     "<img src='/images/project.png' alt='projet'/>"
+  target_kpath:    N
+  target_unique:   yes
+  source_role:     home_for
+  target_role:     home
+  target_icon:     "<img src='/images/home.png' alt='home'/>"
+
+project_has_collaborators:
+  source_kpath:    NPP
+  source_icon:     "<img src='/images/project.png' alt='projet'/>"
+  target_kpath:    NRC
+  source_role:     collaborator_for
+  target_role:     collaborator
+  target_icon:     "<img src='/images/user.png' alt='collaborator'/>"
+
+post_has_blogs:
+  source_kpath:    NNP
+  target_kpath:    NPP
+  source_role:     added_note
+  target_role:     blog
+
+contact_has_favorites:
+  source_kpath:    NRC
+  target_kpath:    N
+  source_role:     favorite_for
+  target_role:     favorite
+  target_icon:     "<img src='/images/heart.png' alt='favorite'/>"

@@ -64,7 +64,7 @@ class DocumentContentTest < ZenaTestUnit
   
   def test_save_file
     without_files("/test.host/data/full") do
-      doc = DocumentContent.new( :name=>'water', :version_id=>15, :file=>uploaded_pdf('water.pdf') )
+      doc = DocumentContent.new( :name=>'water', :version_id=>versions_id(:water_pdf_en), :file=>uploaded_pdf('water.pdf') )
       doc[:site_id] = sites_id(:zena)
       assert doc.save, "Can save"
       assert File.exist?(file_path('water.pdf','full',doc[:id]))

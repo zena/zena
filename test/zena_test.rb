@@ -23,32 +23,57 @@ module Zena
       end
       @@loaded_fixtures = {}
       fixture_table_names = []
+      
+      # no fixtures ? execute rake task
+      unless File.exist?(File.join(FIXTURE_PATH, 'nodes.yml'))
+        puts "No fixtures in 'test/fixtures'. Building from 'test/sites'."
+        `cd #{RAILS_ROOT} && rake zena:build_fixtures`
+      end
+      
       Dir.foreach(FIXTURE_PATH) do |file|
         next unless file =~ /^(.+)\.yml$/
         table_name = $1
         fixture_table_names << table_name
-        define_method(table_name) do |fixture|
-          if @@loaded_fixtures[table_name][fixture.to_s]
-            # allways reload
-            @@loaded_fixtures[table_name][fixture.to_s].find
-          else
-            raise StandardError, "No fixture with name '#{fixture}' found for table '#{table_name}'"
+        
+        if ['users', 'sites'].include?(table_name)
+          
+          define_method(table_name) do |fixture|
+            if @@loaded_fixtures[table_name][fixture.to_s]
+              # allways reload
+              @@loaded_fixtures[table_name][fixture.to_s].find
+            else
+              raise StandardError, "No fixture with name '#{fixture}' found for table '#{table_name}'"
+            end
           end
-        end
-        define_method(table_name + "_id") do |fixture|
-          if @@loaded_fixtures[table_name][fixture.to_s]
-            @@loaded_fixtures[table_name][fixture.to_s].instance_eval { @fixture['id'].to_i }
-          else
-            raise StandardError, "No fixture with name '#{fixture}' found for table '#{table_name}'"
+          
+          define_method(table_name + "_id") do |fixture|
+            ZenaTest::multi_site_id(fixture)
+          end
+        else
+          
+          define_method(table_name) do |fixture|
+            fixture_name = "#{$_test_site}_#{fixture}"
+            if fix = @@loaded_fixtures[table_name][fixture_name]
+              # allways reload
+              fix.find
+            else
+              raise StandardError, "No fixture with name '#{fixture_name}' found for table '#{table_name}' in site '#{$_test_site}'."
+            end
+          end
+          
+          define_method(table_name + "_id") do |fixture|
+            ZenaTest::id($_test_site, fixture)
           end
         end
         
         if table_name == 'nodes' || table_name == 'zips'
           define_method(table_name + "_zip") do |fixture|
-            if @@loaded_fixtures[table_name][fixture.to_s]
-              @@loaded_fixtures[table_name][fixture.to_s].instance_eval { @fixture['zip'].to_i }
+            # needed by additions_test
+            fixture_name = table_name == 'zips' ? fixture.to_s : "#{$_test_site}_#{fixture}"
+            if fix = @@loaded_fixtures[table_name][fixture_name]
+              fix.instance_eval { @fixture['zip'].to_i }
             else
-              raise StandardError, "No fixture with name '#{fixture}' found for table '#{table_name}'"
+              raise StandardError, "No fixture with name '#{fixture_name}' found for table '#{table_name}'"
             end
           end
         end
@@ -192,11 +217,17 @@ module Zena
       include Zena::Test::Base
       include Zena::Acts::Secure
       
+      def setup
+        $_test_site = 'zena'
+      end
+      
       # Set visitor for unit testing
-      def login(name='anon')
+      def login(name='anon',site_name = nil)
         # set site (find first matching site)
-        site = Site.find(:first, :select=>"sites.*", :from => "sites, participations",
-                         :conditions=>["participations.site_id = sites.id AND participations.user_id = ?", users_id(name)])
+        site = Site.find(:first, :select=>"sites.*, sites.name = '#{site_name}' AS site_ok", :from => "sites, participations",
+                         :conditions=>["participations.site_id = sites.id AND participations.user_id = ?", users_id(name)], :order => "site_ok DESC")
+        
+        $_test_site  = site.name if site
         visitor = User.make_visitor(:site => site, :id => users_id(name))
         visitor.ip = '10.0.0.127'
         GetText.set_locale_all visitor.lang
@@ -303,7 +334,6 @@ module Zena
         self.class.send(:include,@controllerClass.master_helper_module)
         eval "class StubController < #{@controllerClass}; include Zena::Test::HelperSetup; end"
         super
-
         @request    = ActionController::TestRequest.new
         @response   = ActionController::TestResponse.new
         @controller = StubController.new
@@ -316,7 +346,8 @@ module Zena
       end
 
       # login for helper testing
-      def login(name=:anon)
+      def login(name=:anon, site='zena')
+        $_test_site  = site
         return logout if name == :anon
         @controller_bak = @controller
         @controller = SessionController.new

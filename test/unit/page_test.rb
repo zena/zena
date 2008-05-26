@@ -19,7 +19,8 @@ class PageTest < ZenaTestUnit
   
   def test_create_same_name_other_parent
     login(:tiger)
-    node = secure!(Page) { Page.create(:parent_id=>21, :name=>'wiki')}
+    node = secure!(Page) { Page.create(:parent_id=>nodes_id(:cleanWater), :name=>'wiki')}
+    err node
     assert ! node.new_record?, 'Not a new record'
     assert_nil node.errors[:name]
   end
@@ -27,7 +28,7 @@ class PageTest < ZenaTestUnit
   def test_create_same_name_other_parent_with_cache
     with_caching do
       login(:tiger)
-      node = secure!(Page) { Page.create(:parent_id=>21, :name=>'wiki')}
+      node = secure!(Page) { Page.create(:parent_id=>nodes_id(:cleanWater), :name=>'wiki')}
       assert ! node.new_record?, 'Not a new record'
       assert_nil node.errors[:name]
     end
@@ -45,7 +46,7 @@ class PageTest < ZenaTestUnit
     login(:tiger)
     node = secure!(Node) { nodes(:cleanWater) }
     node.name = 'wiki'
-    node[:parent_id] = 1
+    node[:parent_id] = nodes_id(:zena)
     assert node.save
     assert_nil node.errors[:name]
   end
@@ -55,7 +56,7 @@ class PageTest < ZenaTestUnit
       login(:tiger)
       node = secure!(Node) { nodes(:cleanWater) }
       node.name = 'wiki'
-      node[:parent_id] = 1
+      node[:parent_id] = nodes_id(:zena)
       assert node.save
       assert_nil node.errors[:name]
     end

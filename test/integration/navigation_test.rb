@@ -10,13 +10,13 @@ class NavigationTest < ActionController::IntegrationTest
     assert_response :success
     
     # 1. site forces authentication 
-    Site.connection.execute "UPDATE sites SET authentication = 1 WHERE id = 1" # test.host
+    Site.connection.execute "UPDATE sites SET authentication = 1 WHERE id = #{sites_id(:zena)}"
     get 'http://test.host/'
     assert_redirected_to 'http://test.host/login'
     
     reset!
     post 'http://test.host/session', :login=>'tiger', :password=>'tiger'
-    assert_redirected_to 'http://test.host/users/4'
+    assert_redirected_to "http://test.host/users/#{users_id(:tiger)}"
     
     # 2. navigating out of '/oo' but logged in and format is not data
     get 'http://test.host/fr'
@@ -28,20 +28,20 @@ class NavigationTest < ActionController::IntegrationTest
   end
   
   def test_authorize_http_auth
-    Site.connection.execute "UPDATE sites SET http_auth = 1 WHERE id = 1" # test.host
+    Site.connection.execute "UPDATE sites SET http_auth = 1 WHERE id = #{sites_id(:zena)}"
     get 'http://test.host/'
     assert_redirected_to 'http://test.host/en'
     follow_redirect!
     assert_response :success
     
     # 1. site forces authentication 
-    Site.connection.execute "UPDATE sites SET authentication = 1 WHERE id = 1" # test.host
+    Site.connection.execute "UPDATE sites SET authentication = 1 WHERE id = #{sites_id(:zena)}"
     get 'http://test.host/'
     assert_response 401 # http_auth
     
     reset!
     post 'http://test.host/session', :login=>'tiger', :password=>'tiger'
-    assert_redirected_to 'http://test.host/users/4'
+    assert_redirected_to "http://test.host/users/#{users_id(:tiger)}"
     
     # 2. navigating out of '/oo' but logged in and format is not data
     get 'http://test.host/fr'
@@ -53,7 +53,7 @@ class NavigationTest < ActionController::IntegrationTest
   end
   
   def test_set_lang
-    Site.connection.execute "UPDATE sites SET languages = 'fr,en,es' WHERE id = 1" # test.host
+    Site.connection.execute "UPDATE sites SET languages = 'fr,en,es' WHERE id = #{sites_id(:zena)}"
     get 'http://test.host/', {}, {'HTTP_ACCEPT_LANGUAGE' => 'de-DE,fr-FR;q=0.8,es;q=0.9'}
     assert_redirected_to 'http://test.host/es'
     follow_redirect!
@@ -64,7 +64,7 @@ class NavigationTest < ActionController::IntegrationTest
     get 'http://test.host/', {}, {'HTTP_ACCEPT_LANGUAGE' => 'de-DE,fr-FR;q=0.8,es;q=0.3'}
     assert_redirected_to 'http://test.host/fr'
     
-    Site.connection.execute "UPDATE sites SET languages = 'fr,de,en,es' WHERE id = 1" # test.host
+    Site.connection.execute "UPDATE sites SET languages = 'fr,de,en,es' WHERE id = #{sites_id(:zena)}"
     reset!
     get 'http://test.host/', {}, {'HTTP_ACCEPT_LANGUAGE' => 'de-DE,fr-FR;q=0.8,es;q=0.3'}
     assert_redirected_to 'http://test.host/de'
@@ -108,7 +108,7 @@ class NavigationTest < ActionController::IntegrationTest
   
   def test_set_lang_with_login
     post 'http://test.host/session', :login=>'tiger', :password=>'tiger'
-    assert_redirected_to 'http://test.host/users/4'
+    assert_redirected_to "http://test.host/users/#{users_id(:tiger)}"
     follow_redirect!
     assert_response :success
     assert_equal 'en', session[:lang]
@@ -174,14 +174,14 @@ class NavigationTest < ActionController::IntegrationTest
     assert_equal 'fr', session[:lang]
     
     # update visitor lang (as if changed through preferences)
-    User.connection.execute "UPDATE users SET lang = 'en' WHERE users.id = 3"
+    User.connection.execute "UPDATE users SET lang = 'en' WHERE users.id = #{users_id(:ant)}"
     get 'http://test.host/oo'
     assert_equal 'en', session[:lang]
     
     get 'http://test.host/fr'
     assert_redirected_to 'http://test.host/oo'
     assert_equal 'fr', session[:lang]
-    assert_equal 'fr', User.find(3).lang
+    assert_equal 'fr', User.find(users_id(:ant)).lang
   end
   
   def test_show_with_mode
@@ -246,4 +246,10 @@ class NavigationTest < ActionController::IntegrationTest
         sess.extend(CustomAssertions)
       end
     end
+    
+    def sites_id(key)
+      ZenaTest::multi_site_id(key)
+    end
+    
+    alias users_id sites_id
 end

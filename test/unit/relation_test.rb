@@ -83,10 +83,10 @@ class RelationTest < ZenaTestUnit
   def test_set_relation
     login(:tiger)
     node = secure!(Node) { nodes(:status) }
-    assert node.set_relation('set_tag',['23'])
+    assert node.set_relation('set_tag',[nodes_id(:art).to_s])
     assert node.save
     node = secure!(Node) { nodes(:status) } # reload
-    assert_equal 23, node.find(:all,'set_tags')[0][:id]
+    assert_equal nodes_id(:art), node.find(:all,'set_tags')[0][:id]
   end
 
   def test_remove_link
@@ -141,10 +141,11 @@ class RelationTest < ZenaTestUnit
     login(:tiger)
     node = secure!(Node) { nodes(:opening) }
     assert_equal [[relations_id(:post_has_blogs),     [nodes_id(:zena)]], 
-                  [relations_id(:note_has_calendars), [nodes_id(:wiki), nodes_id(:zena)]], 
-                  [relations_id(:node_has_tags),      [nodes_id(:art),  nodes_id(:news)]]], 
+                  [relations_id(:note_has_calendars), [nodes_id(:wiki), nodes_id(:zena)].sort], 
+                  [relations_id(:node_has_tags),      [nodes_id(:art),  nodes_id(:news)].sort]
+                  ].sort{|a,b| a[0] <=> b[0]}, 
                   
-                  node.relation_links.map{|r,l| [r.id, l.map{|r| r.id}]}
+                  node.relation_links.map{|r,l| [r.id, l.map{|r| r.id}.sort]}.sort{|a,b| a[0] <=> b[0]}
   end
   
   def test_ant_favorites
@@ -157,14 +158,14 @@ class RelationTest < ZenaTestUnit
     login(:tiger)
     node = secure!(Node) { nodes(:opening) }
     rel  = node.relation_proxy('set_tag')
-    assert_equal [:opening_in_news,:opening_in_art].map{|s| links_id(s)}, rel.other_links.map{|r| r[:id]}
+    assert_equal [:opening_in_news,:opening_in_art].map{|s| links_id(s)}.sort, rel.other_links.map{|r| r[:id]}.sort
   end
   
   def test_other_ids
     login(:tiger)
     node = secure!(Node) { nodes(:opening) }
     rel  = node.relation_proxy('set_tag')
-    assert_equal [:news,:art].map{|s| nodes_id(s)}, rel.other_ids
+    assert_equal [:news,:art].map{|s| nodes_id(s)}.sort, rel.other_ids.sort
   end
   
   def test_records
@@ -177,12 +178,12 @@ class RelationTest < ZenaTestUnit
   def test_set_relation_method_missing
     login(:tiger)
     node = secure!(Node) { nodes(:status) }
-    assert node.update_attributes( 'set_tag_ids' => ['23'] )
-    assert_equal [23], node.set_tag_ids
+    assert node.update_attributes( 'set_tag_ids' => [nodes_id(:art).to_s] )
+    assert_equal [nodes_id(:art)], node.set_tag_ids
     node = secure!(Node) { nodes(:status) } # reload
-    assert_equal 23, node.find(:all,'set_tags')[0][:id]
-    assert_equal [23], node.set_tag_ids
-    assert_equal [33], node.set_tag_zips
+    assert_equal nodes_id(:art), node.find(:all,'set_tags')[0][:id]
+    assert_equal [nodes_id(:art)], node.set_tag_ids
+    assert_equal [nodes_zip(:art)], node.set_tag_zips
   end
   
   def test_relation_proxy
@@ -256,7 +257,7 @@ class RelationTest < ZenaTestUnit
     assert var1_new = secure!(Node) { Node.get_class("Post").new }
     assert list = var1_new.do_find(:all, eval("\"#{Node.build_find(:all, 'posts in site', 'self')}\""), true) # true = ignore_source
     assert_equal 2, list.size
-    assert_equal [nodes_id(:proposition), nodes_id(:opening)], list.map{|r| r[:id]}.sort
+    assert_equal [nodes_id(:proposition), nodes_id(:opening)].sort, list.map{|r| r[:id]}.sort
   end
   
   def test_update_attributes_empty_value

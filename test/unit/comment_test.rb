@@ -44,7 +44,7 @@ class CommentTest < ZenaTestUnit
     bak = visitor.status
     visitor.status = User::Status[:moderated]
     
-    discussion = secure!(Discussion) { Discussion.create(:node_id=>11, :lang=>'en') }
+    discussion = secure!(Discussion) { Discussion.create(:node_id=>nodes_id(:cleanWater), :lang=>'en') }
     
     comment    = secure!(Comment   ) { Comment.create( :title=>'coco', :text=>'spam see my web site', :author_name=>'me', :discussion_id => discussion[:id] ) }
     

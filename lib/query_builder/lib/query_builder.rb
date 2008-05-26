@@ -141,7 +141,7 @@ class QueryBuilder
             elsif part == 'null'
               "NULL"
             else
-              if fld = field_or_param(part, table, op[0..2] == 'is') # we need to inform if we are looking for 'null' related field/param
+              if fld = field_or_param(part, table, :filter) # we need to inform if we are looking for 'null' related field/param
                 fld
               elsif fld.nil?
                 @errors << "invalid field or value '#{part}'"
@@ -175,7 +175,7 @@ class QueryBuilder
       order.split(',').each do |clause|
         if clause =~ /^\s*([^\s]+) (ASC|asc|DESC|desc)/
           fld_name, direction = $1, $2
-          if fld = map_field(fld_name, table)
+          if fld = map_field(fld_name, table, :order)
             res << "#{fld} #{direction.upcase}"
           elsif fld.nil?
             @errors << "invalid field '#{fld_name}'"
@@ -191,7 +191,7 @@ class QueryBuilder
     
     def parse_group_clause(field)
       return nil unless field
-      if fld = map_field(field, table)
+      if fld = map_field(field, table, :group)
         " GROUP BY #{fld}"
       else
         @errors << "invalid field '#{field}'"
@@ -374,16 +374,16 @@ class QueryBuilder
     end
     
     # Map a field to be used inside a query
-    def field_or_param(fld, table_name = table, is_null = false)
+    def field_or_param(fld, table_name = table, context = nil)
       if table_name
-        map_field(fld, table_name, is_null)
+        map_field(fld, table_name, context)
       else
         map_parameter(fld)
       end
     end
     
     # Overwrite this and take car to check for valid fields.
-    def map_field(fld, table_name, is_null=false)
+    def map_field(fld, table_name, context = nil)
       if fld == 'id'
         "#{table_name}.#{fld}"
       else

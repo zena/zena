@@ -1,0 +1,48 @@
+opening_in_news:
+  relation:        node_has_tags
+  source:          opening
+  target:          news
+  comment:         hot
+  
+cleanWater_in_art:
+  relation:        node_has_tags
+  source:          cleanWater
+  target:          art
+  status:          10
+  
+opening_in_art:
+  relation:        node_has_tags
+  source:          opening
+  target:          art
+  status:          5
+  comment:         cold
+  
+opening_in_zena:
+  relation:        note_has_calendars
+  source:          opening
+  target:          zena
+  
+opening_in_wiki:
+  relation:        note_has_calendars
+  source:          opening
+  target:          wiki
+  
+opening_in_zena_as_post:
+  relation:        post_has_blogs
+  source:          opening
+  target:          zena
+
+status_hot_for_cleanWater:
+  relation:        project_has_a_hot_element
+  source:          cleanWater
+  target:          status
+  
+nature_favorite_for_ant:
+  relation:        contact_has_favorites
+  source:          ant
+  target:          nature
+  
+lake_icon_for_cleanWater:
+  relation:        node_has_an_icon
+  source:          cleanWater
+  target:          lake_jpg

@@ -140,7 +140,7 @@ class VirtualClassTest < ZenaTestUnit
     assert_kind_of Note, node
     assert !node.new_record?
     assert node.virtual_class
-    assert_equal virtual_classes_id(:letter), node.vclass_id
+    assert_equal virtual_classes_id(:Letter), node.vclass_id
     assert_equal 'Letter', node.klass
     assert node.vkind_of?('Letter')
     assert_equal "NNL", node[:kpath]
@@ -148,13 +148,13 @@ class VirtualClassTest < ZenaTestUnit
   
   def test_new
     login(:ant)
-    klass = virtual_classes(:letter)
-    assert node = secure!(Node) { klass.new(:v_title => 'my letter', :parent_id => nodes_zip(:cleanWater)) }
+    klass = virtual_classes(:Letter)
+    assert node = secure!(Node) { klass.new(:v_title => 'my letter', :parent_id => nodes_id(:cleanWater)) }
     assert node.save
     assert_kind_of Note, node
     assert !node.new_record?
     assert node.virtual_class
-    assert_equal virtual_classes_id(:letter), node.vclass_id
+    assert_equal virtual_classes_id(:Letter), node.vclass_id
     assert_equal 'Letter', node.klass
     assert node.vkind_of?('Letter')
     assert_equal "NNL", node[:kpath]
@@ -171,9 +171,9 @@ class VirtualClassTest < ZenaTestUnit
   end
   
   def test_superclass
-    assert_equal Note, virtual_classes(:post).superclass
-    assert_equal Note, virtual_classes(:letter).superclass
-    assert_equal Page, virtual_classes(:tracker).superclass
+    assert_equal Note, virtual_classes(:Post).superclass
+    assert_equal Note, virtual_classes(:Letter).superclass
+    assert_equal Page, virtual_classes(:Tracker).superclass
   end
   
   def test_new_conflict_virtual_kpath

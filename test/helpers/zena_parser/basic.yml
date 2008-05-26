@@ -200,7 +200,7 @@ link_project:
 
 link_root:
   src: "<r:link href='root'/>"
-  tem: "<%= node_link(:node=>@node, :href=>(secure(Node) { Node.find(1)})) %>"
+  tem: "<%= node_link(:node=>@node, :href=>(secure(Node) { Node.find(_ID(zena))})) %>"
   res: "<a href='/oo'>Zena the wild CMS</a>"
 
 link_sharp:

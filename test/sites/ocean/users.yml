@@ -1,0 +1,22 @@
+DEFAULTS:
+  created_at:      2006-04-11
+  updated_at:      2006-04-11
+
+incognito:
+  first_name:      Miss
+  name:            Incognito
+  lang:            en
+
+other_su:
+  first_name:      Hyper
+  name:            Super
+  login:           other_su
+  password:        <%= User.hash_password('other_su') %>
+  lang:            en
+  
+whale:
+  first_name:      Miss
+  name:            Whale
+  login:           whale
+  password:        <%= User.hash_password('whale') %>
+  lang:            en

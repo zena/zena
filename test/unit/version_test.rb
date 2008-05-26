@@ -93,7 +93,7 @@ class VersionTest < ZenaTestUnit
   
   def test_presence_of_node
     login(:tiger)
-    node = secure!(Node) { Node.new(:parent_id=>1, :name=>'bob') }
+    node = secure!(Node) { Node.new(:parent_id=>nodes_id(:zena), :name=>'bob') }
     assert node.save
     vers = Version.new
     assert !vers.save
@@ -106,12 +106,12 @@ class VersionTest < ZenaTestUnit
       visitor.lang = 'en'
       node = secure!(Node) { nodes(:forest_pdf) }
       assert_equal Zena::Status[:red], node.v_status
-      assert_equal versions_id(:forest_red_en), node.c_version_id
+      assert_equal versions_id(:forest_pdf_en), node.c_version_id
       assert_equal 63569, node.c_size
       # single redaction: ok
       assert node.update_attributes(:c_file=>uploaded_pdf('water.pdf')), 'Can edit node'
       # version and content did not change
-      assert_equal versions_id(:forest_red_en), node.c_version_id
+      assert_equal versions_id(:forest_pdf_en), node.c_version_id
       assert_equal 29279, node.c_size
       assert_kind_of File, node.c_file
       assert_equal 29279, node.c_file.stat.size
@@ -119,7 +119,7 @@ class VersionTest < ZenaTestUnit
   end
   
   def test_cannot_change_content_if_many_uses
-    preserving_files("/data/test/pdf") do
+    preserving_files("test.host/data") do
       login(:ant)
       visitor.lang = 'fr'
       node = secure!(Node) { nodes(:forest_pdf) }

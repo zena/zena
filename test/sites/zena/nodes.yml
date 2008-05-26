@@ -1,0 +1,342 @@
+DEFAULTS:
+  updated_at:      2006-04-11
+  created_at:      2006-03-10
+  ref_lang:        en
+  inherit:         yes
+  user:            tiger
+
+zena:
+  zip:             11
+  class:           Project
+  created_at:      2006-02-01
+  inherit:         no
+  rgroup:          public
+  wgroup:          workers
+  pgroup:          managers
+  skin:            default
+  
+
+people:
+  zip:             12
+  class:           Section
+  kpath:           NPS
+  parent:          zena
+
+ant:
+  zip:             13
+  class:           Contact
+  parent:          people
+  user:            ant
+  inherit:         no
+  rgroup:          0
+  wgroup:          0
+  pgroup:          0
+  skin:            default
+
+myLife:
+  zip:             16
+  class:           Page
+  kpath:           NP
+  parent:          ant
+  user:            ant
+  inherit:         no
+  rgroup:          0
+  wgroup:          0
+  pgroup:          0
+  skin:            default
+
+anonymous:
+  zip:             47
+  class:           Contact
+  parent:          people
+  user:            lion
+
+tiger:
+  zip:             14
+  class:           Contact
+  parent:          people
+
+lion:
+  zip:             15
+  class:           Contact
+  parent:          people
+  user:            lion
+
+myDreams:
+  zip:             17
+  class:           Page
+  parent:          lion
+  user:            lion
+  inherit:         no
+  rgroup:          0
+  wgroup:          0
+  pgroup:          0
+  
+projects:
+  zip:             18
+  class:           Page
+  parent:          zena
+
+secret:
+  zip:             19
+  class:           Project
+  parent:          projects
+  inherit:         no
+  rgroup:          managers
+  wgroup:          managers
+  pgroup:          managers
+  skin:            default
+  
+proposition:
+  zip:             20
+  class:           Post
+  parent:          secret
+  user:            ant
+  event_at:        2006-04-05
+  log_at:          2006-04-05
+
+cleanWater:
+  zip:             21
+  class:           Project
+  custom_base:     true
+  parent:          projects
+
+status:
+  zip:             22
+  class:           Page
+  parent:          cleanWater
+  user:            ant
+
+lake:
+  zip:             23
+  class:           Contact
+  name:            lakeAddress
+  parent:          cleanWater
+  user:            ant
+
+lake_jpg:
+  zip:             24
+  class:           Image
+  name:            lake
+  parent:          cleanWater
+  user:            ant
+
+water_pdf:
+  zip:             25
+  class:           Document
+  name:            water
+  parent:          cleanWater
+
+crocodiles:
+  zip:             26
+  class:           Page
+  parent:          cleanWater
+  created_at:      2006-04-11
+  updated_at:      2007-04-11
+
+opening:
+  zip:             27
+  class:           Post
+  parent:          cleanWater
+  ref_lang:        fr
+  log_at:          2006-03-15
+  event_at:        2006-03-18
+
+bananas:
+  zip:             28
+  class:           Page
+  parent:          cleanWater
+  user:            lion
+  inherit:         no
+  rgroup:          managers
+  wgroup:          managers
+  pgroup:          managers
+  skin:            default
+  
+wiki:
+  zip:             29
+  class:           Project
+  parent:          projects
+  user:            lion
+  inherit:         no
+  rgroup:          public
+  wgroup:          public
+  pgroup:          public
+  skin:            wiki
+  
+bird_jpg:
+  zip:             30
+  class:           Image
+  name:            bird
+  parent:          wiki
+  user:            anon
+  
+flower_jpg:
+  zip:             31
+  class:           Image
+  name:            flower
+  parent:          wiki
+  user:            anon
+
+collections:
+  zip:             32
+  class:           Page
+  parent:          zena
+
+art:
+  zip:             33
+  class:           Tag
+  parent:          collections
+
+news:
+  zip:             34
+  class:           Tag
+  parent:          collections
+
+menu:
+  zip:             35
+  class:           Tag
+  parent:          collections
+  log_at:          2007-05-20
+
+strange:
+  zip:             36
+  class:           Page
+  parent:          collections
+  user:            lion
+  inherit:         no
+  rgroup:          admin
+  wgroup:          managers
+  pgroup:          workers
+  skin:            default
+  
+track:
+  zip:             37
+  class:           Tracker
+  parent:          cleanWater
+
+talk:
+  zip:             38
+  class:           Page
+  parent:          secret
+  inherit:         no
+  rgroup:          public
+  wgroup:          workers
+  pgroup:          workers
+  skin:            default
+  
+nature:
+  zip:             39
+  class:           Page
+  parent:          zena
+  user:            ant
+  ref_lang:        en
+  
+tree_jpg:
+  zip:             40
+  class:           Image
+  name:            tree
+  parent:          nature
+  user:            ant
+  
+forest_pdf:
+  zip:             41
+  class:           Document
+  name:            forest
+  parent:          nature
+  user:            ant
+  
+letter:
+  zip:             42
+  class:           Letter
+  parent:          zena
+  event_at:        2008-01-10
+  log_at:          2006-04-05
+
+wiki_skin:
+  zip:             43
+  class:           Skin
+  name:            wiki
+  parent:          collections
+
+wiki_Project_changes_xml:
+  class:           Template
+  name:            Project-changes-xml
+  parent:          wiki_skin
+
+wiki_Page_changes:
+  class:           Template
+  name:            Page-changes
+  parent:          wiki_skin
+
+wiki_Node:
+  class:           Template
+  name:            Node
+  parent:          wiki_skin
+
+
+
+
+skins:
+  class:           Page
+  parent:          zena
+
+default:
+  class:           Skin
+  name:            default
+  parent:          skins
+  
+Node_search_zafu:
+  class:           Template
+  name:            Node-search
+  parent:          default
+
+style_css:
+  zip:             53
+  class:           TextDocument
+  name:            style
+  parent:          default
+
+Node_zafu:
+  class:           Template
+  name:            Node
+  parent:          default
+
+Node_admin_layout_zafu:
+  class:           Template
+  name:            Node-*adminLayout
+  parent:          default
+
+Node_index_zafu:
+  class:           Template
+  name:            Node-*index
+  parent:          default
+
+Node_not_found_zafu:
+  class:           Template
+  name:            Node-*notFound
+  parent:          default
+
+Node_popup_layout_zafu:
+  class:           Template
+  name:            Node-*popupLayout
+  parent:          default
+
+notes_zafu:
+  class:           Template
+  name:            notes
+  parent:          default
+
+Project_zafu:
+  class:           Template
+  name:            Project
+  parent:          default
+
+Node_login:
+  class:           Template
+  name:            Node-*login
+  parent:          default
+
+translations:
+  class:           TextDocument
+  parent:          default

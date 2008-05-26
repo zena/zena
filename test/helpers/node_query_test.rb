@@ -1,7 +1,7 @@
 require File.join(File.dirname(__FILE__), "testhelp")
 
 class NodeQueryTest < ZenaTestUnit
-  yaml_test :basic, :filters, :relations
+  yaml_test
 
   def do_test(file, test)
     context = @@test_strings[file][test]['context'] || {}
@@ -21,6 +21,9 @@ class NodeQueryTest < ZenaTestUnit
     else
       sql ||= errors.join(", ")
       if test_sql = @@test_strings[file][test]['sql']
+        test_sql.gsub!(/_ID\(([^\)]+)\)/) do
+          ZenaTest::id($_test_site, $1)
+        end
         assert_yaml_test test_sql, sql
       end
     

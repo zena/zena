@@ -8,10 +8,6 @@ class SubPagerDummy < PagerDummy
 end
 class SecureReadTest < ZenaTestUnit
   
-  def test_fixture_by_id
-    assert_equal 1, nodes_id(:zena)
-  end
-  
   def test_kpath
     assert_equal 'N', Node.kpath
     assert_equal 'NP', Page.kpath
@@ -256,7 +252,7 @@ class SecureCreateTest < ZenaTestUnit
     login(:lion)
     z = secure!(Node) { nodes(:zena)  }
     assert_nil z[:parent_id]
-    z[:pgroup_id] = 1
+    z[:pgroup_id] = groups_id(:public)
     assert z.save, "Can change root group"
   end
   
@@ -316,7 +312,7 @@ class SecureCreateTest < ZenaTestUnit
     z = secure!(Note) { Note.create(attrs) }
     assert z.errors.empty? , "No errors"
     # cannot publish in ref 'cleanWater'
-    attrs[:pgroup_id] = 1
+    attrs[:pgroup_id] = groups_id(:public)
     z = secure!(Note) { Note.create(attrs) }
     assert z.errors[:pgroup_id] , "Errors on pgroup_id"
     assert_equal "you cannot change this", z.errors[:pgroup_id]
@@ -402,13 +398,13 @@ class SecureCreateTest < ZenaTestUnit
     zena = nodes(:zena)
     attrs[:parent_id] = zena[:id]
     # all ok
-    attrs[:wgroup_id] = 4
+    attrs[:wgroup_id] = groups_id(:managers)
     z = secure!(Note) { Note.create(attrs) }
-    err z
+    
     assert ! z.new_record?, "Not a new record"
     assert z.errors.empty? , "Errors empty"
     assert_equal zena[:rgroup_id], z[:rgroup_id] , "Same rgroup as parent"
-    assert_equal 4, z[:wgroup_id] , "New wgroup set"
+    assert_equal groups_id(:managers), z[:wgroup_id] , "New wgroup set"
     assert_equal zena[:pgroup_id], z[:pgroup_id] , "Same pgroup_id as parent"
   end
   
@@ -423,7 +419,7 @@ class SecureCreateTest < ZenaTestUnit
     assert p.can_write? , "Can write in reference"
     
     # cannot change pgroup
-    attrs[:pgroup_id] = 1
+    attrs[:pgroup_id] = groups_id(:public)
     assert (attrs[:pgroup_id] != p.pgroup_id) , "Publish group is different from reference"
     z = secure!(Note) { Note.create(attrs) }
     assert z.new_record? , "New record"
@@ -499,7 +495,7 @@ class SecureUpdateTest < ZenaTestUnit
     node = secure!(Node) { nodes(:lake) }
     assert_kind_of Node, node
     assert ! node.can_visible? , "Cannot make visible changes"
-    node.pgroup_id = 1
+    node.pgroup_id = groups_id(:public)
     assert ! node.save , "Save fails"
     assert node.errors[:base] , "Errors on base"
     assert "you do not have the rights to do this", node.errors[:base]
@@ -526,7 +522,7 @@ class SecureUpdateTest < ZenaTestUnit
     assert_kind_of Node, node
     assert node.can_visible? , "Can visible"
     node[:inherit  ] = 0
-    node[:pgroup_id] = 2
+    node[:pgroup_id] = groups_id(:admin)
     assert ! node.save , "Save fails"
     assert node.errors[:pgroup_id] , "Errors on pgroup_id"
     assert "unknown group", node.errors[:pgroup_id]
@@ -539,7 +535,7 @@ class SecureUpdateTest < ZenaTestUnit
     assert node.can_visible? , "Can visible"
     assert_equal 1, node.inherit , "Inherit mode is 1"
     node[:inherit  ] = 0
-    node[:pgroup_id] = 1
+    node[:pgroup_id] = groups_id(:public)
     assert node.save , "Save succeeds"
     assert_equal 0, node.inherit , "Inherit mode is 0"
   end
@@ -550,7 +546,7 @@ class SecureUpdateTest < ZenaTestUnit
     assert_equal users_id(:ant), node[:user_id]
     assert node.can_visible? , "Can visible"
     assert_equal 1, node.inherit , "Inherit mode is 1"
-    assert_equal 4, node.pgroup_id
+    assert_equal groups_id(:managers), node.pgroup_id
     node[:inherit  ] = 0
     node[:pgroup_id] = nil
     assert !node.save , "Save fails"
@@ -563,7 +559,7 @@ class SecureUpdateTest < ZenaTestUnit
     assert_equal users_id(:tiger), node[:user_id]
     assert node.can_visible? , "Can visible"
     assert_equal 1, node.inherit , "Inherit mode is 1"
-    assert_equal 4, node.pgroup_id
+    assert_equal groups_id(:managers), node.pgroup_id
     node[:inherit  ] = 0
     node[:pgroup_id] = nil
     assert node.save , "Save succeeds"
@@ -575,7 +571,7 @@ class SecureUpdateTest < ZenaTestUnit
     node = secure!(Node) { nodes(:lake) }
     assert node.can_visible? , "Can visible"
     assert_equal 1, node.inherit , "Inherit mode is 1"
-    assert_equal 1, node.rgroup_id
+    assert_equal groups_id(:public), node.rgroup_id
     node[:inherit  ] = 0
     node[:rgroup_id] = nil
     assert node.save , "Save succeeds"
@@ -589,7 +585,7 @@ class SecureUpdateTest < ZenaTestUnit
     node = secure!(Node) { nodes(:lake) }
     assert node.can_visible? , "Can visible"
     assert_equal 1, node.inherit , "Inherit mode is 1"
-    assert_equal 1, node.rgroup_id
+    assert_equal groups_id(:public), node.rgroup_id
     node[:inherit  ] = 0
     node[:rgroup_id] = 0
     assert node.save , "Save succeeds"
@@ -603,7 +599,7 @@ class SecureUpdateTest < ZenaTestUnit
     assert_kind_of Node, node
     assert node.can_visible? , "Can visible"
     assert_equal 1, node.inherit , "Inherit mode is 1"
-    assert_equal 1, node.rgroup_id
+    assert_equal groups_id(:public), node.rgroup_id
     node[:inherit  ] = 0
     node[:rgroup_id] = ''
     assert node.save , "Save succeeds"
@@ -614,13 +610,13 @@ class SecureUpdateTest < ZenaTestUnit
     login(:tiger)
     node = secure!(Node) { nodes(:cleanWater)  }
     node[:inherit  ] = 0
-    node[:rgroup_id] = 3
+    node[:rgroup_id] = groups_id(:workers)
     assert node.save , "Save succeeds"
-    assert_equal 3, node[:rgroup_id], "Read group changed"
-    assert_equal 3, nodes(:status).rgroup_id, "Child read group changed"
-    assert_equal 3, nodes(:water_pdf).rgroup_id, "Child read group changed"
-    assert_equal 3, nodes(:lake_jpg).rgroup_id, "Grandchild read group changed"
-    assert_equal 4, nodes(:bananas).rgroup_id, "Not inherited child: rgroup not changed"
+    assert_equal groups_id(:workers), node[:rgroup_id], "Read group changed"
+    assert_equal groups_id(:workers), nodes(:status).rgroup_id, "Child read group changed"
+    assert_equal groups_id(:workers), nodes(:water_pdf).rgroup_id, "Child read group changed"
+    assert_equal groups_id(:workers), nodes(:lake_jpg).rgroup_id, "Grandchild read group changed"
+    assert_equal groups_id(:managers), nodes(:bananas).rgroup_id, "Not inherited child: rgroup not changed"
   end
   
   def test_reference_changed_rights_inherited
@@ -793,8 +789,8 @@ class SecureUpdateTest < ZenaTestUnit
     node = secure!(Node) { nodes(:lake) }
     # all ok
     node[:inherit  ] = 0
-    node[:rgroup_id] = 1
-    node[:wgroup_id] = 4
+    node[:rgroup_id] = groups_id(:public)
+    node[:wgroup_id] = groups_id(:managers)
     assert node.save , "Save succeeds"
     assert node.errors.empty? , "Errors empty"
   end
@@ -933,12 +929,12 @@ class SecureUpdateTest < ZenaTestUnit
   #     3. removing the node and/or sub-nodes
   def test_destroy
     login(:ant)
-    node = secure!(Node) { nodes(:status)  }
+    node = secure!(Node) { nodes(:lake)  }
     assert !node.destroy, "Cannot destroy"
     assert_equal node.errors[:base], 'you do not have the rights to do this'
   
     login(:tiger)
-    node = secure!(Node) { nodes(:status)  }
+    node = secure!(Node) { nodes(:lake)  }
     assert node.destroy, "Can destroy"
   end
   
@@ -951,11 +947,10 @@ class SecureUpdateTest < ZenaTestUnit
   
   def test_cannot_view_own_stuff_in_other_host
     # make 'whale' a cross site user
-    User.connection.execute "INSERT INTO participations (user_id, site_id, status) VALUES (#{users_id(:whale)}, #{sites_id(:zena)}, 50)"
+    User.connection.execute "INSERT INTO participations (user_id, site_id, status) VALUES (#{users_id(:whale)}, #{sites_id(:zena)}, #{User::Status[:user]})"
     User.connection.execute "INSERT INTO groups_users (user_id, group_id) VALUES (#{users_id(:whale)}, #{groups_id(:workers)})"
     User.connection.execute "INSERT INTO groups_users (user_id, group_id) VALUES (#{users_id(:whale)}, #{groups_id(:public)})"
-    login(:whale)
-    visitor.site = sites(:ocean)
+    login(:whale, 'ocean')
     node = nil
     assert_nothing_raised{ node = secure!(Node) { nodes(:ocean) }}
     assert_kind_of Node, node

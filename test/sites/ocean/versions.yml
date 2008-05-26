@@ -1,0 +1,43 @@
+DEFAULTS:
+  type:            Version
+  created_at:      2006-03-10
+  updated_at:      2006-04-11
+  publish_from:    2006-03-10
+  status:          pub
+  lang:            en
+  comment:         ""
+  summary:         ""
+  text:            ""
+  number:          1
+
+ocean_en:
+  type:            Version
+  node:            ocean
+  user:            whale
+  comment:         new site
+  title:           Deep Ocean
+  summary:         The deep sound of peace
+  text:            Our oceans, when kept full of life, are full of animals
+
+
+incognito_en:
+  type:            ContactVersion
+  node:            incognito
+  user:            whale
+  comment:         anonymous user
+  title:           Miss incognito
+
+
+whale_en:
+  type:            ContactVersion
+  node:            whale
+  user:            whale
+  comment:         admin user
+  title:           Miss Whale
+
+
+Node_ocean_en:
+  type:            TemplateVersion
+  node:            Node_ocean
+  user:            whale
+  text:            "<html><body><h1 do='[v_title]'/></body></html>"

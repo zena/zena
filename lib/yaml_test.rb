@@ -18,11 +18,28 @@ module YamlTest
     def yaml_test(*files)
       # We need to do a class_eval so that the class variables 'test_strings, test_methods, ...' are scoped
       # in the final class and are not global to all tests using the YamlTest helper.
+      
+      directory = begin
+        if caller[0].split('/').last =~ /^(.*)_test.rb/
+          File.join(File.dirname(caller[0]), $1)
+        else
+          puts "Bad file name for yaml_tests '#{caller[0]}'. Should be '..._test.rb'. Trying main directory."
+          File.dirname(caller[0])
+        end
+      end
+      
       if files[0].kind_of?(Hash)
         file_list = files[0]
-      else
+      elsif files.size > 0
         file_list = Hash[*(files.map{|f| [f,{}]}.flatten)]
+      else
+        file_list = {}
+        Dir.foreach(directory) do |f|
+          next unless f =~ /^([\w_-]+).yml/
+          file_list[$1.to_sym] = {}
+        end
       end
+      
       
       class_eval %Q{
         @@test_strings = {}
@@ -30,14 +47,7 @@ module YamlTest
         @@test_options = {}
         @@test_files = []
         @@file_list  = #{file_list.inspect}
-        @@file_directory ||= begin
-          if #{caller[0].inspect}.split('/').last =~ /^(.*)_test.rb/
-            File.join(File.dirname(#{caller[0].inspect}), $1)
-          else
-            puts "Bad file name for yaml_tests '#{caller[0]}'. Should be '..._test.rb'. Trying main directory."
-            File.dirname(#{caller[0].inspect})
-          end
-        end
+        @@file_directory ||= #{directory.inspect}
         
         @@file_list.each do |file, opts|
           file = file.to_s

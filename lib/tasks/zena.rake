@@ -77,9 +77,428 @@ module Zena
       end
     end
   end
+  
+  class FoxyParser
+    attr_reader :column_names, :table, :elements, :site, :name, :defaults
+    def initialize(table_name, opts={})
+      @table = table_name
+      @column_names = Node.connection.columns(table).map {|c| c.name }
+      @elements = {}
+      @options  = opts
+    end
+    
+    def run
+      
+      Dir.foreach("#{RAILS_ROOT}/test/sites") do |site|
+        next if site =~ /^\./
+        @site = site
+        parse_fixtures
+      end
+      @file.close if @file
+    end
+    
+    def all_elements
+      @elements
+    end
+    
+    private
+      def parse_fixtures
+        fixtures_path = File.join("#{RAILS_ROOT}/test/sites",site,"#{table}.yml")
+        return unless File.exist?(fixtures_path)
+        
+        out "\n# ========== #{site} ==========="
+        content = File.read(fixtures_path) + "\n"
+        # build simple hash to set/get defaults and other special values
+        content.gsub!(/<%.*?%>/m,'')
+        @elements[site] = elements = YAML::load(content)
+        
+        # set defaults
+        set_defaults
+        
+        definitions = []
+        name = nil
+        File.foreach(File.join("#{RAILS_ROOT}/test/sites",site,"#{table}.yml")) do |l|
+          if l =~ /^([\w\.]+):/
+            last_name = name
+            name = $1
+            # purge text in between fixtures
+            if last_name
+              parse_definitions(last_name, definitions)
+            else
+              # purge text in between fixtures
+              definitions.each do |d|
+                out d
+              end
+            end
+            definitions = []
+          else
+            definitions << l
+          end
+        end
+        
+        if name
+          parse_definitions(name, definitions)
+        else
+          # purge text in between fixtures
+          definitions.each do |d|
+            out d
+          end
+        end
+        
+      end
+      
+      def elements
+        @elements[@site]
+      end
+      
+      def set_defaults
+        defaults = elements.delete('DEFAULTS')
+        defaults ||= {}
+        
+        defaults['site_id'] = ZenaTest::multi_site_id(site) if column_names.include?('site_id')
+        
+        elements.each do |n,v|
+          unless v
+            v = elements[n] = {}
+          end
+          v[:defaults_keys] = []
+          column_names.each do |k|
+            if k =~ /^(\w+)_id/
+              k = $1
+            end
+            if !v.has_key?(k) && defaults.has_key?(k)
+              v[:defaults_keys] << k # so we know what to write out
+              v[k] = defaults[k]
+            end
+          end
+          if column_names.include?('name') && !v.has_key?('name')
+            v['name'] = n 
+            v[:defaults_keys] << 'name'
+          end
+        end
+      end
+      
+      def parse_definitions(name, definitions)
+        return if name == 'DEFAULTS'
+        @name = name
+        
+        insert_headers
+        
+        definitions.each do |l|
+          if l =~ /^\s+(\w+):/
+            unless ignore_key?($1)
+              out l
+            end
+          else
+            out l
+          end
+        end
+        
+      end
+      
+      def insert_headers
+        out ""
+        if ZenaTest::multi_site_tables.include?(table)
+          out "#{name}:"
+        else
+          out "#{site}_#{name}:"
+        end
+        
+        if column_names.include?('id')
+          if ZenaTest::multi_site_tables.include?(table)
+            out_pair('id', ZenaTest::multi_site_id(name))
+          else
+            out_pair('id', ZenaTest::id(site,name))
+          end
+        end
+        
+        out_pair('site_id', ZenaTest::multi_site_id(site)) if column_names.include?('site_id')
+        
+        id_keys.each do |k|
+          insert_id(k)
+        end
+        
+        multi_site_id_keys.each do |k|
+          insert_multi_site_id(k)
+        end
+        
+        element = elements[name]
+        element[:defaults_keys].each do |k|
+          next if ignore_key?(k)
+          out_pair(k, element[k])
+        end
+      end
+      
+      def out(res)
+        unless @file
+          # only open the file if we have things to write in it
+          @file = File.open("#{RAILS_ROOT}/test/fixtures/#{table}.yml", 'wb')
+          @file.puts "# Fixtures generated from content of 'sites' folder by FoxyParser (rake zena:build_fixtures)"
+          @file.puts ""
+        end
+        @file.puts res
+      end
+      
+      def out_pair(k,v)
+        return if v.nil?
+        out sprintf('  %-16s %s', "#{k}:", v.to_s =~ /^\s*$/ ? v.inspect : v.to_s)
+      end
+      
+      def ignore_key?(k)
+        (id_keys + multi_site_id_keys).include?(k)
+      end
+      
+      def insert_id(key)
+        return unless column_names.include?("#{key}_id")
+        out_pair("#{key}_id", ZenaTest::id(site, elements[@name][key]))
+      end
+      
+      def insert_multi_site_id(key)
+        return unless column_names.include?("#{key}_id")
+        out_pair("#{key}_id", ZenaTest::multi_site_id(elements[@name][key]))
+      end
+      
+      def id_keys
+        @id_keys ||= column_names.map {|n| n =~ /^(\w+)_id$/ ? $1 : nil }.compact - multi_site_id_keys - ['site']
+      end
+      
+      def multi_site_id_keys
+        ['user']
+      end
+  end
+  FOXY_PARSER = {}
+  
+  class FoxyNodeParser < FoxyParser
+    attr_reader :virtual_classes, :max_status, :publish_from, :zip_counter
+    
+    def initialize(table_name, opts = {})
+      super
+      @virtual_classes = opts[:virtual_classes].all_elements
+      @max_status      = opts[:versions].max_status
+      @publish_from    = opts[:versions].publish_from
+      @zip_counter     = {}
+    end
+    
+    private
+      def set_defaults
+        super
+        # set project, section, read/write/publish groups
+
+        [['project',"nil", "Node.get_class(parent['class']).kpath =~ /^\#{Project.kpath}/", "current['parent']"],
+         ['section',"nil", "Node.get_class(parent['class']).kpath =~ /^\#{Section.kpath}/", "current['parent']"],
+         ['rgroup' ,"!node['inherit']", "!parent['inherit']", "parent['rgroup']"],
+         ['wgroup' ,"!node['inherit']", "!parent['inherit']", "parent['wgroup']"],
+         ['pgroup' ,"!node['inherit']", "!parent['inherit']", "parent['pgroup']"],
+         ['skin' ,"!node['inherit']", "!parent['inherit']", "parent['skin']"],
+         ].each do |key, next_if, parent_test, value|
+          elements.each do |k,node|
+            next if node[key] || eval(next_if)
+            current = node
+            name    = k
+            res     = nil
+            path_names = [k]
+            while true
+              if parent = elements[current['parent']]
+                # has a parent
+                if eval(parent_test)
+                  # found
+                  res = eval(value)
+                  break
+                elsif parent[key]
+                  res = parent[key]
+                  # found
+                  break
+                else
+                  # move up
+                  path_names << name
+                  name    = current['parent']
+                  current = parent
+                end
+              elsif current['parent']
+                raise NameError "[#{site} #{k}] Bad parent name '#{current['parent']}' for node '#{name}'."
+              else
+                # top node
+                if key == 'project' || key == 'section'
+                  res = current[key] = name
+                else
+                  raise NameError.new( "[#{site} #{k}] Reached top without finding '#{key}'.")
+                end
+                break
+              end
+            end
+            if res
+              path_names.each do |n|
+                elements[n][key] = res
+              end
+            end
+          end
+        end
+      end
+      
+      def insert_headers
+        super
+        klass = elements[name]['class']
+        if virtual_classes[site] && vc = virtual_classes[site][klass]
+          out_pair('vclass_id', ZenaTest::id(site,klass))
+          out_pair('type', vc['real_class'])
+          out_pair('kpath', vc['kpath'])
+        elsif klass
+          out_pair('type', klass)
+          begin
+            klass = Module.const_get(klass)
+            out_pair('kpath', klass.kpath)
+          rescue NameError
+            raise NameError "[#{site} #{table} #{name}] unknown class '#{klass}'."
+          end
+        else
+          raise NameError "[#{site} #{table} #{name}] missing 'class' attribute."
+        end
+        @zip_counter[site] ||= 0
+        if elements[name]['zip']
+          if elements[name]['zip'] > @zip_counter[site]
+            @zip_counter[site] = elements[name]['zip']
+          end
+          out_pair('zip', elements[name]['zip'])
+        else
+          out_pair('zip', @zip_counter[site] += 1)
+        end
+        out_pair('max_status', max_status[site][name])
+        out_pair('publish_from', publish_from[site][name])
+        out_pair('inherit', elements[name]['inherit'] ? 'yes' : 'no')
+        ['rgroup_id', 'wgroup_id', 'pgroup_id', 'skin'].each do |k|
+          out_pair(k, elements[name][k])
+        end
+      end
+      
+      def ignore_key?(k)
+        super || ['class', 'skin', 'inherit'].include?(k)
+      end
+  end
+  FOXY_PARSER['nodes'] = FoxyNodeParser
+  
+  class FoxyVersionParser < FoxyParser
+    attr_reader :max_status, :publish_from
+    def initialize(table_name, opts = {})
+      super
+      @max_status   = {}
+      @publish_from = {}
+    end
+    
+    private
+      def set_defaults
+        super
+        
+        @max_status[site]   = {}
+        @publish_from[site] = {}
+        elements.each do |k,v|
+          # set status
+          v['status'] = Zena::Status[v['status'].to_sym]
+          @max_status[site][v['node']] ||= 0
+          @max_status[site][v['node']] = v['status'] if v['status'] > @max_status[site][v['node']]
+          # set publish_from
+          @publish_from[site][v['node']] ||= v['publish_from']
+          @publish_from[site][v['node']] = v['publish_from'] if v['publish_from'] && v['publish_from'] > @publish_from[site][v['node']]
+        end
+      end
+      
+      def insert_headers
+        super
+        out_pair('status', elements[name]['status']) if elements[name]['status']
+      end
+      
+      def ignore_key?(k)
+        super || ['status'].include?(k)
+      end
+      
+  end
+  FOXY_PARSER['versions'] = FoxyVersionParser
+  
+  class FoxySiteParser < FoxyParser
+    private
+      def multi_site_id_keys
+        super + ['su', 'anon']
+      end
+  end
+  FOXY_PARSER['sites'] = FoxySiteParser
+  
+  
+  class FoxyZipParser < FoxyParser
+    def initialize(table_name, opts = {})
+      super
+      @zip_counter = opts[:nodes].zip_counter
+    end
+    
+    def run
+      Dir.foreach("#{RAILS_ROOT}/test/sites") do |site|
+        next if site =~ /^\./
+        out ""
+        out "#{site}:"
+        out_pair('site_id', ZenaTest::multi_site_id(site))
+        out_pair('zip', @zip_counter[site])
+      end
+      @file.close if @file
+    end
+    
+    private
+      def find_max(elements)
+        max = -1
+        elements.each do |k,v|
+          zip = ZenaTest::id(site, "#{k}_zip")
+          if zip > max
+            max = zip
+          end
+        end
+        max
+      end
+  end
+  FOXY_PARSER['zips'] = FoxyZipParser
+  
+  
+  class FoxyIformatParser < FoxyParser
+    private
+      def insert_headers
+        super
+        out_pair('size', Iformat::SIZES.index(elements[name]['size'])) if elements[name]['size']
+        out_pair('gravity', Iformat::GRAVITY.index(elements[name]['gravity'])) if elements[name]['gravity']
+      end
+      
+      def ignore_key?(k)
+        super || ['size', 'gravity'].include?(k)
+      end
+  end
+  FOXY_PARSER['iformats'] = FoxyIformatParser
+  
+  
+  class FoxyCommentParser < FoxyParser
+    private
+      def insert_headers
+        super
+        out_pair('status', Zena::Status[elements[name]['status'].to_sym]) if elements[name]['status']
+        out_pair('reply_to', ZenaTest::id(site,elements[name]['reply_to'])) if elements[name]['reply_to']
+      end
+      
+      def ignore_key?(k)
+        super || ['status', 'reply_to'].include?(k)
+      end
+      
+  end
+  FOXY_PARSER['comments'] = FoxyCommentParser
+  
+  
+  class FoxyParticipationParser < FoxyParser
+    private
+      def insert_headers
+        super
+        out_pair('status', User::Status[elements[name]['status'].to_sym]) if elements[name]['status']
+      end
+      
+      def ignore_key?(k)
+        super || ['status'].include?(k)
+      end
+  end
+  FOXY_PARSER['participations'] = FoxyParticipationParser
 end
-
-
+  
 namespace :zena do
   desc "Create a new site, parameters are PASSWORD, HOST, LANG"
   task :mksite => :environment do
@@ -241,6 +660,35 @@ namespace :zena do
       ActiveRecord::Migrator.migrate("db/migrate/", nil)
     end
     Rake::Task["db:schema:dump"].invoke if ActiveRecord::Base.schema_format == :ruby
+  end
+  
+  desc 'Rebuild foxy fixtures for all sites'
+  task :build_fixtures => :environment do
+    ###
+    tables = Node.connection.tables
+    tables.delete('virtual_classes')
+    tables.delete('versions')
+    tables.delete('nodes')
+             # 1.                # 2.        # 3.
+    tables = ['virtual_classes', 'versions', 'nodes'] + tables
+    virtual_classes, versions, nodes = nil, nil, nil
+    tables.each do |table|
+      case table
+      when 'virtual_classes'
+        virtual_classes = Zena::FoxyParser.new(table)
+        virtual_classes.run
+      when 'versions'
+        versions = Zena::FOXY_PARSER[table].new(table)
+        versions.run
+      when 'nodes'
+        nodes = Zena::FOXY_PARSER[table].new(table, :versions => versions, :virtual_classes => virtual_classes)
+        nodes.run
+      when 'zips'
+        Zena::FOXY_PARSER[table].new(table, :nodes => nodes).run
+      else
+        (Zena::FOXY_PARSER[table] || Zena::FoxyParser).new(table).run
+      end
+    end
   end
   
   Rake::RDocTask.new do |rdoc|

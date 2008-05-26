@@ -1,0 +1,25 @@
+
+anon_in_zena:
+  user:            anon
+  status:          moderated
+  contact:         anonymous
+
+su_in_zena:
+  user:            su
+  status:          su
+  contact:         anonymous
+
+ant_in_zena:
+  user:            ant
+  status:          user
+  contact:         ant
+
+tiger_in_zena:
+  user:            tiger
+  status:          user
+  contact:         tiger
+
+lion_in_zena:
+  user:            lion
+  status:          admin
+  contact:         lion

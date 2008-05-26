@@ -1,0 +1,16 @@
+
+incognito_in_other_public:
+  user:            incognito
+  group:           public
+
+whale_in_other_public:
+  user:            whale
+  group:           public
+  
+whale_in_aqua:
+  user:            whale
+  group:           aqua
+
+whale_in_masters:
+  user:            whale
+  group:           masters

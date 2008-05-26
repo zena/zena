@@ -108,7 +108,7 @@ store_node_as_relation:
 
 store_img:
   src: "<r:parent><r:icon store='bob'><r:show attr='name'/><r:img link='bob'/></r:icon></r:parent>"
-  tem: "/if var1 = @node.parent.*var2 = var1.do_find.*relation_id = 4.*LIKE 'NDI%'.*var2.name.*var1, :text=>img_tag\(var2/"
+  tem: "/if var1 = @node.parent.*var2 = var1.do_find.*relation_id = _ID(node_has_an_icon).*LIKE 'NDI%'.*var2.name.*var1, :text=>img_tag\(var2/"
     
 author_visitor:
   src: "<r:pages in='site' author='visitor' limit='5'><r:each join=', ' do='show' attr='name'/></r:pages>"
@@ -333,13 +333,13 @@ many_or:
   
 hot_or_page:
   src: "<r:hot or='page in project'>...</r:hot>"
-  tem: "/:first.*.*links.relation_id = 5.*nodes.kpath LIKE 'NP%' AND nodes.project_id = #\{@node.get_project_id\}).*LIMIT 1"
+  tem: "/:first.*.*links.relation_id = _ID(project_has_a_hot_element).*nodes.kpath LIKE 'NP%' AND nodes.project_id = #\{@node.get_project_id\}.*LIMIT 1"
 
 unlink:
   context:
     node: 'art'
   src: "<r:tagged do='each' join=',' do='unlink'/>"
-  res: "/<a class=\"unlink\".*onclick=.*Ajax.Request\('/nodes/21/links/2\?remove=list.21..*bullet_delete.png.*links/3/"
+  res: "/<a class=\"unlink\".*onclick=.*Ajax.Request\('/nodes/21/links/_ID(cleanWater_in_art)\?remove=list.21..*bullet_delete.png.*links/_ID(opening_in_art)/"
   
 node_in_version:
   src: "<r:version><r:node do='[name]'/></r:version>"
@@ -359,8 +359,8 @@ group_by_project:
   src: "<r:notes in='site' order='name ASC' do='group' by='project'><b do='project' do='[name]'/>: <r:each join=',' do='[name]'/></r:notes>"
   res: "<b>cleanWater</b>: opening<b>secret</b>: proposition<b>zena</b>: letter"
 
-group_by_project_sort_id:
-  src: "<r:images in='site' order='name ASC' do='group' by='project' sort='id'><b do='project' do='[name]'/>: <r:each join=',' do='[name]'/></r:images>"
+group_by_project_sort_zip:
+  src: "<r:images in='site' order='name ASC' do='group' by='project' sort='zip'><b do='project' do='[name]'/>: <r:each join=',' do='[name]'/></r:images>"
   res: "<b>zena</b>: tree<b>cleanWater</b>: lake<b>wiki</b>: bird,flower"
 
 group_by_parent_sort:
@@ -372,4 +372,4 @@ group_by_parent_sort:
 
 nodes_in_site_group_by_year:
   src: "<r:nodes in='site' group='log_at:year' order='log_at:year asc' do='each' join=', '><r:show attr='name'/>: <r:show date='log_at' format='%Y'/></r:nodes>"
-  res: "zena: , proposition: 2006, menu: 2007"
+  res: "wiki: , opening: 2006, menu: 2007"

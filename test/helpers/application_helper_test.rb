@@ -255,7 +255,7 @@ class ApplicationHelperTest < ZenaTestHelper
   def test_visitor_link
     assert_equal '', visitor_link
     login(:ant)
-    assert_match %r{users/3.*Solenopsis Invicta}, visitor_link
+    assert_match %r{users/#{users_id(:ant)}.*Solenopsis Invicta}, visitor_link
   end
   
   def test_flash_messages

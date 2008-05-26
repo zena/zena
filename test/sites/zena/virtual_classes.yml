@@ -1,0 +1,22 @@
+DEFAULTS:
+  create_group:    public
+  icon:            ""
+  allowed_attributes:
+
+Letter:
+  kpath:           NNL
+  real_class:      Note
+
+Post:
+  kpath:           NNP
+  real_class:      Note
+
+Tracker:
+  kpath:           NPA
+  real_class:      Page  
+  create_group:    admin
+
+Tag:
+  kpath:           NPT
+  real_class:      Page   
+  create_group:    admin

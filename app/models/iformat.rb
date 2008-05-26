@@ -93,7 +93,7 @@ class Iformat < ActiveRecord::Base
       end
       
       errors.add('name', "invalid") if name.blank? || name =~ /[^a-zAZ]/
-      if self.size != 'keep'
+      if self.size != SIZES.index('keep')
         errors.add('width', "must be greater then 0") if width.to_i <= 0
         errors.add('height', "must be greater then 0") if height.to_i <= 0
       end
@@ -101,7 +101,7 @@ class Iformat < ActiveRecord::Base
     
     def iformat_before_validation
       self[:site_id] = visitor.site[:id]
-      if self.size == 'keep'
+      if self.size == SIZES.index('keep')
         self[:width] = nil 
         self[:height] = nil
       end

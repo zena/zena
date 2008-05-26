@@ -589,27 +589,36 @@ class Node < ActiveRecord::Base
     # Translate attributes from the visitor's reference to the application.
     # This method translates dates, zazen shortcuts and zips and returns a stringified hash.
     def transform_attributes(new_attributes)
-      parent_id  = new_attributes[:_parent_id] # real id set inside zena.
+      res = {}
+      res['parent_id'] = new_attributes[:_parent_id] if new_attributes[:_parent_id] # real id set inside zena.
+      
       attributes = new_attributes.stringify_keys
-      attributes.delete('_parent_id')
 
-      if parent_id
-        attributes.delete('parent_id')
-      elsif p = attributes.delete('parent_id')
-        parent_id = Node.translate_pseudo_id(p) || p
+      if !res['parent_id'] && p = attributes['parent_id']
+        res['parent_id'] = Node.translate_pseudo_id(p) || p
       end
-
+      
       attributes.keys.each do |key|
-        if ['rgroup_id', 'wgroup_id', 'pgroup_id', 'user_id'].include?(key)
-          # ignore
+        next if ['_parent_id', 'parent_id'].include?(key)
+        
+        if ['rgroup_id', 'wgroup_id', 'pgroup_id'].include?(key)
+          res[key] = Group.translate_pseudo_id(attributes[key]) || attributes[key]
+        elsif ['rgroup', 'wgroup', 'pgroup'].include?(key)
+          res["#{key}_id"] = Group.translate_pseudo_id(attributes[key]) || attributes[key]
+        elsif ['user_id'].include?(key)
+          res[key] = User.translate_pseudo_id(attributes[key]) || attributes[key]
         elsif ['v_publish_from', 'log_at', 'event_at'].include?(key)
-          # parse date
-          attributes[key] = attributes[key].to_utc(_('datetime'), visitor.tz)
+          if attributes[key].kind_of?(Time)
+            res[key] = attributes[key]
+          else
+            # parse date
+            res[key] = attributes[key].to_utc(_('datetime'), visitor.tz)
+          end
         elsif key =~ /^(\w+)_id$/
           if key[0..1] == 'd_'
-            attributes[key] = Node.translate_pseudo_id(attributes[key],:zip) || attributes[key]
+            res[key] = Node.translate_pseudo_id(attributes[key],:zip) || attributes[key]
           else
-            attributes[key] = Node.translate_pseudo_id(attributes[key]) || attributes[key]
+            res[key] = Node.translate_pseudo_id(attributes[key]) || attributes[key]
           end
         elsif key =~ /^(\w+)_ids$/
           # Id list. Bad ids are removed.
@@ -619,32 +628,29 @@ class Node < ActiveRecord::Base
           else
             values.map! {|v| Node.translate_pseudo_id(v,:id ) }
           end
-          attributes[key] = values.compact
+          res[key] = values.compact
+        elsif key == 'file'
+          unless attributes[key].blank?
+            res[key] = attributes[key]
+          end
         else
           # translate zazen
           value = attributes[key]
           if value.kind_of?(String)
-            attributes[key] = ZazenParser.new(value,:helper=>self, :node=>self).render(:parse_shortcuts=>true)
+            res[key] = ZazenParser.new(value,:helper=>self, :node=>self).render(:parse_shortcuts=>true)
+          else
+            res[key] = value
           end
         end
       end
 
-
-      attributes['parent_id'] = parent_id if parent_id
-
-      attributes.delete('file') if attributes['file'] == ''
-
-      attributes
+      res
     end
 
     def get_attributes_from_yaml(filepath)
-      attributes = {}
-      YAML::load_documents( File.open( filepath ) ) do |entries|
-        entries.each do |key,value|
-          attributes[key] = value
-        end
-      end
-      attributes
+      attributes = YAML::load( File.read( filepath ) )
+      attributes.delete(:_parent_id)
+      transform_attributes(attributes)
     end
     
     # Return a safe string to access node attributes in compiled templates and compiled sql.
@@ -1263,8 +1269,8 @@ class Node < ActiveRecord::Base
         # FIXME: use a 'before_unpublish' callback to make sure all sub-nodes can be unpublished...
         documents.each do |doc|
           unless doc.unpublish
-            doc.errors.each do |err|
-              errors.add('document', err.to_s)
+            doc.errors.each do |k, v|
+              errors.add('document', "#{k} #{v}")
             end
             allOK = false
           end

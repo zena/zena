@@ -1,0 +1,96 @@
+Node_search_zafu:
+  node:            Node_search_zafu
+  skin_name:       default
+  format:          html
+  tkpath:          N
+  mode:            "*search"
+  klass:           Node
+  
+Node_zafu:
+  node:            Node_zafu
+  skin_name:       default
+  format:          html
+  tkpath:          N
+  mode:            
+  klass:           Node
+  
+Node_admin_layout_zafu:
+  node:            Node_admin_layout_zafu
+  skin_name:       default
+  format:          html
+  tkpath:          N
+  mode:            "*adminLayout"
+  klass:           Node
+  
+Node_index_zafu:
+  node:            Node_index_zafu
+  skin_name:       default
+  format:          html
+  tkpath:          N
+  mode:            "*index"
+  klass:           Node
+  
+Node_not_found_zafu:
+  node:            Node_not_found_zafu
+  skin_name:       default
+  format:          html
+  tkpath:          N
+  mode:            "*notFound"
+  klass:           Node
+  
+Node_popup_layout_zafu:
+  node:            Node_popup_layout_zafu
+  skin_name:       default
+  format:          html
+  tkpath:          N
+  mode:            "*popupLayout"
+  klass:           Node
+  
+notes_zafu:
+  node:            notes_zafu
+  skin_name:       default
+  format:          html
+  tkpath:          
+  mode:            
+  klass:           
+  
+Project_zafu:
+  node:            Project_zafu
+  skin_name:       default
+  format:          html
+  tkpath:          NPP
+  mode:            
+  klass:           Project
+  
+wiki_Node:
+  node:            wiki_Node
+  skin_name:       wiki
+  format:          html
+  tkpath:          N
+  mode:            
+  klass:           Node
+
+wiki_Project_changes_xml:
+  node:            wiki_Project_changes_xml
+  skin_name:       wiki
+  format:          xml
+  tkpath:          NPP
+  mode:            changes
+  klass:           Project
+
+wiki_Page_changes:
+  node:            wiki_Page_changes
+  skin_name:       wiki
+  format:          html
+  tkpath:          NP
+  mode:            changes
+  klass:           Page
+  
+Node_login:
+  node:            Node_login
+  skin_name:       default
+  format:          html
+  tkpath:          N
+  mode:            "*login"
+  klass:           Node
+  

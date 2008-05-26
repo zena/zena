@@ -10,11 +10,12 @@ class MultipleHostsTest < ActionController::IntegrationTest
     assert_equal 'test.host', anon.assigns(:visitor).site.host
     anon.get_node(:ocean, :host => 'ocean.host')
     assert_equal 'ocean.host', anon.assigns(:visitor).site.host
-    Node.connection.execute "UPDATE nodes set zip = 14 where id = 40" # whale
+    Node.connection.execute "UPDATE nodes set zip = 14 where id = #{nodes(:ocean_whale)[:id]}" # whale
+    Node.connection.execute "UPDATE nodes set zip = 14 where id = #{nodes(:zena_tiger)[:id]}" # tiger
     anon.get "http://ocean.host/en/contact14.html" # zip 14 ==> whale
-    assert_equal nodes(:whale)[:id], anon.assigns(:node)[:id]
+    assert_equal nodes(:ocean_whale)[:id], anon.assigns(:node)[:id]
     anon.get "http://test.host/en/contact14.html"  # zip 14 ==> tiger
-    assert_equal nodes(:tiger)[:id], anon.assigns(:node)[:id]
+    assert_equal nodes(:zena_tiger)[:id], anon.assigns(:node)[:id]
   end
   
   def test_visitor_anon
@@ -26,20 +27,21 @@ class MultipleHostsTest < ActionController::IntegrationTest
   end
   
   def test_cache
+    status_zip = nodes(:zena_status)[:zip]
     without_files('/test.host/public') do
       with_caching do
-        path = "/en/projects/cleanWater/page22.html"
+        path = "/en/projects/cleanWater/page#{status_zip}.html"
         filepath = "#{RAILS_ROOT}/sites/test.host/public#{path}"
         assert !File.exist?(filepath)
         anon.get "http://test.host#{path}"
         assert_equal 200, anon.status
         assert File.exist?(filepath), "Cache file created"
-        node = nodes(:status)
-        assert_equal 1, CachedPage.count(:conditions => "path like '%page22%'")
+        node = nodes(:zena_status)
+        assert_equal 1, CachedPage.count(:conditions => "path like '%page#{status_zip}%'")
         assert_not_equal 0, CachedPage.connection.execute("SELECT COUNT(*) as count_all FROM cached_pages_nodes WHERE node_id = #{node[:id]}").fetch_row[0].to_i
         node.visitor = Thread.current.visitor
         node.sweep_cache
-        assert_equal 0, CachedPage.count(:conditions => "path like '%page22%'")
+        assert_equal 0, CachedPage.count(:conditions => "path like '%page#{status_zip}%'")
         assert_equal 0, CachedPage.connection.execute("SELECT COUNT(*) as count_all FROM cached_pages_nodes WHERE node_id = #{node[:id]}").fetch_row[0].to_i
         assert !File.exist?(filepath)
       end
@@ -48,9 +50,9 @@ class MultipleHostsTest < ActionController::IntegrationTest
   
   def test_index
     anon.get 'http://test.host/en'
-    assert_equal nodes(:zena)[:id], anon.assigns(:node)[:id]
+    assert_equal nodes(:zena_zena)[:id], anon.assigns(:node)[:id]
     anon.get 'http://ocean.host/en'
-    assert_equal nodes(:ocean)[:id], anon.assigns(:node)[:id]
+    assert_equal nodes(:ocean_ocean)[:id], anon.assigns(:node)[:id]
   end
   
   private
@@ -59,11 +61,12 @@ class MultipleHostsTest < ActionController::IntegrationTest
     include Zena::Test::Integration
     
     def get_node(node_sym=:status, opts={})
-      @node = nodes(node_sym)
-      host = opts[:host] || 'test.host'
-      opts.delete(:host)
+      host = opts.delete(:host) || 'test.host'
       
       @site = Site.find_by_host(host)
+      
+      @node = nodes("#{@site.name}_#{node_sym}".to_sym)
+      
       if @node[:id] == @site.root_id
         name = []
       else

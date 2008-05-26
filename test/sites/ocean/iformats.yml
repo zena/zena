@@ -1,0 +1,7 @@
+
+header:
+  size:            force
+  gravity:         NorthGravity
+  width:           688
+  height:          178
+  updated_at:      2008-05-02

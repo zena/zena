@@ -10,8 +10,7 @@ class GroupTest < ZenaTestUnit
     assert !grp.public_group?, "'site' is not the public group."
     
     login(:whale)
-    grp = groups(:public)
-    assert !grp.public_group?, "'public' is not the public group for 'ocean.host'."
+    assert !grp.public_group?, "'ocean public' is not the public group for 'ocean.host'."
   end
   
   def test_site_group
@@ -22,7 +21,6 @@ class GroupTest < ZenaTestUnit
     assert !grp.site_group?, "'admin' is not the site group."
     
     login(:whale)
-    grp = groups(:workers)
     assert !grp.site_group?, "'site' is not the site group for 'ocean.host'."
   end
   

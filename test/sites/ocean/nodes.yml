@@ -1,0 +1,36 @@
+DEFAULTS:
+  created_at:      2006-02-01
+  updated_at:      2006-04-11
+  publish_from:    2006-03-10
+  ref_lang:        en
+  inherit:         yes
+  user:            whale
+
+ocean:
+  class:           Project
+  name:            other
+  inherit:         no
+  rgroup:          public
+  wgroup:          masters
+  pgroup:          masters
+  skin:            default
+
+incognito:
+  class:           Contact
+  parent:          ocean
+  skin:            default
+
+whale:
+  class:           Contact
+  name:            whale
+  parent:          ocean
+  skin:            default
+
+skin:
+  class:           Skin
+  name:            default
+  parent:          ocean
+
+Node:
+  class:           Template
+  parent:          skin

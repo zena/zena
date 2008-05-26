@@ -1,0 +1,11 @@
+DEFAULTS:
+  created_at:     2006-03-10
+  updated_at:     2006-03-12
+  
+public:
+
+admin:
+  
+workers:
+
+managers:
