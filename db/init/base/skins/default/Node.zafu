@@ -10,9 +10,10 @@
   <link href="style.css" rel="Stylesheet" type="text/css"/>
 
   <r:javascripts list='prototype,effects,zena'/>
+  <r:uses_calendar/>
 </head>
 
-<body>
+<body do='void' name='body'>
   <div id='top' do='root' do='link'/>
   <div id='header'>
     <div id='login' do='login_link'/>
@@ -61,12 +62,23 @@
             <li do='each' set_class='li_s[v_status]' do='link'/>
             <li do='add' before='self'/>
             <li class='inline_form' do='form'>
-              <p class='node_klass'>  <input type='select' name='klass' root_class='Page' without='Document'/></p>
+              <p class='node_klass'>  <input type='select' name='klass' root_class='Page'/></p>
               <p class='node_v_title'><input type='text' name='v_title' value=''/></p>
               <p class='btn_validate'><input type="submit" value='validate' tset_value='validate'/></p>
             </li>
           </ol>
         </r:pages>
+        <r:references name='references'><h3 do='trans'>references</h3>
+          <ol>
+            <li do='each' set_class='li_s[v_status]' do='link'/>
+            <li do='add' before='self'/>
+            <li class='inline_form' do='form'>
+              <p class='node_klass'>  <input type='select' name='klass' root_class='Reference'/></p>
+              <p class='node_c_name'><input type='text' name='c_name' value=''/></p>
+              <p class='btn_validate'><input type="submit" value='validate' tset_value='validate'/></p>
+            </li>
+          </ol>
+        </r:references>
         
       </div>
       <div id='main'>

@@ -330,6 +330,10 @@ where_two_attributes:
 many_or:
   src: "<r:tagged in='site' or='images in site' or='tags in site' do='each' join=',' do='[name]'/>"
   res: "art,bird,cleanWater,flower,lake,menu,news,opening,tree"
+  
+hot_or_page:
+  src: "<r:hot or='page in project'>...</r:hot>"
+  tem: "/:first.*.*links.relation_id = 5.*nodes.kpath LIKE 'NP%' AND nodes.project_id = #\{@node.get_project_id\}).*LIMIT 1"
 
 unlink:
   context:

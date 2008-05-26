@@ -135,7 +135,8 @@ class DocumentTest < ZenaTestUnit
       content_id = doc.c_id
       # new redaction in 'en'
       assert doc.update_attributes(:c_file=>uploaded_pdf('forest.pdf'), :v_title=>'forest gump'), "Can change file"
-      
+      assert_not_equal content_id, doc.c_id
+      assert !doc.c_new_record?
       doc = secure!(Node) { nodes(:water_pdf) }
       assert_equal 'forest gump', doc.v_title
       assert_equal 'pdf', doc.c_ext

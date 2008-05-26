@@ -60,6 +60,7 @@ class ImageTest < ZenaTestUnit
       assert_equal flo.c_size,   img.c_size
       assert_equal flo.c_width,  img.c_width
       assert_equal flo.c_height, img.c_height
+      # make sure old formated images are destroyed
     end
   end
   

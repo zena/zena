@@ -35,9 +35,15 @@ h2 { font-size:21px; line-height:42px;}
 .zazen em { font-style:italic;}
 .zazen strong { font-weight:bold;}
 .zazen img { border:1px solid #555; }
+.zazen .unlink img {border:0;}
+
 .img_left { margin:0 14px 14px 0;}
 .img_right { margin:0 0 14px 14px;}
 .img_with_title p { margin:0; font-style:italic; font-size:12px;}
+
+.edit a { visibility:hidden;}
+.edit:hover a { visibility:visible;}
+
 
 /* search */
 #search_results { width:500px; margin-left:150px; }
@@ -63,5 +69,5 @@ h2 { font-size:21px; line-height:42px;}
 
 /* tables */
 
-.zazen table td, .zazen table th { border:1px solid #555; padding:0 6px;}
-.zazen table th { background: #555; color:white; text-align:center;}
+.zazen td, .zazen th { border:1px solid #555; padding:0 6px;}
+.zazen th { background: #555; color:white; text-align:center;}

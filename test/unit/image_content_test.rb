@@ -94,7 +94,7 @@ class ImageContentTest < ZenaTestUnit
       assert img.file(@pv)  # create image with 'pv'  format
       assert img.file(@med) # create image with 'med' format
       # we have 3 files now
-      assert File.exist?(img.filepath       ), "File exist"
+      assert File.exist?(img.filepath      ), "File exist"
       assert File.exist?(img.filepath(@pv) ), "File exist"
       assert File.exist?(img.filepath(@med)), "File exist"
       # remove file
