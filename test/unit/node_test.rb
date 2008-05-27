@@ -11,6 +11,7 @@ class NodeTest < ZenaTestUnit
   }.freeze
   
   def test_find_by_path
+    Node.connection.execute "UPDATE nodes SET fullpath = NULL, basepath = NULL WHERE id = #{nodes_id(:wiki)}"
     login(:ant)
     node = nodes(:wiki)
     assert_nil node[:fullpath]
@@ -69,6 +70,7 @@ class NodeTest < ZenaTestUnit
   end
   
   def test_get_fullpath
+    Node.connection.execute "UPDATE nodes SET fullpath = NULL, basepath = NULL WHERE id IN (#{nodes_id(:lake)},#{nodes_id(:cleanWater)})"
     login(:ant)
     node = secure!(Node) { nodes(:lake)  }
     parent = node.parent

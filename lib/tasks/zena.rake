@@ -333,6 +333,38 @@ module Zena
             end
           end
         end
+        
+        # build fullpath
+        elements.each do |k, node|
+          make_paths(node, k)
+        end
+      end
+      
+      def make_paths(node, name)
+        if !node['fullpath']
+          if node['parent'] && parent = elements[node['parent']]
+            node['fullpath'] = (make_paths(parent, node['parent']).split('/') + [node['name'] || name]).join('/')
+            klass = if virtual_classes[site] && vc = virtual_classes[site][node['class']]
+              vc['real_class']
+            else
+              node['class']
+            end
+            begin
+              eval(klass).kpath =~ /^#{Page.kpath}/
+              if node['custom_base']
+                node['basepath'] = node['fullpath']
+              else
+                node['basepath'] = parent['basepath']
+              end
+            rescue NameError
+              raise NameError.new("[#{site} #{table} #{name}] could not find class #{klass}.")
+            end
+          else
+            node['basepath'] = ""
+            node['fullpath'] = ""
+          end
+        end
+        node['fullpath']
       end
       
       def insert_headers
@@ -348,7 +380,7 @@ module Zena
             klass = Module.const_get(klass)
             out_pair('kpath', klass.kpath)
           rescue NameError
-            raise NameError "[#{site} #{table} #{name}] unknown class '#{klass}'."
+            raise NameError.new("[#{site} #{table} #{name}] unknown class '#{klass}'.")
           end
         else
           raise NameError "[#{site} #{table} #{name}] missing 'class' attribute."
@@ -365,13 +397,13 @@ module Zena
         out_pair('max_status', max_status[site][name])
         out_pair('publish_from', publish_from[site][name])
         out_pair('inherit', elements[name]['inherit'] ? 'yes' : 'no')
-        ['rgroup_id', 'wgroup_id', 'pgroup_id', 'skin'].each do |k|
+        ['rgroup_id', 'wgroup_id', 'pgroup_id', 'skin', 'fullpath', 'basepath'].each do |k|
           out_pair(k, elements[name][k])
         end
       end
       
       def ignore_key?(k)
-        super || ['class', 'skin', 'inherit'].include?(k)
+        super || ['class', 'skin', 'inherit', 'zip', 'fullpath', 'basepath'].include?(k)
       end
   end
   FOXY_PARSER['nodes'] = FoxyNodeParser
