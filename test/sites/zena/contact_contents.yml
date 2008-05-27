@@ -45,3 +45,11 @@ lake:
   address:    Between Tanzania, Congo and Zambia
   zip:        848
   city:       Africa
+
+anonymous:
+  version:    anonymous_en
+  first_name: The Invisble
+  name:       Man
+  address:    Iping
+  zip:        848
+  city:       West Sussex

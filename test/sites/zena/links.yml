@@ -1,8 +1,3 @@
-# can be defined as:
-# opening_x_news:
-#   relation: node_has_tags
-#   comment: hot
-
 opening_in_news:
   relation:        node_has_tags
   source:          opening

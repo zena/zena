@@ -10,6 +10,16 @@ DEFAULTS:
   text:            ""
   number:          1
 
+ocean_en:
+  type:            Version
+  node:            ocean
+  user:            whale
+  comment:         new site
+  title:           Deep Ocean
+  summary:         The deep sound of peace
+  text:            Our oceans, when kept full of life, are full of animals
+
+
 incognito_en:
   type:            ContactVersion
   node:            incognito

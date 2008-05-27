@@ -1,8 +1,3 @@
-# can be written as
-# Note_Project:
-#   source_role: news
-#   target_role: calendar
-  
 note_has_calendars:
   source_kpath:    NN
   target_kpath:    NPP

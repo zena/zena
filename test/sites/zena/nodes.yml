@@ -4,9 +4,6 @@ DEFAULTS:
   ref_lang:        en
   inherit:         yes
   user:            tiger
-  v_publish_from:  2006-03-10
-  v_summary:       no summary yet
-  v_comment:       no comment yet
 
 zena:
   zip:             11
@@ -17,17 +14,13 @@ zena:
   wgroup:          workers
   pgroup:          managers
   skin:            default
-  v_title:         Zena the wild CMS
-  v_summary:       ''
-  v_text:          This is the root of your peaceful tests.
-
+  
 
 people:
   zip:             12
   class:           Section
   kpath:           NPS
   parent:          zena
-  v_title:         people
 
 ant:
   zip:             13
@@ -57,16 +50,6 @@ anonymous:
   class:           Contact
   parent:          people
   user:            lion
-  v_comment:       The Invisible Man
-  v_title:         Mr nobody
-  v_summary:       ""
-  v_text:          ""
-  c_first_name:    The Invisble
-  c_name:          Man
-  c_address:       Iping
-  c_zip:           848
-  c_city:          West Sussex
-  
 
 tiger:
   zip:             14
