@@ -395,15 +395,6 @@ wiki_page_changes_en:
       </r:with>
     </r:include>
 
-anonymous_en:
-  type:            ContactVersion
-  node:            anonymous
-  user:            tiger
-  comment:         The Invisible Man
-  title:           Mr nobody
-  summary:         ""
-  text:            ""
-
 wiki_node_en:
   type:            TemplateVersion
   node:            wiki_Node

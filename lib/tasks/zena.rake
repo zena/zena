@@ -453,7 +453,7 @@ module Zena
         @versions[site] ||= {}
         unless @versions[site][name]
           @versions[site][name] = version = {}
-          version[:node] = elements[name]
+          version[:node] = node = elements[name]
           version['node_id'] = ZenaTest::id(site, name)
           # set defaults
           @defaults.each do |k,v|
@@ -464,7 +464,19 @@ module Zena
           version['publish_from'] ||= elements[name]['publish_from']
           version['status'] ||= elements[name]['max_status'] || Zena::Status[:pub]
           version['lang']   ||= elements[name]['ref_lang']
+          version['site_id']  = ZenaTest::multi_site_id(site)
           version['number'] ||= 1
+          
+          if klass = Module.const_get(elements[name]['type'])
+            if klass = klass.version_class.content_class
+              if klass == ContactContent && !node['c_first_name']
+                first_name, user_name = node['v_title'].split
+                content_key('first_name', first_name)
+                content_key('name', user_name) if user_name
+              end
+            end
+          end
+                
         end
         if key == 'status'
           value = Zena::Status[key.to_sym]
@@ -472,13 +484,23 @@ module Zena
         @versions[site][name][key] = value
       end
       
-      def content_key(k,v)
+      def content_key(key,value)
+        @contents[site] ||= {}
+        klass = Module.const_get(elements[name]['type'])
+        klass = klass.version_class.content_class
+        @contents[site][klass] ||= {}
+        unless @contents[site][klass][name]
+          @contents[site][klass][name] = content = {}
+          content[:node] = elements[name]
+          content['site_id']  = ZenaTest::multi_site_id(site)
+        end
+        @contents[site][klass][name][key] = value
       end
       
       def after_parse
         super
         write_versions
-        #write_contents
+        write_contents
       end
       
       def write_versions
@@ -487,15 +509,35 @@ module Zena
           file.puts ""
         
           if versions = @versions[site]
-            versions.each do |k, version|
+            versions.each do |name, version|
               file.puts ""
               node = version.delete(:node)
-              version['id'] = ZenaTest::id(site, "#{k}_#{version['lang']}")
+              version['id'] = ZenaTest::id(site, "#{name}_#{version['lang']}")
               version['lang'] ||= node['ref_lang']
               version['user_id'] ||= ZenaTest::multi_site_id(node['user'])
               version['type'] = eval(node['type']).version_class
-              file.puts "#{site}_#{k}:"
+              file.puts "#{site}_#{name}:"
               version.each do |k,v|
+                file.puts sprintf('  %-16s %s', "#{k}:", v.to_s =~ /^\s*$/ ? v.inspect : v.to_s)
+              end
+            end
+          end
+        end
+      end
+      
+      def write_contents
+        (@contents[site] || {}).each do |klass, contents|
+          File.open("#{RAILS_ROOT}/test/fixtures/#{klass.table_name}.yml", 'ab') do |file|
+            file.puts "\n# ========== #{site} (generated from 'nodes.yml') ==========="
+            file.puts ""
+        
+            contents.each do |name, content|
+              file.puts ""
+              node = content.delete(:node)
+              content['id'] = ZenaTest::id(site, "#{name}_#{node['v_lang'] || node['ref_lang']}")
+              content['version_id'] = content['id']
+              file.puts "#{site}_#{name}:"
+              content.each do |k,v|
                 file.puts sprintf('  %-16s %s', "#{k}:", v.to_s =~ /^\s*$/ ? v.inspect : v.to_s)
               end
             end
@@ -798,8 +840,9 @@ namespace :zena do
     tables.delete('virtual_classes')
     tables.delete('versions')
     tables.delete('nodes')
-             # 1.                # 2.        # 3.
-    tables = ['virtual_classes', 'versions', 'nodes'] + tables
+    tables.delete('zips')
+             # 0.     # 1.                # 2.        # 3.     # 4.
+    tables = tables + ['virtual_classes', 'versions', 'nodes', 'zips']
     virtual_classes, versions, nodes = nil, nil, nil
     tables.each do |table|
       case table

@@ -57,6 +57,16 @@ anonymous:
   class:           Contact
   parent:          people
   user:            lion
+  v_comment:       The Invisible Man
+  v_title:         Mr nobody
+  v_summary:       ""
+  v_text:          ""
+  c_first_name:    The Invisble
+  c_name:          Man
+  c_address:       Iping
+  c_zip:           848
+  c_city:          West Sussex
+  
 
 tiger:
   zip:             14
