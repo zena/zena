@@ -641,6 +641,21 @@ module Zena
   FOXY_PARSER['relations'] = FoxyRelationParser
   
   
+  class FoxyLinkParser < FoxyParser    
+    private
+      def set_defaults
+        super
+        
+        elements.each do |name,rel|
+          if !rel['source'] && !rel['target']
+            rel['source'], rel['target'] = name.split('_x_')
+          end
+        end
+      end
+  end
+  FOXY_PARSER['links'] = FoxyLinkParser
+  
+  
   class FoxyZipParser < FoxyParser
     def initialize(table_name, opts = {})
       super
