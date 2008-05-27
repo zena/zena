@@ -10,20 +10,6 @@ DEFAULTS:
   summary:         no summary yet
   text:            nothing written yet
 
-zena_en:
-  type:            Version
-  node:            zena
-  user:            tiger
-  title:           Zena the wild CMS
-  summary:         ''
-  text:            This is the root of your peaceful tests.
-
-people_en:
-  type:            Version
-  node:            people
-  user:            tiger
-  title:           people
-
 
 ant_en:
   type:            ContactVersion

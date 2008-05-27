@@ -14,6 +14,12 @@ ocean:
   wgroup:          masters
   pgroup:          masters
   skin:            default
+  v_comment:       new site
+  v_title:         Deep Ocean
+  v_summary:       The deep sound of peace
+  v_text:          Our oceans, when kept full of life, are full of animals
+
+
 
 incognito:
   class:           Contact
