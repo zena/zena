@@ -641,7 +641,12 @@ module Zena
   FOXY_PARSER['relations'] = FoxyRelationParser
   
   
-  class FoxyLinkParser < FoxyParser    
+  class FoxyLinkParser < FoxyParser
+    attr_reader :nodes
+    def initialize(table_name, opts = {})
+      super
+      @nodes = opts[:nodes].all_elements
+    end
     private
       def set_defaults
         super
@@ -649,6 +654,13 @@ module Zena
         elements.each do |name,rel|
           if !rel['source'] && !rel['target']
             rel['source'], rel['target'] = name.split('_x_')
+          end
+          if !rel['relation']
+            src = nodes[site][rel['source']]
+            trg = nodes[site][rel['target']]
+            if src && trg
+              rel['relation'] = src['class'] + '_' + trg['class']
+            end
           end
         end
       end
@@ -905,8 +917,9 @@ namespace :zena do
     tables.delete('nodes')
     tables.delete('relations')
     tables.delete('zips')
-             # 0.     # 1.                # 2.        # 3.     # 4.    # 5.
-    tables = tables + ['virtual_classes', 'versions', 'nodes', 'zips', 'relations']
+    tables.delete('links')
+             # 0.     # 1.                # need vc   # vers.  # nodes  # need vc.   # need nodes
+    tables = tables + ['virtual_classes', 'versions', 'nodes', 'zips', 'relations', 'links']
     virtual_classes, versions, nodes = nil, nil, nil
     tables.each do |table|
       case table
@@ -923,6 +936,8 @@ namespace :zena do
         Zena::FOXY_PARSER[table].new(table, :nodes => nodes).run
       when 'relations'
         Zena::FOXY_PARSER[table].new(table, :virtual_classes => virtual_classes).run
+      when 'links'
+        Zena::FOXY_PARSER[table].new(table, :nodes => nodes).run
       else
         (Zena::FOXY_PARSER[table] || Zena::FoxyParser).new(table).run
       end
