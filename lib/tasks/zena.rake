@@ -288,14 +288,65 @@ module Zena
     private
       def set_defaults
         super
+        # set publish_from, max_status, ...
+        
+        elements.each do |name, node|
+          node.keys.each do |k|
+            if k =~ /^v_/
+              # need version defaults
+              @defaults.each do |key,value|
+                next unless key =~ /^v_/
+                node[key] = value
+              end
+              break
+            end
+          end
+          
+          klass = node['class']
+          if virtual_classes[site] && vc = virtual_classes[site][klass]
+            node['vclass_id'] = ZenaTest::id(site,klass)
+            node['type'] = eval(vc['real_class'])
+          elsif klass
+            node['type'] = eval(klass)
+            begin
+              klass = Module.const_get(klass)
+              node['kpath'] = klass.kpath
+            rescue NameError
+              raise NameError.new("[#{site} #{table} #{name}] unknown class '#{klass}'.")
+            end
+          else
+            raise NameError "[#{site} #{table} #{name}] missing 'class' attribute."
+          end
+          @zip_counter[site] ||= 0
+          if node['zip']
+            if node['zip'] > @zip_counter[site]
+              @zip_counter[site] = node['zip']
+            end
+          else
+            @zip_counter[site] += 1
+            node['zip'] = @zip_counter[site]
+          end
+          
+          publish_from[site][name] ||= node['v_publish_from']
+          
+          if status = node['v_status']
+            max_status[site][name] = Zena::Status[status.to_sym]
+          end
+          max_status[site][name] ||= node['v_status'] ? Zena::Status[node['v_status'].to_sym] : nil
+          
+          node['inherit'] = node['inherit'] ? 'yes' : 'no'
+        end
+        
+        
+        
         # set project, section, read/write/publish groups
 
-        [['project',"nil", "Node.get_class(parent['class']).kpath =~ /^\#{Project.kpath}/", "current['parent']"],
-         ['section',"nil", "Node.get_class(parent['class']).kpath =~ /^\#{Section.kpath}/", "current['parent']"],
-         ['rgroup' ,"!node['inherit']", "!parent['inherit']", "parent['rgroup']"],
-         ['wgroup' ,"!node['inherit']", "!parent['inherit']", "parent['wgroup']"],
-         ['pgroup' ,"!node['inherit']", "!parent['inherit']", "parent['pgroup']"],
-         ['skin' ,"!node['inherit']", "!parent['inherit']", "parent['skin']"],
+        [['project',"nil", "parent['type'].kpath =~ /^\#{Project.kpath}/", "current['parent']"],
+         ['section',"nil", "parent['type'].kpath =~ /^\#{Section.kpath}/", "current['parent']"],
+         ['rgroup' ,"node['inherit'] == 'no'", "parent['inherit'] == 'no'", "parent['rgroup']"],
+         ['wgroup' ,"node['inherit'] == 'no'", "parent['inherit'] == 'no'", "parent['wgroup']"],
+         ['pgroup' ,"node['inherit'] == 'no'", "parent['inherit'] == 'no'", "parent['pgroup']"],
+         ['skin' ,"node['inherit'] == 'no'", "parent['inherit'] == 'no'", "parent['skin']"],
          ].each do |key, next_if, parent_test, value|
           elements.each do |k,node|
             next if node[key] || eval(next_if)
@@ -376,57 +427,8 @@ module Zena
       def insert_headers
         super
         node  = elements[name]
-        klass = node['class']
-        if virtual_classes[site] && vc = virtual_classes[site][klass]
-          out_pair('vclass_id', ZenaTest::id(site,klass))
-          node['type'] = vc['real_class']
-          out_pair('type', vc['real_class'])
-          out_pair('kpath', vc['kpath'])
-        elsif klass
-          node['type'] = klass
-          out_pair('type', klass)
-          begin
-            klass = Module.const_get(klass)
-            out_pair('kpath', klass.kpath)
-          rescue NameError
-            raise NameError.new("[#{site} #{table} #{name}] unknown class '#{klass}'.")
-          end
-        else
-          raise NameError "[#{site} #{table} #{name}] missing 'class' attribute."
-        end
-        @zip_counter[site] ||= 0
-        if node['zip']
-          if node['zip'] > @zip_counter[site]
-            @zip_counter[site] = node['zip']
-          end
-          out_pair('zip', node['zip'])
-        else
-          out_pair('zip', @zip_counter[site] += 1)
-        end
-        if status = node['v_status']
-          max_status[site][name] = Zena::Status[status.to_sym]
-        end
-        
-        node.keys.each do |k|
-          if k =~ /^v_/
-            # need version defaults
-            @defaults.each do |key,value|
-              next unless key =~ /^v_/
-              node[key] = value
-            end
-            break
-          end
-        end
-        
-        publish_from[site][name] ||= node['v_publish_from']
-        max_status[site][name] ||= begin
-          node['v_status'] ? Zena::Status[node['v_status'].to_sym] : nil
-        end
-        
-        out_pair('max_status', max_status[site][name])
-        out_pair('publish_from', publish_from[site][name])
-        out_pair('inherit', node['inherit'] ? 'yes' : 'no')
-        ['rgroup_id', 'wgroup_id', 'pgroup_id', 'skin', 'fullpath', 'basepath'].each do |k|
+        ['type','vclass_id','kpath', 'zip', 'max_status', 'publish_from', 'inherit',
+         'rgroup_id', 'wgroup_id', 'pgroup_id', 'skin', 'fullpath', 'basepath'].each do |k|
           out_pair(k, node[k])
         end
       end
@@ -467,7 +469,7 @@ module Zena
           version['site_id']  = ZenaTest::multi_site_id(site)
           version['number'] ||= 1
           
-          if klass = Module.const_get(elements[name]['type'])
+          if klass = elements[name]['type']
             if klass = klass.version_class.content_class
               if klass == ContactContent && !node['c_first_name']
                 first_name, user_name = node['v_title'].split
@@ -486,7 +488,7 @@ module Zena
       
       def content_key(key,value)
         @contents[site] ||= {}
-        klass = Module.const_get(elements[name]['type'])
+        klass = elements[name]['type']
         klass = klass.version_class.content_class
         @contents[site][klass] ||= {}
         unless @contents[site][klass][name]
@@ -515,7 +517,7 @@ module Zena
               version['id'] = ZenaTest::id(site, "#{name}_#{version['lang']}")
               version['lang'] ||= node['ref_lang']
               version['user_id'] ||= ZenaTest::multi_site_id(node['user'])
-              version['type'] = eval(node['type']).version_class
+              version['type'] = node['type'].version_class
               file.puts "#{site}_#{name}:"
               version.each do |k,v|
                 file.puts sprintf('  %-16s %s', "#{k}:", v.to_s =~ /^\s*$/ ? v.inspect : v.to_s)
@@ -591,6 +593,52 @@ module Zena
       end
   end
   FOXY_PARSER['sites'] = FoxySiteParser
+  
+  
+  class FoxyRelationParser < FoxyParser
+    attr_reader :virtual_classes
+    def initialize(table_name, opts={})
+      super
+      @virtual_classes = opts[:virtual_classes].all_elements
+    end
+    
+    def insert_headers
+      super
+      ['source_kpath', 'target_kpath'].each do |k|
+        out_pair(k, elements[name][k])
+      end
+    end
+    
+    def ignore_key?(k)
+      super || ['source_kpath', 'target_kpath', 'source', 'target'].include?(k)
+    end
+    
+    
+    private
+      def set_defaults
+        super
+        
+        elements.each do |name,rel|
+          src = rel['source']
+          trg = rel['target']
+          if !src && !trg
+            src, trg = name.split('_')
+          end
+          rel['source_kpath'] ||= get_kpath(src)
+          rel['target_kpath'] ||= get_kpath(trg)
+        end
+      end
+      
+      def get_kpath(klass)
+        if vc = virtual_classes[site][klass]
+          vc['kpath']
+        else
+          eval(klass).kpath
+        end
+      end
+    
+  end
+  FOXY_PARSER['relations'] = FoxyRelationParser
   
   
   class FoxyZipParser < FoxyParser
@@ -840,9 +888,10 @@ namespace :zena do
     tables.delete('virtual_classes')
     tables.delete('versions')
     tables.delete('nodes')
+    tables.delete('relations')
     tables.delete('zips')
-             # 0.     # 1.                # 2.        # 3.     # 4.
-    tables = tables + ['virtual_classes', 'versions', 'nodes', 'zips']
+             # 0.     # 1.                # 2.        # 3.     # 4.    # 5.
+    tables = tables + ['virtual_classes', 'versions', 'nodes', 'zips', 'relations']
     virtual_classes, versions, nodes = nil, nil, nil
     tables.each do |table|
       case table
@@ -857,6 +906,8 @@ namespace :zena do
         nodes.run
       when 'zips'
         Zena::FOXY_PARSER[table].new(table, :nodes => nodes).run
+      when 'relations'
+        Zena::FOXY_PARSER[table].new(table, :virtual_classes => virtual_classes).run
       else
         (Zena::FOXY_PARSER[table] || Zena::FoxyParser).new(table).run
       end
