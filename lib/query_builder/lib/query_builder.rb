@@ -56,21 +56,13 @@ class QueryBuilder
       elements[-1], group  = last_element.split(' group by ')
     end
     
-    parts = elements.map do |e|
-      e, context_filter = e.split(' in ')
-      clause, filters = e.split(/\s+where\s+/)
-      [clause, context_filter, filters]
-    end
     
     # In order to know the table names of the dependencies, we need to parse it backwards.
     # We first find the closest elements, then the final ones. For example, "pages from project" we need
     # project information before getting 'pages'. 
-    parts.reverse!
+    elements.reverse!
     
-    parts.each do |e|
-      #e[1] ||= default_context_filter(e[0])
-      
-      add_table(main_table)
+    elements.each do |e|
       parse_part(e)
     end
     
@@ -119,7 +111,10 @@ class QueryBuilder
     end
   
     def parse_part(part)
-      clause, context, filters = *part
+      add_table(main_table)
+      
+      rest,   context = part.split(' in ')
+      clause, filters = rest.split(/\s+where\s+/)
       
       parse_filters(filters) if filters
       parse_context(context) if context # .. in project
@@ -356,12 +351,20 @@ class QueryBuilder
       return nil
     end
     
-    def context_filter_fields(clause)
+    def context_filter_fields(clause, as_sub = false)
       nil
     end
     
     def parse_context(clause)
-      if fields = context_filter_fields(clause)
+      if clause =~ /^(.*) as (.+)$/
+        # sub query using project_id or section_id context
+        from, clause = $1, $2
+        puts [from,clause].inspect
+        add_table(main_table)
+        parse_part(from)
+      end
+      
+      if fields = context_filter_fields(clause, !from.nil?)
         @filters << "#{field_or_param(fields[0])} = #{field_or_param(fields[1], table(main_table,-1))}" if fields != :void
       else
         @errors << "invalid context '#{clause}'"

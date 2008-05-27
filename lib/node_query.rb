@@ -49,16 +49,16 @@ class NodeQuery < QueryBuilder
     end
     
     # Used to resolve 'in' clauses ('in project', 'in parent', etc)
-    def context_filter_fields(rel)
+    def context_filter_fields(rel, as_sub = false)
       case rel
       when 'self'
         ['parent_id', 'id']
       when 'parent'
-        ['parent_id', 'parent_id']
+        as_sub ? ['parent_id', 'id'] : ['parent_id', 'parent_id']
       when 'project'
-        ['project_id', 'project_id']
+        as_sub ? ['project_id', 'id'] : ['project_id', 'project_id']
       when 'section'
-        ['section_id', 'section_id']
+        as_sub ? ['section_id', 'id'] : ['section_id', 'section_id']
       when 'site', main_table
         :void
       else

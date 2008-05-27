@@ -35,9 +35,14 @@ whale_en:
   comment:         admin user
   title:           Miss Whale
 
-
-Node_ocean_en:
+skin_en:
   type:            TemplateVersion
-  node:            Node_ocean
+  node:            skin
+  user:            whale
+  title:           skin
+
+Node_en:
+  type:            TemplateVersion
+  node:            Node
   user:            whale
   text:            "<html><body><h1 do='[v_title]'/></body></html>"

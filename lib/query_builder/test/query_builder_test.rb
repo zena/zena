@@ -19,14 +19,14 @@ class TestQuery < QueryBuilder
   
   private
     # Root filters (relations that can be solved without a join). Think 'in clause' (in self, in parent).
-    def context_filter_fields(clause)
+    def context_filter_fields(clause, as_sub = false)
       case clause
       when 'self'
         ['parent_id', 'id']
       when 'parent'
-        ['parent_id', 'parent_id']
+        as_sub ? ['parent_id', 'id'] : ['parent_id', 'parent_id']
       when 'project'
-        ['project_id', 'project_id']
+        as_sub ? ['project_id', 'id'] : ['project_id', 'project_id']
       when 'site', main_table
         :void
       else

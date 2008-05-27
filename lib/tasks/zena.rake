@@ -305,7 +305,8 @@ module Zena
           klass = node['class']
           if virtual_classes[site] && vc = virtual_classes[site][klass]
             node['vclass_id'] = ZenaTest::id(site,klass)
-            node['type'] = eval(vc['real_class'])
+            node['type']  = eval(vc['real_class'])
+            node['kpath'] = vc['kpath']
           elsif klass
             node['type'] = eval(klass)
             begin
@@ -317,22 +318,13 @@ module Zena
           else
             raise NameError "[#{site} #{table} #{name}] missing 'class' attribute."
           end
-          @zip_counter[site] ||= 0
-          if node['zip']
-            if node['zip'] > @zip_counter[site]
-              @zip_counter[site] = node['zip']
-            end
-          else
-            @zip_counter[site] += 1
-            node['zip'] = @zip_counter[site]
-          end
           
-          publish_from[site][name] ||= node['v_publish_from']
+          node['publish_from'] = publish_from[site][name] || node['v_publish_from']
           
           if status = node['v_status']
             max_status[site][name] = Zena::Status[status.to_sym]
           end
-          max_status[site][name] ||= node['v_status'] ? Zena::Status[node['v_status'].to_sym] : nil
+          node['max_status'] = max_status[site][name] || (node['v_status'] ? Zena::Status[node['v_status'].to_sym] : nil)
           
           node['inherit'] = node['inherit'] ? 'yes' : 'no'
         end
@@ -427,6 +419,17 @@ module Zena
       def insert_headers
         super
         node  = elements[name]
+        # we compute 'zip' here so that the order of the file is kept
+        @zip_counter[site] ||= 0
+        if node['zip']
+          if node['zip'] > @zip_counter[site]
+            @zip_counter[site] = node['zip']
+          end
+        else
+          @zip_counter[site] += 1
+          node['zip'] = @zip_counter[site]
+        end
+        
         ['type','vclass_id','kpath', 'zip', 'max_status', 'publish_from', 'inherit',
          'rgroup_id', 'wgroup_id', 'pgroup_id', 'skin', 'fullpath', 'basepath'].each do |k|
           out_pair(k, node[k])

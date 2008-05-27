@@ -10,11 +10,11 @@ class MultipleHostsTest < ActionController::IntegrationTest
     assert_equal 'test.host', anon.assigns(:visitor).site.host
     anon.get_node(:ocean, :host => 'ocean.host')
     assert_equal 'ocean.host', anon.assigns(:visitor).site.host
-    Node.connection.execute "UPDATE nodes set zip = 14 where id = #{nodes(:ocean_whale)[:id]}" # whale
-    Node.connection.execute "UPDATE nodes set zip = 14 where id = #{nodes(:zena_tiger)[:id]}" # tiger
-    anon.get "http://ocean.host/en/contact14.html" # zip 14 ==> whale
+    Node.connection.execute "UPDATE nodes set zip = 11114 where id = #{nodes(:ocean_whale)[:id]}" # whale
+    Node.connection.execute "UPDATE nodes set zip = 11114 where id = #{nodes(:zena_tiger)[:id]}" # tiger
+    anon.get "http://ocean.host/en/contact11114.html" # zip 11114 ==> whale
     assert_equal nodes(:ocean_whale)[:id], anon.assigns(:node)[:id]
-    anon.get "http://test.host/en/contact14.html"  # zip 14 ==> tiger
+    anon.get "http://test.host/en/contact11114.html"  # zip 11114 ==> tiger
     assert_equal nodes(:zena_tiger)[:id], anon.assigns(:node)[:id]
   end
   

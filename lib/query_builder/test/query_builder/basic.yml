@@ -9,7 +9,7 @@ objects_in_project:
   res: "SELECT objects.* FROM objects WHERE objects.project_id = PROJECT_ID"
 
 recipients:
-  res: "SELECT objects.* FROM objects,links WHERE objects.id = links.target_id AND links.relation_id = _ID(node_has_an_icon) AND links.source_id = ID"
+  res: "SELECT objects.* FROM objects,links WHERE objects.id = links.target_id AND links.relation_id = 4 AND links.source_id = ID"
 
 letters_in_project:
   res: "SELECT objects.* FROM objects WHERE objects.kpath LIKE 'NNL%' AND objects.project_id = PROJECT_ID"
@@ -23,7 +23,7 @@ order_single_table:
 
 order_many_tables:
   src: "recipients order by name ASC"
-  res: "SELECT objects.* FROM objects,links WHERE objects.id = links.target_id AND links.relation_id = _ID(node_has_an_icon) AND links.source_id = ID ORDER BY objects.name ASC"
+  res: "SELECT objects.* FROM objects,links WHERE objects.id = links.target_id AND links.relation_id = 4 AND links.source_id = ID ORDER BY objects.name ASC"
 
 limit:
   src: "objects in project limit 2"
@@ -41,4 +41,4 @@ recipients_or_objects:
   src:
     - "recipients"
     - "objects"
-  res: "SELECT objects.* FROM objects,links WHERE ((objects.id = links.target_id AND links.relation_id = _ID(node_has_an_icon) AND links.source_id = ID) OR (objects.parent_id = ID)) GROUP BY objects.id"
+  res: "SELECT objects.* FROM objects,links WHERE ((objects.id = links.target_id AND links.relation_id = 4 AND links.source_id = ID) OR (objects.parent_id = ID)) GROUP BY objects.id"
