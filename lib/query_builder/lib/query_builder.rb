@@ -62,8 +62,8 @@ class QueryBuilder
     # project information before getting 'pages'. 
     elements.reverse!
     
-    elements.each do |e|
-      parse_part(e)
+    elements.each_index do |i|
+      parse_part(elements[i], i == 0) # yes, is_last is first (parsing reverse)
     end
     
     @select << "#{table}.*"
@@ -86,7 +86,8 @@ class QueryBuilder
     
     table_list = []
     @tables.each do |t|
-      if joins = @join_tables[t]
+      table_name = t.split(/\s+/).last # objects AS ob1
+      if joins = @join_tables[table_name]
         table_list << "#{t} #{joins.join(' ')}"
       else
         table_list << t
@@ -110,14 +111,14 @@ class QueryBuilder
       @@main_table
     end
   
-    def parse_part(part)
+    def parse_part(part, is_last)
       add_table(main_table)
       
       rest,   context = part.split(' in ')
       clause, filters = rest.split(/\s+where\s+/)
       
       parse_filters(filters) if filters
-      parse_context(context) if context # .. in project
+      parse_context(context, is_last) if context # .. in project
       parse_relation(clause, context)
     end
     
@@ -351,20 +352,13 @@ class QueryBuilder
       return nil
     end
     
-    def context_filter_fields(clause, as_sub = false)
+    def context_filter_fields(clause, is_last = false)
       nil
     end
     
-    def parse_context(clause)
-      if clause =~ /^(.*) as (.+)$/
-        # sub query using project_id or section_id context
-        from, clause = $1, $2
-        puts [from,clause].inspect
-        add_table(main_table)
-        parse_part(from)
-      end
+    def parse_context(clause, is_last = false)
       
-      if fields = context_filter_fields(clause, !from.nil?)
+      if fields = context_filter_fields(clause, is_last)
         @filters << "#{field_or_param(fields[0])} = #{field_or_param(fields[1], table(main_table,-1))}" if fields != :void
       else
         @errors << "invalid context '#{clause}'"
