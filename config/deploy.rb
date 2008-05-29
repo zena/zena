@@ -194,6 +194,14 @@ task :create_vhost, :roles => :web do
                   )
     put(vhost, "/etc/apache2/sites-available/#{self[:host]}")
     run "test -e /etc/apache2/sites-enabled/#{self[:host]} || a2ensite #{self[:host]}"
+    
+    unless self[:host] =~ /^www/
+      vhost_www = render("config/vhost_www.rhtml", 
+                    :host        => self[:host]
+                    )
+      put(vhost_www, "/etc/apache2/sites-available/www.#{self[:host]}")
+      run "test -e /etc/apache2/sites-enabled/www.#{self[:host]} || a2ensite www.#{self[:host]}"
+    end
     run "/etc/init.d/apache2 reload"
   end
 end

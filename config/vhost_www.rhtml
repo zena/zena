@@ -1,0 +1,10 @@
+# zena apache2 vhost for <%= host %>
+# automatically generated file
+
+<VirtualHost *>
+  ServerName <%= host %>
+
+  RewriteEngine On
+  RewriteCond %{HTTP_HOST} ^www\.<%= host %>$ [NC]
+  RewriteRule ^(.*)$ http://<%= host %>$1 [R=301,L]
+</VirtualHost>
