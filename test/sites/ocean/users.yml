@@ -7,11 +7,11 @@ incognito:
   name:            Incognito
   lang:            en
 
-other_su:
+ocean_su:
   first_name:      Hyper
   name:            Super
-  login:           other_su
-  password:        <%= User.hash_password('other_su') %>
+  login:           ocean_su
+  password:        <%= User.hash_password('ocean_su') %>
   lang:            en
   
 whale:

@@ -1,0 +1,10 @@
+
+anon_in_complex:
+  user:            complex_anon
+  status:          moderated
+  contact:         anonymous
+
+admin_in_complex:
+  user:            complex_admin
+  status:          admin
+  contact:         admin

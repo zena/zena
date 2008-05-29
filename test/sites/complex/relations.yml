@@ -1,0 +1,10 @@
+Employee_Job:
+  source_role:     employee
+  target_role:     assigned_job
+
+Page_Course:
+  source_role:     description
+  target_role:     assigned_course
+
+Employee_Formation:
+  source_role:     

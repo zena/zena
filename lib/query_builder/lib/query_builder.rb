@@ -65,7 +65,7 @@ class QueryBuilder
     elements.each_index do |i|
       parse_part(elements[i], i == 0) # yes, is_last is first (parsing reverse)
     end
-    
+    @distinct ||= elements.size > 1
     @select << "#{table}.*"
     @limit         = parse_limit_clause(opts[:limit] || limit)
     @offset ||= parse_offset_clause(offset)

@@ -1,0 +1,20 @@
+DEFAULTS:
+  create_group:    public
+  icon:            ""
+  allowed_attributes:
+
+Employee:
+  kpath:           NRCE
+  real_class:      Contact
+
+Job:
+  kpath:           NPPJ
+  real_class:      Project
+
+Course:
+  kpath:           NPC
+  real_class:      Page
+  
+Formation:
+  kpath:           NNF
+  real_class:      Note

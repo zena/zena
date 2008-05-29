@@ -2,8 +2,8 @@ incognito_in_other:
   user:            incognito
   status:          moderated
 
-other_su_in_other:
-  user:            other_su
+ocean_su_in_other:
+  user:            ocean_su
   status:          su
   
 whale_in_other:

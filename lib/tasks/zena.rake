@@ -190,8 +190,10 @@ module Zena
         
         definitions.each do |l|
           if l =~ /^\s+([\w\_]+):\s*([^\s].*)$/
-            unless ignore_key?($1)
-              out_pair($1,$2)
+            k, v = $1, $2
+            v = nil if v =~ /^\s*$/
+            unless ignore_key?(k)
+              out_pair(k,v)
             end
           else
             out l
@@ -202,6 +204,8 @@ module Zena
       
       def insert_headers
         out ""
+        element = elements[name]
+        
         if ZenaTest::multi_site_tables.include?(table)
           out "#{name}:"
         else
@@ -210,10 +214,11 @@ module Zena
         
         if column_names.include?('id')
           if ZenaTest::multi_site_tables.include?(table)
-            out_pair('id', ZenaTest::multi_site_id(name))
+            element['id'] = ZenaTest::multi_site_id(name)
           else
-            out_pair('id', ZenaTest::id(site,name))
-          end
+            element['id'] = ZenaTest::id(site, name)
+          end  
+          out_pair('id', element['id'])
         end
         
         out_pair('site_id', ZenaTest::multi_site_id(site)) if column_names.include?('site_id')
@@ -226,7 +231,6 @@ module Zena
           insert_multi_site_id(k)
         end
         
-        element = elements[name]
         element[:defaults_keys].each do |k|
           next if ignore_key?(k)
           out_pair(k, element[k])
@@ -441,7 +445,6 @@ module Zena
       end
       
       def out_pair(k,v)
-        return if v.nil?
         if k.to_s =~ /^v_(.+)/
           # add key to default version
           version_key($1,v)
@@ -535,12 +538,13 @@ module Zena
           File.open("#{RAILS_ROOT}/test/fixtures/#{klass.table_name}.yml", 'ab') do |file|
             file.puts "\n# ========== #{site} (generated from 'nodes.yml') ==========="
             file.puts ""
-        
+            columns = klass.column_names
             contents.each do |name, content|
               file.puts ""
               node = content.delete(:node)
               content['id'] = ZenaTest::id(site, "#{name}_#{node['v_lang'] || node['ref_lang']}")
-              content['version_id'] = content['id']
+              content['version_id'] = content['id'] if columns.include?('version_id')
+              content['node_id'] = node['id'] if columns.include?('node_id')
               file.puts "#{site}_#{name}:"
               content.each do |k,v|
                 file.puts sprintf('  %-16s %s', "#{k}:", v.to_s =~ /^\s*$/ ? v.inspect : v.to_s)

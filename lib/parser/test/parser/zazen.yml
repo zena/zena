@@ -141,6 +141,10 @@ link_with_ending_punct:
   src: "I love \"\":20."
   res: "<p>I love [make_link id:|20| title:||].</p>"
 
+link_in_par:
+  src: 'blah ("hello":45)'
+  res: "<p>blah ([make_link id:|45| title:|hello|])</p>"
+
 complex_link_with_commas:
   src: "download: \"small\":30_std.data, \"full\":30.data."
   res: "<p>download: [make_link id:|30_std.data| title:|small|], [make_link id:|30.data| title:|full|].</p>"

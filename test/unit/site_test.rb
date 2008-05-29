@@ -140,7 +140,7 @@ class SiteTest < ZenaTestUnit
     su = site.su
     assert_kind_of User, su
     assert_equal 'Hyper', su.first_name
-    assert_equal users_id(:other_su), su[:id]
+    assert_equal users_id(:ocean_su), su[:id]
     su.site = site
     assert su.is_su?
   end

@@ -1,7 +1,7 @@
 ocean:
   host:            ocean.host
   root:            ocean
-  su:              other_su
+  su:              ocean_su
   anon:            incognito
   public_group:    public
   site_group:      aqua

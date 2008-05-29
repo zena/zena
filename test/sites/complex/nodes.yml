@@ -1,0 +1,176 @@
+DEFAULTS:
+  updated_at:      2003-02-01
+  created_at:      2003-02-01
+  ref_lang:        fr
+  inherit:         yes
+  user:            admin
+  v_status:        pub
+  v_publish_from:  2003-02-01
+
+complex:  
+  class:           Project
+  inherit:         no
+  rgroup:          public
+  wgroup:          complex
+  pgroup:          admin
+  skin:            cskin
+  v_title:         complex site
+
+cskin:
+  class:           Skin
+  parent:          complex
+  v_title:         cskin
+
+Node_zafu:
+  class:           Template
+  parent:          cskin
+  name:            Node
+  v_title:         Node
+  c_skin_name:     cskin
+  c_format:        html
+  c_tkpath:        N
+  c_klass:         Node
+
+# ------------- EMPLOYEES
+employees:
+  class:           Section
+  parent:          complex
+  v_title:         list of employees
+
+roger:
+  class:           Employee
+  parent:          employees
+  v_title:         Roger Ubercool
+
+joe:
+  class:           Employee
+  parent:          employees
+  v_title:         Joe Friendly
+
+mike:
+  class:           Employee
+  parent:          employees
+  v_title:         Mike Mean
+
+# ------------- JOBS
+jobs:
+  class:           Section
+  parent:          complex
+  v_title:         jobs
+  
+driver:
+  class:           Job
+  parent:          jobs
+  v_title:         driver
+
+driver_security:
+  class:           Page
+  parent:          driver
+  v_title:         security
+
+driver_team:
+  class:           Page
+  parent:          driver
+  v_title:         team work
+
+driver_mechanical:
+  class:           Page
+  parent:          driver
+  v_title:         mechanical
+  
+technician:
+  class:           Job
+  parent:          jobs
+  v_title:         technician
+
+technician_security:
+  class:           Page
+  parent:          technician
+  v_title:         security
+
+technician_team:
+  class:           Page
+  parent:          technician
+  v_title:         team work
+
+technician_fiber:
+  class:           Page
+  parent:          technician
+  v_title:         optical fiber
+
+chief:
+  class:           Job
+  parent:          jobs
+  v_title:         chief
+  name:            chief
+
+chief_motivation:
+  class:           Page
+  parent:          chief
+  v_title:         team motivation
+
+chief_image:
+  class:           Page
+  parent:          chief
+  v_title:         corporate image
+
+# ------------- COURSES
+courses:
+  class:           Page
+  parent:          complex
+  v_title:         courses list
+
+dangerous_transportations:
+  class:           Course
+  parent:          courses
+  v_title:         dangerous transportations
+
+formulate_problems:
+  class:           Course
+  parent:          courses
+  v_title:         problem formulation
+
+transmit_information:
+  class:           Course
+  parent:          courses
+  v_title:         information transmission
+
+engine:
+  class:           Course
+  parent:          courses
+  v_title:         engine maintenance
+
+secure_a_site:
+  class:           Course
+  parent:          courses
+  v_title:         secure a site
+
+winch_usage:
+  class:           Course
+  parent:          courses
+  v_title:         how to use the winch
+
+radio_usage:
+  class:           Course
+  parent:          courses
+  v_title:         how to use the radio
+
+fiber_junction:
+  class:           Course
+  parent:          courses
+  v_title:         fiber junction
+
+resp_management:
+  class:           Course
+  parent:          courses
+  v_title:         responsabilities management
+
+team_motivation:
+  class:           Course
+  parent:          courses
+  v_title:         motivate your team
+
+vision:
+  class:           Course
+  parent:          courses
+  v_title:         our vision

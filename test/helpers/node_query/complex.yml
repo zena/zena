@@ -1,0 +1,45 @@
+default:
+  context:
+    node_name: '@node'
+    node: complex
+    visitor: complex_admin
+    site: complex
+  src: ""
+  sql: "SELECT nodes.* FROM nodes WHERE nodes.parent_id = #{@node.id} AND (#{@node.secure_scope('nodes')}) ORDER BY nodes.position ASC, nodes.name ASC"
+  res: "courses, cskin, employees, jobs"
+
+assigned_jobs:
+  context:
+    node: roger
+  src: assigned_jobs
+  res: "driver, technician"
+
+courses_assigned_to_driver_team:
+  context:
+    node: driver_team
+  src: assigned_courses
+  res: "formulate_problems, transmit_information"
+
+all_courses_in_driver:
+  context:
+    node: driver
+  src: assigned_courses from pages in project
+  res: "dangerous_transportations, engine, formulate_problems, transmit_information"
+
+all_courses_for_roger:
+  context:
+    node: roger
+  src: assigned_courses from pages in project from assigned_jobs
+  res: "dangerous_transportations, engine, fiber_junction, formulate_problems, radio_usage, secure_a_site, transmit_information, winch_usage"
+
+all_courses_for_joe:
+  context:
+    node: joe
+  src: assigned_courses from pages in project from assigned_jobs
+  res: "fiber_junction, formulate_problems, radio_usage, secure_a_site, transmit_information, winch_usage"
+
+all_courses_for_mike:
+  context:
+    node: mike
+  src: assigned_courses from pages in project from assigned_jobs
+  res: "fiber_junction, formulate_problems, radio_usage, resp_management, secure_a_site, team_motivation, transmit_information, vision, winch_usage"

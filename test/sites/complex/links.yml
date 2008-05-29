@@ -1,0 +1,39 @@
+# ====== assigned_jobs
+roger_x_driver:
+  
+roger_x_technician:
+
+joe_x_technician:
+
+mike_x_technician:
+
+mike_x_chief:
+
+# ====== assigned_courses for 'driver'
+driver_security_x_dangerous_transportations:
+  
+driver_team_x_formulate_problems:
+  
+driver_team_x_transmit_information:
+
+driver_mechanical_x_engine:
+
+# ====== assigned_courses for 'technician'
+technician_security_x_secure_a_site:
+
+technician_security_x_winch_usage:
+  
+technician_team_x_radio_usage:
+
+technician_team_x_formulate_problems:
+
+technician_team_x_transmit_information:
+
+technician_fiber_x_fiber_junction:
+  
+# ====== assigned_courses for 'chief'
+chief_motivation_x_resp_management:
+
+chief_motivation_x_team_motivation:
+
+chief_image_x_vision:

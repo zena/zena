@@ -8,7 +8,6 @@ class TrivialScript < UserCommand
   def initialize(*args)
     super
     @cmd = "ruby #{ARGV.join(' ')}"
-    File.open("/Users/gaspard/svk/zena/test/log.txt", 'wb') {|f| f.puts @cmd.inspect }
     @display_name = ARGV.last
     @lang         = "Ruby"
   end
