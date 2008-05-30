@@ -14,13 +14,13 @@
   <% end %>
   <table cellspacing='0' class='edit_relation'>
     <tr><th></th><th><%= _('source') %></th><th><%= _('target') %></th></tr>
-    <tr><td class="label" ><%= _('icon') %></td>   
-      <td class="source" ><%= text_field('relation', 'source_icon', :size=>18 ) %></td>
-      <td class="target" ><%= text_field('relation', 'target_icon', :size=>18 ) %></td>
-    </tr>
     <tr><td class="label" ><%= _('role') %></td>   
       <td class="source" ><%= text_field('relation', 'source_role', :size=>18 ) %></td>
       <td class="target" ><%= text_field('relation', 'target_role', :size=>18 ) %></td>
+    </tr>
+    <tr><td class="label" ><%= _('icon') %></td>   
+      <td class="source" ><%= text_field('relation', 'source_icon', :size=>18 ) %></td>
+      <td class="target" ><%= text_field('relation', 'target_icon', :size=>18 ) %></td>
     </tr>
     <tr><td class="label" ><%= _('type') %></td>   
       <td class="source" ><%= radio_button("relation", "source_unique", true) %> <%= _('relation_img') %>

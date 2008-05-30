@@ -146,6 +146,17 @@ module Zafu
       end
     end
     
+    def r_select
+      res   = "<#{@html_tag}#{params_to_html(@params)}"
+      @html_tag_done = true
+      inner = expand_with
+      if inner == ''
+        res + "/>"
+      else
+        res + ">#{inner}"
+      end
+    end
+    
     def r_input
       res   = "<#{@html_tag}#{params_to_html(@params)}"
       @html_tag_done = true
@@ -187,7 +198,7 @@ module Zafu
       @space_before = @options[:space_before]
       @options.delete(:space_before)
       
-      # form capture (input, textarea, form)
+      # form capture (input, select, textarea, form)
       @options[:form] ||= true if @method == 'form'
       
       # puts "[#{@space_before}(#{@method})#{@space_after}]"
@@ -315,7 +326,7 @@ module Zafu
         opts.merge!(:method=>($4||$5), :html_tag=>$1, :html_tag_params=>$2, :params=>$6)
         opts.merge!(:text=>'') if $7 != ''
         make(:void, opts)
-      elsif @options[:form] && @text =~ /\A<(input|textarea|form)([^>]*?)(\/?)>/
+      elsif @options[:form] && @text =~ /\A<(input|select|textarea|form)([^>]*?)(\/?)>/
         eat $&
         method = $1 == 'form' ? 'form_tag' : $1 # <form> ==> r_form_tag, <r:form> ==> r_form
         opts.merge!(:method=>method, :params=>$2)

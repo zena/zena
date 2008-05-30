@@ -42,4 +42,6 @@ all_courses_for_mike:
   context:
     node: mike
   src: assigned_courses from pages in project from assigned_jobs
+  # TODO: optimization
+  #sql: "SELECT no1.*,li1.id AS link_id, links.status AS l_status, links.comment AS l_comment FROM nodes,links,nodes AS no1,links AS li1 WHERE no1.id = li1.target_id AND li1.relation_id = 512923747 AND li1.source_id = nodes.id AND nodes.kpath LIKE 'NP%' AND nodes.project_id = links.target_id AND links.relation_id = 813976280 AND links.source_id = \#{@node.id} AND (\#{@node.secure_scope('no1')}) GROUP BY no1.id ORDER BY no1.position ASC, no1.name ASC"
   res: "fiber_junction, formulate_problems, radio_usage, resp_management, secure_a_site, team_motivation, transmit_information, vision, winch_usage"

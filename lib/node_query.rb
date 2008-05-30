@@ -279,9 +279,11 @@ module Zena
     
 
     module InstanceMethods
-      def do_find(count, query, ignore_source = false)
+      
+      # Find a node and propagate visitor
+      def do_find(count, query)
         return nil if query.empty?
-        return nil if new_record? && !ignore_source
+        return nil if new_record? # do not run query (might contain nil id)
         res = Node.find_by_sql(query)
         if count == :all
           if res == []

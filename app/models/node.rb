@@ -381,26 +381,30 @@ class Node < ActiveRecord::Base
           type   = :folder
           name   = filename
           sub_folder = path
-        elsif filename =~ /^(.+?)(\.\w\w|)(\.\d+|)\.yml$/
+        elsif filename =~ /^(.+?)(\.\w\w|)(\.\d+|)\.zml$/  # bird.jpg.en.zml
+          # node content in yaml
           type   = :node
-          name   = $1
-          lang   = $2.blank? ? visitor.lang : $2[1..-1]
+          name   = "#{$1}#{$4}"
+          lang   = $2.blank? ? nil : $2[1..-1]
           attrs  = defaults.merge(get_attributes_from_yaml(path))
           attrs['name']     = name
-          attrs['v_lang'] ||= lang
+          attrs['v_lang']   = lang || attrs['v_lang'] || visitor.lang
           versions << attrs
-        else
+        elsif filename =~ /^(.+?)(\.\w\w|)(\.\d+|)$/ # bird.jpg.en
           type   = :document
-          name   = filename
+          name   = $1
+          attrs  = defaults.dup
+          lang = $2.blank? ? nil : $2[1..-1]
+          attrs['v_lang']   = lang || attrs['v_lang'] || visitor.lang
           document_path = path
         end
         
         index += 1
-        while entries[index] =~ /^#{name}(\.\w\w|)(\.\d+|)\.yml$/
+        while entries[index] =~ /^#{name}(\.\w\w|)(\.\d+|)\.zml$/ # bird.jpg.en.zml
           lang   = $1.blank? ? visitor.lang : $1[1..-1]
           path   = File.join(folder,entries[index])
           
-          # we have a yml file. Create a version with this file
+          # we have a zml file. Create a version with this file
           attrs = defaults.merge(get_attributes_from_yaml(path))
           attrs['name']     = name
           attrs['v_lang'] ||= lang
@@ -435,7 +439,8 @@ class Node < ActiveRecord::Base
             attrs['name' ] = attrs['name'].split('.')[0..-2].join('.')
             if document_path
               # file
-              ctype = EXT_TO_TYPE[document_path.split('.').last][0] || "application/octet-stream"
+              ctype = EXT_TO_TYPE[attrs['c_ext']]
+              ctype = ctype ? ctype[0] : "application/octet-stream"
               
               File.open(document_path) do |file|
                 (class << file; self; end;).class_eval do

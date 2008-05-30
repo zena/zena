@@ -28,7 +28,7 @@ class TextDocument < Document
       case $1
       when 'x-ruby-script'
         'ruby'
-      when 'html', 'x-zafu-script'
+      when 'html', 'zafu'
         'zafu'
       else
         $1

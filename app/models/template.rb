@@ -19,7 +19,7 @@ class Template < TextDocument
   
   class << self
     def accept_content_type?(content_type)
-      content_type =~ /text\/(html|x-zafu-script)/ 
+      content_type =~ /text\/(html|zafu)/ 
     end
     
     def version_class

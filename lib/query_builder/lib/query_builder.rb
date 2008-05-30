@@ -67,7 +67,7 @@ class QueryBuilder
     end
     @distinct ||= elements.size > 1
     @select << "#{table}.*"
-    @limit         = parse_limit_clause(opts[:limit] || limit)
+    @limit    = parse_limit_clause(opts[:limit] || limit)
     @offset ||= parse_offset_clause(offset)
     
     merge_alternate_queries(alt_queries) if alt_queries

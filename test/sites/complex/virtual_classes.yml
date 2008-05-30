@@ -12,8 +12,8 @@ Job:
   real_class:      Project
 
 Course:
-  kpath:           NPC
-  real_class:      Page
+  kpath:           NPPC
+  real_class:      Project
   
 Formation:
   kpath:           NNF

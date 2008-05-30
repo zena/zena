@@ -21,7 +21,7 @@ class TemplateContent < ActiveRecord::Base
   end
   
   def content_type
-    "text/x-zafu-script"
+    "text/zafu"
   end
   
   def content_type=(s)

@@ -841,9 +841,12 @@ done: \"I am done\""
     nodes = secure!(Node) { Node.create_nodes_from_folder(:folder => File.join(RAILS_ROOT, 'test', 'fixtures', 'import'), :parent_id => parent[:id] )}.values
     children = parent.find(:all, 'children')
     assert_equal 2, children.size
-    assert_equal 3, nodes.size
-    bird   = nil
-    nodes.each {|n| bird = n if n[:name] == 'bird'}
+    assert_equal 4, nodes.size
+    bird, doc   = nil, nil
+    nodes.each do |n|
+      bird = n if n[:name] == 'bird'
+      doc  = n if n[:name] == 'document'    
+    end
     simple = secure!(Node)  { Node.find_by_name_and_parent_id('simple', parent[:id]) }
     photos = secure!(Node) { Node.find_by_name_and_parent_id('photos', parent[:id]) }
     
@@ -859,14 +862,22 @@ done: \"I am done\""
     assert_equal 'Le septième ciel', versions[0].title
     assert_equal 'Photos !', photos.v_title
     assert_match %r{Here are some photos.*!\[\]!}m, photos.v_text
-    assert_equal bird[:id], photos.find(:all, 'children')[0][:id]
+    in_photos = photos.find(:all, 'children')
+    assert_equal 2, in_photos.size
+    
+    assert_equal bird[:id], in_photos[0][:id]
+    assert_equal doc[:id], in_photos[1][:id]
+    doc_versions = doc.versions.sort { |a,b| a[:lang] <=> b[:lang]}
+    assert_equal 2, doc_versions.size
+    assert_match %r{two}, doc_versions[0].text
+    assert_match %r{deux}, doc_versions[1].text
   end
   
   def test_create_nodes_from_gzip_file
     login(:tiger)
     parent = secure!(Project) { Project.create(:name => 'import', :parent_id => nodes_id(:zena)) }
     assert !parent.new_record?, "Not a new record"
-    nodes = secure!(Node) { Node.create_nodes_from_folder(:archive => uploaded_archive('simple.yml.gz'), :parent_id => parent[:id] )}.values
+    nodes = secure!(Node) { Node.create_nodes_from_folder(:archive => uploaded_archive('simple.zml.gz'), :parent_id => parent[:id] )}.values
     assert_equal 1, nodes.size
     simple = nodes[0]
     assert_kind_of Note, simple
@@ -879,7 +890,7 @@ done: \"I am done\""
     parent = secure!(Project) { Project.create(:name => 'import', :parent_id => nodes_id(:zena), :rgroup_id => groups_id(:managers), :wgroup_id => groups_id(:managers)) }
     assert !parent.new_record?, "Not a new record"
     result = secure!(Node) { Node.create_nodes_from_folder(:folder => File.join(RAILS_ROOT, 'test', 'fixtures', 'import'), :parent_id => parent[:id] )}.values
-    assert_equal 3, result.size
+    assert_equal 4, result.size
     
     children = parent.find(:all, 'children order by name ASC')
     assert_equal 2, children.size
@@ -890,7 +901,7 @@ done: \"I am done\""
     
     # we use children[1] as parent just to use any empty node
     result = secure!(Node) { Node.create_nodes_from_folder(:folder => File.join(RAILS_ROOT, 'test', 'fixtures', 'import'), :parent_id => children[1][:id], :defaults => { :rgroup_id => groups_id(:public) } )}.values
-    assert_equal 3, result.size
+    assert_equal 4, result.size
     
     children = children[1].find(:all, 'children order by name ASC')
     assert_equal 2, children.size

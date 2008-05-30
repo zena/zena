@@ -237,8 +237,10 @@ EXT_TYPE = [
   [ "xpm"       , "image/x-xpixmap"                ],
   [ "xwd"       , "image/x-xwindowdump"            ],
   [ "xyz"       , "chemical/x-pdb"                 ],
-  [ "zafu"      , "text/x-zafu-script"             ],
+  [ "yml"       , "text/yaml"                      ],
+  [ "zafu"      , "text/zafu"                      ],
   [ "zip"       , "application/zip"                ],
+  [ "zml"       , "text/znode"                     ],
 ]
 
 def make_hashes(h)

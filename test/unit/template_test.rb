@@ -10,7 +10,7 @@ class TemplateTest < ZenaTestUnit
     assert doc.errors[:parent_id], "Invalid parent (section is not a skin)"
     doc = secure!(Document) { Document.create(:parent_id=>nodes_id(:default), :name=>'super.zafu')}
     assert !doc.new_record?, "Not a new record"
-    assert_equal 'text/x-zafu-script', doc.c_content_type
+    assert_equal 'text/zafu', doc.c_content_type
     assert_equal 'zafu', doc.c_ext
   end
   
@@ -18,7 +18,7 @@ class TemplateTest < ZenaTestUnit
     login(:tiger)
     doc = secure!(Document) { Document.create(:parent_id=>nodes_id(:default), :name=>'super.zafu', :c_mode => '')}
     assert !doc.new_record?, "Not a new record"
-    assert_equal 'text/x-zafu-script', doc.c_content_type
+    assert_equal 'text/zafu', doc.c_content_type
     assert_nil doc.c_mode
     assert_equal 'zafu', doc.c_ext
   end
@@ -27,7 +27,7 @@ class TemplateTest < ZenaTestUnit
     login(:tiger)
     doc = secure!(Template) { Template.create(:parent_id=>nodes_id(:default), :c_klass=>'Section') }
     assert !doc.new_record?, "Not a new record"
-    assert_equal 'text/x-zafu-script', doc.c_content_type
+    assert_equal 'text/zafu', doc.c_content_type
     assert_nil doc.c_mode
     assert_equal 'zafu', doc.c_ext
     assert_equal 'Section', doc.c_klass
@@ -52,7 +52,7 @@ class TemplateTest < ZenaTestUnit
   def test_create_with_file
     login(:tiger)
     doc = secure!(Document) { Document.create(:parent_id=>nodes_id(:default), :name=>'skiny', 
-      :c_file=>uploaded_file('some.txt', content_type="text/x-zafu-script", 'smoke'))}
+      :c_file=>uploaded_file('some.txt', content_type="text/zafu", 'smoke'))}
     assert_kind_of Template, doc
     assert !doc.new_record?, "Not a new record"
     assert_equal 'skiny.zafu', doc.c_filename

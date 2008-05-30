@@ -453,6 +453,8 @@ module Zena
         "<%= _(#{text}) %>"
       end
     end
+    
+    alias r_t r_trans
         
     def r_anchor(obj=node)
       if @anchor_param =~ /\[(.+)\]/
@@ -629,36 +631,38 @@ module Zena
       @html_tag_done = true
     end
     
+    
+    # <r:select name='klass' root_class='...'/>
+    # <r:select name='parent_id' values='projects in site'/>
+    # TODO: optimization (avoid loading full AR to only use [id, name])
+    def r_select
+      html_attributes, attribute = get_input_params()
+      return parser_error("missing name") unless attribute
+      select_opts = {}
+      select_opts[:selected] = @params[:selected] if @params[:selected]
+      if klass = @params[:root_class]
+        class_opts = {}
+        class_opts[:without]   = @params[:without]  if @params[:without]
+        # do not use 'selected' if the node is not new
+        "<% if #{node}.new_record? -%><%= select('#{base_class.to_s.underscore}', #{attribute.inspect}, Node.classes_for_form(:class => #{klass.inspect}#{params_to_erb(class_opts)})#{params_to_erb(select_opts)}) %><% else -%><%= select('#{base_class.to_s.underscore}', #{attribute.inspect}, Node.classes_for_form(:class => #{klass.inspect}#{params_to_erb(class_opts)})) %><% end -%>"
+      elsif @params[:type] == 'time_zone'
+        # <r:select name='d_tz' type='time_zone'/>
+        "<%= select('#{base_class.to_s.underscore}', #{attribute.inspect}, TZInfo::Timezone.all_identifiers) %>"
+      elsif options_list = get_options_for_select
+        "<%= select('#{base_class.to_s.underscore}', #{attribute.inspect}, #{options_list}#{params_to_erb(select_opts)}) %>"
+      else
+        parser_error("missing 'nodes', 'root_class' or 'values'")
+      end
+      
+    end
+    
+    
     def r_input
-      input, attribute = get_input_params()
+      html_attributes, attribute = get_input_params()
       case @params[:type]
       when 'select' # FIXME: why is this only for classes ?
-        return parser_error("select without name") unless attribute
-        if klass = @params[:root_class]
-          select_opts = {}
-          class_opts = {}
-          select_opts[:selected] = @params[:selected] if @params[:selected]
-          class_opts[:without]   = @params[:without]  if @params[:without]
-          # do not use 'selected' if the node is not new
-          "<% if #{node}.new_record? -%><%= select('#{base_class.to_s.underscore}', #{attribute.inspect}, Node.classes_for_form(:class => #{klass.inspect}#{params_to_erb(class_opts)})#{params_to_erb(select_opts)}) %><% else -%><%= select('#{base_class.to_s.underscore}', #{attribute.inspect}, Node.classes_for_form(:class => #{klass.inspect}#{params_to_erb(class_opts)})) %><% end -%>"
-        elsif values = @params[:values]
-          # TODO: dry with r_checkbox
-          if values =~ /^\d+\s*($|,)/
-            # ids
-            # TODO generate the full query instead of using secure.
-            values = values.split(',').map{|v| v.to_i}
-            list_finder = "(secure(Node) { Node.find(:all, :conditions => 'zip IN (#{values.join(',')})') })"
-          else
-            # relation
-            list_finder = build_finder_for(:all, values)
-          end  
-          set_attr  = @params[:attr] || 'id'
-          show_attr = @params[:show] || 'name'
-          "<%= select('#{base_class.to_s.underscore}', #{attribute.inspect}, (#{list_finder} || []).map{|r| [#{node_attribute(show_attr, :node => 'r', :node_class => Node)}, #{node_attribute(set_attr, :node => 'r', :node_class => Node)}]}) %>"
-        else
-          klasses = @params[:options] || "Page,Note"
-          "<%= select('#{base_class.to_s.underscore}', #{attribute.inspect}, #{klasses.split(',').map(&:strip).inspect}) %>"
-        end
+        out parser_error("please use [select] here")
+        r_select
       when 'date_box', 'date'
         return parser_error("date_box without name") unless attribute
         input_id = @context[:template_url] ? ", :id=>#{(dom_id_from_template_url + '_' + attribute.to_s).inspect} + #{node_id}.to_s" : ''
@@ -669,19 +673,19 @@ module Zena
         input_id = params[:input_id] ? ", :input_id => #{(dom_id_from_template_url + '_' + attribute.to_s).inspect}" : ''
         "<%= select_id('#{base_class.to_s.underscore}', #{attribute.inspect}#{input_id}) %>"
       when 'time_zone'
-        return parser_error("select time_zone without name") unless attribute
-        "<%= select('#{base_class.to_s.underscore}', #{attribute.inspect}, TZInfo::Timezone.all_identifiers) %>"
+        out parser_error("please use [select] here")
+        r_select
       when 'submit'
         @html_tag = 'input'
         @html_tag_params[:type] = @params[:type]
         @html_tag_params[:text] = @params[:text]
-        @html_tag_params.merge!(input)
+        @html_tag_params.merge!(html_attributes)
         render_html_tag(nil)
       else
         # 'text', 'hidden', ...
         @html_tag = 'input'
         @html_tag_params[:type] = @params[:type] || 'text'
-        @html_tag_params.merge!(input)
+        @html_tag_params.merge!(html_attributes)
         render_html_tag(nil)
       end
     end
@@ -695,6 +699,7 @@ module Zena
     # TODO: add <div style="margin:0;padding:0"><input name="_method" type="hidden" value="put" /></div> if method == put
     # FIXME: use <r:form href='self'> or <r:form action='...'>
     def r_form
+      hidden_fields = []
       if template_url = @context[:template_url]
         # ajax
         
@@ -725,12 +730,10 @@ END_TXT
 END_TXT
         end
         
-        form << "<div class='hidden'>"
-        form << "<input type='hidden' name='template_url' value='#{template_url}'/>\n"
-        form << "<input type='hidden' name='node[v_status]' value='#{Zena::Status[:pub]}'/>\n" if @context[:publish_after_save] || (@params[:publish] == 'true')
+        hidden_fields << "<input type='hidden' name='template_url' value='#{template_url}'/>\n"
         
         if node_kind_of?(Node)
-          form << "<input type='hidden' name='node[parent_id]' value='<%= #{@context[:in_add] ? "#{@context[:parent_node]}.zip" : "#{node}.parent_zip"} %>'/>\n"
+          hidden_fields << "<input type='hidden' name='node[parent_id]' value='<%= #{@context[:in_add] ? "#{@context[:parent_node]}.zip" : "#{node}.parent_zip"} %>'/>\n"
           
           if (@params[:klass] || @context[:in_add] || @context[:klass])
             klass_set = false
@@ -740,47 +743,53 @@ END_TXT
                 break
               end
             end
-            form << "<input type='hidden' name='node[klass]' value='#{@params[:klass] || @context[:klass] || 'Page'}'/>\n" unless klass_set
+            hidden_fields << "<input type='hidden' name='node[klass]' value='#{@params[:klass] || @context[:klass] || 'Page'}'/>\n" unless klass_set
           end
         elsif node_kind_of?(Comment)
           # FIXME: the "... || '@node'" is a hack and I don't understand why it's needed...
-          form << "<input type='hidden' name='node_id' value='<%= #{@context[:parent_node] || '@node'}.zip %>'/>\n"
+          hidden_fields << "<input type='hidden' name='node_id' value='<%= #{@context[:parent_node] || '@node'}.zip %>'/>\n"
         elsif node_kind_of?(DataEntry)
-          form << "<input type='hidden' name='data_entry[#{@context[:data_root]}_id]' value='<%= #{@context[:in_add] ? @context[:parent_node] : "#{node}.#{@context[:data_root]}"}.zip %>'/>\n"
+          hidden_fields << "<input type='hidden' name='data_entry[#{@context[:data_root]}_id]' value='<%= #{@context[:in_add] ? @context[:parent_node] : "#{node}.#{@context[:data_root]}"}.zip %>'/>\n"
         end
         
         if add_block = @context[:add]
           params = add_block.params
           [:after, :before, :top, :bottom].each do |sym|
             if params[sym]
-              form << "<input type='hidden' name='position' value='#{sym}'/>\n"
+              hidden_fields << "<input type='hidden' name='position' value='#{sym}'/>\n"
               if params[sym] == 'self'
                 if sym == :before
-                  form << "<input type='hidden' name='reference' value='#{dom_id_from_template_url}_add'/>\n"
+                  hidden_fields << "<input type='hidden' name='reference' value='#{dom_id_from_template_url}_add'/>\n"
                 else
-                  form << "<input type='hidden' name='reference' value='#{dom_id_from_template_url}_form'/>\n"
+                  hidden_fields << "<input type='hidden' name='reference' value='#{dom_id_from_template_url}_form'/>\n"
                 end
               else  
-                form << "<input type='hidden' name='reference' value='#{params[sym]}'/>\n"
+                hidden_fields << "<input type='hidden' name='reference' value='#{params[sym]}'/>\n"
               end
               break
             end
           end
           if params[:done] == 'focus'
-            form << "<input type='hidden' name='done' value=\"$('#{dom_id_from_template_url}_#{add_block.params[:focus] || 'v_title'}').focus();\"/>\n"
+            hidden_fields << "<input type='hidden' name='done' value=\"$('#{dom_id_from_template_url}_#{add_block.params[:focus] || 'v_title'}').focus();\"/>\n"
           elsif params[:done]
-            form << "<input type='hidden' name='done' value=#{params[:done].inspect}/>\n"
+            hidden_fields << "<input type='hidden' name='done' value=#{params[:done].inspect}/>\n"
           end
         end
-        
-        form << "</div>"
-        form << "<%= error_messages_for(#{node}) %>"
       else
         # no ajax
         # FIXME
         cancel = "" # link to normal node ?
         form = "<form method='post' action='/nodes/#{erb_node_id}'><div style='margin:0;padding:0'><input name='_method' type='hidden' value='put' /></div>"
       end
+      
+      hidden_fields << "<input type='hidden' name='node[v_status]' value='#{Zena::Status[:pub]}'/>\n" if @context[:publish_after_save] || (@params[:publish] == 'true')
+      if hidden_fields != []
+        form << "<div class='hidden'>"
+        form << hidden_fields.join('')
+        form << "</div>"
+      end
+      
+      form << "<%= error_messages_for(#{node}) %>"
       
       unless descendant('cancel') || descendant('edit') || descendant('form_tag')
         # add a descendant before blocks.
@@ -806,8 +815,10 @@ END_TXT
       out render_html_tag(res)
     end
     
+    
+    
     # <r:checkbox role='collaborator_for' values='projects' in='site'/>"
-    # TODO: implement menu 'select' in the same spirit
+    # TODO: implement checkbox in the same spirit as 'r_select'
     def r_checkbox
       return parser_error("missing 'values'") unless values = @params[:values]
       return parser_error("missing 'role'")   unless   role = (@params[:role] || @params[:name])
@@ -840,7 +851,7 @@ END_TXT
       out "<input type='hidden' name='node[#{meth}_ids]' value=''/>"
 
       out "<% end -%><% end -%>"
-    end
+    end    
     
     alias r_radio r_checkbox
     
@@ -1585,7 +1596,15 @@ END_TXT
       # <r:pages from='site' project='foo'/>
       # <r:img link='foo'/>
       # ...
-      sql_query, query_errors = Node.build_find(count, pseudo_sql, node, raw_filters)
+      
+      if node_kind_of?(Node)
+        node_name = @context[:parent_node] || node
+      else
+        node_name = @context[:previous_node]
+      end
+      
+      # make sure we do not use a new record in a find query:
+      sql_query, query_errors = Node.build_find(count, pseudo_sql, node_name, raw_filters)
       
       unless sql_query
         # is 'out' here a good idea ?
@@ -1593,14 +1612,7 @@ END_TXT
         return "nil"
       end
       
-      if node_kind_of?(Node)
-        node_name = node
-      else
-        node_name = @context[:previous_node]
-      end
-      
-      
-      res = "#{node_name}.do_find(#{count.inspect}, \"#{sql_query}\"#{sql_query =~ /#{node}/ ? '' : ', true'})" # regexp to see if node is used. If not, we can ignore the source (use query even if #{node} is a new record).
+      res = "#{node_name}.do_find(#{count.inspect}, \"#{sql_query}\")"
       if params[:else]
         if else_query = build_finder_for(count, params[:else], {})
           "(#{res} || #{else_query})"
@@ -2239,6 +2251,26 @@ END_TXT
         res[:value] = attribute ? ["'<%= #{node_attribute(attribute)} %>'"] : ["''"]
       end
       return [res, attribute]
+    end
+    
+    def get_options_for_select
+      if nodes = @params[:nodes]
+        # TODO: dry with r_checkbox
+        if nodes =~ /^\d+\s*($|,)/
+          # ids
+          # TODO: optimization generate the full query instead of using secure.
+          nodes = nodes.split(',').map{|v| v.to_i}
+          nodes = "(secure(Node) { Node.find(:all, :conditions => 'zip IN (#{nodes.join(',')})') })"
+        else
+          # relation
+          nodes = build_finder_for(:all, nodes)
+        end  
+        set_attr  = @params[:attr] || 'id'
+        show_attr = @params[:show] || 'name'
+        options_list = "(#{nodes} || []).map{|r| [#{node_attribute(show_attr, :node => 'r', :node_class => Node)}, #{node_attribute(set_attr, :node => 'r', :node_class => Node)}]}"
+      elsif values = @params[:values]
+        options_list = values.split(',').map(&:strip).inspect
+      end
     end
     
     def find_stored(klass, key)
