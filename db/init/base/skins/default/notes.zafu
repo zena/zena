@@ -4,7 +4,7 @@
     <li class='inline_form' do='form'>
       <form>
         <p class='node_v_title'><input type='text' name='v_title' size='25'/></p>
-        <p class='node_klass'>  <input type='select' name='klass' root_class='Note' selected='Post'/></p>
+        <p class='node_klass'>  <r:select name='klass' root_class='Note' selected='Post'/></p>
         <p class='node_log_at'> <input type='date_box' name='log_at'/> <r:checkbox role='blog' values='11'/></p>
         <p class='validate'>    <input type="submit" value='validate' do='void' tset_value='validate'/></p>
       </form>

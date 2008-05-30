@@ -151,7 +151,7 @@ module Zafu
       @html_tag_done = true
       inner = expand_with
       if inner == ''
-        res + "/>"
+        res + "></#{@html_tag}>"
       else
         res + ">#{inner}"
       end

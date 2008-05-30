@@ -48,7 +48,7 @@ each_add_with_form_klass_set:
     <r:children>
       <li do='each' do='[name]'>blah</li>
       <li do='add'>add new</li>
-      <li do='form'><input name='v_title'/> <input type='select' name='klass' root_class='Note' selected='Post'/> this is the form</li>
+      <li do='form'><input name='v_title'/> <select name='klass' root_class='Note' selected='Post'/> this is the form</li>
     </r:children>
   res: "!/hidden.*node\[klass\].*Node.*select.*node\[klass\]/"
 

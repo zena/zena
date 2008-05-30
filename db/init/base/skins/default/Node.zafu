@@ -36,7 +36,7 @@
           <li do='add'/>
           <li class='inline_form' do='form'>
             <ol>
-              <li><input type='select' name='klass' root_class='Page'/></li>
+              <li><r:select name='klass' root_class='Page'/></li>
               <li><input type='text' name='v_title' value=''/></li>
               <li class='validate'><input type="submit" value='validate' tset_value='validate'/></li>
             </ol>
@@ -62,7 +62,7 @@
             <li do='each' set_class='li_s[v_status]' do='link'/>
             <li do='add' before='self'/>
             <li class='inline_form' do='form'>
-              <p class='node_klass'>  <input type='select' name='klass' root_class='Page'/></p>
+              <p class='node_klass'>  <r:select name='klass' root_class='Page'/></p>
               <p class='node_v_title'><input type='text' name='v_title' value=''/></p>
               <p class='btn_validate'><input type="submit" value='validate' tset_value='validate'/></p>
             </li>
@@ -73,7 +73,7 @@
             <li do='each' set_class='li_s[v_status]' do='link'/>
             <li do='add' before='self'/>
             <li class='inline_form' do='form'>
-              <p class='node_klass'>  <input type='select' name='klass' root_class='Reference'/></p>
+              <p class='node_klass'>  <r:select name='klass' root_class='Reference'/></p>
               <p class='node_c_name'><input type='text' name='c_name' value=''/></p>
               <p class='btn_validate'><input type="submit" value='validate' tset_value='validate'/></p>
             </li>

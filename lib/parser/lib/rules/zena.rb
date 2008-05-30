@@ -737,7 +737,7 @@ END_TXT
           
           if (@params[:klass] || @context[:in_add] || @context[:klass])
             klass_set = false
-            (descendants['input'] || []).each do |tag|
+            ((descendants['input'] || []) + (descendants['select'] || [])).each do |tag|
               if tag.params[:name] == 'klass'
                 klass_set = true
                 break

@@ -706,27 +706,31 @@ select_class:
   res: "/<select id=\"node_klass\" name=\"node\[klass\]\"><option value=\"Note\">Note<\/option>\n<option value=\"Letter\">  Letter<\/option>\n<option value=\"Post\" selected=\"selected\">  Post<\/option><\/select>/"
 
 select_nodes:
-  src: "<r:form><select nodes='images in site' name='d_ref'/></r:form>"
+  src: "<r:form><select nodes='images in site' name='d_ref'></select></r:form>"
   res: "/name=\"node\[d_ref\]\"><option value=\"30\">bird</option>\n<option value=\"31\">flower</option>/"
 
+tmp:
+  src: " <r:select name='parent_id' nodes='projects in site'/>"
+  res: "x"
+
 select_nodes_in_ajax:
-  src: "<r:pages><r:each do='[name]'/><r:add/><r:form><select nodes='images in site' name='d_ref'/></r:form></r:pages>"
+  src: "<r:pages><r:each do='[name]'/><r:add/><r:form><r:select nodes='images in site' name='d_ref'/></r:form></r:pages>"
   res: "/name=\"node\[d_ref\]\"><option value=\"30\">bird</option>\n<option value=\"31\">flower</option>/"
 
 select_nodes_show_attr:
-  src: "<r:form><select name='d_ref' nodes='images in site' attr='c_ext' show='v_title'/></r:form>"
+  src: "<r:form><r:select name='d_ref' nodes='images in site' attr='c_ext' show='v_title'/></r:form>"
   res: "/name=\"node\[d_ref\]\">.*<option value=\"jpg\">flower</option>\n<option value=\"jpg\">it's a lake</option>/"
 
 select_nodes_data_list:
-  src: "<r:data><r:form><select nodes='images in site' name='node_b_id'/></r:form></r:data>"
+  src: "<r:data><r:form><select nodes='images in site' name='node_b_id'></select></r:form></r:data>"
   res: "/name=\"data_entry\[node_b_id\]\"><option value=\"30\">bird</option>\n<option value=\"31\">flower</option>/"
 
 select_time_zone:
-  src: "<r:form><select type='time_zone' name='d_tz'/></r:form>"
+  src: "<r:form><r:select type='time_zone' name='d_tz'/></r:form>"
   res: "/Asia/Jakarta.*Europe/Zurich.*US/Hawai"
 
 form_publish:
-  src: "<r:form publish='true'><select name='d_foo' values='bar,baz'/></r:form>"
+  src: "<r:form publish='true'><r:select name='d_foo' values='bar,baz'/></r:form>"
   res: "/div.*name='node\[v_status\]' value='50'\/>.*<\/div>/"
 
 checkbox:
