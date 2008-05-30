@@ -45,3 +45,9 @@ stat_max_no_entries:
     node: people
   src: "<r:data><r:stat date='max' from='date' format='%Y-%m-%d'/><r:each>..</r:each><r:add/></r:data>"
   res: "!/NoMethodError/"
+
+read_node_c_id:
+  context:
+    node: status
+  src: "<r:data><r:each><r:show attr='node_a_id'/></r:each></r:data>"
+  res: "29"

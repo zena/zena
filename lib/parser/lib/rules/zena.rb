@@ -2113,24 +2113,25 @@ END_TXT
       att_node  ||= opts[:node]       || node
       klass     ||= opts[:node_class] || node_class
       
+      real_attribute = attribute =~ /\Ad_/ ? attribute : attribute.gsub(/\A(|[\w_]+)id(s?)\Z/, '\1zip\2')
+
       res = if klass.ancestors.include?(Node)
-        attribute = attribute.gsub(/\A(|[\w_]+)id(s?)\Z/, '\1zip\2') unless attribute =~ /\Ad_/
-        if ['url','path'].include?(attribute)
+        if ['url','path'].include?(real_attribute)
           # pseudo attribute 'url'
           params = {}
           params[:mode]   = @params[:mode]   if @params[:mode]
           params[:format] = @params[:format] if @params[:format]
-          "zen_#{attribute}(#{node}#{params_to_erb(params)})"
+          "zen_#{real_attribute}(#{node}#{params_to_erb(params)})"
         else
-          Node.zafu_attribute(att_node, attribute)
+          Node.zafu_attribute(att_node, real_attribute)
         end
-      elsif klass.ancestors.include?(Version) && Version.zafu_readable?(attribute)
-        "#{att_node}.#{attribute}"
-      elsif klass.ancestors.include?(DataEntry) && DataEntry.zafu_readable?(attribute)
-        "#{att_node}.#{attribute}"
+      elsif klass.ancestors.include?(Version) && Version.zafu_readable?(real_attribute)
+        "#{att_node}.#{real_attribute}"
+      elsif klass.ancestors.include?(DataEntry) && DataEntry.zafu_readable?(real_attribute)
+        "#{att_node}.#{real_attribute}"
       else
         # unknown class, resolve at runtime
-        "#{att_node}.zafu_read(#{attribute.inspect})"
+        "#{att_node}.zafu_read(#{real_attribute.inspect})"
       end
       
       if opts[:else]
