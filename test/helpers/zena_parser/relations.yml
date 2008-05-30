@@ -371,5 +371,5 @@ group_by_parent_sort:
 #  res: ""
 
 nodes_in_site_group_by_year:
-  src: "<r:nodes in='site' group='log_at:year' order='log_at:year asc' do='each' join=', '><r:show attr='name'/>: <r:show date='log_at' format='%Y'/></r:nodes>"
-  res: "wiki: , opening: 2006, menu: 2007"
+  src: "<r:nodes in='site' group='log_at:year' order='log_at:year asc, name asc' do='each' join=', '><r:show date='log_at' format='%Y'/></r:nodes>"
+  res: ", 2006, 2007"

@@ -500,9 +500,8 @@ class Node < ActiveRecord::Base
 
     # Find a node's zip based on a query shortcut. Used by zazen to create a link for ""::art for example.
     def find_node_by_shortcut(string,offset=0)
-      with_exclusive_scope(self.scoped_methods[0] || {}) do
-        find(:first, Node.match_query(string.gsub('-',' '), :offset => offset))
-      end
+      raise Zena::AccessViolation if self.scoped_methods == []
+      find(:first, Node.match_query(string.gsub('-',' '), :offset => offset))
     end
     
     # Paginate found results. Returns [previous_page, collection, next_page]. You can specify page and items per page in the query hash :
@@ -545,7 +544,7 @@ class Node < ActiveRecord::Base
           :order  => 'name ASC' )
       elsif query != ''
         if RAILS_ENV == 'test'
-          match = sanitize_sql(["vs.title LIKE ? OR nodes.name LIKE ?", "%#{query}%", "#{query}%"])
+          match = sanitize_sql(["nodes.name LIKE ?", "#{query}%"])
           select = "nodes.*, #{match} AS score"
         else
           match  = sanitize_sql(["MATCH (vs.title,vs.text,vs.summary) AGAINST (?) OR nodes.name LIKE ?", query, "#{opts[:name_query] || query.url_name}%"])
@@ -557,7 +556,7 @@ class Node < ActiveRecord::Base
           :joins  => "INNER JOIN versions AS vs ON vs.node_id = nodes.id AND ((vs.status >= #{Zena::Status[:red]} AND vs.user_id = #{visitor[:id]} AND vs.lang = '#{visitor.lang}') OR vs.status > #{Zena::Status[:red]})",
           :conditions => match,
           :group      => "nodes.id",
-          :order  => "score DESC")
+          :order  => "score DESC, zip ASC")
       else
         # error
         return opts.merge(:conditions => '0')
@@ -718,7 +717,7 @@ class Node < ActiveRecord::Base
   
   # Update a node's attributes, transforming the attributes first from the visitor's context to Node context.
   def update_attributes_with_transformation(new_attributes)
-    update_attributes(Node.transform_attributes(new_attributes))
+    update_attributes(secure(Node) {Node.transform_attributes(new_attributes)})
   end
   
   # Filter attributes before assignement.

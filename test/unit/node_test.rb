@@ -23,7 +23,7 @@ class NodeTest < ZenaTestUnit
   
   def test_match_query
     query = Node.match_query('smala')
-    assert_equal "vs.title LIKE '%smala%' OR nodes.name LIKE 'smala%'", query[:conditions]
+    assert_equal "nodes.name LIKE 'smala%'", query[:conditions]
     query = Node.match_query('.', :node => nodes(:wiki))
     assert_equal ["parent_id = ?", nodes_id(:wiki)], query[:conditions]
   end
@@ -31,8 +31,8 @@ class NodeTest < ZenaTestUnit
   def test_transform_attributes_zazen_shortcut_v_text
     login(:tiger)
     [
-      ["Hi, this is just a simple \"test\"::ar or \"\"::ar+_life.rss. OK ?\n\n!:lake+.pv!",
-       "Hi, this is just a simple \"test\":27 or \"\":33_life.rss. OK ?\n\n!24.pv!"],
+      ["Hi, this is just a simple \"test\"::w or \"\"::w+_life.rss. OK ?\n\n!:lake+.pv!",
+       "Hi, this is just a simple \"test\":25 or \"\":29_life.rss. OK ?\n\n!24.pv!"],
        
       ["Hi ![30,:lake+]! ![]!",
        "Hi ![30,24]! ![]!"],
@@ -46,7 +46,7 @@ class NodeTest < ZenaTestUnit
       ["Hi, this is normal "":1/ just a\n\n* asf\n* asdf ![23,33]!",
        "Hi, this is normal "":1/ just a\n\n* asf\n* asdf ![23,33]!"],
     ].each do |src,res|
-      assert_equal res, Node.transform_attributes( 'v_text' => src )['v_text']
+      assert_equal res, secure(Node) { Node.transform_attributes( 'v_text' => src )['v_text'] }
     end
   end
   
@@ -65,7 +65,7 @@ class NodeTest < ZenaTestUnit
       [{'parent_id' => '999', 'tag_ids' => "999,34,art"},
        {'parent_id' => '999', 'tag_ids' => [nodes_id(:news),nodes_id(:art)]}],
     ].each do |src,res|
-      assert_equal res, Node.transform_attributes( src )
+      assert_equal res, secure(Node) { Node.transform_attributes( src ) }
     end
   end
   
