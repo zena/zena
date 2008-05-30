@@ -77,4 +77,3 @@ pages_group_by_name:
 nodes_group_by_year:
   src: "nodes in site group by log_at:year order by log_at:year asc, name asc"
   sql: "SELECT nodes.* FROM nodes WHERE (#{@node.secure_scope('nodes')}) GROUP BY year(nodes.log_at) ORDER BY year(nodes.log_at) ASC, nodes.name ASC"
-  res: "wiki, opening, menu"
