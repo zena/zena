@@ -1,0 +1,39 @@
+default:
+  context:
+    lang: 'en'
+    visitor: 'ant'
+    node: 'status'
+  src: "simple text"
+  tem: "simple text"
+  res: "simple text"
+
+set_var:
+  src: "<r:set var='foo'>I am <r:show attr='name'/></r:set> <p do='show' var='foo'/>"
+  tem: "<% set_foo = capture do %>I am <%= @node.name %><% end -%> <p><%= set_foo %></p>"
+  res: " <p>I am status</p>"
+
+eval_mult:
+  src: "<r:set var='foo'>134</r:set><r:show eval='foo * 0.1'/>"
+  tem: "<% set_foo = capture do %>134<% end -%><%= (set_foo.to_f * 0.1) %>"
+  res: "13.4"
+
+eval_with_attr:
+  src: "<r:show eval='[id] * 10'/>"
+  tem: "<%= (@node.zip.to_f * 10) %>"
+  res: "220.0"
+
+eval_data:
+  context:
+    lang: 'en'
+    visitor: 'ant'
+    node: 'cleanWater'
+  src: "<r:data><r:set var='count' do='stat' find='count'/><r:set var='sum' do='stat' find='sum'/><b do='show' eval='sum / count' format='%.3f'/></r:data>"
+  res: "<b>32.250</b>"
+
+eval_or:
+  src: "<r:set var='price'><r:show attr='d_boz'/> 20.3</r:set><r:show eval='price * 10'/>"
+  res: "203.0"
+
+eval_or_value_exists:
+  src: "<r:set var='price'><r:show attr='id'/> 20.3</r:set><r:show eval='price * 10'/>"
+  res: "220.0"
