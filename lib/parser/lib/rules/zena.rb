@@ -699,7 +699,12 @@ module Zena
     # TODO: add <div style="margin:0;padding:0"><input name="_method" type="hidden" value="put" /></div> if method == put
     # FIXME: use <r:form href='self'> or <r:form action='...'>
     def r_form
-      hidden_fields = []
+      hidden_fields = {}
+      set_fields = []
+      var_name   = base_class.to_s.underscore
+      ((descendants['input'] || []) + (descendants['select'] || [])).each do |tag|
+        set_fields << "#{var_name}[#{tag.params[:name]}]"
+      end
       if template_url = @context[:template_url]
         # ajax
         
@@ -730,49 +735,38 @@ END_TXT
 END_TXT
         end
         
-        hidden_fields << "<input type='hidden' name='template_url' value='#{template_url}'/>\n"
+        hidden_fields['template_url'] = template_url
         
         if node_kind_of?(Node)
-          hidden_fields << "<input type='hidden' name='node[parent_id]' value='<%= #{@context[:in_add] ? "#{@context[:parent_node]}.zip" : "#{node}.parent_zip"} %>'/>\n"
-          
-          if (@params[:klass] || @context[:in_add] || @context[:klass])
-            klass_set = false
-            ((descendants['input'] || []) + (descendants['select'] || [])).each do |tag|
-              if tag.params[:name] == 'klass'
-                klass_set = true
-                break
-              end
-            end
-            hidden_fields << "<input type='hidden' name='node[klass]' value='#{@params[:klass] || @context[:klass] || 'Page'}'/>\n" unless klass_set
-          end
+          hidden_fields['node[parent_id]'] = "<%= #{@context[:in_add] ? "#{@context[:parent_node]}.zip" : "#{node}.parent_zip"} %>"
         elsif node_kind_of?(Comment)
           # FIXME: the "... || '@node'" is a hack and I don't understand why it's needed...
-          hidden_fields << "<input type='hidden' name='node_id' value='<%= #{@context[:parent_node] || '@node'}.zip %>'/>\n"
+          hidden_fields['node_id'] = "<%= #{@context[:parent_node] || '@node'}.zip %>"
         elsif node_kind_of?(DataEntry)
-          hidden_fields << "<input type='hidden' name='data_entry[#{@context[:data_root]}_id]' value='<%= #{@context[:in_add] ? @context[:parent_node] : "#{node}.#{@context[:data_root]}"}.zip %>'/>\n"
+          hidden_fields["data_entry[#{@context[:data_root]}_id]"] = "<%= #{@context[:in_add] ? @context[:parent_node] : "#{node}.#{@context[:data_root]}"}.zip %>"
         end
         
         if add_block = @context[:add]
           params = add_block.params
           [:after, :before, :top, :bottom].each do |sym|
             if params[sym]
-              hidden_fields << "<input type='hidden' name='position' value='#{sym}'/>\n"
+              hidden_fields['position'] = sym.to_s
               if params[sym] == 'self'
                 if sym == :before
-                  hidden_fields << "<input type='hidden' name='reference' value='#{dom_id_from_template_url}_add'/>\n"
+                  hidden_fields['reference'] = "#{dom_id_from_template_url}_add"
                 else
-                  hidden_fields << "<input type='hidden' name='reference' value='#{dom_id_from_template_url}_form'/>\n"
+                  hidden_fields['reference'] = "#{dom_id_from_template_url}_form"
                 end
               else  
-                hidden_fields << "<input type='hidden' name='reference' value='#{params[sym]}'/>\n"
+                hidden_fields['reference'] = params[sym]
               end
               break
             end
           end
           if params[:done] == 'focus'
-            hidden_fields << "<input type='hidden' name='done' value=\"$('#{dom_id_from_template_url}_#{add_block.params[:focus] || 'v_title'}').focus();\"/>\n"
+            hidden_fields['done'] = "$('#{dom_id_from_template_url}_#{add_block.params[:focus] || 'v_title'}').focus();"
           elsif params[:done]
-            hidden_fields << "<input type='hidden' name='done' value=#{params[:done].inspect}/>\n"
+            hidden_fields['done'] = params[:done].inspect
           end
         end
       else
@@ -781,13 +775,15 @@ END_TXT
         cancel = "" # link to normal node ?
         form = "<form method='post' action='/nodes/#{erb_node_id}'><div style='margin:0;padding:0'><input name='_method' type='hidden' value='put' /></div>"
       end
+      hidden_fields['node[klass]']    = @params[:klass] || @context[:klass] || 'Page'
+      hidden_fields['node[v_status]'] = Zena::Status[:pub] if @context[:publish_after_save] || (@params[:publish] == 'true')
       
-      hidden_fields << "<input type='hidden' name='node[v_status]' value='#{Zena::Status[:pub]}'/>\n" if @context[:publish_after_save] || (@params[:publish] == 'true')
-      if hidden_fields != []
-        form << "<div class='hidden'>"
-        form << hidden_fields.join('')
-        form << "</div>"
+      form << "<div class='hidden'>"
+      hidden_fields.each do |k,v|
+        next if set_fields.include?(k)
+        form << "<input type='hidden' name='#{k}' value=\"#{v}\"/>\n"
       end
+      form << "</div>"
       
       form << "<%= error_messages_for(#{node}) %>"
       

@@ -39,7 +39,7 @@ each_add_with_form:
       <li do='add'>add new</li>
       <li do='form'><input name='v_title'/> this is the form</li>
     </r:children>
-  res: "/<li.*list\.30.*>bird.*<li.*list\.31.*>flower.*<li.*list_add.*list_form.*toggle.*<li .*list_form.*style.*none.*Ajax.Request.*input type='hidden' name='template_url' value='/each/add/with/form/list'.*input type='hidden' name='node\[parent_id\]' value='29'/"
+  res: "/<li.*list\.30.*>bird.*<li.*list\.31.*>flower.*<li.*list_add.*list_form.*toggle.*<li .*list_form.*style.*none.*Ajax.Request.*input type='hidden' name='template_url' value=\"/each/add/with/form/list\".*input type='hidden' name='node\[parent_id\]' value=\"29\"/"
 
 each_add_with_form_klass_set:
   context:
@@ -74,7 +74,7 @@ each_edit_cannot_write:
 
 add_each_publish:
   src: "<ul do='children' id='things'><li do='each'>I <p do='[name]'>blah</p></li><li do='add' publish='true'/></ul>"
-  res: "/<ul><li.*id='things_add'.*li id='things_form'.*form.*hidden.*name='node\[v_status\]' value='50'/"
+  res: "/<ul><li.*id='things_add'.*li id='things_form'.*form.*hidden.*name='node\[v_status\]' value=\"50\"/"
 
 block_edit_form:
   src: "<r:block><p do='[name]'/> <r:edit/> <r:form>please enter name: <input name='name'/> <r:input type='submit'/></r:form></r:block>"

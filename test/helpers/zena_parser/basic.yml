@@ -709,9 +709,9 @@ select_nodes:
   src: "<r:form><select nodes='images in site' name='d_ref'></select></r:form>"
   res: "/name=\"node\[d_ref\]\"><option value=\"30\">bird</option>\n<option value=\"31\">flower</option>/"
 
-tmp:
-  src: " <r:select name='parent_id' nodes='projects in site'/>"
-  res: "x"
+do_not_set_parent_id_if_form_contains_parent_id:
+  src: "<r:children><r:each do='[name]'/><r:add/><r:form><r:select name='parent_id' nodes='projects in site'/><input name='v_title'/></r:form></r:children>"
+  res: "!/node\[parent_id\]'\s+value='22'/"
 
 select_nodes_in_ajax:
   src: "<r:pages><r:each do='[name]'/><r:add/><r:form><r:select nodes='images in site' name='d_ref'/></r:form></r:pages>"
@@ -731,7 +731,7 @@ select_time_zone:
 
 form_publish:
   src: "<r:form publish='true'><r:select name='d_foo' values='bar,baz'/></r:form>"
-  res: "/div.*name='node\[v_status\]' value='50'\/>.*<\/div>/"
+  res: "/div.*name='node\[v_status\]' value=\"50\"\/>.*<\/div>/"
 
 checkbox:
   context:
