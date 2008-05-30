@@ -36,3 +36,31 @@ bad_order_clause:
 mean_error:
   src: "<r:date select='<% puts \"mean\" %>'/>"
   res: "<span class='parser_error'>[date] bad parameter '&lt;% puts \"mean\" %&gt;'</span>"
+
+show_var:
+  src: "<r:show var='boo'/>"
+  tem: "<span class='parser_error'>[show] var \"boo\" not set</span>"
+
+show_bad_sprintf:
+  src: "<p do='show' attr='name' format='%.2f %i hop'/>"
+  res: "<p><span class='parser_error'>[show] incorect format \"%.2f %i hop\"</span></p>"
+
+division_by_zero_in_eval:
+  src: "<r:set var='foo'>134</r:set><r:show eval='foo / 0'/>"
+  res: "<span class='parser_error'>[show] error in eval</span>"
+
+division_by_zero_in_eval_on_runtime:
+  src: "<r:set var='foo'>134</r:set><r:show eval='foo / ( 21 - [id].to_f )'/>"
+  res: "Infinity"
+
+bad_argument_list_in_eval:
+  src: "<r:show eval='3 * / * 5'/>"
+  res: "<span class='parser_error'>[show] compilation error in eval</span>"
+
+nil_value:
+  src: "<r:show eval='4 * [d_bob]'/>"
+  res: "0.0"
+
+mean_eval:
+  src: "<r:show eval='puts \"bad\"'/>"
+  tem: "<span class='parser_error'>[show] var \"puts\" not set in eval</span>"

@@ -121,12 +121,14 @@ module Zena
         set_stored(Date, key, current_date)
       end
       @anchor_param = @params[:anchor]
-
+      
       true
     end
     
     def do_method(sym)
       method = sym
+      pre, post = '', ''
+      
       if method == :r_unknown
         if @method =~ /^\[(.*)\]$/
           @params[:attr] = $1
@@ -141,8 +143,8 @@ module Zena
       inc = descendant('include')
       if inc && inc.params[:part] == @name
         @context["#{@name}_method".to_sym] = method_name = get_template_url[1..-1].gsub('/','_')
-        pre = "<% def #{method_name}(depth, node, list); return '' if depth > #{inc.params[:depth] ? [inc.params[:depth].to_i,30].min : 5}; _erbout = '' -%>"
-        post = "<% _erbout; end -%><%= #{method_name}(0,#{node},#{list || "[#{node}]"}) %>"
+        pre << "<% def #{method_name}(depth, node, list); return '' if depth > #{inc.params[:depth] ? [inc.params[:depth].to_i,30].min : 5}; _erbout = '' -%>"
+        post << "<% _erbout; end -%><%= #{method_name}(0,#{node},#{list || "[#{node}]"}) %>"
         @context[:node] = 'node'
         @context[:list] = 'list'
       end
@@ -173,11 +175,7 @@ module Zena
       
       res ||= super(method)
       
-      if pre
-        "#{pre}#{res}#{post}"
-      else
-        res
-      end
+      "#{pre}#{res}#{post}"
     end
     
     
@@ -194,14 +192,15 @@ module Zena
 
     def r_show
       attribute = @params[:attr] || @params[:tattr]
-      if @params[:tattr]
+      if var_name = @params[:var]
+        return parser_error("var #{@params[:var].inspect} not set") unless @context[:vars] && @context[:vars].include?(var_name)
+        attribute_method = "set_#{var_name}"
+      elsif @params[:eval]
+        return unless attribute_method = parse_eval_parameter(@params[:eval])
+      elsif @params[:tattr]
         attribute_method = "_(#{node_attribute(attribute, :else=>@params[:else])})"
       elsif @params[:attr]
-        if @params[:format]
-          attribute_method = "sprintf(#{@params[:format].inspect}, #{node_attribute(attribute, :else=>@params[:else])})"
-        else
-          attribute_method = "#{node_attribute(attribute, :else=>@params[:else])}"
-        end
+        attribute_method = node_attribute(attribute, :else=>@params[:else])
       elsif @params[:date]
         # date can be any attribute v_created_at or updated_at etc.
         # TODO format with @params[:format] and @params[:tformat] << translated format
@@ -236,6 +235,23 @@ module Zena
         return "no attribute for 'show'".inspect
       else  
         return parser_error("missing attribute")
+      end
+      
+      if !@params[:date] && fmt = @params[:format]
+        begin
+          # test argument
+          sprintf(fmt, 123.45)
+        rescue ArgumentError
+          return parser_error("incorect format #{fmt.inspect}")
+        end
+        if fmt =~ /%[\d\.]*f/
+          modifier = ".to_f"
+        elsif fmt =~ /%[\d\.]*i/
+          modifier = ".to_i"
+        else
+          modifier = ''
+        end
+        attribute_method = "sprintf(#{fmt.inspect}, #{attribute_method}#{modifier})"
       end
       
       if @context[:trans]
@@ -321,6 +337,24 @@ module Zena
     def r_search_results
       do_list("@nodes")
     end
+    
+    
+    def r_set
+      return parser_error("'var' missing") unless var_name = @params[:var]
+      return parser_error("bad value for 'var' (#{var_name.inspect})") unless var_name =~ /^[a-zA-Z_]+$/
+      return '' unless @context[:set]
+      if @params[:value]
+        out "<% set_#{var_name} = #{@params[:value].inspect} -%>"
+      elsif @params[:eval]
+        return unless eval_string = parse_eval_parameter(@params[:eval])
+        out "<% set_#{var_name} = #{eval_string} -%>"
+      else
+        out "<% set_#{var_name} = capture do %>"
+        out expand_with(:set => false) # do not propagate
+        out "<% end -%>"
+      end
+    end
+    
     
     # TODO: write a test (please)
     # FIXME: we should use a single way to change a whole context into a template (applies to 'each', 'form', 'block'). Then 'swap' could use the 'each' block.
@@ -702,7 +736,7 @@ module Zena
       hidden_fields = {}
       set_fields = []
       var_name   = base_class.to_s.underscore
-      ((descendants['input'] || []) + (descendants['select'] || [])).each do |tag|
+      (descendants('input') + descendants('select')).each do |tag|
         set_fields << "#{var_name}[#{tag.params[:name]}]"
       end
       if template_url = @context[:template_url]
@@ -872,7 +906,7 @@ END_TXT
         @blocks = []
         add_btn = make(:void, :method=>'add_btn', :params=>@params.dup, :text=>'')
         add_btn.blocks = blocks
-        remove_instance_variable(:@descendants)
+        remove_instance_variable(:@all_descendants)
       end
       
       if @context[:form] && @context[:template_url]
@@ -1161,7 +1195,7 @@ END_TXT
       if cond == 'true'
         return expand_with(:in_if => false)
       elsif cond == 'false'
-        if (descendants['else'] || descendants['elsif'])
+        if descendant('else') || descendant('elsif')
           return expand_with(:in_if=>true, :only=>['else', 'elsif'])
         else
           @html_tag_done = true
@@ -2269,6 +2303,51 @@ END_TXT
       end
     end
     
+    def parse_eval_parameter(str)
+      # evaluate an expression. Can only contain vars, '(', ')', '*', '+', '/', '-', '[attr]'
+      # FIXME: SECURITY (audit this)
+      vars = @context[:vars] || []
+      parts = str.split(/\s+/)
+      res  = []
+      test = []
+      parts.each do |p|
+        if p =~ /\[([\w_]+)\]/
+          test << 1
+          res << (node_attribute($1) + '.to_f')
+        elsif p =~ /^[a-zA-Z_]+$/
+          unless vars.include?(p)
+            out parser_error("var #{p.inspect} not set in eval") 
+            return nil
+          end
+          test << 1
+          res  << "set_#{p}.to_f"
+        elsif ['(', ')', '*', '+', '/', '-'].include?(p)
+          res  << p
+          test << p
+        elsif p =~ /^[0-9\.]+$/
+          res  << p
+          test << p
+        else
+          out parser_error("bad argument #{p.inspect} in eval")
+          return nil
+        end
+      end
+      begin
+        begin
+          eval test.join(' ')
+        rescue
+          # rescue evaluation error
+          out parser_error("error in eval")
+          return nil
+        end
+        "(#{res.join(' ')})"
+      rescue SyntaxError => err
+        # rescue compilation error
+        out parser_error("compilation error in eval")
+        return nil
+      end
+    end
+    
     def find_stored(klass, key)
       @context["#{klass}_#{key}"]
     end
@@ -2312,6 +2391,21 @@ END_TXT
     
     def parser_error(message, tag=@method)
       "<span class='parser_error'>[#{tag}] #{message}</span>"
+    end
+    
+    def expand_with(acontext={})
+      # set variables
+      context = nil
+      pre = ''
+      @blocks.each do |block|
+        next if block.kind_of?(String) || block.method != 'set'
+        @context[:vars] ||= []
+        context ||= @context.merge(acontext).merge(:set => true)
+        pre << expand_block(block, context)
+        @context[:vars] << block.params[:var]
+      end
+      
+      pre + super
     end
   end
 end

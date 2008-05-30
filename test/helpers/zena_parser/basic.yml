@@ -711,7 +711,7 @@ select_nodes:
 
 do_not_set_parent_id_if_form_contains_parent_id:
   src: "<r:children><r:each do='[name]'/><r:add/><r:form><r:select name='parent_id' nodes='projects in site'/><input name='v_title'/></r:form></r:children>"
-  res: "!/node\[parent_id\]'\s+value='22'/"
+  res: "!/node\[parent_id\].\s+value/"
 
 select_nodes_in_ajax:
   src: "<r:pages><r:each do='[name]'/><r:add/><r:form><r:select nodes='images in site' name='d_ref'/></r:form></r:pages>"

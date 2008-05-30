@@ -281,8 +281,8 @@ class Parser
   end
   
   # Return a has of all descendants. Find a specific descendant with descendant['form'] for example.
-  def descendants
-    @descendants ||= begin
+  def all_descendants
+    @all_descendants ||= begin
       d = {}
       @blocks.each do |b|
         next if b.kind_of?(String)
@@ -298,6 +298,10 @@ class Parser
     end
   end
   
+  def descendants(key)
+    all_descendants[key] || []
+  end
+  
   def ancestors
     @ancestors ||= begin
       if parent
@@ -308,7 +312,7 @@ class Parser
     end
   end
   
-  alias public_descendants descendants
+  alias public_descendants all_descendants
   
   # Return the last defined parent for the given key.
   def ancestor(key)
@@ -324,7 +328,7 @@ class Parser
   
   # Return the last defined descendant for the given key.
   def descendant(key)
-    (descendants[key] || []).last
+    descendants(key).last
   end
   
   # Return the root block (the one opened first).

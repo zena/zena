@@ -95,13 +95,22 @@ class ParserTest < Test::Unit::TestCase
     assert_equal @@test_strings[file][test]['res'], res
   end
   
+  def test_all_descendants
+    block = @@test_parsers['zafu'].new(
+    "<r:pages><r:each><b do='test'/></r:each><r:add><p><i do='add_link'/><b do='title'/></p></r:add><b do='title'/></r:pages>", 
+    :helper=>ParserModule::DummyHelper.new(@@test_strings['basic']))
+    assert_equal ['add', 'add_link', 'each', 'pages', 'test', 'title'], block.all_descendants.keys.sort
+    assert_equal 2, block.all_descendants['title'].size
+    assert_equal ['add_link', 'title'], block.descendant('add').all_descendants.keys.sort
+  end
+  
   def test_descendants
     block = @@test_parsers['zafu'].new(
     "<r:pages><r:each><b do='test'/></r:each><r:add><p><i do='add_link'/><b do='title'/></p></r:add><b do='title'/></r:pages>", 
     :helper=>ParserModule::DummyHelper.new(@@test_strings['basic']))
-    assert_equal ['add', 'add_link', 'each', 'pages', 'test', 'title'], block.descendants.keys.sort
-    assert_equal 2, block.descendants['title'].size
-    assert_equal ['add_link', 'title'], block.descendant('add').descendants.keys.sort
+    assert_equal 2, block.descendants('title').size
+    assert_equal ['test'], block.descendants('each')[0].descendants('test').map {|n| n.method}
+    assert_equal [], block.descendants('each')[0].descendants('foo')
   end
   
   def test_ancestor
@@ -117,9 +126,9 @@ class ParserTest < Test::Unit::TestCase
     block = @@test_parsers['zafu'].new(
     "<r:pages><r:each><b do='test'/></r:each><r:add><p><i do='add_link'/><b do='title'/></p></r:add><b do='title'/></r:pages>", 
     :helper=>ParserModule::DummyHelper.new(@@test_strings['basic']))
-    block.descendants.merge('self'=>[block]).each do |k,blocks|
+    block.all_descendants.merge('self'=>[block]).each do |k,blocks|
       blocks.each do |b|
-        b.send(:remove_instance_variable, :@descendants)
+        b.send(:remove_instance_variable, :@all_descendants)
         class << b
           def public_descendants
             if ['each'].include?(@method)
@@ -131,8 +140,8 @@ class ParserTest < Test::Unit::TestCase
         end
       end
     end
-    assert_equal ['add', 'add_link', 'each', 'pages', 'title'], block.descendants.keys.sort
-    assert_equal ['test'], block.descendant('each').descendants.keys.sort
+    assert_equal ['add', 'add_link', 'each', 'pages', 'title'], block.all_descendants.keys.sort
+    assert_equal ['test'], block.descendant('each').all_descendants.keys.sort
   end
   
   def test_root
