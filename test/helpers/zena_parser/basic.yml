@@ -713,6 +713,10 @@ do_not_set_parent_id_if_form_contains_parent_id:
   src: "<r:children><r:each do='[name]'/><r:add/><r:form><r:select name='parent_id' nodes='projects in site'/><input name='v_title'/></r:form></r:children>"
   res: "!/node\[parent_id\].\s+value/"
 
+select_nodes_selected:
+  src: "<r:form><select name='parent_id' nodes='projects in site'/></r:form>"
+  res: "/option\s* value=.21.\s* selected=.selected.>cleanWater/"
+  
 select_nodes_in_ajax:
   src: "<r:pages><r:each do='[name]'/><r:add/><r:form><r:select nodes='images in site' name='d_ref'/></r:form></r:pages>"
   res: "/name=\"node\[d_ref\]\"><option value=\"30\">bird</option>\n<option value=\"31\">flower</option>/"
@@ -722,8 +726,10 @@ select_nodes_show_attr:
   res: "/name=\"node\[d_ref\]\">.*<option value=\"jpg\">flower</option>\n<option value=\"jpg\">it's a lake</option>/"
 
 select_nodes_data_list:
-  src: "<r:data><r:form><select nodes='images in site' name='node_b_id'></select></r:form></r:data>"
-  res: "/name=\"data_entry\[node_b_id\]\"><option value=\"30\">bird</option>\n<option value=\"31\">flower</option>/"
+  context:
+    node: status
+  src: "<r:data><r:each><r:form><select nodes='projects in site' name='node_a_id'/></r:form></r:each></r:data>"
+  res: "/option\s* value=.29.\s* selected=.selected.>wiki/"
 
 select_time_zone:
   src: "<r:form><r:select type='time_zone' name='d_tz'/></r:form>"

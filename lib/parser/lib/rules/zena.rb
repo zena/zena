@@ -672,18 +672,21 @@ module Zena
     def r_select
       html_attributes, attribute = get_input_params()
       return parser_error("missing name") unless attribute
-      select_opts = {}
-      select_opts[:selected] = @params[:selected] if @params[:selected]
+      if @params[:selected]
+        select_opts = ", :selected => #{@params[:selected].inspect}"
+      else
+        select_opts = ", :selected => #{node_attribute(attribute)}"
+      end
       if klass = @params[:root_class]
         class_opts = {}
         class_opts[:without]   = @params[:without]  if @params[:without]
         # do not use 'selected' if the node is not new
-        "<% if #{node}.new_record? -%><%= select('#{base_class.to_s.underscore}', #{attribute.inspect}, Node.classes_for_form(:class => #{klass.inspect}#{params_to_erb(class_opts)})#{params_to_erb(select_opts)}) %><% else -%><%= select('#{base_class.to_s.underscore}', #{attribute.inspect}, Node.classes_for_form(:class => #{klass.inspect}#{params_to_erb(class_opts)})) %><% end -%>"
+        "<% if #{node}.new_record? -%><%= select('#{base_class.to_s.underscore}', #{attribute.inspect}, Node.classes_for_form(:class => #{klass.inspect}#{params_to_erb(class_opts)})#{select_opts}) %><% else -%><%= select('#{base_class.to_s.underscore}', #{attribute.inspect}, Node.classes_for_form(:class => #{klass.inspect}#{params_to_erb(class_opts)})) %><% end -%>"
       elsif @params[:type] == 'time_zone'
         # <r:select name='d_tz' type='time_zone'/>
         "<%= select('#{base_class.to_s.underscore}', #{attribute.inspect}, TZInfo::Timezone.all_identifiers) %>"
       elsif options_list = get_options_for_select
-        "<%= select('#{base_class.to_s.underscore}', #{attribute.inspect}, #{options_list}#{params_to_erb(select_opts)}) %>"
+        "<%= select('#{base_class.to_s.underscore}', #{attribute.inspect}, #{options_list}#{select_opts}) %>"
       else
         parser_error("missing 'nodes', 'root_class' or 'values'")
       end
