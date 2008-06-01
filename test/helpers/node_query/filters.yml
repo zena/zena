@@ -38,7 +38,7 @@ year_function:
   context:
     visitor: 'lion'
   src: "nodes where v_updated_at:year = 2007 in project"
-  sql: "SELECT nodes.* FROM nodes,versions WHERE nodes.project_id = #{@node.get_project_id} AND year(versions.updated_at) = '2007' AND nodes.id = versions.node_id AND (#{@node.secure_scope('nodes')}) GROUP BY nodes.id ORDER BY nodes.position ASC, nodes.name ASC"
+  sql: "SELECT nodes.* FROM nodes,versions WHERE nodes.project_id = #{@node.get_project_id} AND year(versions.updated_at) = 2007 AND nodes.id = versions.node_id AND (#{@node.secure_scope('nodes')}) GROUP BY nodes.id ORDER BY nodes.position ASC, nodes.name ASC"
   res: "bananas"
 
 two_fields:
@@ -49,7 +49,7 @@ filter_l_status:
   context:
     node: art
   src: "tagged where l_status > 5"
-  sql: "SELECT nodes.*,links.id AS link_id, links.status AS l_status, links.comment AS l_comment FROM nodes,links WHERE nodes.id = links.source_id AND links.relation_id = _ID(node_has_tags) AND links.target_id = #{@node.id} AND links.status > '5' AND (#{@node.secure_scope('nodes')}) ORDER BY nodes.position ASC, nodes.name ASC"
+  sql: "SELECT nodes.*,links.id AS link_id, links.status AS l_status, links.comment AS l_comment FROM nodes,links WHERE nodes.id = links.source_id AND links.relation_id = _ID(node_has_tags) AND links.target_id = #{@node.id} AND links.status > 5 AND (#{@node.secure_scope('nodes')}) ORDER BY nodes.position ASC, nodes.name ASC"
   res: "cleanWater"
 
 param_filter:

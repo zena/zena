@@ -36,7 +36,7 @@ class ZenaParserTest < ZenaTestController
     params[:user_id] = users_id(context['visitor'].to_sym)
     params[:node_id] = nodes_id(context['node'].to_sym)
     params[:prefix]  = context['lang']
-    params[:date]    = context['date']
+    params[:date]    = context['ref_date'] ? context['ref_date'].to_s : nil
     params[:url] = "/#{test.to_s.gsub('_', '/')}"
     TestController.templates = @@test_strings[file]
     if src

@@ -12,7 +12,6 @@ class NodeQuery < QueryBuilder
     @node_name  = opts[:node_name]
     # list of dyna_attributes keys allready in the filter
     @dyn_keys   = {}
-    opts[:ref_date] = "\#{#{opts[:ref_date]}}"
     super(query, opts)
     # Raw filters are statements prepared that should not be further processed except for table_name replacement.
     parse_raw_filters(opts[:raw_filters])
@@ -237,24 +236,8 @@ class NodeQuery < QueryBuilder
     end
     
     def parse_custom_query_argument(key, value)
-      value = super
-      if value.kind_of?(Array)
-        value.map {|e| set_ids_in_query_argument(e)}
-      elsif value.kind_of?(Hash)
-        value.each do |k,v|
-          if v.kind_of?(Array)
-            value[k] = v.map {|e| set_ids_in_query_argument(e)}
-          else
-            value[k] = set_ids_in_query_argument(v)
-          end
-        end
-      else
-        set_ids_in_query_argument(value)
-      end
-    end
-    
-    def set_ids_in_query_argument(str)
-      str.gsub(/RELATION_ID\(([^)]+)\)/) do
+      return nil unless value
+      super.gsub(/RELATION_ID\(([^)]+)\)/) do
         role = $1
         if rel = Relation.find_by_role(role.singularize)
           rel[:id]

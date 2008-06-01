@@ -57,7 +57,6 @@ class QueryBuilder
     @join_tables = {}
     @table_counter = {}
     @where  = []
-    @having = []
     # list of tables that need to be added for filter clauses (should be added only once per part)
     @needed_tables = {}
     # list of tables that need to be added through a join (should be added only once per part)
@@ -72,7 +71,7 @@ class QueryBuilder
     @ignore_warnings = opts[:ignore_warnings]
     
     @ref_date = opts[:ref_date] ? "'#{opts[:ref_date]}'" : 'now()'
-       
+    
     if @query == nil || @query == ''
       elements = [main_table]
     else
@@ -88,7 +87,7 @@ class QueryBuilder
        @@custom_queries[self.class][opts[:custom_query_group]] && 
        custom_query = @@custom_queries[self.class][opts[:custom_query_group]][extract_custom_query(elements)]
       custom_query.each do |k,v|
-       instance_variable_set("@#{k}", parse_custom_query_argument(k.to_sym, v))
+       instance_variable_set("@#{k}", prepare_custom_query_arguments(k.to_sym, v))
       end
       # set table counters
       @tables.each do |t|
@@ -100,6 +99,7 @@ class QueryBuilder
       clause, filters = elements[-1].split(/\s+where\s+/)
       
       parse_filters(filters) if filters
+      @order = parse_order_clause(order) if order
     else
       # In order to know the table names of the dependencies, we need to parse it backwards.
       # We first find the closest elements, then the final ones. For example, "pages from project" we need
@@ -124,7 +124,6 @@ class QueryBuilder
     
     after_parse unless opts[:skip_after_parse]
     @where.compact!
-    @having.compact!
   end
   
   def to_sql
@@ -145,7 +144,7 @@ class QueryBuilder
       @group ||= @tables.size > 1 ? " GROUP BY #{table}.id" : " GROUP BY id"
     end
     
-    "SELECT #{@select.join(',')} FROM #{table_list.flatten.join(',')}" + (@where == [] ? '' : " WHERE #{@where.reverse.join(' AND ')}") + @group.to_s + (@having == [] ? '' : " HAVING #{@having.reverse.join(' AND ')}") + @order.to_s + @limit.to_s + @offset.to_s
+    "SELECT #{@select.join(',')} FROM #{table_list.flatten.join(',')}" + (@where == [] ? '' : " WHERE #{@where.reverse.join(' AND ')}") + @group.to_s + @order.to_s + @limit.to_s + @offset.to_s
   end
   
   def valid?
@@ -169,110 +168,138 @@ class QueryBuilder
       parse_relation(clause, context)
     end
     
-    def parse_filters(txt)
-      txt.split(/\s+and\s+/).each do |clause|
-        # [field] [=|>]
-        #if clause =~ /("[^"]*"|'[^']*'|[\w:]+)\s*(like|not like|is not|is|>=|<=|<>|<|=|>|lt|le|eq|ne|ge|gt)\s*("[^"]*"|'[^']*'|[\w:]+)/
-        if clause =~ /^\s*(.+?)\s*(not like|like|is not|is|>=|<=|<>|<|=|>|lt|le|eq|ne|ge|gt)\s*(.+)\s*$/
-          # TODO: add 'match' parameter (#105)
-          parts  = [$1,$3]
-          op     = {'lt' => '<','le' => '<=','eq' => '=','ne' => '<>','ge' => '>=','gt' => '>'}[$2] || $2
-          having = false
-          parts.map! do |part|
-            rest = part.strip
-            last = :void
-            res  = ""
-            while rest != ''
-              if rest =~ /\A\s+/
-                rest = rest[$&.size..-1]
-                res << " "
-              elsif rest =~ /\A("|')([^\1]*)\1/  
-                rest = rest[$&.size..-1]
-                unless [:void, :op].include?(last)
-                  @errors << "invalid clause part #{part.inspect}" 
-                  break
-                end
-                res << map_literal($2)
-                last = :value
-              elsif rest =~ /\A(\+|\-)/  
-                rest = rest[$&.size..-1]
-                unless [:void, :value].include?(last)
-                  @errors << "invalid clause part #{part.inspect}" 
-                  break
-                end
-                res << $1
-                last = :op
-              elsif rest =~ /\A(\d+)$/  
-                rest = rest[$&.size..-1]
-                res << $1
-                last = :value
-              elsif rest[0..3] == 'null'  
-                rest = rest[4..-1]
-                unless [:void].include?(last) && op[0..1] == 'is'
-                  @errors << "invalid clause part #{part.inspect}" 
-                  break
-                end
-                res << "NULL"
-                last = :null
-              elsif rest[0..3] == 'DATE'  
-                rest = rest[4..-1]
-                unless [:void, :op].include?(last)
-                  @errors << "invalid clause part #{part.inspect}" 
-                  break
-                end
-                res << @ref_date
-                last = :value
-              elsif rest =~ /\A(\d+|\w+)\s+(second|minute|hour|day|week|month|year)/
-                rest = rest[$&.size..-1]
-                unless [:op].include?(last)
-                  @errors << "invalid clause part #{part.inspect}" 
-                  break
-                end
-                fld, type = $1, $2
-                if @select.join =~ / AS #{fld}/
-                  having = true
-                elsif fld =~ /^\d+$/
-                  #
-                else
-                  fld = field_or_param(fld, table, :filter)
-                end
-                res << "INTERVAL #{fld} #{type.upcase}"
-                last = :value
-              elsif rest =~ /\A\w+/
-                fld = $&
-                rest = rest[$&.size..-1]
-                if @select.join =~ / AS #{fld}/
-                  having = true
-                  res << fld
-                elsif fld =~ /^\d+$/
-                  res << fld
-                else
-                  res << field_or_param(fld, table, :filter).to_s
-                end
-                last = :value
-              else  
-                @errors << "invalid clause part #{part.inspect}"
-                break
-              end
-            end
-            res
-          end.compact!
-          
-          if parts.size == 2 && parts[0] != 'NULL'
-            # ok, no value/field error
-            if op[0..2] == 'is' && parts[1] != 'NULL'
-              # error
-              @errors << "invalid clause '#{clause}' ('is' only valid with 'null')"
-            elsif having
-              @having << parts.join(" #{op.upcase} ")
-            else
-              @where << parts.join(" #{op.upcase} ")
-            end
+    def parse_filters(clause)
+      # TODO: add 'match' parameter (#105)
+      rest         = clause.strip
+      types        = [:par_open, :value, :bool_op, :op, :par_close]
+      allowed      = [:par_open, :value]
+      after_value  = [:op, :bool_op, :par_close]
+      par_count    = 0
+      last_bool_op = ''
+      has_or       = false
+      res          = ""
+      while rest != ''
+        # puts rest.inspect
+        if rest =~ /\A\s+/
+          rest = rest[$&.size..-1]
+          res << " "
+        elsif rest[0..0] == '('
+          unless allowed.include?(:par_open)
+            @errors << "invalid clause #{clause.inspect} near #{rest.inspect}" 
+            return
           end
-        else
-          # invalid clause format
-          @errors << "invalid clause '#{clause}'"
+          res << '('
+          rest = rest[1..-1]
+          par_count += 1
+        elsif rest[0..0] == ')'  
+          unless allowed.include?(:par_close)
+            @errors << "invalid clause #{clause.inspect} near #{rest.inspect}" 
+            return
+          end
+          res << ')'
+          rest = rest[1..-1]
+          par_count -= 1
+          if par_count < 0
+            @errors << "invalid clause #{clause.inspect} near #{rest.inspect}"
+            return
+          end
+          allowed = [:op, :bool_op]
+        elsif rest =~ /\A(not like|like|>=|<=|<>|<|=|>|lt|le|eq|ne|ge|gt)/
+          unless allowed.include?(:op)
+            @errors << "invalid clause #{clause.inspect} near #{rest.inspect}" 
+            return
+          end
+          rest = rest[$&.size..-1]
+          op = {'lt' => '<','le' => '<=','eq' => '=','ne' => '<>','ge' => '>=','gt' => '>','like' => 'LIKE', 'not like' => 'NOT LIKE'}[$1] || $1
+          res << op
+          allowed = [:value, :par_open]
+        elsif rest =~ /\A("|')([^\1]*?)\1/  
+          unless allowed.include?(:value)
+            @errors << "invalid clause #{clause.inspect} near #{rest.inspect}" 
+            return
+          end
+          rest = rest[$&.size..-1]
+          res << map_literal($2)
+          allowed = after_value
+        elsif rest =~ /\A(\d+|\w+)\s+(second|minute|hour|day|week|month|year)s?/
+          unless allowed.include?(:value)
+            @errors << "invalid clause #{clause.inspect} near #{rest.inspect}" 
+            return
+          end
+          rest = rest[$&.size..-1]
+          fld, type = $1, $2
+          unless field = field_or_param(fld, table, :filter)
+            @errors << "invalid field or value #{fld.inspect}"
+            return
+          end
+          res << "INTERVAL #{field} #{type.upcase}"
+          allowed = after_value
+        elsif rest =~ /\A(\d+)/  
+          unless allowed.include?(:value)
+            @errors << "invalid clause #{clause.inspect} near #{rest.inspect}" 
+            return
+          end
+          rest = rest[$&.size..-1]
+          res << $1
+          allowed = after_value
+        elsif rest =~ /\A(is\s+not\s+null|is\s+null)/
+          unless allowed.include?(:bool_op)
+            @errors << "invalid clause #{clause.inspect} near #{rest.inspect}" 
+            return
+          end
+          rest = rest[$&.size..-1]
+          res << $1.upcase
+          allowed = [:par_close, :bool_op]
+        elsif rest[0..7] == 'REF_DATE'  
+          unless allowed.include?(:value)
+            @errors << "invalid clause #{clause.inspect} near #{rest.inspect}" 
+            return
+          end
+          rest = rest[8..-1]
+          res << @ref_date
+          allowed = after_value
+        elsif rest =~ /\A(\+|\-)/  
+          unless allowed.include?(:op)
+            @errors << "invalid clause #{clause.inspect} near #{rest.inspect}" 
+            return
+          end
+          rest = rest[$&.size..-1]
+          res << $1
+          allowed = [:value, :par_open]
+        elsif rest =~ /\A(and|or)/
+          unless allowed.include?(:bool_op)
+            @errors << "invalid clause #{clause.inspect} near #{rest.inspect}" 
+            return
+          end
+          rest = rest[$&.size..-1]
+          res << $1.upcase
+          has_or ||= $1 == 'or'
+          allowed = [:par_open, :value]
+        elsif rest =~ /\A[\w:]+/
+          unless allowed.include?(:value)
+            @errors << "invalid clause #{clause.inspect} near #{rest.inspect}" 
+            return
+          end
+          rest = rest[$&.size..-1]
+          fld = $&
+          unless field = field_or_param(fld, table, :filter)
+            @errors << "invalid field or value #{fld.inspect}"
+            return
+          end
+          res << field
+          allowed = after_value
+        else  
+          @errors << "invalid clause #{clause.inspect} near #{rest.inspect}"
+          return
         end
+      end
+      
+      if par_count > 0
+        @errors << "invalid clause #{clause.inspect}: missing closing ')'"
+      elsif allowed.include?(:value)
+        @errors << "include clause #{clause.inspect}"
+      else
+        @where << (has_or ? "(#{res})" : res)
       end
     end
     
@@ -446,9 +473,26 @@ class QueryBuilder
       end
     end
     
+    def prepare_custom_query_arguments(key, value)
+      if value.kind_of?(Array)
+        value.map {|e| parse_custom_query_argument(key, e)}
+      elsif value.kind_of?(Hash)
+        value.each do |k,v|
+          if v.kind_of?(Array)
+            value[k] = v.map {|e| parse_custom_query_argument(key, e)}
+          else
+            value[k] = parse_custom_query_argument(key, v)
+          end
+        end
+      else
+        parse_custom_query_argument(key, value)
+      end
+    end
+    
     # ******** Overwrite these **********
     def parse_custom_query_argument(key, value)
       return nil unless value
+      value = value.gsub('REF_DATE', @ref_date)
       case key
       when :order
         " ORDER BY #{value}"
@@ -500,7 +544,15 @@ class QueryBuilder
     
     # Map a field to be used inside a query
     def field_or_param(fld, table_name = table, context = nil)
-      if table_name
+      if fld =~ /^\d+$/
+        return fld
+      elsif @select.join =~ / AS #{fld}/
+        @select.each do |s|
+          if s =~ /\A(.*) AS #{fld}\Z/
+            return "(#{$1})"
+          end
+        end
+      elsif table_name
         map_field(fld, table_name, context)
       else
         map_parameter(fld)

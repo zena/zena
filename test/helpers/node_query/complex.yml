@@ -49,18 +49,17 @@ all_achieved_formations_for_roger:
   context:
     node: roger
   src: assigned_formations where l_status eq 100
-  res: transp2004
+  res: form2006, transm2001, transp2004
 
 custom_query_form_date:
   context:
     node: roger
-  src: form_date
+  src: form_date order by name ASC
   res: "dangerous_transportations, engine, fiber_junction, formulate_problems, radio_usage, secure_a_site, transmit_information, winch_usage"
 
-custom_query_form_having:
+custom_query_form_with_where:
   context:
     node: roger
-    ref_date: "2006-05-10"
-  src: form_date where event_at lt DATE + 6 month
-  sql: "/HAVING event_at < now\(\) \+ INTERVAL 6 MONTH/"
-  res: "dangerous_transportations"
+    ref_date: 2005-03-01
+  src: form_dates where custom_a is not null and (event_at is null or log_at lt REF_DATE + 6 month)
+  res: "engine, transmit_information"

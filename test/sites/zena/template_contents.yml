@@ -64,7 +64,7 @@ Project_zafu:
   
 wiki_Node:
   node:            wiki_Node
-  skin_name:       wiki
+  skin_name:       wiki_skin
   format:          html
   tkpath:          N
   mode:            
@@ -72,7 +72,7 @@ wiki_Node:
 
 wiki_Project_changes_xml:
   node:            wiki_Project_changes_xml
-  skin_name:       wiki
+  skin_name:       wiki_skin
   format:          xml
   tkpath:          NPP
   mode:            changes
@@ -80,7 +80,7 @@ wiki_Project_changes_xml:
 
 wiki_Page_changes:
   node:            wiki_Page_changes
-  skin_name:       wiki
+  skin_name:       wiki_skin
   format:          html
   tkpath:          NP
   mode:            changes

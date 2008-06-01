@@ -17,12 +17,12 @@ if_bad_test:
 
 bad_query:
   src: "<r:images where='foo bar baz'>ok</r:images>"
-  tem: "<span class='parser_error'>[images where foo bar baz] invalid clause 'foo bar baz'</span><% if nil -%>ok<% end -%>"
-  res: "<span class='parser_error'>[images where foo bar baz] invalid clause 'foo bar baz'</span>"
+  tem: "<span class='parser_error'>[images where foo bar baz] invalid field or value \"foo\"</span><% if nil -%>ok<% end -%>"
+  res: "<span class='parser_error'>[images where foo bar baz] invalid field or value \"foo\"</span>"
 
 bad_field_in_query:
   src: "<r:images where='name = baz'>ok</r:images>"
-  res: "<span class='parser_error'>[images where name = baz] invalid field or value 'baz'</span>"
+  res: "<span class='parser_error'>[images where name = baz] invalid field or value \"baz\"</span>"
 
 bad_relation:
   src: "<div do='categories in site' do='each' join=', ' do='[name]'/>"

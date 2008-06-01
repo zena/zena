@@ -24,10 +24,10 @@ custom_query_having:
   context:
     custom_query_group: test
   src: "abc where number > 12"
-  res: "SELECT a,34 AS number,c FROM test WHERE 3 AND 2 AND 1 HAVING number > 12 ORDER BY a"
+  res: "SELECT a,34 AS number,c FROM test WHERE (34) > 12 AND 3 AND 2 AND 1 ORDER BY a"
 
 equation_in_filter:
-  src: "objects where event_at > DATE + custom_a month"
+  src: "objects where event_at > DATE + custom_a months"
   res: "SELECT objects.* FROM objects WHERE objects.parent_id = ID AND objects.event_at > now() + INTERVAL objects.custom_a MONTH"
 
 equation_in_filter_date:
@@ -36,4 +36,8 @@ equation_in_filter_date:
 
 equation_and_or_par:
   src: "objects where event_at > '2006-04-01' or name like 'foo%'"
-  res: "SELECT objects.* FROM objects WHERE objects.parent_id = ID AND (objects.event_at > \"2006-04-01\" OR name LIKE \"foo%\")"
+  res: "SELECT objects.* FROM objects WHERE objects.parent_id = ID AND (objects.event_at > \"2006-04-01\" OR objects.name LIKE \"foo%\")"
+
+equation_par:
+  src: "objects where (1 > 2 and 2 > 3) or 4 = 5"
+  res: "SELECT objects.* FROM objects WHERE objects.parent_id = ID AND ((1 > 2 AND 2 > 3) OR 4 = 5)"

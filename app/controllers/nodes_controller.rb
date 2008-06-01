@@ -89,7 +89,6 @@ class NodesController < ApplicationController
   end
   
   def show
-    
     respond_to do |format|
       
       format.html { render_and_cache }

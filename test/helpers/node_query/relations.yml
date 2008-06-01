@@ -11,8 +11,7 @@ nodes_from_nodes_in_section:
   
 bad_relation:
   src: "categories in site"
-  sql: 
-  res: ""
+  sql: unknown relation 'categories'
 
 overriden_relation:
   src: 'references'

@@ -4,16 +4,16 @@ default:
     node: roger
     visitor: complex_admin
     site: complex
-    date: 2005-03-01
-  src: "<r:form_dates where='custom_a is not null' do='each' join=', '><r:show attr='name'/>: <r:show date='event_at' format='%Y-%m-%d'/></r:form_dates>"
-  res: "engine: , transmit_information: 2004-03-20, dangerous_transportations: 2006-03-15"
+    ref_date: 2005-03-01
+  src: "<r:form_dates where='custom_a is not null' do='each' join=', '><r:show attr='name'/> (<r:show date='event_at' format='%Y-%m-%d'/>, <r:show date='log_at' format='%Y-%m-%d'/>)</r:form_dates>"
+  res: "engine (, ), transmit_information (2001-06-15, 2002-06-15), dangerous_transportations (2004-03-15, 2006-03-15)"
 
 courses_in_the_next_6_months:
   # log_at   = next_date
   # event_at = last_date
   # custom_a = repetition interval
-  src: "<r:form_dates where='custom_a is not null and (log_at is null or log_at lt DATE + 6 month)' do='each' join=', '><r:show attr='name'/>: <r:show date='log_at' format='%Y-%m-%d'/></r:form_dates>"
-  res: "engine: , transmit_information: 2004-03-20"
+  src: "<r:form_dates where='custom_a is not null and (event_at is null or log_at lt REF_DATE + 6 month)' do='each' join=', '><r:show attr='name'/>: <r:show date='log_at' format='%Y-%m-%d'/></r:form_dates>"
+  res: "engine: , transmit_information: 2002-06-15"
 
 all_formations:
   src: "<r:formations in='site' do='each' join=', '><r:show attr='name'/>: <r:show date='event_at'/></r:formations>"

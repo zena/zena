@@ -28,13 +28,17 @@ class NodeQueryTest < ZenaTestUnit
         assert_yaml_test test_sql, sql
       end
     
-      if errors == [] && test_res = @@test_strings[file][test]['res']
-        @node = secure(Node) { nodes(context[:node].to_sym) }
-        sql = eval "\"#{sql}\""
+      if test_res = @@test_strings[file][test]['res']
+        if errors == []
+          @node = secure(Node) { nodes(context[:node].to_sym) }
+          sql = eval "\"#{sql}\""
       
-        res = @node.do_find(:all, sql)
-        res = res ? res.map {|r| r[:name]}.join(', ') : ''
-        assert_yaml_test test_res, res
+          res = @node.do_find(:all, sql)
+          res = res ? res.map {|r| r[:name]}.join(', ') : ''
+          assert_yaml_test test_res, res
+        else
+          assert_yaml_test test_res, errors.join(", ")
+        end
       end
     end
     

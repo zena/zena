@@ -42,9 +42,9 @@ do_not_ignore_warnings:
 
 bad_equation:
   src: "objects where event_at > 2006-04-01'"
-  res: "invalid clause part \"2006-04-01'\""
+  res: "invalid clause \"event_at > 2006-04-01'\" near \"'\""
 
 bad_plus_plus:
   src: "objects where 1 + 3 + + 5 > event_at"
-  res: "invalid clause part \"1 + 3 + + 5\""
+  res: "invalid clause \"1 + 3 + + 5 > event_at\" near \"+ 5 > event_at\""
   

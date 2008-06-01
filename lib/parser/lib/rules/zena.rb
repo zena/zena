@@ -1499,7 +1499,7 @@ END_TXT
       raw_filters << "TABLE_NAME.#{fld} >= '\#{start_date.strftime('%Y-%m-%d')}' AND TABLE_NAME.#{fld} <= '\#{end_date.strftime('%Y-%m-%d')}'"
       
       opts[:size] = @params[:size] || 'tiny'
-      opts[:sql], errors = Node.build_find(:all, pseudo_sql, '@node', raw_filters)
+      opts[:sql], errors = Node.build_find(:all, pseudo_sql, :node_name => '@node', :raw_filters => raw_filters)
       if opts[:sql]
         opts[:sql] = "\"#{opts[:sql]}\""
         template_url = get_template_url
@@ -1637,7 +1637,7 @@ END_TXT
       end
       
       # make sure we do not use a new record in a find query:
-      sql_query, query_errors = Node.build_find(count, pseudo_sql, :node_name => node_name, :raw_filters => raw_filters, :ref_date => current_date)
+      sql_query, query_errors = Node.build_find(count, pseudo_sql, :node_name => node_name, :raw_filters => raw_filters, :ref_date => "\#{#{current_date}}")
       
       unless sql_query
         # is 'out' here a good idea ?
