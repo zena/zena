@@ -943,7 +943,7 @@ class Node < ActiveRecord::Base
   
   # Id to zip mapping for parent_id. Used by zafu and forms.
   def parent_zip
-    parent[:zip]
+    parent ? parent[:zip] : nil
   end
   
   # Id to zip mapping for section_id. Used by zafu and forms.
