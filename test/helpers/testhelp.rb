@@ -43,6 +43,7 @@ class TestController < ApplicationController
     @node = secure!(Node) { Node.find(params[:node_id])}
     @text = params[:text]
     @test_url  = params[:url]
+    @date = params[:date]
     params.delete(:user_id)
     params.delete(:prefix)
     params.delete(:node_id)

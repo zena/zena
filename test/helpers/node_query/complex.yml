@@ -31,7 +31,6 @@ all_courses_for_roger:
     node: roger
   src: assigned_courses from pages in project from assigned_jobs
   res: "dangerous_transportations, engine, fiber_junction, formulate_problems, radio_usage, secure_a_site, transmit_information, winch_usage"
-
 all_courses_for_joe:
   context:
     node: joe
@@ -45,3 +44,23 @@ all_courses_for_mike:
   # TODO: optimization
   #sql: "SELECT no1.*,li1.id AS link_id, links.status AS l_status, links.comment AS l_comment FROM nodes,links,nodes AS no1,links AS li1 WHERE no1.id = li1.target_id AND li1.relation_id = 512923747 AND li1.source_id = nodes.id AND nodes.kpath LIKE 'NP%' AND nodes.project_id = links.target_id AND links.relation_id = 813976280 AND links.source_id = \#{@node.id} AND (\#{@node.secure_scope('no1')}) GROUP BY no1.id ORDER BY no1.position ASC, no1.name ASC"
   res: "fiber_junction, formulate_problems, radio_usage, resp_management, secure_a_site, team_motivation, transmit_information, vision, winch_usage"
+
+all_achieved_formations_for_roger:
+  context:
+    node: roger
+  src: assigned_formations where l_status eq 100
+  res: transp2004
+
+custom_query_form_date:
+  context:
+    node: roger
+  src: form_date
+  res: "dangerous_transportations, engine, fiber_junction, formulate_problems, radio_usage, secure_a_site, transmit_information, winch_usage"
+
+custom_query_form_having:
+  context:
+    node: roger
+    ref_date: "2006-05-10"
+  src: form_date where event_at lt DATE + 6 month
+  sql: "/HAVING event_at < now\(\) \+ INTERVAL 6 MONTH/"
+  res: "dangerous_transportations"

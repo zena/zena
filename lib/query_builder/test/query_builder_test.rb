@@ -4,6 +4,7 @@ require 'ruby-debug'
 Debugger.start
 
 class TestQuery < QueryBuilder
+  load_custom_queries File.join(File.dirname(__FILE__), 'custom_queries')
   
   # Build joins and filters from a relation.
   def parse_relation(rel, context)
@@ -49,7 +50,7 @@ class TestQuery < QueryBuilder
         return false
       end
       
-      @filters << "#{field_or_param(fields[0])} = #{field_or_param(fields[1], table(main_table,-1))}"
+      @where << "#{field_or_param(fields[0])} = #{field_or_param(fields[1], table(main_table,-1))}"
     end
 
     # Direct filter
@@ -57,10 +58,10 @@ class TestQuery < QueryBuilder
       case rel
       when 'letters'
         parse_context(default_context_filter) unless context
-        @filters << "#{table}.kpath LIKE 'NNL%'"
+        @where << "#{table}.kpath LIKE 'NNL%'"
       when 'clients'
         parse_context(default_context_filter) unless context
-        @filters << "#{table}.kpath LIKE 'NRCC%'"
+        @where << "#{table}.kpath LIKE 'NRCC%'"
       else
         return false
       end
@@ -83,12 +84,12 @@ class TestQuery < QueryBuilder
       
       add_table('links')
       # source --> target
-      @filters << "#{field_or_param('id')} = #{table('links')}.#{fields[2]} AND #{table('links')}.relation_id = #{fields[1]} AND #{table('links')}.#{fields[0]} = #{field_or_param('id', table(main_table,-1))}"
+      @where << "#{field_or_param('id')} = #{table('links')}.#{fields[2]} AND #{table('links')}.relation_id = #{fields[1]} AND #{table('links')}.#{fields[0]} = #{field_or_param('id', table(main_table,-1))}"
     end
     
     # Overwrite this and take car to check for valid fields.
     def map_field(fld, table_name, is_null = false)
-      if ['id', 'parent_id', 'project_id', 'section_id', 'kpath', 'name'].include?(fld)
+      if ['id', 'parent_id', 'project_id', 'section_id', 'kpath', 'name', 'event_at', 'custom_a'].include?(fld)
         "#{table_name}.#{fld}"
       else
         # error, raise

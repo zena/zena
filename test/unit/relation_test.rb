@@ -255,7 +255,7 @@ class RelationTest < ZenaTestUnit
   def test_do_find_in_new_node
     login(:tiger)
     assert var1_new = secure!(Node) { Node.get_class("Post").new }
-    assert_nil var1_new.do_find(:all, eval("\"#{Node.build_find(:all, 'posts in site', 'self')}\""))
+    assert_nil var1_new.do_find(:all, eval("\"#{Node.build_find(:all, 'posts in site', :node_name => 'self')}\""))
   end
   
   def test_update_attributes_empty_value

@@ -60,6 +60,11 @@ param_filter:
     - "tagged where l_status > 5"
   res: "cleanWater"
 
+filter_literal:
+  src: "nodes where name like 'w%' in site"
+  sql: "/name LIKE 'w%'/"
+  res: "water, wiki, wiki_skin"
+
 param_filter_tag:
   context:
     node: art

@@ -9,12 +9,36 @@ end
 Syntax of a query is "CLASS [where ...|] [in ...|from SUB_QUERY|]"
 =end
 class QueryBuilder
-  attr_reader :tables, :filters, :errors, :join_tables, :distinct
+  attr_reader :tables, :where, :errors, :join_tables, :distinct
   @@main_table = 'objects'
+  @@custom_queries = {}
   
   class << self
     def set_main_table(table_name)
       @@main_table = table_name.to_s
+    end
+    
+    def load_custom_queries(dir)
+      klass = nil
+      if File.directory?(dir)
+        Dir.foreach(dir) do |file|
+          next unless file =~ /(.+).yml$/
+          custom_query_group = $1
+          definitions = YAML::load(File.read(File.join(dir,file)))
+          definitions.each do |klass,v|
+            klass = Module.const_get(klass)
+            raise ArgumentError.new("invalid class for CustomQueries (#{klass})") unless klass.ancestors.include?(QueryBuilder)
+            @@custom_queries[klass] ||= {}
+            @@custom_queries[klass][custom_query_group] ||= {}
+            klass_queries = @@custom_queries[klass][custom_query_group]
+            v.each do |k,v|
+              klass_queries[k] = v
+            end
+          end
+        end
+      end
+    rescue NameError
+      raise ArgumentError.new("invalid class for CustomQueries (#{klass})")
     end
   end
   
@@ -28,23 +52,27 @@ class QueryBuilder
       @query = query
     end
     
+  
     @tables  = []
     @join_tables = {}
     @table_counter = {}
-    @filters = []
+    @where  = []
+    @having = []
     # list of tables that need to be added for filter clauses (should be added only once per part)
     @needed_tables = {}
     # list of tables that need to be added through a join (should be added only once per part)
     @needed_join_tables = {}
-    
+  
     @errors  = []
-    
+  
     @main_table ||= 'objects'
-    
+  
     @select  = []
-    
+  
     @ignore_warnings = opts[:ignore_warnings]
     
+    @ref_date = opts[:ref_date] ? "'#{opts[:ref_date]}'" : 'now()'
+       
     if @query == nil || @query == ''
       elements = [main_table]
     else
@@ -56,28 +84,47 @@ class QueryBuilder
       elements[-1], group  = last_element.split(' group by ')
     end
     
+    if @@custom_queries[self.class] && 
+       @@custom_queries[self.class][opts[:custom_query_group]] && 
+       custom_query = @@custom_queries[self.class][opts[:custom_query_group]][extract_custom_query(elements)]
+      custom_query.each do |k,v|
+       instance_variable_set("@#{k}", parse_custom_query_argument(k.to_sym, v))
+      end
+      # set table counters
+      @tables.each do |t|
+        base, as, tbl = t.split(' ')
+        @table_counter[base] ||= 0
+        @table_counter[base] += 1 if tbl
+      end
+      # parse filters
+      clause, filters = elements[-1].split(/\s+where\s+/)
+      
+      parse_filters(filters) if filters
+    else
+      # In order to know the table names of the dependencies, we need to parse it backwards.
+      # We first find the closest elements, then the final ones. For example, "pages from project" we need
+      # project information before getting 'pages'. 
+      elements.reverse!
     
-    # In order to know the table names of the dependencies, we need to parse it backwards.
-    # We first find the closest elements, then the final ones. For example, "pages from project" we need
-    # project information before getting 'pages'. 
-    elements.reverse!
-    
-    elements.each_index do |i|
-      parse_part(elements[i], i == 0) # yes, is_last is first (parsing reverse)
+      elements.each_index do |i|
+        parse_part(elements[i], i == 0) # yes, is_last is first (parsing reverse)
+      end
+      @distinct ||= elements.size > 1
+      @select << "#{table}.*"
+      
+      merge_alternate_queries(alt_queries) if alt_queries
+      
+      @limit    = parse_limit_clause(opts[:limit] || limit)
+      @offset ||= parse_offset_clause(offset)
+
+
+      @group = parse_group_clause(group) if group
+      @order = parse_order_clause(order || default_order_clause)
     end
-    @distinct ||= elements.size > 1
-    @select << "#{table}.*"
-    @limit    = parse_limit_clause(opts[:limit] || limit)
-    @offset ||= parse_offset_clause(offset)
-    
-    merge_alternate_queries(alt_queries) if alt_queries
-    
-    
-    @group = parse_group_clause(group) if group
-    @order = parse_order_clause(order || default_order_clause)
     
     after_parse unless opts[:skip_after_parse]
-    @filters.compact!
+    @where.compact!
+    @having.compact!
   end
   
   def to_sql
@@ -98,7 +145,7 @@ class QueryBuilder
       @group ||= @tables.size > 1 ? " GROUP BY #{table}.id" : " GROUP BY id"
     end
     
-    "SELECT #{@select.join(',')} FROM #{table_list.flatten.join(',')}" + (@filters == [] ? '' : " WHERE #{@filters.reverse.join(' AND ')}#{@group}#{@order}#{@limit}#{@offset}")
+    "SELECT #{@select.join(',')} FROM #{table_list.flatten.join(',')}" + (@where == [] ? '' : " WHERE #{@where.reverse.join(' AND ')}") + @group.to_s + (@having == [] ? '' : " HAVING #{@having.reverse.join(' AND ')}") + @order.to_s + @limit.to_s + @offset.to_s
   end
   
   def valid?
@@ -125,27 +172,90 @@ class QueryBuilder
     def parse_filters(txt)
       txt.split(/\s+and\s+/).each do |clause|
         # [field] [=|>]
-        if clause =~ /("[^"]*"|'[^']*'|[\w:]+)\s*(like|not like|is not|is|>=|<=|<>|<|=|>|lt|le|eq|ne|ge|gt)\s*("[^"]*"|'[^']*'|[\w:]+)/
+        #if clause =~ /("[^"]*"|'[^']*'|[\w:]+)\s*(like|not like|is not|is|>=|<=|<>|<|=|>|lt|le|eq|ne|ge|gt)\s*("[^"]*"|'[^']*'|[\w:]+)/
+        if clause =~ /^\s*(.+?)\s*(not like|like|is not|is|>=|<=|<>|<|=|>|lt|le|eq|ne|ge|gt)\s*(.+)\s*$/
           # TODO: add 'match' parameter (#105)
-          parts = [$1,$3]
-          op = {'lt' => '<','le' => '<=','eq' => '=','ne' => '<>','ge' => '>=','gt' => '>'}[$2] || $2
+          parts  = [$1,$3]
+          op     = {'lt' => '<','le' => '<=','eq' => '=','ne' => '<>','ge' => '>=','gt' => '>'}[$2] || $2
+          having = false
           parts.map! do |part|
-            if ['"',"'"].include?(part[0..0])
-              map_literal(part[1..-2])
-            elsif part =~ /^\d+$/
-              map_literal(part)
-            elsif part == 'null'
-              "NULL"
-            else
-              if fld = field_or_param(part, table, :filter) # we need to inform if we are looking for 'null' related field/param
-                fld
-              elsif fld.nil?
-                @errors << "invalid field or value '#{part}'"
-                nil
-              else
-                nil
+            rest = part.strip
+            last = :void
+            res  = ""
+            while rest != ''
+              if rest =~ /\A\s+/
+                rest = rest[$&.size..-1]
+                res << " "
+              elsif rest =~ /\A("|')([^\1]*)\1/  
+                rest = rest[$&.size..-1]
+                unless [:void, :op].include?(last)
+                  @errors << "invalid clause part #{part.inspect}" 
+                  break
+                end
+                res << map_literal($2)
+                last = :value
+              elsif rest =~ /\A(\+|\-)/  
+                rest = rest[$&.size..-1]
+                unless [:void, :value].include?(last)
+                  @errors << "invalid clause part #{part.inspect}" 
+                  break
+                end
+                res << $1
+                last = :op
+              elsif rest =~ /\A(\d+)$/  
+                rest = rest[$&.size..-1]
+                res << $1
+                last = :value
+              elsif rest[0..3] == 'null'  
+                rest = rest[4..-1]
+                unless [:void].include?(last) && op[0..1] == 'is'
+                  @errors << "invalid clause part #{part.inspect}" 
+                  break
+                end
+                res << "NULL"
+                last = :null
+              elsif rest[0..3] == 'DATE'  
+                rest = rest[4..-1]
+                unless [:void, :op].include?(last)
+                  @errors << "invalid clause part #{part.inspect}" 
+                  break
+                end
+                res << @ref_date
+                last = :value
+              elsif rest =~ /\A(\d+|\w+)\s+(second|minute|hour|day|week|month|year)/
+                rest = rest[$&.size..-1]
+                unless [:op].include?(last)
+                  @errors << "invalid clause part #{part.inspect}" 
+                  break
+                end
+                fld, type = $1, $2
+                if @select.join =~ / AS #{fld}/
+                  having = true
+                elsif fld =~ /^\d+$/
+                  #
+                else
+                  fld = field_or_param(fld, table, :filter)
+                end
+                res << "INTERVAL #{fld} #{type.upcase}"
+                last = :value
+              elsif rest =~ /\A\w+/
+                fld = $&
+                rest = rest[$&.size..-1]
+                if @select.join =~ / AS #{fld}/
+                  having = true
+                  res << fld
+                elsif fld =~ /^\d+$/
+                  res << fld
+                else
+                  res << field_or_param(fld, table, :filter).to_s
+                end
+                last = :value
+              else  
+                @errors << "invalid clause part #{part.inspect}"
+                break
               end
             end
+            res
           end.compact!
           
           if parts.size == 2 && parts[0] != 'NULL'
@@ -153,8 +263,10 @@ class QueryBuilder
             if op[0..2] == 'is' && parts[1] != 'NULL'
               # error
               @errors << "invalid clause '#{clause}' ('is' only valid with 'null')"
+            elsif having
+              @having << parts.join(" #{op.upcase} ")
             else
-              @filters << parts.join(" #{op.upcase} ")
+              @where << parts.join(" #{op.upcase} ")
             end
           end
         else
@@ -239,7 +351,7 @@ class QueryBuilder
       @needed_tables[table2] ||= {}
       @needed_tables[table2][table] ||= begin
         add_table(table2)
-        @filters << filter.gsub('TABLE1', table).gsub('TABLE2', table(table2))
+        @where << filter.gsub('TABLE1', table).gsub('TABLE2', table(table2))
         table(table2)
       end
     end
@@ -290,39 +402,39 @@ class QueryBuilder
           # reset current query
           @tables   = []
           @join_tables = {}
-          @filters  = []
+          @where  = []
           @errors   = []
           @distinct = nil
         end
         counter = 0
       end
       
-      if @filters.compact == []
-        filters = []
+      if @where.compact == []
+        where = []
       else
-        filters = [@filters.compact.reverse.join(' AND ')]
+        where = [@where.compact.reverse.join(' AND ')]
       end
       
       alt_queries.each do |query|
         @errors += query.errors unless @ignore_warnings
         next unless query.valid?
-        query.filters.compact!
-        next if query.filters.empty?
+        query.where.compact!
+        next if query.where.empty?
         counter += 1
         merge_tables(query)
         @distinct ||= query.distinct
-        filters << query.filters.reverse.join(' AND ')
+        where << query.where.reverse.join(' AND ')
       end
       
-      @alt_filters = filters
+      @alt_where = where
       
       @tables.uniq!
       
       if counter > 1
         @distinct = @tables.size > 1
-        @filters  = ["((#{filters.join(') OR (')}))"]
+        @where  = ["((#{where.join(') OR (')}))"]
       else
-        @filters  = filters
+        @where  = where
       end
     end
     
@@ -335,6 +447,22 @@ class QueryBuilder
     end
     
     # ******** Overwrite these **********
+    def parse_custom_query_argument(key, value)
+      return nil unless value
+      case key
+      when :order
+        " ORDER BY #{value}"
+      when :group
+        " GROUP BY #{value}"
+      else
+        value
+      end
+    end
+    
+    def extract_custom_query(list)
+      list[-1].split(' ').first
+    end
+    
     def default_context_filter(clause)
       nil
     end
@@ -359,7 +487,7 @@ class QueryBuilder
     def parse_context(clause, is_last = false)
       
       if fields = context_filter_fields(clause, is_last)
-        @filters << "#{field_or_param(fields[0])} = #{field_or_param(fields[1], table(main_table,-1))}" if fields != :void
+        @where << "#{field_or_param(fields[0])} = #{field_or_param(fields[1], table(main_table,-1))}" if fields != :void
       else
         @errors << "invalid context '#{clause}'"
       end

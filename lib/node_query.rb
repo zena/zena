@@ -1,15 +1,18 @@
 require File.join(File.dirname(__FILE__) , 'query_builder', 'lib', 'query_builder')
+require 'yaml'
 
 class NodeQuery < QueryBuilder
   attr_reader :context
   set_main_table :nodes
+  load_custom_queries File.join(File.dirname(__FILE__), 'custom_queries')
+
   
   def initialize(query, opts = {})
     @table_name = 'nodes'
     @node_name  = opts[:node_name]
     # list of dyna_attributes keys allready in the filter
     @dyn_keys   = {}
-    
+    opts[:ref_date] = "\#{#{opts[:ref_date]}}"
     super(query, opts)
     # Raw filters are statements prepared that should not be further processed except for table_name replacement.
     parse_raw_filters(opts[:raw_filters])
@@ -29,7 +32,7 @@ class NodeQuery < QueryBuilder
   end
   
   def after_parse
-    @filters.unshift "(\#{#{@node_name}.secure_scope('#{table}')})"
+    @where.unshift "(\#{#{@node_name}.secure_scope('#{table}')})"
     if @tables.include?('links') && safe_links_attributes?
       @select << "#{table('links')}.id AS link_id, links.status AS l_status, links.comment AS l_comment"
     elsif @errors_unless_safe_links
@@ -40,7 +43,7 @@ class NodeQuery < QueryBuilder
   
   private
     def safe_links_attributes?
-      (@alt_filters || []).each do |f|
+      (@alt_where || []).each do |f|
         unless f =~ /links\./
           return false
         end
@@ -78,18 +81,18 @@ class NodeQuery < QueryBuilder
       when 'section'
         fields = ['id', 'section_id']
       when 'root'
-        @filters << "#{table}.id = #{current_site.root_id}"
+        @where << "#{table}.id = #{current_site.root_id}"
         return true
       when 'author', 'traductions', 'versions'
         # TODO: not implemented yet...
         return nil
       when 'visitor'
-        @filters << "#{table}.id = \#{visitor.contact_id}"
+        @where << "#{table}.id = \#{visitor.contact_id}"
         return true
       else
         if klass = Node.get_class(rel)
           parse_context('self') unless context
-          @filters << "#{table}.kpath LIKE '#{klass.kpath}%'"
+          @where << "#{table}.kpath LIKE '#{klass.kpath}%'"
           return true
         else
           # unknown class
@@ -97,7 +100,7 @@ class NodeQuery < QueryBuilder
         end
       end
       
-      @filters << "#{field_or_param(fields[0])} = #{field_or_param(fields[1], table(main_table,-1))}"
+      @where << "#{field_or_param(fields[0])} = #{field_or_param(fields[1], table(main_table,-1))}"
       true
     end
     
@@ -117,9 +120,9 @@ class NodeQuery < QueryBuilder
           # tagged in project (not equal to 'tagged from nodes in project')
           # remove caller join
           @distinct = true
-          @filters << "#{field_or_param('id')} = #{table('links')}.#{rel.other_side} AND #{table('links')}.relation_id = #{rel[:id]}"
+          @where << "#{field_or_param('id')} = #{table('links')}.#{rel.other_side} AND #{table('links')}.relation_id = #{rel[:id]}"
         else
-          @filters << "#{field_or_param('id')} = #{table('links')}.#{rel.other_side} AND #{table('links')}.relation_id = #{rel[:id]} AND #{table('links')}.#{rel.link_side} = #{field_or_param('id', table(main_table,-1))}"
+          @where << "#{field_or_param('id')} = #{table('links')}.#{rel.other_side} AND #{table('links')}.relation_id = #{rel[:id]} AND #{table('links')}.#{rel.link_side} = #{field_or_param('id', table(main_table,-1))}"
         end
       else
         nil
@@ -220,7 +223,7 @@ class NodeQuery < QueryBuilder
     def parse_raw_filters(filters)
       return unless filters
       filters.each do |f|
-        @filters << f.gsub("TABLE_NAME", table)
+        @where << f.gsub("TABLE_NAME", table)
       end
     end
     
@@ -232,7 +235,41 @@ class NodeQuery < QueryBuilder
         "#{dtable}.value"
       end
     end
+    
+    def parse_custom_query_argument(key, value)
+      value = super
+      if value.kind_of?(Array)
+        value.map {|e| set_ids_in_query_argument(e)}
+      elsif value.kind_of?(Hash)
+        value.each do |k,v|
+          if v.kind_of?(Array)
+            value[k] = v.map {|e| set_ids_in_query_argument(e)}
+          else
+            value[k] = set_ids_in_query_argument(v)
+          end
+        end
+      else
+        set_ids_in_query_argument(value)
+      end
+    end
+    
+    def set_ids_in_query_argument(str)
+      str.gsub(/RELATION_ID\(([^)]+)\)/) do
+        role = $1
+        if rel = Relation.find_by_role(role.singularize)
+          rel[:id]
+        else
+          @errors << "could not find Relation '#{role}' in custom query"
+          '-1'
+        end
+      end.gsub(/NODE_ID/, "\#{#{@node_name}.id}")
+    end
+    
+    def extract_custom_query(list)
+      super.singularize
+    end
 end
+
 
 
 module Zena
@@ -268,11 +305,12 @@ module Zena
       #   * CLAUSE: field = value ('log_at:year = 2005'). You can use parameters, visitor data in clause: 'log_at:year = [param:year]', 'd_assigned = [visitor:name]'. You can only use 'and' in clauses. 'or' is not supported. You can use version and/or dynamic attributes : 'v_comment = super', 'd_priority = low'.
       #
       # Examples: 'todos in section where d_priority = high and d_assigned = [visitor:name]'
-      def build_find(count, pseudo_sql, node_name, raw_filters = nil, ignore_warnings = false)
+      #def build_find(count, pseudo_sql, node_name, raw_filters = nil, ignore_warnings = false, ref_date = nil)
+      def build_find(count, pseudo_sql, opts = {})
         if count != :all
-          limit = 1
+          opts[:limit] = 1
         end
-        query = NodeQuery.new(pseudo_sql, :node_name => node_name, :limit => limit, :raw_filters => raw_filters, :ignore_warnings => ignore_warnings)
+        query = NodeQuery.new(pseudo_sql, opts.merge(:custom_query_group => visitor.site.host))
         [query.to_sql, query.errors]
       end
     end
@@ -308,7 +346,7 @@ module Zena
         if rel.size == 1 && self.class.zafu_known_contexts[rel.first]
           self.send(rel.first)
         else
-          sql, errors = Node.build_find(count, rel, 'self')
+          sql, errors = Node.build_find(count, rel, :node_name => 'self')
           if sql
             do_find(count, eval("\"#{sql}\""))
           else
@@ -319,5 +357,5 @@ module Zena
     end
   end
 end
-
+ 
 ActiveRecord::Base.send :include, Zena::Query::UseNodeQuery

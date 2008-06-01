@@ -77,6 +77,16 @@ module Zena
             end
           end
         end
+        
+        if table_name == 'sites'
+          define_method("#{table_name}_host") do |fixture|
+            if fix = @@loaded_fixtures[table_name][fixture]
+              fix.instance_eval { @fixture['host'] }
+            else
+              raise StandardError, "No fixture with name '#{fixture}' found for '#{table_name}'"
+            end
+          end
+        end
       end
 
       fixtures = Fixtures.create_fixtures(FIXTURE_PATH, fixture_table_names)
@@ -245,8 +255,10 @@ module Zena
       include Zena::Test::Base
 
       def init_controller
-        @request    = ActionController::TestRequest.new
-        @response   = ActionController::TestResponse.new
+        @request    ||= ActionController::TestRequest.new
+        @response   ||= ActionController::TestResponse.new
+        @request.host = sites_host($_test_site || 'zena')
+        puts @request.inspect
         @controller.instance_eval { @params = {}; @url = ActionController::UrlRewriter.new( @request, {} )}
         @controller.instance_variable_set(:@response, @response)
         @controller.send(:request=, @request)

@@ -42,3 +42,9 @@ recipients_or_objects:
     - "recipients"
     - "objects"
   res: "SELECT objects.* FROM objects,links WHERE ((objects.id = links.target_id AND links.relation_id = 4 AND links.source_id = ID) OR (objects.parent_id = ID)) GROUP BY objects.id"
+
+custom_query:
+  context:
+    custom_query_group: test
+  src: "abc"
+  res: "SELECT a,34 AS number,c FROM test WHERE 3 AND 2 AND 1 ORDER BY a"

@@ -1,0 +1,24 @@
+NodeQuery:
+  # form_dates
+  form_date:
+    select:
+      - no1.id
+      - no1.name
+      - forms.event_at + INTERVAL no1.custom_a MONTH AS log_at
+      - forms.event_at AS event_at
+    tables:
+      - nodes
+      - links
+      - nodes AS no1
+      - links AS li1
+    join_tables:
+      no1:
+        - LEFT JOIN nodes AS forms ON forms.project_id = no1.id
+        - LEFT JOIN links AS form ON form.relation_id = RELATION_ID(assigned_formation) AND form.source_id = NODE_ID AND form.target_id = forms.id
+    where:
+      - no1.id = li1.target_id AND li1.relation_id = RELATION_ID(assigned_course) AND li1.source_id = nodes.id
+      - nodes.kpath LIKE 'NP%'
+      - nodes.project_id = links.target_id
+      - links.relation_id = RELATION_ID(assigned_job) AND links.source_id = NODE_ID
+    group: no1.id
+    order: event_at ASC, no1.name ASC

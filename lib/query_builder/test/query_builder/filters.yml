@@ -19,3 +19,21 @@ letters_group_by_name:
 
 recipients_group_by_name:
   res: "SELECT objects.* FROM objects,links WHERE objects.id = links.target_id AND links.relation_id = 4 AND links.source_id = ID GROUP BY objects.name"
+
+custom_query_having:
+  context:
+    custom_query_group: test
+  src: "abc where number > 12"
+  res: "SELECT a,34 AS number,c FROM test WHERE 3 AND 2 AND 1 HAVING number > 12 ORDER BY a"
+
+equation_in_filter:
+  src: "objects where event_at > DATE + custom_a month"
+  res: "SELECT objects.* FROM objects WHERE objects.parent_id = ID AND objects.event_at > now() + INTERVAL objects.custom_a MONTH"
+
+equation_in_filter_date:
+  src: "objects where event_at > '2006-04-01' + 6 week"
+  res: "SELECT objects.* FROM objects WHERE objects.parent_id = ID AND objects.event_at > \"2006-04-01\" + INTERVAL 6 WEEK"
+
+equation_and_or_par:
+  src: "objects where event_at > '2006-04-01' or name like 'foo%'"
+  res: "SELECT objects.* FROM objects WHERE objects.parent_id = ID AND (objects.event_at > \"2006-04-01\" OR name LIKE \"foo%\")"

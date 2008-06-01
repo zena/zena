@@ -37,3 +37,20 @@ chief_motivation_x_resp_management:
 chief_motivation_x_team_motivation:
 
 chief_image_x_vision:
+  
+# ====== achieved formations for 'roger'
+roger_x_transp2004:
+  status: 100
+
+roger_x_form2006:
+  status: 100
+
+roger_x_transm2001:
+  status: 100
+  
+# ====== failed formations for 'roger'
+roger_x_transp2006:
+  status: 10
+
+roger_x_form2005:
+  status: 10

@@ -31,10 +31,12 @@ class ZenaParserTest < ZenaTestController
     context = default_context.merge(context)
     # set context
     params = {}
-    $_test_site = params[:site] || 'zena'
+    $_test_site = context.delete('site') || 'zena'
+    @request.host = sites_host($_test_site)
     params[:user_id] = users_id(context['visitor'].to_sym)
     params[:node_id] = nodes_id(context['node'].to_sym)
     params[:prefix]  = context['lang']
+    params[:date]    = context['date']
     params[:url] = "/#{test.to_s.gsub('_', '/')}"
     TestController.templates = @@test_strings[file]
     if src

@@ -123,6 +123,8 @@ courses:
 dangerous_transportations:
   class:           Course
   parent:          courses
+  # 2 years = 2 * 12 months = 24
+  custom_a:        24
   v_title:         dangerous transportations
 
 formulate_problems:
@@ -133,11 +135,13 @@ formulate_problems:
 transmit_information:
   class:           Course
   parent:          courses
+  custom_a:        12
   v_title:         information transmission
 
 engine:
   class:           Course
   parent:          courses
+  custom_a:        24
   v_title:         engine maintenance
 
 secure_a_site:
@@ -175,5 +179,40 @@ vision:
   parent:          courses
   v_title:         our vision
 
-# ------------- EMPLOYEES
+# ------------- FORMATIONS
 
+transp2004:
+  class:           Formation
+  parent:          dangerous_transportations
+  v_title:         dtransp 2004
+  event_at:        2004-03-15
+
+transp2006:
+  class:           Formation
+  parent:          dangerous_transportations
+  v_title:         dtransp 2006
+  event_at:        2006-04-21
+
+form2005:
+  class:           Formation
+  parent:          formulate_problems
+  v_title:         formprobs 2005
+  event_at:        2005-03-20
+
+form2006:
+  class:           Formation
+  parent:          formulate_problems
+  v_title:         formprobs 2006
+  event_at:        2006-03-20
+
+transm2001:
+  class:           Formation
+  parent:          transmit_information
+  v_title:         transinfo 2001
+  event_at:        2001-06-15
+
+transm2003:
+  class:           Formation
+  parent:          transmit_information
+  v_title:         transinfo 2003
+  event_at:        2003-03-20

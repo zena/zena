@@ -13,9 +13,10 @@ class NodeQueryTest < ZenaTestUnit
       params[k.to_sym] = v
     end
     
+    $_test_site = params[:site] || 'zena'
     login context[:visitor].to_sym
     
-    sql, errors = Node.build_find(:all,@@test_strings[file][test]['src'] || test.gsub('_',' '), context[:node_name])
+    sql, errors = Node.build_find(:all,@@test_strings[file][test]['src'] || test.gsub('_',' '), context)
     if test_err = @@test_strings[file][test]['err']
       assert_yaml_test test_err, errors.join(", ")
     else

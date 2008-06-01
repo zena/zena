@@ -1637,7 +1637,7 @@ END_TXT
       end
       
       # make sure we do not use a new record in a find query:
-      sql_query, query_errors = Node.build_find(count, pseudo_sql, node_name, raw_filters)
+      sql_query, query_errors = Node.build_find(count, pseudo_sql, :node_name => node_name, :raw_filters => raw_filters, :ref_date => current_date)
       
       unless sql_query
         # is 'out' here a good idea ?
