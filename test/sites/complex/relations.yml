@@ -7,5 +7,5 @@ Page_Course:
   target_role:     assigned_course
 
 Employee_Formation:
-  source_role:     employee
+  source_role:     registered
   target_role:     assigned_formation
