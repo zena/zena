@@ -288,7 +288,8 @@ class ApplicationHelperTest < ZenaTestHelper
   def test_calendar_has_note
     op_at = nodes(:opening).event_at
     @node = secure!(Node) { nodes(:zena) }
-    sql = "\"#{Node.build_find(:all, "news", :node_name => '@node', :raw_filters => ["TABLE_NAME.event_at >= '\#{start_date.strftime('%Y-%m-%d')}' AND TABLE_NAME.event_at <= '\#{end_date.strftime('%Y-%m-%d')}'"])}\""
+    sql, errors, ignore_source = Node.build_find(:all, "news", :node_name => '@node', :raw_filters => ["TABLE_NAME.event_at >= '\#{start_date.strftime('%Y-%m-%d')}' AND TABLE_NAME.event_at <= '\#{end_date.strftime('%Y-%m-%d')}'"])
+    sql = "\"#{sql}\""
     cal = calendar(:node=>@node, :date=>Date.civil(op_at.year, op_at.month, 5), :size=>'tiny', :sql => sql)
     assert_match %r{class='sun'>12}, cal
     assert_match %r{<em>18</em>}, cal
@@ -298,7 +299,8 @@ class ApplicationHelperTest < ZenaTestHelper
   
   def test_calendar_today
     @node = secure!(Node) { nodes(:zena) }
-    sql = "\"#{Node.build_find(:all, "news", :node_name => '@node', :raw_filters => ["TABLE_NAME.event_at >= '\#{start_date.strftime('%Y-%m-%d')}' AND TABLE_NAME.event_at <= '\#{end_date.strftime('%Y-%m-%d')}'"])}\""
+    sql, errors, ignore_source = Node.build_find(:all, "news", :node_name => '@node', :raw_filters => ["TABLE_NAME.event_at >= '\#{start_date.strftime('%Y-%m-%d')}' AND TABLE_NAME.event_at <= '\#{end_date.strftime('%Y-%m-%d')}'"])
+    sql = "\"#{sql}\""
     cal = calendar(:node=>@node, :sql => sql, :size=>'large')
     assert_match %r{<td[^>]*id='large_today'>#{Date.today.day}</td>}, cal
     cal = calendar(:node=>@node, :sql => sql, :size=>'tiny')
