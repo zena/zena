@@ -13,7 +13,7 @@ NodeQuery:
       - links AS li1
     join_tables:
       no1:
-        - LEFT JOIN nodes AS form INNER JOIN links AS flink ON flink.relation_id = RELATION_ID(assigned_formation) AND flink.source_id = 743875582 AND flink.target_id = form.id AND flink.status = 100 ON form.project_id = no1.id
+        - LEFT JOIN nodes AS form INNER JOIN links AS flink ON flink.relation_id = RELATION_ID(assigned_formation) AND flink.source_id = NODE_ID AND flink.target_id = form.id AND flink.status = 100 ON form.project_id = no1.id
     where:
       - no1.id = li1.target_id AND li1.relation_id = RELATION_ID(assigned_course) AND li1.source_id = nodes.id
       - nodes.kpath LIKE 'NP%'
