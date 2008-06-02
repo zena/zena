@@ -168,6 +168,12 @@ class RelationTest < ZenaTestUnit
     assert_equal [:news,:art].map{|s| nodes_id(s)}.sort, rel.other_ids.sort
   end
   
+  def test_other_zip
+    login(:tiger)
+    node = secure!(Node) { nodes(:cleanWater) }
+    assert_equal nodes_zip(:lake_jpg), node.send('icon_zip')
+  end
+  
   def test_records
     login(:tiger)
     node = secure!(Node) { nodes(:opening) }

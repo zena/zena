@@ -889,7 +889,8 @@ class Node < ActiveRecord::Base
   def icon
     return nil if new_record?
     return @icon if defined? @icon
-    @icon = do_find(:first, eval("\"#{Node.build_find(:first, ['icon', 'image'], :node_name => 'self', :ignore_source => true)}\""))
+    sql, errors, uses_node_name = Node.build_find(:first, ['icon', 'image'], :node_name => 'self')
+    @icon = sql ? do_find(:first, eval("\"#{sql}\""), :ignore_source => !uses_node_name) : nil
   end
   
   alias o_user user

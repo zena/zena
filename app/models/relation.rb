@@ -55,7 +55,7 @@ class Relation < ActiveRecord::Base
   
   # I do not think this method is used anymore (all is done by @node.find(...)).
   def record(options={})
-    return @record if defined? @record
+    return @record if defined?(@record) || @start.new_record?
     opts = { :select     => "nodes.*,links.id AS link_id, links.status AS l_status, links.comment AS l_comment", 
              :joins      => "INNER JOIN links ON nodes.id=links.#{other_side} AND links.relation_id = #{self[:id]} AND links.#{link_side} = #{@start[:id]}",
              :group      => 'nodes.id'}

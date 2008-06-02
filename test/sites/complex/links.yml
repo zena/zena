@@ -10,47 +10,47 @@ mike_x_technician:
 mike_x_chief:
 
 # ====== assigned_courses for 'driver'
-driver_security_x_dangerous_transportations:
+dangerous_transportations_x_driver_security:
   
-driver_team_x_formulate_problems:
+formulate_problems_x_driver_team:
   
-driver_team_x_transmit_information:
+transmit_information_x_driver_team:
 
-driver_mechanical_x_engine:
+engine_x_driver_mechanical:
 
 # ====== assigned_courses for 'technician'
-technician_security_x_secure_a_site:
+secure_a_site_x_technician_security:
 
-technician_security_x_winch_usage:
+winch_usage_x_technician_security:
   
-technician_team_x_radio_usage:
+radio_usage_x_technician_team:
 
-technician_team_x_formulate_problems:
+formulate_problems_x_technician_team:
 
-technician_team_x_transmit_information:
+transmit_information_x_technician_team:
 
-technician_fiber_x_fiber_junction:
+fiber_junction_x_technician_fiber:
   
 # ====== assigned_courses for 'chief'
-chief_motivation_x_resp_management:
+resp_management_x_chief_motivation:
 
-chief_motivation_x_team_motivation:
+team_motivation_x_chief_motivation:
 
-chief_image_x_vision:
+vision_x_chief_image:
   
 # ====== achieved formations for 'roger'
-roger_x_transp2004:
+transp2004_x_roger:
   status: 100
 
-roger_x_form2006:
+form2006_x_roger:
   status: 100
 
-roger_x_transm2001:
+transm2001_x_roger:
   status: 100
   
 # ====== failed formations for 'roger'
-roger_x_transp2006:
+transp2006_x_roger:
   status: 10
 
-roger_x_form2005:
+form2005_x_roger:
   status: 10

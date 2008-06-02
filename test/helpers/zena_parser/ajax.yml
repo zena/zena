@@ -52,6 +52,10 @@ each_add_with_form_klass_set:
     </r:children>
   res: "!/hidden.*node\[klass\].*Node.*select.*node\[klass\]/"
 
+each_add_with_select:
+  src: "<r:children><r:each do='[name]'/><r:add/><r:form><select name='icon_id' nodes='images in project' selected='[main.icon_id]_abc'/></r:form></r:children>"
+  'each/add/en/with/select/list_form.erb': '/:selected => \"#\{@node.icon_zip\}_abc\"/'
+  tem: "/@node.do_find\(:all, \"SELECT nodes.* FROM nodes WHERE nodes.kpath LIKE 'NDI%'/"
 
 each_edit_with_form:
   context:

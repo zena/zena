@@ -1,11 +1,11 @@
 Employee_Job:
-  source_role:     employee
+  source_role:     job_for
   target_role:     assigned_job
 
-Page_Course:
-  source_role:     description
-  target_role:     assigned_course
+Course_Page:  
+  source_role:     assigned_course
+  target_role:     course_for
 
-Employee_Formation:
-  source_role:     registered
-  target_role:     assigned_formation
+Formation_Employee:  
+  source_role:     assigned_formation
+  target_role:     formation_for

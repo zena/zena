@@ -2,12 +2,13 @@ require File.join(File.dirname(__FILE__) , 'query_builder', 'lib', 'query_builde
 require 'yaml'
 
 class NodeQuery < QueryBuilder
-  attr_reader :context
+  attr_reader :context, :uses_node_name
   set_main_table :nodes
   load_custom_queries File.join(File.dirname(__FILE__), 'custom_queries')
 
   
   def initialize(query, opts = {})
+    @uses_node_name = false
     @table_name = 'nodes'
     @node_name  = opts[:node_name]
     # list of dyna_attributes keys allready in the filter
@@ -197,8 +198,10 @@ class NodeQuery < QueryBuilder
     def map_parameter(fld)
       case fld
       when 'project_id', 'section_id'
+        @uses_node_name = true
         "\#{#{@node_name}.get_#{fld}}"
       when 'id', 'parent_id'
+        @uses_node_name = true
         "\#{#{@node_name}.#{fld}}"
       else
         # Node.zafu_readable?(fld)
@@ -245,7 +248,10 @@ class NodeQuery < QueryBuilder
           @errors << "could not find Relation '#{role}' in custom query"
           '-1'
         end
-      end.gsub(/NODE_ID/, "\#{#{@node_name}.id}")
+      end.gsub(/NODE_ID/) do
+        @uses_node_name = true
+        "\#{#{@node_name}.id}"
+      end
     end
     
     def extract_custom_query(list)
@@ -294,7 +300,7 @@ module Zena
           opts[:limit] = 1
         end
         query = NodeQuery.new(pseudo_sql, opts.merge(:custom_query_group => visitor.site.host))
-        [query.to_sql, query.errors]
+        [query.to_sql, query.errors, !query.uses_node_name]
       end
     end
     
@@ -302,9 +308,9 @@ module Zena
     module InstanceMethods
       
       # Find a node and propagate visitor
-      def do_find(count, query)
+      def do_find(count, query, ignore_source = false)
         return nil if query.empty?
-        return nil if new_record? # do not run query (might contain nil id)
+        return nil if (new_record? && !ignore_source) # do not run query (might contain nil id)
         res = Node.find_by_sql(query)
         if count == :all
           if res == []

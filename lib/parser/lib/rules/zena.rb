@@ -672,10 +672,21 @@ module Zena
     def r_select
       html_attributes, attribute = get_input_params()
       return parser_error("missing name") unless attribute
-      if @params[:selected]
-        select_opts = ", :selected => #{@params[:selected].inspect}"
+      if value = @params[:selected]
+        # FIXME: DRY with html_attributes
+        value = value.gsub(/\[([^\]]+)\]/) do
+          node_attr = $1
+          if node_attr =~ /^param:(\w+)$/
+            res = "params[:#{$1}].to_s"
+          else
+            # normal node_attribute
+            res = node_attribute(node_attr)
+          end
+          "\#{#{res}}"
+        end
+        select_opts = ", :selected => \"#{value}\""
       else
-        select_opts = ", :selected => #{node_attribute(attribute)}"
+        select_opts = ", :selected => #{node_attribute(attribute)}.to_s"
       end
       if klass = @params[:root_class]
         class_opts = {}
@@ -1637,7 +1648,7 @@ END_TXT
       end
       
       # make sure we do not use a new record in a find query:
-      sql_query, query_errors = Node.build_find(count, pseudo_sql, :node_name => node_name, :raw_filters => raw_filters, :ref_date => "\#{#{current_date}}")
+      sql_query, query_errors, can_ignore_source = Node.build_find(count, pseudo_sql, :node_name => node_name, :raw_filters => raw_filters, :ref_date => "\#{#{current_date}}")
       
       unless sql_query
         # is 'out' here a good idea ?
@@ -1645,7 +1656,7 @@ END_TXT
         return "nil"
       end
       
-      res = "#{node_name}.do_find(#{count.inspect}, \"#{sql_query}\")"
+      res = "#{node_name}.do_find(#{count.inspect}, \"#{sql_query}\", #{can_ignore_source})"
       if params[:else]
         if else_query = build_finder_for(count, params[:else], {})
           "(#{res} || #{else_query})"
@@ -2301,7 +2312,7 @@ END_TXT
         end  
         set_attr  = @params[:attr] || 'id'
         show_attr = @params[:show] || 'name'
-        options_list = "(#{nodes} || []).map{|r| [#{node_attribute(show_attr, :node => 'r', :node_class => Node)}, #{node_attribute(set_attr, :node => 'r', :node_class => Node)}]}"
+        options_list = "[['','']] + (#{nodes} || []).map{|r| [#{node_attribute(show_attr, :node => 'r', :node_class => Node)}, #{node_attribute(set_attr, :node => 'r', :node_class => Node)}.to_s]}"
       elsif values = @params[:values]
         options_list = values.split(',').map(&:strip).inspect
       end

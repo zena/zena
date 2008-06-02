@@ -271,9 +271,12 @@ module Zena
                   # get ids / zips
                   rel.send("other_#{field}#{plural}")
                 end
-              elsif !args[0].empty?
+              elsif mode == '='
                 # bad relation for this class of object
                 errors.add(role, "invalid for this class")
+              else
+                # ignore
+                nil
               end
             else
               # unknown relation

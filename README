@@ -94,6 +94,8 @@ ImageMagick
     # make && make install
 
 === 3. Gems
+
+# does not work with gettext > 1.90.0
 rake mongrel mongrel_cluster rmagick tzinfo RedCloth syntax gettext mongrel_upload_progress uuidtools daemons ruby-debug
 
 === Advised tools

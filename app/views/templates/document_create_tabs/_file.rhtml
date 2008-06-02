@@ -8,10 +8,10 @@
 <p class="btn_validate"><input type="submit" value='<%= _('validate') %>'/></p>
 
 <label for='data'><%= _('file') %></label>
-<input id="data" name="data" onchange="Zena.get_filename('data','node_name'); $('node_name').focus(); $('node_name').select();" class='file' type="file" />
+<input id="data" name="data" onchange="Zena.get_filename('data','node_v_title'); $('node_v_title').focus(); $('node_v_title').select();" class='file' type="file" />
 
-<label for='node_name'><%= _('name') %></label>
-<input id='node_name' type='text' name='node[name]'/><br/>
+<label for='node_name'><%= _('title') %></label>
+<input id='node_v_title' type='text' name='node[v_title]'/><br/>
 
 <label for='node_v_summary'><%= _('summary') %></label>
 <textarea id='node_v_summary' rows='3' name='node[v_summary]'></textarea><br/>
