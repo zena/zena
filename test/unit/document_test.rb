@@ -215,4 +215,20 @@ class DocumentTest < ZenaTestUnit
     end
   end
   
+  def test_set_v_title
+    without_files('/test.host/data') do
+      login(:ant)
+      doc = secure!(Document) { Document.create( :parent_id=>nodes_id(:cleanWater),
+                                                :c_file  => uploaded_file('water.pdf', 'application/pdf', 'wat'), :v_title => "lazy waters.pdf") }
+      assert_kind_of Document , doc
+      assert ! doc.new_record? , "Not a new record"
+      assert_equal "lazyWaters", doc.name
+      assert_equal "lazy waters", doc.v_title
+      assert_equal 'lazyWaters', doc.c_name
+      assert_equal "lazyWaters.pdf", doc.filename
+      assert_equal 'pdf', doc.c_ext
+      assert_equal 'application/pdf', doc.c_content_type
+    end
+  end
+  
 end

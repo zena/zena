@@ -707,7 +707,7 @@ select_class:
 
 select_nodes:
   src: "<r:form><select nodes='images in site' name='d_ref'></select></r:form>"
-  res: "/name=\"node\[d_ref\]\"><option value=\"30\">bird</option>\n<option value=\"31\">flower</option>/"
+  res: "/name=\"node\[d_ref\]\"><option value=\"\" selected=\"selected\"></option>\n<option value=\"30\">bird</option>\n<option value=\"31\">flower</option>/"
 
 do_not_set_parent_id_if_form_contains_parent_id:
   src: "<r:children><r:each do='[name]'/><r:add/><r:form><r:select name='parent_id' nodes='projects in site'/><input name='v_title'/></r:form></r:children>"
@@ -719,7 +719,7 @@ select_nodes_selected:
   
 select_nodes_in_ajax:
   src: "<r:pages><r:each do='[name]'/><r:add/><r:form><r:select nodes='images in site' name='d_ref'/></r:form></r:pages>"
-  res: "/name=\"node\[d_ref\]\"><option value=\"30\">bird</option>\n<option value=\"31\">flower</option>/"
+  res: "/name=\"node\[d_ref\]\"><option value=\"\" selected=\"selected\"></option>\n<option value=\"30\">bird</option>\n<option value=\"31\">flower</option>/"
 
 select_nodes_show_attr:
   src: "<r:form><r:select name='d_ref' nodes='images in site' attr='c_ext' show='v_title'/></r:form>"

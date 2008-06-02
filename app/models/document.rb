@@ -87,9 +87,10 @@ class Document < Node
   # Filter attributes before assignement.
   # Set name of new record and content extension based on file.
   def filter_attributes(attributes)
-    if attributes['name']
+    if base = attributes['name']
       # set through name
-      base = attributes['name']
+    elsif base = attributes['v_title']
+      # set with title
     elsif file = attributes['c_file']
       # set with filename
       base = file.original_filename
@@ -101,6 +102,9 @@ class Document < Node
         attributes['c_ext'] ||= $2
       else
         attributes['name']    = base if new_record?
+      end
+      if attributes['v_title'].to_s =~ /\A(.*)\.#{attributes['c_ext']}$/
+        attributes['v_title'] = $1
       end
     end
     
