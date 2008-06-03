@@ -1,5 +1,5 @@
 if @node.errors.empty?
-  page.replace "link#{@link[:id]}", :partial=>'links/li', :collection=>[@node], :locals => {:relation => @link.relation }
+  page.replace "link#{params[:id]}", :partial=>'links/li', :collection=>[@link.other], :locals => {:relation => @link.relation }
 else
   page.replace_html 'link_errors', :inline=> @errors ? render_errors : error_messages_for(@node)
 end

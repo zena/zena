@@ -127,7 +127,7 @@ and the 'photos' url is now in the worldTour project's basepath:
 Setting 'custom_base' on a node should be done with caution as the node's zip is on longer in the url and when you move the node around, there is no way to find the new location from the old url. Custom_base should therefore only be used for nodes that are not going to move.
 =end
 class Node < ActiveRecord::Base
-  
+  attr_accessor      :link
   zafu_readable      :name, :created_at, :updated_at, :event_at, :log_at, :kpath, :user_zip, :parent_zip, :project_zip,
                      :section_zip, :skin, :ref_lang, :fullpath, :rootpath, :position, :publish_from, :max_status, :rgroup_id, 
                      :wgroup_id, :pgroup_id, :basepath, :custom_base, :klass, :zip, :score, :comments_count, :position, :l_status, :l_comment,
@@ -701,6 +701,14 @@ class Node < ActiveRecord::Base
   
   def klass
     vclass.to_s
+  end
+  
+  def l_status
+    @link ? @link[:status] : self['l_status']
+  end
+  
+  def l_comment
+    @link ? @link[:comment] : self['l_comment']
   end
   
   def klass=(str)

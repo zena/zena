@@ -21,4 +21,12 @@ class LinkTest < ZenaTestUnit
     node = secure!(Node) { nodes(:cleanWater) }
     assert_equal nodes_id(:lake), node.find(:first, 'hot')[:id]
   end
+  
+  def test_node_zip
+    login(:lion)
+    node = secure!(Node) { nodes(:zena) }
+    assert link = Link.find_through(node, links_id(:opening_in_zena))
+    assert_equal nodes_zip(:zena), link['node_zip']
+    assert_equal nodes_zip(:opening), link['other_zip']
+  end
 end

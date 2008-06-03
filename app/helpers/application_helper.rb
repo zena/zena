@@ -1205,17 +1205,23 @@ ENDTXT
       return select(obj,sym,  secure_write!(klass) { klass.find(:all, :select=>'zip,name', :order=>'name ASC') }.map{|r| [r[:name], r[:zip]]}, { :include_blank => opt[:include_blank] })
     end
     
-    unless id = opt[:id]
-      node = instance_variable_get("@#{obj}".to_sym)
-      if node
-        id = node.send(sym.to_sym)
-      else
-        id = nil
+    if obj == 'link'
+      if link = instance_variable_get("@#{obj}")
+        current_obj = link.other
       end
-    end
+    else
+      unless id = opt[:id]
+        node = instance_variable_get("@#{obj}")
+        if node
+          id = node.send(sym.to_sym)
+        else
+          id = nil
+        end
+      end
     
-    if !id.blank?
-      current_obj = secure!(Node) { Node.find(id) } rescue nil
+      if !id.blank?
+        current_obj = secure!(Node) { Node.find(id) } rescue nil
+      end
     end
     
     

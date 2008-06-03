@@ -12,6 +12,8 @@ body {font: 0.9em Arial, Helvetica, Verdana, sans-serif; background:#BBC5CD; lin
 .btn_x {float:right; padding-right:10px;}
 .errors ul { background:#DDC8C8; margin:0 0 5px; padding:4px 0; border-bottom:1px solid #5A3231;}
 
+form li { clear:both; padding:3px 0;}
+
 /* search box */
 #search { z-index:999; z-index:999; position:absolute; top:1px; right:1px; padding-right:1px; font-size:0.8em; display:table;}
 
@@ -159,8 +161,7 @@ ul.infos li { padding:0.4em 0.4em; list-style:none; display:block; }
 #links #link_role option { width:50px;}
 #links #link_target_id option { width:120px;}
 
-#add_link_form ul { list-style:none; text-align:left;}
-#add_link_form li { clear:both;}
+.inline_form ul { list-style:none; text-align:left;}
 #add_link_form label, #add_link_form select {float:left; width:70px; margin-right:5px;}
 
 
