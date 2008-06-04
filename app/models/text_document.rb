@@ -21,6 +21,94 @@ class TextDocument < Document
     end
   end
   
+  
+  # Parse text content and replace all reference to relative urls ('img/footer.png') by their zen_path ('/en/image34.png')
+  def parse_assets!(helper)
+    ctype = version.content.content_type
+    case ctype
+    when 'text/css'
+      # use skin as root
+      skin = section
+      
+      # not in a Skin. Cannot replace assets in CSS.
+      # error
+      unless skin.kind_of?(Skin)
+        errors.add('base', 'Cannot parse assets if not in a Skin.')
+        return
+      end
+      
+      current_folder = skin.name
+      
+      # create/use redaction
+      edit!
+      
+      version.text.gsub!(/url\(('|")(.*?)\1\)/) do
+        if $2[0..6] == 'http://'
+          $&
+        else
+          quote, src   = $1, $2
+          if src =~ /\A\//
+            # absolute path: do not touch
+            "url(#{quote}#{src}#{quote})"
+          else
+            new_src = helper.send(:template_url_for_asset, :current_folder=>current_folder, :src => src, :parse_assets => true) || src
+            "url(#{quote}#{new_src}#{quote})"
+          end
+        end
+      end
+    else
+      # unknown type
+      errors.add('base', "Invalid content-type #{ctype.inspect} to parse assets.")
+    end
+  end
+  
+  # Parse text and replace absolute urls ('/en/image30.jpg') by their relative value in the current skin ('img/bird.jpg')
+  def unparse_assets!
+    ctype = version.content.content_type
+    case ctype
+    when 'text/css'
+      # use skin as root
+      skin = section
+      
+      # not in a Skin. Cannot replace assets in CSS.
+      # error
+      unless skin.kind_of?(Skin)
+        errors.add('base', 'Cannot parse assets if not in a Skin.')
+        return
+      end
+      
+      # create/use redaction
+      edit!
+      
+      version.text.gsub!(/url\(('|")(.*?)\1\)/) do
+        if $2[0..6] == 'http://'
+          $&
+        else
+          quote, url   = $1, $2
+          if url =~ /\A\/\w\w.*?(\d+)\./
+            unless asset = secure(Node) { Node.find_by_zip($1) }
+              errors.add('base', "could not find asset node #{url.inspect}")
+              "url(#{quote}#{url}#{quote})"
+            end
+            if asset.fullpath =~ /\A#{skin.fullpath}\/(.+)/
+              "url(#{quote}#{$1}.#{asset.c_ext}#{quote})"
+            else
+              errors.add('base', "could not find asset node #{url.inspect}")
+              "url(#{quote}#{url}#{quote})"
+            end
+          else
+            # bad format
+            errors.add('base', "cannot unparse asset url #{url.inspect}")
+            "url(#{quote}#{url}#{quote})"
+          end
+        end
+      end
+    else
+      # unknown type
+      errors.add('base', "invalid content-type #{ctype.inspect} to unparse assets.")
+    end
+  end
+  
   # Return the code language used for syntax highlighting.
   def content_lang
     ctype = version.content.content_type

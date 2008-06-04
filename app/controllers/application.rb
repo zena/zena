@@ -375,25 +375,26 @@ END_MSG
     # start with a '/' we use the full url directly.
     # tested in MainControllerTest
     def get_template_text(opts)
-      return nil unless res = find_template_document(opts)
+      return nil unless res = find_document_for_template(opts)
       doc, url = *res
       # TODO: could we use this for caching or will we loose dynamic context based loading ?
       @expire_with_nodes[url] = doc
       text = session[:dev] ? doc.version.text : doc.version(:pub).text
       return text, url, doc
     end
-
+    
+    # Return the zen_path ('/en/image34.png') for an asset given its name ('img/footer.png').
     def template_url_for_asset(opts)
-      return nil unless res = find_template_document(opts)
+      return nil unless res = find_document_for_template(opts)
       asset, url = *res
-      @renamed_assets[url] = asset
+      @renamed_assets[url] = asset unless opts[:parse_assets]
       data_path(asset)
     end
     
     # opts should contain :current_template and :src. The source is a path like 'default/Node-*index'
     # ('skin/template/path'). If the path starts with a slash, the skin_name in the path is searched first. Otherwise,
     # the current skin is searched first.
-    def find_template_document(opts)
+    def find_document_for_template(opts)
       src    = opts[:src]
       if src =~ /\A(.*)\.(\w+)\Z/
         src, format = $1, $2
@@ -404,11 +405,11 @@ END_MSG
         # starts with '/' : look here first
         url = src[1..-1].split('/')
         name = url.shift
-        skin_names = [name] + (@skin_names - [name])
+        skin_names = opts[:parse_assets] ? [name] : ([name] + (@skin_names - [name]))
       else
         # does not start with '/' : look in current skin first
         url = folder + src.split('/')
-        skin_names = @skin_names.dup
+        skin_names = opts[:parse_assets] ? [] : @skin_names.dup
         if url.size > 1
           name = url.shift
           skin_names << name unless skin_names.include?(name)

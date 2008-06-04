@@ -44,4 +44,32 @@ class TextDocumentTest < ZenaTestUnit
     assert !doc.new_record?, "Not a new record"
     assert_equal 'zafu', doc.content_lang
   end
+  
+  def test_parse_assets
+    login(:lion)
+    node = secure!(Node) { nodes(:style_css) }
+    bird = secure!(Node) { nodes(:bird_jpg)}
+    assert bird.update_attributes(:parent_id => nodes_id(:default))
+    start =<<-END_CSS
+    body { font-size:10px; }
+    #footer { background:url('bird.jpg') }
+    END_CSS
+    node.v_text = start.dup
+    # dummy controller
+    helper = ApplicationController.new
+    helper.instance_variable_set(:@visitor, visitor)
+    node.parse_assets!(helper)
+    assert node.errors.empty?
+    res =<<-END_CSS
+    body { font-size:10px; }
+    #footer { background:url('/en/image30.jpg') }
+    END_CSS
+    assert_equal res, node.v_text
+    node.parse_assets!(helper)
+    assert_equal res, node.v_text
+    node.unparse_assets!
+    assert_equal start, node.v_text
+    node.unparse_assets!
+    assert_equal start, node.v_text
+  end
 end

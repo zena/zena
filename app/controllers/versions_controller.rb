@@ -60,6 +60,13 @@ class VersionsController < ApplicationController
         render_or_redir 404
       else
         @title_for_layout = @node.rootpath
+        if @node.kind_of?(TextDocument)
+          if params['parse_assets']
+            @node.parse_assets!(self)
+          elsif @node.kind_of?(TextDocument) && params['unparse_assets']
+            @node.unparse_assets!
+          end
+        end
         @edit = true
       end
     end

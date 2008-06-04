@@ -1,10 +1,10 @@
 --- 
-user: "gaspard"
+user: gaspard
 cwd: /Users/gaspard/svk/zena
 log_file: log/mongrel.log
 port: "3000"
 environment: production
-group: staff
+group: _www
 address: 127.0.0.1
 pid_file: log/mongrel.pid
 servers: 1
