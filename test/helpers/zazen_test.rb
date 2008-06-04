@@ -34,9 +34,9 @@ class ZazenHelperTest < ZenaTestHelper
   def test_make_link
     login(:tiger)
     # * ["":34] creates a link to node 34 with node's title.
-    assert_equal '<p><a href="/oo/projects/cleanWater.html">Clean Water project</a></p>', zazen('"":21')
+    assert_equal '<p><a href="/oo/projects/cleanWater">Clean Water project</a></p>', zazen('"":21')
     # * ["title":34] creates a link to node 34 with the given title.
-    assert_equal '<p><a href="/oo/projects/cleanWater.html">hello</a></p>', zazen('"hello":21')
+    assert_equal '<p><a href="/oo/projects/cleanWater">hello</a></p>', zazen('"hello":21')
     # * ["":034] if the node id starts with '0', creates a popup link.
     assert_match %r{/oo/projects/cleanWater.*window.open.*hello}, zazen('"hello":021')
   end

@@ -101,7 +101,7 @@ END_MSG
     def render_and_cache(options={})
       opts = {:skin=>@node[:skin], :cache=>true}.merge(options)
       opts[:mode  ] ||= params[:mode]
-      opts[:format] ||= params[:format] || 'html'
+      opts[:format] ||= params[:format].blank? ? 'html' : params[:format]
       
       # cleanup before rendering
       params.delete(:mode)
@@ -251,7 +251,7 @@ END_MSG
     def page_cache_file(url = nil)
       path = url || url_for(:only_path => true, :skip_relative_url_root => true)
       path = ((path.empty? || path == "/") ? "/index" : URI.unescape(path))
-      ext = params[:format] || 'html'
+      ext = params[:format].blank? ? 'html' : params[:format]
       path << ".#{ext}" unless path =~ /\.#{ext}$/
       path
     end
@@ -676,13 +676,13 @@ END_MSG
       end
       
       opts   = options.dup
-      format = opts.delete(:format) || 'html'
+      format = opts.delete(:format)
+      format = 'html' if format.blank?
       pre    = opts.delete(:prefix) || prefix
       mode   = opts.delete(:mode)
       if asset = opts.delete(:asset)
         mode   = nil
       end
-      format = 'html' if format.blank?
       
       params = (opts == {}) ? '' : ('?' + opts.map{ |k,v| "#{k}=#{v}"}.join('&'))
       
@@ -693,7 +693,7 @@ END_MSG
         node.basepath +
         (mode  ? "_#{mode}"  : '') +
         (asset ? ".#{asset}" : '') +
-        ".#{format}"
+        (format == 'html' ? '' : ".#{format}")
       else
         "/#{pre}/" +
         (node.basepath != '' ? "#{node.basepath}/"    : '') +

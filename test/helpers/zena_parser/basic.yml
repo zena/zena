@@ -184,12 +184,12 @@ link_trans:
 link_parent:
   src: "<r:link href='parent' text='click here'/>"
   tem: "<%= node_link(:node=>@node, :text=>\"click here\", :href=>@node.parent) %>"
-  res: "<a href='/oo/projects/cleanWater.html'>click here</a>"
+  res: "<a href='/oo/projects/cleanWater'>click here</a>"
 
 link_with_block:
   src: "<r:link href='parent'>look at <b do='[name]'>her</b></r:link>"
   tem: "<a href='<%= node_link(:url_only=>true, :node=>@node, :href=>@node.parent) %>'>look at <b><%= @node.name %></b></a>"
-  res: "<a href='/oo/projects/cleanWater.html'>look at <b>status</b></a>"
+  res: "<a href='/oo/projects/cleanWater'>look at <b>status</b></a>"
   
 link_project:
   context:
@@ -213,11 +213,11 @@ link_sharp_name:
 
 link_sharp_in:
   src: "<r:link sharp='true' in='project' mode='tree'/>"
-  res: "<a href='/oo/projects/cleanWater_tree.html#node22'>status title</a>"
+  res: "<a href='/oo/projects/cleanWater_tree#node22'>status title</a>"
 
 link_sharp_name_in:
   src: "<r:link sharp='[name]' in='parent'/>"
-  res: "<a href='/oo/projects/cleanWater.html#status'>status title</a>"
+  res: "<a href='/oo/projects/cleanWater#status'>status title</a>"
 
 link_stored:
   src: "<r:void store='foo'><r:parent><r:link href='foo' do='[name]'/></r:parent></r:void>"
@@ -277,7 +277,7 @@ title_link_data_mode:
 show_parent_title:
   src: "<r:parent><h1 do='title' attr='v_title'>parent title</h1></r:parent>"
   tem: "<% if var1 = @node.parent -%><h1><%= show_title(:node=>var1, :text=>var1.version.title)%></h1><% end -%>"
-  res: "<h1><a href='/oo/projects/cleanWater.html'><span id='v_title21'>Clean Water project</span></a></h1>"
+  res: "<h1><a href='/oo/projects/cleanWater'><span id='v_title21'>Clean Water project</span></a></h1>"
 
 show_bad_attr:
   src: "my <r:show attr=':name'/>"

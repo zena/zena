@@ -37,8 +37,8 @@ class ApplicationHelperTest < ZenaTestHelper
     assert_equal "/en/section12_test.html", zen_path(node, :mode=>'test')
     assert_equal "/tt/section12_test.jpg", zen_path(node, :mode=>'test', :prefix=>'tt', :format=>'jpg')
     node = secure!(Node) { nodes(:cleanWater) }
-    assert_equal "/en/projects/cleanWater.html", zen_path(node)
-    assert_equal "/en/projects/cleanWater_test.html", zen_path(node, :mode=>'test')
+    assert_equal "/en/projects/cleanWater", zen_path(node)
+    assert_equal "/en/projects/cleanWater_test", zen_path(node, :mode=>'test')
     node = secure!(Node) { nodes(:status) }
     assert_equal "/en/projects/cleanWater/page22.html", zen_path(node)
     assert_equal "/en/projects/cleanWater/page22_test.html", zen_path(node, :mode=>'test')
@@ -58,7 +58,7 @@ class ApplicationHelperTest < ZenaTestHelper
     assert_equal "/en/section12.kls.html", zen_path(node, :asset=>'kls')
     assert_equal "/tt/section12.foo.jpg", zen_path(node, :mode=>'test', :prefix=>'tt', :format=>'jpg', :asset => 'foo')
     node = secure!(Node) { nodes(:cleanWater) }
-    assert_equal "/en/projects/cleanWater.kls.html", zen_path(node, :asset => 'kls')
+    assert_equal "/en/projects/cleanWater.kls", zen_path(node, :asset => 'kls')
     node = secure!(Node) { nodes(:status) }
     assert_equal "/en/projects/cleanWater/page22.abcd.png", zen_path(node, :asset => 'abcd', :format => 'png')
   end

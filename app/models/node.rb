@@ -810,6 +810,8 @@ class Node < ActiveRecord::Base
   
   # Return save path for an asset (element produced by text like a png file from LateX)
   def asset_path(asset_filename)
+    # It would be nice to move this outside 'self[:id]' so that the same asset can
+    # be used by many pages... But then, how do we expire unused assets ?
     "#{SITES_ROOT}#{site.data_path}/asset/#{self[:id]}/#{asset_filename}"
   end
   
