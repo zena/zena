@@ -18,10 +18,6 @@
     <% end -%>
     <div><a href='#' onclick='uploader=window.open("<%= new_document_path(:parent_id=>@node[:zip])%>", "uploader", "location=1,width=400,height=300");uploader.opener = opener;return false;'><%= _('btn_add_document')%></a></div>
     <% if @node.can_publish? && !visitor.site.auto_publish? %><div><small><input type='checkbox' name='node[v_status]' value='50'<%= params[:pub] ? " checked='checked'" : '' %>/> <%= _('publish') %></small></div><% end -%>
-    <% if @node.kind_of?(TextDocument) %>
-      <div><small><input type='checkbox' name='parse_assets' value='true'/> <%= _('parse') %></small></div>
-      <div><small><input type='checkbox' name='unparse_assets' value='true'/> <%= _('unparse') %></small></div>
-    <% end -%>
   </div>
   <div class='readers'>
   <p><%= readers_for(@node) %></p></div>

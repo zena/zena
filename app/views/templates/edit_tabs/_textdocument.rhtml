@@ -1,6 +1,16 @@
+<% if @node.can_parse_assets? -%>
+<label for='parse_assets'><%= _('parse assets') %></label> ('plot.png' -&gt; '/en/image30.png')
+<%= link_to(_('parse'), edit_version_url(:node_id => @node[:zip], :id=>(@node.v_number || 0), :parse_assets => 'true')) %>
+
+<label for='parse_assets'><%= _('unparse assets') %></label> ('/en/image30.png' -&gt; 'plot.png')
+<%= link_to(_('unparse'), edit_version_url(:node_id => @node[:zip], :id=>(@node.v_number || 0), :unparse_assets => 'true')) %>
+<% end -%>
 
 <label for='node_c_content_type'><%= _('content type') %></label>
 <input  id='node_c_content_type' type='text' name='node[c_content_type]' value='<%= @node.c_content_type %>'/><br/>
 
 <label for='node_c_ext'><%= _('extension') %></label>
 <input  id='node_c_ext' type='text' name='node[c_ext]' value='<%= @node.c_ext %>'/><br/>
+
+<label for='parse_assets'><%= _('parse assets') %></label>
+<input type='checkbox' name='parse_assets' value='true'/> <%= _('parse') %>

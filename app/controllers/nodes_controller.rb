@@ -219,10 +219,7 @@ class NodesController < ApplicationController
     respond_to do |format|
       format.html do
         if params[:edit] == 'popup'
-          url_opts = {:node_id => @node[:zip], :id=>(@node.v_number || 0)}
-          url_opts[:parse_assets]   = 'true' if params[:parse_assets]
-          url_opts[:unparse_assets] = 'true' if params[:unparse_assets]
-          redirect_to edit_version_url(url_opts) 
+          redirect_to edit_version_url(:node_id => @node[:zip], :id=>(@node.v_number || 0)) 
         else
           redirect_to zen_path(@node)
         end

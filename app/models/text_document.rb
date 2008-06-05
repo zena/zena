@@ -22,6 +22,10 @@ class TextDocument < Document
   end
   
   
+  def can_parse_assets?
+    return ['text/css'].include?(version.content.content_type)
+  end
+  
   # Parse text content and replace all reference to relative urls ('img/footer.png') by their zen_path ('/en/image34.png')
   def parse_assets!(helper)
     ctype = version.content.content_type
