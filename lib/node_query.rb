@@ -181,11 +181,21 @@ class NodeQuery < QueryBuilder
       else
         # NODE
         key, function = parse_sql_function_in_field(field)
-        if ['id','parent_id','project_id','section_id'].include?(key) || (Node.zafu_readable?(key) && Node.column_names.include?(key))
-          function ? "#{function}(#{table_name}.#{key})" : "#{table_name}.#{key}"
+        if context == :filter
+          if key == 'id'
+            function ? "#{function}(#{table_name}.zip)" : "#{table_name}.zip"
+          elsif (Node.zafu_readable?(key) && Node.column_names.include?(key))
+            function ? "#{function}(#{table_name}.#{key})" : "#{table_name}.#{key}"
+          else
+            nil
+          end
         else
-          # bad attribute
-          nil
+          if ['id', 'parent_id','project_id','section_id'].include?(key) || (Node.zafu_readable?(key) && Node.column_names.include?(key))
+            function ? "#{function}(#{table_name}.#{key})" : "#{table_name}.#{key}"
+          else
+            # bad attribute
+            nil
+          end
         end
       end
     end

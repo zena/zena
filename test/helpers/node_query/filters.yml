@@ -5,6 +5,10 @@ default:
     visitor: 'ant'
   src: "nodes where log_at = event_at in site"
   sql: "SELECT nodes.* FROM nodes WHERE nodes.log_at = nodes.event_at AND (#{@node.secure_scope('nodes')}) ORDER BY nodes.position ASC, nodes.name ASC"
+
+id_becomes_zip:
+  src: "nodes where id ne 1"
+  sql: "/nodes.zip <> 1/"
   
 version_filter_title_like:
   src: "nodes where v_title like 'P%' in site"
