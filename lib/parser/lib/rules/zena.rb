@@ -197,9 +197,9 @@ module Zena
       elsif @params[:eval]
         return unless attribute_method = parse_eval_parameter(@params[:eval])
       elsif @params[:tattr]
-        attribute_method = "_(#{node_attribute(attribute, :else=>@params[:else])})"
+        attribute_method = "_(#{node_attribute(attribute, :else=>@params[:else], :default=>@params[:default])})"
       elsif @params[:attr]
-        attribute_method = node_attribute(attribute, :else=>@params[:else])
+        attribute_method = node_attribute(attribute, :else=>@params[:else], :default=>@params[:default])
       elsif @params[:date]
         # date can be any attribute v_created_at or updated_at etc.
         # TODO format with @params[:format] and @params[:tformat] << translated format
@@ -1415,7 +1415,7 @@ END_TXT
         skin = helper.instance_variable_get(:@controller).instance_variable_get(:@skin_name)
       end
       skin = "<i>#{skin}</i>" unless skin.blank?
-      _("%{skin} design by %{name}") % {:name => by, :skin => skin}
+      _("%{skin}, design by %{name}") % {:name => by, :skin => skin}
     end
     
     # creates a link. Options are:
@@ -2159,16 +2159,16 @@ END_TXT
         "#{att_node}.#{real_attribute}"
       elsif klass.ancestors.include?(DataEntry) && DataEntry.zafu_readable?(real_attribute)
         "#{att_node}.#{real_attribute}"
+      elsif klass.ancestors.include?(Comment) && Comment.zafu_readable?(real_attribute)
+        "#{att_node}.#{real_attribute}"
       else
         # unknown class, resolve at runtime
         "#{att_node}.zafu_read(#{real_attribute.inspect})"
       end
       
-      if opts[:else]
-        "(#{res} || #{node_attribute(opts[:else])})"
-      else
-        res
-      end
+      res = "(#{res} || #{node_attribute(opts[:else])})" if opts[:else]
+      res = "(#{res} || #{opts[:default].inspect})" if opts[:default]
+      res
     end
     
     def render_html_tag(text,*append)
