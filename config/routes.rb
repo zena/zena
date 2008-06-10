@@ -30,7 +30,7 @@ ActionController::Routing::Routes.draw do |map|
                                  :redit   => :put,
                                  :preview => :put,
                                  :link    => :any,
-                                 :destroy => :put } # FIXME: should be a DELETE
+                                 :destroy_version => :put } # FIXME: should be a DELETE
     
     nodes.resources :links
     

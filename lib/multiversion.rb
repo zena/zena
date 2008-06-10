@@ -130,12 +130,14 @@ module Zena
           when :unpublish
             can_drive? && v.status == Zena::Status[:pub]
           when :remove
-            (can_drive? || v.user_id == visitor[:id] ) && v.status != Zena::Status[:pub]
-          when :redit, :edit
+            (can_drive? || v.user_id == visitor[:id] ) && v.status <= Zena::Status[:red] && v.status > Zena::Status[:rem]
+          when :redit
+            can_edit? && v.user_id == visitor[:id]
+          when :edit
             can_edit?
           when :destroy_version
             # anonymous users cannot destroy
-            can_drive? && v.status < Zena::Status[:red] && !visitor.is_anon? && (self.versions.count > 1 || empty?)
+            can_drive? && v.status == Zena::Status[:rem] && !visitor.is_anon? && (self.versions.count > 1 || empty?)
           when :update_attributes
             can_write? # basic check, complete check is made for each attribute during validations
           end

@@ -78,6 +78,7 @@ class SecureReadTest < ZenaTestUnit
     node = secure!(Node) { nodes(:lake)  }
     assert_kind_of Node, node
   end
+  
   # write group can only write
   def test_write_group_can_w
     login(:tiger)
@@ -85,6 +86,10 @@ class SecureReadTest < ZenaTestUnit
     assert_raise(ActiveRecord::RecordNotFound) { node = secure!(Node) { nodes(:strange)  } }
     assert_nothing_raised { node = secure_write!(Node) { nodes(:strange)  } }
     assert ! node.can_read? , "Cannot read"
+    # status == red
+    assert !node.can_write? , "Can write"
+    login(:lion)
+    visitor.visit(node)
     assert node.can_write? , "Can write"
   end
   
@@ -157,6 +162,15 @@ class SecureReadTest < ZenaTestUnit
     
     login(:ant)
     # node can now be seen
+    assert_nothing_raised { node = secure!(Page) { Page.find_by_name("new_rec") } }
+    assert_nil node[:publish_from] , "Not published yet"
+    
+    login(:lion)
+    assert node.refuse , "Can refuse node."
+    assert node.remove , "Can remove node."
+    
+    login(:ant)
+    # removed node be seen
     assert_nothing_raised { node = secure!(Page) { Page.find_by_name("new_rec") } }
     assert_nil node[:publish_from] , "Not published yet"
   end

@@ -178,7 +178,7 @@ Just doing the above will filter all result according to the logged in user.
           ( vis.is_su? ) || # super user
           ( vis[:id] == user_id ) ||
           ( ugps.include?(rgroup_id) && publish_from && Time.now >= publish_from ) ||
-          ( ugps.include?(pgroup_id) && max_status > Zena::Status[:red] )
+          ( ugps.include?(pgroup_id) && max_status != Zena::Status[:red] )
         end
   
         # people who can write:
@@ -188,7 +188,7 @@ Just doing the above will filter all result according to the logged in user.
         def can_write?(vis=visitor, ugps=visitor.group_ids)
           ( vis.is_su? ) || # super user
           ( vis[:id] == user_id ) ||
-          ( ugps.include?(wgroup_id) && publish_from && Time.now >= publish_from )
+          ( ugps.include?(wgroup_id) && max_status != Zena::Status[:red] )
         end
         
         # people who can make visible changes
@@ -622,9 +622,9 @@ Just doing the above will filter all result according to the logged in user.
             scope[:find][:select]     = "#{User.table_name}.*"
             scope[:find][:conditions] = find_scope
           elsif klass.column_names.include?('site_id')
-            if find_scope
+            if find_scope && !opts[:site_id_clause_set]
               find_scope = "(#{find_scope}) AND (#{klass.table_name}.site_id = #{visitor.site[:id]})"
-            else
+            elsif !opts[:site_id_clause_set]
               find_scope = "#{klass.table_name}.site_id = #{visitor.site[:id]}"
             end
             scope[:find] = { :conditions => find_scope }
@@ -671,7 +671,7 @@ Just doing the above will filter all result according to the logged in user.
           if opts[:secure] == false
             yield
           elsif klass.ancestors.include?(Zena::Acts::SecureNode::InstanceMethods) && !visitor.is_su? # not super user
-            secure_with_scope(klass, secure_scope(klass.table_name), &block)
+            secure_with_scope(klass, secure_scope(klass.table_name), :site_id_clause_set => true, &block)
           else
             secure_with_scope(klass, nil, &block)
           end
@@ -693,9 +693,12 @@ Just doing the above will filter all result according to the logged in user.
           if visitor.is_su?
             "#{table_name}.site_id = #{visitor.site.id}"
           else
+            # site_id AND... OWNER
             "#{table_name}.site_id = #{visitor.site.id} AND (#{table_name}.user_id = '#{visitor[:id]}' OR "+
+            # OR READER if published
             "(#{table_name}.rgroup_id IN (#{visitor.group_ids.join(',')}) AND #{table_name}.publish_from <= now() ) OR " +
-            "(#{table_name}.pgroup_id IN (#{visitor.group_ids.join(',')}) AND #{table_name}.max_status > #{Zena::Status[:red]}))"
+            # OR publisher if status is <> red
+            "(#{table_name}.pgroup_id IN (#{visitor.group_ids.join(',')}) AND #{table_name}.max_status <> #{Zena::Status[:red]}))"
           end
         end
         

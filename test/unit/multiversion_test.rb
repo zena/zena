@@ -628,11 +628,12 @@ class MultiVersionTest < ZenaTestUnit
     node = secure!(Node) { nodes(:lake) }
     assert node.publish, "Can publish"
     assert_equal Zena::Status[:pub], node.v_status
-    assert node.redit, "Can re-edit node"
+    assert !node.redit, "Can re-edit node" # not the owner
     
     login(:ant)
     visitor.lang = 'en'
     node = secure!(Node) { nodes(:lake) }
+    assert node.redit, "Can re-edit node" # owner
     assert_equal Zena::Status[:red], node.v_status
     assert_equal versions_id(:lake_red_en), node.v_id
   end
@@ -724,7 +725,8 @@ class MultiVersionTest < ZenaTestUnit
     assert_equal 1, node.send(:all_children).size
     
     assert !node.can_destroy_version? # versions are not in 'deleted' status
-    Node.connection.execute "UPDATE versions SET status = #{Zena::Status[:del]} WHERE node_id = #{nodes_id(:talk)}"
+    Node.connection.execute "UPDATE versions SET status = #{Zena::Status[:rem]} WHERE node_id = #{nodes_id(:talk)}"
+    Node.connection.execute "UPDATE nodes SET max_status = #{Zena::Status[:rem]} WHERE id = #{nodes_id(:talk)}"
     node = secure!(Node) { nodes(:talk) } # reload
     assert node.can_destroy_version? # versions are now in 'deleted' status
     assert node.destroy_version      # 1 version left

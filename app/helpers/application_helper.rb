@@ -832,51 +832,66 @@ latex_template = %q{
     "#{custom} #{readers}"
   end
   
-  # Buttons are :edit, :add, :propose, :publish, :refuse, or :drive. :all = (:edit, :propose, :publish, :refuse, :drive)
-  # TODO: implement multiple actions: :actions => 'edit,propose,delete'
+  # Actions that appear on the web page
   def node_actions(opts={})
     actions = (opts[:actions] || 'all').to_s
     actions = 'edit,propose,publish,refuse,drive' if actions == 'all'
 
-    opts = { :node => @node }.merge(opts)
-    text = opts[:text]
-    node = opts[:node]
-    return "" if node.new_record?
+    node = opts[:node] || @node
+    publish_after_save = opts[:publish_after_save]
+    res = actions.split(',').reject do |action|
+      !node.can_apply?(action.to_sym)
+    end.map do |action|
+      node_action_link(action, node, publish_after_save)
+    end.join(" ")
     
-    # hash = { :node_id => node[:zip], :id => node.v_number } = this is bad: we should not preload a specific version when doing
-                                                              # node actions
-    hash = { :node_id => node[:zip], :id => 0 }
-    
-    res = []
-    actions.split(',').map {|a| a.strip.to_sym}.each do |action|
-      next unless node.can_apply?(action)
-      case action
-      when :edit
-        res << "<a href='#{edit_version_url(hash)}#{opts[:publish_after_save] ? '?pub=true' : ''}' target='_blank' title='#{_('btn_title_edit')}' onclick=\"editor=window.open('#{edit_version_url(hash)}#{opts[:publish_after_save] ? '?pub=true' : ''}', \'#{current_site.host}#{node[:zip]}\', 'location=0,width=300,height=400,resizable=1');return false;\">" + 
-               (text || _('btn_edit')) + "</a>"
-      when :propose
-        res << link_to((text || _("btn_propose")), propose_version_path(hash), :method => :put)
-      when :publish
-        res << link_to((text || _("btn_publish")), publish_version_path(hash), :method => :put)
-      when :refuse
-        res << link_to((text || _("btn_refuse")), refuse_version_path(hash), :method => :put)
-      when :drive
-        res << "<a href='#' title='#{_('btn_title_drive')}' onclick=\"editor=window.open('" + 
-               edit_node_url(:id => node[:zip] ) + 
-               "', '_blank', 'location=0,width=300,height=400,resizable=1');return false;\">" + 
-               (text || _('btn_drive')) + "</a>"
-      end
-    end
-    
-    if res != []
-      "<span class='actions'>#{res.join(" ")}</span>"
+    if res != ""
+      "<span class='actions'>#{res}</span>"
     else
       ""
     end
   end
   
   # TODO: test
-  def version_form_action(action,version)
+  def node_action_link(action, node, publish_after_save)
+    case action
+    when 'edit'
+      url = edit_version_url(:node_id => node[:zip], :id => 0)
+      "<a href='#{url}#{publish_after_save ? '?pub=true' : ''}' target='_blank' title='#{_('btn_title_edit')}' onclick=\"editor=window.open('#{url}#{publish_after_save ? '?pub=true' : ''}', \'#{current_site.host}#{node[:zip]}\', 'location=0,width=300,height=400,resizable=1');return false;\">" + 
+             _('btn_edit') + "</a>"
+    when 'drive'
+      "<a href='#' title='#{_('btn_title_drive')}' onclick=\"editor=window.open('" + 
+             edit_node_url(:id => node[:zip] ) + 
+             "', '_blank', 'location=0,width=300,height=400,resizable=1');return false;\">" + 
+             _('btn_drive') + "</a>"
+    else
+      link_to( _("btn_#{action}"), {:controller=>'versions', :action => action, :node_id => node[:zip], :id => 0}, :title=>_("btn_title_#{action}"), :method => :put )
+    end
+  end
+  
+  # Actions that appear in the drive popup versions list
+  def version_actions(version, opts={})
+    return "" unless version.kind_of?(Version)
+    # 'view' ?
+    actions = (opts[:actions] || 'all').to_s
+    actions = 'destroy_version,remove,redit,unpublish,propose,refuse,publish' if actions == 'all'
+    
+    node = version.node
+    
+    actions.split(',').reject do |action|
+      action.strip!
+      if action == 'view'
+        !node.can_apply?('publish', version)
+      else
+        !node.can_apply?(action.to_sym, version)
+      end
+    end.map do |action|
+      version_action_link(action, version)
+    end.join(' ')
+  end
+  
+  # TODO: test
+  def version_action_link(action,version)
     if action == 'view'
       # FIXME
       link_to_function(_('btn_view'), "opener.Zena.version_preview(#{version.number});")
@@ -884,55 +899,7 @@ latex_template = %q{
       link_to_remote( _("btn_#{action}"), :url=>{:controller=>'versions', :action => action, :node_id => version.node[:zip], :id => version.number, :drive=>true}, :title=>_("btn_title_#{action}"), :method => :put ) + "\n"
     end
   end
-  # TODO: test
-  # show actions on versions
-  def version_actions(version, opt={})
-    opt = {:action=>:all}.merge(opt)
-    return "" unless version.kind_of?(Version)
-    
-    node = version.node
-    
-    actions = []
-    if opt[:action] == :view
-      if (version.status != Zena::Status[:del] && version.status != Zena::Status[:red]) ||  (version[:user_id] == visitor.id )
-        actions << version_form_action('view', version)
-      end
-    elsif opt[:action] == :all
-      case version.status
-      when Zena::Status[:pub]
-        actions << version_form_action('unpublish',version) if node.can_unpublish?(version)
-      when Zena::Status[:prop]
-        actions << version_form_action('publish',version)
-        actions << version_form_action('refuse',version)
-      when Zena::Status[:prop_with]
-        actions << version_form_action('publish',version)
-        actions << version_form_action('refuse',version)
-      when Zena::Status[:red]
-        if visitor.is_su? || version.user[:id] == visitor.id
-          actions << version_form_action('publish',version)
-          actions << version_form_action('propose',version)
-          actions << version_form_action('remove',version)
-        end
-      when Zena::Status[:rep]
-        actions << version_form_action('redit',version) if node.can_edit_lang?(version.lang)
-        actions << version_form_action('publish',version)
-        actions << version_form_action('propose',version)
-        actions << version_form_action('destroy',version) if node.can_destroy_version?(version)
-      when Zena::Status[:rem]
-        actions << version_form_action('redit',version) if node.can_edit_lang?(version.lang)
-        actions << version_form_action('publish',version)
-        actions << version_form_action('propose',version)
-        actions << version_form_action('destroy',version) if node.can_destroy_version?(version)
-      when Zena::Status[:del]
-        if (version[:user_id] == visitor[:id])
-          actions << version_form_action('redit',version) if node.node.can_edit_lang?(version.lang)
-        end
-        actions << version_form_action('destroy',version) if node.can_destroy_version?(version)
-      end
-    end
-    # [:edit, :publish, :remove, :propose, :refuse, :destroy]
-    actions.join(" ")
-  end
+  
   
   # TODO: test
   def discussion_actions(discussion, opt={})

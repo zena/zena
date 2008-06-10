@@ -133,7 +133,7 @@ class VersionsController < ApplicationController
   def refuse
     if @node.refuse
       flash[:notice] = _("Proposition refused.")
-      @redirect_url = user_path(visitor)
+      @redirect_url = @node.can_read? ? request.env['HTTP_REFERER'] : user_path(visitor)
     else
       flash[:notice] = _("Could not refuse proposition.")
     end
@@ -178,7 +178,7 @@ class VersionsController < ApplicationController
   end
   
   # TODO: test
-  def destroy
+  def destroy_version
     if @node.destroy_version
       flash[:notice] = "Version destroyed."
     else
