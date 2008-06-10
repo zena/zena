@@ -1,7 +1,7 @@
 # FIXME: rewrite !
 class CommentsController < ApplicationController
-  before_filter :find_comment, :except => [:create]
-  before_filter :find_node_and_discussion
+  before_filter :find_comment, :except => [:create, :index]
+  before_filter :find_node_and_discussion, :only => [:create]
   before_filter :check_is_admin, :only=>[:index, :empty_bin]
   helper_method :bin_content
   

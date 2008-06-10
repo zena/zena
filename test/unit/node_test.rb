@@ -724,7 +724,7 @@ class NodeTest < ZenaTestUnit
   end
   
   def test_comments_on_nil
-    login(:tiger)
+    login(:ant)
     node = secure!(Node) { nodes(:cleanWater) }
     assert_nil node.discussion # no open discussion here
     assert_equal [], node.comments

@@ -1,7 +1,6 @@
 DEFAULTS:
   create_group:    public
   icon:            ""
-  allowed_attributes:
 
 Letter:
   kpath:           NNL
@@ -10,6 +9,7 @@ Letter:
 Post:
   kpath:           NNP
   real_class:      Note
+  auto_create_discussion: yes
 
 Tracker:
   kpath:           NPA

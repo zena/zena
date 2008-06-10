@@ -44,5 +44,14 @@ class CommentsControllerTest < ZenaTestController
     comment = comments(:tiger_says_inside)
     assert_equal 'We could not do better then this. I *really* mean that. Look at the "":20.', comment[:text]
   end
+  
+  def test_index
+    login(:anon)
+    get 'index'
+    assert_response :not_found
+    login(:lion)
+    get 'index'
+    assert_response :success
+  end
   # TODO: test rjs...
 end

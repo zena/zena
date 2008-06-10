@@ -274,13 +274,13 @@ ActiveRecord::Schema.define(:version => 0) do
   execute "CREATE FULLTEXT INDEX index_versions_on_title_and_text_and_summary ON versions (title,text,summary)"
 
   create_table "virtual_classes", :force => true do |t|
-    t.column "name",               :string
-    t.column "kpath",              :string,  :limit => 16
-    t.column "real_class",         :string,  :limit => 16
-    t.column "icon",               :string,  :limit => 200
-    t.column "allowed_attributes", :text
-    t.column "create_group_id",    :integer
-    t.column "site_id",            :integer,                :null => false
+    t.column "name",                   :string
+    t.column "kpath",                  :string,  :limit => 16
+    t.column "real_class",             :string,  :limit => 16
+    t.column "icon",                   :string,  :limit => 200
+    t.column "create_group_id",        :integer
+    t.column "site_id",                :integer,                :null => false
+    t.column "auto_create_discussion", :boolean
   end
 
   create_table "zips", :id => false, :force => true do |t|

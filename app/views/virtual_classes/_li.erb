@@ -5,7 +5,7 @@
           :method => :get) %></td>
   <td><%= li.name %></td>
   <td class="adm_icon" ><%= li.icon ? "<img src='#{li.icon}'/>" : "" %></td>
-  <td class="attributes" ><%= li.allowed_attributes %></td>
+  <td class="auto_create_discussion" ><%= li.auto_create_discussion ? _('yes') : _('no') %></td>
   <td class="create_group"><%= li.create_group.name %></td>
   <td class="superclass" ><%= li.superclass %></td>
 </tr>

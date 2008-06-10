@@ -6,7 +6,6 @@ belong to the user _anon_ (see #User) and must have the 'athor_name' field set.
 If anonymous is moderated (User#moderated?), all public comments are set to 'prop' and are not directly seen on the site.
 =end
 class Comment < ActiveRecord::Base
-  
   zafu_readable      :title, :text, :author_name, :created_at, :updated_at, :status
   zafu_context       :replies => ["Comment"]
   attr_accessible    :title, :text, :author_name, :discussion_id, :reply_to, :status
@@ -14,13 +13,14 @@ class Comment < ActiveRecord::Base
   belongs_to :discussion
   validate   :valid_comment
   before_validation :comment_before_validation
+  after_save :sweep_cache
   
   def author
     @author ||= secure(User) { User.find(self[:user_id]) }
   end
   
   def author_name
-    self[:author_name] || author.fullname
+    self[:author_name] || (self[:user_id] ? author.fullname : nil)
   end
   
   def parent
@@ -99,6 +99,10 @@ class Comment < ActiveRecord::Base
       if author.is_anon?
         errors.add('author_name', "can't be blank") unless self[:author_name] && self[:author_name] != ""
       end
+    end
+    
+    def sweep_cache
+      discussion.node.sweep_cache
     end
   
 end

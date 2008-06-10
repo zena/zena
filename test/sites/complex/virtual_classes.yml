@@ -1,7 +1,6 @@
 DEFAULTS:
   create_group:    public
   icon:            ""
-  allowed_attributes:
 
 Employee:
   kpath:           NRCE

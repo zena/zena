@@ -50,8 +50,12 @@ class Discussion < ActiveRecord::Base
     end
   end
   
-  private
-  def discussion_before_validation
-    self[:site_id] = node.site_id
+  def node
+    secure!(Node) { Node.find(self[:node_id]) }
   end
+  
+  private
+    def discussion_before_validation
+      self[:site_id] = node.site_id
+    end
 end

@@ -1,3 +1,4 @@
+<% puts li.inspect %>
 <li id='comment<%= li[:id] %>' <%= "class='c40' " if li[:status] < Zena::Status[:pub] %>><div class='header'>
     <span class='reply'><% if li.can_write? -%>
     <%= link_to_remote(_('edit'),  :url=>{:controller=>'comments', :action=>'edit', :id=>li[:id] })  %>

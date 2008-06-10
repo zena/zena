@@ -682,6 +682,10 @@ class Node < ActiveRecord::Base
         end
       end
     end
+    
+    def auto_create_discussion
+      false
+    end
   end
   
   def visitor
@@ -1030,21 +1034,29 @@ class Node < ActiveRecord::Base
   #   end
   # end
 
-  # Find the discussion for the current context (v_status and v_lang). This automatically creates a new #Discussion if there
-  # already exists an +outside+, +open+ discussion for another language.
-  # TODO: update tests with visitor status.
+  # Find the discussion for the current context (v_status and v_lang). This automatically creates a new #Discussion if there is
+  # no closed or open discussion for the current lang and any of the following conditions are met:
+  # - there already exists an +outside+, +open+ discussion for another language
+  # - the virtual_class field auto_create_discussion is true
+  # - the user has drive access to the node
   def discussion
-    @discussion ||= Discussion.find(:first, :conditions=>[ "node_id = ? AND inside = ? AND lang = ?", 
-                    self[:id], v_status != Zena::Status[:pub], v_lang ]) ||
-          if ( v_status != Zena::Status[:pub] ) ||
-             ( Discussion.find(:first, :conditions=>[ "node_id = ? AND inside = ? AND open = ?", 
-                                     self[:id], false, true ]))
-            # v_status is not :pub or we already have an outside, open discussion for this node             
-            # => we can create a new one
-            Discussion.new(:node_id=>self[:id], :lang=>v_lang, :inside=>(v_status != Zena::Status[:pub]))
-          else
-            nil
-          end
+    return @discussion if defined?(@discussion)
+    
+    @discussion = Discussion.find(:first, :conditions=>[ "node_id = ? AND inside = ? AND lang = ?", 
+      self[:id], v_status != Zena::Status[:pub], v_lang ], :order=>'id DESC') ||
+      if can_auto_create_discussion?
+        Discussion.new(:node_id=>self[:id], :lang=>v_lang, :inside=>(v_status != Zena::Status[:pub]))
+      else
+        nil
+      end
+  end
+  
+  def can_auto_create_discussion?
+    can_drive? ||
+    (v_status != Zena::Status[:pub]) ||
+    Discussion.find(:first, :conditions=>[ "node_id = ? AND inside = ? AND open = ?", 
+                             self[:id], false, true ]) ||
+    (vclass.auto_create_discussion)
   end
   
   # Comments for the current context. Returns [] when none found.
@@ -1306,6 +1318,7 @@ class Node < ActiveRecord::Base
     # Whenever something changed (publication/proposition/redaction/link/...)
     def after_all
       sweep_cache
+      remove_instance_variable(:@discussion) if defined?(@discussion) # force reload
       true
     end
   
@@ -1341,4 +1354,6 @@ class Node < ActiveRecord::Base
         :parent_id
       end
     end
+    
+    
 end

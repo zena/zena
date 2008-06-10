@@ -14,7 +14,7 @@
 .comments .zazen { padding:0.4em 0.4em 0 10px; }
 .comments .zazen p { margin:0; margin-top:1em; padding:0 0 0.6em 0; text-indent:1em; }
 .comments .zazen p:first-child { margin-top:0;}
-.comments .sub  { padding:4px 0 0 10px; clear:both; }
+.comments .sub  { padding:4px 0 0 10px; }
 
 .comments .header         { position:relative; background:#DCE4E7; border:1px solid #888; border-left:1px solid grey; padding:3px; font-size:93%;}
 .comments .c40 .header    { background:#73A1A5;}
