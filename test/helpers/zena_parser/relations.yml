@@ -339,7 +339,7 @@ unlink:
   context:
     node: 'art'
   src: "<r:tagged do='each' join=',' do='unlink'/>"
-  res: "/<a class=\"unlink\".*onclick=.*Ajax.Request\('/nodes/21/links/_ID(cleanWater_in_art)\?remove=list.21..*bullet_delete.png.*links/_ID(opening_in_art)/"
+  res: "/<a class=.unlink..*onclick=.*Ajax.Request\('/nodes/21/links/_ID(cleanWater_in_art)\?remove=list.33.21.*bullet_delete.png.*links/_ID(opening_in_art)/"
   
 node_in_version:
   src: "<r:version><r:node do='[name]'/></r:version>"

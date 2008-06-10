@@ -685,6 +685,36 @@ class NodeTest < ZenaTestUnit
     assert_equal discussions_id(:inside_discussion_on_status), discussion[:id]
   end
   
+  def test_auto_create_discussion
+    login(:tiger)
+    post   = secure!(Node) { Node.create_node(:v_status => Zena::Status[:pub], :v_title => 'a new post', :class => 'Post', :parent_id => nodes_zip(:cleanWater)) }
+    letter = secure!(Node) { Node.create_node(:v_status => Zena::Status[:pub], :v_title => 'a letter', :class => 'Letter', :parent_id => nodes_zip(:cleanWater)) }
+    assert !post.new_record?, "Not a new record"
+    assert !letter.new_record?, "Not a new record"
+    assert_equal Zena::Status[:pub], post.v_status, "Published"
+    assert_equal Zena::Status[:pub], letter.v_status, "Published"
+    assert letter.can_auto_create_discussion?
+    assert post.can_auto_create_discussion?
+    login(:anon)
+    letter = secure!(Node) { Node.find(letter.id) }
+    post   = secure!(Node) { Node.find(post.id) }
+    assert !letter.can_auto_create_discussion?
+    assert post.can_auto_create_discussion?
+  end
+  
+  def test_auto_create_discussion
+    login(:tiger)
+    letter = secure!(Node) { Node.create_node(:v_status => Zena::Status[:pub], :v_title => 'a letter', :class => 'Letter', :parent_id => nodes_zip(:cleanWater)) }
+    assert !letter.new_record?, "Not a new record"
+    assert_equal Zena::Status[:pub], letter.v_status, "Published"
+    login(:anon)
+    letter = secure!(Node) { Node.find(letter.id) }
+    assert !letter.can_auto_create_discussion?
+    assert Discussion.create(:node_id=>letter[:id], :lang=>'fr', :inside=>false)
+    # there is an open discussion in another lang
+    assert letter.can_auto_create_discussion?
+  end
+  
   def test_comments
     login(:tiger)
     node = secure!(Node) { nodes(:status) }

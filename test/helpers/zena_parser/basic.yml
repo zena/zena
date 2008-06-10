@@ -299,8 +299,22 @@ show_title_options:
 show_c_width:
   context:
     node: "bird_jpg"
-  src:  "width = <r:show attr='c_width'/>"
+  src: "width = <r:show attr='c_width'/>"
   res: "width = 660"
+
+show_else:
+  src: "[<r:show attr='v_title' else='name'/>, <r:show attr='d_foo' else='name'/>]"
+  res: "[status title, status]"
+
+show_default:
+  src: "[<r:show attr='name' default='baz'/>, <r:show attr='d_foo' default='baz'/>]"
+  res: "[status, baz]"
+
+show_else_default:
+  src: "[<r:show attr='v_title' else='name' default='baz'/>, <r:show attr='d_foo' else='name' default='baz'/>, <r:show attr='d_foo' else='d_bar' default='baz'/>]"
+  res: "[status title, status, baz]"
+
+
 
 javascripts:
   src: "<r:javascripts list='prototype,effects,zena'/>"
@@ -693,11 +707,11 @@ ztag_in_do:
 
 design_by:
   src: "<li do='design' skin='hop'><a href='http://teti.ch'>teti.ch</a></li>"
-  res: "<li><i>hop</i> design by <a href='http://teti.ch'>teti.ch</a></li>"
+  res: "<li><i>hop</i>, design by <a href='http://teti.ch'>teti.ch</a></li>"
 
 design_by_options:
   src: "<li do='design' skin='dark' by='vador' href='http://teti.ch'></li>"
-  res: "<li><i>dark</i> design by <a href='http://teti.ch'>vador</a></li>"
+  res: "<li><i>dark</i>, design by <a href='http://teti.ch'>vador</a></li>"
   
 select_class:
   context:

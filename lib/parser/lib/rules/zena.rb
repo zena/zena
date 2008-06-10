@@ -1991,7 +1991,7 @@ END_TXT
     end
        
     def add_params(text, opts={})
-      text.sub(/\A([^<]*)<(\w+)( .*?)[^%]>/) do
+      text.sub(/\A([^<]*)<(\w+)(( .*?)[^%]|)>/) do
         # we must set the first tag id
         before = $1
         tag = $2

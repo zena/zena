@@ -194,4 +194,9 @@ class VirtualClassTest < ZenaTestUnit
     assert_not_equal Section.kpath, vclass.kpath
     assert_equal 'NPU', vclass.kpath
   end
+  
+  def test_auto_create_discussion
+    assert !virtual_classes(:Letter).auto_create_discussion
+    assert virtual_classes(:Post).auto_create_discussion
+  end
 end
