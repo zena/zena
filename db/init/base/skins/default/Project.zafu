@@ -1,7 +1,8 @@
 <r:include template='Node'>
-  <r:with part='content'>
+  <r:with part='context'/>
+  <r:with part='content' class='project'>
     <r:include template='Node' part='related'/>
-    <div id='main' do='text'/>
+    <r:text/>
     <r:include template='notes'/>
   </r:with>
 </r:include>

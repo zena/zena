@@ -174,7 +174,6 @@ module Zena
       
       
       res ||= super(method)
-      
       "#{pre}#{res}#{post}"
     end
     
@@ -649,8 +648,13 @@ module Zena
           # "<%= link_to_remote(#{_('cancel').inspect}, {:url => node_path(#{node}.zip) + '/zafu?template_url=#{CGI.escape(template_url)}', :method => :get}#{params_to_erb(@params)}) %>"
         else
           # edit button
+          dom_id = parent.method == 'each' ? @context[:dom_id] : unique_name
+          dom_id = "#{dom_id}.\#{#{node_id}}"
+
+          action = "?template_url=#{CGI.escape(template_url)}"
+          action << "&dom_id=#{dom_id}"
           # TODO: show 'reply' instead of 'edit' in comments if visitor != author
-          "<%= #{node}.can_write? ? link_to_remote(#{text || _('edit').inspect}, {:url => edit_#{base_class.to_s.underscore}_path(#{node_id}) + '?template_url=#{CGI.escape(template_url)}', :method => :get}#{params_to_erb(@params)}) : '' %>"
+          "<%= #{node}.can_write? ? link_to_remote(#{text || _('edit').inspect}, {:url => edit_#{base_class.to_s.underscore}_path(#{node_id}) + \"#{action}\", :method => :get}#{params_to_erb(@params)}) : '' %>"
         end
       else
         # FIXME: we could link to some html page to edit the item.
@@ -996,7 +1000,8 @@ END_TXT
       @html_tag ||= 'div'
       template_url = get_template_url
       @html_tag_params ||= {}
-      @html_tag_params[:id] = @html_tag_params[:id] ? CGI.escape(@html_tag_params[:id]) : template_url
+      dom_id = parent.method == 'each' ? @context[:erb_dom_id] : unique_name
+      @html_tag_params[:id] = "#{dom_id}.#{erb_node_id}"
       @html_tag_params[:class] ||= 'drop'
       
       action << "&template_url=#{CGI.escape(template_url)}"
@@ -1039,13 +1044,21 @@ END_TXT
     end
  
     def r_unlink
-      text = expand_with
+      text = get_text_for_erb
       if text.blank?
         text = _('btn_tiny_del')
       end
-      dom_id = "#{CGI.escape(@context[:dom_id])}.\#{#{node_id}}"
+      #dom_id = "#{@context[:dom_id]}.\#{#{node_id}}"
+      dom_id = "#{@context[:erb_dom_id]}.#{erb_node_id}"
       if node_kind_of?(Node)
-        out "<% if #{node}[:link_id] -%><%= link_to_remote(#{text.inspect}, {:url =>  \"/nodes/\#{#{node}[:zip]}/links/\#{#{node}[:link_id]}?remove=#{dom_id}\", :method => :delete}, :class=>#{(@params[:class] || 'unlink').inspect}) %><% end -%>"
+        out "<% if #{node}[:link_id] -%>"
+        out "<a class='#{@params[:class] || 'unlink'}' href='/nodes/#{erb_node_id}/links/<%= #{node}[:link_id] %>?remove=#{dom_id}' onclick=\"new Ajax.Request('/nodes/#{erb_node_id}/links/<%= #{node}[:link_id] %>?remove=#{dom_id}', {asynchronous:true, evalScripts:true, method:'delete'}); return false;\">"
+        if !@blocks.empty?
+          out expand_with
+        else
+          out _('btn_tiny_del')
+        end
+        out "</a><% end -%>"
       elsif node_kind_of?(DataEntry)  
         out "<%= link_to_remote(#{text.inspect}, {:url => \"/data_entries/\#{#{node}[:id]}?remove=#{dom_id}\", :method => :delete}, :class=>#{(@params[:class] || 'unlink').inspect}) %>"
       end
@@ -1150,6 +1163,9 @@ END_TXT
         
         #dom_id = @context[:template_url] || self.dom_id()
         
+        erb_dom_id = "#{self.dom_id}.#{erb_node_id}"
+        dom_id     = "#{self.dom_id}.\#{#{node_id}}"
+        
         if @params[:draggable] == 'true'
           out "<% #{var}_dom_ids << \"#{dom_id}.\#{#{node_id(var)}}\" -%>"
         end
@@ -1160,12 +1176,12 @@ END_TXT
         
         if @context[:template_url] || @params[:draggable] == 'true' || descendant('unlink')
           # ajax, set id
-          id_hash = {:id=>"#{dom_id}.#{erb_node_id(var)}"}
+          id_hash = {:id=> "#{erb_dom_id}.#{erb_node_id(var)}"}
           if @html_tag
             @html_tag_params.merge!(id_hash)
-            res = expand_with(:node=>var, :dom_id=>dom_id) # dom_id is needed by 'unlink'
+            res = expand_with(:node=>var, :dom_id=>dom_id, :erb_dom_id=>erb_dom_id) # dom_id is needed by 'unlink' and 'drop'
           else
-            res = add_params(expand_with(:node=>var, :dom_id=>dom_id), id_hash)
+            res = add_params(expand_with(:node=>var, :dom_id=>dom_id, :erb_dom_id=>erb_dom_id), id_hash)
           end
         else
           res = expand_with(:node=>var)
@@ -1975,7 +1991,7 @@ END_TXT
     end
        
     def add_params(text, opts={})
-      text.sub(/\A([^<]*)<(\w+)( [^>]+|)>/) do
+      text.sub(/\A([^<]*)<(\w+)( .*?)[^%]>/) do
         # we must set the first tag id
         before = $1
         tag = $2

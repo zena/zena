@@ -126,7 +126,6 @@ class Parser
     @method   = 'void' # (replacer's method is always 'with')
     @blocks   = obj.blocks.empty? ? @blocks : obj.blocks
     @params   = obj.params.empty? ? @params : obj.params
-    @params[:id] = @name
   end
   
   # Hook called when including a part "<r:include template='layout' part='title'/>"

@@ -7,8 +7,12 @@ module Zafu
     # Replace the 'original' element in the included template with our new version.
     def replace_with(new_obj)
       super
+      html_tag_params    = new_obj.html_tag_params
+      [:class, :id].each do |sym|
+        html_tag_params[sym] = new_obj.params[sym] if new_obj.params.include?(sym)
+      end
       @html_tag          = new_obj.html_tag || @html_tag
-      @html_tag_params   = !new_obj.html_tag_params.empty? ? new_obj.html_tag_params : @html_tag_params
+      @html_tag_params.merge!(html_tag_params)
     end
     
     # Pass the caller's 'html_tag' and 'html_tag_params' to the included part.

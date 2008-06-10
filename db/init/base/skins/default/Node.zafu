@@ -18,7 +18,7 @@
   <div id='header'>
     <div id='login' do='login_link'/>
     <div id='visitor' do='visitor_link'/>
-    <div id='search' do='search_box'/>
+    <div id='search' do='search_box' type='search'/>
     <ol id='menu' do='root' do='pages'>
       <li do='each' on_if_node='ancestor' do='link'/>
     </ol>
@@ -79,7 +79,7 @@
             </li>
           </ol>
         </r:references>
-        
+
       </div>
       <div id='main'>
         <r:text/>

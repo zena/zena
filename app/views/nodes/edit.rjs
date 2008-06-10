@@ -3,5 +3,5 @@ if params[:attribute]
   page << "$('node_#{params[:attribute]}').focus();"
   page << "$('node_#{params[:attribute]}').select();"
 else
-  page.replace "#{dom_id_from_template_url}.#{@node[:zip]}", :file => fullpath_from_template_url + "_form.erb"
+  page.replace "#{params[:dom_id]}", :file => fullpath_from_template_url + "_form.erb"
 end

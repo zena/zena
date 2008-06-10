@@ -2,6 +2,8 @@ body { background: #eee; color:#444; line-height:21px; font-size:14px; font-fami
 a { text-decoration:none; color:#2F31D5;}
 a.wiki { color:inherit; border-bottom:1px dotted blue;}
 .zazen a:hover, #footer a:hover { border-bottom:1px solid blue;}
+input { padding:3px 4px;}
+
 #header, #container, #footer, #top { width:800px; border:1px solid #555; border-width:0 1px 1px; margin:0 auto; background:white; padding:100px 21px;}
 #header { background:orange; padding:7px 21px; position:relative; color:white;}
 #top { background:orange; padding:21px; text-align:center; font-size:42px; line-height:42px; font-family:Georgia; font-style:italic; color:#555;}
@@ -17,11 +19,12 @@ a.wiki { color:inherit; border-bottom:1px dotted blue;}
 
 #title { margin:0 42px 42px 200px; color:black;}
 #title h1 { font-size:35px; margin:0;}
-.summary p { margin:0; text-style:italic; font-family:Times; font-size:120%;}
+.summary p { margin:0; text-style:italic; font-family:Georgia,Times,serif; color:black;}
 #context { width:180px; float:left; border-right:1px solid grey;}
 ol { padding-left:14px;}
 
-#content { margin-left: 200px;}
+#content { margin-left: 200px; }
+#content.project { margin:18px;}
 #related { width:150px; float:right; margin:-7px 0 14px 14px; border:1px dotted #bbb; padding:7px; font-size:12px; line-height:21px; background:#f4f4f4;}
 
 .summary { font-style:italic;}
@@ -55,9 +58,11 @@ h2 { font-size:21px; line-height:42px;}
 
 
 /* notes */
-.note { border-bottom:2px solid #bbb; margin:35px 0; padding:0 21px;}
-.note .log_at { float:right; font-style:italic; color:grey; padding-top:14px;}
-.note h2.title, .note .header p { margin:0;}
+.note { border-bottom:1px solid #999; margin:0 0 42px; padding:0;}
+.note .header p { margin:0;}
+.note p.log_at { float:right; font-style:italic; color:grey; font-size:14px; line-height:42px; margin-right:10px;}
+.note h2.title { color:#200; font-size:14px; line-height:42px; font-weight:bold; font-family:Georgia,Times,serif; font-size:24px; line-height:42px;}
+.note .title a { color:inherit;}
 
 .inline_form { margin:2px; padding:3px; border:1px dotted grey; font-size:80%; background:#eed;}
 .inline_form p, .inline_form .date_box { display:inline; float:none; }

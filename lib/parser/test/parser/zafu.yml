@@ -127,12 +127,12 @@ replace_named:
   res: "replace_named: named_with_name: <head>lalala</head>"
 
 named_with_do:
-  src: "named_with_do: <p id='branding' do='void'>...</p>"
+  src: "named_with_do: <p id='branding'>...</p>"
   res: "named_with_do: <p id='branding'>...</p>"
 
 replace_with_do:
-  src: "replace_with_do: <r:include template='/named/with/do'><r:with part='branding'>lalala</r:with>"
-  res: "replace_with_do: named_with_do: <p id='branding'>lalala</p>"
+  src: "replace_with_do: <r:include template='/named/with/do'><r:with part='branding' class='goal'>lalala</r:with>"
+  res: "replace_with_do: named_with_do: <p class='goal' id='branding'>lalala</p>"
 
 include_part:
   src: "IP: <r:include template='/named/parts' part='sub'/> PI."
