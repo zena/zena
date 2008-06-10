@@ -1,9 +1,9 @@
 <% if @node.can_parse_assets? -%>
-<label for='parse_assets'><%= _('parse assets') %></label> ('plot.png' -&gt; '/en/image30.png')
-<%= link_to(_('parse'), edit_version_url(:node_id => @node[:zip], :id=>(@node.v_number || 0), :parse_assets => 'true')) %>
+<label for='parse_assets'><%= _('parse assets') %></label>
+<%= link_to(_('parse names to ids'), edit_version_url(:node_id => @node[:zip], :id=>(@node.v_number || 0), :parse_assets => 'true')) %>
 
-<label for='parse_assets'><%= _('unparse assets') %></label> ('/en/image30.png' -&gt; 'plot.png')
-<%= link_to(_('unparse'), edit_version_url(:node_id => @node[:zip], :id=>(@node.v_number || 0), :unparse_assets => 'true')) %>
+<label for='parse_assets'><%= _('unparse assets') %></label>
+<%= link_to(_('parse ids to names'), edit_version_url(:node_id => @node[:zip], :id=>(@node.v_number || 0), :unparse_assets => 'true')) %>
 <% end -%>
 
 <label for='node_c_content_type'><%= _('content type') %></label>

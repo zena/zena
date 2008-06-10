@@ -911,14 +911,16 @@ class Node < ActiveRecord::Base
   
   # Find all data entries linked to the current node
   def data
-    DataEntry.find(:all, :conditions => "node_a_id = #{id} OR node_b_id = #{id} OR node_c_id = #{id} OR node_d_id = #{id}")
+    list = DataEntry.find(:all, :conditions => "node_a_id = #{id} OR node_b_id = #{id} OR node_c_id = #{id} OR node_d_id = #{id}")
+    list == [] ? nil : list
   end
   
   # Find data entries through a specific slot (node_a, node_b). "data_entries_a" finds all data entries link through 'node_a_id'.
   DataEntry::NodeLinkSymbols.each do |sym|
     class_eval "def #{sym.to_s.gsub('node', 'data')}
-      return [] if new_record?
-      DataEntry.find(:all, :conditions=>\"#{sym}_id = '\#{self[:id]}'\")
+      return nil if new_record?
+      list = DataEntry.find(:all, :conditions=>\"#{sym}_id = '\#{self[:id]}'\")
+      list == [] ? nil : list
     end"
   end
   

@@ -1083,6 +1083,9 @@ done: \"I am done\""
     entries = node.data
     assert_equal 4, entries.size
     assert_equal BigDecimal.new("13.0"), entries[2].value
+    node = secure!(Node) { nodes(:tiger) }
+    assert_nil node.data
+    assert_nil node.data_b
   end
   
   def test_data_d
