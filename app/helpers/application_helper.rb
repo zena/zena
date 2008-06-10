@@ -908,7 +908,7 @@ latex_template = %q{
         actions << version_form_action('publish',version)
         actions << version_form_action('refuse',version)
       when Zena::Status[:red]
-        if version.user[:id] == visitor.id
+        if visitor.is_su? || version.user[:id] == visitor.id
           actions << version_form_action('publish',version)
           actions << version_form_action('propose',version)
           actions << version_form_action('remove',version)

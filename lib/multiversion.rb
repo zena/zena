@@ -114,6 +114,7 @@ module Zena
         
         # Returns false is the current visitor does not have enough rights to perform the action.
         def can_apply?(method, v=version)
+          return true if visitor.is_su?
           case method
           when :drive
             can_drive?
@@ -369,7 +370,9 @@ module Zena
           return @version if @version
           
           if key && !key.kind_of?(Symbol) && !new_record?
-            if can_drive?
+            if visitor.is_su?
+              @version = secure!(Version) { Version.find(:first, :conditions => ["node_id = ? AND number = ?", self[:id], key]) }
+            elsif can_drive?
               @version = secure!(Version) { Version.find(:first, :conditions => ["node_id = ? AND number = ? AND (user_id = ? OR status <> ?)", self[:id], key, visitor[:id], Zena::Status[:red]]) }
             else
               @version = secure!(Version) { Version.find(:first, :conditions => ["node_id = ? AND number = ? AND (user_id = ? OR status >= ?)", self[:id], key, visitor[:id], Zena::Status[:pub]]) }

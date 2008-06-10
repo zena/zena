@@ -690,9 +690,13 @@ Just doing the above will filter all result according to the logged in user.
         
         # Secure scope for read/create
         def secure_scope(table_name)
-          "#{table_name}.site_id = #{visitor.site.id} AND (#{table_name}.user_id = '#{visitor[:id]}' OR "+
-          "(#{table_name}.rgroup_id IN (#{visitor.group_ids.join(',')}) AND #{table_name}.publish_from <= now() ) OR " +
-          "(#{table_name}.pgroup_id IN (#{visitor.group_ids.join(',')}) AND #{table_name}.max_status > #{Zena::Status[:red]}))"
+          if visitor.is_su?
+            "#{table_name}.site_id = #{visitor.site.id}"
+          else
+            "#{table_name}.site_id = #{visitor.site.id} AND (#{table_name}.user_id = '#{visitor[:id]}' OR "+
+            "(#{table_name}.rgroup_id IN (#{visitor.group_ids.join(',')}) AND #{table_name}.publish_from <= now() ) OR " +
+            "(#{table_name}.pgroup_id IN (#{visitor.group_ids.join(',')}) AND #{table_name}.max_status > #{Zena::Status[:red]}))"
+          end
         end
         
 
