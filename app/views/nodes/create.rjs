@@ -1,15 +1,16 @@
 if @node.new_record?
-  page.replace "#{dom_id_from_template_url}_form", :file => fullpath_from_template_url + "_form.erb"
+  puts "#{params[:dom_id]}_form"
+  page.replace "#{params[:dom_id]}_form", :file => fullpath_from_template_url + "_form.erb"
 else
   pos = params[:position] || :before
-  ref = params[:reference] || "#{dom_id_from_template_url}_add"
+  ref = params[:reference] || "#{params[:dom_id]}_add"
   page.insert_html pos.to_sym, ref, :file => fullpath_from_template_url + ".erb"
-  if params[:done]
-    page << params[:done].gsub("NODE_ID", @node.zip).gsub("PARENT_ID", @node.parent_zip)
-  else
-    page.toggle "#{dom_id_from_template_url}_form", "#{dom_id_from_template_url}_add"
-  end
-  
   @node = @node.parent.new_child(:class => @node.class)
-  page.replace "#{dom_id_from_template_url}_form", :file => fullpath_from_template_url + "_form.erb"
+  page.replace "#{params[:dom_id]}_form", :file => fullpath_from_template_url + "_form.erb"
+  puts params[:done]
+  if params[:done]
+    page << params[:done]
+  else
+    page.toggle "#{params[:dom_id]}_form", "#{params[:dom_id]}_add"
+  end
 end

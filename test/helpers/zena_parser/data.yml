@@ -51,3 +51,9 @@ read_node_c_id:
     node: status
   src: "<r:data><r:each><r:show attr='node_a_id'/></r:each></r:data>"
   res: "29"
+
+add_edit_cancel:
+  context:
+    node: status
+  src: "<r:data><r:each><r:show attr='text'/> <r:edit/></r:each><r:add/></r:data>"
+  tem: "/btn_x/"

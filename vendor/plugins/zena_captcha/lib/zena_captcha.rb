@@ -3,6 +3,7 @@ module Zena
     def r_captcha
       return parser_error("recaptcha keys not set") unless current_site.d_recaptcha_pub && current_site.d_recaptcha_priv
       res = "<%= get_captcha(:rcc_pub => #{visitor.site.d_recaptcha_pub.inspect}, :rcc_priv => #{visitor.site.d_recaptcha_priv.inspect}#{get_recaptcha_params}) %>"
+      res += expand_with
       "<% if visitor.is_anon? -%>#{render_html_tag(res)}<% end -%>"
     end
     
