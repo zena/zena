@@ -14,14 +14,14 @@
   <% end %>
   <table cellspacing='0' class='edit_site'>
     <tr><td class='label'><%= _('host') %></td><td><%= @site[:host] %></td></tr>
-    <% [:name, :languages, :default_lang].each do |sym| -%>
-    <tr><td class='label'><%= _(sym.to_s) %></td><td><%= text_field('site', sym, :size=>15) %></td></tr>
+    <% Site.attributes_for_form[:text].each do |sym| -%>
+    <tr><td class='label'><%= _(sym.to_s.sub(/\Ad_/,'').sub('_',' ')) %></td><td><%= text_field('site', sym, :size=>nil) %></td></tr>
     <% end -%>
     <tr><td class='label'><%= _('redit_time') %></td><td><%= text_field('site', :redit_time, :size=>15, :value => @site.redit_time) %></td></tr>
     <tr><td class='label'><%= _('public group') %></td><td><%= @site.public_group.name %></td></tr>
     <tr><td class='label'><%= _('site group') %></td><td><%= @site.site_group.name %></td></tr>
     <tr><td class='label'><%= _('options') %></td><td>
-    <% [:authentication, :monolingual, :allow_private, :http_auth, :auto_publish].each do |sym| -%>
+    <% Site.attributes_for_form[:bool].each do |sym| -%>
     <input type='hidden' name='site[<%= sym %>]' value=''/><input type='checkbox' name='site[<%= sym %>]' value='1'<%= @site[sym] ? " checked='checked'" : '' %>/> <%= _(sym.to_s) %>
     <% end -%>
     </td></tr>

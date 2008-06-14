@@ -1,2 +1,7 @@
-page.visual_effect :highlight, "comment#{@comment[:id]}", :duration => 1.0
-page.replace "comment#{@comment[:id]}", :partial=>'comments/li', :locals=>{:li=>@comment}
+if @comment.errors.empty?
+  page.visual_effect :highlight, "comment#{@comment[:id]}", :duration => 1.0
+  page.replace "comment#{@comment[:id]}", :partial=>'comments/li', :collection => [@comment]
+  page.replace_html "comment_errors", :inline=>""
+else
+  page.replace_html "comment_errors", :inline=>error_messages_for(@comment)
+end

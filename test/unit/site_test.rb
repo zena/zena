@@ -214,4 +214,19 @@ class SiteTest < ZenaTestUnit
     assert site.update_attributes(:redit_time => '5h 1d 34 seconds')
     assert_equal '1 day 5 hours 34 seconds', site.redit_time
   end
+  
+  def test_site_attributes
+    login(:lion)
+    site = sites(:zena)
+    assert site.update_attributes(:d_recaptcha_pub => "something", :d_recaptcha_priv => "anything else")
+    site = sites(:zena)
+    assert_equal "something", site.d_recaptcha_pub
+    assert_equal "something", site.dyn['recaptcha_pub']
+    assert_equal "anything else", site.d_recaptcha_priv
+    assert_equal "anything else", site.dyn['recaptcha_priv']
+  end
+  
+  def test_attributes_for_form
+    puts Site.attributes_for_form.inspect
+  end
 end

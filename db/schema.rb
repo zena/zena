@@ -211,6 +211,14 @@ ActiveRecord::Schema.define(:version => 0) do
     t.column "site_id",       :integer,                :null => false
   end
 
+  create_table "site_attributes", :force => true do |t|
+    t.column "owner_id", :integer
+    t.column "key",      :string
+    t.column "value",    :text
+  end
+
+  add_index "site_attributes", ["owner_id"], :name => "index_site_attributes_on_owner_id"
+
   create_table "sites", :force => true do |t|
     t.column "host",               :string
     t.column "root_id",            :integer

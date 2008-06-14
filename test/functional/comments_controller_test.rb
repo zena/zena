@@ -53,5 +53,16 @@ class CommentsControllerTest < ZenaTestController
     get 'index'
     assert_response :success
   end
+  
+  def test_remove
+    login(:lion)
+    assert_equal Zena::Status[:prop], comments(:public_spam_in_en).status
+    post "remove", "id"=>comments_id(:public_spam_in_en)
+    assert_response :success
+    assert_equal Zena::Status[:rem], comments(:public_spam_in_en).status
+  end
+  
+  def test_bin
+  end
   # TODO: test rjs...
 end

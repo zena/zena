@@ -95,3 +95,7 @@ saved_each_block:
 no_recursion_in_saved_block:
   src: "<r:void name='grp'><r:show attr='name'/><r:pages><r:each><r:include part='grp'/></r:each><r:add/></r:pages></r:void>"
   'no/recursion/en/in/saved/block/grp1.erb': "!/no_recursion_in_saved_block_grp/"
+
+each_in_each:
+  src: "<r:pages><r:form>FORM1</r:form><r:each><r:pages>sub-pages <r:form>FORM2</r:form></r:pages></r:each><r:add/></r:pages>"
+  res: "/FORM1/"

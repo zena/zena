@@ -818,7 +818,7 @@ END_TXT
           if params[:done] == 'focus'
             hidden_fields['done'] = "$('#{dom_id_from_template_url}_#{add_block.params[:focus] || 'v_title'}').focus();"
           elsif params[:done]
-            hidden_fields['done'] = params[:done].inspect
+            hidden_fields['done'] = CGI.escape(params[:done])
           end
         end
       else
@@ -833,7 +833,8 @@ END_TXT
       form << "<div class='hidden'>"
       hidden_fields.each do |k,v|
         next if set_fields.include?(k)
-        form << "<input type='hidden' name='#{k}' value=\"#{v}\"/>\n"
+        v = "\"#{v}\"" unless v.kind_of?(String) && ['"', "'"].include?(v[0..0])
+        form << "<input type='hidden' name='#{k}' value=#{v}/>\n"
       end
       form << "</div>"
       
@@ -1049,17 +1050,18 @@ END_TXT
         text = _('btn_tiny_del')
       end
       #dom_id = "#{@context[:dom_id]}.\#{#{node_id}}"
-      dom_id = "#{@context[:erb_dom_id]}.#{erb_node_id}"
+      erb_dom_id = "#{@context[:erb_dom_id]}.#{erb_node_id}"
       if node_kind_of?(Node)
         out "<% if #{node}[:link_id] -%>"
-        out "<a class='#{@params[:class] || 'unlink'}' href='/nodes/#{erb_node_id}/links/<%= #{node}[:link_id] %>?remove=#{dom_id}' onclick=\"new Ajax.Request('/nodes/#{erb_node_id}/links/<%= #{node}[:link_id] %>?remove=#{dom_id}', {asynchronous:true, evalScripts:true, method:'delete'}); return false;\">"
+        out "<a class='#{@params[:class] || 'unlink'}' href='/nodes/#{erb_node_id}/links/<%= #{node}[:link_id] %>?remove=#{erb_dom_id}' onclick=\"new Ajax.Request('/nodes/#{erb_node_id}/links/<%= #{node}[:link_id] %>?remove=#{erb_dom_id}', {asynchronous:true, evalScripts:true, method:'delete'}); return false;\">"
         if !@blocks.empty?
           out expand_with
         else
           out _('btn_tiny_del')
         end
         out "</a><% end -%>"
-      elsif node_kind_of?(DataEntry)  
+      elsif node_kind_of?(DataEntry)
+        dom_id = "#{@context[:dom_id]}.\#{#{node_id}}"
         out "<%= link_to_remote(#{text.inspect}, {:url => \"/data_entries/\#{#{node}[:id]}?remove=#{dom_id}\", :method => :delete}, :class=>#{(@params[:class] || 'unlink').inspect}) %>"
       end
     end
@@ -1152,13 +1154,26 @@ END_TXT
         if @params[:draggable] == 'true'
           out "<% #{var}_dom_ids = [] -%>"
         end
+        @params[:alt_class] ||= @html_tag_params.delete(:alt_class)
         
-        if join = @params[:join]
+        if @params[:alt_class] || @params[:join]
+          join = @params[:join] || ''
           join = join.gsub(/&lt;([^%])/, '<\1').gsub(/([^%])&gt;/, '\1>')
           out "<% #{list}.each_index do |#{var}_index| -%>"
           out "<%= #{var}=#{list}[#{var}_index]; #{var}_index > 0 ? #{join.inspect} : '' %>"
+          
+          if alt_class = @params[:alt_class]
+            if html_class = @html_tag_params.delete(:class)
+              html_append = " class='<%= #{var}_index % 2 != 0 ? #{alt_class.inspect} : #{html_class.inspect} %>'"
+            else
+              html_append = "<%= #{var}_index % 2 != 0 ? ' class=#{alt_class.inspect}' : '' %>"
+            end
+          else
+            html_append = nil
+          end
         else
           out "<% #{list}.each do |#{var}| -%>"
+          html_append = nil
         end
         
         #dom_id = @context[:template_url] || self.dom_id()
@@ -1175,7 +1190,7 @@ END_TXT
         @anchor_param = nil
         
         if @context[:template_url] || @params[:draggable] == 'true' || descendant('unlink')
-          # ajax, set id
+          # ajax, set id, class
           id_hash = {:id=> "#{erb_dom_id}.#{erb_node_id(var)}"}
           if @html_tag
             @html_tag_params.merge!(id_hash)
@@ -1186,7 +1201,7 @@ END_TXT
         else
           res = expand_with(:node=>var)
         end
-        out render_html_tag(res)
+        out render_html_tag(res, html_append)
         out "<% end -%>"
         
         if @params[:draggable] == 'true'
@@ -1197,7 +1212,7 @@ END_TXT
         id_hash = {:id=>"#{dom_id_from_template_url}.#{erb_node_id}"}
         if @html_tag
           @html_tag_params.merge!(id_hash)
-          out render_html_tag(expand_with(:dom_id => dom_id)) # dom_id is needed by 'unlink'
+          out render_html_tag(expand_with(:dom_id => dom_id), html_append) # dom_id is needed by 'unlink'
         else
           out add_params(expand_with, id_hash)
         end
@@ -1902,7 +1917,7 @@ END_TXT
         add_block  = descendant('add')
         form_block = descendant('form') || each_block
         if list_finder
-          out "<% if (#{list_var} = #{list_finder}) || (#{node}.can_write? && #{list_var}=[]) -%>"
+          out "<% if (#{list_var} = #{list_finder}) || (#{node}.#{node_kind_of?(Comment) ? "can_comment?" : "can_write?"} && #{list_var}=[]) -%>"
         end
         
         template_url = each_block.get_template_url(@context)
@@ -1938,7 +1953,7 @@ END_TXT
         # no form, render, edit and add are not ajax
         if list_finder
           if descendant('add') || descendant('add_document')
-            out "<% if (#{list_var} = #{list_finder}) || (#{node}.can_write? && #{list_var}=[]) -%>"
+            out "<% if (#{list_var} = #{list_finder}) || (#{node}.#{node_kind_of?(Comment) ? "can_comment?" : "can_write?"} && #{list_var}=[]) -%>"
           elsif list_finder != 'nil'
             out "<% if #{list_var} = #{list_finder} -%>"
           else
@@ -2010,7 +2025,7 @@ END_TXT
         if k.to_s =~ /^(or_|)([a-zA-Z_]+)(\d*)$/
           k = $2.to_sym
         end
-        if [:kind_of, :klass, :status, :lang, :can, :node, :in].include?(k)
+        if [:kind_of, :klass, :status, :lang, :can, :node, :in, :visitor, :has].include?(k)
           tests << [k, v]
         elsif k == :test
           if v =~ /\s/
@@ -2040,6 +2055,15 @@ END_TXT
             "#{node}.can_write?"
           when 'drive', 'publish'
             "#{node}.can_drive?"
+          else
+            nil
+          end
+        when :has
+          case value
+          when 'discussion'
+            "#{node}.discussion"
+          else
+            nil
           end
         when :test
           if value =~ /("[^"]*"|'[^']*'|[\w\.]+)\s*(>=|<=|<>|<|=|>|lt|le|eq|ne|ge|gt)\s*("[^"]*"|'[^']*'|[\w\.]+)/
@@ -2104,6 +2128,12 @@ END_TXT
           else
             'false'
           end
+        when :visitor
+          if value == 'anon'
+            "visitor.is_anon?"
+          else
+            nil
+          end
         else
           nil
         end
@@ -2113,11 +2143,12 @@ END_TXT
     
     # Block visibility of descendance with 'do_list'.
     def public_descendants
-      if ['do_list'].include?(@method)
-        {}
-      else
-        super
+      all = super
+      if @method == 'each'
+        # do not propagate 'form' up
+        all.delete('form')
       end
+      all
     end
     
     def get_attribute_and_node(str)
@@ -2417,7 +2448,8 @@ END_TXT
       else
         value = attribute ? "<%= #{node_attribute(attribute)} %>" : ""
       end
-      "<textarea name='#{name}'>#{value}</textarea>"
+      input_id = @context[:template_url] ? " id='#{(dom_id_from_template_url + '_' + attribute.to_s)}#{erb_node_id}'" : ''
+      "<textarea name='#{name}'#{input_id}>#{value}</textarea>"
     end
     
     def parser_error(message, tag=@method)

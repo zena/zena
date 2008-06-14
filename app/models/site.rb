@@ -18,11 +18,18 @@ The #Site model holds configuration information for a site:
 class Site < ActiveRecord::Base
   validate :valid_site
   validates_uniqueness_of :host
-  attr_accessible :name, :languages, :default_lang, :authentication, :monolingual, :allow_private, :http_auth, :auto_publish, :redit_time
+  # we are using 'attr_protected' instead of attr_accessible because we have dynamic attributes
+  attr_protected *(column_names.map{|e| e.to_sym} - [:name, :languages, :default_lang, :authentication, :monolingual, :allow_private, :http_auth, :auto_publish, :redit_time])
   has_many :groups, :order => "name"
   has_many :nodes
   has_many :participations, :dependent => :destroy
   has_many :users, :through => :participations
+  uses_dynamic_attributes :table_name => 'site_attributes'
+  
+  @@attributes_for_form = {
+    :bool => [:authentication, :monolingual, :allow_private, :http_auth, :auto_publish],
+    :text => [:name, :languages, :default_lang],
+  }
   
   class << self
     
@@ -150,6 +157,11 @@ class Site < ActiveRecord::Base
       
       site.instance_variable_set(:@being_created, false)
       site
+    end
+  
+    # List of attributes that can be configured in the admin form
+    def attributes_for_form
+      @@attributes_for_form
     end
   end
   
@@ -309,3 +321,5 @@ class Site < ActiveRecord::Base
       errors.add(:default_lang, "invalid default language") unless self[:languages].split(',').include?(self[:default_lang])
     end
 end
+
+load_patches_from_plugins

@@ -1279,31 +1279,4 @@ ENDTXT
     end
   end
 end
-=begin
-
-# Methods added to this helper will be available to all templates in the application.
-module ApplicationHelper
-  include Zena::Acts::SecureScope
-  include Zena::Acts::Secure::InstanceMethods
-  include ZenaGlobals
-  uses_strips :base, :admin, :calendar
-  
-  # Overwrite error_messages_for to include translation
-  def error_messages_for(object_name, options = {})
-    options = options.symbolize_keys
-    object = instance_variable_get("@#{object_name}")
-    if object && !object.errors.empty?
-      content_tag("div",
-      content_tag("ul", object.errors.full_messages.collect { |msg| content_tag("li", t(msg)) }),
-      "id" => options[:id] || "errorExplanation", "class" => options[:class] || "errorExplanation"
-      )
-    else
-      ""
-    end
-  end
-  
-  
-  
-end
-
-=end
+load_patches_from_plugins

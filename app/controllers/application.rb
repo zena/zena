@@ -733,11 +733,11 @@ END_MSG
     #TODO: test
     def error_messages_for(obj, opts={})
       return '' if obj.errors.empty?
-      res = ["<ul class='#{opts[:class] || 'errors'}'>"]
+      res = ["<table class='#{opts[:class] || 'errors'}'>"]
       obj.errors.each do |er,msg|
-        res << "<li><b>#{er}</b> #{_(msg)}</li>"
+        res << "<tr><td><b>#{er}</b></td><td>#{_(msg)}</td></tr>"
       end
-      res << '</ul>'
+      res << '</table>'
       res.join("\n")
     end
   
@@ -814,5 +814,12 @@ END_MSG
       format.gsub!("%A", _(adate.strftime("%A")) )
       adate.strftime(format)
     end
-
+    
+    # Read the parameters and add errors to the object if it is considered spam. Save it otherwize.
+    def save_if_not_spam(obj, params)
+      # do nothing (overwritten by plugins like zena_captcha)
+      obj.save
+    end
 end
+
+load_patches_from_plugins

@@ -30,12 +30,21 @@ class CommentTest < ZenaTestUnit
     assert_equal 'PLV', comment.author.initials
   end
   
-  def test_remove
+  def test_remove_own
     login(:lion)
     comment = secure!(Comment) { comments(:lion_says_inside) }
     assert_equal Zena::Status[:pub], comment[:status]
     assert comment.remove
     comment = comments(:lion_says_inside)
+    assert_equal Zena::Status[:rem], comment[:status]
+  end
+  
+  def test_remove_spam
+    login(:lion)
+    comment = secure!(Comment) { comments(:public_spam_in_en) }
+    assert_equal Zena::Status[:prop], comment[:status]
+    assert comment.remove
+    comment = comments(:public_spam_in_en)
     assert_equal Zena::Status[:rem], comment[:status]
   end
   
@@ -124,11 +133,19 @@ class CommentTest < ZenaTestUnit
   end
   
   def test_cannot_update_not_author
-    login(:lion)
+    login(:ant)
     comment = comments(:public_spam_in_en)
     assert !comment.update_attributes(:text => 'up')
     assert_equal 'you do not have the rights to do this', comment.errors[:base]
   end
+  
+  # FIXME: should also fail (delete = ok, edit = not ok)
+  #def test_cannot_update_not_author_and_admin
+  #  login(:lion)
+  #  comment = comments(:public_spam_in_en)
+  #  assert !comment.update_attributes(:text => 'up')
+  #  assert_equal 'you do not have the rights to do this', comment.errors[:base]
+  #end
   
   def test_update
     login(:anon)

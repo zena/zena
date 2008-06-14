@@ -50,7 +50,12 @@ ActionController::Routing::Routes.draw do |map|
   map.resources :virtual_classes
   map.resources :sites,
     :member => { :clear_cache => :post}
-  map.resources :comments
+  map.resources :comments,
+                :collection => { :empty_bin => :delete },
+                :member => { :remove  => :put,
+                             :publish => :put,
+                             :reply_to => :post,
+                           }
   map.resources :data_entries, :member => { :zafu => :get }
 
   # FIXME monolingual
@@ -92,7 +97,6 @@ ActionController::Routing::Routes.draw do |map|
   # map.connect ':controller/:action/:id'
   
   # temporary routes...
-  map.connect 'comments/:action/:id', :controller => 'comments'
   map.connect 'discussions/:action/:id', :controller => 'discussions'
   map.connect 'z/link/:action/:id', :controller => 'link'
   map.connect 'z/calendar/:action', :controller => 'calendar'

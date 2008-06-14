@@ -39,5 +39,5 @@
 .comments .btn_x { float:none; text-align:right; margin:0; padding:0;}
 .comments .btn_x a { display:block; }
 .comments .btn_add a { visibility:visible;}
-.comments .actions { position:absolute; right:-20px;}
+.comments .actions { position:absolute; left:-23px;}
 .comments .actions a { display:block;}

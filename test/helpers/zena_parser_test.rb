@@ -246,5 +246,10 @@ class ZenaParserTest < ZenaTestController
     DocumentContent.connection.execute "UPDATE document_contents SET ext = 'mp3' WHERE id = #{document_contents_id(:water_pdf)}"
     do_test('zazen', 'swf_button_player')
   end
+  
+  def test_basic_captcha
+    Site.connection.execute "INSERT INTO site_attributes (`key`,`value`,`owner_id`) VALUES ('recaptcha_pub','pubkey', #{sites_id(:zena)}), ('recaptcha_priv','privkey',#{sites_id(:zena)})"
+    do_test('basic', 'captcha')
+  end
   make_tests
 end

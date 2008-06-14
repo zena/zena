@@ -150,6 +150,7 @@ class Node < ActiveRecord::Base
   validate           :validate_node
   before_create      :node_before_create
   after_save         :spread_project_and_section
+  after_create       :node_after_create
   attr_protected     :site_id, :zip, :id, :section_id, :project_id, :publish_from, :max_status
   attr_protected     :c_version_id, :c_node_id # TODO: test
   acts_as_secure_node
@@ -1035,10 +1036,7 @@ class Node < ActiveRecord::Base
   # end
 
   # Find the discussion for the current context (v_status and v_lang). This automatically creates a new #Discussion if there is
-  # no closed or open discussion for the current lang and any of the following conditions are met:
-  # - there already exists an +outside+, +open+ discussion for another language
-  # - the virtual_class field auto_create_discussion is true
-  # - the user has drive access to the node
+  # no closed or open discussion for the current lang and Node#can_auto_create_discussion? is true
   def discussion
     return @discussion if defined?(@discussion)
     
@@ -1051,20 +1049,24 @@ class Node < ActiveRecord::Base
       end
   end
   
+  # Automatically create a discussion if any of the following conditions are met:
+  # - there already exists an +outside+, +open+ discussion for another language
+  # - the node is not published (creates an internal discussion)
+  # - the user has drive access to the node
   def can_auto_create_discussion?
     can_drive? ||
     (v_status != Zena::Status[:pub]) ||
     Discussion.find(:first, :conditions=>[ "node_id = ? AND inside = ? AND open = ?", 
-                             self[:id], false, true ]) ||
-    (vclass.auto_create_discussion)
+                             self[:id], false, true ])
   end
   
-  # Comments for the current context. Returns [] when none found.
+  # Comments for the current context. Returns nil when there is no discussion.
   def comments
     if discussion
-      discussion.comments(:with_prop=>can_drive?)
+      res = discussion.comments(:with_prop=>can_drive?)
+      res == [] ? nil : res
     else
-      []
+      nil
     end
   end
   
@@ -1243,6 +1245,13 @@ class Node < ActiveRecord::Base
     # Get unique zip in the current site's scope
     def node_before_create
       self[:zip] = Node.next_zip(self[:site_id])
+    end
+    
+    # Create an 'outside' discussion if the virtual class has auto_create_discussion set
+    def node_after_create
+      if vclass.auto_create_discussion
+        Discussion.create(:node_id=>self[:id], :lang=>v_lang, :inside => false)
+      end
     end
     
     # Called after a node is 'unpublished'

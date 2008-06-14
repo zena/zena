@@ -1,5 +1,5 @@
-<% if bin_content.size == 0 %>
+<% if bin_content_size == 0 %>
   <img src='/images/bin_empty.gif'/>
 <% else %>
-  <img src='/images/bin_full.gif'/><span><%= bin_content.size %></span> <%= link_to_remote(_('btn_bomb'), :url=>{:controller=>'comments', :action=>'empty_bin'}, :confirm=>_('Are you sure you want to permanently remove the content of this rubbish bin ?') ) %>
+  <img src='/images/bin_full.gif'/><span><%= bin_content_size %></span> <%= link_to_remote(_('btn_bomb'), :url => empty_bin_comments_path, :confirm=>_('Are you sure you want to permanently remove the content of this rubbish bin ?'), :method => :delete ) %>
 <% end %>

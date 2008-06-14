@@ -1,0 +1,11 @@
+== Presentation
+
+Get rid of comment/wiki spam with recaptcha. Read more on the reCAPTCHA project on http://en.wikipedia.org/wiki/ReCAPTCHA
+
+
+== Install
+
+Drop the folder into vendor/plugins and install recaptcha gem:
+
+gem install --source http://www.loonsoft.com/recaptcha/pkg/ recaptcha
+

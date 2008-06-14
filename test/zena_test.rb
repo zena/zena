@@ -272,6 +272,7 @@ module Zena
         post 'create', :login=>visitor.to_s, :password=>visitor.to_s
         sess = @controller.send(:session)
         @controller_bak.send(:session=, sess )
+        $_test_site = @controller.send(:visitor).site.name
         @controller_bak.instance_variable_set(:@visitor, nil ) # clear cached visitor
         @controller = @controller_bak
       end

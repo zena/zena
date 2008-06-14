@@ -1,14 +1,7 @@
-<% puts li.inspect %>
 <li id='comment<%= li[:id] %>' <%= "class='c40' " if li[:status] < Zena::Status[:pub] %>><div class='header'>
-    <span class='reply'><% if li.can_write? -%>
-    <%= link_to_remote(_('edit'),  :url=>{:controller=>'comments', :action=>'edit', :id=>li[:id] })  %>
-    <% elsif @node && @node.can_comment? -%>
-    <%= link_to_remote(_('reply'), :url=>{:controller=>'comments', :action=>'reply_to', :id=>li[:id] }) %>
-    <% end -%>
-    </span>
     <span class='actions'>
-    <%= link_to_remote(_('btn_remove'), :url=>{:controller=>'comments', :action=>'remove', :id=>li[:id], :bin=>@admin }) if @admin || (@node.can_drive? && li[:status] < Zena::Status[:pub]) %>
-    <%= link_to_remote(_('btn_publish'), :url=>{:controller=>'comments', :action=>'publish', :id=>li[:id], :bin=>@admin }) if (@admin || @node.can_drive?) && li[:status] < Zena::Status[:pub] %>
+    <%= link_to_remote(_('btn_remove'), :url => remove_comment_path(:id=>li[:id], :bin=>@admin), :method => :put) %>
+    <%= link_to_remote(_('btn_publish'), :url=> publish_comment_path(:id=>li[:id], :bin=>@admin), :method => :put) if li[:status] < Zena::Status[:pub] %>
     </span>
     <span class='date'><%= long_date(li.created_at) + " " + short_time(li.created_at) %></span>
     <span class='sign'><%= li.author_name || li.author.fullname %></span>
@@ -16,6 +9,5 @@
   </div>
   <div class='body'>
     <div class='zazen'><%= zazen(li.text) %></div>
-    <ul class='sub' id='replies_to<%= li[:id] %>'><%= render(:partial=>'comments/li', :collection=>li.replies(:with_prop=>@node.can_publish?)) unless @admin %></ul>
   </div>
 </li>

@@ -15,7 +15,7 @@ body {font: 0.9em Arial, Helvetica, Verdana, sans-serif; background:#BBC5CD; lin
 form li { clear:both; padding:3px 0;}
 
 /* search box */
-#search { z-index:999; z-index:999; position:absolute; top:1px; right:1px; padding-right:1px; font-size:0.8em; display:table;}
+#search { z-index:999; position:absolute; top:1px; right:1px; padding-right:1px; font-size:0.8em; display:table;}
 
 /* messages and ajax-loader */
 #messages { position:absolute; top:0; line-height:1.4em; width:70%; font-size:0.9em; }
@@ -38,7 +38,7 @@ form li { clear:both; padding:3px 0;}
 .selector .selected { background:#BBC5CD; border-bottom-color:#BBC5CD;}
 .tab { padding:0; }
 .tab form { }
-.tab .validate { position:absolute; right:0; margin:0 2px; background:none; padding:3px;}
+.tab .validate { position:absolute; right:0; margin:0 2px; background:none; padding:3px; z-index:888;}
 .tab .validate div { float:right; margin-left:4px; }
 .tab .validate input { font-size:0.9em; padding:0;}
 .tab .validate a { padding:0 5px; }
@@ -132,6 +132,8 @@ ul.infos li { padding:0.4em 0.4em; list-style:none; display:block; }
 
 #links_tab table { border:1px solid #333; border-width:1px 0 0 1px; padding:0; width:95%;}
 #links_tab td { padding: 3px; font-size:0.8em; height:18px; border:1px solid #333; border-width:0 1px 1px 0; text-align:center;}
+#links_tab table.errors { background:#DDC8C8; margin:0; border-bottom:1px solid #5A3231; display:block;}
+#links_tab table.errors td { padding:2px 5px; background:inherit; border:none; font-size:inherit;}
 
 #links_tab img {  vertical-align:middle; margin:0; }
 #links_tab .inline_form div { float: left;}

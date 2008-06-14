@@ -63,12 +63,12 @@ module Zena
         elsif value && id = @keys[key]
           upd << [value,id]
         elsif value
-          add << "(#{connection.quote(key)},#{connection.quote(value)},'#{@owner[:id].to_i}','#{@owner.class.table_name}')"
+          add << "(#{connection.quote(key)},#{connection.quote(value)},'#{@owner[:id].to_i}')"
         end
       end
       
       unless add.empty?
-        connection.execute "INSERT INTO #{table_name} (`key`,`value`,`owner_id`,`owner_table`) VALUES #{add.join(', ')}"
+        connection.execute "INSERT INTO #{table_name} (`key`,`value`,`owner_id`) VALUES #{add.join(', ')}"
       end
       
       unless del.empty?
@@ -99,7 +99,7 @@ module Zena
     end
     
     def destroy
-      connection.execute "DELETE FROM #{table_name} WHERE owner_id = '#{@owner[:id].to_i}' AND owner_table = '#{@owner.class.table_name}'"
+      connection.execute "DELETE FROM #{table_name} WHERE owner_id = '#{@owner[:id].to_i}'"
     end
     
     def inspect
@@ -129,7 +129,7 @@ module Zena
             @hash = {}
             @keys = {}
           else
-            sql = "SELECT `id`,`key`,`value` FROM #{table_name} WHERE owner_id = '#{@owner[:id].to_i}' AND owner_table = '#{@owner.class.table_name}'"
+            sql = "SELECT `id`,`key`,`value` FROM #{table_name} WHERE owner_id = '#{@owner[:id].to_i}'"
             @hash = {}
             @keys = {}
             rows = connection.select_all(sql, "#{table_name} Load").map! do |record| 
@@ -147,8 +147,8 @@ module Zena
     module DynAttributes
       module VERSION #:nodoc:
         MAJOR = 0
-        MINOR = 2
-        TINY  = 2
+        MINOR = 4
+        TINY  = 0
 
         STRING = [MAJOR, MINOR, TINY].join('.')
       end

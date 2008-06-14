@@ -1,0 +1,1 @@
+require 'zena_captcha'

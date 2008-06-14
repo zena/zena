@@ -7,7 +7,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: 0.9.0\n"
-"POT-Creation-Date: 2008-06-09 20:09-0000\n"
+"POT-Creation-Date: 2008-06-12 15:07-0000\n"
 "PO-Revision-Date: 2007-05-13 19:08-0000\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -134,7 +134,7 @@ msgstr ""
 msgid "full_date"
 msgstr ""
 
-#: app/helpers/application_helper.rb:136 lib/parser/lib/rules/zena.rb:1346
+#: app/helpers/application_helper.rb:136 lib/parser/lib/rules/zena.rb:1359
 msgid "long_date"
 msgstr ""
 
@@ -493,7 +493,7 @@ msgstr ""
 msgid "Node d"
 msgstr ""
 
-#: app/models/data_entry.rb:35 app/models/node.rb:620
+#: app/models/data_entry.rb:35 app/models/node.rb:621
 #: app/views/data_entries/_li.html.erb:2
 msgid "datetime"
 msgstr ""
@@ -1430,11 +1430,7 @@ msgid "virtual_class_img"
 msgstr ""
 
 #: app/views/virtual_classes/_li.erb:8
-msgid "yes"
-msgstr ""
-
-#: app/views/virtual_classes/_li.erb:8
-msgid "no"
+msgid "auto discussion"
 msgstr ""
 
 #: lib/gettext_strings.rb:5
@@ -1789,22 +1785,22 @@ msgstr ""
 msgid "btn_add"
 msgstr ""
 
-#: lib/parser/lib/rules/zena.rb:1396
+#: lib/parser/lib/rules/zena.rb:1409
 msgid "riding zena"
 msgstr ""
 
-#: lib/parser/lib/rules/zena.rb:1398
+#: lib/parser/lib/rules/zena.rb:1411
 msgid "in peace with zena"
 msgstr ""
 
-#: lib/parser/lib/rules/zena.rb:1400
+#: lib/parser/lib/rules/zena.rb:1413
 msgid "a zen garden"
 msgstr ""
 
-#: lib/parser/lib/rules/zena.rb:1402
+#: lib/parser/lib/rules/zena.rb:1415
 msgid "made with zena"
 msgstr ""
 
-#: lib/parser/lib/rules/zena.rb:1418
+#: lib/parser/lib/rules/zena.rb:1431
 msgid "%{skin}, design by %{name}"
 msgstr ""

@@ -388,6 +388,24 @@ each_traductions_only_list:
   src: "<r:traductions only='en,ru'><ul><li do='each'><r:show attr='title'/></li></ul></r:traductions>"
   res: "<ul><li>status title</li></ul>"
 
+each_alternate_class:
+  context:
+    node: 'cleanWater'
+  src: "<ol do='pages'><li do='each' alt_class='blue' do='[name]'/></ol>"
+  res: "<ol><li>status</li><li class=\"blue\">track</li></ol>"
+
+each_alternate_class_two:
+  context:
+    node: 'collections'
+  src: "<ol do='pages'><li class='one' alt_class='two' do='each' do='[name]'/></ol>"
+  res: "<ol><li class='one'>art</li><li class='two'>menu</li><li class='one'>news</li><li class='two'>wiki_skin</li></ol>"
+
+each_alternate_class_ajax:
+  context:
+    node: 'cleanWater'
+  src: "<ol do='pages'><li do='each' alt_class='blue' do='[name]'/><li do='add'/></ol>"
+  res: "/<li id='list.21.22'>status<\/li><li id='list.21.37' class=\"blue\">track/"
+
 case_when:
   src: "<r:case><r:when kind_of='Document'>this is a document</r:when><r:when klass='Page'>Page</r:when><r:when status='pub'>Pub</r:when>"
   tem: "<% if false -%><% elsif @node.vkind_of?(\"Document\") -%>this is a document<% elsif @node.klass == \"Page\" -%>Page<% elsif @node.version.status == 50 -%>Pub<% end -%>"
@@ -416,6 +434,10 @@ case_when_evil_test:
 if_test_equal:
   src: "<r:if test='id = 22'>one</r:if>"
   res: "one"
+
+if_has_discussion:
+  src: "<r:show attr='name'/>:<r:if has='discussion'>yes<r:else>no</r:else></r:if> <r:node select='42'><r:show attr='name'/>:<r:if has='discussion'>yes<r:else>no</r:else></r:if></r:node>"
+  res: "status:yes letter:no"
   
 case_ancestor:
   src: "<r:root><r:pages><r:each join=', '><r:case><r:when node='ancestor'><b><r:show attr='name'/></b></r:when><r:else><r:show attr='name'/></r:else></r:case></r:each></r:pages></r:root>"
@@ -482,6 +504,12 @@ on_if_now:
   src: "<p do='[name]' on_if='log_at gt NOW'/>"
   tem: "<p<%= @node.log_at.to_i > Time.now.to_i ? \" class='on'\" : \"\" %>><%= @node.name %></p>"
   res: "<p>status</p>"
+  
+visitor_is_anon:
+  context:
+    visitor: 'anon'
+  src: "<r:if visitor='anon'>anonymous<r:else>logged in</r:else></r:if>"
+  res: "anonymous"
 
 test_in_each:
   context:
@@ -824,7 +852,11 @@ recursion_in_each:
     </li>
   </ul>"
   res: "<ul> <li><b>I agree</b> </li> <li><b>I think this is bad</b> <ul> <li><b>Why ?</b> </li></ul> </li> <li><b>OK for me</b> </li> </ul>"
-  
+
+comments_shown_if_empty_but_can_comment:
+  src: "<r:comments><r:each do='[title]'/><r:add/></r:comments>"
+  tem: "/if \(list1 = @node.comments\) \|\| \(@node.can_comment\? && list1=\[\]\) -%>/"
+
 date_tformat:
   context:
     node: 'people'
@@ -864,3 +896,10 @@ dictionary_de:
 dictionary_tformat:
   src: "<r:load dictionary='translations'><r:show date='created_at' tformat='date_format'/></r:load>"
   res: "[10.03]"
+
+captcha:
+  context:
+    visitor: anon
+    lang: 'fr'
+  src: "<r:captcha theme='clean'/>"
+  res: "/RecaptchaOptions = . lang : .fr., theme : .clean., tabindex : 0/"

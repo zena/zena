@@ -257,6 +257,7 @@ wiki_skin:
   zip:             43
   class:           Skin
   name:            wiki_skin
+  # yes it's not good to have this here but changing it would mess up many tests.
   parent:          collections
 
 wiki_Project_changes_xml:

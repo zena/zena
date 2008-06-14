@@ -1,9 +1,10 @@
 # FIXME: rewrite !
 class CommentsController < ApplicationController
-  before_filter :find_comment, :except => [:create, :index]
+  before_filter :find_comment, :except => [:create, :index, :empty_bin]
   before_filter :find_node_and_discussion, :only => [:create]
   before_filter :check_is_admin, :only=>[:index, :empty_bin]
-  helper_method :bin_content
+  helper_method :bin_content, :bin_content_size
+  layout :admin_layout
   
   # TODO: test
   def reply_to
@@ -21,7 +22,9 @@ class CommentsController < ApplicationController
   def create
     @discussion.save if @discussion.new_record? && @node.can_comment?
     
-    @comment = secure!(Comment) { Comment.create(filter_attributes(params[:comment])) }
+    @comment = secure!(Comment) { Comment.new(filter_attributes(params[:comment])) }
+    
+    save_if_not_spam(@comment, params)
     
     respond_to do |format|
       if @comment.errors.empty?
@@ -65,6 +68,7 @@ class CommentsController < ApplicationController
     @discussion = @comment.discussion
     @node = secure(Node) { Node.find(@discussion[:node_id]) }
     if @node && visitor.is_admin? || @node.can_drive?
+      Node.logger.error "\n\nremoving...\n\n"
       @comment.remove
     else
       render :nothing=>true
@@ -87,9 +91,14 @@ class CommentsController < ApplicationController
   # TODO:test
   def index
     @node = visitor.contact
-    @comment_pages, @comments =
-          paginate :comments, :order => 'status ASC, created_at DESC', :conditions=>"status > #{Zena::Status[:rem]}", :per_page => 20
-    render :layout=>admin_layout
+    secure!(Node) do
+      @comment_pages, @comments = paginate :comments, 
+                        :select => "comments.*",
+                        :order => 'status ASC, comments.created_at DESC',
+                        :join  => 'INNER JOIN (discussions, nodes) on nodes.id = discussions.node_id and comments.discussion_id = discussions.id',
+                        :conditions=>"status > #{Zena::Status[:rem]} AND (#{secure_scope('nodes')})", 
+                        :per_page => 20
+    end
   end
   
   # TODO: test
@@ -114,7 +123,11 @@ class CommentsController < ApplicationController
     end
     
     def bin_content
-      @bin_content ||= Comment.find(:all, :conditions=>['status <= ?', Zena::Status[:rem]])
+      @bin_content ||= secure(Comment) { Comment.find(:all, :conditions=>['status <= ?', Zena::Status[:rem]]) }
+    end
+    
+    def bin_content_size
+      secure(Comment)  { Comment.count(:all, :conditions=>['status <= ?', Zena::Status[:rem]]) }
     end
     
     def filter_attributes(attributes)

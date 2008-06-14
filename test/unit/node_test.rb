@@ -641,7 +641,8 @@ class NodeTest < ZenaTestUnit
   def test_empty_comments
     login(:tiger)
     node = secure!(Node) { nodes(:lake) }
-    assert_equal [], node.comments
+    assert node.discussion
+    assert_nil node.comments
   end
   
   def test_discussion_lang
@@ -693,13 +694,14 @@ class NodeTest < ZenaTestUnit
     assert !letter.new_record?, "Not a new record"
     assert_equal Zena::Status[:pub], post.v_status, "Published"
     assert_equal Zena::Status[:pub], letter.v_status, "Published"
-    assert letter.can_auto_create_discussion?
-    assert post.can_auto_create_discussion?
+    assert !letter.discussion
+    assert post.discussion
+    assert !post.discussion.new_record?
     login(:anon)
     letter = secure!(Node) { Node.find(letter.id) }
     post   = secure!(Node) { Node.find(post.id) }
-    assert !letter.can_auto_create_discussion?
-    assert post.can_auto_create_discussion?
+    assert !letter.can_comment?
+    assert post.can_comment?
   end
   
   def test_auto_create_discussion
@@ -727,7 +729,7 @@ class NodeTest < ZenaTestUnit
     login(:ant)
     node = secure!(Node) { nodes(:cleanWater) }
     assert_nil node.discussion # no open discussion here
-    assert_equal [], node.comments
+    assert_equal nil, node.comments
   end
   
   def test_site_id

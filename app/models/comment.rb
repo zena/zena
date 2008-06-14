@@ -86,14 +86,17 @@ class Comment < ActiveRecord::Base
       if new_record?
         errors.add('base', 'you cannot comment here') unless visitor.commentator? && discussion && discussion.open?
       else
-        if !is_author?
-          errors.add('base', 'you do not have the rights to do this')
-        else
+        if discussion.node.can_drive?
+          # OK
+          # can edit/delete comments
+          # TODO: should be restricted to 'delete' or 'erase text'...
+        elsif is_author?
           errors.add('base', 'discussion closed, comment cannot be updated') if !can_write?
+        else
+          errors.add('base', 'you do not have the rights to do this')
         end
       end
-      errors.add('text', "can't be blank") unless self[:text] && self[:text] != ''
-      errors.add('title', "can't be blank") unless self[:title] && self[:title] != ''
+      errors.add('text', "can't be blank") if self[:text].blank?
       errors.add('discussion', 'invalid') unless discussion
       errors.add('ip', "can't be blank") unless self[:ip] || !visitor.is_anon?
       if author.is_anon?

@@ -1,5 +1,9 @@
-page.visual_effect :highlight, "comment#{@comment[:id]}", :duration => 0.3
-page.visual_effect :fade, "comment#{@comment[:id]}", :duration => 0.5
-if params[:bin]
-  page.replace_html 'bin', :partial=>'comments/bin'
+if @comment.errors.empty?
+  page.visual_effect :fade, "comment#{@comment[:id]}", :duration => 0.2
+  if params[:bin]
+    page.replace_html 'bin', :partial=>'comments/bin'
+  end
+  page.replace_html "comment_errors", :inline=>""
+else
+  page.replace_html "comment_errors", :inline=>error_messages_for(@comment)
 end

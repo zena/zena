@@ -98,6 +98,8 @@ ImageMagick
 # does not work with gettext > 1.90.0
 rake mongrel mongrel_cluster rmagick tzinfo RedCloth syntax gettext mongrel_upload_progress uuidtools daemons ruby-debug
 
+gem install --source http://www.loonsoft.com/recaptcha/pkg/ recaptcha
+
 === Advised tools
 monit (debian package to monitor your mongrel processes)
 
