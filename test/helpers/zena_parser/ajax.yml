@@ -65,9 +65,9 @@ each_edit_with_form:
 
 make_form:
   src: "<ul do='children'><li do='each' do='[name]'/><li do='add'/></ul>"
-  tem: "/<li id='list_<%= @node.zip %>_form' style='display:none;'><%= form_remote_tag\(:url => nodes_path\) %>/"
+  tem: "/<li id='list_<%= @node.zip %>_form' style='display:none;'><%= form_remote_tag\(:url => nodes_path/"
   'make/form/en/list.erb': "<li id='<%= params[:dom_id] %>_<%= @node.zip %>'><%= @node.name %></li>"
-  'make/form/en/list_form.erb': "/<li id='<%= params\[:dom_id\] %><%= @node.new_record\? \? '_form' : '' %>'>/"
+  'make/form/en/list_form.erb': "/<li id='<%= params\[:dom_id\] %>_<%= @node.new_record\? \? 'form' : @node.zip %>'>/"
 
 each_edit_cannot_write:
   context:
@@ -102,4 +102,16 @@ each_in_each:
 
 default_focus_field:
   src: "<ol do='comments'><li do='each'/><li do='form'><input name='author_name'/> ... <input name='text'/></li><li do='add'/></ol>"
-  res: "/\$\(\"list_22_author_name\"\).focus\(\)/"
+  res: "/\$\(\"list_22_form_t\"\).focusFirstElement\(\)/"
+
+live_filter:
+  context:
+    node: cleanWater
+  src: "<r:filter live='true'/><r:block><ol do='pages where name like \"[param:f]%\"'><li do='each' do='[name]'/></ol></r:block>"
+  tem: "/connection.quote\(params\[:f\]/"
+  'live/filter/en/list.erb': "/<div id='<%= params\[:dom_id\] %>.*Node.connection.quote\(params\[:f\]/"
+  res: "/<input type='text' name='f'.*<div id='list_21_21'><ol><li>status</li><li>track</li></ol></div>/"
+
+draggable_do_syntax:
+  src: "<r:images in='site' do='each' draggable='true' do='img' mode='pv'/>"
+  res: "/div id='list_22_30'><img src='/en/image30_pv.jpg'.*list_22_30.*.each\(Zena.draggable/"

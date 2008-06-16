@@ -823,8 +823,8 @@ latex_template = %q{
       _('img_public')
     else
       names = []
-      names |= [truncate(obj.rgroup.name,4)] if obj.rgroup
-      names |= [truncate(obj.pgroup.name,4)] if obj.pgroup
+      names |= [truncate(obj.rgroup.name,7)] if obj.rgroup
+      names |= [truncate(obj.pgroup.name,7)] if obj.pgroup
       names << obj.user.initials
       names.join(', ')
     end

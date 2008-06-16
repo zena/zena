@@ -69,7 +69,7 @@ class NodesController < ApplicationController
   # This method is called when an element is dropped on a node.
   def drop
     role      = params[:set]
-    other_zip = params[:drop].split('.').last
+    other_zip = params[:drop].split('_').last
     case role
     when 'child'
       other = secure!(Node) { Node.find_by_zip(other_zip)}

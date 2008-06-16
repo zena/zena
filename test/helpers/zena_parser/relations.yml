@@ -66,6 +66,10 @@ blog_with_bad_relation:
   src: "<r:notes or='whatever' do='each' join=', ' do='[name]'/>"
   res: "<span class='parser_error'>[notes, whatever] unknown relation 'whatever'</span>"
 
+pages_do_syntax:
+  src: "<ol do='pages where name like \"c%\" in site'><li do='each' do='[name]'/></ol>"
+  res: "<ol><li>cleanWater</li><li>collections</li></ol>"
+  
 pages_limit:
   context:
     node: 'cleanWater'
@@ -95,11 +99,11 @@ store_node:
 
 store_in_block:
   src: "<r:block><r:node select='18' store='found' do='pages'><r:show attr='name'/>: <r:node select='found' do='[name]'/></r:node></r:block>"
-  res: "<div id='list_22'>projects: status</div>"
+  res: "<div id='list_22_22'>projects: status</div>"
 
 store_outside_block:
   src: "<r:node select='18' store='found' do='pages'><r:block><r:show attr='name'/>: <r:node select='found' do='[name]'/></r:block></r:node>"
-  res: "<div id='list1_18'>projects: status</div>"
+  res: "<div id='list1_18_18'>projects: status</div>"
   'store/outside/en/block/list1.erb': "/unknown relation 'found'/"
 
 store_node_as_relation:
@@ -339,7 +343,7 @@ unlink:
   context:
     node: 'art'
   src: "<r:tagged do='each' join=',' do='unlink'/>"
-  res: "/<a class=.unlink..*onclick=.*Ajax.Request\('/nodes/21/links/_ID(cleanWater_in_art)\?remove=list.33.21.*bullet_delete.png.*links/_ID(opening_in_art)/"
+  res: "/<a class=.unlink..*onclick=.*Ajax.Request\('/nodes/21/links/_ID(cleanWater_in_art)\?dom_id=list_33.*bullet_delete.png.*links/_ID(opening_in_art)/"
   
 node_in_version:
   src: "<r:version><r:node do='[name]'/></r:version>"

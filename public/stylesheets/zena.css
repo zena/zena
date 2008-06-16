@@ -29,9 +29,12 @@ textarea.ajax_edit { height:5em; width:15em;}
 .input_radio span, .input_checkbox span { display:table; float:left; margin:3px;}
 
 /* errors */
-.parser_error { padding:0px; border-bottom:2px solid #f88; }
+.parser_error { padding:0px; border:1px solid red; background:#f88; padding:2px;}
 table.errors { background:#DDC8C8; margin:0 0 5px; border-bottom:1px solid #5A3231; display:block;}
 table.errors td { padding:2px 5px; background:inherit; border:none;}
+
+/* ========================= Ajax css ========================= */
+.drop_hover { background:#ace; }
 
 /* ========================= Zazen css ======================== */
 

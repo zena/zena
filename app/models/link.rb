@@ -3,7 +3,7 @@ class Link < ActiveRecord::Base
   
   class << self
     def find_through(node, link_id)
-      link = Link.find(:first, :conditions => ['(source_id = ? OR target_id = ?) AND id = ?', node[:id], node[:id], link_id])
+      return nil unless link = Link.find(:first, :conditions => ['(source_id = ? OR target_id = ?) AND id = ?', node[:id], node[:id], link_id])
       link.set_caller(node)
       link
     end

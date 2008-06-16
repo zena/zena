@@ -32,7 +32,6 @@ class CreateRelations < ActiveRecord::Migration
       insert = relations.map do |rel|
         "(#{(rel + [site[:id]]).join(',')})"
       end
-      puts insert.inspect
       execute "INSERT INTO relations (`source_role`,`source_kpath`,`source_icon`,`target_role`,`target_kpath`,`target_icon`,`site_id`) VALUES #{insert.join(', ')}"
       execute "UPDATE links,nodes SET relation_id = (SELECT id FROM relations WHERE source_role = links.role OR target_role = links.role AND site_id = #{site[:id]} LIMIT 1) WHERE links.source_id = nodes.id AND nodes.site_id = #{site[:id]}"
     end

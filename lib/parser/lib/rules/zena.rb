@@ -1,3 +1,15 @@
+=begin
+Thoughts for ajax related stuff cleanup (dom_id, erb_dom_id, ...)
+
+When we open a list context:
+- we do not change dom_id => "list"
+
+When we open a single context (do_var, each, block):
+- we change the dom_id => "list_{parent_id}_{id}"
+
+
+=end
+
 require 'yaml'
 begin
   # FIXME: zafu_readable should belong to core_ext.
@@ -77,6 +89,29 @@ end
 
 module Zena
   module Rules
+    def start(mode)
+      super
+      if @method =~ /^\[(.*)\]$/
+        # do='[text]
+        @method = 'show'
+        @params[:attr] = $1
+      elsif @method =~ /^\{(.*)\}$/
+        # do='{v_text}'
+        @method = 'zazen'
+        @params[:attr] = $1
+      elsif @method =~ /\A(\w+)\s+(\w+)\s+(.+)$/
+        # 'pages where name ...'
+        @method = $1
+        @params[$2.to_sym] = $3
+      end
+      
+      if @method == 'with' || self.respond_to?("r_#{@method}")
+        # ok
+      else
+        @params[:method] = @method
+        @method = 'context'
+      end
+    end
   end
   
   # Zafu tags used to display / edit nodes and versions
@@ -128,16 +163,6 @@ module Zena
     def do_method(sym)
       method = sym
       pre, post = '', ''
-      
-      if method == :r_unknown
-        if @method =~ /^\[(.*)\]$/
-          @params[:attr] = $1
-          method = :r_show
-        elsif @method =~ /^\{(.*)\}$/
-          @params[:attr] = $1
-          method = :r_zazen
-        end
-      end
       
       # do we need recursion ?
       inc = descendant('include')
@@ -359,50 +384,52 @@ module Zena
     # FIXME: we should use a single way to change a whole context into a template (applies to 'each', 'form', 'block'). Then 'swap' could use the 'each' block.
     # Define a block of elements to be used by ajax calls (edit/filter)
     def r_block
-      @context[:dom_id]     = "#{self.dom_id}_\#{#{node_id}}"
-      @context[:erb_dom_id] = "#{self.dom_id}_#{erb_node_id}"
-      
       if @context[:block] == self
         # called from self (storing template)
         @context.reject! do |k,v|
-          k.kind_of?(String) && k =~ /\w_\w/
+          # FIXME: reject all stored elements in a  better way then this
+          k.kind_of?(String) && k =~ /\ANode_\w/
         end
         @html_tag_done = false
-        @html_tag_params.merge!(:id=>@context[:erb_dom_id])
+        @html_tag_params.merge!(:id=>"#{@context[:erb_dom_id]}_#{erb_node_id}")
         out expand_with
       else  
-        template_url = get_template_url
-        form_url     = template_url + '_form'
         @context[:dom_id]     = "#{self.dom_id}_\#{#{node_id}}"
         @context[:erb_dom_id] = "#{self.dom_id}_#{erb_node_id}"
+        template_url = get_template_url
+        form_url     = template_url + '_form'
       
         @html_tag ||= 'div'
       
         unless @context[:make_form]
           # STORE TEMPLATE ========
           template_node = "@#{base_class.to_s.underscore}"
+          erb_dom_id  = "<%= params[:dom_id] %>"
+          dom_id      = "\#{params[:dom_id]}"
           context_bak = @context.dup # avoid side effects when rendering the same block
-          template    = expand_block(self, :block=>self, :list=>false, :node=>template_node, :template_url=>template_url, :form=>false, :no_form => true)
+          template    = expand_block(self, :block=>self, :list=>false, :node=>template_node, :template_url=>template_url, :dom_id => dom_id, :erb_dom_id => erb_dom_id, :form=>false, :no_form => true)
           @context = context_bak
           @result  = ''
           out helper.save_erb_to_url(template, template_url)
-      
+          
+          # STORE FORM ============
           if descendant('edit')
             if form = descendant('form')
-              # USE GROUP FORM ========
-              form_text = form.render
+              # USE BLOCK FORM ========
+              form_text = expand_block(form, @context.merge(:node => template_node, :template_url=>template_url, :dom_id => dom_id, :erb_dom_id => erb_dom_id))
             else
-              # MAKE A FORM FROM GROUP ========
+              # MAKE A FORM FROM BLOCK ========
               form = self.dup
               form.method = 'form'
-              form_text = expand_block(form, @context.merge(:make_form => true, :list => false, :node => template_node, :template_url=>template_url))
+              form_text = expand_block(form, @context.merge(:make_form => true, :list => false, :node => template_node, :template_url=>template_url, :dom_id => dom_id, :erb_dom_id => erb_dom_id))
             end
             out helper.save_erb_to_url(form_text, form_url)
           end
         end
         
         @html_tag_done = false
-        @html_tag_params.merge!(:id=>"#{@context[:erb_dom_id]}")
+        @html_tag_params.merge!(:id=>"#{@context[:erb_dom_id]}_#{erb_node_id}")
+        # RENDER
         out expand_with(:template_url => template_url)
       end
     end
@@ -410,11 +437,12 @@ module Zena
     # TODO: test
     def r_filter
       return parser_error("missing 'block' in same parent") unless parent && block = parent.descendant('block')
-      dom_id       = block.dom_id(@context)
+      dom_id       = "#{block.dom_id(@context)}_\#{#{node_id}}"
+      erb_dom_id   = "#{block.dom_id(@context)}_#{erb_node_id}"
       template_url = block.get_template_url(@context)
-      out "<%= form_remote_tag(:url => zafu_node_path(#{node_id}), :method => :get, :html => {:id => \"#{dom_id}_q\"}) %><div class='hidden'><input type='hidden' name='template_url' value='#{template_url}'/></div><div class='wrapper'><input type='text' name='#{@params[:key] || 'f'}' value='<%= params[#{(@params[:key] || 'f').to_sym.inspect}] %>'/></div></form>"
+      out "<%= form_remote_tag(:url => zafu_node_path(#{node_id}), :method => :get, :html => {:id => \"#{dom_id}_f\"}) %><div class='hidden'><input type='hidden' name='template_url' value='#{template_url}'/><input type='hidden' name='dom_id' value='#{erb_dom_id}'/></div><div class='wrapper'><input type='text' name='#{@params[:key] || 'f'}' value='<%= params[#{(@params[:key] || 'f').to_sym.inspect}] %>'/></div></form>"
       if @params[:live]
-        out "<%= observe_form( \"#{dom_id}_q\" , :method => :get, :frequency  =>  1, :submit =>\"#{dom_id}_q\", :url => zafu_node_path(#{node_id})) %>"
+        out "<%= observe_form( \"#{dom_id}_f\" , :method => :get, :frequency  =>  1, :submit =>\"#{dom_id}_f\", :url => zafu_node_path(#{node_id})) %>"
       end
     end
     
@@ -654,10 +682,9 @@ module Zena
           # "<%= link_to_remote(#{_('cancel').inspect}, {:url => node_path(#{node}.zip) + '/zafu?template_url=#{CGI.escape(template_url)}', :method => :get}#{params_to_erb(@params)}) %>"
         else
           # edit button
-          dom_id = @context[:dom_id]
 
           action = "?template_url=#{CGI.escape(template_url)}"
-          action << "&dom_id=#{dom_id}"
+          action << "&dom_id=#{@context[:dom_id]}"
           # TODO: show 'reply' instead of 'edit' in comments if visitor != author
           "<%= #{node}.can_write? ? link_to_remote(#{text || _('edit').inspect}, {:url => edit_#{base_class.to_s.underscore}_path(#{node_id}) + \"#{action}\", :method => :get}#{params_to_erb(@params)}) : '' %>"
         end
@@ -772,12 +799,12 @@ module Zena
           # inline form used to create new elements: set values to '' and 'parent_id' from context
           @html_tag_params.merge!(:id=>"#{erb_dom_id}_form", :style=>"display:none;")
           cancel =  "<p class='btn_x'><a href='#' onclick='[\"#{erb_dom_id}_add\", \"#{erb_dom_id}_form\"].each(Element.toggle);return false;'>#{_('btn_x')}</a></p>\n"
-          form  =  "<%= form_remote_tag(:url => #{base_class.to_s.underscore.pluralize}_path) %>\n"
+          form  =  "<%= form_remote_tag(:url => #{base_class.to_s.underscore.pluralize}_path, :html => {:id => \"#{dom_id}_form_t\"}) %>\n"
         else
           erb_dom_id = "<%= params[:dom_id] %>"
           dom_id     = "\#{params[:dom_id]}"
           # saved form used to edit/create: set values and 'parent_id' from @node
-          @html_tag_params.merge!(:id=>"#{erb_dom_id}<%= #{node}.new_record? ? '_form' : '' %>") unless @method == 'block' # called from r_block
+          @html_tag_params.merge!(:id=>"#{erb_dom_id}_<%= #{node}.new_record? ? 'form' : #{node}.zip %>") unless @method == 'block' # called from r_block
           # new_record? = edit/create failed, rendering form with errors
           # else        = edit
           # FIXME: remove '/zafu?' when nodes_controller's method 'zafu' is no longer needed.
@@ -790,25 +817,16 @@ module Zena
 END_TXT
           form =<<-END_TXT
 <% if #{node}.new_record? -%>
-<%= form_remote_tag(:url => #{base_class.to_s.underscore.pluralize}_path) %>
+<%= form_remote_tag(:url => #{base_class.to_s.underscore.pluralize}_path, :html => {:id => \"#{dom_id}_form_t\"}) %>
 <% else -%>
-<%= form_remote_tag(:url => #{base_class.to_s.underscore}_path(#{node_id}), :method => :put) %>
+<%= form_remote_tag(:url => #{base_class.to_s.underscore}_path(#{node_id}), :method => :put, :html => {:id => \"#{dom_id}_form_t\"}) %>
 <% end -%>
 END_TXT
         end
         
-        #if @context[:make_form] && descendants('show')
-        #  has_submit = true
-        #else
-        has_submit = false
-        descendants('input').each do |b|
-          if b.params[:type] == 'submit'
-            has_submit = true
-            break
-          end
-        end
-        #end
+        has_submit = @context[:make_form] ? (descendants('show') != []) : (descendants('input') != [])
         cancel += "<input type='submit'/>" unless has_submit
+
         
         hidden_fields['template_url'] = template_url
         hidden_fields['dom_id'] = erb_dom_id
@@ -840,7 +858,11 @@ END_TXT
             end
           end
           if params[:done] == 'focus'
-            hidden_fields['done'] = "$('#{erb_dom_id}_#{add_block.params[:focus] || default_focus_field}').focus();"
+            if @params[:focus]
+              hidden_fields['done'] = "$(\"#{erb_dom_id}_#{@params[:focus]}\").focus();"
+            else
+              hidden_fields['done'] = "$(\"#{erb_dom_id}_form_t\").focusFirstElement();"
+            end
           elsif params[:done]
             hidden_fields['done'] = CGI.escape(params[:done]) # .gsub("NODE_ID", @node.zip).gsub("PARENT_ID", @node.parent_zip)
           end
@@ -958,7 +980,11 @@ END_TXT
         
         @html_tag_params.merge!(:id => "#{erb_dom_id}_add")
         @html_tag_params[:class] ||= 'btn_add'
-        focus = "$(\"#{erb_dom_id}_#{@params[:focus] || @context[:form].default_focus_field}\").focus();"
+        if @params[:focus]
+          focus = "$(\"#{erb_dom_id}_#{@params[:focus]}\").focus();"
+        else
+          focus = "$(\"#{erb_dom_id}_form_t\").focusFirstElement();"
+        end
         
         out render_html_tag("#{expand_with(:onclick=>"[\"#{erb_dom_id}_add\", \"#{erb_dom_id}_form\"].each(Element.toggle);#{focus}return false;")}")
         
@@ -1037,7 +1063,7 @@ END_TXT
       # BUG WITH &amp. USING RAW JS BELOW. 
       out "<script type='text/javascript'>
       //<![CDATA[
-      Droppables.add('#{@html_tag_params[:id]}', {onDrop:function(element){new Ajax.Request('/nodes/#{erb_node_id}/drop?#{action}', {asynchronous:true, evalScripts:true, method:'put', parameters:'drop=' + encodeURIComponent(element.id)})}})
+      Droppables.add('#{@html_tag_params[:id]}', {hoverclass:'#{@params[:hover] || 'drop_hover'}', onDrop:function(element){new Ajax.Request('/nodes/#{erb_node_id}/drop?#{action}', {asynchronous:true, evalScripts:true, method:'put', parameters:'drop=' + encodeURIComponent(element.id)})}})
       //]]>
       </script>"
       
@@ -1070,24 +1096,24 @@ END_TXT
     end
  
     def r_unlink
-      text = get_text_for_erb
-      if text.blank?
-        text = _('btn_tiny_del')
-      end
       #dom_id = "#{@context[:dom_id]}.\#{#{node_id}}"
-      erb_dom_id = "#{@context[:erb_dom_id]}_#{erb_node_id}"
+      erb_dom_id = "#{@context[:erb_dom_id]}"
       if node_kind_of?(Node)
         out "<% if #{node}[:link_id] -%>"
-        out "<a class='#{@params[:class] || 'unlink'}' href='/nodes/#{erb_node_id}/links/<%= #{node}[:link_id] %>?remove=#{erb_dom_id}' onclick=\"new Ajax.Request('/nodes/#{erb_node_id}/links/<%= #{node}[:link_id] %>?remove=#{erb_dom_id}', {asynchronous:true, evalScripts:true, method:'delete'}); return false;\">"
+        out "<a class='#{@params[:class] || 'unlink'}' href='/nodes/#{erb_node_id}/links/<%= #{node}[:link_id] %>?dom_id=#{erb_dom_id}' onclick=\"new Ajax.Request('/nodes/#{erb_node_id}/links/<%= #{node}[:link_id] %>?dom_id=#{erb_dom_id}', {asynchronous:true, evalScripts:true, method:'delete'}); return false;\">"
         if !@blocks.empty?
-          out expand_with
+          inner = expand_with
         else
-          out _('btn_tiny_del')
+          inner = _('btn_tiny_del')
         end
-        out "</a><% end -%>"
+        out "#{inner}</a><% else -%>#{inner}<% end -%>"
       elsif node_kind_of?(DataEntry)
-        dom_id = "#{@context[:dom_id]}_\#{#{node_id}}"
-        out "<%= link_to_remote(#{text.inspect}, {:url => \"/data_entries/\#{#{node}[:id]}?remove=#{dom_id}\", :method => :delete}, :class=>#{(@params[:class] || 'unlink').inspect}) %>"
+        text = get_text_for_erb
+        if text.blank?
+          text = _('btn_tiny_del')
+        end
+        dom_id = "#{@context[:dom_id]}"
+        out "<%= link_to_remote(#{text.inspect}, {:url => \"/data_entries/\#{#{node}[:id]}?dom_id=#{dom_id}\", :method => :delete}, :class=>#{(@params[:class] || 'unlink').inspect}) %>"
       end
     end
     
@@ -1177,8 +1203,10 @@ END_TXT
       elsif @context[:list]
         # normal rendering: inserted into the layout
         if @params[:draggable] == 'true'
+          @html_tag ||= 'div'
           out "<% #{var}_dom_ids = [] -%>"
         end
+        
         @params[:alt_class] ||= @html_tag_params.delete(:alt_class)
         
         if @params[:alt_class] || @params[:join]
@@ -1351,7 +1379,11 @@ END_TXT
     
     # icon or first image (defined using build_finder_for instead of zafu_known_context for performance reasons).
     def r_icon
-      do_var(build_finder_for(:first, 'icon', :or => 'image'), :node_class => Image)
+      if !@params[:in] && !@params[:where] && !@params[:from] && !@params[:find]
+        do_var(build_finder_for(:first, 'icon', :or => 'image'), :node_class => Image)
+      else
+        r_unknown
+      end
     end
     
     def r_date
@@ -1600,34 +1632,42 @@ END_TXT
     end
     
     # use all other tags as relations
-    # try to add 'conditions' without sql injection possibilities...
-    # FIXME: 'else' clause has been removed, find a solution to put it back.
     def r_unknown
-      # DRY ! (build_finder_for)
-      if (context = node_class.zafu_known_contexts[@method]) && !@params[:in] && !@params[:where] && !@params[:from]
+      @params[:method] = @method
+      r_context
+    end
+    
+    # Enter a new context (<r:context find='all' method='pages'>). This is the same as '<r:pages>...</r:pages>'). It is
+    # considered better style to use '<r:pages>...</r:pages>' instead of the more general '<r:context>' because the tags
+    # give a clue on the context at start and end. Another way to open a context is the 'do' syntax: "<div do='pages'>...</div>".
+    # FIXME: 'else' clause has been removed, find a solution to put it back.
+    def r_context
+      # DRY ! (build_finder_for, block)
+      method = @params[:method]
+      if (context = node_class.zafu_known_contexts[method]) && !@params[:in] && !@params[:where] && !@params[:from]
         node_class = context[:node_class]
         
         # hack to store last 'Node' context until we fix node(Node) stuff:
         previous_node = node_kind_of?(Node) ? node : @context[:previous_node]
         if node_class.kind_of?(Array)
           # plural
-          do_list( "#{node}.#{@method}", context.merge(:node_class => node_class[0], :previous_node => previous_node) )
+          do_list( "#{node}.#{method}", context.merge(:node_class => node_class[0], :previous_node => previous_node) )
         else
           # singular
-          do_var(  "#{node}.#{@method}", context.merge(:previous_node => previous_node) )
+          do_var(  "#{node}.#{method}", context.merge(:previous_node => previous_node) )
         end
       elsif node_kind_of?(Node)
         count   = ['first','all'].include?(@params[:find]) ? @params[:find].to_sym : nil
-        count ||= Node.plural_relation?(@method) ? :all : :first
+        count ||= Node.plural_relation?(method) ? :all : :first
         if count == :all
           # plural
-          do_list( build_finder_for(count, @method, @params) )
+          do_list( build_finder_for(count, method, @params) )
         else
           # singular
-          do_var(  build_finder_for(count, @method, @params) )
+          do_var(  build_finder_for(count, method, @params) )
         end
       else
-        "unknown relation (#{@method}) for #{node_class} class"
+        "unknown relation (#{method}) for #{node_class} class"
       end
     end
         
@@ -1924,6 +1964,13 @@ END_TXT
         out "<% if #{var} = #{var_finder} -%>"
       end
       
+      if descendant('unlink')
+        @context[:dom_id]     = "#{self.dom_id}_\#{#{node_id}}"
+        @context[:erb_dom_id] = "#{self.dom_id}_#{erb_node_id}"
+        @html_tag ||= 'div'
+        @html_tag_params[:id] = "#{@context[:erb_dom_id]}_<%= #{var}.zip %>"
+      end
+      
       res = expand_with(opts.merge(:node=>var, :in_if => false))
       
       if var_finder
@@ -1938,8 +1985,10 @@ END_TXT
       @context.delete(:make_form)    # should not propagate
       
       @context.merge!(opts)          # pass options from 'zafu_known_contexts' to @context
+      
       @context[:dom_id]     = "#{self.dom_id}_\#{#{node_id}}"
       @context[:erb_dom_id] = "#{self.dom_id}_#{erb_node_id}"
+      
       if (each_block = descendant('each')) && (descendant('edit') || descendant('add') || descendant('add_document') || (descendant('swap') && descendant('swap').parent.method != 'block'))
         # ajax, build template. We could merge the following code with 'r_block'.
         add_block  = descendant('add')
@@ -2167,11 +2216,14 @@ END_TXT
     # Block visibility of descendance with 'do_list'.
     def public_descendants
       all = super
-      if @method == 'each'
-        # do not propagate 'form' up
-        all.delete('form')
+      if ['context', 'each', 'block'].include?(self.method)
+        # do not propagate 'form',etc up
+        all.reject do |k,v|
+          ['form','unlink'].include?(k)
+        end
+      else
+        all
       end
-      all
     end
     
     def get_attribute_and_node(str)

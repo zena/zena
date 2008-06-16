@@ -1,1 +1,2 @@
 page.replace "#{params[:dom_id]}_#{@data_entry.zip}", :file => fullpath_from_template_url + "_form.erb"
+page << "$('#{params[:dom_id]}_form_t').focusFirstElement();"

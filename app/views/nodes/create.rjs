@@ -1,5 +1,4 @@
 if @node.new_record?
-  puts "#{params[:dom_id]}_form"
   page.replace "#{params[:dom_id]}_form", :file => fullpath_from_template_url + "_form.erb"
 else
   pos = params[:position] || :before

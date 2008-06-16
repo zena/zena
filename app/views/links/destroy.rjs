@@ -1,10 +1,10 @@
-if params[:remove]
+if params[:dom_id]
   # zafu remove dom_id
   if @errors || !@node.errors.empty?
     # FIXME
   else
-    page.visual_effect :highlight, params[:remove], :duration => 0.3
-    page.visual_effect :fade, params[:remove], :duration => 0.5
+    page.visual_effect :highlight, "#{params[:dom_id]}_#{@node.zip}", :duration => 0.3
+    page.visual_effect :fade, "#{params[:dom_id]}_#{@node.zip}", :duration => 0.3
   end
 else  
   if @errors || !@node.errors.empty?

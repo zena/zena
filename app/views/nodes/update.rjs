@@ -1,13 +1,13 @@
 if @errors || !@node.errors.empty?
   if @update == 'zafu'
-    page.replace params[:dom_id], :file => fullpath_from_template_url + "_form.erb"
+    page.replace "#{params[:dom_id]}_#{@node.new_record? ? 'form' : @node.zip}", :file => fullpath_from_template_url + "_form.erb"
   else
     # TODO: is this used ? how ? when ?
     page.replace_html "#{@update}_errors", :inline => @errors ? render_errors : error_messages_for(@node)
   end
 else  
   if @update == 'zafu'
-    page.replace params[:dom_id], :file => fullpath_from_template_url + ".erb"
+    page.replace "#{params[:dom_id]}_#{@node.zip}", :file => fullpath_from_template_url + ".erb"
   elsif @update == 'attribute'
     attribute = params[:node].keys[0]
     if params[:zazen] == 'true'

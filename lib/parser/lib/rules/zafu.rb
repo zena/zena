@@ -187,7 +187,7 @@ end
 
 module Zafu
   module Rules
-    
+    attr_reader :context
     # This callback is run just after the block is initialized (Parser#initialize).
     def start(mode)
       # html_tag
@@ -206,7 +206,7 @@ module Zafu
       @options[:form] ||= true if @method == 'form'
       
       # puts "[#{@space_before}(#{@method})#{@space_after}]"
-      if @params =~ /\A([^>]*?)do\s*=('|")([^\2]*?[^\\])\2([^>]*)\Z/  
+      if @params =~ /\A([^>]*?)do\s*=('|")([^\2]*?[^\\])\2([^>]*)\Z/
         # we have a sub 'do'
         @params = parse_params($1)
         opts = {:method=>$3, :params=>$4}
