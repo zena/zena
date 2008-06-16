@@ -1,0 +1,7 @@
+if @errors
+  page.replace_html 'position_info', :inline => render_errors
+else
+  page.replace 'position', :partial => 'position'
+  page.replace_html 'position_info', :inline => _('Order cleared.')
+  page.visual_effect :highlight, 'position'
+end

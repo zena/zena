@@ -7,13 +7,14 @@
     <li>
       <ul class='position' id='sort_<%= name %>'>
         <% list.each do |child| -%>
-        <li id='child_<%= child[:zip] %>'><%= child.name %></li>
+        <li id='child_<%= child[:zip] %>'><%= truncate(child.name, 18) %></li>
         <% end -%>
       </ul>
     </li>
   </ul>
 
   <%= sortable_element("sort_#{name}", :update => 'position_info', :url => order_node_path(@node[:zip]), :complete => visual_effect(:highlight, "sort_#{name}") ) %>
+  <%= link_to_remote(_('reset'), {:url => clear_order_node_path(@node[:zip]) + "?kpath=#{list[0].class.kpath}"}, :class => 'reset') %>
 
   <% end -%>
 

@@ -749,14 +749,14 @@ END_MSG
       if !errs || errs.empty?
         ""
       elsif errs.kind_of?(ActiveRecord::Errors)
-        res = "<ul class='errors'>"
+        res = "<table class='errors'>"
         errs.each do |k,v|
-          res << "<li><b>#{k}</b> #{v}</li>\n"
+          res << "<tr><td><b>#{k}</b></td><td>#{v}</td></tr>\n"
         end
-        res << "</ul>"
+        res << "</table>"
         res
       else
-        "<ul class='errors'><li>#{errs.join("</li>\n<li>")}</li></ul>"
+        "<table class='errors'><tr><td>#{errs.join("</td></tr>\n<tr><td>")}</td></tr></table>"
       end
     end
   

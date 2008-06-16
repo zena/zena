@@ -823,8 +823,8 @@ latex_template = %q{
       _('img_public')
     else
       names = []
-      names |= [obj.rgroup.name.limit(4)] if obj.rgroup
-      names |= [obj.pgroup.name.limit(4)] if obj.pgroup
+      names |= [truncate(obj.rgroup.name,4)] if obj.rgroup
+      names |= [truncate(obj.pgroup.name,4)] if obj.pgroup
       names << obj.user.initials
       names.join(', ')
     end
@@ -1130,7 +1130,7 @@ ENDTXT
         if events
           res = ["#{date.day}"]
           events.each do |e| #largecal_preview
-            res << "<p>" + link_to_remote(e.v_title.limit(14), 
+            res << "<p>" + link_to_remote(truncate(e.v_title,14), 
                                   :update=>'largecal_preview',
                                   :url=>{:controller=>'calendar', :action=>'notes', :id=>source[:zip], :template_url=>template_url, 
                                   :date=>date, :selected=>e[:zip] }) + "</p>"

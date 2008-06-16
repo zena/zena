@@ -1,5 +1,5 @@
 <% @depth ||=0; @depth += 1 -%>
-<li><%= link_to(menu.name.limit(17), zen_path(menu)) %>
+<li><%= link_to(truncate(menu.name,17), zen_path(menu)) %>
     <% if @depth < 3 && menu.pages != [] -%>
     <ul>
     <%= render_to_string( :partial=>'main/menu', :collection=>menu.pages ) %>

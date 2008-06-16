@@ -7,7 +7,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: 0.9.0\n"
-"POT-Creation-Date: 2008-06-12 15:07-0000\n"
+"POT-Creation-Date: 2008-06-16 10:26-0000\n"
 "PO-Revision-Date: 2007-05-13 19:08-0000\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -16,15 +16,15 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=INTEGER; plural=EXPRESSION;\n"
 
-#: app/controllers/application.rb:502
+#: app/controllers/application.rb:498
 msgid "Please log in"
 msgstr ""
 
-#: app/controllers/application.rb:781 app/helpers/application_helper.rb:641
+#: app/controllers/application.rb:777 app/helpers/application_helper.rb:641
 msgid "week_start_day"
 msgstr ""
 
-#: app/controllers/comments_controller.rb:28
+#: app/controllers/comments_controller.rb:31
 msgid "Comment was successfully created."
 msgstr ""
 
@@ -66,6 +66,10 @@ msgstr ""
 
 #: app/controllers/nodes_controller.rb:282
 msgid "Could not update order."
+msgstr ""
+
+#: app/controllers/nodes_controller.rb:299
+msgid "Could not clear order."
 msgstr ""
 
 #: app/controllers/preferences_controller.rb:25
@@ -134,7 +138,7 @@ msgstr ""
 msgid "full_date"
 msgstr ""
 
-#: app/helpers/application_helper.rb:136 lib/parser/lib/rules/zena.rb:1359
+#: app/helpers/application_helper.rb:136 lib/parser/lib/rules/zena.rb:1388
 msgid "long_date"
 msgstr ""
 
@@ -190,7 +194,7 @@ msgstr ""
 msgid "btn_title_open_open_discussion"
 msgstr ""
 
-#: app/helpers/application_helper.rb:917 app/views/comments/_li.rhtml:10
+#: app/helpers/application_helper.rb:917 app/views/comments/_li.rhtml:3
 msgid "btn_remove"
 msgstr ""
 
@@ -900,28 +904,19 @@ msgstr ""
 msgid "validate"
 msgstr ""
 
-#: app/views/comments/_li.rhtml:4 app/views/nodes/update.rjs:14
-#: lib/parser/lib/rules/zena.rb:327
-msgid "edit"
-msgstr ""
-
-#: app/views/comments/_li.rhtml:6
-msgid "reply"
-msgstr ""
-
-#: app/views/comments/_li.rhtml:11
+#: app/views/comments/_li.rhtml:4
 msgid "btn_publish"
 msgstr ""
 
-#: app/views/comments/_list.rhtml:8
+#: app/views/comments/_list.rhtml:9
 msgid "comments closed"
 msgstr ""
 
-#: app/views/comments/index.rhtml:7
+#: app/views/comments/index.rhtml:8
 msgid "Previous page"
 msgstr ""
 
-#: app/views/comments/index.rhtml:8
+#: app/views/comments/index.rhtml:9
 msgid "Next page"
 msgstr ""
 
@@ -1062,8 +1057,8 @@ msgstr ""
 msgid "img_link"
 msgstr "<img src='/images/tag_blue.png' alt='link'/>"
 
-#: app/views/links/_li.rhtml:6 lib/parser/lib/rules/zena.rb:1049
-#: lib/parser/lib/rules/zena.rb:1059
+#: app/views/links/_li.rhtml:6 lib/parser/lib/rules/zena.rb:1075
+#: lib/parser/lib/rules/zena.rb:1085
 msgid "btn_tiny_del"
 msgstr ""
 
@@ -1133,6 +1128,10 @@ msgstr ""
 
 #: app/views/nodes/_parent.rhtml:9
 msgid "custom base url"
+msgstr ""
+
+#: app/views/nodes/_position.rhtml:17
+msgid "reset"
 msgstr ""
 
 #: app/views/nodes/_results.rhtml:15
@@ -1431,6 +1430,14 @@ msgstr ""
 
 #: app/views/virtual_classes/_li.erb:8
 msgid "auto discussion"
+msgstr ""
+
+#: app/views/nodes/clear_order.rjs:5
+msgid "Order cleared."
+msgstr ""
+
+#: app/views/nodes/update.rjs:14 lib/parser/lib/rules/zena.rb:327
+msgid "edit"
 msgstr ""
 
 #: lib/gettext_strings.rb:5
@@ -1781,26 +1788,26 @@ msgstr ""
 msgid "[documents]"
 msgstr ""
 
-#: lib/parser/lib/rules/zena.rb:973
+#: lib/parser/lib/rules/zena.rb:999
 msgid "btn_add"
 msgstr ""
 
-#: lib/parser/lib/rules/zena.rb:1409
+#: lib/parser/lib/rules/zena.rb:1438
 msgid "riding zena"
 msgstr ""
 
-#: lib/parser/lib/rules/zena.rb:1411
+#: lib/parser/lib/rules/zena.rb:1440
 msgid "in peace with zena"
 msgstr ""
 
-#: lib/parser/lib/rules/zena.rb:1413
+#: lib/parser/lib/rules/zena.rb:1442
 msgid "a zen garden"
 msgstr ""
 
-#: lib/parser/lib/rules/zena.rb:1415
+#: lib/parser/lib/rules/zena.rb:1444
 msgid "made with zena"
 msgstr ""
 
-#: lib/parser/lib/rules/zena.rb:1431
+#: lib/parser/lib/rules/zena.rb:1460
 msgid "%{skin}, design by %{name}"
 msgstr ""

@@ -1013,8 +1013,8 @@ done: \"I am done\""
     assert_equal 'bananas', children[0].name
     assert_equal 'crocodiles', children[1].name
     
-    Node.connection.execute "UPDATE nodes SET position = 0.0 WHERE id = #{nodes_id(:water_pdf)}"
-    Node.connection.execute "UPDATE nodes SET position = 0.1 WHERE id = #{nodes_id(:lake)}"
+    Node.connection.execute "UPDATE nodes SET position = -1.0 WHERE id = #{nodes_id(:water_pdf)}"
+    Node.connection.execute "UPDATE nodes SET position = -0.5 WHERE id = #{nodes_id(:lake)}"
     children = parent.find(:all, 'children')
     assert_equal 8, children.size
     assert_equal 'water', children[0].name
@@ -1158,6 +1158,43 @@ done: \"I am done\""
     assert Page.native_classes.values.include?(Project)
     assert !Project.native_classes.values.include?(Page)
   end
+  
+  def test_position_on_create
+    login(:lion)
+    node = secure!(Page) { Page.create(:name=>"yoba", :parent_id => nodes_id(:cleanWater), :inherit=>1 ) }
+    assert !node.new_record?
+    assert_equal 0, node.position
+    assert node.update_attributes(:position => 5.0)
+    assert_equal 5.0, node.position
+    node = secure!(Page) { Page.find_by_id(node.id) } # reload
+    assert_equal 5.0, node.position
+    node = secure!(Page) { Page.create(:name=>"babo", :parent_id => nodes_id(:cleanWater), :inherit=>1 ) }
+    assert !node.new_record?
+    assert_equal 6.0, node.position
+    
+    # position has different scopes depending on first two letters of kpath: 'ND', 'NN', 'NP', 'NR'
+    doc = secure!(Document) { Document.create( :parent_id=>nodes_id(:cleanWater),
+                                              :c_file  => uploaded_file('water.pdf', 'application/pdf', 'wat'), :v_title => "lazy waters.pdf") }
+    assert !doc.new_record?
+    assert_equal 0.0, doc.position
+    
+    # move
+    assert node.update_attributes(:parent_id => nodes_id(:wiki))
+    assert_equal 0.0, node.position
+    
+    # move a page
+    node = secure!(Node) { nodes(:art)}
+    assert_equal 0.0, node.position
+    assert node.update_attributes(:parent_id => nodes_id(:cleanWater))
+    assert_equal 6.0, node.position
+    
+    # move a document
+    node = secure!(Node) { nodes(:bird_jpg)}
+    assert_equal 0.0, node.position
+    assert node.update_attributes(:parent_id => nodes_id(:cleanWater))
+    assert_equal 0.0, node.position
+  end
+  
   
   # FIXME: write test
   def test_assets

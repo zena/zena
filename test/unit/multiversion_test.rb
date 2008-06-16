@@ -62,7 +62,7 @@ class MultiVersionTest < ZenaTestUnit
     login(:ant)
     node = secure!(Node) { nodes(:status) }
     current = { :name => "status",
-      :position => "1",
+      :position => "0",
       :v_publish_from => "2006-03-10",
       :v_summary => "status summary",
       :v_text => "status text",
@@ -74,7 +74,7 @@ class MultiVersionTest < ZenaTestUnit
     login(:ant)
     node = secure!(Node) { nodes(:status) }
     current = { :name => "status",
-      :position => "1",
+      :position => "0",
       :v_publish_from => "2006-03-10",
       :v_summary => "status summary",
       :v_text => "status text",

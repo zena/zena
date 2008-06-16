@@ -41,6 +41,11 @@ class AdditionsTest < ZenaTestUnit
     assert_equal zips_zip(:zena ) + 2, Node.next_zip(sites_id(:zena))
   end
   
+  def test_fetch_attribute
+    assert_equal "water", Node.fetch_attribute(:name, "id = #{nodes_id(:water_pdf)}")
+    assert_nil Node.fetch_attribute(:name, "0")
+  end
+  
   private
     def assert_list_equal(l1, l2)
       if l1[0].kind_of?(Hash)

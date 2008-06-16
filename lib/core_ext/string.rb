@@ -25,16 +25,6 @@ class String
     nil
   end
 
-  def limit(num)
-    if length > num && num > 10
-      self[0..(num-4)] + "..."
-    elsif length > num
-      self[0..(num-1)]
-    else
-      self
-    end
-  end
-
   # could not name this extension 'camelize'. 'camelize' is a Rails core extension to String.
   def url_name
     dup.url_name!

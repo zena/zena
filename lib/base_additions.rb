@@ -28,6 +28,14 @@ class ActiveRecord::Base
       rows = connection.execute "SELECT @zip"
       rows.fetch_row[0].to_i
     end
+    
+    def fetch_attribute(attribute, sql)
+      unless sql =~ /SELECT/i
+        sql = "SELECT `#{attribute}` FROM #{table_name} WHERE #{sql}"
+      end
+      row = connection.execute(sql).fetch_row
+      row ? row[0] : nil
+    end
   end
 end
 

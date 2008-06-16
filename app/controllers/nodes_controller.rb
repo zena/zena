@@ -284,6 +284,26 @@ class NodesController < ApplicationController
     end
   end
   
+  def clear_order
+    kpath = (params[:kpath] || 'ZZ')[0..1]
+    allOk = true
+    
+    children = secure!(Node) { Node.find(:all, :conditions => ['parent_id = ? AND kpath like ?', @node[:id], "#{kpath}%"])}
+    
+    children.each do |child|
+      child.position = 0.0
+      allOk = child.save && allOk
+    end
+    
+    if !allOk
+      @errors = _('Could not clear order.')
+    end
+    
+    respond_to do |format|
+      format.js
+    end
+  end
+  
   
   protected
     

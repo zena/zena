@@ -2,6 +2,7 @@ require File.dirname(__FILE__) + '/../test_helper'
 
 class ApplicationHelperTest < ZenaTestHelper
   include ApplicationHelper
+  include ActionView::Helpers::TextHelper
 
   def setup
     @controllerClass = ApplicationController

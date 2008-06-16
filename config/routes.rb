@@ -17,8 +17,8 @@ ActionController::Routing::Routes.draw do |map|
   
   map.resources :nodes,
     :collection => { :asearch => :get, :search => :get,  :attribute => :get },
-    :member =>     { :import => :post, :save_text => :put, :order => :any, :zafu => :get,
-                     :drop => :put } do |nodes|
+    :member =>     { :import => :post, :save_text => :put, :order => :any, :clear_order => :any,
+                     :zafu => :get, :drop => :put } do |nodes|
     nodes.resources :versions, 
                     :name_prefix => nil,
                     :member => { :edit    => :get,

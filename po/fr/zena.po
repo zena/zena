@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: 0.9.0\n"
-"POT-Creation-Date: 2008-06-12 15:07-0000\n"
+"POT-Creation-Date: 2008-06-16 10:26-0000\n"
 "PO-Revision-Date: 2007-07-07 14:13+0100\n"
 "Last-Translator: Gaspard Bucher <gaspard@teti.ch>\n"
 "Language-Team: fr <gaspard@teti.ch>\n"
@@ -13,15 +13,15 @@ msgstr ""
 "X-Poedit-Bookmarks: -1,-1,-1,219,-1,-1,-1,-1,-1,-1\n"
 "X-Poedit-Basepath: /Users/gaspard/svk/zena\n"
 
-#: app/controllers/application.rb:502
+#: app/controllers/application.rb:498
 msgid "Please log in"
 msgstr "Veuillez vous authentifier."
 
-#: app/controllers/application.rb:781 app/helpers/application_helper.rb:641
+#: app/controllers/application.rb:777 app/helpers/application_helper.rb:641
 msgid "week_start_day"
 msgstr "1"
 
-#: app/controllers/comments_controller.rb:28
+#: app/controllers/comments_controller.rb:31
 #, fuzzy
 msgid "Comment was successfully created."
 msgstr "Les informations ont été mises à jour."
@@ -65,6 +65,11 @@ msgstr "Ordre mis à jour."
 
 #: app/controllers/nodes_controller.rb:282
 msgid "Could not update order."
+msgstr "L'ordre n'a pas pu être mis à jour."
+
+#: app/controllers/nodes_controller.rb:299
+#, fuzzy
+msgid "Could not clear order."
 msgstr "L'ordre n'a pas pu être mis à jour."
 
 #: app/controllers/preferences_controller.rb:25
@@ -134,7 +139,7 @@ msgstr "%Hh%M"
 msgid "full_date"
 msgstr "%A, %d %B %Y"
 
-#: app/helpers/application_helper.rb:136 lib/parser/lib/rules/zena.rb:1359
+#: app/helpers/application_helper.rb:136 lib/parser/lib/rules/zena.rb:1388
 msgid "long_date"
 msgstr "%d.%m.%Y"
 
@@ -191,7 +196,7 @@ msgstr "<img src='/images/lock.png' alt='fermé'/>"
 msgid "btn_title_open_open_discussion"
 msgstr "Ouvrir la discussion."
 
-#: app/helpers/application_helper.rb:917 app/views/comments/_li.rhtml:10
+#: app/helpers/application_helper.rb:917 app/views/comments/_li.rhtml:3
 msgid "btn_remove"
 msgstr "<img src='/images/delete.png' alt='supprimer'/>"
 
@@ -958,28 +963,19 @@ msgstr "titre"
 msgid "validate"
 msgstr " valider "
 
-#: app/views/comments/_li.rhtml:4 app/views/nodes/update.rjs:14
-#: lib/parser/lib/rules/zena.rb:327
-msgid "edit"
-msgstr "éditer"
-
-#: app/views/comments/_li.rhtml:6
-msgid "reply"
-msgstr "répondre"
-
-#: app/views/comments/_li.rhtml:11
+#: app/views/comments/_li.rhtml:4
 msgid "btn_publish"
 msgstr "<img src='/images/wand.png' alt='publier'/>"
 
-#: app/views/comments/_list.rhtml:8
+#: app/views/comments/_list.rhtml:9
 msgid "comments closed"
 msgstr "commentaires fermés"
 
-#: app/views/comments/index.rhtml:7
+#: app/views/comments/index.rhtml:8
 msgid "Previous page"
 msgstr "page précédente"
 
-#: app/views/comments/index.rhtml:8
+#: app/views/comments/index.rhtml:9
 msgid "Next page"
 msgstr "page suivante"
 
@@ -1129,8 +1125,8 @@ msgstr "définir"
 msgid "img_link"
 msgstr "<img src='/images/tag_blue.png' alt='lien'/>"
 
-#: app/views/links/_li.rhtml:6 lib/parser/lib/rules/zena.rb:1049
-#: lib/parser/lib/rules/zena.rb:1059
+#: app/views/links/_li.rhtml:6 lib/parser/lib/rules/zena.rb:1075
+#: lib/parser/lib/rules/zena.rb:1085
 msgid "btn_tiny_del"
 msgstr "<img src='/images/bullet_delete.png' alt='supprimer'/>"
 
@@ -1203,6 +1199,11 @@ msgstr "parent"
 #: app/views/nodes/_parent.rhtml:9
 msgid "custom base url"
 msgstr "url personnelle"
+
+#: app/views/nodes/_position.rhtml:17
+#, fuzzy
+msgid "reset"
+msgstr "définir"
 
 #: app/views/nodes/_results.rhtml:15
 msgid "'%{search_string}' not found"
@@ -1529,6 +1530,14 @@ msgstr "<img src='/images/brick.png' alt='classe'/>"
 #, fuzzy
 msgid "auto discussion"
 msgstr "discussion"
+
+#: app/views/nodes/clear_order.rjs:5
+msgid "Order cleared."
+msgstr "Ordre réinitialisé."
+
+#: app/views/nodes/update.rjs:14 lib/parser/lib/rules/zena.rb:327
+msgid "edit"
+msgstr "éditer"
 
 #: lib/gettext_strings.rb:5
 msgid "help_tab"
@@ -1881,29 +1890,32 @@ msgstr "[galerie]"
 msgid "[documents]"
 msgstr "[documents]"
 
-#: lib/parser/lib/rules/zena.rb:973
+#: lib/parser/lib/rules/zena.rb:999
 msgid "btn_add"
 msgstr "<img src='/images/add.png' alt='ajouter'/>"
 
-#: lib/parser/lib/rules/zena.rb:1409
+#: lib/parser/lib/rules/zena.rb:1438
 msgid "riding zena"
 msgstr "en balade avec zena"
 
-#: lib/parser/lib/rules/zena.rb:1411
+#: lib/parser/lib/rules/zena.rb:1440
 msgid "in peace with zena"
 msgstr "paisible avec zena"
 
-#: lib/parser/lib/rules/zena.rb:1413
+#: lib/parser/lib/rules/zena.rb:1442
 msgid "a zen garden"
 msgstr "un jardin zen"
 
-#: lib/parser/lib/rules/zena.rb:1415
+#: lib/parser/lib/rules/zena.rb:1444
 msgid "made with zena"
 msgstr "conçu avec zena"
 
-#: lib/parser/lib/rules/zena.rb:1431
+#: lib/parser/lib/rules/zena.rb:1460
 msgid "%{skin}, design by %{name}"
 msgstr "%{skin}, conception %{name}"
+
+#~ msgid "reply"
+#~ msgstr "répondre"
 
 #, fuzzy
 #~ msgid "no"

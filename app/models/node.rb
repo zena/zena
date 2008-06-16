@@ -130,7 +130,7 @@ class Node < ActiveRecord::Base
   attr_accessor      :link
   zafu_readable      :name, :created_at, :updated_at, :event_at, :log_at, :kpath, :user_zip, :parent_zip, :project_zip,
                      :section_zip, :skin, :ref_lang, :fullpath, :rootpath, :position, :publish_from, :max_status, :rgroup_id, 
-                     :wgroup_id, :pgroup_id, :basepath, :custom_base, :klass, :zip, :score, :comments_count, :position, :l_status, :l_comment,
+                     :wgroup_id, :pgroup_id, :basepath, :custom_base, :klass, :zip, :score, :comments_count, :l_status, :l_comment,
                      :custom_a, :custom_b                     
   zafu_context       :author => "Contact", :parent => "Node", 
                      :project => "Project", :section => "Section", 
@@ -1214,7 +1214,21 @@ class Node < ActiveRecord::Base
         if !kind_of?(Project) && self[:project_id] != old[:project_id]
           @spread_project_id = self[:project_id]
         end
-        
+      end
+      
+      # set position
+      if self.class != Node
+        # 'Node' does not have a position scope (need two first letters of kpath)
+        if new_record?
+          if self[:position].to_i == 0
+            pos = Node.fetch_attribute(:position, "SELECT `position` FROM #{Node.table_name} WHERE parent_id = #{Node.connection.quote(self[:parent_id])} AND kpath like #{Node.connection.quote("#{self.class.kpath[0..1]}%")} ORDER BY position DESC LIMIT 1").to_f
+            self[:position] = pos > 0 ? pos + 1.0 : 0.0
+          end
+        elsif old[:parent_id] != self[:parent_id]
+          # moved, update position
+          pos = Node.fetch_attribute(:position, "SELECT `position` FROM #{Node.table_name} WHERE parent_id = #{Node.connection.quote(self[:parent_id])} AND kpath like #{Node.connection.quote("#{self.class.kpath[0..1]}%")} ORDER BY position DESC LIMIT 1").to_f
+          self[:position] = pos > 0 ? pos + 1.0 : 0.0
+        end
       end
     end
 
