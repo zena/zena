@@ -2,12 +2,39 @@
 Thoughts for ajax related stuff cleanup (dom_id, erb_dom_id, ...)
 
 When we open a list context:
-- we do not change dom_id => "list"
+- we change the context_dom_id => unique name => "page"
 
 When we open a single context (do_var, each, block):
-- we change the dom_id => "list_{parent_id}_{id}"
+- we change the context_dom_id => unique name with id => "page_{parent_id}"
+
+Any 'id' is set with:
+- "{context_dom_id}_{id}"  => 'page_34' (if not in list) or 'page_12_34' if in list.
 
 
+List in list (initial node zip = 12):
+                             context_dom_id    dom_id          (context_erb_dom_id, erb_dom_id)
+<ul>                         page_12           page_12         [pages in='site']  new unique name
+  <li id='page_12_13'>       page_12           page_12_13      [each]   expand_with(:context_dom_id => 'page_13')
+    <ul>                     page_13
+      <li id='page_13_23'/>  page_13           page_13_23      [each]
+      <li id='page_13_24'/>  page_13           page_13_24      [each]
+      <li id='page_13_25'/>  page_13           page_13_25      [each]
+    </ul>
+  </li>
+  <li id='page_12_14'>       page_12           page_12_14      [each]   expand_with(:context_dom_id => 'page_14')
+    <ul>
+      <li id='page_14_23'/>  page_14           page_14_23      [each]   expand_with(:context_dom_id => 'page_23')
+      <li id='page_14_27'/>  page_14           page_14_27      [each]   ...
+    </ul>
+  </li>
+</ul>
+
+<div id='page1_12'>          page1_12          page1_12        [block]    new unique name
+  <ul>
+    <li id='page1_12_24'/>   page1_12          page1_12_24     [each]
+    <li id='page1_12_32'/>   page1_12          page1_12_32     [each]
+  </ul>
+</div>
 =end
 
 require 'yaml'
@@ -101,8 +128,8 @@ module Zena
         @params[:attr] = $1
       elsif @method =~ /\A(\w+)\s+(\w+)\s+(.+)$/
         # 'pages where name ...'
-        @method = $1
-        @params[$2.to_sym] = $3
+        @params[:method] = @method
+        @method = 'context'
       end
       
       if @method == 'with' || self.respond_to?("r_#{@method}")
@@ -2055,7 +2082,7 @@ END_TXT
     def dom_id(context = @context)
       @dom_id ||= unique_name(context)
     end
-
+    
     # Unique template_url, ending with dom_id
     def get_template_url(context = @context)
       "#{@options[:root]}/#{dom_id(context)}"
