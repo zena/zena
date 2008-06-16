@@ -958,7 +958,7 @@ END_TXT
         
         @html_tag_params.merge!(:id => "#{erb_dom_id}_add")
         @html_tag_params[:class] ||= 'btn_add'
-        focus = "$(\"#{erb_dom_id}_#{@params[:focus] || default_focus_field}\").focus();"
+        focus = "$(\"#{erb_dom_id}_#{@params[:focus] || @context[:form].default_focus_field}\").focus();"
         
         out render_html_tag("#{expand_with(:onclick=>"[\"#{erb_dom_id}_add\", \"#{erb_dom_id}_form\"].each(Element.toggle);#{focus}return false;")}")
         

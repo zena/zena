@@ -99,3 +99,7 @@ no_recursion_in_saved_block:
 each_in_each:
   src: "<r:pages><r:form>FORM1</r:form><r:each><r:pages>sub-pages <r:form>FORM2</r:form></r:pages></r:each><r:add/></r:pages>"
   res: "/FORM1/"
+
+default_focus_field:
+  src: "<ol do='comments'><li do='each'/><li do='form'><input name='author_name'/> ... <input name='text'/></li><li do='add'/></ol>"
+  res: "/\$\(\"list_22_author_name\"\).focus\(\)/"
