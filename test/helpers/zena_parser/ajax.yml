@@ -20,15 +20,15 @@ edit_not_each:
 
 add_each_no_form:
   src: "<ul do='children' id='things'><li do='each'>I <p do='[name]'>blah</p></li><li do='add'/></ul>"
-  res: "/<ul><li.*id='things_add'.*li id='things_form'.*form.*hidden.*I <p><input type='text' id='things_name' name='node\[name\]' value=''\/><\/p><\/form><\/li>/"
+  res: "/<ul><li.*id='things_22_add'.*li id='things_22_form'.*form.*hidden.*I <p><input type='text' id='things_22_name' name='node\[name\]' value=''\/><\/p><\/form><\/li>/"
 
 add_each_no_form_date:
   src: "<ul do='children' id='things'><li do='each'>I <p do='show' date='event_at' tformat='short_date'>blah</p></li><li do='add'/></ul>"
-  res: "/<ul><li.*id='things_add'.*li id='things_form'.*form.*hidden.*I <p>.*date_box.*<input id='things_event_at' name='node\[event_at\]' type='text' value.*/m"
+  res: "/<ul><li.*id='things_22_add'.*li id='things_22_form'.*form.*hidden.*I <p>.*date_box.*<input id='things_22_event_at' name='node\[event_at\]' type='text' value.*/m"
 
 add_each_no_form_focus:
   src: "<ul do='children' id='test'><li do='each'>I <p do='[v_title]'>blah</p></li><li do='add' focus='v_title'/></ul>"
-  res: "/<ul><li.*id=.*_add.*onclick.*toggle.*test_v_title.*focus.*li id=.*_form.*form.*hidden.*I <p><input type='text' id='test_v_title' name='node\[v_title\]' value=''\/><\/p><\/form><\/li>/"
+  res: "/<ul><li.*id=.*_add.*onclick.*toggle.*test_22_v_title.*focus.*li id=.*_form.*form.*hidden.*I <p><input type='text' id='test_22_v_title' name='node\[v_title\]' value=''\/><\/p><\/form><\/li>/"
 
 each_add_with_form:
   context:
@@ -39,7 +39,7 @@ each_add_with_form:
       <li do='add'>add new</li>
       <li do='form'><input name='v_title'/> this is the form</li>
     </r:children>
-  res: "/<li.*list.29.30.*>bird.*<li.*list.29.31.*>flower.*<li.*list_add.*list_form.*toggle.*<li .*list_form.*style.*none.*Ajax.Request.*input type='hidden' name='template_url' value=\"/each/add/with/form/list\".*input type='hidden' name='node\[parent_id\]' value=\"29\"/"
+  res: "/<li.*list_29_30.*>bird.*<li.*list_29_31.*>flower.*<li.*list_29_add.*list_29_form.*toggle.*<li .*list_29_form.*style.*none.*Ajax.Request.*input type='hidden' name='template_url' value=\"/each/add/with/form/list\".*input type='hidden' name='node\[parent_id\]' value=\"29\"/"
 
 each_add_with_form_klass_set:
   context:
@@ -65,9 +65,9 @@ each_edit_with_form:
 
 make_form:
   src: "<ul do='children'><li do='each' do='[name]'/><li do='add'/></ul>"
-  tem: "/<li id='list_form' style='display:none;'><%= form_remote_tag\(:url => nodes_path\) %>/"
-  'make/form/en/list.erb': "<li id='list.<%= @node.zip %>'><%= @node.name %></li>"
-  'make/form/en/list_form.erb': "/<li id='list<%= @node.new_record\? \? '_form' : \".#\{@node.zip\}\" %>'>/"
+  tem: "/<li id='list_<%= @node.zip %>_form' style='display:none;'><%= form_remote_tag\(:url => nodes_path\) %>/"
+  'make/form/en/list.erb': "<li id='<%= params[:dom_id] %>_<%= @node.zip %>'><%= @node.name %></li>"
+  'make/form/en/list_form.erb': "/<li id='<%= params\[:dom_id\] %><%= @node.new_record\? \? '_form' : '' %>'>/"
 
 each_edit_cannot_write:
   context:
@@ -78,7 +78,7 @@ each_edit_cannot_write:
 
 add_each_publish:
   src: "<ul do='children' id='things'><li do='each'>I <p do='[name]'>blah</p></li><li do='add' publish='true'/></ul>"
-  res: "/<ul><li.*id='things_add'.*li id='things_form'.*form.*hidden.*name='node\[v_status\]' value=\"50\"/"
+  res: "/<ul><li.*id='things_22_add'.*li id='things_22_form'.*form.*hidden.*name='node\[v_status\]' value=\"50\"/"
 
 block_edit_form:
   src: "<r:block><p do='[name]'/> <r:edit/> <r:form>please enter name: <input name='name'/> <r:input type='submit'/></r:form></r:block>"

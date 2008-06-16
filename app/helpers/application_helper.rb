@@ -742,7 +742,7 @@ latex_template = %q{
     end
   end
   
-  # TODO: test
+  # TODO: is this still used ?
   def show(obj, sym, opt={})
     return show_title(obj, opt) if sym == :v_title
     if opt[:as]
@@ -768,7 +768,7 @@ latex_template = %q{
       if obj.kind_of?(TextDocument) && sym == :v_text
         lang = obj.content_lang
         lang = lang ? " lang='#{lang}'" : ""
-        text = "<code#{lang} class='full'>HEYHEY#{text.gsub("\n", '<br/>')}</code>"
+        text = "<code#{lang} class='full'>#{text}</code>"
       end
       text  = zazen(text, opt)
       klass = " class='zazen'"

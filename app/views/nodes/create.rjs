@@ -7,7 +7,6 @@ else
   page.insert_html pos.to_sym, ref, :file => fullpath_from_template_url + ".erb"
   @node = @node.parent.new_child(:class => @node.class)
   page.replace "#{params[:dom_id]}_form", :file => fullpath_from_template_url + "_form.erb"
-  puts params[:done]
   if params[:done]
     page << params[:done]
   else

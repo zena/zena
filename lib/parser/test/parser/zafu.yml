@@ -241,6 +241,10 @@ html_comments:
   src: "<r:test><r:hello/><!-- this is nothing > <r:hello/>  --></r:test>"
   res: "[test][hello/]<!-- this is nothing > <r:hello/>  -->[/test]"
 
+html_comments_not_greedy:
+  src: "<r:test><!-- first --><r:hello/><!-- this is nothing > <r:hello/>  --></r:test>"
+  res: "[test]<!-- first -->[hello/]<!-- this is nothing > <r:hello/>  -->[/test]"
+
 html_do_comment:
   src: "<r:test><r:hello/><!--|this is not a comment <r:hello/>  --></r:test>"
   res: "[test][hello/]this is not a comment [hello/]  [/test]"

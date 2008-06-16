@@ -397,8 +397,8 @@ each_alternate_class:
 each_alternate_class_two:
   context:
     node: 'collections'
-  src: "<ol do='pages'><li class='one' alt_class='two' do='each' do='[name]'/></ol>"
-  res: "<ol><li class='one'>art</li><li class='two'>menu</li><li class='one'>news</li><li class='two'>wiki_skin</li></ol>"
+  src: "<ol do='pages'><li class='post' alt_class='stripe' do='each' do='[name]'/></ol>"
+  res: "<ol><li class='post'>art</li><li class='post stripe'>menu</li><li class='post'>news</li><li class='post stripe'>wiki_skin</li></ol>"
 
 each_alternate_class_ajax:
   context:
@@ -729,6 +729,16 @@ summary_or_text_no_summary:
   src: "<r:summary or='v_text'/>"
   res: "<div id='v_summary11' class='zazen'><p>This is the root of your peaceful tests.</p></div>"
 
+text:
+  src: "<r:text/>"
+  res: "<div id='v_text22' class='zazen'><p>status text</p></div>"
+  
+text_code:
+  context:
+    node: 'Project_zafu'
+  src: "<r:text/>"
+  res: "/\\A<div id='v_text60' class='zazen'><pre class='full'><code class='zafu'>.*</code></pre></div>\\Z/"
+
 ztag_in_do:
   src: "<ol do='parent'><r:children>no error</r:children></ol>"
   res: "<ol>no error</ol>"
@@ -789,15 +799,15 @@ checkbox:
 
 input_set_value:
   src: "<r:input type='hidden' name='icon_id' set_value='[main.id]'/>"
-  tem: "<input name='node[icon_id]' type='hidden' value='<%= @node.zip %>'/>"
-  res: "<input name='node[icon_id]' type='hidden' value='22'/>"
+  tem: "<input id='node_icon_id' name='node[icon_id]' type='hidden' value='<%= @node.zip %>'/>"
+  res: "<input id='node_icon_id' name='node[icon_id]' type='hidden' value='22'/>"
 
 input:
   context:
     node: 'ant'
   src: "<r:input name='c_first_name'/>"
-  tem: "<input name='node[c_first_name]' type='text' value='<%= @node.c_zafu_read(\"first_name\") %>'/>"
-  res: "<input name='node[c_first_name]' type='text' value='Solenopsis'/>"
+  tem: "<input id='node_c_first_name' name='node[c_first_name]' type='text' value='<%= @node.c_zafu_read(\"first_name\") %>'/>"
+  res: "<input id='node_c_first_name' name='node[c_first_name]' type='text' value='Solenopsis'/>"
 
 input_new:
   context:
@@ -810,7 +820,7 @@ add_btn:
   <tr do='each'><td do='[name]'/></tr>
   <tr do='add'><td><b><r:add_btn/></b></td></tr>
   </table>"
-  res: "/<tr class='btn_add' id='list_add'><td><b><a href='#' onclick/"
+  res: "/<tr class='btn_add' id='list_22_add'><td><b><a href='#' onclick/"
 
 read_no_content:
   src: "this is <b do='[c_bad]'/>"
@@ -902,4 +912,4 @@ captcha:
     visitor: anon
     lang: 'fr'
   src: "<r:captcha theme='clean'/>"
-  res: "/RecaptchaOptions = . lang : .fr., theme : .clean., tabindex : 0/"
+  res: "/RecaptchaOptions .* theme : .clean./"

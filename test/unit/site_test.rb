@@ -227,6 +227,7 @@ class SiteTest < ZenaTestUnit
   end
   
   def test_attributes_for_form
-    puts Site.attributes_for_form.inspect
+    assert Site.attributes_for_form[:bool].include?(:authentication)
+    assert Site.attributes_for_form[:text].include?(:default_lang)
   end
 end

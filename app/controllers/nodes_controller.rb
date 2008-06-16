@@ -271,7 +271,7 @@ class NodesController < ApplicationController
     
     positions.each_with_index do |zip,idx|
       child = secure!(Node) { Node.find_by_zip(zip) }
-      child.position = idx
+      child.position = idx.to_f + 1.0
       allOk = child.save && allOK
     end
     
