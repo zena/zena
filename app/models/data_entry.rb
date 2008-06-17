@@ -13,7 +13,7 @@ A visitor needs write access in all nodes the data should link to. A visitor als
 A visitor can edit a data entry if he/she has write access to the reference node (node_a).
 =end
 class DataEntry < ActiveRecord::Base
-  zafu_readable :created_at, :updated_at, :date, :text, :value, :node_a_zip, :node_b_zip, :node_c_zip, :node_d_zip
+  zafu_readable :created_at, :updated_at, :date, :text, :value, :value_a, :value_b, :node_a_zip, :node_b_zip, :node_c_zip, :node_d_zip
   zafu_context  :node_a => "Node", :node_b => "Node", :node_c => "Node", :node_d => "Node", :nodes => ["Node"], :author => "Contact", :user => "User"
   NodeLinkSymbols   = [:node_a,    :node_b,    :node_c,    :node_d]
   NodeLinkSymbolsId = [:node_a_id, :node_b_id, :node_c_id, :node_d_id]
@@ -61,6 +61,16 @@ class DataEntry < ActiveRecord::Base
       #{sym} ? #{sym}.zip : nil
     end
     "
+  end
+  
+  
+  # 'value' is an alias for 'value_a'
+  def value
+    self[:value_a]
+  end
+  
+  def value=(v)
+    self.value_a = v
   end
   
   def author

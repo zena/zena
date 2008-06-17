@@ -3,33 +3,34 @@ comment:
   node_b:          wiki
   user:            ant
   text:            "node_a is 'secret', node_b is 'wiki'"
-  value:           10.3141521
+  value_a:         10.3141521
 
 visitors1:
   node_a:          cleanWater
   user:            anon
-  value:           27
+  value_a:         27
+  value_b:         10
 
 visitors2:
   node_a:          wiki
   node_b:          cleanWater
   user:            tiger
-  value:           33
+  value_a:         33
 
 visitors3:
   node_a:          wiki
   node_c:          cleanWater
   user:            anon
-  value:           13
+  value_a:         13
 
 visitors4:
   node_a:          wiki
   node_d:          cleanWater
   user:            ant
-  value:           56
+  value_a:         56
 
 visitors5:
   node_a:          wiki
   node_d:          status
   user:            ant
-  value:           21
+  value_a:         21

@@ -3,4 +3,8 @@ if @errors || !@data_entry.errors.empty?
 else
   page.visual_effect :highlight, "#{params[:dom_id]}_#{@data_entry.zip}", :duration => 0.3
   page.visual_effect :fade, "#{params[:dom_id]}_#{@data_entry.zip}", :duration => 0.3
+  
+  if params[:upd_url]
+    page.replace "#{params[:dom_id]}_#{@node.zip}", :file => fullpath_from_template_url(params[:upd_url]) + ".erb"
+  end
 end

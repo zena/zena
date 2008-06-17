@@ -423,7 +423,7 @@ module Zena
       else  
         @context[:dom_id]     = "#{self.dom_id}_\#{#{node_id}}"
         @context[:erb_dom_id] = "#{self.dom_id}_#{erb_node_id}"
-        template_url = get_template_url
+        template_url = @context[:template_url] = get_template_url
         form_url     = template_url + '_form'
       
         @html_tag ||= 'div'
@@ -712,6 +712,10 @@ module Zena
 
           action = "?template_url=#{CGI.escape(template_url)}"
           action << "&dom_id=#{@context[:dom_id]}"
+          
+          if block = ancestor('block')
+            action << "&upd_id=#{block.context[:dom_id]}"
+          end
           # TODO: show 'reply' instead of 'edit' in comments if visitor != author
           "<%= #{node}.can_write? ? link_to_remote(#{text || _('edit').inspect}, {:url => edit_#{base_class.to_s.underscore}_path(#{node_id}) + \"#{action}\", :method => :get}#{params_to_erb(@params)}) : '' %>"
         end
@@ -819,7 +823,14 @@ module Zena
       if template_url = @context[:template_url]
         # ajax
         
+        
         if @context[:in_add]
+          
+          if block = ancestor('block')
+            hidden_fields['upd_url'] = block.context[:template_url]
+            hidden_fields['upd_id']  = block.context[:erb_dom_id]
+          end
+          
           erb_dom_id = @context[:erb_dom_id]
           dom_id     = @context[:dom_id]
           
@@ -830,6 +841,12 @@ module Zena
         else
           erb_dom_id = "<%= params[:dom_id] %>"
           dom_id     = "\#{params[:dom_id]}"
+          
+          if block = ancestor('block')
+            hidden_fields['upd_url'] = block.context[:template_url]
+            hidden_fields['upd_id']  = "<%= params[:upd_id] %>"
+          end
+          
           # saved form used to edit/create: set values and 'parent_id' from @node
           @html_tag_params.merge!(:id=>"#{erb_dom_id}_<%= #{node}.new_record? ? 'form' : #{node}.zip %>") unless @method == 'block' # called from r_block
           # new_record? = edit/create failed, rendering form with errors
@@ -1124,10 +1141,20 @@ END_TXT
  
     def r_unlink
       #dom_id = "#{@context[:dom_id]}.\#{#{node_id}}"
-      erb_dom_id = "#{@context[:erb_dom_id]}"
+      
+      if block = ancestor('block')
+        upd_url = "&upd_url=#{CGI.escape(block.context[:template_url])}"
+        erb_dom_id   = block.context[:erb_dom_id]
+        dom_id  = block.context[:dom_id]
+      else
+        template_url = ""
+        erb_dom_id = @context[:erb_dom_id]
+        dom_id     = @context[:dom_id]
+      end
+      
       if node_kind_of?(Node)
         out "<% if #{node}[:link_id] -%>"
-        out "<a class='#{@params[:class] || 'unlink'}' href='/nodes/#{erb_node_id}/links/<%= #{node}[:link_id] %>?dom_id=#{erb_dom_id}' onclick=\"new Ajax.Request('/nodes/#{erb_node_id}/links/<%= #{node}[:link_id] %>?dom_id=#{erb_dom_id}', {asynchronous:true, evalScripts:true, method:'delete'}); return false;\">"
+        out "<a class='#{@params[:class] || 'unlink'}' href='/nodes/#{erb_node_id}/links/<%= #{node}[:link_id] %>?dom_id=#{erb_dom_id}#{upd_url}' onclick=\"new Ajax.Request('/nodes/#{erb_node_id}/links/<%= #{node}[:link_id] %>?dom_id=#{erb_dom_id}#{upd_url}', {asynchronous:true, evalScripts:true, method:'delete'}); return false;\">"
         if !@blocks.empty?
           inner = expand_with
         else
@@ -1140,7 +1167,7 @@ END_TXT
           text = _('btn_tiny_del')
         end
         dom_id = "#{@context[:dom_id]}"
-        out "<%= link_to_remote(#{text.inspect}, {:url => \"/data_entries/\#{#{node}[:id]}?dom_id=#{dom_id}\", :method => :delete}, :class=>#{(@params[:class] || 'unlink').inspect}) %>"
+        out "<%= link_to_remote(#{text.inspect}, {:url => \"/data_entries/\#{#{node}[:id]}?dom_id=#{dom_id}#{upd_url}\", :method => :delete}, :class=>#{(@params[:class] || 'unlink').inspect}) %>"
       end
     end
     

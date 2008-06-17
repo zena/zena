@@ -1,0 +1,68 @@
+<r:include template='Node'>
+  <r:with part='head'>
+    <title do='title_for_layout' do='show' attr='v_title' name='page_title'>page title</title>
+    <meta http-equiv="Content-type" content="text/html; charset=utf-8" />
+    <r:void name='stylesheets'>
+      <r:stylesheets media='all' list='reset,zena,code'/>
+    </r:void>
+    <link href="style.css" rel="Stylesheet" type="text/css"/>
+
+    <r:javascripts list='prototype,effects,zena,dragdrop'/>
+    <r:uses_calendar/>
+  </r:with>
+
+
+  <r:with part='context'/>
+  <r:with part='content' class='project'>
+    <r:include template='Node' part='related'/>
+
+    <div id='edit'>
+      <h3>edit block test</h3>
+      <r:block>
+        <r:text/>
+        <r:edit/>
+      </r:block>
+    </div>
+
+    <div id='filter'>
+      <h2>filter block test</h2>
+      <r:filter live='true'/>
+      <r:block do='pages where name like "[param:f]%"'>
+        <ol><li do='each' do='[name]'/></ol>
+      </r:block>
+    </div>
+
+    <h2>data test</h2>
+    <ol do='data'>
+      <li do='each'><r:edit/> <b do='[text]'/> <r:show attr='value_a'/> <r:show attr='value_b'/><r:unlink/></li>
+      <li do='form'><r:cancel/> <input name='text'/> <input name='value_a'/> <input name='value_b'/> <input type='submit'/></li>
+      <li do='add'/>
+      <r:set var='hours' do='stat' find='sum' from='value_a'/> <r:set var='exp' do='stat' find='sum' of='value_b'/>
+      <li><b><r:show var='hours'/> * 150.00 = <r:show eval='hours * 150'/> + <r:show var='exp'/> = <r:show eval='( hours * 150 ) + exp'/></b></li>
+    </ol>
+
+
+    <h2>data block test</h2>
+    <ol do='block' do='data'>
+      <li do='each'><r:edit/> <b do='[text]'/> <r:show attr='value_a'/> <r:show attr='value_b'/><r:unlink/></li>
+      <li do='form'><r:cancel/> <input name='text'/> <input name='value_a'/> <input name='value_b'/> <input type='submit'/></li>
+      <li do='add'/>
+      <r:set var='hours' do='stat' find='sum' from='value_a'/> <r:set var='exp' do='stat' find='sum' of='value_b'/>
+      <li><b><r:show var='hours'/> * 150.00 = <r:show eval='hours * 150'/> + <r:show var='exp'/> = <r:show eval='( hours * 150 ) + exp'/></b></li>
+    </ol>
+
+    <h2>drag & drop</h2>
+
+    <r:images in='site' do='each' draggable='true' do='img' mode='pv'/>
+
+    <ul do='projects in site'>
+      <li style='border:1px solid #400; width:100px; height:100px;' do='each'><r:drop set='icon'><b do='[name]'/><r:icon where='1'><r:unlink do='img' mode='pv'/></r:icon></r:drop></li>
+    </ul>
+
+    <h2>notes & comments</h2>
+
+    <r:include template='notes'/>
+
+
+  </r:with>
+</r:include>

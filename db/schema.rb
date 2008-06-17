@@ -88,11 +88,12 @@ ActiveRecord::Schema.define(:version => 0) do
     t.column "user_id",    :integer
     t.column "date",       :datetime
     t.column "text",       :text
-    t.column "value",      :decimal,  :precision => 24, :scale => 8
+    t.column "value_a",    :decimal,  :precision => 24, :scale => 8
     t.column "node_a_id",  :integer
     t.column "node_b_id",  :integer
     t.column "node_c_id",  :integer
     t.column "node_d_id",  :integer
+    t.column "value_b",    :decimal,  :precision => 24, :scale => 8
   end
 
   create_table "discussions", :force => true do |t|

@@ -53,7 +53,7 @@ class DataEntryTest < ZenaTestUnit
   
   def test_data_precision
     login(:ant)
-    ent = DataEntry.create(:node_a_id => nodes_id(:wiki), :value => 3.1415926535897932384)
+    ent = DataEntry.create(:node_a_id => nodes_id(:wiki), :value_a => 3.1415926535897932384)
     ent = DataEntry.find(ent[:id])
     assert_equal BigDecimal("3.14159265"), ent.value  # crop to 8 digit precision
   end
@@ -68,7 +68,7 @@ class DataEntryTest < ZenaTestUnit
     assert_nil clone[:node_d_id]
     assert_nil clone[:text]
     assert_nil clone[:date]
-    assert_nil clone[:value]
+    assert_nil clone[:value_a]
   end
   
   def test_can_write
