@@ -146,6 +146,11 @@ module ApplicationHelper
     format_date(thedate, _(fmt))
   end
   
+  # Return sprintf formated entry. Return '' for values eq to zero.
+  def sprintf_unless_zero(fmt, value)
+    value.to_f == 0.0 ? '' : sprintf(fmt, value)
+  end
+  
   # Show visitor name if logged in
   def visitor_link(opts={})
     unless visitor.is_anon?

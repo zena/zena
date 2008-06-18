@@ -50,7 +50,19 @@ show_title_check_lang:
     lang: 'fr'
   src: "<r:title/> AND NOW <r:title check_lang='false'/>"
   res: "<span id='v_title21'>Clean Water project<span class='wrong_lang'>[en]</span></span> AND NOW <span id='v_title21'>Clean Water project</span>"
-
+  
+show_format:
+  src: "<b do='[id]' format='%.2f'/>"
+  res: "<b>22.00</b>"
+  
+show_format_nil:
+  src: "<b do='[d_id]' format='%.2f'/>"
+  res: "<b>0.00</b>"
+  
+show_format_hide_zero:
+  src: "<b do='[d_id]' format='%.2f' zero='hide'/>"
+  res: "<b></b>"
+  
 title_in_version_context:
   src: "<r:version><r:title actions='all'/></r:version>"
   res: "/s50.*v_title22.*status title.*edit/"

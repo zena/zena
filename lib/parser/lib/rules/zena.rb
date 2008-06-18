@@ -302,8 +302,14 @@ module Zena
         else
           modifier = ''
         end
-        attribute_method = "sprintf(#{fmt.inspect}, #{attribute_method}#{modifier})"
+        
+        if @params[:zero] == 'hide'
+          attribute_method = "sprintf_unless_zero(#{fmt.inspect}, #{attribute_method}#{modifier})"
+        else
+          attribute_method = "sprintf(#{fmt.inspect}, #{attribute_method}#{modifier})"
+        end
       end
+      
       
       if @context[:trans]
         # TODO: what do we do here with gsubs, url ?
