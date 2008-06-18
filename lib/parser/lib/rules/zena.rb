@@ -121,7 +121,7 @@ module Zena
       if @method =~ /^\[(.*)\]$/
         # do='[text]
         @method = 'show'
-        @params[:attr] = $1
+        @params[:var_or_attr] = $1
       elsif @method =~ /^\{(.*)\}$/
         # do='{v_text}'
         @method = 'zazen'
@@ -242,16 +242,24 @@ module Zena
     end
 
     def r_show
-      attribute = @params[:attr] || @params[:tattr]
+      if var_or_attr = @params[:var_or_attr]
+        # using [var] shortcut. Can be either a var or an attribute
+        if @context[:vars] && @context[:vars].include?(var_or_attr)
+          @params[:var] = var_or_attr 
+        else
+          @params[:attr] = var_or_attr
+        end
+      end
+
       if var_name = @params[:var]
         return parser_error("var #{@params[:var].inspect} not set") unless @context[:vars] && @context[:vars].include?(var_name)
         attribute_method = "set_#{var_name}"
       elsif @params[:eval]
         return unless attribute_method = parse_eval_parameter(@params[:eval])
       elsif @params[:tattr]
-        attribute_method = "_(#{node_attribute(attribute, :else=>@params[:else], :default=>@params[:default])})"
+        attribute_method = "_(#{node_attribute(@params[:tattr], :else=>@params[:else], :default=>@params[:default])})"
       elsif @params[:attr]
-        attribute_method = node_attribute(attribute, :else=>@params[:else], :default=>@params[:default])
+        attribute_method = node_attribute(@params[:attr], :else=>@params[:else], :default=>@params[:default])
       elsif @params[:date]
         # date can be any attribute v_created_at or updated_at etc.
         # TODO format with @params[:format] and @params[:tformat] << translated format
@@ -351,6 +359,7 @@ module Zena
         actions = ''
       end
       
+      attribute = @params[:attr] || @params[:tattr] || @params[:date]
       if @params[:edit] == 'true' && !['url','path'].include?(attribute)
         name = unique_name + '_' + attribute
         "<% if #{node}.can_write? -%><span class='show_edit' id='#{name}.#{erb_node_id}'>#{actions}<%= link_to_remote(#{attribute_method}, :url => edit_node_path(#{node_id}) + \"?attribute=#{attribute}&identifier=#{CGI.escape(name)}.\#{#{node_id}}\", :method => :get) %></span><% else -%>#{actions}<%= #{attribute_method} %><% end -%>"

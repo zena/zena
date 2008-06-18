@@ -37,3 +37,11 @@ eval_or:
 eval_or_value_exists:
   src: "<r:set var='price'><r:show attr='id'/> 20.3</r:set><r:show eval='price * 10'/>"
   res: "220.0"
+
+show_var:
+  src: "<r:set var='foo'>12345</r:set><b do='[foo]'/>"
+  res: "<b>12345</b>"
+
+show_var_overwrites_attribute:
+  src: "<r:set var='name'>12345</r:set><b do='[name]'/>"
+  res: "<b>12345</b>"
