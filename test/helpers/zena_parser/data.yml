@@ -32,6 +32,12 @@ stat_min:
   src: "<r:data do='stat' find='min'/>"
   res: "13.0"
 
+stat_eval_zero_hide:
+  context:
+    node: wiki
+  src: "<i do='data' do='stat' find='sum' of='value_b' format='%.2f' zero='hide'/>"
+  res: "<i></i>"
+
 stat_max:
   src: "<r:data do='stat' find='max'/>"
   res: "56.0"

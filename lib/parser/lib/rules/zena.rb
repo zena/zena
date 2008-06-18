@@ -1237,7 +1237,12 @@ END_TXT
         end
         "<%= #{list}==[] ? '' : format_date(#{value}, #{format.inspect}) %>"
       elsif format = @params[:format]
-        "<%= #{list}==[] ? '' : sprintf(#{@params[:format].inspect}, #{value}) %>"
+        
+        if @params[:zero] == 'hide'
+          "<%= #{list}==[] ? '' : sprintf_unless_zero(#{@params[:format].inspect}, #{value}) %>"
+        else
+          "<%= #{list}==[] ? '' : sprintf(#{@params[:format].inspect}, #{value}) %>"
+        end
       else
         "<%= #{list}==[] ? '' : #{value} %>"
       end
