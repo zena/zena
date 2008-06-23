@@ -727,13 +727,7 @@ module Zena
 
           action = "?template_url=#{CGI.escape(template_url)}"
           action << "&dom_id=#{@context[:dom_id]}"
-          if @context[:need_link_id]
-            if @context[:saved_template]
-              action << "&link_id=\#{params[:link_id]}"
-            else
-              action << "&link_id=\#{#{node}[:link_id]}"
-            end
-          end
+          action << "&link_id=\#{#{node}.link_id}" if @context[:need_link_id]
           
           if block = ancestor('block')
             action << "&upd_id=#{block.context[:dom_id]}"
@@ -873,7 +867,7 @@ module Zena
 <% if #{node}.new_record? -%>
   <p class='btn_x'><a href='#' onclick='[\"#{erb_dom_id}_add\", \"#{erb_dom_id}_form\"].each(Element.toggle);return false;'>#{_('btn_x')}</a></p>
 <% else -%>
-  <p class='btn_x'><%= link_to_remote(#{_('btn_x').inspect}, :url => #{base_class.to_s.underscore}_path(#{node_id}) + \"/zafu?template_url=#{CGI.escape(template_url)}&dom_id=\#{params[:dom_id]}#{@context[:need_link_id] ? "&link_id=\#{#{node}[:link_id]}" : ''}\", :method => :get) %></a></p>
+  <p class='btn_x'><%= link_to_remote(#{_('btn_x').inspect}, :url => #{base_class.to_s.underscore}_path(#{node_id}) + \"/zafu?template_url=#{CGI.escape(template_url)}&dom_id=\#{params[:dom_id]}#{@context[:need_link_id] ? "&link_id=\#{#{node}.link_id}" : ''}\", :method => :get) %></a></p>
 <% end -%>
 END_TXT
           form =<<-END_TXT
@@ -888,13 +882,7 @@ END_TXT
         has_submit = @context[:make_form] ? (descendants('show') != []) : (descendants('input') != [])
         cancel += "<input type='submit'/>" unless has_submit
         
-        if @context[:need_link_id]
-          if @context[:saved_template]
-            hidden_fields['node[link_id]'] = "<%= params[:link_id] %>"
-          else
-            hidden_fields['node[link_id]'] = "<%= #{node}[:link_id] %>"
-          end
-        end
+        hidden_fields['link_id'] = "<%= #{node}.link_id %>" if @context[:need_link_id]
         hidden_fields['template_url'] = template_url
         hidden_fields['dom_id'] = erb_dom_id
         
@@ -1176,8 +1164,8 @@ END_TXT
       end
       
       if node_kind_of?(Node)
-        out "<% if #{node}[:link_id] -%>"
-        out "<a class='#{@params[:class] || 'unlink'}' href='/nodes/#{erb_node_id}/links/<%= #{node}[:link_id] %>?dom_id=#{erb_dom_id}#{upd_url}' onclick=\"new Ajax.Request('/nodes/#{erb_node_id}/links/<%= #{node}[:link_id] %>?dom_id=#{erb_dom_id}#{upd_url}', {asynchronous:true, evalScripts:true, method:'delete'}); return false;\">"
+        out "<% if #{node}.link_id -%>"
+        out "<a class='#{@params[:class] || 'unlink'}' href='/nodes/#{erb_node_id}/links/<%= #{node}.link_id %>?dom_id=#{erb_dom_id}#{upd_url}' onclick=\"new Ajax.Request('/nodes/#{erb_node_id}/links/<%= #{node}.link_id %>?dom_id=#{erb_dom_id}#{upd_url}', {asynchronous:true, evalScripts:true, method:'delete'}); return false;\">"
         if !@blocks.empty?
           inner = expand_with
         else
@@ -2520,7 +2508,22 @@ END_TXT
         show_attr = @params[:show] || 'name'
         options_list = "[['','']] + (#{nodes} || []).map{|r| [#{node_attribute(show_attr, :node => 'r', :node_class => Node)}, #{node_attribute(set_attr, :node => 'r', :node_class => Node)}.to_s]}"
       elsif values = @params[:values]
-        options_list = values.split(',').map(&:strip).inspect
+        options_list = values.split(',').map(&:strip)
+        
+        if show = @params[:show]
+          show_values = show.split(',').map(&:strip)
+        elsif show = @params[:tshow]
+          show_values = show.split(',').map do |s|
+            _(s.strip)
+          end
+        end
+        
+        if show_values
+          options_list.each_index do |i|
+            options_list[i] = [show_values[i], options_list[i]]
+          end
+        end
+        options_list.inspect
       end
     end
     
@@ -2625,7 +2628,7 @@ END_TXT
     
     # Returns true if a form/edit needs to keep track of link_id (l_status or l_comment used).
     def need_link_id
-      if (input_fields = descendants('input')) != []
+      if (input_fields = (descendants('input') + descendants('select'))) != []
         input_fields.each do |f|
           return true if f.params[:name] =~ /\Al_/
         end

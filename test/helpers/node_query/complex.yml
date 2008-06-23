@@ -49,7 +49,7 @@ all_achieved_formations_for_roger:
   context:
     node: roger
   src: assigned_formations where l_status eq 100
-  res: form2006, transm2001, transp2004
+  res: form2006, transm2001, transm2002, transp2004
 
 custom_query_form_date:
   context:

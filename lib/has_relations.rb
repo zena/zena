@@ -191,23 +191,26 @@ module Zena
       end
       
       def link_id=(v)
-        self[:link_id] = v
+        if @link[:id].to_i != v.to_i
+          @link = nil
+        end
+        self[:link_id] = v.to_i
         @link_to_update ||= {}
-        @link_to_update[:id] = v
+        @link_to_update[:id] = v.to_i
       end
       
       private
         # ANOTHER HACK...
         def valid_update_link
           return true unless @link_to_update
-          if @link_to_update[:id].blank?
+          if self.link_id.blank?
             errors.add('link', 'id not set')
             return false
           end
           return true if !@link_to_update[:comment] && !@link_to_update[:status]
           
           unless @link && @link[:id] == @link_to_update[:id]
-            @link = Link.find_through(self, @link_to_update[:id])
+            @link = Link.find_through(self, self.link_id)
             unless @link
               errors.add('link', 'not found')
               return false

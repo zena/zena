@@ -807,6 +807,10 @@ select_time_zone:
   src: "<r:form><r:select type='time_zone' name='d_tz'/></r:form>"
   res: "/Asia/Jakarta.*Europe/Zurich.*US/Hawai"
 
+select_values_tshow:
+  src: "<r:select name='d_foo' values='1,2,3' tshow='en,fr,de'/>"
+  res: "/option value=.1.>english.*option value=.2.>french/"
+
 form_publish:
   src: "<r:form publish='true'><r:select name='d_foo' values='bar,baz'/></r:form>"
   res: "/div.*name='node\[v_status\]' value=\"50\"\/>.*<\/div>/"

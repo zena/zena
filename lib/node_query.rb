@@ -74,12 +74,12 @@ class NodeQuery < QueryBuilder
       case rel
       when 'self'
         fields = ['id', 'id']
-      when 'parent'
-        fields = ['id', 'parent_id']
-      when 'project'
-        fields = ['id', 'project_id']
-      when 'section'
-        fields = ['id', 'section_id']
+      when 'parent', 'project', 'section'
+        fields = ['id', "#{rel}_id"]
+      when 'parents', 'projects', 'sections'
+        if @table_counter[main_table] > 0 || @tables.include?('links')
+          fields = ['id', "#{rel[0..-2]}_id"]
+        end
       when 'root'
         @where << "#{table}.id = #{current_site.root_id}"
         return true
@@ -89,7 +89,9 @@ class NodeQuery < QueryBuilder
       when 'visitor'
         @where << "#{table}.id = \#{visitor.contact_id}"
         return true
-      else
+      end
+      
+      unless fields
         if klass = Node.get_class(rel)
           parse_context('self') unless context
           @where << "#{table}.kpath LIKE '#{klass.kpath}%'"

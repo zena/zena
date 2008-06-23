@@ -162,10 +162,6 @@ class NodesController < ApplicationController
   
   # modifications of the node itself (dates, groups, revert editions, etc)
   def edit
-    if params[:link_id]
-      @link = Link.find_through(@node, params[:link_id])
-    end
-    
     respond_to do |format|
       format.html do
         @title_for_layout = @node.rootpath
@@ -349,6 +345,11 @@ class NodesController < ApplicationController
       elsif params[:id]
         @node = secure!(Node) { Node.find_by_zip(params[:id]) }
       end
+      
+      if params[:link_id]
+        @link = Link.find_through(@node, params[:link_id])
+      end
+      
       @title_for_layout = @node.rootpath if @node
     end
 
