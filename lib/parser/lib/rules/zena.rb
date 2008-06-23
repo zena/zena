@@ -727,6 +727,13 @@ module Zena
 
           action = "?template_url=#{CGI.escape(template_url)}"
           action << "&dom_id=#{@context[:dom_id]}"
+          if @context[:need_link_id]
+            if @context[:saved_template]
+              action << "&link_id=\#{params[:link_id]}"
+            else
+              action << "&link_id=\#{#{node}[:link_id]}"
+            end
+          end
           
           if block = ancestor('block')
             action << "&upd_id=#{block.context[:dom_id]}"
@@ -758,12 +765,7 @@ module Zena
         # FIXME: DRY with html_attributes
         value = value.gsub(/\[([^\]]+)\]/) do
           node_attr = $1
-          if node_attr =~ /^param:(\w+)$/
-            res = "params[:#{$1}].to_s"
-          else
-            # normal node_attribute
-            res = node_attribute(node_attr)
-          end
+          res = node_attribute(node_attr)
           "\#{#{res}}"
         end
         select_opts = ", :selected => \"#{value}\""
@@ -846,16 +848,16 @@ module Zena
             hidden_fields['upd_id']  = block.context[:erb_dom_id]
           end
           
-          erb_dom_id = @context[:erb_dom_id]
-          dom_id     = @context[:dom_id]
+          erb_dom_id  = @context[:erb_dom_id]
+          dom_id      = @context[:dom_id]
           
           # inline form used to create new elements: set values to '' and 'parent_id' from context
           @html_tag_params.merge!(:id=>"#{erb_dom_id}_form", :style=>"display:none;")
           cancel =  "<p class='btn_x'><a href='#' onclick='[\"#{erb_dom_id}_add\", \"#{erb_dom_id}_form\"].each(Element.toggle);return false;'>#{_('btn_x')}</a></p>\n"
           form  =  "<%= form_remote_tag(:url => #{base_class.to_s.underscore.pluralize}_path, :html => {:id => \"#{dom_id}_form_t\"}) %>\n"
         else
-          erb_dom_id = "<%= params[:dom_id] %>"
-          dom_id     = "\#{params[:dom_id]}"
+          erb_dom_id  = "<%= params[:dom_id] %>"
+          dom_id      = "\#{params[:dom_id]}"
           
           if block = ancestor('block')
             hidden_fields['upd_url'] = block.context[:template_url]
@@ -871,7 +873,7 @@ module Zena
 <% if #{node}.new_record? -%>
   <p class='btn_x'><a href='#' onclick='[\"#{erb_dom_id}_add\", \"#{erb_dom_id}_form\"].each(Element.toggle);return false;'>#{_('btn_x')}</a></p>
 <% else -%>
-  <p class='btn_x'><%= link_to_remote(#{_('btn_x').inspect}, :url => #{base_class.to_s.underscore}_path(#{node_id}) + \"/zafu?template_url=#{CGI.escape(template_url)}&dom_id=\#{params[:dom_id]}\", :method => :get) %></a></p>
+  <p class='btn_x'><%= link_to_remote(#{_('btn_x').inspect}, :url => #{base_class.to_s.underscore}_path(#{node_id}) + \"/zafu?template_url=#{CGI.escape(template_url)}&dom_id=\#{params[:dom_id]}#{@context[:need_link_id] ? "&link_id=\#{#{node}[:link_id]}" : ''}\", :method => :get) %></a></p>
 <% end -%>
 END_TXT
           form =<<-END_TXT
@@ -885,8 +887,14 @@ END_TXT
         
         has_submit = @context[:make_form] ? (descendants('show') != []) : (descendants('input') != [])
         cancel += "<input type='submit'/>" unless has_submit
-
         
+        if @context[:need_link_id]
+          if @context[:saved_template]
+            hidden_fields['node[link_id]'] = "<%= params[:link_id] %>"
+          else
+            hidden_fields['node[link_id]'] = "<%= #{node}[:link_id] %>"
+          end
+        end
         hidden_fields['template_url'] = template_url
         hidden_fields['dom_id'] = erb_dom_id
         
@@ -1357,8 +1365,8 @@ END_TXT
    
     def r_case
       out "<% if false -%>"
-      res = expand_with(:in_if=>true, :only=>['when', 'else', 'elsif'])
-      out "#{render_html_tag(res)}<% end -%>"
+      out expand_with(:in_if=>true, :only=>['when', 'else', 'elsif'])
+      out "<% end -%>"
     end
     
     # TODO: test
@@ -1378,9 +1386,9 @@ END_TXT
       end
       
       out "<% if #{cond} -%>"
-      res =  expand_with(:in_if=>false)
-      res += expand_with(:in_if=>true, :only=>['else', 'elsif'])
-      out "#{render_html_tag(res)}<% end -%>"
+      out expand_with(:in_if=>false)
+      out expand_with(:in_if=>true, :only=>['else', 'elsif'])
+      out "<% end -%>"
     end
     
     def r_else
@@ -2055,8 +2063,9 @@ END_TXT
     end
     
     def do_list(list_finder=nil, opts={})
-      @context.delete(:template_url) # should not propagate
-      @context.delete(:make_form)    # should not propagate
+      @context.delete(:template_url)   # should not propagate
+      @context.delete(:make_form)      # should not propagate
+      @context.delete(:saved_template) # should not propagate
       
       @context.merge!(opts)          # pass options from 'zafu_known_contexts' to @context
       
@@ -2067,6 +2076,9 @@ END_TXT
         # ajax, build template. We could merge the following code with 'r_block'.
         add_block  = descendant('add')
         form_block = descendant('form') || each_block
+        
+        @context[:need_link_id] = form_block.need_link_id
+        
         if list_finder
           out "<% if (#{list_var} = #{list_finder}) || (#{node}.#{node_kind_of?(Comment) ? "can_comment?" : "can_write?"} && #{list_var}=[]) -%>"
         end
@@ -2087,17 +2099,17 @@ END_TXT
         out render_html_tag(res)
         out "<% end -%>" if list_finder
 
-        # TEMPLATE ========
+        # SAVED TEMPLATE ========
         template_node = "@#{base_class.to_s.underscore}"
-        template      = expand_block(each_block, :list=>false, :node=>template_node, :klass => klass, :template_url=>template_url)
+        template      = expand_block(each_block, :list=>false, :node=>template_node, :klass => klass, :template_url=>template_url, :saved_template => true)
         out helper.save_erb_to_url(template, template_url)
         
         # FORM ============
         form_url = "#{template_url}_form"
         if each_block != form_block
-          form = expand_block(form_block, :node=>template_node, :klass => klass, :template_url=>template_url, :add=>add_block, :publish_after_save => publish_after_save) 
+          form = expand_block(form_block, :node=>template_node, :klass => klass, :template_url=>template_url, :add=>add_block, :publish_after_save => publish_after_save, :saved_template => true) 
         else
-          form = expand_block(form_block, :node=>template_node, :klass => klass, :template_url=>template_url, :add=>add_block, :make_form=>true, :publish_after_save => publish_after_save)
+          form = expand_block(form_block, :node=>template_node, :klass => klass, :template_url=>template_url, :add=>add_block, :make_form=>true, :publish_after_save => publish_after_save, :saved_template => true)
         end
         out helper.save_erb_to_url(form, form_url)
       else
@@ -2212,7 +2224,7 @@ END_TXT
             nil
           end
         when :test
-          if value =~ /("[^"]*"|'[^']*'|[\w\.]+)\s*(>=|<=|<>|<|=|>|lt|le|eq|ne|ge|gt)\s*("[^"]*"|'[^']*'|[\w\.]+)/
+          if value =~ /("[^"]*"|'[^']*'|[\w:\.]+)\s*(>=|<=|<>|<|=|>|lt|le|eq|ne|ge|gt)\s*("[^"]*"|'[^']*'|[\w\.]+)/
             parts = [$1,$3]
             op = {'lt' => '<','le' => '<=','eq' => '==', '=' => '==','ne' => '!=','ge' => '>=','gt' => '>'}[$2] || $2
             toi   = ( op =~ /(>|<)/ || (parts[0] =~ /^\d+$/ || parts[1] =~ /^\d+$/) )
@@ -2320,6 +2332,8 @@ END_TXT
     def node_attribute(str, opts={})
       attribute, att_node, klass = get_attribute_and_node(str)
       return 'nil' unless attribute
+      return "params[:#{$1}]" if attribute =~ /^param:(\w+)$/
+      
       att_node  ||= opts[:node]       || node
       klass     ||= opts[:node_class] || node_class
       
@@ -2368,7 +2382,7 @@ END_TXT
           if k.to_s =~ /^(.+)_if$/
             klass = $1
             cond  = get_test_condition(node_name, :test => v)
-          elsif k.to_s =~ /^(.+)_if_(test|node|kind_of|klass|status|lang|can|node|in)$/
+          elsif k.to_s =~ /^(.+)_if_(test|node|kind_of|klass|status|lang|can|in)$/
             klass = $1
             cond  = get_test_condition(node_name, $2.to_sym => v)
           end
@@ -2393,12 +2407,7 @@ END_TXT
             node_attr = $1
             
             use_node  = @var || node
-            if node_attr =~ /^param:(\w+)$/
-              res = "params[:#{$1}].to_s"
-            else
-              # normal node_attribute
-              res = node_attribute(node_attr, :node => use_node )
-            end
+            res = node_attribute(node_attr, :node => use_node )
             
             if trans
               "\#{#{res}}"
@@ -2612,6 +2621,20 @@ END_TXT
       else
         field = 'text'
       end
+    end
+    
+    # Returns true if a form/edit needs to keep track of link_id (l_status or l_comment used).
+    def need_link_id
+      if (input_fields = descendants('input')) != []
+        input_fields.each do |f|
+          return true if f.params[:name] =~ /\Al_/
+        end
+      elsif (show_fields = descendants('show')) != []
+        show_fields.each do |f|
+          return true if f.params[:attr] =~ /\Al_/
+        end
+      end
+      return false
     end
     
     def parser_error(message, tag=@method)

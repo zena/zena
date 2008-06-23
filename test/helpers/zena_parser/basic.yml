@@ -447,6 +447,14 @@ if_test_equal:
   src: "<r:if test='id = 22'>one</r:if>"
   res: "one"
 
+if_test_param:
+  src: "<r:if test='param:f eq 3'>three</r:if> / <r:if test='param:f'>exist</r:if>"
+  tem: "<% if params[:f].to_i == 3 -%>three<% end -%> / <% if !params[:f].blank? -%>exist<% end -%>"
+
+do_if:
+  src: "<b do='if' test='1 eq 2'>it's true<r:else>it's false</r:else></b>"
+  res: "<b>it's false</b>"
+
 if_has_discussion:
   src: "<r:show attr='name'/>:<r:if has='discussion'>yes<r:else>no</r:else></r:if> <r:node select='42'><r:show attr='name'/>:<r:if has='discussion'>yes<r:else>no</r:else></r:if></r:node>"
   res: "status:yes letter:no"

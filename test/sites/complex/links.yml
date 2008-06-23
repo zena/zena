@@ -47,7 +47,9 @@ form2006_x_roger:
 
 transm2001_x_roger:
   status: 100
-  
+
+transm2002_x_roger:
+  status: 100
 # ====== failed formations for 'roger'
 transp2006_x_roger:
   status: 10

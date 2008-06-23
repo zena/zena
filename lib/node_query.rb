@@ -250,13 +250,24 @@ class NodeQuery < QueryBuilder
     
     def parse_custom_query_argument(key, value)
       return nil unless value
-      super.gsub(/RELATION_ID\(([^)]+)\)/) do
-        role = $1
-        if rel = Relation.find_by_role(role.singularize)
-          rel[:id]
-        else
-          @errors << "could not find Relation '#{role}' in custom query"
-          '-1'
+      super.gsub(/(RELATION_ID|NODE_ATTR)\(([^)]+)\)/) do
+        type, value = $1, $2
+        if type == 'RELATION_ID'
+          role = value
+          if rel = Relation.find_by_role(role.singularize)
+            rel[:id]
+          else
+            @errors << "could not find Relation '#{role}' in custom query"
+            '-1'
+          end
+        elsif type == 'NODE_ATTR'
+          attribute = value
+          if Node.zafu_readable?(attribute)
+            "\#{Node.connection.quote(#{@node_name}.#{attribute})}"
+          else
+            @errors << "cannot read attribute '#{attribute}' in custom query"
+            '-1'
+          end
         end
       end.gsub(/NODE_ID/) do
         @uses_node_name = true

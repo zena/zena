@@ -54,12 +54,37 @@ all_achieved_formations_for_roger:
 custom_query_form_date:
   context:
     node: roger
-  src: form_date order by name ASC
+  src: emp_form_date order by name ASC
   res: "dangerous_transportations, engine, fiber_junction, formulate_problems, radio_usage, secure_a_site, transmit_information, winch_usage"
 
 custom_query_form_with_where:
   context:
     node: roger
     ref_date: 2005-03-01
-  src: form_dates where custom_a is not null and (event_at is null or log_at lt REF_DATE + 6 month)
+  src: emp_form_dates where custom_a is not null and (event_at is null or log_at lt REF_DATE + 6 month)
   res: "engine, transmit_information"
+
+find_employees_related_to_a_course__formulate_problems:
+  context:
+    node: transmit_information
+  src: assigned_employees from project from assigned_pages
+  res: 'joe, mike, roger'
+
+find_employees_related_to_a_course__fiber_junction:
+  context:
+    node: fiber_junction
+  src: assigned_employees from project from assigned_pages
+  res: 'joe, mike, roger'
+
+
+find_employees_related_to_a_course__vision:
+  context:
+    node: vision
+  src: assigned_employees from project from assigned_pages
+  res: 'mike'
+
+course_emp_date:
+  context:
+    node: transmit_information
+  src: "course_emp_dates"
+  res: "joe, mike, roger"

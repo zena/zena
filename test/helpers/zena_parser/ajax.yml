@@ -115,3 +115,18 @@ live_filter:
 draggable_do_syntax:
   src: "<r:images in='site' do='each' draggable='true' do='img' mode='pv'/>"
   res: "/div id='list_22_30'><img src='/en/image30_pv.jpg'.*list_22_30.*.each\(Zena.draggable/"
+
+
+unlink:
+  context:
+    node: 'art'
+  src: "<r:tagged do='each' join=',' do='unlink'/>"
+  res: "/<a class=.unlink..*onclick=.*Ajax.Request\('/nodes/21/links/_ID(cleanWater_in_art)\?dom_id=list_33.*bullet_delete.png.*links/_ID(opening_in_art)/"
+  
+edit_link:
+  context:
+    node: 'art'
+  src: "<r:tagged><r:each><r:show attr='name'/>: <r:show attr='l_status'/> <r:edit/></r:each></r:tagged>"
+  res: "/link_id/"
+  'edit/link/en/list_form.erb': "/<input type='hidden' name='node[link_id]' value=\"<%= params\[:link_id\] %>\"/>/"
+  'edit/link/en/list.erb': "/\#\{params\[:link_id\]\}/"

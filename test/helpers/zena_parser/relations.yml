@@ -338,12 +338,6 @@ many_or:
 hot_or_page:
   src: "<r:hot or='page in project'>...</r:hot>"
   tem: "/:first.*.*links.relation_id = _ID(project_has_a_hot_element).*nodes.kpath LIKE 'NP%' AND nodes.project_id = #\{@node.get_project_id\}.*LIMIT 1"
-
-unlink:
-  context:
-    node: 'art'
-  src: "<r:tagged do='each' join=',' do='unlink'/>"
-  res: "/<a class=.unlink..*onclick=.*Ajax.Request\('/nodes/21/links/_ID(cleanWater_in_art)\?dom_id=list_33.*bullet_delete.png.*links/_ID(opening_in_art)/"
   
 node_in_version:
   src: "<r:version><r:node do='[name]'/></r:version>"

@@ -165,17 +165,59 @@ module Zena
       
       # status defined through loading link
       def l_status
-        self[:l_status]
+        @link ? @link[:status] : self[:l_status]
       end
       
       # comment defined through loading link
       def l_comment
-        self[:l_comment]
+        @link ? @link[:comment] : self[:l_comment]
+      end
+      
+      # ALL THIS IS HORRIBLE CODE. NEED MORE TIME TO REWRITE THIS BIG MESS...
+      def l_status=(v)
+        self[:l_status] = v
+        @link_to_update ||= {}
+        @link_to_update[:status] = v
+      end
+      
+      def l_comment=(v)
+        self[:l_comment] = v
+        @link_to_update ||= {}
+        @link_to_update[:comment] = v
+      end
+      
+      def link_id
+        @link ? @link[:id] : self[:link_id]
+      end
+      
+      def link_id=(v)
+        self[:link_id] = v
+        @link_to_update ||= {}
+        @link_to_update[:id] = v
       end
       
       private
-      
+        # ANOTHER HACK...
+        def valid_update_link
+          return true unless @link_to_update
+          if @link_to_update[:id].blank?
+            errors.add('link', 'id not set')
+            return false
+          end
+          return true if !@link_to_update[:comment] && !@link_to_update[:status]
+          
+          unless @link && @link[:id] == @link_to_update[:id]
+            @link = Link.find_through(self, @link_to_update[:id])
+            unless @link
+              errors.add('link', 'not found')
+              return false
+            end
+          end
+          return true
+        end
+        
         def valid_links
+          valid_update_link
           return true unless @relations_to_update
           @valid_relations_to_update = []
           @relations_to_update.each do |action, params|
@@ -227,6 +269,14 @@ module Zena
         end
       
         def update_links
+          if @link_to_update && @link
+            [:comment, :status].each do |k|
+              next unless defined?(@link_to_update[k])
+              @link[k] = @link_to_update[k]
+            end
+            @link.save
+          end
+          
           return if @valid_relations_to_update.blank?
           @valid_relations_to_update.each do |relation|
             relation.update_links!

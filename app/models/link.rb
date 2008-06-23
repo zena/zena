@@ -68,11 +68,7 @@ class Link < ActiveRecord::Base
       end
       self['node_zip']  = @node[:zip]
       self['other_zip'] = @other.zip
-      @other['link_id'] = self[:id]
       @other.link  = self # used to get l_status, l_comment after save
-      
-      @node['link_id']   = self[:id]
-      @node['l_status']  = self[:status]
-      @node['l_comment'] = self[:comment]
+      @node.link   = self
     end
 end

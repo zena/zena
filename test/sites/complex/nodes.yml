@@ -211,6 +211,12 @@ transm2001:
   v_title:         transinfo 2001
   event_at:        2001-06-15
 
+transm2002:
+  class:           Formation
+  parent:          transmit_information
+  v_title:         transinfo 2002
+  event_at:        2002-05-05
+  
 transm2003:
   class:           Formation
   parent:          transmit_information

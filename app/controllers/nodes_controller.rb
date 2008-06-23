@@ -162,6 +162,10 @@ class NodesController < ApplicationController
   
   # modifications of the node itself (dates, groups, revert editions, etc)
   def edit
+    if params[:link_id]
+      @link = Link.find_through(@node, params[:link_id])
+    end
+    
     respond_to do |format|
       format.html do
         @title_for_layout = @node.rootpath

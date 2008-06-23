@@ -1,9 +1,16 @@
 NodeQuery:
   # form_dates
-  form_date:
+  emp_form_date:
     select:
       - no1.id
       - no1.name
+      - no1.publish_from
+      - no1.zip
+      - no1.vclass_id
+      - no1.type
+      - no1.rgroup_id
+      - no1.pgroup_id
+      - no1.ref_lang
       - form.event_at + INTERVAL no1.custom_a MONTH AS log_at
       - form.event_at AS event_at
     tables:
@@ -21,3 +28,33 @@ NodeQuery:
       - links.relation_id = RELATION_ID(assigned_job) AND links.source_id = NODE_ID
     group: no1.id
     order: event_at ASC, no1.name ASC
+  
+  course_emp_date:
+    select:
+      - no1.id
+      - no1.name
+      - no1.publish_from
+      - no1.zip
+      - no1.vclass_id
+      - no1.type
+      - no1.rgroup_id
+      - no1.pgroup_id
+      - no1.ref_lang
+      - MAX(form.event_at) + INTERVAL NODE_ATTR(custom_a) MONTH AS log_at
+      - MAX(form.event_at) AS event_at
+    tables:
+      # NODE_ID = course
+      # nodes   = pages assigned to course
+      - nodes
+      # no1     = employees with job containing the pages assigned to course
+      - nodes AS no1
+      - links
+      - links AS li1
+    join_tables:
+      no1:
+        - LEFT JOIN nodes AS form INNER JOIN links AS flink ON form.id = flink.source_id AND flink.relation_id = RELATION_ID(assigned_formation) AND flink.status = 100 ON flink.target_id = no1.id AND form.project_id = NODE_ID
+    where:
+      - no1.id = li1.source_id AND li1.relation_id = RELATION_ID(assigned_employee) AND li1.target_id = nodes.project_id
+      - nodes.id = links.target_id AND links.relation_id = RELATION_ID(assigned_page) AND links.source_id = NODE_ID
+    group: no1.id
+    order: no1.name ASC, form.event_at ASC
