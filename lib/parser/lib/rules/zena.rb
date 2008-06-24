@@ -498,17 +498,25 @@ module Zena
       else
         return parser_error("missing 'block' in same parent")
       end
-      template_url = block.get_template_url(@context)
-      states = (@params[:states] || 'todo, done').split(',').map{|e| e.strip}
-      if states.include?("")
-        text = get_text_for_erb(@params.merge(:attr=>nil))
-      else
-        text = get_text_for_erb
-      end
+      states = ((@params[:states] || 'todo, done') + ' ').split(',').map(&:strip)
       
-      auto_publish = @params[:publish] ? "&node[v_status]=#{Zena::Status[:pub]}" : ''
+      action = "?template_url=#{CGI.escape(block.get_template_url(@context))}"
+      action << "&node[v_status]=#{Zena::Status[:pub]}" if @params[:publish]
+      action << "&dom_id=#{@context[:dom_id]}"
+      action << "&node[#{@params[:attr]}]=\#{#{states.inspect}[ ((#{states.inspect}.index(#{node_attribute(@params[:attr])}.to_s) || 0)+1) % #{states.size}]}"
             
-      out "<%= #{node}.can_write? ? link_to_remote(#{text}, {:url => node_path(#{node_id}) + \"?template_url=#{CGI.escape(template_url)}#{auto_publish}&node[#{@params[:attr]}]=\#{#{states.inspect}[ ((#{states.inspect}.index(#{node_attribute(@params[:attr])}) || 0)+1) % #{states.size}]}\", :method => :put}) : '' %>"
+      out "<% if #{node}.can_write? %>"
+      out "<%= tag_to_remote({:url => node_path(#{node_id}) + \"#{action}\", :method => :put}) %>"
+      if @blocks != []
+        inner = expand_with
+      else
+        inner = get_text_for_erb
+      end
+      out inner
+      out "</a>"
+      out "<% else -%>"
+      out inner
+      out "<% end -%>"
     end
     
     def r_load

@@ -82,7 +82,7 @@ module ApplicationHelper
   
   # Quote for html values (input tag, alt attribute, etc)
   def fquote(text)
-    text ? text.gsub("'",'&apos;') : text
+    text.to_s.gsub("'",'&apos;')
   end
   
   # creates a pseudo random string to avoid browser side ajax caching
