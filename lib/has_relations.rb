@@ -165,12 +165,13 @@ module Zena
       
       # status defined through loading link
       def l_status
-        @link ? @link[:status] : self[:l_status]
+        val = @link ? @link[:status] : self['l_status']
+        val ? val.to_i : nil
       end
       
       # comment defined through loading link
       def l_comment
-        @link ? @link[:comment] : self[:l_comment]
+        @link ? @link[:comment] : self['l_comment']
       end
       
       # ALL THIS IS HORRIBLE CODE. NEED MORE TIME TO REWRITE THIS BIG MESS...
@@ -191,7 +192,7 @@ module Zena
       end
       
       def link_id=(v)
-        if @link[:id].to_i != v.to_i
+        if @link && @link[:id].to_i != v.to_i
           @link = nil
         end
         self[:link_id] = v.to_i

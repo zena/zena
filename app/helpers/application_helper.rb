@@ -68,6 +68,23 @@ module ApplicationHelper
     super(name, options, html_options)
   end
   
+  # only display first <a> tag
+  def tag_to_remote(options = {}, html_options = {})
+    url = url_for(options[:url])
+    res = "<a onclick=\"new Ajax.Request('#{url}', {asynchronous:true, evalScripts:true, method:'#{options[:method] || 'get'}'}); return false;\" href='#{url}'"
+    html_options.each do |k,v|
+      next unless [:class, :id, :style].include?(k)
+      res << " #{k}='#{v}'"
+    end
+    res << ">"
+    res
+  end
+  
+  # Quote for html values (input tag, alt attribute, etc)
+  def fquote(text)
+    text ? text.gsub("'",'&apos;') : text
+  end
+  
   # creates a pseudo random string to avoid browser side ajax caching
   def rnd
     Time.now.to_i
@@ -518,7 +535,7 @@ latex_template = %q{
       format  = Iformat[opts[:mode]] || Iformat['std']
       
       res[:id]    = opts[:id]
-      res[:alt]   = opts[:alt] || obj.v_title.gsub("'", '&apos;')
+      res[:alt]   = opts[:alt] || fquote(obj.v_title)
       res[:src]   = data_path(obj, :mode => (format[:size] == :keep ? nil : format[:name]))
       res[:class] = opts[:class] || format[:name]
       

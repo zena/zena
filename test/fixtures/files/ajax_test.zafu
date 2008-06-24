@@ -20,7 +20,7 @@
       <h3>edit block test</h3>
       <r:block>
         <r:text/>
-        <r:edit/>
+        <r:edit><r:if test='1 eq 2'>blue<r:else>edit in else</r:else></r:if></r:edit>
       </r:block>
     </div>
 

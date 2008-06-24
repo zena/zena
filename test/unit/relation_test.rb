@@ -324,6 +324,14 @@ class RelationTest < ZenaTestUnit
     # reload
     node = secure!(Node) { nodes(:cleanWater) }
     assert_equal 'very hot', node.find(:first, 'hot').l_comment
+    # modify again
+    node.update_attributes(:link_id => links_id(:status_hot_for_cleanWater), :l_comment => 'very hot', :l_status => '45')
+    assert node.save
+    # reload
+    hot  = node.find(:first, 'hot')
+    node = secure!(Node) { nodes(:cleanWater) }
+    assert_equal 'very hot', hot.l_comment
+    assert_equal 45,         hot.l_status
   end
   
   # Fixing this is not a priority. Refs #196.

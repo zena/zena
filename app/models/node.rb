@@ -708,14 +708,6 @@ class Node < ActiveRecord::Base
     vclass.to_s
   end
   
-  def l_status
-    @link ? @link[:status] : self['l_status']
-  end
-  
-  def l_comment
-    @link ? @link[:comment] : self['l_comment']
-  end
-  
   def klass=(str)
     # TODO: set @new_klass... and transform
   end

@@ -733,7 +733,14 @@ module Zena
             action << "&upd_id=#{block.context[:dom_id]}"
           end
           # TODO: show 'reply' instead of 'edit' in comments if visitor != author
-          "<%= #{node}.can_write? ? link_to_remote(#{text || _('edit').inspect}, {:url => edit_#{base_class.to_s.underscore}_path(#{node_id}) + \"#{action}\", :method => :get}#{params_to_erb(@params)}) : '' %>"
+          out "<% if #{node}.can_write? -%>"
+          out "<%= tag_to_remote({:url => edit_#{base_class.to_s.underscore}_path(#{node_id}) + \"#{action}\", :method => :get}#{params_to_erb(@params)}) %>"
+          if @blocks != []
+            out expand_with
+          else
+            out get_text_for_erb || _('edit')
+          end
+          out "</a><% end -%>"
         end
       else
         # FIXME: we could link to some html page to edit the item.
@@ -2485,9 +2492,9 @@ END_TXT
       end
       
       if @context[:in_add]
-        res[:value] = (params[:value] || params[:set_value]) ? ["'#{params[:value]}'"] : ["''"]
+        res[:value] = (params[:value] || params[:set_value]) ? ["'#{ helper.fquote(params[:value])}'"] : ["''"]
       else
-        res[:value] = attribute ? ["'<%= #{node_attribute(attribute)} %>'"] : ["''"]
+        res[:value] = attribute ? ["'<%= fquote #{node_attribute(attribute)} %>'"] : ["''"]
       end
       return [res, attribute]
     end
