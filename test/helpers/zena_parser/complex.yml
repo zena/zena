@@ -5,9 +5,9 @@ default:
     visitor: complex_admin
     site: complex
     ref_date: 2005-03-01
-  src: "<r:form_dates where='custom_a is not null' do='each' join=', '><r:show attr='name'/> (<r:show date='event_at' format='%Y-%m-%d'/>, <r:show date='log_at' format='%Y-%m-%d'/>)</r:form_dates>"
-  res: "engine (, ), transmit_information (2001-06-15, 2002-06-15), dangerous_transportations (2004-03-15, 2006-03-15)"
-
+  src: "<r:emp_form_dates where='custom_a is not null' do='each' join=', '><r:show attr='name'/> (<r:show date='event_at' format='%Y-%m-%d'/>, <r:show date='log_at' format='%Y-%m-%d'/>)</r:emp_form_dates>"
+  res: "engine (, ), transmit_information (2002-05-05, 2003-05-05), dangerous_transportations (2004-03-15, 2006-03-15)"
+  
 courses_in_the_next_6_months:
   # log_at   = next_date
   # event_at = last_date
@@ -21,11 +21,11 @@ courses_in_the_next_6_months_do_syntax:
 
 all_formations:
   src: "<r:formations in='site' do='each' join=', '><r:show attr='name'/>: <r:show date='event_at'/></r:formations>"
-  res: "form2005: 2005-03-20, form2006: 2006-03-20, transm2001: 2001-06-15, transm2003: 2003-03-20, transp2004: 2004-03-15, transp2006: 2006-04-21"
+  res: "form2005: 2005-03-20, form2006: 2006-03-20, transm2001: 2001-06-15, transm2002: 2002-05-05, transm2003: 2003-03-20, transp2004: 2004-03-15, transp2006: 2006-04-21"
 
 all_formations_with_people:
   src: "<r:formations in='site' do='each' join=', '><r:show attr='name'/>: <r:show date='event_at'/> (<r:formation_for find='all' do='each' join=', ' do='[name]'/>)</r:formations>"
-  res: "form2005: 2005-03-20 (roger), form2006: 2006-03-20 (roger), transm2001: 2001-06-15 (roger), transm2003: 2003-03-20 (), transp2004: 2004-03-15 (roger), transp2006: 2006-04-21 (roger)"
+  res: "form2005: 2005-03-20 (roger), form2006: 2006-03-20 (roger), transm2001: 2001-06-15 (roger), transm2002: 2002-05-05 (roger), transm2003: 2003-03-20 (), transp2004: 2004-03-15 (roger), transp2006: 2006-04-21 (roger)"
 
 all_people_related_to_a_course:
   context:

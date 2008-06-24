@@ -172,9 +172,6 @@ module Zena
       
       @var = nil # reset var counter
       
-      # some 'html_tag' information can be set during rendering and should merge into tag_params
-      @html_tag_params_bak = @html_tag_params
-      @html_tag_params     = @html_tag_params.merge(@context.delete(:html_tag_params) || {})
       if key = @params[:store]
         set_stored(Node, key, node)
       end
@@ -237,7 +234,6 @@ module Zena
       else
         res = super
       end
-      @html_tag_params = @html_tag_params_bak # ???
       res
     end
 
@@ -1368,7 +1364,8 @@ END_TXT
    
     def r_case
       out "<% if false -%>"
-      out expand_with(:in_if=>true, :only=>['when', 'else', 'elsif'])
+      out expand_with(:in_if=>true, :only=>['when', 'else'], :html_tag => @html_tag, :html_tag_params => @html_tag_params)
+      @html_tag_done = true
       out "<% end -%>"
     end
     
@@ -1381,7 +1378,7 @@ END_TXT
         return expand_with(:in_if => false)
       elsif cond == 'false'
         if descendant('else') || descendant('elsif')
-          return expand_with(:in_if=>true, :only=>['else', 'elsif'])
+          return expand_with(:in_if=>true, :only=>['elsif', 'else'])
         else
           @html_tag_done = true
           return ''
@@ -1389,18 +1386,20 @@ END_TXT
       end
       
       out "<% if #{cond} -%>"
-      out expand_with(:in_if=>false)
-      out expand_with(:in_if=>true, :only=>['else', 'elsif'])
+      out render_html_tag(expand_with(:in_if=>false))
+      out expand_with(:in_if=>true, :only=>['elsif', 'else'], :html_tag => @html_tag, :html_tag_params => @html_tag_params)
       out "<% end -%>"
     end
     
     def r_else
       if @context[:in_if]
+        @html_tag = @context[:html_tag]
+        @html_tag_params = @context[:html_tag_params] || {}
         out "<% elsif true -%>"
         if @params[:text]
-          out @params[:text]
+          out render_html_tag(@params[:text])
         else
-          out expand_with(:in_if=>false)
+          out render_html_tag(expand_with(:in_if=>false))
         end
       else
         ""
@@ -1409,10 +1408,12 @@ END_TXT
     
     def r_elsif
       return '' unless @context[:in_if]
+      @html_tag = @context[:html_tag]
+      @html_tag_params = @context[:html_tag_params] || {}
       cond = get_test_condition
       return parser_error("condition error") unless cond
       out "<% elsif #{cond} -%>"
-      out expand_with(:in_if=>false)
+      out render_html_tag(expand_with(:in_if=>false))
     end
     
     def r_when
@@ -2059,7 +2060,7 @@ END_TXT
       res = expand_with(opts.merge(:node=>var, :in_if => false))
       
       if var_finder
-        res += expand_with(opts.merge(:in_if => true, :only => ['else', 'elsif']))
+        res += expand_with(opts.merge(:in_if => true, :only => ['else', 'elsif'], :html_tag_params => @html_tag_params, :html_tag => @html_tag))
       end
       out render_html_tag(res)
       out "<% end -%>" if var_finder
@@ -2309,6 +2310,10 @@ END_TXT
         # do not propagate 'form',etc up
         all.reject do |k,v|
           ['form','unlink'].include?(k)
+        end
+      elsif ['if', 'case'].include?(self.method)
+        all.reject do |k,v|
+          ['else', 'elsif', 'when'].include?(k)
         end
       else
         all

@@ -40,11 +40,15 @@ module Zafu
           end
         end
       end
+      # [each] is run many times with different roles. Some of these change html_tag_params.
+      @html_tag_params_bak = @html_tag_params.dup
       true
     end
     
     def after_render(text)
-      render_html_tag(super)
+      res = render_html_tag(super)
+      @html_tag_params = @html_tag_params_bak
+      res
     end
     
     def inspect

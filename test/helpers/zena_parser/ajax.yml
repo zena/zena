@@ -61,7 +61,7 @@ each_edit_with_form:
   context:
     node: 'wiki'
   src: "<r:children><r:each><li><r:show attr='name'>blah</r:show> <r:edit>edit</r:edit></li>\n</r:each><r:form><li><form>this is the form</form></li></r:form></r:children>"
-  res: "/<li id='list.29.30'>bird <a href=\"/nodes/30/edit\?template_url=.*\" onclick=\"new Ajax.Request\('/nodes/30/edit\?template_url=%2Feach%2Fedit%2Fwith%2Fform%2Flist/"
+  res: "/<li id='list.29.30'>bird <a href='/nodes/30/edit\?template_url=.*' onclick=\"new Ajax.Request\('/nodes/30/edit\?template_url=%2Feach%2Fedit%2Fwith%2Fform%2Flist/"
 
 make_form:
   src: "<ul do='children'><li do='each' do='[name]'/><li do='add'/></ul>"
@@ -128,5 +128,5 @@ edit_link:
     node: 'art'
   src: "<r:tagged><r:each><r:show attr='name'/>: <r:show attr='l_status'/> <r:edit/></r:each></r:tagged>"
   res: "/link_id/"
-  'edit/link/en/list_form.erb': "/<input type='hidden' name='node[link_id]' value=\"<%= params\[:link_id\] %>\"/>/"
-  'edit/link/en/list.erb': "/\#\{params\[:link_id\]\}/"
+  'edit/link/en/list_form.erb': "/<input type='hidden' name='link_id' value=\"<%= @node.link_id %>\"/>/"
+  'edit/link/en/list.erb': "/\#\{@node.link_id\}/"

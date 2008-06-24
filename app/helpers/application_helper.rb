@@ -71,7 +71,7 @@ module ApplicationHelper
   # only display first <a> tag
   def tag_to_remote(options = {}, html_options = {})
     url = url_for(options[:url])
-    res = "<a onclick=\"new Ajax.Request('#{url}', {asynchronous:true, evalScripts:true, method:'#{options[:method] || 'get'}'}); return false;\" href='#{url}'"
+    res = "<a href='#{url}' onclick=\"new Ajax.Request('#{url}', {asynchronous:true, evalScripts:true, method:'#{options[:method] || 'get'}'}); return false;\""
     html_options.each do |k,v|
       next unless [:class, :id, :style].include?(k)
       res << " #{k}='#{v}'"

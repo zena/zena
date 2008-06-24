@@ -434,7 +434,19 @@ case_when_else_text:
 case_when_test:
   src: "<r:case><r:when test='id gt 10'>one</r:when><r:when test='v_updated_at gt updated_at'>two</r:when></r:case>"
   res: "one"
-
+  
+if_html_tag:
+  src: "<div do='if' test='1 eq 1'>yes it's true<r:else>four</r:else></div>"
+  res: "<div>yes it's true</div>"
+  
+case_when_html_tag:
+  src: "<div do='case'><r:when test='1 eq 3'>one</r:when><r:when test='1 eq 1'>two</r:when><r:else>four</r:else></div>"
+  res: "<div>two</div>"
+  
+case_when_html_tag_else:
+  src: "<div do='case'><r:when test='1 eq 3'>one</r:when><r:when test='1 eq 3'>two</r:when><r:else>four</r:else></div>"
+  res: "<div>four</div>"
+  
 case_when_test_attribute:
   src: "<r:case><r:when test='v_title'>one</r:when><r:else>two</r:else></r:case>"
   res: "one"
@@ -830,7 +842,7 @@ input:
   context:
     node: 'ant'
   src: "<r:input name='c_first_name'/>"
-  tem: "<input id='node_c_first_name' name='node[c_first_name]' type='text' value='<%= @node.c_zafu_read(\"first_name\") %>'/>"
+  tem: "<input id='node_c_first_name' name='node[c_first_name]' type='text' value='<%= fquote @node.c_zafu_read(\"first_name\") %>'/>"
   res: "<input id='node_c_first_name' name='node[c_first_name]' type='text' value='Solenopsis'/>"
 
 input_new:
