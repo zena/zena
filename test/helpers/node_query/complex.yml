@@ -61,8 +61,8 @@ custom_query_form_with_where:
   context:
     node: roger
     ref_date: 2005-03-01
-  src: emp_form_dates where custom_a is not null and (event_at is null or log_at lt REF_DATE + 6 month)
-  res: "engine, transmit_information"
+  src: emp_form_dates where custom_a is not null and (last_date is null or next_date lt REF_DATE + 6 month) order by next_date desc
+  res: "transmit_information, engine"
 
 find_employees_related_to_a_course__formulate_problems:
   context:
@@ -88,3 +88,32 @@ course_emp_date:
     node: transmit_information
   src: "course_emp_dates"
   res: "joe, mike, roger"
+
+all_course_emp_date:
+  src: "assigned_employees from project from assigned_pages from courses in site"
+  res: "joe, mike, roger"
+  
+courses_with_rep:
+  src: "courses where custom_a is not null in site"
+  res: "dangerous_transportations, engine, fiber_junction, formulate_problems, radio_usage, resp_management, secure_a_site, team_motivation, transmit_information, vision, winch_usage"
+  
+all_course_emp_date:
+  context:
+    ref_date: 2004-06-01
+    # next:
+    # vision: 2005-04-05
+    # dangerous_transportations: 2006-03-15
+    # fiber_junction: 2005-03-03
+  src: "all_course_emp_date where custom_a is not null and (last_date is null or next_date lt REF_DATE + 6 month) order by name asc"
+  res: "engine, formulate_problems, radio_usage, resp_management, secure_a_site, team_motivation, transmit_information, winch_usage"
+
+all_course_emp_date:
+  context:
+    ref_date: 2005-01-01
+    # next:
+    # vision: 2005-04-05
+    # dangerous_transportations: 2006-03-15
+    # fiber_junction: 2005-03-03
+  src: "all_course_emp_date where custom_a is not null and (last_date is null or next_date lt REF_DATE + 6 month) order by name asc"
+  res: "engine, fiber_junction, formulate_problems, radio_usage, resp_management, secure_a_site, team_motivation, transmit_information, vision, winch_usage"
+  

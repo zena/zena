@@ -11,6 +11,7 @@ class Comment < ActiveRecord::Base
   attr_accessible    :title, :text, :author_name, :discussion_id, :reply_to, :status
   
   belongs_to :discussion
+  belongs_to :node #, :through => :discussion (TOO BAD...)
   validate   :valid_comment
   before_validation :comment_before_validation
   after_save :sweep_cache

@@ -130,6 +130,7 @@ dangerous_transportations:
 formulate_problems:
   class:           Course
   parent:          courses
+  custom_a:        24
   v_title:         problem formulation
 
 transmit_information:
@@ -147,36 +148,43 @@ engine:
 secure_a_site:
   class:           Course
   parent:          courses
+  custom_a:        24
   v_title:         secure a site
 
 winch_usage:
   class:           Course
   parent:          courses
+  custom_a:        24
   v_title:         how to use the winch
 
 radio_usage:
   class:           Course
   parent:          courses
+  custom_a:        24
   v_title:         how to use the radio
 
 fiber_junction:
   class:           Course
   parent:          courses
+  custom_a:        24
   v_title:         fiber junction
 
 resp_management:
   class:           Course
   parent:          courses
+  custom_a:        24
   v_title:         responsabilities management
 
 team_motivation:
   class:           Course
   parent:          courses
+  custom_a:        24
   v_title:         motivate your team
 
 vision:
   class:           Course
   parent:          courses
+  custom_a:        24
   v_title:         our vision
 
 # ------------- FORMATIONS
@@ -193,6 +201,18 @@ transp2006:
   v_title:         dtransp 2006
   event_at:        2006-04-21
 
+fiber2002:
+  class:           Formation
+  parent:          fiber_junction
+  v_title:         fiber 2002
+  event_at:        2002-02-02
+  
+fiber2003:
+  class:           Formation
+  parent:          fiber_junction
+  v_title:         fiber 2003
+  event_at:        2003-03-03
+  
 form2005:
   class:           Formation
   parent:          formulate_problems
@@ -222,3 +242,9 @@ transm2003:
   parent:          transmit_information
   v_title:         transinfo 2003
   event_at:        2003-03-20
+
+vision2003:
+  class:           Formation
+  parent:          vision
+  v_title:         vision 2003
+  event_at:        2003-04-05

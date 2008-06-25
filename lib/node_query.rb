@@ -147,6 +147,7 @@ class NodeQuery < QueryBuilder
     end
     
     def map_field(field, table_name = table, context = nil)
+      return map_literal("[#{field}]") if field =~ /\Aparam:/
       case field[0..1]
       when 'd_'
         # DYNAMIC ATTRIBUTE

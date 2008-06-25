@@ -185,7 +185,7 @@ class QueryBuilder
           res << " "
         elsif rest[0..0] == '('
           unless allowed.include?(:par_open)
-            @errors << "invalid clause #{clause.inspect} near #{rest.inspect}" 
+            @errors << "invalid clause #{clause.inspect} near #{res.inspect}" 
             return
           end
           res << '('
@@ -193,20 +193,20 @@ class QueryBuilder
           par_count += 1
         elsif rest[0..0] == ')'  
           unless allowed.include?(:par_close)
-            @errors << "invalid clause #{clause.inspect} near #{rest.inspect}" 
+            @errors << "invalid clause #{clause.inspect} near #{res.inspect}" 
             return
           end
           res << ')'
           rest = rest[1..-1]
           par_count -= 1
           if par_count < 0
-            @errors << "invalid clause #{clause.inspect} near #{rest.inspect}"
+            @errors << "invalid clause #{clause.inspect} near #{res.inspect}"
             return
           end
           allowed = [:op, :bool_op]
-        elsif rest =~ /\A(not like|like|>=|<=|<>|<|=|>|lt|le|eq|ne|ge|gt)/
+        elsif rest =~ /\A(not like|like|>=|<=|<>|<|=|>|lt|le|eq|ne|ge|gt)\s+/
           unless allowed.include?(:op)
-            @errors << "invalid clause #{clause.inspect} near #{rest.inspect}" 
+            @errors << "invalid clause #{clause.inspect} near #{res.inspect}" 
             return
           end
           rest = rest[$&.size..-1]
@@ -215,15 +215,15 @@ class QueryBuilder
           allowed = [:value, :par_open]
         elsif rest =~ /\A("|')([^\1]*?)\1/  
           unless allowed.include?(:value)
-            @errors << "invalid clause #{clause.inspect} near #{rest.inspect}" 
+            @errors << "invalid clause #{clause.inspect} near #{res.inspect}" 
             return
           end
           rest = rest[$&.size..-1]
           res << map_literal($2)
           allowed = after_value
-        elsif rest =~ /\A(\d+|\w+)\s+(second|minute|hour|day|week|month|year)s?/
+        elsif rest =~ /\A(\d+|[\w:]+)\s+(second|minute|hour|day|week|month|year)s?/
           unless allowed.include?(:value)
-            @errors << "invalid clause #{clause.inspect} near #{rest.inspect}" 
+            @errors << "invalid clause #{clause.inspect} near #{res.inspect}" 
             return
           end
           rest = rest[$&.size..-1]
@@ -236,7 +236,7 @@ class QueryBuilder
           allowed = after_value
         elsif rest =~ /\A(\d+)/  
           unless allowed.include?(:value)
-            @errors << "invalid clause #{clause.inspect} near #{rest.inspect}" 
+            @errors << "invalid clause #{clause.inspect} near #{res.inspect}" 
             return
           end
           rest = rest[$&.size..-1]
@@ -244,7 +244,7 @@ class QueryBuilder
           allowed = after_value
         elsif rest =~ /\A(is\s+not\s+null|is\s+null)/
           unless allowed.include?(:bool_op)
-            @errors << "invalid clause #{clause.inspect} near #{rest.inspect}" 
+            @errors << "invalid clause #{clause.inspect} near #{res.inspect}" 
             return
           end
           rest = rest[$&.size..-1]
@@ -252,7 +252,7 @@ class QueryBuilder
           allowed = [:par_close, :bool_op]
         elsif rest[0..7] == 'REF_DATE'  
           unless allowed.include?(:value)
-            @errors << "invalid clause #{clause.inspect} near #{rest.inspect}" 
+            @errors << "invalid clause #{clause.inspect} near #{res.inspect}" 
             return
           end
           rest = rest[8..-1]
@@ -260,7 +260,7 @@ class QueryBuilder
           allowed = after_value
         elsif rest =~ /\A(\+|\-)/  
           unless allowed.include?(:op)
-            @errors << "invalid clause #{clause.inspect} near #{rest.inspect}" 
+            @errors << "invalid clause #{clause.inspect} near #{res.inspect}" 
             return
           end
           rest = rest[$&.size..-1]
@@ -268,7 +268,7 @@ class QueryBuilder
           allowed = [:value, :par_open]
         elsif rest =~ /\A(and|or)/
           unless allowed.include?(:bool_op)
-            @errors << "invalid clause #{clause.inspect} near #{rest.inspect}" 
+            @errors << "invalid clause #{clause.inspect} near #{res.inspect}" 
             return
           end
           rest = rest[$&.size..-1]
@@ -277,7 +277,7 @@ class QueryBuilder
           allowed = [:par_open, :value]
         elsif rest =~ /\A[\w:]+/
           unless allowed.include?(:value)
-            @errors << "invalid clause #{clause.inspect} near #{rest.inspect}" 
+            @errors << "invalid clause #{clause.inspect} near #{res.inspect}" 
             return
           end
           rest = rest[$&.size..-1]
@@ -289,7 +289,7 @@ class QueryBuilder
           res << field
           allowed = after_value
         else  
-          @errors << "invalid clause #{clause.inspect} near #{rest.inspect}"
+          @errors << "invalid clause #{clause.inspect} near #{res.inspect}"
           return
         end
       end
@@ -310,7 +310,7 @@ class QueryBuilder
       order.split(',').each do |clause|
         if clause =~ /^\s*([^\s]+) (ASC|asc|DESC|desc)/
           fld_name, direction = $1, $2
-          if fld = map_field(fld_name, table, :order)
+          if fld = field_or_param(fld_name, table, :order)
             res << "#{fld} #{direction.upcase}"
           elsif fld.nil?
             @errors << "invalid field '#{fld_name}'"
@@ -549,7 +549,7 @@ class QueryBuilder
       elsif @select.join =~ / AS #{fld}/
         @select.each do |s|
           if s =~ /\A(.*) AS #{fld}\Z/
-            return "(#{$1})"
+            return context == :filter ? "(#{$1})" : fld
           end
         end
       elsif table_name

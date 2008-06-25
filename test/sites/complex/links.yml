@@ -44,6 +44,9 @@ transp2004_x_roger:
 
 form2006_x_roger:
   status: 100
+  
+fiber2003_x_roger:
+  status: 100
 
 transm2001_x_roger:
   status: 100
@@ -56,3 +59,17 @@ transp2006_x_roger:
 
 form2005_x_roger:
   status: 10
+
+# ====== achieved formations for 'joe'
+fiber2003_x_joe:
+  status: 100
+  
+transm2003_x_joe:
+  status: 100
+  
+# ====== achieved formations for 'mike'
+vision2003_x_mike:
+  status: 100
+  
+fiber2002_x_mike:
+  status: 100

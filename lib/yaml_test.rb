@@ -53,11 +53,16 @@ module YamlTest
           file = file.to_s
           strings = {}
           test_methods = []
-          YAML::load_documents( File.open( File.join(@@file_directory, "\#{file}.yml") ) ) do |doc|
-            doc.each do |elem|
-              test_methods << elem[0]
-              strings[elem[0]] = elem[1]
+          begin
+            YAML::load_documents( File.open( File.join(@@file_directory, "\#{file}.yml") ) ) do |doc|
+              doc.each do |elem|
+                test_methods << elem[0]
+                strings[elem[0]] = elem[1]
+              end
             end
+          rescue ArgumentError => err
+            puts "Error while loading test file \#{File.join(@@file_directory, "\#{file}.yml")}"
+            raise err
           end
           class_eval "
             def \#{file}

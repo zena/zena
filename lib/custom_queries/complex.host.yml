@@ -11,8 +11,10 @@ NodeQuery:
       - no1.rgroup_id
       - no1.pgroup_id
       - no1.ref_lang
-      - form.event_at + INTERVAL no1.custom_a MONTH AS log_at
-      - form.event_at AS event_at
+      - MAX(form.event_at) + INTERVAL no1.custom_a MONTH AS log_at
+      - form.event_at AS last_date
+      - form.event_at + INTERVAL no1.custom_a MONTH AS next_date
+      - MAX(form.event_at) AS event_at
     tables:
       - nodes
       - links
@@ -40,6 +42,8 @@ NodeQuery:
       - no1.rgroup_id
       - no1.pgroup_id
       - no1.ref_lang
+      - form.event_at + INTERVAL NODE_ATTR(custom_a) MONTH AS next_date
+      - form.event_at AS last_date
       - MAX(form.event_at) + INTERVAL NODE_ATTR(custom_a) MONTH AS log_at
       - MAX(form.event_at) AS event_at
     tables:
@@ -58,3 +62,40 @@ NodeQuery:
       - nodes.id = links.target_id AND links.relation_id = RELATION_ID(assigned_page) AND links.source_id = NODE_ID
     group: no1.id
     order: no1.name ASC, form.event_at ASC
+  
+  
+  all_course_emp_date:
+    # assigned_employees from project from assigned_pages from courses in site
+    # SELECT nodes.* FROM nodes,nodes AS no1,links,nodes AS no2,links AS li1 WHERE no2.id = li1.source_id AND li1.relation_id = 813976280 AND li1.target_id = no1.project_id AND no1.id = links.target_id AND links.relation_id = RELATION_ID(assigned_page) AND links.source_id = nodes.id AND nodes.kpath LIKE 'NPPC%' AND (\#{@node.secure_scope('no2')}) GROUP BY nodes.id
+    select:
+      - nodes.id
+      - nodes.name
+      - nodes.publish_from
+      - nodes.zip
+      - nodes.vclass_id
+      - nodes.type
+      - nodes.rgroup_id
+      - nodes.pgroup_id
+      - nodes.ref_lang
+      - form.event_at AS last_date
+      - form.event_at + INTERVAL nodes.custom_a MONTH AS next_date
+      - MIN(IF(form.event_at,form.event_at,0)) AS event_at
+      - MIN(IF(form.event_at,form.event_at,0)) + INTERVAL nodes.custom_a MONTH AS log_at
+      - COUNT(DISTINCT no2.id) AS custom_b
+    tables:
+      # nodes: courses
+      - nodes
+      # no1:   assigned_pages
+      # no2:   assigned_employees
+      - links
+      - links AS li1
+      # form.project_id, form.event_at, form.emp_id = formation status for course x (project_id) and employee (emp_id)
+    join_tables:
+      nodes:
+        - "INNER JOIN nodes AS no1 INNER JOIN nodes AS no2 LEFT JOIN (SELECT nodes.project_id AS project_id, flink.target_id AS emp_id, MAX(nodes.event_at) AS event_at FROM nodes INNER JOIN links AS flink ON nodes.id = flink.source_id AND flink.relation_id = RELATION_ID(assigned_formation) AND flink.status = 100 GROUP BY flink.target_id, nodes.project_id) AS form ON form.emp_id = no2.id AND form.project_id = nodes.id"
+    where:
+      - no2.id = li1.source_id AND li1.relation_id = RELATION_ID(assigned_employee) AND li1.target_id = no1.project_id
+      - no1.id = links.target_id AND links.relation_id = RELATION_ID(assigned_page) AND links.source_id = nodes.id
+      - nodes.kpath LIKE 'NPPC%'
+    group: nodes.id
+    order: log_at ASC

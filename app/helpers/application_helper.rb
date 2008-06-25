@@ -358,7 +358,7 @@ latex_template = %q{
     title = (opts[:title] && opts[:title] != '') ? opts[:title] : node.v_title
     
     link_opts[:format] = node.c_ext if link_opts[:format] == 'data'
-    if opts[:id][0..0] == '0'
+    if opts[:id] && opts[:id][0..0] == '0'
       link_to title, zen_path(node, link_opts), :popup=>true
     else
       link_to title, zen_path(node, link_opts)
