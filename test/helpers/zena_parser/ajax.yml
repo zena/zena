@@ -116,7 +116,7 @@ live_filter_select_options:
   context:
     node: cleanWater
   src: "<r:filter live='true' do='select' name='f' values='1,2'/><r:block><ol do='pages where name like \"[param:f]%\"'><li do='each' do='[name]'/></ol></r:block>"
-  tem: "x"
+  tem: "/select('node', \"f\", [\"1\", \"2\"], :selected => params[:f].to_s)/"
   'live/filter/en/list.erb': "/<div id='<%= params\[:dom_id\] %>.*Node.connection.quote\(params\[:f\]/"
   res: "/<input type='text' name='f'.*<div id='list_21_21'><ol><li>status</li><li>track</li></ol></div>/"
 

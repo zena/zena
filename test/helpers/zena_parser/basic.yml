@@ -359,8 +359,8 @@ uses_calendar:
   tem: "/<script.*calendar.js.*calendar-setup.js.*calendar-en-utf8.js.*calendar-brown.css.*CDATA.*DEF_DATE_FORMAT.*%Y-%m-%d %H:%M.*FIRST_DAY.*0/"
 
 calendar:
-  src: "<div id='small_calendar' do='calendar' find='notes' or='added_notes'/>"
-  res: "/<div id='small_calendar'><div id='tinycal'><table/"
+  src: "<div do='calendar' find='notes'/>"
+  res: "/<div id='small_calendar'><table/"
 
 flash_messages_both:
   src: "<r:flash_messages/>"

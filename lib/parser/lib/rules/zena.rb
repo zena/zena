@@ -731,7 +731,6 @@ module Zena
           
           # cancel button
           @context[:form_cancel] || ''
-          # "<%= link_to_remote(#{_('cancel').inspect}, {:url => node_path(#{node}.zip) + '/zafu?template_url=#{CGI.escape(template_url)}', :method => :get}#{params_to_erb(@params)}) %>"
         else
           # edit button
 
@@ -795,7 +794,7 @@ module Zena
         class_opts = {}
         class_opts[:without]   = @params[:without]  if @params[:without]
         # do not use 'selected' if the node is not new
-        "#{select_tag}<%= options_for_select(Node.classes_for_form(:class => #{klass.inspect}#{params_to_erb(class_opts)}), (#{node}.new_record? ? nil, #{selected})) %></select>"
+        "#{select_tag}<%= options_for_select(Node.classes_for_form(:class => #{klass.inspect}#{params_to_erb(class_opts)}), (#{node}.new_record? ? nil : #{selected})) %></select>"
       elsif @params[:type] == 'time_zone'
         # <r:select name='d_tz' type='time_zone'/>
         "#{select_tag}<%= options_for_select(TZInfo::Timezone.all_identifiers, #{selected}) %></select>"
@@ -891,7 +890,7 @@ module Zena
 <% if #{node}.new_record? -%>
   <p class='btn_x'><a href='#' onclick='[\"#{erb_dom_id}_add\", \"#{erb_dom_id}_form\"].each(Element.toggle);return false;'>#{_('btn_x')}</a></p>
 <% else -%>
-  <p class='btn_x'><%= link_to_remote(#{_('btn_x').inspect}, :url => #{base_class.to_s.underscore}_path(#{node_id}) + \"/zafu?template_url=#{CGI.escape(template_url)}&dom_id=\#{params[:dom_id]}#{@context[:need_link_id] ? "&link_id=\#{#{node}.link_id}" : ''}\", :method => :get) %></a></p>
+  <p class='btn_x'><%= link_to_remote(#{_('btn_x').inspect}, :url => #{base_class.to_s.underscore}_path(#{node_id}) + \"/zafu?template_url=#{CGI.escape(template_url)}&dom_id=\#{params[:dom_id]}#{@context[:need_link_id] ? "&link_id=\#{#{node}.link_id}" : ''}\", :method => :get) %></p>
 <% end -%>
 END_TXT
           form =<<-END_TXT
@@ -1689,25 +1688,62 @@ END_TXT
     
     # TODO: test
     def r_calendar
-      opts = {}
-      pseudo_sql, raw_filters = make_pseudo_sql(@params[:find  ] || 'notes in project')
-      
-      raw_filters ||= []
-      fld = (@params[:using ] || 'event_at').gsub(/[^a-z_]/,'') # SQL injection security
-      fld = 'event_at' unless ['log_at', 'created_at', 'updated_at', 'event_at'].include?(fld)
-      
-      raw_filters << "TABLE_NAME.#{fld} >= '\#{start_date.strftime('%Y-%m-%d')}' AND TABLE_NAME.#{fld} <= '\#{end_date.strftime('%Y-%m-%d')}'"
-      
-      opts[:size] = @params[:size] || 'tiny'
-      opts[:sql], errors = Node.build_find(:all, pseudo_sql, :node_name => '@node', :raw_filters => raw_filters)
-      if opts[:sql]
-        opts[:sql] = "\"#{opts[:sql]}\""
-        template_url = get_template_url
-        out helper.save_erb_to_url(opts.inspect, template_url)
+      if @context[:block] == self
+        # called from self (storing template / rendering)
+        size   = @params[:size] || 'large'
+        dom_id = @context[:dom_id]
+        template_url = @context[:template_url]
+        finder = @params[:find] || 'notes in project'
+        ref_date = params[:date] || 'log_at'
+        @params[ref_date.gsub('_at','').to_sym] = 'month' # will produce a raw finder for all events in the same month as the ref date.
+          
+        if @blocks == []
+          # add a default <r:link/> block
+          @blocks = [make(:void, :method=>'void', :text=>"<r:current_date format='%d'/><br/><r:each join='&lt;br/&gt;' do='link' attr='name'/><r:else do='current_date' format='%d'/>")]
+        end
+        @html_tag_done = false
+        @html_tag_params[:id] = "#{@context[:erb_dom_id]}_<%= #{node}.zip %>"
+        @html_tag ||= 'div'
+        
+        title = "\"\#{_(Date::MONTHNAMES[main_date.mon])} \#{main_date.year}\""
 
-        "<div id='#{opts[:size]}cal'><%= calendar(:node=>#{node}, :date=>main_date, :template_url => #{template_url.inspect}) %></div>"
+        res = <<-END_TXT
+  <h3 class='#{size}cal_title'>
+  <span><%= link_to_remote(#{_('img_prev_page').inspect}, :url => #{base_class.to_s.underscore}_path(#{node_id}) + \"/zafu?template_url=#{CGI.escape(template_url)}&dom_id=#{@context[:dom_id]}&date=\#{(main_date << 1).strftime("%Y-%m-%d")}\", :method => :get) %></span>
+  <span><%= link_to_remote(#{title}, :url => #{base_class.to_s.underscore}_path(#{node_id}) + \"/zafu?template_url=#{CGI.escape(template_url)}&dom_id=#{@context[:dom_id]}\", :method => :get) %></span>
+  <span><%= link_to_remote(#{_('img_next_page').inspect}, :url => #{base_class.to_s.underscore}_path(#{node_id}) + \"/zafu?template_url=#{CGI.escape(template_url)}&dom_id=#{@context[:dom_id]}&date=\#{(main_date >> 1).strftime("%Y-%m-%d")}\", :method => :get) %></span>
+  </h3>
+  <table cellspacing='0' class='#{size}cal'>
+    <tr class='head'><%= cal_day_names(#{size.inspect}) %></tr>
+    <% start_date, end_date = cal_start_end(#{current_date}) %>
+    <% cal_weeks(#{ref_date.to_sym.inspect}, #{build_finder_for(:all, finder, @params, [@date_scope])}, start_date, end_date) do |week, cal_#{list_var}| %>
+    <tr class='body'>
+    <% week.step(week+6,1) do |day_#{list_var}|; #{list_var} = cal_#{list_var}[day_#{list_var}.strftime('%Y-%m-%d')] -%>
+      <td<%= cal_class(day_#{list_var},#{current_date}) %>>
+      <% if #{list_var} -%>
+      #{expand_with(:in_if => true, :list => list_var, :date => "day_#{list_var}")}
+      <% end -%>
+      </td>
+    <% end -%>
+    </tr>
+    <% end -%>
+  </table>
+  END_TXT
+        render_html_tag(res)
       else
-        out parser_error("error in finder #{pseudo_sql.inspect} (#{errors.join(', ')})")
+        fld = @params[:date] || 'event_at'
+        fld = 'event_at' unless ['log_at', 'created_at', 'updated_at', 'event_at'].include?(fld)
+      
+        @date_scope = "TABLE_NAME.#{fld} >= '\#{start_date.strftime('%Y-%m-%d')}' AND TABLE_NAME.#{fld} <= '\#{end_date.strftime('%Y-%m-%d')}'"
+        
+        template_url  = get_template_url(@context)
+        
+        # SAVED TEMPLATE
+        template = expand_block(self, :block => self, :node => '@node', :template_url => template_url, :dom_id => "\#{params[:dom_id]}", :erb_dom_id => "<%= params[:dom_id] %>")
+        out helper.save_erb_to_url(template, template_url)
+        
+        # INLINE
+        out expand_block(self, :block => self, :template_url => template_url, :dom_id => "#{self.dom_id}_\#{#{node_id}}", :erb_dom_id => "#{self.dom_id}_<%= #{node_id} %>")
       end
     end
     
@@ -1794,8 +1830,8 @@ END_TXT
     # ================== HELPER METHODS ================
     
     # Create an sql query to open a new context (passes its arguments to HasRelations#build_find)
-    def build_finder_for(count, rel, params=@params)
-      if (context = node_class.zafu_known_contexts[rel]) && !params[:in] && !params[:where] && !params[:from]
+    def build_finder_for(count, rel, params=@params, raw_filters = [])
+      if (context = node_class.zafu_known_contexts[rel]) && !params[:in] && !params[:where] && !params[:from] && raw_filters == []
         node_class = context[:node_class]
         
         if node_class.kind_of?(Array) && count == :all && node_class[0].ancestors.include?(Node)
@@ -1828,7 +1864,8 @@ END_TXT
         end
       end
       
-      pseudo_sql, raw_filters = make_pseudo_sql(rel, params)
+      pseudo_sql, add_raw_filters = make_pseudo_sql(rel, params)
+      raw_filters += add_raw_filters if add_raw_filters
       
       # FIXME: stored should be clarified and managed in a single way through links and contexts.
       # <r:void store='foo'>...

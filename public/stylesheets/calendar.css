@@ -1,17 +1,18 @@
 /* small calendar */
 
+.tinycal_title { text-align: center; background:white; margin-bottom:0.5em; }
 .tinycal { margin:auto; cursor:pointer; }
-.tinycal table { border: 1px solid #CAD4DA; background:#F5F8F9; }
+.tinycal { border: 1px solid #CAD4DA; background:#F5F8F9; }
 .tinycal td { text-align:center; color:#333; }
 .tinycal a { color:inherit; }
 .tinycal em { border-bottom:2px solid orange; font-style:normal; }
-.tinycal table .head td { font-weight:bold; padding: 2px; color:#655; text-align:center; }
+.tinycal .head td { font-weight:bold; padding: 2px; color:#655; text-align:center; }
 .tinycal .body #tiny_today p { background:#CFD6DA; }
-.tinycal .body td.other, #tinycal .body td.other a { color:#ccc; }
-.tinycal .body td.sat, #tinycal .body td.sat a { color:#35950B; }
-.tinycal .body td.satother, #tinycal .body td.satother a { color:#C8DEC1; }
-.tinycal .body td.sun, #tinycal .body td.sun a { color:#35950B; }
-.tinycal .body td.sunother, #tinycal .body td.sunother a { color:#C8DEC1; }
+.tinycal .body td.other, .tinycal .body td.other a { color:#ccc; }
+.tinycal .body td.sat, .tinycal .body td.sat a { color:#35950B; }
+.tinycal .body td.satother, .tinycal .body td.satother a { color:#C8DEC1; }
+.tinycal .body td.sun, .tinycal .body td.sun a { color:#35950B; }
+.tinycal .body td.sunother, .tinycal .body td.sunother a { color:#C8DEC1; }
 
 /* LARGE CALENDAR */
 .largecal_title { text-align: center; background:white; margin-bottom:0.5em; font-size:1.3em; }
@@ -26,10 +27,10 @@ border:1px solid #DDDBC1; border-width:1px 0 0 1px; font-size:0.8em;}
 .largecal .body td:first-child {border-left-width:0;}
 
 .largecal .body td.other { background:#DDDBC1;}
-.largecal .body #large_today { font-weight:bold; color:black; background:#DCF6FF; margin:0;}
-.largecal .body td.sun, #largecal .body td.sat { background:#E6FFDC;}
-.largecal .body td.sunother, #largecal .body td.satother { background:#C8DEC1;}
-.largecal .body td.suntoday, #largecal .body td.sattoday  { font-weight:bold; color:black; background:#C7FFC3;}
+.largecal .body .today { font-weight:bold; color:black; background:#DCF6FF; margin:0;}
+.largecal .body td.sun, .largecal .body td.sat { background:#E6FFDC;}
+.largecal .body td.sunother, .largecal .body td.satother { background:#C8DEC1;}
+.largecal .body td.suntoday, .largecal .body td.sattoday  { font-weight:bold; color:black; background:#C7FFC3;}
 
 .largecal .body div { margin:2px; margin-left:1.2em; font-style:normal; font-weight:normal; font-size:1.1em; }
 .largecal .body div a { padding:1px;}

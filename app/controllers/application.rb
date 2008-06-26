@@ -799,7 +799,11 @@ END_MSG
       else
         tz = visitor.tz
       end
-      adate = tz.utc_to_local(thedate)
+      if thedate.kind_of?(Time)
+        adate = tz.utc_to_local(thedate)
+      else
+        adate = thedate
+      end
       
       # month name
       format = format.gsub("%b", _(adate.strftime("%b")) )

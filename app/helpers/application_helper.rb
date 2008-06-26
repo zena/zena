@@ -638,64 +638,63 @@ latex_template = %q{
   
   # default date used to filter events in templates
   def main_date
-    @date ||= Date.today
+    # TODO: timezone for @date ?
+    # .to_utc(_('datetime'), visitor.tz)
+    @date ||= params[:date] ? Date.parse(params[:date]) : Date.today
   end
   
-  def calendar(opts={})
-    if template_url = opts[:template_url]
-      opts = (eval_parameters_from_template_url(template_url) || {}).merge(opts)
-    elsif opts[:sql]
-      # ok
+  def cal_day_names(size)
+    if size == 'tiny'
+      day_names = Date::ABBR_DAYNAMES
     else
-      "invalid options: sql/template_url not set."
+      day_names = Date::DAYNAMES
+    end
+    week_start_day = _('week_start_day').to_i
+    res = ""
+    0.upto(6) do |i|
+      res << "<td>#{_(day_names[(i+week_start_day) % 7])}</td>"
+    end
+    res
+  end
+  
+  # find start and end dates for a calendar showing a specified date
+  def cal_start_end(date)
+    week_start_day = _('week_start_day').to_i
+    start_date  = Date.civil(date.year, date.mon, 1)
+    start_date -= (start_date.wday + 7 - week_start_day) % 7
+    end_date    = Date.civil(date.year, date.mon, -1)
+    end_date   += (6 + week_start_day - end_date.wday) % 7
+    [start_date, end_date]
+  end
+  
+  def cal_class(date, ref)
+    case date.wday
+    when 6
+      s = "sat"
+    when 0
+      s = "sun"
+    else
+      s = ""
+    end
+    s +=  date.mon == ref.mon ? '' : 'other'
+    s +=  date == ref ? 'today' : ''
+    s == '' ? '' : " class='#{s}'"
+  end
+  
+  # Yield block for every week between 'start_date' and 'end_date' with a hash of days => events.
+  def cal_weeks(date_attr, list, start_date, end_date)
+    # build event hash
+    cal_hash = {}
+    (list || []).each do |n|
+      d = n.send(date_attr)
+      next unless d
+      cal_hash[d.strftime("%Y-%m-%d")] ||= []
+      cal_hash[d.strftime("%Y-%m-%d")] << n
     end
     
-    sql       = opts[:sql]
-    size      = opts[:size  ] || 'tiny'
-    using     = opts[:using ] || 'event_at'
-    source    = opts[:node  ] || (@project ||= (@node ? @node.project : nil))
-    date      = opts[:date  ] || Date.today
-    day_names, on_day = calendar_get_options(size, source, template_url)
-    return "" unless on_day && source
-    
-    Cache.with(visitor.id, visitor.group_ids, 'NN', size, sql, source.id, date.ajd, lang) do
-      # find start and end date
-      week_start_day = _('week_start_day').to_i
-      notes, start_date, end_date = find_notes(source, sql, date)
-      
-      # build event hash
-      calendar = {}
-      (notes || []).each do |n|
-        d = n.send(using)
-        next unless d
-        calendar[d.strftime("%Y-%m-%d")] ||= []
-        calendar[d.strftime("%Y-%m-%d")] << n
-      end
-  
-      title = "#{_(Date::MONTHNAMES[date.mon])} #{date.year}"
-  
-      head_day_names = []
-      0.upto(6) do |i|
-        head_day_names << "<td>#{_(day_names[(i+week_start_day) % 7])}</td>"
-      end
-  
-      content = []
-      start_date.step(end_date,7) do |week|
-        # each week
-        content << "<tr class='body'>"
-        week.step(week+6,1) do |day|
-          # each day
-          content << "<td#{ calendar_class(day,date)}#{day == Date.today ? " id='#{size}_today'" : "" }>#{on_day.call(calendar[day.strftime('%Y-%m-%d')], day)}</td>"
-        end
-        content << '</tr>'
-      end
-      
-      render_to_string(:partial=>"calendar/#{size}", :locals=>{ :content=>content.join("\n"), 
-                                                             :day_names=>head_day_names.join(""),
-                                                             :title=>title, 
-                                                             :date=>date,
-                                                             :source_zip=>source[:zip],
-                                                             :template_url=>template_url})
+    start_date.step(end_date,7) do |week|
+      # each week
+      yield(week, cal_hash)
     end
   end
   
@@ -1166,19 +1165,6 @@ ENDTXT
     [day_names, on_day]
   end
   
-  def calendar_class(day, ref)
-    case day.wday
-    when 6
-      s = "sat"
-    when 0
-      s = "sun"
-    else
-      s = ""
-    end
-    s+=  day.mon == ref.mon ? '' : 'other'
-    s != "" ? " class='#{s}'" : ""
-  end
-
   # This lets helpers render partials
   def render_to_string(*args)
     @controller.send(:render_to_string, *args)
