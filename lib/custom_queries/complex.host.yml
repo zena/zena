@@ -42,6 +42,7 @@ NodeQuery:
       - no1.rgroup_id
       - no1.pgroup_id
       - no1.ref_lang
+      # TODO: next_date = NULL if custom_a is null
       - form.event_at + INTERVAL NODE_ATTR(custom_a) MONTH AS next_date
       - form.event_at AS last_date
       - MAX(form.event_at) + INTERVAL NODE_ATTR(custom_a) MONTH AS log_at
@@ -66,7 +67,7 @@ NodeQuery:
   
   all_course_emp_date:
     # assigned_employees from project from assigned_pages from courses in site
-    # SELECT nodes.* FROM nodes,nodes AS no1,links,nodes AS no2,links AS li1 WHERE no2.id = li1.source_id AND li1.relation_id = 813976280 AND li1.target_id = no1.project_id AND no1.id = links.target_id AND links.relation_id = RELATION_ID(assigned_page) AND links.source_id = nodes.id AND nodes.kpath LIKE 'NPPC%' AND (\#{@node.secure_scope('no2')}) GROUP BY nodes.id
+    # all courses that need to have a formation created
     select:
       - nodes.id
       - nodes.name
@@ -92,7 +93,7 @@ NodeQuery:
       # form.project_id, form.event_at, form.emp_id = formation status for course x (project_id) and employee (emp_id)
     join_tables:
       nodes:
-        - "INNER JOIN nodes AS no1 INNER JOIN nodes AS no2 LEFT JOIN (SELECT nodes.project_id AS project_id, flink.target_id AS emp_id, MAX(nodes.event_at) AS event_at FROM nodes INNER JOIN links AS flink ON nodes.id = flink.source_id AND flink.relation_id = RELATION_ID(assigned_formation) AND flink.status = 100 GROUP BY flink.target_id, nodes.project_id) AS form ON form.emp_id = no2.id AND form.project_id = nodes.id"
+        - "INNER JOIN nodes AS no1 INNER JOIN nodes AS no2 LEFT JOIN (SELECT nodes.project_id AS project_id, flink.target_id AS emp_id, MAX(nodes.event_at) AS event_at FROM nodes INNER JOIN links AS flink ON nodes.id = flink.source_id AND flink.relation_id = RELATION_ID(assigned_formation) AND (flink.status IS NULL OR flink.status = 100) GROUP BY flink.target_id, nodes.project_id) AS form ON form.emp_id = no2.id AND form.project_id = nodes.id"
     where:
       - no2.id = li1.source_id AND li1.relation_id = RELATION_ID(assigned_employee) AND li1.target_id = no1.project_id
       - no1.id = links.target_id AND links.relation_id = RELATION_ID(assigned_page) AND links.source_id = nodes.id

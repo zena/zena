@@ -112,6 +112,14 @@ live_filter:
   'live/filter/en/list.erb': "/<div id='<%= params\[:dom_id\] %>.*Node.connection.quote\(params\[:f\]/"
   res: "/<input type='text' name='f'.*<div id='list_21_21'><ol><li>status</li><li>track</li></ol></div>/"
 
+live_filter_select_options:
+  context:
+    node: cleanWater
+  src: "<r:filter live='true' do='select' name='f' values='1,2'/><r:block><ol do='pages where name like \"[param:f]%\"'><li do='each' do='[name]'/></ol></r:block>"
+  tem: "x"
+  'live/filter/en/list.erb': "/<div id='<%= params\[:dom_id\] %>.*Node.connection.quote\(params\[:f\]/"
+  res: "/<input type='text' name='f'.*<div id='list_21_21'><ol><li>status</li><li>track</li></ol></div>/"
+
 draggable_do_syntax:
   src: "<r:images in='site' do='each' draggable='true' do='img' mode='pv'/>"
   res: "/div id='list_22_30'><img src='/en/image30_pv.jpg'.*list_22_30.*.each\(Zena.draggable/"

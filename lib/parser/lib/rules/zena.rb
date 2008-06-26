@@ -478,7 +478,13 @@ module Zena
       dom_id       = "#{block.dom_id(@context)}_\#{#{node_id}}"
       erb_dom_id   = "#{block.dom_id(@context)}_#{erb_node_id}"
       template_url = block.get_template_url(@context)
-      out "<%= form_remote_tag(:url => zafu_node_path(#{node_id}), :method => :get, :html => {:id => \"#{dom_id}_f\"}) %><div class='hidden'><input type='hidden' name='template_url' value='#{template_url}'/><input type='hidden' name='dom_id' value='#{erb_dom_id}'/></div><div class='wrapper'><input type='text' name='#{@params[:key] || 'f'}' value='<%= params[#{(@params[:key] || 'f').to_sym.inspect}] %>'/></div></form>"
+      out "<%= form_remote_tag(:url => zafu_node_path(#{node_id}), :method => :get, :html => {:id => \"#{dom_id}_f\"}) %><div class='hidden'><input type='hidden' name='template_url' value='#{template_url}'/><input type='hidden' name='dom_id' value='#{erb_dom_id}'/></div><div class='wrapper'>"
+      if @blocks == []
+        out "<input type='text' name='#{@params[:key] || 'f'}' value='<%= params[#{(@params[:key] || 'f').to_sym.inspect}] %>'/>"
+      else
+        out expand_with(:in_filter => true)
+      end
+      out "</div></form>"
       if @params[:live]
         out "<%= observe_form( \"#{dom_id}_f\" , :method => :get, :frequency  =>  1, :submit =>\"#{dom_id}_f\", :url => zafu_node_path(#{node_id})) %>"
       end
@@ -773,24 +779,31 @@ module Zena
           res = node_attribute(node_attr)
           "\#{#{res}}"
         end
-        select_opts = ", :selected => \"#{value}\""
+        selected = value.inspect
+      elsif @context[:in_filter]
+        selected = "params[#{attribute.to_sym.inspect}].to_s"
       else
-        select_opts = ", :selected => #{node_attribute(attribute)}.to_s"
+        selected = "#{node_attribute(attribute)}.to_s"
       end
+      if @context[:in_filter]
+        select_tag = "<select name='#{attribute}'>"
+      else
+        select_tag = "<select name='#{base_class.to_s.underscore}[#{attribute}]'>"
+      end
+      
       if klass = @params[:root_class]
         class_opts = {}
         class_opts[:without]   = @params[:without]  if @params[:without]
         # do not use 'selected' if the node is not new
-        "<% if #{node}.new_record? -%><%= select('#{base_class.to_s.underscore}', #{attribute.inspect}, Node.classes_for_form(:class => #{klass.inspect}#{params_to_erb(class_opts)})#{select_opts}) %><% else -%><%= select('#{base_class.to_s.underscore}', #{attribute.inspect}, Node.classes_for_form(:class => #{klass.inspect}#{params_to_erb(class_opts)})) %><% end -%>"
+        "#{select_tag}<%= options_for_select(Node.classes_for_form(:class => #{klass.inspect}#{params_to_erb(class_opts)}), (#{node}.new_record? ? nil, #{selected})) %></select>"
       elsif @params[:type] == 'time_zone'
         # <r:select name='d_tz' type='time_zone'/>
-        "<%= select('#{base_class.to_s.underscore}', #{attribute.inspect}, TZInfo::Timezone.all_identifiers) %>"
+        "#{select_tag}<%= options_for_select(TZInfo::Timezone.all_identifiers, #{selected}) %></select>"
       elsif options_list = get_options_for_select
-        "<%= select('#{base_class.to_s.underscore}', #{attribute.inspect}, #{options_list}#{select_opts}) %>"
+        "#{select_tag}<%= options_for_select(#{options_list}, #{selected}) %></select>"
       else
         parser_error("missing 'nodes', 'root_class' or 'values'")
       end
-      
     end
     
     
@@ -2495,7 +2508,11 @@ END_TXT
         res[:id]   = "#{$1}_#{$2}"
       else
         attribute = res[:name]
-        res[:name] = "#{base_class.to_s.underscore}[#{attribute}]"
+        if @context[:in_filter]
+          res[:name] = attribute
+        else
+          res[:name] = "#{base_class.to_s.underscore}[#{attribute}]"
+        end
       end 
       
       res[:id]   = @context[:erb_dom_id] ? "#{@context[:erb_dom_id]}_#{attribute}" : res[:name].sub('[','_').sub(']','')
@@ -2506,6 +2523,8 @@ END_TXT
       
       if @context[:in_add]
         res[:value] = (params[:value] || params[:set_value]) ? ["'#{ helper.fquote(params[:value])}'"] : ["''"]
+      elsif @context[:in_filter]
+        res[:value] = attribute ? ["'<%= fquote params[#{attribute.to_sym.inspect}] %>'"] : ["''"]
       else
         res[:value] = attribute ? ["'<%= fquote #{node_attribute(attribute)} %>'"] : ["''"]
       end
