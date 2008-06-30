@@ -1,5 +1,5 @@
 <label for="v_title"><%= _("title")  %></label>
-<%= text_field 'node', 'v_title', :size=>nil %>
+<%= text_field 'node', 'v_title', :size=>nil, :class => 'full_width' %>
 
 <label for='v_lang'><%= _("language") %></label>
 <%= select 'node', 'v_lang', current_site.lang_list %>
@@ -11,7 +11,12 @@
 <label><%= _('publication date') %></label>
 <%= date_box('node', 'v_publish_from') %>
 <label for="v_summary"><%= _("summary")  %></label>
-<%= text_area 'node', 'v_summary', :cols=>nil, :rows=>6, :value=>@node.v_summary %>
+<%= text_area 'node', 'v_summary', :cols=>nil, :rows=>6, :value=>@node.v_summary, :class => 'full_width' %>
 
 <label for="v_comment"><%= _("comment") %></label>
-<%= text_area 'node', 'v_comment', :cols=>nil, :rows=>2 %>
+<%= text_area 'node', 'v_comment', :cols=>nil, :rows=>2, :class => 'full_width' %>
+
+<% (@node.version.dyn.keys + (@node.virtual_class ? @node.virtual_class.attributes.split(',').map(&:strip) : [])).uniq.sort do |k| -%>
+<label for="d_<%= k %>"><%= _(k) %></label>
+<%= text_area 'node', "d_#{k}", :cols=>nil, :rows=>2, :class => 'full_width' %>
+<% end -%>

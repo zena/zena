@@ -43,6 +43,10 @@ module Zena
       hash[key.to_s] = (value && value != '') ? value : nil
     end
     
+    def keys
+      hash.keys
+    end
+    
     def each
       hash.each {|e| yield(e) }
     end

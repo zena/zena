@@ -20,15 +20,15 @@ edit_not_each:
 
 add_each_no_form:
   src: "<ul do='children' id='things'><li do='each'>I <p do='[name]'>blah</p></li><li do='add'/></ul>"
-  res: "/<ul><li.*id='things_22_add'.*li id='things_22_form'.*form.*hidden.*I <p><input type='text' id='things_22_name' name='node\[name\]' value=''\/><\/p><\/form><\/li>/"
+  res: "/<ul><li.*id='things_add'.*li id='things_form'.*form.*hidden.*I <p><input type='text' id='things_name' name='node\[name\]' value=''\/><\/p><\/form><\/li>/"
 
 add_each_no_form_date:
   src: "<ul do='children' id='things'><li do='each'>I <p do='show' date='event_at' tformat='short_date'>blah</p></li><li do='add'/></ul>"
-  res: "/<ul><li.*id='things_22_add'.*li id='things_22_form'.*form.*hidden.*I <p>.*date_box.*<input id='things_22_event_at' name='node\[event_at\]' type='text' value.*/m"
+  res: "/<ul><li.*id='things_add'.*li id='things_form'.*form.*hidden.*I <p>.*date_box.*<input id='things_event_at' name='node\[event_at\]' type='text' value.*/m"
 
 add_each_no_form_focus:
   src: "<ul do='children' id='test'><li do='each'>I <p do='[v_title]'>blah</p></li><li do='add' focus='v_title'/></ul>"
-  res: "/<ul><li.*id=.*_add.*onclick.*toggle.*test_22_v_title.*focus.*li id=.*_form.*form.*hidden.*I <p><input type='text' id='test_22_v_title' name='node\[v_title\]' value=''\/><\/p><\/form><\/li>/"
+  res: "/<ul><li.*id=.*_add.*onclick.*toggle.*test_v_title.*focus.*li id=.*_form.*form.*hidden.*I <p><input type='text' id='test_v_title' name='node\[v_title\]' value=''\/><\/p><\/form><\/li>/"
 
 each_add_with_form:
   context:
@@ -78,7 +78,7 @@ each_edit_cannot_write:
 
 add_each_publish:
   src: "<ul do='children' id='things'><li do='each'>I <p do='[name]'>blah</p></li><li do='add' publish='true'/></ul>"
-  res: "/<ul><li.*id='things_22_add'.*li id='things_22_form'.*form.*hidden.*name='node\[v_status\]' value=\"50\"/"
+  res: "/<ul><li.*id='things_add'.*li id='things_form'.*form.*hidden.*name='node\[v_status\]' value=\"50\"/"
 
 block_edit_form:
   src: "<r:block><p do='[name]'/> <r:edit/> <r:form>please enter name: <input name='name'/> <r:input type='submit'/></r:form></r:block>"
@@ -102,7 +102,7 @@ each_in_each:
 
 default_focus_field:
   src: "<ol do='comments'><li do='each'/><li do='form'><input name='author_name'/> ... <input name='text'/></li><li do='add'/></ol>"
-  res: "/\$\(\"list_22_form_t\"\).focusFirstElement\(\)/"
+  res: "/\$\(\"list_form_t\"\).focusFirstElement\(\)/"
 
 live_filter:
   context:
@@ -122,7 +122,7 @@ live_filter_select_options:
 
 draggable_do_syntax:
   src: "<r:images in='site' do='each' draggable='true' do='img' mode='pv'/>"
-  res: "/div id='list_22_30'><img src='/en/image30_pv.jpg'.*list_22_30.*.each\(Zena.draggable/"
+  res: "/div id='list_30'><img src='/en/image30_pv.jpg'.*list_30.*.each\(Zena.draggable/"
 
 
 unlink:

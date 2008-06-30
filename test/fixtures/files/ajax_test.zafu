@@ -13,66 +13,101 @@
 
 
   <r:with part='context'/>
+
   <r:with part='content' class='project'>
-    <r:include template='Node' part='related'/>
+<div id='related'>
+<ul do='pages'>
+<li do='each'><p><b do='show' attr='v_title' edit='true' publish='true'/> <r:edit/></p>
+<r:zazen attr='v_summary' edit='true' publish='true'/>
+</li>
+</ul>
+This filter updates the "distant filter block test"
+<r:filter live='true' update='upfi'/>
+</div>
 
-  
-    <h3>calendar test</h3>
-    <div do='calendar' find='notes in site'/>
+<div id='edit' do='block'>
+  <h3>edit block test</h3>
+    <r:text/>
+    <r:edit publish='true'><r:if test='1 eq 2'>blue<r:else>edit in else</r:else></r:if></r:edit>
+</div>
 
-    <h3>week calendar</h3>
-    <div do='calendar' find='notes in site' type='week'/>
+<hr/>
 
-    <h3>tiny calendar</h3>
-    <div do='calendar' find='notes in site' size='tiny'/>
+<h2>update target test</h2>
+<div id='bozo' do='block'><h3 do='title' actions='all'/><r:img mode='pv'/>
+  <r:summary/>
+</div>
 
-    <div id='edit'>
-      <h3>edit block test</h3>
-      <r:block>
-        <r:text/>
-        <r:edit><r:if test='1 eq 2'>blue<r:else>edit in else</r:else></r:if></r:edit>
-      </r:block>
-    </div>
+<ul do='images in site'><r:each join=', ' do='link' update='bozo'/></ul>
 
-    <div id='filter'>
-      <h2>filter block test</h2>
-      <r:filter live='true'/>
-      <r:block do='pages where name like "[param:f]%"'>
-        <ol><li do='each' do='[name]'/></ol>
-      </r:block>
-    </div>
+<hr/>
 
-    <h2>data test</h2>
-    <ol do='data'>
-      <li do='each'><r:edit/> <b do='[text]'/> <r:show attr='value_a'/> <r:show attr='value_b'/><r:unlink/></li>
-      <li do='form'><r:cancel/> <input name='text'/> <input name='value_a'/> <input name='value_b'/> <input type='submit'/></li>
-      <li do='add'/>
-      <r:set var='hours' do='stat' find='sum' from='value_a'/> <r:set var='exp' do='stat' find='sum' of='value_b'/>
-      <li><b><r:show var='hours'/> * 150.00 = <r:show eval='hours * 150'/> + <r:show var='exp'/> = <r:show eval='( hours * 150 ) + exp'/></b></li>
-    </ol>
+<div id='upfi' do='block'>
+  <h2>distant filter block test</h2>
+    <ol do='pages where name like "[param:f]%" limit 5'><li do='each' do='[name]'/></ol>
+</div>
 
+<hr/>
 
-    <h2>data block test</h2>
-    <ol do='block' do='data'>
-      <li do='each'><r:edit/> <b do='[text]'/> <r:show attr='value_a'/> <r:show attr='value_b'/><r:unlink/></li>
-      <li do='form'><r:cancel/> <input name='text'/> <input name='value_a'/> <input name='value_b'/> <input type='submit'/></li>
-      <li do='add'/>
-      <r:set var='hours' do='stat' find='sum' from='value_a'/> <r:set var='exp' do='stat' find='sum' of='value_b'/>
-      <li><b><r:show var='hours'/> * 150.00 = <r:show eval='hours * 150'/> + <r:show var='exp'/> = <r:show eval='( hours * 150 ) + exp'/></b></li>
-    </ol>
+<div id='filter'>
+  <h2>filter block test</h2>
+  <r:filter live='true'/>
+  <r:block do='pages where name like "[param:f]%" limit 5'>
+    <ol><li do='each' do='[name]'/></ol>
+  </r:block>
+</div>
 
-    <h2>drag & drop</h2>
-
-    <r:images in='site' do='each' draggable='true' do='img' mode='pv'/>
-
-    <ul do='projects in site'>
-      <li style='border:1px solid #400; width:100px; height:100px;' do='each'><r:drop set='icon'><b do='[name]'/><r:icon where='1'><r:unlink do='img' mode='pv'/></r:icon></r:drop></li>
-    </ul>
-
-    <h2>notes & comments</h2>
-
-    <r:include template='notes'/>
+<hr/>
 
 
+<h2>data test</h2>
+<ol do='data'>
+  <li do='each'><r:edit/> <b do='[text]'/> <r:show attr='value_a'/> <r:show attr='value_b'/><r:unlink/></li>
+  <li do='form'><r:cancel/> <input name='text'/> <input name='value_a'/> <input name='value_b'/> <input type='submit'/></li>
+  <li do='add' done='focus'/>
+  <r:set var='hours' do='stat' find='sum' from='value_a'/> <r:set var='exp' do='stat' find='sum' of='value_b'/>
+  <li><b><r:show var='hours'/> * 150.00 = <r:show eval='hours * 150'/> + <r:show var='exp'/> = <r:show eval='( hours * 150 ) + exp'/></b></li>
+</ol>
+
+<hr/>
+
+
+
+
+<h2>data block test</h2>
+<ol id='bdata' do='block' do='data'>
+  <li do='each'><r:edit/> <b do='[text]'/> <r:show attr='value_a'/> <r:show attr='value_b'/><r:unlink/></li>
+  <li do='form'><r:cancel/> <input name='text'/> <input name='value_a'/> <input name='value_b'/> <input type='submit'/></li>
+  <li do='add' done='focus'/>
+  <r:set var='hours' do='stat' find='sum' from='value_a'/> <r:set var='exp' do='stat' find='sum' of='value_b'/>
+  <li><b><r:show var='hours'/> * 150.00 = <r:show eval='hours * 150'/> + <r:show var='exp'/> = <r:show eval='( hours * 150 ) + exp'/></b></li>
+</ol>
+
+<hr/>
+
+<h2>drag & drop</h2>
+
+<r:images in='site' do='each' draggable='true' do='img' mode='tiny'/>
+
+<ul do='tags in site'>
+  <li style='border:1px solid #400; min_width:100px; min_height:100px;' do='each' do='drop' set='set_tag'>
+    <b do='[v_title]'/>
+    <ul do='tagged'><li do='each' do='unlink' do='img' mode='tiny'/></ul>
+  </li>
+</ul>
+
+<ul do='projects in site'>
+  <li style='border:1px solid #400; min_width:100px; min_height:100px;' do='each'><r:drop d_foo='I am an icon for [v_title]' icon_for_id='[id]'><b do='title' actions='all'/><r:icon where='1'><r:unlink do='img' mode='pv'/> <r:show attr='d_foo'/> </r:icon></r:drop>
+</li>
+</ul>
+
+<hr/>
+
+
+<h2>notes & comments</h2>
+
+<r:include template='notes'/>
+
+<hr/>
   </r:with>
 </r:include>

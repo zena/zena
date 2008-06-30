@@ -52,7 +52,7 @@ div.readers { position:absolute; left:5px; top:55px;}
 #node_v_text { width:95%; height:75%; margin:30px 5px 5px 5px; font:inherit; padding:5px;}
 
 /* title */
-#node_v_title, #node_v_comment, #node_v_summary { width:96%; font:inherit; font-size:0.9em; padding:2px;}
+.full_width { width:96%; font:inherit; font-size:0.9em; padding:2px;}
 #title_tab select, #title_tab input {font:inherit; font-size:0.86em;}
 .v_publish_from, .log_at, .event_at { padding:1px 2px; width:65%; text-align:center;}
 #node_v_title { font-weight:bold; font-size:1.2em;}

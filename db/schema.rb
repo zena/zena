@@ -290,6 +290,7 @@ ActiveRecord::Schema.define(:version => 0) do
     t.column "create_group_id",        :integer
     t.column "site_id",                :integer,                :null => false
     t.column "auto_create_discussion", :boolean
+    t.column "dyn_keys",               :text
   end
 
   create_table "zips", :id => false, :force => true do |t|

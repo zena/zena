@@ -199,4 +199,12 @@ class VirtualClassTest < ZenaTestUnit
     assert !virtual_classes(:Letter).auto_create_discussion
     assert virtual_classes(:Post).auto_create_discussion
   end
+  
+  def test_attributes
+    login(:lion)
+    post = secure!(Node) { nodes(:opening) }
+    assert_equal ["book", "reading"], post.dyn_attribute_keys
+    assert post.update_attributes(:d_foo => 'bar', :d_book => 'Alice In Wonderland')
+    assert_equal ["book", "foo", "reading"], post.dyn_attribute_keys
+  end
 end

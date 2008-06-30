@@ -1391,7 +1391,7 @@ END_TXT
         if @params[:text]
           out render_html_tag(@params[:text])
         else
-          out render_html_tag(expand_with(:in_if=>false))
+          out render_html_tag(expand_with(:in_if=>false, :only => nil)) # do not propagate :only from ancestor 'if' clause
         end
       else
         ""
@@ -1405,7 +1405,7 @@ END_TXT
       cond = get_test_condition
       return parser_error("condition error") unless cond
       out "<% elsif #{cond} -%>"
-      out render_html_tag(expand_with(:in_if=>false))
+      out render_html_tag(expand_with(:in_if=>false, :only => nil)) # do not propagate :only from ancestor 'if' clause
     end
     
     def r_when
@@ -2215,7 +2215,7 @@ END_TXT
       else
         res = prefix + dom_prefix
       end
-      if method == 'each'
+      if method == 'each' && !@context[:make_form]
         "#{res}_\#{#{var}.zip}"
       elsif method == 'unlink'
         target = nil
@@ -2240,8 +2240,19 @@ END_TXT
       else
         res = prefix + dom_prefix
       end
-      if method == 'each'
+      if method == 'each' && @context[:make_form]
         "#{res}_<%= #{var}.zip %>"
+      elsif method == 'unlink'
+        target = nil
+        parent = self.parent
+        while parent
+          if ['block', 'each', 'context', 'icon'].include?(parent.method)
+            target = parent
+            break
+          end
+          parent = parent.parent
+        end
+        target ? target.erb_dom_id : res
       else
         res
       end

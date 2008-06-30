@@ -38,7 +38,7 @@ table.admin td:first-child { border-left: 1px solid #666; }
 .admin .adm_add table td { border: 0; font-size:inherit; padding: 2px; }
 .admin .btn_validate { float:right; margin-right:30px; }
 .btn_validate input { background:#C8D8C7; border:1px outset black;}
-.admin .label {width:80px; line-height:1.9em;}
+.admin .label {width:150px; line-height:1.9em;}
 .admin th { color:#450009; }
 .admin .source, .admin .source_role { background:#DBBFBF;}
 .admin .target, .admin .target_role { background:#C0DBC0;}

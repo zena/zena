@@ -80,9 +80,9 @@ show_shortcut:
   res: "<p>status title</p>"
 
 zazen_shortcut:
-  src: "<div do='{v_title}'>hello</div>"
-  tem: "<div><%= zazen(@node.version.title, :node=>@node) %></div>"
-  res: "<div><p>status title</p></div>"
+  src: "<div class='foo' do='{v_title}'>hello</div>"
+  tem: "<div class='foo'><%= zazen(@node.version.title, :node=>@node) %></div>"
+  res: "<div class='foo'><p>status title</p></div>"
 
 show_url:
   src: "<a do='void' set_href='[url]'>blah</a>"

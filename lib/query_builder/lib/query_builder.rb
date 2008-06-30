@@ -211,7 +211,7 @@ class QueryBuilder
           end
           op = $1.strip
           rest = rest[$1.size..-1]
-          op = {'lt' => '<','le' => '<=','eq' => '=','ne' => '<>','ge' => '>=','gt' => '>','like' => 'LIKE', 'not like' => 'NOT LIKE'}[$1] || $1
+          op = {'lt' => '<','le' => '<=','eq' => '=','ne' => '<>','ge' => '>=','gt' => '>','like' => 'LIKE', 'not like' => 'NOT LIKE'}[op] || $1
           res << op
           allowed = [:value, :par_open]
         elsif rest =~ /\A("|')([^\1]*?)\1/  

@@ -727,6 +727,10 @@ class Node < ActiveRecord::Base
     vclass.to_s
   end
   
+  def dyn_attribute_keys
+    (version.dyn.keys + (virtual_class ? virtual_class.dyn_keys.split(',').map(&:strip) : [])).uniq.sort
+  end
+  
   def klass=(str)
     # TODO: set @new_klass... and transform
   end

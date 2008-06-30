@@ -9,6 +9,7 @@ Letter:
 Post:
   kpath:           NNP
   real_class:      Note
+  dyn_keys:        reading, book
   auto_create_discussion: yes
 
 Tracker:
