@@ -204,12 +204,13 @@ class QueryBuilder
             return
           end
           allowed = [:op, :bool_op]
-        elsif rest =~ /\A(not like|like|>=|<=|<>|<|=|>|lt|le|eq|ne|ge|gt)\s+/
+        elsif rest =~ /\A((>=|<=|<>|<|=|>)|((not\s+like|like|lt|le|eq|ne|ge|gt)\s+))/
           unless allowed.include?(:op)
             @errors << "invalid clause #{clause.inspect} near #{res.inspect}" 
             return
           end
-          rest = rest[$&.size..-1]
+          op = $1.strip
+          rest = rest[$1.size..-1]
           op = {'lt' => '<','le' => '<=','eq' => '=','ne' => '<>','ge' => '>=','gt' => '>','like' => 'LIKE', 'not like' => 'NOT LIKE'}[$1] || $1
           res << op
           allowed = [:value, :par_open]

@@ -1787,31 +1787,31 @@ msgid "news_date"
 msgstr "%A %d %B %Y"
 
 #: lib/gettext_strings.rb:101
-msgid "mon"
+msgid "Mon"
 msgstr "lun"
 
 #: lib/gettext_strings.rb:102
-msgid "tue"
+msgid "Tue"
 msgstr "mar"
 
 #: lib/gettext_strings.rb:103
-msgid "wed"
+msgid "Wed"
 msgstr "mer"
 
 #: lib/gettext_strings.rb:104
-msgid "thu"
+msgid "Thu"
 msgstr "jeu"
 
 #: lib/gettext_strings.rb:105
-msgid "fri"
+msgid "Fri"
 msgstr "ven"
 
 #: lib/gettext_strings.rb:106
-msgid "sat"
+msgid "Sat"
 msgstr "sam"
 
 #: lib/gettext_strings.rb:107
-msgid "sun"
+msgid "Sun"
 msgstr "dim"
 
 #: lib/gettext_strings.rb:109

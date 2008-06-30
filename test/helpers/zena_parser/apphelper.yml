@@ -50,3 +50,21 @@ sort_array:
 group_array:
   tem: "<%= group_array([{:a => 2, :name => 'dos'}, {:a => 1, :name => 'one'}, {:a => 2, :name => 'two'}]) {|e| e[:a]}.map {|e| e.map{|f| f[:name]}}.inspect %>"
   res: "[[\"dos\", \"two\"], [\"one\"]]"
+
+cal_day_names:
+  tem: "<%= cal_day_names(:tiny) %>"
+  res: "<td class='sun'>Sun</td><td>Mon</td><td>Tue</td><td>Wed</td><td>Thu</td><td>Fri</td><td class='sat'>Sat</td>"
+
+cal_day_names_fr:
+  context:
+    lang: fr
+  tem: "<%= cal_day_names(:tiny) %>"
+  res: "<td>lun</td><td>mar</td><td>mer</td><td>jeu</td><td>ven</td><td class='sat'>sam</td><td class='sun'>dim</td>"
+
+cal_day_names_large:
+  tem: "<%= cal_day_names(:large) %>"
+  res: "<td class='sun'>Sunday</td><td>Monday</td><td>Tuesday</td><td>Wednesday</td><td>Thursday</td><td>Friday</td><td class='sat'>Saturday</td>"
+
+cal_class:
+  tem: "[<%= cal_class(Date.civil(2008,06,26), Date.civil(2008,06,26)) %>] [<%= cal_class(Date.civil(2008,06,28), Date.civil(2008,06,26)) %>] [<%= cal_class(Date.civil(2008,06,29), Date.civil(2008,06,26)) %>] [<%= cal_class(Date.civil(2008,06,28), Date.civil(2008,06,28)) %>] [<%= cal_class(Date.civil(2008,06,30), Date.civil(2008,06,28)) %>] [<%= cal_class(Date.civil(2008,07,1), Date.civil(2008,06,28)) %>] [<%= cal_class(Date.civil(2008,07,5), Date.civil(2008,06,28)) %>]"
+  res: "[ class='ref'] [ class='sat'] [ class='sun'] [ class='sat ref'] [] [ class='other'] [ class='satother']"

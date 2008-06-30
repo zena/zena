@@ -334,6 +334,36 @@ class RelationTest < ZenaTestUnit
     assert_equal 45,         hot.l_status
   end
   
+  def test_add_link_target_as_unique
+    # from 'icons' set 'icon_for' many times on same node
+    login(:lion)
+    bird   = secure!(Node) { nodes(:bird_jpg) }
+    flower = secure!(Node) { nodes(:flower_jpg) }
+    
+    assert bird.update_attributes(:icon_for_id => nodes_id(:status) )
+    icons = secure!(Node) { nodes(:status) }.find(:all, 'icon')
+    assert_equal 1, icons.size
+    assert_equal bird[:id], icons[0][:id]
+    
+    assert flower.update_attributes(:icon_for_id => nodes_id(:status) )
+    icons = secure!(Node) { nodes(:status) }.find(:all, 'icon')
+    assert_equal 1, icons.size
+    assert_equal flower[:id], icons[0][:id]
+  end
+  
+  
+  def test_set_link_many_targets
+    # set icon_for on many nodes, one at a time
+    login(:lion)
+    flower = secure!(Node) { nodes(:flower_jpg) }
+    assert flower.update_attributes(:icon_for_id => nodes_id(:status) )
+    assert flower.update_attributes(:icon_for_id => nodes_id(:lion) )
+    icons = secure!(Node) { nodes(:status) }.find(:all, 'icon')
+    assert_equal flower[:id], icons[0][:id]
+    icons = secure!(Node) { nodes(:lion) }.find(:all, 'icon')
+    assert_equal flower[:id], icons[0][:id]
+  end
+  
   # Fixing this is not a priority. Refs #196.
   #def test_update_status
   #  login(:lion)

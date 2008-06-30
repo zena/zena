@@ -99,9 +99,7 @@ ActionController::Routing::Routes.draw do |map|
   # temporary routes...
   map.connect 'discussions/:action/:id', :controller => 'discussions'
   map.connect 'z/link/:action/:id', :controller => 'link'
-  map.connect 'z/calendar/:action', :controller => 'calendar'
   map.connect 'z/link/:action', :controller => 'link'
-  map.connect 'z/note/:action', :controller => 'note'
   map.redirect '/redirect', :controller => 'main', :action => 'redirect'
   
   # catch all

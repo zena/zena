@@ -4,7 +4,7 @@ require 'tempfile'
 class ApplicationController < ActionController::Base
   init_gettext 'zena'
   helper_method :prefix, :zen_path, :zen_url, :data_path, :node_url, :notes, :error_messages_for, :render_errors, :processing_error
-  helper_method :get_template_text, :template_url_for_asset, :save_erb_to_url, :lang, :visitor, :fullpath_from_template_url, :eval_parameters_from_template_url, :find_notes, :format_date
+  helper_method :get_template_text, :template_url_for_asset, :save_erb_to_url, :lang, :visitor, :fullpath_from_template_url, :eval_parameters_from_template_url, :format_date
   before_filter :set_lang
   before_filter :authorize
   before_filter :check_lang
@@ -105,12 +105,6 @@ END_MSG
       
       # cleanup before rendering
       params.delete(:mode)
-      #params.delete(:format) why was this here ?
-      
-      #@section = @node.section why is this here ?
-      
-      # init default date used for calendars, etc
-      @date  ||= params[:date] ? parse_date(params[:date]) : Date.today
       
       if opts[:format] != 'html'
         content_type  = (EXT_TO_TYPE[opts[:format]] || ['application/octet-stream'])[0]
@@ -770,21 +764,6 @@ END_MSG
     # TODO: test
     def popup_layout
       template_url(:mode=>'*popupLayout')
-    end
-    
-    def find_notes(source, sql, date)
-      return [] unless sql # this can occur if template_url points to nothing (just after clear cache)
-      week_start_day = _('week_start_day').to_i
-      start_date  = Date.civil(date.year, date.mon, 1)
-      start_date -= (start_date.wday + 7 - week_start_day) % 7
-      end_date    = Date.civil(date.year, date.mon, -1)
-      end_date   += (6 + week_start_day - end_date.wday) % 7
-      eval_node = source
-      sql = eval sql.gsub('@node','eval_node') # resolve visitor / context inside sql.
-      
-      # get list of notes in this scope
-      notes = source.do_find(:all, sql) || []
-      [notes, start_date, end_date]
     end
     
     def format_date(thedate, format, tz_name=nil)

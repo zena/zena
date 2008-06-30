@@ -319,7 +319,7 @@ module Zena
                     # many
                     set_relation(role,value)
                   else
-                    set_relation(role,field.to_sym => value)
+                    add_link(role,value)
                   end
                 else
                   # get ids / zips

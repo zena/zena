@@ -599,7 +599,13 @@ class Node < ActiveRecord::Base
       res['parent_id'] = new_attributes[:_parent_id] if new_attributes[:_parent_id] # real id set inside zena.
       
       attributes = new_attributes.stringify_keys
-
+      
+      if attributes['copy'] || attributes['copy_id']
+        copy_node = attributes.delete('copy')
+        copy_node ||= Node.find_by_zip(attributes.delete('copy_id'))
+        attributes = copy_node.replace_attributes_in_values(attributes)
+      end
+      
       if !res['parent_id'] && p = attributes['parent_id']
         res['parent_id'] = Node.translate_pseudo_id(p) || p
       end
@@ -661,25 +667,38 @@ class Node < ActiveRecord::Base
     
     # Return a safe string to access node attributes in compiled templates and compiled sql.
     def zafu_attribute(node, attribute)
-      case attribute[0..1]
-      when 'v_'
-        att = attribute[2..-1]
-        if Version.zafu_readable?(att)
-          "#{node}.version.#{att}"
+      if node.kind_of?(String)
+        case attribute[0..1]
+        when 'v_'
+          att = attribute[2..-1]
+          if Version.zafu_readable?(att)
+            "#{node}.version.#{att}"
+          else
+            # might be readable by sub-classes
+            "#{node}.version.zafu_read(#{attribute[2..-1].inspect})"
+          end
+        when 'c_'
+          "#{node}.c_zafu_read(#{attribute[2..-1].inspect})"
+        when 'd_'
+          "#{node}.version.dyn[#{attribute[2..-1].inspect}]"
         else
-          # might be readable by sub-classes
-          "#{node}.version.zafu_read(#{attribute[2..-1].inspect})"
+          if Node.zafu_readable?(attribute)
+            "#{node}.#{attribute}"
+          else
+            # unknown attribute for Node, resolve at runtime with real class
+            "#{node}.zafu_read(#{attribute.inspect})"
+          end
         end
-      when 'c_'
-        "#{node}.c_zafu_read(#{attribute[2..-1].inspect})"
-      when 'd_'
-        "#{node}.version.dyn[#{attribute[2..-1].inspect}]"
       else
-        if Node.zafu_readable?(attribute)
-          "#{node}.#{attribute}"
+        case attribute[0..1]
+        when 'v_'
+          node.version.zafu_read(attribute[2..-1])
+        when 'c_'
+          node.c_zafu_read(attribute[2..-1])
+        when 'd_'
+          node.version.dyn[attribute[2..-1]]
         else
-          # unknown attribute for Node, resolve at runtime with real class
-          "#{node}.zafu_read(#{attribute.inspect})"
+          node.zafu_read(attribute)
         end
       end
     end
@@ -733,6 +752,17 @@ class Node < ActiveRecord::Base
       attributes.merge('name' => attributes['v_title'])
     else
       attributes
+    end
+  end
+  
+  # Replace [id], [v_title], etc in attributes values
+  def replace_attributes_in_values(hash)
+    hash.each do |k,v|
+      v.gsub!(/\[([^\]]+)\]/) do
+        attribute = $1
+        real_attribute = attribute =~ /\Ad_/ ? attribute : attribute.gsub(/\A(|[\w_]+)id(s?)\Z/, '\1zip\2')
+        Node.zafu_attribute(self, real_attribute)
+      end
     end
   end
   
@@ -1052,6 +1082,21 @@ class Node < ActiveRecord::Base
                              self[:id], false, true ])
   end
   
+  def m_text=(str)
+    @add_comment ||= {}
+    @add_comment[:text] = str
+  end
+  
+  def m_title=(str)
+    @add_comment ||= {}
+    @add_comment[:title] = str
+  end
+  
+  def m_author=(str)
+    @add_comment ||= {}
+    @add_comment[:author] = str
+  end
+  
   # Comments for the current context. Returns nil when there is no discussion.
   def comments
     if discussion
@@ -1232,6 +1277,8 @@ class Node < ActiveRecord::Base
       errors.add("name", "can't be blank") unless self[:name] and self[:name] != ""
       
       errors.add("version", "can't be blank") if new_record? && !@version
+      
+      errors.add('comment', 'you do not have the rights to do this') if @add_comment && !can_comment?
     end
     
     # Called before destroy. An node must be empty to be destroyed
@@ -1333,6 +1380,18 @@ class Node < ActiveRecord::Base
     # Whenever something changed (publication/proposition/redaction/link/...)
     def after_all
       sweep_cache
+      if @add_comment
+        # add comment
+        @discussion ||= node.discussion
+        @discussion.save if @discussion.new_record?
+        @add_comment[:author_name] = nil unless visitor.is_anon? # only anonymous user should set 'author_name'
+        @add_comment[:discussion_id] = @discussion[:id]
+        @add_comment[:user_id]       = visitor[:id]
+        
+        @comment = secure!(Comment) { Comment.create(filter_attributes(@add_comment)) }
+        
+        remove_instance_variable(:@add_comment)
+      end
       remove_instance_variable(:@discussion) if defined?(@discussion) # force reload
       true
     end

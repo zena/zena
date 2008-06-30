@@ -36,7 +36,7 @@ class ActiveRecord::Base
       row = connection.execute(sql).fetch_row
       row ? row[0] : nil
     end
-  end
+  end  
 end
 
 module Zena
@@ -44,3 +44,5 @@ module Zena
   class BadConfiguration < Exception
   end
 end
+
+load_patches_from_plugins

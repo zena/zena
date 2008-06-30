@@ -235,6 +235,13 @@ link_stored:
   src: "<r:void store='foo'><r:parent><r:link href='foo' do='[name]'/></r:parent></r:void>"
   res: "<a href='/oo/projects/cleanWater/page22.html'>cleanWater</a>"
 
+link_date:
+  context:
+    date: '2008-06-27'
+  src: "<r:link date='current_date'/>"
+  tem: "/:date=>main_date/"
+  res: "<a href='/oo/projects/cleanWater/page22.html?date=2008-06-27'>status title</a>"
+
 anchor:
   src: "<r:anchor/> <p do='[id]' anchor='[name]'>hello</p>"
   res: "<a name='node22'></a><a name='status'></a> <p>22</p>"
@@ -361,6 +368,12 @@ uses_calendar:
 calendar:
   src: "<div do='calendar' find='notes'/>"
   res: "/<div id='small_calendar'><table/"
+
+calendar_default_else:
+  context:
+    date: "2008-01-10"
+  src: "<div do='calendar'>--</div>"
+  res: "."
 
 flash_messages_both:
   src: "<r:flash_messages/>"
@@ -791,7 +804,7 @@ select_class:
 
 select_nodes:
   src: "<r:form><select nodes='images in site' name='d_ref'></select></r:form>"
-  res: "/name=\"node\[d_ref\]\"><option value=\"\" selected=\"selected\"></option>\n<option value=\"30\">bird</option>\n<option value=\"31\">flower</option>/"
+  res: "/name='node\[d_ref\]'><option value=\"\" selected=\"selected\"></option>\n<option value=\"30\">bird</option>\n<option value=\"31\">flower</option>/"
 
 do_not_set_parent_id_if_form_contains_parent_id:
   src: "<r:children><r:each do='[name]'/><r:add/><r:form><r:select name='parent_id' nodes='projects in site'/><input name='v_title'/></r:form></r:children>"
@@ -803,11 +816,11 @@ select_nodes_selected:
   
 select_nodes_in_ajax:
   src: "<r:pages><r:each do='[name]'/><r:add/><r:form><r:select nodes='images in site' name='d_ref'/></r:form></r:pages>"
-  res: "/name=\"node\[d_ref\]\"><option value=\"\" selected=\"selected\"></option>\n<option value=\"30\">bird</option>\n<option value=\"31\">flower</option>/"
+  res: "/name=.node\[d_ref\].><option value=\"\" selected=\"selected\"></option>\n<option value=\"30\">bird</option>\n<option value=\"31\">flower</option>/"
 
 select_nodes_show_attr:
   src: "<r:form><r:select name='d_ref' nodes='images in site' attr='c_ext' show='v_title'/></r:form>"
-  res: "/name=\"node\[d_ref\]\">.*<option value=\"jpg\">flower</option>\n<option value=\"jpg\">it's a lake</option>/"
+  res: "/name=.node\[d_ref\].>.*<option value=\"jpg\">flower</option>\n<option value=\"jpg\">it's a lake</option>/"
 
 select_nodes_data_list:
   context:
@@ -874,7 +887,7 @@ date:
   context:
     node: 'letter'
     lang: 'fr'
-  src: "<r:date select='[log_at]'>nouvelles de <r:trans do='current_date' format='%B'/> <r:current_date format='%Y'/>: <r:notes in='site' log='month' do='each' join=', ' do='[name]'/></r:date>"
+  src: "<r:date select='[log_at]'>nouvelles de <r:trans do='[current_date]' format='%B'/> <r:show date='current_date' format='%Y'/>: <r:notes in='site' log='month' do='each' join=', ' do='[name]'/></r:date>"
   res: "nouvelles de avril 2006: letter, proposition"
 
 add_document:

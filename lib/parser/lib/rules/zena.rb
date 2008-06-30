@@ -242,6 +242,8 @@ module Zena
         # using [var] shortcut. Can be either a var or an attribute
         if @context[:vars] && @context[:vars].include?(var_or_attr)
           @params[:var] = var_or_attr 
+        elsif var_or_attr == 'current_date' || var_or_attr =~ /_at$/
+          @params[:date] = var_or_attr
         else
           @params[:attr] = var_or_attr
         end
@@ -1121,10 +1123,24 @@ END_TXT
     #  end
     #end
     def r_drop
-      if action = @params[:set] || @params[:add]
-        action = "set=#{CGI.escape(action)}"
+      hover = @params.delete(:hover)
+      target = @params.delete(:target)
+      
+      if role = @params[:set] || @params[:add]
+        action = "node[#{role}_id]=[id]"
       else
-        return parser_error("missing 'set' or 'add'")
+        actions = []
+        # set='icon_for=[id], v_status='50', v_title='[v_title]'
+        @params.each do |k, v|
+          value, static = parse_attributes_in_value(v, :erb => false, :skip_node_attributes => true)
+          if k =~ /\Acomment_(\w+)/
+            actions << "comment[#{$1}]=#{CGI.escape(value)}"
+          else
+            actions << "node[#{k}]=#{CGI.escape(value)}"
+          end
+        end
+        return parser_error("missing parameters to set values") if actions == []
+        action = actions.join('&')
       end
       
       @html_tag ||= 'div'
@@ -1134,6 +1150,7 @@ END_TXT
       @html_tag_params[:id] = "#{dom_id}_#{erb_node_id}"
       @html_tag_params[:class] ||= 'drop'
       
+      action << "&target=receiver" if target == 'receiver'
       action << "&template_url=#{CGI.escape(template_url)}"
       action << "&dom_id=#{@html_tag_params[:id]}"
       out render_html_tag(expand_with)
@@ -1141,7 +1158,7 @@ END_TXT
       # BUG WITH &amp. USING RAW JS BELOW. 
       out "<script type='text/javascript'>
       //<![CDATA[
-      Droppables.add('#{@html_tag_params[:id]}', {hoverclass:'#{@params[:hover] || 'drop_hover'}', onDrop:function(element){new Ajax.Request('/nodes/#{erb_node_id}/drop?#{action}', {asynchronous:true, evalScripts:true, method:'put', parameters:'drop=' + encodeURIComponent(element.id)})}})
+      Droppables.add('#{@html_tag_params[:id]}', {hoverclass:'#{hover || 'drop_hover'}', onDrop:function(element){new Ajax.Request('/nodes/#{erb_node_id}/drop?#{action}', {asynchronous:true, evalScripts:true, method:'put', parameters:'drop=' + encodeURIComponent(element.id)})}})
       //]]>
       </script>"
       
@@ -1509,22 +1526,6 @@ END_TXT
       end
     end
     
-    def r_current_date
-      if @params[:tformat]
-        format = _(@params[:tformat])
-      elsif @params[:format]
-        format = @params[:format]
-      else
-        format = _('long_date')
-      end
-      
-      if @context[:trans]
-        return "format_date(#{current_date}, #{format.inspect})"
-      end
-      
-      out "<%= format_date(#{current_date}, #{format.inspect}) %>"
-    end
-    
     def r_javascripts
       list = @params[:list].split(',').map{|e| e.strip}
       helper.javascript_include_tag(*list)
@@ -1604,44 +1605,49 @@ END_TXT
         text_mode = :raw
         text = expand_with
       end
+      opts = ''
       if @params[:href]
         unless lnode = find_stored(Node, @params[:href])
-          href = ", :href=>#{build_finder_for(:first, @params[:href])}"
+          opts << ", :href=>#{build_finder_for(:first, @params[:href])}"
         end
-      else
-        href = ''
       end
+      
       # obj
       if node_class == Version
         lnode ||= "#{node}.node"
-        url = ", :lang=>#{node}.lang"
+        opts << ", :lang=>#{node}.lang"
       else
         lnode ||= node
-        url = ''
       end
+      
       if fmt = @params[:format]
         if fmt == 'data'
-          fmt = ", :format => #{node}.c_ext"
+          opts << ", :format => #{node}.c_ext"
         else
-          fmt = ", :format => #{fmt.inspect}"
+          opts << ", :format => #{fmt.inspect}"
         end
-      else
-        fmt = ''
       end
+      
       if mode = @params[:mode]
-        mode = ", :mode => #{mode.inspect}"
-      else
-        mode = ''
+        opts << ", :mode => #{mode.inspect}"
       end
+      
       if sharp = @params[:sharp]
-        sharp = ", :sharp=>#{sharp.inspect}"
-      else
-        sharp = ''
+        opts << ", :sharp=>#{sharp.inspect}"
       end
+      
       if sharp_in = @params[:in]
-        sharp_in = ", :sharp_in=>#{build_finder_for(:first, sharp_in, {})}"
-      else
-        sharp_in = ''
+        opts << ", :sharp_in=>#{build_finder_for(:first, sharp_in, {})}"
+      end
+      
+      if date = @params[:date]
+        if date == 'current_date'
+          opts << ", :date=>#{current_date}"
+        elsif date =~ /\A\d/
+          opts << ", :date=>#{date.inspect}"
+        else
+          opts << ", :date=>#{node_attribute(date)}"
+        end
       end
       
       html_tags  = {}
@@ -1659,10 +1665,10 @@ END_TXT
       end
         
       if text_mode == :raw
-        pre_space + "<a#{params_to_html(html_tags)} href='<%= node_link(:url_only=>true, :node=>#{lnode}#{href}#{url}#{sharp}#{sharp_in}#{fmt}#{mode}) %>'>#{text}</a>"
+        pre_space + "<a#{params_to_html(html_tags)} href='<%= node_link(:url_only=>true, :node=>#{lnode}#{opts}) %>'>#{text}</a>"
       else
         text = text.blank? ? '' : ", :text=>#{text}"
-        pre_space + "<%= node_link(:node=>#{lnode}#{text}#{href}#{url}#{sharp}#{sharp_in}#{fmt}#{mode}#{params_to_erb(html_tags)}) %>"
+        pre_space + "<%= node_link(:node=>#{lnode}#{text}#{opts}#{params_to_erb(html_tags)}) %>"
       end
     end
     
@@ -1690,45 +1696,60 @@ END_TXT
     def r_calendar
       if @context[:block] == self
         # called from self (storing template / rendering)
-        size   = @params[:size] || 'large'
-        dom_id = @context[:dom_id]
+        size     = (params[:size] || 'large').to_sym
+        dom_id   = @context[:dom_id]
         template_url = @context[:template_url]
-        finder = @params[:find] || 'notes in project'
-        ref_date = params[:date] || 'log_at'
+        finder   = params[:find] || 'notes in project'
+        ref_date = params[:date] || 'event_at'
+        type     = params[:type] ? params[:type].to_sym : :month
         @params[ref_date.gsub('_at','').to_sym] = 'month' # will produce a raw finder for all events in the same month as the ref date.
           
         if @blocks == []
           # add a default <r:link/> block
-          @blocks = [make(:void, :method=>'void', :text=>"<r:current_date format='%d'/><br/><r:each join='&lt;br/&gt;' do='link' attr='name'/><r:else do='current_date' format='%d'/>")]
+          if size == :tiny
+            @blocks = [make(:void, :method=>'void', :text=>"<em do='link' date='current_date' do='[current_date]' format='%d'/><r:else do='[current_date]' format='%d'/>")]
+          else
+            @blocks = [make(:void, :method=>'void', :text=>"<span do='show' date='current_date' format='%d'/><ul><li do='each' do='link' attr='name'/></ul><r:else do='[current_date]' format='%d'/>")]
+          end
+        elsif !descendant('else')
+          @blocks += [make(:void, :method=>'void', :text=>"<r:else do='[current_date]' format='%d'/>")]
         end
         @html_tag_done = false
         @html_tag_params[:id] = "#{@context[:erb_dom_id]}_<%= #{node}.zip %>"
+        @html_tag_params[:class] ||= "#{size}cal"
         @html_tag ||= 'div'
         
-        title = "\"\#{_(Date::MONTHNAMES[main_date.mon])} \#{main_date.year}\""
+        case type
+        when :month
+          title = "\"\#{_(Date::MONTHNAMES[main_date.mon])} \#{main_date.year}\""
+          prev_date = "\#{(main_date << 1).strftime(\"%Y-%m-%d\")}"
+          next_date = "\#{(main_date >> 1).strftime(\"%Y-%m-%d\")}"
+        when :week
+          title = "\"\#{_(Date::MONTHNAMES[main_date.mon])} \#{main_date.year}\""
+          prev_date = "\#{(main_date - 7).strftime(\"%Y-%m-%d\")}"
+          next_date = "\#{(main_date + 7).strftime(\"%Y-%m-%d\")}"
+        else
+          return parser_error("invalid type (should be 'month' or 'week')")
+        end
 
         res = <<-END_TXT
-  <h3 class='#{size}cal_title'>
-  <span><%= link_to_remote(#{_('img_prev_page').inspect}, :url => #{base_class.to_s.underscore}_path(#{node_id}) + \"/zafu?template_url=#{CGI.escape(template_url)}&dom_id=#{@context[:dom_id]}&date=\#{(main_date << 1).strftime("%Y-%m-%d")}\", :method => :get) %></span>
-  <span><%= link_to_remote(#{title}, :url => #{base_class.to_s.underscore}_path(#{node_id}) + \"/zafu?template_url=#{CGI.escape(template_url)}&dom_id=#{@context[:dom_id]}\", :method => :get) %></span>
-  <span><%= link_to_remote(#{_('img_next_page').inspect}, :url => #{base_class.to_s.underscore}_path(#{node_id}) + \"/zafu?template_url=#{CGI.escape(template_url)}&dom_id=#{@context[:dom_id]}&date=\#{(main_date >> 1).strftime("%Y-%m-%d")}\", :method => :get) %></span>
-  </h3>
-  <table cellspacing='0' class='#{size}cal'>
-    <tr class='head'><%= cal_day_names(#{size.inspect}) %></tr>
-    <% start_date, end_date = cal_start_end(#{current_date}) %>
-    <% cal_weeks(#{ref_date.to_sym.inspect}, #{build_finder_for(:all, finder, @params, [@date_scope])}, start_date, end_date) do |week, cal_#{list_var}| %>
-    <tr class='body'>
-    <% week.step(week+6,1) do |day_#{list_var}|; #{list_var} = cal_#{list_var}[day_#{list_var}.strftime('%Y-%m-%d')] -%>
-      <td<%= cal_class(day_#{list_var},#{current_date}) %>>
-      <% if #{list_var} -%>
-      #{expand_with(:in_if => true, :list => list_var, :date => "day_#{list_var}")}
-      <% end -%>
-      </td>
-    <% end -%>
-    </tr>
-    <% end -%>
-  </table>
-  END_TXT
+<h3 class='title'>
+<span><%= link_to_remote(#{_('img_prev_page').inspect}, :url => #{base_class.to_s.underscore}_path(#{node_id}) + \"/zafu?template_url=#{CGI.escape(template_url)}&dom_id=#{@context[:dom_id]}&date=#{prev_date}\", :method => :get) %></span>
+<span><%= link_to_remote(#{title}, :url => #{base_class.to_s.underscore}_path(#{node_id}) + \"/zafu?template_url=#{CGI.escape(template_url)}&dom_id=#{@context[:dom_id]}\", :method => :get) %></span>
+<span><%= link_to_remote(#{_('img_next_page').inspect}, :url => #{base_class.to_s.underscore}_path(#{node_id}) + \"/zafu?template_url=#{CGI.escape(template_url)}&dom_id=#{@context[:dom_id]}&date=#{next_date}\", :method => :get) %></span>
+</h3>
+<table cellspacing='0' class='#{size}cal'>
+  <tr class='head'><%= cal_day_names(#{size.inspect}) %></tr>
+<% start_date, end_date = cal_start_end(#{current_date}, #{type.inspect}) -%>
+<% cal_weeks(#{ref_date.to_sym.inspect}, #{build_finder_for(:all, finder, @params, [@date_scope])}, start_date, end_date) do |week, cal_#{list_var}| -%>
+  <tr class='body'>
+<% week.step(week+6,1) do |day_#{list_var}|; #{list_var} = cal_#{list_var}[day_#{list_var}.strftime('%Y-%m-%d')] -%>
+    <td<%= cal_class(day_#{list_var},#{current_date}) %>><% if #{list_var} -%>#{expand_with(:in_if => true, :list => list_var, :date => "day_#{list_var}", :template_url => nil)}<% end -%></td>
+<% end -%>
+  </tr>
+<% end -%>
+</table>
+END_TXT
         render_html_tag(res)
       else
         fld = @params[:date] || 'event_at'
@@ -2387,10 +2408,42 @@ END_TXT
       end
     end
     
+    def parse_attributes_in_value(v, opts = {})
+      opts = {:erb => true}.merge(opts)
+      static = true
+      use_node  = @var || node
+      res = v.gsub(/\[([^\]]+)\]/) do
+        static = false
+        res    = nil
+        attribute = $1
+        
+        if opts[:skip_node_attributes]
+          if attribute =~ /^param:(\w+)$/
+            attribute = "params[:#{$1}]" 
+          elsif attribute == 'current_date'
+            attribute = current_date
+          else
+            res = "[#{attribute}]"
+          end
+        else
+          attribute = node_attribute(attribute, :node => use_node )
+        end
+        
+        res ||= if opts[:erb]
+          "<%= #{res} %>"
+        else
+          "\#{#{res}}"
+        end
+        res
+      end
+      [res, static]
+    end
+    
     def node_attribute(str, opts={})
       attribute, att_node, klass = get_attribute_and_node(str)
       return 'nil' unless attribute
       return "params[:#{$1}]" if attribute =~ /^param:(\w+)$/
+      return current_date if attribute == 'current_date'
       
       att_node  ||= opts[:node]       || node
       klass     ||= opts[:node_class] || node_class
@@ -2459,20 +2512,7 @@ END_TXT
         if k.to_s =~ /^(t?)set_(.+)$/
           key   = $2
           trans = $1 == 't'
-          static = true
-          value = v.gsub(/\[([^\]]+)\]/) do
-            static = false
-            node_attr = $1
-            
-            use_node  = @var || node
-            res = node_attribute(node_attr, :node => use_node )
-            
-            if trans
-              "\#{#{res}}"
-            else
-              "<%= #{res} %>"
-            end
-          end
+          value, static = parse_attributes_in_value(v, :erb => !trans)
           
           if trans
             if static

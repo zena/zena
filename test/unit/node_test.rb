@@ -1195,6 +1195,54 @@ done: \"I am done\""
     assert_equal 0.0, node.position
   end
   
+  def test_add_comment
+    login(:lion)
+    node = secure!(Node) { nodes(:lion) }
+    assert node.can_comment?
+    assert_nil node.comments
+    
+    node = secure!(Node) { nodes(:lion) } # reload
+    assert node.update_attributes(:m_title => 'changed icon', :m_text => 'new icon is "flower"', :icon_id => nodes_id(:flower_jpg))
+    
+    node = secure!(Node) { nodes(:lion) } # reload
+    comments = node.comments
+    assert_equal 1, comments.size
+    comment = comments[0]
+    assert_equal 'changed icon', comment[:title]
+    assert_equal 'new icon is "flower"', comment[:text]
+    assert_equal 'Panthera Leo Verneyi', comment.author_name
+  end
+  
+  def test_custom_a
+    login(:lion)
+    node = secure!(Node) { nodes(:status) }
+    assert_nil node.custom_a
+    assert node.update_attributes(:custom_a => 10)
+    
+    node = secure!(Node) { nodes(:status) }
+    assert_equal 10, node.custom_a
+    
+    assert node.update_attributes(:custom_a => '')
+    
+    node = secure!(Node) { nodes(:status) }
+    assert_nil node.custom_a
+  end
+  
+  def test_replace_attributes_in_values
+    login(:lion)
+    node = secure!(Node) { nodes(:status) }
+    new_attributes = node.replace_attributes_in_values(:foo => "id: [id], v_title: [v_title]")
+    assert_equal "id: 22, v_title: status title", new_attributes[:foo]
+  end
+  
+  def test_copy
+    login(:lion)
+    node = secure!(Node) { nodes(:status) }
+    new_attributes = secure(Node) { Node.transform_attributes(:copy_id => nodes_zip(:bird_jpg), :icon_id => '[id]')}
+    assert_equal Hash['icon_id', nodes_id(:bird_jpg)], new_attributes
+    assert node.update_attributes_with_transformation(:copy_id => nodes_zip(:bird_jpg), :icon_id => '[id]')
+    assert_equal nodes_id(:bird_jpg), node.find(:first, 'icon')[:id]
+  end
   
   # FIXME: write test
   def test_assets

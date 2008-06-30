@@ -644,7 +644,7 @@ latex_template = %q{
   end
   
   def cal_day_names(size)
-    if size == 'tiny'
+    if size == :tiny
       day_names = Date::ABBR_DAYNAMES
     else
       day_names = Date::DAYNAMES
@@ -652,22 +652,38 @@ latex_template = %q{
     week_start_day = _('week_start_day').to_i
     res = ""
     0.upto(6) do |i|
-      res << "<td>#{_(day_names[(i+week_start_day) % 7])}</td>"
+      j = (i+week_start_day) % 7
+      if j == 0
+        html_class = " class='sun'"
+      elsif j == 6
+        html_class = " class='sat'"
+      end
+      res << "<td#{html_class}>#{_(day_names[j])}</td>"
     end
     res
   end
   
   # find start and end dates for a calendar showing a specified date
-  def cal_start_end(date)
+  def cal_start_end(date, type=:month)
     week_start_day = _('week_start_day').to_i
-    start_date  = Date.civil(date.year, date.mon, 1)
+    
+    case type
+    when :week
+      # week
+      start_date  = date
+      end_date    = date
+    else
+      # month
+      start_date  = Date.civil(date.year, date.mon, 1)
+      end_date    = Date.civil(date.year, date.mon, -1)
+    end  
     start_date -= (start_date.wday + 7 - week_start_day) % 7
-    end_date    = Date.civil(date.year, date.mon, -1)
     end_date   += (6 + week_start_day - end_date.wday) % 7
     [start_date, end_date]
   end
   
   def cal_class(date, ref)
+    @today ||= Date.today
     case date.wday
     when 6
       s = "sat"
@@ -676,9 +692,11 @@ latex_template = %q{
     else
       s = ""
     end
-    s +=  date.mon == ref.mon ? '' : 'other'
-    s +=  date == ref ? 'today' : ''
-    s == '' ? '' : " class='#{s}'"
+    s +=  'other' if date.mon != ref.mon
+    s = s == '' ? [] : [s]
+    s <<  'today' if date == @today
+    s <<  'ref' if date == ref
+    s == [] ? '' : " class='#{s.join(' ')}'"
   end
   
   # Yield block for every week between 'start_date' and 'end_date' with a hash of days => events.
@@ -1139,31 +1157,6 @@ ENDTXT
   end
   
   private
-  
-  def calendar_get_options(size, source, template_url)
-    case size
-    when 'tiny'
-      day_names = Date::ABBR_DAYNAMES
-      on_day    = Proc.new { |events, date| events ? "<em>#{date.day}</em>" : date.day }
-    when 'large'
-      day_names = Date::DAYNAMES
-      on_day    = Proc.new do |events, date|
-        if events
-          res = ["#{date.day}"]
-          events.each do |e| #largecal_preview
-            res << "<p>" + link_to_remote(truncate(e.v_title,14), 
-                                  :update=>'largecal_preview',
-                                  :url=>{:controller=>'calendar', :action=>'notes', :id=>source[:zip], :template_url=>template_url, 
-                                  :date=>date, :selected=>e[:zip] }) + "</p>"
-          end
-          res.join("\n")
-        else
-          date.day
-        end
-      end
-    end
-    [day_names, on_day]
-  end
   
   # This lets helpers render partials
   def render_to_string(*args)

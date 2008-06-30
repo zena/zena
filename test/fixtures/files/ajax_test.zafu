@@ -3,7 +3,7 @@
     <title do='title_for_layout' do='show' attr='v_title' name='page_title'>page title</title>
     <meta http-equiv="Content-type" content="text/html; charset=utf-8" />
     <r:void name='stylesheets'>
-      <r:stylesheets media='all' list='reset,zena,code'/>
+      <r:stylesheets media='all' list='reset,zena,code,calendar'/>
     </r:void>
     <link href="style.css" rel="Stylesheet" type="text/css"/>
 
@@ -15,6 +15,16 @@
   <r:with part='context'/>
   <r:with part='content' class='project'>
     <r:include template='Node' part='related'/>
+
+  
+    <h3>calendar test</h3>
+    <div do='calendar' find='notes in site'/>
+
+    <h3>week calendar</h3>
+    <div do='calendar' find='notes in site' type='week'/>
+
+    <h3>tiny calendar</h3>
+    <div do='calendar' find='notes in site' size='tiny'/>
 
     <div id='edit'>
       <h3>edit block test</h3>

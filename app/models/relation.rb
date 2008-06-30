@@ -187,19 +187,27 @@ class Relation < ActiveRecord::Base
       
     end
     
+    # 2. can write in new target ? (and remove targets previous link)
+    @add_links.each do |obj_id|
+      if target = find_target(obj_id)
+        # make sure we can overwrite previous link if as_unique
+        if as_unique?
+          if previous_link = Link.find(:first, :conditions => ["relation_id = ? AND #{other_side} = ?", self[:id], target[:id]])
+            @del_links << previous_link
+          end
+        end
+      else
+        @link_errors << 'invalid target'
+      end
+    end
+    
     # 1. can remove old link ?
     @del_links.each do |link|
-      unless find_target(link[other_side])
+      unless find_node(link[other_side], unique?)
         @link_errors << 'cannot remove link'
       end
     end
     
-    # 2. can write in new target ?
-    @add_links.each do |obj_id|
-      unless find_target(obj_id)
-        @link_errors << 'invalid target'
-      end
-    end
     return @link_errors == []
   end
 
@@ -253,6 +261,10 @@ class Relation < ActiveRecord::Base
     
     def relation_class
       @start.relation_base_class
+    end
+    
+    def find_node(obj_id, unique)
+      unique ? secure_drive(Node) { Node.find_by_id(obj_id) } : secure_write(Node) { Node.find_by_id(obj_id) }
     end
     
     def find_target(obj_id)

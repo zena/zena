@@ -68,21 +68,40 @@ class NodesController < ApplicationController
   
   # This method is called when an element is dropped on a node.
   def drop
-    role      = params[:set]
+    set       = params[:set]
     other_zip = params[:drop].split('_').last
-    case role
-    when 'child'
-      other = secure!(Node) { Node.find_by_zip(other_zip)}
-      unless other.update_attributes(:parent_id => @node[:id])
-        @errors = other.errors
-      end
-    else
-      other_id = Node.translate_pseudo_id(other_zip)
-      @node.add_link(role, other_id)
-      unless @node.save
-        @errors = @node.errors
+    other  = secure!(Node) { Node.find_by_zip(other_zip)}
+    
+    if attributes = params[:node]
+      if params[:target] == 'receiver'
+        attributes[:copy] = other
+        @node.update_attributes_with_transformation(attributes)
+        if !@node.errors.empty?
+          @errors = @node.errors
+        end
+      else
+        attributes[:copy] = @node
+        other.update_attributes_with_transformation(attributes)
+        if !other.errors.empty?
+          @errors = other.errors
+        end
       end
     end
+    
+    #if set == 'parent'
+    #  unless other.update_attributes(:parent_id => @node[:id])
+    #    @errors = other.errors
+    #  end
+    #elsif set =~ /\Ad_/
+    #  other.update_attributes(set => (@params[:value] || @node.v_title))
+    #elsif other.class.zafu_readable?(set)
+    #  other.update_attributes(set => (@params[:value] || @node.v_title))
+    #else
+    #  other.add_link(set, @node[:id])
+    #  unless other.save
+    #    @errors = other.errors
+    #  end
+    #end
     respond_to do |format|
       format.js { @template_file = fullpath_from_template_url(params[:template_url]) }
     end
