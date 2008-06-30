@@ -49,7 +49,7 @@ all_achieved_formations_for_roger:
   context:
     node: roger
   src: assigned_formations where l_status eq 100
-  res: form2006, transm2001, transm2002, transp2004
+  res: fiber2003, form2006, transm2001, transm2002, transp2004
 
 custom_query_form_date:
   context:
@@ -61,8 +61,8 @@ custom_query_form_with_where:
   context:
     node: roger
     ref_date: 2005-03-01
-  src: emp_form_dates where custom_a is not null and (last_date is null or next_date lt REF_DATE + 6 month) order by next_date desc
-  res: "transmit_information, engine"
+  src: emp_form_dates where last_date is null or (custom_a is not null and next_date lt REF_DATE + 6 month)
+  res: "engine, radio_usage, secure_a_site, winch_usage, transmit_information, fiber_junction"
 
 find_employees_related_to_a_course__formulate_problems:
   context:

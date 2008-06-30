@@ -66,5 +66,20 @@ cal_day_names_large:
   res: "<td class='sun'>Sunday</td><td>Monday</td><td>Tuesday</td><td>Wednesday</td><td>Thursday</td><td>Friday</td><td class='sat'>Saturday</td>"
 
 cal_class:
-  tem: "[<%= cal_class(Date.civil(2008,06,26), Date.civil(2008,06,26)) %>] [<%= cal_class(Date.civil(2008,06,28), Date.civil(2008,06,26)) %>] [<%= cal_class(Date.civil(2008,06,29), Date.civil(2008,06,26)) %>] [<%= cal_class(Date.civil(2008,06,28), Date.civil(2008,06,28)) %>] [<%= cal_class(Date.civil(2008,06,30), Date.civil(2008,06,28)) %>] [<%= cal_class(Date.civil(2008,07,1), Date.civil(2008,06,28)) %>] [<%= cal_class(Date.civil(2008,07,5), Date.civil(2008,06,28)) %>]"
-  res: "[ class='ref'] [ class='sat'] [ class='sun'] [ class='sat ref'] [] [ class='other'] [ class='satother']"
+  tem: |
+    [<%= cal_class(Date.civil(2008,06,26), Date.civil(2008,06,26)) %>]
+    [<%= cal_class(Date.civil(2008,06,28), Date.civil(2008,06,26)) %>]
+    [<%= cal_class(Date.civil(2008,06,29), Date.civil(2008,06,26)) %>]
+    [<%= cal_class(Date.civil(2008,06,28), Date.civil(2008,06,28)) %>]
+    [<%= cal_class(Date.civil(2008,05,02), Date.civil(2008,05,28)) %>]
+    [<%= cal_class(Date.civil(2008,05,30), Date.civil(2008,06,28)) %>]
+    [<%= cal_class(Date.civil(2008,05,31), Date.civil(2008,06,28)) %>]
+  res: |
+    [ class='ref']
+    [ class='sat']
+    [ class='sun']
+    [ class='sat ref']
+    []
+    [ class='other']
+    [ class='satother']
+  

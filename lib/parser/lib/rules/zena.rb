@@ -191,7 +191,7 @@ module Zena
       # do we need recursion ?
       inc = descendant('include')
       if inc && inc.params[:part] == @name
-        @context["#{@name}_method".to_sym] = method_name = get_template_url[1..-1].gsub('/','_')
+        @context["#{@name}_method".to_sym] = method_name = template_url[1..-1].gsub('/','_')
         pre << "<% def #{method_name}(depth, node, list); return '' if depth > #{inc.params[:depth] ? [inc.params[:depth].to_i,30].min : 5}; _erbout = '' -%>"
         post << "<% _erbout; end -%><%= #{method_name}(0,#{node},#{list || "[#{node}]"}) %>"
         @context[:node] = 'node'
@@ -359,8 +359,7 @@ module Zena
       
       attribute = @params[:attr] || @params[:tattr] || @params[:date]
       if @params[:edit] == 'true' && !['url','path'].include?(attribute)
-        name = unique_name + '_' + attribute
-        "<% if #{node}.can_write? -%><span class='show_edit' id='#{erb_dom_id("#{attribute}_")}'>#{actions}<%= link_to_remote(#{attribute_method}, :url => edit_node_path(#{node_id}) + \"?attribute=#{attribute}&dom_id=#{dom_id("#{attribute}_")}#{@params[:publish] == 'true' ? '&publish=true' : ''}\", :method => :get) %></span><% else -%>#{actions}<%= #{attribute_method} %><% end -%>"
+        "<% if #{node}.can_write? -%><span class='show_edit' id='#{erb_dom_id("_#{attribute}")}'>#{actions}<%= link_to_remote(#{attribute_method}, :url => edit_node_path(#{node_id}) + \"?attribute=#{attribute}&dom_id=#{dom_id("_#{attribute}")}#{@params[:publish] == 'true' ? '&publish=true' : ''}\", :method => :get) %></span><% else -%>#{actions}<%= #{attribute_method} %><% end -%>"
       else
         "#{actions}<%= #{attribute_method} %>"
       end
@@ -389,8 +388,8 @@ module Zena
       
       if @params[:edit] == 'true' && !['url','path'].include?(attribute)
         edit_text = _('edit')
-        @html_tag_params[:id] = erb_dom_id("#{attribute}_")
-        res = "<% if #{node}.can_write? -%><span class='zazen_edit'><%= link_to_remote(#{edit_text.inspect}, :url => edit_node_path(#{node_id}) + \"?attribute=#{attribute}&dom_id=#{dom_id("#{attribute}_")}#{@params[:publish] == 'true' ? '&publish=true' : ''}&zazen=true\", :method => :get) %></span><% end -%>#{res}"
+        @html_tag_params[:id] = erb_dom_id("_#{attribute}")
+        res = "<% if #{node}.can_write? -%><span class='zazen_edit'><%= link_to_remote(#{edit_text.inspect}, :url => edit_node_path(#{node_id}) + \"?attribute=#{attribute}&dom_id=#{dom_id("_#{attribute}")}#{@params[:publish] == 'true' ? '&publish=true' : ''}&zazen=true\", :method => :get) %></span><% end -%>#{res}"
       else
         res
       end
@@ -436,7 +435,6 @@ module Zena
           out drop_javascript
         end
       else
-        
         if parent.method == 'each' && @method == parent.single_child_method
           # use parent as block
           # FIXME: will not work with block as distant target...
@@ -732,7 +730,7 @@ module Zena
           # edit button
           
           # TODO: show 'reply' instead of 'edit' in comments if visitor != author
-          out link_to_update(self, :url => "\#{edit_#{base_class.to_s.underscore}_path(#{node_id})}", :html_params => get_html_params(@params), :method => :get, :else => :void)
+          out link_to_update(self, :url => "\#{edit_#{base_class.to_s.underscore}_path(#{node_id})}", :html_params => get_html_params(@params), :method => :get, :cond => "#{node}.can_write?", :else => :void)
         end
       else
         # FIXME: we could link to some html page to edit the item.
@@ -767,10 +765,11 @@ module Zena
       else
         selected = "#{node_attribute(attribute)}.to_s"
       end
+      html_id = html_attributes[:id] ? " id='#{html_attributes[:id]}'" : ''
       if @context[:in_filter]
-        select_tag = "<select name='#{attribute}'>"
+        select_tag = "<select#{html_id} name='#{attribute}'>"
       else
-        select_tag = "<select name='#{base_class.to_s.underscore}[#{attribute}]'>"
+        select_tag = "<select#{html_id} name='#{base_class.to_s.underscore}[#{attribute}]'>"
       end
       
       if klass = @params[:root_class]
@@ -797,12 +796,12 @@ module Zena
         r_select
       when 'date_box', 'date'
         return parser_error("date_box without name") unless attribute
-        input_id = @context[:template_url] ? ", :id=>\"#{@context[:dom_id]}_#{attribute}\"" : ''
+        input_id = @context[:dom_prefix] ? ", :id=>\"#{dom_id}_#{attribute}\"" : ''
         "<%= date_box '#{base_class.to_s.underscore}', #{attribute.inspect}, :size=>15#{@context[:in_add] ? ", :value=>''" : ''}#{input_id} %>"
       when 'id'
         return parser_error("select id without name") unless attribute
         name = "#{attribute}_id" unless attribute[-3..-1] == '_id'
-        input_id = params[:input_id] ? ", :input_id =>\"#{@context[:dom_id]}_#{attribute}\"" : ''
+        input_id = @context[:erb_dom_id] ? ", :input_id =>\"#{erb_dom_id}_#{attribute}\"" : ''
         "<%= select_id('#{base_class.to_s.underscore}', #{attribute.inspect}#{input_id}) %>"
       when 'time_zone'
         out parser_error("please use [select] here")
@@ -1170,7 +1169,7 @@ END_TXT
       
       opts[:method]       = :delete
       opts[:default_text] = _('btn_tiny_del')
-      opts[:html_params]  = get_html_params(@params)
+      opts[:html_params]  = get_html_params({:class => 'unlink'}.merge(@params))
       
       out link_to_update(target, opts)
       
@@ -1277,12 +1276,18 @@ END_TXT
     end
     
     def r_each
+      if @context[:dom_prefix] || @params[:draggable] == 'true' || descendant('unlink')
+        id_hash = {:id => erb_dom_id}
+      else
+        id_hash = nil
+      end
+      
       if @context[:make_form]
         # use the elements inside 'each' loop to produce the edit form
         r_form
       elsif @context[:list]
         # normal rendering: inserted into the layout
-        if @params[:draggable] == 'true'
+        if @params[:draggable] == 'true' || descendant('unlink')
           @html_tag ||= 'div'
           out "<% #{var}_dom_ids = [] -%>"
         end
@@ -1317,33 +1322,38 @@ END_TXT
         @params[:anchor] = @anchor_param   # set back in case we double render
         @anchor_param = nil
         
-        if @context[:dom_prefix]
-          # ajax, set id, class
-          id_hash = {:id=> erb_dom_id}
+        res = expand_with(:node => var, :scope_node => var)
+        
+        if id_hash
           if @html_tag
             @html_tag_params.merge!(id_hash)
-            res = expand_with(:node=>var, :scope_node=>var)
           else
-            res = add_params(expand_with(:node=>var, :scope_node=>var), id_hash)
+            res = add_params(res, id_hash)
           end
-        else
-          res = expand_with(:node=>var, :scope_node=>var)
         end
+        
         out render_html_tag(res, html_append)
+        
         out "<% end -%>"
         
         if @params[:draggable] == 'true'
           out "<script type='text/javascript'>\n//<![CDATA[\n<%= #{var}_dom_ids.inspect %>.each(Zena.draggable)\n//]]>\n</script>"
         end
+        
       elsif @context[:saved_template]
         # render to produce a saved template
-        id_hash = {:id=>erb_dom_id}
-        if @html_tag
-          @html_tag_params.merge!(id_hash)
-          out render_html_tag(expand_with(:scope_node=>node), html_append)
-        else
-          out add_params(expand_with(:scope_node=>node), id_hash)
+        res = expand_with(:scope_node => node)
+        if id_hash
+          if @html_tag
+            @html_tag_params.merge!(id_hash)
+            res = render_html_tag(res, html_append)
+          else
+            res = add_params(res, id_hash)
+          end
         end
+        
+        out res
+        
         if @params[:draggable] == 'true'
           out "<script type='text/javascript'>\n//<![CDATA[\nZena.draggable('#{erb_dom_id}')\n//]]>\n</script>"
         end
@@ -1668,12 +1678,9 @@ END_TXT
       if @context[:block] == self
         # called from self (storing template / rendering)
         size     = (params[:size] || 'large').to_sym
-        dom_id   = @context[:dom_id]
-        template_url = @context[:template_url]
         finder   = params[:find] || 'notes in project'
         ref_date = params[:date] || 'event_at'
         type     = params[:type] ? params[:type].to_sym : :month
-        @params[ref_date.gsub('_at','').to_sym] = 'month' # will produce a raw finder for all events in the same month as the ref date.
           
         if @blocks == []
           # add a default <r:link/> block
@@ -1682,11 +1689,12 @@ END_TXT
           else
             @blocks = [make(:void, :method=>'void', :text=>"<span do='show' date='current_date' format='%d'/><ul><li do='each' do='link' attr='name'/></ul><r:else do='[current_date]' format='%d'/>")]
           end
+          remove_instance_variable(:@all_descendants)
         elsif !descendant('else')
           @blocks += [make(:void, :method=>'void', :text=>"<r:else do='[current_date]' format='%d'/>")]
         end
         @html_tag_done = false
-        @html_tag_params[:id] = "#{@context[:erb_dom_id]}_<%= #{node}.zip %>"
+        @html_tag_params[:id] = erb_dom_id
         @html_tag_params[:class] ||= "#{size}cal"
         @html_tag ||= 'div'
         
@@ -1705,9 +1713,9 @@ END_TXT
 
         res = <<-END_TXT
 <h3 class='title'>
-<span><%= link_to_remote(#{_('img_prev_page').inspect}, :url => #{base_class.to_s.underscore}_path(#{node_id}) + \"/zafu?t_url=#{CGI.escape(template_url)}&dom_id=#{@context[:dom_id]}&date=#{prev_date}\", :method => :get) %></span>
-<span><%= link_to_remote(#{title}, :url => #{base_class.to_s.underscore}_path(#{node_id}) + \"/zafu?t_url=#{CGI.escape(template_url)}&dom_id=#{@context[:dom_id]}\", :method => :get) %></span>
-<span><%= link_to_remote(#{_('img_next_page').inspect}, :url => #{base_class.to_s.underscore}_path(#{node_id}) + \"/zafu?t_url=#{CGI.escape(template_url)}&dom_id=#{@context[:dom_id]}&date=#{next_date}\", :method => :get) %></span>
+<span><%= link_to_remote(#{_('img_prev_page').inspect}, :url => #{base_class.to_s.underscore}_path(#{node_id}) + \"/zafu?t_url=#{CGI.escape(template_url)}&dom_id=#{dom_id}&date=#{prev_date}\", :method => :get) %></span>
+<span class='date'><%= link_to_remote(#{title}, :url => #{base_class.to_s.underscore}_path(#{node_id}) + \"/zafu?t_url=#{CGI.escape(template_url)}&dom_id=#{dom_id}\", :method => :get) %></span>
+<span><%= link_to_remote(#{_('img_next_page').inspect}, :url => #{base_class.to_s.underscore}_path(#{node_id}) + \"/zafu?t_url=#{CGI.escape(template_url)}&dom_id=#{dom_id}&date=#{next_date}\", :method => :get) %></span>
 </h3>
 <table cellspacing='0' class='#{size}cal'>
   <tr class='head'><%= cal_day_names(#{size.inspect}) %></tr>
@@ -1715,7 +1723,7 @@ END_TXT
 <% cal_weeks(#{ref_date.to_sym.inspect}, #{build_finder_for(:all, finder, @params, [@date_scope])}, start_date, end_date) do |week, cal_#{list_var}| -%>
   <tr class='body'>
 <% week.step(week+6,1) do |day_#{list_var}|; #{list_var} = cal_#{list_var}[day_#{list_var}.strftime('%Y-%m-%d')] -%>
-    <td<%= cal_class(day_#{list_var},#{current_date}) %>><% if #{list_var} -%>#{expand_with(:in_if => true, :list => list_var, :date => "day_#{list_var}", :template_url => nil)}<% end -%></td>
+    <td<%= cal_class(day_#{list_var},#{current_date}) %>><% if #{list_var} -%>#{expand_with(:in_if => true, :list => list_var, :date => "day_#{list_var}", :saved_template => nil, :dom_prefix => nil)}<% end -%></td>
 <% end -%>
   </tr>
 <% end -%>
@@ -1728,29 +1736,28 @@ END_TXT
       
         @date_scope = "TABLE_NAME.#{fld} >= '\#{start_date.strftime('%Y-%m-%d')}' AND TABLE_NAME.#{fld} <= '\#{end_date.strftime('%Y-%m-%d')}'"
         
-        template_url  = get_template_url(@context)
+        new_dom_scope
         
         # SAVED TEMPLATE
-        template = expand_block(self, :block => self, :node => '@node', :template_url => template_url, :dom_id => "\#{params[:dom_id]}", :erb_dom_id => "<%= params[:dom_id] %>")
+        template = expand_block(self, :block => self, :saved_template => true)
         out helper.save_erb_to_url(template, template_url)
         
         # INLINE
-        out expand_block(self, :block => self, :template_url => template_url, :dom_id => "#{self.dom_id}_\#{#{node_id}}", :erb_dom_id => "#{self.dom_id}_<%= #{node_id} %>")
+        out expand_block(self, :block => self, :saved_template => false)
       end
     end
     
     # part caching
     def r_cache
       kpath   = @params[:kpath]   || Page.kpath
-      context = get_template_url
-      out "<% #{cache} = Cache.with(visitor.id, visitor.group_ids, #{kpath.inspect}, #{helper.send(:lang).inspect}, #{context.inspect}) do capture do %>"
+      out "<% #{cache} = Cache.with(visitor.id, visitor.group_ids, #{kpath.inspect}, #{helper.send(:lang).inspect}, #{template_url.inspect}) do capture do %>"
       out expand_with
       out "<% end; end %><%= #{cache} %>"
     end
     
     # recursion
     def r_include
-      return '' if @context[:template_url]
+      return '' if @context[:saved_template]
       return super if @params[:template] || !@params[:part]
       part = @params[:part].gsub(/[^a-zA-Z_]/,'')
       method_name = @context["#{part}_method".to_sym]
@@ -1805,7 +1812,7 @@ END_TXT
       xsl_content, absolute_url, doc = self.class.get_template_text(@params[:stylesheet], @options[:helper], @options[:current_folder])
       return parser_error("stylesheet #{@params[:stylesheet].inspect} not found") unless doc
       
-      template_url = (get_template_url.split('/')[0..-2] + ['_main.xsl']).join('/')
+      template_url = (self.template_url.split('/')[0..-2] + ['_main.xsl']).join('/')
       helper.save_erb_to_url(xsl_content, template_url)
       out "<?xml version='1.0' encoding='utf-8'?>\n"
       out "<!-- xsl_id:#{doc[:id] } -->\n" if doc
@@ -2108,11 +2115,12 @@ END_TXT
     end
     
     def do_list(list_finder, opts={})
-      new_dom_scope
+      clear_dom_scope
       
       @context.merge!(opts)          # pass options from 'zafu_known_contexts' to @context
       
-      if (each_block = descendant('each')) && (descendant('edit') || descendant('add') || descendant('add_document') || (descendant('swap') && descendant('swap').parent.method != 'block') || ['block', 'drop'].include?(each_block.single_child_method))
+      if (each_block = descendant('each')) && (each_block.descendant('edit') || descendant('add') || descendant('add_document') || (descendant('swap') && descendant('swap').parent.method != 'block') || ['block', 'drop'].include?(each_block.single_child_method))
+        new_dom_scope
         # ajax, build template. We could merge the following code with 'r_block'.
         add_block  = descendant('add')
         form_block = descendant('form') || each_block
@@ -2200,20 +2208,25 @@ END_TXT
     end
     
     # use our own scope
-    def new_dom_scope
+    def clear_dom_scope
       @context.delete(:dom_prefix)     # should not propagate
-      @context[:dom_prefix] = self.dom_prefix
       @context.delete(:make_form)      # should not propagate
       @context.delete(:saved_template) # should not propagate
     end
     
+    # create our own ajax DOM scope
+    def new_dom_scope
+      clear_dom_scope
+      @context[:dom_prefix] = self.dom_prefix
+    end
+    
     # DOM id for the current context
-    def dom_id(prefix='')
+    def dom_id(suffix='')
       return "\#{dom_id(#{node})}" if @context && @context[:saved_template]
       if @context && scope_node = @context[:scope_node]
-        res = "#{prefix}#{dom_prefix}_\#{#{scope_node}.zip}"
+        res = "#{dom_prefix}_\#{#{scope_node}.zip}"
       else
-        res = prefix + dom_prefix
+        res = dom_prefix
       end
       if method == 'each' && !@context[:make_form]
         "#{res}_\#{#{var}.zip}"
@@ -2227,20 +2240,20 @@ END_TXT
           end
           parent = parent.parent
         end
-        target ? target.dom_id : res
+        target ? target.dom_id(suffix) : (res + suffix)
       else
-        res
+        res + suffix
       end
     end
     
-    def erb_dom_id(prefix='')
+    def erb_dom_id(suffix='')
       return "<%= dom_id(#{node}) %>" if @context && @context[:saved_template]
       if @context && scope_node = @context[:scope_node]
-        res = "#{prefix}#{dom_prefix}_<%= #{scope_node}.zip %>"
+        res = "#{dom_prefix}_<%= #{scope_node}.zip %>"
       else
-        res = prefix + dom_prefix
+        res = dom_prefix
       end
-      if method == 'each' && @context[:make_form]
+      if method == 'each' && !@context[:make_form]
         "#{res}_<%= #{var}.zip %>"
       elsif method == 'unlink'
         target = nil
@@ -2252,9 +2265,9 @@ END_TXT
           end
           parent = parent.parent
         end
-        target ? target.erb_dom_id : res
+        target ? target.erb_dom_id(suffix) : (res + suffix)
       else
-        res
+        res + suffix
       end
     end
     
@@ -2489,9 +2502,9 @@ END_TXT
         end
         
         res ||= if opts[:erb]
-          "<%= #{res} %>"
+          "<%= #{attribute} %>"
         else
-          "\#{#{res}}"
+          "\#{#{attribute}}"
         end
         res
       end
@@ -2508,7 +2521,7 @@ END_TXT
       klass     ||= opts[:node_class] || node_class
       
       real_attribute = attribute =~ /\Ad_/ ? attribute : attribute.gsub(/\A(|[\w_]+)id(s?)\Z/, '\1zip\2')
-
+      
       res = if klass.ancestors.include?(Node)
         if ['url','path'].include?(real_attribute)
           # pseudo attribute 'url'
@@ -2696,7 +2709,6 @@ END_TXT
       
       if res[:name] =~ /\A([\w_]+)\[(.*?)\]/
         attribute = $2
-        res[:id]   = "#{$1}_#{$2}"
       else
         attribute = res[:name]
         if @context[:in_filter]
@@ -2706,7 +2718,7 @@ END_TXT
         end
       end 
       
-      res[:id]   = @context[:erb_dom_id] ? "#{@context[:erb_dom_id]}_#{attribute}" : res[:name].sub('[','_').sub(']','')
+      res[:id]   = "#{erb_dom_id}_#{attribute}" if @context[:dom_prefix]
       
       [:size, :style, :class].each do |k|
         res[k] = params[k] if params[k]
@@ -2827,10 +2839,10 @@ END_TXT
       return '' if attribute == 'parent_id' # set with 'r_form'
       return '' if ['url','path'].include?(attribute) # cannot be set with a form
       if params[:date]
-      input_id = @context[:template_url] ? ", :id=>\"#{@context[:dom_id]}_#{attribute}\"" : ''
+      input_id = @context[:dom_prefix] ? ", :id=>\"#{dom_id}_#{attribute}\"" : ''
         return "<%= date_box('#{base_class.to_s.underscore}', #{params[:date].inspect}#{input_id}) %>"
       end
-      input_id = @context[:template_url] ? " id='#{@context[:erb_dom_id]}_#{attribute}'" : ''
+      input_id = @context[:dom_prefix] ? " id='#{erb_dom_id}_#{attribute}'" : ''
       "<input type='#{params[:type] || 'text'}'#{input_id} name='#{input[:name]}' value=#{input[:value]}/>"
     end
     
@@ -2850,8 +2862,8 @@ END_TXT
       else
         value = attribute ? "<%= #{node_attribute(attribute)} %>" : ""
       end
-      input_id = "#{@context[:erb_dom_id]}_#{attribute}" || name.sub('[','_').sub(']','')
-      "<textarea name='#{name}' id='#{input_id}'>#{value}</textarea>"
+      html_id = @context[:dom_prefix] ? " id='#{erb_dom_id}_#{attribute}'" : ''
+      "<textarea#{html_id} name='#{name}'>#{value}</textarea>"
     end
     
     def default_focus_field

@@ -6,41 +6,40 @@ default:
     site: complex
     ref_date: 2005-03-01
   src: "<r:emp_form_dates where='custom_a is not null' do='each' join=', '><r:show attr='name'/> (<r:show date='event_at' format='%Y-%m-%d'/>, <r:show date='log_at' format='%Y-%m-%d'/>)</r:emp_form_dates>"
-  res: "engine (, ), transmit_information (2002-05-05, 2003-05-05), dangerous_transportations (2004-03-15, 2006-03-15)"
+  res: "engine (, ), radio_usage (, ), secure_a_site (, ), winch_usage (, ), transmit_information (2002-05-05, 2003-05-05), fiber_junction (2003-03-03, 2005-03-03), dangerous_transportations (2004-03-15, 2006-03-15), formulate_problems (2006-03-20, 2008-03-20)"
   
 courses_in_the_next_6_months:
   # log_at   = next_date
   # event_at = last_date
   # custom_a = repetition interval
-  src: "<r:emp_form_dates where='custom_a is not null and (event_at is null or log_at lt REF_DATE + 6 month)' do='each' join=', '><r:show attr='name'/>: <r:show date='log_at' format='%Y-%m-%d'/></r:emp_form_dates>"
-  res: "engine: , transmit_information: 2003-05-05"
+  src: "<r:emp_form_dates where='last_date is null or (custom_a is not null and next_date lt REF_DATE + 6 month)' do='each' join=', '><r:show attr='name'/>: <r:show date='log_at' format='%Y-%m-%d'/></r:emp_form_dates>"
+  res: "engine: , radio_usage: , secure_a_site: , winch_usage: , transmit_information: 2003-05-05, fiber_junction: 2005-03-03"
 
 courses_in_the_next_6_months_do_syntax:
-  src: "<div do='emp_form_dates where custom_a is not null and (event_at is null or log_at lt REF_DATE + 6 month)' do='each' join=', '><r:show attr='name'/>: <r:show date='log_at' format='%Y-%m-%d'/></div>"
-  res: "<div>engine: , transmit_information: 2003-05-05</div>"
+  src: "<div do='emp_form_dates where last_date is null or (custom_a is not null and next_date lt REF_DATE + 6 month)' do='each' join=', '><r:show attr='name'/>: <r:show date='log_at' format='%Y-%m-%d'/></div>"
+  res: "<div>engine: , radio_usage: , secure_a_site: , winch_usage: , transmit_information: 2003-05-05, fiber_junction: 2005-03-03</div>"
 
 all_formations:
   src: "<r:formations in='site' do='each' join=', '><r:show attr='name'/>: <r:show date='event_at'/></r:formations>"
-  res: "form2005: 2005-03-20, form2006: 2006-03-20, transm2001: 2001-06-15, transm2002: 2002-05-05, transm2003: 2003-03-20, transp2004: 2004-03-15, transp2006: 2006-04-21"
+  res: "fiber2002: 2002-02-02, fiber2003: 2003-03-03, form2005: 2005-03-20, form2006: 2006-03-20, transm2001: 2001-06-15, transm2002: 2002-05-05, transm2003: 2003-03-20, transp2004: 2004-03-15, transp2006: 2006-04-21, vision2003: 2003-04-05"
 
 all_formations_with_people:
   src: "<r:formations in='site' do='each' join=', '><r:show attr='name'/>: <r:show date='event_at'/> (<r:formation_for find='all' do='each' join=', ' do='[name]'/>)</r:formations>"
-  res: "fiber2003: 2003-03-03 (joe, mike, roger), form2005: 2005-03-20 (roger), form2006: 2006-03-20 (roger), transm2001: 2001-06-15 (roger), transm2002: 2002-05-05 (roger), transm2003: 2003-03-20 (joe), transp2004: 2004-03-15 (roger), transp2006: 2006-04-21 (roger), vision2003: 2003-04-05 (mike)"
+  res: "fiber2002: 2002-02-02 (mike), fiber2003: 2003-03-03 (joe, roger), form2005: 2005-03-20 (roger), form2006: 2006-03-20 (roger), transm2001: 2001-06-15 (roger), transm2002: 2002-05-05 (roger), transm2003: 2003-03-20 (joe), transp2004: 2004-03-15 (roger), transp2006: 2006-04-21 (roger), vision2003: 2003-04-05 (mike)"
 
 all_people_related_to_a_course:
   context:
     node: transmit_information
   src: "<r:course_emp_dates do='each' join=', '><r:show attr='name'/> (last:<r:show date='event_at'/>, next:<r:show date='log_at'/>)</r:course_emp_dates>"
-  res: "joe (last:, next:), mike (last:, next:), roger (last:2002-05-05, next:2003-05-05)"
+  res: "joe (last:2003-03-20, next:2004-03-20), mike (last:, next:), roger (last:2002-05-05, next:2003-05-05)"
 
 all_course_emp_date:
-  context:
-    ref_date: 2004-06-01
-    # next:
-    # dangerous_transportations: 2006-03-15
-      # fiber_junction: 2004-02-02, 2005-03-03, 2005-03-03
-    # vision: 2005-04-05
-    # transmit_information: --, 2003-05-05, 2004-03-20
+  # next:
+  # dangerous_transportations: 2006-03-15
+  # fiber_junction: 2004-02-02, 2005-03-03, 2005-03-03
+  # vision: 2005-04-05
+  # transmit_information: --, 2003-05-05, 2004-03-20
+  # engine, formulate_problems, radio_usage, secure_a_site, winch_usage, resp_management, team_motivation: asap
   src: "<r:all_course_emp_dates order='name asc' do='each' join=', '><r:show date='log_at'/> <r:show attr='name'/> (<r:show attr='custom_b'/>)</r:all_course_emp_dates>"
   res: "2006-03-15 dangerous_transportations (1),  engine (1), 2004-02-02 fiber_junction (3),  formulate_problems (3),  radio_usage (3),  resp_management (1),  secure_a_site (3),  team_motivation (1),  transmit_information (3), 2005-04-05 vision (1),  winch_usage (3)"
 

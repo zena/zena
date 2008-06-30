@@ -16,7 +16,7 @@
 <label for="v_comment"><%= _("comment") %></label>
 <%= text_area 'node', 'v_comment', :cols=>nil, :rows=>2, :class => 'full_width' %>
 
-<% (@node.version.dyn.keys + (@node.virtual_class ? @node.virtual_class.attributes.split(',').map(&:strip) : [])).uniq.sort do |k| -%>
+<% @node.dyn_attribute_keys do |k| -%>
 <label for="d_<%= k %>"><%= _(k) %></label>
 <%= text_area 'node', "d_#{k}", :cols=>nil, :rows=>2, :class => 'full_width' %>
 <% end -%>

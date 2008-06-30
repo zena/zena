@@ -99,11 +99,11 @@ store_node:
 
 store_in_block:
   src: "<r:block><r:node select='18' store='found' do='pages'><r:show attr='name'/>: <r:node select='found' do='[name]'/></r:node></r:block>"
-  res: "<div id='list_22_22'>projects: status</div>"
+  res: "<div id='list1'>projects: status</div>"
 
 store_outside_block:
   src: "<r:node select='18' store='found' do='pages'><r:block><r:show attr='name'/>: <r:node select='found' do='[name]'/></r:block></r:node>"
-  res: "<div id='list1_18_18'>projects: status</div>"
+  res: "<div id='list1'>projects: status</div>"
   'store/outside/en/block/list1.erb': "/unknown relation 'found'/"
 
 store_node_as_relation:

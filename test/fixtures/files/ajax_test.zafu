@@ -25,6 +25,17 @@ This filter updates the "distant filter block test"
 <r:filter live='true' update='upfi'/>
 </div>
 
+
+<h3>calendar test</h3>
+<div do='calendar' find='notes in site'/>
+
+<h3>week calendar</h3>
+<div do='calendar' find='notes in site' type='week'/>
+
+<h3>tiny calendar</h3>
+<div do='calendar' find='notes in site' size='tiny'/>
+
+
 <div id='edit' do='block'>
   <h3>edit block test</h3>
     <r:text/>
@@ -103,10 +114,42 @@ This filter updates the "distant filter block test"
 
 <hr/>
 
-
 <h2>notes & comments</h2>
 
-<r:include template='notes'/>
+<div id='notes' do='notes' in='project' limit='10' order='log_at DESC'>
+  <ul class='note_list'>
+    <li do='add' after='self'/>
+    <li class='inline_form' do='form'>
+      <form>
+        <p class='node_v_title'><input type='text' name='v_title' size='25'/></p>
+        <p class='node_klass'>  <r:select name='klass' root_class='Note' selected='Post'/></p>
+        <p class='node_log_at'> <input type='date_box' name='log_at'/> </p>
+        <p class='validate'>    <input type="submit" value='validate' do='void' tset_value='validate'/></p>
+      </form>
+    </li>
+    <li class='note' do='each'>
+      <div class='header'>
+        <p class='log_at' do='show' date='log_at' tformat='full_date'>04.10</p>
+        <h2 class='title' do='title' actions='all'/>
+        <div class='summary' do ='summary'/>
+      </div>
+      <r:text/>
+<ul do='comments'>
+<li do='each'><b do='[title]'/> <b do='[author_name]'/>
+<div do='{text}'/>
+</li>
+<li do='add'/>
+<li do='form'>
+<p><input name='title'/></p>
+<p><textarea name='text'/></p>
+<p><input type='submit'/></p>
+</li>
+</ul>
+      <div class='clear'></div>
+    </li>
+  </ul>
+</div>
+
 
 <hr/>
   </r:with>

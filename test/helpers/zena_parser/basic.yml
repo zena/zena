@@ -32,7 +32,7 @@ include_erb:
 
 cache_part:
   src: "<r:cache><r:show attr='name'/></r:cache>"
-  tem: "<% cache1 = Cache.with(visitor.id, visitor.group_ids, \"NP\", \"en\", \"/cache/part/list\") do capture do %><%= @node.name %><% end; end %><%= cache1 %>"
+  tem: "<% cache1 = Cache.with(visitor.id, visitor.group_ids, \"NP\", \"en\", \"/cache/part/list1\") do capture do %><%= @node.name %><% end; end %><%= cache1 %>"
 
 show_title:
   src: "<r:show attr='v_title'/>"
@@ -237,7 +237,7 @@ link_stored:
 
 link_date:
   context:
-    date: '2008-06-27'
+    ref_date: '2008-06-27'
   src: "<r:link date='current_date'/>"
   tem: "/:date=>main_date/"
   res: "<a href='/oo/projects/cleanWater/page22.html?date=2008-06-27'>status title</a>"
@@ -366,14 +366,17 @@ uses_calendar:
   tem: "/<script.*calendar.js.*calendar-setup.js.*calendar-en-utf8.js.*calendar-brown.css.*CDATA.*DEF_DATE_FORMAT.*%Y-%m-%d %H:%M.*FIRST_DAY.*0/"
 
 calendar:
-  src: "<div do='calendar' find='notes'/>"
-  res: "/<div id='small_calendar'><table/"
+  context:
+    ref_date: "2006-03-18"
+  src: "<div do='calendar' find='notes in site'/>"
+  res: "/<td class='sat ref'><span>18</span><ul><li><a href='/oo/projects/cleanWater/post27.html'>opening</a></li></ul><\/td>/"
 
 calendar_default_else:
   context:
-    date: "2008-01-10"
-  src: "<div do='calendar'>--</div>"
-  res: "."
+    # no notes here
+    ref_date: "2008-01-30"
+  src: "<div do='calendar'>---</div>"
+  res: "/<td class='sun'>27<\/td>/"
 
 flash_messages_both:
   src: "<r:flash_messages/>"
@@ -429,7 +432,7 @@ each_alternate_class_ajax:
   context:
     node: 'cleanWater'
   src: "<ol do='pages'><li do='each' alt_class='blue' do='[name]'/><li do='add'/></ol>"
-  res: "/<li id='list.21.22'>status<\/li><li id='list.21.37' class=\"blue\">track/"
+  res: "/<li id='list1_22'>status<\/li><li id='list1_37' class=\"blue\">track/"
 
 case_when:
   src: "<r:case><r:when kind_of='Document'>this is a document</r:when><r:when klass='Page'>Page</r:when><r:when status='pub'>Pub</r:when>"
@@ -800,7 +803,7 @@ select_class:
   context:
     node: 'opening'
   src: "<r:form><select name='klass' root_class='Note' selected='Post'/></r:form>"
-  res: "/<select id=\"node_klass\" name=\"node\[klass\]\"><option value=\"Note\">Note<\/option>\n<option value=\"Letter\">  Letter<\/option>\n<option value=\"Post\" selected=\"selected\">  Post<\/option><\/select>/"
+  res: "/<select name=.node\[klass\].><option value=\"Note\">Note<\/option>\n<option value=\"Letter\">  Letter<\/option>\n<option value=\"Post\" selected=\"selected\">  Post<\/option><\/select>/"
 
 select_nodes:
   src: "<r:form><select nodes='images in site' name='d_ref'></select></r:form>"
@@ -838,7 +841,7 @@ select_values_tshow:
 
 form_publish:
   src: "<r:form publish='true'><r:select name='d_foo' values='bar,baz'/></r:form>"
-  res: "/div.*name='node\[v_status\]' value=\"50\"\/>.*<\/div>/"
+  res: "/div.*name=.node\[v_status\]. value=.50.\/>.*<\/div>/"
 
 checkbox:
   context:
@@ -848,15 +851,15 @@ checkbox:
 
 input_set_value:
   src: "<r:input type='hidden' name='icon_id' set_value='[main.id]'/>"
-  tem: "<input id='node_icon_id' name='node[icon_id]' type='hidden' value='<%= @node.zip %>'/>"
-  res: "<input id='node_icon_id' name='node[icon_id]' type='hidden' value='22'/>"
+  tem: "<input name='node[icon_id]' type='hidden' value='<%= @node.zip %>'/>"
+  res: "<input name='node[icon_id]' type='hidden' value='22'/>"
 
 input:
   context:
     node: 'ant'
   src: "<r:input name='c_first_name'/>"
-  tem: "<input id='node_c_first_name' name='node[c_first_name]' type='text' value='<%= fquote @node.c_zafu_read(\"first_name\") %>'/>"
-  res: "<input id='node_c_first_name' name='node[c_first_name]' type='text' value='Solenopsis'/>"
+  tem: "<input name='node[c_first_name]' type='text' value='<%= fquote @node.c_zafu_read(\"first_name\") %>'/>"
+  res: "<input name='node[c_first_name]' type='text' value='Solenopsis'/>"
 
 input_new:
   context:
@@ -869,7 +872,7 @@ add_btn:
   <tr do='each'><td do='[name]'/></tr>
   <tr do='add'><td><b><r:add_btn/></b></td></tr>
   </table>"
-  res: "/<tr class='btn_add' id='list_22_add'><td><b><a href='#' onclick/"
+  res: "/<tr class='btn_add' id='list1_add'><td><b><a href='#' onclick/"
 
 read_no_content:
   src: "this is <b do='[c_bad]'/>"

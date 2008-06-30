@@ -66,7 +66,7 @@ param_filter:
 
 param_filter_no_string:
   src: "notes where created_at gt REF_DATE - param:f in site"
-  sql: "/nodes.created_at\ >now\(\) - #\{Node.connection.quote\(params\[:f\].to_s\)\}/"
+  sql: "/nodes.created_at\ > now\(\) - #\{Node.connection.quote\(params\[:f\].to_s\)\}/"
 
 filter_literal:
   src: "nodes where name like 'w%' in site"

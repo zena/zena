@@ -6,13 +6,13 @@ default:
 
 show_edit:
   src: "<r:show attr='name' edit='true'/>"
-  tem: "<% if @node.can_write? -%><span class='show_edit' id='list_name.<%= @node.zip %>'><%= link_to_remote(@node.name, :url => edit_node_path(@node.zip) + \"?attribute=name&identifier=list_name.#{@node.zip}\", :method => :get) %></span><% else -%><%= @node.name %><% end -%>"
-  res: "/span class='show_edit' id='list_name.22'>.*Ajax\.Request\('/nodes/22/edit\?attribute=name/"
+  tem: "<% if @node.can_write? -%><span class='show_edit' id='list1_name'><%= link_to_remote(@node.name, :url => edit_node_path(@node.zip) + \"?attribute=name&dom_id=list1_name\", :method => :get) %></span><% else -%><%= @node.name %><% end -%>"
+  res: "/span class='show_edit' id='list1_name'>.*Ajax\.Request\('/nodes/22/edit\?attribute=name/"
 
 zazen_edit:
   src: "<r:zazen attr='name' edit='true'/>"
-  tem: "<div id='list_name.<%= @node.zip %>'><% if @node.can_write? -%><span class='zazen_edit'><%= link_to_remote(\"edit\", :url => edit_node_path(@node.zip) + \"?attribute=name&identifier=list_name.#{@node.zip}&zazen=true\", :method => :get) %></span><% end -%><%= zazen(@node.name, :node=>@node) %></div>"
-  res: "/div id='list_name.22'>.*Ajax\.Request\('/nodes/22/edit\?attribute=name/"
+  tem: "<div id='list1_name'><% if @node.can_write? -%><span class='zazen_edit'><%= link_to_remote(\"edit\", :url => edit_node_path(@node.zip) + \"?attribute=name&dom_id=list1_name&zazen=true\", :method => :get) %></span><% end -%><%= zazen(@node.name, :node=>@node) %></div>"
+  res: "/div id='list1_name'>.*Ajax\.Request\('/nodes/22/edit\?attribute=name/"
 
 edit_not_each:
   src: "<li class='blah'>this is a post <r:edit>edit post</r:edit></li>"
@@ -39,7 +39,7 @@ each_add_with_form:
       <li do='add'>add new</li>
       <li do='form'><input name='v_title'/> this is the form</li>
     </r:children>
-  res: "/<li.*list_29_30.*>bird.*<li.*list_29_31.*>flower.*<li.*list_29_add.*list_29_form.*toggle.*<li .*list_29_form.*style.*none.*Ajax.Request.*input type='hidden' name='template_url' value=\"/each/add/with/form/list\".*input type='hidden' name='node\[parent_id\]' value=\"29\"/"
+  res: "/<li.*list1_30.*>bird.*<li.*list1_31.*>flower.*<li.*list1_add.*list1_form.*toggle.*<li .*list1_form.*style.*none.*Ajax.Request.*input type='hidden' name='t_url' value=./each/add/with/form/list1.*input type='hidden' name='node\[parent_id\]' value=.29./"
 
 each_add_with_form_klass_set:
   context:
@@ -54,31 +54,31 @@ each_add_with_form_klass_set:
 
 each_add_with_select:
   src: "<r:children><r:each do='[name]'/><r:add/><r:form><select name='icon_id' nodes='images in project' selected='[main.icon_id]_abc'/></r:form></r:children>"
-  'each/add/en/with/select/list_form.erb': '/:selected => \"#\{@node.icon_zip\}_abc\"/'
+  'each/add/en/with/select/list1_form.erb': '/map.|r| \[r.name, r.zip.to_s\]., \"#.@node.icon_zip._abc\"\)/'
   tem: "/@node.do_find\(:all, \"SELECT nodes.* FROM nodes WHERE nodes.kpath LIKE 'NDI%'/"
 
 each_edit_with_form:
   context:
     node: 'wiki'
   src: "<r:children><r:each><li><r:show attr='name'>blah</r:show> <r:edit>edit</r:edit></li>\n</r:each><r:form><li><form>this is the form</form></li></r:form></r:children>"
-  res: "/<li id='list.29.30'>bird <a href='/nodes/30/edit\?template_url=.*' onclick=\"new Ajax.Request\('/nodes/30/edit\?template_url=%2Feach%2Fedit%2Fwith%2Fform%2Flist/"
+  res: "/<li id='list1_30'>bird <a href='/nodes/30/edit\?t_url=.*' onclick=\"new Ajax.Request\('/nodes/30/edit\?t_url=%2Feach%2Fedit%2Fwith%2Fform%2Flist/"
 
 make_form:
   src: "<ul do='children'><li do='each' do='[name]'/><li do='add'/></ul>"
-  tem: "/<li id='list_<%= @node.zip %>_form' style='display:none;'><%= form_remote_tag\(:url => nodes_path/"
-  'make/form/en/list.erb': "<li id='<%= params[:dom_id] %>_<%= @node.zip %>'><%= @node.name %></li>"
-  'make/form/en/list_form.erb': "/<li id='<%= params\[:dom_id\] %>_<%= @node.new_record\? \? 'form' : @node.zip %>'>/"
+  tem: "/<li id='list1_form' style='display:none;'><%= form_remote_tag\(:url => nodes_path/"
+  'make/form/en/list1.erb': "<li id='<%= dom_id(@node) %>'><%= @node.name %></li>"
+  'make/form/en/list1_form.erb': "/<li id='<%= dom_id\(@node\) %>'>/"
 
 each_edit_cannot_write:
   context:
     node: 'cleanWater'
     visitor: 'anon'
   src: "<r:children><r:each><li><r:show attr='name'>blah</r:show> <r:edit>edit</r:edit></li>\n</r:each></r:children>"
-  res: "/<li id='list.21.24'>lake </li>.*/"
+  res: "/<li id='list1_24'>lake </li>.*/"
 
 add_each_publish:
   src: "<ul do='children' id='things'><li do='each'>I <p do='[name]'>blah</p></li><li do='add' publish='true'/></ul>"
-  res: "/<ul><li.*id='things_add'.*li id='things_form'.*form.*hidden.*name='node\[v_status\]' value=\"50\"/"
+  res: "/<ul><li.*id='things_add'.*li id='things_form'.*form.*hidden.*name='node\[v_status\]' value=.50./"
 
 block_edit_form:
   src: "<r:block><p do='[name]'/> <r:edit/> <r:form>please enter name: <input name='name'/> <r:input type='submit'/></r:form></r:block>"
@@ -90,7 +90,7 @@ query_in_block:
 
 saved_each_block:
   src: "<ol do='pages'><li do='each' on_if='ancestor' do='link'/><li do='add'/></ol>"
-  'saved/each/en/block/list.erb': "!/var1/"
+  'saved/each/en/block/list1.erb': "!/var1/"
 
 no_recursion_in_saved_block:
   src: "<r:void name='grp'><r:show attr='name'/><r:pages><r:each><r:include part='grp'/></r:each><r:add/></r:pages></r:void>"
@@ -102,39 +102,38 @@ each_in_each:
 
 default_focus_field:
   src: "<ol do='comments'><li do='each'/><li do='form'><input name='author_name'/> ... <input name='text'/></li><li do='add'/></ol>"
-  res: "/\$\(\"list_form_t\"\).focusFirstElement\(\)/"
+  res: "/\$\(\"list1_form_t\"\).focusFirstElement\(\)/"
 
 live_filter:
   context:
     node: cleanWater
   src: "<r:filter live='true'/><r:block><ol do='pages where name like \"[param:f]%\"'><li do='each' do='[name]'/></ol></r:block>"
   tem: "/connection.quote\(params\[:f\]/"
-  'live/filter/en/list.erb': "/<div id='<%= params\[:dom_id\] %>.*Node.connection.quote\(params\[:f\]/"
-  res: "/<input type='text' name='f'.*<div id='list_21_21'><ol><li>status</li><li>track</li></ol></div>/"
+  'live/filter/en/list2.erb': "/<div id='<%= dom_id\(@node\) %>.*Node.connection.quote\(params\[:f\]/"
+  res: "/<input type='text' name='f'.*<div id='list2'><ol><li>status</li><li>track</li></ol></div>/"
 
 live_filter_select_options:
   context:
     node: cleanWater
   src: "<r:filter live='true' do='select' name='f' values='1,2'/><r:block><ol do='pages where name like \"[param:f]%\"'><li do='each' do='[name]'/></ol></r:block>"
-  tem: "/select('node', \"f\", [\"1\", \"2\"], :selected => params[:f].to_s)/"
-  'live/filter/en/list.erb': "/<div id='<%= params\[:dom_id\] %>.*Node.connection.quote\(params\[:f\]/"
-  res: "/<input type='text' name='f'.*<div id='list_21_21'><ol><li>status</li><li>track</li></ol></div>/"
+  tem: "/select name=.f.><%= options_for_select\(\[.1., .2.\], params\[:f\].to_s/"
+  'live/filter/en/list2.erb': "/<div id='<%= dom_id\(@node\) %>.*Node.connection.quote\(params\[:f\]/"
+  res: "/<select name='f'.*<div id='list2'><ol><li>status</li><li>track</li></ol></div>/"
 
 draggable_do_syntax:
   src: "<r:images in='site' do='each' draggable='true' do='img' mode='pv'/>"
-  res: "/div id='list_30'><img src='/en/image30_pv.jpg'.*list_30.*.each\(Zena.draggable/"
-
+  res: "/div id='list1_30'><img src='/en/image30_pv.jpg'.*list1_30.*.each\(Zena.draggable/"
 
 unlink:
   context:
     node: 'art'
-  src: "<r:tagged do='each' join=',' do='unlink'/>"
-  res: "/<a class=.unlink..*onclick=.*Ajax.Request\('/nodes/21/links/_ID(cleanWater_in_art)\?dom_id=list_33.*bullet_delete.png.*links/_ID(opening_in_art)/"
+  src: "<r:tagged do='each' do='unlink'/>"
+  res: "/<div id='list1_21'><a .*onclick=.*Ajax.Request.*_ID(cleanWater_in_art)\?dom_id=list1_21.*class=.unlink.*bullet_delete.png.*<\/div><div id='list1_27'/"
   
 edit_link:
   context:
     node: 'art'
   src: "<r:tagged><r:each><r:show attr='name'/>: <r:show attr='l_status'/> <r:edit/></r:each></r:tagged>"
   res: "/link_id/"
-  'edit/link/en/list_form.erb': "/<input type='hidden' name='link_id' value=\"<%= @node.link_id %>\"/>/"
-  'edit/link/en/list.erb': "/\#\{@node.link_id\}/"
+  'edit/link/en/list1_form.erb': "/<input type='hidden' name='link_id' value=.<%= @node.link_id %>./>/"
+  'edit/link/en/list1.erb': "/\#\{@node.link_id\}/"

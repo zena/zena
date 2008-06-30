@@ -281,7 +281,7 @@ class RelationTest < ZenaTestUnit
     node = secure!(Node) { nodes(:art) }
     tagged = node.find(:all, 'tagged')
     # cleanWater, opening
-    assert_equal ["10", "5"], tagged.map{|t| t.l_status}
+    assert_equal [10, 5], tagged.map{|t| t.l_status}
   end
   
   def test_l_comment
