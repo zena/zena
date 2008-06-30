@@ -512,14 +512,15 @@ class Parser
     only   = acontext[:only]
     new_context = @context.merge(acontext)
     
-    if ignore = acontext[:ignore]
-      ignore = (@context[:ignore] || []) + (acontext[:ignore] || [])
-      ignore.uniq!
-      if acontext[:no_ignore]
-        ignore = ignore - acontext[:no_ignore]
-      end
-      new_context[:ignore] = ignore
+    if acontext[:ignore]
+      new_context[:ignore] = (@context[:ignore] || []) + (acontext[:ignore] || []).uniq
     end
+    
+    if acontext[:no_ignore]
+      new_context[:ignore] = (new_context[:ignore] || []) - acontext[:no_ignore]
+    end
+    
+    ignore = new_context[:ignore]
     
     blocks.each do |b|
       if b.kind_of?(String)

@@ -34,12 +34,25 @@ each_add_with_form:
   context:
     node: 'wiki'
   src: |
-    <r:children>
+    <ol do='children'>
       <li do='each' do='[name]'>blah</li>
       <li do='add'>add new</li>
       <li do='form'><input name='v_title'/> this is the form</li>
-    </r:children>
+    </ol>
   res: "/<li.*list1_30.*>bird.*<li.*list1_31.*>flower.*<li.*list1_add.*list1_form.*toggle.*<li .*list1_form.*style.*none.*Ajax.Request.*input type='hidden' name='t_url' value=./each/add/with/form/list1.*input type='hidden' name='node\[parent_id\]' value=.29./"
+
+each_add_with_form_in_sub_block:
+  context:
+    node: 'wiki'
+  src: |
+    <r:children>
+    <ol do='void' name='boo'>
+      <li do='each' do='[name]'>blah</li>
+      <li do='add'>add new</li>
+      <li do='form'><input name='v_title'/> this is the form</li>
+    </ol>
+    </r:children>
+  res: "!/<form.*<form/"
 
 each_add_with_form_klass_set:
   context:
