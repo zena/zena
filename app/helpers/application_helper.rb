@@ -5,6 +5,76 @@ require 'tempfile'
 module ApplicationHelper
   include Zena::Acts::Secure
   
+  
+  def dom_id(node)
+    if node.new_record?
+      "#{params[:dom_id]}_form"
+    elsif params[:action] == 'create' && !params[:udom_id]
+      "#{params[:dom_id]}_#{node.zip}"
+    else
+      params[:udom_id] || params[:dom_id]
+    end
+  end
+  
+  # RJS to update a page after create/update/destroy
+  def update_page_content(page, obj)
+    base_class = obj.kind_of?(Node) ? Node : obj.class
+    
+    if obj.new_record?
+      # A. could not create object: show form with errors
+      page.replace "#{params[:dom_id]}_form", :file => fullpath_from_template_url + "_form.erb"
+    elsif @errors || !obj.errors.empty?
+      # B. could not update/delete: show errors
+      case params[:action]
+      when 'destroy', 'drop'  
+        page.insert_html :top, params[:dom_id], :inline => render_errors
+      else
+        page.replace "#{params[:dom_id]}_form", :file => fullpath_from_template_url + "_form.erb"
+      end
+    elsif params[:u_url]
+      # C. update another part of the page
+      if node_id = params[:u_id]
+        if node_id.to_i != obj.zip
+          if base_class == Node
+            instance_variable_set("@#{base_class.to_s.underscore}", secure(base_class) { base_class.find_by_zip(node_id) })
+          else
+            instance_variable_set("@#{base_class.to_s.underscore}", secure(base_class) { base_class.find_by_id(node_id) })
+          end
+        end
+      end
+      page.replace params[:udom_id], :file => fullpath_from_template_url(params[:u_url]) + ".erb"
+      if params[:done]
+        page.toggle "#{params[:dom_id]}_form", "#{params[:dom_id]}_add"
+        page << params[:done]
+      end
+    else
+      # D. normal update
+      case params[:action]
+      when 'edit'
+        page.replace params[:dom_id], :file => fullpath_from_template_url + "_form.erb"
+        page << "$('#{params[:dom_id]}_form_t').focusFirstElement();"
+      when 'create'
+        pos = params[:position]  || :before
+        ref = params[:reference] || "#{params[:dom_id]}_add"
+        page.insert_html pos.to_sym, ref, :file => fullpath_from_template_url + ".erb"
+        instance_variable_set("@#{base_class.to_s.underscore}", obj.clone)
+        page.replace "#{params[:dom_id]}_form", :file => fullpath_from_template_url + "_form.erb"
+        if params[:done]
+          page << params[:done]
+        else
+          page.toggle "#{params[:dom_id]}_form", "#{params[:dom_id]}_add"
+        end
+      when 'update'
+        page.replace params[:dom_id], :file => fullpath_from_template_url + ".erb"
+      when 'destroy'
+        page.visual_effect :highlight, params[:dom_id], :duration => 0.3
+        page.visual_effect :fade, params[:dom_id], :duration => 0.3
+      else
+        page.replace params[:dom_id], :file => fullpath_from_template_url + ".erb"
+      end
+    end
+  end
+  
   # translation of static text using gettext
   # FIXME: I do not know why this is needed in order to have <%= _('blah') %> find the translations on some servers
   def _(str)
@@ -73,7 +143,7 @@ module ApplicationHelper
     url = url_for(options[:url])
     res = "<a href='#{url}' onclick=\"new Ajax.Request('#{url}', {asynchronous:true, evalScripts:true, method:'#{options[:method] || 'get'}'}); return false;\""
     html_options.each do |k,v|
-      next unless [:class, :id, :style].include?(k)
+      next unless [:class, :id, :style, :rel, :onclick].include?(k)
       res << " #{k}='#{v}'"
     end
     res << ">"

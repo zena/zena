@@ -234,7 +234,7 @@ doctype:
     [test]<title>node title</title>
     [/test]end
 no_tag:
-  src: "<r:set_context no_test='true'>this is a <r:test>test</r:test>dog</r:set_context>"
+  src: "<r:set_context ignore='test'>this is a <r:test>test</r:test>dog</r:set_context>"
   res: "this is a dog"
   
 html_comments:

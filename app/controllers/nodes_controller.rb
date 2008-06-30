@@ -61,8 +61,7 @@ class NodesController < ApplicationController
   # remove this method + route when fixed.
   def zafu
     respond_to do |format|
-      format.js { @template_file = fullpath_from_template_url(params[:template_url])
-        render :action => 'show' }
+      format.js { render :action => 'show' }
     end
   end
   
@@ -73,7 +72,10 @@ class NodesController < ApplicationController
     other  = secure!(Node) { Node.find_by_zip(other_zip)}
     
     if attributes = params[:node]
-      if params[:target] == 'receiver'
+      if params[:node][:id] == '[id]'
+        # swap (a way to preview content by drag & drop)
+        @node = other
+      elsif params[:change] == 'receiver'
         attributes[:copy] = other
         @node.update_attributes_with_transformation(attributes)
         if !@node.errors.empty?
@@ -88,22 +90,8 @@ class NodesController < ApplicationController
       end
     end
     
-    #if set == 'parent'
-    #  unless other.update_attributes(:parent_id => @node[:id])
-    #    @errors = other.errors
-    #  end
-    #elsif set =~ /\Ad_/
-    #  other.update_attributes(set => (@params[:value] || @node.v_title))
-    #elsif other.class.zafu_readable?(set)
-    #  other.update_attributes(set => (@params[:value] || @node.v_title))
-    #else
-    #  other.add_link(set, @node[:id])
-    #  unless other.save
-    #    @errors = other.errors
-    #  end
-    #end
     respond_to do |format|
-      format.js { @template_file = fullpath_from_template_url(params[:template_url]) }
+      format.js
     end
   end
   
@@ -221,18 +209,6 @@ class NodesController < ApplicationController
       flash.now[:notice] = _('node updated')
     else
       flash.now[:error]  = _('could not update')
-    end
-    
-    if params[:template_url]
-      # edit from inline form in zafu
-      @update = 'zafu'
-    elsif params[:identifier]
-      @update = 'attribute'
-    elsif ['parent', 'dates', 'groups', 'links'].include? params[:drive]
-      # drive editing
-      @update = params[:drive]
-    else
-      @update = 'edit'
     end
     
     respond_to do |format|

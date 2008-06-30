@@ -1,1 +1,1 @@
-page.replace "#{params[:dom_id]}_#{@node.zip}", :file => fullpath_from_template_url + ".erb"
+update_page_content(page, @node)

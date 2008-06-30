@@ -1,16 +1,1 @@
-if @data_entry.new_record?
-  page.replace "#{params[:dom_id]}_form", :file => fullpath_from_template_url + "_form.erb"
-elsif params[:upd_id]
-  page.replace "#{params[:upd_id]}_#{@node.zip}", :file => fullpath_from_template_url(params[:upd_url]) + ".erb"
-else
-  pos = params[:position] || :before
-  ref = params[:reference] || "#{params[:dom_id]}_add"
-  page.insert_html pos.to_sym, ref, :file => fullpath_from_template_url + ".erb"
-  @data_entry = @data_entry.clone
-  page.replace "#{params[:dom_id]}_form", :file => fullpath_from_template_url + "_form.erb"
-  if params[:done]
-    page << params[:done]
-  else
-    page.toggle "#{params[:dom_id]}_form", "#{params[:dom_id]}_add"
-  end
-end
+update_page_content(page, @data_entry)

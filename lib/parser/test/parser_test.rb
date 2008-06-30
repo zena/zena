@@ -39,7 +39,11 @@ module Zafu
     end
     
     def r_set_context
-      expand_with(@params)
+      params = @params.dup
+      if ignore = @params[:ignore]
+        params[:ignore] = @params[:ignore].split(',').map {|e| e.strip}
+      end
+      expand_with(params)
     end
     
     def r_missing

@@ -1,28 +1,24 @@
-if @errors || !@node.errors.empty?
-  if @update == 'zafu'
-    page.replace "#{params[:dom_id]}_#{@node.new_record? ? 'form' : @node.zip}", :file => fullpath_from_template_url + "_form.erb"
+if params[:dom_id] && !params[:t_url]
+  attribute = params[:node].keys[0]
+  if params[:zazen] == 'true'
+    page.replace_html params[:dom_id], "<span class='zazen_edit'>" + link_to_remote(_('edit'), :url => edit_node_path(@node[:zip]) + "?attribute=#{attribute}&dom_id=#{params[:dom_id]}&zazen=true", :method => :get) + "</span>" + zazen(params[:node][attribute])
   else
-    # TODO: is this used ? how ? when ?
-    page.replace_html "#{@update}_errors", :inline => @errors ? render_errors : error_messages_for(@node)
+    page.replace_html params[:dom_id], link_to_remote(params[:node][attribute], :url => edit_node_path(@node[:zip]) + "?attribute=#{attribute}&dom_id=#{params[:dom_id]}", :method => :get)
   end
-else  
-  if @update == 'zafu'
-    page.replace "#{params[:dom_id]}_#{@node.zip}", :file => fullpath_from_template_url + ".erb"
-  elsif @update == 'attribute'
-    attribute = params[:node].keys[0]
-    if params[:zazen] == 'true'
-      page.replace_html params[:identifier], "<span class='zazen_edit'>" + link_to_remote(_('edit'), :url => edit_node_path(@node[:zip]) + "?attribute=#{attribute}&identifier=#{CGI.escape(params[:identifier])}&zazen=true", :method => :get) + "</span>" + zazen(params[:node][attribute])
+elsif upd = params[:drive]
+  if ['parent', 'dates', 'groups', 'links'].include?(upd)
+    if @errors || !@node.errors.empty?
+      page.replace_html "#{upd}_errors", :inline => @errors ? render_errors : error_messages_for(@node)
     else
-      page.replace_html params[:identifier], link_to_remote(params[:node][attribute], :url => edit_node_path(@node[:zip]) + "?attribute=#{attribute}&identifier=#{CGI.escape(params[:identifier])}", :method => :get)
+      page.replace upd, :partial => upd
+      page.replace 'messages', :inline => flash_messages
+      page.visual_effect :highlight, upd
+      page.visual_effect :fade, 'notice', :duration => 3
     end
-  elsif @update == 'edit'
-    page.replace 'messages', :inline => flash_messages
-    page << "opener.location.href = '/redirect?url=' + escape(opener.location.pathname);" # Safari bug
-    page << "self.close();"
   else
-    page.replace @update, :partial => @update
+    flash['error'] = "unknown 'drive' parameter #{upd.inspect}"
     page.replace 'messages', :inline => flash_messages
-    page.visual_effect :highlight, @update
-    page.visual_effect :fade, 'notice', :duration => 3
   end
+else
+  update_page_content(page, @node)
 end

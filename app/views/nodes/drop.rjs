@@ -1,4 +1,1 @@
-page.replace_html params[:dom_id], :file => fullpath_from_template_url + ".erb"
-if @errors
-  page.insert_html :top, params[:dom_id], :inline => render_errors
-end
+update_page_content(page, @node)

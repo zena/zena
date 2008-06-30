@@ -138,7 +138,6 @@ class Parser
   end
   
   def render(context={})
-    return '' if context["no_#{@method}".to_sym]
     if @name
       # we pass the name as 'context' in the children tags
       @context = context.merge(:name => @name)
@@ -512,12 +511,22 @@ class Parser
     @parts = {}
     only   = acontext[:only]
     new_context = @context.merge(acontext)
+    
+    if ignore = acontext[:ignore]
+      ignore = (@context[:ignore] || []) + (acontext[:ignore] || [])
+      ignore.uniq!
+      if acontext[:no_ignore]
+        ignore = ignore - acontext[:no_ignore]
+      end
+      new_context[:ignore] = ignore
+    end
+    
     blocks.each do |b|
       if b.kind_of?(String)
-        if !only || only.include?(:string)
+        if (!only || only.include?(:string)) && (!ignore || !ignore.include?(:string))
           res << b
         end
-      elsif !only || only.include?(b.method)
+      elsif (!only || only.include?(b.method)) && (!ignore || !ignore.include?(b.method))
         res << b.render(new_context.dup)
         if pass = b.pass
           if pass[:part]

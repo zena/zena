@@ -29,8 +29,7 @@ class DataEntriesController < ApplicationController
 
   def zafu
     respond_to do |format|
-      format.js { @template_file = fullpath_from_template_url(params[:template_url])
-        render :action => 'show' }
+      format.js { render :action => 'show' }
     end
   end
   

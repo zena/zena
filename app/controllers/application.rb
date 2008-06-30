@@ -249,7 +249,7 @@ END_MSG
       path << ".#{ext}" unless path =~ /\.#{ext}$/
       path
     end
-  
+    
     # Find the best template for the current node's skin, node's class, format and mode. The template
     # files are searched first into 'sites/shared/views/templates/fixed'. If the templates are not found
     # there, they are searched in the database and compiled into 'app/views/templates/compiled'.
@@ -430,9 +430,9 @@ END_MSG
       File.open(path, "wb") { |f| f.syswrite(template) }
       ""
     end
-  
+    
     # TODO: test
-    def fullpath_from_template_url(template_url=params[:template_url])
+    def fullpath_from_template_url(template_url=params[:t_url])
       if template_url =~ /\A\.|[^\w\*\._\-\/]/
         raise Zena::AccessViolation.new("'template_url' contains illegal characters : #{template_url.inspect}")
       end
@@ -443,15 +443,6 @@ END_MSG
       "#{SITES_ROOT}/#{current_site.host}/zafu#{path}"
     end
     
-    def eval_parameters_from_template_url(template_url=params[:template_url])
-      return {} unless template_url
-      path = fullpath_from_template_url(template_url) + '.erb'
-      if File.exists?(path)
-        eval File.read(path)
-      else
-        nil
-      end
-    end
     # Require a login for authenticated navigation (with '/oo' prefix) or for any content if the site's 'authorize'
     # attribute is true.
     def authorize

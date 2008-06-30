@@ -1,11 +1,5 @@
 if params[:dom_id]
-  # zafu remove dom_id
-  if @errors || !@node.errors.empty?
-    # FIXME
-  else
-    page.visual_effect :highlight, "#{params[:dom_id]}_#{@node.zip}", :duration => 0.3
-    page.visual_effect :fade, "#{params[:dom_id]}_#{@node.zip}", :duration => 0.3
-  end
+  update_page_content(page, @node)
 else  
   if @errors || !@node.errors.empty?
     page.replace_html 'link_errors', :inline=> @errors ? render_errors : error_messages_for(@node)
