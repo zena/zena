@@ -728,7 +728,7 @@ class Node < ActiveRecord::Base
   end
   
   def dyn_attribute_keys
-    (version.dyn.keys + (virtual_class ? virtual_class.dyn_keys.split(',').map(&:strip) : [])).uniq.sort
+    (version.dyn.keys + (virtual_class ? virtual_class.dyn_keys.to_s.split(',').map(&:strip) : [])).uniq.sort
   end
   
   def klass=(str)
