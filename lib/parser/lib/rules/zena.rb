@@ -502,17 +502,33 @@ module Zena
     
     # swap an attribute
     # TODO: test
-    def r_swap
-      if block = ancestor('block') || ancestor('each')
+    def r_swap      
+      if upd = @params[:update]
+        if upd == '_page'
+          block = nil
+        elsif block = find_target(upd)
+          # ok
+          if ancestor('block') || ancestor('each')
+            upd_both = '&upd_both=true'
+          else
+            upd_both = ''
+          end
+        else
+          return
+        end
+      elsif ancestor('block') || ancestor('each')
         # ancestor: ok
+        block = self
       elsif parent && block = parent.descendant('block')
         # sibling: ok
+        upd_both = ''
       else
         return parser_error("missing 'block' in same parent")
       end
       states = ((@params[:states] || 'todo, done') + ' ').split(',').map(&:strip)
       
-      url_params = "node[#{@params[:attr]}]=\#{#{states.inspect}[ ((#{states.inspect}.index(#{node_attribute(@params[:attr])}.to_s) || 0)+1) % #{states.size}]}"
+      url_params = "node[#{@params[:attr]}]=\#{#{states.inspect}[ ((#{states.inspect}.index(#{node_attribute(@params[:attr])}.to_s) || 0)+1) % #{states.size}]}#{upd_both}"
+      
       
       out link_to_update(block, :url_params => url_params, :method => :put, :html_params => get_html_params(@params))
     end
@@ -1158,6 +1174,16 @@ END_TXT
     def r_unlink
       opts = {}
       
+      if upd = @params[:update]
+        if upd == '_page'
+          target = nil
+        elsif target = find_target(upd)
+          # ok
+        else
+          return
+        end
+      end
+      
       unless target = ancestor('block')
         target = self
       end
@@ -1637,7 +1663,6 @@ END_TXT
         pre_space = @space_before || ''
         @html_tag_done = true
       end
-      
       
       if upd = @params[:update]
         return unless target = find_target(upd)
@@ -2616,15 +2641,23 @@ END_TXT
       url_params = [opts[:url_params]].flatten.compact
       
       if method == :get
-        url_params << "t_url=#{CGI.escape(target.template_url)}"
-        url_params << "dom_id=#{target.dom_id}"
+        if target
+          url_params << "t_url=#{CGI.escape(target.template_url)}" 
+          url_params << "dom_id=#{target.dom_id}"
+        else
+          url_params << "dom_id=_page"
+        end
       else
         url_params << "t_url=#{CGI.escape(template_url)}" if method != :delete
         
         url_params << "dom_id=#{dom_id}"
         if target != self
-          url_params << "u_url=#{CGI.escape(target.template_url)}"
-          url_params << "udom_id=#{target.dom_id}"
+          if target
+            url_params << "u_url=#{CGI.escape(target.template_url)}"
+            url_params << "udom_id=#{target.dom_id}"
+          else
+            url_params << "udom_id=_page"
+          end
         end
       end
       
