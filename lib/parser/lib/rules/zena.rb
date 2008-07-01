@@ -1118,6 +1118,7 @@ END_TXT
     #end
     
     def r_drop
+      @html_tag_params[:class] ||= 'drop'
       r_block
     end
     
