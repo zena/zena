@@ -7,10 +7,10 @@
 </td>
 <td class="add" colspan="6">
   <div id='virtual_class_errors'><%= error_messages_for(@virtual_class) %></div>
-  <% unless @virtual_class.new_record? %>
-  <%= form_remote_tag(:url => virtual_class_path(@virtual_class), :method => :put ) %>
-  <% else %>
+  <% if @virtual_class.new_record? %>
   <%= form_remote_tag(:url => virtual_classes_path ) %>
+  <% else %>
+  <%= form_remote_tag(:url => virtual_class_path(@virtual_class), :method => :put ) %>
   <% end %>
   <table cellspacing='0' class='edit_virtual_class'>
     <tr><td class='label'><%= _("name")%>      </td><td><%= text_field('virtual_class', 'name',        :size=>15 ) %></td></tr>

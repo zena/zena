@@ -106,18 +106,27 @@ class VirtualClass < ActiveRecord::Base
         return false
       end
       @superclass ||= self.superclass
-      index = 0
-      kpath = nil
-      while index < self[:name].length
-        try_kpath = @superclass.kpath + self[:name][index..index].upcase
-        unless Node.get_class_from_kpath(try_kpath)
-          kpath = try_kpath
-          break
+      
+      if new_record? || self[:name] != old[:name]
+        index = 0
+        kpath = nil
+        while index < self[:name].length
+          try_kpath = @superclass.kpath + self[:name][index..index].upcase
+          if found = Node.get_class_from_kpath(try_kpath)
+            if found.kind_of?(VirtualClass) && found[:id] == self[:id]
+              kpath = try_kpath
+              break
+            end
+          else
+            kpath = try_kpath
+            break
+          end
+          index += 1
         end
-        index += 1
+        errors.add('name', 'invalid (could not build unique kpath)') unless kpath
+        self[:kpath]      = kpath
       end
-      errors.add('name', 'invalid (could not build unique kpath)') unless kpath
-      self[:kpath]      = kpath
+      
       self[:site_id]    = current_site[:id]
       self[:real_class] = get_real_class(@superclass)
 
@@ -132,5 +141,9 @@ class VirtualClass < ActiveRecord::Base
     
     def get_real_class(klass)
       klass.kind_of?(VirtualClass) ? get_real_class(klass.superclass) : klass.to_s
+    end
+    
+    def old
+      @old ||= self.class.find(self[:id])
     end
 end

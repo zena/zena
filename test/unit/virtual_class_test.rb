@@ -195,6 +195,26 @@ class VirtualClassTest < ZenaTestUnit
     assert_equal 'NPU', vclass.kpath
   end
   
+  def test_update
+    # add a sub class
+    login(:lion)
+    vclass = virtual_classes(:Post)
+    assert_equal "reading, book", vclass.dyn_keys
+    assert_equal "NNP", vclass.kpath
+    assert vclass.update_attributes(:dyn_keys => 'foo, bar')
+    assert_equal "foo, bar", vclass.dyn_keys
+    assert_equal "NNP", vclass.kpath
+  end
+  
+  def test_update_name
+    # add a sub class
+    login(:lion)
+    vclass = virtual_classes(:Post)
+    assert_equal "NNP", vclass.kpath
+    assert vclass.update_attributes(:name => 'Past')
+    assert_equal "NNP", vclass.kpath
+  end
+  
   def test_auto_create_discussion
     assert !virtual_classes(:Letter).auto_create_discussion
     assert virtual_classes(:Post).auto_create_discussion
