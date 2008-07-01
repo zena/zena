@@ -122,8 +122,16 @@ live_filter:
     node: cleanWater
   src: "<r:filter live='true'/><r:block><ol do='pages where name like \"[param:f]%\"'><li do='each' do='[name]'/></ol></r:block>"
   tem: "/connection.quote\(params\[:f\]/"
-  'live/filter/en/list2.erb': "/<div id='<%= dom_id\(@node\) %>.*Node.connection.quote\(params\[:f\]/"
+  'live/filter/en/list2.erb': "/<div id='<%= dom_id\(@node\) %>.*Node.connection.quote\(params\[:f\].*var1.name/"
   res: "/<input type='text' name='f'.*<div id='list2'><ol><li>status</li><li>track</li></ol></div>/"
+
+live_filter_single_element:
+  context:
+    node: cleanWater
+  src: "<r:filter live='true'/><r:block><r:page where='name like \"[param:f]%\"' find='first'><b do='[name]'/></r:page></r:block>"
+  tem: "/connection.quote\(params\[:f\]/"
+  'live/filter/en/single/element/list2.erb': "/<div id='<%= dom_id\(@node\) %>.*Node.connection.quote\(params\[:f\].*var1.name/"
+  res: "/<input type='text' name='f'.*<div id='list2'><b>status</b></div>/"
 
 live_filter_select_options:
   context:

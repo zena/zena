@@ -2093,6 +2093,7 @@ END_TXT
     end
     
     def do_var(var_finder=nil, opts={})
+      clear_dom_scope
       if var_finder == 'nil'
         out "<% if nil -%>"
       elsif var_finder
