@@ -1163,7 +1163,7 @@ done: \"I am done\""
     login(:lion)
     node = secure!(Page) { Page.create(:name=>"yoba", :parent_id => nodes_id(:cleanWater), :inherit=>1 ) }
     assert !node.new_record?
-    assert_equal 0, node.position
+    assert_equal 0.0, node.position
     assert node.update_attributes(:position => 5.0)
     assert_equal 5.0, node.position
     node = secure!(Page) { Page.find_by_id(node.id) } # reload

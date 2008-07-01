@@ -1261,7 +1261,7 @@ class Node < ActiveRecord::Base
       if self.class != Node
         # 'Node' does not have a position scope (need two first letters of kpath)
         if new_record?
-          if self[:position].to_i == 0
+          if self[:position].to_f == 0
             pos = Node.fetch_attribute(:position, "SELECT `position` FROM #{Node.table_name} WHERE parent_id = #{Node.connection.quote(self[:parent_id])} AND kpath like #{Node.connection.quote("#{self.class.kpath[0..1]}%")} ORDER BY position DESC LIMIT 1").to_f
             self[:position] = pos > 0 ? pos + 1.0 : 0.0
           end
