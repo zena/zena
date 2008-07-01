@@ -185,7 +185,7 @@ ActiveRecord::Schema.define(:version => 0) do
     t.column "site_id",      :integer
     t.column "zip",          :integer
     t.column "project_id",   :integer
-    t.column "position",     :float,                   :default => 0.0
+    t.column "position",     :float,                   :default => 1.0
     t.column "vclass_id",    :integer
     t.column "custom_a",     :integer
     t.column "custom_b",     :integer
