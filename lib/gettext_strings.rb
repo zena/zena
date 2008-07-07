@@ -99,13 +99,13 @@ module Zena
     
     N_('news_date')         # calendar day (event list view)
     
-    N_('mon')
-    N_('tue')
-    N_('wed')
-    N_('thu')
-    N_('fri')
-    N_('sat')
-    N_('sun')
+    N_('Mon')
+    N_('Tue')
+    N_('Wed')
+    N_('Thu')
+    N_('Fri')
+    N_('Sat')
+    N_('Sun')
     
     N_('January')
     N_('February')
@@ -119,6 +119,19 @@ module Zena
     N_('October')
     N_('November')
     N_('December')
+    
+    N_('Jan')
+    N_('Feb')
+    N_('Mar')
+    N_('Apr')
+    N_('May')
+    N_('Jun')
+    N_('Jul')
+    N_('Aug')
+    N_('Sep')
+    N_('Oct')
+    N_('Nov')
+    N_('Dec')
     
     N_('User name:')  # login form
     N_('Password:')   # login form

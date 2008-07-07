@@ -531,7 +531,7 @@ on_if_node_main:
   
 if_in_tag:
   src: "<r:form><p do='if' in='form' do='[name]'/></r:form><i do='if' in='form' do='[name]'/>done."
-  res: "/<p>status<\/p><\/form>done./"
+  res: "/<p>status</p></form></div>done./"
 
 if_or:
   src: "<r:if can='write' or_test='[d_foo]'>hello</r:if>"
@@ -761,35 +761,35 @@ summary:
   context:
     node: 'zena'
   src: "<r:summary/>"
-  res: "<div id='v_summary11' class='zazen'></div>"
+  res: "<div class='zazen' id='v_summary11'></div>"
 
 summary_exists:
   src: "<r:summary/>"
-  res: "<div id='v_summary22' class='zazen'><p>status summary</p></div>"
+  res: "<div class='zazen' id='v_summary22'><p>status summary</p></div>"
 
 empty_summary:
   src: "<r:summary text=''/>"
-  res: "<div id='v_summary22' class='zazen'></div>"
+  res: "<div class='zazen' id='v_summary22'></div>"
 
 summary_or_text_has_summary:
-  src: "<r:summary or='v_text'/>"
-  res: "<div id='v_summary22' class='zazen'><p>status summary</p></div>"
+  src: "<td do='summary' or='v_text'/>"
+  res: "<td class='zazen' id='v_summary22'><p>status summary</p></td>"
 
 summary_or_text_no_summary:
   context:
     node: 'zena'
   src: "<r:summary or='v_text'/>"
-  res: "<div id='v_summary11' class='zazen'><p>This is the root of your peaceful tests.</p></div>"
+  res: "<div class='zazen' id='v_summary11'><p>This is the root of your peaceful tests.</p></div>"
 
 text:
   src: "<r:text/>"
-  res: "<div id='v_text22' class='zazen'><p>status text</p></div>"
+  res: "<div class='zazen' id='v_text22'><p>status text</p></div>"
   
 text_code:
   context:
     node: 'Project_zafu'
-  src: "<r:text/>"
-  res: "/\\A<div id='v_text60' class='zazen'><pre class='full'><code class='zafu'>.*</code></pre></div>\\Z/"
+  src: "<td do='text'/>"
+  res: "/\\A<td class='zazen' id='v_text60'><pre class='full'><code class='zafu'>.*</code></pre></td>\\Z/"
 
 ztag_in_do:
   src: "<ol do='parent'><r:children>no error</r:children></ol>"

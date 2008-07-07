@@ -20,15 +20,15 @@ edit_not_each:
 
 add_each_no_form:
   src: "<ul do='children' id='things'><li do='each'>I <p do='[name]'>blah</p></li><li do='add'/></ul>"
-  res: "/<ul><li.*id='things_add'.*li id='things_form'.*form.*hidden.*I <p><input type='text' id='things_name' name='node\[name\]' value=''\/><\/p><\/form><\/li>/"
+  res: "/<ul><li.*id='things_add'.*li class='form' id='things_form'.*form.*hidden.*I <p><input type='text' id='things_name' name='node\[name\]' value=''\/><\/p><\/form><\/li>/"
 
 add_each_no_form_date:
   src: "<ul do='children' id='things'><li do='each'>I <p do='show' date='event_at' tformat='short_date'>blah</p></li><li do='add'/></ul>"
-  res: "/<ul><li.*id='things_add'.*li id='things_form'.*form.*hidden.*I <p>.*date_box.*<input id='things_event_at' name='node\[event_at\]' type='text' value.*/m"
+  res: "/<ul><li.*id='things_add'.*li.*id='things_form'.*form.*hidden.*I <p>.*date_box.*<input id='things_event_at' name='node\[event_at\]' type='text' value.*/m"
 
 add_each_no_form_focus:
   src: "<ul do='children' id='test'><li do='each'>I <p do='[v_title]'>blah</p></li><li do='add' focus='v_title'/></ul>"
-  res: "/<ul><li.*id=.*_add.*onclick.*toggle.*test_v_title.*focus.*li id=.*_form.*form.*hidden.*I <p><input type='text' id='test_v_title' name='node\[v_title\]' value=''\/><\/p><\/form><\/li>/"
+  res: "/<ul><li.*id=.*_add.*onclick.*toggle.*test_v_title.*focus.*li.*id=.*_form.*form.*hidden.*I <p><input type='text' id='test_v_title' name='node\[v_title\]' value=''\/><\/p><\/form><\/li>/"
 
 each_add_with_form:
   context:
@@ -78,9 +78,9 @@ each_edit_with_form:
 
 make_form:
   src: "<ul do='children'><li do='each' do='[name]'/><li do='add'/></ul>"
-  tem: "/<li id='list1_form' style='display:none;'><%= form_remote_tag\(:url => nodes_path/"
+  tem: "/<li class='form' id='list1_form' style='display:none;'><%= form_remote_tag\(:url => nodes_path/"
   'make/form/en/list1.erb': "<li id='<%= dom_id(@node) %>'><%= @node.name %></li>"
-  'make/form/en/list1_form.erb': "/<li id='<%= dom_id\(@node\) %>'>/"
+  'make/form/en/list1_form.erb': "/<li class='form' id='<%= dom_id\(@node\) %>'>/"
 
 each_edit_cannot_write:
   context:
@@ -91,7 +91,7 @@ each_edit_cannot_write:
 
 add_each_publish:
   src: "<ul do='children' id='things'><li do='each'>I <p do='[name]'>blah</p></li><li do='add' publish='true'/></ul>"
-  res: "/<ul><li.*id='things_add'.*li id='things_form'.*form.*hidden.*name='node\[v_status\]' value=.50./"
+  res: "/<ul><li.*id='things_add'.*li.*id='things_form'.*form.*hidden.*name='node\[v_status\]' value=.50./"
 
 block_edit_form:
   src: "<r:block><p do='[name]'/> <r:edit/> <r:form>please enter name: <input name='name'/> <r:input type='submit'/></r:form></r:block>"

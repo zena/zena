@@ -669,15 +669,21 @@ module Zena
     def r_text
       text = @params[:text] ? @params[:text].inspect : "#{node_attribute('v_text')}"
       limit  = @params[:limit] ? ", :limit=>#{@params[:limit].to_i}" : ""
-      out "<div id='v_text#{erb_node_id}' class='zazen'>"
+      @html_tag_params[:id] =  "v_text#{erb_node_id}"
+      if c = @html_tag_params[:class] || @params[:class]
+        @html_tag_params[:class] = "#{c} zazen"
+      else
+        @html_tag_params[:class] = 'zazen'
+      end
       unless @params[:empty] == 'true'
         out "<% if #{node}.kind_of?(TextDocument); l = #{node}.content_lang -%>"
         out "<%= zazen(\"<code\#{l ? \" lang='\#{l}'\" : ''} class=\\'full\\'>\#{#{text}}</code>\") %>"
         out "<% else -%>"
         out "<%= zazen(#{text}#{limit}, :node=>#{node}) %>"
         out "<% end -%>"
+      else
+        out ''
       end
-      out "</div>"
     end
     
     def r_inspect

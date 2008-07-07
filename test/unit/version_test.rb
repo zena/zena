@@ -101,7 +101,7 @@ class VersionTest < ZenaTestUnit
   end
   
   def test_update_content_one_version
-    preserving_files("/data/test/pdf/36") do
+    preserving_files("test.host/data") do
       login(:ant)
       visitor.lang = 'en'
       node = secure!(Node) { nodes(:forest_pdf) }

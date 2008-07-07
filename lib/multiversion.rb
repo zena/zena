@@ -355,6 +355,7 @@ module Zena
             when 'File', 'StringIO'
               # md5 on content
               res[k] = v unless Digest::MD5.hexdigest(current_value.read) == Digest::MD5.hexdigest(v.read)
+              v.rewind
               errors.clear # 'c_file' does an unparse_assets which can create errors.
             else
               res[k] = v
@@ -432,7 +433,7 @@ module Zena
           publish_after_save = (attributes.delete('v_status').to_i == Zena::Status[:pub]) || current_site[:auto_publish]
           redaction_attr = false
           node_attr      = false
-
+          
           attributes.each do |k,v|
             next if k.to_s == 'id' # just ignore 'id' (cannot be set but is often around)
             if k.to_s =~ /^(v_|c_|d_)/
@@ -446,7 +447,7 @@ module Zena
           if redaction_attr
             return false unless edit!(nil, publish_after_save)
           end
-
+          
           if node_attr
             # super class call (original rails update_attributes)
             @attributes_filtering_done = true  # if anyone knows a better way to avoid filtering twice...
@@ -495,6 +496,8 @@ module Zena
           return @redaction if @redaction && (lang.nil? || lang == @redaction.lang)
           redit = false
           if new_record?
+            @redaction = version
+          elsif version.lang == lang && version.status == Zena::Status[:red] && version.user_id == visitor[:id]
             @redaction = version
           else
             lang ||= visitor.lang
