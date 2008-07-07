@@ -347,6 +347,7 @@ END_MSG
           dev_box << "  <li><a class='group' onclick='$(\"_dev_tools\").toggle();' href='#'>tools</a>\n"
           dev_box << "    <ul id='_dev_tools'>\n"
           dev_box << "      <li><a href='?rebuild=true'>#{_('rebuild')}</a></li>\n"
+          dev_box << "<% if @node.kind_of?(Skin) -%>      <li><a href='<%= export_node_path(@node[:zip]) %>'>#{_('export')}</a></li>\n<% end -%>"
           dev_box << "      <li><a href='/users/#{visitor[:id]}/swap_dev'>#{_('turn dev off')}</a></li>\n"
           dev_box << "      <li>skins used: #{@skin_names.join(', ')}</li>\n"
           dev_box << "    <ul>\n  </li>\n</ul></div>"
@@ -393,6 +394,7 @@ END_MSG
       if src =~ /\A(.*)\.(\w+)\Z/
         src, format = $1, $2
       end
+      
       folder = (opts[:current_folder] && opts[:current_folder] != '') ? opts[:current_folder].split('/') : []
       @skin ||= {}
       if src =~ /^\//

@@ -2,5 +2,8 @@
 <p class="btn_validate"><input type="submit" onclick="$('loader').style.visibility = 'visible';" value='<%= _('validate') %>'/></p>
 
 <label for='node_c_file'><%= _('file') %></label>
-<input id="archive" name="archive" onchange="Zena.get_filename('node_c_file','node_name'); $('node_name').focus(); $('node_name').select();" class='file' type="file" />
+<input id="archive" name="node[archive]" class='file' type="file" />
+
+<label for='node_klass'><%= _('class of first element') %></label>
+<%= select('node', 'klass', Node.classes_for_form, :selected => 'Page' ) %><br/>
 </form>

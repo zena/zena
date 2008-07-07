@@ -97,6 +97,7 @@ ul.infos li { padding:0.4em 0.4em; list-style:none; display:block; }
 .import td img { border:1px solid grey; }
 .import .import_new { background:#B7CC87;}
 .import .import_updated { background:#C9B372;}
+.import .import_same    { background:none;}
 .import .import_error   { background:#C87574;}
 
 /* help */

@@ -5,6 +5,18 @@ class TextDocumentContent < DocumentContent
     version.text = @file.read
   end
   
+  def file(mode=nil)
+    node = version.node
+    
+    # unparse needed in 'export'
+    if node.can_parse_assets?
+      node.unparse_assets
+    end
+    
+    t = StringIO.new(version.text)
+    t
+  end
+  
   # Return document file size (= version's text size). Implemented as 'c_size' in TextDocument.
   def size(format=nil)
     0

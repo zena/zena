@@ -1,8 +1,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: 0.9.0\n"
-"POT-Creation-Date: 2008-06-16 10:26-0000\n"
-"PO-Revision-Date: 2007-07-07 14:13+0100\n"
+"POT-Creation-Date: 2008-07-02 08:12-0000\n"
+"PO-Revision-Date: 2008-07-02 10:15+0100\n"
 "Last-Translator: Gaspard Bucher <gaspard@teti.ch>\n"
 "Language-Team: fr <gaspard@teti.ch>\n"
 "MIME-Version: 1.0\n"
@@ -13,13 +13,9 @@ msgstr ""
 "X-Poedit-Bookmarks: -1,-1,-1,219,-1,-1,-1,-1,-1,-1\n"
 "X-Poedit-Basepath: /Users/gaspard/svk/zena\n"
 
-#: app/controllers/application.rb:498
+#: app/controllers/application.rb:483
 msgid "Please log in"
 msgstr "Veuillez vous authentifier."
-
-#: app/controllers/application.rb:777 app/helpers/application_helper.rb:641
-msgid "week_start_day"
-msgstr "1"
 
 #: app/controllers/comments_controller.rb:31
 #, fuzzy
@@ -39,35 +35,35 @@ msgstr "Le téléchargement a échoué."
 msgid "Upload succeeded."
 msgstr "Téléchargement effectué."
 
-#: app/controllers/nodes_controller.rb:186
+#: app/controllers/nodes_controller.rb:193
 msgid "Backup created."
 msgstr "Copie de sauvegarde effectuée."
 
-#: app/controllers/nodes_controller.rb:188
+#: app/controllers/nodes_controller.rb:195
 msgid "Could not create backup."
 msgstr "La sauvegarde n'a pas pu être créée."
 
-#: app/controllers/nodes_controller.rb:202
+#: app/controllers/nodes_controller.rb:209
 msgid "node updated"
 msgstr "Objet mis à jour."
 
-#: app/controllers/nodes_controller.rb:204
+#: app/controllers/nodes_controller.rb:211
 msgid "could not update"
 msgstr "L'objet n'a pas pu être mis à jour."
 
-#: app/controllers/nodes_controller.rb:256
+#: app/controllers/nodes_controller.rb:251
 msgid "node not found"
 msgstr "objet non trouvé"
 
-#: app/controllers/nodes_controller.rb:280
+#: app/controllers/nodes_controller.rb:275
 msgid "Order updated"
 msgstr "Ordre mis à jour."
 
-#: app/controllers/nodes_controller.rb:282
+#: app/controllers/nodes_controller.rb:277
 msgid "Could not update order."
 msgstr "L'ordre n'a pas pu être mis à jour."
 
-#: app/controllers/nodes_controller.rb:299
+#: app/controllers/nodes_controller.rb:294
 #, fuzzy
 msgid "Could not clear order."
 msgstr "L'ordre n'a pas pu être mis à jour."
@@ -122,132 +118,150 @@ msgstr "La proposition a été refusée."
 msgid "Could not refuse proposition."
 msgstr "La proposition n'a pas pu être refusée."
 
-#: app/helpers/application_helper.rb:107 app/views/users/_form.rhtml:17
+#: app/helpers/application_helper.rb:207
+#: app/views/users/_form.rhtml:17
 #: app/views/users/preferences.html.erb:13
 msgid "login"
 msgstr "login"
 
-#: app/helpers/application_helper.rb:121
+#: app/helpers/application_helper.rb:221
 msgid "long_time"
 msgstr "%H:%M:%S"
 
-#: app/helpers/application_helper.rb:126
+#: app/helpers/application_helper.rb:226
 msgid "short_time"
 msgstr "%Hh%M"
 
-#: app/helpers/application_helper.rb:131
+#: app/helpers/application_helper.rb:231
 msgid "full_date"
 msgstr "%A, %d %B %Y"
 
-#: app/helpers/application_helper.rb:136 lib/parser/lib/rules/zena.rb:1388
+#: app/helpers/application_helper.rb:236
 msgid "long_date"
 msgstr "%d.%m.%Y"
 
-#: app/helpers/application_helper.rb:141
+#: app/helpers/application_helper.rb:241
 msgid "short_date"
 msgstr "%d.%m"
 
-#: app/helpers/application_helper.rb:547 lib/gettext_strings.rb:67
+#: app/helpers/application_helper.rb:652
+#: lib/gettext_strings.rb:68
 msgid "%{type} node"
 msgstr "objet %{type}"
 
-#: app/helpers/application_helper.rb:559 lib/gettext_strings.rb:66
+#: app/helpers/application_helper.rb:664
+#: lib/gettext_strings.rb:67
 msgid "%{ext} document"
 msgstr "document %{ext}"
 
-#: app/helpers/application_helper.rb:563
+#: app/helpers/application_helper.rb:668
 #, fuzzy
 msgid "%{ext} node"
 msgstr "objet %{type}"
 
-#: app/helpers/application_helper.rb:821 lib/gettext_strings.rb:40
+#: app/helpers/application_helper.rb:735
+#: app/helpers/application_helper.rb:751
+msgid "week_start_day"
+msgstr "1"
+
+#: app/helpers/application_helper.rb:943
+#: lib/gettext_strings.rb:41
 msgid "img_private"
 msgstr "<img src='/images/lock.png' alt='privé'/>"
 
-#: app/helpers/application_helper.rb:823 lib/gettext_strings.rb:39
+#: app/helpers/application_helper.rb:945
+#: lib/gettext_strings.rb:40
 msgid "img_public"
 msgstr "<img src='/images/user_pub.png' alt='publique'/>"
 
-#: app/helpers/application_helper.rb:861
+#: app/helpers/application_helper.rb:983
 msgid "btn_edit"
 msgstr "<img src='/images/page_edit.png' alt='éditer'/>"
 
-#: app/helpers/application_helper.rb:866
+#: app/helpers/application_helper.rb:988
 msgid "btn_drive"
 msgstr "<img src='/images/wrench.png' alt='réglages'/>"
 
-#: app/helpers/application_helper.rb:897 app/helpers/application_helper.rb:909
+#: app/helpers/application_helper.rb:1019
+#: app/helpers/application_helper.rb:1031
 msgid "btn_view"
 msgstr "<img src='/images/eye.png' alt='visualiser'/>\""
 
-#: app/helpers/application_helper.rb:912
+#: app/helpers/application_helper.rb:1034
 msgid "img_open"
 msgstr "<img src='/images/lock_open.png' alt='ouvert'/>"
 
-#: app/helpers/application_helper.rb:912
+#: app/helpers/application_helper.rb:1034
 msgid "btn_title_close_discussion"
 msgstr "Fermer la discussion."
 
-#: app/helpers/application_helper.rb:914
+#: app/helpers/application_helper.rb:1036
 msgid "img_closed"
 msgstr "<img src='/images/lock.png' alt='fermé'/>"
 
-#: app/helpers/application_helper.rb:914
+#: app/helpers/application_helper.rb:1036
 msgid "btn_title_open_open_discussion"
 msgstr "Ouvrir la discussion."
 
-#: app/helpers/application_helper.rb:917 app/views/comments/_li.rhtml:3
+#: app/helpers/application_helper.rb:1039
+#: app/views/comments/_li.rhtml:3
 msgid "btn_remove"
 msgstr "<img src='/images/delete.png' alt='supprimer'/>"
 
-#: app/helpers/application_helper.rb:917
+#: app/helpers/application_helper.rb:1039
 msgid "btn_title_destroy_discussion"
 msgstr "Supprimer entièrement la discussion."
 
-#: app/helpers/application_helper.rb:1028
+#: app/helpers/application_helper.rb:1150
 msgid "my home"
 msgstr "suivi"
 
-#: app/helpers/application_helper.rb:1031
+#: app/helpers/application_helper.rb:1153
 #: app/views/users/preferences.html.erb:1
 msgid "preferences"
 msgstr "préférences"
 
-#: app/helpers/application_helper.rb:1034 app/views/comments/index.rhtml:1
+#: app/helpers/application_helper.rb:1156
+#: app/views/comments/index.rhtml:1
 msgid "manage comments"
 msgstr "gestion des commentaires"
 
-#: app/helpers/application_helper.rb:1037 app/views/users/index.rhtml:1
+#: app/helpers/application_helper.rb:1159
+#: app/views/users/index.rhtml:1
 msgid "manage users"
 msgstr "gestion des utilisateurs"
 
-#: app/helpers/application_helper.rb:1040 app/views/groups/index.rhtml:1
+#: app/helpers/application_helper.rb:1162
+#: app/views/groups/index.rhtml:1
 msgid "manage groups"
 msgstr "gestion des groupes"
 
-#: app/helpers/application_helper.rb:1043 app/views/relations/index.erb:1
+#: app/helpers/application_helper.rb:1165
+#: app/views/relations/index.erb:1
 msgid "manage relations"
 msgstr "gestion des rôles"
 
-#: app/helpers/application_helper.rb:1046 app/views/iformats/index.rhtml:1
+#: app/helpers/application_helper.rb:1168
+#: app/views/iformats/index.rhtml:1
 #: app/views/virtual_classes/index.erb:1
 msgid "manage classes"
 msgstr "gestion des classes"
 
-#: app/helpers/application_helper.rb:1049
+#: app/helpers/application_helper.rb:1171
 msgid "image formats"
 msgstr "formats d'image"
 
-#: app/helpers/application_helper.rb:1052 app/views/sites/index.erb:1
+#: app/helpers/application_helper.rb:1174
+#: app/views/sites/index.erb:1
 #, fuzzy
 msgid "manage sites"
 msgstr "gestion des utilisateurs"
 
-#: app/helpers/application_helper.rb:1056
+#: app/helpers/application_helper.rb:1178
 msgid "turn dev off"
 msgstr "<img src='/images/bug.png'/> quitter le mode 'dev'"
 
-#: app/helpers/application_helper.rb:1058
+#: app/helpers/application_helper.rb:1180
 msgid "turn dev on"
 msgstr "passer en mode 'dev'"
 
@@ -259,20 +273,30 @@ msgstr ""
 msgid "accesshit"
 msgstr ""
 
-#: app/models/access_hits.rb:- app/models/cache.rb:-
-#: app/models/cached_page.rb:- app/models/comment.rb:-
-#: app/models/contact_content.rb:- app/models/data_entry.rb:-
-#: app/models/discussion.rb:- app/models/document_content.rb:-
-#: app/models/group.rb:- app/models/iformat.rb:- app/models/node.rb:-
-#: app/models/participation.rb:- app/models/relation.rb:-
-#: app/models/template_content.rb:- app/models/version.rb:-
+#: app/models/access_hits.rb:-
+#: app/models/cache.rb:-
+#: app/models/cached_page.rb:-
+#: app/models/comment.rb:-
+#: app/models/contact_content.rb:-
+#: app/models/data_entry.rb:-
+#: app/models/discussion.rb:-
+#: app/models/document_content.rb:-
+#: app/models/group.rb:-
+#: app/models/iformat.rb:-
+#: app/models/node.rb:-
+#: app/models/participation.rb:-
+#: app/models/relation.rb:-
+#: app/models/template_content.rb:-
+#: app/models/version.rb:-
 #: app/models/virtual_class.rb:-
 #, fuzzy
 msgid "Site"
 msgstr "site"
 
-#: app/models/access_hits.rb:- app/models/cached_page.rb:-
-#: app/models/discussion.rb:- app/models/template_content.rb:-
+#: app/models/access_hits.rb:-
+#: app/models/cached_page.rb:-
+#: app/models/discussion.rb:-
+#: app/models/template_content.rb:-
 #: app/models/version.rb:-
 msgid "Node"
 msgstr "objet"
@@ -289,8 +313,11 @@ msgstr ""
 msgid "Request duration"
 msgstr ""
 
-#: app/models/access_hits.rb:- app/models/comment.rb:- app/models/link.rb:-
-#: app/models/participation.rb:- app/models/version.rb:-
+#: app/models/access_hits.rb:-
+#: app/models/comment.rb:-
+#: app/models/link.rb:-
+#: app/models/participation.rb:-
+#: app/models/version.rb:-
 msgid "Status"
 msgstr ""
 
@@ -319,15 +346,19 @@ msgstr ""
 msgid "Request line"
 msgstr ""
 
-#: app/models/access_hits.rb:- app/models/template_content.rb:-
+#: app/models/access_hits.rb:-
+#: app/models/template_content.rb:-
 msgid "Mode"
 msgstr "mode"
 
-#: app/models/access_hits.rb:- app/models/template_content.rb:-
+#: app/models/access_hits.rb:-
+#: app/models/template_content.rb:-
 msgid "Format"
 msgstr "format"
 
-#: app/models/access_hits.rb:- app/models/discussion.rb:- app/models/user.rb:-
+#: app/models/access_hits.rb:-
+#: app/models/discussion.rb:-
+#: app/models/user.rb:-
 #: app/models/version.rb:-
 #, fuzzy
 msgid "Lang"
@@ -341,10 +372,16 @@ msgstr ""
 msgid "cache"
 msgstr ""
 
-#: app/models/cache.rb:- app/models/comment.rb:-
-#: app/models/contact_content.rb:- app/models/data_entry.rb:-
-#: app/models/discussion.rb:- app/models/group.rb:- app/models/iformat.rb:-
-#: app/models/node.rb:- app/models/user.rb:- app/models/version.rb:-
+#: app/models/cache.rb:-
+#: app/models/comment.rb:-
+#: app/models/contact_content.rb:-
+#: app/models/data_entry.rb:-
+#: app/models/discussion.rb:-
+#: app/models/group.rb:-
+#: app/models/iformat.rb:-
+#: app/models/node.rb:-
+#: app/models/user.rb:-
+#: app/models/version.rb:-
 msgid "Updated at"
 msgstr ""
 
@@ -357,7 +394,9 @@ msgstr ""
 msgid "Visitor groups"
 msgstr "groupes"
 
-#: app/models/cache.rb:- app/models/node.rb:- app/models/virtual_class.rb:-
+#: app/models/cache.rb:-
+#: app/models/node.rb:-
+#: app/models/virtual_class.rb:-
 msgid "Kpath"
 msgstr ""
 
@@ -366,7 +405,8 @@ msgstr ""
 msgid "Context"
 msgstr "texte"
 
-#: app/models/cache.rb:- app/models/version.rb:-
+#: app/models/cache.rb:-
+#: app/models/version.rb:-
 #, fuzzy
 msgid "Content"
 msgstr "type MIME"
@@ -384,14 +424,21 @@ msgstr "auteur"
 msgid "Expire after"
 msgstr ""
 
-#: app/models/cached_page.rb:- app/models/comment.rb:-
-#: app/models/contact_content.rb:- app/models/data_entry.rb:-
-#: app/models/discussion.rb:- app/models/group.rb:- app/models/iformat.rb:-
-#: app/models/node.rb:- app/models/user.rb:- app/models/version.rb:-
+#: app/models/cached_page.rb:-
+#: app/models/comment.rb:-
+#: app/models/contact_content.rb:-
+#: app/models/data_entry.rb:-
+#: app/models/discussion.rb:-
+#: app/models/group.rb:-
+#: app/models/iformat.rb:-
+#: app/models/node.rb:-
+#: app/models/user.rb:-
+#: app/models/version.rb:-
 msgid "Created at"
 msgstr "date de création"
 
-#: app/models/comment.rb:- app/views/links/_form.rhtml:33
+#: app/models/comment.rb:-
+#: app/views/links/_form.rhtml:33
 #: app/views/templates/edit_tabs/_title.rhtml:16
 msgid "comment"
 msgstr "commentaire"
@@ -404,17 +451,23 @@ msgstr "discussion"
 msgid "Reply to"
 msgstr "en réponse à"
 
-#: app/models/comment.rb:- app/models/data_entry.rb:- app/models/node.rb:-
-#: app/models/participation.rb:- app/models/version.rb:-
+#: app/models/comment.rb:-
+#: app/models/data_entry.rb:-
+#: app/models/node.rb:-
+#: app/models/participation.rb:-
+#: app/models/version.rb:-
 msgid "User"
 msgstr "utilisateur"
 
-#: app/models/comment.rb:- app/models/version.rb:-
+#: app/models/comment.rb:-
+#: app/models/version.rb:-
 #, fuzzy
 msgid "Title"
 msgstr "titre"
 
-#: app/models/comment.rb:- app/models/data_entry.rb:- app/models/version.rb:-
+#: app/models/comment.rb:-
+#: app/models/data_entry.rb:-
+#: app/models/version.rb:-
 #, fuzzy
 msgid "Text"
 msgstr "texte"
@@ -427,7 +480,7 @@ msgstr ""
 msgid "Ip"
 msgstr ""
 
-#: app/models/comment.rb:71
+#: app/models/comment.rb:72
 msgid "re: "
 msgstr "rép: "
 
@@ -435,19 +488,26 @@ msgstr "rép: "
 msgid "contact content"
 msgstr "contenu de contact"
 
-#: app/models/contact_content.rb:- app/models/document_content.rb:-
+#: app/models/contact_content.rb:-
+#: app/models/document_content.rb:-
 #, fuzzy
 msgid "Version"
 msgstr "version"
 
-#: app/models/contact_content.rb:- app/models/user.rb:-
+#: app/models/contact_content.rb:-
+#: app/models/user.rb:-
 #, fuzzy
 msgid "First name"
 msgstr "prénom"
 
-#: app/models/contact_content.rb:- app/models/document_content.rb:-
-#: app/models/group.rb:- app/models/iformat.rb:- app/models/node.rb:-
-#: app/models/site.rb:- app/models/user.rb:- app/models/virtual_class.rb:-
+#: app/models/contact_content.rb:-
+#: app/models/document_content.rb:-
+#: app/models/group.rb:-
+#: app/models/iformat.rb:-
+#: app/models/node.rb:-
+#: app/models/site.rb:-
+#: app/models/user.rb:-
+#: app/models/virtual_class.rb:-
 #, fuzzy
 msgid "Name"
 msgstr "nom"
@@ -456,7 +516,8 @@ msgstr "nom"
 msgid "Address"
 msgstr ""
 
-#: app/models/contact_content.rb:- app/models/node.rb:-
+#: app/models/contact_content.rb:-
+#: app/models/node.rb:-
 msgid "Zip"
 msgstr ""
 
@@ -473,7 +534,8 @@ msgstr ""
 msgid "Mobile"
 msgstr "fichier"
 
-#: app/models/contact_content.rb:- app/models/user.rb:-
+#: app/models/contact_content.rb:-
+#: app/models/user.rb:-
 #, fuzzy
 msgid "Email"
 msgstr "email"
@@ -496,7 +558,7 @@ msgid "Date"
 msgstr "créer"
 
 #: app/models/data_entry.rb:-
-msgid "Value"
+msgid "Value a"
 msgstr ""
 
 #: app/models/data_entry.rb:-
@@ -519,7 +581,12 @@ msgstr "objet"
 msgid "Node d"
 msgstr "objet"
 
-#: app/models/data_entry.rb:35 app/models/node.rb:621
+#: app/models/data_entry.rb:-
+msgid "Value b"
+msgstr ""
+
+#: app/models/data_entry.rb:35
+#: app/models/node.rb:628
 #: app/views/data_entries/_li.html.erb:2
 msgid "datetime"
 msgstr "%d.%m.%Y %H:%M"
@@ -542,7 +609,8 @@ msgstr "parent"
 msgid "document content"
 msgstr "contenu de document"
 
-#: app/models/document_content.rb:- app/models/node.rb:-
+#: app/models/document_content.rb:-
+#: app/models/node.rb:-
 #: app/models/version.rb:-
 msgid "Type"
 msgstr ""
@@ -556,25 +624,30 @@ msgstr "type MIME"
 msgid "Ext"
 msgstr ""
 
-#: app/models/document_content.rb:- app/models/iformat.rb:-
+#: app/models/document_content.rb:-
+#: app/models/iformat.rb:-
 msgid "Size"
 msgstr ""
 
-#: app/models/document_content.rb:- app/models/iformat.rb:-
+#: app/models/document_content.rb:-
+#: app/models/iformat.rb:-
 msgid "Width"
 msgstr ""
 
-#: app/models/document_content.rb:- app/models/iformat.rb:-
+#: app/models/document_content.rb:-
+#: app/models/iformat.rb:-
 #, fuzzy
 msgid "Height"
 msgstr "éditer"
 
-#: app/models/group.rb:- app/views/groups/edit.html.erb:1
+#: app/models/group.rb:-
+#: app/views/groups/edit.html.erb:1
 #: app/views/groups/show.html.erb:1
 msgid "group"
 msgstr "groupe"
 
-#: app/models/iformat.rb:- app/views/iformats/edit.html.erb:1
+#: app/models/iformat.rb:-
+#: app/views/iformats/edit.html.erb:1
 #: app/views/iformats/show.html.erb:1
 #, fuzzy
 msgid "iformat"
@@ -602,7 +675,8 @@ msgstr "parent"
 msgid "Relation"
 msgstr "extension"
 
-#: app/models/link.rb:- app/models/version.rb:-
+#: app/models/link.rb:-
+#: app/models/version.rb:-
 msgid "Comment"
 msgstr "commentaire"
 
@@ -650,7 +724,8 @@ msgstr "groupe"
 msgid "Pgroup"
 msgstr "groupe"
 
-#: app/models/node.rb:- app/models/version.rb:-
+#: app/models/node.rb:-
+#: app/models/version.rb:-
 #, fuzzy
 msgid "Publish from"
 msgstr "éditeurs"
@@ -839,7 +914,8 @@ msgstr "chemin de classe"
 msgid "Klass"
 msgstr "class"
 
-#: app/models/user.rb:- lib/gettext_strings.rb:60
+#: app/models/user.rb:-
+#: lib/gettext_strings.rb:61
 msgid "user"
 msgstr "utilisateur"
 
@@ -891,38 +967,9 @@ msgstr "groupe des utilisateurs"
 msgid "Auto create discussion"
 msgstr "discussion"
 
-#: app/views/calendar/_large.rhtml:3 app/views/calendar/_tiny.rhtml:3
-#: app/views/groups/index.rhtml:5 app/views/users/index.rhtml:6
-#: app/views/relations/index.erb:6 app/views/sites/index.erb:6
-#: app/views/virtual_classes/index.erb:6 lib/gettext_strings.rb:56
-msgid "img_prev_page"
+#: app/models/virtual_class.rb:-
+msgid "Dyn keys"
 msgstr ""
-"<img src='/images/control_rewind.png' alt='page précédente' title='page "
-"précédente'/>"
-
-#: app/views/calendar/_large.rhtml:5 app/views/calendar/_tiny.rhtml:7
-#: app/views/groups/index.rhtml:4 app/views/users/index.rhtml:5
-#: app/views/relations/index.erb:5 app/views/sites/index.erb:5
-#: app/views/virtual_classes/index.erb:5 lib/gettext_strings.rb:57
-msgid "img_next_page"
-msgstr ""
-"<img src='/images/control_fastforward.png' alt='page suivante' title='page "
-"suivante'/>"
-
-#: app/views/calendar/_tiny.rhtml:17 app/views/comments/_form.rhtml:8
-#: app/views/comments/_form.rhtml:10 app/views/comments/_form.rhtml:12
-#: app/views/discussions/_form.rhtml:8 app/views/documents/show.rhtml:11
-#: app/views/groups/_form.rhtml:3 app/views/groups/_form.rhtml:5
-#: app/views/iformats/_form.rhtml:3 app/views/iformats/_form.rhtml:5
-#: app/views/links/_form.rhtml:12 app/views/links/_form.rhtml:14
-#: app/views/nodes/_results.rhtml:7 app/views/nodes/import.rhtml:11
-#: app/views/nodes/save.rhtml:8 app/views/note/_form.rhtml:4
-#: app/views/users/_form.rhtml:3 app/views/users/_form.rhtml:5
-#: app/views/relations/_form.erb:3 app/views/relations/_form.erb:5
-#: app/views/sites/_form.erb:3 app/views/sites/_form.erb:5
-#: app/views/virtual_classes/_form.erb:3 app/views/virtual_classes/_form.erb:5
-msgid "btn_x"
-msgstr "<img src='/images/cross.png' alt='annuler'/>"
 
 #: app/views/comments/_add.rhtml:2
 msgid "btn_add_comment"
@@ -933,10 +980,33 @@ msgid "btn_bomb"
 msgstr "<img src='/images/bomb.png' alt='vider la corbeille'/>"
 
 #: app/views/comments/_bin.rhtml:4
-msgid ""
-"Are you sure you want to permanently remove the content of this rubbish bin ?"
-msgstr ""
-"Voulez-vous vraiment supprimer définitivement le contenu de cette corbeille ?"
+msgid "Are you sure you want to permanently remove the content of this rubbish bin ?"
+msgstr "Voulez-vous vraiment supprimer définitivement le contenu de cette corbeille ?"
+
+#: app/views/comments/_form.rhtml:8
+#: app/views/comments/_form.rhtml:10
+#: app/views/comments/_form.rhtml:12
+#: app/views/discussions/_form.rhtml:8
+#: app/views/documents/show.rhtml:11
+#: app/views/groups/_form.rhtml:3
+#: app/views/groups/_form.rhtml:5
+#: app/views/iformats/_form.rhtml:3
+#: app/views/iformats/_form.rhtml:5
+#: app/views/links/_form.rhtml:12
+#: app/views/links/_form.rhtml:14
+#: app/views/nodes/_results.rhtml:7
+#: app/views/nodes/import.rhtml:11
+#: app/views/nodes/save.rhtml:8
+#: app/views/users/_form.rhtml:3
+#: app/views/users/_form.rhtml:5
+#: app/views/relations/_form.erb:3
+#: app/views/relations/_form.erb:5
+#: app/views/sites/_form.erb:3
+#: app/views/sites/_form.erb:5
+#: app/views/virtual_classes/_form.erb:3
+#: app/views/virtual_classes/_form.erb:5
+msgid "btn_x"
+msgstr "<img src='/images/cross.png' alt='annuler'/>"
 
 #: app/views/comments/_form.rhtml:14
 msgid "author"
@@ -948,18 +1018,21 @@ msgstr "auteur"
 msgid "title"
 msgstr "titre"
 
-#: app/views/comments/_form.rhtml:23 app/views/groups/_form.rhtml:35
-#: app/views/iformats/_form.rhtml:21 app/views/nodes/_edit_attribute.rhtml:6
-#: app/views/note/_form.rhtml:9
+#: app/views/comments/_form.rhtml:23
+#: app/views/groups/_form.rhtml:35
+#: app/views/iformats/_form.rhtml:21
+#: app/views/nodes/_edit_attribute.rhtml:10
 #: app/views/templates/document_create_tabs/_file.rhtml:8
 #: app/views/templates/document_create_tabs/_import.rhtml:2
 #: app/views/templates/document_create_tabs/_template.rhtml:3
 #: app/views/templates/document_create_tabs/_text_doc.rhtml:3
-#: app/views/users/_form.rhtml:46 app/views/versions/edit.rhtml:14
-#: app/views/relations/_form.erb:35 app/views/sites/_form.erb:33
+#: app/views/users/_form.rhtml:46
+#: app/views/versions/edit.rhtml:14
+#: app/views/relations/_form.erb:35
+#: app/views/sites/_form.erb:33
 #: app/views/users/preferences.html.erb:19
 #: app/views/users/preferences.html.erb:35
-#: app/views/virtual_classes/_form.erb:21
+#: app/views/virtual_classes/_form.erb:22
 msgid "validate"
 msgstr " valider "
 
@@ -983,11 +1056,13 @@ msgstr "page suivante"
 msgid "btn_add_discussion"
 msgstr "<img src='/images/comments_add.png' alt='ajouter une discussion'/>"
 
-#: app/views/discussions/_form.rhtml:11 lib/gettext_strings.rb:52
+#: app/views/discussions/_form.rhtml:11
+#: lib/gettext_strings.rb:53
 msgid "outside"
 msgstr "externe"
 
-#: app/views/discussions/_form.rhtml:12 lib/gettext_strings.rb:51
+#: app/views/discussions/_form.rhtml:12
+#: lib/gettext_strings.rb:52
 msgid "inside"
 msgstr "interne"
 
@@ -999,7 +1074,8 @@ msgstr "créer"
 msgid "comment(s)"
 msgstr "commentaire(s)"
 
-#: app/views/documents/_crop.rhtml:1 app/views/users/_form.rhtml:20
+#: app/views/documents/_crop.rhtml:1
+#: app/views/users/_form.rhtml:20
 #: app/views/users/preferences.html.erb:7
 #: app/views/users/preferences.html.erb:27
 msgid "cancel"
@@ -1030,11 +1106,13 @@ msgstr "ajouter d'autres documents"
 msgid "btn_group_add"
 msgstr "<img src='/images/group_add.png' alt='ajouter un groupe'/>"
 
-#: app/views/groups/_form.rhtml:18 app/views/iformats/_form.rhtml:16
+#: app/views/groups/_form.rhtml:18
+#: app/views/iformats/_form.rhtml:16
 #: app/views/nodes/_parent.rhtml:7
 #: app/views/templates/document_create_tabs/_template.rhtml:7
 #: app/views/templates/document_create_tabs/_text_doc.rhtml:8
-#: app/views/users/_form.rhtml:27 app/views/users/preferences.html.erb:15
+#: app/views/users/_form.rhtml:27
+#: app/views/users/preferences.html.erb:15
 #: app/views/virtual_classes/_form.erb:16
 msgid "name"
 msgstr "nom"
@@ -1051,26 +1129,45 @@ msgstr "répondre"
 #: app/views/groups/_form.rhtml:39
 #, fuzzy
 msgid "Are you sure you want to destroy this group ?"
-msgstr ""
-"Voulez-vous vraiment supprimer définitivement le contenu de cette corbeille ?"
+msgstr "Voulez-vous vraiment supprimer définitivement le contenu de cette corbeille ?"
 
 #: app/views/groups/_form.rhtml:41
 #, fuzzy
 msgid "destroy group"
 msgstr "groupe de site"
 
-#: app/views/groups/_form.rhtml:41 app/views/iformats/_form.rhtml:26
-#: app/views/relations/_form.erb:40 app/views/virtual_classes/_form.erb:26
+#: app/views/groups/_form.rhtml:41
+#: app/views/iformats/_form.rhtml:26
+#: app/views/relations/_form.erb:40
+#: app/views/virtual_classes/_form.erb:27
 #, fuzzy
 msgid "destroy"
 msgstr "<img src='/images/bomb.png' alt='supprimer'/>"
 
+#: app/views/groups/index.rhtml:4
+#: app/views/users/index.rhtml:5
+#: app/views/relations/index.erb:5
+#: app/views/sites/index.erb:5
+#: app/views/virtual_classes/index.erb:5
+#: lib/gettext_strings.rb:58
+msgid "img_next_page"
+msgstr "<img src='/images/control_fastforward.png' alt='page suivante' title='page suivante'/>"
+
+#: app/views/groups/index.rhtml:5
+#: app/views/users/index.rhtml:6
+#: app/views/relations/index.erb:6
+#: app/views/sites/index.erb:6
+#: app/views/virtual_classes/index.erb:6
+#: lib/gettext_strings.rb:57
+msgid "img_prev_page"
+msgstr "<img src='/images/control_rewind.png' alt='page précédente' title='page précédente'/>"
+
 #: app/views/iformats/_add.rhtml:2
 msgid "btn_iformat_add"
-msgstr ""
-"<img src='/images/photo_add.png' alt='ajouter un format d&apos;image'/>"
+msgstr "<img src='/images/photo_add.png' alt='ajouter un format d&apos;image'/>"
 
-#: app/views/iformats/_form.rhtml:17 app/views/relations/_form.erb:25
+#: app/views/iformats/_form.rhtml:17
+#: app/views/relations/_form.erb:25
 msgid "type"
 msgstr ""
 
@@ -1090,8 +1187,7 @@ msgstr ""
 #: app/views/iformats/_form.rhtml:25
 #, fuzzy
 msgid "Are you sure you want to destroy this image format ?"
-msgstr ""
-"Voulez-vous vraiment supprimer définitivement le contenu de cette corbeille ?"
+msgstr "Voulez-vous vraiment supprimer définitivement le contenu de cette corbeille ?"
 
 #: app/views/iformats/_form.rhtml:26
 msgid "destroy image format"
@@ -1113,7 +1209,8 @@ msgstr "<img src='/images/photo.png' alt='format d&apos;image'/>"
 msgid "btn_add_link"
 msgstr "<img src='/images/tag_blue_add.png' alt='ajouter un lien'/>"
 
-#: app/views/links/_form.rhtml:32 app/views/users/_form.rhtml:25
+#: app/views/links/_form.rhtml:32
+#: app/views/users/_form.rhtml:25
 msgid "status"
 msgstr "statut"
 
@@ -1125,12 +1222,13 @@ msgstr "définir"
 msgid "img_link"
 msgstr "<img src='/images/tag_blue.png' alt='lien'/>"
 
-#: app/views/links/_li.rhtml:6 lib/parser/lib/rules/zena.rb:1075
-#: lib/parser/lib/rules/zena.rb:1085
+#: app/views/links/_li.rhtml:6
+#: lib/parser/lib/rules/zena.rb:1198
 msgid "btn_tiny_del"
 msgstr "<img src='/images/bullet_delete.png' alt='supprimer'/>"
 
-#: app/views/nodes/_dates.rhtml:6 app/views/templates/edit_tabs/_title.rhtml:8
+#: app/views/nodes/_dates.rhtml:6
+#: app/views/templates/edit_tabs/_title.rhtml:8
 msgid "event date"
 msgstr "date de l'événement"
 
@@ -1148,13 +1246,15 @@ msgstr "spécifique"
 msgid "custom b"
 msgstr "spécifique"
 
-#: app/views/nodes/_dates.rhtml:10 app/views/nodes/_groups.rhtml:23
+#: app/views/nodes/_dates.rhtml:10
+#: app/views/nodes/_groups.rhtml:23
 #: app/views/nodes/_parent.rhtml:11
 #: app/views/templates/edit_tabs/_image.rhtml:2
 msgid "change"
 msgstr "modifier"
 
-#: app/views/nodes/_groups.rhtml:3 app/views/nodes/_groups.rhtml:7
+#: app/views/nodes/_groups.rhtml:3
+#: app/views/nodes/_groups.rhtml:7
 msgid "inherit"
 msgstr "hériter"
 
@@ -1162,7 +1262,8 @@ msgstr "hériter"
 msgid "custom"
 msgstr "spécifique"
 
-#: app/views/nodes/_groups.rhtml:4 app/views/nodes/_groups.rhtml:7
+#: app/views/nodes/_groups.rhtml:4
+#: app/views/nodes/_groups.rhtml:7
 msgid "private"
 msgstr "privé"
 
@@ -1217,10 +1318,6 @@ msgstr "résultat de l'importation"
 msgid "%{count} versions"
 msgstr "%{count} versions"
 
-#: app/views/note/_add.rhtml:2
-msgid "btn_add_note"
-msgstr "<img src='/images/add.png' alt='ajouter une note'/>"
-
 #: app/views/search/_form.rhtml:7
 msgid "search field"
 msgstr "recherche"
@@ -1236,6 +1333,10 @@ msgstr "fichier"
 #: app/views/templates/edit_tabs/_title.rhtml:13
 msgid "summary"
 msgstr "résumé"
+
+#: app/views/templates/document_create_tabs/_import.rhtml:7
+msgid "class of first element"
+msgstr ""
 
 #: app/views/templates/document_create_tabs/_template.rhtml:10
 #: app/views/templates/edit_tabs/_template.rhtml:1
@@ -1276,10 +1377,7 @@ msgstr "modifier le fichier"
 
 #: app/views/templates/edit_tabs/_help.rhtml:6
 msgid "help not found"
-msgstr ""
-"L'objet d'aide n'a pas été trouvé. Cet objet doit porter le nom 'help'. En "
-"attendant, vous pouvez consulter le site officiel \"zena\":http://zenadmin."
-"org."
+msgstr "L'objet d'aide n'a pas été trouvé. Cet objet doit porter le nom 'help'. En attendant, vous pouvez consulter le site officiel \"zena\":http://zenadmin.org."
 
 #: app/views/templates/edit_tabs/_image.rhtml:8
 msgid "image"
@@ -1321,7 +1419,8 @@ msgstr "extension"
 msgid "parse"
 msgstr "parent"
 
-#: app/views/templates/edit_tabs/_title.rhtml:4 app/views/users/_form.rhtml:28
+#: app/views/templates/edit_tabs/_title.rhtml:4
+#: app/views/users/_form.rhtml:28
 #: app/views/users/preferences.html.erb:16
 msgid "language"
 msgstr "langue"
@@ -1334,23 +1433,28 @@ msgstr "date de publication"
 msgid "btn_user_add"
 msgstr "<img src='/images/user_add.png' alt='ajouter un utilisateur'/>"
 
-#: app/views/users/_form.rhtml:19 app/views/users/preferences.html.erb:26
+#: app/views/users/_form.rhtml:19
+#: app/views/users/preferences.html.erb:26
 msgid "change password"
 msgstr "modifier le mot de passe"
 
-#: app/views/users/_form.rhtml:20 app/views/users/_form.rhtml:22
+#: app/views/users/_form.rhtml:20
+#: app/views/users/_form.rhtml:22
 msgid "password"
 msgstr "mot de passe"
 
-#: app/views/users/_form.rhtml:26 app/views/users/preferences.html.erb:14
+#: app/views/users/_form.rhtml:26
+#: app/views/users/preferences.html.erb:14
 msgid "first name"
 msgstr "prénom"
 
-#: app/views/users/_form.rhtml:29 app/views/users/preferences.html.erb:17
+#: app/views/users/_form.rhtml:29
+#: app/views/users/preferences.html.erb:17
 msgid "time zone"
 msgstr "fuseau horaire"
 
-#: app/views/users/_form.rhtml:31 app/views/users/preferences.html.erb:18
+#: app/views/users/_form.rhtml:31
+#: app/views/users/preferences.html.erb:18
 msgid "email"
 msgstr "email"
 
@@ -1385,7 +1489,8 @@ msgstr "éditeurs"
 msgid "data entries"
 msgstr "%d.%m.%Y %H:%M"
 
-#: app/views/relations/_add.erb:2 lib/gettext_strings.rb:31
+#: app/views/relations/_add.erb:2
+#: lib/gettext_strings.rb:32
 msgid "btn_relation_add"
 msgstr "<img src='/images/link_add.png' alt='ajouter un rôle'/>"
 
@@ -1403,19 +1508,24 @@ msgstr "parent"
 msgid "role"
 msgstr "fichier"
 
-#: app/views/relations/_form.erb:21 app/views/virtual_classes/_form.erb:17
+#: app/views/relations/_form.erb:21
+#: app/views/virtual_classes/_form.erb:17
 msgid "icon"
 msgstr "icône"
 
-#: app/views/relations/_form.erb:26 app/views/relations/_form.erb:28
-#: app/views/relations/_li.erb:2 app/views/relations/_li.erb:12
-#: lib/gettext_strings.rb:24
+#: app/views/relations/_form.erb:26
+#: app/views/relations/_form.erb:28
+#: app/views/relations/_li.erb:2
+#: app/views/relations/_li.erb:12
+#: lib/gettext_strings.rb:25
 msgid "relation_img"
 msgstr "<img src='/images/target.png' alt='rôle'/>"
 
-#: app/views/relations/_form.erb:27 app/views/relations/_form.erb:29
-#: app/views/relations/_li.erb:2 app/views/relations/_li.erb:12
-#: lib/gettext_strings.rb:25
+#: app/views/relations/_form.erb:27
+#: app/views/relations/_form.erb:29
+#: app/views/relations/_li.erb:2
+#: app/views/relations/_li.erb:12
+#: lib/gettext_strings.rb:26
 msgid "relations_img"
 msgstr "<img src='/images/collection.png' alt='collection'/>"
 
@@ -1427,8 +1537,7 @@ msgstr "chemin de classe"
 #: app/views/relations/_form.erb:39
 #, fuzzy
 msgid "Are you sure you want to destroy this relation ?"
-msgstr ""
-"Voulez-vous vraiment supprimer définitivement le contenu de cette corbeille ?"
+msgstr "Voulez-vous vraiment supprimer définitivement le contenu de cette corbeille ?"
 
 #: app/views/relations/_form.erb:40
 msgid "destroy relation (with all links)"
@@ -1444,31 +1553,33 @@ msgstr "nom d'hôte"
 msgid "redit_time"
 msgstr "%Hh%M"
 
-#: app/views/sites/_form.erb:21 lib/gettext_strings.rb:29
+#: app/views/sites/_form.erb:21
+#: lib/gettext_strings.rb:30
 msgid "public group"
 msgstr "groupe public"
 
-#: app/views/sites/_form.erb:22 lib/gettext_strings.rb:30
+#: app/views/sites/_form.erb:22
+#: lib/gettext_strings.rb:31
 msgid "site group"
 msgstr "groupe de site"
 
-#: app/views/sites/_form.erb:23 lib/gettext_strings.rb:28
+#: app/views/sites/_form.erb:23
+#: lib/gettext_strings.rb:29
 msgid "options"
 msgstr "options"
 
-#: app/views/sites/_form.erb:29 app/views/sites/_form.erb:30
+#: app/views/sites/_form.erb:29
+#: app/views/sites/_form.erb:30
 msgid "clear cache"
 msgstr ""
 
 #: app/views/sites/_form.erb:30
 #, fuzzy
-msgid ""
-"Are you sure you want destroy all cache (site may be slow during first "
-"reloads) ?"
-msgstr ""
-"Voulez-vous vraiment supprimer définitivement le contenu de cette corbeille ?"
+msgid "Are you sure you want destroy all cache (site may be slow during first reloads) ?"
+msgstr "Voulez-vous vraiment supprimer définitivement le contenu de cette corbeille ?"
 
-#: app/views/sites/_li.erb:2 lib/gettext_strings.rb:26
+#: app/views/sites/_li.erb:2
+#: lib/gettext_strings.rb:27
 msgid "site_img"
 msgstr "<img src='/images/world.png' alt='site'/>"
 
@@ -1492,7 +1603,8 @@ msgstr "modifier le mot de passe"
 msgid "retype new password"
 msgstr "modifier le mot de passe"
 
-#: app/views/virtual_classes/_add.erb:2 lib/gettext_strings.rb:33
+#: app/views/virtual_classes/_add.erb:2
+#: lib/gettext_strings.rb:34
 msgid "btn_virtual_class_add"
 msgstr "<img src='/images/brick_add.png' alt='ajouter une classe'/>"
 
@@ -1511,18 +1623,22 @@ msgstr "groupe des utilisateurs"
 msgid "auto create discussion"
 msgstr "discussion"
 
-#: app/views/virtual_classes/_form.erb:25
-#, fuzzy
-msgid "Are you sure you want to destroy this virtual class ?"
+#: app/views/virtual_classes/_form.erb:21
+msgid "dyn_keys"
 msgstr ""
-"Voulez-vous vraiment supprimer définitivement le contenu de cette corbeille ?"
 
 #: app/views/virtual_classes/_form.erb:26
+#, fuzzy
+msgid "Are you sure you want to destroy this virtual class ?"
+msgstr "Voulez-vous vraiment supprimer définitivement le contenu de cette corbeille ?"
+
+#: app/views/virtual_classes/_form.erb:27
 #, fuzzy
 msgid "destroy virtual class"
 msgstr "<img src='/images/brick.png' alt='classe'/>"
 
-#: app/views/virtual_classes/_li.erb:2 lib/gettext_strings.rb:32
+#: app/views/virtual_classes/_li.erb:2
+#: lib/gettext_strings.rb:33
 msgid "virtual_class_img"
 msgstr "<img src='/images/brick.png' alt='classe'/>"
 
@@ -1535,7 +1651,9 @@ msgstr "discussion"
 msgid "Order cleared."
 msgstr "Ordre réinitialisé."
 
-#: app/views/nodes/update.rjs:14 lib/parser/lib/rules/zena.rb:327
+#: app/views/nodes/update.rjs:4
+#: lib/parser/lib/rules/zena.rb:390
+#: lib/parser/lib/rules/zena.rb:2682
 msgid "edit"
 msgstr "éditer"
 
@@ -1560,325 +1678,336 @@ msgid "title_tab"
 msgstr "titre & Co"
 
 #: lib/gettext_strings.rb:12
+msgid "import_tab"
+msgstr "import"
+
+#: lib/gettext_strings.rb:13
 msgid "textdocument_tab"
 msgstr "doc. texte"
 
-#: lib/gettext_strings.rb:13
+#: lib/gettext_strings.rb:14
 msgid "image_tab"
 msgstr "image"
 
-#: lib/gettext_strings.rb:14
+#: lib/gettext_strings.rb:15
 msgid "document_tab"
 msgstr "document"
 
-#: lib/gettext_strings.rb:15
+#: lib/gettext_strings.rb:16
 msgid "contact_tab"
 msgstr "contact"
 
-#: lib/gettext_strings.rb:17
+#: lib/gettext_strings.rb:18
 msgid "file_tab"
 msgstr "fichier"
 
-#: lib/gettext_strings.rb:18
+#: lib/gettext_strings.rb:19
 msgid "template_tab"
 msgstr "modèle"
 
-#: lib/gettext_strings.rb:19
+#: lib/gettext_strings.rb:20
 msgid "text_doc_tab"
 msgstr "doc. texte"
 
-#: lib/gettext_strings.rb:21
+#: lib/gettext_strings.rb:22
 msgid "btn_add_doc"
 msgstr "<img src='/images/picture_add.png' alt='ajouter des documents'/>"
 
-#: lib/gettext_strings.rb:27
+#: lib/gettext_strings.rb:28
 msgid "btn_site_add"
 msgstr "<img src='/images/world_add.png' alt='ajouter un site'/>"
 
-#: lib/gettext_strings.rb:35
+#: lib/gettext_strings.rb:36
 msgid "posted by"
 msgstr "un article de"
 
-#: lib/gettext_strings.rb:36
+#: lib/gettext_strings.rb:37
 msgid "original by"
 msgstr "première version par"
 
-#: lib/gettext_strings.rb:37
+#: lib/gettext_strings.rb:38
 msgid "modified by"
 msgstr "modifié par"
 
-#: lib/gettext_strings.rb:41
+#: lib/gettext_strings.rb:42
 msgid "img_custom_inherit"
 msgstr "<img src='/images/cog.png' alt='droits spécifiques'/>"
 
-#: lib/gettext_strings.rb:42
+#: lib/gettext_strings.rb:43
 msgid "img_user"
 msgstr "<img src='/images/user.png' alt='utilisateur'/>"
 
-#: lib/gettext_strings.rb:43
+#: lib/gettext_strings.rb:44
 msgid "img_user_admin"
 msgstr "<img src='/images/user_admin.png' alt='administrateur'/>"
 
-#: lib/gettext_strings.rb:44
+#: lib/gettext_strings.rb:45
 msgid "img_user_su"
 msgstr "<img src='/images/user_su.png' alt='super utilisateur'/>"
 
-#: lib/gettext_strings.rb:45
+#: lib/gettext_strings.rb:46
 msgid "img_user_pub"
 msgstr "<img src='/images/user_pub.png' alt='utilisateur anonyme'/>"
 
-#: lib/gettext_strings.rb:46
+#: lib/gettext_strings.rb:47
 msgid "img_group"
 msgstr "<img src='/images/group.png' alt='groupe'/>"
 
-#: lib/gettext_strings.rb:47
+#: lib/gettext_strings.rb:48
 msgid "img_group_pub"
 msgstr "<img src='/images/group_pub.png' alt='groupe public'/>"
 
-#: lib/gettext_strings.rb:48
+#: lib/gettext_strings.rb:49
 msgid "img_group_site"
 msgstr "<img src='/images/group_site.png' alt='groupe des utilisateurs'/>"
 
-#: lib/gettext_strings.rb:49
+#: lib/gettext_strings.rb:50
 #, fuzzy
 msgid "img_comments"
 msgstr "commentaires"
 
-#: lib/gettext_strings.rb:50
+#: lib/gettext_strings.rb:51
 msgid "img_comments_inside"
 msgstr ""
 
-#: lib/gettext_strings.rb:53
+#: lib/gettext_strings.rb:54
 #, fuzzy
 msgid "open"
 msgstr "parent"
 
-#: lib/gettext_strings.rb:54
+#: lib/gettext_strings.rb:55
 #, fuzzy
 msgid "closed"
 msgstr "<img src='/images/lock.png' alt='fermé'/>"
 
-#: lib/gettext_strings.rb:59
+#: lib/gettext_strings.rb:60
 msgid "admin"
 msgstr ""
 
-#: lib/gettext_strings.rb:61
+#: lib/gettext_strings.rb:62
 msgid "commentator"
 msgstr "commentaires"
 
-#: lib/gettext_strings.rb:62
+#: lib/gettext_strings.rb:63
 msgid "moderated"
 msgstr "modéré"
 
-#: lib/gettext_strings.rb:63
+#: lib/gettext_strings.rb:64
 msgid "reader"
 msgstr "lecteur"
 
-#: lib/gettext_strings.rb:64
+#: lib/gettext_strings.rb:65
 msgid "deleted"
 msgstr "supprimé"
 
-#: lib/gettext_strings.rb:69
+#: lib/gettext_strings.rb:70
 msgid "no result found"
 msgstr "la recherche n'a donné aucun résultat"
 
-#: lib/gettext_strings.rb:70
+#: lib/gettext_strings.rb:71
 msgid "search results"
 msgstr "résultats de la recherche"
 
-#: lib/gettext_strings.rb:72
+#: lib/gettext_strings.rb:73
 msgid "btn_unpublish"
 msgstr "<img src='/images/delete.png' alt='dépublier'/>"
 
-#: lib/gettext_strings.rb:73
+#: lib/gettext_strings.rb:74
 msgid "btn_destroy"
 msgstr "<img src='/images/bomb.png' alt='supprimer'/>"
 
-#: lib/gettext_strings.rb:74
+#: lib/gettext_strings.rb:75
 msgid "btn_propose"
 msgstr "<img src='/images/picture_empty.png' alt='proposer'/>"
 
-#: lib/gettext_strings.rb:75
+#: lib/gettext_strings.rb:76
 msgid "btn_refuse"
 msgstr "<img src='/images/delete.png' alt='refuser'/>"
 
-#: lib/gettext_strings.rb:76
+#: lib/gettext_strings.rb:77
 msgid "btn_destroy_version"
 msgstr "<img src='/images/bomb.png' alt='supprimer'/>"
 
-#: lib/gettext_strings.rb:77
+#: lib/gettext_strings.rb:78
 msgid "btn_redit"
 msgstr "<img src='/images/page_edit.png' alt='éditer'/>"
 
-#: lib/gettext_strings.rb:79
+#: lib/gettext_strings.rb:80
 msgid "status_50"
 msgstr "publié"
 
-#: lib/gettext_strings.rb:80
+#: lib/gettext_strings.rb:81
 msgid "status_40"
 msgstr "proposé"
 
-#: lib/gettext_strings.rb:81
+#: lib/gettext_strings.rb:82
 msgid "status_35"
 msgstr "proposé avec"
 
-#: lib/gettext_strings.rb:82
+#: lib/gettext_strings.rb:83
 msgid "status_33"
 msgstr "rédaction visible"
 
-#: lib/gettext_strings.rb:83
+#: lib/gettext_strings.rb:84
 msgid "status_30"
 msgstr "rédaction"
 
-#: lib/gettext_strings.rb:84
+#: lib/gettext_strings.rb:85
 msgid "status_20"
 msgstr "remplacé"
 
-#: lib/gettext_strings.rb:85
+#: lib/gettext_strings.rb:86
 msgid "status_10"
 msgstr "enlevé"
 
-#: lib/gettext_strings.rb:86
+#: lib/gettext_strings.rb:87
 msgid "status_0"
 msgstr "effacé"
 
-#: lib/gettext_strings.rb:88
+#: lib/gettext_strings.rb:89
 msgid "en"
 msgstr "anglais"
 
-#: lib/gettext_strings.rb:89
+#: lib/gettext_strings.rb:90
 msgid "fr"
 msgstr "français"
 
-#: lib/gettext_strings.rb:90
+#: lib/gettext_strings.rb:91
 msgid "de"
 msgstr "allemand"
 
-#: lib/gettext_strings.rb:91
+#: lib/gettext_strings.rb:92
 msgid "Monday"
 msgstr "lundi"
 
-#: lib/gettext_strings.rb:92
+#: lib/gettext_strings.rb:93
 msgid "Tuesday"
 msgstr "mardi"
 
-#: lib/gettext_strings.rb:93
+#: lib/gettext_strings.rb:94
 msgid "Wednesday"
 msgstr "mercredi"
 
-#: lib/gettext_strings.rb:94
+#: lib/gettext_strings.rb:95
 msgid "Thursday"
 msgstr "jeudi"
 
-#: lib/gettext_strings.rb:95
+#: lib/gettext_strings.rb:96
 msgid "Friday"
 msgstr "vendredi"
 
-#: lib/gettext_strings.rb:96
+#: lib/gettext_strings.rb:97
 msgid "Saturday"
 msgstr "samedi"
 
-#: lib/gettext_strings.rb:97
+#: lib/gettext_strings.rb:98
 msgid "Sunday"
 msgstr "dimanche"
 
-#: lib/gettext_strings.rb:99
+#: lib/gettext_strings.rb:100
 msgid "news_date"
 msgstr "%A %d %B %Y"
 
-#: lib/gettext_strings.rb:101
-msgid "Mon"
+#: lib/gettext_strings.rb:102
+#, fuzzy
+msgid "mon"
 msgstr "lun"
 
-#: lib/gettext_strings.rb:102
-msgid "Tue"
+#: lib/gettext_strings.rb:103
+#, fuzzy
+msgid "tue"
 msgstr "mar"
 
-#: lib/gettext_strings.rb:103
-msgid "Wed"
+#: lib/gettext_strings.rb:104
+#, fuzzy
+msgid "wed"
 msgstr "mer"
 
-#: lib/gettext_strings.rb:104
-msgid "Thu"
+#: lib/gettext_strings.rb:105
+#, fuzzy
+msgid "thu"
 msgstr "jeu"
 
-#: lib/gettext_strings.rb:105
-msgid "Fri"
-msgstr "ven"
-
 #: lib/gettext_strings.rb:106
-msgid "Sat"
-msgstr "sam"
+#, fuzzy
+msgid "fri"
+msgstr "français"
 
 #: lib/gettext_strings.rb:107
-msgid "Sun"
+#, fuzzy
+msgid "sat"
+msgstr "statut"
+
+#: lib/gettext_strings.rb:108
+#, fuzzy
+msgid "sun"
 msgstr "dim"
 
-#: lib/gettext_strings.rb:109
+#: lib/gettext_strings.rb:110
 msgid "January"
 msgstr "janvier"
 
-#: lib/gettext_strings.rb:110
+#: lib/gettext_strings.rb:111
 msgid "February"
 msgstr "février"
 
-#: lib/gettext_strings.rb:111
+#: lib/gettext_strings.rb:112
 msgid "March"
 msgstr "mars"
 
-#: lib/gettext_strings.rb:112
+#: lib/gettext_strings.rb:113
 msgid "April"
 msgstr "avril"
 
-#: lib/gettext_strings.rb:113
+#: lib/gettext_strings.rb:114
 msgid "May"
 msgstr "mai"
 
-#: lib/gettext_strings.rb:114
+#: lib/gettext_strings.rb:115
 msgid "June"
 msgstr "juin"
 
-#: lib/gettext_strings.rb:115
+#: lib/gettext_strings.rb:116
 msgid "July"
 msgstr "juillet"
 
-#: lib/gettext_strings.rb:116
+#: lib/gettext_strings.rb:117
 msgid "August"
 msgstr "août"
 
-#: lib/gettext_strings.rb:117
+#: lib/gettext_strings.rb:118
 msgid "September"
 msgstr "septembre"
 
-#: lib/gettext_strings.rb:118
+#: lib/gettext_strings.rb:119
 msgid "October"
 msgstr "octobre"
 
-#: lib/gettext_strings.rb:119
+#: lib/gettext_strings.rb:120
 msgid "November"
 msgstr "novembre"
 
-#: lib/gettext_strings.rb:120
+#: lib/gettext_strings.rb:121
 msgid "December"
 msgstr "décembre"
 
-#: lib/gettext_strings.rb:122
+#: lib/gettext_strings.rb:123
 msgid "User name:"
 msgstr "Nom d'utilisateur"
 
-#: lib/gettext_strings.rb:123
+#: lib/gettext_strings.rb:124
 msgid "Password:"
 msgstr "Mot de passe"
 
-#: lib/gettext_strings.rb:126
+#: lib/gettext_strings.rb:127
 msgid "you are editing the original"
 msgstr "vous éditez l'original"
 
-#: lib/gettext_strings.rb:127
+#: lib/gettext_strings.rb:128
 msgid "redaction saved"
 msgstr "Rédaction enregistrée."
 
-#: lib/gettext_strings.rb:130
+#: lib/gettext_strings.rb:131
 msgid "rebuild"
 msgstr "<img src='/images/arrow_refresh.png' alt='rebuild'/> rebuild zafu"
 
@@ -1890,30 +2019,36 @@ msgstr "[galerie]"
 msgid "[documents]"
 msgstr "[documents]"
 
-#: lib/parser/lib/rules/zena.rb:999
+#: lib/parser/lib/rules/zena.rb:1099
 msgid "btn_add"
 msgstr "<img src='/images/add.png' alt='ajouter'/>"
 
-#: lib/parser/lib/rules/zena.rb:1438
+#: lib/parser/lib/rules/zena.rb:1569
 msgid "riding zena"
 msgstr "en balade avec zena"
 
-#: lib/parser/lib/rules/zena.rb:1440
+#: lib/parser/lib/rules/zena.rb:1571
 msgid "in peace with zena"
 msgstr "paisible avec zena"
 
-#: lib/parser/lib/rules/zena.rb:1442
+#: lib/parser/lib/rules/zena.rb:1573
 msgid "a zen garden"
 msgstr "un jardin zen"
 
-#: lib/parser/lib/rules/zena.rb:1444
+#: lib/parser/lib/rules/zena.rb:1575
 msgid "made with zena"
 msgstr "conçu avec zena"
 
-#: lib/parser/lib/rules/zena.rb:1460
+#: lib/parser/lib/rules/zena.rb:1591
 msgid "%{skin}, design by %{name}"
 msgstr "%{skin}, conception %{name}"
 
+#~ msgid "btn_add_note"
+#~ msgstr "<img src='/images/add.png' alt='ajouter une note'/>"
+#~ msgid "Fri"
+#~ msgstr "ven"
+#~ msgid "Sat"
+#~ msgstr "sam"
 #~ msgid "reply"
 #~ msgstr "répondre"
 
@@ -1928,10 +2063,8 @@ msgstr "%{skin}, conception %{name}"
 #, fuzzy
 #~ msgid "attributes"
 #~ msgstr "autoriser éléments privés"
-
 #~ msgid "role not valid"
 #~ msgstr "Role non-valable."
-
 #~ msgid "gestion des sites"
 #~ msgstr "gestion des utilisateurs"
 
@@ -1942,106 +2075,77 @@ msgstr "%{skin}, conception %{name}"
 #, fuzzy
 #~ msgid "Password salt"
 #~ msgstr "mot de passe"
-
 #~ msgid "btn_add_page"
 #~ msgstr "<img src='/images/add.png' alt='ajouter une page'/>"
-
 #~ msgid "Pages"
 #~ msgstr "pages"
-
 #~ msgid "img_hot"
 #~ msgstr "<img src='/images/lightbulb.png' alt='actuel'/>"
-
 #~ msgid "img_calendar"
 #~ msgstr "<img src='/images/date.png' alt='calendrier'/>"
-
 #~ msgid "img_contact"
 #~ msgstr "<img src='/images/user_green.png' alt='contact'/>"
-
 #~ msgid "img_home"
 #~ msgstr "<img src='/images/home.png' alt='accueil'/>"
-
 #~ msgid "img_collaborator"
 #~ msgstr "<img src='/images/user.png' alt='collaborateur'/>"
 
 #, fuzzy
 #~ msgid "img_reference"
 #~ msgstr "préférences"
-
 #~ msgid "img_favorite"
 #~ msgstr "<img src='/images/heart.png' alt='favori'/>"
-
 #~ msgid "img_project"
 #~ msgstr "<img src='/images/project.png' alt='projet'/>"
-
 #~ msgid "icon_for"
 #~ msgstr "icône pour"
 
 #, fuzzy
 #~ msgid "reference_for"
 #~ msgstr "préférences"
-
 #~ msgid "tags"
 #~ msgstr "mots clés"
-
 #~ msgid "tag_for"
 #~ msgstr "mot clé pour"
-
 #~ msgid "collaborators"
 #~ msgstr "collaborateurs"
-
 #~ msgid "collaborator_for"
 #~ msgstr "collabore à"
-
 #~ msgid "favorites"
 #~ msgstr "favoris"
-
 #~ msgid "favorite_for"
 #~ msgstr "favori pour"
-
 #~ msgid "projects"
 #~ msgstr "projets"
-
 #~ msgid "project_for"
 #~ msgstr "projet pour"
-
 #~ msgid "calendars"
 #~ msgstr "calendriers"
-
 #~ msgid "calendar_for"
 #~ msgstr "calendrier pour"
 
 #, fuzzy
 #~ msgid "Trans group"
 #~ msgstr "gestion des groupes"
-
 #~ msgid "img_group_admin"
 #~ msgstr ""
 #~ "<img src='/images/group_admin.png' alt='groupe des administrateurs'/>"
-
 #~ msgid "Admin group"
 #~ msgstr "groupe des administrateurs"
-
 #~ msgid "site tree"
 #~ msgstr "arbre du site"
-
 #~ msgid "The requested language is not available."
 #~ msgstr "La langue demandée n'est pas disponible."
-
 #~ msgid "Authorize"
 #~ msgstr "authentification obligatoire"
-
 #~ msgid "crop"
 #~ msgstr "recadrer"
-
 #~ msgid "riding <a class='zena' href='http://zenadmin.org'>zena</a>"
 #~ msgstr "en balade avec <a class='zena' href='http://zenadmin.org'>zena</a>"
-
 #~ msgid "in peace with <a class='zena' href='http://zenadmin.org'>zena</a>"
 #~ msgstr "en paix avec <a class='zena' href='http://zenadmin.org'>zena</a>"
-
 #~ msgid "a <a class='zena' href='http://zenadmin.org'>zen</a> garden"
 #~ msgstr "un jardin <a class='zena' href='http://zenadmin.org'>zen</a>"
-
 #~ msgid "made with <a class='zena' href='http://zenadmin.org'>zena</a>"
 #~ msgstr "conçu avec <a class='zena' href='http://zenadmin.org'>zena</a>"
+

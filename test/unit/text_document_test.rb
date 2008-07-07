@@ -67,9 +67,46 @@ class TextDocumentTest < ZenaTestUnit
     assert_equal res, node.v_text
     node.parse_assets!(helper)
     assert_equal res, node.v_text
-    node.unparse_assets!
+    node.unparse_assets
     assert_equal start, node.v_text
-    node.unparse_assets!
+    node.unparse_assets
     assert_equal start, node.v_text
+  end
+  
+  def test_c_file_unparse_assets
+    login(:lion)
+    node = secure!(Node) { nodes(:style_css) }
+    bird = secure!(Node) { nodes(:bird_jpg)}
+    assert bird.update_attributes(:parent_id => nodes_id(:default))
+    text =<<-END_CSS
+    body { font-size:10px; }
+    #footer { background:url('/en/image30.jpg') }
+    END_CSS
+    assert_equal 'text/css', node.c_content_type
+    v_id = node.v_id
+    assert node.update_attributes(:v_text => text)
+    node = secure!(Node) { nodes(:style_css) }
+    assert_equal v_id, node.version.content_id
+    assert_equal 'text/css', node.c_content_type
+    assert_equal text, node.v_text
+    assert_match %r{background:url\('bird.jpg'\)}, node.c_file.read
+  end
+  
+  def test_update_same_text
+    login(:tiger)
+    textdoc = secure(TextDocument) { TextDocument.create(:parent_id=>nodes_id(:cleanWater), :c_file => uploaded_text('some.txt'), :v_status => Zena::Status[:pub])}
+    textdoc.send(:update_attribute_without_fuss, :updated_at, Time.gm(2006,04,11))
+    assert_equal Zena::Status[:pub], textdoc.v_status
+    textdoc = secure(Node) { Node.find(textdoc[:id]) }
+    assert_equal '21a6948e0aec6de825009d8fda44f7e4', Digest::MD5.hexdigest(uploaded_text('some.txt').read)
+    assert_equal '21a6948e0aec6de825009d8fda44f7e4', Digest::MD5.hexdigest(textdoc.c_file.read)
+    assert_equal 1, textdoc.versions.count
+    assert_equal '2006-04-11 00:00', textdoc.updated_at.strftime('%Y-%m-%d %H:%M')
+    assert textdoc.update_attributes(:c_file => uploaded_text('some.txt'))
+    assert_equal 1, textdoc.versions.count
+    assert_equal '2006-04-11 00:00', textdoc.updated_at.strftime('%Y-%m-%d %H:%M')
+    assert textdoc.update_attributes(:c_file => uploaded_text('other.txt'))
+    assert_equal 2, textdoc.versions.count
+    assert_not_equal '2006-04-11 00:00', textdoc.updated_at.strftime('%Y-%m-%d %H:%M')
   end
 end

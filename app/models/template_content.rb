@@ -29,13 +29,16 @@ class TemplateContent < ActiveRecord::Base
   end
   
   def file=(file)
-    (@version || node.version).text = file.read
+    version.text = file.read
   end
   
-  # Needed for compatibility with contents that are linked to versions.
-  def version=(v)
-    @version = v
-    node = v.node
+  def file(mode=nil)
+    t = StringIO.new(version.text)
+    t
+  end
+  
+  def version
+    @version ||= node.version
   end
   
   def can_destroy?

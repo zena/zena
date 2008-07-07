@@ -654,6 +654,10 @@ img_href:
 img_src_id:
   src: "<r:img src='30'/>"
   res: "<img src='/en/image30_std.jpg' width='440' height='400' alt='bird' class='std'/>"
+
+img_src_mode:
+  src: "<r:img src='30' mode='pv'/>"
+  res: "<img src='/en/image30_pv.jpg' width='70' height='70' alt='bird' class='pv'/>"
   
 test_children_plural:
   tem: "<%= 'children'.pluralize %>"

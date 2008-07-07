@@ -64,7 +64,7 @@ class VersionsController < ApplicationController
           if params['parse_assets']
             @node.parse_assets!(self)
           elsif @node.kind_of?(TextDocument) && params['unparse_assets']
-            @node.unparse_assets!
+            @node.unparse_assets
           end
         end
         @edit = true

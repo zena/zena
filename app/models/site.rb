@@ -41,6 +41,8 @@ class Site < ActiveRecord::Base
         :authentication  => false,
         :monolingual     => false,
         :allow_private   => false,
+        :auto_publish    => true,
+        :redit_time      => '2h',
         :languages       => '',
         :default_lang    => "en",
       }.merge(opts)
@@ -129,7 +131,7 @@ class Site < ActiveRecord::Base
       
       Node.connection.execute "UPDATE nodes SET section_id = id, project_id = id WHERE id = '#{root[:id]}'"
       
-      raise Exception.new("Could not publish root node for site [#{host}] (site#{site[:id]})\n#{root.errors.map{|k,v| "[#{k}] #{v}"}.join("\n")}") unless root.publish
+      raise Exception.new("Could not publish root node for site [#{host}] (site#{site[:id]})\n#{root.errors.map{|k,v| "[#{k}] #{v}"}.join("\n")}") unless (root.v_status == Zena::Status[:pub] || root.publish)
       
       site.root_id         = root[:id]
       

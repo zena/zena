@@ -352,6 +352,9 @@ module Zena
               end
             when 'TrueClass', 'FalseClass'
               res[k] = v unless current_value == v
+            when 'File', 'StringIO'
+              # md5 on content
+              res[k] = v unless Digest::MD5.hexdigest(current_value.read) == Digest::MD5.hexdigest(v.read)
             else
               res[k] = v
             end
@@ -438,6 +441,7 @@ module Zena
             end
             break if node_attr && redaction_attr
           end
+          
           if redaction_attr
             return false unless edit!(nil, publish_after_save)
           end
@@ -456,6 +460,11 @@ module Zena
             valid_redaction
             if errors.empty?
               ok = save_version
+            end
+            
+            if ok
+              # set updated at date
+              update_attribute_without_fuss(:updated_at, Time.now)
             end
           end
           if ok && publish_after_save && version.status != Zena::Status[:pub]

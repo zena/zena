@@ -204,7 +204,12 @@ module Zena
       def uploaded_archive(fname, filename=nil)
         uploaded_file(fname, 'application/x-gzip', filename)
       end
-      
+
+      # ZIP helper
+      def uploaded_zip(fname, filename=nil)
+        uploaded_file(fname, 'application/zip', filename)
+      end
+
       def file_path(filename, mode = 'full', content_id = nil)
         if content_id
           fname = filename.split('.').first

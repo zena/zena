@@ -260,4 +260,25 @@ class TemplateTest < ZenaTestUnit
     tmpt_content = doc.v_content
     assert_equal 'default', tmpt_content.skin_name
   end
+  
+  def test_update_same_text
+    login(:tiger)
+    tmpt = secure(Template) { Template.create(:parent_id=>nodes_id(:default), 'c_format' => 'vcard', 'c_klass' => 'Node', 'name' => '', 'v_status' => Zena::Status[:pub], 'c_file' =>
+      uploaded_file('some.txt', 'text/zafu')) }
+    assert_kind_of Template, tmpt
+    tmpt.send(:update_attribute_without_fuss, :updated_at, Time.gm(2006,04,11))
+    assert_equal Zena::Status[:pub], tmpt.v_status
+    tmpt = secure(Node) { Node.find(tmpt[:id]) }
+    
+    assert_equal '21a6948e0aec6de825009d8fda44f7e4', Digest::MD5.hexdigest(uploaded_text('some.txt').read)
+    assert_equal '21a6948e0aec6de825009d8fda44f7e4', Digest::MD5.hexdigest(tmpt.c_file.read)
+    assert_equal 1, tmpt.versions.count
+    assert_equal '2006-04-11 00:00', tmpt.updated_at.strftime('%Y-%m-%d %H:%M')
+    assert tmpt.update_attributes(:c_file => uploaded_text('some.txt'))
+    assert_equal 1, tmpt.versions.count
+    assert_equal '2006-04-11 00:00', tmpt.updated_at.strftime('%Y-%m-%d %H:%M')
+    assert tmpt.update_attributes(:c_file => uploaded_text('other.txt'))
+    assert_equal 2, tmpt.versions.count
+    assert_not_equal '2006-04-11 00:00', tmpt.updated_at.strftime('%Y-%m-%d %H:%M')
+  end
 end

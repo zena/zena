@@ -18,6 +18,7 @@ Examples:
  
 =end
 class NodesController < ApplicationController
+  before_filter :check_is_admin, :only => [:export]
   before_filter :find_node, :except => [:index, :create, :not_found, :catch_all, :search, :attribute]
   before_filter :check_path, :only  => [:index, :show]
   layout :popup_layout,     :only   => [:edit, :import]
@@ -198,7 +199,13 @@ class NodesController < ApplicationController
   
   # import sub-nodes from a file
   def import
-    @nodes = secure!(Node) { Node.create_nodes_from_folder(:archive => params[:archive], :parent => @node) }.values
+    @nodes = secure!(Node) { Node.create_nodes_from_folder(:klass => params[:node][:klass], :archive => params[:node][:archive], :parent => @node) }.values
+  end
+  
+  def export
+    data = @node.archive
+    send_data( data.read, :filename=>"#{@node.name}.tgz", :type => 'application/x-gzip')
+    data.close
   end
   
   def update

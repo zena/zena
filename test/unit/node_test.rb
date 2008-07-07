@@ -985,6 +985,15 @@ done: \"I am done\""
     assert_equal groups_id(:managers), simple[:pgroup_id]
   end
   
+  def test_create_nodes_from_zip_archive
+    login(:tiger)
+    res = secure!(Node) { Node.create_nodes_from_folder(:archive => uploaded_zip('letter.zip'), :parent_id => nodes_id(:zena), :class => 'Letter') }.values
+    res.sort!{|a,b| a.name <=> b.name}
+    letter, bird = res[1], res[0]
+    assert_kind_of Note, letter
+    assert_equal 'Letter', letter.klass
+  end
+  
   def test_update_nodes_from_archive
     preserving_files('test.host/data') do
       bird = node = nil
@@ -1242,6 +1251,53 @@ done: \"I am done\""
     assert_equal Hash['icon_id', nodes_id(:bird_jpg)], new_attributes
     assert node.update_attributes_with_transformation(:copy_id => nodes_zip(:bird_jpg), :icon_id => '[id]')
     assert_equal nodes_id(:bird_jpg), node.find(:first, 'icon')[:id]
+  end
+
+  def test_export
+    without_files('/test.host/tmp') do
+      login(:tiger)
+      export_folder = File.join(SITES_ROOT, 'test.host', 'tmp')
+      FileUtils::mkpath(export_folder)
+      # Add a page and a text document into 'wiki'
+      assert secure!(Node) { Node.create(:v_title=>"Hello World!", :v_text => "Bonjour", :parent_id => nodes_id(:wiki), :inherit=>1 ) }
+      assert secure!(TextDocument) { TextDocument.create(:name=>"yoba", :parent_id => nodes_id(:wiki), :v_text => "#header { color:red; }\n#footer { color:blue; }", :c_content_type => 'text/css') }
+      wiki = secure!(Node) { nodes(:wiki) }
+      assert_equal 4, wiki.find(:all, "children").size
+      wiki.export_to_folder(export_folder)
+      assert File.exist?(File.join(export_folder, 'wiki.zml'))
+      assert File.exist?(File.join(export_folder, 'wiki'))
+      assert File.exist?(File.join(export_folder, 'wiki', 'bird.jpg'))
+      assert !File.exist?(File.join(export_folder, 'wiki', 'bird.zml'))
+      assert File.exist?(File.join(export_folder, 'wiki', 'flower.jpg'))
+      assert !File.exist?(File.join(export_folder, 'wiki', 'flower.zml'))
+      assert File.exist?(File.join(export_folder, 'wiki', 'yoba.css'))
+      assert !File.exist?(File.join(export_folder, 'wiki', 'yoba.zml'))
+      assert File.exist?(File.join(export_folder, 'wiki', 'HelloWorld.zml'))
+    end
+  end
+  
+  def test_archive
+    without_files('/test.host/tmp') do
+      login(:tiger)
+      export_folder = File.join(SITES_ROOT, 'test.host', 'tmp')
+      FileUtils::mkpath(export_folder)
+      # Add a page and a text document into 'wiki'
+      assert secure!(Node) { Node.create(:v_title=>"Hello World!", :v_text => "Bonjour", :parent_id => nodes_id(:wiki), :inherit=>1 ) }
+      assert secure!(TextDocument) { TextDocument.create(:name=>"yoba", :parent_id => nodes_id(:wiki), :v_text => "#header { color:red; }\n#footer { color:blue; }", :c_content_type => 'text/css') }
+      wiki = secure!(Node) { nodes(:wiki) }
+      assert_equal 4, wiki.find(:all, "children").size
+      archive = wiki.archive
+      `tar -C '#{export_folder}' -xz < '#{archive.path}'`
+      assert File.exist?(File.join(export_folder, 'wiki.zml'))
+      assert File.exist?(File.join(export_folder, 'wiki'))
+      assert File.exist?(File.join(export_folder, 'wiki', 'bird.jpg'))
+      assert !File.exist?(File.join(export_folder, 'wiki', 'bird.zml'))
+      assert File.exist?(File.join(export_folder, 'wiki', 'flower.jpg'))
+      assert !File.exist?(File.join(export_folder, 'wiki', 'flower.zml'))
+      assert File.exist?(File.join(export_folder, 'wiki', 'yoba.css'))
+      assert !File.exist?(File.join(export_folder, 'wiki', 'yoba.zml'))
+      assert File.exist?(File.join(export_folder, 'wiki', 'HelloWorld.zml'))
+    end
   end
   
   # FIXME: write test

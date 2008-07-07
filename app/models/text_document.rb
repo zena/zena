@@ -41,16 +41,21 @@ class TextDocument < Document
         return
       end
       
-      current_folder = skin.name
+      current_folder = skin.name + parent.fullpath[(skin.fullpath.size)..-1]
       
       # create/use redaction
       edit!
       
-      version.text.gsub!(/url\(('|")(.*?)\1\)/) do
-        if $2[0..6] == 'http://'
-          $&
+      version.text.gsub!(/url\(\s*(.*?)\s*\)/) do
+        match, src = $&, $1
+        if src =~ /('|")(.*?)\1/
+          quote, src = $1, $2
         else
-          quote, src   = $1, $2
+          quote = "'"
+        end
+        if src[0..6] == 'http://'
+          match
+        else
           if src =~ /\A\//
             # absolute path: do not touch
             "url(#{quote}#{src}#{quote})"
@@ -67,7 +72,7 @@ class TextDocument < Document
   end
   
   # Parse text and replace absolute urls ('/en/image30.jpg') by their relative value in the current skin ('img/bird.jpg')
-  def unparse_assets!
+  def unparse_assets
     ctype = version.content.content_type
     case ctype
     when 'text/css'
@@ -80,9 +85,6 @@ class TextDocument < Document
         errors.add('base', 'Cannot parse assets if not in a Skin.')
         return
       end
-      
-      # create/use redaction
-      edit!
       
       version.text.gsub!(/url\(('|")(.*?)\1\)/) do
         if $2[0..6] == 'http://'
@@ -111,6 +113,10 @@ class TextDocument < Document
       # unknown type
       errors.add('base', "invalid content-type #{ctype.inspect} to unparse assets.")
     end
+  end
+  
+  def export_keys
+    super - [:v_text]
   end
   
   # Return the code language used for syntax highlighting.

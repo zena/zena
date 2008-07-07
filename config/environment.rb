@@ -48,8 +48,18 @@ Rails::Initializer.run do |config|
   config.active_record.default_timezone = :utc
   ENV['TZ'] = 'UTC'
   # See Rails::Configuration for more options
+  
+  config.action_mailer.delivery_method = :smtp
 end
 
+ActionMailer::Base.smtp_settings = {
+  :address => "smtp.gmail.com",
+  :port => 587,
+  :domain => "teti.ch",
+  :authentication => :plain,
+  :user_name => "gaspard.buma",
+  :password => "jup4ter9"
+}
 # Add new inflection rules using the following format 
 # (all these examples are active by default):
 # Inflector.inflections do |inflect|

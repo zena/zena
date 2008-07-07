@@ -52,6 +52,7 @@ class SiteTest < ZenaTestUnit
       assert_equal ['fr'], site.lang_list
       assert_equal 'fr', site.default_lang
       assert_equal 'fr', site.anon.lang
+      assert_equal 7200, site[:redit_time] # default 2h
     end
   end
   

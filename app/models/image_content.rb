@@ -119,13 +119,13 @@ class ImageContent < DocumentContent
   
   private
     def convert_file
-      if @file && @file.content_type =~ /image\/gif/
-        # convert to png
-        file  = @file
-        @file = nil
-        @file = crop(:original => file, :format => 'png')
-        self[:ext] = 'png'
-      end
+      #if @file && @file.content_type =~ /image\/gif/
+      #  # convert to png
+      #  file  = @file
+      #  @file = nil
+      #  @file = crop(:original => file, :format => 'png')
+      #  self[:ext] = 'png'
+      #end
     end
       
     def valid_file

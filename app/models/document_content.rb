@@ -14,7 +14,6 @@ class DocumentContent < ActiveRecord::Base
 
   zafu_readable         :size, :name, :content_type, :ext
 
-  belongs_to            :version
   belongs_to            :site
   validate              :valid_file
   validate              :valid_content
@@ -33,6 +32,14 @@ class DocumentContent < ActiveRecord::Base
   def file=(aFile)
     @file = aFile
     return unless valid_file
+  end
+  
+  def preload_version(v)
+    @version = v
+  end
+  
+  def version
+    @version ||= Version.find(self[:version_id])
   end
   
   def file(mode=nil)

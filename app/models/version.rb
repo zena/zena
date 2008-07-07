@@ -95,15 +95,16 @@ class Version < ActiveRecord::Base
     return @content if @content
     if self[:content_id]
       @content = content_class.find_by_version_id(self[:content_id])
+      @content.preload_version(self) if @content
     else
       @content = content_class.find_by_version_id(self[:id])
-      @content.version = self if @content
+      @content.preload_version(self) if @content
     end
     unless @content
       # create new content
       @content = content_class.new
       self[:content_id] = nil
-      @content.version = self
+      @content.preload_version(self)
       @redaction_content = @content
     end    
     @content
@@ -124,13 +125,14 @@ class Version < ActiveRecord::Base
       # content shared, make it our own
       @old_content = @content # keep the old one in case we cannot save and need to rollback
       @content = @old_content.clone
-      self[:content_id] = nil
-      @content.version = self
+      self[:content_id]     = nil
+      @content[:version_id] = nil # will be set on save
+      @content.preload_version(self)
     else
       # create new content
       @content = content_class.new
       self[:content_id] = nil
-      @content.version = self
+      @content.preload_version(self)
     end
     @redaction_content = @content
   end
@@ -164,6 +166,7 @@ class Version < ActiveRecord::Base
     
     def save_content
       if @content
+        @content[:version_id] ||= self[:id]
         @content.save_without_validation # validations checked with 'valid_content'
       else
         true

@@ -276,10 +276,17 @@ class Node < ActiveRecord::Base
         # TODO: class ignored (could be used to transform from one class to another...)
         attributes.delete('class')
         attributes.delete('klass')
-        node.edit!(attributes['v_lang'])
+        node.edit!(attributes.delete('v_lang'))
+        updated_date = node.updated_at
         node.update_attributes(attributes)
+        if updated_date != node.updated_at
+          node[:create_or_update] = 'updated'
+        else
+          node[:create_or_update] = 'same'
+        end
       else
         node = create_node(new_attributes)
+        node[:create_or_update] = 'new'
       end
       node
     end
@@ -323,6 +330,7 @@ class Node < ActiveRecord::Base
       parent_id = opts[:parent_id] || opts[:parent][:id]
       folder    = opts[:folder]
       defaults  = (opts[:defaults] || {}).stringify_keys
+      klass     = opts[:klass] || "Page"
       res       = {}
       
       # create from archive
@@ -348,8 +356,10 @@ class Node < ActiveRecord::Base
           
           # extract file in this temporary folder.
           # FIXME: is there a security risk here ?
-          if filename =~ /\.tgz$|\.tar$/
+          if filename =~ /\.tgz$/
             `tar -C '#{folder}' -xz < '#{archive.path}'`
+          elsif filename =~ /\.tar$/
+            `tar -C '#{folder}' -x < '#{archive.path}'`
           elsif filename =~ /\.zip$/
             `unzip -d '#{folder}' '#{archive.path}'`
           elsif filename =~ /(.*)(\.gz|\.z)$/
@@ -358,7 +368,7 @@ class Node < ActiveRecord::Base
             # FIXME: send errors back
             puts "BAD #{archive.inspect}"
           end
-          res = create_nodes_from_folder(:folder => folder, :parent_id => parent_id, :defaults => defaults)
+          res = create_nodes_from_folder(:folder => folder, :parent_id => parent_id, :defaults => defaults, :klass => klass)
         ensure
           FileUtils::rmtree(folder)
         end
@@ -421,7 +431,7 @@ class Node < ActiveRecord::Base
             attrs = defaults.dup
             attrs['name']     = name
             attrs['v_lang'] ||= lang
-            attrs['class']    = 'Page'
+            attrs['class']    = klass
             versions << attrs
           elsif type == :document
             # minimal node for a folder
@@ -1060,7 +1070,7 @@ class Node < ActiveRecord::Base
   #     self
   #   end
   # end
-
+  
   # Find the discussion for the current context (v_status and v_lang). This automatically creates a new #Discussion if there is
   # no closed or open discussion for the current lang and Node#can_auto_create_discussion? is true
   def discussion
@@ -1155,6 +1165,72 @@ class Node < ActiveRecord::Base
   def empty?
     return true if new_record?
     super && 0 == self.class.count_by_sql("SELECT COUNT(*) FROM #{DataEntry.table_name} WHERE node_a_id = #{id} OR node_b_id = #{id} OR node_c_id = #{id} OR node_d_id = #{id}")
+  end
+  
+  # create a 'tgz' archive with node content and children, returning temporary file path
+  def archive
+    n = 0
+    while true
+      folder_path = File.join(RAILS_ROOT, 'tmp', sprintf('%s.%d.%d', 'archive', $$, n))
+      break unless File.exists?(folder_path)
+    end
+    
+    begin
+      FileUtils::mkpath(folder_path)
+      export_to_folder(folder_path)
+      tempf = Tempfile.new(name)
+      `cd #{folder_path}; tar czf #{tempf.path} *`
+    ensure
+      FileUtils::rmtree(folder_path)
+    end
+    tempf
+  end
+  
+  # export node content and children into a folder
+  def export_to_folder(path)
+    children = secure(Node) { Node.find(:all, :conditions=>['parent_id = ?', self[:id] ]) }
+    
+    if kind_of?(Document) && v_title == name && (kind_of?(TextDocument) || v_text.blank? || v_text == "!#{zip}!")
+      # skip zml
+    elsif v_title == name && v_text.blank? && klass == 'Page' && children
+      # skip zml
+    else
+      File.open(File.join(path, name + '.zml'), 'wb') do |f|
+        f.puts self.to_yaml
+      end
+    end
+    
+    if kind_of?(Document)
+      data = kind_of?(TextDocument) ? StringIO.new(v_text) : c_file
+      File.open(File.join(path, filename), 'wb') { |f| f.syswrite(data.read) }
+    end
+    
+    if children
+      content_folder = File.join(path,name)
+      FileUtils::mkpath(content_folder)
+      children.each do |child|
+        child.export_to_folder(content_folder)
+      end
+    end
+  end
+  
+  # export node as a hash
+  def to_yaml
+    hash = {}
+    export_keys.each do |sym|
+      hash[sym.to_s] = self.send(sym)
+    end
+    
+    version.dyn.keys.each do |k|
+      hash["d_#{k}"] = version.dyn[k]
+    end
+    
+    hash.merge!('class' => self.klass)
+    hash.to_yaml
+  end
+  
+  def export_keys
+    [:v_title, :v_text]
   end
   
   protected

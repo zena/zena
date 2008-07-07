@@ -50,10 +50,10 @@ forest_pdf:
   ext:             pdf
   size:            63569
   
-default_css:   
+style_css:   
   version:         style_css_en
   type:            TextDocumentContent
   content_type:    text/css
-  name:            default
+  name:            style
   ext:             css
   size:            5262

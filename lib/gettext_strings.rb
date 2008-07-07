@@ -9,6 +9,7 @@ module Zena
     
     N_('text_tab')  # edit form tab name
     N_('title_tab') # edit form tab name
+    N_('import_tab') # edit form tab name
     N_('textdocument_tab')  # edit form tab
     N_('image_tab')         # edit form tab
     N_('document_tab')      # edit form tab
