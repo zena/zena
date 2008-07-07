@@ -19,9 +19,7 @@ class ContactContent < ActiveRecord::Base
   
   zafu_readable      :created_at, :updated_at, :fullname, :initials, :first_name, :name, :address, :zip, :city,
                      :telephone, :mobile, :email, :country
-
-  
-  belongs_to :version
+                     
   before_validation :content_before_validation
   
   # Full contact name to show in views.
@@ -37,6 +35,14 @@ class ContactContent < ActiveRecord::Base
   # Return true if this content is not used by any version.
   def can_destroy?
     0 == self.class.count_by_sql("SELECT COUNT(*) FROM versions WHERE id = #{self[:version_id]} OR content_id = #{self[:version_id]}")
+  end
+  
+  def preload_version(v)
+    @version = v
+  end
+  
+  def version
+    @version ||= Version.find(self[:version_id])
   end
   
   private

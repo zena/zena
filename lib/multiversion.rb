@@ -355,6 +355,7 @@ module Zena
             when 'File', 'StringIO'
               # md5 on content
               res[k] = v unless Digest::MD5.hexdigest(current_value.read) == Digest::MD5.hexdigest(v.read)
+              errors.clear # 'c_file' does an unparse_assets which can create errors.
             else
               res[k] = v
             end

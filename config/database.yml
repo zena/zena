@@ -19,8 +19,8 @@ test:
 production:
   adapter: mysql
   socket: /tmp/mysql.sock
-  #database: caritas
-  database: zena_dev
+  database: caritas
+  #database: zena_dev
   encoding: utf8
   username: root
   password: 
