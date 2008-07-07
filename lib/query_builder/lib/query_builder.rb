@@ -309,17 +309,20 @@ class QueryBuilder
       res = []
       
       order.split(',').each do |clause|
-        if clause =~ /^\s*([^\s]+) (ASC|asc|DESC|desc)/
-          fld_name, direction = $1, $2
+        if clause == 'random'
+          res << "RAND()"
+        else
+          if clause =~ /^\s*([^\s]+) (ASC|asc|DESC|desc)/
+            fld_name, direction = $1, $2
+          else
+            fld_name = clause
+            direction = 'ASC'
+          end
           if fld = field_or_param(fld_name, table, :order)
             res << "#{fld} #{direction.upcase}"
           elsif fld.nil?
             @errors << "invalid field '#{fld_name}'"
           end
-        elsif clause == 'random'
-          res << "RAND()"
-        else
-          @errors << "invalid order clause '#{clause}'"
         end
       end
       res == [] ? nil : " ORDER BY #{res.join(', ')}"

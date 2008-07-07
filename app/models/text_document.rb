@@ -27,7 +27,8 @@ class TextDocument < Document
   end
   
   # Parse text content and replace all reference to relative urls ('img/footer.png') by their zen_path ('/en/image34.png')
-  def parse_assets!(helper)
+  def parse_assets(text, helper)
+    res = text.dup
     ctype = version.content.content_type
     case ctype
     when 'text/css'
@@ -41,12 +42,9 @@ class TextDocument < Document
         return
       end
       
-      current_folder = skin.name + parent.fullpath[(skin.fullpath.size)..-1]
+      current_folder = parent.fullpath
       
-      # create/use redaction
-      edit!
-      
-      version.text.gsub!(/url\(\s*(.*?)\s*\)/) do
+      res.gsub!(/url\(\s*(.*?)\s*\)/) do
         match, src = $&, $1
         if src =~ /('|")(.*?)\1/
           quote, src = $1, $2
@@ -55,13 +53,15 @@ class TextDocument < Document
         end
         if src[0..6] == 'http://'
           match
+        elsif src =~ %r{/\w\w/.*\d+\.}
+          # already parsed, ignore
+          "url(#{quote}#{src}#{quote})"
         else
-          if src =~ /\A\//
-            # absolute path: do not touch
-            "url(#{quote}#{src}#{quote})"
-          else
-            new_src = helper.send(:template_url_for_asset, :current_folder=>current_folder, :src => src, :parse_assets => true) || src
+          if new_src = helper.send(:template_url_for_asset, :src => src, :current_folder=>current_folder, :parse_assets => true)
             "url(#{quote}#{new_src}#{quote})"
+          else
+            errors.add('base', "could not find asset #{src.inspect}")
+            "url(#{quote}#{src}#{quote})"
           end
         end
       end
@@ -69,38 +69,33 @@ class TextDocument < Document
       # unknown type
       errors.add('base', "Invalid content-type #{ctype.inspect} to parse assets.")
     end
+    res
   end
   
   # Parse text and replace absolute urls ('/en/image30.jpg') by their relative value in the current skin ('img/bird.jpg')
-  def unparse_assets
+  def unparse_assets(text)
+    res = text.dup
     ctype = version.content.content_type
     case ctype
     when 'text/css'
-      # use skin as root
-      skin = section
+      # use parent as relative root
+      current_folder = parent.fullpath
       
-      # not in a Skin. Cannot replace assets in CSS.
-      # error
-      unless skin.kind_of?(Skin)
-        errors.add('base', 'Cannot parse assets if not in a Skin.')
-        return
-      end
-      
-      version.text.gsub!(/url\(('|")(.*?)\1\)/) do
+      res.gsub!(/url\(('|")(.*?)\1\)/) do
         if $2[0..6] == 'http://'
           $&
         else
           quote, url   = $1, $2
           if url =~ /\A\/\w\w.*?(\d+)\./
-            unless asset = secure(Node) { Node.find_by_zip($1) }
-              errors.add('base', "could not find asset node #{url.inspect}")
+            zip = $1
+            unless asset = secure(Node) { Node.find_by_zip(zip) }
+              errors.add('base', "could not find asset node #{zip}")
               "url(#{quote}#{url}#{quote})"
             end
-            if asset.fullpath =~ /\A#{skin.fullpath}\/(.+)/
+            if asset.fullpath =~ /\A#{current_folder}\/(.+)/
               "url(#{quote}#{$1}.#{asset.c_ext}#{quote})"
             else
-              errors.add('base', "could not find asset node #{url.inspect}")
-              "url(#{quote}#{url}#{quote})"
+              "url(#{quote}/#{asset.fullpath}.#{asset.c_ext}#{quote})"
             end
           else
             # bad format
@@ -113,6 +108,7 @@ class TextDocument < Document
       # unknown type
       errors.add('base', "invalid content-type #{ctype.inspect} to unparse assets.")
     end
+    res
   end
   
   def export_keys

@@ -10,11 +10,10 @@ class TextDocumentContent < DocumentContent
     
     # unparse needed in 'export'
     if node.can_parse_assets?
-      node.unparse_assets
+      StringIO.new(node.unparse_assets(version.text))
+    else
+      StringIO.new(version.text)
     end
-    
-    t = StringIO.new(version.text)
-    t
   end
   
   # Return document file size (= version's text size). Implemented as 'c_size' in TextDocument.

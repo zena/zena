@@ -35,7 +35,8 @@ table.errors { background:#DDC8C8; margin:0 0 5px; border-bottom:1px solid #5A32
 table.errors td { padding:2px 5px; background:inherit; border:none;}
 
 /* ========================= Ajax css ========================= */
-.drop_hover { background:#ace; }
+.drop_hover { background:#ace;  border:2px dashed #99f;}
+.drop { min-height:1em;}
 
 /* ========================= Zazen css ======================== */
 
@@ -59,3 +60,5 @@ padding:5px; border:1px solid #714D3D; text-align:left; color:#444;}
 #dev td.actions {width:40px;}
 #dev li img { border:0; }
 #dev li li { clear:both;}
+#dev li table { display:none;}
+#dev:hover table { display:block;}

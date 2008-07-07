@@ -113,7 +113,7 @@ class Version < ActiveRecord::Base
   # Return the version's own content or creates a new one so it can be edited.
   def redaction_content
     return @redaction_content if @redaction_content
-    return unless content_class
+    return nil unless content_class
     @content = content
     if @content && @content[:version_id] == self[:id]
       # own content, make sure no published version links to this content

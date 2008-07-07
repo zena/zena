@@ -70,7 +70,11 @@ module ApplicationHelper
         pos = params[:position]  || :before
         ref = params[:reference] || "#{params[:dom_id]}_add"
         page.insert_html pos.to_sym, ref, :file => fullpath_from_template_url + ".erb"
-        instance_variable_set("@#{base_class.to_s.underscore}", obj.clone)
+        if obj.kind_of?(Node)
+          @node = @node.parent.new_child(:class => @node.class)
+        else
+          instance_variable_set("@#{base_class.to_s.underscore}", obj.clone)
+        end
         page.replace "#{params[:dom_id]}_form", :file => fullpath_from_template_url + "_form.erb"
         if params[:done]
           page << params[:done]

@@ -49,38 +49,41 @@ class TextDocumentTest < ZenaTestUnit
     login(:lion)
     node = secure!(Node) { nodes(:style_css) }
     bird = secure!(Node) { nodes(:bird_jpg)}
-    assert bird.update_attributes(:parent_id => nodes_id(:default))
+    assert bird.update_attributes(:parent_id => node[:parent_id])
     start =<<-END_CSS
     body { font-size:10px; }
-    #footer { background:url('bird.jpg') }
+    #header { background:url('bird.jpg') }
+    #footer { background:url('/projects/wiki/flower.jpg') }
     END_CSS
     node.v_text = start.dup
     # dummy controller
     helper = ApplicationController.new
     helper.instance_variable_set(:@visitor, visitor)
-    node.parse_assets!(helper)
+    text = node.parse_assets(start, helper)
     assert node.errors.empty?
     res =<<-END_CSS
     body { font-size:10px; }
-    #footer { background:url('/en/image30.jpg') }
+    #header { background:url('/en/image30.jpg') }
+    #footer { background:url('/en/image31.jpg') }
     END_CSS
-    assert_equal res, node.v_text
-    node.parse_assets!(helper)
-    assert_equal res, node.v_text
-    node.unparse_assets
-    assert_equal start, node.v_text
-    node.unparse_assets
-    assert_equal start, node.v_text
+    assert_equal res, text
+    text = node.parse_assets(text, helper)
+    assert_equal res, text
+    text = node.unparse_assets(text)
+    assert_equal start, text
+    text = node.unparse_assets(text)
+    assert_equal start, text
   end
   
   def test_c_file_unparse_assets
     login(:lion)
     node = secure!(Node) { nodes(:style_css) }
     bird = secure!(Node) { nodes(:bird_jpg)}
-    assert bird.update_attributes(:parent_id => nodes_id(:default))
+    assert bird.update_attributes(:parent_id => node[:parent_id])
     text =<<-END_CSS
     body { font-size:10px; }
-    #footer { background:url('/en/image30.jpg') }
+    #header { background:url('/en/image30.jpg') }
+    #footer { background:url('/en/image31.jpg') }
     END_CSS
     assert_equal 'text/css', node.c_content_type
     v_id = node.v_id

@@ -131,7 +131,7 @@ class Node < ActiveRecord::Base
   zafu_readable      :name, :created_at, :updated_at, :event_at, :log_at, :kpath, :user_zip, :parent_zip, :project_zip,
                      :section_zip, :skin, :ref_lang, :fullpath, :rootpath, :position, :publish_from, :max_status, :rgroup_id, 
                      :wgroup_id, :pgroup_id, :basepath, :custom_base, :klass, :zip, :score, :comments_count, :l_status, :l_comment,
-                     :custom_a, :custom_b                     
+                     :custom_a, :custom_b, :title, :text                 
   zafu_context       :author => "Contact", :parent => "Node", 
                      :project => "Project", :section => "Section", 
                      :real_project => "Project", :real_section => "Section",
@@ -267,8 +267,14 @@ class Node < ActiveRecord::Base
         node.errors.add('parent_id', "can't be blank") unless attributes['parent_id']
         return node
       end
-      node = Node.with_exclusive_scope do
-        Node.find(:first, :conditions => ['site_id = ? AND name = ? AND parent_id = ?', 
+      begin
+        klass = Node.get_class(attributes['klass'] || 'Node')
+        klass = klass.real_class if klass.kind_of?(VirtualClass)
+      rescue NameError
+        klass = Node
+      end
+      node = klass.with_exclusive_scope do
+        klass.find(:first, :conditions => ['site_id = ? AND name = ? AND parent_id = ?', 
                                           current_site[:id], attributes['name'].url_name, attributes['parent_id']])
       end
       if node
@@ -934,6 +940,22 @@ class Node < ActiveRecord::Base
   # ACCESSORS
   def author
     user.contact
+  end
+  
+  def title
+    version.title
+  end
+  
+  def text
+    version.text
+  end
+
+  def title=(t)
+    redaction.title = t
+  end
+  
+  def text=(t)
+    redaction.text = t
   end
   
   # Find icon through a relation named 'icon' or use first image child

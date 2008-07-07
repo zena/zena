@@ -62,9 +62,9 @@ class VersionsController < ApplicationController
         @title_for_layout = @node.rootpath
         if @node.kind_of?(TextDocument)
           if params['parse_assets']
-            @node.parse_assets!(self)
+            @node.version.text = @node.parse_assets(@node.version.text, self)
           elsif @node.kind_of?(TextDocument) && params['unparse_assets']
-            @node.unparse_assets
+            @node.version.text = @node.unparse_assets(@node.version.text)
           end
         end
         @edit = true

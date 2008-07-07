@@ -1,3 +1,5 @@
+update_page_content(page, @node)
+=begin
 if @node.new_record?
   page.replace "#{params[:dom_id]}_form", :file => fullpath_from_template_url + "_form.erb"
 else
@@ -12,3 +14,4 @@ else
     page.toggle "#{params[:dom_id]}_form", "#{params[:dom_id]}_add"
   end
 end
+=end

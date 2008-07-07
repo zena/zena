@@ -690,9 +690,16 @@ module Zena
     # TODO: replace with a more general 'zazen' or 'show' with id ?
     def r_summary
       limit  = @params[:limit] ? ", :limit=>#{@params[:limit].to_i}" : ""
+      @html_tag ||= 'div'
+      @html_tag_params[:id] = "v_summary#{erb_node_id}"
+      if c = @html_tag_params[:class] || @params[:class]
+        @html_tag_params[:class] = "#{c} zazen"
+      else
+        @html_tag_params[:class] = 'zazen'
+      end
       unless @params[:or]
         text = @params[:text] ? @params[:text].inspect : node_attribute('v_summary')
-        "<div id='v_summary#{erb_node_id}' class='zazen'><%= zazen(#{text}#{limit}, :node=>#{node}) %></div>"
+        out "<%= zazen(#{text}#{limit}, :node=>#{node}) %>"
       else
         limit ||= ', :limit => 2'
         first_name = 'v_summary'
@@ -700,11 +707,11 @@ module Zena
         
         second_name = @params[:or].gsub(/[^a-z_]/,'') # FIXME: ist this still needed ? (ERB injection)
         second = node_attribute(second_name)
-        "<div id='#{first_name}#{erb_node_id}' class='zazen'><% if #{first} != '' %>" +
-        "<%= zazen(#{first}, :node=>#{node}) %>" +
-        "<% else %>" +
-        "<%= zazen(#{second}#{limit}, :node=>#{node}) %>" +
-        "<% end %></div>"
+        out "<% if #{first} != '' %>"
+        out "<%= zazen(#{first}, :node=>#{node}) %>"
+        out "<% else %>"
+        out "<%= zazen(#{second}#{limit}, :node=>#{node}) %>"
+        out "<% end %>"
       end
     end
     
@@ -848,6 +855,7 @@ module Zena
     def r_form
       hidden_fields = {}
       set_fields = []
+      id_hash    = {:class => @html_tag_params[:class] || @params[:class] || 'form'}
       var_name   = base_class.to_s.underscore
       (descendants('input') + descendants('select')).each do |tag|
         set_fields << "#{var_name}[#{tag.params[:name]}]"
@@ -856,20 +864,21 @@ module Zena
         # ajax
         if @context[:in_add]
           # inline form used to create new elements: set values to '' and 'parent_id' from context
-          id_hash = {:id => "#{erb_dom_id}_form", :style => "display:none;"}
+          id_hash[:id] = "#{erb_dom_id}_form"
+          id_hash[:style] = "display:none;"
           
-          cancel =  "<p class='btn_x'><a href='#' onclick='[\"#{erb_dom_id}_add\", \"#{erb_dom_id}_form\"].each(Element.toggle);return false;'>#{_('btn_x')}</a></p>\n"
+          cancel =  "<span class='btn_x'><a href='#' onclick='[\"#{erb_dom_id}_add\", \"#{erb_dom_id}_form\"].each(Element.toggle);return false;'>#{_('btn_x')}</a></span>\n"
           form  =  "<%= form_remote_tag(:url => #{base_class.to_s.underscore.pluralize}_path, :html => {:id => \"#{dom_id}_form_t\"}) %>\n"
         else
           # saved form
           
-          id_hash = {:id => "#{erb_dom_id}"}
+          id_hash[:id] = erb_dom_id
           
           cancel = <<-END_TXT
 <% if #{node}.new_record? -%>
-  <p class='btn_x'><a href='#' onclick='[\"<%= params[:dom_id] %>_add\", \"<%= params[:dom_id] %>_form\"].each(Element.toggle);return false;'>#{_('btn_x')}</a></p>
+  <span class='btn_x'><a href='#' onclick='[\"<%= params[:dom_id] %>_add\", \"<%= params[:dom_id] %>_form\"].each(Element.toggle);return false;'>#{_('btn_x')}</a></span>
 <% else -%>
-  <p class='btn_x'><%= link_to_remote(#{_('btn_x').inspect}, :url => #{base_class.to_s.underscore}_path(#{node_id}) + \"/zafu?t_url=#{CGI.escape(template_url)}&dom_id=\#{params[:dom_id]}#{@context[:need_link_id] ? "&link_id=\#{#{node}.link_id}" : ''}\", :method => :get) %></p>
+  <span class='btn_x'><%= link_to_remote(#{_('btn_x').inspect}, :url => #{base_class.to_s.underscore}_path(#{node_id}) + \"/zafu?t_url=#{CGI.escape(template_url)}&dom_id=\#{params[:dom_id]}#{@context[:need_link_id] ? "&link_id=\#{#{node}.link_id}" : ''}\", :method => :get) %></span>
 <% end -%>
 END_TXT
           form =<<-END_TXT
@@ -886,8 +895,14 @@ END_TXT
         
         hidden_fields['link_id'] = "<%= #{node}.link_id %>" if @context[:need_link_id]
         
-        if block = ancestor('block')
-          # set update template url
+        if @params[:update] || (@context[:add] && @context[:add].params[:update])
+          upd = @params[:update] || @context[:add].params[:update]
+          if target = find_target(upd)
+            hidden_fields['u_url']   = target.template_url
+            hidden_fields['udom_id'] = target.erb_dom_id
+          end
+        elsif block = ancestor('block') && node_kind_of?(DataEntry)
+          # updates template url
           hidden_fields['u_url']  = block.template_url
           hidden_fields['udom_id'] = block.erb_dom_id
         end
@@ -940,7 +955,6 @@ END_TXT
         end
       else
         # no ajax
-        id_hash = {}
         # FIXME
         cancel = "" # link to normal node ?
         form = "<form method='post' action='/nodes/#{erb_node_id}'><div style='margin:0;padding:0'><input name='_method' type='hidden' value='put' /></div>"
@@ -1163,8 +1177,7 @@ END_TXT
       else
         revert_effect = 'Element.move'
       end
-      out expand_with
-      out "</div>"
+      out render_html_tag(expand_with)
       out "<script type='text/javascript'>
       //<![CDATA[
       Zena.draggable('#{@html_tag_params[:id]}',true,true,#{revert_effect})
@@ -2282,6 +2295,8 @@ END_TXT
       end
       if method == 'each' && !@context[:make_form]
         "#{res}_<%= #{var}.zip %>"
+      elsif method == 'draggable'
+        "#{res}_<%= #{node}.zip %>"
       elsif method == 'unlink'
         target = nil
         parent = self.parent
@@ -2498,6 +2513,8 @@ END_TXT
           return [node_attr, att_node, Node]
         elsif node_name == 'main'
           return [node_attr, '@node', Node]
+        elsif node_name == 'visitor'
+          return [node_attr, 'visitor.contact', Contact]
         else
           out parser_error("invalid node name #{node_name.inspect} in attribute #{str.inspect}")
           return [nil]

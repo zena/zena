@@ -345,7 +345,7 @@ END_MSG
           end
           
           dev_box << "  <li><a class='group' onclick='$(\"_dev_tools\").toggle();' href='#'>tools</a>\n"
-          dev_box << "    <ul id='_dev_tools'>\n"
+          dev_box << "    <ul id='_dev_tools' style='display:none;'>\n"
           dev_box << "      <li><a href='?rebuild=true'>#{_('rebuild')}</a></li>\n"
           dev_box << "<% if @node.kind_of?(Skin) -%>      <li><a href='<%= export_node_path(@node[:zip]) %>'>#{_('export')}</a></li>\n<% end -%>"
           dev_box << "      <li><a href='/users/#{visitor[:id]}/swap_dev'>#{_('turn dev off')}</a></li>\n"
@@ -379,16 +379,43 @@ END_MSG
     end
     
     # Return the zen_path ('/en/image34.png') for an asset given its name ('img/footer.png').
+    # The rule is not the same whether we are rendering a template and find <img/> <link rel='stylesheet'/> tags
+    # or if we are parsing assets in a CSS file.
     def template_url_for_asset(opts)
-      return nil unless res = find_document_for_template(opts)
-      asset, url = *res
-      @renamed_assets[url] = asset unless opts[:parse_assets]
+      if opts[:parse_assets]
+        src = opts[:src]
+        current_folder = opts[:current_folder] || ''
+        current_folder = current_folder[1..-1] if current_folder[0..0] == '/'
+      
+        if src =~ /\A(.*)\.(\w+)\Z/
+          src, format = $1, $2
+        end
+      
+        if src[0..0] == '/'
+          path = src[1..-1]
+        else
+          path = current_folder + '/' + src
+        end
+      
+        return nil unless asset = secure(Document) { Document.find_by_path(path) }
+      else
+        return nil unless res = find_document_for_template(opts)
+        asset, url = *res
+        @renamed_assets[url] = asset
+      end
+      
       data_path(asset)
     end
     
     # opts should contain :current_template and :src. The source is a path like 'default/Node-*index'
     # ('skin/template/path'). If the path starts with a slash, the skin_name in the path is searched first. Otherwise,
     # the current skin is searched first.
+    # <r:include template='Node'/>
+    #   find: #{skin_path(main_skin)}/Node
+    # 
+    # <r:include template='/default/Node'/>
+    #   find: #{skin_path('default')}/Node
+    # 
     def find_document_for_template(opts)
       src    = opts[:src]
       if src =~ /\A(.*)\.(\w+)\Z/
