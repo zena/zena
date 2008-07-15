@@ -260,17 +260,17 @@ wiki_skin:
   # yes it's not good to have this here but changing it would mess up many tests.
   parent:          collections
 
-wiki_Project_changes_xml:
+wiki_Project_changes_xml_zafu:
   class:           Template
   name:            Project-changes-xml
   parent:          wiki_skin
 
-wiki_Page_changes:
+wiki_Page_changes_zafu:
   class:           Template
   name:            Page-changes
   parent:          wiki_skin
 
-wiki_Node:
+wiki_Node_zafu:
   class:           Template
   name:            Node
   parent:          wiki_skin
@@ -328,12 +328,17 @@ notes_zafu:
   name:            notes
   parent:          default
 
+Node_test_zafu:
+  class:           Template
+  name:            Node-test
+  parent:          default
+
 Project_zafu:
   class:           Template
   name:            Project
   parent:          default
 
-Node_login:
+Node_login_zafu:
   class:           Template
   name:            Node-*login
   parent:          default

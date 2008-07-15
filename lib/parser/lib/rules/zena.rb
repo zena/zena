@@ -907,20 +907,17 @@ END_TXT
             hidden_fields['u_url']   = target.template_url
             hidden_fields['udom_id'] = target.erb_dom_id
           end
-        elsif block = ancestor('block') && node_kind_of?(DataEntry)
+        elsif (block = ancestor('block')) && node_kind_of?(DataEntry)
           # updates template url
-          hidden_fields['u_url']  = block.template_url
+          hidden_fields['u_url']   = block.template_url
           hidden_fields['udom_id'] = block.erb_dom_id
         end
         
         hidden_fields['t_url'] = template_url
         
-        if @context[:saved_template]
-          hidden_fields['dom_id'] = "<%= params[:dom_id] %>"
-        else
-          hidden_fields['dom_id'] = erb_dom_id
-        end
-        
+        erb_dom_id = @context[:saved_template] ? '<%= params[:dom_id] %>' : self.erb_dom_id
+
+        hidden_fields['dom_id'] = erb_dom_id
         
         if node_kind_of?(Node)
           hidden_fields['node[parent_id]'] = "<%= #{@context[:in_add] ? "#{@context[:parent_node]}.zip" : "#{node}.parent_zip"} %>"
@@ -949,7 +946,6 @@ END_TXT
             end
           end
           if params[:done] == 'focus'
-            erb_dom_id = @context[:saved_template] ? '<%= params[:dom_id] %>' : self.erb_dom_id
             if params[:focus]
               hidden_fields['done'] = "'$(\"#{erb_dom_id}_#{@params[:focus]}\").focus();'"
             else

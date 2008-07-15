@@ -1,0 +1,40 @@
+# zena awstats vhost for <%= host %>
+# automatically generated file
+
+<VirtualHost *>
+  ServerName stats.<%= host %>
+
+  DocumentRoot /usr/share/doc/awstats/examples/wwwroot
+  ErrorLog     /var/www/zena/<%= host %>/log/apache2.error.log
+  CustomLog    /var/www/zena/<%= host %>/log/apache2.access.log combined
+
+  <location />
+    SetEnv AWSTATS_FORCE_CONFIG <%= host %>
+    
+    AuthType Basic
+    AuthName "<%= host %> stats"
+    AuthUserFile /var/www/zena/<%= host %>/log/.awstatspw
+    Require valid-user
+  </location>
+  
+  #
+  # Directives to allow use of AWStats as a CGI
+  #
+  Alias /awstatsclasses "/usr/share/doc/awstats/examples/wwwroot/classes/"
+  Alias /awstatscss "/usr/share/doc/awstats/examples/wwwroot/css/"
+  Alias /awstatsicons "/usr/share/doc/awstats/examples/wwwroot/icon/"
+  ScriptAlias / "/usr/lib/cgi-bin/"
+
+  #
+  # This is to permit URL access to scripts/files in AWStats directory.
+  #
+  <Directory "/usr/share/doc/awstats/examples/wwwroot">
+      Options None
+      AllowOverride None
+      Order allow,deny
+      Allow from all
+  </Directory>
+  
+  RewriteEngine On
+  RewriteRule ^/$ /awstats.pl [R=302,L]
+</VirtualHost>

@@ -51,7 +51,7 @@ module ApplicationHelper
           @dom_id = params[:dom_id]
           page.replace params[:dom_id], :file => fullpath_from_template_url + ".erb"
         end
-        if params[:done]
+        if params[:done] && params[:action] == 'create'
           page.toggle "#{params[:dom_id]}_form", "#{params[:dom_id]}_add"
           page << params[:done]
         end

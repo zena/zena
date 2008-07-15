@@ -378,7 +378,7 @@ wiki_skin_en:
 
 wiki_project_changes_xml_en:
   type:            TemplateVersion
-  node:            wiki_Project_changes_xml
+  node:            wiki_Project_changes_xml_zafu
   user:            tiger
   comment:         layout for wiki
   title:           Project - changes (xml)
@@ -397,7 +397,7 @@ wiki_project_changes_xml_en:
 
 wiki_page_changes_en:
   type:            TemplateVersion
-  node:            wiki_Page_changes
+  node:            wiki_Page_changes_zafu
   user:            tiger
   comment:         layout for wiki
   title:           Page - changes
@@ -420,7 +420,7 @@ anonymous_en:
 
 wiki_node_en:
   type:            TemplateVersion
-  node:            wiki_Node
+  node:            wiki_Node_zafu
   user:            tiger
   comment:         master template for wiki
   title:           main template
@@ -504,6 +504,13 @@ Node_popup_layout_zafu_en:
   text:  |
 <% File.foreach("#{RAILS_ROOT}/db/init/base/skins/default/Node-*popupLayout.zafu") do |l| %>    <%= l %><% end %>
 
+Node_test_en:
+  type:            TemplateVersion
+  node:            Node_test_zafu
+  user:            tiger
+  text:  |
+<% File.foreach("#{RAILS_ROOT}/test/fixtures/files/Node-test.zafu") do |l| %>    <%= l %><% end %>
+
 notes_zafu_en:
   type:            TemplateVersion
   node:            notes_zafu
@@ -518,9 +525,9 @@ Project_zafu_en:
   text:  |
 <% File.foreach("#{RAILS_ROOT}/db/init/base/skins/default/Project.zafu") do |l| %>    <%= l %><% end %>
 
-Node_login:
+Node_login_zafu_en:
   type:            TemplateVersion
-  node:            Node_login
+  node:            Node_login_zafu
   user:            tiger
   text:  |
 <% File.foreach("#{RAILS_ROOT}/db/init/base/skins/default/Node-*login.zafu") do |l| %>    <%= l %><% end %>

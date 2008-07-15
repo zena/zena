@@ -62,35 +62,42 @@ Project_zafu:
   mode:            
   klass:           Project
   
-wiki_Node:
-  node:            wiki_Node
+wiki_Node_zafu:
+  node:            wiki_Node_zafu
   skin_name:       wiki_skin
   format:          html
   tkpath:          N
   mode:            
   klass:           Node
 
-wiki_Project_changes_xml:
-  node:            wiki_Project_changes_xml
+wiki_Project_changes_xml_zafu:
+  node:            wiki_Project_changes_xml_zafu
   skin_name:       wiki_skin
   format:          xml
   tkpath:          NPP
   mode:            changes
   klass:           Project
 
-wiki_Page_changes:
-  node:            wiki_Page_changes
+wiki_Page_changes_zafu:
+  node:            wiki_Page_changes_zafu
   skin_name:       wiki_skin
   format:          html
   tkpath:          NP
   mode:            changes
   klass:           Page
   
-Node_login:
-  node:            Node_login
+Node_login_zafu:
+  node:            Node_login_zafu
   skin_name:       default
   format:          html
   tkpath:          N
   mode:            "*login"
   klass:           Node
-  
+
+Node_test_zafu:
+  node:            Node_test_zafu
+  skin_name:       default
+  format:          html
+  tkpath:          N
+  mode:            test
+  klass:           Node

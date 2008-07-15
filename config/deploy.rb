@@ -206,6 +206,37 @@ task :create_vhost, :roles => :web do
   end
 end
 
+#========================== APACHE2 ===============================#
+desc "Update awstats configuration file"
+task :create_awstats, :roles => :web do
+  unless self[:host] && self[:pass]
+    puts "host or password not set (use -s host=... -s pass=...)"
+  else
+    # create awstats config file
+    awstats_conf = render("config/awstats.conf.rhtml", :host => self[:host] )
+    put(awstats_conf, "/etc/awstats/awstats.#{self[:host]}.conf")
+    
+    # create stats vhost
+    stats_vhost = render("config/stats.vhost.rhtml", :host => self[:host] )
+    put(stats_vhost, "/etc/apache2/sites-available/stats.#{self[:host]}")
+    run "test -e /etc/apache2/sites-enabled/stats.#{self[:host]} || a2ensite stats.#{self[:host]}"
+    
+    # directory setup for stats
+    run "test -e /var/www/zena/#{self[:host]}/log/awstats || mkdir /var/www/zena/#{self[:host]}/log/awstats"
+    run "chown www-data:www-data /var/www/zena/#{self[:host]}/log/awstats"
+    
+    # setup cron task for awstats
+    run "cat /etc/cron.d/awstats | grep \"#{self[:host]}\" || echo \"0,10,20,30,40,50 * * * * www-data [ -x /usr/lib/cgi-bin/awstats.pl -a -f /etc/awstats/awstats.#{self[:host]}.conf -a -r /var/www/zena/#{self[:host]}/log/apache2.access.log ] && /usr/lib/cgi-bin/awstats.pl -config=#{self[:host]} -update >/dev/null\n\" >> /etc/cron.d/awstats"
+    
+    # create .htpasswd file
+    run "test ! -e /var/www/zena/#{self[:host]}/log/.awstatspw || rm /var/www/zena/#{self[:host]}/log/.awstatspw"
+    run "htpasswd -c -b /var/www/zena/#{self[:host]}/log/.awstatspw 'admin' '#{self[:pass]}'"
+    
+    # reload apache
+    run "/etc/init.d/apache2 reload"
+  end
+end
+
 desc "Rename a webhost"
 task :rename_host, :roles => :web do
   unless self[:host] && self[:old_host]
