@@ -117,6 +117,7 @@ desc "create a new site"
 task :mksite, :roles => :app do
   run "#{in_current} rake zena:mksite HOST='#{self[:host]}' PASSWORD='#{self[:pass]}' RAILS_ENV='production' LANG='#{self[:lang] || 'en'}'"
   create_vhost
+  create_awstats
   set_permissions
 end
 
@@ -247,6 +248,7 @@ task :rename_host, :roles => :web do
     run "a2dissite #{self[:old_host]}"
     run "test -e #{old_vhost_path} && rm #{old_vhost_path}"
     create_vhost
+    create_awstats
     clear_zafu
     clear_cache
     set_permissions

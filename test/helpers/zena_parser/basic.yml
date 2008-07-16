@@ -789,7 +789,7 @@ text_code:
   context:
     node: 'Project_zafu'
   src: "<td do='text'/>"
-  res: "/\\A<td class='zazen' id='v_text60'><pre class='full'><code class='zafu'>.*</code></pre></td>\\Z/"
+  res: "/\\A<td class='zazen' id='v_text61'><pre class='full'><code class='zafu'>.*</code></pre></td>\\Z/"
 
 ztag_in_do:
   src: "<ol do='parent'><r:children>no error</r:children></ol>"
