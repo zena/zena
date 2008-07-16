@@ -30,6 +30,14 @@ code_ruby:
     end</code>
   res: "/some text.*<pre>.*<code class='ruby'>.*keyword.*method.*&lt;&lt;/"
 
+  
+img_after_brackets:
+  src: |
+    Text updated in [July 2008].
+    
+    !30.full!
+  res: "<p>Text updated in [July 2008].</p>\n\n\n\t<p>[make_image id:|30| images:true mode:|full| style:||]</p>"
+
 code_params:
   src:  "this <code onclick='nasty' class='blue' lang='ruby' style='tagada'>def ok</code> ok"
   res: "<p>this <pre onclick='nasty' class='blue' style='tagada'><code class='ruby'><span class=\"keyword\">def </span><span class=\"method\">ok</span></code></pre> ok</p>"

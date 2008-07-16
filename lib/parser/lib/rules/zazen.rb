@@ -249,7 +249,7 @@ module Zazen
     end
     
     def scan_bracket
-      #puts "BRACKET:[#{@text}]"
+      # puts "BRACKET:[#{@text}]"
       if @text =~ /\A\[(\w+)\](.*?)\[\/\1\]/m
         if @parse_shortcuts
           flush $&
@@ -260,7 +260,7 @@ module Zazen
         end
       else
         # nothing interesting
-        flush
+        flush '['
       end
     end
     
