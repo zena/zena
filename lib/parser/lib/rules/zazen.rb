@@ -276,7 +276,7 @@ module Zazen
     end
     
     def scan_wiki_link
-      if @text =~ /\A\?(\w[^\?]+?\w)\?([^\w:]|:([^\s<]+))/m
+      if @text =~ /\A\?(\w[^\?]*?\w)\?([^\w:]|:([^\s<]+))/m
         #puts "WIKI:[#{$&}]"
         eat $&
         title = $1
