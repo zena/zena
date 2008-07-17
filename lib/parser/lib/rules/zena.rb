@@ -1017,7 +1017,7 @@ END_TXT
         # relation
         list_finder = build_finder_for(:all, values)
       end
-      out "<% if (#{list_var} = #{list_finder}) && (#{list_var}_relation = #{node}.relation_proxy(:role=>#{role.inspect}, :ignore_source=>true)) -%>"
+      out "<% if (#{list_var} = #{list_finder}) && (#{list_var}_relation = #{node}.relation_proxy(#{role.inspect})) -%>"
       out "<% if #{list_var}_relation.unique? -%>"
     
       out "<% #{list_var}_id = #{list_var}_relation.other_id -%>"

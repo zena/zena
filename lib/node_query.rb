@@ -114,7 +114,7 @@ class NodeQuery < QueryBuilder
         return :void
       end
       
-      if rel = Relation.find_by_role(rel.singularize)
+      if rel = RelationProxy.find_by_role(rel.singularize)
         # We cannot use a LEFT JOIN here because it will totally mess up if we merge alternate queries
         add_table('links')
         # (= other_side = result) target <-- source (= link_side = caller)

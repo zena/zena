@@ -1,6 +1,7 @@
 class VirtualClass < ActiveRecord::Base
   belongs_to    :create_group, :class_name => 'Group', :foreign_key => 'create_group_id'
   validate      :valid_virtual_class
+  include Zena::Relations::AllRelationsFinder
   
   def to_s
     name
@@ -22,23 +23,6 @@ class VirtualClass < ActiveRecord::Base
       classes.reject! {|k,c| k =~ /^#{reject_kpath}/ }
     end
     classes
-  end
-  
-  # TODO avoid duplicating has_relations here...
-  def all_relations(start=nil)
-    rel_as_source = Relation.find(:all, :conditions => ["site_id = ? AND source_kpath IN (?)", current_site[:id], split_kpath])
-    rel_as_target = Relation.find(:all, :conditions => ["site_id = ? AND target_kpath IN (?)", current_site[:id], split_kpath])
-    rel_as_source.each {|rel| rel.source = start } if start
-    rel_as_target.each {|rel| rel.target = start } if start
-    (rel_as_source + rel_as_target).sort {|a,b| a.other_role <=> b.other_role}
-  end
-  
-  def split_kpath
-    @split_kpath ||= begin
-      klasses   = []
-      kpath.split(//).each_index { |i| klasses << kpath[0..i] } 
-      klasses
-    end
   end
   
   # check inheritance chain through kpath

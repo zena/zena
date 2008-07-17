@@ -8,6 +8,26 @@ module Zena
       end
     end
     
+    module AllRelationsFinder
+      # All relations related to the current class/virtual_class with its ancestors.
+      def all_relations(start=nil)
+        rel_as_source = RelationProxy.find(:all, :conditions => ["site_id = ? AND source_kpath IN (?)", current_site[:id], split_kpath])
+        rel_as_target = RelationProxy.find(:all, :conditions => ["site_id = ? AND target_kpath IN (?)", current_site[:id], split_kpath])
+        rel_as_source.each {|rel| rel.source = start } if start
+        rel_as_target.each {|rel| rel.target = start } if start
+        (rel_as_source + rel_as_target).sort {|a,b| a.other_role <=> b.other_role}
+      end
+      
+      # Class path hierarchy. Example for (Post) : N, NN, NNP
+      def split_kpath
+        @split_kpath ||= begin
+          klasses   = []
+          kpath.split(//).each_index { |i| klasses << kpath[0..i] } 
+          klasses
+        end
+      end
+    end
+    
     module ClassMethods
       def has_relations
         validate      :relations_valid
@@ -21,10 +41,39 @@ module Zena
           end
         END
       end
+      include Zena::Relations::AllRelationsFinder
     end
     
-    
     module InstanceMethods
+      
+      def all_relations
+        @all_relations ||= self.vclass.all_relations(self)
+      end
+      
+      def relations_for_form
+        all_relations.map {|r| [r.other_role.singularize, r.other_role]}
+      end
+      
+      # List the links, grouped by role
+      def relation_links
+        res = []
+        all_relations.each do |rel|
+          #if relation.record_count > 5
+          #  # FIXME: show message ?
+          #end
+          links = rel.records(:limit => 5, :order => "link_id DESC")
+          res << [rel, links] if links
+        end
+        res
+      end
+      
+      # Find relation proxy for the given role.
+      def relation_proxy(role)
+        @relation_proxies ||= {}
+        return @relation_proxies[role] if @relation_proxies.has_key?(role)
+        @relation_proxies[role] = RelationProxy.get_proxy(self, role.singularize.underscore)
+      end
+      
       private
       
         # Used to create / destroy / update links through pseudo methods 'icon_id=', 'icon_status=', ...
@@ -50,7 +99,7 @@ module Zena
             field = $2
             mode  = $3
             # 2. is this a valid role ?
-            if rel = get_relation_proxy(role)
+            if rel = relation_proxy(role)
               if mode == '='
                 # set
                 case field
@@ -74,7 +123,7 @@ module Zena
               else
                 # get
                 case field
-                when 'id', 'ids'
+                when 'id', 'ids', 'zip', 'zips'
                   if field[-1..-1] == 's'
                     # plural
                     raise err if rel.unique?
@@ -90,7 +139,13 @@ module Zena
               end
             else
               # invalid relation
-              raise err
+              errors.add(role, "invalid relation")
+              # ignore
+              if mode == '='
+                return args[0]
+              else
+                return nil
+              end
             end
           else
             # not related to relations
@@ -98,20 +153,11 @@ module Zena
           end
         end
       
-        def get_relation_proxy(role)
-          @relation_proxies ||= {}
-          return @relation_proxies[role] if defined?(@relation_proxies[role])
-          rel = Relation.find_by_role_and_kpath(role.singularize.underscore, self.vclass.kpath)
-          if rel
-            rel.start = self
-          end
-          @relation_proxies[role] = rel
-        end
-      
         # Make sure all updated relation proxies are valid
         def relations_valid
           return true unless @relation_proxies
-          @relation_proxies.each do |rel|
+          @relation_proxies.each do |role, rel|
+            next unless rel
             unless rel.attributes_to_update_valid?
               errors.add(role, rel.link_errors.join(', '))
             end
@@ -121,7 +167,8 @@ module Zena
         # Update/create links defined in relation proxies
         def update_relations
           return unless @relation_proxies
-          @relation_proxies.each do |rel|
+          @relation_proxies.each do |role, rel|
+            next unless rel
             rel.update_links!
           end
         end
@@ -285,12 +332,12 @@ module Zena
           if opts[:ignore_source]
             rel = Relation.find_by_role(role.singularize.underscore)
           else
-            rel = Relation.find_by_role_and_kpath(role.singularize.underscore, self.vclass.kpath)
+            rel = Relation.get_proxy(self, role.singularize.underscore)
           end
           rel.start = self if rel
         elsif link = opts[:link]
           return nil unless link
-          rel = Relation.find_by_id(link.relation_id)
+          rel = secure(Relation) { Relation.find_by_id(link.relation_id) }
           if rel
             rel.link = link
             rel.start = self
