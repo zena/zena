@@ -11,13 +11,23 @@ class Link < ActiveRecord::Base
   
   def update_attributes_with_transformations(attrs)
     attributes = attrs.dup
+    keys = attributes.keys
     ['role', 'status', 'comment', 'other_zip'].each do |k|
-      self[k] = attributes[k] = attrs[k].blank? ? nil : attrs[k]
+      if keys.include?(k)
+        self[k] = attributes[k] = attrs[k].blank? ? nil : attrs[k]
+      else
+        attributes[k] = self[k]
+      end
+    end
+    debugger
+    if attributes['other_zip']
+      other_id = secure(Node) { Node.translate_pseudo_id(attributes['other_zip']) }
+    else
+      other_id = @other[:id]
     end
     
-    other_id = secure(Node) {Node.translate_pseudo_id(attrs['other_zip'])}
     # ALL THIS IS BAD. Bad design lead to bad hacky code. PLEASE rewrite links !
-    @node.update_link(attrs['role'], :id => other_id, :status => attributes['status'], :comment => attributes['comment'])
+    @node.update_link(attributes['role'], :id => other_id, :status => attributes['status'], :comment => attributes['comment'])
     @node.save
     if @other == @target
       self[:target_id] = other_id

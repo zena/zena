@@ -33,6 +33,13 @@ all_people_related_to_a_course:
   src: "<r:course_emp_dates do='each' join=', '><r:show attr='name'/> (last:<r:show date='event_at'/>, next:<r:show date='log_at'/>)</r:course_emp_dates>"
   res: "joe (last:2003-03-20, next:2004-03-20), mike (last:, next:), roger (last:2002-05-05, next:2003-05-05)"
 
+all_people_related_to_a_course_in_6_month:
+  context:
+    node: transmit_information
+    ref_date: 2003-04-04
+  src: "<r:course_emp_dates where='last_date is null or (custom_a is not null and next_date lt REF_DATE + 6 month)' do='each' join=', '><r:show attr='name'/> (last:<r:show date='event_at'/>, next:<r:show date='log_at'/>)</r:course_emp_dates>"
+  res: "mike (last:, next:), roger (last:2002-05-05, next:2003-05-05)"
+
 all_course_emp_date:
   # next:
   # dangerous_transportations: 2006-03-15

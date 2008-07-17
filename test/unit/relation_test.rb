@@ -364,6 +364,28 @@ class RelationTest < ZenaTestUnit
     assert_equal flower[:id], icons[0][:id]
   end
   
+  def test_update_link_status_many_targets
+    # set icon_for on many nodes, one at a time
+    login(:lion)
+    flower = secure!(Node) { nodes(:flower_jpg) }
+    assert flower.update_attributes(:icon_for_id => nodes_id(:status) )
+    assert flower.update_attributes(:icon_for_id => nodes_id(:lion) )
+    icon_for = secure!(Node) { nodes(:flower_jpg) }.find(:all, 'icon_for')
+    assert_equal 2, icon_for.size
+    lion_as_icon_for = icon_for[0]
+    assert_equal nodes_id(:lion), lion_as_icon_for[:id]
+    assert_nil lion_as_icon_for.l_status
+    link = Link.find_through(flower, lion_as_icon_for.link_id)
+    assert link.update_attributes_with_transformations('status' => 12345)
+    
+    # reload
+    icon_for = secure!(Node) { nodes(:flower_jpg) }.find(:all, 'icon_for')
+    assert_equal 2, icon_for.size
+    lion_as_icon_for = icon_for[0]
+    assert_equal nodes_id(:lion), lion_as_icon_for[:id]
+    assert_equal 12345, lion_as_icon_for.l_status
+  end
+  
   # Fixing this is not a priority. Refs #196.
   #def test_update_status
   #  login(:lion)

@@ -80,6 +80,8 @@ class Relation < ActiveRecord::Base
     @side  = :target
   end
   
+  # get
+  
   def other_link
     other_links ? other_links[0] : nil
   end
@@ -88,24 +90,54 @@ class Relation < ActiveRecord::Base
     other_link ? other_link[other_side] : nil
   end
   
-  def other_ids
-    (other_links || []).map { |l| l[other_side] }
-  end
-  
   def other_zip
     record ? record[:zip] : nil
+  end
+  
+  def other_ids
+    (other_links || []).map { |l| l[other_side] }
   end
   
   def other_zips
     (records || []).map { |r| r[:zip] }
   end
   
+  def other_status
+    other_link ? other_link[:status] : nil
+  end
+  
+  def other_comment
+    other_link ? other_link[:comment] : nil
+  end
+  
   def other_role
     @side == :source ? target_role : source_role
+  end
+
+  def this_role
+    @side == :source ? source_role : target_role
   end
   
   def other_icon
     @side == :source ? target_icon : source_icon
+  end
+  
+  # set
+  
+  def other_id=(v)
+    attributes_to_update[:id] = v.kind_of?(Array) ? v.uniq.compact.map {|v| v.to_i} : (v.blank? ? nil : v.to_i)
+  end
+  
+  def other_ids=(v)
+    self.other_id = v
+  end
+  
+  def other_status=(v)
+    attributes_to_update[:status] = v.blank? ? nil : v
+  end
+  
+  def other_comment=(v)
+    attributes_to_update[:comment] = v.blank? ? nil : v
   end
   
   def this_kpath
@@ -116,35 +148,6 @@ class Relation < ActiveRecord::Base
     @side == :source ? target_kpath : source_kpath
   end
   
-  def new_value=(values)
-    if values.kind_of?(Array)
-      if values[0].kind_of?(Hash)
-        @new_value = values
-      else
-        @new_value = values.map {|v| {:id => v}}
-      end
-    elsif values.kind_of?(Hash)
-      @new_value = [values]
-    else
-      @new_value = {:id => values}
-    end
-  end
-  
-  def new_value
-    @new_value
-  end
-  
-  def <<(rel_def)
-    @new_value ||= other_links.map{|r| {:id => r[other_side], :status => r[:status], :comment => r[:comment]}}
-    rel_def = {:id => rel_def} unless rel_def.kind_of?(Hash)
-    @new_value << rel_def
-  end
-  
-  def delete(obj_id)
-    @new_value ||= other_links.map{|r| {:id => r[other_side], :status => r[:status], :comment => r[:comment]}}
-    @new_value.reject!{|r| r[:id] == obj_id.to_i}
-  end
-  
   # find the links from the current context (source or target)
   def other_links
     @links ||= Link.find(:all, :conditions => ["relation_id = ? AND #{link_side} = ?", self[:id], @start[:id]])
@@ -153,43 +156,91 @@ class Relation < ActiveRecord::Base
   # link can be changed if user can write in old and new
   # 1. can remove old link
   # 2. can write in new target
-  def links_valid?
-    @link_errors = []
-    @link_values = {}
-    if unique? && @new_value.size > 1
-      # force unique value (keep last value)
-      [@new_value.last]
-    else
-      @new_value
-    end.each do |v|
-      next if v[:id].blank?
-      @link_values[v[:id].to_i] = v
+  def attributes_to_update_valid?
+    return true unless @attributes_to_update
+    
+    unless @attributes_to_update[:id]
+      # try to find current id/ids
+      if unique?
+        if other_id
+          @attributes_to_update[:id] = other_id
+        else
+          @link_errors = ["Cannot set attributes #{@attributes_to_update.keys.join(', ')} without a target (missing id)."]
+      else
+        # error: cannot set other attributes (status/comment) on multiple nodes
+        @link_errors = ["Cannot set attributes #{@attributes_to_update.keys.join(', ')} in #{as_unique? ? 'one' : 'many'}-to-many relation '#{this_role}'."]
+      end
     end
     
-    # what changed ?
-    @add_links    = @link_values.keys
+    if @attributes_to_update[:id].kind_of?(Array) 
+      if unique?
+        @link_errors = ["Cannot set multiple targets on #{as_unique? ? 'one' : 'many'}-to-one relation '#{this_role}'."]
+      elsif @attributes_to_update.keys.include?(:status) || @attributes_to_update.keys.include?(:comment)
+        keys = @attributes_to_update.keys
+        keys.delete(:id)
+        @link_errors = ["Cannot set attributes #{keys.join(', ')} on multiple targets."]
+      end
+    end
+    
+    return false if @link_errors
+    @link_errors  = []
+    @add_links    = []
     @del_links    = []
     @update_links = []
-    # find all current links
-    other_links.each do |link|
-      obj_id = link[other_side]
-      if value = @link_values[obj_id]
-        @add_links.delete(obj_id) # ignore existing links
-        
-        if @link_values[obj_id] && @link_values[obj_id].size > 1
-          link[:status]  = @link_values[obj_id][:status]
-          link[:comment] = @link_values[obj_id][:comment]
-          @update_links << link
+    
+    # 1. find what changed
+    if @attributes_to_update[:id].kind_of?(Array)
+      # ..-to-many
+      # define all links
+      
+      # list of link ids set
+      add_link_ids = @attributes_to_update[:id]
+
+      # find all current links
+      other_links.each do |link|
+        obj_id = link[other_side]
+        if add_link_ids.include?(obj_id)
+          # ignore existing links
+          add_link_ids.delete(obj_id)
+        else
+          # remove unused links
+          @del_links << link
+        end
+      end  
+      @add_links = add_link_ids.map {|obj_id| Hash[:id,obj_id] }
+    elsif unique?
+      # ..-to-one
+      # define/update link
+      if other_id == @attributes_to_update[:id]
+        # same target: update
+        @update_links << changed_link(other_link, @attributes_to_update)
+      else
+        # other target: replace
+        @del_links = [other_link]
+        @add_links << @attributes_to_update
+      end
+    else
+      # ..-to-many
+      # add/update a link
+      if other_ids.include?(@attributes_to_update[:id])
+        # update
+        if @attributes_to_update.keys.include?(:status) || @attributes_to_update.keys.include?(:comment)
+          other_links.each do |link|
+            if link[other_side] == @attributes_to_update[:id]
+              @update_links << changed_link(link, @attributes_to_update)
+              break
+            end
+          end
         end
       else
-        @del_links << link
+        # add
+        @add_links << @attributes_to_update
       end
-      
-    end
+    end  
     
     # 2. can write in new target ? (and remove targets previous link)
-    @add_links.each do |obj_id|
-      if target = find_target(obj_id)
+    @add_links.each do |hash|
+      if target = find_target(hash[:id])
         # make sure we can overwrite previous link if as_unique
         if as_unique?
           if previous_link = Link.find(:first, :conditions => ["relation_id = ? AND #{other_side} = ?", self[:id], target[:id]])
@@ -208,22 +259,36 @@ class Relation < ActiveRecord::Base
       end
     end
     
+    @update_links.compact!
     return @link_errors == []
+  end
+  
+  def changed_link(link, attrs)
+    changed = false
+    [:status, :comment].each do |sym|
+      next unless attrs.keys.include?(sym)
+      if attrs[sym] != link[sym]
+        changed = true
+        link[sym] = attrs[sym]
+      end
+    end
+    changed ? link : nil
   end
 
   def update_links!
-    return unless @del_links && @add_links
-    @del_links.each { |l| l.destroy }
+    return unless @attributes_to_update
+    @del_links.each    { |l| l.destroy }
     @update_links.each { |l| l.save }
     
     return if @add_links == []
+    
     list = []
-    @add_links.each do |obj_id| 
-      v = @link_values[obj_id]
-      list << "(#{self[:id]},#{@start[:id]},#{obj_id},#{Link.connection.quote(v[:status])},#{Link.connection.quote(v[:comment])})"
+    @add_links.each do |hash|
+      next unless hash[:id]
+      list << "(#{self[:id]},#{@start[:id]},#{hash[:id]},#{Link.connection.quote(hash[:status])},#{Link.connection.quote(hash[:comment])})"
     end
     Link.connection.execute "INSERT INTO links (`relation_id`,`#{link_side}`,`#{other_side}`,`status`,`comment`) VALUES #{list.join(',')}"
-    remove_instance_variable(:@links)
+    remove_instance_variable(:@attributes_to_update)
   end
   
   def unique?
@@ -274,5 +339,8 @@ class Relation < ActiveRecord::Base
         secure_write(relation_class) { relation_class.find(:first, :conditions=>['id = ? AND kpath LIKE ?', obj_id, "#{other_kpath}%"]) }
       end
     end
-
+    
+    def attributes_to_update
+      @attributes_to_update ||= {}
+    end
 end

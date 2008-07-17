@@ -47,6 +47,7 @@ NodeQuery:
       - form.event_at AS last_date
       - MAX(form.event_at) + INTERVAL NODE_ATTR(custom_a) MONTH AS log_at
       - MAX(form.event_at) AS event_at
+      - NODE_ATTR(custom_a) AS custom_a
     tables:
       # NODE_ID = course
       # nodes   = pages assigned to course

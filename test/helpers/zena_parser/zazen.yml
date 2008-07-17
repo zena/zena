@@ -67,10 +67,6 @@ zip_shortcut_list:
   tem: "<%= zazen('Look !{30,:lake+}!') %>"
   res: "/docs.*image30_mini.*image24_mini.*/"
   
-img_after_brackets:
-  tem: "<%= zazen('Text updated in [July 2008].\n\n!30.full!\n') %>"
-  res: "<p>Text updated in [July 2008].</p>\n\n\n\t<p><img src=\"/en/30.full\" alt=\"\" /></p>"
-
 line_break_between_paragraphs:
   tem: "<%= zazen(\"h3. photos en vrac\n\n\ntwo\") %>"
   res: "!/<br\/>/"

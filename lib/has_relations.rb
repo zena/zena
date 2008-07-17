@@ -1,5 +1,146 @@
 module Zena
   module Relations
+    module HasRelations
+      # this is called when the module is included into the 'base' module
+      def self.included(base)
+        # add all methods from the module "AddActsAsMethod" to the 'base' module
+        base.extend Zena::Relations::ClassMethods
+      end
+    end
+    
+    module ClassMethods
+      def has_relations
+        validate      :relations_valid
+        after_save    :update_relations
+        after_destroy :destroy_links
+        
+        class_eval <<-END
+        include Zena::Relations::InstanceMethods
+          def relation_base_class
+            #{self}
+          end
+        END
+      end
+    end
+    
+    
+    module InstanceMethods
+      private
+      
+        # Used to create / destroy / update links through pseudo methods 'icon_id=', 'icon_status=', ...
+        # Pseudo methods created for a many-to-one relation (icon_for --- icon):
+        # icon_id=::      set icon
+        # icon_status=::  set status field for link to icon
+        # icon_comment=:: set comment field for link to icon
+        # icon_for_ids=:: set all nodes for which the image is an icon (replaces old values)
+        # icon_for_id=::  add a node for which the image is an icon (adds a new value)
+        # icon_id::       get icon id
+        # icon_zip::      get icon zip
+        # icon_status::   get status field for link to icon
+        # icon_comment::  get comment field for link to icon
+        # icon_for_ids::  get all node ids for which the image is an icon
+        # icon_for_zips:: get all node zips for which the image is an icon
+        def method_missing(meth, *args)
+          # first try rails' version of method missing
+          super
+        rescue NoMethodError => err
+          # 1. is this a method related to a relation ?
+          if meth.to_s =~ /^([\w_]+)_(ids?|zips?|status|comment)(=?)$/
+            role  = $1
+            field = $2
+            mode  = $3
+            # 2. is this a valid role ?
+            if rel = get_relation_proxy(role)
+              if mode == '='
+                # set
+                case field
+                when 'zip', 'zips'
+                  # not used to set relations (must use 'translate_attributes' to chagen zip into id before call)
+                  raise err
+                when 'id', 'ids', 'zip', 'zips'
+                  if field[-1..-1] == 's'
+                    # plural
+                    raise err if rel.unique?
+                  else
+                    # singular
+                    raise err if !rel.unique?
+                  end
+                else
+                  # comment, status: must be singular
+                  raise err if !rel.unique?
+                end
+                # set value
+                rel.send("other_#{field}=", args[0])
+              else
+                # get
+                case field
+                when 'id', 'ids'
+                  if field[-1..-1] == 's'
+                    # plural
+                    raise err if rel.unique?
+                  else
+                    # singular
+                    raise err if !rel.unique?
+                  end
+                else
+                  # comment, status: must be singular
+                  raise err if !rel.unique?
+                end
+                rel.send("other_#{field}")
+              end
+            else
+              # invalid relation
+              raise err
+            end
+          else
+            # not related to relations
+            raise err
+          end
+        end
+      
+        def get_relation_proxy(role)
+          @relation_proxies ||= {}
+          return @relation_proxies[role] if defined?(@relation_proxies[role])
+          rel = Relation.find_by_role_and_kpath(role.singularize.underscore, self.vclass.kpath)
+          if rel
+            rel.start = self
+          end
+          @relation_proxies[role] = rel
+        end
+      
+        # Make sure all updated relation proxies are valid
+        def relations_valid
+          return true unless @relation_proxies
+          @relation_proxies.each do |rel|
+            unless rel.attributes_to_update_valid?
+              errors.add(role, rel.link_errors.join(', '))
+            end
+          end
+        end
+        
+        # Update/create links defined in relation proxies
+        def update_relations
+          return unless @relation_proxies
+          @relation_proxies.each do |rel|
+            rel.update_links!
+          end
+        end
+        
+        # Destroy all links related to this node
+        def destroy_links
+          Link.find(:all, :conditions => ["source_id = ? OR target_id = ?", self[:id], self[:id]]).each do |l|
+            l.destroy
+          end
+        end
+    end
+  end
+end
+
+ActiveRecord::Base.send :include, Zena::Relations::HasRelations
+
+=begin
+module Zena
+  module Relations
     def self.plural_method?(method)
       m = method.split('_').first
       m.pluralize == m || method.ends_with?('_for')
@@ -345,3 +486,4 @@ module Zena
 end
 
 ActiveRecord::Base.send :include, Zena::Relations::HasRelations
+=end
