@@ -46,6 +46,74 @@ module Zena
     
     module InstanceMethods
       
+      # status defined through loading link
+      def l_status
+        val = @link ? @link[:status] : self['l_status']
+        val ? val.to_i : nil
+      end
+      
+      # comment defined through loading link
+      def l_comment
+        @link ? @link[:comment] : self['l_comment']
+      end
+      
+      def link_id
+        @link ? @link[:id] : self[:link_id]
+      end
+      
+      def link_id=(v)
+        if @link && @link[:id].to_i != v.to_i
+          @link = nil
+        end
+        self[:link_id] = v.to_i
+        if @link_attributes_to_update
+          if rel = relation_proxy_from_link
+            @link_attributes_to_update.each do |k,v|
+              rel.send("other_#{k}=",v)
+            end
+          end
+        end 
+      end
+      
+      def add_link(role, hash)
+        if rel = relation_proxy(role)
+          [:status, :comment, :id].each do |k|
+            rel.send("other_#{k}=", hash[k]) if hash.has_key?(k)
+          end
+        else
+          errors.add(role, 'invalid relation')
+        end
+      end
+      
+      def remove_link(link)
+        if link[:source_id] != self[:id] && link[:target_id] != self[:id]
+          errors.add('link', "not related to this node")
+          return false
+        end
+        # find proxy
+        if rel = relation_proxy_from_link(link)
+          rel.remove_link(link)
+        else
+          errors.add('link', "cannot remove (relation proxy not found).")
+        end
+      end
+      
+      def l_comment=(v)
+        if rel = relation_proxy_from_link
+          rel.other_comment = v.blank? ? nil : v
+        else
+          @l_comment = v.blank? ? nil : v
+        end
+      end
+      
+      def l_status=(v)
+        if rel = relation_proxy_from_link
+          rel.other_status = v.blank? ? nil : v
+        else
+          @l_status = v.blank? ? nil : v
+        end
+      end
+      
       def all_relations
         @all_relations ||= self.vclass.all_relations(self)
       end
@@ -72,6 +140,33 @@ module Zena
         @relation_proxies ||= {}
         return @relation_proxies[role] if @relation_proxies.has_key?(role)
         @relation_proxies[role] = RelationProxy.get_proxy(self, role.singularize.underscore)
+      end
+      
+      def relation_proxy_from_link(link = nil)
+        unless link
+          if @link
+            link = @link
+          elsif self.link_id
+            link = @link = Link.find_through(self, self.link_id)
+          end
+          return nil unless link
+        end
+        @relation_proxies ||= {}
+        return @relation_proxies[link.role] if @relation_proxies.has_key?(link.role)
+        @relation_proxies[link.role] = link.relation_proxy(self)
+      end
+      
+      def remove_link(link)
+        if link[:source_id] != self[:id] && link[:target_id] != self[:id]
+          errors.add('link', "not related to this node")
+          return false
+        end
+        # find proxy
+        if rel = relation_proxy_from_link(link)
+          rel.remove_link(link)
+        else
+          errors.add('link', "cannot remove (relation proxy not found).")
+        end
       end
       
       private
@@ -106,34 +201,22 @@ module Zena
                 when 'zip', 'zips'
                   # not used to set relations (must use 'translate_attributes' to chagen zip into id before call)
                   raise err
-                when 'id', 'ids', 'zip', 'zips'
-                  if field[-1..-1] == 's'
-                    # plural
-                    raise err if rel.unique?
-                  else
-                    # singular
-                    raise err if !rel.unique?
-                  end
-                else
-                  # comment, status: must be singular
-                  raise err if !rel.unique?
                 end
                 # set value
                 rel.send("other_#{field}=", args[0])
               else
                 # get
-                case field
-                when 'id', 'ids', 'zip', 'zips'
-                  if field[-1..-1] == 's'
-                    # plural
-                    raise err if rel.unique?
+                if field != 'ids' && field != 'zips' && !rel.unique?
+                  # ask for a single value in a ..-to-many relation
+                  # 1. try to use focus
+                  if @link
+                    rel.other_link = @link
+                  elsif self.link_id
+                    @link = Link.find_through(self, self.link_id)
+                    rel.other_link = @link
                   else
-                    # singular
-                    raise err if !rel.unique?
+                    return nil
                   end
-                else
-                  # comment, status: must be singular
-                  raise err if !rel.unique?
                 end
                 rel.send("other_#{field}")
               end
@@ -291,15 +374,7 @@ module Zena
       
       alias update_link set_relation
       
-      def remove_link(link_id)
-        @relations_to_update ||= []
-        @relations_to_update << [:remove, link_id]
-      end
       
-      def add_link(role, value)
-        @relations_to_update ||= []
-        @relations_to_update << [:add, [role, value]]
-      end
       
       def all_relations
         @all_relations ||= self.vclass.all_relations(self)
@@ -330,7 +405,7 @@ module Zena
         opts = {:role => opts} unless opts.kind_of?(Hash)
         if role = opts[:role]
           if opts[:ignore_source]
-            rel = Relation.find_by_role(role.singularize.underscore)
+            rel = RelationProxy.find_by_role(role.singularize.underscore)
           else
             rel = Relation.get_proxy(self, role.singularize.underscore)
           end
@@ -351,42 +426,8 @@ module Zena
         rel
       end
       
-      # status defined through loading link
-      def l_status
-        val = @link ? @link[:status] : self['l_status']
-        val ? val.to_i : nil
-      end
-      
-      # comment defined through loading link
-      def l_comment
-        @link ? @link[:comment] : self['l_comment']
-      end
-      
       # ALL THIS IS HORRIBLE CODE. NEED MORE TIME TO REWRITE THIS BIG MESS...
-      def l_status=(v)
-        self[:l_status] = v
-        @link_to_update ||= {}
-        @link_to_update[:status] = v
-      end
       
-      def l_comment=(v)
-        self[:l_comment] = v
-        @link_to_update ||= {}
-        @link_to_update[:comment] = v
-      end
-      
-      def link_id
-        @link ? @link[:id] : self[:link_id]
-      end
-      
-      def link_id=(v)
-        if @link && @link[:id].to_i != v.to_i
-          @link = nil
-        end
-        self[:link_id] = v.to_i
-        @link_to_update ||= {}
-        @link_to_update[:id] = v.to_i
-      end
       
       private
         # ANOTHER HACK...

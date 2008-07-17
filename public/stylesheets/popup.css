@@ -167,7 +167,7 @@ ul.infos li { padding:0.4em 0.4em; list-style:none; display:block; }
 #links #link_target_id option { width:120px;}
 
 .inline_form ul { list-style:none; text-align:left;}
-#add_link_form label, #add_link_form select {float:left; width:70px; margin-right:5px;}
+#links label, #links select {float:left; width:70px; margin-right:5px;}
 
 
 #versions .sign { width:20px; }

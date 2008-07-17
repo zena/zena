@@ -1,5 +1,5 @@
 class RelationProxy < Relation
-  attr_accessor   :side, :link_errors, :start, :link
+  attr_accessor   :side, :link_errors, :start, :other_link
   
   class << self
     
@@ -70,6 +70,14 @@ class RelationProxy < Relation
     @side  = :target
   end
   
+  # When a ...-to-many node is loaded and we modify it, focus on this specific node. For example:
+  # calendar_status does not make sense (there can be many calendars). But if we focus on a specific
+  # calendar, we then get the status for this particular link.
+  def other_link=(link)
+    return unless link[:relation_id] == self[:id]
+    @other_link = link
+  end
+  
   # get
   
   def other_link
@@ -122,6 +130,11 @@ class RelationProxy < Relation
     self.other_id = v
   end
   
+  def remove_link(link)
+    @links_to_delete ||= []
+    @links_to_delete << link
+  end
+  
   def other_status=(v)
     attributes_to_update[:status] = v.blank? ? nil : v
   end
@@ -147,87 +160,101 @@ class RelationProxy < Relation
   # 1. can remove old link
   # 2. can write in new target
   def attributes_to_update_valid?
-    return true unless @attributes_to_update
+    debugger if $debbbb
+    return true unless @attributes_to_update || @links_to_delete
     
-    unless @attributes_to_update[:id]
-      # try to find current id/ids
-      if unique?
-        if other_id
-          @attributes_to_update[:id] = other_id
-        else
-          @link_errors = ["Cannot set attributes #{@attributes_to_update.keys.join(', ')} without a target (missing id)."]
-        end
-      else
-        # error: cannot set other attributes (status/comment) on multiple nodes
-        @link_errors = ["Cannot set attributes #{@attributes_to_update.keys.join(', ')} in #{as_unique? ? 'one' : 'many'}-to-many relation '#{this_role}'."]
-      end
-    end
-    
-    if @attributes_to_update[:id].kind_of?(Array) 
-      if unique?
-        @link_errors = ["Cannot set multiple targets on #{as_unique? ? 'one' : 'many'}-to-one relation '#{this_role}'."]
-      elsif @attributes_to_update.keys.include?(:status) || @attributes_to_update.keys.include?(:comment)
-        keys = @attributes_to_update.keys
-        keys.delete(:id)
-        @link_errors = ["Cannot set attributes #{keys.join(', ')} on multiple targets."]
-      end
-    end
-    
-    return false if @link_errors
     @link_errors  = []
     @add_links    = []
     @del_links    = []
     @update_links = []
     
-    # 1. find what changed
-    if @attributes_to_update[:id].kind_of?(Array)
-      # ..-to-many
-      # define all links
-      
-      # list of link ids set
-      add_link_ids = @attributes_to_update[:id]
-
-      # find all current links
-      other_links.each do |link|
-        obj_id = link[other_side]
-        if add_link_ids.include?(obj_id)
-          # ignore existing links
-          add_link_ids.delete(obj_id)
-        else
-          # remove unused links
-          @del_links << link
-        end
-      end  
-      @add_links = add_link_ids.map {|obj_id| Hash[:id,obj_id] }
-    elsif unique?
-      # ..-to-one
-      # define/update link
-      if other_id == @attributes_to_update[:id]
-        # same target: update
-        @update_links << changed_link(other_link, @attributes_to_update)
-      else
-        # other target: replace
-        @del_links = [other_link]
-        @add_links << @attributes_to_update
-      end
+    if @links_to_delete
+      # only removing links
+      @del_links = @links_to_delete
+      @attributes_to_update = {}
     else
-      # ..-to-many
-      # add/update a link
-      if other_ids.include?(@attributes_to_update[:id])
-        # update
-        if @attributes_to_update.keys.include?(:status) || @attributes_to_update.keys.include?(:comment)
-          other_links.each do |link|
-            if link[other_side] == @attributes_to_update[:id]
-              @update_links << changed_link(link, @attributes_to_update)
-              break
+      # check if we have an update/create
+      unless @attributes_to_update[:id]
+        # try to find current id/ids
+        if @other_link
+          @attributes_to_update[:id] = @other_link[other_side]
+        elsif link_id = @start.link_id
+          @other_link = Link.find(link_id)
+          @attributes_to_update[:id] = @other_link[other_side]
+        elsif unique?
+          if other_id
+            @attributes_to_update[:id] = other_id
+          else
+            @link_errors << "invalid target"
+          end
+        else
+          # error: cannot set other attributes (status/comment) on multiple nodes
+          @link_errors << "invalid target"
+        end
+      end
+    
+      if @attributes_to_update[:id].kind_of?(Array) 
+        if unique?
+          @link_errors << "Cannot set multiple targets on #{as_unique? ? 'one' : 'many'}-to-one relation '#{this_role}'."
+        elsif @attributes_to_update.has_key?(:status) || @attributes_to_update.has_key?(:comment)
+          keys = @attributes_to_update.keys
+          keys.delete(:id)
+          @link_errors << "Cannot set attributes #{keys.join(', ')} on multiple targets."
+        end
+      end
+    
+      return false if @link_errors != []
+    
+      # 1. find what changed
+      if @attributes_to_update[:id].kind_of?(Array)
+        # ..-to-many
+        # define all links
+      
+        # list of link ids set
+        add_link_ids = @attributes_to_update[:id]
+
+        # find all current links
+        other_links.each do |link|
+          obj_id = link[other_side]
+          if add_link_ids.include?(obj_id)
+            # ignore existing links
+            add_link_ids.delete(obj_id)
+          else
+            # remove unused links
+            @del_links << link
+          end
+        end  
+        @add_links = add_link_ids.map {|obj_id| Hash[:id,obj_id] }
+      elsif unique?
+        # ..-to-one
+        # define/update link
+        if other_id == @attributes_to_update[:id]
+          # same target: update
+          @update_links << changed_link(other_link, @attributes_to_update)
+        else
+          # other target: replace
+          @del_links = [other_link] if other_link
+          @add_links << @attributes_to_update
+        end
+      else
+        # ..-to-many
+        # add/update a link
+        if other_ids.include?(@attributes_to_update[:id])
+          # update
+          if @attributes_to_update.has_key?(:status) || @attributes_to_update.has_key?(:comment)
+            other_links.each do |link|
+              if link[other_side] == @attributes_to_update[:id]
+                @update_links << changed_link(link, @attributes_to_update)
+                break
+              end
             end
           end
+        else
+          # add
+          @add_links << @attributes_to_update
         end
-      else
-        # add
-        @add_links << @attributes_to_update
-      end
-    end  
+      end  
+    end
     
     # 2. can write in new target ? (and remove targets previous link)
     @add_links.each do |hash|
@@ -242,7 +269,7 @@ class RelationProxy < Relation
         @link_errors << 'invalid target'
       end
     end
-    
+
     # 1. can remove old link ?
     @del_links.each do |link|
       unless find_node(link[other_side], unique?)
@@ -254,10 +281,11 @@ class RelationProxy < Relation
     return @link_errors == []
   end
   
+  # Return updated link if changed or nil when nothing changed
   def changed_link(link, attrs)
     changed = false
     [:status, :comment].each do |sym|
-      next unless attrs.keys.include?(sym)
+      next unless attrs.has_key?(sym)
       if attrs[sym] != link[sym]
         changed = true
         link[sym] = attrs[sym]
@@ -279,7 +307,8 @@ class RelationProxy < Relation
       list << "(#{self[:id]},#{@start[:id]},#{hash[:id]},#{Link.connection.quote(hash[:status])},#{Link.connection.quote(hash[:comment])})"
     end
     Link.connection.execute "INSERT INTO links (`relation_id`,`#{link_side}`,`#{other_side}`,`status`,`comment`) VALUES #{list.join(',')}"
-    remove_instance_variable(:@attributes_to_update)
+    @attributes_to_update = nil
+    @links_to_delete      = nil
     remove_instance_variable(:@records)     if defined?(@records)
     remove_instance_variable(:@record)      if defined?(@record)
     remove_instance_variable(:@other_links) if defined?(@other_links)

@@ -257,7 +257,7 @@ class NodeQuery < QueryBuilder
         type, value = $1, $2
         if type == 'RELATION_ID'
           role = value
-          if rel = Relation.find_by_role(role.singularize)
+          if rel = RelationProxy.find_by_role(role.singularize)
             rel[:id]
           else
             @errors << "could not find Relation '#{role}' in custom query"

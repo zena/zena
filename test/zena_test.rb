@@ -263,7 +263,6 @@ module Zena
         @request    ||= ActionController::TestRequest.new
         @response   ||= ActionController::TestResponse.new
         @request.host = sites_host($_test_site || 'zena')
-        puts @request.inspect
         @controller.instance_eval { @params = {}; @url = ActionController::UrlRewriter.new( @request, {} )}
         @controller.instance_variable_set(:@response, @response)
         @controller.send(:request=, @request)

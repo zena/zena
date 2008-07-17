@@ -553,7 +553,8 @@ OnlyUserAgents=""
 # Example: "REGEX[marketing_directory] REGEX[office\/.*\.(csv|sxw)$]"
 # Default: ""
 #
-OnlyFiles="REGEX[^\/([^o][^o]\/|[^o].\/|.[^o]\/)]"
+OnlyFiles="REGEX[^\/([^o].(\/|$)|.[^o](\/|$))]"
+
 
 
 # Add here a list of kind of url (file extension) that must be counted as

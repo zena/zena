@@ -122,36 +122,13 @@ class RelationProxyTest < ZenaTestUnit
     end
   end
   
-  def test_destroy_links
+  def test_remove_link
     login(:tiger)
     node = secure!(Node) { nodes(:cleanWater) }
     assert_equal nodes_id(:art), node.find(:first, 'set_tags')[:id]
-    assert node.remove_link(links_id(:cleanWater_in_art))
+    assert node.remove_link(links(:cleanWater_in_art))
     assert node.save
     assert_nil node.find(:first, 'set_tags')
-  end
-  
-  def test_relation_new_record
-    login(:tiger)
-    node = secure!(Node) { Node.new }
-    assert_equal nil, node.find(:all,'set_tags')
-    node = secure!(Node) { Node.get_class('Tag').new_instance }
-    assert_equal nil, node.find(:all,'tagged')
-  end
-
-  def test_link_id
-    login(:tiger)
-    page = secure!(Node) { nodes(:cleanWater) }
-    pages = page.find(:all, 'pages')
-    assert_nil pages[0][:link_id]
-    tags  = page.find(:all, 'set_tags')
-    assert_equal [links_id(:cleanWater_in_art).to_s], tags.map{|r| r[:link_id]}
-  end
-  
-  def test_do_find_in_new_node
-    login(:tiger)
-    assert var1_new = secure!(Node) { Node.get_class("Post").new }
-    assert_nil var1_new.do_find(:all, eval("\"#{Node.build_find(:all, 'posts in site', :node_name => 'self')}\""))
   end
   
   def test_update_attributes_empty_value
@@ -160,47 +137,31 @@ class RelationProxyTest < ZenaTestUnit
     assert node.update_attributes_with_transformation("klass"=>"Post", "icon_id"=>"", "v_title"=>"blah", "log_at"=>"2008-02-05 17:33", "parent_id"=>"11")
   end
   
-  def test_do_find_bad_relation
-    login(:lion)
-    node = secure!(Node) { nodes(:status) }
-    assert_nil node.find(:first, 'blah')
-  end
-  
-  def test_l_status
-    login(:lion)
-    node = secure!(Node) { nodes(:art) }
-    tagged = node.find(:all, 'tagged')
-    # cleanWater, opening
-    assert_equal [10, 5], tagged.map{|t| t.l_status}
-  end
-  
-  def test_l_comment
-    login(:lion)
-    node = secure!(Node) { nodes(:opening) }
-    tagged = node.find(:all, 'set_tags')
-    # art, news
-    assert_equal ["cold", "hot"], tagged.map{|t| t.l_comment}
-  end
-  
-  def test_l_comment_empty
-    login(:lion)
-    node = secure!(Node) { nodes(:art) }
-    tagged = node.find(:all, 'tagged')
-    # cleanWater, opening
-    assert_equal [nil, "cold"], tagged.map{|t| t.l_comment}
-  end
-  
-  def test_update_link
+  def test_update_comment
     login(:lion) # status_hot_for_cleanWater
     node = secure!(Node) { nodes(:cleanWater) }
     hot  = node.find(:first, 'hot')
     assert_equal nodes_id(:status), hot[:id] 
     assert_nil hot.l_status
-    node.update_link('hot', :id => nodes_id(:status), :comment => 'very hot')
-    assert node.save
+    assert node.update_attributes('hot_comment' => 'very hot')
     # reload
     node = secure!(Node) { nodes(:cleanWater) }
     assert_equal 'very hot', node.find(:first, 'hot').l_comment
+  end
+  
+  def test_update_comment_in_group
+    login(:lion) # status_hot_for_cleanWater
+    node = secure!(Node) { nodes(:opening) }
+    tags = node.find(:all, 'set_tags')
+    assert_equal 2, tags.size
+    art = tags[0]
+    assert_equal 5, art.l_status
+    node.update_attributes('set_tag_status' => 123, 'set_tag_id' => nodes_id(:art))
+    # reload
+    node = secure!(Node) { nodes(:opening) }
+    tags = node.find(:all, 'set_tags')
+    art = tags[0]
+    assert_equal 123, art.l_status
   end
   
   def test_update_l_comment
@@ -210,6 +171,7 @@ class RelationProxyTest < ZenaTestUnit
     assert_equal nodes_id(:status), hot[:id] 
     assert_nil hot.l_status
     node.update_attributes(:link_id => links_id(:status_hot_for_cleanWater), :l_comment => 'very hot')
+    err node
     assert node.save
     # reload
     node = secure!(Node) { nodes(:cleanWater) }
@@ -241,6 +203,23 @@ class RelationProxyTest < ZenaTestUnit
     assert_equal flower[:id], icons[0][:id]
   end
   
+  def test_add_link_bad_target
+    login(:lion)
+    node = secure!(Node) { nodes(:letter) }
+    node.add_link('calendar', :id => 1)
+    assert !node.save
+    assert_equal 'invalid target', node.errors['calendar']
+    
+    node = secure!(Node) { nodes(:letter) }
+    node.add_link('calendar', :id => 1, :comment => 'woopi')
+    assert !node.save
+    assert_equal 'invalid target', node.errors['calendar']
+    
+    node = secure!(Node) { nodes(:letter) }
+    node.add_link('calendar', :id => nil, :comment => 'woopi')
+    assert !node.save
+    assert_equal 'invalid target', node.errors['calendar']
+  end
   
   def test_set_link_many_targets
     # set icon_for on many nodes, one at a time
@@ -265,9 +244,10 @@ class RelationProxyTest < ZenaTestUnit
     lion_as_icon_for = icon_for[0]
     assert_equal nodes_id(:lion), lion_as_icon_for[:id]
     assert_nil lion_as_icon_for.l_status
-    link = Link.find_through(flower, lion_as_icon_for.link_id)
-    assert link.update_attributes_with_transformations('status' => 12345)
     
+    link = Link.find_through(flower, lion_as_icon_for.link_id)
+    link.update_attributes_with_transformations('status' => 12345)
+    err link
     # reload
     icon_for = secure!(Node) { nodes(:flower_jpg) }.find(:all, 'icon_for')
     assert_equal 2, icon_for.size
@@ -276,15 +256,14 @@ class RelationProxyTest < ZenaTestUnit
     assert_equal 12345, lion_as_icon_for.l_status
   end
   
-  # Fixing this is not a priority. Refs #196.
-  #def test_update_status
-  #  login(:lion)
-  #  node = secure!(Node) { nodes(:cleanWater) }
-  #  assert hot = node.find(:first, 'hot')
-  #  assert_nil hot.l_status
-  #  assert node.update_attributes_with_transformation('hot_status' => 33)
-  #  node = secure!(Node) { nodes(:cleanWater) }
-  #  assert hot = node.find(:first, 'hot')
-  #  assert_equal 33, hot.l_status
-  #end
+  def test_update_status
+    login(:lion)
+    node = secure!(Node) { nodes(:cleanWater) }
+    assert hot = node.find(:first, 'hot')
+    assert_nil hot.l_status
+    assert node.update_attributes_with_transformation('hot_status' => 33)
+    node = secure!(Node) { nodes(:cleanWater) }
+    assert hot = node.find(:first, 'hot')
+    assert_equal 33, hot.l_status
+  end
 end

@@ -602,7 +602,7 @@ class Node < ActiveRecord::Base
       elsif rel =~ /\A\d+\Z/
         false
       else
-        relation = Relation.find_by_role(rel.singularize)
+        relation = RelationProxy.find_by_role(rel.singularize)
         return rel =~ /s$/ unless relation
         relation.target_role == rel.singularize ? !relation.target_unique : !relation.source_unique
       end

@@ -100,7 +100,7 @@ begin
   
     def self.zafu_readable?(sym)
       if sym.to_s =~ /(.*)_zips?$/
-        return true if self.ancestors.include?(Node) && Relation.find_by_role($1.singularize)
+        return true if self.ancestors.include?(Node) && RelationProxy.find_by_role($1.singularize)
       end
       self.zafu_readable_attributes.include?(sym.to_s)
     end
@@ -1837,6 +1837,8 @@ END_TXT
         if count == :all
           # plural
           do_list( build_finder_for(count, method, @params) )
+        # elsif count == :count
+        #   "<%= #{build_finder_for(count, method, @params)} %>"
         else
           # singular
           do_var(  build_finder_for(count, method, @params) )

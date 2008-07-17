@@ -1300,6 +1300,18 @@ done: \"I am done\""
     end
   end
   
+  def test_translate_pseudo_id
+    login(:lion)
+    { '11'                        => nodes_id(:zena), 
+      'bird'                      => nodes_id(:bird_jpg), 
+      nodes_zip(:cleanWater).to_i => nodes_id(:cleanWater),
+      nodes_zip(:status)          => nodes_id(:status),
+      'statu'                     => nodes_id(:status),
+    }.each do |k,v|
+      assert_equal v, secure(Node) { Node.translate_pseudo_id(k) }, "'#{k}' should translate to '#{v}'"
+    end
+  end
+  
   # FIXME: write test
   def test_assets
     assert true

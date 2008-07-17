@@ -14,15 +14,23 @@ class LinksControllerTest < ZenaTestController
   
   def test_create
     login(:lion)
-    node = secure!(Node) { nodes(:people) }
-    assert_nil node.find(:first, 'icon')
-    post 'create', 'node_id' => nodes_zip(:people), 'link' => {'other_zip' => 'bird', 'role' => 'icon', 'comment' => 'super icon'}
+    node = secure!(Node) { nodes(:letter) }
+    assert_nil node.find(:first, 'calendar')
+    post 'create', 'node_id' => nodes_zip(:letter), 'link' => {'other_zip' => nodes_zip(:zena).to_s, 'role' => 'calendar', 'comment' => 'super icon'}
     assert_response :success
-    node = secure!(Node) { nodes(:people) }
-    assert icon = node.find(:first, 'icon')
-    assert_equal nodes_id(:bird_jpg), icon[:id]
-    assert_equal 'super icon', icon.l_comment
-    assert_nil icon.l_status
+    node = assigns(:node)
+    puts node.errors.inspect
+    node = secure!(Node) { nodes(:letter) }
+    assert calendar = node.find(:first, 'calendar')
+    assert_equal nodes_id(:zena), calendar[:id]
+    assert_equal 'super icon', calendar.l_comment
+    assert_nil calendar.l_status
+  end
+  
+  def test_show
+    login(:lion)
+    get 'show', 'id'=>links_id(:opening_in_art), 'node_id'=>nodes_zip(:art)
+    assert_response :success
   end
 end
 

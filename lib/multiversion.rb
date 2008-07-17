@@ -334,7 +334,7 @@ module Zena
               res[k] = v
               next
             end
-            current_value = self.send(k) rescue nil # remove rescue when link is fixed
+            current_value = self.send(k) rescue nil
             case current_value.class.to_s
             when 'NilClass'
               res[k] = v unless v == nil || v == ''

@@ -1,6 +1,6 @@
 <td class='inline_form' colspan='5'>
   <% if @link %>
-  <%= form_remote_tag(:url=> node_link_path(:node_id => @link['node_zip'], :id => @link[:id])) %>
+  <%= form_remote_tag(:url=> node_link_path(:node_id => @link.this_zip, :id => @link[:id])) %>
   <input type='hidden' name='_method' value ='put'/>
   <% else %>
   <%= form_remote_tag(:url=> node_links_path(:node_id => @node[:zip])) %>
@@ -9,7 +9,7 @@
   <div id='link_errors' class='errors'></div>
   <div class='add'>
     <%=  if @link
-      link_to_remote _('btn_x'), :url => node_link_path(:node_id => @link['node_zip'], :id => @link[:id]), :method => :get
+      link_to_remote _('btn_x'), :url => node_link_path(:node_id => @link.this_zip, :id => @link[:id]), :method => :get
     else
       link_to_function _('btn_x'), "['add_link', 'add_link_form'].each(Element.toggle);"
     end %>
@@ -20,16 +20,18 @@
       roles.delete(['tag', 'tags'])
       roles.unshift ['tag', 'tags']
     end -%>
+    <% if !@link || @link.new_record? -%>
     <li>
-      <% if !@link || @link.new_record? -%>
-      <%= select('link', 'role',  roles, :selected => @link ? @link['role'] : '') %>
-      <% else -%>
-      <input type='hidden' name='link[role]' value='<%= @link['role'] %>'/>
-      <b><%= @link['role'] %></b>
-      <% end -%>
+      <%= select('link', 'role',  roles, :selected => @link ? @link.role : '') %>
       <%= select_id('link', 'other_zip') %>
     </li>
-    <li><label for='link_comment'><%= _('status')%></label><%= text_field('link', 'status', :size=>15 ) %></li>
+    <% else -%>
+    <li>
+      <label for='link_role'><%= @link.role %></label>
+      <%= select_id('link', 'other_zip') %>
+    </li>
+    <% end -%>
+    <li><label for='link_status'><%= _('status')%></label><%= text_field('link', 'status', :size=>15 ) %></li>
     <li><label for='link_comment'><%= _('comment')%></label><%= text_field('link', 'comment', :size=>15 ) %></li>
     <li><input type="submit" class="btn_validate" value='<%= _('set') %>'/></li>
   </ul>

@@ -43,6 +43,59 @@ class NodeQueryTest < ZenaTestUnit
     end
     
   end
+  
+  def test_find_new_record
+    login(:tiger)
+    node = secure!(Node) { Node.new }
+    assert_equal nil, node.find(:all,'set_tags')
+    node = secure!(Node) { Node.get_class('Tag').new_instance }
+    assert_equal nil, node.find(:all,'tagged')
+  end
+  
+  def test_do_find_in_new_node
+    login(:tiger)
+    assert var1_new = secure!(Node) { Node.get_class("Post").new }
+    assert_nil var1_new.do_find(:all, eval("\"#{Node.build_find(:all, 'posts in site', :node_name => 'self')}\""))
+  end
+  
+  def test_link_id
+    login(:tiger)
+    page = secure!(Node) { nodes(:cleanWater) }
+    pages = page.find(:all, 'pages')
+    assert_nil pages[0].link_id
+    tags  = page.find(:all, 'set_tags')
+    assert_equal [links_id(:cleanWater_in_art).to_s], tags.map{|r| r.link_id}
+  end
+  
+  def test_do_find_bad_relation
+    login(:lion)
+    node = secure!(Node) { nodes(:status) }
+    assert_nil node.find(:first, 'blah')
+  end
+  
+  def test_l_status
+    login(:lion)
+    node = secure!(Node) { nodes(:art) }
+    tagged = node.find(:all, 'tagged')
+    # cleanWater, opening
+    assert_equal [10, 5], tagged.map{|t| t.l_status}
+  end
+  
+  def test_l_comment
+    login(:lion)
+    node = secure!(Node) { nodes(:opening) }
+    tagged = node.find(:all, 'set_tags')
+    # art, news
+    assert_equal ["cold", "hot"], tagged.map{|t| t.l_comment}
+  end
+  
+  def test_l_comment_empty
+    login(:lion)
+    node = secure!(Node) { nodes(:art) }
+    tagged = node.find(:all, 'tagged')
+    # cleanWater, opening
+    assert_equal [nil, "cold"], tagged.map{|t| t.l_comment}
+  end
 
   make_tests
 end

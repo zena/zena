@@ -46,7 +46,7 @@ class LinksController < ApplicationController
     unless @node.can_drive?
       @node.errors.add('base', 'you do not have the rights to do this')
     else
-      @link_id = params[:link_id]
+      @link_id = params.link_id
       @node.remove_link(@link_id)
       @node.save
     end
@@ -56,7 +56,7 @@ class LinksController < ApplicationController
   end
   
   def destroy
-    @node.remove_link(@link[:id])
+    @node.remove_link(@link)
     @node.save
     
     respond_to do |format|
