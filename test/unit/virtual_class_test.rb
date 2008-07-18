@@ -164,8 +164,8 @@ class VirtualClassTest < ZenaTestUnit
     login(:ant)
     node = secure!(Node) { nodes(:zena) }
     #assert letters = node.find(:all,'letters')
-    sql,errors,ignore_source = Node.build_find(:all, 'letters', :node_name => 'node')
-    assert letters = node.do_find(:all, eval("\"#{sql}\""), :ignore_source => ignore_source)
+    sql,errors,uses_node_name = Node.build_find(:all, 'letters', :node_name => 'node')
+    assert letters = node.do_find(:all, eval("\"#{sql}\""), :ignore_source => !uses_node_name)
     assert_equal 1, letters.size
     assert letters[0].vkind_of?('Letter')
     assert_kind_of Note, letters[0]
@@ -213,6 +213,16 @@ class VirtualClassTest < ZenaTestUnit
     assert_equal "NNP", vclass.kpath
     assert vclass.update_attributes(:name => 'Past')
     assert_equal "NNP", vclass.kpath
+  end
+  
+  def test_update_superclass
+    # add a sub class
+    login(:lion)
+    vclass = virtual_classes(:Post)
+    assert_equal Note, vclass.superclass
+    assert vclass.update_attributes(:superclass => 'Project')
+    assert_equal Project, vclass.superclass
+    assert_equal "NPPP", vclass.kpath
   end
   
   def test_auto_create_discussion

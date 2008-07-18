@@ -91,7 +91,7 @@ class VirtualClass < ActiveRecord::Base
       end
       @superclass ||= self.superclass
       
-      if new_record? || self[:name] != old[:name]
+      if new_record? || self[:name] != old[:name] || @superclass != old.superclass
         index = 0
         kpath = nil
         while index < self[:name].length
