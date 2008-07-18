@@ -845,24 +845,28 @@ latex_template = %q{
     title += check_lang(obj) unless opts[:check_lang] == 'false'
     title  = "<span id='v_title#{obj.zip}'>#{title}</span>"
     
-    if opts[:link] && opts[:link] != 'false'
-      link_opts = {}
-      if opts[:link] == 'true'
-        # nothing special for the link format
-      elsif opts[:link] =~ /(\w+\.|)data$/
-        link_opts[:mode] = $1[0..-2] if $1 != ''
-        if obj.kind_of?(Document)
-          link_opts[:format] = obj.c_ext
-        else
-          link_opts[:format] = 'html'
-        end
-      elsif opts[:link] =~ /(\w+)\.(\w+)/
-        link_opts[:mode]   = $1
-        link_opts[:format] = $2
+    if (link = opts[:link]) && opts[:link] != 'false'
+      if link =~ /\Ahttp/
+        "<a href='#{link}'>#{title}</a>"
       else
-        link_opts[:mode]   = opts[:link]
+        link_opts = {}
+        if opts[:link] == 'true'
+          # nothing special for the link format
+        elsif opts[:link] =~ /(\w+\.|)data$/
+          link_opts[:mode] = $1[0..-2] if $1 != ''
+          if obj.kind_of?(Document)
+            link_opts[:format] = obj.c_ext
+          else
+            link_opts[:format] = 'html'
+          end
+        elsif opts[:link] =~ /(\w+)\.(\w+)/
+          link_opts[:mode]   = $1
+          link_opts[:format] = $2
+        else
+          link_opts[:mode]   = opts[:link]
+        end
+        "<a href='#{zen_path(obj, link_opts)}'>#{title}</a>"
       end
-      "<a href='#{zen_path(obj, link_opts)}'>#{title}</a>"
     else
       title
     end

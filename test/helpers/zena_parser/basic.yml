@@ -50,6 +50,14 @@ show_title_check_lang:
     lang: 'fr'
   src: "<r:title/> AND NOW <r:title check_lang='false'/>"
   res: "<span id='v_title21'>Clean Water project<span class='wrong_lang'>[en]</span></span> AND NOW <span id='v_title21'>Clean Water project</span>"
+
+show_title_link_http:
+  src: "<r:title link='http://example.com'/>"
+  res: "<a href='http://example.com'><span id='v_title22'>status title</span></a>"
+
+show_title_link_attribute:
+  src: "<r:title link='http://[name].com'/>"
+  res: "<a href='http://status.com'><span id='v_title22'>status title</span></a>"
   
 show_format:
   src: "<b do='[id]' format='%.2f'/>"

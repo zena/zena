@@ -625,10 +625,17 @@ module Zena
         return parser_error('title','only works with nodes')
       end
       title_params = {}
-      [:link, :check_lang].each do |sym|
-        title_params[sym] = @params[sym] if @params.include?(sym)
+      
+      title_params[:check_lang] = @params[:check_lang] if @params.include?(:check_lang)
+      
+      if @params[:link]
+        value, static = parse_attributes_in_value(@params[:link], :erb => false)
+        link_param = ", :link=>\"#{value}\""
+      else
+        link_param = ''
       end
-      res = "<%= show_title(:node=>#{node}#{params_to_erb(title_params)}"
+      
+      res = "<%= show_title(:node=>#{node}#{link_param}#{params_to_erb(title_params)}"
       if @params.include?(:attr)
         res << ", :text=>#{node_attribute(@params[:attr])}"
       elsif (text = expand_with(:only => [:string])) != ''
