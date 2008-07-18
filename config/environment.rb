@@ -73,19 +73,21 @@ Inflector.inflections do |inflect|
   inflect.uncountable %w( children )
 end
 
-require File.join(File.dirname(__FILE__), '../lib/secure')
-require File.join(File.dirname(__FILE__), '../lib/multiversion')
-require File.join(File.dirname(__FILE__), '../lib/has_relations')
-require File.join(File.dirname(__FILE__), '../lib/image_builder')
-require File.join(File.dirname(__FILE__), '../lib/parser')
-require File.join(File.dirname(__FILE__), '../lib/core_ext/string')
-require File.join(File.dirname(__FILE__), '../lib/core_ext/fixnum')
-require File.join(File.dirname(__FILE__), '../lib/core_ext/dir')
-require File.join(File.dirname(__FILE__), '../lib/core_ext/patcher')
+lib_path = File.join(File.dirname(__FILE__), '../lib')
+require File.join(lib_path, 'secure')
+require File.join(lib_path, 'multiversion')
+require File.join(lib_path, 'has_relations')
+require File.join(lib_path, 'image_builder')
+require File.join(lib_path, 'parser')
+Dir.foreach(File.join(lib_path, 'core_ext')) do |f|
+  next if f[0..0] == '.'
+  require File.join(lib_path, 'core_ext', f)
+end
+
+require File.join(lib_path, 'base_additions')
+require File.join(lib_path, 'node_query')
 ZazenParser = Parser.parser_with_rules(Zazen::Rules, Zazen::Tags)
 ZafuParser  = Parser.parser_with_rules(Zafu::Rules, Zena::Rules, Zafu::Tags, Zena::Tags)
-require File.join(File.dirname(__FILE__), '../lib/base_additions')
-require File.join(File.dirname(__FILE__), '../lib/node_query')
 
 require 'diff'
 
