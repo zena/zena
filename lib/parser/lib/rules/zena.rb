@@ -676,20 +676,30 @@ module Zena
     def r_text
       text = @params[:text] ? @params[:text].inspect : "#{node_attribute('v_text')}"
       limit  = @params[:limit] ? ", :limit=>#{@params[:limit].to_i}" : ""
-      @html_tag_params[:id] =  "v_text#{erb_node_id}"
+      
+      @html_tag ||= 'div'
+      if @html_tag_params[:id]
+        # add a sub-div
+        pre  = "<div id='v_text#{erb_node_id}'>"
+        post = "</div>"
+      else
+        pre = post = ''
+        @html_tag_params[:id] = "v_text#{erb_node_id}"
+      end
+      
       if c = @html_tag_params[:class] || @params[:class]
         @html_tag_params[:class] = "#{c} zazen"
       else
         @html_tag_params[:class] = 'zazen'
       end
       unless @params[:empty] == 'true'
-        out "<% if #{node}.kind_of?(TextDocument); l = #{node}.content_lang -%>"
+        out "#{pre}<% if #{node}.kind_of?(TextDocument); l = #{node}.content_lang -%>"
         out "<%= zazen(\"<code\#{l ? \" lang='\#{l}'\" : ''} class=\\'full\\'>\#{#{text}}</code>\") %>"
         out "<% else -%>"
         out "<%= zazen(#{text}#{limit}, :node=>#{node}) %>"
-        out "<% end -%>"
+        out "<% end -%>#{post}"
       else
-        out ''
+        out "#{pre}#{post}"
       end
     end
     
@@ -704,7 +714,15 @@ module Zena
     def r_summary
       limit  = @params[:limit] ? ", :limit=>#{@params[:limit].to_i}" : ""
       @html_tag ||= 'div'
-      @html_tag_params[:id] = "v_summary#{erb_node_id}"
+      if @html_tag_params[:id]
+        # add a sub-div
+        pre  = "<div id='v_summary#{erb_node_id}'>"
+        post = "</div>"
+      else
+        pre = post = ''
+        @html_tag_params[:id] = "v_summary#{erb_node_id}"
+      end
+      
       if c = @html_tag_params[:class] || @params[:class]
         @html_tag_params[:class] = "#{c} zazen"
       else
@@ -712,7 +730,7 @@ module Zena
       end
       unless @params[:or]
         text = @params[:text] ? @params[:text].inspect : node_attribute('v_summary')
-        out "<%= zazen(#{text}#{limit}, :node=>#{node}) %>"
+        out "#{pre}<%= zazen(#{text}#{limit}, :node=>#{node}) %>#{post}"
       else
         limit ||= ', :limit => 2'
         first_name = 'v_summary'
@@ -720,11 +738,11 @@ module Zena
         
         second_name = @params[:or].gsub(/[^a-z_]/,'') # FIXME: ist this still needed ? (ERB injection)
         second = node_attribute(second_name)
-        out "<% if #{first} != '' %>"
+        out "#{pre}<% if #{first} != '' %>"
         out "<%= zazen(#{first}, :node=>#{node}) %>"
         out "<% else %>"
         out "<%= zazen(#{second}#{limit}, :node=>#{node}) %>"
-        out "<% end %>"
+        out "<% end %>#{post}"
       end
     end
     

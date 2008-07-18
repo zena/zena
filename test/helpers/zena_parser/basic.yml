@@ -789,6 +789,10 @@ summary_or_text_no_summary:
   src: "<r:summary or='v_text'/>"
   res: "<div class='zazen' id='v_summary11'><p>This is the root of your peaceful tests.</p></div>"
 
+summary_in_div_with_id:
+  src: "<div id='foo' do='summary'/>"
+  res: "<div class='zazen' id='foo'><div id='v_summary22'><p>status summary</p></div></div>"
+
 text:
   src: "<r:text/>"
   res: "<div class='zazen' id='v_text22'><p>status text</p></div>"
