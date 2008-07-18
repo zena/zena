@@ -5,7 +5,6 @@ require 'tempfile'
 module ApplicationHelper
   include Zena::Acts::Secure
   
-  
   def dom_id(node)
     if node.new_record?
       "#{params[:dom_id]}_form"
@@ -720,6 +719,15 @@ latex_template = %q{
       sprintf("%i Kb", (size/(1024)).ceil)
     else
       sprintf("%i octets", size)
+    end
+  end
+  
+  # main node before ajax stuff (the one in browser url)
+  def start_node
+    @start_node ||= if params[:s]
+      secure!(Node) { Node.find_by_zip(params[:s]) }
+    else
+      @node
     end
   end
   

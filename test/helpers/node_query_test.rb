@@ -16,7 +16,7 @@ class NodeQueryTest < ZenaTestUnit
     $_test_site = params[:site] || 'zena'
     login context[:visitor].to_sym
     
-    sql, errors = Node.build_find(:all,@@test_strings[file][test]['src'] || test.gsub('_',' '), context)
+    sql, errors, uses_node_name, node_class = Node.build_find(:all,@@test_strings[file][test]['src'] || test.gsub('_',' '), context)
     if test_err = @@test_strings[file][test]['err']
       assert_yaml_test test_err, errors.join(", ")
     else
@@ -35,6 +35,7 @@ class NodeQueryTest < ZenaTestUnit
       
           res = @node.do_find(:all, sql)
           res = res ? res.map {|r| r[:name]}.join(', ') : ''
+          res = "#{node_class}: #{res}" if node_class != Node
           assert_yaml_test test_res, res
         else
           assert_yaml_test test_res, errors.join(", ")
@@ -55,7 +56,8 @@ class NodeQueryTest < ZenaTestUnit
   def test_do_find_in_new_node
     login(:tiger)
     assert var1_new = secure!(Node) { Node.get_class("Post").new }
-    assert_nil var1_new.do_find(:all, eval("\"#{Node.build_find(:all, 'posts in site', :node_name => 'self')}\""))
+    sql, errors = Node.build_find(:all, 'posts in site', :node_name => 'self')
+    assert_nil var1_new.do_find(:all, eval("\"#{sql}\""))
   end
   
   def test_link_id

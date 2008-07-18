@@ -931,6 +931,10 @@ recursion_in_each:
   </ul>"
   res: "<ul> <li><b>I agree</b> </li> <li><b>I think this is bad</b> <ul> <li><b>Why ?</b> </li></ul> </li> <li><b>OK for me</b> </li> </ul>"
 
+#comments_with_params:
+#  src: "<r:comments order='date desc'><r:each join=', ' do='[title]'/></r:comments>"
+#  tem: "."
+
 comments_shown_if_empty_but_can_comment:
   src: "<r:comments><r:each do='[title]'/><r:add/></r:comments>"
   tem: "/if \(list1 = @node.comments\) \|\| \(@node.can_comment\? && list1=\[\]\) -%>/"

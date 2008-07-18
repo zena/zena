@@ -151,7 +151,15 @@ class QueryBuilder
     @errors == []
   end
   
+  def result_class
+    class_from_table(current_table)
+  end
+  
   protected
+    
+    def current_table
+      @current_table || main_table
+    end
     
     def main_table
       @@main_table
@@ -494,6 +502,10 @@ class QueryBuilder
     end
     
     # ******** Overwrite these **********
+    def class_from_table(table_name)
+      Object
+    end
+    
     def parse_custom_query_argument(key, value)
       return nil unless value
       value = value.gsub('REF_DATE', @ref_date)

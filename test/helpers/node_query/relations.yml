@@ -28,3 +28,7 @@ projects_from_tags:
   
 projects_in_site:
   sql: "SELECT nodes.* FROM nodes WHERE nodes.kpath LIKE 'NPP%' AND (#{@node.secure_scope('nodes')}) ORDER BY nodes.position ASC, nodes.name ASC"
+
+#comments_order:
+#  src: "comments order by date desc"
+#  sql: "Comment: x"

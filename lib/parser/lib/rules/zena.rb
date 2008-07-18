@@ -488,7 +488,7 @@ module Zena
         return parser_error("missing 'block' in same parent") unless parent && block = parent.descendant('block')
       end
       
-      out "<%= form_remote_tag(:url => zafu_node_path(#{node_id}), :method => :get, :html => {:id => \"#{dom_id}_f\"}) %><div class='hidden'><input type='hidden' name='t_url' value='#{block.template_url}'/><input type='hidden' name='dom_id' value='#{block.erb_dom_id}'/></div><div class='wrapper'>"
+      out "<%= form_remote_tag(:url => zafu_node_path(#{node_id}), :method => :get, :html => {:id => \"#{dom_id}_f\"}) %><div class='hidden'><input type='hidden' name='t_url' value='#{block.template_url}'/><input type='hidden' name='dom_id' value='#{block.erb_dom_id}'/>#{start_node_input}</div><div class='wrapper'>"
       if @blocks == []
         out "<input type='text' name='#{@params[:key] || 'f'}' value='<%= params[#{(@params[:key] || 'f').to_sym.inspect}] %>'/>"
       else
@@ -1040,7 +1040,8 @@ END_TXT
         list_finder = "(secure(Node) { Node.find(:all, :conditions => 'zip IN (#{values.join(',')})') })"
       else
         # relation
-        list_finder = build_finder_for(:all, values)
+        list_finder, klass = build_finder_for(:all, values)
+        return parser_error("invalid class (#{klass})") unless klass.ancestors.include?(Node)
       end
       out "<% if (#{list_var} = #{list_finder}) && (#{list_var}_relation = #{node}.relation_proxy(#{role.inspect})) -%>"
       out "<% if #{list_var}_relation.unique? -%>"
@@ -1535,7 +1536,9 @@ END_TXT
     # icon or first image (defined using build_finder_for instead of zafu_known_context for performance reasons).
     def r_icon
       if !@params[:in] && !@params[:where] && !@params[:from] && !@params[:find]
-        do_var(build_finder_for(:first, 'icon', :or => 'image'), :node_class => Image)
+        finder, klass = build_finder_for(:first, 'icon', @params.merge(:or => 'image'))
+        return parser_error("invalid class (#{klass})") unless klass.ancestors.include?(Node)
+        do_var(finder, :node_class => klass)
       else
         r_unknown
       end
@@ -1649,7 +1652,9 @@ END_TXT
       opts = ''
       if @params[:href]
         unless lnode = find_stored(Node, @params[:href])
-          opts << ", :href=>#{build_finder_for(:first, @params[:href])}"
+          finder, klass = build_finder_for(:first, @params[:href])
+          return parser_error("invalid class (#{klass})") unless klass.ancestors.include?(Node)
+          opts << ", :href=>#{finder}"
         end
       end
 
@@ -1678,7 +1683,9 @@ END_TXT
       end
       
       if sharp_in = @params[:in]
-        opts << ", :sharp_in=>#{build_finder_for(:first, sharp_in, {})}"
+        finder, klass = build_finder_for(:first, sharp_in, {})
+        return parser_error("invalid class (#{klass})") unless klass.ancestors.include?(Node)
+        opts << ", :sharp_in=>#{finder}"
       end
       
       if date = @params[:date]
@@ -1722,7 +1729,9 @@ END_TXT
     def r_img
       return unless node_kind_of?(Node)
       if @params[:src]
-        img = build_finder_for(:first, @params[:src])
+        finder, klass = build_finder_for(:first, @params[:src])
+        return parser_error("invalid class (#{klass})") unless klass.ancestors.include?(Node)
+        img = finder
       else
         img = node
       end
@@ -1733,7 +1742,8 @@ END_TXT
       end
       res += ")"
       if @params[:link]
-        link = build_finder_for(:first, @params[:link])
+        link, klass = build_finder_for(:first, @params[:link])
+        return parser_error("invalid class (#{klass})") unless klass.ancestors.include?(Node)
         res  = "node_link(:node=>#{link}, :text=>#{res})"
       end
       "<%= #{res} %>"
@@ -1776,7 +1786,9 @@ END_TXT
         else
           return parser_error("invalid type (should be 'month' or 'week')")
         end
-
+        
+        finder, klass = build_finder_for(:all, finder, @params, [@date_scope])
+        return parser_error("invalid class (#{klass})") unless klass.ancestors.include?(Node)
         res = <<-END_TXT
 <h3 class='title'>
 <span><%= link_to_remote(#{_('img_prev_page').inspect}, :url => #{base_class.to_s.underscore}_path(#{node_id}) + \"/zafu?t_url=#{CGI.escape(template_url)}&dom_id=#{dom_id}&date=#{prev_date}\", :method => :get) %></span>
@@ -1786,7 +1798,7 @@ END_TXT
 <table cellspacing='0' class='#{size}cal'>
   <tr class='head'><%= cal_day_names(#{size.inspect}) %></tr>
 <% start_date, end_date = cal_start_end(#{current_date}, #{type.inspect}) -%>
-<% cal_weeks(#{ref_date.to_sym.inspect}, #{build_finder_for(:all, finder, @params, [@date_scope])}, start_date, end_date) do |week, cal_#{list_var}| -%>
+<% cal_weeks(#{ref_date.to_sym.inspect}, #{finder}, start_date, end_date) do |week, cal_#{list_var}| -%>
   <tr class='body'>
 <% week.step(week+6,1) do |day_#{list_var}|; #{list_var} = cal_#{list_var}[day_#{list_var}.strftime('%Y-%m-%d')] -%>
     <td<%= cal_class(day_#{list_var},#{current_date}) %>><% if #{list_var} -%>#{expand_with(:in_if => true, :list => list_var, :date => "day_#{list_var}", :saved_template => nil, :dom_prefix => nil)}<% end -%></td>
@@ -1844,14 +1856,14 @@ END_TXT
     def r_context
       # DRY ! (build_finder_for, block)
       method = @params[:method]
-      if (context = node_class.zafu_known_contexts[method]) && !@params[:in] && !@params[:where] && !@params[:from]
-        node_class = context[:node_class]
-        
+      context = node_class.zafu_known_contexts[method]
+      if context && @params.keys == [:method]
+        klass = context[:node_class]
         # hack to store last 'Node' context until we fix node(Node) stuff:
         previous_node = node_kind_of?(Node) ? node : @context[:previous_node]
-        if node_class.kind_of?(Array)
+        if klass.kind_of?(Array)
           # plural
-          do_list( "#{node}.#{method}", context.merge(:node_class => node_class[0], :previous_node => previous_node) )
+          do_list( "#{node}.#{method}", context.merge(:node_class => klass[0], :previous_node => previous_node) )
         else
           # singular
           do_var(  "#{node}.#{method}", context.merge(:previous_node => previous_node) )
@@ -1859,14 +1871,15 @@ END_TXT
       elsif node_kind_of?(Node)
         count   = ['first','all'].include?(@params[:find]) ? @params[:find].to_sym : nil
         count ||= Node.plural_relation?(method) ? :all : :first
+        finder, klass = build_finder_for(count, method, @params)
         if count == :all
           # plural
-          do_list( build_finder_for(count, method, @params) )
+          do_list( finder, :node_class => klass)
         # elsif count == :count
         #   "<%= #{build_finder_for(count, method, @params)} %>"
         else
           # singular
-          do_var(  build_finder_for(count, method, @params) )
+          do_var(  finder, :node_class => klass)
         end
       else
         "unknown relation (#{method}) for #{node_class} class"
@@ -1898,36 +1911,33 @@ END_TXT
     
     # Create an sql query to open a new context (passes its arguments to HasRelations#build_find)
     def build_finder_for(count, rel, params=@params, raw_filters = [])
-      if (context = node_class.zafu_known_contexts[rel]) && !params[:in] && !params[:where] && !params[:from] && raw_filters == []
-        node_class = context[:node_class]
+      if (context = node_class.zafu_known_contexts[rel]) && !params[:in] && !params[:where] && !params[:from] && !params[:order] && raw_filters == []
+        klass = context[:node_class]
         
-        if node_class.kind_of?(Array) && count == :all && node_class[0].ancestors.include?(Node)
-          return "#{node}.#{rel}"
-        elsif node_class.ancestors.include?(Node)
-          return count == :all ? "[#{node}.#{rel}]" : "#{node}.#{rel}"
+        if klass.kind_of?(Array) && count == :all
+          return ["#{node}.#{rel}", klass[0]]
         else
-          # not a Node
-          'nil'
+          return [(count == :all ? "[#{node}.#{rel}]" : "#{node}.#{rel}"), klass]
         end
       end
       
       rel ||= 'self'
       if (count == :first)
         if rel == 'self'
-          return node
+          return [node, self.node_class]
         elsif rel == 'main'
-          return "@node"
+          return ["@node", Node]
         elsif rel == 'root'
-          return "(secure(Node) { Node.find(#{current_site[:root_id]})})"
+          return ["(secure(Node) { Node.find(#{current_site[:root_id]})})", Node]
         elsif rel == 'visitor'
-          return "visitor.contact"
+          return ["visitor.contact", Node]
         elsif rel =~ /^\d+$/
-          return "(secure(Node) { Node.find_by_zip(#{rel.inspect})})"
+          return ["(secure(Node) { Node.find_by_zip(#{rel.inspect})})", Node]
         elsif node_name = find_stored(Node, rel)
-          return node_name
+          return [node_name, Node]
         elsif rel[0..0] == '/'
           rel = rel[1..-1]
-          return "(secure(Node) { Node.find_by_path(#{rel.inspect})})"
+          return ["(secure(Node) { Node.find_by_path(#{rel.inspect})})", Node]
         end
       end
       
@@ -1949,21 +1959,24 @@ END_TXT
       end
       
       # make sure we do not use a new record in a find query:
-      sql_query, query_errors, can_ignore_source = Node.build_find(count, pseudo_sql, :node_name => node_name, :raw_filters => raw_filters, :ref_date => "\#{#{current_date}}")
+      sql_query, query_errors, uses_node_name, klass = Node.build_find(count, pseudo_sql, :node_name => node_name, :raw_filters => raw_filters, :ref_date => "\#{#{current_date}}")
       
       unless sql_query
         # is 'out' here a good idea ?
         out parser_error(query_errors.join(' '), pseudo_sql.join(', '))
-        return "nil"
+        return ['nil', NilClass]
       end
       
-      res = "#{node_name}.do_find(#{count.inspect}, \"#{sql_query}\", #{can_ignore_source})"
+      res = "#{node_name}.do_find(#{count.inspect}, \"#{sql_query}\", #{!uses_node_name})"
       if params[:else]
-        if else_query = build_finder_for(count, params[:else], {})
-          "(#{res} || #{else_query})"
+        else_query, else_klass = build_finder_for(count, params[:else], {})
+        if else_query && (else_klass == klass || klass.ancestors.include?(else_klass) || else_klass.ancestors.include?(klass))
+          ["(#{res} || #{else_query})", klass]
+        else
+          [res, klass]
         end
       else
-        res 
+        [res, klass]
       end
     end
     
@@ -2152,12 +2165,12 @@ END_TXT
       @options[:helper]
     end
     
-    def params_to_erb(params)
-      res = ""
+    def params_to_erb(params, initial_comma = true)
+      res = initial_comma ? [""] : []
       params.each do |k,v|
-        res << ", #{k.inspect}=>#{v.inspect}"
+        res << "#{k.inspect}=>#{v.inspect}"
       end
-      res
+      res.join(', ')
     end
     
     def do_var(var_finder=nil, opts={})
@@ -2262,13 +2275,13 @@ END_TXT
     
     def context_name
       return (@context[:name] || 'list') if @context
-      @name || @params[:id] || parent.context_name
+      @name || @params[:id] || parent ? parent.context_name : 'root'
     end
     
     def context
       return @context if @context
       # not rendered yet, find first parent with context
-      @context = parent.context
+      @context = parent ? parent.context : {}
     end
     
     # prefix for DOM id
@@ -2710,6 +2723,7 @@ END_TXT
       
       url_params << "link_id=\#{#{node}.link_id}" if @context[:need_link_id] && node_kind_of?(Node)
       url_params << "node[v_status]=#{Zena::Status[:pub]}" if @params[:publish]
+      url_params << start_node_input(false)
       
       res = ''
       res += "<% if #{opts[:cond]} -%>" if opts[:cond]
@@ -2835,7 +2849,8 @@ END_TXT
           nodes = "(secure(Node) { Node.find(:all, :conditions => 'zip IN (#{nodes.join(',')})') })"
         else
           # relation
-          nodes = build_finder_for(:all, nodes)
+          nodes, klass = build_finder_for(:all, nodes)
+          return parser_error("invalid class (#{klass})") unless klass.ancestors.include?(Node)
         end  
         set_attr  = @params[:attr] || 'id'
         show_attr = @params[:show] || 'name'
@@ -2906,7 +2921,12 @@ END_TXT
     end
     
     def find_stored(klass, key)
-      @context["#{klass}_#{key}"]
+      if "#{klass}_#{key}" == "Node_start_node"
+        # main node before ajax stuff (the one in browser url)
+        "start_node"
+      else
+        @context["#{klass}_#{key}"]
+      end
     end
     
     def set_stored(klass, key, obj)
@@ -2971,6 +2991,14 @@ END_TXT
         end
       end
       return false
+    end
+    
+    def start_node_input(erb = true)
+      if erb
+        "<input type='hidden' name='s' value='<%= params[:s] || @node[:zip] %>'/>"
+      else
+        "&s=\#{params[:s] || @node[:zip]}"
+      end
     end
     
     def parser_error(message, tag=@method)

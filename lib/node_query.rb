@@ -251,6 +251,22 @@ class NodeQuery < QueryBuilder
       end
     end
     
+    def class_from_table(table_name)
+      case table_name
+      when 'nodes'
+        Node
+      when 'versions'
+        Version
+      when 'comments'
+        Comment
+      when 'data_entries'
+        DataEntry
+      else
+        # ? error
+        Object
+      end
+    end
+    
     def parse_custom_query_argument(key, value)
       return nil unless value
       super.gsub(/(RELATION_ID|NODE_ATTR)\(([^)]+)\)/) do
@@ -324,7 +340,7 @@ module Zena
           opts[:limit] = 1
         end
         query = NodeQuery.new(pseudo_sql, opts.merge(:custom_query_group => visitor.site.host))
-        [query.to_sql, query.errors, !query.uses_node_name]
+        [query.to_sql, query.errors, query.uses_node_name, query.result_class]
       end
     end
     
