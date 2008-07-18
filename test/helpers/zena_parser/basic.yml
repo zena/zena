@@ -573,6 +573,10 @@ test_in_each:
   src: "<ul do='pages'><li do='each' on_if='name = \"track\"' do='[name]'/></ul>"
   tem: "/var1.name == \"track\"/"
   res: "<ul><li>status</li><li class='on'>track</li></ul>"
+
+on_if_in_unknown:
+  src: "<div do='project' on_if='name eq \"cleanWater\"' do='[name]'/>"
+  res: "<div class='on'>cleanWater</div>"
   
 simple_each:
   src: "<r:children><r:each><r:show attr='name'/></r:each></r:children>"

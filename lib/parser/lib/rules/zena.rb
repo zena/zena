@@ -2646,7 +2646,17 @@ END_TXT
       end
       tag_class = @html_tag_params[:class] || @params[:class]
       if node_kind_of?(Node)
-        node_name = (@method == 'each' && @context[:list] && !@context[:make_form]) ? var : node
+        
+        if @context[:make_form]
+          node_name = node
+        elsif @method == 'each' && @context[:list]
+          node_name = var
+        elsif @method == 'context'
+          node_name = var
+        else
+          node_name = node
+        end
+        
         @params.each do |k,v|
           if k.to_s =~ /^(.+)_if$/
             klass = $1
