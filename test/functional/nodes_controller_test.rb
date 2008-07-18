@@ -29,6 +29,20 @@ class NodesControllerTest < ZenaTestController
       end
     end
   end
+
+  def test_update_l_status
+    login(:lion)
+    opening = secure!(Node) { nodes(:opening) }
+    art = opening.find(:first, 'set_tag')
+    assert_equal 5, art.l_status
+    post 'update', :id => art[:zip], :node => {:l_status => 54321}, :link_id => links_id(:opening_in_art)
+    art = assigns(:node)
+    assert_equal 54321, art.l_status
+    # reload
+    opening = secure!(Node) { nodes(:opening) }
+    art = opening.find(:first, 'set_tag')
+    assert_equal 54321, art.l_status
+  end
 end
 
 =begin

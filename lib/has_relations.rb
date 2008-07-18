@@ -48,12 +48,14 @@ module Zena
       
       # status defined through loading link
       def l_status
+        return @l_status if defined? @l_status
         val = @link ? @link[:status] : self['l_status']
         val ? val.to_i : nil
       end
       
       # comment defined through loading link
       def l_comment
+        return @l_comment if defined? @l_comment
         @link ? @link[:comment] : self['l_comment']
       end
       
@@ -99,18 +101,16 @@ module Zena
       end
       
       def l_comment=(v)
+        @l_comment = v.blank? ? nil : v
         if rel = relation_proxy_from_link
-          rel.other_comment = v.blank? ? nil : v
-        else
-          @l_comment = v.blank? ? nil : v
+          rel.other_comment = @l_comment
         end
       end
       
       def l_status=(v)
+        @l_status = v.blank? ? nil : v
         if rel = relation_proxy_from_link
-          rel.other_status = v.blank? ? nil : v
-        else
-          @l_status = v.blank? ? nil : v
+          rel.other_status = @l_status
         end
       end
       
