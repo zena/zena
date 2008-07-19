@@ -1224,9 +1224,9 @@ END_TXT
         else
           return
         end
-      end
-      
-      unless target = ancestor('block')
+      elsif target = ancestor('block')
+        # ok
+      else
         target = self
       end
       
