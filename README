@@ -82,7 +82,7 @@ ruby1.8.6
     # ./configure --with-openssl
     # make && make install
 rubygems
-    # wget http://rubyforge.org/frs/download.php/29548/rubygems-1.0.1.tgz
+    # wget http://rubyforge.org/frs/download.php/38646/rubygems-1.2.0.tgz
     # tar xzf rubygems-1.0.1.tgz
     # cd rubygems-1.0.1
     # ruby setup.rb (if ruby is not found, log out and log back in)
@@ -95,8 +95,10 @@ ImageMagick
 
 === 3. install Gems
 
-# does not work with gettext > 1.90.0
-rake mongrel mongrel_cluster rmagick tzinfo RedCloth syntax gettext mongrel_upload_progress uuidtools daemons ruby-debug
+Does not work with gettext > 1.90.0
+    # gem install gettext --version 1.90.0 --no-ri --no-rdoc
+Install other gems (you can remove "--no-ri --no-rdoc" if you want the documentation)
+    # gem install rake mongrel mongrel_cluster rmagick tzinfo RedCloth syntax mongrel_upload_progress uuidtools daemons ruby-debug --no-ri --no-rdoc
 
 gem install --source http://www.loonsoft.com/recaptcha/pkg/ recaptcha
 
