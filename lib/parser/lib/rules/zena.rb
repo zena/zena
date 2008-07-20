@@ -636,10 +636,10 @@ module Zena
       end
       
       res = "<%= show_title(:node=>#{node}#{link_param}#{params_to_erb(title_params)}"
-      if @params.include?(:attr)
+      if @params[:text]
+        res << ", :text=>#{@params[:text].inspect}"
+      elsif @params[:attr]
         res << ", :text=>#{node_attribute(@params[:attr])}"
-      elsif (text = expand_with(:only => [:string])) != ''
-        res << ", :text=>#{text.inspect}"
       end
       
       if @params.include?(:project)
@@ -1642,13 +1642,14 @@ END_TXT
     # <r:link href='node' tattr='lang'/>
     # <r:link update='dom_id'/>
     def r_link
-      if @blocks.blank? || @params[:attr] || @params[:tattr] || @params[:trans] || @params[:text]
-        text = get_text_for_erb
-        text_mode = :erb
-      else  
+      if @blocks.size > 1 || (@blocks.size == 1 && !@blocks.first.kind_of?(String))
         text_mode = :raw
         text = expand_with
+      else
+        text = get_text_for_erb(params, false)
+        text_mode = :erb
       end
+      
       opts = ''
       if @params[:href]
         unless lnode = find_stored(Node, @params[:href])
@@ -2764,7 +2765,7 @@ END_TXT
       res
     end
     
-    def get_text_for_erb(params = @params)
+    def get_text_for_erb(params = @params, use_blocks = true)
       if params[:attr]
         text = "#{node_attribute(params[:attr])}"
       elsif params[:tattr]
@@ -2773,7 +2774,7 @@ END_TXT
         text = _(params[:trans]).inspect
       elsif params[:text]
         text = params[:text].inspect
-      elsif @blocks != []
+      elsif use_blocks && @blocks != []
         res  = []
         text = ""
         static = true

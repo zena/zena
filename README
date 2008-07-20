@@ -99,8 +99,8 @@ Does not work with gettext > 1.90.0
     # gem install gettext --version 1.90.0 --no-ri --no-rdoc
 Install other gems (you can remove "--no-ri --no-rdoc" if you want the documentation)
     # gem install rake mongrel mongrel_cluster rmagick tzinfo RedCloth syntax mongrel_upload_progress uuidtools daemons ruby-debug --no-ri --no-rdoc
-
-gem install --source http://www.loonsoft.com/recaptcha/pkg/ recaptcha
+From source
+    # gem install --source http://www.loonsoft.com/recaptcha/pkg/ recaptcha
 
 === Advised tools
 monit (debian package to monitor your mongrel processes)
