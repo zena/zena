@@ -67,7 +67,7 @@ class MultiVersionTest < ZenaTestUnit
       :v_summary => "status summary",
       :v_text => "status text",
       :v_title => "Etat des travaux"}
-    assert_equal Hash[:v_title=>'hey', :d_what=>'ever'], node.remove_attributes_with_same_value(current.merge(:v_title=>'hey', :d_what=>'ever'))
+    assert_equal Hash[:v_title=>'hey', :d_what=>'ever', :position => nil], node.remove_attributes_with_same_value(current.merge(:v_title=>'hey', :d_what=>'ever', :position => ''))
   end
   
   def test_remove_attributes_with_same_value_empty_date

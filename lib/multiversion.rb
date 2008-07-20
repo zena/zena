@@ -341,9 +341,11 @@ module Zena
             when 'String'
               res[k] = v unless current_value == v.to_s
             when 'Float'
-              res[k] = v unless current_value == v.to_f
+              v = v.blank? ? nil : v.to_f
+              res[k] = v unless current_value == v
             when 'Fixnum'
-              res[k] = v unless current_value == v.to_i
+              v = v.blank? ? nil : v.to_i
+              res[k] = v unless current_value == v
             when 'Date', 'DateTime', 'Time'
               begin
                 res[k] = v unless current_value.strftime('%Y-%m-%d %H:%M:%S') == (v.kind_of?(String) ? DateTime.parse(v) : v).strftime('%Y-%m-%d %H:%M:%S')
