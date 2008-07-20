@@ -17,8 +17,7 @@ if_bad_test:
 
 bad_query:
   src: "<r:images where='foo bar baz'>ok</r:images>"
-  tem: "<span class='parser_error'>[images where foo bar baz] invalid field or value \"foo\"</span><% if nil -%>ok<% end -%>"
-  res: "<span class='parser_error'>[images where foo bar baz] invalid field or value \"foo\"</span>"
+  tem: "<span class='parser_error'>[images where foo bar baz] invalid field or value \"foo\"</span>"
 
 bad_field_in_query:
   src: "<r:images where='name = baz'>ok</r:images>"
@@ -26,8 +25,7 @@ bad_field_in_query:
 
 bad_relation:
   src: "<div do='categories in site' do='each' join=', ' do='[name]'/>"
-  tem: "/<% if nil -%>/"
-  res: "<span class='parser_error'>[categories in site] unknown relation 'categories'</span>"
+  tem: "<div><span class='parser_error'>[categories in site] unknown relation 'categories'</span></div>"
 
 bad_order_clause:
   src: "<r:images order='l_status ASC' do='each' join=',' do='[name]'/>"

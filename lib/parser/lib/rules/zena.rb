@@ -82,18 +82,18 @@ begin
       end
     end
     
-    def self.parse_class(node_class)
-      if node_class.kind_of?(Array)
-        if node_class[0].kind_of?(String)
-          [Module::const_get(node_class[0])]
+    def self.parse_class(klass)
+      if klass.kind_of?(Array)
+        if klass[0].kind_of?(String)
+          [Module::const_get(klass[0])]
         else
-          node_class
+          klass
         end
       else
-        if node_class.kind_of?(String)
-          Module::const_get(node_class)
+        if klass.kind_of?(String)
+          Module::const_get(klass)
         else
-          node_class
+          klass
         end
       end
     end
@@ -1041,6 +1041,7 @@ END_TXT
       else
         # relation
         list_finder, klass = build_finder_for(:all, values)
+        return unless list_finder
         return parser_error("invalid class (#{klass})") unless klass.ancestors.include?(Node)
       end
       out "<% if (#{list_var} = #{list_finder}) && (#{list_var}_relation = #{node}.relation_proxy(#{role.inspect})) -%>"
@@ -1537,6 +1538,7 @@ END_TXT
     def r_icon
       if !@params[:in] && !@params[:where] && !@params[:from] && !@params[:find]
         finder, klass = build_finder_for(:first, 'icon', @params.merge(:or => 'image'))
+        return unless finder
         return parser_error("invalid class (#{klass})") unless klass.ancestors.include?(Node)
         do_var(finder, :node_class => klass)
       else
@@ -1654,6 +1656,7 @@ END_TXT
       if @params[:href]
         unless lnode = find_stored(Node, @params[:href])
           finder, klass = build_finder_for(:first, @params[:href])
+          return unless finder
           return parser_error("invalid class (#{klass})") unless klass.ancestors.include?(Node)
           opts << ", :href=>#{finder}"
         end
@@ -1685,6 +1688,7 @@ END_TXT
       
       if sharp_in = @params[:in]
         finder, klass = build_finder_for(:first, sharp_in, {})
+        return unless finder
         return parser_error("invalid class (#{klass})") unless klass.ancestors.include?(Node)
         opts << ", :sharp_in=>#{finder}"
       end
@@ -1731,6 +1735,7 @@ END_TXT
       return unless node_kind_of?(Node)
       if @params[:src]
         finder, klass = build_finder_for(:first, @params[:src])
+        return unless finder
         return parser_error("invalid class (#{klass})") unless klass.ancestors.include?(Node)
         img = finder
       else
@@ -1743,9 +1748,10 @@ END_TXT
       end
       res += ")"
       if @params[:link]
-        link, klass = build_finder_for(:first, @params[:link])
+        finder, klass = build_finder_for(:first, @params[:link])
+        return unless finder
         return parser_error("invalid class (#{klass})") unless klass.ancestors.include?(Node)
-        res  = "node_link(:node=>#{link}, :text=>#{res})"
+        res  = "node_link(:node=>#{finder}, :text=>#{res})"
       end
       "<%= #{res} %>"
     end
@@ -1789,6 +1795,7 @@ END_TXT
         end
         
         finder, klass = build_finder_for(:all, finder, @params, [@date_scope])
+        return unless finder
         return parser_error("invalid class (#{klass})") unless klass.ancestors.include?(Node)
         res = <<-END_TXT
 <h3 class='title'>
@@ -1873,6 +1880,7 @@ END_TXT
         count   = ['first','all'].include?(@params[:find]) ? @params[:find].to_sym : nil
         count ||= Node.plural_relation?(method) ? :all : :first
         finder, klass = build_finder_for(count, method, @params)
+        return unless finder
         if count == :all
           # plural
           do_list( finder, :node_class => klass)
@@ -1925,7 +1933,7 @@ END_TXT
       rel ||= 'self'
       if (count == :first)
         if rel == 'self'
-          return [node, self.node_class]
+          return [node, node_class]
         elsif rel == 'main'
           return ["@node", Node]
         elsif rel == 'root'
@@ -1963,9 +1971,8 @@ END_TXT
       sql_query, query_errors, uses_node_name, klass = Node.build_find(count, pseudo_sql, :node_name => node_name, :raw_filters => raw_filters, :ref_date => "\#{#{current_date}}")
       
       unless sql_query
-        # is 'out' here a good idea ?
         out parser_error(query_errors.join(' '), pseudo_sql.join(', '))
-        return ['nil', NilClass]
+        return nil
       end
       
       res = "#{node_name}.do_find(#{count.inspect}, \"#{sql_query}\", #{!uses_node_name})"
@@ -2139,7 +2146,7 @@ END_TXT
       end
     end
     
-    # TODO: replace symbols by real classes
+    # Class of the current 'node' object (can be Version, Comment, Node, DataEntry, etc)
     def node_class
       @context[:node_class] || Node
     end
@@ -2861,6 +2868,7 @@ END_TXT
         else
           # relation
           nodes, klass = build_finder_for(:all, nodes)
+          return unless nodes
           return parser_error("invalid class (#{klass})") unless klass.ancestors.include?(Node)
         end  
         set_attr  = @params[:attr] || 'id'
