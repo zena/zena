@@ -2375,8 +2375,13 @@ END_TXT
     end
     
     def context_name
-      return (@name || @context[:name] || 'list') if @context
-      @name || @params[:id] || (parent ? parent.context_name : 'root')
+      @name || if @context
+        @context[:name] || 'list'
+      elsif parent
+        parent.context_name
+      else
+        'root'
+      end
     end
     
     def next_name_index(key, own_id = false)
