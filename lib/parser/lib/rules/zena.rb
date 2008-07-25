@@ -378,12 +378,12 @@ module Zena
         # TODO: what do we do here with dates ?
         return "#{node_attribute(attribute)}"
       elsif @params[:tattr]
-        return "<%= zazen(_(#{node_attribute(attribute)})#{limit}, :node=>#{node}) %>"
+        return "<%= zazen(_(#{node_attribute(attribute)})#{limit}, :node=>#{node(Node)}) %>"
       elsif @params[:attr]
         if output_format == 'html'
-          res = "<%= zazen(#{node_attribute(attribute)}#{limit}, :node=>#{node}) %>"
+          res = "<%= zazen(#{node_attribute(attribute)}#{limit}, :node=>#{node(Node)}) %>"
         else
-          return "<%= zazen(#{node_attribute(attribute)}#{limit}, :node=>#{node}, :output=>#{output_format.inspect}) %>"
+          return "<%= zazen(#{node_attribute(attribute)}#{limit}, :node=>#{node(Node)}, :output=>#{output_format.inspect}) %>"
         end
       elsif @params[:date]
         # date can be any attribute v_created_at or updated_at etc.
@@ -456,7 +456,6 @@ module Zena
         else
           @html_tag ||= 'div'
           new_dom_scope
-          
           unless @context[:make_form]
             # STORE TEMPLATE ========
 
@@ -1148,7 +1147,7 @@ END_TXT
       elsif @blocks != []
         text = expand_with
       else
-        text = _("btn_add")
+        text = node_class == Comment ? _("btn_add_comment") : _("btn_add")
       end
       
       out "<a href='#' onclick='#{@context[:onclick]}'>#{text}</a>"
@@ -1203,6 +1202,7 @@ END_TXT
     end
     
     def r_draggable
+      new_dom_scope
       @html_tag ||= 'div'
       @html_tag_params ||= {}
       dom_id = unique_name
@@ -1354,7 +1354,7 @@ END_TXT
     end
     
     def r_each
-      if @context[:dom_prefix] || @params[:draggable] == 'true' || descendant('unlink')
+      if descendant('edit') || descendant('unlink') || ['block', 'drop'].include?(single_child_method) || @params[:draggable] == 'true'
         id_hash = {:id => erb_dom_id}
       else
         id_hash = nil
@@ -1890,6 +1890,10 @@ END_TXT
         count ||= Node.plural_relation?(method) ? :all : :first
         finder, klass = build_finder_for(count, method, @params)
         return unless finder
+        if node_kind_of?(Node) && !klass.ancestors.include?(Node)
+          # moving out of node: store last Node
+          @context[:previous_node] = node
+        end
         if count == :all
           # plural
           do_list( finder, :node_class => klass)
@@ -2108,8 +2112,16 @@ END_TXT
     end
     
     # find the current node name in the context
-    def node
-      @context[:saved_template] ? "@#{base_class.to_s.underscore}" : (@context[:node] || '@node')
+    def node(klass = self.node_class)
+      if klass == self.node_class
+        @context[:saved_template] ? "@#{base_class.to_s.underscore}" : (@context[:node] || '@node')
+      elsif klass == Node
+        @context[:previous_node] || '@node'
+      else
+        # ?
+        out parser_error("could not find node_name for #{klass} (current class is #{node_class})")
+        '@node'
+      end
     end
 
     def erb_node_id(obj = node)
@@ -2561,7 +2573,8 @@ END_TXT
     end
     
     def single_child_method
-      if @blocks.size == 1
+      return @single_child_method if defined?(@single_child_method)
+      @single_child_method = if @blocks.size == 1
         single_child = @blocks[0]
         return nil if single_child.kind_of?(String)
         single_child.html_tag ? nil : single_child.method

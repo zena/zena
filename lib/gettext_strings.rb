@@ -20,6 +20,8 @@ module Zena
     N_('text_doc_tab')          # document form tab name
     
     N_('btn_add_doc') # used by zafu layout template
+    N_('btn_add') # used by zafu layout template
+    N_('btn_add_comment') # used by zafu layout template
     
     # admin icons
     N_('relation_img')

@@ -235,15 +235,17 @@ class NodeQuery < QueryBuilder
     
     def map_parameter(fld)
       case fld
-      when 'project_id', 'section_id'
+      when 'project_id', 'section_id', 'discussion_id'
         @uses_node_name = true
         "\#{#{@node_name}.get_#{fld}}"
-      when 'id', 'parent_id', 'discussion_id'
+      when 'id', 'parent_id'
         @uses_node_name = true
         "\#{#{@node_name}.#{fld}}"
-      else
+      else  
         # Node.zafu_readable?(fld)
         # bad parameter
+        @errors << "invalid parameter '#{fld}'"
+        "0"
       end
     end
     
