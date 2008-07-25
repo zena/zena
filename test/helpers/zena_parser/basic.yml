@@ -454,7 +454,7 @@ each_alternate_class_ajax:
   context:
     node: 'cleanWater'
   src: "<ol do='pages'><li do='each' alt_class='blue' do='[name]'/><li do='add'/></ol>"
-  res: "/<li id='list1_22'>status<\/li><li id='list1_37' class=\"blue\">track/"
+  res: "/<li>status<\/li><li class=\"blue\">track/"
 
 case_when:
   src: "<r:case><r:when kind_of='Document'>this is a document</r:when><r:when klass='Page'>Page</r:when><r:when status='pub'>Pub</r:when>"

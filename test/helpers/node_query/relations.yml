@@ -31,4 +31,4 @@ projects_in_site:
 
 comments_order:
   src: "comments order by created_at desc"
-  sql: "Comment: SELECT comments.* FROM comments WHERE comments.discussion_id = #{@node.discussion_id} ORDER BY comments.created_at DESC"
+  sql: "Comment: SELECT comments.* FROM comments WHERE comments.discussion_id = #{@node.get_discussion_id} ORDER BY comments.created_at DESC"

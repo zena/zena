@@ -39,7 +39,7 @@ each_add_with_form:
       <li do='add'>add new</li>
       <li do='form'><input name='v_title'/> this is the form</li>
     </ol>
-  res: "/<li.*list1_30.*>bird.*<li.*list1_31.*>flower.*<li.*list1_add.*list1_form.*toggle.*<li .*list1_form.*style.*none.*Ajax.Request.*input type='hidden' name='t_url' value=./each/add/with/form/list1.*input type='hidden' name='node\[parent_id\]' value=.29./"
+  res: "/<li>bird.*<li>flower.*<li.*list1_add.*list1_form.*toggle.*<li .*list1_form.*style.*none.*Ajax.Request.*input type='hidden' name='t_url' value=./each/add/with/form/list1.*input type='hidden' name='node\[parent_id\]' value=.29./"
 
 each_add_with_form_in_sub_block:
   context:
@@ -79,7 +79,7 @@ each_edit_with_form:
 make_form:
   src: "<ul do='children'><li do='each' do='[name]'/><li do='add'/></ul>"
   tem: "/<li class='form' id='list1_form' style='display:none;'><%= form_remote_tag\(:url => nodes_path/"
-  'make/form/en/list1.erb': "<li id='<%= dom_id(@node) %>'><%= @node.name %></li>"
+  'make/form/en/list1.erb': "<li><%= @node.name %></li>"
   'make/form/en/list1_form.erb': "/<li class='form' id='<%= dom_id\(@node\) %>'>/"
 
 each_edit_cannot_write:

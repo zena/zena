@@ -929,8 +929,11 @@ END_TXT
 END_TXT
         end
         
-        has_submit = @context[:make_form] ? (descendants('show') != []) : (descendants('input') != [])
-        cancel += "<input type='submit'/>" unless has_submit
+        if @context[:make_form] ? (descendants('show') != []) : (descendants('input') != [])
+          # has submit
+        else
+          append_submit = "<input type='submit'/>"
+        end
         
         hidden_fields['link_id'] = "<%= #{node}.link_id %>" if @context[:need_link_id]
         
@@ -1019,6 +1022,11 @@ END_TXT
         end
       else
         blocks_bak = @blocks
+      end
+      
+      if append_submit
+        # add a descendant after blocks.
+        make(:void, :method=>'void', :text=>append_submit)
       end
       
       if descendant('form_tag')
