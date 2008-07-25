@@ -37,6 +37,7 @@ table.errors td { padding:2px 5px; background:inherit; border:none;}
 /* ========================= Ajax css ========================= */
 .drop_hover { background:#ace;  border:2px dashed #99f;}
 .drop { min-height:1em;}
+.drag_handle { padding-left:1em; margin:2px; background: #bbf;}
 
 /* ========================= Zazen css ======================== */
 

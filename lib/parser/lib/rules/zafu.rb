@@ -11,8 +11,9 @@ module Zafu
       [:class, :id].each do |sym|
         html_tag_params[sym] = new_obj.params[sym] if new_obj.params.include?(sym)
       end
-      @html_tag          = new_obj.html_tag || @html_tag
+      @html_tag = new_obj.html_tag || @html_tag
       @html_tag_params.merge!(html_tag_params)
+      @method   = new_obj.params[:method] if new_obj.params[:method]
     end
     
     # Pass the caller's 'html_tag' and 'html_tag_params' to the included part.

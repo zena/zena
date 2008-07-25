@@ -105,7 +105,6 @@ empty_param:
   src: "some <r:test good='' nice='work'>things</r:test> are fine"
   res: "some [test {= :good=>'', :nice=>'work'}]things[/test] are fine"
 
-
 default_menu:
   src: "the <r:test>menu</r:test> is nice"
   res: "the [test]menu[/test] is nice"
@@ -126,13 +125,21 @@ replace_named:
   src: "replace_named: <r:include template='/named/with/name'><r:with part='head'>lalala</r:with>"
   res: "replace_named: named_with_name: <head>lalala</head>"
 
-named_with_do:
-  src: "named_with_do: <p id='branding'>...</p>"
-  res: "named_with_do: <p id='branding'>...</p>"
+named_id:
+  src: "named_id: <p id='branding'>...</p>"
+  res: "named_id: <p id='branding'>...</p>"
 
 replace_with_do:
-  src: "replace_with_do: <r:include template='/named/with/do'><r:with part='branding' class='goal'>lalala</r:with>"
-  res: "replace_with_do: named_with_do: <p class='goal' id='branding'>lalala</p>"
+  src: "replace_with_do: <r:include template='/named/id'><r:with part='branding' class='goal'>lalala</r:with></r:include>"
+  res: "replace_with_do: named_id: <p class='goal' id='branding'>lalala</p>"
+
+named_with_do:
+  src: "named_with_do: <p id='branding' do='test'>...</p>"
+  res: "named_with_do: [test {> :name=>'branding'}]<p id='branding'>...</p>[/test]"
+
+include_set_method:
+  src: "IKD: <r:include template='/named/with/do'><r:with part='branding' method='hello'>blah</r:with></r:include>"
+  res: "IKD: named_with_do: <p id='branding'>hello world!</p>"
 
 include_part:
   src: "IP: <r:include template='/named/parts' part='sub'/> PI."

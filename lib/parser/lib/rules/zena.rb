@@ -444,7 +444,8 @@ module Zena
         end
         @html_tag_done = false
         @html_tag_params.merge!(:id=>erb_dom_id)
-        out expand_with
+        @context[:scope_node] = node if @context[:scope_node]
+        out expand_with(:node => node)
         if @method == 'drop' && !@context[:make_form]
           out drop_javascript
         end
@@ -456,6 +457,7 @@ module Zena
         else
           @html_tag ||= 'div'
           new_dom_scope
+          
           unless @context[:make_form]
             # STORE TEMPLATE ========
 
@@ -485,7 +487,7 @@ module Zena
           @html_tag_done = false
           @html_tag_params.merge!(:id=>erb_dom_id)
         end
-      
+        
         out expand_with
         if @method == 'drop' && !@context[:make_form]
           out drop_javascript
@@ -600,12 +602,15 @@ module Zena
     alias r_t r_trans
         
     def r_anchor(obj=node)
-      if @anchor_param =~ /\[(.+)\]/
-        anchor_value = "<%= #{node_attribute($1)} %>"
+      "<a name='#{anchor_name(@anchor_param, obj)}'></a>"
+    end
+    
+    def anchor_name(p, obj=node)
+      if p =~ /\[(.+)\]/
+        "<%= #{node_attribute($1)} %>"
       else
-        anchor_value = "#{base_class.to_s.underscore}#{erb_node_id(obj)}"
+        "#{base_class.to_s.underscore}#{erb_node_id(obj)}"
       end
-      "<a name='#{anchor_value}'></a>"
     end
     
     def r_content_for_layout
@@ -1013,19 +1018,21 @@ END_TXT
       if !descendant('cancel') && !descendant('edit')
         if !descendant('form_tag')
           # add a descendant before blocks.
-          blocks_bak = @blocks.dup # I do not understand why we need 'dup' (but we sure do...)
+          blocks_bak = @blocks
+          @blocks = @blocks.dup
           @blocks = [make(:void, :method=>'void', :text=>cancel)] + blocks_bak
         else
           form   = cancel + form
           cancel = ''
-          blocks_bak = @blocks
         end
-      else
-        blocks_bak = @blocks
       end
       
       if append_submit
         # add a descendant after blocks.
+        unless blocks_bak
+          blocks_bak = @blocks
+          @blocks = @blocks.dup
+        end
         make(:void, :method=>'void', :text=>append_submit)
       end
       
@@ -1034,13 +1041,13 @@ END_TXT
       else
         res = form + expand_with(:in_form => true, :form_cancel => cancel, :erb_dom_id => erb_dom_id, :dom_id => dom_id) + '</form>'
       end
-      @blocks = blocks_bak
+      
+      @blocks = blocks_bak if blocks_bak
+      
       @html_tag_done = false
       @html_tag_params.merge!(id_hash)
       out render_html_tag(res)
     end
-    
-    
     
     # <r:checkbox role='collaborator_for' values='projects' in='site'/>"
     # TODO: implement checkbox in the same spirit as 'r_select'
@@ -1191,16 +1198,17 @@ END_TXT
         url_params = []
         # set='icon_for=[id], v_status='50', v_title='[v_title]'
         @params.each do |k, v|
-          next if [:hover, :change].include?(k)
+          next if [:hover, :change, :done].include?(k)
           value, static = parse_attributes_in_value(v, :erb => false, :skip_node_attributes => true)
           url_params << "node[#{k}]=#{CGI.escape(value)}"
         end
         return parser_error("missing parameters to set values") if url_params == []
       end
     
-      url_params << "&change=receiver" if change == 'receiver'
-      url_params << "&t_url=#{CGI.escape(template_url)}"
-      url_params << "&dom_id=#{erb_dom_id}"
+      url_params << "change=receiver" if change == 'receiver'
+      url_params << "t_url=#{CGI.escape(template_url)}"
+      url_params << "dom_id=#{erb_dom_id}"
+      url_params << "done=#{CGI.escape(@params[:done])}" if @params[:done]
     
       "<script type='text/javascript'>
       //<![CDATA[
@@ -1223,12 +1231,29 @@ END_TXT
       else
         revert_effect = 'Element.move'
       end
-      out render_html_tag(expand_with)
+      res = expand_with
+      if @params[:drag_handle]
+        drag_handle = @params[:drag_handle] == 'true' ? 'drag_hand' : @params[:drag_handle]
+        if res =~ /class\s*=\s*['"]#{drag_handle}/
+          # nothing to do
+          insert = ''
+        else
+          insert = "<span class='#{drag_handle}'>&nbsp;</span>"
+        end
+      else
+        insert = ''
+      end
+      out render_html_tag(insert + res)
+      
       out "<script type='text/javascript'>
-      //<![CDATA[
-      Zena.draggable('#{@html_tag_params[:id]}',true,true,#{revert_effect})
-      //]]>
-      </script>"
+      //<![CDATA["
+      if drag_handle
+        out "<script type='text/javascript'>\n//<![CDATA[\n
+          new Draggable('#{@html_tag_params[:id]}', {ghosting:true, revert:true, revertEffect:#{revertEffect}, handle:$(dom_id).select('.#{drag_handle}')[0]});
+        });\n//]]>\n</script>"
+      else
+        out "<script type='text/javascript'>\n//<![CDATA[\nZena.draggable('#{@html_tag_params[:id]}',0,true,true,#{revert_effect})\n//]]>\n</script>"
+      end
     end
  
     def r_unlink
@@ -1372,7 +1397,7 @@ END_TXT
         # use the elements inside 'each' loop to produce the edit form
         r_form
       elsif @context[:list]
-        # normal rendering: inserted into the layout
+        # normal rendering: not the start of a saved template
         if @params[:draggable] == 'true' || descendant('unlink')
           @html_tag ||= 'div'
           out "<% #{var}_dom_ids = [] -%>"
@@ -1410,25 +1435,46 @@ END_TXT
         
         res = expand_with(:node => var, :scope_node => var)
         
+        if @params[:drag_handle] && @params[:draggable] == 'true'
+          drag_handle = @params[:drag_handle] == 'true' ? 'drag_handle' : @params[:drag_handle]
+          if res =~ /class\s*=\s*['"]#{drag_handle}/
+            # nothing to do
+            insert = ''
+          else
+            insert = "<span class='#{drag_handle}'>&nbsp;</span>"
+          end
+        else
+          insert = ''
+        end
+        
         if id_hash
           if @html_tag
             @html_tag_params.merge!(id_hash)
+            res = insert + res
           else
-            res = add_params(res, id_hash)
+            res = add_params(res, id_hash, insert)
           end
         end
+        
         
         out render_html_tag(res, html_append)
         
         out "<% end -%>"
         
         if @params[:draggable] == 'true'
-          out "<script type='text/javascript'>\n//<![CDATA[\n<%= #{var}_dom_ids.inspect %>.each(Zena.draggable)\n//]]>\n</script>"
+          if drag_handle
+            out "<script type='text/javascript'>\n//<![CDATA[\n<%= #{var}_dom_ids.inspect %>.each(function(dom_id, index) {
+                new Draggable(dom_id, {ghosting:true, revert:true, handle:$(dom_id).select('.#{drag_handle}')[0]});
+            });\n//]]>\n</script>"
+          else
+            out "<script type='text/javascript'>\n//<![CDATA[\n<%= #{var}_dom_ids.inspect %>.each(Zena.draggable)\n//]]>\n</script>"
+          end
         end
         
       elsif @context[:saved_template]
-        # render to produce a saved template
+        # render to start a saved template
         res = expand_with(:scope_node => node)
+        
         if id_hash
           if @html_tag
             @html_tag_params.merge!(id_hash)
@@ -1732,6 +1778,11 @@ END_TXT
         end
         pre_space = @space_before || ''
         @html_tag_done = true
+      end
+      
+      if @params[:anchor]
+        @anchor_param = nil
+        html_params[:name] = anchor_name(@params[:anchor], node)
       end
       
       if upd = @params[:update]
@@ -2205,7 +2256,13 @@ END_TXT
     def params_to_erb(params, initial_comma = true)
       res = initial_comma ? [""] : []
       params.each do |k,v|
-        res << "#{k.inspect}=>#{v.inspect}"
+        if v =~ /<%=/ && !(v =~ /"/)
+          # replace by #{}
+          val = v.gsub('#{', '# {').gsub(/<%=(.*?)%>/,'#{\1}')
+          res << "#{k.inspect}=>\"#{val}\""
+        else
+          res << "#{k.inspect}=>#{v.inspect}"
+        end
       end
       res.join(', ')
     end
@@ -2427,7 +2484,7 @@ END_TXT
       end
     end
        
-    def add_params(text, opts={})
+    def add_params(text, opts={}, inner = '')
       text.sub(/\A([^<]*)<(\w+)(( .*?)[^%]|)>/) do
         # we must set the first tag id
         before = $1
@@ -2437,7 +2494,7 @@ END_TXT
           next unless v
           params[k] = v
         end
-        "#{before}<#{tag}#{params_to_html(params)}>"
+        "#{before}<#{tag}#{params_to_html(params)}>#{inner}"
       end
     end
     

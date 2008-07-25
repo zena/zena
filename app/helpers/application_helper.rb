@@ -85,6 +85,13 @@ module ApplicationHelper
       when 'destroy'
         page.visual_effect :highlight, params[:dom_id], :duration => 0.3
         page.visual_effect :fade, params[:dom_id], :duration => 0.3
+      when 'drop'
+        case params[:done]
+        when 'remove'
+          page.visual_effect :highlight, params[:drop], :duration => 0.3
+          page.visual_effect :fade, params[:drop], :duration => 0.3
+        end
+        page.replace params[:dom_id], :file => fullpath_from_template_url + ".erb"
       else
         page.replace params[:dom_id], :file => fullpath_from_template_url + ".erb"
       end
@@ -1152,6 +1159,7 @@ ENDTXT
       attributes = ""
       attributes += options[:class] ? " class='#{options.delete(:class)}'" : ''
       attributes += options[:id] ? " id='#{options.delete(:id)}'" : ''
+      attributes += options[:name] ? " name='#{options.delete(:name)}'" : ''
     end
     url_only ? zen_path(node, options) :  "<a#{attributes} href='#{zen_path(node, options)}'>#{text}</a>"
   end

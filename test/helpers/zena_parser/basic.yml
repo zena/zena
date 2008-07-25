@@ -268,6 +268,10 @@ anchor:
   src: "<r:anchor/> <p do='[id]' anchor='[name]'>hello</p>"
   res: "<a name='node22'></a><a name='status'></a> <p>22</p>"
 
+anchor_in_link:
+  src: "<r:link anchor='true'/>"
+  res: "<a name='node22' href='/oo/projects/cleanWater/page22.html'>status title</a>"
+
 show_title_anchor:
   src: "<r:title anchor='true'/>"
   res: "<a name='node22'></a><span id='v_title22'>status title</span>"
@@ -286,7 +290,7 @@ version_anchor:
   context:
     node: 'opening'
   src: "<r:traductions><r:each join=', '><r:link tattr='lang' anchor='true'/></r:each></r:traductions>"
-  res: "<a name='version27.2'></a><a href='/oo/projects/cleanWater/post27.html?lang=en'>english</a>, <a name='version27.1'></a><a href='/oo/projects/cleanWater/post27.html?lang=fr'>french</a>"
+  res: "<a name='version27.2' href='/oo/projects/cleanWater/post27.html?lang=en'>english</a>, <a name='version27.1' href='/oo/projects/cleanWater/post27.html?lang=fr'>french</a>"
   
 title:
   src: "<h2 do='title'/>"

@@ -158,3 +158,20 @@ edit_link:
   res: "/link_id/"
   'edit/link/en/list1_form.erb': "/<input type='hidden' name='link_id' value=.<%= @node.link_id %>./>/"
   'edit/link/en/list1.erb': "/\#\{@node.link_id\}/"
+
+drop_done_remove:
+  src: "<div do='drop' set='tagged' done='remove'></div>"
+  res: "/&done=remove/"
+
+each_in_each_dom_id:
+  src: |
+    <ul class='tags' do='tags in site'>
+      <li do='each'><b do='link'/>
+        <div do='drop' set='set_tag'>
+          <ul class='tagged' do='tagged'>
+            <li do='each' draggable='true' do='link'/>
+          </ul>
+        </div>
+      </li>
+    </ul>
+  'each/in/en/each/dom/id/list1.erb': "/list2_..@node.zip._..var1.zip./"
