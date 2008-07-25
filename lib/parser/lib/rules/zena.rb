@@ -41,14 +41,21 @@ require 'yaml'
 begin
   # FIXME: zafu_readable should belong to core_ext.
   class ActiveRecord::Base
-    @@_zafu_readable ||= {} # defined for each class
-    @@_zafu_context  ||= {} # defined for each class (list of methods to change contexts)
+    @@_zafu_readable  ||= {} # defined for each class
+    @@_safe_attribute ||= {} # defined for each class
+    @@_zafu_context   ||= {} # defined for each class (list of methods to change contexts)
     @@_zafu_readable_attributes ||= {} # full list with inherited attributes
+    @@_safe_attribute_list      ||= {} # full list with inherited attributes
     @@_zafu_known_contexts      ||= {} # full list with inherited attributes
   
     def self.zafu_readable(*list)
       @@_zafu_readable[self] ||= []
       @@_zafu_readable[self] = (@@_zafu_readable[self] + list.map{|l| l.to_s}).uniq
+    end
+    
+    def self.safe_attribute(*list)
+      @@_safe_attribute[self] ||= []
+      @@_safe_attribute[self] = (@@_safe_attribute[self] + list.map{|l| l.to_s}).uniq
     end
     
     def self.zafu_context(hash)
@@ -61,6 +68,14 @@ begin
         @@_zafu_readable[self] || []
       else
         (superclass.zafu_readable_attributes + (@@_zafu_readable[self] || [])).uniq.sort
+      end
+    end
+    
+    def self.safe_attribute_list
+      @@_safe_attribute_list[self] ||= if superclass == ActiveRecord::Base
+        @@_safe_attribute[self] || []
+      else
+        (superclass.safe_attribute_list + (@@_safe_attribute[self] || [])).uniq.sort
       end
     end
     
@@ -97,7 +112,11 @@ begin
         end
       end
     end
-  
+    
+    def self.safe_attribute?(sym)
+      column_names.include?(sym) || zafu_readable?(sym) || safe_attribute_list.include?(sym.to_s)
+    end
+    
     def self.zafu_readable?(sym)
       if sym.to_s =~ /(.*)_zips?$/
         return true if self.ancestors.include?(Node) && RelationProxy.find_by_role($1.singularize)
@@ -1002,7 +1021,15 @@ END_TXT
         cancel = "" # link to normal node ?
         form = "<form method='post' action='/nodes/#{erb_node_id}'><div style='margin:0;padding:0'><input name='_method' type='hidden' value='put' /></div>"
       end
-      hidden_fields['node[klass]']    = @params[:klass] || @context[:klass] || 'Page' if node_kind_of?(Node)
+      
+      if node_kind_of?(Node) && (@params[:klass] || @context[:klass])
+        hidden_fields['node[klass]']    = @params[:klass] || @context[:klass]
+      end
+      
+      if node_kind_of?(Node) && @params[:mode]
+        hidden_fields['mode'] = @params[:mode]
+      end
+      
       hidden_fields['node[v_status]'] = Zena::Status[:pub] if @context[:publish_after_save] || (@params[:publish] == 'true')
       
       form << "<div class='hidden'>"
@@ -1052,10 +1079,14 @@ END_TXT
     # <r:checkbox role='collaborator_for' values='projects' in='site'/>"
     # TODO: implement checkbox in the same spirit as 'r_select'
     def r_checkbox
-      return parser_error("missing 'values'") unless values = @params[:values]
+      return parser_error("missing 'nodes'") unless values = @params[:values] || @params[:nodes]
       return parser_error("missing 'role'")   unless   role = (@params[:role] || @params[:name])
-      meth = role.singularize
       attribute = @params[:attr] || 'name'
+      if role =~ /(.*)_ids?\Z/
+        role = $1
+      end
+      meth = role.singularize
+
       if values =~ /^\d+\s*($|,)/
         # ids
         # TODO generate the full query instead of using secure.
@@ -1082,7 +1113,7 @@ END_TXT
       out "<div class='input_checkbox'><% #{list_var}.each do |#{var}| -%>"
       out "<span><input type='checkbox' name='node[#{meth}_ids][]' value='#{erb_node_id(var)}'<%= #{list_var}_ids.include?(#{var}[:id]) ? \" checked='checked'\" : '' %>/> <%= #{node_attribute(attribute, :node=>var)} %></span> "
       out "<% end -%></div>"
-      out "<input type='hidden' name='node[#{meth}_ids]' value=''/>"
+      out "<input type='hidden' name='node[#{meth}_ids][]' value=''/>"
 
       out "<% end -%><% end -%>"
     end    

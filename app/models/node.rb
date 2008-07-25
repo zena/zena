@@ -131,7 +131,8 @@ class Node < ActiveRecord::Base
   zafu_readable      :name, :created_at, :updated_at, :event_at, :log_at, :kpath, :user_zip, :parent_zip, :project_zip,
                      :section_zip, :skin, :ref_lang, :fullpath, :rootpath, :position, :publish_from, :max_status, :rgroup_id, 
                      :wgroup_id, :pgroup_id, :basepath, :custom_base, :klass, :zip, :score, :comments_count, :l_status, :l_comment,
-                     :custom_a, :custom_b, :title, :text                 
+                     :custom_a, :custom_b, :title, :text
+  safe_attribute     :m_text, :m_title, :m_author          
   zafu_context       :author => "Contact", :parent => "Node", 
                      :project => "Project", :section => "Section", 
                      :real_project => "Project", :real_section => "Section",
@@ -729,6 +730,27 @@ class Node < ActiveRecord::Base
     raise Zena::RecordNotSecured.new("Visitor not set, record not secured.")
   end
   
+  # Return true if the attribute can be read (is zafu_readable)
+  def safe_attribute?(att)
+    # FIXME: SECURITY: is there any risk here ? (k can be anything)
+    attribute = att.to_s
+    case attribute[0..1]
+    when 'v_'
+      version.class.safe_attribute?(attribute[2..-1])
+    when 'c_'
+      c = version.content
+      c ? c.class.safe_attribute?(attribute[2..-1]) : false
+    when 'd_'
+      true
+    else
+      if attribute =~ /_(id|zip|status|comment)s?\Z/
+        true
+      else
+        self.class.safe_attribute?(attribute)
+      end
+    end
+  end
+  
   # check inheritance chain through kpath
   def kpath_match?(kpath)
     vclass.kpath =~ /^#{kpath}/
@@ -1127,6 +1149,11 @@ class Node < ActiveRecord::Base
     @add_comment ||= {}
     @add_comment[:text] = str
   end
+  
+  # attributes are set only but we need dummy values for multiversion's remove_attributes_with_same_value
+  def m_text; nil end
+  def m_title; nil end
+  def m_author; nil end
   
   def m_title=(str)
     @add_comment ||= {}

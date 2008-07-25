@@ -1312,6 +1312,24 @@ done: \"I am done\""
     end
   end
   
+  def test_safe_attribute
+    login(:ant)
+    node = secure(Node) { nodes(:ant) }
+    ['v_puts', 'c_file', :raise, :blah, 'c_blah', 'c_system', 'system', 'v_system'].each do |k|
+      assert ! node.safe_attribute?(k), "#{k} should not be readable"
+    end
+    
+    ['v_status', 'id', :c_first_name, :c_name, 'parent_id', :m_text, :inherit, :v_title, 'd_blah', 'l_status', 'l_comment', 'hot_status', 'blah_comment', 'blah_zips', 'blah_id', 'blah_ids'].each do |k|
+      assert node.safe_attribute?(k), "#{k} should be safe"
+    end
+    
+    node = secure(Node) { nodes(:bird_jpg)}
+    
+    ['c_file'].each do |k|
+      assert node.safe_attribute?(k), "#{k} should be safe"
+    end
+  end
+  
   # FIXME: write test
   def test_assets
     assert true

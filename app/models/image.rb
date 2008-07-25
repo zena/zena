@@ -53,7 +53,6 @@ or to create a link to the article using the icon:
  
 =end
 class Image < Document
-  
   class << self
     def accept_content_type?(content_type)
       ImageBuilder.image_content_type?(content_type)

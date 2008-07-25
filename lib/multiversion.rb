@@ -334,7 +334,13 @@ module Zena
               res[k] = v
               next
             end
-            current_value = self.send(k) rescue nil
+            if safe_attribute?(k)
+              current_value = self.send(k) rescue nil
+            else
+              # ignore
+              next
+            end
+            
             case current_value.class.to_s
             when 'NilClass'
               res[k] = v unless v == nil || v == ''

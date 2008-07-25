@@ -13,6 +13,7 @@ content_type::    file content_type
 class DocumentContent < ActiveRecord::Base
 
   zafu_readable         :size, :name, :content_type, :ext
+  safe_attribute        :file
 
   belongs_to            :site
   validate              :valid_file

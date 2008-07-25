@@ -105,8 +105,7 @@ class RelationProxyTest < ZenaTestUnit
     node = secure!(Node) { nodes(:status) }
     assert_nothing_raised (NoMethodError) { node.update_attributes( 'tralala_ids' => ['33'])}
     assert node.errors['tralala']
-    assert_raise (NoMethodError) { node.update_attributes( 'some_bad_method_name' => ['33'])}
-    assert_raise (NoMethodError) { node.some_bad_method_name }
+    assert_equal Hash[], node.remove_attributes_with_same_value( 'some_bad_method_name' => ['33'])
   end
   
   def test_relations_for_form

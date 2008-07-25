@@ -223,7 +223,7 @@ class NodesController < ApplicationController
         if params[:edit] == 'popup'
           redirect_to edit_version_url(:node_id => @node[:zip], :id=>(@node.v_number || 0)) 
         else
-          redirect_to zen_path(@node)
+          redirect_to zen_path(@node, :mode => params[:mode])
         end
       end
       format.js   { @flash = flash }

@@ -885,7 +885,7 @@ checkbox:
   context:
     node: 'opening'
   src: "<r:checkbox role='calendar' values='11'/>"
-  res: "/input type='checkbox' name='node\[calendar_ids\]\[\]' value='11' checked='checked'.*zena.*hidden.*node\[calendar_ids\]' value=''/"
+  res: "/input type='checkbox' name='node\[calendar_ids\]\[\]' value='11' checked='checked'.*zena.*hidden.*node\[calendar_ids\]\[\]' value=''/"
 
 input_set_value:
   src: "<r:input type='hidden' name='icon_id' set_value='[main.id]'/>"
