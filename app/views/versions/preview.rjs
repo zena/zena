@@ -1,4 +1,9 @@
+key = "#{@key}#{@node[:zip]}"
+
 page << "try {"
-@value = zazen(@value, :pretty_code=>true, :preview => true) if @key != 'v_title'
-page.replace_html   "#{@key}#{@node[:zip]}", @value
+page << "if ($('#{key}').classNames().include('zazen')) {"
+page.replace_html key, zazen(@value, :pretty_code=>true, :preview => true)
+page << "} else {"
+page.replace_html key, @value
+page << "}"
 page << "} catch(err) {}"

@@ -40,7 +40,6 @@ module YamlTest
         end
       end
       
-      
       class_eval %Q{
         @@test_strings = {}
         @@test_methods = {}

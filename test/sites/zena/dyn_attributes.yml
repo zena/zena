@@ -6,22 +6,22 @@ status_en_archive:
   key:             archive
   value:           LZNB34
 
-status_assigned_to:
+status_assigned:
   owner:           status_en
   key:             assigned
   value:           gaspard
 
-people_assigned_to:
+people_assigned:
   owner:           people_en
   key:             assigned
   value:           gaspard
   
-cleanWater_en_assigned_to:
+cleanWater_en_assigned:
   owner:           cleanWater_en
   key:             assigned
   value:           gaspard
 
-status_fr_assigned_to:
+status_fr_assigned:
   owner:           status_fr
   key:             assigned
   value:           gaspard

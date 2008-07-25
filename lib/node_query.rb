@@ -3,7 +3,9 @@ require 'yaml'
 
 class NodeQuery < QueryBuilder
   attr_reader :context, :uses_node_name
-  set_main_table :nodes
+  set_main_table 'nodes'
+  set_main_class 'Node'
+  
   load_custom_queries File.join(File.dirname(__FILE__), 'custom_queries')
 
   
@@ -29,6 +31,10 @@ class NodeQuery < QueryBuilder
   # Default sort order
   def default_order_clause
     "position ASC, name ASC"
+  end
+  
+  def default_context_filter
+    'self'
   end
   
   def after_parse
@@ -93,7 +99,7 @@ class NodeQuery < QueryBuilder
       
       unless fields
         if klass = Node.get_class(rel)
-          parse_context('self') unless context
+          parse_context(default_context_filter) unless context
           @where << "#{table}.kpath LIKE '#{klass.kpath}%'"
           return true
         else
@@ -106,11 +112,30 @@ class NodeQuery < QueryBuilder
       true
     end
     
+    def parse_change_class(rel, is_last)
+      case rel
+      when 'comments'
+        if is_last
+          # no need to load discussions, versions and all the mess
+          add_table('comments')
+          @where << "#{table('comments')}.discussion_id = #{map_parameter('discussion_id')}"
+          return CommentQuery # class change
+        else
+          # parse_context(default_context_filter, true) if is_last
+          # after_parse
+          @errors << "comments with join not implemented"
+          return nil
+        end
+      else
+        return nil
+      end
+    end
+    
     # Filters that need a join
     def join_relation(rel, context)
       if rel == main_table || rel == 'children'
         # dummy clauses
-        parse_context('self') unless context
+        parse_context(default_context_filter) unless context
         return :void
       end
       
@@ -213,7 +238,7 @@ class NodeQuery < QueryBuilder
       when 'project_id', 'section_id'
         @uses_node_name = true
         "\#{#{@node_name}.get_#{fld}}"
-      when 'id', 'parent_id'
+      when 'id', 'parent_id', 'discussion_id'
         @uses_node_name = true
         "\#{#{@node_name}.#{fld}}"
       else
@@ -250,23 +275,7 @@ class NodeQuery < QueryBuilder
         "#{dtable}.value"
       end
     end
-    
-    def class_from_table(table_name)
-      case table_name
-      when 'nodes'
-        Node
-      when 'versions'
-        Version
-      when 'comments'
-        Comment
-      when 'data_entries'
-        DataEntry
-      else
-        # ? error
-        Object
-      end
-    end
-    
+        
     def parse_custom_query_argument(key, value)
       return nil unless value
       super.gsub(/(RELATION_ID|NODE_ATTR)\(([^)]+)\)/) do
@@ -340,7 +349,7 @@ module Zena
           opts[:limit] = 1
         end
         query = NodeQuery.new(pseudo_sql, opts.merge(:custom_query_group => visitor.site.host))
-        [query.to_sql, query.errors, query.uses_node_name, query.result_class]
+        [query.to_sql, query.errors, query.uses_node_name, query.main_class]
       end
     end
     
@@ -348,10 +357,10 @@ module Zena
     module InstanceMethods
       
       # Find a node and propagate visitor
-      def do_find(count, query, ignore_source = false)
+      def do_find(count, query, ignore_source = false, klass = Node)
         return nil if query.empty?
         return nil if (new_record? && !ignore_source) # do not run query (might contain nil id)
-        res = Node.find_by_sql(query)
+        res = klass.find_by_sql(query)
         if count == :all
           if res == []
             nil

@@ -9,13 +9,18 @@ end
 Syntax of a query is "CLASS [where ...|] [in ...|from SUB_QUERY|]"
 =end
 class QueryBuilder
-  attr_reader :tables, :where, :errors, :join_tables, :distinct
-  @@main_table = 'objects'
+  attr_reader :tables, :where, :errors, :join_tables, :distinct, :final_parser
+  @@main_table = {}
+  @@main_class = {}
   @@custom_queries = {}
   
   class << self
     def set_main_table(table_name)
-      @@main_table = table_name.to_s
+      @@main_table[self] = table_name.to_s
+    end
+    
+    def set_main_class(main_class)
+      @@main_class[self] = main_class.to_s
     end
     
     def load_custom_queries(dir)
@@ -40,90 +45,21 @@ class QueryBuilder
     rescue NameError
       raise ArgumentError.new("invalid class for CustomQueries (#{klass})")
     end
+    
+    def new(*args)
+      obj = super
+      obj.final_parser
+    end
   end
   
   def initialize(query, opts = {})
-    if query.kind_of?(Array)
-      @query = query[0]
-      if query.size > 1
-        alt_queries = query[1..-1].map {|q| self.class.new(q, opts.merge(:skip_after_parse => true))}
-      end
+    if opts[:pre_query]
+      init_with_pre_query(opts[:pre_query], opts[:elements])
     else
-      @query = query
+      init_with_query(query, opts)
     end
     
-  
-    @tables  = []
-    @join_tables = {}
-    @table_counter = {}
-    @where  = []
-    # list of tables that need to be added for filter clauses (should be added only once per part)
-    @needed_tables = {}
-    # list of tables that need to be added through a join (should be added only once per part)
-    @needed_join_tables = {}
-  
-    @errors  = []
-  
-    @main_table ||= 'objects'
-  
-    @select  = []
-  
-    @ignore_warnings = opts[:ignore_warnings]
-    
-    @ref_date = opts[:ref_date] ? "'#{opts[:ref_date]}'" : 'now()'
-    
-    if @query == nil || @query == ''
-      elements = [main_table]
-    else
-      elements = @query.split(' from ')
-      last_element = elements.last
-      last_element, offset = last_element.split(' offset ')
-      last_element, limit  = last_element.split(' limit ')
-      last_element, order  = last_element.split(' order by ')
-      elements[-1], group  = last_element.split(' group by ')
-    end
-    
-    if @@custom_queries[self.class] && 
-       @@custom_queries[self.class][opts[:custom_query_group]] && 
-       custom_query = @@custom_queries[self.class][opts[:custom_query_group]][extract_custom_query(elements)]
-      custom_query.each do |k,v|
-       instance_variable_set("@#{k}", prepare_custom_query_arguments(k.to_sym, v))
-      end
-      # set table counters
-      @tables.each do |t|
-        base, as, tbl = t.split(' ')
-        @table_counter[base] ||= 0
-        @table_counter[base] += 1 if tbl
-      end
-      # parse filters
-      clause, filters = elements[-1].split(/\s+where\s+/)
-      
-      parse_filters(filters) if filters
-      @order = parse_order_clause(order) if order
-    else
-      # In order to know the table names of the dependencies, we need to parse it backwards.
-      # We first find the closest elements, then the final ones. For example, "pages from project" we need
-      # project information before getting 'pages'. 
-      elements.reverse!
-    
-      elements.each_index do |i|
-        parse_part(elements[i], i == 0) # yes, is_last is first (parsing reverse)
-      end
-      @distinct ||= elements.size > 1
-      @select << "#{table}.*"
-      
-      merge_alternate_queries(alt_queries) if alt_queries
-      
-      @limit    = parse_limit_clause(opts[:limit] || limit)
-      @offset ||= parse_offset_clause(offset)
-
-
-      @group = parse_group_clause(group) if group
-      @order = parse_order_clause(order || default_order_clause)
-    end
-    
-    after_parse unless opts[:skip_after_parse]
-    @where.compact!
+    parse_elements(@elements)
   end
   
   def to_sql
@@ -151,8 +87,8 @@ class QueryBuilder
     @errors == []
   end
   
-  def result_class
-    class_from_table(current_table)
+  def main_class
+    Module.const_get(@@main_class[self.class])
   end
   
   protected
@@ -162,18 +98,33 @@ class QueryBuilder
     end
     
     def main_table
-      @@main_table
+      @@main_table[self.class]
     end
   
     def parse_part(part, is_last)
-      add_table(main_table)
       
       rest,   context = part.split(' in ')
       clause, filters = rest.split(/\s+where\s+/)
       
-      parse_filters(filters) if filters
-      parse_context(context, is_last) if context # .. in project
-      parse_relation(clause, context)
+      if @just_changed_class
+        # just changed class: parse filters && context
+        parse_filters(filters) if filters
+        @just_changed_class = false
+        return nil
+      elsif new_class = parse_change_class(clause, is_last)
+        if context
+          last_filter = @where.pop # pop/push is to keep queries in correct order (helps reading sql)
+          parse_context(context, true)
+          @where << last_filter
+        end
+        return new_class
+      else
+        add_table(main_table)
+        parse_filters(filters) if filters
+        parse_context(context, is_last) if context # .. in project
+        parse_relation(clause, context)
+        return nil
+      end
     end
     
     def parse_filters(clause)
@@ -193,7 +144,7 @@ class QueryBuilder
           res << " "
         elsif rest[0..0] == '('
           unless allowed.include?(:par_open)
-            @errors << "invalid clause #{clause.inspect} near #{res.inspect}" 
+            @errors << clause_error(clause, rest, res) 
             return
           end
           res << '('
@@ -201,20 +152,20 @@ class QueryBuilder
           par_count += 1
         elsif rest[0..0] == ')'  
           unless allowed.include?(:par_close)
-            @errors << "invalid clause #{clause.inspect} near #{res.inspect}" 
+            @errors << clause_error(clause, rest, res) 
             return
           end
           res << ')'
           rest = rest[1..-1]
           par_count -= 1
           if par_count < 0
-            @errors << "invalid clause #{clause.inspect} near #{res.inspect}"
+            @errors << clause_error(clause, rest, res)
             return
           end
           allowed = [:op, :bool_op]
         elsif rest =~ /\A((>=|<=|<>|<|=|>)|((not\s+like|like|lt|le|eq|ne|ge|gt)\s+))/
           unless allowed.include?(:op)
-            @errors << "invalid clause #{clause.inspect} near #{res.inspect}" 
+            @errors << clause_error(clause, rest, res) 
             return
           end
           op = $1.strip
@@ -224,7 +175,7 @@ class QueryBuilder
           allowed = [:value, :par_open]
         elsif rest =~ /\A("|')([^\1]*?)\1/  
           unless allowed.include?(:value)
-            @errors << "invalid clause #{clause.inspect} near #{res.inspect}" 
+            @errors << clause_error(clause, rest, res) 
             return
           end
           rest = rest[$&.size..-1]
@@ -232,7 +183,7 @@ class QueryBuilder
           allowed = after_value
         elsif rest =~ /\A(\d+|[\w:]+)\s+(second|minute|hour|day|week|month|year)s?/
           unless allowed.include?(:value)
-            @errors << "invalid clause #{clause.inspect} near #{res.inspect}" 
+            @errors << clause_error(clause, rest, res) 
             return
           end
           rest = rest[$&.size..-1]
@@ -245,7 +196,7 @@ class QueryBuilder
           allowed = after_value
         elsif rest =~ /\A(\d+)/  
           unless allowed.include?(:value)
-            @errors << "invalid clause #{clause.inspect} near #{res.inspect}" 
+            @errors << clause_error(clause, rest, res) 
             return
           end
           rest = rest[$&.size..-1]
@@ -253,7 +204,7 @@ class QueryBuilder
           allowed = after_value
         elsif rest =~ /\A(is\s+not\s+null|is\s+null)/
           unless allowed.include?(:bool_op)
-            @errors << "invalid clause #{clause.inspect} near #{res.inspect}" 
+            @errors << clause_error(clause, rest, res) 
             return
           end
           rest = rest[$&.size..-1]
@@ -261,7 +212,7 @@ class QueryBuilder
           allowed = [:par_close, :bool_op]
         elsif rest[0..7] == 'REF_DATE'  
           unless allowed.include?(:value)
-            @errors << "invalid clause #{clause.inspect} near #{res.inspect}" 
+            @errors << clause_error(clause, rest, res) 
             return
           end
           rest = rest[8..-1]
@@ -269,7 +220,7 @@ class QueryBuilder
           allowed = after_value
         elsif rest =~ /\A(\+|\-)/  
           unless allowed.include?(:op)
-            @errors << "invalid clause #{clause.inspect} near #{res.inspect}" 
+            @errors << clause_error(clause, rest, res) 
             return
           end
           rest = rest[$&.size..-1]
@@ -277,7 +228,7 @@ class QueryBuilder
           allowed = [:value, :par_open]
         elsif rest =~ /\A(and|or)/
           unless allowed.include?(:bool_op)
-            @errors << "invalid clause #{clause.inspect} near #{res.inspect}" 
+            @errors << clause_error(clause, rest, res) 
             return
           end
           rest = rest[$&.size..-1]
@@ -286,7 +237,7 @@ class QueryBuilder
           allowed = [:par_open, :value]
         elsif rest =~ /\A[\w:]+/
           unless allowed.include?(:value)
-            @errors << "invalid clause #{clause.inspect} near #{res.inspect}" 
+            @errors << clause_error(clause, rest, res) 
             return
           end
           rest = rest[$&.size..-1]
@@ -298,7 +249,7 @@ class QueryBuilder
           res << field
           allowed = after_value
         else  
-          @errors << "invalid clause #{clause.inspect} near #{res.inspect}"
+          @errors << clause_error(clause, rest, res)
           return
         end
       end
@@ -313,7 +264,7 @@ class QueryBuilder
     end
     
     def parse_order_clause(order)
-      return nil unless order
+      return @order unless order
       res = []
       
       order.split(',').each do |clause|
@@ -337,7 +288,7 @@ class QueryBuilder
     end
     
     def parse_group_clause(field)
-      return nil unless field
+      return @group unless field
       if fld = map_field(field, table, :group)
         " GROUP BY #{fld}"
       else
@@ -347,7 +298,7 @@ class QueryBuilder
     end
     
     def parse_limit_clause(limit)
-      return nil unless limit
+      return @limit unless limit
       if limit.kind_of?(Fixnum)
         " LIMIT #{limit}"
       elsif limit =~ /^\s*(\d+)\s*,\s*(\d+)/
@@ -362,7 +313,7 @@ class QueryBuilder
     end
     
     def parse_offset_clause(offset)
-      return nil unless offset
+      return @offset unless offset
       if !@limit
         # TODO: raise error ?
         @errors << "invalid offset clause '#{offset}' (used without limit)"
@@ -455,6 +406,7 @@ class QueryBuilder
       end
       
       alt_queries.each do |query|
+        next unless query.main_class == self.main_class # no mixed class target !
         @errors += query.errors unless @ignore_warnings
         next unless query.valid?
         query.where.compact!
@@ -501,30 +453,30 @@ class QueryBuilder
       end
     end
     
+    # Map a field to be used inside a query
+    def field_or_param(fld, table_name = table, context = nil)
+      if fld =~ /^\d+$/
+        return fld
+      elsif @select.join =~ / AS #{fld}/
+        @select.each do |s|
+          if s =~ /\A(.*) AS #{fld}\Z/
+            return context == :filter ? "(#{$1})" : fld
+          end
+        end
+      elsif table_name
+        map_field(fld, table_name, context)
+      else
+        map_parameter(fld)
+      end
+    end
+    
     # ******** Overwrite these **********
     def class_from_table(table_name)
       Object
     end
     
-    def parse_custom_query_argument(key, value)
-      return nil unless value
-      value = value.gsub('REF_DATE', @ref_date)
-      case key
-      when :order
-        " ORDER BY #{value}"
-      when :group
-        " GROUP BY #{value}"
-      else
-        value
-      end
-    end
-    
-    def extract_custom_query(list)
-      list[-1].split(' ').first
-    end
-    
-    def default_context_filter(clause)
-      nil
+    def default_context_filter
+      raise NameError.new("default_context_filter not defined for class #{self.class}")
     end
     
     # Default sort order
@@ -534,6 +486,10 @@ class QueryBuilder
     
     def after_parse
       # do nothing
+    end
+    
+    def parse_change_class(rel, is_last)
+      nil
     end
     
     def parse_relation(clause, context)
@@ -558,22 +514,6 @@ class QueryBuilder
       value.inspect
     end
     
-    # Map a field to be used inside a query
-    def field_or_param(fld, table_name = table, context = nil)
-      if fld =~ /^\d+$/
-        return fld
-      elsif @select.join =~ / AS #{fld}/
-        @select.each do |s|
-          if s =~ /\A(.*) AS #{fld}\Z/
-            return context == :filter ? "(#{$1})" : fld
-          end
-        end
-      elsif table_name
-        map_field(fld, table_name, context)
-      else
-        map_parameter(fld)
-      end
-    end
     
     # Overwrite this and take car to check for valid fields.
     def map_field(fld, table_name, context = nil)
@@ -586,5 +526,140 @@ class QueryBuilder
     
     def map_parameter(fld)
       fld.to_s.upcase
+    end
+    
+    # ******** And maybe overwrite these **********
+    def parse_custom_query_argument(key, value)
+      return nil unless value
+      value = value.gsub('REF_DATE', @ref_date)
+      case key
+      when :order
+        " ORDER BY #{value}"
+      when :group
+        " GROUP BY #{value}"
+      else
+        value
+      end
+    end
+    
+    def extract_custom_query(list)
+      list[-1].split(' ').first
+    end
+    
+  private
+    
+    def parse_elements(elements)
+      # "final_parser" is the parser who will respond to 'to_sql'. It might be a sub-parser for another class.
+      @final_parser = self
+      
+      if @@custom_queries[self.class] && 
+         @@custom_queries[self.class][@opts[:custom_query_group]] && 
+         custom_query = @@custom_queries[self.class][@opts[:custom_query_group]][extract_custom_query(elements)]
+        custom_query.each do |k,v|
+         instance_variable_set("@#{k}", prepare_custom_query_arguments(k.to_sym, v))
+        end
+        # set table counters
+        @tables.each do |t|
+          base, as, tbl = t.split(' ')
+          @table_counter[base] ||= 0
+          @table_counter[base] += 1 if tbl
+        end
+        # parse filters
+        clause, filters = elements[-1].split(/\s+where\s+/)
+
+        parse_filters(filters) if filters
+        @order = parse_order_clause(@offset_limit_order_group[:order])
+      else
+        i, new_class = 0, nil
+        elements.each_index do |i|
+          break if new_class = parse_part(elements[i], i == 0) # yes, is_last is first (parsing reverse)
+        end
+        
+        if new_class
+          # move to another parser class
+          @final_parser = new_class.new(nil, :pre_query => self, :elements => elements[i..-1])
+        else
+          @distinct ||= elements.size > 1
+          @select << "#{table}.*"
+
+          merge_alternate_queries(@alt_queries) if @alt_queries
+
+          @limit  = parse_limit_clause(@offset_limit_order_group[:limit])
+          @offset = parse_offset_clause(@offset_limit_order_group[:offset])
+
+
+          @group = parse_group_clause(@offset_limit_order_group[:group])
+          @order = parse_order_clause(@offset_limit_order_group[:order] || default_order_clause)
+        end
+      end
+
+      if @final_parser == self
+        after_parse unless @opts[:skip_after_parse]
+        @where.compact!
+      end
+    end
+    
+    def init_with_query(query, opts)
+      @opts = opts
+      
+      if query.kind_of?(Array)
+        @query = query[0]
+        if query.size > 1
+          @alt_queries = query[1..-1].map {|q| self.class.new(q, opts.merge(:skip_after_parse => true))}
+        end
+      else
+        @query = query
+      end
+      
+      
+      @offset_limit_order_group = {}
+      if @query == nil || @query == ''
+        elements = [main_table]
+      else
+        elements = @query.split(' from ')
+        last_element = elements.last
+        last_element, @offset_limit_order_group[:offset] = last_element.split(' offset ')
+        last_element, @offset_limit_order_group[:limit]  = last_element.split(' limit ')
+        last_element, @offset_limit_order_group[:order]  = last_element.split(' order by ')
+        elements[-1], @offset_limit_order_group[:group]  = last_element.split(' group by ')
+      end
+      
+      @offset_limit_order_group[:limit] = opts[:limit] || @offset_limit_order_group[:limit]
+      # In order to know the table names of the dependencies, we need to parse it backwards.
+      # We first find the closest elements, then the final ones. For example, "pages from project" we need
+      # project information before getting 'pages'. 
+      @elements = elements.reverse
+
+      @tables  = []
+      @join_tables = {}
+      @table_counter = {}
+      @where  = []
+      # list of tables that need to be added for filter clauses (should be added only once per part)
+      @needed_tables = {}
+      # list of tables that need to be added through a join (should be added only once per part)
+      @needed_join_tables = {}
+
+      @errors  = []
+
+      @main_table ||= 'objects'
+
+      @select  = []
+
+      @ignore_warnings = opts[:ignore_warnings]
+
+      @ref_date = opts[:ref_date] ? "'#{opts[:ref_date]}'" : 'now()'
+    end
+
+    def init_with_pre_query(pre_query, elements)
+      pre_query.instance_variables.each do |iv|
+        next if iv == '@query' || iv == '@final_parser'
+        instance_variable_set(iv, pre_query.instance_variable_get(iv))
+      end
+      @just_changed_class = true
+      @elements = elements
+    end
+    
+    def clause_error(clause, rest, res)
+      "invalid clause #{clause.inspect} near \"#{res[-2..-1]}#{rest[0..1]}\""
     end
 end

@@ -27,7 +27,7 @@ custom_query_having:
   res: "SELECT a,34 AS number,c FROM test WHERE (34) > 12 AND 3 AND 2 AND 1 ORDER BY a"
 
 equation_in_filter:
-  src: "objects where event_at > DATE + custom_a months"
+  src: "objects where event_at > REF_DATE + custom_a months"
   res: "SELECT objects.* FROM objects WHERE objects.parent_id = ID AND objects.event_at > now() + INTERVAL objects.custom_a MONTH"
 
 equation_in_filter_date:

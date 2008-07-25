@@ -358,6 +358,12 @@ module Zena
       end
       
       attribute = @params[:attr] || @params[:tattr] || @params[:date]
+      
+      if (@params[:edit_preview] || @params[:ep]) == 'true'
+        @html_tag_params[:id] = "#{attribute}#{erb_node_id}"
+        @html_tag ||= 'span'
+      end
+      
       if @params[:edit] == 'true' && !['url','path'].include?(attribute)
         "<% if #{node}.can_write? -%><span class='show_edit' id='#{erb_dom_id("_#{attribute}")}'>#{actions}<%= link_to_remote(#{attribute_method}, :url => edit_node_path(#{node_id}) + \"?attribute=#{attribute}&dom_id=#{dom_id("_#{attribute}")}#{@params[:publish] == 'true' ? '&publish=true' : ''}\", :method => :get) %></span><% else -%>#{actions}<%= #{attribute_method} %><% end -%>"
       else
@@ -384,6 +390,14 @@ module Zena
         # TODO format with @params[:format] and @params[:tformat] << translated format
       else
         # error
+      end
+      
+      @html_tag ||= 'div'
+      
+      add_html_class('zazen')
+      
+      if (@params[:edit_preview] || @params[:ep]) == 'true'
+        @html_tag_params[:id] = "#{attribute}#{erb_node_id}"
       end
       
       if @params[:edit] == 'true' && !['url','path'].include?(attribute)
@@ -678,6 +692,7 @@ module Zena
       limit  = @params[:limit] ? ", :limit=>#{@params[:limit].to_i}" : ""
       
       @html_tag ||= 'div'
+      
       if @html_tag_params[:id]
         # add a sub-div
         pre  = "<div id='v_text#{erb_node_id}'>"
@@ -687,11 +702,8 @@ module Zena
         @html_tag_params[:id] = "v_text#{erb_node_id}"
       end
       
-      if c = @html_tag_params[:class] || @params[:class]
-        @html_tag_params[:class] = "#{c} zazen"
-      else
-        @html_tag_params[:class] = 'zazen'
-      end
+      add_html_class('zazen')
+      
       unless @params[:empty] == 'true'
         out "#{pre}<% if #{node}.kind_of?(TextDocument); l = #{node}.content_lang -%>"
         out "<%= zazen(\"<code\#{l ? \" lang='\#{l}'\" : ''} class=\\'full\\'>\#{#{text}}</code>\") %>"
@@ -723,11 +735,8 @@ module Zena
         @html_tag_params[:id] = "v_summary#{erb_node_id}"
       end
       
-      if c = @html_tag_params[:class] || @params[:class]
-        @html_tag_params[:class] = "#{c} zazen"
-      else
-        @html_tag_params[:class] = 'zazen'
-      end
+      add_html_class('zazen')
+      
       unless @params[:or]
         text = @params[:text] ? @params[:text].inspect : node_attribute('v_summary')
         out "#{pre}<%= zazen(#{text}#{limit}, :node=>#{node}) %>#{post}"
@@ -1974,8 +1983,8 @@ END_TXT
         out parser_error(query_errors.join(' '), pseudo_sql.join(', '))
         return nil
       end
-      
-      res = "#{node_name}.do_find(#{count.inspect}, \"#{sql_query}\", #{!uses_node_name})"
+      node_class_param = klass == Node ? '' : ", #{klass}"
+      res = "#{node_name}.do_find(#{count.inspect}, \"#{sql_query}\", #{!uses_node_name}#{node_class_param})"
       if params[:else]
         else_query, else_klass = build_finder_for(count, params[:else], {})
         if else_query && (else_klass == klass || klass.ancestors.include?(else_klass) || else_klass.ancestors.include?(klass))
@@ -2646,6 +2655,15 @@ END_TXT
       res = "(#{res} || #{node_attribute(opts[:else])})" if opts[:else]
       res = "(#{res} || #{opts[:default].inspect})" if opts[:default]
       res
+    end
+    
+    # Add a class name to the html_tag
+    def add_html_class(class_name)
+      if klass = @html_tag_params[:class]
+        @html_tag_params[:class] = "#{class_name} #{klass}"
+      else
+        @html_tag_params[:class] = class_name
+      end
     end
     
     def render_html_tag(text,*append)

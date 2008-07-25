@@ -74,6 +74,12 @@ show_format_nil:
 show_format_hide_zero:
   src: "<b do='[d_id]' format='%.2f' zero='hide'/>"
   res: "<b></b>"
+
+show_edit_preview:
+  context:
+    node: 'status'
+  src: "<b do='[d_assigned]' edit_preview='true'/>"
+  res: "<b id='d_assigned22'>gaspard</b>"
   
 title_in_version_context:
   src: "<r:version><r:title actions='all'/></r:version>"
@@ -93,8 +99,8 @@ show_shortcut:
 
 zazen_shortcut:
   src: "<div class='foo' do='{v_title}'>hello</div>"
-  tem: "<div class='foo'><%= zazen(@node.version.title, :node=>@node) %></div>"
-  res: "<div class='foo'><p>status title</p></div>"
+  tem: "<div class='zazen foo'><%= zazen(@node.version.title, :node=>@node) %></div>"
+  res: "<div class='zazen foo'><p>status title</p></div>"
 
 show_url:
   src: "<a do='void' set_href='[url]'>blah</a>"
@@ -772,7 +778,7 @@ tada:
       <li><a href='/oo/tag34.html'>News list</a></li>
     </ul>
     
-    <div id='text'><p>We are glad to announce the opening of our new project !</p>
+    <div class='zazen' id='text'><p>We are glad to announce the opening of our new project !</p>
     
     
     	<p>You are all invited to <strong>Romanel</strong> for a great party this weekend.</p></div>

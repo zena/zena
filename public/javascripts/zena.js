@@ -4,7 +4,9 @@ Zena.env = new Array();
 
 // preview content from another window.
 Zena.editor_preview = function(url, element, value) {
-	new Ajax.Request(url, {asynchronous:true, evalScripts:true, parameters:{content: value }}); // $F()
+  var key = element.name;
+  var full_url = url + '&key=' + key.slice(5, key.length - 1);
+	new Ajax.Request(full_url, {asynchronous:true, evalScripts:true, parameters:{content: value }}); // $F()
 }
 
 // preview version.

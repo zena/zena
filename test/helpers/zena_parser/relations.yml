@@ -371,3 +371,11 @@ group_by_parent_sort:
 nodes_in_site_group_by_year:
   src: "<r:nodes in='site' group='log_at:year' order='log_at:year asc, name asc' do='each' join=', '><r:show date='log_at' format='%Y'/></r:nodes>"
   res: ", 2006, 2007"
+
+comments_order_desc:
+  src: "<r:comments order='created_at desc'><r:each join=', '><r:show date='created_at' format='%Y-%m-%d'/>:<b do='[title]'/></r:each></r:comments>"
+  res: "2008-05-21:<b>re: What about rivers ?</b>, 2006-12-20:<b>What about rivers ?</b>, 2006-12-20:<b>Nice site</b>"
+  
+comments_where_title:
+  src: "<r:comments where='title like \"%rivers%\"'><r:each join=', '><r:show date='created_at' format='%Y-%m-%d'/>:<b do='[title]'/></r:each></r:comments>"
+  res: "2006-12-20:<b>What about rivers ?</b>, 2008-05-21:<b>re: What about rivers ?</b>"

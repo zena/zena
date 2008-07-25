@@ -1005,6 +1005,11 @@ class Node < ActiveRecord::Base
     self[:name] = str.url_name
   end
   
+  # Return current discussion id
+  def discussion_id
+    discussion ? discussion[:id] : nil
+  end
+  
   # Return self[:id] if the node is a kind of Section. Return section_id otherwise.
   def get_section_id
     # root node is it's own section and project

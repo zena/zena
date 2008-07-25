@@ -17,15 +17,17 @@ class NodeQueryTest < ZenaTestUnit
     login context[:visitor].to_sym
     
     sql, errors, uses_node_name, node_class = Node.build_find(:all,@@test_strings[file][test]['src'] || test.gsub('_',' '), context)
+    class_prefix = (node_class != Node ? "#{node_class.to_s}: " : '')
+    
     if test_err = @@test_strings[file][test]['err']
-      assert_yaml_test test_err, errors.join(", ")
+      assert_yaml_test test_err, class_prefix + errors.join(", ")
     else
-      sql ||= errors.join(", ")
+      sql ||= class_prefix + errors.join(", ")
       if test_sql = @@test_strings[file][test]['sql']
         test_sql.gsub!(/_ID\(([^\)]+)\)/) do
           ZenaTest::id($_test_site, $1)
         end
-        assert_yaml_test test_sql, sql
+        assert_yaml_test test_sql, class_prefix + sql
       end
     
       if test_res = @@test_strings[file][test]['res']
@@ -36,9 +38,9 @@ class NodeQueryTest < ZenaTestUnit
           res = @node.do_find(:all, sql)
           res = res ? res.map {|r| r[:name]}.join(', ') : ''
           res = "#{node_class}: #{res}" if node_class != Node
-          assert_yaml_test test_res, res
+          assert_yaml_test test_res, class_prefix + res
         else
-          assert_yaml_test test_res, errors.join(", ")
+          assert_yaml_test test_res, class_prefix + errors.join(", ")
         end
       end
     end

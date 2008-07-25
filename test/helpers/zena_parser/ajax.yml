@@ -11,8 +11,8 @@ show_edit:
 
 zazen_edit:
   src: "<r:zazen attr='name' edit='true'/>"
-  tem: "<div id='list1_name'><% if @node.can_write? -%><span class='zazen_edit'><%= link_to_remote(\"edit\", :url => edit_node_path(@node.zip) + \"?attribute=name&dom_id=list1_name&zazen=true\", :method => :get) %></span><% end -%><%= zazen(@node.name, :node=>@node) %></div>"
-  res: "/div id='list1_name'>.*Ajax\.Request\('/nodes/22/edit\?attribute=name/"
+  tem: "<div class='zazen' id='list1_name'><% if @node.can_write? -%><span class='zazen_edit'><%= link_to_remote(\"edit\", :url => edit_node_path(@node.zip) + \"?attribute=name&dom_id=list1_name&zazen=true\", :method => :get) %></span><% end -%><%= zazen(@node.name, :node=>@node) %></div>"
+  res: "/div class='zazen' id='list1_name'>.*Ajax\.Request\('/nodes/22/edit\?attribute=name/"
 
 edit_not_each:
   src: "<li class='blah'>this is a post <r:edit>edit post</r:edit></li>"
