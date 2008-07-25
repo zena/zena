@@ -863,7 +863,7 @@ module Zena
       when 'submit'
         @html_tag = 'input'
         @html_tag_params[:type] = @params[:type]
-        @html_tag_params[:text] = @params[:text]
+        @html_tag_params[:text] = @params[:text] if @params[:text]
         @html_tag_params.merge!(html_attributes)
         render_html_tag(nil)
       else
@@ -898,7 +898,7 @@ module Zena
           id_hash[:id] = "#{erb_dom_id}_form"
           id_hash[:style] = "display:none;"
           
-          cancel =  "<span class='btn_x'><a href='#' onclick='[\"#{erb_dom_id}_add\", \"#{erb_dom_id}_form\"].each(Element.toggle);return false;'>#{_('btn_x')}</a></span>\n"
+          cancel =  "<p class='btn_x'><a href='#' onclick='[\"#{erb_dom_id}_add\", \"#{erb_dom_id}_form\"].each(Element.toggle);return false;'>#{_('btn_x')}</a></p>\n"
           form  =  "<%= form_remote_tag(:url => #{base_class.to_s.underscore.pluralize}_path, :html => {:id => \"#{dom_id}_form_t\"}) %>\n"
         else
           # saved form
@@ -907,9 +907,9 @@ module Zena
           
           cancel = <<-END_TXT
 <% if #{node}.new_record? -%>
-  <span class='btn_x'><a href='#' onclick='[\"<%= params[:dom_id] %>_add\", \"<%= params[:dom_id] %>_form\"].each(Element.toggle);return false;'>#{_('btn_x')}</a></span>
+  <p class='btn_x'><a href='#' onclick='[\"<%= params[:dom_id] %>_add\", \"<%= params[:dom_id] %>_form\"].each(Element.toggle);return false;'>#{_('btn_x')}</a></p>
 <% else -%>
-  <span class='btn_x'><%= link_to_remote(#{_('btn_x').inspect}, :url => #{base_class.to_s.underscore}_path(#{node_id}) + \"/zafu?t_url=#{CGI.escape(template_url)}&dom_id=\#{params[:dom_id]}#{@context[:need_link_id] ? "&link_id=\#{#{node}.link_id}" : ''}\", :method => :get) %></span>
+  <p class='btn_x'><%= link_to_remote(#{_('btn_x').inspect}, :url => #{base_class.to_s.underscore}_path(#{node_id}) + \"/zafu?t_url=#{CGI.escape(template_url)}&dom_id=\#{params[:dom_id]}#{@context[:need_link_id] ? "&link_id=\#{#{node}.link_id}" : ''}\", :method => :get) %></p>
 <% end -%>
 END_TXT
           form =<<-END_TXT
@@ -2281,35 +2281,6 @@ END_TXT
       target
     end
     
-    def context_name
-      return (@context[:name] || 'list') if @context
-      @name || @params[:id] || parent ? parent.context_name : 'root'
-    end
-    
-    def context
-      return @context if @context
-      # not rendered yet, find first parent with context
-      @context = parent ? parent.context : {}
-    end
-    
-    # prefix for DOM id
-    def dom_prefix
-      (@context ? @context[:dom_prefix] : nil) || (@dom_prefix ||= unique_name)
-    end
-    
-    # use our own scope
-    def clear_dom_scope
-      @context.delete(:dom_prefix)     # should not propagate
-      @context.delete(:make_form)      # should not propagate
-      @context.delete(:saved_template) # should not propagate
-    end
-    
-    # create our own ajax DOM scope
-    def new_dom_scope
-      clear_dom_scope
-      @context[:dom_prefix] = self.dom_prefix
-    end
-    
     # DOM id for the current context
     def dom_id(suffix='')
       return "\#{dom_id(#{node})}" if @context && @context[:saved_template]
@@ -2371,11 +2342,41 @@ END_TXT
     def form_url
       template_url + '_form'
     end
-
+    
+    
+    def context
+      return @context if @context
+      # not rendered yet, find first parent with context
+      @context = parent ? parent.context : {}
+    end
+    
+    # prefix for DOM id
+    def dom_prefix
+      (@context ? @context[:dom_prefix] : nil) || (@dom_prefix ||= unique_name)
+    end
+    
+    # use our own scope
+    def clear_dom_scope
+      @context.delete(:dom_prefix)     # should not propagate
+      @context.delete(:make_form)      # should not propagate
+      @context.delete(:saved_template) # should not propagate
+    end
+    
+    # create our own ajax DOM scope
+    def new_dom_scope
+      clear_dom_scope
+      @context[:dom_prefix] = self.dom_prefix
+    end
+    
     # Return a different name on each call
     def unique_name
       base = context_name
       root.next_name_index(base, base == @name).gsub(/[^\d\w\/]/,'_')
+    end
+    
+    def context_name
+      return (@name || @context[:name] || 'list') if @context
+      @name || @params[:id] || (parent ? parent.context_name : 'root')
     end
     
     def next_name_index(key, own_id = false)

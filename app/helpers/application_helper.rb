@@ -125,7 +125,7 @@ module ApplicationHelper
       fld = "<input id='#{opts[:id]}' name='#{obj}[#{var}]' type='text' value='#{value}' />"
     end
 		<<-EOL
-<div class="date_box"><img src="/calendar/iconCalendar.gif" id="#{opts[:button]}"/>
+<span class="date_box"><img src="/calendar/iconCalendar.gif" id="#{opts[:button]}" alt='#{_('date selection')}'/>
 #{fld}
 	<script type="text/javascript">
     Calendar.setup({
@@ -134,7 +134,7 @@ module ApplicationHelper
         singleClick    :    true,
         showsTime      :    true
     });
-</script></div>
+</script></span>
 		EOL
 	end
     
