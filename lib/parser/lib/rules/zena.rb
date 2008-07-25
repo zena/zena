@@ -3016,7 +3016,7 @@ END_TXT
       if erb
         "<input type='hidden' name='s' value='<%= params[:s] || @node[:zip] %>'/>"
       else
-        "&s=\#{params[:s] || @node[:zip]}"
+        "s=\#{params[:s] || @node[:zip]}"
       end
     end
     
