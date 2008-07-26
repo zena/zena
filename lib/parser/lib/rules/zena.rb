@@ -529,7 +529,7 @@ module Zena
         out expand_with(:in_filter => true)
       end
       out "</div></form>"
-      if @params[:live]
+      if @params[:live] || @params[:updatea]
         out "<%= observe_form( \"#{dom_id}_f\" , :method => :get, :frequency  =>  1, :submit =>\"#{dom_id}_f\", :url => zafu_node_path(#{node_id})) %>"
       end
     end
@@ -692,6 +692,7 @@ module Zena
          "<span class='s<%= #{node}.version.status %>'>#{res}</span>"
         else
           @html_tag_params[:class] = ["'s<%= #{node}.version.status %>'"]
+          @html_tag ||= 'span'
           res
         end
       else
@@ -1215,7 +1216,11 @@ END_TXT
     #end
     
     def r_drop
-      @html_tag_params[:class] ||= 'drop'
+      if parent.method == 'each' && @method == parent.single_child_method
+        parent.add_html_class('drop')
+      else
+        @html_tag_params[:class] ||= 'drop'
+      end
       r_block
     end
     
@@ -1251,9 +1256,6 @@ END_TXT
     def r_draggable
       new_dom_scope
       @html_tag ||= 'div'
-      @html_tag_params ||= {}
-      dom_id = unique_name
-      @html_tag_params[:id] = erb_dom_id
       case @params[:revert]
       when 'move'
         revert_effect = 'Element.move'
@@ -1262,28 +1264,16 @@ END_TXT
       else
         revert_effect = 'Element.move'
       end
-      res = expand_with
-      if @params[:drag_handle]
-        drag_handle = @params[:drag_handle] == 'true' ? 'drag_hand' : @params[:drag_handle]
-        if res =~ /class\s*=\s*['"]#{drag_handle}/
-          # nothing to do
-          insert = ''
-        else
-          insert = "<span class='#{drag_handle}'>&nbsp;</span>"
-        end
-      else
-        insert = ''
-      end
-      out render_html_tag(insert + res)
       
-      out "<script type='text/javascript'>
-      //<![CDATA["
+      res, drag_handle = set_drag_handle_and_id(expand_with, @params, :id => erb_dom_id)
+      
+      out render_html_tag(res)
+      
       if drag_handle
         out "<script type='text/javascript'>\n//<![CDATA[\n
-          new Draggable('#{@html_tag_params[:id]}', {ghosting:true, revert:true, revertEffect:#{revertEffect}, handle:$(dom_id).select('.#{drag_handle}')[0]});
-        });\n//]]>\n</script>"
+          new Draggable('#{erb_dom_id}', {ghosting:true, revert:true, revertEffect:#{revert_effect}, handle:$('#{erb_dom_id}').select('.#{drag_handle}')[0]});\n//]]>\n</script>"
       else
-        out "<script type='text/javascript'>\n//<![CDATA[\nZena.draggable('#{@html_tag_params[:id]}',0,true,true,#{revert_effect})\n//]]>\n</script>"
+        out "<script type='text/javascript'>\n//<![CDATA[\nZena.draggable('#{erb_dom_id}',0,true,true,#{revert_effect})\n//]]>\n</script>"
       end
     end
  
@@ -1418,18 +1408,21 @@ END_TXT
     end
     
     def r_each
-      if descendant('edit') || descendant('unlink') || ['block', 'drop'].include?(single_child_method) || @params[:draggable] == 'true'
+      is_draggable = @params[:draggable] == 'true' || @params[:drag_handle]
+      
+      if descendant('edit') || descendant('unlink') || ['block', 'drop'].include?(single_child_method) || is_draggable
         id_hash = {:id => erb_dom_id}
       else
         id_hash = nil
       end
+      
       
       if @context[:make_form]
         # use the elements inside 'each' loop to produce the edit form
         r_form
       elsif @context[:list]
         # normal rendering: not the start of a saved template
-        if @params[:draggable] == 'true' || descendant('unlink')
+        if is_draggable || descendant('unlink')
           @html_tag ||= 'div'
           out "<% #{var}_dom_ids = [] -%>"
         end
@@ -1456,7 +1449,7 @@ END_TXT
           html_append = nil
         end
         
-        if @params[:draggable] == 'true'
+        if is_draggable
           out "<% #{var}_dom_ids << \"#{dom_id}\" -%>"
         end
         
@@ -1464,35 +1457,13 @@ END_TXT
         @params[:anchor] = @anchor_param   # set back in case we double render
         @anchor_param = nil
         
-        res = expand_with(:node => var, :scope_node => var)
-        
-        if @params[:drag_handle] && @params[:draggable] == 'true'
-          drag_handle = @params[:drag_handle] == 'true' ? 'drag_handle' : @params[:drag_handle]
-          if res =~ /class\s*=\s*['"]#{drag_handle}/
-            # nothing to do
-            insert = ''
-          else
-            insert = "<span class='#{drag_handle}'>&nbsp;</span>"
-          end
-        else
-          insert = ''
-        end
-        
-        if id_hash
-          if @html_tag
-            @html_tag_params.merge!(id_hash)
-            res = insert + res
-          else
-            res = add_params(res, id_hash, insert)
-          end
-        end
-        
+        res, drag_handle = set_drag_handle_and_id(expand_with(:node => var, :scope_node => var), @params, id_hash)
         
         out render_html_tag(res, html_append)
         
         out "<% end -%>"
         
-        if @params[:draggable] == 'true'
+        if is_draggable
           if drag_handle
             out "<script type='text/javascript'>\n//<![CDATA[\n<%= #{var}_dom_ids.inspect %>.each(function(dom_id, index) {
                 new Draggable(dom_id, {ghosting:true, revert:true, handle:$(dom_id).select('.#{drag_handle}')[0]});
@@ -1504,21 +1475,16 @@ END_TXT
         
       elsif @context[:saved_template]
         # render to start a saved template
-        res = expand_with(:scope_node => node)
+        res, drag_handle = set_drag_handle_and_id(expand_with(:scope_node => node), @params, id_hash)
         
-        if id_hash
-          if @html_tag
-            @html_tag_params.merge!(id_hash)
-            res = render_html_tag(res, html_append)
+        out render_html_tag(res)
+        
+        if is_draggable
+          if drag_handle
+            out "<script type='text/javascript'>\n//<![CDATA[\nnew Draggable('#{erb_dom_id}', {ghosting:true, revert:true, handle:$('#{erb_dom_id}').select('.#{drag_handle}')[0]});\n//]]>\n</script>"
           else
-            res = add_params(res, id_hash)
+            out "<script type='text/javascript'>\n//<![CDATA[\nZena.draggable('#{erb_dom_id}')\n//]]>\n</script>"
           end
-        end
-        
-        out res
-        
-        if @params[:draggable] == 'true'
-          out "<script type='text/javascript'>\n//<![CDATA[\nZena.draggable('#{erb_dom_id}')\n//]]>\n</script>"
         end
       else
         # TODO: make a single list ?
@@ -1526,7 +1492,7 @@ END_TXT
         r_each
       end
     end
-   
+    
     def r_case
       out "<% if false -%>"
       out expand_with(:in_if=>true, :only=>['when', 'else'], :html_tag => @html_tag, :html_tag_params => @html_tag_params)
@@ -2610,6 +2576,8 @@ END_TXT
               case value
               when 'main'
                 "#{node}[:id] == #{node_name}[:id]"
+              when 'start'
+                "#{node}[:zip] == (params[:s] || #{node_name}[:zip]).to_i"
               when 'parent'
                 "#{node}[:id] == #{node_name}[:parent_id]"
               when 'project'
@@ -3155,6 +3123,32 @@ END_TXT
     
     def parser_error(message, tag=@method)
       "<span class='parser_error'>[#{tag}] #{message}</span>"
+    end
+    
+    # Used by [each] and [draggable] to insert 'id' and drag handle span
+    def set_drag_handle_and_id(text, params, id_hash)
+      res, drag_handle = text, nil
+      if params[:drag_handle]
+        drag_handle = params[:drag_handle] == 'true' ? 'drag_handle' : params[:drag_handle]
+        if text =~ /class\s*=\s*['"]#{drag_handle}/
+          # nothing to do
+          insert = ''
+        else
+          insert = "<span class='#{drag_handle}'>&nbsp;</span>"
+        end
+      else
+        insert = ''
+      end
+      
+      if id_hash
+        if @html_tag
+          @html_tag_params.merge!(id_hash)
+          res = insert + text
+        else
+          res = add_params(text, id_hash, insert)
+        end
+      end
+      [res, drag_handle]
     end
     
     def expand_with(acontext={})

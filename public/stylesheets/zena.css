@@ -35,9 +35,9 @@ table.errors { background:#DDC8C8; margin:0 0 5px; border-bottom:1px solid #5A32
 table.errors td { padding:2px 5px; background:inherit; border:none;}
 
 /* ========================= Ajax css ========================= */
-.drop_hover { background:#ace;  border:2px dashed #99f;}
+.drop_hover { background:#ace; border:2px dashed #99f;}
 .drop { min-height:1em;}
-.drag_handle { padding-left:1em; margin:2px; background: #bbf;}
+.drag_handle { padding-left:1em; margin:2px; background: url('/images/shading.png');}
 
 /* ========================= Zazen css ======================== */
 
