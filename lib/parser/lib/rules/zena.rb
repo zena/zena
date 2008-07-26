@@ -521,7 +521,7 @@ module Zena
       else
         return parser_error("missing 'block' in same parent") unless parent && block = parent.descendant('block')
       end
-      
+      return parser_error("cannot use 's' as key (used by start_node)") if @params[:key] == 's'
       out "<%= form_remote_tag(:url => zafu_node_path(#{node_id}), :method => :get, :html => {:id => \"#{dom_id}_f\"}) %><div class='hidden'><input type='hidden' name='t_url' value='#{block.template_url}'/><input type='hidden' name='dom_id' value='#{block.erb_dom_id}'/>#{start_node_input}</div><div class='wrapper'>"
       if @blocks == []
         out "<input type='text' name='#{@params[:key] || 'f'}' value='<%= params[#{(@params[:key] || 'f').to_sym.inspect}] %>'/>"
@@ -529,7 +529,7 @@ module Zena
         out expand_with(:in_filter => true)
       end
       out "</div></form>"
-      if @params[:live] || @params[:updatea]
+      if @params[:live] || @params[:update]
         out "<%= observe_form( \"#{dom_id}_f\" , :method => :get, :frequency  =>  1, :submit =>\"#{dom_id}_f\", :url => zafu_node_path(#{node_id})) %>"
       end
     end
@@ -807,7 +807,7 @@ module Zena
     #end
     
     def r_edit
-      text = get_text_for_erb
+      
       if @context[:dom_prefix]
         # ajax
         if @context[:in_form]
@@ -817,7 +817,7 @@ module Zena
           # edit button
           
           # TODO: show 'reply' instead of 'edit' in comments if visitor != author
-          out link_to_update(self, :url => "\#{edit_#{base_class.to_s.underscore}_path(#{node_id})}", :html_params => get_html_params(@params), :method => :get, :cond => "#{node}.can_write?", :else => :void)
+          out link_to_update(self, :default_text => _('edit'), :url => "\#{edit_#{base_class.to_s.underscore}_path(#{node_id})}", :html_params => get_html_params(@params), :method => :get, :cond => "#{node}.can_write?", :else => :void)
         end
       else
         # FIXME: we could link to some html page to edit the item.
@@ -1241,7 +1241,7 @@ END_TXT
         return parser_error("missing parameters to set values") if url_params == []
       end
     
-      url_params << "change=receiver" if change == 'receiver'
+      url_params << "change=dropped" if change == 'dropped'
       url_params << "t_url=#{CGI.escape(template_url)}"
       url_params << "dom_id=#{erb_dom_id}"
       url_params << "done=#{CGI.escape(@params[:done])}" if @params[:done]
@@ -1768,7 +1768,7 @@ END_TXT
         # html attributes do not belong to sharp
         pre_space = ''
       else
-        [:class, :id, :style].each do |sym|
+        [:class, :id, :style, :name].each do |sym|
           if value = @html_tag_params[sym] || @params[sym]
             html_params[sym] = value
           end
@@ -1781,7 +1781,7 @@ END_TXT
         @anchor_param = nil
         html_params[:name] = anchor_name(@params[:anchor], node)
       end
-      
+
       if upd = @params[:update]
         return unless target = find_target(upd)
         link_to_update(target, :html_params => html_params)

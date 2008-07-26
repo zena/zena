@@ -154,10 +154,11 @@ unlink:
 edit_link:
   context:
     node: 'art'
+    lang: 'fr'
   src: "<r:tagged><r:each><r:show attr='name'/>: <r:show attr='l_status'/> <r:edit/></r:each></r:tagged>"
-  res: "/link_id/"
-  'edit/link/en/list1_form.erb': "/<input type='hidden' name='link_id' value=.<%= @node.link_id %>./>/"
-  'edit/link/en/list1.erb': "/\#\{@node.link_id\}/"
+  res: "/link_id.*éditer/"
+  'edit/link/fr/list1_form.erb': "/<input type='hidden' name='link_id' value=.<%= @node.link_id %>./>/"
+  'edit/link/fr/list1.erb': "/\#\{@node.link_id\}/"
 
 drop_done_remove:
   src: "<div do='drop' set='tagged' done='remove'></div>"

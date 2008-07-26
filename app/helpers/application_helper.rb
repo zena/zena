@@ -64,7 +64,7 @@ module ApplicationHelper
       case params[:action]
       when 'edit'
         page.replace params[:dom_id], :file => fullpath_from_template_url + "_form.erb"
-        page << "$('#{params[:dom_id]}_form_t').focusFirstElement();"
+#        page << "$('#{params[:dom_id]}_form_t').focusFirstElement();"
       when 'create'
         pos = params[:position]  || :before
         ref = params[:reference] || "#{params[:dom_id]}_add"
