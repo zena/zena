@@ -222,11 +222,11 @@ module Zena
               end
             else
               # invalid relation
-              errors.add(role, "invalid relation")
-              # ignore
               if mode == '='
+                errors.add(role, "invalid relation") unless args[0].empty?
                 return args[0]
               else
+                # ignore
                 return nil
               end
             end

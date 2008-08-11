@@ -184,6 +184,8 @@ class RelationProxy < Relation
         elsif unique?
           if other_id
             @attributes_to_update[:id] = other_id
+          elsif @attributes_to_update.keys == [:id]
+            # ignore (set icon_id = nil when already == nil)
           else
             @link_errors << "invalid target"
           end

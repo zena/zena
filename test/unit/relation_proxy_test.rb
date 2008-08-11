@@ -265,4 +265,17 @@ class RelationProxyTest < ZenaTestUnit
     assert hot = node.find(:first, 'hot')
     assert_equal 33, hot.l_status
   end
+  
+  def test_create_invalid_target_empty
+    login(:lion)
+    node = secure!(Node) { Node.create_node('parent_id' => nodes_zip(:cleanWater),'klass'=>'Page', 'foo_id'=>'342', 'v_title'=>'hello') }
+    assert node.new_record?
+    assert_equal 'invalid relation', node.errors['foo']
+    # invalid relation
+    node = secure!(Node) { Node.create_node('parent_id' => nodes_zip(:cleanWater),'klass'=>'Page', 'foo_id'=>'', 'v_title'=>'one') }
+    assert !node.new_record?
+    # invalid target
+    node = secure!(Node) { Node.create_node('parent_id' => nodes_zip(:cleanWater),'klass'=>'Page', 'icon_id'=>'', 'v_title'=>'two') }
+    assert !node.new_record?
+  end
 end

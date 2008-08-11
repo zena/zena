@@ -550,12 +550,6 @@ on_if_attribute_with_edit:
   src: "<r:pages><div do='each' on_if='d_assigned'><r:show attr='name'/><r:edit/></div></r:pages>"
   tem: "/list1.each.*var1.*<div.*var1.version.dyn\[\"assigned\"\]/"
 
-edit:
-  context:
-    lang: 'fr'
-  src: "<div do='block'><r:edit/></div>"
-  tem: "/éditer</a>/"
-
 on_if_node_main:
   src: "<r:parent><r:pages><div do='each' on_if_node='main' do='[name]'>hello</div></r:pages></r:parent>"
   res: "<div class='on'>status</div><div>track</div>"
