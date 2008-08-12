@@ -7,7 +7,7 @@
 <% if !ImageBuilder.dummy? %>
 <label for="c_crop_x"><%= _("image")  %></label>
 <div id="crop" class='toggle_div'>
-  <div class='img_left'><%= img_tag(@node,:mode=>'pv') %></div>
+  <div class='img_left'><%= link_to_remote(img_tag(@node,:mode=>'pv'), :url => crop_form_document_path(@node[:zip]), :method => :get) %></div>
   <ul class='infos'>
     <li><%= link_to_remote(_("crop/resize"), :url => crop_form_document_path(@node[:zip]), :method => :get) %></li>
     <li><%= _('original') %> <%= @node.c_width %>px / <%= @node.c_height %>px</li>

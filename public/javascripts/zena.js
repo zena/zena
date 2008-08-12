@@ -6,17 +6,17 @@ Zena.env = new Array();
 Zena.editor_preview = function(url, element, value) {
   var key = element.name;
   var full_url = url + '&key=' + key.slice(5, key.length - 1);
-	new Ajax.Request(full_url, {asynchronous:true, evalScripts:true, parameters:{content: value }}); // $F()
+  new Ajax.Request(full_url, {asynchronous:true, evalScripts:true, parameters:{content: value }}); // $F()
 }
 
 // preview version.
 Zena.version_preview = function(url) {
-	new Ajax.Request(url, {asynchronous:true, evalScripts:true})
+  new Ajax.Request(url, {asynchronous:true, evalScripts:true})
 }
 
 // version diff.
 Zena.version_diff = function(id, from, to) {
-	new Ajax.Request('/z/version/diff/'+id+'?from=' + from.innerHTML + '&to=' + to.innerHTML, {asynchronous:true, evalScripts:true})
+  new Ajax.Request('/z/version/diff/'+id+'?from=' + from.innerHTML + '&to=' + to.innerHTML, {asynchronous:true, evalScripts:true})
 }
 
 var diff_from = '';
@@ -57,7 +57,7 @@ Zena.diff_select = function(tag) {
 
 // preview discussion.
 Zena.discussion_show = function(discussion_id) {
-	new Ajax.Request('/z/discussion/show/' + discussion_id, {asynchronous:true, evalScripts:true})
+  new Ajax.Request('/z/discussion/show/' + discussion_id, {asynchronous:true, evalScripts:true})
 }
 
 // update content from another window
@@ -104,11 +104,11 @@ Zena.transfer = function(src,trgt) {
 
 // get the name of a file from the path
 Zena.get_filename = function(source, target) {
-	if ($(target).value == '') {
-		var path = $(source).value;
-	  elements = path.split(new RegExp("[\\/]+", "g"));
-		$(target).value = elements[elements.length - 1];
-	}
+  if ($(target).value == '') {
+    var path = $(source).value;
+    var elements = path.split(/[\\\/]+/g);
+    $(target).value = elements[elements.length - 1];
+  }
 }
 
 Zena.clear_file = function(input_id) {
@@ -123,47 +123,47 @@ Zena.clear_file = function(input_id) {
 }
 
 Zena.open_cal = function(e, url) {
-	var e = e || window.event; // IE
-	var tgt = e.target || e.srcElement; // IE
-	day = tgt.innerHTML;
-	while (tgt && !tgt.cells) {tgt = tgt.parentNode;} // finds tr.
-	row = tgt.rowIndex;
-	var update_url = unescape(url) + '&day=' + day + '&row=' + row;
-	new Ajax.Request(update_url, {asynchronous:true, evalScripts:true, parameters:'notes'});
- 	return false;
+  var e = e || window.event; // IE
+  var tgt = e.target || e.srcElement; // IE
+  day = tgt.innerHTML;
+  while (tgt && !tgt.cells) {tgt = tgt.parentNode;} // finds tr.
+  row = tgt.rowIndex;
+  var update_url = unescape(url) + '&day=' + day + '&row=' + row;
+  new Ajax.Request(update_url, {asynchronous:true, evalScripts:true, parameters:'notes'});
+   return false;
 }
 
 Zena.update_rwp = function(inherit_val,r_index,w_index,p_index,s_index) {
-	if (inherit_val == "-1") {
-		$("node_rgroup_id").selectedIndex = 0;
-		$("node_wgroup_id").selectedIndex = 0;
-		$("node_rgroup_id").disabled = true;
-		$("node_wgroup_id").disabled = true;
-		$("node_skin" ).disabled = false;
-		if (p_index != '') {
-			$("node_pgroup_id").selectedIndex = 0;
-			$("node_pgroup_id").disabled = true;
-		}
-	} else if (inherit_val == "1") {
-		$("node_rgroup_id").selectedIndex = r_index;
-		$("node_wgroup_id").selectedIndex = w_index;
-		$("node_skin" ).selectedIndex     = s_index;
-		$("node_rgroup_id").disabled = true;
-		$("node_wgroup_id").disabled = true;
-		$("node_skin" ).disabled = true;
-		if (p_index != '') {
-			$("node_pgroup_id").selectedIndex = p_index;
-			$("node_pgroup_id").disabled = true;
-		}
-	} else {
-		$("node_rgroup_id").disabled = false;
-		$("node_wgroup_id").disabled = false;
-		$("node_pgroup_id").disabled = false;
-		$("node_skin" ).disabled = false;
-		if (p_index != '') {
-			$("node_pgroup_id").disabled = false;
-		}
-	}
+  if (inherit_val == "-1") {
+    $("node_rgroup_id").selectedIndex = 0;
+    $("node_wgroup_id").selectedIndex = 0;
+    $("node_rgroup_id").disabled = true;
+    $("node_wgroup_id").disabled = true;
+    $("node_skin" ).disabled = false;
+    if (p_index != '') {
+      $("node_pgroup_id").selectedIndex = 0;
+      $("node_pgroup_id").disabled = true;
+    }
+  } else if (inherit_val == "1") {
+    $("node_rgroup_id").selectedIndex = r_index;
+    $("node_wgroup_id").selectedIndex = w_index;
+    $("node_skin" ).selectedIndex     = s_index;
+    $("node_rgroup_id").disabled = true;
+    $("node_wgroup_id").disabled = true;
+    $("node_skin" ).disabled = true;
+    if (p_index != '') {
+      $("node_pgroup_id").selectedIndex = p_index;
+      $("node_pgroup_id").disabled = true;
+    }
+  } else {
+    $("node_rgroup_id").disabled = false;
+    $("node_wgroup_id").disabled = false;
+    $("node_pgroup_id").disabled = false;
+    $("node_skin" ).disabled = false;
+    if (p_index != '') {
+      $("node_pgroup_id").disabled = false;
+    }
+  }
 }
 
 /* fade flashes automatically */
@@ -218,10 +218,10 @@ Zena.Div_editor.prototype = {
     h : 0,
     offsetx : 0,
     offsety : 0,
+    startx: 0,
+    starty: 0,
     fullw : 0,
-    fullh : 0,
-    allx : 0,
-    ally : 0 
+    fullh : 0
   },
   flds : {
     x : '',
@@ -232,30 +232,30 @@ Zena.Div_editor.prototype = {
   zoom : 1.0,
   BORDER_WIDTH : 10,
   BORDER_COLOR : 'black',
-	initialize: function(img_name, x_name, y_name, w_name, h_name, azoom, left_pos, top_pos) {
-	  var img      = $(img_name);
+  MARGIN: 40,
+  initialize: function(img_name, x_name, y_name, w_name, h_name, azoom, left_pos, top_pos) {
+    var img      = $(img_name);
     var img_pos  = Position.positionedOffset(img);
-	  this.flds.x = $(x_name);
-	  this.flds.y = $(y_name);
-	  this.flds.w = $(w_name);
-	  this.flds.h = $(h_name);
-	  this.zoom  = azoom;
-	  
-    this.pos.offsetx = left_pos;
-    this.pos.offsety = top_pos;
+    this.flds.x = $(x_name);
+    this.flds.y = $(y_name);
+    this.flds.w = $(w_name);
+    this.flds.h = $(h_name);
+    this.zoom  = azoom;
+    
+    this.pos.offsetx = left_pos + this.MARGIN;
+    this.pos.offsety = top_pos  + this.MARGIN;
     this.pos.fullw = img.width;
     this.pos.fullh = img.height;
     
     this.clone = document.createElement('div');
     this.mark  = document.createElement('div');
     Element.setStyle(this.clone, {
-      width:  this.pos.fullw + 'px',
-      height: this.pos.fullh + 'px',
-      background: 'url('+img.src+') no-repeat',
+      width:  (2 * this.MARGIN + this.pos.fullw) + 'px',
+      height: (2 * this.MARGIN + this.pos.fullh) + 'px',
+      background: 'grey url('+img.src+') no-repeat ' + this.MARGIN + 'px ' + this.MARGIN + 'px',
       position: 'absolute',
-      left: this.pos.offsetx + 'px',
-      top:  this.pos.offsety + 'px',
-      border: '1px solid grey'
+      left: this.pos.offsetx - this.MARGIN + 'px',
+      top:  this.pos.offsety - this.MARGIN + 'px'
     });
     // register callbacks
     this.clone.onmousedown = this.update_position.bindAsEventListener(this);
@@ -297,26 +297,27 @@ Zena.Div_editor.prototype = {
     this.flds.w.value = Math.round(this.zoom * this.pos.w);
     this.flds.h.value = Math.round(this.zoom * this.pos.h);
     Element.setStyle(this.mark, {    
-      left: (this.pos.x - this.BORDER_WIDTH) + 'px',
-      top:  (this.pos.y - this.BORDER_WIDTH) + 'px',
+      left: (this.pos.x - this.BORDER_WIDTH + this.MARGIN) + 'px',
+      top:  (this.pos.y - this.BORDER_WIDTH + this.MARGIN) + 'px',
       width:  this.pos.w + 'px',
       height: this.pos.h + 'px'
     });
   },
   update_position: function(event) {
-    var posx = Event.pointerX(event) - this.pos.offsetx;
-    var posy = Event.pointerY(event) - this.pos.offsety;
+    var posx = Math.max(0,Event.pointerX(event) - this.pos.offsetx);
+    var posy = Math.max(0,Event.pointerY(event) - this.pos.offsety);
     if (!this.moving) {
       this.moveAll = false;
-      this.pos.startx = posx;
       if ((Math.abs(this.pos.x - posx) < 15.0) && (posy > this.pos.y - 15) && (posy < this.pos.y + this.pos.h + 15)) {
         // moving left corners
         this.moveX  = 'left';
         this.moving = true;
+        this.pos.startx = posx - this.pos.x;
       } else if ((Math.abs(this.pos.x + this.pos.w - posx) < 15.0) && (posy > this.pos.y - 15) && (posy < this.pos.y + this.pos.h + 15)) {
         // moving right corners
         this.moveX = 'right';
         this.moving = true;
+        this.pos.startx = posx - this.pos.x - this.pos.w;
       } else {
         this.moveX = false;
       }
@@ -324,10 +325,12 @@ Zena.Div_editor.prototype = {
         // moving top
         this.moveY = 'top';
         this.moving = true;
+        this.pos.starty = posy - this.pos.y;
       } else if ((Math.abs(this.pos.y + this.pos.h - posy) < 15.0) && (posx > this.pos.x - 15) && (posx < this.pos.x + this.pos.h + 15))  {
         // moving bottom
         this.moveY = 'bottom';
         this.moving = true;
+        this.pos.starty = posy - this.pos.y - this.pos.h;
       } else {
         this.moveY = false;
       }
@@ -336,12 +339,12 @@ Zena.Div_editor.prototype = {
       } else if (posx >= this.pos.x && posy >= this.pos.y && posx <= (this.pos.x + this.pos.w) && posy <= (this.pos.y + this.pos.h) && !(this.pos.w == this.pos.fullw && this.pos.h == this.pos.fullh) ) {
         this.moveAll = true;
         // inside drag
-        this.pos.allx = posx - this.pos.x;
-        this.pos.ally = posy - this.pos.y;
+        this.pos.startx = posx - this.pos.x;
+        this.pos.starty = posy - this.pos.y;
       } else {
         // start new move
-        this.pos.x = posx;
-        this.pos.y = posy;
+        this.pos.x = Math.max(0, Math.min(this.pos.fullw, posx));
+        this.pos.y = Math.max(0, Math.min(this.pos.fullh, posy));
         this.pos.w = 1;
         this.pos.h = 1;
         this.moveX = 'right';
@@ -349,10 +352,14 @@ Zena.Div_editor.prototype = {
       }
       this.moving = true;
     }
+    // remove clic offset
+    posx = Math.max(0, posx - this.pos.startx);
+    posy = Math.max(0, posy - this.pos.starty);
+    
     if (this.moveAll) {
       // drag
-      this.pos.x = posx - this.pos.allx;
-      this.pos.y = posy - this.pos.ally;
+      this.pos.x = posx;
+      this.pos.y = posy;
     } else {
       if (this.moveX == 'left') {
         this.pos.w = this.pos.x + this.pos.w - posx;
@@ -367,15 +374,28 @@ Zena.Div_editor.prototype = {
         this.pos.h = posy - this.pos.y;
       }
     }
-    if (event.shiftKey) {
+    if (event.shiftKey && this.moveX && this.moveY) {
       // force square
-      if (this.pos.h > this.pos.w) {
-        this.pos.w = this.pos.h;
+      if (this.moveY == 'top') {
+        // update top-left corner
+        if (this.pos.h > this.pos.w) {
+          this.pos.x = this.pos.x - this.pos.h + this.pos.w;
+          this.pos.w = this.pos.h;
+        } else {
+          this.pos.y = this.pos.y - this.pos.w + this.pos.h;
+          this.pos.h = this.pos.w;
+        }
       } else {
-        this.pos.h = this.pos.w;
+        // update bottom-right corner
+        if (this.pos.h > this.pos.w) {
+          this.pos.w = this.pos.h;
+        } else {
+          this.pos.h = this.pos.w;
+        } 
       }
     }
     this.update_sizes();
+    return false;
   },
   limit_positions: function() {
     if (this.pos.x < 0) {
@@ -430,8 +450,8 @@ Zena.Div_editor.prototype = {
     }
   },
   end_move: function(event) {
-    var posx = Event.pointerX(event) - this.pos.offsetx;
-    var posy = Event.pointerY(event) - this.pos.offsety;
+    this.pos.startx = 0;
+    this.pos.starty = 0;
     this.moving = false;
   }
 }

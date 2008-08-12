@@ -135,9 +135,9 @@ class ImageBuilder
   
   def crop!(x,y,w,h)
     @img = nil # reset current rendered image
-    @width  = [@width ,x+w].min - x
-    @height = [@height,y+h].min - y
-    @actions << Proc.new {|img| img.crop!(x,y,[@img.columns, x+w].min - x,[@img.rows, y+h].min - y) }
+    @width  = [@width -x, w].min
+    @height = [@height-y, h].min
+    @actions << Proc.new {|img| img.crop!(x,y,[@img.columns-x, w].min,[@img.rows-y, h].min, true) }
   end
   
   def format=(fmt)
@@ -177,7 +177,7 @@ class ImageBuilder
     @img = nil # reset current rendered image
     @width  = [@width ,w].min
     @height = [@height,h].min
-    @actions << Proc.new {|img| img.crop!(gravity,[@img.columns,w].min,[@img.rows,h].min) }
+    @actions << Proc.new {|img| img.crop!(gravity,[@img.columns,w].min,[@img.rows,h].min, true) }
   end
 
   def set_background!(opacity,w,h)
