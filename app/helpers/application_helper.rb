@@ -983,6 +983,7 @@ latex_template = %q{
     actions = 'edit,propose,publish,refuse,drive' if actions == 'all'
 
     node = opts[:node] || @node
+    return '' if node.new_record?
     publish_after_save = opts[:publish_after_save]
     res = actions.split(',').reject do |action|
       !node.can_apply?(action.to_sym)

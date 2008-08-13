@@ -346,6 +346,13 @@ class ApplicationHelperTest < ZenaTestHelper
     assert_match %r{/nodes/21/edit}, res
   end
   
+  def test_node_actions_on_new_node
+    login(:ant)
+    @node = secure!(Page) { Page.new(:name => 'hello', :parent_id => nodes_id(:zena)) }
+    assert @node.new_record?
+    assert_equal '', node_actions(:actions=>:all)
+  end
+  
   def test_traductions
     session[:lang] = 'en'
     # we must initialize an url for url_rewriting in 'traductions'
