@@ -448,6 +448,12 @@ each_alternate_class:
   src: "<ol do='pages'><li do='each' alt_class='blue' do='[name]'/></ol>"
   res: "<ol><li>status</li><li class=\"blue\">track</li></ol>"
 
+each_alternate_class_reverse:
+  context:
+    node: 'cleanWater'
+  src: "<ol do='pages'><li do='each' alt_class='blue' alt_reverse='true' do='[name]'/></ol>"
+  res: "<ol><li class=\"blue\">status</li><li>track</li></ol>"
+
 each_alternate_class_two:
   context:
     node: 'collections'

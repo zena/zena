@@ -179,4 +179,4 @@ each_in_each_dom_id:
 
 start_id:
   src: "<r:form><input type='hidden' name='s' set_value='[start.id]'/></r:form>"
-  res: "."
+  res: "/<input name='s' type='hidden' value='22'/>/"

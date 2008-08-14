@@ -1428,18 +1428,20 @@ END_TXT
         end
         
         @params[:alt_class] ||= @html_tag_params.delete(:alt_class)
-        raise # TODO: add alt_reverse='true' to start counting from bottom (if order last on top...)
+        # FIXME: add alt_reverse='true' to start counting from bottom (if order last on top...)
         if @params[:alt_class] || @params[:join]
           join = @params[:join] || ''
           join = join.gsub(/&lt;([^%])/, '<\1').gsub(/([^%])&gt;/, '\1>')
+          out "<% #{var}_max_index = #{list}.size - 1 -%>" if @params[:alt_reverse]
           out "<% #{list}.each_with_index do |#{var},#{var}_index| -%>"
           out "<%= #{var}_index > 0 ? #{join.inspect} : '' %>"
           
           if alt_class = @params[:alt_class]
+            alt_test = @params[:alt_reverse] == 'true' ? "(#{var}_max_index - #{var}_index) % 2 != 0" : "#{var}_index % 2 != 0"
             if html_class = @html_tag_params.delete(:class)
-              html_append = " class='#{html_class}<%= #{var}_index % 2 != 0 ? #{(' ' + alt_class).inspect} : '' %>'"
+              html_append = " class='#{html_class}<%= #{alt_test} ? #{(' ' + alt_class).inspect} : '' %>'"
             else
-              html_append = "<%= #{var}_index % 2 != 0 ? ' class=#{alt_class.inspect}' : '' %>"
+              html_append = "<%= #{alt_test} ? ' class=#{alt_class.inspect}' : '' %>"
             end
           else
             html_append = nil
@@ -2577,7 +2579,7 @@ END_TXT
               when 'main'
                 "#{node}[:id] == #{node_name}[:id]"
               when 'start'
-                "#{node}[:zip] == (params[:s] || #{node_name}[:zip]).to_i"
+                "#{node}[:zip] == (params[:s] || @node[:zip]).to_i"
               when 'parent'
                 "#{node}[:id] == #{node_name}[:parent_id]"
               when 'project'
@@ -2698,6 +2700,7 @@ END_TXT
     end
     
     def node_attribute(str, opts={})
+      return "(params[:s] || @node[:zip]).to_i" if str == 'start.id'
       attribute, att_node, klass = get_attribute_and_node(str)
       return 'nil' unless attribute
       return "params[:#{$1}]" if attribute =~ /^param:(\w+)$/
@@ -2925,7 +2928,7 @@ END_TXT
         attribute = $2
       else
         attribute = res[:name]
-        if @context[:in_filter]
+        if @context[:in_filter] || attribute == 's'
           res[:name] = attribute
         else
           res[:name] = "#{base_class.to_s.underscore}[#{attribute}]"
