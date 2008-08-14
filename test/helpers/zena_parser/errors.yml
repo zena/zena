@@ -62,3 +62,6 @@ nil_value:
 mean_eval:
   src: "<r:show eval='puts \"bad\"'/>"
   tem: "<span class='parser_error'>[show] var \"puts\" not set in eval</span>"
+
+not_finished_block:
+  src: "<r:if kind_of='Document'><r:link format='data'><r:img mode='tiny'/> <r:show attr='name'/>.<r:show attr='c_ext'/></r:link><r:else do='link'/></r:if>"

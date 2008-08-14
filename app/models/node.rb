@@ -132,7 +132,7 @@ class Node < ActiveRecord::Base
                      :section_zip, :skin, :ref_lang, :fullpath, :rootpath, :position, :publish_from, :max_status, :rgroup_id, 
                      :wgroup_id, :pgroup_id, :basepath, :custom_base, :klass, :zip, :score, :comments_count, :l_status, :l_comment,
                      :custom_a, :custom_b, :title, :text
-  safe_attribute     :m_text, :m_title, :m_author          
+  safe_attribute     :m_text, :m_title, :m_author   
   zafu_context       :author => "Contact", :parent => "Node", 
                      :project => "Project", :section => "Section", 
                      :real_project => "Project", :real_section => "Section",

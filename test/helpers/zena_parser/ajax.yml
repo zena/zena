@@ -176,3 +176,7 @@ each_in_each_dom_id:
       </li>
     </ul>
   'each/in/en/each/dom/id/list1.erb': "/list2_..@node.zip._..var1.zip./"
+
+start_id:
+  src: "<r:form><input type='hidden' name='s' set_value='[start.id]'/></r:form>"
+  res: "."

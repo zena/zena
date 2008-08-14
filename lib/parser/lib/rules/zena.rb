@@ -210,7 +210,7 @@ module Zena
       # do we need recursion ?
       inc = descendant('include')
       if inc && inc.params[:part] == @name
-        @context["#{@name}_method".to_sym] = method_name = template_url[1..-1].gsub('/','_')
+        @context["#{@name}_method".to_sym] = method_name = template_url[1..-1].gsub(/[\/-]/,'_')
         pre << "<% def #{method_name}(depth, node, list); return '' if depth > #{inc.params[:depth] ? [inc.params[:depth].to_i,30].min : 5}; _erbout = '' -%>"
         post << "<% _erbout; end -%><%= #{method_name}(0,#{node},#{list || "[#{node}]"}) %>"
         @context[:node] = 'node'
@@ -1428,7 +1428,7 @@ END_TXT
         end
         
         @params[:alt_class] ||= @html_tag_params.delete(:alt_class)
-        
+        raise # TODO: add alt_reverse='true' to start counting from bottom (if order last on top...)
         if @params[:alt_class] || @params[:join]
           join = @params[:join] || ''
           join = join.gsub(/&lt;([^%])/, '<\1').gsub(/([^%])&gt;/, '\1>')
