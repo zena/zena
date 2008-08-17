@@ -845,7 +845,7 @@ latex_template = %q{
     
     unless opts.include?(:link)
       # we show the link if the object is not the current node or when it is being created by zafu ajax.
-      opts[:link] = (obj[:id] != @node[:id] || params[:template_url]) ? 'true' : nil
+      opts[:link] = (obj[:id] != @node[:id] || params[:t_url]) ? 'true' : nil
     end
     
     unless opts.include?(:project)
