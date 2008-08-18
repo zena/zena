@@ -732,7 +732,7 @@ module Zena
         out "#{pre}<% if #{node}.kind_of?(TextDocument); l = #{node}.content_lang -%>"
         out "<%= zazen(\"<code\#{l ? \" lang='\#{l}'\" : ''} class=\\'full\\'>\#{#{text}}</code>\") %>"
         out "<% else -%>"
-        out "<%= zazen(#{text}#{limit}, :node=>#{node}) %>"
+        out "<%= zazen(#{text}#{limit}, :node=>#{node(Node)}) %>"
         out "<% end -%>#{post}"
       else
         out "#{pre}#{post}"
@@ -763,7 +763,7 @@ module Zena
       
       unless @params[:or]
         text = @params[:text] ? @params[:text].inspect : node_attribute('v_summary')
-        out "#{pre}<%= zazen(#{text}#{limit}, :node=>#{node}) %>#{post}"
+        out "#{pre}<%= zazen(#{text}#{limit}, :node=>#{node(Node)}) %>#{post}"
       else
         limit ||= ', :limit => 2'
         first_name = 'v_summary'
@@ -772,9 +772,9 @@ module Zena
         second_name = @params[:or].gsub(/[^a-z_]/,'') # FIXME: ist this still needed ? (ERB injection)
         second = node_attribute(second_name)
         out "#{pre}<% if #{first} != '' %>"
-        out "<%= zazen(#{first}, :node=>#{node}) %>"
+        out "<%= zazen(#{first}, :node=>#{node(Node)}) %>"
         out "<% else %>"
-        out "<%= zazen(#{second}#{limit}, :node=>#{node}) %>"
+        out "<%= zazen(#{second}#{limit}, :node=>#{node(Node)}) %>"
         out "<% end %>#{post}"
       end
     end
