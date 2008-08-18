@@ -538,8 +538,9 @@ latex_template = %q{
     render_to_string( :partial=>'main/gallery', :locals=>{:gallery=>images} )
   end
 
-  def list_nodes(ids=[], opt={})
-    style = opt[:style] || ''
+  def list_nodes(ids=[], opts={})
+    style = opts[:style] || ''
+    node  = opts[:node] || @node
     case style.sub('.', '')
     when ">"
       prefix = "<div class='img_right'>"
@@ -554,11 +555,11 @@ latex_template = %q{
       prefix = suffix = ""
     end
     if ids == []
-      docs = @node.find(:all, 'documents')
+      docs = node.find(:all, 'documents')
     elsif ids[0] == "d"
-      docs = @node.find(:all, 'documents_only')
+      docs = node.find(:all, 'documents where kpath not like "NDI%"')
     elsif ids[0] == "i"
-      docs = @node.find(:all, 'images')
+      docs = node.find(:all, 'images')
     else
       ids = ids.map{|i| i.to_i}
       docs = ids == [] ? nil : secure!(Document) { Document.find(:all, :order=>'name ASC', :conditions=>"zip IN (#{ids.join(',')})") }
