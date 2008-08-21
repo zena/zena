@@ -180,3 +180,7 @@ each_in_each_dom_id:
 start_id:
   src: "<r:form><input type='hidden' name='s' set_value='[start.id]'/></r:form>"
   res: "/<input name='s' type='hidden' value='22'/>/"
+
+swap_in_each:
+  src: "<r:pages><li do='each'><span do='swap' attr='d_status' states='todo,done,alert'/></li></r:pages>"
+  tem: "/<li id='list1_<%= var1.zip %>'><span>.*var1.can_write?.*tag_to_remote.*else.*var1.version.dyn\[\"status\"\]/"

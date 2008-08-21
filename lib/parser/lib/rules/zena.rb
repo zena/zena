@@ -1410,7 +1410,7 @@ END_TXT
     def r_each
       is_draggable = @params[:draggable] == 'true' || @params[:drag_handle]
       
-      if descendant('edit') || descendant('unlink') || ['block', 'drop'].include?(single_child_method) || is_draggable
+      if descendant('edit') || descendant('unlink') || descendant('swap') || ['block', 'drop'].include?(single_child_method) || is_draggable
         id_hash = {:id => erb_dom_id}
       else
         id_hash = nil
