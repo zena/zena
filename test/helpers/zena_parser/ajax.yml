@@ -150,6 +150,12 @@ unlink:
     node: 'art'
   src: "<r:tagged do='each' do='unlink'/>"
   res: "/<div id='list1_21'><a .*onclick=.*Ajax.Request.*_ID(cleanWater_in_art)\?dom_id=list1_21.*class=.unlink.*bullet_delete.png.*<\/div><div id='list1_27'/"
+
+unlink_ignored_in_form:
+  context:
+    node: 'art'
+  src: "<r:tagged><r:each do='unlink'/><r:add/></r:tagged>"
+  res: "!/<form.*bullet_delete.png/"
   
 edit_link:
   context:

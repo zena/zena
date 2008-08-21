@@ -1278,6 +1278,7 @@ END_TXT
     end
  
     def r_unlink
+      return "" if @context[:make_form]
       opts = {}
       
       if upd = @params[:update]
