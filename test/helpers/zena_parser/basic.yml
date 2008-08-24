@@ -842,12 +842,16 @@ design_by_options:
   src: "<li do='design' skin='dark' by='vador' href='http://teti.ch'></li>"
   res: "<li><i>dark</i>, design by <a href='http://teti.ch'>vador</a></li>"
   
-select_class:
+select_class_existing_node:
   context:
-    node: 'opening'
+    node: 'letter'
   src: "<r:form><select name='klass' root_class='Note' selected='Post'/></r:form>"
-  res: "/<select name=.node\[klass\].><option value=\"Note\">Note<\/option>\n<option value=\"Letter\">  Letter<\/option>\n<option value=\"Post\" selected=\"selected\">  Post<\/option><\/select>/"
+  res: "/<select name=.node\[klass\].><option value=\"Note\">Note<\/option>\n<option value=\"Letter\" selected=\"selected\">  Letter<\/option>\n<option value=\"Post\">  Post<\/option><\/select>/"
 
+select_class_new_node:
+  src: "<r:pages><r:each/><r:add/><r:form><select name='klass' root_class='Note' selected='Post'/></r:form>"
+  res: "/<select.*name=.node\[klass\].*Note.*Letter.*Post. selected=.selected./"
+  
 select_nodes:
   src: "<r:form><select nodes='images in site' name='d_ref'></select></r:form>"
   res: "/name='node\[d_ref\]'><option value=\"\" selected=\"selected\"></option>\n<option value=\"30\">bird</option>\n<option value=\"31\">flower</option>/"

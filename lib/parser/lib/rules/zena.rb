@@ -863,7 +863,7 @@ module Zena
         class_opts = {}
         class_opts[:without]   = @params[:without]  if @params[:without]
         # do not use 'selected' if the node is not new
-        "#{select_tag}<%= options_for_select(Node.classes_for_form(:class => #{klass.inspect}#{params_to_erb(class_opts)}), (#{node}.new_record? ? nil : #{selected})) %></select>"
+        "#{select_tag}<%= options_for_select(Node.classes_for_form(:class => #{klass.inspect}#{params_to_erb(class_opts)}), (#{node}.new_record? ? #{selected} : #{node}.klass)) %></select>"
       elsif @params[:type] == 'time_zone'
         # <r:select name='d_tz' type='time_zone'/>
         "#{select_tag}<%= options_for_select(TZInfo::Timezone.all_identifiers, #{selected}) %></select>"
