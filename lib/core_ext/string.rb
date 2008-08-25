@@ -1,3 +1,14 @@
+# Avoid incompatibility with rails 'chars' version in Ruby 1.8.7
+unless '1.9'.respond_to?(:force_encoding)
+  String.class_eval do
+    begin
+      remove_method :chars
+    rescue NameError
+      # OK
+    end
+  end
+end
+
 class String
   # Parse date : return an utc date from a string and an strftime format. With the current implementation, you can only use '.', '-', ' ' or ':' to separate the different parts in the format.
   def to_utc(format, timezone=nil)

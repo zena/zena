@@ -60,8 +60,8 @@ You can now login with 'admin' and the password you used to make the site.
 
 == Dependencies
 
-=== 1. Original in debian etch
-build-essential apache2 mysql-server libmagick9-dev gs-gpl libssl-dev gettext libgettext-ruby libreadline5 libreadline5-dev zlib1g-dev libncurses5 libncurses5-dev temcap-compat unzip liburi-perl
+=== 1. Original in debian etch (might need to replace jpeg by libjpeg62)
+build-essential apache2 mysql-server libmagick9-dev gs-gpl libssl-dev gettext libgettext-ruby libreadline5 libreadline5-dev zlib1g-dev libncurses5 libncurses5-dev temcap-compat unzip liburi-perl jpeg
 
 If you want to enable LateX (PDF generation)
 tetex-bin tetex-extra latex-ucs
@@ -86,17 +86,22 @@ rubygems
     # tar xzf rubygems-1.0.1.tgz
     # cd rubygems-1.0.1
     # ruby setup.rb (if ruby is not found, log out and log back in)
-ImageMagick
+
+ImageMagick (on Linux)
     # wget ftp://ftp.imagemagick.org/pub/ImageMagick/ImageMagick.tar.gz
     # tar xzf ImageMagick.tar.gz
     # cd ImageMagick
     # ./configure
     # make && make install
+  
+ImageMagick (on mac os X using macports)
+    # sudo port install tiff -macosx imagemagick +q8 +gs +wmf
 
 === 3. install Gems
 
-Does not work with gettext > 1.90.0
+Does not work with gettext > 1.90.0 or RedCloth > 3.x
     # gem install gettext --version 1.90.0 --no-ri --no-rdoc
+    # gem install RedCloth --version 3.0.4 --no-ri --no-rdoc
 Install other gems (you can remove "--no-ri --no-rdoc" if you want the documentation)
     # gem install rake mongrel mongrel_cluster rmagick tzinfo RedCloth syntax mongrel_upload_progress uuidtools daemons ruby-debug --no-ri --no-rdoc
 From source

@@ -114,7 +114,8 @@ module Zena
         
         # Returns false is the current visitor does not have enough rights to perform the action.
         def can_apply?(method, v=version)
-          return true if visitor.is_su?
+          return false if new_record?
+          return true  if visitor.is_su?
           case method
           when :drive
             can_drive?

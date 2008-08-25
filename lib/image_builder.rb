@@ -155,17 +155,19 @@ class ImageBuilder
   
   def do_limit!(size)
     return @img if @img.filesize <= size
-    f = Tempfile.new('tmp_img')
-    @img.write(f.path)
-    return @img if File.stat(f.path).size <= size
+    
+    tmp_file = Tempfile.new('tmp_img')
+    File.open(tmp_file.path, 'wb') { |f| f.syswrite(@img.to_blob) }
+    
+    return @img if File.stat(tmp_file.path).size <= size
     if (@img.format == 'JPG' || @img.format == 'JPEG') && @img.quality > 80
-      @img.write(f.path) { self.quality = 80 }
+      File.open(tmp_file.path, 'wb') { |f| f.syswrite(@img.to_blob { self.quality = 80 }) }
     else
       @img.format = 'JPG'
-      @img.write(f.path) { self.quality = 80 }
+      File.open(tmp_file.path, 'wb') { |f| f.syswrite(@img.to_blob { self.quality = 80 }) }
     end
-    ratio = File.stat(f.path).size.to_f / size
-    return @img = Magick::ImageList.new(f.path) if ratio <= 1.0
+    ratio = File.stat(tmp_file.path).size.to_f / size
+    return @img = Magick::ImageList.new(tmp_file.path) if ratio <= 1.0
     ratio   = 1.0 / Math.sqrt(ratio)
     @width  *= ratio
     @height *= ratio
