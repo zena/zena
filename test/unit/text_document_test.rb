@@ -75,6 +75,29 @@ class TextDocumentTest < ZenaTestUnit
     assert_equal start, text
   end
   
+  def test_parse_assets_with_underscore
+    login(:lion)
+    node = secure!(Node) { nodes(:style_css) }
+    bird = secure!(Node) { nodes(:bird_jpg)}
+    assert bird.update_attributes(:parent_id => node[:parent_id], :name => "greenBird")
+    start =<<-END_CSS
+    body { font-size:10px; }
+    #header { background:url('green_bird.jpg') }
+    #footer { background:url('/projects/wiki/flower.jpg') }
+    END_CSS
+    node.v_text = start.dup
+    # dummy controller
+    helper = ApplicationController.new
+    helper.instance_variable_set(:@visitor, visitor)
+    text = node.parse_assets(start, helper)
+    assert node.errors.empty?
+    res =<<-END_CSS
+    body { font-size:10px; }
+    #header { background:url('/en/image30.jpg') }
+    #footer { background:url('/en/image31.jpg') }
+    END_CSS
+  end
+  
   def test_c_file_unparse_assets
     login(:lion)
     node = secure!(Node) { nodes(:style_css) }

@@ -396,6 +396,9 @@ END_MSG
         else
           path = current_folder + '/' + src
         end
+        
+        # make sure path elements are url_names
+        path = path.split('/').map {|s| s.url_name!}.join('/')
       
         return nil unless asset = secure(Document) { Document.find_by_path(path) }
       else
