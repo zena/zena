@@ -298,7 +298,7 @@ class Site < ActiveRecord::Base
     
     if File.exist?(path)
       Dir.foreach(path) do |elem|
-        next unless elem =~ /^(\w\w\.html|\w\w)$/
+        next unless elem =~ /^(\w\w\.html|\w\w|login\.html)$/
         FileUtils.rmtree(File.join(path, elem))
       end
       
