@@ -29,6 +29,11 @@ class TemplateContent < ActiveRecord::Base
     # ignore
   end
   
+  # pre-load version
+  def version=(v)
+    @version = v
+  end
+  
   def file=(file)
     version.text = file.read
   end
