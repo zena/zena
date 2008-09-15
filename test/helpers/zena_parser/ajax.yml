@@ -181,11 +181,15 @@ each_in_each_dom_id:
         </div>
       </li>
     </ul>
-  'each/in/en/each/dom/id/list1.erb': "/list2_..@node.zip._..var1.zip./"
+  'each/in/en/each/dom/id/list1.erb': "/list1_..@node.zip._..var1.zip./"
 
 start_id:
   src: "<r:form><input type='hidden' name='s' set_value='[start.id]'/></r:form>"
   res: "/<input name='s' type='hidden' value='22'/>/"
+
+drop_param:
+  src: "<r:drop change='params' d='[id]'><r:show param='d'/></r:drop>"
+  tem: "/<div class='drop' id='list1'><%= params\[:d\] %>.*drop\?params\[d\]=%5Bid%5D/"
 
 swap_in_each:
   src: "<r:pages><li do='each'><span do='swap' attr='d_status' states='todo,done,alert'/></li></r:pages>"

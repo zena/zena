@@ -80,6 +80,13 @@ show_edit_preview:
     node: 'status'
   src: "<b do='[d_assigned]' edit_preview='true'/>"
   res: "<b id='d_assigned22'>gaspard</b>"
+
+show_param:
+  context:
+    d: 'hello ladies'
+  src: "<i do='show' param='d'/>"
+  tem: "<i><%= params[:d] %></i>"
+  res: "<i>hello ladies</i>"
   
 title_in_version_context:
   src: "<r:version><r:title actions='all'/></r:version>"
@@ -908,6 +915,20 @@ input:
   tem: "<input name='node[c_first_name]' type='text' value='<%= fquote @node.c_zafu_read(\"first_name\") %>'/>"
   res: "<input name='node[c_first_name]' type='text' value='Solenopsis'/>"
 
+textarea:
+  context:
+    node: 'ant'
+  src: "<r:textarea name='c_first_name'/>"
+  tem: "<textarea name='node[c_first_name]'><%= @node.c_zafu_read(\"first_name\") %></textarea>"
+  res: "<textarea name='node[c_first_name]'>Solenopsis</textarea>"
+
+textarea_with_blocks:
+  context:
+    node: 'ant'
+  src: "<r:textarea name='c_first_name'>Sir <r:show attr='c_first_name'/></textarea>"
+  tem: "<textarea name='node[c_first_name]'>Sir <%= @node.c_zafu_read(\"first_name\") %></textarea></textarea>"
+  res: "<textarea name='node[c_first_name]'>Sir Solenopsis</textarea></textarea>"
+  
 input_new:
   context:
     node: 'ant'

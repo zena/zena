@@ -277,6 +277,8 @@ module Zena
         attribute_method = "_(#{node_attribute(@params[:tattr], :else=>@params[:else], :default=>@params[:default])})"
       elsif @params[:attr]
         attribute_method = node_attribute(@params[:attr], :else=>@params[:else], :default=>@params[:default])
+      elsif p = @params[:param]
+        return "<%= params[#{p.to_sym.inspect}] %>"
       elsif @params[:date]
         # date can be any attribute v_created_at or updated_at etc.
         # TODO format with @params[:format] and @params[:tformat] << translated format
@@ -481,7 +483,8 @@ module Zena
             # STORE TEMPLATE ========
 
             context_bak = @context.dup # avoid side effects when rendering the same block
-            template    = expand_block(self, :block=>self, :list=>false, :saved_template=>true, :ignore =>['form'])
+            ignore_list = @method == 'block' ? ['form'] : [] # do not show the form in the normal template of a block
+            template    = expand_block(self, :block=>self, :list=>false, :saved_template=>true, :ignore => ignore_list)
             @context    = context_bak
             @result     = ''
             out helper.save_erb_to_url(template, template_url)
@@ -522,7 +525,7 @@ module Zena
         return parser_error("missing 'block' in same parent") unless parent && block = parent.descendant('block')
       end
       return parser_error("cannot use 's' as key (used by start_node)") if @params[:key] == 's'
-      out "<%= form_remote_tag(:url => zafu_node_path(#{node_id}), :method => :get, :html => {:id => \"#{dom_id}_f\"}) %><div class='hidden'><input type='hidden' name='t_url' value='#{block.template_url}'/><input type='hidden' name='dom_id' value='#{block.erb_dom_id}'/>#{start_node_input}</div><div class='wrapper'>"
+      out "<%= form_remote_tag(:url => zafu_node_path(#{node_id}), :method => :get, :html => {:id => \"#{dom_id}_f\"}) %><div class='hidden'><input type='hidden' name='t_url' value='#{block.template_url}'/><input type='hidden' name='dom_id' value='#{block.erb_dom_id}'/>#{start_node_s_param(:input)}</div><div class='wrapper'>"
       if @blocks == []
         out "<input type='text' name='#{@params[:key] || 'f'}' value='<%= params[#{(@params[:key] || 'f').to_sym.inspect}] %>'/>"
       else
@@ -1236,14 +1239,16 @@ END_TXT
         @params.each do |k, v|
           next if [:hover, :change, :done].include?(k)
           value, static = parse_attributes_in_value(v, :erb => false, :skip_node_attributes => true)
-          url_params << "node[#{k}]=#{CGI.escape(value)}"
+          key = change == 'params' ? "params[#{k}]" : "node[#{k}]"
+          url_params << "#{key}=#{CGI.escape(value)}"
         end
         return parser_error("missing parameters to set values") if url_params == []
       end
     
-      url_params << "change=dropped" if change == 'dropped'
+      url_params << "change=#{change}" if change == 'receiver'
       url_params << "t_url=#{CGI.escape(template_url)}"
       url_params << "dom_id=#{erb_dom_id}"
+      url_params << start_node_s_param(:erb)
       url_params << "done=#{CGI.escape(@params[:done])}" if @params[:done]
     
       "<script type='text/javascript'>
@@ -2173,7 +2178,7 @@ END_TXT
     # find the current node name in the context
     def node(klass = self.node_class)
       if klass == self.node_class
-        @context[:saved_template] ? "@#{base_class.to_s.underscore}" : (@context[:node] || '@node')
+        (@context[:saved_template] && @context[:main_node]) ? "@#{base_class.to_s.underscore}" : (@context[:node] || '@node')
       elsif klass == Node
         @context[:previous_node] || '@node'
       else
@@ -2369,7 +2374,7 @@ END_TXT
     
     # DOM id for the current context
     def dom_id(suffix='')
-      return "\#{dom_id(#{node})}" if @context && @context[:saved_template]
+      return "\#{dom_id(#{node})}" if @context && (@context[:saved_template] && @context[:main_node])
       if @context && scope_node = @context[:scope_node]
         res = "#{dom_prefix}_\#{#{scope_node}.zip}"
       else
@@ -2394,7 +2399,7 @@ END_TXT
     end
     
     def erb_dom_id(suffix='')
-      return "<%= dom_id(#{node}) %>" if @context && @context[:saved_template]
+      return "<%= dom_id(#{node}) %>" if @context && (@context[:saved_template] && @context[:main_node])
       if @context && scope_node = @context[:scope_node]
         res = "#{dom_prefix}_<%= #{scope_node}.zip %>"
       else
@@ -2443,14 +2448,16 @@ END_TXT
     
     # use our own scope
     def clear_dom_scope
-      @context.delete(:dom_prefix)     # should not propagate
       @context.delete(:make_form)      # should not propagate
-      @context.delete(:saved_template) # should not propagate
+      @context.delete(:main_node)      # should not propagate
     end
     
     # create our own ajax DOM scope
     def new_dom_scope
       clear_dom_scope
+      @context.delete(:saved_template) # should not propagate on fresh template
+      @context.delete(:dom_prefix)     # should not propagate on fresh template
+      @context[:main_node]  = true     # the current context will be rendered with a fresh '@node'
       @context[:dom_prefix] = self.dom_prefix
     end
     
@@ -2846,7 +2853,7 @@ END_TXT
       
       url_params << "link_id=\#{#{node}.link_id}" if @context[:need_link_id] && node_kind_of?(Node)
       url_params << "node[v_status]=#{Zena::Status[:pub]}" if @params[:publish]
-      url_params << start_node_input(false)
+      url_params << start_node_s_param(:string)
       
       res = ''
       res += "<% if #{opts[:cond]} -%>" if opts[:cond]
@@ -3082,10 +3089,14 @@ END_TXT
       end
       return '' if attribute == 'parent_id' # set with 'r_form'
       
-      if @context[:in_add]
-        value = ''
+      if @blocks == [] || @blocks == ['']
+        if @context[:in_add]
+          value = ''
+        else
+          value = attribute ? "<%= #{node_attribute(attribute)} %>" : ""
+        end
       else
-        value = attribute ? "<%= #{node_attribute(attribute)} %>" : ""
+        value = expand_with
       end
       html_id = @context[:dom_prefix] ? " id='#{erb_dom_id}_#{attribute}'" : ''
       "<textarea#{html_id} name='#{name}'>#{value}</textarea>"
@@ -3117,9 +3128,11 @@ END_TXT
       return false
     end
     
-    def start_node_input(erb = true)
-      if erb
+    def start_node_s_param(type = :input)
+      if type == :input
         "<input type='hidden' name='s' value='<%= params[:s] || @node[:zip] %>'/>"
+      elsif type == :erb
+        "s=<%= params[:s] || @node[:zip] %>"
       else
         "s=\#{params[:s] || @node[:zip]}"
       end

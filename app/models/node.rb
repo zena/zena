@@ -131,8 +131,8 @@ class Node < ActiveRecord::Base
   zafu_readable      :name, :created_at, :updated_at, :event_at, :log_at, :kpath, :user_zip, :parent_zip, :project_zip,
                      :section_zip, :skin, :ref_lang, :fullpath, :rootpath, :position, :publish_from, :max_status, :rgroup_id, 
                      :wgroup_id, :pgroup_id, :basepath, :custom_base, :klass, :zip, :score, :comments_count, :l_status, :l_comment,
-                     :custom_a, :custom_b, :title, :text
-  safe_attribute     :m_text, :m_title, :m_author   
+                     :custom_a, :custom_b, :title, :text,
+                     :m_text, :m_title, :m_author   
   zafu_context       :author => "Contact", :parent => "Node", 
                      :project => "Project", :section => "Section", 
                      :real_project => "Project", :real_section => "Section",
@@ -672,7 +672,7 @@ class Node < ActiveRecord::Base
           end
         end
       end
-
+      
       res
     end
 
@@ -730,7 +730,8 @@ class Node < ActiveRecord::Base
     raise Zena::RecordNotSecured.new("Visitor not set, record not secured.")
   end
   
-  # Return true if the attribute can be read (is zafu_readable)
+  # Return true if the attribute can be read. This is not the same as zafu_readable? as some
+  # attributes can be read but should not be shown ('id' or 'file' for example).
   def safe_attribute?(att)
     # FIXME: SECURITY: is there any risk here ? (k can be anything)
     attribute = att.to_s

@@ -100,6 +100,8 @@ This filter updates the "distant filter block test"
 
 <r:images in='site' do='each' draggable='true' do='img' mode='tiny'/>
 
+<h3>drop set relation</h3>
+
 <ul do='tags in site'>
   <li style='border:1px solid #400; min_width:100px; min_height:100px;' do='each' do='drop' set='set_tag'>
     <b do='[v_title]'/>
@@ -107,10 +109,34 @@ This filter updates the "distant filter block test"
   </li>
 </ul>
 
+<h3>drop set attributes</h3>
+
 <ul do='projects in site'>
   <li style='border:1px solid #400; min_width:100px; min_height:100px;' do='each'><r:drop d_foo='I am an icon for [v_title]' icon_for_id='[id]'><b do='title' actions='all'/><r:icon where='1'><r:unlink do='img' mode='pv'/> <r:show attr='d_foo'/> </r:icon></r:drop>
 </li>
 </ul>
+
+<h3>drop reload with param</h3>
+
+<div style='border:1px solid #400; min_width:100px; min_height:100px;' do='drop' change='params' d='[id]' do='if' test='param:d'>
+  <r:node where='id eq param:d' in='site'>
+    Change icon to <r:img mode='tiny'/> ?
+    <r:main store='icon' do='form'>
+      <r:input type='hidden' name='icon_id' set_value='[icon.id]'/>
+      <r:input type='hidden' name='m_title' set_value='icon changed to [icon.name]'/>
+      <r:textarea name='m_text'/>
+      <input type='submit'/>
+    </r:main>
+  </r:node>
+  <r:else>
+    <r:icon do='img' mode='pv'/>
+    please drop a node to change the icon
+    <ul do='comments'>
+    <li do='each'><b do='[title]'/> <b do='[author_name]'/>
+    <div do='{text}'/>
+    </li>
+    </ul></r:else>
+</div>
 
 <hr/>
 

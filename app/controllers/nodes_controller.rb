@@ -76,19 +76,21 @@ class NodesController < ApplicationController
       if params[:node][:id] == '[id]'
         # swap (a way to preview content by drag & drop)
         @node = other
-      elsif params[:change] == 'dropped'
-        attributes[:copy] = @node
-        other.update_attributes_with_transformation(attributes)
-        if !other.errors.empty?
-          @errors = other.errors
-        end
-      else
+      elsif params[:change] == 'receiver'
         attributes[:copy] = other
         @node.update_attributes_with_transformation(attributes)
         if !@node.errors.empty?
           @errors = @node.errors
         end
-      end
+      else
+        attributes[:copy] = @node
+        other.update_attributes_with_transformation(attributes)
+        if !other.errors.empty?
+          @errors = other.errors
+        end
+      end  
+    elsif p = params[:params]
+      params.merge!(other.replace_attributes_in_values(p))
     end
     
     respond_to do |format|

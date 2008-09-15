@@ -223,7 +223,7 @@ module Zena
             else
               # invalid relation
               if mode == '='
-                errors.add(role, "invalid relation") unless args[0].empty?
+                errors.add(role, "invalid relation") unless args[0].blank?
                 return args[0]
               else
                 # ignore
