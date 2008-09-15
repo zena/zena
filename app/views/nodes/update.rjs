@@ -1,5 +1,5 @@
 if params[:dom_id] && !params[:t_url]
-  attribute = params[:node].keys[0]
+  attribute = (params[:node].keys - ['v_status'])[0]
   if params[:zazen] == 'true'
     page.replace_html params[:dom_id], "<span class='zazen_edit'>#{link_to_remote(_('edit'), :url => edit_node_path(@node[:zip]) + "?attribute=#{attribute}&dom_id=#{params[:dom_id]}#{params[:publish] == 'true' ? '&publish=true' : ''}&zazen=true", :method => :get)}</span>" + zazen(params[:node][attribute])
   else

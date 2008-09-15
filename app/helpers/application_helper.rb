@@ -17,6 +17,10 @@ module ApplicationHelper
   
   # RJS to update a page after create/update/destroy
   def update_page_content(page, obj)
+    if params[:t_id] && @node.errors.empty?
+      @node = secure(Node) { Node.find_by_zip(params[:t_id])}
+    end
+    
     base_class = obj.kind_of?(Node) ? Node : obj.class
     
     if obj.new_record?

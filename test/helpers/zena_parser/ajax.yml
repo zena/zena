@@ -73,7 +73,7 @@ each_add_with_select:
 each_edit_with_form:
   context:
     node: 'wiki'
-  src: "<r:children><r:each><li><r:show attr='name'>blah</r:show> <r:edit>edit</r:edit></li>\n</r:each><r:form><li><form>this is the form</form></li></r:form></r:children>"
+  src: "<r:children><li do='each'><r:show attr='name'>blah</r:show> <r:edit>edit</r:edit></li>\n<r:form><li><form>this is the form</form></li></r:form></r:children>"
   res: "/<li id='list1_30'>bird <a href='/nodes/30/edit\?t_url=.*' onclick=\"new Ajax.Request\('/nodes/30/edit\?t_url=%2Feach%2Fedit%2Fwith%2Fform%2Flist/"
 
 make_form:
@@ -86,7 +86,7 @@ each_edit_cannot_write:
   context:
     node: 'cleanWater'
     visitor: 'anon'
-  src: "<r:children><r:each><li><r:show attr='name'>blah</r:show> <r:edit>edit</r:edit></li>\n</r:each></r:children>"
+  src: "<r:children><li do='each'><r:show attr='name'>blah</r:show> <r:edit>edit</r:edit></li>\n</r:children>"
   res: "/<li id='list1_24'>lake </li>.*/"
 
 add_each_publish:
@@ -190,6 +190,10 @@ start_id:
 drop_param:
   src: "<r:drop change='params' d='[id]'><r:show param='d'/></r:drop>"
   tem: "/<div class='drop' id='list1'><%= params\[:d\] %>.*drop\?params\[d\]=%5Bid%5D/"
+
+drop_param_in_each:
+  src: "<r:pages do='each' do='drop' change='params' d='[id]'><r:show param='d'/></r:pages>"
+  tem: "/<div class='drop' id='list1_<%= var1.zip %>'><%= params\[:d\] %>.*drop\?params\[d\]=%5Bid%5D/"
 
 swap_in_each:
   src: "<r:pages><li do='each'><span do='swap' attr='d_status' states='todo,done,alert'/></li></r:pages>"

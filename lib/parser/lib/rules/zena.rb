@@ -978,6 +978,9 @@ END_TXT
         end
         
         hidden_fields['t_url'] = template_url
+        if t_id = @params[:t_id]
+          hidden_fields['t_id']  = parse_attributes_in_value(t_id)
+        end
         
         erb_dom_id = @context[:saved_template] ? '<%= params[:dom_id] %>' : self.erb_dom_id
 
@@ -1429,7 +1432,6 @@ END_TXT
       elsif @context[:list]
         # normal rendering: not the start of a saved template
         if is_draggable || descendant('unlink')
-          @html_tag ||= 'div'
           out "<% #{var}_dom_ids = [] -%>"
         end
         
@@ -3155,16 +3157,15 @@ END_TXT
         end
       else
         insert = ''
-      end
+      end  
+
+      res = insert + text
       
       if id_hash
-        if @html_tag
-          @html_tag_params.merge!(id_hash)
-          res = insert + text
-        else
-          res = add_params(text, id_hash, insert)
-        end
+        @html_tag ||= 'div'
+        @html_tag_params.merge!(id_hash)
       end
+      
       [res, drag_handle]
     end
     

@@ -116,7 +116,7 @@ This filter updates the "distant filter block test"
 </li>
 </ul>
 
-<h3>drop reload with param</h3>
+<h3>drop reload with param (comment on receiving)</h3>
 
 <div style='border:1px solid #400; min_width:100px; min_height:100px;' do='drop' change='params' d='[id]' do='if' test='param:d'>
   <r:node where='id eq param:d' in='site'>
@@ -140,6 +140,29 @@ This filter updates the "distant filter block test"
 
 <hr/>
 
+<h3>drop reload with param (comment on dropped)</h3>
+
+<div style='border:1px solid #400; min_width:100px; min_height:100px;' do='drop' change='params' d='[id]' do='if' test='param:d'>
+  <r:node where='id eq param:d' in='site'>
+    Change icon to <r:img mode='tiny'/> ?
+    <r:form t_id='[main.id]'>
+      <r:input type='hidden' name='icon_for_id' set_value='[main.id]'/>
+      <r:input type='hidden' name='m_title' set_value='icon for [main.name]'/>
+      <r:textarea name='m_text'/>
+      <input type='submit'/>
+    </r:form>
+  </r:node>
+  <r:else>
+    please drop a node to change the icon
+    <r:icon><r:img mode='pv'/>
+    <ul do='comments'>
+    <li do='each'><b do='[title]'/> <b do='[author_name]'/>
+    <div do='{text}'/>
+    </li>
+    </ul></r:icon></r:else>
+</div>
+
+<hr/>
 <h2>notes & comments</h2>
 
 <div id='notes' do='notes' in='project' limit='10' order='log_at DESC'>
