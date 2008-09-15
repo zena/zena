@@ -74,6 +74,11 @@ task :update_current do
   source.sync(revision, self[:release_path]) 
 end
 
+"Set svn revision number into Version.rb"
+task :set_revision, :roles => :app do
+  run "#{in_current} ./script/set_revision"
+end
+
 desc "clear all zafu compiled templates"
 task :clear_zafu, :roles => :app do
   run "#{in_current} rake zena:clear_zafu"
@@ -88,6 +93,7 @@ desc "after code update"
 task :after_update, :roles => :app do
   app_update_symlinks
   db_update_config
+  set_revision
   clear_zafu
   clear_cache
   migrate
@@ -124,6 +130,7 @@ end
 desc "update code in the current version"
 task :up, :roles => :app do
   run "cd #{deploy_to}/current && svn up"
+  set_revision
   db_update_config
   clear_zafu
   clear_cache

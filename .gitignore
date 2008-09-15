@@ -1,9 +1,10 @@
-test/fixtures/*.yml
 .DS_Store
+config/deploy_config.rb
+log/
 public/images/ext/*_pv.png
 public/images/ext/*_std.png
 public/images/ext/*_tiny.png
 public/images/ext/*_mini.png
-log/*
 sites/*
 tmp/*
+test/fixtures/*.yml
