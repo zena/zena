@@ -30,6 +30,10 @@ tag_not_closed:
   src: "this is <r:test super='life' is = \"fine\""
   res: "this is <r:test super='life' is = \"fine\""
 
+#tag_param_has_bracket:
+#  src: "a special tag: <r:test p='<red>yo</red>'><r:hello/></r:test>"
+#  res: "a special tag: [test {= :p=>'<red>yo</red>'}][hello/][/test]"
+
 hello_not_closed:
   src: "I say <r:hello>blah blah"
   res: "I say hello world!"

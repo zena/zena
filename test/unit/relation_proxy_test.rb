@@ -98,6 +98,11 @@ class RelationProxyTest < ZenaTestUnit
     node = secure!(Node) { Node.new_from_class('Post') }
     assert rel = node.relation_proxy('blog')
     assert_equal relations_id(:post_has_blogs), rel[:id]
+    
+    # Any new node can have a relation_proxy (used when forms contain the 'klass' attribute selected by the user).
+    node = secure!(Node) { Node.new_from_class('Node') }
+    assert rel = node.relation_proxy('blog')
+    assert_equal relations_id(:post_has_blogs), rel[:id]
   end
   
   def test_bad_attribute_raises

@@ -903,6 +903,12 @@ checkbox:
   src: "<r:checkbox role='calendar' values='11'/>"
   res: "/input type='checkbox' name='node\[calendar_ids\]\[\]' value='11' checked='checked'.*zena.*hidden.*node\[calendar_ids\]\[\]' value=''/"
 
+checkbox_finder:
+  context:
+    node: 'opening'
+  src: "<r:checkbox role='calendar' values='projects in site'/>"
+  res: "/value=.21.*cleanWater.*input type=.checkbox. name=.node\[calendar_ids\]\[\]. value=.29. checked=.checked.*wiki/"
+
 input_set_value:
   src: "<r:input type='hidden' name='icon_id' set_value='[main.id]'/>"
   tem: "<input name='node[icon_id]' type='hidden' value='<%= @node.zip %>'/>"
