@@ -6,5 +6,5 @@ public/images/ext/*_std.png
 public/images/ext/*_tiny.png
 public/images/ext/*_mini.png
 sites/*
-tmp/*
 test/fixtures/*.yml
+tmp/*
