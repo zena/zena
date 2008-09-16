@@ -866,24 +866,32 @@ latex_template = %q{
     title  = "<span id='v_title#{obj.zip}'>#{title}</span>"
     
     if (link = opts[:link]) && opts[:link] != 'false'
+      if link =~ /\A(\d+)/
+        zip = $1
+        obj = secure(Node) { Node.find_by_zip(zip) }
+        link = link[(zip.length)..-1]
+        if link[0..0] == '_'
+          link = link[1..-1]
+        end
+      end
       if link =~ /\Ahttp/
         "<a href='#{link}'>#{title}</a>"
       else
         link_opts = {}
-        if opts[:link] == 'true'
+        if link == 'true'
           # nothing special for the link format
-        elsif opts[:link] =~ /(\w+\.|)data$/
+        elsif link =~ /(\w+\.|)data$/
           link_opts[:mode] = $1[0..-2] if $1 != ''
           if obj.kind_of?(Document)
             link_opts[:format] = obj.c_ext
           else
             link_opts[:format] = 'html'
           end
-        elsif opts[:link] =~ /(\w+)\.(\w+)/
+        elsif link =~ /(\w+)\.(\w+)/
           link_opts[:mode]   = $1
           link_opts[:format] = $2
-        else
-          link_opts[:mode]   = opts[:link]
+        elsif !link.blank?
+          link_opts[:mode]   = link
         end
         "<a href='#{zen_path(obj, link_opts)}'>#{title}</a>"
       end
