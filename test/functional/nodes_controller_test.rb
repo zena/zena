@@ -43,6 +43,29 @@ class NodesControllerTest < ZenaTestController
     art = opening.find(:first, 'set_tag')
     assert_equal 54321, art.l_status
   end
+
+  def test_ics_format_not_anon
+    preserving_files('test.host/zafu') do
+      login(:lion)
+      doc = secure!(Template) { Template.create("name"=>"Project", "c_format"=>"ics", "v_summary"=>"", 'v_text' => "<r:notes in='site' order='event_at asc'>
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//hacksw/handcal//NONSGML v1.0//EN
+<r:each>BEGIN:VEVENT
+DTSTART:<r:show date='log_at' format='%Y%m%dT%H%M%S'/>
+DTEND:<r:show date='event_at' format='%Y%m%dT%H%M%S'/>
+SUMMARY:<r:show attr='v_title'/>
+URL;VALUE=URI:<r:show attr='url'/>
+END:VEVENT</r:each>
+END:VCALENDAR
+</r:notes>", "parent_id"=>nodes_id(:default))}
+      assert !doc.new_record?, "Not a new record"
+      assert doc.publish
+      get 'show', :prefix => 'oo', :path => ["project#{nodes_zip(:zena)}.ics"]
+      assert_response :success
+      assert_match %r{parc opening.*zena enhancements}m, @response.body
+    end
+  end
 end
 
 =begin

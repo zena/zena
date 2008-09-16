@@ -700,7 +700,7 @@ END_MSG
       
       params = (opts == {}) ? '' : ('?' + opts.map{ |k,v| "#{k}=#{v}"}.join('&'))
       
-      if !asset && node[:id] == current_site[:root_id] && mode.nil?
+      if !asset && node[:id] == current_site[:root_id] && mode.nil? && format == 'html'
         "/#{pre}" # index page
       elsif node[:custom_base]
         "/#{pre}/" +
