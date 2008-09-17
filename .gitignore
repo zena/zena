@@ -1,5 +1,6 @@
 .DS_Store
 config/deploy_config.rb
+config/database.yml
 log/
 public/images/ext/*_pv.png
 public/images/ext/*_std.png
