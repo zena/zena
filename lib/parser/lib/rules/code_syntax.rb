@@ -240,7 +240,19 @@ Syntax::SYNTAX['sh'] = ShTokenizer
 
 class PseudoSqlTokenizer < Syntax::Tokenizer
   def step
-    if keyword = scan(/\bfrom|in|where|order\b/)
+    if @state.nil? and method = scan(/\w+/)
+      start_group :method, method
+      @state = :method
+    elsif @state == :in and context = scan(/\w+/)
+      start_group :context, context
+      @state = :context
+    elsif keyword = scan(/\bin\b/)
+      start_group :context, keyword
+      @state = :in
+    elsif keyword = scan(/\bfrom\b/)
+      start_group :sub, keyword
+      @state = nil
+    elsif keyword = scan(/\bwhere|order\b/)
       start_group :keyword, keyword
     elsif punct  = scan(/\b>=|<=|<>|<|=|>|not\s+like|like|lt|le|eq|ne|ge|gt\b/)
       start_group :punct, punct

@@ -51,8 +51,11 @@
 .css .class { color:orange;}
 
 .pseudo_sql .string { color: #361; }
-.pseudo_sql .keyword { color: #622; font-weight: bold; }
+.pseudo_sql .keyword { color: #622;}
+.pseudo_sql .sub { color:#622; font-weight:bold;}
 .pseudo_sql .punct {color: #622;}
+.pseudo_sql .method {color: #944;}
+.pseudo_sql .context {color: #07b;}
 
 .zazen pre {
 overflow:auto; /* Safari */
