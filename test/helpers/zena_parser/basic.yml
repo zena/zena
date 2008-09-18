@@ -530,6 +530,11 @@ if_test_param:
   src: "<r:if test='param:f eq 3'>three</r:if> / <r:if test='param:f'>exist</r:if>"
   tem: "<% if params[:f].to_i == 3 -%>three<% end -%> / <% if !params[:f].blank? -%>exist<% end -%>"
 
+if_in_if:
+  src: "<r:if test='id eq 22'><r:if test='1 eq 2'>strange...<r:else>wrong!</r:else></r:if><r:else>other node</r:else></r:if>"
+  tem: "<% if @node.zip.to_i == 22 -%><% if 1 == 2 -%>strange...<% elsif true -%>wrong!<% end -%><% elsif true -%>other node<% end -%>"
+  res: "wrong!"
+
 do_if:
   src: "<b do='if' test='1 eq 2'>it's true<r:else>it's false</r:else></b>"
   res: "<b>it's false</b>"
@@ -549,6 +554,11 @@ on_if_ancestor_no_class:
 on_if_ancestor:
   src: "<r:root><r:pages><li do='each' on_if_node='ancestor' class='hello' join=', '><r:show attr='name'/></li></r:pages></r:root>"
   res: "<li class='hello'>collections</li>, <li class='hello'>nature</li>, <li class='hello'>people</li>, <li class='on'>projects</li>, <li class='hello'>skins</li>"
+
+on_if_empty:
+  src: "<li do='void' on_if='custom_a eq \"\"'>hello</li>"
+  tem: "<li<%= @node.custom_a.to_s == \"\" ? \" class='on'\" : \"\" %>>hello</li>"
+  res: "<li class='on'>hello</li>"
 
 # var1 = stored 'papa'
 test_ancestor_with_stored:
@@ -613,7 +623,7 @@ test_in_each:
   context:
     node: 'cleanWater'
   src: "<ul do='pages'><li do='each' on_if='name = \"track\"' do='[name]'/></ul>"
-  tem: "/var1.name == \"track\"/"
+  tem: "/var1.name.to_s == \"track\"/"
   res: "<ul><li>status</li><li class='on'>track</li></ul>"
 
 on_if_in_unknown:

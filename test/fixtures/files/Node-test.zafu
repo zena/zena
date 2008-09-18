@@ -96,6 +96,15 @@ This filter updates the "distant filter block test"
 
 <hr/>
 
+<h2>swap</h2>
+<style>
+.orange { background:orange;}
+.green  { background:green;}
+</style>
+<div id='swap' class='orange' do='block' green_if='custom_a eq 100'>
+  <span do='swap' states=',100' attr='custom_a' publish='true'><r:if test='custom_a eq 100'><r:t>done</r:t><r:else do='t'>open</r:else></r:if></span> custom_a: <b do='[custom_a]'/>
+</div>
+
 <h2>drag & drop</h2>
 
 <r:images in='site' do='each' draggable='true' do='img' mode='tiny'/>

@@ -2569,7 +2569,7 @@ END_TXT
                 part
               else
                 if node_attr = node_attribute(part, :node => node)
-                  toi ? "#{node_attr}.to_i" : node_attr
+                  toi ? "#{node_attr}.to_i" : "#{node_attr}.to_s"
                 else
                   nil
                 end
