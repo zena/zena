@@ -971,6 +971,7 @@ END_TXT
             hidden_fields['u_url']   = target.template_url
             hidden_fields['udom_id'] = target.erb_dom_id
             hidden_fields['u_id']    = "<%= #{@context[:parent_node]}.zip %>" if @context[:in_add]
+            hidden_fields['s']       = start_node_s_param(:value)
           end
         elsif (block = ancestor('block')) && node_kind_of?(DataEntry)
           # updates template url
@@ -3136,6 +3137,8 @@ END_TXT
         "<input type='hidden' name='s' value='<%= params[:s] || @node[:zip] %>'/>"
       elsif type == :erb
         "s=<%= params[:s] || @node[:zip] %>"
+      elsif type == :value
+        "<%= params[:s] || @node[:zip] %>"
       else
         "s=\#{params[:s] || @node[:zip]}"
       end
