@@ -50,6 +50,9 @@
 .css .id    { color:#73302F; font-weight:bold;}
 .css .class { color:orange;}
 
+.pseudo_sql .string { color: #361; }
+.pseudo_sql .keyword { color: #622; font-weight: bold; }
+.pseudo_sql .punct {color: #622;}
 
 .zazen pre {
 overflow:auto; /* Safari */

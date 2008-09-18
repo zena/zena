@@ -238,4 +238,22 @@ class ShTokenizer < Syntax::Tokenizer
 end
 Syntax::SYNTAX['sh'] = ShTokenizer
 
+class PseudoSqlTokenizer < Syntax::Tokenizer
+  def step
+    if keyword = scan(/\bfrom|in|where|order\b/)
+      start_group :keyword, keyword
+    elsif punct  = scan(/\b>=|<=|<>|<|=|>|not\s+like|like|lt|le|eq|ne|ge|gt\b/)
+      start_group :punct, punct
+    elsif string = scan(/("|')[^'"]*\1/)
+      string =~ /("|')([^'"]*)\1/
+      start_group :punct, $1
+      start_group :string, $2
+      start_group :punct, $1
+    else
+      start_group :normal, scan(/./m)
+    end
+  end
+end
+Syntax::SYNTAX['pseudo_sql'] = PseudoSqlTokenizer
+
 
