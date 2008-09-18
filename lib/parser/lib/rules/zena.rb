@@ -970,6 +970,7 @@ END_TXT
           if target = find_target(upd)
             hidden_fields['u_url']   = target.template_url
             hidden_fields['udom_id'] = target.erb_dom_id
+            hidden_fields['u_id']    = "<%= #{@context[:parent_node]}.zip %>" if @context[:in_add]
           end
         elsif (block = ancestor('block')) && node_kind_of?(DataEntry)
           # updates template url

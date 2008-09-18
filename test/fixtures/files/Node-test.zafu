@@ -142,6 +142,8 @@ This filter updates the "distant filter block test"
 
 <h3>drop reload with param (comment on dropped)</h3>
 
+<r:images in='site' do='each' draggable='true' do='img' mode='tiny'/>
+
 <div style='border:1px solid #400; min_width:100px; min_height:100px;' do='drop' change='params' d='[id]' do='if' test='param:d'>
   <r:node where='id eq param:d' in='site'>
     Change icon to <r:img mode='tiny'/> ?
@@ -163,6 +165,21 @@ This filter updates the "distant filter block test"
 </div>
 
 <hr/>
+
+<h2>add in updated DOM</h2>
+
+<div id='add_and_update' do='block'>
+  <h3 do='title'/>
+  <ul do='pages'>
+    <li do='each' do='[v_title]'/>
+    <li do='add' klass='Page' update='add_and_update'/>
+  </ul>
+</div>
+
+<r:projects in='site' do='each' join=', ' do='link' update='add_and_update'/>
+
+<hr/>
+
 <h2>notes & comments</h2>
 
 <div id='notes' do='notes' in='project' limit='10' order='log_at DESC'>
