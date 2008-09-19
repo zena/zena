@@ -19,26 +19,45 @@ class CommentQuery < QueryBuilder
     case rel
     when 'author'
       add_table('users')
-      @where << "#{table('users')}.id = #{field_or_param('user_id')}"
+      @where << "#{table('users')}.id = #{field_or_param('author_id')}"
       # should we only move to Users ?
+      add_table('discussions')
       add_table('nodes')
-      @where << "#{table('nodes')}.id = #{field_or_param('users','contact_id')}"
+      @where << "#{table('discussions')}.id = #{table('comments')}.discussion_id"
+      @where << "#{table('nodes')}.id = #{table('discussions')}.node_id"
       return NodeQuery # class change
     else
       return nil
     end
   end
   
-  # Map a litteral value to be used inside a query
+  # Same as NodeQuery... DRY needed.
   def map_literal(value)
-    if value =~ /(.*?)\[(visitor|param):(\w+)\](.*)/
+    if value =~ /(.*?)\[(node|visitor|param):(\w+)\](.*)/
       val_start = $1 == '' ? '' : "#{$1.inspect} +"
       val_end   = $4 == '' ? '' : "+ #{$4.inspect}"
       case $2
       when 'visitor'
-        value = "\#{Node.connection.quote(\#{#{val_start}Node.zafu_attribute(visitor.contact, #{$3.inspect})#{val_end}})}"
+        if $3 == 'user_id'
+          value = "visitor.id"
+        else
+          value = "Node.zafu_attribute(visitor.contact, #{$3.inspect})"
+        end
+      when 'node'
+        @uses_node_name = true
+        if $3 == 'user_id'
+          value = "#{@node_name}.user_id"
+        else
+          value = "Node.zafu_attribute(#{@node_name}, #{$3.inspect})"
+        end
       when 'param'
-        value = "\#{Node.connection.quote(#{val_start}params[:#{$3}].to_s#{val_end})}"
+        return "\#{Node.connection.quote(#{val_start}params[:#{$3}].to_s#{val_end})}"
+      end
+      
+      if !val_start.blank? || !val_end.blank?
+        "\#{Node.connection.quote(#{val_start}#{value}#{val_end})}"
+      else
+        "\#{#{value}}"
       end
     else
       value = Node.connection.quote(value)
@@ -47,7 +66,7 @@ class CommentQuery < QueryBuilder
   
   # Overwrite this and take car to check for valid fields.
   def map_field(fld, table_name, context = nil)
-    if ['status', 'updated_at', 'author_name', 'created_at', 'title', 'text', 'user_id'].include?(fld)
+    if ['status', 'updated_at', 'author_name', 'created_at', 'title', 'text', 'author_id'].include?(fld)
       "#{table_name}.#{fld}"
     else
       # TODO: error, raise / ignore ?

@@ -123,8 +123,12 @@ class NodeQuery < QueryBuilder
         else
           # parse_context(default_context_filter, true) if is_last
           # after_parse
-          @errors << "comments with join not implemented"
-          return nil
+          add_table('discussions')
+          add_table('comments')
+          @where << "#{table('discussions')}.node_id = #{table('nodes')}.id"
+          @where << "#{table('comments')}.discussion_id = #{table('discussions')}.id"
+          after_parse
+          return CommentQuery
         end
       else
         return nil

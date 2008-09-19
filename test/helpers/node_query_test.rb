@@ -35,9 +35,14 @@ class NodeQueryTest < ZenaTestUnit
           @node = secure(Node) { nodes(context[:node].to_sym) }
           sql = eval "\"#{sql}\""
       
-          res = @node.do_find(:all, sql)
-          res = res ? res.map {|r| r[:name]}.join(', ') : ''
-          res = "#{node_class}: #{res}" if node_class != Node
+          res = @node.do_find(:all, sql, uses_node_name, node_class)
+          
+          if node_class == Comment
+            res = res ? res.map {|r| r[:title]}.join(', ') : ''
+          else
+            res = res ? res.map {|r| r[:name]}.join(', ') : ''
+          end
+          
           assert_yaml_test test_res, class_prefix + res
         else
           assert_yaml_test test_res, class_prefix + errors.join(", ")
