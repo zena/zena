@@ -1414,7 +1414,7 @@ END_TXT
       else
         out "<% #{group}.each do |#{list_var}|; #{var} = #{list_var}[0]; -%>"
       end
-      out expand_with(:group => nil, :list => list_var, :node => var)
+      out expand_with(:group => nil, :list => list_var, :node => var, :scope_node => var)
       out "<% end -%>"
     end
     
