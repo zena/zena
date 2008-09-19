@@ -389,3 +389,7 @@ comments_no_discussion:
 comments_previous_node:
   src: "<r:comments><r:each do='{text}'/></r:comments>"
   tem: "/zazen\(var1.text, :node=>@node\)/"
+
+comments_in_site_node:
+  src: "<r:comment from='nodes in site' order='created_at desc'><r:node do='[name]'/>: <r:show attr='title'/></r:comment>"
+  res: "myLife: I want to become queen"

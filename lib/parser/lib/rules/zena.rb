@@ -2070,6 +2070,7 @@ END_TXT
     end
     
     # Build pseudo sql from the parameters
+    # comments where ... from ... in ... order ... limit
     def make_pseudo_sql(rel, params=@params)
       parts   = [rel.dup]
       filters = []
@@ -2089,20 +2090,20 @@ END_TXT
       end
       
       if params[:in]
-        parts[0] << " in #{params[:in]}"
+        parts[-1] << " in #{params[:in]}"
       end
       
       if group = params[:group]
-        parts[0] << " group by #{group}" unless parts[0] =~ /group by/
+        parts[-1] << " group by #{group}" unless parts[0] =~ /group by/
       end
       
       if order = params[:order]
-        parts[0] << " order by #{order}" unless parts[0] =~ /order by/
+        parts[-1] << " order by #{order}" unless parts[0] =~ /order by/
       end
       
       [:limit, :offset].each do |k|
         next unless params[k]
-        parts[0] << " #{k} #{params[k]}" unless parts[0] =~ / #{k} /
+        parts[-1] << " #{k} #{params[k]}" unless parts[0] =~ / #{k} /
       end
       
       finders = [parts.join(' from ')]

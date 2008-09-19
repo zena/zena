@@ -7,17 +7,20 @@ If anonymous is moderated (User#moderated?), all public comments are set to 'pro
 =end
 class Comment < ActiveRecord::Base
   zafu_readable      :title, :text, :author_name, :created_at, :updated_at, :status
-  zafu_context       :replies => ["Comment"]
+  zafu_context       :replies => ["Comment"], :node => "Node"
   attr_accessible    :title, :text, :author_name, :discussion_id, :reply_to, :status
   
   belongs_to :discussion
-  belongs_to :node #, :through => :discussion (TOO BAD...)
   validate   :valid_comment
   before_validation :comment_before_validation
   after_save :sweep_cache
   
   def author
     @author ||= secure(User) { User.find(self[:user_id]) }
+  end
+  
+  def node
+    @node ||= discussion.node
   end
   
   def author_name

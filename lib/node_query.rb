@@ -114,7 +114,7 @@ class NodeQuery < QueryBuilder
     
     def parse_change_class(rel, is_last)
       case rel
-      when 'comments'
+      when 'comment', 'comments'
         if is_last
           # no need to load discussions, versions and all the mess
           add_table('comments')

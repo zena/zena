@@ -50,8 +50,10 @@ class Discussion < ActiveRecord::Base
     end
   end
   
+  alias o_node node
+  
   def node
-    secure!(Node) { Node.find(self[:node_id]) }
+    secure!(Node) { o_node }
   end
   
   private

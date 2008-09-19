@@ -20,7 +20,8 @@ class CommentQuery < QueryBuilder
     when 'author'
       add_table('users')
       @where << "#{table('users')}.id = #{field_or_param('author_id')}"
-      # should we only move to Users ?
+      # should we move on to Contact ?
+    when 'node', 'nodes'
       add_table('discussions')
       add_table('nodes')
       @where << "#{table('discussions')}.id = #{table('comments')}.discussion_id"

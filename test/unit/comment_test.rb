@@ -30,6 +30,12 @@ class CommentTest < ZenaTestUnit
     assert_equal 'PLV', comment.author.initials
   end
   
+  def test_node
+    login(:anon)
+    comment = secure!(Comment) { comments(:lion_says_inside) }
+    assert_equal nodes_id(:status), comment.node[:id]
+  end
+  
   def test_remove_own
     login(:lion)
     comment = secure!(Comment) { comments(:lion_says_inside) }

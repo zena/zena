@@ -73,3 +73,11 @@ first_reply_in_en:
   title:           "re: What about rivers ?"
   text:            Not here...
 
+private_comment_fr:
+  discussion:      private_discussion_on_myLife
+  created_at:      2008-09-18 22:02
+  updated_at:      2008-09-18 22:02
+  user:            ant
+  title:           I want to become queen
+  text:            I hate being a worker
+  
