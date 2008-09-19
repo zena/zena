@@ -2,7 +2,7 @@
   <r:with part='title'/>
   <r:with part='container'>
 
-    <h2 do=trans>search results</h2>
+    <h2 do='t'>search results</h2>
 
     <ul id='search_results' do='search_results'>
       <li class='result_entry' do='each'>
