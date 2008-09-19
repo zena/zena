@@ -629,6 +629,10 @@ test_in_each:
 on_if_in_unknown:
   src: "<div do='project' on_if='name eq \"cleanWater\"' do='[name]'/>"
   res: "<div class='on'>cleanWater</div>"
+
+test_negative_value:
+  src: "<div do='void' off_if='custom_a eq -10'>...</div>"
+  tem: "<div<%= @node.custom_a.to_i == -10 ? \" class='off'\" : \"\" %>>...</div>"
   
 simple_each:
   src: "<r:children><r:each><r:show attr='name'/></r:each></r:children>"

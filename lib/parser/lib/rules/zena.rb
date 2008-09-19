@@ -2556,16 +2556,16 @@ END_TXT
             nil
           end
         when :test
-          if value =~ /("[^"]*"|'[^']*'|[\w:\.]+)\s*(>=|<=|<>|<|=|>|lt|le|eq|ne|ge|gt)\s*("[^"]*"|'[^']*'|[\w\.]+)/
+          if value =~ /("[^"]*"|'[^']*'|[\w:\.\-]+)\s*(>=|<=|<>|<|=|>|lt|le|eq|ne|ge|gt)\s*("[^"]*"|'[^']*'|[\w\.\-]+)/
             parts = [$1,$3]
             op = {'lt' => '<','le' => '<=','eq' => '==', '=' => '==','ne' => '!=','ge' => '>=','gt' => '>'}[$2] || $2
-            toi   = ( op =~ /(>|<)/ || (parts[0] =~ /^\d+$/ || parts[1] =~ /^\d+$/) )
+            toi   = ( op =~ /(>|<)/ || (parts[0] =~ /^-?\d+$/ || parts[1] =~ /^-?\d+$/) )
             parts.map! do |part|
               if ['"',"'"].include?(part[0..0])
                 toi ? part[1..-2].to_i : part[1..-2].inspect
               elsif part == 'NOW'
                 "Time.now.to_i"
-              elsif part =~ /^\d+$/
+              elsif part =~ /^-?\d+$/
                 part
               else
                 if node_attr = node_attribute(part, :node => node)
