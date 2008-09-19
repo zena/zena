@@ -194,7 +194,7 @@ class QueryBuilder
           end
           res << "INTERVAL #{field} #{type.upcase}"
           allowed = after_value
-        elsif rest =~ /\A(\d+)/  
+        elsif rest =~ /\A(-?\d+)/  
           unless allowed.include?(:value)
             @errors << clause_error(clause, rest, res) 
             return
