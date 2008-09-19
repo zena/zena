@@ -123,7 +123,7 @@ class Parser
   
   # Hook called when replacing part of an included template with '<r:with part='main'>...</r:with>'
   def replace_with(obj)
-    @method   = 'void' # (replacer's method is always 'with')
+    # keep @method (obj's method is always 'with')
     @blocks   = obj.blocks.empty? ? @blocks : obj.blocks
     @params   = obj.params.empty? ? @params : obj.params
   end

@@ -776,7 +776,7 @@ name_title:
   res: "title: <h1 id='lala'>status</h1>"
 
 include_with:
-  src: "include_with: <r:include template='/name/title'><h1 do='with' part='title' do='show' attr='id'/>"
+  src: "include_with: <r:include template='/name/title'><h1 do='with' part='title' attr='id'/>"
   res: "include_with: title: <h1 id='lala'>22</h1>"
 
 id_name:

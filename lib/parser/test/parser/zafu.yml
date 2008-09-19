@@ -52,11 +52,11 @@ only_string:
 
 very_messy:
   src: "this <r: blah> </r:truc> whak"
-  res: "this <r: blah> <span class='parser_error'>&lt;/r:truc&gt;</span> whak"
+  res: "this <r: blah> <span class='parser_error'>&lt;/r:truc&gt; should be &lt;/r:void&gt;</span> whak"
 
 bad_closing_tag:
   src: "this <r:test>looks </r:truc> ok"
-  res: "this [test]looks <span class='parser_error'>&lt;/r:truc&gt;</span>[/test] ok"
+  res: "this [test]looks <span class='parser_error'>&lt;/r:truc&gt; should be &lt;/r:test&gt;</span>[/test] ok"
 
 do_tag:
   src: "I say <p do='hello'>blah blah</p>"
@@ -141,9 +141,13 @@ named_with_do:
   src: "named_with_do: <p id='branding' do='test'>...</p>"
   res: "named_with_do: [test {> :name=>'branding'}]<p id='branding'>...</p>[/test]"
 
+include_named_keep_method:
+  src: "IKM: <r:include template='/named/with/do'><r:with part='branding'>blah</r:with></r:include>"
+  res: "IKM: named_with_do: [test {= :part=>'branding'} {> :name=>'branding'}]<p id='branding'>blah</p>[/test]"
+
 include_set_method:
-  src: "IKD: <r:include template='/named/with/do'><r:with part='branding' method='hello'>blah</r:with></r:include>"
-  res: "IKD: named_with_do: <p id='branding'>hello world!</p>"
+  src: "ISM: <r:include template='/named/with/do'><r:with part='branding' method='hello'>blah</r:with></r:include>"
+  res: "ISM: named_with_do: <p id='branding'>hello world!</p>"
 
 include_part:
   src: "IP: <r:include template='/named/parts' part='sub'/> PI."

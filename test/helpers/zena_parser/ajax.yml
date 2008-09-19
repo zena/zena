@@ -198,3 +198,12 @@ drop_param_in_each:
 swap_in_each:
   src: "<r:pages><li do='each'><span do='swap' attr='d_status' states='todo,done,alert'/></li></r:pages>"
   tem: "/<li id='list1_<%= var1.zip %>'><span>.*var1.can_write?.*tag_to_remote.*else.*var1.version.dyn\[\"status\"\]/"
+
+update_target:
+  src: "UT: <div id='foo' do='block'>...</div> <r:link update='foo'/>"
+  tem: "/UT: <div id='foo'>...</div><%= tag_to_remote.*dom_id=foo.*</a>/"
+  
+include_update_target:
+  src: "IUT: <r:include template='/update/target'><r:with part='foo'><r:show attr='name'/></r:with></r:include>"
+  tem: "/IUT: UT: <div id='foo'><%= @node.name %></div><%= tag_to_remote.*dom_id=foo.*</a>"
+
