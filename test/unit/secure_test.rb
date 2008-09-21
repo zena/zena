@@ -1006,4 +1006,20 @@ class SecureVisitorStatusTest < ZenaTestUnit
     node = secure!(Node) { nodes(:ocean) }
     assert node.can_write?, "Can write if user."
   end
+  
+  
+  def test_reader_cannot_update
+    login(:messy)
+    assert_equal visitor.status, User::Status[:reader]
+    node = secure!(Node) { nodes(:ocean) }
+    assert !node.update_attributes(:v_title => 'hooba')
+    assert_equal 'you do not have the rights to do this', node.errors['base']
+    
+    Participation.connection.execute "UPDATE participations SET status = #{User::Status[:user]} WHERE user_id = #{users_id(:messy)} AND site_id = #{sites_id(:ocean)}"
+    login(:messy)
+    assert_equal visitor.status, User::Status[:user]
+    node = secure!(Node) { nodes(:ocean) }
+    assert node.update_attributes(:v_title => 'hooba')
+    assert node.publish
+  end
 end
