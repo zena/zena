@@ -987,3 +987,23 @@ class SecureUpdateTest < ZenaTestUnit
     assert_equal Hash[:conditions => ['id = ?', 3], :order => 'name ASC'], Node.clean_options(:conditions => ['id = ?', 3], :funky => 'bad', :order => 'name ASC', :from => 'users')
   end
 end
+
+
+class SecureVisitorStatusTest < ZenaTestUnit
+  def test_reader_cannot_write
+    login(:whale)
+    assert_equal visitor.status, User::Status[:admin]
+    node = secure!(Node) { nodes(:ocean) }
+    assert node.can_write?
+    login(:messy)
+    assert_equal visitor.status, User::Status[:reader]
+    node = secure!(Node) { nodes(:ocean) }
+    assert !node.can_write?, "Cannot write if visitor is not a user."
+    
+    Participation.connection.execute "UPDATE participations SET status = #{User::Status[:user]} WHERE user_id = #{users_id(:messy)} AND site_id = #{sites_id(:ocean)}"
+    login(:messy)
+    assert_equal visitor.status, User::Status[:user]
+    node = secure!(Node) { nodes(:ocean) }
+    assert node.can_write?, "Can write if user."
+  end
+end

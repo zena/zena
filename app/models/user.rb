@@ -106,8 +106,10 @@ class User < ActiveRecord::Base
         end
         Thread.current.visitor = user
       elsif !user.is_anon? && opts[:id]
+        # not a reader, refuse login
         return make_visitor(:site => site)
       else
+        # anon is not a reader, refuse anonymous user
         nil
       end
     end

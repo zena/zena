@@ -183,31 +183,31 @@ Just doing the above will filter all result according to the logged in user.
   
         # people who can write:
         # * super user
-        # * owner
-        # * members of +write_group+ if published and the current date is greater or equal to the publication date
+        # * owner if visitor's status is at least 'user'
+        # * members of +write_group+ if published and the current date is greater or equal to the publication date and the visitor's status is at least 'user'
         def can_write?(vis=visitor, ugps=visitor.group_ids)
           ( vis.is_su? ) || # super user
-          ( vis[:id] == user_id ) ||
-          ( ugps.include?(wgroup_id) && max_status != Zena::Status[:red] )
+          ( vis.user? && (( vis[:id] == user_id ) ||
+          ( ugps.include?(wgroup_id) && max_status != Zena::Status[:red] )))
         end
         
         # people who can make visible changes
         # * super user
-        # * members of +publish_group+
-        # * members of the reference's publish group if the item is private
+        # * members of +publish_group+ if member status is at least 'user'
+        # * visitor status is at least 'user' and is a member of the reference's publish group if the item is private
         def can_visible?(vis=visitor, ugps=visitor.group_ids)
           ( vis.is_su? ) || # super user
-          ( ugps.include?(pgroup_id) ) ||
-          ( private? && ugps.include?(ref.pgroup_id))
+          ( vis.user? && (( ugps.include?(pgroup_id) ) ||
+          ( private? && ugps.include?(ref.pgroup_id))))
         end
   
         # people who can manage:
-        # * owner if +max_status+ <= red
-        # * owner if private
+        # * owner if visitor's status is at least 'user' and node's +max_status+ <= red
+        # * owner if visitor's status is at least 'user' and node is private
         def can_manage?(vis=visitor)
           ( vis.is_su? ) || # super user
-          ( publish_from == nil && vis[:id] == user_id && max_status <= Zena::Status[:red] ) ||
-          ( private? && vis[:id] == user_id )
+          ( vis.user? && (( publish_from == nil && vis[:id] == user_id && max_status <= Zena::Status[:red] ) ||
+          ( private? && vis[:id] == user_id )))
         end
         
         # can change position, name, rwp groups, etc
