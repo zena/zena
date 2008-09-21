@@ -20,3 +20,10 @@ whale:
   login:           whale
   password:        <%= User.hash_password('whale') %>
   lang:            en
+
+messy:
+  first_name:      Very
+  name:            Messy
+  login:           messy
+  password:        <%= User.hash_password('messy') %>
+  lang:            en

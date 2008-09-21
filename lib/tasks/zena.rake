@@ -675,6 +675,22 @@ module Zena
   FOXY_PARSER['links'] = FoxyLinkParser
   
   
+  class FoxyGroupsUsersParser < FoxyParser
+    attr_reader :nodes
+    
+    private
+      def set_defaults
+        super
+        
+        elements.each do |name,rel|
+          if !rel['user'] && !rel['group']
+            rel['user'], rel['group'] = name.split('_in_')
+          end
+        end
+      end
+  end
+  FOXY_PARSER['groups_users'] = FoxyGroupsUsersParser
+  
   class FoxyZipParser < FoxyParser
     def initialize(table_name, opts = {})
       super
@@ -747,6 +763,18 @@ module Zena
       
       def ignore_key?(k)
         super || ['status'].include?(k)
+      end
+      
+      def set_defaults
+        super
+
+        elements.each do |name,part|
+          if !part['user'] && !part['site']
+            part['user'], part['site'] = name.split('_in_')
+            part['site'] ||= site
+          end
+          part['contact'] ||= part['user']
+        end
       end
   end
   FOXY_PARSER['participations'] = FoxyParticipationParser

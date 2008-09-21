@@ -1,11 +1,11 @@
-incognito_in_other:
-  user:            incognito
+incognito:
   status:          moderated
 
-ocean_su_in_other:
-  user:            ocean_su
+ocean_su:
   status:          su
-  
-whale_in_other:
-  user:            whale
+
+whale:
   status:          admin
+
+messy:
+  status:          reader
