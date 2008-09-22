@@ -84,21 +84,27 @@ class VersionsController < ApplicationController
   # preview when editing node
   def preview
     if @key = (params['key'] || params['amp;key'])
-      @value = params[:content]
-      if @node.kind_of?(TextDocument) && @key == 'v_text'
-        l = @node.content_lang
-        @value = "<code#{l ? " lang='#{l}'" : ''} class=\'full\'>#{@value}</code>"
+      if @node.can_write?
+        @value = params[:content]
+        if @node.kind_of?(TextDocument) && @key == 'v_text'
+          l = @node.content_lang
+          @value = "<code#{l ? " lang='#{l}'" : ''} class=\'full\'>#{@value}</code>"
+        end
+      else
+        @value = "<span style='background:#f66;padding:10px; border:1px solid red; color:black;font-size:10pt;font-weight:normal;'>#{_('you do not have write access here')}#{visitor.is_anon? ? " (<a style='color:#00a;text-decoration:underline;' href='/login'>#{_('please login')}</a>)" : ""}</span>"
       end
-      # redaction
-    elsif @node.kind_of?(Image)
-      # view image version
-      # TODO: how to show the image data of a version ? 'nodes/3/versions/4.jpg' ?
-      @node.version.text = "<img src='#{url_for(:controller=>'versions', :node_id=>@node[:zip], :id=>@node.v_number, :format=>@node.c_ext)}'/>"
-    elsif @node.kind_of?(TextDocument)
-      lang = @node.content_lang
-      lang = lang ? " lang='#{lang}'" : ""
-      @node.version.text = "<code#{lang} class='full'>#{@v_text}</code>"
+    else
+      # TODO: ====== version preview ====== (replace v_title / v_summary / v_text) ?
+      # elsif @node.kind_of?(Image)
+      #   # view image version
+      #   # TODO: how to show the image data of a version ? 'nodes/3/versions/4.jpg' ?
+      #   @node.version.text = "<img src='#{url_for(:controller=>'versions', :node_id=>@node[:zip], :id=>@node.v_number, :format=>@node.c_ext)}'/>"
+      # elsif @node.kind_of?(TextDocument)
+      #   lang = @node.content_lang
+      #   lang = lang ? " lang='#{lang}'" : ""
+      #   @node.version.text = "<code#{lang} class='full'>#{@v_text}</code>"
     end
+    
     
     respond_to do |format|
       format.js
