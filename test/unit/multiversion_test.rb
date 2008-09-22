@@ -848,4 +848,23 @@ class MultiVersionTest < ZenaTestUnit
     assert_equal Zena::Status[:pub], node.max_status, "published node"
     assert_equal "This one should auto publish", node.v_title
   end
+  
+  def test_set_v_lang_publish
+    # publish should replace published item in v_lang
+    login(:tiger)
+    node = secure!(Node) { nodes(:opening) }
+    assert_equal Zena::Status[:pub], node.v_status
+    assert_equal 'en', node.v_lang
+    pub_v_en = node.v_id
+    visitor.lang = 'fr'
+    node = secure!(Node) { nodes(:opening) }
+    assert_equal Zena::Status[:red], node.v_status
+    assert_equal 'fr', node.v_lang
+    assert node.update_attributes(:v_lang => 'en', :v_status => Zena::Status[:pub])
+    assert_not_equal node.v_id, pub_v_en
+    assert_equal Zena::Status[:pub], node.v_status
+    assert_equal 'en', node.v_lang
+    old_version = Version.find(pub_v_en)
+    assert_equal Zena::Status[:rep], old_version.status
+  end
 end

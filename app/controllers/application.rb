@@ -485,20 +485,6 @@ END_MSG
       if (current_site.authentication? || params[:prefix] == AUTHENTICATED_PREFIX) && visitor.is_anon?
         return false unless do_login
       end
-      
-      # Redirect if :
-      # 1. navigating out of '/oo' but logged in and format is not data
-      if (params[:prefix] && params[:prefix] != AUTHENTICATED_PREFIX && !visitor.is_anon?)
-        return true unless format_changes_lang
-        redirect_to request.parameters.merge(:prefix=>AUTHENTICATED_PREFIX) and return false
-      end
-    end
-    
-    # Return true if the current request can change the current language. Document data do not
-    # change lang.
-    def format_changes_lang
-      format = params[:format] || (params[:path] || [''])[-1].split('.').last
-      ['xml','html', nil].include?(format)
     end
     
     def do_login
@@ -588,12 +574,13 @@ END_MSG
   
     # Choose best language to display content.
     # 1. 'test.host/oo?lang=en' use 'lang', redirect without lang
-    # 2. 'test.host/fr' this rule is called once we are sure the request is not for document data (lang in this case can be different from what the visitor is visiting due to caching optimization)
     # 3. 'test.host/oo' use visitor[:lang]
     # 4. 'test.host/'   use session[:lang]
     # 5. 'test.host/oo' use visitor lang
     # 6. 'test.host/'   use HTTP_ACCEPT_LANGUAGE
     # 7. 'test.host/'   use default language
+    #
+    # 8. 'test.host/fr' the redirect for this rule is called once we are sure the request is not for document data (lang in this case can be different from what the visitor is visiting due to caching optimization)
     def set_lang
       # TODO: how to include zena rules in file reload (in a better way then this hack) ?
       # load "#{RAILS_ROOT}/lib/parser/lib/rules/zena.rb" if RAILS_ENV == 'development'
@@ -604,32 +591,37 @@ END_MSG
         return false
       end
       
+      chosen_lang = nil
       [
         params[:lang],
-        format_changes_lang ? params[:prefix] : nil, # only if index (/fr, /en) or ending with 'html'
         visitor.is_anon? ? session[:lang] : visitor.lang,
         (request.headers['HTTP_ACCEPT_LANGUAGE'] || '').split(',').sort {|a,b| (b.split(';q=')[1] || 1.0).to_f <=> (a.split(';q=')[1] || 1.0).to_f }.map {|l| l.split(';')[0].split('-')[0] },
         (visitor.is_anon? ? visitor.lang : nil), # anonymous user's lang comes last
       ].compact.flatten.uniq.each do |l|
         if current_site.lang_list.include?(l)
-          session[:lang] = l
+          chosen_lang = l
           break
         end
       end
       
-      session[:lang] ||= current_site[:default_lang]
+      set_visitor_lang(chosen_lang || current_site[:default_lang])
+      true
+    end
+    
+    def set_visitor_lang(l)
+      return unless current_site.lang_list.include?(l)
+      session[:lang] = l
       
-      if visitor.lang != session[:lang] && !visitor.is_anon?
-        visitor.update_attribute_with_validation_skipping('lang', session[:lang])
+      if visitor.lang != l && !visitor.is_anon?
+        visitor.update_attribute_with_validation_skipping('lang', l)
       else
-        visitor.lang = session[:lang]
+        visitor.lang = l
       end
-      if File.exist?("#{RAILS_ROOT}/locale/#{session[:lang]}/LC_MESSAGES/zena.mo")
-        GetText.set_locale_all(session[:lang])
+      if File.exist?("#{RAILS_ROOT}/locale/#{l}/LC_MESSAGES/zena.mo")
+        GetText.set_locale_all(l)
       else
         GetText.set_locale_all('en')
       end
-      true
     end
     
     # Redirect on lang chang

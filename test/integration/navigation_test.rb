@@ -48,7 +48,21 @@ class NavigationTest < ActionController::IntegrationTest
     assert_redirected_to 'http://test.host/oo'
     follow_redirect!
     assert_response :success
-    get 'http://test.host/fr/textdocument53.css' # data
+    assert_equal 'fr', session[:lang]
+    get 'http://test.host/en/textdocument53.css' # data
+    assert_response :success
+    assert_equal 'fr', session[:lang]
+  end
+  
+  def test_out_of_oo_custom_base_set_lang
+    post 'http://test.host/session', :login=>'tiger', :password=>'tiger'
+    assert_redirected_to "http://test.host/users/#{users_id(:tiger)}"
+    # 2. navigating out of '/oo' but logged in and format is not data, custom_base url (format not in path)
+    assert_equal 'en', session[:lang]
+    get 'http://test.host/fr/projects/cleanWater'
+    assert_redirected_to 'http://test.host/oo/projects/cleanWater'
+    assert_equal 'fr', session[:lang]
+    follow_redirect!
     assert_response :success
   end
   

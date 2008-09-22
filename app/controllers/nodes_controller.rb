@@ -21,6 +21,7 @@ class NodesController < ApplicationController
   before_filter :check_is_admin, :only => [:export]
   before_filter :find_node, :except => [:index, :create, :not_found, :catch_all, :search, :attribute]
   before_filter :check_path, :only  => [:index, :show]
+  after_filter  :change_lang, :only => [:create, :update]
   layout :popup_layout,     :only   => [:edit, :import]
   
   def index
@@ -326,7 +327,7 @@ class NodesController < ApplicationController
         if path.last =~ /\A(([a-zA-Z]+)([0-9]+)|([a-zA-Z0-9\-\*]+))(_[a-z]+|)(\..+|)\Z/
           zip    = $3
           name   = $4
-          params[:mode  ] = $5 == '' ? nil : $5[1..-1]
+          params[:mode] = $5 == '' ? nil : $5[1..-1]
           asset_and_format = $6 == '' ? '' : $6[1..-1]
           if asset_and_format =~ /(\w+)\.(\w+)/
             params[:asset ] = $1
@@ -361,12 +362,22 @@ class NodesController < ApplicationController
       case params[:action]
       when 'index'
         # bad prefix '/so', '/rx' or '/en?lang=fr'
-        redirect_url = "/#{prefix}" if params[:prefix] != prefix || params[:lang]
+        if params[:prefix] != prefix
+          set_visitor_lang(params[:prefix])
+          # redirect if new lang could not be set
+          redirect_url = "/#{prefix}" if prefix != params[:prefix]
+        end
       when 'show'
         # show must have a 'path' parameter
-        if params[:lang] || (params[:prefix] != prefix && format_changes_lang) || params[:path] != zen_path(@node, :format=>params[:format], :mode=>params[:mode], :asset=>params[:asset]).split('/')[2..-1]
+        if params[:prefix] != prefix && !avoid_prefix_redirect
+          # lang changed
+          set_visitor_lang(params[:prefix])
           redirect_url = zen_path(@node, :mode => params[:mode])
-        elsif params[:mode] =~ /_edit/ && !@node.can_write?
+        elsif params[:path] != zen_path(@node, :format=>params[:format], :mode=>params[:mode], :asset=>params[:asset]).split('/')[2..-1]
+          # badly formed url
+          redirect_url = zen_path(@node, :mode => params[:mode])
+        elsif params[:mode] == 'edit' && !@node.can_write?
+          # special 'edit' mode
           redirect_url = zen_path(@node, :format => params[:format], :asset => params[:asset])
         end 
       end
@@ -383,6 +394,10 @@ class NodesController < ApplicationController
       end
     end
     
+    def change_lang
+      set_visitor_lang(params[:node]['v_lang']) if params[:node] && params[:node]['v_lang']
+    end
+    
     def do_search
       @node = current_site.root_node
       query = Node.match_query(params[:q], :node => @node)
@@ -391,6 +406,11 @@ class NodesController < ApplicationController
         @nodes_previous_page, @nodes, @nodes_next_page = Node.find_with_pagination(:all,query.merge(:per_page => 10, :page => params[:page]))
         @nodes # important: this is the 'secure' yield return, it is used to secure found nodes
       end
+    end
+    
+    # Document data do not change session[:lang] and can point at cached content (no nee to redirect to AUTHENTICATED_PREFIX).
+    def avoid_prefix_redirect
+      @node.kind_of?(Document) && params[:format] == @node.c_ext
     end
 end
 
