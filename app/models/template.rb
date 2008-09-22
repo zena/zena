@@ -28,9 +28,6 @@ class Template < TextDocument
   end
   
   def filter_attributes(attributes)
-    ['c_klass','c_mode','c_format'].each do |sym|
-      attributes.delete(sym) if attributes[sym] == ''
-    end
     content    = version.content
     new_name   = attributes['name'] || (new_record? ? attributes['v_title'] : nil) # only set name from version title on creation
     if new_name =~ /^([A-Z][a-zA-Z\*]+?)(-(([a-zA-Z_\*]*)(-([a-zA-Z_]+)|))|)(\.|\Z)/
@@ -99,7 +96,7 @@ END_TXT
       opts[:mode  ]  ||= version.content.mode
       opts[:klass ]  ||= version.content.klass
       format = opts[:format] == 'html' ? '' : "-#{opts[:format]}"
-      mode   = (opts[:mode] || format != '') ? "-#{opts[:mode]}" : '' 
+      mode   = (!opts[:mode].blank? || format != '') ? "-#{opts[:mode]}" : '' 
       "#{opts[:klass]}#{mode}#{format}"
     end
     

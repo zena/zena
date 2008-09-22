@@ -226,7 +226,7 @@ class UserTest < ZenaTestUnit
   def test_site_participation
     login(:tiger)
     ant = secure!(User) { users(:ant) }
-    assert_equal participations_id(:ant_in_zena), ant.site_participation[:id]
+    assert_equal participations_id(:ant), ant.site_participation[:id]
     assert_equal 50, ant.status
   end
   
@@ -258,7 +258,7 @@ class UserTest < ZenaTestUnit
     assert user.errors[:site]
     
     # make lion an admin in ocean
-    Group.connection.execute "UPDATE participations SET status = 60 WHERE site_id = #{sites_id(:ocean)} AND user_id=#{users_id(:lion)}"
+    Participation.connection.execute "UPDATE participations SET status = #{User::Status[:admin]} WHERE site_id = #{sites_id(:ocean)} AND user_id=#{users_id(:lion)}"
     
     login(:lion)
     user = secure!(User) { User.new(:login=>'joe', :password=>'secret', :site_ids=>[sites_id(:zena),sites_id(:ocean)])}

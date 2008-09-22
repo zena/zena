@@ -803,6 +803,12 @@ END_MSG
       end
       if thedate.kind_of?(Time)
         adate = tz.utc_to_local(thedate)
+      elsif thedate.kind_of?(String)
+        begin
+          adate = Date.parse(thedate)
+        rescue
+          return "<span class='parser_error'>invalid date #{thedate.inspect}</span>"
+        end
       else
         adate = thedate
       end

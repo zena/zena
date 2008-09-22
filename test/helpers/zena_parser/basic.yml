@@ -1081,3 +1081,8 @@ date_fr_lang:
     lang: 'fr'
   src: "<r:show date='created_at' format='%a' lang='en'/>"
   res: "Fri"
+
+date_context:
+  src: "<r:date select='2008-03-02'><r:show date='current_date' format='%A %d.%m.%Y'/></r:date>"
+  tem: "<%= format_date(\"2008-03-02\", \"%A %d.%m.%Y\") %>"
+  res: "Sunday 02.03.2008"

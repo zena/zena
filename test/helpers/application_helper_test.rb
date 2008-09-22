@@ -316,7 +316,8 @@ class ApplicationHelperTest < ZenaTestHelper
   end
   
   def test_node_actions_wiki_public
-    @node = secure!(Node) { nodes(:wiki) } 
+    Participation.connection.execute "UPDATE participations SET status = #{User::Status[:user]} WHERE site_id = #{sites_id(:zena)} AND user_id=#{users_id(:anon)}"
+    @node = secure!(Node) { nodes(:wiki) }
     assert @node.can_edit?, "Node can be edited by the public"
     res = node_actions(:actions=>:all)
     assert_match %r{/nodes/29/versions/0/edit}, res

@@ -1632,13 +1632,22 @@ END_TXT
         expand_with(:date=>"Time.now")
       else
         if select =~ /^\d{4}-\d{1,2}-\d{1,2}$/
-          expand_with(:date=>select)
-        elsif date = find_stored(Date, select)
           begin
             d = Date.parse(select)
-            expand_with(:date=>select)
+            expand_with(:date=>select.inspect)
           rescue
             parser_error("invalid date '#{select}' should be 'YYYY-MM-DD'")
+          end
+        elsif date = find_stored(Date, select)
+          if date[0..0] == '"'
+            begin
+              d = Date.parse(date[1..-2])
+              expand_with(:date=>date)
+            rescue
+              parser_error("invalid date #{select} (#{date}) should be 'YYYY-MM-DD'")
+            end
+          else
+            expand_with(:date=>select)
           end
         elsif select =~ /^\[(.*)\]$/
           expand_with(:date=>"(#{node_attribute($1)} || main_date)")
@@ -3205,8 +3214,8 @@ module ActiveRecord
       def date_condition(date_cond, field, ref_date='today')
         if date_cond == 'today' || ref_date == 'today'
           ref_date = 'now()'
-        elsif ref_date =~ /^\d{4}-\d{1,2}-\d{1,2}( \d{1,2}:\d{1,2}(:\d{1,2})?)?$/
-          ref_date = "'#{ref_date}'"
+        elsif ref_date =~ /(\d{4}-\d{1,2}-\d{1,2}( \d{1,2}:\d{1,2}(:\d{1,2})?)?)/
+          ref_date = "'#{$1}'"
         else
           ref_date = "'\#{#{ref_date}.strftime('%Y-%m-%d %H:%M:%S')}'"
         end
