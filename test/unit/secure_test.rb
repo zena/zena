@@ -1022,4 +1022,11 @@ class SecureVisitorStatusTest < ZenaTestUnit
     assert node.update_attributes(:v_title => 'hooba')
     assert node.publish
   end
+  
+  
+  def test_deleted_cannot_login
+    Participation.connection.execute "UPDATE participations SET status = #{User::Status[:deleted]} WHERE user_id = #{users_id(:messy)} AND site_id = #{sites_id(:ocean)}"
+    login(:messy)
+    assert_equal users(:incognito)[:id], visitor.id
+  end
 end
