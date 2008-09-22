@@ -165,6 +165,7 @@ EXT_TYPE = [
   [ "rm"        , "audio/x-pn-realaudio"           ],
   [ "roff"      , "application/x-troff"            ],
   [ "rpm"       , "audio/x-pn-realaudio-plugin"    ],
+  [ "rss"       , "application/rss+xml"            ],
   [ "rtf"       , "text/rtf"                       ],
   [ "rtx"       , "text/richtext"                  ],
   [ "scm"       , "application/x-lotusscreencam"   ],
