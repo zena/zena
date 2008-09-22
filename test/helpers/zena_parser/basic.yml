@@ -1069,3 +1069,15 @@ captcha:
     lang: 'fr'
   src: "<r:captcha theme='clean'/>"
   res: "/RecaptchaOptions .* theme : .clean./"
+
+date_fr:
+  context:
+    lang: 'fr'
+  src: "<r:show date='created_at' format='%a'/>"
+  res: "ven"
+
+date_fr_lang:
+  context:
+    lang: 'fr'
+  src: "<r:show date='created_at' format='%a' lang='en'/>"
+  res: "Fri"

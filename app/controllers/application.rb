@@ -789,7 +789,7 @@ END_MSG
       template_url(:mode=>'*popupLayout')
     end
     
-    def format_date(thedate, format, tz_name=nil)
+    def format_date(thedate, format, tz_name=nil, lang=visitor.lang)
       return "" unless thedate
       if tz_name
         # display time local to event's timezone
@@ -807,6 +807,9 @@ END_MSG
         adate = thedate
       end
       
+      if visitor.lang != lang
+        GetText.set_locale_all(lang)
+      end
       # month name
       format = format.gsub("%b", _(adate.strftime("%b")) )
       format.gsub!("%B", _(adate.strftime("%B")) )
@@ -814,6 +817,11 @@ END_MSG
       # weekday name
       format.gsub!("%a", _(adate.strftime("%a")) )
       format.gsub!("%A", _(adate.strftime("%A")) )
+      
+      if visitor.lang != lang
+        GetText.set_locale_all(visitor.lang)
+      end
+      
       adate.strftime(format)
     end
     

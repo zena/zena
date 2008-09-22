@@ -291,7 +291,8 @@ module Zena
           format = "%Y-%m-%d"
         end
         
-        tz = ''
+        tz   = ''
+        lang = ''
         if tz_name = @params[:time_zone]
           tz_list = @params.reject {|k,v| !(k.to_s =~ /^time_zone\d*$/)}.to_a.sort {|a,b| a[0].to_s <=> b[0].to_s }.map do |k,tz_name|
             if tz_name =~ /^\[(\w+)\]$/
@@ -307,7 +308,11 @@ module Zena
           end
           tz = ", #{tz_list.join(' || ')}"
         end
-        attribute_method = "format_date(#{node_attribute(@params[:date])}, #{format.inspect}#{tz})"
+        if lang = @params[:lang]
+          tz = ', nil' if tz == ''
+          lang = ", #{lang.inspect}"
+        end
+        attribute_method = "format_date(#{node_attribute(@params[:date])}, #{format.inspect}#{tz}#{lang})"
       elsif @context[:trans]
         # error
         return "no attribute for 'show'".inspect
