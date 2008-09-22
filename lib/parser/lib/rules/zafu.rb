@@ -262,6 +262,8 @@ module Zafu
           scan_close_tag
         elsif @text[0..3] == '<!--'
           scan_html_comment(:space_before=> $2)
+        elsif @text[0..8] == '<![CDATA['
+          flush '<![CDATA['
         else
           scan_tag(:space_before=> $2)
         end

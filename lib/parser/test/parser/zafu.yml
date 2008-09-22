@@ -369,3 +369,11 @@ static_form:
 form:
   src: "<r:test><p do='form'><form action='hello'><p><input type='text' name='hoy' value='hili'/></p></form></p></r:test>"
   res: "[test][form]<p>[form_tag {= :action=>'hello'}]<p>[input {= :name=>'hoy', :type=>'text', :value=>'hili'}/]</p>[/form_tag]</p>[/form][/test]"
+
+cdata:
+  src: "<foo><![CDATA[<r:hello/>]]></foo>"
+  res: "<foo><![CDATA[hello world!]]></foo>"
+
+cdata:
+  src: "<foo><![CDATA[<r:hello/> blah <p do='test'> a <r:hello/></p>]]></foo>"
+  res: "<foo><![CDATA[hello world! blah [test]<p> a [hello/]</p>[/test]]]></foo>"
