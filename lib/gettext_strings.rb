@@ -22,6 +22,8 @@ module Zena
     N_('btn_add_doc') # used by zafu layout template
     N_('btn_add') # used by zafu layout template
     N_('btn_add_comment') # used by zafu layout template
+    N_('btn_title_edit')
+    N_('btn_title_drive')
     
     # admin icons
     N_('relation_img')
