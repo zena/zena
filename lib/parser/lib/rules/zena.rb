@@ -1954,7 +1954,8 @@ END_TXT
     # FIXME: 'else' clause has been removed, find a solution to put it back.
     def r_context
       # DRY ! (build_finder_for, block)
-      method = @params[:method]
+      return parser_error("missing 'method' parameter") unless method = @params[:method]
+      
       context = node_class.zafu_known_contexts[method]
       if context && @params.keys == [:method]
         klass = context[:node_class]
