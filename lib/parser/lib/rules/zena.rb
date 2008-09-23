@@ -2402,7 +2402,7 @@ END_TXT
       end
       if method == 'each' && !@context[:make_form]
         "#{res}_\#{#{var}.zip}"
-      elsif method == 'unlink'
+      elsif method == 'unlink' || method == 'edit'
         target = nil
         parent = self.parent
         while parent

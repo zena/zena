@@ -82,8 +82,19 @@ This filter updates the "distant filter block test"
 
 <hr/>
 
+<h2>data group block test</h2>
+<ol id='bdata' do='block' do='data'>
+  <r:group by='value_a'>
+    <li>value: <b do='[value_a]'/></li>
+    <li do='each'><r:edit/> <b do='[text]'/> <r:show attr='value_a'/> <r:show attr='value_b'/><r:unlink/></li>
+  </r:group>
+    <li do='form'><r:cancel/> <input name='text'/> <input name='value_a'/> <input name='value_b'/> <input type='submit'/></li>
+    <li do='add' done='focus'/>
+    <r:set var='hours' do='stat' find='sum' from='value_a'/> <r:set var='exp' do='stat' find='sum' of='value_b'/>
+    <li><b><r:show var='hours'/> * 150.00 = <r:show eval='hours * 150'/> + <r:show var='exp'/> = <r:show eval='( hours * 150 ) + exp'/></b></li>
+</ol>
 
-
+<hr/>
 
 <h2>data block test</h2>
 <ol id='bdata' do='block' do='data'>
