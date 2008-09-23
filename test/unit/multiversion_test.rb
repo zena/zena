@@ -929,4 +929,15 @@ class MultiVersionTest < ZenaTestUnit
     assert node.update_attributes(:v_title => 'bloated waters')
     assert_equal Zena::Status[:prop], node.v_status
   end
+  
+  def test_publish_with_v_status
+    login(:tiger)
+    node = secure!(Node) { nodes(:cleanWater)  }
+    assert node.update_attributes(:v_title => "dirty")
+    node = secure!(Node) { nodes(:cleanWater)  }
+    assert_equal Zena::Status[:red], node.v_status
+    assert node.update_attributes(:v_status => Zena::Status[:pub])
+    node = secure!(Node) { nodes(:cleanWater)  }
+    assert_equal Zena::Status[:pub], node.v_status
+  end
 end

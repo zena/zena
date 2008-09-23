@@ -463,7 +463,7 @@ module Zena
             self.attributes = attributes
             @attributes_filtering_done = false
             ok = save
-          else
+          elsif attributes != {}
             attributes.each do |k,v|
               next if k.to_s == 'id' # just ignore 'id' (cannot be set but is often around)
               self.send("#{k}=".to_sym, v)
@@ -477,7 +477,11 @@ module Zena
               # set updated at date
               update_attribute_without_fuss(:updated_at, Time.now)
             end
+          else
+            # nothing to update (only v_status)
+            ok = true
           end
+          
           if ok && publish_after_save
             if can_apply?(:publish)
               ok = apply(:publish)
