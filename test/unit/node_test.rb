@@ -160,9 +160,9 @@ class NodeTest < ZenaTestUnit
     login(:ant)
     test_page = secure!(Node) { nodes(:status) }
     assert_equal 2, test_page.v_number
-    test_page.update_attributes( :v_status => Zena::Status[:pub], :v_title => "New funky title")
+    assert test_page.update_attributes( :v_status => Zena::Status[:pub], :v_title => "New funky title")
     assert_equal 3, test_page.v_number
-    assert_equal Zena::Status[:red], test_page.v_status
+    assert_equal Zena::Status[:prop], test_page.v_status
   end
   
   def test_new_bad_parent

@@ -478,8 +478,12 @@ module Zena
               update_attribute_without_fuss(:updated_at, Time.now)
             end
           end
-          if ok && publish_after_save && version.status != Zena::Status[:pub]
-            ok = publish
+          if ok && publish_after_save
+            if can_apply?(:publish)
+              ok = apply(:publish)
+            elsif can_apply?(:propose)
+              ok = apply(:propose)
+            end
           elsif ok
             ok = update_max_status && update_publish_from
           end
@@ -511,13 +515,15 @@ module Zena
           else
             lang ||= visitor.lang
             # is there a current redaction ?
-            v = versions.find(:first, :conditions=>["status >= #{Zena::Status[:red]} AND status < #{Zena::Status[:pub]} AND lang=?", lang])
+            v = versions.find(:first, :conditions=>["status >= #{Zena::Status[:red]} AND status < #{Zena::Status[:prop]} AND lang=?", lang])
             if v == nil && can_write?
               # create new redaction or redit current publication
-              if publish_after_save && version[:status] == Zena::Status[:pub] && version[:user_id] == visitor[:id] && version[:lang] == lang && (Time.now < version[:updated_at] + current_site[:redit_time].to_i)
-                # re-edit publication
-                redit = true
-                v = version
+              if publish_after_save && version[:status] >= Zena::Status[:prop] && version[:user_id] == visitor[:id] && version[:lang] == lang && (Time.now < version[:updated_at] + current_site[:redit_time].to_i)
+                if can_visible? || (can_manage? && private?) || version[:status] == Zena::Status[:prop]
+                  # re-edit publication
+                  redit = true
+                  v = version
+                end
               end
               
               if v == nil
