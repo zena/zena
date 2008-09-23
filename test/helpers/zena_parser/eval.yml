@@ -45,3 +45,7 @@ show_var:
 show_var_overwrites_attribute:
   src: "<r:set var='name'>12345</r:set><b do='[name]'/>"
   res: "<b>12345</b>"
+
+test_var:
+  src: "<r:set var='hours'>3</r:set><r:if test='hours gt 0'>you have: <r:show attr='hours'/></r:if>"
+  res: "you have: 3"

@@ -140,7 +140,7 @@ module Zena
       if @method =~ /^\[(.*)\]$/
         # do='[text]
         @method = 'show'
-        @params[:var_or_attr] = $1
+        @params[:attr_or_date] = $1
       elsif @method =~ /^\{(.*)\}$/
         # do='{v_text}'
         @method = 'zazen'
@@ -257,14 +257,12 @@ module Zena
     end
 
     def r_show
-      if var_or_attr = @params[:var_or_attr]
-        # using [var] shortcut. Can be either a var or an attribute
-        if @context[:vars] && @context[:vars].include?(var_or_attr)
-          @params[:var] = var_or_attr 
-        elsif var_or_attr == 'current_date' || var_or_attr =~ /_at$/
-          @params[:date] = var_or_attr
+      if attr_or_date = @params[:attr_or_date]
+        # using [var] shortcut. Can be either a date or an attribute/var
+        if attr_or_date == 'current_date' || attr_or_date =~ /_at$/
+          @params[:date] = attr_or_date
         else
-          @params[:attr] = var_or_attr
+          @params[:attr] = attr_or_date
         end
       end
 
@@ -2728,11 +2726,16 @@ END_TXT
     end
     
     def node_attribute(str, opts={})
+      if @context[:vars] && @context[:vars].include?(str)
+        return "set_#{str}"
+      end
+      
       return "(params[:s] || @node[:zip]).to_i" if str == 'start.id'
       attribute, att_node, klass = get_attribute_and_node(str)
       return 'nil' unless attribute
       return "params[:#{$1}]" if attribute =~ /^param:(\w+)$/
       return current_date if attribute == 'current_date'
+      
       
       att_node  ||= opts[:node]       || node
       klass     ||= opts[:node_class] || node_class
