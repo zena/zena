@@ -122,10 +122,11 @@ class Parser
   end
   
   # Hook called when replacing part of an included template with '<r:with part='main'>...</r:with>'
+  # This replaces the current object 'self' which is in the original included template, with the custom version 'obj'.
   def replace_with(obj)
     # keep @method (obj's method is always 'with')
     @blocks   = obj.blocks.empty? ? @blocks : obj.blocks
-    @params   = obj.params.empty? ? @params : obj.params
+    @params.merge!(obj.params)
   end
   
   # Hook called when including a part "<r:include template='layout' part='title'/>"
