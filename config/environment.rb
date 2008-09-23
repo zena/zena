@@ -11,7 +11,7 @@
 # Bootstrap the Rails environment, frameworks, and default configuration
 require File.join(File.dirname(__FILE__), 'boot')
 
-# Set ZENA_ENV
+# Load zena specific settings
 require File.join(File.dirname(__FILE__), 'zena')
 require File.join(File.dirname(__FILE__), 'version')
 

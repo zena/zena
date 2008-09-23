@@ -171,14 +171,6 @@ class SiteTest < ZenaTestUnit
     assert_equal groups_id(:aqua), grp[:id]
   end
   
-  def test_monolingual
-    site = sites(:zena)
-    assert !site.monolingual?, "Multi lang site"
-    site.monolingual = true
-    assert site.save, "Can save"
-    assert site.monolingual?, "Mono lang site"
-  end
-  
   def test_allow_private
     site = sites(:zena)
     assert site.allow_private?, "Private nodes allowed"

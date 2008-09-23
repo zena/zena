@@ -230,7 +230,6 @@ ActiveRecord::Schema.define(:version => 0) do
     t.column "site_group_id",      :integer
     t.column "name",               :string
     t.column "authentication",     :boolean
-    t.column "monolingual",        :boolean
     t.column "allow_private",      :boolean
     t.column "languages",          :string
     t.column "default_lang",       :string

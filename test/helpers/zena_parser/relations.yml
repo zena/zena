@@ -36,6 +36,7 @@ icon:
   context:
     node: 'cleanWater'
   src: "<r:icon do='[name]'/>"
+  tem: "/ORDER BY links.id DESC/"
   res: "lake"
   
 pages:

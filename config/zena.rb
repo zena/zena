@@ -23,32 +23,6 @@ unless File.exist?(File.join(File.dirname(__FILE__), '..', 'log', 'upload_progre
   puts " * WARNING: you should start the drb server with 'lib/upload_progress_server.rb start'\n\n"
 end
 
-
-# FIXME: Remove ZENA_ENV, not needed anymore
-ZENA_ENV = {
-  :site_name => 'zena',
-  :root_id => 1,
-  :authorize => false,
-  :translate_group => 2, # default = admin
-  :monolingual => false,
-  :languages => ['en', 'fr', 'es'],
-  :calendar_langs => ["en", "fr"],
-  :default_lang => 'en',
- # :news_collector_id => 24,
- # :menu_tag_id => 23,
-  :pub_comments => false,      # do not open a public discussion by default
-  :allow_anonymous_comments    => true,
-  :moderate_anonymous_comments => true,
-  
-  :allow_private_nodes => false,
-  :password_salt => "fish zen ho",
-  :data_dir => "/var/www/zenadmin.org/data", # configure data directory for uploaded files
-  :edit_help_id => 3,
-}
-if ENV["RAILS_ENV"] != "test"
-  ZENA_ENV.freeze
-end
-
 # TODO: where should this go ? (it has to be loaded by 'rake' and tests...)
 module ZenaTest
   def self.id(site, key)

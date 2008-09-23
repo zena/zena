@@ -133,23 +133,6 @@ class ApplicationControllerTest < ZenaTestController
     assert_equal 'yoba', @controller.send(:trans,'yoba')
   end
   
-  def test_prefix
-    bak = ZENA_ENV[:monolingual]
-    ZENA_ENV[:monolingual] = false
-    @controller.instance_variable_set(:@session, :lang=>'en')
-    assert_equal 'en', @controller.send(:prefix)
-    @controller.instance_variable_set(:@session, :lang=>'ru')
-    assert_equal 'ru', @controller.send(:prefix)
-    @controller.instance_variable_set(:@session, :user=>{:id=>4, :lang=>'en', :groups=>[1,2,3]})
-    assert_equal AUTHENTICATED_PREFIX, @controller.send(:prefix)
-    ZENA_ENV[:monolingual] = true
-    @controller.instance_variable_set(:@session, :user=>nil)
-    assert_equal '', @controller.send(:prefix)
-    @controller.instance_variable_set(:@session, :user=>{:id=>4, :lang=>'en', :groups=>[1,2,3]})
-    assert_equal AUTHENTICATED_PREFIX, @controller.send(:prefix)
-    ZENA_ENV[:monolingual] = bak
-  end
-  
   def test_bad_session_user
     @controller.instance_variable_set(:@session, :user=>999, :host=>'test.host')
     assert_equal users_id(:anon), @controller.send(:visitor)[:id]

@@ -539,7 +539,7 @@ latex_template = %q{
       images.sort! {|a,b| ids.index(a[:zip].to_i) <=> ids.index(b[:zip].to_i) } if images
     end
     
-    render_to_string( :partial=>'main/gallery', :locals=>{:gallery=>images} )
+    render_to_string( :partial=>'nodes/gallery', :locals=>{:gallery=>images} )
   end
 
   def list_nodes(ids=[], opts={})
@@ -571,7 +571,7 @@ latex_template = %q{
       docs.sort! {|a,b| ids.index(a[:zip].to_i) <=> ids.index(b[:zip].to_i) } if docs
     end
     return '' unless docs
-    prefix + render_to_string( :partial=>'main/list_nodes', :locals=>{:docs=>docs}) + suffix
+    prefix + render_to_string( :partial=>'nodes/list_nodes', :locals=>{:docs=>docs}) + suffix
   end
   
   def add_place_holder(str)
@@ -1243,33 +1243,29 @@ ENDTXT
   
   # show language selector
   def lang_links(opts={})
-    if visitor.site[:monolingual]
-      ""
+    if opts[:wrap]
+      tag_in  = "<#{opts[:wrap]}>"
+      tag_out = "</#{opts[:wrap]}>"
     else
-      if opts[:wrap]
-        tag_in  = "<#{opts[:wrap]}>"
-        tag_out = "</#{opts[:wrap]}>"
-      else
-        tag_in = tag_out = ''
-      end
-      res = []
-      visitor.site.lang_list.each do |l|
-        if l == lang
-          if opts[:wrap]
-            res << "<#{opts[:wrap]} class='on'>#{l}" + tag_out
-          else
-            res << "<em>#{l}</em>"
-          end
+      tag_in = tag_out = ''
+    end
+    res = []
+    visitor.site.lang_list.each do |l|
+      if l == lang
+        if opts[:wrap]
+          res << "<#{opts[:wrap]} class='on'>#{l}" + tag_out
         else
-          if visitor.is_anon? && params[:prefix]
-            res << tag_in + link_to(l, :overwrite_params => {:prefix => l}) + tag_out
-          else
-            res << tag_in + link_to(l, :overwrite_params => {:lang   => l}) + tag_out
-          end
+          res << "<em>#{l}</em>"
+        end
+      else
+        if visitor.is_anon? && params[:prefix]
+          res << tag_in + link_to(l, :overwrite_params => {:prefix => l}) + tag_out
+        else
+          res << tag_in + link_to(l, :overwrite_params => {:lang   => l}) + tag_out
         end
       end
-      res.join(opts[:join] || '')
     end
+    res.join(opts[:join] || '')
   end
   
   # TODO: test

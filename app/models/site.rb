@@ -10,16 +10,15 @@ The #Site model holds configuration information for a site:
 +site_group_id+::   Id of the 'site' group. Every user except anonymous are part of this group. This group can be seen as the 'logged in users' group.
 +name+::            Site name (used to display grouped information for cross sites users).
 +authorize+::       If this is set to true a login is required: anonymous visitor will not be allowed to browse the site as there is no login/password for the 'anonymous user'.
-+monolingual+::     Only use the +default_lang+. This will disable the language selection menu and will remove the language prefix from all urls.
 +allow_private+::   If set to true, users will be allowed to create private nodes (seen only by themselves).
 +languages+::       A comma separated list of the languages used for the current site. Do not insert spaces in this list.
-+default_lang+::    The default language of the site (or the unique language if +monolingual+ is true).
++default_lang+::    The default language of the site.
 =end
 class Site < ActiveRecord::Base
   validate :valid_site
   validates_uniqueness_of :host
   # we are using 'attr_protected' instead of attr_accessible because we have dynamic attributes
-  attr_protected *(column_names.map{|e| e.to_sym} - [:name, :languages, :default_lang, :authentication, :monolingual, :allow_private, :http_auth, :auto_publish, :redit_time])
+  attr_protected *(column_names.map{|e| e.to_sym} - [:name, :languages, :default_lang, :authentication, :allow_private, :http_auth, :auto_publish, :redit_time])
   has_many :groups, :order => "name"
   has_many :nodes
   has_many :participations, :dependent => :destroy
@@ -27,7 +26,7 @@ class Site < ActiveRecord::Base
   uses_dynamic_attributes :table_name => 'site_attributes'
   
   @@attributes_for_form = {
-    :bool => [:authentication, :monolingual, :allow_private, :http_auth, :auto_publish],
+    :bool => [:authentication, :allow_private, :http_auth, :auto_publish],
     :text => [:name, :languages, :default_lang],
   }
   
@@ -39,7 +38,6 @@ class Site < ActiveRecord::Base
       params = {
         :name            => host.split('.').first,
         :authentication  => false,
-        :monolingual     => false,
         :allow_private   => false,
         :auto_publish    => true,
         :redit_time      => '2h',
@@ -228,11 +226,6 @@ class Site < ActiveRecord::Base
   def admin_user_ids
     # TODO: admin_user_ids could be cached in the 'site' record.
     @admin_user_ids ||= secure!(User) { User.find(:all, :conditions => "status >= #{User::Status[:admin]}") }.map {|r| r[:id]}
-  end
-  
-  # Return true if the site is configured to use a single language
-  def monolingual?
-    self[:monolingual]
   end
   
   # Return true if the site is configured to allow private nodes

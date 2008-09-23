@@ -6,7 +6,6 @@ zena:
   public_group:    public
   site_group:      workers
   authentication:  no
-  monolingual:     no
   allow_private:   yes
   auto_publish:    no
   redit_time:      0

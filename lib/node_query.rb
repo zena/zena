@@ -201,9 +201,9 @@ class NodeQuery < QueryBuilder
         end
       when 'l_'  
         key, function = parse_sql_function_in_field(field)
-        if key == 'l_status' || key == 'l_comment'
+        if key == 'l_status' || key == 'l_comment' || (key == 'l_id' && context == :order)
           @errors_unless_safe_links ||= []
-          @errors_unless_safe_links << "cannot use link field '#{key}' in this query"
+          @errors_unless_safe_links << "cannot use link field '#{key}' in this query" unless (key == 'l_id' && context == :order)
           # ok
           function ? "#{function}(#{table('links')}.#{key[2..-1]})" : "#{table('links')}.#{key[2..-1]}"
         else

@@ -53,7 +53,7 @@ class ApplicationController < ActionController::Base
       else
         # site not found
         respond_to do |format|
-          format.html { render :file    => "#{RAILS_ROOT}/app/views/main/404.html", :status => '404 Not Found' }
+          format.html { render :file    => "#{RAILS_ROOT}/app/views/nodes/404.html", :status => '404 Not Found' }
           format.all  { render :nothing => true, :status => "404 Not Found" }
         end
       end
@@ -75,7 +75,7 @@ Something bad happened to your zena installation:
 END_MSG
 =end
       respond_to do |format|
-        format.html { render :file    => "#{RAILS_ROOT}/app/views/main/500.html", :status => '500 Error' }
+        format.html { render :file    => "#{RAILS_ROOT}/app/views/nodes/500.html", :status => '500 Error' }
         format.all  { render :nothing => true, :status => "500 Error" }
       end
     end
@@ -655,7 +655,7 @@ END_MSG
       if node.public? && !current_site.authentication?
         # force the use of a cacheable path for the data, even when navigating in '/oo'
         # FIXME: we could use 'node.version.lang' if most of the time the version is loaded.
-        zen_path(node, opts.merge(:format => node.c_ext, :prefix=>(current_site[:monolingual] ? '' : node.v_lang)))
+        zen_path(node, opts.merge(:format => node.c_ext, :prefix=>node.v_lang))
       else  
         zen_path(node, opts.merge(:format => node.c_ext))
       end
@@ -720,11 +720,7 @@ END_MSG
 
     def prefix
       if visitor.is_anon?
-        if current_site[:monolingual]
-          ''
-        else
-          lang
-        end
+        lang
       else
         AUTHENTICATED_PREFIX
       end

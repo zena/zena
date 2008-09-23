@@ -1,9 +1,0 @@
-<%= javascript_start %>
-  function popup_loaded() {
-    opener.location.href = '/z/main/redir?url=' + escape(opener.location.pathname); // Safari bug
-    self.close();
-  }
-<%= javascript_end %>
-<div class="popup_action">
-  <p class="btn_x"><%= link_to_function _('btn_x'), "self.close();" %></p>
-</div>
