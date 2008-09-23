@@ -31,12 +31,12 @@ class PreferencesController < ApplicationController
   def change_info
     @user = User.find(visitor[:id]) # reload to get password
     # only accept changes on the following fields through this interface
-    params.delete(:lang) unless ZENA_ENV[:languages].include?(params[:lang])
+    attrs = {}
     [:login, :first_name, :name, :time_zone, :lang, :email].each do |sym|
-      @user[sym] = params[:user][sym]
+      attrs[sym] = params[:user][sym]
     end
     
-    if @user.save
+    if @user.update_attributes(attrs)
       flash[:notice] = _('information successfully updated')
       session[:lang] = params[:user][:lang] if params[:user][:lang]
     end

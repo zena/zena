@@ -296,8 +296,8 @@ class ApplicationHelperTest < ZenaTestHelper
   end
   
   def test_check_other_lang
-    visitor.lang = 'io'
-    GetText.set_locale_all 'io'
+    visitor.lang = 'es'
+    GetText.set_locale_all 'es'
     obj = secure!(Node) { nodes(:zena) }
     assert_match /\[en\]/, check_lang(obj)
   end

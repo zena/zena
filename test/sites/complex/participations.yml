@@ -1,3 +1,5 @@
+DEFAULTS:
+  lang:            fr
 
 anon_in_complex:
   user:            complex_anon

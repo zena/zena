@@ -1,3 +1,6 @@
+DEFAULTS:
+  lang:            en
+
 incognito:
   status:          moderated
 

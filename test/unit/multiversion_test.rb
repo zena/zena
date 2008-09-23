@@ -196,7 +196,7 @@ class MultiVersionTest < ZenaTestUnit
     node = secure!(Node) { nodes(:opening)  }
     assert_equal "en", node.v_lang
     assert_equal "parc opening", node.v_title
-    visitor.lang = 'ru'
+    visitor.lang = 'es'
     node = secure!(Node) { nodes(:opening)  }
     assert_equal "fr", node.v_lang
     assert_equal "ouverture du parc", node.v_title
@@ -204,7 +204,7 @@ class MultiVersionTest < ZenaTestUnit
     node = secure!(Node) { nodes(:opening)  }
     assert_equal "en", node.v_lang
     assert_equal "parc opening", node.v_title
-    visitor.lang = 'ru'
+    visitor.lang = 'es'
     node = secure!(Node) { nodes(:opening)  }
     assert_equal "fr", node.v_lang
     assert_equal "ouverture du parc", node.v_title
@@ -348,8 +348,8 @@ class MultiVersionTest < ZenaTestUnit
     assert ! node.update_attributes( :v_title=>"Mon amour") , "Edit fails"
     
     # can add redactions for different languages
-    visitor.lang = "de"
     visitor.site.languages = 'fr,en,de'
+    visitor.lang = "de"
     node = secure_write(Node) { nodes(:wiki)  }
     assert node.update_attributes( :v_title=> "Spieluhr") , "Edit succeeds"
     redactions = Version.find(:all, :conditions=>['node_id = ? AND status = ?', nodes_id(:wiki), Zena::Status[:red]])
@@ -395,13 +395,12 @@ class MultiVersionTest < ZenaTestUnit
   def test_update_attributes_ok
     # changes node and creates a new redaction
     login(:lion)
-    visitor.lang = 'ru'
-    node = secure!(Node) { nodes(:lake)  }
-    attrs = { :inherit=>0, :rgroup_id => groups_id(:managers), :v_title => "Manager's lake"}
-    assert !node.update_attributes( attrs ) #, "Update attributes succeeds"
+    node = secure!(Node) { nodes(:lake_jpg)  }
+    attrs = { :inherit=>0, :rgroup_id => groups_id(:managers), :v_title => "Manager's lake", :v_lang => 'ru'}
+    assert !node.update_attributes( attrs )
     assert_equal 'not valid', node.errors[:v_lang]
     visitor.site.languages = 'en,fr,ru'
-    assert node.update_attributes( attrs ) #, "Update attributes succeeds"
+    assert node.update_attributes( attrs )
     assert_equal groups_id(:managers), node.rgroup_id
     assert_equal groups_id(:workers), node.wgroup_id
     assert_equal groups_id(:managers), node.pgroup_id

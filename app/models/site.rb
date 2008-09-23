@@ -67,7 +67,7 @@ class Site < ActiveRecord::Base
       # =========== CREATE Super User ===========================
       # create su user
       su = User.new_no_defaults( :login => host, :password => su_password,
-        :first_name => "Super", :name => "User", :lang=>site.default_lang)
+        :first_name => "Super", :name => "User")
       su.site = site
                                 
       raise Exception.new("Could not create super user for site [#{host}] (site#{site[:id]})\n#{su.errors.map{|k,v| "[#{k}] #{v}"}.join("\n")}") unless su.save
@@ -78,6 +78,12 @@ class Site < ActiveRecord::Base
           attr_accessor :visitor
         end
       end
+      
+      class << su
+        # until participation is created
+        def lang; site.default_lang; end
+      end
+      
       Thread.current.visitor = su
       
       # =========== CREATE PUBLIC, ADMIN, SITE GROUPS ===========
@@ -101,19 +107,20 @@ class Site < ActiveRecord::Base
       # create anon user
       # FIXME: make sure user_id = admin user
       anon = site.send(:secure,User) { User.new_no_defaults( :login => nil, :password => nil,
-        :first_name => "Anonymous", :name => "User", :lang=>site.default_lang) }
+        :first_name => "Anonymous", :name => "User") }
       anon.site = site
       raise Exception.new("Could not create anonymous user for site [#{host}] (site#{site[:id]})\n#{anon.errors.map{|k,v| "[#{k}] #{v}"}.join("\n")}") unless anon.save
       site[:anon_id] = anon[:id]
       
       # create admin user
       admin_user = site.send(:secure,User) { User.new_no_defaults( :login => 'admin', :password => su_password,
-        :first_name => "Admin", :name => "User", :lang=>site.default_lang) }
+        :first_name => "Admin", :name => "User") }
       admin_user.site = site
       raise Exception.new("Could not create admin user for site [#{host}] (site#{site[:id]})\n#{admin_user.errors.map{|k,v| "[#{k}] #{v}"}.join("\n")}") unless admin_user.save
       class << admin_user
         # until participation is created
         def status; User::Status[:admin]; end
+        def lang; site.default_lang; end
       end
       # add admin to the 'admin group'
       admin.users << admin_user
@@ -141,7 +148,7 @@ class Site < ActiveRecord::Base
       
       # =========== CREATE PARTICIPATIONS FOR USERS ==============
       [[su, :su], [anon, :moderated], [admin_user, :admin]].each do |user,status| 
-        raise Exception.new("Could not create participation to site #{site[:id]} for user #{user[:id]} (#{status})") unless Participation.new( :user => user, :site => site, :status => User::Status[status]).save
+        raise Exception.new("Could not create participation to site #{site[:id]} for user #{user[:id]} (#{status})") unless Participation.new( :user => user, :site => site, :status => User::Status[status], :lang=>site.default_lang).save
       end
       
       # =========== LOAD INITIAL DATA (default skin) =============

@@ -38,8 +38,7 @@ class TestController < ApplicationController
 
   def set_context
     @visitor = User.make_visitor(:id => params[:user_id], :host => request.host)
-    @visitor.lang = params[:prefix]
-    GetText.set_locale_all(@visitor.lang)
+    set_visitor_lang(params[:prefix])
     @node = secure!(Node) { Node.find(params[:node_id])}
     @text = params[:text]
     @test_url  = params[:url]

@@ -2,7 +2,7 @@
 <%= text_field 'node', 'v_title', :size=>nil, :class => 'full_width' %>
 
 <label for='v_lang'><%= _("language") %></label>
-<%= select 'node', 'v_lang', current_site.lang_list %>
+<%= select 'node', 'v_lang', current_site.lang_list.map {|l| [_(l), l]} %>
 
 <% if @node.kind_of?(Note) -%>
 <label for='event_at'><%= _("event date") %></label>

@@ -5,14 +5,12 @@ DEFAULTS:
 anon:
   first_name:      Anonymous
   name:            User
-  lang:            en
 
 su:
   login:           su
   password:        <%= User.hash_password('su') %>
   first_name:      Super
   name:            User
-  lang:            en
 
 ant:
   first_name:      Solenopsis
@@ -20,7 +18,6 @@ ant:
   email:           ant@zenadmin.info
   login:           ant
   password:        <%= User.hash_password('ant') %>
-  lang:            fr
   time_zone:       Europe/Zurich
 
 tiger:
@@ -29,7 +26,6 @@ tiger:
   email:           tiger@zenadmin.info
   login:           tiger
   password:        <%= User.hash_password('tiger') %>
-  lang:            en
 
 lion:
   first_name:      Panthera
@@ -37,4 +33,3 @@ lion:
   email:           lion@zenadmin.info
   login:           lion
   password:        <%= User.hash_password('lion') %>
-  lang:            en

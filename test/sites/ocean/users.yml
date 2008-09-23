@@ -5,25 +5,21 @@ DEFAULTS:
 incognito:
   first_name:      Miss
   name:            Incognito
-  lang:            en
 
 ocean_su:
   first_name:      Hyper
   name:            Super
   login:           ocean_su
   password:        <%= User.hash_password('ocean_su') %>
-  lang:            en
   
 whale:
   first_name:      Miss
   name:            Whale
   login:           whale
   password:        <%= User.hash_password('whale') %>
-  lang:            en
 
 messy:
   first_name:      Very
   name:            Messy
   login:           messy
   password:        <%= User.hash_password('messy') %>
-  lang:            en

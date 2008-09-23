@@ -196,6 +196,7 @@ ActiveRecord::Schema.define(:version => 0) do
     t.column "site_id",    :integer
     t.column "status",     :integer
     t.column "contact_id", :integer
+    t.column "lang",       :string,  :limit => 10, :default => "", :null => false
   end
 
   add_index "participations", ["user_id", "site_id"], :name => "user_id", :unique => true
@@ -254,7 +255,6 @@ ActiveRecord::Schema.define(:version => 0) do
     t.column "updated_at", :datetime
     t.column "login",      :string,   :limit => 20
     t.column "password",   :string,   :limit => 40
-    t.column "lang",       :string,   :limit => 10, :default => "", :null => false
     t.column "first_name", :string,   :limit => 60
     t.column "name",       :string,   :limit => 60
     t.column "email",      :string,   :limit => 60

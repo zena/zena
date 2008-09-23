@@ -192,6 +192,18 @@ class User < ActiveRecord::Base
   def password_is?(str)
     self[:password] == User.hash_password(str)
   end
+  
+  def lang=(l)
+    if current_site.lang_list.include?(l)
+      @defined_lang = l
+    else
+      errors.add('lang', 'not available in this site') 
+    end
+  end
+  
+  def lang
+    @defined_lang || site_participation.lang
+  end
 
   # TODO: test
   def site_participation
@@ -344,6 +356,7 @@ class User < ActiveRecord::Base
       return true if current_site.being_created?
       if new_record?
         @defined_status ||= current_site.anon.status
+        @defined_lang   ||= current_site.anon.lang
       elsif status.blank?
         status = current_site.anon.status
       end
@@ -478,9 +491,17 @@ class User < ActiveRecord::Base
         end
       end
       
-      if sta = @defined_status
-        remove_instance_variable(:@defined_status)
-        site_participation.status = sta
+      if (@defined_status || @defined_lang) && site_participation
+        if @defined_status
+          site_participation.status = @defined_status
+          remove_instance_variable(:@defined_status)
+        end
+        
+        if @defined_lang
+          site_participation.lang = @defined_lang
+          remove_instance_variable(:@defined_lang)
+        end
+        
         site_participation.save
       end
     end

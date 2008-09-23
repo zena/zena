@@ -613,10 +613,11 @@ END_MSG
       session[:lang] = l
       
       if visitor.lang != l && !visitor.is_anon?
-        visitor.update_attribute_with_validation_skipping('lang', l)
+        visitor.site_participation.update_attribute_with_validation_skipping('lang', l)
       else
         visitor.lang = l
       end
+      
       if File.exist?("#{RAILS_ROOT}/locale/#{l}/LC_MESSAGES/zena.mo")
         GetText.set_locale_all(l)
       else

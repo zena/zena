@@ -43,7 +43,8 @@ class UserTest < ZenaTestUnit
   
   def test_create
     login(:whale)
-    User.connection.execute "UPDATE users SET lang='ru', time_zone='US/Hawaii' WHERE id=#{users_id(:incognito)}"
+    User.connection.execute "UPDATE participations SET lang='ru' WHERE user_id=#{users_id(:incognito)}"
+    User.connection.execute "UPDATE users SET time_zone='US/Hawaii' WHERE id=#{users_id(:incognito)}"
     
     user = secure!(User) { User.create("login"=>"john", "password"=>"isjjna78a9h") }
     
@@ -296,11 +297,12 @@ class UserTest < ZenaTestUnit
   
   def test_new_defaults
     login(:lion)
-    User.connection.execute "UPDATE users SET time_zone = 'Europe/Berlin', lang='fr' WHERE id = #{users_id(:anon)}"
+    User.connection.execute "UPDATE participations SET lang='fr' WHERE user_id = #{users_id(:anon)}"
+    User.connection.execute "UPDATE users SET time_zone = 'Europe/Berlin' WHERE id = #{users_id(:anon)}"
     
     user = secure!(User) { User.create("login"=>"john", "password"=>"isjjna78a9h") }
     assert !user.new_record?
-    assert_equal 'fr', user[:lang]
+    assert_equal 'fr', user.lang
     assert_equal 'Europe/Berlin', user[:time_zone]
     assert_equal User::Status[:moderated], user.status
   end

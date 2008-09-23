@@ -10,6 +10,6 @@ zena:
   allow_private:   yes
   auto_publish:    no
   redit_time:      0
-  languages:       en,fr
+  languages:       en,fr,de,es
   default_lang:    en
   formats_updated_at: 2008-05-01

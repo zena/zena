@@ -1,4 +1,6 @@
-
+DEFAULTS:
+  lang:            en
+  
 anon:
   status:          moderated
   contact:         anonymous
@@ -9,6 +11,7 @@ su:
 
 ant:
   status:          user
+  lang:            fr
 
 tiger:
   status:          user
