@@ -57,7 +57,7 @@ class Template < TextDocument
         content.format = 'html' if content.format.blank?
         self[:name] = name_from_content(:format => content.format, :mode => content.mode, :klass => content.klass)
         
-        if version.text.blank? && content.format == 'html'
+        if version.text.blank? && content.format == 'html' && content.mode != '*edit'
           # set a default text
         
           if content.klass == 'Node'

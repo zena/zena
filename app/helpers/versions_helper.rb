@@ -12,6 +12,7 @@ module VersionsHelper
       break if k == 'node'
     end
     tabs << klass if klass
+    tabs << 'custom'
     tabs << 'help'
   end
 end

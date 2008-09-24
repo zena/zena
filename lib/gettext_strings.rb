@@ -18,6 +18,7 @@ module Zena
     N_('file_tab')              # document form tab name
     N_('template_tab')          # document form tab name
     N_('text_doc_tab')          # document form tab name
+    N_('custom_tab')            # custom form tab name
     
     N_('btn_add_doc') # used by zafu layout template
     N_('btn_add') # used by zafu layout template

@@ -468,6 +468,10 @@ Zena.draggable = function(dom_id, index, g, r, rE) {
 
 
 Zena.select_tab = function(name) {
+  if (name == 'custom' && custom_loaded == false) {
+    custom_loaded = true;
+    load_custom_tab();
+  }
   current_sel.className = '';
   current_tab.style.display = 'none';
   current_sel = $(name+'_sel');
