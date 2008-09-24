@@ -694,16 +694,10 @@ module Zena
       end
       res << "%>"
       if @params[:status] == 'true' || (@params[:status].nil? && @params[:actions])
-        if @html_tag_params[:class]
-         "<span class='s<%= #{node}.version.status %>'>#{res}</span>"
-        else
-          @html_tag_params[:class] = ["'s<%= #{node}.version.status %>'"]
-          @html_tag ||= 'span'
-          res
-        end
-      else
-        res
+        @html_tag ||= 'span'
+        add_html_class("s<%= #{node}.version.status %>")
       end
+      res
     end
     
     # TODO: test

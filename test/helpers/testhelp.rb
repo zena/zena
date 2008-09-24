@@ -1,5 +1,6 @@
 require File.join(File.dirname(__FILE__), '..','test_helper')
 require File.join(File.dirname(__FILE__), '..','..','lib','yaml_test')
+require File.join(File.dirname(__FILE__), '..','..','..','turn')
 
 module TestHelper
 end

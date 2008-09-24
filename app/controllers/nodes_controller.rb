@@ -21,7 +21,7 @@ class NodesController < ApplicationController
   before_filter :check_is_admin, :only => [:export]
   before_filter :find_node, :except => [:index, :create, :not_found, :catch_all, :search, :attribute]
   before_filter :check_path, :only  => [:index, :show]
-  after_filter  :change_lang, :only => [:create, :update]
+  after_filter  :change_lang, :only => [:create, :update, :save_text]
   layout :popup_layout,     :only   => [:edit, :import]
   
   def index
