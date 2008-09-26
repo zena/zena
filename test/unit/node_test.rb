@@ -103,6 +103,10 @@ class NodeTest < ZenaTestUnit
     assert_nothing_raised { node = secure!(Node) { Node.find_by_path('people/ant/status')}}
   end
   
+  def test_fullpath_updated_on_parent_rename
+    
+  end
+  
   def test_rootpath
     login(:ant)
     node = secure!(Node) { nodes(:status) }
@@ -953,17 +957,6 @@ done: \"I am done\""
   def test_create_nodes_from_archive
     login(:tiger)
     res = secure!(Node) { Node.create_nodes_from_folder(:archive => uploaded_archive('import.tgz'), :parent_id => nodes_id(:zena)) }.values
-    #res.each do |rec|
-    #  puts "id:     #{rec[:id]}"
-    #  puts "inherit: #{rec[:inherit]}"
-    #  puts "rgroup_id: #{rec[:rgroup_id]}"
-    #  puts "wgroup_id: #{rec[:wgroup_id]}"
-    #  puts "pgroup_id: #{rec[:pgroup_id]}"
-    #  puts "name:   #{rec.name}"
-    #  puts "parent: #{rec.parent_id}"
-    #  puts "errors: #{rec.errors.map{|k,v| "\n[#{k}] #{v}"}}"
-    #end
-    
     photos = secure!(Section) { Section.find_by_name('photos') }
     assert_kind_of Section, photos
     bird = secure!(Node) { Node.find_by_parent_id_and_name(photos[:id], 'bird') }
