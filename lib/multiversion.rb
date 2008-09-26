@@ -470,7 +470,7 @@ module Zena
             end
             valid_redaction
             if errors.empty?
-              ok = save_version
+              ok = save_version(false)
             end
             
             if ok
@@ -647,8 +647,12 @@ module Zena
           self.class.version_class
         end
         
-        def save_version
-          @version.save if (@version && @version.new_record?) || @redaction
+        def save_version(validations = true)
+          if validations
+            @version.save if (@version && @version.new_record?) || @redaction
+          else
+            @version.save_without_validation if (@version && @version.new_record?) || @redaction
+          end
         end
         
         def set_on_create
