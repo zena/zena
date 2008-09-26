@@ -104,7 +104,19 @@ class NodeTest < ZenaTestUnit
   end
   
   def test_fullpath_updated_on_parent_rename
+    login(:tiger)
+    node = secure!(Node) { nodes(:tiger) }
+    assert_equal 'people/tiger', node.fullpath
+    node = secure!(Node) { nodes(:tiger) }
+    assert_equal 'people/tiger', node[:fullpath] # make sure fullpath is cached
     
+    node = secure!(Node) { nodes(:people) }
+    assert node.update_attributes(:v_title => 'nice people')
+    assert node.publish
+    assert_equal 'nicePeople', node.name # sync name
+    node = secure!(Node) { nodes(:tiger) }
+    assert_nil node[:fullpath] # cache empty
+    assert_equal 'nicePeople/tiger', node.fullpath
   end
   
   def test_rootpath

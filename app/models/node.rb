@@ -151,6 +151,7 @@ class Node < ActiveRecord::Base
   validate           :validate_node
   before_create      :node_before_create
   after_save         :spread_project_and_section
+  after_save         :clear_children_fullpath
   after_create       :node_after_create
   attr_protected     :site_id, :zip, :id, :section_id, :project_id, :publish_from, :max_status
   attr_protected     :c_version_id, :c_node_id # TODO: test
@@ -1375,6 +1376,10 @@ class Node < ActiveRecord::Base
         elsif !new_record? && self[:custom_base] != old[:custom_base]
           self[:basepath] = self.basepath(true,false)
         end
+        if !new_record? && self[:fullpath] != old[:fullpath]
+          # FIXME: update children's cached fullpaths
+          @clear_children_fullpath = true
+        end
       end
 
       # make sure section is the same as the parent
@@ -1555,6 +1560,18 @@ class Node < ActiveRecord::Base
       Node.with_exclusive_scope do
         Node.find(:all, :conditions=>['parent_id = ?', self[:id] ])
       end
+    end
+    
+    def clear_children_fullpath(i = self[:id])
+      return true unless @clear_children_fullpath
+      base_class.connection.execute "UPDATE nodes SET fullpath = NULL WHERE #{ref_field(false)}='#{i}'"
+      ids = nil
+      base_class.with_exclusive_scope do
+        ids = base_class.fetch_ids("SELECT id FROM #{base_class.table_name} WHERE #{ref_field(true)} = '#{i.to_i}' AND inherit='1'")
+      end
+      
+      ids.each { |i| clear_children_fullpath(i) }
+      true
     end
   
     # Set owner and lang before validations on create (overwritten by multiversion)
