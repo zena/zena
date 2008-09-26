@@ -1486,9 +1486,10 @@ class Node < ActiveRecord::Base
       return true if @new_record_before_save
       sync_documents(:refuse)
     end
-  
+    
     # Called after a node is published
     def after_publish(pub_time=nil)
+      sync_name
       return true if @new_record_before_save
       sync_documents(:publish, pub_time)
     end
@@ -1523,13 +1524,19 @@ class Node < ActiveRecord::Base
       end
       allOK
     end
+    
+    # Try to keep node name in sync with published v_title in ref_lang. This is set after_publish.
+    def sync_name
+      return true if @old_version.nil? || version.lang != ref_lang || name == version.title.url_name || old.name != @old_version.title.url_name
+      update_attributes(:name => version.title.url_name)
+    end
   
     # Whenever something changed (publication/proposition/redaction/link/...)
     def after_all
       sweep_cache
       if @add_comment
         # add comment
-        @discussion ||= node.discussion
+        @discussion ||= self.discussion
         @discussion.save if @discussion.new_record?
         @add_comment[:author_name] = nil unless visitor.is_anon? # only anonymous user should set 'author_name'
         @add_comment[:discussion_id] = @discussion[:id]

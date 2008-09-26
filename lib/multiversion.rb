@@ -544,7 +544,8 @@ module Zena
             v.node = self if v
             
             if v && (v.user_id == visitor[:id]) && (v.status == Zena::Status[:red] || redit)
-              @redaction = @version = v
+              @old_version = @version
+              @redaction   = @version = v
             elsif v
               errors.add('base', "(#{v.user.login}) is editing this node")
               nil

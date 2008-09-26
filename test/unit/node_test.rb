@@ -1323,6 +1323,33 @@ done: \"I am done\""
     end
   end
   
+  def test_sync_name_on_v_title_change_no_sync
+    login(:tiger)
+    # was not in sync
+    node = secure!(Node) { nodes(:status) }
+    assert node.update_attributes(:v_title => 'simply different')
+    assert node.publish
+    assert_equal 'status', node.name
+    visitor.lang = 'fr'
+    # not ref lang
+    node = secure!(Node) { nodes(:people) }
+    assert node.update_attributes(:v_title => 'nice people')
+    assert node.publish
+    assert_equal 'fr', node.v_lang
+    assert_equal 'people', node.name
+  end
+  
+  def test_sync_name_on_v_title_change
+    login(:tiger)
+    # was in sync, correct lang
+    node = secure!(Node) { nodes(:people) }
+    assert node.update_attributes(:v_title => 'nice people')
+    assert_equal 'people', node.name
+    assert_equal Zena::Status[:red], node.v_status
+    assert node.publish
+    assert_equal 'nicePeople', node.name
+  end
+  
   # FIXME: write test
   def test_assets
     assert true
