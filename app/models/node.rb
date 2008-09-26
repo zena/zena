@@ -389,10 +389,6 @@ class Node < ActiveRecord::Base
         type = current_obj = sub_folder = document_path = nil
         versions = []
         filename = entries[index]
-        if filename =~ /^[\._~]/
-          index += 1
-          next
-        end
         
         path     = File.join(folder, filename)
 
@@ -409,7 +405,7 @@ class Node < ActiveRecord::Base
           attrs['name']     = name
           attrs['v_lang']   = lang || attrs['v_lang'] || visitor.lang
           versions << attrs
-        elsif filename =~ /^(.+?)(\.\w\w|)(\.\d+|)$/ # bird.jpg.en
+        elsif filename =~ /^(.+?\..+?)(\.\w\w|)(\.\d+|)$/ # bird.jpg.en
           type   = :document
           name   = $1
           attrs  = defaults.dup
@@ -458,14 +454,30 @@ class Node < ActiveRecord::Base
             attrs['name' ] = attrs['name'].split('.')[0..-2].join('.')
             if document_path
               # file
+              insert_zafu_headings = false
+              if opts[:parent_class] == 'Skin' && attrs['c_ext'] == 'html' && attrs['name'] == 'index'
+                attrs['c_ext'] = 'zafu'
+                attrs['name']  = 'Node'
+                insert_zafu_headings = true
+              end
+              
               ctype = EXT_TO_TYPE[attrs['c_ext']]
               ctype = ctype ? ctype[0] : "application/octet-stream"
+              
               
               File.open(document_path) do |file|
                 (class << file; self; end;).class_eval do
                   alias local_path path if defined?(:path)
+                  alias o_read read
                   define_method(:original_filename) { filename }
                   define_method(:content_type) { ctype }
+                  define_method(:read) do
+                    if insert_zafu_headings
+                      o_read.sub(%r{</head>},"  <r:stylesheets/>\n  <r:javascripts/>\n</head>")
+                    else
+                      o_read
+                    end
+                  end
                 end
                 current_obj = create_or_update_node(attrs.merge(:c_file => file, :klass => 'Document', :_parent_id => parent_id))
               end
@@ -483,7 +495,7 @@ class Node < ActiveRecord::Base
         current_obj.instance_variable_set(:@versions_count, versions.size)
         res[current_obj[:id].to_i] = current_obj
 
-        res.merge!(create_nodes_from_folder(:folder => sub_folder, :parent_id => current_obj[:id], :defaults => defaults)) if sub_folder && !current_obj.new_record?
+        res.merge!(create_nodes_from_folder(:folder => sub_folder, :parent_id => current_obj[:id], :defaults => defaults, :parent_class => opts[:klass])) if sub_folder && !current_obj.new_record?
       end
       res
     end

@@ -203,6 +203,20 @@ class NodesController < ApplicationController
   # import sub-nodes from a file
   def import
     @nodes = secure!(Node) { Node.create_nodes_from_folder(:klass => params[:node][:klass], :archive => params[:node][:archive], :parent => @node) }.values
+    
+    if params[:node][:klass] == 'Skin'
+      # update CSS files
+      @nodes.each do |n|
+        if n.c_ext == 'css'
+          v_status = n.v_status
+          text     = n.parse_assets(n.v_text, self)
+          errors   = n.errors.dup
+          n.errors.clear
+          n.update_attributes(:v_status => v_status, :v_text => text)
+        end
+      end
+    end
+    @nodes
   end
   
   def export

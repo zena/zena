@@ -1650,12 +1650,20 @@ END_TXT
     end
     
     def r_javascripts
-      list = @params[:list].split(',').map{|e| e.strip}
+      if @params[:list] == 'all' || @params[:list].nil?
+        list = %w{ prototype effects zena }
+      else
+        list = @params[:list].split(',').map{|e| e.strip}
+      end
       helper.javascript_include_tag(*list)
     end
     
     def r_stylesheets
-      list = @params[:list].split(',').map{|e| e.strip}
+      if @params[:list] == 'all' || @params[:list].nil?
+        list = %w{ zena code }
+      else
+        list = @params[:list].split(',').map{|e| e.strip}
+      end
       list << {:media => @params[:media]} if @params[:media]
       helper.stylesheet_link_tag(*list)
     end

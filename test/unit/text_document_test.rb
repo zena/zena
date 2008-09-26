@@ -96,6 +96,7 @@ class TextDocumentTest < ZenaTestUnit
     #header { background:url('/en/image30.jpg') }
     #footer { background:url('/en/image31.jpg') }
     END_CSS
+    assert_equal res, text
   end
   
   def test_c_file_unparse_assets
