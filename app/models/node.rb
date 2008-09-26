@@ -382,7 +382,7 @@ class Node < ActiveRecord::Base
         return res
       end
       
-      entries = Dir.entries(folder).reject { |f| f =~ /^[^\w]/ }.sort
+      entries = Dir.entries(folder).reject { |f| f =~ /^([\._~]|[^\w])/ }.sort
       index  = 0
 
       while entries[index]
