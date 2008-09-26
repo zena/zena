@@ -1,8 +1,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: 0.9.0\n"
-"POT-Creation-Date: 2008-09-24 10:20-0000\n"
-"PO-Revision-Date: 2008-09-24 12:28+0100\n"
+"POT-Creation-Date: 2008-09-26 20:39-0000\n"
+"PO-Revision-Date: 2008-09-26 23:22+0100\n"
 "Last-Translator: Gaspard Bucher <gaspard@teti.ch>\n"
 "Language-Team: fr <gaspard@teti.ch>\n"
 "MIME-Version: 1.0\n"
@@ -41,27 +41,27 @@ msgstr "Copie de sauvegarde effectuée."
 msgid "Could not create backup."
 msgstr "La sauvegarde n'a pas pu être créée."
 
-#: app/controllers/nodes_controller.rb:219
+#: app/controllers/nodes_controller.rb:233
 msgid "node updated"
 msgstr "Objet mis à jour."
 
-#: app/controllers/nodes_controller.rb:221
+#: app/controllers/nodes_controller.rb:235
 msgid "could not update"
 msgstr "L'objet n'a pas pu être mis à jour."
 
-#: app/controllers/nodes_controller.rb:261
+#: app/controllers/nodes_controller.rb:275
 msgid "node not found"
 msgstr "objet non trouvé"
 
-#: app/controllers/nodes_controller.rb:285
+#: app/controllers/nodes_controller.rb:299
 msgid "Order updated"
 msgstr "Ordre mis à jour."
 
-#: app/controllers/nodes_controller.rb:287
+#: app/controllers/nodes_controller.rb:301
 msgid "Could not update order."
 msgstr "L'ordre n'a pas pu être mis à jour."
 
-#: app/controllers/nodes_controller.rb:304
+#: app/controllers/nodes_controller.rb:318
 msgid "Could not clear order."
 msgstr "L'ordre de tri n'a pas pu être remis à zéro."
 
@@ -573,7 +573,7 @@ msgid "Value b"
 msgstr ""
 
 #: app/models/data_entry.rb:35
-#: app/models/node.rb:644
+#: app/models/node.rb:657
 #: app/views/data_entries/_li.html.erb:2
 msgid "datetime"
 msgstr "%d.%m.%Y %H:%M"
@@ -934,7 +934,7 @@ msgstr ""
 
 #: app/views/comments/_add.rhtml:2
 #: lib/gettext_strings.rb:25
-#: lib/parser/lib/rules/zena.rb:1208
+#: lib/parser/lib/rules/zena.rb:1202
 msgid "btn_add_comment"
 msgstr "<img src='/images/comment_add.png' alt='ajouter un commentaire'/>"
 
@@ -950,7 +950,6 @@ msgstr "Voulez-vous vraiment supprimer définitivement le contenu de cette corbe
 #: app/views/comments/_form.rhtml:10
 #: app/views/comments/_form.rhtml:12
 #: app/views/discussions/_form.rhtml:8
-#: app/views/documents/show.rhtml:11
 #: app/views/groups/_form.rhtml:3
 #: app/views/groups/_form.rhtml:5
 #: app/views/iformats/_form.rhtml:3
@@ -1060,9 +1059,14 @@ msgstr "original"
 msgid "original is #X this view"
 msgstr "L'original est #X fois cette image."
 
-#: app/views/documents/show.rhtml:17
+#: app/views/documents/show.rhtml:15
 msgid "upload more"
 msgstr "ajouter d'autres documents"
+
+#: app/views/documents/show.rhtml:15
+#, fuzzy
+msgid "close"
+msgstr "vermé"
 
 #: app/views/groups/_add.rhtml:2
 msgid "btn_group_add"
@@ -1076,6 +1080,7 @@ msgstr "<img src='/images/group_add.png' alt='ajouter un groupe'/>"
 #: app/views/users/_form.rhtml:27
 #: app/views/users/preferences.html.erb:15
 #: app/views/virtual_classes/_form.erb:16
+#: lib/gettext_strings.rb:152
 msgid "name"
 msgstr "nom"
 
@@ -1179,7 +1184,7 @@ msgid "img_link"
 msgstr "<img src='/images/tag_blue.png' alt='lien'/>"
 
 #: app/views/links/_li.rhtml:6
-#: lib/parser/lib/rules/zena.rb:1317
+#: lib/parser/lib/rules/zena.rb:1311
 msgid "btn_tiny_del"
 msgstr "<img src='/images/bullet_delete.png' alt='supprimer'/>"
 
@@ -1410,6 +1415,7 @@ msgstr "fuseau horaire"
 
 #: app/views/users/_form.rhtml:31
 #: app/views/users/preferences.html.erb:18
+#: lib/gettext_strings.rb:159
 msgid "email"
 msgstr "email"
 
@@ -1648,7 +1654,7 @@ msgid "btn_add_doc"
 msgstr "<img src='/images/picture_add.png' alt='ajouter des documents'/>"
 
 #: lib/gettext_strings.rb:24
-#: lib/parser/lib/rules/zena.rb:1208
+#: lib/parser/lib/rules/zena.rb:1202
 msgid "btn_add"
 msgstr "<img src='/images/add.png' alt='ajouter'/>"
 
@@ -1993,6 +1999,39 @@ msgstr "Rédaction enregistrée."
 msgid "rebuild"
 msgstr "<img src='/images/arrow_refresh.png' alt='rebuild'/> rebuild zafu"
 
+#: lib/gettext_strings.rb:151
+msgid "first_name"
+msgstr "prénom"
+
+#: lib/gettext_strings.rb:153
+msgid "address"
+msgstr "adresse"
+
+#: lib/gettext_strings.rb:154
+msgid "zip"
+msgstr "NPA"
+
+#: lib/gettext_strings.rb:155
+msgid "city"
+msgstr "ville"
+
+#: lib/gettext_strings.rb:156
+msgid "country"
+msgstr "pays"
+
+#: lib/gettext_strings.rb:157
+msgid "telephone"
+msgstr "téléphone"
+
+#: lib/gettext_strings.rb:158
+#, fuzzy
+msgid "mobile"
+msgstr "fichier"
+
+#: lib/gettext_strings.rb:160
+msgid "birthday"
+msgstr "anniversaire"
+
 #: lib/parser/lib/rules/zazen.rb:135
 msgid "[gallery]"
 msgstr "[galerie]"
@@ -2002,28 +2041,28 @@ msgid "[documents]"
 msgstr "[documents]"
 
 #: lib/parser/lib/rules/zena.rb:428
-#: lib/parser/lib/rules/zena.rb:826
-#: lib/parser/lib/rules/zena.rb:2895
+#: lib/parser/lib/rules/zena.rb:820
+#: lib/parser/lib/rules/zena.rb:2897
 msgid "edit"
 msgstr "éditer"
 
-#: lib/parser/lib/rules/zena.rb:1698
+#: lib/parser/lib/rules/zena.rb:1700
 msgid "riding zena"
 msgstr "en balade avec zena"
 
-#: lib/parser/lib/rules/zena.rb:1700
+#: lib/parser/lib/rules/zena.rb:1702
 msgid "in peace with zena"
 msgstr "paisible avec zena"
 
-#: lib/parser/lib/rules/zena.rb:1702
+#: lib/parser/lib/rules/zena.rb:1704
 msgid "a zen garden"
 msgstr "un jardin zen"
 
-#: lib/parser/lib/rules/zena.rb:1704
+#: lib/parser/lib/rules/zena.rb:1706
 msgid "made with zena"
 msgstr "conçu avec zena"
 
-#: lib/parser/lib/rules/zena.rb:1720
+#: lib/parser/lib/rules/zena.rb:1722
 msgid "%{skin}, design by %{name}"
 msgstr "%{skin}, conception %{name}"
 

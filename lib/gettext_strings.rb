@@ -147,5 +147,16 @@ module Zena
     
     # failed to find
     N_('rebuild') # application
+    # contact
+    N_('first_name')
+    N_('name')
+    N_('address')
+    N_('zip')
+    N_('city')
+    N_('country')
+    N_('telephone')
+    N_('mobile')
+    N_('email')
+    N_('birthday')
   end
 end
