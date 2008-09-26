@@ -148,16 +148,6 @@ class Version < ActiveRecord::Base
     self.class.content_class
   end
   
-  
-  
-  def speed
-    @visitor = User.make_visitor(:host=>'test.host', :id=>1)
-    @visitor.lang = 'en'
-    (10..40).each do |i|
-      node = secure(Node) { Node.find_by_zip(22) }
-    end
-  end
-  
   private
     def set_number
       last_record = node[:id] ? self.connection.select_one("select number from #{self.class.table_name} where node_id = '#{node[:id]}' ORDER BY number DESC LIMIT 1") : nil

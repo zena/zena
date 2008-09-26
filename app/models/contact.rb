@@ -1,7 +1,6 @@
 class Contact < Reference
   zafu_readable      :fullname, :initials
   
-  # TODO: test
   def self.version_class
     ContactVersion
   end
@@ -9,7 +8,7 @@ class Contact < Reference
   def filter_attributes(new_attributes)
     attributes = super
     if self[:name].blank? && attributes['name'].blank? && (attributes['c_name'] || attributes['c_first_name'])
-      attributes.merge('name'    => (attributes['c_name'].to_s + ' ' + attributes['c_first_name'].to_s))
+      attributes.merge('name'    => (attributes['c_first_name'].to_s + ' ' + attributes['c_name'].to_s))
     else
       attributes
     end
@@ -22,5 +21,4 @@ class Contact < Reference
   def initials
     version.content.initials
   end
-  
 end

@@ -74,7 +74,7 @@
             <li do='add' before='self'/>
             <li class='inline_form' do='form'>
               <p class='node_klass'>  <r:select name='klass' root_class='Reference'/></p>
-              <p class='node_c_name'><input type='text' name='c_name' value=''/></p>
+              <p class='node_v_title'><input type='text' name='v_title' value=''/></p>
               <p class='btn_validate'><input type="submit" value='validate' tset_value='validate'/></p>
             </li>
           </ol>
