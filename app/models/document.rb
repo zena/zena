@@ -82,6 +82,11 @@ class Document < Node
         klass.o_new(hash)
       end
     end
+    
+    # Class list to which this class can change to
+    def change_to_classes_for_form
+      classes_for_form(:class => 'Document', :without => 'Image')
+    end
   end
   
   # Filter attributes before assignement.

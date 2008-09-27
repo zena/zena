@@ -409,26 +409,25 @@ class NodeTest < ZenaTestUnit
     assert_equal 'LIEUX', node.name
   end
  
-  # TESTS FOR CHANGE_TO
-  # def test_change_to_page_to_project
-  #   login(:tiger)
-  #   node = secure!(Node) { nodes(:people)  }
-  #   id, parent_id, section_id = node[:id], node[:parent_id], node[:section_id]
-  #   vers_count = Version.find(:all).size
-  #   vers_id = node.v_id
-  #   node = node.change_to(Section)
-  #   assert_kind_of Section, node
-  #   node = secure!(Section) { Section.find(nodes_id(:people)) }
-  #   assert_kind_of Section, node
-  #   assert_equal 'NPSP', node[:kpath]
-  #   assert_equal id, node[:id]
-  #   assert_equal parent_id, node[:parent_id]
-  #   assert_equal node[:id], node[:section_id]
-  #   assert_equal vers_count, Version.find(:all).size
-  #   assert_equal vers_id, node.v_id
-  #   assert_equal node[:id], nodes(:ant)[:section_id] # children inherit new section_id
-  #   assert_equal node[:id], nodes(:myLife)[:section_id]
-  # end
+  def test_change_to_page_to_project
+    login(:tiger)
+    node = secure!(Node) { nodes(:people)  }
+    id, parent_id, section_id = node[:id], node[:parent_id], node[:section_id]
+    vers_count = Version.find(:all).size
+    vers_id = node.v_id
+    node = node.change_to(Section)
+    assert_kind_of Section, node
+    node = secure!(Section) { Section.find(nodes_id(:people)) }
+    assert_kind_of Section, node
+    assert_equal 'NPSP', node[:kpath]
+    assert_equal id, node[:id]
+    assert_equal parent_id, node[:parent_id]
+    assert_equal node[:id], node[:section_id]
+    assert_equal vers_count, Version.find(:all).size
+    assert_equal vers_id, node.v_id
+    assert_equal node[:id], nodes(:ant)[:section_id] # children inherit new section_id
+    assert_equal node[:id], nodes(:myLife)[:section_id]
+  end
   # 
   # def test_change_project_to_page
   #   login(:tiger)
@@ -1059,6 +1058,31 @@ done: \"I am done\""
      ["  Project", "Project"],
      ["  Section", "Section"],
      ["    Skin", "Skin"]], Node.classes_for_form(:class=>'Page', :without=>'Document')
+  end
+  
+  def test_change_to_classes_for_form
+    node_changes = Node.change_to_classes_for_form
+    assert_equal [["Node", "Node"],
+     ["  Note", "Note"],
+     ["    Letter", "Letter"],
+     ["    Post", "Post"],
+     ["  Page", "Page"],
+     ["    Project", "Project"],
+     ["    Section", "Section"],
+     ["      Skin", "Skin"],
+     ["  Reference", "Reference"]], node_changes
+
+    assert_equal node_changes, Page.change_to_classes_for_form
+    assert_equal node_changes, Note.change_to_classes_for_form
+    assert_equal node_changes, Reference.change_to_classes_for_form
+
+    assert_equal [["Document", "Document"],
+     ["  TextDocument", "TextDocument"],
+     ["    Template", "Template"]], Document.change_to_classes_for_form
+    
+    assert_equal [["Image", "Image"]], Image.change_to_classes_for_form
+    
+    assert_equal [["Contact", "Contact"]], Contact.change_to_classes_for_form
   end
   
   def test_match_one_node_only

@@ -1,8 +1,16 @@
 class Contact < Reference
   zafu_readable      :fullname, :initials
   
-  def self.version_class
-    ContactVersion
+  class << self
+    
+    def version_class
+      ContactVersion
+    end
+    
+    # Class list to which this class can change to
+    def change_to_classes_for_form
+      classes_for_form(:class => 'Contact')
+    end
   end
 
   def filter_attributes(new_attributes)

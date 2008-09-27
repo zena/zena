@@ -62,6 +62,11 @@ class Image < Document
     def version_class
       ImageVersion
     end
+    
+    # Class list to which this class can change to
+    def change_to_classes_for_form
+      classes_for_form(:class => 'Image')
+    end
   end
   # Crop the image using the 'crop' hash with the top left corner position (:x, :y) and the width and height (:width, :heigt). Example:
   #   @node.crop = {:x=>10, :y=>10, :width=>30, :height=>60}

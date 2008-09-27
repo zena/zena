@@ -189,6 +189,11 @@ class Node < ActiveRecord::Base
       self.kpath =~ /^#{kpath}/
     end
     
+    # Class list to which this class can change to
+    def change_to_classes_for_form
+      classes_for_form(:class => 'Node', :without => 'Document, Contact')
+    end
+    
     # FIXME: how to make sure all sub-classes of Node are loaded before this is called ?
     def classes_for_form(opts={})
       if klass = opts.delete(:class)
@@ -776,7 +781,7 @@ class Node < ActiveRecord::Base
   end
   
   def klass
-    vclass.to_s
+    @new_klass || vclass.to_s
   end
   
   def dyn_attribute_keys
@@ -784,7 +789,13 @@ class Node < ActiveRecord::Base
   end
   
   def klass=(str)
-    # TODO: set @new_klass... and transform
+    return if str == klass
+    allowed_classes = self.class.change_to_classes_for_form.map {|k,v| k}
+    if !allowed_classes.include?(k)
+      errors.add('klass', 'invalid')
+    else
+      @new_klass = str
+    end
   end
   
   # include virtual classes to check inheritance chain
@@ -1406,7 +1417,7 @@ class Node < ActiveRecord::Base
       end
       
       # set position
-      if self.class != Node
+      if klass != 'Node'
         # 'Node' does not have a position scope (need two first letters of kpath)
         if new_record?
           if self[:position].to_f == 0
@@ -1431,6 +1442,8 @@ class Node < ActiveRecord::Base
       errors.add("version", "can't be blank") if new_record? && !@version
       
       errors.add('comment', 'you do not have the rights to do this') if @add_comment && !can_comment?
+      
+      errors.add('klass', 'you do not have the rights to do this') if @new_klass && !can_drive?
     end
     
     # Called before destroy. An node must be empty to be destroyed
@@ -1552,6 +1565,22 @@ class Node < ActiveRecord::Base
         remove_instance_variable(:@add_comment)
       end
       remove_instance_variable(:@discussion) if defined?(@discussion) # force reload
+      
+      if @new_klass
+        klass = Node.get_class(@new_klass)
+        if klass.kind_of?(VirtualClass)
+          self[:vclass_id] = klass.kind_of?(VirtualClass) ? klass[:id] : 'NULL'
+          self[:type]      = klass.real_class.to_s
+        else
+          self[:vclass_id] = klass.kind_of?(VirtualClass) ? klass[:id] : 'NULL'
+          self[:type]      = klass.to_s
+        end
+        kpath = klass.kpath
+        Node.connection.execute "UPDATE nodes SET vclass_id = #{self[:vclass_id]}, kpath = #{kpath}, type = #{self[:type]} WHERE id = #{self[:id]} AND site_id = #{current_site[:id]}"
+        
+        remove_instance_variable(:@new_klass)
+      end
+      
       true
     end
   
