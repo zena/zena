@@ -408,46 +408,19 @@ class NodeTest < ZenaTestUnit
     node.name = "LIEUX"
     assert_equal 'LIEUX', node.name
   end
- 
-  def test_change_to_page_to_project
+  
+  
+  def test_change_project_to_page
     login(:tiger)
-    node = secure!(Node) { nodes(:people)  }
-    id, parent_id, section_id = node[:id], node[:parent_id], node[:section_id]
-    vers_count = Version.find(:all).size
-    vers_id = node.v_id
-    node = node.change_to(Section)
-    assert_kind_of Section, node
-    node = secure!(Section) { Section.find(nodes_id(:people)) }
-    assert_kind_of Section, node
-    assert_equal 'NPSP', node[:kpath]
-    assert_equal id, node[:id]
-    assert_equal parent_id, node[:parent_id]
-    assert_equal node[:id], node[:section_id]
-    assert_equal vers_count, Version.find(:all).size
-    assert_equal vers_id, node.v_id
-    assert_equal node[:id], nodes(:ant)[:section_id] # children inherit new section_id
-    assert_equal node[:id], nodes(:myLife)[:section_id]
+    node = secure!(Node) { nodes(:cleanWater)  }
+    assert node.update_attributes(:klass => 'Page')
+    node = secure!(Node) { nodes(:cleanWater)  }
+    assert_kind_of Page, node
+    assert_equal 'NP', node[:kpath]
+    assert_equal nodes_id(:zena), node.get_project_id
+    assert_equal nodes_id(:zena), nodes(:status)[:project_id]
+    assert_equal nodes_id(:zena), nodes(:lake)[:project_id]
   end
-  # 
-  # def test_change_project_to_page
-  #   login(:tiger)
-  #   node = secure!(Node) { nodes(:cleanWater)  }
-  #   id, parent_id = node[:id], node[:parent_id]
-  #   vers_count = Version.find(:all).size
-  #   vers_id = node.v_id
-  #   node = node.change_to(Page)
-  #   assert_kind_of Page, node
-  #   node = secure!(Page) { Page.find(nodes_id(:cleanWater)) }
-  #   assert_kind_of Page, node
-  #   assert_equal 'NP', node[:kpath]
-  #   assert_equal id, node[:id]
-  #   assert_equal parent_id,  node[:parent_id]
-  #   assert_equal nodes_id(:zena), node[:section_id]
-  #   assert_equal vers_count, Version.find(:all).size
-  #   assert_equal vers_id, node.v_id
-  #   assert_equal nodes_id(:zena), nodes(:status)[:section_id] # children inherit new section_id
-  #   assert_equal nodes_id(:zena), nodes(:lake)[:section_id]
-  # end
   # 
   # def test_cannot_change_root
   #   login(:tiger)
@@ -457,6 +430,26 @@ class NodeTest < ZenaTestUnit
   #   node = secure!(Node) { Node.find(visitor.site[:root_id]) }
   #   assert_kind_of Section, node
   # end
+  
+  def test_change_section_to_project
+    login(:lion)
+    node = secure!(Node) { nodes(:people)  }
+    assert_equal node[:id], node.get_section_id
+    assert_equal nodes_id(:zena), node.get_project_id
+    
+    assert node.update_attributes(:klass => "Project")
+    node = secure!(Node) { nodes(:people)  } 
+    assert_kind_of Project, node
+    assert_equal 'NPP', node[:kpath]
+    
+    assert_equal nodes_id(:zena), node.get_section_id
+    assert_equal node[:id], node.get_project_id
+    
+    assert_equal nodes_id(:zena), nodes(:ant).get_section_id # children inherit new section_id
+    assert_equal nodes_id(:zena), nodes(:myLife).get_section_id
+    assert_equal node[:id], nodes(:ant).get_project_id # children inherit new project_id
+    assert_equal node[:id], nodes(:myLife).get_project_id
+  end
   
   def test_sync_section
     login(:ant)
@@ -1061,28 +1054,26 @@ done: \"I am done\""
   end
   
   def test_change_to_classes_for_form
-    node_changes = Node.change_to_classes_for_form
-    assert_equal [["Node", "Node"],
-     ["  Note", "Note"],
-     ["    Letter", "Letter"],
-     ["    Post", "Post"],
-     ["  Page", "Page"],
-     ["    Project", "Project"],
-     ["    Section", "Section"],
-     ["      Skin", "Skin"],
-     ["  Reference", "Reference"]], node_changes
+    assert_equal [["Page", "Page"],
+     ["  Project", "Project"],
+     ["  Section", "Section"],
+     ["    Skin", "Skin"]], Project.classes_for_form(:class=>'Page', :without=>'Document')
+  end
+  
+  def test_allowed_change_to_classes
+    node_changes = Node.allowed_change_to_classes.reject{|k| k[/Dummy/]} # In case we are testing after Secure
+    assert_equal ["Node","Note","Letter","Post","Page","Project","Section","Skin","Reference"], node_changes
 
-    assert_equal node_changes, Page.change_to_classes_for_form
-    assert_equal node_changes, Note.change_to_classes_for_form
-    assert_equal node_changes, Reference.change_to_classes_for_form
+    assert_equal node_changes, Page.allowed_change_to_classes.reject{|k| k[/Dummy/]}
+    assert_equal node_changes, Project.allowed_change_to_classes.reject{|k| k[/Dummy/]}
+    assert_equal node_changes, Note.allowed_change_to_classes.reject{|k| k[/Dummy/]}
+    assert_equal node_changes, Reference.allowed_change_to_classes.reject{|k| k[/Dummy/]}
 
-    assert_equal [["Document", "Document"],
-     ["  TextDocument", "TextDocument"],
-     ["    Template", "Template"]], Document.change_to_classes_for_form
+    assert_equal ["Document","TextDocument","Template"], Document.allowed_change_to_classes.reject{|k| k[/Dummy/]}
     
-    assert_equal [["Image", "Image"]], Image.change_to_classes_for_form
+    assert_equal ["Image"], Image.allowed_change_to_classes.reject{|k| k[/Dummy/]}
     
-    assert_equal [["Contact", "Contact"]], Contact.change_to_classes_for_form
+    assert_equal ["Contact"], Contact.allowed_change_to_classes.reject{|k| k[/Dummy/]}
   end
   
   def test_match_one_node_only

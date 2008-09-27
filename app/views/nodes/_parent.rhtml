@@ -4,6 +4,7 @@
   <%= form_remote_tag(:url => node_path(@node[:zip]), :method => :put ) %>
     <div class='hidden'><input type='hidden' name='drive' value='parent'/></div>
     <% if @node[:parent_id] %><li><label><%= _('parent') %></label><%= select_id('node', 'parent_id') %></li><% end -%>
+    <li><label><%= _('class') %></label><%= select('node', 'klass', @node.class.change_to_classes_for_form) %></li>
     <li><label><%= _('name') %></label><%= text_field('node', 'name', :size=>15) %></li>
     <% if @node.kind_of?(Page) -%>
     <li><label><%= _('custom base url') %></label><%= check_box('node', 'custom_base') %></li>

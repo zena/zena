@@ -150,6 +150,7 @@ class Node < ActiveRecord::Base
   belongs_to         :site
   validate           :validate_node
   before_create      :node_before_create
+  before_save        :change_klass
   after_save         :spread_project_and_section
   after_save         :clear_children_fullpath
   after_create       :node_after_create
@@ -192,6 +193,11 @@ class Node < ActiveRecord::Base
     # Class list to which this class can change to
     def change_to_classes_for_form
       classes_for_form(:class => 'Node', :without => 'Document, Contact')
+    end
+    
+    # List of classes that a node can change to.
+    def allowed_change_to_classes
+      change_to_classes_for_form.map {|k,v| v}
     end
     
     # FIXME: how to make sure all sub-classes of Node are loaded before this is called ?
@@ -781,7 +787,7 @@ class Node < ActiveRecord::Base
   end
   
   def klass
-    @new_klass || vclass.to_s
+    @new_klass || @set_klass || vclass.to_s
   end
   
   def dyn_attribute_keys
@@ -790,12 +796,7 @@ class Node < ActiveRecord::Base
   
   def klass=(str)
     return if str == klass
-    allowed_classes = self.class.change_to_classes_for_form.map {|k,v| k}
-    if !allowed_classes.include?(k)
-      errors.add('klass', 'invalid')
-    else
-      @new_klass = str
-    end
+    @new_klass = str
   end
   
   # include virtual classes to check inheritance chain
@@ -1443,7 +1444,13 @@ class Node < ActiveRecord::Base
       
       errors.add('comment', 'you do not have the rights to do this') if @add_comment && !can_comment?
       
-      errors.add('klass', 'you do not have the rights to do this') if @new_klass && !can_drive?
+      if @new_klass
+        if !can_drive? || !self[:parent_id]
+          errors.add('klass', 'you do not have the rights to do this')
+        else
+          errors.add('klass', 'invalid') if !self.class.allowed_change_to_classes.include?(@new_klass)
+        end
+      end
     end
     
     # Called before destroy. An node must be empty to be destroyed
@@ -1566,18 +1573,36 @@ class Node < ActiveRecord::Base
       end
       remove_instance_variable(:@discussion) if defined?(@discussion) # force reload
       
-      if @new_klass
+      true
+    end
+    
+    def change_klass
+      if @new_klass && !new_record?
+        old_kpath = self.kpath
+        
         klass = Node.get_class(@new_klass)
         if klass.kind_of?(VirtualClass)
-          self[:vclass_id] = klass.kind_of?(VirtualClass) ? klass[:id] : 'NULL'
+          self[:vclass_id] = klass.kind_of?(VirtualClass) ? klass[:id] : nil
           self[:type]      = klass.real_class.to_s
         else
-          self[:vclass_id] = klass.kind_of?(VirtualClass) ? klass[:id] : 'NULL'
+          self[:vclass_id] = klass.kind_of?(VirtualClass) ? klass[:id] : nil
           self[:type]      = klass.to_s
         end
-        kpath = klass.kpath
-        Node.connection.execute "UPDATE nodes SET vclass_id = #{self[:vclass_id]}, kpath = #{kpath}, type = #{self[:type]} WHERE id = #{self[:id]} AND site_id = #{current_site[:id]}"
+        self[:kpath] = klass.kpath
         
+        if old_kpath[/^NPS/] && !self[:kpath][/^NPS/]
+          @spread_section_id = self[:section_id]
+        elsif !old_kpath[/^NPS/] && self[:kpath][/^NPS/]
+          @spread_section_id = self[:id]
+        end
+        
+        if old_kpath[/^NPP/] && !self[:kpath][/^NPP/]
+          @spread_project_id = self[:project_id]
+        elsif !old_kpath[/^NPP/] && self[:kpath][/^NPP/]
+          @spread_project_id = self[:id]
+        end
+        
+        @set_klass = @new_klass
         remove_instance_variable(:@new_klass)
       end
       
