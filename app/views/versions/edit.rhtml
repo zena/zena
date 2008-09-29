@@ -11,8 +11,12 @@
     <input type='hidden' name='edit' value='popup'/>
   </div>
   <div class='validate'>
-    <div><%= submit_to_remote('validate', _('validate'), :url => save_text_node_path(:id => @node[:zip]), :loading=>"$('loader').style.visibility = 'visible';", :complete=>"opener.window.location.href = opener.window.location.href; window.close();") %></div>
-    <div><%= submit_to_remote('save', _('save'), :url => save_text_node_path(:id => @node[:zip]), :loading=>"$('loader').style.visibility = 'visible';") %></div>
+    <div>
+      <input name="validate" onclick="return Zena.save('<%= save_text_node_path(:id => @node[:zip]) %>',this.form,true);" type="submit" value="<%= _('validate') %>" />
+    </div>
+    <div><%#= submit_to_remote('save', _('save'), :url => save_text_node_path(:id => @node[:zip]), :loading=>"$('loader').style.visibility = 'visible';") %>
+      <input name="save" onclick="return Zena.save('<%= save_text_node_path(:id => @node[:zip]) %>',this.form,false);" type="button" value="<%= _('save') %>" />
+    </div>
     <% unless @node.version.new_record? %>
     <div><%# FIXME = submit_to_remote('backup', _('backup'), :url=>{:action => 'backup', :controller=>'version', :id=>@node.v_id}, :loading=>"$('loader').style.visibility = 'visible';") %></div>
     <% end -%>
@@ -35,7 +39,12 @@ var current_tab = $('<%= partial[0] %>_tab');
 Event.observe(window, 'resize', function() { Zena.resizeElement('node_v_text'); } );
 Event.observe(window, 'resize', function() { Zena.resizeElement('node_v_text'); } );
 function popup_loaded() {
+<% if params[:close] == 'true' %>
+  opener.window.location.href = opener.window.location.href;
+  window.close();
+<% else -%>
   Zena.resizeElement('node_v_text');
+<% end -%>
 }
 
 $('node_form').getElements().each(function(input, index) {

@@ -19,6 +19,22 @@ Zena.version_diff = function(id, from, to) {
   new Ajax.Request('/z/version/diff/'+id+'?from=' + from.innerHTML + '&to=' + to.innerHTML, {asynchronous:true, evalScripts:true})
 }
 
+// save (does not use ajax when there is a file upload)
+Zena.save = function(url, form, close_on_complete) {
+  if ($('node_c_file')) {
+    form.submit();
+    // do not use ajax call
+    return true;
+  } else {
+    if (close_on_complete) {
+      new Ajax.Request(url, {asynchronous:true, evalScripts:true, onLoading:function(request){$('loader').style.visibility = 'visible';}, onComplete:function(request){opener.window.location.href = opener.window.location.href; window.close();}, parameters:Form.serialize(form)});
+    } else {
+      new Ajax.Request(url, {asynchronous:true, evalScripts:true, onLoading:function(request){$('loader').style.visibility = 'visible';}, parameters:Form.serialize(form)});
+    }
+    return false;
+  }
+}
+
 var diff_from = '';
 var diff_to = '';
 var diff_next_sel = 'from';
