@@ -188,7 +188,7 @@ class QueryBuilder
           end
           rest = rest[$&.size..-1]
           fld, type = $1, $2
-          unless field = field_or_param(fld, table, :filter)
+          unless field = field_or_attr(fld, table, :filter)
             @errors << "invalid field or value #{fld.inspect}"
             return
           end
@@ -242,7 +242,7 @@ class QueryBuilder
           end
           rest = rest[$&.size..-1]
           fld = $&
-          unless field = field_or_param(fld, table, :filter)
+          unless field = field_or_attr(fld, table, :filter)
             @errors << "invalid field or value #{fld.inspect}"
             return
           end
@@ -277,7 +277,7 @@ class QueryBuilder
             fld_name = clause
             direction = 'ASC'
           end
-          if fld = field_or_param(fld_name, table, :order)
+          if fld = field_or_attr(fld_name, table, :order)
             res << "#{fld} #{direction.upcase}"
           elsif fld.nil?
             @errors << "invalid field '#{fld_name}'"
@@ -308,6 +308,20 @@ class QueryBuilder
         " LIMIT #{$1}"
       else
         @errors << "invalid limit clause '#{limit}'"
+        nil
+      end
+    end
+    
+    def parse_paginate_clause(paginate)
+      return @offset unless paginate
+      if !@limit
+        # TODO: raise error ?
+        @errors << "invalid paginate clause '#{paginate}' (used without limit)"
+        nil
+      elsif (fld = map_literal(paginate, :ruby)) && (page_size = @limit[/ LIMIT (\d+)/,1])
+        " OFFSET \#{((#{fld}.to_i > 0 ? #{fld}.to_i : 1)-1)*#{page_size.to_i}}"
+      else
+        @errors << "invalid paginate clause '#{paginate}'"
         nil
       end
     end
@@ -453,8 +467,8 @@ class QueryBuilder
       end
     end
     
-    # Map a field to be used inside a query
-    def field_or_param(fld, table_name = table, context = nil)
+    # Map a field to be used inside a query. An attr is a field from table at index 0 = @node attribute.
+    def field_or_attr(fld, table_name = table, context = nil)
       if fld =~ /^\d+$/
         return fld
       elsif @select.join =~ / AS #{fld}/
@@ -466,7 +480,7 @@ class QueryBuilder
       elsif table_name
         map_field(fld, table_name, context)
       else
-        map_parameter(fld)
+        map_attr(fld)
       end
     end
     
@@ -503,15 +517,15 @@ class QueryBuilder
     def parse_context(clause, is_last = false)
       
       if fields = context_filter_fields(clause, is_last)
-        @where << "#{field_or_param(fields[0])} = #{field_or_param(fields[1], table(main_table,-1))}" if fields != :void
+        @where << "#{field_or_attr(fields[0])} = #{field_or_attr(fields[1], table(main_table,-1))}" if fields != :void
       else
         @errors << "invalid context '#{clause}'"
       end
     end
     
     # Map a litteral value to be used inside a query
-    def map_literal(value)
-      value.inspect
+    def map_literal(value, env = :sql)
+      env == :sql ? value.inspect : value
     end
     
     
@@ -524,7 +538,7 @@ class QueryBuilder
       end
     end
     
-    def map_parameter(fld)
+    def map_attr(fld)
       fld.to_s.upcase
     end
     
@@ -585,7 +599,11 @@ class QueryBuilder
           merge_alternate_queries(@alt_queries) if @alt_queries
 
           @limit  = parse_limit_clause(@offset_limit_order_group[:limit])
-          @offset = parse_offset_clause(@offset_limit_order_group[:offset])
+          if @offset_limit_order_group[:paginate]
+            @offset = parse_paginate_clause(@offset_limit_order_group[:paginate])
+          else
+            @offset = parse_offset_clause(@offset_limit_order_group[:offset])
+          end
 
 
           @group = parse_group_clause(@offset_limit_order_group[:group])
@@ -619,6 +637,7 @@ class QueryBuilder
         elements = @query.split(' from ')
         last_element = elements.last
         last_element, @offset_limit_order_group[:offset] = last_element.split(' offset ')
+        last_element, @offset_limit_order_group[:paginate] = last_element.split(' paginate ')
         last_element, @offset_limit_order_group[:limit]  = last_element.split(' limit ')
         last_element, @offset_limit_order_group[:order]  = last_element.split(' order by ')
         elements[-1], @offset_limit_order_group[:group]  = last_element.split(' group by ')

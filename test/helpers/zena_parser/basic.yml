@@ -1095,3 +1095,9 @@ date_context:
   src: "<r:date select='2008-03-02'><r:show date='current_date' format='%A %d.%m.%Y'/></r:date>"
   tem: "<%= format_date(\"2008-03-02\", \"%A %d.%m.%Y\") %>"
   res: "Sunday 02.03.2008"
+
+paginate:
+  context:
+    pak: 2
+  src: "<r:nodes in='site' limit='3' order='zip' paginate='pak' do='each' join=',' do='[id]'/>"
+  res: "14,15,16"

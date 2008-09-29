@@ -108,7 +108,7 @@ class NodeQuery < QueryBuilder
         end
       end
       
-      @where << "#{field_or_param(fields[0])} = #{field_or_param(fields[1], table(main_table,-1))}"
+      @where << "#{field_or_attr(fields[0])} = #{field_or_attr(fields[1], table(main_table,-1))}"
       true
     end
     
@@ -118,7 +118,7 @@ class NodeQuery < QueryBuilder
         if is_last
           # no need to load discussions, versions and all the mess
           add_table('comments')
-          @where << "#{table('comments')}.discussion_id = #{map_parameter('discussion_id')}"
+          @where << "#{table('comments')}.discussion_id = #{map_attr('discussion_id')}"
           return CommentQuery # class change
         else
           # parse_context(default_context_filter, true) if is_last
@@ -151,27 +151,27 @@ class NodeQuery < QueryBuilder
           # tagged in project (not equal to 'tagged from nodes in project')
           # remove caller join
           @distinct = true
-          @where << "#{field_or_param('id')} = #{table('links')}.#{rel.other_side} AND #{table('links')}.relation_id = #{rel[:id]}"
+          @where << "#{field_or_attr('id')} = #{table('links')}.#{rel.other_side} AND #{table('links')}.relation_id = #{rel[:id]}"
         else
-          @where << "#{field_or_param('id')} = #{table('links')}.#{rel.other_side} AND #{table('links')}.relation_id = #{rel[:id]} AND #{table('links')}.#{rel.link_side} = #{field_or_param('id', table(main_table,-1))}"
+          @where << "#{field_or_attr('id')} = #{table('links')}.#{rel.other_side} AND #{table('links')}.relation_id = #{rel[:id]} AND #{table('links')}.#{rel.link_side} = #{field_or_attr('id', table(main_table,-1))}"
         end
       else
         nil
       end
     end
     
-    def map_literal(value)
+    def map_literal(value, env = :sql)
       if value =~ /(.*?)\[(visitor|param):(\w+)\](.*)/
         val_start = $1 == '' ? '' : "#{$1.inspect} +"
         val_end   = $4 == '' ? '' : "+ #{$4.inspect}"
         case $2
         when 'visitor'
-          value = "\#{Node.connection.quote(\#{#{val_start}Node.zafu_attribute(visitor.contact, #{$3.inspect})#{val_end}})}"
+          value = env == :sql ? "\#{Node.connection.quote(\#{#{val_start}Node.zafu_attribute(visitor.contact, #{$3.inspect})#{val_end}})}" : nil
         when 'param'
-          value = "\#{Node.connection.quote(#{val_start}params[:#{$3}].to_s#{val_end})}"
+          value = env == :sql ? "\#{Node.connection.quote(#{val_start}params[:#{$3}].to_s#{val_end})}" : "params[:#{$3}]"
         end
       else
-        value = Node.connection.quote(value)
+        value = env == :sql ? Node.connection.quote(value) : nil
       end
     end
     
@@ -237,7 +237,7 @@ class NodeQuery < QueryBuilder
       true
     end
     
-    def map_parameter(fld)
+    def map_attr(fld, env = :sql)
       case fld
       when 'project_id', 'section_id', 'discussion_id'
         @uses_node_name = true
@@ -250,6 +250,20 @@ class NodeQuery < QueryBuilder
         # bad parameter
         @errors << "invalid parameter '#{fld}'"
         "0"
+      end
+    end
+    
+    def parse_paginate_clause(paginate)
+      return @offset unless paginate
+      if !@limit
+        # TODO: raise error ?
+        @errors << "invalid paginate clause '#{paginate}' (used without limit)"
+        nil
+      elsif (fld = map_literal("[#{paginate}]", :ruby)) && (page_size = @limit[/ LIMIT (\d+)/,1])
+        " OFFSET \#{((#{fld}.to_i > 0 ? #{fld}.to_i : 1)-1)*#{page_size.to_i}}"
+      else
+        @errors << "invalid paginate clause '#{paginate}'"
+        nil
       end
     end
     

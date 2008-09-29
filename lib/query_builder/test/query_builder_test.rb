@@ -54,7 +54,7 @@ class TestQuery < QueryBuilder
         return false
       end
       
-      @where << "#{field_or_param(fields[0])} = #{field_or_param(fields[1], table(main_table,-1))}"
+      @where << "#{field_or_attr(fields[0])} = #{field_or_attr(fields[1], table(main_table,-1))}"
     end
 
     # Direct filter
@@ -76,7 +76,7 @@ class TestQuery < QueryBuilder
       when 'users'
         parse_context(default_context_filter, true) if is_last
         add_table('users')
-        @where << "#{table('users')}.node_id = #{field_or_param('id')}"
+        @where << "#{table('users')}.node_id = #{field_or_attr('id')}"
         return TestUserQuery # class change
       else
         return nil
@@ -100,7 +100,7 @@ class TestQuery < QueryBuilder
       
       add_table('links')
       # source --> target
-      @where << "#{field_or_param('id')} = #{table('links')}.#{fields[2]} AND #{table('links')}.relation_id = #{fields[1]} AND #{table('links')}.#{fields[0]} = #{field_or_param('id', table(main_table,-1))}"
+      @where << "#{field_or_attr('id')} = #{table('links')}.#{fields[2]} AND #{table('links')}.relation_id = #{fields[1]} AND #{table('links')}.#{fields[0]} = #{field_or_attr('id', table(main_table,-1))}"
     end
     
     # Overwrite this and take car to check for valid fields.
@@ -134,7 +134,7 @@ class TestUserQuery < QueryBuilder
     when 'objects'
       parse_context(default_context_filter, true) if is_last
       add_table('objects')
-      @where << "#{table('objects')}.id = #{field_or_param('node_id')}"
+      @where << "#{table('objects')}.id = #{field_or_attr('node_id')}"
       return TestUserQuery # class change
     else
       return nil
@@ -152,7 +152,7 @@ class TestUserQuery < QueryBuilder
   def parse_context(clause, is_last = false)
     
     if fields = context_filter_fields(clause, is_last)
-      @where << "#{field_or_param(fields[0])} = #{field_or_param(fields[1], table(main_table,-1))}" if fields != :void
+      @where << "#{field_or_attr(fields[0])} = #{field_or_attr(fields[1], table(main_table,-1))}" if fields != :void
     else
       @errors << "invalid context '#{clause}'"
     end
@@ -173,7 +173,7 @@ class TestUserQuery < QueryBuilder
     end
   end
   
-  def map_parameter(fld)
+  def map_attr(fld)
     fld.to_s.upcase
   end
 end

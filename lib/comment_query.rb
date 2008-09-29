@@ -19,7 +19,7 @@ class CommentQuery < QueryBuilder
     case rel
     when 'author'
       add_table('users')
-      @where << "#{table('users')}.id = #{field_or_param('author_id')}"
+      @where << "#{table('users')}.id = #{field_or_attr('author_id')}"
       # should we move on to Contact ?
     when 'node', 'nodes'
       add_table('discussions')
@@ -74,7 +74,7 @@ class CommentQuery < QueryBuilder
     end
   end
   
-  def map_parameter(fld)
+  def map_attr(fld)
     # error
     nil
   end

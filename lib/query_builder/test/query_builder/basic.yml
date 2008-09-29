@@ -37,6 +37,10 @@ offset:
   src: "objects in project limit 2 offset 3"
   res: "SELECT objects.* FROM objects WHERE objects.project_id = PROJECT_ID LIMIT 2 OFFSET 3"
 
+paginate:
+  src: "objects in site limit 2 paginate p"
+  res: "SELECT objects.* FROM objects LIMIT 2 OFFSET #{((p.to_i > 0 ? p.to_i : 1)-1)*2}"
+
 recipients_or_objects:
   src:
     - "recipients"

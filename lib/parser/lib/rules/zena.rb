@@ -2116,9 +2116,15 @@ END_TXT
         parts[-1] << " order by #{order}" unless parts[0] =~ /order by/
       end
       
-      [:limit, :offset].each do |k|
-        next unless params[k]
-        parts[-1] << " #{k} #{params[k]}" unless parts[0] =~ / #{k} /
+      if paginate = params[:paginate]
+        page_size = params[:limit].to_i
+        page_size = 20 if page_size < 1
+        parts[-1] << " limit #{page_size} paginate param:#{paginate}"
+      else
+        [:limit, :offset].each do |k|
+          next unless params[k]
+          parts[-1] << " #{k} #{params[k]}" unless parts[0] =~ / #{k} /
+        end
       end
       
       finders = [parts.join(' from ')]
@@ -2482,8 +2488,7 @@ END_TXT
     end
     
     # Return a different name on each call
-    def unique_name
-      base = context_name
+    def unique_name(base = context_name)
       root.next_name_index(base, base == @name).gsub(/[^\d\w\/]/,'_')
     end
     

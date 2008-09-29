@@ -1,12 +1,12 @@
 require File.join(File.dirname(__FILE__), '..','test_helper')
 require File.join(File.dirname(__FILE__), '..','..','lib','yaml_test')
-begin
-  require 'turn'
-  Test::Unit::UI::Console::TestRunner.use_progressbar = true
-rescue MissingSourceFile
-  # ignore missing 'turn' testing gem
-end
-
+#begin
+#  require 'turn'
+#  Test::Unit::UI::Console::TestRunner.use_progressbar = true
+#rescue MissingSourceFile
+#  # ignore missing 'turn' testing gem
+#end
+#
 module TestHelper
 end
 ActionController::Routing::Routes.add_route '----/test/:action', :controller => 'test'
