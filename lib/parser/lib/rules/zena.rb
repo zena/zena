@@ -147,14 +147,14 @@ module Zena
         @params[:attr] = $1
       elsif @method =~ /\A(\w+)\s+(\w+)\s+(.+)$/
         # 'pages where name ...'
-        @params[:method] = @method
+        @params[:select] = @method
         @method = 'context'
       end
       
       if @method == 'with' || self.respond_to?("r_#{@method}")
         # ok
       else
-        @params[:method] = @method
+        @params[:select] = @method
         @method = 'context'
       end
     end
@@ -1851,9 +1851,9 @@ END_TXT
     def r_calendar
       if @context[:block] == self
         # called from self (storing template / rendering)
-        size     = (params[:size] || 'large').to_sym
-        finder   = params[:find] || 'notes in project'
-        ref_date = params[:date] || 'event_at'
+        size     = (params[:size]  || 'large').to_sym
+        finder   = params[:select] || 'notes in project'
+        ref_date = params[:date]   || 'event_at'
         type     = params[:type] ? params[:type].to_sym : :month
           
         if @blocks == []
@@ -1944,7 +1944,7 @@ END_TXT
     
     # use all other tags as relations
     def r_unknown
-      @params[:method] = @method
+      @params[:select] = @method
       r_context
     end
     
@@ -1954,10 +1954,10 @@ END_TXT
     # FIXME: 'else' clause has been removed, find a solution to put it back.
     def r_context
       # DRY ! (build_finder_for, block)
-      return parser_error("missing 'method' parameter") unless method = @params[:method]
+      return parser_error("missing 'method' parameter") unless method = @params[:select]
       
       context = node_class.zafu_known_contexts[method]
-      if context && @params.keys == [:method]
+      if context && @params.keys == [:select]
         klass = context[:node_class]
         # hack to store last 'Node' context until we fix node(Node) stuff:
         previous_node = node_kind_of?(Node) ? node : @context[:previous_node]
@@ -1969,7 +1969,7 @@ END_TXT
           do_var(  "#{node}.#{method}", context.merge(:previous_node => previous_node) )
         end
       elsif node_kind_of?(Node)
-        count   = ['first','all'].include?(@params[:find]) ? @params[:find].to_sym : nil
+        count   = ['first','all','count'].include?(@params[:find]) ? @params[:find].to_sym : nil
         count ||= Node.plural_relation?(method) ? :all : :first
         finder, klass = build_finder_for(count, method, @params)
         return unless finder
@@ -2064,14 +2064,24 @@ END_TXT
       end
       
       # make sure we do not use a new record in a find query:
-      sql_query, query_errors, uses_node_name, klass = Node.build_find(count, pseudo_sql, :node_name => node_name, :raw_filters => raw_filters, :ref_date => "\#{#{current_date}}")
+      query = Node.build_find(count, pseudo_sql, :node_name => node_name, :raw_filters => raw_filters, :ref_date => "\#{#{current_date}}")
+      
+      sql_query = count == :count ? query.count_sql : query.to_sql
+      query_errors, uses_node_name, klass = query.errors, query.uses_node_name, query.main_class
       
       unless sql_query
         out parser_error(query_errors.join(' '), pseudo_sql.join(', '))
         return nil
       end
+      
       node_class_param = klass == Node ? '' : ", #{klass}"
       res = "#{node_name}.do_find(#{count.inspect}, \"#{sql_query}\", #{!uses_node_name}#{node_class_param})"
+      
+      if count == :count
+        out "<%= #{res} %>"
+        return nil
+      end
+      
       if params[:else]
         else_query, else_klass = build_finder_for(count, params[:else], {})
         if else_query && (else_klass == klass || klass.ancestors.include?(else_klass) || else_klass.ancestors.include?(klass))

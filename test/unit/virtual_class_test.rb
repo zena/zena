@@ -164,7 +164,8 @@ class VirtualClassTest < ZenaTestUnit
     login(:ant)
     node = secure!(Node) { nodes(:zena) }
     #assert letters = node.find(:all,'letters')
-    sql,errors,uses_node_name = Node.build_find(:all, 'letters', :node_name => 'node')
+    query = Node.build_find(:all, 'letters', :node_name => 'node')
+    sql, uses_node_name = query.to_sql, query.uses_node_name
     assert letters = node.do_find(:all, eval("\"#{sql}\""), :ignore_source => !uses_node_name)
     assert_equal 1, letters.size
     assert letters[0].vkind_of?('Letter')

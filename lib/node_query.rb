@@ -365,11 +365,10 @@ module Zena
       # Examples: 'todos in section where d_priority = high and d_assigned = [visitor:name]'
       #def build_find(count, pseudo_sql, node_name, raw_filters = nil, ignore_warnings = false, ref_date = nil)
       def build_find(count, pseudo_sql, opts = {})
-        if count != :all
+        if count == :first
           opts[:limit] = 1
         end
-        query = NodeQuery.new(pseudo_sql, opts.merge(:custom_query_group => visitor.site.host))
-        [query.to_sql, query.errors, query.uses_node_name, query.main_class]
+        NodeQuery.new(pseudo_sql, opts.merge(:custom_query_group => visitor.site.host))
       end
     end
     
@@ -380,17 +379,22 @@ module Zena
       def do_find(count, query, ignore_source = false, klass = Node)
         return nil if query.empty?
         return nil if (new_record? && !ignore_source) # do not run query (might contain nil id)
-        res = klass.find_by_sql(query)
-        if count == :all
+        
+        case count
+        when :all
+          res = klass.find_by_sql(query)
           if res == []
             nil
           else
-            res.each{|r| visitor.visit(r)}
+            res.each {|r| visitor.visit(r)}
             res
           end
-        elsif res = res.first
-          visitor.visit(res)
+        when :first
+          res = klass.find_by_sql(query).first
+          visitor.visit(res) if res
           res
+        when :count
+          klass.count_by_sql(query)
         else
           nil
         end
@@ -404,7 +408,7 @@ module Zena
         if rel.size == 1 && self.class.zafu_known_contexts[rel.first]
           self.send(rel.first)
         else
-          sql, errors = Node.build_find(count, rel, :node_name => 'self')
+          sql = Node.build_find(count, rel, :node_name => 'self').to_sql
           if sql
             do_find(count, eval("\"#{sql}\""))
           else

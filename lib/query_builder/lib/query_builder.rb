@@ -83,6 +83,27 @@ class QueryBuilder
     "SELECT #{@select.join(',')} FROM #{table_list.flatten.join(',')}" + (@where == [] ? '' : " WHERE #{@where.reverse.join(' AND ')}") + @group.to_s + @order.to_s + @limit.to_s + @offset.to_s
   end
   
+  def count_sql
+    return nil if !valid?
+    return "SELECT COUNT(*) FROM #{@main_table} WHERE 0" if @tables.empty? # all alternate queries invalid and 'ignore_warnings' set.
+    
+    table_list = []
+    @tables.each do |t|
+      table_name = t.split(/\s+/).last # objects AS ob1
+      if joins = @join_tables[table_name]
+        table_list << "#{t} #{joins.join(' ')}"
+      else
+        table_list << t
+      end
+    end
+    
+    if @distinct
+      @group ||= @tables.size > 1 ? " GROUP BY #{table}.id" : " GROUP BY id"
+    end
+    
+    "SELECT COUNT(*) FROM #{table_list.flatten.join(',')}" + (@where == [] ? '' : " WHERE #{@where.reverse.join(' AND ')}") + @group.to_s
+  end
+  
   def valid?
     @errors == []
   end

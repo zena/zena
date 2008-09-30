@@ -16,7 +16,8 @@ class NodeQueryTest < ZenaTestUnit
     $_test_site = params[:site] || 'zena'
     login context[:visitor].to_sym
     
-    sql, errors, uses_node_name, node_class = Node.build_find(:all,@@test_strings[file][test]['src'] || test.gsub('_',' '), context)
+    query = Node.build_find(:all,@@test_strings[file][test]['src'] || test.gsub('_',' '), context)
+    sql, errors, uses_node_name, node_class = query.to_sql, query.errors, query.uses_node_name, query.main_class
     class_prefix = (node_class != Node ? "#{node_class.to_s}: " : '')
     
     if test_err = @@test_strings[file][test]['err']
@@ -63,7 +64,7 @@ class NodeQueryTest < ZenaTestUnit
   def test_do_find_in_new_node
     login(:tiger)
     assert var1_new = secure!(Node) { Node.get_class("Post").new }
-    sql, errors = Node.build_find(:all, 'posts in site', :node_name => 'self')
+    sql = Node.build_find(:all, 'posts in site', :node_name => 'self').to_sql
     assert_nil var1_new.do_find(:all, eval("\"#{sql}\""))
   end
   
@@ -104,6 +105,13 @@ class NodeQueryTest < ZenaTestUnit
     tagged = node.find(:all, 'tagged')
     # cleanWater, opening
     assert_equal [nil, "cold"], tagged.map{|t| t.l_comment}
+  end
+  
+  def test_find_count
+    login(:ant)
+    page = secure!(Node) { nodes(:cleanWater) }
+    sql = Node.build_find(:all, 'nodes where name like "a%" in site', :node_name => 'self').count_sql
+    assert_equal 3, page.do_find(:count, eval("\"#{sql}\""))
   end
 
   make_tests

@@ -1010,7 +1010,8 @@ class Node < ActiveRecord::Base
   def icon
     return nil if new_record?
     return @icon if defined? @icon
-    sql, errors, uses_node_name = Node.build_find(:first, ['icon', 'image'], :node_name => 'self')
+    query = Node.build_find(:first, ['icon', 'image'], :node_name => 'self')
+    sql, uses_node_name = query.to_sql, query.uses_node_name
     @icon = sql ? do_find(:first, eval("\"#{sql}\""), :ignore_source => !uses_node_name) : nil
   end
   

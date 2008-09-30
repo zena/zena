@@ -181,13 +181,20 @@ end
 class QueryTest < Test::Unit::TestCase
   yaml_test
   
-  def parse(value, opts)
-    query = TestQuery.new(value, opts)
+  def parse(key, source, opts)
+    query = TestQuery.new(source, opts)
     
-    (query.main_class != Object ? "#{query.main_class.to_s}: " : '') + if res = query.to_sql
-      res
+    case key
+    when 'res'
+      (query.main_class != Object ? "#{query.main_class.to_s}: " : '') + if res = query.to_sql
+        res
+      else
+        query.errors.join(", ")
+      end
+    when 'count'
+      query.count_sql
     else
-      query.errors.join(", ")
+      "parse not implemented for '#{key}' in query_builder_test.rb"
     end
   end
   

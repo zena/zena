@@ -52,3 +52,7 @@ custom_query:
     custom_query_group: test
   src: "abc"
   res: "SELECT a,34 AS number,c FROM test WHERE 3 AND 2 AND 1 ORDER BY a"
+
+count_sql:
+  src: "objects in project"
+  count: "SELECT COUNT(*) FROM objects WHERE objects.project_id = PROJECT_ID"

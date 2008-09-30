@@ -1101,3 +1101,7 @@ paginate:
     pak: 2
   src: "<r:nodes in='site' limit='3' order='zip' paginate='pak' do='each' join=',' do='[id]'/>"
   res: "14,15,16"
+
+find_count:
+  src: "<r:nodes in='site' where='name like \"a%\"' find='count'/>"
+  res: "3"
