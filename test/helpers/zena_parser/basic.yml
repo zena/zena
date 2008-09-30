@@ -1105,3 +1105,9 @@ paginate:
 find_count:
   src: "<r:nodes in='site' where='name like \"a%\"' find='count'/>"
   res: "3"
+
+link_page_next:
+  context:
+    pak: 2
+  src: "<r:nodes in='site' limit='3' order='zip' paginate='pak'><r:link page='previous'/> | <r:show var='pak'/> | <r:link page='next'/> || <r:each join=',' do='[id]'/></r:nodes>"
+  res: "link to page 1 | 2 | link to page 3 || 14,15,16"

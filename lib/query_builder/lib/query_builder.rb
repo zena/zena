@@ -108,6 +108,10 @@ class QueryBuilder
     @errors == []
   end
   
+  def pagination_key
+    @offset_limit_order_group[:paginate]
+  end
+  
   def main_class
     Module.const_get(@@main_class[self.class])
   end

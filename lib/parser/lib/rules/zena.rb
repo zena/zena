@@ -1729,7 +1729,12 @@ END_TXT
     # <r:link href='node'><r:trans attr='lang'/></r:link>
     # <r:link href='node' tattr='lang'/>
     # <r:link update='dom_id'/>
+    # <r:link page='next'/> <r:link page='previous'/> <r:link page='list'/>
     def r_link
+      if @params[:page]
+        return pagination_links
+      end
+      
       if @blocks.size > 1 || (@blocks.size == 1 && !@blocks.first.kind_of?(String))
         text_mode = :raw
         text = expand_with
@@ -1820,6 +1825,30 @@ END_TXT
         end
       end
       
+    end
+    
+    
+    # <r:link page='next'/> <r:link page='previous'/> <r:link page='list'/>
+    def pagination_links
+      return parser_error("not in pagination scope") unless pagination_key = @context[:paginate]
+      case @params[:page]
+      when 'previous'
+        out "<% if set_#{pagination_key}_previous = (set_#{pagination_key} > 1 ? set_#{pagination_key} - 1 : nil) -%>"
+        @context[:vars] ||= []
+        @context[:vars] << "#{pagination_key}_previous"
+        out @blocks == [] ? "link to page <%= set_#{pagination_key}_previous %>" : expand_with
+        out "<% end -%>"
+      when 'next'
+        out "<% if set_#{pagination_key}_next = (set_#{pagination_key}_count - set_#{pagination_key} > 0 ? params[#{pagination_key.to_sym.inspect}].to_i + 1 : nil) -%>"
+        @context[:vars] ||= []
+        @context[:vars] << "#{pagination_key}_next"
+        out @blocks == [] ? "link to page <%= set_#{pagination_key}_next %>" : expand_with
+        out "<% end -%>"
+      when 'list'
+        "pagination list helper..."
+      else
+        parser_error("unkown 'page' option #{@params[:page].inspect} should be ('previous', 'next' or 'list')")
+      end
     end
     
     def r_img
@@ -1963,15 +1992,15 @@ END_TXT
         previous_node = node_kind_of?(Node) ? node : @context[:previous_node]
         if klass.kind_of?(Array)
           # plural
-          do_list( "#{node}.#{method}", context.merge(:node_class => klass[0], :previous_node => previous_node) )
+          do_list( "#{node}.#{method}", nil, context.merge(:node_class => klass[0], :previous_node => previous_node) )
         else
           # singular
-          do_var(  "#{node}.#{method}", context.merge(:previous_node => previous_node) )
+          do_var(  "#{node}.#{method}", nil, context.merge(:previous_node => previous_node) )
         end
       elsif node_kind_of?(Node)
         count   = ['first','all','count'].include?(@params[:find]) ? @params[:find].to_sym : nil
         count ||= Node.plural_relation?(method) ? :all : :first
-        finder, klass = build_finder_for(count, method, @params)
+        finder, klass, query = build_finder_for(count, method, @params)
         return unless finder
         if node_kind_of?(Node) && !klass.ancestors.include?(Node)
           # moving out of node: store last Node
@@ -1979,7 +2008,7 @@ END_TXT
         end
         if count == :all
           # plural
-          do_list( finder, :node_class => klass)
+          do_list( finder, query, :node_class => klass)
         # elsif count == :count
         #   "<%= #{build_finder_for(count, method, @params)} %>"
         else
@@ -2066,31 +2095,28 @@ END_TXT
       # make sure we do not use a new record in a find query:
       query = Node.build_find(count, pseudo_sql, :node_name => node_name, :raw_filters => raw_filters, :ref_date => "\#{#{current_date}}")
       
-      sql_query = count == :count ? query.count_sql : query.to_sql
-      query_errors, uses_node_name, klass = query.errors, query.uses_node_name, query.main_class
-      
-      unless sql_query
+      unless query.valid?
         out parser_error(query_errors.join(' '), pseudo_sql.join(', '))
         return nil
       end
       
-      node_class_param = klass == Node ? '' : ", #{klass}"
-      res = "#{node_name}.do_find(#{count.inspect}, \"#{sql_query}\", #{!uses_node_name}#{node_class_param})"
-      
+        
       if count == :count
-        out "<%= #{res} %>"
+        out "<%= #{query.finder(:count)} %>"
         return nil
       end
       
+      klass = query.main_class
+      
       if params[:else]
-        else_query, else_klass = build_finder_for(count, params[:else], {})
-        if else_query && (else_klass == klass || klass.ancestors.include?(else_klass) || else_klass.ancestors.include?(klass))
-          ["(#{res} || #{else_query})", klass]
+        finder, else_class, else_query = build_finder_for(count, params[:else], {})
+        if else_query.valid? && (else_class == klass || klass.ancestors.include?(else_class) || else_class.ancestors.include?(klass))
+          ["(#{query.finder(count)} || #{else_query.finder(count)})", query]
         else
-          [res, klass]
+          [query.finder(count), query.main_class, query]
         end
       else
-        [res, klass]
+        [query.finder(count), query.main_class, query]
       end
     end
     
@@ -2129,7 +2155,7 @@ END_TXT
       if paginate = params[:paginate]
         page_size = params[:limit].to_i
         page_size = 20 if page_size < 1
-        parts[-1] << " limit #{page_size} paginate param:#{paginate}"
+        parts[-1] << " limit #{page_size} paginate param:#{paginate.gsub(/[^a-z_A-Z]/,'')}"
       else
         [:limit, :offset].each do |k|
           next unless params[k]
@@ -2331,7 +2357,7 @@ END_TXT
       out "<% end -%>" if var_finder
     end
     
-    def do_list(list_finder, opts={})
+    def do_list(list_finder, query, opts={})
       clear_dom_scope
       
       @context.merge!(opts)          # pass options from 'zafu_known_contexts' to @context
@@ -2344,7 +2370,15 @@ END_TXT
         
         @context[:need_link_id] = form_block.need_link_id
         
-        out "<% if (#{list_var} = #{list_finder}) || (#{node}.#{node_kind_of?(Comment) ? "can_comment?" : "can_write?"} && #{list_var}=[]) -%>"    
+        out "<% if (#{list_var} = #{list_finder}) || (#{node}.#{node_kind_of?(Comment) ? "can_comment?" : "can_write?"} && #{list_var}=[]) -%>"
+        if query && (pagination_key = query.pagination_key)
+          out "<% set_#{pagination_key}_count = #{query.finder(:count)}; set_#{pagination_key} = params[:#{pagination_key}].to_i -%>"
+          @context[:paginate] = pagination_key
+          @context[:vars] ||= []
+          @context[:vars] << "#{pagination_key}_count"
+          @context[:vars] << "#{pagination_key}"
+        end
+        
         # should we publish ?
         publish_after_save ||= form_block ? form_block.params[:publish] : nil
         publish_after_save ||= descendant('edit') ? descendant('edit').params[:publish] : nil
@@ -2380,6 +2414,15 @@ END_TXT
         else
           out "<% if nil -%>"
         end
+        
+        if query && query.pagination_key && (pagination_key = query.pagination_key[/param:([a-zA-Z_]+)/,1])
+          out "<% set_#{pagination_key}_count = #{query.finder(:count)}; set_#{pagination_key} = params[:#{pagination_key}].to_i -%>"
+          @context[:paginate] = pagination_key
+          @context[:vars] ||= []
+          @context[:vars] << "#{pagination_key}_count"
+          @context[:vars] << "#{pagination_key}"
+        end
+        
         res = expand_with(:list=>list_var, :in_if => true)
         out render_html_tag(res)
         out "<% end -%>"

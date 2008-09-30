@@ -2,7 +2,7 @@ require File.join(File.dirname(__FILE__) , 'query_builder', 'lib', 'query_builde
 require 'yaml'
 
 class NodeQuery < QueryBuilder
-  attr_reader :context, :uses_node_name
+  attr_reader :context, :uses_node_name, :node_name
   set_main_table 'nodes'
   set_main_class 'Node'
   
@@ -45,6 +45,17 @@ class NodeQuery < QueryBuilder
       @errors += @errors_unless_safe_links
     end
     @distinct = true if @tables.include?('versions')
+  end
+  
+  # Erb finder used by zafu
+  def finder(count)
+    return 'nil' unless valid?
+    case count
+    when :count
+      "#{node_name}.do_find(:count, \"#{count_sql}\", #{!uses_node_name}, #{main_class})"
+    else
+      "#{node_name}.do_find(#{count.inspect}, \"#{to_sql}\", #{!uses_node_name}, #{main_class})"
+    end
   end
   
   private
