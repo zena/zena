@@ -19,7 +19,6 @@ class LinksControllerTest < ZenaTestController
     post 'create', 'node_id' => nodes_zip(:letter), 'link' => {'other_zip' => nodes_zip(:zena).to_s, 'role' => 'calendar', 'comment' => 'super icon'}
     assert_response :success
     node = assigns(:node)
-    puts node.errors.inspect
     node = secure!(Node) { nodes(:letter) }
     assert calendar = node.find(:first, 'calendar')
     assert_equal nodes_id(:zena), calendar[:id]

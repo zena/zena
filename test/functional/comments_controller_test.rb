@@ -34,7 +34,7 @@ class CommentsControllerTest < ZenaTestController
   end
   
   def test_cannot_update
-    login(:lion)
+    login(:ant)
     put 'update', 'id'=>comments_id(:tiger_says_inside), 'comment'=>{'title'=>'other title', 'text' => 'other text'}
     assert_response :redirect
     assert_redirected_to zen_path(nodes(:status))

@@ -14,25 +14,26 @@ class IformatsControllerTest < ZenaTestController
   
   def test_only_admin_can_create
     login(:tiger)
-    post 'create', :iformat=>{:name => 'super', :size => 'keep'}
+    post 'create', :iformat=>{:name => 'super', :size => 'limit', :height => 20, :width => 20}
     assert_response 404
   end
   
   def test_create_new
     login(:lion)
-    post 'create', :iformat=>{:name => 'super', :size => 'keep'}
+    post 'create', :iformat=>{:name => 'super', :size => 'limit', :height => 20, :width => 20}
     assert_response :success
     imf = assigns['iformat']
     assert_kind_of Iformat, imf
+    err imf
     assert !imf.new_record?, "Not a new record"
     assert_equal 'super', imf[:name]
-    assert_equal 0, imf[:size]
+    assert_equal Iformat::SIZES.index('limit'), imf[:size]
     assert_equal sites_id(:zena), imf[:site_id]
   end
   
   def test_create_same_name
     login(:lion)
-    post 'create', :iformat=>{:name => 'med', :size => 'keep'}
+    post 'create', :iformat=>{:name => 'med', :size => 'limit', :height => 20, :width => 20}
     assert_response :success
     imf = assigns['iformat']
     assert imf.new_record?, "New record"
