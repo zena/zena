@@ -1121,7 +1121,5 @@ link_page_next:
   res: "<a href='/oo/projects/cleanWater/page22.html?pak=1'>1</a> | 2 | <a href='/oo/projects/cleanWater/page22.html?pak=3'>3</a> || 14,15,16"
 
 link_page_next_with_block:
-  context:
-    pak: 2
   src: "<r:nodes in='site' limit='3' order='zip' paginate='pak'><r:link page='next' do='t'>next</r:link></r:nodes>"
-  res: "<a href='/oo/projects/cleanWater/page22.html?pak=3'>next</a>"
+  res: "<a href='/oo/projects/cleanWater/page22.html?pak=2'>next</a>"

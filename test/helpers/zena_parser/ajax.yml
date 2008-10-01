@@ -210,3 +210,9 @@ include_update_target:
 id_in_each_group_should_be_scoped:
   src: "<ul do='comments from nodes in site' do='group' by='discussion_id'><li do='each_group'><r:node do='block' do='swap' states='1,2' attr='custom_a' do='[custom_a]'/></li></ul>"
   tem: "/grp_list1.each.*<div id='list1_<%= var1.zip %>/"
+
+link_page_next:
+  context:
+    pak: 2
+  src: "<div id='foo' do='block' do='nodes in site' limit='3' order='zip' paginate='pak'><r:link page='previous'/> | <r:show var='pak'/> | <r:link update='foo' page='next'/> || <r:each join=',' do='[id]'/></div>"
+  res: "/22/zafu\?pak=1.*.*dom_id=foo.*>1</a> \| 2 \| .*22/zafu\?pak=3.*dom_id=foo.*>3</a>/"

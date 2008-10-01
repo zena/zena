@@ -1737,16 +1737,22 @@ END_TXT
         return unless target = find_target(upd)
         link_to_update(target)
       else
-        link_to_node
+        make_link
       end
     end
     
-    def link_to_node(opts = {})
-      url_params   = opts[:url_params] || {}
-      default_text = opts[:default_text]
+    def make_link(options = {})
+      url_params   = options[:url_params] || {}
+      default_text = options[:default_text]
       params = @params.dup
       
       opts = {}
+      if upd = params.delete(:update)
+        return unless remote_target = find_target(upd)
+      else
+        # use closest block parent
+        remote_target = ancestor('block')
+      end
       
       if href = params.delete(:href)
         if lnode = find_stored(Node, href)
@@ -1804,31 +1810,58 @@ END_TXT
         url_params[k] = params[k]
       end
       
-      url_params.each do |k,v|
-        if k == :date
-          if v == 'current_date'
-            url_params[k] = current_date
-          elsif v =~ /\A\d/
-            url_params[k] = v.inspect
-          elsif v =~ /\[/
+      # TODO: merge these two url_params cleanup things into something cleaner.
+      if remote_target
+        # ajax
+        url_params_list = []
+        url_params.each do |k,v|
+          if k == :date
+            if v == 'current_date'
+              str = "\#{#{current_date}}"
+            elsif v =~ /\A\d/
+              str = CGI.escape(v.gsub('"',''))
+            elsif v =~ /\[/
+              attribute, static = parse_attributes_in_value(v.gsub('"',''), :erb => false)
+              str = static ? CGI.escape(attribute) : "\#{CGI.escape(\"#{attribute}\")}"
+            else
+              str = "\#{CGI.escape(#{node_attribute(v)})}"
+            end
+          else  
+            attribute, static = parse_attributes_in_value(v.gsub('"',''), :erb => false)
+            str = static ? CGI.escape(attribute) : "\#{CGI.escape(\"#{attribute}\")}"
+          end
+          url_params_list << "#{k.gsub('"','')}=#{str}"
+        end
+        pre_space + link_to_update(remote_target, :node_id => "#{lnode}.zip", :url_params => url_params_list, :default_text => default_text, :html_params => html_params)
+      else
+        # direct link
+        url_params.each do |k,v|
+          if k == :date
+            if v == 'current_date'
+              url_params[k] = current_date
+            elsif v =~ /\A\d/
+              url_params[k] = v.inspect
+            elsif v =~ /\[/
+              attribute, static = parse_attributes_in_value(v.gsub('"',''), :erb => false)
+              url_params[k] = "\"#{attribute}\""
+            else
+              url_params[k] = node_attribute(v)
+            end
+          else  
             attribute, static = parse_attributes_in_value(v.gsub('"',''), :erb => false)
             url_params[k] = "\"#{attribute}\""
-          else
-            url_params[k] = node_attribute(v)
           end
-        else  
-          attribute, static = parse_attributes_in_value(v.gsub('"',''), :erb => false)
-          url_params[k] = "\"#{attribute}\""
         end
-      end
-      
-      opts_str = ''
-      opts.merge!(url_params)
-      opts.keys.sort {|a,b| a.to_s <=> b.to_s }.each do |k|
-        opts_str << ",:#{k.to_s.gsub(/[^a-z_A-Z_]/,'')}=>#{opts[k]}"
-      end
         
-      pre_space + "<a#{params_to_html(html_params)} href='<%= zen_path(#{lnode}#{opts_str}) %>'>#{text_for_link(default_text)}</a>"
+        url_params.merge!(opts)
+        
+        opts_str = ''
+        url_params.keys.sort {|a,b| a.to_s <=> b.to_s }.each do |k|
+          opts_str << ",:#{k.to_s.gsub(/[^a-z_A-Z_]/,'')}=>#{url_params[k]}"
+        end
+        
+        pre_space + "<a#{params_to_html(html_params)} href='<%= zen_path(#{lnode}#{opts_str}) %>'>#{text_for_link(default_text)}</a>"
+      end
     end
     
     # <r:link page='next'/> <r:link page='previous'/> <r:link page='list'/>
@@ -1839,16 +1872,17 @@ END_TXT
         out "<% if set_#{pagination_key}_previous = (set_#{pagination_key} > 1 ? set_#{pagination_key} - 1 : nil) -%>"
         @context[:vars] ||= []
         @context[:vars] << "#{pagination_key}_previous"
-        out link_to_node(:default_text => "<%= set_#{pagination_key}_previous %>", :url_params => {pagination_key => "[#{pagination_key}_previous]"})
+        out make_link(:default_text => "<%= set_#{pagination_key}_previous %>", :url_params => {pagination_key => "[#{pagination_key}_previous]"})
         out "<% end -%>"
       when 'next'
         out "<% if set_#{pagination_key}_next = (set_#{pagination_key}_count - set_#{pagination_key} > 0 ? set_#{pagination_key} + 1 : nil) -%>"
         @context[:vars] ||= []
         @context[:vars] << "#{pagination_key}_next"
-        out link_to_node(:default_text => "<%= set_#{pagination_key}_next %>", :url_params => {pagination_key => "[#{pagination_key}_next]"})
+        out make_link(:default_text => "<%= set_#{pagination_key}_next %>", :url_params => {pagination_key => "[#{pagination_key}_next]"})
         out "<% end -%>"
       when 'list'
-        "pagination list helper..."
+        # FIXME: implement page numbers (#211).
+        parser_error("page numbers not implemented yet")
       else
         parser_error("unkown 'page' option #{@params[:page].inspect} should be ('previous', 'next' or 'list')")
       end
@@ -2914,6 +2948,7 @@ END_TXT
       method = opts[:method] || :get
       
       html_params = opts[:html_params] || {}
+      node_id = opts[:node_id] || self.node_id
       
       url    = opts[:url]    || "/#{base_class.to_s.pluralize.underscore}/\#{#{node_id}}#{method == :get ? '/zafu' : ''}"
       opts[:cond]   ||= "#{node}.can_write?" if method != :get
