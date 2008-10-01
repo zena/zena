@@ -1158,26 +1158,6 @@ ENDTXT
     res = "#{res}#{open_tag}#{nav.join("#{close_tag}#{open_tag}#{join}")}#{close_tag}"
   end
   
-  # TODO: could be used by all helpers: faster then routes... Rename obj_link (is used to link to versions)
-  # Used by zafu
-  def node_link(opts={})
-    options = {:node=>@node}.merge(opts)
-    node = options.delete(:node)
-    if href = options.delete(:href)
-      node = href
-    end    
-    return options[:text] unless node
-
-    unless url_only = options.delete(:url_only)
-      text = options.delete(:text) || node.version.title
-      attributes = ""
-      attributes += options[:class] ? " class='#{options.delete(:class)}'" : ''
-      attributes += options[:id] ? " id='#{options.delete(:id)}'" : ''
-      attributes += options[:name] ? " name='#{options.delete(:name)}'" : ''
-    end
-    url_only ? zen_path(node, options) :  "<a#{attributes} href='#{zen_path(node, options)}'>#{text}</a>"
-  end
-  
   # shows links for site features
   def show_link(link, opt={})
     case link

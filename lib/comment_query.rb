@@ -1,7 +1,7 @@
 require File.join(File.dirname(__FILE__) , 'query_builder', 'lib', 'query_builder')
 
 class CommentQuery < QueryBuilder
-  attr_reader :uses_node_name
+  attr_reader :uses_node_name, :node_name
   set_main_table 'comments'
   set_main_class 'Comment'
   
@@ -77,5 +77,16 @@ class CommentQuery < QueryBuilder
   def map_attr(fld)
     # error
     nil
+  end
+  
+  # Erb finder used by zafu
+  def finder(count)
+    return 'nil' unless valid?
+    case count
+    when :count
+      "#{node_name}.do_find(:count, \"#{count_sql}\", #{!uses_node_name}, #{main_class})"
+    else
+      "#{node_name}.do_find(#{count.inspect}, \"#{to_sql}\", #{!uses_node_name}, #{main_class})"
+    end
   end
 end

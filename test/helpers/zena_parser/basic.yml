@@ -194,7 +194,7 @@ show_attr_actions:
 
 link:
   src: "<r:link/>"
-  tem: "<%= node_link(:node=>@node) %>"
+  tem: "<a href='<%= zen_path(@node) %>'><%= @node.v_title %></a>"
   res: "<a href='/oo/projects/cleanWater/page22.html'>status title</a>"
 
 zafu_link:
@@ -219,42 +219,42 @@ link_class:
 
 link_attr:
   src: "<r:link attr='ref_lang'/>"
-  tem: "<%= node_link(:node=>@node, :text=>@node.ref_lang) %>"
+  tem: "<a href='<%= zen_path(@node) %>'><%= @node.ref_lang %></a>"
   res: "<a href='/oo/projects/cleanWater/page22.html'>en</a>"
   
 link_tattr:
   src: "<r:link tattr='ref_lang'/>"
-  tem: "<%= node_link(:node=>@node, :text=>_(@node.ref_lang)) %>"
+  tem: "<a href='<%= zen_path(@node) %>'><%= _(@node.ref_lang) %></a>"
   res: "<a href='/oo/projects/cleanWater/page22.html'>english</a>"
 
 link_trans:
   context:
     lang: 'fr'
   src: "<r:link trans='Monday'/>"
-  tem: "<%= node_link(:node=>@node, :text=>\"lundi\") %>"
+  tem: "<a href='<%= zen_path(@node) %>'>lundi</a>"
   res: "<a href='/oo/projects/cleanWater/page22.html'>lundi</a>"
 
 link_parent:
   src: "<r:link href='parent' text='click here'/>"
-  tem: "<%= node_link(:node=>@node, :text=>\"click here\", :href=>@node.parent) %>"
+  tem: "<a href='<%= zen_path(@node.parent) %>'>click here</a>"
   res: "<a href='/oo/projects/cleanWater'>click here</a>"
 
 link_with_block:
   src: "<r:link href='parent'>look at <b do='[name]'>her</b></r:link>"
-  tem: "<a href='<%= node_link(:url_only=>true, :node=>@node, :href=>@node.parent) %>'>look at <b><%= @node.name %></b></a>"
+  tem: "<a href='<%= zen_path(@node.parent) %>'>look at <b><%= @node.name %></b></a>"
   res: "<a href='/oo/projects/cleanWater'>look at <b>status</b></a>"
   
 link_project:
   context:
     node: 'bird_jpg'
   src: "<r:link href='project'/>"
-  tem: "<%= node_link(:node=>@node, :href=>@node.project) %>"
-  res: "<a href='/oo/project29.html'>a wiki with zena</a>"
+  tem: "<a href='<%= zen_path(@node.project) %>'><%= @node.v_title %></a>"
+  res: "<a href='/oo/project29.html'>bird</a>"
 
 link_root:
   src: "<r:link href='root'/>"
-  tem: "<%= node_link(:node=>@node, :href=>(secure(Node) { Node.find(_ID(zena))})) %>"
-  res: "<a href='/oo'>Zena the wild CMS</a>"
+  tem: "<a href='<%= zen_path((secure(Node) { Node.find(_ID(zena))})) %>'><%= @node.v_title %></a>"
+  res: "<a href='/oo'>status title</a>"
 
 link_sharp:
   src: "<r:link sharp='true'/>"
@@ -283,6 +283,14 @@ link_date:
   tem: "/:date=>main_date/"
   res: "<a href='/oo/projects/cleanWater/page22.html?date=2008-06-27'>status title</a>"
 
+link_url_params:
+  src: "<r:link plob='hopla'/>"
+  res: "<a href='/oo/projects/cleanWater/page22.html?plob=hopla'>status title</a>"
+
+link_url_params_parsed_values:
+  src: "<r:link plob='haha [status]'/>"
+  res: "<a href='/oo/projects/cleanWater/page22.html?plob=haha+status'>status title</a>"
+  
 anchor:
   src: "<r:anchor/> <p do='[id]' anchor='[name]'>hello</p>"
   res: "<a name='node22'></a><a name='status'></a> <p>22</p>"
@@ -413,7 +421,7 @@ uses_calendar:
 calendar:
   context:
     ref_date: "2006-03-18"
-  src: "<div do='calendar' find='notes in site'/>"
+  src: "<div do='calendar' select='notes in site'/>"
   res: "/<td class='sat ref'><span>18</span><ul><li><a href='/oo/projects/cleanWater/post27.html'>opening</a></li></ul><\/td>/"
 
 calendar_default_else:

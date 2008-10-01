@@ -113,7 +113,7 @@ store_node_as_relation:
 
 store_img:
   src: "<r:parent><r:icon store='bob'><r:show attr='name'/><r:img link='bob'/></r:icon></r:parent>"
-  tem: "/if var1 = @node.parent.*var2 = var1.do_find.*relation_id = _ID(node_has_an_icon).*LIKE 'NDI%'.*var2.name.*var1, :text=>img_tag\(var2/"
+  tem: "/if var1 = @node.parent.*var2 = var1.do_find.*relation_id = _ID(node_has_an_icon).*LIKE 'NDI%'.*var2.name.*zen_path\(var1\).*img_tag\(var2/"
     
 author_visitor:
   src: "<r:pages in='site' author='visitor' limit='5'><r:each join=', ' do='show' attr='name'/></r:pages>"

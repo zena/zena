@@ -1732,101 +1732,102 @@ END_TXT
     # <r:link page='next'/> <r:link page='previous'/> <r:link page='list'/>
     def r_link
       if @params[:page]
-        return pagination_links
-      end
-      
-      if @blocks.size > 1 || (@blocks.size == 1 && !@blocks.first.kind_of?(String))
-        text_mode = :raw
-        text = expand_with
+        pagination_links
+      elsif upd = @params[:update]
+        return unless target = find_target(upd)
+        link_to_update(target)
       else
-        text = get_text_for_erb(params, false)
-        text_mode = :erb
+        link_to_node
+      end
+    end
+    
+    def link_to_node(url_params = {})
+      params = @params.dup
+      
+      opts = {}
+      
+      if href = params.delete(:href)
+        if lnode = find_stored(Node, href)
+          # using stored node
+        else
+          lnode, klass = build_finder_for(:first, href, {})
+          return unless lnode
+          return parser_error("invalid class (#{klass})") unless klass.ancestors.include?(Node)
+        end
+      else
+        # obj
+        if node_class == Version
+          lnode = "#{node}.node"
+          opts[:lang] = "#{node}.lang"
+        else
+          lnode = node
+        end
       end
       
-      opts = ''
-      if @params[:href]
-        unless lnode = find_stored(Node, @params[:href])
-          finder, klass = build_finder_for(:first, @params[:href])
-          return unless finder
-          return parser_error("invalid class (#{klass})") unless klass.ancestors.include?(Node)
-          opts << ", :href=>#{finder}"
+      if fmt = params.delete(:format)
+        if fmt == 'data'
+          opts[:format] = "#{node}.c_ext"
+        else
+          opts[:format] = fmt.inspect
         end
       end
 
-      # obj
-      if node_class == Version
-        lnode ||= "#{node}.node"
-        opts << ", :lang=>#{node}.lang"
-      else
-        lnode ||= node
+      if mode = params.delete(:mode)
+        opts[:mode] = mode.inspect
       end
-      
-      if fmt = @params[:format]
-        if fmt == 'data'
-          opts << ", :format => #{node}.c_ext"
-        else
-          opts << ", :format => #{fmt.inspect}"
-        end
+
+      if sharp = params.delete(:sharp)
+        opts[:sharp] = sharp.inspect
       end
-      
-      if mode = @params[:mode]
-        opts << ", :mode => #{mode.inspect}"
-      end
-      
-      if sharp = @params[:sharp]
-        opts << ", :sharp=>#{sharp.inspect}"
-      end
-      
-      if sharp_in = @params[:in]
+
+      if sharp_in = params.delete(:in)
         finder, klass = build_finder_for(:first, sharp_in, {})
         return unless finder
         return parser_error("invalid class (#{klass})") unless klass.ancestors.include?(Node)
-        opts << ", :sharp_in=>#{finder}"
+        opts[:sharp_in] = finder
       end
-      
-      if date = @params[:date]
-        if date == 'current_date'
-          opts << ", :date=>#{current_date}"
-        elsif date =~ /\A\d/
-          opts << ", :date=>#{date.inspect}"
-        else
-          opts << ", :date=>#{node_attribute(date)}"
-        end
-      end
-      
-      html_params  = {}
+
       if @html_tag && @html_tag != 'a'
-        # html attributes do not belong to sharp
+        # FIXME: can we remove this ?
+        # html attributes do not belong to anchor
         pre_space = ''
+        html_params = {}
       else
-        [:class, :id, :style, :name].each do |sym|
-          if value = @html_tag_params[sym] || @params[sym]
-            html_params[sym] = value
-          end
-        end
+        html_params = get_html_params(params.merge(@html_tag_params))
         pre_space = @space_before || ''
         @html_tag_done = true
       end
       
-      if @params[:anchor]
-        @anchor_param = nil
-        html_params[:name] = anchor_name(@params[:anchor], node)
+      (params.keys - [:style, :class, :id, :rel, :name, :anchor, :attr, :tattr, :trans, :text]).each do |k|
+        url_params[k] = params[k]
       end
-
-      if upd = @params[:update]
-        return unless target = find_target(upd)
-        link_to_update(target, :html_params => html_params)
-      else
-        if text_mode == :raw
-          pre_space + "<a#{params_to_html(html_params)} href='<%= node_link(:url_only=>true, :node=>#{lnode}#{opts}) %>'>#{text}</a>"
-        else
-          text = text.blank? ? '' : ", :text=>#{text}"
-          pre_space + "<%= node_link(:node=>#{lnode}#{text}#{opts}#{params_to_erb(html_params)}) %>"
+      
+      url_params.each do |k,v|
+        if k == :date
+          if v == 'current_date'
+            url_params[k] = current_date
+          elsif v =~ /\A\d/
+            url_params[k] = v.inspect
+          elsif v =~ /\[/
+            attribute, static = parse_attributes_in_value(v.gsub('"',''), :erb => false)
+            url_params[k] = "\"#{attribute}\""
+          else
+            url_params[k] = node_attribute(v)
+          end
+        else  
+          attribute, static = parse_attributes_in_value(v.gsub('"',''), :erb => false)
+          url_params[k] = "\"#{attribute}\""
         end
       end
       
+      opts_str = ''
+      opts.merge!(url_params)
+      opts.keys.sort {|a,b| a.to_s <=> b.to_s }.each do |k|
+        opts_str << ",:#{k.to_s.gsub(/[^a-z_A-Z_]/,'')}=>#{opts[k]}"
+      end
+        
+      pre_space + "<a#{params_to_html(html_params)} href='<%= zen_path(#{lnode}#{opts_str}) %>'>#{text_for_link}</a>"
     end
-    
     
     # <r:link page='next'/> <r:link page='previous'/> <r:link page='list'/>
     def pagination_links
@@ -1871,9 +1872,10 @@ END_TXT
         finder, klass = build_finder_for(:first, @params[:link])
         return unless finder
         return parser_error("invalid class (#{klass})") unless klass.ancestors.include?(Node)
-        res  = "node_link(:node=>#{finder}, :text=>#{res})"
+        "<a href='<%= zen_path(#{finder}) %>'><%= #{res} %></a>"
+      else
+        "<%= #{res} %>"
       end
-      "<%= #{res} %>"
     end
     
     # TODO: test
@@ -1995,7 +1997,7 @@ END_TXT
           do_list( "#{node}.#{method}", nil, context.merge(:node_class => klass[0], :previous_node => previous_node) )
         else
           # singular
-          do_var(  "#{node}.#{method}", nil, context.merge(:previous_node => previous_node) )
+          do_var(  "#{node}.#{method}", context.merge(:previous_node => previous_node) )
         end
       elsif node_kind_of?(Node)
         count   = ['first','all','count'].include?(@params[:find]) ? @params[:find].to_sym : nil
@@ -2096,7 +2098,7 @@ END_TXT
       query = Node.build_find(count, pseudo_sql, :node_name => node_name, :raw_filters => raw_filters, :ref_date => "\#{#{current_date}}")
       
       unless query.valid?
-        out parser_error(query_errors.join(' '), pseudo_sql.join(', '))
+        out parser_error(query.errors.join(' '), pseudo_sql.join(', '))
         return nil
       end
       
@@ -2109,9 +2111,10 @@ END_TXT
       klass = query.main_class
       
       if params[:else]
+        # FIXME: else not working with zafu_known_contexts
         finder, else_class, else_query = build_finder_for(count, params[:else], {})
-        if else_query.valid? && (else_class == klass || klass.ancestors.include?(else_class) || else_class.ancestors.include?(klass))
-          ["(#{query.finder(count)} || #{else_query.finder(count)})", query]
+        if finder && (else_query.nil? || else_query.valid?) && (else_class == klass || klass.ancestors.include?(else_class) || else_class.ancestors.include?(klass))
+          ["(#{query.finder(count)} || #{finder})", klass, query]
         else
           [query.finder(count), query.main_class, query]
         end
@@ -2941,41 +2944,42 @@ END_TXT
       res = ''
       res += "<% if #{opts[:cond]} -%>" if opts[:cond]
       res += "<%= tag_to_remote({:url => \"#{url}?#{url_params.join('&')}\", :method => #{method.inspect}}#{params_to_erb(html_params)}) %>"
-      
-      if @blocks != []
-        inner = expand_with
-      else
-        inner = opts[:default_text] || get_text_for_erb
-      end
-      
-      unless inner
-        if node_kind_of?(Node)
-          inner = "<%= #{node}.v_title %>"
-        else
-          inner = _('edit')
-        end
-      end
-      res += inner
+      res += text_for_link(opts[:default_text])
       res += "</a>"
       if opts[:cond]
         if opts[:else] != :void
           res += "<% else -%>"
-          res += inner
+          res += text_for_link(opts[:default_text])
         end
         res += "<% end -%>"
       end
       res
     end
     
-    def get_text_for_erb(params = @params, use_blocks = true)
+    def text_for_link(default = nil)
+      if @blocks.size > 1 || (@blocks.size == 1 && !@blocks.first.kind_of?(String))
+        expand_with
+      elsif default
+        default
+      elsif erb_text = get_text_for_erb(@params, false, :string)
+        erb_text
+      elsif node_kind_of?(Node)
+        "<%= #{node}.v_title %>"
+      else
+        _('edit')
+      end
+    end
+    
+    def get_text_for_erb(params = @params, use_blocks = true, context = :erb)
+      string_context = context == :string
       if params[:attr]
-        text = "#{node_attribute(params[:attr])}"
+        string_context ? "<%= #{node_attribute(params[:attr])} %>" : node_attribute(params[:attr])
       elsif params[:tattr]
-        text = "_(#{node_attribute(params[:tattr])})"
+        string_context ? "<%= _(#{node_attribute(params[:tattr])}) %>" : "_(#{node_attribute(params[:tattr])})"
       elsif params[:trans]
-        text = _(params[:trans]).inspect
+        string_context ? _(params[:trans]) : _(params[:trans]).inspect
       elsif params[:text]
-        text = params[:text].inspect
+        string_context ? params[:text] : params[:text].inspect
       elsif use_blocks && @blocks != []
         res  = []
         text = ""
@@ -2998,15 +3002,14 @@ END_TXT
         end
         if static
           # "just plain text"
-          text = text.inspect
+          string_context ? text : text.inspect
         else
           # function(...) + "blah" + function()
-          text = res.join(' + ')
+          string_context ? "<%= #{res.join(' + ')} %>" : res.join(' + ')
         end
       else
-        text = nil
+        nil
       end
-      text
     end
     
     def get_input_params(params = @params)
@@ -3043,12 +3046,18 @@ END_TXT
     end
     
     def get_html_params(params)
-      res = {}
-      params.each do |k,v|
-        if [:style, :class, :id, :rel].include?(k)
-          res[k] = v
+      res  = {}
+      [:style, :class, :id, :rel, :name].each do |sym|
+        if value = params[sym]
+          res[sym] = value
         end
       end
+      
+      if params[:anchor]
+        @anchor_param = nil
+        res[:name] = anchor_name(params[:anchor], node)
+      end
+      
       res
     end
     

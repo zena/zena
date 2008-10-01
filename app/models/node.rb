@@ -994,9 +994,13 @@ class Node < ActiveRecord::Base
     version.title
   end
   
+  alias v_title title
+  
   def text
     version.text
   end
+  
+  alias v_text text
 
   def title=(t)
     redaction.title = t
