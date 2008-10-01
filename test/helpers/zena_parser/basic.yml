@@ -288,7 +288,7 @@ link_url_params:
   res: "<a href='/oo/projects/cleanWater/page22.html?plob=hopla'>status title</a>"
 
 link_url_params_parsed_values:
-  src: "<r:link plob='haha [status]'/>"
+  src: "<r:link plob='haha [name]'/>"
   res: "<a href='/oo/projects/cleanWater/page22.html?plob=haha+status'>status title</a>"
   
 anchor:
@@ -1118,4 +1118,10 @@ link_page_next:
   context:
     pak: 2
   src: "<r:nodes in='site' limit='3' order='zip' paginate='pak'><r:link page='previous'/> | <r:show var='pak'/> | <r:link page='next'/> || <r:each join=',' do='[id]'/></r:nodes>"
-  res: "link to page 1 | 2 | link to page 3 || 14,15,16"
+  res: "<a href='/oo/projects/cleanWater/page22.html?pak=1'>1</a> | 2 | <a href='/oo/projects/cleanWater/page22.html?pak=3'>3</a> || 14,15,16"
+
+link_page_next_with_block:
+  context:
+    pak: 2
+  src: "<r:nodes in='site' limit='3' order='zip' paginate='pak'><r:link page='next' do='t'>next</r:link></r:nodes>"
+  res: "<a href='/oo/projects/cleanWater/page22.html?pak=3'>next</a>"

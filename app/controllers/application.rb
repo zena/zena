@@ -691,7 +691,7 @@ END_MSG
         mode   = nil
       end
       
-      params = (opts == {}) ? '' : ('?' + opts.map{ |k,v| "#{k}=#{CGI.escape(v)}"}.join('&'))
+      params = (opts == {}) ? '' : ('?' + opts.map{ |k,v| "#{k}=#{CGI.escape(v.to_s)}"}.join('&'))
       
       if !asset && node[:id] == current_site[:root_id] && mode.nil? && format == 'html'
         "/#{pre}" # index page

@@ -25,6 +25,21 @@ This filter updates the "distant filter block test"
 <r:filter live='true' update='upfi'/>
 </div>
 
+<h3>pagination test</h3>
+(no ajax)
+<r:nodes in='site' order='zip' limit='8' paginate='p'>
+  <p><b do='[p_nodes]'/> nodes</p>
+  <p>
+    <r:link mode='test' page='previous' do='t'>previous</r:link>
+    <r:show var='p'/>/<r:show var='p_count'/>
+    <r:link mode='test' page='next' do='t'>next</r:link>
+  </p>
+<ul>
+ <li do='each'><r:show attr='zip'/> <r:link/></li>
+</ul>
+</r:nodes>
+
+<hr/>
 
 <h3>calendar test</h3>
 <div do='calendar' find='notes in site'/>

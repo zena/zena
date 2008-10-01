@@ -1741,7 +1741,9 @@ END_TXT
       end
     end
     
-    def link_to_node(url_params = {})
+    def link_to_node(opts = {})
+      url_params   = opts[:url_params] || {}
+      default_text = opts[:default_text]
       params = @params.dup
       
       opts = {}
@@ -1798,7 +1800,7 @@ END_TXT
         @html_tag_done = true
       end
       
-      (params.keys - [:style, :class, :id, :rel, :name, :anchor, :attr, :tattr, :trans, :text]).each do |k|
+      (params.keys - [:style, :class, :id, :rel, :name, :anchor, :attr, :tattr, :trans, :text, :page]).each do |k|
         url_params[k] = params[k]
       end
       
@@ -1826,7 +1828,7 @@ END_TXT
         opts_str << ",:#{k.to_s.gsub(/[^a-z_A-Z_]/,'')}=>#{opts[k]}"
       end
         
-      pre_space + "<a#{params_to_html(html_params)} href='<%= zen_path(#{lnode}#{opts_str}) %>'>#{text_for_link}</a>"
+      pre_space + "<a#{params_to_html(html_params)} href='<%= zen_path(#{lnode}#{opts_str}) %>'>#{text_for_link(default_text)}</a>"
     end
     
     # <r:link page='next'/> <r:link page='previous'/> <r:link page='list'/>
@@ -1837,13 +1839,13 @@ END_TXT
         out "<% if set_#{pagination_key}_previous = (set_#{pagination_key} > 1 ? set_#{pagination_key} - 1 : nil) -%>"
         @context[:vars] ||= []
         @context[:vars] << "#{pagination_key}_previous"
-        out @blocks == [] ? "link to page <%= set_#{pagination_key}_previous %>" : expand_with
+        out link_to_node(:default_text => "<%= set_#{pagination_key}_previous %>", :url_params => {pagination_key => "[#{pagination_key}_previous]"})
         out "<% end -%>"
       when 'next'
-        out "<% if set_#{pagination_key}_next = (set_#{pagination_key}_count - set_#{pagination_key} > 0 ? params[#{pagination_key.to_sym.inspect}].to_i + 1 : nil) -%>"
+        out "<% if set_#{pagination_key}_next = (set_#{pagination_key}_count - set_#{pagination_key} > 0 ? set_#{pagination_key} + 1 : nil) -%>"
         @context[:vars] ||= []
         @context[:vars] << "#{pagination_key}_next"
-        out @blocks == [] ? "link to page <%= set_#{pagination_key}_next %>" : expand_with
+        out link_to_node(:default_text => "<%= set_#{pagination_key}_next %>", :url_params => {pagination_key => "[#{pagination_key}_next]"})
         out "<% end -%>"
       when 'list'
         "pagination list helper..."
@@ -2375,9 +2377,10 @@ END_TXT
         
         out "<% if (#{list_var} = #{list_finder}) || (#{node}.#{node_kind_of?(Comment) ? "can_comment?" : "can_write?"} && #{list_var}=[]) -%>"
         if query && (pagination_key = query.pagination_key)
-          out "<% set_#{pagination_key}_count = #{query.finder(:count)}; set_#{pagination_key} = params[:#{pagination_key}].to_i -%>"
+          out "<% set_#{pagination_key}_nodes = #{query.finder(:count)}; set_#{pagination_key}_count = (set_#{pagination_key}_nodes / #{query.page_size.to_f}).ceil; set_#{pagination_key} = [1,params[:#{pagination_key}].to_i].max -%>"
           @context[:paginate] = pagination_key
           @context[:vars] ||= []
+          @context[:vars] << "#{pagination_key}_nodes"
           @context[:vars] << "#{pagination_key}_count"
           @context[:vars] << "#{pagination_key}"
         end
@@ -2419,9 +2422,10 @@ END_TXT
         end
         
         if query && query.pagination_key && (pagination_key = query.pagination_key[/param:([a-zA-Z_]+)/,1])
-          out "<% set_#{pagination_key}_count = #{query.finder(:count)}; set_#{pagination_key} = params[:#{pagination_key}].to_i -%>"
+          out "<% set_#{pagination_key}_nodes = #{query.finder(:count)}; set_#{pagination_key}_count = (set_#{pagination_key}_nodes / #{query.page_size.to_f}).ceil; set_#{pagination_key} = [1,params[:#{pagination_key}].to_i].max -%>"
           @context[:paginate] = pagination_key
           @context[:vars] ||= []
+          @context[:vars] << "#{pagination_key}_nodes"
           @context[:vars] << "#{pagination_key}_count"
           @context[:vars] << "#{pagination_key}"
         end

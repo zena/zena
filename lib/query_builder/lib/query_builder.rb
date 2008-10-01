@@ -9,7 +9,7 @@ end
 Syntax of a query is "CLASS [where ...|] [in ...|from SUB_QUERY|]"
 =end
 class QueryBuilder
-  attr_reader :tables, :where, :errors, :join_tables, :distinct, :final_parser
+  attr_reader :tables, :where, :errors, :join_tables, :distinct, :final_parser, :page_size
   @@main_table = {}
   @@main_class = {}
   @@custom_queries = {}
@@ -344,7 +344,8 @@ class QueryBuilder
         @errors << "invalid paginate clause '#{paginate}' (used without limit)"
         nil
       elsif (fld = map_literal(paginate, :ruby)) && (page_size = @limit[/ LIMIT (\d+)/,1])
-        " OFFSET \#{((#{fld}.to_i > 0 ? #{fld}.to_i : 1)-1)*#{page_size.to_i}}"
+        @page_size = [2,page_size.to_i].max
+        " OFFSET \#{((#{fld}.to_i > 0 ? #{fld}.to_i : 1)-1)*#{@page_size}}"
       else
         @errors << "invalid paginate clause '#{paginate}'"
         nil
