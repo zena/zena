@@ -252,7 +252,7 @@ class PseudoSqlTokenizer < Syntax::Tokenizer
     elsif keyword = scan(/\bfrom\b/)
       start_group :sub, keyword
       @state = nil
-    elsif keyword = scan(/\bwhere|order\b/)
+    elsif keyword = scan(/\bwhere|order|limit|offset|paginate\b/)
       start_group :keyword, keyword
     elsif punct  = scan(/\b>=|<=|<>|<|=|>|not\s+like|like|lt|le|eq|ne|ge|gt\b/)
       start_group :punct, punct
