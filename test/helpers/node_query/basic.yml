@@ -134,7 +134,7 @@ order_l_status:
   res: "opening, cleanWater"
 
 paginate:
-  src: "nodes in site limit 2 paginate param:p"
+  src: "nodes in site limit 2 paginate p"
   sql: "SELECT nodes.* FROM nodes WHERE (#{@node.secure_scope('nodes')}) ORDER BY nodes.position ASC, nodes.name ASC LIMIT 2 OFFSET #{((params[:p].to_i > 0 ? params[:p].to_i : 1)-1)*2}"
   res: "anonymous, ant"
 
@@ -142,6 +142,6 @@ paginate:
   context:
     params:
       p: 2
-  src: "nodes in site limit 2 paginate param:p"
+  src: "nodes in site limit 2 paginate p"
   sql: "SELECT nodes.* FROM nodes WHERE (#{@node.secure_scope('nodes')}) ORDER BY nodes.position ASC, nodes.name ASC LIMIT 2 OFFSET #{((params[:p].to_i > 0 ? params[:p].to_i : 1)-1)*2}"
   res: "art, bird"

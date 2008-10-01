@@ -2393,7 +2393,7 @@ END_TXT
       out "<% end -%>" if var_finder
     end
     
-    def do_list(list_finder, query, opts={})
+    def do_list(list_finder, query = nil, opts={})
       clear_dom_scope
       
       @context.merge!(opts)          # pass options from 'zafu_known_contexts' to @context
