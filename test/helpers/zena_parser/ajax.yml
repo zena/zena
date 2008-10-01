@@ -215,4 +215,4 @@ link_page_next:
   context:
     pak: 2
   src: "<div id='foo' do='block' do='nodes in site' limit='3' order='zip' paginate='pak'><r:link page='previous'/> | <r:show var='pak'/> | <r:link update='foo' page='next'/> || <r:each join=',' do='[id]'/></div>"
-  res: "/22/zafu\?pak=1.*.*dom_id=foo.*>1</a> \| 2 \| .*22/zafu\?pak=3.*dom_id=foo.*>3</a>/"
+  res: "/<a href='/oo/projects/cleanWater/page22.html\?pak=1'>1</a> \| 2 \| .*22/zafu\?pak=3.*dom_id=foo.*>3</a>/"

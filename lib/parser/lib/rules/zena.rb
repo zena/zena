@@ -1749,9 +1749,6 @@ END_TXT
       opts = {}
       if upd = params.delete(:update)
         return unless remote_target = find_target(upd)
-      else
-        # use closest block parent
-        remote_target = ancestor('block')
       end
       
       if href = params.delete(:href)
