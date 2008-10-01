@@ -2191,7 +2191,7 @@ END_TXT
       if paginate = params[:paginate]
         page_size = params[:limit].to_i
         page_size = 20 if page_size < 1
-        parts[-1] << " limit #{page_size} paginate param:#{paginate.gsub(/[^a-z_A-Z]/,'')}"
+        parts[-1] << " limit #{page_size} paginate #{paginate.gsub(/[^a-z_A-Z]/,'')}"
       else
         [:limit, :offset].each do |k|
           next unless params[k]
@@ -2452,7 +2452,7 @@ END_TXT
           out "<% if nil -%>"
         end
         
-        if query && query.pagination_key && (pagination_key = query.pagination_key[/param:([a-zA-Z_]+)/,1])
+        if query && (pagination_key = query.pagination_key)
           out "<% set_#{pagination_key}_nodes = #{query.finder(:count)}; set_#{pagination_key}_count = (set_#{pagination_key}_nodes / #{query.page_size.to_f}).ceil; set_#{pagination_key} = [1,params[:#{pagination_key}].to_i].max -%>"
           @context[:paginate] = pagination_key
           @context[:vars] ||= []

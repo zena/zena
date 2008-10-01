@@ -270,7 +270,7 @@ class NodeQuery < QueryBuilder
         # TODO: raise error ?
         @errors << "invalid paginate clause '#{paginate}' (used without limit)"
         nil
-      elsif (fld = map_literal("[#{paginate}]", :ruby)) && (page_size = @limit[/ LIMIT (\d+)/,1])
+      elsif (fld = map_literal("[param:#{paginate}]", :ruby)) && (page_size = @limit[/ LIMIT (\d+)/,1])
         @page_size = [2,page_size.to_i].max
         " OFFSET \#{((#{fld}.to_i > 0 ? #{fld}.to_i : 1)-1)*#{page_size.to_i}}"
       else

@@ -43,9 +43,9 @@ This filter updates the "distant filter block test"
 <div id='pagir' do='block' do='nodes' in='site' order='zip' limit='8' paginate='p'>
   <p><b do='[p_nodes]'/> nodes</p>
   <p>
-    <r:link mode='test' page='previous' do='t'>previous</r:link>
+    <r:link mode='test' update='pagir' page='previous' do='t'>previous</r:link>
     <r:show var='p'/>/<r:show var='p_count'/>
-    <r:link mode='test' page='next' do='t'>next</r:link>
+    <r:link mode='test' update='pagir' page='next' do='t'>next</r:link>
   </p>
 <ul>
  <li do='each'><r:show attr='zip'/> <r:link/></li>
