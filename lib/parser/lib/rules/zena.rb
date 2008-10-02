@@ -1641,8 +1641,9 @@ END_TXT
           else
             expand_with(:date=>select)
           end
-        elsif select =~ /^\[(.*)\]$/
-          expand_with(:date=>"(#{node_attribute($1)} || main_date)")
+        elsif select =~ /\[(.*)\]/
+          date, static = parse_attributes_in_value(select, :erb => false)
+          expand_with(:date => "\"#{date}\"")
         else
           parser_error("bad parameter '#{select}'")
         end
@@ -3325,6 +3326,8 @@ module ActiveRecord
           ref_date = 'now()'
         elsif ref_date =~ /(\d{4}-\d{1,2}-\d{1,2}( \d{1,2}:\d{1,2}(:\d{1,2})?)?)/
           ref_date = "'#{$1}'"
+        elsif ref_date =~ /\A"/
+          ref_date = "'\#{format_date(#{ref_date})}'"
         else
           ref_date = "'\#{#{ref_date}.strftime('%Y-%m-%d %H:%M:%S')}'"
         end

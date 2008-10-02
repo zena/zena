@@ -1104,6 +1104,20 @@ date_context:
   tem: "<%= format_date(\"2008-03-02\", \"%A %d.%m.%Y\") %>"
   res: "Sunday 02.03.2008"
 
+date_from_params:
+  context:
+    year: 1975
+  src: "<r:date select='[param:year]-01-01'><r:show date='current_date' format='%A %d.%m.%Y'/></r:date>"
+  tem: "<%= format_date(\"#{params[:year]}-01-01\", \"%A %d.%m.%Y\") %>"
+  res: "Wednesday 01.01.1975"
+
+date_from_params_in_query:
+  context:
+    year: 2006
+  src: "<r:date select='[param:year]-01-01'><r:nodes in='site' log='year' do='each' join=', ' do='[name]'/></r:date>"
+  tem: "/date_format.*format_date.*params\[:year\].*%Y/"
+  res: "letter, opening, proposition"
+
 paginate:
   context:
     pak: 2

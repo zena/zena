@@ -778,7 +778,8 @@ END_MSG
       template_url(:mode=>'*popupLayout')
     end
     
-    def format_date(thedate, format, tz_name=nil, lang=visitor.lang)
+    def format_date(thedate, theformat = nil, tz_name=nil, lang=visitor.lang)
+      format = theformat || '%Y-%m-%d %H:%M:%S'
       return "" unless thedate
       if tz_name
         # display time local to event's timezone
@@ -796,7 +797,8 @@ END_MSG
         begin
           adate = Date.parse(thedate)
         rescue
-          return "<span class='parser_error'>invalid date #{thedate.inspect}</span>"
+          # only return error if there is a format (without = used in sql query)
+          return theformat ? "<span class='parser_error'>invalid date #{thedate.inspect}</span>" : Time.now.strftime('%Y-%m-%d %H:%M:%S')
         end
       else
         adate = thedate
