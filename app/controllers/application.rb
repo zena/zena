@@ -582,8 +582,6 @@ END_MSG
     #
     # 8. 'test.host/fr' the redirect for this rule is called once we are sure the request is not for document data (lang in this case can be different from what the visitor is visiting due to caching optimization)
     def set_lang
-      # TODO: how to include zena rules in file reload (in a better way then this hack) ?
-      # load "#{RAILS_ROOT}/lib/parser/lib/rules/zena.rb" if RAILS_ENV == 'development'
       if params[:prefix] =~ /^\d+$/
         # this has nothing to do with set_lang...
         # 'test.host/34' --> /en/node34.html

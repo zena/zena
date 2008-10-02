@@ -147,6 +147,20 @@ class NavigationTest < ActionController::IntegrationTest
     assert_response :success
   end
   
+  def test_url_without_lang_redirect_keeps_url_params
+    get 'http://test.host/project29.html?page=2'
+    assert_redirected_to 'http://test.host/en/project29.html?page=2'
+    follow_redirect!
+    assert_response :success
+  end
+  
+  def test_url_bad_class_redirect_keeps_url_params
+    get 'http://test.host/en/page29.html?page=2'
+    assert_redirected_to 'http://test.host/en/project29.html?page=2'
+    follow_redirect!
+    assert_response :success
+  end
+  
   def test_url_by_zip_without_lang_redirect
     get 'http://test.host/29'
     assert_redirected_to 'http://test.host/en/29'
