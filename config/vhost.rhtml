@@ -62,7 +62,7 @@
   RewriteRule ^([^.]+)$ $1.html [QSA]
 
   # Redirect all non-static requests to cluster
-  RewriteCond %{DOCUMENT_ROOT}/%{REQUEST_FILENAME} !-f
+  RewriteCond %{DOCUMENT_ROOT}/%{REQUEST_FILENAME}%{QUERY_STRING} !-f
   RewriteRule ^/(.*)$ balancer://<%= balancer %>%{REQUEST_URI} [P,QSA,L]
   
   <% if deflate %>

@@ -34,11 +34,11 @@ class NodesController < ApplicationController
   
   # Render badly formed urls
   def catch_all
-    url_params_list = []
-    url_params.each do |k,v|
-      url_params_list << "#{k}=#{CGI.escape(v)}"
+    query_params_list = []
+    query_params.each do |k,v|
+      query_params_list << "#{k}=#{CGI.escape(v)}"
     end
-    redirect_to "/" + ([prefix]+params[:path]).flatten.join('/') + (url_params_list == [] ? '' : "?#{url_params_list.join('&')}")
+    redirect_to "/" + ([prefix]+params[:path]).flatten.join('/') + (query_params_list == [] ? '' : "?#{query_params_list.join('&')}")
   end
   
   # This method is used to test the 404 page when editing zafu templates. It is mapped from '/en/404.html'.
@@ -430,26 +430,6 @@ class NodesController < ApplicationController
     # Document data do not change session[:lang] and can point at cached content (no nee to redirect to AUTHENTICATED_PREFIX).
     def avoid_prefix_redirect
       @node.kind_of?(Document) && params[:format] == @node.c_ext
-    end
-    
-    # Url parameters (without format/mode/prefix...)
-    def url_params
-      res = {}
-      path_params.each do |k,v|
-        next if [:mode, :format, :asset].include?(k.to_sym)
-        res[k.to_sym] = v
-      end
-      res
-    end
-    
-    # Url parameters (without action,controller,path,prefix)
-    def path_params
-      res = {}
-      params.each do |k,v|
-        next if [:action, :controller, :path, :prefix, :id].include?(k.to_sym)
-        res[k.to_sym] = v
-      end
-      res
     end
 end
 

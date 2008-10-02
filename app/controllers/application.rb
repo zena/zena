@@ -237,7 +237,7 @@ END_MSG
   
     # Return true if we can cache the current page
     def caching_allowed(opts = {})
-      return false if current_site.authentication?
+      return false if current_site.authentication? || query_params != {}
       opts[:authenticated] || visitor.is_anon?
     end
   
@@ -824,6 +824,26 @@ END_MSG
     def save_if_not_spam(obj, params)
       # do nothing (overwritten by plugins like zena_captcha)
       obj.save
+    end
+    
+    # Url parameters (without format/mode/prefix...)
+    def query_params
+      res = {}
+      path_params.each do |k,v|
+        next if [:mode, :format, :asset].include?(k.to_sym)
+        res[k.to_sym] = v
+      end
+      res
+    end
+    
+    # Url parameters (without action,controller,path,prefix)
+    def path_params
+      res = {}
+      params.each do |k,v|
+        next if [:action, :controller, :path, :prefix, :id].include?(k.to_sym)
+        res[k.to_sym] = v
+      end
+      res
     end
 end
 

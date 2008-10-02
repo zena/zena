@@ -567,10 +567,10 @@ module Zena
       end
       states = ((@params[:states] || 'todo, done') + ' ').split(',').map(&:strip)
       
-      url_params = "node[#{@params[:attr]}]=\#{#{states.inspect}[ ((#{states.inspect}.index(#{node_attribute(@params[:attr])}.to_s) || 0)+1) % #{states.size}]}#{upd_both}"
+      query_params = "node[#{@params[:attr]}]=\#{#{states.inspect}[ ((#{states.inspect}.index(#{node_attribute(@params[:attr])}.to_s) || 0)+1) % #{states.size}]}#{upd_both}"
       
       
-      out link_to_update(block, :url_params => url_params, :method => :put, :html_params => get_html_params(@params))
+      out link_to_update(block, :query_params => query_params, :method => :put, :html_params => get_html_params(@params))
     end
     
     def r_load
@@ -1234,28 +1234,28 @@ END_TXT
       change = @params[:change]
     
       if role = @params[:set] || @params[:add]
-        url_params = ["node[#{role}_id]=[id]"]
+        query_params = ["node[#{role}_id]=[id]"]
       else
-        url_params = []
+        query_params = []
         # set='icon_for=[id], v_status='50', v_title='[v_title]'
         @params.each do |k, v|
           next if [:hover, :change, :done].include?(k)
           value, static = parse_attributes_in_value(v, :erb => false, :skip_node_attributes => true)
           key = change == 'params' ? "params[#{k}]" : "node[#{k}]"
-          url_params << "#{key}=#{CGI.escape(value)}"
+          query_params << "#{key}=#{CGI.escape(value)}"
         end
-        return parser_error("missing parameters to set values") if url_params == []
+        return parser_error("missing parameters to set values") if query_params == []
       end
     
-      url_params << "change=#{change}" if change == 'receiver'
-      url_params << "t_url=#{CGI.escape(template_url)}"
-      url_params << "dom_id=#{erb_dom_id}"
-      url_params << start_node_s_param(:erb)
-      url_params << "done=#{CGI.escape(@params[:done])}" if @params[:done]
+      query_params << "change=#{change}" if change == 'receiver'
+      query_params << "t_url=#{CGI.escape(template_url)}"
+      query_params << "dom_id=#{erb_dom_id}"
+      query_params << start_node_s_param(:erb)
+      query_params << "done=#{CGI.escape(@params[:done])}" if @params[:done]
     
       "<script type='text/javascript'>
       //<![CDATA[
-      Droppables.add('#{erb_dom_id}', {hoverclass:'#{hover || 'drop_hover'}', onDrop:function(element){new Ajax.Request('/nodes/#{erb_node_id}/drop?#{url_params.join('&')}', {asynchronous:true, evalScripts:true, method:'put', parameters:'drop=' + encodeURIComponent(element.id)})}})
+      Droppables.add('#{erb_dom_id}', {hoverclass:'#{hover || 'drop_hover'}', onDrop:function(element){new Ajax.Request('/nodes/#{erb_node_id}/drop?#{query_params.join('&')}', {asynchronous:true, evalScripts:true, method:'put', parameters:'drop=' + encodeURIComponent(element.id)})}})
       //]]>
       </script>"
     end
@@ -1743,7 +1743,7 @@ END_TXT
     end
     
     def make_link(options = {})
-      url_params   = options[:url_params] || {}
+      query_params   = options[:query_params] || {}
       default_text = options[:default_text]
       params = @params.dup
       
@@ -1805,14 +1805,14 @@ END_TXT
       end
       
       (params.keys - [:style, :class, :id, :rel, :name, :anchor, :attr, :tattr, :trans, :text, :page]).each do |k|
-        url_params[k] = params[k]
+        query_params[k] = params[k]
       end
       
-      # TODO: merge these two url_params cleanup things into something cleaner.
+      # TODO: merge these two query_params cleanup things into something cleaner.
       if remote_target
         # ajax
-        url_params_list = []
-        url_params.each do |k,v|
+        query_params_list = []
+        query_params.each do |k,v|
           if k == :date
             if v == 'current_date'
               str = "\#{#{current_date}}"
@@ -1828,34 +1828,34 @@ END_TXT
             attribute, static = parse_attributes_in_value(v.gsub('"',''), :erb => false)
             str = static ? CGI.escape(attribute) : "\#{CGI.escape(\"#{attribute}\")}"
           end
-          url_params_list << "#{k.gsub('"','')}=#{str}"
+          query_params_list << "#{k.gsub('"','')}=#{str}"
         end
-        pre_space + link_to_update(remote_target, :node_id => "#{lnode}.zip", :url_params => url_params_list, :default_text => default_text, :html_params => html_params)
+        pre_space + link_to_update(remote_target, :node_id => "#{lnode}.zip", :query_params => query_params_list, :default_text => default_text, :html_params => html_params)
       else
         # direct link
-        url_params.each do |k,v|
+        query_params.each do |k,v|
           if k == :date
             if v == 'current_date'
-              url_params[k] = current_date
+              query_params[k] = current_date
             elsif v =~ /\A\d/
-              url_params[k] = v.inspect
+              query_params[k] = v.inspect
             elsif v =~ /\[/
               attribute, static = parse_attributes_in_value(v.gsub('"',''), :erb => false)
-              url_params[k] = "\"#{attribute}\""
+              query_params[k] = "\"#{attribute}\""
             else
-              url_params[k] = node_attribute(v)
+              query_params[k] = node_attribute(v)
             end
           else  
             attribute, static = parse_attributes_in_value(v.gsub('"',''), :erb => false)
-            url_params[k] = "\"#{attribute}\""
+            query_params[k] = "\"#{attribute}\""
           end
         end
         
-        url_params.merge!(opts)
+        query_params.merge!(opts)
         
         opts_str = ''
-        url_params.keys.sort {|a,b| a.to_s <=> b.to_s }.each do |k|
-          opts_str << ",:#{k.to_s.gsub(/[^a-z_A-Z_]/,'')}=>#{url_params[k]}"
+        query_params.keys.sort {|a,b| a.to_s <=> b.to_s }.each do |k|
+          opts_str << ",:#{k.to_s.gsub(/[^a-z_A-Z_]/,'')}=>#{query_params[k]}"
         end
         
         pre_space + "<a#{params_to_html(html_params)} href='<%= zen_path(#{lnode}#{opts_str}) %>'>#{text_for_link(default_text)}</a>"
@@ -1870,13 +1870,13 @@ END_TXT
         out "<% if set_#{pagination_key}_previous = (set_#{pagination_key} > 1 ? set_#{pagination_key} - 1 : nil) -%>"
         @context[:vars] ||= []
         @context[:vars] << "#{pagination_key}_previous"
-        out make_link(:default_text => "<%= set_#{pagination_key}_previous %>", :url_params => {pagination_key => "[#{pagination_key}_previous]"})
+        out make_link(:default_text => "<%= set_#{pagination_key}_previous %>", :query_params => {pagination_key => "[#{pagination_key}_previous]"})
         out "<% end -%>"
       when 'next'
         out "<% if set_#{pagination_key}_next = (set_#{pagination_key}_count - set_#{pagination_key} > 0 ? set_#{pagination_key} + 1 : nil) -%>"
         @context[:vars] ||= []
         @context[:vars] << "#{pagination_key}_next"
-        out make_link(:default_text => "<%= set_#{pagination_key}_next %>", :url_params => {pagination_key => "[#{pagination_key}_next]"})
+        out make_link(:default_text => "<%= set_#{pagination_key}_next %>", :query_params => {pagination_key => "[#{pagination_key}_next]"})
         out "<% end -%>"
       when 'list'
         # FIXME: implement page numbers (#211).
@@ -2951,36 +2951,36 @@ END_TXT
       url    = opts[:url]    || "/#{base_class.to_s.pluralize.underscore}/\#{#{node_id}}#{method == :get ? '/zafu' : ''}"
       opts[:cond]   ||= "#{node}.can_write?" if method != :get
       
-      url_params = [opts[:url_params]].flatten.compact
+      query_params = [opts[:query_params]].flatten.compact
       
       if method == :get
         if target
-          url_params << "t_url=#{CGI.escape(target.template_url)}" 
-          url_params << "dom_id=#{target.dom_id}"
+          query_params << "t_url=#{CGI.escape(target.template_url)}" 
+          query_params << "dom_id=#{target.dom_id}"
         else
-          url_params << "dom_id=_page"
+          query_params << "dom_id=_page"
         end
       else
-        url_params << "t_url=#{CGI.escape(template_url)}" if method != :delete
+        query_params << "t_url=#{CGI.escape(template_url)}" if method != :delete
         
-        url_params << "dom_id=#{dom_id}"
+        query_params << "dom_id=#{dom_id}"
         if target != self
           if target
-            url_params << "u_url=#{CGI.escape(target.template_url)}"
-            url_params << "udom_id=#{target.dom_id}"
+            query_params << "u_url=#{CGI.escape(target.template_url)}"
+            query_params << "udom_id=#{target.dom_id}"
           else
-            url_params << "udom_id=_page"
+            query_params << "udom_id=_page"
           end
         end
       end
       
-      url_params << "link_id=\#{#{node}.link_id}" if @context[:need_link_id] && node_kind_of?(Node)
-      url_params << "node[v_status]=#{Zena::Status[:pub]}" if @params[:publish]
-      url_params << start_node_s_param(:string)
+      query_params << "link_id=\#{#{node}.link_id}" if @context[:need_link_id] && node_kind_of?(Node)
+      query_params << "node[v_status]=#{Zena::Status[:pub]}" if @params[:publish]
+      query_params << start_node_s_param(:string)
       
       res = ''
       res += "<% if #{opts[:cond]} -%>" if opts[:cond]
-      res += "<%= tag_to_remote({:url => \"#{url}?#{url_params.join('&')}\", :method => #{method.inspect}}#{params_to_erb(html_params)}) %>"
+      res += "<%= tag_to_remote({:url => \"#{url}?#{query_params.join('&')}\", :method => #{method.inspect}}#{params_to_erb(html_params)}) %>"
       res += text_for_link(opts[:default_text])
       res += "</a>"
       if opts[:cond]
