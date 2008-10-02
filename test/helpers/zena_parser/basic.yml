@@ -538,6 +538,10 @@ if_test_param:
   src: "<r:if test='param:f eq 3'>three</r:if> / <r:if test='param:f'>exist</r:if>"
   tem: "<% if params[:f].to_i == 3 -%>three<% end -%> / <% if !params[:f].blank? -%>exist<% end -%>"
 
+if_test_param_var:
+  src: "<r:set var='year'>3000</r:set><r:if test='year eq param:f'>funky!</r:if>"
+  tem: "<% set_year = capture do %>3000<% end -%><% if set_year.to_s == params[:f].to_s -%>funky!<% end -%>"
+  
 if_in_if:
   src: "<r:if test='id eq 22'><r:if test='1 eq 2'>strange...<r:else>wrong!</r:else></r:if><r:else>other node</r:else></r:if>"
   tem: "<% if @node.zip.to_i == 22 -%><% if 1 == 2 -%>strange...<% elsif true -%>wrong!<% end -%><% elsif true -%>other node<% end -%>"
