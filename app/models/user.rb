@@ -202,7 +202,7 @@ class User < ActiveRecord::Base
   end
   
   def lang
-    @defined_lang || site_participation.lang
+    @defined_lang || (new_record? ? visitor.lang : site_participation.lang)
   end
 
   # TODO: test
