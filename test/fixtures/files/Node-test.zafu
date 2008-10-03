@@ -32,6 +32,7 @@ This filter updates the "distant filter block test"
   <p>
     <r:link mode='test' page='previous' do='t'>previous</r:link>
     <r:show var='p'/>/<r:show var='p_count'/>
+    || <r:link page='list' mode='test'/> ||
     <r:link mode='test' page='next' do='t'>next</r:link>
   </p>
 <ul>
@@ -45,6 +46,7 @@ This filter updates the "distant filter block test"
   <p>
     <r:link mode='test' update='pagir' page='previous' do='t'>previous</r:link>
     <r:show var='p'/>/<r:show var='p_count'/>
+    || <r:link page='list' update='pagir'/> ||
     <r:link mode='test' update='pagir' page='next' do='t'>next</r:link>
   </p>
 <ul>

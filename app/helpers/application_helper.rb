@@ -734,6 +734,33 @@ latex_template = %q{
     end
   end
   
+  # list of page numbers links
+  def page_numbers(current, count, join_string = nil, max_count = nil)
+    max_count ||= 10
+    join_string ||= ''
+    join_str = ''
+    if count <= max_count
+      1.upto(count) do |p|
+        yield(p, join_str)
+        join_str = join_string
+      end
+    else
+      # only first pages (centered around current page)
+      if current - (max_count/2) > 0
+        finish = [current + (max_count/2),count].min
+      else
+        finish = [max_count,count].min
+      end
+      
+      start  = [finish - max_count + 1,1].max
+      
+      start.upto(finish) do |p|
+        yield(p, join_str)
+        join_str = join_string
+      end
+    end
+  end
+  
   # main node before ajax stuff (the one in browser url)
   def start_node
     @start_node ||= if params[:s]

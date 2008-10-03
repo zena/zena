@@ -1734,16 +1734,13 @@ END_TXT
     def r_link
       if @params[:page]
         pagination_links
-      elsif upd = @params[:update]
-        return unless target = find_target(upd)
-        link_to_update(target)
       else
         make_link
       end
     end
     
     def make_link(options = {})
-      query_params   = options[:query_params] || {}
+      query_params = options[:query_params] || {}
       default_text = options[:default_text]
       params = @params.dup
       
@@ -1828,7 +1825,7 @@ END_TXT
             attribute, static = parse_attributes_in_value(v.gsub('"',''), :erb => false)
             str = static ? CGI.escape(attribute) : "\#{CGI.escape(\"#{attribute}\")}"
           end
-          query_params_list << "#{k.gsub('"','')}=#{str}"
+          query_params_list << "#{k.to_s.gsub('"','')}=#{str}"
         end
         pre_space + link_to_update(remote_target, :node_id => "#{lnode}.zip", :query_params => query_params_list, :default_text => default_text, :html_params => html_params)
       else
@@ -1879,8 +1876,36 @@ END_TXT
         out make_link(:default_text => "<%= set_#{pagination_key}_next %>", :query_params => {pagination_key => "[#{pagination_key}_next]"})
         out "<% end -%>"
       when 'list'
-        # FIXME: implement page numbers (#211).
-        parser_error("page numbers not implemented yet")
+        @context[:vars] ||= []
+        @context[:vars] << "#{pagination_key}_page"
+        if @blocks == []
+          # add a default blocks
+          if tag = @params[:tag]
+            open_tag = "<#{tag}>"
+            close_tag = "</#{tag}>"
+          else
+            open_tag = close_tag = ''
+          end
+          link_params = {}
+          @params.each do |k,v|
+            next if [:tag, :page, :join].include?(k)
+            link_params[k] = v
+          end
+          
+          @blocks = [make(:void, :method=>'void', :text=>"#{open_tag}<r:link #{params_to_html(link_params)} #{pagination_key}='[#{pagination_key}_page]' do='[#{pagination_key}_page]'/>#{close_tag}<r:else>#{open_tag}<r:show var='#{pagination_key}_page'/></r:else>")]
+          remove_instance_variable(:@all_descendants)
+        elsif !descendant('else')
+          @blocks += [make(:void, :method=>'void', :text=>"<r:else>#{open_tag}<r:show var='#{pagination_key}_page'/>#{close_tag}</r:else>")]
+          remove_instance_variable(:@all_descendants)
+        end
+        
+        out "<% page_numbers(set_#{pagination_key}, set_#{pagination_key}_count, #{(@params[:join] || ' ').inspect}) do |set_#{pagination_key}_page, #{pagination_key}_page_join| %>"
+        out "<%= #{pagination_key}_page_join %>"
+        out "<% if set_#{pagination_key}_page != set_#{pagination_key} -%>"
+        out render_html_tag(expand_with)
+        @html_tag_done = false
+        out render_html_tag(expand_with(:in_if => true, :only => ['else', 'elsif']))
+        out "<% end; end -%>"
       else
         parser_error("unkown 'page' option #{@params[:page].inspect} should be ('previous', 'next' or 'list')")
       end
@@ -1931,6 +1956,7 @@ END_TXT
           remove_instance_variable(:@all_descendants)
         elsif !descendant('else')
           @blocks += [make(:void, :method=>'void', :text=>"<r:else do='[current_date]' format='%d'/>")]
+          remove_instance_variable(:@all_descendants)
         end
         @html_tag_done = false
         @html_tag_params[:id] = erb_dom_id
