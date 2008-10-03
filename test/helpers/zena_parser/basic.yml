@@ -1148,3 +1148,19 @@ link_page_list:
   src: "<r:nodes in='site' limit='10' order='zip' paginate='pak' do='link' page='list' join=', '/>"
   tem: "/set_pak_page != set_pak.*zen_path\(@node,:pak.*elsif true.*set_pak_page/"
   res: "/<a href='.*page22.html\?pak=1'>1</a>, 2, .*pak=3'>3</a>.*pak=4'>4</a>.*pak=5'>5</a>/"
+
+link_page_previous_else_page1:
+  src: "<r:nodes in='site' limit='3' order='zip' paginate='pak'><r:link page='previous' do='else'>noprev</r:link></r:nodes>"
+  res: "noprev"
+
+link_page_previous_else_page2:
+  context:
+    pak: 2
+  src: "<r:nodes in='site' limit='3' order='zip' paginate='pak'><r:link page='previous' do='else'>noprev</r:link></r:nodes>"
+  res: "<a href='/oo/projects/cleanWater/page22.html?pak=1'>1</a>"
+
+link_page_list_else:
+  context:
+    pak: 2
+  src: "<r:nodes in='site' limit='3' order='zip' paginate='pak'><r:link page='list' join=', ' do='else'>[<r:show var='pak'/>]</r:link></r:nodes>"
+  res: "1, [2], 3"

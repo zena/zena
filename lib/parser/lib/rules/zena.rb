@@ -1802,6 +1802,7 @@ END_TXT
       end
       
       (params.keys - [:style, :class, :id, :rel, :name, :anchor, :attr, :tattr, :trans, :text, :page]).each do |k|
+        next if k.to_s =~ /if_|set_/
         query_params[k] = params[k]
       end
       
@@ -1868,17 +1869,23 @@ END_TXT
         @context[:vars] ||= []
         @context[:vars] << "#{pagination_key}_previous"
         out make_link(:default_text => "<%= set_#{pagination_key}_previous %>", :query_params => {pagination_key => "[#{pagination_key}_previous]"})
+        if descendant('else')
+          out expand_with(:in_if => true, :only => ['else', 'elsif'])
+        end
         out "<% end -%>"
       when 'next'
         out "<% if set_#{pagination_key}_next = (set_#{pagination_key}_count - set_#{pagination_key} > 0 ? set_#{pagination_key} + 1 : nil) -%>"
         @context[:vars] ||= []
         @context[:vars] << "#{pagination_key}_next"
         out make_link(:default_text => "<%= set_#{pagination_key}_next %>", :query_params => {pagination_key => "[#{pagination_key}_next]"})
+        if descendant('else')
+          out expand_with(:in_if => true, :only => ['else', 'elsif'])
+        end
         out "<% end -%>"
       when 'list'
         @context[:vars] ||= []
         @context[:vars] << "#{pagination_key}_page"
-        if @blocks == []
+        if @blocks == [] || (@blocks.size == 1 && !@blocks.first.kind_of?(String) && @blocks.first.method == 'else')
           # add a default blocks
           if tag = @params[:tag]
             open_tag = "<#{tag}>"
@@ -1891,10 +1898,12 @@ END_TXT
             next if [:tag, :page, :join].include?(k)
             link_params[k] = v
           end
-          
-          @blocks = [make(:void, :method=>'void', :text=>"#{open_tag}<r:link #{params_to_html(link_params)} #{pagination_key}='[#{pagination_key}_page]' do='[#{pagination_key}_page]'/>#{close_tag}<r:else>#{open_tag}<r:show var='#{pagination_key}_page'/></r:else>")]
+          text = "#{open_tag}<r:link #{params_to_html(link_params)} #{pagination_key}='[#{pagination_key}_page]' do='[#{pagination_key}_page]'/>#{close_tag}"
+          @blocks = [make(:void, :method=>'void', :text=>text)]
           remove_instance_variable(:@all_descendants)
-        elsif !descendant('else')
+        end
+        
+        if !descendant('else')
           @blocks += [make(:void, :method=>'void', :text=>"<r:else>#{open_tag}<r:show var='#{pagination_key}_page'/>#{close_tag}</r:else>")]
           remove_instance_variable(:@all_descendants)
         end
@@ -3020,7 +3029,7 @@ END_TXT
     end
     
     def text_for_link(default = nil)
-      if @blocks.size > 1 || (@blocks.size == 1 && !@blocks.first.kind_of?(String))
+      if @blocks.size > 1 || (@blocks.size == 1 && !(@blocks.first.kind_of?(String) || ['else','elsif'].include?(@blocks.first.method)))
         expand_with
       elsif default
         default
