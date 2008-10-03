@@ -1,6 +1,7 @@
 .DS_Store
 config/deploy_config.rb
 config/database.yml
+doc/coverage
 log/
 public/images/ext/*_pv.png
 public/images/ext/*_std.png
