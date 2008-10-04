@@ -382,32 +382,50 @@ END_MSG
     # The rule is not the same whether we are rendering a template and find <img/> <link rel='stylesheet'/> tags
     # or if we are parsing assets in a CSS file.
     def template_url_for_asset(opts)
+      src = opts[:src]
+      if src =~ /\A(.*)\.(\w+)\Z/
+        src, format = $1, $2
+      end
+      
       if opts[:parse_assets]
-        src = opts[:src]
         current_folder = opts[:current_folder] || ''
         current_folder = current_folder[1..-1] if current_folder[0..0] == '/'
       
-        if src =~ /\A(.*)\.(\w+)\Z/
-          src, format = $1, $2
+        
+        if src =~ /\A(.*)_(\w+)\Z/
+          # if the element was not found, maybe it was not a name with underscore but it was an image mode
+          src2, mode2 = $1, $2
         end
-      
+        
         if src[0..0] == '/'
-          path = src[1..-1]
+          path1 = src[1..-1]
+          path2 = src2[1..-1] if src2
         else
-          path = current_folder + '/' + src
+          path1 = current_folder + '/' + src
+          path2 = current_folder + '/' + src2 if src2
         end
         
         # make sure path elements are url_names
-        path = path.split('/').map {|s| s.url_name!}.join('/')
-      
-        return nil unless asset = secure(Document) { Document.find_by_path(path) }
+        path1 = path1.split('/').map {|s| s.url_name!}.join('/')
+        path2 = path2.split('/').map {|s| s.url_name!}.join('/') if src2
+        
+        if asset = secure(Document) { Document.find_by_path(path1) }
+        elsif src2 && (asset = secure(Document) { Document.find_by_path(path2) })
+          mode = mode2
+        else
+          return nil
+        end
       else
+        if src =~ /\A(.*)_(\w+)\Z/
+          src, mode = $1, $2
+        end
+        
         return nil unless res = find_document_for_template(opts)
         asset, url = *res
         @renamed_assets[url] = asset
       end
       
-      data_path(asset)
+      data_path(asset, :mode => mode)
     end
     
     # opts should contain :current_template and :src. The source is a path like 'default/Node-*index'
@@ -423,6 +441,10 @@ END_MSG
       src    = opts[:src]
       if src =~ /\A(.*)\.(\w+)\Z/
         src, format = $1, $2
+      end
+      
+      if src =~ /\A(.*)_(\w+)\Z/
+        src, mode = $1, $2
       end
       
       folder = (opts[:current_folder] && opts[:current_folder] != '') ? opts[:current_folder].split('/') : []
@@ -451,7 +473,10 @@ END_MSG
         end
         break if document
       end
-      return document ? [document, (([skin_name] + url).join('/') + (format ? ".#{format}" : ''))] : nil
+      if format == 'data' && document
+        format = document.c_ext
+      end
+      return document ? [document, (([skin_name] + url).join('/') + (mode ? "_#{mode}" : '') + (format ? ".#{format}" : ''))] : nil
     end
   
     # TODO: test

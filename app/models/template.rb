@@ -67,6 +67,7 @@ class Template < TextDocument
 <html xmlns="http://www.w3.org/1999/xhtml" do='void' lang="en" set_lang='[v_lang]' xml:lang='en'>
 <head do='void' name='head'>
   <title do='title_for_layout' do='show' attr='v_title' name='page_title'>page title</title>
+  <!-- link href='favicon.png' rel='shortcut icon' type='image/png' / -->
   <meta http-equiv="Content-type" content="text/html; charset=utf-8" />
   <r:void name='stylesheets'>
     <r:stylesheets list='reset,zena,code'/>

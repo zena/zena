@@ -30,7 +30,7 @@ end
 
 class ImageBuilder
   DEFAULT_FORMATS = {
-    'tiny' =>   { :name=>'tiny', :size=>:force, :width=>15,  :height=>15 , :gravity=>Magick::CenterGravity   }.freeze,
+    'tiny' =>   { :name=>'tiny', :size=>:force, :width=>16,  :height=>16 , :gravity=>Magick::CenterGravity   }.freeze,
     'mini' =>   { :name=>'mini', :size=>:force, :width=>32,  :height=>32 , :gravity=>Magick::CenterGravity   }.freeze,
     'square' => { :name=>'square', :size=>:limit, :width=>180, :height=>180, :gravity=>Magick::CenterGravity   }.freeze,
     'med'  =>   { :name=>'med',  :size=>:limit, :width=>280, :height=>186, :gravity=>Magick::CenterGravity   }.freeze,

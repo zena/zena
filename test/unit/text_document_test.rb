@@ -83,6 +83,7 @@ class TextDocumentTest < ZenaTestUnit
     start =<<-END_CSS
     body { font-size:10px; }
     #header { background:url('green_bird.jpg') }
+    #tiny   { background:url('green_bird_tiny.jpg') }
     #footer { background:url('/projects/wiki/flower.jpg') }
     END_CSS
     node.v_text = start.dup
@@ -94,6 +95,7 @@ class TextDocumentTest < ZenaTestUnit
     res =<<-END_CSS
     body { font-size:10px; }
     #header { background:url('/en/image30.jpg') }
+    #tiny   { background:url('/en/image30_tiny.jpg') }
     #footer { background:url('/en/image31.jpg') }
     END_CSS
     assert_equal res, text

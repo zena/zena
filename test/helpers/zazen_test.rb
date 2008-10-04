@@ -80,7 +80,7 @@ class ZazenHelperTest < ZenaTestHelper
     preserving_files('test.host/data/jpg/14') do
       # ** [!24.pv!] inline image transformed to format 'pv'. Formats are defined in #ImageBuilder.
       assert_match %r{.*img.*/en/projects/cleanWater/image24.jpg.*600.*440.*class='full'}, zazen('!24.full!')
-      assert_match %r{.*img.*/en/projects/cleanWater/image24_tiny.jpg.*15.*15.*class='tiny'}, zazen('!24.tiny!')
+      assert_match %r{.*img.*/en/projects/cleanWater/image24_tiny.jpg.*16.*16.*class='tiny'}, zazen('!24.tiny!')
     end
   end
 
