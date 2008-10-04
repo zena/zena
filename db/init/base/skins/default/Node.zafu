@@ -10,7 +10,7 @@
     <link href="style.css" rel="Stylesheet" type="text/css"/>
   </r:void>
 
-  <r:javascripts list='prototype,effects,zena'/>
+  <r:javascripts/>
   <r:uses_calendar/>
 </head>
 
