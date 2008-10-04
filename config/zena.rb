@@ -2,6 +2,8 @@ require 'rubygems'
 require 'date'
 require 'uuidtools'
 require "#{RAILS_ROOT}/config/version"
+require 'fileutils'
+
 AUTHENTICATED_PREFIX = "oo"
 SITES_ROOT = "#{RAILS_ROOT}/sites"
 PASSWORD_SALT = "jf93jfnvnas09093nas0923" # type anything here (but change this line !)
@@ -21,6 +23,14 @@ puts "** zena #{Zena::VERSION::STRING} r#{Zena::VERSION::REV} #{tools_enabled ==
 unless File.exist?(File.join(File.dirname(__FILE__), '..', 'log', 'upload_progress_drb.pid'))
   puts "\n** WARNING: drb server not running. Upload progress will not work."
   puts " * WARNING: you should start the drb server with 'lib/upload_progress_server.rb start'\n\n"
+end
+
+unless File.exist?(File.join(File.dirname(__FILE__), 'database.yml'))
+  FileUtils.cp(File.join(File.dirname(__FILE__), 'database_example.yml'), File.join(File.dirname(__FILE__), 'database.yml'))
+end
+
+unless File.exist?(File.join(File.dirname(__FILE__), '..', 'log'))
+  FileUtils.mkpath(File.join(File.dirname(__FILE__), '..', 'log'))
 end
 
 # TODO: where should this go ? (it has to be loaded by 'rake' and tests...)
