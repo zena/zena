@@ -85,10 +85,10 @@ class Image < Document
   end
   
   # filter attributes so there is no 'crop' with a new file
-  def attributes=(attributes)
-    attributes.delete('c_crop') if attributes['c_file'] && attributes['c_crop']
-    
-    super(attributes)
+  def filter_attributes(attributes)
+    attrs = super
+    attrs.delete('c_crop') if attributes['c_file'] && attributes['c_crop']
+    attrs
   end
   
   # Return the image file for the given format (see Image for information on format)
