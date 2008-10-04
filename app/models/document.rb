@@ -56,7 +56,7 @@ class Document < Node
         content_type = file.content_type
       elsif hash['c_content_type']
         content_type = hash['c_content_type']
-      elsif hash['name'] =~ /^.*\.(\w+)$/ && types = EXT_TO_TYPE[$1]
+      elsif hash['name'] =~ /^.*\.(\w+)$/ && types = EXT_TO_TYPE[$1.downcase]
         content_type = types[0]
       end
       
@@ -108,7 +108,7 @@ class Document < Node
       else
         attributes['name']    = base if new_record?
       end
-      if attributes['v_title'].to_s =~ /\A(.*)\.#{attributes['c_ext']}$/
+      if attributes['v_title'].to_s =~ /\A(.*)\.#{attributes['c_ext']}$/i
         attributes['v_title'] = $1
       end
     end

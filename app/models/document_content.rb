@@ -94,7 +94,8 @@ class DocumentContent < ActiveRecord::Base
         else
           self[:size] = @file.stat.size
         end
-        if EXT_TO_TYPE[self.ext] != self.content_type
+        
+        if EXT_TO_TYPE[self.ext].nil? || !EXT_TO_TYPE[self.ext].include?(self.content_type)
           self.ext = @file.original_filename.split('.').last
         end
       end
@@ -102,7 +103,7 @@ class DocumentContent < ActiveRecord::Base
       # is this extension valid ?
       extensions = TYPE_TO_EXT[content_type] 
       if extensions && content_type != 'application/octet-stream' # use 'bin' extension only if we do not have any other ext. 
-        self[:ext] = extensions.include?(self.ext) ? self.ext : extensions[0]
+        self[:ext] = extensions.include?(self.ext.downcase) ? self.ext.downcase : extensions[0]
       else
         # unknown content_type or 'application/octet-stream' , just keep the extension we have
         self[:ext] ||= 'bin'
