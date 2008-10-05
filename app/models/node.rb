@@ -127,7 +127,7 @@ and the 'photos' url is now in the worldTour project's basepath:
 Setting 'custom_base' on a node should be done with caution as the node's zip is on longer in the url and when you move the node around, there is no way to find the new location from the old url. Custom_base should therefore only be used for nodes that are not going to move.
 =end
 class Node < ActiveRecord::Base
-  attr_accessor      :link, :old_version
+  attr_accessor      :link, :old_title
   zafu_readable      :name, :created_at, :updated_at, :event_at, :log_at, :kpath, :user_zip, :parent_zip, :project_zip,
                      :section_zip, :skin, :ref_lang, :fullpath, :rootpath, :position, :publish_from, :max_status, :rgroup_id, 
                      :wgroup_id, :pgroup_id, :basepath, :custom_base, :klass, :zip, :score, :comments_count, :l_status, :l_comment,
@@ -1557,7 +1557,7 @@ class Node < ActiveRecord::Base
     
     # Try to keep node name in sync with published v_title in ref_lang. This is set after_publish.
     def sync_name
-      return true if @old_version.nil? || version.lang != ref_lang || name == version.title.url_name || old.name != @old_version.title.url_name
+      return true if @old_title.nil? || version.lang != ref_lang || name == version.title.url_name || old.name != @old_title.url_name
       update_attributes(:name => version.title.url_name)
     end
   

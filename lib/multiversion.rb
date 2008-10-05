@@ -483,7 +483,9 @@ module Zena
           end
           
           if ok && publish_after_save
-            if can_apply?(:publish)
+            if v_status == Zena::Status[:pub]
+              ok = after_publish && update_publish_from
+            elsif can_apply?(:publish)
               ok = apply(:publish)
             elsif can_apply?(:propose)
               ok = apply(:propose)
@@ -544,8 +546,8 @@ module Zena
             v.node = self if v
             
             if v && (v.user_id == visitor[:id]) && (v.status == Zena::Status[:red] || redit)
-              @old_version = @version
-              @redaction   = @version = v
+              @old_title = @version.title # node sync_name leaking here...
+              @redaction = @version = v
             elsif v
               errors.add('base', "(#{v.user.login}) is editing this node")
               nil

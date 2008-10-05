@@ -30,15 +30,15 @@ class ContactVersion < Version
         end
       end
       
-      old = node.old_version
-      return true if old.nil?
+      old_title = node.old_title
+      return true if old_title.nil?
       # what changed ?
-      title_changed    = title            != old.title
+      title_changed    = title            != old_title
       fullname_changed = content.fullname != @old_fullname
       # 1. both
       if title_changed && fullname_changed
         # ignore
-      elsif fullname_changed && node.old_version.title == @old_fullname
+      elsif fullname_changed && node.old_title == @old_fullname
         # content changed and title was in sync
         self.title = content.fullname
       end

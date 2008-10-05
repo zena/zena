@@ -1377,6 +1377,32 @@ done: \"I am done\""
     assert_equal 'nicePeople', node.name
   end
   
+  def test_sync_name_on_v_title_change_auto_pub_no_sync
+    Site.connection.execute "UPDATE sites set auto_publish = 1, redit_time = 3600 WHERE id = #{sites_id(:zena)}"
+    Version.connection.execute "UPDATE versions set updated_at = '#{Time.now.strftime('%Y-%m-%d %H:%M:%S')}' WHERE node_id IN (#{nodes_id(:status)},#{nodes_id(:people)})"
+    login(:tiger)
+    # was not in sync
+    node = secure!(Node) { nodes(:status) }
+    assert node.update_attributes(:v_title => 'simply different')
+    assert_equal 'status', node.name
+    visitor.lang = 'fr'
+    # not ref lang
+    node = secure!(Node) { nodes(:people) }
+    assert node.update_attributes(:v_title => 'nice people')
+    assert_equal 'fr', node.v_lang
+    assert_equal 'people', node.name
+  end
+  
+  def test_sync_name_on_v_title_change_auto_pub
+    Site.connection.execute "UPDATE sites set auto_publish = 1, redit_time = 3600 WHERE id = #{sites_id(:zena)}"
+    Version.connection.execute "UPDATE versions set updated_at = '#{Time.now.strftime('%Y-%m-%d %H:%M:%S')}' WHERE node_id IN (#{nodes_id(:people)})"
+    login(:tiger)
+    # was in sync, correct lang
+    node = secure!(Node) { nodes(:people) }
+    assert node.update_attributes(:v_title => 'nice people')
+    assert_equal 'nicePeople', node.name
+  end
+  
   # FIXME: write test
   def test_assets
     assert true
