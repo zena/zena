@@ -3037,6 +3037,8 @@ END_TXT
         erb_text
       elsif node_kind_of?(Node)
         "<%= #{node}.v_title %>"
+      elsif node_kind_of?(Version)
+        "<%= #{node}.title %>"
       else
         _('edit')
       end
