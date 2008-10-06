@@ -45,7 +45,7 @@ class ApplicationController < ActionController::Base
             if File.exists?("#{SITES_ROOT}/#{current_site.host}/public/#{prefix}/404.html")
               render :file => "#{SITES_ROOT}/#{current_site.host}/public/#{prefix}/404.html", :status => '404 Not Found'
             else
-              render_and_cache :mode => '*notFound', :format => 'html', :cache_url => "/#{prefix}/404.html", :status => '404 Not Found'
+              render_and_cache :mode => '+notFound', :format => 'html', :cache_url => "/#{prefix}/404.html", :status => '404 Not Found'
             end
           end
           format.all  { render :nothing => true, :status => "404 Not Found" }
@@ -264,8 +264,8 @@ END_MSG
       klasses = []
       klass.kpath.split(//).each_index { |i| klasses << klass.kpath[0..i] }
       
-      # FIXME: is searching in all skins a good idea ? I think not. Only searching for special modes '*popupLayout', '*login', etc.
-      if mode && mode[0..0] == '*'
+      # FIXME: is searching in all skins a good idea ? I think not. Only searching for special modes '+popupLayout', '+login', etc.
+      if mode && mode[0..0] == '+'
         template = secure(Template) { Template.find(:first, 
           :conditions => ["tkpath IN (?) AND format = ? AND mode #{mode ? '=' : 'IS'} ? AND template_contents.node_id = nodes.id", klasses, format, mode],
           :from       => "nodes, template_contents",
@@ -314,7 +314,7 @@ END_MSG
         skin_helper = response.template
         res = ZafuParser.new_with_url(skin_path, :helper => skin_helper).render
         
-        if session[:dev] && mode != '*popupLayout'
+        if session[:dev] && mode != '+popupLayout'
           # add template edit buttons
           used_nodes  = []
           zafu_nodes  = []
@@ -428,7 +428,7 @@ END_MSG
       data_path(asset, :mode => mode)
     end
     
-    # opts should contain :current_template and :src. The source is a path like 'default/Node-*index'
+    # opts should contain :current_template and :src. The source is a path like 'default/Node-+index'
     # ('skin/template/path'). If the path starts with a slash, the skin_name in the path is searched first. Otherwise,
     # the current skin is searched first.
     # <r:include template='Node'/>
@@ -490,7 +490,7 @@ END_MSG
     
     # TODO: test
     def fullpath_from_template_url(template_url=params[:t_url])
-      if template_url =~ /\A\.|[^\w\*\._\-\/]/
+      if template_url =~ /\A\.|[^\w\+\._\-\/]/
         raise Zena::AccessViolation.new("'template_url' contains illegal characters : #{template_url.inspect}")
       end
       
@@ -793,12 +793,12 @@ END_MSG
     # and then into default. This action is also responsible for setting a default @title_for_layout.
     def admin_layout
       @title_for_layout ||= "#{params[:controller]}/#{params[:action]}"
-      template_url(:mode=>'*adminLayout')
+      template_url(:mode=>'+adminLayout')
     end
   
     # TODO: test
     def popup_layout
-      template_url(:mode=>'*popupLayout')
+      template_url(:mode=>'+popupLayout')
     end
     
     def format_date(thedate, theformat = nil, tz_name=nil, lang=visitor.lang)

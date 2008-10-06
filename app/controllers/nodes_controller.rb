@@ -27,7 +27,7 @@ class NodesController < ApplicationController
   def index
     @node = current_site.root_node
     respond_to do |format|
-      format.html { render_and_cache :mode => '*index' }
+      format.html { render_and_cache :mode => '+index' }
       format.xml  { render :xml => @node.to_xml }
     end
   end
@@ -49,7 +49,7 @@ class NodesController < ApplicationController
   def search
     do_search
     respond_to do |format|
-      format.html { render_and_cache :mode => '*search', :cache => false }
+      format.html { render_and_cache :mode => '+search', :cache => false }
       format.js
     end
   end

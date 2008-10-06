@@ -73,7 +73,7 @@ class VersionsController < ApplicationController
   end
   
   def custom_tab
-    render :file => template_url(:mode=>'*edit', :format=>'html'), :layout=>false
+    render :file => template_url(:mode=>'+edit', :format=>'html'), :layout=>false
   rescue ActiveRecord::RecordNotFound
     render :inline => "no custom form for this class (#{@node.klass})"
   end

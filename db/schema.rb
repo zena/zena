@@ -160,7 +160,6 @@ ActiveRecord::Schema.define(:version => 0) do
   end
 
   create_table "nodes", :force => true do |t|
-    t.column "zip",          :integer
     t.column "type",         :string,   :limit => 32
     t.column "event_at",     :datetime
     t.column "kpath",        :string,   :limit => 16
@@ -184,6 +183,7 @@ ActiveRecord::Schema.define(:version => 0) do
     t.column "custom_base",  :boolean,                 :default => false
     t.column "basepath",     :text
     t.column "site_id",      :integer
+    t.column "zip",          :integer
     t.column "project_id",   :integer
     t.column "position",     :float,                   :default => 0.0
     t.column "vclass_id",    :integer

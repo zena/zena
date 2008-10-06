@@ -30,7 +30,7 @@ class Template < TextDocument
   def filter_attributes(attributes)
     content    = version.content
     new_name   = attributes['name'] || (new_record? ? attributes['v_title'] : nil) # only set name from version title on creation
-    if new_name =~ /^([A-Z][a-zA-Z\*]+?)(-(([a-zA-Z_\*]*)(-([a-zA-Z_]+)|))|)(\.|\Z)/
+    if new_name =~ /^([A-Z][a-zA-Z]+?)(-(([a-zA-Z_\+]*)(-([a-zA-Z_]+)|))|)(\.|\Z)/
       attributes['c_klass' ] ||= $1
       attributes['c_mode'  ] ||= $4
       attributes['c_format'] ||= ($6 || 'html')
@@ -57,7 +57,7 @@ class Template < TextDocument
         content.format = 'html' if content.format.blank?
         self[:name] = name_from_content(:format => content.format, :mode => content.mode, :klass => content.klass)
         
-        if version.text.blank? && content.format == 'html' && content.mode != '*edit'
+        if version.text.blank? && content.format == 'html' && content.mode != '+edit'
           # set a default text
         
           if content.klass == 'Node'
@@ -75,6 +75,7 @@ class Template < TextDocument
   </r:void>
 
   <r:javascripts list='prototype,effects,zena'/>
+  <r:uses_calendar/>
 </head>
 <body>
 </body>

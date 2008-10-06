@@ -460,7 +460,7 @@ Node_search_zafu_en:
   node:            Node_search_zafu
   user:            tiger
   text:  |
-<% File.foreach("#{RAILS_ROOT}/db/init/base/skins/default/Node-*search.zafu") do |l| %>    <%= l %><% end %>
+<% File.foreach("#{RAILS_ROOT}/db/init/base/skins/default/Node-+search.zafu") do |l| %>    <%= l %><% end %>
 
 style_css_en:
   type:            TextDocumentVersion
@@ -481,28 +481,28 @@ Node_admin_layout_zafu_en:
   node:            Node_admin_layout_zafu
   user:            tiger
   text:  |
-<% File.foreach("#{RAILS_ROOT}/db/init/base/skins/default/Node-*adminLayout.zafu") do |l| %>    <%= l %><% end %>
+<% File.foreach("#{RAILS_ROOT}/db/init/base/skins/default/Node-+adminLayout.zafu") do |l| %>    <%= l %><% end %>
 
 Node_index_zafu_en:
   type:            TemplateVersion
   node:            Node_index_zafu
   user:            tiger
   text:  |
-<% File.foreach("#{RAILS_ROOT}/db/init/base/skins/default/Node-*index.zafu") do |l| %>    <%= l %><% end %>
+<% File.foreach("#{RAILS_ROOT}/db/init/base/skins/default/Node-+index.zafu") do |l| %>    <%= l %><% end %>
 
 Node_not_found_zafu_en:
   type:            TemplateVersion
   node:            Node_not_found_zafu
   user:            tiger
   text:  |
-<% File.foreach("#{RAILS_ROOT}/db/init/base/skins/default/Node-*notFound.zafu") do |l| %>    <%= l %><% end %>
+<% File.foreach("#{RAILS_ROOT}/db/init/base/skins/default/Node-+notFound.zafu") do |l| %>    <%= l %><% end %>
 
 Node_popup_layout_zafu_en:
   type:            TemplateVersion
   node:            Node_popup_layout_zafu
   user:            tiger
   text:  |
-<% File.foreach("#{RAILS_ROOT}/db/init/base/skins/default/Node-*popupLayout.zafu") do |l| %>    <%= l %><% end %>
+<% File.foreach("#{RAILS_ROOT}/db/init/base/skins/default/Node-+popupLayout.zafu") do |l| %>    <%= l %><% end %>
 
 Node_test_en:
   type:            TemplateVersion
@@ -530,7 +530,7 @@ Node_login_zafu_en:
   node:            Node_login_zafu
   user:            tiger
   text:  |
-<% File.foreach("#{RAILS_ROOT}/db/init/base/skins/default/Node-*login.zafu") do |l| %>    <%= l %><% end %>
+<% File.foreach("#{RAILS_ROOT}/db/init/base/skins/default/Node-+login.zafu") do |l| %>    <%= l %><% end %>
 
 translations_de:
   type:            TextDocumentVersion

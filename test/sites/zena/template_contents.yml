@@ -3,7 +3,7 @@ Node_search_zafu:
   skin_name:       default
   format:          html
   tkpath:          N
-  mode:            "*search"
+  mode:            "+search"
   klass:           Node
   
 Node_zafu:
@@ -19,7 +19,7 @@ Node_admin_layout_zafu:
   skin_name:       default
   format:          html
   tkpath:          N
-  mode:            "*adminLayout"
+  mode:            "+adminLayout"
   klass:           Node
   
 Node_index_zafu:
@@ -27,7 +27,7 @@ Node_index_zafu:
   skin_name:       default
   format:          html
   tkpath:          N
-  mode:            "*index"
+  mode:            "+index"
   klass:           Node
   
 Node_not_found_zafu:
@@ -35,7 +35,7 @@ Node_not_found_zafu:
   skin_name:       default
   format:          html
   tkpath:          N
-  mode:            "*notFound"
+  mode:            "+notFound"
   klass:           Node
   
 Node_popup_layout_zafu:
@@ -43,7 +43,7 @@ Node_popup_layout_zafu:
   skin_name:       default
   format:          html
   tkpath:          N
-  mode:            "*popupLayout"
+  mode:            "+popupLayout"
   klass:           Node
   
 notes_zafu:
@@ -91,7 +91,7 @@ Node_login_zafu:
   skin_name:       default
   format:          html
   tkpath:          N
-  mode:            "*login"
+  mode:            "+login"
   klass:           Node
 
 Node_test_zafu:

@@ -305,22 +305,22 @@ Node_zafu:
 
 Node_admin_layout_zafu:
   class:           Template
-  name:            Node-*adminLayout
+  name:            Node-+adminLayout
   parent:          default
 
 Node_index_zafu:
   class:           Template
-  name:            Node-*index
+  name:            Node-+index
   parent:          default
 
 Node_not_found_zafu:
   class:           Template
-  name:            Node-*notFound
+  name:            Node-+notFound
   parent:          default
 
 Node_popup_layout_zafu:
   class:           Template
-  name:            Node-*popupLayout
+  name:            Node-+popupLayout
   parent:          default
 
 notes_zafu:
@@ -340,7 +340,7 @@ Project_zafu:
 
 Node_login_zafu:
   class:           Template
-  name:            Node-*login
+  name:            Node-+login
   parent:          default
 
 translations:

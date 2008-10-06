@@ -582,9 +582,9 @@ class NodeTest < ZenaTestUnit
   
   def test_url_name
     assert_equal "salutJEcrisAujourdHui", "salut j'écris: Aujourd'hui ".url_name!
-    assert_equal "a--Bab*Mol", " à,--/ bab* mol".url_name!
+    assert_equal "a--BabMol", " à,--/ bab* mol".url_name!
     assert_equal "07.11.2006-mardiProchain", "07.11.2006-mardi_prochain".url_name!
-    assert_equal "Node-*login", "Node-*login".url_name!
+    assert_equal "Node-+login", "Node-+login".url_name!
   end
   
   def test_tags
