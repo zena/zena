@@ -252,7 +252,7 @@ class UserTest < ZenaTestUnit
     assert user.errors[:site]
     
     # make lion a user of ocean
-    Group.connection.execute "INSERT INTO participations (site_id, user_id, status) VALUES (#{sites_id(:ocean)}, #{users_id(:lion)},50)"
+    Group.connection.execute "INSERT INTO participations (site_id, user_id, status, lang) VALUES (#{sites_id(:ocean)}, #{users_id(:lion)}, 50, 'en')"
     login(:lion)
     user = secure!(User) { User.new(:login=>'joe', :password=>'secret', :site_ids=>[sites_id(:zena),sites_id(:ocean)])}
     assert !user.save
