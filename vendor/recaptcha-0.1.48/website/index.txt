@@ -1,0 +1,111 @@
+h1. recaptcha
+
+h1. &#x2192; 'recaptcha'
+
+
+h2. What
+
+
+h2. Installing
+
+<pre>
+  gem install --source http://www.loonsoft.com/recaptcha/pkg/ recaptcha
+</pre>
+<em>Note: the trailing slash on the uri is significant.</em>
+
+h2. The basics
+
+The ReCaptchaClient abstracts the ReCaptcha API for use in Rails Applications
+
+
+h2. Demonstration of usage
+
+h3. reCAPTCHA
+
+First, create an account at "ReCaptcha.net":http://www.recaptcha.net.
+
+Get your keys, and make them available as constants in your application. You can do this however you want, but RCC_PUB, RCC_PRIV (for regular reCaptcha) and MH_PUB MH_PRIV (for MailHide) must be set to their respective values (the keys you receive from reCaptcha).
+
+The two common methods of doing this (for Rails applications) are to set these variables in your environment.rb file, or via an environment variable.
+
+The ReCaptchaClient initializer can also take an options hash containing keys thusly:
+<pre>
+  RecaptchaClient.new(:rcc_pub=>'some key', :rcc_priv=>'some other key')
+</pre>
+
+After your keys are configured, require and include the gem into your application.rb, NOTE: gem is used here, not require
+<pre>
+gem 'recaptcha'
+class ApplicationController < ActionController::Base
+  include ReCaptcha::AppHelper
+</pre>
+ This will mix in validate_recap to your application controller.
+
+
+Then, in your concrete controller, chain validate_recap into your validation:
+<pre>
+  def create
+      @user = User.new(params[:user])
+      if validate_recap(params, @user.errors) && @user.save
+             ...do stuff...
+</pre>
+
+Require and include the view helper in your application_helper: NOTE: require is used here, not gem, not sure why.
+<pre>
+  require 'recaptcha'
+  include ReCaptcha::ViewHelper</pre> 
+This will mix in get_captcha().
+
+Now you can just call <pre>get_captcha()</pre> in your view to insert the requisite widget from ReCaptcha.
+
+To customize theme and tabindex of the widget, you can include an options hash:
+
+<pre>get_captcha(:options => {:theme => 'white', :tabindex => 10})</pre>
+
+See the "reCAPTCHA API Documentation":http://recaptcha.net/apidocs/captcha/ under "Look and Feel Customization" for more information.
+
+h3. Proxy support
+
+If your rails application requires the use of a proxy, set proxy_host into your environment:
+<pre>
+  ENV['proxy_host']='foo.example.com:8080'
+</pre>
+
+h3. Mail Hide
+
+When you mix in ViewHelper as above, you also get <pre> mail_hide(address, contents)</pre>, which you can call in your view thusly:
+
+<pre>
+  ...
+  <%= mail_hide(user.email) %>
+</pre>
+
+Contents defaults to the first few characters of the email address.
+
+h2. Forum
+
+"http://groups.google.com/group/recaptcha":http://groups.google.com/group/recaptcha
+
+h2. Code
+
+Get it "here":http://hg.loonsoft.com/hg/recaptcha.master
+
+You'll want "Mercurial":http://www.selenic.com/mercurial
+
+h2. License
+
+This code is free to use under the terms of the MIT License.
+
+h2. Contact
+
+Comments are welcome. Send an email to "McClain Looney":mailto:mlooney@gmail.com.
+
+Contributors:
+
+Victor Cosby (test cleanup, additional code to style widget)
+<br>
+Ronald Schroeter (proxy support suggestion & proto-patch)
+<br>
+Peter Vandenberk (multi-key support, ssl support, various unit tests, test refactoring)
+<br>
+Kim Griggs (found long address-newline bug)  

@@ -18,6 +18,8 @@ Assumed:
 
 If anything goes wrong, ask the mailing list (lists.zenadmin.org) or read the content of this file to understand what went wrong...
 
+And yes, 'pass' is not as intuitive as 'password' but we cannot use the latter because it's used for the ssh login.
+
 
 =end
 require 'erb'
@@ -88,9 +90,9 @@ desc "after code update"
 task :after_update, :roles => :app do
   app_update_symlinks
   db_update_config
+  migrate
   clear_zafu
   clear_cache
-  migrate
 end
 
 desc "update symlink to 'sites' directory"
@@ -263,6 +265,7 @@ task :apache2_setup, :roles => :web do
   
   run "test -e /etc/apache2/sites-enabled/000-default && a2dissite default || echo 'default already disabled'"
   run "test -e /etc/apache2/mods-enabled/rewrite.load || a2enmod rewrite"
+  run "test -e /etc/apache2/mods-enabled/deflate.load || a2enmod deflate"
   run "test -e /etc/apache2/mods-enabled/proxy_balancer.load || a2enmod proxy_balancer"
   run "test -e /etc/apache2/mods-enabled/proxy.load || a2enmod proxy"
   run "test -e /etc/apache2/mods-enabled/proxy_http.load || a2enmod proxy_http"
@@ -317,7 +320,7 @@ task :initial_setup do
     
     db_setup
     
-    deploy::update_code
+    deploy::update
     
     mongrel_setup
 

@@ -103,11 +103,9 @@ ImageMagick (on mac os X using macports)
 
 Does not work with gettext > 1.90.0 or RedCloth > 3.x
     # gem install gettext --version 1.90.0 --no-ri --no-rdoc
-    # gem install RedCloth --version 3.0.4 --no-ri --no-rdoc
 Install other gems (you can remove "--no-ri --no-rdoc" if you want the documentation)
-    # gem install rake mongrel mongrel_cluster rmagick tzinfo RedCloth syntax mongrel_upload_progress uuidtools daemons ruby-debug --no-ri --no-rdoc
+    # gem install rake hoe mongrel mongrel_cluster rmagick tzinfo syntax mongrel_upload_progress uuidtools daemons capistrano ruby-debug --no-ri --no-rdoc
 From source
-    # gem install --source http://www.loonsoft.com/recaptcha/pkg/ recaptcha
 
 === Advised tools
 monit (debian package to monitor your mongrel processes)
