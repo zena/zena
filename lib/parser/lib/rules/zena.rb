@@ -1706,7 +1706,7 @@ END_TXT
         else
           _("made with zena")
         end
-        "<a class='zena' href='http://zenadmin.org' title='zena #{Zena::VERSION::STRING} r#{Zena::VERSION::REV}'>#{text}</a>"
+        "<a class='zena' href='http://zenadmin.org' title='zena <%= Zena::VERSION::STRING %> r<%= Zena::VERSION::REV %>'>#{text}</a>"
       end
     end
     
