@@ -155,7 +155,7 @@ class IformatTest < ZenaTestUnit
     login(:whale)
     imf = Iformat.create(:name => 'header', :height=>'34', :width => '500', :size => 'force')
     assert imf.new_record?, "New record"
-    assert_equal "%{fn} has already been taken", imf.errors['name']
+    assert_equal "Name has already been taken", imf.errors['name']
   end
   
   def test_create_update_not_admin

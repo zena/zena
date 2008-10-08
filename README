@@ -101,10 +101,8 @@ ImageMagick (on mac os X using macports)
 
 === 3. install Gems
 
-Does not work with gettext > 1.90.0 or RedCloth > 3.x
-    # gem install gettext --version 1.90.0 --no-ri --no-rdoc
-Install other gems (you can remove "--no-ri --no-rdoc" if you want the documentation)
-    # gem install rake hoe mongrel mongrel_cluster rmagick tzinfo syntax mongrel_upload_progress uuidtools daemons capistrano ruby-debug --no-ri --no-rdoc
+You can remove "--no-ri --no-rdoc" if you want the documentation
+    # gem install rake hoe gettext mongrel mongrel_cluster rmagick tzinfo syntax mongrel_upload_progress uuidtools daemons capistrano ruby-debug --no-ri --no-rdoc
 From source
 
 === Advised tools
