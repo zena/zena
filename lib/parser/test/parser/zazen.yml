@@ -35,7 +35,7 @@ img_after_brackets:
   src: |
     Text updated in [July 2008].
     
-    !30.full!
+    !30_full!
   res: "<p>Text updated in [July 2008].</p>\n\n\n\t<p>[make_image id:|30| images:true mode:|full| style:||]</p>"
 
 code_params:
@@ -82,7 +82,7 @@ image_align:
   res: "<p>an image [make_image id:|12| images:true style:|&lt;.|]</p>"
   
 image_with_format:
-  src: "!21.mini!"
+  src: "!21_mini!"
   res: "<p>[make_image id:|21| images:true mode:|mini| style:||]</p>"
   
 image_title:
@@ -98,19 +98,19 @@ image_custom_title_with_markup:
   res: "<p>[make_image id:|12| images:true style:|| title:|this is <strong>some</strong> text|]</p>"
   
 image_with_link:
-  src: "!12.pv!:12"
+  src: "!12_pv!:12"
   res: "<p>[make_image id:|12| images:true link:|12| mode:|pv| style:||]</p>"
   
 image_with_link_mode:
-  src: "!12.pv!:20_changes"
+  src: "!12_pv!:20_changes"
   res: "<p>[make_image id:|12| images:true link:|20_changes| mode:|pv| style:||]</p>"
   
 image_with_link_mode_and_format:
-  src: "!12.pv!:20_med.data"
+  src: "!12_pv!:20_med.data"
   res: "<p>[make_image id:|12| images:true link:|20_med.data| mode:|pv| style:||]</p>"
   
 image_with_http_link:
-  src: "!12.pv!:http://www.example.org"
+  src: "!12_pv!:http://www.example.org"
   res: "<p>[make_image id:|12| images:true link:|http://www.example.org| mode:|pv| style:||]</p>"
 
 image_with_ref:

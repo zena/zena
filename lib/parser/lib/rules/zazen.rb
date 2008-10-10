@@ -5,7 +5,6 @@ require File.join(File.dirname(__FILE__) , 'code_syntax')
 
 module Zazen
   module Tags
-    
     # This is not exactly how compile/render is meant to work with Parser, but there is no real need for a two step
     # rendering, so we compile here (enter(:void)) instead of doing this whith 'start'. This also lets us have the
     # context during compilation which makes it easier to manage the callbacks to the helper.
@@ -47,6 +46,8 @@ end
 
 module Zazen
   module Rules
+    PSEUDO_ID_REGEXP = ":[0-9a-zA-Z-]+\\+*|\\([^\\)]+\\)"
+    
     def start(mode)
       @helper = @options[:helper]
       # we do nothing, everything is done when 'render' is called
@@ -149,16 +150,15 @@ module Zazen
         else
           store @helper._('[documents]')
         end
-      elsif @text =~ /\A\!([^0-9]{0,2}):([a-zA-Z-]+)(\+*)(\.([^\/\!]+)|)(\/([^\!]*)|)\!(:([^\s]+)|)/m
-        # image !<.:art++.pv/blah blah!:12
-        #puts "SHORCUT IMAGE:[#{$&}]"
+      elsif @text =~ /\A\!([^0-9]{0,2})(#{PSEUDO_ID_REGEXP})(_([^\/\!]+)|)(\/([^\!]*)|)\!(:([^\s]+)|)/m
+        # image !<.:art++_pv/blah blah!:12
+        #puts "SHORCUT IMAGE:#{$~.to_a.inspect}"
         eat $&
-        style, id, offset, other_opts, mode, title_opts, title, link = $1, $2, $3, $4, $5, $6, $7, $9
-        if node = @helper.find_node_by_shortcut(id,offset.size)
-          
-          if link && link =~ /^:([a-zA-Z-]+)(\+*)(.*)$/
-            rest = $3
-            if link_node = @helper.find_node_by_shortcut($1,$2.size)
+        style, id, other_opts, mode, title_opts, title, link = $1, $2, $3, $4, $5, $6, $8
+        if node = @helper.find_node_by_pseudo(id)
+          if link && link =~ /^(#{PSEUDO_ID_REGEXP})(.*)$/
+            rest = $2
+            if link_node = @helper.find_node_by_pseudo($1)
               link = link_node[:zip].to_s + rest
             end
           end
@@ -180,16 +180,16 @@ module Zazen
         elsif @parse_shortcuts
           store $&
         else
-          store "[#{id}#{offset != '' ? offset.size+1 : ''} not found]"
+          store "[#{id} not found]"
         end
-      elsif @text =~ /\A\!([^0-9]{0,2})([0-9]+)(\.([^\/\!]+)|)(\/([^\!]*)|)\!(:([^\s]+)|)/m
-        # image !<.12.pv/blah blah!:12
+      elsif @text =~ /\A\!([^0-9]{0,2})([0-9]+)(_([^\/\!]+)|)(\/([^\!]*)|)\!(:([^\s]+)|)/m
+        # image !<.12_pv/blah blah!:12
         #puts "IMAGE:[#{$&}]"
         eat $&
         style, id, other_opts, mode, title_opts, title, link = $1, $2, $3, $4, $5, $6, $8
-        if link && link =~ /^:([a-zA-Z-]+)(\+*)(.*)/
-          rest = $3
-          if link_node = @helper.find_node_by_shortcut($1,$2.size)
+        if link && link =~ /^(#{PSEUDO_ID_REGEXP})(.*)$/
+          rest = $2
+          if link_node = @helper.find_node_by_pseudo($1)
             link = link_node[:zip].to_s + rest
           end
         end
@@ -220,17 +220,21 @@ module Zazen
           end
           store @helper.make_link(:title=>title,:id=>id,:sharp=>sharp)
         end
-      elsif @text =~ /\A"([^"]*)"::([a-zA-Z-]+)(\+*)((_[a-z]+|)(\.[a-z]+|)(#[a-z_\/\[\]]*|))/m
+      elsif @text =~ /\A"([^"]*)":(#{PSEUDO_ID_REGEXP})((_[a-z]+|)(\.[a-z]+|)(#[a-z_\/\[\]]*|))/m
         #puts "SHORTCUT_LINK:[#{$&}]"
         eat $&
-        title, id, offset, mode = $1, $2, $3, $4
-        if node = @helper.find_node_by_shortcut(id,offset.size)
-          id = "#{node.zip}#{mode}"
+        title, pseudo_id, mode_format, mode, format, dash = $1, $2, $3, $4, $5, $6
+        if node = @helper.find_node_by_pseudo(pseudo_id)
+          id = "#{node.zip}#{mode_format}"
           if @parse_shortcuts
             # replace shortcut
             store "\"#{title}\":#{id}"
           else
-            title = node.fullpath
+            if format == '.data'
+              title = "#{node.fullpath}#{mode}.#{node.c_ext}#{dash}"
+            else
+              title = "#{node.fullpath}#{mode_format}"
+            end
             if id =~ /(.*?)#(.*)/
               id, sharp = $1, $2
               sharp = 'true' if sharp == ''
@@ -240,7 +244,8 @@ module Zazen
         elsif @parse_shortcuts
           store $&
         else
-          store "[#{id}#{offset != '' ? offset.size+1 : ''} not found]"
+          pseudo_id = pseudo_id[1..-1] if pseudo_id[0..0] == ':'
+          store "[#{pseudo_id} not found]"
         end
       else
         #puts "NOT A ZAZEN LINK"
@@ -380,9 +385,8 @@ module Zazen
     
     def parse_document_ids(str)
       str.split(',').map do |id|
-        if id =~ /\A:([a-zA-Z-]+)(\+*)/
-          id, offset = $1, $2
-          if node = @helper.find_node_by_shortcut(id.strip,offset.size)
+        if id =~ /\A(#{PSEUDO_ID_REGEXP})/
+          if node = @helper.find_node_by_pseudo($1)
             if node.kind_of?(Document)
               # replace shortcut
               node.zip
@@ -392,7 +396,7 @@ module Zazen
               nil # not a document
             end
           elsif @parse_shortcuts
-            ":#{id}#{offset}"
+            id
           else
             nil # document not found
           end

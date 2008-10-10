@@ -303,7 +303,7 @@ module ApplicationHelper
   # ** [!<.14!] or [!<14!] inline image surrounded with <p class='img_left'></p>
   # ** [!>.14!] or [!>14!] inline image surrounded with <p class='img_right'></p>
   # ** [!=.14!] or [!=14!] inline image with <p class='img_center'></p>
-  # ** [!14.pv!] inline image transformed to format 'pv' (class is also set to 'pv'). Formats are defined in #ImageBuilder.
+  # ** [!14_pv!] inline image transformed to format 'pv' (class is also set to 'pv'). Formats are defined in #ImageBuilder.
   # ** all the options above can be used together as in [!>.14.med!] : inline image on the right, size 'med'.
   # ** [![2,3,5]!] gallery : inline preview with javascript inline viewer
   # ** [![]!] gallery with all images contained in the current node
@@ -333,9 +333,12 @@ module ApplicationHelper
   end
   
   # Find a node's zip based on a query shortcut. Used by zazen to create a link for ""::art for example.
-  def find_node_by_shortcut(string,offset=0)
-    secure(Node) { Node.find_node_by_shortcut(string,offset) }
+  def find_node_by_pseudo(string, start_path = nil)
+    start_path ||= @node ? @node.fullpath : nil
+    secure(Node) { Node.find_node_by_pseudo(string, start_path) }
   end
+  
+  
 
   # Parse the text in the given context (used by zazen)
   def make_asset(opts)
