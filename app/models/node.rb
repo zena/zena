@@ -257,18 +257,39 @@ class Node < ActiveRecord::Base
     def get_class_from_kpath(kp)
       native_classes[kp] || VirtualClass.find(:first, :conditions=>["site_id = ? AND kpath = ?",current_site[:id], kp])
     end
-
-    def translate_pseudo_id(id,sym=:id)
+    
+    # Find a node's attribute based on a pseudo (id or path). Used by zazen to create a link for ""::art or "":(people/ant) for example.
+    def translate_pseudo_id(id, sym = :id, base_path = nil)
+      if id.to_s =~ /\A\d+\Z/
+        # zip
+        # FIXME: this is not secure
+        res = Node.connection.execute( "SELECT #{sym} FROM nodes WHERE site_id = #{current_site[:id]} AND zip = '#{id}'" ).fetch_row
+        res ? res[0].to_i : nil
+      elsif node = find_node_by_pseudo(id,base_path)
+        node[sym]
+      else
+        nil
+      end
+    end
+    
+    # Find a node based on a query shortcut. Used by zazen to create a link for ""::art for example.
+    def find_node_by_pseudo(id, base_path = nil)
+      raise Zena::AccessViolation if self.scoped_methods == []
       str = id.to_s
       if str =~ /\A\d+\Z/
         # zip
-        res = Node.connection.execute( "SELECT #{sym} FROM nodes WHERE site_id = #{current_site[:id]} AND zip = '#{str}'" ).fetch_row
-        res ? res[0].to_i : nil
-      elsif str =~ /\A([a-zA-Z ]+)(\+*)\Z/
-        node = find_node_by_shortcut($1,$2.size)
-        node ? node[sym] : nil
-      else
-        nil
+        find_by_zip(str)
+      elsif str =~ /\A:?([0-9a-zA-Z ]+)(\+*)\Z/
+        offset = $2.to_s.size
+        find(:first, Node.match_query($1.gsub('-',' '), :offset => offset))
+      elsif path = str[/\A\(([^\)]+)\)\Z/,1]
+        if path[0..0] == '/'
+          find_by_path(path[1..-1])
+        elsif base_path
+          find_by_path("#{base_path}/#{path}")
+        else
+          find_by_path(path)
+        end
       end
     end
     
@@ -413,7 +434,7 @@ class Node < ActiveRecord::Base
           type   = :node
           name   = "#{$1}#{$4}"
           lang   = $2.blank? ? nil : $2[1..-1]
-          attrs  = defaults.merge(get_attributes_from_yaml(path))
+          attrs  = defaults.merge(get_attributes_from_yaml(path)) # FIXME: this should be done with proper 'start_path' [#226]
           attrs['name']     = name
           attrs['v_lang']   = lang || attrs['v_lang'] || visitor.lang
           versions << attrs
@@ -432,7 +453,7 @@ class Node < ActiveRecord::Base
           path   = File.join(folder,entries[index])
           
           # we have a zml file. Create a version with this file
-          attrs = defaults.merge(get_attributes_from_yaml(path))
+          attrs = defaults.merge(get_attributes_from_yaml(path)) # FIXME: this should be done with proper 'start_path' (= parent.path) [#226]
           attrs['name']     = name
           attrs['v_lang'] ||= lang
           versions << attrs
@@ -540,12 +561,6 @@ class Node < ActiveRecord::Base
       end
       node
     end
-
-    # Find a node's zip based on a query shortcut. Used by zazen to create a link for ""::art for example.
-    def find_node_by_shortcut(string,offset=0)
-      raise Zena::AccessViolation if self.scoped_methods == []
-      find(:first, Node.match_query(string.gsub('-',' '), :offset => offset))
-    end
     
     # Paginate found results. Returns [previous_page, collection, next_page]. You can specify page and items per page in the query hash :
     #  :page => 1, :per_page => 20. This should be wrapped into a secure scope.
@@ -635,7 +650,7 @@ class Node < ActiveRecord::Base
     
     # Translate attributes from the visitor's reference to the application.
     # This method translates dates, zazen shortcuts and zips and returns a stringified hash.
-    def transform_attributes(new_attributes)
+    def transform_attributes(new_attributes, start_path = nil)
       res = {}
       res['parent_id'] = new_attributes[:_parent_id] if new_attributes[:_parent_id] # real id set inside zena.
       
@@ -648,18 +663,18 @@ class Node < ActiveRecord::Base
       end
       
       if !res['parent_id'] && p = attributes['parent_id']
-        res['parent_id'] = Node.translate_pseudo_id(p) || p
+        res['parent_id'] = Node.translate_pseudo_id(p, :id, start_path) || p
       end
       
       attributes.keys.each do |key|
         next if ['_parent_id', 'parent_id'].include?(key)
         
         if ['rgroup_id', 'wgroup_id', 'pgroup_id'].include?(key)
-          res[key] = Group.translate_pseudo_id(attributes[key]) || attributes[key]
+          res[key] = Group.translate_pseudo_id(attributes[key], :id) || attributes[key]
         elsif ['rgroup', 'wgroup', 'pgroup'].include?(key)
-          res["#{key}_id"] = Group.translate_pseudo_id(attributes[key]) || attributes[key]
+          res["#{key}_id"] = Group.translate_pseudo_id(attributes[key], :id) || attributes[key]
         elsif ['user_id'].include?(key)
-          res[key] = User.translate_pseudo_id(attributes[key]) || attributes[key]
+          res[key] = User.translate_pseudo_id(attributes[key], :id) || attributes[key]
         elsif ['v_publish_from', 'log_at', 'event_at'].include?(key)
           if attributes[key].kind_of?(Time)
             res[key] = attributes[key]
@@ -669,17 +684,17 @@ class Node < ActiveRecord::Base
           end
         elsif key =~ /^(\w+)_id$/
           if key[0..1] == 'd_'
-            res[key] = Node.translate_pseudo_id(attributes[key],:zip) || attributes[key]
+            res[key] = Node.translate_pseudo_id(attributes[key], :zip, start_path) || attributes[key]
           else
-            res[key] = Node.translate_pseudo_id(attributes[key]) || attributes[key]
+            res[key] = Node.translate_pseudo_id(attributes[key],  :id, start_path) || attributes[key]
           end
         elsif key =~ /^(\w+)_ids$/
           # Id list. Bad ids are removed.
           values = attributes[key].kind_of?(Array) ? attributes[key] : attributes[key].split(',')
           if key[0..1] == 'd_'
-            values.map! {|v| Node.translate_pseudo_id(v,:zip) }
+            values.map! {|v| Node.translate_pseudo_id(v, :zip, start_path) }
           else
-            values.map! {|v| Node.translate_pseudo_id(v,:id ) }
+            values.map! {|v| Node.translate_pseudo_id(v,  :id, start_path) }
           end
           res[key] = values.compact
         elsif key == 'file'
@@ -700,10 +715,10 @@ class Node < ActiveRecord::Base
       res
     end
 
-    def get_attributes_from_yaml(filepath)
+    def get_attributes_from_yaml(filepath, start_path = nil)
       attributes = YAML::load( File.read( filepath ) )
       attributes.delete(:_parent_id)
-      transform_attributes(attributes)
+      transform_attributes(attributes, start_path)
     end
     
     # Return a safe string to access node attributes in compiled templates and compiled sql.

@@ -24,9 +24,9 @@ v_summary: |
   |\2. a line starting with a space = line break |
   |_. markup |_. result |
   | @!37!@ | image '37' in std format |
-  | @!37.pv!@ | image '37' in 'pv' format |
-  | @!37.pv/fig. 3!@ | image '37' in 'pv' format with 'fig. 3' as title |
-  | @!37.pv/!@ | image '37' in 'pv' format with it's summary as title |
+  | @!37_pv!@ | image '37' in 'pv' format |
+  | @!37_pv/fig. 3!@ | image '37' in 'pv' format with 'fig. 3' as title |
+  | @!37_pv/!@ | image '37' in 'pv' format with it's summary as title |
   | @!<.37!@ | image '37', float left (see below) |
   | @!37!:http://example.org@ | image '37', link to 'example.org' |
   | @!>.37!@ | float right |
@@ -74,9 +74,9 @@ v_text: |
 
   |_. markup |_. result |
   | @!37!@ | image '37' in std format |
-  | @!37.pv!@ | image '37' in 'pv' format |
-  | @!37.pv/fig. 3!@ | image '37' in 'pv' format with 'fig. 3' as title |
-  | @!37.pv/!@ | image '37' in 'pv' format with it's summary as title |
+  | @!37_pv!@ | image '37' in 'pv' format |
+  | @!37_pv/fig. 3!@ | image '37' in 'pv' format with 'fig. 3' as title |
+  | @!37_pv/!@ | image '37' in 'pv' format with it's summary as title |
   | @!<.37!@ | image '37', float left (see below) |
   | @!37!:http://example.org@ | image '37', link to 'example.org' |
   | @!>.37!@ | float right |

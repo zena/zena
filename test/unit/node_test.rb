@@ -31,8 +31,8 @@ class NodeTest < ZenaTestUnit
   def test_transform_attributes_zazen_shortcut_v_text
     login(:tiger)
     [
-      ["Hi, this is just a simple \"test\"::w or \"\"::w+_life.rss. OK ?\n\n!:lake+.pv!",
-       "Hi, this is just a simple \"test\":25 or \"\":29_life.rss. OK ?\n\n!24.pv!"],
+      ["Hi, this is just a simple \"test\"::w or \"\"::w+_life.rss. OK ?\n\n!:lake+_pv!",
+       "Hi, this is just a simple \"test\":25 or \"\":29_life.rss. OK ?\n\n!24_pv!"],
        
       ["Hi ![30,:lake+]! ![]!",
        "Hi ![30,24]! ![]!"],
@@ -40,8 +40,8 @@ class NodeTest < ZenaTestUnit
       ["Hi !{:bird,:lake+}! !{}!",
        "Hi !{30,24}! !{}!"],
 
-      ["Hi !30!::clean !:bird!::clean !:bird/nice bird!:21 !30.pv/hello ladies!:21",
-       "Hi !30!:21 !30!:21 !30/nice bird!:21 !30.pv/hello ladies!:21"],
+      ["Hi !30!::clean !:bird!::clean !:bird/nice bird!:21 !30_pv/hello ladies!:21",
+       "Hi !30!:21 !30!:21 !30/nice bird!:21 !30_pv/hello ladies!:21"],
        
       ["Hi, this is normal "":1/ just a\n\n* asf\n* asdf ![23,33]!",
        "Hi, this is normal "":1/ just a\n\n* asf\n* asdf ![23,33]!"],
@@ -1329,6 +1329,20 @@ done: \"I am done\""
       'statu'                     => nodes_id(:status),
     }.each do |k,v|
       assert_equal v, secure(Node) { Node.translate_pseudo_id(k) }, "'#{k}' should translate to '#{v}'"
+    end
+  end
+  
+  def test_translate_pseudo_id_path
+    login(:lion)
+    lion = secure!(Node) { nodes(:lion) }
+    assert lion.update_attributes(:name => 'status')
+       # path                           base_path
+    { ['(/projects/cleanWater/status)', nil]  => nodes_id(:status), 
+      ['(/projects/cleanWater/status)', 'people']  => nodes_id(:status),
+      ['(status)', 'people']  => nodes_id(:lion),
+      ['(status)', 'projects/cleanWater']  => nodes_id(:status),
+    }.each do |k,v|
+      assert_equal v, secure(Node) { Node.translate_pseudo_id(k[0],:id,k[1]) }, "'#{k.inspect}' should translate to '#{v}'"
     end
   end
   
