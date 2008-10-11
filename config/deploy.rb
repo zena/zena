@@ -125,7 +125,7 @@ end
 
 desc "update code in the current version"
 task :up, :roles => :app do
-  run "cd #{deploy_to}/current && svn up"
+  run "cd #{deploy_to}/current && svn up && (echo #{strategy.configuration[:real_revision]} > #{deploy_to}/current/REVISION)"
   db_update_config
   clear_zafu
   clear_cache

@@ -1,3 +1,4 @@
+require 'net/http' if ENABLE_ZENA_UP
 class SitesController < ApplicationController
   before_filter :visitor_node
   before_filter :find_site, :except => [:index, :create, :new, :zena_up]
@@ -18,26 +19,37 @@ class SitesController < ApplicationController
   
   # Update source code and restart application
   def zena_up
-    # are we up to date ?
-    latest = `curl -s http://svn.zenadmin.org/zena/`
     @current_rev = Zena::VERSION::REV.strip.to_i
-    if latest =~ /Revision (\d+)/
-      @latest_rev = $1.strip.to_i
+    
+    if params[:rev]
+      @target_rev = params[:rev].to_i
+    else
+      latest = Net::HTTP.get('svn.zenadmin.org', '/zena/')
+      if latest =~ /Revision (\d+)/
+        @target_rev = $1.strip.to_i
+      else
+        # error
+      end
+    end
+    
+    if @target_rev
       if params[:run] == 'start'
-        if @latest_rev == @current_rev
+        if @current_rev >= @target_rev
           # up to date (do nothing)
         else
           `zena_up`
         end
-        return redirect_to :action => 'zena_up', :run => 'updating'
-      elsif params[:run] == 'updating' && @latest_rev != @current_rev
+        return redirect_to :action => 'zena_up', :run => 'updating', :rev => @target_rev
+      elsif params[:run] == 'updating' && @current_rev < @target_rev
         # wait to finish
         @state = :wait
         headers["REFRESH"] = 30
-      elsif @latest_rev == @current_rev
+      elsif @current_rev >= @target_rev
         # done
         @state = :done
-        return redirect_to :action => 'zena_up' if params[:run]
+        return redirect_to :action => 'zena_up', :rev => @target_rev if params[:run]
+      else
+        # status page
       end
     else
       # error
