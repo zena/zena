@@ -1192,7 +1192,7 @@ ENDTXT
   def show_link(link, opt={})
     case link
     when :admin_links
-      [show_link(:home), show_link(:preferences), show_link(:comments), show_link(:users), show_link(:groups), show_link(:relations), show_link(:virtual_classes), show_link(:iformats), show_link(:sites), show_link(:dev)].reject {|l| l==''}
+      [show_link(:home), show_link(:preferences), show_link(:comments), show_link(:users), show_link(:groups), show_link(:relations), show_link(:virtual_classes), show_link(:iformats), show_link(:sites), show_link(:zena_up), show_link(:dev)].reject {|l| l==''}
     when :home
       return '' if visitor.is_anon?
       link_to_with_state(_('my home'), user_path(visitor))
@@ -1220,6 +1220,9 @@ ENDTXT
     when :sites
       return '' unless visitor.is_admin?
       link_to_with_state(_('manage sites'), sites_path)
+    when :zena_up
+      return '' unless ENABLE_ZENA_UP && visitor.is_admin?
+      link_to_with_state(_('update zena'), zena_up_sites_path)
     when :dev
       return '' unless visitor.is_admin?
       if @controller.session[:dev]

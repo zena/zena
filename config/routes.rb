@@ -51,7 +51,8 @@ ActionController::Routing::Routes.draw do |map|
   map.resources :relations
   map.resources :virtual_classes
   map.resources :sites,
-    :member => { :clear_cache => :post}
+    :collection => { :zena_up => :get },
+    :member     => { :clear_cache => :post }
   map.resources :comments,
                 :collection => { :empty_bin => :delete },
                 :member => { :remove  => :put,

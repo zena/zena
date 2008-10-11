@@ -1,7 +1,8 @@
 class SitesController < ApplicationController
   before_filter :visitor_node
-  before_filter :find_site, :except => [:index, :create, :new]
+  before_filter :find_site, :except => [:index, :create, :new, :zena_up]
   before_filter :check_is_admin
+  before_filter :check_can_zena_up, :only => [:zena_up]
   layout :admin_layout
   
   def index
@@ -12,6 +13,34 @@ class SitesController < ApplicationController
     respond_to do |format|
       format.html # index.erb
       format.xml  { render :xml => @sites }
+    end
+  end
+  
+  # Update source code and restart application
+  def zena_up
+    # are we up to date ?
+    latest = `curl -s http://svn.zenadmin.org/zena/`
+    @current_rev = Zena::VERSION::REV.strip.to_i
+    if latest =~ /Revision (\d+)/
+      @latest_rev = $1.strip.to_i
+      if params[:run] == 'start'
+        if @latest_rev == @current_rev
+          # up to date (do nothing)
+        else
+          `zena_up`
+        end
+        return redirect_to :action => 'zena_up', :run => 'updating'
+      elsif params[:run] == 'updating' && @latest_rev != @current_rev
+        # wait to finish
+        @state = :wait
+        headers["REFRESH"] = 30
+      elsif @latest_rev == @current_rev
+        # done
+        @state = :done
+        return redirect_to :action => 'zena_up' if params[:run]
+      end
+    else
+      # error
     end
   end
 
@@ -75,5 +104,9 @@ class SitesController < ApplicationController
     
     def find_site
       @site = secure!(Site) { Site.find(params[:id])}
+    end
+    
+    def check_can_zena_up
+      ENABLE_ZENA_UP && visitor.is_admin?
     end
 end
