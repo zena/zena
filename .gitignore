@@ -7,6 +7,7 @@ public/images/ext/*_pv.png
 public/images/ext/*_std.png
 public/images/ext/*_tiny.png
 public/images/ext/*_mini.png
+REVISION
 sites/*
 test/fixtures/*.yml
 tmp/*
