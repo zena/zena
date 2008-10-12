@@ -484,7 +484,7 @@ module Zena
           
           if ok && publish_after_save
             if v_status == Zena::Status[:pub]
-              ok = after_publish && update_publish_from
+              ok = after_publish && after_all && update_publish_from
             elsif can_apply?(:publish)
               ok = apply(:publish)
             elsif can_apply?(:propose)

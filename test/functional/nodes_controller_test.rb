@@ -66,6 +66,33 @@ END:VCALENDAR
       assert_match %r{parc opening.*zena enhancements}m, @response.body
     end
   end
+  
+  def test_cache_css_auto_publish
+    login(:tiger)
+    Site.connection.execute    "UPDATE sites set auto_publish = 1, redit_time = 7200 WHERE id = #{sites_id(:zena)}"
+    Version.connection.execute "UPDATE versions set updated_at = '#{Time.now.strftime('%Y-%m-%d %H:%M:%S')}' WHERE id = #{versions_id(:style_css_en)}"
+    without_files('/test.host/public') do
+      name = "textdocument#{nodes_zip(:style_css)}.css"
+      filename = "#{SITES_ROOT}/test.host/public/en/#{name}"
+      with_caching do
+        assert !File.exist?(filename)
+        get 'show', :prefix => 'en', :path => [name]
+        assert_response :success
+        assert File.exist?(filename) # cached page created
+        assert_match %r[body \{ background: #eee; color:#444;], File.read(filename)
+        put 'save_text', :id => nodes_zip(:style_css), :node => {'v_text' => '/* empty */'}
+        node = assigns['node']
+        assert node.errors.empty?
+        assert_equal Zena::Status[:pub], node.v_status
+        assert_equal versions_id(:style_css_en), node.v_id # auto publish
+        assert !File.exist?(filename) # cached page removed
+        get 'show', :prefix => 'en', :path => [name]
+        assert_response :success
+        assert_match %r[/\* empty \*/], File.read(filename)
+        assert File.exist?(filename) # cached page created again
+      end
+    end
+  end
 end
 
 =begin
