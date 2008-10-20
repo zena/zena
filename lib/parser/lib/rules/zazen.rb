@@ -10,7 +10,7 @@ module Zazen
     # context during compilation which makes it easier to manage the callbacks to the helper.
     def r_void
       @context = {:images => true, :pretty_code=>true, :output => 'html'}.merge(@context)
-      @parse_shortcuts = @context[:parse_shortcuts]
+      @translate_ids = @context[:translate_ids]
       @text = @text.gsub("\r\n","\n") # this also creates our own 'working' copy of the text
       @blocks = "" # same reason as why we rewrite 'store'
       
@@ -21,7 +21,7 @@ module Zazen
       
       enter(:void) # <== parse here
       
-      unless @parse_shortcuts
+      unless @translate_ids
         store '</pre>' if @in_space_pre
         
         case @context[:output]
@@ -46,7 +46,7 @@ end
 
 module Zazen
   module Rules
-    PSEUDO_ID_REGEXP = ":[0-9a-zA-Z-]+\\+*|\\([^\\)]+\\)"
+    PSEUDO_ID_REGEXP = ":[0-9a-zA-Z-]+\\+*|\\([^\\)]*\\)"
     
     def start(mode)
       @helper = @options[:helper]
@@ -79,12 +79,12 @@ module Zazen
           # implement !! scan_code
         elsif @text[0..0] == '<'
           flush '<'
-        elsif !@in_space_pre && @text[0..2] == "\n\n " && !@parse_shortcuts
+        elsif !@in_space_pre && @text[0..2] == "\n\n " && !@translate_ids
           # space preserving paragraphe
           @in_space_pre = true
           store "\n\n<pre>"
           eat 3
-        elsif @in_space_pre && @text[0..1] == "\n\n" && !@parse_shortcuts
+        elsif @in_space_pre && @text[0..1] == "\n\n" && !@translate_ids
           store "</pre>"
           while @text[0..0] == "\n"
             flush "\n"
@@ -94,12 +94,12 @@ module Zazen
           while @text[0..0] == "\n"
             flush "\n"
           end
-        elsif @text[0..1] == "\n " && @in_space_pre && !@parse_shortcuts
+        elsif @text[0..1] == "\n " && @in_space_pre && !@translate_ids
           store "\n"
           eat 2
         elsif @text[0..1] == "\n|"
           flush "\n|"
-        elsif @text[0..0] == "\n" && !@parse_shortcuts
+        elsif @text[0..0] == "\n" && !@translate_ids
           if @in_space_pre || @text == "\n" || @text[1..1] == '*' || @text[1..1] == '#'
             flush "\n"
           else
@@ -127,7 +127,7 @@ module Zazen
         eat $&
         if @context[:images]
           ids = parse_document_ids($1)
-          if @parse_shortcuts
+          if @translate_ids
             store "![#{ids.join(',')}]!"
           else
             store @helper.make_gallery(ids, :node=>@context[:node])
@@ -142,7 +142,7 @@ module Zazen
         style, ids = $1, $2
         if @context[:images]
           ids = parse_document_ids(ids)
-          if @parse_shortcuts
+          if @translate_ids
             store "!#{style}{#{ids.join(',')}}!"
           else
             store @helper.list_nodes(ids, :style=>style, :node=>@context[:node])
@@ -155,18 +155,18 @@ module Zazen
         #puts "SHORCUT IMAGE:#{$~.to_a.inspect}"
         eat $&
         style, id, other_opts, mode, title_opts, title, link = $1, $2, $3, $4, $5, $6, $8
-        if node = @helper.find_node_by_pseudo(id)
+        if node = @helper.find_node_by_pseudo(id, @context[:node])
           if link && link =~ /^(#{PSEUDO_ID_REGEXP})(.*)$/
             rest = $2
-            if link_node = @helper.find_node_by_pseudo($1)
-              link = link_node[:zip].to_s + rest
+            if link_node = @helper.find_node_by_pseudo($1, @context[:node])
+              link = link_node.pseudo_id(@context[:node], @translate_ids || :zip).to_s + rest
             end
           end
           
-          if @parse_shortcuts
+          if @translate_ids
             if node.kind_of?(Document)
               # replace shortcut
-              store "!#{style}#{node.zip}#{other_opts}#{title_opts}!#{link ? ':' + link : ''}"
+              store "!#{style}#{node.pseudo_id(@context[:node], @translate_ids || :zip)}#{other_opts}#{title_opts}!#{link ? ':' + link : ''}"
             else
               store $&
             end
@@ -177,7 +177,7 @@ module Zazen
               store "[#{node.fullpath} is not a document]"
             end
           end
-        elsif @parse_shortcuts
+        elsif @translate_ids
           store $&
         else
           store "[#{id} not found]"
@@ -189,11 +189,15 @@ module Zazen
         style, id, other_opts, mode, title_opts, title, link = $1, $2, $3, $4, $5, $6, $8
         if link && link =~ /^(#{PSEUDO_ID_REGEXP})(.*)$/
           rest = $2
-          if link_node = @helper.find_node_by_pseudo($1)
+          if link_node = @helper.find_node_by_pseudo($1, @context[:node])
             link = link_node[:zip].to_s + rest
           end
         end
-        if @parse_shortcuts
+        if @translate_ids
+          if @translate_ids != :zip
+            node = @helper.find_node_by_pseudo(id, @context[:node])
+            id = node.pseudo_id(@context[:node], @translate_ids) if node
+          end
           store "!#{style}#{id}#{other_opts}#{title_opts}!#{link ? ':' + link : ''}"
         else
           store @helper.make_image(:style=>style, :id=>id, :mode=>mode, :title=>title, :link=>link, :images=>@context[:images])
@@ -208,8 +212,14 @@ module Zazen
     def scan_quote
       if @text =~ /\A"([^"]*)":([0-9]+(_[a-z]+|)(\.[a-z]+|)(#[a-z_\/\[\]]*|))/m
         #puts "LINK:[#{$&}]"
-        if @parse_shortcuts
+        if @translate_ids == :zip
           flush $&
+        elsif @translate_ids
+          eat $&
+          title, id = $1, $2
+          node = @helper.find_node_by_pseudo(id, @context[:node])
+          id = node.pseudo_id(@context[:node], @translate_ids) if node
+          store "\"#{title}\":#{id}"
         else
           eat $&
           # link inside the cms "":34
@@ -224,12 +234,13 @@ module Zazen
         #puts "SHORTCUT_LINK:[#{$&}]"
         eat $&
         title, pseudo_id, mode_format, mode, format, dash = $1, $2, $3, $4, $5, $6
-        if node = @helper.find_node_by_pseudo(pseudo_id)
-          id = "#{node.zip}#{mode_format}"
-          if @parse_shortcuts
+        if node = @helper.find_node_by_pseudo(pseudo_id, @context[:node])
+          if @translate_ids
+            id = "#{node.pseudo_id(@context[:node], @translate_ids)}#{mode_format}"
             # replace shortcut
             store "\"#{title}\":#{id}"
           else
+            id = "#{node.zip}#{mode_format}"
             if format == '.data'
               title = "#{node.fullpath}#{mode}.#{node.c_ext}#{dash}"
             else
@@ -241,7 +252,7 @@ module Zazen
             end
             store @helper.make_link(:title=>title,:id=>id,:sharp=>sharp,:node=>node)
           end
-        elsif @parse_shortcuts
+        elsif @translate_ids
           store $&
         else
           pseudo_id = pseudo_id[1..-1] if pseudo_id[0..0] == ':'
@@ -256,7 +267,7 @@ module Zazen
     def scan_bracket
       # puts "BRACKET:[#{@text}]"
       if @text =~ /\A\[(\w+)\](.*?)\[\/\1\]/m
-        if @parse_shortcuts
+        if @translate_ids
           flush $&
         else
           eat $&
@@ -308,7 +319,7 @@ module Zazen
       @escaped_code = []
       block_counter = -1
       fulltext.gsub!( /<code([^>]*)>(.*?)<\/code>/m ) do
-        if @parse_shortcuts
+        if @translate_ids
           @escaped_code << $&
           block_counter += 1
           "\\ZAZENBLOCKCODE#{block_counter}ZAZENBLOCKCODE\\"
@@ -342,7 +353,7 @@ module Zazen
     
     def render_code(text)
       text.gsub!( /\\ZAZENBLOCKCODE(\d+)ZAZENBLOCKCODE\\/ ) do
-        if @parse_shortcuts
+        if @translate_ids
           @escaped_code[$1.to_i]
         else
           lang, code = *(@escaped_code[$1.to_i])
@@ -363,7 +374,7 @@ module Zazen
       
       text.gsub!( /\\ZAZENBLOCKAT(\d+)ZAZENBLOCKAT\\/ ) do
         code = @escaped_at[$1.to_i]
-        if @parse_shortcuts
+        if @translate_ids
           '@'+code+'@'
         else
           if code =~ /^(\w+)\|/ && Syntax::SYNTAX[$1]
@@ -384,19 +395,20 @@ module Zazen
     end
     
     def parse_document_ids(str)
+      meth = :zip || @translate_ids
       str.split(',').map do |id|
         if id =~ /\A(#{PSEUDO_ID_REGEXP})/
-          if node = @helper.find_node_by_pseudo($1)
+          if node = @helper.find_node_by_pseudo($1, @context[:node])
             if node.kind_of?(Document)
               # replace shortcut
-              node.zip
-            elsif @parse_shortcuts
+              node.send(meth)
+            elsif @translate_ids
               id  # not a document but do not remove
             else
               nil # not a document
             end
-          elsif @parse_shortcuts
-            id
+          elsif @translate_ids
+            id  # keep
           else
             nil # document not found
           end

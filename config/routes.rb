@@ -16,10 +16,10 @@ ActionController::Routing::Routes.draw do |map|
   map.connect 'nodes/:node_id/versions/:id.:format', :controller => 'versions', :action => 'show' #, :requirements => { :method => :get }
   
   map.resources :nodes,
-    :collection => { :asearch => :get, :search => :get, :attribute => :get },
+    :collection => { :asearch => :get, :search => :get },
     :member =>     { :import => :post, :export => :get, :save_text => :put,
                      :order => :any, :clear_order => :any,
-                     :zafu => :get, :drop => :put } do |nodes|
+                     :zafu => :get, :drop => :put, :attribute => :get } do |nodes|
     nodes.resources :versions, 
                     :name_prefix => nil,
                     :member => { :edit    => :get,

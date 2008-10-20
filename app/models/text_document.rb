@@ -73,7 +73,7 @@ class TextDocument < Document
   end
   
   # Parse text and replace absolute urls ('/en/image30.jpg') by their relative value in the current skin ('img/bird.jpg')
-  def unparse_assets(text)
+  def unparse_assets(text, helper)
     res = text.dup
     ctype = version.content.content_type
     case ctype

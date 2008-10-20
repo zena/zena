@@ -19,7 +19,7 @@ Examples:
 =end
 class NodesController < ApplicationController
   before_filter :check_is_admin, :only => [:export]
-  before_filter :find_node, :except => [:index, :create, :not_found, :catch_all, :search, :attribute]
+  before_filter :find_node, :except => [:index, :create, :not_found, :catch_all, :search]
   before_filter :check_path, :only  => [:index, :show]
   after_filter  :change_lang, :only => [:create, :update, :save_text]
   layout :popup_layout,     :only   => [:edit, :import]
@@ -207,20 +207,6 @@ class NodesController < ApplicationController
   # import sub-nodes from a file
   def import
     @nodes = secure!(Node) { Node.create_nodes_from_folder(:klass => params[:node][:klass], :archive => params[:node][:archive], :parent => @node) }.values
-    
-    if params[:node][:klass] == 'Skin'
-      # update CSS files
-      @nodes.each do |n|
-        if n.c_ext == 'css'
-          v_status = n.v_status
-          text     = n.parse_assets(n.v_text, self)
-          errors   = n.errors.dup
-          n.errors.clear
-          n.update_attributes(:v_status => v_status, :v_text => text)
-        end
-      end
-    end
-    @nodes
   end
   
   def export
@@ -258,7 +244,7 @@ class NodesController < ApplicationController
     if [:v_text, :v_summary, :name, :path, :short_path].include?(method)
       # '+' are not escaped as they should in ajax query
       params[:node].sub!(/ +$/) {|spaces| '+' * spaces.length} if params[:node]
-      node_id = secure!(Node) { Node.translate_pseudo_id(params[:node])}
+      node_id = secure!(Node) { Node.translate_pseudo_id(params[:node], :id, @node)}
       @node = secure!(Node) { Node.find(node_id) }
       
       if method == :path || method == :short_path

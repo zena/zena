@@ -27,7 +27,7 @@ class Link < ActiveRecord::Base
     end
     
     if attrs['other_zip']
-      other_id = secure(Node) { Node.translate_pseudo_id(attrs['other_zip']) }
+      other_id = secure(Node) { Node.translate_pseudo_id(attrs['other_zip'], :id, @node) }
       rel.other_id = other_id
       if @side == :source
         self[:target_id] = other_id

@@ -71,7 +71,7 @@ param_filter_no_string:
 filter_literal:
   src: "nodes where name like 'w%' in site"
   sql: "/name LIKE 'w%'/"
-  res: "water, wiki, wiki_skin"
+  res: "water, wiki, wikiSkin"
 
 param_filter_tag:
   context:

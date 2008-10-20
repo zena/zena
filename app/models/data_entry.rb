@@ -43,7 +43,7 @@ class DataEntry < ActiveRecord::Base
         # translate zazen
         value = attributes[key]
         if value.kind_of?(String)
-          attributes[key] = ZazenParser.new(value,:helper=>self, :node=>self).render(:parse_shortcuts=>true)
+          attributes[key] = ZazenParser.new(value,:helper=>self, :node=>self).render(:translate_ids=>:zip)
         end
       end
     end

@@ -368,7 +368,7 @@ module Zena
                   current = parent
                 end
               elsif current['parent']
-                raise NameError "[#{site} #{k}] Bad parent name '#{current['parent']}' for node '#{name}'."
+                raise NameError.new("[#{site} #{k}] Bad parent name '#{current['parent']}' for node '#{name}'.")
               else
                 # top node
                 if key == 'project' || key == 'section'

@@ -259,13 +259,13 @@ class Node < ActiveRecord::Base
     end
     
     # Find a node's attribute based on a pseudo (id or path). Used by zazen to create a link for ""::art or "":(people/ant) for example.
-    def translate_pseudo_id(id, sym = :id, base_path = nil)
+    def translate_pseudo_id(id, sym = :id, base_node = nil)
       if id.to_s =~ /\A\d+\Z/
         # zip
         # FIXME: this is not secure
         res = Node.connection.execute( "SELECT #{sym} FROM nodes WHERE site_id = #{current_site[:id]} AND zip = '#{id}'" ).fetch_row
         res ? res[0].to_i : nil
-      elsif node = find_node_by_pseudo(id,base_path)
+      elsif node = find_node_by_pseudo(id,base_node)
         node[sym]
       else
         nil
@@ -273,7 +273,7 @@ class Node < ActiveRecord::Base
     end
     
     # Find a node based on a query shortcut. Used by zazen to create a link for ""::art for example.
-    def find_node_by_pseudo(id, base_path = nil)
+    def find_node_by_pseudo(id, base_node = nil)
       raise Zena::AccessViolation if self.scoped_methods == []
       str = id.to_s
       if str =~ /\A\d+\Z/
@@ -282,13 +282,15 @@ class Node < ActiveRecord::Base
       elsif str =~ /\A:?([0-9a-zA-Z ]+)(\+*)\Z/
         offset = $2.to_s.size
         find(:first, Node.match_query($1.gsub('-',' '), :offset => offset))
-      elsif path = str[/\A\(([^\)]+)\)\Z/,1]
+      elsif path = str[/\A\(([^\)]*)\)\Z/,1]
         if path[0..0] == '/'
           find_by_path(path[1..-1])
-        elsif base_path
-          find_by_path("#{base_path}/#{path}")
+        elsif base_node
+          find_by_path(path.abs_path(base_node.fullpath))
         else
-          find_by_path(path)
+          # do not use (path) pseudo when there is no base_node (during create_or_update_node for example).
+          # FIXME: path pseudo is needed for links... and it should be done here (egg and hen problem)
+          nil
         end
       end
     end
@@ -434,7 +436,7 @@ class Node < ActiveRecord::Base
           type   = :node
           name   = "#{$1}#{$4}"
           lang   = $2.blank? ? nil : $2[1..-1]
-          attrs  = defaults.merge(get_attributes_from_yaml(path)) # FIXME: this should be done with proper 'start_path' [#226]
+          attrs  = defaults.merge(get_attributes_from_yaml(path)) # FIXME: this should be done with proper 'base_node' [#226]
           attrs['name']     = name
           attrs['v_lang']   = lang || attrs['v_lang'] || visitor.lang
           versions << attrs
@@ -453,7 +455,7 @@ class Node < ActiveRecord::Base
           path   = File.join(folder,entries[index])
           
           # we have a zml file. Create a version with this file
-          attrs = defaults.merge(get_attributes_from_yaml(path)) # FIXME: this should be done with proper 'start_path' (= parent.path) [#226]
+          attrs = defaults.merge(get_attributes_from_yaml(path)) # FIXME: this should be done with proper 'base_node' (= self) [#226]
           attrs['name']     = name
           attrs['v_lang'] ||= lang
           versions << attrs
@@ -528,7 +530,28 @@ class Node < ActiveRecord::Base
         current_obj.instance_variable_set(:@versions_count, versions.size)
         res[current_obj[:id].to_i] = current_obj
 
-        res.merge!(create_nodes_from_folder(:folder => sub_folder, :parent_id => current_obj[:id], :defaults => defaults, :parent_class => opts[:klass])) if sub_folder && !current_obj.new_record?
+        res.merge!(create_nodes_from_folder(:folder => sub_folder, :parent_id => current_obj[:id], :defaults => defaults, :parent_class => opts[:klass], :is_sub => true)) if sub_folder && !current_obj.new_record?
+      end
+      unless opts[:is_sub]
+        res.each do |id,n|
+          next unless n.errors.empty?
+
+          # parse pseudo_ids
+          attrs = {}
+
+          n.export_keys.each do |k|
+            orig  = n.send(k)
+            trans = n.parse_assets(orig, self)
+            if trans != orig
+              attrs[k] = trans
+            end
+          end
+
+          if attrs != {}
+            attrs['v_status'] = n.v_status
+            n.update_attributes(attrs)
+          end
+        end
       end
       res
     end
@@ -650,7 +673,7 @@ class Node < ActiveRecord::Base
     
     # Translate attributes from the visitor's reference to the application.
     # This method translates dates, zazen shortcuts and zips and returns a stringified hash.
-    def transform_attributes(new_attributes, start_path = nil)
+    def transform_attributes(new_attributes, base_node = nil)
       res = {}
       res['parent_id'] = new_attributes[:_parent_id] if new_attributes[:_parent_id] # real id set inside zena.
       
@@ -663,7 +686,7 @@ class Node < ActiveRecord::Base
       end
       
       if !res['parent_id'] && p = attributes['parent_id']
-        res['parent_id'] = Node.translate_pseudo_id(p, :id, start_path) || p
+        res['parent_id'] = Node.translate_pseudo_id(p, :id, base_node) || p
       end
       
       attributes.keys.each do |key|
@@ -684,17 +707,17 @@ class Node < ActiveRecord::Base
           end
         elsif key =~ /^(\w+)_id$/
           if key[0..1] == 'd_'
-            res[key] = Node.translate_pseudo_id(attributes[key], :zip, start_path) || attributes[key]
+            res[key] = Node.translate_pseudo_id(attributes[key], :zip, base_node) || attributes[key]
           else
-            res[key] = Node.translate_pseudo_id(attributes[key],  :id, start_path) || attributes[key]
+            res[key] = Node.translate_pseudo_id(attributes[key],  :id, base_node) || attributes[key]
           end
         elsif key =~ /^(\w+)_ids$/
           # Id list. Bad ids are removed.
           values = attributes[key].kind_of?(Array) ? attributes[key] : attributes[key].split(',')
           if key[0..1] == 'd_'
-            values.map! {|v| Node.translate_pseudo_id(v, :zip, start_path) }
+            values.map! {|v| Node.translate_pseudo_id(v, :zip, base_node) }
           else
-            values.map! {|v| Node.translate_pseudo_id(v,  :id, start_path) }
+            values.map! {|v| Node.translate_pseudo_id(v,  :id, base_node) }
           end
           res[key] = values.compact
         elsif key == 'file'
@@ -705,7 +728,7 @@ class Node < ActiveRecord::Base
           # translate zazen
           value = attributes[key]
           if value.kind_of?(String)
-            res[key] = ZazenParser.new(value,:helper=>self, :node=>self).render(:parse_shortcuts=>true)
+            res[key] = ZazenParser.new(value,:helper=>self).render(:translate_ids=>:zip, :node=>base_node)
           else
             res[key] = value
           end
@@ -715,10 +738,10 @@ class Node < ActiveRecord::Base
       res
     end
 
-    def get_attributes_from_yaml(filepath, start_path = nil)
+    def get_attributes_from_yaml(filepath, base_node = nil)
       attributes = YAML::load( File.read( filepath ) )
       attributes.delete(:_parent_id)
-      transform_attributes(attributes, start_path)
+      transform_attributes(attributes, base_node)
     end
     
     # Return a safe string to access node attributes in compiled templates and compiled sql.
@@ -825,7 +848,7 @@ class Node < ActiveRecord::Base
   
   # Update a node's attributes, transforming the attributes first from the visitor's context to Node context.
   def update_attributes_with_transformation(new_attributes)
-    update_attributes(secure(Node) {Node.transform_attributes(new_attributes)})
+    update_attributes(secure(Node) {Node.transform_attributes(new_attributes, self)})
   end
   
   # Filter attributes before assignement.
@@ -847,6 +870,18 @@ class Node < ActiveRecord::Base
         Node.zafu_attribute(self, real_attribute)
       end
     end
+  end
+  
+  
+  # Parse text content and replace all relative urls ('../projects/art') by ids ('34')
+  def parse_assets(text, helper)
+    # helper is used in textdocuments
+    ZazenParser.new(text,:helper=>helper).render(:translate_ids => :zip, :node=>self)
+  end
+  
+  # Parse text and replace ids '!30!' by their pseudo path '!(img/bird)!'
+  def unparse_assets(text, helper)
+    ZazenParser.new(text,:helper=>helper).render(:translate_ids => :relative_path, :node=>self)
   end
   
   # Return the list of ancestors (without self): [root, obj, obj]
@@ -917,6 +952,16 @@ class Node < ActiveRecord::Base
     end
   end
   
+  def pseudo_id(root_node, sym)
+    case sym
+    when :zip
+      self.zip
+    when :relative_path
+      full = self.fullpath
+      root = root_node ? root_node.fullpath : ''
+      "(#{full.rel_path(root)})"
+    end
+  end
   
   # Return save path for an asset (element produced by text like a png file from LateX)
   def asset_path(asset_filename)
@@ -1317,12 +1362,8 @@ class Node < ActiveRecord::Base
   # export node as a hash
   def to_yaml
     hash = {}
-    export_keys.each do |sym|
-      hash[sym.to_s] = self.send(sym)
-    end
-    
-    version.dyn.keys.each do |k|
-      hash["d_#{k}"] = version.dyn[k]
+    export_keys.each do |k|
+      hash[k] = unparse_assets(self.send(k), self)
     end
     
     hash.merge!('class' => self.klass)
@@ -1330,7 +1371,12 @@ class Node < ActiveRecord::Base
   end
   
   def export_keys
-    [:v_title, :v_text]
+    ['v_title', 'v_text'] + version.dyn.keys.map{|k| "d_#{k}"}
+  end
+  
+  # This is needed during 'unparse_assets' when the node is it's own helper
+  def find_node_by_pseudo(string, base_node = nil)
+    secure(Node) { Node.find_node_by_pseudo(string, base_node || self) }
   end
   
   protected

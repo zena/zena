@@ -485,7 +485,7 @@ each_alternate_class_two:
   context:
     node: 'collections'
   src: "<ol do='pages'><li class='post' alt_class='stripe' do='each' do='[name]'/></ol>"
-  res: "<ol><li class='post'>art</li><li class='post stripe'>menu</li><li class='post'>news</li><li class='post stripe'>wiki_skin</li></ol>"
+  res: "<ol><li class='post'>art</li><li class='post stripe'>menu</li><li class='post'>news</li><li class='post stripe'>wikiSkin</li></ol>"
 
 each_alternate_class_ajax:
   context:

@@ -101,5 +101,38 @@ class String
     end
     res
   end
+  
+  # return a relative path from an absolute path and a root
+  def rel_path(root)
+    root = root.split('/')
+    path = split('/')
+    i = 0
+    ref  = []
+    while true
+      if root == []
+        ref = path
+        break
+      elsif root[0] == path[0]
+        root.shift
+        path.shift
+      else
+        # for each root element left: '..'
+        ref = root.map{'..'} + path
+        break
+      end
+    end
+    ref.join('/')
+  end
+  
+  # return an absolute path from a relative path and a root
+  def abs_path(root)
+    root = root.split('/')
+    path = split('/')
+    while path[0] == '..'
+      root.pop
+      path.shift
+    end
+    (root + path).join('/')
+  end
 
 end

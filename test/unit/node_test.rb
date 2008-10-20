@@ -887,7 +887,7 @@ done: \"I am done\""
       bird = n if n[:name] == 'bird'
       doc  = n if n[:name] == 'document'    
     end
-    simple = secure!(Node)  { Node.find_by_name_and_parent_id('simple', parent[:id]) }
+    simple = secure!(Node) { Node.find_by_name_and_parent_id('simple', parent[:id]) }
     photos = secure!(Node) { Node.find_by_name_and_parent_id('photos', parent[:id]) }
     
     assert_equal 'bird', bird[:name]
@@ -902,6 +902,9 @@ done: \"I am done\""
     assert_equal 'Le septième ciel', versions[0].title
     assert_equal 'Photos !', photos.v_title
     assert_match %r{Here are some photos.*!\[\]!}m, photos.v_text
+    assert_match %r{!#{bird.zip}_med!}m,     photos.v_text
+    assert_match %r{"links":#{simple.zip}}m, photos.v_text
+    assert_equal "A simple \"test\":#{simple.zip}", photos.d_foo
     in_photos = photos.find(:all, 'children')
     assert_equal 2, in_photos.size
     
@@ -1009,6 +1012,15 @@ done: \"I am done\""
       assert_equal v1_id, node.v_id
       assert_kind_of Image, bird
     end
+  end
+  
+  def test_to_yaml
+    login(:tiger)
+    status = secure!(Node) { nodes(:status) }
+    assert status.update_attributes(:v_status => Zena::Status[:pub], :v_text => "This is a \"link\":#{nodes_zip(:projects)}.", :d_foo => "A picture: !#{nodes_zip(:bird_jpg)}!")
+    yaml = status.to_yaml
+    assert_match %r{v_text:\s+\"?This is a "link":\(\.\./\.\.\)\.}, yaml
+    assert_match %r{d_foo:\s+\"?A picture: !\(\.\./\.\./wiki/bird\)!}, yaml
   end
   
   def test_order_position
@@ -1334,16 +1346,32 @@ done: \"I am done\""
   
   def test_translate_pseudo_id_path
     login(:lion)
-    lion = secure!(Node) { nodes(:lion) }
+    lion       = secure!(Node) { nodes(:lion) }
+    people     = secure!(Node) { nodes(:people) }
+    cleanWater = secure!(Node) { nodes(:cleanWater) }
     assert lion.update_attributes(:name => 'status')
-       # path                           base_path
+       # path                           base_node
     { ['(/projects/cleanWater/status)', nil]  => nodes_id(:status), 
-      ['(/projects/cleanWater/status)', 'people']  => nodes_id(:status),
-      ['(status)', 'people']  => nodes_id(:lion),
-      ['(status)', 'projects/cleanWater']  => nodes_id(:status),
+      ['(/projects/cleanWater/status)', people]  => nodes_id(:status),
+      ['(status)', people]      => nodes_id(:lion),
+      ['(status)', cleanWater]  => nodes_id(:status),
     }.each do |k,v|
       assert_equal v, secure(Node) { Node.translate_pseudo_id(k[0],:id,k[1]) }, "'#{k.inspect}' should translate to '#{v}'"
     end
+  end
+  
+  def test_unparse_assets
+    login(:lion)
+    @node = secure!(Node) { nodes(:status) }
+    assert @node.update_attributes(:v_text => "Hello this is \"art\":#{nodes_zip(:art)}. !#{nodes_zip(:bird_jpg)}!")
+    assert_equal "Hello this is \"art\":(../../../collections/art). !(../../wiki/bird)!", @node.unparse_assets(@node.v_text, self)
+  end
+  
+  def test_parse_assets
+    login(:lion)
+    @node = secure!(Node) { nodes(:status) }
+    assert @node.update_attributes(:v_text => "Hello this is \"art\":(../../../collections/art).")
+    assert_equal "Hello this is \"art\":#{nodes_zip(:art)}.", @node.parse_assets(@node.v_text, self)
   end
   
   def test_safe_attribute
@@ -1422,5 +1450,9 @@ done: \"I am done\""
     assert true
     # sweep_cache (save) => remove asset folder
     # render math ?
+  end
+  
+  def find_node_by_pseudo(string, base_node = nil)
+    secure(Node) { Node.find_node_by_pseudo(string, base_node || @node) }
   end
 end

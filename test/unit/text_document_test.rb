@@ -69,9 +69,9 @@ class TextDocumentTest < ZenaTestUnit
     assert_equal res, text
     text = node.parse_assets(text, helper)
     assert_equal res, text
-    text = node.unparse_assets(text)
+    text = node.unparse_assets(text, helper)
     assert_equal start, text
-    text = node.unparse_assets(text)
+    text = node.unparse_assets(text, helper)
     assert_equal start, text
   end
   
@@ -99,26 +99,6 @@ class TextDocumentTest < ZenaTestUnit
     #footer { background:url('/en/image31.jpg') }
     END_CSS
     assert_equal res, text
-  end
-  
-  def test_c_file_unparse_assets
-    login(:lion)
-    node = secure!(Node) { nodes(:style_css) }
-    bird = secure!(Node) { nodes(:bird_jpg)}
-    assert bird.update_attributes(:parent_id => node[:parent_id])
-    text =<<-END_CSS
-    body { font-size:10px; }
-    #header { background:url('/en/image30.jpg') }
-    #footer { background:url('/en/image31.jpg') }
-    END_CSS
-    assert_equal 'text/css', node.c_content_type
-    v_id = node.v_id
-    assert node.update_attributes(:v_text => text)
-    node = secure!(Node) { nodes(:style_css) }
-    assert_equal v_id, node.version.content_id
-    assert_equal 'text/css', node.c_content_type
-    assert_equal text, node.v_text
-    assert_match %r{background:url\('bird.jpg'\)}, node.c_file.read
   end
   
   def test_update_same_text

@@ -1,6 +1,11 @@
 class: Section
 v_title: Photos !
+d_foo: A simple "test":(../simple)
 v_text: |
-  Here are some photos I took during my last vacations, while Zena was running, bug less on thousands of machines without any problem, thanks to all the unit test I took...
+  Here are some photos I took during my last vacations, while Zena was running, bug-less on thousands of machines without any problem, thanks to all the unit test I took...
+  
+  !(bird)_med!
+  
+  Testing "links":(../simple) to 'simple'.
   
   ![]!

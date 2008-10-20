@@ -162,7 +162,7 @@ wiki:
   rgroup:          public
   wgroup:          public
   pgroup:          public
-  skin:            wiki_skin
+  skin:            wikiSkin
   
 bird_jpg:
   zip:             30
@@ -256,7 +256,7 @@ letter:
 wiki_skin:
   zip:             43
   class:           Skin
-  name:            wiki_skin
+  name:            wikiSkin
   # yes it's not good to have this here but changing it would mess up many tests.
   parent:          collections
 

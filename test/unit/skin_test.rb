@@ -7,8 +7,8 @@ class SkinTest < ZenaTestUnit
     skin = secure!(Node) { nodes(:wiki_skin) }
     tmpt = secure!(Node) { nodes(:wiki_Node_zafu) }
     assert_kind_of Template, tmpt
-    assert_equal 'wiki_skin', skin.name
-    assert_equal 'wiki_skin', tmpt.c_skin_name
+    assert_equal 'wikiSkin', skin.name
+    assert_equal 'wikiSkin', tmpt.c_skin_name
     skin.name = 'fun'
     assert skin.save, "Can save skin."
     tmpt = secure!(Node) { nodes(:wiki_Node_zafu) } # reload

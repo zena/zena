@@ -283,7 +283,7 @@ class TemplateTest < ZenaTestUnit
     login(:lion)
     doc = secure!(Template) { nodes(:wiki_Project_changes_xml_zafu) }
     tmpt_content = doc.v_content
-    assert_equal 'wiki_skin', tmpt_content.skin_name
+    assert_equal 'wikiSkin', tmpt_content.skin_name
     assert doc.update_attributes(:parent_id => nodes_id(:default))
     
     doc = secure!(Template) { nodes(:wiki_Project_changes_xml_zafu) }

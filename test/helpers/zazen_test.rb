@@ -158,5 +158,22 @@ class ZazenHelperTest < ZenaTestHelper
     @node = secure!(Node) { nodes(:wiki) }
     assert_equal "<p>See <a href=\"/oo/projects/cleanWater\"><img src='/en/image30_med.jpg' width='220' height='200' alt='bird' class='med'/></a></p>", zazen('See !:(bird)_med!:(/projects/cleanWater)')
   end
+  
+  def test_translate_ids
+    login(:anon)
+    projects = secure!(Node) { nodes(:projects) }
+    zena     = secure!(Node) { nodes(:zena) }
+    assert_equal "This \"is\":33 \"a\":#{nodes_zip(:wiki)} !#{nodes_zip(:bird_jpg)}! \"link\":#{nodes_zip(:lion)}.", 
+           zazen('This "is":33 "a":(projects/wiki) !(projects/wiki/bird)! "link"::lio.', :translate_ids => :zip, :node => zena)
+           
+    assert_equal 'This "is":(../collections/art) "a":(wiki) !(wiki/bird)! "link":(../people/lion).', 
+           zazen('This "is":33 "a":(/projects/wiki) !30! "link"::lio.', :translate_ids => :relative_path, :node => projects)
+           
+    assert_equal "This \"is\":33 \"a\":#{nodes_zip(:wiki)} !#{nodes_zip(:bird_jpg)}! \"link\":#{nodes_zip(:lion)}.", 
+           zazen('This "is":(../collections/art) "a":(wiki) !(wiki/bird)! "link":(../people/lion).', :translate_ids => :zip, :node => projects)
+    
+    assert_equal "This \"is\":33 \"a\":#{nodes_zip(:wiki)} !#{nodes_zip(:bird_jpg)}! \"link\":#{nodes_zip(:lion)}.",
+           zazen('This "is":(collections/art) "a":(/projects/wiki) !(/projects/wiki/bird)! "link":(people/lion).', :translate_ids => :zip, :node => zena)
+  end
 
 end

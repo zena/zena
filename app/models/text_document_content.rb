@@ -8,12 +8,7 @@ class TextDocumentContent < DocumentContent
   def file(mode=nil)
     node = version.node
     
-    # unparse needed in 'export'
-    if node.can_parse_assets?
-      StringIO.new(node.unparse_assets(version.text))
-    else
-      StringIO.new(version.text)
-    end
+    StringIO.new(version.text)
   end
   
   # Return document file size (= version's text size). Implemented as 'c_size' in TextDocument.

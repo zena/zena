@@ -324,7 +324,8 @@ module ApplicationHelper
         text = paragraphs[0..opt[:limit]].join("\r\n\r\n") + " &#8230;"
       end
     end
-    ZazenParser.new(text,:helper=>self, :node=>(opt[:node] || @node)).render(opt)
+    opt[:node] ||= @node
+    ZazenParser.new(text,:helper=>self).render(opt)
   end
   
   # TODO: test
@@ -333,9 +334,8 @@ module ApplicationHelper
   end
   
   # Find a node's zip based on a query shortcut. Used by zazen to create a link for ""::art for example.
-  def find_node_by_pseudo(string, start_path = nil)
-    start_path ||= @node ? @node.fullpath : nil
-    secure(Node) { Node.find_node_by_pseudo(string, start_path) }
+  def find_node_by_pseudo(string, base_node = nil)
+    secure(Node) { Node.find_node_by_pseudo(string, base_node || @node) }
   end
   
   
@@ -1305,6 +1305,7 @@ ENDTXT
     
     if obj == 'link'
       if link = instance_variable_get("@#{obj}")
+        node        = link.this
         current_obj = link.other
       end
     else
@@ -1337,7 +1338,7 @@ ENDTXT
     end
     input_id = opt[:input_id] ? " id='#{params[:input_id]}'" : ''
     # we use both 'onChange' and 'onKeyup' for old javascript compatibility
-    update = "new Ajax.Updater('#{name_ref}', '/nodes/attribute?node=' + this.value + '&attr=#{attribute}', {method:'get', asynchronous:true, evalScripts:true});"
+    update = "new Ajax.Updater('#{name_ref}', '/nodes/#{(node || @node).zip}/attribute?node=' + this.value + '&attr=#{attribute}', {method:'get', asynchronous:true, evalScripts:true});"
     "<div class='select_id'><input type='text' size='8'#{input_id} name='#{obj}[#{sym}]' value='#{zip}' onChange=\"#{update}\" onKeyup=\"#{update}\"/>"+
     "<span class='select_id_name' id='#{name_ref}'>#{current}</span></div>"
   end

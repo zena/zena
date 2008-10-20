@@ -85,7 +85,7 @@ class LinksController < ApplicationController
       ['status', 'comment', 'role'].each do |k|
         attrs[k.to_sym] = attributes[k].blank? ? nil : attributes[k]
       end
-      attrs[:id] = secure(Node) { Node.translate_pseudo_id(attributes['other_zip']) }
+      attrs[:id] = secure(Node) { Node.translate_pseudo_id(attributes['other_zip'], :id, @node) }
       attrs
     end
 end

@@ -255,7 +255,7 @@ END_MSG
     # there, they are searched in the database and compiled into 'app/views/templates/compiled'.
     def template_url(opts={})
       @skin_name = opts[:skin]   || (@node ? @node[:skin] : nil) || 'default'
-      @skin_name = @skin_name.gsub(/[^a-zA-Z_]/,'') # security
+      @skin_name = @skin_name.url_name # security
       mode      = opts[:mode]
       format    = opts[:format] || 'html'
       klass     = @node.vclass
