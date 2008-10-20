@@ -575,6 +575,8 @@ latex_template = %q{
     end
     return '' unless docs
     prefix + render_to_string( :partial=>'nodes/list_nodes', :locals=>{:docs=>docs}) + suffix
+  rescue
+    '[no document found]'
   end
   
   def add_place_holder(str)

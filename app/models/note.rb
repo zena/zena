@@ -42,6 +42,12 @@ class Note < Node
     end
   end
   
+  def export_keys
+    h = super
+    h[:dates] = ((h[:dates] || []) + ['log_at', 'event_at']).uniq
+    h
+  end
+  
   private
   
   def prepare_note

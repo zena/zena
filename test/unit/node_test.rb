@@ -1015,12 +1015,22 @@ done: \"I am done\""
   end
   
   def test_to_yaml
+    User.connection.execute "UPDATE users SET time_zone = 'Asia/Jakarta' WHERE id = #{users_id(:tiger)}"
     login(:tiger)
     status = secure!(Node) { nodes(:status) }
-    assert status.update_attributes(:v_status => Zena::Status[:pub], :v_text => "This is a \"link\":#{nodes_zip(:projects)}.", :d_foo => "A picture: !#{nodes_zip(:bird_jpg)}!")
+    assert status.update_attributes_with_transformation(:v_status => Zena::Status[:pub], :v_text => "This is a \"link\":#{nodes_zip(:projects)}.", :d_foo => "A picture: !#{nodes_zip(:bird_jpg)}!")
     yaml = status.to_yaml
     assert_match %r{v_text:\s+\"?This is a "link":\(\.\./\.\.\)\.}, yaml
     assert_match %r{d_foo:\s+\"?A picture: !\(\.\./\.\./wiki/bird\)!}, yaml
+    assert_no_match %r{log_at}, yaml
+    
+    prop = secure!(Node) { nodes(:proposition) }
+    assert prop.update_attributes_with_transformation(:v_status => Zena::Status[:pub], :v_text => "This is a \"link\":#{nodes_zip(:projects)}.", :d_foo => "A picture: !#{nodes_zip(:bird_jpg)}!", :log_at => "2008-10-20 14:53")
+    assert_equal Time.gm(2008,10,20,7,53), prop.log_at
+    yaml = prop.to_yaml
+    assert_match %r{v_text:\s+\"?This is a "link":\(\.\./\.\.\)\.}, yaml
+    assert_match %r{d_foo:\s+\"?A picture: !\(\.\./\.\./wiki/bird\)!}, yaml
+    assert_match %r{log_at:\s+\"?2008-10-20 14:53:00\"?$}, yaml
   end
   
   def test_order_position

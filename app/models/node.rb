@@ -539,7 +539,7 @@ class Node < ActiveRecord::Base
           # parse pseudo_ids
           attrs = {}
 
-          n.export_keys.each do |k|
+          n.export_keys[:zazen].each do |k|
             orig  = n.send(k)
             trans = n.parse_assets(orig, self)
             if trans != orig
@@ -1362,8 +1362,12 @@ class Node < ActiveRecord::Base
   # export node as a hash
   def to_yaml
     hash = {}
-    export_keys.each do |k|
+    export_keys[:zazen].each do |k|
       hash[k] = unparse_assets(self.send(k), self)
+    end
+    
+    export_keys[:dates].each do |k|
+      hash[k] = visitor.tz.utc_to_local(self.send(k)).strftime("%Y-%m-%d %H:%M:%S")
     end
     
     hash.merge!('class' => self.klass)
@@ -1371,7 +1375,10 @@ class Node < ActiveRecord::Base
   end
   
   def export_keys
-    ['v_title', 'v_text'] + version.dyn.keys.map{|k| "d_#{k}"}
+    {
+      :zazen => (['v_title', 'v_text'] + version.dyn.keys.map{|k| "d_#{k}"}),
+      :dates => [],
+    }
   end
   
   # This is needed during 'unparse_assets' when the node is it's own helper

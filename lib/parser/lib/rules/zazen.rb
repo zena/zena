@@ -395,22 +395,14 @@ module Zazen
     end
     
     def parse_document_ids(str)
-      meth = :zip || @translate_ids
+      meth = @translate_ids || :zip
       str.split(',').map do |id|
-        if id =~ /\A(#{PSEUDO_ID_REGEXP})/
+        if id.strip =~ /\A(\d+|#{PSEUDO_ID_REGEXP})/
           if node = @helper.find_node_by_pseudo($1, @context[:node])
-            if node.kind_of?(Document)
-              # replace shortcut
-              node.send(meth)
-            elsif @translate_ids
-              id  # not a document but do not remove
-            else
-              nil # not a document
-            end
-          elsif @translate_ids
-            id  # keep
+            # replace shortcut
+            node.pseudo_id(@context[:node], meth)
           else
-            nil # document not found
+            id  # keep
           end
         else
           id

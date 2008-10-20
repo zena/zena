@@ -294,6 +294,7 @@ class User < ActiveRecord::Base
   
   def time_zone=(tz)
     self[:time_zone] = tz.blank? ? nil : tz
+    @tz = nil
   end  
   
   #TODO: test

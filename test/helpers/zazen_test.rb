@@ -166,8 +166,8 @@ class ZazenHelperTest < ZenaTestHelper
     assert_equal "This \"is\":33 \"a\":#{nodes_zip(:wiki)} !#{nodes_zip(:bird_jpg)}! \"link\":#{nodes_zip(:lion)}.", 
            zazen('This "is":33 "a":(projects/wiki) !(projects/wiki/bird)! "link"::lio.', :translate_ids => :zip, :node => zena)
            
-    assert_equal 'This "is":(../collections/art) "a":(wiki) !(wiki/bird)! "link":(../people/lion).', 
-           zazen('This "is":33 "a":(/projects/wiki) !30! "link"::lio.', :translate_ids => :relative_path, :node => projects)
+    assert_equal 'This "is":(../collections/art) "a":(wiki) !(wiki/bird)! !{(wiki/bird)}! ![(wiki/bird)]! "link":(../people/lion).', 
+           zazen('This "is":33 "a":(/projects/wiki) !30! !{30}! ![30]! "link"::lio.', :translate_ids => :relative_path, :node => projects)
            
     assert_equal "This \"is\":33 \"a\":#{nodes_zip(:wiki)} !#{nodes_zip(:bird_jpg)}! \"link\":#{nodes_zip(:lion)}.", 
            zazen('This "is":(../collections/art) "a":(wiki) !(wiki/bird)! "link":(../people/lion).', :translate_ids => :zip, :node => projects)

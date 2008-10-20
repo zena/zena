@@ -13,6 +13,12 @@ unless Module.const_defined?(:ActiveRecord)
   end
 end
 
+class ParserModule::DummyHelper
+  def find_node_by_pseudo(*args)
+    nil
+  end
+end
+
 module Zafu
   module Tags
     def r_hello

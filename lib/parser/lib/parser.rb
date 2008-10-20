@@ -23,7 +23,7 @@ module ParserModule
     def template_url_for_asset(opts)
       "/test_#{opts[:type]}/#{opts[:src]}"
     end
-
+    
     def method_missing(sym, *args)
       arguments = args.map do |arg|
         if arg.kind_of?(Hash)
