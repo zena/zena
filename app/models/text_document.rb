@@ -112,7 +112,9 @@ class TextDocument < Document
   end
   
   def export_keys
-    super - [:v_text]
+    h = super
+    h[:zazen] -= ['v_text']
+    h
   end
   
   # Return the code language used for syntax highlighting.
