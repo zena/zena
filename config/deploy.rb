@@ -23,19 +23,25 @@ And yes, 'pass' is not as intuitive as 'password' but we cannot use the latter b
 
 =end
 require 'erb'
-load File.join(File.dirname(__FILE__), 'deploy_config')
 
 #================= ADVANCED SETTINGS =============#
 
 set :deploy_to,    "/var/zena"
-role :web,         "root@#{server_ip}"
-role :app,         "root@#{server_ip}"
-role :db,          "root@#{server_ip}", :primary => true
+set :zena_sites,   "/var/www/zena"
+set :apache2_vhost_root, "/etc/apache2/sites-available"
 set :apache2_deflate,       true
 set :apache2_debug_deflate, false
 set :apache2_debug_rewrite, false
-# cgi-bin not working...? FIXME: set :apache2_static,        ['cgi-bin', 'awstats-icon']
 set :apache2_static,        []
+set :apache2_reload_cmd, "/etc/init.d/apache2 reload"
+set :debian_host,           true
+set :ssh_user,              "root"
+
+load File.join(File.dirname(__FILE__), 'deploy_config')
+
+role :web,         "#{ssh_user}@#{server_ip}"
+role :app,         "#{ssh_user}@#{server_ip}"
+role :db,          "#{ssh_user}@#{server_ip}", :primary => true
 
 #================= END ADVANCED SETTINGS ==========#
 
@@ -68,7 +74,7 @@ end
 desc "set permissions to www-data"
 task :set_permissions, :roles => :app do
   run "chown -R www-data:www-data #{deploy_to}"
-  run "chown -R www-data:www-data /var/www/zena"
+  run "chown -R www-data:www-data #{zena_sites}"
 end
 
 "Update the currently released version of the software directly via an SCM update operation" 
@@ -98,7 +104,7 @@ end
 desc "update symlink to 'sites' directory"
 task :app_update_symlinks, :roles => :app do
   run "test ! -e #{deploy_to}/current/sites || rm #{deploy_to}/current/sites"
-  run "ln -sf /var/www/zena #{deploy_to}/current/sites"
+  run "ln -sf #{zena_sites} #{deploy_to}/current/sites"
   set_permissions
 end
 
@@ -110,7 +116,7 @@ end
 desc "initial app setup"
 task :app_setup, :roles => :app do
   run "test -e #{deploy_to}  || mkdir #{deploy_to}"
-  run "test -e /var/www/zena || mkdir /var/www/zena"
+  run "test -e #{zena_sites} || mkdir #{zena_sites}"
   deploy::setup
 end
 
@@ -195,48 +201,53 @@ task :create_vhost, :roles => :web do
                   :debug_rewrite => apache2_debug_rewrite,
                   :balancer    => db_name
                   )
-    put(vhost, "/etc/apache2/sites-available/#{self[:host]}")
-    run "test -e /etc/apache2/sites-enabled/#{self[:host]} || a2ensite #{self[:host]}"
+    put(vhost, "#{apache2_vhost_root}/#{self[:host]}")
+
+    run "test -e /etc/apache2/sites-enabled/#{self[:host]} || a2ensite #{self[:host]}" if debian_host
     
     unless self[:host] =~ /^www/
       vhost_www = render("config/vhost_www.rhtml", 
                     :host        => self[:host]
                     )
-      put(vhost_www, "/etc/apache2/sites-available/www.#{self[:host]}")
-      run "test -e /etc/apache2/sites-enabled/www.#{self[:host]} || a2ensite www.#{self[:host]}"
+      put(vhost_www, "#{apache2_vhost_root}/www.#{self[:host]}")
+      run "test -e /etc/apache2/sites-enabled/www.#{self[:host]} || a2ensite www.#{self[:host]}" if debian_host
     end
-    run "/etc/init.d/apache2 reload"
+    run apache2_reload_cmd
   end
 end
 
 #========================== APACHE2 ===============================#
 desc "Update awstats configuration file"
 task :create_awstats, :roles => :web do
-  unless self[:host] && self[:pass]
-    puts "host or password not set (use -s host=... -s pass=...)"
+  unless debian_host
+    puts "skipping debian specific awstats"
   else
-    # create awstats config file
-    awstats_conf = render("config/awstats.conf.rhtml", :host => self[:host] )
-    put(awstats_conf, "/etc/awstats/awstats.#{self[:host]}.conf")
+    unless self[:host] && self[:pass]
+      puts "host or password not set (use -s host=... -s pass=...)"
+    else
+      # create awstats config file
+      awstats_conf = render("config/awstats.conf.rhtml", :host => self[:host] )
+      put(awstats_conf, "/etc/awstats/awstats.#{self[:host]}.conf")
     
-    # create stats vhost
-    stats_vhost = render("config/stats.vhost.rhtml", :host => self[:host] )
-    put(stats_vhost, "/etc/apache2/sites-available/stats.#{self[:host]}")
-    run "test -e /etc/apache2/sites-enabled/stats.#{self[:host]} || a2ensite stats.#{self[:host]}"
+      # create stats vhost
+      stats_vhost = render("config/stats.vhost.rhtml", :host => self[:host] )
+      put(stats_vhost, "#{apache2_vhost_root}/stats.#{self[:host]}")
+      run "test -e /etc/apache2/sites-enabled/stats.#{self[:host]} || a2ensite stats.#{self[:host]}"
     
-    # directory setup for stats
-    run "test -e /var/www/zena/#{self[:host]}/log/awstats || mkdir /var/www/zena/#{self[:host]}/log/awstats"
-    run "chown www-data:www-data /var/www/zena/#{self[:host]}/log/awstats"
+      # directory setup for stats
+      run "test -e #{zena_sites}/#{self[:host]}/log/awstats || mkdir #{zena_sites}/#{self[:host]}/log/awstats"
+      run "chown www-data:www-data #{zena_sites}/#{self[:host]}/log/awstats"
     
-    # setup cron task for awstats
-    run "cat /etc/cron.d/awstats | grep \"#{self[:host]}\" || echo \"0,10,20,30,40,50 * * * * www-data [ -x /usr/lib/cgi-bin/awstats.pl -a -f /etc/awstats/awstats.#{self[:host]}.conf -a -r /var/www/zena/#{self[:host]}/log/apache2.access.log ] && /usr/lib/cgi-bin/awstats.pl -config=#{self[:host]} -update >/dev/null\n\" >> /etc/cron.d/awstats"
+      # setup cron task for awstats
+      run "cat /etc/cron.d/awstats | grep \"#{self[:host]}\" || echo \"0,10,20,30,40,50 * * * * www-data [ -x /usr/lib/cgi-bin/awstats.pl -a -f /etc/awstats/awstats.#{self[:host]}.conf -a -r #{zena_sites}/#{self[:host]}/log/apache2.access.log ] && /usr/lib/cgi-bin/awstats.pl -config=#{self[:host]} -update >/dev/null\n\" >> /etc/cron.d/awstats"
     
-    # create .htpasswd file
-    run "test ! -e /var/www/zena/#{self[:host]}/log/.awstatspw || rm /var/www/zena/#{self[:host]}/log/.awstatspw"
-    run "htpasswd -c -b /var/www/zena/#{self[:host]}/log/.awstatspw 'admin' '#{self[:pass]}'"
+      # create .htpasswd file
+      run "test ! -e #{zena_sites}/#{self[:host]}/log/.awstatspw || rm #{zena_sites}/#{self[:host]}/log/.awstatspw"
+      run "htpasswd -c -b #{zena_sites}/#{self[:host]}/log/.awstatspw 'admin' '#{self[:pass]}'"
     
-    # reload apache
-    run "/etc/init.d/apache2 reload"
+      # reload apache
+      run "/etc/init.d/apache2 reload"
+    end
   end
 end
 
@@ -246,7 +257,7 @@ task :rename_host, :roles => :web do
     puts "host or old_host not set (use -s host=... -s old_host=...)"
   else
     run "#{in_current} rake zena:rename_host OLD_HOST='#{self[:old_host]}' HOST='#{self[:host]}' RAILS_ENV='production'"
-    old_vhost_path = "/etc/apache2/sites-available/#{self[:old_host]}"
+    old_vhost_path = "#{apache2_vhost_root}/#{self[:old_host]}"
     run "a2dissite #{self[:old_host]}"
     run "test -e #{old_vhost_path} && rm #{old_vhost_path}"
     create_vhost
@@ -261,7 +272,11 @@ desc "Apache2 initial setup"
 task :apache2_setup, :roles => :web do
   ports = (mongrel_port.to_i...(mongrel_port.to_i + mongrel_count.to_i)).to_a
   httpd_conf = render("config/httpd.rhtml", :balancer => db_name, :ports => ports)
-  put(httpd_conf, "/etc/apache2/conf.d/#{db_name}")
+  if debian_host
+    put(httpd_conf, "/etc/apache2/conf.d/#{db_name}")
+  else
+    put(httpd_conf, "/etc/apache2/conf.d/#{db_name}")
+  end
   
   run "test -e /etc/apache2/sites-enabled/000-default && a2dissite default || echo 'default already disabled'"
   run "test -e /etc/apache2/mods-enabled/rewrite.load || a2enmod rewrite"
