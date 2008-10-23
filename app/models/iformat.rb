@@ -22,7 +22,13 @@ class Iformat < ActiveRecord::Base
           res << Iformat.new_from_default(k)
         end
       end
-      res.sort {|a,b| a[:name] <=> b[:name]}
+      res.sort do |a,b|
+        if a.size == 'keep'
+          b.size == 'keep' ? a[:name] <=> b[:name] : 1
+        else
+          (a.width * a.height) <=> (b.width * b.height)
+        end
+      end
     end
     
     def formats_for_site(site_id, as_hash = true)

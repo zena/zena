@@ -33,10 +33,10 @@ class IformatTest < ZenaTestUnit
   
   def test_list
     login(:lion)
-    assert_equal ["edit","full","low","med","mini","pv","side","square","std","tiny","top"], Iformat.list.map{|h| h[:name]}
+    assert_equal %w{tiny mini pv square top low med side edit std full}, Iformat.list.map{|h| h[:name]}
     
     login(:whale)
-    assert_equal ["edit","full","header", "low","med","mini","pv","side","square","std","tiny","top"], Iformat.list.map{|h| h[:name]}
+    assert_equal %w{tiny mini pv square med top low side header edit std full}, Iformat.list.map{|h| h[:name]}
   end
   
   def test_mem_cached
