@@ -71,6 +71,35 @@ class NodesController < ApplicationController
     end
   end
   
+  # Ajax table editor
+  def table_edit
+    # get table
+    table = get_table_from_json(@node, params[:attr])
+    # get row/cell
+    table_data = table[1]
+    
+    if row = table_data[params[:row].to_i]
+      if cell = row[params[:cell].to_i]
+        if cell != params[:value]
+          row[params[:cell].to_i] = params[:value]
+          @node.update_attributes(params[:attr] => table.to_json)
+        end
+      else
+        puts "NEW COLUMN: #{table.inspect}"
+        # new column
+      end
+    else  
+      puts "NEW ROW: #{table.inspect}"
+      # new row
+    end
+    
+    respond_to do |format|
+      format.html { render :inline => @node.errors.empty? ? params[:value] : error_messages_for(@node) }
+    end
+  rescue JSON::ParserError
+    render :inline => _('could not save value (bad attribute)')
+  end
+  
   # This method is called when an element is dropped on a node.
   def drop
     set       = params[:set]

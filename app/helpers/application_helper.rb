@@ -563,19 +563,10 @@ latex_template = %q{
       prefix = suffix = ""
     end
     
-    unless table
-      # get attribute content
-      attribute = "d_#{attribute}" unless ['v_', 'd_'].include?(attribute[0..1])
-      text = Node.zafu_attribute(node, attribute)
-      if text.blank?
-        table = [{"type"=>"table"},[["title"],["value"]]]
-      else
-        table = JSON.parse(text)
-      end
-    end  
-    raise JSON::ParserError unless table.kind_of?(Array) && table.size == 2 && table[0].kind_of?(Hash) && table[0]['type'] == 'table' && table[1].kind_of?(Array)
+    attribute = "d_#{attribute}" unless ['v_', 'd_'].include?(attribute[0..1])
+    table ||= get_table_from_json(node, attribute)
     
-    prefix + render_to_string( :partial=>'nodes/table', :locals=>{:table=>table}) + suffix
+    prefix + render_to_string( :partial=>'nodes/table', :locals=>{:table=>table, :node=>node, :attribute=>attribute}) + suffix
   rescue JSON::ParserError
     "<span class='unknownLink'>could not build table from text</span>"
   end

@@ -776,7 +776,7 @@ TableKit.Editable = {
 	},
 	getCellEditor : function(cell, table, head) {
 	  var head = head ? head : $(TableKit.getHeaderCells(table, cell)[TableKit.getCellIndex(cell)]);
-	  var ftype = TableKit.Editable.types['text-input'];
+	  var ftype = TableKit.Editable.types['multi-line-input'];
 		if(head.id && TableKit.Editable.types[head.id]) {
 			ftype = TableKit.Editable.types[head.id];
 		} else {
@@ -873,8 +873,11 @@ TableKit.Editable.CellEditor.prototype = {
 		var head = $(TableKit.getHeaderCells(null, cell)[TableKit.getCellIndex(cell)]);
 		var row = cell.up('tr');
 		var table = cell.up('table');
-		var s = '&row=' + (TableKit.getRowIndex(row)+1) + '&cell=' + (TableKit.getCellIndex(cell)+1) + '&id=' + row.id + '&field=' + head.id + '&' + Form.serialize(form);
-		this.ajax = new Ajax.Updater(cell, op.ajaxURI || TableKit.option('editAjaxURI', table.id)[0], Object.extend(op.ajaxOptions || TableKit.option('editAjaxOptions', table.id)[0], {
+		var dom_id  = table.id;
+		var attr    = dom_id.replace(/^\d+_/,'');
+		var node_id = dom_id.match(/^\d+/);
+		var s = '&row=' + TableKit.getRowIndex(row) + '&cell=' + TableKit.getCellIndex(cell) + '&attr=' + attr + '&' + Form.serialize(form);
+		this.ajax = new Ajax.Updater(cell, '/nodes/' + node_id + '/table_edit', Object.extend(op.ajaxOptions || TableKit.option('editAjaxOptions', table.id)[0], {
 			postBody : s,
 			onComplete : function() {
 				var data = TableKit.getCellData(cell);

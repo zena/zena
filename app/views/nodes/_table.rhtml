@@ -1,9 +1,9 @@
-<table>
-  <th>
+<table id='<%= node.zip %>_<%= attribute %>' class='editable'>
+  <tr>
 <% table[1][0].each do |heading| -%>
-    <td><%= heading %></td>
+    <th><%= heading %></th>
 <% end -%>
-  </th>
+  </tr>
 <% table[1][1..-1].each do |row| -%>
   <tr>
 <% row.each do |td| -%>

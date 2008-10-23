@@ -19,7 +19,8 @@ ActionController::Routing::Routes.draw do |map|
     :collection => { :asearch => :get, :search => :get },
     :member =>     { :import => :post, :export => :get, :save_text => :put,
                      :order => :any, :clear_order => :any,
-                     :zafu => :get, :drop => :put, :attribute => :get } do |nodes|
+                     :zafu => :get, :drop => :put, :attribute => :get,
+                     :table_edit => :post } do |nodes|
     nodes.resources :versions, 
                     :name_prefix => nil,
                     :member => { :edit    => :get,

@@ -330,7 +330,7 @@ module Zazen
             node = @helper.find_node_by_pseudo(id, @context[:node])
             id = node.pseudo_id(@context[:node], @translate_ids) if node
           end
-          store "|#{style}#{id}.#{attribute}#{title}|"
+          store "|#{style}#{id == '' ? '' : "#{id}."}#{attribute}#{title}|"
         else
           node = id == '' ? @context[:node] : @helper.find_node_by_pseudo(id, @context[:node])
           store @helper.make_table(:style=>style, :node=>node, :attribute=>attribute, :title=>title)

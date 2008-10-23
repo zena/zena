@@ -4,7 +4,7 @@ require 'tempfile'
 class ApplicationController < ActionController::Base
   init_gettext 'zena'
   helper_method :prefix, :zen_path, :zen_url, :data_path, :node_url, :notes, :error_messages_for, :render_errors, :processing_error
-  helper_method :get_template_text, :template_url_for_asset, :save_erb_to_url, :lang, :visitor, :fullpath_from_template_url, :eval_parameters_from_template_url, :format_date
+  helper_method :get_template_text, :template_url_for_asset, :save_erb_to_url, :lang, :visitor, :fullpath_from_template_url, :eval_parameters_from_template_url, :format_date, :get_table_from_json
   before_filter :set_lang
   before_filter :authorize
   before_filter :check_lang
@@ -869,6 +869,18 @@ END_MSG
         res[k.to_sym] = v
       end
       res
+    end
+    
+    # Build a tabular content from a node's attribute
+    def get_table_from_json(node, attribute)
+      text = Node.zafu_attribute(node, attribute)
+      if text.blank?
+        table = [{"type"=>"table"},[["title"],["value"]]]
+      else
+        table = JSON.parse(text)
+      end
+      raise JSON::ParserError unless table.kind_of?(Array) && table.size == 2 && table[0].kind_of?(Hash) && table[0]['type'] == 'table' && table[1].kind_of?(Array)
+      table
     end
 end
 
