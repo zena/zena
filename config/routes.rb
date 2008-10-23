@@ -20,7 +20,7 @@ ActionController::Routing::Routes.draw do |map|
     :member =>     { :import => :post, :export => :get, :save_text => :put,
                      :order => :any, :clear_order => :any,
                      :zafu => :get, :drop => :put, :attribute => :get,
-                     :table_edit => :post } do |nodes|
+                     :cell_update => :post, :table_update => :post, :cell_edit => :get } do |nodes|
     nodes.resources :versions, 
                     :name_prefix => nil,
                     :member => { :edit    => :get,

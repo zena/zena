@@ -317,6 +317,7 @@ module ApplicationHelper
   def zazen(text, opt={})
     return '' unless text
     opt = {:images=>true, :pretty_code=>true, :output=>'html'}.merge(opt)
+    no_p = opt.delete(:no_p)
     img = opt[:images]
     if opt[:limit]
       opt[:limit] -= 1 unless opt[:limit] <= 0
@@ -326,7 +327,12 @@ module ApplicationHelper
       end
     end
     opt[:node] ||= @node
-    ZazenParser.new(text,:helper=>self).render(opt)
+    res = ZazenParser.new(text,:helper=>self).render(opt)
+    if no_p && !text.include?("\n")
+      res.gsub(%r{\A<p>|</p>\Z},'')
+    else
+      res
+    end
   end
   
   # TODO: test
@@ -548,8 +554,9 @@ latex_template = %q{
   
   # Create a table from an attribute
   def make_table(opts)
-    style, node, attribute, title, images, table = opts[:style], opts[:node], opts[:attribute], opts[:title], opts[:images], opts[:table]
-    case style.sub('.', '')
+    style, node, attribute, title, table = opts[:style], opts[:node], opts[:attribute], opts[:title], opts[:table]
+    attribute = "d_#{attribute}" unless ['v_', 'd_'].include?(attribute[0..1])
+    case (style || '').sub('.', '')
     when ">"
       prefix = "<div class='img_right'>"
       suffix = "</div>"
@@ -560,10 +567,23 @@ latex_template = %q{
       prefix = "<div class='img_center'>"
       suffix = "</div>"
     else
-      prefix = suffix = ""
+      prefix = ''
+      suffix = ''
     end
     
-    attribute = "d_#{attribute}" unless ['v_', 'd_'].include?(attribute[0..1])
+    if node.can_write?
+      prefix << "<div class='table_add'>"
+      prefix << link_to_remote("<img src='/images/column_add.png' alt='#{_('add column')}'/>", 
+                                :url => "/nodes/#{node.zip}/table_update?add=column&attr=#{attribute}")
+      prefix << link_to_remote("<img src='/images/column_delete.png' alt='#{_('add column')}'/>", 
+                                :url => "/nodes/#{node.zip}/table_update?remove=column&attr=#{attribute}")
+      prefix << link_to_remote("<img src='/images/row_add.png' alt='#{_('add column')}'/>", 
+                                :url => "/nodes/#{node.zip}/table_update?add=row&attr=#{attribute}")
+      prefix << link_to_remote("<img src='/images/row_delete.png' alt='#{_('add column')}'/>", 
+                                :url => "/nodes/#{node.zip}/table_update?remove=row&attr=#{attribute}")
+      prefix << "</div>"
+    end
+    
     table ||= get_table_from_json(node, attribute)
     
     prefix + render_to_string( :partial=>'nodes/table', :locals=>{:table=>table, :node=>node, :attribute=>attribute}) + suffix

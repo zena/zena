@@ -63,3 +63,8 @@ padding:5px; border:1px solid #714D3D; text-align:left; color:#444; z-index:9999
 #dev li li { clear:both;}
 #dev li table { display:none;}
 #dev:hover table { display:block;}
+
+/* table js */
+.zazen .table_add a { visibility:hidden; padding:0 5px; text-decoration:none;}
+.zazen .table_add img { border:0;}
+.zazen .table_add:hover a { visibility:visible;}

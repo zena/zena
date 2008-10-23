@@ -179,29 +179,8 @@ class ZazenHelperTest < ZenaTestHelper
   def test_table_asset
     login(:tiger)
     @node = secure!(Node) { nodes(:status) }
-    assert_match %r{<table.*<th.*<td>title</td>.*<tr.*value}m, zazen("This is a table test:\n\n|shopping_list|")
-    assert_match %r{<table>
-  <th>
-    <td>problem</td>
-    <td>solution</td>
-    <td>cost</td>
-  </th>
-  <tr>
-    <td>dead hard drive</td>
-    <td>buy a new one</td>
-    <td>150.0</td>
-  </tr>
-  <tr>
-    <td>hurting hands</td>
-    <td>take a rest</td>
-    <td>0.0</td>
-  </tr>
-  <tr>
-    <td>buggy display</td>
-    <td>wait for a bug fix</td>
-    <td>0.0</td>
-  </tr>
-</table>}m, zazen("This is a table test:\n\n|problems|")
+    assert_match %r{<table.*<tr.*<th>title</th.*<tr.*value}m, zazen("This is a table test:\n\n|shopping_list|")
+    assert_match %r{<table.*<th>problem</th>.*<th>solution</th>.*<th>cost</th>.*<tr>.*<td>dead hard drive</td>}m, zazen("This is a table test:\n\n|problems|")
   end
 
 end

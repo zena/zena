@@ -153,8 +153,8 @@ Object.extend(TableKit, {
 	options : {
 		autoLoad : true,
 		stripe : true,
-		sortable : true,
-		resizable : true,
+		sortable : false,
+		resizable : false,
 		editable : true,
 		rowEvenClass : 'roweven',
 		rowOddClass : 'rowodd',
@@ -733,10 +733,14 @@ TableKit.Editable = {
 		if(table.tagName !== "TABLE") {return;}
 		TableKit.register(table,Object.extend(options || {},{editable:true}));
 		Event.observe(table.tBodies[0], 'click', TableKit.Editable._editCell);
+		Event.observe(table.tHead, 'click', TableKit.Editable._editCell);
 	},
 	_editCell : function(e) {
 		e = TableKit.e(e);
-		var cell = Event.findElement(e,'td');
+		var cell = Event.findElement(e,'td') || Event.findElement(e,'th');
+		if (Event.findElement(e,'a')) {
+		  return false;
+		}
 		if(cell) {
 			TableKit.Editable.editCell(null, cell, null, e);
 		} else {
@@ -757,7 +761,7 @@ TableKit.Editable = {
 			row = $(table.tBodies[0].rows[index]);
 			cell = $(row.cells[cindex]);
 		} else {
-			cell = $(event ? Event.findElement(event, 'td') : index);
+			cell = $(event ? (Event.findElement(event, 'td') || Event.findElement(event, 'th')) : index);
 			table = (table && table.tagName && table.tagName !== "TABLE") ? $(table) : cell.up('table');
 			row = cell.up('tr');
 		}
@@ -770,13 +774,13 @@ TableKit.Editable = {
 		var data = TableKit.getCellData(cell);
 		if(data.active) {return;}
 		data.htmlContent = cell.innerHTML;
-		var ftype = TableKit.Editable.getCellEditor(null,null,head);
+		var ftype = TableKit.Editable.getCellEditor(cell,null,head,event);
 		ftype.edit(cell, event);
 		data.active = true;
 	},
-	getCellEditor : function(cell, table, head) {
+	getCellEditor : function(cell, table, head, event) {
 	  var head = head ? head : $(TableKit.getHeaderCells(table, cell)[TableKit.getCellIndex(cell)]);
-	  var ftype = TableKit.Editable.types['multi-line-input'];
+	  var ftype = (head !== cell && event && (event.shiftKey || cell.select('p')[0])) ? TableKit.Editable.types['multi-line-input'] : TableKit.Editable.types['text-input'];
 		if(head.id && TableKit.Editable.types[head.id]) {
 			ftype = TableKit.Editable.types[head.id];
 		} else {
@@ -810,8 +814,29 @@ TableKit.Editable.CellEditor.prototype = {
 		}, options || {});
 	},
 	edit : function(cell) {
+	  this.getCellText(cell);
+  },
+  getCellText : function(cell) {
+    if(!cell) { return ""; }
+		var row = cell.up('tr');
+		var table = cell.up('table');
+		var dom_id  = table.id;
+		var attr    = dom_id.replace(/^\d+_/,'');
+		var node_id = dom_id.match(/^\d+/);
+		var url = '/nodes/' + node_id + '/cell_edit?row=' + TableKit.getRowIndex(row) + '&cell=' + TableKit.getCellIndex(cell) + '&attr=' + attr;
+		var editor = this;
+		new Ajax.Request(url, {
+		  method:'get',
+		  onSuccess: function(transport) {
+         var data = transport.responseText;
+         editor.showForm(cell,data);
+    }});
+  },
+  showForm : function(cell, txt) {
 		cell = $(cell);
+		
 		var op = this.options;
+		var element = txt.match(/\n/) ? 'textarea' : op.element;
 		var table = cell.up('table');
 		
 		var form = $(document.createElement("form"));
@@ -819,18 +844,17 @@ TableKit.Editable.CellEditor.prototype = {
 		form.addClassName(TableKit.option('formClassName', table.id)[0]);
 		form.onsubmit = this._submit.bindAsEventListener(this);
 		
-		var field = document.createElement(op.element);
+		var field = document.createElement(element);
 			$H(op.attributes).each(function(v){
 				field[v.key] = v.value;
 			});
-			switch(op.element) {
+			switch(element) {
 				case 'input':
 				case 'textarea':
-				field.value = TableKit.getCellText(cell);
+				field.value = txt;
 				break;
 				
 				case 'select':
-				var txt = TableKit.getCellText(cell);
 				$A(op.selectOptions).each(function(v){
 					field.options[field.options.length] = new Option(v[0], v[1]);
 					if(txt === v[1]) {
@@ -840,29 +864,28 @@ TableKit.Editable.CellEditor.prototype = {
 				break;
 			}
 			form.appendChild(field);
-			if(op.element === 'textarea') {
+			if(element === 'textarea') {
 				form.appendChild(document.createElement("br"));
-			}
-			if(op.showSubmit) {
 				var okButton = document.createElement("input");
 				okButton.type = "submit";
 				okButton.value = op.submitText;
 				okButton.className = 'editor_ok_button';
 				form.appendChild(okButton);
 			}
-			if(op.showCancel) {
-				var cancelLink = document.createElement("a");
-				cancelLink.href = "#";
-				cancelLink.appendChild(document.createTextNode(op.cancelText));
-				cancelLink.onclick = this._cancel.bindAsEventListener(this);
-				cancelLink.className = 'editor_cancel';      
-				form.appendChild(cancelLink);
-			}
+			//if(op.showCancel) {
+			//	var cancelLink = document.createElement("a");
+			//	cancelLink.href = "#";
+			//	cancelLink.appendChild(document.createTextNode(op.cancelText));
+			//	cancelLink.onclick = this._cancel.bindAsEventListener(this);
+			//	cancelLink.className = 'editor_cancel';      
+			//	form.appendChild(cancelLink);
+			//}
 			cell.innerHTML = '';
 			cell.appendChild(form);
+			form.focusFirstElement();
 	},
 	_submit : function(e) {
-		var cell = Event.findElement(e,'td');
+		var cell = Event.findElement(e,'td') || Event.findElement(e,'th');
 		var form = Event.findElement(e,'form');
 		Event.stop(e);
 		this.submit(cell,form);
@@ -877,7 +900,7 @@ TableKit.Editable.CellEditor.prototype = {
 		var attr    = dom_id.replace(/^\d+_/,'');
 		var node_id = dom_id.match(/^\d+/);
 		var s = '&row=' + TableKit.getRowIndex(row) + '&cell=' + TableKit.getCellIndex(cell) + '&attr=' + attr + '&' + Form.serialize(form);
-		this.ajax = new Ajax.Updater(cell, '/nodes/' + node_id + '/table_edit', Object.extend(op.ajaxOptions || TableKit.option('editAjaxOptions', table.id)[0], {
+		this.ajax = new Ajax.Updater(cell, '/nodes/' + node_id + '/cell_update', Object.extend(op.ajaxOptions || TableKit.option('editAjaxOptions', table.id)[0], {
 			postBody : s,
 			onComplete : function() {
 				var data = TableKit.getCellData(cell);
@@ -887,7 +910,7 @@ TableKit.Editable.CellEditor.prototype = {
 		}));
 	},
 	_cancel : function(e) {
-		var cell = Event.findElement(e,'td');
+		var cell = Event.findElement(e,'td') || Event.findElement(e,'th');
 		Event.stop(e);
 		this.cancel(cell);
 	},

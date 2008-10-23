@@ -71,8 +71,26 @@ class NodesController < ApplicationController
     end
   end
   
+  # Get cell text
+  def cell_edit
+    # get table
+    table = get_table_from_json(@node, params[:attr])
+    # get row/cell
+    table_data = table[1]
+    
+    if row = table_data[params[:row].to_i]
+      if cell = row[params[:cell].to_i]
+        render :text => cell
+      else
+        ' '
+      end
+    else  
+      ' '
+    end
+  end
+  
   # Ajax table editor
-  def table_edit
+  def cell_update
     # get table
     table = get_table_from_json(@node, params[:attr])
     # get row/cell
@@ -85,17 +103,44 @@ class NodesController < ApplicationController
           @node.update_attributes(params[:attr] => table.to_json)
         end
       else
-        puts "NEW COLUMN: #{table.inspect}"
-        # new column
+        @node.errors.add(params[:attr], 'Cell outside of table range.')
       end
     else  
-      puts "NEW ROW: #{table.inspect}"
-      # new row
+      @node.errors.add(params[:attr], 'Row outside of table range.')
     end
     
     respond_to do |format|
-      format.html { render :inline => @node.errors.empty? ? params[:value] : error_messages_for(@node) }
+      format.html { render :inline => @node.errors.empty? ? "<%= zazen(params[:value], :no_p => true) %>" : error_messages_for(@node) }
     end
+  rescue JSON::ParserError
+    render :inline => _('could not save value (bad attribute)')
+  end
+  
+  # Ajax table add row/column
+  def table_update
+    # get table
+    @table = get_table_from_json(@node, params[:attr])
+    # get row/cell
+    table_data = @table[1]
+
+    if params[:add] == 'row'
+      table_data << table_data[0].map { ' ' }
+    elsif params[:add] == 'column'
+      table_data.each do |row|
+        row << ' '
+      end
+    elsif params[:remove] == 'row' && table_data.size > 2
+      table_data.pop
+    elsif params[:remove] == 'column' && table_data[0].size > 1
+      table_data.each do |row|
+        row.pop
+      end
+    else
+      # reorder ...
+    end
+
+    @node.update_attributes(params[:attr] => @table.to_json)
+    
   rescue JSON::ParserError
     render :inline => _('could not save value (bad attribute)')
   end

@@ -2,6 +2,7 @@ body { background: #eee; color:#444; line-height:21px; font-size:14px; font-fami
 a { text-decoration:none; color:#2F31D5;}
 a.wiki { color:inherit; border-bottom:1px dotted blue;}
 .zazen a:hover, #footer a:hover { border-bottom:1px solid blue;}
+.table_add a:hover { border:0;}
 input { padding:3px 4px;}
 
 #header, #container, #footer, #top { width:800px; border:1px solid #555; border-width:0 1px 1px; margin:0 auto; background:white; padding:100px 21px;}
@@ -29,6 +30,7 @@ ol { padding-left:14px;}
 
 .summary { font-style:italic;}
 .zazen h1, .zazen h2, .zazen h3, .zazen h4, .zazen p, .zazen ol, .zazen ul { margin:21px 0;}
+.zazen table p, .zazen table ol, .zazen table ul { margin-top:0; margin-bottom:0;}
 h1, h2, h3 { color:black;}
 h1 { font-size:28px; line-height:42px; font-weight:bold; color:black;}
 h2 { font-size:21px; line-height:42px;}

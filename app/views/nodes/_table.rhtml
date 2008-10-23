@@ -1,13 +1,13 @@
-<table id='<%= node.zip %>_<%= attribute %>' class='editable'>
+<table id='<%= node.zip %>_<%= attribute %>'<%= node.can_write? ? " class='editable'" : '' %>>
   <tr>
-<% table[1][0].each do |heading| -%>
+<% table[1][0].each do |heading| -%>    
     <th><%= heading %></th>
 <% end -%>
   </tr>
 <% table[1][1..-1].each do |row| -%>
   <tr>
 <% row.each do |td| -%>
-    <td><%= td %></td>
+    <td><%= zazen(td.to_s, :no_p => true) %></td>
 <% end -%>
   </tr>
 <% end -%>
