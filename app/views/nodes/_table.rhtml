@@ -1,0 +1,14 @@
+<table>
+  <th>
+<% table[1][0].each do |heading| -%>
+    <td><%= heading %></td>
+<% end -%>
+  </th>
+<% table[1][1..-1].each do |row| -%>
+  <tr>
+<% row.each do |td| -%>
+    <td><%= td %></td>
+<% end -%>
+  </tr>
+<% end -%>
+</table>

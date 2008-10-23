@@ -65,7 +65,7 @@ module Zazen
     
     def scan
       #puts "SCAN:[#{@text}]"
-      if @text =~ /\A([^!"<\n\[]*)/m
+      if @text =~ /\A([^\|!"<\n\[]*)/m
         flush $&
         if @text[0..0] == '!'
           scan_exclam
@@ -73,6 +73,8 @@ module Zazen
           scan_quote
         elsif @text[0..0] == '['
           scan_bracket
+        elsif @text[0..0] == '|'
+          scan_pipe
         elsif @text[0..4] == '<code'
           # FIXME: implement <code..> and @@ instead of "extract"
           flush
@@ -314,6 +316,53 @@ module Zazen
       end
     end
     
+    def scan_pipe
+      #puts "PIPE:[#{@text}]"
+      if @text =~ /\A\|([<=>]\.|)([0-9]+\.|)([a-zA-Z_]+)(\/([^\|]*)|)\|/m
+        # table |<.34.shopping_list/blah blah|
+        # table |shopping_list|
+        #puts "TABLE:#{$~.to_a.inspect}"
+        eat $&
+        style, id, attribute, title_opts, title = $1, $2, $3, $4, $5
+        id = id[0..-2] if id != ''
+        if @translate_ids
+          if @translate_ids != :zip
+            node = @helper.find_node_by_pseudo(id, @context[:node])
+            id = node.pseudo_id(@context[:node], @translate_ids) if node
+          end
+          store "|#{style}#{id}.#{attribute}#{title}|"
+        else
+          node = id == '' ? @context[:node] : @helper.find_node_by_pseudo(id, @context[:node])
+          store @helper.make_table(:style=>style, :node=>node, :attribute=>attribute, :title=>title)
+        end
+      elsif @text =~ /\A\|([<=>]\.|)(#{PSEUDO_ID_REGEXP})\.([a-zA-Z_]+)(\/([^\|]*)|)\|/m
+        # table |<.:art++.shopping_list/blah blah|
+        # table |shopping_list|
+        #puts "TABLE SHORTCUT:#{$~.to_a.inspect}"
+        eat $&
+        text = $&
+        style, id, attribute, title_opts, title = $1, $2, $3, $4, $5
+        if node = @helper.find_node_by_pseudo(id, @context[:node])
+          if @translate_ids
+            # replace shortcut
+            store "|#{style}#{node.pseudo_id(@context[:node], @translate_ids || :zip)}.#{attribute}#{title}|"
+          else
+            # write table
+            store @helper.make_table(:style=>style, :node=>node, :attribute=>attribute, :title=>title)
+          end
+        elsif @translate_ids
+          # node not found, ignore
+          store text
+        else
+          # node not found
+          store "[#{id} not found]"
+        end
+      else
+        #puts "EAT:[#{$&}]"
+        # eat marker and continue scan
+        flush @text[0..0]
+      end
+    end
     
     def extract_code(fulltext)
       @escaped_code = []

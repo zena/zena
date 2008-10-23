@@ -116,6 +116,26 @@ image_with_http_link:
 image_with_ref:
   src: "!http://www.example.org/images/test.jpg!"
   res: "<p><img src=\"http://www.example.org/images/test.jpg\" alt=\"\" /></p>"
+  
+table:
+  src: "|shopping_list|"
+  res: "<p>[make_table attribute:|shopping_list| style:||]</p>"
+  
+table_title:
+  src: "|shopping_list/A list of frequent problems|"
+  res: "<p>[make_table attribute:|shopping_list| style:|| title:|A list of frequent problems|]</p>"
+  
+table_id:
+  src: "|34.shopping_list|"
+  res: "<p>[make_table attribute:|shopping_list| node:|34| style:||]</p>"
+  
+table_pseudo_id:
+  src: "|:art+.shopping_list|"
+  res: "<p>[make_table attribute:|shopping_list| node:|:art+| style:||]</p>"
+  
+table_pseudo_path:
+  src: "|(../some/path).shopping_list|"
+  res: "<p>[make_table attribute:|shopping_list| node:|(../some/path)| style:||]</p>"
 
 link_with_title:
   src: '"this is a title":23'

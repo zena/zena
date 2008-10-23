@@ -15,7 +15,7 @@ end
 
 class ParserModule::DummyHelper
   def find_node_by_pseudo(*args)
-    nil
+    args[0]
   end
 end
 
@@ -71,6 +71,12 @@ module Zafu
     def r_test
       self.inspect
     end
+  end
+end
+
+class String
+  def pseudo_id(*args)
+    self
   end
 end
 

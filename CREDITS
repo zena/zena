@@ -3,6 +3,12 @@ javascript date selection
     Mihai Bazon
     http://dynarch.com
     adapted to Rails by Gaspard Bucher
+
+tablekit table editor
+---------------------
+    Andrew Tetlaw & Millstream Web Software
+    http://www.millstream.com.au/view/code/tablekit/
+    add/remove columns and drag&drop support added by Gaspard Bucher
     
 soft icons
 ----------
@@ -11,8 +17,8 @@ soft icons
     
 xspf mp3 player
 ---------------
-	Fabricio Zuardi
-	http://musicplayer.sourceforge.net/
+    Fabricio Zuardi
+    http://musicplayer.sourceforge.net/
 	
 upload progress bar (sample application demo)
 -------------------

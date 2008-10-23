@@ -1,5 +1,6 @@
 require 'digest/sha1'
 require 'tempfile'
+require 'json'
 
 # Methods added to this helper will be available to all templates in the application.
 module ApplicationHelper
@@ -543,6 +544,40 @@ latex_template = %q{
     end
     
     render_to_string( :partial=>'nodes/gallery', :locals=>{:gallery=>images} )
+  end
+  
+  # Create a table from an attribute
+  def make_table(opts)
+    style, node, attribute, title, images, table = opts[:style], opts[:node], opts[:attribute], opts[:title], opts[:images], opts[:table]
+    case style.sub('.', '')
+    when ">"
+      prefix = "<div class='img_right'>"
+      suffix = "</div>"
+    when "<"
+      prefix = "<div class='img_left'>"
+      suffix = "</div>"
+    when "="
+      prefix = "<div class='img_center'>"
+      suffix = "</div>"
+    else
+      prefix = suffix = ""
+    end
+    
+    unless table
+      # get attribute content
+      attribute = "d_#{attribute}" unless ['v_', 'd_'].include?(attribute[0..1])
+      text = Node.zafu_attribute(node, attribute)
+      if text.blank?
+        table = [{"type"=>"table"},[["title"],["value"]]]
+      else
+        table = JSON.parse(text)
+      end
+    end  
+    raise JSON::ParserError unless table.kind_of?(Array) && table.size == 2 && table[0].kind_of?(Hash) && table[0]['type'] == 'table' && table[1].kind_of?(Array)
+    
+    prefix + render_to_string( :partial=>'nodes/table', :locals=>{:table=>table}) + suffix
+  rescue JSON::ParserError
+    "<span class='unknownLink'>could not build table from text</span>"
   end
 
   def list_nodes(ids=[], opts={})
