@@ -1,5 +1,6 @@
 require 'gettext/rails'
 require 'tempfile'
+require 'json'
 
 class ApplicationController < ActionController::Base
   init_gettext 'zena'
