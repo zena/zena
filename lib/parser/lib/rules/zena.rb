@@ -1651,8 +1651,10 @@ END_TXT
     end
     
     def r_javascripts
-      if @params[:list] == 'all' || @params[:list].nil?
+      if @params[:list].nil?
         list = %w{ prototype effects tablekit zena }
+      elsif @params[:list] == 'all'
+        list = %w{ prototype effects dragdrop tablekit zena }
       else
         list = @params[:list].split(',').map{|e| e.strip}
       end

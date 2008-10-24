@@ -504,6 +504,7 @@ latex_template = %q{
       if id[0..0] == "0" || !img.kind_of?(Image)
         # if the id starts with '0' or it is not an Image, link to data
         link = zen_path(img, :format => img.c_ext)
+        link_tag = "<a class='popup' href='#{link}' target='_blank'>"
       end
     end
     
@@ -533,7 +534,8 @@ latex_template = %q{
       prefix + make_link(:id=>link,:title=>image) + suffix
     else
       link = "http://#{link}" unless link =~ %r{(^/|.+://.+)}
-      prefix + "<a href='#{link}'>" + image + "</a>" + suffix
+      link_tag ||= "<a href='#{link}'>"
+      prefix + link_tag + image + "</a>" + suffix
     end
   end
   
