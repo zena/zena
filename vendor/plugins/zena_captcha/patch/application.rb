@@ -1,4 +1,4 @@
-gem 'recaptcha'
+require 'recaptcha'
 class ApplicationController
   include ReCaptcha::AppHelper
   
