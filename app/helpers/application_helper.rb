@@ -450,7 +450,11 @@ latex_template = %q{
         sharp = sharp == '' ? 'true' : "[#{sharp}]"
         link_opts[:sharp_in] = sharp_in
       end
-      link_opts[:sharp]    = sharp
+      if ['[id]', '[zip]'].include?(sharp)
+        link_opts[:sharp] = 'true'
+      else
+        link_opts[:sharp] = sharp
+      end
     end
     if opts[:id] =~ /(\d+)(_\w+|)(\.\w+|)/
       opts[:id]     = $1

@@ -28,7 +28,7 @@ class ZazenHelperTest < ZenaTestHelper
     assert_match %r{<div class='img_with_title'><img.*class.*std.*><div class='img_title'><p>Photo taken from.*</p></div></div>}, zazen("!30/!")
 
   end
-
+  
   def test_make_link
     login(:tiger)
     # * ["":34] creates a link to node 34 with node's title.
@@ -38,13 +38,26 @@ class ZazenHelperTest < ZenaTestHelper
     # * ["":034] if the node id starts with '0', creates a popup link.
     assert_match %r{/oo/projects/cleanWater.*window.open.*hello}, zazen('"hello":021')
   end
+  
+  def test_make_link_sharp
+    login(:tiger)
+    assert_equal '<p><a href="#node34">hello</a></p>', zazen('"hello":34#')
+    assert_equal '<p><a href="#node34">hello</a></p>', zazen('"hello":34#[id]')
+    assert_equal '<p><a href="#node34">hello</a></p>', zazen('"hello":34#[zip]')
+    assert_equal '<p><a href="#news">hello</a></p>', zazen('"hello":34#[name]')
+    # * ["":34#[parent/]] if the node id starts with '0', creates a popup link.
+    assert_equal '<p><a href="/oo/page32.html#node34">hello</a></p>', zazen('"hello":34#[parent/]')
+    assert_equal '<p><a href="/oo/page32.html#node34">hello</a></p>', zazen('"hello":34#[parent/id]')
+    assert_equal '<p><a href="/oo/page32.html#node34">hello</a></p>', zazen('"hello":34#[parent/zip]')
+    assert_equal '<p><a href="/oo/page32.html#news">hello</a></p>', zazen('"hello":34#[parent/name]')
+  end
 
   def test_make_image
     login(:tiger)
     # * [!24!] inline image 24. (default format is 'pv' defined in #ImageBuilder). Options are :
     assert_equal "<p><img src='/en/projects/cleanWater/image24_std.jpg' width='545' height='400' alt='it&apos;s a lake' class='std'/></p>", zazen('!24!')
     # ** [!024!] inline image, default format, link to full image.
-    assert_equal "<p><a href='/oo/projects/cleanWater/image24.jpg'><img src='/en/projects/cleanWater/image24_std.jpg' width='545' height='400' alt='it&apos;s a lake' class='std'/></a></p>", zazen('!024!')
+    assert_equal "<p><a class='popup' href='/oo/projects/cleanWater/image24.jpg' target='_blank'><img src='/en/projects/cleanWater/image24_std.jpg' width='545' height='400' alt='it&apos;s a lake' class='std'/></a></p>", zazen('!024!')
   end
 
   def test_make_image_with_document
@@ -157,6 +170,15 @@ class ZazenHelperTest < ZenaTestHelper
     
     @node = secure!(Node) { nodes(:wiki) }
     assert_equal "<p>See <a href=\"/oo/projects/cleanWater\"><img src='/en/image30_med.jpg' width='220' height='200' alt='bird' class='med'/></a></p>", zazen('See !:(bird)_med!:(/projects/cleanWater)')
+  end
+  
+  def test_bad_pseudo_path
+    login(:lion)
+    lion = secure!(Node) { nodes(:lion) }
+    
+    @node = secure!(Node) { nodes(:cleanWater) }
+    assert_equal '<p>Read [(shmol) not found]</p>', zazen('Read "":(shmol)')
+    assert_equal 'Read "":(shmol)', zazen('Read "":(shmol)', :translate_ids => :zip, :node => lion)
   end
   
   def test_translate_ids
