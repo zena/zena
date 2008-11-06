@@ -26,7 +26,7 @@ class Iformat < ActiveRecord::Base
         if a.size == 'keep'
           b.size == 'keep' ? a[:name] <=> b[:name] : 1
         else
-          (a.width * a.height) <=> (b.width * b.height)
+          (a.width.to_f * a.height.to_f) <=> (b.width.to_f * b.height.to_f)
         end
       end
     end
