@@ -19,3 +19,7 @@ tags:
 
 letters_in_project_from_letters:
   res: "SELECT ob1.* FROM objects,objects AS ob1 WHERE ob1.kpath LIKE 'NNL%' AND ob1.project_id = objects.id AND objects.kpath LIKE 'NNL%' AND objects.parent_id = ID GROUP BY ob1.id"
+
+letters_in_project_from_letters_group_by:
+  src: "letters in project from letters group by name,id"
+  res: "SELECT ob1.* FROM objects,objects AS ob1 WHERE ob1.kpath LIKE 'NNL%' AND ob1.project_id = objects.id AND objects.kpath LIKE 'NNL%' AND objects.parent_id = ID GROUP BY ob1.name, ob1.id"

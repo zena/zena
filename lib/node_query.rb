@@ -8,6 +8,12 @@ class NodeQuery < QueryBuilder
   
   load_custom_queries File.join(File.dirname(__FILE__), 'custom_queries')
 
+  # make sure there exists a link with NULL content and id == -1 (used in queries using query order sorting)
+  if l = Link.find_by_id(-1)
+    # do nothing
+  else
+    Link.connection.execute "INSERT INTO #{Link.table_name} (id,target_id,source_id,status,comment) VALUES (-1,NULL,NULL,NULL,NULL)"
+  end
   
   def initialize(query, opts = {})
     @uses_node_name = false
@@ -39,7 +45,7 @@ class NodeQuery < QueryBuilder
   
   def after_parse
     @where.unshift "(\#{#{@node_name}.secure_scope('#{table}')})"
-    if @tables.include?('links') && safe_links_attributes?
+    if @tables.include?('links')
       @select << "#{table('links')}.id AS link_id, links.status AS l_status, links.comment AS l_comment"
     elsif @errors_unless_safe_links
       @errors += @errors_unless_safe_links
@@ -59,10 +65,12 @@ class NodeQuery < QueryBuilder
   end
   
   private
-    def safe_links_attributes?
-      (@alt_where || []).each do |f|
+    # Make sure all alternate queries include "links.id = -1" (dummy link)
+    def fix_where_list(where_list)
+      return unless @tables.include?('links')
+      where_list.each do |f|
         unless f =~ /links\./
-          return false
+          f << " AND links.id = -1"
         end
       end
       true
@@ -212,7 +220,7 @@ class NodeQuery < QueryBuilder
         end
       when 'l_'  
         key, function = parse_sql_function_in_field(field)
-        if key == 'l_status' || key == 'l_comment' || (key == 'l_id' && context == :order)
+        if key == 'l_status' || key == 'l_comment' || (key == 'l_id' && [:order, :group].include?(context))
           @errors_unless_safe_links ||= []
           @errors_unless_safe_links << "cannot use link field '#{key}' in this query" unless (key == 'l_id' && context == :order)
           # ok

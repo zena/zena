@@ -60,7 +60,7 @@ module Zena
       end
       
       def link_id
-        @link ? @link[:id] : self[:link_id]
+        @link ? @link[:id] : (self[:link_id] == -1 ? nil : self[:link_id]) # -1 == dummy link
       end
       
       def link_id=(v)

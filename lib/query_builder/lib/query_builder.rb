@@ -312,14 +312,18 @@ class QueryBuilder
       res == [] ? nil : " ORDER BY #{res.join(', ')}"
     end
     
-    def parse_group_clause(field)
-      return @group unless field
-      if fld = map_field(field, table, :group)
-        " GROUP BY #{fld}"
-      else
-        @errors << "invalid field '#{field}'"
-        nil
+    def parse_group_clause(group)
+      return @group unless group
+      res = []
+      
+      group.split(',').each do |field|
+        if fld = map_field(field, table, :group)
+          res << fld
+        else
+          @errors << "invalid field '#{field}'"
+        end
       end
+      res == [] ? nil : " GROUP BY #{res.join(', ')}"
     end
     
     def parse_limit_clause(limit)
@@ -440,9 +444,9 @@ class QueryBuilder
       end
       
       if @where.compact == []
-        where = []
+        where_list = []
       else
-        where = [@where.compact.reverse.join(' AND ')]
+        where_list = [@where.compact.reverse.join(' AND ')]
       end
       
       alt_queries.each do |query|
@@ -454,18 +458,20 @@ class QueryBuilder
         counter += 1
         merge_tables(query)
         @distinct ||= query.distinct
-        where << query.where.reverse.join(' AND ')
+        where_list << query.where.reverse.join(' AND ')
       end
       
-      @alt_where = where
+      @where_list = where_list
       
       @tables.uniq!
       
+      fix_where_list(where_list)
+      
       if counter > 1
         @distinct = @tables.size > 1
-        @where  = ["((#{where.join(') OR (')}))"]
+        @where  = ["((#{where_list.join(') OR (')}))"]
       else
-        @where  = where
+        @where  = where_list
       end
     end
     
@@ -706,5 +712,10 @@ class QueryBuilder
     
     def clause_error(clause, rest, res)
       "invalid clause #{clause.inspect} near \"#{res[-2..-1]}#{rest[0..1]}\""
+    end
+    
+    # Make sure all clauses are compatible (where_list is a list of strings, not arrays)
+    def fix_where_list(where_list)
+      # do nothing
     end
 end

@@ -80,6 +80,12 @@ module Zena
   
   class FoxyParser
     attr_reader :column_names, :table, :elements, :site, :name, :defaults
+    
+    # included at start of fixture file
+    def self.prelude
+      ""
+    end
+    
     def initialize(table_name, opts={})
       @table = table_name
       @column_names = Node.connection.columns(table).map {|c| c.name }
@@ -109,6 +115,7 @@ module Zena
         
         out "\n# ========== #{site} ==========="
         content = File.read(fixtures_path) + "\n"
+        
         # build simple hash to set/get defaults and other special values
         content.gsub!(/<%.*?%>/m,'')
         @elements[site] = elements = YAML::load(content)
@@ -243,6 +250,7 @@ module Zena
           @file = File.open("#{RAILS_ROOT}/test/fixtures/#{table}.yml", 'wb')
           @file.puts "# Fixtures generated from content of 'sites' folder by FoxyParser (rake zena:build_fixtures)"
           @file.puts ""
+          @file.puts self.class.prelude
         end
         @file.puts res
       end
@@ -650,6 +658,11 @@ module Zena
   
   class FoxyLinkParser < FoxyParser
     attr_reader :nodes
+    
+    def self.prelude
+      "dummy:\n  id: -1\n"
+    end
+    
     def initialize(table_name, opts = {})
       super
       @nodes = opts[:nodes].all_elements

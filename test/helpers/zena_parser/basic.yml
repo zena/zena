@@ -713,6 +713,12 @@ img_tag_icon:
   src: "<r:img alt_src='icon'/>"
   res: "<img src='/en/projects/cleanWater/image24_std.jpg' width='545' height='400' alt='it&apos;s a lake' class='std'/>"
 
+icon:
+  context:
+    node: 'cleanWater'
+  src: "<r:icon do='[name]'/>"
+  res: "lake"
+
 img_image:
   context:
     node: 'bird_jpg'

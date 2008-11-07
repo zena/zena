@@ -3,12 +3,11 @@ module ApplicationHelper
   include ReCaptcha::ViewHelper
   
   # FIXME: remove when rails 2.0.
-  # not present in our version of rails
+  # not present in our version of rails. This version is not multi-byte.
   def truncate(text, length = 30, truncate_string = "...")
     if text
-      l = length - truncate_string.chars.length
-      chars = text.chars
-      (chars.length > length ? chars[0...l] + truncate_string : text).to_s
+      l = length - truncate_string.length
+      text.length > length ? text[0..l] + truncate_string : text
     end
   end
   

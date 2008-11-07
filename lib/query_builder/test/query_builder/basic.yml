@@ -25,6 +25,10 @@ order_many_tables:
   src: "recipients order by name ASC"
   res: "SELECT objects.* FROM objects,links WHERE objects.id = links.target_id AND links.relation_id = 4 AND links.source_id = ID ORDER BY objects.name ASC"
 
+order_many_params:
+  src: "objects in project order by name ASC, id DESC"
+  res: "SELECT objects.* FROM objects WHERE objects.project_id = PROJECT_ID ORDER BY objects.name ASC, objects.id DESC"
+
 limit:
   src: "objects in project limit 2"
   res: "SELECT objects.* FROM objects WHERE objects.project_id = PROJECT_ID LIMIT 2"
@@ -46,6 +50,12 @@ recipients_or_objects:
     - "recipients"
     - "objects"
   res: "SELECT objects.* FROM objects,links WHERE ((objects.id = links.target_id AND links.relation_id = 4 AND links.source_id = ID) OR (objects.parent_id = ID)) GROUP BY objects.id"
+
+recipients_or_objects_order_query1:
+  src:
+    - "recipients order by query1"
+    - "objects"
+  res: "SELECT objects.*,(objects.id = links.target_id AND links.relation_id = 4 AND links.source_id = ID) AS query1 FROM objects,links WHERE ((objects.id = links.target_id AND links.relation_id = 4 AND links.source_id = ID) OR (objects.parent_id = ID)) GROUP BY objects.id ORDER BY query1 ASC"
 
 custom_query:
   context:

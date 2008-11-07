@@ -1606,7 +1606,7 @@ END_TXT
     # icon or first image (defined using build_finder_for instead of zafu_known_context for performance reasons).
     def r_icon
       if !@params[:in] && !@params[:where] && !@params[:from] && !@params[:find]
-        finder, klass = build_finder_for(:first, 'icon', @params.merge(:or => 'image', :order => 'l_id desc'))
+        finder, klass = build_finder_for(:first, 'icon', @params.merge(:or => 'image', :order => 'l_id desc, position asc, name asc', :group => 'id,l_id'))
         return unless finder
         return parser_error("invalid class (#{klass})") unless klass.ancestors.include?(Node)
         do_var(finder, :node_class => klass)

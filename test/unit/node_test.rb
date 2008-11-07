@@ -1188,11 +1188,17 @@ done: \"I am done\""
   end
   
   def test_icon_by_first_child
-    login(:ant)
-    node = secure!(Node) { nodes(:wiki) } # has an 'icon' relation
+    login(:tiger)
+    node = secure!(Node) { nodes(:wiki) } # has no 'icon' relation
     icon = node.icon
     assert_kind_of Image, icon
-    assert_equal nodes_id(:bird_jpg), icon[:id]
+    assert_equal nodes_id(:bird_jpg), icon[:id] # first child
+    # define flower as icon
+    assert node.update_attributes(:icon_id => nodes_id(:flower_jpg))
+    node = secure!(Node) { nodes(:wiki) } # reload
+    icon = node.icon
+    assert_kind_of Image, icon
+    assert_equal nodes_id(:flower_jpg), icon[:id] # icon
   end
   
   def test_vkind_of
