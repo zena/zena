@@ -204,5 +204,12 @@ class ZazenHelperTest < ZenaTestHelper
     assert_match %r{<table.*<tr.*<th>title</th.*<tr.*value}m, zazen("This is a table test:\n\n|shopping_list|")
     assert_match %r{<table.*<th>problem</th>.*<th>solution</th>.*<th>cost</th>.*<tr>.*<td>dead hard drive</td>}m, zazen("This is a table test:\n\n|problems|")
   end
-
+  
+  # only works if recaptcha plugin is installed
+  def test_mail_hide
+    login(:lion)
+    assert current_site.update_attributes(:d_mail_hide_priv => '1234', :d_mail_hide_pub => '3456')
+    @node = secure!(Node) { nodes(:status) }
+    assert_match %r{<a href.*mailhide.recaptcha.net/d\?k=3456&.*window.open}m, zazen("This is an email [email]bob@example.com[/email].")
+  end
 end

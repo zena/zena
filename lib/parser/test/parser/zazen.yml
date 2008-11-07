@@ -205,3 +205,7 @@ wiki_link_partial_url:
   src: |
     The syntax is inspired by ?subversion?:Subversion_%28software%29
   res: "<p>The syntax is inspired by [make_wiki_link title:|subversion| url:|Subversion_%28software%29|]</p>"
+
+make_asset:
+  src: "my email: [email]bob@example.com[/email]."
+  res: "<p>my email: [make_asset asset_type:|email| content:|bob@example.com| output:|html|].</p>"
