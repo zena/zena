@@ -274,7 +274,7 @@ module Zazen
         else
           eat $&
           # [math]....[/math] (we do not use <math> to avoid confusion with mathml)
-          store @helper.make_asset(:asset_type => $1, :content => $2, :node => @options[:node], :preview => @context[:preview], :output => @context[:output])
+          store @helper.make_asset(:asset_tag => $1, :content => $2, :node => @options[:node], :preview => @context[:preview], :output => @context[:output])
         end
       else
         # nothing interesting

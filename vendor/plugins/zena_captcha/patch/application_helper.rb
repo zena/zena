@@ -1,6 +1,7 @@
 require 'recaptcha'
 module ApplicationHelper
   include ReCaptcha::ViewHelper
+  asset_method 'email' => :email_asset
   
   # FIXME: remove when rails 2.0.
   # not present in our version of rails. This version is not multi-byte.
@@ -22,13 +23,12 @@ module ApplicationHelper
     %{<a href="#{uri}" onclick="window.open('#{uri}', '', 'toolbar=0,scrollbars=0,location=0,statusbar=0,menubar=0,resizable=0,width=500,height=300'); return false;" title="#{_('Reveal this e-mail address')}">#{contents}</a>}
   end
   
-  def make_asset(opts)
-    asset_type = opts[:asset_type]
-    content    = opts[:content]
-    if asset_type == 'email' && current_site.d_mail_hide_priv && current_site.d_mail_hide_pub
+  def email_asset(opts)
+    content = opts[:content]
+    if current_site.d_mail_hide_priv && current_site.d_mail_hide_pub
       mail_hide(content, :mh_priv => current_site.d_mail_hide_priv, :mh_pub => current_site.d_mail_hide_pub)
     else
-      super
+      "<a href='mailto:#{content}'>#{content}</a>"
     end
   end
 end

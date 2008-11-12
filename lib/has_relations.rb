@@ -3,12 +3,30 @@ module Zena
     module HasRelations
       # this is called when the module is included into the 'base' module
       def self.included(base)
-        # add all methods from the module "AddActsAsMethod" to the 'base' module
-        base.extend Zena::Relations::ClassMethods
+        base.extend Zena::Relations::TriggerClassMethod
+      end
+    end
+
+    module TriggerClassMethod
+      def has_relations
+        validate      :relations_valid
+        after_save    :update_relations
+        after_destroy :destroy_links
+        
+        class_eval <<-END
+          include Zena::Relations::InstanceMethods
+          class << self
+            include Zena::Relations::ClassMethods
+          end
+          
+          def relation_base_class
+            #{self}
+          end
+        END
       end
     end
     
-    module AllRelationsFinder
+    module ClassMethods
       # All relations related to the current class/virtual_class with its ancestors.
       def all_relations(start=nil)
         rel_as_source = RelationProxy.find(:all, :conditions => ["site_id = ? AND source_kpath IN (?)", current_site[:id], split_kpath])
@@ -26,22 +44,6 @@ module Zena
           klasses
         end
       end
-    end
-    
-    module ClassMethods
-      def has_relations
-        validate      :relations_valid
-        after_save    :update_relations
-        after_destroy :destroy_links
-        
-        class_eval <<-END
-        include Zena::Relations::InstanceMethods
-          def relation_base_class
-            #{self}
-          end
-        END
-      end
-      include Zena::Relations::AllRelationsFinder
     end
     
     module InstanceMethods

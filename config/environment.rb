@@ -27,7 +27,9 @@ Rails::Initializer.run do |config|
     File.directory?(lib = "#{dir}/lib") ? lib : dir
   end
   
-
+  config.load_paths += Dir["#{RAILS_ROOT}/vendor/plugins/**/models"]
+  
+  
   # Force all environments to use the same logger level 
   # (by default production uses :info, the others :debug)
   # config.log_level = :debug
@@ -89,6 +91,8 @@ Dir.foreach(File.join(lib_path, 'core_ext')) do |f|
 end
 
 require File.join(lib_path, 'base_additions')
+require File.join(lib_path, 'use_find_helpers')
+require File.join(lib_path, 'use_zafu')
 require File.join(lib_path, 'node_query')
 require File.join(lib_path, 'comment_query')
 ZazenParser = Parser.parser_with_rules(Zazen::Rules, Zazen::Tags)
