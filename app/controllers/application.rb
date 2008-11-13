@@ -885,4 +885,5 @@ END_MSG
     end
 end
 
+load_models_from_plugins
 load_patches_from_plugins

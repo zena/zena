@@ -18,8 +18,11 @@ end
 
 def load_models_from_plugins
   foreach_plugin do |plugin_path|
-    Dir.foreach(File.join(plugins_path, 'models')) do |model_name|
-      load File.join(plugins_path, 'models', model_name)
+    models_path = File.join(plugin_path, 'models')
+    next unless File.exist?(models_path)
+    Dir.foreach(models_path) do |model_name|
+      next if model_name =~ /\A\./
+      load File.join(models_path, model_name)
     end
   end
 end
