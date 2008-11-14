@@ -707,10 +707,21 @@ module Zena
       end
     end
     
-    # FIXME: replace by zafu_known_contexts, each, etc
-    #def r_comments
-    #  "<%= render :partial=>'comments/list', :locals=>{:node=>#{node}} %>"
-    #end
+    def r_comments_to_publish
+      open_context("visitor.comments_to_publish", :node_class => [Comment])
+    end
+
+    def r_to_publish
+      open_context("visitor.to_publish", :node_class => [Version])
+    end
+    
+    def r_proposed
+      open_context("visitor.proposed", :node_class => [Version])
+    end
+
+    def r_redactions
+      open_context("visitor.redactions", :node_class => [Version])
+    end
     
     def r_edit
       
@@ -1966,16 +1977,7 @@ END_TXT
       
       context = node_class.zafu_known_contexts[method]
       if context && @params.keys == [:select]
-        klass = context[:node_class]
-        # hack to store last 'Node' context until we fix node(Node) stuff:
-        previous_node = node_kind_of?(Node) ? node : @context[:previous_node]
-        if klass.kind_of?(Array)
-          # plural
-          do_list( "#{node}.#{method}", nil, context.merge(:node_class => klass[0], :previous_node => previous_node) )
-        else
-          # singular
-          do_var(  "#{node}.#{method}", context.merge(:previous_node => previous_node) )
-        end
+        open_context("#{node}.#{method}", context)
       elsif node_kind_of?(Node)
         count   = ['first','all','count'].include?(@params[:find]) ? @params[:find].to_sym : nil
         count ||= Node.plural_relation?(method) ? :all : :first
@@ -1996,6 +1998,19 @@ END_TXT
         end
       else
         "unknown relation (#{method}) for #{node_class} class"
+      end
+    end
+    
+    def open_context(finder, context)
+      klass = context[:node_class]
+      # hack to store last 'Node' context until we fix node(Node) stuff:
+      previous_node = node_kind_of?(Node) ? node : @context[:previous_node]
+      if klass.kind_of?(Array)
+        # plural
+        do_list( finder, nil, context.merge(:node_class => klass[0], :previous_node => previous_node) )
+      else
+        # singular
+        do_var(  finder, context.merge(:previous_node => previous_node) )
       end
     end
         

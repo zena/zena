@@ -29,35 +29,33 @@
     </div>
     <div id='content' do='content_for_layout'>
       <div id='related'>
-        <r:user>
-          <r:to_publish>
-            <h3 class='group' do='trans'>to publish</h3>
-            <ol>
-              <li do='each' set_class='li_s[status]'><r:link/></li>
-            </ol>
-          </r:to_publish>
+        <r:to_publish>
+          <h3 class='group' do='trans'>to publish</h3>
+          <ol>
+            <li do='each' set_class='li_s[status]'><r:link/></li>
+          </ol>
+        </r:to_publish>
 
-          <r:comments_to_publish>
-            <h3 class='group' do='trans'>comments to publish</h3>
-            <ol>
-              <li do='each'><r:show attr='title'/></li>
-            </ol>
-          </r:comments_to_publish>
+        <r:comments_to_publish>
+          <h3 class='group' do='trans'>comments to publish</h3>
+          <ol>
+            <li do='each'><r:show attr='title'/></li>
+          </ol>
+        </r:comments_to_publish>
 
-          <r:proposed>
-            <h3 class='group' do='trans'>waiting for publication</h3>
-            <ol>
-              <li do='each' set_class='li_s[status]'><r:link/></li>
-            </ol>
-          </r:proposed>
+        <r:proposed>
+          <h3 class='group' do='trans'>waiting for publication</h3>
+          <ol>
+            <li do='each' set_class='li_s[status]'><r:link/></li>
+          </ol>
+        </r:proposed>
 
-          <r:redactions>
-            <h3 class='group' do='trans'>redactions</h3>
-            <ol>
-              <li do='each' set_class='li_s[status]'><r:link/></li>
-            </ol>
-          </r:redactions>
-        </r:user>
+        <r:redactions>
+          <h3 class='group' do='trans'>redactions</h3>
+          <ol>
+            <li do='each' set_class='li_s[status]'><r:link/></li>
+          </ol>
+        </r:redactions>
       </div>
       <div id='main'>
         <r:text/>

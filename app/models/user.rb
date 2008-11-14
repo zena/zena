@@ -22,8 +22,7 @@ TODO: when a user is 'destroyed', pass everything he owns to another user or jus
 =end
 class User < ActiveRecord::Base
   zafu_readable           :login, :initials, :fullname, :status, :status_name
-  zafu_context            :contact => "Contact", :to_publish => ["Version"], :redactions => ["Version"],
-                          :proposed => ["Version"], :comments_to_publish => ["Comment"]
+  zafu_context            :contact => "Contact"
   attr_accessible         :login, :password, :lang, :first_name, :name, :email, :time_zone, :status, :group_ids, :site_ids
   attr_accessor           :visited_node_ids
   attr_accessor           :site, :ip
@@ -311,7 +310,7 @@ class User < ActiveRecord::Base
   end
   
   def comments_to_publish
-    if id == 2
+    if is_su?
       # su can view all
       secure(Comment) { Comment.find(:all, :conditions => "status = '#{Zena::Status[:prop]}'") }
     else

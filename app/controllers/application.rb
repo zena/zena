@@ -318,7 +318,7 @@ END_MSG
         
         unless valid_template?(res, opts)
           # problem during rendering, use default zafu
-          res = ZafuParser.new(default_zafu_template(opts[:mode]), :helper => skin_helper).render
+          res = ZafuParser.new(default_zafu_template(mode), :helper => skin_helper).render
         end
         
         if session[:dev] && mode != '+popupLayout'
