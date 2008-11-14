@@ -12,13 +12,13 @@ class SessionControllerTest < ZenaTestController
     init_controller
   end
   
-  def test_render_invalid_template
+  def test_render_invalid_login
     Version.connection.execute "UPDATE #{Version.table_name} SET text = 'empty' WHERE id = #{versions_id(:Node_login_zafu_en)}"
     without_files('test.host/zafu') do
       get 'new'
       assert_response :success
       assert_equal ["zafu", "default", "Node-+login", "en", "_main.erb"], @response.rendered_file.split('/')[-5..-1]
-      assert_match %r{There was a problem}, @response.body
+      assert_match %r{Using default '\+login' template}, @response.body
       assert_no_match %r{empty}, @response.body
     end
   end

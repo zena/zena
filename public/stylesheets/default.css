@@ -1,0 +1,85 @@
+body { background: #eee; color:#444; line-height:21px; font-size:14px; font-family:Helvetica, Arial, sans-serif;}
+a { text-decoration:none; color:#2F31D5;}
+a.wiki { color:inherit; border-bottom:1px dotted blue;}
+.zazen a:hover, #footer a:hover { border-bottom:1px solid blue;}
+.table_add a:hover { border:0;}
+input { padding:3px 4px;}
+
+#header, #container, #footer, #top { width:800px; border:1px solid #555; border-width:0 1px 1px; margin:0 auto; background:white; padding:100px 21px;}
+#header { background:orange; padding:7px 21px; position:relative; color:white;}
+#top { background:orange; padding:21px; text-align:center; font-size:42px; line-height:42px; font-family:Georgia; font-style:italic; color:#555;}
+#top a { color:inherit;}
+#footer { background:grey; text-align:center; font-size:12px; padding:7px 21px; color:white; }
+#footer a { color:inherit; }
+#login, #search, #visitor { position:absolute; right:21px; color:#bbb;}
+#login { top:42px; }
+#visitor { top:42px; right:120px; color:#bbb;}
+#menu li { display: inline; padding:0 14px; font-weight:bold;} 
+#menu li.on { color:black; }
+#header a { color: inherit; }
+
+#title { margin:0 42px 42px 200px; color:black;}
+#title h1 { font-size:35px; margin:0;}
+.summary p { margin:0; text-style:italic; font-family:Georgia,Times,serif; color:black;}
+#context { width:180px; float:left; border-right:1px solid grey;}
+ol { padding-left:14px;}
+
+#content { margin-left: 200px; }
+#content.project { margin:18px;}
+#related { width:150px; float:right; margin:-7px 0 14px 14px; border:1px dotted #bbb; padding:7px; font-size:12px; line-height:21px; background:#f4f4f4;}
+
+#login_form, #not_found { position:absolute; top:240px; left:0; width:550px; background:#9FA6AC; border:1px dotted #450009; }
+#login_form div, #not_found div { float:right; font-size:0.85em; padding:5px;}
+#login_form input { padding:1px; margin:0.3em; border:1px solid grey; }
+#login_form table { text-align:right; margin:0;}
+
+.summary { font-style:italic;}
+.zazen h1, .zazen h2, .zazen h3, .zazen h4, .zazen p, .zazen ol, .zazen ul { margin:21px 0;}
+.zazen table p, .zazen table ol, .zazen table ul { margin-top:0; margin-bottom:0;}
+h1, h2, h3 { color:black;}
+h1 { font-size:28px; line-height:42px; font-weight:bold; color:black;}
+h2 { font-size:21px; line-height:42px;}
+.zazen ul { list-style: disc; margin-left:28px;}
+.zazen ol { list-style: decimal; margin-left:28px;}
+.zazen li ul, .zazen li ol { margin:0;}
+.zazen em { font-style:italic;}
+.zazen strong { font-weight:bold;}
+.zazen img { border:1px solid #555; }
+.zazen .unlink img {border:0;}
+
+.img_left { margin:0 14px 14px 0;}
+.img_right { margin:0 0 14px 14px;}
+.img_with_title p { margin:0; font-style:italic; font-size:12px;}
+
+.edit a { visibility:hidden;}
+.edit:hover a { visibility:visible;}
+
+
+/* search */
+#search_results { width:500px; margin-left:150px; }
+.result_entry { border-bottom:1px solid #999; margin:21px;}
+.result_image img { float:left; margin:7px 14px; border:1px solid #555;}
+.result_image img.node { border:0; margin:8px 14px;}
+.result_path { color:#999; font-style:italic; font-size:12px;}
+.result_entry p { margin:0;}
+
+
+/* notes */
+.note { border-bottom:1px solid #999; margin:0 0 42px; padding:0;}
+.note .header p { margin:0;}
+.note p.log_at { float:right; font-style:italic; color:grey; font-size:14px; line-height:42px; margin-right:10px;}
+.note h2.title { color:#200; font-size:14px; line-height:42px; font-weight:bold; font-family:Georgia,Times,serif; font-size:24px; line-height:42px;}
+.note .title a { color:inherit;}
+
+.inline_form { margin:2px; padding:3px; border:1px dotted grey; font-size:80%; background:#eed;}
+.inline_form p, .inline_form .date_box { display:inline; float:none; }
+#notes .inline_form .btn_x { float:left; margin:3px 4px 0 0; }
+.inline_form select { width:8em; font:inherit;}
+.node_v_title input { font-weight:bold; width:90%;}
+#notes .node_v_title input { font-weight:bold; width:120px;}
+.inline_form input { display:inline; }
+
+/* tables */
+
+.zazen td, .zazen th { border:1px solid #555; padding:0 6px;}
+.zazen th { background: #555; color:white; text-align:center;}

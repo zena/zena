@@ -6,14 +6,7 @@
   <meta http-equiv="Content-type" content="text/html; charset=utf-8" />
   <meta http-equiv="Content-Language" do='void' content='fr-fr' tset_content='[v_lang]_content'/>
 
-  <r:stylesheets name='stylesheets' list='reset,zena'/>
-<style>
-body { font:0.9em Verdana, Arial, sans-serif; line-height:1; color:#242424; }
-#login_form, #not_found { position:absolute; top:240px; left:0; width:550px; background:#9FA6AC; border:1px dotted #450009; }
-#login_form div, #not_found div { float:right; font-size:0.85em; padding:5px;}
-#login_form input { padding:1px; margin:0.3em; border:1px solid grey; }
-#login_form table { text-align:right; margin:0;}
-</style>
+  <r:stylesheets name='stylesheets' list='reset,zena,default'/>
 </head>
 <body>
   <!-- There was a problem with the rendering of the original zafu code. Using default '+login' template. -->
