@@ -1,24 +1,26 @@
-=begin
 require File.dirname(__FILE__) + '/../test_helper'
-require 'application'
+require 'nodes_controller'
 
 # Re-raise errors caught by the controller.
-class ApplicationController; def rescue_action(e) raise e end; end
+class NodesController; def rescue_action(e) raise e end; end
 
-class ApplicationControllerTest < ZenaTestController
+class NodesControllerTest < ZenaTestController
   
   def setup
     super
-    @controller = ApplicationController.new
+    @controller = NodesController.new
     init_controller
-    login(:anon)
-    @controller.send(:params=, {})
   end
-  
+
   def test_acts_as_secure
-    assert_nothing_raised { node = @controller.send(:secure,Node) { Node.find(ZENA_ENV[:root_id])}}
+    login(:anon)
+    assert_nothing_raised { node = @controller.send(:secure,Node) { Node.find(nodes_id(:zena))}}
   end
   
+  # invalid_template? tested in session_controller_test: test_render_invalid_template
+end
+
+=begin
   # render_and_cache and authorize tested in navigation_test.rb (integration test)
   
   # visitor tested in multiple_hosts integration test

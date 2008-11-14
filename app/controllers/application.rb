@@ -219,6 +219,7 @@ END_MSG
         end
         cache_page(:content_data => (failure || data), :content_path => filepath) if opts[:cache]
       else
+        # html
         render :file => template_url(opts), :layout=>false, :status => opts[:status]
         cache_page(:url => opts[:cache_url]) if opts[:cache]
       end
@@ -314,6 +315,11 @@ END_MSG
         response.template.instance_variable_set(:@session, session)
         skin_helper = response.template
         res = ZafuParser.new_with_url(skin_path, :helper => skin_helper).render
+        
+        unless valid_template?(res, opts)
+          # problem during rendering, use default zafu
+          res = ZafuParser.new(default_zafu_template(opts[:mode]), :helper => skin_helper).render
+        end
         
         if session[:dev] && mode != '+popupLayout'
           # add template edit buttons
@@ -883,6 +889,26 @@ END_MSG
       raise JSON::ParserError unless table.kind_of?(Array) && table.size == 2 && table[0].kind_of?(Hash) && table[0]['type'] == 'table' && table[1].kind_of?(Array)
       table
     end
+    
+    # Make sure some vital templates never get broken
+    def valid_template?(content, opts)
+      mode = opts[:mode]
+      case mode
+      when '+login'
+        content =~ %r{<form[^>]* action\s*=\s*./session}
+      else
+        true
+      end
+    end
+    
+    # Default template content for a specified mode
+    def default_zafu_template(mode)
+      if mode =~ /\A\.|[^\w\+\._\-\/]/
+        raise Zena::AccessViolation.new("'mode' contains illegal characters : #{mode.inspect}")
+      end
+      File.read(File.join(RAILS_ROOT, 'app', 'views', 'templates', 'defaults', "#{mode}.zafu"))
+    end
+
 end
 
 load_models_from_plugins

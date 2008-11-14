@@ -219,7 +219,7 @@ class NavigationTest < ActionController::IntegrationTest
     assert_response :success
     get 'http://test.host/en/section12_index.html'
     assert_response :missing
-    get 'http://test.host/en/section12_*index.html'
+    get 'http://test.host/en/section12_+index.html'
     assert_response :missing
   end
   
@@ -229,7 +229,7 @@ class NavigationTest < ActionController::IntegrationTest
   end
   
   def test_show_with_internal_mode
-    get 'http://test.host/en/section12_*index.html'
+    get 'http://test.host/en/section12_+index.html'
     assert_response :missing
   end
   

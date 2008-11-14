@@ -84,7 +84,7 @@ end
 
 desc "clear all zafu compiled templates"
 task :clear_zafu, :roles => :app do
-  run "#{in_current} rake zena:clear_zafu"
+  run "#{in_current} rake zena:clear_zafu RAILS_ENV=production"
 end
 
 desc "clear all cache compiled templates"

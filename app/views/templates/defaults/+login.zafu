@@ -1,0 +1,39 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" do='void' lang="en" set_lang='[v_lang]' xml:lang='en'>
+  <head>
+  <title do='title_for_layout' do='trans'>login</title>
+  <meta http-equiv="Content-type" content="text/html; charset=utf-8" />
+  <meta http-equiv="Content-Language" do='void' content='fr-fr' tset_content='[v_lang]_content'/>
+
+  <r:stylesheets name='stylesheets' list='reset,zena'/>
+<style>
+body { font:0.9em Verdana, Arial, sans-serif; line-height:1; color:#242424; }
+#login_form, #not_found { position:absolute; top:240px; left:0; width:550px; background:#9FA6AC; border:1px dotted #450009; }
+#login_form div, #not_found div { float:right; font-size:0.85em; padding:5px;}
+#login_form input { padding:1px; margin:0.3em; border:1px solid grey; }
+#login_form table { text-align:right; margin:0;}
+</style>
+</head>
+<body>
+  <!-- There was a problem with the rendering of the original zafu code. Using default '+login' template. -->
+  <div id='login_form'><div>
+    <form action="/session" method="post">    <table>
+        <tr>
+          <td><label for='user_login' do='trans'>User name:</label></td>
+          <td><input name="login" size="20" type="text" /></td>
+        </tr>
+        <tr>
+          <td><label for='user_password' do='trans'>Password:</label></td>
+
+          <td><input name="password" size="20" type="password" /></td>
+        </tr>
+        <tr><td></td><td><input name="commit" type="submit" value=" login " /></td></tr>
+      </table>
+    </form></div>
+  </div>  
+<script type="text/javascript">
+window.onload = document.getElementById('user_login').focus();
+</script>
+</body>
+</html>

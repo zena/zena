@@ -260,9 +260,10 @@ module Zena
       include Zena::Test::Base
 
       def init_controller
+        $_test_site ||= 'zena'
         @request    ||= ActionController::TestRequest.new
         @response   ||= ActionController::TestResponse.new
-        @request.host = sites_host($_test_site || 'zena')
+        @request.host = sites_host($_test_site)
         @controller.instance_eval { @params = {}; @url = ActionController::UrlRewriter.new( @request, {} )}
         @controller.instance_variable_set(:@response, @response)
         @controller.send(:request=, @request)
