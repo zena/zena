@@ -7,13 +7,6 @@ class NodeQuery < QueryBuilder
   set_main_class 'Node'
   
   load_custom_queries File.join(File.dirname(__FILE__), 'custom_queries')
-
-  # make sure there exists a link with NULL content and id == -1 (used in queries using query order sorting)
-  if l = Link.find_by_id(-1)
-    # do nothing
-  else
-    Link.connection.execute "INSERT INTO #{Link.table_name} (id,target_id,source_id,status,comment) VALUES (-1,NULL,NULL,NULL,NULL)"
-  end
   
   def initialize(query, opts = {})
     @uses_node_name = false
