@@ -157,10 +157,10 @@ module Zazen
         #puts "SHORCUT IMAGE:#{$~.to_a.inspect}"
         eat $&
         style, id, other_opts, mode, title_opts, title, link = $1, $2, $3, $4, $5, $6, $8
-        if node = @helper.find_node_by_pseudo(id, @context[:node])
+        if node = @helper.send(:find_node_by_pseudo, id, @context[:node])
           if link && link =~ /^(#{PSEUDO_ID_REGEXP})(.*)$/
             rest = $2
-            if link_node = @helper.find_node_by_pseudo($1, @context[:node])
+            if link_node = @helper.send(:find_node_by_pseudo, $1, @context[:node])
               link = link_node.pseudo_id(@context[:node], @translate_ids || :zip).to_s + rest
             end
           end
@@ -191,13 +191,13 @@ module Zazen
         style, id, other_opts, mode, title_opts, title, link = $1, $2, $3, $4, $5, $6, $8
         if link && link =~ /^(#{PSEUDO_ID_REGEXP})(.*)$/
           rest = $2
-          if link_node = @helper.find_node_by_pseudo($1, @context[:node])
+          if link_node = @helper.send(:find_node_by_pseudo, $1, @context[:node])
             link = link_node[:zip].to_s + rest
           end
         end
         if @translate_ids
           if @translate_ids != :zip
-            node = @helper.find_node_by_pseudo(id, @context[:node])
+            node = @helper.send(:find_node_by_pseudo, id, @context[:node])
             id = node.pseudo_id(@context[:node], @translate_ids) if node
           end
           store "!#{style}#{id}#{other_opts}#{title_opts}!#{link ? ':' + link : ''}"
@@ -219,7 +219,7 @@ module Zazen
         elsif @translate_ids
           eat $&
           title, id = $1, $2
-          node = @helper.find_node_by_pseudo(id, @context[:node])
+          node = @helper.send(:find_node_by_pseudo, id, @context[:node])
           id = node.pseudo_id(@context[:node], @translate_ids) if node
           store "\"#{title}\":#{id}"
         else
@@ -236,7 +236,7 @@ module Zazen
         #puts "SHORTCUT_LINK:[#{$&}]"
         eat $&
         title, pseudo_id, mode_format, mode, format, dash = $1, $2, $3, $4, $5, $6
-        if node = @helper.find_node_by_pseudo(pseudo_id, @context[:node])
+        if node = @helper.send(:find_node_by_pseudo, pseudo_id, @context[:node])
           if @translate_ids
             id = "#{node.pseudo_id(@context[:node], @translate_ids)}#{mode_format}"
             # replace shortcut
@@ -327,12 +327,12 @@ module Zazen
         id = id[0..-2] if id != ''
         if @translate_ids
           if @translate_ids != :zip
-            node = @helper.find_node_by_pseudo(id, @context[:node])
+            node = @helper.send(:find_node_by_pseudo, id, @context[:node])
             id = node.pseudo_id(@context[:node], @translate_ids) if node
           end
           store "|#{style}#{id == '' ? '' : "#{id}."}#{attribute}#{title}|"
         else
-          node = id == '' ? @context[:node] : @helper.find_node_by_pseudo(id, @context[:node])
+          node = id == '' ? @context[:node] : @helper.send(:find_node_by_pseudo, id, @context[:node])
           store @helper.make_table(:style=>style, :node=>node, :attribute=>attribute, :title=>title)
         end
       elsif @text =~ /\A\|([<=>]\.|)(#{PSEUDO_ID_REGEXP})\.([a-zA-Z_]+)(\/([^\|]*)|)\|/m
@@ -342,7 +342,7 @@ module Zazen
         eat $&
         text = $&
         style, id, attribute, title_opts, title = $1, $2, $3, $4, $5
-        if node = @helper.find_node_by_pseudo(id, @context[:node])
+        if node = @helper.send(:find_node_by_pseudo, id, @context[:node])
           if @translate_ids
             # replace shortcut
             store "|#{style}#{node.pseudo_id(@context[:node], @translate_ids || :zip)}.#{attribute}#{title}|"
@@ -447,7 +447,7 @@ module Zazen
       meth = @translate_ids || :zip
       str.split(',').map do |id|
         if id.strip =~ /\A(\d+|#{PSEUDO_ID_REGEXP})/
-          if node = @helper.find_node_by_pseudo($1, @context[:node])
+          if node = @helper.send(:find_node_by_pseudo, $1, @context[:node])
             # replace shortcut
             node.pseudo_id(@context[:node], meth)
           else

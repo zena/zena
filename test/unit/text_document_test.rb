@@ -59,7 +59,7 @@ class TextDocumentTest < ZenaTestUnit
     # dummy controller
     helper = ApplicationController.new
     helper.instance_variable_set(:@visitor, visitor)
-    text = node.parse_assets(start, helper)
+    text = node.parse_assets(start, helper, 'v_text')
     assert node.errors.empty?
     res =<<-END_CSS
     body { font-size:10px; }
@@ -67,11 +67,11 @@ class TextDocumentTest < ZenaTestUnit
     #footer { background:url('/en/image31.jpg') }
     END_CSS
     assert_equal res, text
-    text = node.parse_assets(text, helper)
+    text = node.parse_assets(text, helper, 'v_text')
     assert_equal res, text
-    text = node.unparse_assets(text, helper)
+    text = node.unparse_assets(text, helper, 'v_text')
     assert_equal start, text
-    text = node.unparse_assets(text, helper)
+    text = node.unparse_assets(text, helper, 'v_text')
     assert_equal start, text
   end
   
@@ -90,7 +90,7 @@ class TextDocumentTest < ZenaTestUnit
     # dummy controller
     helper = ApplicationController.new
     helper.instance_variable_set(:@visitor, visitor)
-    text = node.parse_assets(start, helper)
+    text = node.parse_assets(start, helper, 'v_text')
     assert node.errors.empty?
     res =<<-END_CSS
     body { font-size:10px; }

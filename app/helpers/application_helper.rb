@@ -346,13 +346,6 @@ module ApplicationHelper
   def zazen_diff(text1, text2, opt={})
     HTMLDiff::diff(zazen(text1), zazen(text2))
   end
-  
-  # Find a node's zip based on a query shortcut. Used by zazen to create a link for ""::art for example.
-  def find_node_by_pseudo(string, base_node = nil)
-    secure(Node) { Node.find_node_by_pseudo(string, base_node || @node) }
-  end
-  
-  
 
   # Parse the text in the given context (used by zazen)
   def make_asset(opts)

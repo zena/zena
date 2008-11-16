@@ -490,7 +490,7 @@ class Node < ActiveRecord::Base
             if document_path
               # file
               insert_zafu_headings = false
-              if opts[:parent_class] == 'Skin' && attrs['c_ext'] == 'html' && attrs['name'] == 'index'
+              if opts[:parent_class] == 'Skin' && ['html','xhtml'].include?(attrs['c_ext']) && attrs['name'] == 'index'
                 attrs['c_ext'] = 'zafu'
                 attrs['name']  = 'Node'
                 insert_zafu_headings = true
@@ -530,28 +530,7 @@ class Node < ActiveRecord::Base
         current_obj.instance_variable_set(:@versions_count, versions.size)
         res[current_obj[:id].to_i] = current_obj
 
-        res.merge!(create_nodes_from_folder(:folder => sub_folder, :parent_id => current_obj[:id], :defaults => defaults, :parent_class => opts[:klass], :is_sub => true)) if sub_folder && !current_obj.new_record?
-      end
-      unless opts[:is_sub]
-        res.each do |id,n|
-          next unless n.errors.empty?
-
-          # parse pseudo_ids
-          attrs = {}
-
-          n.export_keys[:zazen].each do |k|
-            orig  = n.send(k)
-            trans = n.parse_assets(orig, self)
-            if trans != orig
-              attrs[k] = trans
-            end
-          end
-
-          if attrs != {}
-            attrs['v_status'] = n.v_status
-            n.update_attributes(attrs)
-          end
-        end
+        res.merge!(create_nodes_from_folder(:folder => sub_folder, :parent_id => current_obj[:id], :defaults => defaults, :parent_class => opts[:klass])) if sub_folder && !current_obj.new_record?
       end
       res
     end
@@ -728,6 +707,7 @@ class Node < ActiveRecord::Base
           # translate zazen
           value = attributes[key]
           if value.kind_of?(String)
+            # FIXME: ignore if 'v_text' of a TextDocument...
             res[key] = ZazenParser.new(value,:helper=>self).render(:translate_ids=>:zip, :node=>base_node)
           else
             res[key] = value
@@ -874,13 +854,13 @@ class Node < ActiveRecord::Base
   
   
   # Parse text content and replace all relative urls ('../projects/art') by ids ('34')
-  def parse_assets(text, helper)
+  def parse_assets(text, helper, key)
     # helper is used in textdocuments
     ZazenParser.new(text,:helper=>helper).render(:translate_ids => :zip, :node=>self)
   end
   
   # Parse text and replace ids '!30!' by their pseudo path '!(img/bird)!'
-  def unparse_assets(text, helper)
+  def unparse_assets(text, helper, key)
     ZazenParser.new(text,:helper=>helper).render(:translate_ids => :relative_path, :node=>self)
   end
   
@@ -1363,7 +1343,7 @@ class Node < ActiveRecord::Base
   def to_yaml
     hash = {}
     export_keys[:zazen].each do |k|
-      hash[k] = unparse_assets(self.send(k), self)
+      hash[k] = unparse_assets(self.send(k), self, k)
     end
     
     export_keys[:dates].each do |k|
@@ -1374,11 +1354,17 @@ class Node < ActiveRecord::Base
     hash.to_yaml
   end
   
+  # List of attribute keys to export in a zml file.
   def export_keys
     {
       :zazen => (['v_title', 'v_text'] + version.dyn.keys.map{|k| "d_#{k}"}),
       :dates => [],
     }
+  end
+  
+  # List of attribute keys to transform (change references, etc).
+  def parse_keys
+    export_keys[:zazen]
   end
   
   # This is needed during 'unparse_assets' when the node is it's own helper

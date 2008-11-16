@@ -5,7 +5,7 @@ require 'json'
 class ApplicationController < ActionController::Base
   init_gettext 'zena'
   helper_method :prefix, :zen_path, :zen_url, :data_path, :node_url, :notes, :error_messages_for, :render_errors, :processing_error
-  helper_method :get_template_text, :template_url_for_asset, :save_erb_to_url, :lang, :visitor, :fullpath_from_template_url, :eval_parameters_from_template_url, :format_date, :get_table_from_json
+  helper_method :get_template_text, :template_url_for_asset, :save_erb_to_url, :lang, :visitor, :fullpath_from_template_url, :eval_parameters_from_template_url, :format_date, :get_table_from_json, :find_node_by_pseudo
   before_filter :set_lang
   before_filter :authorize
   before_filter :check_lang
@@ -394,16 +394,15 @@ END_MSG
         src, format = $1, $2
       end
       
-      if opts[:parse_assets]
+      if opts[:parse_assets]  
         current_folder = opts[:current_folder] || ''
         current_folder = current_folder[1..-1] if current_folder[0..0] == '/'
-      
         
         if src =~ /\A(.*)_(\w+)\Z/
           # if the element was not found, maybe it was not a name with underscore but it was an image mode
           src2, mode2 = $1, $2
         end
-        
+
         if src[0..0] == '/'
           path1 = src[1..-1]
           path2 = src2[1..-1] if src2
@@ -411,7 +410,7 @@ END_MSG
           path1 = current_folder + '/' + src
           path2 = current_folder + '/' + src2 if src2
         end
-        
+
         # make sure path elements are url_names
         path1 = path1.split('/').map {|s| s.url_name!}.join('/')
         path2 = path2.split('/').map {|s| s.url_name!}.join('/') if src2
@@ -427,7 +426,14 @@ END_MSG
           src, mode = $1, $2
         end
         
-        return nil unless res = find_document_for_template(opts)
+        src2 = opts[:src].split('/').map {|s| s.url_name!}.join('/')
+        
+        unless res = find_document_for_template(opts)
+          # '_...' did not mean mode but was an old name.
+          mode = nil
+          return nil unless res = find_document_for_template(opts.merge(:src => src2))
+        end
+        
         asset, url = *res
         @renamed_assets[url] = asset
       end
@@ -485,7 +491,12 @@ END_MSG
       end
       return document ? [document, (([skin_name] + url).join('/') + (mode ? "_#{mode}" : '') + (format ? ".#{format}" : ''))] : nil
     end
-  
+    
+    # Find a node's zip based on a query shortcut. Used by zazen to create a link for ""::art for example.
+    def find_node_by_pseudo(string, base_node = nil)
+      secure(Node) { Node.find_node_by_pseudo(string, base_node || @node) }
+    end
+
     # TODO: test
     def save_erb_to_url(template, template_url)
       path = fullpath_from_template_url(template_url)

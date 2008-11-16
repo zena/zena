@@ -281,6 +281,9 @@ class NodesController < ApplicationController
   # import sub-nodes from a file
   def import
     @nodes = secure!(Node) { Node.create_nodes_from_folder(:klass => params[:node][:klass], :archive => params[:node][:archive], :parent => @node) }.values
+    
+    # parse pseudo_ids
+    parse_assets(@nodes)
   end
   
   def export
@@ -490,6 +493,28 @@ class NodesController < ApplicationController
     # Document data do not change session[:lang] and can point at cached content (no nee to redirect to AUTHENTICATED_PREFIX).
     def avoid_prefix_redirect
       @node.kind_of?(Document) && params[:format] == @node.c_ext
+    end
+    
+    # Transform pseudo id into absolute paths (used after import)
+    def parse_assets(nodes)
+      nodes.each do |n|
+        next unless n.errors.empty?
+
+        attrs = {}
+
+        n.parse_keys.each do |k|
+          orig  = n.send(k)
+          trans = n.parse_assets(orig, self, k)
+          if trans != orig
+            attrs[k] = trans
+          end
+        end
+
+        if attrs != {}
+          attrs['v_status'] = n.v_status
+          n.update_attributes(attrs)
+        end
+      end
     end
 end
 

@@ -94,6 +94,89 @@ END:VCALENDAR
     end
   end
   
+  def test_import_xhtml
+    login(:tiger)
+    preserving_files('/test.host/data') do
+      post 'import', :id => nodes_zip(:skins), :node => {:klass => 'Skin', :archive => uploaded_archive('jet_30.zip')}
+      node_list = assigns(:nodes)
+      nodes = {}
+      node_list.each do |n|
+        nodes[n.name] = n
+      end
+      assert skin = nodes['jet30']
+      assert_kind_of Skin, skin
+      
+      assert zafu = nodes['Node']
+      assert_kind_of Template, zafu
+      assert style = nodes['style']
+      assert_kind_of TextDocument, style
+      assert navBar = nodes['navBar']
+      assert_kind_of Image, navBar
+      assert xhtmlBgHover = nodes['xhtmlBgHover']
+      assert_kind_of Image, xhtmlBgHover
+      assert topIcon = nodes['topIcon']
+      assert_kind_of Image, topIcon
+      ['lftPic1', 'lftPic2', 'lftPic3'].each do |p|
+        assert nodes[p]
+        assert_kind_of Image, nodes[p]
+      end
+      assert_match %r{#header ul\{\s*background:url\('/oo/image#{navBar.zip}.gif'\)}m, style.v_text
+      assert_match %r{a\.xht:hover\{\s*background:url\('/oo/image#{xhtmlBgHover.zip}.gif'\)}, style.v_text
+      
+      # use this template
+      status = secure(Node) { nodes(:status) }
+      assert status.update_attributes(:skin => 'jet30', :inherit => 0)
+      get 'show', 'prefix'=>'oo', 'path'=>['projects', 'cleanWater', "page#{nodes_zip(:status)}.html"]
+      assert_response :success
+      assert_match %r{posuere eleifend arcu</p>\s*<img [^>]*src\s*=\s*./oo/image#{topIcon.zip}.gif}, @response.body
+    end
+  end
+  
+  def test_create_nodes_from_folder
+    login(:tiger)
+    preserving_files('/test.host/data') do
+      parent = secure!(Project) { Project.create(:name => 'import', :parent_id => nodes_id(:zena)) }
+      assert !parent.new_record?, "Not a new record"
+      
+      nodes = secure!(Node) { Node.create_nodes_from_folder(:folder => File.join(RAILS_ROOT, 'test', 'fixtures', 'import'), :parent_id => parent[:id] )}.values
+      @controller.send(:parse_assets, nodes)
+      children = parent.find(:all, 'children')
+      assert_equal 2, children.size
+      assert_equal 4, nodes.size
+      bird, doc   = nil, nil
+      nodes.each do |n|
+        bird = n if n[:name] == 'bird'
+        doc  = n if n[:name] == 'document'    
+      end
+      simple = secure!(Node) { Node.find_by_name_and_parent_id('simple', parent[:id]) }
+      photos = secure!(Node) { Node.find_by_name_and_parent_id('photos', parent[:id]) }
+    
+      assert_equal 'bird', bird[:name]
+      assert_equal 'simple', simple[:name]
+      assert_equal 'The sky is blue', simple.v_title
+      assert_equal 'jpg', bird.c_ext
+      assert_equal 'Le septième ciel', bird.v_title
+      versions = secure!(Node) { Node.find(bird[:id]) }.versions
+      assert_equal 2, versions.size
+      assert_equal 'fr', versions[0].lang
+      assert_equal 'en', versions[1].lang
+      assert_equal 'Le septième ciel', versions[0].title
+      assert_equal 'Photos !', photos.v_title
+      assert_match %r{Here are some photos.*!\[\]!}m, photos.v_text
+      assert_match %r{!#{bird.zip}_med!}m,     photos.v_text
+      assert_match %r{"links":#{simple.zip}}m, photos.v_text
+      assert_equal "A simple \"test\":#{simple.zip}", photos.d_foo
+      in_photos = photos.find(:all, 'children')
+      assert_equal 2, in_photos.size
+    
+      assert_equal bird[:id], in_photos[0][:id]
+      assert_equal doc[:id], in_photos[1][:id]
+      doc_versions = doc.versions.sort { |a,b| a[:lang] <=> b[:lang]}
+      assert_equal 2, doc_versions.size
+      assert_match %r{two}, doc_versions[0].text
+      assert_match %r{deux}, doc_versions[1].text
+    end
+  end
 end
 
 =begin

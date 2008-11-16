@@ -874,48 +874,6 @@ done: \"I am done\""
     assert_equal 'I am done',      attrs['done']
   end
   
-  def test_create_nodes_from_folder
-    login(:tiger)
-    parent = secure!(Project) { Project.create(:name => 'import', :parent_id => nodes_id(:zena)) }
-    assert !parent.new_record?, "Not a new record"
-    nodes = secure!(Node) { Node.create_nodes_from_folder(:folder => File.join(RAILS_ROOT, 'test', 'fixtures', 'import'), :parent_id => parent[:id] )}.values
-    children = parent.find(:all, 'children')
-    assert_equal 2, children.size
-    assert_equal 4, nodes.size
-    bird, doc   = nil, nil
-    nodes.each do |n|
-      bird = n if n[:name] == 'bird'
-      doc  = n if n[:name] == 'document'    
-    end
-    simple = secure!(Node) { Node.find_by_name_and_parent_id('simple', parent[:id]) }
-    photos = secure!(Node) { Node.find_by_name_and_parent_id('photos', parent[:id]) }
-    
-    assert_equal 'bird', bird[:name]
-    assert_equal 'simple', simple[:name]
-    assert_equal 'The sky is blue', simple.v_title
-    assert_equal 'jpg', bird.c_ext
-    assert_equal 'Le septième ciel', bird.v_title
-    versions = secure!(Node) { Node.find(bird[:id]) }.versions
-    assert_equal 2, versions.size
-    assert_equal 'fr', versions[0].lang
-    assert_equal 'en', versions[1].lang
-    assert_equal 'Le septième ciel', versions[0].title
-    assert_equal 'Photos !', photos.v_title
-    assert_match %r{Here are some photos.*!\[\]!}m, photos.v_text
-    assert_match %r{!#{bird.zip}_med!}m,     photos.v_text
-    assert_match %r{"links":#{simple.zip}}m, photos.v_text
-    assert_equal "A simple \"test\":#{simple.zip}", photos.d_foo
-    in_photos = photos.find(:all, 'children')
-    assert_equal 2, in_photos.size
-    
-    assert_equal bird[:id], in_photos[0][:id]
-    assert_equal doc[:id], in_photos[1][:id]
-    doc_versions = doc.versions.sort { |a,b| a[:lang] <=> b[:lang]}
-    assert_equal 2, doc_versions.size
-    assert_match %r{two}, doc_versions[0].text
-    assert_match %r{deux}, doc_versions[1].text
-  end
-  
   def test_create_nodes_from_gzip_file
     login(:tiger)
     parent = secure!(Project) { Project.create(:name => 'import', :parent_id => nodes_id(:zena)) }
@@ -1380,14 +1338,14 @@ done: \"I am done\""
     login(:lion)
     @node = secure!(Node) { nodes(:status) }
     assert @node.update_attributes(:v_text => "Hello this is \"art\":#{nodes_zip(:art)}. !#{nodes_zip(:bird_jpg)}!")
-    assert_equal "Hello this is \"art\":(../../../collections/art). !(../../wiki/bird)!", @node.unparse_assets(@node.v_text, self)
+    assert_equal "Hello this is \"art\":(../../../collections/art). !(../../wiki/bird)!", @node.unparse_assets(@node.v_text, self, 'v_text')
   end
   
   def test_parse_assets
     login(:lion)
     @node = secure!(Node) { nodes(:status) }
     assert @node.update_attributes(:v_text => "Hello this is \"art\":(../../../collections/art).")
-    assert_equal "Hello this is \"art\":#{nodes_zip(:art)}.", @node.parse_assets(@node.v_text, self)
+    assert_equal "Hello this is \"art\":#{nodes_zip(:art)}.", @node.parse_assets(@node.v_text, self, 'v_text')
   end
   
   def test_safe_attribute

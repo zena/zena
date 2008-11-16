@@ -27,11 +27,9 @@ class TextDocument < Document
   end
   
   # Parse text content and replace all reference to relative urls ('img/footer.png') by their zen_path ('/en/image34.png')
-  def parse_assets(text, helper)
-    res = text.dup
-    ctype = version.content.content_type
-    case ctype
-    when 'text/css'
+  def parse_assets(text, helper, key)
+    if key == 'v_text' && version.content.content_type == 'text/css'
+      res = text.dup
       # use skin as root
       skin = section
       
@@ -67,17 +65,15 @@ class TextDocument < Document
       end
     else
       # unknown type
-      errors.add('base', "Invalid content-type #{ctype.inspect} to parse assets.")
+      super
     end
     res
   end
   
   # Parse text and replace absolute urls ('/en/image30.jpg') by their relative value in the current skin ('img/bird.jpg')
-  def unparse_assets(text, helper)
-    res = text.dup
-    ctype = version.content.content_type
-    case ctype
-    when 'text/css'
+  def unparse_assets(text, helper, key)
+    if key == 'v_text' && version.content.content_type == 'text/css'
+      res = text.dup
       # use parent as relative root
       current_folder = parent.fullpath
       
@@ -104,17 +100,22 @@ class TextDocument < Document
           end
         end
       end
+      res
     else
-      # unknown type
-      errors.add('base', "invalid content-type #{ctype.inspect} to unparse assets.")
+      super
     end
-    res
   end
   
+  # List of keys to export in a zml file. "v_text" is ignored since it's exported in a separate file.
   def export_keys
     h = super
     h[:zazen] -= ['v_text']
     h
+  end
+  
+  # List of keys which need transformations
+  def parse_keys
+    (super + (version.content.content_type == 'text/css' ? ['v_text'] : [])).uniq
   end
   
   # Return the code language used for syntax highlighting.
