@@ -4,4 +4,18 @@ module Zena
   end
 end
 
-load_patches_from_plugins
+class ActiveRecord::Base
+  def self.act_as_content
+    class_eval do
+      def preload_version(v)
+        @version = v
+      end
+  
+      def version
+        @version ||= Version.find(self[:version_id])
+      end
+    end
+  end
+end
+
+load_patches_from_bricks

@@ -1383,4 +1383,4 @@ ENDTXT
     end
   end
 end
-load_patches_from_plugins
+load_patches_from_bricks

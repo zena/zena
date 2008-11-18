@@ -11,7 +11,7 @@ ext::             file extension
 content_type::    file content_type
 =end
 class DocumentContent < ActiveRecord::Base
-
+  act_as_content
   zafu_readable         :size, :name, :content_type, :ext
   safe_attribute        :file
 
@@ -33,14 +33,6 @@ class DocumentContent < ActiveRecord::Base
   def file=(aFile)
     @file = aFile
     return unless valid_file
-  end
-  
-  def preload_version(v)
-    @version = v
-  end
-  
-  def version
-    @version ||= Version.find(self[:version_id])
   end
   
   def file(mode=nil)

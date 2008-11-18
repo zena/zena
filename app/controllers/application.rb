@@ -924,8 +924,8 @@ END_MSG
 
 end
 
-load_models_from_plugins
-load_patches_from_plugins
+load_models_from_bricks
+load_patches_from_bricks
 
 # this has to live here in order to be loaded after Application.
 # FIXME: move this with 'node_query' into a plugins might be cleaner

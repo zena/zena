@@ -27,7 +27,7 @@ Rails::Initializer.run do |config|
     File.directory?(lib = "#{dir}/lib") ? lib : dir
   end
   
-  config.load_paths += Dir["#{RAILS_ROOT}/vendor/plugins/**/models"]
+  config.load_paths += Dir["#{RAILS_ROOT}/bricks/**/models"]
   
   
   # Force all environments to use the same logger level 
@@ -84,12 +84,11 @@ require File.join(lib_path, 'secure')
 require File.join(lib_path, 'multiversion')
 require File.join(lib_path, 'has_relations')
 require File.join(lib_path, 'image_builder')
-require File.join(lib_path, 'parser')
 Dir.foreach(File.join(lib_path, 'core_ext')) do |f|
   next if f[0..0] == '.'
   require File.join(lib_path, 'core_ext', f)
 end
-
+require File.join(lib_path, 'parser')
 require File.join(lib_path, 'base_additions')
 require File.join(lib_path, 'use_find_helpers')
 require File.join(lib_path, 'use_zafu')

@@ -925,33 +925,34 @@ namespace :zena do
     if ENV['VERSION'] || ENV['BRICK']
       ENV['BRICK']    ||= 'zena'
       # migrate specific bricks only
-      mig_path = nil
-      Dir.foreach('db/migrate') do |file|
-        next if file =~ /^\./
-        next unless File.stat("db/migrate/#{file}").directory?
-        if file =~ /^[0-9-_]*#{ENV["BRICK"]}/
-          mig_path = "db/migrate/#{file}"
-          break
-        end
-      end
-      if mig_path
-        ActiveRecord::BricksMigrator.migrate(mig_path, ENV["BRICK"], ENV["VERSION"] ? ENV["VERSION"].to_i : nil)
+      if ENV['BRICK'] == 'zena'
+        # migrate 'db/migrate'
+        ActiveRecord::BricksMigrator.migrate('db/migrate', ENV["BRICK"], ENV["VERSION"] ? ENV["VERSION"].to_i : nil)
       else
-        puts "Brick migrations must exist in db/migrate/BRICK"
+        mig_path = "bricks/#{ENV['BRICK']}/migrate"
+        if File.exist?(mig_path) && File.directory?(mig_path)
+          ActiveRecord::BricksMigrator.migrate(mig_path, ENV["BRICK"], ENV["VERSION"] ? ENV["VERSION"].to_i : nil)
+        else
+          puts "Could not find migrations for brick '#{ENV['BRICK']}' ('#{mig_path}' not found)."
+        end
       end
     else
       # migrate all to latest
-      directories = []
-      Dir.foreach('db/migrate') do |file|
-        next if file =~ /^\./
-        next unless File.stat("db/migrate/#{file}").directory?
-        directories << file
+      paths  = {'zena' => 'db/migrate'}
+      bricks = ['zena']
+
+      foreach_brick do |brick_path|
+        brick_name = brick_path.split('/').last
+        migration_path = File.join(brick_path, 'migrate')
+        next unless File.exist?(migration_path) && File.directory?(migration_path)
+        paths[brick_name] = migration_path
+        bricks << brick_name
       end
-      directories.sort.each do |file|
-        brick_name = file.sub(/^[0-9-_]*/,'')
-        ActiveRecord::BricksMigrator.migrate("db/migrate/#{file}", brick_name, nil)
+      puts bricks.inspect
+      bricks.each do |brick_name|
+        ActiveRecord::BricksMigrator.migrate(paths[brick_name], brick_name, nil)
       end
-      ActiveRecord::Migrator.migrate("db/migrate/", nil)
+      #ActiveRecord::Migrator.migrate("db/migrate/", nil)
     end
     Rake::Task["db:schema:dump"].invoke if ActiveRecord::Base.schema_format == :ruby
   end

@@ -3323,3 +3323,5 @@ module ActiveRecord
     end
   end
 end
+
+load_zafu_rules_from_bricks

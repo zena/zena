@@ -5,7 +5,7 @@ Get rid of comment/wiki spam with recaptcha. Read more on the reCAPTCHA project 
 
 == Install
 
-Drop the folder into vendor/plugins and install recaptcha gem:
+Drop the folder into the "bricks" folder and install recaptcha gem:
 
 gem install --source http://www.loonsoft.com/recaptcha/pkg/ recaptcha
 
