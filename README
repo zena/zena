@@ -63,7 +63,7 @@ You can now login with 'admin' and the password you used to make the site.
 == Dependencies
 
 === 1. Original in debian etch (might need to replace jpeg by libjpeg62)
-build-essential apache2 mysql-server libmagick9-dev gs-gpl libssl-dev gettext libgettext-ruby libreadline5 libreadline5-dev zlib1g-dev libncurses5 libncurses5-dev temcap-compat unzip liburi-perl jpeg
+  # aptitude install build-essential apache2 mysql-server libmagick9-dev gs-gpl libssl-dev gettext libgettext-ruby libreadline5 libreadline5-dev zlib1g-dev libncurses5 libncurses5-dev unzip liburi-perl libjpeg-dev subversion ssh sudo awstats
 
 If you want to enable LateX (PDF generation)
 tetex-bin tetex-extra latex-ucs
@@ -84,15 +84,15 @@ ruby1.8.6
     # ./configure --with-openssl
     # make && make install
 rubygems
-    # wget http://rubyforge.org/frs/download.php/38646/rubygems-1.2.0.tgz
-    # tar xzf rubygems-1.0.1.tgz
-    # cd rubygems-1.0.1
+    # wget http://rubyforge.org/frs/download.php/45905/rubygems-1.3.1.tgz
+    # tar xzf rubygems-1.3.1.tgz
+    # cd rubygems-1.3.1
     # ruby setup.rb (if ruby is not found, log out and log back in)
 
 ImageMagick (on Linux)
     # wget ftp://ftp.imagemagick.org/pub/ImageMagick/ImageMagick.tar.gz
     # tar xzf ImageMagick.tar.gz
-    # cd ImageMagick
+    # cd ImageMagick-*
     # ./configure
     # make && make install
   
