@@ -85,8 +85,7 @@ class ParserTest < Test::Unit::TestCase
   @@test_parsers = {}
   @@test_options = {}
   
-  @@file_list.each do |file, opts|
-    file = file.to_s
+  @@file_list.each do |file, file_path, opts|
     mod_name = opts.delete(:module) || file
     mod_name = mod_name.to_s.split("_").first.capitalize
     @@test_parsers[file] = Parser.parser_with_rules(eval("#{mod_name}::Rules"), eval("#{mod_name}::Tags"))

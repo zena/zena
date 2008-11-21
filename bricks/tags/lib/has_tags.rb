@@ -56,7 +56,7 @@ module Zena
 
         tags_to_add = tags_as_list - tag_names
         unless tags_to_add == []
-          @add_tags = ((@add_tags || []) + tags_to_add).unique
+          @add_tags = ((@add_tags || []) + tags_to_add).uniq
         end
 
         tags_names_to_del = tag_names - tags_as_list
@@ -65,7 +65,7 @@ module Zena
           tags_to_del << t if tags_names_to_del.include?(t[:comment])
         end
         unless tags_to_del == []
-          @del_tags = ((@del_tags || []) + tags_to_del).unique
+          @del_tags = ((@del_tags || []) + tags_to_del).uniq
         end
       end
       
@@ -82,7 +82,7 @@ module Zena
       def add_tags(tags)
         tags_to_add = tags_as_list(tags) - tag_names
         return if tags_to_add == []
-        @add_tags = ((@add_tags || []) + tags_to_add).unique
+        @add_tags = ((@add_tags || []) + tags_to_add).uniq
       end
       
       # Overwrite 'remove_link' from 'has_relations'
@@ -115,10 +115,14 @@ module Zena
         # Update/create links defined in relation proxies
         def update_tags
           return unless @add_tags || @del_tags
-          del_ids = @del_tags.map {|t| t[:id]}
-          Link.connection.execute "DELETE FROM links WHERE id IN (#{del_ids.join(',')})"
-          add_tags = @add_tags.map{|t| "(#{self[:id]}, #{t.inspect})"}
-          Link.connection.execute "INSERT INTO links (node_id, comment) VALUES #{add_tags.join(',')}"
+          if @del_ids
+            del_ids = @del_tags.map {|t| t[:id]}
+            Link.connection.execute "DELETE FROM links WHERE id IN (#{del_ids.join(',')})"
+          end
+          if @add_tags
+            add_tags = @add_tags.map{|t| "(#{self[:id]}, #{t.inspect})"}
+            Link.connection.execute "INSERT INTO links (source_id, comment) VALUES #{add_tags.join(',')}"
+          end
           @add_tags = nil
           @del_tags = nil
         end

@@ -71,8 +71,9 @@ module YamlTest
         @@test_methods = {}
         @@test_options = {}
         @@test_files = []
+        @@file_list  = file_list(#{caller[0].inspect}, #{opts.inspect})
         
-        file_list(#{caller[0].inspect}, #{opts.inspect}).each do |file_name, file_path, opts|
+        @@file_list.each do |file_name, file_path, opts|
           strings = {}
           test_methods = []
           begin

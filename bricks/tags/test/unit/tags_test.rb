@@ -19,7 +19,7 @@ class TagsTest < ZenaTestUnit
     node = secure!(Node) { nodes(:status) }
     assert node.update_attributes(:tag => 'ugly')
     node = secure!(Node) { nodes(:status) }
-    assert_equal 'blue, ugly, sky', node.tag_list
+    assert_equal 'blue, sky, ugly', node.tag_list
   end
     
 end
