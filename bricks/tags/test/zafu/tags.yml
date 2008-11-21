@@ -1,0 +1,11 @@
+# test_file: ../../../../test/helpers/zena_parser_test.rb
+default:
+  context:
+    node: 'status'
+  src: "<r:tags do='each' join=',' do='[name]'/>"
+  tem: "/list1 = @node.tags.*var1.name/"
+  res: "blue,sky"
+
+listing_with_link:
+  src: "<r:tags do='each' join=',' do='link' cat='[name]'/>"
+  res: "<a href='/oo/projects/cleanWater/page22.html?cat=blue'>blue</a>,<a href='/oo/projects/cleanWater/page22.html?cat=sky'>sky</a>"
