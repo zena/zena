@@ -99,6 +99,14 @@ ZafuParser  = Parser.parser_with_rules(Zafu::Rules, Zena::Rules, Zafu::Tags, Zen
 
 require 'diff'
 
+foreach_brick do |brick_path|
+  lib_path = File.join(brick_path, 'lib')
+  next unless File.exist?(lib_path) && File.directory?(lib_path)
+  Dir.foreach(lib_path) do |f|
+    next unless f =~ /\A.+\.rb\Z/
+    require File.join(lib_path, f)
+  end
+end
 
 # FIXME: this should go into "adapters_ext"
 # Fixes #98

@@ -1681,8 +1681,10 @@ END_TXT
         if node_class == Version
           lnode = "#{node}.node"
           opts[:lang] = "#{node}.lang"
-        else
+        elsif node_kind_of?(Node)
           lnode = node
+        else
+          lnode = @context[:previous_node]
         end
       end
       
@@ -2809,11 +2811,14 @@ END_TXT
         else
           Node.zafu_attribute(att_node, real_attribute)
         end
+        # FIXME: replace theses tests by "klass.zafu_readable?(real_attribute)" and make sure it works for sub-classes.
       elsif klass.ancestors.include?(Version) && Version.zafu_readable?(real_attribute)
         "#{att_node}.#{real_attribute}"
       elsif klass.ancestors.include?(DataEntry) && DataEntry.zafu_readable?(real_attribute)
         "#{att_node}.#{real_attribute}"
       elsif klass.ancestors.include?(Comment) && Comment.zafu_readable?(real_attribute)
+        "#{att_node}.#{real_attribute}"
+      elsif klass.ancestors.include?(ActiveRecord::Base) && klass.zafu_readable?(real_attribute)
         "#{att_node}.#{real_attribute}"
       else
         # unknown class, resolve at runtime
@@ -2962,6 +2967,8 @@ END_TXT
         "<%= #{node}.v_title %>"
       elsif node_kind_of?(Version)
         "<%= #{node}.title %>"
+      elsif node_kind_of?(Link)
+        "<%= #{node}.name %>"
       else
         _('edit')
       end

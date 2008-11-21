@@ -6,7 +6,7 @@ if false
 end
 
 class ZenaParserTest < ZenaTestController
-  yaml_test
+  yaml_test :directories => [:default, "#{RAILS_ROOT}/bricks/**/test/zafu"]
   Section # make sure we load Section links before trying relations
   
   def setup
@@ -27,7 +27,7 @@ class ZenaParserTest < ZenaTestController
       compiled_files[k] = v
     end
     context = @@test_strings[file][test]['context'] || {}
-    default_context = @@test_strings[file]['default']['context'] || {'node'=>'status', 'visitor'=>'ant', 'lang'=>'en'}
+    default_context = {'node'=>'status', 'visitor'=>'ant', 'lang'=>'en'}.merge((@@test_strings[file]['default'] || {})['context'] || {})
     context = default_context.merge(context)
     # set context
     params = {}

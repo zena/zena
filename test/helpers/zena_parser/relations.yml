@@ -81,6 +81,7 @@ pages_random:
   context:
     node: 'cleanWater'
   src: "<r:pages limit='3' order='random'><r:each join=', '><r:show attr='name'/></r:each></r:pages>"
+  tem: "/ORDER BY RAND/"
 
 nodes_in_project:
   src: "<r:nodes in='project' limit='2'><r:each join=', '><r:show attr='name'/></r:each></r:nodes>"
@@ -91,7 +92,7 @@ nodes_in_project_stored:
   res: "from wiki, look at status: status, track"
   
 nodes_in_site:
-  src: "<r:nodes in='site' limit='3'><r:each join=', '><r:show attr='name'/></r:each></r:nodes>"
+  src: "<r:nodes in='site' limit='3'><r:each join=', ' do='show' attr='name'/></r:nodes>"
   res: "anonymous, ant, art"
 
 store_node:

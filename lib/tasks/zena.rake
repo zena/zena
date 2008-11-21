@@ -110,22 +110,42 @@ module Zena
     
     private
       def parse_fixtures
-        fixtures_path = File.join("#{RAILS_ROOT}/test/sites",site,"#{table}.yml")
-        return unless File.exist?(fixtures_path)
+        fixtures_paths  = {'zena' => File.join("#{RAILS_ROOT}/test/sites",site,"#{table}.yml")}
+        fixtures_bricks = ['zena']
+        foreach_brick do |brick_path|
+          brick_name = brick_path.split('/').last
+          fixtures_paths[brick_name] = File.join(brick_path,'test','sites',site,"#{table}.yml")
+          fixtures_bricks << brick_name
+        end
         
-        out "\n# ========== #{site} ==========="
-        content = File.read(fixtures_path) + "\n"
+        content = []
+        fixtures_bricks.each do |brick|
+          fixtures_path = fixtures_paths[brick]
+          next unless File.exist?(fixtures_path)
+          if brick == 'zena'
+            content << "\n# ========== test/sites/#{site} ==========="
+          else
+            content << "\n# ========== [#{brick}]/test/sites/#{site}"
+          end
+          content << File.read(fixtures_path)
+        end
+        
+        return if content == []
+        
+        
+        content = content.join("\n") + "\n"
         
         # build simple hash to set/get defaults and other special values
-        content.gsub!(/<%.*?%>/m,'')
-        @elements[site] = elements = YAML::load(content)
+        @elements[site] = elements = YAML::load(content.gsub(/<%.*?%>/m,''))
         
         # set defaults
         set_defaults
         
         definitions = []
         name = nil
-        File.foreach(File.join("#{RAILS_ROOT}/test/sites",site,"#{table}.yml")) do |l|
+        
+        # Parse all content
+        content.split("\n").each do |l|
           if l =~ /^([\w\.]+):/
             last_name = name
             name = $1
@@ -712,7 +732,7 @@ module Zena
     
     def run
       Dir.foreach("#{RAILS_ROOT}/test/sites") do |site|
-        next if site =~ /^\./
+        next if site =~ /^\./ || !File.directory?(File.join("#{RAILS_ROOT}/test/sites",site))
         out ""
         out "#{site}:"
         out_pair('site_id', ZenaTest::multi_site_id(site))
@@ -948,7 +968,7 @@ namespace :zena do
         paths[brick_name] = migration_path
         bricks << brick_name
       end
-      puts bricks.inspect
+      
       bricks.each do |brick_name|
         ActiveRecord::BricksMigrator.migrate(paths[brick_name], brick_name, nil)
       end
@@ -1014,10 +1034,10 @@ namespace :zena do
     end
   end
   
-  Rake::TestTask.new(:test => "zena:test:prepare") do |t|
+  Rake::TestTask.new(:test => ["zena:test:prepare", "zena:build_fixtures"]) do |t|
     t.libs << "test"
     # do not change the order in which these elements are loaded (adding 'lib/**/test/*_test.rb' fails)
-    t.pattern = ['test/helpers/**/*_test.rb','test/unit/**/*_test.rb', 'lib/parser/test/*_test.rb', 'lib/query_builder/test/*_test.rb' 'test/functional/*_test.rb', 'test/integration/*_test.rb']
+    t.pattern = ['test/helpers/**/*_test.rb','test/unit/**/*_test.rb', 'lib/parser/test/*_test.rb', 'lib/query_builder/test/*_test.rb' 'test/functional/*_test.rb', 'test/integration/*_test.rb', 'bricks/**/test/unit/*_test.rb', 'bricks/**/test/functional/*_test.rb', 'bricks/**/test/integration/*_test.rb']
     t.verbose = true
   end
   Rake::Task['zena:test'].comment = "Run the tests in test/helpers and test/unit"

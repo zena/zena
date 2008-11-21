@@ -67,8 +67,13 @@ class Site < ActiveRecord::Base
       su = User.new_no_defaults( :login => host, :password => su_password,
         :first_name => "Super", :name => "User")
       su.site = site
-                                
-      raise Exception.new("Could not create super user for site [#{host}] (site#{site[:id]})\n#{su.errors.map{|k,v| "[#{k}] #{v}"}.join("\n")}") unless su.save
+
+      unless su.save
+        # rollback
+        Site.connection.execute "DELETE FROM #{Site.table_name} WHERE id = #{site.id}"
+        Site.connection.execute "DELETE FROM zips WHERE site_id = #{site.id}"
+        raise Exception.new("Could not create super user for site [#{host}] (site#{site[:id]})\n#{su.errors.map{|k,v| "[#{k}] #{v}"}.join("\n")}") 
+      end
       
       site[:su_id] = su[:id]
       unless Thread.current.respond_to?(:visitor)

@@ -22,6 +22,8 @@ module Zena
           def relation_base_class
             #{self}
           end
+          
+          HAS_RELATIONS = true
         END
       end
     end
@@ -156,19 +158,6 @@ module Zena
         @relation_proxies ||= {}
         return @relation_proxies[link.role] if @relation_proxies.has_key?(link.role)
         @relation_proxies[link.role] = link.relation_proxy(self)
-      end
-      
-      def remove_link(link)
-        if link[:source_id] != self[:id] && link[:target_id] != self[:id]
-          errors.add('link', "not related to this node")
-          return false
-        end
-        # find proxy
-        if rel = relation_proxy_from_link(link)
-          rel.remove_link(link)
-        else
-          errors.add('link', "cannot remove (relation proxy not found).")
-        end
       end
       
       private

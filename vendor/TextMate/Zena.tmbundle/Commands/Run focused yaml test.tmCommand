@@ -8,22 +8,25 @@
 	<string># Assumes the current file is a yaml test file
 # Runs with the currently-focused method as the test name
 
-args=$(${TM_RUBY:=ruby} &lt;&lt;"EOF"
+args=$(${TM_RUBY:=ruby} <<"EOF"
 
 n = ENV['TM_LINE_NUMBER'].to_i
 
-name = nil
+name, test_file_path = nil, nil
 
 File.open(ENV['TM_FILEPATH']) do |f|
 # yaml test
 lines     = f.read.split("\n")[0...n].reverse
-name      = lines.find { |line| line =~ /^([^\s]+):$/i }
+name      = lines.find { |line| line =~ /^([^\s]+):\s*$/i }
+name = $1 if name
+test_file_path = lines.find { |line| line =~ /^#\s*test_file\s*:\s*(.*)$/i }
+test_file_path = File.join(File.dirname(ENV['TM_FILEPATH']), $1) if test_file_path
 end
 
-name = $1 if name
 
-group      = ENV['TM_FILEPATH'].split('/').last.split('.').first
-test_file = "#{File.dirname(ENV['TM_FILEPATH'])}_test.rb --name test_#{group}_#{name}"
+group = ENV['TM_FILEPATH'].split('/').last.split('.').first
+test_file_path ||= "#{File.dirname(ENV['TM_FILEPATH'])}_test.rb"
+test_file = "#{test_file_path} --name test_#{group}_#{name}"
 puts test_file
 EOF)
 

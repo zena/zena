@@ -152,7 +152,7 @@ class CachedPageTest < ZenaTestUnit
         assert File.exists?(path), "Cache file created"
         data = File.open(path) {|f| f.read }
         assert_equal "this is the cached content", data
-        assert_equal template_ids, cache.node_ids.map{|i| i.to_i}
+        assert_equal template_ids.sort, cache.node_ids.map{|i| i.to_i}.sort
         # test expire
         login(:tiger)
         node = secure!(Node) { nodes(:Node_zafu) }

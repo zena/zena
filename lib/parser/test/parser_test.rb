@@ -81,7 +81,7 @@ class String
 end
 
 class ParserTest < Test::Unit::TestCase
-  yaml_test :zafu => {}, :zafu_asset => {}, :zafu_insight => {}, :zazen => {} #, :latex => {:module => :zazen, :output => 'latex'}
+  yaml_test :files => [:zafu, :zafu_asset, :zafu_insight, :zazen] #, :options => {:latex => {:module => :zazen, :output => 'latex'}}
   @@test_parsers = {}
   @@test_options = {}
   

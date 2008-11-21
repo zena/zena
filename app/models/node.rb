@@ -1712,6 +1712,6 @@ class Node < ActiveRecord::Base
         :parent_id
       end
     end
-    
-    
+     
 end
+load_patches_from_bricks
