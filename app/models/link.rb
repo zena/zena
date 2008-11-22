@@ -87,6 +87,14 @@ class Link < ActiveRecord::Base
     this[:zip]
   end
   
+  def zip
+    self[:id]
+  end
+  
+  def can_write?
+    this.can_write?
+  end
+  
   def relation_proxy(node=nil)
     return @relation_proxy if defined?(@relation_proxy)
     rel = RelationProxy.find(self[:relation_id])

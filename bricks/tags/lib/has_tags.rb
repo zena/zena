@@ -11,8 +11,7 @@ module Zena
       def has_tags
         after_save    :update_tags
         zafu_context  :tags => ["Link"]
-        zafu_readable :name, :tag_list
-        safe_attribute :tag
+        zafu_readable :name, :tag_list, :tag
         
         class_eval <<-END
           include Zena::Tags::InstanceMethods
@@ -76,7 +75,13 @@ module Zena
       
       # List of Links that are tags for the current node.
       def tags
-        @tags ||= Link.find(:all, :conditions => ["source_id = ? AND target_id IS NULL", self[:id]], :order => "comment ASC")
+        @tags ||= begin
+          tags = Link.find(:all, :conditions => ["source_id = ? AND target_id IS NULL", self[:id]], :order => "comment ASC")
+          tags.each do |t|
+            t.start = self
+          end
+          tags
+        end
       end
       
       def add_tags(tags)
@@ -115,7 +120,7 @@ module Zena
         # Update/create links defined in relation proxies
         def update_tags
           return unless @add_tags || @del_tags
-          if @del_ids
+          if @del_tags
             del_ids = @del_tags.map {|t| t[:id]}
             Link.connection.execute "DELETE FROM links WHERE id IN (#{del_ids.join(',')})"
           end
@@ -125,6 +130,8 @@ module Zena
           end
           @add_tags = nil
           @del_tags = nil
+          @tags = nil
+          @tag_names = nil
         end
         
     end

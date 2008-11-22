@@ -841,7 +841,8 @@ module Zena
       (descendants('input') + descendants('select')).each do |tag|
         set_fields << "#{var_name}[#{tag.params[:name]}]"
       end
-      if @context[:dom_prefix]
+      
+      if @context[:dom_prefix] || @params[:update]
         # ajax
         if @context[:in_add]
           # inline form used to create new elements: set values to '' and 'parent_id' from context
@@ -855,7 +856,7 @@ module Zena
           
           id_hash[:id] = erb_dom_id
           
-          cancel = <<-END_TXT
+          cancel = !@context[:dom_prefix] ? "" : <<-END_TXT
 <% if #{node}.new_record? -%>
   <p class='btn_x'><a href='#' onclick='[\"<%= params[:dom_id] %>_add\", \"<%= params[:dom_id] %>_form\"].each(Element.toggle);return false;'>#{_('btn_x')}</a></p>
 <% else -%>
@@ -1222,6 +1223,8 @@ END_TXT
       if node_kind_of?(Node)
         opts[:cond] = "#{node}.can_write? && #{node}.link_id"
         opts[:url] = "/nodes/\#{#{node_id}}/links/\#{#{node}.link_id}"
+      elsif node_kind_of?(Link)
+        opts[:url] = "/nodes/\#{#{node}.this_zip}/links/\#{#{node}.zip}"
       end
       
       opts[:method]       = :delete
