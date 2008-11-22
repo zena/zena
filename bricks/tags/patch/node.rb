@@ -9,3 +9,5 @@ class Link
     self[:comment]
   end
 end
+
+NodeQuery.add_filter_field('tag', :key => 'comment', :table => ['nodes', 'links', 'TABLE1.id = TABLE2.source_id AND TABLE2.relation_id IS NULL'])

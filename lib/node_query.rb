@@ -5,8 +5,15 @@ class NodeQuery < QueryBuilder
   attr_reader :context, :uses_node_name, :node_name
   set_main_table 'nodes'
   set_main_class 'Node'
+  @@filter_fields = {'id' => {:key => 'zip'}}
   
   load_custom_queries File.join(File.dirname(__FILE__), 'custom_queries')
+  
+  def self.add_filter_field(key, fld_def)
+    @@filter_fields[key] = fld_def
+  end
+  
+  
   
   def initialize(query, opts = {})
     @uses_node_name = false
@@ -187,6 +194,7 @@ class NodeQuery < QueryBuilder
       end
     end
     
+    # Translate fields used for query/sort/grouping (context parameter) into something useable by SQL. Add the appropriate tables when needed.
     def map_field(field, table_name = table, context = nil)
       return map_literal("[#{field}]") if field =~ /\Aparam:/
       case field[0..1]
@@ -226,8 +234,13 @@ class NodeQuery < QueryBuilder
         # NODE
         key, function = parse_sql_function_in_field(field)
         if context == :filter
-          if key == 'id'
-            function ? "#{function}(#{table_name}.zip)" : "#{table_name}.zip"
+          if map_def = @@filter_fields[key]
+            if table_def = map_def[:table]
+              table_to_use = needs_table(*table_def)
+            else
+              table_to_use = table_name
+            end
+            function ? "#{function}(#{table_to_use}.#{map_def[:key]})" : "#{table_to_use}.#{map_def[:key]}"
           elsif (Node.zafu_readable?(key) && Node.column_names.include?(key))
             function ? "#{function}(#{table_name}.#{key})" : "#{table_name}.#{key}"
           else

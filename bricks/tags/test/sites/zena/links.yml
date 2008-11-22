@@ -5,3 +5,7 @@ status_tagged_blue:
 status_tagged_sky:
   source:          status
   comment:         sky
+
+bird_tagged_blue:
+  source:          bird_jpg
+  comment:         blue
