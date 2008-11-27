@@ -1155,6 +1155,24 @@ link_page_list:
   tem: "/set_pak_page != set_pak.*zen_path\(@node,:pak.*elsif true.*set_pak_page/"
   res: "/<a href='.*page22.html\?pak=1'>1</a>, 2, .*pak=3'>3</a>.*pak=4'>4</a>.*pak=5'>5</a>/"
 
+paginate_with_or_clause:
+  context:
+    pak: 2
+  src: "<div do='pages' in='site' or='images in site' limit='10' order='zip' paginate='pak'><r:show var='pak_count'/> pages (<r:show var='pak_nodes'/> nodes)</div>"
+  res: "<div>3 pages (21 nodes)</div>"
+  
+paginate_with_where_clause:
+  context:
+    pak: 2
+  src: "<div do='pages' in='site' where='v_title like \"%[param:k]%\"'><r:stat find='count'/> nodes</div> // <div do='pages' in='site' where='v_title like \"%[param:k]%\"' limit='10' order='zip' paginate='pak'><r:show var='pak_count'/> pages (<r:show var='pak_nodes'/> nodes)</div>"
+  res: "<div>17 nodes</div> // <div>2 pages (17 nodes)</div>"
+
+paginate_with_group_clause:
+  context:
+    pak: 2
+  src: "<div do='nodes' in='site' group='log_at:year'><r:stat find='count'/> nodes</div> // <div do='nodes' in='site' group='log_at:year' limit='2' paginate='pak'><r:show var='pak_count'/> pages (<r:show var='pak_nodes'/> nodes)</div>"
+  res: "<div>3 nodes</div> // <div>2 pages (3 nodes)</div>"
+
 link_page_previous_else_page1:
   src: "<r:nodes in='site' limit='3' order='zip' paginate='pak'><r:link page='previous' do='else'>noprev</r:link></r:nodes>"
   res: "noprev"

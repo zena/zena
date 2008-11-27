@@ -76,11 +76,12 @@ class QueryBuilder
       end
     end
     
-    if @distinct
-      @group ||= @tables.size > 1 ? " GROUP BY #{table}.id" : " GROUP BY id"
+    group = @group
+    if !group && @distinct
+      group = @tables.size > 1 ? " GROUP BY #{table}.id" : " GROUP BY id"
     end
     
-    "SELECT #{@select.join(',')} FROM #{table_list.flatten.join(',')}" + (@where == [] ? '' : " WHERE #{@where.reverse.join(' AND ')}") + @group.to_s + @order.to_s + @limit.to_s + @offset.to_s
+    "SELECT #{@select.join(',')} FROM #{table_list.flatten.join(',')}" + (@where == [] ? '' : " WHERE #{@where.reverse.join(' AND ')}") + group.to_s + @order.to_s + @limit.to_s + @offset.to_s
   end
   
   def count_sql
@@ -97,11 +98,16 @@ class QueryBuilder
       end
     end
     
-    if @distinct
-      @group ||= @tables.size > 1 ? " GROUP BY #{table}.id" : " GROUP BY id"
+    if @group =~ /GROUP\s+BY\s+(.+)/
+      # we need to COALESCE in order to count groups where $1 is NULL.
+      count_on = "COUNT(DISTINCT COALESCE(#{$1},0))"
+    elsif @distinct
+      count_on = "COUNT(DISTINCT #{table}.id)"
+    else
+      count_on = "COUNT(*)"
     end
     
-    "SELECT COUNT(*) FROM #{table_list.flatten.join(',')}" + (@where == [] ? '' : " WHERE #{@where.reverse.join(' AND ')}") + @group.to_s
+    "SELECT #{count_on} FROM #{table_list.flatten.join(',')}" + (@where == [] ? '' : " WHERE #{@where.reverse.join(' AND ')}")
   end
   
   def valid?
