@@ -1835,9 +1835,8 @@ END_TXT
         out "<% page_numbers(set_#{pagination_key}, set_#{pagination_key}_count, #{(@params[:join] || ' ').inspect}) do |set_#{pagination_key}_page, #{pagination_key}_page_join| %>"
         out "<%= #{pagination_key}_page_join %>"
         out "<% if set_#{pagination_key}_page != set_#{pagination_key} -%>"
-        out render_html_tag(expand_with)
-        @html_tag_done = false
-        out render_html_tag(expand_with(:in_if => true, :only => ['else', 'elsif']))
+        out expand_with
+        out expand_with(:in_if => true, :only => ['else', 'elsif'])
         out "<% end; end -%>"
       else
         parser_error("unkown 'page' option #{@params[:page].inspect} should be ('previous', 'next' or 'list')")
