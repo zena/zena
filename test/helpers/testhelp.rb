@@ -22,8 +22,7 @@ class TestController < ApplicationController
     end
   end
   def test_compile
-    #response.template
-    render :text=>ZafuParser.new_with_url(@test_url, :helper=>response.template).render
+    render :text=>ZafuParser.new_with_url(@test_url, :helper=>response.template).render(:dev => params['dev'])
   end
 
   def test_render

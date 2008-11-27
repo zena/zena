@@ -2040,6 +2040,21 @@ END_TXT
       out expand_with(:output_format => 'latex')
     end
     
+    def r_debug
+      return '' unless @context[:dev]
+      add_html_class('debug')
+      out "<p>#{@params[:title]}</p>" if @params[:title]
+      (@params[:show] || '').split(',').map(&:strip).each do |what|
+        case what
+        when 'params'
+          out "<pre><%= params.inspect %></pre>"
+        else
+          parser_error("invalid element to show. Options are ['params'].")
+        end
+      end
+      out expand_with
+    end
+    
     # ================== HELPER METHODS ================
     
     # Create an sql query to open a new context (passes its arguments to HasRelations#build_find)

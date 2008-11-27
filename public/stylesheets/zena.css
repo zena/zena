@@ -30,9 +30,12 @@
 .input_radio span, .input_checkbox span { display:table; float:left; margin:3px;}
 
 /* errors */
-.parser_error { padding:0px; border:1px solid red; background:#f88; padding:2px;}
+.parser_error { border:1px solid red; background:#f88; padding:2px;}
 table.errors { background:#DDC8C8; margin:0 0 5px; border-bottom:1px solid #5A3231; display:block;}
 table.errors td { padding:2px 5px; background:inherit; border:none;}
+
+/* debug */
+.debug { border:1px solid green; background:#cfc; padding:2px; display:table;}
 
 /* ========================= Ajax css ========================= */
 .drop_hover { background:#ace; border:2px dashed #99f;}

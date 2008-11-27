@@ -1188,3 +1188,18 @@ link_page_list_else:
     pak: 2
   src: "<r:nodes in='site' limit='3' order='zip' paginate='pak'><r:link page='list' join=', ' do='else'>[<r:show var='pak'/>]</r:link></r:nodes>"
   res: "/<a.*1</a>, [2], <a.*3</a>/"
+
+debug_params:
+  context:
+    foo: 'bar'
+    dev: true
+  src: "DEBUG: <r:debug title='no idea for a title' show='params'/><r:debug do='[name]'/>"
+  tem: "DEBUG: <div class='debug'><p>no idea for a title</p><pre><%= params.inspect %></pre></div><div class='debug'><%= @node.name %></div>"
+  res: "/DEBUG: <div class='debug'><p>no idea for a title</p><pre>.*\"foo\"=>\"bar\".*</pre></div><div class='debug'>status</div>/"
+
+debug_params_not_in_dev_mode:
+  context:
+    foo: 'bar'
+  src: "DEBUG: <r:debug show='params'/><r:debug do='[name]'/><r:debug title='help needed'/>"
+  tem: 'DEBUG: '
+  res: 'DEBUG: '
