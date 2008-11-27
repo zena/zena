@@ -2908,7 +2908,7 @@ END_TXT
             if static
               value = ["'#{_(value)}'"]            # array so it is not escaped on render
             else
-              value = ["'<%= _(\"#{value}\") %>'"] # array so it is not escaped on render
+              value = ["'<%= _(\"#{value}\") %>'"] # FIXME: use dict ! array so it is not escaped on render
             end
           end
           res_params[key.to_sym] = value
