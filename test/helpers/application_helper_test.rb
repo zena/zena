@@ -253,6 +253,64 @@ class ApplicationHelperTest < ZenaTestHelper
     assert_equal atime.strftime('%d.%m'), tformat_date(atime, 'short_date')
   end
   
+  def test_format_date_age
+    atime = Time.now.utc
+    visitor[:time_zone] = 'UTC' # utc
+    {
+      0.2         => '1 minute ago',
+      -0.2        => 'in 1 minute',
+      1.2         => '1 minute ago',
+      8.2         => '8 minutes ago',
+      -8.5        => 'in 8 minutes',
+      45.1        => '45 minutes ago',
+      60.1        => '1 hour ago',
+      95          => '1 hour ago',
+      -95         => 'in 1 hour',
+      123         => '2 hours ago',
+      -123        => 'in 2 hours',
+      23 * 60     => '23 hours ago',
+      25 * 60     => 'yesterday',
+      -25 * 60    => 'tomorrow',
+      29 * 60     => 'yesterday',
+      49 * 60     => '2 days ago',
+      -49 * 60    => 'in 2 days',
+      6 * 24 * 60 => '6 days ago',
+      7.1*24 * 60 => (atime - 7.1*24 * 60 * 60).strftime("%Y-%m-%d"),
+      -9* 24 * 60 => (atime + 9 * 24 * 60 * 60).strftime("%Y-%m-%d"),
+    }.each do |age, phrase|
+      assert_equal phrase, format_date(Time.now.utc - (60 * age),'age/%Y-%m-%d')
+    end
+  end
+  
+  def test_format_date_age_not_utc
+    visitor[:time_zone] = 'Europe/Zurich' # not utc
+    atime = Time.now.utc
+    {
+      0.2         => '1 minute ago',
+      -0.2        => 'in 1 minute',
+      1.2         => '1 minute ago',
+      8.2         => '8 minutes ago',
+      -8.5        => 'in 8 minutes',
+      45.1        => '45 minutes ago',
+      60.1        => '1 hour ago',
+      95          => '1 hour ago',
+      -95         => 'in 1 hour',
+      123         => '2 hours ago',
+      -123        => 'in 2 hours',
+      23 * 60     => '23 hours ago',
+      25 * 60     => 'yesterday',
+      -25 * 60    => 'tomorrow',
+      29 * 60     => 'yesterday',
+      49 * 60     => '2 days ago',
+      -49 * 60    => 'in 2 days',
+      6 * 24 * 60 => '6 days ago',
+      7.1*24 * 60 => (atime - 7.1*24 * 60 * 60).strftime("%Y-%m-%d"),
+      -9* 24 * 60 => (atime + 9 * 24 * 60 * 60).strftime("%Y-%m-%d"),
+    }.each do |age, phrase|
+      assert_equal phrase, format_date(Time.now.utc - (60 * age),'age/%Y-%m-%d')
+    end
+  end
+  
   def test_visitor_link
     assert_equal '', visitor_link
     login(:ant)

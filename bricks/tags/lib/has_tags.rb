@@ -85,8 +85,8 @@ module Zena
         end
       end
       
-      def add_tags(tags)
-        tags_to_add = tags_as_list(tags) - tag_names
+      def add_tags(tag_str)
+        tags_to_add = tags_as_list(tag_str) - tag_names
         return if tags_to_add == []
         @add_tags = ((@add_tags || []) + tags_to_add).uniq
       end
@@ -131,8 +131,8 @@ module Zena
           end
           @add_tags = nil
           @del_tags = nil
-          @tags = nil
-          @tag_names = nil
+          remove_instance_variable(:@tags) if @tags
+          @tag_names= nil
         end
         
     end

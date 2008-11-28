@@ -833,21 +833,65 @@ END_MSG
         tz = visitor.tz
       end
       if thedate.kind_of?(Time)
+        utc_date = thedate
         adate = tz.utc_to_local(thedate)
       elsif thedate.kind_of?(String)
         begin
-          adate = Date.parse(thedate)
+          adate    = Date.parse(thedate)
+          utc_date = adate
+
         rescue
           # only return error if there is a format (without = used in sql query)
           return theformat ? "<span class='parser_error'>invalid date #{thedate.inspect}</span>" : Time.now.strftime('%Y-%m-%d %H:%M:%S')
         end
       else
-        adate = thedate
+        adate    = thedate
+        utc_date = adate
       end
       
       if visitor.lang != lang
         GetText.set_locale_all(lang)
       end
+      if format =~ /^age\/?(.*)$/
+        format = $1.blank? ? _('long_date') : $1
+        # how long ago/in how long is the date
+        age = (Time.now.utc - utc_date) / 60
+        
+        if age > 7 * 24 * 60
+          # far in the past, use strftime
+        elsif age >= 2 * 24 * 60
+          # days
+          return _("%{d} days ago") % {:d => (age/(24*60)).floor}
+        elsif age >= 24 * 60
+          # days
+          return _("yesterday")
+        elsif age >= 2 * 60
+          # hours
+          return _("%{h} hours ago") % {:h => (age/60).floor}
+        elsif age >= 60
+          return _("1 hour ago")
+        elsif age > 2
+          # minutes
+          return _("%{m} minutes ago") % {:m => age.floor}
+        elsif age > 0
+          return _("1 minute ago")
+        elsif age >= -1
+          return _("in 1 minute")
+        elsif age > -60
+          return _("in %{m} minutes") % {:m => -age.ceil}
+        elsif age > -2 * 60
+          return _("in 1 hour")
+        elsif age > -24 * 60
+          return _("in %{h} hours") % {:h => -(age/60).ceil}
+        elsif age > -2 * 24 * 60
+          return _("tomorrow")
+        elsif age > -7 * 24 * 60
+          return _("in %{d} days") % {:d => -(age/(24*60)).ceil}
+        else
+          # too far in the future, use strftime
+        end
+      end
+      
       # month name
       format = format.gsub("%b", _(adate.strftime("%b")) )
       format.gsub!("%B", _(adate.strftime("%B")) )
