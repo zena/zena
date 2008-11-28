@@ -6,6 +6,9 @@
 <%= text_area 'node', "d_#{k}", :cols=>nil, :rows=>2, :class => 'full_width' %>
 <% end -%>
 
+<label for='tag_list'><%= _("tags") %></label>
+<%= text_field 'node', 'tag_list', :size=>nil, :class => 'full_width' %>
+
 <label for='v_lang'><%= _("language") %></label>
 <%= select 'node', 'v_lang', current_site.lang_list.map {|l| [_(l), l]} %>
 

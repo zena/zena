@@ -6,6 +6,13 @@ default:
   tem: "/list1 = @node.tags.*var1.name/"
   res: "blue,sky"
 
+listing_no_tags:
+  context:
+    node: 'lion'
+  src: "<r:tags>Nothing</r:tags>"
+  tem: "/list1 = @node.tags/"
+  res: ""
+
 listing_with_link:
   src: "<r:tags do='each' join=',' do='link' cat='[name]'/>"
   res: "<a href='/oo/projects/cleanWater/page22.html?cat=blue'>blue</a>,<a href='/oo/projects/cleanWater/page22.html?cat=sky'>sky</a>"

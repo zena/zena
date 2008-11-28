@@ -51,7 +51,7 @@ module Zena
       
       # Define tag list from a comma separated list of tag names.
       def tag_list=(v)
-        tags_as_list = self.tags_as_list(v)
+        tags_as_list = tags_as_list(v)
 
         tags_to_add = tags_as_list - tag_names
         unless tags_to_add == []
@@ -60,7 +60,7 @@ module Zena
 
         tags_names_to_del = tag_names - tags_as_list
         tags_to_del       = []
-        tags.each do |t|
+        (tags || []).each do |t|
           tags_to_del << t if tags_names_to_del.include?(t[:comment])
         end
         unless tags_to_del == []
@@ -70,17 +70,18 @@ module Zena
       
       # List of tag names.
       def tag_names
-        @tag_names ||= tags.map {|t| t[:comment]}
+        @tag_names ||= (tags || []).map {|t| t[:comment]}
       end
       
       # List of Links that are tags for the current node.
       def tags
-        @tags ||= begin
+        return @tags if defined?(@tags)
+        @tags = begin
           tags = Link.find(:all, :conditions => ["source_id = ? AND target_id IS NULL", self[:id]], :order => "comment ASC")
           tags.each do |t|
             t.start = self
           end
-          tags
+          tags == [] ? nil : tags
         end
       end
       

@@ -30,5 +30,13 @@ class TagsTest < ZenaTestUnit
     node = secure!(Node) { nodes(:status) }
     assert_equal 'big, blue, brown, sky, socks', node.tag_list
   end
+  
+  def test_set_tag_list
+    login(:tiger)
+    node = secure!(Node) { nodes(:status) }
+    assert node.update_attributes(:tag_list => 'big, brown,socks')
+    node = secure!(Node) { nodes(:status) }
+    assert_equal 'big, brown, socks', node.tag_list
+  end
     
 end
