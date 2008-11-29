@@ -938,6 +938,9 @@ END_TXT
           elsif params[:done]
             hidden_fields['done'] = CGI.escape(params[:done]) # .gsub("NODE_ID", @node.zip).gsub("PARENT_ID", @node.parent_zip)
           end
+        else
+          # ajax form, not in 'add'
+          hidden_fields['done'] = CGI.escape(@params[:done]) if @params[:done]
         end
       else
         # no ajax
@@ -3050,7 +3053,11 @@ END_TXT
         end
       end 
       
-      res[:id]   = "#{erb_dom_id}_#{attribute}" if @context[:dom_prefix]
+      if @context[:dom_prefix]
+        res[:id]   = "#{erb_dom_id}_#{attribute}"
+      else
+        res[:id]   = params[:id] if params[:id]
+      end
       
       [:size, :style, :class].each do |k|
         res[k] = params[k] if params[k]

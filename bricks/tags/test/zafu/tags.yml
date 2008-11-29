@@ -20,7 +20,7 @@ listing_with_link:
 tagged_query:
   context:
     cat: 'blue'
-  src: "<r:context select='nodes where tag = \"[param:cat]\" in site' do='each' join=', ' do='[name]'/>"
+  src: "<r:context select='nodes where tag = param:cat in site' do='each' join=', ' do='[name]'/>"
   res: "bird, status"
   
 images_tagged_blue:

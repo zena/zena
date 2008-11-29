@@ -65,6 +65,8 @@ module ApplicationHelper
         if params[:done] && params[:action] == 'create'
           page.toggle "#{params[:dom_id]}_form", "#{params[:dom_id]}_add"
           page << params[:done]
+        elsif params[:done]
+          page << params[:done]
         end
       end
     else
@@ -94,6 +96,7 @@ module ApplicationHelper
         end
       when 'update'
         page.replace params[:dom_id], :file => fullpath_from_template_url + ".erb"
+        page << params[:done] if params[:done]
       when 'destroy'
         page.visual_effect :highlight, params[:dom_id], :duration => 0.3
         page.visual_effect :fade, params[:dom_id], :duration => 0.3
