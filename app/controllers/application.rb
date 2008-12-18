@@ -855,6 +855,7 @@ END_MSG
       if format =~ /^age\/?(.*)$/
         format = $1.blank? ? _('long_date') : $1
         # how long ago/in how long is the date
+        # FIXME: when using 'age', set expire_at (+1 minute, +1 hour, +1 day, never)
         age = (Time.now.utc - utc_date) / 60
         
         if age > 7 * 24 * 60

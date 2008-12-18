@@ -849,7 +849,7 @@ class MultiVersionTest < ZenaTestUnit
     assert node.v_updated_at < Time.now + 600
     assert node.v_updated_at > Time.now - 600
     assert node.update_attributes(:v_title => "Statues are better")
-    assert_equal Zena::Status[:prop], node.v_status
+    assert_equal Zena::Status[:red], node.v_status
     assert_equal 3, node.v_number
     assert_not_equal versions_id(:status_en), node.v_id
     assert_equal 'Statues are better', node.v_title
@@ -917,7 +917,7 @@ class MultiVersionTest < ZenaTestUnit
     assert !node.can_publish?
     assert node.can_write?
     assert node.update_attributes(:v_title => 'bloated waters', :v_status => Zena::Status[:pub])
-    assert_equal Zena::Status[:prop], node.v_status
+    assert_equal Zena::Status[:red], node.v_status
   end
   
   def test_auto_publish_no_publish_rights
@@ -926,7 +926,7 @@ class MultiVersionTest < ZenaTestUnit
     node = secure!(Node) { nodes(:cleanWater) }
     assert !node.can_publish?
     assert node.update_attributes(:v_title => 'bloated waters')
-    assert_equal Zena::Status[:prop], node.v_status
+    assert_equal Zena::Status[:red], node.v_status
   end
   
   def test_publish_with_v_status

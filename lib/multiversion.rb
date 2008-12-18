@@ -487,8 +487,8 @@ module Zena
               ok = after_publish && after_all && update_publish_from
             elsif can_apply?(:publish)
               ok = apply(:publish)
-            elsif can_apply?(:propose)
-              ok = apply(:propose)
+            elsif ok
+              ok = update_max_status && update_publish_from
             end
           elsif ok
             ok = update_max_status && update_publish_from
