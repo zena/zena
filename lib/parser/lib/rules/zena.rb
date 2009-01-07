@@ -2776,6 +2776,7 @@ END_TXT
     def parse_attributes_in_value(v, opts = {})
       opts = {:erb => true}.merge(opts)
       static = true
+      
       use_node  = @var || node
       res = v.gsub(/\[([^\]]+)\]/) do
         static = false
@@ -2877,7 +2878,7 @@ END_TXT
         elsif @method == 'each' && @context[:list]
           node_name = var
         elsif @method == 'context'
-          node_name = var
+          node_name = @var || node
         else
           node_name = node
         end

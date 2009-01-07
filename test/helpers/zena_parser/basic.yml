@@ -690,6 +690,12 @@ set_attribute_main_node:
   src: "<r:parent><p do='[name]' set_id='test_[main.name]'>hey</p></r:parent>"
   res: "<p id='test_status'>cleanWater</p>"
 
+set_attribute_in_list:
+  context:
+    node: 'projects'
+  src: "<div do='pages' set_id='[name]'>...</div>"
+  res: "<div id='projects'>...</div>"
+
 each_join_html:
   context:
     node: 'wiki'
