@@ -98,7 +98,7 @@ class Iformat < ActiveRecord::Base
         return false
       end
       
-      errors.add('name', "invalid") if name.blank? || name =~ /[^a-zAZ]/
+      errors.add('name', "invalid") if name.blank? || name =~ /[^a-zA-Z]/
       if self.size != SIZES.index('keep')
         errors.add('width', "must be greater then 0") if width.to_i <= 0
         errors.add('height', "must be greater then 0") if height.to_i <= 0

@@ -402,7 +402,7 @@ class NodesController < ApplicationController
     #  archive      ---> fullpath
     def find_node
       if path = params[:path]
-        if path.last =~ /\A(([a-zA-Z]+)([0-9]+)|([a-zA-Z0-9\-\*]+))(_[a-z]+|)(\..+|)\Z/
+        if path.last =~ /\A(([a-zA-Z]+)([0-9]+)|([a-zA-Z0-9\-\*]+))(_[a-zA-Z]+|)(\..+|)\Z/
           zip    = $3
           name   = $4
           params[:mode] = $5 == '' ? nil : $5[1..-1]
