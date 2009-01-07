@@ -374,6 +374,10 @@ cdata:
   src: "<foo><![CDATA[<r:hello/>]]></foo>"
   res: "<foo><![CDATA[hello world!]]></foo>"
 
-cdata:
+cdata_more:
   src: "<foo><![CDATA[<r:hello/> blah <p do='test'> a <r:hello/></p>]]></foo>"
   res: "<foo><![CDATA[hello world! blah [test]<p> a [hello/]</p>[/test]]]></foo>"
+  
+quoting:
+  src: "<p double=\"waga'doom\" yo=\"waga'dou\\\"gou\" simple='25\"' do='void'>blah</p>"
+  res: "<p double=\"waga'doom\" simple='25\"' yo=\"waga'dou\\\"gou\">blah</p>"

@@ -3355,4 +3355,6 @@ module ActiveRecord
   end
 end
 
-load_zafu_rules_from_bricks
+if defined?(RAILS_ENV)
+  load_zafu_rules_from_bricks
+end
