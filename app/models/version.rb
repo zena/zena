@@ -207,7 +207,7 @@ class Version < ActiveRecord::Base
         else
           # clean empty content
           @content = content_class.new
-          @content.version = self
+          @content.preload_version(self)
           self[:content_id] = nil
           @redaction_content = @content
         end
