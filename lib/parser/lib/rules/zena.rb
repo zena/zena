@@ -1858,7 +1858,7 @@ END_TXT
       end
       mode = @params[:mode] || 'std'
       res = "img_tag(#{img}, :mode=>#{mode.inspect}"
-      [:class, :alt_src].each do |k|
+      [:class, :alt_src, :id].each do |k|
         res  += ", :#{k}=>#{@params[k].inspect}" if @params[k]
       end
       res += ")"

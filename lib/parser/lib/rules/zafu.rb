@@ -71,10 +71,10 @@ module Zafu
         if v.kind_of?(Array)
           # Array is used to indicate that the code is already escaped.
           para << " #{k}=#{v}"
-        elsif !v.include?("'")
+        elsif !v.to_s.include?("'")
           para << " #{k}='#{v}'"
         else
-          para << " #{k}=\"#{v.gsub('"','\"')}\"" # TODO: do this work in all cases ?
+          para << " #{k}=\"#{v.to_s.gsub('"','\"')}\"" # TODO: do this work in all cases ?
         end
       end
       # puts para.inspect
