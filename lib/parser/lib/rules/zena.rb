@@ -1857,8 +1857,9 @@ END_TXT
         img = node
       end
       mode = @params[:mode] || 'std'
+      # FIXME: replace this call by something that integrates better with html_tag_params and such.
       res = "img_tag(#{img}, :mode=>#{mode.inspect}"
-      [:class, :alt_src, :id].each do |k|
+      [:class, :alt_src, :id, :border, :style].each do |k|
         res  += ", :#{k}=>#{@params[k].inspect}" if @params[k]
       end
       res += ")"

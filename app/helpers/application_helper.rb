@@ -593,7 +593,7 @@ module ApplicationHelper
     
     if res.kind_of?(Hash)
       out = "<img"
-      [:src, :width, :height, :alt, :id, :class].each do |k|
+      [:src, :width, :height, :alt, :id, :class, :style, :border].each do |k|
         next unless v = res[k]
         out << " #{k}='#{v}'"
       end
@@ -604,13 +604,18 @@ module ApplicationHelper
   end
   
   # <img> tag definition to show an Image / mp3 document
+  # FIXME: this should live inside zafu
   def asset_img_tag(obj, opts)
     if obj.kind_of?(Image)
       res     = {}
       content = obj.version.content
       format  = Iformat[opts[:mode]] || Iformat['std']
       
-      res[:id]    = opts[:id]
+      [:id, :border].each do |k|
+        next unless opts[k]
+        res[k]    = opts[k]
+      end
+      
       res[:alt]   = opts[:alt] || fquote(obj.v_title)
       res[:src]   = data_path(obj, :mode => (format[:size] == :keep ? nil : format[:name]))
       res[:class] = opts[:class] || format[:name]
@@ -636,8 +641,10 @@ module ApplicationHelper
   # <img> tag definition for the generic icon (image showing class of element).
   def generic_img_tag(obj, opts)
     res = {}
-    res[:class] = opts[:class]
-    res[:id]    = opts[:id]
+    [:class, :id, :border, :style].each do |k|
+      next unless opts[k]
+      res[k] = opts[k]
+    end
     
     if obj.vclass.kind_of?(VirtualClass) && !obj.vclass.icon.blank?
       # FIXME: we could use a 'zip' to an image as 'icon' (but we would need some caching to avoid multiple loading during doc listing)
