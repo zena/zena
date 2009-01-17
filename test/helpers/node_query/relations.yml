@@ -28,3 +28,9 @@ projects_from_tags:
   
 projects_in_site:
   sql: "SELECT nodes.* FROM nodes WHERE nodes.kpath LIKE 'NPP%' AND (#{@node.secure_scope('nodes')}) ORDER BY nodes.position ASC, nodes.name ASC"
+  
+nodes_in_section:
+  context:
+    node: 'people'
+  sql: "SELECT nodes.* FROM nodes WHERE nodes.section_id = #{@node.get_section_id} AND (#{@node.secure_scope('nodes')}) ORDER BY nodes.position ASC, nodes.name ASC"
+  res: "anonymous, ant, lion, myLife, tiger"

@@ -703,7 +703,7 @@ END_MSG
     end
   
     
-    # Path for the node (as string). Options can be :format and :mode.
+    # Path for the node (as string). Options can be :format, :host and :mode.
     # ex '/en/document34_print.html'
     def zen_path(node, options={})
       return '#' unless node
@@ -728,6 +728,9 @@ END_MSG
       format = 'html' if format.blank?
       pre    = opts.delete(:prefix) || prefix
       mode   = opts.delete(:mode)
+      host   = opts.delete(:host)
+      abs_url_prefix = host ? "http://#{host}" : ''
+      
       if asset = opts.delete(:asset)
         mode   = nil
       end
@@ -735,15 +738,15 @@ END_MSG
       params = (opts == {}) ? '' : ('?' + opts.map{ |k,v| "#{k}=#{CGI.escape(v.to_s)}"}.join('&'))
       
       if !asset && node[:id] == current_site[:root_id] && mode.nil? && format == 'html'
-        "/#{pre}" # index page
+        "#{abs_url_prefix}/#{pre}" # index page
       elsif node[:custom_base]
-        "/#{pre}/" +
+        "#{abs_url_prefix}/#{pre}/" +
         node.basepath +
         (mode  ? "_#{mode}"  : '') +
         (asset ? ".#{asset}" : '') +
         (format == 'html' ? '' : ".#{format}")
       else
-        "/#{pre}/" +
+        "#{abs_url_prefix}/#{pre}/" +
         (node.basepath != '' ? "#{node.basepath}/"    : '') +
         (node.klass.downcase   ) +
         (node[:zip].to_s       ) +
@@ -756,7 +759,7 @@ END_MSG
     # Url for a node. Options are 'mode' and 'format'
     # ex 'http://test.host/en/document34_print.html'
     def zen_url(node, opts={})
-      "http://#{current_site[:host]}#{zen_path(node,opts)}"
+      zen_path(node,opts.merge(:host => current_site[:host]))
     end
 
     def prefix

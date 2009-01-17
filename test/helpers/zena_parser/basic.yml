@@ -696,6 +696,10 @@ set_attribute_in_list:
   src: "<div do='pages' set_id='[name]'>...</div>"
   res: "<div id='projects'>...</div>"
 
+set_attribute_with_namespace:
+  src: "<entry do='void' set_xml:base='[name]'>..</entry>"
+  res: "<entry xml:base='status'>..</entry>"
+
 each_join_html:
   context:
     node: 'wiki'
@@ -1213,3 +1217,17 @@ debug_params_not_in_dev_mode:
   src: "DEBUG: <r:debug show='params'/><r:debug do='[name]'/><r:debug title='help needed'/>"
   tem: 'DEBUG: '
   res: 'DEBUG: '
+
+expand_with_host:
+  context:
+    node: 'projects'
+  src: "relative:<r:link/> absolute:<r:expand_with host='bob.com' do='link'/>"
+  tem: "/relative:.*zen_path\(@node\).*absolute:.*zen_path\(@node, :host => \"bob.com\"\)/"
+  res: "relative:<a href='/oo/page18.html'>projects list</a> absolute:<a href='http://bob.com/oo/page18.html'>projects list</a>"
+
+expand_with_set_host:
+  context:
+    node: 'projects'
+  src: "relative:<r:link/> absolute:<r:expand_with set_host='[site.host]' do='link'/>"
+  tem: "/relative:.*zen_path\(@node\).*absolute:.*zen_path\(@node, :host => \"#\{current_site.host\}\"/"
+  res: "relative:<a href='/oo/page18.html'>projects list</a> absolute:<a href='http://test.host/oo/page18.html'>projects list</a>"

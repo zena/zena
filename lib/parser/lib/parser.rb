@@ -201,6 +201,15 @@ class Parser
     end
   end
   
+  # Set context with variables (unsafe) from template.
+  def r_expand_with
+    hash = {}
+    @params.each do |k,v|
+      hash["exp_#{k}"] = v.inspect
+    end
+    expand_with(hash)
+  end
+  
   def before_render
     true
   end

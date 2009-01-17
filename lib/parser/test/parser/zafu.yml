@@ -381,3 +381,7 @@ cdata_more:
 quoting:
   src: "<p double=\"waga'doom\" yo=\"waga'dou\\\"gou\" simple='25\"' do='void'>blah</p>"
   res: "<p double=\"waga'doom\" simple='25\"' yo=\"waga'dou\\\"gou\">blah</p>"
+  
+expand_with:
+  src: "<div do='expand_with' host='example.com'>...<r:inspect/></div>"
+  res: "<div>...[inspect {> 'exp_host'=>'\"example.com\"'}/]</div>"

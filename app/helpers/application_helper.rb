@@ -617,7 +617,7 @@ module ApplicationHelper
       end
       
       res[:alt]   = opts[:alt] || fquote(obj.v_title)
-      res[:src]   = data_path(obj, :mode => (format[:size] == :keep ? nil : format[:name]))
+      res[:src]   = data_path(obj, :mode => (format[:size] == :keep ? nil : format[:name]), :host => opts[:host])
       res[:class] = opts[:class] || format[:name]
       
       # compute image size
@@ -700,6 +700,8 @@ module ApplicationHelper
         res[:src] = "/images/ext/#{new_file}"
       end
     end
+    
+    res[:src] = "http://#{opts[:host]}#{res[:src]}" if opts[:host]
     
     res
   end

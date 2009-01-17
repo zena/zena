@@ -161,7 +161,24 @@ module Zena
       end
       res
     end
-
+    
+    # Our special version of r_expand_with tag with "set_" parsing.
+    def r_expand_with
+      hash = {}
+      @params.each do |k,v|
+        if k.to_s =~ /^set_(.+)$/
+          # TODO: DRY with render_html_tag
+          k   = $1
+          value, static = parse_attributes_in_value(v, :erb => false)
+          hash["exp_#{k}"] = static ? value.inspect : "\"#{value}\""
+        else
+          hash["exp_#{k}"] = v.inspect
+        end
+      end
+      @params = {}
+      expand_with(hash)
+    end
+    
     def r_show
       if attr_or_date = @params[:attr_or_date]
         # using [var] shortcut. Can be either a date or an attribute/var
@@ -1783,6 +1800,8 @@ END_TXT
           opts_str << ",:#{k.to_s.gsub(/[^a-z_A-Z_]/,'')}=>#{query_params[k]}"
         end
         
+        opts_str += ", :host => #{@context["exp_host"]}" if @context["exp_host"]
+        
         pre_space + "<a#{params_to_html(html_params)} href='<%= zen_path(#{lnode}#{opts_str}) %>'>#{text_for_link(default_text)}</a>"
       end
     end
@@ -1862,12 +1881,16 @@ END_TXT
       [:class, :alt_src, :id, :border, :style].each do |k|
         res  += ", :#{k}=>#{@params[k].inspect}" if @params[k]
       end
+      res += ", :host => #{@context["exp_host"]}" if @context["exp_host"]
       res += ")"
       if @params[:link]
         finder, klass = build_finder_for(:first, @params[:link])
         return unless finder
         return parser_error("invalid class (#{klass})") unless klass.ancestors.include?(Node)
-        "<a href='<%= zen_path(#{finder}) %>'><%= #{res} %></a>"
+        
+        opts_str = @context["exp_host"] ? ", :host => #{@context["exp_host"]}" : ""
+        
+        "<a href='<%= zen_path(#{finder}#{opts_str}) %>'><%= #{res} %></a>"
       else
         "<%= #{res} %>"
       end
@@ -2533,6 +2556,10 @@ END_TXT
       template_url + '_form'
     end
     
+    # Return parameter value accessor
+    def get_param(key)
+      "params[:#{key}]"
+    end
     
     def context
       return @context if @context
@@ -2765,6 +2792,8 @@ END_TXT
           return [node_attr, '@node', Node]
         elsif node_name == 'visitor'
           return [node_attr, 'visitor.contact', Contact]
+        elsif node_name == 'site'
+          return [node_attr, 'current_site', Site]
         else
           out parser_error("invalid node name #{node_name.inspect} in attribute #{str.inspect}")
           return [nil]
@@ -2786,7 +2815,7 @@ END_TXT
         
         if opts[:skip_node_attributes]
           if attribute =~ /^param:(\w+)$/
-            attribute = "params[:#{$1}]" 
+            attribute = get_param($1)
           elsif attribute == 'current_date'
             attribute = current_date
           else
@@ -2814,7 +2843,7 @@ END_TXT
       return "(params[:s] || @node[:zip]).to_i" if str == 'start.id'
       attribute, att_node, klass = get_attribute_and_node(str)
       return 'nil' unless attribute
-      return "params[:#{$1}]" if attribute =~ /^param:(\w+)$/
+      return get_param($1) if attribute =~ /^param:(\w+)$/
       return current_date if attribute == 'current_date'
       
       
