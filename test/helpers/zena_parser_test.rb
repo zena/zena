@@ -6,7 +6,7 @@ if false
 end
 
 class ZenaParserTest < ZenaTestController
-  yaml_test :directories => [:default, "#{RAILS_ROOT}/bricks/**/test/zafu"]
+  yamltest :directories => [:default, "#{RAILS_ROOT}/bricks/**/test/zafu"]
   Section # make sure we load Section links before trying relations
   
   def setup
@@ -17,18 +17,16 @@ class ZenaParserTest < ZenaTestController
     super
   end
   
-  def do_test(file, test)
-    src = @@test_strings[file][test]['src']
-    tem = @@test_strings[file][test]['tem']
-    res = @@test_strings[file][test]['res']
+  def yt_do_test(file, test)
+    src = yt_get('src', file, test) if @@test_strings[file][test].keys.include?('src') # we do not want src built from title
+    tem = yt_get('tem', file, test)
+    res = yt_get('res', file, test)
     compiled_files = {}
     @@test_strings[file][test].each do |k,v|
       next if ['src','tem','res','context'].include?(k)
       compiled_files[k] = v
     end
-    context = @@test_strings[file][test]['context'] || {}
-    default_context = {'node'=>'status', 'visitor'=>'ant', 'lang'=>'en'}.merge((@@test_strings[file]['default'] || {})['context'] || {})
-    context = default_context.merge(context)
+    context = yt_get('context', file, test)
     # set context
     params = {}
     $_test_site = context.delete('site') || 'zena'
@@ -44,7 +42,7 @@ class ZenaParserTest < ZenaTestController
       post 'test_compile', params
       template = @response.body
       if tem
-        assert_yaml_test tem, template
+        yt_assert tem, template
       end
     else
       template = tem
@@ -53,24 +51,24 @@ class ZenaParserTest < ZenaTestController
     compiled_files.each do |path,value|
       fullpath = File.join(SITES_ROOT,'test.host','zafu',path)
       assert File.exist?(fullpath), "Saved template #{path} should exist."
-      assert_yaml_test value, File.read(fullpath)
+      yt_assert value, File.read(fullpath)
     end
     
     if res
       params[:text] = template
       post 'test_render', params
       result = @response.body
-      assert_yaml_test res, result
+      yt_assert res, result
     end
   end
   
-  alias o_assert_yaml_test assert_yaml_test
+  alias o_yt_assert yt_assert
   
-  def assert_yaml_test(test_val, result)
+  def yt_assert(test_val, result)
     test_val.gsub!(/_ID\(([^\)]+)\)/) do
         ZenaTest::id($_test_site, $1)
     end
-    o_assert_yaml_test test_val, result
+    o_yt_assert test_val, result
   end
   
   def test_basic_show_bad_attr
@@ -84,7 +82,7 @@ class ZenaParserTest < ZenaTestController
       Node.connection.execute "UPDATE nodes SET name = 'first' WHERE id = #{nodes_id(:status)}"
       caches = Cache.find(:all)
       assert_equal [], caches
-      do_test('basic', 'cache_part')
+      yt_do_test('basic', 'cache_part')
       
       cont = {
         :user_id => users_id(:anon),
@@ -114,26 +112,26 @@ class ZenaParserTest < ZenaTestController
   
   def test_relations_updated_today
     Node.connection.execute "UPDATE nodes SET updated_at = now() WHERE id IN (#{nodes_id(:status)}, #{nodes_id(:art)});"
-    do_test('relations', 'updated_today')
+    yt_do_test('relations', 'updated_today')
   end
   
   def test_relations_upcoming_events
     Node.connection.execute "UPDATE nodes SET log_at = ADDDATE(curdate(), interval 1 week) WHERE id IN (#{nodes_id(:people)})"
-    do_test('relations', 'upcoming_events')
+    yt_do_test('relations', 'upcoming_events')
   end
   
   def test_relations_in_7_days
     Node.connection.execute "UPDATE nodes SET log_at = curdate() WHERE id IN (#{nodes_id(:status)}, #{nodes_id(:art)})"
     Node.connection.execute "UPDATE nodes SET log_at = curdate() + interval 6 day WHERE id IN (#{nodes_id(:projects)}, #{nodes_id(:cleanWater)})"
     Node.connection.execute "UPDATE nodes SET log_at = curdate() + interval 10 day WHERE id IN (#{nodes_id(:people)})"
-    do_test('relations', 'in_7_days')
+    yt_do_test('relations', 'in_7_days')
   end
   
   def test_relations_logged_7_days_ago
     Node.connection.execute "UPDATE nodes SET log_at = now() WHERE id IN (#{nodes_id(:status)}, #{nodes_id(:art)})"
     Node.connection.execute "UPDATE nodes SET log_at = curdate() - interval 6 day WHERE id IN (#{nodes_id(:projects)}, #{nodes_id(:cleanWater)})"
     Node.connection.execute "UPDATE nodes SET log_at = curdate() - interval 10 day WHERE id IN (#{nodes_id(:people)});"
-    do_test('relations', 'logged_7_days_ago')
+    yt_do_test('relations', 'logged_7_days_ago')
   end
   
   def test_relations_around_7_days
@@ -141,14 +139,14 @@ class ZenaParserTest < ZenaTestController
     Node.connection.execute "UPDATE nodes SET log_at = curdate() + interval 5 day WHERE id IN (#{nodes_id(:art)});"
     Node.connection.execute "UPDATE nodes SET log_at = curdate() - interval 6 day WHERE id IN (#{nodes_id(:projects)}, #{nodes_id(:cleanWater)});"
     Node.connection.execute "UPDATE nodes SET log_at = curdate() - interval 10 day WHERE id IN (#{nodes_id(:people)});"
-    do_test('relations', 'around_7_days')
+    yt_do_test('relations', 'around_7_days')
   end
   
   def test_relations_in_37_hours
     Node.connection.execute "UPDATE nodes SET log_at = #{Node.connection.quote(Time.now.utc)} WHERE id IN (#{nodes_id(:art)});" # art
     Node.connection.execute "UPDATE nodes SET log_at = curdate() + interval 36 hour WHERE id IN (#{nodes_id(:cleanWater)})"
     Node.connection.execute "UPDATE nodes SET log_at = curdate() + interval 38 hour WHERE id IN (#{nodes_id(:projects)}, 2);" # projects, people
-    do_test('relations', 'in_37_hours')
+    yt_do_test('relations', 'in_37_hours')
   end
   
   def test_relations_this_week
@@ -163,7 +161,7 @@ class ZenaParserTest < ZenaTestController
       Node.connection.execute "UPDATE nodes SET event_at = ADDDATE(curdate(), interval -2 day) WHERE id IN (#{nodes_id(:art)});" # status, art
       Node.connection.execute "UPDATE nodes SET event_at = ADDDATE(curdate(), interval -1 day) WHERE id IN (#{nodes_id(:projects)});" # projects, cleanWater
     end  
-    do_test('relations', 'this_week')    
+    yt_do_test('relations', 'this_week')    
   end
   
   def test_relations_this_month
@@ -178,7 +176,7 @@ class ZenaParserTest < ZenaTestController
       Node.connection.execute "UPDATE nodes SET event_at = ADDDATE(curdate(), interval -12 day) WHERE id IN (#{nodes_id(:art)});" # status, art
       Node.connection.execute "UPDATE nodes SET event_at = ADDDATE(curdate(), interval -5 day) WHERE id IN (#{nodes_id(:projects)});" # projects, cleanWater
     end  
-    do_test('relations', 'this_month')    
+    yt_do_test('relations', 'this_month')    
   end
   
   def test_relations_this_year
@@ -193,7 +191,7 @@ class ZenaParserTest < ZenaTestController
       Node.connection.execute "UPDATE nodes SET event_at = ADDDATE(curdate(), interval -2 month) WHERE id IN (#{nodes_id(:art)});" # status, art
       Node.connection.execute "UPDATE nodes SET event_at = ADDDATE(curdate(), interval -1 month) WHERE id IN (#{nodes_id(:projects)});" # projects, cleanWater
     end
-    do_test('relations', 'this_year')    
+    yt_do_test('relations', 'this_year')    
   end
   
   def test_relations_direction_both
@@ -204,7 +202,7 @@ class ZenaParserTest < ZenaTestController
       "(#{status},#{projects},#{relations_id(:node_has_references)})"
       ]
     Node.connection.execute "INSERT INTO links (`source_id`,`target_id`,`relation_id`) VALUES #{values.join(',')}"
-    do_test('relations', 'direction_both')
+    yt_do_test('relations', 'direction_both')
   end
   
   def test_relations_direction_both_self_auto_ref
@@ -216,7 +214,7 @@ class ZenaParserTest < ZenaTestController
       "(#{status},#{projects},#{relations_id(:node_has_references)})"
       ]
     Node.connection.execute "INSERT INTO links (`source_id`,`target_id`,`relation_id`) VALUES #{values.join(',')}"
-    do_test('relations', 'direction_both_self_auto_ref')
+    yt_do_test('relations', 'direction_both_self_auto_ref')
   end
   
   #def test_apphelper_calendar_from_project
@@ -225,7 +223,7 @@ class ZenaParserTest < ZenaTestController
   #  info  = secure!(Note) { Note.create(:name=>'hello', :parent_id=>nodes_id(:collections), :log_at=>'2007-06-22')}
   #  assert !info.new_record?
   #  assert_equal nodes_id(:zena), info[:project_id]
-  #  do_test('apphelper', 'calendar_from_project')
+  #  yt_do_test('apphelper', 'calendar_from_project')
   #end
   
   def test_basic_img_private_image
@@ -234,23 +232,24 @@ class ZenaParserTest < ZenaTestController
     node = secure!(Node) { nodes(:tree_jpg) }
     node.inherit = -1
     assert node.save
-    do_test('basic', 'img_private_image')
+    yt_do_test('basic', 'img_private_image')
   end
   
   def test_basic_recursion_in_each
     Node.connection.execute "UPDATE nodes SET max_status = 40 WHERE id = #{nodes_id(:status)}"
     Node.connection.execute "UPDATE versions SET status = 40 WHERE node_id = #{nodes_id(:status)}"
-    do_test('basic', 'recursion_in_each')
+    yt_do_test('basic', 'recursion_in_each')
   end
   
   def test_zazen_swf_button_player
     DocumentContent.connection.execute "UPDATE document_contents SET ext = 'mp3' WHERE id = #{document_contents_id(:water_pdf)}"
-    do_test('zazen', 'swf_button_player')
+    yt_do_test('zazen', 'swf_button_player')
   end
   
   def test_basic_captcha
     Site.connection.execute "INSERT INTO site_attributes (`key`,`value`,`owner_id`) VALUES ('recaptcha_pub','pubkey', #{sites_id(:zena)}), ('recaptcha_priv','privkey',#{sites_id(:zena)})"
-    do_test('basic', 'captcha')
+    yt_do_test('basic', 'captcha')
   end
-  make_tests
+  
+  yt_make
 end

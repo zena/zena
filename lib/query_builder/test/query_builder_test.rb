@@ -1,4 +1,5 @@
-require File.join(File.dirname(__FILE__) , '..', '..', 'yaml_test.rb')
+require 'rubygems'
+require 'yamltest'
 require File.join(File.dirname(__FILE__) , '..', 'lib', 'query_builder')
 require 'ruby-debug'
 Debugger.start
@@ -179,9 +180,10 @@ class TestUserQuery < QueryBuilder
 end
 
 class QueryTest < Test::Unit::TestCase
-  yaml_test
+  yamltest
   
-  def parse(key, source, opts)
+  def yt_parse(key, source, opts)
+    opts = Hash[*(opts.map{|k,v| [k.to_sym, v]}.flatten)]
     query = TestQuery.new(source, opts)
     
     case key
@@ -198,5 +200,5 @@ class QueryTest < Test::Unit::TestCase
     end
   end
   
-  make_tests
+  yt_make
 end

@@ -1,8 +1,8 @@
 require File.join(File.dirname(__FILE__), '..','test_helper')
-require File.join(File.dirname(__FILE__), '..','..','lib','yaml_test')
+require 'yamltest'
 begin
-  # require 'turn'
-  # Test::Unit::UI::Console::TestRunner.use_progressbar = true
+  require 'turn'
+  Test::Unit::UI::Console::TestRunner.use_progressbar = true
 rescue MissingSourceFile
   # ignore missing 'turn' testing gem
 end

@@ -1,12 +1,10 @@
 require File.join(File.dirname(__FILE__), "testhelp")
 
 class NodeQueryTest < ZenaTestUnit
-  yaml_test
+  yamltest
 
-  def do_test(file, test)
-    context = @@test_strings[file][test]['context'] || {}
-    default_context = (@@test_strings[file]['default'] || {})['context'] || {}
-    context = Hash[*default_context.merge(context).map{|k,v| [k.to_sym,v]}.flatten]
+  def yt_do_test(file, test)
+    context = Hash[*(yt_get('context', file, test).map{|k,v| [k.to_sym, v]}.flatten)]
     
     params = {}
     (context[:params] || {}).each do |k,v|
@@ -16,19 +14,19 @@ class NodeQueryTest < ZenaTestUnit
     $_test_site = params[:site] || 'zena'
     login context[:visitor].to_sym
     
-    query = Node.build_find(:all,@@test_strings[file][test]['src'] || test.gsub('_',' '), context)
+    query = Node.build_find(:all, yt_get('src', file, test), context)
     sql, errors, uses_node_name, node_class = query.to_sql, query.errors, query.uses_node_name, query.main_class
     class_prefix = (node_class != Node ? "#{node_class.to_s}: " : '')
     
-    if test_err = @@test_strings[file][test]['err']
-      assert_yaml_test test_err, class_prefix + errors.join(", ")
+    if test_err = yt_get('err', file, test)
+      yt_assert test_err, class_prefix + errors.join(", ")
     else
       sql ||= class_prefix + errors.join(", ")
-      if test_sql = @@test_strings[file][test]['sql']
+      if test_sql = yt_get('sql', file, test)
         test_sql.gsub!(/_ID\(([^\)]+)\)/) do
           ZenaTest::id($_test_site, $1)
         end
-        assert_yaml_test test_sql, class_prefix + sql
+        yt_assert test_sql, class_prefix + sql
       end
     
       if test_res = @@test_strings[file][test]['res']
@@ -44,9 +42,9 @@ class NodeQueryTest < ZenaTestUnit
             res = res ? res.map {|r| r[:name]}.join(', ') : ''
           end
           
-          assert_yaml_test test_res, class_prefix + res
+          yt_assert test_res, class_prefix + res
         else
-          assert_yaml_test test_res, class_prefix + errors.join(", ")
+          yt_assert test_res, class_prefix + errors.join(", ")
         end
       end
     end
@@ -114,5 +112,5 @@ class NodeQueryTest < ZenaTestUnit
     assert_equal 3, page.do_find(:count, eval("\"#{sql}\""))
   end
 
-  make_tests
+  yt_make
 end

@@ -1,7 +1,7 @@
+require 'rubygems'
 require 'test/unit'
-require 'yaml'
+require 'yamltest'
 require File.join(File.dirname(__FILE__) , '..', 'lib', 'parser')
-require File.join(File.dirname(__FILE__), '..','..','yaml_test')
 require 'ruby-debug'
 Debugger.start
 unless Module.const_defined?(:ActiveRecord)
@@ -81,7 +81,7 @@ class String
 end
 
 class ParserTest < Test::Unit::TestCase
-  yaml_test :files => [:zafu, :zafu_asset, :zafu_insight, :zazen] #, :options => {:latex => {:module => :zazen, :output => 'latex'}}
+  yamltest :files => [:zafu, :zafu_asset, :zafu_insight, :zazen] #, :options => {:latex => {:module => :zazen, :output => 'latex'}}
   @@test_parsers = {}
   @@test_options = {}
   
@@ -92,15 +92,15 @@ class ParserTest < Test::Unit::TestCase
     @@test_options[file] = opts
   end
   
-  def do_test(file, test)
+  def yt_do_test(file, test)
     res = @@test_parsers[file].new_with_url("/#{test.gsub('_', '/')}", :helper=>ParserModule::DummyHelper.new(@@test_strings[file])).render(@@test_options[file])
-    if @@test_strings[file][test]['res']
-      assert_yaml_test @@test_strings[file][test]['res'], res
+    if should_be = yt_get('res', file, test)
+      yt_assert should_be, res
     end
   end
   
   def test_single
-    do_test('zafu', 'only_hello')
+    yt_do_test('zafu', 'only_hello')
   end
   
   def test_zazen_image_no_image
@@ -169,5 +169,5 @@ class ParserTest < Test::Unit::TestCase
     assert_equal block, sub_block.root
   end
   
-  make_tests
+  yt_make
 end
