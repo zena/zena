@@ -62,52 +62,19 @@ class QueryBuilder
     parse_elements(@elements)
   end
   
-  def to_sql
+  def to_s(type = :find)
     return nil if !valid?
-    return "SELECT #{@main_table}.* FROM #{@main_table} WHERE 0" if @tables.empty? # all alternate queries invalid and 'ignore_warnings' set.
-    
-    table_list = []
-    @tables.each do |t|
-      table_name = t.split(/\s+/).last # objects AS ob1
-      if joins = @join_tables[table_name]
-        table_list << "#{t} #{joins.join(' ')}"
-      else
-        table_list << t
-      end
-    end
-    
-    group = @group
-    if !group && @distinct
-      group = @tables.size > 1 ? " GROUP BY #{table}.id" : " GROUP BY id"
-    end
-    
-    "SELECT #{@select.join(',')} FROM #{table_list.flatten.join(',')}" + (@where == [] ? '' : " WHERE #{@where.reverse.join(' AND ')}") + group.to_s + @order.to_s + @limit.to_s + @offset.to_s
+    return "[\"SELECT #{@main_table}.* FROM #{@main_table} WHERE 0\"]" if @tables.empty? # all alternate queries invalid and 'ignore_warnings' set.
+    statement, bind_values = build_statement(type)
+    "[#{[["\"#{statement}\""] + bind_values].join(', ')}]"
   end
   
-  def count_sql
+  def sql(bindings, type = :find)
     return nil if !valid?
-    return "SELECT COUNT(*) FROM #{@main_table} WHERE 0" if @tables.empty? # all alternate queries invalid and 'ignore_warnings' set.
-    
-    table_list = []
-    @tables.each do |t|
-      table_name = t.split(/\s+/).last # objects AS ob1
-      if joins = @join_tables[table_name]
-        table_list << "#{t} #{joins.join(' ')}"
-      else
-        table_list << t
-      end
-    end
-    
-    if @group =~ /GROUP\s+BY\s+(.+)/
-      # we need to COALESCE in order to count groups where $1 is NULL.
-      count_on = "COUNT(DISTINCT COALESCE(#{$1},0))"
-    elsif @distinct
-      count_on = "COUNT(DISTINCT #{table}.id)"
-    else
-      count_on = "COUNT(*)"
-    end
-    
-    "SELECT #{count_on} FROM #{table_list.flatten.join(',')}" + (@where == [] ? '' : " WHERE #{@where.reverse.join(' AND ')}")
+    return "SELECT #{@main_table}.* FROM #{@main_table} WHERE 0" if @tables.empty? # all alternate queries invalid and 'ignore_warnings' set.
+    statement, bind_values = build_statement(type)
+    connection = get_connection(bindings)
+    statement.gsub('?') { eval_bound_value(bind_values.shift, connection, bindings) }
   end
   
   def valid?
@@ -355,7 +322,7 @@ class QueryBuilder
         nil
       elsif (fld = map_literal(paginate, :ruby)) && (page_size = @limit[/ LIMIT (\d+)/,1])
         @page_size = [2,page_size.to_i].max
-        " OFFSET \#{((#{fld}.to_i > 0 ? #{fld}.to_i : 1)-1)*#{@page_size}}"
+        " OFFSET #{insert_bind("((#{fld}.to_i > 0 ? #{fld}.to_i : 1)-1)*#{@page_size}")}"
       else
         @errors << "invalid paginate clause '#{paginate}'"
         nil
@@ -522,6 +489,81 @@ class QueryBuilder
       end
     end
     
+    def build_statement(type = :find)
+      statement = type == :find ? find_statement : count_statement
+
+      # get bind variables
+      bind_values = []
+      statement.gsub!(/\[\[(.*?)\]\]/) do
+        bind_values << $1
+        '?'
+      end
+      [statement, bind_values]
+    end
+    
+    def find_statement
+      table_list = []
+      @tables.each do |t|
+        table_name = t.split(/\s+/).last # objects AS ob1
+        if joins = @join_tables[table_name]
+          table_list << "#{t} #{joins.join(' ')}"
+        else
+          table_list << t
+        end
+      end
+
+      group = @group
+      if !group && @distinct
+        group = @tables.size > 1 ? " GROUP BY #{table}.id" : " GROUP BY id"
+      end
+
+
+      "SELECT #{@select.join(',')} FROM #{table_list.flatten.join(',')}" + (@where == [] ? '' : " WHERE #{@where.reverse.join(' AND ')}") + group.to_s + @order.to_s + @limit.to_s + @offset.to_s
+    end
+    
+    def count_statement
+      table_list = []
+      @tables.each do |t|
+        table_name = t.split(/\s+/).last # objects AS ob1
+        if joins = @join_tables[table_name]
+          table_list << "#{t} #{joins.join(' ')}"
+        else
+          table_list << t
+        end
+      end
+
+      if @group =~ /GROUP\s+BY\s+(.+)/
+        # we need to COALESCE in order to count groups where $1 is NULL.
+        count_on = "COUNT(DISTINCT COALESCE(#{$1},0))"
+      elsif @distinct
+        count_on = "COUNT(DISTINCT #{table}.id)"
+      else
+        count_on = "COUNT(*)"
+      end
+
+      "SELECT #{count_on} FROM #{table_list.flatten.join(',')}" + (@where == [] ? '' : " WHERE #{@where.reverse.join(' AND ')}")
+    end
+    
+    # Adapted from Rail's ActiveRecord code. We need "eval" because
+    # QueryBuilder is a compiler and it has absolutely no knowledge
+    # of the running context.
+    def eval_bound_value(value_as_string, connection, bindings)
+      value      = eval(value_as_string, bindings)
+      if value.respond_to?(:map) && !value.kind_of?(String) #!value.acts_like?(:string)
+        if value.respond_to?(:empty?) && value.empty?
+          connection.quote(nil)
+        else
+          value.map { |v| connection.quote(v) }.join(',')
+        end
+      else
+        connection.quote(value)
+      end
+    end
+
+    def get_connection(bindings)
+      eval "#{main_class}.connection", bindings
+    end
+
     # ******** Overwrite these **********
     def class_from_table(table_name)
       Object
@@ -563,7 +605,7 @@ class QueryBuilder
     
     # Map a litteral value to be used inside a query
     def map_literal(value, env = :sql)
-      env == :sql ? value.inspect : value
+      env == :sql ? insert_bind(value.inspect) : value
     end
     
     
@@ -577,7 +619,7 @@ class QueryBuilder
     end
     
     def map_attr(fld)
-      fld.to_s.upcase
+      insert_bind(fld.to_s)
     end
     
     # ******** And maybe overwrite these **********
@@ -689,8 +731,8 @@ class QueryBuilder
 
       @tables  = []
       @join_tables = {}
-      @table_counter = {}
-      @where  = []
+      @table_counter  = {}
+      @where          = []
       # list of tables that need to be added for filter clauses (should be added only once per part)
       @needed_tables = {}
       # list of tables that need to be added through a join (should be added only once per part)
@@ -718,6 +760,10 @@ class QueryBuilder
     
     def clause_error(clause, rest, res)
       "invalid clause #{clause.inspect} near \"#{res[-2..-1]}#{rest[0..1]}\""
+    end
+    
+    def insert_bind(str)
+      "[[#{str}]]"
     end
     
     # Make sure all clauses are compatible (where_list is a list of strings, not arrays)

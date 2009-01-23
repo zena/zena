@@ -1,43 +1,43 @@
 simple:
   src: "objects where name = 'foo' in site"
-  res: "SELECT objects.* FROM objects WHERE objects.name = \"foo\""
+  res: "[\"SELECT objects.* FROM objects WHERE objects.name = ?\", \"foo\"]"
 
 recipients_that_are_clients:
   src: "recipients where kpath like 'NRCC%'"
-  res: "SELECT objects.* FROM objects,links WHERE objects.id = links.target_id AND links.relation_id = 4 AND links.source_id = ID AND objects.kpath LIKE \"NRCC%\""
+  res: "[\"SELECT objects.* FROM objects,links WHERE objects.id = links.target_id AND links.relation_id = 4 AND links.source_id = ? AND objects.kpath LIKE ?\", id, \"NRCC%\"]"
 
 pages_in_site_name_like:
   src: "letters where name like 'a%' in site"
-  res: "SELECT objects.* FROM objects WHERE objects.kpath LIKE 'NNL%' AND objects.name LIKE \"a%\""
+  res: "[\"SELECT objects.* FROM objects WHERE objects.kpath LIKE 'NNL%' AND objects.name LIKE ?\", \"a%\"]"
 
 pages_in_site_name_not_like:
   src: "letters where name not like 'a%' in site"
-  res: "SELECT objects.* FROM objects WHERE objects.kpath LIKE 'NNL%' AND objects.name NOT LIKE \"a%\""
+  res: "[\"SELECT objects.* FROM objects WHERE objects.kpath LIKE 'NNL%' AND objects.name NOT LIKE ?\", \"a%\"]"
 
 letters_group_by_name:
-  res: "SELECT objects.* FROM objects WHERE objects.kpath LIKE 'NNL%' AND objects.parent_id = ID GROUP BY objects.name"
+  res: "[\"SELECT objects.* FROM objects WHERE objects.kpath LIKE 'NNL%' AND objects.parent_id = ? GROUP BY objects.name\", id]"
 
 recipients_group_by_name:
-  res: "SELECT objects.* FROM objects,links WHERE objects.id = links.target_id AND links.relation_id = 4 AND links.source_id = ID GROUP BY objects.name"
+  res: "[\"SELECT objects.* FROM objects,links WHERE objects.id = links.target_id AND links.relation_id = 4 AND links.source_id = ? GROUP BY objects.name\", id]"
 
 custom_query_having:
   context:
     custom_query_group: test
   src: "abc where number > 12"
-  res: "SELECT a,34 AS number,c FROM test WHERE (34) > 12 AND 3 AND 2 AND 1 ORDER BY a"
+  res: "[\"SELECT a,34 AS number,c FROM test WHERE (34) > 12 AND 3 AND 2 AND 1 ORDER BY a\"]"
 
 equation_in_filter:
   src: "objects where event_at > REF_DATE + custom_a months"
-  res: "SELECT objects.* FROM objects WHERE objects.parent_id = ID AND objects.event_at > now() + INTERVAL objects.custom_a MONTH"
+  res: "[\"SELECT objects.* FROM objects WHERE objects.parent_id = ? AND objects.event_at > now() + INTERVAL objects.custom_a MONTH\", id]"
 
 equation_in_filter_date:
   src: "objects where event_at > '2006-04-01' + 6 week"
-  res: "SELECT objects.* FROM objects WHERE objects.parent_id = ID AND objects.event_at > \"2006-04-01\" + INTERVAL 6 WEEK"
+  res: "[\"SELECT objects.* FROM objects WHERE objects.parent_id = ? AND objects.event_at > ? + INTERVAL 6 WEEK\", id, \"2006-04-01\"]"
 
 equation_and_or_par:
   src: "objects where event_at > '2006-04-01' or name like 'foo%'"
-  res: "SELECT objects.* FROM objects WHERE objects.parent_id = ID AND (objects.event_at > \"2006-04-01\" OR objects.name LIKE \"foo%\")"
+  res: "[\"SELECT objects.* FROM objects WHERE objects.parent_id = ? AND (objects.event_at > ? OR objects.name LIKE ?)\", id, \"2006-04-01\", \"foo%\"]"
 
 equation_par:
   src: "objects where (1 > 2 and 2 > 3) or 4 = 5"
-  res: "SELECT objects.* FROM objects WHERE objects.parent_id = ID AND ((1 > 2 AND 2 > 3) OR 4 = 5)"
+  res: "[\"SELECT objects.* FROM objects WHERE objects.parent_id = ? AND ((1 > 2 AND 2 > 3) OR 4 = 5)\", id]"

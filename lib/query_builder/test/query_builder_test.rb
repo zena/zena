@@ -6,7 +6,7 @@ Debugger.start
 
 class TestQuery < QueryBuilder
   set_main_table 'objects'
-  set_main_class 'Object'
+  set_main_class 'DummyQueryClass'
   
   load_custom_queries File.join(File.dirname(__FILE__), 'custom_queries')
   
@@ -159,12 +159,6 @@ class TestUserQuery < QueryBuilder
     end
   end
   
-  # Map a litteral value to be used inside a query
-  def map_literal(value)
-    value.inspect
-  end
-  
-  
   # Overwrite this and take car to check for valid fields.
   def map_field(fld, table_name, context = nil)
     if ['id', 'name', 'first_name', 'node_id'].include?(fld)
@@ -173,14 +167,21 @@ class TestUserQuery < QueryBuilder
       # TODO: error, raise / ignore ?
     end
   end
-  
-  def map_attr(fld)
-    fld.to_s.upcase
-  end
+end
+
+class DummyQueryClass
+  def self.connection; self; end
+  def self.quote(obj); "[[#{obj}]]"; end
 end
 
 class QueryTest < Test::Unit::TestCase
   yamltest
+  
+  def id;         123;  end
+  def parent_id;  333;  end
+  def project_id; 9999; end
+  def connection; self; end
+  
   
   def yt_parse(key, source, opts)
     opts = Hash[*(opts.map{|k,v| [k.to_sym, v]}.flatten)]
@@ -188,13 +189,17 @@ class QueryTest < Test::Unit::TestCase
     
     case key
     when 'res'
-      (query.main_class != Object ? "#{query.main_class.to_s}: " : '') + if res = query.to_sql
+      (query.main_class != DummyQueryClass ? "#{query.main_class.to_s}: " : '') + if res = query.to_s
         res
       else
         query.errors.join(", ")
       end
+    when 'sql'
+      query.sql(binding)
     when 'count'
-      query.count_sql
+      query.to_s(:count)
+    when 'count_sql'
+      query.sql(binding, :count)
     else
       "parse not implemented for '#{key}' in query_builder_test.rb"
     end

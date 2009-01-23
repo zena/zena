@@ -44,7 +44,7 @@ class NodeQuery < QueryBuilder
   end
   
   def after_parse
-    @where.unshift "(\#{#{@node_name}.secure_scope('#{table}')})"
+    @where.unshift insert_bind("(#{@node_name}.secure_scope('#{table}'))")
     if @tables.include?('links')
       @select << "#{table('links')}.id AS link_id, links.status AS l_status, links.comment AS l_comment"
     elsif @errors_unless_safe_links
@@ -112,7 +112,7 @@ class NodeQuery < QueryBuilder
         # TODO: not implemented yet...
         return nil
       when 'visitor'
-        @where << "#{table}.id = \#{visitor.contact_id}"
+        @where << "#{table}.id = #{insert_bind("visitor.contact_id")}"
         return true
       end
       
@@ -185,12 +185,12 @@ class NodeQuery < QueryBuilder
         val_end   = $4 == '' ? '' : "+ #{$4.inspect}"
         case $2
         when 'visitor'
-          value = env == :sql ? "\#{Node.connection.quote(\#{#{val_start}Node.zafu_attribute(visitor.contact, #{$3.inspect})#{val_end}})}" : nil
+          value = env == :sql ? insert_bind("#{val_start}Node.zafu_attribute(visitor.contact, #{$3.inspect})#{val_end}") : nil
         when 'param'
-          value = env == :sql ? "\#{Node.connection.quote(#{val_start}params[:#{$3}].to_s#{val_end})}" : "params[:#{$3}]"
+          value = env == :sql ? insert_bind("#{val_start}params[:#{$3}].to_s#{val_end}") : "params[:#{$3}]"
         end
       else
-        value = env == :sql ? Node.connection.quote(value) : nil
+        value = env == :sql ? insert_bind(value) : nil
       end
     end
     
@@ -266,10 +266,10 @@ class NodeQuery < QueryBuilder
       case fld
       when 'project_id', 'section_id', 'discussion_id'
         @uses_node_name = true
-        "\#{#{@node_name}.get_#{fld}}"
+        insert_bind("#{@node_name}.get_#{fld}")
       when 'id', 'parent_id'
         @uses_node_name = true
-        "\#{#{@node_name}.#{fld}}"
+        insert_bind("#{@node_name}.#{fld}")
       else  
         # Node.zafu_readable?(fld)
         # bad parameter
@@ -286,7 +286,7 @@ class NodeQuery < QueryBuilder
         nil
       elsif (fld = map_literal("[param:#{paginate}]", :ruby)) && (page_size = @limit[/ LIMIT (\d+)/,1])
         @page_size = [2,page_size.to_i].max
-        " OFFSET \#{((#{fld}.to_i > 0 ? #{fld}.to_i : 1)-1)*#{page_size.to_i}}"
+        " OFFSET #{insert_bind("((#{fld}.to_i > 0 ? #{fld}.to_i : 1)-1)*#{page_size.to_i}")}"
       else
         @errors << "invalid paginate clause '#{paginate}'"
         nil
@@ -337,7 +337,7 @@ class NodeQuery < QueryBuilder
         elsif type == 'NODE_ATTR'
           attribute = value
           if Node.zafu_readable?(attribute)
-            "\#{Node.connection.quote(#{@node_name}.#{attribute})}"
+            insert_bind("#{@node_name}.#{attribute}")
           else
             @errors << "cannot read attribute '#{attribute}' in custom query"
             '-1'
@@ -345,7 +345,7 @@ class NodeQuery < QueryBuilder
         end
       end.gsub(/NODE_ID/) do
         @uses_node_name = true
-        "\#{#{@node_name}.id}"
+        insert_bind("#{@node_name}.id")
       end
     end
     

@@ -22,7 +22,7 @@ ignore_warnings:
   src:
     - 'letters'
     - 'foo'
-  res: "SELECT objects.* FROM objects WHERE objects.kpath LIKE 'NNL%' AND objects.parent_id = ID"
+  res: "[\"SELECT objects.* FROM objects WHERE objects.kpath LIKE 'NNL%' AND objects.parent_id = ?\", id]"
 
 ignore_warnings_all_bad:
   context:
@@ -30,7 +30,7 @@ ignore_warnings_all_bad:
   src:
     - 'baz'
     - 'foo'
-  res: "SELECT objects.* FROM objects WHERE 0"
+  res: "[\"SELECT objects.* FROM objects WHERE 0\"]"
 
 do_not_ignore_warnings:
   context:

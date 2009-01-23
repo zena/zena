@@ -1,12 +1,12 @@
 users_from_objects:
-  res: "TestUser: SELECT users.* FROM objects,users WHERE users.node_id = objects.id AND objects.parent_id = ID ORDER BY users.name ASC, users.first_name ASC"
+  res: "TestUser: [\"SELECT users.* FROM objects,users WHERE users.node_id = objects.id AND objects.parent_id = ? ORDER BY users.name ASC, users.first_name ASC\", id]"
 
 users_where_name_from_objects:
   src: "users where name eq 'bob' from objects"
-  res: "TestUser: SELECT users.* FROM objects,users WHERE users.name = \"bob\" AND users.node_id = objects.id AND objects.parent_id = ID ORDER BY users.name ASC, users.first_name ASC"
+  res: "TestUser: [\"SELECT users.* FROM objects,users WHERE users.name = ? AND users.node_id = objects.id AND objects.parent_id = ? ORDER BY users.name ASC, users.first_name ASC\", \"bob\", id]"
   
 objects_from_users_from_objects:
-  res: "TestUser: SELECT users.* FROM objects,users,objects AS ob1 WHERE ob1.id = users.node_id AND users.node_id = objects.id AND objects.parent_id = ID ORDER BY users.name ASC, users.first_name ASC"
+  res: "TestUser: [\"SELECT users.* FROM objects,users,objects AS ob1 WHERE ob1.id = users.node_id AND users.node_id = objects.id AND objects.parent_id = ? ORDER BY users.name ASC, users.first_name ASC\", id]"
 
 users:
-  res: "TestUser: SELECT users.* FROM users WHERE users.node_id = objects.id AND objects.parent_id = ID ORDER BY users.name ASC, users.first_name ASC"
+  res: "TestUser: [\"SELECT users.* FROM users WHERE users.node_id = objects.id AND objects.parent_id = ? ORDER BY users.name ASC, users.first_name ASC\", id]"
