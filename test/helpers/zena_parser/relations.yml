@@ -306,7 +306,7 @@ where_like:
   
 where_like_param:
   src: "<r:tagged where='name like \"%[param:tag]%\" and \"[param:tag]\" ne \"\"' in='site' or='self' do='each' join=',' do='[name]'/>"
-  tem: "/Node.connection.quote\(params\[:tag\].to_s\)\} <> ''"
+  tem: "/\? <> ''.*params\[:tag\].to_s/"
   res: "status"
   
 where_not:
@@ -339,7 +339,7 @@ many_or:
   
 hot_or_page:
   src: "<r:hot or='page in project'>...</r:hot>"
-  tem: "/:first.*.*links.relation_id = _ID(project_has_a_hot_element).*nodes.kpath LIKE 'NP%' AND nodes.project_id = #\{@node.get_project_id\}.*LIMIT 1"
+  tem: "/:first.*.*links.relation_id = _ID(project_has_a_hot_element).*nodes.kpath LIKE 'NP%' AND nodes.project_id = ?.*LIMIT 1.*@node.get_project_id"
   
 node_in_version:
   src: "<r:version><r:node do='[name]'/></r:version>"
@@ -347,7 +347,7 @@ node_in_version:
 
 where_with_param:
   src: "<r:nodes where='v_title like \"%[param:t]%\"' in='site'/>"
-  tem: "/versions.title LIKE \#\{Node.connection.quote\(\"%\" \+params\[:t\].to_s\+ \"%\"\)\}/"
+  tem: "/versions.title LIKE \?.*\"%\" \+params\[:t\].to_s\+ \"%\"/"
 
 group_by_secret_project:
   src: "<r:notes in='site' order='name ASC' do='group' by='project'><b do='project' do='[name]'/>: <r:each join=',' do='[name]'/></r:notes>"

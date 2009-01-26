@@ -84,9 +84,9 @@ class CommentQuery < QueryBuilder
     return 'nil' unless valid?
     case count
     when :count
-      "#{node_name}.do_find(:count, \"#{count_sql}\", #{!uses_node_name}, #{main_class})"
+      "#{node_name}.do_find(:count, #{to_s(:count)}, #{!uses_node_name}, #{main_class})"
     else
-      "#{node_name}.do_find(#{count.inspect}, \"#{to_sql}\", #{!uses_node_name}, #{main_class})"
+      "#{node_name}.do_find(#{count.inspect}, #{self.to_s}, #{!uses_node_name}, #{main_class})"
     end
   end
 end

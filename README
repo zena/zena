@@ -1,5 +1,5 @@
 == Zena
-CMS based on Ruby on Rails, (c) Gaspard Bucher, teti.ch 2007, licenced under MIT
+CMS based on Ruby on Rails, (c) Gaspard Bucher, teti.ch 2007-2009, licenced under MIT
 
 == Creating the database
 You need to set collation and charset to utf8 when creating the database. Example :

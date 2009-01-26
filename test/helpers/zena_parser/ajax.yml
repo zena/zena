@@ -68,7 +68,7 @@ each_add_with_form_klass_set:
 each_add_with_select:
   src: "<r:children><r:each do='[name]'/><r:add/><r:form><select name='icon_id' nodes='images in project' selected='[main.icon_id]_abc'/></r:form></r:children>"
   'each/add/en/with/select/list1_form.erb': '/map.|r| \[r.name, r.zip.to_s\]., \"#.@node.icon_zip._abc\"\)/'
-  tem: "/@node.do_find\(:all, \"SELECT nodes.* FROM nodes WHERE nodes.kpath LIKE 'NDI%'/"
+  tem: "/@node.do_find\(:all, \[\"SELECT nodes.* FROM nodes WHERE nodes.kpath LIKE 'NDI%'/"
 
 each_edit_with_form:
   context:
@@ -121,16 +121,16 @@ live_filter:
   context:
     node: cleanWater
   src: "<r:filter live='true'/><r:block><ol do='pages where name like \"[param:f]%\"'><li do='each' do='[name]'/></ol></r:block>"
-  tem: "/connection.quote\(params\[:f\]/"
-  'live/filter/en/list2.erb': "/<div id='<%= dom_id\(@node\) %>.*Node.connection.quote\(params\[:f\].*var1.name/"
+  tem: "/nodes.name LIKE \?.*, params\[:f\].to_s\+ \"%\"/"
+  'live/filter/en/list2.erb': "/<div id='<%= dom_id\(@node\) %>.*, params\[:f\].*var1.name/"
   res: "/<input type='text' name='f'.*<div id='list2'><ol><li>status</li><li>track</li></ol></div>/"
 
 live_filter_single_element:
   context:
     node: cleanWater
   src: "<r:filter live='true'/><r:block><r:page where='name like \"[param:f]%\"' find='first'><b do='[name]'/></r:page></r:block>"
-  tem: "/connection.quote\(params\[:f\]/"
-  'live/filter/en/single/element/list2.erb': "/<div id='<%= dom_id\(@node\) %>.*Node.connection.quote\(params\[:f\].*var1.name/"
+  tem: "/, params\[:f\].to_s/"
+  'live/filter/en/single/element/list2.erb': "/<div id='<%= dom_id\(@node\) %>.*params\[:f\].*var1.name/"
   res: "/<input type='text' name='f'.*<div id='list2'><b>status</b></div>/"
 
 live_filter_select_options:
@@ -138,7 +138,7 @@ live_filter_select_options:
     node: cleanWater
   src: "<r:filter live='true' do='select' name='f' values='1,2'/><r:block><ol do='pages where name like \"[param:f]%\"'><li do='each' do='[name]'/></ol></r:block>"
   tem: "/select name=.f.><%= options_for_select\(\[.1., .2.\], params\[:f\].to_s/"
-  'live/filter/en/list2.erb': "/<div id='<%= dom_id\(@node\) %>.*Node.connection.quote\(params\[:f\]/"
+  'live/filter/en/list2.erb': "/<div id='<%= dom_id\(@node\) %>.*, params\[:f\].to_s/"
   res: "/<select name='f'.*<div id='list2'><ol><li>status</li><li>track</li></ol></div>/"
 
 draggable_do_syntax:
