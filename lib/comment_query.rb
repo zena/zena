@@ -1,4 +1,4 @@
-require File.join(File.dirname(__FILE__) , 'query_builder', 'lib', 'query_builder')
+require 'querybuilder'
 
 class CommentQuery < QueryBuilder
   attr_reader :uses_node_name, :node_name

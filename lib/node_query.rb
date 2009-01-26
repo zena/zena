@@ -1,6 +1,8 @@
-require File.join(File.dirname(__FILE__) , 'query_builder', 'lib', 'query_builder')
-require 'yaml'
+require 'querybuilder'
 
+# Since NodeQuery uses a special scope (secure_scope) that needs to be evaluated _in the query string_, you cannot
+# use query.sql. You have to use: eval query.to_s. This is not an issue since normal useage for NodeQuery is to be
+# compilated into an ERB template.
 class NodeQuery < QueryBuilder
   attr_reader :context, :uses_node_name, :node_name
   set_main_table 'nodes'
@@ -44,7 +46,7 @@ class NodeQuery < QueryBuilder
   end
   
   def after_parse
-    @where.unshift insert_bind("(#{@node_name}.secure_scope('#{table}'))")
+    @where.unshift "(\#{#{@node_name}.secure_scope('#{table}')})"
     if @tables.include?('links')
       @select << "#{table('links')}.id AS link_id, links.status AS l_status, links.comment AS l_comment"
     elsif @errors_unless_safe_links
@@ -58,9 +60,9 @@ class NodeQuery < QueryBuilder
     return 'nil' unless valid?
     case count
     when :count
-      "#{node_name}.do_find(:count, \"#{count_sql}\", #{!uses_node_name}, #{main_class})"
+      "#{node_name}.do_find(:count, #{self.to_s(:count)}, #{!uses_node_name}, #{main_class})"
     else
-      "#{node_name}.do_find(#{count.inspect}, \"#{to_sql}\", #{!uses_node_name}, #{main_class})"
+      "#{node_name}.do_find(#{count.inspect}, #{self.to_s}, #{!uses_node_name}, #{main_class})"
     end
   end
   
@@ -190,7 +192,7 @@ class NodeQuery < QueryBuilder
           value = env == :sql ? insert_bind("#{val_start}params[:#{$3}].to_s#{val_end}") : "params[:#{$3}]"
         end
       else
-        value = env == :sql ? insert_bind(value) : nil
+        value = env == :sql ? quote(value) : nil
       end
     end
     
@@ -317,7 +319,7 @@ class NodeQuery < QueryBuilder
       @dyn_keys[table_name] ||= {}
       @dyn_keys[table_name][key] ||= begin
         needs_table('nodes', 'versions', "TABLE1.id = TABLE2.node_id")
-        dtable = needs_join_table('versions', 'LEFT', 'dyn_attributes', "TABLE1.id = TABLE2.owner_id AND TABLE2.key = '#{key.gsub(/[^a-z_A-Z]/,'')}'", "versions=dyn_attributes=#{key}")
+        dtable = needs_join_table('versions', 'LEFT', 'dyn_attributes', "TABLE1.id = TABLE2.owner_id AND TABLE2.key = #{quote(key)}", "versions=dyn_attributes=#{key}")
         "#{dtable}.value"
       end
     end
@@ -352,9 +354,14 @@ class NodeQuery < QueryBuilder
     def extract_custom_query(list)
       super.singularize
     end
+    
+    def quote(literal)
+      Node.connection.quote(literal)
+    end
 end
 
 
+# FIXME: do we need the ugly stuff below ?
 
 module Zena
   module Query
@@ -434,9 +441,9 @@ module Zena
         if rel.size == 1 && self.class.zafu_known_contexts[rel.first]
           self.send(rel.first)
         else
-          sql = Node.build_find(count, rel, :node_name => 'self').to_sql
-          if sql
-            do_find(count, eval("\"#{sql}\""))
+          query = Node.build_find(count, rel, :node_name => 'self')
+          if query.valid?
+            do_find(count, eval(query.to_s))
           else
             nil
           end
