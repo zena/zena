@@ -223,4 +223,12 @@ class SiteTest < ZenaTestUnit
     assert Site.attributes_for_form[:bool].include?(:authentication)
     assert Site.attributes_for_form[:text].include?(:default_lang)
   end
+  
+  def test_find_by_host
+    site1 = Site.find_by_host('test.host')
+    site2 = Site.find_by_host('test.host.')
+    assert_equal site1, site2
+    assert_equal "/test.host/public", site2.public_path
+    assert_equal "/test.host/public", site1.public_path
+  end
 end

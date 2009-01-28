@@ -171,7 +171,12 @@ class Site < ActiveRecord::Base
       site.instance_variable_set(:@being_created, false)
       site
     end
-  
+    
+    def find_by_host(host)
+      host = $1 if host =~ /^(.*)\.$/
+      self.find(:first, :conditions => ['host = ?', host]) rescue nil
+    end
+    
     # List of attributes that can be configured in the admin form
     def attributes_for_form
       @@attributes_for_form
