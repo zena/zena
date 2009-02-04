@@ -1,7 +1,7 @@
 class VirtualClass < ActiveRecord::Base
   belongs_to    :create_group, :class_name => 'Group', :foreign_key => 'create_group_id'
   validate      :valid_virtual_class
-  include Zena::Relations::ClassMethods
+  include Zena::Use::RelationsImpl::ClassMethods
   
   def to_s
     name

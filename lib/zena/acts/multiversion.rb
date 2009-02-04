@@ -1,14 +1,15 @@
 module Zena
   module Acts
-    module Multiversioned
+    module Multiversion
       # this is called when the module is included into the 'base' module
       def self.included(base)
         # add all methods from the module "AddActsAsMethod" to the 'base' module
-        base.extend AddActsAsMethod
+        base.extend AddActsAsMethods
       end
-      module AddActsAsMethod
+      
+      module AddActsAsMethods
         def acts_as_multiversioned
-          validate          :valid_redaction
+          validate          :valid_redaction?
           after_save        :save_version
           after_save        :after_all
           private
@@ -16,15 +17,46 @@ module Zena
           has_many :editions, :class_name=>"Version", :conditions=>"publish_from <= now() AND status = #{Zena::Status[:pub]}", :order=>'lang'
           public
           class_eval <<-END
-            include Zena::Acts::Multiversioned::InstanceMethods
+            alias :o_attributes= :attributes=
+            
+            include Zena::Acts::MultiversionImpl::InstanceMethods
+            @@object_for_prefix = {}
+            
+            
+            class << self
+              include Zena::Acts::MultiversionImpl::ClassMethods
+              def get_object_for_prefix(r)
+                @@object_for_prefix[r]
+              end
+              
+              def object_for_prefix(h)
+                @@object_for_prefix.merge!(h)
+              end
+            end
           END
+          object_for_prefix 'v' => Proc.new { |obj, red| red ? obj.version : obj.redaction }
+        end
+        
+        def act_as_content
+          class_eval do
+            def preload_version(v)
+              @version = v
+            end
+
+            def version
+              @version ||= Version.find(self[:version_id])
+            end
+          end
         end
       end
-      
-      
+    end
+    
+    module MultiversionImpl
       module InstanceMethods
-        def self.included(aClass)
-          aClass.extend ClassMethods
+        
+        def object_for_prefix(r, red = true)
+          proc = self.class.get_object_for_prefix(r)
+          proc ? proc.call(self, red) : nil
         end
         
         #def new_redaction?; version.new_record?; end
@@ -57,7 +89,7 @@ module Zena
         end
         
         # Try to set the node's version to a redaction. If lang is specified
-        def edit!(lang = nil, publish_after_save = false)
+        def edit!(lang = visitor.lang, publish_after_save = false)
           redaction(lang, publish_after_save)
         end
         
@@ -72,8 +104,11 @@ module Zena
           else
             trad = editions.find(:all, opts)
           end
+
+          # FIXME: we should not need to store node like this. Can be removed when we cache found records from their ids
+          # (using DataMapper or simply our visitor)
           trad.map! do |t|
-            t.node = self # make sure relation is kept and we do not reload a node that is not secured
+            t.set_node(self) # make sure relation is kept and we do not reload a node that is not secured
             t
           end
           trad == [] ? nil : trad
@@ -431,95 +466,24 @@ module Zena
         end
         
         def attributes=(attributes)
-          super @attributes_filtering_done ? attributes : filter_attributes(attributes)
+          attributes = filter_attributes(attributes.stringify_keys)
+          routes = route_attributes(attributes)
+          routes.each do |r, attrs|
+            set_attributes_for(r, attrs)
+          end
         end
         
-        private
-        
-        def do_update_attributes(new_attributes)
-          attributes = filter_attributes(new_attributes)
-          
-          publish_after_save = (attributes.delete('v_status').to_i == Zena::Status[:pub]) || current_site[:auto_publish]
-          redaction_attr = false
-          node_attr      = false
-          
-          attributes.each do |k,v|
-            next if k.to_s == 'id' # just ignore 'id' (cannot be set but is often around)
-            if k.to_s =~ /^(v_|c_|d_)/
-              redaction_attr = true
-            else
-              node_attr      = true
-            end
-            break if node_attr && redaction_attr
-          end
-          
-          if redaction_attr
-            return false unless edit!(nil, publish_after_save)
-          end
-          
-          if node_attr
-            # super class call (original rails update_attributes)
-            @attributes_filtering_done = true  # if anyone knows a better way to avoid filtering twice...
-            self.attributes = attributes
-            @attributes_filtering_done = false
-            ok = save
-          elsif attributes != {}
-            attributes.each do |k,v|
-              next if k.to_s == 'id' # just ignore 'id' (cannot be set but is often around)
-              self.send("#{k}=".to_sym, v)
-            end
-            valid_redaction
-            if errors.empty?
-              ok = save_version(false)
-            end
-            
-            if ok
-              # set updated at date
-              update_attribute_without_fuss(:updated_at, Time.now)
-            end
-          else
-            # nothing to update (only v_status)
-            ok = true
-          end
-          
-          if ok && publish_after_save
-            if v_status == Zena::Status[:pub]
-              ok = after_publish && after_all && update_publish_from
-            elsif can_apply?(:publish)
-              ok = apply(:publish)
-            elsif ok
-              ok = update_max_status && update_publish_from
-            end
-          elsif ok
-            ok = update_max_status && update_publish_from
-          end
-          ok
-        end
-        
-        def update_attribute_without_fuss(att, value)
-          self[att] = value
-          if value.kind_of?(Time)
-            value = value.strftime("'%Y-%m-%d %H:%M:%S'")
-          elsif value.nil?
-            value = "NULL"
-          else
-            value = "'#{value}'"
-          end
-          self.class.connection.execute "UPDATE #{self.class.table_name} SET #{att}=#{value} WHERE id=#{self[:id]}"
-        end
-
         # Find/create a redaction. If lang is specified, use it instead of the visitor's current language. If
         # publish_after_save is true and the current published version is not older then the site's redit_time and
         # the visitor is the author of the publication, update the publication instead of creating a new version.
-        def redaction(lang = nil, publish_after_save = false)
-          return @redaction if @redaction && (lang.nil? || lang == @redaction.lang)
+        def redaction(lang = visitor.lang, publish_after_save = false)
+          return @redaction if @redaction && (lang == @redaction.lang)
           redit = false
           if new_record?
             @redaction = version
           elsif version.lang == lang && version.status == Zena::Status[:red] && version.user_id == visitor[:id]
             @redaction = version
           else
-            lang ||= visitor.lang
             # is there a current redaction ?
             v = versions.find(:first, :conditions=>["status >= #{Zena::Status[:red]} AND status < #{Zena::Status[:prop]} AND lang=?", lang])
             if v == nil && can_write?
@@ -531,20 +495,15 @@ module Zena
                   v = version
                 end
               end
-              
+            
               if v == nil
                 # could not convert a publication into a redaction, new version
                 v = version.clone
-                v.status = Zena::Status[:red]
-                v.publish_from = v.created_at = nil
-                v.comment = v.number = ''
-                v.user_id = visitor[:id]
                 v.lang = lang
-                v[:content_id] = version[:content_id] || version[:id]
               end
             end
             v.node = self if v
-            
+          
             if v && (v.user_id == visitor[:id]) && (v.status == Zena::Status[:red] || redit)
               @old_title = @version.title # node sync_name leaking here...
               @redaction = @version = v
@@ -557,138 +516,223 @@ module Zena
             end
           end
         end
+
+        private
         
-        # Any attribute starting with 'v_' belongs to the 'version' or 'redaction'
-        # Any attribute starting with 'c_' belongs to the 'version' or 'redaction' content
-        # FIXME: performance: create methods on the fly so that next calls will not pass through 'method_missing'. #189.
-        def method_missing(meth, *args)
-          if meth.to_s =~ /^(v_|c_|d_)(([\w_\?]+)(=?))$/
-            target = $1
-            method = $2
-            value  = $3
-            mode   = $4
-            if mode == '='
-              begin
-                # set
-                unless recipient = redaction
-                  # remove trailing '='
-                  redaction_error(meth.to_s[0..-2], "could not be set (no redaction)")
-                  return
+          def route_attributes(attributes)
+            routes = {}
+            attributes.each do |k,v|
+              next if k.to_s == 'id' # just ignore 'id' (cannot be set but is often around)
+              if k.to_s =~ /^(\w)_(.+)$/
+                routes[$1] ||= {}
+                routes[$1][$2] = v
+              else
+                routes[''] ||= {}
+                routes[''][k] = v
+              end
+            end
+            routes
+          end
+          
+          def set_attributes_for(r, attrs)
+            if r == ''
+              self.o_attributes = attrs
+            else
+              if obj = object_for_prefix(r)
+                obj.attributes = attrs
+              else
+                attrs.each do |k,v|
+                  redaction_error("#{r}_#{k}", "cannot be set")
                 end
+              end
+            end
+          end
                 
-                case target
-                when 'c_'
-                  if recipient.content_class && recipient = recipient.redaction_content
-                    recipient.send(method,*args)
-                  else
-                    redaction_error(meth.to_s[0..-2], "cannot be set") # remove trailing '='
-                  end
-                when 'd_'
-                  recipient.dyn[method[0..-2]] = args[0]
-                else
-                  recipient.send(method,*args)
-                end
-              rescue NoMethodError
-                # bad attribute, just ignore
+        
+          def do_update_attributes(new_attributes)
+            attributes = filter_attributes(new_attributes)
+            attributes.delete('id')
+            
+            # TODO: should not hard code 'v_status' here...
+            publish_after_save = (attributes.delete('v_status').to_i == Zena::Status[:pub]) || current_site[:auto_publish]
+            routes = route_attributes(attributes)
+            
+            uses_redaction = (routes.keys - ['']) != []
+            
+            if uses_redaction
+              return false unless edit!(visitor.lang, publish_after_save)
+            end
+            
+            routes.each do |r, attrs|
+              set_attributes_for(r, attrs)
+            end
+            
+            if routes['']
+              ok = save
+            elsif uses_redaction
+              if ok = valid_redaction? && save_version(false)
+                # set updated at date on master record (node).
+                update_attribute_without_fuss(:updated_at, Time.now)
               end
             else
-              # read
-              recipient = version
-              if target == 'd_'
-                version.dyn[method]
-              else
-                recipient = recipient.content if target == 'c_'
-                return nil unless recipient
+              # nothing to update (only v_status)
+              ok = true
+            end
+          
+            if ok && publish_after_save
+              if v_status == Zena::Status[:pub]
+                ok = after_publish && after_all && update_publish_from
+              elsif can_apply?(:publish)
+                ok = apply(:publish)
+              elsif ok
+                ok = update_max_status && update_publish_from
+              end
+            elsif ok
+              ok = update_max_status && update_publish_from
+            end
+            ok
+          end
+        
+          def update_attribute_without_fuss(att, value)
+            self[att] = value
+            if value.kind_of?(Time)
+              value = value.strftime("'%Y-%m-%d %H:%M:%S'")
+            elsif value.nil?
+              value = "NULL"
+            else
+              value = "'#{value}'"
+            end
+            self.class.connection.execute "UPDATE #{self.class.table_name} SET #{att}=#{value} WHERE id=#{self[:id]}"
+          end
+
+          # Any attribute starting with 'v_' belongs to the 'version' or 'redaction'
+          # Any attribute starting with 'c_' belongs to the 'version' or 'redaction' content
+          # FIXME: performance: create methods on the fly so that next calls will not pass through 'method_missing'. #189.
+          # FIXME: this should not be used anymore. Remove.
+          def method_missing(meth, *args)
+            if meth.to_s =~ /^(v_|c_|d_)(([\w_\?]+)(=?))$/
+              target = $1
+              method = $2
+              value  = $3
+              mode   = $4
+              if mode == '='
                 begin
-                  recipient.send(method,*args)
+                  # set
+                  unless recipient = redaction
+                    # remove trailing '='
+                    redaction_error(meth.to_s[0..-2], "could not be set (no redaction)")
+                    return
+                  end
+                
+                  case target
+                  when 'c_'
+                    if recipient.content_class && recipient = recipient.redaction_content
+                      recipient.send(method,*args)
+                    else
+                      redaction_error(meth.to_s[0..-2], "cannot be set") # remove trailing '='
+                    end
+                  when 'd_'
+                    recipient.dyn[method[0..-2]] = args[0]
+                  else
+                    recipient.send(method,*args)
+                  end
                 rescue NoMethodError
-                  # bad attribute
-                  return nil
+                  # bad attribute, just ignore
+                end
+              else
+                # read
+                recipient = version
+                if target == 'd_'
+                  version.dyn[method]
+                else
+                  recipient = recipient.content if target == 'c_'
+                  return nil unless recipient
+                  begin
+                    recipient.send(method,*args)
+                  rescue NoMethodError
+                    # bad attribute
+                    return nil
+                  end
                 end
               end
-            end
-          else
-            super
-          end
-        end
-        
-        # Errors that occur while setting attributes from the form are recorded here.
-        def redaction_error(field, message)
-          @redaction_errors ||= []
-          @redaction_errors << [field, message]
-        end
-        
-        # Make sure the redaction is valid before we save anything.
-        def valid_redaction
-          if @version && !@version.valid?
-            merge_version_errors
-          end
-          if @redaction_errors
-            @redaction_errors.each do |k,v|
-              errors.add(k,v)
+            else
+              super
             end
           end
-        end
         
-        def merge_version_errors
-          unless @version.errors.empty?
-            @version.errors.each do |k,v|
-              if k.to_s =~ /^c_/
-                key = k.to_s
-              elsif k.to_s == 'base'
-                key = 'base'
-              else
-                key = "v_#{k}"
+          # Errors that occur while setting attributes from the form are recorded here.
+          def redaction_error(field, message)
+            @redaction_errors ||= []
+            @redaction_errors << [field, message]
+          end
+        
+          # Make sure the redaction is valid before we save anything.
+          def valid_redaction?
+            if @version && !@version.valid?
+              merge_version_errors
+            end
+            if @redaction_errors
+              @redaction_errors.each do |k,v|
+                errors.add(k,v)
               end
-              errors.add(key, v)
+            end
+            errors.empty?
+          end
+        
+          def merge_version_errors
+            unless @version.errors.empty?
+              @version.errors.each do |k,v|
+                if k.to_s =~ /^c_/
+                  key = k.to_s
+                elsif k.to_s == 'base'
+                  key = 'base'
+                else
+                  key = "v_#{k}"
+                end
+                errors.add(key, v)
+              end
             end
           end
-        end
         
-        def version_class
-          self.class.version_class
-        end
-        
-        def save_version(validations = true)
-          if validations
-            @version.save if (@version && @version.new_record?) || @redaction
-          else
-            @version.save_without_validation if (@version && @version.new_record?) || @redaction
-          end
-        end
-        
-        def set_on_create
-          # set kpath 
-          self[:kpath]    = self.class.kpath
-          self[:user_id]  = visitor[:id]
-          self[:ref_lang] = visitor.lang
-          version.user_id = visitor[:id]
-          version.lang    = visitor.lang if version.lang.blank?
-          version[:status]= Zena::Status[:pub] if current_site[:auto_publish]
-          version[:publish_from] ||= Time.now if version[:status] == Zena::Status[:pub]
-          true
-        end
-        
-        public
-        module ClassMethods
-          # PUT YOUR CLASS METHODS HERE
-          
-          # This is a callback from acts_as_multiversioned
           def version_class
-            Version
+            self.class.version_class
           end
-          
-          # Find a node based on a version id
-          def version(version_id)
-            version = Version.find(version_id.to_i)
-            node = self.find(version.node_id)
-            node.version = version
-            node.eval_with_visitor 'errors.add("base", "you do not have the rights to do this") unless version.status == 50 || can_drive? || version.user_id == visitor[:id]'
+        
+          def save_version(validations = true)
+            if validations
+              @version.save if (@version && @version.new_record?) || @redaction
+            else
+              @version.save_without_validation if (@version && @version.new_record?) || @redaction
+            end
           end
+        
+          def set_on_create
+            # set kpath 
+            self[:kpath]    = self.class.kpath
+            self[:user_id]  = visitor[:id]
+            self[:ref_lang] = visitor.lang
+            version.user_id = visitor[:id]
+            version.lang    = visitor.lang if version.lang.blank?
+            version[:status]= Zena::Status[:pub] if current_site[:auto_publish]
+            version[:publish_from] ||= Time.now if version[:status] == Zena::Status[:pub]
+            true
+          end
+      end
+      
+      module ClassMethods
+        # Default version class (should usually be overwritten)
+        def version_class
+          Version
+        end
+        
+        # Find a node based on a version id
+        def version(version_id)
+          version = Version.find(version_id.to_i)
+          node = self.find(version.node_id)
+          node.version = version
+          node.eval_with_visitor 'errors.add("base", "you do not have the rights to do this") unless version.status == 50 || can_drive? || version.user_id == visitor[:id]'
         end
       end
     end
   end
 end
-
-ActiveRecord::Base.send :include, Zena::Acts::Multiversioned

@@ -1,21 +1,8 @@
 module Zena
-  module ZafuExtension
-    module UseZafu
-      # this is called when the module is included into the 'base' module
+  module Use
+    module Zafu
       def self.included(base)
-        # add all methods from the module "AddActsAsMethod" to the 'base' module
-        base.extend Zena::ZafuExtension::TriggerClassMethod
-      end
-    end
-    
-    module ClassMethods
-      # .. (using eval for @@ scope)
-    end
-    
-    module TriggerClassMethod
-      def use_zafu
-        class_eval <<-END
-          include Zena::ZafuExtension::InstanceMethods
+        zafu_class_methods = <<-END
           @@_zafu_readable  ||= {} # defined for each class
           @@_safe_attribute ||= {} # defined for each class
           @@_zafu_context   ||= {} # defined for each class (list of methods to change contexts)
@@ -98,18 +85,15 @@ module Zena
             end
             self.zafu_readable_attributes.include?(sym.to_s)
           end
+          
+          def zafu_read(sym)
+            return "'\#{sym}' not readable" unless self.class.zafu_readable?(sym)
+            self.send(sym)
+          end
         END
-      end
-    end
-    
-    module InstanceMethods
-      def zafu_read(sym)
-        return "'#{sym}' not readable" unless self.class.zafu_readable?(sym)
-        self.send(sym)
+        
+        base.send(:class_eval, zafu_class_methods)
       end
     end
   end
 end
-
-ActiveRecord::Base.send :include, Zena::ZafuExtension::UseZafu
-ActiveRecord::Base.send :use_zafu

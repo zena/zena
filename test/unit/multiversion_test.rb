@@ -527,7 +527,6 @@ class MultiVersionTest < ZenaTestUnit
     assert node.update_attributes( :v_title => "Joli petit lac" )
     assert node.can_publish?
     assert node.publish
-    node = secure!(Node) { nodes(:lake)  } # reload
     assert_equal 2, node.editions.size, "English and french editions"
     assert_equal ["en", "fr"], node.traductions.map{|t| t[:lang]}.sort
   end

@@ -493,7 +493,8 @@ Just doing the above will filter all result according to the logged in user.
         def spread_inheritance(i = self[:id])
           base_class.connection.execute "UPDATE nodes SET rgroup_id='#{rgroup_id}', wgroup_id='#{wgroup_id}', pgroup_id='#{pgroup_id}', skin='#{skin}' WHERE #{ref_field(false)}='#{i}' AND inherit='1'"
           ids = nil
-          base_class.with_exclusive_scope do
+          # FIXME: remove 'with_exclusive_scope' once scopes are clarified and removed from 'secure'
+          base_class.send(:with_exclusive_scope) do
             ids = base_class.fetch_ids("SELECT id FROM #{base_class.table_name} WHERE #{ref_field(true)} = '#{i.to_i}' AND inherit='1'")
           end
           
@@ -526,7 +527,8 @@ Just doing the above will filter all result according to the logged in user.
         # List of elements using the current element as a reference. Used to update
         # the rwp groups if they inherit from the reference. Can be overwritten by sub-classes.
         def heirs
-          base_class.with_exclusive_scope do
+          # FIXME: remove 'with_exclusive_scope' once scopes are clarified and removed from 'secure'
+          base_class.send(:with_exclusive_scope) do
             base_class.find(:all, :conditions=>["#{ref_field(true)} = ? AND inherit='1'" , self[:id] ] ) || []
           end
         end
@@ -638,7 +640,16 @@ Just doing the above will filter all result according to the logged in user.
             scope[:find][:conditions] = find_scope
           end
           
-          result = klass.with_scope( scope ) { yield }
+          # FIXME: 'with_scope' is protected now. Can we live with something cleaner like this ?
+          # class AR::Base
+          #   def self.secure_find(...)
+          #      ...
+          #   end
+          # end
+          # 
+          # or better:
+          #  :conditions => '#{secure_scope}' (dynamically evaluated: single quotes)
+          result = klass.send(:with_scope, scope) { yield }
           
           klass.send(:scoped_methods).unshift last_scope if last_scope
           

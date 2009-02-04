@@ -145,7 +145,8 @@ class Document < Node
     # Make sure name is unique
     def document_before_validation
       # we are in a scope, we cannot just use the normal validates_... 
-      Node.with_exclusive_scope do
+      # FIXME: remove 'with_exclusive_scope' once scopes are clarified and removed from 'secure'
+      Node.send(:with_exclusive_scope) do
         if new_record? 
           cond = ["name = ? AND parent_id = ? AND kpath LIKE 'ND%'",              self[:name], self[:parent_id]]
         else

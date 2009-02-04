@@ -1,10 +1,13 @@
 require File.dirname(__FILE__) + '/../test_helper'
+require 'ruby-debug'
+Debugger.start
 
 class PageTest < ZenaTestUnit
   
   def test_create_just_v_title
     login(:tiger)
     node = secure!(Page) { Page.create(:parent_id=>nodes_id(:projects), :v_title=>'lazy node')}
+    err node
     assert !node.new_record?
     assert_equal 'lazyNode', node.name
     assert_equal 'lazy node', node.v_title

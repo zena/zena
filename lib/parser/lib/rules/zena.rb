@@ -3387,5 +3387,5 @@ module ActiveRecord
 end
 
 if defined?(RAILS_ENV)
-  load_zafu_rules_from_bricks
+  Bricks::Patcher.load_zafu
 end

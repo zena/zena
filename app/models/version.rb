@@ -28,7 +28,7 @@ If a we need to create a more sophisticated version class, all the required fiel
 #DocumentContent stores document type and size for #DocumentVersion. See #Document for the details on the relation between Version and Content.
 =end
 class Version < ActiveRecord::Base
-
+  
   zafu_readable      :title, :text, :summary, :comment, :created_at, :updated_at, :publish_from, :status, 
                      :wgroup_id, :pgroup_id, :zip, :lang, :user_zip
                      
@@ -37,7 +37,7 @@ class Version < ActiveRecord::Base
   belongs_to            :node
   belongs_to            :user
   before_validation     :version_before_validation
-  validates_presence_of :user
+  validates_presence_of :user, :site_id
   validate              :valid_version
   after_save            :save_content
   after_destroy         :destroy_content
@@ -60,6 +60,11 @@ class Version < ActiveRecord::Base
   
   def node
     @node ||= secure(Node) { o_node }
+  end
+  
+  # FIXME: This should not be needed ! Remove when find by id is cached.
+  def set_node(node)
+    @node ||= node
   end
   
   def user_zip
@@ -138,8 +143,24 @@ class Version < ActiveRecord::Base
   end
   
   def clone
-    obj = super
-    # clone dynamic attributes
+    attrs = attributes.merge({
+      'status'       => Zena::Status[:red],
+      'user_id'      => visitor.id,
+      'type'         => nil,
+      'node_id'      => nil,
+      'comment'      => nil,
+      'number'       => nil,
+      'publish_from' => nil,
+      'created_at'   => nil,
+      'updated_at'   => nil,
+      'content_id'   => nil
+    }).reject {|k,v| v.nil? || k =~ /_ok$/}
+    
+    obj = self.class.new(attrs)
+    obj[:content_id] = self[:content_id] || self[:id]
+    obj[:node_id]    = self[:node_id]
+    
+    # copy dynamic attributes
     obj.dyn = self.dyn
     obj
   end
@@ -190,7 +211,6 @@ class Version < ActiveRecord::Base
   
     # Make sure the version and it's related content are in a correct state.
     def valid_version
-      errors.add("site_id", "can't be blank") unless self[:site_id] and self[:site_id] != ""
       errors.add('lang', 'not valid') unless visitor.site.lang_list.include?(self[:lang])
       # validate content
       if @content && !@content.valid?

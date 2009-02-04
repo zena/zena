@@ -102,7 +102,7 @@ ImageMagick (on mac os X using macports)
 === 3. install Gems
 
 You can remove "--no-ri --no-rdoc" if you want the documentation
-    # gem install querybuilder rake hoe gettext mongrel mongrel_cluster rmagick tzinfo syntax mongrel_upload_progress uuidtools daemons json capistrano yamltest ruby-debug --no-ri --no-rdoc
+    # gem install querybuilder rake hoe mongrel mongrel_cluster rmagick tzinfo syntax mongrel_upload_progress uuidtools daemons json capistrano yamltest ruby-debug --no-ri --no-rdoc
 From source
 
 === Advised tools

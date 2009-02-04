@@ -158,8 +158,10 @@ class Node < ActiveRecord::Base
   attr_protected     :c_version_id, :c_node_id # TODO: test
   acts_as_secure_node
   acts_as_multiversioned
+  object_for_prefix 'c' => Proc.new { |obj, red| red ? obj.redaction.redaction_content : obj.version.content }
+  object_for_prefix 'd' => Proc.new { |obj, red| red ? obj.redaction.dyn : obj.version.dyn }
   use_node_query
-  has_relations
+  use_relations
   before_validation  :node_before_validation  # run our 'before_validation' after 'secure'
   
   @@native_node_classes = {'N' => self}
@@ -309,7 +311,8 @@ class Node < ActiveRecord::Base
       rescue NameError
         klass = Node
       end
-      node = klass.with_exclusive_scope do
+      # FIXME: remove 'with_exclusive_scope' once scopes are clarified and removed from 'secure'
+      node = klass.send(:with_exclusive_scope) do
         klass.find(:first, :conditions => ['site_id = ? AND name = ? AND parent_id = ?', 
                                           current_site[:id], attributes['name'].url_name, attributes['parent_id']])
       end
@@ -355,7 +358,8 @@ class Node < ActiveRecord::Base
         return node
       end
       node = if klass != self
-        klass.with_exclusive_scope(scope) { klass.create_instance(attributes) }
+        # FIXME: remove 'with_exclusive_scope' once scopes are clarified and removed from 'secure'
+        klass.send(:with_exclusive_scope, scope) { klass.create_instance(attributes) }
       else
         self.create_instance(attributes)
       end
@@ -549,7 +553,8 @@ class Node < ActiveRecord::Base
       if node.nil?
         path = path.split('/')
         last = path.pop
-        Node.with_exclusive_scope do
+        # FIXME: remove 'with_exclusive_scope' once scopes are clarified and removed from 'secure'
+        Node.send(:with_exclusive_scope) do
           node = Node.find(current_site[:root_id])
           path.each do |p|
             raise ActiveRecord::RecordNotFound unless node = Node.find_by_name_and_parent_id(p, node[:id])
@@ -579,6 +584,7 @@ class Node < ActiveRecord::Base
         count_select  = opts.delete(:count) || 'nodes.id'
       end
       
+      # FIXME: why do we need 'exclusive scope' here ?
       with_exclusive_scope(self.scoped_methods[0] || {}) do
         count_all = count(opts.merge( :select  => count_select, :order => nil, :group => nil ))
         if count_all > offset
@@ -767,6 +773,7 @@ class Node < ActiveRecord::Base
     end
   end
   
+  # FIXME: can we remove this ?
   def visitor
     return @visitor if @visitor
     raise Zena::RecordNotSecured.new("Visitor not set, record not secured.")
@@ -834,7 +841,7 @@ class Node < ActiveRecord::Base
   # Filter attributes before assignement.
   # Set name from version title if no name set yet.
   def filter_attributes(attributes)
-    if self[:name].blank? && attributes['name'].blank? && attributes['v_title']
+    if self.name.blank? && attributes['name'].blank? && attributes['v_title']
       attributes.merge('name' => attributes['v_title'])
     else
       attributes
@@ -1670,7 +1677,8 @@ class Node < ActiveRecord::Base
   
     # Find all children, whatever visitor is here (used to check if the node can be destroyed or to update section_id)
     def all_children
-      Node.with_exclusive_scope do
+      # FIXME: remove 'with_exclusive_scope' once scopes are clarified and removed from 'secure'
+      Node.send(:with_exclusive_scope) do
         Node.find(:all, :conditions=>['parent_id = ?', self[:id] ])
       end
     end
@@ -1679,7 +1687,8 @@ class Node < ActiveRecord::Base
       return true unless @clear_children_fullpath
       base_class.connection.execute "UPDATE nodes SET fullpath = NULL WHERE #{ref_field(false)}='#{i}'"
       ids = nil
-      base_class.with_exclusive_scope do
+      # FIXME: remove 'with_exclusive_scope' once scopes are clarified and removed from 'secure'
+      base_class.send(:with_exclusive_scope) do
         ids = base_class.fetch_ids("SELECT id FROM #{base_class.table_name} WHERE #{ref_field(true)} = '#{i.to_i}' AND inherit='1'")
       end
       
@@ -1714,4 +1723,5 @@ class Node < ActiveRecord::Base
     end
      
 end
-load_patches_from_bricks
+
+Bricks::Patcher.apply_patches

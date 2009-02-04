@@ -335,4 +335,4 @@ class Site < ActiveRecord::Base
     end
 end
 
-load_patches_from_bricks
+Bricks::Patcher.apply_patches

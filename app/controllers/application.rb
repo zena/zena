@@ -1,9 +1,14 @@
-require 'gettext/rails'
 require 'tempfile'
 require 'json'
+ActiveRecord::Base.send :include, Zena::Use::Zafu
+ActiveRecord::Base.send :include, Zena::Use::NodeQueryFinders
+ActiveRecord::Base.send :include, Zena::Use::Relations
+ActiveRecord::Base.send :include, Zena::Use::FindHelpers
+ActiveRecord::Base.send :include, Zena::Acts::Multiversion
+
+ActiveRecord::Base.send :use_find_helpers # find helpers for all models
 
 class ApplicationController < ActionController::Base
-  init_gettext 'zena'
   helper_method :prefix, :zen_path, :zen_url, :data_path, :node_url, :notes, :error_messages_for, :render_errors, :processing_error
   helper_method :get_template_text, :template_url_for_asset, :save_erb_to_url, :lang, :visitor, :fullpath_from_template_url, :eval_parameters_from_template_url, :format_date, :get_table_from_json, :find_node_by_pseudo
   before_filter :set_lang
@@ -972,8 +977,8 @@ END_MSG
 
 end
 
-load_models_from_bricks
-load_patches_from_bricks
+Bricks::Patcher.apply_patches
+Bricks::Patcher.load_bricks
 
 # FIXME: could we get rid of the zero_link ?
 NodeQuery.insert_zero_link(Link)

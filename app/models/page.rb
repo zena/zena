@@ -32,8 +32,9 @@ class Page < Node
       super
       
       # we are in a scope, we cannot just use the normal validates_... 
+      # FIXME: remove 'with_exclusive_scope' once scopes are clarified and removed from 'secure'
       test_same_name = nil
-      Node.with_exclusive_scope do
+      Node.send(:with_exclusive_scope) do
         if new_record? 
           cond = ["name = ? AND parent_id = ? AND kpath LIKE 'NP%'",              self[:name], self[:parent_id]]
         else

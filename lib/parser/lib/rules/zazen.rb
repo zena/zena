@@ -1,6 +1,6 @@
 require 'rubygems'
 require 'syntax/convertors/html'
-require 'redcloth'
+#require 'redcloth'
 require File.join(File.dirname(__FILE__) , 'code_syntax')
 
 module Zazen
