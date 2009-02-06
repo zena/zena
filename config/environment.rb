@@ -85,6 +85,8 @@ ActiveSupport::Inflector.inflections do |inflect|
   inflect.uncountable %w( children )
 end
 
+# All models can use attr_public
+ActiveRecord::Base.send(:include, Zena::Use::PublicAttributes)
 
 =begin
 #FIXME: remove all these hacks !

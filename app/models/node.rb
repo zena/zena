@@ -128,7 +128,7 @@ Setting 'custom_base' on a node should be done with caution as the node's zip is
 =end
 class Node < ActiveRecord::Base
   attr_accessor      :link, :old_title
-  zafu_readable      :name, :created_at, :updated_at, :event_at, :log_at, :kpath, :user_zip, :parent_zip, :project_zip,
+  attr_public        :name, :created_at, :updated_at, :event_at, :log_at, :kpath, :user_zip, :parent_zip, :project_zip,
                      :section_zip, :skin, :ref_lang, :fullpath, :rootpath, :position, :publish_from, :max_status, :rgroup_id, 
                      :wgroup_id, :pgroup_id, :basepath, :custom_base, :klass, :zip, :score, :comments_count, :l_status, :l_comment,
                      :custom_a, :custom_b, :title, :text,
@@ -155,11 +155,13 @@ class Node < ActiveRecord::Base
   after_save         :clear_children_fullpath
   after_create       :node_after_create
   attr_protected     :site_id, :zip, :id, :section_id, :project_id, :publish_from, :max_status
-  attr_protected     :c_version_id, :c_node_id # TODO: test
   acts_as_secure_node
   acts_as_multiversioned
-  object_for_prefix 'c' => Proc.new { |obj, red| red ? obj.redaction.redaction_content : obj.version.content }
-  object_for_prefix 'd' => Proc.new { |obj, red| red ? obj.redaction.dyn : obj.version.dyn }
+  include Zena::Use::RoutableAttributes # must come after acts_as_multiversioned so that filtering is done on raw hash
+  
+  attr_route %r{c_(\w+)} => Proc.new { |obj, attrs| if c = obj.redaction.redaction_content then c.attributes = attrs end }
+  attr_route %r{d_(\w+)} => Proc.new { |obj, attrs| obj.redaction.dyn.attributes = attrs }
+  
   use_node_query
   use_relations
   before_validation  :node_before_validation  # run our 'before_validation' after 'secure'
@@ -686,7 +688,7 @@ class Node < ActiveRecord::Base
         elsif ['v_publish_from', 'log_at', 'event_at'].include?(key)
           if attributes[key].kind_of?(Time)
             res[key] = attributes[key]
-          else
+          elsif attributes[key]
             # parse date
             res[key] = attributes[key].to_utc(_('datetime'), visitor.tz)
           end
@@ -773,9 +775,12 @@ class Node < ActiveRecord::Base
     end
   end
   
-  # FIXME: can we remove this ?
+  # Additional security so that unsecure finders explode when trying to update/save or follow relations.
   def visitor
     return @visitor if @visitor
+    # We need to be more tolerant during object creation since 'v_foo' can be
+    # set before 'visitor' and we need visitor.lang when creating versions.
+    return Thread.current.visitor if new_record?
     raise Zena::RecordNotSecured.new("Visitor not set, record not secured.")
   end
   

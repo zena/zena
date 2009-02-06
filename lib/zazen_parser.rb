@@ -1,0 +1,1 @@
+ZazenParser = Parser.parser_with_rules(Zazen::Rules, Zazen::Tags)

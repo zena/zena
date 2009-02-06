@@ -1,6 +1,8 @@
 module Zena
   module Acts
     module Multiversion
+      VERSION_ROUTE = Proc.new { |obj, attrs| redaction.attributes = attrs }
+      
       # this is called when the module is included into the 'base' module
       def self.included(base)
         # add all methods from the module "AddActsAsMethod" to the 'base' module
@@ -15,26 +17,13 @@ module Zena
           private
           has_many :versions, :order=>"number DESC",  :dependent => :destroy
           has_many :editions, :class_name=>"Version", :conditions=>"publish_from <= now() AND status = #{Zena::Status[:pub]}", :order=>'lang'
+          alias :attributes_without_filtering= :attributes=
+          attr_route %r{v_(\w+)} => VERSION_ROUTE
+          
           public
-          class_eval <<-END
-            alias :o_attributes= :attributes=
-            
+          class_eval do
             include Zena::Acts::MultiversionImpl::InstanceMethods
-            @@object_for_prefix = {}
-            
-            
-            class << self
-              include Zena::Acts::MultiversionImpl::ClassMethods
-              def get_object_for_prefix(r)
-                @@object_for_prefix[r]
-              end
-              
-              def object_for_prefix(h)
-                @@object_for_prefix.merge!(h)
-              end
-            end
-          END
-          object_for_prefix 'v' => Proc.new { |obj, red| red ? obj.version : obj.redaction }
+          end
         end
         
         def act_as_content
@@ -42,7 +31,8 @@ module Zena
             def preload_version(v)
               @version = v
             end
-
+            
+            # FIXME: replace by belongs_to :version ?
             def version
               @version ||= Version.find(self[:version_id])
             end
@@ -53,13 +43,6 @@ module Zena
     
     module MultiversionImpl
       module InstanceMethods
-        
-        def object_for_prefix(r, red = true)
-          proc = self.class.get_object_for_prefix(r)
-          proc ? proc.call(self, red) : nil
-        end
-        
-        #def new_redaction?; version.new_record?; end
         
         # VERSION
         def version=(v)
@@ -466,11 +449,7 @@ module Zena
         end
         
         def attributes=(attributes)
-          attributes = filter_attributes(attributes.stringify_keys)
-          routes = route_attributes(attributes)
-          routes.each do |r, attrs|
-            set_attributes_for(r, attrs)
-          end
+          self.attributes_without_filtering = filter_attributes(attributes.stringify_keys)
         end
         
         # Find/create a redaction. If lang is specified, use it instead of the visitor's current language. If
@@ -520,54 +499,44 @@ module Zena
         private
         
           def route_attributes(attributes)
+            next if k.to_s == 'id' # just ignore 'id' (cannot be set but is often around)
             routes = {}
             attributes.each do |k,v|
-              next if k.to_s == 'id' # just ignore 'id' (cannot be set but is often around)
-              if k.to_s =~ /^(\w)_(.+)$/
-                routes[$1] ||= {}
-                routes[$1][$2] = v
+              if self.respond_to?(:"#{k}=")
+                routes[nil] ||= {}
+                routes[nil][k] = v
+                next
+              end
+              if proc = self.class.write_attribute_handler(k)
+                routes[proc] ||= {}
+                routes[proc][$2] = v
               else
-                routes[''] ||= {}
-                routes[''][k] = v
+                # ignore bad attributes
               end
             end
             routes
-          end
-          
-          def set_attributes_for(r, attrs)
-            if r == ''
-              self.o_attributes = attrs
-            else
-              if obj = object_for_prefix(r)
-                obj.attributes = attrs
-              else
-                attrs.each do |k,v|
-                  redaction_error("#{r}_#{k}", "cannot be set")
-                end
-              end
-            end
-          end
-                
+          end   
         
           def do_update_attributes(new_attributes)
-            attributes = filter_attributes(new_attributes)
-            attributes.delete('id')
+            # TODO: ALL THIS IS NOT VERY DRY (taking stuff from attribute= and routable_attributes)
+            attributes = filter_attributes(new_attributes.stringify_keys)
             
             # TODO: should not hard code 'v_status' here...
             publish_after_save = (attributes.delete('v_status').to_i == Zena::Status[:pub]) || current_site[:auto_publish]
+            
             routes = route_attributes(attributes)
             
-            uses_redaction = (routes.keys - ['']) != []
+            uses_redaction = routes.map {|filter, proc| proc }.include?(VERSION_ROUTE)
             
             if uses_redaction
               return false unless edit!(visitor.lang, publish_after_save)
             end
             
-            routes.each do |r, attrs|
-              set_attributes_for(r, attrs)
+            routes.each do |proc, attrs|
+              proc.call(self, attrs)
             end
             
-            if routes['']
+            if self.changed?
               ok = save
             elsif uses_redaction
               if ok = valid_redaction? && save_version(false)
@@ -578,7 +547,7 @@ module Zena
               # nothing to update (only v_status)
               ok = true
             end
-          
+            
             if ok && publish_after_save
               if v_status == Zena::Status[:pub]
                 ok = after_publish && after_all && update_publish_from

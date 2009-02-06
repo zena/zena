@@ -29,9 +29,11 @@ If a we need to create a more sophisticated version class, all the required fiel
 =end
 class Version < ActiveRecord::Base
   
-  zafu_readable      :title, :text, :summary, :comment, :created_at, :updated_at, :publish_from, :status, 
+  # readable
+  attr_public        :title, :text, :summary, :comment, :created_at, :updated_at, :publish_from, :status, 
                      :wgroup_id, :pgroup_id, :zip, :lang, :user_zip
-                     
+  # writable
+  attr_accessible    :title, :text, :summary, :comment, :publish_from, :lang
   zafu_context       :author => "Contact", :user => "User", :node => "Node"
   
   belongs_to            :node

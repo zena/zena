@@ -12,7 +12,10 @@ content_type::    file content_type
 =end
 class DocumentContent < ActiveRecord::Base
   act_as_content
-  zafu_readable         :size, :name, :content_type, :ext
+  # readable
+  attr_public           :size, :name, :content_type, :ext
+  # writable
+  attr_accessible       nil, :file # TODO
   safe_attribute        :file
 
   belongs_to            :site

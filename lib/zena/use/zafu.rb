@@ -1,3 +1,21 @@
+# This is replaced by public_attributes
+
+# Only zafu_context definition is needed
+
+module Zena
+  module Use
+    module Zafu
+      def self.included(base)
+        base.send :class_eval do
+          def self.zafu_context(hash)
+            # dummy
+          end
+        end
+      end
+    end
+  end
+end
+=begin
 module Zena
   module Use
     module Zafu
@@ -97,3 +115,4 @@ module Zena
     end
   end
 end
+=end
