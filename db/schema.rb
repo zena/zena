@@ -143,8 +143,8 @@ ActiveRecord::Schema.define(:version => 0) do
   end
 
   create_table "groups_users", :id => false, :force => true do |t|
-    t.integer "group_id"
-    t.integer "user_id"
+    t.integer "group_id", :null => false
+    t.integer "user_id",  :null => false
   end
 
   create_table "iformats", :force => true do |t|
@@ -159,8 +159,8 @@ ActiveRecord::Schema.define(:version => 0) do
   end
 
   create_table "links", :force => true do |t|
-    t.integer "source_id"
-    t.integer "target_id"
+    t.integer "source_id",                 :null => false
+    t.integer "target_id",                 :null => false
     t.integer "relation_id"
     t.integer "status"
     t.string  "comment",     :limit => 60
@@ -172,7 +172,7 @@ ActiveRecord::Schema.define(:version => 0) do
     t.string   "kpath",        :limit => 16
     t.datetime "created_at"
     t.datetime "updated_at"
-    t.integer  "user_id"
+    t.integer  "user_id",                                        :null => false
     t.integer  "section_id"
     t.integer  "parent_id"
     t.string   "name",         :limit => 200
@@ -271,8 +271,8 @@ ActiveRecord::Schema.define(:version => 0) do
     t.string   "type",         :limit => 32
     t.datetime "created_at"
     t.datetime "updated_at"
-    t.integer  "node_id"
-    t.integer  "user_id"
+    t.integer  "node_id",                                     :null => false
+    t.integer  "user_id",                                     :null => false
     t.string   "lang",         :limit => 10,  :default => "", :null => false
     t.datetime "publish_from"
     t.text     "comment",                                     :null => false

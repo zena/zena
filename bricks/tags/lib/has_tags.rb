@@ -11,7 +11,7 @@ module Zena
       def has_tags
         after_save    :update_tags
         zafu_context  :tags => ["Link"]
-        zafu_readable :name, :tag_list, :tag
+        attr_public   :name, :tag_list, :tag
         
         class_eval <<-END
           include Zena::Tags::InstanceMethods

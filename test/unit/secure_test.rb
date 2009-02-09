@@ -6,7 +6,9 @@ class PagerDummy < Node
 end
 class SubPagerDummy < PagerDummy
 end
-class SecureReadTest < ZenaTestUnit
+class SecureReadTest < ActiveSupport::TestCase
+  include Zena::Test::Unit
+  def setup; User.make_visitor(:host=>'test.host', :id=>users_id(:anon)); end
   
   def test_kpath
     assert_equal 'N', Node.kpath
@@ -176,7 +178,9 @@ class SecureReadTest < ZenaTestUnit
   end
 end
 
-class SecureCreateTest < ZenaTestUnit
+class SecureCreateTest < ActiveSupport::TestCase
+  include Zena::Test::Unit
+  def setup; User.make_visitor(:host=>'test.host', :id=>users_id(:anon)); end
 
   def node_defaults
     {
@@ -499,7 +503,28 @@ class SecureCreateTest < ZenaTestUnit
   # testing is done in page_test or node_test
 end
 
-class SecureUpdateTest < ZenaTestUnit
+class SecureUpdateTest < ActiveSupport::TestCase
+  include Zena::Test::Unit
+  def setup; User.make_visitor(:host=>'test.host', :id=>users_id(:anon)); end
+  
+  def test_nodes_id
+    debugger
+    assert_equal "", nodes_id(:cleanWater)
+  end
+  
+  def create_simple_note(opts={})
+    login(opts[:login] || :ant)
+    # create new node
+    attrs =  {
+      :name => 'hello',
+      :parent_id   => nodes_id(:cleanWater),
+    }.merge(opts[:node] || {})
+    
+    node = secure!(Note) { Note.create(attrs) }
+    ref  = secure!(Node) { Node.find_by_id(attrs[:parent_id])}
+    
+    [node, ref]
+  end
   
   # VALIDATE ON UPDATE TESTS
   # 1. if pgroup changed from old, make sure user could do this and new group is valid
@@ -809,20 +834,6 @@ class SecureUpdateTest < ZenaTestUnit
     assert node.errors.empty? , "Errors empty"
   end
   
-  def create_simple_note(opts={})
-    login(opts[:login] || :ant)
-    # create new node
-    attrs =  {
-      :name => 'hello',
-      :parent_id   => nodes_id(:cleanWater),
-    }.merge(opts[:node] || {})
-    
-    node = secure!(Note) { Note.create(attrs) }
-    ref  = secure!(Node) { Node.find_by_id(attrs[:parent_id])}
-    
-    [node, ref]
-  end
-  
   #     a. can change to 'inherit' if can_drive?
   #     b. can change to 'private' if can_manage?
   #     c. can change to 'custom'  if can_visible?
@@ -989,7 +1000,9 @@ class SecureUpdateTest < ZenaTestUnit
 end
 
 
-class SecureVisitorStatusTest < ZenaTestUnit
+class SecureVisitorStatusTest < ActiveSupport::TestCase
+  include Zena::Test::Unit
+  def setup; User.make_visitor(:host=>'test.host', :id=>users_id(:anon)); end
   def test_reader_cannot_write
     login(:whale)
     assert_equal visitor.status, User::Status[:admin]

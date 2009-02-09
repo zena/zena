@@ -1,6 +1,8 @@
 require File.dirname(__FILE__) + '/../../../../test/test_helper'
 
-class TagsTest < ZenaTestUnit
+class TagsTest < ActiveSupport::TestCase
+  include Zena::Test::Unit
+  def setup; User.make_visitor(:host=>'test.host', :id=>users_id(:anon)); end
 
   def test_tag
     login(:tiger)

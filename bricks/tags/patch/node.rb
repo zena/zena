@@ -2,7 +2,7 @@ unless defined?(Node.ancestors.include?('Zena::Use::RelationsImpl::ClassMethods'
   raise Exception.new("tags brick depends on 'use_relations'")
 end
 Node.send(:has_tags)
-Link.send(:zafu_readable, :name)
+Link.send(:attr_public, :name)
 
 class Link
   def name

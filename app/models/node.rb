@@ -127,6 +127,7 @@ and the 'photos' url is now in the worldTour project's basepath:
 Setting 'custom_base' on a node should be done with caution as the node's zip is on longer in the url and when you move the node around, there is no way to find the new location from the old url. Custom_base should therefore only be used for nodes that are not going to move.
 =end
 class Node < ActiveRecord::Base
+  include Zena::Use::RoutableAttributes
   attr_accessor      :link, :old_title
   attr_public        :name, :created_at, :updated_at, :event_at, :log_at, :kpath, :user_zip, :parent_zip, :project_zip,
                      :section_zip, :skin, :ref_lang, :fullpath, :rootpath, :position, :publish_from, :max_status, :rgroup_id, 
@@ -155,15 +156,18 @@ class Node < ActiveRecord::Base
   after_save         :clear_children_fullpath
   after_create       :node_after_create
   attr_protected     :site_id, :zip, :id, :section_id, :project_id, :publish_from, :max_status
+  
   acts_as_secure_node
   acts_as_multiversioned
-  include Zena::Use::RoutableAttributes # must come after acts_as_multiversioned so that filtering is done on raw hash
+  accepts_nested_attributes_for :redaction
   
-  attr_route %r{c_(\w+)} => Proc.new { |obj, attrs| if c = obj.redaction.redaction_content then c.attributes = attrs end }
-  attr_route %r{d_(\w+)} => Proc.new { |obj, attrs| obj.redaction.dyn.attributes = attrs }
+  attr_route %r{^v_(\w+)} => 'redaction'
+  attr_route %r{^c_(\w+)} => 'redaction/content'
+  attr_route %r{^d_(\w+)} => 'redaction/dyn'
   
   use_node_query
   use_relations
+  
   before_validation  :node_before_validation  # run our 'before_validation' after 'secure'
   
   @@native_node_classes = {'N' => self}
@@ -841,16 +845,6 @@ class Node < ActiveRecord::Base
   # Update a node's attributes, transforming the attributes first from the visitor's context to Node context.
   def update_attributes_with_transformation(new_attributes)
     update_attributes(secure(Node) {Node.transform_attributes(new_attributes, self)})
-  end
-  
-  # Filter attributes before assignement.
-  # Set name from version title if no name set yet.
-  def filter_attributes(attributes)
-    if self.name.blank? && attributes['name'].blank? && attributes['v_title']
-      attributes.merge('name' => attributes['v_title'])
-    else
-      attributes
-    end
   end
   
   # Replace [id], [v_title], etc in attributes values

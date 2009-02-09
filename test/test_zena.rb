@@ -22,6 +22,7 @@ module Zena
         Node.connection.execute "ALTER TABLE versions ENGINE = InnoDB;"
       end
       
+      # Our version of loaded fixtures to help define "users_id", "nodes_id" and such.
       @@loaded_fixtures = {}
       fixture_table_names = []
       
@@ -30,7 +31,7 @@ module Zena
         puts "No fixtures in 'test/fixtures'. Building from 'test/sites'."
         `cd #{RAILS_ROOT} && rake zena:build_fixtures`
       end
-      
+
       Dir.foreach(FIXTURE_PATH) do |file|
         next unless file =~ /^(.+)\.yml$/
         table_name = $1
@@ -89,7 +90,7 @@ module Zena
           end
         end
       end
-
+      
       fixtures = Fixtures.create_fixtures(FIXTURE_PATH, fixture_table_names)
       unless fixtures.nil?
         if fixtures.instance_of?(Fixtures)
@@ -152,7 +153,7 @@ module Zena
       def with_caching
         @perform_caching_bak = ApplicationController.perform_caching
         ApplicationController.perform_caching = true
-        Cache.perform_caching = true
+        Cache.perform_caching      = true
         CachedPage.perform_caching = true
         yield
       ensure
@@ -412,21 +413,15 @@ class Test::Unit::TestCase
   undef default_test
 end
 
-class ZenaTestUnit < Test::Unit::TestCase
+class ZenaTestUnit < ActiveSupport::TestCase
   include Zena::Test::Unit
-  def setup; super; User.make_visitor(:host=>'test.host', :id=>users_id(:anon)); end
-  def self.use_transactional_fixtures; true; end
-  def self.use_instantiated_fixtures; false; end
+  def setup; User.make_visitor(:host=>'test.host', :id=>users_id(:anon)); end
 end
 
 class ZenaTestHelper < Test::Unit::TestCase
   include Zena::Test::TestHelper
-  def self.use_transactional_fixtures; true; end
-  def self.use_instantiated_fixtures; false; end
 end
 
 class ZenaTestController < Test::Unit::TestCase
   include Zena::Test::TestController
-  def self.use_transactional_fixtures; true; end
-  def self.use_instantiated_fixtures; false; end
 end

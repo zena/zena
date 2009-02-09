@@ -1,5 +1,4 @@
 class DocumentsController < ApplicationController
-  session :off, :only => :upload_progress
   before_filter :find_node, :except => [ :file_form, :upload_progress ]
   
   skip_before_filter :set_lang,      :only => :upload_progress

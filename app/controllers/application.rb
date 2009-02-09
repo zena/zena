@@ -1,12 +1,5 @@
 require 'tempfile'
 require 'json'
-ActiveRecord::Base.send :include, Zena::Use::Zafu
-ActiveRecord::Base.send :include, Zena::Use::NodeQueryFinders
-ActiveRecord::Base.send :include, Zena::Use::Relations
-ActiveRecord::Base.send :include, Zena::Use::FindHelpers
-ActiveRecord::Base.send :include, Zena::Acts::Multiversion
-
-ActiveRecord::Base.send :use_find_helpers # find helpers for all models
 
 class ApplicationController < ActionController::Base
   helper_method :prefix, :zen_path, :zen_url, :data_path, :node_url, :notes, :error_messages_for, :render_errors, :processing_error
@@ -978,7 +971,6 @@ END_MSG
 end
 
 Bricks::Patcher.apply_patches
-Bricks::Patcher.load_bricks
 
 # FIXME: could we get rid of the zero_link ?
 NodeQuery.insert_zero_link(Link)

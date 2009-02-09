@@ -16,7 +16,9 @@ class DocumentContent < ActiveRecord::Base
   attr_public           :size, :name, :content_type, :ext
   # writable
   attr_accessible       nil, :file # TODO
-  safe_attribute        :file
+  
+  # FIXME: use attr_accessible !
+  #safe_attribute        :file
 
   belongs_to            :site
   validate              :valid_file

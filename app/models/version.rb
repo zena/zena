@@ -44,6 +44,7 @@ class Version < ActiveRecord::Base
   after_save            :save_content
   after_destroy         :destroy_content
   before_create         :set_number
+
   uses_dynamic_attributes
   
   class << self
@@ -57,13 +58,7 @@ class Version < ActiveRecord::Base
   def author
     user.contact
   end
-  
-  alias o_node node
-  
-  def node
-    @node ||= secure(Node) { o_node }
-  end
-  
+    
   # FIXME: This should not be needed ! Remove when find by id is cached.
   def set_node(node)
     @node ||= node
@@ -75,15 +70,6 @@ class Version < ActiveRecord::Base
   
   def zip
     "#{node.zip}.#{number}"
-  end
-  
-  # Return the title or the node's name if the field is empty.
-  def title
-    if self[:title] && self[:title] != ""
-      self[:title]
-    else
-      node[:name]
-    end
   end
   
   # protect access to node_id : should not be changed by users
@@ -171,6 +157,14 @@ class Version < ActiveRecord::Base
     self.class.content_class
   end
   
+  def content_attributes=(h)
+    if redaction_content
+      redaction_content.attributes = h
+    else
+      # ignore
+    end
+  end
+  
   private
     def set_number
       last_record = node[:id] ? self.connection.select_one("select number from #{self.class.table_name} where node_id = '#{node[:id]}' ORDER BY number DESC LIMIT 1") : nil
@@ -192,20 +186,20 @@ class Version < ActiveRecord::Base
   
     # Set version number and site_id before validation tests.
     def version_before_validation
-      unless node
-        errors.add('base', 'node missing')
-        return false
-      end
-      self[:site_id] = node[:site_id]
+      self[:site_id] = visitor.site.id
     
       # [ why do we need these defaults now ? (since rails 1.2)
-      self[:text]    ||= ""
-      self[:title]   ||= node[:name]
-      self[:summary] ||= ""
-      self[:comment] ||= ""
-      self[:type]    ||= self.class.to_s
-      # ]
-      self[:lang] = visitor.lang if self[:lang].blank?
+      self.text    ||= ""
+      self.title     = node.name if self.title.blank?
+      self.summary ||= ""
+      self.comment ||= ""
+      self.type    ||= self.class.to_s
+      
+      self.lang      = visitor.lang if self.lang.blank?
+      self.status  ||= current_site.auto_publish? ? Zena::Status[:pub] : Zena::Status[:red]
+      self.publish_from ||= Time.now if self.status == Zena::Status[:pub]
+      self.user_id = visitor[:id] if new_record?
+      
       if @content
         @content[:site_id] = self[:site_id]
       end

@@ -2,7 +2,8 @@ require File.dirname(__FILE__) + '/../test_helper'
 require 'ruby-debug'
 Debugger.start
 
-class PageTest < ZenaTestUnit
+class PageTest < ActiveSupport::TestCase
+  include Zena::Test::Unit
   
   def test_create_just_v_title
     login(:tiger)
@@ -32,6 +33,7 @@ class PageTest < ZenaTestUnit
     with_caching do
       login(:tiger)
       node = secure!(Page) { Page.create(:parent_id=>nodes_id(:cleanWater), :name=>'wiki')}
+      err node
       assert ! node.new_record?, 'Not a new record'
       assert_nil node.errors[:name]
     end

@@ -1,6 +1,8 @@
 require File.dirname(__FILE__) + '/../test_helper'
 
-class ImageContentTest < ZenaTestUnit
+class ImageContentTest < ActiveSupport::TestCase
+  include Zena::Test::Unit
+  def setup; User.make_visitor(:host=>'test.host', :id=>users_id(:anon)); end
   
   if Magick.const_defined?(:ZenaDummy)
     def test_set_file

@@ -5,7 +5,9 @@ class CachedPage
     @expire_with = (200 * rand).to_i.times { ids << (500000 * rand).to_i}
   end
 end
-class CachedPageTest < ZenaTestUnit
+class CachedPageTest < ActiveSupport::TestCase
+  include Zena::Test::Unit
+  def setup; User.make_visitor(:host=>'test.host', :id=>users_id(:anon)); end
 
   def test_create
     without_files('test.host/public') do

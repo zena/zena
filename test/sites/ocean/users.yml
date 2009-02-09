@@ -1,10 +1,11 @@
 DEFAULTS:
   created_at:      2006-04-11
   updated_at:      2006-04-11
-
+    
 incognito:
   first_name:      Miss
   name:            Incognito
+  groups:          public
 
 ocean_su:
   first_name:      Hyper
@@ -17,9 +18,11 @@ whale:
   name:            Whale
   login:           whale
   password:        <%= User.hash_password('whale') %>
+  groups:          public, aqua, masters
 
 messy:
   first_name:      Very
   name:            Messy
   login:           messy
   password:        <%= User.hash_password('messy') %>
+  groups:          aqua, masters

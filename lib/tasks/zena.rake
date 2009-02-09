@@ -149,7 +149,7 @@ namespace :zena do
       paths  = {'zena' => 'db/migrate'}
       bricks = ['zena']
 
-      foreach_brick do |brick_path|
+      Bricks::Patcher.foreach_brick do |brick_path|
         brick_name = brick_path.split('/').last
         migration_path = File.join(brick_path, 'migrate')
         next unless File.exist?(migration_path) && File.directory?(migration_path)

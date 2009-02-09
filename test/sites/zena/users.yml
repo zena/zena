@@ -5,6 +5,7 @@ DEFAULTS:
 anon:
   first_name:      Anonymous
   name:            User
+  groups:          public
 
 su:
   login:           su
@@ -19,6 +20,7 @@ ant:
   login:           ant
   password:        <%= User.hash_password('ant') %>
   time_zone:       Europe/Zurich
+  groups:          public, workers
 
 tiger:
   first_name:      Panther
@@ -26,6 +28,7 @@ tiger:
   email:           tiger@zenadmin.info
   login:           tiger
   password:        <%= User.hash_password('tiger') %>
+  groups:          public, workers, managers
 
 lion:
   first_name:      Panthera
@@ -33,3 +36,4 @@ lion:
   email:           lion@zenadmin.info
   login:           lion
   password:        <%= User.hash_password('lion') %>
+  groups:          public, workers, admin

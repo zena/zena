@@ -200,6 +200,10 @@ module Zena
           end
         end
         
+        def dyn_attributes=(attributes)
+          dyn.attributes = attributes
+        end
+        
         private
           def save_dynamic_attributes
             @dyn_attributes.save if @dyn_attributes

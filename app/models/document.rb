@@ -34,7 +34,7 @@ c_content_type:: file content-type
 # should be a sub-class of Node, not Page (#184). Write a migration, fix fixtures and test.
 class Document < Node
   
-  zafu_readable      :filename
+  attr_public        :filename
   
   before_validation :document_before_validation
   

@@ -1,5 +1,5 @@
 class Contact < Reference
-  zafu_readable      :fullname, :initials
+  attr_public        :fullname, :initials
   
   class << self
     

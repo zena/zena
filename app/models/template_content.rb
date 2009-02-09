@@ -1,6 +1,8 @@
 class TemplateContent < ActiveRecord::Base
-  zafu_readable   :tkpath, :ext, :format, :content_type, :filename, :mode, :klass, :skin_name
-  safe_attribute  :file
+  attr_public     :tkpath, :ext, :format, :content_type, :filename, :mode, :klass, :skin_name
+  
+  # FIXME: use attr_accessible !
+  #safe_attribute  :file
   
   attr_protected :tkpath
   belongs_to :node
