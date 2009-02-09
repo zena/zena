@@ -90,9 +90,9 @@ module Zena
       def new(table_name, opts={})
         class_name = "Foxy#{table_name.to_s.camelcase}Parser"
         begin
-          klass = Module.const_get(class_name)
-          raise NameError unless klass.ancestors.include?(FoxyParser)
-        rescue NameError
+          klass = eval(class_name) # Module.const_get not working for some strange reason...
+          raise ArgumentError unless klass.ancestors.include?(FoxyParser)
+        rescue ArgumentError
           klass = self
         end
         klass.o_new(table_name.to_s, opts)
@@ -320,6 +320,31 @@ module Zena
       end
   end
   
+  class FoxyUsersParser < FoxyParser
+    
+    def insert_headers
+      user  = elements[name]
+      super
+      out_pair('groups', user['groups']) if user['groups']
+    end
+    
+    private
+    
+      def ignore_key?(k)
+                 # use our built default
+        super || ['groups'].include?(k)
+      end
+      
+      def set_defaults
+        super
+        elements.each do |name,values|
+          if groups = values['groups']
+            values['groups'] = groups.split(',').map {|g| "#{site}_#{g.strip}"}.join(', ')
+          end
+        end
+      end
+  end
+  
   class FoxyNodesParser < FoxyParser
     attr_reader :virtual_classes, :max_status, :publish_from, :zip_counter
     
@@ -356,15 +381,15 @@ module Zena
             node['type']  = eval(vc['real_class'])
             node['kpath'] = vc['kpath']
           elsif klass
-            node['type'] = eval(klass)
             begin
-              klass = Module.const_get(klass)
+              klass = eval(klass)
               node['kpath'] = klass.kpath
-            rescue NameError
-              raise NameError.new("[#{site} #{table} #{name}] unknown class '#{klass}'.")
+              node['type']  = klass
+            rescue ArgumentError
+              raise ArgumentError.new("[#{site} #{table} #{name}] unknown class '#{klass}'.")
             end
           else
-            raise NameError "[#{site} #{table} #{name}] missing 'class' attribute."
+            raise ArgumentError "[#{site} #{table} #{name}] missing 'class' attribute."
           end
           
           node['publish_from'] = publish_from[site][name] || node['v_publish_from']
