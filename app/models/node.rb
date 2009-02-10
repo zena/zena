@@ -149,6 +149,8 @@ class Node < ActiveRecord::Base
   has_and_belongs_to_many :cached_pages
   belongs_to         :virtual_class, :foreign_key => 'vclass_id'
   belongs_to         :site
+  before_validation  :node_before_validation  # run our 'before_validation' after 'secure'
+  validates_presence_of :name
   validate           :validate_node
   before_create      :node_before_create
   before_save        :change_klass
@@ -157,18 +159,16 @@ class Node < ActiveRecord::Base
   after_create       :node_after_create
   attr_protected     :site_id, :zip, :id, :section_id, :project_id, :publish_from, :max_status
   
-  acts_as_secure_node
-  acts_as_multiversioned
-  accepts_nested_attributes_for :redaction
-  
   attr_route %r{^v_(\w+)} => 'redaction'
   attr_route %r{^c_(\w+)} => 'redaction/content'
   attr_route %r{^d_(\w+)} => 'redaction/dyn'
   
+  acts_as_secure_node
+  acts_as_multiversioned
+  
   use_node_query
   use_relations
   
-  before_validation  :node_before_validation  # run our 'before_validation' after 'secure'
   
   @@native_node_classes = {'N' => self}
   @@unhandled_children  = []
@@ -907,10 +907,12 @@ class Node < ActiveRecord::Base
   end
 
   # Return the full path as an array if it is cached or build it when asked for.
-  def fullpath(rebuild=false, update = true)
+  def fullpath(rebuild=false, update = true, loop_ids = [])
+    return "" if loop_ids.include?(self.id)
+    loop_ids << self.id
     if !self[:fullpath] || rebuild
       if parent = parent(false)
-        path = parent.fullpath(rebuild).split('/') + [name.gsub("'",'')]
+        path = parent.fullpath(rebuild,true,loop_ids).split('/') + [name.gsub("'",'')]
       else
         path = []
       end
@@ -1448,12 +1450,12 @@ class Node < ActiveRecord::Base
       
       if self[:name]
         # update cached fullpath
-        if new_record? || self[:name] != old[:name] || self[:parent_id] != old[:parent_id]
+        if new_record? || name_changed? || parent_id_changed?
           self[:fullpath] = self.fullpath(true,false)
-        elsif !new_record? && self[:custom_base] != old[:custom_base]
+        elsif !new_record? && custom_base_changed?
           self[:basepath] = self.basepath(true,false)
         end
-        if !new_record? && self[:fullpath] != old[:fullpath]
+        if !new_record? && fullpath_changed?
           # FIXME: update children's cached fullpaths
           @clear_children_fullpath = true
         end
@@ -1474,10 +1476,10 @@ class Node < ActiveRecord::Base
       
       if !new_record? && self[:parent_id]
         # node updated and it is not the root node
-        if !kind_of?(Section) && self[:section_id] != old[:section_id]
+        if !kind_of?(Section) && section_id_changed?
           @spread_section_id = self[:section_id]
         end
-        if !kind_of?(Project) && self[:project_id] != old[:project_id]
+        if !kind_of?(Project) && project_id_changed?
           @spread_project_id = self[:project_id]
         end
       end
@@ -1490,7 +1492,7 @@ class Node < ActiveRecord::Base
             pos = Node.fetch_attribute(:position, "SELECT `position` FROM #{Node.table_name} WHERE parent_id = #{Node.connection.quote(self[:parent_id])} AND kpath like #{Node.connection.quote("#{self.class.kpath[0..1]}%")} ORDER BY position DESC LIMIT 1").to_f
             self[:position] = pos > 0 ? pos + 1.0 : 0.0
           end
-        elsif old[:parent_id] != self[:parent_id]
+        elsif parent_id_changed?
           # moved, update position
           pos = Node.fetch_attribute(:position, "SELECT `position` FROM #{Node.table_name} WHERE parent_id = #{Node.connection.quote(self[:parent_id])} AND kpath like #{Node.connection.quote("#{self.class.kpath[0..1]}%")} ORDER BY position DESC LIMIT 1").to_f
           self[:position] = pos > 0 ? pos + 1.0 : 0.0
@@ -1502,10 +1504,6 @@ class Node < ActiveRecord::Base
     def validate_node
       # when creating root node, self[:id] and :root_id are both nil, so it works.
       errors.add("parent_id", "invalid parent") unless (parent.kind_of?(Node) && self[:id] != current_site[:root_id]) || (self[:id] == current_site[:root_id] && self[:parent_id] == nil)
-      
-      errors.add("name", "can't be blank") unless self[:name] and self[:name] != ""
-      
-      errors.add("version", "can't be blank") if new_record? && !@version
       
       errors.add('comment', 'you do not have the rights to do this') if @add_comment && !can_comment?
       
@@ -1617,7 +1615,8 @@ class Node < ActiveRecord::Base
     
     # Try to keep node name in sync with published v_title in ref_lang. This is set after_publish.
     def sync_name
-      return true if @old_title.nil? || version.lang != ref_lang || name == version.title.url_name || old.name != @old_title.url_name
+      # FIXME: @old_title should be version.title_was ??
+      return true if @old_title.nil? || version.lang != ref_lang || name == version.title.url_name || name_was != @old_title.url_name
       update_attributes(:name => version.title.url_name)
     end
   
@@ -1695,8 +1694,8 @@ class Node < ActiveRecord::Base
       true
     end
   
-    # Set owner and lang before validations on create (overwritten by multiversion)
-    def set_on_create
+    # Set owner and lang before validating node
+    def set_defaults_before_validation_on_create
       super
       # set kpath 
       self[:kpath] = self.vclass.kpath

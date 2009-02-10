@@ -2,7 +2,7 @@ require File.join(File.dirname(__FILE__), "testhelp")
 
 class NodeQueryTest < ActiveSupport::TestCase
   include Zena::Test::Unit
-  def setup; User.make_visitor(:host=>'test.host', :id=>users_id(:anon)); end
+  def setup; login(:anon); end
   yamltest
 
   def yt_do_test(file, test)

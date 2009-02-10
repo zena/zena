@@ -233,9 +233,7 @@ class SecureCreateTest < ActiveSupport::TestCase
   def test_status
     login(:tiger)
     node = secure!(Node) { Node.new(node_defaults) }
-    assert_equal Zena::Status[:red], node.max_status, "New node max_status is 'red'"
-    assert_equal Zena::Status[:red], node.v_status, "Version status is 'red'"
-    
+
     assert node.save, "Node saved"
     assert_equal Zena::Status[:red], node.max_status, "Max_status did not change"
     assert node.propose, "Can propose node"
@@ -505,22 +503,18 @@ end
 
 class SecureUpdateTest < ActiveSupport::TestCase
   include Zena::Test::Unit
-  def setup; User.make_visitor(:host=>'test.host', :id=>users_id(:anon)); end
-  
-  def test_nodes_id
-    debugger
-    assert_equal "", nodes_id(:cleanWater)
-  end
+  def setup; login(:ant); end
   
   def create_simple_note(opts={})
     login(opts[:login] || :ant)
     # create new node
     attrs =  {
       :name => 'hello',
-      :parent_id   => nodes_id(:cleanWater),
+      :parent_id   => nodes_id(:cleanWater)
     }.merge(opts[:node] || {})
     
     node = secure!(Note) { Note.create(attrs) }
+    
     ref  = secure!(Node) { Node.find_by_id(attrs[:parent_id])}
     
     [node, ref]
@@ -859,6 +853,8 @@ class SecureUpdateTest < ActiveSupport::TestCase
     node[:rgroup_id] = 98984984 # anything
     node[:wgroup_id] = 98984984 # anything
     node[:pgroup_id] = 98984984 # anything
+    node.save
+    err node
     assert node.save , "Save succeeds"
     assert_equal 0, node.rgroup_id , "Read group is 0"
     assert_equal 0, node.wgroup_id , "Write group is 0"
@@ -895,12 +891,12 @@ class SecureUpdateTest < ActiveSupport::TestCase
     assert !node.can_visible?, "Cannot make visible changes"
     assert_equal Zena::Status[:pub], node.max_status
     # cannot change rights now
-    assert !node.update_attributes(:inherit=>1)
+    assert !node.reload.update_attributes(:inherit=>1)
     node.errors.clear
     assert node.unpublish
     assert node.can_drive?, "Can drive"
     # can change rights now
-    assert node.update_attributes(:inherit=>1)
+    assert node.reload.update_attributes(:inherit=>1)
   end
   
   #     a. can change to 'inherit' if can_drive?
@@ -933,13 +929,9 @@ class SecureUpdateTest < ActiveSupport::TestCase
     node = secure!(Node) { nodes(:lake)  }
     now = Time.now
     old = node.publish_from
-    node.publish_from = now
+    node.attributes = {:publish_from => now}
     assert node.save
     assert_equal node.publish_from, old
-    node.publish_from = nil
-    assert node.save
-    assert_not_nil node[:publish_from]
-    assert_equal node[:publish_from], old
   end
   
   def test_update_name_publish_group
@@ -1033,7 +1025,8 @@ class SecureVisitorStatusTest < ActiveSupport::TestCase
     assert_equal visitor.status, User::Status[:user]
     node = secure!(Node) { nodes(:ocean) }
     assert node.update_attributes(:v_title => 'hooba')
-    assert node.publish
+    node.publish
+    err node
   end
   
   

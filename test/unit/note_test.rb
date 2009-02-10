@@ -2,7 +2,7 @@ require File.dirname(__FILE__) + '/../test_helper'
 
 class NoteTest < ActiveSupport::TestCase
   include Zena::Test::Unit
-  def setup; User.make_visitor(:host=>'test.host', :id=>users_id(:anon)); end
+  def setup; login(:anon); end
   
   def test_create_with_name
     login(:tiger)

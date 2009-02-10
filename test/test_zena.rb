@@ -413,11 +413,6 @@ class Test::Unit::TestCase
   undef default_test
 end
 
-class ZenaTestUnit < ActiveSupport::TestCase
-  include Zena::Test::Unit
-  def setup; User.make_visitor(:host=>'test.host', :id=>users_id(:anon)); end
-end
-
 class ZenaTestHelper < Test::Unit::TestCase
   include Zena::Test::TestHelper
 end

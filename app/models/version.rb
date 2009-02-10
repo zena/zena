@@ -71,17 +71,7 @@ class Version < ActiveRecord::Base
   def zip
     "#{node.zip}.#{number}"
   end
-  
-  # protect access to node_id : should not be changed by users
-  def node_id=(i)
-    raise Zena::AccessViolation, "Version '#{self.id}': tried to change 'node_id' to '#{i}'."
-  end
-  
-  # protect access to content_id
-  def content_id=(i)
-    raise Zena::AccessViolation, "Version '#{self.id}': tried to change 'content_id' to '#{i}'."
-  end
-  
+    
   # Return the content for the version. Can it's 'own' content or the same as the version this one was copied from.
   def content
     return nil unless content_class
@@ -128,29 +118,6 @@ class Version < ActiveRecord::Base
       @content.preload_version(self)
     end
     @redaction_content = @content
-  end
-  
-  def clone
-    attrs = attributes.merge({
-      'status'       => Zena::Status[:red],
-      'user_id'      => visitor.id,
-      'type'         => nil,
-      'node_id'      => nil,
-      'comment'      => nil,
-      'number'       => nil,
-      'publish_from' => nil,
-      'created_at'   => nil,
-      'updated_at'   => nil,
-      'content_id'   => nil
-    }).reject {|k,v| v.nil? || k =~ /_ok$/}
-    
-    obj = self.class.new(attrs)
-    obj[:content_id] = self[:content_id] || self[:id]
-    obj[:node_id]    = self[:node_id]
-    
-    # copy dynamic attributes
-    obj.dyn = self.dyn
-    obj
   end
   
   def content_class

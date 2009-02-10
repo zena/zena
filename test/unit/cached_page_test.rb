@@ -7,7 +7,7 @@ class CachedPage
 end
 class CachedPageTest < ActiveSupport::TestCase
   include Zena::Test::Unit
-  def setup; User.make_visitor(:host=>'test.host', :id=>users_id(:anon)); end
+  def setup; login(:anon); end
 
   def test_create
     without_files('test.host/public') do

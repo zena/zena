@@ -138,7 +138,8 @@ Just doing the above will filter all result according to the logged in user.
         def visitor=(visitor)
           @visitor = visitor
           if new_record?
-            set_on_create
+            # FIXME: what is this doing here ?
+            set_defaults_before_validation_on_create
           end
           # callback used by functions triggered before 'visitor='
           if @eval_on_visitor
@@ -162,6 +163,11 @@ Just doing the above will filter all result according to the logged in user.
         # Return true if the node is considered as private (+read_group+, +write_group+ and +publish_group+ are +0+)
         def private?
           (rgroup_id==0 && wgroup_id==0 && pgroup_id==0)
+        end
+
+        # Return true if the node was considered as private before attributes changes.
+        def private_was_true?
+          (rgroup_id_was==0 && wgroup_id_was==0 && pgroup_id_was==0)
         end
         
         # Return true if the node can be viewed by all (public)
@@ -200,19 +206,38 @@ Just doing the above will filter all result according to the logged in user.
           ( vis.user? && (( ugps.include?(pgroup_id) ) ||
           ( private? && ugps.include?(ref.pgroup_id))))
         end
+        
+        # 'can_visible?' before attribute change
+        def can_visible_was_true?(vis=visitor, ugps=visitor.group_ids)
+          ( vis.is_su? ) || # super user
+          ( vis.user? && (( ugps.include?(pgroup_id_was) ) ||
+          ( private_was_true? && ugps.include?(ref_was.pgroup_id))))
+        end
   
         # people who can manage:
         # * owner if visitor's status is at least 'user' and node's +max_status+ <= red
         # * owner if visitor's status is at least 'user' and node is private
         def can_manage?(vis=visitor)
           ( vis.is_su? ) || # super user
-          ( vis.user? && (( publish_from == nil && vis[:id] == user_id && max_status <= Zena::Status[:red] ) ||
+          ( vis.user? && (( publish_from == nil && vis[:id] == user_id && max_status.to_i <= Zena::Status[:red] ) ||
           ( private? && vis[:id] == user_id )))
+        end
+        
+        # 'can_manage?' before attribute changes
+        def can_manage_was_true?(vis=visitor)
+          ( vis.is_su? ) || # super user
+          ( vis.user? && (( publish_from_was == nil && user_id_was == vis.id && max_status_was.to_i <= Zena::Status[:red] ) ||
+          ( private_was_true? && user_id_was == vis.id )))
         end
         
         # can change position, name, rwp groups, etc
         def can_drive?
           can_manage? || can_visible?
+        end
+        
+        # 'can_drive?' before attribute changes
+        def can_drive_was?
+          can_manage_was_true? || can_visible_was_true?
         end
         
         def secure_before_validation
@@ -222,18 +247,19 @@ Just doing the above will filter all result according to the logged in user.
           end
           self[:site_id] = @visitor.site[:id]
           if new_record?
-            set_on_create
+            set_defaults_before_validation_on_create
             secure_on_create
           else
             secure_on_update
           end
         end
         
-        # Set owner and lang before validations on create (overwritten by multiversion)
-        def set_on_create
-          # set kpath 
+        # Set owner and lang before validations on create
+        # FIXME: this should not exist (some should be in Version, some should be in Node)
+        def set_defaults_before_validation_on_create
+          # set defaults before validation
           self[:kpath]    = self.class.kpath
-          self[:user_id]  = visitor[:id]
+          self[:user_id]  = visitor.id
           self[:ref_lang] = visitor.lang
         end
         
@@ -295,11 +321,7 @@ Just doing the above will filter all result according to the logged in user.
           else
             errors.add('inherit', "bad inheritance mode")
           end
-
-          # publish_from can only be set by the object itself by setting @publish_from
-          self[:publish_from] = version.publish_from
-          # same for proposed
-          self[:max_status] = version.status
+          
           return errors.empty?
         end
 
@@ -314,16 +336,11 @@ Just doing the above will filter all result according to the logged in user.
         # 6. validate the rest
         def secure_on_update
           @old = nil # force reload of 'old'
-          unless old
-            # cannot change node if old not found
+          if !( can_drive_was? )
             errors.add('base', "you do not have the rights to do this")
             return false
           end
-          if !( old.can_drive? )
-            errors.add('base', "you do not have the rights to do this")
-            return false
-          end
-          if user_id != old.user_id
+          if user_id_changed?
             if visitor.is_admin?
               # only admin can change owners
               unless User.find(:first, :conditions => ["id = ?",user_id])
@@ -339,9 +356,9 @@ Just doing the above will filter all result according to the logged in user.
             errors.add(ref_field, "invalid reference")
             return false
           end
-          if self[ref_field] != old[ref_field]
+          if ref_field_id_changed?
             # reference changed
-            if old.private? || old.publish_from == nil
+            if private_was_true? || publish_from_was == nil
               # node was not visible to others
               if self[ref_field] == self[:id] ||
                   ! secure_write(ref_class) { ref_class.find(self[ref_field])} || 
@@ -352,16 +369,17 @@ Just doing the above will filter all result according to the logged in user.
             else
               # node was visible, moves must be made with publish rights in both
               # source and destination
+              # TODO: speed: add a select => :id to avoid loading full node
               if self[ref_field] == self[:id] ||
                   ! secure_drive(ref_class) { ref_class.find(self[ref_field]) } || 
-                  ! secure_drive(ref_class) { ref_class.find(old[ref_field])  }
+                  ! secure_drive(ref_class) { ref_class.find(ref_field_id_was)  }
                 errors.add(ref_field, "invalid reference") 
                 return false
               end
             end
             # check circular references
             ref_ids  = [self[:id]]
-            curr_ref = self[:parent_id]
+            curr_ref = self[ref_field]
             ok = true
             while curr_ref != 0
               if ref_ids.include?(curr_ref) # detect loops
@@ -381,10 +399,7 @@ Just doing the above will filter all result according to the logged in user.
               return false
             end
           end
-          # publish_from can only be set by the object itself by setting @publish_from
-          self[:publish_from] = @publish_from || old.publish_from
-          # same with proposed
-          self[:max_status] = @max_status || old.max_status
+          
           # verify groups
           [:rgroup_id, :wgroup_id, :pgroup_id].each do |sym|
             # set to 0 if nil or ''
@@ -393,11 +408,11 @@ Just doing the above will filter all result according to the logged in user.
           if self[:inherit] == 0 && pgroup_id == 0
             # if pgroup_id is set to 0 ==> make node private
             self[:inherit] = -1
-          end  
+          end
           case inherit
           when 1
             # inherit
-            if inherit != old.inherit && !(old.can_visible? || ( old.can_manage? && (old.max_status_with_heirs < Zena::Status[:pub]) ))
+            if inherit_changed? && !(can_visible_was_true? || ( can_manage_was_true? && (max_status_with_heirs_was < Zena::Status[:pub]) ))
               errors.add('inherit', 'you cannot change this')
               return false
             end
@@ -408,8 +423,8 @@ Just doing the above will filter all result according to the logged in user.
             end
           when -1
             # make private, only if owner
-            unless (inherit == old.inherit)
-              if old.can_drive? && (user_id == visitor[:id]) && visitor.site[:allow_private]
+            if inherit_changed?
+              if can_drive_was? && (user_id == visitor[:id]) && visitor.site[:allow_private]
                 [:rgroup_id, :wgroup_id, :pgroup_id].each do |sym|
                   self[sym] = 0
                 end
@@ -418,43 +433,43 @@ Just doing the above will filter all result according to the logged in user.
               end
             end
           when 0
-            if old.can_visible?
+            if can_visible_was_true?
               if ref.can_visible?
                 # can change groups
                 if private?
                   # ok (all groups are 0)
                 else
                   [:rgroup_id, :wgroup_id, :pgroup_id].each do |sym|
-                    if self[sym] != 0 && self[sym] != old[:rgroup_id] && !visitor.group_ids.include?(self[sym])
+                    if self[sym] != 0 && self.send(:"#{sym}_changed?") && !visitor.group_ids.include?(self[sym])
                       errors.add(sym.to_s, "unknown group")
                     end
                   end
                 end
               else
                 # cannot change groups or inherit mode
-                errors.add('inherit', "you cannot change this") unless inherit == old.inherit
-                errors.add('rgroup_id', "you cannot change this") unless rgroup_id == old.rgroup_id
-                errors.add('wgroup_id', "you cannot change this") unless wgroup_id == old.wgroup_id
-                errors.add('pgroup_id', "you cannot change this") unless pgroup_id == old.pgroup_id
+                errors.add('inherit', "you cannot change this")   if inherit_changed?
+                errors.add('rgroup_id', "you cannot change this") if rgroup_id_changed?
+                errors.add('wgroup_id', "you cannot change this") if wgroup_id_changed?
+                errors.add('pgroup_id', "you cannot change this") if pgroup_id_changed?
                 # but you can change skins and name
               end
             else
               # must be the same as old
-              errors.add('inherit', "you cannot change this") unless inherit == old.inherit
-              errors.add('rgroup_id', "you cannot change this") unless rgroup_id == old.rgroup_id
-              errors.add('wgroup_id', "you cannot change this") unless wgroup_id == old.wgroup_id
-              errors.add('pgroup_id', "you cannot change this") unless pgroup_id == old.pgroup_id
-              errors.add('skin', "you cannot change this") unless  skin  == old.skin
+              errors.add('inherit', "you cannot change this")   if inherit_changed?
+              errors.add('rgroup_id', "you cannot change this") if rgroup_id_changed?
+              errors.add('wgroup_id', "you cannot change this") if wgroup_id_changed?
+              errors.add('pgroup_id', "you cannot change this") if pgroup_id_changed?
+              errors.add('skin', "you cannot change this") unless  skin_changed?
             end
           else
             errors.add('inherit', "bad inheritance mode")
           end
-          @needs_inheritance_spread = (rgroup_id != old.rgroup_id || wgroup_id != old.wgroup_id || pgroup_id != old.pgroup_id || skin != old.skin)
+          @needs_inheritance_spread = (rgroup_id_changed? || wgroup_id_changed? || pgroup_id_changed? || skin_changed?)
           return errors.empty?
         end
         
         def secure_on_destroy
-          if old && old.can_drive?
+          if new_record? || can_drive_was?
             return true
           else
             errors.add('base', "you do not have the rights to do this")
@@ -472,6 +487,23 @@ Just doing the above will filter all result according to the logged in user.
           if @ref && (self.new_record? || (:id == ref_field) || (self[:id] != @ref[:id] ))
             # reference is accepted only if it is not the same as self or self is root (ref_field==:id set by Node)
             @ref.freeze
+          else
+            nil
+          end
+        end
+        
+        # Reference before attributes change
+        def ref_was
+          return self if ref_field == :id && new_record? # new record and self as reference (creating root node)
+          if !@ref || (ref_field_id_changed?)
+            # no ref or ref changed
+            @ref_was = secure(ref_class) { ref_class.find(:first, :conditions => ["id = ?", ref_field_id_was]) }
+          else
+            @ref_was = @ref
+          end
+          if @ref_was && (self.new_record? || (:id == ref_field) || (self[:id] != @ref_was[:id] ))
+            # reference is accepted only if it is not the same as self or self is root (ref_field==:id set by Node)
+            @ref_was.freeze
           else
             nil
           end
@@ -513,17 +545,19 @@ Just doing the above will filter all result according to the logged in user.
           return max
         end
         
-        private
-        
-        # Version of the node in DB (returns nil for new records)
-        def old
-          if new_record?
-            nil
-          else
-            @old ||= secure_drive(self.class) { self.class.find(self[:id]) }
+        # return the maximum status of the current node and all it's heirs before attribute change.
+        def max_status_with_heirs_was
+          max = max_status_was.to_i
+          return max if max == Zena::Status[:pub]
+          heirs.each do |h|
+            max = [max, h.max_status_with_heirs(max)].max
+            break if max == Zena::Status[:pub]
           end
+          return max
         end
         
+        private
+                
         # List of elements using the current element as a reference. Used to update
         # the rwp groups if they inherit from the reference. Can be overwritten by sub-classes.
         def heirs
@@ -546,6 +580,14 @@ Just doing the above will filter all result according to the logged in user.
         # Reference foreign_key. Can be overwritten by sub-classes.
         def ref_field(for_heirs=false)
           :reference_id
+        end
+        
+        def ref_field_id_was
+          self.send(:"#{ref_field}_was")
+        end
+        
+        def ref_field_id_changed?
+          self.send(:"#{ref_field}_changed?")
         end
 
         public
