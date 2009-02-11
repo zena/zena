@@ -12,15 +12,19 @@ module Zena
           opts.reverse_merge!({
             :class_name => 'Version'
           })
+          
+          # TODO: remove for Observers.
           after_save        :after_all
+          
           has_many :versions, :inverse => self.to_s.underscore,  :class_name => opts[:class_name],
                    :order=>"number DESC", :dependent => :destroy
           has_one  :redaction, :inverse => self.to_s.underscore, :class_name => opts[:class_name],
-                   :conditions => '(status = 30 || status = 50) AND lang = #{Node.connection.quote(visitor.lang)}',
+                   :conditions => '(status = 30 OR status = 50) AND lang = #{Node.connection.quote(visitor.lang)}',
                    :order => 'status ASC', :autosave => true
           has_many :editions, :class_name=>"Version",
                    :conditions=>"publish_from <= now() AND status = #{Zena::Status[:pub]}", :order=>'lang'
-          before_validation :validate_redaction
+          
+          before_validation_on_create :multiversion_before_validation_on_create
           
           public
           
@@ -430,7 +434,7 @@ module Zena
             elsif (@redaction.user_id == visitor.id)                                    &&  # same author
                   (@redaction.status  == Zena::Status[:pub])                            &&  # publication
                   (@auto_publish)                                                       &&  # auto_publish
-                  (Time.now < candidate[:updated_at] + current_site[:redit_time].to_i)      # redit time
+                  (Time.now < @redaction.updated_at_was + current_site.redit_time.to_i)     # redit time
               # ok
               @redaction.attributes = attrs
             elsif (@redaction.status  == Zena::Status[:red])                                # not same author
@@ -438,20 +442,31 @@ module Zena
             else
               # cannot reuse publication (out of redit time, no auto_publish, not same author)
               # make a copy
-              build_redaction_clone(@redaction, attrs)
+              build_redaction_from(@redaction, attrs)
             end
           else
             # no redaction candidate
             # copy current version
-            build_redaction_clone(version, attrs)
+            build_redaction_from(version, attrs)
           end
-
+          @version.status = @auto_publish ? Zena::Status[:pub] : Zena::Status[:red]
           @version = @redaction if @redaction
         end
         
         private
           
-          def build_redaction_clone(version, new_attributes)
+          # Called before create validations, this method is responsible for setting up
+          # the initial redaction.
+          def multiversion_before_validation_on_create
+            @redaction ||= build_redaction
+            @redaction.status ||= Zena::Status[:red]
+            @redaction.publish_from ||= Time.now if @redaction.status.to_i == Zena::Status[:pub]
+            self.max_status   = @redaction.status
+            self.publish_from = @redaction.publish_from
+          end
+          
+          # Create a new redaction from a version.
+          def build_redaction_from(version, new_attributes)
             attrs = version.attributes.merge({
               'status'       => Zena::Status[:red],
               'user_id'      => visitor.id,
@@ -569,16 +584,6 @@ module Zena
             end
           end
           
-          # Make sure the redaction is validated before node validations so that all errors are sent back to user (not only node errors).
-          def validate_redaction
-            build_redaction if new_record? && !@redaction
-            if @redaction && @redaction.valid? && new_record?
-              self[:publish_from] = @redaction.publish_from
-              self[:max_status]   = @redaction.status
-            end
-            true # forces full validation
-          end
-        
           def version_class
             self.class.version_class
           end

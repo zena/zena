@@ -1229,11 +1229,6 @@ class Node < ActiveRecord::Base
     @add_comment[:text] = str
   end
   
-  # attributes are set only but we need dummy values for multiversion's remove_attributes_with_same_value
-  def m_text; nil end
-  def m_title; nil end
-  def m_author; nil end
-  
   def m_title=(str)
     @add_comment ||= {}
     @add_comment[:title] = str

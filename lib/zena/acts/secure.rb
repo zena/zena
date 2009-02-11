@@ -118,8 +118,18 @@ Just doing the above will filter all result according to the logged in user.
           belongs_to :wgroup, :class_name=>'Group', :foreign_key=>'wgroup_id'
           belongs_to :pgroup, :class_name=>'Group', :foreign_key=>'pgroup_id'
           belongs_to :user
-          before_validation :secure_before_validation
-          after_save :check_inheritance
+          before_validation  :secure_reference_before_validation
+          before_validation_on_create :secure_before_validation_on_create
+          before_validation_on_update :secure_before_validation_on_update
+          
+          validate {|r| r.errors.add_to_base 'record not secured' }
+          validate {|r| r.errors.add('site_id', 'cannot change') if r.site_id_changed? }
+          validate_on_create :secure_on_create
+          validate_on_update :secure_on_update
+          
+          before_save :secure_before_save
+          after_save  :secure_after_save
+          
           before_destroy :secure_on_destroy
           class_eval <<-END
             include Zena::Acts::SecureNode::InstanceMethods
@@ -230,37 +240,59 @@ Just doing the above will filter all result according to the logged in user.
           ( private_was_true? && user_id_was == vis.id )))
         end
         
-        # can change position, name, rwp groups, etc
+        # can update node (change position, name, rwp groups, etc).
         def can_drive?
           can_manage? || can_visible?
         end
         
         # 'can_drive?' before attribute changes
-        def can_drive_was?
+        def can_drive_was_true?
           can_manage_was_true? || can_visible_was_true?
         end
         
-        def secure_before_validation
-          unless @visitor
-            errors.add('base', "record not secured")
-            return false
+        def secure_before_validation_on_create
+          # set defaults before validation
+          self[:site_id]  = visitor.site.id
+          self[:user_id]  = visitor.id
+          self[:ref_lang] = visitor.lang
+          self[:kpath]    = self.class.kpath
+          
+          [:rgroup_id, :wgroup_id, :pgroup_id, :skin].each do |sym|
+            # not defined => inherit
+            self[sym] ||= ref[sym]
+            self[sym]   = 0 if self[sym].blank?
           end
-          self[:site_id] = @visitor.site[:id]
-          if new_record?
-            set_defaults_before_validation_on_create
-            secure_on_create
-          else
-            secure_on_update
+          
+          if inherit.nil?
+            if rgroup_id == ref.rgroup_id && wgroup_id == ref.wgroup_id && pgroup_id == ref.pgroup_id
+              self[:inherit] = 1
+            else
+              self[:inherit] = 0
+            end
           end
         end
         
-        # Set owner and lang before validations on create
-        # FIXME: this should not exist (some should be in Version, some should be in Node)
-        def set_defaults_before_validation_on_create
-          # set defaults before validation
+        def secure_before_validation_on_update
           self[:kpath]    = self.class.kpath
-          self[:user_id]  = visitor.id
-          self[:ref_lang] = visitor.lang
+          
+          [:rgroup_id, :wgroup_id, :pgroup_id].each do |sym|
+            # set to 0 if nil or ''
+            self[sym] = 0 if self[sym].blank?
+          end
+          
+          if self[:inherit] == 0 && pgroup_id == 0
+            # if pgroup_id is set to 0 ==> make node private
+            # why do we need this ?
+            self[:inherit] = -1
+          end
+        end
+        
+        # Make sure the reference object (the one from which this object inherits) exists before validating.
+        def secure_reference_before_validation
+          if ref == nil
+            errors.add(ref_field, "invalid reference")
+            return false
+          end
         end
         
         # 1. validate the presence of a valid project (one in which the visitor has write access and project<>self !)
@@ -271,40 +303,18 @@ Just doing the above will filter all result according to the logged in user.
         #     b. else inherit or private
         # 5. validate the rest
         def secure_on_create
-          # validate reference
-          if ref == nil
-            errors.add(ref_field, "invalid reference")
-            return false
-          end
-          [:rgroup_id, :wgroup_id, :pgroup_id, :skin].each do |sym|
-            # not defined = inherit
-            self[sym] ||= ref[sym]
-            self[sym] = 0 if self[sym] == ''
-          end
-          if inherit.nil?
-            if rgroup_id == ref.rgroup_id && wgroup_id == ref.wgroup_id && pgroup_id == ref.pgroup_id
-              self[:inherit  ] = 1
-            else
-              self[:inherit  ] = 0
-            end
-          end
           case inherit
-          when 1
-            # force inheritance
-            self[:rgroup_id] = ref.rgroup_id
-            self[:wgroup_id] = ref.wgroup_id
-            self[:pgroup_id] = ref.pgroup_id
-            self[:skin ] = ref.skin
           when -1
             # private
-            if visitor.site[:allow_private]
+            if visitor.site.allow_private?
               self[:rgroup_id] = 0  # FIXME: why not just use nil ? (NULL in db)
               self[:wgroup_id] = 0  # FIXME: why not just use nil ? (NULL in db)
               self[:pgroup_id] = 0  # FIXME: why not just use nil ? (NULL in db)
             else
-              errors.add('inherit', "you cannot change this")
+              errors.add('inherit', 'private nodes not allowed')
             end
           when 0
+            # custom access rights
             if ref.can_visible?
               errors.add('rgroup_id', "unknown group") unless visitor.group_ids.include?(rgroup_id)
               errors.add('wgroup_id', "unknown group") unless visitor.group_ids.include?(wgroup_id)
@@ -312,17 +322,21 @@ Just doing the above will filter all result according to the logged in user.
             elsif private?
               # ok
             else
-              errors.add('inherit', "invalid value")
+              errors.add('inherit', "custom access rights not allowed")
               errors.add('rgroup_id', "you cannot change this") unless rgroup_id == ref.rgroup_id
               errors.add('wgroup_id', "you cannot change this") unless wgroup_id == ref.wgroup_id
               errors.add('pgroup_id', "you cannot change this") unless pgroup_id == ref.pgroup_id
               errors.add('skin' , "you cannot change this") unless skin  == ref.skin
             end
+          when 1
+            # force inheritance
+            self[:rgroup_id] = ref.rgroup_id
+            self[:wgroup_id] = ref.wgroup_id
+            self[:pgroup_id] = ref.pgroup_id
+            self[:skin     ] = ref.skin
           else
             errors.add('inherit', "bad inheritance mode")
           end
-          
-          return errors.empty?
         end
 
         # 1. if pgroup changed from old, make sure user could do this and new group is valid
@@ -335,107 +349,44 @@ Just doing the above will filter all result according to the logged in user.
         #     c. can change to 'custom' if can_visible?
         # 6. validate the rest
         def secure_on_update
-          @old = nil # force reload of 'old'
-          if !( can_drive_was? )
-            errors.add('base', "you do not have the rights to do this")
-            return false
+          if !can_drive_was_true?
+            errors.add_to_base("you do not have the rights to do this")
+            return
           end
+          
           if user_id_changed?
             if visitor.is_admin?
               # only admin can change owners
+              # FIXME: AUTH: we are in 'secure' scope but we should fix this when changing authentication.
               unless User.find(:first, :conditions => ["id = ?",user_id])
                 errors.add('user_id', "unknown user")
               end
             else
-              errors.add('user_id', "you cannot change this")
-            end
-          end
-          return false unless errors.empty?
-          # verify reference
-          if ref == nil
-            errors.add(ref_field, "invalid reference")
-            return false
-          end
-          if ref_field_id_changed?
-            # reference changed
-            if private_was_true? || publish_from_was == nil
-              # node was not visible to others
-              if self[ref_field] == self[:id] ||
-                  ! secure_write(ref_class) { ref_class.find(self[ref_field])} || 
-                  ! secure_write(ref_class) { ref_class.find(old[ref_field])}
-                errors.add(ref_field, "invalid reference") 
-                return false
-              end
-            else
-              # node was visible, moves must be made with publish rights in both
-              # source and destination
-              # TODO: speed: add a select => :id to avoid loading full node
-              if self[ref_field] == self[:id] ||
-                  ! secure_drive(ref_class) { ref_class.find(self[ref_field]) } || 
-                  ! secure_drive(ref_class) { ref_class.find(ref_field_id_was)  }
-                errors.add(ref_field, "invalid reference") 
-                return false
-              end
-            end
-            # check circular references
-            ref_ids  = [self[:id]]
-            curr_ref = self[ref_field]
-            ok = true
-            while curr_ref != 0
-              if ref_ids.include?(curr_ref) # detect loops
-                ok = false
-                break
-              end
-              ref_ids << curr_ref
-              rows = self.class.connection.execute("SELECT #{ref_field} FROM #{self.class.table_name} WHERE id=#{curr_ref}")
-              if rows.num_rows == 0
-                errors.add(ref_field, "reference missing in reference hierarchy")
-                raise ActiveRecord::RecordNotFound
-              end
-              curr_ref = rows.fetch_row[0].to_i
-            end
-            unless ok
-              errors.add(ref_field, 'circular reference')
-              return false
+              errors.add('user_id', "only admins can change owners")
             end
           end
           
+          return false unless ref_field_valid?
+          
           # verify groups
-          [:rgroup_id, :wgroup_id, :pgroup_id].each do |sym|
-            # set to 0 if nil or ''
-            self[sym] = 0 if !self[sym] || self[sym] == ''
-          end
-          if self[:inherit] == 0 && pgroup_id == 0
-            # if pgroup_id is set to 0 ==> make node private
-            self[:inherit] = -1
-          end
           case inherit
-          when 1
-            # inherit
-            if inherit_changed? && !(can_visible_was_true? || ( can_manage_was_true? && (max_status_with_heirs_was < Zena::Status[:pub]) ))
-              errors.add('inherit', 'you cannot change this')
-              return false
-            end
-            
-            # make sure rights are inherited. 
-            [:rgroup_id, :wgroup_id, :pgroup_id, :skin].each do |sym|
-              self[sym] = ref[sym]  
-            end
           when -1
             # make private, only if owner
             if inherit_changed?
-              if can_drive_was? && (user_id == visitor[:id]) && visitor.site[:allow_private]
+              if can_drive_was_true? && (user_id == visitor.id) && visitor.site.allow_private?
                 [:rgroup_id, :wgroup_id, :pgroup_id].each do |sym|
                   self[sym] = 0
                 end
               else
-                errors.add('inherit', "you cannot change this")
+                errors.add('inherit', "you cannot make this node private")
               end
             end
           when 0
+            # custom rights
             if can_visible_was_true?
+              # visitor had super powers on the node before changes
               if ref.can_visible?
-                # can change groups
+                # visitor has super powers on the current ref ==> can change groups
                 if private?
                   # ok (all groups are 0)
                 else
@@ -447,29 +398,102 @@ Just doing the above will filter all result according to the logged in user.
                 end
               else
                 # cannot change groups or inherit mode
-                errors.add('inherit', "you cannot change this")   if inherit_changed?
+                errors.add('inherit',   "you cannot change this") if inherit_changed?
                 errors.add('rgroup_id', "you cannot change this") if rgroup_id_changed?
                 errors.add('wgroup_id', "you cannot change this") if wgroup_id_changed?
                 errors.add('pgroup_id', "you cannot change this") if pgroup_id_changed?
                 # but you can change skins and name
               end
-            else
-              # must be the same as old
-              errors.add('inherit', "you cannot change this")   if inherit_changed?
+            else  
+              # cannot change groups, inherit mode or skin
+              errors.add('inherit',   "you cannot change this") if inherit_changed?
               errors.add('rgroup_id', "you cannot change this") if rgroup_id_changed?
               errors.add('wgroup_id', "you cannot change this") if wgroup_id_changed?
               errors.add('pgroup_id', "you cannot change this") if pgroup_id_changed?
-              errors.add('skin', "you cannot change this") unless  skin_changed?
+              errors.add('skin',      "you cannot change this") if skin_changed?
+            end
+          when 1
+            # inherit
+            if inherit_changed? && !(can_visible_was_true? || ( can_manage_was_true? && (max_status_with_heirs_was < Zena::Status[:pub]) ))
+              # published elements in sub-nodes could become visible if the current node starts to inherit
+              # visibility rights from parent.
+              # Use case: 
+              # 1. create private node A in PUB (public node)
+              # 2. create sub-node B
+              # 3. publish B (private, not visible)
+              # 4. change 'inherit' on A ----> spread PUB rights ---> B receives visibility rights
+              # 5. B is published and visible without 'visitor.can_visible?'
+              errors.add('inherit', 'you cannot change this')
+              return false
+            end
+
+            # make sure rights are inherited. 
+            [:rgroup_id, :wgroup_id, :pgroup_id, :skin].each do |sym|
+              self[sym] = ref[sym]  
             end
           else
             errors.add('inherit', "bad inheritance mode")
           end
+        end
+        
+        # Prepare after save callbacks
+        def secure_before_save
           @needs_inheritance_spread = (rgroup_id_changed? || wgroup_id_changed? || pgroup_id_changed? || skin_changed?)
-          return errors.empty?
+        end
+        
+        # Verify validity of the reference field.
+        def ref_field_valid?
+          if ref_field_id_changed?
+            # reference changed
+            if private_was_true? || publish_from_was.nil?
+              # node was not visible to others, we need write access to both source and destination
+              if ref_field_id == self.id ||
+                  ! secure_write(ref_class) { ref_class.find(:first, :select => 'id', :conditions => ['id = ?', ref_field_id])} || 
+                  ! secure_write(ref_class) { ref_class.find(:first, :select => 'id', :conditions => ['id = ?', ref_field_id_was])}
+                errors.add(ref_field, "invalid reference")
+                return false
+              end
+            else
+              # node was visible, moves must be made with publish rights in both
+              # source and destination
+              if ref_field_id == self[:id] ||
+                  ! secure_drive(ref_class) { ref_class.find(:first, :select => 'id', :conditions => ['id = ?', ref_field_id])} || 
+                  ! secure_drive(ref_class) { ref_class.find(:first, :select => 'id', :conditions => ['id = ?', ref_field_id_was])}
+                errors.add(ref_field, "invalid reference") 
+                return false
+              end
+            end
+            return false if in_circular_reference
+          end
+          true
+        end
+        
+        # Make sure there is no circular reference
+        # (any way to do this faster ?)
+        def in_circular_reference
+          loop_ids = [self[:id]]
+          curr_ref = ref_field_id
+          in_loop  = false
+          while curr_ref != 0
+            if loop_ids.include?(curr_ref) # detect loops
+              in_loop = true
+              break
+            end
+            loop_ids << curr_ref
+            rows = self.class.connection.execute("SELECT #{ref_field} FROM #{self.class.table_name} WHERE id=#{curr_ref}")
+            if rows.num_rows == 0
+              errors.add(ref_field, "reference missing in reference hierarchy")
+              raise ActiveRecord::RecordNotFound
+            end
+            curr_ref = rows.fetch_row[0].to_i
+          end
+          
+          errors.add(ref_field, 'circular reference') if in_loop
+          in_loop
         end
         
         def secure_on_destroy
-          if new_record? || can_drive_was?
+          if new_record? || can_drive_was_true?
             return true
           else
             errors.add('base', "you do not have the rights to do this")
@@ -480,9 +504,9 @@ Just doing the above will filter all result according to the logged in user.
         # Reference to validate access rights
         def ref
           return self if ref_field == :id && new_record? # new record and self as reference (creating root node)
-          if !@ref || (@ref.id != self[ref_field])
+          if !@ref || (@ref.id != ref_field_id)
             # no ref or ref changed
-            @ref = secure(ref_class) { ref_class.find(:first, :conditions => ["id = ?", self[ref_field]]) }
+            @ref = secure(ref_class) { ref_class.find(:first, :conditions => ["id = ?", ref_field_id]) }
           end
           if @ref && (self.new_record? || (:id == ref_field) || (self[:id] != @ref[:id] ))
             # reference is accepted only if it is not the same as self or self is root (ref_field==:id set by Node)
@@ -511,10 +535,8 @@ Just doing the above will filter all result according to the logged in user.
         
         protected
         
-        def check_inheritance
-          if @needs_inheritance_spread
-            spread_inheritance
-          end
+        def secure_after_save
+          spread_inheritance if @needs_inheritance_spread
           true
         end
         
@@ -580,6 +602,10 @@ Just doing the above will filter all result according to the logged in user.
         # Reference foreign_key. Can be overwritten by sub-classes.
         def ref_field(for_heirs=false)
           :reference_id
+        end
+        
+        def ref_field_id
+          self[ref_field]
         end
         
         def ref_field_id_was

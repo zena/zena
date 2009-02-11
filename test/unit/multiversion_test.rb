@@ -60,46 +60,6 @@ class MultiVersionTest < ActiveSupport::TestCase
     assert_equal 4, node.versions.size
   end
   
-  def test_remove_attributes_with_same_value
-    login(:ant)
-    node = secure!(Node) { nodes(:status) }
-    current = { :name => "status",
-      :position => "0",
-      :v_publish_from => "2006-03-10",
-      :v_summary => "status summary",
-      :v_text => "status text",
-      :v_title => "Etat des travaux"}
-    assert_equal Hash[:v_title=>'hey', :d_what=>'ever', :position => nil], node.remove_attributes_with_same_value(current.merge(:v_title=>'hey', :d_what=>'ever', :position => ''))
-  end
-  
-  def test_remove_attributes_with_same_value_empty_date
-    login(:ant)
-    node = secure!(Node) { nodes(:status) }
-    current = { :name => "status",
-      :position => "0",
-      :v_publish_from => "2006-03-10",
-      :v_summary => "status summary",
-      :v_text => "status text",
-      :v_title => "Etat des travaux"}
-    assert_equal Hash[:v_title=>'hey', :d_what=>'ever', :v_publish_from=>nil], node.remove_attributes_with_same_value(current.merge(:v_title=>'hey', :d_what=>'ever', :v_publish_from=>nil))  
-    assert_equal Hash[:v_title=>'hey', :d_what=>'ever', :v_publish_from=>''], node.remove_attributes_with_same_value(current.merge(:v_title=>'hey', :d_what=>'ever', :v_publish_from=>''))
-  end
-  
-  def test_remove_attributes_with_same_value_bad_attribute
-    # should not call the method if unsafe !
-    login(:ant)
-    node = secure!(Node) { nodes(:status) }
-    current = { :name => "status",
-      :position => "0",
-      :v_publish_from => "2006-03-10",
-      :v_summary => "status summary",
-      :v_text => "status text",
-      :v_title => "Etat des travaux"}
-    res = {}
-    assert_nothing_raised { res = node.remove_attributes_with_same_value(current.merge(:raise=>'mean idea')) }
-    assert_equal Hash[], res
-  end
-  
   def test_update_same_attributes
     login(:tiger)
     visitor.lang = 'en'
@@ -839,21 +799,22 @@ class MultiVersionTest < ActiveSupport::TestCase
     # now < updated + redit_time ===> update current proposition
     Site.connection.execute "UPDATE sites set auto_publish = 1, redit_time = 7200 WHERE id = #{sites_id(:zena)}"
     Version.connection.execute "UPDATE versions set updated_at = '#{Time.now.strftime('%Y-%m-%d %H:%M:%S')}' WHERE id = #{versions_id(:status_en)}"
+    debugger
     login(:ant)
     visitor.lang = 'en'
     node = secure!(Node) { nodes(:status) }
-    assert_equal Zena::Status[:pub], node.v_status
-    assert_equal 'status title', node.v_title
-    assert_equal 1, node.v_number
-    assert_equal users_id(:ant), node.v_user_id
+    assert_equal Zena::Status[:pub], node.version.status
+    assert_equal 'status title', node.version.title
+    assert_equal 1, node.version.number
+    assert_equal users_id(:ant), node.version.user_id
     assert !node.can_publish?
-    assert node.v_updated_at < Time.now + 600
-    assert node.v_updated_at > Time.now - 600
+    assert node.version.updated_at < Time.now + 600
+    assert node.version.updated_at > Time.now - 600
     assert node.update_attributes(:v_title => "Statues are better")
-    assert_equal Zena::Status[:red], node.v_status
-    assert_equal 3, node.v_number
-    assert_not_equal versions_id(:status_en), node.v_id
-    assert_equal 'Statues are better', node.v_title
+    assert_equal Zena::Status[:red], node.version.status
+    assert_equal 3, node.version.number
+    assert_not_equal versions_id(:status_en), node.version.id
+    assert_equal 'Statues are better', node.version.title
   end
   
   def test_auto_publish_in_redit_time_updates_proposition
