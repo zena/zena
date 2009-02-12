@@ -234,10 +234,12 @@ class SecureCreateTest < ActiveSupport::TestCase
     login(:tiger)
     node = secure!(Node) { Node.new(node_defaults) }
 
-    assert node.save, "Node saved"
+    #assert 
+    node.save #, "Node saved"
+    err node
     assert_equal Zena::Status[:red], node.max_status, "Max_status did not change"
     assert node.propose, "Can propose node"
-    assert_equal Zena::Status[:prop], node.max_status, "Node#{node[:id]} max_status is now 'prop'"
+    assert_equal Zena::Status[:prop], node.max_status, "node's max_status is now 'prop'"
     assert node.publish, "Can publish node"
     assert_equal Zena::Status[:pub], node.max_status, "node max_status in now 'pub'"
     id = node.id

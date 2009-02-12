@@ -122,8 +122,9 @@ Just doing the above will filter all result according to the logged in user.
           before_validation_on_create :secure_before_validation_on_create
           before_validation_on_update :secure_before_validation_on_update
           
-          validate {|r| r.errors.add_to_base 'record not secured' }
-          validate {|r| r.errors.add('site_id', 'cannot change') if r.site_id_changed? }
+          validate {|r| r.errors.add_to_base 'record not secured' unless r.instance_variable_get(:@visitor) }
+          validate_on_update {|r| r.errors.add('site_id', 'cannot change') if r.site_id_changed? }
+          
           validate_on_create :secure_on_create
           validate_on_update :secure_on_update
           
@@ -147,10 +148,6 @@ Just doing the above will filter all result according to the logged in user.
         # Store visitor to produce scope when needed and to retrieve correct editions.
         def visitor=(visitor)
           @visitor = visitor
-          if new_record?
-            # FIXME: what is this doing here ?
-            set_defaults_before_validation_on_create
-          end
           # callback used by functions triggered before 'visitor='
           if @eval_on_visitor
             @eval_on_visitor.each do |str|
@@ -164,6 +161,7 @@ Just doing the above will filter all result according to the logged in user.
         end
         
         # list of callbacks to trigger when set_visitor is called
+        # TODO: remove all eval_with_visitor stuff (should not be needed since visitor is a global)
         def eval_with_visitor(str)
           @eval_on_visitor ||= []
           @eval_on_visitor << str
@@ -270,6 +268,7 @@ Just doing the above will filter all result according to the logged in user.
               self[:inherit] = 0
             end
           end
+          true
         end
         
         def secure_before_validation_on_update
@@ -285,6 +284,7 @@ Just doing the above will filter all result according to the logged in user.
             # why do we need this ?
             self[:inherit] = -1
           end
+          true
         end
         
         # Make sure the reference object (the one from which this object inherits) exists before validating.
@@ -293,6 +293,7 @@ Just doing the above will filter all result according to the logged in user.
             errors.add(ref_field, "invalid reference")
             return false
           end
+          true
         end
         
         # 1. validate the presence of a valid project (one in which the visitor has write access and project<>self !)
@@ -304,15 +305,12 @@ Just doing the above will filter all result according to the logged in user.
         # 5. validate the rest
         def secure_on_create
           case inherit
-          when -1
-            # private
-            if visitor.site.allow_private?
-              self[:rgroup_id] = 0  # FIXME: why not just use nil ? (NULL in db)
-              self[:wgroup_id] = 0  # FIXME: why not just use nil ? (NULL in db)
-              self[:pgroup_id] = 0  # FIXME: why not just use nil ? (NULL in db)
-            else
-              errors.add('inherit', 'private nodes not allowed')
-            end
+          when 1
+            # force inheritance
+            self[:rgroup_id] = ref.rgroup_id
+            self[:wgroup_id] = ref.wgroup_id
+            self[:pgroup_id] = ref.pgroup_id
+            self[:skin     ] = ref.skin
           when 0
             # custom access rights
             if ref.can_visible?
@@ -328,12 +326,15 @@ Just doing the above will filter all result according to the logged in user.
               errors.add('pgroup_id', "you cannot change this") unless pgroup_id == ref.pgroup_id
               errors.add('skin' , "you cannot change this") unless skin  == ref.skin
             end
-          when 1
-            # force inheritance
-            self[:rgroup_id] = ref.rgroup_id
-            self[:wgroup_id] = ref.wgroup_id
-            self[:pgroup_id] = ref.pgroup_id
-            self[:skin     ] = ref.skin
+          when -1
+            # private
+            if visitor.site.allow_private?
+              self[:rgroup_id] = 0  # FIXME: why not just use nil ? (NULL in db)
+              self[:wgroup_id] = 0  # FIXME: why not just use nil ? (NULL in db)
+              self[:pgroup_id] = 0  # FIXME: why not just use nil ? (NULL in db)
+            else
+              errors.add('inherit', 'private nodes not allowed')
+            end
           else
             errors.add('inherit', "bad inheritance mode")
           end
@@ -370,16 +371,24 @@ Just doing the above will filter all result according to the logged in user.
           
           # verify groups
           case inherit
-          when -1
-            # make private, only if owner
-            if inherit_changed?
-              if can_drive_was_true? && (user_id == visitor.id) && visitor.site.allow_private?
-                [:rgroup_id, :wgroup_id, :pgroup_id].each do |sym|
-                  self[sym] = 0
-                end
-              else
-                errors.add('inherit', "you cannot make this node private")
-              end
+          when 1
+            # inherit
+            if inherit_changed? && !(can_visible_was_true? || ( can_manage_was_true? && (max_status_with_heirs_was < Zena::Status[:pub]) ))
+              # published elements in sub-nodes could become visible if the current node starts to inherit
+              # visibility rights from parent.
+              # Use case: 
+              # 1. create private node A in PUB (public node)
+              # 2. create sub-node B
+              # 3. publish B (private, not visible)
+              # 4. change 'inherit' on A ----> spread PUB rights ---> B receives visibility rights
+              # 5. B is published and visible without 'visitor.can_visible?'
+              errors.add('inherit', 'you cannot change this')
+              return false
+            end
+
+            # make sure rights are inherited. 
+            [:rgroup_id, :wgroup_id, :pgroup_id, :skin].each do |sym|
+              self[sym] = ref[sym]  
             end
           when 0
             # custom rights
@@ -412,24 +421,16 @@ Just doing the above will filter all result according to the logged in user.
               errors.add('pgroup_id', "you cannot change this") if pgroup_id_changed?
               errors.add('skin',      "you cannot change this") if skin_changed?
             end
-          when 1
-            # inherit
-            if inherit_changed? && !(can_visible_was_true? || ( can_manage_was_true? && (max_status_with_heirs_was < Zena::Status[:pub]) ))
-              # published elements in sub-nodes could become visible if the current node starts to inherit
-              # visibility rights from parent.
-              # Use case: 
-              # 1. create private node A in PUB (public node)
-              # 2. create sub-node B
-              # 3. publish B (private, not visible)
-              # 4. change 'inherit' on A ----> spread PUB rights ---> B receives visibility rights
-              # 5. B is published and visible without 'visitor.can_visible?'
-              errors.add('inherit', 'you cannot change this')
-              return false
-            end
-
-            # make sure rights are inherited. 
-            [:rgroup_id, :wgroup_id, :pgroup_id, :skin].each do |sym|
-              self[sym] = ref[sym]  
+          when -1
+            # make private, only if owner
+            if inherit_changed?
+              if can_drive_was_true? && (user_id == visitor.id) && visitor.site.allow_private?
+                [:rgroup_id, :wgroup_id, :pgroup_id].each do |sym|
+                  self[sym] = 0
+                end
+              else
+                errors.add('inherit', "you cannot make this node private")
+              end
             end
           else
             errors.add('inherit', "bad inheritance mode")
@@ -438,7 +439,8 @@ Just doing the above will filter all result according to the logged in user.
         
         # Prepare after save callbacks
         def secure_before_save
-          @needs_inheritance_spread = (rgroup_id_changed? || wgroup_id_changed? || pgroup_id_changed? || skin_changed?)
+          @needs_inheritance_spread = !new_record? && (rgroup_id_changed? || wgroup_id_changed? || pgroup_id_changed? || skin_changed?)
+          true
         end
         
         # Verify validity of the reference field.
@@ -614,13 +616,6 @@ Just doing the above will filter all result according to the logged in user.
         
         def ref_field_id_changed?
           self.send(:"#{ref_field}_changed?")
-        end
-
-        public
-
-        # helper for testing validations
-        def show_errors
-          errors.each {|k,m| puts "[#{k}] #{m}"}
         end
         
         module ClassMethods

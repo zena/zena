@@ -1265,6 +1265,8 @@ class Node < ActiveRecord::Base
   
   # TODO: test
   def sweep_cache
+    Node.logger.warn "SweepCache disabled."
+    return
     return if current_site.being_created?
     # zafu 'erb' rendering cache expire
     # TODO: expire only 'dev' rendering if version is a redaction
@@ -1439,6 +1441,7 @@ class Node < ActiveRecord::Base
     
   private
     def node_before_validation
+      self[:kpath] = self.vclass.kpath
       
       # set name from version title if name not set yet
       self.name = version[:title] unless self[:name]
@@ -1468,7 +1471,6 @@ class Node < ActiveRecord::Base
         # bad parent will be caught later.
       end
 
-      
       if !new_record? && self[:parent_id]
         # node updated and it is not the root node
         if !kind_of?(Section) && section_id_changed?
@@ -1687,13 +1689,6 @@ class Node < ActiveRecord::Base
       
       ids.each { |i| clear_children_fullpath(i) }
       true
-    end
-  
-    # Set owner and lang before validating node
-    def set_defaults_before_validation_on_create
-      super
-      # set kpath 
-      self[:kpath] = self.vclass.kpath
     end
     
     # Base class

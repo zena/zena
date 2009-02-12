@@ -74,7 +74,6 @@ class PageTest < ActiveSupport::TestCase
     assert_equal '', node.basepath
     assert_equal '', bird.basepath
     assert_equal node[:id], bird[:parent_id]
-    
     assert node.update_attributes(:custom_base => true)
     assert_equal 'projects/wiki', node.basepath
     bird = secure!(Node) { nodes(:bird_jpg)} # avoid @parent caching
