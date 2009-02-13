@@ -13,7 +13,7 @@ class NodeQuery < QueryBuilder
   
   def self.insert_zero_link(link_class)
     return if link_class.find_by_id(0)
-    link_class.connection.execute "INSERT INTO #{link_class.table_name} (id,target_id,source_id,status,comment) VALUES (0,NULL,NULL,NULL,NULL)"
+    link_class.connection.execute "INSERT INTO #{link_class.table_name} (id,target_id,source_id,status,comment) VALUES (0,0,0,NULL,NULL)"
     unless link_class.find_by_id(0)
       # the zero id is replaced by auto-increment value
       last_id = link_class.find(:first, :order => 'id DESC').id
