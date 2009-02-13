@@ -21,7 +21,7 @@ link_selects_in_sub_query:
   src:
     - 'icons'
     - 'images'
-  sql: "[\"SELECT nodes.*,links.id AS link_id, links.status AS l_status, links.comment AS l_comment FROM nodes,links WHERE ((nodes.id = links.target_id AND links.relation_id = _ID(node_has_an_icon) AND links.source_id = ?) OR (nodes.kpath LIKE 'NDI%' AND nodes.parent_id = ? AND links.id = -1)) AND (#{@node.secure_scope('nodes')}) GROUP BY nodes.id ORDER BY nodes.position ASC, nodes.name ASC\", @node.id, @node.id]"
+  sql: "[\"SELECT nodes.*,links.id AS link_id, links.status AS l_status, links.comment AS l_comment FROM nodes,links WHERE ((nodes.id = links.target_id AND links.relation_id = _ID(node_has_an_icon) AND links.source_id = ?) OR (nodes.kpath LIKE 'NDI%' AND nodes.parent_id = ? AND links.id = 0)) AND (#{@node.secure_scope('nodes')}) GROUP BY nodes.id ORDER BY nodes.position ASC, nodes.name ASC\", @node.id, @node.id]"
 
 projects_from_tags:
   sql: "[\"SELECT no1.* FROM nodes,nodes AS no1 WHERE no1.id = nodes.project_id AND nodes.kpath LIKE 'NPT%' AND nodes.parent_id = ? AND (#{@node.secure_scope('no1')}) GROUP BY no1.id ORDER BY no1.position ASC, no1.name ASC\", @node.id]"

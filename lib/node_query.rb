@@ -11,6 +11,16 @@ class NodeQuery < QueryBuilder
   
   load_custom_queries File.join(File.dirname(__FILE__), 'custom_queries')
   
+  def self.insert_zero_link(link_class)
+    return if link_class.find_by_id(0)
+    link_class.connection.execute "INSERT INTO #{link_class.table_name} (id,target_id,source_id,status,comment) VALUES (0,NULL,NULL,NULL,NULL)"
+    unless link_class.find_by_id(0)
+      # the zero id is replaced by auto-increment value
+      last_id = link_class.find(:first, :order => 'id DESC').id
+      link_class.connection.execute "UPDATE #{link_class.table_name} SET id = 0 WHERE id = #{last_id}"
+    end
+  end
+  
   def self.add_filter_field(key, fld_def)
     @@filter_fields[key] = fld_def
   end
@@ -67,12 +77,12 @@ class NodeQuery < QueryBuilder
   end
   
   private
-    # Make sure all alternate queries include "links.id = -1" (dummy link)
+    # Make sure all alternate queries include "links.id = 0" (dummy link)
     def fix_where_list(where_list)
       return unless @tables.include?('links')
       where_list.each do |f|
         unless f =~ /links\./
-          f << " AND links.id = -1"
+          f << " AND links.id = 0"
         end
       end
       true

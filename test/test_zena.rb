@@ -21,6 +21,7 @@ module Zena
       ensure
         Node.connection.execute "ALTER TABLE versions ENGINE = InnoDB;"
       end
+      
       @@loaded_fixtures = {}
       fixture_table_names = []
       

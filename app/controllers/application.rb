@@ -975,11 +975,5 @@ end
 load_models_from_bricks
 load_patches_from_bricks
 
-# this has to live here in order to be loaded after Application.
-# FIXME: move this with 'node_query' into a plugins might be cleaner
-# make sure there exists a link with NULL content and id == -1 (used in queries using query order sorting)
-if l = Link.find_by_id(-1)
-  # do nothing
-else
-  Link.connection.execute "INSERT INTO #{Link.table_name} (id,target_id,source_id,status,comment) VALUES (-1,NULL,NULL,NULL,NULL)"
-end
+# FIXME: could we get rid of the zero_link ?
+NodeQuery.insert_zero_link(Link)
