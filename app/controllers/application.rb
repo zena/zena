@@ -971,6 +971,3 @@ END_MSG
 end
 
 Bricks::Patcher.apply_patches
-
-# FIXME: could we get rid of the zero_link ?
-NodeQuery.insert_zero_link(Link)

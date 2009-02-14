@@ -1,3 +1,5 @@
+# This has to come first
+Zena::Fix::MysqlConnection
 
 # All models can use attr_public
 ActiveRecord::Base.send :include, Zena::Use::PublicAttributes
@@ -11,3 +13,6 @@ ActiveRecord::Base.send :include, Zena::Acts::Multiversion
 ActiveRecord::Base.send :use_find_helpers # find helpers for all models
 
 Bricks::Patcher.load_bricks
+
+# FIXME: could we get rid of the zero_link ?
+NodeQuery.insert_zero_link(Link)

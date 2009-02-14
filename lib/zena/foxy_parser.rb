@@ -716,10 +716,6 @@ module Zena
   class FoxyLinksParser < FoxyParser
     attr_reader :nodes
     
-    def self.prelude
-      "dummy:\n  id: -1\n"
-    end
-    
     def initialize(table_name, opts = {})
       super
       @nodes = opts[:nodes].all_elements

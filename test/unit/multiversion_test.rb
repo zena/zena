@@ -11,6 +11,13 @@ class MultiVersionTest < ActiveSupport::TestCase
     }
   end
   
+  def test_transitions_allowed
+    login(:lion)
+    node = secure!(Node) { nodes(:wiki) }
+    node.attributes  = {'redaction_attributes' => {'title' => 'hoe'}}
+    puts node.all_transitions_allowed.inspect
+  end
+  
   def test_find_node_by_version
     login(:ant)
     node = secure!(Node) { Node.version(versions_id(:lake_red_en)) }

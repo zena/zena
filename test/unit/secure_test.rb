@@ -23,6 +23,11 @@ class SecureReadTest < ActiveSupport::TestCase
     assert_equal ["ND", "NDI", "NDT", "NDTT"], Document.native_classes.keys.sort
   end
   
+  # TODO: move this test in a better place...
+  def test_mysql_time_zone_in_sync
+    assert Node.connection.execute("SELECT (now() - #{Time.now.strftime('%Y%m%d%H%M%S')})").fetch_row[0].to_f == 0.0
+  end
+  
   # SECURE FIND TESTS  ===== TODO CORRECT THESE TEST FROM CHANGES TO RULES ========
   # [user]          Node owner. Can *read*, *write* and (*manage*: if node not published yet or node is private).
   def test_can_rwm_own_private_node
@@ -233,15 +238,14 @@ class SecureCreateTest < ActiveSupport::TestCase
   def test_status
     login(:tiger)
     node = secure!(Node) { Node.new(node_defaults) }
-
-    #assert 
-    node.save #, "Node saved"
-    err node
+    
+    assert node.save, "Node saved"
     assert_equal Zena::Status[:red], node.max_status, "Max_status did not change"
     assert node.propose, "Can propose node"
     assert_equal Zena::Status[:prop], node.max_status, "node's max_status is now 'prop'"
     assert node.publish, "Can publish node"
     assert_equal Zena::Status[:pub], node.max_status, "node max_status in now 'pub'"
+    assert node.publish_from <= Time.now, "node publish_from is smaller the Time.now"
     id = node.id
     login(:ant)
     assert_nothing_raised { node = secure!(Node) { Node.find(id) } }

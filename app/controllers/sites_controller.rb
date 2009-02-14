@@ -39,7 +39,7 @@ class SitesController < ApplicationController
         else
           `zena_up`
         end
-        return redirect_to :action => 'zena_up', :run => 'updating', :rev => @target_rev
+        return redirect_to(:action => 'zena_up', :run => 'updating', :rev => @target_rev)
       elsif params[:run] == 'updating' && @current_rev < @target_rev
         # wait to finish
         @state = :wait
@@ -47,7 +47,7 @@ class SitesController < ApplicationController
       elsif @current_rev >= @target_rev
         # done
         @state = :done
-        return redirect_to :action => 'zena_up', :rev => @target_rev if params[:run]
+        return redirect_to(:action => 'zena_up', :rev => @target_rev) if params[:run]
       else
         # status page
       end
