@@ -153,7 +153,6 @@ class Version < ActiveRecord::Base
   
     # Set version number and site_id before validation tests.
     def version_before_validation
-      puts "version_before_validation: #{[self.title, object_id].inspect}"
       self[:site_id] = visitor.site.id
     
       # [ why do we need these defaults now ? (since rails 1.2)

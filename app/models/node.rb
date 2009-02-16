@@ -1462,11 +1462,11 @@ class Node < ActiveRecord::Base
       # make sure section is the same as the parent
       if self[:parent_id].nil?
         # root node
-        self[:section_id] = nil
-        self[:project_id] = nil
+        self[:section_id] = self[:id]
+        self[:project_id] = self[:id]
       elsif parent
-        self[:section_id] = parent.get_section_id
-        self[:project_id] = parent.get_project_id
+        self[:section_id] = ref.get_section_id
+        self[:project_id] = ref.get_project_id
       else
         # bad parent will be caught later.
       end

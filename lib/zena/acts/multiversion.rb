@@ -28,7 +28,7 @@ module Zena
           validate      :status_validation
           before_create :cache_version_status_before_create
           before_update :cache_version_status_before_update
-          after_save    :remove_publications_after_save
+          after_save    :multiversion_after_save
           
           public
           
@@ -36,7 +36,7 @@ module Zena
           class << self
             include Zena::Acts::MultiversionImpl::ClassMethods
           end
-          
+                                          # not pub         pub
           add_transition(:publish, :from => (0..49), :to => 50) do |r|
             ps = r.version.status_was.to_i
             ( ( r.can_visible? && (ps >  Zena::Status[:red] ||
@@ -45,18 +45,36 @@ module Zena
               ( r.can_manage?  &&  r.private? )
             )
           end
-          
+                                                # pub         pub
           add_transition(:auto_publish, :from => [50], :to => 50) do |r|
             (   r.can_visible? ||
               ( r.can_manage?  &&  r.private? )
             )
           end
-          
-          add_transition(:propose, :from => (30..39), :to => 40) do |r|
+                                         # red   red_vis     prop
+          add_transition(:propose, :from => (30..34), :to => 40) do |r|
             r.version.user_id == r.visitor[:id]
           end
-          
+                                    # prop_with  pub         red
+          add_transition(:refuse,  :from => (35..50), :to => 30) do |r|
+            (   r.can_visible? ||
+              ( r.can_manage?  &&  r.private? )
+            )
+          end
+                                               # pub        rem
+          add_transition(:unpublish,  :from => [50], :to => 10) do |r|
+            r.can_drive_was_true?
+          end
+                                         # rem+1 red         rem
+          add_transition(:remove,  :from => (11..30), :to => 10) do |r|
+            (r.can_drive_was_true? || r.version.user_id == visitor.id )
+          end
+                                                    # red          red
           add_transition(:update_attributes, :from => [30], :to => 30) do |r|
+            r.can_write?
+          end
+                                        # new          red
+          add_transition(:edit, :from => [nil], :to => 30) do |r|
             r.can_write?
           end
           
@@ -176,7 +194,8 @@ module Zena
         end
         
         def current_transition
-          prev_status, curr_status = version.status_was.to_i, version.status.to_i
+          prev_status = version.new_record? ? nil : version.status_was.to_i
+          curr_status = version.status.to_i
           self.class.transitions.each do |t|
             from, to = t[:from], t[:to]
             if curr_status == to && from.include?(prev_status)
@@ -190,7 +209,7 @@ module Zena
           transition[:validate].nil? || transition[:validate].call(self)
         end
         
-        def all_transitions_allowed
+        def allowed_transitions
           @allowed_transitions ||= begin
             prev_status = version.status_was.to_i
             allowed = []
@@ -241,58 +260,33 @@ module Zena
         
         # Gateway to all modifications of the node or it's versions.
         def apply(method, *args)
-          unless can_apply?(method)
-            errors.add('base', 'you do not have the rights to do this') if errors.empty?
-            return false
-          end
           res = case method
           when :update_attributes
-            do_update_attributes(args[0])
+            self.attributes = args[0]
+            save
           when :propose
-            self.redaction_attributes = {
-              'status' => args[0] || Zena::Status[:prop]
-            }
+            self.redaction_attributes = {'status' => args[0] || Zena::Status[:prop]}
             save
-          when :backup
-            version.status = Zena::Status[:rep]
-            @redaction = nil
-            redaction.save if version.save
-          when :refuse
-            version.status = Zena::Status[:red]
-            version.save && after_refuse && update_max_status
           when :publish
-            self.redaction_attributes = {
-              'publish_from' => version.publish_from || Time.now,
-              'status'       => Zena::Status[:pub]
-            }
+            self.redaction_attributes = {'status' => Zena::Status[:pub]}
             save
-          when :unpublish
-            version.status = Zena::Status[:rem]
-            if version.save
-              update_publish_from && update_max_status && after_unpublish
-            else
-              false
-            end
-          when :remove
-            version.status = Zena::Status[:rem]
-            if version.save
-              update_publish_from && update_max_status && after_remove
-            else
-              false
-            end
-          when :redit
-            version.status = Zena::Status[:red]
-            if version.save
-              update_publish_from && update_max_status && after_redit
-            else
-              false
-            end
+          when :refuse, :redit
+            self.redaction_attributes = {'status' => Zena::Status[:red]}
+            save
+          when :unpublish, :remove
+            self.redaction_attributes = {'status' => Zena::Status[:rem]}
+            save
           when :destroy_version
             if versions.count == 1
               version.destroy && self.destroy
             else
               version.destroy
             end
+          when :backup
+            # FIXME: this does not work !
+            version.status = Zena::Status[:rep]
+            @redaction = nil
+            redaction.save if version.save
           end
         end
         
@@ -342,14 +336,14 @@ module Zena
         
         # Set +publish_from+ to the minimum publication time of all editions
         def get_publish_from(ignore_current = true)
-          pub_string  = (self.class.connection.select_one("SELECT publish_from FROM #{version.class.table_name} WHERE node_id = '#{self[:id]}' AND status = #{Zena::Status[:pub]} #{ignore_current ? "AND id != '#{version.id}'" : ''} order by publish_from DESC LIMIT 1") || {})['publish_from']
+          pub_string  = (self.class.connection.select_one("SELECT publish_from FROM #{version.class.table_name} WHERE node_id = '#{self[:id]}' AND status = #{Zena::Status[:pub]} #{ignore_current ? "AND id != '#{version.id}'" : ''} order by publish_from ASC LIMIT 1") || {})['publish_from']
           ActiveRecord::ConnectionAdapters::Column.string_to_time(pub_string)
         end
         
         # Set +max_status+ to the maximum status of all versions
-        def get_max_status(version = self.version)
+        def get_max_status(ignore_current = true)
           vers_table = version.class.table_name
-          new_max    = self.class.connection.select_one("select #{vers_table}.status from #{vers_table} WHERE #{vers_table}.node_id='#{self[:id]}' order by #{vers_table}.status DESC LIMIT 1")['status']
+          new_max    = (self.class.connection.select_one("select #{vers_table}.status from #{vers_table} WHERE #{vers_table}.node_id='#{self[:id]}' #{ignore_current ? "AND id != '#{version.id}'" : ''} order by #{vers_table}.status DESC LIMIT 1") || {})['status']
           new_max.to_i
         end
         
@@ -374,8 +368,8 @@ module Zena
           else
             versions.find(:first, 
               :select     => "*, (lang = #{Node.connection.quote(visitor.lang)}) as lang_ok, (lang = #{Node.connection.quote(ref_lang)}) as ref_ok",
-              :conditions => [ "(status >= #{Zena::Status[:red]} AND user_id = ? AND lang = ?) OR status >= ?", 
-                                      visitor.id, visitor.lang, (can_drive? ? Zena::Status[:prop] : Zena::Status[:pub])],
+              :conditions => [ "(status >= #{Zena::Status[:red]} AND user_id = ? AND lang = ?) OR #{can_drive? ? "status <> #{Zena::Status[:red]}" : "status = #{Zena::Status[:pub]}"}", 
+                                      visitor.id, visitor.lang ],
               :order      => "lang_ok DESC, ref_ok DESC, status ASC, publish_from ASC")
           end
 =begin
@@ -429,36 +423,41 @@ module Zena
         
         # Define attributes for the current redaction.
         def redaction_attributes=(attrs)
-          attrs.reverse_merge!('lang' => visitor.lang)
-          auto_publish = (attrs['status'].to_i == Zena::Status[:pub] || current_site[:auto_publish])
+          edit_version = attrs.keys != ['status']
           if new_record?
             # new redaction
             build_redaction_from(nil, attrs)
-          elsif !can_write?    
-            errors.add('base', 'you do not have the rights to edit this node')
-          elsif @redaction = self.redaction
-            # redaction candidate, make sure it can be used
-            if    (@redaction.user_id == visitor.id)                                    &&  # same author
-                  (@redaction.status  == Zena::Status[:red])                            &&  # redaction status
-              # ok                                                                    
-              @redaction.attributes = attrs                                            
-            elsif (@redaction.user_id == visitor.id)                                    &&  # same author
-                  (@redaction.status  == Zena::Status[:pub])                            &&  # publication
-                  (auto_publish)                                                        &&  # auto_publish
-                  (Time.now < @redaction.updated_at_was + current_site.redit_time.to_i)     # redit time
-              # ok
-              @redaction.attributes = attrs
-            elsif (@redaction.status  == Zena::Status[:red])                                # not same author
-              errors.add('base', "(#{@redaction.user.login}) is editing this node")
+          elsif edit_version
+            auto_publish = (attrs['status'].to_i == Zena::Status[:pub] || current_site[:auto_publish])
+            attrs.reverse_merge!('lang' => visitor.lang)
+            if @redaction = self.redaction
+              # redaction candidate, make sure it can be used
+              if    (@redaction.user_id == visitor.id)                                    &&  # same author
+                    (@redaction.status  == Zena::Status[:red])                            &&  # redaction status
+                # ok                                                                    
+                @redaction.attributes = attrs                                            
+              elsif (@redaction.user_id == visitor.id)                                    &&  # same author
+                    (@redaction.status  == Zena::Status[:pub])                            &&  # publication
+                    (auto_publish)                                                        &&  # auto_publish
+                    (Time.now < @redaction.updated_at_was + current_site.redit_time.to_i)     # redit time
+                # ok
+                @redaction.attributes = attrs
+              elsif (@redaction.status  == Zena::Status[:red])                                # not same author
+                errors.add('base', "(#{@redaction.user.login}) is editing this node")
+              else
+                # cannot reuse publication (out of redit time, no auto_publish, not same author)
+                # make a copy
+                build_redaction_from(@redaction, attrs)
+              end
             else
-              # cannot reuse publication (out of redit time, no auto_publish, not same author)
-              # make a copy
-              build_redaction_from(@redaction, attrs)
+              # no redaction candidate
+              # copy current version
+              build_redaction_from(version, attrs)
             end
           else
-            # no redaction candidate
-            # copy current version
-            build_redaction_from(version, attrs)
+            # load current version as redaction
+            self.redaction = version
+            version.attributes = attrs
           end
         end
         
@@ -481,7 +480,8 @@ module Zena
           end
           
           def status_validation
-            return true unless @redaction && version.status_changed?
+            return true unless version.changed? || version.new_record? 
+            #@redaction && (version.status_changed? || version.new_record?)
             if t = current_transition
               errors.add_to_base("You do not have the rights to #{t[:name].to_s.gsub('_', ' ')}") unless transition_allowed?(t)
             else
@@ -496,7 +496,7 @@ module Zena
           end
           
           def cache_version_status_before_update
-            return true unless @redaction
+            return true unless version.status_changed? || version.new_record?
             # current_transition cannot be nil here (verified in status_validation)
             self.updated_at = Time.now
             case current_transition[:name]
@@ -516,17 +516,18 @@ module Zena
               end
             when :update_attributes
               # nothing to do
-            when :remove, :redit
+            when :unpublish, :remove, :redit
               # moving down
+              self.max_status = [get_max_status, version.status.to_i].max
             when :propose
               # moving up
-              self.max_status = [self.max_status.to_i, version.status.to_i].max
+              self.max_status = [max_status_was.to_i, version.status.to_i].max
             else
             end
             true
           end
           
-          def remove_publications_after_save
+          def multiversion_after_save
             if @old_publication_to_remove
               self.class.connection.execute "UPDATE #{version.class.table_name} SET status = '#{@old_publication_to_remove[1]}' WHERE id IN (#{@old_publication_to_remove[0].join(', ')})" unless @old_publication_to_remove[0] == []
               
@@ -535,7 +536,7 @@ module Zena
               # TODO: can we avoid this ? 
               # self.class.connection.execute "UPDATE #{self.class.table_name} SET updated_at = #{self.class.connection.quote(Time.now)} WHERE id=#{self[:id].to_i}" unless new_record?
             end
-            
+            @allowed_transitions       = nil
             @old_publication_to_remove = nil
             true
           end
@@ -565,11 +566,6 @@ module Zena
               build_redaction(new_attributes, false) # false = do not replace existing
             end
             @version = @redaction.target
-          end
-        
-          def do_update_attributes(new_attributes)
-            self.attributes = new_attributes
-            save
           end
         
           def update_attribute_without_fuss(att, value)

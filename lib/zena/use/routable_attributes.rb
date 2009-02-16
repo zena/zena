@@ -67,8 +67,8 @@ module Use
       end
     end
     
-    def attributes_with_routes=(hash)
-      self.attributes_without_routes = route_attributes(hash)
+    def attributes_with_routes=(attrs)
+      self.attributes_without_routes = route_attributes(attrs)
     end
   
     private

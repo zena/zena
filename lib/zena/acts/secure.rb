@@ -350,6 +350,7 @@ Just doing the above will filter all result according to the logged in user.
         #     c. can change to 'custom' if can_visible?
         # 6. validate the rest
         def secure_on_update
+          return true unless changed?
           if !can_drive_was_true?
             errors.add_to_base("you do not have the rights to do this")
             return
