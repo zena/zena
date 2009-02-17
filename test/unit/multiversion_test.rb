@@ -15,7 +15,7 @@ class MultiVersionTest < ActiveSupport::TestCase
     login(:lion)
     node = secure!(Node) { nodes(:wiki) }
     node.attributes  = {'redaction_attributes' => {'title' => 'hoe'}}
-    puts node.all_transitions_allowed.inspect
+    puts node.allowed_transitions.inspect
   end
   
   def test_find_node_by_version
@@ -293,14 +293,13 @@ class MultiVersionTest < ActiveSupport::TestCase
   def test_update_new_red
     login(:ant)
     node = secure_write(Node) { nodes(:wiki)  }
-    assert node.edit! , "Edit succeeds"
-    attrs = { :v_comment=>"hey I'm new !", :v_title=>"super new" }
+    attrs = { :v_comment=>"hey I'm new !", :v_title=>"new" }
     assert node.update_attributes( attrs ) , "Edit succeeds"
     assert ! node.v_new_record? , "Not a new redaction"
-    assert_equal "super new", node.v_title
+    assert_equal "new", node.v_title
     # find it
     node = secure_write(Node) { nodes(:wiki)  }
-    assert node.edit! , "Edit succeeds"
+    node.attributes = {'v_title' => 'super new'}
     assert_equal "hey I'm new !", node.v_comment
     assert_equal "super new", node.v_title
     assert_equal Zena::Status[:red], node.v_status
@@ -313,7 +312,6 @@ class MultiVersionTest < ActiveSupport::TestCase
     login(:tiger)
     visitor.lang = "fr"
     node = secure_write(Node) { nodes(:wiki)  }
-    assert ! node.edit! , "Edit fails"
     assert ! node.update_attributes( :v_title=>"Mon amour") , "Edit fails"
     
     # can add redactions for different languages
@@ -329,14 +327,13 @@ class MultiVersionTest < ActiveSupport::TestCase
     login(:ant)
     visitor.lang = 'en'
     node = secure_write(Node) { nodes(:lake)  }
-    assert node.edit! , "Edit succeeds"
-    assert_equal "The lake we love", node.v_title
+    node.attributes = {'v_title' => 'hop'}
+    assert_equal "hop", node.v_title
     assert_equal Zena::Status[:red], node.v_status
     attrs = { :v_comment=>"hey I'm new !", :v_title=>"super new" }
     assert node.update_attributes( attrs ) , "Edit succeeds"
     
     node = secure_write(Node) { nodes(:lake)  }
-    assert node.edit! , "Edit succeeds"
     assert_equal "hey I'm new !", node.v_comment
     assert_equal "super new", node.v_title
     assert_equal Zena::Status[:red], node.v_status
@@ -345,8 +342,6 @@ class MultiVersionTest < ActiveSupport::TestCase
   def test_update_attributes_bad_user
     login(:tiger)
     node = secure_write(Node) { nodes(:lake)  }
-    assert ! node.edit! , "Edit fails"
-    assert_equal Zena::Status[:pub], node.v_status
     attrs = { :v_comment=>"hey I'm new !", :v_title=>"super new" }
     assert ! node.update_attributes( attrs ) , "Edit fails"
   end
@@ -367,7 +362,7 @@ class MultiVersionTest < ActiveSupport::TestCase
     node = secure!(Node) { nodes(:lake_jpg)  }
     attrs = { :inherit=>0, :rgroup_id => groups_id(:managers), :v_title => "Manager's lake", :v_lang => 'ru'}
     assert !node.update_attributes( attrs )
-    assert_equal 'not valid', node.errors[:v_lang]
+    assert_equal 'not valid', node.errors['redaction_lang']
     visitor.site.languages = 'en,fr,ru'
     assert node.update_attributes( attrs )
     assert_equal groups_id(:managers), node.rgroup_id
@@ -540,6 +535,7 @@ class MultiVersionTest < ActiveSupport::TestCase
     assert_equal Zena::Status[:rem], node.v_status
     assert_equal Zena::Status[:pub], node.max_status
     node = secure!(Node) { nodes(:status)  }
+    # get version in other lang
     assert_equal Zena::Status[:pub], node.v_status
     assert node.unpublish # remove publication
     assert_equal Zena::Status[:rem], node.v_status
@@ -806,7 +802,6 @@ class MultiVersionTest < ActiveSupport::TestCase
     # now < updated + redit_time ===> update current proposition
     Site.connection.execute "UPDATE sites set auto_publish = 1, redit_time = 7200 WHERE id = #{sites_id(:zena)}"
     Version.connection.execute "UPDATE versions set updated_at = '#{Time.now.strftime('%Y-%m-%d %H:%M:%S')}' WHERE id = #{versions_id(:status_en)}"
-    debugger
     login(:ant)
     visitor.lang = 'en'
     node = secure!(Node) { nodes(:status) }

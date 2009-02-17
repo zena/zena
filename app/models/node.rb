@@ -327,7 +327,6 @@ class Node < ActiveRecord::Base
         # TODO: class ignored (could be used to transform from one class to another...)
         attributes.delete('class')
         attributes.delete('klass')
-        node.edit!(attributes.delete('v_lang'))
         updated_date = node.updated_at
         node.update_attributes(attributes)
         if updated_date != node.updated_at
