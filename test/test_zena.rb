@@ -430,3 +430,5 @@ class ZenaTestController < Test::Unit::TestCase
   def self.use_transactional_fixtures; true; end
   def self.use_instantiated_fixtures; false; end
 end
+
+NodeQuery.insert_zero_link(Link)

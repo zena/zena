@@ -24,9 +24,16 @@ class Iformat < ActiveRecord::Base
       end
       res.sort do |a,b|
         if a.size == 'keep'
-          b.size == 'keep' ? a[:name] <=> b[:name] : 1
+          b.size == 0 ? a[:name] <=> b[:name] : 1
+        elsif b.size == 'keep'
+          -1
         else
-          (a.width.to_f * a.height.to_f) <=> (b.width.to_f * b.height.to_f)
+          sz = (a.width.to_f * a.height.to_f) <=> (b.width.to_f * b.height.to_f)
+          if sz == 0
+            a[:name] <=> b[:name]
+          else
+            sz
+          end
         end
       end
     end
