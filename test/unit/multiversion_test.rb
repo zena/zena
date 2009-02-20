@@ -74,8 +74,8 @@ class MultiVersionTest < ActiveSupport::TestCase
     v_id = node.v_id
     v_nu = node.v_number
     assert node.update_attributes(:v_title => node.v_title, :name => 'satori')
-    assert_equal v_id, node.v_id
     assert_equal v_nu, node.v_number
+    assert_equal v_id, node.v_id
     assert_equal 'satori', node.name
   end
   
@@ -92,7 +92,7 @@ class MultiVersionTest < ActiveSupport::TestCase
     content = Struct.new(:hello, :name).new('hello', 'guys')
     login(:tiger)
     node = secure!(Node) { nodes(:zena) }
-    node.edit!
+    node.redaction_attributes = {'comment' => 'hop hop'}
     node.version.instance_eval { @content = @redaction_content = content; def content_class; @content.class; end }
     assert_equal 'hello', node.c_hello
     assert_equal 'guys', node.c_name
@@ -214,7 +214,7 @@ class MultiVersionTest < ActiveSupport::TestCase
     login(:tiger)
     visitor.lang = 'es'
     node = secure!(Node) { nodes(:status) }
-    node.v_title = 'labias'
+    node.redaction_attributes = {'title' => 'labias'}
     assert_equal 'es', node.v_lang
     assert_equal 'labias', node.v_title
     assert node.v_new_record?
@@ -262,14 +262,6 @@ class MultiVersionTest < ActiveSupport::TestCase
     node2 = secure!(Node) { nodes(:status)  }
     assert ! node.can_edit?
     assert node2.can_edit?
-  end
-  
-  def test_do_edit
-    login(:ant)
-    node = secure_write(Node) { nodes(:wiki)  }
-    node.edit!
-    assert_equal Zena::Status[:red], node.v_status
-    assert node.v_new_record?
   end
   
   def test_update_without_fuss
@@ -412,22 +404,20 @@ class MultiVersionTest < ActiveSupport::TestCase
     login(:ant)
     visitor.lang = 'en'
     node = secure!(Node) { nodes(:lake)  }
-    node.edit!
+    node.redaction_attributes = {'title' => 'new test'}
     version_id = node.v_id
-    assert_equal "The lake we love", node.v_title
+    assert_equal "new test", node.v_title
     assert_equal versions_id(:lake_red_en), version_id
     # edit node with form...
     # post modifications
     node = secure!(Node) { Node.version(node.v_id) }
-    #assert node.update_attributes( :v_title => "Funny lake" ) , "Edit succeeds"
+    assert node.update_attributes( :v_title => "Funny lake" )
     
-    node.update_attributes( :v_title => "Funny lake" )
-    err node
     assert_equal "Funny lake", node.v_title
     assert_equal version_id, node.v_id
     # find redaction again
     node = secure!(Node) { nodes(:lake)  }
-    node.edit!
+    node.redaction_attributes = {'comment' => 'folami'}
     assert_equal "Funny lake", node.v_title
     assert_equal version_id, node.v_id
   end
@@ -501,8 +491,11 @@ class MultiVersionTest < ActiveSupport::TestCase
     assert !node.new_record?
     assert node.publish
     vers_number = node.v_number
+    Site.connection.execute "UPDATE sites set redit_time = 60 WHERE id = #{sites_id(:zena)}"
     login(:lion)
     node = secure!(Page) { Page.find(node[:id])}
+    # could auto_publish but not same author
+    $degg = true
     assert node.update_attributes(:v_text => 'lion', :v_status => Zena::Status[:pub])
     assert_equal Zena::Status[:pub], node.v_status
     assert_equal 2, node.v_number
@@ -606,7 +599,7 @@ class MultiVersionTest < ActiveSupport::TestCase
     node = secure!(Node) { nodes(:lake) }
     assert node.publish, "Can publish"
     assert_equal Zena::Status[:pub], node.v_status
-    assert !node.redit, "Can re-edit node" # not the owner
+    assert !node.redit, "Cannot re-edit node" # not the owner
     
     login(:ant)
     visitor.lang = 'en'
@@ -652,7 +645,7 @@ class MultiVersionTest < ActiveSupport::TestCase
     trad = node.traductions
     assert_equal 2, trad.size
     trad_node = trad[0].node
-    assert_equal node.object_id, trad_node.object_id # make sure object is not reloaded and not secured
+    assert_equal node.object_id, trad_node.target.object_id # make sure object is not reloaded and not secured
     assert_equal 'en', node.v_lang
     assert_equal 'fr', trad[1][:lang]
     node = secure!(Node) { nodes(:wiki) }

@@ -224,7 +224,7 @@ class NodeQuery < QueryBuilder
         # VERSION
         key = field[2..-1]
         key, function = parse_sql_function_in_field(key)
-        if Version.zafu_readable?(key) && Version.column_names.include?(key)
+        if Version.attr_public?(key) && Version.column_names.include?(key)
           vtable_name = needs_table('nodes', 'versions', "TABLE1.id = TABLE2.node_id")
           key = function ? "#{function}(#{vtable_name}.#{key})" : "#{vtable_name}.#{key}"
         else
@@ -253,13 +253,13 @@ class NodeQuery < QueryBuilder
               table_to_use = table_name
             end
             function ? "#{function}(#{table_to_use}.#{map_def[:key]})" : "#{table_to_use}.#{map_def[:key]}"
-          elsif (Node.zafu_readable?(key) && Node.column_names.include?(key))
+          elsif (Node.attr_public?(key) && Node.column_names.include?(key))
             function ? "#{function}(#{table_name}.#{key})" : "#{table_name}.#{key}"
           else
             nil
           end
         else
-          if ['id', 'parent_id','project_id','section_id'].include?(key) || (Node.zafu_readable?(key) && Node.column_names.include?(key))
+          if ['id', 'parent_id','project_id','section_id'].include?(key) || (Node.attr_public?(key) && Node.column_names.include?(key))
             function ? "#{function}(#{table_name}.#{key})" : "#{table_name}.#{key}"
           else
             # bad attribute
@@ -283,7 +283,7 @@ class NodeQuery < QueryBuilder
         @uses_node_name = true
         insert_bind("#{@node_name}.#{fld}")
       else  
-        # Node.zafu_readable?(fld)
+        # Node.attr_public?(fld)
         # bad parameter
         @errors << "invalid parameter '#{fld}'"
         "0"
@@ -348,7 +348,7 @@ class NodeQuery < QueryBuilder
           end
         elsif type == 'NODE_ATTR'
           attribute = value
-          if Node.zafu_readable?(attribute)
+          if Node.attr_public?(attribute)
             insert_bind("#{@node_name}.#{attribute}")
           else
             @errors << "cannot read attribute '#{attribute}' in custom query"

@@ -21,7 +21,7 @@ module Zena
           has_one  :redaction, :inverse => self.to_s.underscore, :class_name => opts[:class_name],
                    :conditions => '(status = 30 OR status = 50) AND lang = #{Node.connection.quote(visitor.lang)}',
                    :order => 'status ASC', :autosave => true
-          has_many :editions, :class_name=>"Version",
+          has_many :editions, :inverse => self.to_s.underscore,  :class_name => opts[:class_name],
                    :conditions=>"publish_from <= now() AND status = #{Zena::Status[:pub]}", :order=>'lang'
           
           before_validation :set_status_before_validation
@@ -56,8 +56,8 @@ module Zena
           add_transition(:propose, :from => (30..34), :to => 40) do |r|
             r.version.user_id == r.visitor[:id]
           end
-                                    # prop_with  pub         red
-          add_transition(:refuse,  :from => (35..50), :to => 30) do |r|
+                                    # prop_with  prop        red
+          add_transition(:refuse,  :from => (35..40), :to => 30) do |r|
             (   r.can_visible? ||
               ( r.can_manage?  &&  r.private? )
             )
@@ -65,6 +65,10 @@ module Zena
                                                # pub        rem
           add_transition(:unpublish,  :from => [50], :to => 10) do |r|
             r.can_drive_was_true?
+          end
+                                         # pub         red
+          add_transition(:redit, :from => [50], :to => 30) do |r|
+            r.can_edit? && r.version.user_id == visitor.id
           end
                                          # rem+1 red         rem
           add_transition(:remove,  :from => (11..30), :to => 10) do |r|
@@ -115,10 +119,12 @@ module Zena
           end
         end
         
+        # FIXME: merge this with the logic in redaction_attributes=
         def can_edit?
           can_edit_lang?
         end
         
+        # FIXME: merge this with the logic in redaction_attributes=
         def can_edit_lang?(lang=nil)
           return false unless can_write?
           if lang
@@ -145,13 +151,6 @@ module Zena
             trad = editions
           else
             trad = editions.find(:all, opts)
-          end
-
-          # FIXME: we should not need to store node like this. Can be removed when we cache found records from their ids
-          # (using DataMapper or simply our visitor)
-          trad.map! do |t|
-            t.set_node(self) # make sure relation is kept and we do not reload a node that is not secured
-            t
           end
           trad == [] ? nil : trad
         end
@@ -364,13 +363,18 @@ module Zena
         # If 'key' is set to :pub, only find the published versions. If key is a number, find the version with this number. 
         def version(key=nil) #:doc:
           @version ||= if new_record?
-            build_redaction('lang' => visitor.lang)
-          else
+            build_redaction_from(nil, 'lang' => visitor.lang)
+          elsif key.nil? || key.kind_of?(Symbol)
+            min_status = (key == :pub) ? Zena::Status[:pub] : Zena::Status[:red]
             versions.find(:first, 
               :select     => "*, (lang = #{Node.connection.quote(visitor.lang)}) as lang_ok, (lang = #{Node.connection.quote(ref_lang)}) as ref_ok",
-              :conditions => [ "(status >= #{Zena::Status[:red]} AND user_id = ? AND lang = ?) OR #{can_drive? ? "status > #{Zena::Status[:red]}" : "status = #{Zena::Status[:pub]}"}", 
-                                      visitor.id, visitor.lang ],
+              :conditions => [ "(status >= #{min_status} AND user_id = ? AND lang = ?) OR status >= #{can_drive? ? [min_status, Zena::Status[:prop]].max : Zena::Status[:pub]}", visitor.id, visitor.lang ],
               :order      => "lang_ok DESC, ref_ok DESC, status ASC, publish_from ASC")
+          else
+            v = versions.find(:first,
+              :conditions => [ "(status >= #{Zena::Status[:red]} AND user_id = ? AND lang = ?) OR status >= #{can_drive? ? Zena::Status[:prop] : Zena::Status[:pub]} AND number = ?", visitor.id, visitor.lang, key])
+            raise ActiveRecord::RecordNotFound unless v
+            v
           end
 =begin
           return @version if @version
@@ -424,6 +428,11 @@ module Zena
         # Define attributes for the current redaction.
         def redaction_attributes=(attrs)
           edit_version = attrs.keys - ['status', 'publish_from'] != []
+          # FIXME: maybe a solution is to use
+          # version.attributes = attrs
+          # edit_version = version.changes.keys - ['status', 'publish_from'] != []
+          # then we can call get_redaction(status = nil, edit_version = true)
+          # ===> @node.edit! // @node.can_edit? solution
           if new_record?
             # new redaction
             build_redaction_from(nil, attrs)
@@ -437,16 +446,17 @@ module Zena
             attrs.reverse_merge!('lang' => visitor.lang)
             if self.redaction
               # redaction candidate, make sure it can be used
-              if    ( @redaction.status  == Zena::Status[:red]      ) ||
-                    ((attrs['status'].to_i == Zena::Status[:pub])                          &&  # auto_publish
-                    (Time.now < @redaction.updated_at_was + current_site.redit_time.to_i))     # redit time
+              if    ( @redaction.status    == Zena::Status[:red]  ) ||
+                    ((@redaction.user_id   == visitor.id)                                  &&  # same author
+                     (attrs['status'].to_i == Zena::Status[:pub])                          &&  # auto_publish
+                     (Time.now < @redaction.updated_at_was + current_site[:redit_time].to_i))  # redit time
                 # ok
                 @version = @redaction.target
                 @version.attributes = attrs
               else
-                # cannot reuse publication (out of redit time, no auto_publish)
+                # cannot reuse publication (out of redit time, no auto_publish, not same author)
                 # make a copy
-                build_redaction_from(@redaction, attrs)
+                build_redaction_from(@redaction.target, attrs)
               end
             else
               # no redaction candidate
@@ -466,7 +476,7 @@ module Zena
             if @redaction
               target = @redaction.target # avoid "method_missing" calls in AssociationProxy
               target.status ||= current_site[:auto_publish] ? Zena::Status[:pub] : Zena::Status[:red]
-              target.publish_from = target.status.to_i == Zena::Status[:pub] ? (target.publish_from || Time.now) : nil
+              target.publish_from = target.status.to_i == Zena::Status[:pub] ? (target.publish_from || Time.now) : target.publish_from
             end
           end
           
@@ -553,7 +563,8 @@ module Zena
               version.attributes = new_attributes
               return unless version.changed?
               attrs = version.attributes.merge({
-                'status'       => Zena::Status[:red],
+                # set defaults
+                'status'       => new_attributes['status'] || Zena::Status[:red],
                 'user_id'      => nil,
                 'type'         => nil,
                 'node_id'      => nil,
@@ -571,7 +582,9 @@ module Zena
               # copy dynamic attributes
               @redaction.dyn = version.dyn
             else
+              # new
               build_redaction(new_attributes, false) # false = do not replace existing
+              @redaction.user_id = visitor.id
             end
             @version = @redaction.target
           end
@@ -671,6 +684,7 @@ module Zena
           version = Version.find(version_id.to_i)
           node = self.find(version.node_id)
           node.version = version
+          # FIXME: remove this
           node.eval_with_visitor 'errors.add("base", "you do not have the rights to do this") unless version.status == 50 || can_drive? || version.user_id == visitor[:id]'
         end
       end

@@ -741,7 +741,7 @@ class Node < ActiveRecord::Base
         case attribute[0..1]
         when 'v_'
           att = attribute[2..-1]
-          if Version.zafu_readable?(att)
+          if Version.attr_public?(att)
             "#{node}.version.#{att}"
           else
             # might be readable by sub-classes
@@ -752,7 +752,7 @@ class Node < ActiveRecord::Base
         when 'd_'
           "#{node}.version.dyn[#{attribute[2..-1].inspect}]"
         else
-          if Node.zafu_readable?(attribute)
+          if Node.attr_public?(attribute)
             "#{node}.#{attribute}"
           else
             # unknown attribute for Node, resolve at runtime with real class
@@ -787,7 +787,7 @@ class Node < ActiveRecord::Base
     raise Zena::RecordNotSecured.new("Visitor not set, record not secured.")
   end
   
-  # Return true if the attribute can be read. This is not the same as zafu_readable? as some
+  # Return true if the attribute can be read. This is not the same as attr_public? as some
   # attributes can be read but should not be shown ('id' or 'file' for example).
   def safe_attribute?(att)
     # FIXME: SECURITY: is there any risk here ? (k can be anything)
