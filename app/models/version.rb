@@ -132,9 +132,55 @@ class Version < ActiveRecord::Base
     end
   end
   
+  # Return a new redaction from this version
+  def clone(new_attrs)
+    attrs = self.attributes.merge({
+      # set defaults
+      'status'       => Zena::Status[:red],
+      'user_id'      => nil,
+      'type'         => nil,
+      'node_id'      => nil,
+      'number'       => nil,
+      'created_at'   => nil,
+      'updated_at'   => nil,
+      'content_id'   => nil,
+      'id'           => nil,
+      'lang'         => visitor.lang,
+    }).reject {|k,v| v.nil? || k =~ /_ok$/}
+    v = self.class.new(attrs.merge(new_attrs))
+    v.content_id = content_id || id if content_class
+    v.user_id    = visitor.id
+    v.node       = self.node
+    v.dyn        = self.dyn
+    v
+  end
+  
+  # Return true if the version would be edited by the attributes
+  def would_edit?(new_attrs)
+    new_attrs.each do |k,v|
+      next if ['status', 'publish_from'].include?(k.to_s)
+      if self.class.attr_public?(k.to_s)
+        return true if field_changed?(k, self.send(k), v)
+      elsif k.to_s == 'content_attributes'
+        return true if content.would_edit?(v)
+      end
+    end
+    false
+  end
+  
+  # Return true if the version has been edited (not just status / publication date change)
+  # TODO: test
+  def edited?
+    new_record? || (changes.keys - ['status', 'publish_from'] != []) || (@redaction_content && @redaction_content.changed?)
+  end
+  
+  def should_save?
+    new_record? || changed? || (@redaction_content && @redaction_content.changed?)
+  end
+  
   private
     def set_number
-      last_record = node[:id] ? self.connection.select_one("select number from #{self.class.table_name} where node_id = '#{node[:id]}' ORDER BY number DESC LIMIT 1") : nil
+      last_record = node.id ? self.connection.select_one("select number from #{self.class.table_name} where node_id = '#{node[:id]}' ORDER BY number DESC LIMIT 1") : nil
       self[:number] = (last_record || {})['number'].to_i + 1
     end
     

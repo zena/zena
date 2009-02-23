@@ -244,6 +244,8 @@ class SecureCreateTest < ActiveSupport::TestCase
     
     assert node.save, "Node saved"
     assert_equal Zena::Status[:red], node.max_status, "Max_status did not change"
+    node.propose
+    err node
     assert node.propose, "Can propose node"
     assert_equal Zena::Status[:prop], node.max_status, "node's max_status is now 'prop'"
     assert node.publish, "Can publish node"

@@ -11,13 +11,6 @@ class MultiVersionTest < ActiveSupport::TestCase
     }
   end
   
-  def test_transitions_allowed
-    login(:lion)
-    node = secure!(Node) { nodes(:wiki) }
-    node.attributes  = {'redaction_attributes' => {'title' => 'hoe'}}
-    puts node.allowed_transitions.inspect
-  end
-  
   def test_find_node_by_version
     login(:ant)
     node = secure!(Node) { Node.version(versions_id(:lake_red_en)) }
@@ -92,7 +85,7 @@ class MultiVersionTest < ActiveSupport::TestCase
     content = Struct.new(:hello, :name).new('hello', 'guys')
     login(:tiger)
     node = secure!(Node) { nodes(:zena) }
-    node.redaction_attributes = {'comment' => 'hop hop'}
+    node.version_attributes = {'comment' => 'hop hop'}
     node.version.instance_eval { @content = @redaction_content = content; def content_class; @content.class; end }
     assert_equal 'hello', node.c_hello
     assert_equal 'guys', node.c_name
@@ -214,7 +207,7 @@ class MultiVersionTest < ActiveSupport::TestCase
     login(:tiger)
     visitor.lang = 'es'
     node = secure!(Node) { nodes(:status) }
-    node.redaction_attributes = {'title' => 'labias'}
+    node.version_attributes = {'title' => 'labias'}
     assert_equal 'es', node.v_lang
     assert_equal 'labias', node.v_title
     assert node.v_new_record?
@@ -354,7 +347,7 @@ class MultiVersionTest < ActiveSupport::TestCase
     node = secure!(Node) { nodes(:lake_jpg)  }
     attrs = { :inherit=>0, :rgroup_id => groups_id(:managers), :v_title => "Manager's lake", :v_lang => 'ru'}
     assert !node.update_attributes( attrs )
-    assert_equal 'not valid', node.errors['redaction_lang']
+    assert_equal 'not valid', node.errors['version_lang']
     visitor.site.languages = 'en,fr,ru'
     assert node.update_attributes( attrs )
     assert_equal groups_id(:managers), node.rgroup_id
@@ -404,7 +397,7 @@ class MultiVersionTest < ActiveSupport::TestCase
     login(:ant)
     visitor.lang = 'en'
     node = secure!(Node) { nodes(:lake)  }
-    node.redaction_attributes = {'title' => 'new test'}
+    node.version_attributes = {'title' => 'new test'}
     version_id = node.v_id
     assert_equal "new test", node.v_title
     assert_equal versions_id(:lake_red_en), version_id
@@ -417,7 +410,7 @@ class MultiVersionTest < ActiveSupport::TestCase
     assert_equal version_id, node.v_id
     # find redaction again
     node = secure!(Node) { nodes(:lake)  }
-    node.redaction_attributes = {'comment' => 'folami'}
+    node.version_attributes = {'comment' => 'folami'}
     assert_equal "Funny lake", node.v_title
     assert_equal version_id, node.v_id
   end
@@ -545,9 +538,8 @@ class MultiVersionTest < ActiveSupport::TestCase
     assert !node.can_publish?, "Cannot publish (not private)"
     assert !node.publish, "Cannot publish"
     
-    node.errors.clear
+    node.update_attributes(:inherit=>-1, :v_status => Zena::Status[:red]) # previous 'node.publish' tried to publish node
     
-    assert node.update_attributes(:inherit=>-1)
     assert node.can_drive?, "Can drive"
     assert node.can_manage?, "Can manage"
     assert node.can_publish?, "Can publish (private)"
@@ -790,9 +782,9 @@ class MultiVersionTest < ActiveSupport::TestCase
     assert_equal 'Puma', node.v_title
   end
   
-  def test_auto_publish_in_redit_time_new_proposition
+  def test_auto_publish_in_redit_time_new_redaction
     # set site.auto_publish      ===> publish
-    # now < updated + redit_time ===> update current proposition
+    # now < updated + redit_time ===> refuse
     Site.connection.execute "UPDATE sites set auto_publish = 1, redit_time = 7200 WHERE id = #{sites_id(:zena)}"
     Version.connection.execute "UPDATE versions set updated_at = '#{Time.now.strftime('%Y-%m-%d %H:%M:%S')}' WHERE id = #{versions_id(:status_en)}"
     login(:ant)
@@ -827,11 +819,8 @@ class MultiVersionTest < ActiveSupport::TestCase
     assert !node.can_publish?
     assert node.v_updated_at < Time.now + 600
     assert node.v_updated_at > Time.now - 600
-    assert node.update_attributes(:v_title => "Statues are better")
-    assert_equal Zena::Status[:prop], node.v_status
-    assert_equal 1, node.v_number
-    assert_equal versions_id(:status_en), node.v_id
-    assert_equal 'Statues are better', node.v_title
+    assert !node.update_attributes(:v_title => "Statues are better")
+    assert_equal 'You cannot edit while you have a proposition waiting for approval.', node.errors.on('base')
   end
   
   def test_create_auto_publish

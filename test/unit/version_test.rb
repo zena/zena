@@ -179,6 +179,45 @@ class VersionTest < ActiveSupport::TestCase
     assert_equal 'funny', node.d_other
   end
   
+  def test_would_edit
+    v = versions(:zena_en)
+    assert v.would_edit?('title' => 'different')
+    assert !v.would_edit?('title' => v.title)
+    assert !v.would_edit?('status' => 999)
+    assert !v.would_edit?('illegal_field' => 'whatever')
+    assert !v.would_edit?('node_id' => 'whatever')
+  end
+  
+  def test_would_edit_content
+    v = versions(:ant_en)
+    assert v.would_edit?('content_attributes' => {'name' => 'different'})
+    assert !v.would_edit?('content_attributes' => {'name' => v.content.name})
+  end
+  
+  def test_new_version_is_edited
+    v = Version.new
+    assert v.edited?
+    v.title = 'hooo'
+    assert v.edited?
+  end
+  
+  def test_edited
+    v = versions(:zena_en)
+    assert !v.edited?
+    v.status = 999
+    assert !v.edited?
+    v.title = 'new title'
+    assert v.edited?
+  end
+  
+  def test_edited_changed_content
+    v = versions(:ant_en)
+    v.content_attributes = {'name' => 'Invicta'}
+    assert !v.edited?
+    v.content_attributes = {'name' => 'New name'}
+    assert v.edited?
+  end
+  
   def test_bad_lang
     login(:tiger)
     node = secure!(Page) { Page.create(:v_lang => 'io', :parent_id => nodes_id(:status), :name => 'hello', :v_title => '')}

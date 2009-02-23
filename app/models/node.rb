@@ -159,9 +159,9 @@ class Node < ActiveRecord::Base
   after_create       :node_after_create
   attr_protected     :site_id, :zip, :id, :section_id, :project_id, :publish_from, :max_status
   
-  attr_route %r{^v_(\w+)} => 'redaction'
-  attr_route %r{^c_(\w+)} => 'redaction/content'
-  attr_route %r{^d_(\w+)} => 'redaction/dyn'
+  attr_route %r{^v_(\w+)} => 'version'
+  attr_route %r{^c_(\w+)} => 'version/content'
+  attr_route %r{^d_(\w+)} => 'version/dyn'
   
   acts_as_secure_node
   acts_as_multiversioned

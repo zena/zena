@@ -19,7 +19,7 @@ class ContactContent < ActiveRecord::Base
   act_as_content
   attr_public        :created_at, :updated_at, :fullname, :initials, :first_name, :name, :address, :zip, :city,
                      :telephone, :mobile, :email, :country
-                     
+
   before_validation :content_before_validation
   
   # Full contact name to show in views.

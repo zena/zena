@@ -119,8 +119,8 @@ Just doing the above will filter all result according to the logged in user.
           belongs_to :pgroup, :class_name=>'Group', :foreign_key=>'pgroup_id'
           belongs_to :user
           before_validation  :secure_reference_before_validation
-          before_validation_on_create :secure_before_validation_on_create
-          before_validation_on_update :secure_before_validation_on_update
+          # we move all before_validation on update and create here so that it is triggered before multiversion's before_validation
+          before_validation  :secure_before_validation
           
           validate {|r| r.errors.add_to_base 'record not secured' unless r.instance_variable_get(:@visitor) }
           validate_on_update {|r| r.errors.add('site_id', 'cannot change') if r.site_id_changed? }
@@ -248,6 +248,14 @@ Just doing the above will filter all result according to the logged in user.
           can_manage_was_true? || can_visible_was_true?
         end
         
+        def secure_before_validation
+          if new_record?
+            secure_before_validation_on_create
+          else
+            secure_before_validation_on_update
+          end
+        end
+        
         def secure_before_validation_on_create
           # set defaults before validation
           self[:site_id]  = visitor.site.id
@@ -267,6 +275,10 @@ Just doing the above will filter all result according to the logged in user.
             else
               self[:inherit] = 0
             end
+          elsif inherit == -1
+            self[:rgroup_id] = 0  # FIXME: why not just use nil ? (NULL in db)
+            self[:wgroup_id] = 0  # FIXME: why not just use nil ? (NULL in db)
+            self[:pgroup_id] = 0  # FIXME: why not just use nil ? (NULL in db)
           end
           true
         end
@@ -283,6 +295,12 @@ Just doing the above will filter all result according to the logged in user.
             # if pgroup_id is set to 0 ==> make node private
             # why do we need this ?
             self[:inherit] = -1
+          end
+          
+          if self[:inherit] == -1
+            self[:rgroup_id] = 0  # FIXME: why not just use nil ? (NULL in db)
+            self[:wgroup_id] = 0  # FIXME: why not just use nil ? (NULL in db)
+            self[:pgroup_id] = 0  # FIXME: why not just use nil ? (NULL in db)
           end
           true
         end
@@ -328,11 +346,7 @@ Just doing the above will filter all result according to the logged in user.
             end
           when -1
             # private
-            if visitor.site.allow_private?
-              self[:rgroup_id] = 0  # FIXME: why not just use nil ? (NULL in db)
-              self[:wgroup_id] = 0  # FIXME: why not just use nil ? (NULL in db)
-              self[:pgroup_id] = 0  # FIXME: why not just use nil ? (NULL in db)
-            else
+            unless visitor.site.allow_private?
               errors.add('inherit', 'private nodes not allowed')
             end
           else
@@ -386,7 +400,7 @@ Just doing the above will filter all result according to the logged in user.
               errors.add('inherit', 'you cannot change this')
               return false
             end
-
+            
             # make sure rights are inherited. 
             [:rgroup_id, :wgroup_id, :pgroup_id, :skin].each do |sym|
               self[sym] = ref[sym]  
