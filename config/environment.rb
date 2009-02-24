@@ -25,27 +25,27 @@ end
 
 # temporary fix for gettext
 class Object 
-  def self._(msg) 
-    return msg 
-  end 
-  def _(msg) 
-    return msg 
-  end 
-end 
-class String 
-  alias :__old_format_m :% 
-  def %(hash = {}) 
-    if hash.kind_of?(Hash) 
-      ret = dup 
-      hash.keys.each do |key, value| 
-        ret.gsub!("\%\{#{key}\}", value.to_s) 
-      end 
-      return ret 
-    else 
-      ret = gsub(/%\{/, '%%{') 
-      ret.__old_format_m(hash) 
-    end 
-  end 
+  def self._(msg)
+    return msg
+  end
+  def _(msg)
+    return msg
+  end
+end
+class String
+  alias :__old_format_m :%
+  def %(hash = {})
+    if hash.kind_of?(Hash)
+      ret = dup
+      hash.keys.each do |key, value|
+        ret.gsub!("\%\{#{key}\}", value.to_s)
+      end
+      return ret
+    else
+      ret = gsub(/%\{/, '%%{')
+      ret.__old_format_m(hash)
+    end
+  end
 end
 
 # avoids ActionView::Helpers::TextHelpers to load RedCloth before we do with our frozen gem
