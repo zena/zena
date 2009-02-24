@@ -158,6 +158,7 @@ class Node < ActiveRecord::Base
   after_save         :clear_children_fullpath
   after_create       :node_after_create
   attr_protected     :site_id, :zip, :id, :section_id, :project_id, :publish_from, :max_status
+  #attr_accessible    :version_content
   
   attr_route %r{^v_(\w+)} => 'version'
   attr_route %r{^c_(\w+)} => 'version/content'

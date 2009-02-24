@@ -24,7 +24,7 @@ module Zena
           before_validation :set_status_before_validation
           validate      :lock_validation
           validate      :status_validation
-          validate      :redaction_validation
+          validate      :version_validation
           
           before_create :cache_version_status_before_create
           before_update :cache_version_status_before_update
@@ -545,7 +545,7 @@ module Zena
             end
           end
           
-          def redaction_validation
+          def version_validation
             return true unless @redaction
             unless @redaction.valid?
               @redaction.errors.each do |attribute, message|

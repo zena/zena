@@ -47,16 +47,17 @@ class Document < Node
     alias o_new new
     
     # Return a new Document or a sub-class of Document depending on the file's content type. Returns a TextDocument if there is no file.
-    def new(hash = {})
+    def new(attrs = {})
+      
       scope = self.scoped_methods[0] || {}
       klass = self
-      hash  = hash.stringify_keys
-      file  = hash['c_file']
+      attrs = attrs.stringify_keys
+      file  = attrs['c_file'] || ((attrs['version_attributes'] || {})['content_attributes'] || {})['file']
       if file && file.respond_to?(:content_type)
         content_type = file.content_type
-      elsif hash['c_content_type']
-        content_type = hash['c_content_type']
-      elsif hash['name'] =~ /^.*\.(\w+)$/ && types = EXT_TO_TYPE[$1.downcase]
+      elsif ct = attrs['c_content_type'] || ((attrs['version_attributes'] || {})['content_attributes'] || {})['content_type']
+        content_type = ct
+      elsif attrs['name'] =~ /^.*\.(\w+)$/ && types = EXT_TO_TYPE[$1.downcase]
         content_type = types[0]
       end
       
@@ -74,12 +75,12 @@ class Document < Node
         klass = TextDocument
       end
       
-      hash['c_content_type'] = content_type
+      attrs['c_content_type'] = content_type
       
       if klass != self
-        klass.with_scope(scope) { klass.o_new(hash) }
+        klass.with_scope(scope) { klass.o_new(attrs) }
       else
-        klass.o_new(hash)
+        klass.o_new(attrs)
       end
     end
     
@@ -87,43 +88,6 @@ class Document < Node
     def change_to_classes_for_form
       classes_for_form(:class => 'Document', :without => 'Image')
     end
-  end
-  
-  # Filter attributes before assignement.
-  # Set name of new record and content extension based on file.
-  def filter_attributes(attributes)
-    if base = attributes['name']
-      # set through name
-    elsif base = attributes['v_title']
-      # set with title
-    elsif file = attributes['c_file']
-      # set with filename
-      base = file.original_filename
-    end
-    
-    if base
-      if base =~ /(.*)\.(\w+)$/
-        attributes['name']    = $1 if new_record?
-        attributes['c_ext'] ||= $2
-      else
-        attributes['name']    = base if new_record?
-      end
-      if attributes['v_title'].to_s =~ /\A(.*)\.#{attributes['c_ext']}$/i
-        attributes['v_title'] = $1
-      end
-    end
-    
-    attributes
-  end
-  
-  # FIXME: why do we need this ?
-  def attributes=(attributes)
-    if content_type = attributes.delete('c_content_type')
-      # make sure 'content_type' is set before the rest.
-      version.content.content_type = content_type
-    end
-    
-    super(attributes)
   end
   
   # Return true if the document is an image.
@@ -144,6 +108,25 @@ class Document < Node
   
     # Make sure name is unique
     def document_before_validation
+      
+      base = self[:name]
+      base = version.title if base.blank?
+      if base.blank? && file = version.content.file
+        base = file.original_filename
+      end
+
+      if base
+        if base =~ /(.*)\.(\w+)$/
+          self.name = $1 if new_record?
+          self.version.content.ext ||= $2
+        else
+          self.name = base if new_record?
+        end
+        if version.title.to_s =~ /\A(.*)\.#{version.content.ext}$/i
+          version.title = $1
+        end
+      end
+      
       # we are in a scope, we cannot just use the normal validates_... 
       # FIXME: remove 'with_exclusive_scope' once scopes are clarified and removed from 'secure'
       Node.send(:with_exclusive_scope) do
