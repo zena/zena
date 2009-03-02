@@ -2,8 +2,8 @@ ActionController::Routing::Routes.draw do |map|
   
   map.home       ':prefix',  :controller => 'nodes',    :action => 'index',  :prefix => /[a-zA-Z]{0,2}/
   map.not_found  ':prefix/404.html',  :controller => 'nodes',    :action => 'not_found', :prefix => /\w\w/
-  map.login      'login',  :controller => 'session',  :action => 'new',    :requirements => { :method => :get  }
-  map.logout     'logout',  :controller => 'session',  :action => 'destroy'
+  map.login      'login',  :controller => 'sessions',  :action => 'new',    :requirements => { :method => :get  }
+  map.logout     'logout',  :controller => 'sessions',  :action => 'destroy'
   
   map.resource  :session   # singleton resource
   map.resources :users, :member => { :preferences => :get, :swap_dev => :get }
