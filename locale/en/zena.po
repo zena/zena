@@ -183,7 +183,7 @@ msgstr "<img src='/images/wrench.png' alt='drive'/>"
 #: app/helpers/application_helper.rb:1056
 #: app/helpers/application_helper.rb:1068
 msgid "btn_view"
-msgstr "<img src='/images/eye.png' alt='view'/>\""
+msgstr "<img src='/images/eye.png' alt='view'/>"
 
 #: app/helpers/application_helper.rb:1071
 msgid "img_open"

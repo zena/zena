@@ -78,8 +78,13 @@ namespace :zena do
     end
   end
   
+  desc "Load zena settings (sub-task)"
+  task :zena_config do
+    require File.join(File.dirname(__FILE__),'..','..','config','zena')
+  end
+  
   desc "Remove all zafu compiled templates"
-  task :clear_zafu do
+  task :clear_zafu => :zena_config do
     if File.exist?(SITES_ROOT)
       Dir.foreach(SITES_ROOT) do |site|
         next if site =~ /^\./

@@ -23,30 +23,21 @@ Dir.foreach(File.join(lib_path, 'core_ext')) do |f|
   require File.join(lib_path, 'core_ext', f)
 end
 
-# temporary fix for gettext
-class Object 
-  def self._(msg)
-    return msg
-  end
-  def _(msg)
-    return msg
-  end
-end
-class String
-  alias :__old_format_m :%
-  def %(hash = {})
-    if hash.kind_of?(Hash)
-      ret = dup
-      hash.keys.each do |key, value|
-        ret.gsub!("\%\{#{key}\}", value.to_s)
-      end
-      return ret
-    else
-      ret = gsub(/%\{/, '%%{')
-      ret.__old_format_m(hash)
-    end
-  end
-end
+#class String
+#  alias :__old_format_m :%
+#  def %(hash = {})
+#    if hash.kind_of?(Hash)
+#      ret = dup
+#      hash.keys.each do |key, value|
+#        ret.gsub!("\%\{#{key}\}", value.to_s)
+#      end
+#      return ret
+#    else
+#      ret = gsub(/%\{/, '%%{')
+#      ret.__old_format_m(hash)
+#    end
+#  end
+#end
 
 # avoids ActionView::Helpers::TextHelpers to load RedCloth before we do with our frozen gem
 class RedCloth < String; end
@@ -71,6 +62,7 @@ Rails::Initializer.run do |config|
   
   config.gem 'recaptcha', :version => '0.1.48'
   config.gem 'RedCloth',  :version => '3.0.4'
+  config.gem "grosser-fast_gettext", :lib => 'fast_gettext', :version => '~>0.2.10', :source=>"http://gems.github.com/"
 
   # Activate observers that should always be running
   # config.active_record.observers = :cacher, :garbage_collector
@@ -81,9 +73,14 @@ Rails::Initializer.run do |config|
   ENV['TZ'] = 'UTC'
 end
 
+FastGettext.add_text_domain 'zena', :path => 'locale'
+
 ActiveSupport::Inflector.inflections do |inflect|
   inflect.uncountable %w( children )
 end
+
+ZazenParser = Parser.parser_with_rules(Zazen::Rules, Zazen::Tags)
+ZafuParser  = Parser.parser_with_rules(Zafu::Rules, Zena::Rules, Zafu::Tags, Zena::Tags)
 
 =begin
 #FIXME: remove all these hacks !
@@ -98,8 +95,6 @@ require File.join(lib_path, 'use_find_helpers')
 require File.join(lib_path, 'use_zafu')
 require File.join(lib_path, 'node_query')
 require File.join(lib_path, 'comment_query')
-ZazenParser = Parser.parser_with_rules(Zazen::Rules, Zazen::Tags)
-ZafuParser  = Parser.parser_with_rules(Zafu::Rules, Zena::Rules, Zafu::Tags, Zena::Tags)
 
 require 'diff'
 

@@ -657,11 +657,11 @@ END_MSG
         visitor.lang = l
       end
       
-      if File.exist?("#{RAILS_ROOT}/locale/#{l}/LC_MESSAGES/zena.mo")
-        GetText.set_locale_all(l)
-      else
-        GetText.set_locale_all('en')
-      end
+      l = 'en' unless File.exist?("#{RAILS_ROOT}/locale/#{l}/LC_MESSAGES/zena.mo")
+      
+      FastGettext.text_domain = 'zena'
+      FastGettext.available_locales = current_site.lang_list
+      FastGettext.locale = l
     end
     
     # Redirect on lang chang
