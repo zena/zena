@@ -288,7 +288,8 @@ END_MSG
       
       skin_path = "/#{@skin_name}/#{template[:name]}"  
       fullpath  = skin_path + "/#{lang_path}/_main.erb"
-      url       = SITES_ROOT + current_site.zafu_path + fullpath
+      rel_url   = 'zafu'     + current_site.zafu_path + fullpath  # relative to app/views
+      url       = SITES_ROOT + current_site.zafu_path + fullpath  # absolute path
 
       if !File.exists?(url) || params[:rebuild]
         # no template ---> render
@@ -367,7 +368,7 @@ END_MSG
           :content_data    => res) }
       end
     
-      return url
+      return rel_url
     end
   
     # Return a template's content from an url. If the url does not start with a '/', we try by replacing the

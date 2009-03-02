@@ -2,13 +2,13 @@ require File.dirname(__FILE__) + '/../test_helper'
 require 'session_controller'
 
 # Re-raise errors caught by the controller.
-class SessionController; def rescue_action(e) raise e end; end
+class SessionsController; def rescue_action(e) raise e end; end
 
-class SessionControllerTest < ZenaTestController
+class SessionsControllerTest < ZenaTestController
   
   def setup
     super
-    @controller = SessionController.new
+    @controller = SessionsController.new
     init_controller
   end
   

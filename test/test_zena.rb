@@ -275,7 +275,7 @@ module Zena
       def login(visitor=:anon)
         return logout if visitor == :anon
         @controller_bak = @controller
-        @controller = SessionController.new
+        @controller = SessionsController.new
         post 'create', :login=>visitor.to_s, :password=>visitor.to_s
         sess = @controller.send(:session)
         @controller_bak.send(:session=, sess )
@@ -286,7 +286,7 @@ module Zena
 
       def logout
         @controller_bak = @controller
-        @controller = SessionController.new
+        @controller = SessionsController.new
         post 'destroy'
         @controller_bak.send(:session=,@controller.send(:session))
         @controller_bak.instance_variable_set(:@visitor,nil) # clear cached visitor
@@ -370,7 +370,7 @@ module Zena
         $_test_site  = site
         return logout if name == :anon
         @controller_bak = @controller
-        @controller = SessionController.new
+        @controller = SessionsController.new
         post 'create', :login=>name.to_s, :password=>name.to_s
         @controller_bak.send(:session=,@controller.send(:session))
         @controller_bak.instance_variable_set(:@visitor,nil) # clear cached visitor
@@ -379,7 +379,7 @@ module Zena
 
       def logout
         @controller_bak = @controller
-        @controller = SessionController.new
+        @controller = SessionsController.new
         post 'destroy'
         @controller_bak.send(:session=,@controller.send(:session))
         @controller_bak.instance_variable_set(:@visitor,nil) # clear cached visitor

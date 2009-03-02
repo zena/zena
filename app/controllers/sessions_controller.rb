@@ -1,7 +1,7 @@
 =begin rdoc
 Create, destroy sessions by letting users login and logout. When the user does not login, he/she is considered to be the anonymous user.
 =end
-class SessionController < ApplicationController
+class SessionsController < ApplicationController
   
   def new
     respond_to do |format|
