@@ -420,3 +420,5 @@ end
 class ZenaTestController < Test::Unit::TestCase
   include Zena::Test::TestController
 end
+
+NodeQuery.insert_zero_link(Link)

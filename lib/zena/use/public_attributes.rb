@@ -43,8 +43,24 @@ module Use
       # Safe attribute reader used when 'safe_readable?' could not be called because the class
       # is not known during compile time.
       def public_read(key)
+        return read_custom_field(key) if custom_field?(key)
         return "'#{key}' not readable" unless self.class.attr_public?(key)
         self.send(key)
+      end
+      
+      def custom_field?(key)
+        !methods.include?(key) && !self.class.column_names.include?(key.to_s) && @attributes.has_key?(key)
+      end
+
+      def read_custom_field(key)
+        val = @attributes[key]
+        if key =~ /_at$/ || key =~ /_date$/
+          self.class.columns.first.class.string_to_time(val)
+        elsif key =~ /_count$/
+          val.to_i
+        else
+          val
+        end
       end
     end
   end
@@ -64,6 +80,15 @@ end
 
 class Base
   include Zena::Use::PublicAttributes
+  def self.column_names
+    ['col_a','col_b']
+  end
+  def initialize
+    @attributes = {'custom' => 'custom value'}
+  end
+  def foo
+    'foo'
+  end
 end
 
 class Base2
@@ -85,4 +110,8 @@ end
 assert_equal ["b_r1", "b_r2"], B.public_attributes.sort
 assert_equal ["b2_a1"], B2.public_attributes.sort
 assert_equal ["b_r1", "b_r2", "c_a1"], C.public_attributes.sort
+assert_equal 'custom value', B.new.public_read('custom')
+assert_equal "'col_a' not readable", B.new.public_read('col_a')
+assert_equal "'foo' not readable", B.new.public_read('foo')
+assert_equal "'bar' not readable", B.new.public_read('bar')
 =end

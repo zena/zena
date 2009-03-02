@@ -1,8 +1,13 @@
 require File.dirname(__FILE__) + '/../test_helper'
 
 class DynDummy < ActiveRecord::Base
+  before_save :set_dummy_node_id
   set_table_name 'versions'
   uses_dynamic_attributes
+  def set_dummy_node_id
+    self[:node_id] = 0
+    self[:user_id] = 0
+  end
 end
 
 class DynStrictDummy < ActiveRecord::Base
