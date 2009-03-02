@@ -104,8 +104,24 @@ module Zena
     
     module InstanceMethods
       def zafu_read(sym)
+        return read_custom_field(sym) if custom_field?(sym)
         return "'#{sym}' not readable" unless self.class.zafu_readable?(sym)
         self.send(sym)
+      end
+      
+      def custom_field?(sym)
+        !methods.include?(sym) && !self.class.column_names.include?(sym.to_s)
+      end
+      
+      def read_custom_field(sym)
+        val = @attributes[sym]
+        if sym =~ /_at$/ || sym =~ /_date$/
+          self.class.columns.first.class.string_to_time(val)
+        elsif sym =~ /_count$/
+          val.to_i
+        else
+          val
+        end
       end
     end
   end
