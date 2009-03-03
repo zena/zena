@@ -49,7 +49,7 @@ function popup_loaded() {
 
 $('node_form').getElements().each(function(input, index) {
     new Form.Element.Observer(input, 3, function(element, value) {
-      <%= "opener.Zena.editor_preview('#{preview_version_url(:node_id=>@node[:zip], :id=>(@node.v_number || 0), :_method => :put, :escape => false)}',element,value);" %>
+      <%= "opener.Zena.editor_preview('#{preview_version_url(:node_id=>@node[:zip], :id=>(@node.v_number || 0), :escape => false)}',element,value);" %>
     });
 });
 
