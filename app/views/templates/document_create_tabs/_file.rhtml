@@ -1,4 +1,4 @@
-<% @uuid = UUID.timestamp_create.to_s -%>
+<% @uuid = UUID.random_create.to_s -%>
 <%= form_tag( {:action => 'upload', :upload_id => @uuid}, 
                     {:multipart => true, :target => 'UploadIFrame', :id => "UploadForm",
                      :onsubmit =>  "javascript:submitUploadForm('UploadForm', " +
