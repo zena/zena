@@ -228,6 +228,8 @@ task :create_awstats, :roles => :web do
       # create awstats config file
       awstats_conf = render("config/awstats.conf.rhtml", :host => self[:host] )
       put(awstats_conf, "/etc/awstats/awstats.#{self[:host]}.conf")
+      run "chown www-data:www-data /etc/awstats/awstats.#{self[:host]}.conf"
+      run "chmod 640 /etc/awstats/awstats.#{self[:host]}.conf"
     
       # create stats vhost
       stats_vhost = render("config/stats.vhost.rhtml", :host => self[:host] )
