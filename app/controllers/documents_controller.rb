@@ -55,9 +55,30 @@ class DocumentsController < ApplicationController
   end
   
   def upload_progress
+    # mimic apache2 mod_upload_progress
+    # 
+    # if (!found) {
+    #   response = apr_psprintf(r->pool, "new Object({ 'state' : 'starting' })");
+    # } else if (err_status >= HTTP_BAD_REQUEST  ) {
+    #   response = apr_psprintf(r->pool, "new Object({ 'state' : 'error', 'status' : %d })", err_status);
+    # } else if (done) {
+    #   response = apr_psprintf(r->pool, "new Object({ 'state' : 'done' })");
+    # } else if ( length == 0 && received == 0 ) {
+    #   response = apr_psprintf(r->pool, "new Object({ 'state' : 'starting' })");
+    # } else {
+    #   response = apr_psprintf(r->pool, "new Object({ 'state' : 'uploading', 'received' : %d, 'size' : %d, 'speed' : %d  })", received, length, speed);
+    # }
     render :update do |page|
-      @status = Mongrel::Uploads.check(params[:upload_id])
-      page.upload_progress.update(@status[:size], @status[:received]) if @status
+      @status = Mongrel::Uploads.check(params[:"X-Progress-ID"])
+      if @status
+        if @status[:received] != @status[:size]
+          page << "new Object({ 'state' : 'uploading', 'received' : #{@status[:received]}, 'size' : #{@status[:size]} })"
+        else
+          page << "new Object({ 'state' : 'done' })"
+        end
+      else
+        #page << "new Object({ 'state' : 'done' })"
+      end
     end
   end
   

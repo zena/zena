@@ -25,9 +25,8 @@
   <div id='loader'><img src='/images/ajax-loader.gif'/> <r:trans text='uploading'/></div> 
   <div id="ProgressBarContainer">
   	<div id="ProgressBarShell" style="display:none;">
-  		<div id="ProgressBar">
-  			<span id="ProgressBarText">...</span>
-  		</div>
+			<div id="ProgressBarText">&nbsp;</div>
+  		<div id="ProgressBar">&nbsp;</div>
   	</div>
   </div>
   

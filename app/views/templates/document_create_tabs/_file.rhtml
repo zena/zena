@@ -1,5 +1,5 @@
-<% @uuid = UUID.random_create.to_s -%>
-<%= form_tag( {:action => 'upload', :upload_id => @uuid}, 
+<% @uuid = UUID.random_create.to_s.gsub('-','') -%>
+<%= form_tag( {:action => 'upload', UPLOAD_KEY => @uuid}, 
                     {:multipart => true, :target => 'UploadIFrame', :id => "UploadForm",
                      :onsubmit =>  "javascript:submitUploadForm('UploadForm', " +
                                    "'documents', " + 

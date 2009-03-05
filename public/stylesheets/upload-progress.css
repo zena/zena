@@ -1,11 +1,11 @@
 #ProgressBarContainer, #ProgressMessage, #ProgressBarShell {display:block; width:15em; font-size:1em; height:auto;}
 #ProgressBarContainer { height:1.5em; }
-#ProgressMessage { margin:1.2em 1.2em 0.2em 1.2em; font-weight:normal; color:#333; text-align:center; }
-#ProgressBarShell {border:solid 1px silver; margin:0 1.2em 1.2em 1.2em; padding:0; }
-#ProgressBar {width:0; margin:0.1em; }
-#ProgressBarText {display:block; background-color:transparent; color:#333; width:15em; text-align:center; padding-top:0.2em; }
+#ProgressMessage { margin:1.2em 1.2em 0.2em 1.2em; font-weight:normal; text-align:center; }
+#ProgressBarShell {border:solid 1px silver; margin:0 1.2em 1.2em 1.2em; padding:0; background:black; width:15em; }
+#ProgressBar {width:0; margin:0.1em; height:1.2em;}
+#ProgressBarText {display:block; background-color:transparent; color:#aaa; width:100%; text-align:center; font-size:12px; padding:0.2em; position:absolute;}
 #UploadIFrame {width:0; height:0; border:0; }
 
-.Uploading  {background-color:#ff6; }
+.Uploading  {background-color:blue; }
 .Processing {background-color:#6ff; }
 .Finished   {background-color:#6f3; }

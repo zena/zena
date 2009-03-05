@@ -33,23 +33,41 @@ PeriodicalExecuter.prototype.stop = function() {
 
 var UploadProgress = {
   uploading: false,
+  period: 1.0,
+  morphPeriod: 1.2,
 	
   monitor: function(controller, uuid) {
     this.setAsStarting() ;
     this.watcher = new PeriodicalExecuter(function() {
       if (!UploadProgress.uploading) { return ; }
-      new Ajax.Request('/' + controller + '/upload_progress?upload_id=' + uuid) ;
-    }, 2) ;
+      new Ajax.Request('/' + controller + '/upload_progress?X-Progress-ID=' + uuid, {
+        method: 'get',
+        onSuccess: function(xhr){
+          var upload = xhr.responseText.evalJSON();
+          if(upload.state == 'uploading'){
+            UploadProgress.update(upload.size, upload.received);
+          } else if (upload.state == 'done') {
+            new Effect.Morph('ProgressBar', {
+              style: 'width: 100%;',
+              duration: this.morphPeriod
+            });
+          }
+        }
+      }) ;
+    }, this.period) ;
   },
 
   update: function(total, current) {
     if (!this.uploading) { return ; }
-    var progress = current / total ;
-		var maxWidth = $('ProgressBarShell').offsetWidth ;
-    var newWidth = Math.floor(progress * maxWidth) ;
-		$('ProgressBar').setAttribute('width', newWidth + 'px') ;
-    $('ProgressBar').style.width = newWidth + 'px' ;
-    $('ProgressBarText').innerHTML = total.toHumanSize() + ': ' + progress.toPercentage() ;
+		var progress = Math.floor(100 * current / total) ;
+		var progressDuration = this.morphPeriod;
+		if (progress > 90) progressDuration = 2 * progressDuration;
+    new Effect.Morph('ProgressBar', {
+      style: 'width:' + progress + '%;',
+      duration: progressDuration
+    });
+    
+    $('ProgressBarText').innerHTML = total.toHumanSize() + ': ' + progress + '%' ;
   },
   
   setAsStarting: function() {
@@ -57,7 +75,7 @@ var UploadProgress = {
     this.processing = false ;
 	  $('ProgressBar').style.width = '0%' ; 
 	  $('ProgressBar').className = 'Uploading' ;
-		$('ProgressBarText').innerHTML  = '...' ;
+		$('ProgressBarText').innerHTML  = '&nbsp;' ;
 	  Effect.Appear('ProgressBarShell') ;
   },
   
@@ -72,10 +90,12 @@ var UploadProgress = {
   setAsFinished: function() {
     this.uploading = false ;
     this.watcher.stop() ;
-    $('ProgressBar').style.width = 'auto' ;
-    $('ProgressBar').className   = 'Finished' ;
+    new Effect.Morph('ProgressBar', {
+      style: 'width: 100%;',
+      duration: this.morphPeriod
+    });
 		$('ProgressBarText').innerHTML  = '100%' ;
-	  Effect.Fade('ProgressBarShell', { duration: 1.5 });
+	  Effect.Fade('ProgressBarShell', { duration: 2.5 });
 	}
 }
 
@@ -101,10 +121,6 @@ Number.prototype.toPrecision = function() {
   var pos       = s.length - precision;
   var last      = s.substr(pos, precision);
   return s.substr(0, pos) + (last.match("^0{" + precision + "}$") ? '' : '.' + last);
-}
-
-Number.prototype.toPercentage = function() {
-  return Math.floor(this * 100) + '%';
 }
 
 Number.prototype.toHumanSize = function() {

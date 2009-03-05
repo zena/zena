@@ -13,4 +13,3 @@ ActiveRecord::Base.send :include, Zena::Acts::Multiversion
 ActiveRecord::Base.send :use_find_helpers # find helpers for all models
 
 Bricks::Patcher.load_bricks
-
