@@ -186,32 +186,26 @@ class NodesController < ApplicationController
           # math rendered as png, ...
           filename     = "#{asset}.#{params[:format]}"
           content_path = @node.asset_path(filename)
-          raise ActiveRecord::RecordNotFound unless File.exist?(content_path)
-          data = File.new(content_path)
           content_type = (EXT_TO_TYPE[params[:format]] || ['application/octet-stream'])[0]
-          send_data( data.read , :filename=>filename, :type => content_type, :disposition=>'inline')
-          data.close
+          send_file(content_path, :filename=>filename, :type => content_type, :disposition=>'inline', :x_sendfile => ENABLE_XSENDFILE)
           cache_page(:content_path => content_path, :authenticated => @node.public?) # content_path is used to cache by creating a symlink
         elsif @node.kind_of?(Document) && params[:format] == @node.c_ext
           # Get document data (inline if possible)
-        
+          content_path = nil
+          
           if @node.kind_of?(Image) && !ImageBuilder.dummy?
             if img_format = Iformat[params[:mode]]
-              data = @node.c_file(img_format)
               content_path = @node.c_filepath(img_format)
+              # force creation of image data
+              @node.c_file(img_format)
             end
           elsif @node.kind_of?(TextDocument)
-            data = StringIO.new(@node.v_text)
-            content_path = nil
+            send_data(StringIO.new(@node.v_text), :filename => @node.filename, :type => @node.c_content_type, :disposition=>'inline')
           else
-            data         = @node.c_file
             content_path = @node.c_filepath
           end
           
-          raise ActiveRecord::RecordNotFound unless data
-        
-          send_data( data.read , :filename=>@node.filename, :type => @node.c_content_type, :disposition=>'inline')
-          data.close
+          send_file(content_path, :filename => @node.filename, :type => @node.c_content_type, :disposition => 'inline', :x_sendfile => ENABLE_XSENDFILE) if content_path
           cache_page(:content_path => content_path, :authenticated => @node.public?) # content_path is used to cache by creating a symlink
         else
           render_and_cache
@@ -284,9 +278,7 @@ class NodesController < ApplicationController
   end
   
   def export
-    data = @node.archive
-    send_data( data.read, :filename=>"#{@node.name}.tgz", :type => 'application/x-gzip')
-    data.close
+    send_file(@node.archive.path, :filename=>"#{@node.name}.tgz", :type => 'application/x-gzip', :x_sendfile => ENABLE_XSENDFILE)
   end
   
   def update
@@ -389,6 +381,10 @@ class NodesController < ApplicationController
   
   
   protected
+    def send_file(*args)
+      super
+      puts "#{Time.now} #{Thread.current.object_id} $foobar = #{$foobar}"
+    end
     
     # Find a node based on the path or id. When there is a path, the node is found using the zip included in the path
     # or by fullpath:
@@ -404,6 +400,8 @@ class NodesController < ApplicationController
       if path = params[:path]
         if path.last =~ /\A(([a-zA-Z]+)([0-9]+)|([a-zA-Z0-9\-\*]+))(_[a-zA-Z]+|)(\..+|)\Z/
           zip    = $3
+          $foobar = zip
+          puts "#{Time.now} #{Thread.current.object_id} $foobar set = #{$foobar}"
           name   = $4
           params[:mode] = $5 == '' ? nil : $5[1..-1]
           asset_and_format = $6 == '' ? '' : $6[1..-1]

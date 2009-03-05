@@ -17,6 +17,7 @@ ENABLE_LATEX   = true  && has_executable('pdflatex') # enable LateX post-renderi
 ENABLE_FOP     = true  && has_executable('fop', 'xsltproc') # enable xsl-fo post-rendering
 ENABLE_MATH    = true  && has_executable('latex', 'dvips', 'convert', 'gs')
 ENABLE_ZENA_UP = false && has_executable('zena_up')
+ENABLE_XSENDFILE = false
 
 tools_enabled = {:Latex => ENABLE_LATEX, :fop => ENABLE_FOP, :math => ENABLE_MATH, :zena_up => ENABLE_ZENA_UP}.map{|k,v| v ? k : nil}.compact
 puts "** zena #{Zena::VERSION::STRING} r#{Zena::VERSION::REV} #{tools_enabled == [] ? '' : '('+tools_enabled.join(', ')+') '}starting"
