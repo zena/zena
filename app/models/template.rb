@@ -89,7 +89,7 @@ END_TXT
     end
     
     def valid_section
-      @need_skin_name_update = !new_record? && old.section_id != section[:id]
+      @need_skin_name_update = !new_record? && section_id_changed?
       errors.add('parent_id', 'Invalid parent (section is not a Skin)') unless section.kind_of?(Skin)
     end
     

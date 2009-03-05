@@ -1,4 +1,5 @@
 class TemplateContent < ActiveRecord::Base
+  act_as_content
   attr_public     :tkpath, :ext, :format, :content_type, :filename, :mode, :klass, :skin_name
   
   # FIXME: use attr_accessible !

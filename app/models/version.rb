@@ -222,12 +222,14 @@ class Version < ActiveRecord::Base
     def valid_version
       errors.add('lang', 'not valid') unless visitor.site.lang_list.include?(self[:lang])
       # validate content
+      # TODO: we could use autosave here
       if @content && !@content.valid?
-        @content.errors.each do |key,message|
-          if key.to_s == 'base'
-            errors.add(key.to_s,message)
+        @content.errors.each do |attribute,message|
+          if attribute.to_s == 'base'
+            errors.add_to_base(message)
           else
-            errors.add("c_#{key}",message)
+            attribute = "content_#{attribute}"
+            errors.add(attribute, message) unless errors.on(attribute)
           end
         end
       

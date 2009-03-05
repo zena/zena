@@ -98,8 +98,14 @@ class DocumentContentTest < ActiveSupport::TestCase
       login(:tiger)
       node = secure!(Node) { nodes(:bird_jpg) }
       assert !node.update_attributes(:c_file=>uploaded_pdf('water.pdf'))
-      assert_equal 'must be an image', node.errors[:c_file]
+      assert_equal 'must be an image', node.errors[:version_content_file]
     end
+  end
+  
+  def test_would_edit
+    doc = document_contents(:bird_jpg)
+    assert doc.would_edit?('file' => uploaded_pdf('water.pdf'))
+    assert !doc.would_edit?('file' => uploaded_pdf('bird.jpg'))
   end
   
 end

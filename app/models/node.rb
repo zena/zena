@@ -746,10 +746,10 @@ class Node < ActiveRecord::Base
             "#{node}.version.#{att}"
           else
             # might be readable by sub-classes
-            "#{node}.version.zafu_read(#{attribute[2..-1].inspect})"
+            "#{node}.version.public_read(#{attribute[2..-1].inspect})"
           end
         when 'c_'
-          "#{node}.c_zafu_read(#{attribute[2..-1].inspect})"
+          "#{node}.c_public_read(#{attribute[2..-1].inspect})"
         when 'd_'
           "#{node}.version.dyn[#{attribute[2..-1].inspect}]"
         else
@@ -757,19 +757,19 @@ class Node < ActiveRecord::Base
             "#{node}.#{attribute}"
           else
             # unknown attribute for Node, resolve at runtime with real class
-            "#{node}.zafu_read(#{attribute.inspect})"
+            "#{node}.public_read(#{attribute.inspect})"
           end
         end
       else
         case attribute[0..1]
         when 'v_'
-          node.version.zafu_read(attribute[2..-1])
+          node.version.public_read(attribute[2..-1])
         when 'c_'
-          node.c_zafu_read(attribute[2..-1])
+          node.c_public_read(attribute[2..-1])
         when 'd_'
           node.version.dyn[attribute[2..-1]]
         else
-          node.zafu_read(attribute)
+          node.public_read(attribute)
         end
       end
     end
@@ -1092,9 +1092,9 @@ class Node < ActiveRecord::Base
     (name && name != '' && name =~ /\./ ) ? name.split('.').last : ''
   end
   
-  def c_zafu_read(sym)
+  def c_public_read(sym)
     if c = version.content
-      c.zafu_read(sym)
+      c.public_read(sym)
     else
       ''
     end

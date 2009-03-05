@@ -63,7 +63,8 @@ Rails::Initializer.run do |config|
   config.gem 'recaptcha', :version => '0.1.48'
   config.gem 'RedCloth',  :version => '3.0.4'
   config.gem "grosser-fast_gettext", :lib => 'fast_gettext', :version => '~>0.2.10', :source=>"http://gems.github.com/"
-  config.gem "carlosbrando-remarkable", :lib => "remarkable", :source => "http://gems.github.com"
+  # TODO: uncomment this line when remarkable stops loading spec/rails or when spec/rails stops messing unit tests. (http://carlosbrando.lighthouseapp.com/projects/19775-remarkable/tickets/14-breaks-testunit-tests#ticket-14-5)
+  #config.gem "carlosbrando-remarkable", :lib => "remarkable", :source => "http://gems.github.com"
 
   # Activate observers that should always be running
   # config.active_record.observers = :cacher, :garbage_collector

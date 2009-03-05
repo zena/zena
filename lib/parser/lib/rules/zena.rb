@@ -2873,7 +2873,7 @@ END_TXT
         "#{att_node}.#{real_attribute}"
       else
         # unknown class, resolve at runtime
-        "#{att_node}.zafu_read(#{real_attribute.inspect})"
+        "#{att_node}.public_read(#{real_attribute.inspect})"
       end
       
       res = "(#{res} || #{node_attribute(opts[:else])})" if opts[:else]

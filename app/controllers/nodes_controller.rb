@@ -200,7 +200,7 @@ class NodesController < ApplicationController
               @node.c_file(img_format)
             end
           elsif @node.kind_of?(TextDocument)
-            send_data(StringIO.new(@node.v_text), :filename => @node.filename, :type => @node.c_content_type, :disposition=>'inline')
+            send_data(@node.v_text, :filename => @node.filename, :type => @node.c_content_type, :disposition=>'inline')
           else
             content_path = @node.c_filepath
           end
@@ -381,10 +381,6 @@ class NodesController < ApplicationController
   
   
   protected
-    def send_file(*args)
-      super
-      puts "#{Time.now} #{Thread.current.object_id} $foobar = #{$foobar}"
-    end
     
     # Find a node based on the path or id. When there is a path, the node is found using the zip included in the path
     # or by fullpath:
@@ -400,8 +396,6 @@ class NodesController < ApplicationController
       if path = params[:path]
         if path.last =~ /\A(([a-zA-Z]+)([0-9]+)|([a-zA-Z0-9\-\*]+))(_[a-zA-Z]+|)(\..+|)\Z/
           zip    = $3
-          $foobar = zip
-          puts "#{Time.now} #{Thread.current.object_id} $foobar set = #{$foobar}"
           name   = $4
           params[:mode] = $5 == '' ? nil : $5[1..-1]
           asset_and_format = $6 == '' ? '' : $6[1..-1]

@@ -708,7 +708,7 @@ END_MSG
       return '#' unless node
       if sharp = options.delete(:sharp)
         if sharp =~ /\[(.+)\]/
-          sharp_value = node.zafu_read($1)
+          sharp_value = node.public_read($1)
         elsif sharp == 'true'
           sharp_value = "node#{node[:zip]}"
         else

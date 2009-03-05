@@ -159,8 +159,8 @@ ActiveRecord::Schema.define(:version => 0) do
   end
 
   create_table "links", :force => true do |t|
-    t.integer "source_id",                 :null => false
-    t.integer "target_id",                 :null => false
+    t.integer "source_id"
+    t.integer "target_id"
     t.integer "relation_id"
     t.integer "status"
     t.string  "comment",     :limit => 60

@@ -14,5 +14,3 @@ ActiveRecord::Base.send :use_find_helpers # find helpers for all models
 
 Bricks::Patcher.load_bricks
 
-# FIXME: could we get rid of the zero_link ?
-NodeQuery.insert_zero_link(Link)
