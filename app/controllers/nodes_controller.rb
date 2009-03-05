@@ -187,10 +187,11 @@ class NodesController < ApplicationController
           filename     = "#{asset}.#{params[:format]}"
           content_path = @node.asset_path(filename)
           content_type = (EXT_TO_TYPE[params[:format]] || ['application/octet-stream'])[0]
-          send_file(:path => content_path, :filename=>filename, :type => content_type, :disposition=>'inline')
+          send_file(content_path, :filename=>filename, :type => content_type, :disposition=>'inline', :x_sendfile => ENABLE_XSENDFILE)
           cache_page(:content_path => content_path, :authenticated => @node.public?) # content_path is used to cache by creating a symlink
         elsif @node.kind_of?(Document) && params[:format] == @node.c_ext
           # Get document data (inline if possible)
+          content_path = nil
           
           if @node.kind_of?(Image) && !ImageBuilder.dummy?
             if img_format = Iformat[params[:mode]]
@@ -199,12 +200,12 @@ class NodesController < ApplicationController
               @node.c_file(img_format)
             end
           elsif @node.kind_of?(TextDocument)
-            data = StringIO.new(@node.v_text)
+            send_data(StringIO.new(@node.v_text), :filename => @node.filename, :type => @node.c_content_type, :disposition=>'inline')
           else
             content_path = @node.c_filepath
           end
           
-          send_file( :path => content_path, :data => data, :filename=>@node.filename, :type => @node.c_content_type, :disposition=>'inline')
+          send_file(content_path, :filename => @node.filename, :type => @node.c_content_type, :disposition => 'inline', :x_sendfile => ENABLE_XSENDFILE) if content_path
           cache_page(:content_path => content_path, :authenticated => @node.public?) # content_path is used to cache by creating a symlink
         else
           render_and_cache
@@ -277,7 +278,7 @@ class NodesController < ApplicationController
   end
   
   def export
-    send_file( :file => @node.archive, :filename=>"#{@node.name}.tgz", :type => 'application/x-gzip')
+    send_file(@node.archive.path, :filename=>"#{@node.name}.tgz", :type => 'application/x-gzip', :x_sendfile => ENABLE_XSENDFILE)
   end
   
   def update
@@ -380,28 +381,9 @@ class NodesController < ApplicationController
   
   
   protected
-    def send_file(opts)
-      content_path = nil
-      if data = opts.delete(:data)
-        send_data(data.read, opts)
-        return
-      elsif file = opts.delete(:file)
-        content_path = file.path
-      else
-        content_path = opts.delete(:path)
-      end
-      
-      raise ActiveRecord::RecordNotFound if content_path.nil? || !File.exist?(content_path)
-      
-      if ENABLE_XSENDFILE
-        response.headers['Content-Type'] = opts[:type] if opts[:type]
-        response.headers['Content-Disposition'] = "inline; filename=\"#{opts[:filename]}\"" if opts[:filename]
-        response.headers["X-Sendfile"] = content_path
-        response.headers['Content-length'] = File.size(content_path)
-        render :nothing => true
-      else
-        send_data(File.read(content_path), opts)
-      end
+    def send_file(*args)
+      super
+      puts "#{Time.now} #{Thread.current.object_id} $foobar = #{$foobar}"
     end
     
     # Find a node based on the path or id. When there is a path, the node is found using the zip included in the path
@@ -418,6 +400,8 @@ class NodesController < ApplicationController
       if path = params[:path]
         if path.last =~ /\A(([a-zA-Z]+)([0-9]+)|([a-zA-Z0-9\-\*]+))(_[a-zA-Z]+|)(\..+|)\Z/
           zip    = $3
+          $foobar = zip
+          puts "#{Time.now} #{Thread.current.object_id} $foobar set = #{$foobar}"
           name   = $4
           params[:mode] = $5 == '' ? nil : $5[1..-1]
           asset_and_format = $6 == '' ? '' : $6[1..-1]
