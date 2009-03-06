@@ -271,10 +271,18 @@ class NodesController < ApplicationController
   
   # import sub-nodes from a file
   def import
-    @nodes = secure!(Node) { Node.create_nodes_from_folder(:klass => params[:node][:klass], :archive => params[:node][:archive], :parent => @node) }.values
-    
+    @nodes = secure!(Node) { Node.create_nodes_from_folder(:klass => params[:node][:klass], :archive => params[:attachment], :parent => @node) }.values
     # parse pseudo_ids
     parse_assets(@nodes)
+    
+    responds_to_parent do # execute the redirect in the main window
+      render :update do |page|
+        page.call "UploadProgress.setAsFinished"
+        page.delay(1) do # allow the progress bar fade to complete
+          page.replace_html 'import_tab', :partial => 'import_results'
+        end
+      end  
+    end
   end
   
   def export

@@ -109,9 +109,10 @@ class ImageContent < DocumentContent
   end
 
   def image_with_format(format=nil)
-    if @file
+    if new_record? && @file
       ImageBuilder.new(:file=>@file).transform!(format)
     elsif !new_record?
+      format   ||= Iformat['full']
       @formats ||= {}
       @formats[format[:name]] ||= ImageBuilder.new(:path=>filepath, 
               :width=>self[:width], :height=>self[:height]).transform!(format)

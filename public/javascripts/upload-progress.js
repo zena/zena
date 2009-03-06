@@ -1,17 +1,10 @@
-//
-// NOTE: this code relies on prototype and scriptaclulous...
-//
 
-//
-// make sure a file is selected before submission
-//
-
-function submitUploadForm(form, controller, uuid) {
-  if (/\w/.exec($('data').value)) {
-    UploadProgress.monitor(controller, uuid) ;
-		$(form).submit() ;
-	} else {
-  	alert('You must choose a file to upload!') ;
+function submitUploadForm(form, uuid) {
+  if ($('progress_bar' + uuid)) return;
+  var need_progress = /\w/.exec($('attachment' + uuid).value);
+  $(form).submit();
+  if (need_progress) {
+    UploadProgress.monitor(uuid) ;
 	} 
 }
 
@@ -36,18 +29,20 @@ var UploadProgress = {
   period: 1.0,
   morphPeriod: 1.2,
 	
-  monitor: function(controller, uuid) {
-    this.setAsStarting() ;
+  monitor: function(uuid) {
+    this.uuid = uuid;
+    this.buildProgressBar();
+    this.setAsStarting();
     this.watcher = new PeriodicalExecuter(function() {
       if (!UploadProgress.uploading) { return ; }
-      new Ajax.Request('/' + controller + '/upload_progress?X-Progress-ID=' + uuid, {
+      new Ajax.Request('/upload_progress?X-Progress-ID=' + uuid, {
         method: 'get',
         onSuccess: function(xhr){
           var upload = xhr.responseText.evalJSON();
           if(upload.state == 'uploading'){
             UploadProgress.update(upload.size, upload.received);
           } else if (upload.state == 'done') {
-            new Effect.Morph('ProgressBar', {
+            new Effect.Morph('progress_bar' + this.uuid, {
               style: 'width: 100%;',
               duration: this.morphPeriod
             });
@@ -56,46 +51,41 @@ var UploadProgress = {
       }) ;
     }, this.period) ;
   },
+  
+  
+  buildProgressBar: function() {
+    $('attachment' + this.uuid).insert({after:'<div class ="progress_shell" id="progress_shell' + this.uuid + '"><div class="progress_text" id="progress_text' + this.uuid + '">&nbsp;</div><div class="progress_bar" id="progress_bar' + this.uuid + '" style="width:0%;">&nbsp;</div></div>'});
+    $('attachment' + this.uuid).hide();
+  },
 
   update: function(total, current) {
     if (!this.uploading) { return ; }
 		var progress = Math.floor(100 * current / total) ;
 		var progressDuration = this.morphPeriod;
-		if (progress > 90) progressDuration = 2 * progressDuration;
-    new Effect.Morph('ProgressBar', {
+		if (progress > 90) progressDuration = 1.5 * progressDuration;
+    new Effect.Morph('progress_bar' + this.uuid, {
       style: 'width:' + progress + '%;',
       duration: progressDuration
     });
     
-    $('ProgressBarText').innerHTML = total.toHumanSize() + ': ' + progress + '%' ;
+    $('progress_text' + this.uuid).innerHTML = total.toHumanSize() + ': ' + progress + '%' ;
   },
   
   setAsStarting: function() {
     this.uploading = true ;
-    this.processing = false ;
-	  $('ProgressBar').style.width = '0%' ; 
-	  $('ProgressBar').className = 'Uploading' ;
-		$('ProgressBarText').innerHTML  = '&nbsp;' ;
-	  Effect.Appear('ProgressBarShell') ;
-  },
-  
-  setAsProcessing: function() {
-    this.uploading = false ;
-    this.watcher.stop() ;
-    $('ProgressBar').style.width = 'auto' ;
-    $('ProgressBar').className   = 'Processing' ;
-		$('ProgressBarText').innerHTML  = '100%' ;
+    this.processing = false;
+	  Effect.Appear('progress_shell' + this.uuid) ;
   },
 
   setAsFinished: function() {
     this.uploading = false ;
     this.watcher.stop() ;
-    new Effect.Morph('ProgressBar', {
+    new Effect.Morph('progress_bar' + this.uuid, {
       style: 'width: 100%;',
       duration: this.morphPeriod
     });
-		$('ProgressBarText').innerHTML  = '100%' ;
-	  Effect.Fade('ProgressBarShell', { duration: 2.5 });
+		$('progress_text' + this.uuid).innerHTML  = '100%' ;
+	  Effect.Fade('progress_shell' + this.uuid, { duration: 2.5 });
 	}
 }
 
@@ -125,10 +115,10 @@ Number.prototype.toPrecision = function() {
 
 Number.prototype.toHumanSize = function() {
   if(this < (1).kilobyte())  return this + " Bytes";
-  if(this < (1).megabyte())  return (this / (1).kilobyte()).toPrecision()  + ' KB';
-  if(this < (1).gigabytes()) return (this / (1).megabyte()).toPrecision()  + ' MB';
-  if(this < (1).terabytes()) return (this / (1).gigabytes()).toPrecision() + ' GB';
-  if(this < (1).petabytes()) return (this / (1).terabytes()).toPrecision() + ' TB';
-  if(this < (1).exabytes())  return (this / (1).petabytes()).toPrecision() + ' PB';
-                             return (this / (1).exabytes()).toPrecision()  + ' EB';
+  if(this < (1).megabyte())  return (this / (1).kilobyte()).toPrecision()  + ' Kb';
+  if(this < (1).gigabytes()) return (this / (1).megabyte()).toPrecision()  + ' Mb';
+  if(this < (1).terabytes()) return (this / (1).gigabytes()).toPrecision() + ' Gb';
+  if(this < (1).petabytes()) return (this / (1).terabytes()).toPrecision() + ' Tb';
+  if(this < (1).exabytes())  return (this / (1).petabytes()).toPrecision() + ' Pb';
+                             return (this / (1).exabytes()).toPrecision()  + ' Eb';
 }

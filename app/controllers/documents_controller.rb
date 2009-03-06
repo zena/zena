@@ -114,7 +114,7 @@ class DocumentsController < ApplicationController
     
     def create_document
       attrs = params['node']
-      attrs['c_file'] = params['data'] if params['data'] # upload-progress needs 'data' as name
+      attrs['c_file'] = params['attachment'] if params['attachment']
       attrs[:klass] ||= 'Document'
       if attrs['c_file'].kind_of?(String)
         attrs['c_file'] = StringIO.new(attrs['c_file'])

@@ -134,6 +134,13 @@ module ApplicationHelper
     "\n// ]]>\n</script>"
   end
   
+  def upload_form_tag(url_opts)
+    @uuid = UUID.random_create.to_s.gsub('-','')
+    form_tag( url_opts.merge(UPLOAD_KEY => @uuid), 
+      { :multipart => true, :target => 'UploadIFrame', :id => "UploadForm#{@uuid}",
+        :onsubmit =>  "submitUploadForm('UploadForm#{@uuid}', '#{@uuid}');"})
+  end
+  
   # Date selection tool
 	def date_box(obj, var, opts = {})
 	  rnd_id = rand(100000000000)

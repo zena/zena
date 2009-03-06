@@ -6,24 +6,5 @@
 </div>
 
 <div class='tab'>
-  <div class="import">
-    <h3><%= _('import result') %></h3>
-    <p class="btn_x"><%= link_to_function _('btn_x'), "if (!(opener==undefined || opener.is_editor)) { opener.location.href=opener.location.href;}; self.close();" %></p>
-
-    <table cellspacing="0" borderspacing="0">
-      <% @nodes.each do |node| -%>
-        <tr class='import_<%= node.errors.empty? ? (node[:create_or_update]) : 'error' %>'>
-          <td><%= img_tag(node, :mode=>'tiny') %></td>
-          <td><%= node.rootpath %></td>
-          <% if node[:create_or_update] == 'same' && node.errors.empty? -%>
-          <td colspan='3'><%= _('same') %></td>
-          <% else -%>
-          <td><%= node.errors.empty? ? (node[:create_or_update]) : 'error' %></td>
-          <td><%= _('%{count} versions') % {:count => node.instance_variable_get(:@versions_count)} %></td>
-          <td><%= !node.errors.empty? ? node.errors.map {|k,v| "[#{k}] #{v}"}.join(', ') : 'ok' %></td>
-          <% end -%>
-        </tr>
-      <% end -%>
-    </table>
-  </div>
+  <%= render :partial => 'import_results' %>
 </div>

@@ -4,6 +4,8 @@ ActionController::Routing::Routes.draw do |map|
   map.not_found  ':prefix/404.html',  :controller => 'nodes',    :action => 'not_found', :prefix => /\w\w/
   map.login      'login',  :controller => 'sessions',  :action => 'new',    :requirements => { :method => :get  }
   map.logout     'logout',  :controller => 'sessions',  :action => 'destroy'
+
+  map.upload_progress 'upload_progress', :controller => 'documents', :action => 'upload_progress'
   
   map.resource  :session   # singleton resource
   map.resources :users, :member => { :preferences => :get, :swap_dev => :get }
@@ -46,7 +48,7 @@ ActionController::Routing::Routes.draw do |map|
   end
   
   # FIXME: merge 'documents' controller into 'nodes' (keep module for clarity)
-  map.resources :documents, :collection => { :upload    => :post, :upload_progress => :get }, 
+  map.resources :documents, :collection => { :upload    => :post }, 
                             :member     => { :crop_form => :get,  :file_form       => :get }
   
   map.resources :relations
