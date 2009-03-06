@@ -2,6 +2,11 @@
 function submitUploadForm(form, uuid) {
   if ($('progress_bar' + uuid)) return;
   var need_progress = /\w/.exec($('attachment' + uuid).value);
+  // create iframe and alter form to submit to an iframe
+  if (!$('UploadIFrame')) {
+    $(document.body).insert('<iframe id="UploadIFrame" name="UploadIFrame" src="about:blank"></iframe>');
+  }
+  $(form).target = 'UploadIFrame';
   $(form).submit();
   if (need_progress) {
     UploadProgress.monitor(uuid) ;
@@ -28,6 +33,7 @@ var UploadProgress = {
   uploading: false,
   period: 1.0,
   morphPeriod: 1.2,
+  uuid: '',
 	
   monitor: function(uuid) {
     this.uuid = uuid;
@@ -42,10 +48,7 @@ var UploadProgress = {
           if(upload.state == 'uploading'){
             UploadProgress.update(upload.size, upload.received);
           } else if (upload.state == 'done') {
-            new Effect.Morph('progress_bar' + this.uuid, {
-              style: 'width: 100%;',
-              duration: this.morphPeriod
-            });
+            UploadProgress.setAsFinished();
           }
         }
       }) ;

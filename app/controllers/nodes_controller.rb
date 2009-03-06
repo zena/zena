@@ -290,7 +290,7 @@ class NodesController < ApplicationController
   end
   
   def update
-    
+    params['node']['c_file'] = params['attachment'] if params['attachment']
     @node.update_attributes_with_transformation(params['node'])
     
     if @node.errors.empty?
@@ -299,15 +299,26 @@ class NodesController < ApplicationController
       flash.now[:error]  = _('could not update')
     end
     
-    respond_to do |format|
-      format.html do
-        if params[:edit] == 'popup'
-          redirect_to edit_version_url(:node_id => @node[:zip], :id=>(@node.v_number || 0), :close => (params[:validate] ? true : nil)) 
-        else
-          redirect_to zen_path(@node, :mode => params[:mode])
-        end
+    if params[:attachment]
+      responds_to_parent do # execute the redirect in the main window
+        render :update do |page|
+          page.call "UploadProgress.setAsFinished"
+          page.delay(1) do # allow the progress bar fade to complete
+            page.redirect_to edit_version_url(:node_id => @node[:zip], :id=>(@node.v_number || 0), :close => (params[:validate] ? true : nil))
+          end
+        end  
       end
-      format.js   { @flash = flash }
+    else
+      respond_to do |format|
+        format.html do
+          if params[:edit] == 'popup'
+            redirect_to edit_version_url(:node_id => @node[:zip], :id=>(@node.v_number || 0), :close => (params[:validate] ? true : nil)) 
+          else
+            redirect_to zen_path(@node, :mode => params[:mode])
+          end
+        end
+        format.js   { @flash = flash }
+      end
     end
   end
   

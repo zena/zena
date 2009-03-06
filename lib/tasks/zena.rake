@@ -27,23 +27,35 @@ namespace :zena do
             puts "Aborting."
           else
             # 1. create directories and symlinks
-            ['public', 'data', 'log'].each do |dir|
-              FileUtils.mkpath("#{host_path}/#{dir}")
-            end
-      
-            # FIXME: how do we keep favicon.ico and robots.txt in the root dir of a site ?
-            # FIXME: ln should be to 'current' release, not calendar -> /var/zena/releases/20070511195642/public/calendar
-            #        we could create a symlink in the sites dir to 'shared' -> /var/zena/current/public
-            #        and then symlink with "#{host_path}/public/#{dir}" -> "../shared/public/#{dir}"
-            #        OR we could symlink /var/zena/current/...
-            ['calendar', 'images', 'javascripts', 'stylesheets', 'icons'].each do |dir|
-              # FIXME: 'RAILS_ROOT' should be '/var/zena/current' and not '/var/zena/releases/20070632030330' !!!
-              FileUtils.ln_s("#{RAILS_ROOT}/public/#{dir}", "#{host_path}/public/#{dir}")
-            end
+            `rake zena:mksymlinks HOST=#{host.inspect}`
             
             puts "Site [#{host}] created."
           end
         end
+      end
+    end
+  end
+  
+  desc "Create symlinks for a site"
+  task :mksymlinks => :zena_config do
+    unless host = ENV['HOST']
+      puts "Please set HOST to the hostname for which you want to update the symlinks. Aborting."
+    else
+      host_path = "#{SITES_ROOT}/#{host}"
+      
+      ['public', 'data', 'log'].each do |dir|
+        next if File.exist?("#{host_path}/#{dir}")
+        FileUtils.mkpath("#{host_path}/#{dir}")
+      end
+
+      # FIXME: how do we keep favicon.ico and robots.txt in the root dir of a site ?
+      # FIXME: ln should be to 'current' release, not calendar -> /var/zena/releases/20070511195642/public/calendar
+      #        we could create a symlink in the sites dir to 'shared' -> /var/zena/current/public
+      #        and then symlink with "#{host_path}/public/#{dir}" -> "../shared/public/#{dir}"
+      #        OR we could symlink /var/zena/current/...
+      ['calendar', 'images', 'javascripts', 'stylesheets', 'icons'].each do |dir|
+        # FIXME: 'RAILS_ROOT' should be '/var/zena/current' and not '/var/zena/releases/20070632030330' !!!
+        FileUtils.ln_s("#{RAILS_ROOT}/public/#{dir}", "#{host_path}/public/#{dir}")
       end
     end
   end

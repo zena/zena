@@ -85,10 +85,7 @@ class DocumentsController < ApplicationController
   # TODO: test
   # display an upload field.
   def file_form
-    render :inline=>"<%= link_to_function(_('cancel'), \"['file', 'file_form'].each(Element.toggle);$('file_form').innerHTML = '';\")%><%= file_field 'node', 'c_file', :size=>15 %>"
-    #respond_to do |format|
-    #  format.html { render :inline=>"<%= link_to_function(_('cancel'), \"['file', 'file_form'].each(Element.toggle);$('file_form').innerHTML = '';\")%><%= file_field 'node', 'c_file', :size=>15 %>" }
-    #end
+    render :inline=>"<%= link_to_function(_('cancel'), \"['file', 'file_form'].each(Element.toggle);$('file_form').innerHTML = '';\")%><input id='attachment#{params[:uuid]}' name='attachment' class='file' type='file' />"
   end
   
   # TODO: test

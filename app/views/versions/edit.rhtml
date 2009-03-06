@@ -6,20 +6,17 @@
 </div>
 
 <div class='tab'>
-  <% form_tag( node_path(@node[:zip]), :method => :put, :multipart => @node.kind_of?(Document), :id => 'node_form') do -%>
+  <%= upload_form_tag({:controller => 'nodes', :action => 'update', :id => @node[:zip]}, {:method => :put, :multipart => @node.kind_of?(Document), :id => 'node_form'}) %>
   <div class='hidden'>
     <input type='hidden' name='edit' value='popup'/>
   </div>
   <div class='validate'>
     <div>
-      <input name="validate" onclick="return Zena.save('<%= save_text_node_path(:id => @node[:zip]) %>',this.form,true);" type="submit" value="<%= _('validate') %>" />
+      <input name="validate" type="submit" value="<%= _('validate') %>" />
     </div>
-    <div><%#= submit_to_remote('save', _('save'), :url => save_text_node_path(:id => @node[:zip]), :loading=>"$('loader').style.visibility = 'visible';") %>
+    <div>
       <input name="save" onclick="return Zena.save('<%= save_text_node_path(:id => @node[:zip]) %>',this.form,false);" type="button" value="<%= _('save') %>" />
     </div>
-    <% unless @node.version.new_record? %>
-    <div><%# FIXME = submit_to_remote('backup', _('backup'), :url=>{:action => 'backup', :controller=>'version', :id=>@node.v_id}, :loading=>"$('loader').style.visibility = 'visible';") %></div>
-    <% end -%>
     <div><a href='#' onclick='uploader=window.open("<%= new_document_path(:parent_id=>@node[:zip])%>", "uploader", "location=1,width=400,height=300");uploader.opener = opener;return false;'><%= _('btn_add_document')%></a></div>
     <% if @node.can_publish? && !visitor.site.auto_publish? %><div><small><input type='checkbox' name='node[v_status]' value='50'<%= params[:pub] ? " checked='checked'" : '' %>/> <%= _('publish') %></small></div><% end -%>
   </div>
@@ -29,7 +26,7 @@
   <%= render :partial=>"templates/edit_tabs/#{partial[i]}" %>
 </div><% end %>
 
-<% end -%>
+</form>
 </div>
 
 <%#= css_edit %>
@@ -54,3 +51,4 @@ $('node_form').getElements().each(function(input, index) {
 });
 
 <%= javascript_end %>
+<iframe id="UploadIFrame" name="UploadIFrame" src="about:blank"></iframe>

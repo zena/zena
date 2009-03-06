@@ -35,6 +35,5 @@
   
 <r:content_for_layout/>
 
-<iframe id="UploadIFrame" name="UploadIFrame" src="about:blank"></iframe>
 </body>
 </html>

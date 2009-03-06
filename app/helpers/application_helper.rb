@@ -134,11 +134,20 @@ module ApplicationHelper
     "\n// ]]>\n</script>"
   end
   
-  def upload_form_tag(url_opts)
+  def upload_form_tag(url_opts, html_opts = {})
     @uuid = UUID.random_create.to_s.gsub('-','')
-    form_tag( url_opts.merge(UPLOAD_KEY => @uuid), 
-      { :multipart => true, :target => 'UploadIFrame', :id => "UploadForm#{@uuid}",
-        :onsubmit =>  "submitUploadForm('UploadForm#{@uuid}', '#{@uuid}');"})
+    html_opts.reverse_merge!(:multipart => true, :id => "UploadForm#{@uuid}")
+    if html_opts[:multipart]
+      html_opts[:onsubmit] = "submitUploadForm('#{html_opts[:id]}', '#{@uuid}');"
+      url_opts[UPLOAD_KEY] = @uuid
+    end
+    if block_given?
+      form_tag( url_opts, html_opts ) do |f|
+        yield(f)
+      end
+    else
+      form_tag( url_opts, html_opts )
+    end
   end
   
   # Date selection tool

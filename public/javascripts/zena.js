@@ -21,9 +21,9 @@ Zena.version_diff = function(id, from, to) {
 
 // save (does not use ajax when there is a file upload)
 Zena.save = function(url, form, close_on_complete) {
-  if ($('node_c_file')) {
-    form.submit();
+  if ($(form).select('[name="attachment"]')) {
     // do not use ajax call
+    eval(form.onsubmit().getAttribute('onsubmit'));
     return true;
   } else {
     if (close_on_complete) {
