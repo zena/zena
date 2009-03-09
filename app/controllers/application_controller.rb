@@ -968,7 +968,6 @@ END_MSG
       end
       File.read(File.join(RAILS_ROOT, 'app', 'views', 'templates', 'defaults', "#{mode}.zafu"))
     end
-
 end
 
 Bricks::Patcher.apply_patches

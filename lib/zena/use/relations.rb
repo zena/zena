@@ -1,20 +1,22 @@
 module Zena
   module Use
     module Relations
-      def self.included(base)
-        base.extend AddUseRelationsMethod
+      module AddUseRelationsMethod
+        def self.included(base)
+          base.extend AddUseRelationsMethodImpl
+        end
       end
       
-      module AddUseRelationsMethod
+      module AddUseRelationsMethodImpl
         def use_relations
           validate      :relations_valid
           after_save    :update_relations
           after_destroy :destroy_links
         
           class_eval <<-END
-            include Zena::Use::RelationsImpl::InstanceMethods
+            include Zena::Use::Relations::InstanceMethods
             class << self
-              include Zena::Use::RelationsImpl::ClassMethods
+              include Zena::Use::Relations::ClassMethods
             end
           
             def relation_base_class
@@ -23,9 +25,7 @@ module Zena
           END
         end
       end
-    end
-    
-    module RelationsImpl
+      
       module ClassMethods
         # All relations related to the current class/virtual_class with its ancestors.
         def all_relations(start=nil)
@@ -35,7 +35,7 @@ module Zena
           rel_as_target.each {|rel| rel.target = start } if start
           (rel_as_source + rel_as_target).sort {|a,b| a.other_role <=> b.other_role}
         end
-      
+    
         # Class path hierarchy. Example for (Post) : N, NN, NNP
         def split_kpath
           @split_kpath ||= begin
@@ -45,26 +45,26 @@ module Zena
           end
         end
       end
-    
+  
       module InstanceMethods
-      
+    
         # status defined through loading link
         def l_status
           return @l_status if defined? @l_status
           val = @link ? @link[:status] : self['l_status']
           val ? val.to_i : nil
         end
-      
+    
         # comment defined through loading link
         def l_comment
           return @l_comment if defined? @l_comment
           @link ? @link[:comment] : self['l_comment']
         end
-      
+    
         def link_id
           @link ? @link[:id] : (self[:link_id] == -1 ? nil : self[:link_id]) # -1 == dummy link
         end
-      
+    
         def link_id=(v)
           if @link && @link[:id].to_i != v.to_i
             @link = nil
@@ -78,7 +78,7 @@ module Zena
             end
           end 
         end
-      
+    
         def add_link(role, hash)
           if rel = relation_proxy(role)
             [:status, :comment, :id].each do |k|
@@ -88,7 +88,7 @@ module Zena
             errors.add(role, 'invalid relation')
           end
         end
-      
+    
         def remove_link(link)
           if link[:source_id] != self[:id] && link[:target_id] != self[:id]
             errors.add('link', "not related to this node")
@@ -101,29 +101,29 @@ module Zena
             errors.add('link', "cannot remove (relation proxy not found).")
           end
         end
-      
+    
         def l_comment=(v)
           @l_comment = v.blank? ? nil : v
           if rel = relation_proxy_from_link
             rel.other_comment = @l_comment
           end
         end
-      
+    
         def l_status=(v)
           @l_status = v.blank? ? nil : v
           if rel = relation_proxy_from_link
             rel.other_status = @l_status
           end
         end
-      
+    
         def all_relations
           @all_relations ||= self.vclass.all_relations(self)
         end
-      
+    
         def relations_for_form
           all_relations.map {|r| [r.other_role.singularize, r.other_role]}
         end
-      
+    
         # List the links, grouped by role
         def relation_links
           res = []
@@ -136,14 +136,14 @@ module Zena
           end
           res
         end
-      
+    
         # Find relation proxy for the given role.
         def relation_proxy(role)
           @relation_proxies ||= {}
           return @relation_proxies[role] if @relation_proxies.has_key?(role)
           @relation_proxies[role] = RelationProxy.get_proxy(self, role.singularize.underscore)
         end
-      
+    
         def relation_proxy_from_link(link = nil)
           unless link
             if @link
@@ -157,9 +157,9 @@ module Zena
           return @relation_proxies[link.role] if @relation_proxies.has_key?(link.role)
           @relation_proxies[link.role] = link.relation_proxy(self)
         end
-      
+    
         private
-      
+    
           # Used to create / destroy / update links through pseudo methods 'icon_id=', 'icon_status=', ...
           # Pseudo methods created for a many-to-one relation (icon_for --- icon):
           # icon_id=::      set icon
@@ -224,7 +224,7 @@ module Zena
               raise err
             end
           end
-      
+    
           # Make sure all updated relation proxies are valid
           def relations_valid
             return true unless @relation_proxies
@@ -235,7 +235,7 @@ module Zena
               end
             end
           end
-        
+      
           # Update/create links defined in relation proxies
           def update_relations
             return unless @relation_proxies
@@ -244,7 +244,7 @@ module Zena
               rel.update_links!
             end
           end
-        
+      
           # Destroy all links related to this node
           def destroy_links
             Link.find(:all, :conditions => ["source_id = ? OR target_id = ?", self[:id], self[:id]]).each do |l|

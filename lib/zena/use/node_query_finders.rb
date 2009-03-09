@@ -370,31 +370,29 @@ class NodeQuery < QueryBuilder
     end
 end
 
-
-# FIXME: do we need the ugly stuff below ?
-
 module Zena
   module Use
     module NodeQueryFinders
-      def self.included(base)
-        base.extend AddUseNodeQueryMethod
+      module AddUseNodeQueryMethod
+        def self.included(base)
+          # create class methods
+          base.extend AddUseNodeQueryMethodImpl
+        end
       end
       
-      module AddUseNodeQueryMethod
+      module AddUseNodeQueryMethodImpl
         def use_node_query
           class_eval do
-            include Zena::Use::NodeQueryImpl::InstanceMethods
+            include Zena::Use::NodeQueryFinders::InstanceMethods
             class << self
-              include Zena::Use::NodeQueryImpl::ClassMethods
+              include Zena::Use::NodeQueryFinders::ClassMethods
             end
           end
         end
       end
-    end
     
-    module NodeQueryImpl
       module ClassMethods
-      
+    
         # Return an sql query string that will be used by 'do_find':
         # build_find(:all, PSEUDO_SQL, node_name) => "SELECT * FROM nodes WHERE nodes.parent_id = #{@node[:id]} AND ..."
         # PSEUDO_SQL: what to find in pseudo sql (See NodeQuery for details).
@@ -418,16 +416,16 @@ module Zena
           end
           NodeQuery.new(pseudo_sql, opts.merge(:custom_query_group => visitor.site.host))
         end
-      end
-    
+      end # ClassMethods
+  
 
       module InstanceMethods
-      
+    
         # Find a node and propagate visitor
         def do_find(count, query, ignore_source = false, klass = Node)
           return nil if query.empty?
           return nil if (new_record? && !ignore_source) # do not run query (might contain nil id)
-        
+      
           case count
           when :all
             res = klass.find_by_sql(query)
@@ -447,12 +445,12 @@ module Zena
             nil
           end
         end
-      
+    
         # Find related nodes.
         # See Node#build_find for details on the options available.
         def find(count, rel)
           rel = [rel] if rel.kind_of?(String)
-        
+      
           if rel.size == 1 && self.class.zafu_known_contexts[rel.first]
             self.send(rel.first)
           else
@@ -464,7 +462,7 @@ module Zena
             end
           end
         end
-      end
-    end
-  end
-end
+      end # InstanceMethods
+    end # NodeQueryFinders
+  end # Use
+end # Zena

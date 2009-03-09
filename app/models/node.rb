@@ -1265,8 +1265,6 @@ class Node < ActiveRecord::Base
   
   # TODO: test
   def sweep_cache
-    Node.logger.warn "SweepCache disabled."
-    return
     return if current_site.being_created?
     # zafu 'erb' rendering cache expire
     # TODO: expire only 'dev' rendering if version is a redaction
