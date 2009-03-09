@@ -146,6 +146,7 @@ class Node < ActiveRecord::Base
                      :data_d => {:node_class => ["DataEntry"], :data_root => 'node_d'}
                      
   has_many           :discussions, :dependent => :destroy
+  has_many           :links
   has_and_belongs_to_many :cached_pages
   belongs_to         :virtual_class, :foreign_key => 'vclass_id'
   belongs_to         :site
@@ -302,6 +303,13 @@ class Node < ActiveRecord::Base
           nil
         end
       end
+    end
+    
+    def attr_public?(attribute)
+      if attribute.to_s =~ /(.*)_zips?$/
+        return true if self.ancestors.include?(Node) && RelationProxy.find_by_role($1.singularize)
+      end
+      super
     end
     
     def create_or_update_node(new_attributes)
@@ -1075,7 +1083,7 @@ class Node < ActiveRecord::Base
   
   # Find all data entries linked to the current node
   def data
-    list = DataEntry.find(:all, :conditions => "node_a_id = #{id} OR node_b_id = #{id} OR node_c_id = #{id} OR node_d_id = #{id}")
+    list = DataEntry.find(:all, :conditions => "node_a_id = #{id} OR node_b_id = #{id} OR node_c_id = #{id} OR node_d_id = #{id}", :order => 'date ASC,id ASC')
     list == [] ? nil : list
   end
   
