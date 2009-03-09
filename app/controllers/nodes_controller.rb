@@ -200,7 +200,7 @@ class NodesController < ApplicationController
               @node.c_file(img_format)
             end
           elsif @node.kind_of?(TextDocument)
-            send_data(StringIO.new(@node.v_text), :filename => @node.filename, :type => @node.c_content_type, :disposition=>'inline')
+            send_data(@node.v_text, :filename => @node.filename, :type => @node.c_content_type, :disposition=>'inline')
           else
             content_path = @node.c_filepath
           end
