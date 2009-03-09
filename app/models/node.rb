@@ -1067,7 +1067,7 @@ class Node < ActiveRecord::Base
   
   # Find all data entries linked to the current node
   def data
-    list = DataEntry.find(:all, :conditions => "node_a_id = #{id} OR node_b_id = #{id} OR node_c_id = #{id} OR node_d_id = #{id}")
+    list = DataEntry.find(:all, :conditions => "node_a_id = #{id} OR node_b_id = #{id} OR node_c_id = #{id} OR node_d_id = #{id}", :order => 'date ASC,id ASC')
     list == [] ? nil : list
   end
   
