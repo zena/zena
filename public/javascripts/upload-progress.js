@@ -87,7 +87,7 @@ var UploadProgress = {
       style: 'width: 100%;',
       duration: this.morphPeriod
     });
-		$('progress_text' + this.uuid).innerHTML  = '100%' ;
+		$('progress_text' + this.uuid).innerHTML  = 'processing' ;
 	  Effect.Fade('progress_shell' + this.uuid, { duration: 2.5 });
 	}
 }

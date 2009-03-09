@@ -276,7 +276,7 @@ module Zena
         return logout if visitor == :anon
         @controller_bak = @controller
         @controller = SessionsController.new
-        post 'create', :login=>visitor.to_s, :password=>visitor.to_s
+        post 'create', :login => visitor.to_s, :password => visitor.to_s
         sess = @controller.send(:session)
         @controller_bak.send(:session=, sess )
         $_test_site = @controller.send(:visitor).site.name
@@ -417,7 +417,7 @@ class ZenaTestHelper < Test::Unit::TestCase
   include Zena::Test::TestHelper
 end
 
-class ZenaTestController < Test::Unit::TestCase
+class ZenaTestController < ActionController::TestCase
   include Zena::Test::TestController
 end
 
