@@ -1,15 +1,15 @@
 <td class='inline_form' colspan='5'>
   <% if @link %>
-  <%= form_remote_tag(:url=> node_link_path(:node_id => @link.this_zip, :id => @link[:id])) %>
+  <%= form_remote_tag(:url=> link_path(:node_id => @link.this_zip, :id => @link[:id])) %>
   <input type='hidden' name='_method' value ='put'/>
   <% else %>
-  <%= form_remote_tag(:url=> node_links_path(:node_id => @node[:zip])) %>
+  <%= form_remote_tag(:url=> link_path(:node_id => @node[:zip])) %>
   <% end %>
   
   <div id='link_errors' class='errors'></div>
   <div class='add'>
     <%=  if @link
-      link_to_remote _('btn_x'), :url => node_link_path(:node_id => @link.this_zip, :id => @link[:id]), :method => :get
+      link_to_remote _('btn_x'), :url => link_path(:node_id => @link.this_zip, :id => @link[:id]), :method => :get
     else
       link_to_function _('btn_x'), "['add_link', 'add_link_form'].each(Element.toggle);"
     end %>

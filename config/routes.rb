@@ -15,8 +15,6 @@ ActionController::Routing::Routes.draw do |map|
   map.connect ':prefix/*path',  :controller => 'nodes', :action => 'show', :prefix => /\w\w/
   map.connect 'dav/*path_info', :controller => 'nodes', :action => 'webdav'
   
-  map.connect 'nodes/:node_id/versions/:id.:format', :controller => 'versions', :action => 'show' #, :requirements => { :method => :get }
-  
   map.resources :nodes,
     :collection => { :asearch => :get, :search => :get },
     :member =>     { :import => :post, :export => :get, :save_text => :put,
@@ -37,7 +35,7 @@ ActionController::Routing::Routes.draw do |map|
                                  :link    => :any,
                                  :destroy_version => :put } # FIXME: should be a DELETE
     
-    nodes.resources :links
+    nodes.resources :links, :name_prefix => nil
     
     #nodes.resources :discussions, :name_prefix => nil do |discussions|
     #  #discussions.resources :comments,

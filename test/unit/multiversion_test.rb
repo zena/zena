@@ -25,6 +25,7 @@ class MultiVersionTest < ActiveSupport::TestCase
     login(:tiger) # can_drive?
     node = secure!(Node) { nodes(:lake) }
     assert_equal versions_id(:lake_en), node.version(1)[:id]
+    assert_equal versions_id(:lake_en), node.version
     node = secure!(Node) { nodes(:lake) } # reload
     assert_raise(ActiveRecord::RecordNotFound) { node.version(2) } # redaction from ant
     Node.connection.execute "UPDATE versions set status = #{Zena::Status[:prop]} where id = #{versions_id(:lake_red_en)}"

@@ -12,6 +12,7 @@
 .admin_links li:first-child a { border:0; }
 .admin_links li a:hover { background:#C47330; }
 .admin_links li a.on {background:#eee;}
+.disabled img { opacity:0.4;}
 
 
 table.admin, table.admin table { border-collapse:separate; border-width:0; margin:auto; border-color:#666; border-style:solid; }

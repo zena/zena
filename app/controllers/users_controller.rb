@@ -13,9 +13,8 @@ class UsersController < ApplicationController
   
   # Show the list of users. Rendered in the admin layout.
   def index
-    @user_pages, @users = nil, nil
     secure!(User) do
-      @user_pages, @users = paginate :users, :order => 'status DESC, login ASC', :per_page => 20
+      @users = User.paginate(:all, :order => 'status DESC, login ASC', :page => params[:page], :per_page => 20)
     end
     get_groups_list
     @user   = User.new

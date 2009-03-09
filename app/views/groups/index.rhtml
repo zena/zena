@@ -1,8 +1,6 @@
 <h3><%= _('manage groups') %></h3>
 <table class="admin" cellspacing="0">
-  <tr><th class='nav' colspan='3'>
-  <p class='next_page'><%= link_to _('img_next_page'), { :page => @group_pages.current.next } if @group_pages.current.next %></p>
-  <p class='prev_page'><%= link_to _('img_prev_page'), { :page => @group_pages.current.previous } if @group_pages.current.previous %></p></th></tr>
+  <tr><th class='nav' colspan='3'><%= will_paginate @groups %></th></tr>
   <%= render :partial=>'groups/li',  :collection=>@groups %>
   <%= render :partial=>'groups/add', :locals=>{:users=>@users} %>
 </table>

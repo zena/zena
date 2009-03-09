@@ -1,12 +1,11 @@
 <h3><%= _('manage comments') %></h3>
 <div id='comment_errors'></div>
 
+<%= will_paginate @comments %>
 <ul class='comments' id='comments_list'>
   <%= render :partial=>'comments/li', :collection=>@comments %>
 </ul>
 
-<%= link_to _("Previous page"), { :page => @comment_pages.current.previous } if @comment_pages.current.previous %>
-<%= link_to _("Next page"), { :page => @comment_pages.current.next } if @comment_pages.current.next %>
 
 <div id='bin'>
   <%= render :partial=>'comments/bin' %>

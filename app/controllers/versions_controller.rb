@@ -210,6 +210,8 @@ class VersionsController < ApplicationController
     end
     
     def do_rendering
+      # make the flash available to rjs helpers
+      @flash = flash
       respond_to do |format|
         format.html { redirect_to @redirect_url || request.env['HTTP_REFERER'] }
         # js = call from 'drive' popup

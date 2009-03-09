@@ -92,13 +92,13 @@ class CommentsController < ApplicationController
   def index
     @node = visitor.contact
     secure!(Node) do
-      @comment_pages, @comments = paginate :comments, 
+      # TODO: preload node
+      @comments = Comment.paginate :all, 
                         :select => "comments.*, nodes.zip AS node_zip",
                         :order => 'status ASC, comments.created_at DESC',
-                        :join  => 'INNER JOIN nodes on nodes.id = discussions.node_id',
+                        :joins => ['INNER JOIN discussions on discussions.id = comments.discussion_id', 'INNER JOIN nodes on nodes.id = discussions.node_id'],
                         :conditions=>"status > #{Zena::Status[:rem]} AND (#{secure_scope('nodes')})",
-                        :include => :discussion,  #(TOO BAD we cannot include 'node')
-                        :per_page => 10
+                        :per_page => 10, :page => params[:page]
     end
   end
   
