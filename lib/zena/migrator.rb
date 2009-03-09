@@ -17,15 +17,22 @@ module Zena
       def down(migrations_path, brick_name, target_version = nil)
         self.new(:down, migrations_path, brick_name, target_version).migrate
       end
-
-      def bricks_info_table_name
+      
+      def old_bricks_info_table_name
         ActiveRecord::Base.table_name_prefix + "bricks_info" + ActiveRecord::Base.table_name_suffix
+      end
+      
+      def bricks_info_table_name
+        if ActiveRecord::Base.connection.tables.include?(old_bricks_info_table_name)
+          old_bricks_info_table_name
+        else
+          schema_migrations_table_name
+        end
       end
       
       def get_all_versions(brick_name)
         ActiveRecord::Base.connection.select_values("SELECT version FROM #{bricks_info_table_name} WHERE brick = '#{brick_name}'").map(&:to_i).sort
       end
-      
       
       def current_version(brick_name)
         sm_table = bricks_info_table_name
@@ -37,10 +44,13 @@ module Zena
       end
 
       def init_bricks_migration_table
-        begin
-          ActiveRecord::Base.connection.execute "CREATE TABLE #{bricks_info_table_name} (version #{ActiveRecord::Base.connection.type_to_sql(:integer)}, brick #{ActiveRecord::Base.connection.type_to_sql(:string)})"
-        rescue ActiveRecord::StatementInvalid
-          # Schema has been intialized
+        unless ActiveRecord::Base.connection.columns(schema_migrations_table_name).map{|c| c.name}.include?('brick')
+          ActiveRecord::Migration.announce("adding 'brick' scope to schema_migrations")
+          ActiveRecord::Migration.add_column   schema_migrations_table_name, :brick, :string
+          ActiveRecord::Migration.remove_index schema_migrations_table_name,
+                                                     :name => 'unique_schema_migrations'
+          ActiveRecord::Migration.add_index    schema_migrations_table_name, [:brick,:version],
+                                                     :name => 'unique_schema_migrations', :unique => true
         end
       end
     end

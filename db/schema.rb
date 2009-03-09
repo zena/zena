@@ -9,7 +9,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 0) do
+ActiveRecord::Schema.define(:version => 50) do
 
   create_table "access_hits", :force => true do |t|
     t.integer  "site_id"
@@ -27,11 +27,6 @@ ActiveRecord::Schema.define(:version => 0) do
     t.string   "mode",             :limit => 30
     t.string   "format",           :limit => 10
     t.string   "lang",             :limit => 6
-  end
-
-  create_table "bricks_info", :id => false, :force => true do |t|
-    t.integer "version"
-    t.string  "brick"
   end
 
   create_table "cached_pages", :force => true do |t|
