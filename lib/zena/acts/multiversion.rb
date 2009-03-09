@@ -354,30 +354,32 @@ module Zena
         # * find the first publication
         # If 'key' is set to :pub, only find the published versions. If key is a number, find the version with this number. 
         def version(key=nil) #:doc:
-          @version ||= if new_record?
-            v = version_class.new('lang' => visitor.lang)
-            v.user_id = visitor.id
-            v.node = self
-            v
-          elsif key.nil? || key.kind_of?(Symbol)
-            min_status = (key == :pub) ? Zena::Status[:pub] : Zena::Status[:red]
-            if max_status >= Zena::Status[:red]
-              # normal version
-              versions.find(:first, 
-                :select     => "*, (lang = #{Node.connection.quote(visitor.lang)}) as lang_ok, (lang = #{Node.connection.quote(ref_lang)}) as ref_ok",
-                :conditions => [ "(status >= #{min_status} AND user_id = ? AND lang = ?) OR status >= #{can_drive? ? [min_status, Zena::Status[:prop]].max : Zena::Status[:pub]}", visitor.id, visitor.lang ],
-                :order      => "lang_ok DESC, ref_ok DESC, status ASC, publish_from ASC")
-            else
-              # drive only
-              versions.find(:first, 
-                :select     => "*, (lang = #{Node.connection.quote(visitor.lang)}) as lang_ok, (lang = #{Node.connection.quote(ref_lang)}) as ref_ok",
-                :order      => "lang_ok DESC, ref_ok DESC, status ASC, publish_from ASC")
-            end
-          else
+          if !key.nil? && !key.kind_of?(Symbol)
             v = versions.find(:first,
               :conditions => [ "((status = #{Zena::Status[:red]} AND user_id = ?) OR status <> #{Zena::Status[:red]}) AND number = ?", visitor.id, key])
             raise ActiveRecord::RecordNotFound unless v
-            v
+            @version = v
+          else
+            @version ||= if new_record?
+              v = version_class.new('lang' => visitor.lang)
+              v.user_id = visitor.id
+              v.node = self
+              v
+            else
+              min_status = (key == :pub) ? Zena::Status[:pub] : Zena::Status[:red]
+              if max_status >= Zena::Status[:red]
+                # normal version
+                versions.find(:first, 
+                  :select     => "*, (lang = #{Node.connection.quote(visitor.lang)}) as lang_ok, (lang = #{Node.connection.quote(ref_lang)}) as ref_ok",
+                  :conditions => [ "(status >= #{min_status} AND user_id = ? AND lang = ?) OR status >= #{can_drive? ? [min_status, Zena::Status[:prop]].max : Zena::Status[:pub]}", visitor.id, visitor.lang ],
+                  :order      => "lang_ok DESC, ref_ok DESC, status ASC, publish_from ASC")
+              else
+                # drive only
+                versions.find(:first, 
+                  :select     => "*, (lang = #{Node.connection.quote(visitor.lang)}) as lang_ok, (lang = #{Node.connection.quote(ref_lang)}) as ref_ok",
+                  :order      => "lang_ok DESC, ref_ok DESC, status ASC, publish_from ASC")
+              end
+            end
           end
         end
 
@@ -432,8 +434,11 @@ module Zena
           @version = version.clone('status' => status)
         end
 
-        # Returns a lock (responds to 'user') for the specified lang or nil
+        # Returns a lock (responds to 'user') for the specified lang or nil when
+        # a redaction or proposition for the given lang exists and we try to create
+        # a redaction or proposition.
         def lang_locked?(l = visitor.lang, v = self.version)
+          return false if v.status < Zena::Status[:red] || v.status == Zena::Status[:pub]
           versions.find(:first, :select => 'user_id', :conditions => ["lang = ? AND status >= #{Zena::Status[:red]} AND status < #{Zena::Status[:pub]} AND id <> ?", l, v.id.to_i])
         end
 

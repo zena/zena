@@ -206,7 +206,6 @@ class DocumentTest < ActiveSupport::TestCase
       assert doc.unpublish
       assert doc.can_destroy_version?
       assert doc.destroy_version
-      err doc
       doc = secure!(Node) { nodes(:water_pdf) }
       assert File.exist?(filepath)
       assert_equal content_id, doc.c_id # shared content note destroyed

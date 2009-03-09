@@ -267,10 +267,12 @@ class ImageTest < ActiveSupport::TestCase
   def test_update_same_image
     login(:tiger)
     bird = secure!(Node) { nodes(:bird_jpg) }
-    assert_equal 'f156ea156ab0292270dd92ffeccb0c90', Digest::MD5.hexdigest(uploaded_jpg('bird.jpg').read)
-    assert_equal 'f156ea156ab0292270dd92ffeccb0c90', Digest::MD5.hexdigest(bird.c_file.read)
+    assert_equal Digest::MD5.hexdigest(bird.c_file.read),
+                 Digest::MD5.hexdigest(uploaded_jpg('bird.jpg').read)
+    bird.c_file.rewind
     assert_equal 1, bird.versions.count
     assert_equal '2006-04-11 00:00', bird.updated_at.strftime('%Y-%m-%d %H:%M')
+    assert !bird.version.would_edit?('content_attributes' => {'file' => uploaded_jpg('bird.jpg')})
     assert bird.update_attributes(:c_file => uploaded_jpg('bird.jpg'))
     assert_equal 1, bird.versions.count
     assert_equal '2006-04-11 00:00', bird.updated_at.strftime('%Y-%m-%d %H:%M')
