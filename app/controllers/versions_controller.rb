@@ -205,8 +205,10 @@ class VersionsController < ApplicationController
       @node = secure!(Node) { Node.find_by_zip(params[:node_id]) }
       if params[:id].to_i != 0
         # try to set current version from version number
-        redirect_to :id => @node.v_number unless @node.version(params[:id])
+        @node.version(params[:id])
       end
+    rescue ActiveRecord::RecordNotFound
+      redirect_to :id => @node.v_number
     end
     
     def do_rendering

@@ -38,14 +38,16 @@ module Zena
           class << self
             include Zena::Acts::Multiversion::ClassMethods
           end
-                                           # not pub         pub
-          add_transition(:publish, :from => (-1..49), :to => 50) do |r|
-            ps = r.version.new_record? ? -1 : r.version.status_was.to_i
-            ( ( r.can_visible? && (ps >  Zena::Status[:red] ||
-                                   ps == Zena::Status[:rep] ||
-                                   r.version.user_id == r.visitor.id) ) ||
+                                            # not pub                                   pub
+          add_transition(:publish, :from => [-1..29,31..49].map(&:to_a).flatten, :to => 50) do |r|
+            ( r.can_visible? ||
               ( r.can_manage?  &&  r.private? )
             )
+          end
+                                            # red        pub
+          add_transition(:publish, :from => [30], :to => 50) do |r|
+            ( r.can_visible? && r.version.user_id == r.visitor.id ) ||
+            ( r.can_manage?  &&  r.private? )
           end
                                                 # pub         pub
           add_transition(:auto_publish, :from => [50], :to => 50) do |r|
@@ -213,7 +215,11 @@ module Zena
           return nil
         end
 
-        def transition_allowed?(transition = self.current_transition)
+        def transition_allowed?(transition = self.current_transition, v = self.version)
+          if transition.kind_of?(Symbol)
+            prev_status = v.new_record? ? -1 : v.status_was.to_i
+            transition = self.class.transitions.select { |t| t[:name] == transition && t[:from].include?(prev_status) ? t : nil}[0]
+          end
           transition && (transition[:validate].nil? || transition[:validate].call(self))
         end
 
@@ -235,34 +241,11 @@ module Zena
           return true  if visitor.is_su?
           prev_status = v.status_was.to_i
           case method
-          when :update_attributes
-            can_write?
-          when :drive # ?
-            can_drive?
-          when :propose, :backup
-            v.user_id == visitor[:id] && prev_status == Zena::Status[:red]
-          when :refuse
-            prev_status > Zena::Status[:red] && can_apply?(:publish)
-          when :publish  
-            if prev_status == Zena::Status[:pub]
-              errors.add('base', 'already published.')
-              return false
-            end
-            prev_status < Zena::Status[:pub] && 
-            ( ( can_visible_was_true? && (prev_status > Zena::Status[:red] || prev_status == Zena::Status[:rep] || v.user_id_was == visitor[:id]) ) ||
-              ( can_manage_was_true?  && private_was_true? )
-            )
-          when :unpublish
-            can_drive? && prev_status == Zena::Status[:pub]
-          when :remove
-            (can_drive? || v.user_id == visitor[:id] ) && prev_status <= Zena::Status[:red] && prev_status > Zena::Status[:rem]
-          when :redit
-            can_edit? && v.user_id == visitor[:id]
-          when :edit
-            can_edit?
           when :destroy_version
             # anonymous users cannot destroy
             can_drive? && prev_status == Zena::Status[:rem] && !visitor.is_anon? && (self.versions.count > 1 || empty?)
+          else
+            transition_allowed?(method, v)
           end
         end
 
@@ -392,57 +375,10 @@ module Zena
             end
           else
             v = versions.find(:first,
-              :conditions => [ "(status >= #{Zena::Status[:red]} AND user_id = ? AND lang = ?) OR status >= #{can_drive? ? Zena::Status[:prop] : Zena::Status[:pub]} AND number = ?", visitor.id, visitor.lang, key])
+              :conditions => [ "((status = #{Zena::Status[:red]} AND user_id = ?) OR status <> #{Zena::Status[:red]}) AND number = ?", visitor.id, key])
             raise ActiveRecord::RecordNotFound unless v
             v
           end
-=begin
-          return @version if @version
-
-          if key && !key.kind_of?(Symbol) && !new_record?
-            if visitor.is_su?
-              @version = secure!(Version) { Version.find(:first, :conditions => ["node_id = ? AND number = ?", self[:id], key]) }
-            elsif can_drive?
-              @version = secure!(Version) { Version.find(:first, :conditions => ["node_id = ? AND number = ? AND (user_id = ? OR status <> ?)", self[:id], key, visitor[:id], Zena::Status[:red]]) }
-            else
-              @version = secure!(Version) { Version.find(:first, :conditions => ["node_id = ? AND number = ? AND (user_id = ? OR status >= ?)", self[:id], key, visitor[:id], Zena::Status[:pub]]) }
-            end
-          else
-            min_status = (key == :pub) ? Zena::Status[:pub] : Zena::Status[:red]
-
-            if new_record?
-              @version = version_class.new
-              # owner and lang set in secure_scope
-              @version.status = Zena::Status[:red]
-            elsif can_drive?
-              # sees propositions
-              lang = visitor.lang.gsub(/[^\w]/,'')
-              @version =  Version.find(:first,
-                            :select=>"*, (lang = '#{lang}') as lang_ok, (lang = '#{ref_lang}') as ref_ok",
-                            :conditions=>[ "((status >= ? AND user_id = ? AND lang = ?) OR status > ?) AND node_id = ?", 
-                                            min_status, visitor[:id], lang, Zena::Status[:red], self[:id] ],
-                            :order=>"lang_ok DESC, ref_ok DESC, status ASC ")
-              if !@version
-                @version = versions.find(:first, :order=>'id DESC')
-              end
-            else
-              # only own redactions and published versions
-              lang = visitor.lang.gsub(/[^\w]/,'')
-              @version =  Version.find(:first,
-                            :select=>"*, (lang = '#{lang}') as lang_ok, (lang = '#{ref_lang}') as ref_ok",
-                            :conditions=>[ "((status >= ? AND user_id = ? AND lang = ?) OR status = ?) and node_id = ?", 
-                                            min_status, visitor[:id], lang, Zena::Status[:pub], self[:id] ],
-                            :order=>"lang_ok DESC, ref_ok DESC, status ASC, publish_from ASC")
-
-            end
-
-            if @version.nil?
-              raise Exception.new("#{self.class} #{self[:id]} does not have any version !!")
-            end
-          end
-          @version.node = self if @version # preload self as node in version
-          @version
-=end
         end
 
         # Define attributes for the current redaction.
