@@ -110,7 +110,7 @@ module Zena
       end
       
       def custom_field?(sym)
-        !methods.include?(sym) && !self.class.column_names.include?(sym.to_s)
+        !methods.include?(sym) && !self.class.column_names.include?(sym.to_s) && @attributes.keys.include?(sym.to_s)
       end
       
       def read_custom_field(sym)

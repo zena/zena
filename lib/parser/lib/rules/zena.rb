@@ -493,7 +493,7 @@ module Zena
       query_params = "node[#{@params[:attr]}]=\#{#{states.inspect}[ ((#{states.inspect}.index(#{node_attribute(@params[:attr])}.to_s) || 0)+1) % #{states.size}]}#{upd_both}"
       
       
-      out link_to_update(block, :query_params => query_params, :method => :put, :html_params => get_html_params(@params))
+      out link_to_update(block, :query_params => query_params, :method => :put, :html_params => get_html_params(@params, :link))
     end
     
     def r_load
@@ -751,7 +751,7 @@ module Zena
           # edit button
           
           # TODO: show 'reply' instead of 'edit' in comments if visitor != author
-          out link_to_update(self, :default_text => _('edit'), :url => "\#{edit_#{base_class.to_s.underscore}_path(#{node_id})}", :html_params => get_html_params(@params), :method => :get, :cond => "#{node}.can_write?", :else => :void)
+          out link_to_update(self, :default_text => _('edit'), :url => "\#{edit_#{base_class.to_s.underscore}_path(#{node_id})}", :html_params => get_html_params(@params, :link), :method => :get, :cond => "#{node}.can_write?", :else => :void)
         end
       else
         # FIXME: we could link to some html page to edit the item.
@@ -1249,7 +1249,7 @@ END_TXT
       
       opts[:method]       = :delete
       opts[:default_text] = _('btn_tiny_del')
-      opts[:html_params]  = get_html_params({:class => 'unlink'}.merge(@params))
+      opts[:html_params]  = get_html_params({:class => 'unlink'}.merge(@params), :link)
       
       out link_to_update(target, opts)
       
@@ -1740,7 +1740,7 @@ END_TXT
         pre_space = ''
         html_params = {}
       else
-        html_params = get_html_params(params.merge(@html_tag_params))
+        html_params = get_html_params(params.merge(@html_tag_params), :link)
         pre_space = @space_before || ''
         @html_tag_done = true
       end
@@ -2931,26 +2931,7 @@ END_TXT
       @html_tag = 'div' if !@html_tag && (set_params != {} || @html_tag_params != {})
       
       bak = @html_tag_params.dup
-      res_params = {}
-      set_params.merge(@html_tag_params).each do |k,v|
-        if k.to_s =~ /^(t?)set_(.+)$/
-          key   = $2
-          trans = $1 == 't'
-          value, static = parse_attributes_in_value(v, :erb => !trans)
-          
-          if trans
-            if static
-              value = ["'#{_(value)}'"]            # array so it is not escaped on render
-            else
-              value = ["'<%= _(\"#{value}\") %>'"] # FIXME: use dict ! array so it is not escaped on render
-            end
-          end
-          res_params[key.to_sym] = value
-        else
-          res_params[k] = v unless res_params[k]
-        end
-      end
-      @html_tag_params = res_params
+      @html_tag_params = get_html_params(set_params.merge(@html_tag_params), @html_tag)
       res = super(text,*append)
       @html_tag_params = bak
       res
@@ -3104,11 +3085,28 @@ END_TXT
       return [res, attribute]
     end
     
-    def get_html_params(params)
+    def get_html_params(params, tag_type)
       res  = {}
-      [:style, :class, :id, :rel, :name].each do |sym|
-        if value = params[sym]
-          res[sym] = value
+      params.each do |k,v|
+        next unless v
+        if k.to_s =~ /\A(t?)set_(.+)$/
+          key   = $2
+          trans = $1 == 't'
+          value, static = parse_attributes_in_value(v, :erb => !trans)
+
+          if trans
+            if static
+              value = ["'#{_(value)}'"]            # array so it is not escaped on render
+            else
+              value = ["'<%= _(\"#{value}\") %>'"] # FIXME: use dict ! array so it is not escaped on render
+            end
+          end
+          res[key.to_sym] = value
+        elsif tag_type == :link && ![:style, :class, :id, :title].include?(k)
+          # bad html parameter for links (some keys for link tags are used as query parameters)
+          # filter out
+        else
+          res[k] ||= v
         end
       end
       
