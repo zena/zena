@@ -17,6 +17,6 @@ value = Node.zafu_attribute(@node, params[:attribute]) -%>
       <input type='hidden' name='dom_id' value='<%= params[:dom_id] %>'/>
       <% if params[:publish] == 'true' -%><input type='hidden' name='node[v_status]' value='<%= Zena::Status[:pub] %>'/><% end -%>
     </div>
-    <div class='wrapper'><input type='text' id='<%= params[:dom_id] %>_' name='node[<%= params[:attribute] %>]' value='<%= value %>' size='<%= value.size %>'/></div>
+    <div class='wrapper'><input type='text' id='<%= params[:dom_id] %>_' name='node[<%= params[:attribute] %>]' value='<%= value %>' size='<%= [value.to_s.size, 4].max %>'/></div>
   </form>
 <% end -%>

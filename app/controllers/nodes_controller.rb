@@ -400,7 +400,6 @@ class NodesController < ApplicationController
   
   
   protected
-    
     # Find a node based on the path or id. When there is a path, the node is found using the zip included in the path
     # or by fullpath:
     #  name              find by
