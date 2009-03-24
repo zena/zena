@@ -45,6 +45,10 @@ stat_max:
 group_stat_sum:
   src: "<r:data><r:group by='node_a'><r:each_group><r:node_a do='[name]'/>:<r:stat find='sum'/> </r:each_group></r:group></r:data>"
   res: "cleanWater:27.0 wiki:102.0 "
+
+li_each_group:
+  src: "<r:data><r:group by='node_a'><li set_class='[node_a_id]_class' do='each_group'><r:node_a do='[name]'/>:<r:stat find='sum'/> </li></r:group></r:data>"
+  res: "<li class='21_class'>cleanWater:27.0 </li><li class='29_class'>wiki:102.0 </li>"
   
 group_stat_sum_join:
   src: "<r:data><r:group by='node_b' join=', '><r:node_b><r:show attr='name'/><r:else text='undef'/></r:node_b>:<r:stat find='sum'/></r:group></r:data>"

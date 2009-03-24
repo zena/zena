@@ -1351,7 +1351,7 @@ END_TXT
       else
         out "<% #{group}.each do |#{list_var}|; #{var} = #{list_var}[0]; -%>"
       end
-      out expand_with(:group => nil, :list => list_var, :node => var, :scope_node => var)
+      out render_html_tag(expand_with(:group => nil, :list => list_var, :node => var, :scope_node => var))
       out "<% end -%>"
     end
     
@@ -2502,7 +2502,7 @@ END_TXT
       else
         res = dom_prefix
       end
-      if method == 'each' && !@context[:make_form]
+      if (method == 'each' || method == 'each_group') && !@context[:make_form]
         "#{res}_\#{#{var}.zip}"
       elsif method == 'unlink' || method == 'edit'
         target = nil
@@ -2527,7 +2527,7 @@ END_TXT
       else
         res = dom_prefix
       end
-      if method == 'each' && !@context[:make_form]
+      if (method == 'each' || method == 'each_group') && !@context[:make_form]
         "#{res}_<%= #{var}.zip %>"
       elsif method == 'draggable'
         "#{res}_<%= #{node}.zip %>"
@@ -2905,7 +2905,7 @@ END_TXT
         
         if @context[:make_form]
           node_name = node
-        elsif @method == 'each' && @context[:list]
+        elsif (@method == 'each' || @method == 'each_group') && @context[:list]
           node_name = var
         elsif @method == 'context'
           node_name = @var || node
