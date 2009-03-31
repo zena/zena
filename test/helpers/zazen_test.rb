@@ -103,6 +103,13 @@ class ZazenHelperTest < ZenaTestHelper
     # ** [![]!] gallery with all images contained in the current node
     assert_match %r{table.*gallery.*Zena.transfer.*image30_pv.jpg.*image30_std.jpg.*image31_pv.jpg.*image31_std.jpg}m, zazen('![]!')
   end
+  
+  def test_make_gallery_bad_zips
+    login(:anon)
+    @node = secure!(Node) { Node.find(nodes_id(:wiki)) }
+    assert_nil secure(Node) { Node.find_by_id(999)}
+    assert_nothing_raised { zazen("this ![999]!") }
+  end
 
   def test_list_nodes
     login(:lion)

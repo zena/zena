@@ -468,10 +468,10 @@ module ApplicationHelper
   # Create a gallery from a list of images. See ApplicationHelper#zazen for details.
   def make_gallery(ids=[], opts={})
     if ids == []
-      images = secure!(Image) { Image.find(:all, :conditions => ["parent_id = ?", (opts[:node] || @node)[:id]], :order => "position ASC, name ASC")}
+      images = secure(Image) { Image.find(:all, :conditions => ["parent_id = ?", (opts[:node] || @node)[:id]], :order => "position ASC, name ASC")}
     else
       ids = ids.map{|i| i.to_i}
-      images = ids == [] ? nil : secure!(Document) { Document.find(:all, :conditions=>"zip IN (#{ids.join(',')})") }
+      images = ids == [] ? nil : secure(Document) { Document.find(:all, :conditions=>"zip IN (#{ids.join(',')})") }
       # order like ids :
       images.sort! {|a,b| ids.index(a[:zip].to_i) <=> ids.index(b[:zip].to_i) } if images
     end
