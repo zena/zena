@@ -741,6 +741,22 @@ class MultiVersionTest < ActiveSupport::TestCase
     assert_equal 'Statues are better', node.v_title
   end
   
+  def test_update_auto_publish_set_v_publish_from_to_nil
+    Site.connection.execute "UPDATE sites set auto_publish = 1, redit_time = 7200 WHERE id = #{sites_id(:zena)}"
+    login(:tiger)
+    node = secure!(Node) { Node.create( :parent_id => nodes_id(:zena), :v_title => "This one should auto publish" ) }
+    node = secure!(Node) { Node.find(node.id) } # reload
+    node.update_attributes(:v_title => "This one should not be gone",  :v_publish_from => "")
+    assert_equal Zena::Status[:pub], node.v_status
+    assert_equal 'This one should not be gone', node.v_title
+    assert_equal Zena::Status[:pub], node.v_status
+    assert_not_nil node.publish_from
+    assert node.publish_from > Time.now - 10
+    assert node.publish_from < Time.now + 10
+    assert node.v_publish_from > Time.now - 10
+    assert node.v_publish_from < Time.now + 10
+  end
+  
   def test_auto_publish_in_redit_time_can_publish
     # set site.auto_publish      ===> publish
     # now < updated + redit_time ===> update current publication
@@ -828,6 +844,21 @@ class MultiVersionTest < ActiveSupport::TestCase
     Site.connection.execute "UPDATE sites set auto_publish = 1, redit_time = 7200 WHERE id = #{sites_id(:zena)}"
     login(:tiger)
     node = secure!(Node) { Node.create( :parent_id => nodes_id(:zena), :v_title => "This one should auto publish" ) }
+    assert ! node.new_record? , "Not a new record"
+    assert ! node.v_new_record? , "Not a new redaction"
+    assert_equal Zena::Status[:pub], node.v_status, "published version"
+    assert node.publish_from > Time.now - 10
+    assert node.publish_from < Time.now + 10
+    assert node.v_publish_from > Time.now - 10
+    assert node.v_publish_from < Time.now + 10
+    assert_equal Zena::Status[:pub], node.max_status, "published node"
+    assert_equal "This one should auto publish", node.v_title
+  end
+  
+  def test_create_auto_publish_v_publish_from_to_nil
+    Site.connection.execute "UPDATE sites set auto_publish = 1, redit_time = 7200 WHERE id = #{sites_id(:zena)}"
+    login(:tiger)
+    node = secure!(Node) { Node.create( :parent_id => nodes_id(:zena), :v_title => "This one should auto publish", :v_publish_from => nil ) }
     assert ! node.new_record? , "Not a new record"
     assert ! node.v_new_record? , "Not a new redaction"
     assert_equal Zena::Status[:pub], node.v_status, "published version"
