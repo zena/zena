@@ -168,6 +168,7 @@ class VersionTest < ZenaTestUnit
     assert_equal 'no idea', node.d_whatever
     version1_id = node.version[:id]
     assert node.publish
+    version1_publish_from = node.v_publish_from
     
     node = secure!(Node) { nodes(:status) }
     assert node.update_attributes(:d_other => 'funny')
@@ -175,6 +176,7 @@ class VersionTest < ZenaTestUnit
     assert_not_equal version1_id, version2_id
     assert_equal 'no idea', node.d_whatever
     assert_equal 'funny', node.d_other
+    assert_equal version1_publish_from, node.v_publish_from
   end
   
   def test_bad_lang

@@ -443,6 +443,7 @@ module Zena
           redaction_attr = false
           node_attr      = false
           
+          attributes.delete('v_publish_from') if (attributes['v_publish_from'].blank? && publish_after_save)
           attributes.each do |k,v|
             next if k.to_s == 'id' # just ignore 'id' (cannot be set but is often around)
             if k.to_s =~ /^(v_|c_|d_)/
@@ -536,7 +537,7 @@ module Zena
                 # could not convert a publication into a redaction, new version
                 v = version.clone
                 v.status = Zena::Status[:red]
-                v.publish_from = v.created_at = nil
+                v.created_at = nil
                 v.comment = v.number = ''
                 v.user_id = visitor[:id]
                 v.lang = lang
