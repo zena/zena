@@ -8,6 +8,10 @@ class TemplateContent < ActiveRecord::Base
   before_validation :template_content_before_validation
   validate   :validate_template_content
   
+  def preload_version(v)
+    # dummy called by Version
+  end
+
   def ext
     'zafu'
   end
