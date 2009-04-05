@@ -56,9 +56,16 @@ class LinksController < ApplicationController
   end
   
   def destroy
+    if params[:udom_id]
+      # we need to replace @node by the other side of the link before
+      # sending ajax response
+      other = @link.other
+    end
+    
     @node.remove_link(@link)
     @node.save
     
+    @node = other if other
     respond_to do |format|
       format.js
     end
