@@ -1,103 +1,119 @@
 NodeQuery:
-  # form_dates
+  # find all courses that an employee must follow
   emp_form_date:
+    # find courses assigned_to pages in job assigned_to CURRENT_NODE (employee)
+    main_table: courses
     select:
-      - no1.id
-      - no1.name
-      - no1.publish_from
-      - no1.zip
-      - no1.vclass_id
-      - no1.type
-      - no1.rgroup_id
-      - no1.pgroup_id
-      - no1.ref_lang
-      - MAX(form.event_at) + INTERVAL no1.custom_a MONTH AS log_at
-      - form.event_at AS last_date
-      - form.event_at + INTERVAL no1.custom_a MONTH AS next_date
-      - MAX(form.event_at) AS event_at
-    tables:
-      - nodes
-      - links
-      - nodes AS no1
+      - courses.*
+      - courses.custom_a AS repeat_every
+      - form.last_date AS last_date
+      - form.last_date + INTERVAL courses.custom_a MONTH AS next_date
+      - MAX(IF(assigned_pages.custom_a,assigned_pages.custom_a,5)) AS priority
+    tables:  
+      - nodes AS courses
+      # assigned to
       - links AS li1
+      # pages
+      - nodes AS assigned_pages
+      # in assigned_jobs
+      - links
     join_tables:
-      no1:
-        - LEFT JOIN nodes AS form INNER JOIN links AS flink ON flink.relation_id = RELATION_ID(assigned_formation) AND flink.target_id = NODE_ID AND flink.source_id = form.id AND flink.status = 100 ON form.project_id = no1.id
+      # courses
+      courses:
+        # all formations are created inside the course = project. This is why
+        # form.project_id == course_id.
+        - LEFT JOIN (SELECT nodes.project_id AS course_id, flink.target_id AS emp_id, MAX(nodes.event_at) AS last_date FROM nodes INNER JOIN links AS flink ON nodes.id = flink.source_id AND flink.relation_id = RELATION_ID(assigned_formation) AND (flink.status IS NULL OR flink.status = 100) GROUP BY flink.target_id, nodes.project_id) AS form ON courses.id = form.course_id AND form.emp_id = NODE_ID
     where:
-      - no1.id = li1.source_id AND li1.relation_id = RELATION_ID(assigned_course) AND li1.target_id = nodes.id
-      - nodes.kpath LIKE 'NP%'
-      - nodes.project_id = links.target_id
-      - links.relation_id = RELATION_ID(assigned_job) AND links.source_id = NODE_ID
-    group: no1.id
-    order: event_at ASC, no1.name ASC
+      # get all assigned jobs (links)
+      - links.source_id = NODE_ID
+      - links.relation_id = RELATION_ID(assigned_job)
+      # get all pages in jobs
+      - assigned_pages.project_id = links.target_id
+      # get all courses assigned to these pages
+      - li1.target_id = assigned_pages.id
+      - li1.relation_id = RELATION_ID(assigned_course)
+      - courses.id = li1.source_id
+    group: courses.id
+    order: priority DESC, last_date ASC, courses.name ASC
   
   course_emp_date:
+    main_table: employees
     select:
-      - no1.id
-      - no1.name
-      - no1.publish_from
-      - no1.zip
-      - no1.vclass_id
-      - no1.type
-      - no1.rgroup_id
-      - no1.pgroup_id
-      - no1.ref_lang
+      - employees.id
+      - employees.name
+      - employees.publish_from
+      - employees.zip
+      - employees.vclass_id
+      - employees.type
+      - employees.rgroup_id
+      - employees.pgroup_id
+      - employees.ref_lang
+      - employees.user_id
+      - employees.max_status
       # TODO: next_date = NULL if custom_a is null
-      - form.event_at + INTERVAL NODE_ATTR(custom_a) MONTH AS next_date
-      - form.event_at AS last_date
-      - MAX(form.event_at) + INTERVAL NODE_ATTR(custom_a) MONTH AS log_at
-      - MAX(form.event_at) AS event_at
-      - NODE_ATTR(custom_a) AS custom_a
+      - form.last_date AS last_date
+      - form.last_date + INTERVAL NODE_ATTR(custom_a) MONTH AS next_date
+      - NODE_ATTR(custom_a) AS repeat_every
+      - MAX(IF(assigned_pages.custom_a,assigned_pages.custom_a,5)) AS priority
     tables:
       # NODE_ID = course
-      # nodes   = pages assigned to course
-      - nodes
-      # no1     = employees with job containing the pages assigned to course
-      - nodes AS no1
+      - nodes AS employees
+      - nodes AS assigned_pages
       - links
       - links AS li1
     join_tables:
-      no1:
-        - LEFT JOIN nodes AS form INNER JOIN links AS flink ON form.id = flink.source_id AND flink.relation_id = RELATION_ID(assigned_formation) AND flink.status = 100 ON flink.target_id = no1.id AND form.project_id = NODE_ID
+      employees:
+        - LEFT JOIN (SELECT nodes.project_id AS project_id, flink.target_id AS emp_id, MAX(nodes.event_at) AS last_date FROM nodes INNER JOIN links AS flink ON nodes.id = flink.source_id AND flink.relation_id = RELATION_ID(assigned_formation) AND (flink.status IS NULL OR flink.status = 100) GROUP BY flink.target_id, nodes.project_id) AS form ON form.emp_id = employees.id AND form.project_id = NODE_ID
     where:
-      - no1.id = li1.source_id AND li1.relation_id = RELATION_ID(assigned_employee) AND li1.target_id = nodes.project_id
-      - nodes.id = links.target_id AND links.relation_id = RELATION_ID(assigned_page) AND links.source_id = NODE_ID
-    group: no1.id
-    order: no1.name ASC, form.event_at ASC
+      - employees.id = li1.source_id AND li1.relation_id = RELATION_ID(assigned_employee) AND li1.target_id = assigned_pages.project_id
+      - assigned_pages.id = links.target_id AND links.relation_id = RELATION_ID(assigned_page) AND links.source_id = NODE_ID
+    group: employees.id
+    order: employees.name ASC, IF(form.last_date,form.last_date,0) ASC
   
   
   all_course_emp_date:
     # assigned_employees from project from assigned_pages from courses in site
     # all courses that need to have a formation created
+    main_table: courses
     select:
-      - nodes.id
-      - nodes.name
-      - nodes.publish_from
-      - nodes.zip
-      - nodes.vclass_id
-      - nodes.type
-      - nodes.rgroup_id
-      - nodes.pgroup_id
-      - nodes.ref_lang
-      - form.event_at AS last_date
-      - form.event_at + INTERVAL nodes.custom_a MONTH AS next_date
-      - MIN(IF(form.event_at,form.event_at,0)) AS event_at
-      - MIN(IF(form.event_at,form.event_at,0)) + INTERVAL nodes.custom_a MONTH AS log_at
-      - COUNT(DISTINCT no2.id) AS custom_b
+      - courses.id
+      - courses.name
+      - courses.publish_from
+      - courses.zip
+      - courses.vclass_id
+      - courses.type
+      - courses.rgroup_id
+      - courses.pgroup_id
+      - courses.ref_lang
+      - courses.user_id
+      - courses.max_status
+      - courses.custom_a AS repeat_every
+      - courses.priority
+      - form_status.last_date AS last_date
+      - form_status.last_date + INTERVAL courses.custom_a MONTH AS next_date
+      - MIN(IF(form_status.last_date,form_status.last_date,0)) AS min_last_date
+      - MIN(IF(form_status.last_date,form_status.last_date,0)) + INTERVAL courses.custom_a MONTH AS min_next_date
+      - COUNT(DISTINCT courses.employee_id) AS emp_count
     tables:
-      # nodes: courses
-      - nodes
-      # no1:   assigned_pages
-      # no2:   assigned_employees
-      - links
-      - links AS li1
-      # form.project_id, form.event_at, form.emp_id = formation status for course x (project_id) and employee (emp_id)
+      # course - max(priority) - employee
+      - "(SELECT courses.*, employees.id AS employee_id, MAX(IF(assigned_pages.custom_a,assigned_pages.custom_a,5)) AS priority FROM nodes AS courses, nodes AS employees, nodes AS assigned_pages, links AS li1, links AS li2 WHERE (employees.id = li1.source_id AND li1.relation_id = RELATION_ID(assigned_employee) AND li1.target_id = assigned_pages.project_id) AND (assigned_pages.id = li2.target_id AND li2.relation_id = RELATION_ID(assigned_page) AND li2.source_id = courses.id) GROUP BY id, employee_id) AS courses"
     join_tables:
-      nodes:
-        - "INNER JOIN nodes AS no1 INNER JOIN nodes AS no2 LEFT JOIN (SELECT nodes.project_id AS project_id, flink.target_id AS emp_id, MAX(nodes.event_at) AS event_at FROM nodes INNER JOIN links AS flink ON nodes.id = flink.source_id AND flink.relation_id = RELATION_ID(assigned_formation) AND (flink.status IS NULL OR flink.status = 100) GROUP BY flink.target_id, nodes.project_id) AS form ON form.emp_id = no2.id AND form.project_id = nodes.id"
+      courses:
+        - "LEFT JOIN (SELECT formations.project_id AS course_id, flink.target_id AS employee_id, MAX(formations.event_at) AS last_date FROM nodes AS formations INNER JOIN links AS flink ON formations.id = flink.source_id AND flink.relation_id = RELATION_ID(assigned_formation) AND (flink.status IS NULL OR flink.status = 100) GROUP BY employee_id, course_id) AS form_status ON form_status.employee_id = courses.employee_id AND form_status.course_id = courses.id"
     where:
-      - no2.id = li1.source_id AND li1.relation_id = RELATION_ID(assigned_employee) AND li1.target_id = no1.project_id
-      - no1.id = links.target_id AND links.relation_id = RELATION_ID(assigned_page) AND links.source_id = nodes.id
-      - nodes.kpath LIKE 'NPPC%'
-    group: nodes.id
-    order: log_at ASC
+      - courses.kpath LIKE 'NPPC%'
+    group: courses.priority, courses.id
+    order: min_next_date ASC
+  
+  all_formations_not_over:
+    main_table: formations
+    select:
+      - formations.*
+    tables:
+      - nodes AS formations
+    join_tables:
+      formations:
+        - "INNER JOIN links ON formations.id = links.source_id AND links.relation_id = RELATION_ID(assigned_formation) AND (links.status IS NULL OR links.status = 50)"
+    where:
+      - formations.kpath like 'NNF%'
+    group: formations.id
