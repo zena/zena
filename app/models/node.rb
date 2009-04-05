@@ -680,7 +680,7 @@ class Node < ActiveRecord::Base
         elsif ['v_publish_from', 'log_at', 'event_at'].include?(key)
           if attributes[key].kind_of?(Time)
             res[key] = attributes[key]
-          else
+          elsif attributes[key]
             # parse date
             res[key] = attributes[key].to_utc(_('datetime'), visitor.tz)
           end
