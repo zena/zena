@@ -13,6 +13,8 @@
 <%= select 'node', 'v_lang', current_site.lang_list.map {|l| [_(l), l]} %>
 
 <% if @node.kind_of?(Note) -%>
+<label for='log_at'><%= _("log date") %></label>
+<%= date_box('node', 'log_at')%>
 <label for='event_at'><%= _("event date") %></label>
 <%= date_box('node', 'event_at')%>
 <% end -%>

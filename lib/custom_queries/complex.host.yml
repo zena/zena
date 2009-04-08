@@ -1,3 +1,57 @@
+# roger 10 dangerous[~24] / 2004-03-15
+# mike  10 rmanagement[~24]
+# mike  10 ssite[~24]
+# joe   10 ssite[~24]
+# roger 10 ssite[~24]
+# mike  10 tmotivation[~24]
+# mike  10 wusage[~24]
+# roger 10 wusage[~24]
+# joe   10 wusage[~24]
+# 
+# roger 5  engine[~24]
+# roger 5  fiber[~24] / 2003-03-03
+# joe   5  fiber[~24] / 2003-03-03
+# mike  5  fiber[~24] / 2002-02-02
+# roger 5  fproblems[] / 2006-03-20
+# roger 5  tinformation[~12] / 2002-05-05
+# mike  5  vision[~24] / 2003-04-05
+# 
+# joe   1  fproblems[]
+# mike  1  fproblems[]
+# roger 1  radio[~24]
+# joe   1  radio[~24]
+# mike  1  radio[~24]
+# mike  1  tinformation[~12]
+# joe   1  tinformation[~12] / 2003-03-20
+# 
+# ===============
+# 
+# joe   10 ssite[~24]
+# joe   10 wusage[~24]
+# joe   5  fiber[~24] / 2003-03-03
+# joe   1  fproblems[]
+# joe   1  radio[~24]
+# joe   1  tinformation[~12] / 2003-03-20
+# 
+# mike  10 rmanagement[~24]
+# mike  10 ssite[~24]
+# mike  10 tmotivation[~24]
+# mike  10 wusage[~24]
+# mike  5  fiber[~24] / 2002-02-02
+# mike  5  vision[~24] / 2003-04-05
+# mike  1  fproblems[]
+# mike  1  radio[~24]
+# mike  1  tinformation[~12]
+# 
+# roger 10 dangerous[~24] / 2004-03-15
+# roger 10 ssite[~24]
+# roger 10 wusage[~24]
+# roger 5  engine[~24]
+# roger 5  fiber[~24] / 2003-03-03
+# roger 5  fproblems[] / 2006-03-20
+# roger 5  tinformation[~12] / 2002-05-05
+# roger 1  radio[~24]
+
 NodeQuery:
   # find all courses that an employee must follow
   emp_form_date:
