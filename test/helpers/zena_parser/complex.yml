@@ -240,4 +240,10 @@ all_course_emp_dates_in_six_months_later:
         </ol>
       </li>
     </ol>
-    
+
+all_course_emp_dates_paginate:
+  context:
+    ref_date: 2004-03-01
+    # in 6 months = before 2004-09-01
+  src: "<r:all_course_emp_dates where='last_date is null or (repeat_every is not null and next_date lt REF_DATE + 6 month)' order='priority desc, log_at asc, name asc' limit='3' paginate='p'><r:link page='list'/> <r:each join=',' do='[name]'/>"
+  res: "/1 <a.*>2</a> <a.*>3</a> <a.*>4</a> resp_management, secure_a_site, team_motivation/"
