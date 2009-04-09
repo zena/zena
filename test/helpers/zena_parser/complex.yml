@@ -1,23 +1,79 @@
+# FORMATION STATUS
+# roger 10 dangerous[~24] / 2004-03-15
+# mike  10 rmanagement[~24]
+# mike  10 ssite[~24]
+# joe   10 ssite[~24]
+# roger 10 ssite[~24]
+# mike  10 tmotivation[~24]
+# mike  10 wusage[~24]
+# roger 10 wusage[~24]
+# joe   10 wusage[~24]
+# 
+# roger 5  engine[~24]
+# roger 5  fiber[~24] / 2003-03-03
+# joe   5  fiber[~24] / 2003-03-03
+# mike  5  fiber[~24] / 2002-02-02
+# roger 5  fproblems[] / 2006-03-20
+# roger 5  tinformation[~12] / 2002-05-05
+# mike  5  vision[~24] / 2003-04-05
+# 
+# joe   1  fproblems[]
+# mike  1  fproblems[]
+# roger 1  radio[~24]
+# joe   1  radio[~24]
+# mike  1  radio[~24]
+# mike  1  tinformation[~12]
+# joe   1  tinformation[~12] / 2003-03-20
+# 
+# ===============
+# 
+# joe   10 ssite[~24]
+# joe   10 wusage[~24]
+# joe   5  fiber[~24] / 2003-03-03
+# joe   1  fproblems[]
+# joe   1  radio[~24]
+# joe   1  tinformation[~12] / 2003-03-20
+# 
+# mike  10 rmanagement[~24]
+# mike  10 ssite[~24]
+# mike  10 tmotivation[~24]
+# mike  10 wusage[~24]
+# mike  5  fiber[~24] / 2002-02-02
+# mike  5  vision[~24] / 2003-04-05
+# mike  1  fproblems[]
+# mike  1  radio[~24]
+# mike  1  tinformation[~12]
+# 
+# roger 10 dangerous[~24] / 2004-03-15
+# roger 10 ssite[~24]
+# roger 10 wusage[~24]
+# roger 5  engine[~24]
+# roger 5  fiber[~24] / 2003-03-03
+# roger 5  fproblems[] / 2006-03-20
+# roger 5  tinformation[~12] / 2002-05-05
+# roger 1  radio[~24]
+
 default:
   context:
     node_name: '@node'
     node: roger
     visitor: complex_admin
     site: complex
-    ref_date: 2005-03-01
-  src: "<r:emp_form_dates where='custom_a is not null' do='each' join=', '><r:show attr='name'/> (<r:show date='event_at' format='%Y-%m-%d'/>, <r:show date='log_at' format='%Y-%m-%d'/>)</r:emp_form_dates>"
-  res: "engine (, ), radio_usage (, ), secure_a_site (, ), winch_usage (, ), transmit_information (2002-05-05, 2003-05-05), fiber_junction (2003-03-03, 2005-03-03), dangerous_transportations (2004-03-15, 2006-03-15), formulate_problems (2006-03-20, 2008-03-20)"
+    ref_date: 2004-09-01
+  src: "<r:emp_form_dates where='repeat_every is not null' do='each' join=', '><r:show attr='name'/>(<r:show attr='priority'/>, <r:show date='last_date' format='%Y-%m-%d'/>, <r:show date='next_date' format='%Y-%m-%d'/>)</r:emp_form_dates>"
+  res: "secure_a_site(10, , ), winch_usage(10, , ), dangerous_transportations(10, 2004-03-15, 2006-03-15), engine(5, , ), transmit_information(5, 2002-05-05, 2003-05-05), fiber_junction(5, 2003-03-03, 2005-03-03), radio_usage(1, , )"
   
 courses_in_the_next_6_months:
-  # log_at   = next_date
-  # event_at = last_date
   # custom_a = repetition interval
-  src: "<r:emp_form_dates where='last_date is null or (custom_a is not null and next_date lt REF_DATE + 6 month)' do='each' join=', '><r:show attr='name'/>: <r:show date='log_at' format='%Y-%m-%d'/></r:emp_form_dates>"
-  res: "engine: , radio_usage: , secure_a_site: , winch_usage: , transmit_information: 2003-05-05, fiber_junction: 2005-03-03"
+  src: "<r:emp_form_dates where='last_date is null or (repeat_every is not null and next_date lt REF_DATE + 6 month)' order='last_date asc, name asc' do='each' join=', '><r:show attr='name'/>: <r:show date='next_date' format='%Y-%m-%d'/></r:emp_form_dates>"
+  res: "engine: , radio_usage: , secure_a_site: , winch_usage: , transmit_information: 2003-05-05"
 
 courses_in_the_next_6_months_do_syntax:
-  src: "<div do='emp_form_dates where last_date is null or (custom_a is not null and next_date lt REF_DATE + 6 month)' do='each' join=', '><r:show attr='name'/>: <r:show date='log_at' format='%Y-%m-%d'/></div>"
-  res: "<div>engine: , radio_usage: , secure_a_site: , winch_usage: , transmit_information: 2003-05-05, fiber_junction: 2005-03-03</div>"
+  context:
+    ref_date: 2005-03-01
+    # before 2005-06-01
+  src: "<ol do='emp_form_dates where last_date is null or (repeat_every is not null and next_date lt REF_DATE + 6 month)' do='group' by='priority'><li set_class='priority[priority]' do='each_group' do='each' join=', '><r:show attr='name'/>: <r:show date='next_date' format='%Y-%m-%d'/></li></ol>"
+  res: "<ol><li class='priority10'>secure_a_site: , winch_usage: </li><li class='priority5'>engine: , transmit_information: 2003-05-05, fiber_junction: 2005-03-03</li><li class='priority1'>radio_usage: </li></ol>"
 
 all_formations:
   src: "<r:formations in='site' do='each' join=', '><r:show attr='name'/>: <r:show date='event_at'/></r:formations>"
@@ -30,44 +86,164 @@ all_formations_with_people:
 all_people_related_to_a_course:
   context:
     node: transmit_information
-  src: "<r:course_emp_dates do='each' join=', '><r:show attr='name'/> (last:<r:show date='event_at'/>, next:<r:show date='log_at'/>)</r:course_emp_dates>"
+  src: "<r:course_emp_dates do='each' join=', '><r:show attr='name'/> (last:<r:show date='last_date'/>, next:<r:show date='next_date'/>)</r:course_emp_dates>"
   res: "joe (last:2003-03-20, next:2004-03-20), mike (last:, next:), roger (last:2002-05-05, next:2003-05-05)"
 
+all_people_related_to_a_course_group_by_priority:
+  context:
+    node: transmit_information
+  src: |
+    <ol do='course_emp_dates' where='last_date is null or (repeat_every is not null and next_date lt REF_DATE + 6 month)' order='priority desc, last_date asc, name asc' do='group' by='priority'>
+      <li set_class='priority[priority]' do='each_group'>
+        <ol>
+          <li do='each'><r:show attr='name'/> (last:<r:show date='last_date'/>, next:<r:show date='next_date'/>)</li>
+        </ol>
+      </li>
+    </ol>
+  res: |
+    <ol>  <li class='priority5'>
+        <ol>
+          <li>roger (last:2002-05-05, next:2003-05-05)</li>
+        </ol>
+      </li>
+      <li class='priority1'>
+        <ol>
+          <li>mike (last:, next:)</li>
+          <li>joe (last:2003-03-20, next:2004-03-20)</li>
+        </ol>
+      </li>
+    </ol>
+      
 all_people_related_to_a_course_in_6_month:
   context:
     node: transmit_information
     ref_date: 2003-04-04
-  src: "<r:course_emp_dates where='last_date is null or (custom_a is not null and next_date lt REF_DATE + 6 month)' do='each' join=', '><r:show attr='name'/> (last:<r:show date='event_at'/>, next:<r:show date='log_at'/>)</r:course_emp_dates>"
+  src: "<r:course_emp_dates where='last_date is null or (repeat_every is not null and next_date lt REF_DATE + 6 month)' do='each' join=', '><r:show attr='name'/> (last:<r:show date='last_date'/>, next:<r:show date='next_date'/>)</r:course_emp_dates>"
   res: "mike (last:, next:), roger (last:2002-05-05, next:2003-05-05)"
 
 all_course_emp_date:
-  # next:
-  # dangerous_transportations: 2006-03-15
-  # fiber_junction: 2004-02-02, 2005-03-03, 2005-03-03
-  # vision: 2005-04-05
-  # transmit_information: --, 2003-05-05, 2004-03-20
-  # engine, formulate_problems, radio_usage, secure_a_site, winch_usage, resp_management, team_motivation: asap
-  src: "<r:all_course_emp_dates order='name asc' do='each' join=', '><r:show date='log_at'/> <r:show attr='name'/> (<r:show attr='custom_b'/>)</r:all_course_emp_dates>"
-  res: "2006-03-15 dangerous_transportations (1),  engine (1), 2004-02-02 fiber_junction (3),  formulate_problems (3),  radio_usage (3),  resp_management (1),  secure_a_site (3),  team_motivation (1),  transmit_information (3), 2005-04-05 vision (1),  winch_usage (3)"
+  src: |
+    <ol do='all_course_emp_dates order by priority desc, log_at asc, name asc'>
+    <r:group by='priority'>
+      <li do='each_group' set_class='priority[priority]'>
+        <ol>
+          <li do='each'><r:if test='min_next_date'><r:show date='min_next_date' tformat='%Y-%m-%d'/><r:else>ASAP</r:else></r:if> <r:show attr='name'/> (<r:show attr='emp_count'/>)</li>
+        </ol>
+      </li>
+    </r:group>
+    </ol>
+  res: |
+    <ol>
+      <li class='priority10'>
+        <ol>
+          <li>2006-03-15 dangerous_transportations (1)</li>
+          <li>ASAP resp_management (1)</li>
+          <li>ASAP secure_a_site (3)</li>
+          <li>ASAP team_motivation (1)</li>
+          <li>ASAP winch_usage (3)</li>
+        </ol>
+      </li>
+      <li class='priority5'>
+        <ol>
+          <li>ASAP engine (1)</li>
+          <li>2004-02-02 fiber_junction (3)</li>
+          <li>ASAP formulate_problems (1)</li>
+          <li>2003-05-05 transmit_information (1)</li>
+          <li>2005-04-05 vision (1)</li>
+        </ol>
+      </li>
+      <li class='priority1'>
+        <ol>
+          <li>ASAP formulate_problems (2)</li>
+          <li>ASAP radio_usage (3)</li>
+          <li>ASAP transmit_information (2)</li>
+        </ol>
+      </li>
+    </ol>
 
 all_course_emp_dates_in_six_months:
   context:
     ref_date: 2003-09-01
-    # next:
-    # dangerous_transportations: 2006-03-15
-    # fiber_junction: 2004-02-02, 2005-03-03, 2005-03-03
-    # vision: 2005-04-05
-    # transmit_information: --, 2003-05-05, 2004-03-20
-  src: "<r:all_course_emp_dates where='custom_a is not null and (last_date is null or next_date lt REF_DATE + 6 month) order by name asc' do='each' join=', '><r:show date='log_at'/> <r:show attr='name'/> (<r:show attr='custom_b'/>)</r:all_course_emp_dates>"
-  res: " engine (1), 2004-02-02 fiber_junction (1),  formulate_problems (2),  radio_usage (3),  resp_management (1),  secure_a_site (3),  team_motivation (1),  transmit_information (2),  winch_usage (3)"
+    # in 6 months = before 2004-03-01
+  src: |
+    <ol do='all_course_emp_dates where last_date is null or (repeat_every is not null and next_date lt REF_DATE + 6 month) order by priority desc, log_at asc, name asc'>
+    <r:group by='priority'>
+      <li do='each_group' set_class='priority[priority]'>
+        <ol>
+          <li do='each'><r:if test='min_next_date'><r:show date='min_next_date' tformat='%Y-%m-%d'/><r:else>ASAP</r:else></r:if> <r:show attr='name'/> (<r:show attr='emp_count'/>)</li>
+        </ol>
+      </li>
+    </r:group>
+    </ol>
+  res: |
+    <ol>
+      <li class='priority10'>
+        <ol>
+          <li>ASAP resp_management (1)</li>
+          <li>ASAP secure_a_site (3)</li>
+          <li>ASAP team_motivation (1)</li>
+          <li>ASAP winch_usage (3)</li>
+        </ol>
+      </li>
+      <li class='priority5'>
+        <ol>
+          <li>ASAP engine (1)</li>
+          <li>2004-02-02 fiber_junction (1)</li>
+          <li>2003-05-05 transmit_information (1)</li>
+        </ol>
+      </li>
+      <li class='priority1'>
+        <ol>
+          <li>ASAP formulate_problems (2)</li>
+          <li>ASAP radio_usage (3)</li>
+          <li>ASAP transmit_information (1)</li>
+        </ol>
+      </li>
+    </ol>
 
 all_course_emp_dates_in_six_months_later:
   context:
-    ref_date: 2007-06-01
-    # next:
-    # dangerous_transportations: 2006-03-15
-      # fiber_junction: 2004-02-02, 2005-03-03, 2005-03-03
-    # vision: 2005-04-05
-    # transmit_information: --, 2003-05-05, 2004-03-20
-  src: "<r:all_course_emp_dates where='custom_a is not null and (last_date is null or next_date lt REF_DATE + 6 month) order by name asc' do='each' join=', '><r:show date='log_at'/> <r:show attr='name'/> (<r:show attr='custom_b'/>)</r:all_course_emp_dates>"
-  res: "2006-03-15 dangerous_transportations (1),  engine (1), 2004-02-02 fiber_junction (3),  formulate_problems (2),  radio_usage (3),  resp_management (1),  secure_a_site (3),  team_motivation (1),  transmit_information (3), 2005-04-05 vision (1),  winch_usage (3)"
+    ref_date: 2004-03-01
+    # in 6 months = before 2004-09-01
+  src: |
+    <ol do='all_course_emp_dates where last_date is null or (repeat_every is not null and next_date lt REF_DATE + 6 month) order by priority desc, log_at asc, name asc'>
+    <r:group by='priority'>
+      <li do='each_group' set_class='priority[priority]'>
+        <ol>
+          <li do='each'><r:if test='min_next_date'><r:show date='min_next_date' tformat='%Y-%m-%d'/><r:else>ASAP</r:else></r:if> <r:show attr='name'/> (<r:show attr='emp_count'/>)</li>
+        </ol>
+      </li>
+    </r:group>
+    </ol>
+  res: |
+    <ol>
+      <li class='priority10'>
+        <ol>
+          <li>ASAP resp_management (1)</li>
+          <li>ASAP secure_a_site (3)</li>
+          <li>ASAP team_motivation (1)</li>
+          <li>ASAP winch_usage (3)</li>
+        </ol>
+      </li>
+      <li class='priority5'>
+        <ol>
+          <li>ASAP engine (1)</li>
+          <li>2004-02-02 fiber_junction (1)</li>
+          <li>2003-05-05 transmit_information (1)</li>
+        </ol>
+      </li>
+      <li class='priority1'>
+        <ol>
+          <li>ASAP formulate_problems (2)</li>
+          <li>ASAP radio_usage (3)</li>
+          <li>ASAP transmit_information (2)</li>
+        </ol>
+      </li>
+    </ol>
+
+all_course_emp_dates_paginate:
+  context:
+    ref_date: 2004-03-01
+    # in 6 months = before 2004-09-01
+  src: "<r:all_course_emp_dates where='last_date is null or (repeat_every is not null and next_date lt REF_DATE + 6 month)' order='priority desc, log_at asc, name asc' limit='3' paginate='p'><r:link page='list'/> <r:each join=',' do='[name]'/>"
+  res: "/1 <a.*>2</a> <a.*>3</a> <a.*>4</a> resp_management, secure_a_site, team_motivation/"

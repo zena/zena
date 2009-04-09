@@ -993,6 +993,10 @@ input:
   tem: "<input name='node[c_first_name]' type='text' value='<%= fquote @node.c_public_read(\"first_name\") %>'/>"
   res: "<input name='node[c_first_name]' type='text' value='Solenopsis'/>"
 
+input_style:
+  src: "<r:input style='display:none;' type='submit'/>"
+  res: "<input style='display:none;' type='submit'/>"
+  
 textarea:
   context:
     node: 'ant'

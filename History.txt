@@ -1,0 +1,4 @@
+== 0.11.1 2009-04-03
+
+* minor enhancements:
+  * Better testing of custom queries using latest querybuilder (0.5.2)

@@ -889,10 +889,10 @@ END_TXT
 END_TXT
         end
         
-        if @context[:make_form] ? (descendants('show') != []) : (descendants('input') != [])
+        if (descendants('input') || []).select{|elem| elem.params[:type] == 'submit'} != []
           # has submit
         else
-          append_submit = "<input type='submit'/>"
+          hidden_submit = "<input type='submit'/>" # hidden submit for Firefox compatibility
         end
         
         hidden_fields['link_id'] = "<%= #{node}.link_id %>" if @context[:need_link_id]
@@ -982,6 +982,7 @@ END_TXT
         v = "'#{v}'" unless v.kind_of?(String) && ['"', "'"].include?(v[0..0])
         form << "<input type='hidden' name='#{k}' value=#{v}/>\n"
       end
+      form << hidden_submit << "\n" if hidden_submit
       form << "</div>"
       
       form << "<%= error_messages_for(#{node}) %>"
@@ -996,15 +997,6 @@ END_TXT
           form   = cancel + form
           cancel = ''
         end
-      end
-      
-      if append_submit
-        # add a descendant after blocks.
-        unless blocks_bak
-          blocks_bak = @blocks
-          @blocks = @blocks.dup
-        end
-        make(:void, :method=>'void', :text=>append_submit)
       end
       
       if descendant('form_tag')
@@ -3050,20 +3042,26 @@ END_TXT
     
     def get_input_params(params = @params)
       res = {}
-      unless res[:name] = (params[:name] || params[:date])
-        return [{}, nil]
-      end
-      
-      if res[:name] =~ /\A([\w_]+)\[(.*?)\]/
-        attribute = $2
-      else
-        attribute = res[:name]
-        if @context[:in_filter] || attribute == 's'
-          res[:name] = attribute
+      if res[:name] = (params[:name] || params[:date])
+        if res[:name] =~ /\A([\w_]+)\[(.*?)\]/
+          attribute = $2
         else
-          res[:name] = "#{base_class.to_s.underscore}[#{attribute}]"
+          attribute = res[:name]
+          if @context[:in_filter] || attribute == 's'
+            res[:name] = attribute
+          else
+            res[:name] = "#{base_class.to_s.underscore}[#{attribute}]"
+          end
         end
-      end 
+        
+        if @context[:in_add]
+          res[:value] = (params[:value] || params[:set_value]) ? ["'#{ helper.fquote(params[:value])}'"] : ["''"]
+        elsif @context[:in_filter]
+          res[:value] = attribute ? ["'<%= fquote params[#{attribute.to_sym.inspect}] %>'"] : ["''"]
+        else
+          res[:value] = attribute ? ["'<%= fquote #{node_attribute(attribute)} %>'"] : ["''"]
+        end
+      end
       
       if @context[:dom_prefix]
         res[:id]   = "#{erb_dom_id}_#{attribute}"
@@ -3075,13 +3073,6 @@ END_TXT
         res[k] = params[k] if params[k]
       end
       
-      if @context[:in_add]
-        res[:value] = (params[:value] || params[:set_value]) ? ["'#{ helper.fquote(params[:value])}'"] : ["''"]
-      elsif @context[:in_filter]
-        res[:value] = attribute ? ["'<%= fquote params[#{attribute.to_sym.inspect}] %>'"] : ["''"]
-      else
-        res[:value] = attribute ? ["'<%= fquote #{node_attribute(attribute)} %>'"] : ["''"]
-      end
       return [res, attribute]
     end
     
