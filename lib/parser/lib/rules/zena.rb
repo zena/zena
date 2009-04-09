@@ -3050,20 +3050,26 @@ END_TXT
     
     def get_input_params(params = @params)
       res = {}
-      unless res[:name] = (params[:name] || params[:date])
-        return [{}, nil]
-      end
-      
-      if res[:name] =~ /\A([\w_]+)\[(.*?)\]/
-        attribute = $2
-      else
-        attribute = res[:name]
-        if @context[:in_filter] || attribute == 's'
-          res[:name] = attribute
+      if res[:name] = (params[:name] || params[:date])
+        if res[:name] =~ /\A([\w_]+)\[(.*?)\]/
+          attribute = $2
         else
-          res[:name] = "#{base_class.to_s.underscore}[#{attribute}]"
+          attribute = res[:name]
+          if @context[:in_filter] || attribute == 's'
+            res[:name] = attribute
+          else
+            res[:name] = "#{base_class.to_s.underscore}[#{attribute}]"
+          end
         end
-      end 
+        
+        if @context[:in_add]
+          res[:value] = (params[:value] || params[:set_value]) ? ["'#{ helper.fquote(params[:value])}'"] : ["''"]
+        elsif @context[:in_filter]
+          res[:value] = attribute ? ["'<%= fquote params[#{attribute.to_sym.inspect}] %>'"] : ["''"]
+        else
+          res[:value] = attribute ? ["'<%= fquote #{node_attribute(attribute)} %>'"] : ["''"]
+        end
+      end
       
       if @context[:dom_prefix]
         res[:id]   = "#{erb_dom_id}_#{attribute}"
@@ -3075,13 +3081,6 @@ END_TXT
         res[k] = params[k] if params[k]
       end
       
-      if @context[:in_add]
-        res[:value] = (params[:value] || params[:set_value]) ? ["'#{ helper.fquote(params[:value])}'"] : ["''"]
-      elsif @context[:in_filter]
-        res[:value] = attribute ? ["'<%= fquote params[#{attribute.to_sym.inspect}] %>'"] : ["''"]
-      else
-        res[:value] = attribute ? ["'<%= fquote #{node_attribute(attribute)} %>'"] : ["''"]
-      end
       return [res, attribute]
     end
     
