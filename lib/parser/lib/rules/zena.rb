@@ -2905,6 +2905,7 @@ END_TXT
           node_name = node
         end
         
+        class_cond = nil
         @params.each do |k,v|
           if k.to_s =~ /^(.+)_if$/
             klass = $1
@@ -2914,9 +2915,13 @@ END_TXT
             cond  = get_test_condition(node_name, $2.to_sym => v)
           end
           if cond
-            append << "<%= #{cond} ? \" class='#{klass}'\" : \"#{tag_class ? " class='#{tag_class}'" : ""}\" %>"
-            @html_tag_params.delete(:class)
+            class_cond = "#{cond} ? \" class='#{klass}'\" : #{class_cond}" # (x = 3) ? "class='foo'" :
           end
+        end
+        
+        if class_cond
+          append << "<%= #{class_cond}\"#{tag_class ? " class='#{tag_class}'" : ""}\" %>"
+          @html_tag_params.delete(:class)
         end
       end
       
