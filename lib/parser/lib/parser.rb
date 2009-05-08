@@ -241,7 +241,7 @@ class Parser
     
     included_text, absolute_url = self.class.get_template_text(@params[:template], @options[:helper], @options[:current_folder])
     
-    absolute_url += "::#{@params[:part].gsub('/','_')}"  if @params[:part]
+    absolute_url += "::#{@params[:part].gsub('/','_')}" if @params[:part]
     absolute_url += "??#{@options[:part].gsub('/','_')}" if @options[:part]
     if absolute_url
       if @options[:included_history].include?(absolute_url)
