@@ -1833,7 +1833,7 @@ END_TXT
           end
           link_params = {}
           @params.each do |k,v|
-            next if [:tag, :page, :join].include?(k)
+            next if [:tag, :page, :join, :page_count].include?(k)
             link_params[k] = v
           end
           text = "#{open_tag}<r:link #{params_to_html(link_params)} #{pagination_key}='[#{pagination_key}_page]' do='[#{pagination_key}_page]'/>#{close_tag}"
@@ -1846,7 +1846,7 @@ END_TXT
           remove_instance_variable(:@all_descendants)
         end
         
-        out "<% page_numbers(set_#{pagination_key}, set_#{pagination_key}_count, #{(@params[:join] || ' ').inspect}) do |set_#{pagination_key}_page, #{pagination_key}_page_join| %>"
+        out "<% page_numbers(set_#{pagination_key}, set_#{pagination_key}_count, #{(@params[:join] || ' ').inspect}, #{@params[:page_count] ? @params[:page_count].to_i : 'nil'}) do |set_#{pagination_key}_page, #{pagination_key}_page_join| %>"
         out "<%= #{pagination_key}_page_join %>"
         out "<% if set_#{pagination_key}_page != set_#{pagination_key} -%>"
         out expand_with

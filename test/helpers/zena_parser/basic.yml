@@ -1187,6 +1187,12 @@ link_page_list:
   tem: "/set_pak_page != set_pak.*zen_path\(@node,:pak.*elsif true.*set_pak_page/"
   res: "/<a href='.*page22.html\?pak=1'>1</a>, 2, .*pak=3'>3</a>.*pak=4'>4</a>.*pak=5'>5</a>/"
 
+link_page_list_page_count:
+  context:
+    pak: 3
+  src: "<r:nodes in='site' limit='10' order='zip' paginate='pak' do='link' page='list' join=', ' page_count='3'/>"
+  res: "/<a href='.*page22.html\?pak=2'>2</a>, 3, .*pak=4'>4</a>\\Z/"
+
 paginate_with_or_clause:
   context:
     pak: 2
