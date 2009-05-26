@@ -68,6 +68,12 @@ module Zena
   
   # Zafu tags used to display / edit nodes and versions
   module Tags
+    PSEUDO_ATTRIBUTES = {
+      'now'      => 'Time.now',
+      'start.id' => '(params[:s] || @node[:zip])',
+      'nil'      => 'nil',
+    }
+    
     class << self
       def inline_methods(*args)
         args.each do |name|
@@ -1373,7 +1379,14 @@ END_TXT
           join = join.gsub(/&lt;([^%])/, '<\1').gsub(/([^%])&gt;/, '\1>')
           out "<% #{var}_max_index = #{list}.size - 1 -%>" if @params[:alt_reverse]
           out "<% #{list}.each_with_index do |#{var},#{var}_index| -%>"
-          out "<%= #{var}_index > 0 ? #{join.inspect} : '' %>"
+          
+          if join_clause = @params[:join_if]
+            set_stored(Node, 'prev', "#{var}_prev")
+            cond = get_test_condition(var, :test=>join_clause)
+            out "<%= #{var}_prev = #{list}[#{var}_index - 1]; (#{var}_index > 0 && #{cond}) ? #{join.inspect} : '' %>"
+          else
+            out "<%= #{var}_index > 0 ? #{join.inspect} : '' %>"
+          end
           
           if alt_class = @params[:alt_class]
             alt_test = @params[:alt_reverse] == 'true' ? "(#{var}_max_index - #{var}_index) % 2 != 0" : "#{var}_index % 2 != 0"
@@ -2669,30 +2682,7 @@ END_TXT
             nil
           end
         when :test
-          if value =~ /("[^"]*"|'[^']*'|[\w:\.\-]+)\s*(>=|<=|<>|<|=|>|lt|le|eq|ne|ge|gt)\s*("[^"]*"|'[^']*'|[\w:\.\-]+)/
-            parts = [$1,$3]
-            op = {'lt' => '<','le' => '<=','eq' => '==', '=' => '==','ne' => '!=','ge' => '>=','gt' => '>'}[$2] || $2
-            toi   = ( op =~ /(>|<)/ || (parts[0] =~ /^-?\d+$/ || parts[1] =~ /^-?\d+$/) )
-            parts.map! do |part|
-              if ['"',"'"].include?(part[0..0])
-                toi ? part[1..-2].to_i : part[1..-2].inspect
-              elsif part == 'NOW'
-                "Time.now.to_i"
-              elsif part =~ /^-?\d+$/
-                part
-              else
-                if node_attr = node_attribute(part, :node => node)
-                  toi ? "#{node_attr}.to_i" : "#{node_attr}.to_s"
-                else
-                  nil
-                end
-              end
-            end
-            
-            parts.include?(nil) ? nil :  "#{parts[0]} #{op} #{parts[1]}"
-          else
-            nil
-          end
+          parse_condition(value, node)
         when :attribute
           '!' + node_attribute(value, :node => node) + '.blank?'
         when :node
@@ -2744,6 +2734,126 @@ END_TXT
         end
       end.compact!
       tests == [] ? nil : tests.join(' || ')
+    end
+    
+    def parse_condition_error(clause, rest, res)
+      out parser_error("invalid clause #{clause.inspect} near \"#{res[-2..-1]}#{rest[0..1]}\"")
+    end
+    
+    def parse_condition(clause, node_name)
+      rest         = clause.strip
+      types        = [:par_open, :value, :bool_op, :op, :par_close]
+      allowed      = [:par_open, :value]
+      par_count    = 0
+      uses_bool_op = false
+      segment      = []  # value op value
+      after_value  = lambda { segment.size == 3 ? [:bool_op, :par_close] : [:op, :bool_op, :par_close]}
+      res          = ""
+      while rest != ''
+        # puts rest.inspect
+        if rest =~ /\A\s+/
+          rest = rest[$&.size..-1]
+        elsif rest[0..0] == '('
+          unless allowed.include?(:par_open)
+            parse_condition_error(clause, rest, res) 
+            return nil
+          end
+          res << '('
+          rest = rest[1..-1]
+          par_count += 1
+        elsif rest[0..0] == ')'  
+          unless allowed.include?(:par_close)
+            parse_condition_error(clause, rest, res) 
+            return nil
+          end
+          res << ')'
+          rest = rest[1..-1]
+          par_count -= 1
+          if par_count < 0
+            parse_condition_error(clause, rest, res)
+            return nil
+          end
+          allowed = [:bool_op]
+        elsif rest =~ /\A(lt|le|eq|ne|ge|gt)\s+/
+          unless allowed.include?(:op)
+            parse_condition_error(clause, rest, res) 
+            return nil
+          end
+          op = $1.strip
+          rest = rest[op.size..-1]
+          op = {'lt' => '<', 'le' => '<=', 'eq' => '==', 'ne' => '!=', 'ge' => '>=', 'gt' => '>'}[op]
+          segment << [op, :op]
+          allowed = [:value]
+        elsif rest =~ /\A("|')([^\1]*?)\1/
+          # string
+          unless allowed.include?(:value)
+            parse_condition_error(clause, rest, res) 
+            return nil
+          end
+          rest = rest[$&.size..-1]
+          segment << [$2.inspect, :string]
+          allowed = after_value.call
+        elsif rest =~ /\A(-?\d+)/  
+          # number
+          unless allowed.include?(:value)
+            parse_condition_error(clause, rest, res) 
+            return nil
+          end
+          rest = rest[$&.size..-1]
+          segment << [$1, :number]
+          allowed = after_value.call
+        elsif rest =~ /\A(and|or)/
+          unless allowed.include?(:bool_op)
+            parse_condition_error(clause, rest, res) 
+            return nil
+          end
+          uses_bool_op = true
+          rest = rest[$&.size..-1]
+          res << " #{$1} "
+          allowed = [:par_open, :value]
+        elsif rest =~ /\A([\w:\.\-]+)/
+          # variable
+          unless allowed.include?(:value)
+            parse_condition_error(clause, rest, res) 
+            return nil
+          end
+          rest = rest[$&.size..-1]
+          fld  = $1
+          unless node_attr = node_attribute(fld, :node => node_name)
+            parser_error("invalid field #{fld.inspect}")
+            return nil
+          end
+          segment << [node_attr, :var]
+          allowed = after_value.call
+        else  
+          parse_condition_error(clause, rest, res)
+          return nil
+        end
+        if segment.size == 3
+          toi = (segment[1][0] =~ /(>|<)/ || (segment[0][1] == :number || segment[2][1] == :number))
+          segment.map! do |part, type|
+            if type == :var
+              toi ? "#{part}.to_i" : part
+            elsif type == :string
+              toi ? part[1..-2].to_i : part
+            else
+              part
+            end
+          end
+          res << segment.join(" ")
+          segment = []
+        end
+      end
+      
+      if par_count > 0
+        parser_error("invalid clause #{clause.inspect}: missing closing ')'")
+        return nil
+      elsif allowed.include?(:value)
+        parser_error("invalid clause #{clause.inspect}")
+        return nil
+      else
+        return uses_bool_op ? "(#{res})" : res
+      end
     end
     
     # Block visibility of descendance with 'do_list'.
@@ -2832,11 +2942,13 @@ END_TXT
         return "set_#{str}"
       end
       
-      return "(params[:s] || @node[:zip]).to_i" if str == 'start.id'
+      res = PSEUDO_ATTRIBUTES[str]
+      return res if res
+      return current_date  if str == 'current_date'
+      return get_param($1) if str =~ /^param:(\w+)$/
+      
       attribute, att_node, klass = get_attribute_and_node(str)
       return 'nil' unless attribute
-      return get_param($1) if attribute =~ /^param:(\w+)$/
-      return current_date if attribute == 'current_date'
       
       
       att_node  ||= opts[:node]       || node

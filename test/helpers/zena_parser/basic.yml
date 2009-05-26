@@ -536,7 +536,7 @@ case_when_evil_test:
   res: "three"
 
 if_test_equal:
-  src: "<r:if test='id = 22'>one</r:if>"
+  src: "<r:if test='id eq 22'>one</r:if>"
   res: "one"
 
 if_test_param:
@@ -545,7 +545,7 @@ if_test_param:
 
 if_test_param_var:
   src: "<r:set var='year'>3000</r:set><r:if test='year eq param:f'>funky!</r:if>"
-  tem: "<% set_year = capture do %>3000<% end -%><% if set_year.to_s == params[:f].to_s -%>funky!<% end -%>"
+  tem: "<% set_year = capture do %>3000<% end -%><% if set_year == params[:f] -%>funky!<% end -%>"
   
 if_in_if:
   src: "<r:if test='id eq 22'><r:if test='1 eq 2'>strange...<r:else>wrong!</r:else></r:if><r:else>other node</r:else></r:if>"
@@ -573,8 +573,8 @@ on_if_ancestor:
   res: "<li class='hello'>collections</li>, <li class='hello'>nature</li>, <li class='hello'>people</li>, <li class='on'>projects</li>, <li class='hello'>skins</li>"
 
 on_if_empty:
-  src: "<li do='void' on_if='custom_a eq \"\"'>hello</li>"
-  tem: "<li<%= @node.custom_a.to_s == \"\" ? \" class='on'\" : \"\" %>>hello</li>"
+  src: "<li do='void' on_if='custom_a eq nil'>hello</li>"
+  tem: "<li<%= @node.custom_a == nil ? \" class='on'\" : \"\" %>>hello</li>"
   res: "<li class='on'>hello</li>"
 
 multiple_class_conditions:
@@ -630,12 +630,12 @@ if_or_same:
   res: ""
 
 if_now:
-  src: "<r:if test='log_at gt NOW'>future<r:else>past</r:else></r:if>"
+  src: "<r:if test='log_at gt now'>future<r:else>past</r:else></r:if>"
   tem: "<% if @node.log_at.to_i > Time.now.to_i -%>future<% elsif true -%>past<% end -%>"
   res: "past"
 
 on_if_now:
-  src: "<p do='[name]' on_if='log_at gt NOW'/>"
+  src: "<p do='[name]' on_if='log_at gt now'/>"
   tem: "<p<%= @node.log_at.to_i > Time.now.to_i ? \" class='on'\" : \"\" %>><%= @node.name %></p>"
   res: "<p>status</p>"
   
@@ -648,8 +648,8 @@ visitor_is_anon:
 test_in_each:
   context:
     node: 'cleanWater'
-  src: "<ul do='pages'><li do='each' on_if='name = \"track\"' do='[name]'/></ul>"
-  tem: "/var1.name.to_s == \"track\"/"
+  src: "<ul do='pages'><li do='each' on_if='name eq \"track\"' do='[name]'/></ul>"
+  tem: "/var1.name == \"track\"/"
   res: "<ul><li>status</li><li class='on'>track</li></ul>"
 
 on_if_in_unknown:
@@ -670,6 +670,12 @@ each_join:
     node: 'wiki'
   src: "<r:children><r:each join=', '><r:show attr='name'/></r:each></r:children>"
   res: "bird, flower"
+	
+each_join_if:
+  context:
+    node: 'status'
+  src: "<r:pages in='site' order='name'><r:each join=', ' join_if='prev.id ne main.id and id ne main.id'><r:show attr='name'/></r:each></r:pages>"
+  res: "/projects, skinsstatustalk, track/"
 
 set_attribute:
   src: "<div class='machin' do='void' set_class='node[id]'/><r:void set_class='s[v_status]i[id]'/>"
