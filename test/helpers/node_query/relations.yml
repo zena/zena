@@ -34,3 +34,7 @@ nodes_in_section:
     node: 'people'
   sql: "[\"SELECT nodes.* FROM nodes WHERE nodes.section_id = ? AND (#{@node.secure_scope('nodes')}) ORDER BY nodes.position ASC, nodes.name ASC\", @node.get_section_id]"
   res: "anonymous, ant, lion, myLife, tiger"
+
+relation_from_class:
+  src: "hot from pages in site"
+  sql: "/links.source_id = nodes.id AND nodes.kpath LIKE 'NP%'/"

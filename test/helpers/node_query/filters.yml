@@ -99,5 +99,3 @@ filter_through_links:
   src: "nodes where (set_tag_id eq 33 and hot_id eq 22) in site"
   sql: "/jnode\.zip = 33 AND jn1\.zip = 22/"
   res: "cleanWater"
-  
-#  res: "cleanWater, opening"

@@ -167,9 +167,9 @@ class NodeQuery < QueryBuilder
     end
     
     # Filters that need a join
-    def join_relation(rel, context, new_table = nil, previous_table = nil)
-      new_table      ||= table(main_table)
-      previous_table ||= table(new_table, -1)
+    def join_relation(rel, context, new_table_alias = nil, previous_table_alias = nil)
+      new_table_alias      ||= table(main_table)
+      previous_table_alias ||= table(main_table, -1)
       
       if rel == main_table || rel == 'children'
         # dummy clauses
@@ -185,9 +185,9 @@ class NodeQuery < QueryBuilder
           # tagged in project (not equal to 'tagged from nodes in project')
           # remove caller join
           @distinct = true
-          @where << "#{field_or_attr('id', new_table)} = #{table('links')}.#{rel.other_side} AND #{table('links')}.relation_id = #{rel[:id]}"
+          @where << "#{field_or_attr('id', new_table_alias)} = #{table('links')}.#{rel.other_side} AND #{table('links')}.relation_id = #{rel[:id]}"
         else
-          @where << "#{field_or_attr('id', new_table)} = #{table('links')}.#{rel.other_side} AND #{table('links')}.relation_id = #{rel[:id]} AND #{table('links')}.#{rel.link_side} = #{field_or_attr('id', previous_table)}"
+          @where << "#{field_or_attr('id', new_table_alias)} = #{table('links')}.#{rel.other_side} AND #{table('links')}.relation_id = #{rel[:id]} AND #{table('links')}.#{rel.link_side} = #{field_or_attr('id', previous_table_alias)}"
         end
       else
         nil
