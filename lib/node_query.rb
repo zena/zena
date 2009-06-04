@@ -167,7 +167,10 @@ class NodeQuery < QueryBuilder
     end
     
     # Filters that need a join
-    def join_relation(rel, context)
+    def join_relation(rel, context, new_table = nil, previous_table = nil)
+      new_table      ||= table(main_table)
+      previous_table ||= table(new_table, -1)
+      
       if rel == main_table || rel == 'children'
         # dummy clauses
         parse_context(default_context_filter) unless context
@@ -182,9 +185,9 @@ class NodeQuery < QueryBuilder
           # tagged in project (not equal to 'tagged from nodes in project')
           # remove caller join
           @distinct = true
-          @where << "#{field_or_attr('id')} = #{table('links')}.#{rel.other_side} AND #{table('links')}.relation_id = #{rel[:id]}"
+          @where << "#{field_or_attr('id', new_table)} = #{table('links')}.#{rel.other_side} AND #{table('links')}.relation_id = #{rel[:id]}"
         else
-          @where << "#{field_or_attr('id')} = #{table('links')}.#{rel.other_side} AND #{table('links')}.relation_id = #{rel[:id]} AND #{table('links')}.#{rel.link_side} = #{field_or_attr('id', table(main_table,-1))}"
+          @where << "#{field_or_attr('id', new_table)} = #{table('links')}.#{rel.other_side} AND #{table('links')}.relation_id = #{rel[:id]} AND #{table('links')}.#{rel.link_side} = #{field_or_attr('id', previous_table)}"
         end
       else
         nil
@@ -255,6 +258,17 @@ class NodeQuery < QueryBuilder
             function ? "#{function}(#{table_to_use}.#{map_def[:key]})" : "#{table_to_use}.#{map_def[:key]}"
           elsif (Node.zafu_readable?(key) && Node.column_names.include?(key))
             function ? "#{function}(#{table_name}.#{key})" : "#{table_name}.#{key}"
+          elsif key =~ /^(.*)_ids?$/
+            # tag_id = 33  ===> join links as lk, nodes as tt .......
+            rel = $1
+            
+            if RelationProxy.find_by_role(rel.singularize)
+              add_table('jnode', 'nodes')
+              join_relation(rel, nil, table('jnode'), table('nodes'))
+              "#{table('jnode')}.zip"
+            else
+              nil
+            end
           else
             nil
           end

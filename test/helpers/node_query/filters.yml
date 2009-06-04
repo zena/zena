@@ -94,3 +94,10 @@ nodes_group_by_year:
 negative_value:
   src: "notes where custom_a ne -10 in site"
   sql: "\"SELECT nodes.* FROM nodes WHERE nodes.kpath LIKE 'NN%' AND nodes.custom_a <> -10 AND (#{@node.secure_scope('nodes')}) ORDER BY nodes.position ASC, nodes.name ASC\""
+
+filter_through_links:
+  src: "nodes where (set_tag_id eq 33 and hot_id eq 22) in site"
+  sql: "/jnode\.zip = 33 AND jn1\.zip = 22/"
+  res: "cleanWater"
+  
+#  res: "cleanWater, opening"
