@@ -1,0 +1,62 @@
+= yamltest
+
+* http://github.com/zena/yamltest/tree
+
+== DESCRIPTION:
+
+yamltest lets you configure unit test with yaml documents. Simply define a "yt_parse" method
+that will transform your "src" (source) into a "res" (result).
+
+== FEATURES:
+
+* Ease of context definition.
+* Multiple step testing with different keys.
+* Tests are only created if a test with the same name does not exist.
+* Named tests (easy to get information on failed tests).
+* If someone asks, I can try to fix my TextMate Bundle that runs the tests (all or one at a time) 
+  from the yaml file and put it online.
+
+== SYNOPSIS:
+
+  class TestSomething < Test::Unit::TestCase
+    yamltest :directory => 'relative/path/to/yaml/files'
+    
+    def yt_parse(key, source, context)
+      do_something_with(source, context)
+    end
+    
+    yt_make
+  end
+
+== REQUIREMENTS:
+
+* yaml, test/unit
+
+== INSTALL:
+
+* sudo gem install yamltest
+
+== LICENSE:
+
+(The MIT License)
+
+Copyright (c) 2008-2009 Gaspard Bucher
+
+Permission is hereby granted, free of charge, to any person obtaining
+a copy of this software and associated documentation files (the
+'Software'), to deal in the Software without restriction, including
+without limitation the rights to use, copy, modify, merge, publish,
+distribute, sublicense, and/or sell copies of the Software, and to
+permit persons to whom the Software is furnished to do so, subject to
+the following conditions:
+
+The above copyright notice and this permission notice shall be
+included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED 'AS IS', WITHOUT WARRANTY OF ANY KIND,
+EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
+CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
+TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
+SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
