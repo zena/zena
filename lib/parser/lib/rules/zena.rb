@@ -305,7 +305,7 @@ module Zena
       end
       
       if @params[:actions]
-        actions = "<%= node_actions(:node=>#{node}#{params_to_erb(:actions=>@params[:actions], :publish_after_save=>(@params[:publish] == 'true'))}) %>"
+        actions = "<%= node_actions(:node=>#{node}#{params_to_erb(:actions=>@params[:actions], :publish_after_save=>auto_publish_param)}) %>"
       else
         actions = ''
       end
@@ -318,7 +318,7 @@ module Zena
       end
       
       if @params[:edit] == 'true' && !['url','path'].include?(attribute)
-        "<% if #{node}.can_write? -%><span class='show_edit' id='#{erb_dom_id("_#{attribute}")}'>#{actions}<%= link_to_remote(#{attribute_method}, :url => edit_node_path(#{node_id}) + \"?attribute=#{attribute}&dom_id=#{dom_id("_#{attribute}")}#{@params[:publish] == 'true' ? '&publish=true' : ''}\", :method => :get) %></span><% else -%>#{actions}<%= #{attribute_method} %><% end -%>"
+        "<% if #{node}.can_write? -%><span class='show_edit' id='#{erb_dom_id("_#{attribute}")}'>#{actions}<%= link_to_remote(#{attribute_method}, :url => edit_node_path(#{node_id}) + \"?attribute=#{attribute}&dom_id=#{dom_id("_#{attribute}")}#{auto_publish_param(true)}\", :method => :get) %></span><% else -%>#{actions}<%= #{attribute_method} %><% end -%>"
       else
         "#{actions}<%= #{attribute_method} %>"
       end
@@ -356,7 +356,7 @@ module Zena
       if @params[:edit] == 'true' && !['url','path'].include?(attribute)
         edit_text = _('edit')
         @html_tag_params[:id] = erb_dom_id("_#{attribute}")
-        res = "<% if #{node}.can_write? -%><span class='zazen_edit'><%= link_to_remote(#{edit_text.inspect}, :url => edit_node_path(#{node_id}) + \"?attribute=#{attribute}&dom_id=#{dom_id("_#{attribute}")}#{@params[:publish] == 'true' ? '&publish=true' : ''}&zazen=true\", :method => :get) %></span><% end -%>#{res}"
+        res = "<% if #{node}.can_write? -%><span class='zazen_edit'><%= link_to_remote(#{edit_text.inspect}, :url => edit_node_path(#{node_id}) + \"?attribute=#{attribute}&dom_id=#{dom_id("_#{attribute}")}#{auto_publish_param(true)}&zazen=true\", :method => :get) %></span><% end -%>#{res}"
       else
         res
       end
@@ -619,7 +619,7 @@ module Zena
       end
       res << ")"
       if @params[:actions]
-        res << " + node_actions(:node=>#{node}#{params_to_erb(:actions=>@params[:actions], :publish_after_save=>(@params[:publish] == 'true'))})"
+        res << " + node_actions(:node=>#{node}#{params_to_erb(:actions=>@params[:actions], :publish_after_save=>auto_publish_param)})"
       end
       res << "%>"
       if @params[:status] == 'true' || (@params[:status].nil? && @params[:actions])
@@ -632,7 +632,7 @@ module Zena
     # TODO: test
     def r_actions
       out expand_with
-      out "<%= node_actions(:node=>#{node}#{params_to_erb(:actions=>@params[:select], :publish_after_save=>(@params[:publish] == 'true'))}) %>"
+      out "<%= node_actions(:node=>#{node}#{params_to_erb(:actions=>@params[:select], :publish_after_save=>auto_publish_param)}) %>"
     end
     
     # TODO: test
@@ -980,7 +980,7 @@ END_TXT
         hidden_fields['mode'] = @params[:mode]
       end
       
-      hidden_fields['node[v_status]'] = Zena::Status[:pub] if @context[:publish_after_save] || (@params[:publish] == 'true')
+      hidden_fields['node[v_status]'] = Zena::Status[:pub] if @context[:publish_after_save] || auto_publish_param
       
       form << "<div class='hidden'>"
       hidden_fields.each do |k,v|
@@ -1110,10 +1110,10 @@ END_TXT
         end
         
         if @context[:form].method == 'form'
-          out expand_block(@context[:form], :in_add => true, :no_ignore => ['form'], :add=>self, :node => "#{var}_new", :parent_node => node, :klass => klass, :publish_after_save => (@params[:publish] == 'true'))
+          out expand_block(@context[:form], :in_add => true, :no_ignore => ['form'], :add=>self, :node => "#{var}_new", :parent_node => node, :klass => klass, :publish_after_save => auto_publish_param)
         else
           # build form from 'each'
-          out expand_block(@context[:form], :in_add => true, :no_ignore => ['form'], :add=>self, :make_form => true, :node => "#{var}_new", :parent_node => node, :klass => klass, :publish_after_save => (@params[:publish] == 'true'))
+          out expand_block(@context[:form], :in_add => true, :no_ignore => ['form'], :add=>self, :make_form => true, :node => "#{var}_new", :parent_node => node, :klass => klass, :publish_after_save => auto_publish_param)
         end
         out "<% end -%>"
       else
@@ -3079,7 +3079,7 @@ END_TXT
       end
       
       query_params << "link_id=\#{#{node}.link_id}" if @context[:need_link_id] && node_kind_of?(Node)
-      query_params << "node[v_status]=#{Zena::Status[:pub]}" if @params[:publish]
+      query_params << "node[v_status]=#{Zena::Status[:pub]}" if @params[:publish] # FIXME: this acts like publish = 'force'
       query_params << start_node_s_param(:string)
       
       res = ''
@@ -3439,6 +3439,14 @@ END_TXT
       end
       
       pre + super
+    end
+  
+    def auto_publish_param(in_string = false)
+      if in_string
+        ['true','force'].include?(@params[:publish]) ? "&publish=#{@params[:publish]}" : ''
+      else
+        @params[:publish]
+      end
     end
   end
 end

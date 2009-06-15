@@ -25,6 +25,12 @@ This filter updates the "distant filter block test"
 <r:filter live='true' update='upfi'/>
 </div>
 
+<h3>publish = true</h3>
+<r:zazen attr='d_some_attr' edit='true' publish='true'/>
+
+<h3>publish = force</h3>
+<r:zazen attr='d_some_attr' edit='true' publish='force'/>
+
 <h3>pagination test</h3>
 (no ajax)
 <r:nodes in='site' order='zip' limit='8' paginate='p'>

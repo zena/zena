@@ -3,7 +3,12 @@
     <div class='hidden'>
       <input type='hidden' class='hidden' name='dom_id' value='<%= params[:dom_id] %>'/>
       <input type='hidden' class='hidden' name='zazen' value='true'/>
-      <% if params[:publish] == 'true' -%><input type='hidden' name='node[v_status]' value='<%= Zena::Status[:pub] %>'/><% end -%>
+      <% if params[:publish] == 'force' || (params[:publish] == 'true' && @node.v_status == Zena::Status[:pub]) -%>
+      <input type='hidden' name='node[v_status]' value='<%= Zena::Status[:pub] %>'/>
+      <% end -%>
+      <% if params[:publish] -%>
+      <input type='hidden' class='hidden' name='publish' value='<%= params[:publish] %>'/>
+      <% end -%>
     </div>
     <div class='wrapper'>
       <%= f.text_area(params[:attribute], :cols => nil, :rows => nil, :class=>'ajax_edit', :id => "#{params[:dom_id]}_") %>
@@ -15,7 +20,12 @@ value = Node.zafu_attribute(@node, params[:attribute]) -%>
   <%= form_remote_tag(:url => node_path(@node[:zip]), :method => :put, :html => {:class => 'ajax_edit'}) %>
     <div class='hidden'>
       <input type='hidden' name='dom_id' value='<%= params[:dom_id] %>'/>
-      <% if params[:publish] == 'true' -%><input type='hidden' name='node[v_status]' value='<%= Zena::Status[:pub] %>'/><% end -%>
+      <% if params[:publish] == 'force' || (params[:publish] == 'true' && @node.v_status == Zena::Status[:pub]) -%>
+      <input type='hidden' name='node[v_status]' value='<%= Zena::Status[:pub] %>'/>
+      <% end -%>
+      <% if params[:publish] -%>
+      <input type='hidden' class='hidden' name='publish' value='<%= params[:publish] %>'/>
+      <% end -%>
     </div>
     <div class='wrapper'><input type='text' id='<%= params[:dom_id] %>_' name='node[<%= params[:attribute] %>]' value='<%= value %>' size='<%= [value.to_s.size, 4].max %>'/></div>
   </form>

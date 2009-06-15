@@ -579,7 +579,7 @@ on_if_empty:
 
 multiple_class_conditions:
   src: "<li class='unknown' do='void' one_if='custom_a eq 1' two_if='custom_a eq 2'>Agrippina</li>"
-  tem: "<li<%= @node.custom_a.to_i == 2 ? \" class='two'\" : @node.custom_a.to_i == 1 ? \" class='one'\" : \" class='unknown'\" %>>Agrippina</li>"
+  tem: "/@node.custom_a.to_i == 2 \? \" class='two'\" : @node.custom_a.to_i == 1 \? \" class='one'\" : \" class='unknown'\" %>>Agrippina</li>|<li<%= @node.custom_a.to_i == 1 \? \" class='one'\" : @node.custom_a.to_i == 2 \? \" class='two'\" : \" class='unknown'\" %>>Agrippina</li>/"
   res: "<li class='unknown'>Agrippina</li>"
 
 multiple_class_conditions_true_in_middle:

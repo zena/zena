@@ -282,7 +282,7 @@ class NodesController < ApplicationController
   end
   
   def update
-    
+    @v_status_before_update = @node.v_status
     @node.update_attributes_with_transformation(params['node'])
     
     if @node.errors.empty?

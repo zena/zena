@@ -1,9 +1,14 @@
 if params[:dom_id] && !params[:t_url]
-  attribute = (params[:node].keys - ['v_status'])[0]
-  if params[:zazen] == 'true'
-    page.replace_html params[:dom_id], "<span class='zazen_edit'>#{link_to_remote(_('edit'), :url => edit_node_path(@node[:zip]) + "?attribute=#{attribute}&dom_id=#{params[:dom_id]}#{params[:publish] == 'true' ? '&publish=true' : ''}&zazen=true", :method => :get)}</span>" + zazen(params[:node][attribute])
+  if @node.v_status != @v_status_before_update
+    # version status changed: better reload page so that the user is informed
+    page << "window.location.href = window.location.href;"
   else
-    page.replace_html params[:dom_id], link_to_remote(params[:node][attribute], :url => edit_node_path(@node[:zip]) + "?attribute=#{attribute}&dom_id=#{params[:dom_id]}", :method => :get)
+    attribute = (params[:node].keys - ['v_status'])[0]
+    if params[:zazen] == 'true'
+      page.replace_html params[:dom_id], "<span class='zazen_edit'>#{link_to_remote(_('edit'), :url => edit_node_path(@node[:zip]) + "?attribute=#{attribute}&dom_id=#{params[:dom_id]}#{params[:publish] ? "&publish=#{params[:publish]}" : ''}&zazen=true", :method => :get)}</span>" + zazen(params[:node][attribute])
+    else
+      page.replace_html params[:dom_id], link_to_remote(params[:node][attribute], :url => edit_node_path(@node[:zip]) + "?attribute=#{attribute}&dom_id=#{params[:dom_id]}", :method => :get)
+    end
   end
 elsif upd = params[:drive]
   if ['parent', 'dates', 'groups', 'links'].include?(upd)
