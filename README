@@ -107,6 +107,7 @@ You can remove "--no-ri --no-rdoc" if you want the documentation
 Versions:
 
  querybuilder >= 0.5.5
+ uuidtools >= 2.x
 
 === Advised tools
 monit (debian package to monitor your mongrel processes)

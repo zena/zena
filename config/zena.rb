@@ -1,6 +1,5 @@
 require 'rubygems'
 require 'date'
-require 'uuidtools'
 require "#{RAILS_ROOT}/config/version"
 require 'fileutils'
 
