@@ -996,9 +996,13 @@ checkbox_finder:
   src: "<r:checkbox role='calendar' values='projects in site'/>"
   res: "/value=.21.*cleanWater.*input type=.checkbox. name=.node\[calendar_ids\]\[\]. value=.29. checked=.checked.*wiki/"
 
-checkbox_value:
-  src: "<r:input type='checkbox' name='tagged[sky]'/>"
-  res: "<input name='node[tagged][sky]' type='checkbox' value='sky'/>"
+checkbox_checked_value:
+  src: "<r:input type='checkbox' name='tagged[sky]' value='sky'/>"
+  res: "<input name='node[tagged][sky]' type='checkbox' value='sky' checked='checked'/>"
+
+checkbox_unchecked_value:
+  src: "<r:input type='checkbox' name='tagged[foo]' value='sky'/>"
+  tem: "/@node.tagged\\[\"foo\"\\] == \"sky\"/"
 
 input_set_value:
   src: "<r:input type='hidden' name='icon_id' set_value='[main.id]'/>"

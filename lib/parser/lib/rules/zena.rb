@@ -843,8 +843,13 @@ module Zena
         # 'text', 'hidden', ...
         @html_tag = 'input'
         @html_tag_params[:type] = @params[:type] || 'text'
-        @html_tag_params.merge!(html_attributes)
-        render_html_tag(nil)
+        if checked = html_attributes.delete(:checked)
+          @html_tag_params.merge!(html_attributes)
+          render_html_tag(nil, checked)
+        else
+          @html_tag_params.merge!(html_attributes)
+          render_html_tag(nil)
+        end
       end
     end
     
@@ -3174,6 +3179,14 @@ END_TXT
           end
         end
         
+        if sub_attr
+          if (nattr = node_attribute(attribute)) != 'nil'
+            nattr = "#{nattr}[#{sub_attr.inspect}]"
+          end
+        else
+          nattr = node_attribute(attribute)
+        end
+        
         if @context[:in_add]
           res[:value] = (params[:value] || params[:set_value]) ? ["'#{ helper.fquote(params[:value])}'"] : ["''"]
         elsif @context[:in_filter]
@@ -3181,14 +3194,10 @@ END_TXT
         elsif params[:value]
           res[:value] = ["'#{ helper.fquote(params[:value])}'"]
         else
-          if sub_attr
-            if (nattr = node_attribute(attribute)) != 'nil'
-              res[:value] = ["'<%= fquote #{nattr}[#{sub_attr.inspect}] %>'"]
-            else
-              res[:value] = ["''"]
-            end
+          if nattr != 'nil'
+            res[:value] = ["'<%= fquote #{nattr} %>'"]
           else
-            res[:value] = ["'<%= fquote #{node_attribute(attribute)} %>'"]
+            res[:value] = ["''"]
           end
         end
       end
@@ -3197,6 +3206,14 @@ END_TXT
         res[:id]   = "#{erb_dom_id}_#{attribute}"
       else
         res[:id]   = params[:id] if params[:id]
+      end
+      
+      if params[:type] == 'checkbox' && nattr
+        if value = params[:value]
+          res[:checked] = "<%= #{nattr} == #{value.inspect} ? \" checked='checked'\" : '' %>"
+        else
+          res[:checked] = "<%= #{nattr}.blank? ? '' : \" checked='checked'\" %>"
+        end
       end
       
       [:size, :style, :class].each do |k|
