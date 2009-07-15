@@ -11,7 +11,7 @@ module Zena
       def has_tags
         after_save    :update_tags
         zafu_context  :tags => ["Link"]
-        zafu_readable :name, :tag_list, :tag
+        zafu_readable :name, :tag_list, :tag, :tagged
         
         class_eval <<-END
           include Zena::Tags::InstanceMethods
@@ -35,6 +35,22 @@ module Zena
       # Used by multiversion to remove attributes with same value.
       def tag
         nil
+      end
+      
+      def tagged
+        @tagged ||= Hash[*tag_names.map {|t| [t,t]}.flatten]
+      end
+      
+      # Set/unset a named tag
+      def tagged=(hash)
+        # named tags
+        hash.each do |k, v|
+          if v.empty?
+            remove_tag(k.to_s)
+          else
+            add_tag(k.to_s)
+          end
+        end
       end
       
       # Add a new tag

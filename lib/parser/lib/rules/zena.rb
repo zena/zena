@@ -3161,11 +3161,14 @@ END_TXT
       res = {}
       if res[:name] = (params[:name] || params[:date])
         if res[:name] =~ /\A([\w_]+)\[(.*?)\]/
-          attribute = $2
+          attribute, sub_attr = $1, $2
         else
           attribute = res[:name]
-          if @context[:in_filter] || attribute == 's'
-            res[:name] = attribute
+        end
+        
+        unless @context[:in_filter] || attribute == 's'
+          if sub_attr
+            res[:name] = "#{base_class.to_s.underscore}[#{attribute}][#{sub_attr}]"
           else
             res[:name] = "#{base_class.to_s.underscore}[#{attribute}]"
           end
@@ -3178,7 +3181,15 @@ END_TXT
         elsif params[:value]
           res[:value] = ["'#{ helper.fquote(params[:value])}'"]
         else
-          res[:value] = attribute ? ["'<%= fquote #{node_attribute(attribute)} %>'"] : ["''"]
+          if sub_attr
+            if (attribute = node_attribute(attribute)) != 'nil'
+              res[:value] = ["'<%= fquote #{attribute}[#{sub_attr.inspect}] %>'"]
+            else
+              res[:value] = ["''"]
+            end
+          else
+            res[:value] = ["'<%= fquote #{node_attribute(attribute)} %>'"]
+          end
         end
       end
       
