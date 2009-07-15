@@ -3182,8 +3182,8 @@ END_TXT
           res[:value] = ["'#{ helper.fquote(params[:value])}'"]
         else
           if sub_attr
-            if (attribute = node_attribute(attribute)) != 'nil'
-              res[:value] = ["'<%= fquote #{attribute}[#{sub_attr.inspect}] %>'"]
+            if (nattr = node_attribute(attribute)) != 'nil'
+              res[:value] = ["'<%= fquote #{nattr}[#{sub_attr.inspect}] %>'"]
             else
               res[:value] = ["''"]
             end
