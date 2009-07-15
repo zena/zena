@@ -3187,6 +3187,11 @@ END_TXT
           nattr = node_attribute(attribute)
         end
         
+        if sub_attr && params[:type] == 'checkbox' && !params[:value]
+          # Special case when we have a sub_attribute: default value for "tagged[foobar]" is "foobar"
+          params[:value] = sub_attr
+        end
+        
         if @context[:in_add]
           res[:value] = (params[:value] || params[:set_value]) ? ["'#{ helper.fquote(params[:value])}'"] : ["''"]
         elsif @context[:in_filter]
