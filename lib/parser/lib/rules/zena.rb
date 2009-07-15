@@ -3175,6 +3175,8 @@ END_TXT
           res[:value] = (params[:value] || params[:set_value]) ? ["'#{ helper.fquote(params[:value])}'"] : ["''"]
         elsif @context[:in_filter]
           res[:value] = attribute ? ["'<%= fquote params[#{attribute.to_sym.inspect}] %>'"] : ["''"]
+        elsif params[:value]
+          res[:value] = ["'#{ helper.fquote(params[:value])}'"]
         else
           res[:value] = attribute ? ["'<%= fquote #{node_attribute(attribute)} %>'"] : ["''"]
         end
