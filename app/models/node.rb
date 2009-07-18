@@ -127,10 +127,10 @@ and the 'photos' url is now in the worldTour project's basepath:
 Setting 'custom_base' on a node should be done with caution as the node's zip is on longer in the url and when you move the node around, there is no way to find the new location from the old url. Custom_base should therefore only be used for nodes that are not going to move.
 =end
 class Node < ActiveRecord::Base
-  attr_accessor      :link, :old_title
+  attr_accessor      :old_title
   zafu_readable      :name, :created_at, :updated_at, :event_at, :log_at, :kpath, :user_zip, :parent_zip, :project_zip,
                      :section_zip, :skin, :ref_lang, :fullpath, :rootpath, :position, :publish_from, :max_status, :rgroup_id, 
-                     :wgroup_id, :pgroup_id, :basepath, :custom_base, :klass, :zip, :score, :comments_count, :l_status, :l_comment,
+                     :wgroup_id, :pgroup_id, :basepath, :custom_base, :klass, :zip, :score, :comments_count,
                      :custom_a, :custom_b, :title, :text,
                      :m_text, :m_title, :m_author   
   zafu_context       :author => "Contact", :parent => "Node", 
@@ -677,7 +677,7 @@ class Node < ActiveRecord::Base
           res["#{key}_id"] = Group.translate_pseudo_id(attributes[key], :id) || attributes[key]
         elsif ['user_id'].include?(key)
           res[key] = User.translate_pseudo_id(attributes[key], :id) || attributes[key]
-        elsif ['v_publish_from', 'log_at', 'event_at'].include?(key)
+        elsif ['v_publish_from', 'log_at', 'event_at', 'date'].include?(key)
           if attributes[key].kind_of?(Time)
             res[key] = attributes[key]
           elsif attributes[key]
@@ -703,6 +703,8 @@ class Node < ActiveRecord::Base
           unless attributes[key].blank?
             res[key] = attributes[key]
           end
+        elsif attributes[key].kind_of?(Hash)
+          res[key] = transform_attributes(attributes[key])
         else
           # translate zazen
           value = attributes[key]

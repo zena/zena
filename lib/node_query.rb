@@ -58,7 +58,8 @@ class NodeQuery < QueryBuilder
   def after_parse
     @where.unshift "(\#{#{@node_name}.secure_scope('#{table}')})"
     if @tables.include?('links')
-      @select << "#{table('links')}.id AS link_id, links.status AS l_status, links.comment AS l_comment"
+      link_table = table('links')
+      @select << "#{link_table}.id AS link_id,#{Zena::Relations::LINK_ATTRIBUTES.map {|l| "#{link_table}.#{l} AS l_#{l}"}.join(',')}"
     elsif @errors_unless_safe_links
       @errors += @errors_unless_safe_links
     end
@@ -236,7 +237,7 @@ class NodeQuery < QueryBuilder
         end
       when 'l_'  
         key, function = parse_sql_function_in_field(field)
-        if key == 'l_status' || key == 'l_comment' || (key == 'l_id' && [:order, :group].include?(context))
+        if key == 'l_status' || key == 'l_comment' || key == 'l_date' || (key == 'l_id' && [:order, :group].include?(context))
           @errors_unless_safe_links ||= []
           @errors_unless_safe_links << "cannot use link field '#{key}' in this query" unless (key == 'l_id' && context == :order)
           # ok

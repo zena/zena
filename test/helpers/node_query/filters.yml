@@ -28,7 +28,7 @@ dynattr_filter_is_null:
   
 dynattr_filter_in_relation:
   src: "favorites where d_priority = 'important'"
-  sql: "[\"SELECT nodes.*,links.id AS link_id, links.status AS l_status, links.comment AS l_comment FROM nodes,versions LEFT JOIN dyn_attributes ON versions.id = dyn_attributes.owner_id AND dyn_attributes.key = 'priority',links WHERE nodes.id = links.target_id AND links.relation_id = _ID(contact_has_favorites) AND links.source_id = ? AND dyn_attributes.value = 'important' AND nodes.id = versions.node_id AND (#{@node.secure_scope('nodes')}) GROUP BY nodes.id ORDER BY nodes.position ASC, nodes.name ASC\", @node.id]"
+  sql: "[\"SELECT nodes.*,links.id AS link_id,links.status AS l_status,links.comment AS l_comment,links.date AS l_date FROM nodes,versions LEFT JOIN dyn_attributes ON versions.id = dyn_attributes.owner_id AND dyn_attributes.key = 'priority',links WHERE nodes.id = links.target_id AND links.relation_id = _ID(contact_has_favorites) AND links.source_id = ? AND dyn_attributes.value = 'important' AND nodes.id = versions.node_id AND (#{@node.secure_scope('nodes')}) GROUP BY nodes.id ORDER BY nodes.position ASC, nodes.name ASC\", @node.id]"
   res: ""
 
 version_filter_comment:
@@ -53,7 +53,7 @@ filter_l_status:
   context:
     node: art
   src: "tagged where l_status > 5"
-  sql: "[\"SELECT nodes.*,links.id AS link_id, links.status AS l_status, links.comment AS l_comment FROM nodes,links WHERE nodes.id = links.source_id AND links.relation_id = _ID(node_has_tags) AND links.target_id = ? AND links.status > 5 AND (#{@node.secure_scope('nodes')}) ORDER BY nodes.position ASC, nodes.name ASC\", @node.id]"
+  sql: "[\"SELECT nodes.*,links.id AS link_id,links.status AS l_status,links.comment AS l_comment,links.date AS l_date FROM nodes,links WHERE nodes.id = links.source_id AND links.relation_id = _ID(node_has_tags) AND links.target_id = ? AND links.status > 5 AND (#{@node.secure_scope('nodes')}) ORDER BY nodes.position ASC, nodes.name ASC\", @node.id]"
   res: "cleanWater"
 
 param_filter:

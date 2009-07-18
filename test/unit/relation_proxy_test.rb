@@ -210,17 +210,17 @@ class RelationProxyTest < ZenaTestUnit
   def test_add_link_bad_target
     login(:lion)
     node = secure!(Node) { nodes(:letter) }
-    node.add_link('calendar', :id => 1)
+    node.add_link('calendar', :other_id => 1)
     assert !node.save
     assert_equal 'invalid target', node.errors['calendar']
     
     node = secure!(Node) { nodes(:letter) }
-    node.add_link('calendar', :id => 1, :comment => 'woopi')
+    node.add_link('calendar', :other_id => 1, :comment => 'woopi')
     assert !node.save
     assert_equal 'invalid target', node.errors['calendar']
     
     node = secure!(Node) { nodes(:letter) }
-    node.add_link('calendar', :id => nil, :comment => 'woopi')
+    node.add_link('calendar', :other_id => nil, :comment => 'woopi')
     assert !node.save
     assert_equal 'invalid target', node.errors['calendar']
   end
@@ -282,5 +282,28 @@ class RelationProxyTest < ZenaTestUnit
     # invalid target
     node = secure!(Node) { Node.create_node('parent_id' => nodes_zip(:cleanWater),'klass'=>'Page', 'icon_id'=>'', 'v_title'=>'two') }
     assert !node.new_record?
+  end
+  
+  def test_update_link_hash_set
+    login(:lion)
+    node = secure!(Node) { nodes(:cleanWater) }
+    assert hot = node.find(:first, 'hot')
+    assert_nil hot.l_date
+    # node[link][hot][other_id]=33&node[link][hot][date]=2009-7-17+15:55
+    assert node.update_attributes_with_transformation('link' => {'hot' => {'other_id' => 33, 'date' => '2009-7-17 15:55'}})
+    node = secure!(Node) { nodes(:cleanWater) }
+    assert hot = node.find(:first, 'hot')
+    assert_equal Time.gm(2009,7,17,15,55), hot.l_date
+  end
+  
+  def test_remove_link_hash_set
+    login(:lion)
+    node = secure!(Node) { nodes(:cleanWater) }
+    assert hot = node.find(:first, 'hot')
+    assert_nil hot.l_date
+    # node[link][hot][other_id]=
+    assert node.update_attributes_with_transformation('link' => {'hot' => {'other_id' => ''}})
+    node = secure!(Node) { nodes(:cleanWater) }
+    assert_nil node.find(:first, 'hot')
   end
 end

@@ -1,5 +1,8 @@
 module Zena
   module Relations
+    LINK_ATTRIBUTES = [:status, :comment, :date]
+    LINK_REGEXP = /^([\w_]+)_(ids?|zips?|#{LINK_ATTRIBUTES.join('|')})(=?)$/
+    
     module HasRelations
       # this is called when the module is included into the 'base' module
       def self.included(base)
@@ -12,9 +15,12 @@ module Zena
         validate      :relations_valid
         after_save    :update_relations
         after_destroy :destroy_links
+        zafu_readable :link
+        zafu_readable LINK_ATTRIBUTES.map {|k| "l_#{k}".to_sym}
+        
+        include Zena::Relations::InstanceMethods
         
         class_eval <<-END
-          include Zena::Relations::InstanceMethods
           class << self
             include Zena::Relations::ClassMethods
           end
@@ -49,6 +55,9 @@ module Zena
     end
     
     module InstanceMethods
+      def set_link(link)
+        @link = link
+      end
       
       # status defined through loading link
       def l_status
@@ -57,10 +66,18 @@ module Zena
         val ? val.to_i : nil
       end
       
+      # TODO: could we use LINK_ATTRIBUTES and 'define_method' here ?
+      
       # comment defined through loading link
       def l_comment
         return @l_comment if defined? @l_comment
         @link ? @link[:comment] : self['l_comment']
+      end
+      
+      # date defined through loading link
+      def l_date
+        return @l_date if defined? @l_date
+        @l_date = @link ? @link[:date] : (self['l_date'] ? Time.parse(self['l_date']) : nil)
       end
       
       def link_id
@@ -81,11 +98,13 @@ module Zena
         end 
       end
       
+      # FIXME: this method does an 'update' not only 'add'
       def add_link(role, hash)
         if rel = relation_proxy(role)
-          [:status, :comment, :id].each do |k|
+          LINK_ATTRIBUTES.each do |k|
             rel.send("other_#{k}=", hash[k]) if hash.has_key?(k)
           end
+          rel.other_id = hash[:other_id] if hash.has_key?(:other_id)
         else
           errors.add(role, 'invalid relation')
         end
@@ -104,6 +123,24 @@ module Zena
         end
       end
       
+      # TODO: could use rails native nested attributes !!!
+      def link=(hash)
+        return unless hash.kind_of?(Hash)
+        hash.each do |role, definition|
+          if role =~ /\A\d+\Z/
+            # key used as array
+          else
+            # key used as role
+            definition['role'] ||= role
+          end
+          add_link(definition.delete('role'), definition.symbolize_keys)  # TODO: only use string keys
+        end 
+      end
+      
+      def link
+        @link
+      end
+      
       def l_comment=(v)
         @l_comment = v.blank? ? nil : v
         if rel = relation_proxy_from_link
@@ -115,6 +152,13 @@ module Zena
         @l_status = v.blank? ? nil : v
         if rel = relation_proxy_from_link
           rel.other_status = @l_status
+        end
+      end
+      
+      def l_date=(v)
+        @l_date = v.blank? ? nil : v
+        if rel = relation_proxy_from_link
+          rel.other_date = @l_date
         end
       end
       
@@ -180,7 +224,7 @@ module Zena
           super
         rescue NoMethodError => err
           # 1. is this a method related to a relation ?
-          if meth.to_s =~ /^([\w_]+)_(ids?|zips?|status|comment)(=?)$/
+          if meth.to_s =~ LINK_REGEXP
             role  = $1
             field = $2
             mode  = $3

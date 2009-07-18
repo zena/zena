@@ -1,0 +1,19 @@
+== Parts that need an urgent cleanup ==
+
+Some parts of zena have become really messy and need an URGENT cleanup. These parts are mostly
+related to nested attributes and the cleanup should be made during the move to rails 2.3+.
+
+Some really ugly parts:
+
+=== links ===
+
+We support many different ways to alter links and it's becoming hard to maintain:
+
+node[hot_id] = ZIP
+node[link][hot][other_id] = ZIP
+node[link][1][other_id] = ZIP along with node[link][1][role] = 'hot'
+link[other_id]  = ZIP
+link[other_zip] = ZIP
+
+We need 'other_zip' because select_id helper needs to read the value... "select_id" is really bad code. yuk.
+

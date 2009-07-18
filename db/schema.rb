@@ -156,7 +156,8 @@ ActiveRecord::Schema.define() do
     t.column "target_id",   :integer
     t.column "relation_id", :integer
     t.column "status",      :integer
-    t.column "comment",     :string,  :limit => 60
+    t.column "comment",     :string,   :limit => 60
+    t.column "date",        :datetime
   end
 
   create_table "nodes", :force => true do |t|

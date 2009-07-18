@@ -13,7 +13,7 @@ class LinkTest < ZenaTestUnit
     node = secure!(Node) { nodes(:cleanWater) }
     assert_equal nodes_id(:status), node.find(:first, 'hot')[:id]
     link = Link.find_through(node, links_id(:status_hot_for_cleanWater))
-    link.update_attributes_with_transformations('role' => 'hot', 'other_zip' => nodes_zip(:lake), 'comment' => 'pop')
+    link.update_attributes_with_transformations('role' => 'hot', 'other_id' => nodes_zip(:lake), 'comment' => 'pop')
     assert_equal 'hot', link.role
     assert_equal nodes_zip(:lake), link.other_zip
     # change propagated to caller node.
