@@ -164,6 +164,47 @@ class ApplicationHelperTest < ZenaTestHelper
     assert_match %r{/calendar/lang/calendar-en-utf8.js}, res
   end
   
+  def test_cal_weeks
+    login(:tiger)
+    weeks = []
+    event_hash = nil
+    assert_equal "0", _('week_start_day') # week starts on Sunday
+    start_date, end_date = cal_start_end(Time.utc(2006,3,18), :month)
+    assert_equal Date.civil(2006,02,26), start_date
+    assert_equal Date.civil(2006,04,01), end_date
+    secure!(Note) { Note.create(:parent_id => nodes_id(:zena), :name => 'foobar', :event_at => Time.utc(2006,03,20))}
+    nodes = secure!(Note) { Note.find(:all, :conditions => ["nodes.event_at >= ? AND nodes.event_at <= ?", start_date, end_date])}
+    res = cal_weeks('event_at', nodes, start_date, end_date) do |week, hash|
+      weeks << week
+      event_hash = hash
+    end
+    assert_equal ["2006-03-18", "2006-03-20"], event_hash.keys
+    assert_equal ['opening'], event_hash["2006-03-18"].map{|r| r.name}
+    assert_equal ['foobar'], event_hash["2006-03-20"].map{|r| r.name}
+  end
+  
+  def test_cal_weeks_hours
+    login(:tiger)
+    weeks = []
+    event_hash = nil
+    hours = [0,12]
+    assert_equal "0", _('week_start_day') # week starts on Sunday
+    start_date, end_date = cal_start_end(Time.utc(2006,3,18), :month)
+    assert_equal Date.civil(2006,02,26), start_date
+    assert_equal Date.civil(2006,04,01), end_date
+    secure!(Note) { Note.create(:parent_id => nodes_id(:zena), :name => 'morning', :event_at => Time.utc(2006,03,20,9))}
+    secure!(Note) { Note.create(:parent_id => nodes_id(:zena), :name => 'afternoon', :event_at => Time.utc(2006,03,20,14))}
+    nodes = secure!(Note) { Note.find(:all, :conditions => ["nodes.event_at >= ? AND nodes.event_at <= ?", start_date, end_date])}
+    res = cal_weeks('event_at', nodes, start_date, end_date, hours) do |week, hash|
+      weeks << week
+      event_hash = hash
+    end
+    assert_equal ["2006-03-18 12", "2006-03-20 0", "2006-03-20 12"], event_hash.keys.sort
+    assert_equal ['opening'], event_hash["2006-03-18 12"].map{|r| r.name}
+    assert_equal ['morning'], event_hash["2006-03-20 0"].map{|r| r.name}
+    assert_equal ['afternoon'], event_hash["2006-03-20 12"].map{|r| r.name}
+  end
+  
   def test_select_id
     @node = secure!(Node) { nodes(:status) }
     select = select_id('node', :parent_id, :class=>'Project')

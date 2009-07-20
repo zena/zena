@@ -821,14 +821,33 @@ module ApplicationHelper
   end
   
   # Yield block for every week between 'start_date' and 'end_date' with a hash of days => events.
-  def cal_weeks(date_attr, list, start_date, end_date)
+  def cal_weeks(date_attr, list, start_date, end_date, hours = nil)
     # build event hash
     cal_hash = {}
-    (list || []).each do |n|
-      d = n.send(date_attr)
-      next unless d
-      cal_hash[d.strftime("%Y-%m-%d")] ||= []
-      cal_hash[d.strftime("%Y-%m-%d")] << n
+    if hours
+      # hours should contain 0 and should be sorted
+      # [0,12] ==> 0  => dates from 00:00 to 11:59
+      #            12 => dates from 12:00 to 23:59
+      
+      (list || []).each do |n|
+        d = n.send(date_attr)
+        next unless d
+        hours.reverse_each do |h|
+          if d.hour >= h
+            h_list = cal_hash[d.strftime("%Y-%m-%d #{h}")] ||= []
+            h_list << n
+            break
+          end
+        end
+      end
+      
+    else
+      (list || []).each do |n|
+        d = n.send(date_attr)
+        next unless d
+        cal_hash[d.strftime("%Y-%m-%d")] ||= []
+        cal_hash[d.strftime("%Y-%m-%d")] << n
+      end
     end
     
     start_date.step(end_date,7) do |week|

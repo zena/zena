@@ -122,7 +122,6 @@ class RelationProxy < Relation
   end
   
   # set
-  
   def other_id=(v)
     attributes_to_update[:id] = v.kind_of?(Array) ? v.uniq.compact.map {|v| v.to_i} : (v.blank? ? nil : v.to_i)
   end
@@ -215,13 +214,14 @@ class RelationProxy < Relation
         add_link_ids = @attributes_to_update[:id]
 
         # find all current links
+        # TODO: this could be optimzed (avoid loading all links...)
         other_links.each do |link|
           obj_id = link[other_side]
-          if add_link_ids.include?(obj_id)
-            # ignore existing links
+          if add_link_ids.include?(obj_id) && (@attributes_to_update[:date].nil? || @attributes_to_update[:date] == link[:date])
+            # ignore existing link
             add_link_ids.delete(obj_id)
           else
-            # remove unused links
+            # remove unused links / link to replace
             @del_links << link
           end
         end  
@@ -240,19 +240,25 @@ class RelationProxy < Relation
       else
         # ..-to-many
         # add/update a link
-        if other_ids.include?(@attributes_to_update[:id])
-          # update
-          if (@attributes_to_update.keys & LINK_ATTRIBUTES) != []
-            other_links.each do |link|
-              if link[other_side] == @attributes_to_update[:id]
-                @update_links << changed_link(link, @attributes_to_update)
-                break
+        # TODO: optimize to avoid loading all links...
+        if @attributes_to_update[:id].blank? && @attributes_to_update[:date]
+          # delete
+          @del_links = other_links.select {|l| @attributes_to_update[:date] == l[:date]}
+        else
+          links = other_links.select {|l| l[other_side] == @attributes_to_update[:id] && (@attributes_to_update[:date].nil? || @attributes_to_update[:date] == l[:date])}
+          if links != []
+            # update
+            if (@attributes_to_update.keys & LINK_ATTRIBUTES) != []
+              links.each do |link|
+                if link[other_side] == @attributes_to_update[:id]
+                  @update_links << changed_link(link, @attributes_to_update)
+                end
               end
             end
+          else
+            # add
+            @add_links << @attributes_to_update
           end
-        else
-          # add
-          @add_links << @attributes_to_update
         end
       end  
     end

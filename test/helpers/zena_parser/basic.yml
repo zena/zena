@@ -443,6 +443,15 @@ calendar_l_date:
   src: "<div do='calendar' select='added_notes' date='l_date' />"
   res: "/<td class='ref'><span>17</span><ul><li><a href='/oo/projects/cleanWater/post27.html'>opening</a></li></ul></td>/"
 
+calendar_hours:
+  context:
+    ref_date: "2009-7-17"
+    node: 'zena'
+  # I do not like the way we do this, the 'else' thing is not helping. Maybe we need some extra zafu tags because it's
+  # messy: we have 3 lists (days, hours, nodes) ...
+  src: "<div do='calendar' select='added_notes' date='l_date' split_hours='12'><r:if test='hour eq 0' do='[current_date]' format='%d'/><div do='void' set_class='hour_[hour]' do='each' do='[name]' join=', '/><r:else><r:if test='hour eq 0' do='[current_date]' format='%d'/><div do='void' set_class='hour_[hour]'></div></r:else></div>"
+  res: "/<td class='ref'>17<div class='hour_0'></div><div class='hour_12'>opening</div></td>/"
+
 flash_messages_both:
   src: "<r:flash_messages/>"
   tem: "/id.*messages.*notice.*flash.*notice.*error.*flash.*error/"
@@ -504,6 +513,13 @@ each_alternate_class_ajax:
     node: 'cleanWater'
   src: "<ol do='pages'><li do='each' alt_class='blue' do='[name]'/><li do='add'/></ol>"
   res: "/<li>status<\/li><li class=\"blue\">track/"
+
+each_else:
+  context:
+    node: 'opening'
+  src: "<div do='pages'>has pages (<r:each do='[name]' join=', '/>)<r:else>no pages</r:else></div>"
+  tem: "/-%><div>has pages \(<% list1.each do \|var1\| -%><%= var1.name %><% end -%>\)</div><% elsif true -%><div>no pages</div><% end -%>/"
+  res: "<div>no pages</div>"
 
 case_when:
   src: "<r:case><r:when kind_of='Document'>this is a document</r:when><r:when klass='Page'>Page</r:when><r:when status='pub'>Pub</r:when>"

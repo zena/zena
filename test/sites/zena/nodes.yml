@@ -140,7 +140,7 @@ opening:
   parent:          cleanWater
   ref_lang:        fr
   log_at:          2006-03-15
-  event_at:        2006-03-18
+  event_at:        2006-03-18 15:00
 
 bananas:
   zip:             28

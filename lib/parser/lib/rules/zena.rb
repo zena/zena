@@ -374,6 +374,7 @@ module Zena
       return '' unless @context[:set]
       if @params[:value]
         out "<% set_#{var_name} = #{@params[:value].inspect} -%>"
+        # TODO: isn't @context[:vars] = @params[:value].inspect missing here ?
       elsif @params[:eval]
         return unless eval_string = parse_eval_parameter(@params[:eval])
         out "<% set_#{var_name} = #{eval_string} -%>"
@@ -494,11 +495,31 @@ module Zena
       else
         return parser_error("missing 'block' in same parent")
       end
-      states = ((@params[:states] || 'todo, done') + ' ').split(',').map(&:strip)
       
-      query_params = "node[#{@params[:attr]}]=\#{#{states.inspect}[ ((#{states.inspect}.index(#{node_attribute(@params[:attr])}.to_s) || 0)+1) % #{states.size}]}#{upd_both}"
+      if role = @params[:role]
+       if @context[:in_calendar]
+         # in calendar context, use date
+         date_param = "&node[link][#{role}][date]=\#{ defined?(#{current_date}) ? #{current_date}.strftime('%Y-%m-%d+%H') : params['node']['link'][#{role.inspect}]['date']}"
+       else
+         date_param = ''
+       end
+        # swap on (assign):
+        # 'link' => {'assigned_note' => {'other_id' => 33, 'date' => '2009-7-17 15:55'}}
+        # swap off (remove):
+        # 'link' => {'assigned_note' => {'other_id' => nil, 'date' => '2009-7-17 15:55'}}
+        
+        # TODO: add support to link to any node, not just 'start' node...
+        # How to know if the link exists or not ?
+        # in calendar = known from context
+        # in reply    = known from @node's relation proxy ...
+        #
+        # All this is too complicated right now. Implementing "r_assign_calendar" until we find a solution to all this mess.
+        query_params = "node[link][#{role}][other_id]=\#{params[:s]}#{date_param}"
+      else
+        states = ((@params[:states] || 'todo, done') + ' ').split(',').map(&:strip)
       
-      
+        query_params = "node[#{@params[:attr]}]=\#{#{states.inspect}[ ((#{states.inspect}.index(#{node_attribute(@params[:attr])}.to_s) || 0)+1) % #{states.size}]}#{upd_both}"
+      end
       out link_to_update(block, :query_params => query_params, :method => :put, :html_params => get_html_params(@params, :link))
     end
     
@@ -1842,7 +1863,7 @@ END_TXT
         @context[:vars] ||= []
         @context[:vars] << "#{pagination_key}_page"
         if @blocks == [] || (@blocks.size == 1 && !@blocks.first.kind_of?(String) && @blocks.first.method == 'else')
-          # add a default blocks
+          # add a default block
           if tag = @params[:tag]
             open_tag = "<#{tag}>"
             close_tag = "</#{tag}>"
@@ -1867,8 +1888,7 @@ END_TXT
         out "<% page_numbers(set_#{pagination_key}, set_#{pagination_key}_count, #{(@params[:join] || ' ').inspect}, #{@params[:page_count] ? @params[:page_count].to_i : 'nil'}) do |set_#{pagination_key}_page, #{pagination_key}_page_join| %>"
         out "<%= #{pagination_key}_page_join %>"
         out "<% if set_#{pagination_key}_page != set_#{pagination_key} -%>"
-        out expand_with
-        out expand_with(:in_if => true, :only => ['else', 'elsif'])
+        out expand_with(:in_if => true)
         out "<% end; end -%>"
       else
         parser_error("unkown 'page' option #{@params[:page].inspect} should be ('previous', 'next' or 'list')")
@@ -1927,6 +1947,7 @@ END_TXT
           @blocks += [make(:void, :method=>'void', :text=>"<r:else do='[current_date]' format='%d'/>")]
           remove_instance_variable(:@all_descendants)
         end
+        
         @html_tag_done = false
         @html_tag_params[:id] = erb_dom_id
         @html_tag_params[:class] ||= "#{size}cal"
@@ -1948,6 +1969,23 @@ END_TXT
         finder, klass = build_finder_for(:all, finder, @params, [@date_scope])
         return unless finder
         return parser_error("invalid class (#{klass})") unless klass.ancestors.include?(Node)
+        
+        if hours = @params[:split_hours]
+          hours = hours.split(',').map{|l| l.to_i}
+          hours << 0
+          hours = hours.uniq.sort
+          # I feel all this would be much better if we could use "each_group" but then how do we access hours ?
+          week_code = "<% week.step(week+6,1) do |day_#{list_var}| -%>
+              <td<%= cal_class(day_#{list_var},#{current_date}) %>><% #{hours.inspect}.each do |set_hour|; cal_#{list_var} = Time.utc(day_#{list_var}.year,day_#{list_var}.month,day_#{list_var}.day,set_hour); if #{list_var} = nodes_#{list_var}[cal_#{list_var}.strftime('%Y-%m-%d %H')] -%>#{expand_with(:in_if => true, :list => list_var, :date => "day_#{list_var}", :saved_template => nil, :dom_prefix => nil, :date => "cal_#{list_var}", :in_calendar => true)}<% end; end -%></td>
+          <% end -%>"
+          (@context[:vars] ||= []) << "hour"
+        else
+          hours = nil
+          week_code = "<% week.step(week+6,1) do |day_#{list_var}| -%>
+              <td<%= cal_class(day_#{list_var},#{current_date}) %>><% cal_#{list_var} = Time.utc(day_#{list_var}.year,day_#{list_var}.month,day_#{list_var}.day); if #{list_var} = nodes_#{list_var}[cal_#{list_var}.strftime('%Y-%m-%d')] -%>#{expand_with(:in_if => true, :list => list_var, :date => "cal_#{list_var}", :saved_template => nil, :dom_prefix => nil, :in_calendar => true)}<% end -%></td>
+          <% end -%>"
+        end
+        
         res = <<-END_TXT
 <h3 class='title'>
 <span><%= link_to_remote(#{_('img_prev_page').inspect}, :url => #{base_class.to_s.underscore}_path(#{node_id}) + \"/zafu?t_url=#{CGI.escape(template_url)}&dom_id=#{dom_id}&date=#{prev_date}\", :method => :get) %></span>
@@ -1957,15 +1995,14 @@ END_TXT
 <table cellspacing='0' class='#{size}cal'>
   <tr class='head'><%= cal_day_names(#{size.inspect}) %></tr>
 <% start_date, end_date = cal_start_end(#{current_date}, #{type.inspect}) -%>
-<% cal_weeks(#{ref_date.to_sym.inspect}, #{finder}, start_date, end_date) do |week, cal_#{list_var}| -%>
+<% cal_weeks(#{ref_date.to_sym.inspect}, #{finder}, start_date, end_date, #{hours.inspect}) do |week, nodes_#{list_var}| -%>
   <tr class='body'>
-<% week.step(week+6,1) do |day_#{list_var}|; #{list_var} = cal_#{list_var}[day_#{list_var}.strftime('%Y-%m-%d')] -%>
-    <td<%= cal_class(day_#{list_var},#{current_date}) %>><% if #{list_var} -%>#{expand_with(:in_if => true, :list => list_var, :date => "day_#{list_var}", :saved_template => nil, :dom_prefix => nil)}<% end -%></td>
-<% end -%>
+#{week_code}
   </tr>
 <% end -%>
 </table>
 END_TXT
+        @var = node # this is just to trick erb_dom_id until we find a better solution...
         render_html_tag(res)
       else
         fld = @params[:date] || 'event_at'
@@ -2448,9 +2485,8 @@ END_TXT
         
         # INLINE ==========
         # 'r_add' needs the form when rendering. Send with :form.
-        res = expand_with(:list=>list_var, :form=>form_block, :publish_after_save => publish_after_save, :ignore => ['form'], :klass => klass, :in_if => true)
-        out render_html_tag(res)
-        # what about 'else' ?
+        out render_html_tag(expand_with(:list=>list_var, :in_if => false, :form=>form_block, :publish_after_save => publish_after_save, :ignore => ['form'], :klass => klass))
+        out expand_with(:in_if=>true, :only=>['elsif', 'else'], :html_tag => @html_tag, :html_tag_params => @html_tag_params)
         out "<% end -%>"
 
         # SAVED TEMPLATE ========
@@ -2483,8 +2519,8 @@ END_TXT
           @context[:vars] << "#{pagination_key}"
         end
         
-        res = expand_with(:list=>list_var, :in_if => true)
-        out render_html_tag(res)
+        out render_html_tag(expand_with(:list=>list_var, :in_if => false))
+        out expand_with(:in_if=>true, :only=>['elsif', 'else'], :html_tag => @html_tag, :html_tag_params => @html_tag_params)
         out "<% end -%>"
       end
     end
@@ -2521,6 +2557,8 @@ END_TXT
       end
       if (method == 'each' || method == 'each_group') && !@context[:make_form]
         "#{res}_\#{#{var}.zip}"
+      elsif @context && @context[:in_calendar]
+        "#{res}_\#{#{current_date}.to_i}"
       elsif method == 'unlink' || method == 'edit'
         target = nil
         parent = self.parent
@@ -2548,6 +2586,8 @@ END_TXT
         "#{res}_<%= #{var}.zip %>"
       elsif method == 'draggable'
         "#{res}_<%= #{node}.zip %>"
+      elsif @context && @context[:in_calendar]
+        "#{res}_<%= #{current_date}.to_i %>"
       elsif method == 'unlink'
         target = nil
         parent = self.parent
@@ -2730,7 +2770,7 @@ END_TXT
             nil
           end  
         when :in
-          if @context["in_#{value}".to_sym] || ancestors.include?(value)
+          if @context["in_#{value}".to_sym] # FIXME: || ancestors.include?(value) ==> ancestors is a list of zafu tags, not a list of names !
             'true'
           else
             'false'

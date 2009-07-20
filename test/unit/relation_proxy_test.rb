@@ -306,4 +306,34 @@ class RelationProxyTest < ZenaTestUnit
     node = secure!(Node) { nodes(:cleanWater) }
     assert_nil node.find(:first, 'hot')
   end
+  
+  def test_add_links_same_target_different_dates
+    login(:lion)
+    node = secure!(Node) { nodes(:cleanWater) }
+    references = node.find(:all, 'references')
+    assert_nil references
+    assert node.update_attributes_with_transformation('link' => {'reference' => {'other_id' => 33, 'date' => '2009-7-17'}})
+    assert node.update_attributes_with_transformation('link' => {'reference' => {'other_id' => 33, 'date' => '2009-7-18 8:0'}})
+    assert node.update_attributes_with_transformation('link' => {'reference' => {'other_id' => 33, 'date' => '2009-7-18 9:0'}})
+    node = secure!(Node) { nodes(:cleanWater) }
+    assert references = node.find(:all, 'references')
+    assert_equal 3, references.size
+    assert_equal Time.gm(2009,7,17), references.first.l_date
+  end
+  
+  def test_remove_link_many_targets_different_dates
+    login(:lion)
+    node = secure!(Node) { nodes(:cleanWater) }
+    assert node.update_attributes_with_transformation('link' => {'reference' => {'other_id' => 33, 'date' => '2009-7-17'}})
+    assert node.update_attributes_with_transformation('link' => {'reference' => {'other_id' => 33, 'date' => '2009-7-18 8:0'}})
+    assert node.update_attributes_with_transformation('link' => {'reference' => {'other_id' => 33, 'date' => '2009-7-18 9:0'}})
+    node = secure!(Node) { nodes(:cleanWater) }
+    # remove 9:0
+    assert node.update_attributes_with_transformation('link' => {'reference' => {'other_id' => '', 'date' => '2009-7-18 9:0'}})
+    
+    assert references = node.find(:all, 'references')
+    assert_equal 2, references.size
+    assert_equal Time.gm(2009,7,17), references.first.l_date
+    assert_equal Time.gm(2009,7,18,8), references.last.l_date
+  end
 end
