@@ -38,3 +38,7 @@ nodes_in_section:
 relation_from_class:
   src: "hot from pages in site"
   sql: "/links.source_id = nodes.id AND nodes.kpath LIKE 'NP%'/"
+
+# l_date_as_date:
+#   src: "select *,if(l_date,l_date,event_at) AS date from (notes or assigned_notes) order by date"
+  

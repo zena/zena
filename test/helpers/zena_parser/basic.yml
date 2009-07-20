@@ -436,6 +436,13 @@ calendar_default_else:
   src: "<div do='calendar'>---</div>"
   res: "/<td class='sun'>27<\/td>/"
 
+calendar_l_date:
+  context:
+    ref_date: "2009-7-17"
+    node: 'zena'
+  src: "<div do='calendar' select='added_notes' date='l_date' />"
+  res: "/<td class='ref'><span>17</span><ul><li><a href='/oo/projects/cleanWater/post27.html'>opening</a></li></ul></td>/"
+
 flash_messages_both:
   src: "<r:flash_messages/>"
   tem: "/id.*messages.*notice.*flash.*notice.*error.*flash.*error/"

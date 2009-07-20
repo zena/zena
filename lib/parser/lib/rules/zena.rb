@@ -1969,9 +1969,16 @@ END_TXT
         render_html_tag(res)
       else
         fld = @params[:date] || 'event_at'
-        fld = 'event_at' unless ['log_at', 'created_at', 'updated_at', 'event_at'].include?(fld)
+        if ['log_at', 'created_at', 'updated_at', 'event_at'].include?(fld) # TODO: use rubyless to learn type
+          table_name = 'nodes'
+        elsif fld == 'l_date'
+          fld = 'date'
+          table_name = 'links'
+        else
+          return parser_error("Invalid 'date' value for calendar (#{fld.inspect}).")
+        end
       
-        @date_scope = "TABLE_NAME.#{fld} >= '\#{start_date.strftime('%Y-%m-%d')}' AND TABLE_NAME.#{fld} <= '\#{end_date.strftime('%Y-%m-%d')}'"
+        @date_scope = "TABLE_NAME[#{table_name}].#{fld} >= '\#{start_date.strftime('%Y-%m-%d')}' AND TABLE_NAME[#{table_name}].#{fld} <= '\#{end_date.strftime('%Y-%m-%d')}'"
         
         new_dom_scope
         

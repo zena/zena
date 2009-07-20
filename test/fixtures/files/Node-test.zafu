@@ -71,7 +71,6 @@ This filter updates the "distant filter block test"
 <h3>tiny calendar</h3>
 <div do='calendar' find='notes in site' size='tiny'/>
 
-
 <div id='edit' do='block'>
   <h3>edit block test</h3>
     <r:text/>

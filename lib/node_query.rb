@@ -336,7 +336,21 @@ class NodeQuery < QueryBuilder
     def parse_raw_filters(filters)
       return unless filters
       filters.each do |f|
-        @where << f.gsub("TABLE_NAME", table)
+        all_ok = true
+        filter = f.gsub(/TABLE_NAME(\[(\w+)\]|)/) do
+          if $2
+            if @table_counter[$2]
+              table($2)
+            else
+              all_ok = false
+              @errors << "invalid table_name '#{$2}' in raw filter"
+              @errors.uniq!
+            end
+          else
+            table
+          end
+        end
+        @where << filter if all_ok
       end
     end
     
