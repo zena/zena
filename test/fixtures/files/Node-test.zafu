@@ -71,25 +71,14 @@ This filter updates the "distant filter block test"
 <h3>tiny calendar</h3>
 <div do='calendar' find='notes in site' size='tiny'/>
 
-<h3>assign calendar</h3>
-<p>Assigns the main node to 'zena' project with given date</p>
+<h2>assign calendar</h2>
 <r:root>
-  <div do='calendar' select='added_notes' date='l_date'>
-    <span do='[current_date]' format='%d'/>
-    initial notes here
-    <div class='orange' do='block' green_if='link_id'>
-      <span do='swap' role='added_note' publish='true' />
-    </div>
-    
-    <r:else>
-      <span do='[current_date]' format='%d'/>
-      no notes yet
-      <div class='orange' do='block' green_if='link_id'>
-        <span do='swap' role='added_note' publish='true' />
-      </div>
-    </r:else>
+  <div do='block' id='assign_cal'>
+    <h3><b><r:show attr='v_title'/></b> calendar</h3>
+    <r:calendar assign_as='reference' used='warn' split_hours='12' />
   </div>
 </r:root>
+<r:projects in='site' do='each' join=', ' do='link' update='assign_cal'/>
 
 <div id='edit' do='block'>
   <h3>edit block test</h3>

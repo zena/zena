@@ -178,9 +178,9 @@ class ApplicationHelperTest < ZenaTestHelper
       weeks << week
       event_hash = hash
     end
-    assert_equal ["2006-03-18", "2006-03-20"], event_hash.keys
-    assert_equal ['opening'], event_hash["2006-03-18"].map{|r| r.name}
-    assert_equal ['foobar'], event_hash["2006-03-20"].map{|r| r.name}
+    assert_equal ["2006-03-18 00", "2006-03-20 00"], event_hash.keys.sort
+    assert_equal ['opening'], event_hash["2006-03-18 00"].map{|r| r.name}
+    assert_equal ['foobar'], event_hash["2006-03-20 00"].map{|r| r.name}
   end
   
   def test_cal_weeks_hours
@@ -199,9 +199,9 @@ class ApplicationHelperTest < ZenaTestHelper
       weeks << week
       event_hash = hash
     end
-    assert_equal ["2006-03-18 12", "2006-03-20 0", "2006-03-20 12"], event_hash.keys.sort
+    assert_equal ["2006-03-18 12", "2006-03-20 00", "2006-03-20 12"], event_hash.keys.sort
     assert_equal ['opening'], event_hash["2006-03-18 12"].map{|r| r.name}
-    assert_equal ['morning'], event_hash["2006-03-20 0"].map{|r| r.name}
+    assert_equal ['morning'], event_hash["2006-03-20 00"].map{|r| r.name}
     assert_equal ['afternoon'], event_hash["2006-03-20 12"].map{|r| r.name}
   end
   

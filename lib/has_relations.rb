@@ -16,7 +16,7 @@ module Zena
         after_save    :update_relations
         after_destroy :destroy_links
         zafu_readable :link
-        zafu_readable LINK_ATTRIBUTES.map {|k| "l_#{k}".to_sym}
+        zafu_readable(*LINK_ATTRIBUTES.map {|k| "l_#{k}".to_sym})
         
         include Zena::Relations::InstanceMethods
         
@@ -57,6 +57,17 @@ module Zena
     module InstanceMethods
       def set_link(link)
         @link = link
+      end
+      
+      # Linked_node is a way to store a linked node during calendar display or ajax return
+      # calls so the template knows which "couple" has just been formed or removed.
+      # The linked_node "node" must respond to "l_date".
+      def linked_node=(node)
+        @linked_node = node
+      end
+      
+      def linked_node
+        @linked_node ||= @relation_proxies ? @relation_proxies[@relation_proxies.keys.first].last_target : nil
       end
       
       # status defined through loading link

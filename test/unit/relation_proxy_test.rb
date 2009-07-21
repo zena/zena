@@ -336,4 +336,10 @@ class RelationProxyTest < ZenaTestUnit
     assert_equal Time.gm(2009,7,17), references.first.l_date
     assert_equal Time.gm(2009,7,18,8), references.last.l_date
   end
+  
+  def test_zafu_readable
+    assert Node.zafu_readable?('l_status')
+    assert Node.zafu_readable?('l_comment')
+    assert Node.zafu_readable?('l_date')
+  end
 end

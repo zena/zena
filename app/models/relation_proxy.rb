@@ -1,5 +1,5 @@
 class RelationProxy < Relation
-  attr_accessor   :side, :link_errors, :start, :other_link
+  attr_accessor   :side, :link_errors, :start, :other_link, :last_target
   LINK_ATTRIBUTES = Zena::Relations::LINK_ATTRIBUTES
   LINK_ATTRIBUTES_SQL = LINK_ATTRIBUTES.map {|sym| "`#{sym}`"}.join(',')
   LINK_SELECT     = "nodes.*,links.id AS link_id,#{LINK_ATTRIBUTES.map {|l| "links.#{l} AS l_#{l}"}.join(',')}"
@@ -265,10 +265,11 @@ class RelationProxy < Relation
     
     # 2. can write in new target ? (and remove targets previous link)
     @add_links.each do |hash|
-      if target = find_target(hash[:id])
+      # last_target is used by "linked_node" from Node to get hold of the last linked node
+      if @last_target = find_target(hash[:id])
         # make sure we can overwrite previous link if as_unique
         if as_unique?
-          if previous_link = Link.find(:first, :conditions => ["relation_id = ? AND #{other_side} = ?", self[:id], target[:id]])
+          if previous_link = Link.find(:first, :conditions => ["relation_id = ? AND #{other_side} = ?", self[:id], @last_target[:id]])
             @del_links << previous_link
           end
         end
