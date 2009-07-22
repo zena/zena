@@ -677,7 +677,15 @@ class Node < ActiveRecord::Base
           res["#{key}_id"] = Group.translate_pseudo_id(attributes[key], :id) || attributes[key]
         elsif ['user_id'].include?(key)
           res[key] = User.translate_pseudo_id(attributes[key], :id) || attributes[key]
-        elsif ['v_publish_from', 'log_at', 'event_at', 'date'].include?(key)
+        elsif ['date'].include?(key)
+          # FIXME: this is a temporary hack because date in links do not support timezones/formats properly
+          if attributes[key].kind_of?(Time)
+            res[key] = attributes[key]
+          elsif attributes[key]
+            # parse date
+            res[key] = attributes[key].to_utc("%Y-%m-%d %H:%M:%S")
+          end
+        elsif ['v_publish_from', 'log_at', 'event_at'].include?(key)
           if attributes[key].kind_of?(Time)
             res[key] = attributes[key]
           elsif attributes[key]

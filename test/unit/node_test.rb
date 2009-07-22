@@ -66,8 +66,8 @@ class NodeTest < ZenaTestUnit
       [{'parent_id' => '999', 'tag_ids' => "999,34,art"},
        {'parent_id' => '999', 'tag_ids' => [nodes_id(:news),nodes_id(:art)]}],
        
-      [{'link' => {'hot' => {'other_id' => '22', 'date' => '2009-7-15 16:58' }}}, 
-       {'link' => {'hot' => {'other_id' => nodes_id(:status), 'date' => Time.gm(2009,7,15,14,58)}}}],
+      [{'link' => {'hot' => {'other_id' => '22', 'date' => '2009-7-15 16:58' }}},
+       {'link' => {'hot' => {'other_id' => nodes_id(:status), 'date' => Time.gm(2009,7,15,16,58)}}}], # this should be 14:58 when #255 is fixed (tz support).
     ].each do |src,res|
       assert_equal res, secure(Node) { Node.transform_attributes( src ) }
     end
