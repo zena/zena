@@ -15,13 +15,13 @@ bad_relation:
 
 overriden_relation:
   src: 'references'
-  sql: "[\"SELECT nodes.*,links.id AS link_id, links.status AS l_status, links.comment AS l_comment FROM nodes,links WHERE nodes.id = links.target_id AND links.relation_id = _ID(node_has_references) AND links.source_id = ? AND (#{@node.secure_scope('nodes')}) ORDER BY nodes.position ASC, nodes.name ASC\", @node.id]"
+  sql: "[\"SELECT nodes.*,links.id AS link_id,links.status AS l_status,links.comment AS l_comment,links.date AS l_date FROM nodes,links WHERE nodes.id = links.target_id AND links.relation_id = _ID(node_has_references) AND links.source_id = ? AND (#{@node.secure_scope('nodes')}) ORDER BY nodes.position ASC, nodes.name ASC\", @node.id]"
 
 link_selects_in_sub_query:
   src:
     - 'icons'
     - 'images'
-  sql: "[\"SELECT nodes.*,links.id AS link_id, links.status AS l_status, links.comment AS l_comment FROM nodes,links WHERE ((nodes.id = links.target_id AND links.relation_id = _ID(node_has_an_icon) AND links.source_id = ?) OR (nodes.kpath LIKE 'NDI%' AND nodes.parent_id = ? AND links.id = 0)) AND (#{@node.secure_scope('nodes')}) GROUP BY nodes.id ORDER BY nodes.position ASC, nodes.name ASC\", @node.id, @node.id]"
+  sql: "[\"SELECT nodes.*,links.id AS link_id,links.status AS l_status,links.comment AS l_comment,links.date AS l_date FROM nodes,links WHERE ((nodes.id = links.target_id AND links.relation_id = _ID(node_has_an_icon) AND links.source_id = ?) OR (nodes.kpath LIKE 'NDI%' AND nodes.parent_id = ? AND links.id = 0)) AND (#{@node.secure_scope('nodes')}) GROUP BY nodes.id ORDER BY nodes.position ASC, nodes.name ASC\", @node.id, @node.id]"
 
 projects_from_tags:
   sql: "[\"SELECT no1.* FROM nodes,nodes AS no1 WHERE no1.id = nodes.project_id AND nodes.kpath LIKE 'NPT%' AND nodes.parent_id = ? AND (#{@node.secure_scope('no1')}) GROUP BY no1.id ORDER BY no1.position ASC, no1.name ASC\", @node.id]"
@@ -34,3 +34,11 @@ nodes_in_section:
     node: 'people'
   sql: "[\"SELECT nodes.* FROM nodes WHERE nodes.section_id = ? AND (#{@node.secure_scope('nodes')}) ORDER BY nodes.position ASC, nodes.name ASC\", @node.get_section_id]"
   res: "anonymous, ant, lion, myLife, tiger"
+
+relation_from_class:
+  src: "hot from pages in site"
+  sql: "/links.source_id = nodes.id AND nodes.kpath LIKE 'NP%'/"
+
+# l_date_as_date:
+#   src: "select *,if(l_date,l_date,event_at) AS date from (notes or assigned_notes) order by date"
+  

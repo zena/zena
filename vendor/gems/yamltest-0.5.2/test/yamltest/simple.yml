@@ -1,0 +1,16 @@
+default:
+  context:
+    one: 1
+    two: 2
+    env:
+      login: 'Joe'
+      pass:  'secret'
+  src: "context.inspect"
+  res: '{"env" => {"login" => "Joe", "pass" => "secret"}, "one" => 1, "two" => 2}'
+
+overwrite_key_replaces_hash:
+  context:
+    env:
+      login: 'Marc'
+  src: "context.inspect"
+  res: '{"env" => {"login" => "Marc"}, "one" => 1, "two" => 2}'

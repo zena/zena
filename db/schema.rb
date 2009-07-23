@@ -154,11 +154,12 @@ ActiveRecord::Schema.define(:version => 50) do
   end
 
   create_table "links", :force => true do |t|
-    t.integer "source_id"
-    t.integer "target_id"
-    t.integer "relation_id"
-    t.integer "status"
-    t.string  "comment",     :limit => 60
+    t.column "source_id",   :integer
+    t.column "target_id",   :integer
+    t.column "relation_id", :integer
+    t.column "status",      :integer
+    t.column "comment",     :string,   :limit => 60
+    t.column "date",        :datetime
   end
 
   create_table "nodes", :force => true do |t|

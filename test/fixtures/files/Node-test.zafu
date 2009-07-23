@@ -25,6 +25,12 @@ This filter updates the "distant filter block test"
 <r:filter live='true' update='upfi'/>
 </div>
 
+<h3>publish = true</h3>
+<r:zazen attr='d_some_attr' edit='true' publish='true'/>
+
+<h3>publish = force</h3>
+<r:zazen attr='d_some_attr' edit='true' publish='force'/>
+
 <h3>pagination test</h3>
 (no ajax)
 <r:nodes in='site' order='zip' limit='8' paginate='p'>
@@ -65,6 +71,14 @@ This filter updates the "distant filter block test"
 <h3>tiny calendar</h3>
 <div do='calendar' find='notes in site' size='tiny'/>
 
+<h2>assign calendar</h2>
+<r:root>
+  <div do='block' id='assign_cal'>
+    <h3><b><r:show attr='v_title'/></b> calendar</h3>
+    <r:calendar assign_as='reference' used='warn' split_hours='12' />
+  </div>
+</r:root>
+<r:projects in='site' do='each' join=', ' do='link' update='assign_cal'/>
 
 <div id='edit' do='block'>
   <h3>edit block test</h3>

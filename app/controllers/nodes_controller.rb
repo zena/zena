@@ -291,6 +291,7 @@ class NodesController < ApplicationController
   
   def update
     params['node']['c_file'] = params['attachment'] if params['attachment']
+    @v_status_before_update = @node.v_status
     @node.update_attributes_with_transformation(params['node'])
     
     if @node.errors.empty?

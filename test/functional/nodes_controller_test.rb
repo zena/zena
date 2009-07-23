@@ -177,6 +177,35 @@ END:VCALENDAR
       assert_match %r{deux}, doc_versions[1].text
     end
   end
+  
+  def test_edit_attribute_publish
+    login(:tiger)
+    node = secure!(Node) { nodes(:status) }
+    assert_equal Zena::Status[:pub], node.v_status
+    # get ajax
+    get 'edit', :format => 'js', :id => node.zip, 'attribute' => 'd_philosopher', 'dom_id' => 'foo', 'publish' => 'true', 'zazen' => 'true'
+    assert_match %r{name='node\[v_status\]' value='50'}m, @response.body
+    assert_match %r{name='publish' value='true'}m, @response.body
+    
+    put 'update', :format => 'js', :id => node.zip, 'publish' => 'true', 'zazen' => 'true', 'dom_id' => 'foo', 'node' => {'d_philosopher' => 'Michel Serres', 'v_status' => '50'}
+    assert_match %r{publish=true}m, @response.body
+    
+    node = secure!(Node) { nodes(:status) }
+    assert_equal Zena::Status[:pub], node.v_status
+    assert_equal 'Michel Serres', node.d_philosopher
+  end
+  
+  def test_update_change_v_status_reloads_page
+    login(:tiger)
+    node = secure!(Node) { nodes(:status) }
+    node.update_attributes('v_title' => 'foobar')
+    assert_equal Zena::Status[:red], node.v_status
+    # ajax
+    put 'update', :format => 'js', :id => node.zip, 'zazen' => 'true', 'dom_id' => 'foo', 'node' => {'d_philosopher' => 'Michel Serres', 'v_status' => '50'}
+    node = secure!(Node) { nodes(:status) }
+    assert_equal Zena::Status[:pub], node.v_status
+    assert_match %r{window.location.href = window.location.href}m, @response.body
+  end
 end
 
 =begin

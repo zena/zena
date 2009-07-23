@@ -51,7 +51,7 @@ class Note < Node
   private
   
   def prepare_note
-    self[:log_at]   ||= Time.now
+    self[:log_at]   ||= self[:event_at] || Time.now
     self[:event_at] ||= self[:log_at]
     self.name = version.title unless self[:name]
   end

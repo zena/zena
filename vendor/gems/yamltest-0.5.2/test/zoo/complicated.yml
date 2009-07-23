@@ -1,0 +1,20 @@
+default:
+  src: "John is Good"
+  res: "Jahn is Gaad"
+
+other_keys:
+  context:
+    env:
+      login: 'Marc'
+  src: "Moon"
+  len: 4
+  res: "Maan"
+  
+animal:
+  context:
+    foo: "bar"
+  foo: "bozo"
+
+some_title:
+  len: 10
+  res: "same title"

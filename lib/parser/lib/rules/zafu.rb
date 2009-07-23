@@ -2,7 +2,7 @@ require File.join(File.dirname(__FILE__) , 'zena')
 
 module Zafu
   module Tags
-    attr_accessor :html_tag, :html_tag_params, :name
+    attr_accessor :html_tag, :html_tag_params, :name, :sub_do
     
     # Replace the 'original' element in the included template with our new version.
     def replace_with(new_obj)
@@ -13,7 +13,11 @@ module Zafu
       end
       @html_tag = new_obj.html_tag || @html_tag
       @html_tag_params.merge!(html_tag_params)
-      @method   = new_obj.params[:method] if new_obj.params[:method]
+      if new_obj.params[:method]
+        @method   = new_obj.params[:method] if new_obj.params[:method]
+      elsif new_obj.sub_do
+        @method = 'void'
+      end
     end
     
     # Pass the caller's 'html_tag' and 'html_tag_params' to the included part.
@@ -216,6 +220,8 @@ module Zafu
       if @params =~ /\A([^>]*?)do\s*=('|")([^\2]*?[^\\])\2([^>]*)\Z/
         # we have a sub 'do'
         @params = parse_params($1)
+        @sub_do = $3 # this is used by replace_with
+        
         opts = {:method=>$3, :params=>$4}
         
         # the matching zafu tag will be parsed by the last 'do', we must inform it to halt properly :

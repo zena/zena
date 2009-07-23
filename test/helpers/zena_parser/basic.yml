@@ -436,6 +436,22 @@ calendar_default_else:
   src: "<div do='calendar'>---</div>"
   res: "/<td class='sun'>27<\/td>/"
 
+calendar_l_date:
+  context:
+    ref_date: "2009-7-17"
+    node: 'zena'
+  src: "<div do='calendar' select='added_notes' date='l_date' />"
+  res: "/<td class='ref'><span>17</span><ul><li><a href='/oo/projects/cleanWater/post27.html'>opening</a></li></ul></td>/"
+
+calendar_hours:
+  context:
+    ref_date: "2009-7-17"
+    node: 'zena'
+  # I do not like the way we do this, the 'else' thing is not helping. Maybe we need some extra zafu tags because it's
+  # messy: we have 3 lists (days, hours, nodes) ...
+  src: "<div do='calendar' select='added_notes' date='l_date' split_hours='12'><r:if test='hour eq 0' do='[current_date]' format='%d'/><div do='void' set_class='hour_[hour]' do='each' do='[name]' join=', '/><r:else><r:if test='hour eq 0' do='[current_date]' format='%d'/><div do='void' set_class='hour_[hour]'></div></r:else></div>"
+  res: "/<td class='ref'>17<div class='hour_0'></div><div class='hour_12'>opening</div></td>/"
+
 flash_messages_both:
   src: "<r:flash_messages/>"
   tem: "/id.*messages.*notice.*flash.*notice.*error.*flash.*error/"
@@ -498,6 +514,13 @@ each_alternate_class_ajax:
   src: "<ol do='pages'><li do='each' alt_class='blue' do='[name]'/><li do='add'/></ol>"
   res: "/<li>status<\/li><li class=\"blue\">track/"
 
+each_else:
+  context:
+    node: 'opening'
+  src: "<div do='pages'>has pages (<r:each do='[name]' join=', '/>)<r:else>no pages</r:else></div>"
+  tem: "/-%><div>has pages \(<% list1.each do \|var1\| -%><%= var1.name %><% end -%>\)</div><% elsif true -%><div>no pages</div><% end -%>/"
+  res: "<div>no pages</div>"
+
 case_when:
   src: "<r:case><r:when kind_of='Document'>this is a document</r:when><r:when klass='Page'>Page</r:when><r:when status='pub'>Pub</r:when>"
   tem: "<% if false -%><% elsif @node.vkind_of?(\"Document\") -%>this is a document<% elsif @node.klass == \"Page\" -%>Page<% elsif @node.version.status == 50 -%>Pub<% end -%>"
@@ -536,7 +559,7 @@ case_when_evil_test:
   res: "three"
 
 if_test_equal:
-  src: "<r:if test='id = 22'>one</r:if>"
+  src: "<r:if test='id eq 22'>one</r:if>"
   res: "one"
 
 if_test_param:
@@ -545,7 +568,7 @@ if_test_param:
 
 if_test_param_var:
   src: "<r:set var='year'>3000</r:set><r:if test='year eq param:f'>funky!</r:if>"
-  tem: "<% set_year = capture do %>3000<% end -%><% if set_year.to_s == params[:f].to_s -%>funky!<% end -%>"
+  tem: "<% set_year = capture do %>3000<% end -%><% if set_year == params[:f] -%>funky!<% end -%>"
   
 if_in_if:
   src: "<r:if test='id eq 22'><r:if test='1 eq 2'>strange...<r:else>wrong!</r:else></r:if><r:else>other node</r:else></r:if>"
@@ -573,13 +596,13 @@ on_if_ancestor:
   res: "<li class='hello'>collections</li>, <li class='hello'>nature</li>, <li class='hello'>people</li>, <li class='on'>projects</li>, <li class='hello'>skins</li>"
 
 on_if_empty:
-  src: "<li do='void' on_if='custom_a eq \"\"'>hello</li>"
-  tem: "<li<%= @node.custom_a.to_s == \"\" ? \" class='on'\" : \"\" %>>hello</li>"
+  src: "<li do='void' on_if='custom_a eq nil'>hello</li>"
+  tem: "<li<%= @node.custom_a == nil ? \" class='on'\" : \"\" %>>hello</li>"
   res: "<li class='on'>hello</li>"
 
 multiple_class_conditions:
   src: "<li class='unknown' do='void' one_if='custom_a eq 1' two_if='custom_a eq 2'>Agrippina</li>"
-  tem: "<li<%= @node.custom_a.to_i == 2 ? \" class='two'\" : @node.custom_a.to_i == 1 ? \" class='one'\" : \" class='unknown'\" %>>Agrippina</li>"
+  tem: "/@node.custom_a.to_i == 2 \? \" class='two'\" : @node.custom_a.to_i == 1 \? \" class='one'\" : \" class='unknown'\" %>>Agrippina</li>|<li<%= @node.custom_a.to_i == 1 \? \" class='one'\" : @node.custom_a.to_i == 2 \? \" class='two'\" : \" class='unknown'\" %>>Agrippina</li>/"
   res: "<li class='unknown'>Agrippina</li>"
 
 multiple_class_conditions_true_in_middle:
@@ -630,12 +653,12 @@ if_or_same:
   res: ""
 
 if_now:
-  src: "<r:if test='log_at gt NOW'>future<r:else>past</r:else></r:if>"
+  src: "<r:if test='log_at gt now'>future<r:else>past</r:else></r:if>"
   tem: "<% if @node.log_at.to_i > Time.now.to_i -%>future<% elsif true -%>past<% end -%>"
   res: "past"
 
 on_if_now:
-  src: "<p do='[name]' on_if='log_at gt NOW'/>"
+  src: "<p do='[name]' on_if='log_at gt now'/>"
   tem: "<p<%= @node.log_at.to_i > Time.now.to_i ? \" class='on'\" : \"\" %>><%= @node.name %></p>"
   res: "<p>status</p>"
   
@@ -648,8 +671,8 @@ visitor_is_anon:
 test_in_each:
   context:
     node: 'cleanWater'
-  src: "<ul do='pages'><li do='each' on_if='name = \"track\"' do='[name]'/></ul>"
-  tem: "/var1.name.to_s == \"track\"/"
+  src: "<ul do='pages'><li do='each' on_if='name eq \"track\"' do='[name]'/></ul>"
+  tem: "/var1.name == \"track\"/"
   res: "<ul><li>status</li><li class='on'>track</li></ul>"
 
 on_if_in_unknown:
@@ -670,6 +693,12 @@ each_join:
     node: 'wiki'
   src: "<r:children><r:each join=', '><r:show attr='name'/></r:each></r:children>"
   res: "bird, flower"
+	
+each_join_if:
+  context:
+    node: 'status'
+  src: "<r:pages in='site' order='name'><r:each join=', ' join_if='prev.id ne main.id and id ne main.id'><r:show attr='name'/></r:each></r:pages>"
+  res: "/projects, skinsstatustalk, track/"
 
 set_attribute:
   src: "<div class='machin' do='void' set_class='node[id]'/><r:void set_class='s[v_status]i[id]'/>"
@@ -990,6 +1019,14 @@ checkbox_finder:
   src: "<r:checkbox role='calendar' values='projects in site'/>"
   res: "/value=.21.*cleanWater.*input type=.checkbox. name=.node\[calendar_ids\]\[\]. value=.29. checked=.checked.*wiki/"
 
+checkbox_checked_value:
+  src: "<r:input type='checkbox' name='tagged[sky]'/>"
+  res: "<input name='node[tagged][sky]' type='checkbox' value='sky' checked='checked'/>"
+
+checkbox_unchecked_value:
+  src: "<r:input type='checkbox' name='tagged[foo]'/>"
+  tem: "/@node.tagged\\[\"foo\"\\] == \"foo\"/"
+
 input_set_value:
   src: "<r:input type='hidden' name='icon_id' set_value='[main.id]'/>"
   tem: "<input name='node[icon_id]' type='hidden' value='<%= @node.zip %>'/>"
@@ -1186,6 +1223,12 @@ link_page_list:
   src: "<r:nodes in='site' limit='10' order='zip' paginate='pak' do='link' page='list' join=', '/>"
   tem: "/set_pak_page != set_pak.*zen_path\(@node,:pak.*elsif true.*set_pak_page/"
   res: "/<a href='.*page22.html\?pak=1'>1</a>, 2, .*pak=3'>3</a>.*pak=4'>4</a>.*pak=5'>5</a>/"
+
+link_page_list_page_count:
+  context:
+    pak: 3
+  src: "<r:nodes in='site' limit='10' order='zip' paginate='pak' do='link' page='list' join=', ' page_count='3'/>"
+  res: "/<a href='.*page22.html\?pak=2'>2</a>, 3, .*pak=4'>4</a>\\Z/"
 
 paginate_with_or_clause:
   context:

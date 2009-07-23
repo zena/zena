@@ -63,5 +63,25 @@ class NoteTest < ActiveSupport::TestCase
     assert note2.save
   end
   
+  def test_default_set_event_at
+    login(:tiger)
+    note = secure!(Note) { Note.create(:name => 'test', :parent_id => nodes_id(:zena), :event_at => '2009-06-15')}
+    assert_equal '2009-06-15', note.event_at.strftime('%Y-%m-%d')
+    assert_equal '2009-06-15', note.log_at.strftime('%Y-%m-%d')
+  end
+  
+  def test_default_set_log_at
+    login(:tiger)
+    note = secure!(Note) { Note.create(:name => 'test', :parent_id => nodes_id(:zena), :log_at => '2009-06-15')}
+    assert_equal '2009-06-15', note.event_at.strftime('%Y-%m-%d')
+    assert_equal '2009-06-15', note.log_at.strftime('%Y-%m-%d')
+  end
+  
+  def test_default_set_log_at_and_event_at
+    login(:tiger)
+    note = secure!(Note) { Note.create(:name => 'test', :parent_id => nodes_id(:zena), :event_at => '2009-06-15', :log_at => '2009-06-16')}
+    assert_equal '2009-06-15', note.event_at.strftime('%Y-%m-%d')
+    assert_equal '2009-06-16', note.log_at.strftime('%Y-%m-%d')
+  end
   # test fullpath
 end

@@ -11,7 +11,7 @@ module Zena
       def has_tags
         after_save    :update_tags
         zafu_context  :tags => ["Link"]
-        attr_public   :name, :tag_list, :tag
+        attr_public   :name, :tag_list, :tag, :tagged
         
         class_eval <<-END
           include Zena::Tags::InstanceMethods
@@ -32,16 +32,37 @@ module Zena
         l_comment
       end
       
-      
-      
       # Used by multiversion to remove attributes with same value.
       def tag
         nil
       end
       
+      def tagged
+        @tagged ||= Hash[*tag_names.map {|t| [t,t]}.flatten]
+      end
+      
+      # Set/unset a named tag
+      def tagged=(hash)
+        # named tags
+        hash.each do |k, v|
+          if v.empty?
+            remove_tag(k.to_s)
+          else
+            add_tag(k.to_s)
+          end
+        end
+      end
+      
       # Add a new tag
       def tag=(v)
-        add_tags(v)
+        tag_names_to_add, tag_names_to_remove = [], []
+        tags_as_list(v).each do |t|
+          if t[0..0] == '-'
+            remove_tag(t[1..-1])
+          else
+            add_tag(t)
+          end
+        end
       end
       
       # String listing the tags separated by a comma.
@@ -51,21 +72,7 @@ module Zena
       
       # Define tag list from a comma separated list of tag names.
       def tag_list=(v)
-        tags_as_list = tags_as_list(v)
-
-        tags_to_add = tags_as_list - tag_names
-        unless tags_to_add == []
-          @add_tags = ((@add_tags || []) + tags_to_add).uniq
-        end
-
-        tags_names_to_del = tag_names - tags_as_list
-        tags_to_del       = []
-        (tags || []).each do |t|
-          tags_to_del << t if tags_names_to_del.include?(t[:comment])
-        end
-        unless tags_to_del == []
-          @del_tags = ((@del_tags || []) + tags_to_del).uniq
-        end
+        @tag_names = tags_as_list(v)
       end
       
       # List of tag names.
@@ -85,10 +92,13 @@ module Zena
         end
       end
       
-      def add_tags(tag_str)
-        tags_to_add = tags_as_list(tag_str) - tag_names
-        return if tags_to_add == []
-        @add_tags = ((@add_tags || []) + tags_to_add).uniq
+      def add_tag(name)
+        return if tag_names.include?(name)
+        @tag_names << name
+      end
+      
+      def remove_tag(name)
+        self.tag_names.delete(name)
       end
       
       # Overwrite 'remove_link' from 'has_relations'
@@ -120,19 +130,26 @@ module Zena
         
         # Update/create links defined in relation proxies
         def update_tags
-          return unless @add_tags || @del_tags
-          if @del_tags
-            del_ids = @del_tags.map {|t| t[:id]}
+          return unless @tag_names
+          old_tag_names = (self.tags || []).map {|t| t[:comment]}
+          
+          tags_to_add = @tag_names - old_tag_names
+          tags_to_del = []
+          (self.tags || []).each do |t|
+            tags_to_del << t unless @tag_names.include?(t[:comment])
+          end
+          
+          if tags_to_del != []
+            del_ids = tags_to_del.map {|t| t[:id]}
             Link.connection.execute "DELETE FROM links WHERE id IN (#{del_ids.join(',')})"
           end
-          if @add_tags
-            add_tags = @add_tags.map{|t| "(#{self[:id]}, #{t.inspect})"}
+          
+          if tags_to_add != []
+            add_tags = tags_to_add.map{|t| "(#{self[:id]}, #{t.inspect})"}
             Link.connection.execute "INSERT INTO links (source_id, comment) VALUES #{add_tags.join(',')}"
           end
-          @add_tags = nil
-          @del_tags = nil
           remove_instance_variable(:@tags) if @tags
-          @tag_names= nil
+          @tag_names = nil
         end
         
     end

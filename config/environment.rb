@@ -13,6 +13,7 @@ require File.join(File.dirname(__FILE__), 'boot')
 # Load zena specific settings
 # FIXME: should not be needed (not like this)
 require File.join(File.dirname(__FILE__), 'zena')
+require File.join(File.dirname(__FILE__), '../vendor/gems/uuidtools-2.0.0/lib/uuidtools') # FIXME: this should not be needed !
 require File.join(File.dirname(__FILE__), 'version')
 
 

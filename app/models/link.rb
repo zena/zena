@@ -6,11 +6,12 @@ class Link < ActiveRecord::Base
     def find_through(node, link_id)
       return nil unless link = Link.find(:first, :conditions => ['(source_id = ? OR target_id = ?) AND id = ?', node[:id], node[:id], link_id])
       link.start = node
-      node.link  = link
+      node.set_link(link)
       link
     end
   end
   
+  # TODO: is this used ?
   def update_attributes_with_transformations(attrs)
     return false unless @node
     
@@ -21,13 +22,14 @@ class Link < ActiveRecord::Base
     rel = @node.relation_proxy_from_link(self)
     rel.other_link = self
     
-    ['status', 'comment'].each do |k|
+    Zena::Relations::LINK_ATTRIBUTES.each do |k|
+      k = k.to_s # TODO: use only strings or symbols but avoid this mess
       rel.send("other_#{k}=", attrs[k]) if attrs.has_key?(k)
       self[k] = attrs[k]
     end
     
-    if attrs['other_zip']
-      other_id = secure(Node) { Node.translate_pseudo_id(attrs['other_zip'], :id, @node) }
+    if other_id = attrs['other_id'] || attrs['other_zip']
+      other_id = secure(Node) { Node.translate_pseudo_id(other_id, :id, @node) }
       rel.other_id = other_id
       if @side == :source
         self[:target_id] = other_id

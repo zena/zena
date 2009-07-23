@@ -58,7 +58,8 @@ class NodeQuery < QueryBuilder
   def after_parse
     @where.unshift "(\#{#{@node_name}.secure_scope('#{table}')})"
     if @tables.include?('links')
-      @select << "#{table('links')}.id AS link_id, links.status AS l_status, links.comment AS l_comment"
+      link_table = table('links')
+      @select << "#{link_table}.id AS link_id,#{Zena::Relations::LINK_ATTRIBUTES.map {|l| "#{link_table}.#{l} AS l_#{l}"}.join(',')}"
     elsif @errors_unless_safe_links
       @errors += @errors_unless_safe_links
     end
@@ -167,7 +168,10 @@ class NodeQuery < QueryBuilder
     end
     
     # Filters that need a join
-    def join_relation(rel, context)
+    def join_relation(rel, context, new_table_alias = nil, previous_table_alias = nil)
+      new_table_alias      ||= table(main_table)
+      previous_table_alias ||= table(main_table, -1)
+      
       if rel == main_table || rel == 'children'
         # dummy clauses
         parse_context(default_context_filter) unless context
@@ -182,9 +186,9 @@ class NodeQuery < QueryBuilder
           # tagged in project (not equal to 'tagged from nodes in project')
           # remove caller join
           @distinct = true
-          @where << "#{field_or_attr('id')} = #{table('links')}.#{rel.other_side} AND #{table('links')}.relation_id = #{rel[:id]}"
+          @where << "#{field_or_attr('id', new_table_alias)} = #{table('links')}.#{rel.other_side} AND #{table('links')}.relation_id = #{rel[:id]}"
         else
-          @where << "#{field_or_attr('id')} = #{table('links')}.#{rel.other_side} AND #{table('links')}.relation_id = #{rel[:id]} AND #{table('links')}.#{rel.link_side} = #{field_or_attr('id', table(main_table,-1))}"
+          @where << "#{field_or_attr('id', new_table_alias)} = #{table('links')}.#{rel.other_side} AND #{table('links')}.relation_id = #{rel[:id]} AND #{table('links')}.#{rel.link_side} = #{field_or_attr('id', previous_table_alias)}"
         end
       else
         nil
@@ -233,7 +237,7 @@ class NodeQuery < QueryBuilder
         end
       when 'l_'  
         key, function = parse_sql_function_in_field(field)
-        if key == 'l_status' || key == 'l_comment' || (key == 'l_id' && [:order, :group].include?(context))
+        if key == 'l_status' || key == 'l_comment' || key == 'l_date' || (key == 'l_id' && [:order, :group].include?(context))
           @errors_unless_safe_links ||= []
           @errors_unless_safe_links << "cannot use link field '#{key}' in this query" unless (key == 'l_id' && context == :order)
           # ok
@@ -255,6 +259,17 @@ class NodeQuery < QueryBuilder
             function ? "#{function}(#{table_to_use}.#{map_def[:key]})" : "#{table_to_use}.#{map_def[:key]}"
           elsif (Node.attr_public?(key) && Node.column_names.include?(key))
             function ? "#{function}(#{table_name}.#{key})" : "#{table_name}.#{key}"
+          elsif key =~ /^(.*)_ids?$/
+            # tag_id = 33  ===> join links as lk, nodes as tt .......
+            rel = $1
+            
+            if RelationProxy.find_by_role(rel.singularize)
+              add_table('jnode', 'nodes')
+              join_relation(rel, nil, table('jnode'), table('nodes'))
+              "#{table('jnode')}.zip"
+            else
+              nil
+            end
           else
             nil
           end
@@ -321,7 +336,21 @@ class NodeQuery < QueryBuilder
     def parse_raw_filters(filters)
       return unless filters
       filters.each do |f|
-        @where << f.gsub("TABLE_NAME", table)
+        all_ok = true
+        filter = f.gsub(/TABLE_NAME(\[(\w+)\]|)/) do
+          if $2
+            if @table_counter[$2]
+              table($2)
+            else
+              all_ok = false
+              @errors << "invalid table_name '#{$2}' in raw filter"
+              @errors.uniq!
+            end
+          else
+            table
+          end
+        end
+        @where << filter if all_ok
       end
     end
     

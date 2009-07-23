@@ -149,6 +149,10 @@ include_set_method:
   src: "ISM: <r:include template='/named/with/do'><r:with part='branding' method='hello'>blah</r:with></r:include>"
   res: "ISM: named_with_do: <p id='branding'>hello world!</p>"
 
+include_set_method_with_do:
+  src: "ISM: <r:include template='/named/with/do'><r:with part='branding' do='hello'>blah</r:with></r:include>"
+  res: "ISM: named_with_do: <p id='branding'>hello world!</p>"
+
 include_part:
   src: "IP: <r:include template='/named/parts' part='sub'/> PI."
   res: "IP: hello world! PI."

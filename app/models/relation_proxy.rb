@@ -1,5 +1,8 @@
 class RelationProxy < Relation
-  attr_accessor   :side, :link_errors, :start, :other_link
+  attr_accessor   :side, :link_errors, :start, :other_link, :last_target
+  LINK_ATTRIBUTES = Zena::Relations::LINK_ATTRIBUTES
+  LINK_ATTRIBUTES_SQL = LINK_ATTRIBUTES.map {|sym| "`#{sym}`"}.join(',')
+  LINK_SELECT     = "nodes.*,links.id AS link_id,#{LINK_ATTRIBUTES.map {|l| "links.#{l} AS l_#{l}"}.join(',')}"
   
   class << self
     
@@ -32,7 +35,7 @@ class RelationProxy < Relation
   # Used by relation_links
   def records(options={})
     return @records if defined? @records
-    opts = { :select     => "nodes.*,links.id AS link_id, links.status AS l_status, links.comment AS l_comment", 
+    opts = { :select     => LINK_SELECT, 
              :joins      => "INNER JOIN links ON nodes.id=links.#{other_side} AND links.relation_id = #{self[:id]} AND links.#{link_side} = #{@start[:id]}",
              :group      => 'nodes.id'}
     
@@ -46,7 +49,7 @@ class RelationProxy < Relation
   # I do not think this method is used anymore (all is done by @node.find(...)).
   def record(options={})
     return @record if defined?(@record) || @start.new_record?
-    opts = { :select     => "nodes.*,links.id AS link_id, links.status AS l_status, links.comment AS l_comment", 
+    opts = { :select     => LINK_SELECT, 
              :joins      => "INNER JOIN links ON nodes.id=links.#{other_side} AND links.relation_id = #{self[:id]} AND links.#{link_side} = #{@start[:id]}",
              :group      => 'nodes.id'}
     
@@ -100,12 +103,10 @@ class RelationProxy < Relation
     (records || []).map { |r| r[:zip] }
   end
   
-  def other_status
-    other_link ? other_link[:status] : nil
-  end
-  
-  def other_comment
-    other_link ? other_link[:comment] : nil
+  LINK_ATTRIBUTES.each do |sym|
+    define_method(sym) do
+      other_link ? other_link[sym] : nil
+    end
   end
   
   def other_role
@@ -121,7 +122,6 @@ class RelationProxy < Relation
   end
   
   # set
-  
   def other_id=(v)
     attributes_to_update[:id] = v.kind_of?(Array) ? v.uniq.compact.map {|v| v.to_i} : (v.blank? ? nil : v.to_i)
   end
@@ -135,12 +135,10 @@ class RelationProxy < Relation
     @links_to_delete << link
   end
   
-  def other_status=(v)
-    attributes_to_update[:status] = v.blank? ? nil : v
-  end
-  
-  def other_comment=(v)
-    attributes_to_update[:comment] = v.blank? ? nil : v
+  LINK_ATTRIBUTES.each do |sym|
+    define_method("other_#{sym}=") do |v|
+      attributes_to_update[sym] = v.blank? ? nil : v
+    end
   end
   
   def this_kpath
@@ -160,7 +158,6 @@ class RelationProxy < Relation
   # 1. can remove old link
   # 2. can write in new target
   def attributes_to_update_valid?
-    debugger if $debbbb
     return true unless @attributes_to_update || @links_to_delete
     
     @link_errors  = []
@@ -173,8 +170,9 @@ class RelationProxy < Relation
       @del_links = @links_to_delete
       @attributes_to_update = {}
     else
+      
       # check if we have an update/create
-      unless @attributes_to_update[:id]
+      unless @attributes_to_update.has_key?(:id)
         # try to find current id/ids
         if @other_link
           @attributes_to_update[:id] = @other_link[other_side]
@@ -198,13 +196,13 @@ class RelationProxy < Relation
       if @attributes_to_update[:id].kind_of?(Array) 
         if unique?
           @link_errors << "Cannot set multiple targets on #{as_unique? ? 'one' : 'many'}-to-one relation '#{this_role}'."
-        elsif @attributes_to_update.has_key?(:status) || @attributes_to_update.has_key?(:comment)
+        elsif (@attributes_to_update.keys & LINK_ATTRIBUTES) != []
           keys = @attributes_to_update.keys
           keys.delete(:id)
           @link_errors << "Cannot set attributes #{keys.join(', ')} on multiple targets."
         end
       end
-    
+      
       return false if @link_errors != []
     
       # 1. find what changed
@@ -216,13 +214,14 @@ class RelationProxy < Relation
         add_link_ids = @attributes_to_update[:id]
 
         # find all current links
+        # TODO: this could be optimzed (avoid loading all links...)
         other_links.each do |link|
           obj_id = link[other_side]
-          if add_link_ids.include?(obj_id)
-            # ignore existing links
+          if add_link_ids.include?(obj_id) && (@attributes_to_update[:date].nil? || @attributes_to_update[:date] == link[:date])
+            # ignore existing link
             add_link_ids.delete(obj_id)
           else
-            # remove unused links
+            # remove unused links / link to replace
             @del_links << link
           end
         end  
@@ -236,34 +235,41 @@ class RelationProxy < Relation
         else
           # other target: replace
           @del_links = [other_link] if other_link
-          @add_links << @attributes_to_update
+          @add_links << @attributes_to_update unless @attributes_to_update[:id].blank?
         end
       else
         # ..-to-many
         # add/update a link
-        if other_ids.include?(@attributes_to_update[:id])
-          # update
-          if @attributes_to_update.has_key?(:status) || @attributes_to_update.has_key?(:comment)
-            other_links.each do |link|
-              if link[other_side] == @attributes_to_update[:id]
-                @update_links << changed_link(link, @attributes_to_update)
-                break
+        # TODO: optimize to avoid loading all links...
+        if @attributes_to_update[:id].blank? && @attributes_to_update[:date]
+          # delete
+          @del_links = other_links.select {|l| @attributes_to_update[:date] == l[:date]}
+        else
+          links = other_links.select {|l| l[other_side] == @attributes_to_update[:id] && (@attributes_to_update[:date].nil? || @attributes_to_update[:date] == l[:date])}
+          if links != []
+            # update
+            if (@attributes_to_update.keys & LINK_ATTRIBUTES) != []
+              links.each do |link|
+                if link[other_side] == @attributes_to_update[:id]
+                  @update_links << changed_link(link, @attributes_to_update)
+                end
               end
             end
+          else
+            # add
+            @add_links << @attributes_to_update
           end
-        else
-          # add
-          @add_links << @attributes_to_update
         end
       end  
     end
     
     # 2. can write in new target ? (and remove targets previous link)
     @add_links.each do |hash|
-      if target = find_target(hash[:id])
+      # last_target is used by "linked_node" from Node to get hold of the last linked node
+      if @last_target = find_target(hash[:id])
         # make sure we can overwrite previous link if as_unique
         if as_unique?
-          if previous_link = Link.find(:first, :conditions => ["relation_id = ? AND #{other_side} = ?", self[:id], target[:id]])
+          if previous_link = Link.find(:first, :conditions => ["relation_id = ? AND #{other_side} = ?", self[:id], @last_target[:id]])
             @del_links << previous_link
           end
         end
@@ -286,7 +292,7 @@ class RelationProxy < Relation
   # Return updated link if changed or nil when nothing changed
   def changed_link(link, attrs)
     changed = false
-    [:status, :comment].each do |sym|
+    LINK_ATTRIBUTES.each do |sym|
       next unless attrs.has_key?(sym)
       if attrs[sym] != link[sym]
         changed = true
@@ -305,10 +311,10 @@ class RelationProxy < Relation
     
     list = []
     @add_links.each do |hash|
-      next unless hash[:id]
-      list << "(#{self[:id]},#{@start[:id]},#{hash[:id]},#{Link.connection.quote(hash[:status])},#{Link.connection.quote(hash[:comment])})"
+      next if hash[:id].blank?
+      list << "(#{self[:id]},#{@start[:id]},#{hash[:id]},#{LINK_ATTRIBUTES.map{|sym| Link.connection.quote(hash[sym])}.join(',')})"
     end
-    Link.connection.execute "INSERT INTO links (`relation_id`,`#{link_side}`,`#{other_side}`,`status`,`comment`) VALUES #{list.join(',')}"
+    Link.connection.execute "INSERT INTO links (`relation_id`,`#{link_side}`,`#{other_side}`,#{LINK_ATTRIBUTES_SQL}) VALUES #{list.join(',')}"
     @attributes_to_update = nil
     @links_to_delete      = nil
     remove_instance_variable(:@records)     if defined?(@records)
