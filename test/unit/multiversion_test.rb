@@ -1,6 +1,8 @@
 require File.dirname(__FILE__) + '/../test_helper'
 
-class MultiVersionTest < ZenaTestUnit
+class MultiVersionTest < ActiveSupport::TestCase
+  include Zena::Test::Unit
+  def setup; login(:anon); end
   
   def node_defaults
     {
@@ -20,13 +22,14 @@ class MultiVersionTest < ZenaTestUnit
   end
   
   def test_find_version
-    login(:tiger) # can_drive?
+    login(:tiger) # can_drive
     node = secure!(Node) { nodes(:lake) }
     assert_equal versions_id(:lake_en), node.version(1)[:id]
     node = secure!(Node) { nodes(:lake) } # reload
     assert_raise(ActiveRecord::RecordNotFound) { node.version(2) } # redaction from ant
     Node.connection.execute "UPDATE versions set status = #{Zena::Status[:prop]} where id = #{versions_id(:lake_red_en)}"
     assert_equal versions_id(:lake_red_en), node.version(2)[:id] 
+    assert_equal versions_id(:lake_red_en), node.version[:id]
     node = secure!(Node) { nodes(:lake) } # reload
     assert_raise(ActiveRecord::RecordNotFound) { node.version(7) }
     login(:ant)
@@ -58,46 +61,6 @@ class MultiVersionTest < ZenaTestUnit
     assert_equal 4, node.versions.size
   end
   
-  def test_remove_attributes_with_same_value
-    login(:ant)
-    node = secure!(Node) { nodes(:status) }
-    current = { :name => "status",
-      :position => "0",
-      :v_publish_from => "2006-03-10",
-      :v_summary => "status summary",
-      :v_text => "status text",
-      :v_title => "Etat des travaux"}
-    assert_equal Hash[:v_title=>'hey', :d_what=>'ever', :position => nil], node.remove_attributes_with_same_value(current.merge(:v_title=>'hey', :d_what=>'ever', :position => ''))
-  end
-  
-  def test_remove_attributes_with_same_value_empty_date
-    login(:ant)
-    node = secure!(Node) { nodes(:status) }
-    current = { :name => "status",
-      :position => "0",
-      :v_publish_from => "2006-03-10",
-      :v_summary => "status summary",
-      :v_text => "status text",
-      :v_title => "Etat des travaux"}
-    assert_equal Hash[:v_title=>'hey', :d_what=>'ever', :v_publish_from=>nil], node.remove_attributes_with_same_value(current.merge(:v_title=>'hey', :d_what=>'ever', :v_publish_from=>nil))  
-    assert_equal Hash[:v_title=>'hey', :d_what=>'ever', :v_publish_from=>''], node.remove_attributes_with_same_value(current.merge(:v_title=>'hey', :d_what=>'ever', :v_publish_from=>''))
-  end
-  
-  def test_remove_attributes_with_same_value_bad_attribute
-    # should not call the method if unsafe !
-    login(:ant)
-    node = secure!(Node) { nodes(:status) }
-    current = { :name => "status",
-      :position => "0",
-      :v_publish_from => "2006-03-10",
-      :v_summary => "status summary",
-      :v_text => "status text",
-      :v_title => "Etat des travaux"}
-    res = {}
-    assert_nothing_raised { res = node.remove_attributes_with_same_value(current.merge(:raise=>'mean idea')) }
-    assert_equal Hash[], res
-  end
-  
   def test_update_same_attributes
     login(:tiger)
     visitor.lang = 'en'
@@ -105,8 +68,8 @@ class MultiVersionTest < ZenaTestUnit
     v_id = node.v_id
     v_nu = node.v_number
     assert node.update_attributes(:v_title => node.v_title, :name => 'satori')
-    assert_equal v_id, node.v_id
     assert_equal v_nu, node.v_number
+    assert_equal v_id, node.v_id
     assert_equal 'satori', node.name
   end
   
@@ -123,7 +86,7 @@ class MultiVersionTest < ZenaTestUnit
     content = Struct.new(:hello, :name).new('hello', 'guys')
     login(:tiger)
     node = secure!(Node) { nodes(:zena) }
-    node.edit!
+    node.version_attributes = {'comment' => 'hop hop'}
     node.version.instance_eval { @content = @redaction_content = content; def content_class; @content.class; end }
     assert_equal 'hello', node.c_hello
     assert_equal 'guys', node.c_name
@@ -245,7 +208,7 @@ class MultiVersionTest < ZenaTestUnit
     login(:tiger)
     visitor.lang = 'es'
     node = secure!(Node) { nodes(:status) }
-    node.v_title = 'labias'
+    node.version_attributes = {'title' => 'labias'}
     assert_equal 'es', node.v_lang
     assert_equal 'labias', node.v_title
     assert node.v_new_record?
@@ -295,14 +258,6 @@ class MultiVersionTest < ZenaTestUnit
     assert node2.can_edit?
   end
   
-  def test_do_edit
-    login(:ant)
-    node = secure_write(Node) { nodes(:wiki)  }
-    node.edit!
-    assert_equal Zena::Status[:red], node.v_status
-    assert node.v_new_record?
-  end
-  
   def test_update_without_fuss
     login(:tiger)
     node = secure!(Node) { nodes(:wiki) }
@@ -324,14 +279,13 @@ class MultiVersionTest < ZenaTestUnit
   def test_update_new_red
     login(:ant)
     node = secure_write(Node) { nodes(:wiki)  }
-    assert node.edit! , "Edit succeeds"
-    attrs = { :v_comment=>"hey I'm new !", :v_title=>"super new" }
+    attrs = { :v_comment=>"hey I'm new !", :v_title=>"new" }
     assert node.update_attributes( attrs ) , "Edit succeeds"
     assert ! node.v_new_record? , "Not a new redaction"
-    assert_equal "super new", node.v_title
+    assert_equal "new", node.v_title
     # find it
     node = secure_write(Node) { nodes(:wiki)  }
-    assert node.edit! , "Edit succeeds"
+    node.attributes = {'v_title' => 'super new'}
     assert_equal "hey I'm new !", node.v_comment
     assert_equal "super new", node.v_title
     assert_equal Zena::Status[:red], node.v_status
@@ -344,7 +298,6 @@ class MultiVersionTest < ZenaTestUnit
     login(:tiger)
     visitor.lang = "fr"
     node = secure_write(Node) { nodes(:wiki)  }
-    assert ! node.edit! , "Edit fails"
     assert ! node.update_attributes( :v_title=>"Mon amour") , "Edit fails"
     
     # can add redactions for different languages
@@ -360,14 +313,13 @@ class MultiVersionTest < ZenaTestUnit
     login(:ant)
     visitor.lang = 'en'
     node = secure_write(Node) { nodes(:lake)  }
-    assert node.edit! , "Edit succeeds"
-    assert_equal "The lake we love", node.v_title
+    node.attributes = {'v_title' => 'hop'}
+    assert_equal "hop", node.v_title
     assert_equal Zena::Status[:red], node.v_status
     attrs = { :v_comment=>"hey I'm new !", :v_title=>"super new" }
     assert node.update_attributes( attrs ) , "Edit succeeds"
     
     node = secure_write(Node) { nodes(:lake)  }
-    assert node.edit! , "Edit succeeds"
     assert_equal "hey I'm new !", node.v_comment
     assert_equal "super new", node.v_title
     assert_equal Zena::Status[:red], node.v_status
@@ -376,8 +328,6 @@ class MultiVersionTest < ZenaTestUnit
   def test_update_attributes_bad_user
     login(:tiger)
     node = secure_write(Node) { nodes(:lake)  }
-    assert ! node.edit! , "Edit fails"
-    assert_equal Zena::Status[:pub], node.v_status
     attrs = { :v_comment=>"hey I'm new !", :v_title=>"super new" }
     assert ! node.update_attributes( attrs ) , "Edit fails"
   end
@@ -398,7 +348,7 @@ class MultiVersionTest < ZenaTestUnit
     node = secure!(Node) { nodes(:lake_jpg)  }
     attrs = { :inherit=>0, :rgroup_id => groups_id(:managers), :v_title => "Manager's lake", :v_lang => 'ru'}
     assert !node.update_attributes( attrs )
-    assert_equal 'not valid', node.errors[:v_lang]
+    assert_equal 'not valid', node.errors['version_lang']
     visitor.site.languages = 'en,fr,ru'
     assert node.update_attributes( attrs )
     assert_equal groups_id(:managers), node.rgroup_id
@@ -448,22 +398,20 @@ class MultiVersionTest < ZenaTestUnit
     login(:ant)
     visitor.lang = 'en'
     node = secure!(Node) { nodes(:lake)  }
-    node.edit!
+    node.version_attributes = {'title' => 'new test'}
     version_id = node.v_id
-    assert_equal "The lake we love", node.v_title
+    assert_equal "new test", node.v_title
     assert_equal versions_id(:lake_red_en), version_id
     # edit node with form...
     # post modifications
     node = secure!(Node) { Node.version(node.v_id) }
-    #assert node.update_attributes( :v_title => "Funny lake" ) , "Edit succeeds"
+    assert node.update_attributes( :v_title => "Funny lake" )
     
-    node.update_attributes( :v_title => "Funny lake" )
-    err node
     assert_equal "Funny lake", node.v_title
     assert_equal version_id, node.v_id
     # find redaction again
     node = secure!(Node) { nodes(:lake)  }
-    node.edit!
+    node.version_attributes = {'comment' => 'folami'}
     assert_equal "Funny lake", node.v_title
     assert_equal version_id, node.v_id
   end
@@ -527,7 +475,6 @@ class MultiVersionTest < ZenaTestUnit
     assert node.update_attributes( :v_title => "Joli petit lac" )
     assert node.can_publish?
     assert node.publish
-    node = secure!(Node) { nodes(:lake)  } # reload
     assert_equal 2, node.editions.size, "English and french editions"
     assert_equal ["en", "fr"], node.traductions.map{|t| t[:lang]}.sort
   end
@@ -538,8 +485,11 @@ class MultiVersionTest < ZenaTestUnit
     assert !node.new_record?
     assert node.publish
     vers_number = node.v_number
+    Site.connection.execute "UPDATE sites set redit_time = 60 WHERE id = #{sites_id(:zena)}"
     login(:lion)
     node = secure!(Page) { Page.find(node[:id])}
+    # could auto_publish but not same author
+    $degg = true
     assert node.update_attributes(:v_text => 'lion', :v_status => Zena::Status[:pub])
     assert_equal Zena::Status[:pub], node.v_status
     assert_equal 2, node.v_number
@@ -572,6 +522,7 @@ class MultiVersionTest < ZenaTestUnit
     assert_equal Zena::Status[:rem], node.v_status
     assert_equal Zena::Status[:pub], node.max_status
     node = secure!(Node) { nodes(:status)  }
+    # get version in other lang
     assert_equal Zena::Status[:pub], node.v_status
     assert node.unpublish # remove publication
     assert_equal Zena::Status[:rem], node.v_status
@@ -588,9 +539,8 @@ class MultiVersionTest < ZenaTestUnit
     assert !node.can_publish?, "Cannot publish (not private)"
     assert !node.publish, "Cannot publish"
     
-    node.errors.clear
+    node.update_attributes(:inherit=>-1, :v_status => Zena::Status[:red]) # previous 'node.publish' tried to publish node
     
-    assert node.update_attributes(:inherit=>-1)
     assert node.can_drive?, "Can drive"
     assert node.can_manage?, "Can manage"
     assert node.can_publish?, "Can publish (private)"
@@ -642,7 +592,7 @@ class MultiVersionTest < ZenaTestUnit
     node = secure!(Node) { nodes(:lake) }
     assert node.publish, "Can publish"
     assert_equal Zena::Status[:pub], node.v_status
-    assert !node.redit, "Can re-edit node" # not the owner
+    assert !node.redit, "Cannot re-edit node" # not the owner
     
     login(:ant)
     visitor.lang = 'en'
@@ -688,7 +638,7 @@ class MultiVersionTest < ZenaTestUnit
     trad = node.traductions
     assert_equal 2, trad.size
     trad_node = trad[0].node
-    assert_equal node.object_id, trad_node.object_id # make sure object is not reloaded and not secured
+    assert_equal node.object_id, trad_node.target.object_id # make sure object is not reloaded and not secured
     assert_equal 'en', node.v_lang
     assert_equal 'fr', trad[1][:lang]
     node = secure!(Node) { nodes(:wiki) }
@@ -849,26 +799,26 @@ class MultiVersionTest < ZenaTestUnit
     assert_equal 'Puma', node.v_title
   end
   
-  def test_auto_publish_in_redit_time_new_proposition
+  def test_auto_publish_in_redit_time_new_redaction
     # set site.auto_publish      ===> publish
-    # now < updated + redit_time ===> update current proposition
+    # now < updated + redit_time ===> refuse
     Site.connection.execute "UPDATE sites set auto_publish = 1, redit_time = 7200 WHERE id = #{sites_id(:zena)}"
     Version.connection.execute "UPDATE versions set updated_at = '#{Time.now.strftime('%Y-%m-%d %H:%M:%S')}' WHERE id = #{versions_id(:status_en)}"
     login(:ant)
     visitor.lang = 'en'
     node = secure!(Node) { nodes(:status) }
-    assert_equal Zena::Status[:pub], node.v_status
-    assert_equal 'status title', node.v_title
-    assert_equal 1, node.v_number
-    assert_equal users_id(:ant), node.v_user_id
+    assert_equal Zena::Status[:pub], node.version.status
+    assert_equal 'status title', node.version.title
+    assert_equal 1, node.version.number
+    assert_equal users_id(:ant), node.version.user_id
     assert !node.can_publish?
-    assert node.v_updated_at < Time.now + 600
-    assert node.v_updated_at > Time.now - 600
+    assert node.version.updated_at < Time.now + 600
+    assert node.version.updated_at > Time.now - 600
     assert node.update_attributes(:v_title => "Statues are better")
-    assert_equal Zena::Status[:red], node.v_status
-    assert_equal 3, node.v_number
-    assert_not_equal versions_id(:status_en), node.v_id
-    assert_equal 'Statues are better', node.v_title
+    assert_equal Zena::Status[:red], node.version.status
+    assert_equal 3, node.version.number
+    assert_not_equal versions_id(:status_en), node.version.id
+    assert_equal 'Statues are better', node.version.title
   end
   
   def test_auto_publish_in_redit_time_updates_proposition
@@ -886,11 +836,8 @@ class MultiVersionTest < ZenaTestUnit
     assert !node.can_publish?
     assert node.v_updated_at < Time.now + 600
     assert node.v_updated_at > Time.now - 600
-    assert node.update_attributes(:v_title => "Statues are better")
-    assert_equal Zena::Status[:prop], node.v_status
-    assert_equal 1, node.v_number
-    assert_equal versions_id(:status_en), node.v_id
-    assert_equal 'Statues are better', node.v_title
+    assert !node.update_attributes(:v_title => "Statues are better")
+    assert_equal 'You cannot edit while you have a proposition waiting for approval.', node.errors.on('base')
   end
   
   def test_create_auto_publish

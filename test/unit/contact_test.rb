@@ -1,6 +1,8 @@
 require File.dirname(__FILE__) + '/../test_helper'
 
-class ContactTest < ZenaTestUnit
+class ContactTest < ActiveSupport::TestCase
+  include Zena::Test::Unit
+  def setup; login(:anon); end
 
   def test_user
     login(:anon)

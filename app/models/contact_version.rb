@@ -19,7 +19,7 @@ class ContactVersion < Version
   
   private
     def contact_version_before_validation
-      if self[:title].blank?
+      if self.title.blank?
         self.title = content.fullname 
       elsif content.fullname.blank?
         if self.title =~ /^(\S+)\s+(.*)$/

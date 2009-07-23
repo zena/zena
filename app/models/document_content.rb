@@ -12,8 +12,11 @@ content_type::    file content_type
 =end
 class DocumentContent < ActiveRecord::Base
   act_as_content
-  zafu_readable         :size, :name, :content_type, :ext
-  safe_attribute        :file
+  # readable
+  attr_public           :size, :name, :content_type, :ext, :file
+  
+  # writable
+  attr_accessible       :content_type, :file
 
   belongs_to            :site
   validate              :valid_file
@@ -39,7 +42,7 @@ class DocumentContent < ActiveRecord::Base
     if @file
       @file
     elsif File.exist?(filepath(mode))
-      File.new(filepath(mode))
+      @loaded_file ||= File.new(filepath(mode))
     else
       raise IOError, "File not found"
     end
@@ -70,8 +73,23 @@ class DocumentContent < ActiveRecord::Base
     0 == self.class.count_by_sql("SELECT COUNT(*) FROM versions WHERE id = #{self[:version_id]} OR content_id = #{self[:version_id]}")
   end
   
-  private
+  # Return true if the version would be edited by the attributes
+  def would_edit?(new_attrs)
+    new_attrs.each do |k,v|
+      if k == 'file'
+        return true if (v.respond_to?(:size) ? v.size : File.size(v.path)) != self.size
+        same = v.read(24) == self.file.read(24) && v.read == self.file.read
+        v.rewind
+        self.file.rewind
+        return true if !same
+      elsif self.class.attr_public?(k.to_s)
+        return true if field_changed?(k, self.send(k), v)
+      end
+    end
+    false
+  end
   
+  private
     def valid_file
       return true if !new_record? || @file
       errors.add('file', "can't be blank")

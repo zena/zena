@@ -1,6 +1,8 @@
 require File.dirname(__FILE__) + '/../test_helper'
 
-class CacheTest < ZenaTestUnit
+class CacheTest < ActiveSupport::TestCase
+  include Zena::Test::Unit
+  def setup; login(:anon); end
   
   def setup
     super

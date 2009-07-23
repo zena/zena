@@ -1,6 +1,8 @@
 require File.dirname(__FILE__) + '/../test_helper'
 require 'fileutils'
-class DocumentTest < ZenaTestUnit
+class DocumentTest < ActiveSupport::TestCase
+  include Zena::Test::Unit
+  def setup; login(:anon); end
   
   def test_create_with_file
     without_files('/test.host/data') do
@@ -204,7 +206,6 @@ class DocumentTest < ZenaTestUnit
       assert doc.unpublish
       assert doc.can_destroy_version?
       assert doc.destroy_version
-      err doc
       doc = secure!(Node) { nodes(:water_pdf) }
       assert File.exist?(filepath)
       assert_equal content_id, doc.c_id # shared content note destroyed

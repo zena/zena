@@ -7,7 +7,7 @@ class Skin < Section
   private
   
     def set_need_skin_name_update
-      @need_skin_name_update = !new_record? && (self[:name] != old[:name])
+      @need_skin_name_update = !new_record? && name_changed?
       true # save can continue
     end
     

@@ -1,0 +1,39 @@
+==== start server with mongrel upload progress (done through mongrel)
+> lib/upload_progress_server.rb start
+> mongrel_rails start -s config/mongrel_upload_progress.conf
+
+==== development using passenger
+Install version >= 2.1.1, install mod_upload_progress (file in vendor/apache_upload)
+
+example config:
+-------------------
+ServerName test.host
+
+LoadModule upload_progress_module libexec/apache2/mod_upload_progress.so
+LoadModule passenger_module /Users/gaspard/git/passenger/ext/apache2/mod_passenger.so
+PassengerRoot /Users/gaspard/git/passenger
+PassengerRuby /System/Library/Frameworks/Ruby.framework/Versions/1.8/usr/bin/ruby
+
+<VirtualHost test.host>
+    ServerName test.host
+    DocumentRoot /Users/gaspard/git/zena/sites/test.host/public
+    CustomLog "/Users/gaspard/git/zena/sites/test.host/log/access.log" common
+    ErrorLog "/Users/gaspard/git/zena/sites/test.host/log/error.log"
+    
+    PassengerAppRoot /Users/gaspard/git/zena
+    RailsEnv production
+    
+    <Directory /Users/gaspard/git/zena/sites/test.host/public>
+      Order deny,allow
+      Allow from all
+    </Directory>
+    
+    <Location />
+        TrackUploads On
+    </Location>
+
+    <Location /upload_progress>
+        ReportUploads On
+    </Location>
+</VirtualHost>
+-------------------

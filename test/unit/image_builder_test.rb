@@ -1,9 +1,11 @@
 require File.dirname(__FILE__) + '/../test_helper'
 
-class ImageBuilderTest < ZenaTestUnit
+class ImageBuilderTest < ActiveSupport::TestCase
+  include Zena::Test::Unit
+  def setup; login(:anon); end
   
   # Dummy tests
-  if Magick.const_defined?(:ZenaDummy)
+  if ImageBuilder.dummy?
     def test_dummy
       img = nil
       assert_nothing_raised { img = ImageBuilder.new(:path=>uploaded_jpg('bird.jpg').path, :width=>100, :height=>30) }

@@ -28,20 +28,23 @@ If a we need to create a more sophisticated version class, all the required fiel
 #DocumentContent stores document type and size for #DocumentVersion. See #Document for the details on the relation between Version and Content.
 =end
 class Version < ActiveRecord::Base
-
-  zafu_readable      :title, :text, :summary, :comment, :created_at, :updated_at, :publish_from, :status, 
+  
+  # readable
+  attr_public        :title, :text, :summary, :comment, :created_at, :updated_at, :publish_from, :status, 
                      :wgroup_id, :pgroup_id, :zip, :lang, :user_zip
-                     
+  # writable
+  attr_accessible    :title, :text, :summary, :comment, :publish_from, :lang, :status, :content_attributes, :dyn_attributes
   zafu_context       :author => "Contact", :user => "User", :node => "Node"
   
   belongs_to            :node
   belongs_to            :user
   before_validation     :version_before_validation
-  validates_presence_of :user
+  validates_presence_of :user, :site_id
   validate              :valid_version
   after_save            :save_content
   after_destroy         :destroy_content
   before_create         :set_number
+
   uses_dynamic_attributes
   
   class << self
@@ -55,11 +58,10 @@ class Version < ActiveRecord::Base
   def author
     user.contact
   end
-  
-  alias o_node node
-  
-  def node
-    @node ||= secure(Node) { o_node }
+    
+  # FIXME: This should not be needed ! Remove when find by id is cached.
+  def set_node(node)
+    @node ||= node
   end
   
   def user_zip
@@ -69,26 +71,7 @@ class Version < ActiveRecord::Base
   def zip
     "#{node.zip}.#{number}"
   end
-  
-  # Return the title or the node's name if the field is empty.
-  def title
-    if self[:title] && self[:title] != ""
-      self[:title]
-    else
-      node[:name]
-    end
-  end
-  
-  # protect access to node_id : should not be changed by users
-  def node_id=(i)
-    raise Zena::AccessViolation, "Version '#{self.id}': tried to change 'node_id' to '#{i}'."
-  end
-  
-  # protect access to content_id
-  def content_id=(i)
-    raise Zena::AccessViolation, "Version '#{self.id}': tried to change 'content_id' to '#{i}'."
-  end
-  
+    
   # Return the content for the version. Can it's 'own' content or the same as the version this one was copied from.
   def content
     return nil unless content_class
@@ -137,20 +120,67 @@ class Version < ActiveRecord::Base
     @redaction_content = @content
   end
   
-  def clone
-    obj = super
-    # clone dynamic attributes
-    obj.dyn = self.dyn
-    obj
-  end
-  
   def content_class
     self.class.content_class
   end
   
+  def content_attributes=(h)
+    if redaction_content
+      redaction_content.attributes = h
+    else
+      # ignore
+    end
+  end
+  
+  # Return a new redaction from this version
+  def clone(new_attrs)
+    attrs = self.attributes.merge({
+      # set defaults
+      'status'       => Zena::Status[:red],
+      'user_id'      => nil,
+      'type'         => nil,
+      'node_id'      => nil,
+      'number'       => nil,
+      'created_at'   => nil,
+      'updated_at'   => nil,
+      'content_id'   => nil,
+      'id'           => nil,
+      'lang'         => visitor.lang,
+    }).reject {|k,v| v.nil? || k =~ /_ok$/}
+    v = self.class.new(attrs.merge(new_attrs))
+    v.content_id = content_id || id if content_class
+    v.user_id    = visitor.id
+    v.node       = self.node
+    v.dyn        = self.dyn
+    v
+  end
+  
+  # Return true if the version would be edited by the attributes
+  def would_edit?(new_attrs)
+    new_attrs.each do |k,v|
+      next if ['status', 'publish_from'].include?(k.to_s)
+      if self.class.attr_public?(k.to_s)
+        return true if field_changed?(k, self.send(k), v)
+      elsif k.to_s == 'content_attributes'
+        return true if content.would_edit?(v)
+      end
+    end
+    false
+  end
+  
+  # Return true if the version has been edited (not just status / publication date change)
+  # TODO: test
+  def edited?
+    new_record? || (changes.keys - ['status', 'publish_from'] != []) || (@redaction_content && @redaction_content.changed?)
+  end
+  
+  def should_save?
+    new_record? || changed? || (@redaction_content && @redaction_content.changed?)
+  end
+  
   private
     def set_number
-      last_record = node[:id] ? self.connection.select_one("select number from #{self.class.table_name} where node_id = '#{node[:id]}' ORDER BY number DESC LIMIT 1") : nil
+      last_record = node.id ? self.connection.select_one("select number from #{self.class.table_name} where node_id = '#{node[:id]}' ORDER BY number DESC LIMIT 1") : nil
       self[:number] = (last_record || {})['number'].to_i + 1
     end
     
@@ -169,20 +199,20 @@ class Version < ActiveRecord::Base
   
     # Set version number and site_id before validation tests.
     def version_before_validation
-      unless node
-        errors.add('base', 'node missing')
-        return false
-      end
-      self[:site_id] = node[:site_id]
+      self[:site_id] = visitor.site.id
     
       # [ why do we need these defaults now ? (since rails 1.2)
-      self[:text]    ||= ""
-      self[:title]   ||= node[:name]
-      self[:summary] ||= ""
-      self[:comment] ||= ""
-      self[:type]    ||= self.class.to_s
-      # ]
-      self[:lang] = visitor.lang if self[:lang].blank?
+      self.text    ||= ""
+      self.title     = node.name if self.title.blank?
+      self.summary ||= ""
+      self.comment ||= ""
+      self.type    ||= self.class.to_s
+      
+      self.lang      = visitor.lang if self.lang.blank?
+      self.status  ||= current_site.auto_publish? ? Zena::Status[:pub] : Zena::Status[:red]
+      self.publish_from ||= Time.now if self.status == Zena::Status[:pub]
+      self.user_id = visitor[:id] if new_record?
+      
       if @content
         @content[:site_id] = self[:site_id]
       end
@@ -190,15 +220,16 @@ class Version < ActiveRecord::Base
   
     # Make sure the version and it's related content are in a correct state.
     def valid_version
-      errors.add("site_id", "can't be blank") unless self[:site_id] and self[:site_id] != ""
       errors.add('lang', 'not valid') unless visitor.site.lang_list.include?(self[:lang])
       # validate content
+      # TODO: we could use autosave here
       if @content && !@content.valid?
-        @content.errors.each do |key,message|
-          if key.to_s == 'base'
-            errors.add(key.to_s,message)
+        @content.errors.each do |attribute,message|
+          if attribute.to_s == 'base'
+            errors.add_to_base(message)
           else
-            errors.add("c_#{key}",message)
+            attribute = "content_#{attribute}"
+            errors.add(attribute, message) unless errors.on(attribute)
           end
         end
       

@@ -32,6 +32,12 @@ module Zena
       @options = opts
     end
     
+    def attributes=(attrs)
+      attrs.each do |k,v|
+        self[k] = v
+      end
+    end
+    
     def [](key)
       return nil unless valid_key?(key)
       hash[key.to_s]
@@ -192,6 +198,10 @@ module Zena
           else
             dyn.update_with(dyn_attributes)
           end
+        end
+        
+        def dyn_attributes=(attributes)
+          dyn.attributes = attributes
         end
         
         private

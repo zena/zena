@@ -1,5 +1,4 @@
 class DocumentsController < ApplicationController
-  session :off, :only => :upload_progress
   before_filter :find_node, :except => [ :file_form, :upload_progress ]
   
   skip_before_filter :set_lang,      :only => :upload_progress
@@ -56,19 +55,37 @@ class DocumentsController < ApplicationController
   end
   
   def upload_progress
+    # mimic apache2 mod_upload_progress
+    # 
+    # if (!found) {
+    #   response = apr_psprintf(r->pool, "new Object({ 'state' : 'starting' })");
+    # } else if (err_status >= HTTP_BAD_REQUEST  ) {
+    #   response = apr_psprintf(r->pool, "new Object({ 'state' : 'error', 'status' : %d })", err_status);
+    # } else if (done) {
+    #   response = apr_psprintf(r->pool, "new Object({ 'state' : 'done' })");
+    # } else if ( length == 0 && received == 0 ) {
+    #   response = apr_psprintf(r->pool, "new Object({ 'state' : 'starting' })");
+    # } else {
+    #   response = apr_psprintf(r->pool, "new Object({ 'state' : 'uploading', 'received' : %d, 'size' : %d, 'speed' : %d  })", received, length, speed);
+    # }
     render :update do |page|
-      @status = Mongrel::Uploads.check(params[:upload_id])
-      page.upload_progress.update(@status[:size], @status[:received]) if @status
+      @status = Mongrel::Uploads.check(params[:"X-Progress-ID"])
+      if @status
+        if @status[:received] != @status[:size]
+          page << "new Object({ 'state' : 'uploading', 'received' : #{@status[:received]}, 'size' : #{@status[:size]} })"
+        else
+          page << "new Object({ 'state' : 'done' })"
+        end
+      else
+        #page << "new Object({ 'state' : 'done' })"
+      end
     end
   end
   
   # TODO: test
   # display an upload field.
   def file_form
-    render :inline=>"<%= link_to_function(_('cancel'), \"['file', 'file_form'].each(Element.toggle);$('file_form').innerHTML = '';\")%><%= file_field 'node', 'c_file', :size=>15 %>"
-    #respond_to do |format|
-    #  format.html { render :inline=>"<%= link_to_function(_('cancel'), \"['file', 'file_form'].each(Element.toggle);$('file_form').innerHTML = '';\")%><%= file_field 'node', 'c_file', :size=>15 %>" }
-    #end
+    render :inline=>"<%= link_to_function(_('cancel'), \"['file', 'file_form'].each(Element.toggle);$('file_form').innerHTML = '';\")%><input id='attachment#{params[:uuid]}' name='attachment' class='file' type='file' />"
   end
   
   # TODO: test
@@ -94,7 +111,7 @@ class DocumentsController < ApplicationController
     
     def create_document
       attrs = params['node']
-      attrs['c_file'] = params['data'] if params['data'] # upload-progress needs 'data' as name
+      attrs['c_file'] = params['attachment'] if params['attachment']
       attrs[:klass] ||= 'Document'
       if attrs['c_file'].kind_of?(String)
         attrs['c_file'] = StringIO.new(attrs['c_file'])

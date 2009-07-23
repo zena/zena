@@ -1,5 +1,4 @@
 # gettext custom strings (dynamically constructed. please add a comment for the context where the string is used)
-require 'gettext'
 module Zena
   def CustomGettext
     N_('help_tab')  # edit form tab name

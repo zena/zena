@@ -1,5 +1,5 @@
 <table cellspacing="0" id='versions'>
-  <%= render_to_string :partial=>'versions/tr', :collection=>@node.versions %>
+  <%= render :partial=>'versions/tr', :collection=>@node.versions %>
   <tr class='diff'>
     <td class="box"></td>
     <td class="box"><a class='diff' href="#" onclick="opener.Zena.version_diff(<%= @node[:id]%>, diff_from, diff_to); return false;"><%= _('btn_diff') %></a></td>

@@ -1,6 +1,8 @@
 require File.dirname(__FILE__) + '/../test_helper'
 
-class ImageVersionTest < ZenaTestUnit
+class ImageVersionTest < ActiveSupport::TestCase
+  include Zena::Test::Unit
+  def setup; login(:anon); end
   
   def test_set_image_text
     without_files('data/test/jpg') do

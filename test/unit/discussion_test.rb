@@ -1,6 +1,8 @@
 require File.dirname(__FILE__) + '/../test_helper'
 
-class DiscussionTest < ZenaTestUnit
+class DiscussionTest < ActiveSupport::TestCase
+  include Zena::Test::Unit
+  def setup; login(:anon); end
 
   def test_comments
     discussion = Discussion.find(discussions_id(:inside_discussion_on_status))

@@ -1,6 +1,8 @@
 require File.dirname(__FILE__) + '/../test_helper'
 
-class TemplateVersionTest < ZenaTestUnit
+class TemplateVersionTest < ActiveSupport::TestCase
+  include Zena::Test::Unit
+  def setup; login(:anon); end
   def test_truth
     assert true
   end

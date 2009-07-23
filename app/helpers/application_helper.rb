@@ -4,6 +4,8 @@ require 'tempfile'
 # Methods added to this helper will be available to all templates in the application.
 module ApplicationHelper
   include Zena::Acts::Secure
+  include WillPaginate::ViewHelpers 
+
   @@_asset_methods = {}
   
   # define an asset method ('key' => method_name).
@@ -22,6 +24,13 @@ module ApplicationHelper
       @dom_id || params[:udom_id] || params[:dom_id]
     end
   end
+  
+  # Enable translations for will_paginate
+  def will_paginate_with_i18n(collection, options = {}) 
+  will_paginate_without_i18n(collection, options.merge(:prev_label => _('img_prev_page'), :next_label => _('img_next_page'))) 
+  end 
+
+  alias_method_chain :will_paginate, :i18n
   
   # RJS to update a page after create/update/destroy
   def update_page_content(page, obj)
@@ -132,6 +141,22 @@ module ApplicationHelper
   
   def javascript_end
     "\n// ]]>\n</script>"
+  end
+  
+  def upload_form_tag(url_opts, html_opts = {})
+    @uuid = UUID.random_create.to_s.gsub('-','')
+    html_opts.reverse_merge!(:multipart => true, :id => "UploadForm#{@uuid}")
+    if html_opts[:multipart]
+      html_opts[:onsubmit] = "submitUploadForm('#{html_opts[:id]}', '#{@uuid}');"
+      url_opts[UPLOAD_KEY] = @uuid
+    end
+    if block_given?
+      form_tag( url_opts, html_opts ) do |f|
+        yield(f)
+      end
+    else
+      form_tag( url_opts, html_opts )
+    end
   end
   
   # Date selection tool
@@ -1321,6 +1346,7 @@ ENDTXT
   private
   
   # This lets helpers render partials
+  # TODO: make sure this is the best way to handle this problem.
   def render_to_string(*args)
     @controller.send(:render_to_string, *args)
   end
@@ -1443,4 +1469,5 @@ ENDTXT
     end
   end
 end
-load_patches_from_bricks
+
+Bricks::Patcher.apply_patches

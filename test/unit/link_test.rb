@@ -1,6 +1,8 @@
 require File.dirname(__FILE__) + '/../test_helper'
 
-class LinkTest < ZenaTestUnit
+class LinkTest < ActiveSupport::TestCase
+  include Zena::Test::Unit
+  def setup; login(:anon); end
 
   def test_link_through
     node = secure!(Node) { nodes(:cleanWater) }

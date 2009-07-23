@@ -127,8 +127,9 @@ and the 'photos' url is now in the worldTour project's basepath:
 Setting 'custom_base' on a node should be done with caution as the node's zip is on longer in the url and when you move the node around, there is no way to find the new location from the old url. Custom_base should therefore only be used for nodes that are not going to move.
 =end
 class Node < ActiveRecord::Base
+  include Zena::Use::RoutableAttributes
   attr_accessor      :old_title
-  zafu_readable      :name, :created_at, :updated_at, :event_at, :log_at, :kpath, :user_zip, :parent_zip, :project_zip,
+  attr_public        :name, :created_at, :updated_at, :event_at, :log_at, :kpath, :user_zip, :parent_zip, :project_zip,
                      :section_zip, :skin, :ref_lang, :fullpath, :rootpath, :position, :publish_from, :max_status, :rgroup_id, 
                      :wgroup_id, :pgroup_id, :basepath, :custom_base, :klass, :zip, :score, :comments_count,
                      :custom_a, :custom_b, :title, :text,
@@ -145,9 +146,12 @@ class Node < ActiveRecord::Base
                      :data_d => {:node_class => ["DataEntry"], :data_root => 'node_d'}
                      
   has_many           :discussions, :dependent => :destroy
+  has_many           :links
   has_and_belongs_to_many :cached_pages
   belongs_to         :virtual_class, :foreign_key => 'vclass_id'
   belongs_to         :site
+  before_validation  :node_before_validation  # run our 'before_validation' after 'secure'
+  validates_presence_of :name
   validate           :validate_node
   before_create      :node_before_create
   before_save        :change_klass
@@ -155,12 +159,18 @@ class Node < ActiveRecord::Base
   after_save         :clear_children_fullpath
   after_create       :node_after_create
   attr_protected     :site_id, :zip, :id, :section_id, :project_id, :publish_from, :max_status
-  attr_protected     :c_version_id, :c_node_id # TODO: test
+  #attr_accessible    :version_content
+  
+  attr_route %r{^v_(\w+)} => 'version'
+  attr_route %r{^c_(\w+)} => 'version/content'
+  attr_route %r{^d_(\w+)} => 'version/dyn'
+  
   acts_as_secure_node
   acts_as_multiversioned
+  
   use_node_query
-  has_relations
-  before_validation  :node_before_validation  # run our 'before_validation' after 'secure'
+  use_relations
+  
   
   @@native_node_classes = {'N' => self}
   @@unhandled_children  = []
@@ -295,6 +305,13 @@ class Node < ActiveRecord::Base
       end
     end
     
+    def attr_public?(attribute)
+      if attribute.to_s =~ /(.*)_zips?$/
+        return true if self.ancestors.include?(Node) && RelationProxy.find_by_role($1.singularize)
+      end
+      super
+    end
+    
     def create_or_update_node(new_attributes)
       attributes = transform_attributes(new_attributes)
       unless attributes['name'] && attributes['parent_id']
@@ -309,7 +326,8 @@ class Node < ActiveRecord::Base
       rescue NameError
         klass = Node
       end
-      node = klass.with_exclusive_scope do
+      # FIXME: remove 'with_exclusive_scope' once scopes are clarified and removed from 'secure'
+      node = klass.send(:with_exclusive_scope) do
         klass.find(:first, :conditions => ['site_id = ? AND name = ? AND parent_id = ?', 
                                           current_site[:id], attributes['name'].url_name, attributes['parent_id']])
       end
@@ -318,7 +336,6 @@ class Node < ActiveRecord::Base
         # TODO: class ignored (could be used to transform from one class to another...)
         attributes.delete('class')
         attributes.delete('klass')
-        node.edit!(attributes.delete('v_lang'))
         updated_date = node.updated_at
         node.update_attributes(attributes)
         if updated_date != node.updated_at
@@ -355,7 +372,8 @@ class Node < ActiveRecord::Base
         return node
       end
       node = if klass != self
-        klass.with_exclusive_scope(scope) { klass.create_instance(attributes) }
+        # FIXME: remove 'with_exclusive_scope' once scopes are clarified and removed from 'secure'
+        klass.send(:with_exclusive_scope, scope) { klass.create_instance(attributes) }
       else
         self.create_instance(attributes)
       end
@@ -549,7 +567,8 @@ class Node < ActiveRecord::Base
       if node.nil?
         path = path.split('/')
         last = path.pop
-        Node.with_exclusive_scope do
+        # FIXME: remove 'with_exclusive_scope' once scopes are clarified and removed from 'secure'
+        Node.send(:with_exclusive_scope) do
           node = Node.find(current_site[:root_id])
           path.each do |p|
             raise ActiveRecord::RecordNotFound unless node = Node.find_by_name_and_parent_id(p, node[:id])
@@ -579,6 +598,7 @@ class Node < ActiveRecord::Base
         count_select  = opts.delete(:count) || 'nodes.id'
       end
       
+      # FIXME: why do we need 'exclusive scope' here ?
       with_exclusive_scope(self.scoped_methods[0] || {}) do
         count_all = count(opts.merge( :select  => count_select, :order => nil, :group => nil ))
         if count_all > offset
@@ -740,34 +760,34 @@ class Node < ActiveRecord::Base
         case attribute[0..1]
         when 'v_'
           att = attribute[2..-1]
-          if Version.zafu_readable?(att)
+          if Version.attr_public?(att)
             "#{node}.version.#{att}"
           else
             # might be readable by sub-classes
-            "#{node}.version.zafu_read(#{attribute[2..-1].inspect})"
+            "#{node}.version.public_read(#{attribute[2..-1].inspect})"
           end
         when 'c_'
-          "#{node}.c_zafu_read(#{attribute[2..-1].inspect})"
+          "#{node}.c_public_read(#{attribute[2..-1].inspect})"
         when 'd_'
           "#{node}.version.dyn[#{attribute[2..-1].inspect}]"
         else
-          if Node.zafu_readable?(attribute)
+          if Node.attr_public?(attribute)
             "#{node}.#{attribute}"
           else
             # unknown attribute for Node, resolve at runtime with real class
-            "#{node}.zafu_read(#{attribute.inspect})"
+            "#{node}.public_read(#{attribute.inspect})"
           end
         end
       else
         case attribute[0..1]
         when 'v_'
-          node.version.zafu_read(attribute[2..-1])
+          node.version.public_read(attribute[2..-1])
         when 'c_'
-          node.c_zafu_read(attribute[2..-1])
+          node.c_public_read(attribute[2..-1])
         when 'd_'
           node.version.dyn[attribute[2..-1]]
         else
-          node.zafu_read(attribute)
+          node.public_read(attribute)
         end
       end
     end
@@ -777,12 +797,16 @@ class Node < ActiveRecord::Base
     end
   end
   
+  # Additional security so that unsecure finders explode when trying to update/save or follow relations.
   def visitor
     return @visitor if @visitor
+    # We need to be more tolerant during object creation since 'v_foo' can be
+    # set before 'visitor' and we need visitor.lang when creating versions.
+    return Thread.current.visitor if new_record?
     raise Zena::RecordNotSecured.new("Visitor not set, record not secured.")
   end
   
-  # Return true if the attribute can be read. This is not the same as zafu_readable? as some
+  # Return true if the attribute can be read. This is not the same as attr_public? as some
   # attributes can be read but should not be shown ('id' or 'file' for example).
   def safe_attribute?(att)
     # FIXME: SECURITY: is there any risk here ? (k can be anything)
@@ -839,16 +863,6 @@ class Node < ActiveRecord::Base
   # Update a node's attributes, transforming the attributes first from the visitor's context to Node context.
   def update_attributes_with_transformation(new_attributes)
     update_attributes(secure(Node) {Node.transform_attributes(new_attributes, self)})
-  end
-  
-  # Filter attributes before assignement.
-  # Set name from version title if no name set yet.
-  def filter_attributes(attributes)
-    if self[:name].blank? && attributes['name'].blank? && attributes['v_title']
-      attributes.merge('name' => attributes['v_title'])
-    else
-      attributes
-    end
   end
   
   # Replace [id], [v_title], etc in attributes values
@@ -911,10 +925,12 @@ class Node < ActiveRecord::Base
   end
 
   # Return the full path as an array if it is cached or build it when asked for.
-  def fullpath(rebuild=false, update = true)
+  def fullpath(rebuild=false, update = true, loop_ids = [])
+    return "" if loop_ids.include?(self.id)
+    loop_ids << self.id
     if !self[:fullpath] || rebuild
       if parent = parent(false)
-        path = parent.fullpath(rebuild).split('/') + [name.gsub("'",'')]
+        path = parent.fullpath(rebuild,true,loop_ids).split('/') + [name.gsub("'",'')]
       else
         path = []
       end
@@ -1094,9 +1110,9 @@ class Node < ActiveRecord::Base
     (name && name != '' && name =~ /\./ ) ? name.split('.').last : ''
   end
   
-  def c_zafu_read(sym)
+  def c_public_read(sym)
     if c = version.content
-      c.zafu_read(sym)
+      c.public_read(sym)
     else
       ''
     end
@@ -1230,11 +1246,6 @@ class Node < ActiveRecord::Base
     @add_comment ||= {}
     @add_comment[:text] = str
   end
-  
-  # attributes are set only but we need dummy values for multiversion's remove_attributes_with_same_value
-  def m_text; nil end
-  def m_title; nil end
-  def m_author; nil end
   
   def m_title=(str)
     @add_comment ||= {}
@@ -1446,18 +1457,19 @@ class Node < ActiveRecord::Base
     
   private
     def node_before_validation
+      self[:kpath] = self.vclass.kpath
       
       # set name from version title if name not set yet
       self.name = version[:title] unless self[:name]
       
       if self[:name]
         # update cached fullpath
-        if new_record? || self[:name] != old[:name] || self[:parent_id] != old[:parent_id]
+        if new_record? || name_changed? || parent_id_changed?
           self[:fullpath] = self.fullpath(true,false)
-        elsif !new_record? && self[:custom_base] != old[:custom_base]
+        elsif !new_record? && custom_base_changed?
           self[:basepath] = self.basepath(true,false)
         end
-        if !new_record? && self[:fullpath] != old[:fullpath]
+        if !new_record? && fullpath_changed?
           # FIXME: update children's cached fullpaths
           @clear_children_fullpath = true
         end
@@ -1466,22 +1478,21 @@ class Node < ActiveRecord::Base
       # make sure section is the same as the parent
       if self[:parent_id].nil?
         # root node
-        self[:section_id] = nil
-        self[:project_id] = nil
+        self[:section_id] = self[:id]
+        self[:project_id] = self[:id]
       elsif parent
-        self[:section_id] = parent.get_section_id
-        self[:project_id] = parent.get_project_id
+        self[:section_id] = ref.get_section_id
+        self[:project_id] = ref.get_project_id
       else
         # bad parent will be caught later.
       end
 
-      
       if !new_record? && self[:parent_id]
         # node updated and it is not the root node
-        if !kind_of?(Section) && self[:section_id] != old[:section_id]
+        if !kind_of?(Section) && section_id_changed?
           @spread_section_id = self[:section_id]
         end
-        if !kind_of?(Project) && self[:project_id] != old[:project_id]
+        if !kind_of?(Project) && project_id_changed?
           @spread_project_id = self[:project_id]
         end
       end
@@ -1494,7 +1505,7 @@ class Node < ActiveRecord::Base
             pos = Node.fetch_attribute(:position, "SELECT `position` FROM #{Node.table_name} WHERE parent_id = #{Node.connection.quote(self[:parent_id])} AND kpath like #{Node.connection.quote("#{self.class.kpath[0..1]}%")} ORDER BY position DESC LIMIT 1").to_f
             self[:position] = pos > 0 ? pos + 1.0 : 0.0
           end
-        elsif old[:parent_id] != self[:parent_id]
+        elsif parent_id_changed?
           # moved, update position
           pos = Node.fetch_attribute(:position, "SELECT `position` FROM #{Node.table_name} WHERE parent_id = #{Node.connection.quote(self[:parent_id])} AND kpath like #{Node.connection.quote("#{self.class.kpath[0..1]}%")} ORDER BY position DESC LIMIT 1").to_f
           self[:position] = pos > 0 ? pos + 1.0 : 0.0
@@ -1506,10 +1517,6 @@ class Node < ActiveRecord::Base
     def validate_node
       # when creating root node, self[:id] and :root_id are both nil, so it works.
       errors.add("parent_id", "invalid parent") unless (parent.kind_of?(Node) && self[:id] != current_site[:root_id]) || (self[:id] == current_site[:root_id] && self[:parent_id] == nil)
-      
-      errors.add("name", "can't be blank") unless self[:name] and self[:name] != ""
-      
-      errors.add("version", "can't be blank") if new_record? && !@version
       
       errors.add('comment', 'you do not have the rights to do this') if @add_comment && !can_comment?
       
@@ -1621,7 +1628,8 @@ class Node < ActiveRecord::Base
     
     # Try to keep node name in sync with published v_title in ref_lang. This is set after_publish.
     def sync_name
-      return true if @old_title.nil? || version.lang != ref_lang || name == version.title.url_name || old.name != @old_title.url_name
+      # FIXME: @old_title should be version.title_was ??
+      return true if @old_title.nil? || version.lang != ref_lang || name == version.title.url_name || name_was != @old_title.url_name
       update_attributes(:name => version.title.url_name)
     end
   
@@ -1680,7 +1688,8 @@ class Node < ActiveRecord::Base
   
     # Find all children, whatever visitor is here (used to check if the node can be destroyed or to update section_id)
     def all_children
-      Node.with_exclusive_scope do
+      # FIXME: remove 'with_exclusive_scope' once scopes are clarified and removed from 'secure'
+      Node.send(:with_exclusive_scope) do
         Node.find(:all, :conditions=>['parent_id = ?', self[:id] ])
       end
     end
@@ -1689,19 +1698,13 @@ class Node < ActiveRecord::Base
       return true unless @clear_children_fullpath
       base_class.connection.execute "UPDATE nodes SET fullpath = NULL WHERE #{ref_field(false)}='#{i}'"
       ids = nil
-      base_class.with_exclusive_scope do
+      # FIXME: remove 'with_exclusive_scope' once scopes are clarified and removed from 'secure'
+      base_class.send(:with_exclusive_scope) do
         ids = base_class.fetch_ids("SELECT id FROM #{base_class.table_name} WHERE #{ref_field(true)} = '#{i.to_i}' AND inherit='1'")
       end
       
       ids.each { |i| clear_children_fullpath(i) }
       true
-    end
-  
-    # Set owner and lang before validations on create (overwritten by multiversion)
-    def set_on_create
-      super
-      # set kpath 
-      self[:kpath] = self.vclass.kpath
     end
     
     # Base class
@@ -1724,4 +1727,5 @@ class Node < ActiveRecord::Base
     end
      
 end
-load_patches_from_bricks
+
+Bricks::Patcher.apply_patches

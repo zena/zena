@@ -271,10 +271,18 @@ class NodesController < ApplicationController
   
   # import sub-nodes from a file
   def import
-    @nodes = secure!(Node) { Node.create_nodes_from_folder(:klass => params[:node][:klass], :archive => params[:node][:archive], :parent => @node) }.values
-    
+    @nodes = secure!(Node) { Node.create_nodes_from_folder(:klass => params[:node][:klass], :archive => params[:attachment], :parent => @node) }.values
     # parse pseudo_ids
     parse_assets(@nodes)
+    
+    responds_to_parent do # execute the redirect in the main window
+      render :update do |page|
+        page.call "UploadProgress.setAsFinished"
+        page.delay(1) do # allow the progress bar fade to complete
+          page.replace_html 'import_tab', :partial => 'import_results'
+        end
+      end  
+    end
   end
   
   def export
@@ -282,6 +290,7 @@ class NodesController < ApplicationController
   end
   
   def update
+    params['node']['c_file'] = params['attachment'] if params['attachment']
     @v_status_before_update = @node.v_status
     @node.update_attributes_with_transformation(params['node'])
     
@@ -291,15 +300,26 @@ class NodesController < ApplicationController
       flash.now[:error]  = _('could not update')
     end
     
-    respond_to do |format|
-      format.html do
-        if params[:edit] == 'popup'
-          redirect_to edit_version_url(:node_id => @node[:zip], :id=>(@node.v_number || 0), :close => (params[:validate] ? true : nil)) 
-        else
-          redirect_to zen_path(@node, :mode => params[:mode])
-        end
+    if params[:attachment]
+      responds_to_parent do # execute the redirect in the main window
+        render :update do |page|
+          page.call "UploadProgress.setAsFinished"
+          page.delay(1) do # allow the progress bar fade to complete
+            page.redirect_to edit_version_url(:node_id => @node[:zip], :id=>(@node.v_number || 0), :close => (params[:validate] ? true : nil))
+          end
+        end  
       end
-      format.js   { @flash = flash }
+    else
+      respond_to do |format|
+        format.html do
+          if params[:edit] == 'popup'
+            redirect_to edit_version_url(:node_id => @node[:zip], :id=>(@node.v_number || 0), :close => (params[:validate] ? true : nil)) 
+          else
+            redirect_to zen_path(@node, :mode => params[:mode])
+          end
+        end
+        format.js   { @flash = flash }
+      end
     end
   end
   

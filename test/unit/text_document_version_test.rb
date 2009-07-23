@@ -1,6 +1,8 @@
 require File.dirname(__FILE__) + '/../test_helper'
 
-class TextDocumentVersionTest < ZenaTestUnit
+class TextDocumentVersionTest < ActiveSupport::TestCase
+  include Zena::Test::Unit
+  def setup; login(:anon); end
   
   def test_content
     v = TextDocumentVersion.new

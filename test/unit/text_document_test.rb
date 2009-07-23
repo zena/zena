@@ -1,6 +1,8 @@
 require File.dirname(__FILE__) + '/../test_helper'
 
-class TextDocumentTest < ZenaTestUnit
+class TextDocumentTest < ActiveSupport::TestCase
+  include Zena::Test::Unit
+  def setup; login(:anon); end
   
   def test_create_simplest
     login(:tiger)

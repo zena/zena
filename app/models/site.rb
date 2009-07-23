@@ -15,7 +15,7 @@ The #Site model holds configuration information for a site:
 +default_lang+::    The default language of the site.
 =end
 class Site < ActiveRecord::Base
-  zafu_readable :host
+  attr_public   :host
   validate :valid_site
   validates_uniqueness_of :host
   # we are using 'attr_protected' instead of attr_accessible because we have dynamic attributes
@@ -335,4 +335,4 @@ class Site < ActiveRecord::Base
     end
 end
 
-load_patches_from_bricks
+Bricks::Patcher.apply_patches

@@ -1,6 +1,8 @@
 require File.dirname(__FILE__) + '/../test_helper'
 
-class TemplateContentTest < ZenaTestUnit
+class TemplateContentTest < ActiveSupport::TestCase
+  include Zena::Test::Unit
+  def setup; login(:anon); end
 
   # Replace this with your real tests.
   def test_truth

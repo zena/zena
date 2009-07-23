@@ -16,8 +16,10 @@ ImageContent also provides a +crop+ pseudo attribute to crop an image. See crop=
 class ImageContent < DocumentContent
   before_validation_on_create :convert_file
   
-  zafu_readable    :width, :height
-  safe_attribute   :crop
+  attr_public      :width, :height
+  
+  # FIXME: use attr_accessible !
+  #safe_attribute   :crop
   
   # Return a cropped image using the 'crop' hash with the top left corner position (:x, :y) and the width and height (:width, :heigt).
   def crop(format)
@@ -107,9 +109,10 @@ class ImageContent < DocumentContent
   end
 
   def image_with_format(format=nil)
-    if @file
+    if new_record? && @file
       ImageBuilder.new(:file=>@file).transform!(format)
     elsif !new_record?
+      format   ||= Iformat['full']
       @formats ||= {}
       @formats[format[:name]] ||= ImageBuilder.new(:path=>filepath, 
               :width=>self[:width], :height=>self[:height]).transform!(format)

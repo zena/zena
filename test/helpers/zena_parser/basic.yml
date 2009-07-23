@@ -170,7 +170,7 @@ show_gsub:
   context:
     node: 'tiger'
   src: "<r:show attr='c_address' gsub='/\\n/;/'/>"
-  tem: "<%= @node.c_zafu_read(\"address\").to_s.gsub(/\\n/,\";\") %>"
+  tem: "<%= @node.c_public_read(\"address\").to_s.gsub(/\\n/,\";\") %>"
   res: "Small Island;In the Wild"
   
 show_gsub_newline:
@@ -1036,7 +1036,7 @@ input:
   context:
     node: 'ant'
   src: "<r:input name='c_first_name'/>"
-  tem: "<input name='node[c_first_name]' type='text' value='<%= fquote @node.c_zafu_read(\"first_name\") %>'/>"
+  tem: "<input name='node[c_first_name]' type='text' value='<%= fquote @node.c_public_read(\"first_name\") %>'/>"
   res: "<input name='node[c_first_name]' type='text' value='Solenopsis'/>"
 
 input_style:
@@ -1047,14 +1047,14 @@ textarea:
   context:
     node: 'ant'
   src: "<r:textarea name='c_first_name'/>"
-  tem: "<textarea name='node[c_first_name]'><%= @node.c_zafu_read(\"first_name\") %></textarea>"
+  tem: "<textarea name='node[c_first_name]'><%= @node.c_public_read(\"first_name\") %></textarea>"
   res: "<textarea name='node[c_first_name]'>Solenopsis</textarea>"
 
 textarea_with_blocks:
   context:
     node: 'ant'
   src: "<r:textarea name='c_first_name'>Sir <r:show attr='c_first_name'/></textarea>"
-  tem: "<textarea name='node[c_first_name]'>Sir <%= @node.c_zafu_read(\"first_name\") %></textarea></textarea>"
+  tem: "<textarea name='node[c_first_name]'>Sir <%= @node.c_public_read(\"first_name\") %></textarea></textarea>"
   res: "<textarea name='node[c_first_name]'>Sir Solenopsis</textarea></textarea>"
   
 input_new:

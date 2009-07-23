@@ -1,3 +1,5 @@
+# FIXME: RAILS2: THIS HAS BEEN REPLACED IN RAILS2 BY OTHER FILES: NEED TO MERGE 'date' back there.
+
 module Zena
   module Relations
     LINK_ATTRIBUTES = [:status, :comment, :date]

@@ -22,6 +22,7 @@ module Zena
         Node.connection.execute "ALTER TABLE versions ENGINE = InnoDB;"
       end
       
+      # Our version of loaded fixtures to help define "users_id", "nodes_id" and such.
       @@loaded_fixtures = {}
       fixture_table_names = []
       
@@ -30,7 +31,7 @@ module Zena
         puts "No fixtures in 'test/fixtures'. Building from 'test/sites'."
         `cd #{RAILS_ROOT} && rake zena:build_fixtures`
       end
-      
+
       Dir.foreach(FIXTURE_PATH) do |file|
         next unless file =~ /^(.+)\.yml$/
         table_name = $1
@@ -89,7 +90,7 @@ module Zena
           end
         end
       end
-
+      
       fixtures = Fixtures.create_fixtures(FIXTURE_PATH, fixture_table_names)
       unless fixtures.nil?
         if fixtures.instance_of?(Fixtures)
@@ -152,7 +153,7 @@ module Zena
       def with_caching
         @perform_caching_bak = ApplicationController.perform_caching
         ApplicationController.perform_caching = true
-        Cache.perform_caching = true
+        Cache.perform_caching      = true
         CachedPage.perform_caching = true
         yield
       ensure
@@ -246,7 +247,7 @@ module Zena
         $_test_site  = site.name if site
         visitor = User.make_visitor(:site => site, :id => users_id(name))
         visitor.ip = '10.0.0.127'
-        GetText.set_locale_all visitor.lang
+        # FIXME: I18n: set visitor.lang
       end
 
       def err(obj)
@@ -274,8 +275,8 @@ module Zena
       def login(visitor=:anon)
         return logout if visitor == :anon
         @controller_bak = @controller
-        @controller = SessionController.new
-        post 'create', :login=>visitor.to_s, :password=>visitor.to_s
+        @controller = SessionsController.new
+        post 'create', :login => visitor.to_s, :password => visitor.to_s
         sess = @controller.send(:session)
         @controller_bak.send(:session=, sess )
         $_test_site = @controller.send(:visitor).site.name
@@ -285,7 +286,7 @@ module Zena
 
       def logout
         @controller_bak = @controller
-        @controller = SessionController.new
+        @controller = SessionsController.new
         post 'destroy'
         @controller_bak.send(:session=,@controller.send(:session))
         @controller_bak.instance_variable_set(:@visitor,nil) # clear cached visitor
@@ -369,7 +370,7 @@ module Zena
         $_test_site  = site
         return logout if name == :anon
         @controller_bak = @controller
-        @controller = SessionController.new
+        @controller = SessionsController.new
         post 'create', :login=>name.to_s, :password=>name.to_s
         @controller_bak.send(:session=,@controller.send(:session))
         @controller_bak.instance_variable_set(:@visitor,nil) # clear cached visitor
@@ -378,7 +379,7 @@ module Zena
 
       def logout
         @controller_bak = @controller
-        @controller = SessionController.new
+        @controller = SessionsController.new
         post 'destroy'
         @controller_bak.send(:session=,@controller.send(:session))
         @controller_bak.instance_variable_set(:@visitor,nil) # clear cached visitor
@@ -412,23 +413,12 @@ class Test::Unit::TestCase
   undef default_test
 end
 
-class ZenaTestUnit < Test::Unit::TestCase
-  include Zena::Test::Unit
-  def setup; super; User.make_visitor(:host=>'test.host', :id=>users_id(:anon)); end
-  def self.use_transactional_fixtures; true; end
-  def self.use_instantiated_fixtures; false; end
-end
-
 class ZenaTestHelper < Test::Unit::TestCase
   include Zena::Test::TestHelper
-  def self.use_transactional_fixtures; true; end
-  def self.use_instantiated_fixtures; false; end
 end
 
-class ZenaTestController < Test::Unit::TestCase
+class ZenaTestController < ActionController::TestCase
   include Zena::Test::TestController
-  def self.use_transactional_fixtures; true; end
-  def self.use_instantiated_fixtures; false; end
 end
 
 NodeQuery.insert_zero_link(Link)

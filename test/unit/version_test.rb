@@ -1,5 +1,7 @@
 require File.dirname(__FILE__) + '/../test_helper'
-class VersionTest < ZenaTestUnit
+class VersionTest < ActiveSupport::TestCase
+  include Zena::Test::Unit
+  def setup; login(:anon); end
   
   def version(sym)
     secure!(Node) { nodes(sym) }.version
@@ -177,6 +179,45 @@ class VersionTest < ZenaTestUnit
     assert_equal 'no idea', node.d_whatever
     assert_equal 'funny', node.d_other
     assert_equal version1_publish_from, node.v_publish_from
+  end
+  
+  def test_would_edit
+    v = versions(:zena_en)
+    assert v.would_edit?('title' => 'different')
+    assert !v.would_edit?('title' => v.title)
+    assert !v.would_edit?('status' => 999)
+    assert !v.would_edit?('illegal_field' => 'whatever')
+    assert !v.would_edit?('node_id' => 'whatever')
+  end
+  
+  def test_would_edit_content
+    v = versions(:ant_en)
+    assert v.would_edit?('content_attributes' => {'name' => 'different'})
+    assert !v.would_edit?('content_attributes' => {'name' => v.content.name})
+  end
+  
+  def test_new_version_is_edited
+    v = Version.new
+    assert v.edited?
+    v.title = 'hooo'
+    assert v.edited?
+  end
+  
+  def test_edited
+    v = versions(:zena_en)
+    assert !v.edited?
+    v.status = 999
+    assert !v.edited?
+    v.title = 'new title'
+    assert v.edited?
+  end
+  
+  def test_edited_changed_content
+    v = versions(:ant_en)
+    v.content_attributes = {'name' => 'Invicta'}
+    assert !v.edited?
+    v.content_attributes = {'name' => 'New name'}
+    assert v.edited?
   end
   
   def test_bad_lang

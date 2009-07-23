@@ -1,6 +1,8 @@
 require File.dirname(__FILE__) + '/../test_helper'
 
-class RelationProxyTest < ZenaTestUnit
+class RelationProxyTest < ActiveSupport::TestCase
+  include Zena::Test::Unit
+  def setup; login(:anon); end
   
   def test_find_by_role
     assert_equal relations_id(:note_has_calendars), RelationProxy.find_by_role('news')[:id]

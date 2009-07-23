@@ -73,8 +73,8 @@ class ZenaParserTest < ZenaTestController
   
   def test_basic_show_bad_attr
     # FIXME: we must do something about bad attributes : use a 'rescue' when rendering ?
-    assert !Node.zafu_readable?('puts')
-    assert Node.zafu_readable?('name')
+    assert !Node.attr_public?('puts')
+    assert Node.attr_public?('name')
   end
 
   def test_basic_cache_part

@@ -3051,18 +3051,18 @@ END_TXT
         else
           Node.zafu_attribute(att_node, real_attribute)
         end
-        # FIXME: replace theses tests by "klass.zafu_readable?(real_attribute)" and make sure it works for sub-classes.
-      elsif klass.ancestors.include?(Version) && Version.zafu_readable?(real_attribute)
+        # FIXME: replace theses tests by "klass.attr_public?(real_attribute)" and make sure it works for sub-classes.
+      elsif klass.ancestors.include?(Version) && Version.attr_public?(real_attribute)
         "#{att_node}.#{real_attribute}"
-      elsif klass.ancestors.include?(DataEntry) && DataEntry.zafu_readable?(real_attribute)
+      elsif klass.ancestors.include?(DataEntry) && DataEntry.attr_public?(real_attribute)
         "#{att_node}.#{real_attribute}"
-      elsif klass.ancestors.include?(Comment) && Comment.zafu_readable?(real_attribute)
+      elsif klass.ancestors.include?(Comment) && Comment.attr_public?(real_attribute)
         "#{att_node}.#{real_attribute}"
-      elsif klass.ancestors.include?(ActiveRecord::Base) && klass.zafu_readable?(real_attribute)
+      elsif klass.ancestors.include?(ActiveRecord::Base) && klass.attr_public?(real_attribute)
         "#{att_node}.#{real_attribute}"
       else
         # unknown class, resolve at runtime
-        "#{att_node}.zafu_read(#{real_attribute.inspect})"
+        "#{att_node}.public_read(#{real_attribute.inspect})"
       end
       
       res = "(#{res} || #{node_attribute(opts[:else])})" if opts[:else]
@@ -3616,5 +3616,5 @@ module ActiveRecord
 end
 
 if defined?(RAILS_ENV)
-  load_zafu_rules_from_bricks
+  Bricks::Patcher.load_zafu
 end

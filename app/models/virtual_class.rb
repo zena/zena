@@ -1,7 +1,7 @@
 class VirtualClass < ActiveRecord::Base
   belongs_to    :create_group, :class_name => 'Group', :foreign_key => 'create_group_id'
   validate      :valid_virtual_class
-  include Zena::Relations::ClassMethods
+  include Zena::Use::Relations::ClassMethods
   
   def to_s
     name
@@ -71,7 +71,8 @@ class VirtualClass < ActiveRecord::Base
   # create instances, not virtual classes
   def create_instance(*args)
     if @scope
-      real_class.with_exclusive_scope(@scope) {
+      # FIXME: remove 'with_exclusive_scope' once scopes are clarified and removed from 'secure'
+      real_class.send(:with_exclusive_scope, @scope) {
         obj = self.new_instance(*args)
         obj.save
         obj

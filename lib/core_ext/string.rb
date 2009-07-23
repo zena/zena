@@ -1,3 +1,5 @@
+# FIXME: do we really need to monkey patch String ?
+
 # Avoid incompatibility with rails 'chars' version in Ruby 1.8.7
 unless '1.9'.respond_to?(:force_encoding)
   String.class_eval do

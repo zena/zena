@@ -10,6 +10,7 @@ Template::  subclass of TextDocument. Contains the zafu code to make the look an
 Skin::      subclass of Template. Contains other templates. The skin name must be unique throughout the site as it is used to identify the 'theme' of the site or parts of the site.
 =end
 class Page < Node
+  before_validation :update_base_path #, :if => 'custom_base.changed?'
   
   # url base path. If a node is in 'projects' and projects has custom_base set, the
   # node's basepath becomes 'projects', so the url will be 'projects/node34.html'.
@@ -17,9 +18,9 @@ class Page < Node
   def basepath(rebuild=false, update = true)
     if !self[:basepath] || rebuild
       if self[:custom_base]
-        path = fullpath(rebuild, update)
-        self.connection.execute "UPDATE #{self.class.table_name} SET basepath='#{path}' WHERE id='#{self[:id]}'" if path != self[:basepath] && update
-        self[:basepath] = path
+        self.basepath = fullpath(rebuild, update)
+        # FIXME: REMOVE this UPDATE !
+        self.connection.execute "UPDATE #{self.class.table_name} SET basepath=#{Node.connection.quote(self.basepath)} WHERE id='#{self[:id]}'" if !new_record? && update && self.basepath_changed?
       else
         super
       end
@@ -28,12 +29,17 @@ class Page < Node
   end
   
   private
+    def update_base_path
+      self[:basepath] = self.basepath(true)
+    end
+    
     def validate_node
       super
       
       # we are in a scope, we cannot just use the normal validates_... 
+      # FIXME: remove 'with_exclusive_scope' once scopes are clarified and removed from 'secure'
       test_same_name = nil
-      Node.with_exclusive_scope do
+      Node.send(:with_exclusive_scope) do
         if new_record? 
           cond = ["name = ? AND parent_id = ? AND kpath LIKE 'NP%'",              self[:name], self[:parent_id]]
         else

@@ -205,11 +205,15 @@ class VersionsController < ApplicationController
       @node = secure!(Node) { Node.find_by_zip(params[:node_id]) }
       if params[:id].to_i != 0
         # try to set current version from version number
-        redirect_to :id => @node.v_number unless @node.version(params[:id])
+        @node.version(params[:id])
       end
+    rescue ActiveRecord::RecordNotFound
+      redirect_to :id => @node.v_number
     end
     
     def do_rendering
+      # make the flash available to rjs helpers
+      @flash = flash
       respond_to do |format|
         format.html { redirect_to @redirect_url || request.env['HTTP_REFERER'] }
         # js = call from 'drive' popup

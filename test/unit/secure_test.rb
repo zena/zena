@@ -6,7 +6,9 @@ class PagerDummy < Node
 end
 class SubPagerDummy < PagerDummy
 end
-class SecureReadTest < ZenaTestUnit
+class SecureReadTest < ActiveSupport::TestCase
+  include Zena::Test::Unit
+  def setup; User.make_visitor(:host=>'test.host', :id=>users_id(:anon)); end
   
   def test_kpath
     assert_equal 'N', Node.kpath
@@ -19,6 +21,11 @@ class SecureReadTest < ZenaTestUnit
   def test_native_class_keys
     assert_equal ["N", "ND", "NDI", "NDT", "NDTT", "NN", "NP", "NPP", "NPS", "NPSS", "NR", "NRC", "NU", "NUS"], Node.native_classes.keys.sort
     assert_equal ["ND", "NDI", "NDT", "NDTT"], Document.native_classes.keys.sort
+  end
+  
+  # TODO: move this test in a better place...
+  def test_mysql_time_zone_in_sync
+    assert Node.connection.execute("SELECT (now() - #{Time.now.strftime('%Y%m%d%H%M%S')})").fetch_row[0].to_f == 0.0
   end
   
   # SECURE FIND TESTS  ===== TODO CORRECT THESE TEST FROM CHANGES TO RULES ========
@@ -96,18 +103,19 @@ class SecureReadTest < ZenaTestUnit
   # pgroup can only publish
   def test_publish_group_can_rwp
     login(:ant)
-    node = ""
+    node = nil
     ant = secure!(User) { users(:ant) }
     assert_raise(ActiveRecord::RecordNotFound) { node = secure!(Node) { nodes(:strange)  } }
     assert_raise(ActiveRecord::RecordNotFound) { node = secure_write!(Node) { nodes(:strange)  } }
     assert node = secure_drive(Node) { nodes(:strange)  }
     
     login(:lion)
-    lion_node = ""
+    lion_node = nil
     assert_nothing_raised { lion_node = secure!(Node) { nodes(:strange)  } }
     assert lion_node.can_read? , "Owner can read"
-    assert lion_node.propose , "Can propose"
-    
+    assert lion_node.propose
+    assert_equal Zena::Status[:prop], lion_node.version.status
+    assert_equal Zena::Status[:prop], lion_node.max_status
     login(:ant)
     # now node is 'prop', pgroup can see it
     assert_nothing_raised { node = secure!(Node) { nodes(:strange)  } }
@@ -167,8 +175,10 @@ class SecureReadTest < ZenaTestUnit
     
     login(:lion)
     assert node.refuse , "Can refuse node."
-    assert node.remove , "Can remove node."
+    assert_equal Zena::Status[:red], node.version.status
+    node.remove
     
+    assert node.remove , "Can remove node."
     login(:ant)
     # removed node be seen
     assert_nothing_raised { node = secure!(Page) { Page.find_by_name("new_rec") } }
@@ -176,7 +186,9 @@ class SecureReadTest < ZenaTestUnit
   end
 end
 
-class SecureCreateTest < ZenaTestUnit
+class SecureCreateTest < ActiveSupport::TestCase
+  include Zena::Test::Unit
+  def setup; User.make_visitor(:host=>'test.host', :id=>users_id(:anon)); end
 
   def node_defaults
     {
@@ -229,15 +241,16 @@ class SecureCreateTest < ZenaTestUnit
   def test_status
     login(:tiger)
     node = secure!(Node) { Node.new(node_defaults) }
-    assert_equal Zena::Status[:red], node.max_status, "New node max_status is 'red'"
-    assert_equal Zena::Status[:red], node.v_status, "Version status is 'red'"
     
     assert node.save, "Node saved"
     assert_equal Zena::Status[:red], node.max_status, "Max_status did not change"
+    node.propose
+    err node
     assert node.propose, "Can propose node"
-    assert_equal Zena::Status[:prop], node.max_status, "Node#{node[:id]} max_status is now 'prop'"
+    assert_equal Zena::Status[:prop], node.max_status, "node's max_status is now 'prop'"
     assert node.publish, "Can publish node"
     assert_equal Zena::Status[:pub], node.max_status, "node max_status in now 'pub'"
+    assert node.publish_from <= Time.now, "node publish_from is smaller the Time.now"
     id = node.id
     login(:ant)
     assert_nothing_raised { node = secure!(Node) { Node.find(id) } }
@@ -499,7 +512,24 @@ class SecureCreateTest < ZenaTestUnit
   # testing is done in page_test or node_test
 end
 
-class SecureUpdateTest < ZenaTestUnit
+class SecureUpdateTest < ActiveSupport::TestCase
+  include Zena::Test::Unit
+  def setup; login(:ant); end
+  
+  def create_simple_note(opts={})
+    login(opts[:login] || :ant)
+    # create new node
+    attrs =  {
+      :name => 'hello',
+      :parent_id   => nodes_id(:cleanWater)
+    }.merge(opts[:node] || {})
+    
+    node = secure!(Note) { Note.create(attrs) }
+    
+    ref  = secure!(Node) { Node.find_by_id(attrs[:parent_id])}
+    
+    [node, ref]
+  end
   
   # VALIDATE ON UPDATE TESTS
   # 1. if pgroup changed from old, make sure user could do this and new group is valid
@@ -687,7 +717,7 @@ class SecureUpdateTest < ZenaTestUnit
     node.user_id = users_id(:tiger)
     assert ! node.save , "Save fails"
     assert node.errors[:user_id] , "Errors on user_id"
-    assert_equal "you cannot change this", node.errors[:user_id]
+    assert_equal "only admins can change owners", node.errors[:user_id]
   end
   def test_owner_changed_bad_user
     # cannot write in new contact
@@ -715,7 +745,7 @@ class SecureUpdateTest < ZenaTestUnit
     node = secure!(Node) { nodes(:collections) }
     assert ! node.can_visible? , "Cannot visible"
     assert ! node.can_manage? , "Cannot manage"
-    assert ! node.save , "Save fails"
+    assert ! node.update_attributes('name' => 'no way') , "Save fails"
     assert node.errors[:base], "Errors on base"
     assert_equal "you do not have the rights to do this", node.errors[:base]
   end
@@ -809,20 +839,6 @@ class SecureUpdateTest < ZenaTestUnit
     assert node.errors.empty? , "Errors empty"
   end
   
-  def create_simple_note(opts={})
-    login(opts[:login] || :ant)
-    # create new node
-    attrs =  {
-      :name => 'hello',
-      :parent_id   => nodes_id(:cleanWater),
-    }.merge(opts[:node] || {})
-    
-    node = secure!(Note) { Note.create(attrs) }
-    ref  = secure!(Node) { Node.find_by_id(attrs[:parent_id])}
-    
-    [node, ref]
-  end
-  
   #     a. can change to 'inherit' if can_drive?
   #     b. can change to 'private' if can_manage?
   #     c. can change to 'custom'  if can_visible?
@@ -848,6 +864,8 @@ class SecureUpdateTest < ZenaTestUnit
     node[:rgroup_id] = 98984984 # anything
     node[:wgroup_id] = 98984984 # anything
     node[:pgroup_id] = 98984984 # anything
+    node.save
+    
     assert node.save , "Save succeeds"
     assert_equal 0, node.rgroup_id , "Read group is 0"
     assert_equal 0, node.wgroup_id , "Write group is 0"
@@ -864,7 +882,7 @@ class SecureUpdateTest < ZenaTestUnit
     node[:wgroup_id] = 98984984 # anything
     node[:pgroup_id] = 98984984 # anything
     assert !node.save , "Save fails"
-    assert_equal node.errors[:inherit], "you cannot change this"
+    assert_equal "you cannot make this node private", node.errors[:inherit]
   end
   
   def test_can_man_cannot_lock_inherit
@@ -885,11 +903,13 @@ class SecureUpdateTest < ZenaTestUnit
     assert_equal Zena::Status[:pub], node.max_status
     # cannot change rights now
     assert !node.update_attributes(:inherit=>1)
-    node.errors.clear
+    
+    node.reload
     assert node.unpublish
+    assert_equal Zena::Status[:rem], node.max_status
     assert node.can_drive?, "Can drive"
     # can change rights now
-    assert node.update_attributes(:inherit=>1)
+    node.update_attributes(:inherit=>1)
   end
   
   #     a. can change to 'inherit' if can_drive?
@@ -922,13 +942,9 @@ class SecureUpdateTest < ZenaTestUnit
     node = secure!(Node) { nodes(:lake)  }
     now = Time.now
     old = node.publish_from
-    node.publish_from = now
+    node.attributes = {:publish_from => now}
     assert node.save
     assert_equal node.publish_from, old
-    node.publish_from = nil
-    assert node.save
-    assert_not_nil node[:publish_from]
-    assert_equal node[:publish_from], old
   end
   
   def test_update_name_publish_group
@@ -989,7 +1005,9 @@ class SecureUpdateTest < ZenaTestUnit
 end
 
 
-class SecureVisitorStatusTest < ZenaTestUnit
+class SecureVisitorStatusTest < ActiveSupport::TestCase
+  include Zena::Test::Unit
+  def setup; User.make_visitor(:host=>'test.host', :id=>users_id(:anon)); end
   def test_reader_cannot_write
     login(:whale)
     assert_equal visitor.status, User::Status[:admin]
@@ -1013,14 +1031,14 @@ class SecureVisitorStatusTest < ZenaTestUnit
     assert_equal visitor.status, User::Status[:reader]
     node = secure!(Node) { nodes(:ocean) }
     assert !node.update_attributes(:v_title => 'hooba')
-    assert_equal 'you do not have the rights to do this', node.errors['base']
+    assert_equal 'You do not have the rights to edit', node.errors['base']
     
     Participation.connection.execute "UPDATE participations SET status = #{User::Status[:user]} WHERE user_id = #{users_id(:messy)} AND site_id = #{sites_id(:ocean)}"
     login(:messy)
     assert_equal visitor.status, User::Status[:user]
     node = secure!(Node) { nodes(:ocean) }
     assert node.update_attributes(:v_title => 'hooba')
-    assert node.publish
+    node.publish
   end
   
   

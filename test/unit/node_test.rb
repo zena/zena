@@ -1,6 +1,8 @@
 require File.dirname(__FILE__) + '/../test_helper'
 
-class NodeTest < ZenaTestUnit
+class NodeTest < ActiveSupport::TestCase
+  include Zena::Test::Unit
+  def setup; login(:anon); end
 
   NEW_DEFAULT = {
     :name       => 'hello',
@@ -1027,7 +1029,7 @@ done: \"I am done\""
     assert_equal "bob.name", Node.zafu_attribute('bob', 'name')
     assert_equal "bob.version.text", Node.zafu_attribute('bob', 'v_text')
     assert_equal 'bob.version.dyn["super"]', Node.zafu_attribute('bob', 'd_super')
-    assert_equal 'bob.c_zafu_read("truc")', Node.zafu_attribute('bob', 'c_truc')
+    assert_equal 'bob.c_public_read("truc")', Node.zafu_attribute('bob', 'c_truc')
   end
   
   def test_classes_for_form
