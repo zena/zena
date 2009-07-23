@@ -2720,13 +2720,14 @@ END_TXT
       end
     end
     
+    # TODO: RUBYLESS
     def get_test_condition(node = self.node, params = @params)
       tests = []
       params.each do |k,v|
         if k.to_s =~ /^(or_|)([a-zA-Z_]+)(\d*)$/
           k = $2.to_sym
-        end
-        if [:kind_of, :klass, :status, :lang, :can, :node, :in, :visitor, :has].include?(k)
+        end                                         #tagged undocumented
+        if [:kind_of, :klass, :status, :lang, :can, :tagged, :node, :in, :visitor, :has].include?(k)
           tests << [k, v]
         elsif k == :test
           if v =~ /\s/
@@ -2747,6 +2748,9 @@ END_TXT
           "#{node}.klass == #{value.inspect}"
         when :status
           "#{node}.version.status == #{Zena::Status[value.to_sym]}"
+        when :tagged
+          # TODO: undocumented: remove and use rubyless !
+          "#{node}.tagged[#{value.inspect}]"
         when :lang
           "#{node}.version.lang == #{value.inspect}"
         when :can
