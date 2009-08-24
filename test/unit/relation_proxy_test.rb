@@ -327,6 +327,24 @@ class RelationProxyTest < ZenaTestUnit
     assert_nil node.find(:first, 'hot')
   end
   
+  def test_remove_link_negative_id
+    login(:lion)
+    node = secure!(Node) { nodes(:cleanWater) }
+    references = node.find(:all, 'references')
+    assert_nil references
+    assert node.update_attributes_with_transformation('reference_id' => nodes_zip(:projects))
+    assert node.update_attributes_with_transformation('reference_id' => nodes_zip(:letter))
+    assert node.update_attributes_with_transformation('reference_id' => nodes_zip(:wiki))
+    references = node.find(:all, 'references')
+    assert_equal 3, references.size
+    assert !references.select {|r| r[:zip] == nodes_zip(:letter)}.empty?
+    # remove letter
+    assert node.update_attributes_with_transformation('reference_id' => -nodes_zip(:letter))
+    references = node.find(:all, 'references')
+    assert_equal 2, references.size
+    assert references.select {|r| r[:zip] == nodes_zip(:letter)}.empty?
+  end
+  
   def test_add_links_same_target_different_dates
     login(:lion)
     node = secure!(Node) { nodes(:cleanWater) }

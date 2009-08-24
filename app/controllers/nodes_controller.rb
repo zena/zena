@@ -65,6 +65,7 @@ class NodesController < ApplicationController
 
   # RJS method. This is *much* better the "format.js" in the "show" controller or JS TextDocuments will pose problems.
   def zafu
+    return self.update if params[:method] == 'put'
     respond_to do |format|
       format.js { render :action => 'show' }
     end
