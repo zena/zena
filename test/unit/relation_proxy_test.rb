@@ -207,10 +207,30 @@ class RelationProxyTest < ZenaTestUnit
     assert_equal flower[:id], icons[0][:id]
   end
   
+  def test_add_link
+    login(:lion)
+    node = secure!(Node) { nodes(:letter) }
+    node.add_link('calendar', :other_id => nodes_id(:zena))
+    assert node.save
+    
+    node = secure!(Node) { nodes(:letter) }
+    node.add_link('calendar', :other_id => nodes_id(:wiki), :comment => 'woopi')
+    assert node.save
+    assert node.errors.empty?
+    node = secure!(Node) { nodes(:letter) }
+    
+    links = node.relation_proxy('calendar').other_links
+    zena = links.select {|r| r[:target_id] == nodes_id(:zena) }.first
+    assert zena
+    wiki = links.select {|r| r[:target_id] == nodes_id(:wiki) }.first
+    assert wiki
+    assert_equal 'woopi', wiki.comment
+  end
+  
   def test_add_link_bad_target
     login(:lion)
     node = secure!(Node) { nodes(:letter) }
-    node.add_link('calendar', :other_id => 1)
+    node.add_link('calendar', :other_id => 1) # bad id
     assert !node.save
     assert_equal 'invalid target', node.errors['calendar']
     

@@ -180,13 +180,13 @@ class NavigationTest < ActionController::IntegrationTest
   end
   
   def test_bad_url
-    get 'http://test.host/en/node9382903.html'
+    get 'http://test.host/en/node1.html'
     assert_response :missing
   end
   
   def test_bad_zip
-    get 'http://test.host/9382903'
-    assert_redirected_to 'http://test.host/en/9382903'
+    get 'http://test.host/1'
+    assert_redirected_to 'http://test.host/en/1'
     follow_redirect!
     assert_response :missing
   end

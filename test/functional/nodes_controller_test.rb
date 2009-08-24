@@ -22,10 +22,10 @@ class NodesControllerTest < ZenaTestController
         assert !doc.new_record?, "Not a new record"
         assert doc.publish
         login(:anon)
-        get 'show', :prefix => 'fr', :path => [name]
+        get 'show', :prefix => 'en', :path => [name]
         assert_response :success
         assert_equal "<?xml version=\"1.0\" encoding=\"utf-8\"?><node><name>people</name></node>", @response.body
-        assert File.exist?("#{SITES_ROOT}/test.host/public/fr/#{name}")
+        assert File.exist?("#{SITES_ROOT}/test.host/public/en/#{name}")
       end
     end
   end
