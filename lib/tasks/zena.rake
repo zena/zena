@@ -237,7 +237,8 @@ namespace :zena do
   Rake::TestTask.new(:test => ["zena:test:prepare", "zena:build_fixtures"]) do |t|
     t.libs << "test"
     # do not change the order in which these elements are loaded (adding 'lib/**/test/*_test.rb' fails)
-    t.pattern = ['test/helpers/**/*_test.rb','test/unit/**/*_test.rb', 'lib/parser/test/*_test.rb', 'lib/query_builder/test/*_test.rb' 'test/functional/*_test.rb', 'test/integration/*_test.rb', 'bricks/**/test/unit/*_test.rb', 'bricks/**/test/functional/*_test.rb', 'bricks/**/test/integration/*_test.rb']
+    t.pattern = ['test/helpers/**/*_test.rb','test/unit/**/*_test.rb', 'lib/parser/test/*_test.rb', 'lib/query_builder/test/*_test.rb', 'test/functional/*_test.rb', #'test/integration/*_test.rb',
+                 'bricks/**/test/unit/*_test.rb', 'bricks/**/test/functional/*_test.rb', 'bricks/**/test/integration/*_test.rb']
     t.verbose = true
   end
   Rake::Task['zena:test'].comment = "Run the tests in test/helpers and test/unit"

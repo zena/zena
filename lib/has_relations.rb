@@ -114,10 +114,10 @@ module Zena
       # FIXME: this method does an 'update' not only 'add'
       def add_link(role, hash)
         if rel = relation_proxy(role)
+          rel.other_id = hash[:other_id] if hash.has_key?(:other_id)
           LINK_ATTRIBUTES.each do |k|
             rel.send("other_#{k}=", hash[k]) if hash.has_key?(k)
           end
-          rel.other_id = hash[:other_id] if hash.has_key?(:other_id)
         else
           errors.add(role, 'invalid relation')
         end

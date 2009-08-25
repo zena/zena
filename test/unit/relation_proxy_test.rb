@@ -209,10 +209,30 @@ class RelationProxyTest < ActiveSupport::TestCase
     assert_equal flower[:id], icons[0][:id]
   end
   
+  def test_add_link
+    login(:lion)
+    node = secure!(Node) { nodes(:letter) }
+    node.add_link('calendar', :other_id => nodes_id(:zena))
+    assert node.save
+    
+    node = secure!(Node) { nodes(:letter) }
+    node.add_link('calendar', :other_id => nodes_id(:wiki), :comment => 'woopi')
+    assert node.save
+    assert node.errors.empty?
+    node = secure!(Node) { nodes(:letter) }
+    
+    links = node.relation_proxy('calendar').other_links
+    zena = links.select {|r| r[:target_id] == nodes_id(:zena) }.first
+    assert zena
+    wiki = links.select {|r| r[:target_id] == nodes_id(:wiki) }.first
+    assert wiki
+    assert_equal 'woopi', wiki.comment
+  end
+  
   def test_add_link_bad_target
     login(:lion)
     node = secure!(Node) { nodes(:letter) }
-    node.add_link('calendar', :other_id => 1)
+    node.add_link('calendar', :other_id => 1) # bad id
     assert !node.save
     assert_equal 'invalid target', node.errors['calendar']
     
@@ -307,6 +327,24 @@ class RelationProxyTest < ActiveSupport::TestCase
     assert node.update_attributes_with_transformation('link' => {'hot' => {'other_id' => ''}})
     node = secure!(Node) { nodes(:cleanWater) }
     assert_nil node.find(:first, 'hot')
+  end
+  
+  def test_remove_link_negative_id
+    login(:lion)
+    node = secure!(Node) { nodes(:cleanWater) }
+    references = node.find(:all, 'references')
+    assert_nil references
+    assert node.update_attributes_with_transformation('reference_id' => nodes_zip(:projects))
+    assert node.update_attributes_with_transformation('reference_id' => nodes_zip(:letter))
+    assert node.update_attributes_with_transformation('reference_id' => nodes_zip(:wiki))
+    references = node.find(:all, 'references')
+    assert_equal 3, references.size
+    assert !references.select {|r| r[:zip] == nodes_zip(:letter)}.empty?
+    # remove letter
+    assert node.update_attributes_with_transformation('reference_id' => -nodes_zip(:letter))
+    references = node.find(:all, 'references')
+    assert_equal 2, references.size
+    assert references.select {|r| r[:zip] == nodes_zip(:letter)}.empty?
   end
   
   def test_add_links_same_target_different_dates

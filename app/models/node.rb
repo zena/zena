@@ -270,11 +270,11 @@ class Node < ActiveRecord::Base
     
     # Find a node's attribute based on a pseudo (id or path). Used by zazen to create a link for ""::art or "":(people/ant) for example.
     def translate_pseudo_id(id, sym = :id, base_node = nil)
-      if id.to_s =~ /\A\d+\Z/
+      if id.to_s =~ /\A(-?)(\d+)\Z/
         # zip
         # FIXME: this is not secure
-        res = Node.connection.execute( "SELECT #{sym} FROM nodes WHERE site_id = #{current_site[:id]} AND zip = '#{id}'" ).fetch_row
-        res ? res[0].to_i : nil
+        res = Node.connection.execute( "SELECT #{sym} FROM nodes WHERE site_id = #{current_site[:id]} AND zip = '#{$2}'" ).fetch_row
+        res ? ($1.blank? ? res[0].to_i : -res[0].to_i) : nil
       elsif node = find_node_by_pseudo(id,base_node)
         node[sym]
       else

@@ -123,7 +123,17 @@ class RelationProxy < Relation
   
   # set
   def other_id=(v)
-    attributes_to_update[:id] = v.kind_of?(Array) ? v.uniq.compact.map {|v| v.to_i} : (v.blank? ? nil : v.to_i)
+    if !v.kind_of?(Array) && v.to_i < 0
+      # removing a link
+      # TODO: support Array
+      if link = other_links.select { |l| l[other_side] == -v }.first
+        remove_link(link)
+      else
+        # ignore
+      end
+    else
+      attributes_to_update[:id] = v.kind_of?(Array) ? v.uniq.compact.map {|v| v.to_i} : (v.blank? ? nil : v.to_i)
+    end
   end
   
   def other_ids=(v)
