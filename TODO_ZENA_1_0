@@ -1,0 +1,34 @@
+List of things to discuss
+=========================
+
+Relation between zena, custom applications and bricks:
+
+1. custom models
+2. custom migrations
+3. custom zafu rules
+4. custom tests
+
+Folder structure should be like a rails application with some elements missing (all zena controllers, views, helpers, etc). It
+should still launch in Passenger and all other servers like mongrel.
+
+my_app
+  +-- app             (same structure as a brick)
+  |    +-- models     (custom application stuff)
+  |    +-- zafu       (custom zafu tags)
+  +-- bricks
+  +-- config
+  +-- sites
+  +-- vendor
+
+List of things that need special caring when moving an existing zena application (0.12 branch) to 1.0
+=====================================================================================================
+
+TODO: write a rake task that runs all the transition steps...
+
+Migrations
+----------
+
+They used to live in 'bricks_info', they now live in a specialized schema_migrations_table with a 'brick' parameter alongside 'version'.
+
+TODO: let rails make it a 'schema_migrations' table ===> 'brick' column becomes NULL and that's what we want for the main migrations.
+

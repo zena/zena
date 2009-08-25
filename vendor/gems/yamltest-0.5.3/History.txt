@@ -1,0 +1,18 @@
+== yamltest 0.5.3 2009-06-17
+
+* 1 minor improvement
+	* Added support for spaces in method names
+
+== yamltest 0.5.2 2009-05-28
+
+* 1 minor improvement
+	* Added an option to disable generating 'src' from the test title
+
+== yamltest 0.5.1 2009-02-02
+
+* Simplified gem specification (avoid hoe/newgem/etc dependency)
+
+== yamltest 0.5 2009-01-21
+
+* 1 major improvement
+  * First release after extraction from zena (http://zenadmin.org). [gaspard]

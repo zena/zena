@@ -31,7 +31,7 @@ module Zena
       end
       
       def get_all_versions(brick_name)
-        ActiveRecord::Base.connection.select_values("SELECT version FROM #{bricks_info_table_name} WHERE brick = '#{brick_name}'").map(&:to_i).sort
+        ActiveRecord::Base.connection.select_values("SELECT version FROM #{bricks_info_table_name} WHERE brick #{brick_name ? '=' : 'IS'} #{ActiveRecord::Base.connection.quote(brick_name)}").map(&:to_i).sort
       end
       
       def current_version(brick_name)
@@ -59,6 +59,7 @@ module Zena
       raise StandardError.new("This database does not yet support migrations") unless ActiveRecord::Base.connection.supports_migrations?
       self.class.init_bricks_migration_table
       @direction, @migrations_path, @brick_name, @target_version = direction, migrations_path, brick_name, target_version      
+      @brick_name = nil if @brick_name = 'zena' # use NULL so that rails migrations work the same
     end
     
     def migrated
@@ -72,10 +73,10 @@ module Zena
         @migrated_versions ||= []
         if down?
           @migrated_versions.delete(version.to_i)
-          ActiveRecord::Base.connection.update("DELETE FROM #{sm_table} WHERE version = '#{version}' AND brick = '#{@brick_name}'")
+          ActiveRecord::Base.connection.update("DELETE FROM #{sm_table} WHERE version = '#{version}' AND brick = #{ActiveRecord::Base.connection.quote(@brick_name)}")
         else
           @migrated_versions.push(version.to_i).sort!
-          ActiveRecord::Base.connection.insert("INSERT INTO #{sm_table} (version, brick) VALUES ('#{version}','#{@brick_name}')")
+          ActiveRecord::Base.connection.insert("INSERT INTO #{sm_table} (version, brick) VALUES ('#{version}',#{ActiveRecord::Base.connection.quote(@brick_name)})")
         end
       end
   end

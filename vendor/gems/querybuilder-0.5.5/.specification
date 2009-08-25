@@ -1,0 +1,105 @@
+--- !ruby/object:Gem::Specification 
+name: querybuilder
+version: !ruby/object:Gem::Version 
+  version: 0.5.5
+platform: ruby
+authors: 
+- Gaspard Bucher
+autorequire: 
+bindir: bin
+cert_chain: []
+
+date: 2009-06-04 00:00:00 +00:00
+default_executable: 
+dependencies: 
+- !ruby/object:Gem::Dependency 
+  name: yamltest
+  type: :runtime
+  version_requirement: 
+  version_requirements: !ruby/object:Gem::Requirement 
+    requirements: 
+    - - ">="
+      - !ruby/object:Gem::Version 
+        version: 0.5.0
+    version: 
+- !ruby/object:Gem::Dependency 
+  name: newgem
+  type: :development
+  version_requirement: 
+  version_requirements: !ruby/object:Gem::Requirement 
+    requirements: 
+    - - ">="
+      - !ruby/object:Gem::Version 
+        version: 1.3.0
+    version: 
+- !ruby/object:Gem::Dependency 
+  name: hoe
+  type: :development
+  version_requirement: 
+  version_requirements: !ruby/object:Gem::Requirement 
+    requirements: 
+    - - ">="
+      - !ruby/object:Gem::Version 
+        version: 1.8.0
+    version: 
+description: "QueryBuilder is an interpreter for the \"pseudo sql\" language. This language can be used for two purposes:  1. protect your database from illegal SQL by securing queries 2. ease writing complex relational queries by abstracting table internals"
+email: 
+- gaspard@teti.ch
+executables: []
+
+extensions: []
+
+extra_rdoc_files: 
+- History.txt
+- Manifest.txt
+- README.rdoc
+files: 
+- History.txt
+- Manifest.txt
+- README.rdoc
+- Rakefile
+- lib/QueryBuilder.rb
+- script/console
+- script/destroy
+- script/generate
+- test/mock/custom_queries
+- test/mock/custom_queries/test.yml
+- test/mock/dummy_query.rb
+- test/mock/user_query.rb
+- test/QueryBuilder/basic.yml
+- test/QueryBuilder/errors.yml
+- test/QueryBuilder/filters.yml
+- test/QueryBuilder/joins.yml
+- test/QueryBuilder/mixed.yml
+- test/test_helper.rb
+- test/test_QueryBuilder.rb
+has_rdoc: true
+homepage: http://zenadmin.org/524
+post_install_message: 
+rdoc_options: 
+- --main
+- README.rdoc
+require_paths: 
+- lib
+required_ruby_version: !ruby/object:Gem::Requirement 
+  requirements: 
+  - - ">="
+    - !ruby/object:Gem::Version 
+      version: "0"
+  version: 
+required_rubygems_version: !ruby/object:Gem::Requirement 
+  requirements: 
+  - - ">="
+    - !ruby/object:Gem::Version 
+      version: "0"
+  version: 
+requirements: []
+
+rubyforge_project: querybuilder
+rubygems_version: 1.3.1
+signing_key: 
+specification_version: 2
+summary: QueryBuilder is an interpreter for the "pseudo sql" language
+test_files: 
+- test/test_helper.rb
+- test/test_QueryBuilder.rb

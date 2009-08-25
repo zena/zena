@@ -13,7 +13,7 @@ require File.join(File.dirname(__FILE__), 'boot')
 # Load zena specific settings
 # FIXME: should not be needed (not like this)
 require File.join(File.dirname(__FILE__), 'zena')
-require File.join(File.dirname(__FILE__), '../vendor/gems/uuidtools-2.0.0/lib/uuidtools') # FIXME: this should not be needed !
+#require File.join(File.dirname(__FILE__), '../vendor/gems/uuidtools-2.0.0/lib/uuidtools') # FIXME: this should not be needed !
 require File.join(File.dirname(__FILE__), 'version')
 
 
@@ -61,14 +61,21 @@ Rails::Initializer.run do |config|
     :secret      => 'jkfawe0[y9wrohifashaksfi934jas09455ohifnksdklh'
   }
   
-  config.gem 'recaptcha', :version => '0.1.48'
   config.gem 'RedCloth',  :version => '3.0.4'
-  config.gem "grosser-fast_gettext", :lib => 'fast_gettext', :version => '~>0.2.10', :source=>"http://gems.github.com/"
+  config.gem 'gettext', :version => '1.93.0'
+  config.gem 'grosser-fast_gettext', :lib => 'fast_gettext', :version => '~>0.2.10', :source=>"http://gems.github.com/"
   config.gem 'mislav-will_paginate', :version => '~> 2.2.3', :lib => 'will_paginate', :source => 'http://gems.github.com'
+  config.gem 'querybuilder', :version => '0.5.5'
+  config.gem 'ruby-recaptcha', :version => '1.0.0'
+  config.gem 'syntax', :version => '1.0.0'
+  config.gem 'tzinfo', :version => '0.3.12'
+  config.gem 'uuidtools', :version => '2.0.0'
+  config.gem 'yamltest', :version => '0.5.3'
+  
   
   # TODO: uncomment this line when remarkable stops loading spec/rails or when spec/rails stops messing unit tests. (http://carlosbrando.lighthouseapp.com/projects/19775-remarkable/tickets/14-breaks-testunit-tests#ticket-14-5)
   #config.gem "carlosbrando-remarkable", :lib => "remarkable", :source => "http://gems.github.com"
-
+  
   # Activate observers that should always be running
   # config.active_record.observers = :cacher, :garbage_collector
 

@@ -1,4 +1,4 @@
-require 'recaptcha'
+require 'ruby-recaptcha'
 class ApplicationController
   include ReCaptcha::AppHelper
   

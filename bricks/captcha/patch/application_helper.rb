@@ -1,4 +1,4 @@
-require 'recaptcha'
+require 'ruby-recaptcha'
 module ApplicationHelper
   include ReCaptcha::ViewHelper
   asset_method 'email' => :email_asset

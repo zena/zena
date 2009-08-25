@@ -1,0 +1,81 @@
+--- !ruby/object:Gem::Specification 
+name: ruby-recaptcha
+version: !ruby/object:Gem::Version 
+  version: 1.0.0
+platform: ruby
+authors: 
+- McClain Looney
+autorequire: 
+bindir: bin
+cert_chain: []
+
+date: 2009-02-13 00:00:00 +00:00
+default_executable: 
+dependencies: 
+- !ruby/object:Gem::Dependency 
+  name: newgem
+  type: :development
+  version_requirement: 
+  version_requirements: !ruby/object:Gem::Requirement 
+    requirements: 
+    - - ">="
+      - !ruby/object:Gem::Version 
+        version: 1.2.3
+    version: 
+- !ruby/object:Gem::Dependency 
+  name: hoe
+  type: :development
+  version_requirement: 
+  version_requirements: !ruby/object:Gem::Requirement 
+    requirements: 
+    - - ">="
+      - !ruby/object:Gem::Version 
+        version: 1.8.0
+    version: 
+description: ""
+email: 
+- m@loonsoft.com
+executables: []
+
+extensions: []
+
+extra_rdoc_files: 
+- History.txt
+- README.txt
+files: 
+- History.txt
+- README.txt
+- lib/recaptcha.rb
+- lib/ruby-recaptcha.rb
+- test/test_helper.rb
+- test/test_recaptcha.rb
+has_rdoc: true
+homepage: h2. What
+post_install_message: 
+rdoc_options: 
+- --main
+- README.txt
+require_paths: 
+- lib
+required_ruby_version: !ruby/object:Gem::Requirement 
+  requirements: 
+  - - ">="
+    - !ruby/object:Gem::Version 
+      version: "0"
+  version: 
+required_rubygems_version: !ruby/object:Gem::Requirement 
+  requirements: 
+  - - ">="
+    - !ruby/object:Gem::Version 
+      version: "0"
+  version: 
+requirements: []
+
+rubyforge_project: ruby-recaptcha
+rubygems_version: 1.3.1
+signing_key: 
+specification_version: 2
+summary: ""
+test_files: 
+- test/test_helper.rb
+- test/test_recaptcha.rb

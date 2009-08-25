@@ -163,6 +163,7 @@
 # formatting, to boost speed and limit the processor:
 #
 #  class RedCloth::Textile.new( str )
+
 class RedCloth < String
 
     VERSION = '3.0.4'
