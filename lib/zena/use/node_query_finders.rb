@@ -59,7 +59,7 @@ class NodeQuery < QueryBuilder
     @where.unshift "(\#{#{@node_name}.secure_scope('#{table}')})"
     if @tables.include?('links')
       link_table = table('links')
-      @select << "#{link_table}.id AS link_id,#{Zena::Relations::LINK_ATTRIBUTES.map {|l| "#{link_table}.#{l} AS l_#{l}"}.join(',')}"
+      @select << "#{link_table}.id AS link_id,#{Zena::Use::Relations::LINK_ATTRIBUTES.map {|l| "#{link_table}.#{l} AS l_#{l}"}.join(',')}"
     elsif @errors_unless_safe_links
       @errors += @errors_unless_safe_links
     end

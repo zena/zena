@@ -18,9 +18,9 @@ module Zena
           # TODO: remove for Observers.
           after_save        :after_all
           
-          has_many :versions, :inverse => self.to_s.underscore,  :class_name => opts[:class_name],
+          has_many :versions, :inverse_of => self.to_s.underscore,  :class_name => opts[:class_name],
                    :order=>"number DESC", :dependent => :destroy
-          has_many :editions, :inverse => self.to_s.underscore,  :class_name => opts[:class_name],
+          has_many :editions, :inverse_of => self.to_s.underscore,  :class_name => opts[:class_name],
                    :conditions=>"publish_from <= now() AND status = #{Zena::Status[:pub]}", :order=>'lang'
           
           before_validation :set_status_before_validation

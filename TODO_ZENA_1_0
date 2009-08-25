@@ -32,3 +32,9 @@ They used to live in 'bricks_info', they now live in a specialized schema_migrat
 
 TODO: let rails make it a 'schema_migrations' table ===> 'brick' column becomes NULL and that's what we want for the main migrations.
 
+Some tips and tricks that could help
+====================================
+
+Error                                          Solution
+------------------------------------------+-----------------------------
+Malformed version number string 3.0.pre   |    sudo gem update --system

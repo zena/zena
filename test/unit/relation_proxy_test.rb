@@ -377,9 +377,9 @@ class RelationProxyTest < ActiveSupport::TestCase
     assert_equal Time.gm(2009,7,18,8), references.last.l_date
   end
   
-  def test_zafu_readable
-    assert Node.zafu_readable?('l_status')
-    assert Node.zafu_readable?('l_comment')
-    assert Node.zafu_readable?('l_date')
+  def test_attr_public
+    assert Node.attr_public?('l_status')
+    assert Node.attr_public?('l_comment')
+    assert Node.attr_public?('l_date')
   end
 end

@@ -1,6 +1,6 @@
 class RelationProxy < Relation
   attr_accessor   :side, :link_errors, :start, :other_link, :last_target
-  LINK_ATTRIBUTES = Zena::Relations::LINK_ATTRIBUTES
+  LINK_ATTRIBUTES = Zena::Use::Relations::LINK_ATTRIBUTES
   LINK_ATTRIBUTES_SQL = LINK_ATTRIBUTES.map {|sym| "`#{sym}`"}.join(',')
   LINK_SELECT     = "nodes.*,links.id AS link_id,#{LINK_ATTRIBUTES.map {|l| "links.#{l} AS l_#{l}"}.join(',')}"
   

@@ -22,7 +22,7 @@ class Link < ActiveRecord::Base
     rel = @node.relation_proxy_from_link(self)
     rel.other_link = self
     
-    Zena::Relations::LINK_ATTRIBUTES.each do |k|
+    Zena::Use::Relations::LINK_ATTRIBUTES.each do |k|
       k = k.to_s # TODO: use only strings or symbols but avoid this mess
       rel.send("other_#{k}=", attrs[k]) if attrs.has_key?(k)
       self[k] = attrs[k]
