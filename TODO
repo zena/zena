@@ -17,3 +17,8 @@ link[other_zip] = ZIP
 
 We need 'other_zip' because select_id helper needs to read the value... "select_id" is really bad code. yuk.
 
+===== documentation ======
+
+using negative ids to remove links:
+
+friend_id = -ZIP  ====> ensure there is no 'friend' relationship with node ZIP.
