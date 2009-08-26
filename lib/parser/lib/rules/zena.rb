@@ -568,7 +568,7 @@ module Zena
     end
     
     def r_content_for_layout
-      "<% if @content_for_layout -%><%= @content_for_layout %><% else -%>" +
+      "<% if content_for_layout = yield -%><%= content_for_layout %><% else -%>" +
       expand_with +
       "<% end -%>"
     end

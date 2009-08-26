@@ -144,7 +144,7 @@ module ApplicationHelper
   end
   
   def upload_form_tag(url_opts, html_opts = {})
-    @uuid = UUID.random_create.to_s.gsub('-','')
+    @uuid = UUIDTools::UUID.random_create.to_s.gsub('-','')
     html_opts.reverse_merge!(:multipart => true, :id => "UploadForm#{@uuid}")
     if html_opts[:multipart]
       html_opts[:onsubmit] = "submitUploadForm('#{html_opts[:id]}', '#{@uuid}');"

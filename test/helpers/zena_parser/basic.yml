@@ -873,7 +873,7 @@ include_context:
 
 content_for_layout:
   src: "<r:content_for_layout>blah blah</r:content_for_layout>"
-  tem: "<% if @content_for_layout -%><%= @content_for_layout %><% else -%>blah blah<% end -%>"
+  tem: "<% if content_for_layout = yield -%><%= content_for_layout %><% else -%>blah blah<% end -%>"
   res: "blah blah"
 
 title_for_layout:

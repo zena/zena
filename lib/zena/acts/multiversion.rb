@@ -38,6 +38,10 @@ module Zena
           class << self
             include Zena::Acts::Multiversion::ClassMethods
           end
+          
+          # List of allowed *version* transitions with their validation rules. This list
+          # concerns the life and death of *a single version*, not the corresponding Node.
+          
                                             # not pub                                   pub
           add_transition(:publish, :from => [-1..29,31..49].map(&:to_a).flatten, :to => 50) do |r|
             ( r.can_visible? ||
@@ -252,7 +256,12 @@ module Zena
           when :destroy_version
             # anonymous users cannot destroy
             can_drive? && prev_status == Zena::Status[:rem] && !visitor.is_anon? && (self.versions.count > 1 || empty?)
+          when :edit
+            can_edit_lang?
+          when :drive
+            can_drive?
           else
+            # All the other actions are version transition changes
             transition_allowed?(method, v)
           end
         end

@@ -953,7 +953,7 @@ END_MSG
       when '+login'
         content =~ %r{<form[^>]* action\s*=\s*./session}
       when '+adminLayout'
-        content =~ %r{<%= @content_for_layout %>} && %r{show_link(:admin_links)}
+        content =~ %r{<%= content_for_layout %>} && %r{show_link(:admin_links)}
       else
         true
       end

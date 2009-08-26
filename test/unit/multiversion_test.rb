@@ -917,4 +917,10 @@ class MultiVersionTest < ActiveSupport::TestCase
     node = secure!(Node) { nodes(:cleanWater)  }
     assert_equal Zena::Status[:pub], node.v_status
   end
+  
+  def test_transition_allowed
+    login(:tiger) # can do everything
+    node = secure!(Node) { nodes(:status) }
+    assert node.can_apply?(:edit)
+  end
 end
