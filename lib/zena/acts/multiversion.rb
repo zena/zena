@@ -18,9 +18,9 @@ module Zena
           # TODO: remove for Observers.
           after_save        :after_all
           
-          has_many :versions, :inverse_of => self.to_s.underscore,  :class_name => opts[:class_name],
+          has_many :versions, :inverse_of => :node,  :class_name => opts[:class_name],
                    :order=>"number DESC", :dependent => :destroy
-          has_many :editions, :inverse_of => self.to_s.underscore,  :class_name => opts[:class_name],
+          has_many :editions, :inverse_of => :node,  :class_name => opts[:class_name],
                    :conditions=>"publish_from <= now() AND status = #{Zena::Status[:pub]}", :order=>'lang'
           
           before_validation :set_status_before_validation
@@ -95,6 +95,14 @@ module Zena
           #   [(30..30),  30] => :update_attributes,
           #   [(40..49),  30] => :refuse,
           #  }.freeze
+        end
+        
+        def acts_as_version(opts = {})
+          opts.reverse_merge!({
+            :class_name => 'Node'
+          })
+          
+          belongs_to :node, :inverse_of => :versions,  :class_name => opts[:class_name]
         end
         
         def act_as_content

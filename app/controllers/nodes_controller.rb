@@ -178,11 +178,12 @@ class NodesController < ApplicationController
   end
   
   def show
+    
     respond_to do |format|
       
       format.html { render_and_cache }
       
-      format.all  do
+      format.any do
         if asset = params[:asset]
           # math rendered as png, ...
           filename     = "#{asset}.#{params[:format]}"
@@ -201,12 +202,16 @@ class NodesController < ApplicationController
               @node.c_file(img_format)
             end
           elsif @node.kind_of?(TextDocument)
-            send_data(@node.v_text, :filename => @node.filename, :type => @node.c_content_type, :disposition=>'inline')
+            send_data(@node.v_text, :filename => @node.filename, :type => 'text/css', :disposition => 'inline')
           else
             content_path = @node.c_filepath
           end
           
-          send_file(content_path, :filename => @node.filename, :type => @node.c_content_type, :disposition => 'inline', :x_sendfile => ENABLE_XSENDFILE) if content_path
+          if content_path
+            # FIXME RAILS: remove 'stream => false' when rails streaming is fixed
+            send_file(content_path, :filename => @node.filename, :type => @node.c_content_type, :disposition => 'inline', :stream => false, :x_sendfile => ENABLE_XSENDFILE)
+          end
+          
           cache_page(:content_path => content_path, :authenticated => @node.public?) # content_path is used to cache by creating a symlink
         else
           render_and_cache
@@ -421,10 +426,11 @@ class NodesController < ApplicationController
           asset_and_format = $6 == '' ? '' : $6[1..-1]
           if asset_and_format =~ /(\w+)\.(\w+)/
             params[:asset ] = $1
-            params[:format] = $2
+            set_format($2)
           else
-            params[:format] = asset_and_format
+            set_format(asset_and_format)
           end
+          
           if name =~ /^\d+$/
             @node = secure!(Node) { Node.find_by_zip(name) }
           elsif name
@@ -447,6 +453,13 @@ class NodesController < ApplicationController
       
       @title_for_layout = @node.rootpath if @node
     end
+    
+    def set_format(format)
+      request.instance_eval do
+        parameters[:format] = format
+        @env["action_dispatch.request.formats"] = [Mime::Type.lookup_by_extension(parameters[:format]) || Mime::Type.lookup_by_extension('bin')]
+      end
+    end
 
     def check_path
       case params[:action]
@@ -464,7 +477,7 @@ class NodesController < ApplicationController
           # lang changed
           set_visitor_lang(params[:prefix])
           redirect_url = zen_path(@node, path_params)
-        elsif params[:path] != zen_path(@node, :format=>params[:format], :mode=>params[:mode], :asset=>params[:asset]).split('/')[2..-1]
+        elsif params[:path] != zen_path(@node, :format => params[:format], :mode=>params[:mode], :asset=>params[:asset]).split('/')[2..-1]
           # badly formed url
           redirect_url = zen_path(@node, path_params)
         elsif params[:mode] == 'edit' && !@node.can_write?

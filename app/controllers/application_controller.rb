@@ -310,9 +310,7 @@ END_MSG
         @expire_with_nodes = {}
         @renamed_assets    = {}
         
-        # where is the session stored in rails 2.0 ?
-        response.template.instance_variable_set(:@session, session)
-        skin_helper = response.template
+        skin_helper = ActionView::Base.for_controller(self)
         res = ZafuParser.new_with_url(skin_path, :helper => skin_helper).render(:dev => session[:dev])
         
         unless valid_template?(res, opts)

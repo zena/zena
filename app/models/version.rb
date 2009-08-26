@@ -36,7 +36,7 @@ class Version < ActiveRecord::Base
   attr_accessible    :title, :text, :summary, :comment, :publish_from, :lang, :status, :content_attributes, :dyn_attributes
   zafu_context       :author => "Contact", :user => "User", :node => "Node"
   
-  belongs_to            :node
+  acts_as_version
   belongs_to            :user
   before_validation     :version_before_validation
   validates_presence_of :user, :site_id
