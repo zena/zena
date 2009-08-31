@@ -11,24 +11,6 @@
 
 ActiveRecord::Schema.define(:version => 52) do
 
-  create_table "access_hits", :force => true do |t|
-    t.integer  "site_id"
-    t.integer  "node_id"
-    t.string   "remote_host",      :limit => 50
-    t.datetime "request_time"
-    t.integer  "request_duration"
-    t.integer  "status"
-    t.integer  "bytes_sent"
-    t.string   "request_method",   :limit => 6
-    t.string   "request_uri"
-    t.string   "referer"
-    t.string   "agent"
-    t.string   "request_line"
-    t.string   "mode",             :limit => 30
-    t.string   "format",           :limit => 10
-    t.string   "lang",             :limit => 6
-  end
-
   create_table "cached_pages", :force => true do |t|
     t.text     "path"
     t.datetime "expire_after"
@@ -115,7 +97,6 @@ ActiveRecord::Schema.define(:version => 52) do
     t.string  "content_type", :limit => 40
     t.string  "ext",          :limit => 20
     t.integer "size"
-    t.string  "format",       :limit => 20
     t.integer "width"
     t.integer "height"
     t.integer "site_id"
@@ -131,19 +112,6 @@ ActiveRecord::Schema.define(:version => 52) do
   add_index "dyn_attributes", ["owner_id"], :name => "index_dyn_attributes_on_owner_id"
   add_index "dyn_attributes", ["owner_table"], :name => "index_dyn_attributes_on_owner_table"
 
-  create_table "form_lines", :force => true do |t|
-    t.integer "seizure_id"
-    t.string  "key"
-    t.string  "value"
-  end
-
-  create_table "form_seizures", :force => true do |t|
-    t.integer  "user_id",    :default => 0, :null => false
-    t.datetime "created_at"
-    t.datetime "updated_at"
-    t.integer  "form_id"
-  end
-
   create_table "groups", :force => true do |t|
     t.datetime "created_at"
     t.datetime "updated_at"
@@ -152,8 +120,8 @@ ActiveRecord::Schema.define(:version => 52) do
   end
 
   create_table "groups_users", :id => false, :force => true do |t|
-    t.integer "group_id"
-    t.integer "user_id"
+    t.integer "group_id", :null => false
+    t.integer "user_id",  :null => false
   end
 
   create_table "iformats", :force => true do |t|
@@ -182,7 +150,7 @@ ActiveRecord::Schema.define(:version => 52) do
     t.string   "kpath",        :limit => 16
     t.datetime "created_at"
     t.datetime "updated_at"
-    t.integer  "user_id"
+    t.integer  "user_id",                                        :null => false
     t.integer  "section_id"
     t.integer  "parent_id"
     t.string   "name",         :limit => 200
@@ -197,7 +165,6 @@ ActiveRecord::Schema.define(:version => 52) do
     t.string   "ref_lang",     :limit => 10,  :default => "",    :null => false
     t.string   "alias",        :limit => 400
     t.text     "fullpath"
-    t.integer  "dgroup_id"
     t.boolean  "custom_base",                 :default => false
     t.text     "basepath"
     t.integer  "site_id"
@@ -270,12 +237,11 @@ ActiveRecord::Schema.define(:version => 52) do
   create_table "users", :force => true do |t|
     t.datetime "created_at"
     t.datetime "updated_at"
-    t.string   "login",         :limit => 20
-    t.string   "password",      :limit => 40
-    t.string   "password_salt", :limit => 40
-    t.string   "first_name",    :limit => 60
-    t.string   "name",          :limit => 60
-    t.string   "email",         :limit => 60
+    t.string   "login",      :limit => 20
+    t.string   "password",   :limit => 40
+    t.string   "first_name", :limit => 60
+    t.string   "name",       :limit => 60
+    t.string   "email",      :limit => 60
     t.string   "time_zone"
   end
 
@@ -283,8 +249,8 @@ ActiveRecord::Schema.define(:version => 52) do
     t.string   "type",         :limit => 32
     t.datetime "created_at"
     t.datetime "updated_at"
-    t.integer  "node_id"
-    t.integer  "user_id"
+    t.integer  "node_id",                                     :null => false
+    t.integer  "user_id",                                     :null => false
     t.string   "lang",         :limit => 10,  :default => "", :null => false
     t.datetime "publish_from"
     t.text     "comment",                                     :null => false

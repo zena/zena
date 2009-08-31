@@ -38,19 +38,21 @@ unless File.exist?(File.join(File.dirname(__FILE__), '..', 'log'))
 end
 
 # TODO: where should this go ? (it has to be loaded by 'rake' and tests...)
+require 'active_support/concern'  # ?? needed by active_record/fixtures...
+require 'active_record/fixtures'  # Fixtures.identify...
 module ZenaTest
   def self.id(site, key)
     return nil if key.blank?
     if key == 0 # special rgroup, wgroup, pgroup values...
       key
     else
-      "#{site}_#{key}".hash.abs
+      Fixtures.identify("#{site}_#{key}")
     end
   end
 
   def self.multi_site_id(key)
     return nil if key.blank?
-    key.to_s.hash.abs
+    Fixtures.identify(key)
   end
 
   def self.multi_site_tables
