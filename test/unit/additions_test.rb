@@ -1,11 +1,5 @@
-require File.dirname(__FILE__) + '/../test_helper'
-class AdditionsTest < ActiveSupport::TestCase
-  include Zena::Test::Unit
-  def setup; login(:anon); end
-
-  def setup
-    super
-  end
+require 'test_helper'
+class AdditionsTest < Zena::Unit::TestCase
   
   def test_zip_fixtures
     assert_equal zips_zip(:zena), Node.connection.execute("select zip from zips where site_id = #{sites_id(:zena)}").fetch_row[0].to_i
