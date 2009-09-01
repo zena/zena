@@ -1,8 +1,6 @@
 require 'test_helper'
 
-class SectionTest < ActiveSupport::TestCase
-  include Zena::Test::Unit
-  def setup; login(:anon); end
+class SectionTest < Zena::Unit::TestCase
   
   
   def test_section_id_on_create

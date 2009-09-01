@@ -1,8 +1,6 @@
 require 'test_helper'
 
-class IformatTest < ActiveSupport::TestCase
-  include Zena::Test::Unit
-  def setup; login(:anon); end
+class IformatTest < Zena::Unit::TestCase
   
   def setup
     super

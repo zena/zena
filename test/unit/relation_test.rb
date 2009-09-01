@@ -1,9 +1,7 @@
 require 'test_helper'
 
 # Test Relation. RelationProxy is tested in its own file.
-class RelationTest < ActiveSupport::TestCase
-  include Zena::Test::Unit
-  def setup; login(:anon); end
+class RelationTest < Zena::Unit::TestCase
   
   def test_cannot_create
     login(:ant) # not an admin

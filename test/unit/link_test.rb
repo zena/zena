@@ -1,8 +1,6 @@
 require 'test_helper'
 
-class LinkTest < ActiveSupport::TestCase
-  include Zena::Test::Unit
-  def setup; login(:anon); end
+class LinkTest < Zena::Unit::TestCase
 
   def test_link_through
     node = secure!(Node) { nodes(:cleanWater) }

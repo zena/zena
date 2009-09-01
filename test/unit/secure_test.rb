@@ -6,9 +6,7 @@ class PagerDummy < Node
 end
 class SubPagerDummy < PagerDummy
 end
-class SecureReadTest < ActiveSupport::TestCase
-  include Zena::Test::Unit
-  def setup; User.make_visitor(:host=>'test.host', :id=>users_id(:anon)); end
+class SecureReadTest < Zena::Unit::TestCase
   
   def test_kpath
     assert_equal 'N', Node.kpath
@@ -186,9 +184,7 @@ class SecureReadTest < ActiveSupport::TestCase
   end
 end
 
-class SecureCreateTest < ActiveSupport::TestCase
-  include Zena::Test::Unit
-  def setup; User.make_visitor(:host=>'test.host', :id=>users_id(:anon)); end
+class SecureCreateTest < Zena::Unit::TestCase
 
   def node_defaults
     {
@@ -513,9 +509,7 @@ class SecureCreateTest < ActiveSupport::TestCase
   # testing is done in page_test or node_test
 end
 
-class SecureUpdateTest < ActiveSupport::TestCase
-  include Zena::Test::Unit
-  def setup; login(:ant); end
+class SecureUpdateTest < Zena::Unit::TestCase
   
   def create_simple_note(opts={})
     login(opts[:login] || :ant)
@@ -1006,9 +1000,8 @@ class SecureUpdateTest < ActiveSupport::TestCase
 end
 
 
-class SecureVisitorStatusTest < ActiveSupport::TestCase
-  include Zena::Test::Unit
-  def setup; User.make_visitor(:host=>'test.host', :id=>users_id(:anon)); end
+class SecureVisitorStatusTest < Zena::Unit::TestCase
+  
   def test_reader_cannot_write
     login(:whale)
     assert_equal visitor.status, User::Status[:admin]

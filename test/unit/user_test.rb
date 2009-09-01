@@ -1,8 +1,6 @@
 require 'test_helper'
 
-class UserTest < ActiveSupport::TestCase
-  include Zena::Test::Unit
-  def setup; login(:anon); end
+class UserTest < Zena::Unit::TestCase
 
   def test_visited_node_ids
     login(:tiger)

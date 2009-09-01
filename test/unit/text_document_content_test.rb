@@ -1,8 +1,6 @@
 require 'test_helper'
 
-class TextDocumentContentTest < ActiveSupport::TestCase
-  include Zena::Test::Unit
-  def setup; login(:anon); end
+class TextDocumentContentTest < Zena::Unit::TestCase
 
   def test_truth
     assert true

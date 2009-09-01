@@ -1,8 +1,6 @@
 require 'test_helper'
 
-class RelationProxyTest < ActiveSupport::TestCase
-  include Zena::Test::Unit
-  def setup; login(:anon); end
+class RelationProxyTest < Zena::Unit::TestCase
   
   def test_find_by_role
     assert_equal relations_id(:note_has_calendars), RelationProxy.find_by_role('news')[:id]

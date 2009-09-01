@@ -1,8 +1,6 @@
 require 'test_helper'
 
-class NodeTest < ActiveSupport::TestCase
-  include Zena::Test::Unit
-  def setup; login(:anon); end
+class NodeTest < Zena::Unit::TestCase
 
   NEW_DEFAULT = {
     :name       => 'hello',

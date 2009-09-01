@@ -1,8 +1,6 @@
 require 'test_helper'
 
-class TextDocumentTest < ActiveSupport::TestCase
-  include Zena::Test::Unit
-  def setup; login(:anon); end
+class TextDocumentTest < Zena::Unit::TestCase
   
   def test_create_simplest
     login(:tiger)

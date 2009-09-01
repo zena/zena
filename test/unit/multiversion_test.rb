@@ -1,8 +1,6 @@
 require 'test_helper'
 
-class MultiVersionTest < ActiveSupport::TestCase
-  include Zena::Test::Unit
-  def setup; login(:anon); end
+class MultiVersionTest < Zena::Unit::TestCase
   
   def node_defaults
     {

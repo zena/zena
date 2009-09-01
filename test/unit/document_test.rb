@@ -1,8 +1,6 @@
 require 'test_helper'
 require 'fileutils'
-class DocumentTest < ActiveSupport::TestCase
-  include Zena::Test::Unit
-  def setup; login(:anon); end
+class DocumentTest < Zena::Unit::TestCase
   
   def test_create_with_file
     without_files('/test.host/data') do

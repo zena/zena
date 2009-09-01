@@ -1,8 +1,6 @@
 require 'test_helper'
 
-class ReferenceTest < ActiveSupport::TestCase
-  include Zena::Test::Unit
-  def setup; login(:anon); end
+class ReferenceTest < Zena::Unit::TestCase
 
   # Replace this with your real tests.
   def test_truth

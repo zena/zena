@@ -1,8 +1,6 @@
 require 'test_helper'
 
-class ImageContentTest < ActiveSupport::TestCase
-  include Zena::Test::Unit
-  def setup; login(:anon); end
+class ImageContentTest < Zena::Unit::TestCase
   
   if Magick.const_defined?(:ZenaDummy)
     def test_set_file

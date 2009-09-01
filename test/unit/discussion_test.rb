@@ -1,8 +1,6 @@
 require 'test_helper'
 
-class DiscussionTest < ActiveSupport::TestCase
-  include Zena::Test::Unit
-  def setup; login(:anon); end
+class DiscussionTest < Zena::Unit::TestCase
 
   def test_comments
     discussion = Discussion.find(discussions_id(:inside_discussion_on_status))

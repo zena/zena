@@ -1,8 +1,6 @@
 require 'test_helper'
 
-class SiteTest < ActiveSupport::TestCase
-  include Zena::Test::Unit
-  def setup; login(:anon); end
+class SiteTest < Zena::Unit::TestCase
   
   def test_create_site
     site = nil

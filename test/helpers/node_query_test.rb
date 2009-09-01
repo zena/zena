@@ -1,8 +1,6 @@
 require File.join(File.dirname(__FILE__), "testhelp")
 
-class NodeQueryTest < ActiveSupport::TestCase
-  include Zena::Test::Unit
-  def setup; login(:anon); end
+class NodeQueryTest < Zena::Unit::TestCase
   yamltest
 
   def yt_do_test(file, test)

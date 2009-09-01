@@ -1,8 +1,6 @@
 require 'test_helper'
 
-class DataEntryTest < ActiveSupport::TestCase
-  include Zena::Test::Unit
-  def setup; login(:anon); end
+class DataEntryTest < Zena::Unit::TestCase
   
   def test_site_id
     login(:tiger)

@@ -1,7 +1,5 @@
 require 'test_helper'
-class VersionTest < ActiveSupport::TestCase
-  include Zena::Test::Unit
-  def setup; login(:anon); end
+class VersionTest < Zena::Unit::TestCase
   
   def version(sym)
     secure!(Node) { nodes(sym) }.version

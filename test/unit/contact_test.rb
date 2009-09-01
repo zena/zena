@@ -1,8 +1,6 @@
 require 'test_helper'
 
-class ContactTest < ActiveSupport::TestCase
-  include Zena::Test::Unit
-  def setup; login(:anon); end
+class ContactTest < Zena::Unit::TestCase
 
   def test_user
     login(:anon)

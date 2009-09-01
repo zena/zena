@@ -1,8 +1,6 @@
 require 'test_helper'
 
-class NoteTest < ActiveSupport::TestCase
-  include Zena::Test::Unit
-  def setup; login(:anon); end
+class NoteTest < Zena::Unit::TestCase
   
   def test_create_with_name
     login(:tiger)

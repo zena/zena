@@ -1,8 +1,6 @@
 require 'test_helper'
 
-class DocumentContentTest < ActiveSupport::TestCase
-  include Zena::Test::Unit
-  def setup; login(:anon); end
+class DocumentContentTest < Zena::Unit::TestCase
   
   def test_site_id
     without_files('/test.host/data/full') do

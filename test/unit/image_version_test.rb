@@ -1,8 +1,6 @@
 require 'test_helper'
 
-class ImageVersionTest < ActiveSupport::TestCase
-  include Zena::Test::Unit
-  def setup; login(:anon); end
+class ImageVersionTest < Zena::Unit::TestCase
   
   def test_set_image_text
     without_files('data/test/jpg') do

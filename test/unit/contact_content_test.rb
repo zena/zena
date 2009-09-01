@@ -1,8 +1,6 @@
 require 'test_helper'
 
-class ContactContentTest < ActiveSupport::TestCase
-  include Zena::Test::Unit
-  def setup; login(:anon); end
+class ContactContentTest < Zena::Unit::TestCase
   
   def test_cannot_set_site_id
     login(:tiger)

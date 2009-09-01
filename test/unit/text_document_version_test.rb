@@ -1,8 +1,6 @@
 require 'test_helper'
 
-class TextDocumentVersionTest < ActiveSupport::TestCase
-  include Zena::Test::Unit
-  def setup; login(:anon); end
+class TextDocumentVersionTest < Zena::Unit::TestCase
   
   def test_content
     v = TextDocumentVersion.new

@@ -1,8 +1,6 @@
 require 'test_helper'
 
-class TemplateTest < ActiveSupport::TestCase
-  include Zena::Test::Unit
-  def setup; login(:anon); end
+class TemplateTest < Zena::Unit::TestCase
   
   def test_create_simplest
     login(:tiger)

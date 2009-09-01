@@ -1,8 +1,6 @@
 require 'test_helper'
 
-class LetterTest < ActiveSupport::TestCase
-  include Zena::Test::Unit
-  def setup; login(:anon); end
+class LetterTest < Zena::Unit::TestCase
   
   def test_split_kpath
     login(:tiger)

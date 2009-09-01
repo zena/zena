@@ -1,8 +1,6 @@
 require 'test_helper'
 
-class ImageBuilderTest < ActiveSupport::TestCase
-  include Zena::Test::Unit
-  def setup; login(:anon); end
+class ImageBuilderTest < Zena::Unit::TestCase
   
   # Dummy tests
   if ImageBuilder.dummy?

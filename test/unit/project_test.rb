@@ -1,8 +1,6 @@
 require 'test_helper'
 
-class ProjectTest < ActiveSupport::TestCase
-  include Zena::Test::Unit
-  def setup; login(:anon); end
+class ProjectTest < Zena::Unit::TestCase
 
   
   def test_project_id_on_create

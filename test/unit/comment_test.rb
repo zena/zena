@@ -1,8 +1,6 @@
 require 'test_helper'
 
-class CommentTest < ActiveSupport::TestCase
-  include Zena::Test::Unit
-  def setup; login(:anon); end
+class CommentTest < Zena::Unit::TestCase
   
   def test_discussion
     comment = comments(:ant_says_inside)
