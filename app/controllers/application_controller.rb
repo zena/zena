@@ -310,11 +310,11 @@ END_MSG
         @expire_with_nodes = {}
         @renamed_assets    = {}
         
-        res = ZafuParser.new_with_url(skin_path, :helper => skin_helper).render(:dev => session[:dev])
+        res = ZafuParser.new_with_url(skin_path, :helper => zafu_helper).render(:dev => session[:dev])
         
         unless valid_template?(res, opts)
           # problem during rendering, use default zafu
-          res = ZafuParser.new(default_zafu_template(mode), :helper => skin_helper).render
+          res = ZafuParser.new(default_zafu_template(mode), :helper => zafu_helper).render
         end
         
         if session[:dev] && mode != '+popupLayout'
@@ -341,7 +341,7 @@ END_MSG
             dev_box << "  <li><a class='group' onclick='$(\"_dev_#{name}\").toggle();' href='#'>#{name}</a>\n"
             dev_box << "  <table id='_dev_#{name}'#{name == 'images' ? " style='display:none;'" : ''}>\n"
             nodes.each do |k,n|
-              dev_box << "    <tr><td class='actions'>#{skin_helper.send(:node_actions, :node=>n)}</td><td>#{skin_helper.send(:link_to,k,zen_path(n))}</td></tr>\n"
+              dev_box << "    <tr><td class='actions'>#{zafu_helper.send(:node_actions, :node=>n)}</td><td>#{zafu_helper.send(:link_to,k,zen_path(n))}</td></tr>\n"
             end
             dev_box << "  </table>\n"
             dev_box << "  </li>\n"
@@ -368,9 +368,9 @@ END_MSG
       return rel_url
     end
   
-    def skin_helper
-      @skin_helper ||= begin
-        # FIXME rails 3.0.pre: skin_helper = ActionView::Base.for_controller(self)
+    def zafu_helper
+      @zafu_helper ||= begin
+        # FIXME rails 3.0.pre: zafu_helper = ActionView::Base.for_controller(self)
         helper = ActionView::Base.new([], {}, self)
         helper.helpers.send :include, self.class.master_helper_module
         helper

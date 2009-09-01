@@ -54,10 +54,6 @@ class TestController < ApplicationController
     params.delete(:text)
     params.delete(:url)
   end
-  
-  def zafu_helper
-    @zafu_helper ||= ActionView::Base.for_controller(self)
-  end
 
   def get_template_text(opts={})
     src    = opts[:src]

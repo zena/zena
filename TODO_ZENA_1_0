@@ -14,6 +14,8 @@ should still launch in Passenger and all other servers like mongrel.
 my_app
   +-- app             (same structure as a brick)
   |    +-- models     (custom application stuff)
+  |    +-- controllers
+  |    +-- helpers
   |    +-- zafu       (custom zafu tags)
   +-- bricks
   +-- config
