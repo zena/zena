@@ -4,7 +4,6 @@ require 'json'
 class ApplicationController < ActionController::Base
   include Zena::Use::Authentification::ControllerMethods
   include Zena::Use::ErrorRendering::ControllerMethods
-  include Zena::Use::HtmlTags::ControllerMethods
   include Zena::Use::I18n::ControllerMethods
   include Zena::Use::Refactor::ControllerMethods
   include Zena::Use::Rendering::ControllerMethods
