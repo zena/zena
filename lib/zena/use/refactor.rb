@@ -1,7 +1,21 @@
 module Zena
   module Use
     module Refactor
+      module Common
+
+        # TODO: test
+        def lang
+          visitor.lang
+        end
+      end # Common
+      
       module ControllerMethods
+        include Common
+        
+        def self.included(base)
+          base.send(:helper_attr, :visitor)
+        end
+        
         # TODO: test
         def visitor
           @visitor ||= returning(User.make_visitor(:host => request.host, :id => session[:user])) do |user|
@@ -14,11 +28,6 @@ module Zena
             end
           end
         end
-
-        # TODO: test
-        def lang
-          visitor.lang
-        end        
         
         # Read the parameters and add errors to the object if it is considered spam. Save it otherwize.
         def save_if_not_spam(obj, params)
@@ -29,6 +38,7 @@ module Zena
       end # ControllerMethods
       
       module ViewMethods
+        include Common
         
         # TODO: use Rails native helper.
         def javascript( string )

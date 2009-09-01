@@ -11,7 +11,7 @@ module Zena
           return nil unless res = find_document_for_template(opts)
           doc, url = *res
           # TODO: could we use this for caching or will we loose dynamic context based loading ?
-          @expire_with_nodes[url] = doc
+          self.expire_with_nodes[url] = doc
           text = session[:dev] ? doc.version.text : doc.version(:pub).text
           return text, url, doc
         end
@@ -66,7 +66,7 @@ module Zena
             end
 
             asset, url = *res
-            @renamed_assets[url] = asset
+            self.renamed_assets[url] = asset
           end
 
           data_path(asset, :mode => mode)
@@ -115,11 +115,68 @@ module Zena
           end
           File.read(File.join(RAILS_ROOT, 'app', 'views', 'templates', 'defaults', "#{mode}.zafu"))
         end
-           
+        
+        
+        # opts should contain :current_template and :src. The source is a path like 'default/Node-+index'
+        # ('skin/template/path'). If the path starts with a slash, the skin_name in the path is searched first. Otherwise,
+        # the current skin is searched first.
+        # <r:include template='Node'/>
+        #   find: #{skin_path(main_skin)}/Node
+        # 
+        # <r:include template='/default/Node'/>
+        #   find: #{skin_path('default')}/Node
+        # 
+        def find_document_for_template(opts)
+          src    = opts[:src]
+          if src =~ /\A(.*)\.(\w+)\Z/
+            src, format = $1, $2
+          end
+
+          if src =~ /\A(.*)_(\w+)\Z/
+            src, mode = $1, $2
+          end
+
+          folder = (opts[:current_folder] && opts[:current_folder] != '') ? opts[:current_folder].split('/') : []
+          @skin ||= {}
+          if src =~ /^\//
+            # starts with '/' : look here first
+            url = src[1..-1].split('/')
+            name = url.shift
+            skin_names_list = opts[:parse_assets] ? [name] : ([name] + (self.skin_names - [name]))
+          else
+            # does not start with '/' : look in current skin first
+            url = folder + src.split('/')
+            skin_names_list = opts[:parse_assets] ? [] : self.skin_names.dup
+            if url.size > 1
+              name = url.shift
+              skin_names_list << name unless skin_names_list.include?(name)
+            end
+          end
+          document = skin_name = nil
+          [false, true].each do |rebuild_path|
+            # try to find using cached fullpath first.
+            skin_names_list.each do |skin_name|
+              next unless skin = @skin[skin_name] ||= secure(Skin) { Skin.find_by_name(skin_name) }
+              path = (skin.fullpath(rebuild_path).split('/') + url).join('/')
+              break if document = secure(Document) { Document.find_by_path(path) }
+            end
+            break if document
+          end
+          if format == 'data' && document
+            format = document.c_ext
+          end
+          return document ? [document, (([skin_name] + url).join('/') + (mode ? "_#{mode}" : '') + (format ? ".#{format}" : ''))] : nil
+        end
+        
       end # Common
 
       module ControllerMethods
         include Common 
+        
+        def self.included(base)
+          base.send(:helper_attr, :skin_names, :expire_with_nodes, :renamed_assets)
+          base.send(:attr_accessor, :skin_names, :expire_with_nodes, :renamed_assets)
+        end
         
         # Find the best template for the current node's skin, node's class, format and mode. The template
         # files are searched first into 'sites/shared/views/templates/fixed'. If the templates are not found
@@ -171,15 +228,15 @@ module Zena
             # set the places to search for the included templates
             # FIXME: there might be a better way to do this. In a hurry, fix later.
             @skin       = {}
-            @skin_names = [@skin_name]
+            self.skin_names = [@skin_name]
             secure!(Skin) { Skin.find(:all, :order=>'position ASC, name ASC') }.each do |s|
               @skin[s.name] = s
               next if s.name == @skin_name # do not add it twice
-              @skin_names << s.name
+              skin_names << s.name
             end
             @skin_link  = zen_path(@skin[@skin_name]) # used to link from <r:design/> zafu tag
-            @expire_with_nodes = {}
-            @renamed_assets    = {}
+            self.expire_with_nodes = {}
+            self.renamed_assets    = {}
 
             res = ZafuParser.new_with_url(skin_path, :helper => zafu_helper).render(:dev => session[:dev])
 
@@ -194,7 +251,7 @@ module Zena
               zafu_nodes  = []
               image_nodes = []
               asset_nodes = []
-              @expire_with_nodes.merge(@renamed_assets).each do |k, n|
+              self.expire_with_nodes.merge(self.renamed_assets).each do |k, n|
                 if n.kind_of?(Image)
                   image_nodes << [k,n]
                 elsif n.kind_of?(Template)
@@ -223,7 +280,7 @@ module Zena
               dev_box << "      <li><a href='?rebuild=true'>#{_('rebuild')}</a></li>\n"
               dev_box << "<% if @node.kind_of?(Skin) -%>      <li><a href='<%= export_node_path(@node[:zip]) %>'>#{_('export')}</a></li>\n<% end -%>"
               dev_box << "      <li><a href='/users/#{visitor[:id]}/swap_dev'>#{_('turn dev off')}</a></li>\n"
-              dev_box << "      <li>skins used: #{@skin_names.join(', ')}</li>\n"
+              dev_box << "      <li>skins used: #{skin_names.join(', ')}</li>\n"
               dev_box << "    <ul>\n  </li>\n</ul></div>"
               res.sub!('</body>', "#{dev_box}</body>")
             end
@@ -231,7 +288,7 @@ module Zena
             secure!(CachedPage) { CachedPage.create(
               :path            => (current_site.zafu_path + fullpath),
               :expire_after    => nil,
-              :expire_with_ids => @expire_with_nodes.values.map{|n| n[:id]},
+              :expire_with_ids => self.expire_with_nodes.values.map{|n| n[:id]},
               :node_id         => template[:id],
               :content_data    => res) }
           end
@@ -248,57 +305,6 @@ module Zena
           end
         end
         
-        # opts should contain :current_template and :src. The source is a path like 'default/Node-+index'
-        # ('skin/template/path'). If the path starts with a slash, the skin_name in the path is searched first. Otherwise,
-        # the current skin is searched first.
-        # <r:include template='Node'/>
-        #   find: #{skin_path(main_skin)}/Node
-        # 
-        # <r:include template='/default/Node'/>
-        #   find: #{skin_path('default')}/Node
-        # 
-        def find_document_for_template(opts)
-          src    = opts[:src]
-          if src =~ /\A(.*)\.(\w+)\Z/
-            src, format = $1, $2
-          end
-
-          if src =~ /\A(.*)_(\w+)\Z/
-            src, mode = $1, $2
-          end
-
-          folder = (opts[:current_folder] && opts[:current_folder] != '') ? opts[:current_folder].split('/') : []
-          @skin ||= {}
-          if src =~ /^\//
-            # starts with '/' : look here first
-            url = src[1..-1].split('/')
-            name = url.shift
-            skin_names = opts[:parse_assets] ? [name] : ([name] + (@skin_names - [name]))
-          else
-            # does not start with '/' : look in current skin first
-            url = folder + src.split('/')
-            skin_names = opts[:parse_assets] ? [] : @skin_names.dup
-            if url.size > 1
-              name = url.shift
-              skin_names << name unless skin_names.include?(name)
-            end
-          end
-          document = skin_name = nil
-          [false, true].each do |rebuild_path|
-            # try to find using cached fullpath first.
-            skin_names.each do |skin_name|
-              next unless skin = @skin[skin_name] ||= secure(Skin) { Skin.find_by_name(skin_name) }
-              path = (skin.fullpath(rebuild_path).split('/') + url).join('/')
-              break if document = secure(Document) { Document.find_by_path(path) }
-            end
-            break if document
-          end
-          if format == 'data' && document
-            format = document.c_ext
-          end
-          return document ? [document, (([skin_name] + url).join('/') + (mode ? "_#{mode}" : '') + (format ? ".#{format}" : ''))] : nil
-        end
-               
       end # ControllerMethods
 
       module ViewMethods

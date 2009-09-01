@@ -128,7 +128,11 @@ module Zena
       end
 
       module ControllerMethods
-        include Common  
+        include Common
+        
+        def self.included(base)
+          FastGettext.text_domain = 'zena'
+        end
         
         # Choose best language to display content.
         # 1. 'test.host/oo?lang=en' use 'lang', redirect without lang
@@ -164,6 +168,22 @@ module Zena
           true
         end
         
+        def set_visitor_lang(l)
+          return unless current_site.lang_list.include?(l)
+          session[:lang] = l
+
+          if visitor.lang != l && !visitor.is_anon?
+            visitor.site_participation.update_attribute_with_validation_skipping('lang', l)
+          else
+            visitor.lang = l
+          end
+
+          if File.exist?("#{RAILS_ROOT}/locale/#{l}/LC_MESSAGES/zena.mo")
+            GetText.set_locale_all(l)
+          else
+            GetText.set_locale_all('en')
+          end
+        end
         
         # Redirect on lang change "...?lang=de"
         def check_lang
@@ -205,7 +225,7 @@ module Zena
         # translation of static text using gettext
         # FIXME: I do not know why this is needed in order to have <%= _('blah') %> find the translations on some servers
         def _(str)
-          NodesController.send(:_,str)
+          NodesController.send(:_, str)
         end
 
         # Show a little [xx] next to the title if the desired language could not be found. You can
