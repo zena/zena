@@ -310,7 +310,6 @@ END_MSG
         @expire_with_nodes = {}
         @renamed_assets    = {}
         
-        skin_helper = ActionView::Base.for_controller(self)
         res = ZafuParser.new_with_url(skin_path, :helper => skin_helper).render(:dev => session[:dev])
         
         unless valid_template?(res, opts)
@@ -369,6 +368,14 @@ END_MSG
       return rel_url
     end
   
+    def skin_helper
+      @skin_helper ||= begin
+        # FIXME rails 3.0.pre: skin_helper = ActionView::Base.for_controller(self)
+        helper = ActionView::Base.new([], {}, self)
+        helper.helpers.send :include, self.class.master_helper_module
+        helper
+      end
+    end
     # Return a template's content from an url. If the url does not start with a '/', we try by replacing the
     # first element with the current skin_name and if it does not work, we try with the full url. If the url
     # start with a '/' we use the full url directly.
