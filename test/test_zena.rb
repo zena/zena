@@ -49,7 +49,7 @@ module Zena
           end
           
           define_method(table_name + "_id") do |fixture|
-            ZenaTest::multi_site_id(fixture)
+            Zena::FoxyParser::multi_site_id(fixture)
           end
         else
           
@@ -64,7 +64,7 @@ module Zena
           end
           
           define_method(table_name + "_id") do |fixture|
-            ZenaTest::id($_test_site, fixture)
+            Zena::FoxyParser::id($_test_site, fixture)
           end
         end
         
@@ -342,7 +342,7 @@ module Zena
       attr_accessor :flash, :controller
       
       # TODO: make this clean. Maybe use 'tests ....' or include these helpers cleanly in the actual (zafu parsing) module ?
-      include ActionView::Helpers::ActiveModelHelper
+      include ActionView::Helpers::ActiveRecordHelper # ActionView::Helpers::ActiveModelHelper
       include ActionView::Helpers::TagHelper
       include ActionView::Helpers::FormTagHelper
       include ActionView::Helpers::FormOptionsHelper

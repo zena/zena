@@ -26,7 +26,7 @@ class NodeQueryTest < ActiveSupport::TestCase
       sql ||= class_prefix + errors.join(", ")
       if test_sql = yt_get('sql', file, test)
         test_sql.gsub!(/_ID\(([^\)]+)\)/) do
-          ZenaTest::id($_test_site, $1)
+          Zena::FoxyParser::id($_test_site, $1)
         end
         yt_assert test_sql, class_prefix + sql
       end

@@ -6,10 +6,10 @@ class NodeTest < ActiveSupport::TestCase
 
   NEW_DEFAULT = {
     :name       => 'hello',
-    :rgroup_id  => ZenaTest::id('zena', 'public'),
-    :wgroup_id  => ZenaTest::id('zena', 'workers'),
-    :pgroup_id  => ZenaTest::id('zena', 'managers'),
-    :parent_id  => ZenaTest::id('zena', 'cleanWater'),
+    :rgroup_id  => Zena::FoxyParser::id('zena', 'public'),
+    :wgroup_id  => Zena::FoxyParser::id('zena', 'workers'),
+    :pgroup_id  => Zena::FoxyParser::id('zena', 'managers'),
+    :parent_id  => Zena::FoxyParser::id('zena', 'cleanWater'),
   }.freeze
   
   def test_find_by_path

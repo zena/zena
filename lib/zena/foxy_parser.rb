@@ -1,3 +1,5 @@
+require 'active_record/fixtures'
+
 module Zena
   # mass yaml loader for ActiveRecord (a single file can contain different classes)
   module Loader
@@ -80,6 +82,24 @@ module Zena
     @@parser_for_table = {}
     
     class << self
+      def id(site, key)
+        return nil if key.blank?
+        if key == 0 # special rgroup, wgroup, pgroup values...
+          key
+        else
+          Fixtures.identify("#{site}_#{key}")
+        end
+      end
+
+      def multi_site_id(key)
+        return nil if key.blank?
+        Fixtures.identify(key)
+      end
+
+      def multi_site_tables
+        ['users', 'sites']
+      end
+      
       # included at start of fixture file
       def prelude
         ""
@@ -203,7 +223,7 @@ module Zena
         @defaults = elements.delete('DEFAULTS')
         @defaults ||= {}
         
-        @defaults['site_id'] = ZenaTest::multi_site_id(site) if column_names.include?('site_id')
+        @defaults['site_id'] = Zena::FoxyParser::multi_site_id(site) if column_names.include?('site_id')
         
         elements.each do |n,v|
           unless v
@@ -250,22 +270,22 @@ module Zena
         out ""
         element = elements[name]
         
-        if ZenaTest::multi_site_tables.include?(table)
+        if Zena::FoxyParser::multi_site_tables.include?(table)
           out "#{name}:"
         else
           out "#{site}_#{name}:"
         end
         
         if column_names.include?('id')
-          if ZenaTest::multi_site_tables.include?(table)
-            element['id'] = ZenaTest::multi_site_id(name)
+          if Zena::FoxyParser::multi_site_tables.include?(table)
+            element['id'] = Zena::FoxyParser::multi_site_id(name)
           else
-            element['id'] = ZenaTest::id(site, name)
+            element['id'] = Zena::FoxyParser::id(site, name)
           end  
           out_pair('id', element['id'])
         end
         
-        out_pair('site_id', ZenaTest::multi_site_id(site)) if column_names.include?('site_id')
+        out_pair('site_id', Zena::FoxyParser::multi_site_id(site)) if column_names.include?('site_id')
         
         id_keys.each do |k|
           insert_id(k)
@@ -303,12 +323,12 @@ module Zena
       
       def insert_id(key)
         return unless column_names.include?("#{key}_id")
-        out_pair("#{key}_id", ZenaTest::id(site, elements[@name][key]))
+        out_pair("#{key}_id", Zena::FoxyParser::id(site, elements[@name][key]))
       end
       
       def insert_multi_site_id(key)
         return unless column_names.include?("#{key}_id")
-        out_pair("#{key}_id", ZenaTest::multi_site_id(elements[@name][key]))
+        out_pair("#{key}_id", Zena::FoxyParser::multi_site_id(elements[@name][key]))
       end
       
       def id_keys
@@ -377,7 +397,7 @@ module Zena
           
           klass = node['class']
           if virtual_classes[site] && vc = virtual_classes[site][klass]
-            node['vclass_id'] = ZenaTest::id(site,klass)
+            node['vclass_id'] = Zena::FoxyParser::id(site,klass)
             node['type']  = eval(vc['real_class'])
             node['kpath'] = vc['kpath']
           elsif klass
@@ -531,7 +551,7 @@ module Zena
         unless @versions[site][name]
           @versions[site][name] = version = {}
           version[:node] = node = elements[name]
-          version['node_id'] = ZenaTest::id(site, name)
+          version['node_id'] = Zena::FoxyParser::id(site, name)
           # set defaults
           @defaults.each do |k,v|
             if k =~ /^v_(.+)/
@@ -541,7 +561,7 @@ module Zena
           version['publish_from'] ||= elements[name]['publish_from']
           version['status'] ||= elements[name]['max_status'] || Zena::Status[:pub]
           version['lang']   ||= elements[name]['ref_lang']
-          version['site_id']  = ZenaTest::multi_site_id(site)
+          version['site_id']  = Zena::FoxyParser::multi_site_id(site)
           version['number'] ||= 1
           
           if klass = elements[name]['type']
@@ -569,7 +589,7 @@ module Zena
         unless @contents[site][klass][name]
           @contents[site][klass][name] = content = {}
           content[:node] = elements[name]
-          content['site_id']  = ZenaTest::multi_site_id(site)
+          content['site_id']  = Zena::FoxyParser::multi_site_id(site)
         end
         @contents[site][klass][name][key] = value
       end
@@ -589,9 +609,9 @@ module Zena
             versions.each do |name, version|
               file.puts ""
               node = version.delete(:node)
-              version['id'] = ZenaTest::id(site, "#{name}_#{version['lang']}")
+              version['id'] = Zena::FoxyParser::id(site, "#{name}_#{version['lang']}")
               version['lang'] ||= node['ref_lang']
-              version['user_id'] ||= ZenaTest::multi_site_id(node['user'])
+              version['user_id'] ||= Zena::FoxyParser::multi_site_id(node['user'])
               version['type'] = node['type'].version_class
               file.puts "#{site}_#{name}:"
               version.each do |k,v|
@@ -611,7 +631,7 @@ module Zena
             contents.each do |name, content|
               file.puts ""
               node = content.delete(:node)
-              content['id'] = ZenaTest::id(site, "#{name}_#{node['v_lang'] || node['ref_lang']}")
+              content['id'] = Zena::FoxyParser::id(site, "#{name}_#{node['v_lang'] || node['ref_lang']}")
               content['version_id'] = content['id'] if columns.include?('version_id')
               content['node_id'] = node['id'] if columns.include?('node_id')
               file.puts "#{site}_#{name}:"
@@ -765,7 +785,7 @@ module Zena
         next if site =~ /^\./ || !File.directory?(File.join("#{RAILS_ROOT}/test/sites",site))
         out ""
         out "#{site}:"
-        out_pair('site_id', ZenaTest::multi_site_id(site))
+        out_pair('site_id', Zena::FoxyParser::multi_site_id(site))
         out_pair('zip', @zip_counter[site])
       end
       @file.close if @file
@@ -775,7 +795,7 @@ module Zena
       def find_max(elements)
         max = -1
         elements.each do |k,v|
-          zip = ZenaTest::id(site, "#{k}_zip")
+          zip = Zena::FoxyParser::id(site, "#{k}_zip")
           if zip > max
             max = zip
           end
@@ -802,7 +822,7 @@ module Zena
       def insert_headers
         super
         out_pair('status', Zena::Status[elements[name]['status'].to_sym]) if elements[name]['status']
-        out_pair('reply_to', ZenaTest::id(site,elements[name]['reply_to'])) if elements[name]['reply_to']
+        out_pair('reply_to', Zena::FoxyParser::id(site,elements[name]['reply_to'])) if elements[name]['reply_to']
       end
       
       def ignore_key?(k)

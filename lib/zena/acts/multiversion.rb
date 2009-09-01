@@ -18,10 +18,10 @@ module Zena
           # TODO: remove for Observers.
           after_save        :after_all
           
-          has_many :versions, :inverse_of => :node,  :class_name => opts[:class_name],
-                   :order=>"number DESC", :dependent => :destroy
-          has_many :editions, :inverse_of => :node,  :class_name => opts[:class_name],
-                   :conditions=>"publish_from <= now() AND status = #{Zena::Status[:pub]}", :order=>'lang'
+          has_many :versions,  :class_name => opts[:class_name],
+                   :order=>"number DESC", :dependent => :destroy #, :inverse_of => :node
+          has_many :editions,  :class_name => opts[:class_name],
+                   :conditions=>"publish_from <= now() AND status = #{Zena::Status[:pub]}", :order=>'lang' #, :inverse_of => :node
           
           before_validation :set_status_before_validation
           validate      :lock_validation
@@ -106,7 +106,7 @@ module Zena
             :class_name => 'Node'
           })
           
-          belongs_to :node, :inverse_of => :versions,  :class_name => opts[:class_name]
+          belongs_to :node,  :class_name => opts[:class_name] #, :inverse_of => :versions
         end
         
         def act_as_content
