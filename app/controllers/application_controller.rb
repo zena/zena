@@ -8,6 +8,7 @@ class ApplicationController < ActionController::Base
   include Zena::Use::Urls::ControllerMethods
   include Zena::Use::Zafu::ControllerMethods
   
+  helper  Zena::Acts::Secure
   helper  Zena::Use::Ajax::ViewMethods
   helper  Zena::Use::Calendar::ViewMethods
   helper  Zena::Use::ErrorRendering::ViewMethods
