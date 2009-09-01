@@ -1,8 +1,6 @@
-require File.dirname(__FILE__) + '/../test_helper'
+require 'test_helper'
 
-class VirtualClassTest < ActiveSupport::TestCase
-  include Zena::Test::Unit
-  def setup; login(:anon); end
+class VirtualClassTest < Zena::Unit::TestCase
   
   def test_virtual_subclasse
     # add a sub class
