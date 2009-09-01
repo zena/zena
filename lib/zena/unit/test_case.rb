@@ -4,6 +4,10 @@ module Zena
       include Zena::Use::Fixtures
       include Zena::Use::TestHelper
       include Zena::Acts::Secure
+      
+      def self.helper_attr(*args)
+        # Ignore since we include helpers in the TestCase itself
+      end
 
       def setup
         $_test_site = 'zena'

@@ -2,6 +2,8 @@ require 'code/syntax'
 
 module Zazen
   module Rules
+    include Zena::Acts::Secure
+    
     PSEUDO_ID_REGEXP = ":[0-9a-zA-Z-]+\\+*|\\([^\\)]*\\)"
     
     def start(mode)
