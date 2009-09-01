@@ -1,5 +1,5 @@
 require 'ruby-recaptcha'
-module ApplicationHelper
+module Zena::Use::Zazen::ViewMethods
   include ReCaptcha::ViewHelper
   asset_method 'email' => :email_asset
   
