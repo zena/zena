@@ -2,8 +2,27 @@ require 'tempfile'
 require 'json'
 
 class ApplicationController < ActionController::Base
-  helper_method :prefix, :zen_path, :zen_url, :data_path, :node_url, :notes, :error_messages_for, :render_errors, :processing_error
-  helper_method :get_template_text, :template_url_for_asset, :save_erb_to_url, :lang, :visitor, :fullpath_from_template_url, :eval_parameters_from_template_url, :format_date, :get_table_from_json, :find_node_by_pseudo
+  include Zena::Use::Authentification::ControllerMethods
+  include Zena::Use::ErrorRendering::ControllerMethods
+  include Zena::Use::HtmlTags::ControllerMethods
+  include Zena::Use::I18n::ControllerMethods
+  include Zena::Use::Refactor::ControllerMethods
+  include Zena::Use::Rendering::ControllerMethods
+  include Zena::Use::Urls::ControllerMethods
+  include Zena::Use::Zafu::ControllerMethods
+  
+  helper  Zena::Use::Ajax::ViewMethods
+  helper  Zena::Use::Calendar::ViewMethods
+  helper  Zena::Use::ErrorRendering::ViewMethods
+  helper  Zena::Use::HtmlTags::ViewMethods
+  helper  Zena::Use::I18n::ViewMethods
+  helper  Zena::Use::Refactor::ViewMethods
+  helper  Zena::Use::Urls::ViewMethods
+  helper  Zena::Use::Zafu::ViewMethods
+  helper  Zena::Use::Zazen::ViewMethods
+  
+  helper_method :node_url, :notes, :error_messages_for, :render_errors, :processing_error
+  helper_method :get_template_text, :template_url_for_asset, :save_erb_to_url, :lang, :visitor, :fullpath_from_template_url, :format_date, :get_table_from_json
   before_filter :set_lang
   before_filter :authorize
   before_filter :check_lang
@@ -495,11 +514,6 @@ END_MSG
       end
       return document ? [document, (([skin_name] + url).join('/') + (mode ? "_#{mode}" : '') + (format ? ".#{format}" : ''))] : nil
     end
-    
-    # Find a node's zip based on a query shortcut. Used by zazen to create a link for ""::art for example.
-    def find_node_by_pseudo(string, base_node = nil)
-      secure(Node) { Node.find_node_by_pseudo(string, base_node || @node) }
-    end
 
     # TODO: test
     def save_erb_to_url(template, template_url)
@@ -555,7 +569,7 @@ END_MSG
       session[:lang] = user.lang
       
       @visitor = user
-      @visitor.visit(@visitor)
+      
       after_login_url = session[:after_login_url]
       session[:after_login_url] = nil
       if current_site[:http_auth] && params[:controller] != 'session'
@@ -670,7 +684,7 @@ END_MSG
       FastGettext.locale = l
     end
     
-    # Redirect on lang chang
+    # Redirect on lang change "...?lang=de"
     def check_lang
       if params[:lang]
         # redirects other controllers (users controller, etc)
@@ -693,86 +707,6 @@ END_MSG
     end
     
     # /////// The following methods are common to controllers and views //////////// #
-  
-    # Return the path to a document's data
-    def data_path(node, opts={})
-      return zen_path(node,opts) unless node.kind_of?(Document)
-      if node.public? && !current_site.authentication?
-        # force the use of a cacheable path for the data, even when navigating in '/oo'
-        # FIXME: we could use 'node.version.lang' if most of the time the version is loaded.
-        zen_path(node, opts.merge(:format => node.c_ext, :prefix=>node.v_lang))
-      else  
-        zen_path(node, opts.merge(:format => node.c_ext))
-      end
-    end
-  
-    
-    # Path for the node (as string). Options can be :format, :host and :mode.
-    # ex '/en/document34_print.html'
-    def zen_path(node, options={})
-      return '#' unless node
-      if sharp = options.delete(:sharp)
-        if sharp =~ /\[(.+)\]/
-          sharp_value = node.public_read($1)
-        elsif sharp == 'true'
-          sharp_value = "node#{node[:zip]}"
-        else
-          sharp_value = sharp
-        end
-        if sharp_in = options.delete(:sharp_in)
-          sharp_node = sharp_in.kind_of?(Node) ? sharp_in : (node.find(:first, [sharp_in]) || node)
-          return "#{zen_path(sharp_node, options)}##{sharp_value}"
-        else
-          return "##{sharp_value}"          
-        end
-      end
-      
-      opts   = options.dup
-      format = opts.delete(:format)
-      format = 'html' if format.blank?
-      pre    = opts.delete(:prefix) || prefix
-      mode   = opts.delete(:mode)
-      host   = opts.delete(:host)
-      abs_url_prefix = host ? "http://#{host}" : ''
-      
-      if asset = opts.delete(:asset)
-        mode   = nil
-      end
-      
-      params = (opts == {}) ? '' : ('?' + opts.map{ |k,v| "#{k}=#{CGI.escape(v.to_s)}"}.join('&'))
-      
-      if !asset && node[:id] == current_site[:root_id] && mode.nil? && format == 'html'
-        "#{abs_url_prefix}/#{pre}" # index page
-      elsif node[:custom_base]
-        "#{abs_url_prefix}/#{pre}/" +
-        node.basepath +
-        (mode  ? "_#{mode}"  : '') +
-        (asset ? ".#{asset}" : '') +
-        (format == 'html' ? '' : ".#{format}")
-      else
-        "#{abs_url_prefix}/#{pre}/" +
-        (node.basepath != '' ? "#{node.basepath}/"    : '') +
-        (node.klass.downcase   ) +
-        (node[:zip].to_s       ) +
-        (mode  ? "_#{mode}"  : '') +
-        (asset ? ".#{asset}" : '') +
-        ".#{format}"
-      end + params
-    end
-  
-    # Url for a node. Options are 'mode' and 'format'
-    # ex 'http://test.host/en/document34_print.html'
-    def zen_url(node, opts={})
-      zen_path(node,opts.merge(:host => current_site[:host]))
-    end
-
-    def prefix
-      if visitor.is_anon?
-        lang
-      else
-        AUTHENTICATED_PREFIX
-      end
-    end
   
     # Restrict access some actions to administrators (used as a before_filter)
     def check_is_admin

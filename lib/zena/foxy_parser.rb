@@ -409,7 +409,7 @@ module Zena
               raise ArgumentError.new("[#{site} #{table} #{name}] unknown class '#{klass}'.")
             end
           else
-            raise ArgumentError "[#{site} #{table} #{name}] missing 'class' attribute."
+            raise ArgumentError.new("[#{site} #{table} #{name}] missing 'class' attribute.")
           end
           
           node['publish_from'] = publish_from[site][name] || node['v_publish_from']

@@ -27,7 +27,7 @@ module ApplicationHelper
   
   # Enable translations for will_paginate
   def will_paginate_with_i18n(collection, options = {}) 
-  will_paginate_without_i18n(collection, options.merge(:prev_label => _('img_prev_page'), :next_label => _('img_next_page'))) 
+    will_paginate_without_i18n(collection, options.merge(:prev_label => _('img_prev_page'), :next_label => _('img_next_page'))) 
   end 
 
   alias_method_chain :will_paginate, :i18n
@@ -128,7 +128,7 @@ module ApplicationHelper
     NodesController.send(:_,str)
   end
   
-  # helpers to include clean javascript
+  # TODO: use Rails native helper.
   def javascript( string )
     javascript_start +
     string +
@@ -218,7 +218,7 @@ module ApplicationHelper
     text.to_s.gsub("'",'&apos;')
   end
   
-  # creates a pseudo random string to avoid browser side ajax caching
+  # TODO: see if this is still needed. Creates a pseudo random string to avoid browser side ajax caching
   def rnd
     Time.now.to_i
   end
@@ -232,22 +232,6 @@ module ApplicationHelper
   def flash
     @flash || {}
   end
-  
-  # "Translate" static text into the current lang
-  # def _(keyword, opt={})
-  #   opt = {:edit=>true}.merge(opt)
-  #   if opt[:translate] || (session[:translate] && opt[:edit])
-  #     key = TransPhrase.translate(keyword)
-  #     "<div id='phrase#{key[:id]}' class='trans'>" + 
-  #     link_to_remote(key.into(lang),
-  #         :update=>"phrase#{key[:id]}", 
-  #         :url => {:controller=>'_(', :action=>')edit', :id=>key[:id]},
-  #         :complete=>'$("trans_value").focus();$("trans_value").select()') +
-  #     "</div>"
-  #   else
-  #     TransPhrase[keyword][lang]
-  #   end
-  # end
   
   # Shows 'login' or 'logout' button.
   def login_link(opts={})
@@ -577,6 +561,7 @@ module ApplicationHelper
     '[no document found]'
   end
   
+  # TODO: refactor with new RedCloth
   def add_place_holder(str)
     @placeholders ||= {}
     key = "[:::#{self.object_id}.#{@placeholders.keys.size}:::]"
@@ -733,6 +718,7 @@ module ApplicationHelper
   
   
   # return a readable text version of a file size
+  # TODO: use number_to_human_size instead
   def fsize(size)
     size = size.to_f
     if size >= 1024 * 1024 * 1024
@@ -908,14 +894,6 @@ module ApplicationHelper
     end
     res << "</li>"
     res
-  end
-  
-  def unless_empty(obj)
-    if obj.nil? || obj.empty?
-      return ''
-    else
-      yield(obj)
-    end
   end
   
   # Show a little [xx] next to the title if the desired language could not be found. You can

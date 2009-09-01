@@ -96,6 +96,7 @@ class User < ActiveRecord::Base
       return nil unless user
       user.site = site
       user.visit(site)
+      user.visit(user)
       
       if user.reader?
         unless Thread.current.respond_to?(:visitor)
