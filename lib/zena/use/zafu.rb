@@ -3,6 +3,124 @@ module Zena
     module Zafu
       module Common
         
+        # Return a template's content from an url. If the url does not start with a '/', we try by replacing the
+        # first element with the current skin_name and if it does not work, we try with the full url. If the url
+        # start with a '/' we use the full url directly.
+        # tested in MainControllerTest
+        def get_template_text(opts)
+          return nil unless res = find_document_for_template(opts)
+          doc, url = *res
+          # TODO: could we use this for caching or will we loose dynamic context based loading ?
+          @expire_with_nodes[url] = doc
+          text = session[:dev] ? doc.version.text : doc.version(:pub).text
+          return text, url, doc
+        end
+        
+        # Return the zen_path ('/en/image34.png') for an asset given its name ('img/footer.png').
+        # The rule is not the same whether we are rendering a template and find <img/> <link rel='stylesheet'/> tags
+        # or if we are parsing assets in a CSS file.
+        def template_url_for_asset(opts)
+          src = opts[:src]
+          if src =~ /\A(.*)\.(\w+)\Z/
+            src, format = $1, $2
+          end
+
+          if opts[:parse_assets]  
+            current_folder = opts[:current_folder] || ''
+            current_folder = current_folder[1..-1] if current_folder[0..0] == '/'
+
+            if src =~ /\A(.*)_(\w+)\Z/
+              # if the element was not found, maybe it was not a name with underscore but it was an image mode
+              src2, mode2 = $1, $2
+            end
+
+            if src[0..0] == '/'
+              path1 = src[1..-1]
+              path2 = src2[1..-1] if src2
+            else
+              path1 = current_folder + '/' + src
+              path2 = current_folder + '/' + src2 if src2
+            end
+
+            # make sure path elements are url_names
+            path1 = path1.split('/').map {|s| s.url_name!}.join('/')
+            path2 = path2.split('/').map {|s| s.url_name!}.join('/') if src2
+
+            if asset = secure(Document) { Document.find_by_path(path1) }
+            elsif src2 && (asset = secure(Document) { Document.find_by_path(path2) })
+              mode = mode2
+            else
+              return nil
+            end
+          else
+            if src =~ /\A(.*)_(\w+)\Z/
+              src, mode = $1, $2
+            end
+
+            src2 = opts[:src].split('/').map {|s| s.url_name!}.join('/')
+
+            unless res = find_document_for_template(opts)
+              # '_...' did not mean mode but was an old name.
+              mode = nil
+              return nil unless res = find_document_for_template(opts.merge(:src => src2))
+            end
+
+            asset, url = *res
+            @renamed_assets[url] = asset
+          end
+
+          data_path(asset, :mode => mode)
+        end
+        
+        
+        
+        # TODO: test
+        def save_erb_to_url(template, template_url)
+          path = fullpath_from_template_url(template_url)
+          path += ".erb" unless path =~ /\.\w+\Z/
+          FileUtils.mkpath(File.dirname(path)) unless File.exists?(File.dirname(path))
+          File.open(path, "wb") { |f| f.syswrite(template) }
+          ""
+        end
+        
+        # TODO: test
+        def fullpath_from_template_url(template_url=params[:t_url])
+          if template_url =~ /\A\.|[^\w\+\._\-\/]/
+            raise Zena::AccessViolation.new("'template_url' contains illegal characters : #{template_url.inspect}")
+          end
+
+          template_url = template_url[1..-1].split('/')
+          path = "/#{template_url[0]}/#{template_url[1]}/#{session[:dev] ? "dev_#{lang}" : lang}/#{template_url[2..-1].join('/')}"
+
+          "#{SITES_ROOT}/#{current_site.host}/zafu#{path}"
+        end
+        
+        # Make sure some vital templates never get broken
+        def valid_template?(content, opts)
+          mode = opts[:mode]
+          case mode
+          when '+login'
+            content =~ %r{<form[^>]* action\s*=\s*./session}
+          when '+adminLayout'
+            content =~ %r{<%= content_for_layout %>} && %r{show_link(:admin_links)}
+          else
+            true
+          end
+        end
+
+        # Default template content for a specified mode
+        def default_zafu_template(mode)
+          if mode =~ /\A\.|[^\w\+\._\-\/]/
+            raise Zena::AccessViolation.new("'mode' contains illegal characters : #{mode.inspect}")
+          end
+          File.read(File.join(RAILS_ROOT, 'app', 'views', 'templates', 'defaults', "#{mode}.zafu"))
+        end
+           
+      end # Common
+
+      module ControllerMethods
+        include Common 
+        
         # Find the best template for the current node's skin, node's class, format and mode. The template
         # files are searched first into 'sites/shared/views/templates/fixed'. If the templates are not found
         # there, they are searched in the database and compiled into 'app/views/templates/compiled'.
@@ -130,75 +248,6 @@ module Zena
           end
         end
         
-        # Return a template's content from an url. If the url does not start with a '/', we try by replacing the
-        # first element with the current skin_name and if it does not work, we try with the full url. If the url
-        # start with a '/' we use the full url directly.
-        # tested in MainControllerTest
-        def get_template_text(opts)
-          return nil unless res = find_document_for_template(opts)
-          doc, url = *res
-          # TODO: could we use this for caching or will we loose dynamic context based loading ?
-          @expire_with_nodes[url] = doc
-          text = session[:dev] ? doc.version.text : doc.version(:pub).text
-          return text, url, doc
-        end
-        
-        # Return the zen_path ('/en/image34.png') for an asset given its name ('img/footer.png').
-        # The rule is not the same whether we are rendering a template and find <img/> <link rel='stylesheet'/> tags
-        # or if we are parsing assets in a CSS file.
-        def template_url_for_asset(opts)
-          src = opts[:src]
-          if src =~ /\A(.*)\.(\w+)\Z/
-            src, format = $1, $2
-          end
-
-          if opts[:parse_assets]  
-            current_folder = opts[:current_folder] || ''
-            current_folder = current_folder[1..-1] if current_folder[0..0] == '/'
-
-            if src =~ /\A(.*)_(\w+)\Z/
-              # if the element was not found, maybe it was not a name with underscore but it was an image mode
-              src2, mode2 = $1, $2
-            end
-
-            if src[0..0] == '/'
-              path1 = src[1..-1]
-              path2 = src2[1..-1] if src2
-            else
-              path1 = current_folder + '/' + src
-              path2 = current_folder + '/' + src2 if src2
-            end
-
-            # make sure path elements are url_names
-            path1 = path1.split('/').map {|s| s.url_name!}.join('/')
-            path2 = path2.split('/').map {|s| s.url_name!}.join('/') if src2
-
-            if asset = secure(Document) { Document.find_by_path(path1) }
-            elsif src2 && (asset = secure(Document) { Document.find_by_path(path2) })
-              mode = mode2
-            else
-              return nil
-            end
-          else
-            if src =~ /\A(.*)_(\w+)\Z/
-              src, mode = $1, $2
-            end
-
-            src2 = opts[:src].split('/').map {|s| s.url_name!}.join('/')
-
-            unless res = find_document_for_template(opts)
-              # '_...' did not mean mode but was an old name.
-              mode = nil
-              return nil unless res = find_document_for_template(opts.merge(:src => src2))
-            end
-
-            asset, url = *res
-            @renamed_assets[url] = asset
-          end
-
-          data_path(asset, :mode => mode)
-        end
-        
         # opts should contain :current_template and :src. The source is a path like 'default/Node-+index'
         # ('skin/template/path'). If the path starts with a slash, the skin_name in the path is searched first. Otherwise,
         # the current skin is searched first.
@@ -249,54 +298,8 @@ module Zena
           end
           return document ? [document, (([skin_name] + url).join('/') + (mode ? "_#{mode}" : '') + (format ? ".#{format}" : ''))] : nil
         end
-        
-        # TODO: test
-        def save_erb_to_url(template, template_url)
-          path = fullpath_from_template_url(template_url)
-          path += ".erb" unless path =~ /\.\w+\Z/
-          FileUtils.mkpath(File.dirname(path)) unless File.exists?(File.dirname(path))
-          File.open(path, "wb") { |f| f.syswrite(template) }
-          ""
-        end
-        
-        # TODO: test
-        def fullpath_from_template_url(template_url=params[:t_url])
-          if template_url =~ /\A\.|[^\w\+\._\-\/]/
-            raise Zena::AccessViolation.new("'template_url' contains illegal characters : #{template_url.inspect}")
-          end
-
-          template_url = template_url[1..-1].split('/')
-          path = "/#{template_url[0]}/#{template_url[1]}/#{session[:dev] ? "dev_#{lang}" : lang}/#{template_url[2..-1].join('/')}"
-
-          "#{SITES_ROOT}/#{current_site.host}/zafu#{path}"
-        end
-        
-        # Make sure some vital templates never get broken
-        def valid_template?(content, opts)
-          mode = opts[:mode]
-          case mode
-          when '+login'
-            content =~ %r{<form[^>]* action\s*=\s*./session}
-          when '+adminLayout'
-            content =~ %r{<%= content_for_layout %>} && %r{show_link(:admin_links)}
-          else
-            true
-          end
-        end
-
-        # Default template content for a specified mode
-        def default_zafu_template(mode)
-          if mode =~ /\A\.|[^\w\+\._\-\/]/
-            raise Zena::AccessViolation.new("'mode' contains illegal characters : #{mode.inspect}")
-          end
-          File.read(File.join(RAILS_ROOT, 'app', 'views', 'templates', 'defaults', "#{mode}.zafu"))
-        end
-           
-      end # Common
-
-      module ControllerMethods
-        include Common        
-      end
+               
+      end # ControllerMethods
 
       module ViewMethods
         include Common

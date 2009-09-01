@@ -3,6 +3,11 @@ module Zena
     module Authentification
       module Common
         
+      end # Common
+
+      module ControllerMethods
+        include Common  
+        
         # Require a login for authenticated navigation (with '/oo' prefix) or for any content if the site's 'authorize'
         # attribute is true.
         def authorize
@@ -103,12 +108,7 @@ module Zena
         def check_is_admin
           render_404(ActiveRecord::RecordNotFound) unless visitor.is_admin?
           @admin = true
-        end
-        
-      end # Common
-
-      module ControllerMethods
-        include Common        
+        end      
       end
       
       module ViewMethods

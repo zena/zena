@@ -3,63 +3,6 @@ module Zena
     module I18n
       module Common
         
-        # Choose best language to display content.
-        # 1. 'test.host/oo?lang=en' use 'lang', redirect without lang
-        # 3. 'test.host/oo' use visitor[:lang]
-        # 4. 'test.host/'   use session[:lang]
-        # 5. 'test.host/oo' use visitor lang
-        # 6. 'test.host/'   use HTTP_ACCEPT_LANGUAGE
-        # 7. 'test.host/'   use default language
-        #
-        # 8. 'test.host/fr' the redirect for this rule is called once we are sure the request is not for document data (lang in this case can be different from what the visitor is visiting due to caching optimization)
-        def set_lang
-          if params[:prefix] =~ /^\d+$/
-            # this has nothing to do with set_lang...
-            # 'test.host/34' --> /en/node34.html
-            redirect_to "/#{prefix}/#{params[:prefix]}"
-            return false
-          end
-
-          chosen_lang = nil
-          [
-            params[:lang],
-            visitor.is_anon? ? session[:lang] : visitor.lang,
-            (request.headers['HTTP_ACCEPT_LANGUAGE'] || '').split(',').sort {|a,b| (b.split(';q=')[1] || 1.0).to_f <=> (a.split(';q=')[1] || 1.0).to_f }.map {|l| l.split(';')[0].split('-')[0] },
-            (visitor.is_anon? ? visitor.lang : nil), # anonymous user's lang comes last
-          ].compact.flatten.uniq.each do |l|
-            if current_site.lang_list.include?(l)
-              chosen_lang = l
-              break
-            end
-          end
-
-          set_visitor_lang(chosen_lang || current_site[:default_lang])
-          true
-        end
-        
-        
-        # Redirect on lang change "...?lang=de"
-        def check_lang
-          if params[:lang]
-            # redirects other controllers (users controller, etc)
-            redirect_url = params
-            redirect_url.delete(:lang)
-            if params[:controller] == 'nodes'
-              redirect_to redirect_url.merge(:prefix => prefix) and return false
-            else
-              redirect_to redirect_url and return false
-            end
-          end
-          true
-        end
-
-        def set_encoding
-          headers['Content-Type'] ||= 'text/html'
-          if headers['Content-Type'].starts_with?('text/') and !headers['Content-Type'].include?('charset=')
-            headers['Content-Type'] += '; charset=utf-8'
-          end
-        end
-        
         def format_date(thedate, theformat = nil, tz_name=nil, lang=visitor.lang)
           format = theformat || '%Y-%m-%d %H:%M:%S'
           return "" unless thedate
@@ -185,7 +128,65 @@ module Zena
       end
 
       module ControllerMethods
-        include Common        
+        include Common  
+        
+        # Choose best language to display content.
+        # 1. 'test.host/oo?lang=en' use 'lang', redirect without lang
+        # 3. 'test.host/oo' use visitor[:lang]
+        # 4. 'test.host/'   use session[:lang]
+        # 5. 'test.host/oo' use visitor lang
+        # 6. 'test.host/'   use HTTP_ACCEPT_LANGUAGE
+        # 7. 'test.host/'   use default language
+        #
+        # 8. 'test.host/fr' the redirect for this rule is called once we are sure the request is not for document data (lang in this case can be different from what the visitor is visiting due to caching optimization)
+        def set_lang
+          if params[:prefix] =~ /^\d+$/
+            # this has nothing to do with set_lang...
+            # 'test.host/34' --> /en/node34.html
+            redirect_to "/#{prefix}/#{params[:prefix]}"
+            return false
+          end
+
+          chosen_lang = nil
+          [
+            params[:lang],
+            visitor.is_anon? ? session[:lang] : visitor.lang,
+            (request.headers['HTTP_ACCEPT_LANGUAGE'] || '').split(',').sort {|a,b| (b.split(';q=')[1] || 1.0).to_f <=> (a.split(';q=')[1] || 1.0).to_f }.map {|l| l.split(';')[0].split('-')[0] },
+            (visitor.is_anon? ? visitor.lang : nil), # anonymous user's lang comes last
+          ].compact.flatten.uniq.each do |l|
+            if current_site.lang_list.include?(l)
+              chosen_lang = l
+              break
+            end
+          end
+
+          set_visitor_lang(chosen_lang || current_site[:default_lang])
+          true
+        end
+        
+        
+        # Redirect on lang change "...?lang=de"
+        def check_lang
+          if params[:lang]
+            # redirects other controllers (users controller, etc)
+            redirect_url = params
+            redirect_url.delete(:lang)
+            if params[:controller] == 'nodes'
+              redirect_to redirect_url.merge(:prefix => prefix) and return false
+            else
+              redirect_to redirect_url and return false
+            end
+          end
+          true
+        end
+
+        def set_encoding
+          headers['Content-Type'] ||= 'text/html'
+          if headers['Content-Type'].starts_with?('text/') and !headers['Content-Type'].include?('charset=')
+            headers['Content-Type'] += '; charset=utf-8'
+          end
+        end
+              
       end
       
       module ViewMethods
