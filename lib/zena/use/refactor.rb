@@ -1,8 +1,7 @@
 module Zena
   module Use
     module Refactor
-      module Common
-        
+      module ControllerMethods
         # TODO: test
         def visitor
           @visitor ||= returning(User.make_visitor(:host => request.host, :id => session[:user])) do |user|
@@ -27,16 +26,9 @@ module Zena
           obj.save
         end
         
-        
-        
-      end # Common
-
-      module ControllerMethods
-        include Common        
-      end
+      end # ControllerMethods
       
       module ViewMethods
-        include Common
         
         # TODO: use Rails native helper.
         def javascript( string )
