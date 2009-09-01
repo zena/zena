@@ -172,7 +172,7 @@ water_pdf_en:
   type:            DocumentVersion
   node:            water_pdf
   user:            tiger
-  title:           ""
+  title:           water
   summary:         just a stupid pdf
   text:            ""
 
@@ -211,7 +211,7 @@ bird_jpg_en:
   node:            bird_jpg
   user:            anon
   comment:         a pretty little bird
-  title:           ""
+  title:           bird
   summary:         "Photo taken from \"wikimedia\":http://commons.wikimedia.org/wiki/Image:Blue_Tit_aka.jpg."
   text:            ""
 
@@ -220,7 +220,7 @@ flower_jpg_en:
   node:            flower_jpg
   user:            anon
   comment:         "Photo taken from \"wikimedia\":http://commons.wikimedia.org/wiki/Image:Flor_GDFL_660eue.jpg."
-  title:           ""
+  title:           flower
   summary:         a pretty little flower
   text:            ""
 

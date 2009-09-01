@@ -1,16 +1,12 @@
-require File.join(File.dirname(__FILE__), 'testhelp')
+require 'test_helper'
+require 'yamltest'
 
-if false
-  require 'ruby-debug'
-  Debugger.start
-end
-
-class ZenaParserTest < ZenaTestController
+class ZafuParserTest < ZenaTestController
   yamltest :directories => [:default, "#{RAILS_ROOT}/bricks/**/test/zafu"]
   Section # make sure we load Section links before trying relations
   
   def setup
-    @controller = TestController.new
+    @controller = Zena::TestController.new
     @request    = ActionController::TestRequest.new
     @response   = ActionController::TestResponse.new
     $_test_site = 'zena'
@@ -37,7 +33,7 @@ class ZenaParserTest < ZenaTestController
     params[:date]    = context['ref_date'] ? context.delete('ref_date').to_s : nil
     params[:url] = "/#{test.to_s.gsub('_', '/')}"
     params.merge!(context) # merge the rest of the context as query parameters
-    TestController.templates = @@test_strings[file]
+    Zena::TestController.templates = @@test_strings[file]
     if src
       post 'test_compile', params
       template = @response.body
