@@ -6,6 +6,296 @@ module Zena
   module Use
     module Zafu
       module Common
+        
+        # Find the best template for the current node's skin, node's class, format and mode. The template
+        # files are searched first into 'sites/shared/views/templates/fixed'. If the templates are not found
+        # there, they are searched in the database and compiled into 'app/views/templates/compiled'.
+        def template_url(opts={})
+          @skin_name = opts[:skin]   || (@node ? @node[:skin] : nil) || 'default'
+          @skin_name = @skin_name.url_name # security
+          mode      = opts[:mode]
+          format    = opts[:format] || 'html'
+          klass     = @node.vclass
+
+          # possible classes for the master template :
+          klasses = []
+          klass.kpath.split(//).each_index { |i| klasses << klass.kpath[0..i] }
+
+          # FIXME: is searching in all skins a good idea ? I think not. Only searching for special modes '+popupLayout', '+login', etc.
+          if mode && mode[0..0] == '+'
+            template = secure(Template) { Template.find(:first, 
+              :conditions => ["tkpath IN (?) AND format = ? AND mode #{mode ? '=' : 'IS'} ? AND template_contents.node_id = nodes.id", klasses, format, mode],
+              :from       => "nodes, template_contents",
+              :select     => "nodes.*, template_contents.skin_name, template_contents.klass, (template_contents.skin_name = #{@skin_name.inspect}) AS skin_ok",
+              :order      => "length(tkpath) DESC, skin_ok DESC"
+            )}
+          else
+            template = secure(Template) { Template.find(:first, 
+              :conditions => ["tkpath IN (?) AND format = ? AND mode #{mode ? '=' : 'IS'} ? AND template_contents.node_id = nodes.id AND template_contents.skin_name = ?", klasses, format, mode, @skin_name],
+              :from       => "nodes, template_contents",
+              :select     => "nodes.*, template_contents.skin_name, template_contents.klass",
+              :order      => "length(tkpath) DESC"
+            )}
+          end
+
+          # FIXME use a default fixed template.
+          raise ActiveRecord::RecordNotFound unless template
+
+          lang_path = session[:dev] ? "dev_#{lang}" : lang
+
+          skin_path = "/#{@skin_name}/#{template[:name]}"  
+          fullpath  = skin_path + "/#{lang_path}/_main.erb"
+          rel_url   = 'zafu'     + current_site.zafu_path + fullpath  # relative to app/views
+          url       = SITES_ROOT + current_site.zafu_path + fullpath  # absolute path
+
+          if !File.exists?(url) || params[:rebuild]
+            # no template ---> render
+            # clear :
+            # TODO: we should remove info in cached_page for _main
+            FileUtils::rmtree(File.dirname(url))
+
+            # set the places to search for the included templates
+            # FIXME: there might be a better way to do this. In a hurry, fix later.
+            @skin       = {}
+            @skin_names = [@skin_name]
+            secure!(Skin) { Skin.find(:all, :order=>'position ASC, name ASC') }.each do |s|
+              @skin[s.name] = s
+              next if s.name == @skin_name # do not add it twice
+              @skin_names << s.name
+            end
+            @skin_link  = zen_path(@skin[@skin_name]) # used to link from <r:design/> zafu tag
+            @expire_with_nodes = {}
+            @renamed_assets    = {}
+
+            res = ZafuParser.new_with_url(skin_path, :helper => zafu_helper).render(:dev => session[:dev])
+
+            unless valid_template?(res, opts)
+              # problem during rendering, use default zafu
+              res = ZafuParser.new(default_zafu_template(mode), :helper => zafu_helper).render
+            end
+
+            if session[:dev] && mode != '+popupLayout'
+              # add template edit buttons
+              used_nodes  = []
+              zafu_nodes  = []
+              image_nodes = []
+              asset_nodes = []
+              @expire_with_nodes.merge(@renamed_assets).each do |k, n|
+                if n.kind_of?(Image)
+                  image_nodes << [k,n]
+                elsif n.kind_of?(Template)
+                  zafu_nodes  << [k,n]
+                else
+                  asset_nodes << [k,n]
+                end
+              end
+              used_nodes << ['zafu',    zafu_nodes] unless zafu_nodes.empty?
+              used_nodes << ['images', image_nodes] unless image_nodes.empty?
+              used_nodes << ['assets', asset_nodes] unless asset_nodes.empty?
+
+              dev_box = "<div id='dev'><ul>\n"
+              used_nodes.each do |name, nodes|
+                dev_box << "  <li><a class='group' onclick='$(\"_dev_#{name}\").toggle();' href='#'>#{name}</a>\n"
+                dev_box << "  <table id='_dev_#{name}'#{name == 'images' ? " style='display:none;'" : ''}>\n"
+                nodes.each do |k,n|
+                  dev_box << "    <tr><td class='actions'>#{zafu_helper.send(:node_actions, :node=>n)}</td><td>#{zafu_helper.send(:link_to,k,zen_path(n))}</td></tr>\n"
+                end
+                dev_box << "  </table>\n"
+                dev_box << "  </li>\n"
+              end
+
+              dev_box << "  <li><a class='group' onclick='$(\"_dev_tools\").toggle();' href='#'>tools</a>\n"
+              dev_box << "    <ul id='_dev_tools' style='display:none;'>\n"
+              dev_box << "      <li><a href='?rebuild=true'>#{_('rebuild')}</a></li>\n"
+              dev_box << "<% if @node.kind_of?(Skin) -%>      <li><a href='<%= export_node_path(@node[:zip]) %>'>#{_('export')}</a></li>\n<% end -%>"
+              dev_box << "      <li><a href='/users/#{visitor[:id]}/swap_dev'>#{_('turn dev off')}</a></li>\n"
+              dev_box << "      <li>skins used: #{@skin_names.join(', ')}</li>\n"
+              dev_box << "    <ul>\n  </li>\n</ul></div>"
+              res.sub!('</body>', "#{dev_box}</body>")
+            end
+
+            secure!(CachedPage) { CachedPage.create(
+              :path            => (current_site.zafu_path + fullpath),
+              :expire_after    => nil,
+              :expire_with_ids => @expire_with_nodes.values.map{|n| n[:id]},
+              :node_id         => template[:id],
+              :content_data    => res) }
+          end
+
+          return rel_url
+        end
+        
+        def zafu_helper
+          @zafu_helper ||= begin
+            # FIXME rails 3.0.pre: zafu_helper = ActionView::Base.for_controller(self)
+            helper = ActionView::Base.new([], {}, self)
+            helper.helpers.send :include, self.class.master_helper_module
+            helper
+          end
+        end
+        
+        # Return a template's content from an url. If the url does not start with a '/', we try by replacing the
+        # first element with the current skin_name and if it does not work, we try with the full url. If the url
+        # start with a '/' we use the full url directly.
+        # tested in MainControllerTest
+        def get_template_text(opts)
+          return nil unless res = find_document_for_template(opts)
+          doc, url = *res
+          # TODO: could we use this for caching or will we loose dynamic context based loading ?
+          @expire_with_nodes[url] = doc
+          text = session[:dev] ? doc.version.text : doc.version(:pub).text
+          return text, url, doc
+        end
+        
+        # Return the zen_path ('/en/image34.png') for an asset given its name ('img/footer.png').
+        # The rule is not the same whether we are rendering a template and find <img/> <link rel='stylesheet'/> tags
+        # or if we are parsing assets in a CSS file.
+        def template_url_for_asset(opts)
+          src = opts[:src]
+          if src =~ /\A(.*)\.(\w+)\Z/
+            src, format = $1, $2
+          end
+
+          if opts[:parse_assets]  
+            current_folder = opts[:current_folder] || ''
+            current_folder = current_folder[1..-1] if current_folder[0..0] == '/'
+
+            if src =~ /\A(.*)_(\w+)\Z/
+              # if the element was not found, maybe it was not a name with underscore but it was an image mode
+              src2, mode2 = $1, $2
+            end
+
+            if src[0..0] == '/'
+              path1 = src[1..-1]
+              path2 = src2[1..-1] if src2
+            else
+              path1 = current_folder + '/' + src
+              path2 = current_folder + '/' + src2 if src2
+            end
+
+            # make sure path elements are url_names
+            path1 = path1.split('/').map {|s| s.url_name!}.join('/')
+            path2 = path2.split('/').map {|s| s.url_name!}.join('/') if src2
+
+            if asset = secure(Document) { Document.find_by_path(path1) }
+            elsif src2 && (asset = secure(Document) { Document.find_by_path(path2) })
+              mode = mode2
+            else
+              return nil
+            end
+          else
+            if src =~ /\A(.*)_(\w+)\Z/
+              src, mode = $1, $2
+            end
+
+            src2 = opts[:src].split('/').map {|s| s.url_name!}.join('/')
+
+            unless res = find_document_for_template(opts)
+              # '_...' did not mean mode but was an old name.
+              mode = nil
+              return nil unless res = find_document_for_template(opts.merge(:src => src2))
+            end
+
+            asset, url = *res
+            @renamed_assets[url] = asset
+          end
+
+          data_path(asset, :mode => mode)
+        end
+        
+        # opts should contain :current_template and :src. The source is a path like 'default/Node-+index'
+        # ('skin/template/path'). If the path starts with a slash, the skin_name in the path is searched first. Otherwise,
+        # the current skin is searched first.
+        # <r:include template='Node'/>
+        #   find: #{skin_path(main_skin)}/Node
+        # 
+        # <r:include template='/default/Node'/>
+        #   find: #{skin_path('default')}/Node
+        # 
+        def find_document_for_template(opts)
+          src    = opts[:src]
+          if src =~ /\A(.*)\.(\w+)\Z/
+            src, format = $1, $2
+          end
+
+          if src =~ /\A(.*)_(\w+)\Z/
+            src, mode = $1, $2
+          end
+
+          folder = (opts[:current_folder] && opts[:current_folder] != '') ? opts[:current_folder].split('/') : []
+          @skin ||= {}
+          if src =~ /^\//
+            # starts with '/' : look here first
+            url = src[1..-1].split('/')
+            name = url.shift
+            skin_names = opts[:parse_assets] ? [name] : ([name] + (@skin_names - [name]))
+          else
+            # does not start with '/' : look in current skin first
+            url = folder + src.split('/')
+            skin_names = opts[:parse_assets] ? [] : @skin_names.dup
+            if url.size > 1
+              name = url.shift
+              skin_names << name unless skin_names.include?(name)
+            end
+          end
+          document = skin_name = nil
+          [false, true].each do |rebuild_path|
+            # try to find using cached fullpath first.
+            skin_names.each do |skin_name|
+              next unless skin = @skin[skin_name] ||= secure(Skin) { Skin.find_by_name(skin_name) }
+              path = (skin.fullpath(rebuild_path).split('/') + url).join('/')
+              break if document = secure(Document) { Document.find_by_path(path) }
+            end
+            break if document
+          end
+          if format == 'data' && document
+            format = document.c_ext
+          end
+          return document ? [document, (([skin_name] + url).join('/') + (mode ? "_#{mode}" : '') + (format ? ".#{format}" : ''))] : nil
+        end
+        
+        # TODO: test
+        def save_erb_to_url(template, template_url)
+          path = fullpath_from_template_url(template_url)
+          path += ".erb" unless path =~ /\.\w+\Z/
+          FileUtils.mkpath(File.dirname(path)) unless File.exists?(File.dirname(path))
+          File.open(path, "wb") { |f| f.syswrite(template) }
+          ""
+        end
+        
+        # TODO: test
+        def fullpath_from_template_url(template_url=params[:t_url])
+          if template_url =~ /\A\.|[^\w\+\._\-\/]/
+            raise Zena::AccessViolation.new("'template_url' contains illegal characters : #{template_url.inspect}")
+          end
+
+          template_url = template_url[1..-1].split('/')
+          path = "/#{template_url[0]}/#{template_url[1]}/#{session[:dev] ? "dev_#{lang}" : lang}/#{template_url[2..-1].join('/')}"
+
+          "#{SITES_ROOT}/#{current_site.host}/zafu#{path}"
+        end
+        
+        # Make sure some vital templates never get broken
+        def valid_template?(content, opts)
+          mode = opts[:mode]
+          case mode
+          when '+login'
+            content =~ %r{<form[^>]* action\s*=\s*./session}
+          when '+adminLayout'
+            content =~ %r{<%= content_for_layout %>} && %r{show_link(:admin_links)}
+          else
+            true
+          end
+        end
+
+        # Default template content for a specified mode
+        def default_zafu_template(mode)
+          if mode =~ /\A\.|[^\w\+\._\-\/]/
+            raise Zena::AccessViolation.new("'mode' contains illegal characters : #{mode.inspect}")
+          end
+          File.read(File.join(RAILS_ROOT, 'app', 'views', 'templates', 'defaults', "#{mode}.zafu"))
+        end
+           
       end # Common
 
       module ControllerMethods

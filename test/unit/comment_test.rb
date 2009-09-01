@@ -3,11 +3,17 @@ require File.dirname(__FILE__) + '/../test_helper'
 class CommentTest < ActiveSupport::TestCase
   include Zena::Test::Unit
   def setup; login(:anon); end
+  
+  def test_discussion
+    comment = comments(:ant_says_inside)
+    assert_equal Discussion, comment.discussion.class
+  end
 
   def test_cannot_set_site_id
     login(:anon)
     comment = comments(:ant_says_inside)
-    assert_raise(Zena::AccessViolation) { comment.site_id = sites_id(:ocean) }
+    ocean = sites(:ocean)
+    assert_raise(Zena::AccessViolation) { comment.site_id = ocean.id }
     comment = secure!(Comment) { Comment.create( :user_id=>users_id(:tiger), :title=>'boo', :text=>'blah', :discussion_id => discussions_id(:outside_discussion_on_status_en), :author_name=>'joe', :site_id => 2 ) }
     assert !comment.new_record?, "Not a new record"
     assert_equal sites_id(:zena), comment[:site_id]
