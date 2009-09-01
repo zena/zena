@@ -1,13 +1,11 @@
-require File.dirname(__FILE__) + '/../test_helper'
+require 'test_helper'
 CachedPage
 class CachedPage
   def randomize_visited_nodes!
     @expire_with = (200 * rand).to_i.times { ids << (500000 * rand).to_i}
   end
 end
-class CachedPageTest < ActiveSupport::TestCase
-  include Zena::Test::Unit
-  def setup; login(:anon); end
+class CachedPageTest < Zena::Unit::TestCase
 
   def test_create
     without_files('test.host/public') do

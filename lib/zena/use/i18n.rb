@@ -190,7 +190,7 @@ module Zena
       end
       
       module ViewMethods
-        def self.include(base)
+        def self.included(base)
           base.send(:alias_method_chain, :will_paginate, :i18n)
         end
         

@@ -1,4 +1,4 @@
-require File.dirname(__FILE__) + '/../test_helper'
+require 'test_helper'
 
 class DynDummy < ActiveRecord::Base
   before_save :set_dummy_node_id
