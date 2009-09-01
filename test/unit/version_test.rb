@@ -1,4 +1,4 @@
-require File.dirname(__FILE__) + '/../test_helper'
+require 'test_helper'
 class VersionTest < ActiveSupport::TestCase
   include Zena::Test::Unit
   def setup; login(:anon); end

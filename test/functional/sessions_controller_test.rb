@@ -4,7 +4,7 @@ TODO: fix with AUTHLOGIC !
 
 
 
-require File.dirname(__FILE__) + '/../test_helper'
+require 'test_helper'
 require 'session_controller'
 
 # Re-raise errors caught by the controller.

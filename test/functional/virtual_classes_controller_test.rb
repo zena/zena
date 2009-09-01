@@ -1,4 +1,4 @@
-require File.dirname(__FILE__) + '/../test_helper'
+require 'test_helper'
 require 'virtual_classes_controller'
 
 # Re-raise errors caught by the controller.

@@ -1,4 +1,4 @@
-require File.dirname(__FILE__) + '/../test_helper'
+require 'test_helper'
 
 # Test Relation. RelationProxy is tested in its own file.
 class RelationTest < ActiveSupport::TestCase
