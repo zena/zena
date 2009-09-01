@@ -91,7 +91,7 @@ class CommentTest < ActiveSupport::TestCase
     login(:anon)
     comment = secure!(Comment) { Comment.create( :title=>'boo', :text=>'blah', :discussion_id => discussions_id(:outside_discussion_on_status_en) ) }
     assert comment.new_record?, "Is a new record"
-    assert_equal "can't be blank", comment.errors[:author_name]
+    assert_equal ["can't be blank"], comment.errors[:author_name]
     
     login(:tiger)
     comment = secure!(Comment) { Comment.create( :title=>'boo', :text=>'blah', :discussion_id => discussions_id(:outside_discussion_on_status_en) ) }
@@ -137,14 +137,14 @@ class CommentTest < ActiveSupport::TestCase
     comment = comments(:public_spam_in_en)
     assert_equal comment.ip, visitor.ip
     assert !comment.update_attributes(:text => 'up')
-    assert_equal 'discussion closed, comment cannot be updated', comment.errors[:base]
+    assert_equal ['discussion closed, comment cannot be updated'], comment.errors[:base]
   end
   
   def test_cannot_update_not_author
     login(:ant)
     comment = comments(:public_spam_in_en)
     assert !comment.update_attributes(:text => 'up')
-    assert_equal 'you do not have the rights to do this', comment.errors[:base]
+    assert_equal ['you do not have the rights to do this'], comment.errors[:base]
   end
   
   # FIXME: should also fail (delete = ok, edit = not ok)
@@ -152,7 +152,7 @@ class CommentTest < ActiveSupport::TestCase
   #  login(:lion)
   #  comment = comments(:public_spam_in_en)
   #  assert !comment.update_attributes(:text => 'up')
-  #  assert_equal 'you do not have the rights to do this', comment.errors[:base]
+  #  assert_equal ['you do not have the rights to do this'], comment.errors[:base]
   #end
   
   def test_update

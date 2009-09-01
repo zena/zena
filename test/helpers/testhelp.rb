@@ -22,7 +22,7 @@ class TestController < ApplicationController
     end
   end
   def test_compile
-    render :text=>ZafuParser.new_with_url(@test_url, :helper=>response.template).render(:dev => params['dev'])
+    render :text=>ZafuParser.new_with_url(@test_url, :helper => zafu_helper).render(:dev => params['dev'])
   end
 
   def test_render
@@ -30,7 +30,7 @@ class TestController < ApplicationController
   end
 
   def test_zazen
-    render :text=>ZazenParser.new(@text, :helper=>response.template).render
+    render :text=>ZazenParser.new(@text, :helper => zafu_helper).render
   end
 
   private
@@ -53,8 +53,10 @@ class TestController < ApplicationController
     params.delete(:node_id)
     params.delete(:text)
     params.delete(:url)
-    
-    response.template.instance_eval { @session = {} } # if accessing session when rendering, should be like no one there yet.
+  end
+  
+  def zafu_helper
+    @zafu_helper ||= ActionView::Base.for_controller(self)
   end
 
   def get_template_text(opts={})

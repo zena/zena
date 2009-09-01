@@ -203,7 +203,7 @@ class SecureCreateTest < ActiveSupport::TestCase
     # unsecure creation :
     test_page = Node.new(node_defaults)
     assert ! test_page.save , "Save fails"
-    assert_equal "record not secured", test_page.errors[:base]
+    assert_equal ['record not secured'], test_page.errors[:base]
   end
   def test_secure_new_succeeds
     login(:ant)
@@ -213,8 +213,8 @@ class SecureCreateTest < ActiveSupport::TestCase
   def test_unsecure_create_fails
     login(:ant)
     p = Node.create(node_defaults)
-    assert p.new_record? , "New record"
-    assert_equal "record not secured", p.errors[:base]
+    assert p.new_record?
+    assert_equal ['record not secured'], p.errors[:base]
   end
   def test_secure_create_succeeds
     login(:ant)
@@ -267,20 +267,20 @@ class SecureCreateTest < ActiveSupport::TestCase
     
     # ant cannot write into secret
     attrs[:parent_id] = nodes_id(:secret)
-    z = secure!(Note) { Note.create(attrs) }
-    assert z.new_record? , "New record"
-    assert z.errors[:parent_id] , "Errors on parent_id"
-    assert_equal "invalid reference", z.errors[:parent_id]
+    note = secure!(Note) { Note.create(attrs) }
+    assert note.new_record?
+    assert note.errors[:parent_id] , "Errors on parent_id"
+    assert_equal ['invalid reference'], note.errors[:parent_id]
   end
   
   def test_no_reference
     # root nodes do not have a parent_id !!
     # reference = self
     login(:lion)
-    z = secure!(Node) { nodes(:zena)  }
+    node = secure!(Node) { nodes(:zena)  }
     assert_nil z[:parent_id]
-    z[:pgroup_id] = groups_id(:public)
-    assert z.save, "Can change root group"
+    node[:pgroup_id] = groups_id(:public)
+    assert node.save, "Can change root group"
   end
   
   def test_circular_reference
@@ -288,7 +288,7 @@ class SecureCreateTest < ActiveSupport::TestCase
     node = secure!(Node) { nodes(:projects)  }
     node[:parent_id] = nodes_id(:status)
     assert ! node.save, 'Save fails'
-    assert_equal node.errors[:parent_id], 'circular reference'
+    assert_equal ['circular reference'], node.errors[:parent_id]
   end
   
   def test_existing_circular_reference
@@ -297,7 +297,7 @@ class SecureCreateTest < ActiveSupport::TestCase
     node = secure!(Node) { nodes(:status)  }
     node[:parent_id] = nodes_id(:projects)
     assert ! node.save, 'Save fails'
-    assert_equal node.errors[:parent_id], 'circular reference'
+    assert_equal ['circular reference'], node.errors[:parent_id]
   end
   
   def test_valid_without_circular
@@ -314,7 +314,7 @@ class SecureCreateTest < ActiveSupport::TestCase
     assert node.save
     node[:parent_id] = nodes_id(:status)
     assert ! node.save, 'Save fails'
-    assert_equal 'invalid parent', node.errors[:parent_id]
+    assert_equal ['invalid parent'], node.errors[:parent_id]
   end
   
   def test_valid_reference
@@ -336,13 +336,14 @@ class SecureCreateTest < ActiveSupport::TestCase
     # can create node in cleanWater
     cw = nodes(:cleanWater)
     attrs[:parent_id] = cw[:id]
-    z = secure!(Note) { Note.create(attrs) }
-    assert z.errors.empty? , "No errors"
+    note = secure!(Note) { Note.create(attrs) }
+    assert note.errors.empty?
+    
     # cannot publish in ref 'cleanWater'
     attrs[:pgroup_id] = groups_id(:public)
-    z = secure!(Note) { Note.create(attrs) }
-    assert z.errors[:pgroup_id] , "Errors on pgroup_id"
-    assert_equal "you cannot change this", z.errors[:pgroup_id]
+    note = secure!(Note) { Note.create(attrs) }
+    assert note.errors[:pgroup_id].any?
+    assert_equal ['you cannot change this'], note.errors[:pgroup_id]
   end
   def test_invalid_publish_group_visitor_not_in_group_set
     login(:ant)
@@ -351,10 +352,10 @@ class SecureCreateTest < ActiveSupport::TestCase
     # can publish in ref 'wiki', but is not in group managers
     attrs[:parent_id] = nodes_id(:wiki)
     attrs[:pgroup_id] = groups_id(:managers)
-    z = secure!(Note) { Note.create(attrs) }
-    assert z.new_record? , "New record"
-    assert z.errors[:pgroup_id] , "Errors on pgroup_id"
-    assert_equal "unknown group", z.errors[:pgroup_id]
+    note = secure!(Note) { Note.create(attrs) }
+    assert note.new_record?
+    assert note.errors[:pgroup_id].any?
+    assert_equal ['unknown group'], note.errors[:pgroup_id]
   end
   def test_valid_publish_group
     login(:ant)
@@ -383,10 +384,10 @@ class SecureCreateTest < ActiveSupport::TestCase
     # bad rgroup or tiger not in admin
     [99999, groups_id(:admin)].each do |grp|
       attrs[:rgroup_id] = grp
-      z = secure!(Note) { Note.create(attrs) }
-      assert z.new_record? , "New record"
-      assert z.errors[:rgroup_id] , "Error on rgroup_id"
-      assert_equal "unknown group", z.errors[:rgroup_id]
+      note = secure!(Note) { Note.create(attrs) }
+      assert note.new_record?
+      assert note.errors[:rgroup_id].any?
+      assert_equal ['unknown group'], note.errors[:rgroup_id]
     end
   end
   
@@ -394,30 +395,30 @@ class SecureCreateTest < ActiveSupport::TestCase
     login(:tiger)
     attrs = node_defaults
     attrs[:rgroup_id] = groups_id(:admin) # tiger is not in admin
-    z = secure!(Note) { Note.create(attrs) }
-    assert z.new_record? , "New record"
-    assert z.errors[:rgroup_id], "Error on rgroup_id"
-    assert_equal "unknown group", z.errors[:rgroup_id]
+    note = secure!(Note) { Note.create(attrs) }
+    assert note.new_record?
+    assert note.errors[:rgroup_id].any?
+    assert_equal ['unknown group'], note.errors[:rgroup_id]
   end
   def test_can_vis_bad_wgroup
     login(:tiger)
     attrs = node_defaults
     # bad wgroup
     attrs[:wgroup_id] = 99999
-    z = secure!(Note) { Note.create(attrs) }
-    assert z.new_record? , "New record"
-    assert z.errors[:wgroup_id] , "Error on wgroup_id"
-    assert_equal "unknown group", z.errors[:wgroup_id]
+    note = secure!(Note) { Note.create(attrs) }
+    assert note.new_record?
+    assert note.errors[:wgroup_id].any?
+    assert_equal ['unknown group'], note.errors[:wgroup_id]
   end
   def test_can_vis_bad_wgroup_visitor_not_in_group
     login(:tiger)
     attrs = node_defaults
     
     attrs[:wgroup_id] = groups_id(:admin) # tiger is not in admin
-    z = secure!(Note) { Note.create(attrs) }
-    assert z.new_record? , "New record"
-    assert z.errors[:wgroup_id] , "Error on wgroup_id"
-    assert_equal "unknown group", z.errors[:wgroup_id]
+    note = secure!(Note) { Note.create(attrs) }
+    assert note.new_record?
+    assert note.errors[:wgroup_id].any?
+    assert_equal ['unknown group'], note.errors[:wgroup_id]
   end
   def test_can_vis_rwgroups_ok
     login(:tiger)
@@ -426,13 +427,13 @@ class SecureCreateTest < ActiveSupport::TestCase
     attrs[:parent_id] = zena[:id]
     # all ok
     attrs[:wgroup_id] = groups_id(:managers)
-    z = secure!(Note) { Note.create(attrs) }
+    note = secure!(Note) { Note.create(attrs) }
     
-    assert ! z.new_record?, "Not a new record"
-    assert z.errors.empty? , "Errors empty"
-    assert_equal zena[:rgroup_id], z[:rgroup_id] , "Same rgroup as parent"
-    assert_equal groups_id(:managers), z[:wgroup_id] , "New wgroup set"
-    assert_equal zena[:pgroup_id], z[:pgroup_id] , "Same pgroup_id as parent"
+    assert ! note.new_record?, "Not a new record"
+    assert note.errors.empty? , "Errors empty"
+    assert_equal zena[:rgroup_id], note[:rgroup_id] , "Same rgroup as parent"
+    assert_equal groups_id(:managers), note[:wgroup_id] , "New wgroup set"
+    assert_equal zena[:pgroup_id], note[:pgroup_id] , "Same pgroup_id as parent"
   end
   
   #     b. else (can_manage as node is new) : rgroup_id = 0 => inherit, rgroup_id = -1 => private else error.
@@ -448,10 +449,10 @@ class SecureCreateTest < ActiveSupport::TestCase
     # cannot change pgroup
     attrs[:pgroup_id] = groups_id(:public)
     assert (attrs[:pgroup_id] != p.pgroup_id) , "Publish group is different from reference"
-    z = secure!(Note) { Note.create(attrs) }
-    assert z.new_record? , "New record"
-    assert z.errors[:pgroup_id] , "Errors on pgroup_id"
-    assert_equal "you cannot change this", z.errors[:pgroup_id]
+    note = secure!(Note) { Note.create(attrs) }
+    assert note.new_record?
+    assert note.errors[:pgroup_id].any?
+    assert_equal ['you cannot change this'], note.errors[:pgroup_id]
   end
   def test_can_man_cannot_change_rw_groups
     login(:ant)
@@ -464,12 +465,12 @@ class SecureCreateTest < ActiveSupport::TestCase
     attrs[:rgroup_id] = 98984984 # anything
     attrs[:wgroup_id] = 98984984 # anything
     attrs[:pgroup_id] = p.pgroup_id # same as reference
-    z = secure!(Note) { Note.create(attrs) }
-    assert z.new_record? , "New record"
-    assert z.errors[:rgroup_id] , "Errors on rgroup_id"
-    assert z.errors[:wgroup_id] , "Errors on wgroup_id"
-    assert_equal "you cannot change this", z.errors[:rgroup_id]
-    assert_equal "you cannot change this", z.errors[:wgroup_id]
+    note = secure!(Note) { Note.create(attrs) }
+    assert note.new_record?
+    assert note.errors[:rgroup_id].any?
+    assert note.errors[:wgroup_id].any?
+    assert_equal ['you cannot change this'], note.errors[:rgroup_id]
+    assert_equal ['you cannot change this'], note.errors[:wgroup_id]
   end
   def test_can_man_can_update_private
     login(:ant)
@@ -483,12 +484,12 @@ class SecureCreateTest < ActiveSupport::TestCase
     attrs[:rgroup_id] = 98984984 # anything
     attrs[:wgroup_id] = 98984984 # anything
     attrs[:pgroup_id] = 98984984 # anything
-    z = secure!(Note) { Note.create(attrs) }
-    assert ! z.new_record? , "Not a new record"
-    assert_equal 0, z.rgroup_id , "Read group is 0"
-    assert_equal 0, z.wgroup_id , "Write group is 0"
-    assert_equal 0, z.pgroup_id , "Publish group is 0"
-    assert_equal -1, z.inherit , "Inherit mode is -1"
+    note = secure!(Note) { Note.create(attrs) }
+    assert ! note.new_record? , "Not a new record"
+    assert_equal 0, note.rgroup_id , "Read group is 0"
+    assert_equal 0, note.wgroup_id , "Write group is 0"
+    assert_equal 0, note.pgroup_id , "Publish group is 0"
+    assert_equal -1, note.inherit , "Inherit mode is -1"
   end
   
   def test_can_man_can_inherit_rwp_groups
@@ -502,11 +503,11 @@ class SecureCreateTest < ActiveSupport::TestCase
     attrs[:rgroup_id] = 98449484 # anything
     attrs[:wgroup_id] = nil # anything
     attrs[:pgroup_id] = 98984984 # anything
-    z = secure!(Note) { Note.create(attrs) }
-    assert ! z.new_record? , "Not a new record"
-    assert_equal p.rgroup_id, z.rgroup_id ,    "Read group is same as reference"
-    assert_equal p.wgroup_id, z.wgroup_id ,   "Write group is same as reference"
-    assert_equal p.pgroup_id, z.pgroup_id , "Publish group is same as reference"
+    note = secure!(Note) { Note.create(attrs) }
+    assert ! note.new_record? , "Not a new record"
+    assert_equal p.rgroup_id, note.rgroup_id ,    "Read group is same as reference"
+    assert_equal p.wgroup_id, note.wgroup_id ,   "Write group is same as reference"
+    assert_equal p.pgroup_id, note.pgroup_id , "Publish group is same as reference"
   end
   # 5. validate the rest
   # testing is done in page_test or node_test
@@ -541,8 +542,8 @@ class SecureUpdateTest < ActiveSupport::TestCase
     assert ! node.can_visible? , "Cannot make visible changes"
     node.pgroup_id = groups_id(:public)
     assert ! node.save , "Save fails"
-    assert node.errors[:base] , "Errors on base"
-    assert "you do not have the rights to do this", node.errors[:base]
+    assert node.errors[:base].any?
+    assert ['you do not have the rights to do this'], node.errors[:base]
   end
   def test_inherit_changed_cannot_visible
     # cannot visible
@@ -556,8 +557,8 @@ class SecureUpdateTest < ActiveSupport::TestCase
     assert_equal 1, node.inherit , "Inherit mode is 1"
     node.inherit = 0
     assert ! node.save , "Save fails"
-    assert node.errors[:inherit] , "Errors on inherit"
-    assert "invalid value", node.errors[:inherit]
+    assert node.errors[:inherit].any?
+    assert ['invalid value'], node.errors[:inherit]
   end
   def test_pgroup_changed_bad_pgroup_visitor_not_in_group
     # bad pgroup
@@ -568,8 +569,8 @@ class SecureUpdateTest < ActiveSupport::TestCase
     node[:inherit  ] = 0
     node[:pgroup_id] = groups_id(:admin)
     assert ! node.save , "Save fails"
-    assert node.errors[:pgroup_id] , "Errors on pgroup_id"
-    assert "unknown group", node.errors[:pgroup_id]
+    assert node.errors[:pgroup_id].any?
+    assert ['unknown group'], node.errors[:pgroup_id]
   end
   def test_pgroup_changed_ok
     # ok
@@ -594,7 +595,7 @@ class SecureUpdateTest < ActiveSupport::TestCase
     node[:inherit  ] = 0
     node[:pgroup_id] = nil
     assert !node.save , "Save fails"
-    assert node.errors[:inherit]
+    assert node.errors[:inherit].any?
   end
   def test_pgroup_can_nil_if_owner
     # ok
@@ -716,8 +717,8 @@ class SecureUpdateTest < ActiveSupport::TestCase
     assert_equal users_id(:lion), node.user_id
     node.user_id = users_id(:tiger)
     assert ! node.save , "Save fails"
-    assert node.errors[:user_id] , "Errors on user_id"
-    assert_equal "only admins can change owners", node.errors[:user_id]
+    assert node.errors[:user_id].any?
+    assert_equal ['only admins can change owners'], node.errors[:user_id]
   end
   def test_owner_changed_bad_user
     # cannot write in new contact
@@ -727,8 +728,8 @@ class SecureUpdateTest < ActiveSupport::TestCase
     assert_equal users_id(:lion), node.user_id
     node.user_id = 99
     assert ! node.save , "Save fails"
-    assert node.errors[:user_id] , "Errors on user_id"
-    assert_equal "unknown user", node.errors[:user_id]
+    assert node.errors[:user_id].any?
+    assert_equal ['unknown user'], node.errors[:user_id]
   end
   def test_owner_changed_ok
     login(:lion)
@@ -746,8 +747,8 @@ class SecureUpdateTest < ActiveSupport::TestCase
     assert ! node.can_visible? , "Cannot visible"
     assert ! node.can_manage? , "Cannot manage"
     assert ! node.update_attributes('name' => 'no way') , "Save fails"
-    assert node.errors[:base], "Errors on base"
-    assert_equal "you do not have the rights to do this", node.errors[:base]
+    assert node.errors[:base].any?
+    assert_equal ['you do not have the rights to do this'], node.errors[:base]
   end
   
   # 4. parent changed ? verify 'visible access to new *and* old'
@@ -757,8 +758,8 @@ class SecureUpdateTest < ActiveSupport::TestCase
     node = secure!(Node) { nodes(:bird_jpg) } # can visible in reference
     node[:parent_id] = nodes_id(:cleanWater) # cannot visible here
     assert ! node.save , "Save fails"
-    assert node.errors[:parent_id] , "Errors on parent_id"
-    assert "invalid reference", node.errors[:parent_id]
+    assert node.errors[:parent_id].any?
+    assert ['invalid reference'], node.errors[:parent_id]
   end
   def test_reference_changed_cannot_pub_in_old
     login(:ant)
@@ -766,8 +767,8 @@ class SecureUpdateTest < ActiveSupport::TestCase
     node = secure!(Node) { nodes(:talk)  } # cannot visible in parent 'secret'
     node[:parent_id] = nodes_id(:wiki) # can visible here
     assert ! node.save , "Save fails"
-    assert node.errors[:parent_id] , "Errors on parent_id"
-    assert "invalid reference", node.errors[:parent_id]
+    assert node.errors[:parent_id].any?
+    assert ['invalid reference'], node.errors[:parent_id]
   end
   
   def test_reference_changed_ok
@@ -795,8 +796,8 @@ class SecureUpdateTest < ActiveSupport::TestCase
       node[:inherit  ] = 0
       node[:rgroup_id] = grp
       assert ! node.save , "Save fails"
-      assert node.errors[:rgroup_id] , "Error on rgroup_id"
-      assert_equal "unknown group", node.errors[:rgroup_id]
+      assert node.errors[:rgroup_id].any?
+      assert_equal ['unknown group'], node.errors[:rgroup_id]
     end
   end
 
@@ -806,8 +807,8 @@ class SecureUpdateTest < ActiveSupport::TestCase
     node[:inherit  ] = 0
     node[:rgroup_id] = groups_id(:admin) # tiger is not in admin
     assert ! node.save , "Save fails"
-    assert node.errors[:rgroup_id], "Error on rgroup_id"
-    assert_equal "unknown group", node.errors[:rgroup_id]
+    assert node.errors[:rgroup_id].any?
+    assert_equal ['unknown group'], node.errors[:rgroup_id]
   end
   def test_update_rw_groups_for_publisher_bad_wgroup
     login(:tiger)
@@ -816,8 +817,8 @@ class SecureUpdateTest < ActiveSupport::TestCase
     node[:inherit  ] = 0
     node[:wgroup_id] = 99999
     assert ! node.save , "Save fails"
-    assert node.errors[:wgroup_id] , "Error on wgroup_id"
-    assert_equal "unknown group", node.errors[:wgroup_id]
+    assert node.errors[:wgroup_id].any?
+    assert_equal ['unknown group'], node.errors[:wgroup_id]
   end
   def test_update_rw_groups_for_publisher_not_in_new_wgroup
     login(:tiger)
@@ -825,8 +826,8 @@ class SecureUpdateTest < ActiveSupport::TestCase
     node[:inherit  ] = 0
     node[:wgroup_id] = groups_id(:admin) # tiger is not in admin
     assert ! node.save , "Save fails"
-    assert node.errors[:wgroup_id] , "Error on wgroup_id"
-    assert_equal "unknown group", node.errors[:wgroup_id]
+    assert node.errors[:wgroup_id].any?
+    assert_equal ['unknown group'], node.errors[:wgroup_id]
   end
   def test_update_rw_groups_for_publisher_ok
     login(:tiger)
@@ -853,8 +854,8 @@ class SecureUpdateTest < ActiveSupport::TestCase
     # cannot change inherit
     node[:inherit  ] = 0
     assert ! node.save , "Save fails"
-    assert node.errors[:inherit] , "Errors on pgroup_id"
-    assert_equal "you cannot change this", node.errors[:inherit]
+    assert node.errors[:inherit].any?
+    assert_equal ['you cannot change this'], node.errors[:inherit]
   end
   
   def test_can_man_can_create_private
@@ -882,7 +883,7 @@ class SecureUpdateTest < ActiveSupport::TestCase
     node[:wgroup_id] = 98984984 # anything
     node[:pgroup_id] = 98984984 # anything
     assert !node.save , "Save fails"
-    assert_equal "you cannot make this node private", node.errors[:inherit]
+    assert_equal ['you cannot make this node private'], node.errors[:inherit]
   end
   
   def test_can_man_cannot_lock_inherit
@@ -890,8 +891,8 @@ class SecureUpdateTest < ActiveSupport::TestCase
     # make private
     node[:inherit  ] = 0 # lock inheritance
     assert ! node.save , "Save fails"
-    assert node.errors[:inherit] , "Errors on inherit"
-    assert_equal "you cannot change this", node.errors[:inherit]
+    assert node.errors[:inherit].any?
+    assert_equal ['you cannot change this'], node.errors[:inherit]
   end
   
   def test_can_man_update_inherit
@@ -961,7 +962,7 @@ class SecureUpdateTest < ActiveSupport::TestCase
     login(:ant)
     node = secure!(Node) { nodes(:lake)  }
     assert !node.destroy, "Cannot destroy"
-    assert_equal node.errors[:base], 'you do not have the rights to do this'
+    assert_equal ['you do not have the rights to do this'], node.errors[:base]
   
     login(:tiger)
     node = secure!(Node) { nodes(:lake)  }
@@ -1031,7 +1032,7 @@ class SecureVisitorStatusTest < ActiveSupport::TestCase
     assert_equal visitor.status, User::Status[:reader]
     node = secure!(Node) { nodes(:ocean) }
     assert !node.update_attributes(:v_title => 'hooba')
-    assert_equal 'You do not have the rights to edit', node.errors['base']
+    assert_equal ['You do not have the rights to edit'], node.errors['base']
     
     Participation.connection.execute "UPDATE participations SET status = #{User::Status[:user]} WHERE user_id = #{users_id(:messy)} AND site_id = #{sites_id(:ocean)}"
     login(:messy)

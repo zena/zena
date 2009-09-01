@@ -8,8 +8,8 @@ class TemplateTest < ActiveSupport::TestCase
     login(:tiger)
     doc = secure!(Document) { Document.create(:parent_id=>nodes_id(:cleanWater), :name=>'super.zafu')}
     assert_kind_of Template, doc
-    assert doc.new_record?, "New record"
-    assert doc.errors[:parent_id], "Invalid parent (section is not a skin)"
+    assert doc.new_record?
+    assert ['Invalid parent (section is not a skin)'], doc.errors[:parent_id]
     doc = secure!(Document) { Document.create(:parent_id=>nodes_id(:default), :name=>'super.zafu')}
     assert !doc.new_record?, "Not a new record"
     assert_equal 'text/zafu', doc.c_content_type
@@ -278,7 +278,7 @@ class TemplateTest < ActiveSupport::TestCase
     login(:lion)
     doc = secure!(Template) { nodes(:wiki_Project_changes_xml_zafu) }
     assert !doc.update_attributes(:parent_id => nodes_id(:collections))
-    assert_equal "Invalid parent (section is not a Skin)", doc.errors[:parent_id]
+    assert_equal ['Invalid parent (section is not a Skin)'], doc.errors[:parent_id]
   end
   
   def test_move

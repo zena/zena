@@ -73,8 +73,8 @@ class UserTest < ActiveSupport::TestCase
     login(:tiger)
     user = secure!(User) { User.create("name"=>"Shakespeare", "status"=>"50", "group_ids"=>[""], "lang"=>"fr", "time_zone"=>"Bern", "first_name"=>"William", "login"=>"bob", "password"=>"jsahjks894", "email"=>"") }
     assert user.new_record?, "Not saved"
-    assert user.errors[:site], "Not found"
-    assert user.errors[:base]
+    assert_equal ['Not found'], user.errors[:site]
+    assert user.errors[:base].any?
     login(:lion)
     user = secure!(User) { User.create("name"=>"Shakespeare", "status"=>"50", "group_ids"=>[""], "lang"=>"fr", "time_zone"=>"Bern", "first_name"=>"William", "login"=>"bob", "password"=>"jsahjks894", "email"=>"") }
     assert !user.new_record?, "Saved"
@@ -114,7 +114,7 @@ class UserTest < ActiveSupport::TestCase
     user = secure!(User) { users(:ant) }
     user.email = "eat@spam.com"
     assert !user.save
-    assert user.errors[:base]
+    assert user.errors[:base].any?
     user = secure!(User) { users(:tiger) }
     user.email = "socr@isa.man"
     assert user.save
@@ -125,7 +125,7 @@ class UserTest < ActiveSupport::TestCase
     login(:tiger)
     user = secure!(User) { User.create(:login=>'joe', :password=>'whatever') }
     assert user.new_record?
-    assert user.errors[:base]
+    assert user.errors[:base].any?
     login(:lion)
     user = secure!(User) { User.create(:login=>'joe', :password=>'whatever') }
     assert !user.new_record?
@@ -135,7 +135,7 @@ class UserTest < ActiveSupport::TestCase
     login(:lion)
     user = secure!(User) { users(:lion) }
     assert !user.update_attributes(:status => User::Status[:user])
-    assert_equal 'you do not have the rights to do this', user.errors[:status]
+    assert_equal ['you do not have the rights to do this'], user.errors[:status]
     user = secure!(User) { users(:lion) }
     assert user.update_attributes('status' => User::Status[:admin].to_s, 'time_zone' => 'Europe/Berlin')
   end
@@ -177,12 +177,12 @@ class UserTest < ActiveSupport::TestCase
     login(:lion)
     bob = secure!(User) { User.create(:login=>'tiger', :password=>'anypassword') }
     assert bob.new_record?
-    assert_not_nil bob.errors[:login]
+    assert bob.errors[:login].any?
     
     login(:whale)
     bob = secure!(User) { User.create(:login=>'tiger', :password=>'anypassword') }
     assert !bob.new_record?
-    assert_nil bob.errors[:login]
+    assert bob.errors[:login].any?
   end
   
   def test_empty_password
@@ -191,7 +191,7 @@ class UserTest < ActiveSupport::TestCase
     bob.login = 'bob'
     bob.save
     assert ! bob.save
-    assert_not_nil bob.errors[:password]
+    assert bob.errors[:password].any?
   end
   
   def test_update_public
@@ -251,14 +251,14 @@ class UserTest < ActiveSupport::TestCase
     login(:lion)
     user = secure!(User) { User.new(:login=>'joe', :password=>'secret', :site_ids=>['1','2'])}
     assert !user.save
-    assert user.errors[:site]
+    assert user.errors[:site].any?
     
     # make lion a user of ocean
     Group.connection.execute "INSERT INTO participations (site_id, user_id, status, lang) VALUES (#{sites_id(:ocean)}, #{users_id(:lion)}, 50, 'en')"
     login(:lion)
     user = secure!(User) { User.new(:login=>'joe', :password=>'secret', :site_ids=>[sites_id(:zena),sites_id(:ocean)])}
     assert !user.save
-    assert user.errors[:site]
+    assert user.errors[:site].any?
     
     # make lion an admin in ocean
     Participation.connection.execute "UPDATE participations SET status = #{User::Status[:admin]} WHERE site_id = #{sites_id(:ocean)} AND user_id=#{users_id(:lion)}"
@@ -287,7 +287,7 @@ class UserTest < ActiveSupport::TestCase
     login(:lion)
     user = secure!(User) { User.create("login"=>"john", "password"=>"isjjna78a9h", 'time_zone' => 'Zurich') }
     assert user.new_record?
-    assert user.errors['time_zone'], 'invalid'
+    assert_equal ['invalid'], user.errors['time_zone']
     
     user = secure!(User) { User.create("login"=>"john", "password"=>"isjjna78a9h", 'time_zone' => 'Mexico/General') }
     assert !user.new_record?

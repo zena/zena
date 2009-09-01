@@ -114,7 +114,7 @@ class GroupTest < ActiveSupport::TestCase
     group = groups(:managers)
     assert !group.can_destroy?
     assert !group.destroy
-    assert group.errors['base']
+    assert group.errors[:base].any?
   end
   
   def test_replace_by

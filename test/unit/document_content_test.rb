@@ -98,7 +98,7 @@ class DocumentContentTest < ActiveSupport::TestCase
       login(:tiger)
       node = secure!(Node) { nodes(:bird_jpg) }
       assert !node.update_attributes(:c_file=>uploaded_pdf('water.pdf'))
-      assert_equal 'must be an image', node.errors[:version_content_file]
+      assert_equal ['must be an image'], node.errors[:version_content_file]
     end
   end
   

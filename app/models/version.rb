@@ -226,10 +226,10 @@ class Version < ActiveRecord::Base
       if @content && !@content.valid?
         @content.errors.each do |attribute,message|
           if attribute.to_s == 'base'
-            errors.add_to_base(message)
+            errors.add(:base, message)
           else
             attribute = "content_#{attribute}"
-            errors.add(attribute, message) unless errors.on(attribute)
+            errors.add(attribute, message) if errors[attribute].empty?
           end
         end
       

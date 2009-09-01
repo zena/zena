@@ -487,9 +487,9 @@ module Zena
           def lock_validation
             if @redaction && @redaction.should_save? && l = lang_locked?(@redaction.lang, @redaction)
               if l.user_id == visitor.id
-                errors.add_to_base "You cannot edit while you have a proposition waiting for approval."
+                errors.add(:base, 'You cannot edit while you have a proposition waiting for approval.')
               else
-                errors.add_to_base "(#{l.user.login}) is editing this node"
+                errors.add(:base, "(#{l.user.login}) is editing this node")
               end
             end
           end
@@ -497,9 +497,9 @@ module Zena
           def status_validation
             return true unless @redaction && @redaction.should_save?
             if t = current_transition
-              errors.add_to_base("You do not have the rights to #{t[:name].to_s.gsub('_', ' ')}") unless transition_allowed?(t)
+              errors.add(:base, "You do not have the rights to #{t[:name].to_s.gsub('_', ' ')}") unless transition_allowed?(t)
             else
-              errors.add_to_base("This transition is not allowed.")
+              errors.add(:base, 'This transition is not allowed.')
             end
           end
 
@@ -508,7 +508,7 @@ module Zena
             unless @redaction.valid?
               @redaction.errors.each do |attribute, message|
                 attribute = "version_#{attribute}"
-                errors.add(attribute, message) unless errors.on(attribute)
+                errors.add(attribute, message) if errors[attribute].empty?
               end
             end
           end

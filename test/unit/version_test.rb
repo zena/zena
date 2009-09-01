@@ -99,7 +99,7 @@ class VersionTest < ActiveSupport::TestCase
     assert node.save
     vers = Version.new
     assert !vers.save
-    assert_equal "node missing", vers.errors[:base]
+    assert_equal ['node missing'], vers.errors[:base]
   end
   
   def test_update_content_one_version
@@ -145,7 +145,7 @@ class VersionTest < ActiveSupport::TestCase
       assert_equal old_vers_id, node.v_id
       # try to edit content
       assert !node.update_attributes(:c_file=>uploaded_pdf('water.pdf')), "Cannot be changed"
-      assert node.errors[:c_file]
+      assert node.errors[:c_file].any?
     end
   end
   
@@ -224,6 +224,6 @@ class VersionTest < ActiveSupport::TestCase
     login(:tiger)
     node = secure!(Page) { Page.create(:v_lang => 'io', :parent_id => nodes_id(:status), :name => 'hello', :v_title => '')}
     assert node.new_record?
-    assert node.errors[:v_lang]
+    assert node.errors[:v_lang].any?
   end
 end

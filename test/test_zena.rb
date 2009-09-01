@@ -257,6 +257,7 @@ module Zena
       end
     end
 
+    # functional tests
     module TestController
       include Zena::Test::LoadFixtures
       include Zena::Test::Base
@@ -334,12 +335,14 @@ module Zena
       def rescue_action(e) raise e; end;
     end
 
+    # Helper testing
     module TestHelper
       include Zena::Test::LoadFixtures
       include Zena::Test::Base
       attr_accessor :flash, :controller
-
-      include ActionView::Helpers::ActiveRecordHelper
+      
+      # TODO: make this clean. Maybe use 'tests ....' or include these helpers cleanly in the actual (zafu parsing) module ?
+      include ActionView::Helpers::ActiveModelHelper
       include ActionView::Helpers::TagHelper
       include ActionView::Helpers::FormTagHelper
       include ActionView::Helpers::FormOptionsHelper

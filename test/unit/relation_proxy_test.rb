@@ -111,7 +111,7 @@ class RelationProxyTest < ActiveSupport::TestCase
     login(:tiger)
     node = secure!(Node) { nodes(:status) }
     assert_nothing_raised (NoMethodError) { node.update_attributes( 'tralala_ids' => ['33'])}
-    assert node.errors['tralala']
+    assert node.errors['tralala'].any?
     assert_equal Hash[], node.remove_attributes_with_same_value( 'some_bad_method_name' => ['33'])
   end
   
@@ -234,17 +234,17 @@ class RelationProxyTest < ActiveSupport::TestCase
     node = secure!(Node) { nodes(:letter) }
     node.add_link('calendar', :other_id => 1) # bad id
     assert !node.save
-    assert_equal 'invalid target', node.errors['calendar']
+    assert_equal ['invalid target'], node.errors['calendar']
     
     node = secure!(Node) { nodes(:letter) }
     node.add_link('calendar', :other_id => 1, :comment => 'woopi')
     assert !node.save
-    assert_equal 'invalid target', node.errors['calendar']
+    assert_equal ['invalid target'], node.errors['calendar']
     
     node = secure!(Node) { nodes(:letter) }
     node.add_link('calendar', :other_id => nil, :comment => 'woopi')
     assert !node.save
-    assert_equal 'invalid target', node.errors['calendar']
+    assert_equal ['invalid target'], node.errors['calendar']
   end
   
   def test_set_link_many_targets
@@ -297,7 +297,7 @@ class RelationProxyTest < ActiveSupport::TestCase
     login(:lion)
     node = secure!(Node) { Node.create_node('parent_id' => nodes_zip(:cleanWater),'klass'=>'Page', 'foo_id'=>'342', 'v_title'=>'hello') }
     assert node.new_record?
-    assert_equal 'invalid relation', node.errors['foo']
+    assert_equal ['invalid relation'], node.errors['foo']
     # invalid relation
     node = secure!(Node) { Node.create_node('parent_id' => nodes_zip(:cleanWater),'klass'=>'Page', 'foo_id'=>'', 'v_title'=>'one') }
     assert !node.new_record?

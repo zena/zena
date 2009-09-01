@@ -37,7 +37,7 @@ class IformatsControllerTest < ZenaTestController
     assert_response :success
     imf = assigns['iformat']
     assert imf.new_record?, "New record"
-    assert imf.errors['name']
+    assert imf.errors[:name].any?
   end
   
   def test_update
@@ -83,7 +83,7 @@ class IformatsControllerTest < ZenaTestController
     put 'update', :id => iformats_id(:med), :iformat=>{:name=>'foo'}
     assert_template 'edit'
     imf = assigns['iformat']
-    assert imf.errors[:name]
+    assert imf.errors[:name].any?
   end
   
   def test_edit

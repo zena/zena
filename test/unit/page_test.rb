@@ -18,7 +18,7 @@ class PageTest < ActiveSupport::TestCase
     login(:tiger)
     node = secure!(Page) { Page.create(:parent_id=>nodes_id(:projects), :name=>'wiki')}
     assert node.new_record?
-    assert_equal 'has already been taken', node.errors[:name]
+    assert_equal ['has already been taken'], node.errors[:name]
   end
   
   def test_create_same_name_other_parent
@@ -26,7 +26,7 @@ class PageTest < ActiveSupport::TestCase
     node = secure!(Page) { Page.create(:parent_id=>nodes_id(:cleanWater), :name=>'wiki')}
     err node
     assert ! node.new_record?, 'Not a new record'
-    assert_nil node.errors[:name]
+    assert node.errors[:name].empty?
   end
   
   def test_create_same_name_other_parent_with_cache
@@ -35,7 +35,7 @@ class PageTest < ActiveSupport::TestCase
       node = secure!(Page) { Page.create(:parent_id=>nodes_id(:cleanWater), :name=>'wiki')}
       err node
       assert ! node.new_record?, 'Not a new record'
-      assert_nil node.errors[:name]
+      assert node.errors[:name].empty?
     end
   end
 
@@ -44,7 +44,7 @@ class PageTest < ActiveSupport::TestCase
     node = secure!(Node) { nodes(:cleanWater) }
     node.name = 'wiki'
     assert ! node.save, 'Cannot save'
-    assert_equal node.errors[:name], 'has already been taken'
+    assert_equal ['has already been taken'], node.errors[:name]
   end
 
   def test_update_same_name_other_parent
@@ -53,7 +53,7 @@ class PageTest < ActiveSupport::TestCase
     node.name = 'wiki'
     node[:parent_id] = nodes_id(:zena)
     assert node.save
-    assert_nil node.errors[:name]
+    assert node.errors[:name].empty?
   end
   
   def test_update_same_name_other_parent_with_cache
@@ -63,7 +63,7 @@ class PageTest < ActiveSupport::TestCase
       node.name = 'wiki'
       node[:parent_id] = nodes_id(:zena)
       assert node.save
-      assert_nil node.errors[:name]
+      assert node.errors[:name].empty?
     end
   end
   

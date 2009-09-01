@@ -93,15 +93,15 @@ end
 ZazenParser = Parser.parser_with_rules(Zazen::Rules, Zazen::Tags)
 ZafuParser  = Parser.parser_with_rules(Zafu::Rules, Zena::Rules, Zafu::Tags, Zena::Tags)
 
-=begin
 #FIXME: remove all these hacks !
+require File.join(lib_path, 'base_additions')
+=begin
 require File.join(lib_path, 'secure')
 require File.join(lib_path, 'multiversion')
 require File.join(lib_path, 'has_relations')
 require File.join(lib_path, 'image_builder')
 
 require File.join(lib_path, 'parser')
-require File.join(lib_path, 'base_additions')
 require File.join(lib_path, 'use_find_helpers')
 require File.join(lib_path, 'use_zafu')
 require File.join(lib_path, 'node_query')

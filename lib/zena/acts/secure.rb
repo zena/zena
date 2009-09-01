@@ -122,7 +122,7 @@ Just doing the above will filter all result according to the logged in user.
           # we move all before_validation on update and create here so that it is triggered before multiversion's before_validation
           before_validation  :secure_before_validation
           
-          validate {|r| r.errors.add_to_base 'record not secured' unless r.instance_variable_get(:@visitor) }
+          validate {|r| r.errors.add(:base, 'record not secured') unless r.instance_variable_get(:@visitor) }
           validate_on_update {|r| r.errors.add('site_id', 'cannot change') if r.site_id_changed? }
           
           validate_on_create :secure_on_create
@@ -347,10 +347,10 @@ Just doing the above will filter all result according to the logged in user.
           when -1
             # private
             unless visitor.site.allow_private?
-              errors.add('inherit', 'private nodes not allowed')
+              errors.add(:inherit, 'private nodes not allowed')
             end
           else
-            errors.add('inherit', "bad inheritance mode")
+            errors.add(:inherit, "bad inheritance mode")
           end
         end
 
@@ -366,7 +366,7 @@ Just doing the above will filter all result according to the logged in user.
         def secure_on_update
           return true unless changed?
           if !can_drive_was_true?
-            errors.add_to_base("you do not have the rights to do this")
+            errors.add(:base, 'you do not have the rights to do this')
             return
           end
           
@@ -375,10 +375,10 @@ Just doing the above will filter all result according to the logged in user.
               # only admin can change owners
               # FIXME: AUTH: we are in 'secure' scope but we should fix this when changing authentication.
               unless User.find(:first, :conditions => ["id = ?",user_id])
-                errors.add('user_id', "unknown user")
+                errors.add(:user_id, "unknown user")
               end
             else
-              errors.add('user_id', "only admins can change owners")
+              errors.add(:user_id, "only admins can change owners")
             end
           end
           

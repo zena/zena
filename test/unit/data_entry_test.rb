@@ -20,7 +20,7 @@ class DataEntryTest < ActiveSupport::TestCase
     login(:tiger)
     ent = DataEntry.create(:text => "simple test")
     assert ent.new_record?, "New record"
-    assert_equal "a data entry must link to at least one node", ent.errors[:base]
+    assert_equal ["a data entry must link to at least one node"], ent.errors[:base]
   end
   
   def test_nodes
@@ -41,16 +41,16 @@ class DataEntryTest < ActiveSupport::TestCase
     login(:ant)
     ent = data_entries(:comment)
     assert !ent.update_attributes(:node_a_id => nodes_id(:ant), :node_a_id => nodes_id(:zena))
-    assert ent.errors[:node_a_id]
-    assert_equal "cannot remove old relation", ent.errors[:node_a_id]
+    assert ent.errors[:node_a_id].any?
+    assert_equal ["cannot remove old relation"], ent.errors[:node_a_id]
   end
   
   def test_cannot_set_bad_link
     login(:ant)
     ent = data_entries(:comment)
     assert !ent.update_attributes(:node_c_id => nodes_id(:secret))
-    assert ent.errors[:node_c_id]
-    assert_equal "invalid node", ent.errors[:node_c_id]
+    assert ent.errors[:node_c_id].any?
+    assert_equal ["invalid node"], ent.errors[:node_c_id]
   end
   
   def test_data_precision

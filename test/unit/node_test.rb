@@ -197,8 +197,8 @@ class NodeTest < ActiveSupport::TestCase
     attrs[:parent_id] = nodes_id(:myDreams) # cannot write here
     node = secure!(Page) { Page.new(attrs) }
     assert ! node.save , "Save fails"
-    assert node.errors[:parent_id] , "Errors on parent_id"
-    assert_equal "invalid reference", node.errors[:parent_id]
+    assert node.errors[:parent_id].any?
+    assert_equal ['invalid reference'], node.errors[:parent_id]
 
     attrs[:parent_id] = nodes_id(:cleanWater) # other parent ok
     node = secure!(Page) { Page.new(attrs) }
@@ -211,8 +211,8 @@ class NodeTest < ActiveSupport::TestCase
     attrs.delete(:parent_id)
     node = secure!(Node) { Node.new(attrs) }
     assert ! node.save , "Save fails"
-    assert node.errors[:parent_id] , "Errors on parent_id"
-    assert_equal "invalid reference", node.errors[:parent_id]
+    assert node.errors[:parent_id].any?
+    assert_equal ['invalid reference'], node.errors[:parent_id]
     # page parent ok
     assert node.new_record?
     node = secure!(Node) { Node.new(attrs) }
@@ -224,7 +224,7 @@ class NodeTest < ActiveSupport::TestCase
     login(:tiger)
     node = secure!(Node) { Node.new(:parent_id=>nodes_id(:cleanWater)) }
     assert ! node.save, 'Save fails'
-    assert_equal "can't be blank", node.errors[:name]
+    assert_equal ['can\'t be blank'], node.errors[:name]
   end
   
   def test_new_set_section_id
@@ -241,11 +241,11 @@ class NodeTest < ActiveSupport::TestCase
     assert node.save , "Save succeeds"
     node.parent_id = nil
     assert ! node.save , "Save fails"
-    assert node.errors[:parent_id] , "Errors on parent_id"
+    assert node.errors[:parent_id].any?
     node = secure!(Node) { nodes(:wiki) }
     node.parent_id = nodes_id(:wiki)
     assert ! node.save , "Save fails"
-    assert node.errors[:parent_id] , "Errors on parent_id"
+    assert node.errors[:parent_id].any?
     node = secure!(Node) { nodes(:wiki) }
     node.parent_id = nodes_id(:cleanWater)
     assert ! node.save , "Save fails"
@@ -260,8 +260,8 @@ class NodeTest < ActiveSupport::TestCase
     node = secure!(Node) { nodes(:status)  }
     node[:parent_id] = nodes_id(:myDreams) # cannot write here
     assert ! node.save , "Save fails"
-    assert node.errors[:parent_id] , "Errors on parent_id"
-    assert_equal "invalid reference", node.errors[:parent_id]
+    assert node.errors[:parent_id].any?
+    assert_equal ['invalid reference'], node.errors[:parent_id]
     
     node = secure!(Node) { nodes(:status)  }
     node[:parent_id] = nodes_id(:projects) # parent ok
@@ -278,7 +278,7 @@ class NodeTest < ActiveSupport::TestCase
     node[:name] = nil
     node.v_title = ""
     assert !node.save, 'Save fails'
-    assert_equal node.errors[:name], "can't be blank"
+    assert_equal ['can\'t be blank'], node.errors[:name]
   end
   
   def test_update_set_section_id
@@ -296,7 +296,7 @@ class NodeTest < ActiveSupport::TestCase
     login(:tiger)
     node = secure!(Node) { nodes(:projects)  }
     assert !node.destroy, "Cannot destroy"
-    assert_equal node.errors[:base], 'contains subpages or data'
+    assert_equal ['contains subpages or data'], node.errors[:base]
     node = secure!(Node) { nodes(:bananas)  }
     assert node.destroy, "Can destroy"
   end
@@ -306,7 +306,7 @@ class NodeTest < ActiveSupport::TestCase
     node = secure!(Node) { nodes(:lion)  }
     assert_nil node.find(:all, 'pages'), "No subpages"
     assert !node.destroy, "Cannot destroy"
-    assert_equal node.errors[:base], 'contains subpages or data'
+    assert_equal ['contains subpages or data'], node.errors[:base]
   end
   
   def test_parent
@@ -353,7 +353,7 @@ class NodeTest < ActiveSupport::TestCase
     node = secure!(Node) { nodes(:cleanWater)  }
     child = node.new_child( :name => 'status', :class => Page )
     assert ! child.save , "Save fails"
-    assert child.errors[:name] , "Errors on name"
+    assert child.errors[:name].any?
   
     child = node.new_child( :name => 'new_name', :class => Page )
     assert child.save , "Save succeeds"
@@ -801,7 +801,7 @@ class NodeTest < ActiveSupport::TestCase
     node = secure!(Node) { Node.create_node(:parent_id => nodes_zip(:secret), :name => 'funny') }
     assert_equal nodes_id(:secret), node[:parent_id]
     assert node.new_record?, "Not saved"
-    assert node.errors[:parent_id], "invalid reference"
+    assert_equal ['invalid reference'], node.errors[:parent_id]
   end
   
   def test_create_node_with__parent_id
@@ -809,7 +809,7 @@ class NodeTest < ActiveSupport::TestCase
     node = secure!(Node) { Node.create_node(:_parent_id => nodes_id(:secret), :name => 'funny') }
     assert_equal nodes_id(:secret), node[:parent_id]
     assert node.new_record?, "Not saved"
-    assert node.errors[:parent_id], "invalid reference"
+    assert_equal ['invalid reference'], node.errors[:parent_id]
   end
   
   def test_create_node_ok
