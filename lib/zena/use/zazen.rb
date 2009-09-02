@@ -107,7 +107,7 @@ module Zena
 
         # TODO: test
         def make_wiki_link(opts)
-          l = opts[:node] ? opts[:node].version.lang : lang
+          l = opts[:node] ? opts[:node].version.lang : visitor.lang
           if opts[:url]
             if opts[:url][0..3] == 'http'
               "<a href='#{opts[:url]}' class='wiki'>#{opts[:title]}</a>"

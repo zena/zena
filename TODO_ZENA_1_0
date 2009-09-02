@@ -34,6 +34,8 @@ They used to live in 'bricks_info', they now live in a specialized schema_migrat
 
 TODO: let rails make it a 'schema_migrations' table ===> 'brick' column becomes NULL and that's what we want for the main migrations.
 
+- new gem: hpricot for testing
+
 Some tips and tricks that could help
 ====================================
 

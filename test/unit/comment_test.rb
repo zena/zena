@@ -166,7 +166,7 @@ class CommentTest < Zena::Unit::TestCase
   #  login(:lion)
   #  comment = comments(:public_spam_in_en)
   #  assert !comment.update_attributes(:text => 'up')
-  #  assert_equal ['you do not have the rights to do this'], comment.errors[:base]
+  #  assert_equal 'you do not have the rights to do this', comment.errors[:base]
   #end
   
   def test_update

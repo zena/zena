@@ -51,7 +51,7 @@ module Zena
 
     module HelperSetup
       def setup(request, response, url)
-        GetText.set_locale_all 'en'
+        I18n.locale = 'en'
         @request = request
         @url = url
         initialize_template_class(response)
@@ -84,7 +84,7 @@ module Zena
       #     include ActionView::Helpers::PrototypeHelper
       #     
       #     def setup
-      #       GetText.set_locale_all 'en'
+      #       I18n.locale = 'en'
       #       @controllerClass ||= ApplicationController
       #       self.class.send(:include,@controllerClass.master_helper_module)
       #       eval "class StubController < #{@controllerClass}; include Zena::Test::HelperSetup; end"

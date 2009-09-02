@@ -1,5 +1,4 @@
 class ApplicationController < ActionController::Base
-  
   include Zena::Use::Authentification::ControllerMethods
   include Zena::Use::ErrorRendering::ControllerMethods
   include Zena::Use::I18n::ControllerMethods

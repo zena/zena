@@ -131,7 +131,7 @@ class IformatTest < Zena::Unit::TestCase
     login(:lion)
     imf = Iformat.create(:name => 'full', :width => 50, :height=> 50, :size=> 'limit')
     assert imf.new_record?
-    assert_equal ["Cannot change 'full' format."], imf.errors['name']
+    assert_equal "Cannot change 'full' format.", imf.errors['name']
     login(:lion) # flush 'visitor'
     fmt = Iformat['full']
     assert :keep, fmt[:size]
@@ -141,11 +141,11 @@ class IformatTest < Zena::Unit::TestCase
     login(:lion)
     imf = Iformat.create(:name => 'foo', :height=>'34', :size => 'limit')
     assert imf.new_record?, "New record"
-    assert_equal ["must be greater then 0"], imf.errors['width']
+    assert_equal "must be greater then 0", imf.errors['width']
     
     imf = Iformat.create(:name => 'foo', :height=>'-34', :width => '34', :size => 'limit')
     assert imf.new_record?, "New record"
-    assert_equal ["must be greater then 0"], imf.errors['height']
+    assert_equal "must be greater then 0", imf.errors['height']
   end
   
   def test_create_same_name
@@ -155,14 +155,14 @@ class IformatTest < Zena::Unit::TestCase
     login(:whale)
     imf = Iformat.create(:name => 'header', :height=>'34', :width => '500', :size => 'force')
     assert imf.new_record?, "New record"
-    assert_equal ["Name has already been taken"], imf.errors['name']
+    assert_equal "Name has already been taken", imf.errors['name']
   end
   
   def test_create_update_not_admin
     login(:ant)
     imf = Iformat.create(:name => 'header', :height=>'34', :width => '500', :size => 'force')
     assert imf.new_record?, "New record"
-    assert_equal ["you do not have the rights to do this"], imf.errors['base']
+    assert_equal "you do not have the rights to do this", imf.errors['base']
   end
   
   def test_new_from_default

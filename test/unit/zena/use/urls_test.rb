@@ -1,6 +1,6 @@
 require 'test_helper'
 
-class UrlHelperTest < Zena::Unit::TestCase
+class UrlsTest < Zena::View::TestCase
   include Zena::Use::Urls::Common
   
   def test_zen_path
@@ -78,60 +78,7 @@ class UrlHelperTest < Zena::Unit::TestCase
     assert_raise(ActiveRecord::RecordNotFound) { secure!(Node) { nodes(:water_pdf) } }
   end
   
-  def test_img_tag
-    login(:ant)
-    img = secure!(Node) { nodes(:bird_jpg) }
-    assert_equal "<img src='/en/image30.jpg' width='660' height='600' alt='bird' class='full'/>", img_tag(img)
-    assert_equal "<img src='/en/image30_pv.jpg' width='70' height='70' alt='bird' class='pv'/>", img_tag(img, :mode=>'pv')
-  end
-  
-  def test_img_tag_document
-    login(:ant)
-    doc = secure!(Node) { nodes(:water_pdf) }
-    assert_equal "<img src='/images/ext/pdf.png' width='32' height='32' alt='pdf document' class='doc'/>", img_tag(doc)
-    assert_equal "<img src='/images/ext/pdf_pv.png' width='70' height='70' alt='pdf document' class='doc'/>",  img_tag(doc, :mode=>'pv')
-  end
-  
-  def test_img_tag_other_classes
-    login(:ant)
-    # contact  project       post     tag
-    [:lake, :cleanWater, :opening, :art].each do |sym|
-      obj   = secure!(Node) { nodes(sym) }
-      klass = obj.klass
-      assert_equal "<img src='/images/ext/#{klass.underscore}.png' width='32' height='32' alt='#{klass} node' class='node'/>", img_tag(obj)
-      assert_equal "<img src='/images/ext/#{klass.underscore}_pv.png' width='70' height='70' alt='#{klass} node' class='node'/>",  img_tag(obj, :mode=>'pv')
-    end
-    
-    obj   = Node.new
-    assert_equal "<img src='/images/ext/other.png' width='32' height='32' alt='Node node' class='node'/>", img_tag(obj)
-  end
-  
-  def test_img_tag_opts
-    login(:anon)
-    img = secure!(Node) { nodes(:bird_jpg) }
-    assert_equal "<img src='/en/image30.jpg' width='660' height='600' alt='bird' id='yo' class='full'/>",
-                  img_tag(img, :mode=>nil, :id=>'yo')
-    assert_equal "<img src='/en/image30_pv.jpg' width='70' height='70' alt='bird' id='yo' class='super'/>",
-                  img_tag(img, :mode=>'pv', :id=>'yo', :class=>'super')
-    assert_equal "<img src='/en/image30_med.jpg' width='220' height='200' alt='super man' class='med'/>",
-                  img_tag(img, :mode=>'med', :alt=>'super man')
-  end
-  
-  def test_img_tag_other
-    login(:tiger)
-    doc = secure!(Node) { nodes(:water_pdf) }
-    doc.c_ext = 'bin'
-    assert_equal 'bin', doc.c_ext
-    assert_equal "<img src='/images/ext/other.png' width='32' height='32' alt='bin document' class='doc'/>", img_tag(doc)
-    assert_equal "<img src='/images/ext/other_pv.png' width='70' height='70' alt='bin document' class='doc'/>", img_tag(doc, :mode=>'pv')
-    assert_equal "<img src='/images/ext/other.png' width='32' height='32' alt='bin document' class='doc'/>", img_tag(doc, :mode=>'std')
-  end
-  
-  def test_alt_with_apos
-    doc = secure!(Node) { nodes(:lake_jpg) }
-    assert_equal "<img src='/en/projects/cleanWater/image24.jpg' width='600' height='440' alt='it&apos;s a lake' class='full'/>", img_tag(doc)
-  end
-  
+  #### ============================================================ TO MOVE TO OTHER MODULE TESTS
   def test_uses_calendar_with_lang
     res = uses_calendar
     assert_match %r{/calendar/lang/calendar-en-utf8.js}, res
@@ -185,22 +132,6 @@ class UrlHelperTest < Zena::Unit::TestCase
     assert_equal ['afternoon'], event_hash["2006-03-20 12"].map{|r| r.name}
   end
   
-  def test_select_id
-    @node = secure!(Node) { nodes(:status) }
-    select = select_id('node', :parent_id, :class=>'Project')
-    assert_no_match %r{select.*node\[parent_id\].*21.*19.*29.*11}m, select
-    assert_match %r{select.*node\[parent_id\].*29}, select
-    login(:tiger)
-    @node = secure!(Node) { nodes(:status) }
-    assert_match %r{select.*node\[parent_id\].*21.*19.*29.*11}m, select_id('node', :parent_id, :class=>'Project')
-    assert_match %r{input type='text'.*name.*node\[icon_id\]}m, select_id('node', :icon_id)
-  end
-  
-  def test_date_box
-    @node = secure!(Node) { nodes(:status) }
-    assert_match %r{span class="date_box".*img src="\/calendar\/iconCalendar.gif".*input id='datef.*' name='node\[updated_at\]' type='text' value='2006-04-11 00:00'}m, date_box('node', 'updated_at')
-  end
-  
   def test_javascript
     assert_nothing_raised { javascript('test') }
   end
@@ -213,143 +144,6 @@ class UrlHelperTest < Zena::Unit::TestCase
     assert_equal "<a href='/login'>login</a>", login_link
     login(:ant)
     assert_equal "<a href='/logout'>logout</a>", login_link
-  end
-  
-  def test_trans
-    assert_equal 'yoba', _('yoba')
-    assert_equal '%A, %B %d %Y', _('full_date')
-    GetText.set_locale_all 'fr'
-    assert_equal '%A, %d %B %Y', _('full_date')
-  end
-  # ======================== tests pass to here ================
-  def test_long_time
-    atime = visitor.tz.local_to_utc(Time.utc(2006,11,10,17,42,25)) # local time for visitor
-    assert_equal "17:42:25", long_time(atime)
-    GetText.set_locale_all 'fr'
-    assert_equal "17:42:25", long_time(atime)
-  end
-  
-  def test_short_time
-    atime = visitor.tz.local_to_utc(Time.utc(2006,11,10,17,33))
-    assert_equal "17:33", short_time(atime)
-    GetText.set_locale_all 'fr'
-    assert_equal "17h33", short_time(atime)
-  end
-  
-  def test_short_time_visitor_time_zone
-    login(:ant) # Europe/Zurich UTC+1, DST+1
-    atime = Time.utc(2008,05,18,17,33)
-    assert_equal "19:33", short_time(atime)
-    GetText.set_locale_all 'fr'
-    assert_equal "19h33", short_time(atime)
-  end
-
-  def test_long_date
-    atime = visitor.tz.utc_to_local(Time.gm(2006,11,10))
-    assert_equal "2006-11-10", long_date(atime)
-    GetText.set_locale_all 'fr'
-    assert_equal "10.11.2006", long_date(atime)
-  end
-
-  def test_full_date
-    atime = visitor.tz.utc_to_local(Time.gm(2006,11,10))
-    assert_equal "Friday, November 10 2006", full_date(atime)
-    GetText.set_locale_all 'fr'
-    assert_equal "vendredi, 10 novembre 2006", full_date(atime)
-  end
-  
-  def test_short_date
-    atime = Time.now.utc
-    visitor[:time_zone] = 'London' # utc
-    assert_equal atime.strftime('%m.%d'), short_date(atime)
-    GetText.set_locale_all 'fr'
-    assert_equal atime.strftime('%d.%m'), short_date(atime)
-  end
-  
-  def test_format_date
-    atime = Time.now.utc
-    visitor[:time_zone] = 'London' # utc
-    assert_equal atime.strftime('%m.%d'), tformat_date(atime, 'short_date')
-    GetText.set_locale_all 'fr'
-    assert_equal atime.strftime('%d.%m'), tformat_date(atime, 'short_date')
-  end
-  
-  def test_format_date_age
-    atime = Time.now.utc
-    visitor[:time_zone] = 'UTC' # utc
-    {
-      0.2         => '1 minute ago',
-      -0.2        => 'in 1 minute',
-      1.2         => '1 minute ago',
-      8.2         => '8 minutes ago',
-      -8.5        => 'in 8 minutes',
-      45.1        => '45 minutes ago',
-      60.1        => '1 hour ago',
-      95          => '1 hour ago',
-      -95         => 'in 1 hour',
-      123         => '2 hours ago',
-      -123        => 'in 2 hours',
-      23 * 60     => '23 hours ago',
-      25 * 60     => 'yesterday',
-      -25 * 60    => 'tomorrow',
-      29 * 60     => 'yesterday',
-      49 * 60     => '2 days ago',
-      -49 * 60    => 'in 2 days',
-      6 * 24 * 60 => '6 days ago',
-      7.1*24 * 60 => (atime - 7.1*24 * 60 * 60).strftime("%Y-%m-%d"),
-      -9* 24 * 60 => (atime + 9 * 24 * 60 * 60).strftime("%Y-%m-%d"),
-    }.each do |age, phrase|
-      assert_equal phrase, format_date(Time.now.utc - (60 * age),'age/%Y-%m-%d')
-    end
-  end
-  
-  def test_format_date_age_not_utc
-    visitor[:time_zone] = 'Europe/Zurich' # not utc
-    atime = Time.now.utc
-    {
-      0.2         => '1 minute ago',
-      -0.2        => 'in 1 minute',
-      1.2         => '1 minute ago',
-      8.2         => '8 minutes ago',
-      -8.5        => 'in 8 minutes',
-      45.1        => '45 minutes ago',
-      60.1        => '1 hour ago',
-      95          => '1 hour ago',
-      -95         => 'in 1 hour',
-      123         => '2 hours ago',
-      -123        => 'in 2 hours',
-      23 * 60     => '23 hours ago',
-      25 * 60     => 'yesterday',
-      -25 * 60    => 'tomorrow',
-      29 * 60     => 'yesterday',
-      49 * 60     => '2 days ago',
-      -49 * 60    => 'in 2 days',
-      6 * 24 * 60 => '6 days ago',
-      7.1*24 * 60 => (atime - 7.1*24 * 60 * 60).strftime("%Y-%m-%d"),
-      -9* 24 * 60 => (atime + 9 * 24 * 60 * 60).strftime("%Y-%m-%d"),
-    }.each do |age, phrase|
-      assert_equal phrase, format_date(Time.now.utc - (60 * age),'age/%Y-%m-%d')
-    end
-  end
-  
-  def test_visitor_link
-    assert_equal '', visitor_link
-    login(:ant)
-    assert_match %r{users/#{users_id(:ant)}.*Solenopsis Invicta}, visitor_link
-  end
-  
-  def test_flash_messages
-    login(:ant)
-    assert_equal "<div id='messages'></div>", flash_messages(:show=>'both')
-    flash[:notice] = 'yoba'
-    assert_match /notice.*yoba/, flash_messages(:show=>'both')
-    assert_no_match /error/, flash_messages(:show=>'both')
-    flash[:error] = 'taio'
-    assert_match /notice.*yoba/, flash_messages(:show=>'both')
-    assert_match /error.*taio/, flash_messages(:show=>'both')
-    flash[:notice] = nil
-    assert_no_match /notice/, flash_messages(:show=>'both')
-    assert_match /error/, flash_messages(:show=>'both')
   end
   
   def test_fsize
@@ -365,10 +159,8 @@ class UrlHelperTest < Zena::Unit::TestCase
     assert_match 'stupid test 25', render_to_string(:inline=>'stupid <%= "test" %> <%= 5*5 %>')
   end
   
-  # ------ these tests were in main helper ----
-
   def test_check_lang_same
-    GetText.set_locale_all 'en'
+    I18n.locale = 'en'
     obj = secure!(Node) { nodes(:zena) }
     assert_equal 'en', obj.v_lang
     assert_no_match /\[en\]/, check_lang(obj)
@@ -376,7 +168,7 @@ class UrlHelperTest < Zena::Unit::TestCase
   
   def test_check_other_lang
     visitor.lang = 'es'
-    GetText.set_locale_all 'es'
+    I18n.locale = 'es'
     obj = secure!(Node) { nodes(:zena) }
     assert_match /\[en\]/, check_lang(obj)
   end
@@ -385,52 +177,6 @@ class UrlHelperTest < Zena::Unit::TestCase
     assert_equal ({:overwrite_params=>{:prefix=>'io'}}), change_lang('io')
     login(:ant)
     assert_equal ({:overwrite_params=>{:lang=>'io'}}), change_lang('io')
-  end
-  
-  def test_node_actions_for_public
-    @node = secure!(Node) { nodes(:cleanWater) }
-    assert !@node.can_edit?, "Node cannot be edited by the public"
-    res = node_actions(:actions=>:all)
-    assert_equal '', res
-  end
-  
-  def test_node_actions_wiki_public
-    Participation.connection.execute "UPDATE participations SET status = #{User::Status[:user]} WHERE site_id = #{sites_id(:zena)} AND user_id=#{users_id(:anon)}"
-    @node = secure!(Node) { nodes(:wiki) }
-    assert @node.can_edit?, "Node can be edited by the public"
-    res = node_actions(:actions=>:all)
-    assert_match %r{/nodes/29/versions/0/edit}, res
-    assert_match %r{/nodes/29/edit}, res
-  end
-  
-  def test_node_actions_for_ant
-    login(:ant)
-    @node = secure!(Node) { Node.find(nodes_id(:cleanWater)) }
-    res = node_actions(:actions=>:all)
-    assert_match    %r{/nodes/21/versions/0/edit}, res
-    assert_no_match %r{/nodes/21/edit}, res
-  end
-  
-  def test_node_actions_for_tiger
-    login(:tiger)
-    @node = secure!(Node) { Node.find(nodes_id(:cleanWater)) }
-    res = node_actions(:actions=>:all)
-    assert_match %r{/nodes/21/versions/0/edit}, res
-    assert_match %r{/nodes/21/edit}, res
-    @node.edit!
-    assert @node.save
-    res = node_actions(:actions=>:all)
-    assert_match %r{/nodes/21/versions/0/edit}, res
-    assert_match %r{/nodes/21/versions/0/propose}, res
-    assert_match %r{/nodes/21/versions/0/publish}, res
-    assert_match %r{/nodes/21/edit}, res
-  end
-  
-  def test_node_actions_on_new_node
-    login(:ant)
-    @node = secure!(Page) { Page.new(:name => 'hello', :parent_id => nodes_id(:zena)) }
-    assert @node.new_record?
-    assert_equal '', node_actions(:actions=>:all)
   end
   
   def test_traductions

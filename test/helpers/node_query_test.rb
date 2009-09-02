@@ -1,4 +1,5 @@
-require File.join(File.dirname(__FILE__), "testhelp")
+require 'test_helper'
+require 'yamltest'
 
 class NodeQueryTest < Zena::Unit::TestCase
   yamltest

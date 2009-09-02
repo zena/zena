@@ -1,6 +1,6 @@
 require 'test_helper'
 
-class ZafuTest < Zena::Unit::TestCase
+class ZafuTest < Zena::View::TestCase
   include Zena::Use::Zafu::ViewMethods
   include Zena::Use::Zafu::ControllerMethods
   

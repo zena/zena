@@ -63,6 +63,7 @@ Rails::Initializer.run do |config|
   config.gem 'RedCloth',  :version => '3.0.4'
   config.gem 'gettext', :version => '1.93.0'
   config.gem 'grosser-fast_gettext', :lib => 'fast_gettext', :version => '~>0.2.10', :source=>"http://gems.github.com/"
+  config.gem 'hpricot'
   config.gem 'mislav-will_paginate', :version => '~> 2.2.3', :lib => 'will_paginate', :source => 'http://gems.github.com'
   config.gem 'querybuilder', :version => '0.5.5'
   config.gem 'ruby-recaptcha', :version => '1.0.0'
