@@ -78,6 +78,7 @@ class UrlsTest < Zena::View::TestCase
     assert_raise(ActiveRecord::RecordNotFound) { secure!(Node) { nodes(:water_pdf) } }
   end
   
+  #### ============================================================ TO MOVE TO OTHER MODULE TESTS
   def test_uses_calendar_with_lang
     res = uses_calendar
     assert_match %r{/calendar/lang/calendar-en-utf8.js}, res
@@ -145,124 +146,6 @@ class UrlsTest < Zena::View::TestCase
     assert_equal "<a href='/logout'>logout</a>", login_link
   end
   
-  def test_trans
-    assert_equal 'yoba', _('yoba')
-    assert_equal '%A, %B %d %Y', _('full_date')
-    GetText.set_locale_all 'fr'
-    assert_equal '%A, %d %B %Y', _('full_date')
-  end
-  # ======================== tests pass to here ================
-  def test_long_time
-    atime = visitor.tz.local_to_utc(Time.utc(2006,11,10,17,42,25)) # local time for visitor
-    assert_equal "17:42:25", long_time(atime)
-    GetText.set_locale_all 'fr'
-    assert_equal "17:42:25", long_time(atime)
-  end
-  
-  def test_short_time
-    atime = visitor.tz.local_to_utc(Time.utc(2006,11,10,17,33))
-    assert_equal "17:33", short_time(atime)
-    GetText.set_locale_all 'fr'
-    assert_equal "17h33", short_time(atime)
-  end
-  
-  def test_short_time_visitor_time_zone
-    login(:ant) # Europe/Zurich UTC+1, DST+1
-    atime = Time.utc(2008,05,18,17,33)
-    assert_equal "19:33", short_time(atime)
-    GetText.set_locale_all 'fr'
-    assert_equal "19h33", short_time(atime)
-  end
-
-  def test_long_date
-    atime = visitor.tz.utc_to_local(Time.gm(2006,11,10))
-    assert_equal "2006-11-10", long_date(atime)
-    GetText.set_locale_all 'fr'
-    assert_equal "10.11.2006", long_date(atime)
-  end
-
-  def test_full_date
-    atime = visitor.tz.utc_to_local(Time.gm(2006,11,10))
-    assert_equal "Friday, November 10 2006", full_date(atime)
-    GetText.set_locale_all 'fr'
-    assert_equal "vendredi, 10 novembre 2006", full_date(atime)
-  end
-  
-  def test_short_date
-    atime = Time.now.utc
-    visitor[:time_zone] = 'London' # utc
-    assert_equal atime.strftime('%m.%d'), short_date(atime)
-    GetText.set_locale_all 'fr'
-    assert_equal atime.strftime('%d.%m'), short_date(atime)
-  end
-  
-  def test_format_date
-    atime = Time.now.utc
-    visitor[:time_zone] = 'London' # utc
-    assert_equal atime.strftime('%m.%d'), tformat_date(atime, 'short_date')
-    GetText.set_locale_all 'fr'
-    assert_equal atime.strftime('%d.%m'), tformat_date(atime, 'short_date')
-  end
-  
-  def test_format_date_age
-    atime = Time.now.utc
-    visitor[:time_zone] = 'UTC' # utc
-    {
-      0.2         => '1 minute ago',
-      -0.2        => 'in 1 minute',
-      1.2         => '1 minute ago',
-      8.2         => '8 minutes ago',
-      -8.5        => 'in 8 minutes',
-      45.1        => '45 minutes ago',
-      60.1        => '1 hour ago',
-      95          => '1 hour ago',
-      -95         => 'in 1 hour',
-      123         => '2 hours ago',
-      -123        => 'in 2 hours',
-      23 * 60     => '23 hours ago',
-      25 * 60     => 'yesterday',
-      -25 * 60    => 'tomorrow',
-      29 * 60     => 'yesterday',
-      49 * 60     => '2 days ago',
-      -49 * 60    => 'in 2 days',
-      6 * 24 * 60 => '6 days ago',
-      7.1*24 * 60 => (atime - 7.1*24 * 60 * 60).strftime("%Y-%m-%d"),
-      -9* 24 * 60 => (atime + 9 * 24 * 60 * 60).strftime("%Y-%m-%d"),
-    }.each do |age, phrase|
-      assert_equal phrase, format_date(Time.now.utc - (60 * age),'age/%Y-%m-%d')
-    end
-  end
-  
-  def test_format_date_age_not_utc
-    visitor[:time_zone] = 'Europe/Zurich' # not utc
-    atime = Time.now.utc
-    {
-      0.2         => '1 minute ago',
-      -0.2        => 'in 1 minute',
-      1.2         => '1 minute ago',
-      8.2         => '8 minutes ago',
-      -8.5        => 'in 8 minutes',
-      45.1        => '45 minutes ago',
-      60.1        => '1 hour ago',
-      95          => '1 hour ago',
-      -95         => 'in 1 hour',
-      123         => '2 hours ago',
-      -123        => 'in 2 hours',
-      23 * 60     => '23 hours ago',
-      25 * 60     => 'yesterday',
-      -25 * 60    => 'tomorrow',
-      29 * 60     => 'yesterday',
-      49 * 60     => '2 days ago',
-      -49 * 60    => 'in 2 days',
-      6 * 24 * 60 => '6 days ago',
-      7.1*24 * 60 => (atime - 7.1*24 * 60 * 60).strftime("%Y-%m-%d"),
-      -9* 24 * 60 => (atime + 9 * 24 * 60 * 60).strftime("%Y-%m-%d"),
-    }.each do |age, phrase|
-      assert_equal phrase, format_date(Time.now.utc - (60 * age),'age/%Y-%m-%d')
-    end
-  end
-  
-  
   def test_fsize
     assert_equal '29 Kb', fsize(29279)
     assert_equal '502 Kb', fsize(513877)
@@ -276,10 +159,8 @@ class UrlsTest < Zena::View::TestCase
     assert_match 'stupid test 25', render_to_string(:inline=>'stupid <%= "test" %> <%= 5*5 %>')
   end
   
-  # ------ these tests were in main helper ----
-
   def test_check_lang_same
-    GetText.set_locale_all 'en'
+    I18n.locale = 'en'
     obj = secure!(Node) { nodes(:zena) }
     assert_equal 'en', obj.v_lang
     assert_no_match /\[en\]/, check_lang(obj)
@@ -287,7 +168,7 @@ class UrlsTest < Zena::View::TestCase
   
   def test_check_other_lang
     visitor.lang = 'es'
-    GetText.set_locale_all 'es'
+    I18n.locale = 'es'
     obj = secure!(Node) { nodes(:zena) }
     assert_match /\[en\]/, check_lang(obj)
   end

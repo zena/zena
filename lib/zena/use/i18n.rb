@@ -33,9 +33,14 @@ module Zena
             utc_date = adate
           end
 
+          # TODO: REFACTOR TO something like:
+          # with_locale(lang) do
+          # ...
+          # end
           if visitor.lang != lang
-            GetText.set_locale_all(lang)
+            ::I18n.locale = lang
           end
+          
           if format =~ /^age\/?(.*)$/
             format = $1.blank? ? _('long_date') : $1
             # how long ago/in how long is the date
@@ -86,7 +91,7 @@ module Zena
           format.gsub!("%A", _(adate.strftime("%A")) )
 
           if visitor.lang != lang
-            GetText.set_locale_all(visitor.lang)
+            ::I18n.locale = visitor.lang
           end
 
           adate.strftime(format)
@@ -179,9 +184,9 @@ module Zena
           end
 
           if File.exist?("#{RAILS_ROOT}/locale/#{l}/LC_MESSAGES/zena.mo")
-            GetText.set_locale_all(l)
+            ::I18n.locale = l
           else
-            GetText.set_locale_all('en')
+            ::I18n.locale = 'en'
           end
         end
         
@@ -211,7 +216,7 @@ module Zena
       
       module ViewMethods
         def self.included(base)
-          base.send(:alias_method_chain, :will_paginate, :i18n)
+          base.send(:alias_method_chain, :will_paginate, :i18n) if base.respond_to?(:will_paginate)
         end
         
         include Common
