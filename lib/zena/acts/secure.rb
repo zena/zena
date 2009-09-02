@@ -674,6 +674,7 @@ Just doing the above will filter all result according to the logged in user.
     
     # ============================================= SECURE  ===============
     module Secure
+      
       # protect access to site_id : should not be changed by users
       def site_id=(i)
         raise Zena::AccessViolation, "#{self.class.to_s} '#{self.id}': tried to change 'site_id' to '#{i}'."
@@ -682,6 +683,11 @@ Just doing the above will filter all result according to the logged in user.
       # Set current visitor
       def visitor=(visitor)
         @visitor = visitor
+      end
+      
+      # Check if module Secure is included
+      def secure?
+        true
       end
       
       # these methods are not actions that can be called from the web !!
@@ -881,6 +887,8 @@ def current_site
   visitor.site
 end
 
+# FIXME: these modules should be included in specific model in order to be
+# more readable and maintable.
 ActiveRecord::Base.send :include, Zena::Acts::Secure     # for other classes
 ActiveRecord::Base.send :include, Zena::Acts::SecureNode # for Nodes
 ActionController::Base.send :include, Zena::Acts::Secure

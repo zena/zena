@@ -2,16 +2,25 @@ require 'test_helper'
 
 class CommentTest < Zena::Unit::TestCase
   
+  def setup
+    super
+    @comment = comments(:ant_says_inside)
+  end
+  
   def test_discussion
-    comment = comments(:ant_says_inside)
-    assert_equal Discussion, comment.discussion.class
+    assert_equal Discussion, @comment.discussion.class
+  end
+  
+  def test_secure
+    assert @comment.secure?
+  end
+  
+  def test_cannot_set_site_id_for_new_record
+    assert_raise(Zena::AccessViolation) { Comment.new.site_id=1234 }
   end
 
-  def test_cannot_set_site_id
-    login(:anon)
-    comment = comments(:ant_says_inside)
-    ocean = sites(:ocean)
-    assert_raise(Zena::AccessViolation) { comment.site_id = ocean.id }
+  def test_cannot_set_site_id_for_old_record
+    assert_raise(Zena::AccessViolation) { Comment.first.site_id = 1234 }
     comment = secure!(Comment) { Comment.create( :user_id=>users_id(:tiger), :title=>'boo', :text=>'blah', :discussion_id => discussions_id(:outside_discussion_on_status_en), :author_name=>'joe', :site_id => 2 ) }
     assert !comment.new_record?, "Not a new record"
     assert_equal sites_id(:zena), comment[:site_id]
@@ -39,7 +48,8 @@ class CommentTest < Zena::Unit::TestCase
   def test_node
     login(:anon)
     comment = secure!(Comment) { comments(:lion_says_inside) }
-    assert_equal nodes_id(:status), comment.node[:id]
+    assert_equal nodes_id(:status), comment.node[:id] #1467732830
+    #assert_equal 1766226092, comment.node[:id]
   end
   
   def test_remove_own
