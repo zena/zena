@@ -1,35 +1,41 @@
 comment:
+  created_at:      2009-09-01 01:00
   node_a:          secret
   node_b:          wiki
   user:            ant
   text:            "node_a is 'secret', node_b is 'wiki'"
   value_a:         10.3141521
 
-visitors1:
+visitors1:  
+  created_at:      2009-09-01 02:00
   node_a:          cleanWater
   user:            anon
   value_a:         27
   value_b:         10
 
-visitors2:
+visitors2:  
+  created_at:      2009-09-01 03:00
   node_a:          wiki
   node_b:          cleanWater
   user:            tiger
   value_a:         33
 
-visitors3:
+visitors3:  
+  created_at:      2009-09-01 04:00
   node_a:          wiki
   node_c:          cleanWater
   user:            anon
   value_a:         13
 
-visitors4:
+visitors4:  
+  created_at:      2009-09-01 05:00
   node_a:          wiki
   node_d:          cleanWater
   user:            ant
   value_a:         56
 
-visitors5:
+visitors5:  
+  created_at:      2009-09-01 06:00
   node_a:          wiki
   node_d:          status
   user:            ant
