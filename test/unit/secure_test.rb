@@ -199,7 +199,7 @@ class SecureCreateTest < Zena::Unit::TestCase
     # unsecure creation :
     test_page = Node.new(node_defaults)
     assert ! test_page.save , "Save fails"
-    assert_equal ['record not secured'], test_page.errors[:base]
+    assert_equal 'record not secured', test_page.errors[:base]
   end
   def test_secure_new_succeeds
     login(:ant)
@@ -210,7 +210,7 @@ class SecureCreateTest < Zena::Unit::TestCase
     login(:ant)
     p = Node.create(node_defaults)
     assert p.new_record?
-    assert_equal ['record not secured'], p.errors[:base]
+    assert_equal 'record not secured', p.errors[:base]
   end
   def test_secure_create_succeeds
     login(:ant)
@@ -266,7 +266,7 @@ class SecureCreateTest < Zena::Unit::TestCase
     note = secure!(Note) { Note.create(attrs) }
     assert note.new_record?
     assert note.errors[:parent_id] , "Errors on parent_id"
-    assert_equal ['invalid reference'], note.errors[:parent_id]
+    assert_equal 'invalid reference', note.errors[:parent_id]
   end
   
   def test_no_reference
@@ -284,7 +284,7 @@ class SecureCreateTest < Zena::Unit::TestCase
     node = secure!(Node) { nodes(:projects)  }
     node[:parent_id] = nodes_id(:status)
     assert ! node.save, 'Save fails'
-    assert_equal ['circular reference'], node.errors[:parent_id]
+    assert_equal 'circular reference', node.errors[:parent_id]
   end
   
   def test_existing_circular_reference
@@ -293,7 +293,7 @@ class SecureCreateTest < Zena::Unit::TestCase
     node = secure!(Node) { nodes(:status)  }
     node[:parent_id] = nodes_id(:projects)
     assert ! node.save, 'Save fails'
-    assert_equal ['circular reference'], node.errors[:parent_id]
+    assert_equal 'circular reference', node.errors[:parent_id]
   end
   
   def test_valid_without_circular
@@ -310,7 +310,7 @@ class SecureCreateTest < Zena::Unit::TestCase
     assert node.save
     node[:parent_id] = nodes_id(:status)
     assert ! node.save, 'Save fails'
-    assert_equal ['invalid parent'], node.errors[:parent_id]
+    assert_equal 'invalid parent', node.errors[:parent_id]
   end
   
   def test_valid_reference
@@ -339,7 +339,7 @@ class SecureCreateTest < Zena::Unit::TestCase
     attrs[:pgroup_id] = groups_id(:public)
     note = secure!(Note) { Note.create(attrs) }
     assert note.errors[:pgroup_id].any?
-    assert_equal ['you cannot change this'], note.errors[:pgroup_id]
+    assert_equal 'you cannot change this', note.errors[:pgroup_id]
   end
   def test_invalid_publish_group_visitor_not_in_group_set
     login(:ant)
@@ -351,7 +351,7 @@ class SecureCreateTest < Zena::Unit::TestCase
     note = secure!(Note) { Note.create(attrs) }
     assert note.new_record?
     assert note.errors[:pgroup_id].any?
-    assert_equal ['unknown group'], note.errors[:pgroup_id]
+    assert_equal 'unknown group', note.errors[:pgroup_id]
   end
   def test_valid_publish_group
     login(:ant)
@@ -383,7 +383,7 @@ class SecureCreateTest < Zena::Unit::TestCase
       note = secure!(Note) { Note.create(attrs) }
       assert note.new_record?
       assert note.errors[:rgroup_id].any?
-      assert_equal ['unknown group'], note.errors[:rgroup_id]
+      assert_equal 'unknown group', note.errors[:rgroup_id]
     end
   end
   
@@ -394,7 +394,7 @@ class SecureCreateTest < Zena::Unit::TestCase
     note = secure!(Note) { Note.create(attrs) }
     assert note.new_record?
     assert note.errors[:rgroup_id].any?
-    assert_equal ['unknown group'], note.errors[:rgroup_id]
+    assert_equal 'unknown group', note.errors[:rgroup_id]
   end
   def test_can_vis_bad_wgroup
     login(:tiger)
@@ -404,7 +404,7 @@ class SecureCreateTest < Zena::Unit::TestCase
     note = secure!(Note) { Note.create(attrs) }
     assert note.new_record?
     assert note.errors[:wgroup_id].any?
-    assert_equal ['unknown group'], note.errors[:wgroup_id]
+    assert_equal 'unknown group', note.errors[:wgroup_id]
   end
   def test_can_vis_bad_wgroup_visitor_not_in_group
     login(:tiger)
@@ -414,7 +414,7 @@ class SecureCreateTest < Zena::Unit::TestCase
     note = secure!(Note) { Note.create(attrs) }
     assert note.new_record?
     assert note.errors[:wgroup_id].any?
-    assert_equal ['unknown group'], note.errors[:wgroup_id]
+    assert_equal 'unknown group', note.errors[:wgroup_id]
   end
   def test_can_vis_rwgroups_ok
     login(:tiger)
@@ -448,7 +448,7 @@ class SecureCreateTest < Zena::Unit::TestCase
     note = secure!(Note) { Note.create(attrs) }
     assert note.new_record?
     assert note.errors[:pgroup_id].any?
-    assert_equal ['you cannot change this'], note.errors[:pgroup_id]
+    assert_equal 'you cannot change this', note.errors[:pgroup_id]
   end
   def test_can_man_cannot_change_rw_groups
     login(:ant)
@@ -465,8 +465,8 @@ class SecureCreateTest < Zena::Unit::TestCase
     assert note.new_record?
     assert note.errors[:rgroup_id].any?
     assert note.errors[:wgroup_id].any?
-    assert_equal ['you cannot change this'], note.errors[:rgroup_id]
-    assert_equal ['you cannot change this'], note.errors[:wgroup_id]
+    assert_equal 'you cannot change this', note.errors[:rgroup_id]
+    assert_equal 'you cannot change this', note.errors[:wgroup_id]
   end
   def test_can_man_can_update_private
     login(:ant)
@@ -712,7 +712,7 @@ class SecureUpdateTest < Zena::Unit::TestCase
     node.user_id = users_id(:tiger)
     assert ! node.save , "Save fails"
     assert node.errors[:user_id].any?
-    assert_equal ['only admins can change owners'], node.errors[:user_id]
+    assert_equal 'only admins can change owners', node.errors[:user_id]
   end
   def test_owner_changed_bad_user
     # cannot write in new contact
@@ -723,7 +723,7 @@ class SecureUpdateTest < Zena::Unit::TestCase
     node.user_id = 99
     assert ! node.save , "Save fails"
     assert node.errors[:user_id].any?
-    assert_equal ['unknown user'], node.errors[:user_id]
+    assert_equal 'unknown user', node.errors[:user_id]
   end
   def test_owner_changed_ok
     login(:lion)
@@ -742,7 +742,7 @@ class SecureUpdateTest < Zena::Unit::TestCase
     assert ! node.can_manage? , "Cannot manage"
     assert ! node.update_attributes('name' => 'no way') , "Save fails"
     assert node.errors[:base].any?
-    assert_equal ['you do not have the rights to do this'], node.errors[:base]
+    assert_equal 'you do not have the rights to do this', node.errors[:base]
   end
   
   # 4. parent changed ? verify 'visible access to new *and* old'
@@ -791,7 +791,7 @@ class SecureUpdateTest < Zena::Unit::TestCase
       node[:rgroup_id] = grp
       assert ! node.save , "Save fails"
       assert node.errors[:rgroup_id].any?
-      assert_equal ['unknown group'], node.errors[:rgroup_id]
+      assert_equal 'unknown group', node.errors[:rgroup_id]
     end
   end
 
@@ -802,7 +802,7 @@ class SecureUpdateTest < Zena::Unit::TestCase
     node[:rgroup_id] = groups_id(:admin) # tiger is not in admin
     assert ! node.save , "Save fails"
     assert node.errors[:rgroup_id].any?
-    assert_equal ['unknown group'], node.errors[:rgroup_id]
+    assert_equal 'unknown group', node.errors[:rgroup_id]
   end
   def test_update_rw_groups_for_publisher_bad_wgroup
     login(:tiger)
@@ -812,7 +812,7 @@ class SecureUpdateTest < Zena::Unit::TestCase
     node[:wgroup_id] = 99999
     assert ! node.save , "Save fails"
     assert node.errors[:wgroup_id].any?
-    assert_equal ['unknown group'], node.errors[:wgroup_id]
+    assert_equal 'unknown group', node.errors[:wgroup_id]
   end
   def test_update_rw_groups_for_publisher_not_in_new_wgroup
     login(:tiger)
@@ -821,7 +821,7 @@ class SecureUpdateTest < Zena::Unit::TestCase
     node[:wgroup_id] = groups_id(:admin) # tiger is not in admin
     assert ! node.save , "Save fails"
     assert node.errors[:wgroup_id].any?
-    assert_equal ['unknown group'], node.errors[:wgroup_id]
+    assert_equal 'unknown group', node.errors[:wgroup_id]
   end
   def test_update_rw_groups_for_publisher_ok
     login(:tiger)
@@ -849,7 +849,7 @@ class SecureUpdateTest < Zena::Unit::TestCase
     node[:inherit  ] = 0
     assert ! node.save , "Save fails"
     assert node.errors[:inherit].any?
-    assert_equal ['you cannot change this'], node.errors[:inherit]
+    assert_equal 'you cannot change this', node.errors[:inherit]
   end
   
   def test_can_man_can_create_private
@@ -877,7 +877,7 @@ class SecureUpdateTest < Zena::Unit::TestCase
     node[:wgroup_id] = 98984984 # anything
     node[:pgroup_id] = 98984984 # anything
     assert !node.save , "Save fails"
-    assert_equal ['you cannot make this node private'], node.errors[:inherit]
+    assert_equal 'you cannot make this node private', node.errors[:inherit]
   end
   
   def test_can_man_cannot_lock_inherit
@@ -886,7 +886,7 @@ class SecureUpdateTest < Zena::Unit::TestCase
     node[:inherit  ] = 0 # lock inheritance
     assert ! node.save , "Save fails"
     assert node.errors[:inherit].any?
-    assert_equal ['you cannot change this'], node.errors[:inherit]
+    assert_equal 'you cannot change this', node.errors[:inherit]
   end
   
   def test_can_man_update_inherit
@@ -956,7 +956,7 @@ class SecureUpdateTest < Zena::Unit::TestCase
     login(:ant)
     node = secure!(Node) { nodes(:lake)  }
     assert !node.destroy, "Cannot destroy"
-    assert_equal ['you do not have the rights to do this'], node.errors[:base]
+    assert_equal 'you do not have the rights to do this', node.errors[:base]
   
     login(:tiger)
     node = secure!(Node) { nodes(:lake)  }
@@ -1025,7 +1025,7 @@ class SecureVisitorStatusTest < Zena::Unit::TestCase
     assert_equal visitor.status, User::Status[:reader]
     node = secure!(Node) { nodes(:ocean) }
     assert !node.update_attributes(:v_title => 'hooba')
-    assert_equal ['You do not have the rights to edit'], node.errors['base']
+    assert_equal 'You do not have the rights to edit', node.errors['base']
     
     Participation.connection.execute "UPDATE participations SET status = #{User::Status[:user]} WHERE user_id = #{users_id(:messy)} AND site_id = #{sites_id(:ocean)}"
     login(:messy)

@@ -71,7 +71,7 @@ class UserTest < Zena::Unit::TestCase
     login(:tiger)
     user = secure!(User) { User.create("name"=>"Shakespeare", "status"=>"50", "group_ids"=>[""], "lang"=>"fr", "time_zone"=>"Bern", "first_name"=>"William", "login"=>"bob", "password"=>"jsahjks894", "email"=>"") }
     assert user.new_record?, "Not saved"
-    assert_equal ['Not found'], user.errors[:site]
+    assert_equal 'Not found', user.errors[:site]
     assert user.errors[:base].any?
     login(:lion)
     user = secure!(User) { User.create("name"=>"Shakespeare", "status"=>"50", "group_ids"=>[""], "lang"=>"fr", "time_zone"=>"Bern", "first_name"=>"William", "login"=>"bob", "password"=>"jsahjks894", "email"=>"") }
@@ -133,7 +133,7 @@ class UserTest < Zena::Unit::TestCase
     login(:lion)
     user = secure!(User) { users(:lion) }
     assert !user.update_attributes(:status => User::Status[:user])
-    assert_equal ['you do not have the rights to do this'], user.errors[:status]
+    assert_equal 'you do not have the rights to do this', user.errors[:status]
     user = secure!(User) { users(:lion) }
     assert user.update_attributes('status' => User::Status[:admin].to_s, 'time_zone' => 'Europe/Berlin')
   end
@@ -285,7 +285,7 @@ class UserTest < Zena::Unit::TestCase
     login(:lion)
     user = secure!(User) { User.create("login"=>"john", "password"=>"isjjna78a9h", 'time_zone' => 'Zurich') }
     assert user.new_record?
-    assert_equal ['invalid'], user.errors['time_zone']
+    assert_equal 'invalid', user.errors['time_zone']
     
     user = secure!(User) { User.create("login"=>"john", "password"=>"isjjna78a9h", 'time_zone' => 'Mexico/General') }
     assert !user.new_record?

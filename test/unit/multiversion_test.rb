@@ -337,7 +337,7 @@ class MultiVersionTest < Zena::Unit::TestCase
     node = secure!(Node) { nodes(:lake)  }
     attrs = { :rgroup_id => 4, :v_title => "Manager's lake" }
     assert ! node.update_attributes( attrs ), "Update attributes fails"
-    assert_equal ["(ant) is editing this node"], node.errors[:base]
+    assert_equal "(ant) is editing this node", node.errors[:base]
   end
   
   def test_update_attributes_ok
@@ -346,7 +346,7 @@ class MultiVersionTest < Zena::Unit::TestCase
     node = secure!(Node) { nodes(:lake_jpg)  }
     attrs = { :inherit=>0, :rgroup_id => groups_id(:managers), :v_title => "Manager's lake", :v_lang => 'ru'}
     assert !node.update_attributes( attrs )
-    assert_equal ['not valid'], node.errors['version_lang']
+    assert_equal 'not valid', node.errors['version_lang']
     visitor.site.languages = 'en,fr,ru'
     assert node.update_attributes( attrs )
     assert_equal groups_id(:managers), node.rgroup_id
@@ -696,7 +696,7 @@ class MultiVersionTest < Zena::Unit::TestCase
     
     assert !node.destroy
     
-    assert_equal ['contains subpages or data'], node.errors[:base]
+    assert_equal 'contains subpages or data', node.errors[:base]
     
     node = secure!(Node) { nodes(:talk) } # reload
     assert_equal 1, node.versions.size
@@ -835,7 +835,7 @@ class MultiVersionTest < Zena::Unit::TestCase
     assert node.v_updated_at < Time.now + 600
     assert node.v_updated_at > Time.now - 600
     assert !node.update_attributes(:v_title => "Statues are better")
-    assert_equal ['You cannot edit while you have a proposition waiting for approval.'], node.errors['base']
+    assert_equal 'You cannot edit while you have a proposition waiting for approval.', node.errors['base']
   end
   
   def test_create_auto_publish

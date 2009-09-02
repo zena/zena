@@ -276,7 +276,7 @@ class TemplateTest < Zena::Unit::TestCase
     login(:lion)
     doc = secure!(Template) { nodes(:wiki_Project_changes_xml_zafu) }
     assert !doc.update_attributes(:parent_id => nodes_id(:collections))
-    assert_equal ['Invalid parent (section is not a Skin)'], doc.errors[:parent_id]
+    assert_equal 'Invalid parent (section is not a Skin)', doc.errors[:parent_id]
   end
   
   def test_move

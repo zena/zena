@@ -97,7 +97,7 @@ class VersionTest < Zena::Unit::TestCase
     assert node.save
     vers = Version.new
     assert !vers.save
-    assert_equal ['node missing'], vers.errors[:base]
+    assert_equal 'node missing', vers.errors[:base]
   end
   
   def test_update_content_one_version
