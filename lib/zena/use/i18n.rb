@@ -225,7 +225,7 @@ module Zena
         # translation of static text using gettext
         # FIXME: I do not know why this is needed in order to have <%= _('blah') %> find the translations on some servers
         def _(str)
-          NodesController.send(:_, str)
+          ApplicationController.send(:_, str)
         end
 
         # Show a little [xx] next to the title if the desired language could not be found. You can

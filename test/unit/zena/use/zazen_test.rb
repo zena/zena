@@ -1,11 +1,19 @@
 require 'test_helper'
 
-class ZazenHelperTest < ZenaTestHelper
-  include ApplicationHelper
-
-  def setup
-    @controllerClass = ApplicationController
-    super
+class ZazenTest < Zena::View::TestCase
+  include Zena::Use::Zazen::ViewMethods
+  include Zena::Use::HtmlTags::ViewMethods
+  include Zena::Use::Refactor::ViewMethods # fquote, render_to_string
+  include Zena::Use::Urls::ViewMethods # zen_path, etc
+  
+  # ============ stubs ============
+  def _(str)
+    ApplicationController.send(:_, str)
+  end
+  # ===============================
+  
+  def assert_zazen_match(css, code)
+    assert_tag_in zazen(code), css
   end
 
   # all these additions are replaced by the traduction of 'unknown link' if the user does not have read access to the linked node.
@@ -127,14 +135,13 @@ class ZazenHelperTest < ZenaTestHelper
 
   def test_image_as_link
     # * [!26!:37] you can use an image as the source for a link
-    assert_match %r{<p><a href.*en/projects/cleanWater.*img src.*image24_std.jpg.*545.*400.*class='std'}, zazen('!24!:21')
+    assert_zazen_match "p a[@href='/en/projects/cleanWater'] img.std[@src='/en/image30_std.jpg'][@width='440'][@height='400']", '!30!:21'
     # * [!26!:www.example.com] use an image for an outgoing link
-    assert_match %r{<p><a href.*http://www.example.com.*img src.*image24_std.jpg.*545.*400.*class='std'}, zazen('!24!:http://www.example.com')
-    assert_match %r{<p><a href.*http://www.example.com.*img src.*image24_std.jpg.*545.*400.*class='std'}, zazen('!24!:www.example.com')
+    assert_zazen_match "p a[@href='http://www.example.com'] img.std[@src='/en/image30_std.jpg']", '!30!:http://www.example.com'
   end
 
   def test_full
-    assert_match %r{class='img_left'.*href.*/en/projects/cleanWater.*window.open\(this.href\).*img src.*image24_std.jpg.*545.*400.*class='std'}, zazen('!<.24_3!:021')
+    assert_zazen_match "div.img_left a[@href='/en/projects/cleanWater'][@onclick*=window.open] img.std[@src='/en/projects/cleanWater/image24_std.jpg'][@width='545'][@height='400'][@alt='it\\'s a lake']", '!<.24_3!:021'
   end
 
   def test_empty_image_ref
@@ -148,8 +155,8 @@ class ZazenHelperTest < ZenaTestHelper
   end
   
   def test_pseudo_id
-    assert_equal '<p>This is a <a href="/en/contact15.html">people/lion</a>.</p>', zazen('This is a "link"::lio.')
-    assert_equal '<p>This is a <a href="/en/image30_pv.jpg">projects/wiki/bird_pv.jpg</a>.</p>', zazen('This is a "link"::bir_pv.data.')
+    assert_zazen_match "a[@href='/en/contact15.html'][text()='people/lion']", 'This is a "link"::lio.'
+    assert_zazen_match "a[@href='/en/image30_pv.jpg'][text()='projects/wiki/bird_pv.jpg']", 'This is a "link"::bir_pv.data.'
   end
   
   def test_pseudo_id_numbers_only

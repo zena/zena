@@ -62,7 +62,7 @@ class ZafuParserTest < ZenaTestController
   
   def yt_assert(test_val, result)
     test_val.gsub!(/_ID\(([^\)]+)\)/) do
-        ZenaTest::id($_test_site, $1)
+      Zena::FoxyParser::id($_test_site, $1)
     end
     o_yt_assert test_val, result
   end
