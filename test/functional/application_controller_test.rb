@@ -1,16 +1,6 @@
 require 'test_helper'
-require 'nodes_controller'
 
-# Re-raise errors caught by the controller.
-class NodesController; def rescue_action(e) raise e end; end
-
-class NodesControllerTest < ZenaTestController
-  
-  def setup
-    super
-    @controller = NodesController.new
-    init_controller
-  end
+class NodesControllerTest < Zena::Controller::TestCase
 
   def test_acts_as_secure
     login(:anon)

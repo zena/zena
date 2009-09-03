@@ -1,23 +1,11 @@
 =begin
 require 'test_helper'
-require 'version_controller'
-
-# Re-raise errors caught by the controller.
-class VersionController
-  def rescue_action(e); raise e; end
-end
 
 class HelperVersionController < VersionController
   include VersionHelper
 end
 
-class VersionControllerTest < ZenaTestController
-
-  def setup
-    super
-    @controller = VersionController.new
-    init_controller
-  end
+class VersionControllerTest < Zena::Controller::TestCase
   
   def test_show
     v = versions(:lake_red_en)

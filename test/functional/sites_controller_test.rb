@@ -1,16 +1,6 @@
 require 'test_helper'
-require 'sites_controller'
 
-# Re-raise errors caught by the controller.
-class SitesController; def rescue_action(e) raise e end; end
-
-class SitesControllerTest < ZenaTestController
-  
-  def setup
-    super
-    @controller = SitesController.new
-    init_controller
-  end
+class SitesControllerTest < Zena::Controller::TestCase
   
   def test_clear_cache
     with_caching do

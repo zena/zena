@@ -1,16 +1,6 @@
 require 'test_helper'
-require 'users_controller'
 
-# Re-raise errors caught by the controller.
-class UsersController; def rescue_action(e) raise e end; end
-
-class UsersControllerTest < ZenaTestController
-  
-  def setup
-    super
-    @controller = UsersController.new
-    init_controller
-  end
+class UsersControllerTest < Zena::Controller::TestCase
   
   def test_update_preferences
     login(:lion)

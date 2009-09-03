@@ -1,23 +1,7 @@
 =begin
 require 'test_helper'
-require 'documents_controller'
 
-# Re-raise errors caught by the controller.
-class DocumentsController
-  def rescue_action(e) raise e end;
-end
-
-class HelperDocumentsController < DocumentsController
-  include DocumentsHelper
-end
-
-class DocumentsControllerTest < ZenaTestController
-  
-  def setup
-    super
-    @controller = DocumentsController.new
-    init_controller
-  end
+class DocumentsControllerTest < Zena::Controller::TestCase
   
   def test_create_master_template
     login(:tiger)

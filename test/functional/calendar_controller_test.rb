@@ -1,17 +1,7 @@
 =begin
 require 'test_helper'
-require 'calendar_controller'
 
-# Re-raise errors caught by the controller.
-class CalendarController; def rescue_action(e) raise e end; end
-
-class CalendarControllerTest < ZenaTestController
-
-  def setup
-    super
-    @controller = CalendarController.new
-    init_controller
-  end
+class CalendarControllerTest < Zena::Controller::TestCase
 
   def test_show_date
     get 'show', :date=>Date.civil(2006,11,1).to_s, :size=>'tiny', :id=>nodes_id(:zena), :find=>'news'

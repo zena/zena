@@ -1,16 +1,6 @@
 require 'test_helper'
-require 'links_controller'
 
-# Re-raise errors caught by the controller.
-class LinksController; def rescue_action(e) raise e end; end
-
-class LinksControllerTest < ZenaTestController
-  
-  def setup
-    super
-    @controller = LinksController.new
-    init_controller
-  end
+class LinksControllerTest < Zena::Controller::TestCase
   
   def test_create
     login(:lion)

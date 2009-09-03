@@ -1,16 +1,6 @@
 require 'test_helper'
-require 'data_entries_controller'
 
-# Re-raise errors caught by the controller.
-class DataEntriesController; def rescue_action(e) raise e end; end
-
-class DataEntriesControllerTest < ZenaTestController
-  
-  def setup
-    super
-    @controller = DataEntriesController.new
-    init_controller
-  end
+class DataEntriesControllerTest < Zena::Controller::TestCase
   
   def test_create
     login(:ant)

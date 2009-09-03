@@ -1,22 +1,8 @@
 =begin
 TODO: fix with AUTHLOGIC !
-
-
-
-
 require 'test_helper'
-require 'session_controller'
 
-# Re-raise errors caught by the controller.
-class SessionsController; def rescue_action(e) raise e end; end
-
-class SessionsControllerTest < ZenaTestController
-  
-  def setup
-    super
-    @controller = SessionsController.new
-    init_controller
-  end
+class SessionsControllerTest < Zena::Controller::TestCase
   
   def test_render_invalid_login
     Version.connection.execute "UPDATE #{Version.table_name} SET text = 'empty' WHERE id = #{versions_id(:Node_login_zafu_en)}"

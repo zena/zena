@@ -1,16 +1,6 @@
 require 'test_helper'
-require 'iformats_controller'
 
-# Re-raise errors caught by the controller.
-class IformatsController; def rescue_action(e) raise e end; end
-
-class IformatsControllerTest < ZenaTestController
-  
-  def setup
-    super
-    @controller = IformatsController.new
-    init_controller
-  end
+class IformatsControllerTest < Zena::Controller::TestCase
   
   def test_only_admin_can_create
     login(:tiger)

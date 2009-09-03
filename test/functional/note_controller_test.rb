@@ -1,16 +1,7 @@
 =begin
 require 'test_helper'
-require 'note_controller'
 
-# Re-raise errors caught by the controller.
-class NoteController; def rescue_action(e) raise e end; end
-
-class NoteControllerTest < ZenaTestController
-
-  def setup
-    @controller = NoteController.new
-    init_controller
-  end
+class NoteControllerTest < Zena::Controller::TestCase
 
   def test_day_list
     opening = secure!(Node) { nodes(:opening) }

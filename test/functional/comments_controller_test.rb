@@ -1,16 +1,6 @@
 require 'test_helper'
-require 'comments_controller'
 
-# Re-raise errors caught by the controller.
-class CommentsController; def rescue_action(e) raise e end; end
-
-class CommentsControllerTest < ZenaTestController
-  
-  def setup
-    super
-    @controller = CommentsController.new
-    init_controller
-  end
+class CommentsControllerTest < Zena::Controller::TestCase
   
   def test_create
     login(:lion)

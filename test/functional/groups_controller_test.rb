@@ -1,16 +1,6 @@
 require 'test_helper'
-require 'groups_controller'
 
-# Re-raise errors caught by the controller.
-class GroupsController; def rescue_action(e) raise e end; end
-
-class GroupsControllerTest < ZenaTestController
-  
-  def setup
-    super
-    @controller = GroupsController.new
-    init_controller
-  end
+class GroupsControllerTest < Zena::Controller::TestCase
 
   def test_create_with_users
     login(:lion)

@@ -1,17 +1,7 @@
 require 'test_helper'
-require 'virtual_classes_controller'
 
-# Re-raise errors caught by the controller.
-class VirtualClassesController; def rescue_action(e) raise e end; end
-
-class VirtualClassesControllerTest < ZenaTestController
+class VirtualClassesControllerTest < Zena::Controller::TestCase
   
-  def setup
-    super
-    @controller = VirtualClassesController.new
-    init_controller
-  end
-
   def test_update_superclass
     login(:lion)
     vclass = virtual_classes(:Post)

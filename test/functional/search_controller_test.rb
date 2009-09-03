@@ -1,17 +1,7 @@
 =begin
 require 'test_helper'
-require 'search_controller'
 
-# Re-raise errors caught by the controller.
-class SearchController; def rescue_action(e) raise e end; end
-
-class SearchControllerTest < ZenaTestController
-
-  def setup
-    super
-    @controller = SearchController.new
-    init_controller
-  end
+class SearchControllerTest < Zena::Controller::TestCase
   
   def test_find_children_for_anon
     post 'find', :id=>nodes_id(:people), :search=>''
