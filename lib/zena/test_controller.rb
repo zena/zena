@@ -12,15 +12,15 @@ module Zena
       end
     end
     def test_compile
-      render :text=>ZafuParser.new_with_url(@test_url, :helper => zafu_helper).render(:dev => params['dev'])
+      render :text => ZafuParser.new_with_url(@test_url, :helper => zafu_helper).render(:dev => params['dev'])
     end
 
     def test_render
-      render :inline=>@text
+      render :inline => @text
     end
 
     def test_zazen
-      render :text=>ZazenParser.new(@text, :helper => zafu_helper).render
+      render :text => ZazenParser.new(@text, :helper => zafu_helper).render
     end
 
     private

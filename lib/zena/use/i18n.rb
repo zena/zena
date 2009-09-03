@@ -236,8 +236,8 @@ module Zena
         # Show a little [xx] next to the title if the desired language could not be found. You can
         # use a :text => '(lang)' option. The word 'lang' will be replaced by the real value.
         def check_lang(obj, opts={})
-          wlang = (opts[:text] || '[#LANG]').sub('#LANG', obj.v_lang).sub('_LANG', _(obj.v_lang))
-          obj.v_lang != lang ? "<#{opts[:wrap] || 'span'} class='#{opts[:class] || 'wrong_lang'}'>#{wlang}</#{opts[:wrap] || 'span'}>" : ""
+          wlang = (opts[:text] || '[#LANG]').sub('#LANG', obj.version.lang).sub('_LANG', _(obj.version.lang))
+          obj.version.lang != lang ? "<#{opts[:wrap] || 'span'} class='#{opts[:class] || 'wrong_lang'}'>#{wlang}</#{opts[:wrap] || 'span'}>" : ""
         end
 
       end # ViewMethods
