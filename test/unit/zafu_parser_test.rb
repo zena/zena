@@ -224,6 +224,7 @@ class ZafuParserTest < ZenaTestController
   
   def test_basic_img_private_image
     login(:ant)
+    visitor.lang = 'en'
     @controller.instance_variable_set(:@visitor, Thread.current.visitor)
     node = secure!(Node) { nodes(:tree_jpg) }
     node.inherit = -1
