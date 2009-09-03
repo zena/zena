@@ -207,7 +207,11 @@ ENDTXT
         # This lets helpers render partials
         # TODO: make sure this is the best way to handle this problem.
         def render_to_string(*args)
-          @controller.send(:render_to_string, *args)
+          controller = ActionView::TestCase::TestController.new
+          controller.instance_eval do
+            @template = @response.template = ActionView::Base.new(self.class.view_paths, {}, self)
+          end
+          controller.send(:render_to_string, *args)
         end
 
       end # ViewMethods      
