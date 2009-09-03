@@ -222,6 +222,6 @@ class VersionTest < Zena::Unit::TestCase
     login(:tiger)
     node = secure!(Page) { Page.create(:v_lang => 'io', :parent_id => nodes_id(:status), :name => 'hello', :v_title => '')}
     assert node.new_record?
-    assert node.errors[:v_lang].any?
+    assert node.errors[:version_lang].any?
   end
 end
