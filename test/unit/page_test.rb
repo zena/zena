@@ -25,7 +25,7 @@ class PageTest < Zena::Unit::TestCase
     node = secure!(Page) { Page.create(:parent_id=>nodes_id(:cleanWater), :name=>'wiki')}
     err node
     assert ! node.new_record?, 'Not a new record'
-    assert node.errors[:name].empty?
+    assert_nil node.errors[:name] #.empty?
   end
   
   def test_create_same_name_other_parent_with_cache
@@ -34,7 +34,7 @@ class PageTest < Zena::Unit::TestCase
       node = secure!(Page) { Page.create(:parent_id=>nodes_id(:cleanWater), :name=>'wiki')}
       err node
       assert ! node.new_record?, 'Not a new record'
-      assert node.errors[:name].empty?
+      assert_nil node.errors[:name] #.empty?
     end
   end
 
@@ -52,7 +52,7 @@ class PageTest < Zena::Unit::TestCase
     node.name = 'wiki'
     node[:parent_id] = nodes_id(:zena)
     assert node.save
-    assert node.errors[:name].empty?
+    assert_nil node.errors[:name] #.empty?
   end
   
   def test_update_same_name_other_parent_with_cache
@@ -62,7 +62,7 @@ class PageTest < Zena::Unit::TestCase
       node.name = 'wiki'
       node[:parent_id] = nodes_id(:zena)
       assert node.save
-      assert node.errors[:name].empty?
+      assert_nil node.errors[:name] #.empty?
     end
   end
   

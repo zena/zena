@@ -512,7 +512,7 @@ module Zena
             unless @redaction.valid?
               @redaction.errors.each do |attribute, message|
                 attribute = "version_#{attribute}"
-                errors.add(attribute, message) if errors[attribute].empty?
+                errors.add(attribute, message) unless errors[attribute] # FIXME: rails 3: if errors[attribute].empty?
               end
             end
           end

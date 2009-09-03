@@ -229,7 +229,7 @@ class Version < ActiveRecord::Base
             errors.add(:base, message)
           else
             attribute = "content_#{attribute}"
-            errors.add(attribute, message) if errors[attribute].empty?
+            errors.add(attribute, message) unless errors[attribute] # FIXME: rails 3: if errors[attribute].empty?
           end
         end
       
