@@ -389,7 +389,8 @@ class User < ActiveRecord::Base
           # Refuse to add a user in a site if already a user with same login.
           # validate uniqueness of 'login'
           
-          errors.add(:login, 'has already been taken') if current_site.users.find_by_login(self[:login])
+          # TODO: maybe current_site.users.find_by_login(...) is better, but then we need to change 'secure_with_scope'
+          errors.add(:login, 'has already been taken') if secure(User) { User.find_by_login(self[:login]) }
           
           errors.add(:password, "can't be blank") if self[:password].nil? || self[:password] == ""
         else

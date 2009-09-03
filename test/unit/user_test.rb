@@ -72,7 +72,7 @@ class UserTest < Zena::Unit::TestCase
     user = secure!(User) { User.create("name"=>"Shakespeare", "status"=>"50", "group_ids"=>[""], "lang"=>"fr", "time_zone"=>"Bern", "first_name"=>"William", "login"=>"bob", "password"=>"jsahjks894", "email"=>"") }
     assert user.new_record?, "Not saved"
     assert_equal 'Not found', user.errors[:site]
-    assert user.errors[:base].any?
+    assert user.errors[:base] #.any?
     login(:lion)
     user = secure!(User) { User.create("name"=>"Shakespeare", "status"=>"50", "group_ids"=>[""], "lang"=>"fr", "time_zone"=>"Bern", "first_name"=>"William", "login"=>"bob", "password"=>"jsahjks894", "email"=>"") }
     assert !user.new_record?, "Saved"
@@ -112,7 +112,7 @@ class UserTest < Zena::Unit::TestCase
     user = secure!(User) { users(:ant) }
     user.email = "eat@spam.com"
     assert !user.save
-    assert user.errors[:base].any?
+    assert user.errors[:base] #.any?
     user = secure!(User) { users(:tiger) }
     user.email = "socr@isa.man"
     assert user.save
@@ -123,7 +123,7 @@ class UserTest < Zena::Unit::TestCase
     login(:tiger)
     user = secure!(User) { User.create(:login=>'joe', :password=>'whatever') }
     assert user.new_record?
-    assert user.errors[:base].any?
+    assert user.errors[:base] #.any?
     login(:lion)
     user = secure!(User) { User.create(:login=>'joe', :password=>'whatever') }
     assert !user.new_record?
@@ -175,12 +175,12 @@ class UserTest < Zena::Unit::TestCase
     login(:lion)
     bob = secure!(User) { User.create(:login=>'tiger', :password=>'anypassword') }
     assert bob.new_record?
-    assert bob.errors[:login].any?
+    assert bob.errors[:login] #.any?
     
     login(:whale)
     bob = secure!(User) { User.create(:login=>'tiger', :password=>'anypassword') }
     assert !bob.new_record?
-    assert bob.errors[:login].any?
+    assert_nil bob.errors[:login] #.empty?
   end
   
   def test_empty_password
@@ -189,7 +189,7 @@ class UserTest < Zena::Unit::TestCase
     bob.login = 'bob'
     bob.save
     assert ! bob.save
-    assert bob.errors[:password].any?
+    assert bob.errors[:password] #.any?
   end
   
   def test_update_public
@@ -249,14 +249,14 @@ class UserTest < Zena::Unit::TestCase
     login(:lion)
     user = secure!(User) { User.new(:login=>'joe', :password=>'secret', :site_ids=>['1','2'])}
     assert !user.save
-    assert user.errors[:site].any?
+    assert user.errors[:site] #.any?
     
     # make lion a user of ocean
     Group.connection.execute "INSERT INTO participations (site_id, user_id, status, lang) VALUES (#{sites_id(:ocean)}, #{users_id(:lion)}, 50, 'en')"
     login(:lion)
     user = secure!(User) { User.new(:login=>'joe', :password=>'secret', :site_ids=>[sites_id(:zena),sites_id(:ocean)])}
     assert !user.save
-    assert user.errors[:site].any?
+    assert user.errors[:site] #.any?
     
     # make lion an admin in ocean
     Participation.connection.execute "UPDATE participations SET status = #{User::Status[:admin]} WHERE site_id = #{sites_id(:ocean)} AND user_id=#{users_id(:lion)}"
