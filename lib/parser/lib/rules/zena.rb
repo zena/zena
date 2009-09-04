@@ -96,7 +96,7 @@ module Zena
       end
     end
     inline_methods :login_link, :visitor_link, :search_box, :show_menu, :show_path, :lang_links
-    direct_methods :uses_calendar
+    direct_methods :uses_datebox
 
     def before_render
       return unless super

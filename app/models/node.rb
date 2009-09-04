@@ -526,7 +526,7 @@ class Node < ActiveRecord::Base
                   define_method(:content_type) { ctype }
                   define_method(:read) do
                     if insert_zafu_headings
-                      o_read.sub(%r{</head>},"  <r:stylesheets/>\n  <r:javascripts/>\n  <r:uses_calendar/>\n</head>")
+                      o_read.sub(%r{</head>},"  <r:stylesheets/>\n  <r:javascripts/>\n  <r:uses_datebox/>\n</head>")
                     else
                       o_read
                     end

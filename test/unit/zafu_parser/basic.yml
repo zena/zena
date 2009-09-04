@@ -419,8 +419,8 @@ show_path_options:
   src: "<div id='path' do='show_path' wrap='p'/>"
   res: "/<div id='path'><p>.*zena.*<p>.*oo/page18.html.*<p><.*/projects/cleanWater.*cleanWater</a>.*/oo/projects/cleanWater/page22.html.*class='current'>status</a>/"
 
-uses_calendar:
-  src: "<r:uses_calendar/>"
+uses_datebox:
+  src: "<r:uses_datebox/>"
   tem: "/<script.*calendar.js.*calendar-setup.js.*calendar-en-utf8.js.*calendar-brown.css.*CDATA.*DEF_DATE_FORMAT.*%Y-%m-%d %H:%M.*FIRST_DAY.*0/"
 
 calendar:

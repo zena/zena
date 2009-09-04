@@ -11,7 +11,7 @@
   </r:void>
 
   <r:javascripts/>
-  <r:uses_calendar/>
+  <r:uses_datebox/>
 </head>
 
 <body do='void' name='body'>

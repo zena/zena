@@ -8,7 +8,7 @@
     <link href="style.css" rel="Stylesheet" type="text/css"/>
 
     <r:javascripts list='prototype,effects,zena,dragdrop'/>
-    <r:uses_calendar/>
+    <r:uses_datebox/>
   </r:with>
 
 

@@ -146,7 +146,7 @@ module Zena
       module FormTags
         
         # date_box seizure setup
-        def uses_calendar(opt={})
+        def uses_datebox(opt={})
           if ZENA_CALENDAR_LANGS.include?(lang)
             l = lang
           else
