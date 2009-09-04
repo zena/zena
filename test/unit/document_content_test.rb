@@ -62,6 +62,12 @@ class DocumentContentTest < Zena::Unit::TestCase
     assert_raise(StandardError) { doc.filepath }
   end
   
+  def test_version
+    version_id = versions_id(:water_pdf_en)
+    doc = DocumentContent.new( :name=>'water', :version_id=> version_id )
+    assert_equal version_id, doc.version_id
+  end
+  
   def test_save_file
     without_files("/test.host/data/full") do
       doc = DocumentContent.new( :name=>'water', :version_id=>versions_id(:water_pdf_en), :file=>uploaded_pdf('water.pdf') )
