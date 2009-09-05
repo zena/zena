@@ -8,7 +8,7 @@
 
   <r:stylesheets name='stylesheets' list='reset,zena,comment,admin,search,default'/>
   <r:javascripts/>
-  <r:uses_calendar/>
+  <r:uses_datebox/>
 </head>
 <body>
   <!-- There was a problem with the rendering of the original zafu code. Using default '+adminLayout' template. -->

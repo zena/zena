@@ -75,7 +75,7 @@ class Template < TextDocument
   </r:void>
 
   <r:javascripts list='prototype,effects,zena'/>
-  <r:uses_calendar/>
+  <r:uses_datebox/>
 </head>
 <body>
 </body>

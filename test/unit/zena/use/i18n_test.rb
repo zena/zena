@@ -128,4 +128,52 @@ class I18nTest < Zena::View::TestCase
     end
   end
   
+  def test_check_lang_same
+    I18n.locale = 'en'
+    obj = secure!(Node) { nodes(:zena) }
+    assert_equal 'en', obj.v_lang
+    assert_no_match /\[en\]/, check_lang(obj)
+  end
+  
+  def test_check_other_lang
+    visitor.lang = 'es'
+    I18n.locale = 'es'
+    obj = secure!(Node) { nodes(:zena) }
+    assert_match /\[en\]/, check_lang(obj)
+  end
+  
+  def test_timezones
+    login(:ant)
+    visitor[:time_zone] = "Europe/Zurich"
+    
+    # UTC+1, no Daylight time savings
+    assert_equal Time.utc(2008,1,3,12,03,10), "2008-01-03 13:03:10".to_utc('%Y-%m-%d %H:%M:%S', visitor.tz)
+    # UTC+1, Daylight time savings
+    assert_equal Time.utc(2008,5,17,11,03,10), "2008-05-17 13:03:10".to_utc('%Y-%m-%d %H:%M:%S', visitor.tz)
+    
+    # convert back and forth
+    [
+      ["2008-05-17 13:03:10", '%Y-%m-%d %H:%M:%S'],
+      ["03.01.2008 13:03:10", '%d.%m.%Y %H:%M:%S'],
+    ].each do |date_str, format|
+      assert_equal date_str, format_date(date_str.to_utc(format, visitor.tz), format)
+    end
+    
+    login(:ant) # Europe/Paris
+    visitor[:time_zone] = "Asia/Jakarta"
+    
+    # UTC+7, no Daylight time savings
+    assert_equal Time.utc(2008,1,3,12,03,10), "2008-01-03 19:03:10".to_utc('%Y-%m-%d %H:%M:%S', visitor.tz)
+    # UTC+7, no Daylight time savings
+    assert_equal Time.utc(2008,5,17,12,03,10), "2008-05-17 19:03:10".to_utc('%Y-%m-%d %H:%M:%S', visitor.tz)
+    
+    
+    # convert back and forth
+    [
+      ["2008-05-17 13:03:10", '%Y-%m-%d %H:%M:%S'],
+      ["03.01.2008 13:03:10", '%d.%m.%Y %H:%M:%S'],
+    ].each do |date_str, format|
+      assert_equal date_str, format_date(date_str.to_utc(format, visitor.tz), format)
+    end
+  end
 end

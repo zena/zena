@@ -71,6 +71,18 @@ class HtmlTagsTest < Zena::View::TestCase
     assert_match %r{input type='text'.*name.*node\[icon_id\]}m, select_id('node', :icon_id)
   end
   
+  def test_uses_datebox_with_lang
+    res = uses_datebox
+    assert_match %r{/calendar/lang/calendar-en-utf8.js}, res
+  end
+  
+  def test_uses_datebox_without_lang
+    visitor.lang = 'io'
+    res = uses_datebox
+    assert_no_match %r{/calendar/lang/calendar-io-utf8.js}, res
+    assert_match %r{/calendar/lang/calendar-en-utf8.js}, res
+  end
+  
   def test_date_box
     @node = secure!(Node) { nodes(:status) }
     assert_match %r{span class="date_box".*img src="\/calendar\/iconCalendar.gif".*input id='datef.*' name='node\[updated_at\]' type='text' value='2006-04-11 00:00'}m, date_box('node', 'updated_at')
@@ -142,4 +154,34 @@ class HtmlTagsTest < Zena::View::TestCase
     assert_equal '', node_actions(:actions=>:all)
   end
   
+  def test_login_link
+    assert_equal "<a href='/login'>login</a>", login_link
+    login(:ant)
+    assert_equal "<a href='/logout'>logout</a>", login_link
+  end
+  
+  def test_show_path_root
+    @node = secure!(Node) { Node.find(nodes_id(:zena))}
+    assert_equal "<li><a href='/en' class='current'>zena</a></li>", show_path
+    @node = secure!(Node) { Node.find(nodes_id(:status))}
+    assert_match %r{.*zena.*projects.*cleanWater.*li.*page22\.html' class='current'>status}m, show_path
+  end
+  
+  def test_show_path_root_with_login
+    login(:ant)
+    @node = secure!(Node) { Node.find(nodes_id(:zena))}
+    assert_equal "<li><a href='/#{AUTHENTICATED_PREFIX}' class='current'>zena</a></li>", show_path
+  end
+  
+  def test_lang_links
+    login(:lion)
+    @controller.set_params(:controller=>'nodes', :action=>'show', :path=>'projects/cleanWater', :prefix=>AUTHENTICATED_PREFIX)
+    assert_match %r{<em>en</em>.*href=.*/oo/projects/cleanWater\?lang=.*fr.*}, lang_links
+  end
+  
+  def test_lang_links_no_login
+    login(:anon)
+    @controller.set_params(:controller=>'nodes', :action=>'show', :path=>'projects/cleanWater', :prefix=>'en')
+    assert_match %r{<em>en</em>.*href=.*/fr/projects/cleanWater.*fr.*}, lang_links
+  end
 end
