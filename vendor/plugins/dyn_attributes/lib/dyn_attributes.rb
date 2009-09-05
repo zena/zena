@@ -188,6 +188,14 @@ module Zena
       module InstanceMethods
         public
         
+        # We need to overwrite attributes= method, because AR check if object respond to attribute setter method
+        # before allocating the value. This means that the method_missing pattern is not enough and that the
+        # setter methods needs to be declared before allocation.
+        def attributes=(new_attributes, guard_protected_attributes = true)
+          define_setter_methods_for(new_attributes)
+          super
+        end
+        
         def dyn
           @dyn_attributes ||= Zena::DynAttributeProxy.for(self, self.class.dyn_attribute_options)
         end
@@ -205,6 +213,23 @@ module Zena
         end
         
         private
+        
+          # Define the setter method for attribute starting with "d_" (dynamic attribute).
+          # A corresponding attribute (without "d_") is stored in a Proxy.
+          def define_setter_methods_for(attributes)
+            attributes.each do |attribute, value|
+              if attribute.to_s =~ /^d_(.*?)(=|)$/
+                d_attribute = $1
+                class_eval <<-STR
+                  def d_#{d_attribute}=(arg)
+                    self.dyn['#{d_attribute}'] = arg
+                  end
+              
+                STR
+              end 
+            end if attributes.is_a?(Hash)
+          end
+        
           def save_dynamic_attributes
             @dyn_attributes.save if @dyn_attributes
             true # continue callbacks
