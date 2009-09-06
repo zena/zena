@@ -11,13 +11,8 @@ class DynDummy < ActiveRecord::Base
 end
 
 class DynStrictDummy < ActiveRecord::Base
-    before_save :set_dummy_node_id
   set_table_name 'versions'
   uses_dynamic_attributes :only => [:bio, :phone]
-  def set_dummy_node_id
-    self[:node_id] = 0
-    self[:user_id] = 0
-  end
 end
 
 class DynSubStrictDummy < DynStrictDummy
@@ -33,33 +28,6 @@ end
 
 class DynAttributesTest < Test::Unit::TestCase
   
-  def test_dyn_return_proxy
-    dummy = DynDummy.new
-    assert dummy.respond_to?(:dyn)
-    assert Zena::DynAttributeProxy, dummy.dyn.class
-  end
-  
-  def test_dynamic_attribute_after_initializating
-    dummy = DynDummy.new
-    dummy.d_foo = 'bar'
-    assert_equal 'bar', dummy.dyn['foo']
-    assert_equal 'bar', dummy.d_foo
-    assert dummy.save
-  end
-  
-  def test_dynamic_attriburte_when_initializating
-      dummy = DynDummy.new(:d_foo => 'bar')
-      assert dummy.respond_to?(:d_foo=)
-      assert_equal 'bar', dummy.dyn['foo']
-      assert_equal 'bar', dummy.d_foo
-      assert dummy.save
-  end
-  
-  def test_dynamic_attribute_with_create
-    dummy = DynDummy.create(:d_foo=>'bar', :d_bar=>'foo')
-    assert_equal 'bar', dummy.d_foo
-  end
-  
   def test_simple
     assert record = DynDummy.create(:title => 'this is my title', :text=>'', :comment=>'', :summary=>'')
     assert_nil record.dyn['color']
@@ -73,15 +41,8 @@ class DynAttributesTest < Test::Unit::TestCase
   end
   
   def test_many_pseudo_methods
-    assert record = DynDummy.create(:title => 'lolipop', :text=>'', :comment=>'', :summary=>'', :d_color=>'blue', :d_life=>'fun', :d_shoes=>'worn')
-    assert_equal 'worn', record.d_shoes
-    assert_equal 'worn', record.dyn['shoes']
-    assert_equal 'blue', record.d_color
-  end
-  
-  def test_with_find
-    DynDummy.create(:title => 'bio', :d_color=>'blue', :d_life=>'fun', :d_shoes=>'worn')
-    record = DynDummy.find_by_title('bio')
+    assert DynDummy.create(:title => 'lolipop', :text=>'', :comment=>'', :summary=>'', :d_color=>'blue', :d_life=>'fun', :d_shoes=>'worn')
+    record = DynDummy.find_by_title('lolipop')
     assert_equal 'worn', record.d_shoes
     assert_equal 'worn', record.dyn['shoes']
     assert_equal 'blue', record.d_color
@@ -97,12 +58,7 @@ class DynAttributesTest < Test::Unit::TestCase
     assert keys['shoes']
     assert keys['life']
     
-    begin
-      assert record.update_attributes(:d_life => 'hell', :d_heidegger => 'Martin')
-    rescue Exception=>e
-      e.message
-      e.backtrace
-    end
+    assert record.update_attributes(:d_life => 'hell', :d_heidegger => 'Martin')
     proxy = record.dyn
     new_keys = proxy.instance_variable_get(:@keys)
     ['color', 'life', 'shoes'].each do |k|
@@ -132,11 +88,6 @@ class DynAttributesTest < Test::Unit::TestCase
   end
   
   # DynStrictDummy
-  
-  def test_dyn_attribute_options
-    assert_equal [:bio, :phone], DynStrictDummy.dyn_attribute_options[:only]
-  end
-  
   
   def test_only
     assert record = DynStrictDummy.create(:title => 'this is my title', :text=>'', :comment=>'', :summary=>'', :d_bio=>'biography', :d_hell => 'not allowed')
