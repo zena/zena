@@ -16,7 +16,7 @@ class DocumentContent < ActiveRecord::Base
   attr_public           :size, :name, :content_type, :ext, :file
   
   # writable
-  attr_accessible       :name, :content_type, :ext, :file, :version_id
+  attr_accessible       :content_type, :file
 
   belongs_to            :site
   validate              :valid_file
