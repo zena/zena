@@ -4,7 +4,7 @@
 <VirtualHost *>
   ServerName stats.<%= host %>
 
-  DocumentRoot /usr/share/doc/awstats/examples/wwwroot
+  DocumentRoot /usr/share/doc/awstats/examples
   ErrorLog     /var/www/zena/<%= host %>/log/apache2.error.log
   CustomLog    /var/www/zena/<%= host %>/log/apache2.access.log combined
 
@@ -20,15 +20,15 @@
   #
   # Directives to allow use of AWStats as a CGI
   #
-  Alias /awstatsclasses "/usr/share/doc/awstats/examples/wwwroot/classes/"
-  Alias /awstatscss "/usr/share/doc/awstats/examples/wwwroot/css/"
-  Alias /awstatsicons "/usr/share/doc/awstats/examples/wwwroot/icon/"
+  Alias /awstatsclasses "/usr/share/doc/awstats/lib"
+  Alias /awstatscss "/usr/share/doc/awstats/examples/css/"
+  Alias /awstatsicons "/usr/share/awstats/icon/"
   ScriptAlias / "/usr/lib/cgi-bin/"
 
   #
   # This is to permit URL access to scripts/files in AWStats directory.
   #
-  <Directory "/usr/share/doc/awstats/examples/wwwroot">
+  <Directory "/usr/share/doc/awstats/examples">
       Options None
       AllowOverride None
       Order allow,deny
