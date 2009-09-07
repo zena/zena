@@ -100,6 +100,7 @@ ActiveRecord::Schema.define(:version => 52) do
     t.integer "width"
     t.integer "height"
     t.integer "site_id"
+    t.text    "exif_json"
   end
 
   create_table "dyn_attributes", :force => true do |t|

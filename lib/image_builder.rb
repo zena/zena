@@ -50,6 +50,7 @@ class ImageBuilder
     def image_content_type?(content_type)
       content_type =~ /image/
     end
+    
     def dummy?
       Magick.const_defined?(:ZenaDummy)
     end
@@ -147,6 +148,10 @@ class ImageBuilder
   
   def format
     render_img.format
+  end
+  
+  def exif
+    @exif ||= ExifData.new(render_img.get_exif_by_entry)
   end
   
   def max_filesize=(size)

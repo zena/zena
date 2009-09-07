@@ -24,6 +24,7 @@ lake_jpg:
   ext:             jpg
   width:           600
   height:          440
+  exif_json:       '{"GPSLatitude":"-6/1, -30/1, 0/1", "GPSLongitude":"29/1, 30/1, 0/1"}'
   
 water_pdf:   
   version:         water_pdf_en

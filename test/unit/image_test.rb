@@ -278,4 +278,23 @@ class ImageTest < Zena::Unit::TestCase
     assert_equal 2, bird.versions.count
     assert_not_equal '2006-04-11 00:00', bird.updated_at.strftime('%Y-%m-%d %H:%M')
   end
+  
+  def test_set_event_at_from_exif_tags
+    without_files('test.host/data/jpg') do
+      login(:ant)
+      img = secure!(Image) { Image.create( :parent_id=>nodes_id(:cleanWater),
+                                          :inherit => 1,
+                                          :name=>'lake', 
+                                          :c_file => uploaded_jpg('exif_sample.jpg')) }
+      assert_equal 'SANYO Electric Co.,Ltd.', img.c_exif['Make']
+      
+      # reload
+      assert img = secure!(Image) { Image.find(img.id) }
+      assert exif_tags = img.c_exif
+      assert_equal 'SANYO Electric Co.,Ltd.', img.c_exif['Make']
+      assert_equal Time.parse("1998-01-01 00:00:00"), img.c_exif.date_time
+      assert_equal Time.parse("1998-01-01 00:00:00"), img.event_at
+    end
+  end
+    
 end
