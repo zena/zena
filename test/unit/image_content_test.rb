@@ -23,6 +23,17 @@ class ImageContentTest < ZenaTestUnit
         assert img.save, "Can save"
       end
     end
+    
+    def test_exif_tags
+      preserving_files('/test.host/data') do
+        img = ImageContent.new(:name=>'bird', :version_id => versions_id(:bird_jpg_en))
+        img[:site_id] = sites_id(:zena)
+        img.file = uploaded_jpg('exif_sample.jpg')
+        assert_equal 'SANYO Electric Co.,Ltd.', img.exif['Make']
+        assert_equal Time.parse("1998-01-01 00:00:00"), img.exif.date_time
+        assert img.save, "Can save"
+      end
+    end
   end
   
   def setup

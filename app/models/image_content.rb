@@ -16,7 +16,7 @@ ImageContent also provides a +crop+ pseudo attribute to crop an image. See crop=
 class ImageContent < DocumentContent
   before_validation_on_create :convert_file
   
-  zafu_readable    :width, :height
+  zafu_readable    :width, :height, :exif, :exif_gps_latitude, :exif_gps_longitude # FIXME: rubyless remove these and access ExifData
   safe_attribute   :crop
   
   # Return a cropped image using the 'crop' hash with the top left corner position (:x, :y) and the width and height (:width, :heigt).
@@ -52,6 +52,7 @@ class ImageContent < DocumentContent
     img = image_with_format(nil)
     self[:width ] = img.width
     self[:height] = img.height
+    self[:exif_json] = img.exif.to_json rescue nil
   end
   
   # Return the size for an image at the given format.
@@ -116,6 +117,20 @@ class ImageContent < DocumentContent
     else
       raise StandardError, "No image to work on"
     end
+  end
+  
+  def exif
+    @exif ||= ExifData.new(self[:exif_json])
+  end
+  
+  # FIXME: remove when RubyLess is here !
+  def exif_gps_latitude
+    exif.gps_latitude
+  end
+  
+  # FIXME: remove when RubyLess is here !
+  def exif_gps_longitude
+    exif.gps_longitude
   end
   
   private

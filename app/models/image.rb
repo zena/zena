@@ -53,6 +53,8 @@ or to create a link to the article using the icon:
  
 =end
 class Image < Document
+  before_validation :image_before_validation
+  
   class << self
     def accept_content_type?(content_type)
       ImageBuilder.image_content_type?(content_type)
@@ -100,4 +102,10 @@ class Image < Document
   def filesize(format=nil)
     version.filesize(format)
   end
+  
+  private
+    def image_before_validation
+      # Set image event date to when the photo was taken
+      self[:event_at] ||= version.content.exif.date_time
+    end
 end

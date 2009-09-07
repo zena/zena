@@ -195,4 +195,20 @@ class ImageBuilderTest < ZenaTestUnit
     assert_equal 15, img.width
     assert_equal 50, img.height
   end
+  
+  def test_exif
+    path = "#{RAILS_ROOT}/test/fixtures/files/exif_sample.jpg"
+    img = ImageBuilder.new(:path=>path)
+    exif = img.exif
+    
+    assert exif['DateTime']
+    assert_equal 'SANYO Electric Co.,Ltd.', exif['Make']
+  end
+  
+  def test_parse_dates_in_exif
+    path = "#{RAILS_ROOT}/test/fixtures/files/exif_sample.jpg"
+    img = ImageBuilder.new(:path=>path)
+    assert_equal "1998:01:01 00:00:00", img.exif['DateTime']
+    assert_equal Time.parse("1998-01-01 00:00:00"), img.exif.date_time
+  end
 end

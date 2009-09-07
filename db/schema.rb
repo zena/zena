@@ -116,6 +116,7 @@ ActiveRecord::Schema.define() do
     t.column "width",        :integer
     t.column "height",       :integer
     t.column "site_id",      :integer
+    t.column "exif_json",    :text
   end
 
   create_table "dyn_attributes", :force => true do |t|
