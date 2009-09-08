@@ -2,10 +2,10 @@ require 'test_helper'
 
 class ImageContentTest < Zena::Unit::TestCase
   
-  if Magick.const_defined?(:ZenaDummy)
+  if Module.const_defined?(:ZenaDummy)
     def test_set_file
       preserving_files('/test.host/data') do
-        img = ImageContent.new(:version_id => versions_id(:bird_jpg_en))
+        img = ImageContent.new
         img.file = uploaded_jpg('bird.jpg')
         assert_nil img.width
         assert_nil img.height
@@ -15,7 +15,10 @@ class ImageContentTest < Zena::Unit::TestCase
   else
     def test_set_file
       preserving_files('/test.host/data') do
-        img = ImageContent.new(:name=>'bird', :version_id => versions_id(:bird_jpg_en))
+        img = ImageContent.new
+        img[:site_id] = sites_id(:zena)
+        img[:version_id] = versions_id(:bird_jpg_en)
+        img[:name] = 'bird'
         img[:site_id] = sites_id(:zena)
         img.file = uploaded_jpg('bird.jpg')
         assert_equal 660, img.width

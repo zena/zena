@@ -274,7 +274,7 @@ class SecureCreateTest < Zena::Unit::TestCase
     # reference = self
     login(:lion)
     node = secure!(Node) { nodes(:zena)  }
-    assert_nil z[:parent_id]
+    assert_nil node[:parent_id]
     node[:pgroup_id] = groups_id(:public)
     assert node.save, "Can change root group"
   end
