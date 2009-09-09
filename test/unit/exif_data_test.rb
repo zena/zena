@@ -1,4 +1,5 @@
 require 'test_helper'
+
 class ExifDataTest < Test::Unit::TestCase
   
   def test_create_json

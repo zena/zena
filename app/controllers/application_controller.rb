@@ -1,5 +1,6 @@
 class ApplicationController < ActionController::Base
   include Zena::Use::Authentification::ControllerMethods
+  include Zena::Use::Dates::ControllerMethods
   include Zena::Use::ErrorRendering::ControllerMethods
   include Zena::Use::I18n::ControllerMethods
   include Zena::Use::Refactor::ControllerMethods
@@ -16,6 +17,7 @@ class ApplicationController < ActionController::Base
   helper  Zena::Acts::Secure
   helper  Zena::Use::Ajax::ViewMethods
   helper  Zena::Use::Calendar::ViewMethods
+  helper  Zena::Use::Dates::ViewMethods
   helper  Zena::Use::ErrorRendering::ViewMethods
   helper  Zena::Use::HtmlTags::ViewMethods
   helper  Zena::Use::I18n::ViewMethods

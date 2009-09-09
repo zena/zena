@@ -17,13 +17,13 @@ class ExifData < Hash
   end
   
   ['DateTime', 'DateTimeOriginal', 'DateTimeDigitised'].each do |k|
-    define_method(k.underscore) do
+    define_method(k.gsub(/([a-z\d])([A-Z])/,'\1_\2').downcase) do
       date_from_field(k)
     end
   end
   
   ['GPSLongitude', 'GPSLatitude'].each do |k|
-    define_method(k.underscore) do
+    define_method(k.gsub(/([a-z\d])([A-Z])/,'\1_\2').downcase) do
       position_from_field(k)
     end
   end
