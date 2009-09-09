@@ -240,4 +240,11 @@ class VersionTest < Zena::Unit::TestCase
     assert node.new_record?
     assert node.errors[:version_lang].any?
   end
+  
+  def test_should_parse_publish_from_date
+    I18n.locale = 'fr'
+    visitor.time_zone = 'Asia/Jakarta'
+    v = Version.new('publish_from' => '9-9-2009 15:17')
+    assert_equal Time.utc(2009,9,9,8,17), v.publish_from
+  end
 end

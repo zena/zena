@@ -142,7 +142,7 @@ module Zena
         def parse_date_attribute(*args)
           args.each do |arg|
             define_method("#{arg}=") do |date|
-              super(date.kind_of?(Time) ? date : date.to_utc(_('datetime'), visitor.tz))
+              super(date.kind_of?(String) ? date.to_utc(_('datetime'), visitor.tz) : date)
             end
           end
         end

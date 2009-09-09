@@ -133,8 +133,13 @@ class Node < ActiveRecord::Base
                      :section_zip, :skin, :ref_lang, :fullpath, :rootpath, :position, :publish_from, :max_status, :rgroup_id, 
                      :wgroup_id, :pgroup_id, :basepath, :custom_base, :klass, :zip, :score, :comments_count,
                      :custom_a, :custom_b, :title, :text,
-                     :m_text, :m_title, :m_author   
+                     :m_text, :m_title, :m_author
   attr_protected     :site_id
+  
+  include Zena::Use::Dates::ModelMethods
+  parse_date_attribute :event_at, :log_at
+
+
   zafu_context       :author => "Contact", :parent => "Node", 
                      :project => "Project", :section => "Section", 
                      :real_project => "Project", :real_section => "Section",
@@ -705,13 +710,6 @@ class Node < ActiveRecord::Base
           elsif attributes[key]
             # parse date
             res[key] = attributes[key].to_utc("%Y-%m-%d %H:%M:%S")
-          end
-        elsif ['v_publish_from', 'log_at', 'event_at'].include?(key)
-          if attributes[key].kind_of?(Time)
-            res[key] = attributes[key]
-          elsif attributes[key]
-            # parse date
-            res[key] = attributes[key].to_utc(_('datetime'), visitor.tz)
           end
         elsif key =~ /^(\w+)_id$/
           if key[0..1] == 'd_'

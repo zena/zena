@@ -1435,4 +1435,18 @@ done: \"I am done\""
   def find_node_by_pseudo(string, base_node = nil)
     secure(Node) { Node.find_node_by_pseudo(string, base_node || @node) }
   end
+  
+  def test_should_parse_event_at_date
+    I18n.locale = 'fr'
+    visitor.time_zone = 'Asia/Jakarta'
+    v = secure(Node) {Node.new('event_at' => '9-9-2009 15:17')}
+    assert_equal Time.utc(2009,9,9,8,17), v.event_at
+  end
+  
+  def test_should_parse_log_at_date
+    I18n.locale = 'fr'
+    visitor.time_zone = 'Asia/Jakarta'
+    v = secure(Node) {Node.new('log_at' => '9-9-2009 15:17')}
+    assert_equal Time.utc(2009,9,9,8,17), v.log_at
+  end
 end
