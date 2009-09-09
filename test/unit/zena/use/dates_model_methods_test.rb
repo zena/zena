@@ -1,6 +1,6 @@
 require 'test_helper'
 
-class DatesStringMethodsTest < Zena::Unit::TestCase
+class DatesModelMethodsTest < Zena::Unit::TestCase
   include Zena::Use::I18n::ViewMethods # _
   
   class Foo < ActiveRecord::Base
