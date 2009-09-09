@@ -4,11 +4,11 @@ require 'zena/use/nested_attributes_alias'
 class NestedAttributesAliasTest < Test::Unit::TestCase
   class Foo
     include Zena::Use::NestedAttributesAlias
-    nested_attributes_alias :prefix => 'v_',   :for => 'version'
-    nested_attributes_alias :prefix => 'c_',   :for => 'version.content'
-    nested_attributes_alias :suffix => '*log', :proc => Proc.new {|m, v| self.log_info(m, v)}
-    nested_attributes_alias :regexp => /^d_(.+)$/,  :proc   => Proc.new {|m, v| self.dynamic_attribute_alias(m, v) }
-    nested_attributes_alias :regexp => /^(.+)_(id|status|comment)$/, :proc   => Proc.new {|m, v| self.relation_alias(m, v) }
+    nested_attributes_alias /^v_(.+)/      => 'version'
+    nested_attributes_alias /^c_(.+)/      => 'version.content'
+    nested_attributes_alias /^(.+)\*log$/  => Proc.new {|m, v| self.log_info(m, v)}
+    nested_attributes_alias /^d_(.+)$/     => Proc.new {|m, v| self.dynamic_attribute_alias(m, v) }
+    nested_attributes_alias /^(.+)_(id|status|comment)$/ => Proc.new {|m, v| self.relation_alias(m, v) }
     
     def self.dynamic_attribute_alias(match, value)
       {'version_attributes' => {'dyn' => {match[1] => value}}}

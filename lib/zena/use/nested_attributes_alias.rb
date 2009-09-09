@@ -1,21 +1,25 @@
 module Zena
   module Use
+=begin
+
+Example:
+
+class Foo < ActiveRecord::Base
+  include Zena::Use::NestedAttributesAlias
+  has_one :redaction
+  nested_attributes_alias /^r_(.+)/ => 'redaction'
+end
+
+=end
     module NestedAttributesAliasClassMethods
-      def nested_attributes_alias(definition, &block)
-        definition[:accessor] = block
-        if definition[:prefix]
-          definition[:regexp] = /^#{definition[:prefix].gsub('*', '\\*')}(.+)$/
-        elsif definition[:suffix]
-          definition[:regexp] = /^(.+)#{definition[:suffix].gsub('*', '\\*')}$/
+      def nested_attributes_alias(definitions)
+        definitions.each do |regexp, target|
+          definition = {}
+          if target.kind_of?(String)
+            target = target.split(".").map {|group| "#{group}_attributes"}
+          end
+          self.nested_attributes_alias_filters << [regexp, target]
         end
-        
-        if definition[:for]
-          definition[:for] = definition[:for].split(".").map {|group| "#{group}_attributes"}
-        end
-        
-        raise ArgumentError.new("Missing :regexp or :prefix key for nested_attributes_alias.") unless definition[:regexp]
-        
-        self.nested_attributes_alias_filters << definition
       end
       
       def resolve_attributes_alias(attributes)
@@ -23,11 +27,10 @@ module Zena
         filters = self.nested_attributes_alias_filters
         attributes.each do |k, v|
           matched = false
-          filters.each do |f|
-            regexp = f[:regexp]
+          filters.each do |regexp, target|
             if k.to_s =~ regexp
-              if proc = f[:proc]
-                if hash = proc.call($~.to_a, v)
+              if target.kind_of?(Proc)
+                if hash = target.call($~.to_a, v)
                   matched = true
                   deep_merge_hash(new_attributes, hash)
                   break
@@ -35,7 +38,7 @@ module Zena
               else
                 matched = true
                 new_key = $1
-                merge_groups_in_hash(new_attributes, f[:for])[new_key] = v
+                merge_groups_in_hash(new_attributes, target)[new_key] = v
                 break
               end
             end
