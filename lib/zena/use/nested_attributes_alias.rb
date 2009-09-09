@@ -12,19 +12,44 @@ end
 
 =end
     module NestedAttributesAliasClassMethods
+      @@_nested_attr_alias      ||= {} # defined for each class
+      @@_nested_attr_alias_list ||= {} # full list with inherited attributes
+
+      # Return the list of all ordered routes, including routes defined in the superclass
+      def nested_attr_alias_list
+        @@_nested_attr_alias_list[self] ||= if superclass.respond_to?(:nested_attributes_alias)
+          # merge with superclass attributes
+          list = superclass.nested_attr_alias_list.dup
+          (@@_nested_attr_alias[self] || []).each do |regex, method|
+            list.reject! do |k, v|
+              # allow new rule to overwrite parent rule
+              k == regex
+            end
+            list << [regex, method]
+          end
+          list
+        else
+          # top class, nothing to inherit
+          @@_nested_attr_alias[self] || []
+        end
+      end
+      
       def nested_attributes_alias(definitions)
+        list = (@@_nested_attr_alias[self] ||= [])
         definitions.each do |regexp, target|
-          definition = {}
+          # allow new rule to overwrite rule previously defined
+          list.reject! {|k, v| k == regexp}
+          
           if target.kind_of?(String)
             target = target.split(".").map {|group| "#{group}_attributes"}
           end
-          self.nested_attributes_alias_filters << [regexp, target]
+          list << [regexp, target]
         end
       end
       
       def resolve_attributes_alias(attributes)
         new_attributes = {}
-        filters = self.nested_attributes_alias_filters
+        filters = self.nested_attr_alias_list
         attributes.each do |k, v|
           matched = false
           filters.each do |regexp, target|

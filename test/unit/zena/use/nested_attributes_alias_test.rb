@@ -4,11 +4,11 @@ require 'zena/use/nested_attributes_alias'
 class NestedAttributesAliasTest < Test::Unit::TestCase
   class Foo
     include Zena::Use::NestedAttributesAlias
-    nested_attributes_alias /^v_(.+)/      => 'version'
-    nested_attributes_alias /^c_(.+)/      => 'version.content'
-    nested_attributes_alias /^(.+)\*log$/  => Proc.new {|m, v| self.log_info(m, v)}
-    nested_attributes_alias /^d_(.+)$/     => Proc.new {|m, v| self.dynamic_attribute_alias(m, v) }
-    nested_attributes_alias /^(.+)_(id|status|comment)$/ => Proc.new {|m, v| self.relation_alias(m, v) }
+    nested_attributes_alias %r{^v_(.+)}      => 'version'
+    nested_attributes_alias %r{^c_(.+)}      => 'version.content'
+    nested_attributes_alias %r{^(.+)\*log$}  => Proc.new {|m, v| self.log_info(m, v)}
+    nested_attributes_alias %r{^d_(.+)$}     => Proc.new {|m, v| self.dynamic_attribute_alias(m, v) }
+    nested_attributes_alias %r{^(.+)_(id|status|comment)$} => Proc.new {|m, v| self.relation_alias(m, v) }
     
     def self.dynamic_attribute_alias(match, value)
       {'version_attributes' => {'dyn' => {match[1] => value}}}
@@ -32,6 +32,10 @@ class NestedAttributesAliasTest < Test::Unit::TestCase
     end
     
     def self.log; @@log; end
+  end
+  
+  class SubFoo < Foo
+    nested_attributes_alias %r{na(.+)} => 'na'
   end
   
   
@@ -71,5 +75,12 @@ class NestedAttributesAliasTest < Test::Unit::TestCase
       'version_attributes' => {'content_attributes' => {'width' => 45}, 'title' => 'yellow', 'text' => 'home'}},
                 Foo.resolve_attributes_alias('v_title' => 'yellow', 'name' => 'banana', 'c_width' => 45,
                 'version_attributes' => {'text' => 'home'}, 'new*log' => 'bazar'))
+  end
+  
+  def test_subclass_should_inherit_properly
+    assert_equal({'name' => 'Joe'},
+                Foo.resolve_attributes_alias('name' => 'Joe'))
+    assert_equal({'na_attributes' => {'me' => 'Joe'}, 'version_attributes' => {'title' => 'Plumber'}},
+                SubFoo.resolve_attributes_alias('name' => 'Joe', 'v_title' => 'Plumber'))
   end
 end
