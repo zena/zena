@@ -51,6 +51,8 @@ The visited_nodes list is [Node_index.html, Project.html, layout.html, notes.htm
 Whenever any of the nodes listed above changes, 'Node_index.html' rendered folder is destroyed.
 =end
 class CachedPage < ActiveRecord::Base
+  
+  attr_protected :site_id
   cattr_accessor :perform_caching
   attr_accessor  :content_data, :content_path, :expire_with_ids
   validate       :cached_page_valid

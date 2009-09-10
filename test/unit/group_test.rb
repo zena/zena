@@ -54,10 +54,18 @@ class GroupTest < Zena::Unit::TestCase
     assert grp.destroy, "Can destroy group"
   end
   
-  def test_cannot_set_site_id
+  def test_cannot_set_site_id_with_new_records
+    login(:tiger)
+    grp = Group.new(:site_id => 1234)
+    assert_nil grp.site_id
+  end
+  
+  def test_cannot_set_site_id_with_old_records
     login(:tiger)
     grp = groups(:workers)
-    assert_raise(Zena::AccessViolation) { grp.site_id = sites_id(:ocean) }
+    original_site_id = grp.site_id
+    grp.update_attributes(:site_id => sites_id(:ocean))
+    assert_equal original_site_id, grp.site_id
   end
   
   def test_add_to_site

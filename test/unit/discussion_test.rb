@@ -17,10 +17,16 @@ class DiscussionTest < Zena::Unit::TestCase
     assert_equal comments_id(:tiger_reply_inside), allcomm[3][:id]
   end
   
+  def test_cannot_set_site_id_for_new_record
+    disc = Discussion.new(:site_id=>1234)
+    assert_nil disc.site_id
+  end
+  
   def test_cannot_set_site_id
-    login(:tiger)
     disc = discussions(:inside_discussion_on_status)
-    assert_raise(Zena::AccessViolation) { disc.site_id = sites_id(:ocean) }
+    original_site_id = disc.site_id
+    disc.update_attributes(:site_id =>1234)
+    assert_equal original_site_id, disc.site_id
   end
   
   def test_site_id

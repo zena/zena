@@ -16,11 +16,18 @@ class CommentTest < Zena::Unit::TestCase
   end
   
   def test_cannot_set_site_id_for_new_record
-    assert_raise(Zena::AccessViolation) { Comment.new.site_id=1234 }
+    comment = Comment.new(:site_id=>1234)
+    assert_nil comment.site_id
   end
 
   def test_cannot_set_site_id_for_old_record
-    assert_raise(Zena::AccessViolation) { Comment.first.site_id = 1234 }
+    comment = comments(:lion_says_inside)
+    original_site_id = comment.site_id
+    comment.update_attributes(:site_id => 1234)
+    assert_equal original_site_id, comment.site_id
+  end
+    
+  def test_site_id_allocation
     comment = secure!(Comment) { Comment.create( :user_id=>users_id(:tiger), :title=>'boo', :text=>'blah', :discussion_id => discussions_id(:outside_discussion_on_status_en), :author_name=>'joe', :site_id => 2 ) }
     assert !comment.new_record?, "Not a new record"
     assert_equal sites_id(:zena), comment[:site_id]

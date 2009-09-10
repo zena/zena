@@ -33,8 +33,10 @@ class RelationTest < Zena::Unit::TestCase
   
   def test_set_site_id
     login(:lion) # admin
-    relation = Relation.find(:first)
-    assert_raise(Zena::AccessViolation) { relation.site_id = sites_id(:ocean) }
+    relation = relations(:node_has_tags)
+    original_site_id = relation.site_id
+    relation.update_attributes(:site_id => 1234)
+    assert_equal original_site_id, relation.site_id
   end
   
   def test_can_update

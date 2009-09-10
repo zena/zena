@@ -7,7 +7,8 @@ automatically created only if there already exists an +outside+ and +open+ discu
 language and if the current visitor is a commentator (User.commentator?). 
 =end
 class Discussion < ActiveRecord::Base
-
+  
+  attr_protected :site_id
   has_many :all_comments, :class_name=>'Comment', :foreign_key=>'discussion_id', :order=>'created_at ASC', :dependent=>:delete_all
   belongs_to :node
   before_validation :discussion_before_validation

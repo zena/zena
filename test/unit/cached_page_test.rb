@@ -117,21 +117,21 @@ class CachedPageTest < Zena::Unit::TestCase
       with_caching do
         login(:anon)
         secure!(Node) { nodes(:people) }
-        assert_raise(Zena::AccessViolation) do
-          cache = secure!(CachedPage) { CachedPage.create(
-            :path         => (visitor.site.public_path + "/some/place.html"),
-            :expire_after => nil,
-            :content_data => "this is the cached content",
-            :site_id      => sites_id(:ocean))}
+        cache = secure!(CachedPage) { CachedPage.new(
+          :path         => (visitor.site.public_path + "/some/place.html"),
+          :expire_after => nil,
+          :content_data => "this is the cached content",
+          :site_id      => sites_id(:ocean))}
+        
+        assert_nil cache.site_id
 
-        end
         cache = secure!(CachedPage) { CachedPage.create(
           :path         => (visitor.site.public_path + "/some/place.html"),
           :expire_after => nil,
           :content_data => "this is the cached content") }
 
         assert !cache.new_record?, "Not a new record"
-        assert_raise(Zena::AccessViolation) { cache.site_id = sites_id(:ocean) }
+        cache.update_attributes(:site_id => 1234 )
         assert_equal sites_id(:zena), cache[:site_id]
       end
     end

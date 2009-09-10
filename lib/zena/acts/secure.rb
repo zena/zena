@@ -676,9 +676,9 @@ Just doing the above will filter all result according to the logged in user.
     module Secure
       
       # protect access to site_id : should not be changed by users
-      def site_id=(i)
-        raise Zena::AccessViolation, "#{self.class.to_s} '#{self.id}': tried to change 'site_id' to '#{i}'."
-      end
+      # def site_id=(i)
+      #   raise Zena::AccessViolation, "#{self.class.to_s} '#{self.id}': tried to change 'site_id' to '#{i}'."
+      # end
 
       # Set current visitor
       def visitor=(visitor)

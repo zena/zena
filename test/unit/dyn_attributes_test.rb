@@ -43,6 +43,7 @@ class DynAttributesTest < Test::Unit::TestCase
   def test_many_pseudo_methods
     assert DynDummy.create(:title => 'lolipop', :text=>'', :comment=>'', :summary=>'', :d_color=>'blue', :d_life=>'fun', :d_shoes=>'worn')
     record = DynDummy.find_by_title('lolipop')
+    puts record.dyn
     assert_equal 'worn', record.d_shoes
     assert_equal 'worn', record.dyn['shoes']
     assert_equal 'blue', record.d_color

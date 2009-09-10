@@ -37,8 +37,10 @@ class DocumentContentTest < Zena::Unit::TestCase
       content = doc.v_content
       assert_kind_of DocumentContent, content
       assert_equal sites_id(:zena), content.site_id
-      assert_raise(Zena::AccessViolation) { doc.c_site_id   = sites_id(:ocean) }
-      assert_raise(Zena::AccessViolation) { content.site_id = sites_id(:ocean) }
+      doc.update_attributes(:site_id   => sites_id(:ocean) )
+      content.update_attributes(:site_id => sites_id(:ocean))
+      assert_equal sites_id(:zena), doc.site_id
+      assert_equal sites_id(:zena), content.site_id
     end
   end
   

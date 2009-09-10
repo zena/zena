@@ -1,4 +1,6 @@
 class Cache < ActiveRecord::Base
+  
+  attr_protected :site_id
   cattr_accessor :perform_caching
   before_save    :set_site_id
   

@@ -134,6 +134,7 @@ class Node < ActiveRecord::Base
                      :wgroup_id, :pgroup_id, :basepath, :custom_base, :klass, :zip, :score, :comments_count,
                      :custom_a, :custom_b, :title, :text,
                      :m_text, :m_title, :m_author   
+  attr_protected     :site_id
   zafu_context       :author => "Contact", :parent => "Node", 
                      :project => "Project", :section => "Section", 
                      :real_project => "Project", :real_section => "Section",

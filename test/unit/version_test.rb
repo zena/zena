@@ -13,46 +13,62 @@ class VersionTest < Zena::Unit::TestCase
   
   def test_cannot_set_node_id
     login(:tiger)
-    node = secure!(Node) { nodes(:status) }
-    assert_raise(Zena::AccessViolation) { node.v_node_id = nodes_id(:lake) }
+    node = Node.new(:v_node_id => 1234)
+    assert_nil node.v_node_id
   end
   
-  def test_cannot_set_site_id
+  def test_cannot_set_node_id_with_attributes
     login(:tiger)
     node = secure!(Node) { nodes(:status) }
-    assert_raise(Zena::AccessViolation) { node.v_site_id = sites_id(:ocean) }
+    original_node_id = node.v_node_id
+    node.update_attributes(:v_node_id => nodes_id(:lake) )
   end
   
-  def test_cannot_set_node_id_by_attribute
+  def test_cannot_set_site_id_with_new_record
+    login(:tiger)
+    node = Node.new(:site_id => 1234)
+    assert_nil node.site_id
+  end
+  
+  def test_cannot_set_site_id_with_old_record
     login(:tiger)
     node = secure!(Node) { nodes(:status) }
-    assert_raise(Zena::AccessViolation) { node.update_attributes(:v_node_id=>nodes_id(:lake)) }
+    original_site_id = node.site_id
+    node.update_attributes(:v_site_id => 1234)
+    assert_equal original_site_id, node.site_id
   end
   
   def test_cannot_set_site_id_by_attribute
     login(:tiger)
     node = secure!(Node) { nodes(:status) }
-    assert_raise(Zena::AccessViolation) { node.update_attributes(:v_site_id=>sites_id(:ocean)) }
+    original_site_id = node.site_id
+    node.update_attributes(:v_site_id=>sites_id(:ocean))
+    assert_equal original_site_id, node.site_id
   end
   
   def test_cannot_set_node_id_on_create
-    assert_raise(Zena::AccessViolation) { Node.create(:v_node_id=>nodes_id(:lake)) }
+    login(:tiger)
+    node = Node.create(:v_node_id=>nodes_id(:lake))
+    assert_nil node.v_node_id
   end
   
   def test_cannot_set_content_id
     login(:tiger)
-    node = secure!(Node) { nodes(:status) }
-    assert_raise(Zena::AccessViolation) { node.v_content_id = nodes_id(:lake) }
+    node = Node.new(:v_content_id => nodes_id(:lake))
+    assert_nil node.v_conent_id
   end
   
   def test_cannot_set_content_id_by_attribute
     login(:tiger)
     node = secure!(Node) { nodes(:status) }
-    assert_raise(Zena::AccessViolation) { node.update_attributes(:v_content_id=>nodes_id(:lake)) }
+    node.update_attributes(:v_content_id=>nodes_id(:lake))
+    assert_nil node.v_content_id
   end
   
   def test_cannot_set_content_id_on_create
-    assert_raise(Zena::AccessViolation) { Node.create(:v_content_id=>nodes_id(:lake)) }
+    login(:tiger)
+    node = Node.create(:v_content_id=>nodes_id(:lake))
+    assert_nil node.v_content_id
   end
   
   def test_new_site_id_set

@@ -11,7 +11,16 @@ class DataEntryTest < Zena::Unit::TestCase
   
   def test_other_site_id_fool_id
     login(:whale)
-    assert_raise(Zena::AccessViolation) { ent = DataEntry.create(:node_a_id => nodes_id(:ocean), :site_id=>sites_id(:zena)) }
+    ent = DataEntry.new(:node_a_id => nodes_id(:ocean), :site_id=>sites_id(:zena))
+    assert_nil ent.site_id
+  end
+  
+  def test_site_id_with_old_object
+    login(:tiger)
+    ent = data_entries(:comment)
+    original_site_id = ent.site_id
+    ent.site_id = 1234
+    assert original_site_id, ent.site_id
   end
   
   def test_no_nodes

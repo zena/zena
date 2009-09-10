@@ -14,6 +14,7 @@ A visitor can edit a data entry if he/she has write access to the reference node
 =end
 class DataEntry < ActiveRecord::Base
   attr_public  :created_at, :updated_at, :date, :text, :value, :value_a, :value_b, :node_a_zip, :node_b_zip, :node_c_zip, :node_d_zip
+  attr_protected :site_id
   zafu_context  :node_a => "Node", :node_b => "Node", :node_c => "Node", :node_d => "Node", :nodes => ["Node"], :author => "Contact", :user => "User"
   NodeLinkSymbols   = [:node_a,    :node_b,    :node_c,    :node_d]
   NodeLinkSymbolsId = [:node_a_id, :node_b_id, :node_c_id, :node_d_id]

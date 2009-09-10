@@ -769,7 +769,9 @@ class NodeTest < Zena::Unit::TestCase
   def test_cannot_set_site_id
     login(:tiger)
     node = secure!(Node) { nodes(:status) }
-    assert_raise(Zena::AccessViolation) { node.site_id = sites_id(:ocean) }
+    original_site_id = node.site_id
+    node.update_attributes(:site_id => 1234 )
+    assert_equal original_site_id, node.site_id
   end
   
   def test_zip

@@ -2,10 +2,18 @@ require 'test_helper'
 
 class ContactContentTest < Zena::Unit::TestCase
   
-  def test_cannot_set_site_id
+  def test_cannot_set_site_id_with_new_record
+    login(:tiger)
+    cont = ContactContent.new(:site_id => 1234)
+    assert_nil cont.site_id
+  end
+  
+  def test_cannot_set_site_id_with_old_record
     login(:tiger)
     cont = contact_contents(:tiger)
-    assert_raise(Zena::AccessViolation) { cont.site_id = sites_id(:ocean) }
+    original_site_id = cont.site_id
+    cont.update_attributes(:site_id => 1234)
+    assert_equal original_site_id, cont.site_id
   end
   
   def test_site_id
