@@ -8,6 +8,7 @@ rescue LoadError
     require 'rmagick'
   rescue LoadError
     puts "ImageMagick not found. Using dummy."
+    require 'ftools'
     # Create a dummy magick module
     module Magick
       CenterGravity = OverCompositeOp = MaxRGB = NorthGravity = SouthGravity = nil
@@ -45,12 +46,12 @@ class ImageBuilder
   }.freeze
 
   # 'sepia'=>   { :size=>:limit, :width=>280, :ratio=>2/3.0, :post=>Proc.new {|img| img.sepiatone(Magick::MaxRGB * 0.8)}},
-  
+
   class << self
     def image_content_type?(content_type)
       content_type =~ /image/
     end
-    
+
     def dummy?
       Magick.const_defined?(:ZenaDummy)
     end
@@ -58,7 +59,7 @@ class ImageBuilder
 
   def initialize(h)
     params = {:height=>nil, :width=>nil, :path=>nil, :file=>nil, :actions=>[]}.merge(h)
-    
+
     params.each do |k,v|
       case k
       when :height
@@ -95,7 +96,7 @@ class ImageBuilder
       end
     end
   end
-  
+
   def dummy?
     ImageBuilder.dummy? || (!@path && !@img && !@file)
   end
@@ -116,7 +117,7 @@ class ImageBuilder
     return nil unless @height || !dummy?
     (@height ||= render_img.rows).round
   end
-  
+
   def columns
     return nil unless @width || !dummy?
     (@width ||= render_img.columns).round
@@ -133,40 +134,40 @@ class ImageBuilder
     @height *= s
     @actions << Proc.new {|img| img.resize!(s) }
   end
-  
+
   def crop!(x,y,w,h)
     @img = nil # reset current rendered image
     @width  = [@width -x, w].min
     @height = [@height-y, h].min
     @actions << Proc.new {|img| img.crop!(x,y,[@img.columns-x, w].min,[@img.rows-y, h].min, true) }
   end
-  
+
   def format=(fmt)
     return unless !dummy? && Magick.formats[fmt.upcase] =~ /w/
     @actions << Proc.new {|img| img.format = fmt.upcase; img }
   end
-  
+
   def format
     render_img.format
   end
-  
+
   def exif
     @exif ||= ExifData.new(render_img.get_exif_by_entry)
   end
-  
+
   def max_filesize=(size)
     @actions << Proc.new {|img| do_limit!(size) }
   end
-  
+
   def do_limit!(size)
     return @img if @img.filesize <= size
-    
+
     # Check real size
     tmp_path = Tempfile.new('tmp_img').path
     @img.write('jpeg:' + tmp_path)
-    
+
     return @img if File.stat(tmp_path).size <= size
-    
+
     # Change type to JPG and quality to 80
     if (@img.format == 'JPG' || @img.format == 'JPEG') && @img.quality > 80
       @img.write('jpeg:' + tmp_path) { self.quality = 80 }
@@ -176,7 +177,7 @@ class ImageBuilder
     end
     ratio = File.stat(tmp_path).size.to_f / size
     return @img = Magick::ImageList.new(tmp_path) if ratio <= 1.0
-    
+
     # Not enough ? Resize.
     ratio   = 1.0 / Math.sqrt(ratio)
     @width  *= ratio
@@ -184,7 +185,7 @@ class ImageBuilder
     @img.resize!(ratio)
     @img
   end
-  
+
   def crop_min!(w,h,gravity=Magick::CenterGravity)
     @img = nil # reset current rendered image
     @width  = [@width ,w].min
