@@ -399,7 +399,7 @@ javascripts:
 
 stylesheets:
   src: "<r:stylesheets list='zena,code,search'/>"
-  tem: "/link href.*/stylesheets/zena.css.*text/css.*code.css.*text/css.*search.css.*Stylesheet/"
+  tem: "/link href.*/stylesheets/zena.css.*text/css.*code.css.*text/css.*search.css.*stylesheet/"
 
 lang_links:
   src: "<div id='lang' do='lang_links'><a>en</a> | <b>fr</b></div>"
