@@ -4,8 +4,8 @@ module Zena
   module Use
     module Rendering
       module ControllerMethods
-        
-        
+
+
         # TODO: test
         # Our own handling of exceptions
         def rescue_action_in_public(exception)
@@ -61,7 +61,7 @@ module Zena
         #       msg =<<-END_MSG
         # Something bad happened to your zena installation:
         # --------------------------
-        # #{exception.message} 
+        # #{exception.message}
         # --------------------------
         # #{exception.backtrace.join("\n")}
         # END_MSG
@@ -71,7 +71,7 @@ module Zena
             format.all  { render :nothing => true, :status => "500 Error" }
           end
         end
-        
+
         def render_and_cache(options={})
           opts = {:skin=>@node[:skin], :cache=>true}.merge(options)
           opts[:mode  ] ||= params[:mode]
@@ -133,7 +133,7 @@ module Zena
                       "\\includegraphics#{img_opts}{#{img_path}}"
                     else
                       "(image '#{img_id}' not found)"
-                    end 
+                    end
                   end
 
                   tempf = Tempfile.new("#{@node[:id]}_#{@node.version.lang}")
@@ -236,8 +236,8 @@ module Zena
         def popup_layout
           template_url(:mode=>'+popupLayout')
         end
-        
-      end # ControllerMethods     
+
+      end # ControllerMethods
     end # Rendering
   end # Use
 end # Zena
