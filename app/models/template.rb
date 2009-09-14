@@ -29,17 +29,19 @@ class Template < TextDocument
   
   def filter_attributes(attributes)
     content    = version.content
-    new_name   = attributes['name'] || (new_record? ? attributes['v_title'] : nil) # only set name from version title on creation
+    version_attributes = attributes['version_attributes'] ||= {}
+    new_name   = attributes['name'] || (new_record? ? (attributes['version_attributes'] || {})['title'] : nil) # only set name from version title on creation
+    content_attributes = version_attributes ||= {}
     if new_name =~ /^([A-Z][a-zA-Z]+?)(-(([a-zA-Z_\+]*)(-([a-zA-Z_]+)|))|)(\.|\Z)/
-      attributes['c_klass' ] ||= $1
-      attributes['c_mode'  ] ||= $4
-      attributes['c_format'] ||= ($6 || 'html')
-    elsif new_name && !attributes['c_klass']
+      content_attributes['klass' ] ||= $1
+      content_attributes['mode'  ] ||= $4
+      content_attributes['format'] ||= ($6 || 'html')
+    elsif new_name && !content_attributes['klass']
       # name set but it is not a master template name
-      attributes['c_klass']  = nil
+      content_attributes['klass'] = nil
     elsif !new_name
       # force node update with new name
-      attributes['name'] = name_from_content(:format => attributes['c_format'], :mode => attributes['c_mode'], :klass => attributes['c_klass']) if content[:klass] && !new_record?
+      attributes['name'] = name_from_content(:format => content_attributes['format'], :mode => content_attributes['mode'], :klass => content_attributes['klass']) if content[:klass] && !new_record?
     end
     super(attributes)
   end

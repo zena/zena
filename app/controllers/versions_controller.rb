@@ -100,7 +100,6 @@ class VersionsController < ApplicationController
         @value = "<span style='background:#f66;padding:10px; border:1px solid red; color:black;font-size:10pt;font-weight:normal;'>#{_('you do not have write access here')}#{visitor.is_anon? ? " (<a style='color:#00a;text-decoration:underline;' href='/login'>#{_('please login')}</a>)" : ""}</span>"
       end
     else
-      # TODO: ====== version preview ====== (replace v_title / v_summary / v_text) ?
       # elsif @node.kind_of?(Image)
       #   # view image version
       #   # TODO: how to show the image data of a version ? 'nodes/3/versions/4.jpg' ?

@@ -1,34 +1,41 @@
-require 'test/unit'
-require 'zena/use/nested_attributes_alias'
+require 'test_helper'
 
-class NestedAttributesAliasTest < Test::Unit::TestCase
+class NestedAttributesAliasModelTest < Test::Unit::TestCase
   class Foo
-    include Zena::Use::NestedAttributesAlias
-    nested_attributes_alias %r{^v_(.+)}      => 'version'
-    nested_attributes_alias %r{^c_(.+)}      => 'version.content'
-    nested_attributes_alias %r{^(.+)\*log$}  => Proc.new {|m, v| self.log_info(m, v)}
-    nested_attributes_alias %r{^d_(.+)$}     => Proc.new {|m, v| self.dynamic_attribute_alias(m, v) }
-    nested_attributes_alias %r{^(.+)_(id|status|comment)$} => Proc.new {|m, v| self.relation_alias(m, v) }
-    
-    def self.dynamic_attribute_alias(match, value)
-      {'version_attributes' => {'dyn' => {match[1] => value}}}
+    # mock since testing outside rails
+    def self.alias_method_chain(target, feature)
+      aliased_target, punctuation = target.to_s.sub(/([?!=])$/, ''), $1
+
+      with_method, without_method = "#{aliased_target}_with_#{feature}#{punctuation}", "#{aliased_target}_without_#{feature}#{punctuation}"
+
+      alias_method without_method, target
+      alias_method target, with_method
+    end
+    def attributes=(foo)
     end
     
-    def self.relation_alias(match, value)
+    include Zena::Use::NestedAttributesAlias::ModelMethods
+    nested_attributes_alias %r{^v_(.+)}      => 'version'
+    nested_attributes_alias %r{^c_(.+)}      => ['version','content']
+    nested_attributes_alias %r{^(.+)\*log$}  => Proc.new {|m| self.log_info(m)}
+    nested_attributes_alias %r{^d_(.+)$}     => ['version','dyn']
+    nested_attributes_alias %r{^(.+)_(id|status|comment)$} => Proc.new {|m| self.relation_alias(m) }
+    
+    def self.relation_alias(match)
       if ['friend', 'dog'].include?(match[1])
         if match[2] == 'id'
-          {'link' => {match[1] => {'other_id' => value}}}
+          ['link', match[1], 'other_id']
         else
-          {'link' => {match[1] => {match[2] => value}}}
+          ['link', match[1], match[2]]
         end
       else
         nil
       end
     end
     
-    def self.log_info(match, value)
-      @@log = "#{match[1]} => #{value}"
-      {}
+    def self.log_info(match)
+      @@log = match[1]
+      [] # match but do nothing
     end
     
     def self.log; @@log; end
@@ -50,12 +57,12 @@ class NestedAttributesAliasTest < Test::Unit::TestCase
   end
   
   def test_should_be_able_to_parse_multiple_dynamic_attributes
-    assert_equal({'name'=>'banana', 'version_attributes' => {'dyn' => {'foo' => 32, 'bar' => 'bara'}}},
+    assert_equal({'name'=>'banana', 'version_attributes' => {'dyn_attributes' => {'foo' => 32, 'bar' => 'bara'}}},
                 Foo.resolve_attributes_alias('d_foo' => 32, 'name' => 'banana', 'd_bar' => 'bara'))
   end
   
   def test_should_execute_proc_to_match_alias
-    assert_equal({'name'=>'banana', 'link' => {'friend' => {'other_id' => 32}}},
+    assert_equal({'name'=>'banana', 'link_attributes' => {'friend_attributes' => {'other_id' => 32}}},
                 Foo.resolve_attributes_alias('friend_id' => 32, 'name' => 'banana'))
   end
   
@@ -67,7 +74,6 @@ class NestedAttributesAliasTest < Test::Unit::TestCase
   def test_produce_empty_string
     assert_equal({},
                 Foo.resolve_attributes_alias('super*log'=>'We should not forget Superman !'))
-    assert_equal 'super => We should not forget Superman !', Foo.log
   end
   
   def test_many_options

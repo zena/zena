@@ -15,8 +15,7 @@ module Zena
         login(:anon, 'zena')
       end
       
-      # Provided by Viget Labs (http://www.viget.com/extend/testing-for-html-tags-in-rails-plugins/)
-      def assert_tag_in(target, match)
+      def assert_css(match, target)
         target = Hpricot(target)
         assert !target.search(match).empty?, 
           "expected tag, but no tag found matching #{match.inspect} in:\n#{target.inspect}"

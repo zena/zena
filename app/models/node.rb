@@ -55,13 +55,7 @@ user_id                     summary               content_type
 
 To ease the work to set/retrieve the data from the version and or content, we use some special notation. This notation abstracts this Node/Version/Content structure so you can use a version's attribute as if it was in the node directly.
 
-Any attribute starting with +v_+ is sent to the node's version. For example, this is the recommended way to get the node's title :
-
- @node.v_title   # in a form: <%= text_field 'node', 'v_title' %>
-
-Any method starting with +c_+ is sent directly to the node's content. For example, this is the recommended way to get an image's width :
-
- @node.c_width   # in a form: <%= text_field 'node', 'c_width' %>
+TODO: DOC removed (was out of sync)
  
 === Dynamic attributes
 
@@ -127,30 +121,6 @@ and the 'photos' url is now in the worldTour project's basepath:
 Setting 'custom_base' on a node should be done with caution as the node's zip is on longer in the url and when you move the node around, there is no way to find the new location from the old url. Custom_base should therefore only be used for nodes that are not going to move.
 =end
 class Node < ActiveRecord::Base
-  include Zena::Use::RoutableAttributes
-  attr_accessor      :old_title
-  attr_public        :name, :created_at, :updated_at, :event_at, :log_at, :kpath, :user_zip, :parent_zip, :project_zip,
-                     :section_zip, :skin, :ref_lang, :fullpath, :rootpath, :position, :publish_from, :max_status, :rgroup_id, 
-                     :wgroup_id, :pgroup_id, :basepath, :custom_base, :klass, :zip, :score, :comments_count,
-                     :custom_a, :custom_b, :title, :text,
-                     :m_text, :m_title, :m_author
-  attr_protected     :site_id
-  
-  include Zena::Use::Dates::ModelMethods
-  parse_date_attribute :event_at, :log_at
-
-
-  zafu_context       :author => "Contact", :parent => "Node", 
-                     :project => "Project", :section => "Section", 
-                     :real_project => "Project", :real_section => "Section",
-                     :user => "User",
-                     :version => "Version", :comments => ["Comment"],
-                     :data   => {:node_class => ["DataEntry"], :data_root => 'node_a'},
-                     :data_a => {:node_class => ["DataEntry"], :data_root => 'node_a'},
-                     :data_b => {:node_class => ["DataEntry"], :data_root => 'node_b'},
-                     :data_c => {:node_class => ["DataEntry"], :data_root => 'node_c'},
-                     :data_d => {:node_class => ["DataEntry"], :data_root => 'node_d'}
-                     
   has_many           :discussions, :dependent => :destroy
   has_many           :links
   has_and_belongs_to_many :cached_pages
@@ -166,17 +136,39 @@ class Node < ActiveRecord::Base
   after_create       :node_after_create
   attr_protected     :site_id, :zip, :id, :section_id, :project_id, :publish_from, :max_status
   #attr_accessible    :version_content
+  attr_accessor      :old_title
+  attr_public        :name, :created_at, :updated_at, :event_at, :log_at, :kpath, :user_zip, :parent_zip, :project_zip,
+                     :section_zip, :skin, :ref_lang, :fullpath, :rootpath, :position, :publish_from, :max_status, :rgroup_id, 
+                     :wgroup_id, :pgroup_id, :basepath, :custom_base, :klass, :zip, :score, :comments_count,
+                     :custom_a, :custom_b,
+                     :m_text, :m_title, :m_author
+  attr_protected     :site_id
   
-  attr_route %r{^v_(\w+)} => 'version'
-  attr_route %r{^c_(\w+)} => 'version/content'
-  attr_route %r{^d_(\w+)} => 'version/dyn'
+  include Zena::Use::Dates::ModelMethods
+  parse_date_attribute :event_at, :log_at
+
+  include Zena::Use::NestedAttributesAlias::ModelMethods
+  nested_attributes_alias %r{^v_(\w+)} => 'version'
+  nested_attributes_alias %r{^c_(\w+)} => 'version.content'
+  nested_attributes_alias %r{^d_(\w+)} => 'version.dyn'
+  
+  zafu_context       :author => "Contact", :parent => "Node", 
+                     :project => "Project", :section => "Section", 
+                     :real_project => "Project", :real_section => "Section",
+                     :user => "User",
+                     :version => "Version", :comments => ["Comment"],
+                     :data   => {:node_class => ["DataEntry"], :data_root => 'node_a'},
+                     :data_a => {:node_class => ["DataEntry"], :data_root => 'node_a'},
+                     :data_b => {:node_class => ["DataEntry"], :data_root => 'node_b'},
+                     :data_c => {:node_class => ["DataEntry"], :data_root => 'node_c'},
+                     :data_d => {:node_class => ["DataEntry"], :data_root => 'node_d'}
+
   
   acts_as_secure_node
   acts_as_multiversioned
   
   use_node_query
   use_relations
-  
   
   @@native_node_classes = {'N' => self}
   @@unhandled_children  = []
@@ -1055,26 +1047,6 @@ class Node < ActiveRecord::Base
     user.contact
   end
   
-  def title
-    version.title
-  end
-  
-  alias v_title title
-  
-  def text
-    version.text
-  end
-  
-  alias v_text text
-
-  def title=(t)
-    redaction.title = t
-  end
-  
-  def text=(t)
-    redaction.text = t
-  end
-  
   # Find icon through a relation named 'icon' or use first image child
   def icon
     return nil if new_record?
@@ -1241,6 +1213,9 @@ class Node < ActiveRecord::Base
                              self[:id], false, true ])
   end
   
+  # FIXME: use nested_attributes_alias and try to use native Rails to create the comment
+  # comment_attributes=, ...
+  
   def m_text=(str)
     @add_comment ||= {}
     @add_comment[:text] = str
@@ -1335,9 +1310,10 @@ class Node < ActiveRecord::Base
   def export_to_folder(path)
     children = secure(Node) { Node.find(:all, :conditions=>['parent_id = ?', self[:id] ]) }
     
-    if kind_of?(Document) && v_title == name && (kind_of?(TextDocument) || v_text.blank? || v_text == "!#{zip}!")
+    if kind_of?(Document) && version.title == name && (kind_of?(TextDocument) || version.text.blank? || version.text == "!#{zip}!")
       # skip zml
-    elsif v_title == name && v_text.blank? && klass == 'Page' && children
+      # TODO: this should better check that version content is really useless
+    elsif version.title == name && version.text.blank? && klass == 'Page' && children
       # skip zml
     else
       File.open(File.join(path, name + '.zml'), 'wb') do |f|
@@ -1346,7 +1322,7 @@ class Node < ActiveRecord::Base
     end
     
     if kind_of?(Document)
-      data = kind_of?(TextDocument) ? StringIO.new(v_text) : c_file
+      data = kind_of?(TextDocument) ? StringIO.new(version.text) : version.content.file
       File.open(File.join(path, filename), 'wb') { |f| f.syswrite(data.read) }
     end
     
@@ -1362,11 +1338,11 @@ class Node < ActiveRecord::Base
   # export node as a hash
   def to_yaml
     hash = {}
-    export_keys[:zazen].each do |k|
-      hash[k] = unparse_assets(self.send(k), self, k)
+    export_keys[:zazen].merge(version.export_keys[:zazen]).each do |k, v|
+      hash[k] = unparse_assets(v, self, k)
     end
     
-    export_keys[:dates].each do |k|
+    export_keys[:dates].merge(version.export_keys[:dates]).each do |k|
       hash[k] = visitor.tz.utc_to_local(self.send(k)).strftime("%Y-%m-%d %H:%M:%S")
     end
     
@@ -1377,14 +1353,14 @@ class Node < ActiveRecord::Base
   # List of attribute keys to export in a zml file.
   def export_keys
     {
-      :zazen => (['v_title', 'v_text'] + version.dyn.keys.map{|k| "d_#{k}"}),
+      :zazen => [],
       :dates => [],
     }
   end
   
   # List of attribute keys to transform (change references, etc).
   def parse_keys
-    export_keys[:zazen]
+    export_keys[:zazen].keys
   end
   
   # This is needed during 'unparse_assets' when the node is it's own helper
@@ -1625,7 +1601,7 @@ class Node < ActiveRecord::Base
       allOK
     end
     
-    # Try to keep node name in sync with published v_title in ref_lang. This is set after_publish.
+    # Try to keep node name in sync with published version title in ref_lang. This is set after_publish.
     def sync_name
       # FIXME: @old_title should be version.title_was ??
       return true if @old_title.nil? || version.lang != ref_lang || name == version.title.url_name || name_was != @old_title.url_name

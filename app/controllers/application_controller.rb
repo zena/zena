@@ -21,6 +21,7 @@ class ApplicationController < ActionController::Base
   helper  Zena::Use::ErrorRendering::ViewMethods
   helper  Zena::Use::HtmlTags::ViewMethods
   helper  Zena::Use::I18n::ViewMethods
+  helper  Zena::Use::NestedAttributesAlias::ViewMethods
   helper  Zena::Use::Refactor::ViewMethods
   helper  Zena::Use::Urls::ViewMethods
   helper  Zena::Use::Zafu::ViewMethods

@@ -157,6 +157,14 @@ class Version < ActiveRecord::Base
     v
   end
   
+  # List of attribute keys to export in a zml file.
+  def export_keys
+    {
+      :zazen => {'v_title' => title, 'v_text' => text}.merge(Hash[*version.dyn.map{|k,v| ["d_#{k}", v]}.flatten]),
+      :dates => [],
+    }
+  end
+  
   # Return true if the version would be edited by the attributes
   def would_edit?(new_attrs)
     new_attrs.each do |k,v|
