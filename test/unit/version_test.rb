@@ -55,7 +55,7 @@ class VersionTest < Zena::Unit::TestCase
   def test_cannot_set_content_id
     login(:tiger)
     node = Node.new(:v_content_id => nodes_id(:lake))
-    assert_nil node.version.conent_id
+    assert_nil node.version.content_id
   end
   
   def test_cannot_set_content_id_by_attribute
