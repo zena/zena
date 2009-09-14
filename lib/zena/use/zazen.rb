@@ -2,6 +2,9 @@ module Zena
   module Use
     module Zazen
       module ViewMethods
+
+        include Zena::Use::Grid::Common
+
         @@_asset_methods = {}
 
         # define an asset method ('key' => method_name).
@@ -58,7 +61,7 @@ module Zena
         def zazen_diff(text1, text2, opt={})
           HTMLDiff::diff(zazen(text1), zazen(text2))
         end
-        
+
         # Parse the text in the given context (used by zazen)
         def make_asset(opts)
           asset_tag = opts[:asset_tag]
@@ -69,7 +72,7 @@ module Zena
             "[#{asset_tag}]#{opts[:content]}[/#{asset_tag}]"
           end
         end
-        
+
         # Creates a link to the node referenced by zip (used by zazen)
         def make_link(opts)
           # for latex refs, see http://www.tug.org/applications/hyperref/manual.html
@@ -208,13 +211,13 @@ module Zena
 
           if node.can_write?
             prefix << "<div class='table_add'>"
-            prefix << link_to_remote("<img src='/images/column_add.png' alt='#{_('add column')}'/>", 
+            prefix << link_to_remote("<img src='/images/column_add.png' alt='#{_('add column')}'/>",
                                       :url => "/nodes/#{node.zip}/table_update?add=column&attr=#{attribute}")
-            prefix << link_to_remote("<img src='/images/column_delete.png' alt='#{_('add column')}'/>", 
+            prefix << link_to_remote("<img src='/images/column_delete.png' alt='#{_('add column')}'/>",
                                       :url => "/nodes/#{node.zip}/table_update?remove=column&attr=#{attribute}")
-            prefix << link_to_remote("<img src='/images/row_add.png' alt='#{_('add column')}'/>", 
+            prefix << link_to_remote("<img src='/images/row_add.png' alt='#{_('add column')}'/>",
                                       :url => "/nodes/#{node.zip}/table_update?add=row&attr=#{attribute}")
-            prefix << link_to_remote("<img src='/images/row_delete.png' alt='#{_('add column')}'/>", 
+            prefix << link_to_remote("<img src='/images/row_delete.png' alt='#{_('add column')}'/>",
                                       :url => "/nodes/#{node.zip}/table_update?remove=row&attr=#{attribute}")
             prefix << "</div>"
           end
