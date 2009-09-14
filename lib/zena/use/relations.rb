@@ -1,29 +1,29 @@
 module Zena
   module Use
     module Relations
-      
-      # The ProxyLoader is used so that nested_attributes_alias resolution through node.send('link').send('friend') 
+
+      # The ProxyLoader is used so that nested_attributes_alias resolution through node.send('link').send('friend')
       # makes it to the 'friend' relation proxy.
       class ProxyLoader
         def initialize(node)
           @node = node
         end
-        
+
         def [](role)
           @node.relation_proxy(role.to_s)
         end
-        
+
         def send(role)
           @node.relation_proxy(role.to_s)
         end
       end
-      
+
       LINK_ATTRIBUTES = [:status, :comment, :date]
       LINK_REGEXP = /^([\w_]+)_(ids?|zips?|#{LINK_ATTRIBUTES.join('|')})$/
-      
-      
+
+
       module ClassMethods
-        
+
         # All relations related to the current class/virtual_class with its ancestors.
         def all_relations(start=nil)
           rel_as_source = RelationProxy.find(:all, :conditions => ["site_id = ? AND source_kpath IN (?)", current_site[:id], split_kpath])
@@ -32,27 +32,28 @@ module Zena
           rel_as_target.each {|rel| rel.target = start } if start
           (rel_as_source + rel_as_target).sort {|a,b| a.other_role <=> b.other_role}
         end
-        
+
         # Class path hierarchy. Example for (Post) : N, NN, NNP
         def split_kpath
           @split_kpath ||= begin
             klasses   = []
-            kpath.split(//).each_index { |i| klasses << kpath[0..i] } 
+            kpath.split(//).each_index { |i| klasses << kpath[0..i] }
             klasses
           end
         end
       end
-      
+
       module ModelMethods
         def self.included(base)
           base.extend Zena::Use::Relations::ClassMethods
           base.validate      :relations_valid
           base.after_save    :update_relations
           base.after_destroy :destroy_links
-          base.attr_public   :link
+          base.attr_public   :link  # TODO: why is this attr_public ?
           base.attr_public(*LINK_ATTRIBUTES.map {|k| "l_#{k}".to_sym})
           base.nested_attributes_alias LINK_REGEXP => Proc.new {|klass, m| klass.relation_alias(m) }
           base.class_eval <<-END
+            attr_accessor :link
             class << self
               include Zena::Use::Relations::ClassMethods
             end
@@ -64,25 +65,23 @@ module Zena
             HAS_RELATIONS = true
           END
         end
-        
+
         # Return an array of accessor methods for the matched nested attribute alias.
         def relation_alias(match)
           role     = match[1]
           field    = match[2]
 
           if relation = relation_proxy(role)
+            # We use 'links' so that we can keep the old @link accessor.
+            # FIXME: rename 'link' when we refactor the @link part.
             if field =~ /^ids?|zips?/
-              ['link', role, "other_#{field}"]
+              ['rel', role, "other_#{field}"]
             else
-              ['link', role, field]
+              ['rel', role, field]
             end
           else
             nil
           end
-        end
-        
-        def set_link(link)
-          @link = link
         end
 
         # Linked_node is a way to store a linked node during calendar display or ajax return
@@ -132,7 +131,7 @@ module Zena
                 rel.send("other_#{k}=",v)
               end
             end
-          end 
+          end
         end
 
         # FIXME: this method does an 'update' not only 'add'
@@ -161,7 +160,7 @@ module Zena
           end
         end
 
-        def link_attributes=(hash)
+        def rel_attributes=(hash)
           return unless hash.kind_of?(Hash)
           hash.each do |role, definition|
             if role =~ /\A\d+\Z/
@@ -171,17 +170,12 @@ module Zena
               definition['role'] ||= $1
             end
             add_link(definition.delete('role'), definition.symbolize_keys)  # TODO: only use string keys
-          end 
+          end
         end
 
-        def link
+        def rel
           ProxyLoader.new(self)
         end
-        
-        # FIXME: !!! this used to be an accessor for the current link but is replaced by ProxyLoader !
-        # def link
-        #   @link
-        # end
 
         def l_comment=(v)
           @l_comment = v.blank? ? nil : v
