@@ -2,6 +2,7 @@ require 'test_helper'
 
 class NestedAttributesAliasModelTest < Test::Unit::TestCase
   class Foo
+    attr_accessor :attributes
     # mock since testing outside rails
     def self.alias_method_chain(target, feature)
       aliased_target, punctuation = target.to_s.sub(/([?!=])$/, ''), $1
@@ -10,8 +11,6 @@ class NestedAttributesAliasModelTest < Test::Unit::TestCase
 
       alias_method without_method, target
       alias_method target, with_method
-    end
-    def attributes=(foo)
     end
     
     include Zena::Use::NestedAttributesAlias::ModelMethods
@@ -88,5 +87,11 @@ class NestedAttributesAliasModelTest < Test::Unit::TestCase
                 Foo.resolve_attributes_alias('name' => 'Joe'))
     assert_equal({'na_attributes' => {'me' => 'Joe'}, 'version_attributes' => {'title' => 'Plumber'}},
                 SubFoo.resolve_attributes_alias('name' => 'Joe', 'v_title' => 'Plumber'))
+  end
+  
+  def test_set_attributes
+    f = Foo.new
+    f.attributes = {'name' => 'Joe', 'v_title' => 'Plumber'}
+    assert_equal({'name'=>'Joe', 'version_attributes'=>{'title'=>'Plumber'}}, f.attributes)
   end
 end

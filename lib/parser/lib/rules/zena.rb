@@ -3194,7 +3194,7 @@ END_TXT
       elsif erb_text = get_text_for_erb(@params, false, :string)
         erb_text
       elsif node_kind_of?(Node)
-        "<%= #{node}.v_title %>"
+        "<%= #{node}.version.title %>"
       elsif node_kind_of?(Version)
         "<%= #{node}.title %>"
       elsif node_kind_of?(Link)

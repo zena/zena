@@ -143,19 +143,19 @@ END:VCALENDAR
     
       assert_equal 'bird', bird[:name]
       assert_equal 'simple', simple[:name]
-      assert_equal 'The sky is blue', simple.v_title
+      assert_equal 'The sky is blue', simple.version.title
       assert_equal 'jpg', bird.c_ext
-      assert_equal 'Le septième ciel', bird.v_title
+      assert_equal 'Le septième ciel', bird.version.title
       versions = secure!(Node) { Node.find(bird[:id]) }.versions
       assert_equal 2, versions.size
       assert_equal 'fr', versions[0].lang
       assert_equal 'en', versions[1].lang
       assert_equal 'Le septième ciel', versions[0].title
-      assert_equal 'Photos !', photos.v_title
-      assert_match %r{Here are some photos.*!\[\]!}m, photos.v_text
-      assert_match %r{!#{bird.zip}_med!}m,     photos.v_text
-      assert_match %r{"links":#{simple.zip}}m, photos.v_text
-      assert_equal "A simple \"test\":#{simple.zip}", photos.d_foo
+      assert_equal 'Photos !', photos.version.title
+      assert_match %r{Here are some photos.*!\[\]!}m, photos.version.text
+      assert_match %r{!#{bird.zip}_med!}m,     photos.version.text
+      assert_match %r{"links":#{simple.zip}}m, photos.version.text
+      assert_equal "A simple \"test\":#{simple.zip}", photos.version.dyn['foo']
       in_photos = photos.find(:all, 'children')
       assert_equal 2, in_photos.size
     
@@ -171,7 +171,7 @@ END:VCALENDAR
   def test_edit_attribute_publish
     login(:tiger)
     node = secure!(Node) { nodes(:status) }
-    assert_equal Zena::Status[:pub], node.v_status
+    assert_equal Zena::Status[:pub], node.version.status
     # get ajax
     get 'edit', :format => 'js', :id => node.zip, 'attribute' => 'd_philosopher', 'dom_id' => 'foo', 'publish' => 'true', 'zazen' => 'true'
     assert_match %r{name='node\[v_status\]' value='50'}m, @response.body

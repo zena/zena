@@ -1353,8 +1353,8 @@ class Node < ActiveRecord::Base
   # List of attribute keys to export in a zml file.
   def export_keys
     {
-      :zazen => [],
-      :dates => [],
+      :zazen => {},
+      :dates => {},
     }
   end
   

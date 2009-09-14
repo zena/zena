@@ -52,7 +52,7 @@ module Zena
               res[k]    = opts[k]
             end
 
-            res[:alt]   = opts[:alt] || fquote(obj.v_title)
+            res[:alt]   = opts[:alt] || fquote(obj.version.title)
             res[:src]   = data_path(obj, :mode => (format[:size] == :keep ? nil : format[:name]), :host => opts[:host])
             res[:class] = opts[:class] || format[:name]
 

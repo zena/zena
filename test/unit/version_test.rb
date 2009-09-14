@@ -14,13 +14,13 @@ class VersionTest < Zena::Unit::TestCase
   def test_cannot_set_node_id
     login(:tiger)
     node = Node.new(:v_node_id => 1234)
-    assert_nil node.v_node_id
+    assert_nil node.version.node_id
   end
   
   def test_cannot_set_node_id_with_attributes
     login(:tiger)
     node = secure!(Node) { nodes(:status) }
-    original_node_id = node.v_node_id
+    original_node_id = node.version.node_id
     node.update_attributes(:v_node_id => nodes_id(:lake) )
   end
   
@@ -49,26 +49,26 @@ class VersionTest < Zena::Unit::TestCase
   def test_cannot_set_node_id_on_create
     login(:tiger)
     node = Node.create(:v_node_id=>nodes_id(:lake))
-    assert_nil node.v_node_id
+    assert_nil node.version.node_id
   end
   
   def test_cannot_set_content_id
     login(:tiger)
     node = Node.new(:v_content_id => nodes_id(:lake))
-    assert_nil node.v_conent_id
+    assert_nil node.version.conent_id
   end
   
   def test_cannot_set_content_id_by_attribute
     login(:tiger)
     node = secure!(Node) { nodes(:status) }
     node.update_attributes(:v_content_id=>nodes_id(:lake))
-    assert_nil node.v_content_id
+    assert_nil node.version.content_id
   end
   
   def test_cannot_set_content_id_on_create
     login(:tiger)
     node = Node.create(:v_content_id=>nodes_id(:lake))
-    assert_nil node.v_content_id
+    assert_nil node.version.content_id
   end
   
   def test_new_site_id_set
@@ -84,7 +84,7 @@ class VersionTest < Zena::Unit::TestCase
     version = node.version
     assert_equal 1, version.number
     # edit
-    node.v_title='new title'
+    node.version.title='new title'
     version = node.version
     assert_nil version.number
     # save
@@ -121,16 +121,16 @@ class VersionTest < Zena::Unit::TestCase
       login(:ant)
       visitor.lang = 'en'
       node = secure!(Node) { nodes(:forest_pdf) }
-      assert_equal Zena::Status[:red], node.v_status
-      assert_equal versions_id(:forest_pdf_en), node.c_version_id
-      assert_equal 63569, node.c_size
+      assert_equal Zena::Status[:red], node.version.status
+      assert_equal versions_id(:forest_pdf_en), node.version.content.version_id
+      assert_equal 63569, node.version.content.size
       # single redaction: ok
       assert node.update_attributes(:c_file=>uploaded_pdf('water.pdf')), 'Can edit node'
       # version and content did not change
-      assert_equal versions_id(:forest_pdf_en), node.c_version_id
-      assert_equal 29279, node.c_size
-      assert_kind_of File, node.c_file
-      assert_equal 29279, node.c_file.stat.size
+      assert_equal versions_id(:forest_pdf_en), node.version.content.version_id
+      assert_equal 29279, node.version.content.size
+      assert_kind_of File, node.version.content.file
+      assert_equal 29279, node.version.content.file.stat.size
     end
   end
   
@@ -139,24 +139,24 @@ class VersionTest < Zena::Unit::TestCase
       login(:ant)
       visitor.lang = 'fr'
       node = secure!(Node) { nodes(:forest_pdf) }
-      old_vers_id = node.v_id
+      old_vers_id = node.version.id
       # ant's english redaction
-      assert_equal 'en', node.v_lang
+      assert_equal 'en', node.version.lang
       assert node.update_attributes(:v_title=>'les arbres')
       
       assert node.propose # only proposed/published versions block
 
       # new redaction for french
-      assert_not_equal node.v_id, old_vers_id
+      assert_not_equal node.version.id, old_vers_id
       
       # new redaction points to old content
-      assert_equal     node.v_content_id, old_vers_id
+      assert_equal     node.version.content_id, old_vers_id
       
       login(:ant)
       visitor.lang = 'en'
       node = secure!(Node) { nodes(:forest_pdf) }
       # get ant's english redaction
-      assert_equal old_vers_id, node.v_id
+      assert_equal old_vers_id, node.version.id
       # try to edit content
       assert !node.update_attributes(:c_file=>uploaded_pdf('water.pdf')), "Cannot be changed"
       assert node.errors[:c_file].any?
@@ -168,31 +168,31 @@ class VersionTest < Zena::Unit::TestCase
     node = secure!(Node) { nodes(:status) }
     version = node.send(:redaction)
     assert_nothing_raised { version.dyn['zucchini'] = 'courgettes' }
-    assert_nothing_raised { version.d_zucchini = 'courgettes' }
-    assert_equal 'courgettes', version.d_zucchini
+    assert_nothing_raised { version.dyn_attributes = {'zucchini' => 'courgettes' }}
+    assert_equal 'courgettes', version.dyn['zucchini']
     assert node.save
     
     node = secure!(Node) { nodes(:status) }
     version = node.version
-    assert_equal 'courgettes', version.d_zucchini
+    assert_equal 'courgettes', version.dyn['zucchini']
   end
   
   def test_clone
     login(:tiger)
     node = secure!(Node) { nodes(:status) }
     assert node.update_attributes(:d_whatever => 'no idea')
-    assert_equal 'no idea', node.d_whatever
+    assert_equal 'no idea', node.version.dyn['whatever']
     version1_id = node.version[:id]
     assert node.publish
-    version1_publish_from = node.v_publish_from
+    version1_publish_from = node.version.publish_from
     
     node = secure!(Node) { nodes(:status) }
     assert node.update_attributes(:d_other => 'funny')
     version2_id = node.version[:id]
     assert_not_equal version1_id, version2_id
-    assert_equal 'no idea', node.d_whatever
-    assert_equal 'funny', node.d_other
-    assert_equal version1_publish_from, node.v_publish_from
+    assert_equal 'no idea', node.version.dyn['whatever']
+    assert_equal 'funny', node.version.dyn['other']
+    assert_equal version1_publish_from, node.version.publish_from
   end
   
   def test_would_edit

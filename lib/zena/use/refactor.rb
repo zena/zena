@@ -106,11 +106,11 @@ module Zena
         def show(obj, sym, opt={})
           return show_title(obj, opt) if sym == :v_title
           if opt[:as]
-            key = "#{opt[:as]}#{obj.zip}.#{obj.v_number}"
+            key = "#{opt[:as]}#{obj.zip}.#{obj.version.number}"
             preview_for = opt[:as]
             opt.delete(:as)
           else
-            key = "#{sym}#{obj.zip}.#{obj.v_number}"
+            key = "#{sym}#{obj.zip}.#{obj.version.number}"
           end
           if opt[:text]
             text = opt[:text]
@@ -118,7 +118,7 @@ module Zena
           else
             text = obj.send(sym)
             if text.blank? && sym == :v_summary
-              text = obj.v_text
+              text = obj.version.text
               opt[:images] = false
             else
               opt.delete(:limit)

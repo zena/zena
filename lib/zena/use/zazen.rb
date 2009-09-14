@@ -95,7 +95,7 @@ module Zena
 
           return "<span class='unknownLink'>#{_('unknown link')}</span>" unless node
 
-          title = (opts[:title] && opts[:title] != '') ? opts[:title] : node.v_title
+          title = (opts[:title] && opts[:title] != '') ? opts[:title] : node.version.title
 
           link_opts[:format] = node.c_ext if link_opts[:format] == 'data'
           if opts[:id] && opts[:id][0..0] == '0'
@@ -128,7 +128,7 @@ module Zena
           return "<span class='unknownLink'>#{_('unknown document')}</span>" unless img
 
           if !opts[:images].nil? && !opts[:images]
-            return "[#{_('image')}: #{img.v_title}]"
+            return "[#{_('image')}: #{img.version.title}]"
           end
           title = img.v_summary if title == ""
 

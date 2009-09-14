@@ -161,7 +161,7 @@ class Version < ActiveRecord::Base
   def export_keys
     {
       :zazen => {'v_title' => title, 'v_text' => text}.merge(Hash[*version.dyn.map{|k,v| ["d_#{k}", v]}.flatten]),
-      :dates => [],
+      :dates => {},
     }
   end
   

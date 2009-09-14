@@ -12,7 +12,7 @@ class SiteTest < Zena::Unit::TestCase
 
     assert_equal 3, admin.group_ids.size
     root = secure!(Node) { Node.find(site[:root_id]) }
-    assert_equal Zena::Status[:pub], root.v_status
+    assert_equal Zena::Status[:pub], root.version.status
     assert_equal Zena::Status[:pub], root.max_status
     assert_equal 'default', root.skin
     
@@ -21,7 +21,7 @@ class SiteTest < Zena::Unit::TestCase
     
     root = secure!(Node) { Node.find(site[:root_id]) }
     assert_kind_of Project, root
-    assert_equal 'super', root.v_title
+    assert_equal 'super', root.version.title
     assert_equal Zena::Status[:pub], root.max_status
     assert_nothing_raised { Node.next_zip(site[:id]) }
     
@@ -213,9 +213,9 @@ class SiteTest < Zena::Unit::TestCase
     site = sites(:zena)
     assert site.update_attributes(:d_recaptcha_pub => "something", :d_recaptcha_priv => "anything else")
     site = sites(:zena)
-    assert_equal "something", site.d_recaptcha_pub
     assert_equal "something", site.dyn['recaptcha_pub']
-    assert_equal "anything else", site.d_recaptcha_priv
+    assert_equal "something", site.dyn['recaptcha_pub']
+    assert_equal "anything else", site.dyn['recaptcha_priv']
     assert_equal "anything else", site.dyn['recaptcha_priv']
   end
   

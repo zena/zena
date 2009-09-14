@@ -63,7 +63,7 @@ class UserTest < Zena::Unit::TestCase
     assert visitor.user?, "Whale is a user"
     
     contact = user.contact
-    assert_equal "john", contact.v_title
+    assert_equal "john", contact.version.title
     assert_equal user[:id], contact.user_id
   end
   

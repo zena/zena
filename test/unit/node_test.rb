@@ -179,10 +179,10 @@ class NodeTest < Zena::Unit::TestCase
   def test_cannot_update_v_status
     login(:ant)
     test_page = secure!(Node) { nodes(:status) }
-    assert_equal 2, test_page.v_number
+    assert_equal 2, test_page.version.number
     assert test_page.update_attributes( :v_status => Zena::Status[:pub], :v_title => "New funky title")
-    assert_equal 3, test_page.v_number
-    assert_equal Zena::Status[:red], test_page.v_status
+    assert_equal 3, test_page.version.number
+    assert_equal Zena::Status[:red], test_page.version.status
   end
   
   def test_new_bad_parent
@@ -274,7 +274,7 @@ class NodeTest < Zena::Unit::TestCase
     assert_equal 'statusTitle', node[:name]
     node = secure!(Node) { nodes(:status)  }
     node[:name] = nil
-    node.v_title = ""
+    node.version.title = ""
     assert !node.save, 'Save fails'
     assert_equal 'can\'t be blank', node.errors[:name]
   end
@@ -355,7 +355,7 @@ class NodeTest < Zena::Unit::TestCase
   
     child = node.new_child( :name => 'new_name', :class => Page )
     assert child.save , "Save succeeds"
-    assert_equal Zena::Status[:red],  child.v_status
+    assert_equal Zena::Status[:red],  child.version.status
     assert_equal child[:user_id], users_id(:ant)
     assert_equal node[:pgroup_id], child[:pgroup_id]
     assert_equal node[:rgroup_id], child[:rgroup_id]
@@ -498,22 +498,22 @@ class NodeTest < Zena::Unit::TestCase
     wiki   = secure!(Node) { nodes(:wiki)       }
     bird   = secure!(Node) { nodes(:bird_jpg)   }
     flower = secure!(Node) { nodes(:flower_jpg) }
-    assert_equal Zena::Status[:pub], wiki.v_status
-    assert_equal Zena::Status[:pub], bird.v_status
-    assert_equal Zena::Status[:pub], flower.v_status
+    assert_equal Zena::Status[:pub], wiki.version.status
+    assert_equal Zena::Status[:pub], bird.version.status
+    assert_equal Zena::Status[:pub], flower.version.status
     assert wiki.unpublish, 'Can unpublish publication'
-    assert_equal 10, wiki.v_status
+    assert_equal 10, wiki.version.status
     assert_equal 10, wiki.max_status
     bird = secure!(Node) { nodes(:bird_jpg) }
     flower = secure!(Node) { nodes(:flower_jpg) }
-    assert_equal 10, bird.v_status
-    assert_equal 10, flower.v_status
+    assert_equal 10, bird.version.status
+    assert_equal 10, flower.version.status
     assert wiki.publish, 'Can publish'
     bird = secure!(Node) { nodes(:bird_jpg) }
     flower = secure!(Node) { nodes(:flower_jpg) }
-    assert_equal Zena::Status[:pub], bird.v_status
+    assert_equal Zena::Status[:pub], bird.version.status
     assert_equal Zena::Status[:pub], bird.max_status
-    assert_equal Zena::Status[:pub], flower.v_status
+    assert_equal Zena::Status[:pub], flower.version.status
   end
   
   def test_after_propose
@@ -523,21 +523,21 @@ class NodeTest < Zena::Unit::TestCase
     wiki = secure!(Node) { nodes(:wiki) }
     bird = secure!(Node) { nodes(:bird_jpg) }
     flower = secure!(Node) { nodes(:flower_jpg) }
-    assert_equal Zena::Status[:red], wiki.v_status
-    assert_equal Zena::Status[:red], bird.v_status
-    assert_equal Zena::Status[:red], flower.v_status
+    assert_equal Zena::Status[:red], wiki.version.status
+    assert_equal Zena::Status[:red], bird.version.status
+    assert_equal Zena::Status[:red], flower.version.status
     assert wiki.propose, 'Can propose for publication'
-    assert_equal Zena::Status[:prop], wiki.v_status
+    assert_equal Zena::Status[:prop], wiki.version.status
     bird = secure!(Node) { nodes(:bird_jpg) }
     flower = secure!(Node) { nodes(:flower_jpg) }
-    assert_equal Zena::Status[:prop_with], bird.v_status
-    assert_equal Zena::Status[:prop_with], flower.v_status
+    assert_equal Zena::Status[:prop_with], bird.version.status
+    assert_equal Zena::Status[:prop_with], flower.version.status
     assert wiki.publish, 'Can publish'
     bird = secure!(Node) { nodes(:bird_jpg) }
     flower = secure!(Node) { nodes(:flower_jpg) }
-    assert_equal Zena::Status[:pub], bird.v_status
+    assert_equal Zena::Status[:pub], bird.version.status
     assert_equal Zena::Status[:pub], bird.max_status
-    assert_equal Zena::Status[:pub], flower.v_status
+    assert_equal Zena::Status[:pub], flower.version.status
   end
   
   def test_after_refuse
@@ -546,18 +546,18 @@ class NodeTest < Zena::Unit::TestCase
     login(:tiger)
     wiki = secure!(Node) { nodes(:wiki) }
     assert wiki.propose, 'Can propose for publication'
-    assert_equal Zena::Status[:prop], wiki.v_status
+    assert_equal Zena::Status[:prop], wiki.version.status
     bird = secure!(Node) { nodes(:bird_jpg) }
     flower = secure!(Node) { nodes(:flower_jpg) }
-    assert_equal Zena::Status[:prop_with], bird.v_status
-    assert_equal Zena::Status[:prop_with], flower.v_status
+    assert_equal Zena::Status[:prop_with], bird.version.status
+    assert_equal Zena::Status[:prop_with], flower.version.status
     assert wiki.refuse, 'Can refuse'
     bird = secure!(Node) { nodes(:bird_jpg) }
     flower = secure!(Node) { nodes(:flower_jpg) }
-    assert_equal Zena::Status[:red], bird.v_status
-    assert_equal Zena::Status[:red], bird.v_status
+    assert_equal Zena::Status[:red], bird.version.status
+    assert_equal Zena::Status[:red], bird.version.status
     assert_equal Zena::Status[:red], bird.max_status
-    assert_equal Zena::Status[:red], flower.v_status
+    assert_equal Zena::Status[:red], flower.version.status
   end
   
   def test_after_publish
@@ -566,12 +566,12 @@ class NodeTest < Zena::Unit::TestCase
     login(:tiger)
     wiki = secure!(Node) { nodes(:wiki) }
     assert wiki.publish, 'Can publish'
-    assert_equal Zena::Status[:pub], wiki.v_status
+    assert_equal Zena::Status[:pub], wiki.version.status
     bird = secure!(Node) { nodes(:bird_jpg) }
     flower = secure!(Node) { nodes(:flower_jpg) }
-    assert_equal Zena::Status[:pub], bird.v_status
+    assert_equal Zena::Status[:pub], bird.version.status
     assert_equal Zena::Status[:pub], bird.max_status
-    assert_equal Zena::Status[:pub], flower.v_status
+    assert_equal Zena::Status[:pub], flower.version.status
   end
   
   def test_all_children
@@ -660,7 +660,7 @@ class NodeTest < Zena::Unit::TestCase
   def test_discussion_lang
     login(:tiger)
     node = secure!(Node) { nodes(:status) }
-    assert_equal Zena::Status[:pub], node.v_status
+    assert_equal Zena::Status[:pub], node.version.status
     discussion = node.discussion
     assert_kind_of Discussion, discussion
     assert_equal discussions_id(:outside_discussion_on_status_en), discussion[:id]
@@ -693,7 +693,7 @@ class NodeTest < Zena::Unit::TestCase
     login(:tiger)
     node = secure!(Node) { nodes(:status) }
     node.update_attributes( :v_title=>'new status' )
-    assert_equal Zena::Status[:red], node.v_status
+    assert_equal Zena::Status[:red], node.version.status
     discussion = node.discussion
     assert_equal discussions_id(:inside_discussion_on_status), discussion[:id]
   end
@@ -704,8 +704,8 @@ class NodeTest < Zena::Unit::TestCase
     letter = secure!(Node) { Node.create_node(:v_status => Zena::Status[:pub], :v_title => 'a letter', :class => 'Letter', :parent_id => nodes_zip(:cleanWater)) }
     assert !post.new_record?, "Not a new record"
     assert !letter.new_record?, "Not a new record"
-    assert_equal Zena::Status[:pub], post.v_status, "Published"
-    assert_equal Zena::Status[:pub], letter.v_status, "Published"
+    assert_equal Zena::Status[:pub], post.version.status, "Published"
+    assert_equal Zena::Status[:pub], letter.version.status, "Published"
     assert !letter.discussion
     assert post.discussion
     assert !post.discussion.new_record?
@@ -720,7 +720,7 @@ class NodeTest < Zena::Unit::TestCase
     login(:tiger)
     letter = secure!(Node) { Node.create_node(:v_status => Zena::Status[:pub], :v_title => 'a letter', :class => 'Letter', :parent_id => nodes_zip(:cleanWater)) }
     assert !letter.new_record?, "Not a new record"
-    assert_equal Zena::Status[:pub], letter.v_status, "Published"
+    assert_equal Zena::Status[:pub], letter.version.status, "Published"
     login(:anon)
     letter = secure!(Node) { Node.find(letter.id) }
     assert !letter.can_auto_create_discussion?
@@ -835,7 +835,7 @@ class NodeTest < Zena::Unit::TestCase
     assert_equal nodes_id(:status), node[:id]
     node = secure!(Node) { nodes(:status) }
     assert_equal 'status', node[:name]
-    assert_equal "It's all broken", node.v_title
+    assert_equal "It's all broken", node.version.title
   end
   
   def test_create_with_klass
@@ -919,10 +919,10 @@ done: \"I am done\""
   def test_create_nodes_from_folder_with_publish
     login(:tiger)
     nodes = secure!(Node) { Node.create_nodes_from_folder(:folder => File.join(RAILS_ROOT, 'test', 'fixtures', 'import'), :parent_id => nodes_id(:zena) )}.values
-    assert_equal Zena::Status[:red], nodes[0].v_status
+    assert_equal Zena::Status[:red], nodes[0].version.status
     
     nodes = secure!(Node) { Node.create_nodes_from_folder(:folder => File.join(RAILS_ROOT, 'test', 'fixtures', 'import'), :parent_id => nodes_id(:cleanWater), :defaults => { :v_status => Zena::Status[:pub] }) }.values
-    assert_equal Zena::Status[:pub], nodes[0].v_status
+    assert_equal Zena::Status[:pub], nodes[0].version.status
   end
   
   def test_create_nodes_from_archive
@@ -932,11 +932,11 @@ done: \"I am done\""
     assert_kind_of Section, photos
     bird = secure!(Node) { Node.find_by_parent_id_and_name(photos[:id], 'bird') }
     assert_kind_of Image, bird
-    assert_equal 56183, bird.c_size
-    assert_equal 'Lucy in the sky', bird.v_title
+    assert_equal 56183, bird.version.content.size
+    assert_equal 'Lucy in the sky', bird.version.title
     visitor.lang = 'fr'
     bird = secure!(Node) { Node.find_by_parent_id_and_name(photos[:id], 'bird') }
-    assert_equal 'Le septième ciel', bird.v_title
+    assert_equal 'Le septième ciel', bird.version.title
     assert_equal 1, bird[:inherit]
     assert_equal groups_id(:public), bird[:rgroup_id]
     assert_equal groups_id(:workers), bird[:wgroup_id]
@@ -967,13 +967,13 @@ done: \"I am done\""
       assert_nothing_raised { node = secure!(Node) { Node.find_by_path( 'projects/cleanWater/status/photos') } }
       assert_raise(ActiveRecord::RecordNotFound) { node = secure!(Node) { Node.find_by_path( 'projects/cleanWater/status/photos/bird') } }
       assert_equal 'photos', node.name
-      assert_no_match %r{I took during my last vacations}, node.v_text
-      v1_id = node.v_id
+      assert_no_match %r{I took during my last vacations}, node.version.text
+      v1_id = node.version.id
       secure!(Node) { Node.create_nodes_from_folder(:archive => uploaded_archive('import.tgz'), :parent_id => nodes_id(:status)) }.values
       assert_nothing_raised { node = secure!(Node) { Node.find_by_path( 'projects/cleanWater/status/photos') } }
       assert_nothing_raised { bird = secure!(Node) { Node.find_by_path( 'projects/cleanWater/status/photos/bird') } }
-      assert_match %r{I took during my last vacations}, node.v_text
-      assert_equal v1_id, node.v_id
+      assert_match %r{I took during my last vacations}, node.version.text
+      assert_equal v1_id, node.version.id
       assert_kind_of Image, bird
     end
   end
@@ -1344,14 +1344,14 @@ done: \"I am done\""
     login(:lion)
     @node = secure!(Node) { nodes(:status) }
     assert @node.update_attributes(:v_text => "Hello this is \"art\":#{nodes_zip(:art)}. !#{nodes_zip(:bird_jpg)}!")
-    assert_equal "Hello this is \"art\":(../../../collections/art). !(../../wiki/bird)!", @node.unparse_assets(@node.v_text, self, 'v_text')
+    assert_equal "Hello this is \"art\":(../../../collections/art). !(../../wiki/bird)!", @node.unparse_assets(@node.version.text, self, 'v_text')
   end
   
   def test_parse_assets
     login(:lion)
     @node = secure!(Node) { nodes(:status) }
     assert @node.update_attributes(:v_text => "Hello this is \"art\":(../../../collections/art).")
-    assert_equal "Hello this is \"art\":#{nodes_zip(:art)}.", @node.parse_assets(@node.v_text, self, 'v_text')
+    assert_equal "Hello this is \"art\":#{nodes_zip(:art)}.", @node.parse_assets(@node.version.text, self, 'v_text')
   end
   
   def test_safe_attribute
@@ -1384,7 +1384,7 @@ done: \"I am done\""
     node = secure!(Node) { nodes(:people) }
     assert node.update_attributes(:v_title => 'nice people')
     assert node.publish
-    assert_equal 'fr', node.v_lang
+    assert_equal 'fr', node.version.lang
     assert_equal 'people', node.name
   end
   
@@ -1394,7 +1394,7 @@ done: \"I am done\""
     node = secure!(Node) { nodes(:people) }
     assert node.update_attributes(:v_title => 'nice people')
     assert_equal 'people', node.name
-    assert_equal Zena::Status[:red], node.v_status
+    assert_equal Zena::Status[:red], node.version.status
     assert node.publish
     assert_equal 'nicePeople', node.name
   end
@@ -1411,7 +1411,7 @@ done: \"I am done\""
     # not ref lang
     node = secure!(Node) { nodes(:people) }
     assert node.update_attributes(:v_title => 'nice people')
-    assert_equal 'fr', node.v_lang
+    assert_equal 'fr', node.version.lang
     assert_equal 'people', node.name
   end
   

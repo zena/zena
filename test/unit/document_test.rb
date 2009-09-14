@@ -11,14 +11,14 @@ class DocumentTest < Zena::Unit::TestCase
       assert_kind_of Document , doc
       assert ! doc.new_record? , "Not a new record"
       assert_equal "report", doc.name
-      assert_equal "report", doc.v_title
+      assert_equal "report", doc.version.title
       assert_equal "report.pdf", doc.filename
-      assert_equal 'pdf', doc.c_ext
-      assert ! doc.v_new_record? , "Version is not a new record"
-      assert_not_nil doc.c_id , "Content id is set"
-      assert_kind_of DocumentContent , doc.v_content
-      assert File.exist?(doc.c_filepath)
-      assert_equal File.stat(doc.c_filepath).size, doc.c_size
+      assert_equal 'pdf', doc.version.content.ext
+      assert ! doc.version.new_record? , "Version is not a new record"
+      assert_not_nil doc.version.content.id , "Content id is set"
+      assert_kind_of DocumentContent , doc.version.content
+      assert File.exist?(doc.version.content.filepath)
+      assert_equal File.stat(doc.version.content.filepath).size, doc.version.content.size
     end
   end
   
@@ -31,7 +31,7 @@ class DocumentTest < Zena::Unit::TestCase
       assert_kind_of Document , doc
       assert ! doc.new_record? , "Not a new record"
       assert_equal "stupid.pdf", doc.name
-      assert_equal "My new project", doc.v_title
+      assert_equal "My new project", doc.version.title
       v = doc.send :version
     end
   end
@@ -40,7 +40,7 @@ class DocumentTest < Zena::Unit::TestCase
     login(:ant)
     doc = secure!(Document) { Document.new(:parent_id=>nodes_id(:cleanWater), :name=>'lalala') }
     assert_kind_of TextDocument, doc
-    assert_equal 'text/plain', doc.c_content_type
+    assert_equal 'text/plain', doc.version.content.content_type
     assert doc.save, "Can save"
   end
   
@@ -50,8 +50,8 @@ class DocumentTest < Zena::Unit::TestCase
     assert !doc.kind_of?(Template)
     assert_kind_of TextDocument, doc
     assert !doc.new_record?, "Not a new record"
-    assert_equal 'text/css', doc.c_content_type
-    assert_equal 'css', doc.c_ext
+    assert_equal 'text/css', doc.version.content.content_type
+    assert_equal 'css', doc.version.content.ext
   end
   
   def test_create_with_duplicate_name
@@ -76,7 +76,7 @@ class DocumentTest < Zena::Unit::TestCase
       assert_kind_of Document , doc
       assert ! doc.new_record? , "Not a new record"
       assert_equal "stupid", doc.name
-      assert_equal "stupid", doc.v_title
+      assert_equal "stupid", doc.version.title
       assert_equal "stupid.pdf", doc.filename
     end
   end
@@ -109,7 +109,7 @@ class DocumentTest < Zena::Unit::TestCase
   def test_filesize
     login(:tiger)
     doc = secure!(Document) { Document.find( nodes_id(:water_pdf) ) }
-    assert_nothing_raised { doc.c_size }
+    assert_nothing_raised { doc.version.content.size }
   end
   
   def test_create_with_text_file
@@ -121,8 +121,8 @@ class DocumentTest < Zena::Unit::TestCase
       assert_kind_of Document , doc
       assert ! doc.new_record? , "Not a new record"
       assert_equal "stupid", doc.name
-      assert_equal "stupid", doc.v_title
-      assert_equal 'txt', doc.c_ext
+      assert_equal "stupid", doc.version.title
+      assert_equal 'txt', doc.version.content.ext
     end
   end
   
@@ -130,27 +130,27 @@ class DocumentTest < Zena::Unit::TestCase
     preserving_files('/test.host/data') do
       login(:tiger)
       doc = secure!(Document) { Document.find(nodes_id(:water_pdf)) }
-      assert_equal 29279, doc.c_size
-      assert_equal file_path(:water_pdf), doc.c_filepath
-      content_id = doc.c_id
+      assert_equal 29279, doc.version.content.size
+      assert_equal file_path(:water_pdf), doc.version.content.filepath
+      content_id = doc.version.content.id
       # new redaction in 'en'
       assert doc.update_attributes(:c_file=>uploaded_pdf('forest.pdf'), :v_title=>'forest gump'), "Can change file"
-      assert_not_equal content_id, doc.c_id
-      assert !doc.c_new_record?
+      assert_not_equal content_id, doc.version.content.id
+      assert !doc.version.content.new_record?
       doc = secure!(Node) { nodes(:water_pdf) }
-      assert_equal 'forest gump', doc.v_title
-      assert_equal 'pdf', doc.c_ext
-      assert_equal 63569, doc.c_size
+      assert_equal 'forest gump', doc.version.title
+      assert_equal 'pdf', doc.version.content.ext
+      assert_equal 63569, doc.version.content.size
       last_id = Version.find(:first, :order=>"id DESC").id
       assert_not_equal versions_id(:water_pdf_en), last_id
       # filepath is set from initial node name
-      assert_equal file_path('water.pdf', 'full', doc.c_id), doc.c_filepath
+      assert_equal file_path('water.pdf', 'full', doc.version.content.id), doc.version.content.filepath
       assert doc.update_attributes(:c_file=>uploaded_pdf('water.pdf')), "Can change file"
       doc = secure!(Node) { nodes(:water_pdf) }
-      assert_equal 'forest gump', doc.v_title
-      assert_equal 'pdf', doc.c_ext
-      assert_equal 29279, doc.c_size
-      assert_equal file_path('water.pdf', 'full', doc.c_id), doc.c_filepath
+      assert_equal 'forest gump', doc.version.title
+      assert_equal 'pdf', doc.version.content.ext
+      assert_equal 29279, doc.version.content.size
+      assert_equal file_path('water.pdf', 'full', doc.version.content.id), doc.version.content.filepath
     end
   end 
   
@@ -164,10 +164,10 @@ class DocumentTest < Zena::Unit::TestCase
       assert_kind_of Document , doc
       assert ! doc.new_record? , "Not a new record"
       assert_equal "report...", doc.name
-      assert_equal "report...", doc.v_title
-      assert_equal 'report', doc.c_name
+      assert_equal "report...", doc.version.title
+      assert_equal 'report', doc.version.content.name
       assert_equal "report....pdf", doc.filename
-      assert_equal 'pdf', doc.c_ext
+      assert_equal 'pdf', doc.version.content.ext
     end
   end
   
@@ -179,11 +179,11 @@ class DocumentTest < Zena::Unit::TestCase
       assert_kind_of Document , doc
       assert ! doc.new_record? , "Not a new record"
       assert_equal "super", doc.name
-      assert_equal "super", doc.v_title
-      assert_equal 'super', doc.c_name
+      assert_equal "super", doc.version.title
+      assert_equal 'super', doc.version.content.name
       assert_equal "super.zz", doc.filename
-      assert_equal 'zz', doc.c_ext
-      assert_equal 'application/octet-stream', doc.c_content_type
+      assert_equal 'zz', doc.version.content.ext
+      assert_equal 'application/octet-stream', doc.version.content.content_type
     end
   end
   
@@ -191,14 +191,14 @@ class DocumentTest < Zena::Unit::TestCase
     preserving_files('/test.host/data') do
       login(:tiger)
       doc = secure!(Node) { nodes(:water_pdf) }
-      filepath = doc.c_filepath
+      filepath = doc.version.content.filepath
       assert File.exist?(filepath), "File path #{filepath.inspect} exists"
-      first = doc.v_number
-      content_id = doc.c_id
+      first = doc.version.number
+      content_id = doc.version.content.id
       assert doc.update_attributes(:v_title => 'WahWah')
-      second = doc.v_number
+      second = doc.version.number
       assert first != second
-      assert_equal content_id, doc.c_id # shared content
+      assert_equal content_id, doc.version.content.id # shared content
       doc = secure!(Node) { nodes(:water_pdf) }
       doc.version(first)
       assert doc.unpublish
@@ -206,7 +206,7 @@ class DocumentTest < Zena::Unit::TestCase
       assert doc.destroy_version
       doc = secure!(Node) { nodes(:water_pdf) }
       assert File.exist?(filepath)
-      assert_equal content_id, doc.c_id # shared content note destroyed
+      assert_equal content_id, doc.version.content.id # shared content note destroyed
       assert doc.remove
       assert doc.destroy_version
       assert_nil DocumentContent.find_by_id(content_id)
@@ -222,11 +222,11 @@ class DocumentTest < Zena::Unit::TestCase
       assert_kind_of Document , doc
       assert ! doc.new_record? , "Not a new record"
       assert_equal "lazyWaters", doc.name
-      assert_equal "lazy waters", doc.v_title
-      assert_equal 'lazyWaters', doc.c_name
+      assert_equal "lazy waters", doc.version.title
+      assert_equal 'lazyWaters', doc.version.content.name
       assert_equal "lazyWaters.pdf", doc.filename
-      assert_equal 'pdf', doc.c_ext
-      assert_equal 'application/pdf', doc.c_content_type
+      assert_equal 'pdf', doc.version.content.ext
+      assert_equal 'application/pdf', doc.version.content.content_type
     end
   end
   
