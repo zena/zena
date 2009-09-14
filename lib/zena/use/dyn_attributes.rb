@@ -175,7 +175,9 @@ module Zena
         # this is called when the module is included into the 'base' module
         def self.included(base)
           # add all methods from the module "AddActsAsMethod" to the 'base' module
-          base.extend AddClassMethods
+          base.extend  Zena::Use::DynAttributes::ClassMethods
+          base.send(:include, Zena::Use::NestedAttributesAlias::ModelMethods)
+          base.nested_attributes_alias %r{^d_(\w+)} => ['dyn']
 
           base.after_save    :save_dynamic_attributes
           base.after_destroy :destroy_attributes
@@ -189,7 +191,7 @@ module Zena
         public
 
         def dyn
-          @dyn_attributes ||= Zena::DynAttributeProxy.for(self, self.class.dyn_attribute_options)
+          @dyn_attributes ||= DynAttributeProxy.for(self, self.class.dyn_attribute_options)
         end
 
         def dyn=(dyn_attributes)

@@ -25,7 +25,7 @@ class Site < ActiveRecord::Base
   has_many :participations, :dependent => :destroy
   has_many :users, :through => :participations
 
-  include Zena::Use::DynamicAttributes::ModelMethods
+  include Zena::Use::DynAttributes::ModelMethods
   dynamic_attributes_setup :table_name => 'site_attributes'
 
   @@attributes_for_form = {

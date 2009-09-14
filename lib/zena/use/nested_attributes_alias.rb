@@ -17,59 +17,61 @@ module Zena
             end
           end
         end
-        
+
         def text_field(object_name, method, options = {})
           ViewMethods::InstanceTag.new(object_name, method, self, options.delete(:object)).to_input_field_tag("text", options)
         end
-        
+
         def password_field(object_name, method, options = {})
           ViewMethods::InstanceTag.new(object_name, method, self, options.delete(:object)).to_input_field_tag("password", options)
         end
-        
+
         def hidden_field(object_name, method, options = {})
           ViewMethods::InstanceTag.new(object_name, method, self, options.delete(:object)).to_input_field_tag("hidden", options)
         end
-        
+
         def file_field(object_name, method, options = {})
           ViewMethods::InstanceTag.new(object_name, method, self, options.delete(:object)).to_input_field_tag("file", options)
         end
-        
+
         def text_area(object_name, method, options = {})
           ViewMethods::InstanceTag.new(object_name, method, self, options.delete(:object)).to_text_area_tag(options)
         end
-        
+
         def check_box(object_name, method, options = {}, checked_value = "1", unchecked_value = "0")
           InstanceTag.new(object_name, method, self, options.delete(:object)).to_check_box_tag(options, checked_value, unchecked_value)
         end
-        
+
         def radio_button(object_name, method, tag_value, options = {})
           InstanceTag.new(object_name, method, self, options.delete(:object)).to_radio_button_tag(tag_value, options)
         end
       end
-      
-      
+
+
       # Adds a class method called 'resolve_attributes_alias' to rewrite attributes.
       #
       # Example:
-      # 
+      #
       # class Foo < ActiveRecord::Base
       #   include Zena::Use::NestedAttributesAlias::ModelMethods
       #   has_one :redaction
       #   nested_attributes_alias /^r_(.+)/ => 'redaction'
       # end
-      # 
+      #
       module ModelMethods
         def self.included(base)
           base.extend  Zena::Use::NestedAttributesAlias::ClassMethods
-          base.class_eval do
-            alias_method_chain :attributes=, :nested_alias
+          if !base.method_defined?(:attributes_without_nested_alias=)
+            base.class_eval do
+              alias_method_chain :attributes=, :nested_alias
+            end
           end
         end
-        
+
         def attributes_with_nested_alias=(*args)
           self.attributes_without_nested_alias = resolve_attributes_alias(*args)
         end
-        
+
         def resolve_attributes_alias(attributes)
           new_attributes = {}
           attributes.each do |k, v|
@@ -83,7 +85,7 @@ module Zena
           end
           new_attributes
         end
-        
+
         def nested_model_names_for_alias(attribute)
           attribute = attribute.to_s
           nested_model_names = nil
@@ -102,7 +104,7 @@ module Zena
           nested_model_names
         end
         private
-          
+
           def merge_nested_model_names_in_hash(target, nested_model_names)
             nested_model_names.each do |model_name|
               target = target[model_name] ||= {}
@@ -122,7 +124,7 @@ module Zena
             end
           end
       end # ModelMethods
-      
+
       module ClassMethods
         @@_nested_attr_alias      ||= {} # defined for each class
         @@_nested_attr_alias_list ||= {} # full list with inherited attributes
@@ -159,7 +161,7 @@ module Zena
           end
         end
       end # ClassMethods
-      
+
     end # NestedAttributesAlias
   end # Use
 end # Zena

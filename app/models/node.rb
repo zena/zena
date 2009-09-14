@@ -56,13 +56,13 @@ user_id                     summary               content_type
 To ease the work to set/retrieve the data from the version and or content, we use some special notation. This notation abstracts this Node/Version/Content structure so you can use a version's attribute as if it was in the node directly.
 
 TODO: DOC removed (was out of sync)
- 
+
 === Dynamic attributes
 
 The Version class uses dynamic attributes. These let you add any attribute you like to the versions (see DynAttribute for details). These attributes can be accessed by using the +d_+ prefix :
 
  @node.d_whatever  ===> @node.version.dyn[:whatever]
-          
+
 === Attributes
 
 Each node uses the following basic attributes:
@@ -138,22 +138,22 @@ class Node < ActiveRecord::Base
   #attr_accessible    :version_content
   attr_accessor      :old_title
   attr_public        :name, :created_at, :updated_at, :event_at, :log_at, :kpath, :user_zip, :parent_zip, :project_zip,
-                     :section_zip, :skin, :ref_lang, :fullpath, :rootpath, :position, :publish_from, :max_status, :rgroup_id, 
+                     :section_zip, :skin, :ref_lang, :fullpath, :rootpath, :position, :publish_from, :max_status, :rgroup_id,
                      :wgroup_id, :pgroup_id, :basepath, :custom_base, :klass, :zip, :score, :comments_count,
                      :custom_a, :custom_b,
                      :m_text, :m_title, :m_author
   attr_protected     :site_id
-  
+
   include Zena::Use::Dates::ModelMethods
   parse_date_attribute :event_at, :log_at
 
   include Zena::Use::NestedAttributesAlias::ModelMethods
-  nested_attributes_alias %r{^v_(\w+)} => 'version'
-  nested_attributes_alias %r{^c_(\w+)} => 'version.content'
-  nested_attributes_alias %r{^d_(\w+)} => 'version.dyn'
-  
-  zafu_context       :author => "Contact", :parent => "Node", 
-                     :project => "Project", :section => "Section", 
+  nested_attributes_alias %r{^v_(\w+)} => ['version']
+  nested_attributes_alias %r{^c_(\w+)} => ['version', 'content']
+  nested_attributes_alias %r{^d_(\w+)} => ['version', 'dyn']
+
+  zafu_context       :author => "Contact", :parent => "Node",
+                     :project => "Project", :section => "Section",
                      :real_project => "Project", :real_section => "Section",
                      :user => "User",
                      :version => "Version", :comments => ["Comment"],
@@ -163,26 +163,26 @@ class Node < ActiveRecord::Base
                      :data_c => {:node_class => ["DataEntry"], :data_root => 'node_c'},
                      :data_d => {:node_class => ["DataEntry"], :data_root => 'node_d'}
 
-  
+
   acts_as_secure_node
   acts_as_multiversioned
-  
+
   use_node_query
   include Zena::Use::Relations::ModelMethods
-  
+
   @@native_node_classes = {'N' => self}
   @@unhandled_children  = []
   class << self
-    
+
     # needed for compatibility with virtual classes
     alias create_instance create
     alias new_instance new
-    
+
     def inherited(child)
       super
       @@unhandled_children << child
     end
-    
+
     # Return the list of (kpath,subclasses) for the current class.
     def native_classes
       # this is to make sure subclasses are loaded before the first call
@@ -192,22 +192,22 @@ class Node < ActiveRecord::Base
       end
       @@native_node_classes.reject{|kpath,klass| !(kpath =~ /^#{self.kpath}/) }
     end
-    
+
     # check inheritance chain through kpath
     def kpath_match?(kpath)
       self.kpath =~ /^#{kpath}/
     end
-    
+
     # Class list to which this class can change to
     def change_to_classes_for_form
       classes_for_form(:class => 'Node', :without => 'Document, Contact')
     end
-    
+
     # List of classes that a node can change to.
     def allowed_change_to_classes
       change_to_classes_for_form.map {|k,v| v}
     end
-    
+
     # FIXME: how to make sure all sub-classes of Node are loaded before this is called ?
     def classes_for_form(opts={})
       if klass = opts.delete(:class)
@@ -220,12 +220,12 @@ class Node < ActiveRecord::Base
         all_classes(opts).map{|a,b| [a[0..-1].sub(/^#{self.kpath}/,'').gsub(/./,'  ') + b.to_s, b.to_s] } # white spaces are insecable spaces (not ' ')
       end
     end
-    
+
     # FIXME: how to make sure all sub-classes of Node are loaded before this is called ?
     def kpaths_for_form(opts={})
       all_classes(opts).map{|a,b| [a[1..-1].gsub(/./,'  ') + b.to_s, a.to_s] } # white spaces are insecable spaces (not ' ')
     end
-    
+
     def all_classes(opts={})
       virtual_classes = VirtualClass.find(:all, :conditions => ["site_id = ? AND create_group_id IN (?) AND kpath LIKE '#{self.kpath}%'", current_site[:id], visitor.group_ids])
       classes = (virtual_classes.map{|r| [r.kpath, r.name]} + native_classes.to_a).sort{|a,b| a[0] <=> b[0]}
@@ -252,7 +252,7 @@ class Node < ActiveRecord::Base
       end
       klass
     end
-    
+
     # Return a new object of the class name or nil if the class name does not exist.
     def new_from_class(rel)
       if k = get_class(rel, :create => true)
@@ -261,11 +261,11 @@ class Node < ActiveRecord::Base
         nil
       end
     end
-    
+
     def get_class_from_kpath(kp)
       native_classes[kp] || VirtualClass.find(:first, :conditions=>["site_id = ? AND kpath = ?",current_site[:id], kp])
     end
-    
+
     # Find a node's attribute based on a pseudo (id or path). Used by zazen to create a link for ""::art or "":(people/ant) for example.
     def translate_pseudo_id(id, sym = :id, base_node = nil)
       if id.to_s =~ /\A(-?)(\d+)\Z/
@@ -279,7 +279,7 @@ class Node < ActiveRecord::Base
         nil
       end
     end
-    
+
     # Find a node based on a query shortcut. Used by zazen to create a link for ""::art for example.
     def find_node_by_pseudo(id, base_node = nil)
       raise Zena::AccessViolation if self.scoped_methods == []
@@ -302,14 +302,14 @@ class Node < ActiveRecord::Base
         end
       end
     end
-    
+
     def attr_public?(attribute)
       if attribute.to_s =~ /(.*)_zips?$/
         return true if self.ancestors.include?(Node) && RelationProxy.find_by_role($1.singularize)
       end
       super
     end
-    
+
     def create_or_update_node(new_attributes)
       attributes = transform_attributes(new_attributes)
       unless attributes['name'] && attributes['parent_id']
@@ -326,7 +326,7 @@ class Node < ActiveRecord::Base
       end
       # FIXME: remove 'with_exclusive_scope' once scopes are clarified and removed from 'secure'
       node = klass.send(:with_exclusive_scope) do
-        klass.find(:first, :conditions => ['site_id = ? AND name = ? AND parent_id = ?', 
+        klass.find(:first, :conditions => ['site_id = ? AND name = ? AND parent_id = ?',
                                           current_site[:id], attributes['name'].url_name, attributes['parent_id']])
       end
       if node
@@ -347,18 +347,18 @@ class Node < ActiveRecord::Base
       end
       node
     end
-    
+
     # TODO: cleanup and rename with something indicating the attrs cleanup that this method does.
     def create_node(new_attributes)
       attributes = transform_attributes(new_attributes)
-      
+
       publish_after_save = (attributes.delete('v_status').to_i == Zena::Status[:pub])  # the way this works here and in do_update_attributes is not good
-      
+
       # TODO: replace this hack with a proper class method 'secure' behaving like the
       # instance method. It would get the visitor and scope from the same hack below.
       scope   = self.scoped_methods[0] || {}
-      
-      
+
+
       klass_name   = attributes.delete('class') || attributes.delete('klass') || 'Page'
       unless klass = get_class(klass_name, :create => true)
         node = Node.new
@@ -375,11 +375,11 @@ class Node < ActiveRecord::Base
       else
         self.create_instance(attributes)
       end
-      
+
       node.publish if publish_after_save
       node
     end
-    
+
     # Create new nodes from the data in a folder or archive.
     def create_nodes_from_folder(opts)
       # TODO: all this method needs cleaning, it's a mess.
@@ -390,7 +390,7 @@ class Node < ActiveRecord::Base
       defaults  = (opts[:defaults] || {}).stringify_keys
       klass     = opts[:klass] || "Page"
       res       = {}
-      
+
       # create from archive
       unless folder
         archive = opts[:archive]
@@ -402,7 +402,7 @@ class Node < ActiveRecord::Base
 
         begin
           FileUtils::mkpath(folder)
-          
+
           if archive.kind_of?(StringIO)
             filename = archive.original_filename
             tempf = Tempfile.new(archive.original_filename)
@@ -411,7 +411,7 @@ class Node < ActiveRecord::Base
           else
             filename = archive.original_filename
           end
-          
+
           # extract file in this temporary folder.
           # FIXME: is there a security risk here ?
           if filename =~ /\.tgz$/
@@ -432,7 +432,7 @@ class Node < ActiveRecord::Base
         end
         return res
       end
-      
+
       entries = Dir.entries(folder).reject { |f| f =~ /^([\._~]|[^\w])/ }.sort
       index  = 0
 
@@ -440,7 +440,7 @@ class Node < ActiveRecord::Base
         type = current_obj = sub_folder = document_path = nil
         versions = []
         filename = entries[index]
-        
+
         path     = File.join(folder, filename)
 
         if File.stat(path).directory?
@@ -464,22 +464,22 @@ class Node < ActiveRecord::Base
           attrs['v_lang']   = lang || attrs['v_lang'] || visitor.lang
           document_path = path
         end
-        
+
         index += 1
         while entries[index] =~ /^#{name}(\.\w\w|)(\.\d+|)\.zml$/ # bird.jpg.en.zml
           lang   = $1.blank? ? visitor.lang : $1[1..-1]
           path   = File.join(folder,entries[index])
-          
+
           # we have a zml file. Create a version with this file
           attrs = defaults.merge(get_attributes_from_yaml(path)) # FIXME: this should be done with proper 'base_node' (= self) [#226]
           attrs['name']     = name
           attrs['v_lang'] ||= lang
           versions << attrs
-          
+
           index += 1
         end
-        
-        if versions.empty? 
+
+        if versions.empty?
           if type == :folder
             # minimal node for a folder
             attrs = defaults.dup
@@ -495,7 +495,7 @@ class Node < ActiveRecord::Base
             versions << attrs
           end
         end
-        
+
         new_object = false
         versions.each do |attrs|
           # FIXME: same lang: remove before update current_obj.remove if current_obj.v_lang == attrs['v_lang'] && current_obj.v_status != Zena::Status[:red]
@@ -511,11 +511,11 @@ class Node < ActiveRecord::Base
                 attrs['name']  = 'Node'
                 insert_zafu_headings = true
               end
-              
+
               ctype = EXT_TO_TYPE[attrs['c_ext']]
               ctype = ctype ? ctype[0] : "application/octet-stream"
-              
-              
+
+
               File.open(document_path) do |file|
                 (class << file; self; end;).class_eval do
                   alias local_path path if defined?(:path)
@@ -550,13 +550,13 @@ class Node < ActiveRecord::Base
       end
       res
     end
-    
+
     def find_by_zip(zip)
       node = find(:first, :conditions=>"zip = #{zip.to_i}")
       raise ActiveRecord::RecordNotFound unless node
       node
     end
-    
+
     # Find a node by it's full path. Cache 'fullpath' if found.
     def find_by_path(path)
       return nil unless scope = scoped_methods[0]
@@ -580,7 +580,7 @@ class Node < ActiveRecord::Base
       end
       node
     end
-    
+
     # Paginate found results. Returns [previous_page, collection, next_page]. You can specify page and items per page in the query hash :
     #  :page => 1, :per_page => 20. This should be wrapped into a secure scope.
     def find_with_pagination(count, opts)
@@ -589,13 +589,13 @@ class Node < ActiveRecord::Base
       page     = opts.delete(:page) || 1
       page     = page > 0 ? page.to_i : 1
       offset   = (page - 1) * per_page
-      
+
       if opts[:group]
         count_select  = "DISTINCT #{opts[:group]}"
       else
         count_select  = opts.delete(:count) || 'nodes.id'
       end
-      
+
       # FIXME: why do we need 'exclusive scope' here ?
       with_exclusive_scope(self.scoped_methods[0] || {}) do
         count_all = count(opts.merge( :select  => count_select, :order => nil, :group => nil ))
@@ -612,7 +612,7 @@ class Node < ActiveRecord::Base
       end
       [previous_page, collection, next_page, count_all]
     end
-    
+
     # Return a hash to do a fulltext query.
     def match_query(query, opts={})
       node = opts.delete(:node)
@@ -640,7 +640,7 @@ class Node < ActiveRecord::Base
         return opts.merge(:conditions => '0')
       end
     end
-    
+
     # FIXME: Where is this used ?
     def class_for_relation(rel)
       case rel
@@ -654,7 +654,7 @@ class Node < ActiveRecord::Base
         Node
       end
     end
-    
+
     def plural_relation?(rel)
       rel = rel.split(/\s/).first
       if ['root', 'parent', 'self', 'children', 'documents_only', 'all_pages'].include?(rel) || Node.get_class(rel)
@@ -666,29 +666,29 @@ class Node < ActiveRecord::Base
         return rel =~ /s$/ unless relation
         relation.target_role == rel.singularize ? !relation.target_unique : !relation.source_unique
       end
-    end 
-    
+    end
+
     # Translate attributes from the visitor's reference to the application.
     # This method translates dates, zazen shortcuts and zips and returns a stringified hash.
     def transform_attributes(new_attributes, base_node = nil)
       res = {}
       res['parent_id'] = new_attributes[:_parent_id] if new_attributes[:_parent_id] # real id set inside zena.
-      
+
       attributes = new_attributes.stringify_keys
-      
+
       if attributes['copy'] || attributes['copy_id']
         copy_node = attributes.delete('copy')
         copy_node ||= Node.find_by_zip(attributes.delete('copy_id'))
         attributes = copy_node.replace_attributes_in_values(attributes)
       end
-      
+
       if !res['parent_id'] && p = attributes['parent_id']
         res['parent_id'] = Node.translate_pseudo_id(p, :id, base_node) || p
       end
-      
+
       attributes.keys.each do |key|
         next if ['_parent_id', 'parent_id'].include?(key)
-        
+
         if ['rgroup_id', 'wgroup_id', 'pgroup_id'].include?(key)
           res[key] = Group.translate_pseudo_id(attributes[key], :id) || attributes[key]
         elsif ['rgroup', 'wgroup', 'pgroup'].include?(key)
@@ -735,7 +735,7 @@ class Node < ActiveRecord::Base
           end
         end
       end
-      
+
       res
     end
 
@@ -744,7 +744,7 @@ class Node < ActiveRecord::Base
       attributes.delete(:_parent_id)
       transform_attributes(attributes, base_node)
     end
-    
+
     # Return a safe string to access node attributes in compiled templates and compiled sql.
     def zafu_attribute(node, attribute)
       if node.kind_of?(String)
@@ -782,12 +782,12 @@ class Node < ActiveRecord::Base
         end
       end
     end
-    
+
     def auto_create_discussion
       false
     end
   end
-  
+
   # Additional security so that unsecure finders explode when trying to update/save or follow relations.
   def visitor
     return @visitor if @visitor
@@ -796,7 +796,7 @@ class Node < ActiveRecord::Base
     return Thread.current.visitor if new_record?
     raise Zena::RecordNotSecured.new("Visitor not set, record not secured.")
   end
-  
+
   # Return true if the attribute can be read. This is not the same as attr_public? as some
   # attributes can be read but should not be shown ('id' or 'file' for example).
   def safe_attribute?(att)
@@ -818,30 +818,30 @@ class Node < ActiveRecord::Base
       end
     end
   end
-  
+
   # check inheritance chain through kpath
   def kpath_match?(kpath)
     vclass.kpath =~ /^#{kpath}/
   end
-  
+
   # virtual class
   def vclass
     virtual_class || self.class
   end
-  
+
   def klass
     @new_klass || @set_klass || vclass.to_s
   end
-  
+
   def dyn_attribute_keys
     (version.dyn.keys + (virtual_class ? virtual_class.dyn_keys.to_s.split(',').map(&:strip) : [])).uniq.sort
   end
-  
+
   def klass=(str)
     return if str == klass
     @new_klass = str
   end
-  
+
   # include virtual classes to check inheritance chain
   def vkind_of?(klass)
     if self.class.ancestors.map{|k| k.to_s}.include?(klass)
@@ -850,12 +850,12 @@ class Node < ActiveRecord::Base
       kpath_match?(virt.kpath)
     end
   end
-  
+
   # Update a node's attributes, transforming the attributes first from the visitor's context to Node context.
   def update_attributes_with_transformation(new_attributes)
     update_attributes(secure(Node) {Node.transform_attributes(new_attributes, self)})
   end
-  
+
   # Replace [id], [v_title], etc in attributes values
   def replace_attributes_in_values(hash)
     hash.each do |k,v|
@@ -866,23 +866,23 @@ class Node < ActiveRecord::Base
       end
     end
   end
-  
-  
+
+
   # Parse text content and replace all relative urls ('../projects/art') by ids ('34')
   def parse_assets(text, helper, key)
     # helper is used in textdocuments
     ZazenParser.new(text,:helper=>helper).render(:translate_ids => :zip, :node=>self)
   end
-  
+
   # Parse text and replace ids '!30!' by their pseudo path '!(img/bird)!'
   def unparse_assets(text, helper, key)
     ZazenParser.new(text,:helper=>helper).render(:translate_ids => :relative_path, :node=>self)
   end
-  
+
   # Return the list of ancestors (without self): [root, obj, obj]
   # ancestors to which the visitor has no access are removed from the list
   def ancestors(start=[])
-    raise Zena::InvalidRecord, "Infinit loop in 'ancestors' (#{start.inspect} --> #{self[:id]})" if start.include?(self[:id]) 
+    raise Zena::InvalidRecord, "Infinit loop in 'ancestors' (#{start.inspect} --> #{self[:id]})" if start.include?(self[:id])
     start += [self[:id]]
     if self[:id] == current_site[:root_id]
       []
@@ -898,8 +898,8 @@ class Node < ActiveRecord::Base
       end
     end
   end
-  
-  
+
+
   # Return the same basepath as the parent. Is overwriten by 'Page' class.
   def basepath(rebuild=false, update= true)
     if !self[:basepath] || rebuild
@@ -928,17 +928,17 @@ class Node < ActiveRecord::Base
       path = path.join('/')
       self.connection.execute "UPDATE #{self.class.table_name} SET fullpath='#{path}' WHERE id='#{self[:id]}'" if path != self[:fullpath] && update
       self[:fullpath] = path
-    end  
+    end
     self[:fullpath]
   end
-  
+
   # Same as fullpath, but the path includes the root node.
   def rootpath
     current_site.name + (fullpath != "" ? "/#{fullpath}" : "")
   end
-  
+
   alias path rootpath
-  
+
   # Return an array with the node name and the last two parents' names.
   def short_path
     path = self.rootpath.split('/')
@@ -948,7 +948,7 @@ class Node < ActiveRecord::Base
       path
     end
   end
-  
+
   def pseudo_id(root_node, sym)
     case sym
     when :zip
@@ -959,23 +959,23 @@ class Node < ActiveRecord::Base
       "(#{full.rel_path(root)})"
     end
   end
-  
+
   # Return save path for an asset (element produced by text like a png file from LateX)
   def asset_path(asset_filename)
     # It would be nice to move this outside 'self[:id]' so that the same asset can
     # be used by many pages... But then, how do we expire unused assets ?
     "#{SITES_ROOT}#{site.data_path}/asset/#{self[:id]}/#{asset_filename}"
   end
-  
+
   # Used by zafu to find the search score
   # def score
   #   self[:score]
   # end
-  
+
   def all_relations
     @all_relations ||= self.vclass.all_relations(self)
   end
-  
+
   # Find parent
   def parent(is_secure = true)
     # make sure the cache is in sync with 'parent_id' (used during validation)
@@ -991,12 +991,12 @@ class Node < ActiveRecord::Base
       @parent_insecure = secure(Node, :secure => false) { Node.find(self[:parent_id]) }
     end
   end
-  
+
   # Return self if the current node is a section else find section.
   def section
     self.kind_of?(Section) ? self : real_section
   end
-  
+
   # Find real section
   def real_section(is_secure = true)
     return self if self[:parent_id].nil? # root
@@ -1007,12 +1007,12 @@ class Node < ActiveRecord::Base
       secure(Node, :secure => false) { Node.find(self[:section_id]) }
     end
   end
-  
+
   # Return self if the current node is a project else find project.
   def project
     self.kind_of?(Project) ? self : real_project
   end
-  
+
   # Find real project (Project's project if node is a Project)
   def real_project(is_secure = true)
     return self if self[:parent_id].nil?
@@ -1029,24 +1029,24 @@ class Node < ActiveRecord::Base
     c = klass.new(opts)
     c.parent_id  = self[:id]
     c.instance_variable_set(:@parent, self)
-    
+
     c.visitor    = visitor
-    
+
     c.inherit = 1
     c.rgroup_id  = self.rgroup_id
     c.wgroup_id  = self.wgroup_id
     c.pgroup_id  = self.pgroup_id
-    
+
     c.section_id = self.get_section_id
     c.project_id = self.get_project_id
     c
   end
-  
+
   # ACCESSORS
   def author
     user.contact
   end
-  
+
   # Find icon through a relation named 'icon' or use first image child
   def icon
     return nil if new_record?
@@ -1055,19 +1055,19 @@ class Node < ActiveRecord::Base
     sql_str, uses_node_name = query.to_s, query.uses_node_name
     @icon = sql_str ? do_find(:first, eval(sql_str), :ignore_source => !uses_node_name) : nil
   end
-  
+
   alias o_user user
-  
+
   def user
     secure!(User) { o_user }
   end
-  
+
   # Find all data entries linked to the current node
   def data
     list = DataEntry.find(:all, :conditions => "node_a_id = #{id} OR node_b_id = #{id} OR node_c_id = #{id} OR node_d_id = #{id}", :order => 'date ASC,created_at ASC')
     list == [] ? nil : list
   end
-  
+
   # Find data entries through a specific slot (node_a, node_b). "data_entries_a" finds all data entries link through 'node_a_id'.
   DataEntry::NodeLinkSymbols.each do |sym|
     class_eval "def #{sym.to_s.gsub('node', 'data')}
@@ -1076,11 +1076,11 @@ class Node < ActiveRecord::Base
       list == [] ? nil : list
     end"
   end
-  
+
   def ext
     (name && name != '' && name =~ /\./ ) ? name.split('.').last : ''
   end
-  
+
   def c_public_read(sym)
     if c = version.content
       c.public_read(sym)
@@ -1088,35 +1088,35 @@ class Node < ActiveRecord::Base
       ''
     end
   end
-    
+
   # set name: remove all accents and camelize
   def name=(str)
     return unless str && str != ""
     self[:name] = str.url_name
   end
-  
+
   # Return current discussion id (used by query_builder)
   def get_discussion_id
     (discussion && !discussion.new_record?) ? discussion[:id] : '0'
   end
-  
+
   # Return self[:id] if the node is a kind of Section. Return section_id otherwise.
   def get_section_id
     # root node is it's own section and project
     self[:parent_id].nil? ? self[:id] : self[:section_id]
   end
-  
+
   # Return self[:id] if the node is a kind of Project. Return project_id otherwise.
   def get_project_id
     # root node is it's own section and project
     self[:parent_id].nil? ? self[:id] : self[:project_id]
   end
-  
+
   # Id to zip mapping for parent_id. Used by zafu and forms.
   def parent_zip
     parent ? parent[:zip] : nil
   end
-  
+
   # Id to zip mapping for section_id. Used by zafu and forms.
   def section_zip
     section[:zip]
@@ -1126,10 +1126,10 @@ class Node < ActiveRecord::Base
   def project_zip
     project[:zip]
   end
-  
+
   # Id to zip mapping for user_id. Used by zafu and forms.
   def user_zip; self[:user_id]; end
-  
+
   # transform to another class
   # def vclass=(new_class)
   #   if new_class.kind_of?(String)
@@ -1138,13 +1138,13 @@ class Node < ActiveRecord::Base
   #     klass = new_class
   #   end
   #   raise NameError if !klass.ancestors.include?(Node) || klass.version_class != self.class.content_class
-  #   
-  #   
-  #   
+  #
+  #
+  #
   # rescue NameError
   #   errors.add('klass', 'invalid')
   # end
-  
+
   # transform an Node into another Object. This is a two step operation :
   # 1. create a new object with the attributes from the old one
   # 2. move old object out of the way (setting parent_id and section_id to -1)
@@ -1187,13 +1187,13 @@ class Node < ActiveRecord::Base
   #     self
   #   end
   # end
-  
+
   # Find the discussion for the current context (v_status and v_lang). This automatically creates a new #Discussion if there is
   # no closed or open discussion for the current lang and Node#can_auto_create_discussion? is true
   def discussion
     return @discussion if defined?(@discussion)
-    
-    @discussion = Discussion.find(:first, :conditions=>[ "node_id = ? AND inside = ? AND lang = ?", 
+
+    @discussion = Discussion.find(:first, :conditions=>[ "node_id = ? AND inside = ? AND lang = ?",
       self[:id], v_status != Zena::Status[:pub], v_lang ], :order=>'id DESC') ||
       if can_auto_create_discussion?
         Discussion.new(:node_id=>self[:id], :lang=>v_lang, :inside=>(v_status != Zena::Status[:pub]))
@@ -1201,7 +1201,7 @@ class Node < ActiveRecord::Base
         nil
       end
   end
-  
+
   # Automatically create a discussion if any of the following conditions are met:
   # - there already exists an +outside+, +open+ discussion for another language
   # - the node is not published (creates an internal discussion)
@@ -1209,28 +1209,28 @@ class Node < ActiveRecord::Base
   def can_auto_create_discussion?
     can_drive? ||
     (v_status != Zena::Status[:pub]) ||
-    Discussion.find(:first, :conditions=>[ "node_id = ? AND inside = ? AND open = ?", 
+    Discussion.find(:first, :conditions=>[ "node_id = ? AND inside = ? AND open = ?",
                              self[:id], false, true ])
   end
-  
+
   # FIXME: use nested_attributes_alias and try to use native Rails to create the comment
   # comment_attributes=, ...
-  
+
   def m_text=(str)
     @add_comment ||= {}
     @add_comment[:text] = str
   end
-  
+
   def m_title=(str)
     @add_comment ||= {}
     @add_comment[:title] = str
   end
-  
+
   def m_author=(str)
     @add_comment ||= {}
     @add_comment[:author] = str
   end
-  
+
   # Comments for the current context. Returns nil when there is no discussion.
   def comments
     if discussion
@@ -1240,7 +1240,7 @@ class Node < ActiveRecord::Base
       nil
     end
   end
-  
+
   # TODO: remove, replace by relation proxy: proxy.count...
   def comments_count
     if discussion
@@ -1249,24 +1249,24 @@ class Node < ActiveRecord::Base
       0
     end
   end
-  
+
   # Return true if it is allowed to add comments to the node in the current context
   def can_comment?
     visitor.commentator? && discussion && discussion.open?
   end
-  
+
   # TODO: test
   def sweep_cache
     return if current_site.being_created?
     # zafu 'erb' rendering cache expire
     # TODO: expire only 'dev' rendering if version is a redaction
     CachedPage.expire_with(self) if self.kind_of?(Template)
-    
+
     # Clear element cache
     Cache.sweep(:visitor_id=>self[:user_id], :visitor_groups=>[rgroup_id, wgroup_id, pgroup_id], :kpath=>self.vclass.kpath)
-    
+
     # Clear full result cache
-    
+
     # we want to be sure to find the project and parent, even if the visitor does not have an
     # access to these elements.
     # FIXME: use self + modified relations instead of parent/project
@@ -1276,17 +1276,17 @@ class Node < ActiveRecord::Base
       # this destroys less cache but might miss things like 'changes in project' that are displayed on every page.
       # CachedPage.expire_with(self, [self[:project_id], self[:section_id], self[:parent_id]].compact.uniq)
     end
-    
+
     # clear assets
     FileUtils::rmtree(asset_path(''))
   end
-  
+
   # Include data entry verification in multiversion's empty? method.
   def empty?
     return true if new_record?
     super && 0 == self.class.count_by_sql("SELECT COUNT(*) FROM #{DataEntry.table_name} WHERE node_a_id = #{id} OR node_b_id = #{id} OR node_c_id = #{id} OR node_d_id = #{id}")
   end
-  
+
   # create a 'tgz' archive with node content and children, returning temporary file path
   def archive
     n = 0
@@ -1294,7 +1294,7 @@ class Node < ActiveRecord::Base
       folder_path = File.join(RAILS_ROOT, 'tmp', sprintf('%s.%d.%d', 'archive', $$, n))
       break unless File.exists?(folder_path)
     end
-    
+
     begin
       FileUtils::mkpath(folder_path)
       export_to_folder(folder_path)
@@ -1305,11 +1305,11 @@ class Node < ActiveRecord::Base
     end
     tempf
   end
-  
+
   # export node content and children into a folder
   def export_to_folder(path)
     children = secure(Node) { Node.find(:all, :conditions=>['parent_id = ?', self[:id] ]) }
-    
+
     if kind_of?(Document) && version.title == name && (kind_of?(TextDocument) || version.text.blank? || version.text == "!#{zip}!")
       # skip zml
       # TODO: this should better check that version content is really useless
@@ -1320,12 +1320,12 @@ class Node < ActiveRecord::Base
         f.puts self.to_yaml
       end
     end
-    
+
     if kind_of?(Document)
       data = kind_of?(TextDocument) ? StringIO.new(version.text) : version.content.file
       File.open(File.join(path, filename), 'wb') { |f| f.syswrite(data.read) }
     end
-    
+
     if children
       content_folder = File.join(path,name)
       FileUtils::mkpath(content_folder)
@@ -1334,22 +1334,22 @@ class Node < ActiveRecord::Base
       end
     end
   end
-  
+
   # export node as a hash
   def to_yaml
     hash = {}
     export_keys[:zazen].merge(version.export_keys[:zazen]).each do |k, v|
       hash[k] = unparse_assets(v, self, k)
     end
-    
+
     export_keys[:dates].merge(version.export_keys[:dates]).each do |k|
       hash[k] = visitor.tz.utc_to_local(self.send(k)).strftime("%Y-%m-%d %H:%M:%S")
     end
-    
+
     hash.merge!('class' => self.klass)
     hash.to_yaml
   end
-  
+
   # List of attribute keys to export in a zml file.
   def export_keys
     {
@@ -1357,19 +1357,19 @@ class Node < ActiveRecord::Base
       :dates => {},
     }
   end
-  
+
   # List of attribute keys to transform (change references, etc).
   def parse_keys
     export_keys[:zazen].keys
   end
-  
+
   # This is needed during 'unparse_assets' when the node is it's own helper
   def find_node_by_pseudo(string, base_node = nil)
     secure(Node) { Node.find_node_by_pseudo(string, base_node || self) }
   end
-  
+
   protected
-  
+
     # after node is saved, make sure it's children have the correct section set
     def spread_project_and_section
       if @spread_section_id || @spread_project_id
@@ -1379,15 +1379,15 @@ class Node < ActiveRecord::Base
         remove_instance_variable :@spread_project_id if @spread_project_id
       end
     end
-  
+
     #  node                       [change project and section]
     #    |
     #    +-- node                 [set project] [set section]
-    #          |                  
+    #          |
     #          +-- section 4      [set project] [  keep     ]
-    #          |     |            
+    #          |     |
     #          |     +-- node     [set project] [  keep     ]
-    #          |     |            
+    #          |     |
     #          |     +-- project  [  keep     ] [  keep     ] => skip
     #          |
     #          +-- page           [set project] [set section]
@@ -1398,30 +1398,30 @@ class Node < ActiveRecord::Base
     #                |
     #                +-- section  [  keep     ] [  keep     ] => skip
     def sync_section_and_project(section_id, project_id)
-      
+
       # If this code is optimized, do not forget to sweep_cache for each modified child.
       all_children.each do |child|
         if child.kind_of?(Section)                     # [keep section] [set  project]
           next unless project_id                       # => skip
           # needed when doing 'sweep_cache'.
-          visitor.visit(child) 
-          
+          visitor.visit(child)
+
           child[:project_id] = project_id              #                [set  project]
           child.save_with_validation(false)
           child.sync_section_and_project(    nil    , project_id)
-          
+
         elsif child.kind_of?(Project)                  # [set  section] [keep project]
           next unless section_id                       # => skip
           # needed when doing 'sweep_cache'.
           visitor.visit(child)
-          
+
           child[:section_id] = section_id              # [set  section]
           child.save_with_validation(false)
           child.sync_section_and_project(section_id,     nil   )
-        else                                           # [set  section] [set  project]  
+        else                                           # [set  section] [set  project]
           # needed when doing 'sweep_cache'.
           visitor.visit(child)
-          
+
           child[:section_id] = section_id if section_id #[set  section]
           child[:project_id] = project_id if project_id #               [set  project]
           child.save_with_validation(false)
@@ -1429,15 +1429,15 @@ class Node < ActiveRecord::Base
         end
       end
     end
-    
+
   private
     def node_before_validation
 
       self[:kpath] = self.vclass.kpath
-      
+
       # set name from version title if name not set yet
       self.name = version[:title] unless self[:name]
-      
+
       if self[:name]
         # update cached fullpath
         if new_record? || name_changed? || parent_id_changed?
@@ -1472,7 +1472,7 @@ class Node < ActiveRecord::Base
           @spread_project_id = self[:project_id]
         end
       end
-      
+
       # set position
       if klass != 'Node'
         # 'Node' does not have a position scope (need two first letters of kpath)
@@ -1494,9 +1494,9 @@ class Node < ActiveRecord::Base
     def validate_node
       # when creating root node, self[:id] and :root_id are both nil, so it works.
       errors.add("parent_id", "invalid parent") unless (parent.kind_of?(Node) && self[:id] != current_site[:root_id]) || (self[:id] == current_site[:root_id] && self[:parent_id] == nil)
-      
+
       errors.add('comment', 'you do not have the rights to do this') if @add_comment && !can_comment?
-      
+
       if @new_klass
         if !can_drive? || !self[:parent_id]
           errors.add('klass', 'you do not have the rights to do this')
@@ -1505,33 +1505,33 @@ class Node < ActiveRecord::Base
         end
       end
     end
-    
+
     # Called before destroy. An node must be empty to be destroyed
     def secure_on_destroy
       return false unless super
       unless empty?
         errors.add('base', "contains subpages or data")
         return false
-      else  
+      else
         # expire cache
         # TODO: test
         CachedPage.expire_with(self)
         return true
       end
     end
-  
+
     # Get unique zip in the current site's scope
     def node_before_create
       self[:zip] = Node.next_zip(self[:site_id])
     end
-    
+
     # Create an 'outside' discussion if the virtual class has auto_create_discussion set
     def node_after_create
       if vclass.auto_create_discussion
         Discussion.create(:node_id=>self[:id], :lang=>v_lang, :inside => false)
       end
     end
-    
+
     # Called after a node is 'unpublished'
     def after_unpublish
       if (self[:max_status] < Zena::Status[:pub]) && !@new_record_before_save
@@ -1546,25 +1546,25 @@ class Node < ActiveRecord::Base
       return true if @new_record_before_save
       sync_documents(:redit)
     end
-      
+
     # Called after a node is 'removed'
     def after_remove
       return true if @new_record_before_save
       sync_documents(:remove)
     end
-  
+
     # Called after a node is 'proposed'
     def after_propose
       return true if @new_record_before_save
       sync_documents(:propose)
     end
-  
+
     # Called after a node is 'refused'
     def after_refuse
       return true if @new_record_before_save
       sync_documents(:refuse)
     end
-    
+
     # Called after a node is published
     def after_publish(pub_time=nil)
       sync_name
@@ -1602,14 +1602,14 @@ class Node < ActiveRecord::Base
       end
       allOK
     end
-    
+
     # Try to keep node name in sync with published version title in ref_lang. This is set after_publish.
     def sync_name
       # FIXME: @old_title should be version.title_was ??
       return true if @old_title.nil? || version.lang != ref_lang || name == version.title.url_name || name_was != @old_title.url_name
       update_attributes(:name => version.title.url_name)
     end
-  
+
     # Whenever something changed (publication/proposition/redaction/link/...)
     def after_all
       sweep_cache
@@ -1620,21 +1620,21 @@ class Node < ActiveRecord::Base
         @add_comment[:author_name] = nil unless visitor.is_anon? # only anonymous user should set 'author_name'
         @add_comment[:discussion_id] = @discussion[:id]
         @add_comment[:user_id]       = visitor[:id]
-        
+
         @comment = secure!(Comment) { Comment.create(filter_attributes(@add_comment)) }
-        
+
         remove_instance_variable(:@add_comment)
       end
       remove_instance_variable(:@discussion) if defined?(@discussion) # force reload
-      
+
       true
     end
-    
+
     def change_klass
 
       if @new_klass && !new_record?
         old_kpath = self.kpath
-        
+
         klass = Node.get_class(@new_klass)
         if klass.kind_of?(VirtualClass)
           self[:vclass_id] = klass.kind_of?(VirtualClass) ? klass[:id] : nil
@@ -1644,26 +1644,26 @@ class Node < ActiveRecord::Base
           self[:type]      = klass.to_s
         end
         self[:kpath] = klass.kpath
-        
+
         if old_kpath[/^NPS/] && !self[:kpath][/^NPS/]
           @spread_section_id = self[:section_id]
         elsif !old_kpath[/^NPS/] && self[:kpath][/^NPS/]
           @spread_section_id = self[:id]
         end
-        
+
         if old_kpath[/^NPP/] && !self[:kpath][/^NPP/]
           @spread_project_id = self[:project_id]
         elsif !old_kpath[/^NPP/] && self[:kpath][/^NPP/]
           @spread_project_id = self[:id]
         end
-        
+
         @set_klass = @new_klass
         remove_instance_variable(:@new_klass)
       end
 
       true
     end
-  
+
     # Find all children, whatever visitor is here (used to check if the node can be destroyed or to update section_id)
     def all_children
       # FIXME: remove 'with_exclusive_scope' once scopes are clarified and removed from 'secure'
@@ -1671,7 +1671,7 @@ class Node < ActiveRecord::Base
         Node.find(:all, :conditions=>['parent_id = ?', self[:id] ])
       end
     end
-    
+
     def clear_children_fullpath(i = self[:id])
       return true unless @clear_children_fullpath
       base_class.connection.execute "UPDATE nodes SET fullpath = NULL WHERE #{ref_field(false)}='#{i}'"
@@ -1680,21 +1680,21 @@ class Node < ActiveRecord::Base
       base_class.send(:with_exclusive_scope) do
         ids = base_class.fetch_ids("SELECT id FROM #{base_class.table_name} WHERE #{ref_field(true)} = '#{i.to_i}' AND inherit='1'")
       end
-      
+
       ids.each { |i| clear_children_fullpath(i) }
       true
     end
-    
+
     # Base class
     def base_class
       Node
     end
-  
+
     # Reference class
     def ref_class
       Node
     end
-  
+
     # return the id of the reference
     def ref_field(for_heirs=false)
       if !for_heirs && (self[:id] == current_site[:root_id])
@@ -1703,7 +1703,7 @@ class Node < ActiveRecord::Base
         :parent_id
       end
     end
-     
+
 end
 
 Bricks::Patcher.apply_patches
