@@ -1,11 +1,29 @@
 module Zena
   module Use
     module Relations
+      
+      # The ProxyLoader is used so that nested_attributes_alias resolution through node.send('link').send('friend') 
+      # makes it to the 'friend' relation proxy.
+      class ProxyLoader
+        def initialize(node)
+          @node = node
+        end
+        
+        def [](role)
+          @node.relation_proxy(role.to_s)
+        end
+        
+        def send(role)
+          @node.relation_proxy(role.to_s)
+        end
+      end
+      
       LINK_ATTRIBUTES = [:status, :comment, :date]
-      LINK_REGEXP = /^([\w_]+)_(ids?|zips?|#{LINK_ATTRIBUTES.join('|')})(=?)$/
+      LINK_REGEXP = /^([\w_]+)_(ids?|zips?|#{LINK_ATTRIBUTES.join('|')})$/
       
       
       module ClassMethods
+        
         # All relations related to the current class/virtual_class with its ancestors.
         def all_relations(start=nil)
           rel_as_source = RelationProxy.find(:all, :conditions => ["site_id = ? AND source_kpath IN (?)", current_site[:id], split_kpath])
@@ -33,6 +51,7 @@ module Zena
           base.after_destroy :destroy_links
           base.attr_public   :link
           base.attr_public(*LINK_ATTRIBUTES.map {|k| "l_#{k}".to_sym})
+          base.nested_attributes_alias LINK_REGEXP => Proc.new {|klass, m| klass.relation_alias(m) }
           base.class_eval <<-END
             class << self
               include Zena::Use::Relations::ClassMethods
@@ -44,6 +63,22 @@ module Zena
 
             HAS_RELATIONS = true
           END
+        end
+        
+        # Return an array of accessor methods for the matched nested attribute alias.
+        def relation_alias(match)
+          role     = match[1]
+          field    = match[2]
+
+          if relation = relation_proxy(role)
+            if field =~ /^ids?|zips?/
+              ['link', role, "other_#{field}"]
+            else
+              ['link', role, field]
+            end
+          else
+            nil
+          end
         end
         
         def set_link(link)
@@ -103,7 +138,8 @@ module Zena
         # FIXME: this method does an 'update' not only 'add'
         def add_link(role, hash)
           if rel = relation_proxy(role)
-            rel.other_id = hash[:other_id] if hash.has_key?(:other_id)
+            rel.other_id  = hash[:other_id]  if hash.has_key?(:other_id)
+            rel.other_ids = hash[:other_ids] if hash.has_key?(:other_ids)
             LINK_ATTRIBUTES.each do |k|
               rel.send("other_#{k}=", hash[k]) if hash.has_key?(k)
             end
@@ -125,23 +161,27 @@ module Zena
           end
         end
 
-        # TODO: could use rails native nested attributes !!!
-        def link=(hash)
+        def link_attributes=(hash)
           return unless hash.kind_of?(Hash)
           hash.each do |role, definition|
             if role =~ /\A\d+\Z/
               # key used as array
-            else
+            elsif role =~ /^(.+)_attributes$/
               # key used as role
-              definition['role'] ||= role
+              definition['role'] ||= $1
             end
             add_link(definition.delete('role'), definition.symbolize_keys)  # TODO: only use string keys
           end 
         end
 
         def link
-          @link
+          ProxyLoader.new(self)
         end
+        
+        # FIXME: !!! this used to be an accessor for the current link but is replaced by ProxyLoader !
+        # def link
+        #   @link
+        # end
 
         def l_comment=(v)
           @l_comment = v.blank? ? nil : v

@@ -24,9 +24,9 @@ class NestedAttributesAliasViewTest < Zena::View::TestCase
     nested_attributes_alias %r{^v_(.+)}      => 'version'
     nested_attributes_alias %r{^c_(.+)}      => 'version.content'
     nested_attributes_alias %r{^d_(.+)$}     => 'version.dyn'
-    nested_attributes_alias %r{^(.+)_(id|status|comment)$} => Proc.new {|m| self.relation_alias(m) }
+    nested_attributes_alias %r{^(.+)_(id|status|comment)$} => Proc.new {|obj, m| obj.relation_alias(m) }
     
-    def self.relation_alias(match)
+    def relation_alias(match)
       if ['friend', 'dog'].include?(match[1])
         if match[2] == 'id'
           ['link', match[1], 'other_id']

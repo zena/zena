@@ -75,8 +75,8 @@ class RelationProxyTest < Zena::Unit::TestCase
     login(:tiger)
     node = secure!(Node) { nodes(:status) }
     assert node.update_attributes( 'set_tag_ids' => [nodes_id(:art).to_s] )
-    assert_equal [nodes_id(:art)], node.set_tag_ids
-
+    assert_equal [nodes_id(:art)], node.link['set_tag'].other_ids
+    
     node = secure!(Node) { nodes(:status) } # reload
     assert_equal nodes_id(:art), node.find(:all,'set_tags')[0][:id]
     assert_equal [nodes_id(:art)], node.set_tag_ids

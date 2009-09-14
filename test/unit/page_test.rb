@@ -10,7 +10,7 @@ class PageTest < Zena::Unit::TestCase
     err node
     assert !node.new_record?
     assert_equal 'lazyNode', node.name
-    assert_equal 'lazy node', node.v_title
+    assert_equal 'lazy node', node.version.title
   end
   
   def test_create_same_name

@@ -6,7 +6,7 @@ module Zena
       module ViewMethods
         class InstanceTag < ActionView::Helpers::InstanceTag
           def value_before_type_cast(object)
-            if object.class.respond_to?(:nested_model_names_for_alias) && nested_model_names = object.class.nested_model_names_for_alias(@method_name)
+            if object.respond_to?(:nested_model_names_for_alias) && nested_model_names = object.nested_model_names_for_alias(@method_name)
               method_name = nested_model_names.pop # remove method
               nested_model_names.each do |nested_model_name|
                 object = object.send(nested_model_name)
@@ -67,8 +67,60 @@ module Zena
         end
         
         def attributes_with_nested_alias=(*args)
-          self.attributes_without_nested_alias = self.class.resolve_attributes_alias(*args)
+          self.attributes_without_nested_alias = resolve_attributes_alias(*args)
         end
+        
+        def resolve_attributes_alias(attributes)
+          new_attributes = {}
+          attributes.each do |k, v|
+            if nested_model_names = nested_model_names_for_alias(k)
+              if new_key = nested_model_names.pop
+                merge_nested_model_names_in_hash(new_attributes, nested_model_names.map {|nested_model_name| "#{nested_model_name}_attributes"})[new_key] = v
+              end
+            else
+              deep_merge_hash(new_attributes, k => v)
+            end
+          end
+          new_attributes
+        end
+        
+        def nested_model_names_for_alias(attribute)
+          attribute = attribute.to_s
+          nested_model_names = nil
+          self.class.nested_attr_alias_list.each do |regexp, target|
+            if attribute =~ regexp
+              if target.kind_of?(Proc)
+                if nested_model_names = target.call(self, $~.to_a)
+                  break
+                end
+              else
+                nested_model_names = target + [$1]
+                break
+              end
+            end
+          end
+          nested_model_names
+        end
+        private
+          
+          def merge_nested_model_names_in_hash(target, nested_model_names)
+            nested_model_names.each do |model_name|
+              target = target[model_name] ||= {}
+            end
+            target
+          end
+
+          def deep_merge_hash(target, hash)
+            deep_target = target
+            hash.each do |k, v|
+              if v.kind_of?(Hash)
+                deep_target = target[k] ||= {}
+                deep_target = deep_merge_hash(deep_target, v)
+              else
+                deep_target[k] = v
+              end
+            end
+          end
       end # ModelMethods
       
       module ClassMethods
@@ -104,58 +156,6 @@ module Zena
               target = target.split(".")
             end
             list << [regexp, target]
-          end
-        end
-        
-        def resolve_attributes_alias(attributes)
-          new_attributes = {}
-          filters = self.nested_attr_alias_list
-          attributes.each do |k, v|
-            if nested_model_names = nested_model_names_for_alias(k)
-              if new_key = nested_model_names.pop
-                merge_nested_model_names_in_hash(new_attributes, nested_model_names.map {|nested_model_name| "#{nested_model_name}_attributes"})[new_key] = v
-              end
-            else
-              deep_merge_hash(new_attributes, k => v)
-            end
-          end
-          new_attributes
-        end
-        
-        def nested_model_names_for_alias(attribute)
-          attribute = attribute.to_s
-          nested_model_names = nil
-          self.nested_attr_alias_list.each do |regexp, target|
-            if attribute =~ regexp
-              if target.kind_of?(Proc)
-                if nested_model_names = target.call($~.to_a)
-                  break
-                end
-              else
-                nested_model_names = target + [$1]
-                break
-              end
-            end
-          end
-          nested_model_names
-        end
-
-        def merge_nested_model_names_in_hash(target, nested_model_names)
-          nested_model_names.each do |model_name|
-            target = target[model_name] ||= {}
-          end
-          target
-        end
-
-        def deep_merge_hash(target, hash)
-          deep_target = target
-          hash.each do |k, v|
-            if v.kind_of?(Hash)
-              deep_target = target[k] ||= {}
-              deep_target = deep_merge_hash(deep_target, v)
-            else
-              deep_target[k] = v
-            end
           end
         end
       end # ClassMethods
