@@ -1432,6 +1432,7 @@ class Node < ActiveRecord::Base
     
   private
     def node_before_validation
+
       self[:kpath] = self.vclass.kpath
       
       # set name from version title if name not set yet
@@ -1486,6 +1487,7 @@ class Node < ActiveRecord::Base
           self[:position] = pos > 0 ? pos + 1.0 : 0.0
         end
       end
+
     end
 
     # Make sure the node is complete before creating it (check parent and project references)
@@ -1629,6 +1631,7 @@ class Node < ActiveRecord::Base
     end
     
     def change_klass
+
       if @new_klass && !new_record?
         old_kpath = self.kpath
         
@@ -1657,7 +1660,7 @@ class Node < ActiveRecord::Base
         @set_klass = @new_klass
         remove_instance_variable(:@new_klass)
       end
-      
+
       true
     end
   

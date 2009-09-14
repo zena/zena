@@ -261,7 +261,6 @@ Just doing the above will filter all result according to the logged in user.
           self[:site_id]  = visitor.site.id
           self[:user_id]  = visitor.id
           self[:ref_lang] = visitor.lang
-          self[:kpath]    = self.class.kpath
           
           [:rgroup_id, :wgroup_id, :pgroup_id, :skin].each do |sym|
             # not defined => inherit
