@@ -1,8 +1,9 @@
+
 module Zena
   module Use
     module HtmlTags
       module ImageTags
-        
+
         # Display an image tag for the given node. If no mode is provided, 'full' is used. Options are ':mode', ':id', ':alt',
         # ':alt_src' and ':class'. If no class option is passed, the format is used as the image class. Example :
         # img_tag(@node, :mode=>'pv')  => <img src='/sites/test.host/data/jpg/20/bird_pv.jpg' height='80' width='80' alt='bird' class='pv'/>
@@ -64,11 +65,11 @@ module Zena
             # rough wrap to use the 'button'
             # we differ '<object...>' by using a placeholder to avoid the RedCloth escaping.
             add_place_holder( %{ <object type="application/x-shockwave-flash"
-              data="/images/swf/xspf/musicplayer.swf?&song_url=#{CGI.escape(data_path(obj))}" 
+              data="/images/swf/xspf/musicplayer.swf?&song_url=#{CGI.escape(data_path(obj))}"
               width="17" height="17">
-              <param name="movie" 
+              <param name="movie"
               value="/images/swf/xspf/musicplayer.swf?&song_url=#{CGI.escape(data_path(obj))}" />
-              <img src="/images/sound_mute.png" 
+              <img src="/images/sound_mute.png"
               width="16" height="16" alt="" />
             </object> } )
           end
@@ -144,7 +145,7 @@ module Zena
       end # ImageTags
 
       module FormTags
-        
+
         # date_box seizure setup
         def uses_datebox(opt={})
           if ZENA_CALENDAR_LANGS.include?(lang)
@@ -175,8 +176,8 @@ module Zena
         def form_skins
           @form_skins ||= secure!(Skin) { Skin.find(:all, :order=>'name ASC') }.map {|r| r[:name]}
         end
-        
-        
+
+
         def upload_form_tag(url_opts, html_opts = {})
           @uuid = UUIDTools::UUID.random_create.to_s.gsub('-','')
           html_opts.reverse_merge!(:multipart => true, :id => "UploadForm#{@uuid}")
@@ -192,7 +193,7 @@ module Zena
             form_tag( url_opts, html_opts )
           end
         end
-        
+
         # Date selection tool
       	def date_box(obj, var, opts = {})
       	  rnd_id = rand(100000000000)
@@ -218,7 +219,7 @@ module Zena
       </script></span>
       		EOL
       	end
-      	
+
         # Display an input field to select an id. The user can enter an id or a name in the field and the
         # node's path is shown next to the input field. If the :class option is specified and the elements
         # in this class are not too many, a select menu is shown instead (nodes in the menu are found using secure_write scope).
@@ -276,7 +277,7 @@ module Zena
 
         #TODO: test
         def readers_for(obj=@node)
-          readers = if obj.private? 
+          readers = if obj.private?
             _('img_private')
           elsif [obj.rgroup_id,obj.pgroup_id,obj.user_id].include?(1)
             _('img_public')
@@ -292,10 +293,14 @@ module Zena
         end
 
       end # FormTags
-      
+
       module LinkTags
         include WillPaginate::ViewHelpers
-        
+
+        def protect_against_forgery?
+          false
+        end
+
         # Add class='on' if the link points to the current page
         def link_to_with_state(*args)
           title, url, options = *args
@@ -305,8 +310,8 @@ module Zena
           end
           link_to(title, url, options)
         end
-        
-        # unobtrusive link_to_remote
+
+        unobtrusive link_to_remote
         def link_to_remote(name, options = {}, html_options = {})
           html_options.merge!({:href => url_for(options[:url])}) unless options[:url].blank?
           super(name, options, html_options)
@@ -323,7 +328,7 @@ module Zena
           res << ">"
           res
         end
-        
+
         # Shows 'login' or 'logout' button.
         def login_link(opts={})
           if visitor.is_anon?
@@ -336,11 +341,11 @@ module Zena
             else
               "<a href='/login'>#{_('login')}</a>"
             end
-          else  
+          else
             "<a href='/logout'>#{_('logout')}</a>"
           end
         end
-        
+
         # Show visitor name if logged in
         def visitor_link(opts={})
           unless visitor.is_anon?
@@ -349,7 +354,7 @@ module Zena
             ""
           end
         end
-        
+
         # TODO: rename 'admin_links' ?
         # shows links for site features
         def show_link(link, opt={})
@@ -397,7 +402,7 @@ module Zena
             ''
           end
         end
-        
+
         # show language selector
         def lang_links(opts={})
           if opts[:wrap]
@@ -424,7 +429,7 @@ module Zena
           end
           res.join(opts[:join] || '')
         end
-        
+
         # show current path with links to ancestors
         def show_path(opts={})
           node = opts.delete(:node) || @node
@@ -445,11 +450,11 @@ module Zena
           nav << "<a href='#{url_for(zen_path(node))}' class='current'>#{node.name}</a>"
           res = "#{res}#{open_tag}#{nav.join("#{close_tag}#{open_tag}#{join}")}#{close_tag}"
         end
-        
+
       end # LinkTags
-      
+
       module ActionTags
-        
+
         # Actions that appear on the web page
         def node_actions(opts={})
           actions = (opts[:actions] || 'all').to_s
@@ -476,12 +481,12 @@ module Zena
           case action
           when 'edit'
             url = edit_version_url(:node_id => node[:zip], :id => 0)
-            "<a href='#{url}#{publish_after_save ? "?pub=#{publish_after_save}" : ''}' target='_blank' title='#{_('btn_title_edit')}' onclick=\"editor=window.open('#{url}#{publish_after_save ? "?pub=#{publish_after_save}" : ''}', \'#{current_site.host}#{node[:zip]}\', 'location=0,width=300,height=400,resizable=1');return false;\">" + 
+            "<a href='#{url}#{publish_after_save ? "?pub=#{publish_after_save}" : ''}' target='_blank' title='#{_('btn_title_edit')}' onclick=\"editor=window.open('#{url}#{publish_after_save ? "?pub=#{publish_after_save}" : ''}', \'#{current_site.host}#{node[:zip]}\', 'location=0,width=300,height=400,resizable=1');return false;\">" +
                    _('btn_edit') + "</a>"
           when 'drive'
-            "<a href='#' title='#{_('btn_title_drive')}' onclick=\"editor=window.open('" + 
-                   edit_node_url(:id => node[:zip] ) + 
-                   "', '_blank', 'location=0,width=300,height=400,resizable=1');return false;\">" + 
+            "<a href='#' title='#{_('btn_title_drive')}' onclick=\"editor=window.open('" +
+                   edit_node_url(:id => node[:zip] ) +
+                   "', '_blank', 'location=0,width=300,height=400,resizable=1');return false;\">" +
                    _('btn_drive') + "</a>"
           else
             link_to( _("btn_#{action}"), {:controller=>'versions', :action => action, :node_id => node[:zip], :id => 0}, :title=>_("btn_title_#{action}"), :method => :put )
@@ -529,10 +534,10 @@ module Zena
           elsif opt[:action] == :all
             if discussion.open?
               link_to_remote( _("img_open"), :url=>{:controller=>'discussions', :action => 'close' , :id => discussion[:id]}, :title=>_("btn_title_close_discussion")) + "\n"
-            else                                                                   
+            else
               link_to_remote( _("img_closed"), :url=>{:controller=>'discussions', :action => 'open', :id => discussion[:id]}, :title=>_("btn_title_open_discussion")) + "\n"
             end +
-            if discussion.can_destroy?                                                 
+            if discussion.can_destroy?
               link_to_remote( _("btn_remove"), :url=>{:controller=>'discussions', :action => 'remove', :id => discussion[:id]}, :title=>_("btn_title_destroy_discussion")) + "\n"
             else
               ''
@@ -540,7 +545,7 @@ module Zena
           end
         end
       end # ActionTags
-      
+
       module ViewMethods
         include ImageTags
         include FormTags
@@ -555,7 +560,7 @@ module Zena
             "<div id='notice' class='flash' onclick='new Effect.Fade(\"notice\")'>#{flash[:notice]}</div>"
           else
             ''
-          end + 
+          end +
           if (type == 'error'  || type == 'both') && flash[:error ]
             "<div id='error' class='flash' onclick='new Effect.Fade(\"error\")'>#{flash[:error]}</div>"
           else
@@ -563,13 +568,13 @@ module Zena
           end +
           "</div>"
         end
-        
+
         # TODO: test
         def search_box(opts={})
           render_to_string(:partial=>'search/form', :locals => {:ajax => opts[:ajax], :type => opts[:type]})
         end
-        
-        
+
+
       end # ViewMethods
     end # HtmlTags
   end # Use

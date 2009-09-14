@@ -24,6 +24,7 @@ class Site < ActiveRecord::Base
   has_many :nodes
   has_many :participations, :dependent => :destroy
   has_many :users, :through => :participations
+
   uses_dynamic_attributes :table_name => 'site_attributes'
 
   include Zena::Use::NestedAttributesAlias::ModelMethods
