@@ -47,7 +47,7 @@ class Version < ActiveRecord::Base
   after_destroy         :destroy_content
   before_create         :set_number
 
-  uses_dynamic_attributes
+  include Zena::Use::DynamicAttributes::ModelMethods
   
   class << self
     # Some #Version sub-classes need to have more specific content than just 'text' and 'summary'.
