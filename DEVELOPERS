@@ -1,3 +1,10 @@
+style
+=====
+
+Please strip trailing whitespace from your files before commit. You can "strip on save"
+in TextMate (http://blogobaggins.com/2009/03/31/waging-war-on-whitespace.html#fn3) or
+any other well built editor.
+
 ==== start server with mongrel upload progress (done through mongrel)
 > lib/upload_progress_server.rb start
 > mongrel_rails start -s config/mongrel_upload_progress.conf
@@ -19,15 +26,15 @@ PassengerRuby /System/Library/Frameworks/Ruby.framework/Versions/1.8/usr/bin/rub
     DocumentRoot /Users/gaspard/git/zena/sites/test.host/public
     CustomLog "/Users/gaspard/git/zena/sites/test.host/log/access.log" common
     ErrorLog "/Users/gaspard/git/zena/sites/test.host/log/error.log"
-    
+
     PassengerAppRoot /Users/gaspard/git/zena
     RailsEnv production
-    
+
     <Directory /Users/gaspard/git/zena/sites/test.host/public>
       Order deny,allow
       Allow from all
     </Directory>
-    
+
     <Location />
         TrackUploads On
     </Location>
