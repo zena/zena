@@ -5,7 +5,6 @@ Zena::Fix::MysqlConnection
 ActiveRecord::Base.send :include, Zena::Use::PublicAttributes
 ActiveRecord::Base.send :include, Zena::Use::Zafu::ModelMethods
 ActiveRecord::Base.send :include, Zena::Use::NodeQueryFinders::AddUseNodeQueryMethod
-ActiveRecord::Base.send :include, Zena::Use::Relations::AddUseRelationsMethod
 ActiveRecord::Base.send :include, Zena::Use::FindHelpers
 ActiveRecord::Base.send :include, Zena::Acts::Secure
 ActiveRecord::Base.send :include, Zena::Acts::Multiversion::AddActsAsMethods

@@ -168,7 +168,7 @@ class Node < ActiveRecord::Base
   acts_as_multiversioned
   
   use_node_query
-  use_relations
+  include Zena::Use::Relations::ModelMethods
   
   @@native_node_classes = {'N' => self}
   @@unhandled_children  = []

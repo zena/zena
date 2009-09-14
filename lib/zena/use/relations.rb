@@ -3,36 +3,7 @@ module Zena
     module Relations
       LINK_ATTRIBUTES = [:status, :comment, :date]
       LINK_REGEXP = /^([\w_]+)_(ids?|zips?|#{LINK_ATTRIBUTES.join('|')})(=?)$/
-    
-      module AddUseRelationsMethod
-        def self.included(base)
-          base.extend AddUseRelationsMethodImpl
-        end
-      end
       
-      module AddUseRelationsMethodImpl
-        def use_relations
-          validate      :relations_valid
-          after_save    :update_relations
-          after_destroy :destroy_links
-          attr_public :link
-          attr_public(*LINK_ATTRIBUTES.map {|k| "l_#{k}".to_sym})
-        
-          include Zena::Use::Relations::InstanceMethods
-        
-          class_eval <<-END
-            class << self
-              include Zena::Use::Relations::ClassMethods
-            end
-          
-            def relation_base_class
-              #{self}
-            end
-          
-            HAS_RELATIONS = true
-          END
-        end
-      end
       
       module ClassMethods
         # All relations related to the current class/virtual_class with its ancestors.
@@ -54,47 +25,67 @@ module Zena
         end
       end
       
-      module InstanceMethods
+      module ModelMethods
+        def self.included(base)
+          base.extend Zena::Use::Relations::ClassMethods
+          base.validate      :relations_valid
+          base.after_save    :update_relations
+          base.after_destroy :destroy_links
+          base.attr_public   :link
+          base.attr_public(*LINK_ATTRIBUTES.map {|k| "l_#{k}".to_sym})
+          base.class_eval <<-END
+            class << self
+              include Zena::Use::Relations::ClassMethods
+            end
+
+            def relation_base_class
+              #{base}
+            end
+
+            HAS_RELATIONS = true
+          END
+        end
+        
         def set_link(link)
           @link = link
         end
-      
+
         # Linked_node is a way to store a linked node during calendar display or ajax return
         # calls so the template knows which "couple" has just been formed or removed.
         # The linked_node "node" must respond to "l_date".
         def linked_node=(node)
           @linked_node = node
         end
-      
+
         def linked_node
           @linked_node ||= @relation_proxies ? @relation_proxies[@relation_proxies.keys.first].last_target : nil
         end
-      
+
         # status defined through loading link
         def l_status
           return @l_status if defined? @l_status
           val = @link ? @link[:status] : self['l_status']
           val ? val.to_i : nil
         end
-      
+
         # TODO: could we use LINK_ATTRIBUTES and 'define_method' here ?
-      
+
         # comment defined through loading link
         def l_comment
           return @l_comment if defined? @l_comment
           @link ? @link[:comment] : self['l_comment']
         end
-      
+
         # date defined through loading link
         def l_date
           return @l_date if defined? @l_date
           @l_date = @link ? @link[:date] : (self['l_date'] ? Time.parse(self['l_date']) : nil)
         end
-      
+
         def link_id
           @link ? @link[:id] : (self[:link_id] == -1 ? nil : self[:link_id]) # -1 == dummy link
         end
-      
+
         def link_id=(v)
           if @link && @link[:id].to_i != v.to_i
             @link = nil
@@ -108,7 +99,7 @@ module Zena
             end
           end 
         end
-      
+
         # FIXME: this method does an 'update' not only 'add'
         def add_link(role, hash)
           if rel = relation_proxy(role)
@@ -120,7 +111,7 @@ module Zena
             errors.add(role, 'invalid relation')
           end
         end
-      
+
         def remove_link(link)
           if link[:source_id] != self[:id] && link[:target_id] != self[:id]
             errors.add('link', "not related to this node")
@@ -133,7 +124,7 @@ module Zena
             errors.add('link', "cannot remove (relation proxy not found).")
           end
         end
-      
+
         # TODO: could use rails native nested attributes !!!
         def link=(hash)
           return unless hash.kind_of?(Hash)
@@ -147,40 +138,40 @@ module Zena
             add_link(definition.delete('role'), definition.symbolize_keys)  # TODO: only use string keys
           end 
         end
-      
+
         def link
           @link
         end
-      
+
         def l_comment=(v)
           @l_comment = v.blank? ? nil : v
           if rel = relation_proxy_from_link
             rel.other_comment = @l_comment
           end
         end
-      
+
         def l_status=(v)
           @l_status = v.blank? ? nil : v
           if rel = relation_proxy_from_link
             rel.other_status = @l_status
           end
         end
-      
+
         def l_date=(v)
           @l_date = v.blank? ? nil : v
           if rel = relation_proxy_from_link
             rel.other_date = @l_date
           end
         end
-      
+
         def all_relations
           @all_relations ||= self.vclass.all_relations(self)
         end
-      
+
         def relations_for_form
           all_relations.map {|r| [r.other_role.singularize, r.other_role]}
         end
-      
+
         # List the links, grouped by role
         def relation_links
           res = []
@@ -193,14 +184,14 @@ module Zena
           end
           res
         end
-      
+
         # Find relation proxy for the given role.
         def relation_proxy(role)
           @relation_proxies ||= {}
           return @relation_proxies[role] if @relation_proxies.has_key?(role)
           @relation_proxies[role] = RelationProxy.get_proxy(self, role.singularize.underscore)
         end
-      
+
         def relation_proxy_from_link(link = nil)
           unless link
             if @link
@@ -214,9 +205,9 @@ module Zena
           return @relation_proxies[link.role] if @relation_proxies.has_key?(link.role)
           @relation_proxies[link.role] = link.relation_proxy(self)
         end
-      
+
         private
-      
+
           # Used to create / destroy / update links through pseudo methods 'icon_id=', 'icon_status=', ...
           # Pseudo methods created for a many-to-one relation (icon_for --- icon):
           # icon_id=::      set icon
@@ -281,7 +272,7 @@ module Zena
               raise err
             end
           end
-      
+
           # Make sure all updated relation proxies are valid
           def relations_valid
             return true unless @relation_proxies
@@ -292,7 +283,7 @@ module Zena
               end
             end
           end
-        
+
           # Update/create links defined in relation proxies
           def update_relations
             return unless @relation_proxies
@@ -301,14 +292,14 @@ module Zena
               rel.update_links!
             end
           end
-        
+
           # Destroy all links related to this node
           def destroy_links
             Link.find(:all, :conditions => ["source_id = ? OR target_id = ?", self[:id], self[:id]]).each do |l|
               l.destroy
             end
           end
-      end
-    end
-  end
-end
+      end # ModelMethods
+    end # Relations
+  end # Use
+end # Zena
