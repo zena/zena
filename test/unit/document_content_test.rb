@@ -50,7 +50,6 @@ class DocumentContentTest < Zena::Unit::TestCase
     assert_nothing_raised { data = doc.file }
     assert_equal data.read, uploaded_pdf('water.pdf').read
     doc = DocumentContent.new( :version_id=>7, :name => 'hoho', :ext => 'txt' )
-    doc[:site_id] = sites_id(:zena)
     assert_raise(StandardError) { doc.file } # filepath not set
   end
   
@@ -66,8 +65,8 @@ class DocumentContentTest < Zena::Unit::TestCase
   
   def test_save_file
     without_files("/test.host/data/full") do
-      doc = DocumentContent.new( :name=>'water', :version_id=>versions_id(:water_pdf_en), :file=>uploaded_pdf('water.pdf') )
-      doc[:site_id] = sites_id(:zena)
+      doc = document_contents(:water_pdf)
+      doc.file = uploaded_pdf('water.pdf')
       assert doc.save, "Can save"
       assert File.exist?(file_path('water.pdf','full',doc[:id]))
       assert_equal 29279, doc.size
