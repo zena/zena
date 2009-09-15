@@ -152,12 +152,12 @@ module Zena
           return false unless can_write?
           if lang
             # can we create a new redaction for this lang ?
-            v = versions.find(:first, :conditions=>["status >= #{Zena::Status[:red]} AND status < #{Zena::Status[:pub]} AND lang=?", lang])
+            v = versions.find(:first, :select => 'id', :conditions=>["status >= #{Zena::Status[:red]} AND status < #{Zena::Status[:pub]} AND lang=?", lang])
             v == nil
           else
             # can we create a new redaction in the current context ?
             # there can only be one redaction/proposition per lang per node. Only the owner of the red can edit
-            v = versions.find(:first, :conditions=>["status >= #{Zena::Status[:red]} AND status < #{Zena::Status[:pub]} AND lang=?", visitor.lang])
+            v = versions.find(:first, :select => 'id,status,user_id', :conditions=>["status >= #{Zena::Status[:red]} AND status < #{Zena::Status[:pub]} AND lang=?", visitor.lang])
             v == nil || (v.status == Zena::Status[:red] && v.user_id == visitor[:id])
           end
         rescue ActiveRecord::RecordNotFound
@@ -388,7 +388,7 @@ module Zena
                 # normal version
                 v = versions.find(:first,
                   :select     => "*, (lang = #{Node.connection.quote(visitor.lang)}) as lang_ok, (lang = #{Node.connection.quote(ref_lang)}) as ref_ok",
-                  :conditions => [ "(status >= #{min_status} AND user_id = ? AND lang = ?) OR status >= #{can_drive? ? [min_status, Zena::Status[:prop]].max : Zena::Status[:pub]}", visitor.id, visitor.lang ],
+                  :conditions => [ "(status >= #{min_status} AND user_id = ?) OR status >= #{can_drive? ? [min_status, Zena::Status[:prop]].max : Zena::Status[:pub]}", visitor.id],
                   :order      => "lang_ok DESC, ref_ok DESC, status ASC, publish_from ASC")
                 v.node = self if v # FIXME: remove when :inverse_of moves in Rails stable
                 v
@@ -417,6 +417,9 @@ module Zena
             if new_record? || !would_edit
               # nothing to do
               @version
+            elsif v.lang != visitor.lang
+              # clone
+              build_redaction(v, target_status)
             elsif v.user_id == visitor.id
               # author is editing
               if v.status == Zena::Status[:red]

@@ -39,6 +39,13 @@ module Zena
           end
         end
 
+        def would_edit?(hash)
+          hash.each do |k, v|
+            return true if self[k.to_s] != v && !(self[k.to_s].blank? && v.blank?)
+          end
+          false
+        end
+
         def [](key)
           return nil unless valid_key?(key)
           hash[key.to_s]

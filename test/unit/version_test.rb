@@ -1,35 +1,35 @@
 require 'test_helper'
 class VersionTest < Zena::Unit::TestCase
-  
+
   def version(sym)
     secure!(Node) { nodes(sym) }.version
   end
-  
+
   def test_author
     login(:tiger)
     v = versions(:opening_red_fr)
     assert_equal nodes_id(:tiger), v.author[:id]
   end
-  
+
   def test_cannot_set_node_id
     login(:tiger)
     node = Node.new(:v_node_id => 1234)
     assert_nil node.version.node_id
   end
-  
+
   def test_cannot_set_node_id_with_attributes
     login(:tiger)
     node = secure!(Node) { nodes(:status) }
     original_node_id = node.version.node_id
     node.update_attributes(:v_node_id => nodes_id(:lake) )
   end
-  
+
   def test_cannot_set_site_id_with_new_record
     login(:tiger)
     node = Node.new(:site_id => 1234)
     assert_nil node.site_id
   end
-  
+
   def test_cannot_set_site_id_with_old_record
     login(:tiger)
     node = secure!(Node) { nodes(:status) }
@@ -37,7 +37,7 @@ class VersionTest < Zena::Unit::TestCase
     node.update_attributes(:v_site_id => 1234)
     assert_equal original_site_id, node.site_id
   end
-  
+
   def test_cannot_set_site_id_by_attribute
     login(:tiger)
     node = secure!(Node) { nodes(:status) }
@@ -45,47 +45,48 @@ class VersionTest < Zena::Unit::TestCase
     node.update_attributes(:v_site_id=>sites_id(:ocean))
     assert_equal original_site_id, node.site_id
   end
-  
+
   def test_cannot_set_node_id_on_create
     login(:tiger)
     node = Node.create(:v_node_id=>nodes_id(:lake))
     assert_nil node.version.node_id
   end
-  
+
   def test_cannot_set_content_id
     login(:tiger)
     node = Node.new(:v_content_id => nodes_id(:lake))
     assert_nil node.version.content_id
   end
-  
+
   def test_cannot_set_content_id_by_attribute
     login(:tiger)
     node = secure!(Node) { nodes(:status) }
     node.update_attributes(:v_content_id=>nodes_id(:lake))
     assert_nil node.version.content_id
   end
-  
+
   def test_cannot_set_content_id_on_create
     login(:tiger)
     node = Node.create(:v_content_id=>nodes_id(:lake))
     assert_nil node.version.content_id
   end
-  
+
   def test_new_site_id_set
     login(:ant)
     node = secure!(Node) { Node.create(:v_title=>'super', :parent_id=>nodes_id(:wiki)) }
     assert !node.new_record?, "Not a new record"
     assert_equal sites_id(:zena), node.version.site_id
   end
-  
+
   def test_version_number_edit_by_attribute
     login(:ant)
     node = secure!(Node) { nodes(:ant) }
     version = node.version
     assert_equal 1, version.number
     # edit
-    node.version.title='new title'
+    node.attributes = {:v_title => 'new title'}
     version = node.version
+    assert version.new_record?
     assert_nil version.number
     # save
     assert node.save, "Node can be saved"
@@ -93,7 +94,7 @@ class VersionTest < Zena::Unit::TestCase
     version = node.version
     assert_equal 2, version.number
   end
-    
+
   def test_version_number_edit
     login(:ant)
     node = secure!(Node) { nodes(:ant) }
@@ -106,16 +107,16 @@ class VersionTest < Zena::Unit::TestCase
     version = node.version
     assert_equal 2, version.number
   end
-  
+
   def test_presence_of_node
     login(:tiger)
     node = secure!(Node) { Node.new(:parent_id=>nodes_id(:zena), :name=>'bob') }
     assert node.save
     vers = Version.new
     assert !vers.save
-    assert_equal 'node missing', vers.errors[:base]
+    assert_equal "can't be blank", vers.errors[:node]
   end
-  
+
   def test_update_content_one_version
     preserving_files("test.host/data") do
       login(:ant)
@@ -133,8 +134,8 @@ class VersionTest < Zena::Unit::TestCase
       assert_equal 29279, node.version.content.file.stat.size
     end
   end
-  
-  def test_cannot_change_content_if_many_uses
+
+  def test_remap_master_version_if_many_use_same_content
     preserving_files("test.host/data") do
       login(:ant)
       visitor.lang = 'fr'
@@ -142,27 +143,45 @@ class VersionTest < Zena::Unit::TestCase
       old_vers_id = node.version.id
       # ant's english redaction
       assert_equal 'en', node.version.lang
+      content_id_before_move = node.version.content.id
+
+      # 1. Create a new version in french
       assert node.update_attributes(:v_title=>'les arbres')
-      
+
       assert node.propose # only proposed/published versions block
+      assert_equal 'fr', node.version.lang
 
       # new redaction for french
       assert_not_equal node.version.id, old_vers_id
-      
-      # new redaction points to old content
+
+      # 2. New redaction points to old content
       assert_equal     node.version.content_id, old_vers_id
-      
+
       login(:ant)
       visitor.lang = 'en'
       node = secure!(Node) { nodes(:forest_pdf) }
-      # get ant's english redaction
+
+      # 3. Edit ant's original (english) redaction
       assert_equal old_vers_id, node.version.id
-      # try to edit content
-      assert !node.update_attributes(:c_file=>uploaded_pdf('water.pdf')), "Cannot be changed"
-      assert node.errors[:c_file].any?
+
+      # edit content (should move content's master_version to other version and create a new content)
+      assert node.update_attributes(:c_file=>uploaded_pdf('water.pdf')), "Cannot be changed"
+      assert_nil node.version.content_id # we have our own content
+      assert_equal node.version.id, node.version.content.version_id
+      # this is still the original (english) version
+      assert_equal old_vers_id, node.version.id
+
+      login(:ant)
+      visitor.lang = 'fr'
+      node = secure!(Node) { nodes(:forest_pdf) }
+
+      # 4. The content has become our own
+      assert_equal content_id_before_move, node.version.content.id
+      assert_nil node.version.content_id
+      assert_equal node.version.id, node.version.content.version_id
     end
   end
-  
+
   def test_dynamic_attributes
     login(:tiger)
     node = secure!(Node) { nodes(:status) }
@@ -171,12 +190,12 @@ class VersionTest < Zena::Unit::TestCase
     assert_nothing_raised { version.dyn_attributes = {'zucchini' => 'courgettes' }}
     assert_equal 'courgettes', version.dyn['zucchini']
     assert node.save
-    
+
     node = secure!(Node) { nodes(:status) }
     version = node.version
     assert_equal 'courgettes', version.dyn['zucchini']
   end
-  
+
   def test_clone
     login(:tiger)
     node = secure!(Node) { nodes(:status) }
@@ -185,7 +204,7 @@ class VersionTest < Zena::Unit::TestCase
     version1_id = node.version[:id]
     assert node.publish
     version1_publish_from = node.version.publish_from
-    
+
     node = secure!(Node) { nodes(:status) }
     assert node.update_attributes(:d_other => 'funny')
     version2_id = node.version[:id]
@@ -194,29 +213,30 @@ class VersionTest < Zena::Unit::TestCase
     assert_equal 'funny', node.version.dyn['other']
     assert_equal version1_publish_from, node.version.publish_from
   end
-  
+
   def test_would_edit
     v = versions(:zena_en)
     assert v.would_edit?('title' => 'different')
+    assert v.would_edit?('dyn_attributes' => {'foo' => 'different'})
     assert !v.would_edit?('title' => v.title)
     assert !v.would_edit?('status' => 999)
     assert !v.would_edit?('illegal_field' => 'whatever')
     assert !v.would_edit?('node_id' => 'whatever')
   end
-  
+
   def test_would_edit_content
     v = versions(:ant_en)
     assert v.would_edit?('content_attributes' => {'name' => 'different'})
     assert !v.would_edit?('content_attributes' => {'name' => v.content.name})
   end
-  
+
   def test_new_version_is_edited
     v = Version.new
     assert v.edited?
     v.title = 'hooo'
     assert v.edited?
   end
-  
+
   def test_edited
     v = versions(:zena_en)
     assert !v.edited?
@@ -225,7 +245,7 @@ class VersionTest < Zena::Unit::TestCase
     v.title = 'new title'
     assert v.edited?
   end
-  
+
   def test_edited_changed_content
     v = versions(:ant_en)
     v.content_attributes = {'name' => 'Invicta'}
@@ -233,14 +253,14 @@ class VersionTest < Zena::Unit::TestCase
     v.content_attributes = {'name' => 'New name'}
     assert v.edited?
   end
-  
+
   def test_bad_lang
     login(:tiger)
     node = secure!(Page) { Page.create(:v_lang => 'io', :parent_id => nodes_id(:status), :name => 'hello', :v_title => '')}
     assert node.new_record?
     assert node.errors[:version_lang].any?
   end
-  
+
   def test_should_parse_publish_from_date
     I18n.locale = 'fr'
     visitor.time_zone = 'Asia/Jakarta'

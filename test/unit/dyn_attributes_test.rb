@@ -200,4 +200,12 @@ class DynAttributesTest < Test::Unit::TestCase
   def test_empty_key_empty_value
     assert_raise(ActiveRecord::UnknownAttributeError)  { DynDummy.create(:title => 'lolipop', :text=>'', :comment=>'', :summary=>'', :d_=>'bad', :d_og=>'') }
   end
+
+  def test_would_edit
+   assert record = DynDummy.create(:title => 'this is my title', :text=>'', :comment=>'', :summary=>'', :d_bio=>'biography', :d_hell => 'blind love')
+   assert !record.dyn.would_edit?('hell' => 'blind love', 'bio' => 'biography')
+   assert  record.dyn.would_edit?('hell' => 'blind love', 'bio' => '')
+   assert  record.dyn.would_edit?('hell' => 'blind love', 'fox' => 'hop')
+   assert !record.dyn.would_edit?('hell' => 'blind love', 'fox' => '', 'fly' => nil)
+  end
 end
