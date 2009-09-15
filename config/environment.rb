@@ -94,7 +94,7 @@ end
 ZazenParser = Parser.parser_with_rules(Zazen::Rules, Zazen::Tags)
 ZafuParser  = Parser.parser_with_rules(Zafu::Rules, Zena::Rules, Zafu::Tags, Zena::Tags)
 
-require File.join(lib_path, 'fix_rails_layouts') # FIXME: remove when https://rails.lighthouseapp.com/projects/8994/tickets/3207 approved
+require File.join(lib_path, 'fix_rails_layouts.rb') # FIXME: remove when https://rails.lighthouseapp.com/projects/8994/tickets/3207 approved
 
 #FIXME: remove all these hacks !
 require File.join(lib_path, 'base_additions')
