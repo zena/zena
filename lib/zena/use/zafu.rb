@@ -2,7 +2,7 @@ module Zena
   module Use
     module Zafu
       module Common
-        
+
         # Return a template's content from an url. If the url does not start with a '/', we try by replacing the
         # first element with the current skin_name and if it does not work, we try with the full url. If the url
         # start with a '/' we use the full url directly.
@@ -15,7 +15,7 @@ module Zena
           text = session[:dev] ? doc.version.text : doc.version(:pub).text
           return text, url, doc
         end
-        
+
         # Return the zen_path ('/en/image34.png') for an asset given its name ('img/footer.png').
         # The rule is not the same whether we are rendering a template and find <img/> <link rel='stylesheet'/> tags
         # or if we are parsing assets in a CSS file.
@@ -25,7 +25,7 @@ module Zena
             src, format = $1, $2
           end
 
-          if opts[:parse_assets]  
+          if opts[:parse_assets]
             current_folder = opts[:current_folder] || ''
             current_folder = current_folder[1..-1] if current_folder[0..0] == '/'
 
@@ -71,9 +71,9 @@ module Zena
 
           data_path(asset, :mode => mode)
         end
-        
-        
-        
+
+
+
         # TODO: test
         def save_erb_to_url(template, template_url)
           path = fullpath_from_template_url(template_url)
@@ -82,7 +82,7 @@ module Zena
           File.open(path, "wb") { |f| f.syswrite(template) }
           ""
         end
-        
+
         # TODO: test
         def fullpath_from_template_url(template_url=params[:t_url])
           if template_url =~ /\A\.|[^\w\+\._\-\/]/
@@ -94,7 +94,7 @@ module Zena
 
           "#{SITES_ROOT}/#{current_site.host}/zafu#{path}"
         end
-        
+
         # Make sure some vital templates never get broken
         def valid_template?(content, opts)
           mode = opts[:mode]
@@ -115,17 +115,17 @@ module Zena
           end
           File.read(File.join(RAILS_ROOT, 'app', 'views', 'templates', 'defaults', "#{mode}.zafu"))
         end
-        
-        
+
+
         # opts should contain :current_template and :src. The source is a path like 'default/Node-+index'
         # ('skin/template/path'). If the path starts with a slash, the skin_name in the path is searched first. Otherwise,
         # the current skin is searched first.
         # <r:include template='Node'/>
         #   find: #{skin_path(main_skin)}/Node
-        # 
+        #
         # <r:include template='/default/Node'/>
         #   find: #{skin_path('default')}/Node
-        # 
+        #
         def find_document_for_template(opts)
           src    = opts[:src]
           if src =~ /\A(.*)\.(\w+)\Z/
@@ -167,17 +167,17 @@ module Zena
           end
           return document ? [document, (([skin_name] + url).join('/') + (mode ? "_#{mode}" : '') + (format ? ".#{format}" : ''))] : nil
         end
-        
+
       end # Common
 
       module ControllerMethods
-        include Common 
-        
+        include Common
+
         def self.included(base)
           base.send(:helper_attr, :skin_names, :expire_with_nodes, :renamed_assets)
           base.send(:attr_accessor, :skin_names, :expire_with_nodes, :renamed_assets)
         end
-        
+
         # Find the best template for the current node's skin, node's class, format and mode. The template
         # files are searched first into 'sites/shared/views/templates/fixed'. If the templates are not found
         # there, they are searched in the database and compiled into 'app/views/templates/compiled'.
@@ -194,14 +194,14 @@ module Zena
 
           # FIXME: is searching in all skins a good idea ? I think not. Only searching for special modes '+popupLayout', '+login', etc.
           if mode && mode[0..0] == '+'
-            template = secure(Template) { Template.find(:first, 
+            template = secure(Template) { Template.find(:first,
               :conditions => ["tkpath IN (?) AND format = ? AND mode #{mode ? '=' : 'IS'} ? AND template_contents.node_id = nodes.id", klasses, format, mode],
               :from       => "nodes, template_contents",
               :select     => "nodes.*, template_contents.skin_name, template_contents.klass, (template_contents.skin_name = #{@skin_name.inspect}) AS skin_ok",
               :order      => "length(tkpath) DESC, skin_ok DESC"
             )}
           else
-            template = secure(Template) { Template.find(:first, 
+            template = secure(Template) { Template.find(:first,
               :conditions => ["tkpath IN (?) AND format = ? AND mode #{mode ? '=' : 'IS'} ? AND template_contents.node_id = nodes.id AND template_contents.skin_name = ?", klasses, format, mode, @skin_name],
               :from       => "nodes, template_contents",
               :select     => "nodes.*, template_contents.skin_name, template_contents.klass",
@@ -214,7 +214,7 @@ module Zena
 
           lang_path = session[:dev] ? "dev_#{lang}" : lang
 
-          skin_path = "/#{@skin_name}/#{template[:name]}"  
+          skin_path = "/#{@skin_name}/#{template[:name]}"
           fullpath  = skin_path + "/#{lang_path}/_main.erb"
           rel_url   = 'zafu'     + current_site.zafu_path + fullpath  # relative to app/views
           url       = SITES_ROOT + current_site.zafu_path + fullpath  # absolute path
@@ -293,9 +293,9 @@ module Zena
               :content_data    => res) }
           end
 
-          return rel_url
+          return url
         end
-        
+
         def zafu_helper
           @zafu_helper ||= begin
             # FIXME rails 3.0.pre: zafu_helper = ActionView::Base.for_controller(self)
@@ -304,12 +304,12 @@ module Zena
             helper
           end
         end
-        
+
       end # ControllerMethods
 
       module ViewMethods
         include Common
-        
+
         # main node before ajax stuff (the one in browser url)
         def start_node
           @start_node ||= if params[:s]
@@ -330,7 +330,7 @@ module Zena
         def sprintf_unless_zero(fmt, value)
           value.to_f == 0.0 ? '' : sprintf(fmt, value)
         end
-        
+
         # list of page numbers links
         def page_numbers(current, count, join_string = nil, max_count = nil)
           max_count ||= 10
@@ -357,7 +357,7 @@ module Zena
             end
           end
         end
-        
+
         # Group an array of records by key.
         def group_array(list)
           groups = []
@@ -420,7 +420,7 @@ module Zena
             end
           end
         end
-        
+
         # TODO: test
         # display the title with necessary id and checks for 'lang'. Options :
         # * :link if true, the title is a link to the object's page
@@ -437,7 +437,7 @@ module Zena
           end
 
           unless opts.include?(:project)
-            opts[:project] = (obj.get_project_id != @node.get_project_id && obj[:id] != @node[:id]) 
+            opts[:project] = (obj.get_project_id != @node.get_project_id && obj[:id] != @node[:id])
           end
 
           title = opts[:text] || obj.version.title
@@ -482,10 +482,10 @@ module Zena
             title
           end
         end
-        
-        
+
+
       end # ViewMethods
-      
+
       # This is replaced by public_attributes
       # Only zafu_context definition is needed (until we use RubyLess)
       module ModelMethods
@@ -533,7 +533,7 @@ module Zena
               end
             end
           END
-        
+
           base.send(:class_eval, zafu_class_methods)
         end
       end # ModelMethods

@@ -1,6 +1,6 @@
 # Be sure to restart your web server when you modify this file.
 
-# Uncomment below to force Rails into production mode when 
+# Uncomment below to force Rails into production mode when
 # you don't control web/app server and can't set it the proper way
 # ENV['RAILS_ENV'] ||= 'production'
 
@@ -49,9 +49,9 @@ Rails::Initializer.run do |config|
   # config.load_paths += Dir["#{RAILS_ROOT}/vendor/gems/**"].map do |dir|
   #   File.directory?(lib = "#{dir}/lib") ? lib : dir
   # end
-  
+
   config.load_paths += Dir["#{RAILS_ROOT}/bricks/**/models"]
-  
+
   # Use the database for sessions instead of the file system
   # (create the session table with 'rake db:sessions:create')
   # config.action_controller.session_store = :active_record_store
@@ -59,7 +59,7 @@ Rails::Initializer.run do |config|
     :session_key => 'zena_session',                # min 30 chars
     :secret      => 'jkfawe0[y9wrohifashaksfi934jas09455ohifnksdklh'
   }
-  
+
   config.gem 'RedCloth',  :version => '3.0.4'
   config.gem 'gettext', :version => '1.93.0'
   config.gem 'grosser-fast_gettext', :lib => 'fast_gettext', :version => '~>0.2.10', :source=>"http://gems.github.com/"
@@ -71,11 +71,11 @@ Rails::Initializer.run do |config|
   config.gem 'tzinfo', :version => '0.3.12'
   config.gem 'uuidtools', :version => '2.0.0'
   config.gem 'yamltest', :version => '0.5.3'
-  
-  
+
+
   # TODO: uncomment this line when remarkable stops loading spec/rails or when spec/rails stops messing unit tests. (http://carlosbrando.lighthouseapp.com/projects/19775-remarkable/tickets/14-breaks-testunit-tests#ticket-14-5)
   #config.gem "carlosbrando-remarkable", :lib => "remarkable", :source => "http://gems.github.com"
-  
+
   # Activate observers that should always be running
   # config.active_record.observers = :cacher, :garbage_collector
 
@@ -93,6 +93,8 @@ end
 
 ZazenParser = Parser.parser_with_rules(Zazen::Rules, Zazen::Tags)
 ZafuParser  = Parser.parser_with_rules(Zafu::Rules, Zena::Rules, Zafu::Tags, Zena::Tags)
+
+require File.join(lib_path, 'fix_rails_layouts') # FIXME: remove when https://rails.lighthouseapp.com/projects/8994/tickets/3207 approved
 
 #FIXME: remove all these hacks !
 require File.join(lib_path, 'base_additions')

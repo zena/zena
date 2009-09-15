@@ -5,7 +5,7 @@ class CommentsController < ApplicationController
   before_filter :check_is_admin, :only=>[:index, :empty_bin]
   helper_method :bin_content, :bin_content_size
   layout :admin_layout
-  
+
   # TODO: test
   def reply_to
     @reply_to   = Comment.find(params[:id])
@@ -17,21 +17,21 @@ class CommentsController < ApplicationController
       render :nothing=>true
     end
   end
-  
-  
+
+
   def create
     @discussion.save if @discussion.new_record? && @node.can_comment?
-    
+
     @comment = secure!(Comment) { Comment.new(filter_attributes(params[:comment])) }
-    
+
     save_if_not_spam(@comment, params)
-    
+
     respond_to do |format|
       if @comment.errors.empty?
         flash[:notice] = _('Comment was successfully created.')
         format.html { redirect_to zen_path(@node) } # TODO: add ':sharp => ...'
         format.js
-        format.xml  { head :created, :location => comment_path(@node) } 
+        format.xml  { head :created, :location => comment_path(@node) }
       else
         format.html { render :action => "new" }
         format.js
@@ -39,7 +39,7 @@ class CommentsController < ApplicationController
       end
     end
   end
-  
+
   # TODO: test
   def edit
     @comment    = Comment.find(params[:id])
@@ -50,11 +50,11 @@ class CommentsController < ApplicationController
       render :nothing=>true
     end
   end
-  
+
 
   def update
     @comment.update_attributes(params[:comment])
-  
+
     respond_to do |format|
       format.html { redirect_to zen_path(@node) }
       format.js
@@ -74,7 +74,7 @@ class CommentsController < ApplicationController
       render :nothing=>true
     end
   end
-  
+
   # TODO: test
   def publish
     @comment    = Comment.find(params[:id])
@@ -87,13 +87,13 @@ class CommentsController < ApplicationController
     end
   end
   ### === admin only
-  
+
   # TODO:test
   def index
     @node = visitor.contact
     secure!(Node) do
       # TODO: preload node
-      @comments = Comment.paginate :all, 
+      @comments = Comment.paginate :all,
                         :select => "comments.*, nodes.zip AS node_zip",
                         :order => 'status ASC, comments.created_at DESC',
                         :joins => ['INNER JOIN discussions on discussions.id = comments.discussion_id', 'INNER JOIN nodes on nodes.id = discussions.node_id'],
@@ -101,7 +101,7 @@ class CommentsController < ApplicationController
                         :per_page => 10, :page => params[:page]
     end
   end
-  
+
   # TODO: test
   def empty_bin
     bin_content.each do |c|
@@ -110,27 +110,27 @@ class CommentsController < ApplicationController
     # reset cached bin content
     @bin_content = nil
   end
-  
+
   private
     def find_comment
       @comment = secure!(Comment) { Comment.find(params[:id]) }
       @discussion = @comment.discussion
       @node = @discussion.node
     end
-    
+
     def find_node_and_discussion
       @node ||= secure!(Node) { Node.find_by_zip(params[:node_id]) }
       @discussion ||= @node.discussion
     end
-    
+
     def bin_content
       @bin_content ||= secure(Comment) { Comment.find(:all, :conditions=>['status <= ?', Zena::Status[:rem]]) }
     end
-    
+
     def bin_content_size
       secure(Comment)  { Comment.count(:all, :conditions=>['status <= ?', Zena::Status[:rem]]) }
     end
-    
+
     def filter_attributes(attributes)
       attrs = attributes.dup
       attrs['author_name']   = nil unless visitor.is_anon? # only anonymous user should set 'author_name'
