@@ -6,41 +6,35 @@ This class stores version text for Contact. See Version for details.
 Uses ContactContent.
 =end
 class ContactVersion < Version
-  before_validation :contact_version_before_validation
-  
+
   def self.content_class
     ContactContent
   end
-  
+
   def redaction_content
     @old_fullname ||= content.fullname
     super
   end
-  
+
   private
-    def contact_version_before_validation
-      if self.title.blank?
-        self.title = content.fullname 
+    def version_before_validation
+      if title.blank?
+        self.title = content.fullname
       elsif content.fullname.blank?
-        if self.title =~ /^(\S+)\s+(.*)$/
+        if title =~ /^(\S+)\s+(.*)$/
           content.first_name = $1
           content.name = $2
         else
-          content.name = self.title
+          content.name = title
         end
       end
-      
-      old_title = node.old_title
-      return true if old_title.nil?
-      # what changed ?
-      title_changed    = title            != old_title
-      fullname_changed = content.fullname != @old_fullname
-      # 1. both
-      if title_changed && fullname_changed
-        # ignore
-      elsif fullname_changed && node.old_title == @old_fullname
-        # content changed and title was in sync
+
+      if title_changed? && content.fullname_changed?
+        # ignore if both title and fullname changed
+      elsif content.fullname_changed? && title == content.fullname_was
+        # fullname changed and title was in sync
         self.title = content.fullname
       end
+      super
     end
 end

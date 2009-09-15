@@ -8,40 +8,40 @@ module Zena
           base.extend Zena::Acts::Multiversion::AddActsAsMethodsImpl
         end
       end
-      
+
       module AddActsAsMethodsImpl
         def acts_as_multiversioned(opts = {})
           opts.reverse_merge!({
             :class_name => 'Version'
           })
-          
+
           # TODO: remove for Observers.
           after_save        :after_all
-          
+
           has_many :versions,  :class_name => opts[:class_name],
                    :order=>"number DESC", :dependent => :destroy #, :inverse_of => :node
           has_many :editions,  :class_name => opts[:class_name],
                    :conditions=>"publish_from <= now() AND status = #{Zena::Status[:pub]}", :order=>'lang' #, :inverse_of => :node
-          
+
           before_validation :set_status_before_validation
           validate      :lock_validation
           validate      :status_validation
           validate      :version_validation
-          
+
           before_create :cache_version_status_before_create
           before_update :cache_version_status_before_update
           after_save    :multiversion_after_save
-          
+
           public
-          
+
           include Zena::Acts::Multiversion::InstanceMethods
           class << self
             include Zena::Acts::Multiversion::ClassMethods
           end
-          
+
           # List of allowed *version* transitions with their validation rules. This list
           # concerns the life and death of *a single version*, not the corresponding Node.
-          
+
                                             # not pub                                   pub
           add_transition(:publish, :from => [-1..29,31..49].map(&:to_a).flatten, :to => 50) do |r|
             ( r.can_visible? ||
@@ -89,7 +89,7 @@ module Zena
           add_transition(:edit, :from => [-1], :to => 30) do |r|
             r.can_write?
           end
-          
+
           #  StatusValidations = {
           #    #from      #validation #to
           #   [(0..49),   50] => :publish, #  :pub
@@ -100,26 +100,26 @@ module Zena
           #   [(40..49),  30] => :refuse,
           #  }.freeze
         end
-        
+
         def acts_as_version(opts = {})
           opts.reverse_merge!({
             :class_name => 'Node'
           })
-          
+
           belongs_to :node,  :class_name => opts[:class_name] #, :inverse_of => :versions
         end
-        
+
         def act_as_content
           class_eval do
             def preload_version(v)
               @version = v
             end
-            
+
             # FIXME: replace by belongs_to :version ?
             def version
               @version ||= Version.find(self[:version_id])
             end
-            
+
             # Return true if the version would be edited by the attributes
             def would_edit?(new_attrs)
               new_attrs.each do |k,v|
@@ -132,7 +132,7 @@ module Zena
           end
         end
       end # AddActsAsMethodsImpl
-      
+
       module InstanceMethods
 
         # VERSION
@@ -159,7 +159,7 @@ module Zena
             # there can only be one redaction/proposition per lang per node. Only the owner of the red can edit
             v = versions.find(:first, :conditions=>["status >= #{Zena::Status[:red]} AND status < #{Zena::Status[:pub]} AND lang=?", visitor.lang])
             v == nil || (v.status == Zena::Status[:red] && v.user_id == visitor[:id])
-          end 
+          end
         rescue ActiveRecord::RecordNotFound
           true
         end
@@ -365,11 +365,11 @@ module Zena
         # Return the current version. If @version was not set, this is a normal find or a new record. We have to find
         # a suitable edition :
         # * if new_record?, create a new redaction
-        # * find user redaction or proposition in the current lang 
+        # * find user redaction or proposition in the current lang
         # * find an edition for current lang
         # * find an edition in the reference lang for this node
         # * find the first publication
-        # If 'key' is set to :pub, only find the published versions. If key is a number, find the version with this number. 
+        # If 'key' is set to :pub, only find the published versions. If key is a number, find the version with this number.
         def version(key=nil) #:doc:
           if !key.nil? && !key.kind_of?(Symbol)
             v = versions.find(:first,
@@ -386,7 +386,7 @@ module Zena
               min_status = (key == :pub) ? Zena::Status[:pub] : Zena::Status[:red]
               if max_status >= Zena::Status[:red]
                 # normal version
-                v = versions.find(:first, 
+                v = versions.find(:first,
                   :select     => "*, (lang = #{Node.connection.quote(visitor.lang)}) as lang_ok, (lang = #{Node.connection.quote(ref_lang)}) as ref_ok",
                   :conditions => [ "(status >= #{min_status} AND user_id = ? AND lang = ?) OR status >= #{can_drive? ? [min_status, Zena::Status[:prop]].max : Zena::Status[:pub]}", visitor.id, visitor.lang ],
                   :order      => "lang_ok DESC, ref_ok DESC, status ASC, publish_from ASC")
@@ -394,7 +394,7 @@ module Zena
                 v
               else
                 # drive only
-                v = versions.find(:first, 
+                v = versions.find(:first,
                   :select     => "*, (lang = #{Node.connection.quote(visitor.lang)}) as lang_ok, (lang = #{Node.connection.quote(ref_lang)}) as ref_ok",
                   :order      => "lang_ok DESC, ref_ok DESC, status ASC, publish_from ASC")
                 v.node = self if v # FIXME: remove when :inverse_of moves in Rails stable
@@ -422,8 +422,8 @@ module Zena
               if v.status == Zena::Status[:red]
                 # use current version
                 @version
-              elsif v.status      == Zena::Status[:pub] && 
-                    target_status == Zena::Status[:pub] && 
+              elsif v.status      == Zena::Status[:pub] &&
+                    target_status == Zena::Status[:pub] &&
                     Time.now < v.updated_at_was + current_site[:redit_time].to_i && # redit time
                     transition_allowed?(transition_for(50, 50))
                 @version
@@ -566,7 +566,7 @@ module Zena
 
               res = after_publish
 
-              # TODO: can we avoid this ? 
+              # TODO: can we avoid this ?
               # self.class.connection.execute "UPDATE #{self.class.table_name} SET updated_at = #{self.class.connection.quote(Time.now)} WHERE id=#{self[:id].to_i}" unless new_record?
             end
             @allowed_transitions       = nil

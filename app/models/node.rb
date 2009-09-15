@@ -136,7 +136,6 @@ class Node < ActiveRecord::Base
   after_create       :node_after_create
   attr_protected     :site_id, :zip, :id, :section_id, :project_id, :publish_from, :max_status
   #attr_accessible    :version_content
-  attr_accessor      :old_title
   attr_public        :name, :created_at, :updated_at, :event_at, :log_at, :kpath, :user_zip, :parent_zip, :project_zip,
                      :section_zip, :skin, :ref_lang, :fullpath, :rootpath, :position, :publish_from, :max_status, :rgroup_id,
                      :wgroup_id, :pgroup_id, :basepath, :custom_base, :klass, :zip, :score, :comments_count,
@@ -1605,9 +1604,9 @@ class Node < ActiveRecord::Base
 
     # Try to keep node name in sync with published version title in ref_lang. This is set after_publish.
     def sync_name
-      # FIXME: @old_title should be version.title_was ??
-      return true if @old_title.nil? || version.lang != ref_lang || name == version.title.url_name || name_was != @old_title.url_name
-      update_attributes(:name => version.title.url_name)
+      if version.title_changed? && ref_lang == version.lang && name == version.title_was
+        update_attributes(:name => version.title.url_name) if name != version.title.url_name
+      end
     end
 
     # Whenever something changed (publication/proposition/redaction/link/...)

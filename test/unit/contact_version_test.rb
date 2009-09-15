@@ -5,13 +5,14 @@ class ContactVersionTest < Zena::Unit::TestCase
   def test_set_name
     login(:tiger)
     node = secure!(Node) { nodes(:tiger) }
+    node.edit!
     node.version.content.first_name = 'King'
     node.version.title = ''
     assert node.save
     assert_equal "tiger", node.name
     assert_equal "King Tigris Sumatran", node.version.title
   end
-  
+
   def test_set_content_name
     login(:tiger)
     assert node = secure!(Contact) { Contact.create(:v_title=>"Roger Rabbit", :parent_id => nodes_id(:people)) }
@@ -22,7 +23,7 @@ class ContactVersionTest < Zena::Unit::TestCase
     assert_equal "Roger Rabbit", node.version.title
     assert_equal "Roger Rabbit", node.fullname
   end
-  
+
   def test_v_title_not_in_sync
     login(:tiger)
     node = secure!(Node) { nodes(:tiger) }

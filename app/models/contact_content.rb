@@ -21,22 +21,30 @@ class ContactContent < ActiveRecord::Base
                      :telephone, :mobile, :email, :country
   attr_protected     :site_id
   before_validation :content_before_validation
-  
+
   # Full contact name to show in views.
-  def fullname
+  def fullname(first_name = self.first_name, name = self.name)
     (!first_name.blank? && !name.blank?) ? (first_name + " " + name) : (first_name.blank? ? name : first_name)
   end
-  
+
   # First letters of the first_name and the name in capitals (ex. GB).
   def initials
     fullname.split(" ").map {|w| w[0..0].capitalize}.join("")
   end
-  
+
   # Return true if this content is not used by any version.
   def can_destroy?
     0 == self.class.count_by_sql("SELECT COUNT(*) FROM versions WHERE id = #{self[:version_id]} OR content_id = #{self[:version_id]}")
   end
-  
+
+  def fullname_was
+    fullname(first_name_changed? ? first_name_was : self.first_name, name_changed? ? name_was : self.name)
+  end
+
+  def fullname_changed?
+    first_name_changed? || name_changed?
+  end
+
   private
     def content_before_validation
       self[:site_id] = version.node[:site_id]
