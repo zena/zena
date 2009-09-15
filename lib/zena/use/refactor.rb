@@ -8,10 +8,10 @@ module Zena
           visitor.lang
         end
       end # Common
-      
+
       module ControllerMethods
         include Common
-        
+
         # TODO: test
         def visitor
           @visitor ||= returning(User.make_visitor(:host => request.host, :id => session[:user])) do |user|
@@ -24,18 +24,18 @@ module Zena
             end
           end
         end
-        
+
         # Read the parameters and add errors to the object if it is considered spam. Save it otherwize.
         def save_if_not_spam(obj, params)
           # do nothing (overwritten by plugins like zena_captcha)
           obj.save
         end
-        
+
       end # ControllerMethods
-      
+
       module ViewMethods
         include Common
-        
+
         # TODO: use Rails native helper.
         def javascript( string )
           javascript_start +
@@ -50,12 +50,12 @@ module Zena
         def javascript_end
           "\n// ]]>\n</script>"
         end
-        
+
         # Quote for html values (input tag, alt attribute, etc)
         def fquote(text)
           text.to_s.gsub("'",'&apos;')
         end
-        
+
         # TODO: see if this is still needed. Creates a pseudo random string to avoid browser side ajax caching
         def rnd
           Time.now.to_i
@@ -67,10 +67,11 @@ module Zena
         end
 
         # We need to create the accessor for zafu calls to the helper to work when compiling templates. Do not ask me why this works...
-        def flash
-          @flash || {}
-        end
-        
+        # this is messing up with Zena::View::TestCase's own flash method.
+        # def flash
+        #   @flash || {}
+        # end
+
         # TODO: refactor with new RedCloth
         def add_place_holder(str)
           @placeholders ||= {}
@@ -86,7 +87,7 @@ module Zena
           end
           str
         end
-        
+
         # return a readable text version of a file size
         # TODO: use number_to_human_size instead
         def fsize(size)
@@ -101,7 +102,7 @@ module Zena
             sprintf("%i octets", size)
           end
         end
-        
+
         # TODO: is this still used ?
         def show(obj, sym, opt={})
           return show_title(obj, opt) if sym == :v_title
@@ -142,7 +143,7 @@ module Zena
             "<div id='#{key}'#{klass}>#{text}</div>"
           end
         end
-      
+
         # TODO: remove ?
         def css_edit(css_file = 'zen.css')
           return '' if RAILS_ENV == 'production'
@@ -181,7 +182,7 @@ module Zena
 
 ENDTXT
         end
-        
+
         # Traductions as a list of links
         def traductions(opts={})
           obj = opts[:node] || @node
@@ -199,7 +200,7 @@ ENDTXT
             {:overwrite_params => { :lang => new_lang }}
           end
         end
-        
+
         # This lets helpers render partials
         # TODO: make sure this is the best way to handle this problem.
         def render_to_string(*args)
@@ -209,7 +210,7 @@ ENDTXT
               class << self
                 attr_accessor :request, :response, :params
               end
-            
+
               @request = ::ActionController::TestRequest.new
               @response = ::ActionController::TestResponse.new
 
@@ -220,11 +221,11 @@ ENDTXT
               self
             end
           end
-          
+
           @controller.send(:render_to_string, *args)
         end
 
-      end # ViewMethods      
+      end # ViewMethods
     end # Refactor
   end # Use
 end # Zena

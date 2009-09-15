@@ -332,12 +332,8 @@ module Zena
         # Shows 'login' or 'logout' button.
         def login_link(opts={})
           if visitor.is_anon?
-            if visitor.site[:http_auth] || true
-              if params[:prefix]
-                link_to _('login'), :overwrite_params => { :prefix => AUTHENTICATED_PREFIX }
-              else
-                "<a href='/login'>#{_('login')}</a>"
-              end
+            if params[:prefix]
+              link_to _('login'), :overwrite_params => { :prefix => AUTHENTICATED_PREFIX }
             else
               "<a href='/login'>#{_('login')}</a>"
             end
