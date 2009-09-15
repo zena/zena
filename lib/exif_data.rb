@@ -15,25 +15,25 @@ class ExifData < Hash
       # ignore
     end
   end
-  
+
   ['DateTime', 'DateTimeOriginal', 'DateTimeDigitised'].each do |k|
-    define_method(k.gsub(/([a-z\d])([A-Z])/,'\1_\2').downcase) do
+    define_method(k.underscore) do
       date_from_field(k)
     end
   end
-  
+
   ['GPSLongitude', 'GPSLatitude'].each do |k|
-    define_method(k.gsub(/([a-z\d])([A-Z])/,'\1_\2').downcase) do
+    define_method(k.underscore) do
       position_from_field(k)
     end
   end
-  
+
   private
     def date_from_field(k)
       return nil unless v = self[k]
       Time.parse(v.sub(/(....):(..):(..) /, '\1-\2-\3 ')) rescue nil
     end
-    
+
     def position_from_field(k)
       return nil unless v = self[k]
       if v =~ /(-?\d+)\/(\d+),\s*(-?\d+)\/(\d+),\s*(-?\d+)\/(\d+)/
