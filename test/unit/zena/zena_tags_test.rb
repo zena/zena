@@ -1,7 +1,7 @@
 require 'test_helper'
 require 'yamltest'
 
-class ZafuParserTest < ZenaTestController
+class ZenaTagsTest < Zena::Controller::TestCase
   yamltest :directories => [:default, "#{RAILS_ROOT}/bricks/**/test/zafu"]
   Section # make sure we load Section links before trying relations
 

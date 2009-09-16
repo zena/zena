@@ -1,4 +1,3 @@
-puts "loading CodeSyntax"
 require 'rubygems'
 require 'syntax/convertors/html'
 require 'syntax/lang/xml'

@@ -3594,7 +3594,3 @@ module ActiveRecord
     end
   end
 end
-
-if defined?(RAILS_ENV)
-  Bricks::Patcher.load_zafu
-end

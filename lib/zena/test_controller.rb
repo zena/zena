@@ -4,8 +4,7 @@ module Zena
   class TestController < ApplicationController
     helper_method :get_template_text, :template_url_for_asset, :save_erb_to_url
     before_filter :set_context
-    ZazenParser = Parser.parser_with_rules(Zazen::Rules, Zazen::Tags)
-    ZafuParser  = Parser.parser_with_rules(Zafu::Rules, Zena::Rules, Zafu::Tags, Zena::Tags)
+
     class << self
       def templates=(templates)
         @@templates = templates

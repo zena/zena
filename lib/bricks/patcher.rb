@@ -41,14 +41,16 @@ module Bricks
         end
       end
 
-      def load_zafu
+      def load_zafu(mod)
         foreach_brick do |brick_path|
-          zafu_path = File.join(brick_path, 'zafu')
+          brick_name = File.basename(brick_path)
+          zafu_path  = File.join(brick_path, 'zafu')
           next unless File.exist?(zafu_path)
           Dir.foreach(zafu_path) do |rules_name|
             next if rules_name =~ /\A\./
             load File.join(zafu_path, rules_name)
           end
+          mod.send(:include, eval("Bricks::#{brick_name.capitalize}::Zafu"))
         end
       end
     end
