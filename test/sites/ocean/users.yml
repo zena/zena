@@ -1,7 +1,7 @@
 DEFAULTS:
   created_at:      2006-04-11
   updated_at:      2006-04-11
-    
+
 incognito:
   first_name:      Miss
   name:            Incognito
@@ -12,7 +12,7 @@ ocean_su:
   name:            Super
   login:           ocean_su
   password:        <%= User.hash_password('ocean_su') %>
-  
+
 whale:
   first_name:      Miss
   name:            Whale

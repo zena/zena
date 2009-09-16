@@ -3,7 +3,7 @@
 // Copyright 2006 Cloudburst LLC
 // Some sections originally from public domain material
 
-var href_base = '%style_url%'.replace(/(.*\/).*/, '$1'); // haha! inline js is good for something  
+var href_base = '%style_url%'.replace(/(.*\/).*/, '$1'); // haha! inline js is good for something
 
 function $(id) {
     if (document.getElementById)
@@ -17,7 +17,7 @@ function $(id) {
 
   function toggle(id) {
     elem = $(id);
-    elemStyle = elem.style;   
+    elemStyle = elem.style;
     if (elemStyle.display == "block") {
       elemStyle.display = "none"
     } else {
@@ -39,7 +39,7 @@ function $(id) {
 function span(s, klass) {
   return '<span class="' + klass + '">' + s + '</span>';
 }
-  
+
 function highlightSymbols() {
   pres = document.getElementsByTagName('pre');
   for(var i = 0; i < pres.length; i++) {
@@ -62,7 +62,7 @@ function highlightSymbols() {
          result = obj.getAttributeNode("class").value;
      }
      return result;
-  }   
+  }
 
  function stripe() {
     var even = true;
@@ -73,19 +73,19 @@ function highlightSymbols() {
         var trs = tables[h].getElementsByTagName("tr");
         for (var i = 0; i < trs.length; i++) {
           var tds = trs[i].getElementsByTagName("td");
-            for (var j = 0; j < tds.length; j++) {       
-              if (hasClass(tds[j]) != "first") {                
+            for (var j = 0; j < tds.length; j++) {
+              if (hasClass(tds[j]) != "first") {
               var mytd = tds[j];
               if (even) {
                 mytd.style.backgroundColor = color;
-              }         
+              }
             }
           }
           even =  ! even;
       }
     }
   }
-  
+
 function ajaxGet(url) {
   url = (href_base + url).replace('/./', '/')
   var req = false;
@@ -108,7 +108,7 @@ function ajaxGet(url) {
       }
     }
   }
-    
+
   /* real browsers */
   if (!req && window.XMLHttpRequest) {
     try {
@@ -116,25 +116,25 @@ function ajaxGet(url) {
     } catch (e) {
       req = false;
     }
-  } 
-  
+  }
+
   if (req) {
     req.open('GET', url, false);
     req.send(null);
     return req.responseText;
   } else {
-    return "Ajax error";  
+    return "Ajax error";
   }
 }
 
 
 function addEvent(elm, evType, fn, useCapture) {
 	if (elm.addEventListener) {
-	  elm.addEventListener(evType, fn, useCapture);  
+	  elm.addEventListener(evType, fn, useCapture);
   	return true;
 	} else if (elm.attachEvent) {
-  	var r = elm.attachEvent('on' + evType, fn);  
-	  return r;  
+  	var r = elm.attachEvent('on' + evType, fn);
+	  return r;
 	} else {
   	elm['on' + evType] = fn;
 	}
@@ -142,7 +142,7 @@ function addEvent(elm, evType, fn, useCapture) {
 
 function insertIndices() {
   pages = ["class", "file", "method"]
-  for (x in pages) { 
+  for (x in pages) {
     $(pages[x]).innerHTML += ajaxGet('fr_' + pages[x] + '_index.html').replace(/(href=")/g, '$1' + href_base);
   }
   /* mouseoverify method links */
@@ -156,7 +156,7 @@ function insertIndices() {
   /* this is stupid */
   $('class').style.display = "block";
   $('file').style.display = "block";
-  
+
   /* has to be here because IE7 does not guarantee the onLoad callback order */
   abbreviateIndicesInner(["class", "file"], 25, "a");
   /* same, linkTitle() depends on the class link list */
@@ -169,7 +169,7 @@ function abbreviateIndices() {
 }
 
 function abbreviateIndicesInner(indices, amount, tag) {
-  for (var x = 0; x < indices.length; x++) { 
+  for (var x = 0; x < indices.length; x++) {
     var the_index = $(indices[x]);
     if (the_index) {
       links = the_index.getElementsByTagName(tag);
@@ -221,7 +221,7 @@ function linkTitle() {
          items_new[x] = '<a href="' + href_base + link + '">' + item + '</a>';
          break;
       }
-    }  
+    }
   }
   $('item_name').innerHTML = item_type + ' ' + items_new.join(" :: ");
 }
@@ -246,27 +246,27 @@ function disableSubmit(event) {
     return true;
   }
 }
-  
+
 function filterList(id, s, event) {
-  
+
   /* some half-assed escaping */
   s = s.replace(/[^\w\d\.\_\-\/\:\=\[\]\?\!]/g, '');
   s = RegExp.escape(s);
-  
+
   var show_all = false;
   if (s.match(/^\s*$/)) {
     show_all = true;
   }
-  
+
   links = $(id).getElementsByTagName('a')
   regex = new RegExp(s, 'i');
-  
+
   for (var x = 0; x < links.length; x++) {
     var link = links[x];
     if (show_all) {
       link.style.display = 'inline';
     } else {
-       if (link.innerHTML.match(regex)) {        
+       if (link.innerHTML.match(regex)) {
          link.style.display = 'inline';
        } else {
          link.style.display = 'none';
@@ -291,7 +291,7 @@ RegExp.escape = function(text) {
 
 
 function hacks() {
-  // show the spacer if necessary, 
+  // show the spacer if necessary,
   divs = document.getElementsByTagName('div');
   for (x in divs) {
     if (divs[x].className && divs[x].className.match(/top/)) {

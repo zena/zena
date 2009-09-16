@@ -8,7 +8,7 @@ class Fulltext < ActiveRecord::Migration
 
   def self.down
     remove_index "versions", ["title", "text", "summary"]
-    
+
     execute "ALTER TABLE versions ENGINE = InnoDB;"
   end
 end

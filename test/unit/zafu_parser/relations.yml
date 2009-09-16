@@ -3,7 +3,7 @@ default:
     lang: 'en'
     visitor: 'ant'
     node: 'status'
-  
+
 set_tags:
   src: "<r:project><r:show attr='name'/>: <r:set_tags><r:each join=', '><r:show attr='name'/></r:each></r:set_tags></r:project>"
   res: "cleanWater: art"
@@ -38,7 +38,7 @@ icon:
   src: "<r:icon do='[name]'/>"
   tem: "/ORDER BY links.id DESC/"
   res: "lake"
-  
+
 pages:
   context:
     node: 'cleanWater'
@@ -48,19 +48,19 @@ pages:
 root:
   src: "<r:root do='[v_title]'/>"
   res: 'Zena the wild CMS'
-  
+
 notes:
   context:
     node: 'cleanWater'
   src: "<r:notes><r:each join=', '><r:show attr='name'/></r:each></r:notes>"
   res: "opening"
-  
+
 blog_with_news:
   context:
     node: 'zena'
   src: "<r:notes or='news' do='each' join=', ' do='[name]'/>"
   res: "letter, opening"
-  
+
 blog_with_bad_relation:
   context:
     node: 'zena'
@@ -70,7 +70,7 @@ blog_with_bad_relation:
 pages_do_syntax:
   src: "<ol do='pages where name like \"c%\" in site'><li do='each' do='[name]'/></ol>"
   res: "<ol><li>cleanWater</li><li>collections</li></ol>"
-  
+
 pages_limit:
   context:
     node: 'cleanWater'
@@ -86,11 +86,11 @@ pages_random:
 nodes_in_project:
   src: "<r:nodes in='project' limit='2'><r:each join=', '><r:show attr='name'/></r:each></r:nodes>"
   res: "lake, lakeAddress"
-  
+
 nodes_in_project_stored:
   src: "<r:void store='foo'><r:node select='29'>from <r:show attr='name'/>, look at <r:node select='foo' do='[name]'/>: <r:pages in='site' project='foo' do='each' join=', ' do='[name]'/></r:node></r:void>"
   res: "from wiki, look at status: status, track"
-  
+
 nodes_in_site:
   src: "<r:nodes in='site' limit='3'><r:each join=', ' do='show' attr='name'/></r:nodes>"
   res: "anonymous, ant, art"
@@ -115,7 +115,7 @@ store_node_as_relation:
 store_img:
   src: "<r:parent><r:icon store='bob'><r:show attr='name'/><r:img link='bob'/></r:icon></r:parent>"
   tem: "/if var1 = @node.parent.*var2 = var1.do_find.*relation_id = _ID(node_has_an_icon).*LIKE 'NDI%'.*var2.name.*zen_path\(var1\).*img_tag\(var2/"
-    
+
 author_visitor:
   src: "<r:pages in='site' author='visitor' limit='5'><r:each join=', ' do='show' attr='name'/></r:pages>"
   res: "myLife, nature, status"
@@ -151,7 +151,7 @@ node_root:
 parent_no_parent:
   src: "result=<r:node select='root'><r:parent><r:show attr='name'/></r:parent></r:node>="
   res: "result=="
-  
+
 node_not_found:
   src: "result=<r:node select='99'>this is something</r:node>="
   res: "result=="
@@ -177,7 +177,7 @@ hot_not_else_block:
     node: 'cleanWater'
   src: "<r:hot>I am hot<r:else>I am not</r:else> and funny</r:hot>"
   res: "I am hot and funny"
-  
+
 children_else:
   src: "<r:children where='name like \"%asdfg\"' else='self'><r:each join=', '><r:show attr='name'/></r:each></r:children>"
   res: "status"
@@ -197,15 +197,15 @@ upcoming_events:
 in_7_days:
   src: "<r:pages in='site' log='+7days' do='each' join=', ' do='show' attr='name'/>"
   res: "cleanWater, projects"
-  
+
 logged_7_days_ago:
   src: "<r:pages in='site' log='-7days' do='each' join=', ' do='show' attr='name'/>"
   res: "cleanWater, projects"
-  
+
 around_7_days:
   src: "<r:pages in='site' log='7days' do='each' join=', ' do='show' attr='name'/>"
   res: "art, cleanWater, projects, status"
-  
+
 in_37_hours:
   src: "<r:pages in='site' log='+37hours' do='each' join=', ' do='show' attr='name'/>"
   res: "art, cleanWater"
@@ -239,7 +239,7 @@ order_limit:
 relation_not_in_current_node:
   src: "<ul do='news' in='site' limit='5' order='updated_at DESC'><li do='each'><r:link/></li></ul>"
   res: "<ul><li><a href='/oo/projects/cleanWater/post27.html'>parc opening</a></li></ul>"
-  
+
 pages_anchor:
   src: "<r:pages in='site' limit='3' do='each' join=', '><r:show attr='name' anchor='true'/></r:pages>"
   res: "<a name='node33'></a>art, <a name='node21'></a>cleanWater, <a name='node32'></a>collections"
@@ -259,11 +259,11 @@ nodes:
 menu_with_favorites:
   src: "<ul><r:root do='pages' only='public' cache='true' name='menu'><li do='each'><r:link/><ul do='pages'><li do='each' do='link'/></ul></li></r:root><r:node select='visitor' do='favorites'><li class='favorites'><r:trans>favorites</r:trans><ul><li do='each' do='link'/></ul></li></ul>"
   res: "/.*tag33.*tag35.*Clean Water.*favorites.*Nature/"
-  
+
 visitor_favorites:
   src: "<r:node select='visitor'><ul do='favorites'><li do='each' do='link'/></ul></r:node>"
   res: "<ul><li><a href='/oo/page39.html'>Nature</a></li></ul>"
-  
+
 checkbox:
   src: "<r:checkbox role='hot_for' values='projects' in='site'/>"
   res: "/<input type='checkbox' name='node\[hot_for_ids\]\[\]' value='21' checked='checked'\/> cleanWater/"
@@ -303,12 +303,12 @@ where:
 where_like:
   src: "<r:images where='name like \"%ke\"' in='site' do='each' join=',' do='[name]'/>"
   res: "lake"
-  
+
 where_like_param:
   src: "<r:tagged where='name like \"%[param:tag]%\" and \"[param:tag]\" ne \"\"' in='site' or='self' do='each' join=',' do='[name]'/>"
   tem: "/\? <> ''.*params\[:tag\].to_s/"
   res: "status"
-  
+
 where_not:
   context:
     node: 'cleanWater'
@@ -332,15 +332,15 @@ where_two_attributes:
   src: "<r:nodes where='log_at ne event_at' in='site' do='each' join=', ' do='[name]'/>"
   tem: "/nodes.log_at <> nodes.event_at/"
   res: "letter, opening"
-  
+
 many_or:
   src: "<r:tagged in='site' or='images in site' or='tags in site' do='each' join=',' do='[name]'/>"
   res: "art,bird,cleanWater,flower,lake,menu,news,opening,tree"
-  
+
 hot_or_page:
   src: "<r:hot or='page in project'>...</r:hot>"
   tem: "/:first.*.*links.relation_id = _ID(project_has_a_hot_element).*nodes.kpath LIKE 'NP%' AND nodes.project_id = ?.*LIMIT 1.*@node.get_project_id"
-  
+
 node_in_version:
   src: "<r:version><r:node do='[name]'/></r:version>"
   res: "status"
@@ -377,7 +377,7 @@ nodes_in_site_group_by_year:
 comments_order_desc:
   src: "<r:comments order='created_at desc'><r:each join=', '><r:show date='created_at' format='%Y-%m-%d'/>:<b do='[title]'/></r:each></r:comments>"
   res: "2008-05-21:<b>re: What about rivers ?</b>, 2006-12-20:<b>What about rivers ?</b>, 2006-12-20:<b>Nice site</b>"
-  
+
 comments_where_title:
   src: "<r:comments where='title like \"%rivers%\"'><r:each join=', '><r:show date='created_at' format='%Y-%m-%d'/>:<b do='[title]'/></r:each></r:comments>"
   res: "2006-12-20:<b>What about rivers ?</b>, 2008-05-21:<b>re: What about rivers ?</b>"
@@ -387,7 +387,7 @@ comments_no_discussion:
     node: letter
   src: "<r:comments order='created_at desc'><r:each join=', '><r:show date='created_at' format='%Y-%m-%d'/>:<b do='[title]'/></r:each><r:else>-- no comment yet --</r:else></r:comments>"
   res: "-- no comment yet --"
-  
+
 comments_previous_node:
   src: "<r:comments><r:each do='{text}'/></r:comments>"
   tem: "/zazen\(var1.text, :node=>@node\)/"

@@ -4,7 +4,7 @@ class CreateAccessHits < ActiveRecord::Migration
       # %v %h %{%Y-%m-%d %H:%M:%S %z}t %T %>s %b %m \"%U\" \"%{Referer}i\" \"%{User-agent}i\" \"%r\"
       t.column :site_id          , :integer  # from %v
       t.column :node_id          , :integer
-      
+
       t.column :remote_host      , :string, :limit => 50 # %h (ip)
       t.column :request_time     , :datetime             # %t
       t.column :request_duration , :integer              # %T

@@ -18,7 +18,7 @@ class String
   end
 
   def url_name!
-    accents = { 
+    accents = {
       ['á',    'à','À','â','Â','ä','Ä','ã','Ã'] => 'a',
       ['é','É','è','È','ê','Ê','ë','Ë',       ] => 'e',
       ['í',    'ì','Ì','î','Î','ï','Ï'        ] => 'i',
@@ -37,7 +37,7 @@ class String
     gsub!(/ (.)/) { $1.upcase }
     self
   end
-  
+
   # return a relative path from an absolute path and a root
   def rel_path(root)
     root = root.split('/')
@@ -59,7 +59,7 @@ class String
     end
     ref.join('/')
   end
-  
+
   # return an absolute path from a relative path and a root
   def abs_path(root)
     root = root.split('/')

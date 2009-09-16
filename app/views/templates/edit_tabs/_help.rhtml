@@ -1,4 +1,4 @@
-<%= 
+<%=
 begin
   node = secure!(Node) { Node.find_by_name('help') }
   zazen(node.v_summary)

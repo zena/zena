@@ -77,7 +77,7 @@ ul.errors li { margin-left:0.4em; background:inherit; line-height:1.2em;}
 .wrong_lang { color: grey; font-weight:normal; font-size:0.7em; text-transform:none; font-style:normal;}
 
 .s30 form, .s35 form, .s40 form, .s10 form, .s20 form { margin-left:20px; display: inline; }
-/*.s30 span, .s35 span, .s40 span, .s10 span, .s20 span { float: right; font-size:0.8em; padding-top:0.5em; } 
+/*.s30 span, .s35 span, .s40 span, .s10 span, .s20 span { float: right; font-size:0.8em; padding-top:0.5em; }
 */
 /* NOTES */
 #left ul { margin:0 0 1em 1em;}
@@ -171,7 +171,7 @@ table.fada td:first-child {border-left-width:1px;}
 table.largecal { border:1px solid #655; font-size:0.9em; margin:auto; width:80%; }
 .largecal .head td  { border-left:1px solid #836C6C; background: #655; color: #fff; font-weight:normal; width:14%; height:0.8em; text-align:center; padding:0.4em 3px; }
 .largecal .head td:first-child {border-left-width:0;}
-.largecal .body td  { background: #ffd; width:14%; height:3.4em; padding:3px; vertical-align:top; font-style:italic; text-align:left; color:#999; 
+.largecal .body td  { background: #ffd; width:14%; height:3.4em; padding:3px; vertical-align:top; font-style:italic; text-align:left; color:#999;
 border:1px solid #DDDBC1; border-width:1px 0 0 1px; font-size:0.8em;}
 .largecal .body td:first-child {border-left-width:0;}
 
@@ -187,7 +187,7 @@ border:1px solid #DDDBC1; border-width:1px 0 0 1px; font-size:0.8em;}
 .largecal .body p { float:left; margin:0;}
 .largecal .preview img { background:none;}
 
-/* 
+/*
 .note .title { padding:4px; font:1em Verdana, Arial, sans-serif; letter-spacing: 0.1em; color:#4F6741;}
 .note .header { font-size:1em;}
 .note .header p {  float:left; width:30em; text-align:left; color:#450009; font-weight:bold; margin-bottom:0.2em; padding:0; }

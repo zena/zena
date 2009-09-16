@@ -10,12 +10,12 @@ function submitUploadForm(form, uuid) {
   $(form).submit();
   if (need_progress) {
     UploadProgress.monitor(uuid) ;
-	} 
+	}
 }
 
 //
 // Prototype extensions
-// 
+//
 
 PeriodicalExecuter.prototype.registerCallback = function() {
   this.intervalID = setInterval(this.onTimerEvent.bind(this), this.frequency * 1000);
@@ -34,7 +34,7 @@ var UploadProgress = {
   period: 1.0,
   morphPeriod: 1.2,
   uuid: '',
-	
+
   monitor: function(uuid) {
     this.uuid = uuid;
     this.buildProgressBar();
@@ -54,8 +54,8 @@ var UploadProgress = {
       }) ;
     }, this.period) ;
   },
-  
-  
+
+
   buildProgressBar: function() {
     $('attachment' + this.uuid).insert({after:'<div class ="progress_shell" id="progress_shell' + this.uuid + '"><div class="progress_text" id="progress_text' + this.uuid + '">&nbsp;</div><div class="progress_bar" id="progress_bar' + this.uuid + '" style="width:0%;">&nbsp;</div></div>'});
     $('attachment' + this.uuid).hide();
@@ -70,10 +70,10 @@ var UploadProgress = {
       style: 'width:' + progress + '%;',
       duration: progressDuration
     });
-    
+
     $('progress_text' + this.uuid).innerHTML = total.toHumanSize() + ': ' + progress + '%' ;
   },
-  
+
   setAsStarting: function() {
     this.uploading = true ;
     this.processing = false;

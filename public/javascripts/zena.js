@@ -49,7 +49,7 @@ Zena.diff_select = function(tag) {
     }
     diff_from = tag;
     diff_next_sel = 'to';
-  } else {  
+  } else {
     if (diff_to != '') {
       diff_to.style.background = 'none';
     }
@@ -66,7 +66,7 @@ Zena.diff_select = function(tag) {
       diff_next_sel = 'from';
     }
   }
-  
+
   diff_from.style.background = '#7A6414';
   diff_to.style.background = '#FAD12A';
 }
@@ -183,7 +183,7 @@ Zena.update_rwp = function(inherit_val,r_index,w_index,p_index,s_index) {
 }
 
 /* fade flashes automatically */
-Event.observe(window, 'load', function() { 
+Event.observe(window, 'load', function() {
   $A(document.getElementsByClassName('flash')).each(function(o) {
     o.opacity = 100.0;
     Effect.Fade(o, {duration: 8.0});
@@ -216,7 +216,7 @@ Zena.key_press = function(e,obj) {
         $("search").focus();
       }
       break;
-  } 
+  }
 }
 
 Zena.Div_editor = Class.create();
@@ -257,12 +257,12 @@ Zena.Div_editor.prototype = {
     this.flds.w = $(w_name);
     this.flds.h = $(h_name);
     this.zoom  = azoom;
-    
+
     this.pos.offsetx = left_pos + this.MARGIN;
     this.pos.offsety = top_pos  + this.MARGIN;
     this.pos.fullw = img.width;
     this.pos.fullh = img.height;
-    
+
     this.clone = document.createElement('div');
     this.mark  = document.createElement('div');
     Element.setStyle(this.clone, {
@@ -277,13 +277,13 @@ Zena.Div_editor.prototype = {
     this.clone.onmousedown = this.update_position.bindAsEventListener(this);
     this.clone.onmouseup   = this.end_move.bindAsEventListener(this);
     this.clone.onmousemove = this.do_move.bindAsEventListener(this);
-    
+
     this.flds.x.onchange = this.update_from_inputs.bindAsEventListener(this);
     this.flds.y.onchange = this.update_from_inputs.bindAsEventListener(this);
     this.flds.w.onchange = this.update_from_inputs.bindAsEventListener(this);
     this.flds.h.onchange = this.update_from_inputs.bindAsEventListener(this);
     // inputs onchange = update this.
-    
+
     Element.setStyle(this.mark, {
       border: this.BORDER_WIDTH + 'px solid ' + this.BORDER_COLOR,
       position: 'absolute',
@@ -312,7 +312,7 @@ Zena.Div_editor.prototype = {
     this.flds.y.value = Math.round(this.zoom * this.pos.y);
     this.flds.w.value = Math.round(this.zoom * this.pos.w);
     this.flds.h.value = Math.round(this.zoom * this.pos.h);
-    Element.setStyle(this.mark, {    
+    Element.setStyle(this.mark, {
       left: (this.pos.x - this.BORDER_WIDTH + this.MARGIN) + 'px',
       top:  (this.pos.y - this.BORDER_WIDTH + this.MARGIN) + 'px',
       width:  this.pos.w + 'px',
@@ -371,7 +371,7 @@ Zena.Div_editor.prototype = {
     // remove clic offset
     posx = Math.max(0, posx - this.pos.startx);
     posy = Math.max(0, posy - this.pos.starty);
-    
+
     if (this.moveAll) {
       // drag
       this.pos.x = posx;
@@ -407,7 +407,7 @@ Zena.Div_editor.prototype = {
           this.pos.w = this.pos.h;
         } else {
           this.pos.h = this.pos.w;
-        } 
+        }
       }
     }
     this.update_sizes();
@@ -479,7 +479,7 @@ Zena.draggable = function(dom_id, index, g, r, rE) {
     new Draggable(dom_id, {ghosting:g, revert:r});
   } else {
     new Draggable(dom_id, {ghosting:g, revert:r, reverteffect:rE});
-  } 
+  }
 }
 
 

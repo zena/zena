@@ -9,7 +9,7 @@ default:
 id_becomes_zip:
   src: "nodes where id ne 1"
   sql: "/nodes.zip <> 1/"
-  
+
 version_filter_title_like:
   src: "nodes where v_title like 'P%' in site"
   sql: "\"SELECT nodes.* FROM nodes,versions WHERE versions.title LIKE 'P%' AND nodes.id = versions.node_id AND (#{@node.secure_scope('nodes')}) GROUP BY nodes.id ORDER BY nodes.position ASC, nodes.name ASC\""
@@ -25,7 +25,7 @@ dynattr_filter_is_null:
   src: "projects where d_assigned is null in site"
   sql: "\"SELECT nodes.* FROM nodes,versions LEFT JOIN dyn_attributes ON versions.id = dyn_attributes.owner_id AND dyn_attributes.key = 'assigned' WHERE nodes.kpath LIKE 'NPP%' AND dyn_attributes.value IS NULL AND nodes.id = versions.node_id AND (#{@node.secure_scope('nodes')}) GROUP BY nodes.id ORDER BY nodes.position ASC, nodes.name ASC\""
   res: "wiki, zena"
-  
+
 dynattr_filter_in_relation:
   src: "favorites where d_priority = 'important'"
   sql: "[\"SELECT nodes.*,links.id AS link_id,links.status AS l_status,links.comment AS l_comment,links.date AS l_date FROM nodes,versions LEFT JOIN dyn_attributes ON versions.id = dyn_attributes.owner_id AND dyn_attributes.key = 'priority',links WHERE nodes.id = links.target_id AND links.relation_id = _ID(contact_has_favorites) AND links.source_id = ? AND dyn_attributes.value = 'important' AND nodes.id = versions.node_id AND (#{@node.secure_scope('nodes')}) GROUP BY nodes.id ORDER BY nodes.position ASC, nodes.name ASC\", @node.id]"

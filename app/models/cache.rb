@@ -1,11 +1,11 @@
 class Cache < ActiveRecord::Base
-  
+
   attr_protected :site_id
   cattr_accessor :perform_caching
   before_save    :set_site_id
-  
+
   class << self
-    
+
     def with(visitor_id, visitor_groups, kpath, *context)
       return yield unless perform_caching
       if cached = self.find(:first, :conditions => ["visitor_id = ? AND site_id = ? AND context = ?", visitor_id, visitor.site.id, context.join('.').hash.abs])
@@ -17,7 +17,7 @@ class Cache < ActiveRecord::Base
         content
       end
     end
-    
+
     # We can provide a kpath selector for sweeping. If the kpath is in the cached scope, the cache is removed.
     def sweep(hash)
       if kpath  = hash[:kpath]

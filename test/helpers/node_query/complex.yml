@@ -92,8 +92,7 @@ course_emp_date:
 all_course_emp_date:
   src: "assigned_employees from project from assigned_pages from courses in site"
   res: "joe, mike, roger"
-  
+
 courses_with_rep:
   src: "courses where custom_a is not null in site order by name asc"
   res: "dangerous_transportations, engine, fiber_junction, radio_usage, resp_management, secure_a_site, team_motivation, transmit_information, vision, winch_usage"
-  

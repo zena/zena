@@ -11,13 +11,13 @@ node_has_tags:
   source_role:     tagged
   target_role:     set_tag
   target_icon:     "<img src='/images/tag_blue.png' alt='tag'/>"
-  
+
 node_has_references:
   source_kpath:    N
   target_kpath:    N
   source_role:     reference_for
   target_role:     reference
-  
+
 node_has_an_icon:
   source_kpath:    N
   target_kpath:    NDI
@@ -25,7 +25,7 @@ node_has_an_icon:
   target_role:     icon
   target_unique:   yes
   target_icon:     "<img src='/images/medal_gold_2.png' alt='icon'/>"
-  
+
 project_has_a_hot_element:
   source_role:     hot_for
   source_icon:     "<img src='/images/project.png' alt='projet'/>"
@@ -34,7 +34,7 @@ project_has_a_hot_element:
   target_kpath:    N
   target_unique:   yes
   target_icon:     "<img src='/images/lightbulb.png' alt='hot'/>"
-  
+
 project_has_a_home:
   source_kpath:    NPP
   source_icon:     "<img src='/images/project.png' alt='projet'/>"

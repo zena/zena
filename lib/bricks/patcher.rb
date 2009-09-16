@@ -29,7 +29,7 @@ module Bricks
             eval model_name[/(\w+)\.rb/,1].capitalize.url_name
           end
         end
-        
+
         # load all libraries in bricks
         foreach_brick do |brick_path|
           lib_path = File.join(brick_path, 'lib')

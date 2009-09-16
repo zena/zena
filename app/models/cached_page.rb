@@ -51,7 +51,7 @@ The visited_nodes list is [Node_index.html, Project.html, layout.html, notes.htm
 Whenever any of the nodes listed above changes, 'Node_index.html' rendered folder is destroyed.
 =end
 class CachedPage < ActiveRecord::Base
-  
+
   attr_protected :site_id
   cattr_accessor :perform_caching
   attr_accessor  :content_data, :content_path, :expire_with_ids
@@ -59,14 +59,14 @@ class CachedPage < ActiveRecord::Base
   before_create  :clear_same_path
   after_save     :cached_page_after_save
   before_destroy :cached_page_on_destroy
-  
+
   class << self
-        
+
     # Expire all pages whose expire date is in the past
     def expire_old
       expire(CachedPage.find(:all, :conditions=>["expire_after < ?", Time.now]))
     end
-    
+
     # Remove cached pages related to the given node.
     def expire_with(node, node_ids = nil)
       if node_ids && node_ids != []
@@ -76,7 +76,7 @@ class CachedPage < ActiveRecord::Base
       end
       expire(node.cached_pages + [])
     end
-    
+
     private
       # Destroy cached pages
       def expire(pages)
@@ -86,24 +86,24 @@ class CachedPage < ActiveRecord::Base
         end
       end
   end
-  
+
   # Cached page's creation context (list of node ids).
   def node_ids
     self.class.fetch_ids("SELECT node_id FROM cached_pages_nodes WHERE cached_page_id = '#{self[:id]}'", 'node_id')
   end
-  
+
   private
     def clear_same_path
       # in case the file was removed by hand or someting weird happened (see #166), clear
       CachedPage.connection.execute "DELETE cached_pages_nodes FROM cached_pages_nodes, cached_pages WHERE cached_pages_nodes.cached_page_id = cached_pages.id AND cached_pages.path = #{CachedPage.connection.quote(self[:path])} AND cached_pages.site_id = #{visitor.site[:id]}"
       CachedPage.connection.execute "DELETE FROM cached_pages WHERE cached_pages.path = #{CachedPage.connection.quote(self[:path])} AND cached_pages.site_id = #{visitor.site[:id]}"
     end
-    
+
     def cached_page_valid
       errors.add('nodes', 'visited nodes empty, cannot create cache') unless @expire_with_ids || (visitor && visitor.visited_node_ids != [])
       self[:site_id] = visitor.site[:id]
     end
-  
+
     def cached_page_after_save
       # create cache file
       filepath = "#{SITES_ROOT}#{path}"
@@ -114,14 +114,14 @@ class CachedPage < ActiveRecord::Base
       else
         File.open(filepath, "wb+") { |f| f.write(content_data) }
       end
-    
+
       # create join values from context for automatic expire
       if (ids = @expire_with_ids || visitor.visited_node_ids) != []
         values = ids.compact.uniq.map {|id| "(#{self[:id]}, #{id})"}.join(',')
         CachedPage.connection.execute "INSERT INTO cached_pages_nodes (cached_page_id, node_id) VALUES #{values}"
       end
     end
-  
+
     # When destroying a cache record, remove the related cached file.
     def cached_page_on_destroy
       filepath = "#{SITES_ROOT}#{path.gsub('..','')}" # just in case...

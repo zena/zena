@@ -1,7 +1,7 @@
 require 'test_helper'
 
 class TemplateTest < Zena::Unit::TestCase
-  
+
   def test_create_simplest
     login(:tiger)
     doc = secure!(Document) { Document.create(:parent_id=>nodes_id(:cleanWater), :name=>'super.zafu')}
@@ -13,7 +13,7 @@ class TemplateTest < Zena::Unit::TestCase
     assert_equal 'text/zafu', doc.version.content.content_type
     assert_equal 'zafu', doc.version.content.ext
   end
-  
+
   def test_create_empty_mode
     login(:tiger)
     doc = secure!(Document) { Document.create(:parent_id=>nodes_id(:default), :name=>'super.zafu', :c_mode => '')}
@@ -35,7 +35,7 @@ class TemplateTest < Zena::Unit::TestCase
     assert_equal 'html', doc.version.content.format
     assert_equal 'NPS', doc.version.content.tkpath
   end
-  
+
   def test_create_with_format
     login(:tiger)
     doc = secure!(Template) { Template.create("name"=>"Node-tree", "c_format"=>"xml", "v_summary"=>"", "parent_id"=>nodes_id(:default))}
@@ -48,20 +48,20 @@ class TemplateTest < Zena::Unit::TestCase
     assert_equal 'N', doc.version.content.tkpath
     assert_equal 'zafu', doc.version.content.ext
   end
-  
+
   def test_create_with_file
     login(:tiger)
-    doc = secure!(Document) { Document.create(:parent_id=>nodes_id(:default), :name=>'skiny', 
+    doc = secure!(Document) { Document.create(:parent_id=>nodes_id(:default), :name=>'skiny',
       :c_file=>uploaded_file('some.txt', content_type="text/zafu", 'smoke'))}
     assert_kind_of Template, doc
     assert !doc.new_record?, "Not a new record"
     assert_equal 'skiny.zafu', doc.version.content.filename
-    
+
     sub = secure!(Document) { Document.create(:parent_id=>doc[:id], :name=>'sub.html')}
     assert_kind_of Template, sub
     assert !sub.new_record?, "Not a new record"
   end
-  
+
   def test_set_by_name
     login(:tiger)
     doc = secure!(Document) { Document.create(:parent_id=>nodes_id(:default), :name=>'Project-collab-xml.zafu')}
@@ -73,7 +73,7 @@ class TemplateTest < Zena::Unit::TestCase
     assert_equal 'Project', doc.version.content.klass
     assert_equal 'Project-collab-xml', doc.name
   end
-  
+
   def test_set_by_name_without_mode
     login(:tiger)
     doc = secure!(Document) { Document.create(:parent_id=>nodes_id(:default), :name=>'Project--xml.zafu')}
@@ -85,7 +85,7 @@ class TemplateTest < Zena::Unit::TestCase
     assert_equal 'Project', doc.version.content.klass
     assert_equal 'Project--xml', doc.name
   end
-  
+
   def test_set_name_with_title
     login(:tiger)
     doc = secure!(Template) { Template.create(:parent_id=>nodes_id(:default), :v_title=>'Project-collab-xml.zafu')}
@@ -97,7 +97,7 @@ class TemplateTest < Zena::Unit::TestCase
     assert_equal 'Project', doc.version.content.klass
     assert_equal 'Project-collab-xml', doc.name
   end
-  
+
   def test_set_blank_name
     login(:tiger)
     doc = secure!(Template) { Template.create(:parent_id=>nodes_id(:default), 'c_mode' => 'collab', 'c_klass' => 'Page', 'name' => '', 'c_format' => '')}
@@ -109,7 +109,7 @@ class TemplateTest < Zena::Unit::TestCase
     assert_equal 'Page', doc.version.content.klass
     assert_equal 'Page-collab', doc.name
   end
-  
+
   def test_change_name
     login(:tiger)
     doc = secure!(Template) { Template.create(:parent_id=>nodes_id(:default), :name=>'Project-collab-xml.zafu')}
@@ -122,7 +122,7 @@ class TemplateTest < Zena::Unit::TestCase
     assert_equal 'Page', doc.version.content.klass
     assert_equal 'Page-super', doc.name
   end
-  
+
   def test_update_name_blank_mode
     login(:tiger)
     doc = secure!(Template) { Template.create(:parent_id=>nodes_id(:default), :name=>'Project-collab-xml.zafu')}
@@ -135,7 +135,7 @@ class TemplateTest < Zena::Unit::TestCase
     assert_equal 'Page--xml', doc.name
     assert_equal 'Page--xml', doc.version.title
   end
-  
+
   def test_update_blank_mode
     login(:tiger)
     doc = secure!(Template) { Template.create(:parent_id=>nodes_id(:default), :name=>'Project-collab-xml.zafu')}
@@ -162,7 +162,7 @@ class TemplateTest < Zena::Unit::TestCase
     assert_nil doc.version.content.klass
     assert_equal 'simple-thing', doc.name
   end
-  
+
   def test_set_name_no_extension
     login(:tiger)
     doc = secure!(Template) { Template.create(:parent_id=>nodes_id(:default), :name=>'Project-collab')}
@@ -174,7 +174,7 @@ class TemplateTest < Zena::Unit::TestCase
     assert_equal 'NPP', doc.version.content.tkpath
     assert_equal 'Project', doc.version.content.klass
   end
-  
+
   def test_set_name2
     login(:tiger)
     doc = secure!(Template) { Template.create(:parent_id=>nodes_id(:default), :name=>'Project-collab-any-xml.zafu')}
@@ -186,7 +186,7 @@ class TemplateTest < Zena::Unit::TestCase
     assert_nil doc.version.content.klass
     assert_equal 'Project-collab-any-xml', doc.name
   end
-  
+
   def test_set_klass
     login(:tiger)
     doc = secure!(Template) { Template.create(:parent_id=>nodes_id(:default), :name=>'Spider-man-xml',
@@ -200,7 +200,7 @@ class TemplateTest < Zena::Unit::TestCase
     assert_equal 'NP', doc.version.content.tkpath
     assert_equal 'Page', doc.version.content.klass
   end
-  
+
   def test_set_blank_name_not_unique
     login(:tiger)
     doc = secure!(Template) { Template.create(:parent_id=>nodes_id(:default), 'c_mode' => '', 'c_klass' => 'Contact', 'name' => '', 'c_format' => '')}
@@ -220,7 +220,7 @@ class TemplateTest < Zena::Unit::TestCase
     assert_equal 'Contact', doc.version.content.klass
     assert_equal 'Contact--vcard', doc.name
   end
-  
+
   def test_update_format_updates_name
     login(:lion)
     doc = secure!(Template) { Template.create(:parent_id=>nodes_id(:default), 'c_mode' => '', 'c_klass' => 'Contact', 'name' => '', 'c_format' => 'vcard')}
@@ -236,9 +236,9 @@ class TemplateTest < Zena::Unit::TestCase
     assert_equal 'NRC', doc.version.content.tkpath
     assert_equal 'Contact', doc.version.content.klass
     assert_equal 'Contact--vcf', doc.name
-    
+
   end
-  
+
   def test_update_text
     login(:lion)
     doc = secure!(Template) { Template.create(:parent_id=>nodes_id(:default), 'v_text'=>"hey", 'c_mode' => '', 'c_klass' => 'Contact', 'name' => '')}
@@ -247,7 +247,7 @@ class TemplateTest < Zena::Unit::TestCase
     assert_nil doc.version.content.mode
     assert doc.update_attributes('v_text'=>"ho", 'c_format'=>'html', 'c_klass'=>'Node', 'c_mode' => '')
   end
-  
+
   def test_default_text
     login(:lion)
     doc = secure!(Template) { Template.create(:parent_id=>nodes_id(:default), 'c_klass' => 'Contact', 'name' => '')}
@@ -255,7 +255,7 @@ class TemplateTest < Zena::Unit::TestCase
     assert !doc.new_record?, "Saved"
     assert_match %r{include.*Node}, doc.version.text
   end
-  
+
   def test_default_text_Node
     login(:lion)
     doc = secure!(Template) { Template.create(:parent_id=>nodes_id(:default), 'c_klass' => 'Node', 'name' => '')}
@@ -263,7 +263,7 @@ class TemplateTest < Zena::Unit::TestCase
     assert !doc.new_record?, "Saved"
     assert_match %r{xmlns.*www\.w3\.org.*body}m, doc.version.text
   end
-  
+
   def test_default_text_other_format
     login(:lion)
     doc = secure!(Template) { Template.create(:parent_id=>nodes_id(:default), 'c_format' => 'vcard', 'c_klass' => 'Node', 'name' => '')}
@@ -271,26 +271,26 @@ class TemplateTest < Zena::Unit::TestCase
     assert !doc.new_record?, "Saved"
     assert doc.version.text.blank?
   end
-  
+
   def test_move_bad_parent
     login(:lion)
     doc = secure!(Template) { nodes(:wiki_Project_changes_xml_zafu) }
     assert !doc.update_attributes(:parent_id => nodes_id(:collections))
     assert_equal 'Invalid parent (section is not a Skin)', doc.errors[:parent_id]
   end
-  
+
   def test_move
     login(:lion)
     doc = secure!(Template) { nodes(:wiki_Project_changes_xml_zafu) }
     tmpt_content = doc.version.content
     assert_equal 'wikiSkin', tmpt_content.skin_name
     assert doc.update_attributes(:parent_id => nodes_id(:default))
-    
+
     doc = secure!(Template) { nodes(:wiki_Project_changes_xml_zafu) }
     tmpt_content = doc.version.content
     assert_equal 'default', tmpt_content.skin_name
   end
-  
+
   def test_update_same_text
     login(:tiger)
     tmpt = secure(Template) { Template.create(:parent_id=>nodes_id(:default), 'c_format' => 'vcard', 'c_klass' => 'Node', 'name' => '', 'v_status' => Zena::Status[:pub], 'c_file' =>
@@ -299,7 +299,7 @@ class TemplateTest < Zena::Unit::TestCase
     tmpt.send(:update_attribute_without_fuss, :updated_at, Time.gm(2006,04,11))
     assert_equal Zena::Status[:pub], tmpt.version.status
     tmpt = secure(Node) { Node.find(tmpt[:id]) }
-    
+
     assert_equal '21a6948e0aec6de825009d8fda44f7e4', Digest::MD5.hexdigest(uploaded_text('some.txt').read)
     assert_equal '21a6948e0aec6de825009d8fda44f7e4', Digest::MD5.hexdigest(tmpt.version.content.file.read)
     assert_equal 1, tmpt.versions.count

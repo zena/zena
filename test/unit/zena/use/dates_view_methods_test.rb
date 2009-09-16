@@ -4,27 +4,27 @@ class DatesViewMethodsTest < Zena::View::TestCase
   include Zena::Use::Dates::ViewMethods
   include Zena::Use::Refactor::ViewMethods # fquote
   include Zena::Use::I18n::ViewMethods # _
-  
+
   def setup
     super
     I18n.locale = 'en'
     visitor.time_zone = 'UTC'
   end
-  
+
   def test_long_time
     atime = visitor.tz.local_to_utc(Time.utc(2006,11,10,17,42,25)) # local time for visitor
     assert_equal "17:42:25", long_time(atime)
     I18n.locale = 'fr'
     assert_equal "17:42:25", long_time(atime)
   end
-  
+
   def test_short_time
     atime = visitor.tz.local_to_utc(Time.utc(2006,11,10,17,33))
     assert_equal "17:33", short_time(atime)
     I18n.locale = 'fr'
     assert_equal "17h33", short_time(atime)
   end
-  
+
   def test_short_time_visitor_time_zone
     login(:ant) # Europe/Zurich UTC+1, DST+1
     atime = Time.utc(2008,05,18,17,33)
@@ -46,7 +46,7 @@ class DatesViewMethodsTest < Zena::View::TestCase
     I18n.locale = 'fr'
     assert_equal "vendredi, 10 novembre 2006", full_date(atime)
   end
-  
+
   def test_short_date
     atime = Time.now.utc
     visitor[:time_zone] = 'London' # utc
@@ -54,7 +54,7 @@ class DatesViewMethodsTest < Zena::View::TestCase
     I18n.locale = 'fr'
     assert_equal atime.strftime('%d.%m'), short_date(atime)
   end
-  
+
   def test_format_date
     atime = Time.now.utc
     visitor[:time_zone] = 'London' # utc
@@ -62,7 +62,7 @@ class DatesViewMethodsTest < Zena::View::TestCase
     I18n.locale = 'fr'
     assert_equal atime.strftime('%d.%m'), tformat_date(atime, 'short_date')
   end
-  
+
   def test_format_date_age
     atime = Time.now.utc
     visitor[:time_zone] = 'UTC' # utc
@@ -91,7 +91,7 @@ class DatesViewMethodsTest < Zena::View::TestCase
       assert_equal phrase, format_date(Time.now.utc - (60 * age),'age/%Y-%m-%d')
     end
   end
-  
+
   def test_format_date_age_not_utc
     visitor[:time_zone] = 'Europe/Zurich' # not utc
     atime = Time.now.utc
@@ -120,16 +120,16 @@ class DatesViewMethodsTest < Zena::View::TestCase
       assert_equal phrase, format_date(Time.now.utc - (60 * age),'age/%Y-%m-%d')
     end
   end
-  
+
   def test_string_to_utc_with_visitor_time_zone
     login(:ant)
     visitor[:time_zone] = "Europe/Zurich"
-    
+
     # UTC+1, no Daylight time savings
     assert_equal Time.utc(2008,1,3,12,03,10), "2008-01-03 13:03:10".to_utc('%Y-%m-%d %H:%M:%S', visitor.tz)
     # UTC+1, Daylight time savings
     assert_equal Time.utc(2008,5,17,11,03,10), "2008-05-17 13:03:10".to_utc('%Y-%m-%d %H:%M:%S', visitor.tz)
-    
+
     # convert back and forth
     [
       ["2008-05-17 13:03:10", '%Y-%m-%d %H:%M:%S'],
@@ -137,16 +137,16 @@ class DatesViewMethodsTest < Zena::View::TestCase
     ].each do |date_str, format|
       assert_equal date_str, format_date(date_str.to_utc(format, visitor.tz), format)
     end
-    
+
     login(:ant) # Europe/Paris
     visitor[:time_zone] = "Asia/Jakarta"
-    
+
     # UTC+7, no Daylight time savings
     assert_equal Time.utc(2008,1,3,12,03,10), "2008-01-03 19:03:10".to_utc('%Y-%m-%d %H:%M:%S', visitor.tz)
     # UTC+7, no Daylight time savings
     assert_equal Time.utc(2008,5,17,12,03,10), "2008-05-17 19:03:10".to_utc('%Y-%m-%d %H:%M:%S', visitor.tz)
-    
-    
+
+
     # convert back and forth
     [
       ["2008-05-17 13:03:10", '%Y-%m-%d %H:%M:%S'],

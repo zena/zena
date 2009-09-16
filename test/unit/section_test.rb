@@ -1,8 +1,8 @@
 require 'test_helper'
 
 class SectionTest < Zena::Unit::TestCase
-  
-  
+
+
   def test_section_id_on_create
     login(:tiger)
     node = secure!(Section) { Section.create(:parent_id=>nodes_id(:status), :name=>'SuperSection') }
@@ -13,7 +13,7 @@ class SectionTest < Zena::Unit::TestCase
     assert ! node.new_record?, "Not a new record"
     assert_equal node[:id], child[:section_id]
   end
-  
+
   def test_update_set_section_id_on_update
     login(:tiger)
     node = secure!(Section) { Section.find(nodes_id(:people))}

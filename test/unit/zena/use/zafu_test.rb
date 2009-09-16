@@ -3,7 +3,7 @@ require 'test_helper'
 class ZafuTest < Zena::View::TestCase
   include Zena::Use::Zafu::ViewMethods
   include Zena::Use::Zafu::ControllerMethods
-  
+
   def test_page_numbers
     s = ""
     page_numbers(2, 3, ',') {|p,j| s << "#{j}#{p}"}

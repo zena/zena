@@ -14,7 +14,7 @@
     Order allow,deny
     Allow from all
   </Directory>
-  
+
   <% if static.include?('cgi-bin') %>
   ScriptAlias /cgi-bin/ /usr/lib/cgi-bin/
   <Directory "/usr/lib/cgi-bin">
@@ -33,7 +33,7 @@
     Allow from all
   </Directory>
   <% end %>
-  
+
   # hide all .whatever files
   <DirectoryMatch "^/.*/\.">
     ErrorDocument 403 /404.html
@@ -41,13 +41,13 @@
     Deny from all
     Satisfy All
   </DirectoryMatch>
-  
+
   RewriteEngine On
   <% if debug_rewrite %>
   # rewrite debugging
   RewriteLog /var/www/zena/<%= host %>/log/rewrite.log
-  RewriteLogLevel 9 
-  
+  RewriteLogLevel 9
+
   <% end %>
 
   # Check for maintenance file and redirect all requests
@@ -56,7 +56,7 @@
   RewriteRule ^.*$ /system/maintenance.html [L]
 
   # Rewrite index to check for static
-  RewriteRule ^/$ /index.html [QSA] 
+  RewriteRule ^/$ /index.html [QSA]
 
   # Rewrite to check for Rails cached page
   RewriteRule ^([^.]+)$ $1.html [QSA]
@@ -64,7 +64,7 @@
   # Redirect all non-static requests to cluster
   RewriteCond %{DOCUMENT_ROOT}/%{REQUEST_FILENAME}%{QUERY_STRING} !-f
   RewriteRule ^/(.*)$ balancer://<%= balancer %>%{REQUEST_URI} [P,QSA,L]
-  
+
   <% if deflate %>
   # Deflate (compress data before sending to browser)
   AddOutputFilterByType DEFLATE text/html text/plain text/xml application/xml application/xhtml+xml text/javascript text/css
@@ -72,7 +72,7 @@
   BrowserMatch ^Mozilla/4.0[678] no-gzip
   BrowserMatch \bMSIE !no-gzip !gzip-only-text/html
   <% end %>
-  
+
   <% if debug_deflate && deflate %>
   # Deflate debugging
   DeflateFilterNote Input input_info

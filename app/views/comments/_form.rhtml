@@ -1,5 +1,5 @@
 <%= node ||= @node; if @edit
-  form_remote_tag(:url=>{:controller=>'comments', :action=>"update", :rnd=>rnd}) 
+  form_remote_tag(:url=>{:controller=>'comments', :action=>"update", :rnd=>rnd})
 else
   form_remote_tag(:url=>{:controller=>'comments', :action=>"create", :rnd=>rnd})
 end %>

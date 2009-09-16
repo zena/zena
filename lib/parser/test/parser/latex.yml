@@ -1,7 +1,7 @@
 paragraph:
   src: |
     I live
-    
+
     Here
   res: "I live\n\n\n\tHere"
 

@@ -8,10 +8,10 @@ class NodeQuery < QueryBuilder
   set_main_table 'nodes'
   set_main_class 'Node'
   @@filter_fields = {'id' => {:key => 'zip'}}
-  
+
   # TODO: should glob SITES_ROOT/**/custom_queries...
   load_custom_queries File.join(File.dirname(__FILE__), 'custom_queries')
-  
+
   def self.insert_zero_link(link_class)
     return if link_class.find_by_id(0)
     link_class.connection.execute "INSERT INTO #{link_class.table_name} (id,target_id,source_id,status,comment) VALUES (0,0,0,NULL,NULL)"
@@ -21,13 +21,13 @@ class NodeQuery < QueryBuilder
       link_class.connection.execute "UPDATE #{link_class.table_name} SET id = 0 WHERE id = #{last_id}"
     end
   end
-  
+
   def self.add_filter_field(key, fld_def)
     @@filter_fields[key] = fld_def
   end
-  
-  
-  
+
+
+
   def initialize(query, opts = {})
     @uses_node_name = false
     @table_name = 'nodes'
@@ -38,7 +38,7 @@ class NodeQuery < QueryBuilder
     # Raw filters are statements prepared that should not be further processed except for table_name replacement.
     parse_raw_filters(opts[:raw_filters])
   end
-  
+
   # Build joins and filters from a relation.
   def parse_relation(rel, context)
     # join_relation first so we can overwrite 'class' finders (images) with a relation.
@@ -46,16 +46,16 @@ class NodeQuery < QueryBuilder
       @errors << "unknown relation '#{rel}'"
     end
   end
-  
+
   # Default sort order
   def default_order_clause
     "position ASC, name ASC"
   end
-  
+
   def default_context_filter
     'self'
   end
-  
+
   def after_parse
     @where.unshift "(\#{#{@node_name}.secure_scope('#{table}')})"
     if @tables.include?('links')
@@ -66,7 +66,7 @@ class NodeQuery < QueryBuilder
     end
     @distinct = true if @tables.include?('versions')
   end
-  
+
   # Erb finder used by zafu
   def finder(count)
     return 'nil' unless valid?
@@ -77,7 +77,7 @@ class NodeQuery < QueryBuilder
       "#{node_name}.do_find(#{count.inspect}, #{self.to_s}, #{!uses_node_name}, #{main_class})"
     end
   end
-  
+
   private
     # Make sure all alternate queries include "links.id = 0" (dummy link)
     def fix_where_list(where_list)
@@ -89,7 +89,7 @@ class NodeQuery < QueryBuilder
       end
       true
     end
-    
+
     # Used to resolve 'in' clauses ('in project', 'in parent', etc)
     def context_filter_fields(rel, is_last = false)
       case rel
@@ -107,7 +107,7 @@ class NodeQuery < QueryBuilder
         nil
       end
     end
-    
+
     # Relations that can be resolved without a join
     def context_relation(rel, context)
       case rel
@@ -129,7 +129,7 @@ class NodeQuery < QueryBuilder
         @where << "#{table}.id = #{insert_bind("visitor.contact_id")}"
         return true
       end
-      
+
       unless fields
         if klass = Node.get_class(rel)
           parse_context(default_context_filter) unless context
@@ -140,11 +140,11 @@ class NodeQuery < QueryBuilder
           return nil
         end
       end
-      
+
       @where << "#{field_or_attr(fields[0])} = #{field_or_attr(fields[1], table(main_table,-1))}"
       true
     end
-    
+
     def parse_change_class(rel, is_last)
       case rel
       when 'comment', 'comments'
@@ -167,18 +167,18 @@ class NodeQuery < QueryBuilder
         return nil
       end
     end
-    
+
     # Filters that need a join
     def join_relation(rel, context, new_table_alias = nil, previous_table_alias = nil)
       new_table_alias      ||= table(main_table)
       previous_table_alias ||= table(main_table, -1)
-      
+
       if rel == main_table || rel == 'children'
         # dummy clauses
         parse_context(default_context_filter) unless context
         return :void
       end
-      
+
       if rel = RelationProxy.find_by_role(rel.singularize)
         # We cannot use a LEFT JOIN here because it will totally mess up if we merge alternate queries
         add_table('links')
@@ -195,7 +195,7 @@ class NodeQuery < QueryBuilder
         nil
       end
     end
-    
+
     def map_literal(value, env = :sql)
       if value =~ /(.*?)\[(visitor|param):(\w+)\](.*)/
         val_start = $1 == '' ? '' : "#{$1.inspect} +"
@@ -210,7 +210,7 @@ class NodeQuery < QueryBuilder
         value = env == :sql ? quote(value) : nil
       end
     end
-    
+
     # Translate fields used for query/sort/grouping (context parameter) into something useable by SQL. Add the appropriate tables when needed.
     def map_field(field, table_name = table, context = nil)
       return map_literal("[#{field}]") if field =~ /\Aparam:/
@@ -236,7 +236,7 @@ class NodeQuery < QueryBuilder
           # bad version attribute
           nil
         end
-      when 'l_'  
+      when 'l_'
         key, function = parse_sql_function_in_field(field)
         if key == 'l_status' || key == 'l_comment' || key == 'l_date' || (key == 'l_id' && [:order, :group].include?(context))
           @errors_unless_safe_links ||= []
@@ -263,7 +263,7 @@ class NodeQuery < QueryBuilder
           elsif key =~ /^(.*)_ids?$/
             # tag_id = 33  ===> join links as lk, nodes as tt .......
             rel = $1
-            
+
             if RelationProxy.find_by_role(rel.singularize)
               add_table('jnode', 'nodes')
               join_relation(rel, nil, table('jnode'), table('nodes'))
@@ -284,12 +284,12 @@ class NodeQuery < QueryBuilder
         end
       end
     end
-    
+
     def valid_field?(table_name, fld)
       # FIXME: security !
       true
     end
-    
+
     def map_attr(fld, env = :sql)
       case fld
       when 'project_id', 'section_id', 'discussion_id'
@@ -298,14 +298,14 @@ class NodeQuery < QueryBuilder
       when 'id', 'parent_id'
         @uses_node_name = true
         insert_bind("#{@node_name}.#{fld}")
-      else  
+      else
         # Node.attr_public?(fld)
         # bad parameter
         @errors << "invalid parameter '#{fld}'"
         "0"
       end
     end
-    
+
     def parse_paginate_clause(paginate)
       return @offset unless paginate
       if !@limit
@@ -320,7 +320,7 @@ class NodeQuery < QueryBuilder
         nil
       end
     end
-    
+
     # When a field is defined as log_at:year, return [log_at, year].
     def parse_sql_function_in_field(field)
       if field =~ /\A(\w+):(\w+)\Z/
@@ -333,7 +333,7 @@ class NodeQuery < QueryBuilder
         [field]
       end
     end
-    
+
     def parse_raw_filters(filters)
       return unless filters
       filters.each do |f|
@@ -354,7 +354,7 @@ class NodeQuery < QueryBuilder
         @where << filter if all_ok
       end
     end
-    
+
     def dyn_value(table_name, key, context)
       @dyn_keys[table_name] ||= {}
       @dyn_keys[table_name][key] ||= begin
@@ -363,7 +363,7 @@ class NodeQuery < QueryBuilder
         "#{dtable}.value"
       end
     end
-        
+
     def parse_custom_query_argument(key, value)
       return nil unless value
       super.gsub(/(RELATION_ID|NODE_ATTR)\(([^)]+)\)/) do
@@ -390,11 +390,11 @@ class NodeQuery < QueryBuilder
         insert_bind("#{@node_name}.id")
       end
     end
-    
+
     def extract_custom_query(list)
       super.singularize
     end
-    
+
     def quote(literal)
       Node.connection.quote(literal)
     end
@@ -409,7 +409,7 @@ module Zena
           base.extend AddUseNodeQueryMethodImpl
         end
       end
-      
+
       module AddUseNodeQueryMethodImpl
         def use_node_query
           class_eval do
@@ -420,9 +420,9 @@ module Zena
           end
         end
       end
-    
+
       module ClassMethods
-    
+
         # Return an sql query string that will be used by 'do_find':
         # build_find(:all, PSEUDO_SQL, node_name) => "SELECT * FROM nodes WHERE nodes.parent_id = #{@node[:id]} AND ..."
         # PSEUDO_SQL: what to find in pseudo sql (See NodeQuery for details).
@@ -447,15 +447,15 @@ module Zena
           NodeQuery.new(pseudo_sql, opts.merge(:custom_query_group => visitor.site.host))
         end
       end # ClassMethods
-  
+
 
       module InstanceMethods
-    
+
         # Find a node and propagate visitor
         def do_find(count, query, ignore_source = false, klass = Node)
           return nil if query.empty?
           return nil if (new_record? && !ignore_source) # do not run query (might contain nil id)
-      
+
           case count
           when :all
             res = klass.find_by_sql(query)
@@ -475,12 +475,12 @@ module Zena
             nil
           end
         end
-    
+
         # Find related nodes.
         # See Node#build_find for details on the options available.
         def find(count, rel)
           rel = [rel] if rel.kind_of?(String)
-      
+
           if rel.size == 1 && self.class.zafu_known_contexts[rel.first]
             self.send(rel.first)
           else

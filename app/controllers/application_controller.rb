@@ -13,7 +13,7 @@ class ApplicationController < ActionController::Base
   before_filter :authorize
   before_filter :check_lang
   after_filter  :set_encoding
-  
+
   helper  Zena::Acts::Secure
   helper  Zena::Use::Ajax::ViewMethods
   helper  Zena::Use::Calendar::ViewMethods
@@ -26,9 +26,9 @@ class ApplicationController < ActionController::Base
   helper  Zena::Use::Urls::ViewMethods
   helper  Zena::Use::Zafu::ViewMethods
   helper  Zena::Use::Zazen::ViewMethods
-  
+
   layout false
-  
+
 end
 
 Bricks::Patcher.apply_patches

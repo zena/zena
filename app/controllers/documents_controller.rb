@@ -1,34 +1,34 @@
 class DocumentsController < ApplicationController
   before_filter :find_node, :except => [ :file_form, :upload_progress ]
-  
+
   skip_before_filter :set_lang,      :only => :upload_progress
   skip_before_filter :authorize,     :only => :upload_progress
   skip_before_filter :check_lang,    :only => :upload_progress
   skip_after_filter  :set_encoding,  :only => :upload_progress
-  
+
   layout :popup_layout
-  
-  
+
+
   # add a new document to the current node
   def new
     @node = @parent.new_child(:class => Document)
-    
+
     respond_to do |format|
       format.html
     end
   end
-  
+
   # show the result of an upload
   def show
     respond_to do |format|
       format.html
     end
   end
-  
+
   # create a document (direct upload). Used when javascript is disabled.
   def create
     create_document
-    
+
     respond_to do |format|
       if @node.new_record?
         flash[:error] = _("Upload failed.")
@@ -39,24 +39,24 @@ class DocumentsController < ApplicationController
       end
     end
   end
-  
+
   # Create a document with upload progression (upload in mongrel)
   def upload
     create_document
-    
+
     responds_to_parent do # execute the redirect in the main window
       render :update do |page|
         page.call "UploadProgress.setAsFinished"
         page.delay(1) do # allow the progress bar fade to complete
           page.redirect_to document_url(@node[:zip])
         end
-      end  
+      end
     end
   end
-  
+
   def upload_progress
     # mimic apache2 mod_upload_progress
-    # 
+    #
     # if (!found) {
     #   response = apr_psprintf(r->pool, "new Object({ 'state' : 'starting' })");
     # } else if (err_status >= HTTP_BAD_REQUEST  ) {
@@ -81,13 +81,13 @@ class DocumentsController < ApplicationController
       end
     end
   end
-  
+
   # TODO: test
   # display an upload field.
   def file_form
     render :inline=>"<%= link_to_function(_('cancel'), \"['file', 'file_form'].each(Element.toggle);$('file_form').innerHTML = '';\")%><input id='attachment#{params[:uuid]}' name='attachment' class='file' type='file' />"
   end
-  
+
   # TODO: test
   # display the image editor
   def crop_form
@@ -95,10 +95,10 @@ class DocumentsController < ApplicationController
       format.js
     end
   end
-  
+
   protected
     def find_node
-      
+
       if params[:id]
         @node = secure!(Document) { Document.find_by_zip(params[:id]) }
       elsif parent_zip = (params[:node] || params)[:parent_id]
@@ -108,7 +108,7 @@ class DocumentsController < ApplicationController
         raise ActiveRecord::RecordNotFound
       end
     end
-    
+
     def create_document
       attrs = params['node']
       attrs['c_file'] = params['attachment'] if params['attachment']

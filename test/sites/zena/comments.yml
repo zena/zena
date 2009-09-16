@@ -1,6 +1,6 @@
 DEFAULTS:
   status:          pub
-  
+
 
 tiger_says_inside:
   discussion:      inside_discussion_on_status
@@ -9,7 +9,7 @@ tiger_says_inside:
   user:            tiger
   title:           I agree
   text:            We could not do better then this. I *really* mean that. Look at the "":20.
-  
+
 ant_says_inside:
   discussion:      inside_discussion_on_status
   created_at:      2006-12-19 22:23
@@ -80,4 +80,3 @@ private_comment_fr:
   user:            ant
   title:           I want to become queen
   text:            I hate being a worker
-  

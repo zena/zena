@@ -11,11 +11,11 @@ QUICKSTART
 
     The best way to use the template is to set up a Rake task for your Ruby project or Rails app:
     in Rakefile
-    
+
     require 'rake/rdoctask'
-    
+
     Rake::RDocTask.new do |rdoc|
-         files = ['README', 'LICENSE', 'COPYING', 'lib/**/*.rb', 
+         files = ['README', 'LICENSE', 'COPYING', 'lib/**/*.rb',
                   'doc/**/*.rdoc', 'test/*.rb']
          rdoc.rdoc_files.add(files)
          rdoc.main = "README" # page to start on
@@ -26,7 +26,7 @@ QUICKSTART
     end
 
    Then you can run rake rdoc to invoke the task and everything will be super awesome.
-  
+
    Note, pop-up source view is not supported. You have to use --inline-source.
 
 CHANGELOG

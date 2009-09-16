@@ -1,27 +1,27 @@
 ActionController::Routing::Routes.draw do |map|
-  
+
   map.home       ':prefix',  :controller => 'nodes',    :action => 'index',  :prefix => /[a-zA-Z]{0,2}/
   map.not_found  ':prefix/404.html',  :controller => 'nodes',    :action => 'not_found', :prefix => /\w\w/
   map.login      'login',  :controller => 'sessions',  :action => 'new',    :requirements => { :method => :get  }
   map.logout     'logout',  :controller => 'sessions',  :action => 'destroy'
 
   map.upload_progress 'upload_progress', :controller => 'documents', :action => 'upload_progress'
-  
+
   map.resource  :session   # singleton resource
   map.resources :users, :member => { :preferences => :get, :swap_dev => :get }
   map.resources :groups
   map.resources :iformats
-  
+
   map.connect ':prefix/*path',  :controller => 'nodes', :action => 'show', :prefix => /\w\w/
   map.connect 'dav/*path_info', :controller => 'nodes', :action => 'webdav'
-  
+
   map.resources :nodes,
     :collection => { :asearch => :get, :search => :get },
     :member =>     { :import => :post, :export => :get, :save_text => :put,
                      :order => :any, :clear_order => :any,
                      :zafu => :get, :drop => :put, :attribute => :get,
                      :cell_update => :post, :table_update => :post, :cell_edit => :get } do |nodes|
-    nodes.resources :versions, 
+    nodes.resources :versions,
                     :name_prefix => nil,
                     :member => { :edit    => :get,
                                  :custom_tab => :get,
@@ -34,21 +34,21 @@ ActionController::Routing::Routes.draw do |map|
                                  :preview => :get,
                                  :link    => :any,
                                  :destroy_version => :put } # FIXME: should be a DELETE
-    
+
     nodes.resources :links, :name_prefix => nil
-    
+
     #nodes.resources :discussions, :name_prefix => nil do |discussions|
     #  #discussions.resources :comments,
     #  #              :name_prefix => nil,
     #  #              :member => { :reply_to => :post }
     #end
-    
+
   end
-  
+
   # FIXME: merge 'documents' controller into 'nodes' (keep module for clarity)
-  map.resources :documents, :collection => { :upload    => :post, :file_form => :get }, 
+  map.resources :documents, :collection => { :upload    => :post, :file_form => :get },
                             :member     => { :crop_form => :get }
-  
+
   map.resources :relations
   map.resources :virtual_classes
   map.resources :sites,
@@ -64,7 +64,7 @@ ActionController::Routing::Routes.draw do |map|
 
   # temporary routes...
   map.connect 'discussions/:action/:id', :controller => 'discussions'
-  
+
   # catch all
   map.connect '*path',  :controller => 'nodes',    :action => 'catch_all'
 end

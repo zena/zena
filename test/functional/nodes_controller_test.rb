@@ -1,7 +1,7 @@
 require 'test_helper'
 
 class NodesControllerTest < Zena::Controller::TestCase
-  
+
   def test_cache_xml_format
    without_files('/test.host/public') do
       name = "section#{nodes_zip(:people)}.xml"
@@ -56,7 +56,7 @@ END:VCALENDAR
       assert_match %r{parc opening.*zena enhancements}m, @response.body
     end
   end
-  
+
   def test_cache_css_auto_publish
     login(:tiger)
     Site.connection.execute    "UPDATE sites set auto_publish = 1, redit_time = 7200 WHERE id = #{sites_id(:zena)}"
@@ -83,7 +83,7 @@ END:VCALENDAR
       end
     end
   end
-  
+
   def test_import_xhtml
     login(:tiger)
     preserving_files('/test.host/data') do
@@ -95,7 +95,7 @@ END:VCALENDAR
       end
       assert skin = nodes['jet30']
       assert_kind_of Skin, skin
-      
+
       assert zafu = nodes['Node']
       assert_kind_of Template, zafu
       assert style = nodes['style']
@@ -112,7 +112,7 @@ END:VCALENDAR
       end
       assert_match %r{#header ul\{\s*background:url\('/oo/image#{navBar.zip}.gif'\)}m, style.v_text
       assert_match %r{a\.xht:hover\{\s*background:url\('/oo/image#{xhtmlBgHover.zip}.gif'\)}, style.v_text
-      
+
       # use this template
       status = secure(Node) { nodes(:status) }
       assert status.update_attributes(:skin => 'jet30', :inherit => 0)
@@ -121,13 +121,13 @@ END:VCALENDAR
       assert_match %r{posuere eleifend arcu</p>\s*<img [^>]*src\s*=\s*./oo/image#{topIcon.zip}.gif}, @response.body
     end
   end
-  
+
   def test_create_nodes_from_folder
     login(:tiger)
     preserving_files('/test.host/data') do
       parent = secure!(Project) { Project.create(:name => 'import', :parent_id => nodes_id(:zena)) }
       assert !parent.new_record?, "Not a new record"
-      
+
       nodes = secure!(Node) { Node.create_nodes_from_folder(:folder => File.join(RAILS_ROOT, 'test', 'fixtures', 'import'), :parent_id => parent[:id] )}.values
       @controller.send(:parse_assets, nodes)
       children = parent.find(:all, 'children')
@@ -136,11 +136,11 @@ END:VCALENDAR
       bird, doc   = nil, nil
       nodes.each do |n|
         bird = n if n[:name] == 'bird'
-        doc  = n if n[:name] == 'document'    
+        doc  = n if n[:name] == 'document'
       end
       simple = secure!(Node) { Node.find_by_name_and_parent_id('simple', parent[:id]) }
       photos = secure!(Node) { Node.find_by_name_and_parent_id('photos', parent[:id]) }
-    
+
       assert_equal 'bird', bird[:name]
       assert_equal 'simple', simple[:name]
       assert_equal 'The sky is blue', simple.version.title
@@ -158,7 +158,7 @@ END:VCALENDAR
       assert_equal "A simple \"test\":#{simple.zip}", photos.version.dyn['foo']
       in_photos = photos.find(:all, 'children')
       assert_equal 2, in_photos.size
-    
+
       assert_equal bird[:id], in_photos[0][:id]
       assert_equal doc[:id], in_photos[1][:id]
       doc_versions = doc.versions.sort { |a,b| a[:lang] <=> b[:lang]}
@@ -167,7 +167,7 @@ END:VCALENDAR
       assert_match %r{deux}, doc_versions[1].text
     end
   end
-  
+
   def test_edit_attribute_publish
     login(:tiger)
     node = secure!(Node) { nodes(:status) }
@@ -176,15 +176,15 @@ END:VCALENDAR
     get 'edit', :format => 'js', :id => node.zip, 'attribute' => 'd_philosopher', 'dom_id' => 'foo', 'publish' => 'true', 'zazen' => 'true'
     assert_match %r{name='node\[v_status\]' value='50'}m, @response.body
     assert_match %r{name='publish' value='true'}m, @response.body
-    
+
     put 'update', :format => 'js', :id => node.zip, 'publish' => 'true', 'zazen' => 'true', 'dom_id' => 'foo', 'node' => {'d_philosopher' => 'Michel Serres', 'v_status' => '50'}
     assert_match %r{publish=true}m, @response.body
-    
+
     node = secure!(Node) { nodes(:status) }
     assert_equal Zena::Status[:pub], node.v_status
     assert_equal 'Michel Serres', node.d_philosopher
   end
-  
+
   def test_update_change_v_status_reloads_page
     login(:tiger)
     node = secure!(Node) { nodes(:status) }
@@ -199,7 +199,7 @@ END:VCALENDAR
 end
 
 =begin
-  
+
   def test_import_archive
     preserving_files('test.host/data') do
       login(:tiger)
@@ -208,7 +208,7 @@ end
       assert_template 'import'
     end
   end
-  
+
   def test_form_tabs
     @controller = TestNodeController.new
     init_controller
@@ -216,15 +216,15 @@ end
     @controller.instance_variable_set(:@node, page)
     assert_equal [["drive", "drive"], ["links", "links"], ["help", "help"]], @controller.send(:form_tabs)
   end
-  
+
   def test_popup_page_not_found
     get 'drive', :id=>99
     assert_redirected_to :controller => 'node', :action=>'not_found'
     get 'not_found'
     assert_template 'node/not_found'
   end
-  
-  
+
+
   def test_add_link
     login(:tiger)
     node = secure!(Node) { nodes(:proposition) } # Post virtual class
@@ -261,7 +261,7 @@ end
     assert_equal node[:id], lion.tags[0][:id]
     assert_equal node[:id], clea.tags[0][:id]
   end
-  
+
   def test_create_ok
     login(:tiger)
     post 'create', :node=>{:klass=>'Tracker', :parent_id=>nodes_zip(:zena), :name=>'test'}
@@ -270,7 +270,7 @@ end
     assert assigns['page'].vkind_of?('Tracker')
     assert !assigns['page'].new_record?, "Not a new record"
   end
-  
+
   def test_bad_skin_name
     login(:anon)
     without_files('zafu') do
@@ -282,7 +282,7 @@ end
     end
     assert_response :success
   end
-  
+
   def test_find_node
     Node.connection.execute "UPDATE nodes SET name = '2006' where id = #{nodes_id(:projects)}"
     Node.connection.execute "UPDATE nodes SET name = '25-10-2006' where id = #{nodes_id(:wiki)}"
@@ -295,7 +295,7 @@ end
       ['25-10-2006','project29.html'],
       ['archive-1','image30.html'],
       ['archive', 404],
-    ].each do |name, result|  
+    ].each do |name, result|
       puts name
       get 'show', 'prefix' => 'en', 'path' => [name]
       if result.kind_of?(String)
@@ -305,27 +305,27 @@ end
       end
     end
   end
-  
+
   def test_cached_file
     without_files('test.host/public') do
       with_caching do
         login(:anon)
         page_path = visitor.site.public_path + '/en/section12.html'
         file_path = "#{SITES_ROOT}#{page_path}"
-        
+
         assert !File.exists?(file_path), "No cached file yet"
         assert !CachedPage.find_by_path_and_site_id(page_path, sites_id(:zena)), "No cache info yet"
-        
+
         get 'show', 'prefix' => 'en', 'path' => ['section12.html']
         assert_response :success
-        
+
         assert File.exists?(file_path), "Cache file created"
-        assert CachedPage.find_by_path_and_site_id(page_path, sites_id(:zena))        
+        assert CachedPage.find_by_path_and_site_id(page_path, sites_id(:zena))
       end
     end
   end
-  
+
   # test edit_... mode only if can_write?
-  
+
 end
 =end

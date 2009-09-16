@@ -1,5 +1,5 @@
 module DocumentsHelper
-  
+
   # Find the list of tabs for the popup when creating a new document. Any erb file found in
   # 'app/views/templates/document_create_tabs' starting with an underscore will be used.
   def form_tabs
@@ -10,7 +10,7 @@ module DocumentsHelper
     end
     tabs
   end
-  
+
   def crop_formats(obj)
     buttons = ['jpg', 'png']
     ext = TYPE_TO_EXT[obj.c_conten_type]

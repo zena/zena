@@ -1,7 +1,7 @@
 module Zena
   module Use
     module Calendar
-      
+
       module ViewMethods
         def cal_day_names(size)
           if size == :tiny
@@ -36,7 +36,7 @@ module Zena
             # month
             start_date  = Date.civil(date.year, date.mon, 1)
             end_date    = Date.civil(date.year, date.mon, -1)
-          end  
+          end
           start_date -= (start_date.wday + 7 - week_start_day) % 7
           end_date   += (6 + week_start_day - end_date.wday) % 7
           [start_date, end_date]
@@ -97,7 +97,7 @@ module Zena
           end
         end
 
-        # display a calendar cell to assign 'node_a' to 'node_b' with 
+        # display a calendar cell to assign 'node_a' to 'node_b' with
         # A (target_zip)
         # ... B (source_zip) ---> reference_to A, B, C, D
         #     <r:calendar assign='reference' to='main' />
@@ -124,7 +124,7 @@ module Zena
           res
         end
       end # ViewMethods
-      
+
     end # Calendar
   end # Use
 end # Zena

@@ -13,7 +13,7 @@ Job:
 Course:
   kpath:           NPPC
   real_class:      Project
-  
+
 Formation:
   kpath:           NNF
   real_class:      Note

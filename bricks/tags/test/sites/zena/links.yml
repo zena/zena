@@ -1,7 +1,7 @@
 status_tagged_blue:
   source:          status
   comment:         blue
-  
+
 status_tagged_sky:
   source:          status
   comment:         sky

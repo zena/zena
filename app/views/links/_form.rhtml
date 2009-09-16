@@ -5,7 +5,7 @@
   <% else %>
   <%= form_remote_tag(:url=> link_path(:node_id => @node[:zip])) %>
   <% end %>
-  
+
   <div id='link_errors' class='errors'></div>
   <div class='add'>
     <%=  if @link
@@ -15,7 +15,7 @@
     end %>
   </div>
   <ul>
-    <% roles = @node.relations_for_form 
+    <% roles = @node.relations_for_form
     if roles.include?(['tag', 'tags'])
       roles.delete(['tag', 'tags'])
       roles.unshift ['tag', 'tags']
@@ -35,5 +35,5 @@
     <li><label for='link_comment'><%= _('comment')%></label><%= text_field('link', 'comment', :size=>15 ) %></li>
     <li><input type="submit" class="btn_validate" value='<%= _('set') %>'/></li>
   </ul>
-</form> 
-</td> 
+</form>
+</td>

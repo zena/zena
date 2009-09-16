@@ -14,7 +14,7 @@ input { padding:3px 4px;}
 #login, #search, #visitor { position:absolute; right:21px; color:#bbb;}
 #login { top:42px; }
 #visitor { top:42px; right:120px; color:#bbb;}
-#menu li { display: inline; padding:0 14px; font-weight:bold;} 
+#menu li { display: inline; padding:0 14px; font-weight:bold;}
 #menu li.on { color:black; }
 #header a { color: inherit; }
 

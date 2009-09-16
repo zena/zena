@@ -2,8 +2,8 @@
   <% if li.name == 'full' -%>
   <td class="adm_icon"><%= _('full_iformat_img') %></td>
   <% else -%>
-  <td class="adm_icon"><%= link_to_remote( li.new_record? ? _('default_iformat_img') : _('iformat_img'), 
-          :update =>"iformat#{li.name}", 
+  <td class="adm_icon"><%= link_to_remote( li.new_record? ? _('default_iformat_img') : _('iformat_img'),
+          :update =>"iformat#{li.name}",
           :url    => edit_iformat_path(li.pseudo_id),
           :method => :get) %></td>
   <% end -%>

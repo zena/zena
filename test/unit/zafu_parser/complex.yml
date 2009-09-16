@@ -8,7 +8,7 @@
 # mike  10 wusage[~24]
 # roger 10 wusage[~24]
 # joe   10 wusage[~24]
-# 
+#
 # roger 5  engine[~24]
 # roger 5  fiber[~24] / 2003-03-03
 # joe   5  fiber[~24] / 2003-03-03
@@ -16,7 +16,7 @@
 # roger 5  fproblems[] / 2006-03-20
 # roger 5  tinformation[~12] / 2002-05-05
 # mike  5  vision[~24] / 2003-04-05
-# 
+#
 # joe   1  fproblems[]
 # mike  1  fproblems[]
 # roger 1  radio[~24]
@@ -24,16 +24,16 @@
 # mike  1  radio[~24]
 # mike  1  tinformation[~12]
 # joe   1  tinformation[~12] / 2003-03-20
-# 
+#
 # ===============
-# 
+#
 # joe   10 ssite[~24]
 # joe   10 wusage[~24]
 # joe   5  fiber[~24] / 2003-03-03
 # joe   1  fproblems[]
 # joe   1  radio[~24]
 # joe   1  tinformation[~12] / 2003-03-20
-# 
+#
 # mike  10 rmanagement[~24]
 # mike  10 ssite[~24]
 # mike  10 tmotivation[~24]
@@ -43,7 +43,7 @@
 # mike  1  fproblems[]
 # mike  1  radio[~24]
 # mike  1  tinformation[~12]
-# 
+#
 # roger 10 dangerous[~24] / 2004-03-15
 # roger 10 ssite[~24]
 # roger 10 wusage[~24]
@@ -62,7 +62,7 @@ default:
     ref_date: 2004-09-01
   src: "<r:emp_form_dates where='repeat_every is not null' do='each' join=', '><r:show attr='name'/>(<r:show attr='priority'/>, <r:show date='last_date' format='%Y-%m-%d'/>, <r:show date='next_date' format='%Y-%m-%d'/>)</r:emp_form_dates>"
   res: "secure_a_site(10, , ), winch_usage(10, , ), dangerous_transportations(10, 2004-03-15, 2006-03-15), engine(5, , ), transmit_information(5, 2002-05-05, 2003-05-05), fiber_junction(5, 2003-03-03, 2005-03-03), radio_usage(1, , )"
-  
+
 courses_in_the_next_6_months:
   # custom_a = repetition interval
   src: "<r:emp_form_dates where='last_date is null or (repeat_every is not null and next_date lt REF_DATE + 6 month)' order='last_date asc, name asc' do='each' join=', '><r:show attr='name'/>: <r:show date='next_date' format='%Y-%m-%d'/></r:emp_form_dates>"
@@ -113,7 +113,7 @@ all_people_related_to_a_course_group_by_priority:
         </ol>
       </li>
     </ol>
-      
+
 all_people_related_to_a_course_in_6_month:
   context:
     node: transmit_information

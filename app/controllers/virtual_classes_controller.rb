@@ -3,10 +3,10 @@ class VirtualClassesController < ApplicationController
   before_filter :find_virtual_class, :except => [:index, :create, :new]
   before_filter :check_is_admin
   layout :admin_layout
-  
+
   def index
     @virtual_class  = VirtualClass.new
-    
+
     @virtual_class_pages, @virtual_classes = nil, nil
     secure!(VirtualClass) do
       @virtual_class_pages, @virtual_classes = paginate :virtual_classes, :order => 'name ASC', :per_page => 20
@@ -24,7 +24,7 @@ class VirtualClassesController < ApplicationController
       format.js
     end
   end
-  
+
   def new
     @virtual_class = VirtualClass.new
 
@@ -41,7 +41,7 @@ class VirtualClassesController < ApplicationController
       format.js   { render :partial => 'virtual_classes/form', :layout => false }
     end
   end
-  
+
   def create
     @virtual_class = VirtualClass.new(params[:virtual_class])
 
@@ -58,7 +58,7 @@ class VirtualClassesController < ApplicationController
       end
     end
   end
-  
+
   def update
     @virtual_class = VirtualClass.find(params[:id])
 
@@ -85,12 +85,12 @@ class VirtualClassesController < ApplicationController
       format.js
     end
   end
-  
+
   protected
     def visitor_node
       @node = visitor.contact
     end
-    
+
     def find_virtual_class
       @virtual_class = secure!(VirtualClass) { VirtualClass.find(params[:id])}
     end

@@ -1,12 +1,12 @@
 class PreferencesController < ApplicationController
   before_filter :check_user
   layout :admin_layout
-  
+
   # TODO: test
   def list
     @user = visitor
   end
-  
+
   # TODO: test
   def change_password
     @user = User.find(visitor[:id]) # reload to get password
@@ -26,7 +26,7 @@ class PreferencesController < ApplicationController
       end
     end
   end
-  
+
   #TODO: test
   def change_info
     @user = User.find(visitor[:id]) # reload to get password
@@ -35,13 +35,13 @@ class PreferencesController < ApplicationController
     [:login, :first_name, :name, :time_zone, :lang, :email].each do |sym|
       attrs[sym] = params[:user][sym]
     end
-    
+
     if @user.update_attributes(attrs)
       flash[:notice] = _('information successfully updated')
       session[:lang] = params[:user][:lang] if params[:user][:lang]
     end
   end
-  
+
   private
   # TODO: test
   def check_user

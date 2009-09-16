@@ -8,9 +8,9 @@ module Zena
       def logout
         reset_session
       end
-      
+
       alias login_without_controller login
-      
+
       def login(*args)
         login_without_controller(*args)
         @controller.instance_eval { @visitor = Thread.current.visitor }

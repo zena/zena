@@ -11,7 +11,7 @@ Skin::      subclass of Template. Contains other templates. The skin name must b
 =end
 class Page < Node
   before_validation :update_base_path #, :if => 'custom_base.changed?'
-  
+
   # url base path. If a node is in 'projects' and projects has custom_base set, the
   # node's basepath becomes 'projects', so the url will be 'projects/node34.html'.
   # The basepath is cached. If rebuild is set to true, the cache is updated.
@@ -27,20 +27,20 @@ class Page < Node
     end
     self[:basepath]
   end
-  
+
   private
     def update_base_path
       self[:basepath] = self.basepath(true)
     end
-    
+
     def validate_node
       super
-      
-      # we are in a scope, we cannot just use the normal validates_... 
+
+      # we are in a scope, we cannot just use the normal validates_...
       # FIXME: remove 'with_exclusive_scope' once scopes are clarified and removed from 'secure'
       test_same_name = nil
       Node.send(:with_exclusive_scope) do
-        if new_record? 
+        if new_record?
           cond = ["name = ? AND parent_id = ? AND kpath LIKE 'NP%'",              self[:name], self[:parent_id]]
         else
           cond = ["name = ? AND parent_id = ? AND kpath LIKE 'NP%' AND id != ? ", self[:name], self[:parent_id], self[:id]]
@@ -49,5 +49,5 @@ class Page < Node
       end
       errors.add("name", "has already been taken") unless test_same_name == []
     end
-    
+
 end

@@ -5,7 +5,7 @@ end
 class MergeBricksMigrationsWithStdMigrations < ActiveRecord::Migration
   def self.up
     if ActiveRecord::Base.connection.tables.include?(Zena::Migrator.old_bricks_info_table_name)
-      # merge content from 'bricks_info' in 
+      # merge content from 'bricks_info' in
       schema_table_name = ActiveRecord::Migrator.schema_migrations_table_name
       BricksMergerModel.find(:all).each do |r|
         puts r.attributes.inspect

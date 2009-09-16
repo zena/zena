@@ -10,13 +10,13 @@
 
   <location />
     SetEnv AWSTATS_FORCE_CONFIG <%= host %>
-    
+
     AuthType Basic
     AuthName "<%= host %> stats"
     AuthUserFile /var/www/zena/<%= host %>/log/.awstatspw
     Require valid-user
   </location>
-  
+
   #
   # Directives to allow use of AWStats as a CGI
   #
@@ -34,7 +34,7 @@
       Order allow,deny
       Allow from all
   </Directory>
-  
+
   RewriteEngine On
   RewriteRule ^/$ /awstats.pl [R=302,L]
 </VirtualHost>

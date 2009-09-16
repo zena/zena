@@ -7,7 +7,7 @@ DEFAULTS:
   v_status:        pub
   v_publish_from:  2003-02-01
 
-complex:  
+complex:
   class:           Project
   inherit:         no
   rgroup:          public
@@ -57,7 +57,7 @@ jobs:
   class:           Section
   parent:          complex
   v_title:         jobs
-  
+
 driver:
   class:           Job
   parent:          jobs
@@ -78,7 +78,7 @@ driver_mechanical:
   class:           Page
   parent:          driver
   v_title:         mechanical
-  
+
 technician:
   class:           Job
   parent:          jobs
@@ -209,13 +209,13 @@ fiber2002:
   parent:          fiber_junction
   v_title:         fiber 2002
   event_at:        2002-02-02
-  
+
 fiber2003:
   class:           Formation
   parent:          fiber_junction
   v_title:         fiber 2003
   event_at:        2003-03-03
-  
+
 form2005:
   class:           Formation
   parent:          formulate_problems
@@ -239,7 +239,7 @@ transm2002:
   parent:          transmit_information
   v_title:         transinfo 2002
   event_at:        2002-05-05
-  
+
 transm2003:
   class:           Formation
   parent:          transmit_information

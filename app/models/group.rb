@@ -1,16 +1,16 @@
 =begin rdoc
-Groups are used for access control. They cannot be used cross-site like users. 
+Groups are used for access control. They cannot be used cross-site like users.
 
 Three groups cannot be destroyed and have a special meaning in each site (set in Site) :
 +public+:: Access for this group is granted to all visitors regardless of user login.
 +site+:: All users except anonymous user are in this group. It is the 'logged in' users' group.
 +admin+:: A user in this group is automatically added to all groups. He/she can add or remove
         users, change user groups, monitor content, etc.
-        
+
 Only administrators can change groups. An administrator cannot remove him/herself from the admin group.
 =end
 class Group < ActiveRecord::Base
-  
+
   attr_public             :name
   attr_accessible         :name, :user_ids, :replace_by # FIXME: add user_ids ? + add users validation (are in site)
   has_and_belongs_to_many :users, :order=>'login'
@@ -20,7 +20,7 @@ class Group < ActiveRecord::Base
   before_save             :do_replace_by
   before_destroy          :check_can_destroy
   belongs_to              :site
-  
+
   # FIXME: test translate_pseudo_id for groups
   def self.translate_pseudo_id(id,sym=:id)
     str = id.to_s
@@ -35,25 +35,25 @@ class Group < ActiveRecord::Base
       nil
     end
   end
-  
+
   # Return true if the group is the public group of the site.
   def public_group?
     self[:id] == visitor.site[:public_group_id]
   end
-  
+
   # Return true if the group is the site group.
   def site_group?
     self[:id] == visitor.site[:site_group_id]
   end
-  
+
   def user_ids
     @user_ids ||= users.map {|r| r[:id]}
   end
-  
+
   def user_ids=(list)
     @defined_user_ids = list
   end
-  
+
   alias o_users users
   def users
     @users ||= begin
@@ -64,21 +64,21 @@ class Group < ActiveRecord::Base
       usr
     end
   end
-  
+
   def active_users
     User.find(:all, :conditions => "groups_users.group_id = #{self[:id]} AND participations.status > #{User::Status[:deleted]}",
                     :joins => "INNER JOIN groups_users ON users.id = groups_users.user_id INNER JOIN participations ON participations.user_id = users.id")
   end
-  
+
   # Replace all uses of the group (rgroup_id, wgroup_id, pgroup_id) by another group.
   def replace_by=(group_id)
     @replace_by = group_id unless group_id.blank?
   end
-  
+
   def replace_by
     @replace_by
   end
-  
+
   def can_destroy?
     clause = [:rgroup_id, :wgroup_id, :pgroup_id].map{|g| "#{g} = '#{self[:id]}'"}.join(" OR ")
     if 0 == self.class.count_by_sql("SELECT COUNT(*) FROM #{Node.table_name} WHERE #{clause}")
@@ -88,22 +88,22 @@ class Group < ActiveRecord::Base
       return false
     end
   end
-  
-  private  
+
+  private
     # Public and admin groups are special. They cannot be destroyed.
     def check_can_destroy
       # do not destroy admin or public groups
       raise Zena::AccessViolation.new("'admin', 'site' or 'public' groups cannot be destroyed") if visitor.site.protected_group_ids.include?( id )
       return can_destroy?
     end
-  
+
     # Make sure only admins can create/update groups.
     def valid_group
       unless visitor.is_admin?
-        errors.add('base', 'you do not have the rights to do this') 
+        errors.add('base', 'you do not have the rights to do this')
         return false
       end
-    
+
       # make sure site_id is set
       self[:site_id] = visitor.site[:id]
       # Make sure all users are in the group's site.
@@ -112,13 +112,13 @@ class Group < ActiveRecord::Base
           errors.add('base', 'you cannot add or remove users from this group')
           return false
         end
-      
+
         self.users    = []
         visitor_added = false
         @defined_user_ids.each do |id|
           user = secure(User) { User.find(:first, :conditions => ["users.id = ?", id]) }
           unless user && user.site_ids.include?(self[:site_id])
-            errors.add('user', 'not found') 
+            errors.add('user', 'not found')
             next
           end
           self.users << user
@@ -127,7 +127,7 @@ class Group < ActiveRecord::Base
       end
       return errors.empty?
     end
-    
+
     def do_replace_by
       if @replace_by
         if group = secure(Group) { Group.find(:first, :conditions => ["id = ? ", @replace_by]) }

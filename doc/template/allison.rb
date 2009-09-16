@@ -26,26 +26,26 @@ module RDoc
 
     begin
       require 'rubygems'
-      require_gem 'markaby', '>= 0.5' # how come this isn't activate_gem(), since that's what it does? 
+      require_gem 'markaby', '>= 0.5' # how come this isn't activate_gem(), since that's what it does?
       require 'markaby'
       require 'base64'
 
       module Allison
         # markaby page says markaby is better in its own module...
-  
-        URL = "http://blog.evanweaver.com/articles/2006/06/02/allison"      
+
+        URL = "http://blog.evanweaver.com/articles/2006/06/02/allison"
         IMGPATH = 'allison.gif'
-      
+
         FONTS = METHOD_LIST = SRC_PAGE = FILE_PAGE = CLASS_PAGE = ""
-              
+
         FR_INDEX_BODY = "!INCLUDE!" # who knows
-        
+
         STYLE, JAVASCRIPT = ["css", "js"].map do |extension|
           File.open(File.dirname(__FILE__) + "/allison.#{extension}").read
-        end      
-    
+        end
+
         puts "Compiling XHTML..."
-        
+
         INDEX = Markaby::Builder.new.xhtml_strict do
           head do
             title '%title%'
@@ -72,14 +72,14 @@ module RDoc
             end
           end
         end.to_s
-        
-        FILE_INDEX = METHOD_INDEX = CLASS_INDEX = Markaby::Builder.new.capture do 
+
+        FILE_INDEX = METHOD_INDEX = CLASS_INDEX = Markaby::Builder.new.capture do
           a :href => '%href%' do
             self << '%name%'
             br
           end
         end.loop('entries')
-                
+
         BODY = Markaby::Builder.new.xhtml_strict do
           head do
             title "%title%"
@@ -88,7 +88,7 @@ module RDoc
               JAVASCRIPT
             end
           end
-          body do 
+          body do
               div.header! do
                 p {'%full_path%'.if_exists}
                 span do
@@ -97,44 +97,44 @@ module RDoc
                 self << "!INCLUDE!" # always empty
               end
               table.container! do
-              self << tr do 
+              self << tr do
                 td.left! do
-                  self << (div.navigation.dark.top.child_of! do 
+                  self << (div.navigation.dark.top.child_of! do
                     # death to you, horrible templater >:(
-                    h3 "Child of" 
+                    h3 "Child of"
                     self << "<span>\n#{"<a href='%par_url%'>".if_exists}%parent%#{"</a>".if_exists('par_url')}</span>"
                   end).if_exists('parent')
-                
-                  self << div.navigation.dark.top.defined_in! do 
+
+                  self << div.navigation.dark.top.defined_in! do
                     h3('Defined in')
                     self << a('%full_path%', :href => '%full_path_url%').if_exists.loop('infiles')
                   end.if_exists('infiles')
-                
+
                   ['includes', 'requires', 'methods'].each do |item|
                     self << div.navigation.top(:id => item) do
                       self << h3(item.capitalize)
                       self << "<span class='bpink'>\n#{"<a href='%aref%'>".if_exists}%name%#{br}#{"</a>".if_exists('aref')}</span>".if_exists('name').loop(item)
                     end.if_exists(item)
-                  end 
-                
+                  end
+
                   div.spacer! ''
-                
+
                   # for the javascript ajaxy includes
                   ['class', 'file', 'method'].each do |item|
                     div.navigation.dark.index :id => "#{item}_wrapper" do
                      div.list_header do
                        h3 'All ' + (item == 'class' ? 'classes' : item + 's')
-                     end                 
+                     end
                      div.list_header_link do
-                       a((item == 'method' ? 'Show...' : 'Hide...'), 
-                          :id => "#{item}_link", :href => "#", 
+                       a((item == 'method' ? 'Show...' : 'Hide...'),
+                          :id => "#{item}_link", :href => "#",
                           :onclick=> "toggle('#{item}'); toggleText('#{item}_link'); return false;")
                      end
                      div.clear {}
                      div(:id => item) do
                        form do
                          label(:for => "filter_#{item}") { 'Filter:' + '&nbsp;' * 2 }
-                         input '', :type => 'text', :id => "filter_#{item}", 
+                         input '', :type => 'text', :id => "filter_#{item}",
                                      :onKeyUp => "return filterList('#{item}', this.value, event);",
                                      :onKeyPress => "return disableSubmit(event);"
                        end
@@ -142,26 +142,26 @@ module RDoc
                      # insert classes here...
                     end
                   end
-                end            
-              
+                end
+
                 td.content! do
                   self << capture do
                     h1.item_name! '%title%'
                   end.if_exists('title')
-                  
+
                   self << capture do
                     self << '%description%'
                   end.if_exists('description')
-  
+
                   self << capture do
                     self << h1 {a '%sectitle%', :name => '%secsequence%'}.if_exists('sectitle')
                     self << p {'%seccomment%'}.if_exists
-    
+
                     self << capture do
                       h1 "Child modules and classes"
                       p '%classlist%'
                     end.if_exists('classlist')
-  
+
                     ['constants', 'aliases', 'attributes'].each do |item|
                       self << capture do
                         h1(item.capitalize)
@@ -185,7 +185,7 @@ module RDoc
                             self << tr do
                               # looped item rows
                               fields.each do |field|
-                                if field !~ /desc/ 
+                                if field !~ /desc/
                                   self << td('%' + field + '%', :class => field =~ /^old|^name/ ? "highlight" : "normal").if_exists
                                 else
                                   self << td(('%' + field+ '%').if_exists)
@@ -196,23 +196,23 @@ module RDoc
                         end
                       end.if_exists(item)
                     end
-  
+
                     self << capture do
                       div.section_spacer ''
-                      h1('%type% %category% methods')   
+                      h1('%type% %category% methods')
                       self << capture do
                         self << a.small(:name => '%aref%') {br}.if_exists
                         div.a_method do
                           div do
-                            h3 do 
+                            h3 do
                               self << "<a href='#%aref%'>".if_exists + '%callseq%'.if_exists + '%name%'.if_exists + "</a>".if_exists('aref')+'<span class="params">%params%</span>'.if_exists('params')
                             end
                             self << '%m_desc%'.if_exists
-  
+
                             self << capture do
                              p.source_link :id => '%aref%-show-link' do
                                self << "[ "
-                               a "show source", :id => '%aref%-link', :href => "#", 
+                               a "show source", :id => '%aref%-link', :href => "#",
                                              :onclick=> "toggle('%aref%-source'); toggleText('%aref%-link'); return false;"
                                self << " ]"
                              end
@@ -222,13 +222,13 @@ module RDoc
                              end.if_exists('sourcecode')
                             end
                           end
-  
-                      end.loop('methods').if_exists('methods')             
-                    end.loop('method_list').if_exists('method_list')             
-  
+
+                      end.loop('methods').if_exists('methods')
+                    end.loop('method_list').if_exists('method_list')
+
                   end.loop('sections').if_exists('sections')
-                
-                end            
+
+                end
               end
             end
             p.allison! do
@@ -236,16 +236,16 @@ module RDoc
                a 'Allison', :href => URL
             end
           end
-        end.to_s                 
+        end.to_s
       end
 
-    Allison.constants.each do |c| 
+    Allison.constants.each do |c|
       eval "#{c} = Allison::#{c}" # jump out of the namespace
       File.open("#{CACHE_DIR}/#{c}", 'w') do |f|
         f.puts eval(c) # write cache
       end
-    end     
-    
+    end
+
     rescue LoadError => e
       # guess we don't have some dependency. hope the cache is fresh!
       lib = (e.to_s[/(.*)\(/, 1] or e.to_s).split(" ").last.capitalize
@@ -254,7 +254,7 @@ module RDoc
         eval("#{filename.split("/").last} = File.open(filename) {|s| s.read}")
       end
     end
-      
-  end 
-  
-end 
+
+  end
+
+end

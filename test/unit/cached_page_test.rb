@@ -35,7 +35,7 @@ class CachedPageTest < Zena::Unit::TestCase
       end
     end
   end
-  
+
   def test_create_symlink
     without_files('test.host/public') do
       preserving_files('/test.host/data') do
@@ -71,7 +71,7 @@ class CachedPageTest < Zena::Unit::TestCase
       end
     end
   end
-  
+
   def test_expire_old
     without_files('test.host/public') do
       with_caching do
@@ -96,7 +96,7 @@ class CachedPageTest < Zena::Unit::TestCase
       end
     end
   end
-  
+
   def test_site_id
     without_files('test.host/public') do
       with_caching do
@@ -111,7 +111,7 @@ class CachedPageTest < Zena::Unit::TestCase
       end
     end
   end
-  
+
   def test_cannot_set_site_id
     without_files('test.host/public') do
       with_caching do
@@ -122,7 +122,7 @@ class CachedPageTest < Zena::Unit::TestCase
           :expire_after => nil,
           :content_data => "this is the cached content",
           :site_id      => sites_id(:ocean))}
-        
+
         assert_nil cache.site_id
 
         cache = secure!(CachedPage) { CachedPage.create(
@@ -136,7 +136,7 @@ class CachedPageTest < Zena::Unit::TestCase
       end
     end
   end
-  
+
   def test_create_for_zafu_template
     without_files('test.host/zafu') do
       preserving_files('/test.host/data') do

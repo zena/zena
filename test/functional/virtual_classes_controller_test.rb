@@ -1,7 +1,7 @@
 require 'test_helper'
 
 class VirtualClassesControllerTest < Zena::Controller::TestCase
-  
+
   def test_update_superclass
     login(:lion)
     vclass = virtual_classes(:Post)

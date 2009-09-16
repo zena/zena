@@ -1,20 +1,20 @@
 require 'test_helper'
 
 class DataEntryTest < Zena::Unit::TestCase
-  
+
   def test_site_id
     login(:tiger)
     ent = DataEntry.create(:node_a_id => nodes_id(:wiki), :text => "simple test")
     assert !ent.new_record?, "Not a new record"
     assert_equal sites_id(:zena), ent[:site_id]
   end
-  
+
   def test_other_site_id_fool_id
     login(:whale)
     ent = DataEntry.new(:node_a_id => nodes_id(:ocean), :site_id=>sites_id(:zena))
     assert_nil ent.site_id
   end
-  
+
   def test_site_id_with_old_object
     login(:tiger)
     ent = data_entries(:comment)
@@ -22,14 +22,14 @@ class DataEntryTest < Zena::Unit::TestCase
     ent.site_id = 1234
     assert original_site_id, ent.site_id
   end
-  
+
   def test_no_nodes
     login(:tiger)
     ent = DataEntry.create(:text => "simple test")
     assert ent.new_record?, "New record"
     assert_equal "a data entry must link to at least one node", ent.errors[:base]
   end
-  
+
   def test_nodes
     login(:tiger)
     ent = data_entries(:comment)
@@ -37,13 +37,13 @@ class DataEntryTest < Zena::Unit::TestCase
     login(:ant)
     assert_equal [nodes_id(:wiki)], ent.nodes.map {|n| n.id}.sort
   end
-  
+
   def test_node_a
     login(:tiger)
     ent = data_entries(:comment)
     assert_equal nodes_id(:secret), ent.node_a[:id]
   end
-  
+
   def test_cannot_change_old_link
     login(:ant)
     ent = data_entries(:comment)
@@ -51,7 +51,7 @@ class DataEntryTest < Zena::Unit::TestCase
     assert ent.errors[:node_a_id].any?
     assert_equal "cannot remove old relation", ent.errors[:node_a_id]
   end
-  
+
   def test_cannot_set_bad_link
     login(:ant)
     ent = data_entries(:comment)
@@ -59,7 +59,7 @@ class DataEntryTest < Zena::Unit::TestCase
     assert ent.errors[:node_c_id].any?
     assert_equal "invalid node", ent.errors[:node_c_id]
   end
-  
+
   def test_data_precision
     login(:ant)
     ent = DataEntry.create(:node_a_id => nodes_id(:wiki), :value_a => 3.1415926535897932384, :value_b => 0.1234567890)
@@ -67,7 +67,7 @@ class DataEntryTest < Zena::Unit::TestCase
     assert_equal BigDecimal("3.14159265"), ent.value    # round to 8 digit precision
     assert_equal BigDecimal("0.12345679"), ent.value_b  # round to 8 digit precision
   end
-  
+
   def test_clone
     login(:ant)
     ent = data_entries(:comment)
@@ -80,7 +80,7 @@ class DataEntryTest < Zena::Unit::TestCase
     assert_nil clone[:date]
     assert_nil clone[:value_a]
   end
-  
+
   def test_can_write
     login(:anon)
     ent = data_entries(:comment)

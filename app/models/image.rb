@@ -11,11 +11,11 @@ An Image is a Document with a file that we can view inline. An image can be disp
   'edit' => { :size=>:limit, :width=>400, :height=>400                },
   'std'  => { :size=>:limit, :width=>600, :ratio=>2/3.0               },
   'full' => { :size=>:keep },
-  
+
 To display an image with one of those formats, you use the 'img_tag' helper :
 
   img_tag(@node, :mode=>'med')
-  
+
 For more information on img_tag, have a look at ApplicationHelper#img_tag.
 
 An image can be croped by changing the 'crop' pseudo attribute (see Image#crop= ) :
@@ -32,7 +32,7 @@ Content (file data) is managed by the ImageContent. This class is responsible fo
 
 c_size(format)::    file size for the image at the given format
 c_ext::             file extension
-c_content_type::    file content_type   
+c_content_type::    file content_type
 c_width(format)::   image width in pixel for the given format
 c_height(format)::  image height in pixel for the given format
 
@@ -50,21 +50,21 @@ Same example in a zafu template:
 
 or to create a link to the article using the icon:
  <r:img src='icon' format='pv' href='self'/>
- 
+
 =end
 class Image < Document
   before_validation :image_before_validation
-  
+
   class << self
     def accept_content_type?(content_type)
       ImageBuilder.image_content_type?(content_type)
     end
-    
+
     # This is a callback from acts_as_multiversioned
     def version_class
       ImageVersion
     end
-    
+
     # Class list to which this class can change to
     def change_to_classes_for_form
       classes_for_form(:class => 'Image')
@@ -85,24 +85,24 @@ class Image < Document
       # nothing to do: ignore this operation.
     end
   end
-  
+
   # filter attributes so there is no 'crop' with a new file
   def filter_attributes(attributes)
     attrs = super
     attrs.delete('c_crop') if attributes['c_file'] && attributes['c_crop']
     attrs
   end
-  
+
   # Return the image file for the given format (see Image for information on format)
   def file(format=nil)
     version.file(format)
   end
-  
+
   # Return the size of the image for the given format (see Image for information on format)
   def filesize(format=nil)
     version.filesize(format)
   end
-  
+
   private
     def image_before_validation
       # Set image event date to when the photo was taken

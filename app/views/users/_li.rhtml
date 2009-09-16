@@ -7,8 +7,8 @@ elsif li.is_admin?
   icon += '_admin'
 end %>
 <tr id='user<%= li[:id] %>' class='u<%= li.status %>'>
-  <td class="adm_icon"><%= link_to_remote(_("img_#{icon}"), 
-          :update =>"user#{li[:id]}", 
+  <td class="adm_icon"><%= link_to_remote(_("img_#{icon}"),
+          :update =>"user#{li[:id]}",
           :url    => edit_user_path(li),
           :method => :get) %></td>
   <td class="login"><%= if li.is_anon? then '<i>public</i>' else li.login end %></td>

@@ -5,7 +5,7 @@ class CalendarTest < Zena::View::TestCase
   include Zena::Use::Refactor::ViewMethods # fquote
   include Zena::Use::I18n::ViewMethods # _
   include Zena::Use::Urls::ViewMethods # data_path
-  
+
   def test_cal_weeks
     login(:tiger)
     weeks = []
@@ -24,7 +24,7 @@ class CalendarTest < Zena::View::TestCase
     assert_equal ['opening'], event_hash["2006-03-18 00"].map{|r| r.name}
     assert_equal ['foobar'], event_hash["2006-03-20 00"].map{|r| r.name}
   end
-  
+
   def test_cal_weeks_hours
     login(:tiger)
     weeks = []

@@ -7,7 +7,7 @@ class CreateVirtualClasses < ActiveRecord::Migration
       t.column :icon, :string, :limit => 200
       t.column :allowed_attributes, :text
       t.column :create_group_id, :integer # who is allowed to create objects of this type
-      
+
       t.column :site_id, :integer, :null => false
     end
     add_column :nodes, :vclass_id, :integer

@@ -2,7 +2,7 @@
 === Url
 
  basepath          class and zip   optional mode   format
- 
+
  /projects/art/    project24       -print          .html
 
 Examples:
@@ -15,7 +15,7 @@ Examples:
  /current/art/project24/image28.jpg     << full image
  /current/art/project24/image28_pv.jpg  << image in the 'pv' format
  /current/art/project24/image28_pv.html << image page in 'print' mode
- 
+
 =end
 class NodesController < ApplicationController
   before_filter :check_is_admin, :only => [:export]
@@ -23,7 +23,7 @@ class NodesController < ApplicationController
   before_filter :check_path, :only  => [:index, :show]
   after_filter  :change_lang, :only => [:create, :update, :save_text]
   layout :popup_layout,     :only   => [:edit, :import]
-  
+
   def index
     @node = current_site.root_node
     respond_to do |format|
@@ -31,7 +31,7 @@ class NodesController < ApplicationController
       format.xml  { render :xml => @node.to_xml }
     end
   end
-  
+
   # Render badly formed urls
   def catch_all
     query_params_list = []
@@ -40,12 +40,12 @@ class NodesController < ApplicationController
     end
     redirect_to "/" + ([prefix]+params[:path]).flatten.join('/') + (query_params_list == [] ? '' : "?#{query_params_list.join('&')}")
   end
-  
+
   # This method is used to test the 404 page when editing zafu templates. It is mapped from '/en/404.html'.
   def not_found
     raise ActiveRecord::RecordNotFound
   end
-  
+
   def search
     do_search
     respond_to do |format|
@@ -53,7 +53,7 @@ class NodesController < ApplicationController
       format.js
     end
   end
-  
+
   # this should not be needed.... but format.js never gets called otherwize.
   def asearch
     do_search
@@ -70,32 +70,32 @@ class NodesController < ApplicationController
       format.js { render :action => 'show' }
     end
   end
-  
+
   # Get cell text
   def cell_edit
     # get table
     table = get_table_from_json(@node, params[:attr])
     # get row/cell
     table_data = table[1]
-    
+
     if row = table_data[params[:row].to_i]
       if cell = row[params[:cell].to_i]
         render :text => cell
       else
         ' '
       end
-    else  
+    else
       ' '
     end
   end
-  
+
   # Ajax table editor
   def cell_update
     # get table
     table = get_table_from_json(@node, params[:attr])
     # get row/cell
     table_data = table[1]
-    
+
     if row = table_data[params[:row].to_i]
       if cell = row[params[:cell].to_i]
         if cell != params[:value]
@@ -105,17 +105,17 @@ class NodesController < ApplicationController
       else
         @node.errors.add(params[:attr], 'Cell outside of table range.')
       end
-    else  
+    else
       @node.errors.add(params[:attr], 'Row outside of table range.')
     end
-    
+
     respond_to do |format|
       format.html { render :inline => @node.errors.empty? ? "<%= zazen(params[:value], :no_p => true) %>" : error_messages_for(@node) }
     end
   rescue JSON::ParserError
     render :inline => _('could not save value (bad attribute)')
   end
-  
+
   # Ajax table add row/column
   def table_update
     # get table
@@ -140,17 +140,17 @@ class NodesController < ApplicationController
     end
 
     @node.update_attributes(params[:attr] => @table.to_json)
-    
+
   rescue JSON::ParserError
     render :inline => _('could not save value (bad attribute)')
   end
-  
+
   # This method is called when an element is dropped on a node.
   def drop
     set       = params[:set]
     other_zip = params[:drop].split('_').last
     other  = secure!(Node) { Node.find_by_zip(other_zip)}
-    
+
     if attributes = params[:node]
       if params[:node][:id] == '[id]'
         # swap (a way to preview content by drag & drop)
@@ -167,22 +167,22 @@ class NodesController < ApplicationController
         if !other.errors.empty?
           @errors = other.errors
         end
-      end  
+      end
     elsif p = params[:params]
       params.merge!(other.replace_attributes_in_values(p))
     end
-    
+
     respond_to do |format|
       format.js
     end
   end
-  
+
   def show
-    
+
     respond_to do |format|
-      
+
       format.html { render_and_cache }
-      
+
       format.any do
         if asset = params[:asset]
           # math rendered as png, ...
@@ -194,7 +194,7 @@ class NodesController < ApplicationController
         elsif @node.kind_of?(Document) && params[:format] == @node.c_ext
           # Get document data (inline if possible)
           content_path = nil
-          
+
           if @node.kind_of?(Image) && !ImageBuilder.dummy?
             if img_format = Iformat[params[:mode]]
               content_path = @node.c_filepath(img_format)
@@ -206,12 +206,12 @@ class NodesController < ApplicationController
           else
             content_path = @node.c_filepath
           end
-          
+
           if content_path
             # FIXME RAILS: remove 'stream => false' when rails streaming is fixed
             send_file(content_path, :filename => @node.filename, :type => @node.c_content_type, :disposition => 'inline', :stream => false, :x_sendfile => ENABLE_XSENDFILE)
           end
-          
+
           cache_page(:content_path => content_path, :authenticated => @node.public?) # content_path is used to cache by creating a symlink
         else
           render_and_cache
@@ -227,11 +227,11 @@ class NodesController < ApplicationController
       end
     end
   end
-  
+
   def create
     attrs = params['node']
     @node = secure!(Node) { Node.create_node(attrs) }
-    
+
     respond_to do |format|
       if @node.errors.empty?
         flash[:notice] = 'Node was successfully created.'
@@ -245,7 +245,7 @@ class NodesController < ApplicationController
       end
     end
   end
-  
+
   # modifications of the node itself (dates, groups, revert editions, etc)
   def edit
     respond_to do |format|
@@ -258,12 +258,12 @@ class NodesController < ApplicationController
       end
     end
   end
-  
+
   # TODO: test
   def save_text
     update
   end
-  
+
   # Create a backup copy of the current redaction.
   def backup
     @node = secure_write!(Node) { Node.version(params[:id]) }
@@ -274,38 +274,38 @@ class NodesController < ApplicationController
       flash[:error] = _("Could not create backup.")
     end
   end
-  
+
   # import sub-nodes from a file
   def import
     @nodes = secure!(Node) { Node.create_nodes_from_folder(:klass => params[:node][:klass], :archive => params[:attachment], :parent => @node) }.values
     # parse pseudo_ids
     parse_assets(@nodes)
-    
+
     responds_to_parent do # execute the redirect in the main window
       render :update do |page|
         page.call "UploadProgress.setAsFinished"
         page.delay(1) do # allow the progress bar fade to complete
           page.replace_html 'import_tab', :partial => 'import_results'
         end
-      end  
+      end
     end
   end
-  
+
   def export
     send_file(@node.archive.path, :filename=>"#{@node.name}.tgz", :type => 'application/x-gzip', :x_sendfile => ENABLE_XSENDFILE)
   end
-  
+
   def update
     params['node']['c_file'] = params['attachment'] if params['attachment']
     @v_status_before_update = @node.v_status
     @node.update_attributes_with_transformation(params['node'])
-    
+
     if @node.errors.empty?
       flash.now[:notice] = _('node updated')
     else
       flash.now[:error]  = _('could not update')
     end
-    
+
     if params[:attachment]
       responds_to_parent do # execute the redirect in the main window
         render :update do |page|
@@ -313,13 +313,13 @@ class NodesController < ApplicationController
           page.delay(1) do # allow the progress bar fade to complete
             page.redirect_to edit_version_url(:node_id => @node[:zip], :id=>(@node.v_number || 0), :close => (params[:validate] ? true : nil))
           end
-        end  
+        end
       end
     else
       respond_to do |format|
         format.html do
           if params[:edit] == 'popup'
-            redirect_to edit_version_url(:node_id => @node[:zip], :id=>(@node.v_number || 0), :close => (params[:validate] ? true : nil)) 
+            redirect_to edit_version_url(:node_id => @node[:zip], :id=>(@node.v_number || 0), :close => (params[:validate] ? true : nil))
           else
             redirect_to zen_path(@node, :mode => params[:mode])
           end
@@ -328,7 +328,7 @@ class NodesController < ApplicationController
       end
     end
   end
-  
+
   # AJAX HELPER
   # TODO: test
   def attribute
@@ -338,7 +338,7 @@ class NodesController < ApplicationController
       params[:node].sub!(/ +$/) {|spaces| '+' * spaces.length} if params[:node]
       node_id = secure!(Node) { Node.translate_pseudo_id(params[:node], :id, @node)}
       @node = secure!(Node) { Node.find(node_id) }
-      
+
       if method == :path || method == :short_path
         path = @node.send(method)
         render :inline=> path.join('/ ')
@@ -356,7 +356,7 @@ class NodesController < ApplicationController
   rescue ActiveRecord::RecordNotFound
     render :inline=>_('node not found')
   end
-  
+
   # TODO: test
   # change the position of the children of the current element.
   # TODO: what happens if not all the children are present due to access rights ?
@@ -369,43 +369,43 @@ class NodesController < ApplicationController
         break
       end
     end
-    
+
     positions.each_with_index do |zip,idx|
       child = secure!(Node) { Node.find_by_zip(zip) }
       child.position = idx.to_f + 1.0
       allOk = child.save && allOK
     end
-    
+
     respond_to do |format|
       if allOK
         format.html { render :text => _('Order updated')}
-      else  
+      else
         format.html { render :text => _('Could not update order.')}
       end
     end
   end
-  
+
   def clear_order
     kpath = (params[:kpath] || 'ZZ')[0..1]
     allOk = true
-    
+
     children = secure!(Node) { Node.find(:all, :conditions => ['parent_id = ? AND kpath like ?', @node[:id], "#{kpath}%"])}
-    
+
     children.each do |child|
       child.position = 0.0
       allOk = child.save && allOk
     end
-    
+
     if !allOk
       @errors = _('Could not clear order.')
     end
-    
+
     respond_to do |format|
       format.js
     end
   end
-  
-  
+
+
   protected
     # Find a node based on the path or id. When there is a path, the node is found using the zip included in the path
     # or by fullpath:
@@ -430,7 +430,7 @@ class NodesController < ApplicationController
           else
             set_format(asset_and_format)
           end
-          
+
           if name =~ /^\d+$/
             @node = secure!(Node) { Node.find_by_zip(name) }
           elsif name
@@ -446,14 +446,14 @@ class NodesController < ApplicationController
       elsif params[:id]
         @node = secure!(Node) { Node.find_by_zip(params[:id]) }
       end
-      
+
       if params[:link_id]
         @link = Link.find_through(@node, params[:link_id])
       end
-      
+
       @title_for_layout = @node.rootpath if @node
     end
-    
+
     def set_format(format)
       request.instance_eval do
         parameters[:format] = format
@@ -472,7 +472,7 @@ class NodesController < ApplicationController
         end
       when 'show'
         # show must have a 'path' parameter
-        
+
         if params[:prefix] != prefix && !avoid_prefix_redirect
           # lang changed
           set_visitor_lang(params[:prefix])
@@ -483,40 +483,40 @@ class NodesController < ApplicationController
         elsif params[:mode] == 'edit' && !@node.can_write?
           # special 'edit' mode
           redirect_url = zen_path(@node, :format => params[:format], :asset => params[:asset])
-        end 
+        end
       end
-      
+
       if redirect_url
         redirect_to redirect_url and return false
       end
       true
     end
-    
+
     def check_can_drive
       if !@node.can_drive?
         @node.errors.add('base', 'you do not have the rights to do this')
       end
     end
-    
+
     def change_lang
       set_visitor_lang(params[:node]['v_lang']) if params[:node] && params[:node]['v_lang']
     end
-    
+
     def do_search
       @node = current_site.root_node
       query = Node.match_query(params[:q], :node => @node)
-      
+
       @nodes = secure(Node) do
         @nodes_previous_page, @nodes, @nodes_next_page = Node.find_with_pagination(:all,query.merge(:per_page => 10, :page => params[:page]))
         @nodes # important: this is the 'secure' yield return, it is used to secure found nodes
       end
     end
-    
+
     # Document data do not change session[:lang] and can point at cached content (no nee to redirect to AUTHENTICATED_PREFIX).
     def avoid_prefix_redirect
       @node.kind_of?(Document) && params[:format] == @node.c_ext
     end
-    
+
     # Transform pseudo id into absolute paths (used after import)
     def parse_assets(nodes)
       nodes.each do |n|

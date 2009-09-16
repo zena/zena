@@ -22,7 +22,7 @@ tagged_query:
     cat: 'blue'
   src: "<r:context select='nodes where tag = param:cat in site' do='each' join=', ' do='[name]'/>"
   res: "bird, status"
-  
+
 images_tagged_blue:
   src: "<r:images where='tag=\"blue\"' in='site' do='each' join=', ' do='[name]'/>"
   res: "bird"

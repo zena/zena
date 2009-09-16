@@ -5,7 +5,7 @@ empty:
 hello:
   src: "<r:hello/>"
   res: "hello world!"
-  
+
 double_hello:
   src: "<r:hello/> <r:hello/>"
   res: "hello world! hello world!"
@@ -96,11 +96,11 @@ do_and_ztags:
 
 do_same_tag:
   src: "Hey <p do='test'> is <p do='hello'>hello <p>cool</p></p></p>"
-  res: "Hey [test]<p> is [hello]<p>hello <p>cool</p></p>[/hello]</p>[/test]"  
+  res: "Hey [test]<p> is [hello]<p>hello <p>cool</p></p>[/hello]</p>[/test]"
 expand_with:
   src: "this <r:test>looks </r:test> ok"
   res: "this [test]looks [/test] ok"
-  
+
 params:
   src: "some <r:test good='choice' nice='work'>things</r:test> are fine"
   res: "some [test {= :good=>'choice', :nice=>'work'}]things[/test] are fine"
@@ -112,7 +112,7 @@ empty_param:
 default_menu:
   src: "the <r:test>menu</r:test> is nice"
   res: "the [test]menu[/test] is nice"
-  
+
 include_menu:
   src: "include_menu: <r:include template='/default/menu'/>"
   res: "include_menu: the [test]menu[/test] is nice"
@@ -184,15 +184,15 @@ include_context:
 infinite_loop:
   src: "<r:include template='/infinite/loop'/>"
   res: "<span class='parser_error'>[include] infinity loop: /infinite/loop --&gt; /infinite/loop</span>"
-  
+
 infinite_foo:
   src: "<r:include template='bar'/>"
   res: "<span class='parser_error'>[include] infinity loop: /infinite/foo --&gt; /infinite/bar --&gt; /infinite/foo</span>"
-  
+
 infinite_bar:
   src: "<r:include template='foo'/>"
   res: "<span class='parser_error'>[include] infinity loop: /infinite/bar --&gt; /infinite/foo --&gt; /infinite/bar</span>"
-  
+
 default_context:
   src: "from other: <r:include template='menu'/> and <r:include template='/include/menu'/>"
   res: "from other: the [test]menu[/test] is nice and include_menu: the [test]menu[/test] is nice"
@@ -200,7 +200,7 @@ default_context:
 set_context:
   src: "res:<r:test/> <r:set_context truc='machin'>src:<r:test/></r:set_context> res:<r:test/>"
   res: "res:[test/] src:[test {> :truc=>'machin'}/] res:[test/]"
-  
+
 nested_set_context:
   src: "<r:set_context var1='out' var2='foo'>1:<r:test/><r:set_context var1='in'>2:<r:test/></r:set_context>3:<r:test/></r:set_context>"
   res: "1:[test {> :var1=>'out', :var2=>'foo'}/]2:[test {> :var1=>'in', :var2=>'foo'}/]3:[test {> :var1=>'out', :var2=>'foo'}/]"
@@ -228,7 +228,7 @@ complex_example:
 unknown:
   src:  "this looks bad: <r:system truc='lala'/>"
   res: "this looks bad: <span class='parser_unknown'>&lt;r:system truc='lala'/&gt;</span>"
-  
+
 check_params:
   src: "bad <r:missing/> params"
   res: "bad [missing parameter(s) missing:good, night] params"
@@ -255,7 +255,7 @@ doctype:
 no_tag:
   src: "<r:set_context ignore='test'>this is a <r:test>test</r:test>dog</r:set_context>"
   res: "this is a dog"
-  
+
 html_comments:
   src: "<r:test><r:hello/><!-- this is nothing > <r:hello/>  --></r:test>"
   res: "[test][hello/]<!-- this is nothing > <r:hello/>  -->[/test]"
@@ -275,11 +275,11 @@ simple_tag:
 do_simple:
   src: "<r:test do='hello'/>"
   res: "[test][hello/][/test]"
-  
+
 do_zafu:
   src: "<p do='test' param='yo' do='hello' param='hey'>some thing</p>"
   res: "[test {= :param=>'yo'}]<p>[hello {= :param=>'hey'}]some thing[/hello]</p>[/test]"
-  
+
 do_multiple:
   src: "<r:test param='1' do='test' param='2' do='hello' param='3'/>"
   res: "[test {= :param=>'1'}][test {= :param=>'2'}][hello {= :param=>'3'}/][/test][/test]"
@@ -311,11 +311,11 @@ include_replace_same_with:
 include_super_man:
   src: "include_super: <r:include template='/name'><p class='foo' do='with' part='man' do='hello'/>"
   res: "include_super: super: hey <p class='foo'>hello world!</p>"
-  
+
 include_part_far_away:
   src: "IPFA: <r:include template='/include/super/man' part='super'/> AFPI."
   res: "IPFA: hey <p class='foo'>hello world!</p> AFPI."
-    
+
 name_title:
   src: "title: <h1 do='void' id='title' do='text' text='dummy'>blah <b do='void' id='comment'>nothing</b></h1>"
   res: "title: <h1>dummy</h1>"
@@ -331,7 +331,7 @@ include_with:
 include_with_keep_name:
   src: "keep name: <r:include template='/name/title'><h1 do='with' part='title'><r:hello/> <i  id='comment'>none</i></h1></r:include>"
   res: "keep name: title: <h1>hello world! <i id='comment'>none</i></h1>"
-  
+
 include_include:
   src: "from ii: <r:include template='/include/with/keep/name'><r:with part='comment'>rabbit</r:with></r:include>"
   res: "from ii: keep name: title: <h1>hello world! <i id='comment'>rabbit</i></h1>"
@@ -356,7 +356,7 @@ preserve_newlines:
   src: |
     <r:repeat><p do='test'>blah</p>
     </r:repeat>ok
-    
+
   res: |
     [test]<p>blah</p>
     [/test][test]<p>blah</p>
@@ -365,11 +365,11 @@ preserve_newlines:
 set_tag_param:
   src: "<r:void class='test' tag='p'>blah</r:void>"
   res: "<p class='test'>blah</p>"
-  
+
 static_form:
   src: "<r:test><form action='hello'><p><input type='text' name='hoy' value='hili'/></p></form></r:test>"
   res: "[test]<form action='hello'><p><input type='text' name='hoy' value='hili'/></p></form>[/test]"
-  
+
 form:
   src: "<r:test><p do='form'><form action='hello'><p><input type='text' name='hoy' value='hili'/></p></form></p></r:test>"
   res: "[test][form]<p>[form_tag {= :action=>'hello'}]<p>[input {= :name=>'hoy', :type=>'text', :value=>'hili'}/]</p>[/form_tag]</p>[/form][/test]"
@@ -381,11 +381,11 @@ cdata:
 cdata_more:
   src: "<foo><![CDATA[<r:hello/> blah <p do='test'> a <r:hello/></p>]]></foo>"
   res: "<foo><![CDATA[hello world! blah [test]<p> a [hello/]</p>[/test]]]></foo>"
-  
+
 quoting:
   src: "<p double=\"waga'doom\" yo=\"waga'dou\\\"gou\" simple='25\"' do='void'>blah</p>"
   res: "<p double=\"waga'doom\" simple='25\"' yo=\"waga'dou\\\"gou\">blah</p>"
-  
+
 expand_with:
   src: "<div do='expand_with' host='example.com'>...<r:inspect/></div>"
   res: "<div>...[inspect {> 'exp_host'=>'\"example.com\"'}/]</div>"

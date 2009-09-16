@@ -1,58 +1,58 @@
 class VersionsController < ApplicationController
   layout :popup_layout, :except => [:preview, :diff]
   before_filter :find_node
-  
+
   # Display a specific version of a node
   # TODO: this controller is nearly the same as NodesController#show, except caching is disabled. Any idea to DRY this ?
   def show
     respond_to do |format|
-      
+
       format.html { render_and_cache(:cache=>false) }
-      
+
       format.xml  { render :xml => @node.to_xml }
-      
+
       format.js # show.rjs
-      
+
       format.all  do
         # Get document data (inline if possible)
         if params[:format] != @node.c_ext
           return redirect_to(params.merge(:format => @node.c_ext))
         end
-        
+
         if @node.kind_of?(Image) && !ImageBuilder.dummy?
           img_format = Iformat[params[:mode]]
           data = @node.c_file(img_format)
           content_path = @node.c_filepath(img_format)
           disposition  = 'inline'
-          
+
         elsif @node.kind_of?(TextDocument)
           data = StringIO.new(@node.v_text)
           content_path = nil
           disposition  = 'attachment'
-          
+
         else
           data         = @node.c_file
           content_path = @node.c_filepath
           disposition  = 'inline'
         end
         raise ActiveRecord::RecordNotFound unless data
-          
+
         send_data( data.read , :filename=>@node.filename, :type=>@node.c_content_type, :disposition=>disposition)
         data.close
-        
+
         # should we cache the page ?
         # cache_page(:content_path => content_path) # content_path is used to cache by creating a symlink
       end
     end
   end
-  
+
   def edit
     if params[:drive]
       if @node.redit
         flash[:notice] = _("Version changed back to redaction.")
       else
         flash[:error] = _("Could not change version back to redaction.")
-      end    
+      end
       render :action=>'update'
     else
       if !@node.edit!
@@ -71,22 +71,22 @@ class VersionsController < ApplicationController
       end
     end
   end
-  
+
   def custom_tab
     render :file => template_url(:mode=>'+edit', :format=>'html'), :layout=>false
   rescue ActiveRecord::RecordNotFound
     render :inline => "no custom form for this class (#{@node.klass})"
   end
-  
+
   # TODO: test/improve or remove (experiments)
   def diff
     # drive view
     @node = secure!(Node) { Node.find(params[:id]) }
     @from = @node.version(params[:from])
     @to   = @node.version(params[:to])
-    
+
   end
-  
+
   # preview when editing node
   def preview
     if @key = (params['key'] || params['amp;key'])
@@ -109,13 +109,13 @@ class VersionsController < ApplicationController
       #   lang = lang ? " lang='#{lang}'" : ""
       #   @node.version.text = "<code#{lang} class='full'>#{@v_text}</code>"
     end
-    
-    
+
+
     respond_to do |format|
       format.js
     end
   end
-  
+
   # This is a helpers used when creating the css for the site. They have no link with the database
   def css_preview
     file = params[:css].gsub('..','')
@@ -131,7 +131,7 @@ class VersionsController < ApplicationController
       render :nothing=>true
     end
   end
-  
+
   def propose
     if @node.propose
       flash[:notice] = _("Redaction proposed for publication.")
@@ -140,7 +140,7 @@ class VersionsController < ApplicationController
     end
     do_rendering
   end
-  
+
   def refuse
     if @node.refuse
       flash[:notice] = _("Proposition refused.")
@@ -150,7 +150,7 @@ class VersionsController < ApplicationController
     end
     do_rendering
   end
-  
+
   def publish
     if @node.publish
       flash[:notice] = "Redaction published."
@@ -159,7 +159,7 @@ class VersionsController < ApplicationController
     end
     do_rendering
   end
-  
+
   def remove
     if @node.remove
       flash[:notice] = "Publication removed."
@@ -168,7 +168,7 @@ class VersionsController < ApplicationController
     end
     do_rendering
   end
-  
+
   def redit
     if @node.redit
       flash[:notice] = "Rolled back to redaction."
@@ -177,7 +177,7 @@ class VersionsController < ApplicationController
     end
     do_rendering
   end
-  
+
   # TODO: test
   def unpublish
     if @node.unpublish
@@ -187,7 +187,7 @@ class VersionsController < ApplicationController
     end
     do_rendering
   end
-  
+
   # TODO: test
   def destroy_version
     if @node.destroy_version
@@ -197,8 +197,8 @@ class VersionsController < ApplicationController
     end
     do_rendering
   end
-  
-  
+
+
   protected
     def find_node
       @node = secure!(Node) { Node.find_by_zip(params[:node_id]) }
@@ -209,7 +209,7 @@ class VersionsController < ApplicationController
     rescue ActiveRecord::RecordNotFound
       redirect_to :id => @node.v_number
     end
-    
+
     def do_rendering
       # make the flash available to rjs helpers
       @flash = flash

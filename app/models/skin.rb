@@ -3,14 +3,14 @@
 class Skin < Section
   before_save :set_need_skin_name_update
   after_save  :update_skin_name
-  
+
   private
-  
+
     def set_need_skin_name_update
       @need_skin_name_update = !new_record? && name_changed?
       true # save can continue
     end
-    
+
     def update_skin_name
       return unless @need_skin_name_update
       # FIXME: escape correctly against sql injection

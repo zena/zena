@@ -3,14 +3,14 @@ class UsersController < ApplicationController
   before_filter :check_is_admin,  :only => [:index, :create, :swap_dev]
   before_filter :restrict_access
   layout :admin_layout
-  
+
   def show
     respond_to do |format|
       format.html { render :file => admin_layout, :layout => false } # render, content_for_layout = nil
       format.js
     end
   end
-  
+
   # Show the list of users. Rendered in the admin layout.
   def index
     secure!(User) do
@@ -22,13 +22,13 @@ class UsersController < ApplicationController
       format.html
     end
   end
-  
+
   def preferences
     respond_to do |format|
       format.html # preferences.html.erb
     end
   end
-  
+
   def swap_dev
     if session[:dev]
       session[:dev] = nil
@@ -41,8 +41,8 @@ class UsersController < ApplicationController
       redirect_to :action => 'show'
     end
   end
-    
-  
+
+
   # TODO: test
   def create
     if params[:groups]
@@ -51,7 +51,7 @@ class UsersController < ApplicationController
     get_groups_list
     @user = User.create(params[:user])
   end
-  
+
   # TODO: test
   def edit
     @user.password = nil
@@ -61,12 +61,12 @@ class UsersController < ApplicationController
       format.js   { render :partial => 'users/form', :layout => false }
     end
   end
-  
+
   # TODO: test
   def update
-    
+
     @update = params.delete(:update)
-    
+
     # TODO: test
     unless params[:user][:password].blank?
       if params[:user][:password].strip.size < 6
@@ -89,7 +89,7 @@ class UsersController < ApplicationController
         params[:user].delete(:old_passowrd)
       end
     end
-    
+
     if @user.errors.empty?
       @user.update_attributes(params[:user])
       if @user.errors.empty?
@@ -98,13 +98,13 @@ class UsersController < ApplicationController
         flash[:error ] = _('could not update user')
       end
     end
-    
+
     respond_to do |format|
       format.html # TODO
       format.js
     end
   end
-  
+
   protected
     # Find the user or use the current visitor
     def find_user
@@ -115,11 +115,11 @@ class UsersController < ApplicationController
       end
       @node = @user.contact
     end
-    
+
     def get_groups_list
       @groups = secure!(Group) { Group.find(:all, :order=>'name') }
     end
-    
+
     # Only allow if user is admin or the current user is the visitor
     # TODO: test
     def restrict_access

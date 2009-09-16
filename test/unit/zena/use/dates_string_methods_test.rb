@@ -1,30 +1,30 @@
 require 'test_helper'
 
 class DatesStringMethodsTest < Test::Unit::TestCase
-  
+
   def test_iso_format
     assert_equal Time.utc(2007,10,16,15,30,10), "2007-10-16 15:30:10".to_utc('%Y-%m-%d %H:%M:%S')
   end
-  
+
   def test_swiss_format
     assert_equal Time.utc(2007,10,16,15,30), "16.10.2007 15:30".to_utc('%d.%m.%Y %H:%M')
   end
-  
+
   def test_date_only
     assert_equal Time.utc(1975,10,16), "10/16/1975".to_utc('%m/%d/%Y')
   end
-  
+
   def test_to_utc_with_timezone
     # UTC+1, no Daylight time savings
     assert_equal Time.utc(2008,1,3,12,03,10), "2008-01-03 13:03:10".to_utc('%Y-%m-%d %H:%M:%S', TZInfo::Timezone.get("Europe/Paris"))
     # UTC+1, +1h Daylight time savings
     assert_equal Time.utc(2008,5,17,11,03,10), "2008-05-17 13:03:10".to_utc('%Y-%m-%d %H:%M:%S', TZInfo::Timezone.get("Europe/Paris"))
   end
-  
+
   def test_bad_to_utc
     assert_nil "2008-05-17".to_utc('%d.%m.%Y')
   end
-  
+
   def test_as_duration
     [
       [0, '0'],
@@ -45,7 +45,7 @@ class DatesStringMethodsTest < Test::Unit::TestCase
       assert_equal s, i.as_duration, s
     end
   end
-  
+
   def test_to_duration
     [
       [0, '0'],
@@ -66,8 +66,8 @@ class DatesStringMethodsTest < Test::Unit::TestCase
       assert_equal i, s.to_duration, s
     end
   end
-  
-  
+
+
   def test_to_duration_other_syntaxes
     [
       [0, '0'],

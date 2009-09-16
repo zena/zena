@@ -2,7 +2,7 @@
 require 'test_helper'
 
 class DocumentsControllerTest < Zena::Controller::TestCase
-  
+
   def test_create_master_template
     login(:tiger)
     post 'create', "node"=>{"klass"=>"Template", "name"=>"", "c_format"=>"", "c_mode"=>"tree", "c_klass"=>"Node", "v_summary"=>"", "parent_id"=>nodes_zip(:default)}
@@ -10,7 +10,7 @@ class DocumentsControllerTest < Zena::Controller::TestCase
     assert_kind_of Template, assigns(:node)
     assert_equal 'Node-tree', assigns(:node).name
   end
-  
+
   def test_create_template
     login(:tiger)
     post 'create', "node"=>{"klass"=>"Template", "name"=>"lister", "c_format"=>"", "c_mode"=>"", "c_klass"=>"", "v_summary"=>"", "parent_id"=>nodes_zip(:default)}
@@ -18,8 +18,8 @@ class DocumentsControllerTest < Zena::Controller::TestCase
     assert_kind_of Template, assigns(:node)
     assert_equal 'lister', assigns(:node).name
   end
-  
-  
+
+
   #def test_new
   #  get 'new', :parent_id=>1
   #  assert_redirected_to :controller=>'main', :action=>'not_found'
@@ -75,12 +75,12 @@ class DocumentsControllerTest < Zena::Controller::TestCase
   #      assert_response :success
   #      assert File.exist?("#{SITES_ROOT}/test.host/public/data/jpg/#{v_id}/bird-pv.jpg"), "Bird pv cached"
   #      assert ! File.exist?("#{SITES_ROOT}/test.host/data/test/jpg/#{v_id}/bird-pv.jpg"), "No pv image stored"
-  #      
+  #
   #      # sweep_all
   #      img = nodes(:bird_jpg)
   #      img.send(:sweep_cache)
   #      assert ! File.exist?("#{SITES_ROOT}/test.host/public/data/jpg/#{v_id}"), "No cached data for bird"
-  #      
+  #
   #      login(:tiger)
   #      v_id = versions_id(:flower_jpg_en)
   #      assert ! File.exist?("#{SITES_ROOT}/test.host/public/data/jpg/#{v_id}"), "No cached data for flower"

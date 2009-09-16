@@ -15,7 +15,7 @@
       <input type='submit' text='<%= _('validate') %>'/>
     </div>
   <% end -%>
-<% else 
+<% else
 value = Node.zafu_attribute(@node, params[:attribute]) -%>
   <%= form_remote_tag(:url => node_path(@node[:zip]), :method => :put, :html => {:class => 'ajax_edit'}) %>
     <div class='hidden'>

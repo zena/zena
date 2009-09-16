@@ -1,19 +1,19 @@
 require 'test_helper'
 
 class DocumentContentTest < Zena::Unit::TestCase
-  
+
   def test_site_id
     without_files('/test.host/data/full') do
       doc = DocumentContent.create( :version_id=>versions_id(:water_pdf_en), :ext=>'tic', :name=>'abc', :file => uploaded_pdf('forest.pdf') )
       assert_equal sites_id(:zena), doc.site_id
     end
   end
-  
+
   def test_site_id
     without_files('/test.host/data/full') do
       login(:ant)
       doc = secure!(Document) { Document.create( :parent_id=>nodes_id(:cleanWater),
-                                                :name=>'report', 
+                                                :name=>'report',
                                                 :c_file => uploaded_pdf('water.pdf') ) }
       assert_kind_of Document , doc
       content = doc.v_content
@@ -23,14 +23,14 @@ class DocumentContentTest < Zena::Unit::TestCase
       assert_equal File.stat(content.filepath).size, content.size
     end
   end
-  
+
   def test_cannot_set_site_id
     without_files('/test.host/data/full') do
       login(:ant)
       doc = secure!(Document) { Document.create( :parent_id=>nodes_id(:cleanWater),
-                                                :name=>'report', 
+                                                :name=>'report',
                                                 :c_file => uploaded_pdf('water.pdf') ) }
-      
+
 
       assert !doc.new_record?, "Not a new record"
       assert_kind_of Document , doc
@@ -43,7 +43,7 @@ class DocumentContentTest < Zena::Unit::TestCase
       assert_equal sites_id(:zena), content.site_id
     end
   end
-  
+
   def test_file
     doc = DocumentContent.new( :file=>uploaded_pdf('water.pdf') )
     data = nil
@@ -52,17 +52,17 @@ class DocumentContentTest < Zena::Unit::TestCase
     doc = DocumentContent.new( :version_id=>7, :name => 'hoho', :ext => 'txt' )
     assert_raise(StandardError) { doc.file } # filepath not set
   end
-  
+
   def test_set_size
     imf = DocumentContent.new
     assert_raise(StandardError) { imf.size = 34 }
   end
-  
+
   def test_filepath_without_version
     doc = DocumentContent.new( :file=>uploaded_pdf('water.pdf') )
     assert_raise(StandardError) { doc.filepath }
   end
-  
+
   def test_save_file
     without_files("/test.host/data/full") do
       doc = document_contents(:water_pdf)
@@ -77,7 +77,7 @@ class DocumentContentTest < Zena::Unit::TestCase
       assert_equal 63569, doc.size
     end
   end
-  
+
   def test_destroy
     preserving_files('/test.host/data/full') do
       doc = DocumentContent.find(document_contents_id(:water_pdf))
@@ -91,7 +91,7 @@ class DocumentContentTest < Zena::Unit::TestCase
       assert !File.exist?(parent_di), "Parent directory does not exist"
     end
   end
-  
+
   def test_wrong_file_type
     preserving_files("/test.host/data/jpg/20") do
       login(:tiger)
@@ -100,11 +100,11 @@ class DocumentContentTest < Zena::Unit::TestCase
       assert_equal 'must be an image', node.errors[:version_content_file]
     end
   end
-  
+
   def test_would_edit
     doc = document_contents(:bird_jpg)
     assert doc.would_edit?('file' => uploaded_pdf('water.pdf'))
     assert !doc.would_edit?('file' => uploaded_pdf('bird.jpg'))
   end
-  
+
 end

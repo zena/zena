@@ -18,7 +18,7 @@ class CalendarControllerTest < Zena::Controller::TestCase
     assert_match %r{\$\('tinycal_close'\).style.visibility.*visible}, @response.body
     assert_match %r{\$\('largecal'\).style.display.*block}, @response.body
   end
-  
+
   def test_date_selection
   end
 end

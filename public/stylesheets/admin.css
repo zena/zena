@@ -21,7 +21,7 @@ table.admin table { width:90%; }
 table.admin table td { text-align:left; }
 table.admin td:first-child { border-left: 1px solid #666; }
 
-#admin_users  table.admin {background:#B3CC92}  
+#admin_users  table.admin {background:#B3CC92}
 #admin_groups table.admin {background:#91B9AE}
 #add_user  td { border: 0;}
 #add_group td { border: 0;}
@@ -69,7 +69,7 @@ ul.actions ul { margin:0 0 0 1.6em; padding:0; }
 #preferences .errors li {padding:0px; margin-left:5px;}
 ul.actions .align { position:relative;}
 ul.actions .align span { position:absolute; right:2px; }
-ul.actions select { width:186px; } 
+ul.actions select { width:186px; }
 #preferences li { width:60%; margin-bottom:30px;}
 #preferences li li { width:100%;}
 #preferences .errors ul { margin:0 -5px 5px;}

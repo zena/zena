@@ -27,7 +27,7 @@ module Zena
     # by pass application before actions
     def authorize
     end
-  
+
     def set_lang
     end
 
@@ -50,7 +50,7 @@ module Zena
       folder = (opts[:current_folder] && opts[:current_folder] != '') ? opts[:current_folder][1..-1].split('/') : []
       src = src[1..-1] if src[0..0] == '/' # just ignore the 'relative' or 'absolute' tricks.
       url = (folder + src.split('/')).join('_')
-    
+
       if test = @@templates[url]
         [test['src'], src]
       else
@@ -60,6 +60,6 @@ module Zena
         super
       end
     end
-  
+
   end
 end

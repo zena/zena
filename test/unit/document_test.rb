@@ -1,12 +1,12 @@
 require 'test_helper'
 require 'fileutils'
 class DocumentTest < Zena::Unit::TestCase
-  
+
   def test_create_with_file
     without_files('/test.host/data') do
       login(:ant)
       doc = secure!(Document) { Document.create( :parent_id=>nodes_id(:cleanWater),
-                                                :name=>'report', 
+                                                :name=>'report',
                                                 :c_file => uploaded_pdf('water.pdf') ) }
       assert_kind_of Document , doc
       assert ! doc.new_record? , "Not a new record"
@@ -21,7 +21,7 @@ class DocumentTest < Zena::Unit::TestCase
       assert_equal File.stat(doc.version.content.filepath).size, doc.version.content.size
     end
   end
-  
+
   def test_create_with_bad_filename
     preserving_files('/test.host/data') do
       login(:ant)
@@ -43,7 +43,7 @@ class DocumentTest < Zena::Unit::TestCase
     assert_equal 'text/plain', doc.version.content.content_type
     assert doc.save, "Can save"
   end
-  
+
   def test_create_with_content_type
     login(:tiger)
     doc = secure!(Template) { Template.create("name"=>"Node_tree", "c_content_type"=>"text/css", "c_mode"=>"tree", "c_klass"=>"Node", "v_summary"=>"", "parent_id"=>nodes_id(:default))}
@@ -53,7 +53,7 @@ class DocumentTest < Zena::Unit::TestCase
     assert_equal 'text/css', doc.version.content.content_type
     assert_equal 'css', doc.version.content.ext
   end
-  
+
   def test_create_with_duplicate_name
     preserving_files('/test.host/data') do
       login(:ant)
@@ -66,7 +66,7 @@ class DocumentTest < Zena::Unit::TestCase
         assert_equal "bird-1", doc.name
       end
   end
-  
+
   def test_create_with_bad_filename
     preserving_files('/test.host/data') do
       login(:ant)
@@ -80,14 +80,14 @@ class DocumentTest < Zena::Unit::TestCase
       assert_equal "stupid.pdf", doc.filename
     end
   end
-  
+
   def get_with_full_path
     login(:tiger)
     doc = secure!(Document) { Document.find_by_path("/projects/cleanWater/water.pdf") }
     assert_kind_of Document, doc
     assert_equal "/projects/cleanWater/water.pdf", doc.fullpath
   end
-  
+
   def test_image
     login(:tiger)
     doc = secure!(Document) { Document.find( nodes_id(:water_pdf) ) }
@@ -95,7 +95,7 @@ class DocumentTest < Zena::Unit::TestCase
     doc = secure!(Document) { Document.find( nodes_id(:bird_jpg) )  }
     assert doc.image?, 'Is an image'
   end
-  
+
   def test_filename
     login(:tiger)
     doc = secure!(Node) { nodes(:lake_jpg) }
@@ -105,13 +105,13 @@ class DocumentTest < Zena::Unit::TestCase
     doc.update_attributes('c_ext' => 'pdf')
     assert_equal 'test.jpg', doc.filename
   end
-  
+
   def test_filesize
     login(:tiger)
     doc = secure!(Document) { Document.find( nodes_id(:water_pdf) ) }
     assert_nothing_raised { doc.version.content.size }
   end
-  
+
   def test_create_with_text_file
     preserving_files('/test.host/data/txt') do
       login(:ant)
@@ -125,7 +125,7 @@ class DocumentTest < Zena::Unit::TestCase
       assert_equal 'txt', doc.version.content.ext
     end
   end
-  
+
   def test_change_file
     preserving_files('/test.host/data') do
       login(:tiger)
@@ -152,14 +152,14 @@ class DocumentTest < Zena::Unit::TestCase
       assert_equal 29279, doc.version.content.size
       assert_equal file_path('water.pdf', 'full', doc.version.content.id), doc.version.content.filepath
     end
-  end 
-  
-  
+  end
+
+
   def test_create_with_file_name_has_dots
     without_files('/test.host/data') do
       login(:ant)
       doc = secure!(Document) { Document.create( :parent_id=>nodes_id(:cleanWater),
-                                                :name=>'report...', 
+                                                :name=>'report...',
                                                 :c_file => uploaded_pdf('water.pdf') ) }
       assert_kind_of Document , doc
       assert ! doc.new_record? , "Not a new record"
@@ -170,7 +170,7 @@ class DocumentTest < Zena::Unit::TestCase
       assert_equal 'pdf', doc.version.content.ext
     end
   end
-  
+
   def test_create_with_file_name_unknown_ext
     without_files('/test.host/data') do
       login(:ant)
@@ -186,7 +186,7 @@ class DocumentTest < Zena::Unit::TestCase
       assert_equal 'application/octet-stream', doc.version.content.content_type
     end
   end
-  
+
   def test_destroy_many_versions
     preserving_files('/test.host/data') do
       login(:tiger)
@@ -213,7 +213,7 @@ class DocumentTest < Zena::Unit::TestCase
       assert ! File.exist?(filepath)
     end
   end
-  
+
   def test_set_v_title
     without_files('/test.host/data') do
       login(:ant)
@@ -229,5 +229,5 @@ class DocumentTest < Zena::Unit::TestCase
       assert_equal 'application/pdf', doc.version.content.content_type
     end
   end
-  
+
 end

@@ -1,5 +1,5 @@
 class CreateBase < ActiveRecord::Migration
-  
+
   def self.up
     create_table("users", :options => 'type=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci') do |t|
       t.column "created_at", :datetime
@@ -12,7 +12,7 @@ class CreateBase < ActiveRecord::Migration
       t.column "name", :string, :limit => 60       # cached from contact_content
       t.column "email", :string, :limit => 60      # cached from contact_content
     end
-      
+
     create_table("contact_contents", :options => 'type=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci') do |t|
       t.column "created_at", :datetime
       t.column "updated_at", :datetime
@@ -45,7 +45,7 @@ class CreateBase < ActiveRecord::Migration
       t.column "updated_at", :datetime
       t.column "name", :string, :limit => 20, :default => "", :null => false
     end
-    
+
     create_table("groups_users", :id=>false, :options => 'type=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci') do |t|
       t.column "group_id", :integer, :default => 0, :null => false
       t.column "user_id", :integer, :default => 0, :null => false
@@ -117,7 +117,7 @@ class CreateBase < ActiveRecord::Migration
       t.column "text", :text, :default => "", :null => false
       t.column "author_name",:string, :limit => 300
     end
-    
+
     create_table("trans_phrases", :options => 'type=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci') do |t|
       t.column "phrase", :string, :limit => 100, :default => "", :null => false
     end
@@ -127,7 +127,7 @@ class CreateBase < ActiveRecord::Migration
       t.column "lang", :string, :limit => 10, :default => "", :null => false
       t.column "value", :text, :default => "", :null => false
     end
-    
+
     create_table("caches", :options => 'type=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci') do |t|
       t.column "updated_at", :datetime
       t.column "visitor_id", :integer
@@ -137,7 +137,7 @@ class CreateBase < ActiveRecord::Migration
       t.column "content", :text
     end
   end
-  
+
   def self.down
     drop_table "users"
     drop_table "contact_contents"

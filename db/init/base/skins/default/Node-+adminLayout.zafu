@@ -3,7 +3,7 @@
     <r:stylesheets list='reset,zena,comment,admin,search'/>
     <link href="style.css" rel="Stylesheet" type="text/css"/>
   </r:with>
-  
+
   <r:with part='context'>
     <ol class='admin_links'>
       <li do='admin_links'><a href='#'>do this</a></li>

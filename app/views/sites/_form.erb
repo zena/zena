@@ -29,7 +29,7 @@
     <% if !@site.new_record? %>
     <tr><td class='label'><%= _('clear cache') %></td><td id='clear_site<%= @site[:id] %>'>
         <%= link_to_remote _('clear cache'), :url => clear_cache_site_path(@site), :confirm => _('Are you sure you want destroy all cache (site may be slow during first reloads) ?') %>
-    </td></tr>    
+    </td></tr>
     <% end %>
     <tr><td colspan='2'><p class='btn_validate'><input type='submit' value='<%= _('validate') %>'/></p></td></tr>
   </table>

@@ -56,7 +56,7 @@ table.errors td { padding:2px 5px; background:inherit; border:none;}
 .clear { clear:both;}
 
 /* dev */
-#dev { background:#CABFA6; font-size:10px; position:fixed; bottom:5px; right:5px; 
+#dev { background:#CABFA6; font-size:10px; position:fixed; bottom:5px; right:5px;
 padding:5px; border:1px solid #714D3D; text-align:left; color:#444; z-index:9999;}
 #dev a { color:inherit; }
 #dev ul, #dev li { margin:0; padding:0; list-style:none; background:none; list-style-image:none;}

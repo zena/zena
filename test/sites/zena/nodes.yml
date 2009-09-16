@@ -14,7 +14,7 @@ zena:
   wgroup:          workers
   pgroup:          managers
   skin:            default
-  
+
 
 people:
   zip:             12
@@ -71,7 +71,7 @@ myDreams:
   rgroup:          0
   wgroup:          0
   pgroup:          0
-  
+
 projects:
   zip:             18
   class:           Page
@@ -86,7 +86,7 @@ secret:
   wgroup:          managers
   pgroup:          managers
   skin:            default
-  
+
 proposition:
   zip:             20
   class:           Post
@@ -152,7 +152,7 @@ bananas:
   wgroup:          managers
   pgroup:          managers
   skin:            default
-  
+
 wiki:
   zip:             29
   class:           Project
@@ -163,14 +163,14 @@ wiki:
   wgroup:          public
   pgroup:          public
   skin:            wikiSkin
-  
+
 bird_jpg:
   zip:             30
   class:           Image
   name:            bird
   parent:          wiki
   user:            anon
-  
+
 flower_jpg:
   zip:             31
   class:           Image
@@ -209,7 +209,7 @@ strange:
   wgroup:          managers
   pgroup:          workers
   skin:            default
-  
+
 track:
   zip:             37
   class:           Tracker
@@ -224,28 +224,28 @@ talk:
   wgroup:          workers
   pgroup:          workers
   skin:            default
-  
+
 nature:
   zip:             39
   class:           Page
   parent:          zena
   user:            ant
   ref_lang:        en
-  
+
 tree_jpg:
   zip:             40
   class:           Image
   name:            tree
   parent:          nature
   user:            ant
-  
+
 forest_pdf:
   zip:             41
   class:           Document
   name:            forest
   parent:          nature
   user:            ant
-  
+
 letter:
   zip:             42
   class:           Letter
@@ -286,7 +286,7 @@ default:
   class:           Skin
   name:            default
   parent:          skins
-  
+
 Node_search_zafu:
   class:           Template
   name:            Node-search

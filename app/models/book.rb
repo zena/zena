@@ -1,10 +1,10 @@
 =begin
-# install yaz http://www.indexdata.dk/yaz/ : 
+# install yaz http://www.indexdata.dk/yaz/ :
 #     ./configure --enable-shared
 #     make
 #     sudo make install
 #
-# install ruby/zoom http://ruby-zoom.rubyforge.org/ : 
+# install ruby/zoom http://ruby-zoom.rubyforge.org/ :
 #     ruby extconf.rg
 #     make
 #     sudo make install
@@ -14,7 +14,7 @@ book_covers = '/Users/gaspard/book_covers/'
 #asin = '0226732169'
 #asin = '023945857892' # bad for testing
 
-#require 'zoom' 
+#require 'zoom'
 #
 #ZOOM::Connection.open('z3950.loc.gov', 7090) do |conn|
 #  conn.database_name = 'Voyager'

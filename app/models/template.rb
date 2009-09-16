@@ -16,17 +16,17 @@ Other templates have a name built from the given name, just like any other node.
 class Template < TextDocument
   validate :valid_section
   after_save :update_content
-  
+
   class << self
     def accept_content_type?(content_type)
-      content_type =~ /text\/(html|zafu)/ 
+      content_type =~ /text\/(html|zafu)/
     end
-    
+
     def version_class
       TemplateVersion
     end
   end
-  
+
   def filter_attributes(attributes)
     content    = version.content
     version_attributes = attributes['version_attributes'] ||= {}
@@ -45,23 +45,23 @@ class Template < TextDocument
     end
     super(attributes)
   end
-  
+
   private
-  
+
     # Overwrite document behaviour.
     def document_before_validation
       content = version.content
-      
+
       content.mode = content.mode.url_name if content.mode
-      
+
       if content.klass
         # update name
         content.format = 'html' if content.format.blank?
         self[:name] = name_from_content(:format => content.format, :mode => content.mode, :klass => content.klass)
-        
+
         if version.text.blank? && content.format == 'html' && content.mode != '+edit'
           # set a default text
-        
+
           if content.klass == 'Node'
             version.text = <<END_TXT
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
@@ -89,26 +89,26 @@ END_TXT
         end
       end
     end
-    
+
     def valid_section
       @need_skin_name_update = !new_record? && section_id_changed?
       errors.add('parent_id', 'Invalid parent (section is not a Skin)') unless section.kind_of?(Skin)
     end
-    
+
     def name_from_content(opts={})
       opts[:format]  ||= version.content.format
       opts[:mode  ]  ||= version.content.mode
       opts[:klass ]  ||= version.content.klass
       format = opts[:format] == 'html' ? '' : "-#{opts[:format]}"
-      mode   = (!opts[:mode].blank? || format != '') ? "-#{opts[:mode]}" : '' 
+      mode   = (!opts[:mode].blank? || format != '') ? "-#{opts[:mode]}" : ''
       "#{opts[:klass]}#{mode}#{format}"
     end
-    
+
     def update_content
       if @need_skin_name_update
         Template.connection.execute "UPDATE template_contents SET skin_name = #{Template.connection.quote(section[:name])} WHERE node_id = #{Template.connection.quote(self[:id])}"
         @need_skin_name_update = nil
       end
     end
-    
+
 end

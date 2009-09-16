@@ -23,7 +23,7 @@ module ParserModule
     def template_url_for_asset(opts)
       "/test_#{opts[:type]}/#{opts[:src]}"
     end
-    
+
     def method_missing(sym, *args)
       arguments = args.map do |arg|
         if arg.kind_of?(Hash)
@@ -45,7 +45,7 @@ end
 
 class Parser
   attr_accessor :text, :method, :pass, :options, :blocks, :params, :ids, :defined_ids, :parent
-    
+
   class << self
     def parser_with_rules(*modules)
       parser = Class.new(Parser)
@@ -61,29 +61,29 @@ class Parser
       current_folder     = absolute_url ? absolute_url.split('/')[1..-2].join('/') : nil
       self.new(text, :helper=>helper, :current_folder=>current_folder, :included_history=>[absolute_url], :root => url)
     end
-    
+
     # Retrieve the template text in the current folder or as an absolute path.
     # This method is used when 'including' text
     def get_template_text(url, helper, current_folder=nil)
-      
+
       if (url[0..0] != '/') && current_folder
         url = "#{current_folder}/#{url}"
       end
-      
+
       res = helper.send(:get_template_text, :src=>url, :current_folder=>'')
       return ["<span class='parser_error'>[include] template '#{url}' not found</span>", nil, nil] unless res
       text, url, node = *res
       url = "/#{url}" unless url[0..0] == '/' # has to be an absolute path
       return [text, url, node]
     end
-    
+
   end
-  
+
   def initialize(text, opts={})
     @stack   = []
     @ok      = true
     @blocks  = []
-    
+
     @options = {:mode=>:void, :method=>'void'}.merge(opts)
     @params  = @options.delete(:params) || {}
     @method  = @options.delete(:method)
@@ -92,20 +92,20 @@ class Parser
     @defined_ids = {} # ids defined in this node or this node's sub blocks
     mode     = @options.delete(:mode)
     @parent  = @options.delete(:parent)
-    
+
     if opts[:sub]
       @text = text
     else
       @text = before_parse(text)
     end
-    
-    
+
+
     start(mode)
-    
+
     # set name
     @name    ||= @options[:name] || @params[:id]
     @options[:ids][@name] = self if @name
-    
+
     unless opts[:sub]
       @text = after_parse(@text)
     end
@@ -116,11 +116,11 @@ class Parser
     end
     @ok
   end
-  
+
   def start(mode)
     enter(mode)
   end
-  
+
   # Hook called when replacing part of an included template with '<r:with part='main'>...</r:with>'
   # This replaces the current object 'self' which is in the original included template, with the custom version 'obj'.
   def replace_with(obj)
@@ -128,16 +128,16 @@ class Parser
     @blocks   = obj.blocks.empty? ? @blocks : obj.blocks
     @params.merge!(obj.params)
   end
-  
+
   # Hook called when including a part "<r:include template='layout' part='title'/>"
   def include_part(obj)
     [obj]
   end
-  
+
   def empty?
     @blocks == [] && (@params == {} || @params == {:part => @params[:part]})
   end
-  
+
   def render(context={})
     if @name
       # we pass the name as 'context' in the children tags
@@ -154,10 +154,10 @@ class Parser
     else
       res = self.do_method(:r_unknown)
     end
-    
+
     after_render(res + @text)
   end
-  
+
   def do_method(sym)
     res = self.send(sym)
     if @result != ""
@@ -168,30 +168,30 @@ class Parser
       res
     end
   end
-  
+
   def r_void
     expand_with
   end
-  
+
   def r_ignore
   end
-  
+
   alias to_s r_void
-  
+
   def r_inspect
     expand_with(:preflight=>true)
     @blocks = []
     @pass.merge!(@parts||{})
     self.inspect
   end
-  
+
   # basic rule to display errors
   def r_unknown
     sp = ""
     @params.each do |k,v|
       sp += " #{k}=#{v.inspect.gsub("'","TMPQUOTE").gsub('"',"'").gsub("TMPQUOTE",'"')}"
     end
-      
+
     res = "<span class='parser_unknown'>&lt;r:#{@method}#{sp}"
     inner = expand_with
     if inner != ''
@@ -200,7 +200,7 @@ class Parser
       res + "/&gt;</span>"
     end
   end
-  
+
   # Set context with variables (unsafe) from template.
   def r_expand_with
     hash = {}
@@ -209,23 +209,23 @@ class Parser
     end
     expand_with(hash)
   end
-  
+
   def before_render
     true
   end
-  
+
   def after_render(text)
     text
   end
-  
+
   def before_parse(text)
     text
   end
-  
+
   def after_parse(text)
     text
   end
-  
+
   def include_template
     return "<span class='parser_error'>[include] missing 'template' attribute</span>" unless @params[:template]
     if @options[:part] && @options[:part] == @params[:part]
@@ -235,12 +235,12 @@ class Parser
       return
     end
     @method = 'void'
-    
+
     # fetch text
     @options[:included_history] ||= []
-    
+
     included_text, absolute_url = self.class.get_template_text(@params[:template], @options[:helper], @options[:current_folder])
-    
+
     if absolute_url
       absolute_url += "::#{@params[:part].gsub('/','_')}" if @params[:part]
       absolute_url += "??#{@options[:part].gsub('/','_')}" if @options[:part]
@@ -252,7 +252,7 @@ class Parser
       end
     end
     res = self.class.new(included_text, :helper=>@options[:helper], :current_folder=>current_folder, :included_history=>included_history, :part => @params[:part], :root=>@options[:root]) # we set :part to avoid loop failure when doing self inclusion
-    
+
     if @params[:part]
       if iblock = res.ids[@params[:part]]
         included_blocks = include_part(iblock)
@@ -265,10 +265,10 @@ class Parser
       included_blocks = res.blocks
       @ids.merge! res.ids
     end
-    
+
     enter(:void) # normal scan on content
     # replace 'with'
-    
+
     not_found = []
     @blocks.each do |b|
       next if b.kind_of?(String) || b.method != 'with'
@@ -287,7 +287,7 @@ class Parser
     end
     @blocks = included_blocks + not_found
   end
-  
+
   # Return a has of all descendants. Find a specific descendant with descendant['form'] for example.
   def all_descendants
     @all_descendants ||= begin
@@ -305,11 +305,11 @@ class Parser
       d
     end
   end
-  
+
   def descendants(key)
     all_descendants[key] || []
   end
-  
+
   def ancestors
     @ancestors ||= begin
       if parent
@@ -319,9 +319,9 @@ class Parser
       end
     end
   end
-  
+
   alias public_descendants all_descendants
-  
+
   # Return the last defined parent for the given key.
   def ancestor(key)
     res = nil
@@ -333,21 +333,21 @@ class Parser
     end
     res
   end
-  
+
   # Return the last defined descendant for the given key.
   def descendant(key)
     descendants(key).last
   end
-  
+
   # Return the root block (the one opened first).
   def root
     @root ||= parent ? parent.root : self
   end
-  
+
   def success?
     return @ok
   end
-  
+
   def flush(str=@text)
     return if str == ''
     if @blocks.last.kind_of?(String)
@@ -357,7 +357,7 @@ class Parser
     end
     @text = @text[str.length..-1]
   end
-  
+
   # Build blocks
   def store(obj)
     if obj.kind_of?(String) && @blocks.last.kind_of?(String)
@@ -366,12 +366,12 @@ class Parser
       @blocks << obj
     end
   end
-  
+
   # Set output during render
   def out(obj)
     @result << obj
   end
-  
+
   def eat(arg)
     if arg.kind_of?(String)
       len = arg.length
@@ -382,7 +382,7 @@ class Parser
     end
     @text = @text[len..-1]
   end
-  
+
   def enter(mode)
     @stack << mode
     # puts "ENTER(#{@method},:#{mode}) [#{@text}] #{@zafu_tag_count.inspect}"
@@ -397,7 +397,7 @@ class Parser
     end
     # puts "LEAVE(#{@method},:#{mode}) [#{@text}] #{@zafu_tag_count.inspect}"
   end
-  
+
   def make(mode, opts={})
     if opts[:text]
       custom_text = opts.delete(:text)
@@ -416,10 +416,10 @@ class Parser
     # puts "TEXT #{@text.inspect}"
     new_obj
   end
-  
+
   def leave(mode=nil)
     if mode.nil?
-      @stack = [] 
+      @stack = []
       return
     end
     pop  = true
@@ -428,12 +428,12 @@ class Parser
       break if pop == mode
     end
   end
-  
+
   def fail
     @ok   = false
     @stack = []
   end
-  
+
   # Parse parameters into a hash. This parsing supports multiple values for one key by creating additional keys:
   # <tag do='hello' or='goodbye' or='gotohell'> creates the hash {:do=>'hello', :or=>'goodbye', :or1=>'gotohell'}
   def parse_params(text)
@@ -452,7 +452,7 @@ class Parser
             key = "#{key}#{key_counter}".to_sym
             key_counter += 1
           end
-            
+
           if $1 == "'"
             params[key] = $2.gsub("\\'", "'")
           else
@@ -469,7 +469,7 @@ class Parser
     end
     params
   end
-  
+
   def check_params(*args)
     missing = []
     if args[0].kind_of?(Array)
@@ -506,32 +506,32 @@ class Parser
     end
     true
   end
-  
+
   def expand_block(block, new_context={})
     block.render(@context.merge(new_context))
   end
-  
+
   def expand_with(acontext={})
     blocks = acontext.delete(:blocks) || @blocks
     res = ""
-    
+
     # FIXME: I think we can delete @pass and @parts stuff now (test first).
-    
+
     @pass  = {} # current object sees some information from it's direct descendants
     @parts = {}
     only   = acontext[:only]
     new_context = @context.merge(acontext)
-    
+
     if acontext[:ignore]
       new_context[:ignore] = (@context[:ignore] || []) + (acontext[:ignore] || []).uniq
     end
-    
+
     if acontext[:no_ignore]
       new_context[:ignore] = (new_context[:ignore] || []) - acontext[:no_ignore]
     end
-    
+
     ignore = new_context[:ignore]
-    
+
     blocks.each do |b|
       if b.kind_of?(String)
         if (!only || only.include?(:string)) && (!ignore || !ignore.include?(:string))
@@ -550,7 +550,7 @@ class Parser
     end
     res
   end
-  
+
   def inspect
     attributes = []
     params = []
@@ -560,7 +560,7 @@ class Parser
       end
     end
     attributes << " {= #{params.sort.join(', ')}}" unless params == []
-    
+
     context = []
     (@context || {}).each do |k,v|
       unless v.nil?
@@ -568,7 +568,7 @@ class Parser
       end
     end
     attributes << " {> #{context.sort.join(', ')}}" unless context == []
-    
+
     pass = []
     (@pass || {}).each do |k,v|
       unless v.nil?
@@ -582,7 +582,7 @@ class Parser
       end
     end
     attributes << " {< #{pass.sort.join(', ')}}" unless pass == []
-    
+
     res = []
     @blocks.each do |b|
       if b.kind_of?(String)

@@ -4,7 +4,7 @@ class ReplaceIdByZip < ActiveRecord::Migration
       t.column :site_id, :integer
       t.column :zip, :integer
     end
-    
+
     add_column :nodes, :zip, :integer
   end
 

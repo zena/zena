@@ -1,7 +1,7 @@
 require 'test_helper'
 
 class ImageContentTest < Zena::Unit::TestCase
-  
+
   if Module.const_defined?(:ZenaDummy)
     def test_set_file
       preserving_files('/test.host/data') do
@@ -26,7 +26,7 @@ class ImageContentTest < Zena::Unit::TestCase
         assert img.save, "Can save"
       end
     end
-    
+
     def test_exif_tags
       preserving_files('/test.host/data') do
         img = ImageContent.new(:name=>'bird', :version_id => versions_id(:bird_jpg_en))
@@ -38,13 +38,13 @@ class ImageContentTest < Zena::Unit::TestCase
       end
     end
   end
-  
+
   def setup
     super
     @med = Iformat['med']
     @pv  = Iformat['pv']
   end
-  
+
   def test_formats
     preserving_files('/test.host/data') do
       img = get_content(:bird_jpg)
@@ -57,7 +57,7 @@ class ImageContentTest < Zena::Unit::TestCase
       assert File.exist?(file_path(:bird_jpg, 'pv')), "File exist"
     end
   end
-  
+
   def test_file_formats
     preserving_files('/test.host/data') do
       img = get_content(:bird_jpg)
@@ -71,7 +71,7 @@ class ImageContentTest < Zena::Unit::TestCase
       assert File.exist?(file_path(:bird_jpg, 'med')), "File exist"
     end
   end
-  
+
   def test_remove_formatted_on_file_change
     preserving_files('/test.host/data') do
       img  = get_content(:bird_jpg)
@@ -87,7 +87,7 @@ class ImageContentTest < Zena::Unit::TestCase
       assert File.exist?(img.filepath       ), "File exist"
       assert !File.exist?(img.filepath(@pv) ), "File does not exist"
       assert !File.exist?(img.filepath(@med)), "File does not exist"
-      
+
       # change name no longer changes file names
       old_path = img.filepath
       img.file(@med) # create image with 'med' format
@@ -101,7 +101,7 @@ class ImageContentTest < Zena::Unit::TestCase
       assert File.exist?(  med_path         ), "File exist"
     end
   end
-  
+
   def test_remove_mode_image
     preserving_files('/test.host/data') do
       img  = get_content(:bird_jpg)
@@ -119,7 +119,7 @@ class ImageContentTest < Zena::Unit::TestCase
       assert !File.exist?(img.filepath(@med)), "File does not exist"
     end
   end
-  
+
   private
     def get_content(sym)
       login(:ant) unless @visitor

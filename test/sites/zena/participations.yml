@@ -1,6 +1,6 @@
 DEFAULTS:
   lang:            en
-  
+
 anon:
   status:          moderated
   contact:         anonymous

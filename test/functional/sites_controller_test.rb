@@ -1,7 +1,7 @@
 require 'test_helper'
 
 class SitesControllerTest < Zena::Controller::TestCase
-  
+
   def test_clear_cache
     with_caching do
       login(:anon)
@@ -17,7 +17,7 @@ class SitesControllerTest < Zena::Controller::TestCase
       assert !CachedPage.find(:first, :conditions => ["path = ?", "/test.host/public/en/clear_cache_test.html"])
     end
   end
-  
+
   def test_clear_cache_clears_zafu
     with_caching do
       login(:anon)

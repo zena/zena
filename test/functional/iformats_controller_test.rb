@@ -1,13 +1,13 @@
 require 'test_helper'
 
 class IformatsControllerTest < Zena::Controller::TestCase
-  
+
   def test_only_admin_can_create
     login(:tiger)
     post 'create', :iformat=>{:name => 'super', :size => 'limit', :height => 20, :width => 20}
     assert_response 404
   end
-  
+
   def test_create_new
     login(:lion)
     post 'create', :iformat=>{:name => 'super', :size => 'limit', :height => 20, :width => 20}
@@ -20,7 +20,7 @@ class IformatsControllerTest < Zena::Controller::TestCase
     assert_equal Iformat::SIZES.index('limit'), imf[:size]
     assert_equal sites_id(:zena), imf[:site_id]
   end
-  
+
   def test_create_same_name
     login(:lion)
     post 'create', :iformat=>{:name => 'med', :size => 'limit', :height => 20, :width => 20}
@@ -29,7 +29,7 @@ class IformatsControllerTest < Zena::Controller::TestCase
     assert imf.new_record?, "New record"
     assert imf.errors[:name].any?
   end
-  
+
   def test_update
     login(:lion)
     assert_equal 300, Iformat['med'][:width]
@@ -41,7 +41,7 @@ class IformatsControllerTest < Zena::Controller::TestCase
     login(:lion)
     assert_equal 250, Iformat['med'][:width]
   end
-  
+
   def test_update_default
     # creates a new record
     login(:lion)
@@ -54,7 +54,7 @@ class IformatsControllerTest < Zena::Controller::TestCase
     login(:lion)
     assert_equal 80, Iformat['pv'][:width]
   end
-  
+
   def test_update_change_name_restore_default
     login(:lion)
     assert_equal 300, Iformat['med'][:width]
@@ -66,7 +66,7 @@ class IformatsControllerTest < Zena::Controller::TestCase
     login(:lion)
     assert_equal 280, Iformat['med'][:width]
   end
-  
+
   def test_update_bad_name
     login(:lion)
     Iformat.create(:name => 'foo', :width => 50, :height=> 50, :size=> 'limit')
@@ -75,7 +75,7 @@ class IformatsControllerTest < Zena::Controller::TestCase
     imf = assigns['iformat']
     assert imf.errors[:name].any?
   end
-  
+
   def test_edit
     login(:lion)
     get 'edit', :id => iformats_id(:med)
@@ -83,7 +83,7 @@ class IformatsControllerTest < Zena::Controller::TestCase
     assert_template 'edit'
     assert_equal iformats_id(:med), assigns['iformat'][:id]
   end
-  
+
   def test_index
     login(:lion)
     get 'index'
@@ -92,18 +92,18 @@ class IformatsControllerTest < Zena::Controller::TestCase
     iformats = assigns['iformats']
     assert_equal 11, iformats.size
   end
-  
+
   def test_show
     login(:lion)
     get 'show', :id => iformats_id(:med)
     assert_response :success
   end
-  
+
   def test_show_not_admin
     get 'show', :id => iformats_id(:med)
     assert_response 404
   end
-  
+
   def test_destroy
     login(:lion)
     delete 'destroy', :id => iformats_id(:med)

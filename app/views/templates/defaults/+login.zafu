@@ -24,7 +24,7 @@
         <tr><td></td><td><input name="commit" type="submit" value=" login " /></td></tr>
       </table>
     </form></div>
-  </div>  
+  </div>
 <script type="text/javascript">
 window.onload = document.getElementById('user_login').focus();
 </script>

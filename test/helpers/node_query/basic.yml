@@ -22,19 +22,19 @@ letters:
 
 nodes_in_site:
   sql: "\"SELECT nodes.* FROM nodes WHERE (#{@node.secure_scope('nodes')}) ORDER BY nodes.position ASC, nodes.name ASC\""
-  
+
 pages_in_project:
   sql: "[\"SELECT nodes.* FROM nodes WHERE nodes.kpath LIKE 'NP%' AND nodes.project_id = ? AND (#{@node.secure_scope('nodes')}) ORDER BY nodes.position ASC, nodes.name ASC\", @node.get_project_id]"
-  
+
 nodes_in_section:
   sql: "[\"SELECT nodes.* FROM nodes WHERE nodes.section_id = ? AND (#{@node.secure_scope('nodes')}) ORDER BY nodes.position ASC, nodes.name ASC\", @node.get_section_id]"
-  
+
 nodes_in_self:
   sql: "[\"SELECT nodes.* FROM nodes WHERE nodes.parent_id = ? AND (#{@node.secure_scope('nodes')}) ORDER BY nodes.position ASC, nodes.name ASC\", @node.id]"
 
 nodes_in_parent:
   sql: "[\"SELECT nodes.* FROM nodes WHERE nodes.parent_id = ? AND (#{@node.secure_scope('nodes')}) ORDER BY nodes.position ASC, nodes.name ASC\", @node.parent_id]"
-  
+
 children:
   sql: "[\"SELECT nodes.* FROM nodes WHERE nodes.parent_id = ? AND (#{@node.secure_scope('nodes')}) ORDER BY nodes.position ASC, nodes.name ASC\", @node.id]"
 
@@ -50,7 +50,7 @@ pages_or_letters:
 project:
   sql: "[\"SELECT nodes.* FROM nodes WHERE nodes.id = ? AND (#{@node.secure_scope('nodes')}) ORDER BY nodes.position ASC, nodes.name ASC\", @node.get_project_id]"
   res: 'cleanWater'
-  
+
 many_alternatives:
   src:
     - 'tagged in site'
@@ -65,7 +65,7 @@ alternatives_same_join:
     - 'icons'
   sql: "[\"SELECT nodes.*,links.id AS link_id,links.status AS l_status,links.comment AS l_comment,links.date AS l_date FROM nodes,links WHERE ((nodes.id = links.source_id AND links.relation_id = _ID(node_has_tags)) OR (nodes.id = links.target_id AND links.relation_id = _ID(node_has_an_icon) AND links.source_id = ?)) AND (#{@node.secure_scope('nodes')}) GROUP BY nodes.id ORDER BY nodes.position ASC, nodes.name ASC\", @node.id]"
   res: "cleanWater, lake, opening"
-  
+
 same_name_as_class:
   context:
     node: 'opening'
@@ -73,10 +73,10 @@ same_name_as_class:
   sql: "[\"SELECT nodes.*,links.id AS link_id,links.status AS l_status,links.comment AS l_comment,links.date AS l_date FROM nodes,links WHERE nodes.id = links.target_id AND links.relation_id = _ID(node_has_tags) AND links.source_id = ? AND (#{@node.secure_scope('nodes')}) ORDER BY nodes.position ASC, nodes.name ASC\", @node.id]"
   res: "art, news"
 
-  
+
 notes_in_project:
   res: "opening"
-  
+
 vclass_in_project:
   src: "posts in project"
   res: "opening"
@@ -108,19 +108,19 @@ pages_from_site_or_images:
 children_with_order_clause:
   src: "children order by name ASC"
   sql: "[\"SELECT nodes.* FROM nodes WHERE nodes.parent_id = ? AND (#{@node.secure_scope('nodes')}) ORDER BY nodes.name ASC\", @node.id]"
-  
+
 notes_or_news:
   src:
     - notes
     - news
   sql: "[\"SELECT nodes.*,links.id AS link_id,links.status AS l_status,links.comment AS l_comment,links.date AS l_date FROM nodes,links WHERE ((nodes.kpath LIKE 'NN%' AND nodes.parent_id = ? AND links.id = 0) OR (nodes.id = links.source_id AND links.relation_id = _ID(note_has_calendars) AND links.target_id = ?)) AND (#{@node.secure_scope('nodes')}) GROUP BY nodes.id ORDER BY nodes.position ASC, nodes.name ASC\", @node.id, @node.id]"
-  
+
 news_or_notes:
   src:
     - news
     - notes
   sql: "[\"SELECT nodes.*,links.id AS link_id,links.status AS l_status,links.comment AS l_comment,links.date AS l_date FROM nodes,links WHERE ((nodes.id = links.source_id AND links.relation_id = _ID(note_has_calendars) AND links.target_id = ?) OR (nodes.kpath LIKE 'NN%' AND nodes.parent_id = ? AND links.id = 0)) AND (#{@node.secure_scope('nodes')}) GROUP BY nodes.id ORDER BY nodes.position ASC, nodes.name ASC\", @node.id, @node.id]"
-  
+
 order_dynattr:
   src: "nodes order by d_assigned ASC, name ASC"
   sql: "[\"SELECT nodes.* FROM nodes,versions LEFT JOIN dyn_attributes ON versions.id = dyn_attributes.owner_id AND dyn_attributes.key = 'assigned' WHERE nodes.id = versions.node_id AND nodes.parent_id = ? AND (#{@node.secure_scope('nodes')}) GROUP BY nodes.id ORDER BY dyn_attributes.value ASC, nodes.name ASC\", @node.id]"

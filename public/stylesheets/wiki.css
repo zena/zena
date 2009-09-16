@@ -1,6 +1,6 @@
 
 /* NAVBAR */
-#navbar {  width:100%; height:25px; background:#23452F; 
+#navbar {  width:100%; height:25px; background:#23452F;
   color:white; font-size:0.85em; padding:0px 0;}
 #navbar a { color:white; }
 #navbar ul, #navbar div { height:100%; padding:0.3em 0.8em; float:left; }
@@ -41,7 +41,7 @@ td##subtitle { vertical-align:top; padding:6px; }
 .s30  { border-bottom: 10px solid #B7CC87; padding: 4px; }
 .s10, .s20 {  border-color:#685958; border-bottom: 1px solid grey; padding: 4px; }
 .s30 form, .s35 form, .s40 form, .s10 form, .s20 form { margin-left:20px; display: inline; }
-.s30 span, .s35 span, .s40 span, .s10 span, .s20 span { float: right; font-size:0.8em; padding-top:0.5em; } 
+.s30 span, .s35 span, .s40 span, .s10 span, .s20 span { float: right; font-size:0.8em; padding-top:0.5em; }
 
 /* NOTES */
 #left { position:absolute; top:125px; left:20px; width:220px; }

@@ -1,12 +1,12 @@
 class Contact < Reference
   attr_public        :fullname, :initials
-  
+
   class << self
-    
+
     def version_class
       ContactVersion
     end
-    
+
     # Class list to which this class can change to
     def change_to_classes_for_form
       classes_for_form(:class => 'Contact')
@@ -21,11 +21,11 @@ class Contact < Reference
       attributes
     end
   end
-  
+
   def fullname
     version.content.fullname
   end
-  
+
   def initials
     version.content.initials
   end

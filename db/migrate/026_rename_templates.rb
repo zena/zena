@@ -17,7 +17,7 @@ class RenameTemplates < ActiveRecord::Migration
         # update name
         content.format ||= 'html'
         format = content.format == 'html' ? '' : "-#{content.format}"
-        mode   = (content.mode || format != '') ? "-#{content.mode}" : '' 
+        mode   = (content.mode || format != '') ? "-#{content.mode}" : ''
         new_name = "#{content.klass}#{mode}#{format}"
         execute "UPDATE #{Node.table_name} SET name = #{quote(new_name)} WHERE id = #{t[:id]}"
       end

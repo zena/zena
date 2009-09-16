@@ -10,7 +10,7 @@ namespace :zena do
     else
       unless pass = ENV['PASSWORD']
         puts "Please set PASSWORD to the admin password for the new site. Aborting."
-      else  
+      else
         ENV['LANG'] ||= 'en'
         host_path = "#{SITES_ROOT}/#{host}"
         if Site.find_by_host(host)
@@ -28,21 +28,21 @@ namespace :zena do
           else
             # 1. create directories and symlinks
             `rake zena:mksymlinks HOST=#{host.inspect}`
-            
+
             puts "Site [#{host}] created."
           end
         end
       end
     end
   end
-  
+
   desc "Create symlinks for a site"
   task :mksymlinks => :zena_config do
     unless host = ENV['HOST']
       puts "Please set HOST to the hostname for which you want to update the symlinks. Aborting."
     else
       host_path = "#{SITES_ROOT}/#{host}"
-      
+
       ['public', 'data', 'log'].each do |dir|
         next if File.exist?("#{host_path}/#{dir}")
         FileUtils.mkpath("#{host_path}/#{dir}")
@@ -59,7 +59,7 @@ namespace :zena do
       end
     end
   end
-  
+
   desc "Rename a host"
   task :rename_host => :environment do
     # 0. set host name
@@ -89,12 +89,12 @@ namespace :zena do
       end
     end
   end
-  
+
   desc "Load zena settings (sub-task)"
   task :zena_config do
     require File.join(File.dirname(__FILE__),'..','..','config','zena')
   end
-  
+
   desc "Remove all zafu compiled templates"
   task :clear_zafu => :zena_config do
     if File.exist?(SITES_ROOT)
@@ -104,7 +104,7 @@ namespace :zena do
       end
     end
   end
-  
+
   desc "Remove all cached data" # FIXME: cachedPages db should be cleared to
   task :clear_cache => :environment do
     if File.exist?(SITES_ROOT)
@@ -120,7 +120,7 @@ namespace :zena do
       end
     end
   end
-  
+
   desc "Create a backup of all data for a site"
   task :backup_site do
     unless host = ENV['HOST']
@@ -137,14 +137,14 @@ namespace :zena do
       end
     end
   end
-  
+
   task :full_backup => :environment do
     data_folders = Site.find(:all).map { |s| File.join(SITES_ROOT, s.data_path) }.reject { |p| !File.exist?(p) }
     cmd = "tar czf #{RAILS_ROOT}/sites_data.tgz #{data_folders.join(' ')}"
     puts cmd
     puts `#{cmd}`
   end
-  
+
   desc "Migrate the database through scripts in db/migrate. Target specific brick and version with BRICK=x and VERSION=x"
   task :migrate => :environment do
     if ENV['VERSION'] || ENV['BRICK']
@@ -173,7 +173,7 @@ namespace :zena do
         paths[brick_name] = migration_path
         bricks << brick_name
       end
-      
+
       bricks.each do |brick_name|
         Zena::Migrator.migrate(paths[brick_name], brick_name, nil)
       end
@@ -181,7 +181,7 @@ namespace :zena do
     end
     Rake::Task["db:schema:dump"].invoke if ActiveRecord::Base.schema_format == :ruby
   end
-  
+
   desc 'Rebuild foxy fixtures for all sites'
   task :build_fixtures => :environment do
     tables = Node.connection.tables
@@ -212,9 +212,9 @@ namespace :zena do
       end
     end
   end
-  
+
   Rake::RDocTask.new do |rdoc|
-       files = ['README', 'doc/README_FOR_APP', 'CREDITS', 'MIT-LICENSE', 'app/**/*.rb', 
+       files = ['README', 'doc/README_FOR_APP', 'CREDITS', 'MIT-LICENSE', 'app/**/*.rb',
                 'lib/**/*.rb']
        rdoc.rdoc_files.add(files)
        rdoc.main = "doc/README_FOR_APP" # page to start on
@@ -224,7 +224,7 @@ namespace :zena do
        rdoc.options << '--line-numbers' << '--inline-source'
   end
   Rake::Task['zena:rdoc'].comment = "Create the rdoc documentation"
-  
+
   namespace :test do
     desc 'Cleanup before testing'
     task :prepare => "db:test:prepare" do
@@ -233,7 +233,7 @@ namespace :zena do
       end
     end
   end
-  
+
   Rake::TestTask.new(:test => ["zena:test:prepare", "zena:build_fixtures"]) do |t|
     t.libs << "test"
     # do not change the order in which these elements are loaded (adding 'lib/**/test/*_test.rb' fails)
@@ -242,7 +242,7 @@ namespace :zena do
     t.verbose = true
   end
   Rake::Task['zena:test'].comment = "Run the tests in test/helpers and test/unit"
-  
+
   namespace :fix do
     desc "Update all stored zafu to reflect change from 'news from project' syntax to 'news in project'. BACKUP BEFORE. DO NOT RUN."
     task :zafu_pseudo_sql => :environment do
@@ -294,5 +294,5 @@ namespace :zena do
         end
       end
     end
-  end 
+  end
 end

@@ -2,7 +2,7 @@ module Zena
   module Use
     module I18n
       module Common
-        
+
         def format_date(thedate, theformat = nil, tz_name=nil, lang=visitor.lang)
           format = theformat || '%Y-%m-%d %H:%M:%S'
           return "" unless thedate
@@ -40,7 +40,7 @@ module Zena
           if visitor.lang != lang
             ::I18n.locale = lang
           end
-          
+
           if format =~ /^age\/?(.*)$/
             format = $1.blank? ? _('long_date') : $1
             # how long ago/in how long is the date
@@ -96,11 +96,11 @@ module Zena
 
           adate.strftime(format)
         end
-          
+
       end # Common
-      
+
       module FormatDate
-        
+
         # display the time with the format provided by the translation of 'long_time'
         def long_time(atime)
           format_date(atime, _("long_time"))
@@ -134,11 +134,11 @@ module Zena
 
       module ControllerMethods
         include Common
-        
+
         def self.included(base)
           FastGettext.text_domain = 'zena'
         end
-        
+
         # Choose best language to display content.
         # 1. 'test.host/oo?lang=en' use 'lang', redirect without lang
         # 3. 'test.host/oo' use visitor[:lang]
@@ -172,7 +172,7 @@ module Zena
           set_visitor_lang(chosen_lang || current_site[:default_lang])
           true
         end
-        
+
         def set_visitor_lang(l)
           return unless current_site.lang_list.include?(l)
           session[:lang] = l
@@ -189,7 +189,7 @@ module Zena
             ::I18n.locale = 'en'
           end
         end
-        
+
         # Redirect on lang change "...?lang=de"
         def check_lang
           if params[:lang]
@@ -211,22 +211,22 @@ module Zena
             headers['Content-Type'] += '; charset=utf-8'
           end
         end
-              
+
       end
-      
+
       module ViewMethods
         def self.included(base)
           base.send(:alias_method_chain, :will_paginate, :i18n) if base.respond_to?(:will_paginate)
         end
-        
+
         include Common
         include FormatDate
-        
+
         # Enable translations for will_paginate
-        def will_paginate_with_i18n(collection, options = {}) 
-          will_paginate_without_i18n(collection, options.merge(:prev_label => _('img_prev_page'), :next_label => _('img_next_page'))) 
+        def will_paginate_with_i18n(collection, options = {})
+          will_paginate_without_i18n(collection, options.merge(:prev_label => _('img_prev_page'), :next_label => _('img_next_page')))
         end
-        
+
         # translation of static text using gettext
         # FIXME: I do not know why this is needed in order to have <%= _('blah') %> find the translations on some servers
         def _(str)
@@ -241,7 +241,7 @@ module Zena
         end
 
       end # ViewMethods
-      
+
     end # I18n
   end # Use
 end # Zena

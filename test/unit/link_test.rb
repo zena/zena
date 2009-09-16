@@ -7,7 +7,7 @@ class LinkTest < Zena::Unit::TestCase
     link = Link.find_through(node, links_id(:status_hot_for_cleanWater))
     assert_equal 'hot', link.role
   end
-  
+
   def test_update_attributes_with_transformations
     login(:lion)
     node = secure!(Node) { nodes(:cleanWater) }
@@ -21,7 +21,7 @@ class LinkTest < Zena::Unit::TestCase
     node = secure!(Node) { nodes(:cleanWater) }
     assert_equal nodes_id(:lake), node.find(:first, 'hot')[:id]
   end
-  
+
   def test_node_zip
     login(:lion)
     node = secure!(Node) { nodes(:zena) }

@@ -7,11 +7,11 @@ Uses ImageContent.
 =end
 class ImageVersion < DocumentVersion
   before_create :set_image_text
-  
+
   def self.content_class
     ImageContent
   end
-  
+
   private
   def set_image_text
     if self[:text].blank?

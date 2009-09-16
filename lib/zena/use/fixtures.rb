@@ -4,14 +4,14 @@ module Zena
       def self.included(base)
         self.load_fixtures unless defined?(@@loaded_fixtures)
       end
-      
+
       # Could DRY with file_path defined in Base
       def self.file_path(filename, content_id)
         digest = Digest::SHA1.hexdigest(content_id.to_s)
         fname = filename.split('.').first
         "#{SITES_ROOT}/test.host/data/full/#{digest[0..0]}/#{digest[1..1]}/#{digest[2..2]}/#{fname}"
       end
-      
+
       def self.load_fixtures
         # make sure versions is of type InnoDB
         begin

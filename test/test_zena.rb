@@ -5,7 +5,7 @@ FILE_FIXTURES_PATH = File.join(File.dirname(__FILE__), 'fixtures', 'files')
 # We use transactional fixtures with a single load for ALL tests (this is not the default rails implementation). Tests are now 5x-10x faster.
 module Zena
   module Test
-    
+
     # functional tests
     module TestController
       include Zena::Use::Fixtures
@@ -29,7 +29,7 @@ module Zena
       def session
         @controller.send(:session)
       end
-      
+
       def flash
         session['flash']
       end
@@ -44,7 +44,7 @@ module Zena
         @controller.send(meth, *args, &block)
       end
     end
-    
+
     module Integration
       include Zena::Acts::Secure
     end
@@ -72,7 +72,7 @@ module Zena
       include Zena::Use::Fixtures
       include Zena::Use::TestHelper
       #     attr_accessor :flash, :controller
-      #     
+      #
       #     # TODO: make this clean. Maybe use 'tests ....' or include these helpers cleanly in the actual (zafu parsing) module ?
       #     include ActionView::Helpers::ActiveRecordHelper # ActionView::Helpers::ActiveModelHelper
       #     include ActionView::Helpers::TagHelper
@@ -82,7 +82,7 @@ module Zena
       #     include ActionView::Helpers::UrlHelper
       #     include ActionView::Helpers::AssetTagHelper
       #     include ActionView::Helpers::PrototypeHelper
-      #     
+      #
       #     def setup
       #       I18n.locale = 'en'
       #       @controllerClass ||= ApplicationController
@@ -97,7 +97,7 @@ module Zena
       #       @controller.setup(@request, @response, @url)
       #       @flash = {}
       #       ActionView::Helpers::AssetTagHelper::reset_javascript_include_default
-      #       
+      #
       #     end
 
       def logout
@@ -113,7 +113,7 @@ module Zena
           puts "[#{er}] #{msg}"
         end
       end
-      
+
       def params
         @params ||= {}
       end

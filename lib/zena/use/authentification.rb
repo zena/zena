@@ -2,12 +2,12 @@ module Zena
   module Use
     module Authentification
       module Common
-        
+
       end # Common
 
       module ControllerMethods
-        include Common  
-        
+        include Common
+
         # Require a login for authenticated navigation (with '/oo' prefix) or for any content if the site's 'authorize'
         # attribute is true.
         def authorize
@@ -23,7 +23,7 @@ module Zena
         def do_login
           if current_site[:http_auth]
             session[:after_login_url] = request.parameters
-            basic_auth_required do |username, password| 
+            basic_auth_required do |username, password|
               if user = User.make_visitor(:login => username, :password => password, :site => current_site)
                 successful_login(user)
                 return true
@@ -51,9 +51,9 @@ module Zena
             return false
           end
         end
-        
+
         # code adapted from Stuart Eccles from act_as_railsdav plugin
-        def basic_auth_required(realm=current_site.name) 
+        def basic_auth_required(realm=current_site.name)
           username, passwd = get_auth_data
           # check if authorized
           # try to get user
@@ -61,7 +61,7 @@ module Zena
             true
           else
             # the user does not exist or the password was wrong
-            headers["Status"] = "Unauthorized" 
+            headers["Status"] = "Unauthorized"
             headers["WWW-Authenticate"] = "Basic realm=\"#{realm}\""
 
             # require login
@@ -82,39 +82,39 @@ module Zena
                 </html>", :status => 401
             end
             false
-          end 
+          end
         end
-        
-        # code from Stuart Eccles from act_as_railsdav plugin
-        def get_auth_data 
-          user, pass = '', '' 
-          # extract authorisation credentials 
-          if request.env.has_key? 'X-HTTP_AUTHORIZATION' 
-            # try to get it where mod_rewrite might have put it 
-            authdata = request.env['X-HTTP_AUTHORIZATION'].to_s.split 
-          elsif request.env.has_key? 'HTTP_AUTHORIZATION' 
-            # this is the regular location 
-            authdata = request.env['HTTP_AUTHORIZATION'].to_s.split  
-          end 
 
-          # at the moment we only support basic authentication 
-          if authdata and authdata[0] == 'Basic' 
-            user, pass = Base64.decode64(authdata[1]).split(':')[0..1] 
-          end 
-          return [user, pass] 
+        # code from Stuart Eccles from act_as_railsdav plugin
+        def get_auth_data
+          user, pass = '', ''
+          # extract authorisation credentials
+          if request.env.has_key? 'X-HTTP_AUTHORIZATION'
+            # try to get it where mod_rewrite might have put it
+            authdata = request.env['X-HTTP_AUTHORIZATION'].to_s.split
+          elsif request.env.has_key? 'HTTP_AUTHORIZATION'
+            # this is the regular location
+            authdata = request.env['HTTP_AUTHORIZATION'].to_s.split
+          end
+
+          # at the moment we only support basic authentication
+          if authdata and authdata[0] == 'Basic'
+            user, pass = Base64.decode64(authdata[1]).split(':')[0..1]
+          end
+          return [user, pass]
         end
-        
+
         # Restrict access some actions to administrators (used as a before_filter)
         def check_is_admin
           render_404(ActiveRecord::RecordNotFound) unless visitor.is_admin?
           @admin = true
-        end      
+        end
       end
-      
+
       module ViewMethods
         include Common
       end
-      
+
     end # Authentification
   end # Use
 end # Zena

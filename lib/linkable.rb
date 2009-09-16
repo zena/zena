@@ -17,7 +17,7 @@ This creates the following methods for your Person objects:
   @john.wife_id = @mary.id     ==> set wife by id
   @mary.husband = @john        ==> set husband
   @mary.husband_id = @john.id  ==> set husband by id
-  
+
 Because of the ":as" clause, 'husbands' and 'wifes' are related together, so
   @john.wife = @mary   ==> @mary.husband gives @john
 
@@ -52,7 +52,7 @@ And the tags get :
   @tag.post_ids = ... ==> set with list of ids
   @tag.add_post(id)
   @tag.remove_post(id)
-  
+
 As an extra, you get 'tags_for_form' and 'posts_for_form' : a list of all 'tags' or 'posts' with the attribute 'link_id' not null if
 the two objects are linked. Example :
   @post.tags_for_form = ['art object with link_id=nil', 'news object with link_id=3'] ==> @post has a link to news. *Beware* that this finder will *only* find objects which are of the same kind or subclasses of the class of the linked object (Tag here)
@@ -85,7 +85,7 @@ on the post edit page :
         # add all methods from the module "AddActsAsMethod" to the 'base' module
         base.extend AddActsAsMethod
       end
-      
+
       # List the links, grouped by role
       def role_links
         res = []
@@ -96,7 +96,7 @@ on the post edit page :
             limit = nil
           end
           links = secure!(Node) { Node.find(:all,
-                          :select     => "#{Node.table_name}.*,links.id AS link_id, links.status AS l_status, links.comment AS l_comment, links.role", 
+                          :select     => "#{Node.table_name}.*,links.id AS link_id, links.status AS l_status, links.comment AS l_comment, links.role",
                           :joins      => "INNER JOIN links ON #{Node.table_name}.id=links.#{role[:other_side]}",
                           :conditions => ["links.#{role[:link_side]} = ? AND links.role = ?", self[:id], role[:role] ],
                           :order => "link_id DESC",
@@ -105,7 +105,7 @@ on the post edit page :
         end
         res
       end
-      
+
       # add a link without passing by normal set/remove (this is used in forms when 'role' is used as a parameter)
       def add_link(method, other_id)
         role = nil
@@ -113,7 +113,7 @@ on the post edit page :
         role = self.class.role[method]
         unless role
           errors.add(method, 'not a correct method')
-          return false 
+          return false
         end
         sym = nil
         if role[:unique]
@@ -124,11 +124,11 @@ on the post edit page :
         self.send(sym, other_id)
         return true
       end
-      
+
       def link=(hash)
         add_link(hash['role'], hash['other_id'])
       end
-      
+
       # remove a link
       def remove_link(link_id)
         link = Link.find(link_id)
@@ -161,13 +161,13 @@ on the post edit page :
         end
         return true
       end
-      
+
       # calls the method defined with link. This is a wrapper used by templating systems to avoid calling arbitrary methods
       def relation(method)
         return nil unless self.class.role[method]
         self.send(method.to_sym)
       end
-      
+
       # FIXME: cleanup needed!
       def fetch_link(link_name, options)
         return nil unless link_def = self.class.defined_role[link_name]
@@ -178,15 +178,15 @@ on the post edit page :
         other_side = link_def[:other_side]
         role       = link_def[:role]
         count      = link_def[:count]
-        
+
         conditions = options.delete(:conditions)
         direction  = options.delete(:direction)
-        
+
         # :from
         side_cond = ""
         params    = []
         case options[:from]
-        when 'site'  
+        when 'site'
           count = :all
         when 'project'
           if conditions.kind_of?(Array)
@@ -208,13 +208,13 @@ on the post edit page :
           end
         end
         options.delete(:from)
-        
+
         if direction == 'both'
           join_direction = "(#{klass.table_name}.id=links.#{other_side} OR #{klass.table_name}.id=links.#{link_side})"
         else
           join_direction = "#{klass.table_name}.id=links.#{other_side}"
         end
-        
+
         if options[:or]
           join = 'LEFT'
           if options[:or].kind_of?(Array)
@@ -222,14 +222,14 @@ on the post edit page :
             params.unshift(options[:or])
           else
             or_clause = options[:or]
-          end  
+          end
           inner_conditions = ["(#{or_clause}) OR (links.role='#{role}'#{side_cond} AND links.id IS NOT NULL)", *params ]
           options.delete(:or)
         else
           join = 'INNER'
           inner_conditions = ["links.role='#{role}'#{side_cond}", *params ]
         end
-        options.merge!( :select     => "#{klass.table_name}.*,links.id AS link_id, links.status AS l_status, links.comment AS l_comment, links.role", 
+        options.merge!( :select     => "#{klass.table_name}.*,links.id AS link_id, links.status AS l_status, links.comment AS l_comment, links.role",
                         :joins      => "#{join} JOIN links ON #{join_direction}",
                         :conditions => inner_conditions,
                         :group      => 'id'
@@ -238,26 +238,26 @@ on the post edit page :
           klass.with_scope(:find=>{:conditions=>conditions}) do
             secure(klass) { klass.find(count, options ) }
           end
-        else 
+        else
           secure(klass) { klass.find(count, options ) }
         end
       end
-      
+
       module AddActsAsMethod
         @@role          = {}
         @@roles         = {}
         @@roles_for_class = {}
         @@defined_role = {}
-        
+
         # list of links defined for this class (with superclass)
         def roles
           @@roles[self] ||= role.to_a.sort.map{|k,v| v}
         end
-        
+
         def defined_role
           @@defined_role
         end
-        
+
         # hash with the links defined for this class (with superclass)
         def role
           @@role[self] ||= if superclass == ActiveRecord::Base
@@ -266,11 +266,11 @@ on the post edit page :
             superclass.role.merge(@@roles_for_class[self] || {})
           end
         end
-        
+
         def roles_for_form
           roles.map {|r| [r[:method].singularize, r[:method]] }
         end
-        
+
         # Look at Zena::Acts::Linkable for documentation.
         # Fixme: this is not used anymore...
         def link(method, options={})
@@ -297,7 +297,7 @@ on the post edit page :
             role = (options[:as] || method.downcase.singularize).to_s
           end
           link_def = { :method=>method, :role=>role, :link_side=>link_side, :other_side=>other_side, :unique=>(options[:unique] == true), :collector=>(options[:collector] == true), :class=>class_name, :count=>count }
-          
+
           @@roles_for_class[self][method] = link_def
           @@defined_role[method] = link_def
           finder = <<-END
@@ -314,7 +314,7 @@ on the post edit page :
               end
             END
           end
-          
+
           if options[:as_unique]
             destroy_if_as_unique     = <<-END
             if link2 = Link.find_by_role_and_#{other_side}('#{role}', obj_id)
@@ -326,7 +326,7 @@ on the post edit page :
             destroy_if_as_unique = ""
             find_target = 'secure_write'
           end
-          
+
           if options[:unique]
             methods = <<-END
               def #{method}_id=(obj_id); @#{method}_id = obj_id; end
@@ -335,17 +335,17 @@ on the post edit page :
                 link = Link.find_by_role_and_#{link_side}('#{role}', self[:id])
                 link ? link[:#{other_side}] : nil
               end
-              
+
               def #{method}_zip
                 fetch_link(#{method.inspect})[:zip]
               end
-              
+
               # link can be changed if user can write in old and new
               # 1. can remove old link
               # 2. can write in new target
               def validate_#{method}
                 return unless defined? @#{method}_id
-                
+
                 # 1. can remove old link ?
                 if link = Link.find_by_role_and_#{link_side}('#{role}', self[:id])
                   obj_id = link.#{other_side}
@@ -353,7 +353,7 @@ on the post edit page :
                     errors.add('#{role}', 'cannot remove old link')
                   end
                 end
-                
+
                 # 2. can write in new target ?
                 obj_id = @#{method}_id
                 if obj_id && obj_id != ''
@@ -363,7 +363,7 @@ on the post edit page :
                   end
                 end
               end
-              
+
               def save_#{method}
                 return unless defined? @#{method}_id
                 obj_id = @#{method}_id
@@ -376,7 +376,7 @@ on the post edit page :
                   else
                     #{destroy_if_as_unique}
                     link = Link.new(:#{link_side}=>self[:id], :#{other_side}=>obj_id, :role=>"#{role}")
-                  end  
+                  end
                   errors.add('#{role}', 'could not be set') unless link.save
                 else
                   # remove
@@ -404,14 +404,14 @@ on the post edit page :
               end
               def #{meth}_ids; res = #{method}; res ? res.map{|r| r[:id]} : []; end
               def #{meth}_zips; res = #{method}; res ? res.map{|r| r[:zip]}.join(', ') : ''; end
-              
+
               # link can be changed if user can write in old and new
               # 1. can remove old links
               # 2. can write in new targets
               def validate_#{method}
                 return unless defined? @#{meth}_ids
                 unless @#{meth}_ids.kind_of?(Array)
-                  errors.add('#{role}', 'bad format') 
+                  errors.add('#{role}', 'bad format')
                   return false
                 end
                 # what changed ?
@@ -427,26 +427,26 @@ on the post edit page :
                 end
                 @#{meth}_add_ids = obj_ids
                 @#{meth}_del_ids = del_ids
-                
+
                 # 1. can remove old link ?
                 @#{meth}_del_ids.each do |obj_id|
                   unless #{find_target}(#{class_name}) { #{class_name}.find(obj_id) }
                     errors.add('#{role}', 'cannot remove link')
                   end
                 end
-                
+
                 # 2. can write in new target ?
                 @#{meth}_add_ids.each do |obj_id|
                   unless #{find_target}(#{class_name}) { #{class_name}.find(obj_id) }
                     errors.add('#{meth}', 'invalid target')
                   end
                 end
-                
+
               end
-              
+
               def save_#{method}
                 return true unless defined? @#{meth}_ids
-                
+
                 if @#{meth}_del_ids && (obj_ids = @#{meth}_del_ids) != []
                   # remove all old links for this role
                   links = Link.find(:all, :conditions => ["links.role='#{role}' AND links.#{link_side} = ? AND links.#{other_side} IN (\#{obj_ids.join(',')})", self[:id] ])
@@ -454,7 +454,7 @@ on the post edit page :
                     errors.add('#{role}', 'could not be removed') unless l.destroy
                   end
                 end
-                
+
                 if @#{meth}_add_ids && (obj_ids = @#{meth}_add_ids) != []
                   # add new links for this role
                   obj_ids.each do |obj_id|
@@ -465,29 +465,29 @@ on the post edit page :
                 remove_instance_variable :@#{meth}_ids
                 return errors.empty?
               end
-              
+
               def remove_#{meth}(obj_id)
                 @#{meth}_ids ||= #{meth}_ids || []
                 # ignore bad obj_ids, just pass
                 @#{meth}_ids.delete(obj_id.to_i)
                 return true
               end
-              
+
               def add_#{meth}(obj_id)
                 @#{meth}_ids ||= #{meth}_ids || []
                 @#{meth}_ids << obj_id.to_i unless @#{meth}_ids.include?(obj_id.to_i)
                 return true
               end
-              
+
               def #{method}_for_form(options={})
-                options.merge!( :select     => "\#{#{class_name}.table_name}.*,links.id AS link_id, links.status AS l_status, links.comment AS l_comment, links.role", 
+                options.merge!( :select     => "\#{#{class_name}.table_name}.*,links.id AS link_id, links.status AS l_status, links.comment AS l_comment, links.role",
                                 :joins      => "LEFT OUTER JOIN links ON \#{#{class_name}.table_name}.id=links.#{other_side} AND links.role='#{role}' AND links.#{link_side} = \#{self[:id].to_i}"
                                 )
                 #{find_target}(#{class_name}) { #{class_name}.find(:all, options) }
               rescue ActiveRecord::RecordNotFound
                 []
               end
-                
+
             END
           end
           class_eval methods

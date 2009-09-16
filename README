@@ -32,19 +32,19 @@ You should use capistrano to ease deployment. See 'config/delploy.rb'.
 Manual deployment is done with the following commands:
 1. Create the database with (using a mysql client)
    create database zena DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
-   
+
 2. Create log directory
    mkdir log
-   
+
 3. Rename 'config/database_example.yml' to 'config/database.yml' and update it's content
    (change user, password if needed)
-   
+
 4. Migrate the database
    rake zena:migrate RAILS_ENV=production
 
 4. Create a site
    rake zena:mksite HOST=example.com PASSWORD=secret LANG=en RAILS_ENV=production
-   
+
 5. Login user is 'admin', password is the one set on the line above.
 
 == Create a new site
@@ -97,7 +97,7 @@ ImageMagick (on Linux)
     # cd ImageMagick-*
     # ./configure
     # make && make install
-  
+
 ImageMagick (on mac os X using macports)
     # sudo port install tiff -macosx imagemagick +q8 +gs +wmf
 

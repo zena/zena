@@ -3,7 +3,7 @@ login: &dev_login
   adapter: mysql
   socket: /tmp/mysql.sock
   username: root
-  password: 
+  password:
 
 development:
   database: zena_dev
@@ -14,8 +14,8 @@ test:
   database: zena_test
   encoding: utf8
   <<: *dev_login
-  
-  
+
+
 production:
   adapter: mysql
   socket: /var/run/mysqld/mysqld.sock

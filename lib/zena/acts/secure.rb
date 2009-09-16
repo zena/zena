@@ -1,5 +1,5 @@
 module Zena
-  # version status  
+  # version status
   Status = {
     :pub  => 50,
     :prop => 40,
@@ -10,8 +10,8 @@ module Zena
     :rem  => 10,
     :del  => 0,
   }.freeze
-  
-  module Acts 
+
+  module Acts
 =begin rdoc
 == Secure model
 Read, write and publication access to an node is defined with four elements: one user and three groups.
@@ -28,7 +28,7 @@ link://rwp_groups.png
     sub-pages, documents, events, etc. Basically can write = can add content. If a user has write access to
     a #Tag, this means he can add nodes to this #Tag (#Tag available as a category for other nodes).
 [publish]
-    This means that the content viewed by all can be altered by 
+    This means that the content viewed by all can be altered by
     1. publishing new versions
     2. changing the node itself (name, groups, location, categories, etc)
     3. removing the node and/or sub-nodes
@@ -52,12 +52,12 @@ link://rwp_groups.png
 * owner
 * members of +read_group+ if the node is published and the current date is greater or equal to the publication date
 * members of +publish_group+ if +max_status+ >= prop
-  
+
 [write]
 * super user
 * owner
 * members of +write_group+ if node is published and the current date is greater or equal to the publication date
-  
+
 [publish]
 * super user
 * members of +publish_group+ if +max_status+ >= prop
@@ -121,30 +121,30 @@ Just doing the above will filter all result according to the logged in user.
           before_validation  :secure_reference_before_validation
           # we move all before_validation on update and create here so that it is triggered before multiversion's before_validation
           before_validation  :secure_before_validation
-          
+
           validate {|r| r.errors.add(:base, 'record not secured') unless r.instance_variable_get(:@visitor) }
           validate_on_update {|r| r.errors.add('site_id', 'cannot change') if r.site_id_changed? }
-          
+
           validate_on_create :secure_on_create
           validate_on_update :secure_on_update
-          
+
           before_save :secure_before_save
           after_save  :secure_after_save
-          
+
           before_destroy :secure_on_destroy
           class_eval <<-END
             include Zena::Acts::SecureNode::InstanceMethods
           END
         end
       end
-      
-      
+
+
       module InstanceMethods
-        
+
         def self.included(base)
           base.extend ClassMethods
         end
-          
+
         # Store visitor to produce scope when needed and to retrieve correct editions.
         def visitor=(visitor)
           @visitor = visitor
@@ -159,7 +159,7 @@ Just doing the above will filter all result according to the logged in user.
           end
           self
         end
-        
+
         # list of callbacks to trigger when set_visitor is called
         # TODO: remove all eval_with_visitor stuff (should not be needed since visitor is a global)
         def eval_with_visitor(str)
@@ -167,7 +167,7 @@ Just doing the above will filter all result according to the logged in user.
           @eval_on_visitor << str
           self
         end
-    
+
         # Return true if the node is considered as private (+read_group+, +write_group+ and +publish_group+ are +0+)
         def private?
           (rgroup_id==0 && wgroup_id==0 && pgroup_id==0)
@@ -177,12 +177,12 @@ Just doing the above will filter all result according to the logged in user.
         def private_was_true?
           (rgroup_id_was==0 && wgroup_id_was==0 && pgroup_id_was==0)
         end
-        
+
         # Return true if the node can be viewed by all (public)
         def public?
           can_read?(visitor.site.anon,visitor.site.anon.group_ids) # visible by anonymous
         end
-  
+
         # people who can read:
         # * super user
         # * owner
@@ -194,7 +194,7 @@ Just doing the above will filter all result according to the logged in user.
           ( ugps.include?(rgroup_id) && publish_from && Time.now >= publish_from ) ||
           ( ugps.include?(pgroup_id) && max_status != Zena::Status[:red] )
         end
-  
+
         # people who can write:
         # * super user
         # * owner if visitor's status is at least 'user'
@@ -204,7 +204,7 @@ Just doing the above will filter all result according to the logged in user.
           ( vis.user? && (( vis[:id] == user_id ) ||
           ( ugps.include?(wgroup_id) && max_status != Zena::Status[:red] )))
         end
-        
+
         # people who can make visible changes
         # * super user
         # * members of +publish_group+ if member status is at least 'user'
@@ -214,14 +214,14 @@ Just doing the above will filter all result according to the logged in user.
           ( vis.user? && (( ugps.include?(pgroup_id) ) ||
           ( private? && ugps.include?(ref.pgroup_id))))
         end
-        
+
         # 'can_visible?' before attribute change
         def can_visible_was_true?(vis=visitor, ugps=visitor.group_ids)
           ( vis.is_su? ) || # super user
           ( vis.user? && (( ugps.include?(pgroup_id_was) ) ||
           ( private_was_true? && ugps.include?(ref_was.pgroup_id))))
         end
-  
+
         # people who can manage:
         # * owner if visitor's status is at least 'user' and node's +max_status+ <= red
         # * owner if visitor's status is at least 'user' and node is private
@@ -230,24 +230,24 @@ Just doing the above will filter all result according to the logged in user.
           ( vis.user? && (( publish_from == nil && vis[:id] == user_id && max_status.to_i <= Zena::Status[:red] ) ||
           ( private? && vis[:id] == user_id )))
         end
-        
+
         # 'can_manage?' before attribute changes
         def can_manage_was_true?(vis=visitor)
           ( vis.is_su? ) || # super user
           ( vis.user? && (( publish_from_was == nil && user_id_was == vis.id && max_status_was.to_i <= Zena::Status[:red] ) ||
           ( private_was_true? && user_id_was == vis.id )))
         end
-        
+
         # can update node (change position, name, rwp groups, etc).
         def can_drive?
           can_manage? || can_visible?
         end
-        
+
         # 'can_drive?' before attribute changes
         def can_drive_was_true?
           can_manage_was_true? || can_visible_was_true?
         end
-        
+
         def secure_before_validation
           if new_record?
             secure_before_validation_on_create
@@ -255,19 +255,19 @@ Just doing the above will filter all result according to the logged in user.
             secure_before_validation_on_update
           end
         end
-        
+
         def secure_before_validation_on_create
           # set defaults before validation
           self[:site_id]  = visitor.site.id
           self[:user_id]  = visitor.id
           self[:ref_lang] = visitor.lang
-          
+
           [:rgroup_id, :wgroup_id, :pgroup_id, :skin].each do |sym|
             # not defined => inherit
             self[sym] ||= ref[sym]
             self[sym]   = 0 if self[sym].blank?
           end
-          
+
           if inherit.nil?
             if rgroup_id == ref.rgroup_id && wgroup_id == ref.wgroup_id && pgroup_id == ref.pgroup_id
               self[:inherit] = 1
@@ -281,21 +281,21 @@ Just doing the above will filter all result according to the logged in user.
           end
           true
         end
-        
+
         def secure_before_validation_on_update
           self[:kpath]    = self.class.kpath
-          
+
           [:rgroup_id, :wgroup_id, :pgroup_id].each do |sym|
             # set to 0 if nil or ''
             self[sym] = 0 if self[sym].blank?
           end
-          
+
           if self[:inherit] == 0 && pgroup_id == 0
             # if pgroup_id is set to 0 ==> make node private
             # why do we need this ?
             self[:inherit] = -1
           end
-          
+
           if self[:inherit] == -1
             self[:rgroup_id] = 0  # FIXME: why not just use nil ? (NULL in db)
             self[:wgroup_id] = 0  # FIXME: why not just use nil ? (NULL in db)
@@ -303,7 +303,7 @@ Just doing the above will filter all result according to the logged in user.
           end
           true
         end
-        
+
         # Make sure the reference object (the one from which this object inherits) exists before validating.
         def secure_reference_before_validation
           if ref == nil
@@ -312,7 +312,7 @@ Just doing the above will filter all result according to the logged in user.
           end
           true
         end
-        
+
         # 1. validate the presence of a valid project (one in which the visitor has write access and project<>self !)
         # 2. validate the presence of a valid reference (project or parent) (in which the visitor has write access and ref<>self !)
         # 3. validate +publish_group+ value (same as parent or ref.can_visible? and valid)
@@ -368,7 +368,7 @@ Just doing the above will filter all result according to the logged in user.
             errors.add(:base, 'you do not have the rights to do this')
             return
           end
-          
+
           if user_id_changed?
             if visitor.is_admin?
               # only admin can change owners
@@ -380,9 +380,9 @@ Just doing the above will filter all result according to the logged in user.
               errors.add(:user_id, "only admins can change owners")
             end
           end
-          
+
           return false unless ref_field_valid?
-          
+
           # verify groups
           case inherit
           when 1
@@ -390,7 +390,7 @@ Just doing the above will filter all result according to the logged in user.
             if inherit_changed? && !(can_visible_was_true? || ( can_manage_was_true? && (max_status_with_heirs_was < Zena::Status[:pub]) ))
               # published elements in sub-nodes could become visible if the current node starts to inherit
               # visibility rights from parent.
-              # Use case: 
+              # Use case:
               # 1. create private node A in PUB (public node)
               # 2. create sub-node B
               # 3. publish B (private, not visible)
@@ -399,10 +399,10 @@ Just doing the above will filter all result according to the logged in user.
               errors.add('inherit', 'you cannot change this')
               return false
             end
-            
-            # make sure rights are inherited. 
+
+            # make sure rights are inherited.
             [:rgroup_id, :wgroup_id, :pgroup_id, :skin].each do |sym|
-              self[sym] = ref[sym]  
+              self[sym] = ref[sym]
             end
           when 0
             # custom rights
@@ -427,7 +427,7 @@ Just doing the above will filter all result according to the logged in user.
                 errors.add('pgroup_id', "you cannot change this") if pgroup_id_changed?
                 # but you can change skins and name
               end
-            else  
+            else
               # cannot change groups, inherit mode or skin
               errors.add('inherit',   "you cannot change this") if inherit_changed?
               errors.add('rgroup_id', "you cannot change this") if rgroup_id_changed?
@@ -450,13 +450,13 @@ Just doing the above will filter all result according to the logged in user.
             errors.add('inherit', "bad inheritance mode")
           end
         end
-        
+
         # Prepare after save callbacks
         def secure_before_save
           @needs_inheritance_spread = !new_record? && (rgroup_id_changed? || wgroup_id_changed? || pgroup_id_changed? || skin_changed?)
           true
         end
-        
+
         # Verify validity of the reference field.
         def ref_field_valid?
           if ref_field_id_changed?
@@ -464,7 +464,7 @@ Just doing the above will filter all result according to the logged in user.
             if private_was_true? || publish_from_was.nil?
               # node was not visible to others, we need write access to both source and destination
               if ref_field_id == self.id ||
-                  ! secure_write(ref_class) { ref_class.find(:first, :select => 'id', :conditions => ['id = ?', ref_field_id])} || 
+                  ! secure_write(ref_class) { ref_class.find(:first, :select => 'id', :conditions => ['id = ?', ref_field_id])} ||
                   ! secure_write(ref_class) { ref_class.find(:first, :select => 'id', :conditions => ['id = ?', ref_field_id_was])}
                 errors.add(ref_field, "invalid reference")
                 return false
@@ -473,9 +473,9 @@ Just doing the above will filter all result according to the logged in user.
               # node was visible, moves must be made with publish rights in both
               # source and destination
               if ref_field_id == self[:id] ||
-                  ! secure_drive(ref_class) { ref_class.find(:first, :select => 'id', :conditions => ['id = ?', ref_field_id])} || 
+                  ! secure_drive(ref_class) { ref_class.find(:first, :select => 'id', :conditions => ['id = ?', ref_field_id])} ||
                   ! secure_drive(ref_class) { ref_class.find(:first, :select => 'id', :conditions => ['id = ?', ref_field_id_was])}
-                errors.add(ref_field, "invalid reference") 
+                errors.add(ref_field, "invalid reference")
                 return false
               end
             end
@@ -483,7 +483,7 @@ Just doing the above will filter all result according to the logged in user.
           end
           true
         end
-        
+
         # Make sure there is no circular reference
         # (any way to do this faster ?)
         def in_circular_reference
@@ -503,18 +503,18 @@ Just doing the above will filter all result according to the logged in user.
             end
             curr_ref = rows.fetch_row[0].to_i
           end
-          
+
           errors.add(ref_field, 'circular reference') if in_loop
           in_loop
         end
-        
+
         def secure_on_destroy
           if new_record? || can_drive_was_true?
             return true
           else
             errors.add('base', "you do not have the rights to do this")
             return false
-          end         
+          end
         end
 
         # Reference to validate access rights
@@ -531,7 +531,7 @@ Just doing the above will filter all result according to the logged in user.
             nil
           end
         end
-        
+
         # Reference before attributes change
         def ref_was
           return self if ref_field == :id && new_record? # new record and self as reference (creating root node)
@@ -548,14 +548,14 @@ Just doing the above will filter all result according to the logged in user.
             nil
           end
         end
-        
+
         protected
-        
+
         def secure_after_save
           spread_inheritance if @needs_inheritance_spread
           true
         end
-        
+
         # When the rwp groups are changed, spread this change to the 'children' with
         # inheritance mode set to '1'. 17.2s
         # FIXME: make a single pass for spread_inheritance and update section_id and project_id ?
@@ -567,10 +567,10 @@ Just doing the above will filter all result according to the logged in user.
           base_class.send(:with_exclusive_scope) do
             ids = base_class.fetch_ids("SELECT id FROM #{base_class.table_name} WHERE #{ref_field(true)} = '#{i.to_i}' AND inherit='1'")
           end
-          
+
           ids.each { |i| spread_inheritance(i) }
         end
-        
+
         # return the maximum status of the current node and all it's heirs. This is used to allow
         # inheritance change with 'manage' rights on private nodes
         def max_status_with_heirs(max=0)
@@ -582,7 +582,7 @@ Just doing the above will filter all result according to the logged in user.
           end
           return max
         end
-        
+
         # return the maximum status of the current node and all it's heirs before attribute change.
         def max_status_with_heirs_was
           max = max_status_was.to_i
@@ -593,9 +593,9 @@ Just doing the above will filter all result according to the logged in user.
           end
           return max
         end
-        
+
         private
-                
+
         # List of elements using the current element as a reference. Used to update
         # the rwp groups if they inherit from the reference. Can be overwritten by sub-classes.
         def heirs
@@ -604,40 +604,40 @@ Just doing the above will filter all result according to the logged in user.
             base_class.find(:all, :conditions=>["#{ref_field(true)} = ? AND inherit='1'" , self[:id] ] ) || []
           end
         end
-        
+
         # Reference class. Must be overwritten by sub-classes.
         def ref_class
           self.class
         end
-        
+
         # Must be overwritten.
         def base_class
           self.class
         end
-        
+
         # Reference foreign_key. Can be overwritten by sub-classes.
         def ref_field(for_heirs=false)
           :reference_id
         end
-        
+
         def ref_field_id
           self[ref_field]
         end
-        
+
         def ref_field_id_was
           self.send(:"#{ref_field}_was")
         end
-        
+
         def ref_field_id_changed?
           self.send(:"#{ref_field}_changed?")
         end
-        
+
         module ClassMethods
           # kpath is a class shortcut to avoid tons of 'OR type = Page OR type = Document'
           # we build this path with the first letter of each class. The example bellow
           # shows how the kpath is built:
           #           class hierarchy
-          #                Node --> N           
+          #                Node --> N
           #       Note --> NN          Page --> NP
           #                    Document   Form   Section
           #                       NPD      NPF      NPP
@@ -647,7 +647,7 @@ Just doing the above will filter all result according to the logged in user.
           def kpath
             @@kpath[self] ||= superclass == ActiveRecord::Base ? ksel : (superclass.kpath + ksel)
           end
-          
+
           # 'from' and 'joins' are removed: this method is used when receiving calls from zafu. Changing the source table removes
           # the secure scope.
           def clean_options(options)
@@ -655,7 +655,7 @@ Just doing the above will filter all result according to the logged in user.
               ! [ :conditions, :select, :include, :offset, :limit, :order, :lock ].include?(k)
             end
           end
-          
+
           # kpath selector for the current class
           def ksel
             self.to_s[0..0]
@@ -670,10 +670,10 @@ Just doing the above will filter all result according to the logged in user.
         end
       end
     end
-    
+
     # ============================================= SECURE  ===============
     module Secure
-      
+
       # protect access to site_id : should not be changed by users
       # def site_id=(i)
       #   raise Zena::AccessViolation, "#{self.class.to_s} '#{self.id}': tried to change 'site_id' to '#{i}'."
@@ -683,12 +683,12 @@ Just doing the above will filter all result according to the logged in user.
       def visitor=(visitor)
         @visitor = visitor
       end
-      
+
       # Check if module Secure is included
       def secure?
         true
       end
-      
+
       # these methods are not actions that can be called from the web !!
       protected
         # secure find with scope (for read/write or publish access).
@@ -722,23 +722,23 @@ Just doing the above will filter all result according to the logged in user.
             scope[:find][:select]     = "#{Site.table_name}.*"
             scope[:find][:conditions] = find_scope
           end
-          
+
           # FIXME: 'with_scope' is protected now. Can we live with something cleaner like this ?
           # class AR::Base
           #   def self.secure_find(...)
           #      ...
           #   end
           # end
-          # 
+          #
           # or better:
           #  :conditions => '#{secure_scope}' (dynamically evaluated: single quotes)
           result = klass.send(:with_scope, scope) { yield }
-          
+
           klass.send(:scoped_methods).unshift last_scope if last_scope
-          
+
           secure_result(klass,result)
         end
-      
+
         def secure_result(klass,result)
           if result && result != []
             if klass.ancestors.include?(Node)
@@ -753,7 +753,7 @@ Just doing the above will filter all result according to the logged in user.
             nil
           end
         end
-        
+
         # Secure for read/create.
         # [read]
         # * super user
@@ -774,14 +774,14 @@ Just doing the above will filter all result according to the logged in user.
           # TODO: monitor how often this happens and replace the finders concerned
           nil
         end
-        
+
         def secure!(klass, opts={}, &block)
           unless res = secure(klass, opts={}, &block)
             raise ActiveRecord::RecordNotFound
           end
           res
         end
-        
+
         # Secure scope for read/create
         def secure_scope(table_name)
           if visitor.is_su?
@@ -795,7 +795,7 @@ Just doing the above will filter all result according to the logged in user.
             "(#{table_name}.pgroup_id IN (#{visitor.group_ids.join(',')}) AND #{table_name}.max_status <> #{Zena::Status[:red]}))"
           end
         end
-        
+
 
         # Secure scope for write access.
         # [write]
@@ -815,7 +815,7 @@ Just doing the above will filter all result according to the logged in user.
           # TODO: monitor how often this happens and replace the finders concerned
           nil
         end
-        
+
         # Find a node with write access. Raises an exception on failure.
         def secure_write!(obj, &block)
           unless res = secure_write(obj, &block)
@@ -823,14 +823,14 @@ Just doing the above will filter all result according to the logged in user.
           end
           res
         end
-      
+
         # Secure scope for publish or management access. This scope is a little looser then 'secure' (read access) concerning redactions
         # and 'not published yet' nodes. This is not a bug, such an access is needed to delete old nodes for example.
         # [publish]
         # * super user
         # * members of +publish_group+
         # * owner if member of +publish_group+ or private
-        # 
+        #
         # [manage]
         # * owner if +max_status+ <= red
         # * owner if private
@@ -848,7 +848,7 @@ Just doing the above will filter all result according to the logged in user.
           # TODO: monitor how often this happens and replace the finders concerned
           nil
         end
-        
+
         # Find nodes with 'drive' authorization. Raises an exception on failure.
         def secure_drive!(obj, &block)
           if res = secure_drive(obj, &block)
@@ -862,11 +862,11 @@ Just doing the above will filter all result according to the logged in user.
   # This exception handles all flagrant access violations or tentatives (like suppression of _su_ user)
   class AccessViolation < StandardError
   end
-  
+
   # This exception occurs when a visitor is needed but none was provided.
   class RecordNotSecured < StandardError
   end
-  
+
   # This exception occurs when corrupt data in encountered (infinit loops, etc)
   class InvalidRecord < StandardError
   end

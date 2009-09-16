@@ -2,14 +2,14 @@
 
 Deployment 'recipe' for capistrano. Creates everything for your zena app.
 
-Assumed: 
+Assumed:
   - mysql root user has the same password as ssh
   - you are using apache 2.2+ (using balance_proxy)
   - server is running debian etch
   - you have installed subversion on the server (aptitude install subversion)
   - you have installed mysql on the server (aptitude install mysql...)
   - you have installed the required dependencies (see main README file)
-  
+
 ========== USAGE ==========
 
 1. Copy the file 'deploy_config_example.rb' to 'deploy_config.rb' and edit the entries in this new file.
@@ -52,12 +52,12 @@ class RenderClass
   def initialize(path)
     @text = File.read(path)
   end
-  
+
   def render(hash)
     @values = hash
     ERB.new(@text).result(binding)
   end
-  
+
   def method_missing(sym)
     return @values[sym] if @values.has_key?(sym)
     super
@@ -77,9 +77,9 @@ task :set_permissions, :roles => :app do
   run "chown -R www-data:www-data #{zena_sites}"
 end
 
-"Update the currently released version of the software directly via an SCM update operation" 
-task :update_current do 
-  source.sync(revision, self[:release_path]) 
+"Update the currently released version of the software directly via an SCM update operation"
+task :update_current do
+  source.sync(revision, self[:release_path])
 end
 
 desc "clear all zafu compiled templates"
@@ -193,7 +193,7 @@ task :create_vhost, :roles => :web do
   unless self[:host]
     puts "HOST not set (use -s host=...)"
   else
-    vhost = render("config/vhost.rhtml", 
+    vhost = render("config/vhost.rhtml",
                   :host        => self[:host],
                   :static      => apache2_static,
                   :deflate       => apache2_deflate,
@@ -204,9 +204,9 @@ task :create_vhost, :roles => :web do
     put(vhost, "#{apache2_vhost_root}/#{self[:host]}")
 
     run "test -e /etc/apache2/sites-enabled/#{self[:host]} || a2ensite #{self[:host]}" if debian_host
-    
+
     unless self[:host] =~ /^www/
-      vhost_www = render("config/vhost_www.rhtml", 
+      vhost_www = render("config/vhost_www.rhtml",
                     :host        => self[:host]
                     )
       put(vhost_www, "#{apache2_vhost_root}/www.#{self[:host]}")
@@ -230,23 +230,23 @@ task :create_awstats, :roles => :web do
       put(awstats_conf, "/etc/awstats/awstats.#{self[:host]}.conf")
       run "chown www-data:www-data /etc/awstats/awstats.#{self[:host]}.conf"
       run "chmod 640 /etc/awstats/awstats.#{self[:host]}.conf"
-    
+
       # create stats vhost
       stats_vhost = render("config/stats.vhost.rhtml", :host => self[:host] )
       put(stats_vhost, "#{apache2_vhost_root}/stats.#{self[:host]}")
       run "test -e /etc/apache2/sites-enabled/stats.#{self[:host]} || a2ensite stats.#{self[:host]}"
-    
+
       # directory setup for stats
       run "test -e #{zena_sites}/#{self[:host]}/log/awstats || mkdir #{zena_sites}/#{self[:host]}/log/awstats"
       run "chown www-data:www-data #{zena_sites}/#{self[:host]}/log/awstats"
-    
+
       # setup cron task for awstats
       run "cat /etc/cron.d/awstats | grep \"#{self[:host]}\" || echo \"0,10,20,30,40,50 * * * * www-data [ -x /usr/lib/cgi-bin/awstats.pl -a -f /etc/awstats/awstats.#{self[:host]}.conf -a -r #{zena_sites}/#{self[:host]}/log/apache2.access.log ] && /usr/lib/cgi-bin/awstats.pl -config=#{self[:host]} -update >/dev/null\n\" >> /etc/cron.d/awstats"
-    
+
       # create .htpasswd file
       run "test ! -e #{zena_sites}/#{self[:host]}/log/.awstatspw || rm #{zena_sites}/#{self[:host]}/log/.awstatspw"
       run "htpasswd -c -b #{zena_sites}/#{self[:host]}/log/.awstatspw 'admin' '#{self[:pass]}'"
-    
+
       # reload apache
       run "/etc/init.d/apache2 reload"
     end
@@ -279,7 +279,7 @@ task :apache2_setup, :roles => :web do
   else
     put(httpd_conf, "/etc/apache2/conf.d/#{db_name}")
   end
-  
+
   run "test -e /etc/apache2/sites-enabled/000-default && a2dissite default || echo 'default already disabled'"
   run "test -e /etc/apache2/mods-enabled/rewrite.load || a2enmod rewrite"
   run "test -e /etc/apache2/mods-enabled/deflate.load || a2enmod deflate"
@@ -293,7 +293,7 @@ end
 
 desc "set database.yml file according to settings"
 task :db_update_config, :roles => :app do
-  db_app_config = render("config/database.rhtml", 
+  db_app_config = render("config/database.rhtml",
                 :db_name     => db_name,
                 :db_user     => db_user,
                 :db_password => db_password
@@ -312,7 +312,7 @@ task :db_create, :roles => :db do
       puts data
     end
   end
-  
+
   run "mysql -u root -p -e \"CREATE DATABASE #{db_name} DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci; GRANT ALL ON #{db_name}.* TO '#{db_user}'@'localhost' IDENTIFIED BY '#{db_password}';\"" do |channel, stream, data|
     if data =~ /^Enter password:\s*/m
       logger.info "#{channel[:host]} asked for password"
@@ -334,15 +334,15 @@ desc "Full initial setup"
 task :initial_setup do
   transaction do
     app_setup
-    
+
     db_setup
-    
+
     deploy::update
-    
+
     mongrel_setup
 
     apache2_setup
-  
+
     set_permissions
 
     start
@@ -372,7 +372,7 @@ desc "Backup all data and bring it backup here"
 task :backup, :roles => :app do
   db_dump
   # key track of the current svn revision for app
-  
+
   run "#{in_current} svn info > #{deploy_to}/current/zena_version.txt"
   run "#{in_current} rake zena:full_backup RAILS_ENV='production'"
   run "#{in_current} tar czf #{db_name}_data.tgz #{db_name}.sql.tgz sites_data.tgz zena_version.txt"

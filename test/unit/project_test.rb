@@ -2,7 +2,7 @@ require 'test_helper'
 
 class ProjectTest < Zena::Unit::TestCase
 
-  
+
   def test_project_id_on_create
     login(:tiger)
     node = secure!(Project) { Project.create(:parent_id=>nodes_id(:status), :name=>'SuperProject') }
@@ -13,7 +13,7 @@ class ProjectTest < Zena::Unit::TestCase
     assert ! node.new_record?, "Not a new record"
     assert_equal node[:id], child[:project_id]
   end
-  
+
   def test_update_set_project_id_on_update
     login(:tiger)
     node = secure!(Project) { Project.find(nodes_id(:cleanWater))}
@@ -28,5 +28,5 @@ class ProjectTest < Zena::Unit::TestCase
     node.reload
     assert_equal nodes_id(:cleanWater), node.get_project_id
     assert_equal nodes_id(:zena), node[:project_id]
-  end  
+  end
 end

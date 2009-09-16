@@ -3,7 +3,7 @@ require File.join(File.dirname(__FILE__) , 'zena')
 module Zafu
   module Tags
     attr_accessor :html_tag, :html_tag_params, :name, :sub_do
-    
+
     # Replace the 'original' element in the included template with our new version.
     def replace_with(new_obj)
       super
@@ -19,7 +19,7 @@ module Zafu
         @method = 'void'
       end
     end
-    
+
     # Pass the caller's 'html_tag' and 'html_tag_params' to the included part.
     def include_part(obj)
       obj.html_tag = @html_tag || obj.html_tag
@@ -28,11 +28,11 @@ module Zafu
       @html_tag_params = {}
       super(obj)
     end
-    
+
     def empty?
       super && @html_tag_params == {} && @html_tag.nil?
     end
-    
+
     def before_render
       return unless super
       @html_tag_done = false
@@ -49,13 +49,13 @@ module Zafu
       @html_tag_params_bak = @html_tag_params.dup
       true
     end
-    
+
     def after_render(text)
       res = render_html_tag(super)
       @html_tag_params = @html_tag_params_bak
       res
     end
-    
+
     def inspect
       @html_tag_done = false
       res = super
@@ -68,7 +68,7 @@ module Zafu
       end
       res
     end
-    
+
     def params_to_html(params)
       para = []
       params.each do |k,v|
@@ -84,7 +84,7 @@ module Zafu
       # puts para.inspect
       para.sort.join('')
     end
-    
+
     def render_html_tag(text,*append)
       append ||= []
       return text if @html_tag_done
@@ -101,14 +101,14 @@ module Zafu
       return res if @context && @context[:only] && !@context[:only].include?(:string)
       (@space_before || '') + res + (@space_after || '')
     end
-    
+
     def r_ignore
       @html_tag_done = true
       ''
     end
-    
+
     alias r_ r_ignore
-    
+
     def r_rename_asset
       return expand_with unless @html_tag
       case @html_tag
@@ -134,12 +134,12 @@ module Zafu
         key = :src
         type = @html_tag.to_sym
       end
-      
+
       src = @params[key]
       if src && src[0..0] != '/' && src[0..6] != 'http://'
         @params[key] = @options[:helper].send(:template_url_for_asset, :src => src, :current_folder => @options[:current_folder], :type => type)
       end
-      
+
       res   = "<#{@html_tag}#{params_to_html(@params)}"
       @html_tag_done = true
       inner = expand_with
@@ -149,7 +149,7 @@ module Zafu
         res + ">#{inner}"
       end
     end
-    
+
     def r_form
       res   = "<#{@html_tag}#{params_to_html(@params)}"
       @html_tag_done = true
@@ -160,7 +160,7 @@ module Zafu
         res + ">#{inner}"
       end
     end
-    
+
     def r_select
       res   = "<#{@html_tag}#{params_to_html(@params)}"
       @html_tag_done = true
@@ -171,7 +171,7 @@ module Zafu
         res + ">#{inner}"
       end
     end
-    
+
     def r_input
       res   = "<#{@html_tag}#{params_to_html(@params)}"
       @html_tag_done = true
@@ -182,7 +182,7 @@ module Zafu
         res + ">#{inner}"
       end
     end
-    
+
     def r_textarea
       res   = "<#{@html_tag}#{params_to_html(@params)}"
       @html_tag_done = true
@@ -204,39 +204,39 @@ module Zafu
       # html_tag
       @html_tag = @options.delete(:html_tag)
       @html_tag_params = parse_params(@options.delete(:html_tag_params))
-      
+
       # end_tag
       @end_tag = @html_tag || @options.delete(:end_do) || @options.delete(:end_tag) || "r:#{@method}"
       @end_tag_count  = 1
-      
+
       # code indentation
       @space_before = @options[:space_before]
       @options.delete(:space_before)
-      
+
       # form capture (input, select, textarea, form)
       @options[:form] ||= true if @method == 'form'
-      
+
       # puts "[#{@space_before}(#{@method})#{@space_after}]"
       if @params =~ /\A([^>]*?)do\s*=('|")([^\2]*?[^\\])\2([^>]*)\Z/
         # we have a sub 'do'
         @params = parse_params($1)
         @sub_do = $3 # this is used by replace_with
-        
+
         opts = {:method=>$3, :params=>$4}
-        
+
         # the matching zafu tag will be parsed by the last 'do', we must inform it to halt properly :
         opts[:end_do] = @end_tag
-        
+
         sub = make(:void, opts)
         @space_after = sub.instance_variable_get(:@space_after)
         sub.instance_variable_set(:@space_after,"")
       else
         @params = parse_params(@params)
       end
-      
+
       # set name used for include/replace from html_tag if not allready set by superclass
       @name = @options[:name] || @params[:name] || @params[:id] || @html_tag_params[:id]
-      
+
       if !@html_tag && (@html_tag = @params.delete(:tag))
         # get html tag parameters from @params
         @html_tag_params = {}
@@ -245,7 +245,7 @@ module Zafu
           @html_tag_params[k] = @params.delete(k)
         end
       end
-      
+
       if @method == 'include'
         include_template
       elsif mode == :tag && !sub
@@ -254,11 +254,11 @@ module Zafu
         enter(mode)
       end
     end
-    
+
     def before_parse(text)
       text.gsub('<%', '&lt;%').gsub('%>', '%&gt;')
     end
-  
+
     # scan rules
     def scan
       # puts "SCAN(#{@method}): [#{@text}]"
@@ -280,7 +280,7 @@ module Zafu
         flush
       end
     end
-  
+
     def scan_close_tag
       if @text =~ /\A<\/([^>]+)>( *\n+|)/m
         # puts "CLOSE:[#{$&}]}" # ztag
@@ -295,7 +295,7 @@ module Zafu
             end
             @space_after = $2
             leave
-          else  
+          else
             # keep the tag (false alert)
             flush $&
           end
@@ -307,7 +307,7 @@ module Zafu
             store "<span class='parser_error'>#{$&.gsub('<', '&lt;').gsub('>','&gt;')} should be &lt;/#{@end_tag}&gt;</span>"
           end
           leave
-        else  
+        else
           # other html tag closing
           flush $&
         end
@@ -330,7 +330,7 @@ module Zafu
         flush
       end
     end
-  
+
     def scan_tag(opts={})
       # puts "TAG(#{@method}): [#{@text}]"
       if @text =~ /\A<r:([\w_]+)([^>]*?)(\/?)>/
@@ -378,7 +378,7 @@ module Zafu
         flush
       end
     end
-    
+
     def scan_asset
       # puts "ASSET(#{object_id}) [#{@text}]"
       if @text =~ /\A<(\w*)([^>]*?)(\/?)>/
@@ -400,7 +400,7 @@ module Zafu
         flush
       end
     end
-    
+
     def scan_inside_asset
       if @text =~ /\A(.*?)<\/#{@end_tag}>/m
         flush $&
@@ -410,7 +410,7 @@ module Zafu
         flush
       end
     end
-    
+
     def scan_style
       if @text =~ /\A(.*?)<\/style>/m
         flush $&
@@ -421,7 +421,7 @@ module Zafu
         # error
         @method = 'void'
         flush
-      end      
+      end
     end
   end
 end

@@ -1,6 +1,6 @@
 # ====== assigned_jobs
 roger_x_driver:
-  
+
 roger_x_technician:
 
 joe_x_technician:
@@ -11,9 +11,9 @@ mike_x_chief:
 
 # ====== assigned_courses for 'driver'
 dangerous_transportations_x_driver_security:
-  
+
 formulate_problems_x_driver_team:
-  
+
 transmit_information_x_driver_team:
 
 engine_x_driver_mechanical:
@@ -22,7 +22,7 @@ engine_x_driver_mechanical:
 secure_a_site_x_technician_security:
 
 winch_usage_x_technician_security:
-  
+
 radio_usage_x_technician_team:
 
 formulate_problems_x_technician_team:
@@ -30,21 +30,21 @@ formulate_problems_x_technician_team:
 transmit_information_x_technician_team:
 
 fiber_junction_x_technician_fiber:
-  
+
 # ====== assigned_courses for 'chief'
 resp_management_x_chief_motivation:
 
 team_motivation_x_chief_motivation:
 
 vision_x_chief_image:
-  
+
 # ====== achieved formations for 'roger'
 transp2004_x_roger:
   status: 100
 
 form2006_x_roger:
   status: 100
-  
+
 fiber2003_x_roger:
   status: 100
 
@@ -63,13 +63,13 @@ form2005_x_roger:
 # ====== achieved formations for 'joe'
 fiber2003_x_joe:
   status: 100
-  
+
 transm2003_x_joe:
   status: 100
-  
+
 # ====== achieved formations for 'mike'
 vision2003_x_mike:
   status: 100
-  
+
 fiber2002_x_mike:
   status: 100

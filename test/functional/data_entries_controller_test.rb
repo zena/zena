@@ -1,7 +1,7 @@
 require 'test_helper'
 
 class DataEntriesControllerTest < Zena::Controller::TestCase
-  
+
   def test_create
     login(:ant)
     post 'create', :data_entry => {:node_a_id => nodes_zip(:wiki), :date => '17.05.2008 15:00', :value => '34', :text => 'this is a test', :node_b_id => 'people'}

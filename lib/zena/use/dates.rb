@@ -2,7 +2,7 @@ module Zena
   module Use
     module Dates
       module Common
-        
+
         # This is like strftime but with better support for i18n (translate day names, month abbreviations, etc)
         def format_date(thedate, theformat = nil, tz_name=nil, lang=visitor.lang)
           format = theformat || '%Y-%m-%d %H:%M:%S'
@@ -41,7 +41,7 @@ module Zena
           if visitor.lang != lang
             ::I18n.locale = lang
           end
-          
+
           if format =~ /^age\/?(.*)$/
             format = $1.blank? ? _('long_date') : $1
             # how long ago/in how long is the date
@@ -97,16 +97,16 @@ module Zena
 
           adate.strftime(format)
         end
-          
+
       end # Common
-      
+
       module ControllerMethods
         include Common
       end
-      
+
       module ViewMethods
         include Common
-        
+
         # display the time with the format provided by the translation of 'long_time'
         def long_time(atime)
           format_date(atime, _("long_time"))
@@ -137,7 +137,7 @@ module Zena
           format_date(thedate, _(fmt))
         end
       end # ViewMethods
-      
+
       module AddParseDateAttributeMethod
         def parse_date_attribute(*args)
           args.each do |arg|
@@ -147,13 +147,13 @@ module Zena
           end
         end
       end
-      
+
       module ModelMethods
         def self.included(base)
           base.extend Zena::Use::Dates::AddParseDateAttributeMethod
         end
       end
-      
+
       module StringMethods
         # Parse date : return an utc date from a string and an strftime format. With the current implementation, you can only use '.', '-', ' ' or ':' to separate the different parts in the format.
         def to_utc(format, timezone=nil)
@@ -180,8 +180,8 @@ module Zena
         rescue ArgumentError
           nil
         end
-        
-        
+
+
         # Convert a string of the form '1 month 4 days' to the duration in seconds.
         # Valid formats are:
         # y : Y      : year : years
@@ -189,7 +189,7 @@ module Zena
         # d : day    : days
         # h : hour   : hours
         # m : minute : minutes
-        # s : second : seconds  
+        # s : second : seconds
         def to_duration
           res = 0
           val = 0

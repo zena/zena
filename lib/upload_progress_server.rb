@@ -21,4 +21,4 @@ Daemons.run_proc('upload_progress_drb', options) do
   GemPlugin::Manager.instance.load 'mongrel' => GemPlugin::INCLUDE
   DRb.start_service "druby://0.0.0.0:#{SERVER_PORT}", Mongrel::UploadProgress.new
   DRb.thread.join
-end  
+end

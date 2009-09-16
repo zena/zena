@@ -35,9 +35,9 @@ v_summary: |
   |_. markup |_. result |
   | @!{59,86}!@ | list documents 59 and 86 |
   | @!{}!@ | list all documents in the node |
-  
+
   For advanced topics (tables, classes, styles), please look at the documentation for "textile":http://hobix.com/textile/.
-  
+
 v_text: |
   h4. texte et liens
 

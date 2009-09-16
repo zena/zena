@@ -26,7 +26,7 @@ link_sharp_in:
 link_sharp_in_name:
   tem: "<%= zazen('see \"\":22#[parent/name]') %>"
   res: "<p>see <a href=\"/oo/projects/cleanWater#status\">status title</a></p>"
-  
+
 complex_link:
   tem: <%= zazen("p<. !<.31_pv!:22\n\nh4(clear). \"\":22") %>
   res: "<p style=\"text-align:left;\"><div class='img_left'><a href=\"/oo/projects/cleanWater/page22.html\"><img src='/en/image31_pv.jpg' width='70' height='70' alt='flower' class='pv'/></a></div></p>\n\n\n\t<h4 class=\"clear\"><a href=\"/oo/projects/cleanWater/page22.html\">status title</a></h4>"
@@ -38,7 +38,7 @@ at_code:
 spaces_on_first_lines:
   tem: "<%= zazen(\"This is a normal paragraphe. There are many phrases in this paragraphe and a forced line break\nhere. End of first paragraphe.\n\n This second paragraphe\n is space preserving\n la la           la la.\") %>"
   res: "<p>This is a normal paragraphe. There are many phrases in this paragraphe and a forced line break\n<br/>here. End of first paragraphe.</p>\n\n\n<pre>This second paragraphe\nis space preserving\nla la           la la.</pre>"
-  
+
 line_break_list:
   tem: "<%= zazen(\"first.\n\n* one\n* two\n\nsecond\") %>"
   res: "/<p>first.<\/p>.*<ul>.*<li>one.*<li>two.*<p>second/"
@@ -66,7 +66,7 @@ zip_shortcut_gallery:
 zip_shortcut_list:
   tem: "<%= zazen('Look !{30,:lake+}!') %>"
   res: "/docs.*image30_mini.*image24_mini.*/"
-  
+
 line_break_between_paragraphs:
   tem: "<%= zazen(\"h3. photos en vrac\n\n\ntwo\") %>"
   res: "!/<br\/>/"
@@ -74,11 +74,11 @@ line_break_between_paragraphs:
 line_break_in_tables:
   tem: "<%= zazen(\"h3. photos en vrac\n\n\n|_. a |_. b|\n| 1 | 2 |\") %>"
   res: "!/<br\/>/"
-  
+
 line_break_gallery:
   tem: "<%= zazen(\"h3. photos en vrac\n\n\n![30,24]!\") %>"
   res: "!/<pre>/"
-  
+
 swf_button_player:
   tem: "<%= zazen(\"!25!\") %>"
   res: "/<object.*application\/x-shockwave-flash.*data=.*musicplayer.swf.*song_url=.*document25.mp3/"

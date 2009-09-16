@@ -7,13 +7,13 @@ class TagsTest < Zena::Unit::TestCase
     node = secure!(Node) { nodes(:status) }
     assert node.safe_attribute?('tag')
   end
-  
+
   def test_tag_list
     login(:tiger)
     node = secure!(Node) { nodes(:status) }
     assert_equal 'blue, sky', node.tag_list
   end
-  
+
   def test_add_one_tag
     login(:tiger)
     node = secure!(Node) { nodes(:status) }
@@ -22,7 +22,7 @@ class TagsTest < Zena::Unit::TestCase
     node = secure!(Node) { nodes(:status) }
     assert_equal 'blue, sky, ugly', node.tag_list
   end
-  
+
   def test_add_remove_tagged
     login(:tiger)
     node = secure!(Node) { nodes(:status) }
@@ -31,7 +31,7 @@ class TagsTest < Zena::Unit::TestCase
     node = secure!(Node) { nodes(:status) }
     assert_equal 'blue, foo, ugly', node.tag_list
   end
-  
+
   def test_remove_one_tag
     login(:tiger)
     node = secure!(Node) { nodes(:status) }
@@ -40,14 +40,14 @@ class TagsTest < Zena::Unit::TestCase
     node = secure!(Node) { nodes(:status) }
     assert_equal 'blue', node.tag_list
   end
-  
+
   def test_tagged
     login(:tiger)
     node = secure!(Node) { nodes(:status) }
     h = {"sky"=>"sky", "blue"=>"blue"}
     assert_equal h, node.tagged
   end
-  
+
   def test_remove_one_tag_using_empty_value
     login(:tiger)
     node = secure!(Node) { nodes(:status) }
@@ -65,7 +65,7 @@ class TagsTest < Zena::Unit::TestCase
     node = secure!(Node) { nodes(:status) }
     assert_equal 'blue, sky', node.tag_list
   end
-  
+
   def test_add_several_tags
     login(:tiger)
     node = secure!(Node) { nodes(:status) }
@@ -73,7 +73,7 @@ class TagsTest < Zena::Unit::TestCase
     node = secure!(Node) { nodes(:status) }
     assert_equal 'big, blue, brown, sky, socks', node.tag_list
   end
-  
+
   def test_remove_many_tags
     login(:tiger)
     node = secure!(Node) { nodes(:status) }
@@ -82,7 +82,7 @@ class TagsTest < Zena::Unit::TestCase
     node = secure!(Node) { nodes(:status) }
     assert_equal 'ugly', node.tag_list
   end
-  
+
   def test_add_remove
     login(:tiger)
     node = secure!(Node) { nodes(:status) }
@@ -91,7 +91,7 @@ class TagsTest < Zena::Unit::TestCase
     node = secure!(Node) { nodes(:status) }
     assert_equal 'sky', node.tag_list
   end
-  
+
   def test_set_tag_list
     login(:tiger)
     node = secure!(Node) { nodes(:status) }
@@ -99,5 +99,5 @@ class TagsTest < Zena::Unit::TestCase
     node = secure!(Node) { nodes(:status) }
     assert_equal 'big, brown, socks', node.tag_list
   end
-    
+
 end

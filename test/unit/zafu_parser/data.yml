@@ -3,7 +3,7 @@ default:
     lang: 'en'
     visitor: 'ant'
     node: 'cleanWater'
-  
+
 list_values:
   src: "<r:data><r:each join=', ' do='[value]'/></r:data>"
   res: "27.0, 33.0, 13.0, 56.0"
@@ -27,7 +27,7 @@ stat_sum_format:
 stat_count:
   src: "<r:data do='stat' find='count'/>"
   res: "4"
-  
+
 stat_min:
   src: "<r:data do='stat' find='min'/>"
   res: "13.0"
@@ -41,7 +41,7 @@ stat_eval_zero_hide:
 stat_max:
   src: "<r:data do='stat' find='max'/>"
   res: "56.0"
-  
+
 group_stat_sum:
   src: "<r:data><r:group by='node_a'><r:each_group><r:node_a do='[name]'/>:<r:stat find='sum'/> </r:each_group></r:group></r:data>"
   res: "cleanWater:27.0 wiki:102.0 "
@@ -49,7 +49,7 @@ group_stat_sum:
 li_each_group:
   src: "<r:data><r:group by='node_a'><li set_class='[node_a_id]_class' do='each_group'><r:node_a do='[name]'/>:<r:stat find='sum'/> </li></r:group></r:data>"
   res: "<li class='21_class'>cleanWater:27.0 </li><li class='29_class'>wiki:102.0 </li>"
-  
+
 group_stat_sum_join:
   src: "<r:data><r:group by='node_b' join=', '><r:node_b><r:show attr='name'/><r:else text='undef'/></r:node_b>:<r:stat find='sum'/></r:group></r:data>"
   res: "undef:96.0, cleanWater:33.0"

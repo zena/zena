@@ -4,5 +4,5 @@ Node:
   skin_name:       default
   format:          html
   tkpath:          N
-  mode:            
+  mode:
   klass:           Node

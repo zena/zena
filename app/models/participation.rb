@@ -5,27 +5,27 @@ class Participation < ActiveRecord::Base
   validates_presence_of :user_id
   validates_presence_of :site_id
   before_create         :create_contact
-  
+
   alias o_contact contact
-  
+
   def contact
     @contact ||= secure(Contact) { o_contact }
   end
-  
+
   # Secure raises an AccessViolation when 'site_id=' is called. It is allowed here !
   def site_id=(i)
     self[:site_id] = i
   end
-  
+
   private
     def valid_participation
       errors.add('base' , 'record not secured') unless @visitor
     end
-    
+
     def create_contact
       return unless visitor.site[:root_id] # do not try to create a contact if the root node is not created yet
-      
-      @contact = secure!(Contact) { Contact.new( 
+
+      @contact = secure!(Contact) { Contact.new(
         # owner is the user except for anonymous and super user.
         # TODO: not sure this is a good idea...
         :user_id       => (self[:id] == current_site[:anon_id] || self[:id] == current_site[:su_id]) ? visitor[:id] : self[:id],
@@ -44,7 +44,7 @@ class Participation < ActiveRecord::Base
         raise Zena::InvalidRecord, "Could not publish contact node for user #{user_id} in site #{site_id} (#{@contact.errors.map{|k,v| [k,v]}.join(', ')})"
       end
       self[:contact_id] = @contact[:id]
-      
+
       # User is the owner of his/her own contact page.
       Node.connection.execute "UPDATE nodes SET user_id = #{self[:user_id]} WHERE id = #{@contact[:id]}"
     end

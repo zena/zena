@@ -23,7 +23,7 @@ UPLOAD_KEY     = defined?(Mongrel) ? 'upload_id' : "X-Progress-ID"
 tools_enabled = {:Latex => ENABLE_LATEX, :fop => ENABLE_FOP, :math => ENABLE_MATH, :zena_up => ENABLE_ZENA_UP}.map{|k,v| v ? k : nil}.compact
 puts "** zena #{Zena::VERSION::STRING} r#{Zena::VERSION::REV} #{tools_enabled == [] ? '' : '('+tools_enabled.join(', ')+') '}starting"
 
-# test if DRB started 
+# test if DRB started
 unless File.exist?(File.join(File.dirname(__FILE__), '..', 'log', 'upload_progress_drb.pid'))
   puts "\n** WARNING: drb server not running. Upload progress will not work."
   puts " * WARNING: you should start the drb server with 'lib/upload_progress_server.rb start'\n\n"
@@ -222,7 +222,7 @@ def make_hashes(h)
     else
       keys_to_val[k] = [v]
     end
-  
+
     if val_to_keys[v]
       val_to_keys[v] << k
     else

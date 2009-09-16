@@ -15,7 +15,7 @@ people_assigned:
   owner:           people_en
   key:             assigned
   value:           gaspard
-  
+
 cleanWater_en_assigned:
   owner:           cleanWater_en
   key:             assigned

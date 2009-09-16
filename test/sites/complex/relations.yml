@@ -2,10 +2,10 @@ Employee_Job:
   source_role:     assigned_employee
   target_role:     assigned_job
 
-Course_Page:  
+Course_Page:
   source_role:     assigned_course
   target_role:     assigned_page
 
-Formation_Employee:  
+Formation_Employee:
   source_role:     assigned_formation
   target_role:     formation_for

@@ -1,15 +1,15 @@
 empty:
   src: ""
   res: ""
-    
+
 at_code:
   src: "some @strange < code@"
   res: "<p>some <code>strange &lt; code</code></p>"
-  
+
 at_code_again:
   src: "We changed the syntax from @zafu|<z:link/>@ to @zafu|<r:link/>@ to better reflect the fact that we want to *render* a link."
   res: "/code class='zafu'.*/"
-  
+
 at_code_ruby:
   src: "some @ruby|class << self@"
   res: "<p>some <code class='ruby'><span class=\"keyword\">class </span><span class=\"punct\">&lt;&lt;</span> <span class=\"constant\">self</span></code></p>"
@@ -17,31 +17,31 @@ at_code_ruby:
 at_code_and_zazen:
   src: |
     This @do='[v_title]'@ and "":332.
-    
+
     <code>blah</code>
   res: "/\[make_link id:\|332\| title:\|\|\]/"
 
 code_ruby:
   src: |
     some text
-  
+
     <code lang='ruby'>def hello
       puts "hello" << " world!"
     end</code>
   res: "/some text.*<pre>.*<code class='ruby'>.*keyword.*method.*&lt;&lt;/"
 
-  
+
 img_after_brackets:
   src: |
     Text updated in [July 2008].
-    
+
     !30_full!
   res: "<p>Text updated in [July 2008].</p>\n\n\n\t<p>[make_image id:|30| images:true mode:|full| style:||]</p>"
 
 code_params:
   src:  "this <code onclick='nasty' class='blue' lang='ruby' style='tagada'>def ok</code> ok"
   res: "<p>this <pre onclick='nasty' class='blue' style='tagada'><code class='ruby'><span class=\"keyword\">def </span><span class=\"method\">ok</span></code></pre> ok</p>"
-  
+
 gallery:
   src: "this ![12,13]! gallery"
   res: "<p>this [make_gallery [|12|, |13|] ] gallery</p>"
@@ -49,18 +49,18 @@ gallery:
 gallery_and_images:
   src: |
     !23!
-    
+
     ![12]!
   res: "<p>[make_image id:|23| images:true style:||]</p>\n\n\n\t<p>[make_gallery [|12|] ]</p>"
 
 gallery_children:
   src: "this ![]! gallery"
   res: "<p>this [make_gallery [] ] gallery</p>"
-  
+
 docs:
   src: "these !{11,12}! docs"
   res: "<p>these [list_nodes [|11|, |12|] style:||] docs</p>"
-  
+
 docs_no_ids:
   src: "these !{}! docs"
   res: "<p>these [list_nodes [] style:||] docs</p>"
@@ -68,11 +68,11 @@ docs_no_ids:
 docs_align:
   src: "these !<.{11,12}! left"
   res: "<p>these [list_nodes [|11|, |12|] style:|&lt;.|] left</p>"
-  
+
 image:
   src: "look here !12!"
   res: "<p>look here [make_image id:|12| images:true style:||]</p>"
-  
+
 image_no_image:
   src: "look here !12!"
   res: "<p>look here [make_image id:|12| images:false style:||]</p>"
@@ -80,11 +80,11 @@ image_no_image:
 image_align:
   src: "an image !<.12!"
   res: "<p>an image [make_image id:|12| images:true style:|&lt;.|]</p>"
-  
+
 image_with_format:
   src: "!21_mini!"
   res: "<p>[make_image id:|21| images:true mode:|mini| style:||]</p>"
-  
+
 image_title:
   src: "!12/!"
   res: "<p>[make_image id:|12| images:true style:|| title:||]</p>"
@@ -96,19 +96,19 @@ image_custom_title:
 image_custom_title_with_markup:
   src: "!12/this is *some* text!"
   res: "<p>[make_image id:|12| images:true style:|| title:|this is <strong>some</strong> text|]</p>"
-  
+
 image_with_link:
   src: "!12_pv!:12"
   res: "<p>[make_image id:|12| images:true link:|12| mode:|pv| style:||]</p>"
-  
+
 image_with_link_mode:
   src: "!12_pv!:20_changes"
   res: "<p>[make_image id:|12| images:true link:|20_changes| mode:|pv| style:||]</p>"
-  
+
 image_with_link_mode_and_format:
   src: "!12_pv!:20_med.data"
   res: "<p>[make_image id:|12| images:true link:|20_med.data| mode:|pv| style:||]</p>"
-  
+
 image_with_http_link:
   src: "!12_pv!:http://www.example.org"
   res: "<p>[make_image id:|12| images:true link:|http://www.example.org| mode:|pv| style:||]</p>"
@@ -116,23 +116,23 @@ image_with_http_link:
 image_with_ref:
   src: "!http://www.example.org/images/test.jpg!"
   res: "<p><img src=\"http://www.example.org/images/test.jpg\" alt=\"\" /></p>"
-  
+
 table:
   src: "|shopping_list|"
   res: "<p>[make_table attribute:|shopping_list| style:||]</p>"
-  
+
 table_title:
   src: "|shopping_list/A list of frequent problems|"
   res: "<p>[make_table attribute:|shopping_list| style:|| title:|A list of frequent problems|]</p>"
-  
+
 table_id:
   src: "|34.shopping_list|"
   res: "<p>[make_table attribute:|shopping_list| node:|34| style:||]</p>"
-  
+
 table_pseudo_id:
   src: "|:art+.shopping_list|"
   res: "<p>[make_table attribute:|shopping_list| node:|:art+| style:||]</p>"
-  
+
 table_pseudo_path:
   src: "|(../some/path).shopping_list|"
   res: "<p>[make_table attribute:|shopping_list| node:|(../some/path)| style:||]</p>"
@@ -148,7 +148,7 @@ link_with_mode:
 link_with_format:
   src: 'look "here":30.data'
   res: '<p>look [make_link id:|30.data| title:|here|]</p>'
-    
+
 link_with_mode_and_format:
   src: 'look "here":30_med.data'
   res: '<p>look [make_link id:|30_med.data| title:|here|]</p>'
@@ -188,11 +188,11 @@ wiki_link:
 wiki_link_with_trailing_dot:
   src: "I love ?ruby?."
   res: "<p>I love [make_wiki_link title:|ruby|].</p>"
-  
+
 wiki_link_url:
   src: "why use ?ruby?:http://en.wikipedia.org/wiki/Ruby_%28programming_language%29 ?"
   res: "<p>why use [make_wiki_link title:|ruby| url:|http://en.wikipedia.org/wiki/Ruby_%28programming_language%29|] ?</p>"
-  
+
 wiki_link_url_ending_punctuation:
   src: "why use ?ruby?:http://en.wikipedia.org/wiki/Ruby_%28programming_language%29, or what ?"
   res: "<p>why use [make_wiki_link title:|ruby| url:|http://en.wikipedia.org/wiki/Ruby_%28programming_language%29|], or what ?</p>"

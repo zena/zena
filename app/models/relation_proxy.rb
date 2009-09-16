@@ -3,9 +3,9 @@ class RelationProxy < Relation
   LINK_ATTRIBUTES = Zena::Use::Relations::LINK_ATTRIBUTES
   LINK_ATTRIBUTES_SQL = LINK_ATTRIBUTES.map {|sym| "`#{sym}`"}.join(',')
   LINK_SELECT     = "nodes.*,links.id AS link_id,#{LINK_ATTRIBUTES.map {|l| "links.#{l} AS l_#{l}"}.join(',')}"
-  
+
   class << self
-    
+
     # Open a relation to a role. start => 'role'
     def find_by_role(role)
       rel = find(:first, :conditions => ["(source_role = ? OR target_role = ?) AND site_id = ?", role, role, current_site[:id]])
@@ -17,7 +17,7 @@ class RelationProxy < Relation
       end
       rel
     end
-    
+
     # Find a relation proxy for a role through a given node.
     # The finder makes sure the class path is compatible with the node's class/virtual_class given as parameter.
     def get_proxy(node, role)
@@ -30,49 +30,49 @@ class RelationProxy < Relation
         nil
       end
     end
-  end   
-  
+  end
+
   # Used by relation_links
   def records(options={})
     return @records if defined? @records
-    opts = { :select     => LINK_SELECT, 
+    opts = { :select     => LINK_SELECT,
              :joins      => "INNER JOIN links ON nodes.id=links.#{other_side} AND links.relation_id = #{self[:id]} AND links.#{link_side} = #{@start[:id]}",
              :group      => 'nodes.id'}
-    
+
     [:order, :limit, :conditions].each do |sym|
       opts[sym] = options[sym] if options[sym]
     end
-      
+
     @records = secure(Node) { Node.find(:all, opts) }
   end
-  
+
   # I do not think this method is used anymore (all is done by @node.find(...)).
   def record(options={})
     return @record if defined?(@record) || @start.new_record?
-    opts = { :select     => LINK_SELECT, 
+    opts = { :select     => LINK_SELECT,
              :joins      => "INNER JOIN links ON nodes.id=links.#{other_side} AND links.relation_id = #{self[:id]} AND links.#{link_side} = #{@start[:id]}",
              :group      => 'nodes.id'}
-    
+
     # limit overwritten options to 'order', 'limit' in case this method is used with unsafe parameters from the web.
     [:order].each do |sym|
       opts[sym] = options[sym] if options[sym]
     end
-      
+
     @record = secure(Node) { Node.find(:first, opts) }
   end
-  
+
   # Define the caller's side. Changes the relation into a proxy so we can add/remove links. This sets the caller on the source side of the relation.
   def source=(start)
     @start = start
     @side  = :source
   end
-  
+
   # Define the caller's side. Changes the relation into a proxy so we can add/remove links. This sets the caller on the target side of the relation.
   def target=(start)
     @start = start
     @side  = :target
   end
-  
+
   # When a ...-to-many node is loaded and we modify it, focus on this specific node. For example:
   # calendar_status does not make sense (there can be many calendars). But if we focus on a specific
   # calendar, we then get the status for this particular link.
@@ -80,35 +80,35 @@ class RelationProxy < Relation
     return unless link[:relation_id] == self[:id]
     @other_link = link
   end
-  
+
   # get
-  
+
   def other_link
     other_links ? other_links[0] : nil
   end
-  
+
   def other_id
     other_link ? other_link[other_side] : nil
   end
-  
+
   def other_zip
     record ? record[:zip] : nil
   end
-  
+
   def other_ids
     (other_links || []).map { |l| l[other_side] }
   end
-  
+
   def other_zips
     (records || []).map { |r| r[:zip] }
   end
-  
+
   LINK_ATTRIBUTES.each do |sym|
     define_method(sym) do
       other_link ? other_link[sym] : nil
     end
   end
-  
+
   def other_role
     @side == :source ? target_role : source_role
   end
@@ -116,11 +116,11 @@ class RelationProxy < Relation
   def this_role
     @side == :source ? source_role : target_role
   end
-  
+
   def other_icon
     @side == :source ? target_icon : source_icon
   end
-  
+
   # set
   def other_id=(v)
     if !v.kind_of?(Array) && v.to_i < 0
@@ -135,52 +135,52 @@ class RelationProxy < Relation
       attributes_to_update[:id] = v.kind_of?(Array) ? v.uniq.compact.map {|v| v.to_i} : (v.blank? ? nil : v.to_i)
     end
   end
-  
+
   def other_ids=(v)
     self.other_id = v
   end
-  
+
   def remove_link(link)
     @links_to_delete ||= []
     @links_to_delete << link
   end
-  
+
   LINK_ATTRIBUTES.each do |sym|
     define_method("other_#{sym}=") do |v|
       attributes_to_update[sym] = v.blank? ? nil : v
     end
   end
-  
+
   def this_kpath
     @side == :source ? source_kpath : target_kpath
   end
-  
+
   def other_kpath
     @side == :source ? target_kpath : source_kpath
   end
-  
+
   # find the links from the current context (source or target)
   def other_links
     @other_links ||= Link.find(:all, :conditions => ["relation_id = ? AND #{link_side} = ?", self[:id], @start[:id]])
   end
-  
+
   # link can be changed if user can write in old and new
   # 1. can remove old link
   # 2. can write in new target
   def attributes_to_update_valid?
     return true unless @attributes_to_update || @links_to_delete
-    
+
     @link_errors  = []
     @add_links    = []
     @del_links    = []
     @update_links = []
-    
+
     if @links_to_delete
       # only removing links
       @del_links = @links_to_delete
       @attributes_to_update = {}
     else
-      
+
       # check if we have an update/create
       unless @attributes_to_update.has_key?(:id)
         # try to find current id/ids
@@ -202,8 +202,8 @@ class RelationProxy < Relation
           @link_errors << "invalid target"
         end
       end
-    
-      if @attributes_to_update[:id].kind_of?(Array) 
+
+      if @attributes_to_update[:id].kind_of?(Array)
         if unique?
           @link_errors << "Cannot set multiple targets on #{as_unique? ? 'one' : 'many'}-to-one relation '#{this_role}'."
         elsif (@attributes_to_update.keys & LINK_ATTRIBUTES) != []
@@ -212,14 +212,14 @@ class RelationProxy < Relation
           @link_errors << "Cannot set attributes #{keys.join(', ')} on multiple targets."
         end
       end
-      
+
       return false if @link_errors != []
-    
+
       # 1. find what changed
       if @attributes_to_update[:id].kind_of?(Array)
         # ..-to-many
         # define all links
-      
+
         # list of link ids set
         add_link_ids = @attributes_to_update[:id]
 
@@ -234,7 +234,7 @@ class RelationProxy < Relation
             # remove unused links / link to replace
             @del_links << link
           end
-        end  
+        end
         @add_links = add_link_ids.map {|obj_id| Hash[:id,obj_id] }
       elsif unique?
         # ..-to-one
@@ -270,9 +270,9 @@ class RelationProxy < Relation
             @add_links << @attributes_to_update
           end
         end
-      end  
+      end
     end
-    
+
     # 2. can write in new target ? (and remove targets previous link)
     @add_links.each do |hash|
       # last_target is used by "linked_node" from Node to get hold of the last linked node
@@ -294,11 +294,11 @@ class RelationProxy < Relation
         @link_errors << 'cannot remove link'
       end
     end
-    
+
     @update_links.compact!
     return @link_errors == []
   end
-  
+
   # Return updated link if changed or nil when nothing changed
   def changed_link(link, attrs)
     changed = false
@@ -316,9 +316,9 @@ class RelationProxy < Relation
     return unless @attributes_to_update
     @del_links.each    { |l| l.destroy }
     @update_links.each { |l| l.save }
-    
+
     return if @add_links == []
-    
+
     list = []
     @add_links.each do |hash|
       next if hash[:id].blank?
@@ -331,40 +331,40 @@ class RelationProxy < Relation
     remove_instance_variable(:@record)      if defined?(@record)
     remove_instance_variable(:@other_links) if defined?(@other_links)
   end
-  
+
   def unique?
     @side == :source ? target_unique : source_unique
   end
-  
+
   def as_unique?
     @side == :source ? source_unique : target_unique
   end
-  
+
   # def source_unique
   #   self[:source_unique] ? true : false
   # end
-  # 
+  #
   # def target_unique
   #   self[:target_unique] ? true : false
   # end
-  
+
   def link_side
     @side == :source ? 'source_id' : 'target_id'
   end
-  
+
   def other_side
     @side == :source ? 'target_id' : 'source_id'
   end
-  
+
   private
     def relation_class
       @start.relation_base_class
     end
-    
+
     def find_node(obj_id, unique)
       unique ? secure_drive(Node) { Node.find_by_id(obj_id) } : secure_write(Node) { Node.find_by_id(obj_id) }
     end
-    
+
     def find_target(obj_id)
       if as_unique?
         secure_drive(relation_class) { relation_class.find(:first, :conditions=>['id = ? AND kpath LIKE ?', obj_id, "#{other_kpath}%"]) }
@@ -372,7 +372,7 @@ class RelationProxy < Relation
         secure_write(relation_class) { relation_class.find(:first, :conditions=>['id = ? AND kpath LIKE ?', obj_id, "#{other_kpath}%"]) }
       end
     end
-    
+
     def attributes_to_update
       @attributes_to_update ||= {}
     end

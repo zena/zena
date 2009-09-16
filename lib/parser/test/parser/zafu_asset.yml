@@ -13,11 +13,11 @@ ignore_absolute_path:
 bad_link:
   src: "<link rel='stylesheet'/>"
   res: "<link rel='stylesheet'/>"
-  
+
 change_img_src:
   src: "this <img src='images/logo.png'/> image"
   res: "this <img src='/test_img/images/logo.png'/> image"
-  
+
 do_not_change_img_src:
   src: "this <img src='http://example.com/logo.png'/> image"
   res: "this <img src='http://example.com/logo.png'/> image"
@@ -41,4 +41,3 @@ change_style_url:
     <style>
     #super { background:url('/test_/images/logo.png');}
     </style>
-  

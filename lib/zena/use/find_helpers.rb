@@ -7,7 +7,7 @@ module Zena
         base.extend AddUseFindHelpersMethod
       end
     end
-    
+
     module AddUseFindHelpersMethod
       def use_find_helpers
         class_eval do
@@ -17,14 +17,14 @@ module Zena
         end
       end
     end
-    
+
     module FindHelpersImpl
       module ClassMethods
         def fetch_ids(sql, id_attr='id')
           unless sql =~ /SELECT/i
             sql = "SELECT `#{id_attr}` FROM #{self.table_name} WHERE #{sql}"
           end
-          connection.select_all(sql, "#{name} Load").map! do |record| 
+          connection.select_all(sql, "#{name} Load").map! do |record|
             record[id_attr.to_s]
           end
         end
@@ -33,7 +33,7 @@ module Zena
           unless sql =~ /SELECT/i
             sql = "SELECT #{attr_list.map {|a| "`#{a}`"}.join(', ')} FROM #{self.table_name} WHERE #{sql}"
           end
-          connection.select_all(sql, "#{name} Load").map! do |record| 
+          connection.select_all(sql, "#{name} Load").map! do |record|
             Hash[*(attr_list.map {|attr| [attr, record[attr.to_s]] }.flatten)]
           end
         end

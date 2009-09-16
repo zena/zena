@@ -3,10 +3,10 @@ class RelationsController < ApplicationController
   before_filter :find_relation, :except => [:index, :create, :new]
   before_filter :check_is_admin
   layout :admin_layout
-  
+
   def index
     @relation  = Relation.new
-    
+
     @relation_pages, @relations = nil, nil
     secure!(Relation) do
       @relation_pages, @relations = paginate :relations, :per_page => 20, :order => 'source_role'
@@ -24,7 +24,7 @@ class RelationsController < ApplicationController
       format.js
     end
   end
-  
+
   def new
     @relation = Relation.new
 
@@ -41,7 +41,7 @@ class RelationsController < ApplicationController
       format.js   { render :partial => 'relations/form', :layout => false }
     end
   end
-  
+
   def create
     @relation = Relation.new(params[:relation])
 
@@ -58,7 +58,7 @@ class RelationsController < ApplicationController
       end
     end
   end
-  
+
   def update
     @relation = Relation.find(params[:id])
 
@@ -85,12 +85,12 @@ class RelationsController < ApplicationController
       format.js
     end
   end
-  
+
   protected
     def visitor_node
       @node = visitor.contact
     end
-    
+
     def find_relation
       @relation = secure!(Relation) { Relation.find(params[:id])}
     end

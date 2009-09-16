@@ -24,7 +24,7 @@
 .largecal table { border:1px solid #655; margin:auto; border-collapse:separate; line-height:1em; clear:left;}
 .largecal .head td  { border-left:1px solid #836C6C; background: #655; color: #fff; width:14%; height:0.8em; text-align:center; padding:0.4em 3px; }
 .largecal .head td:first-child {border-left-width:0;}
-.largecal .body td  { background: #ffd; width:14%; height:3.4em; padding:3px; vertical-align:top; font-style:italic; text-align:left; color:#999; 
+.largecal .body td  { background: #ffd; width:14%; height:3.4em; padding:3px; vertical-align:top; font-style:italic; text-align:left; color:#999;
 border:1px solid #DDDBC1; border-width:1px 0 0 1px; font-size:0.8em;}
 .largecal .body a { font-weight:normal; font-style:normal;}
 .largecal .body td:first-child {border-left-width:0;}

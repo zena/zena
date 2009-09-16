@@ -1,7 +1,7 @@
 require 'test_helper'
 
 class LinksControllerTest < Zena::Controller::TestCase
-  
+
   def test_create
     login(:lion)
     node = secure!(Node) { nodes(:letter) }

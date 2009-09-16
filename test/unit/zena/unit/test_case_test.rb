@@ -5,7 +5,7 @@ class TestCaseTest < Zena::Unit::TestCase
     login(:ant)
     assert_equal users_id(:ant), visitor.id
   end
-  
+
   def test_nodes_id
     assert_equal nodes(:zena)[:id], nodes_id(:zena)
   end

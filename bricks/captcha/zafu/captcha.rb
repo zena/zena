@@ -6,12 +6,12 @@ module Zena
       res += expand_with
       "<% if visitor.is_anon? -%>#{render_html_tag(res)}<% end -%>"
     end
-    
+
     def r_mail_hide
       text = get_text_for_erb
       "<%= visitor.is_anon? ? mail_hide(#{text},:mh_pub => #{visitor.site.d_mail_hide_pub.inspect}, :mh_priv => #{visitor.site.d_mail_hide_priv.inspect}#{get_recaptcha_params}) : #{text} %>"
     end
-    
+
     def get_recaptcha_params
       res = ", :options => {"
       res << ":theme => #{(@params[:theme] || 'red').inspect}"

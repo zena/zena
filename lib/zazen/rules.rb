@@ -3,24 +3,24 @@ require 'code/syntax'
 module Zazen
   module Rules
     include Zena::Acts::Secure
-    
+
     PSEUDO_ID_REGEXP = ":[0-9a-zA-Z-]+\\+*|\\([^\\)]*\\)"
-    
+
     def start(mode)
       @helper = @options[:helper]
       # we do nothing, everything is done when 'render' is called
     end
-    
+
     # rewrite store to optimize for our 'text only' parser
     def store(str)
       @blocks << str
     end
-    
+
     def flush(str=@text)
       @blocks << str
       @text = @text[str.length..-1]
     end
-    
+
     def scan
       #puts "SCAN:[#{@text}]"
       if @text =~ /\A([^\|!"<\n\[]*)/m
@@ -78,7 +78,7 @@ module Zazen
         flush
       end
     end
-    
+
     def scan_exclam
       #puts "EXCL:[#{@text}]"
       if @text =~ /\A\!\[([^\]]*)\]\!/m
@@ -122,7 +122,7 @@ module Zazen
               link = link_node.pseudo_id(@context[:node], @translate_ids || :zip).to_s + rest
             end
           end
-          
+
           if @translate_ids
             if node.kind_of?(Document)
               # replace shortcut
@@ -168,7 +168,7 @@ module Zazen
         flush @text[0..0]
       end
     end
-    
+
     def scan_quote
       if @text =~ /\A"([^"]*)":([0-9]+(_[a-z]+|)(\.[a-z]+|)(#[a-z_\/\[\]]*|))/m
         #puts "LINK:[#{$&}]"
@@ -223,7 +223,7 @@ module Zazen
         flush @text[0..0]
       end
     end
-    
+
     def scan_bracket
       # puts "BRACKET:[#{@text}]"
       if @text =~ /\A\[(\w+)\](.*?)\[\/\1\]/m
@@ -239,7 +239,7 @@ module Zazen
         flush '['
       end
     end
-    
+
     def scan_wiki
       #puts "WIKI:[#{@text}]"
       if @text =~ /\A([^\?])*/m
@@ -250,7 +250,7 @@ module Zazen
         flush
       end
     end
-    
+
     def scan_wiki_link
       if @text =~ /\A\?(\w[^\?]*?\w)\?([^\w:]|:([^\s<]+))/m
         #puts "WIKI:[#{$&}]"
@@ -273,7 +273,7 @@ module Zazen
         flush @text[0..0]
       end
     end
-    
+
     def scan_pipe
       #puts "PIPE:[#{@text}]"
       if @text =~ /\A\|([<=>]\.|)([0-9]+\.|)([a-zA-Z_]+)(\/([^\|]*)|)\|/m
@@ -321,7 +321,7 @@ module Zazen
         flush @text[0..0]
       end
     end
-    
+
     def extract_code(fulltext)
       @escaped_code = []
       block_counter = -1
@@ -348,7 +348,7 @@ module Zazen
           "<pre#{divparams.join(' ')}>\\ZAZENBLOCKCODE#{block_counter}ZAZENBLOCKCODE\\</pre>"
         end
       end
-      
+
       @escaped_at = []
       block_counter = -1
       fulltext.gsub!( /(\A|[^\w])@(.*?)@(\Z|[^\w])/m ) do
@@ -357,7 +357,7 @@ module Zazen
         "#{$1}\\ZAZENBLOCKAT#{block_counter}ZAZENBLOCKAT\\#{$3}"
       end
     end
-    
+
     def render_code(text)
       text.gsub!( /\\ZAZENBLOCKCODE(\d+)ZAZENBLOCKCODE\\/ ) do
         if @translate_ids
@@ -378,7 +378,7 @@ module Zazen
           #code_tag + code.gsub(/\n( *)/m) { "<br/>\n" + ('&nbsp;' * $1.length) } + '</code>'
         end
       end
-      
+
       text.gsub!( /\\ZAZENBLOCKAT(\d+)ZAZENBLOCKAT\\/ ) do
         code = @escaped_at[$1.to_i]
         if @translate_ids
@@ -400,11 +400,11 @@ module Zazen
         end
       end
     end
-    
+
     def find_node_by_pseudo(id, base_node = @context[:node])
       secure(Node) { Node.find_node_by_pseudo(id, base_node) }
     end
-    
+
     def parse_document_ids(str)
       meth = @translate_ids || :zip
       str.split(',').map do |id|

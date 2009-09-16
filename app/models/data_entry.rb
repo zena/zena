@@ -21,16 +21,16 @@ class DataEntry < ActiveRecord::Base
   validate    :valid_data_entry
   before_save :sign_data
   belongs_to  :user
-  
+
   # Create a new DataEntry from attributes given by the mean wild web.
   def self.create_data_entry(attributes)
     return create(transform_attributes(attributes))
   end
-  
+
   # modify attributes so ext sees 'zip' values but we store 'ids'
   def self.transform_attributes(new_attributes)
     attributes = new_attributes.stringify_keys
-    
+
     attributes.keys.each do |key|
       if key == 'date'
         attributes[key] = attributes[key].to_utc(_('datetime'), visitor.tz)
@@ -48,50 +48,50 @@ class DataEntry < ActiveRecord::Base
         end
       end
     end
-    
+
     attributes
   end
-  
+
   NodeLinkSymbols.each do |sym|
     class_eval "def #{sym}
       return nil unless self[:#{sym}_id]
       @#{sym} ||= secure(Node) { Node.find_by_id(self[:#{sym}_id]) }
     end
-    
+
     def #{sym}_zip
       #{sym} ? #{sym}.zip : nil
     end
     "
   end
-  
-  
+
+
   # 'value' is an alias for 'value_a'
   def value
     self[:value_a]
   end
-  
+
   def value=(v)
     self.value_a = v
   end
-  
+
   def author
     user.contact
   end
-  
+
   def nodes
     ids = NodeLinkSymbolsId.map { |s| self[s] }.compact.uniq
     secure!(Node) { Node.find(:all, :conditions => "id IN ('#{ids.join("','")}')") }
   end
-  
+
   def ref_node
     @ref_node ||= node_a
   end
-  
+
   # Update a data entry's attributes, transforming the attributes first from the visitor's context to internal context.
   def update_attributes_with_transformation(new_attributes)
     update_attributes(DataEntry.transform_attributes(new_attributes))
   end
-  
+
   def clone
     new_ent = DataEntry.new
     NodeLinkSymbols.each do |sym|
@@ -100,18 +100,18 @@ class DataEntry < ActiveRecord::Base
     end
     new_ent
   end
-  
+
   # needed by zafu for ajaxy stuff
   def zip
     self[:id]
   end
-  
+
   def can_write?
     ref_node.can_write?
   rescue
     nil
   end
-  
+
   private
     # make sure all new/deleted node relations are allowed (write access)
     def valid_data_entry
@@ -123,13 +123,13 @@ class DataEntry < ActiveRecord::Base
       end
       errors.add("base", "a data entry must link to at least one node") if link_count == 0
     end
-    
+
     # sign changes before saving
     def sign_data
       self[:user_id] = visitor[:id]
       self[:site_id] = visitor.site[:id]
     end
-    
+
     def validate_node_link(sym)
       if new_record?
       elsif self[sym] == old[sym]
@@ -146,7 +146,7 @@ class DataEntry < ActiveRecord::Base
         errors.add(sym, "invalid node")
       end
     end
-    
+
     def old
       @old ||= DataEntry.find(self[:id])
     end

@@ -6,8 +6,8 @@ bird_jpg:
   name:            bird
   width:           660
   height:          600
-  
-flower_jpg:   
+
+flower_jpg:
   version:         flower_jpg_en
   type:            ImageContent
   content_type:    image/jpeg
@@ -15,7 +15,7 @@ flower_jpg:
   ext:             jpg
   width:           800
   height:          600
-  
+
 lake_jpg:
   version:         lake_jpg_en
   type:            ImageContent
@@ -25,16 +25,16 @@ lake_jpg:
   width:           600
   height:          440
   exif_json:       '{"GPSLatitude":"-6/1, -30/1, 0/1", "GPSLongitude":"29/1, 30/1, 0/1"}'
-  
-water_pdf:   
+
+water_pdf:
   version:         water_pdf_en
   type:            DocumentContent
   content_type:    application/pdf
   name:            water
   ext:             pdf
   size:            29279
-  
-tree_jpg:   
+
+tree_jpg:
   version:         tree_jpg_en
   type:            ImageContent
   content_type:    image/jpeg
@@ -42,16 +42,16 @@ tree_jpg:
   ext:             jpg
   width:           800
   height:          532
-  
-forest_pdf:   
+
+forest_pdf:
   version:         forest_pdf_en
   type:            DocumentContent
   content_type:    application/pdf
   name:            forest
   ext:             pdf
   size:            63569
-  
-style_css:   
+
+style_css:
   version:         style_css_en
   type:            TextDocumentContent
   content_type:    text/css

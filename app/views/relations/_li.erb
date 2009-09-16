@@ -1,16 +1,16 @@
 <tr id='relation<%= li[:id] %>'>
-  <td class="source"><%= link_to_remote((li.source_unique? ? _('relation_img') : _('relations_img')), 
-          :update =>"relation#{li[:id]}", 
+  <td class="source"><%= link_to_remote((li.source_unique? ? _('relation_img') : _('relations_img')),
+          :update =>"relation#{li[:id]}",
           :url    => edit_relation_path(li),
           :method => :get) %></td>
   <td class="source_role" ><%= li.source_role %></td>
-  <td class="source"><%= Node.get_class_from_kpath(li.source_kpath).to_s %></td>  
+  <td class="source"><%= Node.get_class_from_kpath(li.source_kpath).to_s %></td>
   <td class="source_icon" ><%= li.source_icon %></td>
   <td class="target_icon" ><%= li.target_icon %></td>
-  <td class="target_role" ><%= li.target_role %></td>  
+  <td class="target_role" ><%= li.target_role %></td>
   <td class="target"><%= Node.get_class_from_kpath(li.target_kpath).to_s %></td>
-  <td class="target" ><%= link_to_remote((li.target_unique? ? _('relation_img') : _('relations_img')), 
-          :update =>"relation#{li[:id]}", 
+  <td class="target" ><%= link_to_remote((li.target_unique? ? _('relation_img') : _('relations_img')),
+          :update =>"relation#{li[:id]}",
           :url    => edit_relation_path(li),
           :method => :get) %></td>
 </tr>

@@ -1,10 +1,10 @@
 module Zena
   module WebDav
-    
+
     private
       def mkcol_for_path(path)
       end
-      
+
       def write_content_to_path(path, content)
         puts "WRITE:#{path}"
         node = get_node_for_path(path)
@@ -19,19 +19,19 @@ module Zena
           node   = secure!(Page) { Page.create(:parent_id => parent[:id], :name => path.split('/').last, :v_text => content ) }
         end
       end
-      
+
       def copy_to_path(resource, dest_path, depth)
         resource.copy!(dest_path, depth)
       end
-      
+
       def move_to_path(resource, dest_path, depth)
         resource.move!(dest_path, depth)
       end
-      
+
       def get_resource_for_path(path)
         ZenaNodeResource.new(get_node_for_path(path))
       end
-      
+
       def get_node_for_path(path)
         raise WebDavErrors::NotFoundError if path =~ /\.DS_Store/
         puts "FIND: #{path.inspect}"
@@ -40,7 +40,7 @@ module Zena
           node = secure!(Node) { Node.find_by_path($1) }
         else
           node = secure!(Node) { Node.find_by_path(path) }
-        end  
+        end
         raise WebDavErrors::NotFoundError if node.nil?
         node
       rescue ActiveRecord::RecordNotFound
@@ -56,11 +56,11 @@ class ZenaNodeResource
   def visitor
     @node.visitor
   end
-  
+
   def initialize(node)
     @node   = node
   end
-  
+
   def displayname
     if @node.kind_of?(Note)
       @node.name + '.txt'
@@ -70,7 +70,7 @@ class ZenaNodeResource
       @node.name
     end
   end
-  
+
   def href
     return '/' if @node.fullpath.blank?
     '/' + (@node.fullpath.split('/')[0..-2] + [self.displayname]).join('/')
@@ -103,7 +103,7 @@ class ZenaNodeResource
   def children
     res = (@node.children || []).map { |p| ZenaNodeResource.new(p) }
     puts "CHILDREN OF #{@node.fullpath}: #{res.map { |r| r.get_href }.inspect }"
-    
+
     res
   end
 

@@ -14,7 +14,7 @@ module Syntax
     # the instruction associated with this token (:none, :region_open, or
     # :region_close)
     attr_reader :instruction
-    
+
     # true if this token's html tags should be escaped
     attr_reader :escape
 
@@ -27,14 +27,14 @@ module Syntax
       @escape = escape
     end
   end
-  
+
   class Tokenizer
     private
     def sub_lang( gr, data )
       flush_chunk
       @callback.call( Token.new( data, gr, :none, false ) )
     end
-    
+
     def parse_params(text)
       return [] unless text
       params = []
@@ -62,7 +62,7 @@ module Syntax
       params
     end
   end
-  
+
   module Convertors
 
     # A simple class for converting a text into HTML.
@@ -102,7 +102,7 @@ end
 
 class ZafuTokenizer < Syntax::Tokenizer
   def step
-    if ztag = scan(/\A<\/?r:[^>]+>/)  
+    if ztag = scan(/\A<\/?r:[^>]+>/)
       ztag =~ /<(\/?)r:([\w_]+)([^>]*?)(\/?)>/
       start_group :tag, "<#{$1}r:"
       start_group :ztag, $2
@@ -160,7 +160,7 @@ Syntax::SYNTAX['zafu'] = ZafuTokenizer
 
 class ErbTokenizer < Syntax::Tokenizer
   def step
-    if methods = scan(/<%[^>]+%>/m)  
+    if methods = scan(/<%[^>]+%>/m)
       methods =~ /<%(=?)([^>]+?)(-?)%>/m
       start_group :punct, "<%#{$1}"
       trailing = $3
@@ -204,7 +204,7 @@ class CssTokenizer < Syntax::Tokenizer
         end
       end
       start_group :punct, '{ '
-      
+
       rest = vars
       while rest != '' && rest =~ /([\w-]+)\s*:\s*(.*?)\s*;(.*)/m
         start_group :variable, $1

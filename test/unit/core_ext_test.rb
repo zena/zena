@@ -9,7 +9,7 @@ require File.join(File.dirname(__FILE__), '../../lib/core_ext/dir')
 class StringExtTest < Test::Unit::TestCase
   def test_abs_rel_path
     {
-      'a/b/c/d' => 'd', 
+      'a/b/c/d' => 'd',
       'a/x'     => '../../x',
       'y/z'     => '../../../y/z',
       'a/b/d'   => '../d',
@@ -20,9 +20,9 @@ class StringExtTest < Test::Unit::TestCase
         abs = rel.abs_path('a/b/c')
         assert_equal rel, test_rel, "'#{rel}' should become the absolute path '#{orig}'"
     end
-    
+
     {
-      'a/b/c/d' => 'a/b/c/d', 
+      'a/b/c/d' => 'a/b/c/d',
       'a/x'     => 'a/x',
       }.each do |orig, test_rel|
         rel = orig.rel_path('')
@@ -30,7 +30,7 @@ class StringExtTest < Test::Unit::TestCase
         abs = rel.abs_path('')
         assert_equal rel, test_rel, "'#{rel}' should become the absolute path '#{orig}'"
     end
-    
+
     assert_equal "/a/b/c", ''.abs_path('/a/b/c')
   end
 end

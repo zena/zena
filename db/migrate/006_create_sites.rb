@@ -1,6 +1,6 @@
 class CreateSites < ActiveRecord::Migration
   def self.up
-    
+
     create_table(:sites, :options => 'type=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci') do |t|
       t.column :host, :string
       t.column :root_id, :integer
@@ -17,13 +17,13 @@ class CreateSites < ActiveRecord::Migration
       t.column :languages, :string, :size=>400
       t.column :default_lang, :string, :size=>2
     end
-    
+
     create_table(:sites_users, :id=>false,:options => 'type=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci') do |t|
       t.column :user_id, :integer
       t.column :site_id, :integer
       t.column :status, :integer
     end
-    
+
     add_column :cached_pages, :site_id, :integer
     # relation, no site_id: :cached_pages_nodes
     add_column :caches, :site_id, :integer
@@ -40,11 +40,11 @@ class CreateSites < ActiveRecord::Migration
     # users : cross site
     add_column :versions, :site_id, :integer
   end
-  
+
   def self.down
     drop_table :sites
     drop_table :sites_users
-    
+
     remove_column :cached_pages, :site_id
     remove_column :caches, :site_id
     remove_column :comments, :site_id

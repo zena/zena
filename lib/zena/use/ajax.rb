@@ -7,10 +7,10 @@ module Zena
       module ControllerMethods
         include Common
       end
-      
+
       module ViewMethods
         include Common
-        
+
         def dom_id(node)
           if node.new_record?
             "#{params[:dom_id]}_form"
@@ -20,8 +20,8 @@ module Zena
             @dom_id || params[:udom_id] || params[:dom_id]
           end
         end
-        
-        
+
+
         # RJS to update a page after create/update/destroy
         def update_page_content(page, obj)
           if params[:t_id] && @node.errors.empty?
@@ -36,7 +36,7 @@ module Zena
           elsif @errors || !obj.errors.empty?
             # B. could not update/delete: show errors
             case params[:action]
-            when 'destroy', 'drop'  
+            when 'destroy', 'drop'
               page.insert_html :top, params[:dom_id], :inline => render_errors
             else
               page.replace "#{params[:dom_id]}_form", :file => fullpath_from_template_url + "_form.erb"
@@ -73,7 +73,7 @@ module Zena
             #if params[:dom_id] == '_page'
             #  # reload page
             #  page << "document.location.href = document.location.href;"
-            #  
+            #
             case params[:action]
             when 'edit'
               page.replace params[:dom_id], :file => fullpath_from_template_url + "_form.erb"
@@ -113,7 +113,7 @@ module Zena
         end
 
       end # ViewMethods
-      
+
     end # Ajax
   end # Use
 end # Zena

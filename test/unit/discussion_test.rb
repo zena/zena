@@ -16,26 +16,26 @@ class DiscussionTest < Zena::Unit::TestCase
     assert_equal comments_id(:ant_says_inside),    allcomm[1][:id]
     assert_equal comments_id(:tiger_reply_inside), allcomm[3][:id]
   end
-  
+
   def test_cannot_set_site_id_for_new_record
     disc = Discussion.new(:site_id=>1234)
     assert_nil disc.site_id
   end
-  
+
   def test_cannot_set_site_id
     disc = discussions(:inside_discussion_on_status)
     original_site_id = disc.site_id
     disc.update_attributes(:site_id =>1234)
     assert_equal original_site_id, disc.site_id
   end
-  
+
   def test_site_id
     login(:tiger)
     disc = Discussion.create(:node_id=>nodes_id(:projects))
     assert !disc.new_record?, "Not a new record"
     assert_equal sites_id(:zena), disc.site_id
   end
-  
+
   def test_discussion_in_sync_with_version_lang
     # should be found even if nav in fr
     login(:anon)
@@ -44,7 +44,7 @@ class DiscussionTest < Zena::Unit::TestCase
     assert_equal 'fr', node.v_lang
     assert discussion = node.discussion
     assert discussion.new_record?
-    
+
     # unpublish version
     Node.connection.execute "UPDATE versions SET status = #{Zena::Status[:red]} WHERE id = #{node.v_id}"
     node = secure!(Node) { nodes(:status) }

@@ -7,7 +7,7 @@ class ImageTest < Zena::Unit::TestCase
       login(:ant)
       img = secure!(Image) { Image.create( :parent_id=>nodes_id(:cleanWater),
                                           :inherit => 1,
-                                          :name=>'birdy', 
+                                          :name=>'birdy',
                                           :c_file => uploaded_jpg('bird.jpg')) }
       assert_kind_of Image , img
       assert ! img.new_record? , "Not a new record"
@@ -22,12 +22,12 @@ class ImageTest < Zena::Unit::TestCase
       assert_equal File.stat(img.c_filepath).size, img.c_size
     end
   end
-  
+
   def test_resize_image
     pv_format = Iformat['pv']
     without_files('test.host/data/jpg') do
       login(:ant)
-      img = secure!(Image) { Image.create( :parent_id=>nodes_id(:cleanWater), 
+      img = secure!(Image) { Image.create( :parent_id=>nodes_id(:cleanWater),
                                           :inherit => 1,
                                           :name=>'birdy', :c_file => uploaded_jpg('bird.jpg')) }
       assert !img.new_record?, "Not a new record"
@@ -39,12 +39,12 @@ class ImageTest < Zena::Unit::TestCase
       assert_equal file_path('birdy.jpg', 'pv', img.c_id), img.c_filepath(pv_format)
     end
   end
-  
+
   def test_image_content_type
     assert Image.accept_content_type?('image/jpeg')
     assert !Image.accept_content_type?('application/pdf')
   end
-  
+
   def test_change_image
     preserving_files('test.host/data') do
       login(:ant)
@@ -63,7 +63,7 @@ class ImageTest < Zena::Unit::TestCase
       # make sure old formated images are destroyed
     end
   end
-  
+
   def test_change_image_bad_file
     preserving_files('test.host/data') do
       login(:ant)
@@ -77,7 +77,7 @@ class ImageTest < Zena::Unit::TestCase
       assert_equal 'image/jpeg', img.c_content_type
     end
   end
-  
+
   def test_crop_image
     preserving_files('test.host/data') do
       login(:ant)
@@ -97,7 +97,7 @@ class ImageTest < Zena::Unit::TestCase
       assert_equal 80, img.c_height
     end
   end
-  
+
   def test_crop_image_limit
     preserving_files('test.host/data') do
       login(:ant)
@@ -115,7 +115,7 @@ class ImageTest < Zena::Unit::TestCase
       assert img.c_size < 30 * 1024 * 1.2
     end
   end
-  
+
   def test_crop_iformat
     preserving_files('test.host/data') do
       login(:ant)
@@ -131,7 +131,7 @@ class ImageTest < Zena::Unit::TestCase
       assert_equal 'png', img.c_ext
     end
   end
-  
+
   def test_crop_image_same_size
     preserving_files('test.host/data') do
       login(:ant)
@@ -151,7 +151,7 @@ class ImageTest < Zena::Unit::TestCase
       assert_equal 600, img.c_height
     end
   end
-  
+
   def test_crop_image_with_new_file
     preserving_files('test.host/data') do
       login(:ant)
@@ -169,13 +169,13 @@ class ImageTest < Zena::Unit::TestCase
       assert_equal 96648,  img.c_size
     end
   end
-  
+
   def test_change_name
     preserving_files('test.host/data') do
       login(:ant)
       img = secure!(Image) { Image.create( :parent_id=>nodes_id(:cleanWater),
                                           :inherit => 1,
-                                          :name=>'birdy', 
+                                          :name=>'birdy',
                                           :c_file => uploaded_jpg('bird.jpg')) }
       assert !img.new_record?
       img = secure!(Image) { Image.find(img[:id]) }
@@ -194,18 +194,18 @@ class ImageTest < Zena::Unit::TestCase
       assert File.exists?(old_path2), "Old file with 'pv' format exist."
     end
   end
-  
+
   def test_change_name_many_versions
     preserving_files('test.host/data') do
       login(:lion)
       img = secure!(Image) { Image.create( :parent_id=>nodes_id(:cleanWater),
                                           :inherit => 1,
-                                          :name=>'birdy', 
+                                          :name=>'birdy',
                                           :c_file => uploaded_jpg('bird.jpg')) }
 
                                           err img
       assert !img.new_record?
-      
+
       img = secure!(Image) { Image.find(img[:id]) }
       assert img.publish
       img_id  = img[:id]
@@ -214,32 +214,32 @@ class ImageTest < Zena::Unit::TestCase
       pv_format = Iformat['pv']
       old1_pv = img.c_filepath(pv_format)
       img.c_file(pv_format) # creates 'pv' file
-      
+
       img = secure!(Image) { Image.find(img_id) }
       # create a new redaction with a new file
       assert img.update_attributes(:c_file=> uploaded_jpg('flower.jpg'))
-      
+
       # publish new redaction
       assert img.publish
-      
+
       v2      = img.v_id
       old2    = img.c_filepath
       old2_pv = img.c_filepath(pv_format)
-      
+
       img.c_file(pv_format) # creates 'pv' file
-      
+
       [old1,old1_pv,old2,old2_pv].each do |path|
         assert File.exists?(path), "Path #{path.inspect} should exist"
       end
-      
+
       # We do not propagate 'name' change to document_content 'name' because this is only used to find document content and
       # retrieve data in case the whole database goes havoc.
       assert img.update_attributes(:name=>'moineau')
-      
+
       [old1,old1_pv,old2,old2_pv].each do |path|
         assert File.exists?(path), "Path #{path.inspect} did not change"
       end
-      
+
       version1 = Version.find(v1)
       version2 = Version.find(v2)
       new1 = version1.content.filepath
@@ -248,7 +248,7 @@ class ImageTest < Zena::Unit::TestCase
       assert File.exists?(new2), "New file exists"
     end
   end
-  
+
   def test_create_with_small_file
     preserving_files('/sites/test.host/data') do
       login(:ant)
@@ -261,7 +261,7 @@ class ImageTest < Zena::Unit::TestCase
       assert img.c_file(Iformat['pv'])
     end
   end
-  
+
   def test_update_same_image
     login(:tiger)
     bird = secure!(Node) { nodes(:bird_jpg) }
@@ -278,16 +278,16 @@ class ImageTest < Zena::Unit::TestCase
     assert_equal 2, bird.versions.count
     assert_not_equal '2006-04-11 00:00', bird.updated_at.strftime('%Y-%m-%d %H:%M')
   end
-  
+
   def test_set_event_at_from_exif_tags
     without_files('test.host/data/jpg') do
       login(:ant)
       img = secure!(Image) { Image.create( :parent_id=>nodes_id(:cleanWater),
                                           :inherit => 1,
-                                          :name=>'lake', 
+                                          :name=>'lake',
                                           :c_file => uploaded_jpg('exif_sample.jpg')) }
       assert_equal 'SANYO Electric Co.,Ltd.', img.c_exif['Make']
-      
+
       # reload
       assert img = secure!(Image) { Image.find(img.id) }
       assert exif_tags = img.c_exif
@@ -296,5 +296,5 @@ class ImageTest < Zena::Unit::TestCase
       assert_equal Time.parse("1998-01-01 00:00:00"), img.event_at
     end
   end
-    
+
 end

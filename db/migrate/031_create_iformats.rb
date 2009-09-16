@@ -1,7 +1,7 @@
 class CreateIformats < ActiveRecord::Migration
   def self.up
     add_column :sites, :formats_updated_at, :datetime
-    
+
     create_table(:iformats, :options => 'type=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci') do |t|
       t.column :name, :string, :limit => 40
       t.column :site_id, :integer

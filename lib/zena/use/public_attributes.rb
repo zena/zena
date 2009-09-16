@@ -10,7 +10,7 @@ end
 module Zena
 module Use
   module PublicAttributes
-    
+
     def self.included(base)
       base.send :class_eval do
         @@_attr_public       ||= {} # defined for each class
@@ -21,7 +21,7 @@ module Use
             @@_attr_public[self] ||= []
             @@_attr_public[self] = (@@_attr_public[self] + list.map{|l| l.to_s}).uniq
           end
-        
+
           # Return the list of all attributes safe for reading, including attributes defined in the superclass
           def public_attributes
             @@_public_attributes[self] ||= if superclass.respond_to?(:public_attributes)
@@ -32,14 +32,14 @@ module Use
               @@_attr_public[self] || []
             end
           end
-          
+
           # Return true if the attribute can be safely read
           def attr_public?(key)
             public_attributes.include?(key.to_s)
           end
         end
       end
-      
+
       # Safe attribute reader used when 'safe_readable?' could not be called because the class
       # is not known during compile time.
       def public_read(key)
@@ -47,7 +47,7 @@ module Use
         return "'#{key}' not readable" unless self.class.attr_public?(key)
         self.send(key)
       end
-      
+
       def custom_field?(key)
         !methods.include?(key) && !self.class.column_names.include?(key.to_s) && @attributes.has_key?(key)
       end

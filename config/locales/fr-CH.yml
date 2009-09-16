@@ -1,4 +1,4 @@
-# French (Switzerland) translations for Ruby on Rails 
+# French (Switzerland) translations for Ruby on Rails
 # by Yann Lugrin (yann.lugrin@sans-savoir.net, http://github.com/yannlugrin)
 #
 # original translation into French by Christian Lescuyer
@@ -18,7 +18,7 @@ fr-CH:
     month_names: [~, janvier, février, mars, avril, mai, juin, juillet, août, septembre, octobre, novembre, décembre]
     abbr_month_names: [~, jan., fév., mar., avr., mai, juin, juil., août, sept., oct., nov., déc.]
     order: [ :day, :month, :year ]
-  
+
   time:
     formats:
       default: "%d. %B %Y %H:%M"
@@ -70,7 +70,7 @@ fr-CH:
       hour:   "Heure"
       minute: "Minute"
       second: "Seconde"
-  
+
   number:
     format:
       precision: 3
@@ -85,7 +85,7 @@ fr-CH:
       format:
         precision: 2
       storage_units: [ Octet, ko, Mo, Go, To ]
-  
+
   support:
     array:
       sentence_connector: 'et'
@@ -93,11 +93,11 @@ fr-CH:
       word_connector: ", "
       two_words_connector: " et "
       last_word_connector: " et "
-  
+
   activerecord:
     errors:
       template:
-        header: 
+        header:
           one: "Impossible d'enregistrer {{model}}: 1 erreur"
           other: "Impossible d'enregistrer {{model}}: {{count}} erreurs."
         body: "Veuillez vérifier les champs suivants :"

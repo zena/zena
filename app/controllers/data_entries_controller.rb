@@ -5,14 +5,14 @@ class DataEntriesController < ApplicationController
 
   def show
   end
-  
+
   def new
     # TODO
   end
 
   def create
     @data_entry = secure!(Node) { DataEntry.create_data_entry(params['data_entry']) }
-    
+
     respond_to do |format|
       if @data_entry.errors.empty?
         flash[:notice] = _('Data entry was successfully created.')
@@ -32,7 +32,7 @@ class DataEntriesController < ApplicationController
       format.js { render :action => 'show' }
     end
   end
-  
+
   # modifications of the node itself (dates, groups, revert editions, etc)
   def edit
     respond_to do |format|
@@ -45,13 +45,13 @@ class DataEntriesController < ApplicationController
 
   def update
     @data_entry.update_attributes_with_transformation(params[:data_entry])
-  
+
     respond_to do |format|
       format.html # TODO
       format.js
     end
   end
-  
+
   def destroy
     @data_entry.destroy
 
@@ -61,13 +61,13 @@ class DataEntriesController < ApplicationController
       format.xml  { head :ok }
     end
   end
-  
+
   private
     def find_data_entry
       return false unless @data_entry = secure(DataEntry) { DataEntry.find_by_id(params[:id]) }
       @node = @data_entry.node_a
     end
-    
+
     def check_can_edit
       if @data_entry
         @data_entry.can_write?

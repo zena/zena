@@ -31,7 +31,7 @@ class IformatsController < ApplicationController
     @iformat.update_attributes(params[:iformat])
 
     respond_to do |format|
-      format.html do 
+      format.html do
         if @iformat.errors.empty?
           redirect_to :action => 'show'
         else
@@ -48,7 +48,7 @@ class IformatsController < ApplicationController
     respond_to do |format|
       format.html do
         if @iformat.errors.empty?
-          redirect_to :action => 'index' 
+          redirect_to :action => 'index'
         else
           render :action => 'edit'
         end

@@ -14,10 +14,10 @@ Post:
 
 Tracker:
   kpath:           NPA
-  real_class:      Page  
+  real_class:      Page
   create_group:    admin
 
 Tag:
   kpath:           NPT
-  real_class:      Page   
+  real_class:      Page
   create_group:    admin

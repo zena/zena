@@ -12,7 +12,7 @@ img_tag_use_icon:
     node: 'wiki'
   tem: "<%= img_tag(@node, :alt_src => 'icon') %>"
   res: "<img src='/en/image30.jpg' width='660' height='600' alt='bird' class='full'/>"
-  
+
 set_lang_fr:
   context:
     lang: 'fr'
@@ -82,4 +82,4 @@ cal_class:
     []
     [ class='other']
     [ class='satother']
-  
+

@@ -3,7 +3,7 @@ require "#{File.dirname(__FILE__)}/../test_helper"
 class MultipleHostsTest < ActionController::IntegrationTest
   include Zena::Test::Base
   fixtures :nodes, :versions, :users, :groups_users
-  
+
   def test_visitor_host
     anon.get_node(:wiki)
     assert_equal 200, anon.status
@@ -17,7 +17,7 @@ class MultipleHostsTest < ActionController::IntegrationTest
     anon.get "http://test.host/en/contact11114.html"  # zip 11114 ==> tiger
     assert_equal nodes(:zena_tiger)[:id], anon.assigns(:node)[:id]
   end
-  
+
   def test_visitor_anon
     anon.get_node(:status)
     assert_kind_of User, anon.assigns(:visitor)
@@ -25,7 +25,7 @@ class MultipleHostsTest < ActionController::IntegrationTest
     anon.get_node(:ocean, :host=>'ocean.host')
     assert_equal users(:incognito).id, anon.assigns(:visitor).id
   end
-  
+
   def test_cache
     status_zip = nodes(:zena_status)[:zip]
     without_files('/test.host/public') do
@@ -47,26 +47,26 @@ class MultipleHostsTest < ActionController::IntegrationTest
       end
     end
   end
-  
+
   def test_index
     anon.get 'http://test.host/en'
     assert_equal nodes(:zena_zena)[:id], anon.assigns(:node)[:id]
     anon.get 'http://ocean.host/en'
     assert_equal nodes(:ocean_ocean)[:id], anon.assigns(:node)[:id]
   end
-  
+
   private
-  
+
   module CustomAssertions
     include Zena::Test::Integration
-    
+
     def get_node(node_sym=:status, opts={})
       host = opts.delete(:host) || 'test.host'
-      
+
       @site = Site.find_by_host(host)
-      
+
       @node = nodes("#{@site.name}_#{node_sym}".to_sym)
-      
+
       if @node[:id] == @site.root_id
         name = []
       else
@@ -89,7 +89,7 @@ class MultipleHostsTest < ActionController::IntegrationTest
       end
     end
   end
-  
+
   def anon
     @anon ||= open_session do |sess|
       sess.extend(CustomAssertions)

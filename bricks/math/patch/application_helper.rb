@@ -1,7 +1,7 @@
 require 'digest/sha1'
 module Zena::Use::Zazen::ViewMethods
   asset_method 'math' => :math_asset
-  
+
   def math_asset(opts)
     content    = opts[:content]
     node       = opts[:node]

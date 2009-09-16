@@ -25,7 +25,7 @@ trick_erb:
   src: "this <<r:void/>% puts 'is bad' %>"
   tem: "this <<r:void/>% puts 'is bad' %&gt;"
   res: "this <<r:void/>% puts 'is bad' %&gt;"
-  
+
 include_erb:
   src: "include: <r:include template='/nasty_erb'/>"
   tem: "include: this &lt;% puts \"could be\" %&gt; nasty"
@@ -78,11 +78,11 @@ show_title_link_id_from_stored_mode_and_format:
 show_format:
   src: "<b do='[id]' format='%.2f'/>"
   res: "<b>22.00</b>"
-  
+
 show_format_nil:
   src: "<b do='[d_id]' format='%.2f'/>"
   res: "<b>0.00</b>"
-  
+
 show_format_hide_zero:
   src: "<b do='[d_id]' format='%.2f' zero='hide'/>"
   res: "<b></b>"
@@ -99,7 +99,7 @@ show_param:
   src: "<i do='show' param='d'/>"
   tem: "<i><%= params[:d] %></i>"
   res: "<i>hello ladies</i>"
-  
+
 title_in_version_context:
   src: "<r:version><r:title actions='all'/></r:version>"
   res: "/s50.*v_title22.*status title.*edit/"
@@ -160,25 +160,25 @@ trans_attr:
   src: "<r:trans attr='ref_lang'/>"
   tem: "<%= _(@node.ref_lang) %>"
   res: "english"
-  
+
 show_tattr:
   src: "<r:show tattr='ref_lang'/>"
   tem: "<%= _(@node.ref_lang) %>"
   res: "english"
-  
+
 show_gsub:
   context:
     node: 'tiger'
   src: "<r:show attr='c_address' gsub='/\\n/;/'/>"
   tem: "<%= @node.c_public_read(\"address\").to_s.gsub(/\\n/,\";\") %>"
   res: "Small Island;In the Wild"
-  
+
 show_gsub_newline:
   context:
     node: 'tiger'
   src: "<r:show attr='c_address' gsub='/\\n/\\\\n/'/>"
   res: 'Small Island\nIn the Wild'
-  
+
 show_mean_gsub:
   context:
     node: 'tiger'
@@ -226,7 +226,7 @@ link_attr:
   src: "<r:link attr='ref_lang'/>"
   tem: "<a href='<%= zen_path(@node) %>'><%= @node.ref_lang %></a>"
   res: "<a href='/oo/projects/cleanWater/page22.html'>en</a>"
-  
+
 link_tattr:
   src: "<r:link tattr='ref_lang'/>"
   tem: "<a href='<%= zen_path(@node) %>'><%= _(@node.ref_lang) %></a>"
@@ -248,7 +248,7 @@ link_with_block:
   src: "<r:link href='parent'>look at <b do='[name]'>her</b></r:link>"
   tem: "<a href='<%= zen_path(@node.parent) %>'>look at <b><%= @node.name %></b></a>"
   res: "<a href='/oo/projects/cleanWater'>look at <b>status</b></a>"
-  
+
 link_project:
   context:
     node: 'bird_jpg'
@@ -295,7 +295,7 @@ link_url_params:
 link_url_params_parsed_values:
   src: "<r:link plob='haha [name]'/>"
   res: "<a href='/oo/projects/cleanWater/page22.html?plob=haha+status'>status title</a>"
-  
+
 anchor:
   src: "<r:anchor/> <p do='[id]' anchor='[name]'>hello</p>"
   res: "<a name='node22'></a><a name='status'></a> <p>22</p>"
@@ -307,7 +307,7 @@ anchor_in_link:
 show_title_anchor:
   src: "<r:title anchor='true'/>"
   res: "<a name='node22'></a><span id='v_title22'>status title</span>"
-  
+
 show_attr_anchor:
   src: "<r:show attr='name' anchor='true'/>"
   res: "<a name='node22'></a>status"
@@ -317,13 +317,13 @@ link_version:
     node: 'opening'
   src: "<r:traductions><r:each join=', '><r:link tattr='lang' /></r:each></r:traductions>"
   res: "<a href='/oo/projects/cleanWater/post27.html?lang=en'>english</a>, <a href='/oo/projects/cleanWater/post27.html?lang=fr'>french</a>"
-  
+
 version_anchor:
   context:
     node: 'opening'
   src: "<r:traductions><r:each join=', '><r:link tattr='lang' anchor='true'/></r:each></r:traductions>"
   res: "<a name='version27.2' href='/oo/projects/cleanWater/post27.html?lang=en'>english</a>, <a name='version27.1' href='/oo/projects/cleanWater/post27.html?lang=fr'>french</a>"
-  
+
 title:
   src: "<h2 do='title'/>"
   tem: "<h2><%= show_title(:node=>@node)%></h2>"
@@ -456,17 +456,17 @@ flash_messages_both:
   src: "<r:flash_messages/>"
   tem: "/id.*messages.*notice.*flash.*notice.*error.*flash.*error/"
   res: "<div id='messages'></div>"
-  
+
 flash_messages_error:
   src: "<r:flash_messages show='error'/>"
   tem: "/id.*messages.*error.*flash.*error/"
   res: "<div id='messages'></div>"
-  
+
 flash_messages_notice:
   src: "<r:flash_messages show='notice'/>"
   tem: "/id.*messages.*notice.*flash.*notice/"
   res: "<div id='messages'></div>"
-  
+
 show_author_short:
   src: "<div class='subtitle' do='show_author'><b>SI</b> - 05.12</div>"
   tem: "<div class='subtitle'><b><%= @node.version.author.initials %></b> - <%= format_date(@node.version.updated_at, \"%m.%d\") %></div>"
@@ -533,23 +533,23 @@ case_when_else:
 case_when_else_text:
   src: "<r:case><r:when kind_of='Document'>Document</r:when><r:else text='Not a document'/></r:case>"
   res: "Not a document"
-  
+
 case_when_test:
   src: "<r:case><r:when test='id gt 10'>one</r:when><r:when test='v_updated_at gt updated_at'>two</r:when></r:case>"
   res: "one"
-  
+
 if_html_tag:
   src: "<div do='if' test='1 eq 1'>yes it's true<r:else>four</r:else></div>"
   res: "<div>yes it's true</div>"
-  
+
 case_when_html_tag:
   src: "<div do='case'><r:when test='1 eq 3'>one</r:when><r:when test='1 eq 1'>two</r:when><r:else>four</r:else></div>"
   res: "<div>two</div>"
-  
+
 case_when_html_tag_else:
   src: "<div do='case'><r:when test='1 eq 3'>one</r:when><r:when test='1 eq 3'>two</r:when><r:else>four</r:else></div>"
   res: "<div>four</div>"
-  
+
 case_when_test_attribute:
   src: "<r:case><r:when test='v_title'>one</r:when><r:else>two</r:else></r:case>"
   res: "one"
@@ -569,7 +569,7 @@ if_test_param:
 if_test_param_var:
   src: "<r:set var='year'>3000</r:set><r:if test='year eq param:f'>funky!</r:if>"
   tem: "<% set_year = capture do %>3000<% end -%><% if set_year == params[:f] -%>funky!<% end -%>"
-  
+
 if_in_if:
   src: "<r:if test='id eq 22'><r:if test='1 eq 2'>strange...<r:else>wrong!</r:else></r:if><r:else>other node</r:else></r:if>"
   tem: "<% if @node.zip.to_i == 22 -%><% if 1 == 2 -%>strange...<% elsif true -%>wrong!<% end -%><% elsif true -%>other node<% end -%>"
@@ -582,11 +582,11 @@ do_if:
 if_has_discussion:
   src: "<r:show attr='name'/>:<r:if has='discussion'>yes<r:else>no</r:else></r:if> <r:node select='42'><r:show attr='name'/>:<r:if has='discussion'>yes<r:else>no</r:else></r:if></r:node>"
   res: "status:yes letter:no"
-  
+
 case_ancestor:
   src: "<r:root><r:pages><r:each join=', '><r:case><r:when node='ancestor'><b><r:show attr='name'/></b></r:when><r:else><r:show attr='name'/></r:else></r:case></r:each></r:pages></r:root>"
   res: "collections, nature, people, <b>projects</b>, skins"
-  
+
 on_if_ancestor_no_class:
   src: "<r:root><r:pages><li do='each' on_if_node='ancestor' join=', '><r:show attr='name'/></li></r:pages></r:root>"
   res: "<li>collections</li>, <li>nature</li>, <li>people</li>, <li class='on'>projects</li>, <li>skins</li>"
@@ -637,7 +637,7 @@ on_if_attribute_with_edit:
 on_if_node_main:
   src: "<r:parent><r:pages><div do='each' on_if_node='main' do='[name]'>hello</div></r:pages></r:parent>"
   res: "<div class='on'>status</div><div>track</div>"
-  
+
 if_in_tag:
   src: "<r:form><p do='if' in='form' do='[name]'/></r:form><i do='if' in='form' do='[name]'/>done."
   res: "/<p>status</p></form></div>done./"
@@ -661,7 +661,7 @@ on_if_now:
   src: "<p do='[name]' on_if='log_at gt now'/>"
   tem: "<p<%= @node.log_at.to_i > Time.now.to_i ? \" class='on'\" : \"\" %>><%= @node.name %></p>"
   res: "<p>status</p>"
-  
+
 visitor_is_anon:
   context:
     visitor: 'anon'
@@ -682,18 +682,18 @@ on_if_in_unknown:
 test_negative_value:
   src: "<div do='void' off_if='custom_a eq -10'>...</div>"
   tem: "<div<%= @node.custom_a.to_i == -10 ? \" class='off'\" : \"\" %>>...</div>"
-  
+
 simple_each:
   src: "<r:children><r:each><r:show attr='name'/></r:each></r:children>"
   tem: "/.*if list1.*each.*var1.name/"
   res: ""
-  
+
 each_join:
   context:
     node: 'wiki'
   src: "<r:children><r:each join=', '><r:show attr='name'/></r:each></r:children>"
   res: "bird, flower"
-	
+
 each_join_if:
   context:
     node: 'status'
@@ -754,7 +754,7 @@ each_join_nasty_erb:
     node: 'wiki'
   src: "<r:children><r:each join='&lt;% puts \'nasty\' -%&gt;'><r:show attr='name'/></r:each></r:children>"
   res: "bird&lt;% puts 'nasty' -%&gt;flower"
-  
+
 img_no_image:
   src: "<r:img/>"
   tem: "<%= img_tag(@node, :mode=>\"std\") %>"
@@ -777,7 +777,7 @@ img_image:
     node: 'bird_jpg'
   src: "<r:img/><r:img mode='med'/>"
   res: "<img src='/en/image30_std.jpg' width='440' height='400' alt='bird' class='std'/><img src='/en/image30_med.jpg' width='220' height='200' alt='bird' class='med'/>"
-  
+
 img_private_image:
   context:
     node: 'tree_jpg'
@@ -801,7 +801,7 @@ img_src_mode:
 img_html_params:
   src: "<r:img src='30' id='super'/>"
   res: "<img src='/en/image30_std.jpg' width='440' height='400' alt='bird' id='super' class='std'/>"
-  
+
 test_children_plural:
   tem: "<%= 'children'.pluralize %>"
   res: "children"
@@ -811,7 +811,7 @@ each_do:
     node: 'wiki'
   src: "<r:children><r:each join=', ' do='show' attr='name'/></r:children>"
   res: "bird, flower"
-  
+
 parent_do:
   context:
     node: 'wiki'
@@ -898,15 +898,15 @@ tada:
     </div>
   res: |
     <h1 id='main_title'>parc opening</h1>
-    
+
     <ul>
       <li><a href='/oo/tag33.html'>Art</a></li>
       <li><a href='/oo/tag34.html'>News list</a></li>
     </ul>
-    
+
     <div class='zazen' id='text'><p>We are glad to announce the opening of our new project !</p>
-    
-    
+
+
     	<p>You are all invited to <strong>Romanel</strong> for a great party this weekend.</p></div>
 
 summary:
@@ -940,7 +940,7 @@ summary_in_div_with_id:
 text:
   src: "<r:text/>"
   res: "<div class='zazen' id='v_text22'><p>status text</p></div>"
-  
+
 text_code:
   context:
     node: 'Project_zafu'
@@ -958,7 +958,7 @@ design_by:
 design_by_options:
   src: "<li do='design' skin='dark' by='vador' href='http://teti.ch'></li>"
   res: "<li><i>dark</i>, design by <a href='http://teti.ch'>vador</a></li>"
-  
+
 select_class_existing_node:
   context:
     node: 'letter'
@@ -968,7 +968,7 @@ select_class_existing_node:
 select_class_new_node:
   src: "<r:pages><r:each/><r:add/><r:form><select name='klass' root_class='Note' selected='Post'/></r:form>"
   res: "/<select.*name=.node\[klass\].*Note.*Letter.*Post. selected=.selected./"
-  
+
 select_nodes:
   src: "<r:form><select nodes='images in site' name='d_ref'></select></r:form>"
   res: "/name='node\[d_ref\]'><option value=\"\" selected=\"selected\"></option>\n<option value=\"30\">bird</option>\n<option value=\"31\">flower</option>/"
@@ -980,7 +980,7 @@ do_not_set_parent_id_if_form_contains_parent_id:
 select_nodes_selected:
   src: "<r:form><select name='parent_id' nodes='projects in site'/></r:form>"
   res: "/option\s* value=.21.\s* selected=.selected.>cleanWater/"
-  
+
 select_nodes_in_ajax:
   src: "<r:pages><r:each do='[name]'/><r:add/><r:form><r:select nodes='images in site' name='d_ref'/></r:form></r:pages>"
   res: "/name=.node\[d_ref\].><option value=\"\" selected=\"selected\"></option>\n<option value=\"30\">bird</option>\n<option value=\"31\">flower</option>/"
@@ -1042,7 +1042,7 @@ input:
 input_style:
   src: "<r:input style='display:none;' type='submit'/>"
   res: "<input style='display:none;' type='submit'/>"
-  
+
 textarea:
   context:
     node: 'ant'
@@ -1056,13 +1056,13 @@ textarea_with_blocks:
   src: "<r:textarea name='c_first_name'>Sir <r:show attr='c_first_name'/></textarea>"
   tem: "<textarea name='node[c_first_name]'>Sir <%= @node.c_public_read(\"first_name\") %></textarea></textarea>"
   res: "<textarea name='node[c_first_name]'>Sir Solenopsis</textarea></textarea>"
-  
+
 input_new:
   context:
     node: 'ant'
   src: "<r:contacts><r:each/><r:form><r:input name='c_first_name'/></r:form><r:add/></r:contacts>"
   res: "!/value=''''/"
-  
+
 add_btn:
   src: "<table do='pages' in='site' limit='1'>
   <tr do='each'><td do='[name]'/></tr>
@@ -1235,7 +1235,7 @@ paginate_with_or_clause:
     pak: 2
   src: "<div do='pages' in='site' or='images in site' limit='10' order='zip' paginate='pak'><r:show var='pak_count'/> pages (<r:show var='pak_nodes'/> nodes)</div>"
   res: "<div>3 pages (21 nodes)</div>"
-  
+
 paginate_with_where_clause:
   context:
     pak: 2

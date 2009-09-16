@@ -9,7 +9,7 @@ class ChangeFileStorage < ActiveRecord::Migration
         old_data_path = "#{data_path}_old"
         directories_to_remove << "#{old_data_path}"
       end
-      
+
       DocumentContent.find(:all, :conditions => "site_id = #{site[:id]}").each do |doc|
         current_file = "#{old_data_path}/#{doc.ext}/#{doc.version_id}/#{doc.name}.#{doc.ext}"
         new_file     = doc.filepath
@@ -20,10 +20,10 @@ class ChangeFileStorage < ActiveRecord::Migration
           puts "Problem with document_content #{doc[:id]}, file #{current_file.inspect} does not exist."
         end
       end
-      
+
       site.clear_cache(false)
     end
-    
+
     puts "--------- migration done ----------"
     puts "if the change file storage went like a breeze,
 you should run the following command:

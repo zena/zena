@@ -1,6 +1,6 @@
 <r:include template='layout'>
   <r:with part='menu'/>
-  
+
   <r:with part='main'>
   <div class='header'><h1 do='title' class='s30' status='true' actions='all'>this is the title</h1></div>
     <ul class='tree' do='nodes'>

@@ -2,7 +2,7 @@
 Create, destroy sessions by letting users login and logout. When the user does not login, he/she is considered to be the anonymous user.
 =end
 class SessionsController < ApplicationController
-  
+
   def new
     respond_to do |format|
       format.html do
@@ -11,7 +11,7 @@ class SessionsController < ApplicationController
       end
     end
   end
-  
+
   def create
     if user = User.login(params[:login], params[:password], request.host)
       successful_login(user)
@@ -19,7 +19,7 @@ class SessionsController < ApplicationController
       failed_login _("Invalid login or password.")
     end
   end
-  
+
   # Clears session information and redirects to home page.
   def destroy
     reset_session
@@ -29,9 +29,9 @@ class SessionsController < ApplicationController
       redirect_to :controller => 'nodes', :action => 'index', :prefix => visitor.lang
     end
   end
-  
+
   protected
-    
+
     def failed_login(message)
       session[:user] = nil
       flash[:error] = message

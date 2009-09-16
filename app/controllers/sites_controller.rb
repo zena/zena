@@ -5,7 +5,7 @@ class SitesController < ApplicationController
   before_filter :check_is_admin
   before_filter :check_can_zena_up, :only => [:zena_up]
   layout :admin_layout
-  
+
   def index
     @site_pages, @sites = nil, nil
     secure!(Site) do
@@ -16,11 +16,11 @@ class SitesController < ApplicationController
       format.xml  { render :xml => @sites }
     end
   end
-  
+
   # Update source code and restart application
   def zena_up
     @current_rev = Zena::VERSION::REV.strip.to_i
-    
+
     if params[:rev]
       @target_rev = params[:rev].to_i
     else
@@ -31,7 +31,7 @@ class SitesController < ApplicationController
         # error
       end
     end
-    
+
     if @target_rev
       if params[:run] == 'start'
         if @current_rev >= @target_rev
@@ -63,7 +63,7 @@ class SitesController < ApplicationController
       format.js
     end
   end
-  
+
   def new
     # This is not possible through the web interface. Use rake mksite.
     raise ActiveRecord::RecordNotFound
@@ -75,12 +75,12 @@ class SitesController < ApplicationController
       format.js   { render :partial => 'sites/form', :layout => false }
     end
   end
-  
+
   def create
     # This is not possible through the web interface. Use rake mksite.
     raise ActiveRecord::RecordNotFound
   end
-  
+
   def update
     @site = Site.find(params[:id])
 
@@ -100,24 +100,24 @@ class SitesController < ApplicationController
 
   def clear_cache
     @site.clear_cache
-    
+
     @clear_cache_message = _("Cache cleared.")
   end
-  
+
   def destroy
     # This is not possible through the web interface
     raise ActiveRecord::RecordNotFound
   end
-  
+
   protected
     def visitor_node
       @node = visitor.contact
     end
-    
+
     def find_site
       @site = secure!(Site) { Site.find(params[:id])}
     end
-    
+
     def check_can_zena_up
       ENABLE_ZENA_UP && visitor.is_admin?
     end

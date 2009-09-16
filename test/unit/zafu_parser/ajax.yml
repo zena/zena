@@ -21,7 +21,7 @@ zazen_edit_publish_force:
 zazen_edit_publish_true:
   src: "<r:zazen attr='d_some_attr' edit='true' publish='true'/>"
   tem: "/attribute=d_some_attr&dom_id=.*_some_attr&publish=true&zazen=true/"
-  
+
 edit_not_each:
   src: "<li class='blah'>this is a post <r:edit>edit post</r:edit></li>"
   tem: "/<li class='blah'>this is a post </li>/"
@@ -164,7 +164,7 @@ unlink_ignored_in_form:
     node: 'art'
   src: "<r:tagged><r:each do='unlink'/><r:add/></r:tagged>"
   res: "!/<form.*bullet_delete.png/"
-  
+
 edit_link:
   context:
     node: 'art'
@@ -210,7 +210,7 @@ swap_in_each:
 update_target:
   src: "UT: <div id='foo' do='block'>...</div> <r:link update='foo'/>"
   tem: "/UT: <div id='foo'>...</div> <%= tag_to_remote.*dom_id=foo.*</a>/"
-  
+
 include_update_target:
   src: "IUT: <r:include template='/update/target'><r:with part='foo'><r:show attr='name'/></r:with></r:include>"
   tem: "/IUT: UT: <div id='foo'><%= @node.name %></div> <%= tag_to_remote.*dom_id=foo.*</a>"

@@ -28,10 +28,10 @@ Bug::        (the class we most need!). subclass of Request.
 Milestone::  special event used when choosing a Request/Bug's parent.
 =end
 class Note < Node
-  
+
   before_validation :prepare_note
   class << self
-    
+
     def select_classes
       list = subclasses.inject([]) do |list, k|
         next if k.to_s == 'Post'
@@ -41,15 +41,15 @@ class Note < Node
       list.unshift 'Post'
     end
   end
-  
+
   def export_keys
     h = super
     h[:dates] = ((h[:dates] || []) + ['log_at', 'event_at']).uniq
     h
   end
-  
+
   private
-  
+
   def prepare_note
     self[:log_at]   ||= self[:event_at] || Time.now
     self[:event_at] ||= self[:log_at]
