@@ -27,29 +27,33 @@ class Template < TextDocument
     end
   end
 
-  def filter_attributes(attributes)
-    content    = version.content
-    version_attributes = attributes['version_attributes'] ||= {}
-    new_name   = attributes['name'] || (new_record? ? (attributes['version_attributes'] || {})['title'] : nil) # only set name from version title on creation
-    content_attributes = version_attributes ||= {}
-    if new_name =~ /^([A-Z][a-zA-Z]+?)(-(([a-zA-Z_\+]*)(-([a-zA-Z_]+)|))|)(\.|\Z)/
-      content_attributes['klass' ] ||= $1
-      content_attributes['mode'  ] ||= $4
-      content_attributes['format'] ||= ($6 || 'html')
-    elsif new_name && !content_attributes['klass']
-      # name set but it is not a master template name
-      content_attributes['klass'] = nil
-    elsif !new_name
-      # force node update with new name
-      attributes['name'] = name_from_content(:format => content_attributes['format'], :mode => content_attributes['mode'], :klass => content_attributes['klass']) if content[:klass] && !new_record?
-    end
-    super(attributes)
-  end
-
   private
+
+    def rewrite_klass_mode_format
+      content = redaction.redaction_content
+
+      # only set name from version title on creation
+      if name_changed?
+        new_name = self.name
+      elsif version.title_changed?
+        new_name = version.title
+      else
+        new_name = nil
+      end
+
+      if new_name && new_name =~ /^([A-Z][a-zA-Z]+?)(-(([a-zA-Z_\+]*)(-([a-zA-Z_]+)|))|)(\.|\Z)/
+        content.klass  = $1 unless content.klass_changed?
+        content.mode   = $4 unless content.mode_changed?
+        content.format = ($6 || 'html') unless content.format_changed?
+      elsif new_name && !content.klass_changed?
+        # name set but it is not a master template name
+        content.klass = nil
+      end
+    end
 
     # Overwrite document behaviour.
     def document_before_validation
+      rewrite_klass_mode_format
       content = version.content
 
       content.mode = content.mode.url_name if content.mode
@@ -58,6 +62,7 @@ class Template < TextDocument
         # update name
         content.format = 'html' if content.format.blank?
         self[:name] = name_from_content(:format => content.format, :mode => content.mode, :klass => content.klass)
+        version.title = self[:name]
 
         if version.text.blank? && content.format == 'html' && content.mode != '+edit'
           # set a default text
@@ -87,6 +92,8 @@ END_TXT
             version.text = "<r:include template='Node'/>\n"
           end
         end
+      elsif self.name =~ /(.*)\.zafu$/
+        self.name = $1
       end
     end
 

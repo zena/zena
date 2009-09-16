@@ -36,6 +36,10 @@ class TemplateContent < ActiveRecord::Base
     version.text.size
   end
 
+  def filename
+    version.node.filename
+  end
+
   def content_type=(s)
     # ignore
   end
@@ -62,6 +66,23 @@ class TemplateContent < ActiveRecord::Base
     0 == self.class.count_by_sql("SELECT COUNT(*) FROM versions WHERE node_id = #{self[:node_id]}")
   end
 
+  # Return true if the version would be edited by the attributes
+  # TODO: DRY this (and other code) with DocumentContent.
+  def would_edit?(new_attrs)
+    new_attrs.each do |k,v|
+      if k == 'file'
+        return true if (v.respond_to?(:size) ? v.size : File.size(v.path)) != self.size
+        same = v.read(24) == self.file.read(24) && v.read == self.file.read
+        v.rewind
+        self.file.rewind
+        return true if !same
+      elsif self.class.attr_public?(k.to_s)
+        return true if field_changed?(k, self.send(k), v)
+      end
+    end
+    false
+  end
+
   private
     def template_content_before_validation
       self[:skin_name] = node.section.name
@@ -76,7 +97,7 @@ class TemplateContent < ActiveRecord::Base
     end
 
     def validate_template_content
-      if klass
+      if klass_changed? && klass
         errors.add('format', "can't be blank") unless format
         # this is a master template (found when choosing the template for rendering)
         if klass = Node.get_class(self[:klass])

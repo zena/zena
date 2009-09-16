@@ -115,6 +115,7 @@ class TemplateTest < Zena::Unit::TestCase
     doc = secure!(Template) { Template.create(:parent_id=>nodes_id(:default), :name=>'Project-collab-xml.zafu')}
     assert_kind_of Template, doc
     assert !doc.new_record?, "Saved"
+    doc = secure!(Node) { Node.find(doc[:id]) } # reload
     assert doc.update_attributes(:name => "Page-super")
     assert_equal 'super', doc.version.content.mode
     assert_equal 'html', doc.version.content.format
@@ -123,17 +124,16 @@ class TemplateTest < Zena::Unit::TestCase
     assert_equal 'Page-super', doc.name
   end
 
-  def test_update_name_blank_mode
+  def test_update_title_blank_mode
     login(:tiger)
     doc = secure!(Template) { Template.create(:parent_id=>nodes_id(:default), :name=>'Project-collab-xml.zafu')}
     assert_kind_of Template, doc
     assert !doc.new_record?, "Saved"
-    assert doc.update_attributes(:name => "Page--xml", :v_title=> "Project-collab-xml")
+    assert doc.update_attributes(:c_mode => "", :v_title=> "Project-collab-xml")
     assert_nil doc.version.content.mode
     assert_equal 'xml', doc.version.content.format
-    assert_equal 'Page', doc.version.content.klass
-    assert_equal 'Page--xml', doc.name
-    assert_equal 'Page--xml', doc.version.title
+    assert_equal 'Project--xml', doc.name
+    assert_equal 'Project--xml', doc.version.title
   end
 
   def test_update_blank_mode
@@ -142,7 +142,8 @@ class TemplateTest < Zena::Unit::TestCase
     assert_kind_of Template, doc
     assert !doc.new_record?, "Saved"
     assert_equal 'collab', doc.version.content.mode
-    assert doc.update_attributes(:c_mode => "", :name => "Project-collab-xml")
+    doc = secure!(Node) { Node.find(doc[:id]) } # reload
+    assert doc.update_attributes(:c_mode => "", :name => "Project-collab-xml") # name does not change, only mode is updated
     assert_nil doc.version.content.mode
     assert_equal 'xml', doc.version.content.format
     assert_equal 'Project', doc.version.content.klass
@@ -155,11 +156,12 @@ class TemplateTest < Zena::Unit::TestCase
     doc = secure!(Template) { Template.create(:parent_id=>nodes_id(:default), :name=>'Project-collab-xml.zafu')}
     assert_kind_of Template, doc
     assert !doc.new_record?, "Saved"
+    doc = secure!(Node) { Node.find(doc[:id]) } # reload
     assert doc.update_attributes(:name => "simple-thing")
+    assert_nil doc.version.content.klass
     assert_nil doc.version.content.mode
     assert_nil doc.version.content.format
     assert_nil doc.version.content.tkpath
-    assert_nil doc.version.content.klass
     assert_equal 'simple-thing', doc.name
   end
 
@@ -175,16 +177,16 @@ class TemplateTest < Zena::Unit::TestCase
     assert_equal 'Project', doc.version.content.klass
   end
 
-  def test_set_name2
+  def test_set_name_not_master_template
     login(:tiger)
-    doc = secure!(Template) { Template.create(:parent_id=>nodes_id(:default), :name=>'Project-collab-any-xml.zafu')}
+    doc = secure!(Template) { Template.create(:parent_id=>nodes_id(:default), :name=>'foobar.zafu')}
     assert_kind_of Template, doc
     assert !doc.new_record?, "Saved"
     assert_nil doc.version.content.mode
     assert_nil doc.version.content.format
     assert_nil doc.version.content.tkpath
     assert_nil doc.version.content.klass
-    assert_equal 'Project-collab-any-xml', doc.name
+    assert_equal 'foobar', doc.name
   end
 
   def test_set_klass
@@ -298,15 +300,19 @@ class TemplateTest < Zena::Unit::TestCase
     assert_kind_of Template, tmpt
     tmpt.send(:update_attribute_without_fuss, :updated_at, Time.gm(2006,04,11))
     assert_equal Zena::Status[:pub], tmpt.version.status
-    tmpt = secure(Node) { Node.find(tmpt[:id]) }
+
+    tmpt = secure(Node) { Node.find(tmpt[:id]) } # reload
 
     assert_equal '21a6948e0aec6de825009d8fda44f7e4', Digest::MD5.hexdigest(uploaded_text('some.txt').read)
     assert_equal '21a6948e0aec6de825009d8fda44f7e4', Digest::MD5.hexdigest(tmpt.version.content.file.read)
+    tmpt.version.content.file.rewind
     assert_equal 1, tmpt.versions.count
     assert_equal '2006-04-11 00:00', tmpt.updated_at.strftime('%Y-%m-%d %H:%M')
     assert tmpt.update_attributes(:c_file => uploaded_text('some.txt'))
     assert_equal 1, tmpt.versions.count
     assert_equal '2006-04-11 00:00', tmpt.updated_at.strftime('%Y-%m-%d %H:%M')
+
+    tmpt = secure(Node) { Node.find(tmpt[:id]) } # reload
     assert tmpt.update_attributes(:c_file => uploaded_text('other.txt'))
     assert_equal 2, tmpt.versions.count
     assert_not_equal '2006-04-11 00:00', tmpt.updated_at.strftime('%Y-%m-%d %H:%M')
