@@ -2,6 +2,13 @@ require 'test_helper'
 
 class RefactorTest < Zena::View::TestCase
   include Zena::Use::Refactor::ViewMethods # fquote
+  def _(k)
+    k
+  end
+
+  def zen_path(obj, opts)
+    "/#{opts[:lang]}/#{obj.zip}.html"
+  end
 
   def test_render_to_string
     assert_match 'stupid test 25', render_to_string(:inline=>'stupid <%= "test" %> <%= 5*5 %>')
