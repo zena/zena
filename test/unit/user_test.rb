@@ -285,7 +285,7 @@ class UserTest < Zena::Unit::TestCase
     login(:lion)
     user = secure!(User) { User.create("login"=>"john", "password"=>"isjjna78a9h", 'time_zone' => 'Zurich') }
     assert user.new_record?
-    assert_equal 'invalid', user.errors['time_zone']
+    assert_equal 'is invalid', user.errors['time_zone']
     
     user = secure!(User) { User.create("login"=>"john", "password"=>"isjjna78a9h", 'time_zone' => 'Mexico/General') }
     assert !user.new_record?
