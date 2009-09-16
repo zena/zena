@@ -2,13 +2,13 @@ require 'test_helper'
 
 class UrlsTest < Zena::View::TestCase
   include Zena::Use::Urls::ViewMethods
-  
+
   def test_zen_path
     login(:ant)
     node = secure!(Node) { nodes(:zena) }
     assert_equal "/oo", zen_path(node)
     assert_equal "/oo/project11_test.html", zen_path(node, :mode=>'test')
-    
+
     login(:anon)
     node = secure!(Node) { nodes(:zena) }
     assert_equal "/en", zen_path(node)
@@ -24,14 +24,14 @@ class UrlsTest < Zena::View::TestCase
     assert_equal "/en/projects/cleanWater/page22.html", zen_path(node)
     assert_equal "/en/projects/cleanWater/page22_test.html", zen_path(node, :mode=>'test')
   end
-  
+
   def test_zen_path_asset
     login(:ant)
     node = secure!(Node) { nodes(:zena) }
     assert_equal "/oo/project11.abcd.html", zen_path(node, :asset=>'abcd')
     node = secure!(Node) { nodes(:people) }
     assert_equal "/oo/section12.m1234.png", zen_path(node, :asset=>'m1234', :format=>'png')
-    
+
     login(:anon)
     node = secure!(Node) { nodes(:zena) }
     assert_equal "/en/project11.abcd.png", zen_path(node, :asset=>'abcd', :format=>'png')
@@ -43,28 +43,27 @@ class UrlsTest < Zena::View::TestCase
     node = secure!(Node) { nodes(:status) }
     assert_equal "/en/projects/cleanWater/page22.abcd.png", zen_path(node, :asset => 'abcd', :format => 'png')
   end
-  
+
   def test_zen_url
-    params[:format] = 'html'
     node = secure!(Node) { nodes(:zena) }
     assert_equal "http://test.host/en", zen_url(node)
     assert_equal "http://test.host/en/project11_test.html", zen_url(node, :mode=>'test')
   end
-  
+
   def test_data_path_for_public_documents
     login(:ant)
     node = secure!(Node) { nodes(:water_pdf) }
     assert_equal "/en/projects/cleanWater/document25.pdf", data_path(node)
     node = secure!(Node) { nodes(:status) }
     assert_equal "/oo/projects/cleanWater/page22.html", data_path(node)
-    
+
     login(:anon)
     node = secure!(Node) { nodes(:water_pdf) }
     assert_equal "/en/projects/cleanWater/document25.pdf", data_path(node)
     node = secure!(Node) { nodes(:status) }
     assert_equal "/en/projects/cleanWater/page22.html", data_path(node)
   end
-  
+
   def test_data_path_for_non_public_documents
     login(:tiger)
     node = secure!(Node) { nodes(:water_pdf) }
@@ -73,7 +72,7 @@ class UrlsTest < Zena::View::TestCase
     assert_equal "/oo/projects/cleanWater/document25.pdf", data_path(node)
     node = secure!(Node) { nodes(:status) }
     assert_equal "/oo/projects/cleanWater/page22.html", data_path(node)
-    
+
     login(:anon)
     assert_raise(ActiveRecord::RecordNotFound) { secure!(Node) { nodes(:water_pdf) } }
   end
