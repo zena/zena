@@ -15,33 +15,33 @@ class TextDocument < Document
     def accept_content_type?(content_type)
       (content_type =~ /^(text)/ && TYPE_TO_EXT[content_type.chomp] != ['rtf']) || (content_type =~ /x-javascript/)
     end
-    
+
     def version_class
       TextDocumentVersion
     end
   end
-  
-  
+
+
   def can_parse_assets?
     return ['text/css'].include?(version.content.content_type)
   end
-  
+
   # Parse text content and replace all reference to relative urls ('img/footer.png') by their zen_path ('/en/image34.png')
   def parse_assets(text, helper, key)
     if key == 'v_text' && version.content.content_type == 'text/css'
       res = text.dup
       # use skin as root
       skin = section
-      
+
       # not in a Skin. Cannot replace assets in CSS.
       # error
       unless skin.kind_of?(Skin)
         errors.add('base', 'Cannot parse assets if not in a Skin.')
         return
       end
-      
+
       current_folder = parent.fullpath
-      
+
       res.gsub!(/url\(\s*(.*?)\s*\)/) do
         match, src = $&, $1
         if src =~ /('|")(.*?)\1/
@@ -69,14 +69,14 @@ class TextDocument < Document
     end
     res
   end
-  
+
   # Parse text and replace absolute urls ('/en/image30.jpg') by their relative value in the current skin ('img/bird.jpg')
   def unparse_assets(text, helper, key)
     if key == 'v_text' && version.content.content_type == 'text/css'
       res = text.dup
       # use parent as relative root
       current_folder = parent.fullpath
-      
+
       res.gsub!(/url\(('|")(.*?)\1\)/) do
         if $2[0..6] == 'http://'
           $&
@@ -89,9 +89,9 @@ class TextDocument < Document
               "url(#{quote}#{url}#{quote})"
             end
             if asset.fullpath =~ /\A#{current_folder}\/(.+)/
-              "url(#{quote}#{$1}.#{asset.c_ext}#{quote})"
+              "url(#{quote}#{$1}.#{asset.version.content.ext}#{quote})"
             else
-              "url(#{quote}/#{asset.fullpath}.#{asset.c_ext}#{quote})"
+              "url(#{quote}/#{asset.fullpath}.#{asset.version.content.ext}#{quote})"
             end
           else
             # bad format
@@ -105,19 +105,19 @@ class TextDocument < Document
       super
     end
   end
-  
+
   # List of keys to export in a zml file. "v_text" is ignored since it's exported in a separate file.
   def export_keys
     h = super
     h[:zazen] -= ['v_text']
     h
   end
-  
+
   # List of keys which need transformations
   def parse_keys
     (super + (version.content.content_type == 'text/css' ? ['v_text'] : [])).uniq
   end
-  
+
   # Return the code language used for syntax highlighting.
   def content_lang
     ctype = version.content.content_type
@@ -134,26 +134,18 @@ class TextDocument < Document
       nil
     end
   end
-  
-  def c_size
-    version.text.size
-  end
-  
-  def c_filename
-    filename
-  end
-  
+
   private
-    
+
     # Overwrite superclass (DocumentContent) behavior
     def valid_file
       return true
     end
-  
+
     def document_before_validation
       super
       content = version.content
       content[:content_type] ||= 'text/plain'
       content[:ext]  ||= 'txt'
-    end  
+    end
 end

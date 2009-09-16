@@ -1,16 +1,16 @@
 class TemplateContent < ActiveRecord::Base
   act_as_content
   attr_public     :tkpath, :ext, :format, :content_type, :filename, :mode, :klass, :skin_name
-  
+
   # FIXME: use attr_accessible !
   #safe_attribute  :file
-  
+
   attr_protected :tkpath
   belongs_to :node
   belongs_to :site
   before_validation :template_content_before_validation
   validate   :validate_template_content
-  
+
   def preload_version(v)
     # dummy called by Version
   end
@@ -18,46 +18,50 @@ class TemplateContent < ActiveRecord::Base
   def ext
     'zafu'
   end
-  
+
   # We need this because 'format' is a Kernel method and we do not want it to be called instead of getting the attribute.
   def format
     self[:format]
   end
-  
+
   def ext=(s)
     # ignore (needed for compatibility with DocumentContent)
   end
-  
+
   def content_type
     "text/zafu"
   end
-  
+
+  def size(format=nil)
+    version.text.size
+  end
+
   def content_type=(s)
     # ignore
   end
-  
+
   # pre-load version
   def version=(v)
     @version = v
   end
-  
+
   def file=(file)
+    @file = file
     version.text = file.read
   end
-  
+
   def file(mode=nil)
-    t = StringIO.new(version.text)
-    t
+    @file ||= StringIO.new(version.text)
   end
-  
+
   def version
     @version ||= node.version
   end
-  
+
   def can_destroy?
     0 == self.class.count_by_sql("SELECT COUNT(*) FROM versions WHERE node_id = #{self[:node_id]}")
   end
-  
+
   private
     def template_content_before_validation
       self[:skin_name] = node.section.name
@@ -70,7 +74,7 @@ class TemplateContent < ActiveRecord::Base
         self[:format] = nil
       end
     end
-  
+
     def validate_template_content
       if klass
         errors.add('format', "can't be blank") unless format

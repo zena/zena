@@ -26,7 +26,7 @@ module Zena
               sharp_node = sharp_in.kind_of?(Node) ? sharp_in : (node.find(:first, [sharp_in]) || node)
               return "#{zen_path(sharp_node, options)}##{sharp_value}"
             else
-              return "##{sharp_value}"          
+              return "##{sharp_value}"
             end
           end
 
@@ -75,12 +75,12 @@ module Zena
           if node.public? && !current_site.authentication?
             # force the use of a cacheable path for the data, even when navigating in '/oo'
             # FIXME: we could use 'node.version.lang' if most of the time the version is loaded.
-            zen_path(node, opts.merge(:format => node.c_ext, :prefix=>node.v_lang))
-          else  
-            zen_path(node, opts.merge(:format => node.c_ext))
+            zen_path(node, opts.merge(:format => node.version.content.ext, :prefix => node.version.lang))
+          else
+            zen_path(node, opts.merge(:format => node.version.content.ext))
           end
         end
-        
+
         # Url parameters (without format/mode/prefix...)
         def query_params
           res = {}
@@ -100,18 +100,18 @@ module Zena
           end
           res
         end
-        
-        
+
+
       end # Common
 
       module ControllerMethods
-        include Common        
+        include Common
       end
-      
+
       module ViewMethods
         include Common
       end
-      
+
     end # Urls
   end # Use
 end # Zena

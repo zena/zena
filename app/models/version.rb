@@ -197,12 +197,12 @@ class Version < ActiveRecord::Base
   def would_edit?(new_attrs)
     new_attrs.each do |k,v|
       next if ['status', 'publish_from'].include?(k.to_s)
-      if self.class.attr_public?(k.to_s)
-        return true if field_changed?(k, self.send(k), v)
-      elsif k.to_s == 'content_attributes'
+      if k.to_s == 'content_attributes'
         return true if content.would_edit?(v)
       elsif k.to_s == 'dyn_attributes'
         return true if dyn.would_edit?(v)
+      elsif self.class.attr_public?(k.to_s)
+        return true if field_changed?(k, self.send(k), v)
       end
     end
     false

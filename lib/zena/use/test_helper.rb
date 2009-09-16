@@ -13,11 +13,11 @@ module Zena
           $_test_site  = site.name if site
           @visitor = User.make_visitor(:site => site, :id => users_id(name))
         end
-        
+
         @visitor.ip = '10.0.0.127'
         # FIXME: I18n: set visitor.lang
       end
-      
+
       def preserving_files(path, &block)
         path = "/#{path}" unless path[0..0] == '/'
         if File.exist?("#{SITES_ROOT}#{path}")
