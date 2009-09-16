@@ -91,9 +91,6 @@ ActiveSupport::Inflector.inflections do |inflect|
   inflect.uncountable %w( children )
 end
 
-ZazenParser = Parser.parser_with_rules(Zazen::Rules, Zazen::Tags)
-ZafuParser  = Parser.parser_with_rules(Zafu::Rules, Zena::Rules, Zafu::Tags, Zena::Tags)
-
 require File.join(lib_path, 'fix_rails_layouts.rb') # FIXME: remove when https://rails.lighthouseapp.com/projects/8994/tickets/3207 approved
 
 #FIXME: remove all these hacks !

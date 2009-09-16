@@ -1,8 +1,15 @@
+puts "loading CodeSyntax"
 require 'rubygems'
 require 'syntax/convertors/html'
 require 'syntax/lang/xml'
 require 'syntax/lang/ruby'
 require 'syntax'
+
+module Zena
+  module CodeSyntax
+    # dummy module to auto load 'syntax'
+  end
+end
 
 module Syntax
   # changed 'Token' class to make recursive calls possible
@@ -61,7 +68,7 @@ module Syntax
       end
       params
     end
-  end
+  end # Tokenizer
 
   module Convertors
 
@@ -97,8 +104,8 @@ module Syntax
         html
       end
     end
-  end
-end
+  end # Convertors
+end # CodeSyntax
 
 class ZafuTokenizer < Syntax::Tokenizer
   def step
@@ -155,7 +162,7 @@ class ZafuTokenizer < Syntax::Tokenizer
       start_group :normal, scan(/./m)
     end
   end
-end
+end # ZafuTokenizer
 Syntax::SYNTAX['zafu'] = ZafuTokenizer
 
 class ErbTokenizer < Syntax::Tokenizer
@@ -173,7 +180,7 @@ class ErbTokenizer < Syntax::Tokenizer
       start_group :normal, scan(/./m)
     end
   end
-end
+end # ErbTokenizer
 Syntax::SYNTAX['erb'] = ErbTokenizer
 
 class CssTokenizer < Syntax::Tokenizer
@@ -218,7 +225,7 @@ class CssTokenizer < Syntax::Tokenizer
       start_group :normal, scan(/./m)
     end
   end
-end
+end # CssTokenizer
 Syntax::SYNTAX['css'] = CssTokenizer
 
 class ShTokenizer < Syntax::Tokenizer
@@ -235,7 +242,7 @@ class ShTokenizer < Syntax::Tokenizer
       start_group :normal, scan(/./m)
     end
   end
-end
+end # ShTokenizer
 Syntax::SYNTAX['sh'] = ShTokenizer
 
 class PseudoSqlTokenizer < Syntax::Tokenizer
@@ -265,7 +272,5 @@ class PseudoSqlTokenizer < Syntax::Tokenizer
       start_group :normal, scan(/./m)
     end
   end
-end
+end # PseudoSqlTokenizer
 Syntax::SYNTAX['pseudo_sql'] = PseudoSqlTokenizer
-
-
