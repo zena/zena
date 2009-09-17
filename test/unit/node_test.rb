@@ -596,13 +596,13 @@ class NodeTest < Zena::Unit::TestCase
     @node = secure!(Node) { nodes(:status)  }
     assert_nothing_raised { @node.find(:all, 'set_tags') }
     assert_nil @node.find(:all, 'set_tags')
-    @node.set_tag_ids = [nodes_id(:art),nodes_id(:news)]
+    @node.rel['set_tag'].other_ids = [nodes_id(:art),nodes_id(:news)]
     assert @node.save
     tags = @node.find(:all, 'set_tags')
     assert_equal 2, tags.size
     assert_equal 'art', tags[0].name
     assert_equal 'news', tags[1].name
-    @node.set_tag_ids = [nodes_id(:art)]
+    @node.rel['set_tag'].other_ids = [nodes_id(:art)]
     @node.save
     tags = @node.find(:all, 'set_tags')
     assert_equal 1, tags.size
