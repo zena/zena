@@ -514,7 +514,7 @@ module Zena
         def version_action_link(action,version)
           if action == 'view'
             # FIXME
-            link_to_function(_('btn_view'), "opener.Zena.version_preview(#{version.number});")
+            link_to_function(_('btn_view'), "opener.Zena.version_preview('/nodes/#{version.node.zip}/versions/#{version.number}');")
           else
             link_to_remote( _("btn_#{action}"), :url=>{:controller=>'versions', :action => action, :node_id => version.node[:zip], :id => version.number, :drive=>true}, :title=>_("btn_title_#{action}"), :method => :put ) + "\n"
           end

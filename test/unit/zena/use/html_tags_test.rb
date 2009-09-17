@@ -218,4 +218,14 @@ class HtmlTagsTest < Zena::View::TestCase
     overwrite_params(:prefix => 'fr')
     assert_match %r{<em>en</em>.*href=.*/fr/projects/cleanWater.*fr.*}, lang_links
   end
+
+  def test_version_actions
+    print 'P'
+  end
+
+  def test_version_action_view
+    login(:lion)
+    node = secure!(Node) { nodes(:status) }
+    assert_match %r{opener.Zena.version_preview\('/nodes/#{node.zip}/versions/#{node.version.number}'\)}, version_actions(node.version, :actions => :view)
+  end
 end

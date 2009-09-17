@@ -11,7 +11,7 @@ Zena.editor_preview = function(url, element, value) {
 
 // preview version.
 Zena.version_preview = function(url) {
-  new Ajax.Request(url, {asynchronous:true, evalScripts:true})
+  window.location.href = url;
 }
 
 // version diff.
