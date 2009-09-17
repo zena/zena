@@ -260,6 +260,14 @@ class VersionTest < Zena::Unit::TestCase
     assert node.new_record?
     assert node.errors[:version_lang].any?
   end
+  
+  def test_set_v_lang
+    login(:tiger)
+    assert_equal 'en', visitor.lang
+    node = secure!(Page) { Page.create(:v_lang => 'fr', :parent_id => nodes_id(:status), :name => 'hello', :v_title => '')}
+    assert !node.new_record?
+    assert_equal 'fr', node.version.lang
+  end
 
   def test_should_parse_publish_from_date
     I18n.locale = 'fr'

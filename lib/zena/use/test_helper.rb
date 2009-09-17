@@ -1,6 +1,11 @@
 module Zena
   module Use
     module TestHelper
+      # Set the current site used for testing (mostly to generate ids)
+      def test_site(site_name)
+        $_test_site = site_name
+      end
+
       # Set visitor for unit testing
       def login(name='anon', site_name = nil)
         if site_name

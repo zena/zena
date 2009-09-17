@@ -109,7 +109,7 @@ class TextDocument < Document
   # List of keys to export in a zml file. "v_text" is ignored since it's exported in a separate file.
   def export_keys
     h = super
-    h[:zazen] -= ['v_text']
+    h[:zazen].delete('v_text')
     h
   end
 

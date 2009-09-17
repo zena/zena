@@ -446,21 +446,25 @@ class Node < ActiveRecord::Base
           type   = :folder
           name   = filename
           sub_folder = path
+          attrs = defaults.dup
         elsif filename =~ /^(.+?)(\.\w\w|)(\.\d+|)\.zml$/  # bird.jpg.en.zml
           # node content in yaml
           type   = :node
           name   = "#{$1}#{$4}"
           lang   = $2.blank? ? nil : $2[1..-1]
-          attrs  = defaults.merge(get_attributes_from_yaml(path)) # FIXME: this should be done with proper 'base_node' [#226]
+
+          # no need for base_node (this is done after all with parse_assets in the controller)
+          attrs  = defaults.merge(get_attributes_from_yaml(path))
           attrs['name']     = name
           attrs['v_lang']   = lang || attrs['v_lang'] || visitor.lang
           versions << attrs
-        elsif filename =~ /^(.+?\..+?)(\.\w\w|)(\.\d+|)$/ # bird.jpg.en
+        elsif filename =~ /^((.+?)\.(.+?))(\.\w\w|)(\.\d+|)$/ # bird.jpg.en
           type   = :document
           name   = $1
           attrs  = defaults.dup
-          lang = $2.blank? ? nil : $2[1..-1]
-          attrs['v_lang']   = lang || attrs['v_lang'] || visitor.lang
+          lang = $4.blank? ? nil : $4[1..-1]
+          attrs['v_lang'] = lang || attrs['v_lang'] || visitor.lang
+          attrs['c_ext'] = $3
           document_path = path
         end
 
@@ -470,7 +474,8 @@ class Node < ActiveRecord::Base
           path   = File.join(folder,entries[index])
 
           # we have a zml file. Create a version with this file
-          attrs = defaults.merge(get_attributes_from_yaml(path)) # FIXME: this should be done with proper 'base_node' (= self) [#226]
+          # no need for base_node (this is done after all with parse_assets in the controller)
+          attrs = defaults.merge(get_attributes_from_yaml(path))
           attrs['name']     = name
           attrs['v_lang'] ||= lang
           versions << attrs
@@ -481,14 +486,12 @@ class Node < ActiveRecord::Base
         if versions.empty?
           if type == :folder
             # minimal node for a folder
-            attrs = defaults.dup
             attrs['name']     = name
             attrs['v_lang'] ||= lang
             attrs['class']    = klass
             versions << attrs
           elsif type == :document
-            # minimal node for a folder
-            attrs = defaults.dup
+            # minimal node for a document
             attrs['name']     = name
             attrs['v_lang'] ||= lang
             versions << attrs
@@ -500,9 +503,9 @@ class Node < ActiveRecord::Base
           # FIXME: same lang: remove before update current_obj.remove if current_obj.v_lang == attrs['v_lang'] && current_obj.v_status != Zena::Status[:red]
           # FIXME: current_obj.publish if attrs['v_status'].to_i == Zena::Status[:pub]
           if type == :document
-            attrs['c_ext'] = attrs['name'].split('.').last
             attrs['name' ] = attrs['name'].split('.')[0..-2].join('.')
             if document_path
+              attrs['c_ext'] ||= document_path.split('.').last
               # file
               insert_zafu_headings = false
               if opts[:parent_class] == 'Skin' && ['html','xhtml'].include?(attrs['c_ext']) && attrs['name'] == 'index'
@@ -722,7 +725,7 @@ class Node < ActiveRecord::Base
             res[key] = attributes[key]
           end
         elsif attributes[key].kind_of?(Hash)
-          res[key] = transform_attributes(attributes[key])
+          res[key] = transform_attributes(attributes[key], base_node)
         else
           # translate zazen
           value = attributes[key]
@@ -870,7 +873,7 @@ class Node < ActiveRecord::Base
   # Parse text content and replace all relative urls ('../projects/art') by ids ('34')
   def parse_assets(text, helper, key)
     # helper is used in textdocuments
-    ZazenParser.new(text,:helper=>helper).render(:translate_ids => :zip, :node=>self)
+    ZazenParser.new(text,:helper=>helper).render(:translate_ids => :zip, :node => self)
   end
 
   # Parse text and replace ids '!30!' by their pseudo path '!(img/bird)!'
@@ -1337,11 +1340,11 @@ class Node < ActiveRecord::Base
   # export node as a hash
   def to_yaml
     hash = {}
-    export_keys[:zazen].merge(version.export_keys[:zazen]).each do |k, v|
+    export_keys[:zazen].each do |k, v|
       hash[k] = unparse_assets(v, self, k)
     end
 
-    export_keys[:dates].merge(version.export_keys[:dates]).each do |k|
+    export_keys[:dates].each do |k|
       hash[k] = visitor.tz.utc_to_local(self.send(k)).strftime("%Y-%m-%d %H:%M:%S")
     end
 
@@ -1352,8 +1355,8 @@ class Node < ActiveRecord::Base
   # List of attribute keys to export in a zml file.
   def export_keys
     {
-      :zazen => {},
-      :dates => {},
+      :zazen => version.export_keys[:zazen],
+      :dates => version.export_keys[:dates],
     }
   end
 

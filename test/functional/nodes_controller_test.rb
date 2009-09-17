@@ -58,9 +58,10 @@ END:VCALENDAR
   end
 
   def test_cache_css_auto_publish
-    login(:tiger)
+    test_site('zena')
     Site.connection.execute    "UPDATE sites set auto_publish = 1, redit_time = 7200 WHERE id = #{sites_id(:zena)}"
     Version.connection.execute "UPDATE versions set updated_at = '#{Time.now.strftime('%Y-%m-%d %H:%M:%S')}' WHERE id = #{versions_id(:style_css_en)}"
+    login(:tiger)
     without_files('/test.host/public') do
       name = "textdocument#{nodes_zip(:style_css)}.css"
       filename = "#{SITES_ROOT}/test.host/public/en/#{name}"
@@ -87,7 +88,7 @@ END:VCALENDAR
   def test_import_xhtml
     login(:tiger)
     preserving_files('/test.host/data') do
-      post 'import', :id => nodes_zip(:skins), :node => {:klass => 'Skin', :archive => uploaded_archive('jet_30.zip')}
+      post 'import', :id => nodes_zip(:skins), :node => {:klass => 'Skin', :v_status => Zena::Status[:pub]}, :attachment => uploaded_archive('jet_30.zip')
       node_list = assigns(:nodes)
       nodes = {}
       node_list.each do |n|
@@ -110,15 +111,15 @@ END:VCALENDAR
         assert nodes[p]
         assert_kind_of Image, nodes[p]
       end
-      assert_match %r{#header ul\{\s*background:url\('/oo/image#{navBar.zip}.gif'\)}m, style.v_text
-      assert_match %r{a\.xht:hover\{\s*background:url\('/oo/image#{xhtmlBgHover.zip}.gif'\)}, style.v_text
+      assert_match %r{#header ul\{\s*background:url\('/en/image#{navBar.zip}.gif'\)}m, style.v_text
+      assert_match %r{a\.xht:hover\{\s*background:url\('/en/image#{xhtmlBgHover.zip}.gif'\)}, style.v_text
 
       # use this template
       status = secure(Node) { nodes(:status) }
       assert status.update_attributes(:skin => 'jet30', :inherit => 0)
       get 'show', 'prefix'=>'oo', 'path'=>['projects', 'cleanWater', "page#{nodes_zip(:status)}.html"]
       assert_response :success
-      assert_match %r{posuere eleifend arcu</p>\s*<img [^>]*src\s*=\s*./oo/image#{topIcon.zip}.gif}, @response.body
+      assert_match %r{posuere eleifend arcu</p>\s*<img [^>]*src\s*=\s*./en/image#{topIcon.zip}.gif}, @response.body
     end
   end
 
@@ -130,6 +131,7 @@ END:VCALENDAR
 
       nodes = secure!(Node) { Node.create_nodes_from_folder(:folder => File.join(RAILS_ROOT, 'test', 'fixtures', 'import'), :parent_id => parent[:id] )}.values
       @controller.send(:parse_assets, nodes)
+
       children = parent.find(:all, 'children')
       assert_equal 2, children.size
       assert_equal 4, nodes.size

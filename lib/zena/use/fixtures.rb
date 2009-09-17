@@ -63,6 +63,7 @@ module Zena
             end
 
             define_method(table_name + "_id") do |fixture|
+              raise Exception.new("$_test_site is blank!") if $_test_site.blank?
               Zena::FoxyParser::id($_test_site, fixture)
             end
           end

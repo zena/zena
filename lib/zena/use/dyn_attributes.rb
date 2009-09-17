@@ -51,6 +51,12 @@ module Zena
           hash[key.to_s]
         end
 
+        def map
+          hash.map do |k,v|
+            yield(k,v)
+          end
+        end
+
         def send(key)
           return nil unless valid_key?(key)
           hash[key.to_s]

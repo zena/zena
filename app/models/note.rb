@@ -44,7 +44,7 @@ class Note < Node
 
   def export_keys
     h = super
-    h[:dates] = ((h[:dates] || []) + ['log_at', 'event_at']).uniq
+    h[:dates].merge!('log_at' => log_at, 'event_at' => event_at)
     h
   end
 

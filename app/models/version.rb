@@ -173,7 +173,7 @@ class Version < ActiveRecord::Base
   # List of attribute keys to export in a zml file.
   def export_keys
     {
-      :zazen => {'v_title' => title, 'v_text' => text}.merge(Hash[*version.dyn.map{|k,v| ["d_#{k}", v]}.flatten]),
+      :zazen => {'v_title' => title, 'v_text' => text}.merge(Hash[*dyn.map{|k,v| ["d_#{k}", v]}.flatten]),
       :dates => {},
     }
   end

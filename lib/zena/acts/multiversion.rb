@@ -406,18 +406,20 @@ module Zena
 
         # Define attributes for the current redaction.
         def version_attributes=(attrs)
-          edit!(attrs['status'], version.would_edit?(attrs))
+          edit!(attrs)
           version.attributes = attrs
         end
 
-        def edit!(target_status = nil, would_edit = true)
+        def edit!(version_attributes = nil)
+          target_status = version_attributes ? version_attributes['status'] : nil
+          would_edit    = version_attributes ? version.would_edit?(version_attributes) : true
           @redaction ||= begin
             target_status ||= current_site[:auto_publish] ? Zena::Status[:pub] : Zena::Status[:red]
             v = self.version
             if new_record? || !would_edit
               # nothing to do
               @version
-            elsif v.lang != visitor.lang
+            elsif v.lang != ((version_attributes || {})['lang'] || visitor.lang)
               # clone
               build_redaction(v, target_status)
             elsif v.user_id == visitor.id

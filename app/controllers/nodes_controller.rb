@@ -277,7 +277,14 @@ class NodesController < ApplicationController
 
   # import sub-nodes from a file
   def import
-    @nodes = secure!(Node) { Node.create_nodes_from_folder(:klass => params[:node][:klass], :archive => params[:attachment], :parent => @node) }.values
+    defaults = params[:node]
+    klass = defaults.delete(:klass)
+    @nodes = secure!(Node) { Node.create_nodes_from_folder(
+      :klass    => klass,
+      :archive  => params[:attachment],
+      :parent   => @node,
+      :defaults => defaults
+    )}.values
     # parse pseudo_ids
     parse_assets(@nodes)
 
@@ -521,7 +528,6 @@ class NodesController < ApplicationController
     def parse_assets(nodes)
       nodes.each do |n|
         next unless n.errors.empty?
-
         attrs = {}
 
         n.parse_keys.each do |k|

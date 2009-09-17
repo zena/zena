@@ -1449,4 +1449,12 @@ done: \"I am done\""
     v = secure(Node) {Node.new('log_at' => '9-9-2009 15:17')}
     assert_equal Time.utc(2009,9,9,8,17), v.log_at
   end
+
+  def test_parse_keys
+    node = secure(Node) { nodes(:status) }
+    assert_equal ["d_assigned", "v_text", "v_title", "d_problems", "d_archive"], node.parse_keys
+
+    note = secure(Node) { nodes(:opening) }
+    assert_equal ["v_text", "v_title"], note.parse_keys
+  end
 end
