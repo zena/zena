@@ -136,7 +136,7 @@ class Node < ActiveRecord::Base
   after_create       :node_after_create
   attr_protected     :site_id, :zip, :id, :section_id, :project_id, :publish_from, :max_status
   #attr_accessible    :version_content
-  attr_public        :name, :created_at, :updated_at, :event_at, :log_at, :kpath, :user_zip, :parent_zip, :project_zip,
+  attr_public        :id, :name, :created_at, :updated_at, :event_at, :log_at, :kpath, :user_zip, :parent_zip, :project_zip,
                      :section_zip, :skin, :ref_lang, :fullpath, :rootpath, :position, :publish_from, :max_status, :rgroup_id,
                      :wgroup_id, :pgroup_id, :basepath, :custom_base, :klass, :zip, :score, :comments_count,
                      :custom_a, :custom_b,
@@ -1344,8 +1344,8 @@ class Node < ActiveRecord::Base
       hash[k] = unparse_assets(v, self, k)
     end
 
-    export_keys[:dates].each do |k|
-      hash[k] = visitor.tz.utc_to_local(self.send(k)).strftime("%Y-%m-%d %H:%M:%S")
+    export_keys[:dates].each do |k, v|
+      hash[k] = visitor.tz.utc_to_local(v).strftime("%Y-%m-%d %H:%M:%S")
     end
 
     hash.merge!('class' => self.klass)
@@ -1434,13 +1434,19 @@ class Node < ActiveRecord::Base
 
   private
     def node_before_validation
-
       self[:kpath] = self.vclass.kpath
 
-      # set name from version title if name not set yet
-      self.name = version[:title] unless self[:name]
+      self.name ||= version.title.url_name
 
-      if self[:name]
+      if ref_lang == version.lang && version.status == Zena::Status[:pub]
+        if name_changed? && !name.blank?
+          version.title = self.name.gsub(/([A-Z])/) { " #{$1.downcase}" }
+        else
+          self.name = version.title.url_name
+        end
+      end
+
+      unless name.blank?
         # update cached fullpath
         if new_record? || name_changed? || parent_id_changed?
           self[:fullpath] = self.fullpath(true,false)
@@ -1568,8 +1574,7 @@ class Node < ActiveRecord::Base
     end
 
     # Called after a node is published
-    def after_publish(version_changes)
-      sync_name(version_changes)
+    def after_publish
       return true if @new_record_before_save
       sync_documents(:publish)
     end
@@ -1605,14 +1610,6 @@ class Node < ActiveRecord::Base
       allOK
     end
 
-    # Try to keep node name in sync with published version title in ref_lang. This is set after_publish.
-    def sync_name(version_changes)
-      title_changes = version_changes['title']
-      if title_changes && ref_lang == version.lang && name == title_changes.first.url_name
-        update_attributes(:name => version.title.url_name)
-      end
-    end
-
     # Whenever something changed (publication/proposition/redaction/link/...)
     def after_all
       sweep_cache
@@ -1624,7 +1621,7 @@ class Node < ActiveRecord::Base
         @add_comment[:discussion_id] = @discussion[:id]
         @add_comment[:user_id]       = visitor[:id]
 
-        @comment = secure!(Comment) { Comment.create(filter_attributes(@add_comment)) }
+        @comment = secure!(Comment) { Comment.create(@add_comment) }
 
         remove_instance_variable(:@add_comment)
       end

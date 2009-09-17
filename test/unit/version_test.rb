@@ -219,7 +219,7 @@ class VersionTest < Zena::Unit::TestCase
     assert v.would_edit?('title' => 'different')
     assert v.would_edit?('dyn_attributes' => {'foo' => 'different'})
     assert !v.would_edit?('title' => v.title)
-    assert !v.would_edit?('status' => 999)
+    assert v.would_edit?('status' => Zena::Status[:red])
     assert !v.would_edit?('illegal_field' => 'whatever')
     assert !v.would_edit?('node_id' => 'whatever')
   end
@@ -260,7 +260,7 @@ class VersionTest < Zena::Unit::TestCase
     assert node.new_record?
     assert node.errors[:version_lang].any?
   end
-  
+
   def test_set_v_lang
     login(:tiger)
     assert_equal 'en', visitor.lang

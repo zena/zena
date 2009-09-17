@@ -16,7 +16,7 @@ module Zena
           })
 
           # TODO: remove for Observers.
-          after_save        :after_all
+          after_save    :after_all
 
           has_many :versions,  :class_name => opts[:class_name],
                    :order=>"number DESC", :dependent => :destroy #, :inverse_of => :node
@@ -63,6 +63,12 @@ module Zena
           add_transition(:propose, :from => (30..34), :to => 40) do |r|
             r.version.user_id == r.visitor[:id]
           end
+
+                                         # red   red_vis     prop_with
+          add_transition(:propose, :from => (30..34), :to => 35) do |r|
+            r.version.user_id == r.visitor[:id]
+          end
+
                                     # prop_with  prop        red
           add_transition(:refuse,  :from => (35..40), :to => 30) do |r|
             (   r.can_visible? ||
@@ -549,7 +555,7 @@ module Zena
               end
             when :update_attributes
               # nothing to do
-            when :unpublish, :remove, :redit
+            when :unpublish, :remove, :redit, :refuse
               # moving down
               self.max_status = [get_max_status, version.status.to_i].max
             when :propose
@@ -564,8 +570,11 @@ module Zena
             if @redaction && @redaction.should_save?
               changes = @redaction.changes
               return false unless @redaction.save
-              if @redaction.status == Zena::Status[:pub]
-                after_publish(changes)
+              # What was the transition ?
+              if status_changes = changes['status']
+                transition = transition_for(status_changes[-2], status_changes[-1])
+                method = "after_#{transition[:name]}"
+                send(method) if respond_to?(method, true)
               end
             end
 

@@ -160,6 +160,25 @@ module Zena
             list << [regexp, target]
           end
         end
+
+        # Same as model method but will not take Proc type resolution. This is
+        # used by attr_public? until RubyLess is used instead or maybe RubyLess
+        # will use it as well...
+        def nested_model_names_for_alias(attribute)
+          attribute = attribute.to_s
+          nested_model_names = nil
+          nested_attr_alias_list.each do |regexp, target|
+            if attribute =~ regexp
+              if target.kind_of?(Proc)
+                # ignore
+              else
+                nested_model_names = target + [$1]
+                break
+              end
+            end
+          end
+          nested_model_names
+        end
       end # ClassMethods
 
     end # NestedAttributesAlias

@@ -51,7 +51,7 @@ module Zena
           base.after_destroy :destroy_links
           base.attr_public   :link  # TODO: why is this attr_public ?
           base.attr_public(*LINK_ATTRIBUTES.map {|k| "l_#{k}".to_sym})
-          base.nested_attributes_alias LINK_REGEXP => Proc.new {|klass, m| klass.relation_alias(m) }
+          base.nested_attributes_alias LINK_REGEXP => Proc.new {|obj, m| obj.relation_alias(m) }
           base.class_eval <<-END
             attr_accessor :link
             class << self

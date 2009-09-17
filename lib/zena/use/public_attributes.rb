@@ -35,7 +35,18 @@ module Use
 
           # Return true if the attribute can be safely read
           def attr_public?(key)
-            public_attributes.include?(key.to_s)
+            if public_attributes.include?(key.to_s)
+              true
+            elsif respond_to?(:nested_model_names_for_alias) && classes = nested_model_names_for_alias(key)
+              # try to find sub class
+              begin
+                key = classes.pop
+                klass = Module.const_get(classes.last.capitalize)
+                klass.attr_public?(key)
+              rescue NameError
+                false
+              end
+            end
           end
         end
       end

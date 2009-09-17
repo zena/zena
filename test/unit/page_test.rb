@@ -1,6 +1,4 @@
 require 'test_helper'
-require 'ruby-debug'
-Debugger.start
 
 class PageTest < Zena::Unit::TestCase
 

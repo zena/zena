@@ -5,7 +5,7 @@ require 'test_help'
 def deb(*args)
   raise Exception.new
 rescue Exception => err
-  puts "#{err.backtrace[1]} #{args.inspect}"
+  puts "#{err.backtrace[1]} #{args.inspect[1..-2]}"
 end
 
 class ActiveSupport::TestCase

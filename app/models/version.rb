@@ -193,7 +193,8 @@ class Version < ActiveRecord::Base
       'lang'       => visitor.lang }
   end
 
-  # Return true if the version would be edited by the attributes
+  # Return true if we would need to create a new version or re-edit depending
+  # on the attributes
   def would_edit?(new_attrs)
     new_attrs.each do |k,v|
       next if ['status', 'publish_from'].include?(k.to_s)
