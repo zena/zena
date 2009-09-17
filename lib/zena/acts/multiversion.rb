@@ -562,21 +562,20 @@ module Zena
 
           def multiversion_after_save
             if @redaction && @redaction.should_save?
+              changes = @redaction.changes
               return false unless @redaction.save
+              if @redaction.status == Zena::Status[:pub]
+                after_publish(changes)
+              end
             end
-            @redaction = nil
 
             if @old_publication_to_remove
               self.class.connection.execute "UPDATE #{version.class.table_name} SET status = '#{@old_publication_to_remove[1]}' WHERE id IN (#{@old_publication_to_remove[0].join(', ')})" unless @old_publication_to_remove[0] == []
-
-              res = after_publish
-
-              # TODO: can we avoid this ?
-              # self.class.connection.execute "UPDATE #{self.class.table_name} SET updated_at = #{self.class.connection.quote(Time.now)} WHERE id=#{self[:id].to_i}" unless new_record?
             end
+
             @allowed_transitions       = nil
             @old_publication_to_remove = nil
-            @redaction = nil
+            @redaction                 = nil
             true
           end
 

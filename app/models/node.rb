@@ -1568,14 +1568,14 @@ class Node < ActiveRecord::Base
     end
 
     # Called after a node is published
-    def after_publish(pub_time=nil)
-      sync_name
+    def after_publish(version_changes)
+      sync_name(version_changes)
       return true if @new_record_before_save
-      sync_documents(:publish, pub_time)
+      sync_documents(:publish)
     end
 
     # Publish, refuse, propose the Documents of a redaction
-    def sync_documents(action, pub_time=nil)
+    def sync_documents(action)
       allOK = true
       documents = secure_drive(Document) { Document.find(:all, :conditions=>"parent_id = #{self[:id]}") } || []
       case action
@@ -1606,9 +1606,10 @@ class Node < ActiveRecord::Base
     end
 
     # Try to keep node name in sync with published version title in ref_lang. This is set after_publish.
-    def sync_name
-      if version.title_changed? && ref_lang == version.lang && name == version.title_was
-        update_attributes(:name => version.title.url_name) if name != version.title.url_name
+    def sync_name(version_changes)
+      title_changes = version_changes['title']
+      if title_changes && ref_lang == version.lang && name == title_changes.first.url_name
+        update_attributes(:name => version.title.url_name)
       end
     end
 

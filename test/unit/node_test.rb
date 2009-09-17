@@ -1416,18 +1416,22 @@ done: \"I am done\""
   end
 
   def test_sync_name_on_v_title_change_auto_pub
+    test_site('zena')
     Site.connection.execute "UPDATE sites set auto_publish = 1, redit_time = 3600 WHERE id = #{sites_id(:zena)}"
     Version.connection.execute "UPDATE versions set updated_at = '#{Time.now.strftime('%Y-%m-%d %H:%M:%S')}' WHERE node_id IN (#{nodes_id(:people)})"
     login(:tiger)
-    # was in sync, correct lang
     node = secure!(Node) { nodes(:people) }
+    # was in sync, correct lang
+    assert_equal node.name, node.version.title
     assert node.update_attributes(:v_title => 'nice people')
+    node = secure!(Node) { nodes(:people) }
+    assert_equal 'nice people', node.version.title
     assert_equal 'nicePeople', node.name
   end
 
   # FIXME: write test
   def test_assets
-    assert true
+    print 'P'
     # sweep_cache (save) => remove asset folder
     # render math ?
   end
