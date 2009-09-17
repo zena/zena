@@ -72,8 +72,8 @@ class PageTest < Zena::Unit::TestCase
     assert_equal '', bird.basepath
     assert_equal node[:id], bird[:parent_id]
     assert node.update_attributes(:custom_base => true)
-    assert_equal 'projects/wiki', node.basepath
+    assert_equal 'projects/aWikiWithZena', node.basepath
     bird = secure!(Node) { nodes(:bird_jpg)} # avoid @parent caching
-    assert_equal 'projects/wiki', bird.basepath(true)
+    assert_equal 'projects/aWikiWithZena', bird.basepath(true)
   end
 end
