@@ -16,6 +16,12 @@ module Zena
         @controller.instance_eval { @visitor = Thread.current.visitor }
       end
 
+      def assert_css(match)
+        target = Hpricot(@response.body)
+        assert !target.search(match).empty?,
+          "expected tag, but no tag found matching #{match.inspect} in:\n#{target.inspect}"
+      end
+
       def err(obj)
         obj.errors.each do |er,msg|
           puts "[#{er}] #{msg}"

@@ -1,54 +1,45 @@
-=begin
 require 'test_helper'
 
-class HelperVersionController < VersionController
-  include VersionHelper
-end
+class VersionsControllerTest < Zena::Controller::TestCase
 
-class VersionControllerTest < Zena::Controller::TestCase
+  def version_hash(version_ref, number = nil)
+    version = versions(version_ref)
+    number ||= version.number
+    {:id => number, :node_id => version.node.zip}
+  end
 
   def test_show
+    test_site('zena')
     v = versions(:lake_red_en)
-    get 'show', :id=>versions_id(:lake_red_en)
-    assert_redirected_to '404'
+    get 'show', version_hash(:lake_red_en)
+    assert_redirected_to version_hash(:lake_en)
     login(:ant)
-    get 'show', :id=>versions_id(:lake_red_en)
+    get 'show', version_hash(:lake_red_en)
     assert_response :success
-    assert_template 'templates/default'
+    assert_match %r{default/Node/fr/_main.erb$}, @response.rendered[:template].to_s
   end
 
   def test_can_edit
+    login(:anon)
+    get 'edit', version_hash(:wiki_en)
+    assert_response :success
+    assert_match %r{default/Node/fr/_main.erb$}, @response.rendered[:layout].to_s
     login(:ant)
-    post 'edit', :id=>nodes_id(:status)
-    assert_tag 'form'
-    post 'edit', :version_id=>versions_id(:lake_red_en)
-    assert_tag 'form'
-    get 'edit', :id=>nodes_id(:status)
-    assert_tag 'form'
-    get 'edit', :version_id=>versions_id(:lake_red_en)
-    assert_tag 'form'
-  end
-
-  def test_edit_template
-    login(:lion)
-    post 'edit', :id=>nodes_id(:status)
-    assert_response :success
-    assert_template 'templates/forms/default'
-    post 'edit', :id=>nodes_id(:lion)
-    assert_response :success
-    assert_template 'templates/forms/any_contact'
+    get 'edit', version_hash(:status_en, 0)
+    assert_css "form[@action='/nodes/#{nodes_zip(:status)}']"
+    get 'edit', version_hash(:lake_red_en)
+    assert_css "form[@action='/nodes/#{nodes_zip(:lake)}']"
   end
 
   def test_cannot_edit
-    post 'edit', :id=>nodes_id(:status)
-    assert_redirected_to :controller=>'main', :action=>'not_found'
-    post 'edit', :version_id=>versions_id(:lake_red_en)
-    assert_redirected_to :controller=>'main', :action=>'not_found'
-    get 'edit', :id=>nodes_id(:status)
-    assert_redirected_to :controller=>'main', :action=>'not_found'
-    get 'edit', :version_id=>versions_id(:lake_red_en)
-    assert_redirected_to :controller=>'main', :action=>'not_found'
+    login(:anon)
+    get 'edit', version_hash(:status_en)
+    assert_response :missing
+    get 'edit', version_hash(:status_en, 0)
+    assert_response :missing
   end
+
+=begin
 
   def test_preview
     login(:tiger)
@@ -181,14 +172,15 @@ class VersionControllerTest < Zena::Controller::TestCase
   end
 
   def test_form_tabs
-    @controller = HelperVersionController.new
-    init_controller
-    page     = @controller.send(:secure, Node) { Node.find(nodes_id(:status))    }
-    contact  = @controller.send(:secure, Node) { Node.find(nodes_id(:lake)) }
-    @controller.instance_variable_set(:@node, page)
-    assert_equal [["text", "text"], ["title", "title"], ["help", "help"]], @controller.send(:form_tabs)
-    @controller.instance_variable_set(:@node, contact)
-    assert_equal [["text", "text"], ["title", "title"], ["contact", "any_contact"], ["help", "help"]], @controller.send(:form_tabs)
+    print 'P'
+#    @controller = HelperVersionController.new
+#    init_controller
+#    page     = @controller.send(:secure, Node) { Node.find(nodes_id(:status))    }
+#    contact  = @controller.send(:secure, Node) { Node.find(nodes_id(:lake)) }
+#    @controller.instance_variable_set(:@node, page)
+#    assert_equal [["text", "text"], ["title", "title"], ["help", "help"]], @controller.send(:form_tabs)
+#    @controller.instance_variable_set(:@node, contact)
+#    assert_equal [["text", "text"], ["title", "title"], ["contact", "any_contact"], ["help", "help"]], @controller.send(:form_tabs)
   end
 
   def test_backup
@@ -258,6 +250,5 @@ class VersionControllerTest < Zena::Controller::TestCase
   #   assert_redirected_to '404'
   #   assert_equal Zena::Status[:pub], Version.find(node.v_id).status
   # end
-
-end
 =end
+end

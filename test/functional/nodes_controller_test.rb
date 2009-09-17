@@ -198,6 +198,17 @@ END:VCALENDAR
     assert_equal Zena::Status[:pub], node.v_status
     assert_match %r{window.location.href = window.location.href}m, @response.body
   end
+
+  def test_drive_popup
+    test_site('zena')
+    get 'edit', :id => nodes_zip(:zena)
+    assert_response :missing
+    login(:lion)
+    get 'edit', :id => nodes_zip(:zena)
+    assert_response :success
+    assert_template 'nodes/edit'
+    assert_match %r{/default/Node-+popupLayout/en/_main$}, @response.layout
+  end
 end
 
 =begin

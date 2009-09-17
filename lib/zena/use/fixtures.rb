@@ -53,6 +53,7 @@ module Zena
           else
 
             define_method(table_name) do |fixture|
+              raise Exception.new("$_test_site is blank!") if $_test_site.blank?
               fixture_name = "#{$_test_site}_#{fixture}"
               if fix = @@loaded_fixtures[table_name][fixture_name]
                 # allways reload

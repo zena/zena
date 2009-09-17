@@ -790,6 +790,16 @@ class Node < ActiveRecord::Base
     end
   end
 
+  # TODO: remove when :inverse_of works.
+  def versions_with_secure(*args)
+    list = versions_without_secure(*args)
+    list.each do |v|
+      v.node = self
+    end
+    list
+  end
+  alias_method_chain :versions, :secure
+
   # Additional security so that unsecure finders explode when trying to update/save or follow relations.
   def visitor
     return @visitor if @visitor

@@ -20,6 +20,7 @@ Examples:
 class NodesController < ApplicationController
   before_filter :check_is_admin, :only => [:export]
   before_filter :find_node, :except => [:index, :create, :not_found, :catch_all, :search]
+  before_filter :check_can_drive, :only => [:edit]
   before_filter :check_path, :only  => [:index, :show]
   after_filter  :change_lang, :only => [:create, :update, :save_text]
   layout :popup_layout,     :only   => [:edit, :import]
@@ -543,6 +544,10 @@ class NodesController < ApplicationController
           n.update_attributes(attrs)
         end
       end
+    end
+
+    def check_can_drive
+      raise ActiveRecord::RecordNotFound unless @node.can_drive?
     end
 end
 

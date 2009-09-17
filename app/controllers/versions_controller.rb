@@ -1,6 +1,6 @@
 class VersionsController < ApplicationController
-  layout :popup_layout, :except => [:preview, :diff]
-  before_filter :find_node
+  layout :popup_layout, :except => [:preview, :diff, :show]
+  before_filter :find_node, :verify_access
 
   # Display a specific version of a node
   # TODO: this controller is nearly the same as NodesController#show, except caching is disabled. Any idea to DRY this ?
@@ -207,7 +207,12 @@ class VersionsController < ApplicationController
         @node.version(params[:id])
       end
     rescue ActiveRecord::RecordNotFound
+
       redirect_to :id => @node.v_number
+    end
+
+    def verify_access
+      raise ActiveRecord::RecordNotFound unless @node.can_write?
     end
 
     def do_rendering
