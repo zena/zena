@@ -23,7 +23,7 @@ module Zena
       end
 
       def err(obj)
-        obj.errors.each do |er,msg|
+        obj.errors.each_error do |er,msg|
           puts "[#{er}] #{msg}"
         end
       end

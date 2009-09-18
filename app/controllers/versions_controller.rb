@@ -22,7 +22,7 @@ class VersionsController < ApplicationController
         if @node.kind_of?(Image) && !ImageBuilder.dummy?
           img_format = Iformat[params[:mode]]
           data = @node.c_file(img_format)
-          content_path = @node.c_filepath(img_format)
+          content_path = @node.version.content.filepath(img_format)
           disposition  = 'inline'
 
         elsif @node.kind_of?(TextDocument)
@@ -32,7 +32,7 @@ class VersionsController < ApplicationController
 
         else
           data         = @node.c_file
-          content_path = @node.c_filepath
+          content_path = @node.version.content.filepath
           disposition  = 'inline'
         end
         raise ActiveRecord::RecordNotFound unless data

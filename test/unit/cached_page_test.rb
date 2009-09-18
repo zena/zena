@@ -47,7 +47,7 @@ class CachedPageTest < Zena::Unit::TestCase
           cache = secure!(CachedPage) { CachedPage.create(
             :path => (visitor.site.public_path + "/some/place/image12.jpg"),
             :expire_after  => nil,
-            :content_path  => node.c_filepath) }
+            :content_path  => node.version.content.filepath) }
           assert File.exists?(path), "Cache file created"
           assert File.symlink?(path), "Cache file is a symlink"
           # test expire
@@ -60,7 +60,7 @@ class CachedPageTest < Zena::Unit::TestCase
           cache = secure!(CachedPage) { CachedPage.create(
             :path => (visitor.site.public_path + "/some/place/image12.jpg"),
             :expire_after  => nil,
-            :content_path  => node.c_filepath) }
+            :content_path  => node.version.content.filepath) }
           assert File.exists?(path), "Cache file created"
           login(:tiger)
           # edit node only

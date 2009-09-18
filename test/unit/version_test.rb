@@ -127,8 +127,9 @@ class VersionTest < Zena::Unit::TestCase
       assert_equal 63569, node.version.content.size
       # single redaction: ok
       assert node.update_attributes(:c_file=>uploaded_pdf('water.pdf')), 'Can edit node'
-      # version and content did not change
+      # version and content object are the same
       assert_equal versions_id(:forest_pdf_en), node.version.content.version_id
+      # content changed
       assert_equal 29279, node.version.content.size
       assert_kind_of File, node.version.content.file
       assert_equal 29279, node.version.content.file.stat.size

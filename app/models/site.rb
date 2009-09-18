@@ -26,7 +26,7 @@ class Site < ActiveRecord::Base
   has_many :users, :through => :participations
 
   include Zena::Use::DynAttributes::ModelMethods
-  dynamic_attributes_setup :table_name => 'site_attributes'
+  dynamic_attributes_setup :table_name => 'site_attributes', :nested_alias => {%r{^d_(\w+)} => ['dyn']}
 
   @@attributes_for_form = {
     :bool => [:authentication, :allow_private, :http_auth, :auto_publish],

@@ -81,16 +81,7 @@ class ImageBuilder
       end
     end
     unless @width && @height || dummy?
-      if @file || @path
-        if @file.kind_of?(StringIO)
-          @img = Magick::ImageList.new
-          @file.rewind
-          @img.from_blob(@file.read)
-          @file.rewind
-        else
-          @img = Magick::ImageList.new(@file ? @file.path : @path)
-        end
-        #@img.from_blob(@file.read) # .rewind
+      if @img = build_image_from_file_or_path
         @width  = @img.columns
         @height = @img.rows
       end
@@ -160,7 +151,7 @@ class ImageBuilder
   end
 
   def do_limit!(size)
-    return @img if @img.filesize <= size
+    return @img if @filesize <= size
 
     # Check real size
     tmp_path = Tempfile.new('tmp_img').path
@@ -176,6 +167,7 @@ class ImageBuilder
       @img.write('jpeg:' + tmp_path) { self.quality = 80 }
     end
     ratio = File.stat(tmp_path).size.to_f / size
+
     return @img = Magick::ImageList.new(tmp_path) if ratio <= 1.0
 
     # Not enough ? Resize.
@@ -269,14 +261,7 @@ class ImageBuilder
   def render_img
     raise IOError, 'MagickDummy cannot render image' if ImageBuilder.dummy?
     unless @img
-      if @file
-        @img = Magick::ImageList.new
-        @file.rewind # we have read this file once when saving to disk
-        @img.from_blob(@file.read)
-        @file.rewind
-      elsif @path
-        @img = Magick::ImageList.new(@path)
-      else
+      unless @img = build_image_from_file_or_path
         raise IOError, 'Cannot render image without path or file'
       end
       if @pre
@@ -300,5 +285,22 @@ class ImageBuilder
       end
     end
     @img
+  end
+
+  def build_image_from_file_or_path
+    if @file || @path
+      if @file.kind_of?(StringIO)
+        img = Magick::ImageList.new
+        @file.rewind
+        img.from_blob(@file.read)
+        @file.rewind
+        @filesize = @file.size
+        img
+      else
+        img = Magick::ImageList.new(@file ? @file.path : @path)
+        @filesize = img.filesize
+        img
+      end
+    end
   end
 end

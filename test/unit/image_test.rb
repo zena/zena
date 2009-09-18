@@ -12,14 +12,14 @@ class ImageTest < Zena::Unit::TestCase
       assert_kind_of Image , img
       assert ! img.new_record? , "Not a new record"
       assert_equal "birdy", img.name
-      assert ! img.v_new_record? , "Version is not a new record"
-      assert_nil img.v_content_id , "content_id is nil"
+      assert ! img.version.new_record? , "Version is not a new record"
+      assert_nil img.version.content_id , "content_id is nil"
       assert_kind_of ImageVersion , img.version
       assert_equal 'jpg', img.c_ext
-      assert_equal "660x600", "#{img.c_width}x#{img.c_height}"
-      assert_equal file_path("birdy.jpg", 'full', img.c_id), img.c_filepath
-      assert File.exist?(img.c_filepath)
-      assert_equal File.stat(img.c_filepath).size, img.c_size
+      assert_equal "660x600", "#{img.version.content.width}x#{img.version.content.height}"
+      assert_equal file_path("birdy.jpg", 'full', img.version.content.id), img.version.content.filepath
+      assert File.exist?(img.version.content.filepath)
+      assert_equal File.stat(img.version.content.filepath).size, img.version.content.size
     end
   end
 
@@ -31,12 +31,12 @@ class ImageTest < Zena::Unit::TestCase
                                           :inherit => 1,
                                           :name=>'birdy', :c_file => uploaded_jpg('bird.jpg')) }
       assert !img.new_record?, "Not a new record"
-      assert  File.exist?( img.c_filepath       ), "File exist"
-      assert_equal "70x70", "#{img.c_width(pv_format)}x#{img.c_height(pv_format)}"
-      assert !File.exist?( img.c_filepath(pv_format) ), "File does not exist"
+      assert  File.exist?( img.version.content.filepath       ), "File exist"
+      assert_equal "70x70", "#{img.version.content.width(pv_format)}x#{img.version.content.height(pv_format)}"
+      assert !File.exist?( img.version.content.filepath(pv_format) ), "File does not exist"
       assert  img.c_file(pv_format), "Can make 'pv' image"
-      assert  File.exist?( img.c_filepath(pv_format) ), "File exist"
-      assert_equal file_path('birdy.jpg', 'pv', img.c_id), img.c_filepath(pv_format)
+      assert  File.exist?( img.version.content.filepath(pv_format) ), "File exist"
+      assert_equal file_path('birdy.jpg', 'pv', img.version.content.id), img.version.content.filepath(pv_format)
     end
   end
 
@@ -50,16 +50,16 @@ class ImageTest < Zena::Unit::TestCase
       login(:ant)
       img = secure!(Node) { nodes(:bird_jpg) }
       flo = secure!(Node) { nodes(:flower_jpg)}
-      assert_equal 660, img.c_width
-      assert_equal 600, img.c_height
-      assert_equal 56243, img.c_size
-      assert_equal 800, flo.c_width
-      assert_equal 600, flo.c_height
-      assert_equal 96648,  flo.c_size
+      assert_equal 660, img.version.content.width
+      assert_equal 600, img.version.content.height
+      assert_equal 56243, img.version.content.size
+      assert_equal 800, flo.version.content.width
+      assert_equal 600, flo.version.content.height
+      assert_equal 96648,  flo.version.content.size
       assert img.update_attributes(:c_file=>uploaded_jpg('flower.jpg'))
-      assert_equal flo.c_size,   img.c_size
-      assert_equal flo.c_width,  img.c_width
-      assert_equal flo.c_height, img.c_height
+      assert_equal flo.version.content.size,   img.version.content.size
+      assert_equal flo.version.content.width,  img.version.content.width
+      assert_equal flo.version.content.height, img.version.content.height
       # make sure old formated images are destroyed
     end
   end
@@ -69,11 +69,11 @@ class ImageTest < Zena::Unit::TestCase
       login(:ant)
       img = secure!(Node) { nodes(:bird_jpg) }
       flo = secure!(Node) { nodes(:flower_jpg)}
-      assert_equal 56243, img.c_size
+      assert_equal 56243, img.version.content.size
       assert_equal 'image/jpeg', img.c_content_type
       assert !img.update_attributes(:c_file=>uploaded_text('some.txt'))
       img = secure!(Node) { nodes(:bird_jpg) } # reload
-      assert_equal 56243, img.c_size
+      assert_equal 56243, img.version.content.size
       assert_equal 'image/jpeg', img.c_content_type
     end
   end
@@ -82,19 +82,19 @@ class ImageTest < Zena::Unit::TestCase
     preserving_files('test.host/data') do
       login(:ant)
       img = secure!(Node) { nodes(:bird_jpg) }
-      assert_equal Zena::Status[:pub], img.v_status
-      pub_version_id = img.v_id
-      pub_content_id = img.c_id
-      assert_equal 660, img.c_width
-      assert_equal 600, img.c_height
-      assert_equal 56243, img.c_size
+      assert_equal Zena::Status[:pub], img.version.status
+      pub_version_id = img.version.id
+      pub_content_id = img.version.content.id
+      assert_equal 660, img.version.content.width
+      assert_equal 600, img.version.content.height
+      assert_equal 56243, img.version.content.size
       assert img.update_attributes(:c_crop=>{:x=>'500',:y=>30,:w=>'200',:h=>80})
       img = secure!(Node) { nodes(:bird_jpg) }
-      assert_not_equal pub_version_id, img.v_id
-      assert_not_equal pub_content_id, img.c_id
-      assert_equal 2010,   img.c_size
-      assert_equal 160,  img.c_width
-      assert_equal 80, img.c_height
+      assert_not_equal pub_version_id, img.version.id
+      assert_not_equal pub_content_id, img.version.content.id
+      assert_equal 2010,   img.version.content.size
+      assert_equal 160,  img.version.content.width
+      assert_equal 80, img.version.content.height
     end
   end
 
@@ -102,17 +102,17 @@ class ImageTest < Zena::Unit::TestCase
     preserving_files('test.host/data') do
       login(:ant)
       img = secure!(Node) { nodes(:bird_jpg) }
-      assert_equal Zena::Status[:pub], img.v_status
-      pub_version_id = img.v_id
-      pub_content_id = img.c_id
-      assert_equal 660, img.c_width
-      assert_equal 600, img.c_height
-      assert_equal 56243, img.c_size
+      assert_equal Zena::Status[:pub], img.version.status
+      pub_version_id = img.version.id
+      pub_content_id = img.version.content.id
+      assert_equal 660, img.version.content.width
+      assert_equal 600, img.version.content.height
+      assert_equal 56243, img.version.content.size
       assert img.update_attributes(:c_crop=>{:max_value=>'30', :max_unit=>'Kb'})
       img = secure!(Node) { nodes(:bird_jpg) }
-      assert_not_equal pub_version_id, img.v_id
-      assert_not_equal pub_content_id, img.c_id
-      assert img.c_size < 30 * 1024 * 1.2
+      assert_not_equal pub_version_id, img.version.id
+      assert_not_equal pub_content_id, img.version.content.id
+      assert img.version.content.size < 30 * 1024 * 1.2
     end
   end
 
@@ -120,14 +120,15 @@ class ImageTest < Zena::Unit::TestCase
     preserving_files('test.host/data') do
       login(:ant)
       img = secure!(Node) { nodes(:bird_jpg) }
-      assert_equal Zena::Status[:pub], img.v_status
-      pub_version_id = img.v_id
-      pub_content_id = img.c_id
-      assert img.update_attributes(:c_crop=>{:format=>'png'})
+      assert_equal Zena::Status[:pub], img.version.status
+      pub_version_id = img.version.id
+      pub_content_id = img.version.content.id
+      img.update_attributes(:c_crop=>{:format=>'png'})
+      # should build a new version
       img = secure!(Node) { nodes(:bird_jpg) }
-      assert_not_equal pub_version_id, img.v_id
-      assert_not_equal pub_content_id, img.c_id
-      #assert_equal 20799,   img.c_size
+      assert_not_equal pub_version_id, img.version.id
+      assert_not_equal pub_content_id, img.version.content.id
+      #assert_equal 20799,   img.version.content.size
       assert_equal 'png', img.c_ext
     end
   end
@@ -136,19 +137,20 @@ class ImageTest < Zena::Unit::TestCase
     preserving_files('test.host/data') do
       login(:ant)
       img = secure!(Node) { nodes(:bird_jpg) }
-      assert_equal Zena::Status[:pub], img.v_status
-      pub_version_id = img.v_id
-      pub_content_id = img.c_id
-      assert_equal 660, img.c_width
-      assert_equal 600, img.c_height
-      # crop keeping same size = do nothing
-      assert img.update_attributes(:v_text=>"hey", :c_crop=>{:x=>'0',:y=>0,:w=>'660',:h=>600})
+      assert_equal Zena::Status[:pub], img.version.status
+      pub_version_id = img.version.id
+      pub_content_id = img.version.content.id
+      assert_equal 660, img.version.content.width
+      assert_equal 600, img.version.content.height
+      # crop keeping same size => do nothing => keep content
+      assert !img.version.content.can_crop?(:x=>'0',:y=>0,:w=>'660',:h=>600)
+      img.update_attributes(:v_text=>"hey", :c_crop=>{:x=>'0',:y=>0,:w=>'660',:h=>600})
       img = secure!(Node) { nodes(:bird_jpg) }
-      assert_not_equal pub_version_id, img.v_id
+      assert_not_equal pub_version_id, img.version.id
       assert_equal pub_version_id, img.version.content_id
       assert_equal pub_content_id, img.version.content.id
-      assert_equal 660, img.c_width
-      assert_equal 600, img.c_height
+      assert_equal 660, img.version.content.width
+      assert_equal 600, img.version.content.height
     end
   end
 
@@ -156,17 +158,17 @@ class ImageTest < Zena::Unit::TestCase
     preserving_files('test.host/data') do
       login(:ant)
       img = secure!(Node) { nodes(:bird_jpg) }
-      assert_equal Zena::Status[:pub], img.v_status
-      pub_version_id = img.v_id
-      pub_content_id = img.c_id
-      assert_equal 660, img.c_width
-      assert_equal 600, img.c_height
-      assert_equal 56243, img.c_size
+      assert_equal Zena::Status[:pub], img.version.status
+      pub_version_id = img.version.id
+      pub_content_id = img.version.content.id
+      assert_equal 660, img.version.content.width
+      assert_equal 600, img.version.content.height
+      assert_equal 56243, img.version.content.size
       assert img.update_attributes(:name => 'lila.jpg', :c_file=>uploaded_jpg('flower.jpg'), :c_crop=>{:x=>'500',:y=>30,:w=>'200',:h=>80})
       img = secure!(Node) { nodes(:bird_jpg) }
-      assert_equal 800, img.c_width
-      assert_equal 600, img.c_height
-      assert_equal 96648,  img.c_size
+      assert_equal 800, img.version.content.width
+      assert_equal 600, img.version.content.height
+      assert_equal 96648,  img.version.content.size
     end
   end
 
@@ -179,17 +181,17 @@ class ImageTest < Zena::Unit::TestCase
                                           :c_file => uploaded_jpg('bird.jpg')) }
       assert !img.new_record?
       img = secure!(Image) { Image.find(img[:id]) }
-      old_path1 = img.c_filepath
+      old_path1 = img.version.content.filepath
       pv_format = Iformat['pv']
-      old_path2 = img.c_filepath(pv_format)
+      old_path2 = img.version.content.filepath(pv_format)
       img.c_file(pv_format) # creates 'pv' file
-      assert_equal file_path("birdy.jpg", 'full', img.c_id), old_path1
-      assert_equal file_path("birdy.jpg", 'pv', img.c_id), old_path2
+      assert_equal file_path("birdy.jpg", 'full', img.version.content.id), old_path1
+      assert_equal file_path("birdy.jpg", 'pv', img.version.content.id), old_path2
       assert File.exists?(old_path1), "Old file exist."
       assert File.exists?(old_path2), "Old file with 'pv' format exist."
       assert img.update_attributes(:name=>'moineau')
       # image content name should not change
-      assert_equal old_path1, img.c_filepath
+      assert_equal old_path1, img.version.content.filepath
       assert File.exists?(old_path1), "Old file exist."
       assert File.exists?(old_path2), "Old file with 'pv' format exist."
     end
@@ -209,10 +211,10 @@ class ImageTest < Zena::Unit::TestCase
       img = secure!(Image) { Image.find(img[:id]) }
       assert img.publish
       img_id  = img[:id]
-      v1      = img.v_id
-      old1    = img.c_filepath
+      v1      = img.version.id
+      old1    = img.version.content.filepath
       pv_format = Iformat['pv']
-      old1_pv = img.c_filepath(pv_format)
+      old1_pv = img.version.content.filepath(pv_format)
       img.c_file(pv_format) # creates 'pv' file
 
       img = secure!(Image) { Image.find(img_id) }
@@ -222,9 +224,9 @@ class ImageTest < Zena::Unit::TestCase
       # publish new redaction
       assert img.publish
 
-      v2      = img.v_id
-      old2    = img.c_filepath
-      old2_pv = img.c_filepath(pv_format)
+      v2      = img.version.id
+      old2    = img.version.content.filepath
+      old2_pv = img.version.content.filepath(pv_format)
 
       img.c_file(pv_format) # creates 'pv' file
 
@@ -257,7 +259,7 @@ class ImageTest < Zena::Unit::TestCase
         :c_file => uploaded_png('bomb.png') )}
       assert_kind_of Image, img
       assert ! img.new_record?, "Not a new record"
-      assert_equal 793, img.c_size
+      assert_equal 793, img.version.content.size
       assert img.c_file(Iformat['pv'])
     end
   end

@@ -37,8 +37,14 @@ class DocumentContent < ActiveRecord::Base
     @file = file
   end
 
+  def clone
+    new_obj = super
+    new_obj.instance_variable_set(:@loaded_file, self.file)
+    new_obj
+  end
+
   def file(mode=nil)
-    if @file
+    if mode.nil? && @file
       @file
     elsif File.exist?(filepath(mode))
       @loaded_file ||= File.new(filepath(mode))
@@ -46,6 +52,11 @@ class DocumentContent < ActiveRecord::Base
       raise IOError, "File not found"
     end
   end
+
+  def changed?
+    @file || super
+  end
+
 
   def size(mode=nil)
     return self[:size] if self[:size]

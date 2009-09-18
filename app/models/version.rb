@@ -150,7 +150,7 @@ class Version < ActiveRecord::Base
   end
 
   def content_attributes=(h)
-    if redaction_content
+    if content.would_edit?(h) && redaction_content
       redaction_content.attributes = h
     else
       # ignore
@@ -226,7 +226,8 @@ class Version < ActiveRecord::Base
     end
 
     def save_content
-      if @content
+      # TODO: Why don't we use @redaction_content ?
+      if @content && @content.changed?
         @content[:version_id] ||= self[:id]
         @content.save_without_validation # validations checked with 'valid_content'
       else
@@ -265,7 +266,7 @@ class Version < ActiveRecord::Base
       errors.add('node', "can't be blank") unless node
       # validate content
       # TODO: we could use autosave here
-      if @content && !@content.valid?
+      if @content && @content.changed? && !@content.valid?
         @content.errors.each_error do |attribute,message|
           if attribute.to_s == 'base'
             errors.add('content', message)

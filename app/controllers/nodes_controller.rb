@@ -198,14 +198,14 @@ class NodesController < ApplicationController
 
           if @node.kind_of?(Image) && !ImageBuilder.dummy?
             if img_format = Iformat[params[:mode]]
-              content_path = @node.c_filepath(img_format)
+              content_path = @node.version.content.filepath(img_format)
               # force creation of image data
               @node.c_file(img_format)
             end
           elsif @node.kind_of?(TextDocument)
             send_data(@node.v_text, :filename => @node.filename, :type => 'text/css', :disposition => 'inline')
           else
-            content_path = @node.c_filepath
+            content_path = @node.version.content.filepath
           end
 
           if content_path

@@ -203,9 +203,9 @@ class VersionsControllerTest < Zena::Controller::TestCase
       version = Version.find(version_id)
       assert_equal 'Bird nest', version[:title]
 
-      assert_equal 660, img.c_width
-      assert_equal 600, img.c_height
-      assert_equal 56183, img.c_size
+      assert_equal 660, img.version.content.width
+      assert_equal 600, img.version.content.height
+      assert_equal 56183, img.version.content.size
     end
   end
 
@@ -226,7 +226,7 @@ class VersionsControllerTest < Zena::Controller::TestCase
       post 'save', :node=>{:id=>img[:id], :c_file=>uploaded_text('some.txt') }
       assert_response :success
       img = secure!(Node) { Node.find(img[:id]) }
-      assert_equal 56183, img.c_size
+      assert_equal 56183, img.version.content.size
     end
   end
 

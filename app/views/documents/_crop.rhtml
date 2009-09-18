@@ -2,9 +2,9 @@
 <ul class='infos' id='crop_options'>
   <li>x: <input type='text' id='posx' name='node[c_crop][x]' size='4'/> y: <input type='text' id='posy'   name='node[c_crop][y]' size='4'/> // w: <input type='text' id='width' name='node[c_crop][w]' size='4'/> h: <input type='text' id='height' name='node[c_crop][h]' size='4'/></li>
   <li><b><%= _('convert') + '</b> ' + crop_formats(@node).join(' ') %></li>
-  <li><b><%= _('max size') %></b> <input type='text' name='node[c_crop][max_value]' size='4' value='<%= fs = fsize(@node.c_size); fs.to_f %>'/>
+  <li><b><%= _('max size') %></b> <input type='text' name='node[c_crop][max_value]' size='4' value='<%= fs = fsize(@node.version.content.size); fs.to_f %>'/>
     <%= ['Kb', 'Mb'].inject('') {|r,e| r + "<input type='radio' name='node[c_crop][max_unit]' value='#{e}'#{fs =~ /#{e}/ ? " checked='checked'" : ''}/> #{e} " }%>
   </li>
 </ul>
-<p class='edit_info'><%= _('original') %> <%= @node.c_width %>x<%= @node.c_height %>, <%= _('original is #X this view').sub('#X', "<b>#{sprintf('%.1f', @node.c_width.to_f / @node.c_width(Iformat['edit']))}x</b>")%></p>
+<p class='edit_info'><%= _('original') %> <%= @node.version.content.width %>x<%= @node.version.content.height %>, <%= _('original is #X this view').sub('#X', "<b>#{sprintf('%.1f', @node.version.content.width.to_f / @node.version.content.width(Iformat['edit']))}x</b>")%></p>
 <%= img_tag(@node, :mode=>'edit', :id=>'edit_img') %>

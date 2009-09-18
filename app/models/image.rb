@@ -70,21 +70,6 @@ class Image < Document
       classes_for_form(:class => 'Image')
     end
   end
-  # Crop the image using the 'crop' hash with the top left corner position (:x, :y) and the width and height (:width, :heigt). Example:
-  #   @node.crop = {:x=>10, :y=>10, :width=>30, :height=>60}
-  # Be carefull as this method changes the current file. So you should make a backup version before croping the image (the popup editor displays a warning).
-  def c_crop=(format)
-    x, y, w, h = [format[:x].to_f, 0].max, [format[:y].to_f,0].max, [format[:w].to_f, c_width].min, [format[:h].to_f, c_height].min
-    if format[:max_value] || format[:format] || (x < c_width && y < c_height && w > 0 && h > 0) && !(x==0 && y==0 && w == c_width && h == c_height)
-      # do crop
-      if file = version.content.crop(format)
-        # crop can return nil, check first.
-        self.c_file = file
-      end
-    else
-      # nothing to do: ignore this operation.
-    end
-  end
 
   # filter attributes so there is no 'crop' with a new file
   def filter_attributes(attributes)

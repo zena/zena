@@ -29,7 +29,8 @@ class ImageContentTest < Zena::Unit::TestCase
 
     def test_exif_tags
       preserving_files('/test.host/data') do
-        img = ImageContent.new(:name=>'bird', :version_id => versions_id(:bird_jpg_en))
+        img = ImageContent.new(:version_id => versions_id(:bird_jpg_en))
+        img.name = 'bird' # just to avoid version load during validation
         img[:site_id] = sites_id(:zena)
         img.file = uploaded_jpg('exif_sample.jpg')
         assert_equal 'SANYO Electric Co.,Ltd.', img.exif['Make']

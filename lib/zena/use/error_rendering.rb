@@ -7,7 +7,7 @@ module Zena
         def error_messages_for(obj, opts={})
           return '' if obj.errors.empty?
           res = ["<table class='#{opts[:class] || 'errors'}'>"]
-          obj.errors.each do |er,msg|
+          obj.errors.each_error do |er,msg|
             res << "<tr><td><b>#{er}</b></td><td>#{_(msg)}</td></tr>"
           end
           res << '</table>'

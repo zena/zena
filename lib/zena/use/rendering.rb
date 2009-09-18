@@ -121,13 +121,13 @@ module Zena
                       if img
                         if img_mode
                           format = Iformat[img_mode]
-                          img_path = img.c_filepath(format)
+                          img_path = img.version.content.filepath(format)
                           if !File.exists?(img_path)
                             img_file = img.c_file(format) # force rendering of image
                             img_file.close
                           end
                         else
-                          img_path = img.c_filepath(nil)
+                          img_path = img.version.content.filepath(nil)
                         end
                       end
                       "\\includegraphics#{img_opts}{#{img_path}}"
