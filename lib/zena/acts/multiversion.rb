@@ -296,7 +296,7 @@ module Zena
             save
           when :destroy_version
             if versions.count == 1
-              version.destroy && self.destroy
+              self.destroy # will destroy last version
             else
               if version.destroy
                 # remove from versions list

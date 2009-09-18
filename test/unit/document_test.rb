@@ -1,5 +1,6 @@
 require 'test_helper'
 require 'fileutils'
+
 class DocumentTest < Zena::Unit::TestCase
 
   def test_create_with_file
