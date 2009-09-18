@@ -16,7 +16,7 @@ Zena.version_preview = function(url) {
 
 // version diff.
 Zena.version_diff = function(id, from, to) {
-  new Ajax.Request('/z/version/diff/'+id+'?from=' + from.innerHTML + '&to=' + to.innerHTML, {asynchronous:true, evalScripts:true})
+  window.location.href = '/nodes/' + id + '/versions/' + from.innerHTML + '/diff?to=' + to.innerHTML;
 }
 
 // save (does not use ajax when there is a file upload)

@@ -24,6 +24,7 @@ ActionController::Routing::Routes.draw do |map|
     nodes.resources :versions,
                     :name_prefix => nil,
                     :member => { :edit    => :get,
+                                 :diff    => :get,
                                  :custom_tab => :get,
                                  :propose => :put,
                                  :publish => :put,

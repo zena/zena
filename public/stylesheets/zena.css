@@ -1,4 +1,4 @@
-/* ========================= Zena css ========================= */
+/* zena css */
 /* version status */
 .s10,         .s20,      .s30,      .s35,      .s40   { border-bottom: 5px solid grey;}
 .li_s10 a, .li_s20 a, .li_s30 a, .li_s35 a, .li_s40 a { border-bottom: 2px  solid grey;}
@@ -37,12 +37,12 @@ table.errors td { padding:2px 5px; background:inherit; border:none;}
 /* debug */
 .debug { border:1px solid green; background:#cfc; padding:2px; display:table;}
 
-/* ========================= Ajax css ========================= */
+/* Ajax css */
 .drop_hover { background:#ace; border:2px dashed #99f;}
 .drop { min-height:1em;}
 .drag_handle { padding-left:1em; margin:2px; background: url('/images/shading.png');}
 
-/* ========================= Zazen css ======================== */
+/* zazen css */
 
 /* images */
 .img_left {float:left; display:table; margin-right:5px;}
@@ -71,3 +71,7 @@ padding:5px; border:1px solid #714D3D; text-align:left; color:#444; z-index:9999
 .zazen .table_add a { visibility:hidden; padding:0 5px; text-decoration:none;}
 .zazen .table_add img { border:0;}
 .zazen .table_add:hover a { visibility:visible;}
+
+/* diff */
+del.diffmod { background:#fcc; padding:1px 2px;}
+ins.diffmod { background:#cfc; text-decoration:none; padding:1px 2px;}

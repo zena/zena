@@ -80,11 +80,23 @@ class VersionsController < ApplicationController
 
   # TODO: test/improve or remove (experiments)
   def diff
-    # drive view
-    @node = secure!(Node) { Node.find(params[:id]) }
-    @from = @node.version(params[:from])
-    @to   = @node.version(params[:to])
+    # source
+    render_and_cache :cache => false
+    from_body = response.body
+    erase_render_results
+    # target
+    if params[:to].to_i > 0
+      @node.version(params[:to])
+    else
+      # default
+      @node.instance_variable_set(:@version, nil)
+    end
 
+    render_and_cache :cache => false
+    to_body = response.body
+    erase_render_results
+    # diff
+    render :text => HTMLDiff::diff(from_body, to_body)
   end
 
   # preview when editing node
