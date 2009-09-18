@@ -1,11 +1,14 @@
 require 'test_helper'
 
 class DataEntriesControllerTest < Zena::Controller::TestCase
+  include Zena::Use::Dates::ViewMethods
+  include Zena::Use::Refactor::ViewMethods # fquote
+  include Zena::Use::I18n::ViewMethods # _
 
   def test_create
     login(:ant)
     post 'create', :data_entry => {:node_a_id => nodes_zip(:wiki), :date => '17.05.2008 15:00', :value => '34', :text => 'this is a test', :node_b_id => 'people'}
-    assert_redirected_to :action => 'show'
+    assert_redirected_to :action => 'show', :id => assigns(:data_entry).id
     dat = assigns['data_entry']
     assert_kind_of DataEntry, dat
     assert !dat.new_record?, "Not a new record"
