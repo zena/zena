@@ -2,11 +2,11 @@ class TextDocumentContent < DocumentContent
 
   def file=(aFile)
     super
-    version.text = @file.read
+    version.text = @new_file.read
   end
 
   def file(mode=nil)
-    @file ||= StringIO.new(version.text)
+    @loaded_file ||= @new_file || StringIO.new(version.text)
   end
 
   # Return document file size (= version's text size).
@@ -28,7 +28,7 @@ class TextDocumentContent < DocumentContent
   def content_before_save
     self[:type] = self.class.to_s # make sure the type is set in case no sub-classes are loaded.
 
-    if @file
+    if @new_file
       # nothing to do
     elsif !new_record? && (old = DocumentContent.find(self[:id])).name != self[:name]
       # TODO: clear cache

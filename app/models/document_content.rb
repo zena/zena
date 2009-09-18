@@ -34,7 +34,7 @@ class DocumentContent < ActiveRecord::Base
   end
 
   def file=(file)
-    @file = file
+    @new_file = file
   end
 
   def clone
@@ -44,8 +44,8 @@ class DocumentContent < ActiveRecord::Base
   end
 
   def file(mode=nil)
-    if mode.nil? && @file
-      @file
+    if mode.nil? && @new_file
+      @new_file
     elsif File.exist?(filepath(mode))
       @loaded_file ||= File.new(filepath(mode))
     else
@@ -54,7 +54,7 @@ class DocumentContent < ActiveRecord::Base
   end
 
   def changed?
-    @file || super
+    @new_file || super
   end
 
 
@@ -101,22 +101,22 @@ class DocumentContent < ActiveRecord::Base
 
   private
     def valid_file
-      return true if !new_record? || @file
+      return true if !new_record? || @new_file
       errors.add('file', "can't be blank")
       return false
     end
 
     def content_before_validation
-      if @file
-        self.content_type = @file.content_type.chomp
-        if @file.kind_of?(StringIO)
-          self[:size] = @file.size
+      if @new_file
+        self.content_type = @new_file.content_type.chomp
+        if @new_file.kind_of?(StringIO)
+          self[:size] = @new_file.size
         else
-          self[:size] = @file.stat.size
+          self[:size] = @new_file.stat.size
         end
 
         if EXT_TO_TYPE[self.ext].nil? || !EXT_TO_TYPE[self.ext].include?(self.content_type)
-          self.ext = @file.original_filename.split('.').last
+          self.ext = @new_file.original_filename.split('.').last
         end
       end
 
@@ -143,15 +143,15 @@ class DocumentContent < ActiveRecord::Base
 
     def content_after_save
 
-      if @file
+      if @new_file
         # destroy old file
         destroy_file unless @new_record_before_save
 
         # save new file
-        make_file(filepath, @file)
+        make_file(filepath, @new_file)
       end
       # we are done with this file
-      @file = nil
+      @new_file = nil
     end
 
     def make_file(path, data)

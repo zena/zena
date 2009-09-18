@@ -50,12 +50,12 @@ class TemplateContent < ActiveRecord::Base
   end
 
   def file=(file)
-    @file = file
+    @new_file = file
     version.text = file.read
   end
 
   def file(mode=nil)
-    @file ||= StringIO.new(version.text)
+    @new_file ||= StringIO.new(version.text)
   end
 
   def version

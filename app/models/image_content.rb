@@ -132,8 +132,8 @@ class ImageContent < DocumentContent
   end
 
   def image_with_format(format=nil)
-    if new_record? && @file
-      ImageBuilder.new(:file=>@file).transform!(format)
+    if new_record? && @new_file
+      ImageBuilder.new(:file=>@new_file).transform!(format)
     elsif !new_record?
       format   ||= Iformat['full']
       @formats ||= {}
@@ -160,18 +160,18 @@ class ImageContent < DocumentContent
 
   private
     def convert_file
-      #if @file && @file.content_type =~ /image\/gif/
+      #if @new_file && @new_file.content_type =~ /image\/gif/
       #  # convert to png
-      #  file  = @file
-      #  @file = nil
-      #  @file = cropped_file(:original => file, :format => 'png')
+      #  file  = @new_file
+      #  @new_file = nil
+      #  @new_file = cropped_file(:original => file, :format => 'png')
       #  self[:ext] = 'png'
       #end
     end
 
     def valid_file
       return false unless super
-      if @file && !ImageBuilder.image_content_type?(@file.content_type)
+      if @new_file && !ImageBuilder.image_content_type?(@new_file.content_type)
         errors.add('file', 'must be an image')
         return false
       else
