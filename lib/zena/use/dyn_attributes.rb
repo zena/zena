@@ -176,6 +176,11 @@ module Zena
         # Look at Zena::Acts::DynAttribute for documentation.
         def dynamic_attributes_setup(opts={})
           options = {:table_name => 'dyn_attributes'}.merge(opts)
+          if nested_alias = options.delete(:nested_alias)
+            include Zena::Use::NestedAttributesAlias::ModelMethods
+            nested_attributes_alias nested_alias
+          end
+
           class_eval <<-END
             def self.dyn_attribute_options
               #{options.inspect}
@@ -189,8 +194,6 @@ module Zena
         def self.included(base)
           # add all methods from the module "AddActsAsMethod" to the 'base' module
           base.extend  Zena::Use::DynAttributes::ClassMethods
-          base.send(:include, Zena::Use::NestedAttributesAlias::ModelMethods)
-          base.nested_attributes_alias %r{^d_(\w+)} => ['dyn']
 
           base.after_save    :save_dynamic_attributes
           base.after_destroy :destroy_attributes

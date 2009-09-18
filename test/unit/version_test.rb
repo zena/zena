@@ -268,7 +268,7 @@ class VersionTest < Zena::Unit::TestCase
     assert !node.new_record?
     assert_equal 'fr', node.version.lang
   end
-  
+
   def test_create_version_other_lang
     login(:tiger)
     assert_equal 'en', visitor.lang

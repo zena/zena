@@ -4,6 +4,7 @@ class DynDummy < ActiveRecord::Base
   before_save :set_dummy_node_id
   set_table_name 'versions'
   include Zena::Use::DynAttributes::ModelMethods
+  dynamic_attributes_setup :nested_alias => {%r{^d_(\w+)} => ['dyn']}
 
   def set_dummy_node_id
     self[:node_id] = 0
@@ -14,7 +15,7 @@ end
 class DynStrictDummy < ActiveRecord::Base
   set_table_name 'versions'
   include Zena::Use::DynAttributes::ModelMethods
-  dynamic_attributes_setup :only => [:bio, :phone]
+  dynamic_attributes_setup :only => [:bio, :phone], :nested_alias => {%r{^d_(\w+)} => ['dyn']}
 
   def before_save
     self[:node_id] = 123

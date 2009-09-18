@@ -261,14 +261,14 @@ class Version < ActiveRecord::Base
 
     # Make sure the version and it's related content are in a correct state.
     def valid_version
-      errors.add('lang', 'not valid') unless visitor.site.lang_list.include?(self[:lang])
+      errors.add('lang', 'invalid') unless visitor.site.lang_list.include?(self[:lang])
       errors.add('node', "can't be blank") unless node
       # validate content
       # TODO: we could use autosave here
       if @content && !@content.valid?
-        @content.errors.each do |attribute,message|
+        @content.errors.each_error do |attribute,message|
           if attribute.to_s == 'base'
-            errors.add(:base, message)
+            errors.add('content', message)
           else
             attribute = "content_#{attribute}"
             errors.add(attribute, message) unless errors[attribute] # FIXME: rails 3: if errors[attribute].empty?

@@ -893,17 +893,3 @@ end
 ActiveRecord::Base.send :include, Zena::Acts::Secure     # for other classes
 ActiveRecord::Base.send :include, Zena::Acts::SecureNode # for Nodes
 ActionController::Base.send :include, Zena::Acts::Secure
-class ActiveRecord::Base
-  def inspect
-    "#<#{self.class}:#{sprintf('%x',self.object_id)}\n" +
-    "@attributes =\n{ " +
-     ((@attributes || {}).sort.map do |k,v|
-       sprintf("%15s => %s", k, v.inspect)
-     end + [
-        sprintf("%15s => %s", 'id', self[:id].inspect),
-        sprintf("%15s => %s", '@new_record', new_record?.to_s),
-        sprintf("%15s => %s", '@errors', (errors.map{|k,v| "#{k}:#{v}"}.join(', '))),
-        sprintf("%15s => %s", '@visitor', (@visitor ? "User#{@visitor[:id]}" : 'nil'))
-     ]).join("\n  ") + "} >"
-  end
-end

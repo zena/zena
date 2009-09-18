@@ -533,7 +533,7 @@ module Zena
           def version_validation
             return true unless @redaction
             unless @redaction.valid?
-              @redaction.errors.each do |attribute, message|
+              @redaction.errors.each_error do |attribute, message|
                 attribute = "version_#{attribute}"
                 errors.add(attribute, message) unless errors[attribute] # FIXME: rails 3: if errors[attribute].empty?
               end
