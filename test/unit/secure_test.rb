@@ -84,6 +84,13 @@ class SecureReadTest < Zena::Unit::TestCase
     assert_kind_of Node, node
   end
 
+  def test_anon_can_write_if_wgroup_public_and_is_user
+    Participation.connection.execute "UPDATE participations SET status = #{User::Status[:user]} WHERE user_id = #{users_id(:anon)} AND site_id = #{sites_id(:zena)}"
+    login(:anon)
+    node = secure!(Node) { nodes(:wiki) }
+    assert node.can_write?
+  end
+
   # write group can only write
   def test_write_group_can_w
     login(:tiger)

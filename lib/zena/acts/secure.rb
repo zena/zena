@@ -201,8 +201,10 @@ Just doing the above will filter all result according to the logged in user.
         # * members of +write_group+ if published and the current date is greater or equal to the publication date and the visitor's status is at least 'user'
         def can_write?(vis=visitor, ugps=visitor.group_ids)
           ( vis.is_su? ) || # super user
-          ( vis.user? && (( vis[:id] == user_id ) ||
-          ( ugps.include?(wgroup_id) && max_status != Zena::Status[:red] )))
+          ( vis.user? && (
+            ( vis[:id] == user_id ) ||
+            ( ugps.include?(wgroup_id) && max_status != Zena::Status[:red] )
+          ))
         end
 
         # people who can make visible changes

@@ -20,10 +20,12 @@ class VersionsControllerTest < Zena::Controller::TestCase
   end
 
   def test_can_edit
+    # make :anon a user (so she can access the versions)
+    Participation.connection.execute "UPDATE participations SET status = #{User::Status[:user]} WHERE user_id = #{users_id(:anon)} AND site_id = #{sites_id(:zena)}"
     login(:anon)
     get 'edit', version_hash(:wiki_en)
     assert_response :success
-    assert_match %r{default/Node/fr/_main.erb$}, @response.rendered[:layout].to_s
+    assert_match %r{wikiSkin/Node-\+popupLayout/en/_main$}, @response.layout
     login(:ant)
     get 'edit', version_hash(:status_en, 0)
     assert_css "form[@action='/nodes/#{nodes_zip(:status)}']"

@@ -2,6 +2,12 @@ require 'test_helper'
 
 class LinksControllerTest < Zena::Controller::TestCase
 
+  def test_route
+    assert_equal '/nodes/15/links/99', node_link_path(:node_id => 15, :id => 99)
+    assert_equal '/nodes/15/links/99/edit', edit_node_link_path(:node_id => 15, :id => 99)
+    assert_equal '/nodes/15/links', node_links_path(:node_id => 15)
+  end
+
   def test_create
     login(:lion)
     node = secure!(Node) { nodes(:letter) }

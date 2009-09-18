@@ -219,7 +219,7 @@ class VersionTest < Zena::Unit::TestCase
     assert v.would_edit?('title' => 'different')
     assert v.would_edit?('dyn_attributes' => {'foo' => 'different'})
     assert !v.would_edit?('title' => v.title)
-    assert v.would_edit?('status' => Zena::Status[:red])
+    assert !v.would_edit?('status' => Zena::Status[:red])
     assert !v.would_edit?('illegal_field' => 'whatever')
     assert !v.would_edit?('node_id' => 'whatever')
   end

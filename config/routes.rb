@@ -22,7 +22,6 @@ ActionController::Routing::Routes.draw do |map|
                      :zafu => :get, :drop => :put, :attribute => :get,
                      :cell_update => :post, :table_update => :post, :cell_edit => :get } do |nodes|
     nodes.resources :versions,
-                    :name_prefix => nil,
                     :member => { :edit    => :get,
                                  :diff    => :get,
                                  :custom_tab => :get,
@@ -36,7 +35,7 @@ ActionController::Routing::Routes.draw do |map|
                                  :link    => :any,
                                  :destroy_version => :put } # FIXME: should be a DELETE
 
-    nodes.resources :links, :name_prefix => nil
+    nodes.resources :links
 
     #nodes.resources :discussions, :name_prefix => nil do |discussions|
     #  #discussions.resources :comments,

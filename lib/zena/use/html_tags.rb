@@ -476,7 +476,7 @@ module Zena
         def node_action_link(action, node, publish_after_save)
           case action
           when 'edit'
-            url = edit_version_url(:node_id => node[:zip], :id => 0)
+            url = edit_node_version_path(:node_id => node[:zip], :id => 0)
             "<a href='#{url}#{publish_after_save ? "?pub=#{publish_after_save}" : ''}' target='_blank' title='#{_('btn_title_edit')}' onclick=\"editor=window.open('#{url}#{publish_after_save ? "?pub=#{publish_after_save}" : ''}', \'#{current_site.host}#{node[:zip]}\', 'location=0,width=300,height=400,resizable=1');return false;\">" +
                    _('btn_edit') + "</a>"
           when 'drive'
