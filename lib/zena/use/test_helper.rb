@@ -9,16 +9,15 @@ module Zena
       # Set visitor for unit testing
       def login(name='anon', site_name = nil)
         if site_name
-          $_test_site = site_name
           @visitor = User.make_visitor(:user => name.to_s, :pass => name.to_s, :host => sites_host(site_name))
         else
           # find first matching site
           site = Site.find(:first, :select=>"sites.*, sites.name = '#{site_name}' AS site_ok", :from => "sites, participations",
                          :conditions=>["participations.site_id = sites.id AND participations.user_id = ?", users_id(name)], :order => "site_ok DESC")
-          $_test_site  = site.name if site
           @visitor = User.make_visitor(:site => site, :id => users_id(name))
         end
 
+        $_test_site = visitor.site.name
         @visitor.ip = '10.0.0.127'
         ::I18n.locale = @visitor.lang
       end

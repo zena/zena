@@ -242,7 +242,7 @@ module Zena
 
             unless valid_template?(res, opts)
               # problem during rendering, use default zafu
-              res = ZafuParser.new(default_zafu_template(mode), :helper => zafu_helper).render
+              res = ZafuParser.new(default_zafu_template(mode), :helper => zafu_helper).render(:dev => session[:dev])
             end
 
             if session[:dev] && mode != '+popupLayout'
