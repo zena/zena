@@ -68,20 +68,20 @@ class SiteTest < Zena::Unit::TestCase
   def test_create_site_bad_name
     site = Site.create_for_host('../evil.com', 'zoomzoom')
     assert site.new_record?
-    assert site.errors[:host].any?
+    assert site.errors[:host]
   end
 
   def test_valid_site
     login(:lion)
     site = sites(:zena)
     assert ! site.update_attributes(:languages => "french, en")
-    assert_equal 'invalid languages', site.errors[:languages]
+    assert_equal 'is invalid', site.errors[:languages]
     site = sites(:zena)
     assert ! site.update_attributes(:languages => "fr,en", :default_lang=>'')
-    assert_equal 'invalid default language', site.errors[:default_lang]
+    assert_equal 'is invalid', site.errors[:default_lang]
     site = sites(:zena)
     assert ! site.update_attributes(:languages => "fr,en", :default_lang=>'french')
-    assert_equal 'invalid default language', site.errors[:default_lang]
+    assert_equal 'is invalid', site.errors[:default_lang]
     site = sites(:zena)
     assert site.update_attributes(:languages => "fr ,en, ru ", :default_lang=>'ru')
   end

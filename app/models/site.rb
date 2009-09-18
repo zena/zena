@@ -18,8 +18,7 @@ class Site < ActiveRecord::Base
   attr_public   :host
   validate :valid_site
   validates_uniqueness_of :host
-  # we are using 'attr_protected' instead of attr_accessible because we have dynamic attributes
-  attr_protected *(column_names.map{|e| e.to_sym} - [:name, :languages, :default_lang, :authentication, :allow_private, :http_auth, :auto_publish, :redit_time])
+  attr_accessible :dyn_attributes, :name, :languages, :default_lang, :authentication, :allow_private, :http_auth, :auto_publish, :redit_time
   has_many :groups, :order => "name"
   has_many :nodes
   has_many :participations, :dependent => :destroy
@@ -331,9 +330,9 @@ class Site < ActiveRecord::Base
 
   private
     def valid_site
-      errors.add(:host, "invalid host name #{self[:host].inspect}") if self[:host].nil? || (self[:host] =~ /^\./) || (self[:host] =~ /[^\w\.\-]/)
-      errors.add(:languages, "invalid languages") unless self[:languages].split(',').inject(true){|i,l| (i && l =~ /^\w\w$/)}
-      errors.add(:default_lang, "invalid default language") unless self[:languages].split(',').include?(self[:default_lang])
+      errors.add(:host, 'invalid') if self[:host].nil? || (self[:host] =~ /^\./) || (self[:host] =~ /[^\w\.\-]/)
+      errors.add(:languages, 'invalid') unless self[:languages].split(',').inject(true){|i,l| (i && l =~ /^\w\w$/)}
+      errors.add(:default_lang, 'invalid') unless self[:languages].split(',').include?(self[:default_lang])
     end
 end
 
