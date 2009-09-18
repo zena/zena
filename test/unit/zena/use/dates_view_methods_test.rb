@@ -28,9 +28,9 @@ class DatesViewMethodsTest < Zena::View::TestCase
   def test_short_time_visitor_time_zone
     login(:ant) # Europe/Zurich UTC+1, DST+1
     atime = Time.utc(2008,05,18,17,33)
-    assert_equal "19:33", short_time(atime)
-    I18n.locale = 'fr'
     assert_equal "19h33", short_time(atime)
+    I18n.locale = 'en'
+    assert_equal "19:33", short_time(atime)
   end
 
   def test_long_date

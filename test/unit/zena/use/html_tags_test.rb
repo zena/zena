@@ -40,14 +40,14 @@ class HtmlTagsTest < Zena::View::TestCase
   end
 
   def test_img_tag_document
-    login(:ant)
+    login(:tiger)
     doc = secure!(Node) { nodes(:water_pdf) }
     assert_equal "<img src='/images/ext/pdf.png' width='32' height='32' alt='pdf document' class='doc'/>", img_tag(doc)
     assert_equal "<img src='/images/ext/pdf_pv.png' width='70' height='70' alt='pdf document' class='doc'/>",  img_tag(doc, :mode=>'pv')
   end
 
   def test_img_tag_other_classes
-    login(:ant)
+    login(:tiger)
     # contact  project       post     tag
     [:lake, :cleanWater, :opening, :art].each do |sym|
       obj   = secure!(Node) { nodes(sym) }

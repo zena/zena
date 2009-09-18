@@ -74,6 +74,7 @@ class ImageContentTest < Zena::Unit::TestCase
   end
 
   def test_remove_formatted_on_file_change
+    login(:tiger)
     preserving_files('/test.host/data') do
       img  = get_content(:bird_jpg)
       assert img.file(@pv)  # create image with 'pv'  format

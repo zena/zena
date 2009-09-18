@@ -20,7 +20,7 @@ module Zena
         end
 
         @visitor.ip = '10.0.0.127'
-        # FIXME: I18n: set visitor.lang
+        ::I18n.locale = @visitor.lang
       end
 
       def preserving_files(path, &block)
