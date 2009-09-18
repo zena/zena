@@ -516,6 +516,7 @@ class Node < ActiveRecord::Base
 
               ctype = EXT_TO_TYPE[attrs['c_ext']]
               ctype = ctype ? ctype[0] : "application/octet-stream"
+              attrs['c_content_type'] = ctype
 
 
               File.open(document_path) do |file|
@@ -1451,7 +1452,7 @@ class Node < ActiveRecord::Base
       if ref_lang == version.lang && version.status == Zena::Status[:pub]
         if name_changed? && !name.blank?
           version.title = self.name.gsub(/([A-Z])/) { " #{$1.downcase}" }
-        else
+        elsif !version.title.blank?
           self.name = version.title.url_name
         end
       end

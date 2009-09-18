@@ -181,7 +181,11 @@ module Zena
           else
             trad = editions.find(:all, opts)
           end
-          trad == [] ? nil : trad
+          if trad == []
+            nil
+          else
+            trad.map {|t| t.node = self; t; }
+          end
         end
 
         # can propose for validation
@@ -294,7 +298,13 @@ module Zena
             if versions.count == 1
               version.destroy && self.destroy
             else
-              version.destroy
+              if version.destroy
+                # remove from versions list
+                if self.versions.loaded?
+                  self.versions -= [version]
+                end
+                true
+              end
             end
           when :backup
             # FIXME: this does not work !
@@ -416,6 +426,8 @@ module Zena
           version.attributes = attrs
         end
 
+        # Creates a new redaction ready to be edited.
+        # TODO: this should be renamed to 'make_redaction' or equivalent.
         def edit!(version_attributes = nil)
           target_status = version_attributes ? version_attributes['status'] : nil
           would_edit    = version_attributes ? version.would_edit?(version_attributes) : true
@@ -567,9 +579,12 @@ module Zena
           end
 
           def multiversion_after_save
+
             if @redaction && @redaction.should_save?
               changes = @redaction.changes
               return false unless @redaction.save
+              self.versions.reset # TODO: it would be nice if we didn't need this...
+
               # What was the transition ?
               if status_changes = changes['status']
                 transition = transition_for(status_changes[-2], status_changes[-1])

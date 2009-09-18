@@ -268,6 +268,17 @@ class VersionTest < Zena::Unit::TestCase
     assert !node.new_record?
     assert_equal 'fr', node.version.lang
   end
+  
+  def test_create_version_other_lang
+    login(:tiger)
+    assert_equal 'en', visitor.lang
+    node = secure!(Node) { nodes(:projects) }
+    en_version = node.version
+    assert node.update_attributes(:v_lang => 'fr', :v_title => 'projets')
+    assert !node.new_record?
+    assert_equal 'fr', node.version.lang
+    assert_not_equal en_version.id, node.version.id
+  end
 
   def test_should_parse_publish_from_date
     I18n.locale = 'fr'

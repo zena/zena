@@ -207,7 +207,7 @@ END:VCALENDAR
     get 'edit', :id => nodes_zip(:zena)
     assert_response :success
     assert_template 'nodes/edit'
-    assert_match %r{/default/Node-+popupLayout/en/_main$}, @response.layout
+    assert_match %r{/default/Node-\+popupLayout/en/_main$}, @response.layout
   end
 end
 

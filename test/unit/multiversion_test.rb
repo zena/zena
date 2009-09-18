@@ -46,6 +46,7 @@ class MultiVersionTest < Zena::Unit::TestCase
     assert_equal Zena::Status[:pub], node.version.status
     assert node.update_attributes(:v_title => 'great', :v_text => 'mind')
     node = secure!(Node) { nodes(:status) }
+    assert_equal 3, node.versions.size
     assert_equal Zena::Status[:red], node.version.status
     red_version_id = node.version.id
     assert_not_equal pub_version_id, red_version_id
@@ -53,10 +54,10 @@ class MultiVersionTest < Zena::Unit::TestCase
     node = secure!(Node) { nodes(:status) }
     assert_equal pub_version_id, node.version.id
     assert node.update_attributes(:v_title => 'slow')
+    assert_equal 4, node.versions.size
     assert_not_equal pub_version_id, node.version.id
     assert_not_equal red_version_id, node.version.id
     assert_not_equal 'mind', node.version.text
-    assert_equal 4, node.versions.size
   end
 
   def test_update_same_attributes
@@ -616,7 +617,7 @@ class MultiVersionTest < Zena::Unit::TestCase
     trad = node.traductions
     assert_equal 2, trad.size
     trad_node = trad[0].node
-    assert_equal node.object_id, trad_node.target.object_id # make sure object is not reloaded and not secured
+    assert_equal node.object_id, trad_node.target.object_id # make sure object is not reloaded and is secured
     assert_equal 'en', node.version.lang
     assert_equal 'fr', trad[1][:lang]
     node = secure!(Node) { nodes(:wiki) }
