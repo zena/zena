@@ -56,12 +56,8 @@ class NestedAttributesAliasViewTest < Zena::View::TestCase
     @foo = Foo.new
   end
 
-  def pending
-    print 'P'
-  end
-
   def test_text_field_should_find_value
-    assert_css 'input#foo_v_title[@name="foo[v_title]"][@value="version title"]', text_field('foo', 'v_title')
+    assert_css 'input#foo_v_title[@name="foo[v_title]"][@value="version title"][@type="text"]', text_field('foo', 'v_title')
   end
 
   def test_text_field_should_find_value_through_proc
@@ -73,26 +69,31 @@ class NestedAttributesAliasViewTest < Zena::View::TestCase
   end
 
   def test_password_field_should_find_value
-    pending
+    @foo.version.dyn = HashAsMethods.new('secret' => 'yellow')
+    assert_css 'input#foo_d_secret[@name="foo[d_secret]"][@value="yellow"][@type="password"]', password_field('foo', 'd_secret')
   end
 
   def test_hidden_field_should_find_value
-    pending
+    assert_css 'input#foo_v_title[@name="foo[v_title]"][@value="version title"][@type="hidden"]', hidden_field('foo', 'v_title')
   end
 
   def test_file_field_should_find_value
-    pending
+    assert_css 'input#foo_v_title[@name="foo[v_title]"][@type="file"]', file_field('foo', 'v_title')
   end
 
   def test_text_area_should_find_value
-    pending
+    assert_css 'textarea#foo_v_title[@name="foo[v_title]"]', tag = text_area('foo', 'v_title')
+    assert_match %r{version title}, tag
   end
 
   def test_check_box_should_find_value
-    pending
+    tag = check_box('foo', 'v_title', {}, 'version title', '')
+    assert_css 'input[@name="foo[v_title]"][@value=""][@type="hidden"]', tag
+    assert_css 'input#foo_v_title[@name="foo[v_title]"][@value="version title"][@type="checkbox"][@checked="checked"]', tag
   end
 
   def test_radio_button_should_find_value
-    pending
+    tag = radio_button('foo', 'v_title', 'version title')
+    assert_css 'input[@name="foo[v_title]"][@value="version title"][@type="radio"][@checked="checked"]', tag
   end
 end

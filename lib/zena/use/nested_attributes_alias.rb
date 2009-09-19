@@ -5,6 +5,18 @@ module Zena
       # <%= text_field 'v_title' %>
       module ViewMethods
         class InstanceTag < ActionView::Helpers::InstanceTag
+          def value(object)
+            if object.respond_to?(:nested_model_names_for_alias) && nested_model_names = object.nested_model_names_for_alias(@method_name)
+              method_name = nested_model_names.pop # remove method
+              nested_model_names.each do |nested_model_name|
+                object = object.send(nested_model_name)
+              end
+              self.class.value(object, method_name)
+            else
+              self.class.value(object, @method_name)
+            end
+          end
+
           def value_before_type_cast(object)
             if object.respond_to?(:nested_model_names_for_alias) && nested_model_names = object.nested_model_names_for_alias(@method_name)
               method_name = nested_model_names.pop # remove method
@@ -39,11 +51,11 @@ module Zena
         end
 
         def check_box(object_name, method, options = {}, checked_value = "1", unchecked_value = "0")
-          InstanceTag.new(object_name, method, self, options.delete(:object)).to_check_box_tag(options, checked_value, unchecked_value)
+          ViewMethods::InstanceTag.new(object_name, method, self, options.delete(:object)).to_check_box_tag(options, checked_value, unchecked_value)
         end
 
         def radio_button(object_name, method, tag_value, options = {})
-          InstanceTag.new(object_name, method, self, options.delete(:object)).to_radio_button_tag(tag_value, options)
+          ViewMethods::InstanceTag.new(object_name, method, self, options.delete(:object)).to_radio_button_tag(tag_value, options)
         end
       end
 

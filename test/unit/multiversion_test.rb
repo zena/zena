@@ -327,8 +327,7 @@ class MultiVersionTest < Zena::Unit::TestCase
     node = secure!(Node) { nodes(:lake_jpg)  }
     attrs = { :inherit=>0, :rgroup_id => groups_id(:managers), :v_title => "Manager's lake", :v_lang => 'ru'}
     assert !node.update_attributes( attrs )
-    print 'P'
-    #assert_equal 'is invalid', node.errors['version_lang']
+    assert node.errors['version_lang']
     assert node.errors['version_lang']
     visitor.site.languages = 'en,fr,ru'
     assert node.update_attributes( attrs )

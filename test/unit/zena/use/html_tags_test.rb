@@ -219,8 +219,21 @@ class HtmlTagsTest < Zena::View::TestCase
     assert_match %r{<em>en</em>.*href=.*/fr/projects/cleanWater.*fr.*}, lang_links
   end
 
+  def map_actions(version)
+    version_actions(version, :actions => :all
+    ).split(%r{<.*/nodes/#{version.node.zip}/versions/#{version.number}/}).map{|l| l.gsub(/\?.*/,'').strip
+    }.reject {|l| l.blank? }.sort
+  end
+
   def test_version_actions
-    print 'P'
+    login(:lion)
+    node = secure!(Node) { nodes(:status) }
+    assert_equal %w{ unpublish }, map_actions(node.version)
+    node.update_attributes('v_title' => 'meia lua de compasso')
+    node = secure!(Node) { nodes(:status) }
+    assert_equal %w{ propose publish remove }, map_actions(node.version)
+    node.propose
+    assert_equal %w{ publish refuse }, map_actions(node.version)
   end
 
   def test_version_action_view
