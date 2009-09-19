@@ -1228,6 +1228,9 @@ class Node < ActiveRecord::Base
 
   # FIXME: use nested_attributes_alias and try to use native Rails to create the comment
   # comment_attributes=, ...
+  def m_text; nil; end
+  def m_title; nil; end
+  def m_author; nil; end
 
   def m_text=(str)
     @add_comment ||= {}
