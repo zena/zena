@@ -4,6 +4,17 @@ module Zena
     module HtmlTags
       module ImageTags
 
+        # This is used by _crop.rhtml
+        def crop_formats(obj)
+          buttons = ['jpg', 'png']
+          ext = TYPE_TO_EXT[obj.c_conten_type]
+          ext = ext ? ext[0] : obj.c_ext
+          buttons << ext unless buttons.include?(ext)
+          buttons.map do |e|
+            "<input type='radio' name='node[c_crop][format]' value='#{e}'#{e==ext ? " checked='checked'" : ''}/> #{e} "
+          end
+        end
+
         # Display an image tag for the given node. If no mode is provided, 'full' is used. Options are ':mode', ':id', ':alt',
         # ':alt_src' and ':class'. If no class option is passed, the format is used as the image class. Example :
         # img_tag(@node, :mode=>'pv')  => <img src='/sites/test.host/data/jpg/20/bird_pv.jpg' height='80' width='80' alt='bird' class='pv'/>

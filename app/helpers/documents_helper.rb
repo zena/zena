@@ -10,14 +10,4 @@ module DocumentsHelper
     end
     tabs
   end
-
-  def crop_formats(obj)
-    buttons = ['jpg', 'png']
-    ext = TYPE_TO_EXT[obj.c_conten_type]
-    ext = ext ? ext[0] : obj.c_ext
-    buttons << ext unless buttons.include?(ext)
-    buttons.map do |e|
-      "<input type='radio' name='node[c_crop][format]' value='#{e}'#{e==ext ? " checked='checked'" : ''}/> #{e} "
-    end
-  end
 end
