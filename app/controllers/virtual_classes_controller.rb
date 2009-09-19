@@ -5,12 +5,10 @@ class VirtualClassesController < ApplicationController
   layout :admin_layout
 
   def index
-    @virtual_class  = VirtualClass.new
-
-    @virtual_class_pages, @virtual_classes = nil, nil
     secure!(VirtualClass) do
-      @virtual_class_pages, @virtual_classes = paginate :virtual_classes, :order => 'name ASC', :per_page => 20
+      @virtual_classes = VirtualClass.paginate(:all, :order => 'name', :per_page => 20, :page => params[:page])
     end
+    @virtual_class  = VirtualClass.new
     respond_to do |format|
       format.html # index.erb
       format.xml  { render :xml => @virtual_classes }

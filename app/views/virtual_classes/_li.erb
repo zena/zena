@@ -4,7 +4,7 @@
           :url    => edit_virtual_class_path(li),
           :method => :get) %></td>
   <td><%= li.name %></td>
-  <td class="adm_icon" ><%= li.icon ? "<img src='#{li.icon}'/>" : "" %></td>
+  <td class="adm_icon" ><%= !li.icon.blank? ? "<img src='#{li.icon}'/>" : "" %></td>
   <td class="auto_create_discussion" ><%= li.auto_create_discussion ? _('auto discussion') : '' %></td>
   <td class="create_group"><%= li.create_group.name %></td>
   <td class="dyn_keys"><%= li.dyn_keys %></td>
