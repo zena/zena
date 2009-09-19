@@ -89,6 +89,7 @@ module Zena
           attributes.each do |k, v|
             if nested_model_names = nested_model_names_for_alias(k)
               if new_key = nested_model_names.pop
+                v = v.stringify_keys if v.kind_of?(Hash)
                 merge_nested_model_names_in_hash(new_attributes, nested_model_names.map {|nested_model_name| "#{nested_model_name}_attributes"})[new_key] = v
               end
             else
@@ -128,10 +129,12 @@ module Zena
             deep_target = target
             hash.each do |k, v|
               if v.kind_of?(Hash)
-                deep_target = target[k] ||= {}
+                deep_target = target[k.to_s] ||= {}
                 deep_target = deep_merge_hash(deep_target, v)
+              elsif v.kind_of?(Hash)
+                deep_target[k.to_s] = v.stringify_keys
               else
-                deep_target[k] = v
+                deep_target[k.to_s] = v
               end
             end
           end

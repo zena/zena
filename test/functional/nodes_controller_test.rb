@@ -209,6 +209,30 @@ END:VCALENDAR
     assert_template 'nodes/edit'
     assert_match %r{/default/Node-\+popupLayout/en/_main$}, @response.layout
   end
+
+  def test_crop_image
+    preserving_files('test.host/data') do
+      login(:ant)
+      img = secure!(Node) { nodes(:bird_jpg) }
+      assert_equal Zena::Status[:pub], img.version.status
+      pub_version_id = img.version.id
+      pub_content_id = img.version.content.id
+      assert_equal 660, img.version.content.width
+      assert_equal 600, img.version.content.height
+      assert_equal 56243, img.version.content.size
+
+      put 'update', :edit => 'popup', :node => {:c_crop=>{:x=>'500',:y=>30,:w=>'200',:h=>80}}, :id => nodes_zip(:bird_jpg)
+      assert_redirected_to edit_node_version_path(:node_id => nodes_zip(:bird_jpg), :id => 0)
+      img = assigns(:node)
+      err img
+      img = secure!(Node) { nodes(:bird_jpg) }
+      assert_not_equal pub_version_id, img.version.id
+      assert_not_equal pub_content_id, img.version.content.id
+      assert_equal 2010,   img.version.content.size
+      assert_equal 160,  img.version.content.width
+      assert_equal 80, img.version.content.height
+    end
+  end
 end
 
 =begin

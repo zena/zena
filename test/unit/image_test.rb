@@ -95,6 +95,12 @@ class ImageTest < Zena::Unit::TestCase
       assert_equal 2010,   img.version.content.size
       assert_equal 160,  img.version.content.width
       assert_equal 80, img.version.content.height
+      
+      # crop again, same redaction
+      assert img.update_attributes(:c_crop=>{:x=>0,:y=>0,:w=>'100',:h=>50})
+      img = secure!(Node) { nodes(:bird_jpg) }
+      assert_equal 100,  img.version.content.width
+      assert_equal 50, img.version.content.height
     end
   end
 

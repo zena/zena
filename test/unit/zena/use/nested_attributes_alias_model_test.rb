@@ -94,4 +94,11 @@ class NestedAttributesAliasModelTest < Test::Unit::TestCase
     f.attributes = {'name' => 'Joe', 'v_title' => 'Plumber'}
     assert_equal({'name'=>'Joe', 'version_attributes'=>{'title'=>'Plumber'}}, f.attributes)
   end
+
+  def test_convert_keys_to_strings
+    assert_equal({'name'=>'one',
+     'version_attributes'=>{'title'=>{'one'=>'Joe', 'two'=>'Plumber'}}},
+                Foo.new.resolve_attributes_alias(:name => 'one', :v_title => {:one => 'Joe', :two => 'Plumber'}))
+  end
+
 end

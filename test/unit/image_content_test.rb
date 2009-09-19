@@ -122,6 +122,29 @@ class ImageContentTest < Zena::Unit::TestCase
     end
   end
 
+  def test_can_crop
+    img = get_content(:bird_jpg)
+    # image size is 600 x 660
+    assert img.can_crop?('x' => '500', 'y' => 30, 'w' => '200', 'h' => 80)
+    assert !img.can_crop?('x'  => '1500', 'y'  => 30, 'w'  => '200', 'h'  => 80)
+  end
+
+  def test_crop_updates_file_and_size
+    img = get_content(:bird_jpg)
+    # image size is 600 x 660
+    img.crop = {'x' => '0', 'y' => 0, 'w' => '200', 'h' => 80}
+    assert_equal 200, img.width
+    assert_equal 80,  img.height
+  end
+
+  def test_change_file_updates_size
+    img = get_content(:bird_jpg)
+    # image size is 600 x 660
+    img.file = uploaded_jpg('flower.jpg')
+    assert_equal 800, img.width
+    assert_equal 600,  img.height
+  end
+
   private
     def get_content(sym)
       login(:ant) unless @visitor

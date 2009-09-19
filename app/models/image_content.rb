@@ -25,8 +25,8 @@ class ImageContent < DocumentContent
   end
 
   def can_crop?(format)
-    x, y, w, h = [format[:x].to_f, 0].max, [format[:y].to_f,0].max, [format[:w].to_f, width].min, [format[:h].to_f, height].min
-    format[:max_value] || format[:format] || (x < width && y < height && w > 0 && h > 0) && !(x==0 && y==0 && w == width && h == height)
+    x, y, w, h = [format['x'].to_f, 0].max, [format['y'].to_f,0].max, [format['w'].to_f, width].min, [format['h'].to_f, height].min
+    format['max_value'] || format['format'] || (x < width && y < height && w > 0 && h > 0) && !(x==0 && y==0 && w == width && h == height)
   end
 
   # Crop the image using the 'crop' hash with the top left corner position (:x, :y) and the width and height (:width, :heigt). Example:
@@ -45,16 +45,16 @@ class ImageContent < DocumentContent
 
   # Return a cropped image using the 'crop' hash with the top left corner position (:x, :y) and the width and height (:width, :heigt).
   def cropped_file(format)
-    original   = format[:original] || @loaded_file || self.file
-    x, y, w, h = format[:x].to_f, format[:y].to_f, format[:w].to_f, format[:h].to_f
-    new_type   = format[:format] ? EXT_TO_TYPE[format[:format].downcase][0] : nil
-    max        = format[:max_value].to_f * (format[:max_unit] == 'Mb' ? 1024 : 1) * 1024
+    original   = format['original'] || @loaded_file || self.file
+    x, y, w, h = format['x'].to_f, format['y'].to_f, format['w'].to_f, format['h'].to_f
+    new_type   = format['format'] ? EXT_TO_TYPE[format['format'].downcase][0] : nil
+    max        = format['max_value'].to_f * (format['max_unit'] == 'Mb' ? 1024 : 1) * 1024
 
     # crop image
     img = ImageBuilder.new(:file=>original)
     img.crop!(x, y, w, h) if x && y && w && h
-    img.format       = format[:format] if new_type && new_type != content_type
-    img.max_filesize = max if format[:max_value] && max
+    img.format       = format['format'] if new_type && new_type != content_type
+    img.max_filesize = max if format['max_value'] && max
 
     file = Tempfile.new(name)
     File.open(file.path, "wb") { |f| f.syswrite(img.read) }
@@ -70,9 +70,9 @@ class ImageContent < DocumentContent
   end
 
   # Set content file, will refuse to accept the file if it is not an image.
-  def file=(aFile)
+  def file=(file)
     super
-    return unless ImageBuilder.image_content_type?(aFile.content_type)
+    return unless ImageBuilder.image_content_type?(file.content_type)
     img = image_with_format(nil)
     self[:width ] = img.width
     self[:height] = img.height
@@ -132,13 +132,13 @@ class ImageContent < DocumentContent
   end
 
   def image_with_format(format=nil)
-    if new_record? && @new_file
-      ImageBuilder.new(:file=>@new_file).transform!(format)
+    if @new_file
+      ImageBuilder.new(:file => @new_file).transform!(format)
     elsif !new_record?
       format   ||= Iformat['full']
       @formats ||= {}
-      @formats[format[:name]] ||= ImageBuilder.new(:path=>filepath,
-              :width=>self[:width], :height=>self[:height]).transform!(format)
+      @formats[format[:name]] ||= ImageBuilder.new(:path => filepath,
+              :width => self[:width], :height => self[:height]).transform!(format)
     else
       raise StandardError, "No image to work on"
     end
