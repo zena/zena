@@ -5,12 +5,10 @@ class RelationsController < ApplicationController
   layout :admin_layout
 
   def index
-    @relation  = Relation.new
-
-    @relation_pages, @relations = nil, nil
     secure!(Relation) do
-      @relation_pages, @relations = paginate :relations, :per_page => 20, :order => 'source_role'
+      @relations = Relation.paginate(:all, :order => 'source_role', :per_page => 20, :page => params[:page])
     end
+    @relation  = Relation.new
     respond_to do |format|
       format.html # index.erb
       format.xml  { render :xml => @relations }
@@ -37,7 +35,7 @@ class RelationsController < ApplicationController
   # TODO: test
   def edit
     respond_to do |format|
-      format.html { render :partial => 'relations/form' }
+      format.html
       format.js   { render :partial => 'relations/form', :layout => false }
     end
   end
