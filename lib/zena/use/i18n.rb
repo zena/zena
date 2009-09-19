@@ -136,7 +136,7 @@ module Zena
         include Common
 
         def self.included(base)
-          FastGettext.text_domain = 'zena'
+          base.before_filter { FastGettext.text_domain = 'zena' }
         end
 
         # Choose best language to display content.

@@ -85,8 +85,6 @@ Rails::Initializer.run do |config|
   ENV['TZ'] = 'UTC'
 end
 
-FastGettext.add_text_domain 'zena', :path => File.dirname(__FILE__) + '/../locale'
-
 ActiveSupport::Inflector.inflections do |inflect|
   inflect.uncountable %w( children )
 end
