@@ -1,15 +1,15 @@
 require 'net/http' if ENABLE_ZENA_UP
 class SitesController < ApplicationController
   before_filter :visitor_node
+  before_filter :remove_methods, :only => [:new, :create, :destroy]
   before_filter :find_site, :except => [:index, :create, :new, :zena_up]
   before_filter :check_is_admin
   before_filter :check_can_zena_up, :only => [:zena_up]
   layout :admin_layout
 
   def index
-    @site_pages, @sites = nil, nil
     secure!(Site) do
-      @site_pages, @sites = paginate :sites, :per_page => 20, :order => 'name'
+      @sites = Site.paginate(:all, :order => 'host', :per_page => 20, :page => params[:page])
     end
     respond_to do |format|
       format.html # index.erb
@@ -58,36 +58,24 @@ class SitesController < ApplicationController
 
   def show
     respond_to do |format|
-      format.html # show.erb
+      format.html
       format.xml  { render :xml => @site }
       format.js
     end
   end
 
-  def new
-    # This is not possible through the web interface. Use rake mksite.
-    raise ActiveRecord::RecordNotFound
-  end
-
   def edit
     respond_to do |format|
-      format.html { render :partial => 'sites/form' }
+      format.html
       format.js   { render :partial => 'sites/form', :layout => false }
     end
   end
 
-  def create
-    # This is not possible through the web interface. Use rake mksite.
-    raise ActiveRecord::RecordNotFound
-  end
-
   def update
-    @site = Site.find(params[:id])
-
     respond_to do |format|
       if @site.update_attributes(params[:site])
         flash[:notice] = 'Site was successfully updated.'
-        format.html { redirect_to site_url(@site) }
+        format.html { redirect_to site_path(@site) }
         format.js
         format.xml  { head :ok }
       else
@@ -104,14 +92,13 @@ class SitesController < ApplicationController
     @clear_cache_message = _("Cache cleared.")
   end
 
-  def destroy
-    # This is not possible through the web interface
-    raise ActiveRecord::RecordNotFound
-  end
-
   protected
     def visitor_node
       @node = visitor.contact
+    end
+
+    def remove_methods
+      raise ActiveRecord::RecordNotFound
     end
 
     def find_site
