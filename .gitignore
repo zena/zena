@@ -3,6 +3,7 @@ config/deploy_config.rb
 config/database.yml
 doc/coverage
 log/
+pkg/*
 public/images/ext/*_pv.png
 public/images/ext/*_std.png
 public/images/ext/*_tiny.png
