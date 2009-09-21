@@ -31,7 +31,8 @@ module Zena
         helper  Zena::Use::Zafu::ViewMethods
         helper  Zena::Use::Zazen::ViewMethods
       end
-      Bricks::Patcher.apply_patches('ApplicationController.rb')
+      Bricks::Patcher.apply_patches('application_controller.rb')
+      Bricks::Patcher.apply_patches('application_helper.rb')
     end
   end
 end
