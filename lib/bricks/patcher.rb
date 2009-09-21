@@ -9,8 +9,8 @@ module Bricks
         end
       end
 
-      def apply_patches
-        file_name = caller[0].split('/').last.split(':').first
+      def apply_patches(file_name = nil)
+        file_name ||= caller[0].split('/').last.split(':').first
         foreach_brick do |brick_path|
           patch_file = File.join(brick_path, 'patch', file_name)
           if File.exist?(patch_file)
