@@ -1,0 +1,2 @@
+require 'zena'
+Zena.init

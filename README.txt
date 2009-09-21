@@ -1,4 +1,5 @@
-== Zena
+== DESCRIPTION:
+
 CMS based on Ruby on Rails, (c) Gaspard Bucher, teti.ch 2007-2009, licenced under MIT
 
 This version of zena is *TOTALLY UNUSABLE* for the moment. It is the result of the slow migration from Rails 1.2.3 to Rails 2.x. You will need the latest rails edge with some patches which you can find here: http://github.com/gaspard/rails/tree/master.

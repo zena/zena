@@ -1,6 +1,6 @@
-require 'rubygems'
+# FIXME: ========== cleanup and remove ====================
+
 require 'date'
-require "#{RAILS_ROOT}/config/version"
 require 'fileutils'
 
 AUTHENTICATED_PREFIX = "oo"
@@ -20,8 +20,38 @@ ENABLE_XSENDFILE = false
 
 UPLOAD_KEY     = defined?(Mongrel) ? 'upload_id' : "X-Progress-ID"
 
-tools_enabled = {:Latex => ENABLE_LATEX, :fop => ENABLE_FOP, :math => ENABLE_MATH, :zena_up => ENABLE_ZENA_UP}.map{|k,v| v ? k : nil}.compact
-puts "** zena #{Zena::VERSION::STRING} r#{Zena::VERSION::REV} #{tools_enabled == [] ? '' : '('+tools_enabled.join(', ')+') '}starting"
+
+module Zena
+  VERSION = '0.13.0'
+  # ROOT    = File.expand_path(File.join(File.dirname(__FILE__), '..'))
+
+  class << self
+    def init
+      # TODO: move all code from environment.rb here...
+      tools_enabled = {:Latex => ENABLE_LATEX, :fop => ENABLE_FOP, :math => ENABLE_MATH, :zena_up => ENABLE_ZENA_UP}.map{|k,v| v ? k : nil}.compact
+
+      puts "** zena #{Zena::VERSION} #{tools_enabled == [] ? '' : '('+tools_enabled.join(', ')+') '}starting"
+      ActionController::Routing::RouteSet::Mapper.send :include, Zena::Routes
+
+      # This has to come first
+      Zena::Fix::MysqlConnection
+
+      # All models can use attr_public
+      ActiveRecord::Base.send :include, Zena::Use::PublicAttributes
+      ActiveRecord::Base.send :include, Zena::Use::Zafu::ModelMethods
+      ActiveRecord::Base.send :include, Zena::Use::NodeQueryFinders::AddUseNodeQueryMethod
+      ActiveRecord::Base.send :include, Zena::Use::FindHelpers
+      ActiveRecord::Base.send :include, Zena::Acts::Secure
+      ActiveRecord::Base.send :include, Zena::Acts::Multiversion::AddActsAsMethods
+
+      ActiveRecord::Base.send :use_find_helpers # find helpers for all models
+
+      Bricks::Patcher.load_bricks
+
+    end
+  end
+end
+
 
 # test if DRB started
 unless File.exist?(File.join(File.dirname(__FILE__), '..', 'log', 'upload_progress_drb.pid'))
@@ -29,12 +59,12 @@ unless File.exist?(File.join(File.dirname(__FILE__), '..', 'log', 'upload_progre
   puts " * WARNING: you should start the drb server with 'lib/upload_progress_server.rb start'\n\n"
 end
 
-unless File.exist?(File.join(File.dirname(__FILE__), 'database.yml'))
-  FileUtils.cp(File.join(File.dirname(__FILE__), 'database_example.yml'), File.join(File.dirname(__FILE__), 'database.yml'))
+unless File.exist?(File.join(RAILS_ROOT, 'config', 'database.yml'))
+  FileUtils.cp(File.join(RAILS_ROOT, 'config', 'database_example.yml'), File.join(RAILS_ROOT, 'config', 'database.yml'))
 end
 
-unless File.exist?(File.join(File.dirname(__FILE__), '..', 'log'))
-  FileUtils.mkpath(File.join(File.dirname(__FILE__), '..', 'log'))
+unless File.exist?(File.join(RAILS_ROOT, 'log'))
+  FileUtils.mkpath(File.join(RAILS_ROOT, 'log'))
 end
 
 # this list is taken from http://www.duke.edu/websrv/file-extensions.html

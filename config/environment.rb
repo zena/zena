@@ -10,12 +10,6 @@ RAILS_GEM_VERSION = '2.3.4' unless defined? RAILS_GEM_VERSION
 # Bootstrap the Rails environment, frameworks, and default configuration
 require File.join(File.dirname(__FILE__), 'boot')
 
-# Load zena specific settings
-# FIXME: should not be needed (not like this)
-require File.join(File.dirname(__FILE__), 'zena')
-require File.join(File.dirname(__FILE__), 'version')
-
-
 #FIXME: remove all these hacks !
 lib_path = File.join(File.dirname(__FILE__), '../lib')
 Dir.foreach(File.join(lib_path, 'core_ext')) do |f|
@@ -71,7 +65,6 @@ Rails::Initializer.run do |config|
   config.gem 'tzinfo', :version => '0.3.12'
   config.gem 'uuidtools', :version => '2.0.0'
   config.gem 'yamltest', :version => '0.5.3'
-
 
   # TODO: uncomment this line when remarkable stops loading spec/rails or when spec/rails stops messing unit tests. (http://carlosbrando.lighthouseapp.com/projects/19775-remarkable/tickets/14-breaks-testunit-tests#ticket-14-5)
   #config.gem "carlosbrando-remarkable", :lib => "remarkable", :source => "http://gems.github.com"
