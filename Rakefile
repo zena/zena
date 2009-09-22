@@ -45,7 +45,7 @@ PROJ.gem.files = (
 PROJ.gem.dependencies += [
   ['RedCloth',             ['= 3.0.4']   ],
   ['gettext',              ['= 1.93.0']  ],
-  ['grosser-fast_gettext', ['~> 0.2.10'] ],
+  ['grosser-fast_gettext', ['~> 0.4.16'] ],
   ['hpricot'                             ],
   ['mislav-will_paginate', ['~> 2.2.3']  ],
   ['querybuilder',         ['= 0.5.5']   ],

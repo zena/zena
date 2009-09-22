@@ -13,16 +13,18 @@ namespace :gettext do
   desc "Update pot/po files."
   task :find do
     load_gettext
+    $LOAD_PATH << File.join(File.dirname(__FILE__),'..','lib')
+    require 'gettext_i18n_rails/haml_parser'
 
     if GetText.respond_to? :update_pofiles_org
       GetText.update_pofiles_org(
         "app",
-        Dir.glob("{app,lib,config,locale}/**/*.{rb,erb}"),
+        Dir.glob("{app,lib,config,locale}/**/*.{rb,erb,haml}"),
         "version 0.0.1",
         :po_root => 'locale',
         :msgmerge=>['--sort-output']
       )
-    else
+    else #we are on a version < 2.0
       puts "install new GetText with gettext:install to gain more features..."
       #kill ar parser...
       require 'gettext/parser/active_record'
@@ -36,7 +38,7 @@ namespace :gettext do
       #parse files.. (models are simply parsed as ruby files)
       GetText.update_pofiles(
         "app",
-        Dir.glob("{app,lib,config,locale}/**/*.{rb,erb}"),
+        Dir.glob("{app,lib,config,locale}/**/*.{rb,erb,haml}"),
         "version 0.0.1",
         'locale'
       )
@@ -67,30 +69,5 @@ namespace :gettext do
       :ignore_columns=>[/_id$/,'id','type','created_at','updated_at'],
       :ignore_tables=>[/^sitemap_/,/_versions$/,'schema_migrations']
     )
-  end
-
-  desc 'tries to install gettext from git'
-  task :install do
-    lib,version = 'gettext','2.0.0'
-    begin
-      gem lib, ">=#{version}"
-      puts "#{lib} version >=#{version} exists!"
-    rescue LoadError
-      #check if locale gem is installed, since gettext install will fail without it
-      begin
-        require 'locale'
-      rescue LoadError
-        puts "first install locale gem: sudo gem install locale"
-        exit
-      end
-
-      #install by checking out from github
-      puts "installing #{lib}...."
-      raise "a folder named #{lib} already exists, aborting!!" if File.exist?(lib)
-      `git clone git://github.com/mutoh/#{lib}.git`
-      `cd #{lib} && rake gem`
-      `sudo gem install #{lib}/pkg/#{lib}*.gem`
-      `rm -rf #{lib}`
-    end
   end
 end
