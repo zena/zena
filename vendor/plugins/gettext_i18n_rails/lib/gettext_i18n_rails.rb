@@ -8,6 +8,8 @@ rescue LoadError
   gem 'grosser-fast_gettext', '>=0.4.8'
 end
 
+require 'fast_gettext'
+
 # include translations into all the places it needs to go...
 Object.send(:include,FastGettext::Translation)
 
