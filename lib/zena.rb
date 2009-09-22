@@ -38,18 +38,17 @@ module Zena
         config.load_paths += ["#{Zena::ROOT}/vendor"]
       else
         paths_to_add.each do |path|
-          puts path
           $LOAD_PATH.push path
         end
       end
     end
 
-    def enable_tools(config)
+    def enable_tools
       # TODO: move all code from environment.rb here...
       @tools_enabled ||= {:Latex => ENABLE_LATEX, :fop => ENABLE_FOP, :math => ENABLE_MATH, :zena_up => ENABLE_ZENA_UP}.map{|k,v| v ? k : nil}.compact
     end
 
-    def include_modules(config)
+    def include_modules
       ActionController::Routing::RouteSet::Mapper.send :include, Zena::Routes
 
       # This has to come first
@@ -94,17 +93,19 @@ module Zena
       config.gem 'yamltest', :version => '0.5.3'
     end
 
-    def load_plugins(config)
+    def load_plugins
       Dir.foreach("#{Zena::ROOT}/vendor/plugins") do |plugin_name|
+        next if plugin_name =~ /\A\./
         require_in_lib plugin_name, "#{Zena::ROOT}/vendor/plugins"
       end
+      # init.rb not evaluated in responds-to-parent
+      ActionController::Base.send :include, RespondsToParent
     end
 
     def load_custom_extensions
       #FIXME: cleanup all these hacks !
       lib_path = File.join(Zena::ROOT, 'lib')
       Dir.foreach(File.join(lib_path, 'core_ext')) do |f|
-        puts f.inspect
         next unless f =~ /\.rb\Z/
         require File.join(lib_path, 'core_ext', f)
       end
@@ -119,7 +120,7 @@ module Zena
       ENV['TZ'] = 'UTC'
     end
 
-    def load_bricks(config)
+    def load_bricks
       Bricks::Patcher.load_bricks
     end
 
@@ -130,15 +131,15 @@ module Zena
 
     def init
       config = Rails.configuration
-      enable_tools(config)
+      enable_tools
       puts "** zena #{Zena::VERSION} #{tools_enabled == [] ? '' : '('+tools_enabled.join(', ')+') '}starting"
 
       add_load_paths(config)
       configure_gems(config)
-      load_plugins(config)
+      load_plugins if RAILS_ROOT != Zena::ROOT
       load_custom_extensions
-      include_modules(config)
-      load_bricks(config)
+      include_modules
+      load_bricks
       set_default_timezone(config)
       initialize_gettext
     end

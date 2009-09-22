@@ -25,6 +25,16 @@ def symlink_assets(from, to)
   end
 end
 
+def copy_assets(from, to)
+  from = File.expand_path(from)
+  to = File.expand_path(to)
+  return if from == to
+
+  ['config/mongrel_upload_progress.conf', 'lib/upload_progress_server.rb'].each do |path|
+    FileUtils.cp("#{from}/#{path}", "#{to}/#{path}") unless File.exist?("#{to}/#{path}")
+  end
+end
+
 namespace :zena do
   desc "Setup a new zena application (symlink static assets, check routes, etc)"
   task :setup => :zena_config do
@@ -34,6 +44,8 @@ namespace :zena do
     else
       symlink_assets(Zena::ROOT, RAILS_ROOT)
       puts "* symlinked assets"
+      copy_assets(Zena::ROOT, RAILS_ROOT)
+      puts "* copied assets"
     end
   end
 

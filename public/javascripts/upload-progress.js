@@ -49,6 +49,8 @@ var UploadProgress = {
             UploadProgress.update(upload.size, upload.received);
           } else if (upload.state == 'done') {
             UploadProgress.setAsFinished();
+          } else {
+            UploadProgress.message(upload.state);
           }
         }
       }) ;
@@ -72,6 +74,10 @@ var UploadProgress = {
     });
 
     $('progress_text' + this.uuid).innerHTML = total.toHumanSize() + ': ' + progress + '%' ;
+  },
+
+  message: function(msg) {
+    $('progress_text' + this.uuid).innerHTML = msg;
   },
 
   setAsStarting: function() {
