@@ -1,3 +1,4 @@
+require 'querybuilder'
 # Since NodeQuery uses a special scope (secure_scope) that needs to be evaluated _in the query string_, you cannot
 # use query.sql. You have to use: eval query.to_s. This is not an issue since normal useage for NodeQuery is to be
 # compilated into an ERB template.

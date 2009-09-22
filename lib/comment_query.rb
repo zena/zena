@@ -1,4 +1,4 @@
-require 'QueryBuilder'
+require 'querybuilder'
 
 class CommentQuery < QueryBuilder
   attr_reader :uses_node_name, :node_name

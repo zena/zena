@@ -1,7 +1,42 @@
 require 'yaml'
 require 'fileutils'
 
+def symlink_assets(from, to)
+  from = File.expand_path(from)
+  to = File.expand_path(to)
+  return if from == to
+  # FIXME: how do we keep favicon.ico and robots.txt in the root dir of a site ?
+  # FIXME: ln should be to 'current' release, not calendar -> /var/zena/releases/20070511195642/public/calendar
+  #        we could create a symlink in the sites dir to 'shared' -> /var/zena/current/public
+  #        and then symlink with "#{host_path}/public/#{dir}" -> "../shared/public/#{dir}"
+  #        OR we could symlink /var/zena/current/...
+  ['calendar', 'images', 'javascripts', 'stylesheets', 'icons'].each do |dir|
+    File.unlink("#{to}/public/#{dir}") if File.symlink?("#{to}/public/#{dir}")
+    if File.exist?("#{to}/public/#{dir}")
+      # replace each file
+      Dir.foreach("#{from}/public/#{dir}") do |f|
+        next if f =~ /\A\./
+        File.unlink("#{to}/public/#{dir}/#{f}") if File.exist?("#{to}/public/#{dir}/#{f}")
+        FileUtils.ln_s("#{from}/public/#{dir}/#{f}", "#{to}/public/#{dir}/#{f}")
+      end
+    else
+      FileUtils.ln_s("#{from}/public/#{dir}", "#{to}/public/#{dir}")
+    end
+  end
+end
+
 namespace :zena do
+  desc "Setup a new zena application (symlink static assets, check routes, etc)"
+  task :setup => :zena_config do
+    puts "zena:setup"
+    if Zena::ROOT == RAILS_ROOT
+      puts "Copy assets should only be used when zena is loaded externally (via gem for example)."
+    else
+      symlink_assets(Zena::ROOT, RAILS_ROOT)
+      puts "* symlinked assets"
+    end
+  end
+
   desc "Create a new site, parameters are PASSWORD, HOST, LANG"
   task :mksite => :environment do
     # 0. set host name
@@ -48,15 +83,7 @@ namespace :zena do
         FileUtils.mkpath("#{host_path}/#{dir}")
       end
 
-      # FIXME: how do we keep favicon.ico and robots.txt in the root dir of a site ?
-      # FIXME: ln should be to 'current' release, not calendar -> /var/zena/releases/20070511195642/public/calendar
-      #        we could create a symlink in the sites dir to 'shared' -> /var/zena/current/public
-      #        and then symlink with "#{host_path}/public/#{dir}" -> "../shared/public/#{dir}"
-      #        OR we could symlink /var/zena/current/...
-      ['calendar', 'images', 'javascripts', 'stylesheets', 'icons'].each do |dir|
-        # FIXME: 'RAILS_ROOT' should be '/var/zena/current' and not '/var/zena/releases/20070632030330' !!!
-        FileUtils.ln_s("#{RAILS_ROOT}/public/#{dir}", "#{host_path}/public/#{dir}")
-      end
+      symlink_assets(Zena::ROOT, host_path)
     end
   end
 
@@ -92,7 +119,7 @@ namespace :zena do
 
   desc "Load zena settings (sub-task)"
   task :zena_config do
-    require File.join(File.dirname(__FILE__),'..','..','config','zena')
+    require File.join(File.dirname(__FILE__),'..','..','lib','zena')
   end
 
   desc "Remove all zafu compiled templates"

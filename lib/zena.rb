@@ -70,7 +70,8 @@ module Zena
       if defined?(ActiveRecord)
         # late loading, require
         base = Dir["#{dir}/*#{name}*"].first
-        lib_path = "#{base}/lib/#{lib_name || name}.rb"
+        lib_path = "#{base}/lib/#{lib_name || name}"
+        lib_path += '.rb' unless lib_path =~ /\.rb$/
         if File.exist?(lib_path)
           require lib_path
         else
@@ -91,26 +92,24 @@ module Zena
       config.gem 'tzinfo', :version => '0.3.12'
       config.gem 'uuidtools', :version => '2.0.0'
       config.gem 'yamltest', :version => '0.5.3'
-      require_in_lib 'fast_gettext', "#{Zena::ROOT}/vendor/gems"
-      require_in_lib 'gettext_i18n_rails', "#{Zena::ROOT}/vendor/plugins"
+    end
+
+    def load_plugins(config)
+      Dir.foreach("#{Zena::ROOT}/vendor/plugins") do |plugin_name|
+        require_in_lib plugin_name, "#{Zena::ROOT}/vendor/plugins"
+      end
     end
 
     def load_custom_extensions
       #FIXME: cleanup all these hacks !
       lib_path = File.join(Zena::ROOT, 'lib')
       Dir.foreach(File.join(lib_path, 'core_ext')) do |f|
+        puts f.inspect
         next unless f =~ /\.rb\Z/
         require File.join(lib_path, 'core_ext', f)
       end
       require File.join(lib_path, 'base_additions')
-    end
-
-    def set_session(config)
-      # FIXME: this should move into each app's environment.rb settings !
-      config.action_controller.session = {
-        :session_key => 'zena_session',                # min 30 chars
-        :secret      => 'jkfawe0[y9wrohifashaksfi934jas09455ohifnksdklh'
-      }
+      require File.join(lib_path, 'fix_rails_layouts.rb') # FIXME: remove when https://rails.lighthouseapp.com/projects/8994/tickets/3207 approved
     end
 
     def set_default_timezone(config)
@@ -136,6 +135,8 @@ module Zena
 
       add_load_paths(config)
       configure_gems(config)
+      load_plugins(config)
+      load_custom_extensions
       include_modules(config)
       load_bricks(config)
       set_default_timezone(config)
@@ -152,7 +153,7 @@ unless File.exist?(File.join(File.dirname(__FILE__), '..', 'log', 'upload_progre
 end
 
 unless File.exist?(File.join(RAILS_ROOT, 'config', 'database.yml'))
-  FileUtils.cp(File.join(RAILS_ROOT, 'config', 'database_example.yml'), File.join(RAILS_ROOT, 'config', 'database.yml'))
+  FileUtils.cp(File.join(Zena::ROOT, 'config', 'database_example.yml'), File.join(RAILS_ROOT, 'config', 'database.yml'))
 end
 
 unless File.exist?(File.join(RAILS_ROOT, 'log'))

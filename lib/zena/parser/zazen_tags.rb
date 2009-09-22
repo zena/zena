@@ -1,3 +1,5 @@
+require 'RedCloth'
+
 module Zena
   module Parser
     module ZazenTags

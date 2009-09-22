@@ -29,14 +29,13 @@ require File.join(File.dirname(__FILE__), 'boot')
 # avoids ActionView::Helpers::TextHelpers to load RedCloth before we do with our frozen gem
 class RedCloth < String; end
 
-require 'zena'
-
 Rails::Initializer.run do |config|
-
+  config.action_controller.session = {
+    :session_key => 'zena_session',                # min 30 chars
+    :secret      => 'jkfawe0[y9wrohifashaksfi934jas09455ohifnksdklh'
+  }
 end
 
 ActiveSupport::Inflector.inflections do |inflect|
   inflect.uncountable %w( children )
 end
-
-require File.join(lib_path, 'fix_rails_layouts.rb') # FIXME: remove when https://rails.lighthouseapp.com/projects/8994/tickets/3207 approved
