@@ -20,23 +20,42 @@ ENABLE_XSENDFILE = false
 
 UPLOAD_KEY     = defined?(Mongrel) ? 'upload_id' : "X-Progress-ID"
 
+require 'bricks/patcher'
 
 module Zena
   VERSION = '0.13.0'
-  # ROOT    = File.expand_path(File.join(File.dirname(__FILE__), '..'))
+  ROOT    = File.expand_path(File.join(File.dirname(__FILE__), '..'))
 
   class << self
-    def init
-      # TODO: move all code from environment.rb here...
-      tools_enabled = {:Latex => ENABLE_LATEX, :fop => ENABLE_FOP, :math => ENABLE_MATH, :zena_up => ENABLE_ZENA_UP}.map{|k,v| v ? k : nil}.compact
+    attr_accessor :tools_enabled
+    def add_load_paths(config = nil)
+      paths_to_add = (
+        Dir["#{Zena::ROOT}/vendor/gems/*/lib"] +
+        Dir["#{Zena::ROOT}/vendor/plugins/*/lib"] +
+        Bricks::Patcher.models_paths
+      )
+      if config
+        config.load_paths += ["#{Zena::ROOT}/vendor"]
+      else
+        paths_to_add.each do |path|
+          puts path
+          $LOAD_PATH.push path
+        end
+      end
+    end
 
-      puts "** zena #{Zena::VERSION} #{tools_enabled == [] ? '' : '('+tools_enabled.join(', ')+') '}starting"
+    def enable_tools(config)
+      # TODO: move all code from environment.rb here...
+      @tools_enabled ||= {:Latex => ENABLE_LATEX, :fop => ENABLE_FOP, :math => ENABLE_MATH, :zena_up => ENABLE_ZENA_UP}.map{|k,v| v ? k : nil}.compact
+    end
+
+    def include_modules(config)
       ActionController::Routing::RouteSet::Mapper.send :include, Zena::Routes
 
       # This has to come first
       Zena::Fix::MysqlConnection
 
-      # All models can use attr_public
+      # FIXME: make this explicit in models
       ActiveRecord::Base.send :include, Zena::Use::PublicAttributes
       ActiveRecord::Base.send :include, Zena::Use::Zafu::ModelMethods
       ActiveRecord::Base.send :include, Zena::Use::NodeQueryFinders::AddUseNodeQueryMethod
@@ -45,9 +64,82 @@ module Zena
       ActiveRecord::Base.send :include, Zena::Acts::Multiversion::AddActsAsMethods
 
       ActiveRecord::Base.send :use_find_helpers # find helpers for all models
+    end
 
+    def require_in_lib(name, dir, lib_name = nil)
+      if defined?(ActiveRecord)
+        # late loading, require
+        base = Dir["#{dir}/*#{name}*"].first
+        lib_path = "#{base}/lib/#{lib_name || name}.rb"
+        if File.exist?(lib_path)
+          require lib_path
+        else
+          puts "Could not require #{lib_path.inspect}"
+        end
+      end
+    end
+
+    def configure_gems(config)
+      config.gem 'RedCloth',  :version => '3.0.4'
+      config.gem 'gettext',   :version => '1.93.0'
+      config.gem 'grosser-fast_gettext', :lib => 'fast_gettext', :version => '~>0.2.10', :source=>"http://gems.github.com/"
+      config.gem 'hpricot'
+      config.gem 'mislav-will_paginate', :version => '~> 2.2.3', :lib => 'will_paginate', :source => 'http://gems.github.com'
+      config.gem 'querybuilder', :version => '0.5.5'
+      config.gem 'ruby-recaptcha', :version => '1.0.0'
+      config.gem 'syntax', :version => '1.0.0'
+      config.gem 'tzinfo', :version => '0.3.12'
+      config.gem 'uuidtools', :version => '2.0.0'
+      config.gem 'yamltest', :version => '0.5.3'
+      require_in_lib 'fast_gettext', "#{Zena::ROOT}/vendor/gems"
+      require_in_lib 'gettext_i18n_rails', "#{Zena::ROOT}/vendor/plugins"
+    end
+
+    def load_custom_extensions
+      #FIXME: cleanup all these hacks !
+      lib_path = File.join(Zena::ROOT, 'lib')
+      Dir.foreach(File.join(lib_path, 'core_ext')) do |f|
+        next unless f =~ /\.rb\Z/
+        require File.join(lib_path, 'core_ext', f)
+      end
+      require File.join(lib_path, 'base_additions')
+    end
+
+    def set_session(config)
+      # FIXME: this should move into each app's environment.rb settings !
+      config.action_controller.session = {
+        :session_key => 'zena_session',                # min 30 chars
+        :secret      => 'jkfawe0[y9wrohifashaksfi934jas09455ohifnksdklh'
+      }
+    end
+
+    def set_default_timezone(config)
+      # Make Active Record use UTC-base instead of local time
+      # do not change this !
+      config.active_record.default_timezone = :utc
+      ENV['TZ'] = 'UTC'
+    end
+
+    def load_bricks(config)
       Bricks::Patcher.load_bricks
+    end
 
+    def initialize_gettext
+      FastGettext.add_text_domain 'zena', :path => "#{Zena::ROOT}/locale" #File.dirname(__FILE__) + '/../../locale'
+      FastGettext.text_domain = 'zena'
+    end
+
+    def init
+      config = Rails.configuration
+      enable_tools(config)
+      puts "** zena #{Zena::VERSION} #{tools_enabled == [] ? '' : '('+tools_enabled.join(', ')+') '}starting"
+
+      add_load_paths(config)
+      configure_gems(config)
+      include_modules(config)
+      load_bricks(config)
+      set_default_timezone(config)
+      initialize_gettext
     end
   end
 end
@@ -263,3 +355,4 @@ def make_hashes(h)
 end
 
 EXT_TO_TYPE, TYPE_TO_EXT = make_hashes(EXT_TYPE)
+Zena.add_load_paths

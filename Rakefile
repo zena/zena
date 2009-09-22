@@ -35,5 +35,26 @@ PROJ.version = Zena::VERSION
 PROJ.rubyforge.name = 'zena'
 
 PROJ.spec.opts << '--color'
+PROJ.gem.files = (
+  ['History.txt', 'README.txt', 'db/schema.rb'] +
+  ['app', 'bricks', 'db/migrate', 'lib', 'locale', 'public', 'rails', 'vendor'].map do |d|
+    Dir.glob("#{d}/**/*").reject {|path| File.basename(path) =~ /^\./ }
+  end
+).flatten
 
+PROJ.gem.dependencies += [
+  ['RedCloth',             ['= 3.0.4']   ],
+  ['gettext',              ['= 1.93.0']  ],
+  ['grosser-fast_gettext', ['~> 0.2.10'] ],
+  ['hpricot'                             ],
+  ['mislav-will_paginate', ['~> 2.2.3']  ],
+  ['querybuilder',         ['= 0.5.5']   ],
+  ['ruby-recaptcha',       ['= 1.0.0']   ],
+  ['syntax',               ['= 1.0.0']   ],
+  ['tzinfo',               ['= 0.3.12']  ],
+  ['uuidtools',            ['= 2.0.0']   ]
+]
+PROJ.gem.development_dependencies += [
+  ['yamltest',             ['= 0.5.3']   ],
+]
 # EOF

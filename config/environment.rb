@@ -10,13 +10,6 @@ RAILS_GEM_VERSION = '2.3.4' unless defined? RAILS_GEM_VERSION
 # Bootstrap the Rails environment, frameworks, and default configuration
 require File.join(File.dirname(__FILE__), 'boot')
 
-#FIXME: remove all these hacks !
-lib_path = File.join(File.dirname(__FILE__), '../lib')
-Dir.foreach(File.join(lib_path, 'core_ext')) do |f|
-  next if f[0..0] == '.'
-  require File.join(lib_path, 'core_ext', f)
-end
-
 #class String
 #  alias :__old_format_m :%
 #  def %(hash = {})
@@ -36,46 +29,10 @@ end
 # avoids ActionView::Helpers::TextHelpers to load RedCloth before we do with our frozen gem
 class RedCloth < String; end
 
+require 'zena'
+
 Rails::Initializer.run do |config|
 
-  # Add additional load paths for your own custom dirs
-  # config.load_paths += %W( #{RAILS_ROOT}/extras )
-  # config.load_paths += Dir["#{RAILS_ROOT}/vendor/gems/**"].map do |dir|
-  #   File.directory?(lib = "#{dir}/lib") ? lib : dir
-  # end
-
-  config.load_paths += Dir["#{RAILS_ROOT}/bricks/**/models"]
-
-  # Use the database for sessions instead of the file system
-  # (create the session table with 'rake db:sessions:create')
-  # config.action_controller.session_store = :active_record_store
-  config.action_controller.session = {
-    :session_key => 'zena_session',                # min 30 chars
-    :secret      => 'jkfawe0[y9wrohifashaksfi934jas09455ohifnksdklh'
-  }
-
-  config.gem 'RedCloth',  :version => '3.0.4'
-  config.gem 'gettext', :version => '1.93.0'
-  config.gem 'grosser-fast_gettext', :lib => 'fast_gettext', :version => '~>0.2.10', :source=>"http://gems.github.com/"
-  config.gem 'hpricot'
-  config.gem 'mislav-will_paginate', :version => '~> 2.2.3', :lib => 'will_paginate', :source => 'http://gems.github.com'
-  config.gem 'querybuilder', :version => '0.5.5'
-  config.gem 'ruby-recaptcha', :version => '1.0.0'
-  config.gem 'syntax', :version => '1.0.0'
-  config.gem 'tzinfo', :version => '0.3.12'
-  config.gem 'uuidtools', :version => '2.0.0'
-  config.gem 'yamltest', :version => '0.5.3'
-
-  # TODO: uncomment this line when remarkable stops loading spec/rails or when spec/rails stops messing unit tests. (http://carlosbrando.lighthouseapp.com/projects/19775-remarkable/tickets/14-breaks-testunit-tests#ticket-14-5)
-  #config.gem "carlosbrando-remarkable", :lib => "remarkable", :source => "http://gems.github.com"
-
-  # Activate observers that should always be running
-  # config.active_record.observers = :cacher, :garbage_collector
-
-  # Make Active Record use UTC-base instead of local time
-  # do not change this !
-  config.active_record.default_timezone = :utc
-  ENV['TZ'] = 'UTC'
 end
 
 ActiveSupport::Inflector.inflections do |inflect|
@@ -83,21 +40,3 @@ ActiveSupport::Inflector.inflections do |inflect|
 end
 
 require File.join(lib_path, 'fix_rails_layouts.rb') # FIXME: remove when https://rails.lighthouseapp.com/projects/8994/tickets/3207 approved
-
-#FIXME: remove all these hacks !
-require File.join(lib_path, 'base_additions')
-=begin
-require File.join(lib_path, 'secure')
-require File.join(lib_path, 'multiversion')
-require File.join(lib_path, 'has_relations')
-require File.join(lib_path, 'image_builder')
-
-require File.join(lib_path, 'parser')
-require File.join(lib_path, 'use_find_helpers')
-require File.join(lib_path, 'use_zafu')
-require File.join(lib_path, 'node_query')
-require File.join(lib_path, 'comment_query')
-
-require 'diff'
-
-=end
