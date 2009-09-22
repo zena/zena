@@ -34,9 +34,9 @@ end
       wiki = @controller.send(:secure,Node) { Node.find(nodes_id(:wiki)) }
       assert_equal 'wiki', wiki.skin
       @controller.instance_variable_set(:@node, wiki)
-      assert !File.exist?(File.join(RAILS_ROOT, 'app/views/templates/compiled/wiki/any_project_en.rhtml')), "File does not exist"
+      assert !File.exist?(File.join(Zena::ROOT, 'app/views/templates/compiled/wiki/any_project_en.rhtml')), "File does not exist"
       assert_equal '/templates/compiled/wiki/any_project_en', @controller.send(:template_url)
-      assert File.exist?(File.join(RAILS_ROOT, 'app/views/templates/compiled/wiki/any_project_en.rhtml')), "File exist"
+      assert File.exist?(File.join(Zena::ROOT, 'app/views/templates/compiled/wiki/any_project_en.rhtml')), "File exist"
     end
   end
 
@@ -46,7 +46,7 @@ end
       # FIXME: finish to test virtual class template_url (create fixture)
       @controller.instance_variable_set(:@node, node)
       assert_equal '.....', @controller.send(:template_url)
-      assert File.exist?(File.join(RAILS_ROOT, '.....')), "File exist"
+      assert File.exist?(File.join(Zena::ROOT, '.....')), "File exist"
     end
   end
 
@@ -55,9 +55,9 @@ end
       bird = @controller.send(:secure,Node) { Node.find(nodes_id(:bird_jpg)) }
       assert_equal 'wiki', bird.skin
       @controller.instance_variable_set(:@node, bird)
-      assert !File.exist?(File.join(RAILS_ROOT, 'app/views/templates/compiled/wiki/any_en.rhtml')), "File does not exist"
+      assert !File.exist?(File.join(Zena::ROOT, 'app/views/templates/compiled/wiki/any_en.rhtml')), "File does not exist"
       assert_equal '/templates/compiled/wiki/any_en', @controller.send(:template_url)
-      assert File.exist?(File.join(RAILS_ROOT, 'app/views/templates/compiled/wiki/any_en.rhtml')), "File exist"
+      assert File.exist?(File.join(Zena::ROOT, 'app/views/templates/compiled/wiki/any_en.rhtml')), "File exist"
     end
   end
 

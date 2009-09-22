@@ -460,77 +460,77 @@ Node_search_zafu_en:
   node:            Node_search_zafu
   user:            tiger
   text:  |
-<% File.foreach("#{RAILS_ROOT}/db/init/base/skins/default/Node-+search.zafu") do |l| %>    <%= l %><% end %>
+<% File.foreach("#{Zena::ROOT}/db/init/base/skins/default/Node-+search.zafu") do |l| %>    <%= l %><% end %>
 
 style_css_en:
   type:            TextDocumentVersion
   node:            style_css
   user:            tiger
   text:  |
-<% File.foreach("#{RAILS_ROOT}/db/init/base/skins/default/style.css") do |l| %>    <%= l %><% end %>
+<% File.foreach("#{Zena::ROOT}/db/init/base/skins/default/style.css") do |l| %>    <%= l %><% end %>
 
 Node_zafu_en:
   type:            TemplateVersion
   node:            Node_zafu
   user:            tiger
   text:  |
-<% File.foreach("#{RAILS_ROOT}/db/init/base/skins/default/Node.zafu") do |l| %>    <%= l %><% end %>
+<% File.foreach("#{Zena::ROOT}/db/init/base/skins/default/Node.zafu") do |l| %>    <%= l %><% end %>
 
 Node_admin_layout_zafu_en:
   type:            TemplateVersion
   node:            Node_admin_layout_zafu
   user:            tiger
   text:  |
-<% File.foreach("#{RAILS_ROOT}/db/init/base/skins/default/Node-+adminLayout.zafu") do |l| %>    <%= l %><% end %>
+<% File.foreach("#{Zena::ROOT}/db/init/base/skins/default/Node-+adminLayout.zafu") do |l| %>    <%= l %><% end %>
 
 Node_index_zafu_en:
   type:            TemplateVersion
   node:            Node_index_zafu
   user:            tiger
   text:  |
-<% File.foreach("#{RAILS_ROOT}/db/init/base/skins/default/Node-+index.zafu") do |l| %>    <%= l %><% end %>
+<% File.foreach("#{Zena::ROOT}/db/init/base/skins/default/Node-+index.zafu") do |l| %>    <%= l %><% end %>
 
 Node_not_found_zafu_en:
   type:            TemplateVersion
   node:            Node_not_found_zafu
   user:            tiger
   text:  |
-<% File.foreach("#{RAILS_ROOT}/db/init/base/skins/default/Node-+notFound.zafu") do |l| %>    <%= l %><% end %>
+<% File.foreach("#{Zena::ROOT}/db/init/base/skins/default/Node-+notFound.zafu") do |l| %>    <%= l %><% end %>
 
 Node_popup_layout_zafu_en:
   type:            TemplateVersion
   node:            Node_popup_layout_zafu
   user:            tiger
   text:  |
-<% File.foreach("#{RAILS_ROOT}/db/init/base/skins/default/Node-+popupLayout.zafu") do |l| %>    <%= l %><% end %>
+<% File.foreach("#{Zena::ROOT}/db/init/base/skins/default/Node-+popupLayout.zafu") do |l| %>    <%= l %><% end %>
 
 Node_test_en:
   type:            TemplateVersion
   node:            Node_test_zafu
   user:            tiger
   text:  |
-<% File.foreach("#{RAILS_ROOT}/test/fixtures/files/Node-test.zafu") do |l| %>    <%= l %><% end %>
+<% File.foreach("#{Zena::ROOT}/test/fixtures/files/Node-test.zafu") do |l| %>    <%= l %><% end %>
 
 notes_zafu_en:
   type:            TemplateVersion
   node:            notes_zafu
   user:            tiger
   text:  |
-<% File.foreach("#{RAILS_ROOT}/db/init/base/skins/default/notes.zafu") do |l| %>    <%= l %><% end %>
+<% File.foreach("#{Zena::ROOT}/db/init/base/skins/default/notes.zafu") do |l| %>    <%= l %><% end %>
 
 Project_zafu_en:
   type:            TemplateVersion
   node:            Project_zafu
   user:            tiger
   text:  |
-<% File.foreach("#{RAILS_ROOT}/db/init/base/skins/default/Project.zafu") do |l| %>    <%= l %><% end %>
+<% File.foreach("#{Zena::ROOT}/db/init/base/skins/default/Project.zafu") do |l| %>    <%= l %><% end %>
 
 Node_login_zafu_en:
   type:            TemplateVersion
   node:            Node_login_zafu
   user:            tiger
   text:  |
-<% File.foreach("#{RAILS_ROOT}/db/init/base/skins/default/Node-+login.zafu") do |l| %>    <%= l %><% end %>
+<% File.foreach("#{Zena::ROOT}/db/init/base/skins/default/Node-+login.zafu") do |l| %>    <%= l %><% end %>
 
 translations_de:
   type:            TextDocumentVersion
@@ -538,7 +538,7 @@ translations_de:
   user:            tiger
   lang:            de
   text:  |
-<% File.foreach("#{RAILS_ROOT}/test/fixtures/files/translations_de.yml") do |l| %>    <%= l %><% end %>
+<% File.foreach("#{Zena::ROOT}/test/fixtures/files/translations_de.yml") do |l| %>    <%= l %><% end %>
 
 translations_fr:
   type:            TextDocumentVersion
@@ -546,4 +546,4 @@ translations_fr:
   user:            tiger
   lang:            fr
   text:  |
-<% File.foreach("#{RAILS_ROOT}/test/fixtures/files/translations_fr.yml") do |l| %>    <%= l %><% end %>
+<% File.foreach("#{Zena::ROOT}/test/fixtures/files/translations_fr.yml") do |l| %>    <%= l %><% end %>

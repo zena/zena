@@ -113,7 +113,7 @@ module Zena
           if mode =~ /\A\.|[^\w\+\._\-\/]/
             raise Zena::AccessViolation.new("'mode' contains illegal characters : #{mode.inspect}")
           end
-          File.read(File.join(RAILS_ROOT, 'app', 'views', 'templates', 'defaults', "#{mode}.zafu"))
+          File.read(File.join(Zena::ROOT, 'app', 'views', 'templates', 'defaults', "#{mode}.zafu"))
         end
 
 

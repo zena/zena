@@ -57,14 +57,14 @@ class ImageBuilderTest < Zena::Unit::TestCase
     end
 
     def test_png
-      path = "#{RAILS_ROOT}/public/images/ext/pdf.png"
+      path = "#{Zena::ROOT}/public/images/ext/pdf.png"
       img = ImageBuilder.new(:path=>path, :width=>30, :height=>30)
       img.transform!(:size=>:force, :width=>70,  :height=>79)
       assert_nothing_raised { data = img.read }
     end
 
     def test_format
-      path = "#{RAILS_ROOT}/public/images/ext/pdf.png"
+      path = "#{Zena::ROOT}/public/images/ext/pdf.png"
       img = ImageBuilder.new(:path=>path, :width=>30, :height=>30)
       img.format = 'jpg'
       new_img = img.render_img
@@ -73,7 +73,7 @@ class ImageBuilderTest < Zena::Unit::TestCase
     end
 
     def test_limit_size
-      path = "#{RAILS_ROOT}/test/fixtures/files/bird.jpg"
+      path = "#{Zena::ROOT}/test/fixtures/files/bird.jpg"
       img = ImageBuilder.new(:path=>path, :width=>30, :height=>30)
       assert_equal 56243, File.stat(path).size
       img.max_filesize = 40000
@@ -197,7 +197,7 @@ class ImageBuilderTest < Zena::Unit::TestCase
   end
 
   def test_exif
-    path = "#{RAILS_ROOT}/test/fixtures/files/exif_sample.jpg"
+    path = "#{Zena::ROOT}/test/fixtures/files/exif_sample.jpg"
     img = ImageBuilder.new(:path=>path)
     exif = img.exif
 
@@ -206,7 +206,7 @@ class ImageBuilderTest < Zena::Unit::TestCase
   end
 
   def test_parse_dates_in_exif
-    path = "#{RAILS_ROOT}/test/fixtures/files/exif_sample.jpg"
+    path = "#{Zena::ROOT}/test/fixtures/files/exif_sample.jpg"
     img = ImageBuilder.new(:path=>path)
     assert_equal "1998:01:01 00:00:00", img.exif['DateTime']
     assert_equal Time.parse("1998-01-01 00:00:00"), img.exif.date_time

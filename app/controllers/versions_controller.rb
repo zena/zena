@@ -131,7 +131,7 @@ class VersionsController < ApplicationController
   # This is a helpers used when creating the css for the site. They have no link with the database
   def css_preview
     file = params[:css].gsub('..','')
-    path = File.join(RAILS_ROOT, 'public', 'stylesheets', file)
+    path = File.join(Zena::ROOT, 'public', 'stylesheets', file)
     if File.exists?(path)
       if session[:css] && session[:css] == File.stat(path).mtime
         render :nothing=>true

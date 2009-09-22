@@ -45,7 +45,7 @@ module Zena
           else
             # site not found
             respond_to do |format|
-              format.html { render :file    => "#{RAILS_ROOT}/app/views/nodes/404.html", :status => '404 Not Found' }
+              format.html { render :file    => "#{Zena::ROOT}/app/views/nodes/404.html", :status => '404 Not Found' }
               format.all  { render :nothing => true, :status => "404 Not Found" }
             end
           end
@@ -67,7 +67,7 @@ module Zena
         # END_MSG
 
           respond_to do |format|
-            format.html { render :file    => "#{RAILS_ROOT}/app/views/nodes/500.html", :status => '500 Error' }
+            format.html { render :file    => "#{Zena::ROOT}/app/views/nodes/500.html", :status => '500 Error' }
             format.all  { render :nothing => true, :status => "500 Error" }
           end
         end

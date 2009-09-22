@@ -158,7 +158,7 @@ class Site < ActiveRecord::Base
 
       # =========== LOAD INITIAL DATA (default skin) =============
 
-      nodes = site.send(:secure,Node) { Node.create_nodes_from_folder(:folder => File.join(RAILS_ROOT, 'db', 'init', 'base'), :parent_id => root[:id], :defaults => { :v_status => Zena::Status[:pub], :rgroup_id => pub[:id], :wgroup_id => sgroup[:id], :pgroup_id => admin[:id] } ) }.values
+      nodes = site.send(:secure,Node) { Node.create_nodes_from_folder(:folder => File.join(Zena::ROOT, 'db', 'init', 'base'), :parent_id => root[:id], :defaults => { :v_status => Zena::Status[:pub], :rgroup_id => pub[:id], :wgroup_id => sgroup[:id], :pgroup_id => admin[:id] } ) }.values
 
       # == set skin name to 'default' for all elements in the site == #
       Node.connection.execute "UPDATE nodes SET skin = 'default' WHERE site_id = '#{site[:id]}'"

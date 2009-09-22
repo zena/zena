@@ -171,7 +171,7 @@ class User < ActiveRecord::Base
     self[:email] || ""
   end
 
-  # Store the password, using SHA1. You should change the default value of PASSWORD_SALT (in RAILS_ROOT/config/zena.rb). This makes it harder to use
+  # Store the password, using SHA1. You should change the default value of PASSWORD_SALT (in Zena::ROOT/lib/zena.rb). This makes it harder to use
   # rainbow tables to find clear passwords from hashed values.
   def password=(string)
     if string.blank?

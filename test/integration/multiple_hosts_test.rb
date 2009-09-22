@@ -31,7 +31,7 @@ class MultipleHostsTest < ActionController::IntegrationTest
     without_files('/test.host/public') do
       with_caching do
         path = "/en/projects/cleanWater/page#{status_zip}.html"
-        filepath = "#{RAILS_ROOT}/sites/test.host/public#{path}"
+        filepath = "#{Zena::ROOT}/sites/test.host/public#{path}"
         assert !File.exist?(filepath)
         anon.get "http://test.host#{path}"
         assert_equal 200, anon.status

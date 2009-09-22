@@ -132,7 +132,7 @@ module Zena
 
     def run
 
-      Dir.foreach("#{RAILS_ROOT}/test/sites") do |site|
+      Dir.foreach("#{Zena::ROOT}/test/sites") do |site|
         next if site =~ /^\./
         @site = site
         parse_fixtures
@@ -147,7 +147,7 @@ module Zena
 
     private
       def parse_fixtures
-        fixtures_paths  = {'zena' => File.join("#{RAILS_ROOT}/test/sites",site,"#{table}.yml")}
+        fixtures_paths  = {'zena' => File.join("#{Zena::ROOT}/test/sites",site,"#{table}.yml")}
         fixtures_bricks = ['zena']
         Bricks::Patcher.foreach_brick do |brick_path|
           brick_name = brick_path.split('/').last
@@ -304,7 +304,7 @@ module Zena
       def out(res)
         unless @file
           # only open the file if we have things to write in it
-          @file = File.open("#{RAILS_ROOT}/test/fixtures/#{table}.yml", 'wb')
+          @file = File.open("#{Zena::ROOT}/test/fixtures/#{table}.yml", 'wb')
           @file.puts "# Fixtures generated from content of 'sites' folder by #{self.class} (rake zena:build_fixtures)"
           @file.puts ""
           @file.puts self.class.prelude
@@ -601,7 +601,7 @@ module Zena
       end
 
       def write_versions
-        File.open("#{RAILS_ROOT}/test/fixtures/versions.yml", 'ab') do |file|
+        File.open("#{Zena::ROOT}/test/fixtures/versions.yml", 'ab') do |file|
           file.puts "\n# ========== #{site} (generated from 'nodes.yml') ==========="
           file.puts ""
 
@@ -624,7 +624,7 @@ module Zena
 
       def write_contents
         (@contents[site] || {}).each do |klass, contents|
-          File.open("#{RAILS_ROOT}/test/fixtures/#{klass.table_name}.yml", 'ab') do |file|
+          File.open("#{Zena::ROOT}/test/fixtures/#{klass.table_name}.yml", 'ab') do |file|
             file.puts "\n# ========== #{site} (generated from 'nodes.yml') ==========="
             file.puts ""
             columns = klass.column_names
@@ -781,8 +781,8 @@ module Zena
     end
 
     def run
-      Dir.foreach("#{RAILS_ROOT}/test/sites") do |site|
-        next if site =~ /^\./ || !File.directory?(File.join("#{RAILS_ROOT}/test/sites",site))
+      Dir.foreach("#{Zena::ROOT}/test/sites") do |site|
+        next if site =~ /^\./ || !File.directory?(File.join("#{Zena::ROOT}/test/sites",site))
         out ""
         out "#{site}:"
         out_pair('site_id', Zena::FoxyParser::multi_site_id(site))

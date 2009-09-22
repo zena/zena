@@ -4,7 +4,7 @@ module DocumentsHelper
   # 'app/views/templates/document_create_tabs' starting with an underscore will be used.
   def form_tabs
     tabs = []
-    Dir.entries(File.join(RAILS_ROOT, 'app', 'views', 'templates', 'document_create_tabs')).sort.each do |file|
+    Dir.entries(File.join(Zena::ROOT, 'app', 'views', 'templates', 'document_create_tabs')).sort.each do |file|
       next unless file =~ /^_(.*).rhtml$/
       tabs << $1
     end

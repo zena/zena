@@ -7,7 +7,7 @@ module NodesHelper
     tabs = ['drive','links']
     klass = nil
     @node.class.ancestors.map { |a| a.to_s.downcase }.each do |k|
-      if File.exists?(File.join(RAILS_ROOT, 'app', 'views', 'templates', 'drive_tabs', '_' + k + '.rhtml'))
+      if File.exists?(File.join(Zena::ROOT, 'app', 'views', 'templates', 'drive_tabs', '_' + k + '.rhtml'))
         klass = k
         break
       end

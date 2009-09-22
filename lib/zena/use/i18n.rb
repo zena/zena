@@ -183,7 +183,7 @@ module Zena
             visitor.lang = l
           end
 
-          if File.exist?("#{RAILS_ROOT}/locale/#{l}/LC_MESSAGES/zena.mo")
+          if File.exist?("#{Zena::ROOT}/locale/#{l}/LC_MESSAGES/zena.mo")
             ::I18n.locale = l
           else
             ::I18n.locale = 'en'

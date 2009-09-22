@@ -1,3 +1,5 @@
+require 'will_paginate'
+require 'uuidtools'
 
 module Zena
   module Use

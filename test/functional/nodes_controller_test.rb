@@ -129,7 +129,7 @@ END:VCALENDAR
       parent = secure!(Project) { Project.create(:name => 'import', :parent_id => nodes_id(:zena)) }
       assert !parent.new_record?, "Not a new record"
 
-      nodes = secure!(Node) { Node.create_nodes_from_folder(:folder => File.join(RAILS_ROOT, 'test', 'fixtures', 'import'), :parent_id => parent[:id] )}.values
+      nodes = secure!(Node) { Node.create_nodes_from_folder(:folder => File.join(Zena::ROOT, 'test', 'fixtures', 'import'), :parent_id => parent[:id] )}.values
       @controller.send(:parse_assets, nodes)
 
       children = parent.find(:all, 'children')

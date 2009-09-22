@@ -2,7 +2,7 @@ require 'test_helper'
 require 'yamltest'
 
 class ZenaTagsTest < Zena::Controller::TestCase
-  yamltest :directories => [:default, "#{RAILS_ROOT}/bricks/**/test/zafu"]
+  yamltest :directories => [:default, "#{Zena::ROOT}/bricks/**/test/zafu"]
   Section # make sure we load Section links before trying relations
 
   def setup
