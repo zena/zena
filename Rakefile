@@ -42,19 +42,15 @@ PROJ.gem.files = (
   end
 ).flatten
 
-PROJ.gem.dependencies += [
-  ['RedCloth',             ['= 3.0.4']   ],
-  ['gettext',              ['= 1.93.0']  ],
-  ['grosser-fast_gettext', ['~> 0.4.16'] ],
-  ['hpricot'                             ],
-  ['mislav-will_paginate', ['~> 2.2.3']  ],
-  ['querybuilder',         ['= 0.5.5']   ],
-  ['ruby-recaptcha',       ['= 1.0.0']   ],
-  ['syntax',               ['= 1.0.0']   ],
-  ['tzinfo',               ['= 0.3.12']  ],
-  ['uuidtools',            ['= 2.0.0']   ]
-]
-PROJ.gem.development_dependencies += [
-  ['yamltest',             ['= 0.5.3']   ],
-]
+Zena.gem_configuration.each do |gem_name, gem_config|
+  if gem_config
+    if gem_config['development_only']
+      PROJ.gem.development_dependencies << [gem_name, [gem_config['version']]]
+    else
+      PROJ.gem.dependencies << [gem_name, [gem_config['version']]]
+    end
+  else
+    PROJ.gem.dependencies << [gem_name]
+  end
+end
 # EOF

@@ -1,8 +1,7 @@
 # FIXME: ========== cleanup and remove ====================
-
+require 'yaml'
 require 'date'
 require 'fileutils'
-require 'fast_gettext'
 
 AUTHENTICATED_PREFIX = "oo"
 SITES_ROOT = "#{RAILS_ROOT}/sites"
@@ -80,18 +79,37 @@ module Zena
       end
     end
 
-    def configure_gems(config)
-      config.gem 'RedCloth',  :version => '3.0.4'
-      config.gem 'gettext',   :version => '1.93.0'
-      config.gem 'grosser-fast_gettext', :lib => 'fast_gettext', :version => '~>0.4.16', :source=>"http://gems.github.com/"
-      config.gem 'hpricot'
-      config.gem 'mislav-will_paginate', :version => '~> 2.2.3', :lib => 'will_paginate', :source => 'http://gems.github.com'
-      config.gem 'querybuilder', :version => '0.5.5'
-      config.gem 'ruby-recaptcha', :version => '1.0.0'
-      config.gem 'syntax', :version => '1.0.0'
-      config.gem 'tzinfo', :version => '0.3.12'
-      config.gem 'uuidtools', :version => '2.0.0'
-      config.gem 'yamltest', :version => '0.5.3'
+    def gem_configuration
+      conf = open("#{Zena::ROOT}/config/gems.yml") {|f| YAML.load(f.read)}
+      res = {}
+      conf.each do |k, v|
+        if v.kind_of?(String)
+          res[k] = {'version' => v}
+        else
+          res[k] = v
+        end
+      end
+      res
+    end
+
+    def gems_setup
+      gem_configuration.each do |gem_name, gem_config|
+        if gem_config
+          gem gem_name, gem_config['version']
+        else
+          gem gem_name
+        end
+      end
+    end
+
+    def config_gems(config)
+      gem_configuration.each do |gem_name, gem_config|
+        if gem_config
+          config.gem gem_name, gem_config #.symbolize_keys ? replace '= 3.0.4' by '3.0.4' ?
+        else
+          config.gem gem_name
+        end
+      end
     end
 
     def load_plugins
@@ -117,7 +135,7 @@ module Zena
     def set_default_timezone(config)
       # Make Active Record use UTC-base instead of local time
       # do not change this !
-      config.active_record.default_timezone = :utc
+      ActiveRecord::Base.default_timezone = :utc
       ENV['TZ'] = 'UTC'
     end
 
@@ -125,7 +143,15 @@ module Zena
       Bricks::Patcher.load_bricks
     end
 
+    def add_inflections
+      ActiveSupport::Inflector.inflections do |inflect|
+        inflect.uncountable %w( children )
+      end
+    end
+
     def initialize_gettext
+      require 'fast_gettext'
+
       FastGettext.add_text_domain 'zena', :path => "#{Zena::ROOT}/locale" #File.dirname(__FILE__) + '/../../locale'
       FastGettext.text_domain = 'zena'
     end
@@ -136,12 +162,13 @@ module Zena
       puts "** zena #{Zena::VERSION} #{tools_enabled == [] ? '' : '('+tools_enabled.join(', ')+') '}starting"
 
       add_load_paths(config)
-      configure_gems(config)
+      config_gems(config)
       load_plugins if RAILS_ROOT != Zena::ROOT
       load_custom_extensions
       include_modules
       load_bricks
       set_default_timezone(config)
+      add_inflections
       initialize_gettext
     end
   end
@@ -359,3 +386,4 @@ end
 
 EXT_TO_TYPE, TYPE_TO_EXT = make_hashes(EXT_TYPE)
 Zena.add_load_paths
+Zena.gems_setup
