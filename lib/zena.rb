@@ -2,6 +2,7 @@
 
 require 'date'
 require 'fileutils'
+require 'fast_gettext'
 
 AUTHENTICATED_PREFIX = "oo"
 SITES_ROOT = "#{RAILS_ROOT}/sites"
