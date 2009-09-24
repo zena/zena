@@ -2,6 +2,7 @@
 Create, destroy sessions by letting users login and logout. When the user does not login, he/she is considered to be the anonymous user.
 =end
 class SessionsController < ApplicationController
+  skip_before_filter :authorize
 
   def new
     respond_to do |format|

@@ -1,3 +1,18 @@
+require 'test_helper'
+
+class SessionsControllerTest < Zena::Controller::TestCase
+  def test_get_login_on_auth_site
+    Site.connection.execute "UPDATE sites SET authentication = 1 WHERE id = #{sites_id(:zena)}"
+    get 'new'
+    assert_response :success
+    post 'create', :login=>'ant', :password=>'ant'
+    assert_redirected_to user_url(users(:ant))
+    assert_equal users_id(:ant), session[:user]
+    delete 'destroy'
+    assert_redirected_to home_url(:prefix => 'fr')
+  end
+end
+
 =begin
 TODO: fix with AUTHLOGIC !
 require 'test_helper'

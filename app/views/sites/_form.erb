@@ -23,7 +23,7 @@
     <tr><td class='label'><%= _('options') %></td><td>
     <% Site.attributes_for_form[:bool].each do |sym| -%>
     <input type='hidden' name='site[<%= sym %>]' value=''/>
-    <input type='checkbox' name='site[<%= sym %>]' value='1'<%= @site[sym] ? " checked='checked'" : '' %>/> <%= _(sym.to_s) %>
+    <input type='checkbox' name='site[<%= sym %>]' value='1'<%= @site[sym] ? " checked='checked'" : '' %>/> <%= _(sym.to_s) %><br/>
     <% end -%>
     </td></tr>
     <% if !@site.new_record? %>
