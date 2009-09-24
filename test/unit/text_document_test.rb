@@ -56,7 +56,9 @@ class TextDocumentTest < Zena::Unit::TestCase
     start =<<-END_CSS
     body { font-size:10px; }
     #header { background:url('bird.jpg') }
+    #pv     { background:url('bird_pv.jpg') }
     #footer { background:url('/projects/wiki/flower.jpg') }
+    #no_stamp { background:url('/en/image30_pv.jpg') }
     END_CSS
     node.version.text = start.dup
     # dummy controller
@@ -67,15 +69,24 @@ class TextDocumentTest < Zena::Unit::TestCase
     res =<<-END_CSS
     body { font-size:10px; }
     #header { background:url('/en/image30.jpg?1144713600') }
+    #pv     { background:url('/en/image30_pv.jpg?967816914293') }
     #footer { background:url('/en/image31.jpg?1144713600') }
+    #no_stamp { background:url('/en/image30_pv.jpg?967816914293') }
     END_CSS
     assert_equal res, text
     text = node.parse_assets(text, helper, 'v_text')
     assert_equal res, text
     text = node.unparse_assets(text, helper, 'v_text')
-    assert_equal start, text
+    unparsed =<<-END_CSS
+    body { font-size:10px; }
+    #header { background:url('bird.jpg') }
+    #pv     { background:url('bird_pv.jpg') }
+    #footer { background:url('/projects/wiki/flower.jpg') }
+    #no_stamp { background:url('bird_pv.jpg') }
+    END_CSS
+    assert_equal unparsed, text
     text = node.unparse_assets(text, helper, 'v_text')
-    assert_equal start, text
+    assert_equal unparsed, text
   end
 
   def test_parse_assets_with_underscore

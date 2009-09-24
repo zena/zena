@@ -51,9 +51,20 @@ class TextDocument < Document
         end
         if src[0..6] == 'http://'
           match
-        elsif src =~ %r{/\w\w/.*\d+\.}
-          # already parsed, ignore
-          "url(#{quote}#{src}#{quote})"
+        elsif src =~ %r{/\w\w/.*?(\d+)(_\w+|)\.\w+(\?\d+|)}
+          # already parsed
+          zip, mode, stamp = $1, $2, $3
+          if src_node = secure(Node) { Node.find_by_zip(zip) }
+            if mode.blank?
+              # no cachestamp, we need it
+              "url(#{quote}#{helper.send(:data_path, src_node)}#{quote})"
+            else
+              "url(#{quote}#{helper.send(:data_path, src_node, :mode => mode[1..-1])}#{quote})"
+            end
+          else
+            # ok
+            "url(#{quote}#{src}#{quote})"
+          end
         else
           if new_src = helper.send(:template_url_for_asset, :src => src, :current_folder=>current_folder, :parse_assets => true)
             "url(#{quote}#{new_src}#{quote})"
@@ -82,16 +93,16 @@ class TextDocument < Document
           $&
         else
           quote, url   = $1, $2
-          if url =~ /\A\/\w\w.*?(\d+)\./
-            zip = $1
+          if url =~ /\A\/\w\w.*?(\d+)(_\w+|)\./
+            zip, mode = $1, $2
             unless asset = secure(Node) { Node.find_by_zip(zip) }
               errors.add('base', "could not find asset node #{zip}")
               "url(#{quote}#{url}#{quote})"
             end
             if asset.fullpath =~ /\A#{current_folder}\/(.+)/
-              "url(#{quote}#{$1}.#{asset.version.content.ext}#{quote})"
+              "url(#{quote}#{$1}#{mode}.#{asset.version.content.ext}#{quote})"
             else
-              "url(#{quote}/#{asset.fullpath}.#{asset.version.content.ext}#{quote})"
+              "url(#{quote}/#{asset.fullpath}#{mode}.#{asset.version.content.ext}#{quote})"
             end
           else
             # bad format

@@ -41,6 +41,36 @@ class VersionsControllerTest < Zena::Controller::TestCase
     assert_response :missing
   end
 
+  def test_parse_assets
+    login(:lion)
+    node = secure!(Node) { nodes(:style_css) }
+    bird = secure!(Node) { nodes(:bird_jpg)}
+    b_at = bird.updated_at
+    assert bird.update_attributes(:parent_id => node[:parent_id])
+    Zena::Acts::Multiversion.update_attribute_without_fuss(bird, :updated_at, b_at)
+    start =<<-END_CSS
+    body { font-size:10px; }
+    #header { background:url('bird.jpg') }
+    #footer { background:url('/projects/wiki/flower.jpg') }
+    END_CSS
+
+    assert node.update_attributes(:v_text => start.dup)
+    get 'edit', :node_id => node.zip, :id => 0, :parse_assets => 'true'
+    assert_response :success
+    version = assigns(:node).version
+
+    res =<<-END_CSS
+    body { font-size:10px; }
+    #header { background:url('/en/image30.jpg?1144713600') }
+    #footer { background:url('/en/image31.jpg?1144713600') }
+    END_CSS
+    assert_equal res, version.text
+    get 'edit', :node_id => node.zip, :id => 0, :unparse_assets => 'true'
+    assert_response :success
+    version = assigns(:node).version
+    assert_equal start, version.text
+  end
+
 =begin
 
   def test_preview
