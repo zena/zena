@@ -126,6 +126,14 @@ module Zena
           })
 
           belongs_to :node,  :class_name => opts[:class_name] #, :inverse_of => :versions
+          class_eval do
+            def node_with_secure
+              n = node_without_secure
+              visitor.visit(n)
+              n
+            end
+            alias_method_chain :node, :secure
+          end
         end
 
         def act_as_content

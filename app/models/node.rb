@@ -1450,7 +1450,7 @@ class Node < ActiveRecord::Base
     def node_before_validation
       self[:kpath] = self.vclass.kpath
 
-      self.name ||= version.title.url_name
+      self.name ||= (version.title || '').url_name
 
       if ref_lang == version.lang && version.status == Zena::Status[:pub]
         if name_changed? && !name.blank?

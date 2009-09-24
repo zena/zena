@@ -313,45 +313,29 @@ class User < ActiveRecord::Base
   def comments_to_publish
     if is_su?
       # su can view all
-      secure(Comment) { Comment.find(:all, :conditions => "status = '#{Zena::Status[:prop]}'") }
+      secure(Comment) { Comment.find(:all, :conditions => ['status = ?', Zena::Status[:prop]]) }
     else
       secure(Comment) { Comment.find(:all, :select=>'comments.*, nodes.name', :from=>'comments, nodes, discussions',
-                   :conditions=>"comments.status = #{Zena::Status[:prop]} AND discussions.node_id = nodes.id AND comments.discussion_id = discussions.id AND nodes.pgroup_id IN (#{group_ids.join(',')})") }
+                   :conditions => ['comments.status = ? AND discussions.node_id = nodes.id AND comments.discussion_id = discussions.id AND nodes.pgroup_id IN (?)', Zena::Status[:prop], visitor.group_ids]) }
     end
   end
 
   # List all versions proposed for publication that the user has the right to publish.
   def to_publish
-    if is_su?
-      # su can view all
-      secure(Version) { Version.find(:all, :conditions => "status = '#{Zena::Status[:prop]}'") }
-    else
-      secure(Version) { Version.find_by_sql("SELECT versions.* FROM versions LEFT JOIN nodes ON node_id=nodes.id WHERE status=#{Zena::Status[:prop]} AND nodes.pgroup_id IN (#{group_ids.join(',')})") }
-    end
+    secure(Version) { Version.find(:all, :conditions => ['status = ? AND nodes.pgroup_id IN (?)', Zena::Status[:prop], visitor.group_ids]) }
   end
 
   # List all versions owned that are currently being written (status= +red+)
   def redactions
-    if is_su?
-      # su is master of all
-      secure(Version) { Version.find(:all, :conditions => "status = '#{Zena::Status[:red]}'") }
-    else
-      secure(Version) { Version.find(:all, :conditions => "status = '#{Zena::Status[:red]}' AND user_id = '#{id}'") }
-    end
+    secure(Version) { Version.find(:all, :conditions => ['status = ? AND versions.user_id = ?', Zena::Status[:red], self.id]) }
   end
 
-  # List all versions owned that are currently being written (status= +red+)
+  # List all versions owned that are currently being proposed (status= +prop+)
   def proposed
-    if is_su?
-      # su is master of all
-      secure(Version) { Version.find(:all, :conditions => "status = '#{Zena::Status[:prop]}'") }
-    else
-      secure(Version) { Version.find(:all, :conditions => "status = '#{Zena::Status[:prop]}' AND user_id = '#{id}'") }
-    end
+    secure(Version) { Version.find(:all, :conditions => ['status = ? AND versions.user_id = ?', Zena::Status[:prop], self.id]) }
   end
 
   private
-
     # Set user defaults.
     def user_before_validation
       return true if current_site.being_created?
