@@ -216,7 +216,6 @@ module Zena
 
           skin_path = "/#{@skin_name}/#{template[:name]}"
           fullpath  = skin_path + "/#{lang_path}/_main.erb"
-          rel_url   = 'zafu'     + current_site.zafu_path + fullpath  # relative to app/views
           url       = SITES_ROOT + current_site.zafu_path + fullpath  # absolute path
 
           if !File.exists?(url) || params[:rebuild]

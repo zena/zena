@@ -189,6 +189,10 @@ unless File.exist?(File.join(RAILS_ROOT, 'log'))
   FileUtils.mkpath(File.join(RAILS_ROOT, 'log'))
 end
 
+unless File.exist?(File.join(RAILS_ROOT, 'sites'))
+  FileUtils.mkpath(File.join(RAILS_ROOT, 'sites'))
+end
+
 # this list is taken from http://www.duke.edu/websrv/file-extensions.html
 EXT_TYPE = [
   [ "ai"        , "application/postscript"         ],
