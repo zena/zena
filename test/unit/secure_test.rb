@@ -27,24 +27,25 @@ class SecureReadTest < Zena::Unit::TestCase
     assert_equal 0.0, res.to_f
   end
 
-  # SECURE FIND TESTS  ===== TODO CORRECT THESE TEST FROM CHANGES TO RULES ========
-  # [user]          Node owner. Can *read*, *write* and (*manage*: if node not published yet or node is private).
-  def test_can_rwm_own_private_node
+  def test_cannot_rwm_own_private_node_if_not_in_any_group
     login(:ant)
-    node = secure!(Node) { nodes(:myLife)  }
-    assert_kind_of Node, node
+    # :myLife => { read => 0, write => 0, publish => 0, owner => :ant}
+    assert_raise(ActiveRecord::RecordNotFound) { secure!(Node) { nodes(:myLife) }}
+    assert_raise(ActiveRecord::RecordNotFound) { secure_write!(Node) { nodes(:myLife) }}
+    node = secure_drive(Node) { nodes(:myLife)}
+    assert_not_nil node
     assert_equal 'myLife', node.name
-    assert node.can_read?, "Can read"
+    assert ! node.can_read?, "Cannot read"
     assert node.can_write? , "Can write"
     assert node.private? , "Node is private"
     assert node.can_manage? , "Can manage"
     assert node.can_drive? , "Can manage"
-    assert !node.can_visible? , "Cannot make visible changes"
+    assert ! node.can_visible? , "Cannot make visible changes"
   end
 
   def test_cannot_view_others_private_nodes
     login(:lion)
-    assert_raise(ActiveRecord::RecordNotFound) { node = secure!(Node) { nodes(:myLife)  }}
+    assert_raise(ActiveRecord::RecordNotFound) { node = secure!(Node) { nodes(:myLife) }}
   end
 
   def test_secure_or_nil
@@ -54,13 +55,11 @@ class SecureReadTest < Zena::Unit::TestCase
     assert_nil node
   end
 
-  def test_owner_but_not_in_rgroup
+  def test_owner_but_not_in_any_group
     login(:ant)
-    node = secure!(Node) { nodes(:proposition)  }
-    assert_kind_of Node, node
-    assert node.can_read? , "Can read"
-    assert node.can_write? , "Can write"
-    assert ! node.can_publish? , "Can publish"
+    assert_raise(ActiveRecord::RecordNotFound) { secure!(Node) { nodes(:proposition) }}
+    assert_raise(ActiveRecord::RecordNotFound) { secure_write!(Node) { nodes(:proposition) }}
+    assert_nil secure_drive(Node) { nodes(:proposition)  }
   end
 
   def test_cannot_rwpm_if_not_owner_and_not_in_any_group
@@ -92,39 +91,41 @@ class SecureReadTest < Zena::Unit::TestCase
     assert node.can_write?
   end
 
-  # write group can only write
+  # write group can write and read
   def test_write_group_can_w
     login(:tiger)
-    node = ""
-    assert_raise(ActiveRecord::RecordNotFound) { node = secure!(Node) { nodes(:strange)  } }
-    assert_nothing_raised { node = secure_write!(Node) { nodes(:strange)  } }
-    assert ! node.can_read? , "Cannot read"
-    # status == red
+    node = nodes(:strange)
+    #read
+    assert_nothing_raised { secure!(Node) { node } }
+    assert node.can_read? , "Can read"
+    #write
+    assert_nothing_raised { secure_write!(Node) { node  } }
     assert !node.can_write? , "Can write"
     login(:lion)
     visitor.visit(node)
     assert node.can_write? , "Can write"
   end
 
-  # pgroup can only publish
-  def test_publish_group_can_rwp
+  # pgroup cannot read & write
+  def test_publish_group_cannot_read_write
     login(:ant)
-    node = nil
-    ant = secure!(User) { users(:ant) }
-    assert_raise(ActiveRecord::RecordNotFound) { node = secure!(Node) { nodes(:strange)  } }
-    assert_raise(ActiveRecord::RecordNotFound) { node = secure_write!(Node) { nodes(:strange)  } }
-    assert node = secure_drive(Node) { nodes(:strange)  }
+    assert_raise(ActiveRecord::RecordNotFound) { secure!(Node) { nodes(:strange)  } }
+    assert_raise(ActiveRecord::RecordNotFound) { secure_write!(Node) { nodes(:strange)  } }
+    assert_nothing_raised { secure_drive(Node) { nodes(:strange)  }}
+  end
 
+  def test_publish_group_cannot_read_after_propose
     login(:lion)
-    lion_node = nil
-    assert_nothing_raised { lion_node = secure!(Node) { nodes(:strange)  } }
+    assert_nothing_raised { secure!(Node) { nodes(:strange)  } }
+    lion_node = secure!(Node) { nodes(:strange)  }
     assert lion_node.can_read? , "Owner can read"
     assert lion_node.propose
     assert_equal Zena::Status[:prop], lion_node.version.status
     assert_equal Zena::Status[:prop], lion_node.max_status
     login(:ant)
-    # now node is 'prop', pgroup can see it
-    assert_nothing_raised { node = secure!(Node) { nodes(:strange)  } }
+    ant = secure!(User) { users(:ant) }
+    # now node is 'prop', pgroup cannot see it
+    assert_raise(ActiveRecord::RecordNotFound) { node = secure!(Node) { nodes(:strange)  } }
     assert_raise(ActiveRecord::RecordNotFound) { node = secure_write!(Node) { nodes(:strange)  } }
     assert node = secure_drive(Node) { nodes(:strange)  }
     assert ! ant.group_ids.include?(node.rgroup_id) , "Visitor is not in rgroup"
@@ -132,7 +133,7 @@ class SecureReadTest < Zena::Unit::TestCase
     assert ! (ant.id == node.user_id) , "Visitor is not the owner"
     assert ant.group_ids.include?(node.pgroup_id) , "Visitor is in pgroup"
     assert node.can_publish? , "Can publish"
-    assert node.can_read? , "Can read as node is 'proposed'"
+    assert !node.can_read? , "Cannot read"
     assert ! node.can_write? , "Cannot write"
     assert ! node.can_manage? , "Cannot manage"
   end
@@ -157,7 +158,7 @@ class SecureReadTest < Zena::Unit::TestCase
     assert ! node.can_publish? , "Cannot publish"
   end
 
-  def test_pgroup_can_read_unplished_nodes
+  def test_pgroup_cannot_read_unplished_nodes
     # create an unpublished node
     login(:lion)
     node = secure!(Node) { nodes(:strange)  }
@@ -175,8 +176,8 @@ class SecureReadTest < Zena::Unit::TestCase
     assert node.propose , "Can propose node for publication."
 
     login(:ant)
-    # node can now be seen
-    assert_nothing_raised { node = secure!(Page) { Page.find_by_name("new_rec") } }
+    # proposed node cannot be seen by pgroup
+    assert_raise(ActiveRecord::RecordNotFound) { node = secure!(Page) { Page.find_by_name("new_rec") } }
     assert_nil node[:publish_from] , "Not published yet"
 
     login(:lion)
@@ -186,8 +187,8 @@ class SecureReadTest < Zena::Unit::TestCase
 
     assert node.remove , "Can remove node."
     login(:ant)
-    # removed node be seen
-    assert_nothing_raised { node = secure!(Page) { Page.find_by_name("new_rec") } }
+    # removed node cannot be seen by pgroup
+    assert_raise(ActiveRecord::RecordNotFound) { node = secure!(Page) { Page.find_by_name("new_rec") } }
     assert_nil node[:publish_from] , "Not published yet"
   end
 end

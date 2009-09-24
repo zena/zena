@@ -185,14 +185,12 @@ Just doing the above will filter all result according to the logged in user.
 
         # people who can read:
         # * super user
-        # * owner
         # * members of +read_group+ if the node is published and the current date is greater or equal to the publication date
-        # * members of +publish_group+ if +max_status+ >= prop
+        # * members of +write_group+
         def can_read?(vis = visitor, ugps=visitor.group_ids)
           ( vis.is_su? ) || # super user
-          ( vis[:id] == user_id ) ||
           ( ugps.include?(rgroup_id) && publish_from && Time.now >= publish_from ) ||
-          ( ugps.include?(pgroup_id) && max_status != Zena::Status[:red] )
+          ( ugps.include?(wgroup_id) )
         end
 
         # people who can write:
@@ -213,8 +211,7 @@ Just doing the above will filter all result according to the logged in user.
         # * visitor status is at least 'user' and is a member of the reference's publish group if the item is private
         def can_visible?(vis=visitor, ugps=visitor.group_ids)
           ( vis.is_su? ) || # super user
-          ( vis.user? && (( ugps.include?(pgroup_id) ) ||
-          ( private? && ugps.include?(ref.pgroup_id))))
+          ( vis.user? && (( ugps.include?(pgroup_id) ) ))
         end
 
         # 'can_visible?' before attribute change
@@ -794,20 +791,19 @@ Just doing the above will filter all result according to the logged in user.
           res
         end
 
-        # Secure scope for read/create
+        # Secure scope for read access
         def secure_scope(table_name)
           if visitor.is_su?
             "#{table_name}.site_id = #{visitor.site.id}"
           else
-            # site_id AND... OWNER
-            "#{table_name}.site_id = #{visitor.site.id} AND (#{table_name}.user_id = '#{visitor[:id]}' OR "+
-            # OR READER if published
+            # site_id AND...
+            "#{table_name}.site_id = #{visitor.site.id} AND ("+
+            # READER if published
             "(#{table_name}.rgroup_id IN (#{visitor.group_ids.join(',')}) AND #{table_name}.publish_from <= #{Zena::Db::NOW} ) OR " +
-            # OR publisher if status is <> red
-            "(#{table_name}.pgroup_id IN (#{visitor.group_ids.join(',')}) AND #{table_name}.max_status <> #{Zena::Status[:red]}))"
+            # OR writer
+            "#{table_name}.wgroup_id IN (#{visitor.group_ids.join(',')}))"
           end
         end
-
 
         # Secure scope for write access.
         # [write]
@@ -818,8 +814,7 @@ Just doing the above will filter all result according to the logged in user.
           if visitor.is_su? # super user
             secure_with_scope(obj, nil, &block)
           else
-            scope = "user_id = '#{visitor[:id]}' OR "+
-            "(wgroup_id IN (#{visitor.group_ids.join(',')}) AND publish_from <= #{Zena::Db::NOW})"
+            scope = "wgroup_id IN (#{visitor.group_ids.join(',')})"
             secure_with_scope(obj, scope, &block)
           end
         rescue ActiveRecord::RecordNotFound
