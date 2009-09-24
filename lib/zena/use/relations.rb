@@ -10,17 +10,23 @@ module Zena
         end
 
         def [](role)
+          deb role
           @node.relation_proxy(role.to_s)
         end
 
         def send(role)
+          deb role
           @node.relation_proxy(role.to_s)
+        end
+
+        def method_missing(sym, *args)
+          deb sym, args
+          nil
         end
       end
 
       LINK_ATTRIBUTES = [:status, :comment, :date]
       LINK_REGEXP = /^([\w_]+)_(ids?|zips?|#{LINK_ATTRIBUTES.join('|')})$/
-
 
       module ClassMethods
 
@@ -49,7 +55,7 @@ module Zena
           base.validate      :relations_valid
           base.after_save    :update_relations
           base.after_destroy :destroy_links
-          base.attr_public   :link  # TODO: why is this attr_public ?
+          base.attr_public   :rel
           base.attr_public(*LINK_ATTRIBUTES.map {|k| "l_#{k}".to_sym})
           base.nested_attributes_alias LINK_REGEXP => Proc.new {|obj, m| obj.relation_alias(m) }
           base.class_eval <<-END
@@ -66,7 +72,8 @@ module Zena
           END
         end
 
-        # Return an array of accessor methods for the matched nested attribute alias.
+
+        # Return an array of accessor methods for the matched relation alias.
         def relation_alias(match)
           role     = match[1]
           field    = match[2]
@@ -168,6 +175,9 @@ module Zena
             elsif role =~ /^(.+)_attributes$/
               # key used as role
               definition['role'] ||= $1
+            else
+              # key used as role, without the '_attributes'
+              definition['role'] ||= role
             end
             add_link(definition.delete('role'), definition.symbolize_keys)  # TODO: only use string keys
           end
@@ -175,6 +185,12 @@ module Zena
 
         def rel
           ProxyLoader.new(self)
+        end
+
+        # This accessor is used when the data arrives with the syntax
+        # rel => { friend => {...} }
+        def rel=(hash)
+          self.rel_attributes = hash
         end
 
         def l_comment=(v)
